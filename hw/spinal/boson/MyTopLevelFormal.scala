@@ -1,4 +1,4 @@
-package projectname
+package boson
 
 import spinal.core._
 import spinal.core.formal._
