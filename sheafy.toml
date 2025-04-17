@@ -1,0 +1,17 @@
+[sheafy]
+filters = ["scala"]
+bundle_name = "bundle.md"
+working_dir = "./hw/spinal/boson"
+use_gitignore = true
+
+prologue = """
+<!-- Start of Project Bundle -->
+# Project Bundle
+
+This is a bundle of all the source files in the project directory, including subdirectories.
+
+"""
+
+epilogue = """
+<!-- End of Project Bundle -->
+"""
