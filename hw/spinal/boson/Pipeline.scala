@@ -1,6 +1,5 @@
 package boson
 
-
 import boson.plugins.Plugin
 import spinal.core._
 import spinal.lib._
@@ -18,93 +17,131 @@ trait Pipeline {
   val things = mutable.LinkedHashMap[PipelineThing[_], Any]()
 //  val services = ArrayBuffer[Any]()
 
-  def stageBefore(stage : Stage) = stages(indexOf(stage)-1)
+  def stageBefore(stage: Stage) = stages(indexOf(stage) - 1)
 
-  def indexOf(stage : Stage) = stages.indexOf(stage)
+  def indexOf(stage: Stage) = stages.indexOf(stage)
 
-  def service[T](clazz : Class[T]) = {
+  def service[T](clazz: Class[T]) = {
     val filtered = plugins.filter(o => clazz.isAssignableFrom(o.getClass))
-    assert(filtered.length == 1, s"??? ${clazz.getName}")
+    assert(
+      filtered.length == 1,
+      s"??? ${clazz.getName} Expected 1, found ${filtered.length}. Please ensure you registered it and only once"
+    )
     filtered.head.asInstanceOf[T]
   }
 
-  def serviceExist[T](clazz : Class[T]) = {
+  def serviceExist[T](clazz: Class[T]) = {
     val filtered = plugins.filter(o => clazz.isAssignableFrom(o.getClass))
-     filtered.length != 0
+    filtered.length != 0
   }
 
-  def serviceElse[T](clazz : Class[T], default : => T) : T = {
-    if(!serviceExist(clazz)) return default
+  def serviceElse[T](clazz: Class[T], default: => T): T = {
+    if (!serviceExist(clazz)) return default
     val filtered = plugins.filter(o => clazz.isAssignableFrom(o.getClass))
     assert(filtered.length == 1)
     filtered.head.asInstanceOf[T]
   }
 
-  def update[T](that : PipelineThing[T], value : T) : Unit = things(that) = value
-  def apply[T](that : PipelineThing[T]) : T = things(that).asInstanceOf[T]
+  def update[T](that: PipelineThing[T], value: T): Unit = things(that) = value
+  def apply[T](that: PipelineThing[T]): T = things(that).asInstanceOf[T]
 
-  def build(): Unit ={
+  def build(): Unit = {
     plugins.foreach(_.pipeline = this.asInstanceOf[T])
     plugins.foreach(_.setup(this.asInstanceOf[T]))
 
-    plugins.foreach{ p =>
-      p.parentScope = Component.current.dslBody //Put the given plugin as a child of the current component
+    plugins.foreach { p =>
+      p.parentScope = Component.current.dslBody // Put the given plugin as a child of the current component
       p.reflectNames()
     }
 
-    //Build plugins
+    // Build plugins
     plugins.foreach(_.build(this.asInstanceOf[T]))
 
-
-
-    //Interconnect stages
-    class KeyInfo{
+    // Interconnect stages
+    class KeyInfo {
       var insertStageId = Int.MaxValue
       var lastInputStageId = Int.MinValue
       var lastOutputStageId = Int.MinValue
 
-      def addInputStageIndex(stageId : Int): Unit = {
-        require(stageId >= insertStageId)
-        lastInputStageId = Math.max(lastInputStageId,stageId)
-        lastOutputStageId = Math.max(lastOutputStageId,stageId-1)
+      def addInputStageIndex(stageId: Int, key: Stageable[Data]): Unit = {
+        // 如果在这里报错，说明信号插入的阶段在使用之后。导致逻辑矛盾。
+        // println(
+        //   s"[Pipeline DEBUG] addInputStageIndex - Key: ${key.getName()}, stageId: ${stageId}, insertStageId: ${this.insertStageId}"
+        // )
+        require(
+          stageId >= insertStageId,
+          s"Requirement failed for key ${key.getName()}: stageId ${stageId} < insertStageId ${insertStageId}"
+        )
+
+        lastInputStageId = Math.max(lastInputStageId, stageId)
+        lastOutputStageId = Math.max(lastOutputStageId, stageId - 1)
       }
 
-
-      def addOutputStageIndex(stageId : Int): Unit = {
-        require(stageId >= insertStageId)
-        lastInputStageId = Math.max(lastInputStageId,stageId)
-        lastOutputStageId = Math.max(lastOutputStageId,stageId)
+      def addOutputStageIndex(stageId: Int, key: Stageable[Data]): Unit = {
+        // require(stageId >= insertStageId, s"stageId $stageId < insertStageId $insertStageId")
+        // println(
+        //   s"[Pipeline DEBUG] addOutputStageIndex - Key: ${key.getName()}, stageId: ${stageId}, insertStageId: ${this.insertStageId}"
+        // )
+        require(
+          stageId >= insertStageId,
+          s"Requirement failed for key ${key.getName()}: stageId ${stageId} < insertStageId ${insertStageId}"
+        )
+        lastInputStageId = Math.max(lastInputStageId, stageId)
+        lastOutputStageId = Math.max(lastOutputStageId, stageId)
       }
 
-      def setInsertStageId(stageId : Int) = insertStageId = stageId
+      def setInsertStageId(stageId: Int) = {
+        // println(s"[Pipeline DEBUG] setInsertStageId - stageId: ${stageId}")
+        insertStageId = stageId
+      }
     }
 
-    val inputOutputKeys = mutable.LinkedHashMap[Stageable[Data],KeyInfo]()
+    val inputOutputKeys = mutable.LinkedHashMap[Stageable[Data], KeyInfo]()
     val insertedStageable = mutable.Set[Stageable[Data]]()
-    for(stageIndex <- 0 until stages.length; stage = stages(stageIndex)){
-      stage.inserts.keysIterator.foreach(signal => inputOutputKeys.getOrElseUpdate(signal,new KeyInfo).setInsertStageId(stageIndex))
+    for (stageIndex <- 0 until stages.length; stage = stages(stageIndex)) {
+      // println(s"[Pipeline build]: stageIndex = ${stageIndex}, stage name = ${stage.getName()}")
+      // println(s"[Pipeline build]:   inputOutputKeys=${inputOutputKeys.keys.map(_.getName()).mkString(", ")}")
+
+      stage.inserts.keysIterator.foreach(signal => {
+        if (inputOutputKeys.contains(signal)) {
+          println(
+            s"[Pipeline build]: WARN: ${signal.getName()} already inserted, insert stageId will be updated to ${stageIndex}"
+          )
+        } else {
+          println(s"[Pipeline build]: set insert stageId to ${stageIndex} for ${signal.getName()}")
+        }
+
+        inputOutputKeys.getOrElseUpdate(signal, new KeyInfo).setInsertStageId(stageIndex)
+      })
       stage.inserts.keysIterator.foreach(insertedStageable += _)
     }
 
     val missingInserts = mutable.Set[Stageable[Data]]()
-    for(stageIndex <- 0 until stages.length; stage = stages(stageIndex)){
-      stage.inputs.keysIterator.foreach(key => if(!insertedStageable.contains(key)) missingInserts += key)
-      stage.outputs.keysIterator.foreach(key => if(!insertedStageable.contains(key)) missingInserts += key)
+    for (stageIndex <- 0 until stages.length; stage = stages(stageIndex)) {
+      stage.inputs.keysIterator.foreach(key => if (!insertedStageable.contains(key)) missingInserts += key)
+      stage.outputs.keysIterator.foreach(key => if (!insertedStageable.contains(key)) missingInserts += key)
     }
 
-    if(missingInserts.nonEmpty){
+    if (missingInserts.nonEmpty) {
       throw new Exception("Missing inserts : " + missingInserts.map(_.getName()).mkString(", "))
     }
 
-    for(stageIndex <- 0 until stages.length; stage = stages(stageIndex)){
-      stage.inputs.keysIterator.foreach(key => inputOutputKeys.getOrElseUpdate(key,new KeyInfo).addInputStageIndex(stageIndex))
-      stage.outputs.keysIterator.foreach(key => inputOutputKeys.getOrElseUpdate(key,new KeyInfo).addOutputStageIndex(stageIndex))
+    for (stageIndex <- 0 until stages.length; stage = stages(stageIndex)) {
+      // println(s"Debug: stageIndex = ${stageIndex}, stage name = ${stage.getName()}")
+      stage.inputs.keysIterator.foreach(key =>
+        inputOutputKeys.getOrElseUpdate(key, new KeyInfo).addInputStageIndex(stageIndex, key)
+      )
+      stage.outputs.keysIterator.foreach(key =>
+        inputOutputKeys.getOrElseUpdate(key, new KeyInfo).addOutputStageIndex(stageIndex, key)
+      )
     }
 
-    for((key,info) <- inputOutputKeys) {
-      //Interconnect inputs -> outputs
-      for (stageIndex <- info.insertStageId to info.lastOutputStageId;
-           stage = stages(stageIndex)) {
+    for ((key, info) <- inputOutputKeys) {
+      // Interconnect inputs -> outputs
+      for (
+        stageIndex <- info.insertStageId to info.lastOutputStageId;
+        stage = stages(stageIndex)
+      ) {
         stage.output(key)
         val outputDefault = stage.outputsDefault.getOrElse(key, null)
         if (outputDefault != null) {
@@ -112,7 +149,7 @@ trait Pipeline {
         }
       }
 
-      //Interconnect outputs -> inputs
+      // Interconnect outputs -> inputs
       for (stageIndex <- info.insertStageId to info.lastInputStageId) {
         val stage = stages(stageIndex)
         stage.input(key)
@@ -122,33 +159,42 @@ trait Pipeline {
             inputDefault := stage.inserts(key)
           } else {
             val stageBefore = stages(stageIndex - 1)
-            inputDefault := RegNextWhen(stageBefore.output(key), stage.dontSample.getOrElse(key, Nil).foldLeft(!stage.arbitration.isStuck)(_ && !_)).setName(s"${stageBefore.getName()}_to_${stage.getName()}_${key.getName()}")
+            inputDefault := RegNextWhen(
+              stageBefore.output(key),
+              stage.dontSample.getOrElse(key, Nil).foldLeft(!stage.arbitration.isStuck)(_ && !_)
+            ).setName(s"${stageBefore.getName()}_to_${stage.getName()}_${key.getName()}")
           }
         }
       }
     }
 
-    //Arbitration
-    for(stageIndex <- 0 until stages.length; stage = stages(stageIndex)) {
-      stage.arbitration.isFlushed := stages.drop(stageIndex+1).map(_.arbitration.flushNext).orR || stages.drop(stageIndex).map(_.arbitration.flushIt).orR
-      if(!unremovableStages.contains(stage))
+    // Arbitration
+    for (stageIndex <- 0 until stages.length; stage = stages(stageIndex)) {
+      stage.arbitration.isFlushed := stages.drop(stageIndex + 1).map(_.arbitration.flushNext).orR || stages
+        .drop(stageIndex)
+        .map(_.arbitration.flushIt)
+        .orR
+      if (!unremovableStages.contains(stage))
         stage.arbitration.removeIt setWhen stage.arbitration.isFlushed
       else
-        assert(stage.arbitration.removeIt === False,"removeIt should never be asserted on this stage")
+        assert(stage.arbitration.removeIt === False, "removeIt should never be asserted on this stage")
 
     }
 
-    for(stageIndex <- 0 until stages.length; stage = stages(stageIndex)){
-      stage.arbitration.isStuckByOthers := stage.arbitration.haltByOther || stages.takeRight(stages.length - stageIndex - 1).map(s => s.arbitration.isStuck/* && !s.arbitration.removeIt*/).foldLeft(False)(_ || _)
+    for (stageIndex <- 0 until stages.length; stage = stages(stageIndex)) {
+      stage.arbitration.isStuckByOthers := stage.arbitration.haltByOther || stages
+        .takeRight(stages.length - stageIndex - 1)
+        .map(s => s.arbitration.isStuck /* && !s.arbitration.removeIt*/ )
+        .foldLeft(False)(_ || _)
       stage.arbitration.isStuck := stage.arbitration.haltItself || stage.arbitration.isStuckByOthers
       stage.arbitration.isMoving := !stage.arbitration.isStuck && !stage.arbitration.removeIt
       stage.arbitration.isFiring := stage.arbitration.isValid && !stage.arbitration.isStuck && !stage.arbitration.removeIt
     }
 
-    for(stageIndex <- 1 until stages.length){
+    for (stageIndex <- 1 until stages.length) {
       val stageBefore = stages(stageIndex - 1)
       val stage = stages(stageIndex)
-      stage.arbitration.isValid.setAsReg() init(False)
+      stage.arbitration.isValid.setAsReg() init (False)
       when(!stage.arbitration.isStuck || stage.arbitration.removeIt) {
         stage.arbitration.isValid := False
       }
@@ -157,7 +203,6 @@ trait Pipeline {
       }
     }
   }
-
 
   Component.current.addPrePopTask(() => build())
 }
