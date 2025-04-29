@@ -2,7 +2,7 @@ package boson
 
 import spinal.core._
 import spinal.lib._
-import boson.Stageable
+import boson.defines.DecodedInst
 
 case class BosonConfig(
     pcWidth: Int = 32,
@@ -10,14 +10,18 @@ case class BosonConfig(
     dataWidth: Int = 32,
     regAddrWidth: Int = 5, // 32 registers (r0-r31)
     instructionWidth: Int = 32,
-    resetPc: BigInt = 0x00000000
+    resetPc: BigInt = 0x00000000,
+    // --- Memory System Configuration ---
+    axiSimMem: Boolean = true, // Use simulation RAM by default
+    axiSimMemSize: BigInt = 1 MiB
 ) {
 
   // --- General Pipeline Data ---
   object PC extends Stageable(UInt(pcWidth bits))
   object PREDICTED_PC extends Stageable(UInt(pcWidth bits))
   object INSTRUCTION extends Stageable(Bits(instructionWidth bits))
-  object IS_VALID extends Stageable(Bool())
+  object DECODED_INST_OUTPUT extends Stageable(DecodedInst())
+  object IS_FETCH_INST_VALID extends Stageable(Bool())
 
   // --- Decoded Information ---
   object OPCODE extends Stageable(Bits(6 bits))
@@ -33,7 +37,8 @@ case class BosonConfig(
 
   // Control Signals
   object AluOp extends SpinalEnum(binarySequential) {
-    val NOP, ADD, SUB, SLT, SLTU, AND, OR, XOR, SLL, SRL, SRA, LU12I_OP, PCADDU12I_OP = newElement() // Added specific ops
+    val NOP, ADD, SUB, SLT, SLTU, AND, OR, XOR, SLL, SRL, SRA, LU12I_OP, PCADDU12I_OP =
+      newElement() // Added specific ops
   }
   object ALU_OP extends Stageable(AluOp())
   object IS_BRANCH extends Stageable(Bool())
