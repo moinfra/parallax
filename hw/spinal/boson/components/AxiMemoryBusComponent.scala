@@ -72,7 +72,7 @@ case class AxiMemoryBusComponent(
     if (useSimMem) {
         simRamSalve = new Axi4MemorySlave(axiConfig, simMemSize).setName("simRam")
         // Connect the component's AXI master IO directly to the internal simulation slave
-        io.axiMaster <> simRamSalve.io.axi
+        io.axiMaster <> simRamSalve.io.axiMaster
     }
     // If useSimMem is false, io.axiMaster remains unconnected here and must be
     // connected externally. The logic below will drive io.axiMaster.
