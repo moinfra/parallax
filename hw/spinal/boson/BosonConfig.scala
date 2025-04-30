@@ -2,7 +2,7 @@ package boson
 
 import spinal.core._
 import spinal.lib._
-import boson.defines.DecodedInst
+import boson.defines.Uop
 
 case class BosonConfig(
     pcWidth: Int = 32,
@@ -20,7 +20,7 @@ case class BosonConfig(
   object PC extends Stageable(UInt(pcWidth bits))
   object PREDICTED_PC extends Stageable(UInt(pcWidth bits))
   object INSTRUCTION extends Stageable(Bits(instructionWidth bits))
-  object DECODED_INST_OUTPUT extends Stageable(DecodedInst())
+  object DECODED_INST_OUTPUT extends Stageable(Uop())
   object IS_FETCH_INST_VALID extends Stageable(Bool())
 
   // --- Decoded Information ---

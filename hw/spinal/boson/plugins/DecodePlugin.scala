@@ -45,7 +45,7 @@ class Decoder(pCfg: BosonConfig) extends Component {
     // val currentPlv  = in(UInt(2 bits)) // If privilege checks happen here
 
     // Output
-    val decodedInst = out(DecodedInst())
+    val decodedInst = out(Uop())
   }
 
   // --- Instruction Field Parsing ---
@@ -113,7 +113,7 @@ class Decoder(pCfg: BosonConfig) extends Component {
   ) // {offs[25:16], offs[15:0], 2'b0} signed
 
   // --- The Decoded Instruction Bundle ---
-  val d = DecodedInst().assignDefaults() // Output bundle instance
+  val d = Uop().assignDefaults() // Output bundle instance
   d.pc := io.pc // Pass PC through
   d.isValid := True // Assume valid until proven otherwise
 
