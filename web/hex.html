@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hex/Binary Converter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-center mb-8 text-blue-600">Hex/Binary Converter</h1>
+        
+        <div class="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-6">
+            <!-- Endianness Selection -->
+            <div class="mb-6">
+                <label class="block text-gray-700 font-medium mb-2">Endianness:</label>
+                <div class="flex space-x-4">
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="endianness" value="big" checked class="form-radio text-blue-600">
+                        <span class="ml-2">Big-Endian</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="endianness" value="little" class="form-radio text-blue-600">
+                        <span class="ml-2">Little-Endian</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Input Section -->
+            <div class="mb-6">
+                <label for="input" class="block text-gray-700 font-medium mb-2">Input:</label>
+                <textarea id="input" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter hex or binary here..."></textarea>
+                <div class="mt-2 flex space-x-2">
+                    <button id="clear-input" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">Clear</button>
+                    <button id="hex-input" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200">Hex Input</button>
+                    <button id="binary-input" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200">Binary Input</button>
+                </div>
+            </div>
+            
+            <!-- Output Section -->
+            <div class="mb-6">
+                <label for="output" class="block text-gray-700 font-medium mb-2">Output:</label>
+                <textarea id="output" rows="4" readonly class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"></textarea>
+                <div class="mt-2 flex space-x-2">
+                    <button id="copy-output" class="px-4 py-2 bg-green-100 text-green-700 rounded-md hover:bg-green-200">Copy to Clipboard</button>
+                    <button id="hex-output" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200">Hex Output</button>
+                    <button id="binary-output" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200">Binary Output</button>
+                </div>
+            </div>
+            
+            <!-- Byte Grouping -->
+            <div class="mb-6">
+                <label for="grouping" class="block text-gray-700 font-medium mb-2">Byte Grouping:</label>
+                <select id="grouping" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="1">1 byte (8 bits)</option>
+                    <option value="2">2 bytes (16 bits)</option>
+                    <option value="4" selected>4 bytes (32 bits)</option>
+                    <option value="8">8 bytes (64 bits)</option>
+                </select>
+            </div>
+            
+            <!-- Conversion Buttons -->
+            <div class="flex space-x-4">
+                <button id="hex-to-binary" class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    Hex → Binary
+                </button>
+                <button id="binary-to-hex" class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    Binary → Hex
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get DOM elements
+            const inputTextarea = document.getElementById('input');
+            const outputTextarea = document.getElementById('output');
+            const hexToBinaryBtn = document.getElementById('hex-to-binary');
+            const binaryToHexBtn = document.getElementById('binary-to-hex');
+            const copyOutputBtn = document.getElementById('copy-output');
+            const clearInputBtn = document.getElementById('clear-input');
+            const hexInputBtn = document.getElementById('hex-input');
+            const binaryInputBtn = document.getElementById('binary-input');
+            const hexOutputBtn = document.getElementById('hex-output');
+            const binaryOutputBtn = document.getElementById('binary-output');
+            const groupingSelect = document.getElementById('grouping');
+            
+            // Helper functions
+            function cleanHexString(hexStr) {
+                return hexStr.replace(/[^0-9a-fA-F]/g, '').toUpperCase();
+            }
+            
+            function cleanBinaryString(binaryStr) {
+                return binaryStr.replace(/[^01]/g, '');
+            }
+            
+            function groupBytes(str, bytesPerGroup) {
+                const bitsPerGroup = bytesPerGroup * 2; // For hex (2 chars per byte)
+                const regex = new RegExp(`.{1,${bitsPerGroup}}`, 'g');
+                return str.match(regex)?.join(' ') || '';
+            }
+            
+            function reverseEndianness(str, bytesPerGroup) {
+                const hexChars = str.replace(/\s/g, '');
+                const groups = [];
+                
+                for (let i = 0; i < hexChars.length; i += bytesPerGroup * 2) {
+                    const group = hexChars.substr(i, bytesPerGroup * 2);
+                    if (group.length === bytesPerGroup * 2) {
+                        let reversed = '';
+                        for (let j = group.length; j > 0; j -= 2) {
+                            reversed += group.substr(j - 2, 2);
+                        }
+                        groups.push(reversed);
+                    } else {
+                        groups.push(group); // For incomplete groups
+                    }
+                }
+                
+                return groups.join(' ');
+            }
+            
+            // Conversion functions
+            function hexToBinary(hexStr, bytesPerGroup, isLittleEndian) {
+                let cleanHex = cleanHexString(hexStr);
+                if (cleanHex.length % 2 !== 0) {
+                    return "Invalid hex length (must be even number of characters)";
+                }
+                
+                if (isLittleEndian) {
+                    cleanHex = reverseEndianness(cleanHex, bytesPerGroup);
+                }
+                
+                let binaryStr = '';
+                for (let i = 0; i < cleanHex.length; i++) {
+                    const hexChar = cleanHex[i];
+                    const decimal = parseInt(hexChar, 16);
+                    const binary = decimal.toString(2).padStart(4, '0');
+                    binaryStr += binary;
+                }
+                
+                // Group binary into bytes
+                const groupedBinary = binaryStr.match(/.{1,8}/g)?.join(' ') || '';
+                return groupedBinary;
+            }
+            
+            function binaryToHex(binaryStr, bytesPerGroup, isLittleEndian) {
+                const cleanBinary = cleanBinaryString(binaryStr);
+                if (cleanBinary.length % 8 !== 0) {
+                    return "Invalid binary length (must be multiple of 8)";
+                }
+                
+                let hexStr = '';
+                for (let i = 0; i < cleanBinary.length; i += 8) {
+                    const byte = cleanBinary.substr(i, 8);
+                    const decimal = parseInt(byte, 2);
+                    const hex = decimal.toString(16).padStart(2, '0').toUpperCase();
+                    hexStr += hex;
+                }
+                
+                if (isLittleEndian) {
+                    hexStr = reverseEndianness(hexStr, bytesPerGroup);
+                } else {
+                    hexStr = groupBytes(hexStr, bytesPerGroup);
+                }
+                
+                return hexStr;
+            }
+            
+            // Event handlers
+            hexToBinaryBtn.addEventListener('click', function() {
+                const input = inputTextarea.value.trim();
+                const bytesPerGroup = parseInt(groupingSelect.value);
+                const isLittleEndian = document.querySelector('input[name="endianness"]:checked').value === 'little';
+                
+                outputTextarea.value = hexToBinary(input, bytesPerGroup, isLittleEndian);
+            });
+            
+            binaryToHexBtn.addEventListener('click', function() {
+                const input = inputTextarea.value.trim();
+                const bytesPerGroup = parseInt(groupingSelect.value);
+                const isLittleEndian = document.querySelector('input[name="endianness"]:checked').value === 'little';
+                
+                outputTextarea.value = binaryToHex(input, bytesPerGroup, isLittleEndian);
+            });
+            
+            copyOutputBtn.addEventListener('click', function() {
+                outputTextarea.select();
+                document.execCommand('copy');
+                alert('Copied to clipboard!');
+            });
+            
+            clearInputBtn.addEventListener('click', function() {
+                inputTextarea.value = '';
+            });
+            
+            hexInputBtn.addEventListener('click', function() {
+                inputTextarea.value = cleanHexString(inputTextarea.value);
+            });
+            
+            binaryInputBtn.addEventListener('click', function() {
+                inputTextarea.value = cleanBinaryString(inputTextarea.value);
+            });
+            
+            hexOutputBtn.addEventListener('click', function() {
+                const currentOutput = outputTextarea.value;
+                if (currentOutput.match(/[^01\s]/)) {
+                    alert('Output is already in hex format or contains invalid characters');
+                    return;
+                }
+                
+                const bytesPerGroup = parseInt(groupingSelect.value);
+                const isLittleEndian = document.querySelector('input[name="endianness"]:checked').value === 'little';
+                outputTextarea.value = binaryToHex(currentOutput, bytesPerGroup, isLittleEndian);
+            });
+            
+            binaryOutputBtn.addEventListener('click', function() {
+                const currentOutput = outputTextarea.value;
+                if (currentOutput.match(/[^0-9a-fA-F\s]/)) {
+                    alert('Output is already in binary format or contains invalid characters');
+                    return;
+                }
+                
+                const bytesPerGroup = parseInt(groupingSelect.value);
+                const isLittleEndian = document.querySelector('input[name="endianness"]:checked').value === 'little';
+                outputTextarea.value = hexToBinary(currentOutput, bytesPerGroup, isLittleEndian);
+            });
+        });
+    </script>
+</body>
+</html>
