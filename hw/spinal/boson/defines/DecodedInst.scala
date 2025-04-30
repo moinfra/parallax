@@ -103,8 +103,8 @@ case class DecodedInst(cfg: PhysicalRegCfg = PhysicalRegCfg()) extends Bundle {
   def archSrc3IsCfr = useSrc3 && archSrc3.isCfr
 
   // Default assignment helper
-  def assignDefaults(): Unit = {
-    isValid := False
+  def assignDefaults(): this.type = {
+    isValid.assignDontCare()
     uopCode := UopCode.NOP
     executeUnit := ExeUnit.ALU // Default, override as needed
     pc.assignDontCare()
@@ -144,7 +144,7 @@ case class DecodedInst(cfg: PhysicalRegCfg = PhysicalRegCfg()) extends Bundle {
     memFlags.isSC := False
     csrFlags.isWrite := False
     csrFlags.isXchg := False
-    tlbFlags.isSearch := False // etc.
+    tlbFlags.assignDefaults()
     fpMiscFlags.targetInt := False
     fpMiscFlags.explicitRM := False
     fpMiscFlags.rmOverride.assignDontCare()
@@ -161,7 +161,10 @@ case class DecodedInst(cfg: PhysicalRegCfg = PhysicalRegCfg()) extends Bundle {
 
     excCode := ExceptionCode.NONE
     generatesExc := False
+    mayCauseExc := False
     llbitSet := False
     llbitCheck := False
+
+    this
   }
 }

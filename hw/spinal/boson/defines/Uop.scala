@@ -122,6 +122,15 @@ case class TlbOpFlags() extends Bundle {
   val isRead = Bool()
   val isWrite = Bool()
   val isFill = Bool()
+
+  def assignDefaults(): this.type = {
+    isSearch := False
+    isRead := False
+    isWrite := False
+    isFill := False
+
+    this
+  }
 }
 case class FpuMiscOpFlags() extends Bundle {
   // Flags to differentiate variants if using common UopCodes
@@ -141,75 +150,3 @@ case class PhysicalRegCfg(
     fprWidth: Int = 6, // 2^6 = 64 physical FPRs
     cfrWidth: Int = 3 // 2^3 = 8 architectural CFRs (assuming no complex renaming needed)
 )
-
-case class Uop(cfg: PhysicalRegCfg = PhysicalRegCfg()) extends Bundle {
-  // --- Core Operation & Control ---
-  val uopCode = UopCode() // Micro-operation identifier
-  val executeUnit = ExeUnit() // Target execution unit type
-  val pc = UInt(32 bits) // PC of the original LA32R instruction
-  val isValid = Bool() // Is this uop slot valid?
-  val isMicrocode = Bool() // Is this part of a multi-uop sequence (e.g., for complex FP or system ops)?
-  val isLastMicro = Bool() // Is this the last uop in a sequence?
-
-  // --- Operands ---
-  // Destination Registers (Physical indices after renaming)
-  val pdest = UInt(
-    Math.max(cfg.gprWidth, cfg.fprWidth) bits
-  ) // Unified destination index? Or separate? Let's try separate for clarity:
-  val pdestGpr = UInt(cfg.gprWidth bits)
-  val pdestGprEn = Bool()
-  val pdestFpr = UInt(cfg.fprWidth bits)
-  val pdestFprEn = Bool()
-  val pdestCfr = UInt(cfg.cfrWidth bits) // Usually Arch ID is fine here.
-  val pdestCfrEn = Bool()
-
-  // Source Registers (Physical indices after renaming)
-  val psrc1 = UInt(Math.max(cfg.gprWidth, cfg.fprWidth) bits) // Physical Reg File Index 1
-  val psrc2 = UInt(Math.max(cfg.gprWidth, cfg.fprWidth) bits) // Physical Reg File Index 2
-  val psrc3 = UInt(Math.max(cfg.gprWidth, cfg.fprWidth) bits) // Physical Reg File Index 3 (for FMA, FSEL)
-  // Need flags to indicate if source is GPR/FPR/CFR
-  val psrc1IsFpr = Bool()
-  val psrc1IsCfr = Bool() // Assumes GPR if both are false
-  val psrc2IsFpr = Bool()
-  val psrc2IsCfr = Bool()
-  val psrc3IsFpr = Bool()
-  val psrc3IsCfr = Bool()
-  // Indicate which sources are actually used by this uop
-  val useSrc1 = Bool()
-  val useSrc2 = Bool()
-  val useSrc3 = Bool()
-
-  // Immediate Value (Decoded and potentially sign/zero extended)
-  val imm = Bits(32 bits) // Holds decoded immediate (si12, ui12, si20<<12, offs, etc.)
-  val useImmAsSrc2 = Bool() // Flag: Use `imm` instead of `psrc2`? (e.g., for ADDI)
-
-  // --- Execution Details / Flags ---
-  val aluFlags = AluOpFlags()
-  val shiftFlags = ShiftOpFlags()
-  val fmaFlags = FmaOpFlags()
-  val memFlags = MemOpFlags()
-  val csrFlags = CsrOpFlags()
-  val tlbFlags = TlbOpFlags()
-  val fpMiscFlags = FpuMiscOpFlags()
-
-  val memSize = MemSize() // Access size for LSU ops
-  val fpSize = FpSize() // FP Operand size (S/D)
-
-  val branchCond = BranchCond() // Condition for branches / FSEL
-
-  // Specific data fields needed by certain ops
-  val csrAddr = Bits(14 bits) // CSR address (e.g., for CSRRD/WR/XCHG)
-  val sysCode = Bits(15 bits) // Code for SYSCALL, BREAK
-  val hintOrCacheOp = Bits(15 bits) // Hint for DBAR/IBAR/PRELD or OpCode for CACOP
-  val invTlbOp = Bits(5 bits) // Opcode for INVTLB
-  val fcmpCond = Bits(5 bits) // Original cond field for FCMP
-  val llscSuccess = Bool().assignDontCare() // Output from LSU for SC.W success (set during execute/mem stage)
-
-  // Exception Info
-  val exceptionCode = UInt(8 bits) // Holds potential exception code (e.g., LA32R codes + internal)
-  val mayCauseExc = Bool() // Indicates this uop *could* cause an exception (checked during execution)
-
-  // Atomic Operation Support
-  val llbitSet = Bool() // LSU should set the core's LLbit after this LL.W
-  val llbitCheck = Bool() // LSU should check (and clear) the core's LLbit for this SC.W
-}
