@@ -40,25 +40,6 @@ case class BosonConfig(
     val NOP, ADD, SUB, SLT, SLTU, AND, OR, XOR, SLL, SRL, SRA, LU12I_OP, PCADDU12I_OP =
       newElement() // Added specific ops
   }
-  object ALU_OP extends Stageable(AluOp())
-  object IS_BRANCH extends Stageable(Bool())
-  object IS_COND_BRANCH extends Stageable(Bool())
-  object IS_JUMP extends Stageable(Bool())
-  object IS_JUMP_LINK extends Stageable(Bool())
-  object IS_LOAD extends Stageable(Bool())
-  object IS_STORE extends Stageable(Bool())
-  object IS_FPU extends Stageable(Bool())
-  object IS_SYSCALL extends Stageable(Bool())
-  object IS_BREAK extends Stageable(Bool())
-  object WRITE_ENABLE extends Stageable(Bool())
-  object LINK_ADDR extends Stageable(UInt(pcWidth bits))
-
-  // Memory Access Control
-  object MemOp extends SpinalEnum(binarySequential) {
-    val NONE, LOAD_B, LOAD_BU, LOAD_H, LOAD_HU, LOAD_W, STORE_B, STORE_H, STORE_W = newElement()
-  }
-  object MEM_OP extends Stageable(MemOp())
-  object MEM_SIGNED extends Stageable(Bool())
 
   // --- Register Read Results ---
   object RJ_DATA extends Stageable(Bits(dataWidth bits))
@@ -69,6 +50,7 @@ case class BosonConfig(
   object EFF_ADDRESS extends Stageable(UInt(addrWidth bits))
   object BRANCH_CALC_TARGET extends Stageable(UInt(pcWidth bits))
   object BRANCH_TAKEN extends Stageable(Bool())
+  object IS_JUMP extends Stageable(Bool())
 
   // --- Memory Stage Results ---
   object MEM_READ_DATA extends Stageable(Bits(dataWidth bits))
