@@ -1,10 +1,10 @@
-package boson.plugins
+package boson.plugins.Decoder
 
 import boson._ // Assuming Uop/DecodedInst related definitions are here or accessible
 import spinal.core._
 import spinal.lib._
-import boson.defines._
 import spinal.core.MaskedLiteral // For opcode matching
+import boson.plugins.Plugin
 
 class DecodePlugin extends Plugin[Boson] {
   override def build(pipeline: Boson): Unit = {
@@ -21,7 +21,7 @@ class DecodePlugin extends Plugin[Boson] {
       // val currentPlv = cur.input(pCfg.CURRENT_PLV)
 
       // --- Decoding Logic ---
-      val decoder = new Decoder(pCfg) // Instantiate decoder logic area
+      val decoder = new DecoderComponent(pCfg) // Instantiate decoder logic area
       decoder.io.instruction := instruction
       decoder.io.pc := pc
 
@@ -35,7 +35,7 @@ class DecodePlugin extends Plugin[Boson] {
 
 // --- Decoder Logic Area ---
 // Contains the combinational decoding logic
-class Decoder(pCfg: BosonConfig) extends Component {
+class DecoderComponent(pCfg: BosonConfig) extends Component {
 
   // --- IO Bundle ---
   val io = new Bundle {

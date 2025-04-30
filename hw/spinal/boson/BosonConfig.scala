@@ -2,7 +2,7 @@ package boson
 
 import spinal.core._
 import spinal.lib._
-import boson.defines.Uop
+import boson.plugins.Decoder.Uop
 
 case class BosonConfig(
     pcWidth: Int = 32,

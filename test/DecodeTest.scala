@@ -1,3 +1,4 @@
+import boson.plugins.Decoder.{ExeUnit, UopCode}
 import spinal.core._
 import spinal.sim._
 import spinal.core.formal._
@@ -5,17 +6,16 @@ import org.scalatest.funsuite.AnyFunSuite
 import boson.BosonConfig
 import boson.plugins.Decoder
 import spinal.core.sim._
-import boson.defines._
 import spinal.core
 // Assuming UopCode, ExeUnit, MemSize, BranchCond, ExceptionCode, BosonConfig, DecodedInst are defined elsewhere
 
 class DecoderAreaTest extends AnyFunSuite {
 
   // Helper function to create a testbench
-  def testDecoder(config: BosonConfig)(testFn: (boson.plugins.Decoder) => Unit): Unit = {
+  def testDecoder(config: BosonConfig)(testFn: (Decoder.DecoderComponent) => Unit): Unit = {
     SimConfig.withFstWave
       .compile({
-        val dut = new Decoder(config)
+        val dut = new Decoder.DecoderComponent(config)
         dut.io.decodedInst.uopCode.simPublic()
         dut
       })

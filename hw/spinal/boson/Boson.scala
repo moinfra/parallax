@@ -8,6 +8,7 @@ import spinal.lib.bus.amba4.axi.Axi4 // Import AXI
 
 import boson.plugins._
 import boson.interfaces.AxiConfig // Import AxiConfig helper
+import plugins.Decoder.DecodePlugin
 
 case class Boson(val config: BosonConfig) extends Component with Pipeline {
   type T = Boson

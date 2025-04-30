@@ -1,4 +1,4 @@
-package boson.defines
+package boson.plugins.Decoder
 
 import spinal.core._
 import spinal.lib._
