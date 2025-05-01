@@ -9,11 +9,11 @@ import boson.components.AxiMemoryBusComponent
 // Required for state machine if added later for AXI handling
 // import spinal.lib.fsm._
 
-class MemoryPlugin() extends Plugin[Boson] {
+class MemoryPlugin() extends Plugin[BosonArch] {
 
-  override def setup(pipeline: Boson): Unit = {}
+  override def setup(pipeline: BosonArch): Unit = {}
 
-  override def build(pipeline: Boson): Unit = {
+  override def build(pipeline: BosonArch): Unit = {
     import pipeline._
     import pipeline.config._
 

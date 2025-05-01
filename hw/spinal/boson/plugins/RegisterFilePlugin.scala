@@ -4,16 +4,16 @@ import spinal.core._
 import spinal.lib._
 import boson._
 
-class RegisterFilePlugin(registerCount: Int, dataWidth: Int) extends Plugin[Boson] {
+class RegisterFilePlugin(registerCount: Int, dataWidth: Int) extends Plugin[BosonArch] {
 
   var regFile: Vec[Bits] = null
 
-  override def setup(pipeline: Boson): Unit = {
+  override def setup(pipeline: BosonArch): Unit = {
     // Physical register file instance
     regFile = Vec.fill(registerCount)(Reg(Bits(dataWidth bits)) init (0))
   }
 
-  override def build(pipeline: Boson): Unit = {
+  override def build(pipeline: BosonArch): Unit = {
     import pipeline._
     import pipeline.config._
 

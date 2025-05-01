@@ -5,8 +5,8 @@ import spinal.lib._
 import boson._
 import boson.BosonConfig._ // Import enums
 
-class ExecutePlugin extends Plugin[Boson] {
-    override def build(pipeline: Boson): Unit = {
+class ExecutePlugin extends Plugin[BosonArch] {
+    override def build(pipeline: BosonArch): Unit = {
         import pipeline._
         import pipeline.config._
 

@@ -10,8 +10,8 @@ import boson.plugins._
 import boson.interfaces.AxiConfig // Import AxiConfig helper
 import plugins.Decoder.DecodePlugin
 
-case class Boson(val config: BosonConfig) extends Component with Pipeline {
-  type T = Boson
+case class BosonArch(val config: BosonConfig) extends Component with Pipeline {
+  type T = BosonArch
   import config._ // Make Stageables directly accessible
 
   // --- Pipeline Stages ---
@@ -107,12 +107,12 @@ object BosonVerilog extends App {
     axiSimMemSize = 64 KiB // Smaller sim RAM example
   )
   println("Generating with Simulation Memory...")
-  Config.spinal.generateVerilog(new Boson(cpuSimConfig)).printPruned()
+  Config.spinal.generateVerilog(new BosonArch(cpuSimConfig)).printPruned()
 
   // Configure for Synthesis (External AXI)
   val cpuSynthConfig = BosonConfig(axiSimMem = false)
   println("\nGenerating with External AXI Interface...")
-  val report = Config.spinal.generateVerilog(new Boson(cpuSynthConfig))
+  val report = Config.spinal.generateVerilog(new BosonArch(cpuSynthConfig))
   report.printPruned() // printPruned helps view generated signals
 
   // Print top-level IO for synthesis version

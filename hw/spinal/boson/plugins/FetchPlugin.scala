@@ -7,13 +7,13 @@ import boson.interfaces._ // Import internal interfaces
 import boson._
 import spinal.lib.fsm._ // Import FSM library
 
-class FetchPlugin() extends Plugin[Boson] {
+class FetchPlugin() extends Plugin[BosonArch] {
 
 
-  override def setup(pipeline: Boson): Unit = {
+  override def setup(pipeline: BosonArch): Unit = {
   }
 
-  override def build(pipeline: Boson): Unit = {
+  override def build(pipeline: BosonArch): Unit = {
     import pipeline.{config => pcfg};
 
     pipeline.fetch plug new Area {

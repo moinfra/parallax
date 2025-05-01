@@ -6,11 +6,11 @@ import spinal.lib._
 import boson.Stage
 import boson.plugins._
 import boson.Pipeline
-import boson.Boson
+import boson.BosonArch
 
-class PcManagerPlugin() extends Plugin[Boson] {
+class PcManagerPlugin() extends Plugin[BosonArch] {
 
-  override def build(pipeline: Boson): Unit = {
+  override def build(pipeline: BosonArch): Unit = {
     import pipeline._
     import pipeline.config._
 

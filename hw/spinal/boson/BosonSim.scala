@@ -30,7 +30,7 @@ object BosonSim {
         println(s"Starting Boson Simulation (SimMem: ${useSimMem}, ResetPC: 0x${cpuConfig.resetPc.toString(16)})")
 
         // Compile the design
-        simConfig.compile(new Boson(cpuConfig)).doSim { dut =>
+        simConfig.compile(new BosonArch(cpuConfig)).doSim { dut =>
             println("Simulation Started...")
 
             // --- Clock Domain ---

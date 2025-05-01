@@ -6,8 +6,8 @@ import spinal.lib._
 import spinal.core.MaskedLiteral // For opcode matching
 import boson.plugins.Plugin
 
-class DecodePlugin extends Plugin[Boson] {
-  override def build(pipeline: Boson): Unit = {
+class DecodePlugin extends Plugin[BosonArch] {
+  override def build(pipeline: BosonArch): Unit = {
     import pipeline.{config => pCfg}
 
     pipeline.decodeRename plug new Area {
