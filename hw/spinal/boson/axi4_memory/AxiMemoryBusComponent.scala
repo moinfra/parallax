@@ -1,4 +1,4 @@
-package boson.components // Changed package slightly for clarity, adjust as needed
+package boson.axi4_memory // Changed package slightly for clarity, adjust as needed
 
 import spinal.core._
 import spinal.lib._

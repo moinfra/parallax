@@ -1,4 +1,5 @@
-import boson.plugins.Decoder.{ExeUnit, UopCode}
+import boson.Decoder.DecoderComponent
+import boson.Decoder.{ExeUnit, UopCode}
 import spinal.core._
 import spinal.sim._
 import spinal.core.formal._

@@ -4,7 +4,7 @@ import spinal.core._
 import spinal.core.sim._
 import spinal.lib._
 import spinal.lib.bus.amba4.axi._
-import boson.components.AxiMemoryBusComponent // Import to access simRam if needed
+import boson.axi4_memory.AxiMemoryBusComponent // Import to access simRam if needed
 object BosonSim {
 
     def main(args: Array[String]): Unit = {

@@ -4,39 +4,44 @@ import scala.collection.mutable.ArrayBuffer
 
 import spinal.core._
 import spinal.lib._
-import spinal.lib.bus.amba4.axi.Axi4 // Import AXI
+import spinal.lib.bus.amba4.axi.Axi4
 
-import boson.plugins._
-import boson.interfaces.AxiConfig // Import AxiConfig helper
-import plugins.Decoder.DecodePlugin
+import boson.builder._
+import boson.interfaces.AxiConfig
+
+class FetchPipeline extends Pipeline {
+  val addrGen: Stage = newStage("addrGen");
+  val instFetch: Stage = newStage("instFetch");
+}
+
+class DecodePipeline extends Pipeline {
+  val instDec: Stage = newStage("instDec");
+}
+
+class RenameDispatchPipeline extends Pipeline {
+  val rename: Stage = newStage("rename");
+  val dispatch: Stage = newStage("dispatch");
+}
+
+class IntExecutePipeline extends Pipeline {
+  val regFileRead: Stage = newStage("regFileRead");
+  val bypass: Stage = newStage("bypass");
+}
+
+class FpExecutePipeline extends Pipeline {}
+
+class MemExecutePipeline extends Pipeline {}
+
+
+class MemoryPipeline extends Pipeline {}
 
 case class BosonArch(val config: BosonConfig) extends Component with Pipeline {
   type T = BosonArch
   import config._ // Make Stageables directly accessible
 
   // --- Pipeline Stages ---
-  def newStage(): Stage = { val s = new Stage; stages += s; s }
-  // Stage 0: Fetch
-  val fetch = newStage().setName("Fetch")
-
-  // Stage 1: Decode / Rename (start with Decode)
-  val decodeRename = newStage().setName("Decode/Rename")
-
-  // Stage 2: Rename / Dispatch (placeholder)
-  val renameDispatch = newStage().setName("Rename/Dispatch")
-
-  // Stage 3: Issue / Register Read
-  val issueRegRead = newStage().setName("Issue/RegRead")
-
-  // Stage 4: Execute
-  val execute = newStage().setName("Execute")
-
-  // Stage 5: Memory Access
-  val memory = newStage().setName("Memory")
-
-  // Stage 6: Writeback
-  val writeback = newStage().setName("Writeback")
-
+  val fetch = new FetchPipeline()
+  val decode = new DecodePipeline()
   // Commit is handled implicitly by WB writing to Arch RF, or explicitly with ROB
 
   // --- IO Definition ---
@@ -47,35 +52,35 @@ case class BosonArch(val config: BosonConfig) extends Component with Pipeline {
     Axi4(AxiConfig.getAxi4Config(config))
   }
 
-  val memoryBus = new components.AxiMemoryBusComponent(
-    pipelineConfig = config,
-    useSimMem = config.axiSimMem,
-    simMemSize = config.axiSimMemSize,
-    axiConfig = AxiConfig.getAxi4Config(config)
-  )
-  // --- Plugins ---
-  // Order can matter for setup dependencies or build order if plugins interact directly
-  plugins ++= Seq(
-    // Core Pipeline Functionality
-    new PcManagerPlugin(),
-    new FetchPlugin(), // Example size
-    new DecodePlugin(),
-    new RegisterFilePlugin(registerCount = 32, dataWidth = config.dataWidth),
-    new ExecutePlugin(),
-    new MemoryPlugin(), // Example size
+  // val memoryBus = new components.AxiMemoryBusComponent(
+  //   pipelineConfig = config,
+  //   useSimMem = config.axiSimMem,
+  //   simMemSize = config.axiSimMemSize,
+  //   axiConfig = AxiConfig.getAxi4Config(config)
+  // )
+  // // --- Plugins ---
+  // // Order can matter for setup dependencies or build order if plugins interact directly
+  // plugins ++= Seq(
+  //   // Core Pipeline Functionality
+  //   new PcManagerPlugin(),
+  //   new FetchPlugin(), // Example size
+  //   new DecodePlugin(),
+  //   new RegisterFilePlugin(registerCount = 32, dataWidth = config.dataWidth),
+  //   new ExecutePlugin(),
+  //   new MemoryPlugin(), // Example size
 
-    // Supporting Plugins
-    new HazardUnitPlugin(), // Detects hazards, signals forwarding/stalls
+  //   // Supporting Plugins
+  //   new HazardUnitPlugin(), // Detects hazards, signals forwarding/stalls
 
-    // Placeholder Plugins (for future expansion)
-    new RenamePlugin(),
-    new DispatchPlugin(),
-    new IssuePlugin()
+  //   // Placeholder Plugins (for future expansion)
+  //   new RenamePlugin(),
+  //   new DispatchPlugin(),
+  //   new IssuePlugin()
 
-    // new CsrPlugin(),
-    // new FpuPlugin(),
-    // new RobPlugin() // If implementing Reorder Buffer
-  )
+  //   // new CsrPlugin(),
+  //   // new FpuPlugin(),
+  //   // new RobPlugin() // If implementing Reorder Buffer
+  // )
 
   // --- Global Connections / IO ---
   // Example: Expose memory interfaces if not handled internally by plugins
@@ -87,8 +92,7 @@ case class BosonArch(val config: BosonConfig) extends Component with Pipeline {
   // The AxiMemoryBusComponent handles the internal connection or exposing the master.
   // We just need to connect the top-level slave IO (if it exists) to the plugin's master.
   addPrePopTask(() => { // Ensure plugin is built before this connection
-    if (config.axiSimMem) {
-    } else {
+    if (config.axiSimMem) {} else {
       // NOT IMPLEMENTED: Connect top-level AXI to plugin's master
     }
   })

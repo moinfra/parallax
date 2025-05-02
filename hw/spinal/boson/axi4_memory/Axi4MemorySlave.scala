@@ -1,4 +1,4 @@
-package boson.components
+package boson.axi4_memory
 import spinal.core._
 import spinal.core.sim._
 import spinal.lib._

@@ -1,35 +1,35 @@
-package boson.plugins.Decoder
+package boson.decoder
 
 import boson._ // Assuming Uop/DecodedInst related definitions are here or accessible
 import spinal.core._
 import spinal.lib._
 import spinal.core.MaskedLiteral // For opcode matching
-import boson.plugins.Plugin
+import boson.builder.Plugin
 
 class DecodePlugin extends Plugin[BosonArch] {
   override def build(pipeline: BosonArch): Unit = {
-    import pipeline.{config => pCfg}
+    // import pipeline.{config => pCfg}
 
-    pipeline.decodeRename plug new Area {
-      import pipeline.{decodeRename => cur} // Use 'cur' for current stage area
-      import cur.{arbitration => arb}
+    // pipeline.decode plug new Area {
+    //   import pipeline.{decode => cur} // Use 'cur' for current stage area
+    //   import cur.{arbitration => arb}
 
-      // --- Inputs ---
-      val instruction = cur.input(pCfg.INSTRUCTION)
-      val pc = cur.input(pCfg.PC)
-      // Need current privilege level for checks (assuming it comes from CSR plugin or similar)
-      // val currentPlv = cur.input(pCfg.CURRENT_PLV)
+    //   // --- Inputs ---
+    //   val instruction = cur.input(pCfg.INSTRUCTION)
+    //   val pc = cur.input(pCfg.PC)
+    //   // Need current privilege level for checks (assuming it comes from CSR plugin or similar)
+    //   // val currentPlv = cur.input(pCfg.CURRENT_PLV)
 
-      // --- Decoding Logic ---
-      val decoder = new DecoderComponent(pCfg) // Instantiate decoder logic area
-      decoder.io.instruction := instruction
-      decoder.io.pc := pc
+    //   // --- Decoding Logic ---
+    //   val decoder = new DecoderComponent(pCfg) // Instantiate decoder logic area
+    //   decoder.io.instruction := instruction
+    //   decoder.io.pc := pc
 
-      // --- Output ---
-      cur.insert(pCfg.DECODED_INST_OUTPUT) := decoder.io.decodedInst // Insert decoded instruction into pipeline
-      // FIMXE: pass IS_FETCH_INST_VALID-
+    //   // --- Output ---
+    //   cur.insert(pCfg.DECODED_INST_OUTPUT) := decoder.io.decodedInst // Insert decoded instruction into pipeline
+    //   // FIMXE: pass IS_FETCH_INST_VALID-
 
-    } // End decodeRename Area
+    // } // End decodeRename Area
   } // End build
 } // End DecodePlugin
 
