@@ -388,14 +388,9 @@ abstract class ExecutionPipeline(val pipelineName: String) extends Plugin with L
     // Generate read ports unconditionally if RF exists (compile-time check)
     if (setup.regFile.isDefined) {
       val rf = setup.regFile.get
+      rs1Value := rf.readReg(0, uop.rj)
+      rs2Value := rf.readReg(0, uop.rk)
 
-      val rs1Port = rf.io.reads(0);
-      val rs2Port = rf.io.reads(1);
-
-      rs1Port.address := uop.rj
-      rs2Port.address := uop.rk
-      rs1Value := rs1Port.data
-      rs2Value := rs2Port.data
       // TODO: Implement forwarding logic here (would mux forwarded value into rs1Value/rs2Value)
     }
 
@@ -417,15 +412,7 @@ abstract class ExecutionPipeline(val pipelineName: String) extends Plugin with L
       val rf = setup.regFile.get
       // Control write using run-time signals
       when(isFireing && wbStage(ExecutionUnitData.WRITEBACK_ENABLE)) {
-        // rf.write(
-        //   address = wbStage(ExecutionUnitData.WRITEBACK_DEST),
-        //   data = wbStage(ExecutionUnitData.WRITEBACK_VALUE),
-        //   enable = True // Already checked firing and enable stageable
-        // )
-        val writePort = rf.io.writes(0)
-        writePort.address := wbStage(ExecutionUnitData.WRITEBACK_DEST)
-        writePort.data := wbStage(ExecutionUnitData.WRITEBACK_VALUE)
-        writePort.enable := True
+        rf.writeReg(0, wbStage(ExecutionUnitData.WRITEBACK_DEST), wbStage(ExecutionUnitData.WRITEBACK_VALUE), True)
       }
     }
   }
@@ -548,16 +535,10 @@ class MemoryExecutionUnit extends Plugin with LockedImpl {
     // Generate read ports unconditionally if RF exists (compile-time check)
     if (setup.regFile.isDefined) {
       val rf = setup.regFile.get
-      // baseAddrRegVal := rf.readAsync(uop.rj)
-      val baseAddrPort = rf.io.reads(2)
-      baseAddrPort.address := uop.rj
-      baseAddrRegVal := baseAddrPort.data
+      baseAddrRegVal := rf.readReg(2, uop.rj)
       // Use 'when' for run-time check of operation type for second read
       when(uop.opType === OpType.STORE) {
-        // storeDataRegVal := rf.readAsync(uop.rk)
-        val storeDataPort = rf.io.reads(3)
-        storeDataPort.address := uop.rk
-        storeDataRegVal := storeDataPort.data
+        storeDataRegVal := rf.readReg(3, uop.rk)
 
       }
       // TODO: Forwarding
@@ -644,15 +625,9 @@ class MemoryExecutionUnit extends Plugin with LockedImpl {
       val rf = setup.regFile.get
       // Control write using run-time signals
       when(isFireing && wbStage(ExecutionUnitData.WRITEBACK_ENABLE)) {
-        // rf.write(
-        //   address = wbStage(ExecutionUnitData.WRITEBACK_DEST),
-        //   data = wbStage(ExecutionUnitData.WRITEBACK_VALUE),
-        //   enable = True
-        // )
-        val writePort = rf.io.writes(1)
-        writePort.address := wbStage(ExecutionUnitData.WRITEBACK_DEST)
-        writePort.data := wbStage(ExecutionUnitData.WRITEBACK_VALUE)
-        writePort.enable := True
+        val addr =  wbStage(ExecutionUnitData.WRITEBACK_DEST)
+        val data = wbStage(ExecutionUnitData.WRITEBACK_VALUE)
+        rf.writeReg(1, addr, data, True)
       }
     }
   }
@@ -725,7 +700,6 @@ class CommitPlugin extends Plugin with LockedImpl {
     val inputCommitStream = Stream(Fragment(CommitEntry()))
     inputCommitStream << setup.arbiter.io.output
     val rf = setup.regFile
-    val writePort = rf.io.writes(2)
 
     inputCommitStream.ready := True
 
@@ -736,9 +710,6 @@ class CommitPlugin extends Plugin with LockedImpl {
       // Generate write logic
       // Control write based on run-time commit data
       when(commitData.writebackEnable && !commitData.fault) {
-        // writePort.address := commitData.writebackDest // error
-        // writePort.data := commitData.writebackValue
-        // writePort.enable := True
         rf.writeReg(2, commitData.writebackDest, commitData.writebackValue, True)
       }
       report(
@@ -758,6 +729,30 @@ class RegisterFilePlugin(
     val numWritePorts: Int = 4
 ) extends Plugin {
 
+  // 内部信号，用于存储写请求
+  val writeSignals = create early new Area {
+    val addresses = Vec(UInt(log2Up(numRegisters) bits), numWritePorts)
+    val datas = Vec(Bits(32 bits), numWritePorts)
+    val enables = Vec(Bool(), numWritePorts)
+
+    for (i <- 0 until numWritePorts) {
+      addresses(i) := 0
+      datas(i) := 0
+      enables(i) := False
+    }
+  }
+
+  val readSignals = create early new Area {
+    val addresses = Vec(UInt(log2Up(numRegisters) bits), numReadPorts)
+    val data = Vec(Bits(32 bits), numReadPorts)
+
+    for (i <- 0 until numReadPorts) {
+      addresses(i) := 0
+      data(i) := 0
+    }
+  }
+
+  // 创建IO接口，但现在是输出而不是输入
   val io = create early new Area {
     val reads = Vec(
       new Bundle {
@@ -766,40 +761,38 @@ class RegisterFilePlugin(
       },
       numReadPorts
     )
-
-    val writes = Vec(
-      new Bundle {
-        val address = in UInt (log2Up(numRegisters) bits)
-        val data = in Bits (32 bits)
-        val enable = in Bool ()
-      },
-      numWritePorts
-    )
   }
 
   val regFileLogic = create late new Area {
     val registerFile = Mem(Bits(32 bits), numRegisters)
 
-    for (readPort <- io.reads) {
-      readPort.data := registerFile.readAsync(readPort.address)
+    // 处理读操作
+    for (i <- 0 until numReadPorts) {
+      when(readSignals.addresses(i) =/= 0) {
+        io.reads(i).data := registerFile.readAsync(readSignals.addresses(i))
+      } otherwise {
+        io.reads(i).data := 0
+      }
     }
 
-    for (writePort <- io.writes) {
-      when(writePort.enable && writePort.address =/= 0) {
-        registerFile.write(writePort.address, writePort.data)
+    // 处理写操作
+    for (i <- 0 until numWritePorts) {
+      when(writeSignals.enables(i) && writeSignals.addresses(i) =/= 0) {
+        registerFile.write(writeSignals.addresses(i), writeSignals.datas(i))
       }
     }
   }
 
+  // 写入方法直接操作内部信号
   def writeReg(portIndex: Int, address: UInt, data: Bits, enable: Bool): Unit = {
-    io.writes(portIndex).address := address
-    io.writes(portIndex).data := data
-    io.writes(portIndex).enable := enable
+    writeSignals.addresses(portIndex) := address
+    writeSignals.datas(portIndex) := data
+    writeSignals.enables(portIndex) := enable
   }
 
   def readReg(portIndex: Int, address: UInt): Bits = {
-    io.reads(portIndex).address := address
-    io.reads(portIndex).data
+    readSignals.addresses(portIndex) := address
+    readSignals.data(portIndex)
   }
 }
 
