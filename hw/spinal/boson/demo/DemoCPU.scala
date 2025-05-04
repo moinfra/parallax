@@ -44,18 +44,18 @@ object FetchPipelineData extends AreaObject {
 }
 
 // --- ROM ---
-object DemoRom extends AreaObject {
+class DemoRom extends AreaObject {
   // Instructions corrected to align with DecodePlugin logic
   val rom = Mem(Bits(32 bits), 8) init (
     Seq(
       B(0x00402085L, 32 bits), // addi.w $r5, $r0, 2 (User provided)
-      B(0x0E000001L, 32 bits), // mul.w  $r1, $r0, $r0 (Synthesized)
+      B(0x0e000001L, 32 bits), // mul.w  $r1, $r0, $r0 (Synthesized)
       B(0x14000000L, 32 bits), // lw.w   $r0, 0($r0)  (Synthesized)
       B(0x16800000L, 32 bits), // sw.w   $r0, 0($r0)  (Synthesized)
       B(0x00000000L, 32 bits), // NOP
       B(0x00000000L, 32 bits), // NOP
       B(0x00000000L, 32 bits), // NOP
-      B(0x00000000L, 32 bits)  // NOP
+      B(0x00000000L, 32 bits) // NOP
     )
   )
 }
@@ -73,9 +73,9 @@ class Fetch0Plugin extends Plugin with LockedImpl {
     val pcUpdate = CombInit(pcPlus4)
     // Use when, not if, for run-time conditions
     when(!stage.isStuck) { pcReg := pcUpdate }
-
-    val romAddress = pcReg(log2Up(DemoRom.rom.wordCount) + 1 downto 2)
-    val instruction = DemoRom.rom.readAsync(romAddress)
+    val rom = (new DemoRom).rom
+    val romAddress = pcReg(log2Up(rom.wordCount) + 1 downto 2)
+    val instruction = rom.readAsync(romAddress)
 
     stage(FetchPipelineData.PC) := pcReg
     stage(FetchPipelineData.INSTRUCTION) := instruction
@@ -85,10 +85,10 @@ class Fetch0Plugin extends Plugin with LockedImpl {
 
 class Fetch1Plugin extends Plugin with LockedImpl {
   val setup = create early new Area {
-     val fetchPipeline = getService[FetchPipeline]
+    val fetchPipeline = getService[FetchPipeline]
   }
   val logic = create late new Area {
-     // No logic needed, M2S handles pass-through
+    // No logic needed, M2S handles pass-through
   }
 }
 
@@ -209,7 +209,7 @@ class DecodePlugin extends Plugin with LockedImpl {
 // --- Dispatch Stage Plugin ---
 class DispatchPlugin extends Plugin with LockedImpl {
   val setup = create early new Area {
-      val frontendPipeline = getService[FrontendPipeline]
+    val frontendPipeline = getService[FrontendPipeline]
   }
   val logic = create late new Area {
     // Interaction logic is in IssueQueues plugin
@@ -242,7 +242,6 @@ class FetchFrontendBridge extends Plugin {
   }
 }
 
-
 // ==========================================================================
 // == Backend: Issue, Execute, Commit ==
 // ==========================================================================
@@ -253,13 +252,18 @@ class IssueQueues extends Plugin with LockedImpl {
   val memoryIssueDepth = 8
   val muldivIssueDepth = 4
 
-  val intIssueQueue = StreamFifo(MicroOp(), integerIssueDepth)
-  val memIssueQueue = StreamFifo(MicroOp(), memoryIssueDepth)
-  val mulIssueQueue = StreamFifo(MicroOp(), muldivIssueDepth)
-
   val setup = create early new Area {
-      val frontendPipeline = getService[FrontendPipeline]
+
+    val intIssueQueue = StreamFifo(MicroOp(), integerIssueDepth)
+    val memIssueQueue = StreamFifo(MicroOp(), memoryIssueDepth)
+    val mulIssueQueue = StreamFifo(MicroOp(), muldivIssueDepth)
+
+    val frontendPipeline = getService[FrontendPipeline]
   }
+
+  def intIssueQueue = setup.intIssueQueue
+  def memIssueQueue = setup.memIssueQueue
+  def mulIssueQueue = setup.mulIssueQueue
 
   val dispatchLogic = create late new Area {
     val dispatchStage = setup.frontendPipeline.exitStage
@@ -286,7 +290,7 @@ class IssueQueues extends Plugin with LockedImpl {
         }
         is(OpType.LOAD, OpType.STORE) {
           memIssueQueue.io.push.valid := True
-           when(!memIssueQueue.io.push.ready) {
+          when(!memIssueQueue.io.push.ready) {
             dispatchStage.haltIt()
           }
         }
@@ -298,15 +302,15 @@ class IssueQueues extends Plugin with LockedImpl {
         }
         default { /* NOPs pass through */ }
       }
-    } elsewhen (dispatchStage.isValid){ // If stage is valid but not firing (stalled downstream)
-        // Check if the stall is due to the issue queue it *would* target
-        val uop = dispatchStage(FrontendPipelineData.UOP)
-         switch(uop.opType) {
-            is(OpType.ALU) { when(!intIssueQueue.io.push.ready) { dispatchStage.haltIt() }}
-            is(OpType.LOAD, OpType.STORE) { when(!memIssueQueue.io.push.ready) { dispatchStage.haltIt() }}
-            is(OpType.MUL) { when(!mulIssueQueue.io.push.ready) { dispatchStage.haltIt() }}
-            default { /* NOPs pass through */ }
-         }
+    } elsewhen (dispatchStage.isValid) { // If stage is valid but not firing (stalled downstream)
+      // Check if the stall is due to the issue queue it *would* target
+      val uop = dispatchStage(FrontendPipelineData.UOP)
+      switch(uop.opType) {
+        is(OpType.ALU) { when(!intIssueQueue.io.push.ready) { dispatchStage.haltIt() } }
+        is(OpType.LOAD, OpType.STORE) { when(!memIssueQueue.io.push.ready) { dispatchStage.haltIt() } }
+        is(OpType.MUL) { when(!mulIssueQueue.io.push.ready) { dispatchStage.haltIt() } }
+        default { /* NOPs pass through */ }
+      }
     }
   }
 }
@@ -350,9 +354,9 @@ abstract class ExecutionPipeline(val pipelineName: String) extends Plugin with L
       setup.issueQueueInput.ready := rrStage.isReady
 
       when(setup.issueQueueInput.fire) {
-           rrStage(ExecutionUnitData.UOP) := setup.issueQueueInput.payload
+        rrStage(ExecutionUnitData.UOP) := setup.issueQueueInput.payload
       } otherwise {
-           rrStage(ExecutionUnitData.UOP).assignDontCare()
+        rrStage(ExecutionUnitData.UOP).assignDontCare()
       }
     } else {
       pipeline.RR.valid := False
@@ -383,18 +387,23 @@ abstract class ExecutionPipeline(val pipelineName: String) extends Plugin with L
 
     // Generate read ports unconditionally if RF exists (compile-time check)
     if (setup.regFile.isDefined) {
-        val rf = setup.regFile.get
-        // Perform reads - results are wires/signals available this cycle
-        rs1Value := rf.readAsync(uop.rj)
-        rs2Value := rf.readAsync(uop.rk)
-        // TODO: Implement forwarding logic here (would mux forwarded value into rs1Value/rs2Value)
+      val rf = setup.regFile.get
+
+      val rs1Port = rf.io.reads(0);
+      val rs2Port = rf.io.reads(1);
+
+      rs1Port.address := uop.rj
+      rs2Port.address := uop.rk
+      rs1Value := rs1Port.data
+      rs2Value := rs2Port.data
+      // TODO: Implement forwarding logic here (would mux forwarded value into rs1Value/rs2Value)
     }
 
     // Pass data to EX stage only when firing (run-time check)
     when(isFireing) {
-       rrStage(ExecutionUnitData.UOP) := uop
-       rrStage(ExecutionUnitData.RS1_VALUE) := rs1Value
-       rrStage(ExecutionUnitData.RS2_VALUE) := rs2Value
+      rrStage(ExecutionUnitData.UOP) := uop
+      rrStage(ExecutionUnitData.RS1_VALUE) := rs1Value
+      rrStage(ExecutionUnitData.RS2_VALUE) := rs2Value
     }
   }
 
@@ -405,19 +414,22 @@ abstract class ExecutionPipeline(val pipelineName: String) extends Plugin with L
 
     // Generate write logic conditionally based on RF existence (compile-time check)
     if (setup.regFile.isDefined && setup.writebackOutput == null) { // Example direct write if not committing
-        val rf = setup.regFile.get
-        // Control write using run-time signals
-        when(isFireing && wbStage(ExecutionUnitData.WRITEBACK_ENABLE)) {
-            rf.write(
-                address = wbStage(ExecutionUnitData.WRITEBACK_DEST),
-                data    = wbStage(ExecutionUnitData.WRITEBACK_VALUE),
-                enable  = True // Already checked firing and enable stageable
-            )
-        }
+      val rf = setup.regFile.get
+      // Control write using run-time signals
+      when(isFireing && wbStage(ExecutionUnitData.WRITEBACK_ENABLE)) {
+        // rf.write(
+        //   address = wbStage(ExecutionUnitData.WRITEBACK_DEST),
+        //   data = wbStage(ExecutionUnitData.WRITEBACK_VALUE),
+        //   enable = True // Already checked firing and enable stageable
+        // )
+        val writePort = rf.io.writes(0)
+        writePort.address := wbStage(ExecutionUnitData.WRITEBACK_DEST)
+        writePort.data := wbStage(ExecutionUnitData.WRITEBACK_VALUE)
+        writePort.enable := True
+      }
     }
   }
 }
-
 
 // --- ALU Execution Unit Plugin ---
 class AluExecutionUnit(val id: Int) extends ExecutionPipeline(s"ALU_Unit_$id") {
@@ -426,7 +438,7 @@ class AluExecutionUnit(val id: Int) extends ExecutionPipeline(s"ALU_Unit_$id") {
     val queues = getService[IssueQueues]
     val commit = getService[CommitPlugin]
     setup.issueQueueInput = queues.intIssueQueue.io.pop
-    if(id >= commit.arbiter.io.inputs.length) SpinalError(s"ALU ID $id exceeds Commit inputs")
+    if (id >= commit.arbiter.io.inputs.length) SpinalError(s"ALU ID $id exceeds Commit inputs")
     setup.writebackOutput = commit.arbiter.io.inputs(id)
   }
 
@@ -434,7 +446,7 @@ class AluExecutionUnit(val id: Int) extends ExecutionPipeline(s"ALU_Unit_$id") {
     val exStage = pipeline.EX
     import exStage._
 
-    val uop       = exStage(ExecutionUnitData.UOP)
+    val uop = exStage(ExecutionUnitData.UOP)
     val rs1_value = exStage(ExecutionUnitData.RS1_VALUE)
     val rs2_value = exStage(ExecutionUnitData.RS2_VALUE)
 
@@ -442,9 +454,9 @@ class AluExecutionUnit(val id: Int) extends ExecutionPipeline(s"ALU_Unit_$id") {
     // Use 'when' for run-time operation check
     when(uop.opType === OpType.ALU) {
       when(uop.rk === 0 && uop.imm =/= 0) { // Infer ADDI
-           result := (rs1_value.asSInt + uop.imm).asBits
+        result := (rs1_value.asSInt + uop.imm).asBits
       } otherwise { // Assume ADD.W
-           result := (rs1_value.asSInt + rs2_value.asSInt).asBits
+        result := (rs1_value.asSInt + rs2_value.asSInt).asBits
       }
     } otherwise {
       result := B(0)
@@ -462,19 +474,18 @@ class AluExecutionUnit(val id: Int) extends ExecutionPipeline(s"ALU_Unit_$id") {
 
       // Use 'when' for run-time check before assigning payload
       when(isFireing) {
-          val commitEntry = CommitEntry()
-          commitEntry.uop             := wbStage(ExecutionUnitData.UOP)
-          commitEntry.writebackValue  := wbStage(ExecutionUnitData.WRITEBACK_VALUE)
-          commitEntry.writebackDest   := wbStage(ExecutionUnitData.WRITEBACK_DEST)
-          commitEntry.writebackEnable := wbStage(ExecutionUnitData.WRITEBACK_ENABLE)
-          commitEntry.fault           := wbStage(ExecutionUnitData.UOP).fault
+        val commitEntry = CommitEntry()
+        commitEntry.uop := wbStage(ExecutionUnitData.UOP)
+        commitEntry.writebackValue := wbStage(ExecutionUnitData.WRITEBACK_VALUE)
+        commitEntry.writebackDest := wbStage(ExecutionUnitData.WRITEBACK_DEST)
+        commitEntry.writebackEnable := wbStage(ExecutionUnitData.WRITEBACK_ENABLE)
+        commitEntry.fault := wbStage(ExecutionUnitData.UOP).fault
 
-          setup.writebackOutput.payload.fragment := commitEntry
+        setup.writebackOutput.payload.fragment := commitEntry
       }
     }
   }
 }
-
 
 // --- Memory Execution Unit Plugin --- (Independent Pipeline)
 class MemoryExecutionUnit extends Plugin with LockedImpl {
@@ -488,13 +499,13 @@ class MemoryExecutionUnit extends Plugin with LockedImpl {
   pipeline.setCompositeName(this, "MEM_Unit")
 
   val setup = create early new Area {
-      val queues = getService[IssueQueues]
-      val commit = getService[CommitPlugin]
-      val regFile = getServiceOption[RegisterFilePlugin]
-      val issueQueueInput: Stream[MicroOp] = queues.memIssueQueue.io.pop
-      val memArbiterSlot = 2
-      if(memArbiterSlot >= commit.arbiter.io.inputs.length) SpinalError(s"MEM Unit slot exceeds Commit inputs")
-      val writebackOutput: Stream[Fragment[CommitEntry]] = commit.arbiter.io.inputs(memArbiterSlot)
+    val queues = getService[IssueQueues]
+    val commit = getService[CommitPlugin]
+    val regFile = getServiceOption[RegisterFilePlugin]
+    val issueQueueInput: Stream[MicroOp] = queues.memIssueQueue.io.pop
+    val memArbiterSlot = 2
+    if (memArbiterSlot >= commit.arbiter.io.inputs.length) SpinalError(s"MEM Unit slot exceeds Commit inputs")
+    val writebackOutput: Stream[Fragment[CommitEntry]] = commit.arbiter.io.inputs(memArbiterSlot)
   }
 
   val issueConnection = create late new Area {
@@ -502,9 +513,9 @@ class MemoryExecutionUnit extends Plugin with LockedImpl {
     rrStage.valid := setup.issueQueueInput.valid
     setup.issueQueueInput.ready := rrStage.isReady
     when(setup.issueQueueInput.fire) {
-        rrStage(ExecutionUnitData.UOP) := setup.issueQueueInput.payload
+      rrStage(ExecutionUnitData.UOP) := setup.issueQueueInput.payload
     } otherwise {
-        rrStage(ExecutionUnitData.UOP).assignDontCare()
+      rrStage(ExecutionUnitData.UOP).assignDontCare()
     }
   }
 
@@ -515,13 +526,13 @@ class MemoryExecutionUnit extends Plugin with LockedImpl {
     setup.writebackOutput.payload.last := True
 
     when(wbStage.isFireing) { // Use 'when' for run-time check
-        val commitEntry = CommitEntry()
-        commitEntry.uop             := wbStage(ExecutionUnitData.UOP)
-        commitEntry.writebackValue  := wbStage(ExecutionUnitData.WRITEBACK_VALUE)
-        commitEntry.writebackDest   := wbStage(ExecutionUnitData.WRITEBACK_DEST)
-        commitEntry.writebackEnable := wbStage(ExecutionUnitData.WRITEBACK_ENABLE)
-        commitEntry.fault           := wbStage(ExecutionUnitData.UOP).fault
-        setup.writebackOutput.payload.fragment := commitEntry
+      val commitEntry = CommitEntry()
+      commitEntry.uop := wbStage(ExecutionUnitData.UOP)
+      commitEntry.writebackValue := wbStage(ExecutionUnitData.WRITEBACK_VALUE)
+      commitEntry.writebackDest := wbStage(ExecutionUnitData.WRITEBACK_DEST)
+      commitEntry.writebackEnable := wbStage(ExecutionUnitData.WRITEBACK_ENABLE)
+      commitEntry.fault := wbStage(ExecutionUnitData.UOP).fault
+      setup.writebackOutput.payload.fragment := commitEntry
     }
   }
 
@@ -536,20 +547,27 @@ class MemoryExecutionUnit extends Plugin with LockedImpl {
 
     // Generate read ports unconditionally if RF exists (compile-time check)
     if (setup.regFile.isDefined) {
-        val rf = setup.regFile.get
-        baseAddrRegVal := rf.readAsync(uop.rj)
-        // Use 'when' for run-time check of operation type for second read
-        when(uop.opType === OpType.STORE) {
-             storeDataRegVal := rf.readAsync(uop.rk)
-        }
-        // TODO: Forwarding
+      val rf = setup.regFile.get
+      // baseAddrRegVal := rf.readAsync(uop.rj)
+      val baseAddrPort = rf.io.reads(2)
+      baseAddrPort.address := uop.rj
+      baseAddrRegVal := baseAddrPort.data
+      // Use 'when' for run-time check of operation type for second read
+      when(uop.opType === OpType.STORE) {
+        // storeDataRegVal := rf.readAsync(uop.rk)
+        val storeDataPort = rf.io.reads(3)
+        storeDataPort.address := uop.rk
+        storeDataRegVal := storeDataPort.data
+
+      }
+      // TODO: Forwarding
     }
 
     // Pass data to AGU stage conditionally on firing (run-time check)
     when(isFireing) {
-       rrStage(ExecutionUnitData.UOP) := uop
-       rrStage(ExecutionUnitData.RS1_VALUE) := baseAddrRegVal
-       rrStage(ExecutionUnitData.RS2_VALUE) := storeDataRegVal
+      rrStage(ExecutionUnitData.UOP) := uop
+      rrStage(ExecutionUnitData.RS1_VALUE) := baseAddrRegVal
+      rrStage(ExecutionUnitData.RS2_VALUE) := storeDataRegVal
     }
   }
 
@@ -568,11 +586,11 @@ class MemoryExecutionUnit extends Plugin with LockedImpl {
 
     // Pass data to LS stage conditionally on firing
     when(isFireing) {
-       val nextUop = uop
-       nextUop.fault := uop.fault || aguFault // Update fault status potentially
-       aguStage(ExecutionUnitData.UOP) := nextUop
-       aguStage(ExecutionUnitData.MEM_ADDRESS) := effectiveAddress
-       aguStage(ExecutionUnitData.MEM_DATA_WRITE) := storeData
+      val nextUop = uop
+      nextUop.fault := uop.fault || aguFault // Update fault status potentially
+      aguStage(ExecutionUnitData.UOP) := nextUop
+      aguStage(ExecutionUnitData.MEM_ADDRESS) := effectiveAddress
+      aguStage(ExecutionUnitData.MEM_DATA_WRITE) := storeData
     }
   }
 
@@ -596,23 +614,23 @@ class MemoryExecutionUnit extends Plugin with LockedImpl {
 
     // Use 'when' for run-time operation type checks
     when(isValid && memAcknowledge) { // Ensure stage is valid for operation
-        when(uop.opType === OpType.LOAD) { readData := B"32'xCAFEBABE" }
-        when(uop.opType === OpType.STORE) { /* memory.write(...) */ }
+      when(uop.opType === OpType.LOAD) { readData := B"32'xCAFEBABE" }
+      when(uop.opType === OpType.STORE) { /* memory.write(...) */ }
     }
 
     val finalFault = uop.fault || memFault
 
     // Pass data to WB stage conditionally on firing
     when(isFireing) {
-        val nextUop = uop
-        nextUop.fault := finalFault
-        lsStage(ExecutionUnitData.UOP) := nextUop
-        lsStage(ExecutionUnitData.MEM_DATA_READ) := readData
+      val nextUop = uop
+      nextUop.fault := finalFault
+      lsStage(ExecutionUnitData.UOP) := nextUop
+      lsStage(ExecutionUnitData.MEM_DATA_READ) := readData
 
-        val writeEnable = (uop.opType === OpType.LOAD && uop.rd =/= 0 && !finalFault)
-        lsStage(ExecutionUnitData.WRITEBACK_VALUE) := readData
-        lsStage(ExecutionUnitData.WRITEBACK_DEST) := uop.rd
-        lsStage(ExecutionUnitData.WRITEBACK_ENABLE) := writeEnable
+      val writeEnable = (uop.opType === OpType.LOAD && uop.rd =/= 0 && !finalFault)
+      lsStage(ExecutionUnitData.WRITEBACK_VALUE) := readData
+      lsStage(ExecutionUnitData.WRITEBACK_DEST) := uop.rd
+      lsStage(ExecutionUnitData.WRITEBACK_ENABLE) := writeEnable
     }
   }
 
@@ -623,19 +641,22 @@ class MemoryExecutionUnit extends Plugin with LockedImpl {
 
     // Generate write logic conditionally based on RF existence
     if (setup.regFile.isDefined) {
-        val rf = setup.regFile.get
-        // Control write using run-time signals
-        when(isFireing && wbStage(ExecutionUnitData.WRITEBACK_ENABLE)) {
-            rf.write(
-                address = wbStage(ExecutionUnitData.WRITEBACK_DEST),
-                data    = wbStage(ExecutionUnitData.WRITEBACK_VALUE),
-                enable  = True
-            )
-        }
+      val rf = setup.regFile.get
+      // Control write using run-time signals
+      when(isFireing && wbStage(ExecutionUnitData.WRITEBACK_ENABLE)) {
+        // rf.write(
+        //   address = wbStage(ExecutionUnitData.WRITEBACK_DEST),
+        //   data = wbStage(ExecutionUnitData.WRITEBACK_VALUE),
+        //   enable = True
+        // )
+        val writePort = rf.io.writes(1)
+        writePort.address := wbStage(ExecutionUnitData.WRITEBACK_DEST)
+        writePort.data := wbStage(ExecutionUnitData.WRITEBACK_VALUE)
+        writePort.enable := True
+      }
     }
   }
 }
-
 
 // --- Multiply/Divide Execution Unit Plugin ---
 class MulDivExecutionUnit extends ExecutionPipeline("MulDiv_Unit") {
@@ -645,7 +666,7 @@ class MulDivExecutionUnit extends ExecutionPipeline("MulDiv_Unit") {
     val commit = getService[CommitPlugin]
     setup.issueQueueInput = queues.mulIssueQueue.io.pop
     val mulArbiterSlot = 3
-    if(mulArbiterSlot >= commit.arbiter.io.inputs.length) SpinalError(s"MUL Unit slot exceeds Commit inputs")
+    if (mulArbiterSlot >= commit.arbiter.io.inputs.length) SpinalError(s"MUL Unit slot exceeds Commit inputs")
     setup.writebackOutput = commit.arbiter.io.inputs(mulArbiterSlot)
   }
 
@@ -653,7 +674,7 @@ class MulDivExecutionUnit extends ExecutionPipeline("MulDiv_Unit") {
     val exStage = pipeline.EX
     import exStage._
 
-    val uop       = exStage(ExecutionUnitData.UOP)
+    val uop = exStage(ExecutionUnitData.UOP)
     val rs1_value = exStage(ExecutionUnitData.RS1_VALUE)
     val rs2_value = exStage(ExecutionUnitData.RS2_VALUE)
 
@@ -671,18 +692,17 @@ class MulDivExecutionUnit extends ExecutionPipeline("MulDiv_Unit") {
       val wbStage = pipeline.WB
       import wbStage._
       when(isFireing) { // Use 'when' for run-time check
-          val commitEntry = CommitEntry()
-          commitEntry.uop             := wbStage(ExecutionUnitData.UOP)
-          commitEntry.writebackValue  := wbStage(ExecutionUnitData.WRITEBACK_VALUE)
-          commitEntry.writebackDest   := wbStage(ExecutionUnitData.WRITEBACK_DEST)
-          commitEntry.writebackEnable := wbStage(ExecutionUnitData.WRITEBACK_ENABLE)
-          commitEntry.fault           := wbStage(ExecutionUnitData.UOP).fault
-          setup.writebackOutput.payload.fragment := commitEntry
+        val commitEntry = CommitEntry()
+        commitEntry.uop := wbStage(ExecutionUnitData.UOP)
+        commitEntry.writebackValue := wbStage(ExecutionUnitData.WRITEBACK_VALUE)
+        commitEntry.writebackDest := wbStage(ExecutionUnitData.WRITEBACK_DEST)
+        commitEntry.writebackEnable := wbStage(ExecutionUnitData.WRITEBACK_ENABLE)
+        commitEntry.fault := wbStage(ExecutionUnitData.UOP).fault
+        setup.writebackOutput.payload.fragment := commitEntry
       }
     }
   }
 }
-
 
 // --- Commit Stage ---
 case class CommitEntry() extends Bundle {
@@ -697,31 +717,31 @@ class CommitPlugin extends Plugin with LockedImpl {
   val setup = create early new Area {
     val executionUnitCount = 4
     val arbiter = StreamArbiterFactory.roundRobin.build(Fragment(CommitEntry()), executionUnitCount)
-    val regFile = getServiceOption[RegisterFilePlugin]
+    val regFile = getService[RegisterFilePlugin]
   }
   def arbiter = setup.arbiter
 
   val commitLogic = create late new Area {
-    val inputCommitStream = setup.arbiter.io.output
+    val inputCommitStream = Stream(Fragment(CommitEntry()))
+    inputCommitStream << setup.arbiter.io.output
+    val rf = setup.regFile
+    val writePort = rf.io.writes(2)
+
     inputCommitStream.ready := True
 
     // Use 'when' for run-time commit processing
     when(inputCommitStream.fire) {
       val commitData = inputCommitStream.payload.fragment
 
-      // Generate write logic conditionally on RF existence
-      if(setup.regFile.isDefined) {
-          val rf = setup.regFile.get
-          // Control write based on run-time commit data
-          when(commitData.writebackEnable && !commitData.fault) {
-              rf.write(
-                  address = commitData.writebackDest,
-                  data    = commitData.writebackValue,
-                  enable  = True // Firing, enabled, no fault
-              )
-          }
+      // Generate write logic
+      // Control write based on run-time commit data
+      when(commitData.writebackEnable && !commitData.fault) {
+        // writePort.address := commitData.writebackDest // error
+        // writePort.data := commitData.writebackValue
+        // writePort.enable := True
+        rf.writeReg(2, commitData.writebackDest, commitData.writebackValue, True)
       }
-        report(
+      report(
         Seq(
           L"COMMIT: PC=0x${commitData.uop.pc}%x OP=${commitData.uop.opType} ",
           L"RD=${commitData.writebackDest} WEn=${commitData.writebackEnable} ",
@@ -732,34 +752,54 @@ class CommitPlugin extends Plugin with LockedImpl {
   }
 }
 
-// --- Placeholder for Register File ---
-class RegisterFilePlugin extends Plugin with LockedImpl {
-  val registerCount = 32
-  val readPorts = 6
-  val writePorts = 4
+class RegisterFilePlugin(
+    val numRegisters: Int = 32,
+    val numReadPorts: Int = 6,
+    val numWritePorts: Int = 4
+) extends Plugin {
 
-  val registerFile = Mem(Bits(32 bits), registerCount)
-  private val readLogics = ArrayBuffer[Area]()
-  private val writeLogics = ArrayBuffer[Area]()
+  val io = create early new Area {
+    val reads = Vec(
+      new Bundle {
+        val address = in UInt (log2Up(numRegisters) bits)
+        val data = out Bits (32 bits)
+      },
+      numReadPorts
+    )
 
-  def readAsync(address: UInt): Bits = {
-    // Generate read port unconditionally within this method
-    val logic = create late new Area {
-       val data = registerFile.readAsync(address = address, readUnderWrite = readFirst)
-    }
-    readLogics += logic
-    logic.data // Return the signal containing read data
+    val writes = Vec(
+      new Bundle {
+        val address = in UInt (log2Up(numRegisters) bits)
+        val data = in Bits (32 bits)
+        val enable = in Bool ()
+      },
+      numWritePorts
+    )
   }
 
-  def write(address: UInt, data: Bits, enable: Bool): Unit = {
-    // Generate write port unconditionally within this method
-    val logic = create late new Area {
-        // Control write enable using run-time signal 'enable'
-        when(enable && address =/= 0) {
-            registerFile.write(address = address, data = data)
-        }
+  val regFileLogic = create late new Area {
+    val registerFile = Mem(Bits(32 bits), numRegisters)
+
+    for (readPort <- io.reads) {
+      readPort.data := registerFile.readAsync(readPort.address)
     }
-    writeLogics += logic
+
+    for (writePort <- io.writes) {
+      when(writePort.enable && writePort.address =/= 0) {
+        registerFile.write(writePort.address, writePort.data)
+      }
+    }
+  }
+
+  def writeReg(portIndex: Int, address: UInt, data: Bits, enable: Bool): Unit = {
+    io.writes(portIndex).address := address
+    io.writes(portIndex).data := data
+    io.writes(portIndex).enable := enable
+  }
+
+  def readReg(portIndex: Int, address: UInt): Bits = {
+    io.reads(portIndex).address := address
+    io.reads(portIndex).data
   }
 }
 
@@ -768,22 +808,33 @@ class RegisterFilePlugin extends Plugin with LockedImpl {
 // ==========================================================================
 object DemoCpuGen extends App {
   SpinalConfig(defaultClockDomainFrequency = FixedFrequency(100 MHz))
-  .generateVerilog(new DemoCPU(plugins = DemoCpuGen.getPlugins))
+    .generateVerilog(new DemoCPU(plugins = DemoCpuGen.getPlugins))
   println("Verilog Generation DONE")
 
-    def getPlugins: Seq[Plugin] = Seq( /* ... same plugin list ... */
-        new FetchPipeline, new FrontendPipeline, new FetchFrontendBridge,
-        new Fetch0Plugin, new Fetch1Plugin, new DecodePlugin, new DispatchPlugin,
-        new IssueQueues, new RegisterFilePlugin, new CommitPlugin,
-        new AluExecutionUnit(id = 0), new AluExecutionUnit(id = 1),
-        new MemoryExecutionUnit, new MulDivExecutionUnit
-    )
+  def getPlugins: Seq[Plugin] = Seq(
+    new RegisterFilePlugin,
+    new FetchPipeline,
+    new FrontendPipeline,
+    new FetchFrontendBridge,
+    new Fetch0Plugin,
+    new Fetch1Plugin,
+    new DecodePlugin,
+    new DispatchPlugin,
+    new IssueQueues,
+    new CommitPlugin,
+    new AluExecutionUnit(id = 0),
+    new AluExecutionUnit(id = 1),
+    new MemoryExecutionUnit,
+    new MulDivExecutionUnit
+  )
 }
 
 object DemoCPUGenSim extends App {
-  SimConfig.withWave.compile(
+  SimConfig.withWave
+    .compile(
       new DemoCPU(plugins = DemoCpuGen.getPlugins)
-  ).doSim(seed = 42) { dut =>
+    )
+    .doSim(seed = 42) { dut =>
       dut.clockDomain.forkStimulus(period = 10)
       dut.clockDomain.waitSampling(200)
       println("Simulation DONE")
