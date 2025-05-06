@@ -269,3 +269,14 @@ class Framework(val plugins : Seq[Plugin]) extends Area{
    */
   def getServices = services
 }
+
+trait LockedService {
+  def retain()
+  def release()
+}
+
+trait LockedImpl extends LockedService {
+  val lock = Lock()
+  override def retain() = lock.retain()
+  override def release() = lock.release()
+}

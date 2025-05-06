@@ -60,13 +60,13 @@ object ScopedHandle{
 }
 
 
-//Boson elaboration assume it is running into a loaded NaxScope
-object NaxScope extends DataBaseScope{
+//Boson elaboration assume it is running into a loaded ProjectScope
+object ProjectScope extends DataBaseScope{
 
 }
 
-//This can be used to globaly store anything in a NaxScope
-class NaxThing[T] extends ScopedHandle[T](NaxScope)
+//This can be used to globaly store anything in a ProjectScope
+class NaxThing[T] extends ScopedHandle[T](ProjectScope)
 
 //The only purpose of this is to make usercode pretty <3
 object NaxParameter {

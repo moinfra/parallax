@@ -5,7 +5,7 @@ import spinal.core._
 import spinal.lib.pipeline.Pipeline
 import boson.utilities.Plugin
 import boson.utilities.DataBase
-import boson.utilities.NaxScope
+import boson.utilities.ProjectScope
 import boson.utilities.Framework
 import scala.collection.mutable.ArrayBuffer
 import spinal.lib.pipeline.Connection.DIRECT
@@ -28,7 +28,7 @@ trait LockedImpl extends LockedService {
 
 class Demoware(val plugins: Seq[Plugin]) extends Component with LockedImpl {
   val database = new DataBase
-  val framework = NaxScope(database) on new Framework(plugins) // Will run the generation asynchronously
+  val framework = ProjectScope(database) on new Framework(plugins) // Will run the generation asynchronously
 }
 
 object Gen extends App {
