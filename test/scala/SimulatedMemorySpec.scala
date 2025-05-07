@@ -1,146 +1,165 @@
 package boson.test.scala
 
-import spinal.core._
-import spinal.core.sim._
-import spinal.lib.sim.{StreamDriver, StreamMonitor, StreamReadyRandomizer}
 import org.scalatest.funsuite.AnyFunSuite
-
 import scala.collection.mutable
 import scala.util.Random
 
-import boson.demo2.components.icache._
+import spinal.core._
+import spinal.core.sim._
+import spinal.lib.sim.{StreamDriver, StreamMonitor, StreamReadyRandomizer}
+import spinal.tester.SpinalSimFunSuite
 
-class SimulatedMemorySpec extends AnyFunSuite {
+// Make sure these paths are correct for your project structure
+import boson.demo2.components.memory.{SimulatedMemory, SimulatedMemoryConfig, GenericMemoryBus, GenericMemoryBusConfig}
+import boson.demo2.common.Config // Assuming Config.XLEN is defined
 
-  // Helper function to create and compile the DUT
-  def simConfig(config: SimpleICacheConfig) = {
-    SimConfig
-      .withConfig(SpinalConfig(defaultClockDomainFrequency = FixedFrequency(100 MHz)))
-      .withWave // Optional: enable VCD/FST waveform dumping
-      .compile(new SimulatedMemory()(config))
+class SimulatedMemorySpec extends SpinalSimFunSuite {
 
-  }
+  onlyVerilator
 
-  test("SimulatedMemory should respond to a single line request") {
-    implicit val config = SimpleICacheConfig(
-      bytePerLine = 32, // 8 words per line
-      dataWidth = 32,
-      simulatedMemLatency = 3 // 3 cycles per word
+  def simConfig = SimConfig.withWave // FST is generally preferred over VCD
+
+  val busAddrWidth = 32
+  val busDataWidth = 32 // The width SimulatedMemory will expose on its bus
+
+  // Configuration for the GenericMemoryBus that SimulatedMemory will implement
+  val genericBusConfig = GenericMemoryBusConfig(
+    addressWidth = busAddrWidth,
+    dataWidth = busDataWidth
+  )
+
+ test("SimulatedMemory should respond to a single word read request") {
+    val internalMemWidth = 16
+    val memSizeBytes = 1024
+    val latencyCycles = 2
+
+    val memCfg = SimulatedMemoryConfig(
+      internalDataWidth = internalMemWidth,
+      memSize = memSizeBytes,
+      initialLatency = latencyCycles
     )
-    simConfig(config).doSim { dut =>
-      dut.clockDomain.forkStimulus(period = 10)
 
-      // Initialize memory content for testing
-      val testMem = mutable.HashMap[Long, Long]()
-      for (i <- 0 until config.wordsPerLine) {
-        testMem(i.toLong * (config.dataWidth / 8)) = (0xcafe0000 + i).toLong
+    simConfig
+      .compile(new SimulatedMemory(memCfg, genericBusConfig))
+      .doSim { dut =>
+        dut.clockDomain.forkStimulus(period = 10)
+
+        // --- Testbench Write Initialization ---
+        val internalWordsPerBus = busDataWidth / internalMemWidth
+        val testAddrByte = 0x40
+        val testDataBusWidth = BigInt("CAFEBABE", 16)
+
         dut.io.writeEnable #= true
-        dut.io.writeAddress #= i * (config.dataWidth / 8)
-        dut.io.writeData #= testMem(i.toLong * (config.dataWidth / 8))
+        for (i <- 0 until internalWordsPerBus) {
+          val currentByteAddr = testAddrByte + i * (internalMemWidth / 8)
+          val dataSlice = (testDataBusWidth >> (i * internalMemWidth)) & ((BigInt(1) << internalMemWidth) - 1)
+          dut.io.writeAddress #= currentByteAddr
+          dut.io.writeData #= dataSlice
+          dut.clockDomain.waitSampling()
+        }
+        dut.io.writeEnable #= false
         dut.clockDomain.waitSampling()
+
+        // --- DUT Interaction ---
+        val (cmdDriver, cmdQueue) = StreamDriver.queue(dut.io.bus.cmd, dut.clockDomain)
+        
+        // 监视器只捕获读取数据
+        var receivedData: Option[BigInt] = None
+        val rspMonitor = StreamMonitor(dut.io.bus.rsp, dut.clockDomain) { payload =>
+          receivedData = Some(payload.readData.toBigInt)
+        }
+        
+        StreamReadyRandomizer(dut.io.bus.rsp, dut.clockDomain)
+
+        // 发送读命令
+        cmdQueue.enqueue { cmd =>
+          cmd.address #= testAddrByte
+          cmd.isWrite #= false
+          cmd.writeData #= 0
+        }
+
+        // 等待响应
+        dut.clockDomain.waitSamplingWhere(receivedData.isDefined)
+
+        assert(receivedData.get == testDataBusWidth, 
+          s"Read data mismatch. Expected $testDataBusWidth, got ${receivedData.get}")
+        assert(!dut.io.bus.rsp.payload.error.toBoolean, "Error signal was asserted")
+
+        dut.clockDomain.waitEdge(10)
       }
-      dut.io.writeEnable #= false
-      dut.clockDomain.waitSampling()
-
-      // Drive the command
-      dut.io.bus.cmd.valid #= false
-      dut.io.bus.rsp.ready #= true // Cache is always ready to accept response
-      dut.clockDomain.waitSampling()
-
-      val lineAddrToRequest = 0L
-      println(s"Requesting line address: ${lineAddrToRequest}")
-
-      dut.io.bus.cmd.valid #= true
-      dut.io.bus.cmd.payload.lineAddress #= lineAddrToRequest
-
-      waitUntil(dut.io.bus.cmd.ready.toBoolean) // Wait for memory to be ready
-      dut.clockDomain.waitSampling() // cmd.fire happens here
-      dut.io.bus.cmd.valid #= false // Deassert valid after fire
-
-      val receivedWords = mutable.ArrayBuffer[Long]()
-
-      for (i <- 0 until config.wordsPerLine) {
-        println(s"Waiting for word $i")
-        // Wait for latency + 1 cycle for data to be valid (readSync)
-        dut.clockDomain.waitSampling(config.simulatedMemLatency)
-        waitUntil(dut.io.bus.rsp.valid.toBoolean)
-
-        val data = dut.io.bus.rsp.payload.data.toLong
-        receivedWords += data
-        println(
-          s"Received word $i: 0x${data.toHexString}, Expected: 0x${testMem(i.toLong * (config.dataWidth / 8)).toHexString}"
-        )
-        assert(data == testMem(i.toLong * (config.dataWidth / 8)), s"Word $i mismatch")
-
-        dut.clockDomain.waitSampling() // rsp.fire happens here
-      }
-
-      assert(receivedWords.size == config.wordsPerLine)
-      println("Single line request test passed.")
-    }
-
   }
 
-  test("SimulatedMemory should handle back-to-back line requests") {
-    implicit val config = SimpleICacheConfig(
-      bytePerLine = 16, // 4 words per line
-      dataWidth = 32,
-      simulatedMemLatency = 2
+  test("SimulatedMemory should respond to a single word write request") {
+    val internalMemWidth = 16
+    val memSizeBytes = 1024
+    val latencyCycles = 1
+
+    val memCfg = SimulatedMemoryConfig(
+      internalDataWidth = internalMemWidth,
+      memSize = memSizeBytes,
+      initialLatency = latencyCycles
     )
-    simConfig(config).doSim { dut =>
-      dut.clockDomain.forkStimulus(period = 10)
 
-      // Preload memory for two lines
-      val testMemLine0 = (0 until config.wordsPerLine).map(i => (0x11110000 + i).toLong).toArray
-      val testMemLine1 = (0 until config.wordsPerLine).map(i => (0x22220000 + i).toLong).toArray
+    simConfig
+      .compile(new SimulatedMemory(memCfg, genericBusConfig))
+      .doSim { dut =>
+        dut.clockDomain.forkStimulus(period = 10)
 
-      for (i <- 0 until config.wordsPerLine) {
-        dut.io.writeEnable #= true
-        dut.io.writeAddress #= i * (config.dataWidth / 8) // Line 0
-        dut.io.writeData #= testMemLine0(i)
-        dut.clockDomain.waitSampling()
-        dut.io.writeAddress #= config.bytePerLine + i * (config.dataWidth / 8) // Line 1
-        dut.io.writeData #= testMemLine1(i)
-        dut.clockDomain.waitSampling()
+        val (cmdDriver, cmdQueue) = StreamDriver.queue(dut.io.bus.cmd, dut.clockDomain)
+        
+        // 监视器只检查错误状态
+        var responseReceived = false
+        var responseError = false
+        val rspMonitor = StreamMonitor(dut.io.bus.rsp, dut.clockDomain) { payload =>
+          responseReceived = true
+          responseError = payload.error.toBoolean
+        }
+        
+        StreamReadyRandomizer(dut.io.bus.rsp, dut.clockDomain)
+
+        val testAddrByte = 0x80
+        val testWriteData = BigInt("FEEDFACE", 16)
+
+        // 发送写命令
+        cmdQueue.enqueue { cmd =>
+          cmd.address #= testAddrByte
+          cmd.isWrite #= true
+          cmd.writeData #= testWriteData
+        }
+        
+        // 等待响应
+        dut.clockDomain.waitSamplingWhere(responseReceived)
+        assert(!responseError, "Write operation signaled an error")
+        dut.clockDomain.waitEdge(5)
+
+        // 验证写入 - 发送读命令
+        var readBackData: Option[BigInt] = None
+        val readMonitor = StreamMonitor(dut.io.bus.rsp, dut.clockDomain) { payload =>
+          readBackData = Some(payload.readData.toBigInt)
+        }
+
+        cmdQueue.enqueue { cmd =>
+          cmd.address #= testAddrByte
+          cmd.isWrite #= false
+          cmd.writeData #= 0
+        }
+        
+        // 等待并验证读取结果
+        dut.clockDomain.waitSamplingWhere(readBackData.isDefined)
+        assert(readBackData.get == testWriteData, 
+          s"Read back after write mismatch. Expected $testWriteData, got ${readBackData.get}")
+        assert(!dut.io.bus.rsp.payload.error.toBoolean, "Read back error")
+        
+        dut.clockDomain.waitEdge(10)
       }
-      dut.io.writeEnable #= false
-      dut.clockDomain.waitSampling()
-
-      dut.io.bus.rsp.ready #= true
-
-      // Request Line 0
-      dut.io.bus.cmd.valid #= true
-      dut.io.bus.cmd.payload.lineAddress #= 0
-      waitUntil(dut.io.bus.cmd.ready.toBoolean)
-      dut.clockDomain.waitSampling()
-      dut.io.bus.cmd.valid #= false
-
-      for (i <- 0 until config.wordsPerLine) {
-        dut.clockDomain.waitSampling(config.simulatedMemLatency)
-        waitUntil(dut.io.bus.rsp.valid.toBoolean)
-        assert(dut.io.bus.rsp.payload.data.toLong == testMemLine0(i))
-        dut.clockDomain.waitSampling()
-      }
-      println("Line 0 read successfully.")
-
-      // Immediately Request Line 1
-      // Memory should be in sIdle, so cmd.ready should be high
-      waitUntil(dut.io.bus.cmd.ready.toBoolean)
-      dut.io.bus.cmd.valid #= true
-      dut.io.bus.cmd.payload.lineAddress #= config.bytePerLine / (config.dataWidth / 8) // Line address for line 1
-
-      waitUntil(dut.io.bus.cmd.ready.toBoolean) // Should be ready quickly
-      dut.clockDomain.waitSampling()
-      dut.io.bus.cmd.valid #= false
-
-      for (i <- 0 until config.wordsPerLine) {
-        dut.clockDomain.waitSampling(config.simulatedMemLatency)
-        waitUntil(dut.io.bus.rsp.valid.toBoolean)
-        assert(dut.io.bus.rsp.payload.data.toLong == testMemLine1(i))
-        dut.clockDomain.waitSampling()
-      }
-      println("Line 1 read successfully after Line 0.")
-      println("Back-to-back line requests test passed.")
-    }
   }
+
+  // Add more tests:
+  // - Back-to-back read requests
+  // - Back-to-back write requests
+  // - Mixed read/write requests
+  // - Access to address 0
+  // - Access to max address
+  // - Out-of-bounds access (expect error signal if implemented, or specific behavior)
+  // - Different internalDataWidth vs busDataWidth scenarios
 }

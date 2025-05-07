@@ -21,7 +21,7 @@ class PhysicalRegFilePluginSpec extends SpinalSimFunSuite {
   def simConfig = SimConfig.withWave.withVcdWave
 
   // Helper function to create and compile the DUT
-  def createWrapper() = {
+  def createDut() = {
     class TestPlugin extends Plugin {
       val setup = create early new Area {
         val regfile = getService[PhysicalRegFileService]
@@ -30,7 +30,7 @@ class PhysicalRegFilePluginSpec extends SpinalSimFunSuite {
       }
     }
 
-    class PluginWrapper extends Component {
+    class TestBench extends Component {
       val database = new DataBase
       val framework = ProjectScope(database) on new Framework(
         Seq(
@@ -46,18 +46,18 @@ class PhysicalRegFilePluginSpec extends SpinalSimFunSuite {
       def readPort = testPlugin.setup.readPort
       def writePort = testPlugin.setup.writePort
     }
-    new PluginWrapper()
+    new TestBench()
   }
 
   test("Write to a reg and read it back") {
     simConfig
-      .compile(createWrapper())
-      .doSim { wrapper =>
+      .compile(createDut())
+      .doSim { dut =>
         {
-          val readPort = wrapper.readPort
-          val writePort = wrapper.writePort
+          val readPort = dut.readPort
+          val writePort = dut.writePort
 
-          wrapper.clockDomain.forkStimulus(period = 10)
+          dut.clockDomain.forkStimulus(period = 10)
           // Initialize port signals to a known state
           writePort.valid #= false
           writePort.address #= 0
@@ -65,7 +65,7 @@ class PhysicalRegFilePluginSpec extends SpinalSimFunSuite {
 
           readPort.valid #= false
           readPort.address #= 0
-          wrapper.clockDomain.waitSampling() // Wait for initial values to propagate
+          dut.clockDomain.waitSampling() // Wait for initial values to propagate
 
           // Constants for testing.
           // It's assumed Config.R0_PHYS_TAG is 0. If it's different, this literal must change.
@@ -83,17 +83,17 @@ class PhysicalRegFilePluginSpec extends SpinalSimFunSuite {
           writePort.address #= testAddr1
           writePort.data #= testData1
           println(s"Tick ${simTime()}: Writing ${testData1.toHexString} to PReg ${testAddr1}")
-          wrapper.clockDomain.waitSampling() // Write occurs at this clock edge
+          dut.clockDomain.waitSampling() // Write occurs at this clock edge
 
           writePort.valid #= false // De-assert valid
-          wrapper.clockDomain
+          dut.clockDomain
             .waitSampling() // Wait a tick before reading for clarity, though not strictly needed if readAsync is truly async
 
           // Read Operation
           readPort.valid #= true
           readPort.address #= testAddr1
           println(s"Tick ${simTime()}: Reading from PReg ${testAddr1}")
-          wrapper.clockDomain.waitSampling() // Read command sent; rsp should be updated in this tick due to readAsync
+          dut.clockDomain.waitSampling() // Read command sent; rsp should be updated in this tick due to readAsync
 
           val readData1 = readPort.rsp.toBigInt
           println(s"Tick ${simTime()}: Read back ${readData1.toString(16)} from PReg ${testAddr1}")
@@ -103,7 +103,7 @@ class PhysicalRegFilePluginSpec extends SpinalSimFunSuite {
           )
 
           readPort.valid #= false
-          wrapper.clockDomain.waitSampling(5) // Some delay
+          dut.clockDomain.waitSampling(5) // Some delay
 
           // --- Test 2: Attempt to write to R0 (physical tag R0_TAG) and read it back (should be 0) ---
           println(s"Starting Test 2: Attempt to write to R0 (PReg $R0_TAG) and read it back.")
@@ -114,23 +114,23 @@ class PhysicalRegFilePluginSpec extends SpinalSimFunSuite {
           writePort.address #= R0_TAG
           writePort.data #= nonZeroDataForR0 // This write should be ignored by the DUT
           println(s"Tick ${simTime()}: Attempting to write ${nonZeroDataForR0.toHexString} to PReg ${R0_TAG}")
-          wrapper.clockDomain.waitSampling()
+          dut.clockDomain.waitSampling()
 
           writePort.valid #= false
-          wrapper.clockDomain.waitSampling()
+          dut.clockDomain.waitSampling()
 
           // Read from R0
           readPort.valid #= true
           readPort.address #= R0_TAG
           println(s"Tick ${simTime()}: Reading from PReg ${R0_TAG}")
-          wrapper.clockDomain.waitSampling()
+          dut.clockDomain.waitSampling()
 
           val readDataR0 = readPort.rsp.toBigInt
           println(s"Tick ${simTime()}: Read back ${readDataR0.toString(16)} from PReg ${R0_TAG}")
           assert(readDataR0 == 0, s"Test 2 Read from R0 mismatch: Expected 0, got ${readDataR0.toString(16)}")
 
           readPort.valid #= false
-          wrapper.clockDomain.waitSampling(5)
+          dut.clockDomain.waitSampling(5)
 
           // --- Test 3: Write to a different non-R0 register, then read previously written non-R0, then R0 ---
           println("Starting Test 3: Write to another reg, verify, then re-check first reg and R0.")
@@ -142,15 +142,15 @@ class PhysicalRegFilePluginSpec extends SpinalSimFunSuite {
           writePort.address #= testAddr2
           writePort.data #= testData2
           println(s"Tick ${simTime()}: Writing ${testData2.toHexString} to PReg ${testAddr2}")
-          wrapper.clockDomain.waitSampling()
+          dut.clockDomain.waitSampling()
           writePort.valid #= false
-          wrapper.clockDomain.waitSampling()
+          dut.clockDomain.waitSampling()
 
           // Read from testAddr2 to verify
           readPort.valid #= true
           readPort.address #= testAddr2
           println(s"Tick ${simTime()}: Reading from PReg ${testAddr2}")
-          wrapper.clockDomain.waitSampling()
+          dut.clockDomain.waitSampling()
           val readData2 = readPort.rsp.toBigInt
           println(s"Tick ${simTime()}: Read back ${readData2.toString(16)} from PReg ${testAddr2}")
           assert(
@@ -158,13 +158,13 @@ class PhysicalRegFilePluginSpec extends SpinalSimFunSuite {
             s"Test 3 Read from testAddr2 mismatch: Expected ${testData2.toHexString}, got ${readData2.toString(16)}"
           )
           readPort.valid #= false
-          wrapper.clockDomain.waitSampling()
+          dut.clockDomain.waitSampling()
 
           // Read from testAddr1 again (should still hold testData1)
           readPort.valid #= true
           readPort.address #= testAddr1
           println(s"Tick ${simTime()}: Reading again from PReg ${testAddr1}")
-          wrapper.clockDomain.waitSampling()
+          dut.clockDomain.waitSampling()
           val readData1Again = readPort.rsp.toBigInt
           println(s"Tick ${simTime()}: Read back ${readData1Again.toString(16)} from PReg ${testAddr1}")
           assert(
@@ -173,13 +173,13 @@ class PhysicalRegFilePluginSpec extends SpinalSimFunSuite {
                 .toString(16)}"
           )
           readPort.valid #= false
-          wrapper.clockDomain.waitSampling()
+          dut.clockDomain.waitSampling()
 
           // Read from R0 again (should still be 0)
           readPort.valid #= true
           readPort.address #= R0_TAG
           println(s"Tick ${simTime()}: Reading again from PReg ${R0_TAG}")
-          wrapper.clockDomain.waitSampling()
+          dut.clockDomain.waitSampling()
           val readDataR0Again = readPort.rsp.toBigInt
           println(s"Tick ${simTime()}: Read back ${readDataR0Again.toString(16)} from PReg ${R0_TAG}")
           assert(
@@ -189,7 +189,7 @@ class PhysicalRegFilePluginSpec extends SpinalSimFunSuite {
           readPort.valid #= false
 
           println(s"Tick ${simTime()}: All tests completed.")
-          wrapper.clockDomain.waitSampling(10) // Final wait for waves to capture last states
+          dut.clockDomain.waitSampling(10) // Final wait for waves to capture last states
         }
       }
   }
