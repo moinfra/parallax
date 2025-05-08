@@ -18,36 +18,10 @@ import boson.demo2.components.memory.{
   GenericMemoryRsp
 }
 
-class SimulatedMemorySpec extends SpinalSimFunSuite {
-
-  onlyVerilator
-
-  def simConfig = SimConfig.withWave // FST is generally preferred over VCD
+class SimulatedMemorySpec extends CustomSpinalSimFunSuite {
 
   val busAddrWidth = 32
   val busDataWidth = 32 // The width SimulatedMemory will expose on its bus (default for most tests)
-
-  val tests = mutable.ArrayBuffer[(String, () => Unit)]()
-  val testsOnly = mutable.ArrayBuffer[(String, () => Unit)]()
-  override def test(testName: String)(testFun: => Unit): Unit = {
-    tests += ((testName, () => testFun))
-  }
-
-  def testOnly(testName: String)(testFun: => Unit): Unit = {
-    testsOnly += ((testName, () => testFun))
-  }
-
-  def ready(): Unit = {
-    if (testsOnly.nonEmpty) {
-      for ((name, testFn) <- testsOnly) {
-        super.test(name)(testFn())
-      }
-    } else {
-      for ((name, testFn) <- tests) {
-        super.test(name)(testFn())
-      }
-    }
-  }
 
   // Configuration for the GenericMemoryBus that SimulatedMemory will implement
   def getGenericBusConfig(dataWidth: Int = busDataWidth, addrWidth: Int = busAddrWidth) = GenericMemoryBusConfig(
@@ -88,6 +62,70 @@ class SimulatedMemorySpec extends SpinalSimFunSuite {
     }
     dut.io.writeEnable #= false
     clockDomain.waitSampling()
+  }
+
+  test("SimulatedMemory should handle back-to-back read requests") {
+    val internalMemWidth = 16 // busDataWidth is 32 by default from class member
+    val memSizeBytes = 1024
+    val latencyCycles = 2
+    val numRequests = 3
+    val timeout = (latencyCycles + 10) * numRequests + 40 // Generous timeout
+
+    val memCfg = SimulatedMemoryConfig(
+      internalDataWidth = internalMemWidth,
+      memSize = memSizeBytes,
+      initialLatency = latencyCycles
+    )
+    val currentBusConfig = getGenericBusConfig(dataWidth = busDataWidth)
+
+    simConfig
+      .compile(new SimulatedMemory(memCfg, currentBusConfig))
+      .doSim { dut =>
+        dut.clockDomain.forkStimulus(period = 10)
+
+        val (_, cmdQueue) = StreamDriver.queue(dut.io.bus.cmd, dut.clockDomain)
+        dut.io.bus.rsp.ready #= true
+
+        val receivedResponses = mutable.Queue[(BigInt, Boolean)]() // (readData, error)
+        StreamMonitor(dut.io.bus.rsp, dut.clockDomain) { payload =>
+          receivedResponses.enqueue((payload.readData.toBigInt, payload.error.toBoolean))
+        }
+
+        val testData = Seq(
+          (0x10, BigInt("11AA22BB", 16)),
+          (0x20, BigInt("33CC44DD", 16)),
+          (0x30, BigInt("55EE66FF", 16))
+        )
+
+        // Initialize memory
+        testData.foreach { case (addr, data) =>
+          initMemViaSimPorts(dut, addr, data, internalMemWidth, currentBusConfig.dataWidth, dut.clockDomain)
+        }
+
+        // Enqueue read commands
+        testData.foreach { case (addr, _) =>
+          cmdQueue.enqueue { cmd =>
+            cmd.address #= addr
+            cmd.isWrite #= false
+            cmd.writeData #= 0
+          }
+        }
+
+        // Wait for all responses
+        assert(
+          !dut.clockDomain.waitSamplingWhere(timeout)(receivedResponses.size == numRequests),
+          s"Timeout: Expected $numRequests responses, got ${receivedResponses.size}"
+        )
+
+        // Verify responses
+        testData.foreach { case (_, expectedData) =>
+          assert(receivedResponses.nonEmpty, "Not enough responses received")
+          val (readData, error) = receivedResponses.dequeue()
+          assert(!error, s"Error flag set for read of $expectedData")
+          assert(readData == expectedData, s"Data mismatch. Expected $expectedData, got $readData")
+        }
+        dut.clockDomain.waitEdge(10)
+      }
   }
 
   test("SimulatedMemory should respond to a single word read request") {
@@ -215,70 +253,6 @@ class SimulatedMemorySpec extends SpinalSimFunSuite {
           s"Read back after write mismatch. Expected $testWriteData, got $readBackData"
         )
 
-        dut.clockDomain.waitEdge(10)
-      }
-  }
-
-  test("SimulatedMemory should handle back-to-back read requests") {
-    val internalMemWidth = 16 // busDataWidth is 32 by default from class member
-    val memSizeBytes = 1024
-    val latencyCycles = 2
-    val numRequests = 3
-    val timeout = (latencyCycles + 10) * numRequests + 40 // Generous timeout
-
-    val memCfg = SimulatedMemoryConfig(
-      internalDataWidth = internalMemWidth,
-      memSize = memSizeBytes,
-      initialLatency = latencyCycles
-    )
-    val currentBusConfig = getGenericBusConfig(dataWidth = busDataWidth)
-
-    simConfig
-      .compile(new SimulatedMemory(memCfg, currentBusConfig))
-      .doSim { dut =>
-        dut.clockDomain.forkStimulus(period = 10)
-
-        val (_, cmdQueue) = StreamDriver.queue(dut.io.bus.cmd, dut.clockDomain)
-        dut.io.bus.rsp.ready #= true
-
-        val receivedResponses = mutable.Queue[(BigInt, Boolean)]() // (readData, error)
-        StreamMonitor(dut.io.bus.rsp, dut.clockDomain) { payload =>
-          receivedResponses.enqueue((payload.readData.toBigInt, payload.error.toBoolean))
-        }
-
-        val testData = Seq(
-          (0x10, BigInt("11AA22BB", 16)),
-          (0x20, BigInt("33CC44DD", 16)),
-          (0x30, BigInt("55EE66FF", 16))
-        )
-
-        // Initialize memory
-        testData.foreach { case (addr, data) =>
-          initMemViaSimPorts(dut, addr, data, internalMemWidth, currentBusConfig.dataWidth, dut.clockDomain)
-        }
-
-        // Enqueue read commands
-        testData.foreach { case (addr, _) =>
-          cmdQueue.enqueue { cmd =>
-            cmd.address #= addr
-            cmd.isWrite #= false
-            cmd.writeData #= 0
-          }
-        }
-
-        // Wait for all responses
-        assert(
-          !dut.clockDomain.waitSamplingWhere(timeout)(receivedResponses.size == numRequests),
-          s"Timeout: Expected $numRequests responses, got ${receivedResponses.size}"
-        )
-
-        // Verify responses
-        testData.foreach { case (_, expectedData) =>
-          assert(receivedResponses.nonEmpty, "Not enough responses received")
-          val (readData, error) = receivedResponses.dequeue()
-          assert(!error, s"Error flag set for read of $expectedData")
-          assert(readData == expectedData, s"Data mismatch. Expected $expectedData, got $readData")
-        }
         dut.clockDomain.waitEdge(10)
       }
   }
@@ -645,5 +619,5 @@ class SimulatedMemorySpec extends SpinalSimFunSuite {
       }
   }
 
-  ready
+  thatsAll // mark end of tests
 }
