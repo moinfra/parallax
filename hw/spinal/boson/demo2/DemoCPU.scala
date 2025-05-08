@@ -20,17 +20,6 @@ class DemoCPU(val plugins: Seq[Plugin]) extends Component {
   val framework = ProjectScope(database) on new Framework(plugins)
 }
 
-// ==========================================================================
-// == Issue Stage Components ==
-// ==========================================================================
-
-// ==========================================================================
-// == Execution Stage Components == (NO CHANGES TO STRUCTURE)
-// ==========================================================================
-
-// ==========================================================================
-// == Main CPU Instantiation & Simulation == (NO CHANGES)
-// ==========================================================================
 object DemoCPUGen extends App {
 
   def getPlugins: Seq[Plugin] = {

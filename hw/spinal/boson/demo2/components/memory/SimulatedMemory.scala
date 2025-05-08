@@ -27,12 +27,15 @@ class SimulatedMemory(
     val busConfig: GenericMemoryBusConfig
 ) extends Component {
 
-  val io = new Bundle {
+  class IO extends Bundle {
     val bus = slave(GenericMemoryBus(busConfig))
+    // 下面的仅限测试时使用
     val writeEnable = in Bool () default (False)
     val writeAddress = in UInt (busConfig.addressWidth bits) default (U(0, busConfig.addressWidth bits))
     val writeData = in Bits (memConfig.internalDataWidth bits) default (B(0, memConfig.internalDataWidth bits))
   }
+
+  val io = new IO
 
   val internalWordsPerBusData: Int = busConfig.dataWidth / memConfig.internalDataWidth
   require(busConfig.dataWidth % memConfig.internalDataWidth == 0)
@@ -51,27 +54,29 @@ class SimulatedMemory(
       )
     }
   }
-val currentBusAddressReg = Reg(UInt(busConfig.addressWidth bits)) init (U(0, busConfig.addressWidth bits))
+  val currentBusAddressReg = Reg(UInt(busConfig.addressWidth bits)) init (U(0, busConfig.addressWidth bits))
   val currentIsWriteReg = Reg(Bool()) init (False)
   val currentWriteDataReg = Reg(Bits(busConfig.dataWidth bits)) init (B(0, busConfig.dataWidth bits))
-  val latencyCounterReg = Reg(UInt(log2Up(memConfig.initialLatency + 1) bits)) init (U(0, log2Up(memConfig.initialLatency + 1) bits))
-  
-  val baseInternalWordAddr = (currentBusAddressReg >> log2Up(memConfig.internalDataWidthBytes)).resize(memConfig.internalAddrWidth)
+  val latencyCounterReg =
+    Reg(UInt(log2Up(memConfig.initialLatency + 1) bits)) init (U(0, log2Up(memConfig.initialLatency + 1) bits))
+
+  val baseInternalWordAddr =
+    (currentBusAddressReg >> log2Up(memConfig.internalDataWidthBytes)).resize(memConfig.internalAddrWidth)
   val internalReadData = Bits(memConfig.internalDataWidth bits)
   internalReadData := B(0)
 
   // --- Conditional Part Counter & Assembly Buffer (Elaboration Time) ---
   val partCounterReg: UInt = if (internalWordsPerBusData > 1) {
     val width = log2Up(internalWordsPerBusData)
-    Reg(UInt(width bits)) init(U(0, width bits)) setName("partCounterReg_physical")
+    Reg(UInt(width bits)) init (U(0, width bits)) setName ("partCounterReg_physical")
   } else {
-    null 
+    null
   }
 
   val assemblyBufferReg: Bits = if (internalWordsPerBusData > 1) {
-    Reg(Bits(busConfig.dataWidth bits)) init(B(0, busConfig.dataWidth bits)) setName("assemblyBufferReg_physical")
+    Reg(Bits(busConfig.dataWidth bits)) init (B(0, busConfig.dataWidth bits)) setName ("assemblyBufferReg_physical")
   } else {
-    null 
+    null
   }
 
   // --- FSM ---
@@ -88,9 +93,9 @@ val currentBusAddressReg = Reg(UInt(busConfig.addressWidth bits)) init (U(0, bus
           currentBusAddressReg := io.bus.cmd.payload.address
           currentIsWriteReg := io.bus.cmd.payload.isWrite
           currentWriteDataReg := io.bus.cmd.payload.writeData
-          
+
           if (internalWordsPerBusData > 1) {
-            partCounterReg := U(0) 
+            partCounterReg := U(0)
             assemblyBufferReg := B(0) // Only reset if it exists
           }
           latencyCounterReg := 0
@@ -101,38 +106,43 @@ val currentBusAddressReg = Reg(UInt(busConfig.addressWidth bits)) init (U(0, bus
 
     val sProcessInternal: State = new State {
       val assembledDataForOutput = Bits(busConfig.dataWidth bits)
-      assembledDataForOutput := B(0) 
+      assembledDataForOutput := B(0)
 
-      val lastByteAddrOfCurrentBusTransaction = currentBusAddressReg + U(busConfig.dataWidth/8 - 1, busConfig.addressWidth bits)
-      val busLevelAccessOutOfBounds = lastByteAddrOfCurrentBusTransaction >= U(memConfig.memSize, busConfig.addressWidth bits)
-      
+      val lastByteAddrOfCurrentBusTransaction =
+        currentBusAddressReg + U(busConfig.dataWidth / 8 - 1, busConfig.addressWidth bits)
+      val busLevelAccessOutOfBounds =
+        lastByteAddrOfCurrentBusTransaction >= U(memConfig.memSize, busConfig.addressWidth bits)
+
       val currentProcessingWordIdx: UInt = UInt(memConfig.internalAddrWidth bits)
       val currentWordAccessValid: Bool = Bool()
-      val dataErrorForRsp = Reg(Bool()) init(False) 
+      val dataErrorForRsp = Reg(Bool()) init (False)
 
       if (internalWordsPerBusData > 1) {
         currentProcessingWordIdx := baseInternalWordAddr + partCounterReg
-        currentWordAccessValid := currentProcessingWordIdx.resize(memConfig.internalWordCount.bits) < memConfig.internalWordCount
-      } else { 
+        currentWordAccessValid := currentProcessingWordIdx.resize(
+          memConfig.internalWordCount.bits
+        ) < memConfig.internalWordCount
+      } else {
         currentProcessingWordIdx := baseInternalWordAddr
-        currentWordAccessValid := currentProcessingWordIdx.resize(memConfig.internalWordCount.bits) < memConfig.internalWordCount
+        currentWordAccessValid := currentProcessingWordIdx.resize(
+          memConfig.internalWordCount.bits
+        ) < memConfig.internalWordCount
       }
-      
+
       whenIsActive {
         // ... (reports as before) ...
         when(latencyCounterReg < memConfig.initialLatency) {
           latencyCounterReg := latencyCounterReg + 1
-        } otherwise { 
+        } otherwise {
           val currentCycleError = busLevelAccessOutOfBounds || !currentWordAccessValid
-          when(currentCycleError && !dataErrorForRsp) { 
-             dataErrorForRsp := True 
+          when(currentCycleError && !dataErrorForRsp) {
+            dataErrorForRsp := True
           }
 
-          when(currentIsWriteReg) {
-          } otherwise { // Read
+          when(currentIsWriteReg) {} otherwise { // Read
             val dataToAssemble = Bits(memConfig.internalDataWidth bits)
-            when(currentWordAccessValid && !busLevelAccessOutOfBounds) { 
-                dataToAssemble := internalReadData 
+            when(currentWordAccessValid && !busLevelAccessOutOfBounds) {
+              dataToAssemble := internalReadData
             } otherwise { dataToAssemble := B(0, memConfig.internalDataWidth bits) }
 
             if (internalWordsPerBusData == 1) {
@@ -145,16 +155,16 @@ val currentBusAddressReg = Reg(UInt(busConfig.addressWidth bits)) init (U(0, bus
               assemblyBufferReg := nextAssemblyBuffer // Assigning to assemblyBufferReg
             }
           }
-          latencyCounterReg := 0 
+          latencyCounterReg := 0
 
           // --- FSM Progression Logic ---
           if (internalWordsPerBusData == 1) {
             io.bus.rsp.valid := True
             io.bus.rsp.payload.readData := Mux(currentIsWriteReg || dataErrorForRsp, B(0), assembledDataForOutput)
             io.bus.rsp.payload.error := dataErrorForRsp
-            when(io.bus.rsp.fire || currentIsWriteReg) { 
-                dataErrorForRsp := False 
-                goto(sIdle)
+            when(io.bus.rsp.fire || currentIsWriteReg) {
+              dataErrorForRsp := False
+              goto(sIdle)
             }
           } else { // Multi-part
             val isLastPart = partCounterReg === (internalWordsPerBusData - 1)
@@ -162,12 +172,12 @@ val currentBusAddressReg = Reg(UInt(busConfig.addressWidth bits)) init (U(0, bus
               io.bus.rsp.valid := True
               io.bus.rsp.payload.readData := Mux(currentIsWriteReg || dataErrorForRsp, B(0), assembledDataForOutput)
               io.bus.rsp.payload.error := dataErrorForRsp
-              when(io.bus.rsp.fire || currentIsWriteReg) { 
-                  dataErrorForRsp := False 
-                  goto(sIdle)
+              when(io.bus.rsp.fire || currentIsWriteReg) {
+                dataErrorForRsp := False
+                goto(sIdle)
               }
-            } otherwise { 
-              partCounterReg := partCounterReg + U(1, 1 bits) 
+            } otherwise {
+              partCounterReg := partCounterReg + U(1, 1 bits)
             }
           }
         }
@@ -176,17 +186,32 @@ val currentBusAddressReg = Reg(UInt(busConfig.addressWidth bits)) init (U(0, bus
   } // End of FSM
 
   // --- Combinational Read/Write Logic ---
-  val combCurrentProcessingWordIdx = if(internalWordsPerBusData > 1) baseInternalWordAddr + partCounterReg else baseInternalWordAddr
-  val combWordAccessValid = if (memConfig.internalWordCount == 0) False else combCurrentProcessingWordIdx.resize(memConfig.internalWordCount.bits) < memConfig.internalWordCount
-  val combBusLevelAccessOutOfBounds = (currentBusAddressReg + U(busConfig.dataWidth/8 - 1, busConfig.addressWidth bits)) >= U(memConfig.memSize, busConfig.addressWidth bits)
+  val combCurrentProcessingWordIdx =
+    if (internalWordsPerBusData > 1) baseInternalWordAddr + partCounterReg else baseInternalWordAddr
+  val combWordAccessValid =
+    if (memConfig.internalWordCount == 0) False
+    else combCurrentProcessingWordIdx.resize(memConfig.internalWordCount.bits) < memConfig.internalWordCount
+  val combBusLevelAccessOutOfBounds =
+    (currentBusAddressReg + U(busConfig.dataWidth / 8 - 1, busConfig.addressWidth bits)) >= U(
+      memConfig.memSize,
+      busConfig.addressWidth bits
+    )
 
-  when(sm.isActive(sm.sProcessInternal) && !currentIsWriteReg && (latencyCounterReg >= memConfig.initialLatency) && combWordAccessValid && !combBusLevelAccessOutOfBounds) {
+  when(
+    sm.isActive(
+      sm.sProcessInternal
+    ) && !currentIsWriteReg && (latencyCounterReg >= memConfig.initialLatency) && combWordAccessValid && !combBusLevelAccessOutOfBounds
+  ) {
     internalReadData := mem.readAsync(address = combCurrentProcessingWordIdx)
   }
-  when(sm.isActive(sm.sProcessInternal) && currentIsWriteReg && (latencyCounterReg >= memConfig.initialLatency) && combWordAccessValid && !combBusLevelAccessOutOfBounds) {
+  when(
+    sm.isActive(
+      sm.sProcessInternal
+    ) && currentIsWriteReg && (latencyCounterReg >= memConfig.initialLatency) && combWordAccessValid && !combBusLevelAccessOutOfBounds
+  ) {
     val writeDataParts = currentWriteDataReg.subdivideIn(memConfig.internalDataWidth bits)
-    val actualPartIndexForWrite: UInt = if (internalWordsPerBusData == 1) { U(0) } 
-                                      else { partCounterReg } // Your fix
+    val actualPartIndexForWrite: UInt = if (internalWordsPerBusData == 1) { U(0) }
+    else { partCounterReg } // Your fix
     mem.write(address = combCurrentProcessingWordIdx, data = writeDataParts(actualPartIndexForWrite))
   }
 }

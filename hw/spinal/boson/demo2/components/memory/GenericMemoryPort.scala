@@ -5,7 +5,7 @@ import spinal.lib._
 
 // Configuration for the generic memory bus
 case class GenericMemoryBusConfig(
-    addressWidth: Int,
+    addressWidth: Int, // Byte address
     dataWidth: Int
 )
 

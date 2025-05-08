@@ -15,10 +15,11 @@ import boson.demo2.PhysicalRegFileService
 
 class PhysicalRegFilePluginSpec extends SpinalSimFunSuite {
 
+  // 开发迭代阶段，只使用 verilator，其他两个禁用
   ghdlEnabled = false
   iverilogEnabled = false
   // Define a test clock domain
-  def simConfig = SimConfig.withWave.withVcdWave
+  def simConfig = SimConfig.withWave.withVcdWave // 必须用 def，不要擅自改成 val
 
   // Helper function to create and compile the DUT
   def createDut() = {

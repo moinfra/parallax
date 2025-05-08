@@ -135,7 +135,7 @@ class RenamePlugin extends Plugin with LockedImpl with PhysicalRegFreeService {
         renamedUop.pDest := allocatedPDest
         freeList.io.pop.ready := stage.isReady // Pop only if rename stage not stalled
 
-        when(stage.isFiring) { // Update RAT only when instruction advances
+        when(stage.isFireing) { // Update RAT only when instruction advances
           mappingTable.write(
             address = archRd,
             data = allocatedPDest,

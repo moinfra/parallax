@@ -44,7 +44,7 @@ class Fetch0Plugin extends Plugin with LockedImpl {
     // Stall F0 if it's producing output (isValid) but F1 is not ready (isStuck)
     // This backpressure is handled by the M2S connection and F1's stalls.
 
-    when(stageF0.isFiring) { // isFiring means stage is valid and not stalled
+    when(stageF0.isFireing) { // isFireing means stage is valid and not stalled
       pcReg := Mux(redirectValid, redirectPc, pcPlus4)
     }
 
