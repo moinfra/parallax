@@ -67,6 +67,8 @@ class SimpleICache(implicit
   val dataWriteEnable = Bool().setAsReg() init (False) // Registered enable for data memory write
   // validArray is written directly: validArray(index) := value
 
+  val waitingForMemRspReg = Reg(Bool()) init (False)
+
   // Determine effective index for memory writes.
   val effectiveWriteIndex = if (cacheConfig.indexWidth > 0) currentIndexReg else U(0, 0 bits)
 
@@ -184,7 +186,9 @@ class SimpleICache(implicit
         if (cacheConfig.lineCount > 0) { // Only attempt refill if cache has place to store
           refillWordCounter := 0
           refillBuffer := B(0) // 清空 refill buffer
-          report(L"ICache: sCompareTag - MISS - Resetting refillCounter and refillBuffer.")
+          waitingForMemRspReg := False 
+          report(L"ICache: sCompareTag - MISS - Resetting counters and waitingForMemRspReg.")
+
           goto(sMiss_FetchWord) // Start fetching the line, word by word
         } else { // No cache lines to fill, this is effectively a permanent miss/error
           report(L"ICache: sCompareTag - MISS but no cache lines to fill (permanent miss/error).")
@@ -200,58 +204,96 @@ class SimpleICache(implicit
 
     // Fetches one word (cacheConfig.dataWidth) for the cache line from main memory.
     sMiss_FetchWord.whenIsActive {
-      io.mem.cmd.valid := True
-      // Calculate byte address of the current word to fetch for the line
-      val lineBaseByteAddress = (cacheConfig.lineAddress(currentCpuAddressReg) << cacheConfig.byteOffsetWidth).resized
-      val currentWordByteOffsetInLine = (refillWordCounter * (cacheConfig.dataWidth / 8)).resized
-      val calculatedMemAddress = lineBaseByteAddress + currentWordByteOffsetInLine
-
       report(
-        L"ICache: sMiss_FetchWord Active. CPU Addr: ${currentCpuAddressReg}, RefillWordCounter: ${refillWordCounter}, Requesting Mem Addr: ${calculatedMemAddress}"
+        L"ICache: sMiss_FetchWord Active. CPU Addr: ${currentCpuAddressReg}, RefillWordCounter: ${refillWordCounter}"
       )
 
-      io.mem.cmd.payload.address := lineBaseByteAddress + currentWordByteOffsetInLine
-      io.mem.cmd.payload.isWrite := False // Always reading for ICache fill
+      // --- 控制与内存的交互 ---
+      // 默认不与内存交互，除非明确允许
+      io.mem.cmd.valid := False
+      io.mem.cmd.payload.address := U(0) // Default address
+      io.mem.cmd.payload.isWrite := False
+      io.mem.rsp.ready := False
 
-      io.mem.rsp.ready := True // Ready to accept response
+      // 只要 refillWordCounter < wordsPerLine，我们就处于“正在填充”或“准备填充下一个字”的状态
+      when(refillWordCounter < cacheConfig.wordsPerLine) {
+        when(!waitingForMemRspReg) {
+          // 我们需要请求或正在等待当前 refillWordCounter 指向的字
+          val lineBaseByteAddress =
+            (cacheConfig.lineAddress(currentCpuAddressReg) << cacheConfig.byteOffsetWidth).resized
+          val currentWordByteOffsetInLine = (refillWordCounter * (cacheConfig.dataWidth / 8)).resized
+          val calculatedMemAddress = lineBaseByteAddress + currentWordByteOffsetInLine
 
-      when(io.mem.cmd.fire) { // Memory accepted the request for a word
-        // Now wait for response in this same state, or move to a wait state if mem has latency
-        // For simplicity with GenericMemoryBus being pipelined, we can expect rsp in a few cycles.
-        report(L"ICache: sMiss_FetchWord - Memory command fired for Addr: ${io.mem.cmd.payload.address}")
+          report(
+            L"ICache: sMiss_FetchWord - Target word for current cycle (based on counter ${refillWordCounter}): Addr ${calculatedMemAddress}"
+          )
+
+          // 尝试发出内存命令
+          // 注意：这里没有检查是否已经为当前的 refillWordCounter 发出过命令并正在等待响应。
+          // 一个简单的处理方式是，只要在这个状态并且字没满，就持续尝试发送命令。
+          // 如果内存接受了 (cmd.fire)，那么很好。如果没接受，下个周期继续尝试。
+          // 这种方式依赖 Stream 的握手机制。
+          io.mem.cmd.valid := True
+          io.mem.cmd.payload.address := calculatedMemAddress
+        }
+        // 无论是否发送了新命令，只要还在填充过程中，并且已经发出了命令（即 waitingForMemRspReg 为真，或者本周期即将发出命令）
+        // 我们就应该准备接收响应。
+        // 更准确地说，只要 waitingForMemRspReg 为真，或者本周期 cmd.fire 了，就应该准备接收。
+        // 为了简单且避免环路，只要还在填充，就设置 ready。
+        // 如果 cmd.valid 为 false (因为 waitingForMemRspReg 为 true), 那么 rsp.ready 即使为 true 也只是空等。
+        io.mem.rsp.ready := True
       }
 
-      when(io.mem.rsp.fire) { // A word is received from memory
+      // --- 处理内存命令发送成功 ---
+      when(io.mem.cmd.fire) { // cmd.valid 为高 (由上面的逻辑设置) 且 mem 接受了 (cmd.ready 为高)
         report(
-          L"ICache: sMiss_FetchWord - Memory response fired. Data: ${io.mem.rsp.payload.readData}, RefillWordCounter before inc: ${refillWordCounter}"
+          L"ICache: sMiss_FetchWord - Memory command fired for Addr: ${io.mem.cmd.payload.address} (word ${refillWordCounter}). Setting waitingForMemRspReg = True."
         )
-        // Place the received word into the correct position in the refillBuffer.
+        waitingForMemRspReg := True // 命令已发出，开始等待响应
+        // 注意：发出命令后，我们通常会停留在当前状态等待响应，或者如果有流水线，FSM 可能不用等待。
+        // 在这个简单的 FSM 中，我们停留在 sMiss_FetchWord。
+      }
+
+      // --- 处理内存响应接收成功 ---
+      when(io.mem.rsp.fire) { // rsp.valid 为高 (内存发来数据) 且 rsp.ready 为高 (我们设置的)
+        report(
+          L"ICache: sMiss_FetchWord - Memory response received. Data: ${io.mem.rsp.payload.readData}, RefillCounter was: ${refillWordCounter}. Setting waitingForMemRspReg = False."
+        )
+        waitingForMemRspReg := False // 响应已收到，不再等待这个字的响应
+
+        // 将收到的数据存入 refillBuffer 的正确位置
+        // 使用当前的 refillWordCounter 作为索引，因为这个响应对应的是这个计数器值的请求
         if (cacheConfig.bitsPerLine > 0 && cacheConfig.dataWidth > 0) {
           refillBuffer
             .subdivideIn(cacheConfig.dataWidth bits)
             .reverse(refillWordCounter.resize(cacheConfig.wordOffsetWidth)) := io.mem.rsp.payload.readData
-          // Check for memory error (optional, depends on GenericMemoryBus providing it)
-          // if(io.mem.rsp.payload.error) { /* handle error, e.g. fault CPU */ }
         }
-        refillWordCounter := refillWordCounter + 1
 
-        when(refillWordCounter === cacheConfig.wordsPerLine) { // All words for the line received
-          report(
-            L"ICache: sMiss_FetchWord - All words for line received. RefillWordCounter=${refillWordCounter}. Writing to cache and going to sDecodeAndReadCache."
-          )
+        // 收到一个字的响应后，准备获取下一个字
+        val nextRefillCounter = refillWordCounter + 1
+        refillWordCounter := nextRefillCounter // 寄存器在周期结束时更新
 
+        report(L"ICache: sMiss_FetchWord - RefillWordCounter will be ${nextRefillCounter} next cycle.")
+
+        // 检查是否所有字都已接收完毕 (基于 *将要更新为* 的 nextRefillCounter)
+        when(nextRefillCounter === cacheConfig.wordsPerLine) {
+          report(L"ICache: sMiss_FetchWord - All words for the line have been received (based on nextRefillCounter).")
           tagWriteEnable := True
           dataWriteEnable := True
           if (cacheConfig.lineCount > 0) validArray(effectiveWriteIndex) := True
-          goto(sDecodeAndReadCache) // Re-evaluate, should be a hit now
-        } otherwise {
-          // Stay in sMiss_FetchWord to request the next word of the line.
-          // The io.mem.cmd.valid will be asserted again with the updated address.
-          report(L"ICache: sMiss_FetchWord - More words needed for line. New RefillWordCounter: ${refillWordCounter}")
 
+          report(L"ICache: sMiss_FetchWord - Transitioning to sDecodeAndReadCache.")
+          goto(sDecodeAndReadCache)
+          // 注意：当 goto 发生时，当前状态的后续逻辑（包括 io.mem.cmd.valid 和 io.mem.rsp.ready 的赋值）
+          // 在下一个周期就不再是 sMiss_FetchWord 的逻辑了。
+          // sDecodeAndReadCache 状态应该有自己的 io.mem.* 信号控制（默认为False）。
+        } otherwise {
+          report(L"ICache: sMiss_FetchWord - More words needed for the line.")
+          // 自动停留在 sMiss_FetchWord 状态，
+          // 上面的 when(refillWordCounter < cacheConfig.wordsPerLine) 会在下一个周期
+          // 使用更新后的 refillWordCounter 继续尝试发送 cmd 和设置 rsp.ready。
         }
       }
-      // If neither cmd.fire nor rsp.fire, FSM stalls here, io.mem.cmd.valid remains high.
     }
 
     // --- sFlush_Invalidate State Logic ---
