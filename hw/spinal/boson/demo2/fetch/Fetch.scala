@@ -7,8 +7,8 @@ import boson.demo2.frontend.FrontendPipelineData // Your pipeline data definitio
 import spinal.core._
 import spinal.lib._
 import spinal.lib.pipeline.{Pipeline, Stage, Connection}
-import boson.demo2.system.FetchMemorySubsystemConfig
-import boson.demo2.system.FetchMemorySubsystem
+import boson.demo2.components.memory.InstructionFetchUnitConfig
+import boson.demo2.components.memory.InstructionFetchUnit
 
 
 // FetchPipeline definition (remains the same as your provided code)
@@ -56,12 +56,12 @@ class Fetch0Plugin extends Plugin with LockedImpl {
 }
 
 
-// Fetch1Plugin: Instantiates FetchMemorySubsystem and performs the fetch
-class Fetch1Plugin(val fmSubsystemConfig: FetchMemorySubsystemConfig) extends Plugin with LockedImpl {
+// Fetch1Plugin: Instantiates InstructionFetchUnit and performs the fetch
+class Fetch1Plugin(val fmSubsystemConfig: InstructionFetchUnitConfig) extends Plugin with LockedImpl {
 
-  // Service for testbench to access FetchMemorySubsystem internals (e.g., flush, memory write)
+  // Service for testbench to access InstructionFetchUnit internals (e.g., flush, memory write)
   // This service is useful for testbenches.
-  val fetchMemoryAccessService = create early new FetchMemorySubsystemAccessService {}
+  val fetchMemoryAccessService = create early new InstructionFetchUnitAccessService {}
 
   val setup = create early new Area {
     val fetchPipeline = getService[FetchPipeline]
@@ -74,12 +74,12 @@ class Fetch1Plugin(val fmSubsystemConfig: FetchMemorySubsystemConfig) extends Pl
 
   val logic = create late new Area {
     val stageF1 = setup.fetchPipeline.pipeline.fetch1
-    val fetchSystem = new FetchMemorySubsystem(fmSubsystemConfig)
+    val fetchSystem = new InstructionFetchUnit(fmSubsystemConfig)
 
     // Provide access to the instantiated fetchSystem for the testbench service
     fetchMemoryAccessService.fetchSystem = fetchSystem
 
-    // Connect PC from F0 (now available as input in F1) to FetchMemorySubsystem
+    // Connect PC from F0 (now available as input in F1) to InstructionFetchUnit
     fetchSystem.io.pcIn.valid := stageF1.valid // Input valid signal for F1
     fetchSystem.io.pcIn.payload := stageF1(FrontendPipelineData.PC_FETCH)
     // Backpressure: F1's input stream ready is driven by fetchSystem.io.pcIn.ready
@@ -89,12 +89,12 @@ class Fetch1Plugin(val fmSubsystemConfig: FetchMemorySubsystemConfig) extends Pl
     stageF1.haltWhen(stageF1.valid && !fetchSystem.io.pcIn.ready)
 
 
-    // Connect FetchMemorySubsystem output to F1 stage outputs
+    // Connect InstructionFetchUnit output to F1 stage outputs
     stageF1(FrontendPipelineData.INSTRUCTION) := fetchSystem.io.dataOut.payload.instruction
     stageF1(FrontendPipelineData.PC) := fetchSystem.io.dataOut.payload.pc
     stageF1(FrontendPipelineData.FETCH_FAULT) := fetchSystem.io.dataOut.payload.fault
 
-    // Control pipeline flow based on FetchMemorySubsystem's output stream
+    // Control pipeline flow based on InstructionFetchUnit's output stream
     // Halt F1 if it's supposed to produce output (isFireable) but fetchSystem has no valid data.
     stageF1.haltWhen(!fetchSystem.io.dataOut.valid && stageF1.isValid)
     fetchSystem.io.dataOut.ready := stageF1.isReady // F1 is ready to consume instruction
@@ -103,7 +103,7 @@ class Fetch1Plugin(val fmSubsystemConfig: FetchMemorySubsystemConfig) extends Pl
     // --- Flush Handling ---
     // Example: If flush is initiated by a signal in pipeline data from an earlier stage
     // or by an external interrupt/control signal.
-    // For now, let's assume io.flush on FetchMemorySubsystem is controlled externally
+    // For now, let's assume io.flush on InstructionFetchUnit is controlled externally
     // or via the testbench service.
     // If CPU pipeline triggers flush:
     // val flushCmd = stageF1(FrontendPipelineData.FLUSH_ICACHE_CMD) // Assuming this exists
@@ -114,7 +114,7 @@ class Fetch1Plugin(val fmSubsystemConfig: FetchMemorySubsystemConfig) extends Pl
   }
 }
 
-// Service for testbench to access FetchMemorySubsystem (e.g., for flush, tb writes)
-trait FetchMemorySubsystemAccessService extends Service {
-  var fetchSystem: FetchMemorySubsystem = null // Will be populated by Fetch1Plugin
+// Service for testbench to access InstructionFetchUnit (e.g., for flush, tb writes)
+trait InstructionFetchUnitAccessService extends Service {
+  var fetchSystem: InstructionFetchUnit = null // Will be populated by Fetch1Plugin
 }

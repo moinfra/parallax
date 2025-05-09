@@ -28,7 +28,7 @@ class SimulatedMemory(
 ) extends Component {
 
   class IO extends Bundle {
-    val bus = slave(GenericMemoryBus(busConfig))
+    val bus = slave(SimpleMemoryBus(busConfig))
     // 下面的仅限测试时使用
     val writeEnable = in Bool () default (False)
     val writeAddress = in UInt (busConfig.addressWidth bits) default (U(0, busConfig.addressWidth bits))
@@ -211,7 +211,7 @@ class SimulatedMemory(
   ) {
     val writeDataParts = currentWriteDataReg.subdivideIn(memConfig.internalDataWidth bits)
     val actualPartIndexForWrite: UInt = if (internalWordsPerBusData == 1) { U(0) }
-    else { partCounterReg } // Your fix
+    else { partCounterReg }
     mem.write(address = combCurrentProcessingWordIdx, data = writeDataParts(actualPartIndexForWrite))
   }
 }

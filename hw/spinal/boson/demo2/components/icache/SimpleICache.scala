@@ -20,7 +20,7 @@ class SimpleICache(implicit
 
   val io = new Bundle {
     val cpu = slave(ICacheCpuBus()) // Uses cacheConfig
-    val mem = master(GenericMemoryBus(memBusConfig)) // NEW: Uses GenericMemoryBus
+    val mem = master(SimpleMemoryBus(memBusConfig)) // NEW: Uses SimpleMemoryBus
     val flush = slave(ICacheFlushBus()) // Uses its own simple flush bus
   }
 
@@ -113,7 +113,7 @@ class SimpleICache(implicit
     val sIdle: State = new State with EntryPoint // Waiting for CPU or flush command
     val sDecodeAndReadCache: State = new State // Decode address, latches index for async RAM read
     val sCompareTag: State = new State // Cache RAM read done, compare tag
-    val sMiss_FetchWord: State = new State // Fetch one word from GenericMemoryBus
+    val sMiss_FetchWord: State = new State // Fetch one word from SimpleMemoryBus
     val sFlush_Invalidate: State = new State // Handling flush request
 
     // --- sIdle State Logic ---
