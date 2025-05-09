@@ -104,7 +104,7 @@ class RenamePlugin extends Plugin with LockedImpl with PhysicalRegFreeService {
     }
 
     // --- Input MicroOp ---
-    val inputUop = stage(FrontendPipelineData.UOP)
+    val inputUop = stage(FrontendPipelineKeys.UOP)
     val renamedUop = RenamedMicroOp().assignDontCare()
     renamedUop.uop := inputUop
     renamedUop.archDest := inputUop.rd
@@ -135,7 +135,7 @@ class RenamePlugin extends Plugin with LockedImpl with PhysicalRegFreeService {
         renamedUop.pDest := allocatedPDest
         freeList.io.pop.ready := stage.isReady // Pop only if rename stage not stalled
 
-        when(stage.isFireing) { // Update RAT only when instruction advances
+        when(stage.isFiring) { // Update RAT only when instruction advances
           mappingTable.write(
             address = archRd,
             data = allocatedPDest,
@@ -147,7 +147,7 @@ class RenamePlugin extends Plugin with LockedImpl with PhysicalRegFreeService {
       }
     }
 
-    stage(FrontendPipelineData.RENAMED_UOP) := renamedUop
+    stage(FrontendPipelineKeys.RENAMED_UOP) := renamedUop
 
     // Free List Input Logic is handled by the muxing logic in resetInitArea
   } // End logic Area

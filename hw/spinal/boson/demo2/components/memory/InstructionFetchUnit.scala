@@ -7,12 +7,16 @@ import boson.demo2.components.icache._
 import boson.demo2.components.memory._ // For GenericMemoryBus and SimulatedMemory
 
 case class InstructionFetchUnitConfig(
-    useICache: Boolean = true,
-    cpuAddressWidth: Int = Config.XLEN,
-    cpuDataWidth: Int = Config.XLEN, // Instruction width
-    memBusConfig: GenericMemoryBusConfig,
-    icacheConfig: SimpleICacheConfig = SimpleICacheConfig(addressWidth = Config.XLEN, dataWidth = Config.XLEN)
+    val useICache: Boolean = true,
+    val enableFlush: Boolean = false,
+    val cpuAddressWidth: Int = Config.XLEN,
+    val cpuDataWidth: Int = Config.XLEN, // Instruction width
+    val memBusConfig: GenericMemoryBusConfig,
+    var icacheConfig: SimpleICacheConfig = null
 ) {
+  if (icacheConfig == null) {
+    icacheConfig = SimpleICacheConfig(addressWidth = cpuAddressWidth, dataWidth = cpuDataWidth)
+  }
   // General address width check
   require(memBusConfig.addressWidth >= cpuAddressWidth)
 
@@ -45,7 +49,7 @@ class InstructionFetchUnit(val config: InstructionFetchUnitConfig) extends Compo
     val dataOut = master Stream (new ICacheCpuRsp())
 
     // ICache Flush interface (only active if ICache is used)
-    val flush = slave(ICacheFlushBus())
+    val flush = config.enableFlush generate slave(ICacheFlushBus())
 
     // External memory bus interface
     val memBus = master(SimpleMemoryBus(config.memBusConfig))
@@ -73,8 +77,9 @@ class InstructionFetchUnit(val config: InstructionFetchUnitConfig) extends Compo
     io.memBus.cmd << icache.io.mem.cmd
     io.memBus.rsp >> icache.io.mem.rsp
 
-    // Connect Flush
-    icache.io.flush <> io.flush
+    if (config.enableFlush) {
+      icache.io.flush <> io.flush
+    }
 
   } else { // No ICache, direct access to external memory via SimpleMemoryBus
     val pcReg = Reg(UInt(config.cpuAddressWidth bits)) init (0)
@@ -104,7 +109,9 @@ class InstructionFetchUnit(val config: InstructionFetchUnitConfig) extends Compo
       pcRegValid := False // Our request has been served and consumed
     }
 
-    // Flush is a no-op if no ICache
-    io.flush.rsp.done := io.flush.cmd.fire && io.flush.cmd.payload.start // Done immediately
+    if (config.enableFlush) {
+      // Flush is a no-op if no ICache
+      io.flush.rsp.done := io.flush.cmd.fire && io.flush.cmd.payload.start // Done immediately
+    }
   }
 }

@@ -25,9 +25,9 @@ class DecodePlugin extends Plugin with LockedImpl {
     val stage = setup.frontendPipeline.pipeline.decode
     import stage._
 
-    val inputPc = stage(FrontendPipelineData.PC)
-    val inputInstruction = stage(FrontendPipelineData.INSTRUCTION)
-    val inputFault = stage(FrontendPipelineData.FETCH_FAULT)
+    val inputPc = stage(FrontendPipelineKeys.PC)
+    val inputInstruction = stage(FrontendPipelineKeys.INSTRUCTION)
+    val inputFault = stage(FrontendPipelineKeys.FETCH_FAULT)
 
     val uop = MicroOp().assignDontCare()
     uop.pc := inputPc
@@ -96,6 +96,6 @@ class DecodePlugin extends Plugin with LockedImpl {
         }
       }
     }
-    stage(FrontendPipelineData.UOP) := uop
+    stage(FrontendPipelineKeys.UOP) := uop
   }
 }

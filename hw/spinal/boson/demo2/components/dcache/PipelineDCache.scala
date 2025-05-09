@@ -374,21 +374,21 @@ class PipelineDCache(
       dataArray.write(
         address = s2_compare(INDEX),
         data = dataToWrite,
-        enable = s2_compare.isFireing && doDataWrite // Write only when stage fires and flag is set
+        enable = s2_compare.isFiring && doDataWrite // Write only when stage fires and flag is set
       )
       val doTagWrite = False
       val tagToWrite = UInt(tagWidth bits).assignDontCare()
       tagArray.write(
         address = s2_compare(INDEX),
         data = tagToWrite,
-        enable = s2_compare.isFireing && doTagWrite
+        enable = s2_compare.isFiring && doTagWrite
       )
       val doValidWrite = False
       val validBitToWrite = Bool().assignDontCare()
       validArray.write( // Assuming Mem(Bool) can be written this way, or use Reg Vec
         address = s2_compare(INDEX),
         data = validBitToWrite,
-        enable = s2_compare.isFireing && doValidWrite
+        enable = s2_compare.isFiring && doValidWrite
       )
 
       when(hit) { // HIT

@@ -1,120 +1,75 @@
-package boson.demo2.fetch // Or a common package like boson.demo2.pipeline
+package boson.demo2.fetch
 
 import boson.utilities.{Plugin, LockedImpl, Service}
 import boson.demo2.common.Config
-import boson.demo2.frontend.FrontendPipelineData // Your pipeline data definitions
-// Removed direct icache import from here, Fetch1Plugin will handle it
+import boson.demo2.frontend.FrontendPipelineKeys
 import spinal.core._
 import spinal.lib._
 import spinal.lib.pipeline.{Pipeline, Stage, Connection}
-import boson.demo2.components.memory.InstructionFetchUnitConfig
-import boson.demo2.components.memory.InstructionFetchUnit
+import boson.demo2.components.memory._
 
-
-// FetchPipeline definition (remains the same as your provided code)
 class FetchPipeline extends Plugin with LockedImpl {
   val pipeline = create early new Pipeline {
-    val fetch0 = newStage() // PC Generation
-    val fetch1 = newStage() // Instruction Fetch
-    connect(fetch0, fetch1)(Connection.M2S())
+    val s0_PcGen = newStage() // PC Generation
+    val s1_Fetch = newStage() // Instruction Fetch
+    connect(s0_PcGen, s1_Fetch)(Connection.M2S())
   }
   pipeline.setCompositeName(this, "Fetch")
 
-  def entryStage: Stage = pipeline.fetch0
-  def exitStage: Stage = pipeline.fetch1
+  def entryStage: Stage = pipeline.s0_PcGen
+  def exitStage: Stage = pipeline.s1_Fetch
 }
-
 
 // Fetch0Plugin: Generates PC
 class Fetch0Plugin extends Plugin with LockedImpl {
   val setup = create early new Area {
     val fetchPipeline = getService[FetchPipeline]
-    // No direct dependency on ICache config here
   }
 
   val logic = create late new Area {
-    val stageF0 = setup.fetchPipeline.pipeline.fetch0
+    val s0_PcGen = setup.fetchPipeline.pipeline.s0_PcGen
     val pcReg = Reg(UInt(Config.XLEN bits)) init (0) // Start PC
     val pcPlus4 = pcReg + 4
 
-    // Example redirect logic (adapt as needed)
-    val redirectValid = stageF0(FrontendPipelineData.FETCH_REDIRECT_VALID)
-    val redirectPc = stageF0(FrontendPipelineData.FETCH_REDIRECT_PC)
-    
-    // Stall F0 if it's producing output (isValid) but F1 is not ready (isStuck)
-    // This backpressure is handled by the M2S connection and F1's stalls.
+    val redirectValid = s0_PcGen(FrontendPipelineKeys.REDIRECT_PC_VALID)
+    val redirectPc = s0_PcGen(FrontendPipelineKeys.REDIRECT_PC)
 
-    when(stageF0.isFireing) { // isFireing means stage is valid and not stalled
+    when(s0_PcGen.isFiring) { // isFiring means stage is valid and not stalled
       pcReg := Mux(redirectValid, redirectPc, pcPlus4)
     }
 
-    // Output PC to F1 for fetching
-    stageF0(FrontendPipelineData.PC_FETCH) := pcReg
-    // We could also pass the current PC for F1 to output with the instruction
-    // stageF0(FrontendPipelineData.PC) := pcReg // If F0 is the source of truth for PC
+    s0_PcGen(FrontendPipelineKeys.PC) := pcReg
   }
 }
 
-
 // Fetch1Plugin: Instantiates InstructionFetchUnit and performs the fetch
-class Fetch1Plugin(val fmSubsystemConfig: InstructionFetchUnitConfig) extends Plugin with LockedImpl {
-
-  // Service for testbench to access InstructionFetchUnit internals (e.g., flush, memory write)
-  // This service is useful for testbenches.
-  val fetchMemoryAccessService = create early new InstructionFetchUnitAccessService {}
+class Fetch1Plugin(val ifuConfig: InstructionFetchUnitConfig) extends Plugin with LockedImpl {
 
   val setup = create early new Area {
+    val memPlugin = getService[SimpleMemoryService]
     val fetchPipeline = getService[FetchPipeline]
-    val f0 = fetchPipeline.pipeline.fetch0
-    val f1 = fetchPipeline.pipeline.fetch1
-
-    // F1 depends on PC_FETCH from F0
-    f1(FrontendPipelineData.PC_FETCH)
+    val f0 = fetchPipeline.pipeline.s0_PcGen
+    val f1 = fetchPipeline.pipeline.s1_Fetch
+    val ifu = new InstructionFetchUnit(ifuConfig)
+    ifu.io.memBus <> memPlugin.memBus
+    // F1 depends on PC from F0
+    f1(FrontendPipelineKeys.PC)
   }
 
   val logic = create late new Area {
-    val stageF1 = setup.fetchPipeline.pipeline.fetch1
-    val fetchSystem = new InstructionFetchUnit(fmSubsystemConfig)
+    val stageF1 = setup.fetchPipeline.pipeline.s1_Fetch
+    val ifu = setup.ifu
+    ifu.io.pcIn.valid := stageF1.valid // Input valid signal for F1
+    ifu.io.pcIn.payload := stageF1(FrontendPipelineKeys.PC)
 
-    // Provide access to the instantiated fetchSystem for the testbench service
-    fetchMemoryAccessService.fetchSystem = fetchSystem
+    stageF1.haltWhen(stageF1.valid && !ifu.io.pcIn.ready)
 
-    // Connect PC from F0 (now available as input in F1) to InstructionFetchUnit
-    fetchSystem.io.pcIn.valid := stageF1.valid // Input valid signal for F1
-    fetchSystem.io.pcIn.payload := stageF1(FrontendPipelineData.PC_FETCH)
-    // Backpressure: F1's input stream ready is driven by fetchSystem.io.pcIn.ready
-    // The M2S connection from F0 to F1 handles stalling F0 if F1's input buffer is full
-    // or if fetchSystem cannot accept new requests.
-    // We need to ensure F1 stalls if fetchSystem.io.pcIn is not ready.
-    stageF1.haltWhen(stageF1.valid && !fetchSystem.io.pcIn.ready)
+    stageF1(FrontendPipelineKeys.INSTRUCTION) := ifu.io.dataOut.payload.instruction
+    stageF1(FrontendPipelineKeys.PC) := ifu.io.dataOut.payload.pc
+    stageF1(FrontendPipelineKeys.FETCH_FAULT) := ifu.io.dataOut.payload.fault
 
+    stageF1.haltWhen(!ifu.io.dataOut.valid && stageF1.isValid)
+    ifu.io.dataOut.ready := stageF1.isReady // F1 is ready to consume instruction
 
-    // Connect InstructionFetchUnit output to F1 stage outputs
-    stageF1(FrontendPipelineData.INSTRUCTION) := fetchSystem.io.dataOut.payload.instruction
-    stageF1(FrontendPipelineData.PC) := fetchSystem.io.dataOut.payload.pc
-    stageF1(FrontendPipelineData.FETCH_FAULT) := fetchSystem.io.dataOut.payload.fault
-
-    // Control pipeline flow based on InstructionFetchUnit's output stream
-    // Halt F1 if it's supposed to produce output (isFireable) but fetchSystem has no valid data.
-    stageF1.haltWhen(!fetchSystem.io.dataOut.valid && stageF1.isValid)
-    fetchSystem.io.dataOut.ready := stageF1.isReady // F1 is ready to consume instruction
-
-
-    // --- Flush Handling ---
-    // Example: If flush is initiated by a signal in pipeline data from an earlier stage
-    // or by an external interrupt/control signal.
-    // For now, let's assume io.flush on InstructionFetchUnit is controlled externally
-    // or via the testbench service.
-    // If CPU pipeline triggers flush:
-    // val flushCmd = stageF1(FrontendPipelineData.FLUSH_ICACHE_CMD) // Assuming this exists
-    // fetchSystem.io.flush.cmd.valid := flushCmd && stageF1.valid
-    // fetchSystem.io.flush.cmd.payload.start := True // if flushCmd is a pulse
-    // stageF1.haltWhen(fetchSystem.io.flush.cmd.valid && !fetchSystem.io.flush.rsp.done)
-    // stageF1(FLUSH_DONE_SIGNAL_TO_CPU) := fetchSystem.io.flush.rsp.done
   }
-}
-
-// Service for testbench to access InstructionFetchUnit (e.g., for flush, tb writes)
-trait InstructionFetchUnitAccessService extends Service {
-  var fetchSystem: InstructionFetchUnit = null // Will be populated by Fetch1Plugin
 }

@@ -13,7 +13,6 @@ import boson.demo2.common.Config // Make sure this path is correct
 
 // Components under test and its dependencies
 import boson.demo2.components.memory.{InstructionFetchUnit, InstructionFetchUnitConfig}
-import boson.demo2.components.icache.{SimpleICacheConfig, ICacheFlushBus} // ICacheFlushBus for io.flush typing
 import boson.demo2.components.memory._
 
 import scala.collection.mutable
@@ -21,21 +20,20 @@ import scala.util.Random
 
 // Compile the DUT (InstructionFetchUnit)
 class InstructionFetchUnitTestBench(
-    val fmaConfig: InstructionFetchUnitConfig,
+    val ifuConfig: InstructionFetchUnitConfig,
     val simMemInternalDataWidth: Int,
     val simMemSizeBytes: BigInt,
     val simMemLatency: Int
 ) extends Component {
 
   val io = new Bundle {
-    val pcIn = slave(Stream(UInt(fmaConfig.cpuAddressWidth bits)))
-    implicit val icacheConfig: SimpleICacheConfig = fmaConfig.icacheConfig
+    val pcIn = slave(Stream(UInt(ifuConfig.cpuAddressWidth bits)))
+    implicit val icacheConfig: SimpleICacheConfig = ifuConfig.icacheConfig
     val dataOut = master(Stream(ICacheCpuRsp()))
-    val flush = slave(ICacheFlushBus())
 
   }
 
-  val fma = new InstructionFetchUnit(fmaConfig)
+  val fma = new InstructionFetchUnit(ifuConfig)
   val memCfg = SimulatedMemoryConfig(
     internalDataWidth = simMemInternalDataWidth,
     memSize = simMemSizeBytes,
@@ -43,13 +41,12 @@ class InstructionFetchUnitTestBench(
     // burstLatency is not used by the provided SimulatedMemory FSM
   )
   // The SimulatedMemory component itself takes the busConfig for its SimpleMemoryBus
-  val mem = new SimulatedMemory(memCfg, fmaConfig.memBusConfig)
+  val mem = new SimulatedMemory(memCfg, ifuConfig.memBusConfig)
   fma.io.memBus.cmd >> mem.io.bus.cmd
   fma.io.memBus.rsp << mem.io.bus.rsp
 
   io.pcIn <> fma.io.pcIn
   fma.io.dataOut <> io.dataOut
-  fma.io.flush <> io.flush
 
   mem.io.simPublic()
 }
@@ -139,8 +136,9 @@ class InstructionFetchUnitSpec extends SpinalSimFunSuite {
       } else {
         SimpleICacheConfig(addressWidth = ADDR_WIDTH, dataWidth = DATA_WIDTH)
       }
-      def fmaConfig = InstructionFetchUnitConfig(
+      def ifuConfig = InstructionFetchUnitConfig(
         useICache = useICache,
+        enableFlush = false,
         cpuAddressWidth = ADDR_WIDTH,
         cpuDataWidth = DATA_WIDTH,
         memBusConfig = memBusCfg,
@@ -148,7 +146,7 @@ class InstructionFetchUnitSpec extends SpinalSimFunSuite {
       )
 
       def compiled = simConfig.compile(
-        new InstructionFetchUnitTestBench(fmaConfig, simMemInternalDataWidth, simMemSizeBytes, simMemLatency)
+        new InstructionFetchUnitTestBench(ifuConfig, simMemInternalDataWidth, simMemSizeBytes, simMemLatency)
       )
 
       compiled.doSim { dut =>
@@ -157,9 +155,6 @@ class InstructionFetchUnitSpec extends SpinalSimFunSuite {
         dut.clockDomain.waitSampling(5)
         dut.clockDomain.deassertReset()
         dut.clockDomain.waitSampling(5)
-
-        dut.io.flush.cmd.valid #= false
-        dut.io.flush.cmd.payload.start #= false
 
         val (pcInDriver, pcCmdQueue) = StreamDriver.queue(dut.io.pcIn, dut.clockDomain)
         val receivedDataQueue = mutable.Queue[(BigInt, BigInt, Boolean)]()
@@ -260,7 +255,7 @@ class InstructionFetchUnitSpec extends SpinalSimFunSuite {
         SimpleICacheConfig(addressWidth = ADDR_WIDTH, dataWidth = DATA_WIDTH)
       }
 
-      def fmaConfig = InstructionFetchUnitConfig(
+      def ifuConfig = InstructionFetchUnitConfig(
         useICache = useICache,
         cpuAddressWidth = ADDR_WIDTH,
         cpuDataWidth = DATA_WIDTH,
@@ -269,7 +264,7 @@ class InstructionFetchUnitSpec extends SpinalSimFunSuite {
       )
 
       def compiled = simConfig.compile(
-        new InstructionFetchUnitTestBench(fmaConfig, simMemInternalDataWidth, simMemSizeBytes, simMemLatency)
+        new InstructionFetchUnitTestBench(ifuConfig, simMemInternalDataWidth, simMemSizeBytes, simMemLatency)
       )
 
       compiled.doSim { dut =>
@@ -280,8 +275,6 @@ class InstructionFetchUnitSpec extends SpinalSimFunSuite {
         dut.clockDomain.deassertReset()
         dut.clockDomain.waitSampling(5)
 
-        dut.io.flush.cmd.valid #= false
-        dut.io.flush.cmd.payload.start #= false
         // 4. Setup Stream Drivers and Monitors for DUT's CPU-side interfaces
         val (pcInDriver, pcCmdQueue) = StreamDriver.queue(dut.io.pcIn, dut.clockDomain)
         val receivedDataQueue = mutable.Queue[(BigInt, BigInt, Boolean)]() // Stores (pc, instruction, fault)

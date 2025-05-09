@@ -17,13 +17,12 @@ import boson.utilities.LockedImpl
 import boson.demo2.common._
 import boson.demo2.fetch.FetchPipeline
 
-object FrontendPipelineData extends AreaObject {
-  val PC = Stageable(UInt(Config.XLEN bits)) // 下一个指令的地址
-  val PC_FETCH = Stageable(UInt(Config.XLEN bits)) // 当前待取指令的地址
-  val FETCH_REDIRECT_PC = Stageable(UInt(Config.XLEN bits)) // 重定向的指令的地址，来自分支或者预测
+object FrontendPipelineKeys extends AreaObject {
+  val PC = Stageable(UInt(Config.XLEN bits))
+  val REDIRECT_PC = Stageable(UInt(Config.XLEN bits)) // 重定向的指令的地址，来自分支或者预测
+  val REDIRECT_PC_VALID = Stageable(Bool())
   val INSTRUCTION = Stageable(Bits(Config.XLEN bits))
   val FETCH_FAULT = Stageable(Bool())
-  val FETCH_REDIRECT_VALID = Stageable(Bool())
   val UOP = Stageable(MicroOp())
   val RENAMED_UOP = Stageable(RenamedMicroOp())
 }
@@ -54,9 +53,9 @@ class FetchFrontendBridge extends Plugin with LockedImpl {
     val sourceStage = setup.fetchPipeline.exitStage
     val destStage = setup.frontendPipeline.firstStage
 
-    destStage(FrontendPipelineData.PC) := sourceStage(FrontendPipelineData.PC)
-    destStage(FrontendPipelineData.INSTRUCTION) := sourceStage(FrontendPipelineData.INSTRUCTION)
-    destStage(FrontendPipelineData.FETCH_FAULT) := sourceStage(FrontendPipelineData.FETCH_FAULT)
+    destStage(FrontendPipelineKeys.PC) := sourceStage(FrontendPipelineKeys.PC)
+    destStage(FrontendPipelineKeys.INSTRUCTION) := sourceStage(FrontendPipelineKeys.INSTRUCTION)
+    destStage(FrontendPipelineKeys.FETCH_FAULT) := sourceStage(FrontendPipelineKeys.FETCH_FAULT)
 
     destStage.valid := sourceStage.valid
     sourceStage.haltIt(!destStage.isReady)
