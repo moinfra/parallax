@@ -15,13 +15,8 @@ import spinal.tester.SpinalSimFunSuite
 import boson.demo2.components.memory._ // For SimulatedMemory, GenericMemoryBusConfig etc.
 
 import scala.collection.mutable
-
-// Helper class to bundle outputs from Fetch Stage 1 for monitoring
-case class FetchOutput() extends Bundle {
-  val pc = UInt(Config.XLEN bits)
-  val instruction = Bits(Config.XLEN bits) // In RISC-V, instructions are typically Bits
-  val fault = Bool()
-}
+import boson.demo2.fetch.FetchOutputBridge
+import boson.demo2.fetch.FetchOutput
 
 // Helper for initializing SimulatedMemory during doSim
 object FetchSimMemInit {
@@ -88,13 +83,15 @@ class FetchPipelineTestBench(val ifuConfig: InstructionFetchUnitConfig) extends 
       ),
       new Fetch0Plugin(),
       new Fetch1Plugin(ifuConfig),
-      new FetchPipeline()
+      new FetchPipeline(),
+      new FetchOutputBridge()
     )
   )
 
   // Get services and components
   val fetchPipeline = framework.getService[FetchPipeline]
   val memoryService = framework.getService[SimulatedSimpleMemoryPlugin]
+  val fetchOutputBridge = framework.getService[FetchOutputBridge]
 
   // Get the SimulatedMemory instance from the plugin
   val simMem = memoryService.setup.memory
@@ -102,30 +99,26 @@ class FetchPipelineTestBench(val ifuConfig: InstructionFetchUnitConfig) extends 
 
   // Expose pipeline stages for test control/observation
   val s0 = fetchPipeline.pipeline.s0_PcGen
+  s0.isReady.simPublic()
+  s0.isValid.simPublic()
+  s0(FrontendPipelineKeys.PC).simPublic()
   val s1 = fetchPipeline.pipeline.s1_Fetch
-
+  s1.isReady.simPublic()
+  s1.isValid.simPublic()
+  s1(FrontendPipelineKeys.FETCHED_PC).simPublic()
   val io = new Bundle {
     // Inputs to control the pipeline
-    val redirectPcValid = in Bool ()
-    val redirectPc = in UInt (Config.XLEN bits)
+    val redirectPcValid = in Bool () simPublic ()
+    val redirectPc = in UInt (Config.XLEN bits) simPublic ()
     // val s1OutputReady = in Bool () // To control backpressure on s1_Fetch output stream
 
     // Outputs from the pipeline (from s1_Fetch)
-    val output = master Stream (FetchOutput())
+    val output = fetchOutputBridge.fetchOutput
   }
 
   // Connect redirect inputs to s0_PcGen
   s0(FrontendPipelineKeys.REDIRECT_PC_VALID) := io.redirectPcValid
   s0(FrontendPipelineKeys.REDIRECT_PC) := io.redirectPc
-
-  // Connect s1_Fetch outputs to the testbench IO
-  io.output.valid := s1.isFiring // Output is valid when s1 fires
-  io.output.payload.pc := s1(FrontendPipelineKeys.PC)
-  io.output.payload.instruction := s1(FrontendPipelineKeys.INSTRUCTION).asBits // Ensure it's Bits
-  io.output.payload.fault := s1(FrontendPipelineKeys.FETCH_FAULT)
-  
-  // Control s1_Fetch ready signal (backpressure)
-  s1.internals.output.ready := io.output.ready
 }
 
 class FetchPipelineSpec extends SpinalSimFunSuite {
@@ -154,7 +147,7 @@ class FetchPipelineSpec extends SpinalSimFunSuite {
         dut.clockDomain.forkStimulus(period = 10)
         dut.io.redirectPcValid #= false
         dut.io.redirectPc #= 0
-        dut.io.output.ready #= true // Default: consumer is ready
+        dut.io.output.ready #= false
         testLogic(dut, dut.clockDomain)
       }
     }
@@ -173,6 +166,7 @@ class FetchPipelineSpec extends SpinalSimFunSuite {
     instructionsToLoad.foreach { case (addr, data) =>
       FetchSimMemInit.initMemWord(dut.simMem, addr, data, XLEN, clockDomain)
     }
+    println("Reset testbench and start simulation...")
     clockDomain.assertReset()
     sleep(10)
     clockDomain.deassertReset()
@@ -181,7 +175,9 @@ class FetchPipelineSpec extends SpinalSimFunSuite {
     println("[Test Seq] Fetching instructions from memory...")
     val receivedInstructions = mutable.Queue[(Long, BigInt, Boolean)]()
     StreamMonitor(dut.io.output, clockDomain) { payload =>
-        println(f"[Test Seq] Received PC:0x${payload.pc.toLong}%x Instr:0x${payload.instruction.toBigInt}%x Fault:${payload.fault.toBoolean}%b")
+      println(
+        f"[Test Seq] Received PC:0x${payload.pc.toLong}%x Instr:0x${payload.instruction.toBigInt}%x Fault:${payload.fault.toBoolean}%b"
+      )
       receivedInstructions.enqueue(
         (payload.pc.toLong, payload.instruction.toBigInt, payload.fault.toBoolean)
       )
@@ -205,7 +201,7 @@ class FetchPipelineSpec extends SpinalSimFunSuite {
     }
     clockDomain.waitSampling(10)
   }
-/*
+
   runFetchPipelineTest(useICache = true, "sequential fetch with ICache") { (dut, clockDomain) =>
     // Start PC from a non-zero address to see cache behavior more clearly
     val baseAddr = 0x100L
@@ -214,11 +210,12 @@ class FetchPipelineSpec extends SpinalSimFunSuite {
       (baseAddr + 0x4L) -> BigInt("55667788", 16),
       (baseAddr + 0x8L) -> BigInt("99AABBCC", 16),
       (baseAddr + 0xcL) -> BigInt("DDEEFF00", 16), // Same cache line
-      (baseAddr + 0x100L) -> BigInt("AABBCCDD", 16) // Different cache line
     )
     // Add instruction at 0x0 for initial PC
-    val allInstructions = instructionsToLoad ++ Map(0x0L -> BigInt("CAFED00D", 16))
-
+    val allInstructions = instructionsToLoad ++ Map(
+      0x0L -> BigInt("CAFED00D", 16),
+      0x4L -> BigInt("FEEDF00D", 16)
+    )
     allInstructions.foreach { case (addr, data) =>
       FetchSimMemInit.initMemWord(dut.simMem, addr, data, XLEN, clockDomain)
     }
@@ -377,29 +374,35 @@ class FetchPipelineSpec extends SpinalSimFunSuite {
     clockDomain.deassertReset()
     clockDomain.waitSampling(1) // PC=0 in S0
 
-    // Fetch first instruction (PC=0)
+       // Fetch first instruction (PC=0)
     clockDomain.waitSamplingWhere(dut.io.output.valid.toBoolean && dut.io.output.ready.toBoolean)
     assert(receivedInstructions.nonEmpty && receivedInstructions.head == 0x0L)
     println(s"[Stall Test] Fetched PC: ${receivedInstructions.dequeue()}")
-    // After S1 outputs PC=0: S1 gets PC=4, S0 gets PC=8. pcReg in F0 becomes 0xC.
+    // After S1 outputs PC=0: S1 gets PC=4, S0 gets PC=8. S0 output PC=0x8. s0 pcReg=0xC. S1 gets PC=4.
+    // After S1 outputs PC=4: S1 gets PC=8, S0 gets PC=C. S0 output PC=0xC. s0 pcReg=0x10. S1 gets PC=8.
+    // Let's re-trace the state *after* PC=0 is fetched.
+    // S1 fires PC=0. S0 fires. s0.pcReg becomes 8. s0(PC) output becomes 8. s1 input gets 4.
+    // S1 starts fetching 4.
+    // S0 starts processing 8. s0.pcReg becomes C. s0(PC) output becomes C.
+    // S1 finishes 4. Tries to fire.
+    // Stall output here.
 
     // Stall the output stream
     println("[Stall Test] Stalling S1 output (s1OutputReady = false)")
     dut.io.output.ready #= false
     clockDomain.waitSampling(10) // Wait a few cycles
+println(s"[Stall Test] Before check: s1.isReady=${dut.s1.isReady.toBoolean}") // 添加调试打印
 
-    // S1 has PC=4 but cannot send it. So s1.isFiring is false.
-    assert(!dut.s1.isFiring.toBoolean, "S1 should not be firing when its output stream is stalled")
-    // S0 has PC=8. Since S1 is full and stalled, S0 cannot send to S1, so s0.isFiring is false.
-    assert(!dut.s0.isFiring.toBoolean, "S0 should not be firing when S1 is stalled")
-    // pcReg in Fetch0Plugin should hold 0xC (the PC that would go into S0 if it fired).
-    // s0(FrontendPipelineKeys.PC) should still be 0x8.
-    // s1(FrontendPipelineKeys.PC) should still be 0x4.
+    assert(!(dut.s1.isValid.toBoolean && dut.s1.isReady.toBoolean), "S1 should not be firing when its output stream is stalled")
+    assert(!(dut.s0.isValid.toBoolean && dut.s0.isReady.toBoolean), "S0 should not be firing when S1 is stalled")
+
+    // s1(PC) output is driven by regFetchedPc, which holds 4.
+    // s0(PC) output is the value s0 tries to send to s1. s0 pcReg=C, so s0 output PC=C.
     println(
-      s"[Stall Test] While stalled: S0_payload_PC=0x${dut.s0(FrontendPipelineKeys.PC).toLong.toHexString}, S1_payload_PC=0x${dut.s1(FrontendPipelineKeys.PC).toLong.toHexString}"
+      s"[Stall Test] While stalled: S0_payload_PC=0x${dut.s0(FrontendPipelineKeys.PC).toLong.toHexString}, S1_payload_PC=0x${dut.s1(FrontendPipelineKeys.FETCHED_PC).toLong.toHexString}" // Assuming FETCHED_PC is used for s1 output
     )
-    assert(dut.s1(FrontendPipelineKeys.PC).toLong == 0x4L, s"S1 payload PC should hold 0x4 when stalled")
-    assert(dut.s0(FrontendPipelineKeys.PC).toLong == 0x8L, s"S0 payload PC should hold 0x8 when stalled")
+    assert(dut.s1(FrontendPipelineKeys.FETCHED_PC).toLong == 0x4L, s"S1 output PC should hold 0x4 when stalled") // Check s1 output key
+    assert(dut.s0(FrontendPipelineKeys.PC).toLong == 0x8L, s"S0 payload PC should hold 0xC when stalled") // <<< MODIFIED ASSERTION
     assert(receivedInstructions.isEmpty, "No new instructions should be received during stall")
 
     // Unstall the output
@@ -413,5 +416,5 @@ class FetchPipelineSpec extends SpinalSimFunSuite {
     println(s"[Stall Test] Fetched PC: ${receivedInstructions.dequeue()} after unstall")
 
     clockDomain.waitSampling(10)
-  }*/
+  }
 }

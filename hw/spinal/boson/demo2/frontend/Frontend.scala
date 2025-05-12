@@ -18,7 +18,8 @@ import boson.demo2.common._
 import boson.demo2.fetch.FetchPipeline
 
 object FrontendPipelineKeys extends AreaObject {
-  val PC = Stageable(UInt(Config.XLEN bits))
+  val PC = Stageable(UInt(Config.XLEN bits)) // pc to fetch
+  val FETCHED_PC = Stageable(UInt(Config.XLEN bits)) // pc that accord with the fetched instruction
   val REDIRECT_PC = Stageable(UInt(Config.XLEN bits)) // 重定向的指令的地址，来自分支或者预测
   val REDIRECT_PC_VALID = Stageable(Bool())
   val INSTRUCTION = Stageable(Bits(Config.XLEN bits))
