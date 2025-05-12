@@ -79,6 +79,11 @@ class InstructionFetchUnit(val config: InstructionFetchUnitConfig) extends Compo
 
     if (config.enableFlush) {
       icache.io.flush <> io.flush
+    } else {
+      if (icache.io.flush != null) {
+        icache.io.flush.cmd.valid := False
+        icache.io.flush.cmd.payload.assignDontCare()
+      }
     }
 
   } else { // No ICache, direct access to external memory via SimpleMemoryBus
