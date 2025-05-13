@@ -7,7 +7,8 @@ import boson.demo2.components.memory._
 
 class SimpleICache(implicit
     val cacheConfig: SimpleICacheConfig,
-    val memBusConfig: GenericMemoryBusConfig // Configuration for its memory-side bus
+    val memBusConfig: GenericMemoryBusConfig, // Configuration for its memory-side bus
+    val enableLog: Boolean = false
 ) extends Component {
   require(
     cacheConfig.dataWidth == memBusConfig.dataWidth,
@@ -121,7 +122,9 @@ class SimpleICache(implicit
       io.cpu.cmd.ready := True // Ready to accept new CPU requests
 
       when(io.flush.cmd.valid && io.flush.cmd.payload.start) {
-        report(L"ICache: sIdle - Flush command received.")
+        if (enableLog) {
+          report(L"ICache: sIdle - Flush command received.")
+        }
 
         if (cacheConfig.lineCount > 0) { // Only flush if there are cache lines
           if (cacheConfig.indexWidth > 0) flushIndexCounter := 0 else flushIndexCounter := U(0, 0 bits)
@@ -130,9 +133,13 @@ class SimpleICache(implicit
           io.flush.rsp.done := True
         }
       } elsewhen (io.cpu.cmd.fire) { // New CPU request
-        report(L"ICache: sIdle - CPU command fired. Address: ${io.cpu.cmd.payload.address}")
-        report(L"ICache: sIdle - Calculated Tag: ${cacheConfig.tag(io.cpu.cmd.payload.address)}, Index: ${cacheConfig
-            .index(io.cpu.cmd.payload.address)}, WordOffset: ${cacheConfig.wordOffset(io.cpu.cmd.payload.address)}")
+        if (enableLog) {
+          report(L"ICache: sIdle - CPU command fired. Address: ${io.cpu.cmd.payload.address}")
+        }
+        if (enableLog) {
+          report(L"ICache: sIdle - Calculated Tag: ${cacheConfig.tag(io.cpu.cmd.payload.address)}, Index: ${cacheConfig
+              .index(io.cpu.cmd.payload.address)}, WordOffset: ${cacheConfig.wordOffset(io.cpu.cmd.payload.address)}")
+        }
         currentCpuAddressReg := io.cpu.cmd.payload.address
         // Pre-calculate and store tag, index, offset for the current request
         if (cacheConfig.tagWidth > 0) currentTagReg := cacheConfig.tag(io.cpu.cmd.payload.address)
@@ -150,7 +157,9 @@ class SimpleICache(implicit
     // The currentIndexReg (set in sIdle) is used by readAsync ports of tagArray and dataArray.
     // Their outputs (readTagFromMem, readDataLineFromMem) will be valid in the *next* cycle (sCompareTag).
     sDecodeAndReadCache.whenIsActive {
-      report(L"ICache: sDecodeAndReadCache Active. Current Index for async read: ${currentIndexReg}")
+      if (enableLog) {
+        report(L"ICache: sDecodeAndReadCache Active. Current Index for async read: ${currentIndexReg}")
+      }
       goto(sCompareTag)
     }
 
@@ -161,13 +170,21 @@ class SimpleICache(implicit
         if (cacheConfig.tagWidth > 0) (readTagFromMem === currentTagReg) else True // No tag means tag always matches
       val isValid = if (cacheConfig.lineCount > 0) readValidFromVec else False // No lines means nothing is valid
       val hit = tagMatch && isValid
-      report(
-        L"ICache: sCompareTag Active. CPU Addr: ${currentCpuAddressReg}, Req Index: ${currentIndexReg}, Req Tag: ${currentTagReg}"
-      )
-      report(L"ICache: sCompareTag - Read from Cache: ValidBit=${readValidFromVec}, TagFromMem=${readTagFromMem}")
-      report(L"ICache: sCompareTag - Comparison: tagMatch=${tagMatch}, isValid=${isValid}, Overall Hit=${hit}")
+      if (enableLog) {
+        report(
+          L"ICache: sCompareTag Active. CPU Addr: ${currentCpuAddressReg}, Req Index: ${currentIndexReg}, Req Tag: ${currentTagReg}"
+        )
+      }
+      if (enableLog) {
+        report(L"ICache: sCompareTag - Read from Cache: ValidBit=${readValidFromVec}, TagFromMem=${readTagFromMem}")
+      }
+      if (enableLog) {
+        report(L"ICache: sCompareTag - Comparison: tagMatch=${tagMatch}, isValid=${isValid}, Overall Hit=${hit}")
+      }
       when(hit) { // Cache Hit
-        report(L"ICache: sCompareTag - Cache HIT.")
+        if (enableLog) {
+          report(L"ICache: sCompareTag - Cache HIT.")
+        }
 
         io.cpu.rsp.valid := True
         io.cpu.rsp.payload.instruction := extractWordFromLine(readDataLineFromMem, currentWordOffsetReg)
@@ -175,23 +192,31 @@ class SimpleICache(implicit
         // io.cpu.rsp.payload.fault is False by default
 
         when(io.cpu.rsp.fire) { // CPU accepts the instruction
-          report(L"ICache: sCompareTag - HIT response fired to CPU.")
+          if (enableLog) {
+            report(L"ICache: sCompareTag - HIT response fired to CPU.")
+          }
 
           goto(sIdle)
         }
         // If CPU is not ready (io.cpu.rsp.ready is False), FSM stalls here, io.cpu.rsp.valid remains high.
       } otherwise { // Cache Miss
-        report(L"ICache: sCompareTag - Cache MISS.")
+        if (enableLog) {
+          report(L"ICache: sCompareTag - Cache MISS.")
+        }
 
         if (cacheConfig.lineCount > 0) { // Only attempt refill if cache has place to store
           refillWordCounter := 0
           refillBuffer := B(0) // 清空 refill buffer
-          waitingForMemRspReg := False 
-          report(L"ICache: sCompareTag - MISS - Resetting counters and waitingForMemRspReg.")
+          waitingForMemRspReg := False
+          if (enableLog) {
+            report(L"ICache: sCompareTag - MISS - Resetting counters and waitingForMemRspReg.")
+          }
 
           goto(sMiss_FetchWord) // Start fetching the line, word by word
         } else { // No cache lines to fill, this is effectively a permanent miss/error
-          report(L"ICache: sCompareTag - MISS but no cache lines to fill (permanent miss/error).")
+          if (enableLog) {
+            report(L"ICache: sCompareTag - MISS but no cache lines to fill (permanent miss/error).")
+          }
 
           io.cpu.rsp.valid := True
           io.cpu.rsp.payload.fault := True // Signal fault
@@ -204,9 +229,11 @@ class SimpleICache(implicit
 
     // Fetches one word (cacheConfig.dataWidth) for the cache line from main memory.
     sMiss_FetchWord.whenIsActive {
-      report(
-        L"ICache: sMiss_FetchWord Active. CPU Addr: ${currentCpuAddressReg}, RefillWordCounter: ${refillWordCounter}"
-      )
+      if (enableLog) {
+        report(
+          L"ICache: sMiss_FetchWord Active. CPU Addr: ${currentCpuAddressReg}, RefillWordCounter: ${refillWordCounter}"
+        )
+      }
 
       // --- 控制与内存的交互 ---
       // 默认不与内存交互，除非明确允许
@@ -224,9 +251,11 @@ class SimpleICache(implicit
           val currentWordByteOffsetInLine = (refillWordCounter * (cacheConfig.dataWidth / 8)).resized
           val calculatedMemAddress = lineBaseByteAddress + currentWordByteOffsetInLine
 
-          report(
-            L"ICache: sMiss_FetchWord - Target word for current cycle (based on counter ${refillWordCounter}): Addr ${calculatedMemAddress}"
-          )
+          if (enableLog) {
+            report(
+              L"ICache: sMiss_FetchWord - Target word for current cycle (based on counter ${refillWordCounter}): Addr ${calculatedMemAddress}"
+            )
+          }
 
           // 尝试发出内存命令
           // 注意：这里没有检查是否已经为当前的 refillWordCounter 发出过命令并正在等待响应。
@@ -246,9 +275,11 @@ class SimpleICache(implicit
 
       // --- 处理内存命令发送成功 ---
       when(io.mem.cmd.fire) { // cmd.valid 为高 (由上面的逻辑设置) 且 mem 接受了 (cmd.ready 为高)
-        report(
-          L"ICache: sMiss_FetchWord - Memory command fired for Addr: ${io.mem.cmd.payload.address} (word ${refillWordCounter}). Setting waitingForMemRspReg = True."
-        )
+        if (enableLog) {
+          report(
+            L"ICache: sMiss_FetchWord - Memory command fired for Addr: ${io.mem.cmd.payload.address} (word ${refillWordCounter}). Setting waitingForMemRspReg = True."
+          )
+        }
         waitingForMemRspReg := True // 命令已发出，开始等待响应
         // 注意：发出命令后，我们通常会停留在当前状态等待响应，或者如果有流水线，FSM 可能不用等待。
         // 在这个简单的 FSM 中，我们停留在 sMiss_FetchWord。
@@ -256,9 +287,11 @@ class SimpleICache(implicit
 
       // --- 处理内存响应接收成功 ---
       when(io.mem.rsp.fire) { // rsp.valid 为高 (内存发来数据) 且 rsp.ready 为高 (我们设置的)
-        report(
-          L"ICache: sMiss_FetchWord - Memory response received. Data: ${io.mem.rsp.payload.readData}, RefillCounter was: ${refillWordCounter}. Setting waitingForMemRspReg = False."
-        )
+        if (enableLog) {
+          report(
+            L"ICache: sMiss_FetchWord - Memory response received. Data: ${io.mem.rsp.payload.readData}, RefillCounter was: ${refillWordCounter}. Setting waitingForMemRspReg = False."
+          )
+        }
         waitingForMemRspReg := False // 响应已收到，不再等待这个字的响应
 
         // 将收到的数据存入 refillBuffer 的正确位置
@@ -273,22 +306,30 @@ class SimpleICache(implicit
         val nextRefillCounter = refillWordCounter + 1
         refillWordCounter := nextRefillCounter // 寄存器在周期结束时更新
 
-        report(L"ICache: sMiss_FetchWord - RefillWordCounter will be ${nextRefillCounter} next cycle.")
+        if (enableLog) {
+          report(L"ICache: sMiss_FetchWord - RefillWordCounter will be ${nextRefillCounter} next cycle.")
+        }
 
         // 检查是否所有字都已接收完毕 (基于 *将要更新为* 的 nextRefillCounter)
         when(nextRefillCounter === cacheConfig.wordsPerLine) {
-          report(L"ICache: sMiss_FetchWord - All words for the line have been received (based on nextRefillCounter).")
+          if (enableLog) {
+            report(L"ICache: sMiss_FetchWord - All words for the line have been received (based on nextRefillCounter).")
+          }
           tagWriteEnable := True
           dataWriteEnable := True
           if (cacheConfig.lineCount > 0) validArray(effectiveWriteIndex) := True
 
-          report(L"ICache: sMiss_FetchWord - Transitioning to sDecodeAndReadCache.")
+          if (enableLog) {
+            report(L"ICache: sMiss_FetchWord - Transitioning to sDecodeAndReadCache.")
+          }
           goto(sDecodeAndReadCache)
           // 注意：当 goto 发生时，当前状态的后续逻辑（包括 io.mem.cmd.valid 和 io.mem.rsp.ready 的赋值）
           // 在下一个周期就不再是 sMiss_FetchWord 的逻辑了。
           // sDecodeAndReadCache 状态应该有自己的 io.mem.* 信号控制（默认为False）。
         } otherwise {
-          report(L"ICache: sMiss_FetchWord - More words needed for the line.")
+          if (enableLog) {
+            report(L"ICache: sMiss_FetchWord - More words needed for the line.")
+          }
           // 自动停留在 sMiss_FetchWord 状态，
           // 上面的 when(refillWordCounter < cacheConfig.wordsPerLine) 会在下一个周期
           // 使用更新后的 refillWordCounter 继续尝试发送 cmd 和设置 rsp.ready。
@@ -299,7 +340,9 @@ class SimpleICache(implicit
     // --- sFlush_Invalidate State Logic ---
     // Invalidate all cache lines.
     sFlush_Invalidate.whenIsActive {
-      report(L"ICache: sFlush_Invalidate Active. Flushing Index: ${flushIndexCounter}")
+      if (enableLog) {
+        report(L"ICache: sFlush_Invalidate Active. Flushing Index: ${flushIndexCounter}")
+      }
 
       io.cpu.cmd.ready := False // Stall CPU requests during flush
 
@@ -309,7 +352,9 @@ class SimpleICache(implicit
 
         // Check if this is the last line to invalidate
         when(flushIndexCounter === (cacheConfig.lineCount - 1)) {
-          report(L"ICache: sFlush_Invalidate - Flush completed.")
+          if (enableLog) {
+            report(L"ICache: sFlush_Invalidate - Flush completed.")
+          }
 
           io.flush.rsp.done := True // Signal flush completion
           // flushIndexCounter will be reset by sIdle if a new flush starts.
