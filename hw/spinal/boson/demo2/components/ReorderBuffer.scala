@@ -164,44 +164,54 @@ class ReorderBuffer(val config: ROBConfig) extends Component {
   val tailPtr = Reg(UInt(config.robIdxWidth)) init (0)
   val count = Reg(UInt(log2Up(config.robDepth + 1) bits)) init (0)
 
-  // --- Allocation Logic (Superscalar) ---
-  val numValidAllocateRequests = CountOne(io.allocate.map(_.fire).asBits)
-  val spaceAfterCurrentAllocations = count + numValidAllocateRequests
+ // --- Allocation Logic (Superscalar) ---
+  val slotWillAllocate = Vec(Bool(), config.allocateWidth) // For each slot, will it actually allocate?
+  val slotRobIdx = Vec(UInt(config.robIdxWidth), config.allocateWidth) // ROB index for each slot if it allocates
 
-  // Used to assign robIdx to each allocation slot sequentially in the current cycle
-  var currentRobIdxForAlloc = tailPtr
+  // Calculate how many successful allocations happen *before* the current slot 'i'
+  // And what the ROB tail pointer would be *before* considering slot 'i'
+  val numPrevAllocations = Vec(UInt(log2Up(config.allocateWidth + 1) bits), config.allocateWidth + 1)
+  val robIdxAtSlotStart = Vec(UInt(config.robIdxWidth), config.allocateWidth + 1)
+
+  numPrevAllocations(0) := U(0) // Before slot 0, 0 previous allocations
+  robIdxAtSlotStart(0) := tailPtr  // Before slot 0, robIdx starts at current tailPtr
 
   for (i <- 0 until config.allocateWidth) {
     val allocPort = io.allocate(i)
-    // Can this specific slot allocate?
-    // It needs its 'fire' signal, overall space in ROB, and space considering previous allocations in this cycle.
-    val spaceAvailableForThisSlot = (count + U(i)) < config.robDepth
-    io.canAllocate(i) := spaceAvailableForThisSlot
 
-    allocPort.robIdx := currentRobIdxForAlloc // Assign current ROB index to this slot
+    // Space available considering allocations *before* this slot i
+    val spaceAvailableForThisSlot = (count + numPrevAllocations(i)) < config.robDepth
+    io.canAllocate(i) := spaceAvailableForThisSlot // Inform Rename stage about general availability for this slot position
 
-    when(allocPort.fire && spaceAvailableForThisSlot) {
+    slotWillAllocate(i) := allocPort.fire && spaceAvailableForThisSlot
+    slotRobIdx(i)       := robIdxAtSlotStart(i)
+    allocPort.robIdx    := slotRobIdx(i) // Output the calculated ROB index
+
+    // For the *next* slot (i+1), calculate its starting numPrevAllocations and robIdxAtSlotStart
+    numPrevAllocations(i+1) := numPrevAllocations(i) + U(slotWillAllocate(i)) // Increment if this slot allocates
+    robIdxAtSlotStart(i+1)  := robIdxAtSlotStart(i) + U(slotWillAllocate(i))  // Increment if this slot allocates
+
+    when(slotWillAllocate(i)) {
       val newPayload = ROBPayload(config)
       newPayload.uop := allocPort.uopIn
-      newPayload.pc := allocPort.pcIn
+      newPayload.pc  := allocPort.pcIn
       payloads.write(
-        address = currentRobIdxForAlloc,
-        data = newPayload
+        address = slotRobIdx(i), // Use the pre-calculated robIdx for this slot
+        data    = newPayload
       )
-
-      statuses(currentRobIdxForAlloc).busy := True
-      statuses(currentRobIdxForAlloc).done := False
-      statuses(currentRobIdxForAlloc).hasException := False
-      statuses(currentRobIdxForAlloc).exceptionCode := U(0, config.exceptionCodeWidth)
-
-      currentRobIdxForAlloc := currentRobIdxForAlloc + 1 // For the next slot in this cycle
+      statuses(slotRobIdx(i)).busy         := True
+      statuses(slotRobIdx(i)).done         := False
+      statuses(slotRobIdx(i).resized).hasException := False //resized是因为slotRobIdx(i)可能因为robDepth为1而宽度为0，但statuses的索引至少需要1位
+      statuses(slotRobIdx(i).resized).exceptionCode:= U(0, config.exceptionCodeWidth)
     }
   }
 
-  // Update global pointers only if at least one allocation was successful and there was space
-  when(numValidAllocateRequests > 0 && spaceAfterCurrentAllocations <= config.robDepth) {
-    tailPtr := tailPtr + numValidAllocateRequests
-    count := spaceAfterCurrentAllocations // Use the calculated count after all allocations
+  val numActuallyAllocatedThisCycle = numPrevAllocations(config.allocateWidth) // Total successful allocations this cycle
+
+  // Update global pointers
+  when(numActuallyAllocatedThisCycle > 0) {
+    tailPtr := tailPtr + numActuallyAllocatedThisCycle
+    count   := count + numActuallyAllocatedThisCycle
   }
 
   // --- Writeback Logic (Superscalar) ---
