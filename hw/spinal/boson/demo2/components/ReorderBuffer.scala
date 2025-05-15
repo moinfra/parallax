@@ -138,9 +138,6 @@ class ReorderBuffer(val config: ROBConfig) extends Component {
   // Initialize memory/registers to avoid Xes in simulation and define reset state
   payloads.init(
     Seq.fill(config.robDepth)(
-      // Create a default ROBPayload, ensuring its sub-Bundles are also default
-      // This requires ROBPayload to have a way to set defaults, or do it manually.
-      // Let's assume MicroOp has a setDefault or we construct a default one.
       {
         val defaultPayload = ROBPayload(config)
         val defaultMicroOp = MicroOp(config.microOpConfig)
@@ -176,6 +173,8 @@ class ReorderBuffer(val config: ROBConfig) extends Component {
   numPrevAllocations(0) := U(0) // Before slot 0, 0 previous allocations
   robIdxAtSlotStart(0) := tailPtr  // Before slot 0, robIdx starts at current tailPtr
 
+  report(Seq("[ROB] ALLOC_PRE: Cycle Start. tailPtr=", tailPtr, ", count=", count, ", headPtr=", headPtr, ", empty=", (count === 0)))
+
   for (i <- 0 until config.allocateWidth) {
     val allocPort = io.allocate(i)
 
@@ -186,12 +185,32 @@ class ReorderBuffer(val config: ROBConfig) extends Component {
     slotWillAllocate(i) := allocPort.fire && spaceAvailableForThisSlot
     slotRobIdx(i)       := robIdxAtSlotStart(i)
     allocPort.robIdx    := slotRobIdx(i) // Output the calculated ROB index
+    
+    when(allocPort.fire) {
+      // Replace .physRegDest with a relevant field from your MicroOp or use allocPort.uopIn.toString if it's well-defined
+      report(Seq("[ROB] ALLOC_ATTEMPT[", i.toString(), "]: fire=", allocPort.fire,
+                 ", uopIn.physRegRdOld=", allocPort.uopIn.physRegRdOld,
+                 ", uopIn.physRegRdNew=", allocPort.uopIn.physRegRdNew,
+                 ", pcIn=", allocPort.pcIn,
+                 ", spaceAvailableForSlot=", spaceAvailableForThisSlot,
+                 ", currentCountPlusPrevAllocs=", (count + numPrevAllocations(i)),
+                 ", robDepth=", U(config.robDepth),
+                 ", calculatedRobIdx=", slotRobIdx(i)))
+    }
+    when(allocPort.fire && !spaceAvailableForThisSlot) {
+      report(Seq("[ROB] ALLOC_ATTEMPT[", i.toString(), "]: Fired but NO SPACE. count=", count, ", numPrevAllocationsForThisSlot=", numPrevAllocations(i)))
+    }
 
     // For the *next* slot (i+1), calculate its starting numPrevAllocations and robIdxAtSlotStart
     numPrevAllocations(i+1) := numPrevAllocations(i) + U(slotWillAllocate(i)) // Increment if this slot allocates
     robIdxAtSlotStart(i+1)  := robIdxAtSlotStart(i) + U(slotWillAllocate(i))  // Increment if this slot allocates
 
     when(slotWillAllocate(i)) {
+      report(Seq("[ROB] ALLOC_DO[", i.toString(), "]: Allocating to robIdx=", slotRobIdx(i),
+                 ", uopIn.physRegRdOld=", allocPort.uopIn.physRegRdOld,
+                 ", uopIn.physRegRdNew=", allocPort.uopIn.physRegRdNew,
+                 ", pcIn=", allocPort.pcIn))
+
       val newPayload = ROBPayload(config)
       newPayload.uop := allocPort.uopIn
       newPayload.pc  := allocPort.pcIn
@@ -203,10 +222,18 @@ class ReorderBuffer(val config: ROBConfig) extends Component {
       statuses(slotRobIdx(i)).done         := False
       statuses(slotRobIdx(i).resized).hasException := False //resized是因为slotRobIdx(i)可能因为robDepth为1而宽度为0，但statuses的索引至少需要1位
       statuses(slotRobIdx(i).resized).exceptionCode:= U(0, config.exceptionCodeWidth)
+      
+      report(Seq("[ROB] ALLOC_STATUS_SET[", i.toString(), "]: robIdx=", slotRobIdx(i), " set busy=T, done=F, hasException=F"))
     }
   }
 
   val numActuallyAllocatedThisCycle = numPrevAllocations(config.allocateWidth) // Total successful allocations this cycle
+
+  when(numActuallyAllocatedThisCycle > 0) {
+      report(Seq("[ROB] ALLOC_SUMMARY: numActuallyAllocatedThisCycle=", numActuallyAllocatedThisCycle,
+                 ", currentTailPtr=", tailPtr, " -> newTailPtr=", (tailPtr + numActuallyAllocatedThisCycle),
+                 ", currentCount=", count, " -> newCount (if only alloc happens)=", (count + numActuallyAllocatedThisCycle)))
+  }
 
   // Update global pointers
   when(numActuallyAllocatedThisCycle > 0) {
@@ -215,68 +242,129 @@ class ReorderBuffer(val config: ROBConfig) extends Component {
   }
 
   // --- Writeback Logic (Superscalar) ---
-  for (wbPort <- io.writeback) {
+  for (portIdx <- 0 until config.numWritebackPorts) {
+    val wbPort = io.writeback(portIdx)
     when(wbPort.fire) {
+      report(Seq("[ROB] WRITEBACK[", portIdx.toString(), "]: Fired. robIdx=", wbPort.robIdx,
+                 ", exceptionOccurred=", wbPort.exceptionOccurred,
+                 ", exceptionCodeIn=", wbPort.exceptionCodeIn))
+      
+      // Report status BEFORE update for this specific robIdx
+      // Note: If multiple wbPorts target the same robIdx in one cycle, 'old' values for later ports
+      // might reflect intermediate combinational state due to earlier port updates in the same cycle.
+      val statusBeforeWb = statuses(wbPort.robIdx) // Capture current state
+      report(Seq("[ROB] WRITEBACK_STATUS_OLD[", portIdx.toString(), "]: robIdx=", wbPort.robIdx,
+                 ", oldBusy=", statusBeforeWb.busy,
+                 ", oldDone=", statusBeforeWb.done,
+                 ", oldHasExcp=", statusBeforeWb.hasException,
+                 ", oldExcpCode=", statusBeforeWb.exceptionCode))
+
       statuses(wbPort.robIdx).busy := False
       statuses(wbPort.robIdx).done := True
       statuses(wbPort.robIdx).hasException := wbPort.exceptionOccurred
       statuses(wbPort.robIdx).exceptionCode := Mux(
         wbPort.exceptionOccurred,
         wbPort.exceptionCodeIn,
-        statuses(wbPort.robIdx).exceptionCode.resized
-      ) // Retain old if no new exc.
+        statuses(wbPort.robIdx).exceptionCode.resized // Retain old if no new exc.
+      )
+      
+      report(Seq("[ROB] WRITEBACK_STATUS_NEW[", portIdx.toString(), "]: robIdx=", wbPort.robIdx,
+                 ", newBusy=F",
+                 ", newDone=T",
+                 ", newHasExcp=", wbPort.exceptionOccurred,
+                 ", newExcpCode=", Mux(wbPort.exceptionOccurred, wbPort.exceptionCodeIn, statusBeforeWb.exceptionCode.resized))) // Show code being written
     }
   }
 
   // --- Commit Logic (Superscalar) ---
-  // Determine which entries at the head are ready and fired for commit
   val canCommitFlags = Vec(Bool(), config.commitWidth)
+  report(Seq("[ROB] COMMIT_PRE: Cycle Start. headPtr=", headPtr, ", count=", count, ", empty=", (count === 0)))
+
 
   for (i <- 0 until config.commitWidth) {
     val currentCommitIdx = headPtr + U(i)
     val currentPayload = payloads.readAsync(address = currentCommitIdx)
-    val currentStatus = statuses(currentCommitIdx)
+    val currentStatus = statuses(currentCommitIdx) // Reads registered status at start of cycle (or as updated by WB this cycle)
+
+    // Report status of entry being considered for commit
+    when(count > U(i)) { // Only report for potentially valid entries
+        report(Seq("[ROB] COMMIT_CHECK_SLOT[", i.toString(), "]: Considering commit. robIdx=", currentCommitIdx,
+                   ", status.busy=", currentStatus.busy, ", status.done=", currentStatus.done,
+                   ", status.hasException=", currentStatus.hasException,
+                   ", status.exceptionCode=", currentStatus.exceptionCode,
+                   ", uop.physRegRdOld=", currentPayload.uop.physRegRdOld,
+                   ", uop.physRegRdNew=", currentPayload.uop.physRegRdNew,
+                   ", pc=", currentPayload.pc,
+                   ", count=", count
+        ))
+    }
 
     canCommitFlags(i) := (count > U(i)) && currentStatus.done
 
     io.commit(i).valid := canCommitFlags(i)
     io.commit(i).entry.payload := currentPayload
     io.commit(i).entry.status := currentStatus
+    
+    when(canCommitFlags(i)) {
+        report(Seq("[ROB] COMMIT_VALID_SLOT[", i.toString(), "]: Slot IS VALID for commit. robIdx=", currentCommitIdx,
+                   ", io.commit(i).valid=", io.commit(i).valid,
+                   ", external commitFire(", i.toString() ,")=", io.commitFire(i)))
+    }
+    when(!canCommitFlags(i) && (count > U(i))) { // Potentially valid but not done
+        report(Seq("[ROB] COMMIT_NOT_VALID_SLOT[", i.toString(), "]: Slot NOT VALID for commit. robIdx=", currentCommitIdx,
+                   ", status.done=", currentStatus.done, ", count=", count,
+                   ", external commitFire(", i.toString() ,")=", io.commitFire(i)))
+    }
+    when(io.commitFire(i) && !canCommitFlags(i)) {
+        report(Seq("[ROB] COMMIT_WARN_SLOT[", i.toString(), "]: Commit stage fired for non-committable slot! robIdx=", currentCommitIdx,
+                   ", canCommitFlag=", canCommitFlags(i),
+                   ", status.done=", currentStatus.done, ", count=", count))
+    }
   }
 
   // Calculate the number of entries that are actually committed this cycle.
-  // This must be a contiguous block from the head of the ROB.
   val actualCommittedMask = Vec(Bool(), config.commitWidth)
-  if (config.commitWidth > 0) { // Avoid issues if commitWidth is 0, though config requires >0
+  if (config.commitWidth > 0) {
     actualCommittedMask(0) := canCommitFlags(0) && io.commitFire(0)
+    report(Seq("[ROB] COMMIT_MASK_CALC[0]: canCommitFlags(0)=", canCommitFlags(0),
+               ", io.commitFire(0)=", io.commitFire(0),
+               ", -> actualCommittedMask(0)=", actualCommittedMask(0)))
     for (i <- 1 until config.commitWidth) {
-      // An entry 'i' commits if it's fired, it's a valid candidate, AND all preceding entries (0 to i-1) also committed.
       actualCommittedMask(i) := actualCommittedMask(i - 1) && canCommitFlags(i) && io.commitFire(i)
+      report(Seq("[ROB] COMMIT_MASK_CALC[", i.toString(), "]: prevActualCommittedMask(",(i-1).toString(),")=", actualCommittedMask(i-1),
+                 ", canCommitFlags(", i.toString() ,")=", canCommitFlags(i),
+                 ", io.commitFire(", i.toString() ,")=", io.commitFire(i),
+                 ", -> actualCommittedMask(", i.toString() ,")=", actualCommittedMask(i)))
     }
   }
   val numToCommit = if (config.commitWidth > 0) CountOne(actualCommittedMask) else U(0, 1 bits)
 
   when(numToCommit > 0) {
+    report(Seq("[ROB] COMMIT_SUMMARY: numToCommit=", numToCommit,
+               ", actualCommittedMask=", actualCommittedMask.asBits, // .asBits or .asBools
+               ", currentHeadPtr=", headPtr, " -> newHeadPtr=", (headPtr + numToCommit.resized),
+               ", currentCount=", count, " -> newCount (if only commit happens, or commit wins priority)=", (count - numToCommit.resized)))
+  }
+
+  when(numToCommit > 0) {
     headPtr := headPtr + numToCommit.resized // Ensure numToCommit is resized to headPtr's width if different
     count := count - numToCommit.resized // Ensure numToCommit is resized to count's width if different
-    // Typically log2Up(W+1) can be wider than log2Up(W) by 1 bit
-    // but subtraction/addition handles this if widths allow the value.
-    // Explicit .resized is safer if widths might not perfectly align for direct ops.
   }
 
   // --- Flush Logic (Pointer Restore) ---
   when(io.flush.valid) {
+    report(Seq("[ROB] FLUSH: Received flush command. Valid=", io.flush.valid))
+    report(Seq("[ROB] FLUSH: Payload: newHead=", io.flush.payload.newHead,
+               ", newTail=", io.flush.payload.newTail, ", newCount=", io.flush.payload.newCount))
+    report(Seq("[ROB] FLUSH: Pointers BEFORE flush: headPtr=", headPtr, ", tailPtr=", tailPtr, ", count=", count))
+
     headPtr := io.flush.payload.newHead
     tailPtr := io.flush.payload.newTail
     count := io.flush.payload.newCount
-    // When flushing, one might also want to reset the 'busy' status of all entries
-    // to prevent stale 'busy' entries from blocking future commits if pointers are
-    // restored to a state where those entries are now between head and tail.
-    // However, if flush correctly sets count=0 for a full squash, this is less of an issue.
-    // If restoring to a non-empty state, the status of entries now "exposed" should be valid.
-    // This implies the checkpoint mechanism for ROB also saves/restores statuses or
-    // the flush mechanism ensures only truly "new" speculative entries are marked busy.
-    // For simplicity here, we only restore pointers. The allocation logic will set busy status.
+    
+    report(Seq("[ROB] FLUSH: Pointers AFTER flush (assigned values): headPtr=", io.flush.payload.newHead,
+               ", tailPtr=", io.flush.payload.newTail, ", count=", io.flush.payload.newCount,
+               " (These override alloc/commit effects on pointers for this cycle)"))
   }
 
   // --- Status Outputs ---
@@ -284,4 +372,8 @@ class ReorderBuffer(val config: ROBConfig) extends Component {
   io.headPtrOut := headPtr
   io.tailPtrOut := tailPtr
   io.countOut := count
+
+  // Report final state of pointers for the cycle (these are the .next values that will be registered)
+  // The 'count' reported here will be the result of the prioritized updates (flush > commit > alloc)
+  report(Seq("[ROB] CYCLE_END_STATE: headPtr=", headPtr, ", tailPtr=", tailPtr, ", count=", count, ", empty=", (count === 0)))
 }
