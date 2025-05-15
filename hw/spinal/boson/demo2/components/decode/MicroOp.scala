@@ -68,7 +68,10 @@ case class ControlFlowInfo() extends Bundle {
 }
 
 
-// --- Refactored MicroOp ---
+case class MicroOpConfig(
+    physRegIdxWidth: BitCount = 6 bits,
+    dataWidth: BitCount = 32 bits
+)
 /* 
  * physRegIdxWidth: MicroOp 现在参数化物理寄存器索引的位宽。
  * physRegRs: 重命名阶段填充的 archRegRs 对应的物理寄存器索引。
@@ -78,7 +81,7 @@ case class ControlFlowInfo() extends Bundle {
  * allocatesPhysReg: 一个由重命名阶段设置的标志，表明这个微操作是否真的为 archRegRd 分配了一个新的物理寄存器。通常是 useRd && writeRd 并且指令不是单纯的存储或无链接的跳转/分支。
  * writesPhysReg: 指示此微操作是否会向物理寄存器（physRegRdNew）写入结果。对于存储指令，它会 writeRd (如果 archRegRd 不是 r0，尽管对于 ST，archRegRd 字段通常被用作源 Rt) 但它不写物理目标寄存器。这个标志可以简化后续执行单元的逻辑。
  */
-case class MicroOp(val physRegIdxWidth: BitCount = 6 bits) extends Bundle { // Example width
+case class MicroOp(val config: MicroOpConfig) extends Bundle { // Example width
   // --- Decoded Information (from Decoder) ---
   val isValid = Bool()
   val uopType = MicroOpType()
@@ -94,7 +97,7 @@ case class MicroOp(val physRegIdxWidth: BitCount = 6 bits) extends Bundle { // E
   val useRt = Bool()     // Is archRegRt a source for this uop (R-type or ST data)?
   val writeRd = Bool()   // Should the result be written to archRegRd (i.e., Rd =/= r0)?
 
-  val imm = SInt(32 bits)
+  val imm = SInt(config.dataWidth)
 
   // Specialized information blocks
   val aluInfo = AluInfo()
@@ -103,10 +106,10 @@ case class MicroOp(val physRegIdxWidth: BitCount = 6 bits) extends Bundle { // E
 
   // --- Information for/from Rename Stage ---
   // These are filled by the Rename stage
-  val physRegRs = UInt(physRegIdxWidth)      // Physical register for archRegRs
-  val physRegRt = UInt(physRegIdxWidth)      // Physical register for archRegRt
-  val physRegRdOld = UInt(physRegIdxWidth)   // OLD physical register previously mapped to archRegRd (for recovery/commit)
-  val physRegRdNew = UInt(physRegIdxWidth)   // NEW physical register allocated for archRegRd
+  val physRegRs = UInt(config.physRegIdxWidth)      // Physical register for archRegRs
+  val physRegRt = UInt(config.physRegIdxWidth)      // Physical register for archRegRt
+  val physRegRdOld = UInt(config.physRegIdxWidth)   // OLD physical register previously mapped to archRegRd (for recovery/commit)
+  val physRegRdNew = UInt(config.physRegIdxWidth)   // NEW physical register allocated for archRegRd
 
   // Flag indicating if this uop allocates a new physical destination register
   val allocatesPhysReg = Bool() // True if useRd and writeRd and uop is not a store/branch without link
@@ -120,32 +123,43 @@ case class MicroOp(val physRegIdxWidth: BitCount = 6 bits) extends Bundle { // E
 
   def setDefault(): Unit = {
     isValid := False
-    uopType := MicroOpType.ILLEGAL
+    uopType := MicroOpType.ILLEGAL // Assuming ILLEGAL is a valid default
 
-    archRegRd.assignDontCare()
-    archRegRs.assignDontCare()
-    archRegRt.assignDontCare()
+    archRegRd := U(0, 5 bits) // Or assignDontCare() if that's acceptable for non-init contexts
+    archRegRs := U(0, 5 bits)
+    archRegRt := U(0, 5 bits)
 
     useRd := False
     useRs := False
     useRt := False
     writeRd := False
 
-    imm.assignDontCare()
+    imm := S(0, 32 bits) // Ensure width is specified if not inferred
 
-    aluInfo.op.assignDontCare()
-    memInfo.accessType.assignDontCare()
-    memInfo.size.assignDontCare()
-    ctrlFlowInfo.condition.assignDontCare()
-    ctrlFlowInfo.targetOffset.assignDontCare()
+    // Initialize sub-bundles
+    aluInfo.op := AluOp.NOP // Assuming AluOp.NOP is a valid default
+    // aluInfo.useImm := False // If aluInfo has more fields
 
-    // Defaults for rename-related fields
-    physRegRs.assignDontCare()
-    physRegRt.assignDontCare()
-    physRegRdOld.assignDontCare()
-    physRegRdNew.assignDontCare()
+    memInfo.accessType := MemoryAccessType.LOAD_U // Assuming a default
+    memInfo.size := MemoryOpSize.WORD
+    // memInfo.isSigned := False
+
+    ctrlFlowInfo.condition := BranchCond.ALWAYS
+    ctrlFlowInfo.targetOffset := S(0, 32 bits)
+    // ctrlFlowInfo.conditionReg1 := U(0)
+    // ctrlFlowInfo.conditionReg2 := U(0)
+    // ctrlFlowInfo.useReg2ForCond := False
+    // ctrlFlowInfo.isJumpAndLink := False
+    // ctrlFlowInfo.linkReg := U(0)
+
+
+    // Defaults for rename-related fields (These are usually set later, but for init, give them a value)
+    physRegRs := U(0, config.physRegIdxWidth) // config.physRegIdxWidth needs to be accessible here
+    physRegRt := U(0, config.physRegIdxWidth)
+    physRegRdOld := U(0, config.physRegIdxWidth)
+    physRegRdNew := U(0, config.physRegIdxWidth)
     allocatesPhysReg := False
     writesPhysReg := False
-  }
+}
 }
 

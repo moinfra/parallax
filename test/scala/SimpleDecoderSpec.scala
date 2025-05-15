@@ -123,7 +123,7 @@ object Helper {
 class SimpleDecoderTestBench extends Component {
   val io = new Bundle {
     val instruction = in Bits (32 bits)
-    val microOp = out(MicroOp())
+    val microOp = out(MicroOp(MicroOpConfig()))
   }
   val decoder = new SimpleDecoder()
   decoder.io.instruction := io.instruction

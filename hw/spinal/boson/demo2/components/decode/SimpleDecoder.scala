@@ -52,9 +52,10 @@ case class RawInstructionFields() extends Bundle {
 
 // --- Decoder Component ---
 class SimpleDecoder extends Component {
+  val microOpConfig = MicroOpConfig()
   val io = new Bundle {
     val instruction = in Bits (32 bits)
-    val microOp = out(MicroOp())
+    val microOp = out(MicroOp(microOpConfig))
   }
 
   val fields = RawInstructionFields()
