@@ -4,7 +4,6 @@ import spinal.core._
 import spinal.lib._
 import parallax.common._
 import parallax.components.decode._
-import parallax.utils.Encoders.PriorityEncoderOH
 
 // --- Configuration for ROB ---
 case class ROBConfig(

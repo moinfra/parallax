@@ -1,6 +1,7 @@
 package parallax.common
 
 import spinal.core._
+import spinal.lib._
 
 object Config {
   val ARCH_REG_COUNT = 32

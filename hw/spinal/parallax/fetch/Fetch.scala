@@ -1,13 +1,14 @@
 package parallax.fetch
 
+import spinal.core._
+import spinal.lib._
+import spinal.core.sim.SimDataPimper
+import spinal.lib.pipeline.{Pipeline, Stage, Connection}
+
+import parallax.components.memory._
 import parallax.utilities.{Plugin, LockedImpl, Service}
 import parallax.common.Config
 import parallax.frontend.FrontendPipelineKeys
-import spinal.core._
-import spinal.lib._
-import spinal.lib.pipeline.{Pipeline, Stage, Connection}
-import parallax.components.memory._
-import spinal.core.sim.SimDataPimper
 
 class FetchPipeline extends Plugin with LockedImpl {
   val pipeline = create early new Pipeline {

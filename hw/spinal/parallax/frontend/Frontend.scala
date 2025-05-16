@@ -25,7 +25,7 @@ object FrontendPipelineKeys extends AreaObject {
   val INSTRUCTION = Stageable(Bits(Config.XLEN bits))
   val FETCH_FAULT = Stageable(Bool())
   val UOP = Stageable(MicroOp())
-  val RENAMED_UOP = Stageable(RenamedMicroOp())
+  // val RENAMED_UOP = Stageable(RenamedMicroOp())
 }
 
 class FrontendPipeline extends Plugin with LockedImpl {

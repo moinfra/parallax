@@ -8,8 +8,7 @@ import spinal.lib._
 import parallax.utilities.Service
 import scala.collection.mutable.ArrayBuffer
 import parallax.utilities.Plugin
-import parallax.common._
-import spinal.core.sim.SimDataPimper
+import parallax.common.Config
 
 case class PrfReadPort() extends Bundle with IMasterSlave {
 
