@@ -1,42 +1,35 @@
-package boson.test.scala
+package parallax.test.scala
 
 import spinal.core._
 import spinal.core.sim._
 import spinal.lib._
-import boson.demo2.components.rename._ // Where ROBConfig, ROBIo, ReorderBuffer are
-import boson.demo2.components.decode._ // For MicroOpConfig, MicroOp if needed by helpers
+import parallax.components.rename._
+import parallax.components.decode._
 import scala.collection.mutable.ArrayBuffer
 
 class ReorderBufferTestBench(val robConfig: ROBConfig) extends Component {
-  val io = slave(ROBIo(robConfig)) // Master IO to drive the ReorderBuffer
+  val io = slave(ROBIo(robConfig))
 
   val rob = new ReorderBuffer(robConfig)
   rob.io <> io
 
-  // Expose internal signals for easier testing if needed
-  rob.io.simPublic() // Makes all IO signals easily accessible
+  rob.io.simPublic()
   rob.headPtr_reg.simPublic()
   rob.tailPtr_reg.simPublic()
   rob.count_reg.simPublic()
-  // To observe specific entry statuses or payloads if complex tests require it:
-  // rob.statuses.foreach(_.simPublic()) // This might create too many signals for large ROBs
-  // rob.payloads.ram.simPublic() // If payloads is a Mem and you want to inspect its contents
-  // For Vec[Reg] like statuses, direct access is possible:
-  // def getStatus(idx: Int) = rob.statuses(idx)
 }
 
 class ReorderBufferSpec extends CustomSpinalSimFunSuite {
 
-  // Default MicroOpConfig for tests - adjust as needed
+  // Default MicroOpConfig for tests
   val microOpCfg = MicroOpConfig(physRegIdxWidth = 6 bits, dataWidth = 32 bits)
 
   // --- Helper Functions for Driving ROB IO ---
 
   // Helper to create a default/dummy MicroOp for allocation
-
   def driveDefaultMicroOp(targetUopPort: MicroOp, cfg: MicroOpConfig): Unit = {
     targetUopPort.isValid #= false
-    targetUopPort.uopType #= MicroOpType.ILLEGAL // Or your default enum value
+    targetUopPort.uopType #= MicroOpType.ILLEGAL
     targetUopPort.archRegRd #= 0
     targetUopPort.archRegRs #= 0
     targetUopPort.archRegRt #= 0
@@ -46,9 +39,9 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
     targetUopPort.writeRd #= false
     targetUopPort.imm #= 0 // Ensure correct width for SInt default
 
-    targetUopPort.aluInfo.op #= AluOp.NOP // Default for sub-bundle
-    targetUopPort.memInfo.accessType #= MemoryAccessType.LOAD_U // Default
-    targetUopPort.memInfo.size #= MemoryOpSize.WORD // Default
+    targetUopPort.aluFlags.op #= AluOp.NOP // Default for sub-bundle
+    targetUopPort.memOpFlags.accessType #= MemoryAccessType.LOAD_U // Default
+    targetUopPort.memOpFlags.size #= MemoryOpSize.WORD // Default
     targetUopPort.ctrlFlowInfo.condition #= BranchCond.ALWAYS // Default
     targetUopPort.ctrlFlowInfo.targetOffset #= 0 // Default
 
@@ -107,14 +100,12 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
         port.fire #= allocRequests(i)._1
         // Assign members of the uop Bundle individually
         val reqUop = allocRequests(i)._2
-        // --- START OF MODIFIED SECTION ---
         // Assign directly from reqUop's fields (which hold SpinalHDL literals/values)
         // to port.uopIn's fields (which are DUT's hardware inputs).
         // The #= operator handles assignment between compatible SpinalHDL types.
         // No .toBoolean, .toInt, .toEnum needed here because both sides are SpinalHDL types.
 
         driveDefaultMicroOp(port.uopIn, dutIo.config.microOpConfig)
-        // --- END OF MODIFIED SECTION ---
 
         port.pcIn #= allocRequests(i)._3.toInt
       } else {
@@ -198,8 +189,6 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
     driveWriteback(dutIo, Seq.empty)
     driveCommitFire(dutIo, Seq.fill(dutIo.config.commitWidth)(false))
     driveFlush(dutIo, false, 0, 0, 0)
-    // sleep(1) might be implicitly handled by the drive functions or needed here too.
-    // The individual drive functions have sleep(1), so this should be okay.
   }
 
   // Helper to get internal pointers and count via simPublic
@@ -219,11 +208,10 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
   }
 
   // --- Test Cases ---
-
-  val robDepth = 16 // Example depth
+  val robDepth = 16
   val allocW = 2
   val commitW = 2
-  val wbW = 2 // Example writeback width
+  val wbW = 2
 
   val baseRobConfig = ROBConfig(
     robDepth = robDepth,
@@ -326,7 +314,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
 
       // Phase 2: Writeback Ops (in some order)
       val wbOrder =
-        Seq(allocatedRobIndices(1), allocatedRobIndices(0), allocatedRobIndices(2)) // Example out-of-order WB
+        Seq(allocatedRobIndices(1), allocatedRobIndices(0), allocatedRobIndices(2))
       for (robIdxToWb <- wbOrder) {
         driveWriteback(dut.io, Seq((true, robIdxToWb, false, 0)))
         println(s"[TB] Writing back ROB index $robIdxToWb")
@@ -514,7 +502,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
   }
 
   test("ROB - Exception Propagation and Commit Handling") {
-        val testConfig = baseRobConfig.copy(allocateWidth = 1, commitWidth = 1, numWritebackPorts = 1)
+    val testConfig = baseRobConfig.copy(allocateWidth = 1, commitWidth = 1, numWritebackPorts = 1)
     simConfig.compile(new ReorderBufferTestBench(testConfig)).doSim(seed = 304) { dut =>
       dut.clockDomain.forkStimulus(10)
       initRobInputs(dut.io) // Initializes all control inputs to ROB
@@ -537,7 +525,11 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       sleep(1)
 
       // Op2
-      val uop2 = createDummyMicroOp(1, hasException = false, cfg = testConfig.microOpConfig) // Initially allocate as non-exception
+      val uop2 = createDummyMicroOp(
+        1,
+        hasException = false,
+        cfg = testConfig.microOpConfig
+      ) // Initially allocate as non-exception
       setAllocateInputs(dut.io, Seq((true, uop2, pcOp2Exc)))
       dut.clockDomain.waitSampling(0)
       val robIdxOp2Exc = dut.io.allocate(0).robIdx.toInt
@@ -619,10 +611,12 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
         dut.clockDomain.waitSampling(); sleep(1)
         assert(dut.io.empty.toBoolean, "ROB should be empty after committing Op3")
       } else if (c_after_exc == 0) {
-          println("[TB] ROB is empty after Op2 exception commit, as expected if flush occurred.")
-          assert(dut.io.empty.toBoolean, "ROB should be empty if Op2 caused full flush on commit")
+        println("[TB] ROB is empty after Op2 exception commit, as expected if flush occurred.")
+        assert(dut.io.empty.toBoolean, "ROB should be empty if Op2 caused full flush on commit")
       } else {
-          println(s"[TB] ROB state after Op2 commit is unexpected for Op3 check. Head is $h_after_exc (expected $robIdxOp3 if Op3 is next).")
+        println(
+          s"[TB] ROB state after Op2 commit is unexpected for Op3 check. Head is $h_after_exc (expected $robIdxOp3 if Op3 is next)."
+        )
       }
 
       driveCommitFire(dut.io, Seq(false)) // Stop commit fire

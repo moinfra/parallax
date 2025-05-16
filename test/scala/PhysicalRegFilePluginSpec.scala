@@ -1,8 +1,8 @@
-package boson.test.scala
+package parallax.test.scala
 
-import boson.demo2.PhysicalRegFilePlugin
-import boson.demo2.common.Config
-import boson.utilities._
+import parallax.PhysicalRegFilePlugin
+import parallax.common.Config
+import parallax.utilities._
 
 import org.scalatest.funsuite.AnyFunSuite
 import spinal.core._
@@ -11,7 +11,7 @@ import spinal.lib.Flow
 import spinal.lib.sim.{FlowDriver, FlowMonitor}
 import scala.util.Random
 import spinal.tester.{SpinalSimFunSuite, SpinalAnyFunSuite}
-import boson.demo2.PhysicalRegFileService
+import parallax.PhysicalRegFileService
 
 class PhysicalRegFilePluginSpec extends SpinalSimFunSuite {
 

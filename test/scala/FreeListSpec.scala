@@ -1,10 +1,10 @@
-package boson.test.scala
+package parallax.test.scala
 
 import spinal.core._
 import spinal.core.sim._
 import spinal.lib._
 import spinal.tester.SpinalSimFunSuite
-import boson.demo2.components.rename._
+import parallax.components.rename._
 
 class FreeListTestBench(val flConfig: FreeListConfig) extends Component {
   val io = slave(FreeListIO(flConfig))

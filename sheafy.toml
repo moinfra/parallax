@@ -1,7 +1,7 @@
 [sheafy]
 filters = ["scala"]
 bundle_name = "bundle.md"
-working_dir = "./hw/spinal/boson"
+working_dir = "./hw/spinal/parallax"
 use_gitignore = true
 
 prologue = """

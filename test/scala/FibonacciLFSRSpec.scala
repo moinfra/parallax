@@ -1,10 +1,10 @@
-package boson.test.scala
+package parallax.test.scala
 
 import spinal.core._
 import spinal.sim._
 import spinal.core.sim._
 import org.scalatest.funsuite.AnyFunSuite
-import boson.components.FibonacciLFSR
+import parallax.components.FibonacciLFSR
 import spinal.lib.BigIntRicher
 
 class FibonacciLFSRSpec extends AnyFunSuite {

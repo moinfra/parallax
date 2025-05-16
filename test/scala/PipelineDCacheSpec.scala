@@ -1,8 +1,8 @@
-package boson.test.scala // Or your preferred test package
+package parallax.test.scala // Or your preferred test package
 
-import boson.demo2.bus._
-import boson.demo2.components.dcache._ // Assuming PipelineDCache is here
-import boson.demo2.components.memory._
+import parallax.bus._
+import parallax.components.dcache._ // Assuming PipelineDCache is here
+import parallax.components.memory._
 import spinal.core._
 import spinal.lib._
 import spinal.core.sim._

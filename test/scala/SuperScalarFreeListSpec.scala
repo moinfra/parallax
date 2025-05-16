@@ -1,9 +1,9 @@
-package boson.test.scala // Or your test package
+package parallax.test.scala // Or your test package
 
 import spinal.core._
 import spinal.core.sim._
 import spinal.lib._
-import boson.demo2.components.rename._ // Import your SuperScalarFreeList components
+import parallax.components.rename._ // Import your SuperScalarFreeList components
 
 // TestBench for SuperScalarFreeList
 class SuperScalarFreeListTestBench(val flConfig: SuperScalarFreeListConfig) extends Component {

@@ -2,7 +2,7 @@ import mill._, scalalib._
 
 val spinalVersion = "1.12.0"
 
-object boson extends SbtModule {
+object parallax extends SbtModule {
   def scalaVersion = "2.13.14"
   override def millSourcePath = os.pwd
   def sources = T.sources(

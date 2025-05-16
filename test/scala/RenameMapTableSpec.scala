@@ -1,9 +1,9 @@
-package boson.test.scala
+package parallax.test.scala
 
 import spinal.core._
 import spinal.lib._
 import spinal.sim._
-import boson.demo2.components.rename._
+import parallax.components.rename._
 import spinal.core.sim.SimDataPimper
 
 class RenameMapTableTestBench(val config: RenameMapTableConfig) extends Component {

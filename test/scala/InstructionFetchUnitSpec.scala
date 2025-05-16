@@ -1,4 +1,4 @@
-package boson.test.scala
+package parallax.test.scala
 
 import org.scalatest.funsuite.AnyFunSuite // Not strictly needed with SpinalSimFunSuite
 import spinal.core._
@@ -6,14 +6,14 @@ import spinal.core.sim._
 import spinal.lib._
 import spinal.lib.sim.{StreamDriver, StreamMonitor, StreamReadyRandomizer}
 import spinal.tester.SpinalSimFunSuite // Assuming this is the base class for tests
-import boson.demo2.components.icache._
+import parallax.components.icache._
 
 // Common project configuration
-import boson.demo2.common.Config // Make sure this path is correct
+import parallax.common.Config // Make sure this path is correct
 
 // Components under test and its dependencies
-import boson.demo2.components.memory.{InstructionFetchUnit, InstructionFetchUnitConfig}
-import boson.demo2.components.memory._
+import parallax.components.memory.{InstructionFetchUnit, InstructionFetchUnitConfig}
+import parallax.components.memory._
 
 import scala.collection.mutable
 import scala.util.Random

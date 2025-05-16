@@ -1,4 +1,4 @@
-package boson.test.scala
+package parallax.test.scala
 
 import org.scalatest.funsuite.AnyFunSuite
 import scala.collection.mutable
@@ -10,7 +10,7 @@ import spinal.lib.sim.{StreamDriver, StreamMonitor, StreamReadyRandomizer}
 import spinal.tester.SpinalSimFunSuite
 
 // Make sure these paths are correct for your project structure
-import boson.demo2.components.memory.{
+import parallax.components.memory.{
   SimulatedMemory,
   SimulatedMemoryConfig,
   GenericMemoryBus,

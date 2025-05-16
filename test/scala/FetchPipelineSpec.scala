@@ -1,10 +1,10 @@
-package boson.test.scala
+package parallax.test.scala
 
-import boson.demo2.common.Config
-import boson.demo2.components.icache.SimpleICacheConfig
-import boson.demo2.fetch.{Fetch0Plugin, Fetch1Plugin, FetchPipeline}
-import boson.demo2.frontend.FrontendPipelineKeys
-import boson.utilities.{Framework, Plugin, ProjectScope, Service, DataBase}
+import parallax.common.Config
+import parallax.components.icache.SimpleICacheConfig
+import parallax.fetch.{Fetch0Plugin, Fetch1Plugin, FetchPipeline}
+import parallax.frontend.FrontendPipelineKeys
+import parallax.utilities.{Framework, Plugin, ProjectScope, Service, DataBase}
 import org.scalatest.funsuite.AnyFunSuite // Not strictly needed with SpinalSimFunSuite
 import spinal.core._
 import spinal.core.sim._
@@ -12,11 +12,11 @@ import spinal.lib._
 import spinal.lib.pipeline.Stage
 import spinal.lib.sim.{StreamMonitor, StreamReadyRandomizer}
 import spinal.tester.SpinalSimFunSuite
-import boson.demo2.components.memory._ // For SimulatedMemory, GenericMemoryBusConfig etc.
+import parallax.components.memory._ // For SimulatedMemory, GenericMemoryBusConfig etc.
 
 import scala.collection.mutable
-import boson.demo2.fetch.FetchOutputBridge
-import boson.demo2.fetch.FetchOutput
+import parallax.fetch.FetchOutputBridge
+import parallax.fetch.FetchOutput
 
 // Helper for initializing SimulatedMemory during doSim
 object FetchSimMemInit {

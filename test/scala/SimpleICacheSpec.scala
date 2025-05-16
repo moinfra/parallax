@@ -1,4 +1,4 @@
-package boson.test.scala // Or your preferred test package
+package parallax.test.scala // Or your preferred test package
 
 import org.scalatest.funsuite.AnyFunSuite
 import scala.collection.mutable
@@ -10,8 +10,8 @@ import spinal.core.sim._
 import spinal.lib.sim.{StreamDriver, StreamMonitor, StreamReadyRandomizer}
 import spinal.tester.SpinalSimFunSuite
 
-import boson.demo2.components.icache._
-import boson.demo2.components.memory._
+import parallax.components.icache._
+import parallax.components.memory._
 
 class SimpleICacheSpec extends CustomSpinalSimFunSuite {
 

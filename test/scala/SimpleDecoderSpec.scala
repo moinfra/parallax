@@ -1,9 +1,9 @@
-package boson.test.scala
+package parallax.test.scala
 
 import spinal.core._
 import spinal.lib._
 import spinal.tester.SpinalSimFunSuite
-import boson.demo2.components.decode._
+import parallax.components.decode._
 import spinal.core.sim.SimDataPimper
 import spinal.core.sim.SimBoolPimper
 import spinal.core.sim.SimEnumPimper
@@ -14,7 +14,7 @@ import spinal.core.sim.SimBitVectorPimper
 // import mycore.decode._ // Adjust this to your actual package structure
 
 // If Decoder is in the default package for simplicity:
-// (Ensure InstructionOpcodes, AluOp, MicroOpType, AluInfo, etc. are accessible)
+// (Ensure InstructionOpcodes, AluOp, MicroOpType, AluFlags, etc. are accessible)
 
 // Helper function to check MicroOp fields
 // This can be expanded to be very detailed
@@ -32,9 +32,9 @@ object Helper {
       useRt: Option[Boolean] = None,
       writeRd: Option[Boolean] = None,
       imm: Option[BigInt] = None,
-      // AluInfo
+      // AluFlags
       aluOp: AluOp.E = null,
-      // MemInfo
+      // MemOpFlags
       memAccessType: MemoryAccessType.E = null,
       memSize: MemoryOpSize.E = null,
       // CtrlFlowInfo
@@ -89,19 +89,19 @@ object Helper {
     if (uopType == MicroOpType.ALU_REG || uopType == MicroOpType.ALU_IMM || uopType == MicroOpType.LOAD_IMM) {
       if (aluOp != null)
         assert(
-          dut.io.microOp.aluInfo.op.toEnum == aluOp,
-          s"[PC=0x${pc.toHexString}] aluOp mismatch. Expected $aluOp, Got ${dut.io.microOp.aluInfo.op.toEnum}"
+          dut.io.microOp.aluFlags.op.toEnum == aluOp,
+          s"[PC=0x${pc.toHexString}] aluOp mismatch. Expected $aluOp, Got ${dut.io.microOp.aluFlags.op.toEnum}"
         )
     }
 
     if (uopType == MicroOpType.LOAD || uopType == MicroOpType.STORE) {
       if (memAccessType != null)
         assert(
-          dut.io.microOp.memInfo.accessType.toEnum == memAccessType,
+          dut.io.microOp.memOpFlags.accessType.toEnum == memAccessType,
           s"[PC=0x${pc.toHexString}] memAccessType mismatch"
         )
       if (memSize != null)
-        assert(dut.io.microOp.memInfo.size.toEnum == memSize, s"[PC=0x${pc.toHexString}] memSize mismatch")
+        assert(dut.io.microOp.memOpFlags.size.toEnum == memSize, s"[PC=0x${pc.toHexString}] memSize mismatch")
     }
 
     if (uopType == MicroOpType.BRANCH_COND) {
