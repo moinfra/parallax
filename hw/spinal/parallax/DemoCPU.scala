@@ -29,7 +29,10 @@ object DemoCPUGen extends App {
 
     val plugins = ArrayBuffer[Plugin]()
 
-    plugins += new PhysicalRegFilePlugin()
+    plugins += new PhysicalRegFilePlugin(
+      numPhysRegs = 32,
+      dataWidth = 32 bits,
+    )
     plugins += new TestPRF()
     // plugins += new BypassPlugin()
     // plugins += new FetchPipeline()

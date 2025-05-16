@@ -4,6 +4,7 @@ import spinal.core._
 import spinal.lib._
 import parallax.common._
 
+/// DEMO instruction set
 object InstructionOpcodes {
   def LD = B"000000"
   def ST = B"000001"
@@ -52,222 +53,306 @@ case class RawInstructionFields() extends Bundle {
 }
 
 // --- Decoder Component ---
-class SimpleDecoder extends Component {
-  val microOpConfig = MicroOpConfig()
+class SimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends Component { // Make config implicit and provide a default
   val io = new Bundle {
-    val instruction = in Bits (32 bits)
-    val microOp = out(MicroOp(microOpConfig))
+    val instruction = in Bits (config.dataWidth) // Use config for instruction width
+    val pcIn = in UInt (config.pcWidth) // Decoder needs PC
+    val decodedUop = out(DecodedUop(config)) // Output is DecodedUop
   }
 
   val fields = RawInstructionFields()
   fields.inst := io.instruction
 
-  io.microOp.setDefault() // Initialize all fields to defaults
+  // Initialize all fields to defaults
+  // The DecodedUop bundle's implicit config will be picked up from the class's implicit config
+  io.decodedUop.setDefault(
+    pc = io.pcIn,
+    isa = IsaType.DEMO
+  )
 
-  val imm_sext_16_to_32 = S(fields.imm16).resize(32)
-  val r0_idx = U(0, 5 bits)
+  // Constants for logic operations (example)
+  val LOGIC_OP_AND = B"001"
+  val LOGIC_OP_OR = B"010"
+  val LOGIC_OP_XOR = B"011"
+  // val LOGIC_OP_PASS_ADD_SUB = B"000" // If ALU uses logicOp to select add/sub path
+
+  val imm_sext_16_to_dataWidth = S(fields.imm16).resize(config.dataWidth)
+  val r0_idx = U(0, config.archGprIdxWidth)
 
   switch(fields.opcode) {
-    is(InstructionOpcodes.LD) {
-      io.microOp.isValid := (io.instruction =/= 0) // All zero is illegal
-      io.microOp.uopType := MicroOpType.LOAD
-      io.microOp.archRegRd := fields.rd
-      io.microOp.archRegRs := fields.rs // Base address register
-      io.microOp.useRd := True
-      io.microOp.useRs := True
-      io.microOp.writeRd := fields.rd =/= r0_idx
-      // imm for LD [Rs] is effectively 0 for address calculation (Rs + 0)
-      // If ISA was LD Rd, offset(Rs), then imm would be used.
-      // For this ISA, Rs is the address. AluOp.COPY_SRC2 can represent this.
-      // The LSU will use archRegRs as the address.
+    is(InstructionOpcodes.LD) { // LD Rd, [Rs] (assuming offset is 0 or handled by LSU with Rs only)
+      io.decodedUop.isValid := (io.instruction =/= 0) // Assuming all-zero is not a valid LD
+      io.decodedUop.uopCode := BaseUopCode.LOAD
+      io.decodedUop.exeUnit := ExeUnitType.MEM
 
-      io.microOp.memOpFlags.accessType := MemoryAccessType.LOAD_U
-      io.microOp.memOpFlags.size := MemoryOpSize.WORD
+      io.decodedUop.archDest.idx := fields.rd
+      io.decodedUop.archDest.rtype := ArchRegType.GPR
+      io.decodedUop.writeArchDestEn := fields.rd =/= r0_idx
+
+      io.decodedUop.archSrc1.idx := fields.rs // Base address register
+      io.decodedUop.archSrc1.rtype := ArchRegType.GPR
+      io.decodedUop.useArchSrc1 := True
+
+      // For LD Rd, imm(Rs) -> imm would be used. For LD Rd, [Rs], imm is 0.
+      io.decodedUop.immUsage := ImmUsageType.MEM_OFFSET // For Rs + offset
+      io.decodedUop.imm := B(0, config.dataWidth) // Effective offset is 0
+
+      io.decodedUop.memCtrl.isStore := False
+      io.decodedUop.memCtrl.isSignedLoad := False // LOAD_U
+      io.decodedUop.memCtrl.size := MemAccessSize.W
     }
-    is(InstructionOpcodes.ST) {
-      io.microOp.isValid := True
-      io.microOp.uopType := MicroOpType.STORE
-      io.microOp.archRegRs := fields.rs // Base address register
-      io.microOp.archRegRt := fields.rt // Data to store is in instruction's Rd field
-      io.microOp.useRs := True // Rs for address
-      io.microOp.useRt := True // Rt (from inst's Rd field) for data
-      // No writeRd
+    is(InstructionOpcodes.ST) { // ST Rt, [Rs] (Store Rt into address Rs)
+      io.decodedUop.isValid := True
+      io.decodedUop.uopCode := BaseUopCode.STORE
+      io.decodedUop.exeUnit := ExeUnitType.MEM
 
-      io.microOp.memOpFlags.accessType := MemoryAccessType.STORE
-      io.microOp.memOpFlags.size := MemoryOpSize.WORD
+      // No architectural destination register for ST
+      io.decodedUop.writeArchDestEn := False
+
+      io.decodedUop.archSrc1.idx := fields.rs // Base address register
+      io.decodedUop.archSrc1.rtype := ArchRegType.GPR
+      io.decodedUop.useArchSrc1 := True
+
+      io.decodedUop.archSrc2.idx := fields.rt // Data to store
+      io.decodedUop.archSrc2.rtype := ArchRegType.GPR
+      io.decodedUop.useArchSrc2 := True
+
+      io.decodedUop.immUsage := ImmUsageType.MEM_OFFSET
+      io.decodedUop.imm := B(0, config.dataWidth) // Effective offset is 0
+
+      io.decodedUop.memCtrl.isStore := True
+      io.decodedUop.memCtrl.size := MemAccessSize.W
     }
-    is(InstructionOpcodes.ADD) {
-      io.microOp.isValid := True
-      io.microOp.uopType := MicroOpType.ALU_REG
-      io.microOp.archRegRd := fields.rd
-      io.microOp.archRegRs := fields.rs
-      io.microOp.archRegRt := fields.rt
-      io.microOp.useRd := True
-      io.microOp.useRs := True
-      io.microOp.useRt := True
-      io.microOp.writeRd := fields.rd =/= r0_idx
+    is(InstructionOpcodes.ADD) { // ADD Rd, Rs, Rt
+      io.decodedUop.isValid := True
+      io.decodedUop.uopCode := BaseUopCode.ALU
+      io.decodedUop.exeUnit := ExeUnitType.ALU_INT
 
-      io.microOp.aluFlags.op := AluOp.ADD
+      io.decodedUop.archDest.idx := fields.rd
+      io.decodedUop.archDest.rtype := ArchRegType.GPR
+      io.decodedUop.writeArchDestEn := fields.rd =/= r0_idx
+
+      io.decodedUop.archSrc1.idx := fields.rs
+      io.decodedUop.archSrc1.rtype := ArchRegType.GPR
+      io.decodedUop.useArchSrc1 := True
+
+      io.decodedUop.archSrc2.idx := fields.rt
+      io.decodedUop.archSrc2.rtype := ArchRegType.GPR
+      io.decodedUop.useArchSrc2 := True
+
+      io.decodedUop.aluCtrl.isSub := False
     }
-    is(InstructionOpcodes.ADDI) {
-      io.microOp.isValid := True
-      io.microOp.uopType := MicroOpType.ALU_IMM
-      io.microOp.archRegRd := fields.rd
-      io.microOp.archRegRs := fields.rs
-      io.microOp.useRd := True
-      io.microOp.useRs := True
-      io.microOp.writeRd := fields.rd =/= r0_idx
-      io.microOp.imm := imm_sext_16_to_32
+    is(InstructionOpcodes.ADDI) { // ADDI Rd, Rs, Imm
+      io.decodedUop.isValid := True
+      io.decodedUop.uopCode := BaseUopCode.ALU
+      io.decodedUop.exeUnit := ExeUnitType.ALU_INT
 
-      io.microOp.aluFlags.op := AluOp.ADD // ALU performs Rs + Imm
+      io.decodedUop.archDest.idx := fields.rd
+      io.decodedUop.archDest.rtype := ArchRegType.GPR
+      io.decodedUop.writeArchDestEn := fields.rd =/= r0_idx
+
+      io.decodedUop.archSrc1.idx := fields.rs
+      io.decodedUop.archSrc1.rtype := ArchRegType.GPR
+      io.decodedUop.useArchSrc1 := True
+
+      io.decodedUop.imm := imm_sext_16_to_dataWidth.asBits.resized
+      io.decodedUop.immUsage := ImmUsageType.SRC_ALU
+
+      io.decodedUop.aluCtrl.isSub := False
     }
-    is(InstructionOpcodes.NEG) { // Rd = -Rs (0 - Rs)
-      io.microOp.isValid := True
-      io.microOp.uopType := MicroOpType.ALU_REG // Consumes one reg Rs, effectively 0 - Rs
-      io.microOp.archRegRd := fields.rd
-      io.microOp.archRegRs := fields.rs // This is the Rs to be negated
-      // archRegRt is not used by instruction, but ALU might see it as src1=0, src2=Rs
-      io.microOp.useRd := True
-      io.microOp.useRs := True
-      io.microOp.writeRd := fields.rd =/= r0_idx
-      // imm field will be 0, ALU will take 0 as one operand.
-      io.microOp.imm := S(0)
+    is(InstructionOpcodes.NEG) { // NEG Rd, Rs (Rd = 0 - Rs)
+      io.decodedUop.isValid := True
+      io.decodedUop.uopCode := BaseUopCode.ALU
+      io.decodedUop.exeUnit := ExeUnitType.ALU_INT
 
-      io.microOp.aluFlags.op := AluOp.SUB // ALU will compute 0 - archRegRs_value
+      io.decodedUop.archDest.idx := fields.rd
+      io.decodedUop.archDest.rtype := ArchRegType.GPR
+      io.decodedUop.writeArchDestEn := fields.rd =/= r0_idx
+
+      io.decodedUop.archSrc1.idx := fields.rs // This is the Rs to be negated
+      io.decodedUop.archSrc1.rtype := ArchRegType.GPR
+      io.decodedUop.useArchSrc1 := True
+
+      // ALU computes imm - src1Val => 0 - Rs
+      io.decodedUop.imm := B(0, config.dataWidth)
+      io.decodedUop.immUsage := ImmUsageType.SRC_ALU
+
+      io.decodedUop.aluCtrl.isSub := True
     }
-    is(InstructionOpcodes.AND) {
-      io.microOp.isValid := True
-      io.microOp.uopType := MicroOpType.ALU_REG
-      io.microOp.archRegRd := fields.rd
-      io.microOp.archRegRs := fields.rs
-      io.microOp.archRegRt := fields.rt
-      io.microOp.useRd := True
-      io.microOp.useRs := True
-      io.microOp.useRt := True
-      io.microOp.writeRd := fields.rd =/= r0_idx
+    is(InstructionOpcodes.AND) { // AND Rd, Rs, Rt
+      io.decodedUop.isValid := True
+      io.decodedUop.uopCode := BaseUopCode.ALU
+      io.decodedUop.exeUnit := ExeUnitType.ALU_INT
 
-      io.microOp.aluFlags.op := AluOp.AND
+      io.decodedUop.archDest.idx := fields.rd; io.decodedUop.archDest.rtype := ArchRegType.GPR
+      io.decodedUop.writeArchDestEn := fields.rd =/= r0_idx
+      io.decodedUop.archSrc1.idx := fields.rs; io.decodedUop.archSrc1.rtype := ArchRegType.GPR
+      io.decodedUop.useArchSrc1 := True
+      io.decodedUop.archSrc2.idx := fields.rt; io.decodedUop.archSrc2.rtype := ArchRegType.GPR
+      io.decodedUop.useArchSrc2 := True
+
+      io.decodedUop.aluCtrl.logicOp := LOGIC_OP_AND
     }
-    is(InstructionOpcodes.OR) {
-      io.microOp.isValid := True
-      io.microOp.uopType := MicroOpType.ALU_REG
-      io.microOp.archRegRd := fields.rd
-      io.microOp.archRegRs := fields.rs
-      io.microOp.archRegRt := fields.rt
-      io.microOp.useRd := True
-      io.microOp.useRs := True
-      io.microOp.useRt := True
-      io.microOp.writeRd := fields.rd =/= r0_idx
+    is(InstructionOpcodes.OR) { // OR Rd, Rs, Rt
+      io.decodedUop.isValid := True
+      io.decodedUop.uopCode := BaseUopCode.ALU
+      io.decodedUop.exeUnit := ExeUnitType.ALU_INT
+      // Similar to AND
+      io.decodedUop.archDest.idx := fields.rd; io.decodedUop.archDest.rtype := ArchRegType.GPR
+      io.decodedUop.writeArchDestEn := fields.rd =/= r0_idx
+      io.decodedUop.archSrc1.idx := fields.rs; io.decodedUop.archSrc1.rtype := ArchRegType.GPR
+      io.decodedUop.useArchSrc1 := True
+      io.decodedUop.archSrc2.idx := fields.rt; io.decodedUop.archSrc2.rtype := ArchRegType.GPR
+      io.decodedUop.useArchSrc2 := True
 
-      io.microOp.aluFlags.op := AluOp.OR
+      io.decodedUop.aluCtrl.logicOp := LOGIC_OP_OR
     }
-    is(InstructionOpcodes.XOR) {
-      io.microOp.isValid := True
-      io.microOp.uopType := MicroOpType.ALU_REG
-      io.microOp.archRegRd := fields.rd
-      io.microOp.archRegRs := fields.rs
-      io.microOp.archRegRt := fields.rt
-      io.microOp.useRd := True
-      io.microOp.useRs := True
-      io.microOp.useRt := True
-      io.microOp.writeRd := fields.rd =/= r0_idx
+    is(InstructionOpcodes.XOR) { // XOR Rd, Rs, Rt
+      io.decodedUop.isValid := True
+      io.decodedUop.uopCode := BaseUopCode.ALU
+      io.decodedUop.exeUnit := ExeUnitType.ALU_INT
+      // Similar to AND
+      io.decodedUop.archDest.idx := fields.rd; io.decodedUop.archDest.rtype := ArchRegType.GPR
+      io.decodedUop.writeArchDestEn := fields.rd =/= r0_idx
+      io.decodedUop.archSrc1.idx := fields.rs; io.decodedUop.archSrc1.rtype := ArchRegType.GPR
+      io.decodedUop.useArchSrc1 := True
+      io.decodedUop.archSrc2.idx := fields.rt; io.decodedUop.archSrc2.rtype := ArchRegType.GPR
+      io.decodedUop.useArchSrc2 := True
 
-      io.microOp.aluFlags.op := AluOp.XOR
+      io.decodedUop.aluCtrl.logicOp := LOGIC_OP_XOR
     }
-    is(InstructionOpcodes.NOT) { // Rd = ~Rs (Rs XOR -1)
-      io.microOp.isValid := True
-      // This is like an ALU_IMM op where the immediate is fixed to -1
-      // Or an ALU_REG where Rt is implicitly -1.
-      // Let's model it as ALU_IMM where imm is set to -1.
-      io.microOp.uopType := MicroOpType.ALU_IMM
-      io.microOp.archRegRd := fields.rd
-      io.microOp.archRegRs := fields.rs // Rs is the register to be NOTed
-      io.microOp.useRd := True
-      io.microOp.useRs := True
-      io.microOp.writeRd := fields.rd =/= r0_idx
-      io.microOp.imm := S(-1) // The value to XOR with (0xFFFFFFFF)
+    is(InstructionOpcodes.NOT) { // NOT Rd, Rs (Rd = Rs XOR -1)
+      io.decodedUop.isValid := True
+      io.decodedUop.uopCode := BaseUopCode.ALU
+      io.decodedUop.exeUnit := ExeUnitType.ALU_INT
 
-      io.microOp.aluFlags.op := AluOp.XOR // ALU will compute archRegRs_value XOR S(-1)
+      io.decodedUop.archDest.idx := fields.rd
+      io.decodedUop.archDest.rtype := ArchRegType.GPR
+      io.decodedUop.writeArchDestEn := fields.rd =/= r0_idx
+
+      io.decodedUop.archSrc1.idx := fields.rs // Rs is the register to be NOTed
+      io.decodedUop.archSrc1.rtype := ArchRegType.GPR
+      io.decodedUop.useArchSrc1 := True
+
+      io.decodedUop.imm := S(-1, config.dataWidth).asBits // The value to XOR with (0xFFFFFFFF...)
+      io.decodedUop.immUsage := ImmUsageType.SRC_ALU
+
+      io.decodedUop.aluCtrl.logicOp := LOGIC_OP_XOR // ALU will compute archSrc1_value XOR Imm
     }
-    is(InstructionOpcodes.MUL) {
-      io.microOp.isValid := True
-      io.microOp.uopType := MicroOpType.ALU_REG
-      io.microOp.archRegRd := fields.rd
-      io.microOp.archRegRs := fields.rs
-      io.microOp.archRegRt := fields.rt
-      io.microOp.useRd := True
-      io.microOp.useRs := True
-      io.microOp.useRt := True
-      io.microOp.writeRd := fields.rd =/= r0_idx
+    is(InstructionOpcodes.MUL) { // MUL Rd, Rs, Rt
+      io.decodedUop.isValid := True
+      io.decodedUop.uopCode := BaseUopCode.MUL
+      io.decodedUop.exeUnit := ExeUnitType.MUL_INT
 
-      io.microOp.aluFlags.op := AluOp.MUL
+      io.decodedUop.archDest.idx := fields.rd; io.decodedUop.archDest.rtype := ArchRegType.GPR
+      io.decodedUop.writeArchDestEn := fields.rd =/= r0_idx
+      io.decodedUop.archSrc1.idx := fields.rs; io.decodedUop.archSrc1.rtype := ArchRegType.GPR
+      io.decodedUop.useArchSrc1 := True
+      io.decodedUop.archSrc2.idx := fields.rt; io.decodedUop.archSrc2.rtype := ArchRegType.GPR
+      io.decodedUop.useArchSrc2 := True
+
+      io.decodedUop.mulDivCtrl.isDiv := False
+      // Assuming signed multiply for this demo op. Add to ISA spec if it can be unsigned.
+      io.decodedUop.mulDivCtrl.isSigned := True
     }
-    is(InstructionOpcodes.DIV) {
-      io.microOp.isValid := True
-      io.microOp.uopType := MicroOpType.ALU_REG
-      io.microOp.archRegRd := fields.rd
-      io.microOp.archRegRs := fields.rs
-      io.microOp.archRegRt := fields.rt
-      io.microOp.useRd := True
-      io.microOp.useRs := True
-      io.microOp.useRt := True
-      io.microOp.writeRd := fields.rd =/= r0_idx
+    is(InstructionOpcodes.DIV) { // DIV Rd, Rs, Rt
+      io.decodedUop.isValid := True
+      io.decodedUop.uopCode := BaseUopCode.DIV
+      io.decodedUop.exeUnit := ExeUnitType.DIV_INT
+      // Similar to MUL
+      io.decodedUop.archDest.idx := fields.rd; io.decodedUop.archDest.rtype := ArchRegType.GPR
+      io.decodedUop.writeArchDestEn := fields.rd =/= r0_idx
+      io.decodedUop.archSrc1.idx := fields.rs; io.decodedUop.archSrc1.rtype := ArchRegType.GPR
+      io.decodedUop.useArchSrc1 := True
+      io.decodedUop.archSrc2.idx := fields.rt; io.decodedUop.archSrc2.rtype := ArchRegType.GPR
+      io.decodedUop.useArchSrc2 := True
 
-      io.microOp.aluFlags.op := AluOp.DIV
+      io.decodedUop.mulDivCtrl.isDiv := True
+      io.decodedUop.mulDivCtrl.isSigned := True // Assuming signed
     }
-    is(InstructionOpcodes.LI) { // Rd = sext(Imm)
-      io.microOp.isValid := True
-      io.microOp.uopType := MicroOpType.LOAD_IMM
-      io.microOp.archRegRd := fields.rd
-      // Rs is not used by instruction encoding, but ALU might see it as 0 + Imm
-      io.microOp.useRd := True
-      // io.microOp.useRs could be false, or true if ALU takes 0 from Rs path
-      io.microOp.writeRd := fields.rd =/= r0_idx
-      io.microOp.imm := imm_sext_16_to_32
+    is(InstructionOpcodes.LI) { // LI Rd, sext(Imm) (Rd = 0 + sext(Imm))
+      io.decodedUop.isValid := True
+      // Represent as ALU op: 0 + Imm
+      io.decodedUop.uopCode := BaseUopCode.ALU
+      io.decodedUop.exeUnit := ExeUnitType.ALU_INT
 
-      // ALU will effectively pass imm to Rd. Can be ALUOp.ADD (0 + imm) or COPY_SRC1 (if imm is routed to src1)
-      io.microOp.aluFlags.op := AluOp.ADD // Assuming ALU does 0 + imm for LI
+      io.decodedUop.archDest.idx := fields.rd
+      io.decodedUop.archDest.rtype := ArchRegType.GPR
+      io.decodedUop.writeArchDestEn := fields.rd =/= r0_idx
+
+      // No register source from instruction, ALU will use 0 as one operand
+      io.decodedUop.useArchSrc1 := False
+
+      io.decodedUop.imm := imm_sext_16_to_dataWidth.asBits.resized
+      io.decodedUop.immUsage := ImmUsageType.SRC_ALU
+
+      io.decodedUop.aluCtrl.isSub := False // For 0 + imm
     }
-    is(InstructionOpcodes.EQ) {
-      io.microOp.isValid := True
-      io.microOp.uopType := MicroOpType.ALU_REG
-      io.microOp.archRegRd := fields.rd
-      io.microOp.archRegRs := fields.rs
-      io.microOp.archRegRt := fields.rt
-      io.microOp.useRd := True
-      io.microOp.useRs := True
-      io.microOp.useRt := True
-      io.microOp.writeRd := fields.rd =/= r0_idx
+    is(InstructionOpcodes.EQ) { // EQ Rd, Rs, Rt (Rd = (Rs == Rt) ? 1 : 0)
+      io.decodedUop.isValid := True
+      io.decodedUop.uopCode := BaseUopCode.ALU // ALU must support set-on-condition
+      io.decodedUop.exeUnit := ExeUnitType.ALU_INT
 
-      io.microOp.aluFlags.op := AluOp.EQ
+      io.decodedUop.archDest.idx := fields.rd; io.decodedUop.archDest.rtype := ArchRegType.GPR
+      io.decodedUop.writeArchDestEn := fields.rd =/= r0_idx
+      io.decodedUop.archSrc1.idx := fields.rs; io.decodedUop.archSrc1.rtype := ArchRegType.GPR
+      io.decodedUop.useArchSrc1 := True
+      io.decodedUop.archSrc2.idx := fields.rt; io.decodedUop.archSrc2.rtype := ArchRegType.GPR
+      io.decodedUop.useArchSrc2 := True
+
+      // To implement Rd = (Rs == Rt): ALU computes Rs - Rt. If zero, Rd = 1, else Rd = 0.
+      io.decodedUop.aluCtrl.isSub := True
+      // The ALU execution unit would need a mode to output 1 if (src1-src2)==0, else 0.
+      // This might need an extension to AluCtrlFlags or a specific BaseUopCode.CMP if not directly mappable.
+      // For now, this is a simplification.
     }
-    is(InstructionOpcodes.SGT) {
-      io.microOp.isValid := True
-      io.microOp.uopType := MicroOpType.ALU_REG
-      io.microOp.archRegRd := fields.rd
-      io.microOp.archRegRs := fields.rs
-      io.microOp.archRegRt := fields.rt
-      io.microOp.useRd := True
-      io.microOp.useRs := True
-      io.microOp.useRt := True
-      io.microOp.writeRd := fields.rd =/= r0_idx
+    is(InstructionOpcodes.SGT) { // SGT Rd, Rs, Rt (Rd = (Rs > Rt signed) ? 1 : 0)
+      io.decodedUop.isValid := True
+      io.decodedUop.uopCode := BaseUopCode.ALU // ALU must support set-on-condition
+      io.decodedUop.exeUnit := ExeUnitType.ALU_INT
+      // Similar to EQ
+      io.decodedUop.archDest.idx := fields.rd; io.decodedUop.archDest.rtype := ArchRegType.GPR
+      io.decodedUop.writeArchDestEn := fields.rd =/= r0_idx
+      io.decodedUop.archSrc1.idx := fields.rs; io.decodedUop.archSrc1.rtype := ArchRegType.GPR
+      io.decodedUop.useArchSrc1 := True
+      io.decodedUop.archSrc2.idx := fields.rt; io.decodedUop.archSrc2.rtype := ArchRegType.GPR
+      io.decodedUop.useArchSrc2 := True
 
-      io.microOp.aluFlags.op := AluOp.SGT
+      // To implement Rd = (Rs > Rt signed): ALU computes Rs - Rt.
+      // If result is positive AND non-zero (for signed >), Rd = 1. More complex.
+      // Typically (Rs > Rt) is equivalent to (Rt < Rs).
+      // (Rs - Rt) -> check sign bit and zero bit.
+      io.decodedUop.aluCtrl.isSub := True
+      io.decodedUop.aluCtrl.isSigned := True // Comparison is signed
+      // ALU unit needs mode for "set if signed greater than".
     }
-    is(InstructionOpcodes.BCOND) { // if (Rs != 0) PC += sext(Imm)*4
-      io.microOp.isValid := True
-      io.microOp.uopType := MicroOpType.BRANCH_COND
-      io.microOp.archRegRs := fields.rs // Register for condition check
-      // Rd, Rt not used by instruction
-      io.microOp.useRs := True
-      // No writeRd
-      io.microOp.imm := imm_sext_16_to_32 // This is the word offset
+    is(InstructionOpcodes.BCOND) { // BCOND Rs, Imm (if (Rs != 0) PC += sext(Imm)*4)
+      io.decodedUop.isValid := True
+      io.decodedUop.uopCode := BaseUopCode.BRANCH
+      io.decodedUop.exeUnit := ExeUnitType.BRU
+      io.decodedUop.isBranchOrJump := True
 
-      io.microOp.ctrlFlowInfo.condition := BranchCond.NOT_ZERO // Condition is Rs != 0
-      io.microOp.ctrlFlowInfo.targetOffset := (imm_sext_16_to_32 << 2).resized // sext(Imm)*4
+      // No architectural destination register for BCOND
+      io.decodedUop.writeArchDestEn := False
+
+      io.decodedUop.archSrc1.idx := fields.rs // Register for condition check
+      io.decodedUop.archSrc1.rtype := ArchRegType.GPR
+      io.decodedUop.useArchSrc1 := True
+
+      // Immediate is PC-relative byte offset
+      val byteOffset = imm_sext_16_to_dataWidth << 2
+      io.decodedUop.imm := byteOffset.asBits.resized
+      io.decodedUop.immUsage := ImmUsageType.BRANCH_OFFSET
+
+      io.decodedUop.branchCtrl.isJump := False
+      io.decodedUop.branchCtrl.isIndirect := False
+      io.decodedUop.branchCtrl.condition := BranchCondition.NEZ // Condition is Rs != 0 (compare Rs against Zero)
     }
     default {
-      // io.microOp.isValid is already False due to setDefault()
+      io.decodedUop.isValid := False // Already False due to setDefault(), but explicit is fine
+      io.decodedUop.uopCode := BaseUopCode.ILLEGAL
+      io.decodedUop.hasDecodeException := True
+      // Could set decodeExceptionCode to an "illegal instruction" code
     }
   }
 }

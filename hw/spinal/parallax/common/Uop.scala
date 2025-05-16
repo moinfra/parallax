@@ -3,26 +3,6 @@ package parallax.common
 import spinal.core._
 import spinal.lib._
 
-// --- Configuration ---
-case class PipelineConfig(
-    dataWidth: Int = 32, // GPR/FPR data width
-    pcWidth: Int = 32, // Program Counter width
-    archRegIdxWidth: Int = 5, // Architectural GPR/FPR index (e.g., 2^5 = 32 regs)
-    // LoongArch has 14-bit CSRs, RISC-V 12-bit. Max for flexibility.
-    csrArchAddrWidth: Int = 14,
-    // Physical register configuration
-    numPhysGprs: Int = 64,
-    numPhysFprs: Int = 64, // If you have separate physical FPRs
-    // We might also need numPhysCsrs if CSRs are renamed, or other reg types
-    robDepth: Int = 64,
-    // For microarchitecture-specific fields
-    uopUniqueIdWidth: Int = 16
-) {
-  val physGprIdxWidth: BitCount = log2Up(numPhysGprs) bits
-  val physFprIdxWidth: BitCount = log2Up(numPhysFprs) bits // If different from GPRs
-  val robIdxWidth: BitCount = log2Up(robDepth) bits
-}
-
 // --- ISA Identifier ---
 object IsaType extends SpinalEnum {
   val UNKNOWN, DEMO, RISCV, LOONGARCH = newElement()
@@ -54,7 +34,7 @@ object ArchRegType extends SpinalEnum {
 }
 
 case class ArchRegOperand(config: PipelineConfig) extends Bundle {
-  val idx = UInt(config.archRegIdxWidth bits) // For GPR/FPR
+  val idx = UInt(config.archGprIdxWidth) // For GPR/FPR
   // For CSRs, the address is larger and comes from a dedicated field
   val rtype = ArchRegType()
 
@@ -68,6 +48,15 @@ case class ArchRegOperand(config: PipelineConfig) extends Bundle {
     rtype := ArchRegType.GPR // Default to GPR
     this
   }
+
+  def setDefaultForSim(): this.type = {
+    import spinal.core.sim._
+
+    idx #= 0
+    rtype #= ArchRegType.GPR
+    this
+  }
+
   def clear(): this.type = { // Useful for unused operands
     idx := 0
     rtype := ArchRegType.GPR // Default to GPR, actual value may not matter if not used
@@ -92,10 +81,20 @@ case class AluCtrlFlags() extends Bundle {
   val isSub = Bool()
   val isSigned = Bool()
   val logicOp = Bits(3 bits)
+
   def setDefault(): this.type = {
     isSub := False
     isSigned := False
     logicOp := 0 // Default to a benign/NOP logic op representation
+    this
+  }
+
+  def setDefaultForSim(): this.type = {
+    import spinal.core.sim._
+
+    isSub #= false
+    isSigned #= false
+    logicOp #= 0
     this
   }
 }
@@ -104,6 +103,7 @@ case class ShiftCtrlFlags() extends Bundle {
   val isArithmetic = Bool()
   val isRotate = Bool()
   val isDoubleWord = Bool() // For RV64 shiftd, LA dsll/dsrl/dsra
+
   def setDefault(): this.type = {
     isRight := False
     isArithmetic := False
@@ -111,15 +111,35 @@ case class ShiftCtrlFlags() extends Bundle {
     isDoubleWord := False
     this
   }
+
+  def setDefaultForSim(): this.type = {
+    import spinal.core.sim._
+
+    isRight #= false
+    isArithmetic #= false
+    isRotate #= false
+    isDoubleWord #= false
+    this
+  }
 }
 case class MulDivCtrlFlags() extends Bundle {
   val isDiv = Bool()
   val isSigned = Bool()
   val isWordOp = Bool() // For 32-bit ops in 64-bit mode (e.g., MULW, DIVW)
+
   def setDefault(): this.type = {
     isDiv := False
     isSigned := False
     isWordOp := False
+    this
+  }
+
+  def setDefaultForSim(): this.type = {
+    import spinal.core.sim._
+
+    isDiv #= false
+    isSigned #= false
+    isWordOp #= false
     this
   }
 }
@@ -138,6 +158,7 @@ case class MemCtrlFlags() extends Bundle {
   val isCacheOp = Bool()
   val cacheOpType = Bits(5 bits)
   val isPrefetch = Bool()
+
   def setDefault(): this.type = {
     size := MemAccessSize.W // Default to Word
     isSignedLoad := False
@@ -152,6 +173,23 @@ case class MemCtrlFlags() extends Bundle {
     isPrefetch := False
     this
   }
+
+  def setDefaultForSim(): this.type = {
+    import spinal.core.sim._
+
+    size #= MemAccessSize.W
+    isSignedLoad #= false
+    isStore #= false
+    isLoadLinked #= false
+    isStoreCond #= false
+    atomicOp #= 0
+    isFence #= false
+    fenceMode #= 0
+    isCacheOp #= false
+    cacheOpType #= 0
+    isPrefetch #= false
+    this
+  }
 }
 object BranchCondition extends SpinalEnum {
   val NUL, EQ, NE, LT, GE, LTU, GEU, // GPR Compares
@@ -161,13 +199,14 @@ object BranchCondition extends SpinalEnum {
   = newElement()
 }
 
-case class BranchCtrlFlags(implicit val config: PipelineConfig) extends Bundle { // Added implicit config
+case class BranchCtrlFlags(val config: PipelineConfig) extends Bundle { // Added config
   val condition = BranchCondition()
   val isJump = Bool()
   val isLink = Bool()
   val linkReg = ArchRegOperand(config) // Pass config
   val isIndirect = Bool()
   val laCfIdx = UInt(3 bits)
+
   def setDefault(): this.type = {
     condition := BranchCondition.NUL
     isJump := False
@@ -177,9 +216,21 @@ case class BranchCtrlFlags(implicit val config: PipelineConfig) extends Bundle {
     laCfIdx := 0
     this
   }
+
+  def setDefaultForSim(): this.type = {
+    import spinal.core.sim._
+
+    condition #= BranchCondition.NUL
+    isJump #= false
+    isLink #= false
+    linkReg.setDefaultForSim()
+    isIndirect #= false
+    laCfIdx #= 0
+    this
+  }
 }
 case class FpuCtrlFlags() extends Bundle {
-  val opType = Bits(4 bits) // ADD,SUB,MUL,DIV,FMA,SQRT,CVT,CMP,MINMAX,CLASS,MOV,SEL
+  val opType = Bits(4 bits) // INVALID, ADD,SUB,MUL,DIV,FMA,SQRT,CVT,CMP,MINMAX,CLASS,MOV,SEL
   val fpSizeSrc1 = MemAccessSize() // S, D
   val fpSizeSrc2 = MemAccessSize()
   val fpSizeSrc3 = MemAccessSize() // For FMA
@@ -190,27 +241,47 @@ case class FpuCtrlFlags() extends Bundle {
   val fmaNegSrc1 = Bool()
   val fmaNegSrc3 = Bool()
   val fcmpCond = Bits(5 bits)
+
   def setDefault(): this.type = {
-    opType.assignDontCare()
+    opType := 0
     fpSizeSrc1 := MemAccessSize.W // Default to Single Precision (Word)
     fpSizeSrc2 := MemAccessSize.W
     fpSizeSrc3 := MemAccessSize.W
     fpSizeDest := MemAccessSize.W
-    roundingMode.assignDontCare()
+    roundingMode := 0
     isIntegerDest := False
     isSignedCvt := False
     fmaNegSrc1 := False
     fmaNegSrc3 := False
-    fcmpCond.assignDontCare()
+    fcmpCond := 0
+    this
+  }
+
+  def setDefaultForSim(): this.type = {
+    import spinal.core.sim._
+
+    opType #= 0
+    fpSizeSrc1 #= MemAccessSize.W
+    fpSizeSrc2 #= MemAccessSize.W
+    fpSizeSrc3 #= MemAccessSize.W
+    fpSizeDest #= MemAccessSize.W
+    roundingMode #= 0
+    isIntegerDest #= false
+    isSignedCvt #= false
+    fmaNegSrc1 #= false
+    fmaNegSrc3 #= false
+    fcmpCond #= 0
     this
   }
 }
-case class CsrCtrlFlags(implicit val config: PipelineConfig) extends Bundle {
-  val csrAddr = UInt(config.csrArchAddrWidth bits)
+
+case class CsrCtrlFlags(config: PipelineConfig) extends Bundle {
+  val csrAddr = UInt(config.csrArchAddrWidth)
   val isWrite = Bool()
   val isRead = Bool()
   val isExchange = Bool()
   val useUimmAsSrc = Bool()
+
   def setDefault(): this.type = {
     csrAddr := 0 // Default to a known CSR address (e.g., an invalid one or a safe RO one)
     isWrite := False
@@ -219,12 +290,24 @@ case class CsrCtrlFlags(implicit val config: PipelineConfig) extends Bundle {
     useUimmAsSrc := False
     this
   }
+
+  def setDefaultForSim(): this.type = {
+    import spinal.core.sim._
+
+    csrAddr #= 0
+    isWrite #= false
+    isRead #= false
+    isExchange #= false
+    useUimmAsSrc #= false
+    this
+  }
 }
 case class SystemCtrlFlags() extends Bundle {
   val sysCode = Bits(20 bits)
   val isExceptionReturn = Bool()
   val isTlbOp = Bool()
   val tlbOpType = Bits(4 bits)
+
   def setDefault(): this.type = {
     sysCode := 0
     isExceptionReturn := False
@@ -232,14 +315,24 @@ case class SystemCtrlFlags() extends Bundle {
     tlbOpType := 0
     this
   }
+
+  def setDefaultForSim(): this.type = {
+    import spinal.core.sim._
+
+    sysCode #= 0
+    isExceptionReturn #= false
+    isTlbOp #= false
+    tlbOpType #= 0
+    this
+  }
 }
 
 // --- End of example Control Flags Sub-Bundles ---
 
 // === Decoded Uop (Output of Decoder, Input to Rename) ===
-case class DecodedUop(implicit val config: PipelineConfig) extends Bundle {
+case class DecodedUop(val config: PipelineConfig) extends Bundle {
   // --- Core Info ---
-  val pc = UInt(config.pcWidth bits)
+  val pc = UInt(config.pcWidth)
   val isValid = Bool() // Is this a validly decoded instruction?
   val uopCode = BaseUopCode()
   val exeUnit = ExeUnitType()
@@ -257,7 +350,7 @@ case class DecodedUop(implicit val config: PipelineConfig) extends Bundle {
   val useArchSrc3 = Bool()
 
   // Immediate Value (Sign/Zero extended as needed by the operation by decoder)
-  val imm = Bits(config.dataWidth bits)
+  val imm = Bits(config.dataWidth)
   val immUsage = ImmUsageType() // How the immediate is used (as operand, offset, etc.)
 
   // --- Control Flags / Specific Payloads (The "Union" Part) ---
@@ -265,9 +358,9 @@ case class DecodedUop(implicit val config: PipelineConfig) extends Bundle {
   val shiftCtrl = ShiftCtrlFlags()
   val mulDivCtrl = MulDivCtrlFlags()
   val memCtrl = MemCtrlFlags()
-  val branchCtrl = BranchCtrlFlags() // Needs config for linkReg.archRegIdxWidth
+  val branchCtrl = BranchCtrlFlags(config) // Needs config for linkReg.archGprIdxWidth
   val fpuCtrl = FpuCtrlFlags()
-  val csrCtrl = CsrCtrlFlags()
+  val csrCtrl = CsrCtrlFlags(config)
   val sysCtrl = SystemCtrlFlags()
 
   // --- Exception Info from Decoder ---
@@ -280,12 +373,15 @@ case class DecodedUop(implicit val config: PipelineConfig) extends Bundle {
   val isSerializing = Bool() // Instruction that must serialize execution (e.g. FENCE, ERET)
   val isBranchOrJump = Bool() // Hint for frontend/predictor
 
-  def setDefault(): this.type = {
-    pc := 0
+  def setDefault(
+      pc: UInt = 0,
+      isa: SpinalEnumCraft[IsaType.type] = IsaType.UNKNOWN
+  ): this.type = {
+    this.pc := pc
     isValid := False
     uopCode := BaseUopCode.NOP // Explicit NOP
     exeUnit := ExeUnitType.NONE // Explicit NONE
-    isa := IsaType.UNKNOWN
+    this.isa := isa
 
     archDest.setDefault()
     writeArchDestEn := False
@@ -317,6 +413,44 @@ case class DecodedUop(implicit val config: PipelineConfig) extends Bundle {
 
     this
   }
+
+  def setDefaultForSim() = {
+    import spinal.core.sim._
+
+    pc #= 0
+    isValid #= false
+    uopCode #= BaseUopCode.NOP
+    exeUnit #= ExeUnitType.NONE
+    isa #= IsaType.UNKNOWN
+
+    archDest.setDefaultForSim()
+    writeArchDestEn #= false
+    archSrc1.setDefaultForSim()
+    useArchSrc1 #= false
+    archSrc2.setDefaultForSim()
+    useArchSrc2 #= false
+    archSrc3.setDefaultForSim()
+    useArchSrc3 #= false
+
+    imm #= 0
+    immUsage #= ImmUsageType.NONE
+
+    aluCtrl.setDefault()
+    shiftCtrl.setDefault()
+    mulDivCtrl.setDefault()
+    memCtrl.setDefault()
+    branchCtrl.setDefault()
+    fpuCtrl.setDefault()
+    csrCtrl.setDefault()
+    sysCtrl.setDefault()
+
+    decodeExceptionCode #= 0
+    hasDecodeException #= false
+    isMicrocode #= false
+    microcodeEntry #= 0
+    isSerializing #= false
+    isBranchOrJump #= false
+  }
 }
 
 // === Renamed Uop (Output of Rename, Input to ROB/Issue/Execute) ===
@@ -330,7 +464,7 @@ case class PhysicalRegOperand(physRegIdxWidth: BitCount) extends Bundle {
   }
 }
 
-case class RenameInfo(implicit val config: PipelineConfig) extends Bundle {
+case class RenameInfo(val config: PipelineConfig) extends Bundle {
   // Physical source registers (assuming GPR/FPR might have different phys reg counts)
   val physSrc1 = PhysicalRegOperand(config.physGprIdxWidth) // Default to GPR width, adjust if src is FPR
   val physSrc1IsFpr = Bool() // True if physSrc1 maps to FPR file
@@ -364,16 +498,18 @@ case class RenameInfo(implicit val config: PipelineConfig) extends Bundle {
   }
 }
 
-case class RenamedUop(implicit val config: PipelineConfig) extends Bundle {
+case class RenamedUop(
+    val config: PipelineConfig
+) extends Bundle {
   // --- Original Decoded Information ---
-  val decoded = DecodedUop() // Embeds all architectural and control info
+  val decoded = DecodedUop(config) // Embeds all architectural and control info
 
   // --- Rename Stage Output ---
-  val rename = RenameInfo()
+  val rename = RenameInfo(config)
 
   // --- ROB / Dispatch / Execute Info ---
   val robIdx = UInt(config.robIdxWidth)
-  val uniqueId = UInt(config.uopUniqueIdWidth bits) // For debugging, tracing
+  val uniqueId = UInt(config.uopUniqueIdWidth) // For debugging, tracing
 
   // These flags are typically set/cleared as the Uop moves through the pipeline
   // Or are part of the ROB entry, not the Uop itself if Uop is just a "view" into ROB.

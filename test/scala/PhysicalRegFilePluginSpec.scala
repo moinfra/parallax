@@ -1,7 +1,7 @@
 package parallax.test.scala
 
 import parallax.PhysicalRegFilePlugin
-import parallax.common.Config
+import parallax.common._
 import parallax.utilities._
 
 import org.scalatest.funsuite.AnyFunSuite
@@ -36,7 +36,7 @@ class PhysicalRegFilePluginSpec extends SpinalSimFunSuite {
       val framework = ProjectScope(database) on new Framework(
         Seq(
           new PhysicalRegFilePlugin(
-            numPhysRegs = Config.PHYS_REG_COUNT,
+            numPhysRegs = 32,
             dataWidth = 32 bits
           ),
           new TestPlugin()

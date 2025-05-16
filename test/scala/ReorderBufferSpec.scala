@@ -3,14 +3,33 @@ package parallax.test.scala
 import spinal.core._
 import spinal.core.sim._
 import spinal.lib._
+import parallax.common._
 import parallax.components.rename._
-import parallax.components.decode._
 import scala.collection.mutable.ArrayBuffer
 
-class ReorderBufferTestBench(val robConfig: ROBConfig) extends Component {
-  val io = slave(ROBIo(robConfig))
+case class DummyUop() extends Bundle {
+  val pc: UInt = UInt(32 bits)
+  val robIdx: UInt = UInt(5 bits)
+  val hasException: Bool = Bool()
+  def setDefault(): this.type = {
+    pc := 0
+    robIdx := 0
+    hasException := False
+    this
+  }
 
-  val rob = new ReorderBuffer(robConfig)
+  def setDefaultForSim(): this.type = {
+    pc #= 0
+    robIdx #= 0
+    hasException #= false
+    this
+  }
+}
+
+class ReorderBufferTestBench(config: ROBConfig[DummyUop]) extends Component {
+  val io = slave(ROBIo(config))
+
+  val rob = new ReorderBuffer(config)
   rob.io <> io
 
   rob.io.simPublic()
@@ -21,71 +40,30 @@ class ReorderBufferTestBench(val robConfig: ROBConfig) extends Component {
 
 class ReorderBufferSpec extends CustomSpinalSimFunSuite {
 
-  // Default MicroOpConfig for tests
-  val microOpCfg = MicroOpConfig(physRegIdxWidth = 6 bits, dataWidth = 32 bits)
+  // Default PipelineConfig for tests
+  val pipelineCfg: PipelineConfig = PipelineConfig()
 
   // --- Helper Functions for Driving ROB IO ---
 
-  // Helper to create a default/dummy MicroOp for allocation
-  def driveDefaultMicroOp(targetUopPort: MicroOp, cfg: MicroOpConfig): Unit = {
-    targetUopPort.isValid #= false
-    targetUopPort.uopType #= MicroOpType.ILLEGAL
-    targetUopPort.archRegRd #= 0
-    targetUopPort.archRegRs #= 0
-    targetUopPort.archRegRt #= 0
-    targetUopPort.useRd #= false
-    targetUopPort.useRs #= false
-    targetUopPort.useRt #= false
-    targetUopPort.writeRd #= false
-    targetUopPort.imm #= 0 // Ensure correct width for SInt default
-
-    targetUopPort.aluFlags.op #= AluOp.NOP // Default for sub-bundle
-    targetUopPort.memOpFlags.accessType #= MemoryAccessType.LOAD_U // Default
-    targetUopPort.memOpFlags.size #= MemoryOpSize.WORD // Default
-    targetUopPort.ctrlFlowInfo.condition #= BranchCond.ALWAYS // Default
-    targetUopPort.ctrlFlowInfo.targetOffset #= 0 // Default
-
-    targetUopPort.physRegRs #= 0
-    targetUopPort.physRegRt #= 0
-    targetUopPort.physRegRdOld #= 0
-    targetUopPort.physRegRdNew #= 0
-    targetUopPort.allocatesPhysReg #= false
-    targetUopPort.writesPhysReg #= false
+  // Helper to create a default/dummy DummyUop for allocation
+  def driveDefaultDummyUop(targetUopPort: DummyUop): Unit = {
+    targetUopPort.setDefaultForSim() // Use the comprehensive default
   }
 
-  def createDummyMicroOp(
-      robIdxForUop: Int, // Contextual, not directly part of MicroOp state
-      isBranch: Boolean = false,
-      isLoad: Boolean = false,
-      isStore: Boolean = false,
-      hasException: Boolean = false, // For exception testing
-      cfg: MicroOpConfig = microOpCfg
-  ): MicroOp = {
-    val uop = MicroOp(cfg)
+  def createDummyUop(
+      robIdxForUop: Int, // Contextual, for varying register numbers etc.
+      hasException: Boolean = false
+  ): DummyUop = {
+    val uop = DummyUop() // Uses implicit pipelineCfg
     uop.setDefault()
-    uop.isValid := True
-    uop.archRegRd := U((robIdxForUop % 30) + 1) // Avoid r0 and ensure variety, ensure fits in 5 bits
-    uop.writeRd := True
-    uop.allocatesPhysReg := True
-    uop.writesPhysReg := True
-
-    if (isBranch) uop.uopType := MicroOpType.BRANCH_COND
-    else if (isLoad) uop.uopType := MicroOpType.LOAD
-    else if (isStore) {
-      uop.uopType := MicroOpType.STORE
-      uop.writesPhysReg := False
-      uop.allocatesPhysReg := False
-    } else if (hasException) {
-      // For an ALU op that causes an exception, still set type to ALU
-      uop.uopType := MicroOpType.ALU_REG
-    } else uop.uopType := MicroOpType.ALU_REG
+    uop.robIdx := robIdxForUop
     uop
   }
 
   // Drive allocate ports
   def driveAllocate(
-      dutIo: ROBIo,
-      allocRequests: Seq[(Boolean, MicroOp, Int)] // Seq of (fire, uop, pc)
+      dutIo: ROBIo[DummyUop],
+      allocRequests: Seq[(Boolean, DummyUop, Int)] // Seq of (fire, uop, pc)
   ): Unit = {
     require(allocRequests.length <= dutIo.config.allocateWidth)
     println(
@@ -105,7 +83,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
         // The #= operator handles assignment between compatible SpinalHDL types.
         // No .toBoolean, .toInt, .toEnum needed here because both sides are SpinalHDL types.
 
-        driveDefaultMicroOp(port.uopIn, dutIo.config.microOpConfig)
+        driveDefaultDummyUop(port.uopIn)
 
         port.pcIn #= allocRequests(i)._3.toInt
       } else {
@@ -117,7 +95,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
 
   // Drive writeback ports
   def driveWriteback(
-      dutIo: ROBIo,
+      dutIo: ROBIo[DummyUop],
       wbRequests: Seq[(Boolean, Int, Boolean, Int)] // Seq of (fire, robIdx, hasException, excCode)
   ): Unit = {
     require(wbRequests.length <= dutIo.config.numWritebackPorts)
@@ -139,7 +117,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
   }
 
   // Helper to just set allocate inputs, NO internal sleep
-  def setAllocateInputs(dutIo: ROBIo, allocRequests: Seq[(Boolean, MicroOp, Int)]): Unit = {
+  def setAllocateInputs(dutIo: ROBIo[DummyUop], allocRequests: Seq[(Boolean, DummyUop, Int)]): Unit = {
     require(allocRequests.length <= dutIo.config.allocateWidth)
 
     println(
@@ -155,14 +133,14 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
         port.pcIn #= allocRequests(i)._3
       } else {
         port.fire #= false
-        driveDefaultMicroOp(port.uopIn, dutIo.config.microOpConfig)
+        driveDefaultDummyUop(port.uopIn)
         port.pcIn #= 0
       }
     }
   }
 
   // Drive commit fire signals
-  def driveCommitFire(dutIo: ROBIo, fires: Seq[Boolean]): Unit = {
+  def driveCommitFire(dutIo: ROBIo[DummyUop], fires: Seq[Boolean]): Unit = {
     require(fires.length == dutIo.config.commitWidth)
     println(s"[TB] Driving CommitFire - Fires: ${fires.mkString(",")}")
     for (i <- 0 until dutIo.config.commitWidth) {
@@ -172,7 +150,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
   }
 
   // Drive flush command
-  def driveFlush(dutIo: ROBIo, fire: Boolean, head: Int, tail: Int, count: Int): Unit = {
+  def driveFlush(dutIo: ROBIo[DummyUop], fire: Boolean, head: Int, tail: Int, count: Int): Unit = {
     println(s"[TB] Driving Flush - Fire: $fire, newH/T/C: $head/$tail/$count")
     dutIo.flush.valid #= fire
     if (fire) {
@@ -184,7 +162,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
   }
 
   // Initialize all inputs for a clean state at start of test/cycle
-  def initRobInputs(dutIo: ROBIo): Unit = {
+  def initRobInputs(dutIo: ROBIo[DummyUop]): Unit = {
     driveAllocate(dutIo, Seq.empty) // Effectively sets all allocate fires to false
     driveWriteback(dutIo, Seq.empty)
     driveCommitFire(dutIo, Seq.fill(dutIo.config.commitWidth)(false))
@@ -215,12 +193,14 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
 
   val baseRobConfig = ROBConfig(
     robDepth = robDepth,
-    microOpConfig = microOpCfg,
     commitWidth = commitW,
     allocateWidth = allocW,
-    numWritebackPorts = wbW
+    numWritebackPorts = wbW,
+    uopType = HardType(DummyUop()),
+    defaultUop = ()=>DummyUop().setDefault(),
+    pcWidth = 32 bits,
+    exceptionCodeWidth = 8 bits
   )
-
   test("ROB - Initialization and Empty/Full") {
     val testConfig = baseRobConfig
     simConfig.compile(new ReorderBufferTestBench(testConfig)).doSim(seed = 300) { dut =>
@@ -243,9 +223,8 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       // Fill the ROB
       var allocatedIndices = List[Int]()
       for (i <- 0 until testConfig.robDepth / testConfig.allocateWidth) {
-        val uopsToAlloc = (0 until testConfig.allocateWidth).map(slot =>
-          (true, createDummyMicroOp(i * testConfig.allocateWidth + slot), i * testConfig.allocateWidth + slot)
-        )
+        val uopsToAlloc = (0 until testConfig.allocateWidth)
+          .map(slot => (true, createDummyUop(i * testConfig.allocateWidth + slot), i * testConfig.allocateWidth + slot))
         driveAllocate(dut.io, uopsToAlloc.map(req => (req._1, req._2, req._3)))
         // Check canAllocate immediately (combinational based on current count)
         for (k <- 0 until testConfig.allocateWidth) {
@@ -268,7 +247,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       driveAllocate(
         dut.io,
         Seq(
-          (true, createDummyMicroOp(0), 0)
+          (true, createDummyUop(0), 0)
         )
       )
       dut.clockDomain.waitSampling()
@@ -295,7 +274,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       // Phase 1: Allocate Ops
       var allocatedRobIndices = ArrayBuffer[Int]()
       for (i <- 0 until numOps) {
-        val uop = createDummyMicroOp(i, cfg = testConfig.microOpConfig)
+        val uop = createDummyUop(i)
         driveAllocate(dut.io, Seq((true, uop, currentPC)))
         assert(dut.io.canAllocate(0).toBoolean, s"Alloc $i: canAllocate should be true")
         val robIdx = dut.io.allocate(0).robIdx.toInt
@@ -372,7 +351,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       println("--- Phase 1: Superscalar Allocation ---")
       for (i <- 0 until numOpsToProcess / numSlots) {
         val uopsForCycle = (0 until numSlots).map { j =>
-          val uop = createDummyMicroOp(i * numSlots + j, cfg = testConfig.microOpConfig)
+          val uop = createDummyUop(i * numSlots + j)
           (true, uop, pcCounter + j * 4)
         }
         driveAllocate(dut.io, uopsForCycle)
@@ -454,7 +433,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
 
       // Allocate a few entries
       for (i <- 0 until 5) {
-        driveAllocate(dut.io, Seq((true, createDummyMicroOp(i, cfg = testConfig.microOpConfig), 100 + i * 4)))
+        driveAllocate(dut.io, Seq((true, createDummyUop(i), 100 + i * 4)))
         dut.clockDomain.waitSampling(); sleep(1)
       }
       driveAllocate(dut.io, Seq.empty)
@@ -516,7 +495,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
 
       println("--- Phase 1: Allocation ---")
       // Op1
-      val uop1 = createDummyMicroOp(0, cfg = testConfig.microOpConfig)
+      val uop1 = createDummyUop(0)
       setAllocateInputs(dut.io, Seq((true, uop1, pcOp1)))
       dut.clockDomain.waitSampling(0) // Let ROB outputs (like robIdx) stabilize
       val robIdxOp1 = dut.io.allocate(0).robIdx.toInt
@@ -525,10 +504,9 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       sleep(1)
 
       // Op2
-      val uop2 = createDummyMicroOp(
+      val uop2 = createDummyUop(
         1,
-        hasException = false,
-        cfg = testConfig.microOpConfig
+        hasException = false
       ) // Initially allocate as non-exception
       setAllocateInputs(dut.io, Seq((true, uop2, pcOp2Exc)))
       dut.clockDomain.waitSampling(0)
@@ -538,7 +516,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       sleep(1)
 
       // Op3
-      val uop3 = createDummyMicroOp(2, cfg = testConfig.microOpConfig)
+      val uop3 = createDummyUop(2)
       setAllocateInputs(dut.io, Seq((true, uop3, pcOp3)))
       dut.clockDomain.waitSampling(0)
       val robIdxOp3 = dut.io.allocate(0).robIdx.toInt
@@ -640,7 +618,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       for (i <- 0 until testConfig.robDepth + 2) { // Allocate more than depth
         val canAllocNow = dut.io.canAllocate(0).toBoolean
         if (canAllocNow) {
-          driveAllocate(dut.io, Seq((true, createDummyMicroOp(i, cfg = testConfig.microOpConfig), pc)))
+          driveAllocate(dut.io, Seq((true, createDummyUop(i), pc)))
           robIndices += dut.io.allocate(0).robIdx.toInt
           pc += 4
         } else {
@@ -700,7 +678,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
         val fire = i < 2 // Allocate 2 per cycle for 2 cycles
         val uops = (0 until testConfig.allocateWidth).map { j =>
           val currentPc = pc + (i * testConfig.allocateWidth + j) * 4
-          (i < 2, createDummyMicroOp(i * testConfig.allocateWidth + j, cfg = testConfig.microOpConfig), currentPc)
+          (i < 2, createDummyUop(i * testConfig.allocateWidth + j), currentPc)
         }
         driveAllocate(dut.io, uops)
         if (i < 2) {
@@ -737,7 +715,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       // Setup allocation for new ops
       val newPcBase = 800
       val allocReqs = (0 until testConfig.allocateWidth).map { i =>
-        (true, createDummyMicroOp(100 + i, cfg = testConfig.microOpConfig), newPcBase + i * 4)
+        (true, createDummyUop(100 + i), newPcBase + i * 4)
       }
       driveAllocate(dut.io, allocReqs) // This helper includes sleep(1)
 

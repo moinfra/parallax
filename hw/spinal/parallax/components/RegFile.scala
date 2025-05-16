@@ -12,8 +12,8 @@ case class RegFileGenerics[T <: Data](
     dataType: HardType[T],
     depth: Int
 ) {
-    val addressWidth = log2Up(depth)
-    def portAddressType = UInt(addressWidth bits)
+    val addressWidth = log2Up(depth) bits
+    def portAddressType = UInt(addressWidth)
 }
 
 case class RegFileReadPort[T <: Data](generics: RegFileGenerics[T]) extends Bundle with IMasterSlave {
@@ -96,14 +96,14 @@ class RegFileExample extends Component {
     val regFile = new PhysicalRegFile(generics)
 
     val io = new Bundle {
-        val readPortNormal_address = in UInt(generics.addressWidth bits)
+        val readPortNormal_address = in UInt(generics.addressWidth)
         val readPortNormal_data = out Bits(32 bits)
-        val readPortBypass_address = in UInt(generics.addressWidth bits)
+        val readPortBypass_address = in UInt(generics.addressWidth)
         val readPortBypass_data = out Bits(32 bits)
-        val writePort1_address = in UInt(generics.addressWidth bits)
+        val writePort1_address = in UInt(generics.addressWidth)
         val writePort1_data = in Bits(32 bits)
         val writePort1_enable = in Bool()
-        val writePort2_address = in UInt(generics.addressWidth bits)
+        val writePort2_address = in UInt(generics.addressWidth)
         val writePort2_data = in Bits(32 bits)
         val writePort2_enable = in Bool()
     }

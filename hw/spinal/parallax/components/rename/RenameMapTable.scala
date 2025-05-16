@@ -7,12 +7,12 @@ case class RenameMapTableConfig(
     numArchRegs: Int = 32,
     physRegIdxWidth: BitCount = 6 bits,
     numReadPorts: Int = 2,
-    archRegIdxWidth: BitCount = log2Up(32) bits
+    archGprIdxWidth: BitCount = log2Up(32) bits
 )
 
 // Bundle for a single read port
 case class RatReadPort(config: RenameMapTableConfig) extends Bundle with IMasterSlave {
-  val archReg = UInt(config.archRegIdxWidth) // Input to RAT from master's perspective
+  val archReg = UInt(config.archGprIdxWidth) // Input to RAT from master's perspective
   val physReg = UInt(config.physRegIdxWidth) // Output from RAT from master's perspective
 
   override def asMaster(): Unit = {
@@ -28,7 +28,7 @@ case class RatReadPort(config: RenameMapTableConfig) extends Bundle with IMaster
 // Bundle for a single write port
 case class RatWritePort(config: RenameMapTableConfig) extends Bundle with IMasterSlave {
   val wen = Bool() // Input to RAT
-  val archReg = UInt(config.archRegIdxWidth) // Input to RAT
+  val archReg = UInt(config.archGprIdxWidth) // Input to RAT
   val physReg = UInt(config.physRegIdxWidth) // Input to RAT
 
   override def asMaster(): Unit = {
@@ -72,8 +72,8 @@ class RenameMapTable(val config: RenameMapTableConfig) extends Component {
   require(config.physRegIdxWidth.value > 0, "Physical register index width must be positive.")
   require(config.numReadPorts > 0, "Number of read ports must be positive.")
   require(
-    config.archRegIdxWidth.value == log2Up(config.numArchRegs),
-    s"archRegIdxWidth (${config.archRegIdxWidth.value}) must be log2Up(numArchRegs = ${config.numArchRegs}), which is ${log2Up(config.numArchRegs)}"
+    config.archGprIdxWidth.value == log2Up(config.numArchRegs),
+    s"archGprIdxWidth (${config.archGprIdxWidth.value}) must be log2Up(numArchRegs = ${config.numArchRegs}), which is ${log2Up(config.numArchRegs)}"
   )
 
   val io = RenameMapTableIo(config)
@@ -96,7 +96,7 @@ class RenameMapTable(val config: RenameMapTableConfig) extends Component {
   // --- Read Logic ---
   for (i <- 0 until config.numReadPorts) {
     // r0 (architectural register 0) always returns physical register 0
-    when(io.readPorts(i).archReg === U(0, config.archRegIdxWidth)) {
+    when(io.readPorts(i).archReg === U(0, config.archGprIdxWidth)) {
       io.readPorts(i).physReg := U(0, config.physRegIdxWidth)
     } otherwise {
       io.readPorts(i).physReg := mapState.mapping(io.readPorts(i).archReg)
@@ -109,7 +109,7 @@ class RenameMapTable(val config: RenameMapTableConfig) extends Component {
   } elsewhen (io.writePort.wen) {
     // Only update the specified archReg's mapping, IF it's not r0.
     // All other mapState.mapping entries retain their value because mapState is a Reg.
-    when(io.writePort.archReg =/= U(0, config.archRegIdxWidth)) {
+    when(io.writePort.archReg =/= U(0, config.archGprIdxWidth)) {
       mapState.mapping(io.writePort.archReg) := io.writePort.physReg
     }
     // If io.writePort.archReg is r0, no assignment happens to mapState.mapping(0) in this block,

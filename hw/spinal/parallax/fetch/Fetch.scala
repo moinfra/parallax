@@ -7,10 +7,22 @@ import spinal.lib.pipeline.{Pipeline, Stage, Connection}
 
 import parallax.components.memory._
 import parallax.utilities.{Plugin, LockedImpl, Service}
-import parallax.common.Config
 import parallax.frontend.FrontendPipelineKeys
+import spinal.lib.pipeline.Stageable
+import parallax.common._
 
-class FetchPipeline extends Plugin with LockedImpl {
+case class FetchPipelineSignals(val config: PipelineConfig) extends AreaObject {
+  val PC = Stageable(UInt(config.pcWidth)) // pc to fetch
+  val FETCHED_PC = Stageable(UInt(config.pcWidth)) // pc that accord with the fetched instruction
+  val REDIRECT_PC = Stageable(UInt(config.pcWidth)) // 重定向的指令的地址，来自分支或者预测
+  val REDIRECT_PC_VALID = Stageable(Bool())
+  val INSTRUCTION = Stageable(Bits(config.dataWidth)) // Assuming instruction width = data width
+  val FETCH_FAULT = Stageable(Bool())
+
+}
+
+class FetchPipeline(config: PipelineConfig) extends Plugin with LockedImpl {
+  lazy val signals = FetchPipelineSignals(config)
   val pipeline = create early new Pipeline {
     val s0_PcGen = newStage().setName("s0_PcGen") // PC Generation
     val s1_Fetch = newStage().setName("s1_Fetch") // Instruction Fetch
@@ -27,21 +39,25 @@ class FetchPipeline extends Plugin with LockedImpl {
   def exitStage: Stage = pipeline.s1_Fetch
 }
 
+case class Fetch0PluginConfig() {
+  val pcWidth: BitCount = 32 bits
+}
 // Fetch0Plugin: Generates PC
-class Fetch0Plugin extends Plugin with LockedImpl {
+class Fetch0Plugin(val pcWidth: BitCount = 32 bits) extends Plugin with LockedImpl {
   val setup = create early new Area {
     val fetchPipeline = getService[FetchPipeline]
   }
 
   val logic = create late new Area {
+    val signals = setup.fetchPipeline.signals
     val s0_PcGen = setup.fetchPipeline.pipeline.s0_PcGen
 
-    val pcReg = Reg(UInt(Config.XLEN bits)) init (0) // Hardware reset to 0
+    val pcReg = Reg(UInt(pcWidth)) init (0) // Hardware reset to 0
     val pcPlus4 = pcReg + 4
 
     val redirectValid =
-      s0_PcGen(FrontendPipelineKeys.REDIRECT_PC_VALID) // Assuming redirect comes from a previous stage or external
-    val redirectPc = s0_PcGen(FrontendPipelineKeys.REDIRECT_PC) // Correctly access as input if it's pipelined to s0
+      s0_PcGen(signals.REDIRECT_PC_VALID) // Assuming redirect comes from a previous stage or external
+    val redirectPc = s0_PcGen(signals.REDIRECT_PC) // Correctly access as input if it's pipelined to s0
 
     // --- Initialization Logic (Simplified) ---
     val bootDelay = 2 // 复位后等待2个周期
@@ -79,7 +95,7 @@ class Fetch0Plugin extends Plugin with LockedImpl {
     }
 
     s0_PcGen.valid := pcLogic.isValidToStage
-    s0_PcGen(FrontendPipelineKeys.PC) := pcReg
+    s0_PcGen(signals.PC) := pcReg
 
     report(
       L"[Fetch0Plugin] s0_PcGen.valid: ${s0_PcGen.valid} booted: ${booted} redirectValid: ${redirectValid} pc: ${pcReg} nextPcCalc: ${pcLogic.nextPcCalc} s0_isFiring: ${s0_PcGen.isFiring}"
@@ -100,18 +116,19 @@ class Fetch1Plugin(val ifuConfig: InstructionFetchUnitConfig) extends Plugin wit
   }
 
   val logic = create late new Area {
+    val signals = setup.fetchPipeline.signals
     val s1_Fetch = setup.s1_Fetch
     val ifu = setup.ifu
 
     // This is the PC that s1_Fetch has received from s0_PcGen for the current operation
-    val currentPcForS1 = s1_Fetch(FrontendPipelineKeys.PC)
+    val currentPcForS1 = s1_Fetch(signals.PC)
 
     // State: indicates S1 has sent a PC to IFU and is waiting for data.
     val isFetching = Reg(Bool()) init (False) setName ("isFetching")
     // Registers to store the data from IFU once it arrives.
     // This decouples IFU response timing from s1_Fetch downstream firing.
-    val regFetchedPc = Reg(UInt(Config.XLEN bits)) setName ("regFetchedPc")
-    val regFetchedInstruction = Reg(Bits(Config.XLEN bits)) setName ("regFetchedInstruction")
+    val regFetchedPc = Reg(UInt(ifuConfig.pcWidth)) setName ("regFetchedPc")
+    val regFetchedInstruction = Reg(Bits(ifuConfig.cpuDataWidth)) setName ("regFetchedInstruction")
     val regFetchedFault = Reg(Bool()) setName ("regFetchedFault")
     // Indicates that the registers above hold valid data from a completed IFU fetch.
     val regDataFromIfuIsValid = Reg(Bool()) init (False) setName ("regDataFromIfuIsValid")
@@ -153,9 +170,9 @@ class Fetch1Plugin(val ifuConfig: InstructionFetchUnitConfig) extends Plugin wit
     }
 
     // Drive s1_Fetch stage's output signals from our internal registers
-    s1_Fetch(FrontendPipelineKeys.FETCHED_PC) := regFetchedPc
-    s1_Fetch(FrontendPipelineKeys.INSTRUCTION) := regFetchedInstruction
-    s1_Fetch(FrontendPipelineKeys.FETCH_FAULT) := regFetchedFault
+    s1_Fetch(signals.FETCHED_PC) := regFetchedPc
+    s1_Fetch(signals.INSTRUCTION) := regFetchedInstruction
+    s1_Fetch(signals.FETCH_FAULT) := regFetchedFault
 
     // When s1_Fetch fires (sends data downstream), the data in our registers has been consumed.
     when(s1_Fetch.isFiring && regDataFromIfuIsValid) {
@@ -202,13 +219,13 @@ class Fetch1Plugin(val ifuConfig: InstructionFetchUnitConfig) extends Plugin wit
   }
 }
 
-case class FetchOutput() extends Bundle {
-  val pc = UInt(Config.XLEN bits)
-  val instruction = Bits(Config.XLEN bits)
+case class FetchOutput(val ifuConfig: InstructionFetchUnitConfig) extends Bundle {
+  val pc = UInt(ifuConfig.pcWidth)
+  val instruction = Bits(ifuConfig.cpuDataWidth)
   val fault = Bool()
 }
 
-class FetchOutputBridge extends Plugin with LockedImpl {
+class FetchOutputBridge(val ifuConfig: InstructionFetchUnitConfig) extends Plugin with LockedImpl {
   val setup = create early new Area {
     val fetchPipeline = getService[FetchPipeline]
     val s1_Fetch = fetchPipeline.pipeline.s1_Fetch
@@ -219,16 +236,17 @@ class FetchOutputBridge extends Plugin with LockedImpl {
     s1_Fetch.internals.output.ready := fetchOutput.ready
   }
 
-  val fetchOutput = create early Stream(FetchOutput())
+  val fetchOutput = create early Stream(FetchOutput(ifuConfig))
 
   create late new Area {
-    val s1 = setup.s1_Fetch
-    val s1_output_pc = s1(FrontendPipelineKeys.FETCHED_PC) // Read the value explicitly
+    val signals = setup.fetchPipeline.signals
+    val s1_Fetch = setup.s1_Fetch
+    val s1_output_pc = s1_Fetch(signals.FETCHED_PC) // Read the value explicitly
 
-    fetchOutput.valid := s1.internals.output.valid
-    fetchOutput.payload.pc := s1(FrontendPipelineKeys.FETCHED_PC)
-    fetchOutput.payload.instruction := s1(FrontendPipelineKeys.INSTRUCTION)
-    fetchOutput.payload.fault := s1(FrontendPipelineKeys.FETCH_FAULT)
+    fetchOutput.valid := s1_Fetch.internals.output.valid
+    fetchOutput.payload.pc := s1_Fetch(signals.FETCHED_PC)
+    fetchOutput.payload.instruction := s1_Fetch(signals.INSTRUCTION)
+    fetchOutput.payload.fault := s1_Fetch(signals.FETCH_FAULT)
 
     fetchOutput.valid.simPublic()
     fetchOutput.ready.simPublic()

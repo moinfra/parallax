@@ -21,7 +21,7 @@ class RenameMapTableSpec extends CustomSpinalSimFunSuite {
     numArchRegs = 4,
     physRegIdxWidth = 3 bits,
     numReadPorts = 2,
-    archRegIdxWidth = 2 bits // log2Up(4)
+    archGprIdxWidth = 2 bits // log2Up(4)
   )
 
   test("RenameMapTable - mapState stability") {

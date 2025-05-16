@@ -5,23 +5,23 @@ import spinal.lib._
 
 // Configuration for the generic memory bus
 case class GenericMemoryBusConfig(
-    addressWidth: Int, // Byte address
-    dataWidth: Int
+    addressWidth: BitCount, // Byte address
+    dataWidth: BitCount
 )
 
 object GenericMemoryBusOpcode extends SpinalEnum { val OP_READ, OP_WRITE = newElement() }
 
 // Command from Master to Slave
 case class GenericMemoryCmd(config: GenericMemoryBusConfig) extends Bundle {
-  val address = UInt(config.addressWidth bits)
+  val address = UInt(config.addressWidth)
   val opcode = GenericMemoryBusOpcode()
-  val writeData = Bits(config.dataWidth bits)
-  val writeByteEnables = Bits(config.dataWidth / 8 bits)
+  val writeData = Bits(config.dataWidth)
+  val writeByteEnables = Bits(config.dataWidth.value / 8 bits)
 }
 
 // Response from Slave to Master
 case class GenericMemoryRsp(config: GenericMemoryBusConfig) extends Bundle {
-  val readData = Bits(config.dataWidth bits)
+  val readData = Bits(config.dataWidth)
   val error = Bool()
 }
 
@@ -37,13 +37,13 @@ case class GenericMemoryBus(config: GenericMemoryBusConfig) extends Bundle with 
 }
 
 case class SimpleMemoryCmd(config: GenericMemoryBusConfig) extends Bundle {
-  val address = UInt(config.addressWidth bits)
+  val address = UInt(config.addressWidth)
   val isWrite = Bool()
-  val writeData = Bits(config.dataWidth bits)
+  val writeData = Bits(config.dataWidth)
 }
 
 case class SimpleMemoryRsp(config: GenericMemoryBusConfig) extends Bundle {
-  val readData = Bits(config.dataWidth bits)
+  val readData = Bits(config.dataWidth)
   val error = Bool()
 }
 

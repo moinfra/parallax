@@ -6,17 +6,17 @@ import spinal.lib.fsm._
 
 // SimulatedMemoryConfig remains largely the same or can be simplified
 case class SimulatedMemoryConfig(
-    internalDataWidth: Int = 16, // Width of one memory word in this simulated RAM (e.g., 16 bits = 2 bytes)
+    internalDataWidth: BitCount = 16 bits, // Width of one memory word in this simulated RAM (e.g., 16 bits = 2 bytes)
     memSize: BigInt = 8 KiB, // Total size of this simulated RAM in bytes
     initialLatency: Int = 2, // Latency for the first access to a new address
     burstLatency: Int = 1 // Latency for subsequent accesses in a burst (if bus supports burst)
     // For now, let's use a single latency parameter
 ) {
-  require(isPow2(internalDataWidth / 8), "Simulated memory data width (in bytes) must be a power of 2")
-  val internalDataWidthBytes: Int = internalDataWidth / 8
+  require(isPow2(internalDataWidth.value / 8), "Simulated memory data width (in bytes) must be a power of 2")
+  val internalDataWidthBytes: Int = internalDataWidth.value / 8
   val internalWordCount: Int = (memSize / internalDataWidthBytes).toInt
   require(internalWordCount > 0, "Memory size results in zero words.")
-  val internalAddrWidth: Int = log2Up(internalWordCount)
+  val internalAddrWidth: BitCount = log2Up(internalWordCount) bits
 
   // Max byte address this memory can store
   val maxByteAddress: BigInt = memSize - 1
@@ -31,17 +31,17 @@ class SimulatedMemory(
     val bus = slave(SimpleMemoryBus(busConfig))
     // 下面的仅限测试时使用
     val writeEnable = in Bool () default (False)
-    val writeAddress = in UInt (busConfig.addressWidth bits) default (U(0, busConfig.addressWidth bits))
-    val writeData = in Bits (memConfig.internalDataWidth bits) default (B(0, memConfig.internalDataWidth bits))
+    val writeAddress = in UInt (busConfig.addressWidth) default (U(0, busConfig.addressWidth))
+    val writeData = in Bits (memConfig.internalDataWidth) default (B(0, memConfig.internalDataWidth))
   }
 
   val io = new IO
 
-  val internalWordsPerBusData: Int = busConfig.dataWidth / memConfig.internalDataWidth
-  require(busConfig.dataWidth % memConfig.internalDataWidth == 0)
+  val internalWordsPerBusData: Int = busConfig.dataWidth.value / memConfig.internalDataWidth.value
+  require(busConfig.dataWidth.value % memConfig.internalDataWidth.value == 0)
   require(internalWordsPerBusData > 0)
 
-  val mem = Mem(Bits(memConfig.internalDataWidth bits), wordCount = memConfig.internalWordCount)
+  val mem = Mem(Bits(memConfig.internalDataWidth), wordCount = memConfig.internalWordCount)
   when(io.writeEnable) {
     val internalWriteWordAddress =
       (io.writeAddress >> log2Up(memConfig.internalDataWidthBytes)).resize(memConfig.internalAddrWidth)
@@ -54,15 +54,15 @@ class SimulatedMemory(
       )
     }
   }
-  val currentBusAddressReg = Reg(UInt(busConfig.addressWidth bits)) init (U(0, busConfig.addressWidth bits))
+  val currentBusAddressReg = Reg(UInt(busConfig.addressWidth)) init (U(0, busConfig.addressWidth))
   val currentIsWriteReg = Reg(Bool()) init (False)
-  val currentWriteDataReg = Reg(Bits(busConfig.dataWidth bits)) init (B(0, busConfig.dataWidth bits))
+  val currentWriteDataReg = Reg(Bits(busConfig.dataWidth)) init (B(0, busConfig.dataWidth))
   val latencyCounterReg =
     Reg(UInt(log2Up(memConfig.initialLatency + 1) bits)) init (U(0, log2Up(memConfig.initialLatency + 1) bits))
 
   val baseInternalWordAddr =
     (currentBusAddressReg >> log2Up(memConfig.internalDataWidthBytes)).resize(memConfig.internalAddrWidth)
-  val internalReadData = Bits(memConfig.internalDataWidth bits)
+  val internalReadData = Bits(memConfig.internalDataWidth)
   internalReadData := B(0)
 
   // --- Conditional Part Counter & Assembly Buffer (Elaboration Time) ---
@@ -74,7 +74,7 @@ class SimulatedMemory(
   }
 
   val assemblyBufferReg: Bits = if (internalWordsPerBusData > 1) {
-    Reg(Bits(busConfig.dataWidth bits)) init (B(0, busConfig.dataWidth bits)) setName ("assemblyBufferReg_physical")
+    Reg(Bits(busConfig.dataWidth)) init (B(0, busConfig.dataWidth)) setName ("assemblyBufferReg_physical")
   } else {
     null
   }
@@ -83,7 +83,7 @@ class SimulatedMemory(
   val sm = new StateMachine {
     io.bus.cmd.ready := False
     io.bus.rsp.valid := False
-    io.bus.rsp.payload.readData := B(0, busConfig.dataWidth bits)
+    io.bus.rsp.payload.readData := B(0, busConfig.dataWidth)
     io.bus.rsp.payload.error := False
 
     val sIdle: State = new State with EntryPoint {
@@ -105,15 +105,15 @@ class SimulatedMemory(
     }
 
     val sProcessInternal: State = new State {
-      val assembledDataForOutput = Bits(busConfig.dataWidth bits)
+      val assembledDataForOutput = Bits(busConfig.dataWidth)
       assembledDataForOutput := B(0)
 
       val lastByteAddrOfCurrentBusTransaction =
-        currentBusAddressReg + U(busConfig.dataWidth / 8 - 1, busConfig.addressWidth bits)
+        currentBusAddressReg + U(busConfig.dataWidth.value / 8 - 1, busConfig.addressWidth)
       val busLevelAccessOutOfBounds =
-        lastByteAddrOfCurrentBusTransaction >= U(memConfig.memSize, busConfig.addressWidth bits)
+        lastByteAddrOfCurrentBusTransaction >= U(memConfig.memSize, busConfig.addressWidth)
 
-      val currentProcessingWordIdx: UInt = UInt(memConfig.internalAddrWidth bits)
+      val currentProcessingWordIdx: UInt = UInt(memConfig.internalAddrWidth)
       val currentWordAccessValid: Bool = Bool()
       val dataErrorForRsp = Reg(Bool()) init (False)
 
@@ -140,16 +140,16 @@ class SimulatedMemory(
           }
 
           when(currentIsWriteReg) {} otherwise { // Read
-            val dataToAssemble = Bits(memConfig.internalDataWidth bits)
+            val dataToAssemble = Bits(memConfig.internalDataWidth)
             when(currentWordAccessValid && !busLevelAccessOutOfBounds) {
               dataToAssemble := internalReadData
-            } otherwise { dataToAssemble := B(0, memConfig.internalDataWidth bits) }
+            } otherwise { dataToAssemble := B(0, memConfig.internalDataWidth) }
 
             if (internalWordsPerBusData == 1) {
-              assembledDataForOutput := dataToAssemble.resize(busConfig.dataWidth bits)
+              assembledDataForOutput := dataToAssemble.resize(busConfig.dataWidth)
             } else { // Multi-part
-              val shiftAmountDynamic = partCounterReg * memConfig.internalDataWidth
-              val shiftedDataPart = (dataToAssemble.asUInt << shiftAmountDynamic).resize(busConfig.dataWidth bits)
+              val shiftAmountDynamic = partCounterReg * memConfig.internalDataWidth.value
+              val shiftedDataPart = (dataToAssemble.asUInt << shiftAmountDynamic).resize(busConfig.dataWidth)
               val nextAssemblyBuffer = assemblyBufferReg | shiftedDataPart.asBits // Accessing assemblyBufferReg
               assembledDataForOutput := nextAssemblyBuffer
               assemblyBufferReg := nextAssemblyBuffer // Assigning to assemblyBufferReg
@@ -192,9 +192,9 @@ class SimulatedMemory(
     if (memConfig.internalWordCount == 0) False
     else combCurrentProcessingWordIdx.resize(memConfig.internalWordCount.bits) < memConfig.internalWordCount
   val combBusLevelAccessOutOfBounds =
-    (currentBusAddressReg + U(busConfig.dataWidth / 8 - 1, busConfig.addressWidth bits)) >= U(
+    (currentBusAddressReg + U(busConfig.dataWidth.value / 8 - 1, busConfig.addressWidth)) >= U(
       memConfig.memSize,
-      busConfig.addressWidth bits
+      busConfig.addressWidth
     )
 
   when(
@@ -209,7 +209,7 @@ class SimulatedMemory(
       sm.sProcessInternal
     ) && currentIsWriteReg && (latencyCounterReg >= memConfig.initialLatency) && combWordAccessValid && !combBusLevelAccessOutOfBounds
   ) {
-    val writeDataParts = currentWriteDataReg.subdivideIn(memConfig.internalDataWidth bits)
+    val writeDataParts = currentWriteDataReg.subdivideIn(memConfig.internalDataWidth)
     val actualPartIndexForWrite: UInt = if (internalWordsPerBusData == 1) { U(0) }
     else { partCounterReg }
     mem.write(address = combCurrentProcessingWordIdx, data = writeDataParts(actualPartIndexForWrite))

@@ -8,12 +8,14 @@ import spinal.lib._
 import parallax.utilities.Service
 import scala.collection.mutable.ArrayBuffer
 import parallax.utilities.Plugin
-import parallax.common.Config
 
-case class PrfReadPort() extends Bundle with IMasterSlave {
+case class PrfReadPort(
+    val idxWidth: BitCount
+) extends Bundle
+    with IMasterSlave {
 
   val valid = Bool()
-  val address = UInt(Config.PHYS_REG_TAG_WIDTH)
+  val address = UInt(idxWidth)
   val rsp = Bits(32 bits)
 
   override def asMaster(): Unit = {
@@ -22,9 +24,12 @@ case class PrfReadPort() extends Bundle with IMasterSlave {
   }
 }
 
-case class PrfWritePort() extends Bundle with IMasterSlave {
+case class PrfWritePort(
+    val idxWidth: BitCount
+) extends Bundle
+    with IMasterSlave {
   val valid = Bool()
-  val address = UInt(Config.PHYS_REG_TAG_WIDTH)
+  val address = UInt(idxWidth)
   val data = Bits(32 bits)
   val rsp = Bool()
 
@@ -46,22 +51,23 @@ trait PhysicalRegFreeService extends Service {
 }
 
 class PhysicalRegFilePlugin(
-    numPhysRegs: Int = Config.PHYS_REG_COUNT,
+    numPhysRegs: Int,
     dataWidth: BitCount = 32 bits
 ) extends Plugin
     with PhysicalRegFileService {
 
+  val regIdxWidth = log2Up(numPhysRegs) bits
   private val readPortRequests = ArrayBuffer[PrfReadPort]()
   private val writePortRequests = ArrayBuffer[PrfWritePort]()
 
   override def newReadPort(): PrfReadPort = {
-    val port = PrfReadPort()
+    val port = PrfReadPort(regIdxWidth)
     readPortRequests += port
     port
   }
 
   override def newWritePort(): PrfWritePort = {
-    val port = PrfWritePort()
+    val port = PrfWritePort(regIdxWidth)
     writePortRequests += port
     port
   }

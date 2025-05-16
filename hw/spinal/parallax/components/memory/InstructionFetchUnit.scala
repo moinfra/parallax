@@ -2,26 +2,25 @@ package parallax.components.memory
 
 import spinal.core._
 import spinal.lib._
-import parallax.common.Config // Assuming Config.XLEN exists
 import parallax.components.icache._
 import parallax.components.memory._ // For GenericMemoryBus and SimulatedMemory
 
 case class InstructionFetchUnitConfig(
     val useICache: Boolean = true,
     val enableFlush: Boolean = false,
-    val cpuAddressWidth: Int = Config.XLEN,
-    val cpuDataWidth: Int = Config.XLEN, // Instruction width
+    val pcWidth: BitCount = 32 bits,
+    val cpuDataWidth: BitCount = 32 bits,
     val memBusConfig: GenericMemoryBusConfig,
     var icacheConfig: SimpleICacheConfig = null
 ) {
   if (icacheConfig == null) {
-    icacheConfig = SimpleICacheConfig(addressWidth = cpuAddressWidth, dataWidth = cpuDataWidth)
+    icacheConfig = SimpleICacheConfig(addressWidth = pcWidth, dataWidth = cpuDataWidth)
   }
   // General address width check
-  require(memBusConfig.addressWidth >= cpuAddressWidth)
+  require(memBusConfig.addressWidth.value >= pcWidth.value)
 
   if (useICache) {
-    require(icacheConfig.addressWidth == cpuAddressWidth)
+    require(icacheConfig.addressWidth == pcWidth)
     require(icacheConfig.dataWidth == cpuDataWidth)
     // ICache's memory port (GenericMemoryBus) will use memBusConfig for its width.
     // And the ICache's output dataWidth (cpuDataWidth) must match the memory bus data width for this design.
@@ -30,7 +29,7 @@ case class InstructionFetchUnitConfig(
 
   } else { // Direct memory access without ICache
     require(cpuDataWidth == memBusConfig.dataWidth)
-    require(cpuAddressWidth == memBusConfig.addressWidth)
+    require(pcWidth == memBusConfig.addressWidth)
   }
 }
 
@@ -43,7 +42,7 @@ class InstructionFetchUnit(val config: InstructionFetchUnitConfig) extends Compo
 
   val io = new Bundle {
     // Input from PC generation (e.g., F0 stage output)
-    val pcIn = slave Stream (UInt(config.cpuAddressWidth bits))
+    val pcIn = slave Stream (UInt(config.pcWidth))
 
     // Output to next pipeline stage (e.g., F1 stage output)
     val dataOut = master Stream (new ICacheCpuRsp())
@@ -87,7 +86,7 @@ class InstructionFetchUnit(val config: InstructionFetchUnitConfig) extends Compo
     }
 
   } else { // No ICache, direct access to external memory via SimpleMemoryBus
-    val pcReg = Reg(UInt(config.cpuAddressWidth bits)) init (0)
+    val pcReg = Reg(UInt(config.pcWidth)) init (0)
     // pcRegValid indicates if pcReg holds a PC for an outstanding memory request
     val pcRegValid = Reg(Bool()) init (False)
 

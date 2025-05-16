@@ -20,11 +20,11 @@ import parallax.components.memory.{
 
 class SimulatedMemorySpec extends CustomSpinalSimFunSuite {
 
-  val busAddrWidth = 32
-  val busDataWidth = 32 // The width SimulatedMemory will expose on its bus (default for most tests)
+  val busAddrWidth = 32 bits
+  val busDataWidth = 32 bits  // The width SimulatedMemory will expose on its bus (default for most tests)
 
   // Configuration for the GenericMemoryBus that SimulatedMemory will implement
-  def getGenericBusConfig(dataWidth: Int = busDataWidth, addrWidth: Int = busAddrWidth) = GenericMemoryBusConfig(
+  def getGenericBusConfig(dataWidth: BitCount = busDataWidth, addrWidth: BitCount = busAddrWidth) = GenericMemoryBusConfig(
     addressWidth = addrWidth,
     dataWidth = dataWidth
   )
@@ -37,25 +37,25 @@ class SimulatedMemorySpec extends CustomSpinalSimFunSuite {
       dut: SimulatedMemory,
       address: Int,
       value: BigInt,
-      internalDataWidth: Int,
-      busDataWidthForValue: Int,
+      internalDataWidth: BitCount,
+      busDataWidthForValue: BitCount,
       clockDomain: ClockDomain
   ): Unit = {
-    require(busDataWidthForValue >= internalDataWidth, "Value's width must be >= internal data width for this helper.")
+    require(busDataWidthForValue.value >= internalDataWidth.value, "Value's width must be >= internal data width for this helper.")
     // Ensure busDataWidthForValue is a multiple of internalDataWidth IF it's greater.
     // If it's equal, no % check needed. If it's smaller, that's an error handled by require above.
-    if (busDataWidthForValue > internalDataWidth) {
+    if (busDataWidthForValue.value > internalDataWidth.value) {
       require(
-        busDataWidthForValue % internalDataWidth == 0,
+        busDataWidthForValue.value % internalDataWidth.value == 0,
         "Value's width must be a multiple of internal data width if greater."
       )
     }
 
-    val numInternalChunks = busDataWidthForValue / internalDataWidth
+    val numInternalChunks = busDataWidthForValue.value / internalDataWidth.value
     dut.io.writeEnable #= true
     for (i <- 0 until numInternalChunks) {
-      val slice = (value >> (i * internalDataWidth)) & ((BigInt(1) << internalDataWidth) - 1)
-      val internalChunkByteAddress = address + i * (internalDataWidth / 8)
+      val slice = (value >> (i * internalDataWidth.value)) & ((BigInt(1) << internalDataWidth.value) - 1)
+      val internalChunkByteAddress = address + i * (internalDataWidth.value / 8)
       dut.io.writeAddress #= internalChunkByteAddress
       dut.io.writeData #= slice
       clockDomain.waitSampling()
@@ -65,7 +65,7 @@ class SimulatedMemorySpec extends CustomSpinalSimFunSuite {
   }
 
   test("SimulatedMemory should handle back-to-back read requests") {
-    val internalMemWidth = 16 // busDataWidth is 32 by default from class member
+    val internalMemWidth = 16 bits // busDataWidth is 32 by default from class member
     val memSizeBytes = 1024
     val latencyCycles = 2
     val numRequests = 3
@@ -129,7 +129,7 @@ class SimulatedMemorySpec extends CustomSpinalSimFunSuite {
   }
 
   test("SimulatedMemory should respond to a single word read request") {
-    val internalMemWidth = 16
+    val internalMemWidth = 16 bits
     val memSizeBytes = 1024
     val latencyCycles = 4
     val timeout = latencyCycles + 40 // Adjusted timeout
@@ -139,7 +139,7 @@ class SimulatedMemorySpec extends CustomSpinalSimFunSuite {
       memSize = memSizeBytes,
       initialLatency = latencyCycles
     )
-    val currentBusConfig = getGenericBusConfig(dataWidth = 32) // Explicitly using 32-bit bus for this test
+    val currentBusConfig = getGenericBusConfig(dataWidth = 32 bits) // Explicitly using 32-bit bus for this test
 
     simConfig
       .compile(new SimulatedMemory(memCfg, currentBusConfig))
@@ -147,7 +147,7 @@ class SimulatedMemorySpec extends CustomSpinalSimFunSuite {
         dut.clockDomain.forkStimulus(period = 10)
 
         // --- Testbench Write Initialization ---
-        val internalWordsPerBus = currentBusConfig.dataWidth / internalMemWidth
+        val internalWordsPerBus = currentBusConfig.dataWidth.value / internalMemWidth.value
         val testAddrByte = 0x40
         val testDataBusWidth = BigInt("CAFEBABE", 16)
 
@@ -193,7 +193,7 @@ class SimulatedMemorySpec extends CustomSpinalSimFunSuite {
   }
 
   test("SimulatedMemory should respond to a single word write request") {
-    val internalMemWidth = 16
+    val internalMemWidth = 16 bits
     val memSizeBytes = 1024
     val latencyCycles = 1
     val timeout = latencyCycles + 40 // Adjusted timeout
@@ -203,7 +203,7 @@ class SimulatedMemorySpec extends CustomSpinalSimFunSuite {
       memSize = memSizeBytes,
       initialLatency = latencyCycles
     )
-    val currentBusConfig = getGenericBusConfig(dataWidth = 32)
+    val currentBusConfig = getGenericBusConfig(dataWidth = 32 bits)
 
     simConfig
       .compile(new SimulatedMemory(memCfg, currentBusConfig))
@@ -258,7 +258,7 @@ class SimulatedMemorySpec extends CustomSpinalSimFunSuite {
   }
 
   test("SimulatedMemory should handle back-to-back write requests followed by reads") {
-    val internalMemWidth = 8 // busDataWidth is 32
+    val internalMemWidth = 8 bits // busDataWidth is 32
     val memSizeBytes = 1024
     val latencyCycles = 1
     val numRequests = 3
@@ -339,7 +339,7 @@ class SimulatedMemorySpec extends CustomSpinalSimFunSuite {
   }
 
   test("SimulatedMemory should handle mixed read and write requests") {
-    val internalMemWidth = 32 // busDataWidth is 32
+    val internalMemWidth = 32 bits // busDataWidth is 32
     val memSizeBytes = 1024
     val latencyCycles = 2
     val timeout = (latencyCycles + 15) * 5 + 40 // 5 operations
@@ -419,7 +419,7 @@ class SimulatedMemorySpec extends CustomSpinalSimFunSuite {
   }
 
   test("SimulatedMemory should allow access to address 0") {
-    val internalMemWidth = 16
+    val internalMemWidth = 16 bits
     val memSizeBytes = 1024
     val latencyCycles = 3
     val timeout = latencyCycles + 40
@@ -469,11 +469,11 @@ class SimulatedMemorySpec extends CustomSpinalSimFunSuite {
   }
 
   test("SimulatedMemory should allow access to max valid address") {
-    val internalMemWidth = 8
+    val internalMemWidth = 8 bits
     val memSizeBytes = 256 // Small memory for testing boundary
     val latencyCycles = 2
-    val currentBusConfig = getGenericBusConfig(dataWidth = 16) // bus uses 16-bit data
-    val maxAddr = memSizeBytes - (currentBusConfig.dataWidth / 8) // Max start address for a bus-width access
+    val currentBusConfig = getGenericBusConfig(dataWidth = 16 bits) // bus uses 16-bit data
+    val maxAddr = memSizeBytes - (currentBusConfig.dataWidth.value / 8) // Max start address for a bus-width access
     val timeout = latencyCycles + 20
 
     val memCfg = SimulatedMemoryConfig(
@@ -519,16 +519,16 @@ class SimulatedMemorySpec extends CustomSpinalSimFunSuite {
   }
 
   test("SimulatedMemory should signal error for out-of-bounds access") {
-    val internalMemWidth = 16
+    val internalMemWidth = 16 bits
     val memSizeBytes = 128
     val latencyCycles = 1
-    val currentBusConfig = getGenericBusConfig(dataWidth = 32) // busDataWidth = 32
+    val currentBusConfig = getGenericBusConfig(dataWidth = 32 bits) // busDataWidth = 32 bits
     // Out-of-bounds addresses for a 32-bit access (4 bytes)
     val oobAddr1 = memSizeBytes // Starts exactly at end boundary
     val oobAddr2 = memSizeBytes + 4
     // An address that starts valid but extends OOB (if DUT checks end of access)
     // For this test, we rely on DUT checking start_addr >= memSize
-    // val straddleAddr = memSizeBytes - (currentBusConfig.dataWidth / 8) + 1
+    // val straddleAddr = memSizeBytes - (currentBusConfig.dataWidth.value / 8) + 1
 
     val timeout = latencyCycles + 20
 
@@ -576,7 +576,7 @@ class SimulatedMemorySpec extends CustomSpinalSimFunSuite {
   // --- Different internalDataWidth vs busDataWidth scenarios ---
 
   test("SimulatedMemory should work when internalDataWidth == busDataWidth") {
-    val commonWidth = 32
+    val commonWidth = 32 bits
     val memSizeBytes = 512
     val latencyCycles = 2
     val timeout = latencyCycles + 20

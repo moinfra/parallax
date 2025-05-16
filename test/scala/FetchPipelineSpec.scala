@@ -1,6 +1,6 @@
 package parallax.test.scala
 
-import parallax.common.Config
+import parallax.common._
 import parallax.components.icache.SimpleICacheConfig
 import parallax.fetch.{Fetch0Plugin, Fetch1Plugin, FetchPipeline}
 import parallax.frontend.FrontendPipelineKeys
@@ -30,7 +30,7 @@ object FetchSimMemInit {
     // Ensure simPublic has been called on simMem.io if its ports are not top-level
     // This is usually done in the TestBench component definition.
 
-    val internalDataWidthBits = simMem.memConfig.internalDataWidth
+    val internalDataWidthBits = simMem.memConfig.internalDataWidth.value
     require(
       valueDataWidthBits >= internalDataWidthBits,
       s"Value's data width ($valueDataWidthBits) must be >= internal data width ($internalDataWidthBits)."
@@ -71,20 +71,21 @@ object FetchSimMemInit {
 
 class FetchPipelineTestBench(val ifuConfig: InstructionFetchUnitConfig) extends Component {
   val database = new DataBase
+  val pplConfig = PipelineConfig()
   val framework = ProjectScope(database) on new Framework(
     Seq(
       new SimulatedSimpleMemoryPlugin( // This plugin instantiates SimulatedMemory
         memBusConfig = ifuConfig.memBusConfig, // Match IFU's bus config
         simMemConfig = SimulatedMemoryConfig( // Configure the simulated memory
-          internalDataWidth = 32, // Example: memory's internal word size (can differ from CPU XLEN)
+          internalDataWidth = 32 bits, // Example: memory's internal word size (can differ from CPU XLEN)
           memSize = 8 KiB,
           initialLatency = 2 // Cycles for each internal part access in SimulatedMemory
         )
       ),
       new Fetch0Plugin(),
       new Fetch1Plugin(ifuConfig),
-      new FetchPipeline(),
-      new FetchOutputBridge()
+      new FetchPipeline(pplConfig),
+      new FetchOutputBridge(ifuConfig)
     )
   )
 
@@ -92,7 +93,7 @@ class FetchPipelineTestBench(val ifuConfig: InstructionFetchUnitConfig) extends 
   val fetchPipeline = framework.getService[FetchPipeline]
   val memoryService = framework.getService[SimulatedSimpleMemoryPlugin]
   val fetchOutputBridge = framework.getService[FetchOutputBridge]
-
+  val signals = fetchPipeline.signals
   // Get the SimulatedMemory instance from the plugin
   val simMem = memoryService.setup.memory
   simMem.io.simPublic() // IMPORTANT: Expose simulation-time R/W ports of SimulatedMemory
@@ -101,15 +102,15 @@ class FetchPipelineTestBench(val ifuConfig: InstructionFetchUnitConfig) extends 
   val s0 = fetchPipeline.pipeline.s0_PcGen
   s0.isReady.simPublic()
   s0.isValid.simPublic()
-  s0(FrontendPipelineKeys.PC).simPublic()
+  s0(signals.PC).simPublic()
   val s1 = fetchPipeline.pipeline.s1_Fetch
   s1.isReady.simPublic()
   s1.isValid.simPublic()
-  s1(FrontendPipelineKeys.FETCHED_PC).simPublic()
+  s1(signals.FETCHED_PC).simPublic()
   val io = new Bundle {
     // Inputs to control the pipeline
     val redirectPcValid = in Bool () simPublic ()
-    val redirectPc = in UInt (Config.XLEN bits) simPublic ()
+    val redirectPc = in UInt (32 bits) simPublic ()
     // val s1OutputReady = in Bool () // To control backpressure on s1_Fetch output stream
 
     // Outputs from the pipeline (from s1_Fetch)
@@ -117,15 +118,15 @@ class FetchPipelineTestBench(val ifuConfig: InstructionFetchUnitConfig) extends 
   }
 
   // Connect redirect inputs to s0_PcGen
-  s0(FrontendPipelineKeys.REDIRECT_PC_VALID) := io.redirectPcValid
-  s0(FrontendPipelineKeys.REDIRECT_PC) := io.redirectPc
+  s0(signals.REDIRECT_PC_VALID) := io.redirectPcValid
+  s0(signals.REDIRECT_PC) := io.redirectPc
 }
 
 class FetchPipelineSpec extends SpinalSimFunSuite {
 
   onlyVerilator
 
-  val XLEN: Int = 32
+  val XLEN: BitCount = 32 bits
 
   def runFetchPipelineTest(useICache: Boolean, testNameSuffix: String)(
       testLogic: (FetchPipelineTestBench, ClockDomain) => Unit
@@ -137,7 +138,7 @@ class FetchPipelineSpec extends SpinalSimFunSuite {
       val currentIfuConfig = InstructionFetchUnitConfig(
         useICache = useICache,
         enableFlush = false,
-        cpuAddressWidth = XLEN,
+        pcWidth = XLEN,
         cpuDataWidth = XLEN,
         memBusConfig = memBusCfg,
         icacheConfig = icacheCfg
@@ -164,7 +165,7 @@ class FetchPipelineSpec extends SpinalSimFunSuite {
     )
 
     instructionsToLoad.foreach { case (addr, data) =>
-      FetchSimMemInit.initMemWord(dut.simMem, addr, data, XLEN, clockDomain)
+      FetchSimMemInit.initMemWord(dut.simMem, addr, data, XLEN.value, clockDomain)
     }
     println("Reset testbench and start simulation...")
     clockDomain.assertReset()
@@ -217,7 +218,7 @@ class FetchPipelineSpec extends SpinalSimFunSuite {
       0x4L -> BigInt("FEEDF00D", 16)
     )
     allInstructions.foreach { case (addr, data) =>
-      FetchSimMemInit.initMemWord(dut.simMem, addr, data, XLEN, clockDomain)
+      FetchSimMemInit.initMemWord(dut.simMem, addr, data, XLEN.value, clockDomain)
     }
 
     val receivedInstructions = mutable.Queue[(Long, BigInt, Boolean)]()
@@ -242,7 +243,7 @@ class FetchPipelineSpec extends SpinalSimFunSuite {
 
     // Now redirect to baseAddr
     println(
-      s"[Test ICache] S0 PC is ${dut.s0(FrontendPipelineKeys.PC).toLong}. Injecting redirect to 0x${baseAddr.toHexString}."
+      s"[Test ICache] S0 PC is ${dut.s0(dut.signals.PC).toLong}. Injecting redirect to 0x${baseAddr.toHexString}."
     )
     dut.io.redirectPcValid #= true
     dut.io.redirectPc #= baseAddr
@@ -260,8 +261,8 @@ class FetchPipelineSpec extends SpinalSimFunSuite {
     println(f"[Test ICache] PC after 0x0: 0x$pcNext%x Instr:0x$instrNext%x")
     assert(pcNext == expectedPcAfter0 && instrNext == expectedInstrAfter0 && !faultNext)
     assert(
-      dut.s0(FrontendPipelineKeys.PC).toLong == baseAddr,
-      s"S0 PC should be $baseAddr after redirect, but is ${dut.s0(FrontendPipelineKeys.PC).toLong}"
+      dut.s0(dut.signals.PC).toLong == baseAddr,
+      s"S0 PC should be $baseAddr after redirect, but is ${dut.s0(dut.signals.PC).toLong}"
     )
 
     val numToFetchFromBase = instructionsToLoad.size
@@ -296,7 +297,7 @@ class FetchPipelineSpec extends SpinalSimFunSuite {
       0x84L -> BigInt("BBBBBBBB", 16)
     )
     instructions.foreach { case (addr, data) =>
-      FetchSimMemInit.initMemWord(dut.simMem, addr, data, XLEN, clockDomain)
+      FetchSimMemInit.initMemWord(dut.simMem, addr, data, XLEN.value, clockDomain)
     }
 
     val receivedInstructions = mutable.Queue[(Long, BigInt, Boolean)]()
@@ -324,7 +325,7 @@ class FetchPipelineSpec extends SpinalSimFunSuite {
     // At this point, S0 has PC=0x08 (pcReg was 0x08, s0(PC) is 0x08).
     // S1 has the payload for PC=0x04 (just dequeued).
     // We wait for S0 to be valid with PC=0x08.
-    assert(dut.s0(FrontendPipelineKeys.PC).toLong == 0x08L, "S0 should have PC=0x08 before redirect injection")
+    assert(dut.s0(dut.signals.PC).toLong == 0x08L, "S0 should have PC=0x08 before redirect injection")
     println(s"[Redirect Test] S0 PC is 0x08. Injecting redirect to 0x80.")
     dut.io.redirectPcValid #= true
     dut.io.redirectPc #= 0x80L
@@ -338,8 +339,8 @@ class FetchPipelineSpec extends SpinalSimFunSuite {
     println(f"[Redirect] Got PC:0x${r8._1}%x Instr:0x${r8._2}%x")
     assert(r8._1 == 0x08L && r8._2 == instructions(0x08L) && !r8._3)
     assert(
-      dut.s0(FrontendPipelineKeys.PC).toLong == 0x80L,
-      s"S0 PC should be 0x80 after redirect affected pcReg, but is 0x${dut.s0(FrontendPipelineKeys.PC).toLong}"
+      dut.s0(dut.signals.PC).toLong == 0x80L,
+      s"S0 PC should be 0x80 after redirect affected pcReg, but is 0x${dut.s0(dut.signals.PC).toLong}"
     )
 
     // Expect 0x80 from S1
@@ -362,7 +363,7 @@ class FetchPipelineSpec extends SpinalSimFunSuite {
       0x8L -> BigInt("AABBCCDD", 16)
     )
     instructions.foreach { case (addr, data) =>
-      FetchSimMemInit.initMemWord(dut.simMem, addr, data, XLEN, clockDomain)
+      FetchSimMemInit.initMemWord(dut.simMem, addr, data, XLEN.value, clockDomain)
     }
 
     val receivedInstructions = mutable.Queue[Long]()
@@ -399,10 +400,10 @@ println(s"[Stall Test] Before check: s1.isReady=${dut.s1.isReady.toBoolean}") //
     // s1(PC) output is driven by regFetchedPc, which holds 4.
     // s0(PC) output is the value s0 tries to send to s1. s0 pcReg=C, so s0 output PC=C.
     println(
-      s"[Stall Test] While stalled: S0_payload_PC=0x${dut.s0(FrontendPipelineKeys.PC).toLong.toHexString}, S1_payload_PC=0x${dut.s1(FrontendPipelineKeys.FETCHED_PC).toLong.toHexString}" // Assuming FETCHED_PC is used for s1 output
+      s"[Stall Test] While stalled: S0_payload_PC=0x${dut.s0(dut.signals.PC).toLong.toHexString}, S1_payload_PC=0x${dut.s1(dut.signals.FETCHED_PC).toLong.toHexString}" // Assuming FETCHED_PC is used for s1 output
     )
-    assert(dut.s1(FrontendPipelineKeys.FETCHED_PC).toLong == 0x4L, s"S1 output PC should hold 0x4 when stalled") // Check s1 output key
-    assert(dut.s0(FrontendPipelineKeys.PC).toLong == 0x8L, s"S0 payload PC should hold 0xC when stalled") // <<< MODIFIED ASSERTION
+    assert(dut.s1(dut.signals.FETCHED_PC).toLong == 0x4L, s"S1 output PC should hold 0x4 when stalled") // Check s1 output key
+    assert(dut.s0(dut.signals.PC).toLong == 0x8L, s"S0 payload PC should hold 0xC when stalled") // <<< MODIFIED ASSERTION
     assert(receivedInstructions.isEmpty, "No new instructions should be received during stall")
 
     // Unstall the output

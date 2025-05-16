@@ -13,17 +13,17 @@ import spinal.lib._
  * (2^width - 1)，需要选择对应本原多项式的抽头。请查阅相关资料。
  */
 case class FibonacciLFSRConfig(
-    width: Int,
+    width: BitCount,
     seed: BigInt,
     tap1: Int,
     tap2: Int
 ) {
     // --- 参数检查 ---
-    require(width > 0, "Width must be positive")
+    require(width.value > 0, "Width must be positive")
     require(seed != 0, "LFSR seed cannot be zero (会产生全零序列)")
-    require(seed.bitLength <= width, s"Seed $seed (bitLength=${seed.bitLength}) does not fit in $width bits")
-    require(tap1 >= 0 && tap1 < width, s"Tap1 ($tap1) is out of bounds [0, ${width-1}]")
-    require(tap2 >= 0 && tap2 < width, s"Tap2 ($tap2) is out of bounds [0, ${width-1}]")
+    require(seed.bitLength <= width.value, s"Seed $seed (bitLength=${seed.bitLength}) does not fit in $width")
+    require(tap1 >= 0 && tap1 < width.value, s"Tap1 ($tap1) is out of bounds [0, ${width.value-1}]")
+    require(tap2 >= 0 && tap2 < width.value, s"Tap2 ($tap2) is out of bounds [0, ${width.value-1}]")
     require(tap1 != tap2, "Tap positions must be different for this simple 2-tap example")
     // 如果有更多抽头，需要添加相应的检查
 }
@@ -41,12 +41,12 @@ class FibonacciLFSR(val config: FibonacciLFSRConfig) extends Component {
         // 使能信号，为高时 LFSR 在时钟上升沿更新状态
         val enable = in Bool()
         // 输出当前的 LFSR 状态值 (伪随机数)
-        val value  = out Bits(config.width bits)
+        val value  = out Bits(config.width)
     }
 
     // --- 内部状态寄存器 ---
-    // 使用 Reg 来存储 LFSR 的当前状态，并用 B(seed, width bits) 来初始化
-    val shiftReg = Reg(Bits(config.width bits)) init(B(config.seed, config.width bits))
+    // 使用 Reg 来存储 LFSR 的当前状态，并用 B(seed, width) 来初始化
+    val shiftReg = Reg(Bits(config.width)) init(B(config.seed, config.width))
 
     // --- 核心逻辑 ---
     when(io.enable) {
@@ -57,7 +57,7 @@ class FibonacciLFSR(val config: FibonacciLFSRConfig) extends Component {
 
         // 2. 移位和更新
         //    将寄存器内容右移一位，并将计算出的 feedback 位插入到最高位 (MSB)
-        shiftReg := feedback ## shiftReg(config.width - 1 downto 1)
+        shiftReg := feedback ## shiftReg(config.width.value - 1 downto 1)
     }
 
     // --- 输出赋值 ---
@@ -77,15 +77,15 @@ object FibonacciLFSR {
      * @return FibonacciLFSR 组件实例
      */
     def apply(
-        width: Int,
+        width: BitCount,
         seed: BigInt,
         tap1Opt: Option[Int] = None,
         tap2Opt: Option[Int] = None
     ): FibonacciLFSR = {
         // 如果用户没有提供 tap1 或 tap2，则计算默认值
         // !! 重要提示: 默认抽头 (width-1, width/2) 可能不是最优的，请根据实际应用选择合适的抽头 !!
-        val finalTap1 = tap1Opt.getOrElse(width - 1)
-        val finalTap2 = tap2Opt.getOrElse(width / 2)
+        val finalTap1 = tap1Opt.getOrElse(width.value - 1)
+        val finalTap2 = tap2Opt.getOrElse(width.value / 2)
 
         // 创建配置对象
         val config = FibonacciLFSRConfig(
@@ -107,7 +107,7 @@ object FibonacciLFSR {
 object GenerateFibonacciLFSR {
     def main(args: Array[String]): Unit = {
         println("Generating Verilog for FibonacciLFSR...")
-        val lfsrWidth = 16
+        val lfsrWidth = 16 bits
         val lfsrSeed = BigInt("ABCD", 16)
         // 使用推荐的抽头 (例如针对 16位 X^16 + X^14 + X^13 + X^11 + 1)
         // 这里仅使用两个抽头作为示例: 15 和 13

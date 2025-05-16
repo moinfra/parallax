@@ -8,8 +8,8 @@ import spinal.lib.fsm._
 case class SimpleICacheConfig(
     cacheSize: Int = (2 KiB).toInt, // Total size of cache in bytes (e.g., 2KB)
     bytePerLine: Int = 32, // Cache line size in bytes (e.g., 32 bytes)
-    addressWidth: Int = 32, // line address width (e.g., 32 bits)
-    dataWidth: Int = 32 // CPU instruction width (and memory word width for simplicity)
+    addressWidth: BitCount = 32 bits, // line address width (e.g., 32 bits)
+    dataWidth: BitCount = 32 bits // CPU instruction width (and memory word width for simplicity)
 ) {
   // Derived parameters
   val lineCount: Int = cacheSize / bytePerLine
@@ -17,15 +17,15 @@ case class SimpleICacheConfig(
   require(isPow2(bytePerLine), "Bytes per line must be a power of 2")
 
   val bitsPerLine: Int = bytePerLine * 8
-  val wordsPerLine: Int = bytePerLine / (dataWidth / 8) // Number of words per cache line, 32 / (32 / 8) = 8
+  val wordsPerLine: Int = bytePerLine / (dataWidth.value / 8) // Number of words per cache line, 32 / (32 / 8) = 8
   require(wordsPerLine > 0, "Line size must be at least dataWidth")
-  val indexWidth: Int = log2Up(lineCount)
-  val wordOffsetWidth: Int = log2Up(wordsPerLine) // Offset of a word within a line
-  val byteOffsetWidth: Int = log2Up(bytePerLine) // Offset of a byte within a line
+  val indexWidth: BitCount = log2Up(lineCount) bits
+  val wordOffsetWidth: BitCount = log2Up(wordsPerLine) bits // Offset of a word within a line
+  val byteOffsetWidth: BitCount = log2Up(bytePerLine) bits // Offset of a byte within a line
   // (tag starts above this)
 
   // Tag width: Address_width - Index_width - Byte_offset_in_line_width
-  val tagWidth: Int = addressWidth - indexWidth - byteOffsetWidth
+  val tagWidth: BitCount = addressWidth - indexWidth - byteOffsetWidth
   
   // 32位地址被分解为三个部分：
   // +---------------------+--------+--------+
@@ -47,21 +47,21 @@ case class SimpleICacheConfig(
   // ​​Offset (5位)​​:
   // 高3位(wordOffset)选择行中的哪个字(8字/行)
   // 低2位选择字中的哪个字节(32位=4字节)
-  def lineAddress(fullAddress: UInt): UInt = fullAddress(addressWidth - 1 downto byteOffsetWidth)
-  def tag(fullAddress: UInt): UInt = fullAddress(addressWidth - 1 downto indexWidth + byteOffsetWidth)
-  def index(fullAddress: UInt): UInt = fullAddress(indexWidth + byteOffsetWidth - 1 downto byteOffsetWidth)
-  def wordOffset(fullAddress: UInt): UInt = fullAddress(byteOffsetWidth - 1 downto log2Up(dataWidth / 8))
+  def lineAddress(fullAddress: UInt): UInt = fullAddress(addressWidth.value - 1 downto byteOffsetWidth.value)
+  def tag(fullAddress: UInt): UInt = fullAddress(addressWidth.value - 1 downto indexWidth.value + byteOffsetWidth.value)
+  def index(fullAddress: UInt): UInt = fullAddress(indexWidth.value + byteOffsetWidth.value - 1 downto byteOffsetWidth.value)
+  def wordOffset(fullAddress: UInt): UInt = fullAddress(byteOffsetWidth.value - 1 downto log2Up(dataWidth.value / 8))
 }
 
 // --- CPU Interface for ICache ---
 case class ICacheCpuCmd(implicit config: SimpleICacheConfig) extends Bundle {
-  val address = UInt(config.addressWidth bits)
+  val address = UInt(config.addressWidth)
 }
 
 case class ICacheCpuRsp(implicit config: SimpleICacheConfig) extends Bundle {
-  val instruction = Bits(config.dataWidth bits)
+  val instruction = Bits(config.dataWidth)
   val fault = Bool() // e.g., page fault, access error (simplified for now)
-  val pc = UInt(config.addressWidth bits) // Echo back PC for verification/pipeline
+  val pc = UInt(config.addressWidth) // Echo back PC for verification/pipeline
 }
 
 case class ICacheCpuBus(implicit config: SimpleICacheConfig) extends Bundle with IMasterSlave {
@@ -78,11 +78,11 @@ case class ICacheCpuBus(implicit config: SimpleICacheConfig) extends Bundle with
 case class ICacheMemCmd(implicit config: SimpleICacheConfig) extends Bundle {
   // Requesting a full cache line.
   // lineAddress is effectively (physical_address / bytes_per_line)
-  val lineAddress = UInt(config.addressWidth - config.byteOffsetWidth bits)
+  val lineAddress = UInt(config.addressWidth - config.byteOffsetWidth)
 }
 
 case class ICacheMemRsp(implicit config: SimpleICacheConfig) extends Bundle {
-  val data = Bits(config.dataWidth bits) // Memory returns one CACHE word at a time
+  val data = Bits(config.dataWidth) // Memory returns one CACHE word at a time
 }
 
 // Cacheline 读端口

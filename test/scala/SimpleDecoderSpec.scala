@@ -2,449 +2,377 @@ package parallax.test.scala
 
 import spinal.core._
 import spinal.lib._
-import spinal.tester.SpinalSimFunSuite
+import spinal.core.sim._
 import parallax.components.decode._
-import spinal.core.sim.SimDataPimper
-import spinal.core.sim.SimBoolPimper
-import spinal.core.sim.SimEnumPimper
-import spinal.core.sim.SimBaseTypePimper
-import spinal.core.sim.SimBitVectorPimper
+import parallax.common._ // For DecodedUop, PipelineConfig, Enums
 
-// Assuming your Decoder and related Bundles/Enums are in a package, e.g., `mycore.decode`
-// import mycore.decode._ // Adjust this to your actual package structure
+// Helper function to check DecodedUop fields
+object DecoderTestHelper {
+  // Define expected logic op values if used in checks consistently
+  val LOGIC_OP_AND = B"001"
+  val LOGIC_OP_OR  = B"010"
+  val LOGIC_OP_XOR = BigInt("011",2)
 
-// If Decoder is in the default package for simplicity:
-// (Ensure InstructionOpcodes, AluOp, MicroOpType, AluFlags, etc. are accessible)
-
-// Helper function to check MicroOp fields
-// This can be expanded to be very detailed
-object Helper {
-  def checkMicroOp(
-      dut: SimpleDecoderTestBench,
-      pc: Long, // For logging purposes
+  def checkDecodedUop(
+      dutBench: SimpleDecoderTestBench, // The testbench wrapping the decoder
+      pc: Long, // For logging
+      // Core Info
       isValid: Boolean,
-      uopType: MicroOpType.E = null, // Use .E for SpinalEnum value in simulation
-      archRegRd: Option[Int] = None,
-      archRegRs: Option[Int] = None,
-      archRegRt: Option[Int] = None,
-      useRd: Option[Boolean] = None,
-      useRs: Option[Boolean] = None,
-      useRt: Option[Boolean] = None,
-      writeRd: Option[Boolean] = None,
-      imm: Option[BigInt] = None,
-      // AluFlags
-      aluOp: AluOp.E = null,
-      // MemOpFlags
-      memAccessType: MemoryAccessType.E = null,
-      memSize: MemoryOpSize.E = null,
-      // CtrlFlowInfo
-      branchCond: BranchCond.E = null,
-      branchOffset: Option[BigInt] = None
+      expectedUopCode: BaseUopCode.E = null,
+      expectedExeUnit: ExeUnitType.E = null,
+      expectedIsa: IsaType.E = IsaType.DEMO, // Assuming DEMO for this decoder
+      // Operands (Architectural)
+      expectedArchDestIdx: Option[Int] = None,
+      expectedArchDestRType: ArchRegType.E = ArchRegType.GPR,
+      expectedWriteArchDestEn: Option[Boolean] = None,
+      expectedArchSrc1Idx: Option[Int] = None,
+      expectedArchSrc1RType: ArchRegType.E = ArchRegType.GPR,
+      expectedUseArchSrc1: Option[Boolean] = None,
+      expectedArchSrc2Idx: Option[Int] = None,
+      expectedArchSrc2RType: ArchRegType.E = ArchRegType.GPR,
+      expectedUseArchSrc2: Option[Boolean] = None,
+      // Immediate
+      expectedImm: Option[BigInt] = None,
+      expectedImmUsage: ImmUsageType.E = null,
+      // Control Flags (add more as needed)
+      expectedAluIsSub: Option[Boolean] = None,
+      expectedAluLogicOp: Option[BigInt] = None, // Check as BigInt for Bits
+      expectedMemIsStore: Option[Boolean] = None,
+      expectedMemSize: MemAccessSize.E = null,
+      expectedMemIsSignedLoad: Option[Boolean] = None,
+      expectedBranchIsJump: Option[Boolean] = None,
+      expectedBranchCond: BranchCondition.E = null,
+      expectedIsBranchOrJump: Option[Boolean] = None,
+      expectedMulDivIsDiv: Option[Boolean] = None,
+      expectedMulDivIsSigned: Option[Boolean] = None
   ): Unit = {
-    assert(
-      dut.io.microOp.isValid.toBoolean == isValid,
-      s"[PC=0x${pc.toHexString}] isValid mismatch. Expected $isValid, Got ${dut.io.microOp.isValid.toBoolean}"
-    )
-    if (!isValid) return // If not valid, no need to check other fields
+    val uop = dutBench.io.decodedUop // Access the DecodedUop from the testbench IO
 
-    if (uopType != null)
-      assert(
-        dut.io.microOp.uopType.toEnum == uopType,
-        s"[PC=0x${pc.toHexString}] uopType mismatch. Expected $uopType, Got ${dut.io.microOp.uopType.toEnum}"
-      )
+    def contextMsg(field: String) = s"[PC=0x${pc.toHexString}, OpCode=${uop.uopCode.toEnum}] $field mismatch."
 
-    archRegRd.foreach(exp =>
-      assert(
-        dut.io.microOp.archRegRd.toInt == exp,
-        s"[PC=0x${pc.toHexString}] archRegRd mismatch. Expected $exp, Got ${dut.io.microOp.archRegRd.toInt}"
-      )
-    )
-    archRegRs.foreach(exp =>
-      assert(
-        dut.io.microOp.archRegRs.toInt == exp,
-        s"[PC=0x${pc.toHexString}] archRegRs mismatch. Expected $exp, Got ${dut.io.microOp.archRegRs.toInt}"
-      )
-    )
-    archRegRt.foreach(exp =>
-      assert(
-        dut.io.microOp.archRegRt.toInt == exp,
-        s"[PC=0x${pc.toHexString}] archRegRt mismatch. Expected $exp, Got ${dut.io.microOp.archRegRt.toInt}"
-      )
-    )
+    assert(uop.isValid.toBoolean == isValid, contextMsg("isValid") + s" Expected $isValid, Got ${uop.isValid.toBoolean}")
+    if (!isValid) return // If not valid, most other fields are don't care or default
 
-    useRd.foreach(exp => assert(dut.io.microOp.useRd.toBoolean == exp, s"[PC=0x${pc.toHexString}] useRd mismatch"))
-    useRs.foreach(exp => assert(dut.io.microOp.useRs.toBoolean == exp, s"[PC=0x${pc.toHexString}] useRs mismatch"))
-    useRt.foreach(exp => assert(dut.io.microOp.useRt.toBoolean == exp, s"[PC=0x${pc.toHexString}] useRt mismatch"))
-    writeRd.foreach(exp =>
-      assert(dut.io.microOp.writeRd.toBoolean == exp, s"[PC=0x${pc.toHexString}] writeRd mismatch")
-    )
+    if (expectedUopCode != null) assert(uop.uopCode.toEnum == expectedUopCode, contextMsg("uopCode"))
+    if (expectedExeUnit != null) assert(uop.exeUnit.toEnum == expectedExeUnit, contextMsg("exeUnit"))
+    if (expectedIsa != null) assert(uop.isa.toEnum == expectedIsa, contextMsg("isa"))
 
-    imm.foreach(exp =>
-      assert(
-        dut.io.microOp.imm.toBigInt == exp,
-        s"[PC=0x${pc.toHexString}] imm mismatch. Expected $exp, Got ${dut.io.microOp.imm.toBigInt}"
-      )
-    )
+    expectedArchDestIdx.foreach(exp => assert(uop.archDest.idx.toInt == exp, contextMsg("archDest.idx")))
+    if(expectedArchDestIdx.isDefined) assert(uop.archDest.rtype.toEnum == expectedArchDestRType, contextMsg("archDest.rtype"))
+    expectedWriteArchDestEn.foreach(exp => assert(uop.writeArchDestEn.toBoolean == exp, contextMsg("writeArchDestEn")))
 
-    if (uopType == MicroOpType.ALU_REG || uopType == MicroOpType.ALU_IMM || uopType == MicroOpType.LOAD_IMM) {
-      if (aluOp != null)
-        assert(
-          dut.io.microOp.aluFlags.op.toEnum == aluOp,
-          s"[PC=0x${pc.toHexString}] aluOp mismatch. Expected $aluOp, Got ${dut.io.microOp.aluFlags.op.toEnum}"
-        )
-    }
+    expectedArchSrc1Idx.foreach(exp => assert(uop.archSrc1.idx.toInt == exp, contextMsg("archSrc1.idx")))
+    if(expectedArchSrc1Idx.isDefined) assert(uop.archSrc1.rtype.toEnum == expectedArchSrc1RType, contextMsg("archSrc1.rtype"))
+    expectedUseArchSrc1.foreach(exp => assert(uop.useArchSrc1.toBoolean == exp, contextMsg("useArchSrc1")))
 
-    if (uopType == MicroOpType.LOAD || uopType == MicroOpType.STORE) {
-      if (memAccessType != null)
-        assert(
-          dut.io.microOp.memOpFlags.accessType.toEnum == memAccessType,
-          s"[PC=0x${pc.toHexString}] memAccessType mismatch"
-        )
-      if (memSize != null)
-        assert(dut.io.microOp.memOpFlags.size.toEnum == memSize, s"[PC=0x${pc.toHexString}] memSize mismatch")
-    }
+    expectedArchSrc2Idx.foreach(exp => assert(uop.archSrc2.idx.toInt == exp, contextMsg("archSrc2.idx")))
+    if(expectedArchSrc2Idx.isDefined) assert(uop.archSrc2.rtype.toEnum == expectedArchSrc2RType, contextMsg("archSrc2.rtype"))
+    expectedUseArchSrc2.foreach(exp => assert(uop.useArchSrc2.toBoolean == exp, contextMsg("useArchSrc2")))
 
-    if (uopType == MicroOpType.BRANCH_COND) {
-      if (branchCond != null)
-        assert(
-          dut.io.microOp.ctrlFlowInfo.condition.toEnum == branchCond,
-          s"[PC=0x${pc.toHexString}] branchCond mismatch"
-        )
-      branchOffset.foreach(exp =>
-        assert(
-          dut.io.microOp.ctrlFlowInfo.targetOffset.toBigInt == exp,
-          s"[PC=0x${pc.toHexString}] branchOffset mismatch"
-        )
-      )
-    }
+    expectedImm.foreach { expSigned =>
+
+      val actualImmExtendedRaw = uop.imm.toBigInt
+      val width = uop.imm.getWidth // This 'width' is the *extended* width
+      val mask = (BigInt(1) << width) - 1
+      val expectedImmAsExtendedRaw = expSigned & mask
+  
+      assert(actualImmExtendedRaw == expectedImmAsExtendedRaw,
+             contextMsg("imm") + s" Expected signed value $expSigned (which as $width-bit raw is $expectedImmAsExtendedRaw), " +
+                                 s"Got $width-bit raw $actualImmExtendedRaw from DUT (already extended)")
+  }
+    if (expectedImmUsage != null) assert(uop.immUsage.toEnum == expectedImmUsage, contextMsg("immUsage"))
+
+    // ALU Control
+    expectedAluIsSub.foreach(exp => assert(uop.aluCtrl.isSub.toBoolean == exp, contextMsg("aluCtrl.isSub")))
+    expectedAluLogicOp.foreach(exp => assert(uop.aluCtrl.logicOp.toBigInt == exp, contextMsg("aluCtrl.logicOp")))
+
+    // Memory Control
+    expectedMemIsStore.foreach(exp => assert(uop.memCtrl.isStore.toBoolean == exp, contextMsg("memCtrl.isStore")))
+    if (expectedMemSize != null) assert(uop.memCtrl.size.toEnum == expectedMemSize, contextMsg("memCtrl.size"))
+    expectedMemIsSignedLoad.foreach(exp => assert(uop.memCtrl.isSignedLoad.toBoolean == exp, contextMsg("memCtrl.isSignedLoad")))
+    
+    // Branch Control
+    expectedBranchIsJump.foreach(exp => assert(uop.branchCtrl.isJump.toBoolean == exp, contextMsg("branchCtrl.isJump")))
+    if (expectedBranchCond != null) assert(uop.branchCtrl.condition.toEnum == expectedBranchCond, contextMsg("branchCtrl.condition"))
+    expectedIsBranchOrJump.foreach(exp => assert(uop.isBranchOrJump.toBoolean == exp, contextMsg("isBranchOrJump")))
+
+    // Mul/Div Control
+    expectedMulDivIsDiv.foreach(exp => assert(uop.mulDivCtrl.isDiv.toBoolean == exp, contextMsg("mulDivCtrl.isDiv")))
+    expectedMulDivIsSigned.foreach(exp => assert(uop.mulDivCtrl.isSigned.toBoolean == exp, contextMsg("mulDivCtrl.isSigned")))
+
+    // Check PC
+    assert(uop.pc.toLong == pc, contextMsg("PC") + s" Expected $pc, Got ${uop.pc.toLong}")
   }
 }
 
-class SimpleDecoderTestBench extends Component {
+class SimpleDecoderTestBench(val config: PipelineConfig = PipelineConfig()) extends Component {
   val io = new Bundle {
-    val instruction = in Bits (32 bits)
-    val microOp = out(MicroOp(MicroOpConfig()))
+    val instruction = in Bits (config.dataWidth)
+    val pcIn = in UInt(config.pcWidth)
+    val decodedUop = out(DecodedUop(config)) // Uses implicit config
   }
-  val decoder = new SimpleDecoder()
+  val decoder = new SimpleDecoder() // Implicit config passed here
   decoder.io.instruction := io.instruction
-  io.microOp := decoder.io.microOp
+  decoder.io.pcIn := io.pcIn
+  io.decodedUop := decoder.io.decodedUop
 
-  io.simPublic
+  io.decodedUop.simPublic() // Make all fields of decodedUop public for sim
 }
 
-class SimpleDecoderSpec extends SpinalSimFunSuite { // Or extends SpinalSimFunSuite if you prefer that structure
-  import spinal.core.sim._
+class SimpleDecoderSpec extends CustomSpinalSimFunSuite {
+  import DecoderTestHelper._ // Import the helper object
 
-  onlyVerilator()
-  // Simulation configuration
-  def simConfig = SimConfig.withWave // Enable VCD waves for debugging
+  val testConfig: PipelineConfig = PipelineConfig()
+  // InstructionOpcodesBigInts can be used from parallax.components.decode if accessible, or defined locally
+  // For simplicity, assuming it's accessible.
 
-  test("Decoder - NOP (Illegal instruction)") {
+  test("Decoder - NOP (Illegal instruction 0x0)") {
     simConfig.compile(new SimpleDecoderTestBench).doSim(seed = 42) { dut =>
       dut.clockDomain.forkStimulus(10)
+      val currentPC = 0x1000L
 
-      dut.io.instruction #= 0x00000000 // A true NOP or an illegal instruction
+      dut.io.instruction #= 0x00000000
+      dut.io.pcIn #= currentPC
       dut.clockDomain.waitSampling()
-      Helper.checkMicroOp(dut, pc = 0x0, isValid = false) // Assuming 0x0 is an illegal opcode mapping
-
-      dut.io.instruction #= 0x7fffffff // Another illegal instruction
-      dut.clockDomain.waitSampling()
-      Helper.checkMicroOp(dut, pc = 0x4, isValid = false)
+      checkDecodedUop(dut, pc = currentPC, isValid = false, expectedUopCode = BaseUopCode.ILLEGAL)
     }
   }
+  
+  test("Decoder - NOP (Illegal instruction high bits)") {
+    simConfig.compile(new SimpleDecoderTestBench).doSim(seed = 43) { dut =>
+      dut.clockDomain.forkStimulus(10)
+      val currentPC = 0x1004L
+      dut.io.instruction #= 0x7FFFFFFF 
+      dut.io.pcIn #= currentPC
+      dut.clockDomain.waitSampling()
+      checkDecodedUop(dut, pc = currentPC, isValid = false, expectedUopCode = BaseUopCode.ILLEGAL)
+    }
+  }
+
 
   test("Decoder - ADD R1, R2, R3") {
     simConfig.compile(new SimpleDecoderTestBench).doSim(seed = 42) { dut =>
-      // Opcode: 000010, Rd: 00001, Rs: 00010, Rt: 00011, rest: 0s
-      // 000010 00001 00010 00011 00000 000000 => 0x08221800
-      val instruction = BigInt("00001000001000100001100000000000", 2)
-
+      val instruction = (InstructionOpcodesBigInts.ADD<< 26) | (1 << 21) | (2 << 16) | (3 << 11)
+      val currentPC = 0x2000L
       dut.clockDomain.forkStimulus(10)
       dut.io.instruction #= instruction
+      dut.io.pcIn #= currentPC
       dut.clockDomain.waitSampling()
 
-      Helper.checkMicroOp(
-        dut,
-        pc = 0x0,
-        isValid = true,
-        uopType = MicroOpType.ALU_REG,
-        archRegRd = Some(1),
-        archRegRs = Some(2),
-        archRegRt = Some(3),
-        useRd = Some(true),
-        useRs = Some(true),
-        useRt = Some(true),
-        writeRd = Some(true), // Assuming R1 is not R0
-        aluOp = AluOp.ADD
+      checkDecodedUop(
+        dut, pc = currentPC, isValid = true,
+        expectedUopCode = BaseUopCode.ALU, expectedExeUnit = ExeUnitType.ALU_INT,
+        expectedArchDestIdx = Some(1), expectedWriteArchDestEn = Some(true),
+        expectedArchSrc1Idx = Some(2), expectedUseArchSrc1 = Some(true),
+        expectedArchSrc2Idx = Some(3), expectedUseArchSrc2 = Some(true),
+        expectedAluIsSub = Some(false)
       )
     }
   }
 
   test("Decoder - ADD R0, R2, R3 (write to R0)") {
-
     simConfig.compile(new SimpleDecoderTestBench).doSim(seed = 42) { dut =>
-      // Opcode: 000010, Rd: 00000, Rs: 00010, Rt: 00011, rest: 0s
-      // 000010 00000 00010 00011 00000 000000 => 0x08021800
-      val instruction = BigInt("00001000000000100001100000000000", 2)
-
+      val instruction = (InstructionOpcodesBigInts.ADD << 26) | (0 << 21) | (2 << 16) | (3 << 11)
+      val currentPC = 0x2004L
       dut.clockDomain.forkStimulus(10)
       dut.io.instruction #= instruction
+      dut.io.pcIn #= currentPC
       dut.clockDomain.waitSampling()
-
-      Helper.checkMicroOp(
-        dut,
-        pc = 0x0,
-        isValid = true,
-        uopType = MicroOpType.ALU_REG,
-        archRegRd = Some(0),
-        archRegRs = Some(2),
-        archRegRt = Some(3),
-        useRd = Some(true), // Rd field is used
-        useRs = Some(true),
-        useRt = Some(true),
-        writeRd = Some(false), // But R0 is not written
-        aluOp = AluOp.ADD
+      checkDecodedUop(
+        dut, pc = currentPC, isValid = true,
+        expectedUopCode = BaseUopCode.ALU, expectedExeUnit = ExeUnitType.ALU_INT,
+        expectedArchDestIdx = Some(0), expectedWriteArchDestEn = Some(false), // R0 not written
+        expectedArchSrc1Idx = Some(2), expectedUseArchSrc1 = Some(true),
+        expectedArchSrc2Idx = Some(3), expectedUseArchSrc2 = Some(true),
+        expectedAluIsSub = Some(false)
       )
     }
   }
 
   test("Decoder - ADDI R1, R2, 100") {
-
     simConfig.compile(new SimpleDecoderTestBench).doSim(seed = 42) { dut =>
-      // Opcode: 000011, Rd: 00001, Rs: 00010, Imm: 100 (0x0064)
-      // 000011 00001 00010 0000000001100100 => 0x0C220064
       val immValue = 100
-
-      val instruction = (InstructionOpcodesBigInts.ADDI << 26) |
-        (BigInt(1) << 21) | (BigInt(2) << 16) | BigInt(immValue)
+      val instruction = (InstructionOpcodesBigInts.ADDI << 26) | (1 << 21) | (2 << 16) | immValue
+      val currentPC = 0x2008L
       dut.clockDomain.forkStimulus(10)
       dut.io.instruction #= instruction
+      dut.io.pcIn #= currentPC
       dut.clockDomain.waitSampling()
-
-      Helper.checkMicroOp(
-        dut,
-        pc = 0x0,
-        isValid = true,
-        uopType = MicroOpType.ALU_IMM,
-        archRegRd = Some(1),
-        archRegRs = Some(2),
-        useRd = Some(true),
-        useRs = Some(true),
-        useRt = Some(false), // Rt not used by ADDI
-        writeRd = Some(true),
-        imm = Some(immValue), // Sign-extended if negative, but 100 is positive
-        aluOp = AluOp.ADD
+      checkDecodedUop(
+        dut, pc = currentPC, isValid = true,
+        expectedUopCode = BaseUopCode.ALU, expectedExeUnit = ExeUnitType.ALU_INT,
+        expectedArchDestIdx = Some(1), expectedWriteArchDestEn = Some(true),
+        expectedArchSrc1Idx = Some(2), expectedUseArchSrc1 = Some(true),
+        expectedUseArchSrc2 = Some(false), // Rt not used by ADDI
+        expectedImm = Some(BigInt(immValue)), expectedImmUsage = ImmUsageType.SRC_ALU,
+        expectedAluIsSub = Some(false)
       )
     }
   }
-
+  
   test("Decoder - ADDI R1, R2, -100 (negative immediate)") {
-
     simConfig.compile(new SimpleDecoderTestBench).doSim(seed = 42) { dut =>
-      // Opcode: 000011, Rd: 00001, Rs: 00010, Imm: -100 (0xFF9C in 16 bits)
-      // 000011 00001 00010 1111111110011100 => 0x0C22FF9C
-      val immValueRaw: Short = -100 // Signed 16-bit
+      val immValueRaw: Short = -100
       val immValueSext = BigInt(immValueRaw) // Sign extension to BigInt for comparison
-      val instruction = (InstructionOpcodesBigInts.ADDI << 26) |
-        (BigInt(1) << 21) | (BigInt(2) << 16) | (BigInt(immValueRaw) & 0xffff) // Mask to 16 bits
-
+      val instruction = (InstructionOpcodesBigInts.ADDI << 26) | (1 << 21) | (2 << 16) | (BigInt(immValueRaw) & 0xFFFF)
+      val currentPC = 0x200CL
       dut.clockDomain.forkStimulus(10)
       dut.io.instruction #= instruction
+      dut.io.pcIn #= currentPC
       dut.clockDomain.waitSampling()
-
-      Helper.checkMicroOp(
-        dut,
-        pc = 0x0,
-        isValid = true,
-        uopType = MicroOpType.ALU_IMM,
-        archRegRd = Some(1),
-        archRegRs = Some(2),
-        useRd = Some(true),
-        useRs = Some(true),
-        useRt = Some(false),
-        writeRd = Some(true),
-        imm = Some(immValueSext), // Should be sign-extended -100
-        aluOp = AluOp.ADD
+      checkDecodedUop(
+        dut, pc = currentPC, isValid = true,
+        expectedUopCode = BaseUopCode.ALU, expectedExeUnit = ExeUnitType.ALU_INT,
+        expectedArchDestIdx = Some(1), expectedWriteArchDestEn = Some(true),
+        expectedArchSrc1Idx = Some(2), expectedUseArchSrc1 = Some(true),
+        expectedUseArchSrc2 = Some(false),
+        expectedImm = Some(immValueSext), expectedImmUsage = ImmUsageType.SRC_ALU,
+        expectedAluIsSub = Some(false)
       )
     }
   }
 
   test("Decoder - LD R1, [R2]") {
-
     simConfig.compile(new SimpleDecoderTestBench).doSim(seed = 42) { dut =>
-      // Opcode: 000000, Rd: 00001, Rs: 00010, rest: 0s
-      // 000000 00001 00010 0000000000000000 => 0x00220000
-      val instruction = (InstructionOpcodesBigInts.LD << 26) |
-        (BigInt(1) << 21) | (BigInt(2) << 16)
-
+      val instruction = (InstructionOpcodesBigInts.LD << 26) | (1 << 21) | (2 << 16)
+      val currentPC = 0x2010L
       dut.clockDomain.forkStimulus(10)
       dut.io.instruction #= instruction
+      dut.io.pcIn #= currentPC
       dut.clockDomain.waitSampling()
-
-      Helper.checkMicroOp(
-        dut,
-        pc = 0x0,
-        isValid = true,
-        uopType = MicroOpType.LOAD,
-        archRegRd = Some(1),
-        archRegRs = Some(2),
-        useRd = Some(true),
-        useRs = Some(true),
-        useRt = Some(false), // Rt not used for LD [Rs]
-        writeRd = Some(true),
-        memAccessType = MemoryAccessType.LOAD_U,
-        memSize = MemoryOpSize.WORD
+      checkDecodedUop(
+        dut, pc = currentPC, isValid = true,
+        expectedUopCode = BaseUopCode.LOAD, expectedExeUnit = ExeUnitType.MEM,
+        expectedArchDestIdx = Some(1), expectedWriteArchDestEn = Some(true),
+        expectedArchSrc1Idx = Some(2), expectedUseArchSrc1 = Some(true), // Base address
+        expectedUseArchSrc2 = Some(false),
+        expectedImm = Some(0), expectedImmUsage = ImmUsageType.MEM_OFFSET, // Offset is 0
+        expectedMemIsStore = Some(false), expectedMemSize = MemAccessSize.W, expectedMemIsSignedLoad = Some(false)
       )
     }
   }
 
-  test("Decoder - ST [R2], R1") {
-
+  test("Decoder - ST R1, [R2] (ST rt, rs -> Mem[rs] = rt)") {
     simConfig.compile(new SimpleDecoderTestBench).doSim(seed = 42) { dut =>
-      // Opcode: 000001, "Rd" (source data Rt): 00001, Rs (address): 00010, rest: 0s
-      // 000001 00001 00010 0000000000000000 => 0x04220000
-      val instruction = (InstructionOpcodesBigInts.ST << 26) |
-        (BigInt(2) << 16) | // This is archRegRs (address)
-        (BigInt(1) << 11) // This is archRegRt (data source)
-
+      // Opcode: ST, Rs (addr): R2 (idx 2), Rt (data): R1 (idx 1)
+      val instruction = (InstructionOpcodesBigInts.ST << 26) | (2 << 16) | (1 << 11)
+      val currentPC = 0x2014L
       dut.clockDomain.forkStimulus(10)
       dut.io.instruction #= instruction
+      dut.io.pcIn #= currentPC
       dut.clockDomain.waitSampling()
-
-      Helper.checkMicroOp(
-        dut,
-        pc = 0x0,
-        isValid = true,
-        uopType = MicroOpType.STORE,
-        // archRegRd is not a destination for ST
-        archRegRs = Some(2), // Address
-        archRegRt = Some(1), // Data from instruction's "Rd" field
-        useRd = Some(false), // Not a destination
-        useRs = Some(true),
-        useRt = Some(true),
-        writeRd = Some(false), // ST does not write to arch Rd
-        memAccessType = MemoryAccessType.STORE,
-        memSize = MemoryOpSize.WORD
+      checkDecodedUop(
+        dut, pc = currentPC, isValid = true,
+        expectedUopCode = BaseUopCode.STORE, expectedExeUnit = ExeUnitType.MEM,
+        expectedWriteArchDestEn = Some(false), // ST does not write to arch Rd
+        expectedArchSrc1Idx = Some(2), expectedUseArchSrc1 = Some(true), // Address
+        expectedArchSrc2Idx = Some(1), expectedUseArchSrc2 = Some(true), // Data
+        expectedImm = Some(0), expectedImmUsage = ImmUsageType.MEM_OFFSET,
+        expectedMemIsStore = Some(true), expectedMemSize = MemAccessSize.W
       )
     }
   }
 
-  test("Decoder - BCOND R1, 0x10 (target PC+0x40)") {
-
+  test("Decoder - BCOND R1, 0x10 (target PC + 0x40)") {
     simConfig.compile(new SimpleDecoderTestBench).doSim(seed = 42) { dut =>
-      // Opcode: 001110, Rs: 00001, "Rd" (unused): 00000, Imm: 0x10 (word offset)
-      // 001110 00001 00000 0000000000010000 => 0x38200010
       val immWordOffset = 0x10
       val expectedByteOffset = immWordOffset * 4
-      val instruction = (InstructionOpcodesBigInts.BCOND << 26) |
-        (BigInt(1) << 16) | // Rs for condition
-        (BigInt(immWordOffset))
-
+      // Opcode: BCOND, Rs (cond): R1 (idx 1), Imm: 0x10
+      val instruction = (InstructionOpcodesBigInts.BCOND << 26) | (1 << 16) | immWordOffset
+      val currentPC = 0x2018L
       dut.clockDomain.forkStimulus(10)
       dut.io.instruction #= instruction
+      dut.io.pcIn #= currentPC
       dut.clockDomain.waitSampling()
-
-      Helper.checkMicroOp(
-        dut,
-        pc = 0x0,
-        isValid = true,
-        uopType = MicroOpType.BRANCH_COND,
-        archRegRs = Some(1),
-        useRs = Some(true),
-        useRd = Some(false), // No Rd destination
-        useRt = Some(false),
-        writeRd = Some(false),
-        imm = Some(immWordOffset), // The raw immediate from instruction
-        branchCond = BranchCond.NOT_ZERO,
-        branchOffset = Some(expectedByteOffset)
+      checkDecodedUop(
+        dut, pc = currentPC, isValid = true,
+        expectedUopCode = BaseUopCode.BRANCH, expectedExeUnit = ExeUnitType.BRU,
+        expectedIsBranchOrJump = Some(true),
+        expectedWriteArchDestEn = Some(false),
+        expectedArchSrc1Idx = Some(1), expectedUseArchSrc1 = Some(true), // Condition reg
+        expectedUseArchSrc2 = Some(false),
+        expectedImm = Some(BigInt(expectedByteOffset)), // Byte offset
+        expectedImmUsage = ImmUsageType.BRANCH_OFFSET,
+        expectedBranchIsJump = Some(false),
+        expectedBranchCond = BranchCondition.NEZ // Rs != 0
       )
     }
   }
 
   test("Decoder - LI R1, 0x1234") {
-
     simConfig.compile(new SimpleDecoderTestBench).doSim(seed = 42) { dut =>
-      // Opcode: 001011, Rd: 00001, "Rs" (unused): 00000, Imm: 0x1234
-      // 001011 00001 00000 0001001000110100 => 0x2C201234
       val immValue = 0x1234
-      val instruction = (InstructionOpcodesBigInts.LI << 26) |
-        (BigInt(1) << 21) | // Rd
-        BigInt(immValue)
-
+      // Opcode: LI, Rd: R1 (idx 1), Imm: 0x1234
+      val instruction = (InstructionOpcodesBigInts.LI << 26) | (1 << 21) | immValue
+      val currentPC = 0x201CL
       dut.clockDomain.forkStimulus(10)
       dut.io.instruction #= instruction
+      dut.io.pcIn #= currentPC
       dut.clockDomain.waitSampling()
-
-      Helper.checkMicroOp(
-        dut,
-        pc = 0x0,
-        isValid = true,
-        uopType = MicroOpType.LOAD_IMM,
-        archRegRd = Some(1),
-        useRd = Some(true),
-        useRs = Some(false), // Or true if ALU needs a path for 0
-        useRt = Some(false),
-        writeRd = Some(true),
-        imm = Some(immValue),
-        aluOp = AluOp.ADD // Assuming LI uses ALU with 0 + imm
+      checkDecodedUop(
+        dut, pc = currentPC, isValid = true,
+        expectedUopCode = BaseUopCode.ALU, // LI as 0 + Imm
+        expectedExeUnit = ExeUnitType.ALU_INT,
+        expectedArchDestIdx = Some(1), expectedWriteArchDestEn = Some(true),
+        expectedUseArchSrc1 = Some(false), // No register source for LI
+        expectedUseArchSrc2 = Some(false),
+        expectedImm = Some(immValue), // Sign-extended from 16 bits
+        expectedImmUsage = ImmUsageType.SRC_ALU,
+        expectedAluIsSub = Some(false) // 0 + imm
       )
     }
   }
 
   test("Decoder - NEG R1, R2") {
     simConfig.compile(new SimpleDecoderTestBench).doSim(seed = 42) { dut =>
-      // Opcode: 000100, Rd: 00001, Rs: 00010, "Rt" (unused/0s): 00000, rest 0s
-      // 000100 00001 00010 00000 00000 000000 => 0x10220000
-      val instruction = (InstructionOpcodesBigInts.NEG << 26) |
-        (BigInt(1) << 21) | (BigInt(2) << 16)
-
+      // Opcode: NEG, Rd: R1, Rs: R2
+      val instruction = (InstructionOpcodesBigInts.NEG << 26) | (1 << 21) | (2 << 16)
+      val currentPC = 0x2020L
       dut.clockDomain.forkStimulus(10)
       dut.io.instruction #= instruction
+      dut.io.pcIn #= currentPC
       dut.clockDomain.waitSampling()
-
-      Helper.checkMicroOp(
-        dut,
-        pc = 0x0,
-        isValid = true,
-        uopType = MicroOpType.ALU_REG, // Or a special unary type if ALU has 0 input
-        archRegRd = Some(1),
-        archRegRs = Some(2),
-        useRd = Some(true),
-        useRs = Some(true),
-        useRt = Some(false), // Rt from instruction not used functionally for NEG
-        writeRd = Some(true),
-        imm = Some(0), // For ALU doing 0 - Rs
-        aluOp = AluOp.SUB
+      checkDecodedUop(
+        dut, pc = currentPC, isValid = true,
+        expectedUopCode = BaseUopCode.ALU, // NEG as Imm - Rs (where Imm is 0)
+        expectedExeUnit = ExeUnitType.ALU_INT,
+        expectedArchDestIdx = Some(1), expectedWriteArchDestEn = Some(true),
+        expectedArchSrc1Idx = Some(2), expectedUseArchSrc1 = Some(true),
+        expectedUseArchSrc2 = Some(false),
+        expectedImm = Some(0), // Imm = 0 for 0 - Rs
+        expectedImmUsage = ImmUsageType.SRC_ALU,
+        expectedAluIsSub = Some(true) // For Imm - Rs
       )
     }
   }
 
   test("Decoder - NOT R1, R2") {
-
     simConfig.compile(new SimpleDecoderTestBench).doSim(seed = 42) { dut =>
-      // Opcode: 001000, Rd: 00001, Rs: 00010, "Rt" (unused/0s): 00000, rest 0s
-      // 001000 00001 00010 00000 00000 000000 => 0x20220000
-      val instruction = (InstructionOpcodesBigInts.NOT << 26) |
-        (BigInt(1) << 21) | (BigInt(2) << 16)
-
+      // Opcode: NOT, Rd: R1, Rs: R2
+      val instruction = (InstructionOpcodesBigInts.NOT << 26) | (1 << 21) | (2 << 16)
+      val currentPC = 0x2024L
       dut.clockDomain.forkStimulus(10)
       dut.io.instruction #= instruction
+      dut.io.pcIn #= currentPC
       dut.clockDomain.waitSampling()
-
-      Helper.checkMicroOp(
-        dut,
-        pc = 0x0,
-        isValid = true,
-        uopType = MicroOpType.ALU_IMM, // Rs XOR -1
-        archRegRd = Some(1),
-        archRegRs = Some(2),
-        useRd = Some(true),
-        useRs = Some(true),
-        useRt = Some(false),
-        writeRd = Some(true),
-        imm = Some(BigInt(-1)), // For ALU doing Rs XOR -1
-        aluOp = AluOp.XOR
+      checkDecodedUop(
+        dut, pc = currentPC, isValid = true,
+        expectedUopCode = BaseUopCode.ALU, // NOT as Rs XOR Imm (where Imm is -1)
+        expectedExeUnit = ExeUnitType.ALU_INT,
+        expectedArchDestIdx = Some(1), expectedWriteArchDestEn = Some(true),
+        expectedArchSrc1Idx = Some(2), expectedUseArchSrc1 = Some(true),
+        expectedUseArchSrc2 = Some(false),
+        expectedImm = Some(-1), // Imm = -1 for Rs XOR -1
+        expectedImmUsage = ImmUsageType.SRC_ALU,
+        expectedAluLogicOp = Some(LOGIC_OP_XOR)
       )
     }
   }
+  
+  // Tests for MUL, DIV, EQ, SGT would follow a similar pattern,
+  // mapping their old AluOp to new BaseUopCode and relevant CtrlFlags.
+  // For EQ & SGT, the current AluCtrlFlags might be insufficient for a full distinct
+  // operation and may rely on specific ALU unit behavior for set-on-condition.
+  // The provided solution for SimpleDecoder uses aluCtrl.isSub and aluCtrl.isSigned for these.
+  thatsAll()
 }

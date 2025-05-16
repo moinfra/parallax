@@ -5,7 +5,7 @@ import parallax.utilities.Service
 import spinal.lib._
 import spinal.core._
 import spinal.core.Area
-import parallax.common.Config
+
 
 trait SimpleMemoryService extends Service {
   def memBus: SimpleMemoryBus
@@ -13,9 +13,9 @@ trait SimpleMemoryService extends Service {
 
 class SimulatedSimpleMemoryPlugin(
     val memBusConfig: GenericMemoryBusConfig =
-      GenericMemoryBusConfig(addressWidth = Config.XLEN, dataWidth = Config.XLEN),
+      GenericMemoryBusConfig(addressWidth = 32 bits, dataWidth = 32 bits),
     val simMemConfig: SimulatedMemoryConfig = SimulatedMemoryConfig(
-      internalDataWidth = 16,
+      internalDataWidth = 16 bits,
       memSize = 8 KiB,
       initialLatency = 2
     )

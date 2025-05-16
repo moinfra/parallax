@@ -9,7 +9,7 @@ import spinal.tester.SpinalSimFunSuite // Assuming this is the base class for te
 import parallax.components.icache._
 
 // Common project configuration
-import parallax.common.Config // Make sure this path is correct
+import parallax.common._ // Make sure this path is correct
 
 // Components under test and its dependencies
 import parallax.components.memory.{InstructionFetchUnit, InstructionFetchUnitConfig}
@@ -21,13 +21,13 @@ import scala.util.Random
 // Compile the DUT (InstructionFetchUnit)
 class InstructionFetchUnitTestBench(
     val ifuConfig: InstructionFetchUnitConfig,
-    val simMemInternalDataWidth: Int,
+    val simMemInternalDataWidth: BitCount,
     val simMemSizeBytes: BigInt,
     val simMemLatency: Int
 ) extends Component {
 
   val io = new Bundle {
-    val pcIn = slave(Stream(UInt(ifuConfig.cpuAddressWidth bits)))
+    val pcIn = slave(Stream(UInt(ifuConfig.pcWidth)))
     implicit val icacheConfig: SimpleICacheConfig = ifuConfig.icacheConfig
     val dataOut = master(Stream(ICacheCpuRsp()))
 
@@ -67,22 +67,22 @@ object SimMemInitDirect {
       dut: InstructionFetchUnitTestBench, // Pass the DUT to access dut.mem
       address: Long,
       value: BigInt,
-      internalDataWidth: Int,
-      busDataWidthForValue: Int,
+      internalDataWidth: BitCount,
+      busDataWidthForValue: BitCount,
       clockDomain: ClockDomain
   ): Unit = {
     require(
-      busDataWidthForValue >= internalDataWidth,
+      busDataWidthForValue.value >= internalDataWidth.value,
       "Value's width must be >= internal data width for this helper."
     )
-    if (busDataWidthForValue > internalDataWidth) {
+    if (busDataWidthForValue.value > internalDataWidth.value) {
       require(
-        busDataWidthForValue % internalDataWidth == 0,
+        busDataWidthForValue.value % internalDataWidth.value == 0,
         "Value's width must be a multiple of internal data width if greater."
       )
     }
 
-    val numInternalChunks = busDataWidthForValue / internalDataWidth
+    val numInternalChunks = busDataWidthForValue.value / internalDataWidth.value
 
     // Set default values for write ports to avoid them being floating
     // These will be overridden momentarily during each write cycle
@@ -94,9 +94,9 @@ object SimMemInitDirect {
 
     for (i <- 0 until numInternalChunks) {
       // Extract the current chunk (little-endian chunking for consistency with bus behavior)
-      val slice = (value >> (i * internalDataWidth)) & ((BigInt(1) << internalDataWidth) - 1)
+      val slice = (value >> (i * internalDataWidth.value)) & ((BigInt(1) << internalDataWidth.value) - 1)
       // Calculate byte address for the current internal chunk
-      val internalChunkByteAddress = address + i * (internalDataWidth / 8)
+      val internalChunkByteAddress = address + i * (internalDataWidth.value / 8)
 
       // Apply write signals
       dut.mem.io.writeEnable #= true
@@ -117,11 +117,11 @@ object SimMemInitDirect {
 class InstructionFetchUnitSpec extends SpinalSimFunSuite {
   onlyVerilator
 
-  def XLEN: Int = Config.XLEN
-  def ADDR_WIDTH: Int = XLEN
-  def DATA_WIDTH: Int = XLEN // Instruction width, matches XLEN in this demo
+  def XLEN: Int = 32
+  def ADDR_WIDTH = XLEN bits
+  def DATA_WIDTH = XLEN bits // Instruction width, matches XLEN in this demo
 
-  val simMemInternalDataWidth: Int = 32 // bits, memory is an array of 32-bit words in SimMem
+  val simMemInternalDataWidth: BitCount = 32 bits // bits, memory is an array of 32-bit words in SimMem
   val simMemSizeBytes: BigInt = 8 * 1024 // 8 KiB
   val simMemLatency: Int = 2 // cycles for each internal part access in SimulatedMemory
 
@@ -139,7 +139,7 @@ class InstructionFetchUnitSpec extends SpinalSimFunSuite {
       def ifuConfig = InstructionFetchUnitConfig(
         useICache = useICache,
         enableFlush = false,
-        cpuAddressWidth = ADDR_WIDTH,
+        pcWidth = ADDR_WIDTH,
         cpuDataWidth = DATA_WIDTH,
         memBusConfig = memBusCfg,
         icacheConfig = icacheCfg
@@ -196,7 +196,7 @@ class InstructionFetchUnitSpec extends SpinalSimFunSuite {
 
         // Wait for transactions
         val timeoutCycles =
-          2 * ((simMemLatency + 1) * (DATA_WIDTH / simMemInternalDataWidth) + 20) * 5 + 200 // Simplified timeout
+          2 * ((simMemLatency + 1) * (DATA_WIDTH / simMemInternalDataWidth).value + 20) * 5 + 200 // Simplified timeout
         assert(
           !dut.clockDomain.waitSamplingWhere(timeout = timeoutCycles)(receivedDataQueue.size == expectedResults.size),
           s"Timeout: Received ${receivedDataQueue.size} of ${expectedResults.size} expected results."
@@ -257,7 +257,7 @@ class InstructionFetchUnitSpec extends SpinalSimFunSuite {
 
       def ifuConfig = InstructionFetchUnitConfig(
         useICache = useICache,
-        cpuAddressWidth = ADDR_WIDTH,
+        pcWidth = ADDR_WIDTH,
         cpuDataWidth = DATA_WIDTH,
         memBusConfig = memBusCfg,
         icacheConfig = icacheCfg // Pass the configured or dummy ICache config
@@ -291,7 +291,7 @@ class InstructionFetchUnitSpec extends SpinalSimFunSuite {
         val instructions = mutable.LinkedHashMap[Long, BigInt]()
         def addRandomInstruction(addr: Long): Unit = {
           // Generate a random instruction of DATA_WIDTH bits
-          instructions += (addr -> BigInt(DATA_WIDTH, Random))
+          instructions += (addr -> BigInt(DATA_WIDTH.value, Random))
         }
 
         addRandomInstruction(0x100L)
@@ -364,7 +364,7 @@ class InstructionFetchUnitSpec extends SpinalSimFunSuite {
         // - ICache introduces its own latency (hit/miss).
         // - StreamReadyRandomizer adds variability.
         val cyclesPerSimMemPart = simMemLatency + 1 // Approx cycles per internal word in SimMem
-        val partsPerBusTx = DATA_WIDTH / simMemInternalDataWidth
+        val partsPerBusTx = (DATA_WIDTH / simMemInternalDataWidth).value
         val simMemEffectiveLatency = cyclesPerSimMemPart * partsPerBusTx
         val baseCyclesPerTx =
           if (useICache) simMemEffectiveLatency + 15

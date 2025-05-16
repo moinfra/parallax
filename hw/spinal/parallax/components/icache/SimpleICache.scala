@@ -29,7 +29,7 @@ class SimpleICache(implicit
   // Tag array: stores the tag for each line
   // Assuming config.tagWidth > 0. If tagWidth is 0, Mem(UInt(0 bits), ...) is problematic.
   // SimpleICacheConfig should ensure a valid configuration.
-  val tagArray = Mem(UInt(cacheConfig.tagWidth bits), cacheConfig.lineCount)
+  val tagArray = Mem(UInt(cacheConfig.tagWidth), cacheConfig.lineCount)
 
   // Valid array: stores the valid bit for each line
   val validArray = Vec(Reg(Bool()) init (False), cacheConfig.lineCount)
@@ -39,10 +39,10 @@ class SimpleICache(implicit
 
   // --- Registers for FSM state and intermediate values ---
   // These registers hold the properties of the CPU request being processed.
-  val currentCpuAddressReg = Reg(UInt(cacheConfig.addressWidth bits)) init (0)
-  val currentTagReg = Reg(UInt(cacheConfig.tagWidth bits)) init (0)
-  val currentIndexReg = Reg(UInt(cacheConfig.indexWidth bits)) init (0) // Width can be 0 if lineCount is 1
-  val currentWordOffsetReg = Reg(UInt(cacheConfig.wordOffsetWidth bits)) init (0) // Width can be 0 if wordsPerLine is 1
+  val currentCpuAddressReg = Reg(UInt(cacheConfig.addressWidth)) init (0)
+  val currentTagReg = Reg(UInt(cacheConfig.tagWidth)) init (0)
+  val currentIndexReg = Reg(UInt(cacheConfig.indexWidth)) init (0) // Width can be 0 if lineCount is 1
+  val currentWordOffsetReg = Reg(UInt(cacheConfig.wordOffsetWidth)) init (0) // Width can be 0 if wordsPerLine is 1
 
   // Counter for words received during a line refill
   val refillWordCounter = Reg(UInt(log2Up(cacheConfig.wordsPerLine + 1) bits)) init (0) // Counts 0 to wordsPerLine
@@ -50,16 +50,16 @@ class SimpleICache(implicit
   val refillBuffer = Reg(Bits(cacheConfig.bitsPerLine bits)) init (0)
 
   // Counter for cache lines during a flush operation
-  val flushIndexCounter = Reg(UInt(cacheConfig.indexWidth bits)) init (0) // Width can be 0 if lineCount is 1
+  val flushIndexCounter = Reg(UInt(cacheConfig.indexWidth)) init (0) // Width can be 0 if lineCount is 1
 
   // --- Cache Memory Read Logic ---
   // Determine the effective index for memory reads. Handles 0-width index for single-line cache.
-  val effectiveReadIndex = if (cacheConfig.indexWidth > 0) currentIndexReg else U(0, 0 bits)
+  val effectiveReadIndex = if (cacheConfig.indexWidth.value > 0) currentIndexReg else U(0, 0 bits)
 
   // Asynchronously read tag, valid status, and data line from cache arrays.
   // Results are available in the cycle *after* the address (effectiveReadIndex) is stable.
   val readTagFromMem =
-    if (cacheConfig.tagWidth > 0) tagArray.readAsync(effectiveReadIndex) else U(0, cacheConfig.tagWidth bits)
+    if (cacheConfig.tagWidth.value > 0) tagArray.readAsync(effectiveReadIndex) else U(0, cacheConfig.tagWidth)
   val readValidFromVec = if (cacheConfig.lineCount > 0) validArray(effectiveReadIndex) else False
   val readDataLineFromMem = dataArray.readAsync(effectiveReadIndex)
 
@@ -71,10 +71,10 @@ class SimpleICache(implicit
   val waitingForMemRspReg = Reg(Bool()) init (False)
 
   // Determine effective index for memory writes.
-  val effectiveWriteIndex = if (cacheConfig.indexWidth > 0) currentIndexReg else U(0, 0 bits)
+  val effectiveWriteIndex = if (cacheConfig.indexWidth.value > 0) currentIndexReg else U(0, 0 bits)
 
   when(tagWriteEnable) {
-    if (cacheConfig.tagWidth > 0) tagArray.write(address = effectiveWriteIndex, data = currentTagReg)
+    if (cacheConfig.tagWidth.value > 0) tagArray.write(address = effectiveWriteIndex, data = currentTagReg)
 
   }
 
@@ -90,7 +90,7 @@ class SimpleICache(implicit
 
   // Helper to extract a specific word from a full cache line
   def extractWordFromLine(line: Bits, wordOffset: UInt): Bits = {
-    line.subdivideIn(cacheConfig.dataWidth bits).reverse(wordOffset.resize(cacheConfig.wordOffsetWidth))
+    line.subdivideIn(cacheConfig.dataWidth).reverse(wordOffset.resize(cacheConfig.wordOffsetWidth))
   }
 
   // --- State Machine Definition ---
@@ -127,7 +127,7 @@ class SimpleICache(implicit
         }
 
         if (cacheConfig.lineCount > 0) { // Only flush if there are cache lines
-          if (cacheConfig.indexWidth > 0) flushIndexCounter := 0 else flushIndexCounter := U(0, 0 bits)
+          if (cacheConfig.indexWidth.value > 0) flushIndexCounter := 0 else flushIndexCounter := U(0, 0 bits)
           goto(sFlush_Invalidate)
         } else { // No lines to flush, operation is instantaneously done
           io.flush.rsp.done := True
@@ -142,10 +142,10 @@ class SimpleICache(implicit
         }
         currentCpuAddressReg := io.cpu.cmd.payload.address
         // Pre-calculate and store tag, index, offset for the current request
-        if (cacheConfig.tagWidth > 0) currentTagReg := cacheConfig.tag(io.cpu.cmd.payload.address)
-        if (cacheConfig.indexWidth > 0) currentIndexReg := cacheConfig.index(io.cpu.cmd.payload.address)
+        if (cacheConfig.tagWidth.value > 0) currentTagReg := cacheConfig.tag(io.cpu.cmd.payload.address)
+        if (cacheConfig.indexWidth.value > 0) currentIndexReg := cacheConfig.index(io.cpu.cmd.payload.address)
         else currentIndexReg := U(0, 0 bits)
-        if (cacheConfig.wordOffsetWidth > 0) currentWordOffsetReg := cacheConfig.wordOffset(io.cpu.cmd.payload.address)
+        if (cacheConfig.wordOffsetWidth.value > 0) currentWordOffsetReg := cacheConfig.wordOffset(io.cpu.cmd.payload.address)
         else currentWordOffsetReg := U(0, 0 bits)
 
         goto(sDecodeAndReadCache) // Proceed to read cache memories
@@ -167,7 +167,7 @@ class SimpleICache(implicit
     // Cache memory read results (tag, valid bit, data line) are now available.
     sCompareTag.whenIsActive {
       val tagMatch =
-        if (cacheConfig.tagWidth > 0) (readTagFromMem === currentTagReg) else True // No tag means tag always matches
+        if (cacheConfig.tagWidth.value > 0) (readTagFromMem === currentTagReg) else True // No tag means tag always matches
       val isValid = if (cacheConfig.lineCount > 0) readValidFromVec else False // No lines means nothing is valid
       val hit = tagMatch && isValid
       if (enableLog) {
@@ -247,8 +247,8 @@ class SimpleICache(implicit
         when(!waitingForMemRspReg) {
           // 我们需要请求或正在等待当前 refillWordCounter 指向的字
           val lineBaseByteAddress =
-            (cacheConfig.lineAddress(currentCpuAddressReg) << cacheConfig.byteOffsetWidth).resized
-          val currentWordByteOffsetInLine = (refillWordCounter * (cacheConfig.dataWidth / 8)).resized
+            (cacheConfig.lineAddress(currentCpuAddressReg) << cacheConfig.byteOffsetWidth.value).resized
+          val currentWordByteOffsetInLine = (refillWordCounter * (cacheConfig.dataWidth.value / 8)).resized
           val calculatedMemAddress = lineBaseByteAddress + currentWordByteOffsetInLine
 
           if (enableLog) {
@@ -296,9 +296,9 @@ class SimpleICache(implicit
 
         // 将收到的数据存入 refillBuffer 的正确位置
         // 使用当前的 refillWordCounter 作为索引，因为这个响应对应的是这个计数器值的请求
-        if (cacheConfig.bitsPerLine > 0 && cacheConfig.dataWidth > 0) {
+        if (cacheConfig.bitsPerLine > 0 && cacheConfig.dataWidth.value > 0) {
           refillBuffer
-            .subdivideIn(cacheConfig.dataWidth bits)
+            .subdivideIn(cacheConfig.dataWidth)
             .reverse(refillWordCounter.resize(cacheConfig.wordOffsetWidth)) := io.mem.rsp.payload.readData
         }
 

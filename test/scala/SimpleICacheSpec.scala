@@ -44,22 +44,22 @@ class SimpleICacheSpec extends CustomSpinalSimFunSuite {
       dutMemoryIO: SimulatedMemory#IO,
       address: Long,
       value: BigInt,
-      internalDataWidth: Int, // Width of one word in SimulatedMemory
-      busDataWidthForValue: Int, // Width of the 'value' being passed (typically bus width)
+      internalDataWidth: BitCount, // Width of one word in SimulatedMemory
+      busDataWidthForValue: BitCount, // Width of the 'value' being passed (typically bus width)
       clockDomain: ClockDomain
   ): Unit = {
-    val internalDataWidthBytes = internalDataWidth / 8
-    val numInternalChunksPerBusWord = busDataWidthForValue / internalDataWidth
+    val internalDataWidthBytes = internalDataWidth.value / 8
+    val numInternalChunksPerBusWord = busDataWidthForValue.value / internalDataWidth.value
 
-    require(busDataWidthForValue >= internalDataWidth, "Value's width must be >= internal data width.")
+    require(busDataWidthForValue.value >= internalDataWidth.value, "Value's width must be >= internal data width.")
     require(
-      busDataWidthForValue % internalDataWidth == 0,
+      busDataWidthForValue.value % internalDataWidth.value == 0,
       "Value's width must be a multiple of internal data width if greater."
     )
 
     dutMemoryIO.writeEnable #= true
     for (i <- 0 until numInternalChunksPerBusWord) {
-      val slice = (value >> (i * internalDataWidth)) & ((BigInt(1) << internalDataWidth) - 1)
+      val slice = (value >> (i * internalDataWidth.value)) & ((BigInt(1) << internalDataWidth.value) - 1)
       val internalChunkByteAddress = address + i * internalDataWidthBytes
       dutMemoryIO.writeAddress #= internalChunkByteAddress
       dutMemoryIO.writeData #= slice
@@ -71,16 +71,16 @@ class SimpleICacheSpec extends CustomSpinalSimFunSuite {
 
   test("SimpleICache - Miss then Hit on same line") {
     val lineSizeBytes = 32
-    val dataWidthBits = 32
-    val wordsPerLineCache = lineSizeBytes / (dataWidthBits / 8)
+    val dataWidthBits = 32 bits
+    val wordsPerLineCache = lineSizeBytes / (dataWidthBits.value / 8)
 
     val cacheConfig = SimpleICacheConfig(
       cacheSize = 128, // 4 lines
       bytePerLine = lineSizeBytes,
-      addressWidth = 32,
+      addressWidth = 32 bits,
       dataWidth = dataWidthBits
     )
-    val memBusConfig = GenericMemoryBusConfig(addressWidth = 32, dataWidth = dataWidthBits)
+    val memBusConfig = GenericMemoryBusConfig(addressWidth = 32 bits, dataWidth = dataWidthBits)
     val simMemConfig = SimulatedMemoryConfig(
       internalDataWidth = dataWidthBits,
       memSize = 8 KiB, // Increased memory size
@@ -111,7 +111,7 @@ class SimpleICacheSpec extends CustomSpinalSimFunSuite {
       // --- Prepare Test Data ---
       val testAddr1 = 0x1000L // Belongs to line index 0 for this config
       val testData1 = BigInt("AABBCCDD", 16)
-      val testAddr2 = testAddr1 + (dataWidthBits / 8) // 0x1004, same line, next word
+      val testAddr2 = testAddr1 + (dataWidthBits.value / 8) // 0x1004, same line, next word
       val testData2 = BigInt("11223344", 16)
 
       initSimulatedMemoryViaDUT(
@@ -217,15 +217,15 @@ class SimpleICacheSpec extends CustomSpinalSimFunSuite {
 
   test("SimpleICache - Line Replacement (Direct Mapped)") {
     val lineSizeBytes = 32
-    val dataWidthBits = 32
-    val wordsPerLineCache = lineSizeBytes / (dataWidthBits / 8)
+    val dataWidthBits = 32 bits
+    val wordsPerLineCache = lineSizeBytes / (dataWidthBits.value / 8)
     val numCacheLines = 4 // For this test, ensure at least 2 distinct line indices can be targeted
     // e.g., cacheSize = 128, bytePerLine = 32 => 4 lines, indexWidth = 2
 
     val cacheConfig = SimpleICacheConfig(
       cacheSize = numCacheLines * lineSizeBytes,
       bytePerLine = lineSizeBytes,
-      addressWidth = 32,
+      addressWidth = 32 bits,
       dataWidth = dataWidthBits
     )
     // With indexWidth = 2, line indices are 0, 1, 2, 3.
@@ -234,7 +234,7 @@ class SimpleICacheSpec extends CustomSpinalSimFunSuite {
     // Addr 0x0040 -> Index 2
     // Addr 0x0080 -> Index 0 (Tag will be different from 0x0000)
 
-    val memBusConfig = GenericMemoryBusConfig(addressWidth = 32, dataWidth = dataWidthBits)
+    val memBusConfig = GenericMemoryBusConfig(addressWidth = 32 bits, dataWidth = dataWidthBits)
     val simMemConfig = SimulatedMemoryConfig(
       internalDataWidth = dataWidthBits,
       memSize = 16 KiB,
@@ -369,17 +369,17 @@ class SimpleICacheSpec extends CustomSpinalSimFunSuite {
 
   test("SimpleICache - Flush Operation") {
     val lineSizeBytes = 32
-    val dataWidthBits = 32
-    val wordsPerLineCache = lineSizeBytes / (dataWidthBits / 8)
+    val dataWidthBits = 32 bits
+    val wordsPerLineCache = lineSizeBytes / (dataWidthBits.value / 8)
     val numCacheLines = 4
 
     val cacheConfig = SimpleICacheConfig(
       cacheSize = numCacheLines * lineSizeBytes,
       bytePerLine = lineSizeBytes,
-      addressWidth = 32,
+      addressWidth = 32 bits,
       dataWidth = dataWidthBits
     )
-    val memBusConfig = GenericMemoryBusConfig(addressWidth = 32, dataWidth = dataWidthBits)
+    val memBusConfig = GenericMemoryBusConfig(addressWidth = 32 bits, dataWidth = dataWidthBits)
     val simMemConfig = SimulatedMemoryConfig(internalDataWidth = dataWidthBits, memSize = 8 KiB, initialLatency = 2)
 
     def tb = new SimpleICacheTestbench(cacheConfig, memBusConfig, simMemConfig)
@@ -474,16 +474,16 @@ class SimpleICacheSpec extends CustomSpinalSimFunSuite {
 
   test("SimpleICache - Sequential Access Within Line") {
     val lineSizeBytes = 32 // e.g., 8 words
-    val dataWidthBits = 32
-    val wordsPerLineCache = lineSizeBytes / (dataWidthBits / 8)
+    val dataWidthBits = 32 bits
+    val wordsPerLineCache = lineSizeBytes / (dataWidthBits.value / 8)
 
     val cacheConfig = SimpleICacheConfig(
       cacheSize = 128,
       bytePerLine = lineSizeBytes,
-      addressWidth = 32,
+      addressWidth = 32 bits,
       dataWidth = dataWidthBits
     )
-    val memBusConfig = GenericMemoryBusConfig(addressWidth = 32, dataWidth = dataWidthBits)
+    val memBusConfig = GenericMemoryBusConfig(addressWidth = 32 bits, dataWidth = dataWidthBits)
     val simMemConfig = SimulatedMemoryConfig(internalDataWidth = dataWidthBits, memSize = 16 KiB, initialLatency = 2)
 
     def tb = new SimpleICacheTestbench(cacheConfig, memBusConfig, simMemConfig)
@@ -509,7 +509,7 @@ class SimpleICacheSpec extends CustomSpinalSimFunSuite {
       for (i <- 0 until wordsPerLineCache) {
         initSimulatedMemoryViaDUT(
           dut.memory.io,
-          baseAddr + i * (dataWidthBits / 8),
+          baseAddr + i * (dataWidthBits.value / 8),
           lineData(i),
           simMemConfig.internalDataWidth,
           memBusConfig.dataWidth,
@@ -544,7 +544,7 @@ class SimpleICacheSpec extends CustomSpinalSimFunSuite {
 
       // 2. Request subsequent words in the line -> Hit
       for (i <- 1 until wordsPerLineCache) {
-        val currentAddr = baseAddr + i * (dataWidthBits / 8)
+        val currentAddr = baseAddr + i * (dataWidthBits.value / 8)
         println(s"SIM: Sequential - Req Addr 0x${currentAddr.toHexString} (word $i), expect HIT")
         cpuCmdQueue.enqueue(_.address #= currentAddr)
         countMemCmdFires(50, cpuRspBuffer.nonEmpty)

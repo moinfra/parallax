@@ -4,16 +4,16 @@ import spinal.core._
 import spinal.lib._
 
 // --- Instruction Fetch Bus ---
-case class InstructionFetchCmd(addrWidth: Int) extends Bundle {
-  val address = UInt(addrWidth bits)
+case class InstructionFetchCmd(addrWidth: BitCount) extends Bundle {
+  val address = UInt(addrWidth)
 }
-case class InstructionFetchRsp(instrWidth: Int) extends Bundle {
-  val instruction = Bits(instrWidth bits)
+case class InstructionFetchRsp(instrWidth: BitCount) extends Bundle {
+  val instruction = Bits(instrWidth)
   val fault = Bool() // e.g., page fault, access error
-  val pc = UInt(instrWidth bits) // Echo back PC, assuming addrWidth can be instrWidth for PC
+  val pc = UInt(instrWidth) // Echo back PC, assuming addrWidth can be instrWidth for PC
 }
 // InstructionFetchBus: CPU IFU -> ICache/Memory
-case class InstructionFetchBus(addrWidth: Int, instrWidth: Int) extends Bundle with IMasterSlave {
+case class InstructionFetchBus(addrWidth: BitCount, instrWidth: BitCount) extends Bundle with IMasterSlave {
   val cmd = Stream(InstructionFetchCmd(addrWidth))
   val rsp = Stream(InstructionFetchRsp(instrWidth))
 
@@ -25,9 +25,9 @@ case class InstructionFetchBus(addrWidth: Int, instrWidth: Int) extends Bundle w
 }
 
 // --- Data Memory Access Bus ---
-case class DataAccessCmdPayload(addrWidth: Int, dataWidth: Int) extends Bundle {
-  val address = UInt(addrWidth bits)
-  val data    = Bits(dataWidth bits) // Data for write operations
+case class DataAccessCmdPayload(addrWidth: BitCount, dataWidth: BitCount) extends Bundle {
+  val address = UInt(addrWidth)
+  val data    = Bits(dataWidth) // Data for write operations
   val isWrite = Bool()
   // Size: 00=byte, 01=half-word, 10=word (assuming dataWidth is word size)
   // Adjust size bits based on max alignment (e.g. log2Up(log2Up(dataWidth/8)+1))
@@ -35,12 +35,12 @@ case class DataAccessCmdPayload(addrWidth: Int, dataWidth: Int) extends Bundle {
   // Optional: byte enables for sub-word writes if size indicates word but only some bytes change
   // val byteEnable = Bits(dataWidth/8 bits)
 }
-case class DataAccessRspPayload(dataWidth: Int) extends Bundle {
-  val readData = Bits(dataWidth bits)
+case class DataAccessRspPayload(dataWidth: BitCount) extends Bundle {
+  val readData = Bits(dataWidth)
   val error    = Bool() // e.g., bus error, alignment error, protection fault
 }
 // DataMemoryAccessBus: CPU LSU/LSQ -> DCache/Memory
-case class DataMemoryAccessBus(addrWidth: Int, dataWidth: Int) extends Bundle with IMasterSlave {
+case class DataMemoryAccessBus(addrWidth: BitCount, dataWidth: BitCount) extends Bundle with IMasterSlave {
   val cmd = Stream(DataAccessCmdPayload(addrWidth, dataWidth))
   val rsp = Stream(DataAccessRspPayload(dataWidth))
 

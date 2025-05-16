@@ -10,7 +10,7 @@ import spinal.lib.BigIntRicher
 class FibonacciLFSRSpec extends AnyFunSuite {
 
   // Define parameters for the test
-  val testWidth = 8
+  val testWidth = 8 bits
   val testSeed = BigInt("A5", 16) // 10100101
   // Example taps for 8-bit (not necessarily maximal length, just for testing)
   // Based on X^8 + X^4 + X^3 + X^2 + 1 -> Taps: 7, 3, 2, 1
