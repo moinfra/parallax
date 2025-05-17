@@ -1,4 +1,4 @@
-// test/scala/parallax/components/memory/SimulatedGeneralMemorySpec.scala
+// test/scala/SimulatedGeneralMemorySpec.scala
 package parallax.test.scala // Adjust to your test package structure
 
 import org.scalatest.funsuite.AnyFunSuite
