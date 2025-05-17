@@ -9,14 +9,7 @@ import spinal.core.sim._
 import spinal.lib.sim.{StreamDriver, StreamMonitor, StreamReadyRandomizer}
 import spinal.tester.SpinalSimFunSuite
 
-// Make sure these paths are correct for your project structure
-import parallax.components.memory.{
-  SimulatedMemory,
-  SimulatedMemoryConfig,
-  GenericMemoryBus,
-  GenericMemoryBusConfig,
-  GenericMemoryRsp
-}
+import parallax.components.memory._
 
 class SimulatedMemorySpec extends CustomSpinalSimFunSuite {
 

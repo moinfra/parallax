@@ -10,9 +10,9 @@ case class SimulatedMemoryConfig(
     memSize: BigInt = 8 KiB, // Total size of this simulated RAM in bytes
     initialLatency: Int = 2, // Latency for the first access to a new address
     burstLatency: Int = 1 // Latency for subsequent accesses in a burst (if bus supports burst)
-    // For now, let's use a single latency parameter
 ) {
   require(isPow2(internalDataWidth.value / 8), "Simulated memory data width (in bytes) must be a power of 2")
+  require(burstLatency <= initialLatency, "Burst latency must be less than or equal to initial latency")
   val internalDataWidthBytes: Int = internalDataWidth.value / 8
   val internalWordCount: Int = (memSize / internalDataWidthBytes).toInt
   require(internalWordCount > 0, "Memory size results in zero words.")
@@ -50,7 +50,7 @@ class SimulatedMemory(
       report(L"[SimMem TB] Testbench Write to Addr: ${internalWriteWordAddress} Data: ${io.writeData}")
     } otherwise {
       report(
-        L"WARNING! [SimMem TB] Testbench write out of range. ByteAddr: ${io.writeAddress} InternalAddr: ${internalWriteWordAddress}"
+        L"[SimMem TB] WARNING! Testbench write out of range. ByteAddr: ${io.writeAddress} InternalAddr: ${internalWriteWordAddress}"
       )
     }
   }
@@ -68,13 +68,13 @@ class SimulatedMemory(
   // --- Conditional Part Counter & Assembly Buffer (Elaboration Time) ---
   val partCounterReg: UInt = if (internalWordsPerBusData > 1) {
     val width = log2Up(internalWordsPerBusData)
-    Reg(UInt(width bits)) init (U(0, width bits)) setName ("partCounterReg_physical")
+    Reg(UInt(width bits)) init (U(0, width bits))
   } else {
     null
   }
 
   val assemblyBufferReg: Bits = if (internalWordsPerBusData > 1) {
-    Reg(Bits(busConfig.dataWidth)) init (B(0, busConfig.dataWidth)) setName ("assemblyBufferReg_physical")
+    Reg(Bits(busConfig.dataWidth)) init (B(0, busConfig.dataWidth))
   } else {
     null
   }
@@ -130,7 +130,6 @@ class SimulatedMemory(
       }
 
       whenIsActive {
-        // ... (reports as before) ...
         when(latencyCounterReg < memConfig.initialLatency) {
           latencyCounterReg := latencyCounterReg + 1
         } otherwise {
