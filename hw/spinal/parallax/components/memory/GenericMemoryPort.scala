@@ -12,7 +12,7 @@ case class GenericMemoryBusConfig(
 object GenericMemoryBusOpcode extends SpinalEnum { val OP_READ, OP_WRITE = newElement() }
 
 // Command from Master to Slave
-case class GenericMemoryCmd(config: GenericMemoryBusConfig) extends Bundle {
+case class GenericMemoryBusCmd(config: GenericMemoryBusConfig) extends Bundle {
   val address = UInt(config.addressWidth)
   val opcode = GenericMemoryBusOpcode()
   val writeData = Bits(config.dataWidth)
@@ -20,15 +20,15 @@ case class GenericMemoryCmd(config: GenericMemoryBusConfig) extends Bundle {
 }
 
 // Response from Slave to Master
-case class GenericMemoryRsp(config: GenericMemoryBusConfig) extends Bundle {
+case class GenericMemoryBusRsp(config: GenericMemoryBusConfig) extends Bundle {
   val readData = Bits(config.dataWidth)
   val error = Bool()
 }
 
 // The bus itself
 case class GenericMemoryBus(config: GenericMemoryBusConfig) extends Bundle with IMasterSlave {
-  val cmd = Stream(GenericMemoryCmd(config))
-  val rsp = Stream(GenericMemoryRsp(config))
+  val cmd = Stream(GenericMemoryBusCmd(config))
+  val rsp = Stream(GenericMemoryBusRsp(config))
 
   override def asMaster(): Unit = {
     master(cmd)
