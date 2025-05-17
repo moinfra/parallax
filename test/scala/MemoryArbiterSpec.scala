@@ -111,30 +111,31 @@ class MemoryArbiterTestBench(
 ) extends Component {
 
   val database = new DataBase
-  val pluginsList = mutable.ArrayBuffer[Plugin]() // Renamed to avoid conflict
+  val pluginsList = mutable.ArrayBuffer[Plugin]()
 
   // 1. Arbiter Plugin
   pluginsList += new MemoryArbiterPlugin(
-    mainBusConfigOverride = Some(mainMemBusCfg)
+    mainBusConfigOverride = Some(mainMemBusCfg) // Arbiter will output this config
   )
 
   // 2. Simulated Memory Plugin
-  pluginsList += new SimulatedMainMemoryPlugin(
+  val mainMemoryPlugin = new SimulatedMainMemoryPlugin( // Instance needed for simPublic
     simMemConfig = simMemInternalCfg,
-    busConfig = mainMemBusCfg // Memory's bus must match arbiter's output bus
+    busConfig = mainMemBusCfg // Memory component expects this config for its slave bus
   )
+  pluginsList += mainMemoryPlugin
 
   // 3. Demo Master Plugins
   val demoMasterPlugins = mutable.ArrayBuffer[DemoMemoryMasterPlugin]()
   for (i <- 0 until numMasters) {
-    val masterBusCfg = mainMemBusCfg // For this test, masters use the same config as the main bus
+    val masterBusCfg = mainMemBusCfg
     val master = new DemoMemoryMasterPlugin(
       masterName = s"Master$i",
       busConfig = masterBusCfg,
       numOperations = operationsPerMaster,
-      startAddress = (i * operationsPerMaster * 32).toLong, // Try to give somewhat distinct address regions
+      startAddress = (i * operationsPerMaster * 32).toLong,
       addressStride = masterBusCfg.dataWidth.value / 8,
-      writeProbability = 0.5 + (i % 2) * 0.1 // Vary write probability slightly
+      writeProbability = 0.5 + (i % 2) * 0.1
     )
     pluginsList += master
     demoMasterPlugins += master
@@ -142,13 +143,11 @@ class MemoryArbiterTestBench(
 
   val framework = ProjectScope(database) on new Framework(pluginsList.toSeq)
 
-  // Expose test IOs from demo masters for simulation observation
   val masterTestObs = Vec(demoMasterPlugins.map(_.testIo))
-  masterTestObs.simPublic() // Make the Vec and its Bundles accessible in sim
+  masterTestObs.simPublic()
 
-  // Expose memory's sim ports for initialization by the testbench
-  val simMemoryComponent = framework.getService[SimulatedMainMemoryPlugin].memoryArea.simMem
-  simMemoryComponent.io.simPublic() // Exposes writeEnable, writeAddress, writeData
+  val simMemoryComponent = mainMemoryPlugin.memoryArea.simMem
+  simMemoryComponent.io.simPublic()
 }
 
 class MemoryArbiterSpec extends CustomSpinalSimFunSuite {

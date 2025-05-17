@@ -3,137 +3,146 @@ package parallax.components.memory
 
 import spinal.core._
 import spinal.lib._
-// StreamArbiterFactory is already in spinal.lib, no need for specific sub-package import
-// import spinal.lib.StreamArbiterFactory 
-
 import parallax.utilities._
 import scala.collection.mutable.ArrayBuffer
 
-// --- Service for Masters to request a memory bus port from the arbiter ---
+// MemoryArbiterService and ArbitratedMemoryBusProvider remain the same for now,
+// though ArbitratedMemoryBusProvider might become less relevant if the arbiter directly connects.
+// For now, let's assume something might still want to observe the arbitrated bus externally.
 trait MemoryArbiterService extends Service {
-  /**
-   * Master (e.g., ICache, DCache) calls this to get a port to the memory system.
-   * @param config The GenericMemoryBusConfig for this master's connection.
-   * @param name An optional name for debugging/tracing this master's port.
-   * @return A GenericMemoryBus master port that will be arbitrated.
-   */
   def newMemoryMasterPort(config: GenericMemoryBusConfig, name: String = ""): GenericMemoryBus
 }
 
-// --- Service that provides the arbitrated MAIN bus (output of the arbiter) ---
-// This is what the actual memory (or next level cache) connects to as a slave.
 trait ArbitratedMemoryBusProvider extends Service {
-  def getArbitratedMemoryBus(): GenericMemoryBus // Returns a MASTER bus from the arbiter's perspective
+  def getArbitratedMemoryBus(): GenericMemoryBus
 }
-
 
 class MemoryArbiterPlugin(
   val arbiterPolicy: StreamArbiterFactory = StreamArbiterFactory.roundRobin,
-  val mainBusConfigOverride: Option[GenericMemoryBusConfig] = None // Optional: force a specific config for the main output bus
+  // mainBusConfigOverride can still be useful if the memory component's config
+  // needs to be dictated by the arbiter (e.g. if memory is more generic).
+  val mainBusConfigOverride: Option[GenericMemoryBusConfig] = None 
 ) extends Plugin with MemoryArbiterService with ArbitratedMemoryBusProvider {
 
   private val masterPortRequests = ArrayBuffer[(GenericMemoryBus, String)]()
 
   override def newMemoryMasterPort(config: GenericMemoryBusConfig, name: String = ""): GenericMemoryBus = {
-    // This port is a MASTER from the perspective of the component requesting it.
-    // The arbiter will connect to its slave side for commands and master side for responses.
     val port = GenericMemoryBus(config) 
     masterPortRequests += ((port, name))
     report(L"[MemoryArbiterPlugin] Master port '${name}' requested: AddrW=${config.addressWidth}, DataW=${config.dataWidth}")
     port
   }
   
-  // The main output bus of the arbiter. This is a MASTER bus.
-  // Its configuration can be overridden or derived from masters.
-  val arbitratedMainBus = create late {
+  // This arbitratedMainBus is now an INTERNAL master bus within the arbiter plugin,
+  // which it will then connect to a discovered slave memory.
+  val arbitratedMainBusInternal = create late { // Renamed for clarity
     val busConf = mainBusConfigOverride.getOrElse {
-      if (masterPortRequests.nonEmpty) {
-        // Basic policy: use the config of the first registered master.
-        // More sophisticated logic could ensure compatibility or use widest settings.
-        masterPortRequests.head._1.config
+      // Derivation logic... (can be simpler if we fetch memory's config)
+      // --- START OF MODIFICATION for config derivation ---
+      val memorySlaveServices = getServicesOf[ConnectableMemorySlave]
+      if (memorySlaveServices.nonEmpty) {
+        if (memorySlaveServices.length > 1) {
+          SpinalWarning("MemoryArbiterPlugin found multiple ConnectableMemorySlave services. Connecting to the first one.")
+        }
+        memorySlaveServices.head.getMemoryConfig() // Use the config of the memory we'll connect to
+      } else if (masterPortRequests.nonEmpty) {
+        masterPortRequests.head._1.config // Fallback to first master's config
       } else {
-        // Default if no masters (arbiter would be idle). This should be configured properly in a real system.
-        report(L"WARNING: [MemoryArbiterPlugin] No masters registered to derive mainBusConfig. Using default 32bits Addr/Data.")
-        GenericMemoryBusConfig(32 bits, 32 bits)
+        GenericMemoryBusConfig(32 bits, 32 bits) // Ultimate fallback
       }
+      // --- END OF MODIFICATION for config derivation ---
     }
-    report(L"[MemoryArbiterPlugin] Creating arbitratedMainBus (MASTER from Arbiter PoV) with config: AddrW=${busConf.addressWidth}, DataW=${busConf.dataWidth}")
-    master(GenericMemoryBus(busConf)) // This is a MASTER port from the Arbiter's perspective
+    report(L"[MemoryArbiterPlugin] Creating internal arbitratedMainBus (MASTER) with config: AddrW=${busConf.addressWidth}, DataW=${busConf.dataWidth}")
+    master(GenericMemoryBus(busConf)) // Still a master from Arbiter's PoV
   }
 
-  override def getArbitratedMemoryBus(): GenericMemoryBus = arbitratedMainBus
+  // The ArbitratedMemoryBusProvider might now just return this internal bus if needed,
+  // but its primary connection is now handled internally.
+  override def getArbitratedMemoryBus(): GenericMemoryBus = arbitratedMainBusInternal
 
   val logic = create late new Area {
     if (masterPortRequests.isEmpty) {
-      report(L"WARNING: MemoryArbiterPlugin has no master ports. Arbiter output (arbitratedMainBus) will be idle.")
-      arbitratedMainBus.cmd.valid := False
-      arbitratedMainBus.cmd.payload.assignDontCare()
-      arbitratedMainBus.rsp.ready := False // Or True, effectively consuming nothing.
+      report(L"WARNING: MemoryArbiterPlugin has no master ports. Arbiter logic will be minimal.")
+      // arbitratedMainBusInternal might not be connected if no memory slave either.
+      arbitratedMainBusInternal.cmd.valid := False
+      arbitratedMainBusInternal.cmd.payload.assignDontCare()
+      arbitratedMainBusInternal.rsp.ready := False 
     } else {
-      // Sanity check master port configurations against the arbitratedMainBus config.
-      masterPortRequests.foreach { case (port, name) =>
-        if (port.config.addressWidth != arbitratedMainBus.config.addressWidth ||
-            port.config.dataWidth != arbitratedMainBus.config.dataWidth) {
-          SpinalWarning(s"MemoryArbiterPlugin: Master '$name' (AddrW=${port.config.addressWidth}, DataW=${port.config.dataWidth}) " +
-                        s"has a different config than arbitratedMainBus (AddrW=${arbitratedMainBus.config.addressWidth}, DataW=${arbitratedMainBus.config.dataWidth}). " +
-                        "Direct connection might be problematic without bus width/address converters.")
-        }
-      }
-
-      val masterCmdStreams = masterPortRequests.map(_._1.cmd) // These are Streams of GenericMemoryBusCmd
-      
-      // Instantiate the command arbiter explicitly to get chosenOH signal
+      // ... (arbiter logic for masterCmdStreams and cmdArbiter remains the same) ...
+      val masterCmdStreams = masterPortRequests.map(_._1.cmd)
       val cmdArbiter = arbiterPolicy.build(masterCmdStreams.head.payloadType, masterCmdStreams.length)
       cmdArbiter.setCompositeName(MemoryArbiterPlugin.this, "cmdArbiter")
-      
-      // Connect each master's command stream to the arbiter's input ports
       for((masterCmdPort, arbiterInputPort) <- masterCmdStreams.zip(cmdArbiter.io.inputs)) {
-        // masterCmdPort is what the master drives (master Stream).
-        // arbiterInputPort is the slave Stream input of the arbiter.
         masterCmdPort >> arbiterInputPort
       }
       
-      // Logic to handle one transaction at a time with the main bus (downstream memory)
       val busyWithMainBus = RegInit(False).setName("busyWithMainBus_reg")
       val chosenMasterOH_reg = Reg(Bits(masterPortRequests.length bits)).setName("chosenMasterOH_reg").init(0)
 
-      // Connect arbiter output to main bus command, qualified by !busyWithMainBus
-      // arbitratedMainBus.cmd is the MASTER stream from the arbiter to memory
-      arbitratedMainBus.cmd.valid   := cmdArbiter.io.output.valid && !busyWithMainBus
-      arbitratedMainBus.cmd.payload := cmdArbiter.io.output.payload
-      // Arbiter's output is ready if the main bus is ready AND we are not already busy
-      cmdArbiter.io.output.ready    := arbitratedMainBus.cmd.ready && !busyWithMainBus
+      // --- START OF MODIFICATION: Connecting arbitratedMainBusInternal to a slave memory ---
+      val memorySlaveServices = getServicesOf[ConnectableMemorySlave]
+      if (memorySlaveServices.isEmpty) {
+        SpinalError("MemoryArbiterPlugin: No ConnectableMemorySlave service found to connect to.")
+        // Make arbitratedMainBusInternal idle to prevent issues
+        arbitratedMainBusInternal.cmd.valid := False
+        arbitratedMainBusInternal.cmd.payload.assignDontCare()
+        arbitratedMainBusInternal.rsp.ready := False
+      } else {
+        if (memorySlaveServices.length > 1) {
+          SpinalWarning("MemoryArbiterPlugin: Found multiple ConnectableMemorySlave services. Connecting to the first one.")
+        }
+        val targetMemorySlaveBus = memorySlaveServices.head.getMemorySlaveBus()
+        val targetMemoryConfig = memorySlaveServices.head.getMemoryConfig()
 
-      when(arbitratedMainBus.cmd.fire) { // A command is successfully sent to the main bus
+        // Config check between arbiter's output and memory's input
+        if (arbitratedMainBusInternal.config.addressWidth != targetMemoryConfig.addressWidth ||
+            arbitratedMainBusInternal.config.dataWidth != targetMemoryConfig.dataWidth) {
+          SpinalError(s"MemoryArbiterPlugin: Mismatch between its arbitrated bus config (AddrW=${arbitratedMainBusInternal.config.addressWidth}, DataW=${arbitratedMainBusInternal.config.dataWidth}) " +
+                      s"and target memory slave bus config (AddrW=${targetMemoryConfig.addressWidth}, DataW=${targetMemoryConfig.dataWidth}).")
+        }
+
+        report(L"[MemoryArbiterPlugin] Connecting its internal arbitrated bus (master) to discovered memory slave bus.")
+        // arbitratedMainBusInternal is MASTER (output of arbiter core logic)
+        // targetMemorySlaveBus is SLAVE (input to memory component)
+        targetMemorySlaveBus.cmd << arbitratedMainBusInternal.cmd
+        targetMemorySlaveBus.rsp >> arbitratedMainBusInternal.rsp
+        // Now, the `:=` assignments within these `<<` and `>>` operators
+        // are happening within the `MemoryArbiterPlugin`'s `logic` Area.
+        // For `targetMemorySlaveBus.cmd << arbitratedMainBusInternal.cmd`:
+        //   targetMemorySlaveBus.cmd.valid   := arbitratedMainBusInternal.cmd.valid (Arbiter drives slave's input - OK)
+        //   targetMemorySlaveBus.cmd.payload := arbitratedMainBusInternal.cmd.payload (Arbiter drives slave's input - OK)
+        //   arbitratedMainBusInternal.cmd.ready := targetMemorySlaveBus.cmd.ready (Arbiter takes input from slave's output - OK)
+        // This should be fine because `targetMemorySlaveBus` is effectively an external interface from arbiter's perspective.
+      }
+      // --- END OF MODIFICATION ---
+
+      // Connect arbiter output to arbitratedMainBusInternal.cmd
+      arbitratedMainBusInternal.cmd.valid   := cmdArbiter.io.output.valid && !busyWithMainBus
+      arbitratedMainBusInternal.cmd.payload := cmdArbiter.io.output.payload
+      cmdArbiter.io.output.ready    := arbitratedMainBusInternal.cmd.ready && !busyWithMainBus
+
+      when(arbitratedMainBusInternal.cmd.fire) {
         busyWithMainBus    := True
-        chosenMasterOH_reg := cmdArbiter.io.chosenOH // Latch which master got selected
-        report(L"[MemoryArbiterPlugin] CMD fired to mainBus. ChosenOH=${cmdArbiter.io.chosenOH}. busyWithMainBus set to True.")
+        chosenMasterOH_reg := cmdArbiter.io.chosenOH
+        report(L"[MemoryArbiterPlugin] CMD fired to arbitratedMainBusInternal. ChosenOH=${cmdArbiter.io.chosenOH}. busyWithMainBus set to True.")
       }
 
-      // arbitratedMainBus.rsp is the SLAVE stream from memory back to the arbiter
-      when(arbitratedMainBus.rsp.fire) { // A response is successfully received from the main bus
-        busyWithMainBus := False // Ready for a new command from arbiter to main bus
-         report(L"[MemoryArbiterPlugin] RSP fired from mainBus. busyWithMainBus set to False.")
+      when(arbitratedMainBusInternal.rsp.fire) {
+        busyWithMainBus := False
+         report(L"[MemoryArbiterPlugin] RSP fired from arbitratedMainBusInternal. busyWithMainBus set to False.")
       }
 
-      // Demux the response from arbitratedMainBus.rsp to the selected master's rsp port
-      arbitratedMainBus.rsp.ready := False // Default: Arbiter not ready to accept response from memory
+      // Demux the response from arbitratedMainBusInternal.rsp to the selected master
+      arbitratedMainBusInternal.rsp.ready := False
       for (i <- 0 until masterPortRequests.size) {
-        val masterClientPort = masterPortRequests(i)._1 // This is the master's GenericMemoryBus instance
-        val masterClientRspPort = masterClientPort.rsp // This is the SLAVE rsp port on the Master side
-
-        masterClientRspPort.payload := arbitratedMainBus.rsp.payload
-        // Response is valid for master i if:
-        // 1. Main bus has a valid response.
-        // 2. Master i was the one latched (chosenMasterOH_reg).
-        // 3. The arbiter is currently busyWithMainBus (meaning a response is expected for chosenMasterOH_reg).
-        masterClientRspPort.valid   := arbitratedMainBus.rsp.valid && chosenMasterOH_reg(i) && busyWithMainBus
-        
-        when(chosenMasterOH_reg(i) && busyWithMainBus) { // If this master is expecting the response
-          arbitratedMainBus.rsp.ready := masterClientRspPort.ready // Arbiter is ready if chosen master is ready
+        val masterClientRspPort = masterPortRequests(i)._1.rsp
+        masterClientRspPort.payload := arbitratedMainBusInternal.rsp.payload
+        masterClientRspPort.valid   := arbitratedMainBusInternal.rsp.valid && chosenMasterOH_reg(i) && busyWithMainBus
+        when(chosenMasterOH_reg(i) && busyWithMainBus) {
+          arbitratedMainBusInternal.rsp.ready := masterClientRspPort.ready
         }
       }
-      report(L"[MemoryArbiterPlugin] Arbitration logic (1-txn-at-a-time to main bus) established for ${masterPortRequests.size} masters.")
+      report(L"[MemoryArbiterPlugin] Arbitration logic established for ${masterPortRequests.size} masters.")
     }
   }
 }
