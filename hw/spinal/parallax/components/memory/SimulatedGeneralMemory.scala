@@ -50,8 +50,11 @@ class SimulatedGeneralMemory(
   val currentWriteDataReg = Reg(Bits(busConfig.dataWidth)) init (B(0, busConfig.dataWidth))
   val currentByteEnablesReg =
     Reg(Bits(busConfig.dataWidth.value / 8 bits)) init (B(0, busConfig.dataWidth.value / 8 bits))
+
   val latencyCounterReg =
-    Reg(UInt(log2Up(memConfig.initialLatency + 1) bits)) init (U(0, log2Up(memConfig.initialLatency + 1) bits))
+    if (memConfig.initialLatency != 0) {
+      Reg(UInt(log2Up(memConfig.initialLatency + 1) bits)) init (U(0, log2Up(memConfig.initialLatency + 1) bits))
+    } else null
 
   val baseInternalWordAddr =
     (currentBusAddressReg >> log2Up(memConfig.internalDataWidthBytes)).resize(memConfig.internalAddrWidth)
@@ -101,7 +104,9 @@ class SimulatedGeneralMemory(
             partCounterReg := U(0)
             if (assemblyBufferReg != null) assemblyBufferReg := B(0)
           }
-          latencyCounterReg := U(0)
+          if (memConfig.initialLatency != 0) {
+            latencyCounterReg := U(0)
+          }
           dataErrorForRspReg := False
           goto(sProcessInternal)
         }
@@ -111,14 +116,19 @@ class SimulatedGeneralMemory(
     val sProcessInternal: State = new State {
 
       whenIsActive {
-        when(latencyCounterReg < memConfig.initialLatency) {
-          latencyCounterReg := latencyCounterReg + 1
-          if (enableLog) {
-            report(
-              L"[SimGenMem FSM] sProcessInternal: Stalling for latency. New LatencyCtr=${latencyCounterReg} + 1"
-            )
+        if (memConfig.initialLatency != 0) {
+          when(latencyCounterReg < memConfig.initialLatency) {
+            latencyCounterReg := latencyCounterReg + 1
+            if (enableLog && memConfig.initialLatency != 0) {
+              report(
+                L"[SimGenMem FSM] sProcessInternal: Stalling for latency. New LatencyCtr=${latencyCounterReg} + 1"
+              )
+            }
           }
-        } otherwise {
+        }
+
+        val cond = if (memConfig.initialLatency != 0) latencyCounterReg === memConfig.initialLatency else True
+        when(cond) {
           val chunkId = if (numChunksPerWord > 1) partCounterReg else U(0).setName("0")
           val wordAddr = baseInternalWordAddr + chunkId
 
@@ -128,7 +138,7 @@ class SimulatedGeneralMemory(
             currentBusAddressReg + U(internalBytesPerBusData - 1, busConfig.addressWidth)
           val busTransactionOutOfBounds = endByteOffsetOfBusTransaction >= U(memConfig.memSize, busConfig.addressWidth)
 
-          if (enableLog) {
+          if (enableLog && memConfig.initialLatency != 0) {
             report(
               L"[SimGenMem FSM] sProcessInternal (after latency): LatencyCtr=${latencyCounterReg}, PartCtr=${chunkId}, Op=${currentOpcodeReg}, CurrAddrReg=${currentBusAddressReg}, BaseInternalAddr=${baseInternalWordAddr}, CurrProcInternalAddr=${wordAddr}"
             )
@@ -155,10 +165,10 @@ class SimulatedGeneralMemory(
             }
             when(!effectiveErrorForThisChunk) { // Only process write for this chunk if it's not an error condition
               val dataFromBusForThisInternalWord =
-                currentWriteDataReg.subdivideIn(memConfig.internalDataWidth).reverse.apply(chunkId)
+                currentWriteDataReg.subdivideIn(memConfig.internalDataWidth).apply(chunkId)
               val bytesPerInternalWord = memConfig.internalDataWidth.value / 8
               val enablesForSlice =
-                currentByteEnablesReg.subdivideIn(bytesPerInternalWord bits).reverse.apply(chunkId)
+                currentByteEnablesReg.subdivideIn(bytesPerInternalWord bits).apply(chunkId)
 
               if (enableLog) {
                 report(
@@ -193,12 +203,12 @@ class SimulatedGeneralMemory(
                 } otherwise {
                   val oldDataForThisInternalWord = internalReadData // This is read one cycle prior
                   val mergedWord = Bits(memConfig.internalDataWidth)
-      
-                  // Use MSB-first indexing consistently
+
                   val bytesOfOldData = oldDataForThisInternalWord.subdivideIn(8 bits)
                   val bytesOfNewDataFromBus = dataFromBusForThisInternalWord.subdivideIn(8 bits)
-                  val individualByteEnablesVec = enablesForSlice.asBools // enablesForSlice is B"0100", asBools gives Vec(F,T,F,F) (MSB enable at index 0)
-      
+                  val individualByteEnablesVec =
+                    enablesForSlice.asBools
+
                   if (enableLog) {
                     report(
                       L"  RMW: oldDataInternal=${oldDataForThisInternalWord}, newDataFromBusInternal=${dataFromBusForThisInternalWord}, enablesForSlice=${enablesForSlice}"
@@ -290,7 +300,7 @@ class SimulatedGeneralMemory(
             }
           }
 
-          latencyCounterReg := U(0)
+          if (memConfig.initialLatency != 0) { latencyCounterReg := U(0) }
           val isLastPart =
             if (numChunksPerWord > 1) partCounterReg === (numChunksPerWord - 1) else True
 
@@ -338,8 +348,12 @@ class SimulatedGeneralMemory(
 
   // Drive internalReadData based on the address for the *current* chunk being processed *after* latency.
   // This means it uses partCounterReg which reflects the current chunk index.
+  val cond =
+    if (memConfig.initialLatency != 0)
+      sm.isActive(sm.sProcessInternal) && (latencyCounterReg >= memConfig.initialLatency) && addrValidForAsyncRead_comb
+    else True
   when(
-    sm.isActive(sm.sProcessInternal) && (latencyCounterReg >= memConfig.initialLatency) && addrValidForAsyncRead_comb
+    cond
   ) {
     internalReadData := mem.readAsync(address = addrForAsyncReadInProcess_comb.resize(memConfig.internalAddrWidth))
   } otherwise {
