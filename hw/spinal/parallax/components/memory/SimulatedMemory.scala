@@ -15,7 +15,9 @@ case class SimulatedMemoryConfig(
   require(burstLatency <= initialLatency, "Burst latency must be less than or equal to initial latency")
   val internalDataWidthBytes: Int = internalDataWidth.value / 8
   val internalWordCount: Int = (memSize / internalDataWidthBytes).toInt
+  val internalWordMaxAddr: Int = internalWordCount - 1
   require(internalWordCount > 0, "Memory size results in zero words.")
+  require(memSize <= (1 << 16), "Memory size is too large to be simulated.")
   val internalAddrWidth: BitCount = log2Up(internalWordCount) bits
 
   // Max byte address this memory can store
@@ -45,7 +47,7 @@ class SimulatedMemory(
   when(io.writeEnable) {
     val internalWriteWordAddress =
       (io.writeAddress >> log2Up(memConfig.internalDataWidthBytes)).resize(memConfig.internalAddrWidth)
-    when(internalWriteWordAddress.resize(memConfig.internalWordCount.bits) < memConfig.internalWordCount) {
+    when(internalWriteWordAddress <= memConfig.internalWordMaxAddr) {
       mem.write(address = internalWriteWordAddress, data = io.writeData)
       report(L"[SimMem TB] Testbench Write to Addr: ${internalWriteWordAddress} Data: ${io.writeData}")
     } otherwise {
@@ -119,14 +121,10 @@ class SimulatedMemory(
 
       if (internalWordsPerBusData > 1) {
         currentProcessingWordIdx := baseInternalWordAddr + partCounterReg
-        currentWordAccessValid := currentProcessingWordIdx.resize(
-          memConfig.internalWordCount.bits
-        ) < memConfig.internalWordCount
+        currentWordAccessValid := currentProcessingWordIdx <= memConfig.internalWordMaxAddr
       } else {
         currentProcessingWordIdx := baseInternalWordAddr
-        currentWordAccessValid := currentProcessingWordIdx.resize(
-          memConfig.internalWordCount.bits
-        ) < memConfig.internalWordCount
+        currentWordAccessValid := currentProcessingWordIdx <= memConfig.internalWordMaxAddr
       }
 
       whenIsActive {
@@ -189,7 +187,7 @@ class SimulatedMemory(
     if (internalWordsPerBusData > 1) baseInternalWordAddr + partCounterReg else baseInternalWordAddr
   val combWordAccessValid =
     if (memConfig.internalWordCount == 0) False
-    else combCurrentProcessingWordIdx.resize(memConfig.internalWordCount.bits) < memConfig.internalWordCount
+    else combCurrentProcessingWordIdx <= memConfig.internalWordMaxAddr
   val combBusLevelAccessOutOfBounds =
     (currentBusAddressReg + U(busConfig.dataWidth.value / 8 - 1, busConfig.addressWidth)) >= U(
       memConfig.memSize,

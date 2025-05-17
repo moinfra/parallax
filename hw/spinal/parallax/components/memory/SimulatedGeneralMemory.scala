@@ -33,7 +33,7 @@ class SimulatedGeneralMemory(
   when(io.writeEnable) {
     val internalWriteWordAddress =
       (io.writeAddress >> log2Up(memConfig.internalDataWidthBytes)).resize(memConfig.internalAddrWidth)
-    when(internalWriteWordAddress.resize(memConfig.internalWordCount.bits) < memConfig.internalWordCount) {
+    when(internalWriteWordAddress <= memConfig.internalWordMaxAddr) {
       if (enableLog) {
         report(L"[SimGenMem] TB_WRITE: Addr=${internalWriteWordAddress}, Data=${io.writeData}")
       }
@@ -132,7 +132,7 @@ class SimulatedGeneralMemory(
           val chunkId = if (numChunksPerWord > 1) partCounterReg else U(0).setName("0")
           val wordAddr = baseInternalWordAddr + chunkId
 
-          val chunkAddrValid = wordAddr.resize(memConfig.internalWordCount.bits) < memConfig.internalWordCount
+          val chunkAddrValid = wordAddr <= memConfig.internalWordMaxAddr
 
           val endByteOffsetOfBusTransaction =
             currentBusAddressReg + U(internalBytesPerBusData - 1, busConfig.addressWidth)
@@ -344,7 +344,7 @@ class SimulatedGeneralMemory(
   val addrForAsyncReadInProcess_comb =
     baseInternalWordAddr + (if (numChunksPerWord > 1) partCounterReg else U(0))
   val addrValidForAsyncRead_comb =
-    addrForAsyncReadInProcess_comb.resize(memConfig.internalWordCount.bits) < memConfig.internalWordCount
+    addrForAsyncReadInProcess_comb <= memConfig.internalWordMaxAddr
 
   // Drive internalReadData based on the address for the *current* chunk being processed *after* latency.
   // This means it uses partCounterReg which reflects the current chunk index.
