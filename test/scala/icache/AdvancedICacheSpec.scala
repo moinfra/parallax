@@ -78,7 +78,7 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
   // --- 测试用例 ---
 
   // T1.1: 单字 Miss 然后 Hit (窄取指)
-  testOnly("T1.1 - Single Word Miss then Hit (Narrow Fetch)") {
+  test("T1.1 - Single Word Miss then Hit (Narrow Fetch)") {
     val lineSizeBytes = 32
     val coreDataWidth = 32 bits
 
@@ -293,7 +293,7 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
 
 
   // T2.2: LRU 替换
-  test("T2.2 - LRU Replacement") {
+  testOnly("T2.2 - LRU Replacement") {
     val lineSizeBytes = 32
     val coreDataWidth = 32 bits
     val ways = 2 // 测试 2 路组相联
@@ -345,6 +345,7 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
           }
         }
       }
+      dut.clockDomain.waitSampling()
 
       // 地址选择: 确保它们映射到同一个组 (set)
       // 对于 setCount=2, lineSize=32B (byteOffsetWidth=5), setIndexWidth=1.
@@ -389,26 +390,26 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
         assert(memReadCmdFires == 0, s"$desc - 内存读命令次数不正确 (预期 0, 得到 ${memReadCmdFires})")
       }
 
-      // 1. Fill way 0 of set 0 with TagA
+      println("[TB] 1. Fill way 0 of set 0 with TagA")
       expectMiss(addr_set0_tagA, data_tagA, "填充 Way 0 (TagA)")
       // 此时 TagA 在 Way0, Age=0 (MRU)
 
-      // 2. Fill way 1 of set 0 with TagB
+      println("[TB] 2. Fill way 1 of set 0 with TagB")
       expectMiss(addr_set0_tagB, data_tagB, "填充 Way 1 (TagB)")
       // 此时 TagB 在 Way1, Age=0 (MRU)
       // TagA 在 Way0, Age=1 (LRU)
 
-      // 3. Request TagA (expect HIT, TagA becomes MRU)
+      println("[TB] 3. Request TagA (expect HIT, TagA becomes MRU)")
       expectHit(addr_set0_tagA, data_tagA, "命中 TagA")
       // 此时 TagA 在 Way0, Age=0 (MRU)
       // TagB 在 Way1, Age=1 (LRU)
 
-      // 4. Request TagC (expect MISS, replaces TagB which was LRU)
+      println("[TB] 4. Request TagC (expect MISS, replaces TagB which was LRU)")
       expectMiss(addr_set0_tagC, data_tagC, "请求 TagC, 替换 TagB")
       // 此时 TagC 在 Way1, Age=0 (MRU)
       // TagA 在 Way0, Age=1 (LRU)
 
-      // 5. Request TagB (expect MISS, it was evicted)
+      println("[TB] 5. Request TagB (expect MISS, it was evicted)")
       expectMiss(addr_set0_tagB, data_tagB, "请求 TagB (已被替换)")
 
       dut.clockDomain.waitSampling(20)

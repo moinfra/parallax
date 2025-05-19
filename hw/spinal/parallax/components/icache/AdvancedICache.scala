@@ -436,7 +436,7 @@ class AdvancedICache(implicit
 
           val invalidWayCand = UInt(log2Up(cacheConfig.wayCount) bits)
           val invalidFound = Bool()
-          invalidWayCand := U(0); invalidFound := True
+          invalidWayCand := U(0); invalidFound := False
 
           // Iterate to pick lowest index if multiple candidates
           for (w_idx <- (0 until cacheConfig.wayCount).reverse) {
@@ -457,7 +457,21 @@ class AdvancedICache(implicit
             .elsewhen(lruFound) { chosenVictimWayAssociative := lruWayCand }
             .otherwise { chosenVictimWayAssociative := U(0) } // Fallback
 
+          if (enableLog) {
+            report(L"AdvICache: sCompareTags MISS - Evaluating ways for victim selection:")
+            for (w_idx <- 0 until cacheConfig.wayCount) {
+              val w_entry = ways_data_from_current_set(w_idx)
+              report(L"  - Way ${w_idx.toString()}: Valid=${w_entry.valid}, Age=${w_entry.age}")
+            }
+            report(L"  - invalidFound=${invalidFound}, invalidWayCand=${invalidWayCand}")
+            report(L"  - lruFound=${lruFound}, lruWayCand=${lruWayCand}")
+            report(L"  - Chosen victim (before reg assignment): ${chosenVictimWayAssociative}")
+          }
           victimWayReg := chosenVictimWayAssociative
+          if (enableLog) {
+            report(L"  - victimWayReg will be updated to: ${chosenVictimWayAssociative}") // D input
+            report(L"  - current victimWayReg (Q output): ${victimWayReg}") // Q output
+          }
 
           if (enableLog) {
             report(L"AdvICache: sCompareTags MISS - Final Victim Way.")
@@ -484,7 +498,6 @@ class AdvancedICache(implicit
     }
 
     sMiss_FetchLine.whenIsActive {
-      if (enableLog) report(L"AdvICache: FSM State sMiss_FetchLine")
       val setIdxToFill = getCurrentSetIdx
       val victimWayToFill = getVictimWay // Use integer value
 
