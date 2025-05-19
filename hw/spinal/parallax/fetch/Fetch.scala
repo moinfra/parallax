@@ -33,8 +33,6 @@ class FetchPipeline(config: PipelineConfig) extends Plugin with LockedImpl {
     pipeline.build()
   }
 
-  pipeline.setCompositeName(this, "Fetch")
-
   def entryStage: Stage = pipeline.s0_PcGen
   def exitStage: Stage = pipeline.s1_Fetch
 }

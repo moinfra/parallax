@@ -50,7 +50,6 @@ class FrontendPipeline(val config: PipelineConfig = PipelineConfig()) extends Pl
     // Make config available to stages if they create hardware needing it
     // (Often handled by plugins/services or passing config through constructors)
   }
-  pipeline.setCompositeName(this, "Frontend")
 
   def firstStage: Stage = pipeline.decode
   def exitStage: Stage = pipeline.dispatch
