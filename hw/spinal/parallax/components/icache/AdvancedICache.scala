@@ -405,7 +405,7 @@ class AdvancedICache(implicit
             val currentWayEntry = ways_data_from_current_set(w)
             // victimWayToFill will be U(0,0 bits) if !isAssociative. U(w) will be U(0,0 bits) if w=0. Comparison is fine.
             when(U(w) === determinedHitWay) {
-              currentWayEntry.age := U(0)
+              currentWayEntry.age := U(0).resized
             } otherwise {
               when(currentWayEntry.valid && currentWayEntry.age < oldAgeOfHitWay) {
                 currentWayEntry.age := currentWayEntry.age + 1
@@ -584,7 +584,7 @@ class AdvancedICache(implicit
                 val currentWayEntry = cacheLines(setIdxToFill)(w)
                 // victimWayToFill will be U(0,0 bits) if !isAssociative. U(w) will be U(0,0 bits) if w=0. Comparison is fine.
                 when(U(w) === victimWayToFill) {
-                  currentWayEntry.age := U(0)
+                  currentWayEntry.age := U(0).resized
                 } otherwise {
                   when(currentWayEntry.valid) {
                     currentWayEntry.age := currentWayEntry.age + 1
@@ -635,7 +635,7 @@ class AdvancedICache(implicit
       }
 
       // Way increment logic
-      val nextFlushWayNum = wayIdxToFlush + 1
+      val nextFlushWayNum = wayIdxToFlush.resize(log2Up(cacheConfig.wayCount) + 1) + 1
 
       when(nextFlushWayNum === cacheConfig.wayCount) { // If !isAssociative, wayCount=1. 1 === 1 is true.
         if (isAssociative) flushWayCounter := U(0) // Reset Reg only if it exists
@@ -660,7 +660,7 @@ class AdvancedICache(implicit
         }
       } otherwise { // More ways in current set to flush (only if isAssociative)
         if (isAssociative) { // Assign to Reg only if it exists (and this branch only taken if isAssociative)
-          flushWayCounter := nextFlushWayNum
+          flushWayCounter := nextFlushWayNum.resize(log2Up(cacheConfig.wayCount))
         }
       }
     }
