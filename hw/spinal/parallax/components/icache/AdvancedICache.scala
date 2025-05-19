@@ -277,7 +277,6 @@ class AdvancedICache(implicit
           report(L"  - Addr=${cpuAddr}")
         }
 
-
         // Latch address and calculated tag/set/offset, as sWaitingFaultAck or sCompareTags may need them
         currentCpuAddressReg := cpuAddr
         currentTagReg := cacheConfig.getTag(cpuAddr)
@@ -351,7 +350,6 @@ class AdvancedICache(implicit
         report(L"  - ReqTag: ${reqTag}")
       }
 
-
       // ways_data_from_current_set is already using the integer set index
       val hitSignals = Vec.tabulate(cacheConfig.wayCount) { w =>
         val wayEntry = ways_data_from_current_set(w)
@@ -373,12 +371,10 @@ class AdvancedICache(implicit
       // determinedHitWay will be U(0) if wayCount=1, which is correct for indexing a 1-element Vec.
       val determinedHitWay = OHToUInt(hitWayOH)
 
-
       if (false) {
         report(L"AdvICache: sCompareTags - isHit=${isHit}")
         report(L"  - determinedHitWay=${determinedHitWay}")
       }
-
 
       when(isHit) {
 
@@ -433,7 +429,6 @@ class AdvancedICache(implicit
           report(L"  - Tag ${reqTag}")
         }
 
-
         if (isAssociative) {
           val lruWayCand = UInt(log2Up(cacheConfig.wayCount) bits)
           val lruFound = Bool()
@@ -474,7 +469,8 @@ class AdvancedICache(implicit
           // victimWayReg is null, no assignment needed. getVictimWay will provide 0.
 
           if (enableLog) {
-            report(L"AdvICache: sCompareTags MISS - Victim Way for Set ${if (hasMultipleSets) currentSetIdxReg else "0".toString()} is 0 (direct mapped)")
+            report(L"AdvICache: sCompareTags MISS - Victim Way for Set ${if (hasMultipleSets) currentSetIdxReg
+              else "0".toString()} is 0 (direct mapped)")
           }
 
         }
@@ -492,14 +488,12 @@ class AdvancedICache(implicit
       val setIdxToFill = getCurrentSetIdx
       val victimWayToFill = getVictimWay // Use integer value
 
-
       if (enableLog) {
         report(L"AdvICache: FSM State sMiss_FetchLine ")
         if (hasMultipleSets) report(L"  - Set ${currentSetIdxReg}, ") else report(L"  - Set 0 (Single Set), ")
         if (isAssociative) report(L"  - VictimWay ${victimWayReg}, ") else report(L"  - VictimWay 0 (Direct Mapped), ")
         report(L"  - RefillCtr: ${refillWordCounter}, Waiting: ${waitingForMemRspReg}")
       }
-
 
       io.mem.read.cmd.valid := False
       io.mem.read.rsp.ready := False
@@ -598,12 +592,26 @@ class AdvancedICache(implicit
                 }
               }
             }
-
-          } otherwise {
-            if (enableLog)
-              report(L"AdvICache: sMiss_FetchLine - Error during line refill. Line NOT written or validated.")
+            // ---- FIX: Transition to sCompareTags to serve CPU ----
+            if (enableLog) report(L"AdvICache: sMiss_FetchLine - Successful refill, transitioning to sCompareTags.")
+            goto(sCompareTags)
+            // --------------------------------------------------------
+          } otherwise { // Refill error
+            // ---- FIX: Signal fault to CPU ----
+            if (enableLog) {
+              report(L"AdvICache: sMiss_FetchLine - Error during line refill. Line NOT written/validated.")
+              report(L"AdvICache: sMiss_FetchLine - Signalling fault to CPU. Transitioning to sWaitingFaultAck.")
+            }
+            io.cpu.rsp.valid := True
+            io.cpu.rsp.payload.fault := True
+            io.cpu.rsp.payload.pc := currentCpuAddressReg
+            goto(sWaitingFaultAck)
+            // ------------------------------------
           }
-          goto(sIdle)
+        } otherwise { // Line fetch not yet complete (nextRefillCounter < wordsPerLine)
+          // refillWordCounter has been updated. FSM stays in sMiss_FetchLine.
+          // waitingForMemRspReg is False, so next mem req will be issued in the next cycle.
+          if (enableLog) report(L"AdvICache: sMiss_FetchLine - More words to fetch for the line.")
         }
       }
     }

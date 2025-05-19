@@ -30,6 +30,8 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
 
     memory.io.simPublic()
     icache.io.simPublic()
+    io.cpuBus.simPublic()
+    io.flushBus.simPublic()
 
     // 连接
     icache.io.mem <> memory.io.bus // SplitGMB 连接
