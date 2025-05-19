@@ -49,7 +49,7 @@ case class AdvancedICacheConfig(
   require(fetchDataWidth.value >= dataWidth.value, "fetchDataWidth must be at least dataWidth")
   require(cacheSize > 0, "cacheSize must be positive.")
   require(bytePerLine > 0, "bytePerLine must be positive.")
-  require(cacheSize % bytePerLine == 0, "cacheSize must be a multiple of bytePerLine")
+  require(cacheSize % bytePerLine == 0, "cacheSize must be a multiple of lineSize")
 
   val lineCountTotal: Int = cacheSize.toInt / bytePerLine
   require(lineCountTotal > 0, "Total line count must be positive.")
@@ -212,7 +212,6 @@ class AdvancedICache(implicit
   // Get the flush way counter value.
   def getFlushWayCounter: UInt = if (isAssociative) flushWayCounter else U(0)
 
-
   // Access cacheLines using the integer set index.
   val ways_data_from_current_set = cacheLines(getCurrentSetIdx)
 
@@ -259,20 +258,25 @@ class AdvancedICache(implicit
     val sWaitingFaultAck: State = new State // New state
 
     sIdle.whenIsActive {
-      /*if (enableLog) report(L"AdvICache: FSM State sIdle")*/
+      if (enableLog) report(L"AdvICache: FSM State sIdle")
       io.cpu.cmd.ready := True
       io.flush.cmd.ready := True
       io.cpu.rsp.valid := False // Default not sending response
 
       when(io.flush.cmd.fire && io.flush.cmd.payload.start) {
-        /*if (enableLog) report(L"AdvICache: sIdle - Flush command received.")*/
+        if (enableLog) report(L"AdvICache: sIdle - Flush command received.")
         io.cpu.cmd.ready := False // Stop receiving CPU commands
         if (hasMultipleSets) flushSetCounter := U(0)
         if (isAssociative) flushWayCounter := U(0)
         goto(sFlush_Invalidate)
       } elsewhen (io.cpu.cmd.fire) { // cmd.fire is based on sIdle default cmd.ready = True
         val cpuAddr = io.cpu.cmd.payload.address
-        /*if (enableLog) report(L"AdvICache: sIdle - CPU cmd fire. Addr=${cpuAddr}")*/
+
+        if (enableLog) {
+          report(L"AdvICache: sIdle - CPU cmd fire.")
+          report(L"  - Addr=${cpuAddr}")
+        }
+
 
         // Latch address and calculated tag/set/offset, as sWaitingFaultAck or sCompareTags may need them
         currentCpuAddressReg := cpuAddr
@@ -285,25 +289,32 @@ class AdvancedICache(implicit
           currentWordOffsetInLineReg := cacheConfig.getWordOffsetInLineForFetchGroup(cpuAddr)
         }
 
-
         val endAddressOfFetchGroup = cpuAddr + (cacheConfig.fetchDataWidth.value / 8) - 1
         val startLineBaseAddr = cacheConfig.getLineBaseAddress(cpuAddr)
         val endLineBaseAddr = cacheConfig.getLineBaseAddress(endAddressOfFetchGroup)
 
         when(startLineBaseAddr =/= endLineBaseAddr) { // Fault condition
-          /*if (enableLog) report(L"AdvICache: FATAL sIdle - Fetch group crosses line boundary. Addr=${cpuAddr}")*/
+
+          if (enableLog) {
+            report(L"AdvICache: FATAL sIdle - Fetch group crosses line boundary.")
+            report(L"  - Addr=${cpuAddr}")
+          }
+
           io.cpu.rsp.valid := True // Issue fault response
           io.cpu.rsp.payload.fault := True
           io.cpu.rsp.payload.pc := cpuAddr
           goto(sWaitingFaultAck) // Transition to waiting state
         } otherwise { // Non-fault path
-          /*if (enableLog) {
-            val setIdxLog = if (hasMultipleSets) s", SetIdx=${currentSetIdxReg}" else ""
-            val wordOffsetLog = if (lineHasMultipleWords) s", WordOffset=${currentWordOffsetInLineReg}" else ""
-            report(
-              L"AdvICache: sIdle - Addr=${cpuAddr}, Tag=${currentTagReg}${setIdxLog}${wordOffsetLog}. Transition to sCompareTags."
-            )
-          }*/
+
+          if (enableLog) {
+            report(L"AdvICache: sIdle - Non-fault path.")
+            report(L"  - Addr=${cpuAddr}")
+            report(L"  - Tag=${currentTagReg}")
+            if (hasMultipleSets) report(L"  - SetIdx=${currentSetIdxReg}")
+            if (lineHasMultipleWords) report(L"  - WordOffset=${currentWordOffsetInLineReg}")
+            report(L"  - Transition to sCompareTags.")
+          }
+
           // cmd.ready remains True (from sIdle default)
           // rsp.valid remains False (from sIdle default)
           goto(sCompareTags)
@@ -312,7 +323,7 @@ class AdvancedICache(implicit
     }
 
     sWaitingFaultAck.whenIsActive {
-      /*if (enableLog) report(L"AdvICache: FSM State sWaitingFaultAck")*/
+      if (enableLog) report(L"AdvICache: FSM State sWaitingFaultAck")
       // Maintain fault response
       io.cpu.rsp.valid := True
       io.cpu.rsp.payload.fault := True
@@ -322,32 +333,39 @@ class AdvancedICache(implicit
       io.cpu.cmd.ready := False
 
       when(io.cpu.rsp.fire) { // CPU has acknowledged the fault
-        /*if (enableLog) report(L"AdvICache: sWaitingFaultAck - Fault response ACKED by CPU. Transitioning to sIdle.")*/
+        if (enableLog) report(L"AdvICache: sWaitingFaultAck - Fault response ACKED by CPU. Transitioning to sIdle.")
         goto(sIdle)
       } otherwise {
-        /*if (enableLog) report(L"AdvICache: sWaitingFaultAck - Waiting for CPU to ACK fault response.")*/
+        if (enableLog) report(L"AdvICache: sWaitingFaultAck - Waiting for CPU to ACK fault response.")
       }
     }
 
     sCompareTags.whenIsActive {
+      if (enableLog) report(L"AdvICache: FSM State sCompareTags")
       val setIdxForLookup = getCurrentSetIdx // Uses the integer value
       val reqTag = currentTagReg
-      /*if (enableLog) {
-        val setIdxLog = if (hasMultipleSets) s"SetIdx: ${setIdxForLookup}" else "SetIdx: 0 (Single Set)"
-        report(L"AdvICache: FSM State sCompareTags - ${setIdxLog}, ReqTag: ${reqTag}")
-      }*/
+
+      if (enableLog) {
+        report(L"AdvICache: FSM State sCompareTags")
+        if (hasMultipleSets) report(L"  - SetIdx: ${currentSetIdxReg}") else report(L"  - SetIdx: 0 (Single Set)")
+        report(L"  - ReqTag: ${reqTag}")
+      }
+
 
       // ways_data_from_current_set is already using the integer set index
       val hitSignals = Vec.tabulate(cacheConfig.wayCount) { w =>
         val wayEntry = ways_data_from_current_set(w)
         val wayValid = wayEntry.valid
         val tagMatch = wayEntry.tag === reqTag
-        /*if (enableLog) {
-          val ageLog = if (isAssociative) s", AgeRAM=${wayEntry.age}" else ""
-          report(
-            L"AdvICache: sCompareTags - Way ${w.toString()}: ValidRAM=${wayValid}, TagRAM=${wayEntry.tag}${ageLog}, TagMatch=${tagMatch}"
-          )
-        }*/
+
+        if (enableLog) {
+          report(L"AdvICache: sCompareTags - Way ${w.toString()}:")
+          report(L"  - ValidRAM=${wayValid}")
+          report(L"  - TagRAM=${wayEntry.tag}")
+          if (isAssociative) report(L"  - AgeRAM=${wayEntry.age}")
+          report(L"  - TagMatch=${tagMatch}")
+        }
+
         wayValid && tagMatch
       }
       val isHit = hitSignals.orR
@@ -355,10 +373,20 @@ class AdvancedICache(implicit
       // determinedHitWay will be U(0) if wayCount=1, which is correct for indexing a 1-element Vec.
       val determinedHitWay = OHToUInt(hitWayOH)
 
-      /*if (enableLog) report(L"AdvICache: sCompareTags - isHit=${isHit}, determinedHitWay=${determinedHitWay}")*/
+
+      if (false) {
+        report(L"AdvICache: sCompareTags - isHit=${isHit}")
+        report(L"  - determinedHitWay=${determinedHitWay}")
+      }
+
 
       when(isHit) {
-        /*if (enableLog) report(L"AdvICache: sCompareTags - HIT in Way ${determinedHitWay}")*/
+
+        if (false) {
+          report(L"AdvICache: sCompareTags - HIT.")
+          report(L"  - Way ${determinedHitWay}")
+        }
+
         if (isAssociative) hitWayReg := determinedHitWay // Assign to Reg only if it exists
 
         io.cpu.rsp.valid := True
@@ -369,13 +397,17 @@ class AdvancedICache(implicit
         io.cpu.rsp.payload.fault := False
 
         if (isAssociative) { // LRU Update on HIT
-          /*if (enableLog)
-            report(
-              L"AdvICache: sCompareTags - Updating LRU for HIT on Way ${determinedHitWay} in Set ${setIdxForLookup}"
-            )*/
+
+          if (false) {
+            report(L"AdvICache: sCompareTags - Updating LRU for HIT.")
+            report(L"  - Way ${determinedHitWay}")
+            if (hasMultipleSets) report(L"  - Set ${currentSetIdxReg}") else report(L"  - Set 0 (Single Set)")
+          }
+
           val oldAgeOfHitWay = ways_data_from_current_set(determinedHitWay).age
           for (w <- 0 until cacheConfig.wayCount) {
             val currentWayEntry = ways_data_from_current_set(w)
+            // victimWayToFill will be U(0,0 bits) if !isAssociative. U(w) will be U(0,0 bits) if w=0. Comparison is fine.
             when(U(w) === determinedHitWay) {
               currentWayEntry.age := U(0)
             } otherwise {
@@ -387,14 +419,20 @@ class AdvancedICache(implicit
         }
 
         when(io.cpu.rsp.fire) {
-          /*if (enableLog) report(L"AdvICache: sCompareTags - HIT response fired to CPU.")*/
+          if (enableLog) report(L"AdvICache: sCompareTags - HIT response fired to CPU.")
           goto(sIdle)
         } otherwise {
-          /*if (enableLog) report(L"AdvICache: sCompareTags - HIT response STALLED by CPU.")*/
+          if (enableLog) report(L"AdvICache: sCompareTags - HIT response STALLED by CPU.")
         }
 
       } otherwise { // Cache Miss
-        /*if (enableLog) report(L"AdvICache: sCompareTags - MISS for Set ${setIdxForLookup}, Tag ${reqTag}")*/
+
+        if (enableLog) {
+          report(L"AdvICache: sCompareTags - MISS.")
+          if (hasMultipleSets) report(L"  - Set ${currentSetIdxReg}") else report(L"  - Set 0 (Single Set)")
+          report(L"  - Tag ${reqTag}")
+        }
+
 
         if (isAssociative) {
           val lruWayCand = UInt(log2Up(cacheConfig.wayCount) bits)
@@ -403,7 +441,7 @@ class AdvancedICache(implicit
 
           val invalidWayCand = UInt(log2Up(cacheConfig.wayCount) bits)
           val invalidFound = Bool()
-          invalidWayCand := U(0); invalidFound := False
+          invalidWayCand := U(0); invalidFound := True
 
           // Iterate to pick lowest index if multiple candidates
           for (w_idx <- (0 until cacheConfig.wayCount).reverse) {
@@ -425,14 +463,20 @@ class AdvancedICache(implicit
             .otherwise { chosenVictimWayAssociative := U(0) } // Fallback
 
           victimWayReg := chosenVictimWayAssociative
-          /*if (enableLog)
-            report(
-              L"AdvICache: sCompareTags MISS - Final Victim Way for Set ${setIdxForLookup} is ${chosenVictimWayAssociative}"
-            )*/
+
+          if (enableLog) {
+            report(L"AdvICache: sCompareTags MISS - Final Victim Way.")
+            if (hasMultipleSets) report(L"  - Set ${currentSetIdxReg}") else report(L"  - Set 0 (Single Set)")
+            report(L"  - Victim Way ${victimWayReg}")
+          }
+
         } else { // Direct mapped, victim is always way 0
           // victimWayReg is null, no assignment needed. getVictimWay will provide 0.
-          /*if (enableLog)
-            report(L"AdvICache: sCompareTags MISS - Victim Way for Set ${setIdxForLookup} is 0 (direct mapped)")*/
+
+          if (enableLog) {
+            report(L"AdvICache: sCompareTags MISS - Victim Way for Set ${if (hasMultipleSets) currentSetIdxReg else "0".toString()} is 0 (direct mapped)")
+          }
+
         }
 
         refillWordCounter := 0
@@ -444,16 +488,18 @@ class AdvancedICache(implicit
     }
 
     sMiss_FetchLine.whenIsActive {
+      if (enableLog) report(L"AdvICache: FSM State sMiss_FetchLine")
       val setIdxToFill = getCurrentSetIdx
       val victimWayToFill = getVictimWay // Use integer value
 
-      /*if (enableLog) {
-        val setIdxLog = if (hasMultipleSets) s"Set ${setIdxToFill}" else "Set 0 (Single Set)"
-        val victimWayLog = if (isAssociative) s", VictimWay ${victimWayToFill}" else ", VictimWay 0 (Direct Mapped)"
-        report(
-          L"AdvICache: FSM State sMiss_FetchLine - ${setIdxLog}${victimWayLog}, RefillCtr: ${refillWordCounter}, Waiting: ${waitingForMemRspReg}"
-        )
-      }*/
+
+      if (enableLog) {
+        report(L"AdvICache: FSM State sMiss_FetchLine ")
+        if (hasMultipleSets) report(L"  - Set ${currentSetIdxReg}, ") else report(L"  - Set 0 (Single Set), ")
+        if (isAssociative) report(L"  - VictimWay ${victimWayReg}, ") else report(L"  - VictimWay 0 (Direct Mapped), ")
+        report(L"  - RefillCtr: ${refillWordCounter}, Waiting: ${waitingForMemRspReg}")
+      }
+
 
       io.mem.read.cmd.valid := False
       io.mem.read.rsp.ready := False
@@ -467,24 +513,36 @@ class AdvancedICache(implicit
           io.mem.read.cmd.valid := True
           io.mem.read.cmd.payload.address := memAccessAddress
           if (memBusConfig.useId) io.mem.read.cmd.payload.id := U(0)
-          /*if (enableLog)
-            report(
-              L"AdvICache: sMiss_FetchLine - Requesting word ${refillWordCounter} from Mem Addr=${memAccessAddress}"
-            )*/
+
+          if (enableLog) {
+            report(L"AdvICache: sMiss_FetchLine - Requesting word from Mem.")
+            report(L"  - Word ${refillWordCounter}")
+            report(L"  - Addr=${memAccessAddress}")
+          }
+
         }
         io.mem.read.rsp.ready := True
       }
 
       when(io.mem.read.cmd.fire) {
-        /*if (enableLog) report(L"AdvICache: sMiss_FetchLine - Memory read cmd FIRED for word ${refillWordCounter}.")*/
+
+        if (enableLog) {
+          report(L"AdvICache: sMiss_FetchLine - Memory read cmd FIRED.")
+          report(L"  - Word ${refillWordCounter}.")
+        }
+
         waitingForMemRspReg := True
       }
 
       when(io.mem.read.rsp.fire) {
-        /*if (enableLog)
-          report(
-            L"AdvICache: sMiss_FetchLine - Memory read rsp RECEIVED for word ${refillWordCounter}. Data=${io.mem.read.rsp.payload.data}, Error=${io.mem.read.rsp.payload.error}"
-          )*/
+
+        if (enableLog) {
+          report(L"AdvICache: sMiss_FetchLine - Memory read rsp RECEIVED.")
+          report(L"  - Word ${refillWordCounter}.")
+          report(L"  - Data=${io.mem.read.rsp.payload.data}")
+          report(L"  - Error=${io.mem.read.rsp.payload.error}")
+        }
+
         waitingForMemRspReg := False
         refillErrorReg := refillErrorReg || io.mem.read.rsp.payload.error
 
@@ -499,22 +557,35 @@ class AdvancedICache(implicit
         refillWordCounter := nextRefillCounter
 
         when(nextRefillCounter === U(cacheConfig.wordsPerLine)) { // Compare with UInt
-          /*if (enableLog) report(L"AdvICache: sMiss_FetchLine - Entire line fetched. Total Error: ${refillErrorReg}")*/
+
+          if (enableLog) {
+            report(L"AdvICache: sMiss_FetchLine - Entire line fetched.")
+            report(L"  - Total Error: ${refillErrorReg}")
+          }
+
           when(!refillErrorReg) {
-            /*if (enableLog)
-              report(
-                L"AdvICache: sMiss_FetchLine - Line OK. Writing to Cache Set ${setIdxToFill}, Way ${victimWayToFill}. Validating."
-              )*/
+
+            if (enableLog) {
+              report(L"AdvICache: sMiss_FetchLine - Line OK. Writing to Cache.")
+              if (hasMultipleSets) report(L"  - Set ${currentSetIdxReg}") else report(L"  - Set 0 (Single Set)")
+              if (isAssociative) report(L"  - Way ${victimWayReg}") else report(L"  - Way 0 (Direct Mapped)")
+              report(L"  - Validating.")
+            }
+
             val wayToUpdate = cacheLines(setIdxToFill)(victimWayToFill) // Indexing with integer values
             wayToUpdate.valid := True
             wayToUpdate.tag := currentTagReg
             wayToUpdate.data := refillBuffer
 
+            report(L"AdvICache: sMiss_FetchLine - Line written to Cache.")
             if (isAssociative) { // LRU Update on FILL
-              /*if (enableLog)
-                report(
-                  L"AdvICache: sMiss_FetchLine - Updating LRU for FILL of Way ${victimWayToFill} in Set ${setIdxToFill}"
-                )*/
+
+              if (enableLog) {
+                report(L"AdvICache: sMiss_FetchLine - Updating LRU for FILL.")
+                if (isAssociative) report(L"  - Way ${victimWayReg}") else report(L"  - Way 0 (Direct Mapped)")
+                if (hasMultipleSets) report(L"  - Set ${currentSetIdxReg}") else report(L"  - Set 0 (Single Set)")
+              }
+
               for (w <- 0 until cacheConfig.wayCount) {
                 val currentWayEntry = cacheLines(setIdxToFill)(w)
                 // victimWayToFill will be U(0,0 bits) if !isAssociative. U(w) will be U(0,0 bits) if w=0. Comparison is fine.
@@ -527,9 +598,10 @@ class AdvancedICache(implicit
                 }
               }
             }
+
           } otherwise {
-            /*if (enableLog)
-              report(L"AdvICache: sMiss_FetchLine - Error during line refill. Line NOT written or validated.")*/
+            if (enableLog)
+              report(L"AdvICache: sMiss_FetchLine - Error during line refill. Line NOT written or validated.")
           }
           goto(sIdle)
         }
@@ -537,10 +609,16 @@ class AdvancedICache(implicit
     }
 
     sFlush_Invalidate.whenIsActive {
+      if (enableLog) report(L"AdvICache: FSM State sFlush_Invalidate")
       val setIdxToFlush = getFlushSetCounter
       val wayIdxToFlush = getFlushWayCounter
-      /*if (enableLog)
-        report(L"AdvICache: FSM State sFlush_Invalidate - Flushing Set: ${setIdxToFlush}, Way: ${wayIdxToFlush}")*/
+
+      if (enableLog) {
+        report(L"AdvICache: FSM State sFlush_Invalidate - Flushing.")
+        if (hasMultipleSets) report(L"  - Set: ${flushSetCounter}") else report(L"  - Set: 0")
+        if (isAssociative) report(L"  - Way: ${flushWayCounter}") else report(L"  - Way: 0")
+      }
+
       io.cpu.cmd.ready := False
 
       cacheLines(setIdxToFlush)(wayIdxToFlush).valid := False
@@ -559,11 +637,11 @@ class AdvancedICache(implicit
         val nextFlushSetNum = flushSetCounter.resize(log2Up(cacheConfig.setCount + 1)) + 1
 
         when(nextFlushSetNum === cacheConfig.setCount) { // If !hasMultipleSets, setCount=1. U(1,1bit) === 1 is true.
-          /*if (enableLog) report(L"AdvICache: sFlush_Invalidate - Flush completed.")*/
+          if (enableLog) report(L"AdvICache: sFlush_Invalidate - Flush completed.")
           io.flush.rsp.valid := True
           io.flush.rsp.payload.done := True
           when(io.flush.rsp.fire) {
-            /*if (enableLog) report(L"AdvICache: sFlush_Invalidate - Flush completion ACKED.")*/
+            if (enableLog) report(L"AdvICache: sFlush_Invalidate - Flush completion ACKED.")
             goto(sIdle)
           }
         } otherwise { // More sets to flush

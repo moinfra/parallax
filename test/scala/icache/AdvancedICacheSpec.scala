@@ -26,7 +26,7 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
     }
 
     val icache = new AdvancedICache()(cacheCfg, memBusCfg, dutEnableLog)
-    val memory = new SimulatedSplitGeneralMemory(simMemCfg, memBusCfg, dutEnableLog) // 使用 SplitGMB 版本
+    val memory = new SimulatedSplitGeneralMemory(simMemCfg, memBusCfg, /*dutEnableLog*/ false) // 使用 SplitGMB 版本
 
     memory.io.simPublic()
     icache.io.simPublic()
