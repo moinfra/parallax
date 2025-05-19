@@ -13,6 +13,13 @@ import parallax.components.memory._
 
 class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
 
+  // 定义一个临时的容器类来存储 CPU 响应数据
+  case class CpuRspData(
+    instructions: Seq[BigInt],
+    pc: BigInt,
+    fault: Boolean
+  )
+
   // --- Testbench Component ---
   class AdvancedICacheTestbench(
       val cacheCfg: AdvancedICacheConfig,
@@ -106,9 +113,15 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
       val (_, cpuCmdQueue) = StreamDriver.queue(dut.io.cpuBus.cmd, dut.clockDomain)
       StreamReadyRandomizer(dut.io.cpuBus.cmd, dut.clockDomain)
 
-      val cpuRspBuffer = mutable.Queue[AdvancedICacheCpuRsp]()
+      val cpuRspBuffer = mutable.Queue[CpuRspData]() // 修改队列类型为 CpuRspData
       StreamMonitor(dut.io.cpuBus.rsp, dut.clockDomain) { payload =>
-        cpuRspBuffer.enqueue(payload.copy()) // 复制 payload
+        // 将仿真信号转换为 Scala 数据类型并存储到容器类中
+        val rspData = CpuRspData(
+          instructions = payload.instructions.map(_.toBigInt),
+          pc = payload.pc.toBigInt,
+          fault = payload.fault.toBoolean
+        )
+        cpuRspBuffer.enqueue(rspData)
       }
       StreamReadyRandomizer(dut.io.cpuBus.rsp, dut.clockDomain)
 
@@ -137,13 +150,14 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
       cpuCmdQueue.enqueue(_.address #= testAddr)
 
       val missTimeout = wordsPerLine * (simMemConfig.initialLatency + 5) + 50
-      assert(!dut.clockDomain.waitSamplingWhere(missTimeout)(cpuRspBuffer.nonEmpty), s"CPU 响应队列在 MISS 后为空 (timeout $missTimeout)")
+      dut.clockDomain.waitSamplingWhere(missTimeout)(cpuRspBuffer.nonEmpty) // 等待响应到达队列
+      assert(cpuRspBuffer.nonEmpty, s"CPU 响应队列在 MISS 后为空 (timeout $missTimeout)") // 检查队列是否为空
 
-      val rsp1 = cpuRspBuffer.dequeue()
-      println(s"SIM [T1.1]: MISS - 收到指令 ${rsp1.instructions(0).toBigInt.toString(16)} PC ${rsp1.pc.toBigInt.toString(16)}")
-      assert(!rsp1.fault.toBoolean, "MISS 请求不应产生 fault")
-      assert(rsp1.instructions(0).toBigInt == testData, s"MISS 数据不匹配. 预期 0x${testData.toString(16)}, 得到 0x${rsp1.instructions(0).toBigInt.toString(16)}")
-      assert(rsp1.pc.toBigInt == testAddr, "MISS PC 不匹配")
+      val rspData1 = cpuRspBuffer.dequeue() // 从队列中取出 CpuRspData 实例
+      println(s"SIM [T1.1]: MISS - 收到指令 ${rspData1.instructions(0).toString(16)} PC ${rspData1.pc.toString(16)}")
+      assert(!rspData1.fault, "MISS 请求不应产生 fault")
+      assert(rspData1.instructions(0) == testData, s"MISS 数据不匹配. 预期 0x${testData.toString(16)}, 得到 0x${rspData1.instructions(0).toString(16)}")
+      assert(rspData1.pc == testAddr, "MISS PC 不匹配")
       assert(memReadCmdFires == wordsPerLine, s"MISS 内存读命令次数不正确. 预期 ${wordsPerLine}, 得到 ${memReadCmdFires}")
 
       dut.clockDomain.waitSampling(10)
@@ -154,13 +168,14 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
       cpuCmdQueue.enqueue(_.address #= testAddr)
 
       val hitTimeout = 50
-      assert(!dut.clockDomain.waitSamplingWhere(hitTimeout)(cpuRspBuffer.nonEmpty), s"CPU 响应队列在 HIT 后为空 (timeout $hitTimeout)")
+      dut.clockDomain.waitSamplingWhere(hitTimeout)(cpuRspBuffer.nonEmpty) // 等待响应到达队列
+      assert(cpuRspBuffer.nonEmpty, s"CPU 响应队列在 HIT 后为空 (timeout $hitTimeout)") // 检查队列是否为空
 
-      val rsp2 = cpuRspBuffer.dequeue()
-      println(s"SIM [T1.1]: HIT - 收到指令 ${rsp2.instructions(0).toBigInt.toString(16)} PC ${rsp2.pc.toBigInt.toString(16)}")
-      assert(!rsp2.fault.toBoolean, "HIT 请求不应产生 fault")
-      assert(rsp2.instructions(0).toBigInt == testData, s"HIT 数据不匹配. 预期 0x${testData.toString(16)}, 得到 0x${rsp2.instructions(0).toBigInt.toString(16)}")
-      assert(rsp2.pc.toBigInt == testAddr, "HIT PC 不匹配")
+      val rspData2 = cpuRspBuffer.dequeue() // 从队列中取出 CpuRspData 实例
+      println(s"SIM [T1.1]: HIT - 收到指令 ${rspData2.instructions(0).toString(16)} PC ${rspData2.pc.toString(16)}")
+      assert(!rspData2.fault, "HIT 请求不应产生 fault")
+      assert(rspData2.instructions(0) == testData, s"HIT 数据不匹配. 预期 0x${testData.toString(16)}, 得到 0x${rspData2.instructions(0).toString(16)}")
+      assert(rspData2.pc == testAddr, "HIT PC 不匹配")
       assert(memReadCmdFires == 0, s"HIT 内存读命令次数不正确. 预期 0, 得到 ${memReadCmdFires}")
 
       dut.clockDomain.waitSampling(20)
@@ -199,8 +214,16 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
 
       val (_, cpuCmdQueue) = StreamDriver.queue(dut.io.cpuBus.cmd, dut.clockDomain)
       StreamReadyRandomizer(dut.io.cpuBus.cmd, dut.clockDomain)
-      val cpuRspBuffer = mutable.Queue[AdvancedICacheCpuRsp]()
-      StreamMonitor(dut.io.cpuBus.rsp, dut.clockDomain) { p => cpuRspBuffer.enqueue(p.copy()) }
+      val cpuRspBuffer = mutable.Queue[CpuRspData]() // 修改队列类型为 CpuRspData
+      StreamMonitor(dut.io.cpuBus.rsp, dut.clockDomain) { payload =>
+        // 将仿真信号转换为 Scala 数据类型并存储到容器类中
+        val rspData = CpuRspData(
+          instructions = payload.instructions.map(_.toBigInt),
+          pc = payload.pc.toBigInt,
+          fault = payload.fault.toBoolean
+        )
+        cpuRspBuffer.enqueue(rspData)
+      }
       StreamReadyRandomizer(dut.io.cpuBus.rsp, dut.clockDomain)
 
       var memReadCmdFires = 0
@@ -229,16 +252,17 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
       cpuCmdQueue.enqueue(_.address #= testAddr)
 
       val missTimeout = wordsPerLine * (simMemConfig.initialLatency + 5) + 100
-      assert(!dut.clockDomain.waitSamplingWhere(missTimeout)(cpuRspBuffer.nonEmpty), s"CPU 响应队列在宽取指 MISS 后为空 (timeout $missTimeout)")
+      dut.clockDomain.waitSamplingWhere(missTimeout)(cpuRspBuffer.nonEmpty)
+      assert(cpuRspBuffer.nonEmpty, s"CPU 响应队列在宽取指 MISS 后为空 (timeout $missTimeout)")
 
-      val rsp1 = cpuRspBuffer.dequeue()
-      println(s"SIM [T1.3]: MISS - PC ${rsp1.pc.toBigInt.toString(16)}")
-      assert(!rsp1.fault.toBoolean, "宽取指 MISS 不应产生 fault")
+      val rspData1 = cpuRspBuffer.dequeue() // 从队列中取出 CpuRspData 实例
+      println(s"SIM [T1.3]: MISS - PC ${rspData1.pc.toString(16)}")
+      assert(!rspData1.fault, "宽取指 MISS 不应产生 fault")
       for (i <- 0 until fetchWords) {
-        println(s"  Instruction[${i}]: ${rsp1.instructions(i).toBigInt.toString(16)}")
-        assert(rsp1.instructions(i).toBigInt == testDataGroup(i), s"宽取指 MISS 数据[${i}]不匹配.")
+        println(s"  Instruction[${i}]: ${rspData1.instructions(i).toString(16)}")
+        assert(rspData1.instructions(i) == testDataGroup(i), s"宽取指 MISS 数据[${i}]不匹配.")
       }
-      assert(rsp1.pc.toBigInt == testAddr, "宽取指 MISS PC 不匹配")
+      assert(rspData1.pc == testAddr, "宽取指 MISS PC 不匹配")
       assert(memReadCmdFires == wordsPerLine, s"宽取指 MISS 内存读命令次数不正确. 预期 ${wordsPerLine}, 得到 ${memReadCmdFires}")
 
       dut.clockDomain.waitSampling(10)
@@ -249,16 +273,17 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
       cpuCmdQueue.enqueue(_.address #= testAddr)
 
       val hitTimeout = 50
-      assert(!dut.clockDomain.waitSamplingWhere(hitTimeout)(cpuRspBuffer.nonEmpty), s"CPU 响应队列在宽取指 HIT 后为空 (timeout $hitTimeout)")
+      dut.clockDomain.waitSamplingWhere(hitTimeout)(cpuRspBuffer.nonEmpty)
+      assert(cpuRspBuffer.nonEmpty, s"CPU 响应队列在宽取指 HIT 后为空 (timeout $hitTimeout)")
 
-      val rsp2 = cpuRspBuffer.dequeue()
-      println(s"SIM [T1.3]: HIT - PC ${rsp2.pc.toBigInt.toString(16)}")
-      assert(!rsp2.fault.toBoolean, "宽取指 HIT 不应产生 fault")
+      val rspData2 = cpuRspBuffer.dequeue() // 从队列中取出 CpuRspData 实例
+      println(s"SIM [T1.3]: HIT - PC ${rspData2.pc.toString(16)}")
+      assert(!rspData2.fault, "宽取指 HIT 不应产生 fault")
       for (i <- 0 until fetchWords) {
-        println(s"  Instruction[${i}]: ${rsp2.instructions(i).toBigInt.toString(16)}")
-        assert(rsp2.instructions(i).toBigInt == testDataGroup(i), s"宽取指 HIT 数据[${i}]不匹配.")
+        println(s"  Instruction[${i}]: ${rspData2.instructions(i).toString(16)}")
+        assert(rspData2.instructions(i) == testDataGroup(i), s"宽取指 HIT 数据[${i}]不匹配.")
       }
-      assert(rsp2.pc.toBigInt == testAddr, "宽取指 HIT PC 不匹配")
+      assert(rspData2.pc == testAddr, "宽取指 HIT PC 不匹配")
       assert(memReadCmdFires == 0, s"宽取指 HIT 内存读命令次数不正确. 预期 0, 得到 ${memReadCmdFires}")
 
       dut.clockDomain.waitSampling(20)
@@ -297,8 +322,16 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
 
       val (_, cpuCmdQueue) = StreamDriver.queue(dut.io.cpuBus.cmd, dut.clockDomain)
       StreamReadyRandomizer(dut.io.cpuBus.cmd, dut.clockDomain)
-      val cpuRspBuffer = mutable.Queue[AdvancedICacheCpuRsp]()
-      StreamMonitor(dut.io.cpuBus.rsp, dut.clockDomain) { p => cpuRspBuffer.enqueue(p.copy()) }
+      val cpuRspBuffer = mutable.Queue[CpuRspData]() // 修改队列类型为 CpuRspData
+      StreamMonitor(dut.io.cpuBus.rsp, dut.clockDomain) { payload =>
+        // 将仿真信号转换为 Scala 数据类型并存储到容器类中
+        val rspData = CpuRspData(
+          instructions = payload.instructions.map(_.toBigInt),
+          pc = payload.pc.toBigInt,
+          fault = payload.fault.toBoolean
+        )
+        cpuRspBuffer.enqueue(rspData)
+      }
       StreamReadyRandomizer(dut.io.cpuBus.rsp, dut.clockDomain)
 
       var memReadCmdFires = 0
@@ -338,9 +371,10 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
         memReadCmdFires = 0
         cpuCmdQueue.enqueue(_.address #= addr)
         val missTimeout = wordsPerLine * (simMemConfig.initialLatency + 5) + 50
-        assert(!dut.clockDomain.waitSamplingWhere(missTimeout)(cpuRspBuffer.nonEmpty), s"$desc - CPU 响应队列为空 (timeout $missTimeout)")
-        val rsp = cpuRspBuffer.dequeue()
-        assert(rsp.instructions(0).toBigInt == expectedData, s"$desc - 数据不匹配")
+        dut.clockDomain.waitSamplingWhere(missTimeout)(cpuRspBuffer.nonEmpty)
+        assert(cpuRspBuffer.nonEmpty, s"$desc - CPU 响应队列为空 (timeout $missTimeout)")
+        val rspData = cpuRspBuffer.dequeue() // 从队列中取出 CpuRspData 实例
+        assert(rspData.instructions(0) == expectedData, s"$desc - 数据不匹配")
         assert(memReadCmdFires == wordsPerLine, s"$desc - 内存读命令次数不正确 (预期 ${wordsPerLine}, 得到 ${memReadCmdFires})")
       }
       def expectHit(addr: Long, expectedData: BigInt, desc: String): Unit = {
@@ -348,9 +382,10 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
         memReadCmdFires = 0
         cpuCmdQueue.enqueue(_.address #= addr)
         val hitTimeout = 50
-        assert(!dut.clockDomain.waitSamplingWhere(hitTimeout)(cpuRspBuffer.nonEmpty), s"$desc - CPU 响应队列为空 (timeout $hitTimeout)")
-        val rsp = cpuRspBuffer.dequeue()
-        assert(rsp.instructions(0).toBigInt == expectedData, s"$desc - 数据不匹配")
+        dut.clockDomain.waitSamplingWhere(hitTimeout)(cpuRspBuffer.nonEmpty)
+        assert(cpuRspBuffer.nonEmpty, s"$desc - CPU 响应队列为空 (timeout $hitTimeout)")
+        val rspData = cpuRspBuffer.dequeue() // 从队列中取出 CpuRspData 实例
+        assert(rspData.instructions(0) == expectedData, s"$desc - 数据不匹配")
         assert(memReadCmdFires == 0, s"$desc - 内存读命令次数不正确 (预期 0, 得到 ${memReadCmdFires})")
       }
 
@@ -407,8 +442,16 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
 
       val (_, cpuCmdQueue) = StreamDriver.queue(dut.io.cpuBus.cmd, dut.clockDomain)
       StreamReadyRandomizer(dut.io.cpuBus.cmd, dut.clockDomain)
-      val cpuRspBuffer = mutable.Queue[AdvancedICacheCpuRsp]()
-      StreamMonitor(dut.io.cpuBus.rsp, dut.clockDomain) { p => cpuRspBuffer.enqueue(p.copy()) }
+      val cpuRspBuffer = mutable.Queue[CpuRspData]() // 修改队列类型为 CpuRspData
+      StreamMonitor(dut.io.cpuBus.rsp, dut.clockDomain) { payload =>
+        // 将仿真信号转换为 Scala 数据类型并存储到容器类中
+        val rspData = CpuRspData(
+          instructions = payload.instructions.map(_.toBigInt),
+          pc = payload.pc.toBigInt,
+          fault = payload.fault.toBoolean
+        )
+        cpuRspBuffer.enqueue(rspData)
+      }
       StreamReadyRandomizer(dut.io.cpuBus.rsp, dut.clockDomain)
 
       var memReadCmdFires = 0
@@ -435,11 +478,13 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
       // Fill some cache lines
       println(s"SIM [T3.2]: 填充缓存 - Addr1 0x${addr1_set0.toHexString}")
       cpuCmdQueue.enqueue(_.address #= addr1_set0)
-      assert(!dut.clockDomain.waitSamplingWhere(100)(cpuRspBuffer.nonEmpty), "填充 Addr1: CPU 响应队列为空 (timeout 100)"); cpuRspBuffer.dequeue()
+      dut.clockDomain.waitSamplingWhere(100)(cpuRspBuffer.nonEmpty)
+      assert(cpuRspBuffer.nonEmpty, "填充 Addr1: CPU 响应队列为空 (timeout 100)"); cpuRspBuffer.dequeue()
 
       println(s"SIM [T3.2]: 填充缓存 - Addr2 0x${addr2_set1.toHexString}")
       cpuCmdQueue.enqueue(_.address #= addr2_set1)
-      assert(!dut.clockDomain.waitSamplingWhere(100)(cpuRspBuffer.nonEmpty), "填充 Addr2: CPU 响应队列为空 (timeout 100)"); cpuRspBuffer.dequeue()
+      dut.clockDomain.waitSamplingWhere(100)(cpuRspBuffer.nonEmpty)
+      assert(cpuRspBuffer.nonEmpty, "填充 Addr2: CPU 响应队列为空 (timeout 100)"); cpuRspBuffer.dequeue()
 
       dut.clockDomain.waitSampling(5) // Let fills complete
 
@@ -455,7 +500,8 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
       // Wait for flush done
       // Timeout: setCount * wayCount * (cycles_per_invalidation_step) + buffer
       val flushTimeout = cacheConfig.setCount * cacheConfig.wayCount * 5 + 50
-      assert(!dut.clockDomain.waitSamplingWhere(flushTimeout)(dut.io.flushBus.rsp.valid.toBoolean && dut.io.flushBus.rsp.payload.done.toBoolean), s"Flush 操作未完成或未发出 done 信号 (timeout $flushTimeout)")
+      dut.clockDomain.waitSamplingWhere(flushTimeout)(dut.io.flushBus.rsp.valid.toBoolean && dut.io.flushBus.rsp.payload.done.toBoolean)
+      assert(dut.io.flushBus.rsp.valid.toBoolean && dut.io.flushBus.rsp.payload.done.toBoolean, s"Flush 操作未完成或未发出 done 信号 (timeout $flushTimeout)")
       println("SIM [T3.2]: Flush 操作由 DUT 报告完成.")
       // Consume the flush response if it's a stream
       // If rsp.valid is high, it means it's ready to be consumed.
@@ -469,17 +515,19 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
       memReadCmdFires = 0
       println(s"SIM [T3.2]: 请求 Addr1 0x${addr1_set0.toHexString} (预期 MISS)")
       cpuCmdQueue.enqueue(_.address #= addr1_set0)
-      assert(!dut.clockDomain.waitSamplingWhere(100)(cpuRspBuffer.nonEmpty), "Addr1 post-flush: CPU 响应队列为空 (timeout 100)")
-      val rsp_addr1 = cpuRspBuffer.dequeue()
-      assert(rsp_addr1.instructions(0).toBigInt == data1, "Addr1 post-flush: 数据不匹配")
+      dut.clockDomain.waitSamplingWhere(100)(cpuRspBuffer.nonEmpty)
+      assert(cpuRspBuffer.nonEmpty, "Addr1 post-flush: CPU 响应队列为空 (timeout 100)")
+      val rspData_addr1 = cpuRspBuffer.dequeue() // 从队列中取出 CpuRspData 实例
+      assert(rspData_addr1.instructions(0) == data1, "Addr1 post-flush: 数据不匹配")
       assert(memReadCmdFires == wordsPerLine, s"Addr1 post-flush: 内存读命令次数应为 ${wordsPerLine}, 得到 ${memReadCmdFires}")
 
       memReadCmdFires = 0
       println(s"SIM [T3.2]: 请求 Addr2 0x${addr2_set1.toHexString} (预期 MISS)")
       cpuCmdQueue.enqueue(_.address #= addr2_set1)
-      assert(!dut.clockDomain.waitSamplingWhere(100)(cpuRspBuffer.nonEmpty), "Addr2 post-flush: CPU 响应队列为空 (timeout 100)")
-      val rsp_addr2 = cpuRspBuffer.dequeue()
-      assert(rsp_addr2.instructions(0).toBigInt == data2, "Addr2 post-flush: 数据不匹配")
+      dut.clockDomain.waitSamplingWhere(100)(cpuRspBuffer.nonEmpty)
+      assert(cpuRspBuffer.nonEmpty, "Addr2 post-flush: CPU 响应队列为空 (timeout 100)")
+      val rspData_addr2 = cpuRspBuffer.dequeue() // 从队列中取出 CpuRspData 实例
+      assert(rspData_addr2.instructions(0) == data2, "Addr2 post-flush: 数据不匹配")
       assert(memReadCmdFires == wordsPerLine, s"Addr2 post-flush: 内存读命令次数应为 ${wordsPerLine}, 得到 ${memReadCmdFires}")
 
       dut.clockDomain.waitSampling(20)
@@ -520,8 +568,16 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
 
       val (_, cpuCmdQueue) = StreamDriver.queue(dut.io.cpuBus.cmd, dut.clockDomain)
       StreamReadyRandomizer(dut.io.cpuBus.cmd, dut.clockDomain)
-      val cpuRspBuffer = mutable.Queue[AdvancedICacheCpuRsp]()
-      StreamMonitor(dut.io.cpuBus.rsp, dut.clockDomain) { p => cpuRspBuffer.enqueue(p.copy()) }
+      val cpuRspBuffer = mutable.Queue[CpuRspData]() // 修改队列类型为 CpuRspData
+      StreamMonitor(dut.io.cpuBus.rsp, dut.clockDomain) { payload =>
+        // 将仿真信号转换为 Scala 数据类型并存储到容器类中
+        val rspData = CpuRspData(
+          instructions = payload.instructions.map(_.toBigInt),
+          pc = payload.pc.toBigInt,
+          fault = payload.fault.toBoolean
+        )
+        cpuRspBuffer.enqueue(rspData)
+      }
       StreamReadyRandomizer(dut.io.cpuBus.rsp, dut.clockDomain)
 
       // (Optional) Initialize memory around the boundary if we expect a miss path before fault
@@ -534,14 +590,14 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
       // 缓存应该在 sIdle 状态检测到这个问题并立即响应 fault (或进入错误状态)
       // 它不应该尝试去内存取数据。
       val faultTimeout = 20
-      assert(!dut.clockDomain.waitSamplingWhere(faultTimeout)(cpuRspBuffer.nonEmpty), s"跨行边界取指: CPU 响应队列为空 (timeout $faultTimeout)")
+      dut.clockDomain.waitSamplingWhere(faultTimeout)(cpuRspBuffer.nonEmpty)
+      assert(cpuRspBuffer.nonEmpty, s"跨行边界取指: CPU 响应队列为空 (timeout $faultTimeout)")
 
-      assert(cpuRspBuffer.nonEmpty, "跨行边界取指: CPU 响应队列为空") // Double check after timeout
-      val rsp = cpuRspBuffer.dequeue()
-      println(s"SIM [T4.3]: 收到响应 PC ${rsp.pc.toBigInt.toString(16)}, Fault=${rsp.fault.toBoolean}")
+      val rspData = cpuRspBuffer.dequeue() // 从队列中取出 CpuRspData 实例
+      println(s"SIM [T4.3]: 收到响应 PC ${rspData.pc.toString(16)}, Fault=${rspData.fault}")
 
-      assert(rsp.fault.toBoolean, "跨行边界取指应产生 fault")
-      assert(rsp.pc.toBigInt == testAddrCross, "跨行边界取指 fault 的 PC 不匹配")
+      assert(rspData.fault, "跨行边界取指应产生 fault")
+      assert(rspData.pc == testAddrCross, "跨行边界取指 fault 的 PC 不匹配")
       // 验证指令部分可以是未定义或特定错误码, 这里不严格检查
       // assert(dut.icache.fsm.is(dut.icache.fsm.sIdle), "Cache FSM should return to Idle or an error state") // 检查 FSM 状态 (如果可访问)
 

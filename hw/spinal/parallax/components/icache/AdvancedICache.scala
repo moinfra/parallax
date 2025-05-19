@@ -187,7 +187,7 @@ class AdvancedICache(implicit
   // Since wordsPerLine >= 1, wordsPerLine+1 >= 2. So log2Up >= 1. This Reg is never 0-width.
   val refillWordCounter = Reg(UInt(log2Up(cacheConfig.wordsPerLine + 1) bits)) init (0)
   val refillBuffer = Reg(Bits(cacheConfig.bitsPerLine bits)) init (0)
-  val refillErrorReg = Reg(Bool()) init (False)
+  val refillErrorReg = Reg(Bool()) init (False) // 现在有 bug：存在一个周期延迟
 
   // flush counters are instantiated only if needed
   val flushSetCounter = if (hasMultipleSets) Reg(UInt(cacheConfig.setIndexWidth)) init (0) else null
