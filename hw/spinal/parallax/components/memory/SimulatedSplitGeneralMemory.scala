@@ -13,12 +13,14 @@ class SimulatedSplitGeneralMemory(
 
   require(memConfig.internalWordCount > 0, "SimulatedGeneralMemory internalWordCount must be greater than 0.")
 
-  val io = new Bundle {
+  case class IO() extends Bundle {
     val bus = slave(SplitGenericMemoryBus(busConfig)) // Updated bus type
     val writeEnable = in Bool () default (False) // For external direct writes (e.g., init)
     val writeAddress = in UInt (busConfig.addressWidth) default (U(0, busConfig.addressWidth))
     val writeData = in Bits (memConfig.internalDataWidth) default (B(0, memConfig.internalDataWidth))
   }
+
+  val io = new IO
 
   val internalBytesPerBusData: Int = busConfig.dataWidth.value / 8
 

@@ -13,6 +13,7 @@ case class GenericMemoryBusConfig(
     idWidth: BitCount = 4 bits // Example, only used if useId is true
 )
 
+
 object GenericMemoryBusOpcode extends SpinalEnum { val OP_READ, OP_WRITE = newElement() }
 
 // Command from Master to Slave
@@ -41,15 +42,15 @@ case class GenericMemoryBus(config: GenericMemoryBusConfig) extends Bundle with 
     slave(rsp)
   }
 
-  def <<(m : GenericMemoryBus): Unit ={
+  def <<(m: GenericMemoryBus): Unit = {
     m.cmd >> this.cmd // this.cmd is slave, m.cmd is master
     this.rsp >> m.rsp // this.rsp is master, m.rsp is slave
-                     // Note: Original was m.rsp << this.rsp, which implies this.rsp is slave
-                     // If 'this' is the master interface being converted, then this.rsp is slave (receives data)
-                     // and m.rsp (if m is another GenericMemoryBus master) would also be slave.
-                     // The operator '<<' here is for connecting two GenericMemoryBus interfaces.
-                     // My previous interpretation of this operator for the current context might be off.
-                     // Let's focus on toAxi4Shared.
+    // Note: Original was m.rsp << this.rsp, which implies this.rsp is slave
+    // If 'this' is the master interface being converted, then this.rsp is slave (receives data)
+    // and m.rsp (if m is another GenericMemoryBus master) would also be slave.
+    // The operator '<<' here is for connecting two GenericMemoryBus interfaces.
+    // My previous interpretation of this operator for the current context might be off.
+    // Let's focus on toAxi4Shared.
   }
 }
 
@@ -114,7 +115,7 @@ case class SplitGenericMemoryBus(config: GenericMemoryBusConfig) extends Bundle 
   val write = SplitGmbWriteChannel(config)
 
   override def asMaster(): Unit = {
-    master(read)  // read channel is master
+    master(read) // read channel is master
     master(write) // write channel is master
   }
   // Note: If this bus is used as a SLAVE interface on a memory component,

@@ -26,26 +26,7 @@ case class SimpleICacheConfig(
 
   // Tag width: Address_width - Index_width - Byte_offset_in_line_width
   val tagWidth: BitCount = addressWidth - indexWidth - byteOffsetWidth
-  
-  // 32位地址被分解为三个部分：
-  // +---------------------+--------+--------+
-  // |        Tag          | Index  | Offset | <-- Offset 以 Byte 计
-  // +---------------------+--------+--------+
-  // | 31                11|10     5|4      0|
-  // | 21 bits             | 6 bits |  5 bits|
-  // +---------------------+--------+--------+
-  //
-  // Tag + Index = Line Address
-  // 更详细地，byteOffsetWidth 部分可以进一步分解：
-  // byteOffsetWidth (5 bits)
-  // +-----+-----+
-  // | Word|Byte |
-  // | 2:0 |1:0  |
-  // +-----+-----+
-  // ​​Tag (21位)​​: 用于标识缓存行对应的主存地址的高位部分
-  // ​​Index (6位)​​: 用于选择缓存中的哪一行(64行需要6位索引)
-  // ​​Offset (5位)​​:
-  // 高3位(wordOffset)选择行中的哪个字(8字/行)
+
   // 低2位选择字中的哪个字节(32位=4字节)
   def lineAddress(fullAddress: UInt): UInt = fullAddress(addressWidth.value - 1 downto byteOffsetWidth.value)
   def tag(fullAddress: UInt): UInt = fullAddress(addressWidth.value - 1 downto indexWidth.value + byteOffsetWidth.value)
