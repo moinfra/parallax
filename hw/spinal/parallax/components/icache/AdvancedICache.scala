@@ -32,15 +32,6 @@ case class AdvancedICacheFlushBus() extends Bundle with IMasterSlave {
   val rsp = Stream(AdvancedICacheFlushRsp())
   override def asMaster(): Unit = { master(cmd); slave(rsp) }
 }
-package parallax.components.icache
-
-import spinal.core._
-import spinal.lib._
-import spinal.lib.fsm._
-import parallax.components.memory.{GenericMemoryBusConfig, SplitGenericMemoryBus}
-
-// ... (AdvancedICacheCpuCmd, AdvancedICacheCpuRsp, AdvancedICacheCpuBus, AdvancedICacheFlushCmd, AdvancedICacheFlushRsp, AdvancedICacheFlushBus remain unchanged) ...
-// ... (AdvancedICacheConfig remains largely unchanged, ensure requires are robust)
 
 case class AdvancedICacheConfig(
     cacheSize: BigInt = 1 KiB,
@@ -74,20 +65,20 @@ case class AdvancedICacheConfig(
   require(bytePerLine >= (fetchDataWidth.value / 8), "Line size must be able to hold at least one full fetch group.")
 
   val byteOffsetWidth: BitCount = log2Up(bytePerLine) bits
-  
-  // Important: Ensure setIndexWidth is 0 if setCount is 1, handle this in calculations
+
+  // Important: setIndexWidth is 0 if setCount is 1
   val setIndexWidth: BitCount = if (setCount == 1) 0 bits else log2Up(setCount) bits
-  
+
   val tagWidth: BitCount = addressWidth - setIndexWidth - byteOffsetWidth
   require(
     tagWidth.value > 0,
     s"Tag width must be positive. Calculated: ${tagWidth.value}. Check addressWidth (${addressWidth.value}), setIndexWidth (${setIndexWidth.value}), byteOffsetWidth (${byteOffsetWidth.value})."
   )
 
-  // Important: Ensure wordOffsetWidth is 0 if wordsPerLine is 1
+  // Important: wordOffsetWidth is 0 if wordsPerLine is 1
   val wordOffsetWidth: BitCount = if (wordsPerLine == 1) 0 bits else log2Up(wordsPerLine) bits
-  
-  // Print config (unchanged)
+
+  // Print config (unchanged, but values will reflect 0 if calculated)
   println(s"--- 指令缓存配置 ---")
   println(s"缓存大小: ${cacheSize}")
   println(s"每行字节数: ${bytePerLine}")
@@ -106,48 +97,46 @@ case class AdvancedICacheConfig(
   println(s"字偏移宽度: ${wordOffsetWidth}")
   println(s"--------------------")
 
-
   def getLineBaseAddress(fullAddress: UInt): UInt = (fullAddress >> byteOffsetWidth.value) << byteOffsetWidth.value
   def getTag(fullAddress: UInt): UInt = fullAddress(
     addressWidth.value - 1 downto setIndexWidth.value + byteOffsetWidth.value
   )
   def getSetIndex(fullAddress: UInt): UInt = {
-    if (setCount == 1) {
-      U(0, 0 bits) // If only one set, index is always 0 and 0-bits wide
-    } else {
-      fullAddress(setIndexWidth.value + byteOffsetWidth.value - 1 downto byteOffsetWidth.value)
-    }
+    // If setIndexWidth is 0, the set index is always 0.
+    // We don't need to extract bits if the width is 0.
+    if (setIndexWidth.value == 0) U(0).resized // Return 0-width U(0) implicitly
+    else fullAddress(setIndexWidth.value + byteOffsetWidth.value - 1 downto byteOffsetWidth.value)
   }
   def getWordOffsetInLineForFetchGroup(fullAddress: UInt): UInt = {
-    if (wordsPerLine == 1 && fetchWordsPerFetchGroup == 1) { // Simplified case: if line holds one word, and we fetch one word
-        U(0, 0 bits)
-    } else {
-        // Ensure LSB of slice is not greater than MSB for 0-width.
-        // log2Up(dataWidth.value / 8) is the width of the byte-in-word offset.
-        // wordOffset is relative to start of line, in units of dataWidth words.
-        val wordSizeInBytesLog2 = log2Up(dataWidth.value / 8)
-        if (byteOffsetWidth.value <= wordSizeInBytesLog2) { // e.g. bytePerLine <= wordSize
-             U(0, wordOffsetWidth) // Offset must be 0 if line is not larger than one word.
-        } else {
-             fullAddress(byteOffsetWidth.value - 1 downto wordSizeInBytesLog2) bits // word offset part of byte offset
-        }
+    // If wordOffsetWidth is 0, the word offset is always 0.
+    // We don't need to extract bits if the width is 0.
+    if (wordOffsetWidth.value == 0) U(0).resized // Return 0-width U(0) implicitly
+    else {
+      val wordSizeInBytesLog2 = log2Up(dataWidth.value / 8)
+      // Ensure LSB of slice is not greater than MSB for 0-width.
+      // wordOffset is relative to start of line, in units of dataWidth words.
+      // If byteOffsetWidth <= wordSizeInBytesLog2, the word offset is always 0 within the line base address.
+      if (byteOffsetWidth.value <= wordSizeInBytesLog2) {
+        U(0, wordOffsetWidth) // Offset must be 0 if line is not larger than one word.
+      } else {
+        fullAddress(byteOffsetWidth.value - 1 downto wordSizeInBytesLog2) // word offset part of byte offset
+      }
     }
   }
 }
-
 
 case class CacheLineEntry(implicit val cacheConfig: AdvancedICacheConfig) extends Bundle {
   val tag = UInt(cacheConfig.tagWidth) // tagWidth is required > 0
   val data = Bits(cacheConfig.bitsPerLine bits)
   val valid = Bool()
-  // Age is null if wayCount is 1 (direct-mapped), otherwise UInt of appropriate width
-  val age = if (cacheConfig.wayCount > 1) UInt(log2Up(cacheConfig.wayCount) bits) else null
+  // Age is instantiated only if wayCount is > 1
+  val age: UInt = if (cacheConfig.wayCount > 1) UInt(log2Up(cacheConfig.wayCount) bits) else null
 }
 
 class AdvancedICache(implicit
     val cacheConfig: AdvancedICacheConfig,
     val memBusConfig: GenericMemoryBusConfig,
-    val enableLog: Boolean = true
+    val enableLog: Boolean = false
 ) extends Component {
   require(
     cacheConfig.dataWidth == memBusConfig.dataWidth,
@@ -186,11 +175,11 @@ class AdvancedICache(implicit
   val currentCpuAddressReg = Reg(UInt(cacheConfig.addressWidth)) init (0)
   val currentTagReg = Reg(UInt(cacheConfig.tagWidth)) init (0) // tagWidth must be > 0 by config require
 
+  // Conditionally instantiate registers based on configuration
   val currentSetIdxReg = if (hasMultipleSets) Reg(UInt(cacheConfig.setIndexWidth)) init (0) else null
   val currentWordOffsetInLineReg = if (lineHasMultipleWords) Reg(UInt(cacheConfig.wordOffsetWidth)) init (0) else null
 
-  // hitWayReg is arguably not strictly needed if hit data is consumed in the same cycle it's determined.
-  // However, to fix the 0-bit issue if it were kept:
+  // hitWayReg and victimWayReg are instantiated only if associative
   val hitWayReg = if (isAssociative) Reg(UInt(log2Up(cacheConfig.wayCount) bits)) init (0) else null
   val victimWayReg = if (isAssociative) Reg(UInt(log2Up(cacheConfig.wayCount) bits)) init (0) else null
 
@@ -200,35 +189,41 @@ class AdvancedICache(implicit
   val refillBuffer = Reg(Bits(cacheConfig.bitsPerLine bits)) init (0)
   val refillErrorReg = Reg(Bool()) init (False)
 
+  // flush counters are instantiated only if needed
   val flushSetCounter = if (hasMultipleSets) Reg(UInt(cacheConfig.setIndexWidth)) init (0) else null
   val flushWayCounter = if (isAssociative) Reg(UInt(log2Up(cacheConfig.wayCount) bits)) init (0) else null
 
   val waitingForMemRspReg = Reg(Bool()) init (False)
 
-  // Effective values for indices/counters that might not have a register
-  def effCurrentSetIdx: UInt = if (hasMultipleSets) currentSetIdxReg else U(0, 0 bits)
-  def effCurrentWordOffsetInLine: UInt = if (lineHasMultipleWords) currentWordOffsetInLineReg else U(0, 0 bits)
-  def effVictimWay: UInt = if (isAssociative) victimWayReg else U(0, 0 bits)
-  def effFlushSetCounter: UInt = if (hasMultipleSets) flushSetCounter else U(0, 0 bits)
-  def effFlushWayCounter: UInt = if (isAssociative) flushWayCounter else U(0, 0 bits)
+  // Get the current set index. If hasMultipleSets is false, the index is always 0.
+  // We don't need a 0-width signal here, just use the integer 0 for indexing the Vec of sets.
+  def getCurrentSetIdx: UInt = if (hasMultipleSets) currentSetIdxReg else U(0)
+
+  // Get the current word offset in line. If lineHasMultipleWords is false, the offset is always 0.
+  // We don't need a 0-width signal here, just use the integer 0 for indexing.
+  def getCurrentWordOffsetInLine: UInt = if (lineHasMultipleWords) currentWordOffsetInLineReg else U(0)
+
+  // Get the victim way. If not associative, the victim is always way 0.
+  def getVictimWay: UInt = if (isAssociative) victimWayReg else U(0)
+
+  // Get the flush set counter value.
+  def getFlushSetCounter: UInt = if (hasMultipleSets) flushSetCounter else U(0)
+
+  // Get the flush way counter value.
+  def getFlushWayCounter: UInt = if (isAssociative) flushWayCounter else U(0)
 
 
-  val ways_data_from_current_set = cacheLines(effCurrentSetIdx)
+  // Access cacheLines using the integer set index.
+  val ways_data_from_current_set = cacheLines(getCurrentSetIdx)
 
-  def extractInstructionsFromLine(lineData: Bits, firstWordOffset: UInt): Vec[Bits] = {
+  def extractInstructionsFromLine(lineData: Bits, firstWordOffsetInt: UInt): Vec[Bits] = {
     val wordsInLine = lineData.subdivideIn(cacheConfig.dataWidth).reverse // Vec[Bits]
     val extractedInstructions = Vec(Bits(cacheConfig.dataWidth), cacheConfig.fetchWordsPerFetchGroup)
-    
-    // wordOffsetWidth is 0 if wordsPerLine is 1. Resize to 0 is fine.
-    val wordOffsetResizeTarget = cacheConfig.wordOffsetWidth 
 
     for (i <- 0 until cacheConfig.fetchWordsPerFetchGroup) {
-      // firstWordOffset will be U(0,0 bits) if lineHasSingleWord.
-      // Adding U(i) will result in U(i, appropriate_width).
-      val currentOffsetInLineCalculated = firstWordOffset + U(i)
-      // Resize to the actual wordOffsetWidth. If wordsPerLine is 1, width is 0, so result is U(0,0 bits).
-      val currentOffsetResized = currentOffsetInLineCalculated.resize(wordOffsetResizeTarget)
-      extractedInstructions(i) := wordsInLine(currentOffsetResized)
+      val currentOffsetInLineInt = firstWordOffsetInt + i
+      // Access wordsInLine using the integer offset.
+      extractedInstructions(i) := wordsInLine(currentOffsetInLineInt)
     }
     extractedInstructions
   }
@@ -246,12 +241,12 @@ class AdvancedICache(implicit
     if (memBusConfig.useId) io.mem.read.cmd.payload.id := U(0)
     io.mem.read.rsp.ready := False
 
-    io.mem.write.cmd.valid := False 
+    io.mem.write.cmd.valid := False
     io.mem.write.cmd.payload.address := U(0)
     io.mem.write.cmd.payload.data := B(0)
     io.mem.write.cmd.payload.byteEnables := B(0)
     if (memBusConfig.useId) io.mem.write.cmd.payload.id := U(0)
-    io.mem.write.rsp.ready := True 
+    io.mem.write.rsp.ready := True
 
     io.flush.cmd.ready := False
     io.flush.rsp.valid := False
@@ -261,91 +256,127 @@ class AdvancedICache(implicit
     val sCompareTags: State = new State
     val sMiss_FetchLine: State = new State
     val sFlush_Invalidate: State = new State
+    val sWaitingFaultAck: State = new State // New state
 
     sIdle.whenIsActive {
-      if (enableLog) report(L"AdvICache: FSM State sIdle")
+      /*if (enableLog) report(L"AdvICache: FSM State sIdle")*/
       io.cpu.cmd.ready := True
       io.flush.cmd.ready := True
+      io.cpu.rsp.valid := False // Default not sending response
 
       when(io.flush.cmd.fire && io.flush.cmd.payload.start) {
-        if (enableLog) report(L"AdvICache: sIdle - Flush command received.")
+        /*if (enableLog) report(L"AdvICache: sIdle - Flush command received.")*/
+        io.cpu.cmd.ready := False // Stop receiving CPU commands
         if (hasMultipleSets) flushSetCounter := U(0)
         if (isAssociative) flushWayCounter := U(0)
         goto(sFlush_Invalidate)
-      } elsewhen (io.cpu.cmd.fire) {
+      } elsewhen (io.cpu.cmd.fire) { // cmd.fire is based on sIdle default cmd.ready = True
         val cpuAddr = io.cpu.cmd.payload.address
-        if (enableLog) report(L"AdvICache: sIdle - CPU cmd fire. Addr=${cpuAddr}")
+        /*if (enableLog) report(L"AdvICache: sIdle - CPU cmd fire. Addr=${cpuAddr}")*/
 
+        // Latch address and calculated tag/set/offset, as sWaitingFaultAck or sCompareTags may need them
         currentCpuAddressReg := cpuAddr
         currentTagReg := cacheConfig.getTag(cpuAddr)
-        
-        val newSetIdx = cacheConfig.getSetIndex(cpuAddr)
-        if (hasMultipleSets) currentSetIdxReg := newSetIdx
-        
-        val newWordOffset = cacheConfig.getWordOffsetInLineForFetchGroup(cpuAddr)
-        if (lineHasMultipleWords) currentWordOffsetInLineReg := newWordOffset
+
+        if (hasMultipleSets) {
+          currentSetIdxReg := cacheConfig.getSetIndex(cpuAddr)
+        }
+        if (lineHasMultipleWords) {
+          currentWordOffsetInLineReg := cacheConfig.getWordOffsetInLineForFetchGroup(cpuAddr)
+        }
+
 
         val endAddressOfFetchGroup = cpuAddr + (cacheConfig.fetchDataWidth.value / 8) - 1
         val startLineBaseAddr = cacheConfig.getLineBaseAddress(cpuAddr)
         val endLineBaseAddr = cacheConfig.getLineBaseAddress(endAddressOfFetchGroup)
 
-        when(startLineBaseAddr =/= endLineBaseAddr) {
-          if (enableLog) report(L"AdvICache: FATAL sIdle - Fetch group crosses line boundary. Addr=${cpuAddr}")
-          io.cpu.rsp.valid := True
+        when(startLineBaseAddr =/= endLineBaseAddr) { // Fault condition
+          /*if (enableLog) report(L"AdvICache: FATAL sIdle - Fetch group crosses line boundary. Addr=${cpuAddr}")*/
+          io.cpu.rsp.valid := True // Issue fault response
           io.cpu.rsp.payload.fault := True
           io.cpu.rsp.payload.pc := cpuAddr
-          when(!io.cpu.rsp.fire) { io.cpu.cmd.ready := False }
-        } otherwise {
-          if (enableLog)
+          goto(sWaitingFaultAck) // Transition to waiting state
+        } otherwise { // Non-fault path
+          /*if (enableLog) {
+            val setIdxLog = if (hasMultipleSets) s", SetIdx=${currentSetIdxReg}" else ""
+            val wordOffsetLog = if (lineHasMultipleWords) s", WordOffset=${currentWordOffsetInLineReg}" else ""
             report(
-              L"AdvICache: sIdle - Addr=${cpuAddr}, Tag=${cacheConfig.getTag(cpuAddr)}, SetIdx=${newSetIdx}, WordOffset=${newWordOffset}. Transition to sCompareTags."
+              L"AdvICache: sIdle - Addr=${cpuAddr}, Tag=${currentTagReg}${setIdxLog}${wordOffsetLog}. Transition to sCompareTags."
             )
+          }*/
+          // cmd.ready remains True (from sIdle default)
+          // rsp.valid remains False (from sIdle default)
           goto(sCompareTags)
         }
       }
     }
 
-    sCompareTags.whenIsActive {
-      val setIdxForLookup = effCurrentSetIdx // Uses the effective value
-      val reqTag = currentTagReg
-      if (enableLog) report(L"AdvICache: FSM State sCompareTags - SetIdx: ${setIdxForLookup}, ReqTag: ${reqTag}")
+    sWaitingFaultAck.whenIsActive {
+      /*if (enableLog) report(L"AdvICache: FSM State sWaitingFaultAck")*/
+      // Maintain fault response
+      io.cpu.rsp.valid := True
+      io.cpu.rsp.payload.fault := True
+      io.cpu.rsp.payload.pc := currentCpuAddressReg // Use previously latched address
 
-      // ways_data_from_current_set is already using effCurrentSetIdx
+      // Do not accept new commands
+      io.cpu.cmd.ready := False
+
+      when(io.cpu.rsp.fire) { // CPU has acknowledged the fault
+        /*if (enableLog) report(L"AdvICache: sWaitingFaultAck - Fault response ACKED by CPU. Transitioning to sIdle.")*/
+        goto(sIdle)
+      } otherwise {
+        /*if (enableLog) report(L"AdvICache: sWaitingFaultAck - Waiting for CPU to ACK fault response.")*/
+      }
+    }
+
+    sCompareTags.whenIsActive {
+      val setIdxForLookup = getCurrentSetIdx // Uses the integer value
+      val reqTag = currentTagReg
+      /*if (enableLog) {
+        val setIdxLog = if (hasMultipleSets) s"SetIdx: ${setIdxForLookup}" else "SetIdx: 0 (Single Set)"
+        report(L"AdvICache: FSM State sCompareTags - ${setIdxLog}, ReqTag: ${reqTag}")
+      }*/
+
+      // ways_data_from_current_set is already using the integer set index
       val hitSignals = Vec.tabulate(cacheConfig.wayCount) { w =>
         val wayEntry = ways_data_from_current_set(w)
         val wayValid = wayEntry.valid
         val tagMatch = wayEntry.tag === reqTag
-        if (enableLog) {
-            val ageReport = if (isAssociative) wayEntry.age else U(0) // Handle null age for reporting
-            report(L"AdvICache: sCompareTags - Way ${w}: ValidRAM=${wayValid}, TagRAM=${wayEntry.tag}, AgeRAM=${ageReport}, TagMatch=${tagMatch}")
-        }
+        /*if (enableLog) {
+          val ageLog = if (isAssociative) s", AgeRAM=${wayEntry.age}" else ""
+          report(
+            L"AdvICache: sCompareTags - Way ${w.toString()}: ValidRAM=${wayValid}, TagRAM=${wayEntry.tag}${ageLog}, TagMatch=${tagMatch}"
+          )
+        }*/
         wayValid && tagMatch
       }
       val isHit = hitSignals.orR
       val hitWayOH = OHMasking.first(hitSignals)
-      // determinedHitWay will be U(0,0 bits) if wayCount=1, which is correct for indexing a 1-element Vec.
-      val determinedHitWay = OHToUInt(hitWayOH) 
+      // determinedHitWay will be U(0) if wayCount=1, which is correct for indexing a 1-element Vec.
+      val determinedHitWay = OHToUInt(hitWayOH)
 
-      if (enableLog) report(L"AdvICache: sCompareTags - isHit=${isHit}, determinedHitWay=${determinedHitWay}")
+      /*if (enableLog) report(L"AdvICache: sCompareTags - isHit=${isHit}, determinedHitWay=${determinedHitWay}")*/
 
       when(isHit) {
-        if (enableLog) report(L"AdvICache: sCompareTags - HIT in Way ${determinedHitWay}")
+        /*if (enableLog) report(L"AdvICache: sCompareTags - HIT in Way ${determinedHitWay}")*/
         if (isAssociative) hitWayReg := determinedHitWay // Assign to Reg only if it exists
 
         io.cpu.rsp.valid := True
         io.cpu.rsp.payload.instructions := extractInstructionsFromLine(
-          ways_data_from_current_set(determinedHitWay).data, // Use determinedHitWay directly
-          effCurrentWordOffsetInLine // Use effective value
+          ways_data_from_current_set(determinedHitWay).data, // Use determinedHitWay
+          getCurrentWordOffsetInLine // Use integer offset
         )
         io.cpu.rsp.payload.fault := False
 
         if (isAssociative) { // LRU Update on HIT
-          if (enableLog)
-            report(L"AdvICache: sCompareTags - Updating LRU for HIT on Way ${determinedHitWay} in Set ${setIdxForLookup}")
+          /*if (enableLog)
+            report(
+              L"AdvICache: sCompareTags - Updating LRU for HIT on Way ${determinedHitWay} in Set ${setIdxForLookup}"
+            )*/
           val oldAgeOfHitWay = ways_data_from_current_set(determinedHitWay).age
           for (w <- 0 until cacheConfig.wayCount) {
             val currentWayEntry = ways_data_from_current_set(w)
-            when(U(w) === determinedHitWay) { // Compare with U(w) of appropriate width
+            when(U(w) === determinedHitWay) {
               currentWayEntry.age := U(0)
             } otherwise {
               when(currentWayEntry.valid && currentWayEntry.age < oldAgeOfHitWay) {
@@ -356,15 +387,15 @@ class AdvancedICache(implicit
         }
 
         when(io.cpu.rsp.fire) {
-          if (enableLog) report(L"AdvICache: sCompareTags - HIT response fired to CPU.")
+          /*if (enableLog) report(L"AdvICache: sCompareTags - HIT response fired to CPU.")*/
           goto(sIdle)
         } otherwise {
-          if (enableLog) report(L"AdvICache: sCompareTags - HIT response STALLED by CPU.")
+          /*if (enableLog) report(L"AdvICache: sCompareTags - HIT response STALLED by CPU.")*/
         }
 
       } otherwise { // Cache Miss
-        if (enableLog) report(L"AdvICache: sCompareTags - MISS for Set ${setIdxForLookup}, Tag ${reqTag}")
-        
+        /*if (enableLog) report(L"AdvICache: sCompareTags - MISS for Set ${setIdxForLookup}, Tag ${reqTag}")*/
+
         if (isAssociative) {
           val lruWayCand = UInt(log2Up(cacheConfig.wayCount) bits)
           val lruFound = Bool()
@@ -375,31 +406,33 @@ class AdvancedICache(implicit
           invalidWayCand := U(0); invalidFound := False
 
           // Iterate to pick lowest index if multiple candidates
-          for (w_idx <- (0 until cacheConfig.wayCount).reverse) { 
+          for (w_idx <- (0 until cacheConfig.wayCount).reverse) {
             val w_entry = ways_data_from_current_set(w_idx)
             when(!w_entry.valid) {
               invalidWayCand := U(w_idx)
               invalidFound := True
             }
             // age is only valid if isAssociative, which is true in this block
-            when(w_entry.valid && w_entry.age === (cacheConfig.wayCount - 1)) {
+            when(w_entry.valid && w_entry.age === U(cacheConfig.wayCount - 1)) {
               lruWayCand := U(w_idx)
               lruFound := True
             }
           }
-          
+
           val chosenVictimWayAssociative = UInt(log2Up(cacheConfig.wayCount) bits)
           when(invalidFound) { chosenVictimWayAssociative := invalidWayCand }
-          .elsewhen(lruFound) { chosenVictimWayAssociative := lruWayCand }
-          .otherwise { chosenVictimWayAssociative := U(0) } // Fallback
-          
-          victimWayReg := chosenVictimWayAssociative 
-          if (enableLog)
-            report(L"AdvICache: sCompareTags MISS - Final Victim Way for Set ${setIdxForLookup} is ${chosenVictimWayAssociative}")
+            .elsewhen(lruFound) { chosenVictimWayAssociative := lruWayCand }
+            .otherwise { chosenVictimWayAssociative := U(0) } // Fallback
+
+          victimWayReg := chosenVictimWayAssociative
+          /*if (enableLog)
+            report(
+              L"AdvICache: sCompareTags MISS - Final Victim Way for Set ${setIdxForLookup} is ${chosenVictimWayAssociative}"
+            )*/
         } else { // Direct mapped, victim is always way 0
-            // victimWayReg is null, no assignment needed. effVictimWay will provide U(0,0 bits).
-            if (enableLog)
-                report(L"AdvICache: sCompareTags MISS - Victim Way for Set ${setIdxForLookup} is 0 (direct mapped)")
+          // victimWayReg is null, no assignment needed. getVictimWay will provide 0.
+          /*if (enableLog)
+            report(L"AdvICache: sCompareTags MISS - Victim Way for Set ${setIdxForLookup} is 0 (direct mapped)")*/
         }
 
         refillWordCounter := 0
@@ -411,13 +444,16 @@ class AdvancedICache(implicit
     }
 
     sMiss_FetchLine.whenIsActive {
-      val setIdxToFill = effCurrentSetIdx
-      val victimWayToFill = effVictimWay // Use effective value, U(0,0 bits) if direct-mapped
-      
-      if (enableLog)
+      val setIdxToFill = getCurrentSetIdx
+      val victimWayToFill = getVictimWay // Use integer value
+
+      /*if (enableLog) {
+        val setIdxLog = if (hasMultipleSets) s"Set ${setIdxToFill}" else "Set 0 (Single Set)"
+        val victimWayLog = if (isAssociative) s", VictimWay ${victimWayToFill}" else ", VictimWay 0 (Direct Mapped)"
         report(
-          L"AdvICache: FSM State sMiss_FetchLine - Set ${setIdxToFill}, VictimWay ${victimWayToFill}, RefillCtr: ${refillWordCounter}, Waiting: ${waitingForMemRspReg}"
+          L"AdvICache: FSM State sMiss_FetchLine - ${setIdxLog}${victimWayLog}, RefillCtr: ${refillWordCounter}, Waiting: ${waitingForMemRspReg}"
         )
+      }*/
 
       io.mem.read.cmd.valid := False
       io.mem.read.rsp.ready := False
@@ -431,24 +467,24 @@ class AdvancedICache(implicit
           io.mem.read.cmd.valid := True
           io.mem.read.cmd.payload.address := memAccessAddress
           if (memBusConfig.useId) io.mem.read.cmd.payload.id := U(0)
-          if (enableLog)
+          /*if (enableLog)
             report(
               L"AdvICache: sMiss_FetchLine - Requesting word ${refillWordCounter} from Mem Addr=${memAccessAddress}"
-            )
+            )*/
         }
         io.mem.read.rsp.ready := True
       }
 
       when(io.mem.read.cmd.fire) {
-        if (enableLog) report(L"AdvICache: sMiss_FetchLine - Memory read cmd FIRED for word ${refillWordCounter}.")
+        /*if (enableLog) report(L"AdvICache: sMiss_FetchLine - Memory read cmd FIRED for word ${refillWordCounter}.")*/
         waitingForMemRspReg := True
       }
 
       when(io.mem.read.rsp.fire) {
-        if (enableLog)
+        /*if (enableLog)
           report(
             L"AdvICache: sMiss_FetchLine - Memory read rsp RECEIVED for word ${refillWordCounter}. Data=${io.mem.read.rsp.payload.data}, Error=${io.mem.read.rsp.payload.error}"
-          )
+          )*/
         waitingForMemRspReg := False
         refillErrorReg := refillErrorReg || io.mem.read.rsp.payload.error
 
@@ -462,27 +498,27 @@ class AdvancedICache(implicit
         val nextRefillCounter = refillWordCounter + 1
         refillWordCounter := nextRefillCounter
 
-        when(nextRefillCounter === cacheConfig.wordsPerLine) {
-          if (enableLog) report(L"AdvICache: sMiss_FetchLine - Entire line fetched. Total Error: ${refillErrorReg}")
+        when(nextRefillCounter === U(cacheConfig.wordsPerLine)) { // Compare with UInt
+          /*if (enableLog) report(L"AdvICache: sMiss_FetchLine - Entire line fetched. Total Error: ${refillErrorReg}")*/
           when(!refillErrorReg) {
-            if (enableLog)
+            /*if (enableLog)
               report(
                 L"AdvICache: sMiss_FetchLine - Line OK. Writing to Cache Set ${setIdxToFill}, Way ${victimWayToFill}. Validating."
-              )
-            val wayToUpdate = cacheLines(setIdxToFill)(victimWayToFill) // Indexing with effective values
+              )*/
+            val wayToUpdate = cacheLines(setIdxToFill)(victimWayToFill) // Indexing with integer values
             wayToUpdate.valid := True
             wayToUpdate.tag := currentTagReg
             wayToUpdate.data := refillBuffer
 
             if (isAssociative) { // LRU Update on FILL
-              if (enableLog)
+              /*if (enableLog)
                 report(
                   L"AdvICache: sMiss_FetchLine - Updating LRU for FILL of Way ${victimWayToFill} in Set ${setIdxToFill}"
-                )
+                )*/
               for (w <- 0 until cacheConfig.wayCount) {
                 val currentWayEntry = cacheLines(setIdxToFill)(w)
                 // victimWayToFill will be U(0,0 bits) if !isAssociative. U(w) will be U(0,0 bits) if w=0. Comparison is fine.
-                when(U(w) === victimWayToFill) { 
+                when(U(w) === victimWayToFill) {
                   currentWayEntry.age := U(0)
                 } otherwise {
                   when(currentWayEntry.valid) {
@@ -492,8 +528,8 @@ class AdvancedICache(implicit
               }
             }
           } otherwise {
-            if (enableLog)
-              report(L"AdvICache: sMiss_FetchLine - Error during line refill. Line NOT written or validated.")
+            /*if (enableLog)
+              report(L"AdvICache: sMiss_FetchLine - Error during line refill. Line NOT written or validated.")*/
           }
           goto(sIdle)
         }
@@ -501,10 +537,10 @@ class AdvancedICache(implicit
     }
 
     sFlush_Invalidate.whenIsActive {
-      val setIdxToFlush = effFlushSetCounter
-      val wayIdxToFlush = effFlushWayCounter
-      if (enableLog)
-        report(L"AdvICache: FSM State sFlush_Invalidate - Flushing Set: ${setIdxToFlush}, Way: ${wayIdxToFlush}")
+      val setIdxToFlush = getFlushSetCounter
+      val wayIdxToFlush = getFlushWayCounter
+      /*if (enableLog)
+        report(L"AdvICache: FSM State sFlush_Invalidate - Flushing Set: ${setIdxToFlush}, Way: ${wayIdxToFlush}")*/
       io.cpu.cmd.ready := False
 
       cacheLines(setIdxToFlush)(wayIdxToFlush).valid := False
@@ -513,121 +549,34 @@ class AdvancedICache(implicit
       }
 
       // Way increment logic
-      val nextFlushWayNum = wayIdxToFlush + 1 // wayIdxToFlush is U(0,0 bits) if !isAssociative. +1 becomes U(1,1 bit)
-      
-      when(nextFlushWayNum === cacheConfig.wayCount) { // If !isAssociative, wayCount=1. U(1,1bit) === 1 is true.
+      val nextFlushWayNum = wayIdxToFlush + 1
+
+      when(nextFlushWayNum === cacheConfig.wayCount) { // If !isAssociative, wayCount=1. 1 === 1 is true.
         if (isAssociative) flushWayCounter := U(0) // Reset Reg only if it exists
-        
+
         // Set increment logic
         // Use effFlushSetCounter for current value, resize for comparison
-        val nextFlushSetNumForComp = effFlushSetCounter.resize(log2Up(cacheConfig.setCount + 1)) + 1
-        
-        when(nextFlushSetNumForComp === cacheConfig.setCount) { // If !hasMultipleSets, setCount=1. U(1,1bit) === 1 is true.
-          if (enableLog) report(L"AdvICache: sFlush_Invalidate - Flush completed.")
+        val nextFlushSetNum = flushSetCounter.resize(log2Up(cacheConfig.setCount + 1)) + 1
+
+        when(nextFlushSetNum === cacheConfig.setCount) { // If !hasMultipleSets, setCount=1. U(1,1bit) === 1 is true.
+          /*if (enableLog) report(L"AdvICache: sFlush_Invalidate - Flush completed.")*/
           io.flush.rsp.valid := True
           io.flush.rsp.payload.done := True
           when(io.flush.rsp.fire) {
-            if (enableLog) report(L"AdvICache: sFlush_Invalidate - Flush completion ACKED.")
+            /*if (enableLog) report(L"AdvICache: sFlush_Invalidate - Flush completion ACKED.")*/
             goto(sIdle)
           }
         } otherwise { // More sets to flush
           if (hasMultipleSets) { // Assign to Reg only if it exists
             // Truncate back to original width for storage
-            flushSetCounter := nextFlushSetNumForComp.resize(cacheConfig.setIndexWidth)
+            flushSetCounter := nextFlushSetNum.resize(cacheConfig.setIndexWidth)
           }
         }
       } otherwise { // More ways in current set to flush (only if isAssociative)
         if (isAssociative) { // Assign to Reg only if it exists (and this branch only taken if isAssociative)
-          flushWayCounter := nextFlushWayNum 
+          flushWayCounter := nextFlushWayNum
         }
       }
     }
   }
-}
-
-// ... (AdvancedICacheRegBasedGen object remains unchanged) ...
-object AdvancedICacheRegBasedGen extends App {
-  val defaultClockDomain = ClockDomain.external("clk", withReset = true)
-  val clkCfg = ClockDomainConfig(clockEdge = RISING, resetKind = ASYNC, resetActiveLevel = LOW)
-
-  SpinalConfig(
-    defaultConfigForClockDomains = clkCfg,
-    targetDirectory = "rtl/parallax/icache_regbased"
-  ).generateVerilog({
-    implicit val cacheCfg = AdvancedICacheConfig(
-      cacheSize = 256 Byte, 
-      bytePerLine = 32, 
-      wayCount = 2, // Test with 2 ways (isAssociative = true)
-      addressWidth = 32 bits,
-      dataWidth = 32 bits,
-      fetchDataWidth = 64 bits
-    )
-    // setCount = (256/32)/2 = 4. hasMultipleSets = true
-    // wordsPerLine = 32 / (32/8) = 8. lineHasMultipleWords = true.
-    // All registers should be generated with this config.
-
-    implicit val gmbConf = GenericMemoryBusConfig(
-      addressWidth = cacheCfg.addressWidth,
-      dataWidth = cacheCfg.dataWidth,
-      useId = true,
-      idWidth = 4 bits
-    )
-    new AdvancedICache()(cacheCfg, gmbConf, enableLog = true)
-  })
-  
-  println(s"Reg-Based AdvancedICache (wayCount=2, setCount=4) Verilog generated.")
-
-  SpinalConfig(
-    defaultConfigForClockDomains = clkCfg,
-    targetDirectory = "rtl/parallax/icache_regbased_directmapped_singleset"
-  ).generateVerilog({
-    // Test configuration that would generate 0-width registers
-    implicit val cacheCfgDirectSingleSet = AdvancedICacheConfig(
-      cacheSize = 32 Byte,     // Small cache
-      bytePerLine = 32,        // Line = 32 bytes
-      wayCount = 1,            // Direct-mapped (isAssociative = false)
-      addressWidth = 32 bits,
-      dataWidth = 32 bits,     // dataWidth = 32 bits
-      fetchDataWidth = 32 bits // fetch one word at a time
-    )
-    // lineCountTotal = 32/32 = 1.
-    // setCount = 1/1 = 1. (hasMultipleSets = false)
-    // wordsPerLine = 32 / (32/8) = 8. (lineHasMultipleWords = true)
-    // wordOffsetWidth = log2Up(8) = 3 bits. currentWordOffsetInLineReg exists.
-    // victimWayReg, hitWayReg, flushWayCounter, age field -> should be 'null' or logic adapted
-    // currentSetIdxReg, flushSetCounter -> should be 'null' or logic adapted
-
-    implicit val gmbConfDirect = GenericMemoryBusConfig(
-      addressWidth = cacheCfgDirectSingleSet.addressWidth,
-      dataWidth = cacheCfgDirectSingleSet.dataWidth,
-      useId = false // Example
-    )
-    new AdvancedICache()(cacheCfgDirectSingleSet, gmbConfDirect, enableLog = true)
-  })
-  println(s"Reg-Based AdvancedICache (direct-mapped, single-set) Verilog generated to test 0-bit avoidance.")
-
-  SpinalConfig(
-    defaultConfigForClockDomains = clkCfg,
-    targetDirectory = "rtl/parallax/icache_regbased_singlewordline"
-  ).generateVerilog({
-    implicit val cacheCfgSingleWordLine = AdvancedICacheConfig(
-      cacheSize = 64 Byte,     
-      bytePerLine = 4,        // Line = 4 bytes (equals dataWidth)
-      wayCount = 2,           // 2-way (isAssociative = true)
-      addressWidth = 32 bits,
-      dataWidth = 32 bits,    // dataWidth = 32 bits (4 bytes)
-      fetchDataWidth = 32 bits 
-    )
-    // wordsPerLine = 4 / (32/8) = 1. (lineHasMultipleWords = false)
-    // wordOffsetWidth = 0 bits. currentWordOffsetInLineReg should be 'null' / adapted.
-    // lineCountTotal = 64/4 = 16 lines.
-    // setCount = 16/2 = 8 sets. (hasMultipleSets = true)
-
-    implicit val gmbConfSWL = GenericMemoryBusConfig(
-      addressWidth = cacheCfgSingleWordLine.addressWidth,
-      dataWidth = cacheCfgSingleWordLine.dataWidth
-    )
-    new AdvancedICache()(cacheCfgSingleWordLine, gmbConfSWL, enableLog = true)
-  })
-  println(s"Reg-Based AdvancedICache (single-word-line) Verilog generated to test 0-bit wordOffsetWidth avoidance.")
 }

@@ -28,6 +28,9 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
     val icache = new AdvancedICache()(cacheCfg, memBusCfg, dutEnableLog)
     val memory = new SimulatedSplitGeneralMemory(simMemCfg, memBusCfg, dutEnableLog) // 使用 SplitGMB 版本
 
+    memory.io.simPublic()
+    icache.io.simPublic()
+
     // 连接
     icache.io.mem <> memory.io.bus // SplitGMB 连接
     icache.io.cpu <> io.cpuBus
@@ -86,7 +89,8 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
     val simMemConfig = SimulatedMemoryConfig(
         internalDataWidth = cacheConfig.dataWidth, // 模拟内存内部字宽
         memSize = 1 KiB,
-        initialLatency = 2) // 内存延迟
+        initialLatency = 0,
+        burstLatency = 0) // 内存延迟
 
     val wordsPerLine = cacheConfig.wordsPerLine
     val internalMemDataWidthBytes = simMemConfig.internalDataWidth.value / 8
