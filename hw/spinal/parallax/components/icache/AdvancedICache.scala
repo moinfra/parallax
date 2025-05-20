@@ -655,7 +655,7 @@ class AdvancedICache(implicit
 
         // Set increment logic
         // Use effFlushSetCounter for current value, resize for comparison
-        val nextFlushSetNum = flushSetCounter.resize(log2Up(cacheConfig.setCount + 1)) + 1
+        val nextFlushSetNum = if (hasMultipleSets) flushSetCounter.resize(log2Up(cacheConfig.setCount + 1)) + 1 else U(1).resize(log2Up(cacheConfig.setCount + 1))
 
         when(nextFlushSetNum === cacheConfig.setCount) { // If !hasMultipleSets, setCount=1. U(1,1bit) === 1 is true.
           if (enableLog) report(L"AdvICache: sFlush_Invalidate - Flush completed.")
