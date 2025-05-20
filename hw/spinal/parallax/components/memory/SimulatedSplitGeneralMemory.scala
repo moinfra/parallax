@@ -32,6 +32,16 @@ class SimulatedSplitGeneralMemory(
   val numChunksPerWord: Int = busConfig.dataWidth.value / memConfig.internalDataWidth.value
 
   val mem = Mem(Bits(memConfig.internalDataWidth), wordCount = memConfig.internalWordCount)
+  memConfig.initialization match {
+    case MemoryInitialization.Zero =>
+      mem.init(Seq.fill(memConfig.internalWordCount)(B(0, memConfig.internalDataWidth)))
+    case MemoryInitialization.Random =>
+      // 啥也不用做, SpinalSim 会随机初始化
+    case MemoryInitialization.Pattern =>
+      // 将 pattern 扩展到 internalDataWidth 宽度
+      val pattern = B(memConfig.initializationPattern).resize(memConfig.internalDataWidth)
+      mem.init(Seq.fill(memConfig.internalWordCount)(pattern))
+  }
 
   // Direct memory write port (e.g., for initialization from testbench)
   when(io.writeEnable) {

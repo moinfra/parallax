@@ -4,12 +4,19 @@ import spinal.core._
 import spinal.lib._
 import spinal.lib.fsm._
 
+object MemoryInitialization extends Enumeration {
+  type MemoryInitialization = Value
+  val Zero, Random, Pattern = Value // Zero: 初始化为0, Random: 随机值, Pattern: 特定模式
+}
+
 // SimulatedMemoryConfig remains largely the same or can be simplified
 case class SimulatedMemoryConfig(
     internalDataWidth: BitCount = 16 bits, // Width of one memory word in this simulated RAM (e.g., 16 bits = 2 bytes)
     memSize: BigInt = 8 KiB, // Total size of this simulated RAM in bytes
     initialLatency: Int = 2, // Latency for the first access to a new address
-    burstLatency: Int = 1 // Latency for subsequent accesses in a burst (if bus supports burst)
+    burstLatency: Int = 1, // Latency for subsequent accesses in a burst (if bus supports burst)
+    initialization: MemoryInitialization.Value = MemoryInitialization.Random,
+    initializationPattern: BigInt = 0 // 新增: 如果初始化方式是 Pattern，使用的模式值
 ) {
   require(isPow2(internalDataWidth.value / 8), "Simulated memory data width (in bytes) must be a power of 2")
   require(burstLatency <= initialLatency, "Burst latency must be less than or equal to initial latency")
@@ -44,6 +51,17 @@ class SimulatedMemory(
   require(internalWordsPerBusData > 0)
 
   val mem = Mem(Bits(memConfig.internalDataWidth), wordCount = memConfig.internalWordCount)
+  memConfig.initialization match {
+    case MemoryInitialization.Zero =>
+      mem.init(Seq.fill(memConfig.internalWordCount)(B(0, memConfig.internalDataWidth)))
+    case MemoryInitialization.Random =>
+      // 啥也不用做, SpinalSim 会随机初始化
+    case MemoryInitialization.Pattern =>
+      // 将 pattern 扩展到 internalDataWidth 宽度
+      val pattern = B(memConfig.initializationPattern).resize(memConfig.internalDataWidth)
+      mem.init(Seq.fill(memConfig.internalWordCount)(pattern))
+  }
+
   when(io.writeEnable) {
     val internalWriteWordAddress =
       (io.writeAddress >> log2Up(memConfig.internalDataWidthBytes)).resize(memConfig.internalAddrWidth)
