@@ -15,7 +15,8 @@ class SimulatedSplitGeneralMemory(
 
   case class IO() extends Bundle {
     val bus = slave(SplitGenericMemoryBus(busConfig)) // Updated bus type
-    val writeEnable = in Bool () default (False) // For external direct writes (e.g., init)
+    // For external debug direct writes (e.g., init)
+    val writeEnable = in Bool () default (False) 
     val writeAddress = in UInt (busConfig.addressWidth) default (U(0, busConfig.addressWidth))
     val writeData = in Bits (memConfig.internalDataWidth) default (B(0, memConfig.internalDataWidth))
   }

@@ -4,7 +4,7 @@ import spinal.core._
 import spinal.lib._
 
   // --- Helper: Axi4SlaveRam (as defined before) ---
-  class Axi4SlaveRam(config: Axi4Config, storageSizeInWords: Int) extends Component {
+  class Axi4SlaveRam(config: Axi4Config, storageSizeInWords: Int, baseAddress: Long = 0) extends Component {
     require(storageSizeInWords > 0, "RAM size must be positive")
     val io = new Bundle {
       val axi = slave(Axi4(config))
@@ -18,7 +18,7 @@ import spinal.lib._
     // For each word in our simulated RAM, create read/write access
     for (i <- 0 until storageSizeInWords) {
       val wordAddress = i * (config.dataWidth / 8)
-      factory.readAndWrite(ramData(i), address = wordAddress, bitOffset = 0)
+      factory.readAndWrite(ramData(i), address = baseAddress + wordAddress, bitOffset = 0)
     }
 
     // Logging
