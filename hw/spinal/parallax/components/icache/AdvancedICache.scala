@@ -547,6 +547,8 @@ class AdvancedICache(implicit
 
         waitingForMemRspReg := True
       }
+      val currentRefillError = Bool()
+      currentRefillError := refillErrorReg // Default to the registered value
 
       when(io.mem.read.rsp.fire) {
 
@@ -558,7 +560,7 @@ class AdvancedICache(implicit
         }
 
         waitingForMemRspReg := False
-        refillErrorReg := refillErrorReg || io.mem.read.rsp.payload.error
+        currentRefillError := refillErrorReg || io.mem.read.rsp.payload.error
 
         // wordOffsetWidth is used here implicitly by .resize
         // if wordsPerLine is 1, wordOffsetWidth is 0. refillWordCounter.resize(0) is U(0,0 bits). Correct.
@@ -581,11 +583,11 @@ class AdvancedICache(implicit
           if (enableLog) {
             report(L"AdvICache: sMiss_FetchLine - Entire line fetched.")
             report(L"  - nextRefillCounter: ${nextRefillCounter}")
-            report(L"  - Total Error: ${refillErrorReg}")
+            report(L"  - Total Error: ${currentRefillError}")
             report(L"  - New Cacheline: ${nextRefillBuffer.asBits}")
           }
 
-          when(!refillErrorReg) {
+          when(!currentRefillError) {
 
             if (enableLog) {
               report(L"AdvICache: sMiss_FetchLine - Line OK. Writing to Cache.")
@@ -642,6 +644,8 @@ class AdvancedICache(implicit
           if (enableLog) report(L"AdvICache: sMiss_FetchLine - More words to fetch for the line.")
         }
       }
+
+      refillErrorReg := currentRefillError
     }
 
     sFlush_Invalidate.whenIsActive {
