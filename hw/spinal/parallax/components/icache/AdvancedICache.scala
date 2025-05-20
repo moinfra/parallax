@@ -137,7 +137,7 @@ case class CacheLineEntry(implicit val cacheConfig: AdvancedICacheConfig) extend
 class AdvancedICache(implicit
     val cacheConfig: AdvancedICacheConfig,
     val memBusConfig: GenericMemoryBusConfig,
-    val enableLog: Boolean = false
+    val enableLog: Boolean = true
 ) extends Component {
   require(
     cacheConfig.dataWidth == memBusConfig.dataWidth,
@@ -228,7 +228,7 @@ class AdvancedICache(implicit
     }
     extractedInstructions
   }
-
+  report(L"AdvCache: currentCpuAddressReg ${currentCpuAddressReg}")
   val fsm = new StateMachine {
     // ... (Default assignments remain similar) ...
     io.cpu.cmd.ready := False
@@ -373,15 +373,14 @@ class AdvancedICache(implicit
       // determinedHitWay will be U(0) if wayCount=1, which is correct for indexing a 1-element Vec.
       val determinedHitWay = OHToUInt(hitWayOH)
 
-      if (false) {
+      if (enableLog) {
         report(L"AdvICache: sCompareTags - isHit=${isHit}")
-        report(L"  - determinedHitWay=${determinedHitWay}")
+        if (false) report(L"  - determinedHitWay=${determinedHitWay}")
       }
 
       when(isHit) {
 
         if (false) {
-          report(L"AdvICache: sCompareTags - HIT.")
           report(L"  - Way ${determinedHitWay}")
         }
 

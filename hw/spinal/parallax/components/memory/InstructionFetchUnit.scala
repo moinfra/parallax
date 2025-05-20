@@ -124,9 +124,7 @@ class InstructionFetchUnit(val config: InstructionFetchUnitConfig) extends Compo
       if (typedIcach.io.flush != null) { // Should always be non-null due to AdvancedICache definition
         typedIcach.io.flush.cmd.valid := False
         typedIcach.io.flush.cmd.payload.assignDontCare()
-        // Response from cache flush (if any logic depends on it, though typically not for a simple tie-off)
-        // typedIcach.io.flush.rsp.ready can be True or False depending on desired behavior.
-        // If cmd.valid is False, rsp.ready usually doesn't matter.
+        typedIcach.io.flush.rsp.ready := True // Or False, True is usually safer for unused slave inputs
       }
     }
 

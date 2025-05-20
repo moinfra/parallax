@@ -1,4 +1,4 @@
-package parallax.bus // 或者你希望放置桥接器的包
+package parallax.bus
 
 import spinal.core._
 import spinal.lib._

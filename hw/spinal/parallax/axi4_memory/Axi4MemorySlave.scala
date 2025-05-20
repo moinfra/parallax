@@ -3,7 +3,7 @@ import spinal.core._
 import spinal.core.sim._
 import spinal.lib._
 import spinal.lib.bus.amba4.axi._
-import spinal.lib.fsm._ // FSM library for state machines\
+import spinal.lib.fsm._ 
 
 /** A simple AXI4 Slave component acting as a memory model.
   * - Implements a basic RAM using SpinalHDL's Mem.
@@ -19,7 +19,7 @@ class Axi4MemorySlave(axiConfig: Axi4Config, size: BigInt) extends Component {
     val axiMaster = master(Axi4(axiConfig)) // AXI4 Master interface
   }
   val axiSlave = slave(Axi4(axiConfig)) // AXI4 Slave interface
-  
+
   io.axiMaster <> axiSlave // Connect the AXI4 interfaces
 
   // Ensure memory size is valid for Mem synthesis (fits in Int)
