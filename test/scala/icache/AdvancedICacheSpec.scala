@@ -34,6 +34,7 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
 
     val icache = new AdvancedICache()(cacheCfg, memBusCfg, dutEnableLog)
     val memory = new SimulatedSplitGeneralMemory(simMemCfg, memBusCfg, /*dutEnableLog*/ false) // 使用 SplitGMB 版本
+    // val memory = new SimulatedSplitGeneralMemory(simMemCfg, memBusCfg, /*dutEnableLog*/ true) // 使用 SplitGMB 版本
 
     memory.io.simPublic()
     icache.io.simPublic()
@@ -156,7 +157,7 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
       val rspData1 = cpuRspBuffer.dequeue() // 从队列中取出 CpuRspData 实例
       println(s"SIM [T1.1]: MISS - 收到指令 ${rspData1.instructions(0).toString(16)} PC ${rspData1.pc.toString(16)}")
       assert(!rspData1.fault, "MISS 请求不应产生 fault")
-      assert(rspData1.instructions(0) == testData, s"MISS 数据不匹配. 预期 0x${testData.toString(16)}, 得到 0x${rspData1.instructions(0).toString(16)}")
+      assert(rspData1.instructions(0) == testData, s"MISS 数据不匹配. 预期 0x${testData.toString(16)}, 得到 0x${rspData1.instructions(0).toString(16)}" + s"${rspData1.instructions(0).toString(16)} vs ${ testData.toString(16)}")
       assert(rspData1.pc == testAddr, "MISS PC 不匹配")
       assert(memReadCmdFires == wordsPerLine, s"MISS 内存读命令次数不正确. 预期 ${wordsPerLine}, 得到 ${memReadCmdFires}")
 
@@ -174,7 +175,7 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
       val rspData2 = cpuRspBuffer.dequeue() // 从队列中取出 CpuRspData 实例
       println(s"SIM [T1.1]: HIT - 收到指令 ${rspData2.instructions(0).toString(16)} PC ${rspData2.pc.toString(16)}")
       assert(!rspData2.fault, "HIT 请求不应产生 fault")
-      assert(rspData2.instructions(0) == testData, s"HIT 数据不匹配. 预期 0x${testData.toString(16)}, 得到 0x${rspData2.instructions(0).toString(16)}")
+      assert(rspData2.instructions(0) == testData, s"HIT 数据不匹配. 预期 0x${testData.toString(16)}, 得到 0x${rspData2.instructions(0).toString(16)}" + s"${rspData2.instructions(0).toString(16)} vs ${ testData.toString(16)}")
       assert(rspData2.pc == testAddr, "HIT PC 不匹配")
       assert(memReadCmdFires == 0, s"HIT 内存读命令次数不正确. 预期 0, 得到 ${memReadCmdFires}")
 
@@ -264,7 +265,7 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
         assert(cpuRspBuffer.nonEmpty, s"CPU 响应队列在顺序 HIT 后为空 (timeout $hitTimeout)")
         val rspData = cpuRspBuffer.dequeue()
         assert(!rspData.fault, s"顺序 HIT 请求不应产生 fault (Addr 0x${currentAddr.toHexString})")
-        assert(rspData.instructions(0) == testData(i), s"顺序 HIT 数据不匹配 (Addr 0x${currentAddr.toHexString}). 预期 0x${testData(i).toString(16)}, 得到 0x${rspData.instructions(0).toString(16)}")
+        assert(rspData.instructions(0) == testData(i), s"顺序 HIT 数据不匹配 (Addr 0x${currentAddr.toHexString}). 预期 0x${testData(i).toString(16)}, 得到 0x${rspData.instructions(0).toString(16)}" + s"${rspData.instructions(0).toString(16)} vs ${ testData(i).toString(16)}")
         assert(rspData.pc == currentAddr, s"顺序 HIT PC 不匹配 (Addr 0x${currentAddr.toHexString})")
       }
 
@@ -398,7 +399,7 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
       fetchDataWidth = fetchWidth
     )
     val memBusConfig = GenericMemoryBusConfig(addressWidth = 32 bits, dataWidth = coreDataWidth, useId = false)
-    val simMemConfig = SimulatedMemoryConfig(internalDataWidth = coreDataWidth, memSize = 1 KiB, initialLatency = 2)
+    val simMemConfig = SimulatedMemoryConfig(internalDataWidth = coreDataWidth, memSize = 4 KiB, initialLatency = 2)
 
     val wordsPerLine = cacheConfig.wordsPerLine
     val fetchBytes = cacheConfig.fetchDataWidth.value / 8 // 8 bytes
@@ -437,11 +438,20 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
       }
 
       val baseAddr = 0x400L // Align to fetch group boundary
-      val testDataWords = Array.tabulate(wordsPerLine)(i => BigInt(s"${(i + 10).toString * 8}", 16)) // 10101010, 11111111, ...
+   // testDataWords 数组存储 64 位的字
+   val testDataWords = Array.tabulate(wordsPerLine)(i => BigInt(s"${(i + 10).toString * 8}", 16)) // 1010101010101010, 1111111111111111, ...
 
       // Initialize memory
       for (i <- 0 until wordsPerLine) {
-        initSimulatedMemory(dut.memory.io, baseAddr + i * (coreDataWidth.value / 8), testDataWords(i), dut.clockDomain, internalMemDataWidthBytes)
+        // 将 64 位数据拆分成两个 32 位数据
+        val dataLower32Bit = (testDataWords(i) & 0xFFFFFFFFL).toInt // 低 32 位
+        val dataUpper32Bit = ((testDataWords(i) >> 32) & 0xFFFFFFFFL).toInt // 高 32 位
+
+        // 写入低 32 位数据
+        initSimulatedMemory(dut.memory.io, baseAddr + i *2* internalMemDataWidthBytes, dataLower32Bit, dut.clockDomain, internalMemDataWidthBytes)
+
+        // 写入高 32 位数据到下一个地址
+        initSimulatedMemory(dut.memory.io, baseAddr + i *2* internalMemDataWidthBytes + internalMemDataWidthBytes, dataUpper32Bit, dut.clockDomain, internalMemDataWidthBytes)
       }
       dut.clockDomain.waitSampling(5)
 
@@ -456,26 +466,36 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
       dut.clockDomain.waitSampling(10)
       memReadCmdFires = 0
 
-      // 2. Request sequential addresses within the line, aligned to fetch group (Expected HITs)
+        // 2. Request sequential addresses within the line, aligned to fetch group (Expected HITs)
       println(s"SIM [T1.4]: 顺序请求行内地址 (按取指宽度对齐, 预期 HITs)")
       for (i <- 1 until fetchGroupsPerLine) { // Start from the second fetch group
         val currentAddr = baseAddr + i * fetchBytes
         println(s"SIM [T1.4]: 请求地址 0x${currentAddr.toHexString}")
         cpuCmdQueue.enqueue(_.address #= currentAddr)
-        val hitTimeout = 100
+        val hitTimeout = 10
         dut.clockDomain.waitSamplingWhere(hitTimeout)(cpuRspBuffer.nonEmpty)
         assert(cpuRspBuffer.nonEmpty, s"CPU 响应队列在顺序 HIT 后为空 (timeout $hitTimeout)")
         val rspData = cpuRspBuffer.dequeue()
         assert(!rspData.fault, s"顺序 HIT 请求不应产生 fault (Addr 0x${currentAddr.toHexString})")
 
         // Verify the instructions in the wide fetch group
-        val startWordIdx = i * (fetchBytes / (coreDataWidth.value / 8)) // Index of the first word in this fetch group
-        for (j <- 0 until cacheConfig.fetchWordsPerFetchGroup) {
-          val wordIdx = startWordIdx + j
-          assert(rspData.instructions(j) == testDataWords(wordIdx), s"顺序 HIT 数据[${j}]不匹配 (Addr 0x${currentAddr.toHexString}). 预期 0x${testDataWords(wordIdx).toString(16)}, 得到 0x${rspData.instructions(j).toString(16)}")
-        }
+        // Calculate the index of the 64-bit word in testDataWords that corresponds to this fetch group
+        val wordIdxInTestData = i // Since each fetch group is a 64-bit word in this configuration
+
+        // The first 32-bit instruction in the fetch group is the lower 32 bits of the 64-bit word
+        val expectedInstruction0 = testDataWords(wordIdxInTestData) & 0xFFFFFFFFL
+        // The second 32-bit instruction in the fetch group is the upper 32 bits of the 64-bit word
+        val expectedInstruction1 = (testDataWords(wordIdxInTestData) >> 32).toBigInt
+
+        assert(rspData.instructions.size == 2, s"顺序 HIT 返回的指令数量不正确 (Addr 0x${currentAddr.toHexString}). 预期 2, 得到 ${rspData.instructions.size}")
+        assert(rspData.instructions(0) == expectedInstruction0,
+          s"顺序 HIT 数据[0]不匹配 (Addr 0x${currentAddr.toHexString}). 预期 0x${expectedInstruction0.toString(16)}, 得到 0x${rspData.instructions(0).toString(16)}")
+        assert(rspData.instructions(1) == expectedInstruction1,
+          s"顺序 HIT 数据[1]不匹配 (Addr 0x${currentAddr.toHexString}). 预期 0x${expectedInstruction1.toString(16)}, 得到 0x${rspData.instructions(1).toString(16)}")
+
         assert(rspData.pc == currentAddr, s"顺序 HIT PC 不匹配 (Addr 0x${currentAddr.toHexString})")
       }
+
 
       assert(memReadCmdFires == 0, s"顺序 HIT 内存读命令次数不正确. 预期 0, 得到 ${memReadCmdFires}")
 
@@ -557,7 +577,7 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
         assert(cpuRspBuffer.nonEmpty, s"CPU 响应队列在填充 Way ${i} 后为空 (timeout $missTimeout)")
         val rspData = cpuRspBuffer.dequeue()
         assert(!rspData.fault, s"填充 Way ${i} 不应产生 fault")
-        assert(rspData.instructions(0) == testData(i), s"填充 Way ${i} 数据不匹配")
+        assert(rspData.instructions(0) == testData(i), s"填充 Way ${i} 数据不匹配" + s"${rspData.instructions(0).toString(16)} vs ${ testData(i).toString(16)}")
         assert(memReadCmdFires == wordsPerLine, s"填充 Way ${i} 内存读命令次数不正确")
       }
 
@@ -572,7 +592,7 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
       assert(cpuRspBuffer.nonEmpty, s"CPU 响应队列在 HIT 后为空 (timeout $hitTimeout)")
       val rspData = cpuRspBuffer.dequeue()
       assert(!rspData.fault, "HIT 请求不应产生 fault")
-      assert(rspData.instructions(0) == testData(0), "HIT 数据不匹配")
+      assert(rspData.instructions(0) == testData(0), "HIT 数据不匹配" + s"${rspData.instructions(0).toString(16)} vs ${ testData(0).toString(16)}")
       assert(memReadCmdFires == 0, "HIT 内存读命令次数不正确")
 
       dut.clockDomain.waitSampling(20)
@@ -664,7 +684,7 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
         dut.clockDomain.waitSamplingWhere(missTimeout)(cpuRspBuffer.nonEmpty)
         assert(cpuRspBuffer.nonEmpty, s"$desc - CPU 响应队列为空 (timeout $missTimeout)")
         val rspData = cpuRspBuffer.dequeue() // 从队列中取出 CpuRspData 实例
-        assert(rspData.instructions(0) == expectedData, s"$desc - 数据不匹配")
+        assert(rspData.instructions(0) == expectedData, s"$desc - 数据不匹配" + s"${rspData.instructions(0).toString(16)} vs ${ expectedData.toString(16)}")
         assert(memReadCmdFires == wordsPerLine, s"$desc - 内存读命令次数不正确 (预期 ${wordsPerLine}, 得到 ${memReadCmdFires})")
       }
       def expectHit(addr: Long, expectedData: BigInt, desc: String): Unit = {
@@ -675,7 +695,7 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
         dut.clockDomain.waitSamplingWhere(hitTimeout)(cpuRspBuffer.nonEmpty)
         assert(cpuRspBuffer.nonEmpty, s"$desc - CPU 响应队列为空 (timeout $hitTimeout)")
         val rspData = cpuRspBuffer.dequeue() // 从队列中取出 CpuRspData 实例
-        assert(rspData.instructions(0) == expectedData, s"$desc - 数据不匹配")
+        assert(rspData.instructions(0) == expectedData, s"$desc - 数据不匹配" + s"${rspData.instructions(0).toString(16)} vs ${ expectedData.toString(16)}")
         assert(memReadCmdFires == 0, s"$desc - 内存读命令次数不正确 (预期 0, 得到 ${memReadCmdFires})")
       }
 
@@ -707,21 +727,21 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
   }
 
   // T2.3: LRU Hit Promotion
-  testOnly("T2.3 - LRU Hit Promotion") {
+  test("T2.3 - LRU Hit Promotion") {
     val lineSizeBytes = 32
-    val coreDataWidth = 32 bits
+    val coreDataWidth = 64 bits
     val ways = 4 // 测试 4 路组相联
 
     implicit val cacheConfig = AdvancedICacheConfig(
       cacheSize = ways * lineSizeBytes * 1, // 一个组
       bytePerLine = lineSizeBytes,
       wayCount = ways,
-      addressWidth = 32 bits,
+      addressWidth = 64 bits,
       dataWidth = coreDataWidth,
       fetchDataWidth = coreDataWidth
     )
-    val memBusConfig = GenericMemoryBusConfig(addressWidth = 32 bits, dataWidth = coreDataWidth, useId = false)
-    val simMemConfig = SimulatedMemoryConfig(internalDataWidth = coreDataWidth, memSize = 1 KiB, initialLatency = 2)
+    val memBusConfig = GenericMemoryBusConfig(addressWidth = 64 bits, dataWidth = coreDataWidth, useId = false)
+    val simMemConfig = SimulatedMemoryConfig(internalDataWidth = coreDataWidth, memSize = 4 KiB, initialLatency = 1)
 
     val wordsPerLine = cacheConfig.wordsPerLine
     val internalMemDataWidthBytes = simMemConfig.internalDataWidth.value / 8
@@ -749,10 +769,8 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
       dut.memory.io.bus.read.cmd.ready.randomize()
       fork {
         while(true) {
-          dut.clockDomain.waitSampling()
-          if (dut.memory.io.bus.read.cmd.valid.toBoolean && dut.memory.io.bus.read.cmd.ready.toBoolean) {
-            memReadCmdFires += 1
-          }
+          dut.clockDomain.waitSamplingWhere(dut.memory.io.bus.read.cmd.valid.toBoolean && dut.memory.io.bus.read.cmd.ready.toBoolean)
+          memReadCmdFires += 1
         }
       }
       dut.clockDomain.waitSampling()
@@ -791,7 +809,7 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
       assert(cpuRspBuffer.nonEmpty, s"CPU 响应队列在命中 Tag1 后为空 (timeout $hitTimeout)")
       val rspData1 = cpuRspBuffer.dequeue()
       assert(!rspData1.fault, "命中 Tag1 不应产生 fault")
-      assert(rspData1.instructions(0) == testData(1), "命中 Tag1 数据不匹配")
+      assert(rspData1.instructions(0) == testData(1), "命中 Tag1 数据不匹配" + s"${rspData1.instructions(0).toString(16)} vs ${ testData(1).toString(16)}")
       assert(memReadCmdFires == 0, "命中 Tag1 内存读命令次数不正确")
       dut.clockDomain.waitSampling(10)
 
@@ -811,7 +829,7 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
       assert(cpuRspBuffer.nonEmpty, s"CPU 响应队列在请求 Tag4 后为空 (timeout $missTimeout2)")
       val rspData2 = cpuRspBuffer.dequeue()
       assert(!rspData2.fault, "请求 Tag4 不应产生 fault")
-      assert(rspData2.instructions(0) == data_tag4, "请求 Tag4 数据不匹配")
+      assert(rspData2.instructions(0) == data_tag4, "请求 Tag4 数据不匹配" + s"${rspData2.instructions(0).toString(16)} vs ${ data_tag4.toString(16)}")
       assert(memReadCmdFires == wordsPerLine, "请求 Tag4 内存读命令次数不正确")
       dut.clockDomain.waitSampling(10)
 
@@ -826,7 +844,7 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
       assert(cpuRspBuffer.nonEmpty, s"CPU 响应队列在再次请求 Tag0 后为空 (timeout $missTimeout3)")
       val rspData3 = cpuRspBuffer.dequeue()
       assert(!rspData3.fault, "再次请求 Tag0 不应产生 fault")
-      assert(rspData3.instructions(0) == testData(0), "再次请求 Tag0 数据不匹配")
+      assert(rspData3.instructions(0) == testData(0), "再次请求 Tag0 数据不匹配" + s"${rspData3.instructions(0).toString(16)} vs ${ testData(0).toString(16)}")
       assert(memReadCmdFires == wordsPerLine, "再次请求 Tag0 内存读命令次数不正确")
 
       dut.clockDomain.waitSampling(20)
@@ -915,7 +933,7 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
       assert(cpuRspBuffer.nonEmpty, s"CPU 响应队列在 Flush 后为空 (timeout $missTimeout)")
       val rspData = cpuRspBuffer.dequeue()
       assert(!rspData.fault, "Flush 后请求不应产生 fault")
-      assert(rspData.instructions(0) == testData, "Flush 后数据不匹配")
+      assert(rspData.instructions(0) == testData, "Flush 后数据不匹配" + s"${rspData.instructions(0).toString(16)} vs ${ testData.toString(16)}")
       assert(memReadCmdFires == cacheConfig.wordsPerLine, s"Flush 后内存读命令次数应为 ${cacheConfig.wordsPerLine}, 得到 ${memReadCmdFires}")
 
       dut.clockDomain.waitSampling(20)
@@ -1026,7 +1044,7 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
       dut.clockDomain.waitSamplingWhere(100)(cpuRspBuffer.nonEmpty)
       assert(cpuRspBuffer.nonEmpty, "Addr1 post-flush: CPU 响应队列为空 (timeout 100)")
       val rspData_addr1 = cpuRspBuffer.dequeue() // 从队列中取出 CpuRspData 实例
-      assert(rspData_addr1.instructions(0) == data1, "Addr1 post-flush: 数据不匹配")
+      assert(rspData_addr1.instructions(0) == data1, "Addr1 post-flush: 数据不匹配" + s"${rspData_addr1.instructions(0).toString(16)} vs ${ data1.toString(16)}")
       assert(memReadCmdFires == wordsPerLine, s"Addr1 post-flush: 内存读命令次数应为 ${wordsPerLine}, 得到 ${memReadCmdFires}")
 
       memReadCmdFires = 0
@@ -1035,7 +1053,7 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
       dut.clockDomain.waitSamplingWhere(100)(cpuRspBuffer.nonEmpty)
       assert(cpuRspBuffer.nonEmpty, "Addr2 post-flush: CPU 响应队列为空 (timeout 100)")
       val rspData_addr2 = cpuRspBuffer.dequeue() // 从队列中取出 CpuRspData 实例
-      assert(rspData_addr2.instructions(0) == data2, "Addr2 post-flush: 数据不匹配")
+      assert(rspData_addr2.instructions(0) == data2, "Addr2 post-flush: 数据不匹配" + s"${rspData_addr2.instructions(0).toString(16)} vs ${ data2.toString(16)}")
       assert(memReadCmdFires == wordsPerLine, s"Addr2 post-flush: 内存读命令次数应为 ${wordsPerLine}, 得到 ${memReadCmdFires}")
 
       dut.clockDomain.waitSampling(20)

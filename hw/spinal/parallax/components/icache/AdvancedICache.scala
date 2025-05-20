@@ -98,6 +98,7 @@ case class AdvancedICacheConfig(
   println(s"--------------------")
 
   def getLineBaseAddress(fullAddress: UInt): UInt = (fullAddress >> byteOffsetWidth.value) << byteOffsetWidth.value
+  def getLineBaseAddress(fullAddress: BigInt): BigInt = (fullAddress >> byteOffsetWidth.value) << byteOffsetWidth.value
   def getTag(fullAddress: UInt): UInt = fullAddress(
     addressWidth.value - 1 downto setIndexWidth.value + byteOffsetWidth.value
   )
@@ -186,7 +187,7 @@ class AdvancedICache(implicit
   // refillWordCounter width is log2Up(wordsPerLine + 1).
   // Since wordsPerLine >= 1, wordsPerLine+1 >= 2. So log2Up >= 1. This Reg is never 0-width.
   val refillWordCounter = Reg(UInt(log2Up(cacheConfig.wordsPerLine + 1) bits)) init (0)
-  val refillBuffer = Reg(Bits(cacheConfig.bitsPerLine bits)) init (0)
+  val refillBuffer = Reg(Bits(cacheConfig.bitsPerLine bits)) init (0) // 现在有 bug：更新没法立即生效，导致缓存行最高位没法填充上
   val refillErrorReg = Reg(Bool()) init (False) // 现在有 bug：存在一个周期延迟
 
   // flush counters are instantiated only if needed
@@ -216,7 +217,8 @@ class AdvancedICache(implicit
   val ways_data_from_current_set = cacheLines(getCurrentSetIdx)
 
   def extractInstructionsFromLine(lineData: Bits, firstWordOffsetInt: UInt): Vec[Bits] = {
-    val wordsInLine = lineData.subdivideIn(cacheConfig.dataWidth).reverse // Vec[Bits]
+    report(L"extractInstructionsFromLine ${lineData} offset ${firstWordOffsetInt}")
+    val wordsInLine = lineData.subdivideIn(cacheConfig.dataWidth) // Vec[Bits]
     val extractedInstructions = Vec(Bits(cacheConfig.dataWidth), cacheConfig.fetchWordsPerFetchGroup)
 
     for (i <- 0 until cacheConfig.fetchWordsPerFetchGroup) {
@@ -413,7 +415,12 @@ class AdvancedICache(implicit
             }
           }
         }
-
+        // log all data fetched
+        if (enableLog) {
+          for (i <- 0 until cacheConfig.fetchWordsPerFetchGroup) {
+            report(L"AdvICache: sCompareTags - Instruction ${i.toString()}: ${io.cpu.rsp.payload.instructions(i)}")
+          }
+        }
         when(io.cpu.rsp.fire) {
           if (enableLog) report(L"AdvICache: sCompareTags - HIT response fired to CPU.")
           goto(sIdle)
@@ -553,12 +560,11 @@ class AdvancedICache(implicit
         waitingForMemRspReg := False
         refillErrorReg := refillErrorReg || io.mem.read.rsp.payload.error
 
-        if (cacheConfig.wordsPerLine > 0) { // Should always be true due to require
-          // wordOffsetWidth is used here implicitly by .resize
+         // wordOffsetWidth is used here implicitly by .resize
           // if wordsPerLine is 1, wordOffsetWidth is 0. refillWordCounter.resize(0) is U(0,0 bits). Correct.
+          if (enableLog) report(L"AdvICache: sMiss_FetchLine - Before update cacheline: ${refillBuffer}.")
           val wordIdxInLine = refillWordCounter.resize(cacheConfig.wordOffsetWidth)
-          refillBuffer.subdivideIn(cacheConfig.dataWidth).reverse(wordIdxInLine) := io.mem.read.rsp.payload.data
-        }
+          refillBuffer.subdivideIn(cacheConfig.dataWidth)(wordIdxInLine) := io.mem.read.rsp.payload.data
 
         val nextRefillCounter = refillWordCounter + 1
         refillWordCounter := nextRefillCounter
@@ -567,7 +573,9 @@ class AdvancedICache(implicit
 
           if (enableLog) {
             report(L"AdvICache: sMiss_FetchLine - Entire line fetched.")
+            report(L"  - nextRefillCounter: ${nextRefillCounter}")
             report(L"  - Total Error: ${refillErrorReg}")
+            report(L"  - New Cacheline: ${refillBuffer}")
           }
 
           when(!refillErrorReg) {
