@@ -16,7 +16,7 @@ class SimulatedSplitGeneralMemory(
   case class IO() extends Bundle {
     val bus = slave(SplitGenericMemoryBus(busConfig)) // Updated bus type
     // For external debug direct writes (e.g., init)
-    val writeEnable = in Bool () default (False) 
+    val writeEnable = in Bool () default (False)
     val writeAddress = in UInt (busConfig.addressWidth) default (U(0, busConfig.addressWidth))
     val writeData = in Bits (memConfig.internalDataWidth) default (B(0, memConfig.internalDataWidth))
   }
@@ -49,7 +49,7 @@ class SimulatedSplitGeneralMemory(
     }
   }
 
-  // Registers to hold current transaction details
+  // --- Registers to hold current transaction details ---
   val currentBusAddressReg = Reg(UInt(busConfig.addressWidth)) init (U(0, busConfig.addressWidth))
   val currentWriteDataReg = Reg(Bits(busConfig.dataWidth)) init (B(0, busConfig.dataWidth)) // Only for writes
   val currentByteEnablesReg =
@@ -62,11 +62,6 @@ class SimulatedSplitGeneralMemory(
     if (memConfig.initialLatency > 0) { // Use >0 to allow zero latency
       Reg(UInt(log2Up(memConfig.initialLatency + 1) bits)) init (U(0, log2Up(memConfig.initialLatency + 1) bits))
     } else null
-
-  // Calculate unresized base internal word address
-  val baseInternalWordAddr_unresized = currentBusAddressReg >> log2Up(memConfig.internalDataWidthBytes)
-
-  val internalReadData = Bits(memConfig.internalDataWidth) // Data read from one internal memory word
 
   val partCounterReg: UInt = if (numChunksPerWord > 1) {
     Reg(UInt(log2Up(numChunksPerWord) bits)) init (U(0, log2Up(numChunksPerWord) bits))
@@ -82,6 +77,33 @@ class SimulatedSplitGeneralMemory(
 
   val dataErrorForRspReg = Reg(Bool()) init (False)
 
+  // --- Combinational signals for next register values ---
+  val nextCurrentBusAddress = UInt(busConfig.addressWidth)
+  val nextCurrentWriteData = Bits(busConfig.dataWidth)
+  val nextCurrentByteEnables = Bits(busConfig.dataWidth.value / 8 bits)
+  val nextCurrentId = if (busConfig.useId) UInt(busConfig.idWidth) else null
+  val nextIsWriteOperation = Bool()
+  val nextLatencyCounter = if (memConfig.initialLatency > 0) UInt(log2Up(memConfig.initialLatency + 1) bits) else null
+  val nextPartCounter = if (numChunksPerWord > 1) UInt(log2Up(numChunksPerWord) bits) else U(0, 1 bits)
+  val nextAssemblyBuffer = if (numChunksPerWord > 1) Bits(busConfig.dataWidth) else null
+  val nextDataErrorForRsp = Bool()
+
+  // Default assignments for combinational signals (will be overwritten in FSM)
+  nextCurrentBusAddress := currentBusAddressReg
+  nextCurrentWriteData := currentWriteDataReg
+  nextCurrentByteEnables := currentByteEnablesReg
+  if (busConfig.useId) nextCurrentId := currentIdReg
+  nextIsWriteOperation := isWriteOperationReg
+  if (memConfig.initialLatency > 0) nextLatencyCounter := latencyCounterReg
+  if (numChunksPerWord > 1) nextPartCounter := partCounterReg
+  if (assemblyBufferReg != null) nextAssemblyBuffer := assemblyBufferReg
+  nextDataErrorForRsp := dataErrorForRspReg
+
+  // Calculate unresized base internal word address based on currentBusAddressReg
+  val baseInternalWordAddr_unresized = currentBusAddressReg >> log2Up(memConfig.internalDataWidthBytes)
+
+  val internalReadData = Bits(memConfig.internalDataWidth) // Data read from one internal memory word
+  internalReadData := 0
   val sm = new StateMachine {
 
     // Default assignments for outputs
@@ -101,6 +123,7 @@ class SimulatedSplitGeneralMemory(
         // Simple arbitration: Read has priority over Write if both are valid.
         // A real memory might have a more complex arbiter.
         when(io.bus.read.cmd.valid) {
+          report(L"[SimGenMem FSM] sIdle")
           io.bus.read.cmd.ready := True
           when(io.bus.read.cmd.fire) {
             if (enableLog) {
@@ -109,14 +132,15 @@ class SimulatedSplitGeneralMemory(
                   else U(0).setName("0")}"
               )
             }
-            currentBusAddressReg := io.bus.read.cmd.address
-            if (busConfig.useId) currentIdReg := io.bus.read.cmd.id
-            isWriteOperationReg := False
+            // Calculate next register values based on current inputs
+            nextCurrentBusAddress := io.bus.read.cmd.address
+            if (busConfig.useId) nextCurrentId := io.bus.read.cmd.id
+            nextIsWriteOperation := False
 
-            if (numChunksPerWord > 1) partCounterReg := U(0)
-            if (assemblyBufferReg != null) assemblyBufferReg.clearAll() // Clear for new read
-            if (memConfig.initialLatency > 0) latencyCounterReg := U(0)
-            dataErrorForRspReg := False
+            if (numChunksPerWord > 1) nextPartCounter := U(0)
+            if (nextAssemblyBuffer != null) nextAssemblyBuffer.clearAll() // Clear for new read
+            if (memConfig.initialLatency > 0) nextLatencyCounter := U(0)
+            nextDataErrorForRsp := False
             goto(sProcessInternal)
           }
         } otherwise when(io.bus.write.cmd.valid) {
@@ -129,16 +153,17 @@ class SimulatedSplitGeneralMemory(
                   else U(0).setName("0")}"
               )
             }
-            currentBusAddressReg := io.bus.write.cmd.address
-            currentWriteDataReg := io.bus.write.cmd.data
-            currentByteEnablesReg := io.bus.write.cmd.byteEnables
-            if (busConfig.useId) currentIdReg := io.bus.write.cmd.id
-            isWriteOperationReg := True
+            // Calculate next register values based on current inputs
+            nextCurrentBusAddress := io.bus.write.cmd.address
+            nextCurrentWriteData := io.bus.write.cmd.data
+            nextCurrentByteEnables := io.bus.write.cmd.byteEnables
+            if (busConfig.useId) nextCurrentId := io.bus.write.cmd.id
+            nextIsWriteOperation := True
 
-            if (numChunksPerWord > 1) partCounterReg := U(0)
-            // assemblyBufferReg not used for writes
-            if (memConfig.initialLatency > 0) latencyCounterReg := U(0)
-            dataErrorForRspReg := False
+            if (numChunksPerWord > 1) nextPartCounter := U(0)
+            // nextAssemblyBuffer not used for writes
+            if (memConfig.initialLatency > 0) nextLatencyCounter := U(0)
+            nextDataErrorForRsp := False
             goto(sProcessInternal)
           }
         }
@@ -148,20 +173,6 @@ class SimulatedSplitGeneralMemory(
     val sProcessInternal: State = new State {
       whenIsActive {
         // --- Latency Handling ---
-        if (memConfig.initialLatency > 0) {
-          when(latencyCounterReg < memConfig.initialLatency) {
-            latencyCounterReg := latencyCounterReg + 1
-            if (enableLog) {
-              report(
-                L"[SimGenMem FSM] sProcessInternal: Stalling for latency. New LatencyCtr=${latencyCounterReg} + 1"
-              )
-            }
-            // Stay in this state, do nothing else until latency is met
-            // The when(cond) below will handle the actual processing
-          }
-        }
-
-        // Condition to proceed after latency
         val canProcessChunk = if (memConfig.initialLatency > 0) latencyCounterReg === memConfig.initialLatency else True
 
         when(canProcessChunk) {
@@ -185,7 +196,7 @@ class SimulatedSplitGeneralMemory(
 
           val isCurrentChunkOOB = baseAddressOutOfBounds || !chunkInternalWordAddrValid
           when(isCurrentChunkOOB && !dataErrorForRspReg) {
-            dataErrorForRspReg := True
+            nextDataErrorForRsp := True // Update combinational signal
             if (enableLog)
               report(
                 L"[SimGenMem FSM] Error latched for transaction. BaseOOB=${baseAddressOutOfBounds}, ChunkInternalAddrInvalid=${!chunkInternalWordAddrValid}"
@@ -282,7 +293,7 @@ class SimulatedSplitGeneralMemory(
             }
             val dataToAssemble = Bits(memConfig.internalDataWidth)
             when(!isCurrentChunkOOB) { // Use isCurrentChunkOOB
-              dataToAssemble := internalReadData // internalReadData should be from mem.readAsync(wordAddr_fullwidth.resize)
+              dataToAssemble := internalReadData // internalReadData should be from mem.readAsync targeting 'wordAddr'
               if (enableLog)
                 report(L"  READ_CHUNK: Valid access, dataToAssemble (from internalReadData)=${internalReadData}")
             } otherwise {
@@ -293,21 +304,21 @@ class SimulatedSplitGeneralMemory(
             if (numChunksPerWord == 1) {
               assembledDataForOutput := dataToAssemble.resized
             } else {
-              // assemblyBufferReg holds previously read chunks
-              val nextAssemblyBuffer = CombInit(assemblyBufferReg) // Start with current buffer content
-              nextAssemblyBuffer.subdivideIn(memConfig.internalDataWidth).apply(chunkId) := dataToAssemble
-              assemblyBufferReg := nextAssemblyBuffer // Update register for next cycle (if more chunks)
-              assembledDataForOutput := nextAssemblyBuffer // Output the fully (or partially) assembled data
+              // nextAssemblyBuffer holds previously read chunks and the current chunk
+              val tempAssemblyBuffer = CombInit(assemblyBufferReg) // Start with current buffer content
+              tempAssemblyBuffer.subdivideIn(memConfig.internalDataWidth).apply(chunkId) := dataToAssemble
+              nextAssemblyBuffer := tempAssemblyBuffer // Update combinational signal for next cycle
+              assembledDataForOutput := tempAssemblyBuffer // Output the fully (or partially) assembled data
               if (enableLog) {
                 report(
-                  L"  READ_ASSEMBLE (multi-chunk part chunkId): dataToAssembleIntoSlice=${dataToAssemble}, assemblyBufferReg_In=${assemblyBufferReg}, assemblyBufferReg_Out(nextCycle)=${nextAssemblyBuffer}, assembledDataForOutputThisCycle=${assembledDataForOutput}"
+                  L"  READ_ASSEMBLE (multi-chunk part chunkId): dataToAssembleIntoSlice=${dataToAssemble}, assemblyBufferReg_In=${assemblyBufferReg}, nextAssemblyBuffer_Out(nextCycle)=${nextAssemblyBuffer}, assembledDataForOutputThisCycle=${assembledDataForOutput}"
                 )
               }
             }
           } // End of !isWriteOperationReg (READ operation)
 
           // --- State Transition & Response ---
-          if (memConfig.initialLatency > 0) latencyCounterReg := U(0) // Reset for next chunk/op
+          if (memConfig.initialLatency > 0) nextLatencyCounter := U(0) // Reset for next chunk/op
           val isLastPart = if (numChunksPerWord > 1) partCounterReg === (numChunksPerWord - 1) else True
 
           if (enableLog) report(L"[SimGenMem FSM] sProcessInternal: Chunk processed. isLastPart=${isLastPart}")
@@ -318,16 +329,15 @@ class SimulatedSplitGeneralMemory(
             when(isWriteOperationReg) {
               io.bus.write.rsp.valid := True
               io.bus.write.rsp.payload.error := finalErrorSignal
+              report(L"[SimGenMem FSM] sProcessInternal: WRITE RSP Fire! To sIdle. ErrorOut=${finalErrorSignal}")
               if (busConfig.useId) io.bus.write.rsp.payload.id := currentIdReg
+              when(io.bus.write.rsp.fire) {
 
-              if (enableLog) {
-                when(io.bus.write.rsp.fire) {
+                if (enableLog) {
                   report(
                     L"[SimGenMem FSM] sProcessInternal: RSP Fire! To sIdle. ReadDataOut=${assembledDataForOutput}, ErrorOut=${finalErrorSignal}"
                   )
                 }
-              }
-              when(io.bus.write.rsp.fire) {
                 goto(sIdle)
               }
             } otherwise { // Read operation response
@@ -352,7 +362,7 @@ class SimulatedSplitGeneralMemory(
             }
           } otherwise { // Not the last part, increment partCounter
             if (numChunksPerWord > 1) { // Should always be true if !isLastPart and numChunks > 1
-              partCounterReg := partCounterReg + U(1) // U(1) will be correctly sized
+              nextPartCounter := partCounterReg + U(1) // U(1) will be correctly sized
               if (enableLog)
                 report(
                   L"[SimGenMem FSM] sProcessInternal: Advancing to next part. New partCounterReg=${partCounterReg} + 1"
@@ -360,12 +370,22 @@ class SimulatedSplitGeneralMemory(
             }
             // Stay in sProcessInternal for the next chunk
           }
-        } // End of when(canProcessChunk)
+        } otherwise { // Still in latency period
+          if (memConfig.initialLatency > 0) {
+            nextLatencyCounter := latencyCounterReg + 1 // Increment latency counter
+            if (enableLog) {
+              report(
+                L"[SimGenMem FSM] sProcessInternal: Stalling for latency. New LatencyCtr=${latencyCounterReg} + 1"
+              )
+            }
+          }
+        } // End of when(canProcessChunk) / else (latency)
       } // End of whenIsActive for sProcessInternal
     } // End of sProcessInternal state
   } // End of StateMachine
 
   // --- Asynchronous Read Logic from Mem for the current chunk ---
+  // Note: The address for async read should be based on the *current* partCounterReg and currentBusAddressReg
   val addrForAsyncRead_unresized = baseInternalWordAddr_unresized + (if (numChunksPerWord > 1) partCounterReg else U(0))
   val addrValidForAsyncRead_comb_preResize = addrForAsyncRead_unresized <= memConfig.internalWordMaxAddr
 
@@ -377,11 +397,33 @@ class SimulatedSplitGeneralMemory(
     internalReadData := mem.readAsync(address =
       addrForAsyncRead_unresized.resize(memConfig.internalAddrWidth)
     ) // Resize for Mem access
+    // The read data is available in the *next* cycle.
+    // The FSM logic in sProcessInternal uses the internalReadData value from the *previous* cycle.
+    // This is the standard behavior for readAsync.
     if (enableLog) {
       // This log can be very verbose, enable with caution or make it conditional
       // report(L"[SimGenMem AsyncRead] Active: Addr=${addrForAsyncRead_unresized}, ReadData=${internalReadData} (next cycle)")
     }
   } otherwise {
-    internalReadData := B(0) // Default, or hold previous value if mem.readAsync has that behavior
+    // Default or hold previous value - mem.readAsync typically holds the last valid read data.
+    // We don't need an explicit assignment here unless we want to force a default value when not reading.
+    // For simulation, letting it hold the last value is often acceptable.
   }
+
+  when(io.bus.read.cmd.valid && io.bus.write.cmd.valid) {
+    report(L"[SimGenMem FSM] Error: Both read and write commands are valid in same cycle. Ignoring write command.")
+  }
+
+  // --- Register Updates on Clock Edge ---
+  // These assignments happen implicitly on the clock edge due to Reg()
+  currentBusAddressReg := nextCurrentBusAddress
+  currentWriteDataReg := nextCurrentWriteData
+  currentByteEnablesReg := nextCurrentByteEnables
+  if (busConfig.useId) currentIdReg := nextCurrentId
+  isWriteOperationReg := nextIsWriteOperation
+  if (memConfig.initialLatency > 0) latencyCounterReg := nextLatencyCounter
+  if (numChunksPerWord > 1) partCounterReg := nextPartCounter
+  if (assemblyBufferReg != null) assemblyBufferReg := nextAssemblyBuffer
+  dataErrorForRspReg := nextDataErrorForRsp
+
 }
