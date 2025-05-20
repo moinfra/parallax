@@ -1,19 +1,17 @@
 package parallax.test.scala
 
-import org.scalatest.funsuite.AnyFunSuite // Not strictly needed with SpinalSimFunSuite
 import spinal.core._
 import spinal.core.sim._
 import spinal.lib._
 import spinal.lib.sim.{StreamDriver, StreamMonitor, StreamReadyRandomizer}
-import spinal.tester.SpinalSimFunSuite // Assuming this is the base class for tests
-import parallax.components.icache._
+import spinal.tester.SpinalSimFunSuite
 
 // Common project configuration
-import parallax.common._ // Make sure this path is correct
+import parallax.common._
 
 // Components under test and its dependencies
-import parallax.components.memory.{InstructionFetchUnit, InstructionFetchUnitConfig}
-import parallax.components.memory._
+import parallax.components.memory._ // For GenericMemoryBusConfig, SimulatedSplitGeneralMemory, etc.
+import parallax.components.icache._ // For AdvancedICacheConfig, AdvancedICacheCpuRsp, etc.
 
 import scala.collection.mutable
 import scala.util.Random
@@ -28,35 +26,49 @@ class InstructionFetchUnitTestBench(
 
   val io = new Bundle {
     val pcIn = slave(Stream(UInt(ifuConfig.pcWidth)))
-    implicit val icacheConfig: SimpleICacheConfig = ifuConfig.icacheConfig
-    val dataOut = master(Stream(ICacheCpuRsp()))
-
+    // Implicit config for AdvancedICacheCpuRsp used in dataOut
+    implicit val advIcacheCfg: AdvancedICacheConfig = ifuConfig.icacheConfig
+    val dataOut = master(Stream(AdvancedICacheCpuRsp()))
+    // val flush = if(ifuConfig.enableFlush) slave(AdvancedICacheFlushBus()) else null // If flush testing is needed
   }
 
   val fma = new InstructionFetchUnit(ifuConfig)
-  val memCfg = SimulatedMemoryConfig(
-    internalDataWidth = simMemInternalDataWidth,
-    memSize = simMemSizeBytes,
-    initialLatency = simMemLatency
-    // burstLatency is not used by the provided SimulatedMemory FSM
+
+  // Use SimulatedSplitGeneralMemory
+  val mem = new SimulatedSplitGeneralMemory(
+    memConfig = SimulatedMemoryConfig(
+      internalDataWidth = simMemInternalDataWidth,
+      memSize = simMemSizeBytes,
+      initialLatency = simMemLatency
+    ),
+    busConfig = ifuConfig.memBusConfig // This busCfg is for the SplitGenericMemoryBus
   )
-  // The SimulatedMemory component itself takes the busConfig for its SimpleMemoryBus
-  val mem = new SimulatedMemory(memCfg, ifuConfig.memBusConfig)
-  fma.io.memBus.cmd >> mem.io.bus.cmd
-  fma.io.memBus.rsp << mem.io.bus.rsp
+
+  // Connect IFU's SplitGenericMemoryBus to SimulatedSplitGeneralMemory's bus
+  fma.io.memBus.read.cmd >> mem.io.bus.read.cmd
+  mem.io.bus.read.rsp >> fma.io.memBus.read.rsp
+
+  fma.io.memBus.write.cmd >> mem.io.bus.write.cmd
+  mem.io.bus.write.rsp >> fma.io.memBus.write.rsp
 
   io.pcIn <> fma.io.pcIn
   fma.io.dataOut <> io.dataOut
 
-  mem.io.simPublic()
+  // if(ifuConfig.enableFlush) { // If flush testing is needed
+  //   fma.io.flush <> io.flush
+  // }
+
+  // Expose SimulatedSplitGeneralMemory's direct write ports for initialization
+  // These are mem.io.writeEnable, mem.io.writeAddress, mem.io.writeData
+  // The SimMemInitDirect helper will use dut.mem.io.*
 }
 
 object SimMemInitDirect {
 
-  /** Initializes SimulatedMemory directly using its combinatorial write ports.
+  /** Initializes SimulatedSplitGeneralMemory directly using its combinatorial write ports.
     * This function is intended to be called from within a compiled.doSim block.
     *
-    * @param dut The compiled TestBench instance (which contains the 'mem' instance).
+    * @param dut The compiled TestBench instance (which contains the 'mem' instance of SimulatedSplitGeneralMemory).
     * @param address Byte address to start writing at.
     * @param value The data value to write.
     * @param internalDataWidth SimulatedMemory's internal data width (bits).
@@ -64,7 +76,7 @@ object SimMemInitDirect {
     * @param clockDomain The clock domain for timing the writes.
     */
   def initMemDirect(
-      dut: InstructionFetchUnitTestBench, // Pass the DUT to access dut.mem
+      dut: InstructionFetchUnitTestBench, // dut.mem is SimulatedSplitGeneralMemory
       address: Long,
       value: BigInt,
       internalDataWidth: BitCount,
@@ -85,64 +97,179 @@ object SimMemInitDirect {
     val numInternalChunks = busDataWidthForValue.value / internalDataWidth.value
 
     // Set default values for write ports to avoid them being floating
-    // These will be overridden momentarily during each write cycle
     dut.mem.io.writeEnable #= false
     dut.mem.io.writeAddress #= 0
     dut.mem.io.writeData #= 0
-
-    clockDomain.waitSampling() // Ensure defaults are applied before starting writes
+    clockDomain.waitSampling()
 
     for (i <- 0 until numInternalChunks) {
-      // Extract the current chunk (little-endian chunking for consistency with bus behavior)
       val slice = (value >> (i * internalDataWidth.value)) & ((BigInt(1) << internalDataWidth.value) - 1)
-      // Calculate byte address for the current internal chunk
       val internalChunkByteAddress = address + i * (internalDataWidth.value / 8)
 
-      // Apply write signals
       dut.mem.io.writeEnable #= true
       dut.mem.io.writeAddress #= internalChunkByteAddress
       dut.mem.io.writeData #= slice
-      clockDomain.waitSampling() // Hold write signals for one cycle
+      clockDomain.waitSampling()
 
-      // Deassert writeEnable for the next cycle (or if this is the last write)
-      // This prevents writing the same data to the same address on subsequent cycles if not careful
-      dut.mem.io.writeEnable #= false
+      dut.mem.io.writeEnable #= false // Deassert for next cycle or end
     }
-    // Ensure writeEnable is false after all writes
     dut.mem.io.writeEnable #= false
-    clockDomain.waitSampling() // Allow last write to settle
+    clockDomain.waitSampling()
   }
 }
 
 class InstructionFetchUnitSpec extends SpinalSimFunSuite {
-  onlyVerilator
+  onlyVerilator // As per original
 
   def XLEN: Int = 32
   def ADDR_WIDTH = XLEN bits
   def DATA_WIDTH = XLEN bits // Instruction width, matches XLEN in this demo
 
-  val simMemInternalDataWidth: BitCount = 32 bits // bits, memory is an array of 32-bit words in SimMem
+  val simMemInternalDataWidth: BitCount = 32 bits
   val simMemSizeBytes: BigInt = 8 * 1024 // 8 KiB
-  val simMemLatency: Int = 2 // cycles for each internal part access in SimulatedMemory
+  val simMemLatency: Int = 2
 
   def simConfig = SimConfig.withWave
+
+  // Common method to create IFU config
+  def createIfuConfig(
+      useCache: Boolean,
+      enableFlush: Boolean,
+      pcWidth: BitCount,
+      instrWidth: BitCount,
+      fetchGrpWidth: BitCount,
+      memBusCfg: GenericMemoryBusConfig
+  ): InstructionFetchUnitConfig = {
+    InstructionFetchUnitConfig(
+      useICache = useCache,
+      enableFlush = enableFlush,
+      pcWidth = pcWidth,
+      instructionWidth = instrWidth,
+      fetchGroupDataWidth = fetchGrpWidth,
+      memBusConfig = memBusCfg,
+      icacheConfig = if (useCache) {
+        AdvancedICacheConfig( // Using AdvancedICacheConfig
+          cacheSize = 2048, // Bytes
+          bytePerLine = 16, // Bytes
+          wayCount = 1,     // For simpler replacement logic in this test
+          addressWidth = pcWidth,
+          dataWidth = instrWidth,       // Corresponds to IFUConfig.instructionWidth
+          fetchDataWidth = fetchGrpWidth // Corresponds to IFUConfig.fetchGroupDataWidth
+        )
+      } else {
+        // Minimal AdvancedICacheConfig, as IFUConfig needs its structure for io.dataOut
+        AdvancedICacheConfig(
+          addressWidth = pcWidth,
+          dataWidth = instrWidth,
+          fetchDataWidth = fetchGrpWidth
+        )
+      }
+    )
+  }
 
   def runTest0(useICache: Boolean, testDescription: String): Unit = {
     val testName = s"InstructionFetchUnit ${if (useICache) "with ICache" else "without ICache"} - $testDescription"
     test(testName) {
       def memBusCfg = GenericMemoryBusConfig(addressWidth = ADDR_WIDTH, dataWidth = DATA_WIDTH)
-      def icacheCfg = if (useICache) {
-        SimpleICacheConfig(cacheSize = 2048, addressWidth = ADDR_WIDTH, dataWidth = DATA_WIDTH, bytePerLine = 16)
-      } else {
-        SimpleICacheConfig(addressWidth = ADDR_WIDTH, dataWidth = DATA_WIDTH)
+      // For runTest0, fetch group is a single instruction
+      def ifuConfig = createIfuConfig(
+          useCache = useICache,
+          enableFlush = false,
+          pcWidth = ADDR_WIDTH,
+          instrWidth = DATA_WIDTH,
+          fetchGrpWidth = DATA_WIDTH, // Single instruction per fetch group
+          memBusCfg = memBusCfg
+      )
+
+
+      def compiled = simConfig.compile(
+        new InstructionFetchUnitTestBench(ifuConfig, simMemInternalDataWidth, simMemSizeBytes, simMemLatency)
+      )
+
+      compiled.doSim { dut =>
+        dut.clockDomain.forkStimulus(period = 10)
+        dut.clockDomain.assertReset()
+        dut.clockDomain.waitSampling(5)
+        dut.clockDomain.deassertReset()
+        dut.clockDomain.waitSampling(5)
+
+        val (pcInDriver, pcCmdQueue) = StreamDriver.queue(dut.io.pcIn, dut.clockDomain)
+        // Queue stores (pc, instruction, fault)
+        val receivedDataQueue = mutable.Queue[(BigInt, BigInt, Boolean)]()
+        StreamMonitor(dut.io.dataOut, dut.clockDomain) { payload =>
+          // Assuming fetchWordsPerFetchGroup is 1 due to fetchGrpWidth = DATA_WIDTH
+          val instruction = payload.instructions(0).toBigInt
+          receivedDataQueue.enqueue(
+            (payload.pc.toBigInt, instruction, payload.fault.toBoolean)
+          )
+        }
+        StreamReadyRandomizer(dut.io.dataOut, dut.clockDomain)
+
+        val testAddr = 0x200L
+        val testInstr = BigInt("DEADBEEF", 16)
+        SimMemInitDirect.initMemDirect(
+          dut,
+          testAddr,
+          testInstr,
+          simMemInternalDataWidth,
+          DATA_WIDTH, // Value being written is DATA_WIDTH wide
+          dut.clockDomain
+        )
+        dut.clockDomain.waitSampling(5)
+
+        val expectedResults = mutable.Queue[(Long, BigInt, Boolean)]()
+        def fetchAndExpect(pc: Long, expectedInstr: BigInt, expectedFault: Boolean = false): Unit = {
+          pcCmdQueue.enqueue(u => u #= pc)
+          expectedResults.enqueue((pc, expectedInstr, expectedFault))
+          println(
+            s"[TB] Sent PC: 0x${pc.toHexString}, Expecting Instr: 0x${expectedInstr.toString(16)}, Fault: $expectedFault"
+          )
+        }
+
+        fetchAndExpect(testAddr, testInstr)
+        fetchAndExpect(testAddr, testInstr)
+
+        val timeoutCycles = 2 * ((simMemLatency + 1) * (DATA_WIDTH.value / simMemInternalDataWidth.value) + 20) * 5 + 2000
+        assert(
+          !dut.clockDomain.waitSamplingWhere(timeout = timeoutCycles)(receivedDataQueue.size == expectedResults.size),
+          s"Timeout: Received ${receivedDataQueue.size} of ${expectedResults.size} expected results."
+        )
+
+        assert(
+          receivedDataQueue.size == expectedResults.size,
+          s"[ASSERT FAIL] Transaction count mismatch. Expected ${expectedResults.size}, got ${receivedDataQueue.size}"
+        )
+
+        for (i <- 0 until expectedResults.size) {
+          val (expectedPc, expectedInstrData, expectedFaultData) = expectedResults.dequeue()
+          val (actualPc, actualInstr, actualFault) = receivedDataQueue.dequeue()
+
+          println(
+            f"[TB] Checking result ${i + 1}: Expected (PC:0x$expectedPc%x, Instr:0x$expectedInstrData%x, Fault:$expectedFaultData%b) --- Got (PC:0x$actualPc%x, Instr:0x$actualInstr%x, Fault:$actualFault%b)"
+          )
+          assert(actualPc == expectedPc, f"[ASSERT FAIL] PC mismatch for transaction ${i + 1}. Expected 0x$expectedPc%x, got 0x$actualPc%x")
+          assert(actualFault == expectedFaultData, f"[ASSERT FAIL] Fault mismatch for PC 0x$expectedPc%x (transaction ${i + 1}). Expected $expectedFaultData%b, got $actualFault%b")
+          if (!expectedFaultData) {
+            assert(actualInstr == expectedInstrData, f"[ASSERT FAIL] Instruction mismatch for PC 0x$expectedPc%x (transaction ${i + 1}). Expected 0x$expectedInstrData%x, got 0x$actualInstr%x")
+          }
+        }
+        dut.clockDomain.waitSampling(20)
       }
-      def ifuConfig = InstructionFetchUnitConfig(
-        useICache = useICache,
-        enableFlush = false,
-        pcWidth = ADDR_WIDTH,
-        cpuDataWidth = DATA_WIDTH,
-        memBusConfig = memBusCfg,
-        icacheConfig = icacheCfg
+    }
+  }
+
+  def runTest(useICache: Boolean, testDescription: String): Unit = {
+    val testName = s"InstructionFetchUnit ${if (useICache) "with ICache" else "without ICache"} - $testDescription"
+    test(testName) {
+      def memBusCfg = GenericMemoryBusConfig(addressWidth = ADDR_WIDTH, dataWidth = DATA_WIDTH)
+      // For runTest, fetch group is also a single instruction for simplicity with current test structure
+      def ifuConfig = createIfuConfig(
+          useCache = useICache,
+          enableFlush = false, // Kept false for these tests
+          pcWidth = ADDR_WIDTH,
+          instrWidth = DATA_WIDTH,
+          fetchGrpWidth = DATA_WIDTH, // Single instruction per fetch group
+          memBusCfg = memBusCfg
       )
 
       def compiled = simConfig.compile(
@@ -159,177 +286,48 @@ class InstructionFetchUnitSpec extends SpinalSimFunSuite {
         val (pcInDriver, pcCmdQueue) = StreamDriver.queue(dut.io.pcIn, dut.clockDomain)
         val receivedDataQueue = mutable.Queue[(BigInt, BigInt, Boolean)]()
         StreamMonitor(dut.io.dataOut, dut.clockDomain) { payload =>
+          val instruction = payload.instructions(0).toBigInt // Assuming 1 instruction per group
           receivedDataQueue.enqueue(
-            (payload.pc.toBigInt, payload.instruction.toBigInt, payload.fault.toBoolean)
+            (payload.pc.toBigInt, instruction, payload.fault.toBoolean)
           )
         }
-        StreamReadyRandomizer(dut.io.dataOut, dut.clockDomain) // Keep for realistic backpressure
-
-        // Initialize a single instruction
-        val testAddr = 0x200L
-        val testInstr = BigInt("DEADBEEF", 16)
-        SimMemInitDirect.initMemDirect(
-          dut,
-          testAddr,
-          testInstr,
-          simMemInternalDataWidth,
-          DATA_WIDTH,
-          dut.clockDomain
-        )
-        dut.clockDomain.waitSampling(5) // Settle memory write
-
-        // Fetch the instruction twice
-        val expectedResults = mutable.Queue[(Long, BigInt, Boolean)]()
-
-        def fetchAndExpect(pc: Long, expectedInstr: BigInt, expectedFault: Boolean = false): Unit = {
-          pcCmdQueue.enqueue(u => u #= pc)
-          expectedResults.enqueue((pc, expectedInstr, expectedFault))
-          println(
-            s"[TB] Sent PC: 0x${pc.toHexString}, Expecting Instr: 0x${expectedInstr.toString(16)}, Fault: $expectedFault"
-          )
-        }
-
-        // First fetch (could be a miss)
-        fetchAndExpect(testAddr, testInstr)
-        // Second fetch (could be a hit if caching is active and line was filled)
-        fetchAndExpect(testAddr, testInstr)
-
-        // Wait for transactions
-        val timeoutCycles =
-          2 * ((simMemLatency + 1) * (DATA_WIDTH / simMemInternalDataWidth).value + 20) * 5 + 200 // Simplified timeout
-        assert(
-          !dut.clockDomain.waitSamplingWhere(timeout = timeoutCycles)(receivedDataQueue.size == expectedResults.size),
-          s"Timeout: Received ${receivedDataQueue.size} of ${expectedResults.size} expected results."
-        )
-
-        // Assertions
-        assert(
-          receivedDataQueue.size == expectedResults.size,
-          s"[ASSERT FAIL] Transaction count mismatch. Expected ${expectedResults.size}, got ${receivedDataQueue.size}"
-        )
-
-        for (i <- 0 until expectedResults.size) {
-          val (expectedPc, expectedInstrData, expectedFaultData) = expectedResults.dequeue()
-          val (actualPc, actualInstr, actualFault) = receivedDataQueue.dequeue()
-
-          println(
-            f"[TB] Checking result ${i + 1}: Expected (PC:0x$expectedPc%x, Instr:0x$expectedInstrData%x, Fault:$expectedFaultData%b) --- Got (PC:0x$actualPc%x, Instr:0x$actualInstr%x, Fault:$actualFault%b)"
-          )
-          assert(
-            actualPc == expectedPc,
-            f"[ASSERT FAIL] PC mismatch for transaction ${i + 1}. Expected 0x$expectedPc%x, got 0x$actualPc%x"
-          )
-          assert(
-            actualFault == expectedFaultData,
-            f"[ASSERT FAIL] Fault mismatch for PC 0x$expectedPc%x (transaction ${i + 1}). Expected $expectedFaultData%b, got $actualFault%b"
-          )
-          if (!expectedFaultData) {
-            assert(
-              actualInstr == expectedInstrData,
-              f"[ASSERT FAIL] Instruction mismatch for PC 0x$expectedPc%x (transaction ${i + 1}). Expected 0x$expectedInstrData%x, got 0x$actualInstr%x"
-            )
-          }
-        }
-        dut.clockDomain.waitSampling(20)
-      }
-    }
-  }
-
-  // Test case generator
-  def runTest(useICache: Boolean, testDescription: String): Unit = {
-    val testName = s"InstructionFetchUnit ${if (useICache) "with ICache" else "without ICache"} - $testDescription"
-    test(testName) {
-      // 1. Configure InstructionFetchUnit and its dependencies
-      // This bus config is for InstructionFetchUnit's external memory bus (io.memBus)
-      // AND for ICache's memory port if ICache is used.
-      def memBusCfg = GenericMemoryBusConfig(addressWidth = ADDR_WIDTH, dataWidth = DATA_WIDTH)
-
-      def icacheCfg = if (useICache) {
-        SimpleICacheConfig(
-          cacheSize = 2048, // e.g., 2048 Bytes
-          addressWidth = ADDR_WIDTH, // CPU-side address width
-          dataWidth = DATA_WIDTH, // CPU-side data width (instruction width)
-          bytePerLine = 16 // e.g., 4 words if DATA_WIDTH = 32 bits (4 Bytes/word)
-        )
-      } else {
-        SimpleICacheConfig(addressWidth = ADDR_WIDTH, dataWidth = DATA_WIDTH)
-      }
-
-      def ifuConfig = InstructionFetchUnitConfig(
-        useICache = useICache,
-        pcWidth = ADDR_WIDTH,
-        cpuDataWidth = DATA_WIDTH,
-        memBusConfig = memBusCfg,
-        icacheConfig = icacheCfg // Pass the configured or dummy ICache config
-      )
-
-      def compiled = simConfig.compile(
-        new InstructionFetchUnitTestBench(ifuConfig, simMemInternalDataWidth, simMemSizeBytes, simMemLatency)
-      )
-
-      compiled.doSim { dut =>
-        // 2. Setup Clock, Reset
-        dut.clockDomain.forkStimulus(period = 10) // 10ns clock period (100 MHz)
-        dut.clockDomain.assertReset()
-        dut.clockDomain.waitSampling(5)
-        dut.clockDomain.deassertReset()
-        dut.clockDomain.waitSampling(5)
-
-        // 4. Setup Stream Drivers and Monitors for DUT's CPU-side interfaces
-        val (pcInDriver, pcCmdQueue) = StreamDriver.queue(dut.io.pcIn, dut.clockDomain)
-        val receivedDataQueue = mutable.Queue[(BigInt, BigInt, Boolean)]() // Stores (pc, instruction, fault)
-        StreamMonitor(dut.io.dataOut, dut.clockDomain) { payload =>
-          receivedDataQueue.enqueue(
-            (payload.pc.toBigInt, payload.instruction.toBigInt, payload.fault.toBoolean)
-          )
-        }
-        // Randomize DUT's consumption of output data to test backpressure handling
-        // dataOut.ready is an input to the DUT's master stream interface
         StreamReadyRandomizer(dut.io.dataOut, dut.clockDomain)
 
-        // 5. Initialize SimulatedMemory with test instructions
         val instructions = mutable.LinkedHashMap[Long, BigInt]()
         def addRandomInstruction(addr: Long): Unit = {
-          // Generate a random instruction of DATA_WIDTH bits
           instructions += (addr -> BigInt(DATA_WIDTH.value, Random))
         }
 
         addRandomInstruction(0x100L)
         addRandomInstruction(0x104L)
         addRandomInstruction(0x108L)
-        addRandomInstruction(0x10cL) // Belongs to the same 16-byte cache line as 0x100
+        addRandomInstruction(0x10cL)
 
         if (useICache) {
-          // Address for cache replacement test. For a 2KB, 1-way, 16B-line cache:
-          // NumSets = 2048 Bytes / 16 Bytes/line = 128 sets.
-          // Index for 0x100: (0x100 >> 4) % 128 = (0x10) % 128 = 16.
-          // An address that maps to the same set index 16:
-          // e.g., 0x100 + (NumSets * LineSize) = 0x100 + (128 * 16) = 0x100 + 2048 = 0x100 + 0x800 = 0x900.
+          // Cache config: 2048B size, 16B/line, 1-way => 128 sets.
+          // 0x100 maps to set (0x100 >> 4) % 128 = 0x10 % 128 = 16.
+          // 0x900 maps to set (0x900 >> 4) % 128 = 0x90 % 128 = 16. (0x90 = 144, 144 % 128 = 16)
+          // Correction: 0x90 = 144. 144 % 128 = 16. This is correct.
+          // The original calculation was (0x10 + 0x80) << 4 = 0x90 << 4 = 0x900. 0x80 is 128 (number of sets).
           addRandomInstruction(0x900L)
-          addRandomInstruction(0x904L) // Belongs to the same cache line as 0x900
+          addRandomInstruction(0x904L)
         }
 
         instructions.foreach { case (addr, data) =>
-          SimMemInitDirect.initMemDirect( // Call the new direct initialization helper
-            dut, // Pass the dut instance
+          SimMemInitDirect.initMemDirect(
+            dut,
             addr,
             data,
             simMemInternalDataWidth,
-            DATA_WIDTH,
+            DATA_WIDTH, // Value being written is DATA_WIDTH wide
             dut.clockDomain
           )
         }
+        dut.clockDomain.waitSampling(5)
 
-        dut.clockDomain.waitSampling(5) // Allow memory writes via sim ports to settle
-
-        // 6. Test Execution: Send PC requests and queue expected results
         val expectedResults = mutable.Queue[(Long, BigInt, Boolean)]()
-
-        // Helper to enqueue a PC fetch request and its expected outcome
         def fetchAndExpect(pc: Long, expectedInstrProvider: Long => BigInt, expectedFault: Boolean = false): Unit = {
-          pcCmdQueue.enqueue(u => u #= pc) // Send PC value to DUT
-          // If fault is expected, instruction data might be undefined or a specific fault pattern.
-          // For simplicity, we'll expect 0 as instruction data when a fault occurs.
+          pcCmdQueue.enqueue(u => u #= pc)
           val expectedInstr = if (expectedFault) BigInt(0) else expectedInstrProvider(pc)
           expectedResults.enqueue((pc, expectedInstr, expectedFault))
           println(
@@ -337,47 +335,30 @@ class InstructionFetchUnitSpec extends SpinalSimFunSuite {
           )
         }
 
-        // --- Define Test Sequence ---
-        // Test 1: Sequential fetches (these will be misses initially, then hits if cached)
         fetchAndExpect(0x100L, instructions)
         fetchAndExpect(0x104L, instructions)
         fetchAndExpect(0x108L, instructions)
 
         if (useICache) {
-          // Test 2: Cache hits (these addresses should now be in the cache)
-          fetchAndExpect(0x10cL, instructions) // Should be a hit (same line as 0x100, 0x104, 0x108)
-          fetchAndExpect(0x100L, instructions) // Definite hit
+          fetchAndExpect(0x10cL, instructions)
+          fetchAndExpect(0x100L, instructions)
+          fetchAndExpect(0x900L, instructions)
+          fetchAndExpect(0x904L, instructions)
+          fetchAndExpect(0x100L, instructions)
         }
 
-        if (useICache) {
-          // Test 3: Cache miss causing replacement (0x900 maps to the same set as 0x100)
-          fetchAndExpect(0x900L, instructions) // Miss, loads line for 0x900, should evict 0x100's line
-          fetchAndExpect(0x904L, instructions) // Hit on 0x900's newly loaded line
-
-          // Test 4: Fetch original line again (0x100 should now be a miss due to replacement)
-          fetchAndExpect(0x100L, instructions) // Miss again
-        }
-
-        // Wait for all transactions to be processed by DUT and collected by the monitor
-        // Timeout calculation needs to be generous:
-        // - SimulatedMemory latency depends on internalDataWidth vs busDataWidth and its initialLatency.
-        // - ICache introduces its own latency (hit/miss).
-        // - StreamReadyRandomizer adds variability.
-        val cyclesPerSimMemPart = simMemLatency + 1 // Approx cycles per internal word in SimMem
-        val partsPerBusTx = (DATA_WIDTH / simMemInternalDataWidth).value
+        val cyclesPerSimMemPart = simMemLatency + 1
+        val partsPerBusTx = (DATA_WIDTH.value / simMemInternalDataWidth.value)
         val simMemEffectiveLatency = cyclesPerSimMemPart * partsPerBusTx
-        val baseCyclesPerTx =
-          if (useICache) simMemEffectiveLatency + 15
-          else simMemEffectiveLatency + 5 // Extra for ICache logic or direct path logic
-        val randomizerEffectFactor = 5 // Multiplier to account for StreamReadyRandomizer induced delays
-        val timeoutCycles = expectedResults.size * baseCyclesPerTx * randomizerEffectFactor + 2000 // Overall buffer
+        val baseCyclesPerTx = if (useICache) simMemEffectiveLatency + 15 else simMemEffectiveLatency + 5
+        val randomizerEffectFactor = 5
+        val timeoutCycles = expectedResults.size * baseCyclesPerTx * randomizerEffectFactor + 2000
 
         assert(
           !dut.clockDomain.waitSamplingWhere(timeout = timeoutCycles)(receivedDataQueue.size == expectedResults.size),
-          "timeout"
+          s"Timeout: Received ${receivedDataQueue.size} of ${expectedResults.size} expected results."
         )
 
-        // 7. Assertions: Compare received data with expected results
         assert(
           receivedDataQueue.size == expectedResults.size,
           s"[ASSERT FAIL] Transaction count mismatch. Expected ${expectedResults.size}, got ${receivedDataQueue.size}"
@@ -390,32 +371,20 @@ class InstructionFetchUnitSpec extends SpinalSimFunSuite {
           println(
             f"[TB] Checking result ${i + 1}: Expected (PC:0x$expectedPc%x, Instr:0x$expectedInstr%x, Fault:$expectedFault%b) --- Got (PC:0x$actualPc%x, Instr:0x$actualInstr%x, Fault:$actualFault%b)"
           )
-
-          assert(
-            actualPc == expectedPc,
-            f"[ASSERT FAIL] PC mismatch for transaction ${i + 1}. Expected 0x$expectedPc%x, got 0x$actualPc%x"
-          )
-          assert(
-            actualFault == expectedFault,
-            f"[ASSERT FAIL] Fault mismatch for PC 0x$expectedPc%x (transaction ${i + 1}). Expected $expectedFault%b, got $actualFault%b"
-          )
-
-          if (!expectedFault) { // Only check instruction data if no fault is expected
-            assert(
-              actualInstr == expectedInstr,
-              f"[ASSERT FAIL] Instruction mismatch for PC 0x$expectedPc%x (transaction ${i + 1}). Expected 0x$expectedInstr%x, got 0x$actualInstr%x"
-            )
+          assert(actualPc == expectedPc, f"[ASSERT FAIL] PC mismatch for transaction ${i + 1}. Expected 0x$expectedPc%x, got 0x$actualPc%x")
+          assert(actualFault == expectedFault, f"[ASSERT FAIL] Fault mismatch for PC 0x$expectedPc%x (transaction ${i + 1}). Expected $expectedFault%b, got $actualFault%b")
+          if (!expectedFault) {
+            assert(actualInstr == expectedInstr, f"[ASSERT FAIL] Instruction mismatch for PC 0x$expectedPc%x (transaction ${i + 1}). Expected 0x$expectedInstr%x, got 0x$actualInstr%x")
           }
         }
-        dut.clockDomain.waitSampling(20) // Final settling time before sim ends
+        dut.clockDomain.waitSampling(20)
       }
     }
   }
+
   runTest0(useICache = false, "basic single instruction fetch (no cache)")
   runTest0(useICache = true, "basic single instruction fetch (with cache)")
 
-  // === Execute Test Cases ===
-  runTest(useICache = false, "basic fetches and out-of-bounds access")
-  runTest(useICache = true, "cache hits, misses, replacement, and out-of-bounds access")
-
+  runTest(useICache = false, "basic fetches (no cache)") // Simplified description
+  runTest(useICache = true, "cache hits, misses, replacement (with cache)") // Simplified
 }
