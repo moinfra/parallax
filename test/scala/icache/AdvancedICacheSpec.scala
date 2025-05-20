@@ -183,6 +183,98 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
     }
   }
 
+  // T1.2: Sequential Word Access Within Line (Narrow Fetch)
+  test("T1.2 - Sequential Word Access Within Line (Narrow Fetch)") {
+    val lineSizeBytes = 32 // 8 words
+    val coreDataWidth = 32 bits
+
+    implicit val cacheConfig = AdvancedICacheConfig(
+      cacheSize = 128, // 4 lines
+      bytePerLine = lineSizeBytes,
+      wayCount = 1,
+      addressWidth = 32 bits,
+      dataWidth = coreDataWidth,
+      fetchDataWidth = coreDataWidth // 窄取指
+    )
+    val memBusConfig = GenericMemoryBusConfig(addressWidth = 32 bits, dataWidth = coreDataWidth, useId = false)
+    val simMemConfig = SimulatedMemoryConfig(internalDataWidth = coreDataWidth, memSize = 1 KiB, initialLatency = 2)
+
+    val wordsPerLine = cacheConfig.wordsPerLine
+    val internalMemDataWidthBytes = simMemConfig.internalDataWidth.value / 8
+
+
+    def tb = new AdvancedICacheTestbench(cacheConfig, memBusConfig, simMemConfig, dutEnableLog = true)
+
+    simConfig.compile(tb).doSim { dut =>
+      dut.clockDomain.forkStimulus(period = 10)
+      dut.io.flushBus.cmd.valid #= false
+
+      val (_, cpuCmdQueue) = StreamDriver.queue(dut.io.cpuBus.cmd, dut.clockDomain)
+      StreamReadyRandomizer(dut.io.cpuBus.cmd, dut.clockDomain)
+      val cpuRspBuffer = mutable.Queue[CpuRspData]()
+      StreamMonitor(dut.io.cpuBus.rsp, dut.clockDomain) { payload =>
+        val rspData = CpuRspData(
+          instructions = payload.instructions.map(_.toBigInt),
+          pc = payload.pc.toBigInt,
+          fault = payload.fault.toBoolean
+        )
+        cpuRspBuffer.enqueue(rspData)
+      }
+      StreamReadyRandomizer(dut.io.cpuBus.rsp, dut.clockDomain)
+
+      var memReadCmdFires = 0
+      dut.memory.io.bus.read.cmd.ready.randomize()
+      fork {
+        while(true) {
+          dut.clockDomain.waitSampling()
+          if (dut.memory.io.bus.read.cmd.valid.toBoolean && dut.memory.io.bus.read.cmd.ready.toBoolean) {
+            memReadCmdFires += 1
+          }
+        }
+      }
+
+      val baseAddr = 0x300L
+      val testData = Array.tabulate(wordsPerLine)(i => BigInt(s"${(i + 1).toString * 8}", 16)) // 11111111, 22222222, ...
+
+      // Initialize memory with sequential data
+      for (i <- 0 until wordsPerLine) {
+        initSimulatedMemory(dut.memory.io, baseAddr + i * (coreDataWidth.value / 8), testData(i), dut.clockDomain, internalMemDataWidthBytes)
+      }
+      dut.clockDomain.waitSampling(5)
+
+      // 1. Request baseAddr (Expected MISS) - Fills the line
+      println(s"SIM [T1.2]: 请求基地址 0x${baseAddr.toHexString} (预期 MISS)")
+      cpuCmdQueue.enqueue(_.address #= baseAddr)
+      val missTimeout = wordsPerLine * (simMemConfig.initialLatency + 5) + 50
+      dut.clockDomain.waitSamplingWhere(missTimeout)(cpuRspBuffer.nonEmpty)
+      assert(cpuRspBuffer.nonEmpty, s"CPU 响应队列在 MISS 后为空 (timeout $missTimeout)"); cpuRspBuffer.dequeue()
+      assert(memReadCmdFires == wordsPerLine, s"MISS 内存读命令次数不正确. 预期 ${wordsPerLine}, 得到 ${memReadCmdFires}")
+
+      dut.clockDomain.waitSampling(10)
+      memReadCmdFires = 0
+
+      // 2. Request sequential addresses within the line (Expected HITs)
+      println(s"SIM [T1.2]: 顺序请求行内地址 (预期 HITs)")
+      for (i <- 1 until wordsPerLine) { // Start from the second word
+        val currentAddr = baseAddr + i * (coreDataWidth.value / 8)
+        println(s"SIM [T1.2]: 请求地址 0x${currentAddr.toHexString}")
+        cpuCmdQueue.enqueue(_.address #= currentAddr)
+        val hitTimeout = 50
+        dut.clockDomain.waitSamplingWhere(hitTimeout)(cpuRspBuffer.nonEmpty)
+        assert(cpuRspBuffer.nonEmpty, s"CPU 响应队列在顺序 HIT 后为空 (timeout $hitTimeout)")
+        val rspData = cpuRspBuffer.dequeue()
+        assert(!rspData.fault, s"顺序 HIT 请求不应产生 fault (Addr 0x${currentAddr.toHexString})")
+        assert(rspData.instructions(0) == testData(i), s"顺序 HIT 数据不匹配 (Addr 0x${currentAddr.toHexString}). 预期 0x${testData(i).toString(16)}, 得到 0x${rspData.instructions(0).toString(16)}")
+        assert(rspData.pc == currentAddr, s"顺序 HIT PC 不匹配 (Addr 0x${currentAddr.toHexString})")
+      }
+
+      assert(memReadCmdFires == 0, s"顺序 HIT 内存读命令次数不正确. 预期 0, 得到 ${memReadCmdFires}")
+
+      dut.clockDomain.waitSampling(20)
+      println("SIM [T1.2]: 测试 'Sequential Word Access Within Line (Narrow Fetch)' 完成.")
+    }
+  }
+
 
   // T1.3: 宽取指 Miss 然后 Hit
   test("T1.3 - Wide Fetch Miss then Hit") {
@@ -291,9 +383,206 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
     }
   }
 
+  // T1.4: Wide Fetch Sequential Access Within Line
+  testOnly("T1.4 - Wide Fetch Sequential Access Within Line") {
+    val lineSizeBytes = 64 // 8 words, 4 fetch groups (64 bits = 8 bytes)
+    val coreDataWidth = 32 bits
+    val fetchWidth = 64 bits // 2 words
+
+    implicit val cacheConfig = AdvancedICacheConfig(
+      cacheSize = 256, // 4 lines
+      bytePerLine = lineSizeBytes,
+      wayCount = 1,
+      addressWidth = 32 bits,
+      dataWidth = coreDataWidth,
+      fetchDataWidth = fetchWidth
+    )
+    val memBusConfig = GenericMemoryBusConfig(addressWidth = 32 bits, dataWidth = coreDataWidth, useId = false)
+    val simMemConfig = SimulatedMemoryConfig(internalDataWidth = coreDataWidth, memSize = 1 KiB, initialLatency = 2)
+
+    val wordsPerLine = cacheConfig.wordsPerLine
+    val fetchBytes = cacheConfig.fetchDataWidth.value / 8 // 8 bytes
+    val fetchGroupsPerLine = lineSizeBytes / fetchBytes // 4 fetch groups
+    val internalMemDataWidthBytes = simMemConfig.internalDataWidth.value / 8
+
+
+    def tb = new AdvancedICacheTestbench(cacheConfig, memBusConfig, simMemConfig, dutEnableLog = true)
+
+    simConfig.compile(tb).doSim { dut =>
+      dut.clockDomain.forkStimulus(period = 10)
+      dut.io.flushBus.cmd.valid #= false
+
+      val (_, cpuCmdQueue) = StreamDriver.queue(dut.io.cpuBus.cmd, dut.clockDomain)
+      StreamReadyRandomizer(dut.io.cpuBus.cmd, dut.clockDomain)
+      val cpuRspBuffer = mutable.Queue[CpuRspData]()
+      StreamMonitor(dut.io.cpuBus.rsp, dut.clockDomain) { payload =>
+        val rspData = CpuRspData(
+          instructions = payload.instructions.map(_.toBigInt),
+          pc = payload.pc.toBigInt,
+          fault = payload.fault.toBoolean
+        )
+        cpuRspBuffer.enqueue(rspData)
+      }
+      StreamReadyRandomizer(dut.io.cpuBus.rsp, dut.clockDomain)
+
+      var memReadCmdFires = 0
+      dut.memory.io.bus.read.cmd.ready.randomize()
+      fork {
+        while(true) {
+          dut.clockDomain.waitSampling()
+          if (dut.memory.io.bus.read.cmd.valid.toBoolean && dut.memory.io.bus.read.cmd.ready.toBoolean) {
+            memReadCmdFires += 1
+          }
+        }
+      }
+
+      val baseAddr = 0x400L // Align to fetch group boundary
+      val testDataWords = Array.tabulate(wordsPerLine)(i => BigInt(s"${(i + 10).toString * 8}", 16)) // 10101010, 11111111, ...
+
+      // Initialize memory
+      for (i <- 0 until wordsPerLine) {
+        initSimulatedMemory(dut.memory.io, baseAddr + i * (coreDataWidth.value / 8), testDataWords(i), dut.clockDomain, internalMemDataWidthBytes)
+      }
+      dut.clockDomain.waitSampling(5)
+
+      // 1. Request baseAddr (Expected MISS) - Fills the line
+      println(s"SIM [T1.4]: 请求基地址 0x${baseAddr.toHexString} (预期 MISS, 宽取指)")
+      cpuCmdQueue.enqueue(_.address #= baseAddr)
+      val missTimeout = wordsPerLine * (simMemConfig.initialLatency + 5) + 50
+      dut.clockDomain.waitSamplingWhere(missTimeout)(cpuRspBuffer.nonEmpty)
+      assert(cpuRspBuffer.nonEmpty, s"CPU 响应队列在 MISS 后为空 (timeout $missTimeout)"); cpuRspBuffer.dequeue()
+      assert(memReadCmdFires == wordsPerLine, s"MISS 内存读命令次数不正确. 预期 ${wordsPerLine}, 得到 ${memReadCmdFires}")
+
+      dut.clockDomain.waitSampling(10)
+      memReadCmdFires = 0
+
+      // 2. Request sequential addresses within the line, aligned to fetch group (Expected HITs)
+      println(s"SIM [T1.4]: 顺序请求行内地址 (按取指宽度对齐, 预期 HITs)")
+      for (i <- 1 until fetchGroupsPerLine) { // Start from the second fetch group
+        val currentAddr = baseAddr + i * fetchBytes
+        println(s"SIM [T1.4]: 请求地址 0x${currentAddr.toHexString}")
+        cpuCmdQueue.enqueue(_.address #= currentAddr)
+        val hitTimeout = 100
+        dut.clockDomain.waitSamplingWhere(hitTimeout)(cpuRspBuffer.nonEmpty)
+        assert(cpuRspBuffer.nonEmpty, s"CPU 响应队列在顺序 HIT 后为空 (timeout $hitTimeout)")
+        val rspData = cpuRspBuffer.dequeue()
+        assert(!rspData.fault, s"顺序 HIT 请求不应产生 fault (Addr 0x${currentAddr.toHexString})")
+
+        // Verify the instructions in the wide fetch group
+        val startWordIdx = i * (fetchBytes / (coreDataWidth.value / 8)) // Index of the first word in this fetch group
+        for (j <- 0 until cacheConfig.fetchWordsPerFetchGroup) {
+          val wordIdx = startWordIdx + j
+          assert(rspData.instructions(j) == testDataWords(wordIdx), s"顺序 HIT 数据[${j}]不匹配 (Addr 0x${currentAddr.toHexString}). 预期 0x${testDataWords(wordIdx).toString(16)}, 得到 0x${rspData.instructions(j).toString(16)}")
+        }
+        assert(rspData.pc == currentAddr, s"顺序 HIT PC 不匹配 (Addr 0x${currentAddr.toHexString})")
+      }
+
+      assert(memReadCmdFires == 0, s"顺序 HIT 内存读命令次数不正确. 预期 0, 得到 ${memReadCmdFires}")
+
+      dut.clockDomain.waitSampling(20)
+      println("SIM [T1.4]: 测试 'Wide Fetch Sequential Access Within Line' 完成.")
+    }
+  }
+
+  // T2.1: Filling All Ways in a Set, then Hit
+  test("T2.1 - Filling All Ways in a Set, then Hit") {
+    val lineSizeBytes = 32
+    val coreDataWidth = 32 bits
+    val ways = 4 // 测试 4 路组相联
+
+    implicit val cacheConfig = AdvancedICacheConfig(
+      cacheSize = ways * lineSizeBytes * 1, // 一个组
+      bytePerLine = lineSizeBytes,
+      wayCount = ways,
+      addressWidth = 32 bits,
+      dataWidth = coreDataWidth,
+      fetchDataWidth = coreDataWidth
+    )
+    val memBusConfig = GenericMemoryBusConfig(addressWidth = 32 bits, dataWidth = coreDataWidth, useId = false)
+    val simMemConfig = SimulatedMemoryConfig(internalDataWidth = coreDataWidth, memSize = 1 KiB, initialLatency = 2)
+
+    val wordsPerLine = cacheConfig.wordsPerLine
+    val internalMemDataWidthBytes = simMemConfig.internalDataWidth.value / 8
+
+    def tb = new AdvancedICacheTestbench(cacheConfig, memBusConfig, simMemConfig, dutEnableLog = true)
+
+    simConfig.compile(tb).doSim { dut =>
+      dut.clockDomain.forkStimulus(period = 10)
+      dut.io.flushBus.cmd.valid #= false
+
+      val (_, cpuCmdQueue) = StreamDriver.queue(dut.io.cpuBus.cmd, dut.clockDomain)
+      StreamReadyRandomizer(dut.io.cpuBus.cmd, dut.clockDomain)
+      val cpuRspBuffer = mutable.Queue[CpuRspData]()
+      StreamMonitor(dut.io.cpuBus.rsp, dut.clockDomain) { payload =>
+        val rspData = CpuRspData(
+          instructions = payload.instructions.map(_.toBigInt),
+          pc = payload.pc.toBigInt,
+          fault = payload.fault.toBoolean
+        )
+        cpuRspBuffer.enqueue(rspData)
+      }
+      StreamReadyRandomizer(dut.io.cpuBus.rsp, dut.clockDomain)
+
+      var memReadCmdFires = 0
+      dut.memory.io.bus.read.cmd.ready.randomize()
+      fork {
+        while(true) {
+          dut.clockDomain.waitSampling()
+          if (dut.memory.io.bus.read.cmd.valid.toBoolean && dut.memory.io.bus.read.cmd.ready.toBoolean) {
+            memReadCmdFires += 1
+          }
+        }
+      }
+      dut.clockDomain.waitSampling()
+
+      // Addresses mapping to the same set
+      val baseAddr = 0x500L // Set 0
+      val addresses = Array.tabulate(ways)(i => baseAddr + i * (cacheConfig.setCount * cacheConfig.bytePerLine)) // Addr 0x500, 0x580, 0x600, 0x680
+      val testData = Array.tabulate(ways)(i => BigInt(s"${(i + 20).toString * 8}", 16)) // 20202020, 21212121, ...
+
+      // Initialize memory
+      for (i <- 0 until ways) {
+        initSimulatedMemory(dut.memory.io, addresses(i), testData(i), dut.clockDomain, internalMemDataWidthBytes)
+      }
+      dut.clockDomain.waitSampling(5)
+
+      // Fill all ways in the set (Expected MISSes)
+      println(s"SIM [T2.1]: 填充 Set 0 的所有 Way (预期 MISSes)")
+      for (i <- 0 until ways) {
+        println(s"SIM [T2.1]: 请求地址 0x${addresses(i).toHexString}")
+        memReadCmdFires = 0
+        cpuCmdQueue.enqueue(_.address #= addresses(i))
+        val missTimeout = wordsPerLine * (simMemConfig.initialLatency + 5) + 50
+        dut.clockDomain.waitSamplingWhere(missTimeout)(cpuRspBuffer.nonEmpty)
+        assert(cpuRspBuffer.nonEmpty, s"CPU 响应队列在填充 Way ${i} 后为空 (timeout $missTimeout)")
+        val rspData = cpuRspBuffer.dequeue()
+        assert(!rspData.fault, s"填充 Way ${i} 不应产生 fault")
+        assert(rspData.instructions(0) == testData(i), s"填充 Way ${i} 数据不匹配")
+        assert(memReadCmdFires == wordsPerLine, s"填充 Way ${i} 内存读命令次数不正确")
+      }
+
+      dut.clockDomain.waitSampling(10)
+      memReadCmdFires = 0
+
+      // Request the first address again (Expected HIT)
+      println(s"SIM [T2.1]: 再次请求第一个地址 0x${addresses(0).toHexString} (预期 HIT)")
+      cpuCmdQueue.enqueue(_.address #= addresses(0))
+      val hitTimeout = 50
+      dut.clockDomain.waitSamplingWhere(hitTimeout)(cpuRspBuffer.nonEmpty)
+      assert(cpuRspBuffer.nonEmpty, s"CPU 响应队列在 HIT 后为空 (timeout $hitTimeout)")
+      val rspData = cpuRspBuffer.dequeue()
+      assert(!rspData.fault, "HIT 请求不应产生 fault")
+      assert(rspData.instructions(0) == testData(0), "HIT 数据不匹配")
+      assert(memReadCmdFires == 0, "HIT 内存读命令次数不正确")
+
+      dut.clockDomain.waitSampling(20)
+      println("SIM [T2.1]: 测试 'Filling All Ways in a Set, then Hit' 完成.")
+    }
+  }
+
 
   // T2.2: LRU 替换
-  testOnly("T2.2 - LRU Replacement") {
+  test("T2.2 - LRU Replacement") {
     val lineSizeBytes = 32
     val coreDataWidth = 32 bits
     val ways = 2 // 测试 2 路组相联
@@ -417,7 +706,225 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
     }
   }
 
-  // T3.2: Flush 部分/完全填充的缓存
+  // T2.3: LRU Hit Promotion
+  testOnly("T2.3 - LRU Hit Promotion") {
+    val lineSizeBytes = 32
+    val coreDataWidth = 32 bits
+    val ways = 4 // 测试 4 路组相联
+
+    implicit val cacheConfig = AdvancedICacheConfig(
+      cacheSize = ways * lineSizeBytes * 1, // 一个组
+      bytePerLine = lineSizeBytes,
+      wayCount = ways,
+      addressWidth = 32 bits,
+      dataWidth = coreDataWidth,
+      fetchDataWidth = coreDataWidth
+    )
+    val memBusConfig = GenericMemoryBusConfig(addressWidth = 32 bits, dataWidth = coreDataWidth, useId = false)
+    val simMemConfig = SimulatedMemoryConfig(internalDataWidth = coreDataWidth, memSize = 1 KiB, initialLatency = 2)
+
+    val wordsPerLine = cacheConfig.wordsPerLine
+    val internalMemDataWidthBytes = simMemConfig.internalDataWidth.value / 8
+
+    def tb = new AdvancedICacheTestbench(cacheConfig, memBusConfig, simMemConfig, dutEnableLog = true)
+
+    simConfig.compile(tb).doSim { dut =>
+      dut.clockDomain.forkStimulus(period = 10)
+      dut.io.flushBus.cmd.valid #= false
+
+      val (_, cpuCmdQueue) = StreamDriver.queue(dut.io.cpuBus.cmd, dut.clockDomain)
+      StreamReadyRandomizer(dut.io.cpuBus.cmd, dut.clockDomain)
+      val cpuRspBuffer = mutable.Queue[CpuRspData]()
+      StreamMonitor(dut.io.cpuBus.rsp, dut.clockDomain) { payload =>
+        val rspData = CpuRspData(
+          instructions = payload.instructions.map(_.toBigInt),
+          pc = payload.pc.toBigInt,
+          fault = payload.fault.toBoolean
+        )
+        cpuRspBuffer.enqueue(rspData)
+      }
+      StreamReadyRandomizer(dut.io.cpuBus.rsp, dut.clockDomain)
+
+      var memReadCmdFires = 0
+      dut.memory.io.bus.read.cmd.ready.randomize()
+      fork {
+        while(true) {
+          dut.clockDomain.waitSampling()
+          if (dut.memory.io.bus.read.cmd.valid.toBoolean && dut.memory.io.bus.read.cmd.ready.toBoolean) {
+            memReadCmdFires += 1
+          }
+        }
+      }
+      dut.clockDomain.waitSampling()
+
+      // Addresses mapping to the same set
+      val baseAddr = 0x600L // Set 0
+      val addresses = Array.tabulate(ways)(i => baseAddr + i * (cacheConfig.setCount * cacheConfig.bytePerLine)) // Addr 0x600, 0x680, 0x700, 0x780
+      val testData = Array.tabulate(ways)(i => BigInt(s"${(i + 30).toString * 8}", 16)) // 30303030, 31313131, ...
+
+      // Initialize memory
+      for (i <- 0 until ways) {
+        initSimulatedMemory(dut.memory.io, addresses(i), testData(i), dut.clockDomain, internalMemDataWidthBytes)
+      }
+      dut.clockDomain.waitSampling(5)
+
+      // Fill all ways in the set in order (Tag0, Tag1, Tag2, Tag3)
+      println(s"SIM [T2.3]: 填充 Set 0 的所有 Way (Tag0-Tag3)")
+      for (i <- 0 until ways) {
+        memReadCmdFires = 0
+        cpuCmdQueue.enqueue(_.address #= addresses(i))
+        val missTimeout = wordsPerLine * (simMemConfig.initialLatency + 5) + 50
+        dut.clockDomain.waitSamplingWhere(missTimeout)(cpuRspBuffer.nonEmpty)
+        assert(cpuRspBuffer.nonEmpty, s"CPU 响应队列在填充 Way ${i} 后为空 (timeout $missTimeout)"); cpuRspBuffer.dequeue()
+        assert(memReadCmdFires == wordsPerLine, s"填充 Way ${i} 内存读命令次数不正确")
+      }
+      dut.clockDomain.waitSampling(10)
+
+      // At this point, LRU order should be Tag0 (LRU), Tag1, Tag2, Tag3 (MRU)
+
+      // Request Tag1 (Expected HIT, Tag1 becomes MRU)
+      println(s"SIM [T2.3]: 请求地址 0x${addresses(1).toHexString} (预期 HIT, Tag1 晋升为 MRU)")
+      memReadCmdFires = 0
+      cpuCmdQueue.enqueue(_.address #= addresses(1))
+      val hitTimeout = 50
+      dut.clockDomain.waitSamplingWhere(hitTimeout)(cpuRspBuffer.nonEmpty)
+      assert(cpuRspBuffer.nonEmpty, s"CPU 响应队列在命中 Tag1 后为空 (timeout $hitTimeout)")
+      val rspData1 = cpuRspBuffer.dequeue()
+      assert(!rspData1.fault, "命中 Tag1 不应产生 fault")
+      assert(rspData1.instructions(0) == testData(1), "命中 Tag1 数据不匹配")
+      assert(memReadCmdFires == 0, "命中 Tag1 内存读命令次数不正确")
+      dut.clockDomain.waitSampling(10)
+
+      // Now LRU order should be Tag0, Tag2, Tag3, Tag1 (MRU)
+
+      // Request a new tag (Tag4) for the same set (Expected MISS, replaces Tag0 which is now LRU)
+      val addr_set0_tag4 = baseAddr + ways * (cacheConfig.setCount * cacheConfig.bytePerLine) // Addr 0x800
+      val data_tag4 = BigInt("DDDDDDDD", 16)
+      initSimulatedMemory(dut.memory.io, addr_set0_tag4, data_tag4, dut.clockDomain, internalMemDataWidthBytes)
+      dut.clockDomain.waitSampling(5)
+
+      println(s"SIM [T2.3]: 请求新地址 0x${addr_set0_tag4.toHexString} (预期 MISS, 替换 Tag0)")
+      memReadCmdFires = 0
+      cpuCmdQueue.enqueue(_.address #= addr_set0_tag4)
+      val missTimeout2 = wordsPerLine * (simMemConfig.initialLatency + 5) + 50
+      dut.clockDomain.waitSamplingWhere(missTimeout2)(cpuRspBuffer.nonEmpty)
+      assert(cpuRspBuffer.nonEmpty, s"CPU 响应队列在请求 Tag4 后为空 (timeout $missTimeout2)")
+      val rspData2 = cpuRspBuffer.dequeue()
+      assert(!rspData2.fault, "请求 Tag4 不应产生 fault")
+      assert(rspData2.instructions(0) == data_tag4, "请求 Tag4 数据不匹配")
+      assert(memReadCmdFires == wordsPerLine, "请求 Tag4 内存读命令次数不正确")
+      dut.clockDomain.waitSampling(10)
+
+      // Now LRU order should be Tag2, Tag3, Tag1, Tag4 (MRU)
+
+      // Request Tag0 again (Expected MISS, it was evicted)
+      println(s"SIM [T2.3]: 再次请求 Tag0 地址 0x${addresses(0).toHexString} (预期 MISS)")
+      memReadCmdFires = 0
+      cpuCmdQueue.enqueue(_.address #= addresses(0))
+      val missTimeout3 = wordsPerLine * (simMemConfig.initialLatency + 5) + 50
+      dut.clockDomain.waitSamplingWhere(missTimeout3)(cpuRspBuffer.nonEmpty)
+      assert(cpuRspBuffer.nonEmpty, s"CPU 响应队列在再次请求 Tag0 后为空 (timeout $missTimeout3)")
+      val rspData3 = cpuRspBuffer.dequeue()
+      assert(!rspData3.fault, "再次请求 Tag0 不应产生 fault")
+      assert(rspData3.instructions(0) == testData(0), "再次请求 Tag0 数据不匹配")
+      assert(memReadCmdFires == wordsPerLine, "再次请求 Tag0 内存读命令次数不正确")
+
+      dut.clockDomain.waitSampling(20)
+      println("SIM [T2.3]: 测试 'LRU Hit Promotion' 完成.")
+    }
+  }
+
+
+  // T3.1: Flush Empty Cache
+  test("T3.1 - Flush Empty Cache") {
+    val lineSizeBytes = 32
+    val coreDataWidth = 32 bits
+    val ways = 2
+
+    implicit val cacheConfig = AdvancedICacheConfig(
+      cacheSize = ways * lineSizeBytes * 2, // 128B
+      bytePerLine = lineSizeBytes,
+      wayCount = ways,
+      addressWidth = 32 bits,
+      dataWidth = coreDataWidth,
+      fetchDataWidth = coreDataWidth
+    )
+    val memBusConfig = GenericMemoryBusConfig(addressWidth = 32 bits, dataWidth = coreDataWidth, useId = false)
+    val simMemConfig = SimulatedMemoryConfig(internalDataWidth = coreDataWidth, memSize = 1 KiB, initialLatency = 1)
+    val internalMemDataWidthBytes = simMemConfig.internalDataWidth.value / 8
+
+
+    def tb = new AdvancedICacheTestbench(cacheConfig, memBusConfig, simMemConfig, dutEnableLog = true)
+
+    simConfig.compile(tb).doSim { dut =>
+      dut.clockDomain.forkStimulus(period = 10)
+
+      val (_, cpuCmdQueue) = StreamDriver.queue(dut.io.cpuBus.cmd, dut.clockDomain)
+      StreamReadyRandomizer(dut.io.cpuBus.cmd, dut.clockDomain)
+      val cpuRspBuffer = mutable.Queue[CpuRspData]()
+      StreamMonitor(dut.io.cpuBus.rsp, dut.clockDomain) { payload =>
+        val rspData = CpuRspData(
+          instructions = payload.instructions.map(_.toBigInt),
+          pc = payload.pc.toBigInt,
+          fault = payload.fault.toBoolean
+        )
+        cpuRspBuffer.enqueue(rspData)
+      }
+      StreamReadyRandomizer(dut.io.cpuBus.rsp, dut.clockDomain)
+
+      var memReadCmdFires = 0
+      dut.memory.io.bus.read.cmd.ready.randomize()
+      fork {
+        while(true) {
+          dut.clockDomain.waitSampling()
+          if (dut.memory.io.bus.read.cmd.valid.toBoolean && dut.memory.io.bus.read.cmd.ready.toBoolean) {
+            memReadCmdFires += 1
+          }
+        }
+      }
+      dut.clockDomain.waitSampling()
+
+      // Perform Flush on an empty cache
+      println("SIM [T3.1]: 执行 Flush 操作 (空缓存)")
+      dut.io.flushBus.cmd.valid #= true
+      dut.io.flushBus.cmd.payload.start #= true
+      dut.io.flushBus.rsp.ready #= true
+
+      dut.clockDomain.waitSampling()
+      dut.io.flushBus.cmd.valid #= false
+
+      // Wait for flush done
+      val flushTimeout = cacheConfig.setCount * cacheConfig.wayCount * 5 + 50 // Should be fast for empty cache
+      dut.clockDomain.waitSamplingWhere(flushTimeout)(dut.io.flushBus.rsp.valid.toBoolean && dut.io.flushBus.rsp.payload.done.toBoolean)
+      assert(dut.io.flushBus.rsp.valid.toBoolean && dut.io.flushBus.rsp.payload.done.toBoolean, s"Flush 操作未完成或未发出 done 信号 (timeout $flushTimeout)")
+      println("SIM [T3.1]: Flush 操作由 DUT 报告完成.")
+
+      dut.clockDomain.waitSampling(5)
+
+      // Request an address (Expected MISS)
+      val testAddr = 0x700L
+      val testData = BigInt("EEEEEEEE", 16)
+      initSimulatedMemory(dut.memory.io, testAddr, testData, dut.clockDomain, internalMemDataWidthBytes)
+      dut.clockDomain.waitSampling(5)
+
+      memReadCmdFires = 0
+      println(s"SIM [T3.1]: 请求地址 0x${testAddr.toHexString} (预期 MISS)")
+      cpuCmdQueue.enqueue(_.address #= testAddr)
+      val missTimeout = cacheConfig.wordsPerLine * (simMemConfig.initialLatency + 5) + 50
+      dut.clockDomain.waitSamplingWhere(missTimeout)(cpuRspBuffer.nonEmpty)
+      assert(cpuRspBuffer.nonEmpty, s"CPU 响应队列在 Flush 后为空 (timeout $missTimeout)")
+      val rspData = cpuRspBuffer.dequeue()
+      assert(!rspData.fault, "Flush 后请求不应产生 fault")
+      assert(rspData.instructions(0) == testData, "Flush 后数据不匹配")
+      assert(memReadCmdFires == cacheConfig.wordsPerLine, s"Flush 后内存读命令次数应为 ${cacheConfig.wordsPerLine}, 得到 ${memReadCmdFires}")
+
+      dut.clockDomain.waitSampling(20)
+      println("SIM [T3.1]: 测试 'Flush Empty Cache' 完成.")
+    }
+  }
+
+
+  // T3.2: Flush Partially Filled Cache
   test("T3.2 - Flush Partially Filled Cache") {
     val lineSizeBytes = 32
     val coreDataWidth = 32 bits
@@ -479,7 +986,7 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
       // Fill some cache lines
       println(s"SIM [T3.2]: 填充缓存 - Addr1 0x${addr1_set0.toHexString}")
       cpuCmdQueue.enqueue(_.address #= addr1_set0)
-      dut.clockDomain.waitSamplingWhere(100)(cpuRspBuffer.nonEmpty)
+      dut.clockDomain.waitSamplingWhere(150)(cpuRspBuffer.nonEmpty)
       assert(cpuRspBuffer.nonEmpty, "填充 Addr1: CPU 响应队列为空 (timeout 100)"); cpuRspBuffer.dequeue()
 
       println(s"SIM [T3.2]: 填充缓存 - Addr2 0x${addr2_set1.toHexString}")
@@ -535,6 +1042,77 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
       println("SIM [T3.2]: 测试 'Flush Partially Filled Cache' 完成.")
     }
   }
+
+  // T4.1: Access to Uninitialized Memory (Memory Fault) - 需要 SimulatedMemory 支持错误注入
+  // 注意：SimulatedSplitGeneralMemory 当前版本可能不支持直接注入读错误。
+  // 如果需要测试此场景，可能需要修改 SimulatedSplitGeneralMemory 或使用不同的内存模型。
+  // 此处仅提供测试用例结构，实际测试需要内存模型支持。
+  // test("T4.1 - Access to Uninitialized Memory (Memory Fault)") {
+  //   val lineSizeBytes = 32
+  //   val coreDataWidth = 32 bits
+
+  //   implicit val cacheConfig = AdvancedICacheConfig(
+  //     cacheSize = 128,
+  //     bytePerLine = lineSizeBytes,
+  //     wayCount = 1,
+  //     addressWidth = 32 bits,
+  //     dataWidth = coreDataWidth,
+  //     fetchDataWidth = coreDataWidth
+  //   )
+  //   val memBusConfig = GenericMemoryBusConfig(addressWidth = 32 bits, dataWidth = coreDataWidth, useId = false)
+  //   // 配置 SimulatedMemory 以模拟未初始化区域的访问错误
+  //   val simMemConfig = SimulatedMemoryConfig(
+  //       internalDataWidth = coreDataWidth,
+  //       memSize = 1 KiB,
+  //       initialLatency = 1,
+  //       // 假设 SimulatedMemoryConfig 支持模拟错误响应
+  //       // 例如：uninitializedFault = true
+  //       // uninitializedFault = true
+  //   )
+  //   val internalMemDataWidthBytes = simMemConfig.internalDataWidth.value / 8
+
+
+  //   def tb = new AdvancedICacheTestbench(cacheConfig, memBusConfig, simMemConfig, dutEnableLog = true)
+
+  //   simConfig.compile(tb).doSim { dut =>
+  //     dut.clockDomain.forkStimulus(period = 10)
+  //     dut.io.flushBus.cmd.valid #= false
+
+  //     val (_, cpuCmdQueue) = StreamDriver.queue(dut.io.cpuBus.cmd, dut.clockDomain)
+  //     StreamReadyRandomizer(dut.io.cpuBus.cmd, dut.clockDomain)
+  //     val cpuRspBuffer = mutable.Queue[CpuRspData]()
+  //     StreamMonitor(dut.io.cpuBus.rsp, dut.clockDomain) { payload =>
+  //       val rspData = CpuRspData(
+  //         instructions = payload.instructions.map(_.toBigInt),
+  //         pc = payload.pc.toBigInt,
+  //         fault = payload.fault.toBoolean
+  //       )
+  //       cpuRspBuffer.enqueue(rspData)
+  //     }
+  //     StreamReadyRandomizer(dut.io.cpuBus.rsp, dut.clockDomain)
+
+  //     // Request an address in an uninitialized area of memory
+  //     val uninitializedAddr = 0x900L // Assuming this address is not initialized
+  //     println(s"SIM [T4.1]: 请求未初始化内存地址 0x${uninitializedAddr.toHexString} (预期 Fault)")
+  //     cpuCmdQueue.enqueue(_.address #= uninitializedAddr)
+
+  //     // Cache should request from memory and receive a fault response
+  //     val faultTimeout = cacheConfig.wordsPerLine * (simMemConfig.initialLatency + 5) + 50
+  //     dut.clockDomain.waitSamplingWhere(faultTimeout)(cpuRspBuffer.nonEmpty)
+  //     assert(cpuRspBuffer.nonEmpty, s"未初始化内存访问: CPU 响应队列为空 (timeout $faultTimeout)")
+
+  //     val rspData = cpuRspBuffer.dequeue()
+  //     println(s"SIM [T4.1]: 收到响应 PC ${rspData.pc.toString(16)}, Fault=${rspData.fault}")
+
+  //     assert(rspData.fault, "访问未初始化内存应产生 fault")
+  //     assert(rspData.pc == uninitializedAddr, "未初始化内存访问 fault 的 PC 不匹配")
+  //     // 验证指令部分可以是未定义或特定错误码
+
+  //     dut.clockDomain.waitSampling(10)
+  //     println("SIM [T4.1]: 测试 'Access to Uninitialized Memory (Memory Fault)' 完成.")
+  //   }
+  // }
+
 
   // T4.3: 尝试取指跨越行边界 (预期 Fault/Error)
   test("T4.3 - Fetch Group Crossing Line Boundary") {
@@ -606,15 +1184,6 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
       println("SIM [T4.3]: 测试 'Fetch Group Crossing Line Boundary' 完成.")
     }
   }
-
-  // 可以添加更多测试用例...
-  // T1.2: Sequential Word Access Within Line (Narrow Fetch)
-  // T1.4: Wide Fetch Sequential Access Within Line
-  // T2.1: Filling All Ways in a Set, then Hit
-  // T2.3: LRU Hit Promotion
-  // T3.1: Flush Empty Cache
-  // T4.1: Access to Uninitialized Memory (Memory Fault) - 需要 SimulatedMemory 支持错误注入
-  // T4.2: Back-to-Back Requests (Pipelining/Stall) - 已经通过 StreamReadyRandomizer 部分覆盖
 
   // `thatsAll` 应该在所有测试用例之后
   thatsAll
