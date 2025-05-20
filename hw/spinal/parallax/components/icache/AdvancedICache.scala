@@ -187,8 +187,8 @@ class AdvancedICache(implicit
   // refillWordCounter width is log2Up(wordsPerLine + 1).
   // Since wordsPerLine >= 1, wordsPerLine+1 >= 2. So log2Up >= 1. This Reg is never 0-width.
   val refillWordCounter = Reg(UInt(log2Up(cacheConfig.wordsPerLine + 1) bits)) init (0)
-  val refillBuffer = Reg(Bits(cacheConfig.bitsPerLine bits)) init (0) // 现在有 bug：更新没法立即生效，导致缓存行最高位没法填充上
-  val refillErrorReg = Reg(Bool()) init (False) // 现在有 bug：存在一个周期延迟
+  val refillBuffer = Reg(Bits(cacheConfig.bitsPerLine bits)) init (0)
+  val refillErrorReg = Reg(Bool()) init (False)
 
   // flush counters are instantiated only if needed
   val flushSetCounter = if (hasMultipleSets) Reg(UInt(cacheConfig.setIndexWidth)) init (0) else null
@@ -217,7 +217,7 @@ class AdvancedICache(implicit
   val ways_data_from_current_set = cacheLines(getCurrentSetIdx)
 
   def extractInstructionsFromLine(lineData: Bits, firstWordOffsetInt: UInt): Vec[Bits] = {
-    report(L"extractInstructionsFromLine ${lineData} offset ${firstWordOffsetInt}")
+    if (enableLog) report(L"extractInstructionsFromLine ${lineData} offset ${firstWordOffsetInt}")
     val wordsInLine = lineData.subdivideIn(cacheConfig.dataWidth) // Vec[Bits]
     val extractedInstructions = Vec(Bits(cacheConfig.dataWidth), cacheConfig.fetchWordsPerFetchGroup)
 
@@ -560,11 +560,18 @@ class AdvancedICache(implicit
         waitingForMemRspReg := False
         refillErrorReg := refillErrorReg || io.mem.read.rsp.payload.error
 
-         // wordOffsetWidth is used here implicitly by .resize
-          // if wordsPerLine is 1, wordOffsetWidth is 0. refillWordCounter.resize(0) is U(0,0 bits). Correct.
-          if (enableLog) report(L"AdvICache: sMiss_FetchLine - Before update cacheline: ${refillBuffer}.")
-          val wordIdxInLine = refillWordCounter.resize(cacheConfig.wordOffsetWidth)
-          refillBuffer.subdivideIn(cacheConfig.dataWidth)(wordIdxInLine) := io.mem.read.rsp.payload.data
+        // wordOffsetWidth is used here implicitly by .resize
+        // if wordsPerLine is 1, wordOffsetWidth is 0. refillWordCounter.resize(0) is U(0,0 bits). Correct.
+        if (enableLog) report(L"AdvICache: sMiss_FetchLine - Before update cacheline: ${refillBuffer}.")
+        val wordIdxInLine = refillWordCounter.resize(cacheConfig.wordOffsetWidth)
+        val wordsInRefillBuffer = refillBuffer.subdivideIn(cacheConfig.dataWidth)
+        val nextRefillBuffer = Vec(Bits(cacheConfig.dataWidth), cacheConfig.wordsPerLine)
+
+        for(i <- 0 until cacheConfig.wordsPerLine) {
+          nextRefillBuffer(i) := Mux(U(i) === wordIdxInLine, io.mem.read.rsp.payload.data, wordsInRefillBuffer(i))
+        }
+
+        refillBuffer := nextRefillBuffer.asBits
 
         val nextRefillCounter = refillWordCounter + 1
         refillWordCounter := nextRefillCounter
@@ -575,7 +582,7 @@ class AdvancedICache(implicit
             report(L"AdvICache: sMiss_FetchLine - Entire line fetched.")
             report(L"  - nextRefillCounter: ${nextRefillCounter}")
             report(L"  - Total Error: ${refillErrorReg}")
-            report(L"  - New Cacheline: ${refillBuffer}")
+            report(L"  - New Cacheline: ${nextRefillBuffer.asBits}")
           }
 
           when(!refillErrorReg) {
@@ -590,7 +597,7 @@ class AdvancedICache(implicit
             val wayToUpdate = cacheLines(setIdxToFill)(victimWayToFill) // Indexing with integer values
             wayToUpdate.valid := True
             wayToUpdate.tag := currentTagReg
-            wayToUpdate.data := refillBuffer
+            wayToUpdate.data := nextRefillBuffer.asBits
 
             report(L"AdvICache: sMiss_FetchLine - Line written to Cache.")
             if (isAssociative) { // LRU Update on FILL
@@ -663,7 +670,9 @@ class AdvancedICache(implicit
 
         // Set increment logic
         // Use effFlushSetCounter for current value, resize for comparison
-        val nextFlushSetNum = if (hasMultipleSets) flushSetCounter.resize(log2Up(cacheConfig.setCount + 1)) + 1 else U(1).resize(log2Up(cacheConfig.setCount + 1))
+        val nextFlushSetNum =
+          if (hasMultipleSets) flushSetCounter.resize(log2Up(cacheConfig.setCount + 1)) + 1
+          else U(1).resize(log2Up(cacheConfig.setCount + 1))
 
         when(nextFlushSetNum === cacheConfig.setCount) { // If !hasMultipleSets, setCount=1. U(1,1bit) === 1 is true.
           if (enableLog) report(L"AdvICache: sFlush_Invalidate - Flush completed.")

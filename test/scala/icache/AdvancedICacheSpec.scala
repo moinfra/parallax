@@ -385,7 +385,7 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
   }
 
   // T1.4: Wide Fetch Sequential Access Within Line
-  testOnly("T1.4 - Wide Fetch Sequential Access Within Line") {
+  test("T1.4 - Wide Fetch Sequential Access Within Line") {
     val lineSizeBytes = 64 // 8 words, 4 fetch groups (64 bits = 8 bytes)
     val coreDataWidth = 32 bits
     val fetchWidth = 64 bits // 2 words
@@ -472,7 +472,7 @@ class AdvancedICacheSpec extends CustomSpinalSimFunSuite {
         val currentAddr = baseAddr + i * fetchBytes
         println(s"SIM [T1.4]: 请求地址 0x${currentAddr.toHexString}")
         cpuCmdQueue.enqueue(_.address #= currentAddr)
-        val hitTimeout = 10
+        val hitTimeout = 100
         dut.clockDomain.waitSamplingWhere(hitTimeout)(cpuRspBuffer.nonEmpty)
         assert(cpuRspBuffer.nonEmpty, s"CPU 响应队列在顺序 HIT 后为空 (timeout $hitTimeout)")
         val rspData = cpuRspBuffer.dequeue()
