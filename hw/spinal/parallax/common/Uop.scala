@@ -38,7 +38,7 @@ object ArchRegType extends SpinalEnum {
 }
 
 case class ArchRegOperand(config: PipelineConfig) extends Bundle {
-  val idx = UInt(config.archGprIdxWidth) // For GPR/FPR
+  val idx = UInt(config.archRegIdxWidth) // For GPR/FPR
   // For CSRs, the address is larger and comes from a dedicated field
   val rtype = ArchRegType()
 
@@ -362,7 +362,7 @@ case class DecodedUop(val config: PipelineConfig) extends Bundle {
   val shiftCtrl = ShiftCtrlFlags()
   val mulDivCtrl = MulDivCtrlFlags()
   val memCtrl = MemCtrlFlags()
-  val branchCtrl = BranchCtrlFlags(config) // Needs config for linkReg.archGprIdxWidth
+  val branchCtrl = BranchCtrlFlags(config) // Needs config for linkReg.archRegIdxWidth
   val fpuCtrl = FpuCtrlFlags()
   val csrCtrl = CsrCtrlFlags(config)
   val sysCtrl = SystemCtrlFlags()
@@ -523,8 +523,8 @@ case class RenamedUop(
   val hasException = Bool() // Exception detected during execution
   val exceptionCode = UInt(8 bits) // Actual exception code from execution
 
-  def setDefault(): this.type = {
-    decoded.setDefault()
+  def setDefault(decoded: DecodedUop = null): this.type = {
+    if (decoded != null) this.decoded := decoded else decoded.setDefault()
     rename.setDefault()
     robIdx := 0 // Or a specific "invalid" index if 0 is valid
     uniqueId := 0

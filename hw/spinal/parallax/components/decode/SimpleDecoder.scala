@@ -78,7 +78,7 @@ class SimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends Compo
   // val LOGIC_OP_PASS_ADD_SUB = B"000" // If ALU uses logicOp to select add/sub path
 
   val imm_sext_16_to_dataWidth = S(fields.imm16).resize(config.dataWidth)
-  val r0_idx = U(0, config.archGprIdxWidth)
+  val r0_idx = U(0, config.archRegIdxWidth)
 
   switch(fields.opcode) {
     is(InstructionOpcodes.LD) { // LD Rd, [Rs] (assuming offset is 0 or handled by LSU with Rs only)

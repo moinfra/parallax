@@ -18,11 +18,10 @@ class RenameMapTableSpec extends CustomSpinalSimFunSuite {
   import spinal.core.sim._
 
   val config = RenameMapTableConfig(
-    numArchRegs = 4,
-    physRegIdxWidth = 3 bits,
+    archRegCount = 4,
+    physRegCount = 8,
     numReadPorts = 2,
     numWritePorts = 2,
-    archGprIdxWidth = 2 bits // log2Up(4)
   )
 
   // Helper functions defined INSIDE the test class, accessible by all tests
@@ -73,13 +72,13 @@ class RenameMapTableSpec extends CustomSpinalSimFunSuite {
       dutTb.dutIo.checkpointRestore.valid #= false
 
       dutTb.clockDomain.waitSampling() // Initial reset
-      val initialState = (0 until config.numArchRegs).map(idx => dutTb.rat.mapReg.mapping(idx).toInt).toSeq
+      val initialState = (0 until config.archRegCount).map(idx => dutTb.rat.mapReg.mapping(idx).toInt).toSeq
       println(s"Stability Test - Initial: ${initialState.mkString(", ")}")
       assert(initialState == Seq(0, 1, 2, 3))
 
       dutTb.clockDomain.waitSampling(5) // Wait a few cycles with no activity
 
-      val stateAfterWait = (0 until config.numArchRegs).map(idx => dutTb.rat.mapReg.mapping(idx).toInt).toSeq
+      val stateAfterWait = (0 until config.archRegCount).map(idx => dutTb.rat.mapReg.mapping(idx).toInt).toSeq
       println(s"Stability Test - After Wait: ${stateAfterWait.mkString(", ")}")
       assert(stateAfterWait == Seq(0, 1, 2, 3), "mapState changed without explicit write/restore")
     }
@@ -99,7 +98,7 @@ class RenameMapTableSpec extends CustomSpinalSimFunSuite {
       // Test initial state (driven by Reg init in DUT)
       dutTb.clockDomain.waitSampling() // Let DUT initialize
       println("Initial State (internal): " + getInternalMapping(dutTb).mkString(", "))
-      for (i <- 0 until config.numArchRegs) {
+      for (i <- 0 until config.archRegCount) {
         readArchReg(dutTb, 0, i)
         dutTb.clockDomain.waitSampling(0)
         expectPhysReg(dutTb, 0, i, s"Initial read r$i")
@@ -141,10 +140,10 @@ class RenameMapTableSpec extends CustomSpinalSimFunSuite {
       println("\nTest Checkpoint Restore:")
       // r0 maps to p0 (read logic enforces this), r1->p2, r2->p1, r3->p3
       val checkpointData = Seq(
-        config.numArchRegs + 0, // An arbitrary value for mapState(0) to test restore
-        config.numArchRegs + 1,
-        config.numArchRegs + 2,
-        config.numArchRegs + 3
+        config.archRegCount + 0, // An arbitrary value for mapState(0) to test restore
+        config.archRegCount + 1,
+        config.archRegCount + 2,
+        config.archRegCount + 3
       )
       println(s"Checkpoint data to restore: ${checkpointData.mkString(", ")}")
       restoreCheckpoint(dutTb, checkpointData)
@@ -152,7 +151,7 @@ class RenameMapTableSpec extends CustomSpinalSimFunSuite {
       clearRestore(dutTb)
       println("Internal state after restore: " + getInternalMapping(dutTb).mkString(", "))
 
-      for (i <- 0 until config.numArchRegs) {
+      for (i <- 0 until config.archRegCount) {
         readArchReg(dutTb, 0, i)
         dutTb.clockDomain.waitSampling(0)
         val expectedReadValue = if (i == 0) 0 else checkpointData(i) // r0 read is always p0
