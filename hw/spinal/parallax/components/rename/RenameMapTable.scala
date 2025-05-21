@@ -7,6 +7,7 @@ case class RenameMapTableConfig(
     numArchRegs: Int = 32,
     physRegIdxWidth: BitCount = 6 bits,
     numReadPorts: Int = 2,
+    numWritePorts: Int = 1, // -- MODIFICATION START (Add numWritePorts) --
     archGprIdxWidth: BitCount = log2Up(32) bits
 )
 
@@ -58,7 +59,8 @@ case class RenameMapTableIo(config: RenameMapTableConfig) extends Bundle {
   // Write port for destination operand mapping update
   // For the RAT:
   //   writePort.wen, writePort.archReg, writePort.physReg will all be INPUTS
-  val writePort = slave(RatWritePort(config))
+  val writePort = slave(RatWritePort(config)) // -- MODIFICATION START (Rename to writePorts and make it a Vec) --
+  val writePorts = Vec(slave(RatWritePort(config)), config.numWritePorts) // -- MODIFICATION END --
 
   // Checkpoint mechanism
   // For slave Stream, payload is an input, valid is an input, ready is an output.
@@ -72,13 +74,18 @@ class RenameMapTable(val config: RenameMapTableConfig) extends Component {
   require(config.physRegIdxWidth.value > 0, "Physical register index width must be positive.")
   require(config.numReadPorts > 0, "Number of read ports must be positive.")
   require(
+    config.numWritePorts > 0,
+    "Number of write ports must be positive."
+  ) // -- MODIFICATION START (Add validation for numWritePorts) --
+  require(
     config.archGprIdxWidth.value == log2Up(config.numArchRegs),
     s"archGprIdxWidth (${config.archGprIdxWidth.value}) must be log2Up(numArchRegs = ${config.numArchRegs}), which is ${log2Up(config.numArchRegs)}"
-  )
+  ) // -- MODIFICATION END --
 
   val io = RenameMapTableIo(config)
 
-  val mapState = Reg(RatCheckpoint(config)) init (initRatCheckpoint())
+  // -- MODIFICATION START (Rename mapState to mapReg and refactor write logic) --
+  val mapReg = Reg(RatCheckpoint(config)) init (initRatCheckpoint())
 
   private def initRatCheckpoint(): RatCheckpoint = {
     val checkpoint = RatCheckpoint(config)
@@ -99,23 +106,30 @@ class RenameMapTable(val config: RenameMapTableConfig) extends Component {
     when(io.readPorts(i).archReg === U(0, config.archGprIdxWidth)) {
       io.readPorts(i).physReg := U(0, config.physRegIdxWidth)
     } otherwise {
-      io.readPorts(i).physReg := mapState.mapping(io.readPorts(i).archReg)
+      io.readPorts(i).physReg := mapReg.mapping(io.readPorts(i).archReg)
     }
   }
 
   // --- Write and Restore Logic ---
+  // Create a combinational signal for the next state of the mapping, initially copying the current state
+  val nextMapRegMapping = CombInit(mapReg.mapping)
+
   when(io.checkpointRestore.valid) {
-    mapState.mapping := io.checkpointRestore.payload.mapping
-  } elsewhen (io.writePort.wen) {
-    // Only update the specified archReg's mapping, IF it's not r0.
-    // All other mapState.mapping entries retain their value because mapState is a Reg.
-    when(io.writePort.archReg =/= U(0, config.archGprIdxWidth)) {
-      mapState.mapping(io.writePort.archReg) := io.writePort.physReg
+    // Restore has highest priority
+    nextMapRegMapping := io.checkpointRestore.payload.mapping
+  } otherwise {
+    // Apply updates from each write port.
+    // Loop provides implicit priority: later ports in the loop (higher index 'i')
+    // will overwrite earlier ports if they target the same architectural register.
+    for (i <- 0 until config.numWritePorts) {
+      when(io.writePorts(i).wen && io.writePorts(i).archReg =/= U(0, config.archGprIdxWidth)) {
+        nextMapRegMapping(io.writePorts(i).archReg) := io.writePorts(i).physReg
+      }
     }
-    // If io.writePort.archReg is r0, no assignment happens to mapState.mapping(0) in this block,
-    // so it retains its value (which should be p0 from init).
-    // All other mapState.mapping(i) where i != io.writePort.archReg also retain their values.
   }
+  // Assign the calculated next state to the actual register at the clock edge
+  mapReg.mapping := nextMapRegMapping
+  // -- MODIFICATION END --
 
   // --- Checkpoint Save IO ---
   io.checkpointSave.ready := True // RAT is always ready to have its state read for a save

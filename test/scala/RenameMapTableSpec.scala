@@ -8,10 +8,10 @@ import spinal.core.sim.SimDataPimper
 
 class RenameMapTableTestBench(val config: RenameMapTableConfig) extends Component {
   val rat = new RenameMapTable(config)
-  val dutIo = RenameMapTableIo(config)
+  val dutIo = new RenameMapTableIo(config)
   rat.io <> dutIo
-  def internalMapState = rat.mapState.mapping // Continuously assign for observation
-  rat.mapState.mapping.simPublic
+  def internalMapState = rat.mapReg.mapping
+  rat.mapReg.mapping.simPublic
 }
 
 class RenameMapTableSpec extends CustomSpinalSimFunSuite {
@@ -21,8 +21,47 @@ class RenameMapTableSpec extends CustomSpinalSimFunSuite {
     numArchRegs = 4,
     physRegIdxWidth = 3 bits,
     numReadPorts = 2,
+    numWritePorts = 2,
     archGprIdxWidth = 2 bits // log2Up(4)
   )
+
+  // Helper functions defined INSIDE the test class, accessible by all tests
+  def readArchReg(dutTb: RenameMapTableTestBench, portIdx: Int, archReg: Int): Unit = {
+    dutTb.dutIo.readPorts(portIdx).archReg #= archReg
+    sleep(1)
+  }
+
+  def expectPhysReg(dutTb: RenameMapTableTestBench, portIdx: Int, expectedPhysReg: Int, msg: String = ""): Unit = {
+    assert(
+      dutTb.dutIo.readPorts(portIdx).physReg.toInt == expectedPhysReg,
+      s"ReadPort $portIdx - $msg. Expected $expectedPhysReg, Got ${dutTb.dutIo.readPorts(portIdx).physReg.toInt}"
+    )
+  }
+
+  def writeMap(dutTb: RenameMapTableTestBench, portIdx: Int, wen: Boolean, archReg: Int, physReg: Int): Unit = {
+    dutTb.dutIo.writePorts(portIdx).wen #= wen
+    dutTb.dutIo.writePorts(portIdx).archReg #= archReg
+    dutTb.dutIo.writePorts(portIdx).physReg #= physReg
+    sleep(1)
+  }
+
+  def restoreCheckpoint(dutTb: RenameMapTableTestBench, mapping: Seq[Int]): Unit = {
+    dutTb.dutIo.checkpointRestore.valid #= true
+    for (i <- mapping.indices) {
+      dutTb.dutIo.checkpointRestore.payload.mapping(i) #= mapping(i)
+    }
+    sleep(1)
+  }
+
+  def clearRestore(dutTb: RenameMapTableTestBench): Unit = {
+    dutTb.dutIo.checkpointRestore.valid #= false
+    sleep(1)
+  }
+
+  def getInternalMapping(dutTb: RenameMapTableTestBench): Seq[Int] = {
+    dutTb.internalMapState.map(_.toInt).toSeq
+  }
+
 
   test("RenameMapTable - mapState stability") {
     simConfig.compile(new RenameMapTableTestBench(config)).doSim(seed = 43) { dutTb =>
@@ -30,17 +69,17 @@ class RenameMapTableSpec extends CustomSpinalSimFunSuite {
       // No writes, no restores, minimal reads
       dutTb.dutIo.readPorts(0).archReg #= 0
       dutTb.dutIo.readPorts(1).archReg #= 0
-      dutTb.dutIo.writePort.wen #= false
+      dutTb.dutIo.writePorts.foreach(_.wen #= false)
       dutTb.dutIo.checkpointRestore.valid #= false
 
       dutTb.clockDomain.waitSampling() // Initial reset
-      val initialState = (0 until config.numArchRegs).map(idx => dutTb.rat.mapState.mapping(idx).toInt).toSeq
+      val initialState = (0 until config.numArchRegs).map(idx => dutTb.rat.mapReg.mapping(idx).toInt).toSeq
       println(s"Stability Test - Initial: ${initialState.mkString(", ")}")
       assert(initialState == Seq(0, 1, 2, 3))
 
       dutTb.clockDomain.waitSampling(5) // Wait a few cycles with no activity
 
-      val stateAfterWait = (0 until config.numArchRegs).map(idx => dutTb.rat.mapState.mapping(idx).toInt).toSeq
+      val stateAfterWait = (0 until config.numArchRegs).map(idx => dutTb.rat.mapReg.mapping(idx).toInt).toSeq
       println(s"Stability Test - After Wait: ${stateAfterWait.mkString(", ")}")
       assert(stateAfterWait == Seq(0, 1, 2, 3), "mapState changed without explicit write/restore")
     }
@@ -48,88 +87,48 @@ class RenameMapTableSpec extends CustomSpinalSimFunSuite {
 
   test("RenameMapTable - Basic Operations (Helpers inside doSim)") {
     simConfig.compile(new RenameMapTableTestBench(config)).doSim(seed = 42) { dutTb =>
-      // dutTb IS THE SIMULATION CONTEXT DUT
-
-      // === Helper functions defined INSIDE the doSim block ===
-      def readArchReg(portIdx: Int, archReg: Int): Unit = {
-        dutTb.dutIo.readPorts(portIdx).archReg #= archReg
-        sleep(1)
-      }
-
-      def expectPhysReg(portIdx: Int, expectedPhysReg: Int, msg: String = ""): Unit = {
-        assert(
-          dutTb.dutIo.readPorts(portIdx).physReg.toInt == expectedPhysReg,
-          s"ReadPort $portIdx - $msg. Expected $expectedPhysReg, Got ${dutTb.dutIo.readPorts(portIdx).physReg.toInt}"
-        )
-      }
-
-      def writeMap(wen: Boolean, archReg: Int, physReg: Int): Unit = {
-        dutTb.dutIo.writePort.wen #= wen
-        dutTb.dutIo.writePort.archReg #= archReg
-        dutTb.dutIo.writePort.physReg #= physReg
-        sleep(1)
-      }
-
-      def restoreCheckpoint(mapping: Seq[Int]): Unit = {
-        dutTb.dutIo.checkpointRestore.valid #= true
-        for (i <- mapping.indices) {
-          dutTb.dutIo.checkpointRestore.payload.mapping(i) #= mapping(i)
-        }
-        sleep(1)
-      }
-
-      def clearRestore(): Unit = {
-        dutTb.dutIo.checkpointRestore.valid #= false
-        sleep(1)
-      }
-
-      def getInternalMapping(): Seq[Int] = {
-        dutTb.internalMapState.map(_.toInt).toSeq
-      }
-      // === End of helper functions ===
-
-      // Initialize IOs using helpers or direct assignment
+      // Initialize IOs
       dutTb.clockDomain.forkStimulus(10)
       dutTb.dutIo.readPorts.foreach(_.archReg #= 0) // Initial read arch regs
-      writeMap(wen = false, 0, 0) // Deassert write
-      clearRestore() // Deassert restore
+      dutTb.dutIo.writePorts.foreach(_.wen #= false)
+      clearRestore(dutTb) // Deassert restore
       dutTb.dutIo.checkpointSave.valid #= false // Not actively testing save driving
       dutTb.clockDomain.assertReset()
       sleep(10)
       dutTb.clockDomain.deassertReset()
       // Test initial state (driven by Reg init in DUT)
       dutTb.clockDomain.waitSampling() // Let DUT initialize
-      println("Initial State (internal): " + getInternalMapping().mkString(", "))
+      println("Initial State (internal): " + getInternalMapping(dutTb).mkString(", "))
       for (i <- 0 until config.numArchRegs) {
-        readArchReg(0, i)
+        readArchReg(dutTb, 0, i)
         dutTb.clockDomain.waitSampling(0)
-        expectPhysReg(0, i, s"Initial read r$i")
+        expectPhysReg(dutTb, 0, i, s"Initial read r$i")
       }
 
       // Test single write (r1 -> p5)
       println("\nTest Single Write (r1 -> p5):")
-      writeMap(wen = true, archReg = 1, physReg = 5)
+      writeMap(dutTb, 0, wen = true, archReg = 1, physReg = 5)
       dutTb.clockDomain.waitSampling() // Write takes effect on the next clock edge
-      writeMap(wen = false, 0, 0) // Deassert write for subsequent cycles
+      writeMap(dutTb, 0, wen = false, 0, 0) // Deassert write for subsequent cycles
 
-      readArchReg(0, 1) // Check r1, should now be p5
-      readArchReg(1, 2) // Check r2, should be initial p2
+      readArchReg(dutTb, 0, 1) // Check r1, should now be p5
+      readArchReg(dutTb, 1, 2) // Check r2, should be initial p2
       dutTb.clockDomain.waitSampling(0)
-      expectPhysReg(0, 5, "r1 after write")
-      expectPhysReg(1, 2, "r2 unaffected by r1 write")
-      println("Internal state after r1->p5: " + getInternalMapping().mkString(", "))
+      expectPhysReg(dutTb, 0, 5, "r1 after write")
+      expectPhysReg(dutTb, 1, 2, "r2 unaffected by r1 write")
+      println("Internal state after r1->p5: " + getInternalMapping(dutTb).mkString(", "))
 
       // Test writing to r0's mapping (should be ignored by RAT's internal logic)
       println("\nTest Write to r0's mapping (r0 -> p6, should be ignored):")
-      val r0InternalInitial = getInternalMapping().head // Should be 0 from init
-      writeMap(wen = true, archReg = 0, physReg = 6)
+      val r0InternalInitial = getInternalMapping(dutTb).head // Should be 0 from init
+      writeMap(dutTb, 0, wen = true, archReg = 0, physReg = 6)
       dutTb.clockDomain.waitSampling()
-      writeMap(wen = false, 0, 0)
+      writeMap(dutTb, 0, wen = false, 0, 0)
 
-      readArchReg(0, 0) // Read r0
+      readArchReg(dutTb, 0, 0) // Read r0
       dutTb.clockDomain.waitSampling(0)
-      expectPhysReg(0, 0, "r0 should still read as p0 externally")
-      val r0InternalAfterWriteAttempt = getInternalMapping().head
+      expectPhysReg(dutTb, 0, 0, "r0 should still read as p0 externally")
+      val r0InternalAfterWriteAttempt = getInternalMapping(dutTb).head
       assert(
         r0InternalAfterWriteAttempt == r0InternalInitial,
         s"Internal mapping of r0 changed! Expected $r0InternalInitial, got $r0InternalAfterWriteAttempt. It should remain unaffected."
@@ -148,39 +147,85 @@ class RenameMapTableSpec extends CustomSpinalSimFunSuite {
         config.numArchRegs + 3
       )
       println(s"Checkpoint data to restore: ${checkpointData.mkString(", ")}")
-      restoreCheckpoint(checkpointData)
+      restoreCheckpoint(dutTb, checkpointData)
       dutTb.clockDomain.waitSampling()
-      clearRestore()
-      println("Internal state after restore: " + getInternalMapping().mkString(", "))
+      clearRestore(dutTb)
+      println("Internal state after restore: " + getInternalMapping(dutTb).mkString(", "))
 
       for (i <- 0 until config.numArchRegs) {
-        readArchReg(0, i)
+        readArchReg(dutTb, 0, i)
         dutTb.clockDomain.waitSampling(0)
         val expectedReadValue = if (i == 0) 0 else checkpointData(i) // r0 read is always p0
-        expectPhysReg(0, expectedReadValue, s"Restored r$i read")
+        expectPhysReg(dutTb, 0, expectedReadValue, s"Restored r$i read")
         assert(
-          getInternalMapping()(i) == checkpointData(i),
-          s"Internal state for mapState($i) mismatch post-restore. Expected ${checkpointData(i)}, got ${getInternalMapping()(i)}"
+          getInternalMapping(dutTb)(i) == checkpointData(i),
+          s"Internal state for mapState($i) mismatch post-restore. Expected ${checkpointData(i)}, got ${getInternalMapping(dutTb)(i)}"
         )
       }
 
       // Test write after restore
       println("\nTest Write After Restore (r2 -> p7):")
-      writeMap(wen = true, archReg = 2, physReg = 7)
+      writeMap(dutTb, 0, wen = true, archReg = 2, physReg = 7)
       dutTb.clockDomain.waitSampling()
-      writeMap(wen = false, 0, 0)
+      writeMap(dutTb, 0, wen = false, 0, 0)
 
-      readArchReg(0, 2) // r2 should now be p7
-      readArchReg(1, 1) // r1 was restored to checkpointData(1)
+      readArchReg(dutTb, 0, 2) // r2 should now be p7
+      readArchReg(dutTb, 1, 1) // r1 was restored to checkpointData(1)
       dutTb.clockDomain.waitSampling(0)
-      expectPhysReg(0, 7, "r2 after restore & write")
+      expectPhysReg(dutTb, 0, 7, "r2 after restore & write")
       val expectedR1Read = if (1 == 0) 0 else checkpointData(1) // r0 special case
-      expectPhysReg(1, expectedR1Read, "r1 after restore")
-      println("Internal state after write post-restore: " + getInternalMapping().mkString(", "))
-      assert(getInternalMapping()(2) == 7, "Internal state for r2 not p7 post-write")
-      assert(getInternalMapping()(1) == checkpointData(1), "Internal state for r1 not checkpointData(1) post-write")
+      expectPhysReg(dutTb, 1, expectedR1Read, "r1 after restore")
+      println("Internal state after write post-restore: " + getInternalMapping(dutTb).mkString(", ") + "\n")
+      assert(getInternalMapping(dutTb)(2) == 7, "Internal state for r2 not p7 post-write")
+      assert(getInternalMapping(dutTb)(1) == checkpointData(1), "Internal state for r1 not checkpointData(1) post-write")
     }
 
-    thatsAll()
+    test("RenameMapTable - Concurrent Writes") {
+      simConfig.compile(new RenameMapTableTestBench(config)).doSim(seed = 44) { dutTb =>
+        dutTb.clockDomain.forkStimulus(10)
+        dutTb.dutIo.readPorts.foreach(_.archReg #= 0)
+        dutTb.dutIo.writePorts.foreach(_.wen #= false)
+        dutTb.dutIo.checkpointRestore.valid #= false
+        dutTb.clockDomain.assertReset()
+        sleep(10)
+        dutTb.clockDomain.deassertReset()
+        dutTb.clockDomain.waitSampling() // Let DUT initialize
+
+        println("Initial State (internal): " + getInternalMapping(dutTb).mkString(", "))
+        assert(getInternalMapping(dutTb) == Seq(0, 1, 2, 3))
+
+        // Test concurrent writes to different registers
+        println("\nTest Concurrent Writes to Different Registers (r1->p5, r2->p6):")
+        writeMap(dutTb, 0, wen = true, archReg = 1, physReg = 5) // Port 0 writes to r1
+        writeMap(dutTb, 1, wen = true, archReg = 2, physReg = 6) // Port 1 writes to r2
+        dutTb.clockDomain.waitSampling()
+        dutTb.dutIo.writePorts.foreach(_.wen #= false) // Deassert writes
+
+        readArchReg(dutTb, 0, 1)
+        readArchReg(dutTb, 1, 2)
+        dutTb.clockDomain.waitSampling(0)
+        expectPhysReg(dutTb, 0, 5, "r1 after concurrent write")
+        expectPhysReg(dutTb, 1, 6, "r2 after concurrent write")
+        println("Internal state after concurrent different writes: " + getInternalMapping(dutTb).mkString(", "))
+        assert(getInternalMapping(dutTb)(1) == 5, "r1 not updated by port 0")
+        assert(getInternalMapping(dutTb)(2) == 6, "r2 not updated by port 1")
+
+        // Test concurrent writes to the same register (r3->p7 from port 0, r3->p4 from port 1)
+        // Expect port 1's write to take precedence due to loop order in DUT
+        println("\nTest Concurrent Writes to Same Register (r3->p7 from port 0, r3->p4 from port 1):")
+        writeMap(dutTb, 0, wen = true, archReg = 3, physReg = 7) // Port 0 tries to write r3 to p7
+        writeMap(dutTb, 1, wen = true, archReg = 3, physReg = 4) // Port 1 tries to write r3 to p4 (expected winner)
+        dutTb.clockDomain.waitSampling()
+        dutTb.dutIo.writePorts.foreach(_.wen #= false) // Deassert writes
+
+        readArchReg(dutTb, 0, 3)
+        dutTb.clockDomain.waitSampling(0)
+        expectPhysReg(dutTb, 0, 4, "r3 after conflicting concurrent write (port 1 wins)")
+        println("Internal state after conflicting concurrent writes: " + getInternalMapping(dutTb).mkString(", "))
+        assert(getInternalMapping(dutTb)(3) == 4, "r3 not updated by expected winning port (port 1)")
+      }
+    }
+
   }
+  thatsAll()
 }
