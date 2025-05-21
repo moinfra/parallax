@@ -3,6 +3,8 @@ package scala
 import spinal.tester.SpinalSimFunSuite
 import scala.collection.mutable.ArrayBuffer
 import parallax.utilities.ParallaxLogger.warning
+import spinal.lib.pipeline.Stage
+import spinal.core.sim.SimBoolPimper
 
 class CustomSpinalSimFunSuite extends SpinalSimFunSuite {
     
@@ -36,5 +38,9 @@ class CustomSpinalSimFunSuite extends SpinalSimFunSuite {
     if (!cond) {
       warning("Assertion failed" + (if (msg.nonEmpty) s": $msg" else ""))(line, file)
     }
+  }
+
+  def isStageInputFiring(stage: Stage): Boolean = {
+    stage.internals.input.ready.toBoolean && stage.internals.input.valid.toBoolean
   }
 }

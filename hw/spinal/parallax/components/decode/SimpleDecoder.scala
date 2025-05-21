@@ -39,6 +39,7 @@ object InstructionOpcodesBigInts {
   def EQ = BigInt("001100", 2)
   def SGT = BigInt("001101", 2) // Signed Greater Than
   def BCOND = BigInt("001110", 2)
+  def ILLEGAL = BigInt("111111", 2)
 }
 
 // --- Instruction Field Extraction ---
@@ -352,6 +353,7 @@ class SimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends Compo
       io.decodedUop.isValid := False // Already False due to setDefault(), but explicit is fine
       io.decodedUop.uopCode := BaseUopCode.ILLEGAL
       io.decodedUop.hasDecodeException := True
+      io.decodedUop.decodeExceptionCode := DecodeExCode.DECODE_ERROR
       // Could set decodeExceptionCode to an "illegal instruction" code
     }
   }

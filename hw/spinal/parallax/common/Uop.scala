@@ -14,6 +14,10 @@ object BaseUopCode extends SpinalEnum {
       SYSTEM_OP, CSR_ACCESS, FPU_ALU, FPU_CVT, FPU_CMP, FPU_SEL, LA_BITMANIP, LA_CACOP, LA_TLB = newElement()
 }
 
+object DecodeExCode extends SpinalEnum {
+  val INVALID, FETCH_ERROR, DECODE_ERROR, OK = newElement()
+}
+
 // --- Execution Unit Hint ---
 object ExeUnitType extends SpinalEnum {
   val NONE, ALU_INT, // Integer ALU, Shift
@@ -364,7 +368,7 @@ case class DecodedUop(val config: PipelineConfig) extends Bundle {
   val sysCtrl = SystemCtrlFlags()
 
   // --- Exception Info from Decoder ---
-  val decodeExceptionCode = UInt(8 bits) // ISA-agnostic internal codes, or map ISA-specific ones
+  val decodeExceptionCode = DecodeExCode() // ISA-agnostic internal codes, or map ISA-specific ones
   val hasDecodeException = Bool()
 
   // --- Other Decoder Output ---
@@ -404,7 +408,7 @@ case class DecodedUop(val config: PipelineConfig) extends Bundle {
     csrCtrl.setDefault()
     sysCtrl.setDefault()
 
-    decodeExceptionCode := 0
+    decodeExceptionCode := DecodeExCode.OK
     hasDecodeException := False
     isMicrocode := False
     microcodeEntry := 0
@@ -444,7 +448,7 @@ case class DecodedUop(val config: PipelineConfig) extends Bundle {
     csrCtrl.setDefault()
     sysCtrl.setDefault()
 
-    decodeExceptionCode #= 0
+    decodeExceptionCode #= DecodeExCode.OK
     hasDecodeException #= false
     isMicrocode #= false
     microcodeEntry #= 0
