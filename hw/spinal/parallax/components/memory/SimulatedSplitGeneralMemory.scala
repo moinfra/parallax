@@ -8,7 +8,7 @@ import spinal.lib.fsm._
 class SimulatedSplitGeneralMemory(
     val memConfig: SimulatedMemoryConfig,
     val busConfig: GenericMemoryBusConfig,
-    val enableLog: Boolean = true
+    val enableLog: Boolean = false
 ) extends Component {
 
   require(memConfig.internalWordCount > 0, "SimulatedGeneralMemory internalWordCount must be greater than 0.")

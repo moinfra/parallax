@@ -68,8 +68,9 @@ class Fetch0Plugin(val pcWidth: BitCount = 32 bits) extends Plugin with LockedIm
     ParallaxLogger.log(s"Fetch0Plugin: logic")
 
     val pcReg = Reg(UInt(pcWidth)) init (0)
-    val pcPlusIncrement = pcReg + U(setup.fetchPipeline.pipelineConfig.bytesPerInstruction) // Standard increment
-
+    val fetchWidth = setup.fetchPipeline.pipelineConfig.fetchWidth
+    val bytesPerGroup = U(setup.fetchPipeline.pipelineConfig.bytesPerInstruction * fetchWidth)
+    val pcPlusIncrement = pcReg + bytesPerGroup
     // Access redirect signals from the stage's input view
     val redirectValid = s0_PcGen(signals.REDIRECT_PC_VALID)
     val redirectPc = s0_PcGen(signals.REDIRECT_PC)
@@ -92,6 +93,7 @@ class Fetch0Plugin(val pcWidth: BitCount = 32 bits) extends Plugin with LockedIm
       when(booted) {
         when(s0_PcGen.isFiring || (s0_PcGen.isValid && redirectValid)) {
           pcReg := nextPcCalc
+          report(L"Fetch0Plugin: pcReg updated to ${pcReg} from ${currentPc}")
         }
       }
 
@@ -100,7 +102,13 @@ class Fetch0Plugin(val pcWidth: BitCount = 32 bits) extends Plugin with LockedIm
 
     s0_PcGen.valid := pcLogic.isValidToStage
     s0_PcGen(signals.PC) := pcReg
+    report(L"S0_CTRL: s0.isFiring=${s0_PcGen.isFiring} s0.isValid=${s0_PcGen.isValid} s0.isReady=${s0_PcGen.isReady}")
+    report(L"S0_DATA: pcReg=${pcReg} s0_output_PC=${s0_PcGen(signals.PC)}") // s0_output_PC 应该等于 pcReg
+    report(
+      L"S0_FLOW: s0.input.valid=${s0_PcGen.internals.input.valid} s0.input.ready=${s0_PcGen.internals.input.ready}"
+    ) // S0 通常没有input valid/ready
 
+    // ...
     // Initialize redirect signals if they are not driven by a previous stage and are meant to be optional inputs
     // This is important if they are not guaranteed to be driven.
     report(
@@ -124,8 +132,8 @@ class Fetch1Plugin(
     useICache = true, // Assuming ICache is used; make this configurable if needed
     enableFlush = false, // Make this configurable if needed
     pcWidth = pipelineConfigFromParent.pcWidth,
-    instructionWidth = pipelineConfigFromParent.dataWidth,
-    fetchGroupDataWidth = pipelineConfigFromParent.fetchGroupBytes * 8 bits,
+    instructionWidth = pipelineConfigFromParent.dataWidth, // Width of a single instruction
+    fetchGroupDataWidth = pipelineConfigFromParent.fetchGroupBytes * 8 bits, // Total width for the group
     memBusConfig = iBusGmbConfigForIFU // IFU's memory port uses this specific GMB config
   )
 
@@ -133,106 +141,94 @@ class Fetch1Plugin(
     val fetchPipeline = getService[FetchPipeline]
     fetchPipeline.retain()
     ParallaxLogger.log(s"Fetch1Plugin: setup")
-    // Get the IBusService
+
     val iBusProvider = getService[IBusService]
     val s1_Fetch = fetchPipeline.pipeline.s1_Fetch
-    val s0_PcGen = fetchPipeline.pipeline.s0_PcGen
 
     val ifu = new InstructionFetchUnit(ifuConfig)
     ifu.io.memBus <> iBusProvider.iBus.setAsDirectionLess()
-  }
 
-  // --- logic Area (largely the same as before) ---
+    // Example: If flush is enabled and a service exists
+    // if (ifuConfig.enableFlush) {
+    //   val flushService = getServiceOption[SomeCacheFlushService] // Hypothetical
+    //   flushService.foreach(s => ifu.io.flush <> s.createFlushPort())
+    // }
+  }
   val logic = create late new Area {
-    ParallaxLogger.log(s"Fetch1Plugin: logic")
+    ParallaxLogger.log(s"Fetch1Plugin: logic LATE area entered")
 
     val signals = setup.fetchPipeline.signals
-    val s1_Fetch = setup.s1_Fetch
-    val s0_PcGen = setup.s0_PcGen
+    val s1_Fetch = setup.fetchPipeline.pipeline.s1_Fetch
+    val ifu = setup.ifu
 
-    val ifu = setup.ifu // from setup area
+    s1_Fetch(signals.FETCHED_PC)
+    s1_Fetch(signals.INSTRUCTION_GROUP)
+    s1_Fetch(signals.FETCH_FAULT)
 
-    val currentPcForS1 = s1_Fetch(signals.PC)
-    val isFetching = Reg(Bool()) init (False)
+    val waitingIfuRspReg = Reg(Bool()) init (False) // 当成功将指令送入IFU时更新为True，当成功拿到指令后更新为False
+    val rspPcReg = Reg(UInt(pipelineConfigFromParent.pcWidth))
+    val rspInstrGroupReg = Reg(Vec(Bits(pipelineConfigFromParent.dataWidth), pipelineConfigFromParent.fetchWidth))
+    val rspFaultReg = Reg(Bool()) init (True)
+    val rspValidReg = Reg(Bool()) init (False) // 当收到有效指令时更新为 True. 当得到新的PC时更新为 False. 当成功输送下游时更新 False
 
-    val regFetchedPc = Reg(UInt(ifuConfig.pcWidth))
-    val regFetchedInstructionGroup = Reg(Vec(Bits(ifuConfig.instructionWidth), pipelineConfigFromParent.fetchWidth))
-    val regFetchedFault = Reg(Bool()) init(True)
-    val regDataFromIfuIsValid = Reg(Bool()) init (False)
+    val s1_input_pc = s1_Fetch(signals.PC)
+    ifu.io.pcIn.payload := s1_input_pc
+    ifu.io.pcIn.valid := s1_Fetch.isValid && !waitingIfuRspReg && !rspValidReg
 
-    ifu.io.pcIn.valid := s1_Fetch.isValid && !isFetching && !regDataFromIfuIsValid
-    ifu.io.pcIn.payload := currentPcForS1
-
-    // when(s1_Fetch.isFlushed) {
-    //   isFetching := False
-    //   regDataFromIfuIsValid := False
-    // }
-
-    when(ifu.io.pcIn.fire) {
-      isFetching := True
-      report(L"Fetch1Plugin: fetch started for pc=${ifu.io.pcIn.payload}")
+    val pcInFire = ifu.io.pcIn.fire
+    when(pcInFire) {
+      waitingIfuRspReg := True
+      report(L"Fetch1Plugin: pcInFire, s1_input_pc=$s1_input_pc")
     }
 
-    ifu.io.dataOut.ready := isFetching && !regDataFromIfuIsValid
+    // 如果收到了有效的指令，指令尚未送入IFU，则waitingIfuRspReg依然是False，那么不应该允许输出
+    s1_Fetch.haltIt(
+      !rspValidReg // 如果没有有效影响，则不允许输出
+    )
+
+    // 当得到流水输入时，禁止输出
+    when(s1_Fetch.isFiring) {
+      rspValidReg := False
+      report(L"Fetch1Plugin: s1_Fetch.isFiring, s1_input_pc=$s1_input_pc")
+    }
+
+    // 当下游成功消耗
+    when(rspValidReg && s1_Fetch.isForked) {
+      rspValidReg:= False
+    }
 
     when(ifu.io.dataOut.fire) {
-      isFetching := False
-      regFetchedPc := ifu.io.dataOut.payload.pc
-      for (i <- 0 until pipelineConfigFromParent.fetchWidth) {
-        regFetchedInstructionGroup(i) := ifu.io.dataOut.payload.instructions(i)
-      }
-      regFetchedFault := ifu.io.dataOut.payload.fault
-      regDataFromIfuIsValid := True
+      waitingIfuRspReg := False
+      rspPcReg := ifu.io.dataOut.payload.pc
+      rspInstrGroupReg := ifu.io.dataOut.payload.instructions
+      rspFaultReg := ifu.io.dataOut.payload.fault
+      rspValidReg := True
     }
+    s1_Fetch(signals.FETCHED_PC) := rspPcReg
+    s1_Fetch(signals.INSTRUCTION_GROUP) := rspInstrGroupReg
+    s1_Fetch(signals.FETCH_FAULT) := rspFaultReg
 
-    s1_Fetch(signals.FETCHED_PC) := regFetchedPc
-    report(L"Fetch1Plugin: fetched pc=${regFetchedPc}")
-    for (i <- 0 until pipelineConfigFromParent.fetchWidth) {
-      s1_Fetch(signals.INSTRUCTION_GROUP)(i) := regFetchedInstructionGroup(i)
-    }
-    s1_Fetch(signals.FETCH_FAULT) := regFetchedFault
+    val s1IsFiring = s1_Fetch.isFiring
 
-    when(s1_Fetch.isFiring && regDataFromIfuIsValid) {
-      regDataFromIfuIsValid := False
-    }
+    ifu.io.dataOut.ready := waitingIfuRspReg
 
-    // Stall conditions for s1_Fetch:
-    // 1. If s1_Fetch has valid input, but it cannot send a new request to IFU because:
-    //    a. It's not already fetching (isFetching=False) AND
-    //    b. It doesn't have data ready to go (regDataFromIfuIsValid=False) AND
-    //    c. IFU is not ready to accept a new PC (ifu.io.pcIn.ready=False).
-    val stall_waiting_to_send_to_ifu = s1_Fetch.isValid && !isFetching && !regDataFromIfuIsValid && !ifu.io.pcIn.ready
+    // --- 详细报告 ---
+    report(L"S1_IN: s1.isValid=${s1_Fetch.isValid} s1.pcInStage=${s1_input_pc}")
+    report(
+      L"S1_IFU_CMD: pcIn.valid=${ifu.io.pcIn.valid} pcIn.ready=${ifu.io.pcIn.ready} pcIn.payload=${ifu.io.pcIn.payload} pcIn.fire=${pcInFire}"
+    )
+    report(L"S1_STATE: waitingIfuRspReg=${waitingIfuRspReg}")
+    report(
+      L"S1_IFU_RSP: dataOut.valid=${ifu.io.dataOut.valid} dataOut.ready=${ifu.io.dataOut.ready} dataOut.payload.pc=${ifu.io.dataOut.payload.pc} dataOut.fault=${ifu.io.dataOut.payload.fault}"
+    )
+    report(
+      L"S1_FLOW: s1.input.valid=${s1_Fetch.internals.input.valid} s1.input.ready=${s1_Fetch.internals.input.ready}"
+    )
+    report(L"S1_FLOW: s1.isFiring=${s1IsFiring} s1.isStuck=${s1_Fetch.isStuck}")
+    report(L"S1_OUT_STAGEABLES: FETCHED_PC=${s1_Fetch(signals.FETCHED_PC)} FAULT=${s1_Fetch(signals.FETCH_FAULT)}")
 
-    // 2. If s1_Fetch is waiting for data from IFU (isFetching=True), but IFU hasn't made it valid yet.
-    //    (regDataFromIfuIsValid is implicitly False if isFetching is True, based on state transitions)
-    val stall_waiting_for_ifu_data = s1_Fetch.isValid && isFetching && !ifu.io.dataOut.valid
-
-    // 3. (Implicitly Handled by Pipeline) If s1_Fetch has valid data in its registers (regDataFromIfuIsValid=True),
-    //    but the downstream stage/bridge is not ready (s1_Fetch.isReady is False), the pipeline automatically stalls s1_Fetch.
-
-    // Halt s1_Fetch if it's supposed to be doing work but cannot make progress.
-    // The stage should also effectively stall if it has valid inputs but its output registers are full (regDataFromIfuIsValid = True)
-    // and the downstream isn't ready. This is automatically handled by the pipeline if s1_Fetch.isReady (which comes from fetchOutput.ready) is low.
-    // The key is that s1_Fetch should only be considered "done" with its current PC and ready to output
-    // when regDataFromIfuIsValid is True. If it's True, it will only fire if downstream is ready.
-    // If regDataFromIfuIsValid is False, it means s1_Fetch is still working on getting the data.
-    s1_Fetch.haltWhen(stall_waiting_to_send_to_ifu || stall_waiting_for_ifu_data)
-
-    // This provides an explicit halt condition if the stage has valid inputs,
-    // but hasn't yet latched data from the IFU.
-    // This ensures s1_Fetch doesn't fire downstream if regDataFromIfuIsValid is false.
-    s1_Fetch.haltWhen(s1_Fetch.isValid && !regDataFromIfuIsValid)
-
-    when(s1_Fetch.isValid && !s1_Fetch.isStuck && !s1_Fetch.isReady && regDataFromIfuIsValid) {
-      report(L"Fetch1Plugin: Has valid data in regs, but downstream not ready. PC=${regFetchedPc}")
-    }
-    when(s1_Fetch.isValid && stall_waiting_to_send_to_ifu) {
-      report(L"Fetch1Plugin: Stalling, IFU not ready for new PC. Current S1 PC=${currentPcForS1}")
-    }
-    when(s1_Fetch.isValid && stall_waiting_for_ifu_data) {
-      report(L"Fetch1Plugin: Stalling, waiting for IFU data. Current S1 PC=${currentPcForS1}")
-    }
     setup.fetchPipeline.release()
+    ParallaxLogger.log(s"Fetch1Plugin: logic LATE area exited")
   }
 }
 
@@ -244,41 +240,68 @@ case class FetchBridgeOutput(val pipelineConfig: PipelineConfig) extends Bundle 
   val fault = Bool()
 }
 
-class FetchOutputBridge(val pipelineConfig: PipelineConfig) extends Plugin with LockedImpl {
+// -- MODIFICATION START (FetchOutputBridge using inserted stage and toStream) --
+class FetchOutputBridge(val pipelineConfig: PipelineConfig, val fetchOutput: Stream[FetchBridgeOutput])
+    extends Plugin
+    with LockedImpl {
 
   val setup = create early new Area {
-    ParallaxLogger.log("[FetchOutputBridge] setup")
+    ParallaxLogger.log("[FetchOutputBridge] setup early")
     val fetchPipeline = getService[FetchPipeline]
-    val s1_Fetch = fetchPipeline.pipeline.s1_Fetch
+    fetchPipeline.retain()
 
-    // if (s1_Fetch.internals.output.ready == null) {
-    //   s1_Fetch.internals.output.ready = Bool()
-    // }
-    // s1_Fetch.internals.output.ready := fetchOutput.ready
-    ParallaxLogger.log("[Bridge] s1_Fetch.internals.output.ready set to fetchOutput.ready")
+    val s_bridge = fetchPipeline.pipeline.newStage().setName("s_bridge")
+    fetchPipeline.pipeline.connect(fetchPipeline.exitStage, s_bridge)(Connection.DIRECT())
+
   }
-
-  // The bridge provides this stream as its output
-  val fetchOutput = create early Stream(FetchBridgeOutput(pipelineConfig))
 
   create late new Area {
+    ParallaxLogger.log("[FetchOutputBridge] logic")
     val signals = setup.fetchPipeline.signals
-    val s1_Fetch = setup.s1_Fetch
+    val s_bridge = setup.s_bridge
 
-    fetchOutput.valid := s1_Fetch.valid // Bridge output is valid when s1_Fetch output is valid
-    fetchOutput.payload.pc := s1_Fetch(signals.FETCHED_PC)
-    // Assign the Vec from Stageable to the Bundle's Vec
+    val bridgeStageStream = s_bridge.toStream()
+    bridgeStageStream.ready := fetchOutput.ready
+
+    // Drive the payload and the final valid signal of the fetchOutput Stream
+    // The valid from toStream() is s_bridge.isValid (input valid) AND !s_bridge.isRemoved.
+    // We need fetchOutput.valid to be true only when s_bridge *actually fires* data
+    // or more precisely, when s_bridge's output would be valid based on its internal logic.
+    //
+    // `s_bridge.isFiring` is `s_bridge.internals.output.valid && s_bridge.internals.output.ready`
+    // `s_bridge.internals.output.valid` is `s_bridge.internals.input.valid` (from previous stage) unless halted/spawned.
+    // `s_bridge.internals.output.ready` is driven by `fetchOutput.ready` via the `haltIt(!fetchOutput.ready)` in `toStream()` effect on `s_bridge.internals.input.ready`.
+
+    // Let's use s_bridge.isFiring to drive the actual output stream's valid.
+    // This ensures data is only considered valid on the output stream when the stage is truly processing and ready to send.
+    // However, s_bridge.isFiring might be too restrictive if s_bridge.internals.output.valid itself is what we want.
+
+    // The `toStream()` method's `ret.valid` is `s_bridge.isValid && !s_bridge.isRemoved`.
+    // This `ret.valid` is the valid signal from s_bridge *before* considering s_bridge.isReady (downstream).
+    fetchOutput.valid := bridgeStageStream.valid
+    // This means fetchOutput.valid is high if s_bridge has valid input (from s1_fetch) and is not removed.
+    // The flow control (s_bridge being halted if fetchOutput.ready is low) is handled by toStream's haltIt.
+
+    fetchOutput.payload.pc := s_bridge(signals.FETCHED_PC)
     for (i <- 0 until pipelineConfig.fetchWidth) {
-      fetchOutput.payload.instructions(i) := s1_Fetch(signals.INSTRUCTION_GROUP)(i)
+      fetchOutput.payload.instructions(i) := s_bridge(signals.INSTRUCTION_GROUP)(i)
     }
-    fetchOutput.payload.fault := s1_Fetch(signals.FETCH_FAULT)
-    s1_Fetch.internals.arbitration.propagateReady = true
-    s1_Fetch.isReady // 强制实例化 s1_Fetch.internals.output.ready
+    fetchOutput.payload.fault := s_bridge(signals.FETCH_FAULT)
 
-    when(fetchOutput.fire) { // fire = valid && ready
+    // Reports
+    when(fetchOutput.fire) {
       report(
-        L"[Bridge] Firing output: Valid=${fetchOutput.valid} Ready=${fetchOutput.ready} fetchOutput.payload.pc=${fetchOutput.payload.pc}"
+        L"[BridgeFiringOutput] PC=${fetchOutput.payload.pc} Valid=${fetchOutput.valid} Ready=${fetchOutput.ready}"
       )
     }
+    when(s_bridge.isFiring) { // isFiring = s_bridge.isValid (input) && s_bridge.isReady (input)
+      // s_bridge.isReady (input) is affected by haltIt(!fetchOutput.ready)
+      report(L"[BridgeStageFiring] InputData(FETCHED_PC)=${s_bridge(signals.FETCHED_PC)}")
+    }
+    report(
+      L"[BridgeStage] isFiring=${s_bridge.isFiring} isValid=${s_bridge.isValid} isReady=${s_bridge.isReady} isStuck=${s_bridge.isStuck}"
+    )
+    setup.fetchPipeline.release()
   }
 }
+// -- MODIFICATION END --

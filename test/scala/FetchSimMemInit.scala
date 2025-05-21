@@ -3,6 +3,7 @@ package parallax.test.scala // Or your test utility package
 import parallax.components.memory.SimulatedSplitGeneralMemory // Updated import
 import spinal.core._
 import spinal.core.sim._
+import parallax.utilities.ParallaxLogger
 
 object FetchSimMemInit {
   def initMemWord(
@@ -13,6 +14,7 @@ object FetchSimMemInit {
       clockDomain: ClockDomain
   ): Unit = {
     val internalDataWidthBits = simMem.memConfig.internalDataWidth.value // Access memCfg
+    ParallaxLogger.log(s"Initializing memory at address $address with value $value (data width $valueDataWidthBits bits), internalDataWidthBits $internalDataWidthBits")
     require(
       valueDataWidthBits >= internalDataWidthBits,
       s"Value's data width ($valueDataWidthBits) must be >= internal data width ($internalDataWidthBits)."

@@ -11,7 +11,8 @@ case class InstructionFetchUnitConfig(
     val instructionWidth: BitCount = 32 bits, // Width of a single instruction/word in a fetch group
     val fetchGroupDataWidth: BitCount = 64 bits, // Total data width fetched by IFU/ICache per request
     val memBusConfig: GenericMemoryBusConfig,
-    var icacheConfig: AdvancedICacheConfig = null
+    var icacheConfig: AdvancedICacheConfig = null,
+    val enableLog: Boolean = true
 ) {
   require(
     fetchGroupDataWidth.value % instructionWidth.value == 0,

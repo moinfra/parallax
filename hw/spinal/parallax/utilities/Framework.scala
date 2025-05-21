@@ -267,21 +267,22 @@ object ParallaxLogger {
   val ANSI_RED = "\u001B[31m";
   val ANSI_YELLOW = "\u001B[33m";
   val ANSI_RESET = "\u001B[0m";
+  val ANSI_GRAY = "\u001B[37m";
 
   def log(foo: String)(implicit line: sourcecode.Line, file: sourcecode.File) = {
-    println(s"${file.value}:${line.value}\n\t$ANSI_BLUE$foo$ANSI_RESET")
+    println(s"$ANSI_GRAY${file.value}:${line.value}\n\t$ANSI_BLUE$foo$ANSI_RESET")
   }
 
   def warning(foo: String)(implicit line: sourcecode.Line, file: sourcecode.File) = {
-    println(s"${file.value}:${line.value}\n\t$ANSI_YELLOW$foo$ANSI_RESET")
+    println(s"$ANSI_GRAY${file.value}:${line.value}\n\t$ANSI_YELLOW$foo$ANSI_RESET")
   }
 
   def error(foo: String)(implicit line: sourcecode.Line, file: sourcecode.File) = {
-    println(s"${file.value}:${line.value}\n\t$ANSI_RED$foo$ANSI_RESET")
+    println(s"$ANSI_GRAY${file.value}:${line.value}\n\t$ANSI_RED$foo$ANSI_RESET")
   }
 
   def panic(foo: String)(implicit line: sourcecode.Line, file: sourcecode.File) = {
-    println(s"${file.value}:${line.value}\n\t$ANSI_RED$foo$ANSI_RESET")
+    println(s"$ANSI_GRAY${file.value}:${line.value}\n\t$ANSI_RED$foo$ANSI_RESET")
     sys.exit(1)
   }
 }

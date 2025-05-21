@@ -2,6 +2,7 @@ package scala
 
 import spinal.tester.SpinalSimFunSuite
 import scala.collection.mutable.ArrayBuffer
+import parallax.utilities.ParallaxLogger.warning
 
 class CustomSpinalSimFunSuite extends SpinalSimFunSuite {
     
@@ -31,4 +32,9 @@ class CustomSpinalSimFunSuite extends SpinalSimFunSuite {
     }
   }
 
+  def weakAssert(cond: Boolean, msg: String = "")(implicit line: sourcecode.Line, file: sourcecode.File): Unit = {
+    if (!cond) {
+      warning("Assertion failed" + (if (msg.nonEmpty) s": $msg" else ""))(line, file)
+    }
+  }
 }
