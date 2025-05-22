@@ -86,11 +86,7 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
 
   // --- Helper to check allocation results ---
   def checkAllocResults(
-      allocIo: Vec[Bundle {
-        val enable: Bool
-        val physReg: UInt
-        val success: Bool
-      }],
+      allocIo: Vec[SuperScalarFreeListAllocatePort],
       expectedSuccess: Seq[Boolean],
       expectedPhysRegs: Seq[Option[Int]]
   ): Unit = {

@@ -10,6 +10,7 @@ import spinal.lib.pipeline._
 
 import scala.collection.mutable.ArrayBuffer
 import scala.reflect.{ClassTag, classTag}
+import spinal.idslplugin.Location
 
 /** 服务（Service）特质（Trait）
   * 这是一个标记特质，用于标识框架中的各种服务或组件。
@@ -286,3 +287,14 @@ object ParallaxLogger {
     sys.exit(1)
   }
 }
+object ParallaxSim {
+  def flattenRecursively(input: Any): Seq[Any] = input match {
+    case seq: Seq[Any] => seq.flatMap(flattenRecursively)  // 递归处理子元素
+    case elem => Seq(elem)  // 非 Seq 元素，包装成单元素 Seq
+  }
+
+  def dump(message: Seq[Any])(implicit loc: Location) {
+    report(flattenRecursively(message))(loc)
+  }
+}
+

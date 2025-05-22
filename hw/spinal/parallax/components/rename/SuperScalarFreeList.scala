@@ -20,23 +20,29 @@ case class SuperScalarFreeListCheckpoint(config: SuperScalarFreeListConfig) exte
   val freeMask = Bits(config.numPhysRegs bits)
 }
 
+case class SuperScalarFreeListAllocatePort(config: SuperScalarFreeListConfig) extends Bundle with IMasterSlave {
+  val enable = Bool()
+  val physReg = UInt(config.physRegIdxWidth)
+  val success = Bool()
+  override def asMaster(): Unit = { out(enable); in(physReg); in(success) }
+}
+
+case class SuperScalarFreeListFreePort(config: SuperScalarFreeListConfig) extends Bundle with IMasterSlave {
+  val enable = Bool()
+  val physReg = UInt(config.physRegIdxWidth)
+  override def asMaster(): Unit = { out(enable); out(physReg) }
+}
+
 case class SuperScalarFreeListIO(config: SuperScalarFreeListConfig) extends Bundle with IMasterSlave {
   // Allocate ports: requests N free physical registers
   val allocate = Vec(
-    new Bundle { // Vec for N allocation requests
-      val enable = Bool() // Master wants to allocate for THIS slot
-      val physReg = UInt(config.physRegIdxWidth) // Allocated physReg for THIS slot
-      val success = Bool() // Was allocation for THIS slot successful?
-    },
+    new SuperScalarFreeListAllocatePort(config),
     config.numAllocatePorts
   )
 
   // Free ports: return M physical registers
   val free = Vec(
-    new Bundle { // Vec for M free requests
-      val enable = Bool()
-      val physReg = UInt(config.physRegIdxWidth)
-    },
+    new SuperScalarFreeListFreePort(config),
     config.numFreePorts
   )
 
@@ -48,8 +54,8 @@ case class SuperScalarFreeListIO(config: SuperScalarFreeListConfig) extends Bund
 
   override def asMaster(): Unit = {
     // Master DRIVES 'enable' for allocate and free
-    allocate.foreach { p => out(p.enable) }
-    free.foreach { p => out(p.enable); out(p.physReg) }
+    allocate.foreach { p => master(p) }
+    free.foreach { p => master(p) }
 
     // Master RECEIVES 'physReg' and 'success' for allocate
     allocate.foreach { p => in(p.physReg); in(p.success) }
@@ -87,7 +93,7 @@ class SuperScalarFreeList(val config: SuperScalarFreeListConfig) extends Compone
 
   for (i <- 0 until config.numAllocatePorts) {
     val port = io.allocate(i)
-    report(L"[SSFreeList: Alloc Port ${i.toString()}] Input enable = ${port.enable}")
+    report(L"[SSFreeList: Alloc Port ${i.toString()}] Input alloc enable = ${port.enable}")
 
     val isAnyFreeInCurrentIterMask = currentMaskForAlloc_iter.orR
     val enoughOverallRegsForThisPort = availableRegsForAlloc_at_cycle_start > U(i)
@@ -102,7 +108,7 @@ class SuperScalarFreeList(val config: SuperScalarFreeListConfig) extends Compone
       L"    isAnyFreeInCurrentIterMask = ${isAnyFreeInCurrentIterMask}, enoughOverallRegs = ${enoughOverallRegsForThisPort}, "
     )
     report(L"    canAllocateThisPort (pre-enable) = ${canAllocateThisPort}, chosenPhysReg (pre-enable) = ${chosenPhysReg}")
-    report(L"[SSFreeList: Alloc Port ${i.toString()}] Output success = ${port.success}, Output physReg = ${port.physReg}")
+    report(L"[SSFreeList: *** Alloc Port ${i.toString()}] Output success = ${port.success}, Output physReg = ${port.physReg}")
 
     // Define the mask for the *next* port based on this port's action
     val maskAfterThisPort = Bits(config.numPhysRegs bits) // This signal will always be assigned.
@@ -115,7 +121,7 @@ class SuperScalarFreeList(val config: SuperScalarFreeListConfig) extends Compone
     } otherwise {
       maskAfterThisPort := currentMaskForAlloc_iter // No change if no alloc
       report(
-        L"[SSFreeList: Alloc Port ${i.toString()}] NO ALLOC or disabled. maskAfterThisPort is ${maskAfterThisPort} (same as currentMaskForAlloc_iter)"
+        L"[SSFreeList: Alloc Port ${i.toString()}] NO ALLOC happened or disabled. maskAfterThisPort is ${maskAfterThisPort} (same as currentMaskForAlloc_iter)"
       )
     }
     currentMaskForAlloc_iter = maskAfterThisPort // Update the 'var' for the next iteration

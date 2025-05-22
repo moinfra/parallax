@@ -4,6 +4,7 @@ import spinal.core._
 import spinal.lib._
 import parallax.common._
 import parallax.components.rename._
+import parallax.utilities.ParallaxSim
 
 case class RenameUnitIo(
     pipelineConfig: PipelineConfig,
@@ -18,14 +19,8 @@ case class RenameUnitIo(
   val ratReadPorts = Vec((RatReadPort(ratConfig)), ratConfig.numReadPorts)
   val ratWritePorts = Vec((RatWritePort(ratConfig)), ratConfig.numWritePorts)
 
-  case class RenameUnitFlAllocatePort(cfg: SuperScalarFreeListConfig) extends Bundle with IMasterSlave {
-    val enable = Bool()
-    val physReg = UInt(cfg.physRegIdxWidth)
-    val success = Bool()
-    override def asMaster(): Unit = { out(enable); in(physReg); in(success) }
-  }
 
-  val flAllocate = Vec(RenameUnitFlAllocatePort(freeListConfig), freeListConfig.numAllocatePorts)
+  val flAllocate = Vec(SuperScalarFreeListAllocatePort(freeListConfig), freeListConfig.numAllocatePorts)
 
   override def asMaster(): Unit = {
     // RenameUnit 作为 Master，驱动 decodedUopsIn.ready, rat/fl 请求, flushIn.ready (如果flush是Stream)
@@ -42,6 +37,8 @@ case class RenameUnitIo(
   }
 }
 
+// 注意 allocatesPhysDest 必须真实反映情况，例如如果 rd 是 0 则不应分配寄存器，所以 allocatesPhysDest 要设置为 false. 
+// RU假设解码阶段会做这个保证。
 class RenameUnit(
     val pipelineConfig: PipelineConfig,
     val ratConfig: RenameMapTableConfig,
@@ -57,6 +54,9 @@ class RenameUnit(
   for (i <- 0 until pipelineConfig.renameWidth) {
     val uop = io.decodedUopsIn.payload(i) // 使用 .payload 因为是 Stream
     uopIsValidAndDecoded(i) := uop.isValid // 假设解码阶段已确保isValid的准确性
+    when(!uop.isValid) {
+      report(L"RenameUnit: Slot ${i.toString()} uop input is invalid.")
+    }
     // 条件：uop有效，解码结果表明它写架构目标 (writeArchDestEn应包含对r0的检查)
     // 并且它是GPR或FPR类型（假设都需要重命名）
     // 真实场景需要更精细的判断，例如STORE指令的数据源寄存器不应在此分配新物理寄存器。
@@ -86,7 +86,7 @@ class RenameUnit(
 
   // RAT写端口：默认不使能写
   io.ratWritePorts.foreach { wp =>
-    wp.wen.assignDontCare() // 或者 := False. 如果wen为False，archReg和physReg的值不重要
+    wp.wen := False
     wp.archReg.assignDontCare()
     wp.physReg.assignDontCare()
   }
@@ -97,6 +97,10 @@ class RenameUnit(
   // 这些信号将在一个周期内计算完成。
   val calculatedRenamedUops = Vec.tabulate(pipelineConfig.renameWidth) { slotIdx =>
     val decodedUop = io.decodedUopsIn.payload(slotIdx)
+    report(L"RenameUnit: Slot ${slotIdx.toString()} processing uop:")
+
+    ParallaxSim.dump(decodedUop.tinyDump())
+
     val renamedUop = RenamedUop(pipelineConfig).setDefault(
       decoded = decodedUop  // 复制解码信息
     ) // 初始化为默认值
@@ -148,6 +152,7 @@ class RenameUnit(
 
         // FreeList的响应 (flPort.success, flPort.physReg) 是组合可见的
         when(flPort.success) {
+          report(L"RenameUnit: Slot ${slotIdx.toString()} allocated new physical register ${flPort.physReg}.")
           renamedUop.rename.allocatesPhysDest := True
           renamedUop.rename.physDest.idx := flPort.physReg
           renamedUop.rename.physDestIsFpr := decodedUop.archDest.isFPR
@@ -160,7 +165,7 @@ class RenameUnit(
         } otherwise {
           // 如果 flPort.enable 为真但分配失败 (理论上已被 stallLackingResources 避免)
           // 这表示一个更严重的问题或 FreeList 的意外行为
-          report(L"RenameUnit: Slot ${slotIdx.toString()} FreeList allocation failed unexpectedly when enable was high.")
+          report(L"RenameUnit: Slot ${slotIdx.toString()} FreeList allocation failed unexpectedly when enable was high. flPort.physReg=${flPort.physReg}")
           renamedUop.decoded.isValid := False // 将此uop标记为无效以阻止后续处理
           renamedUop.rename.allocatesPhysDest := False
           renamedUop.rename.writesToPhysReg := False
@@ -172,12 +177,13 @@ class RenameUnit(
       // 确保不向RAT/FL发出意外的使能信号 (已由外部默认值处理)
       // 如果uop本身就无效 (uopIsValidAndDecoded(slotIdx)为假)，则renamedUop.decoded.isValid也应为假
       when(!uopIsValidAndDecoded(slotIdx)) {
+        report(L"RenameUnit: Slot ${slotIdx.toString()} uop is invalid.")
         renamedUop.decoded.isValid := False
       }
     }
     renamedUop
   }
-
+  
   // --- 6. 输出流控制 ---
   val overallOutputValid = io.decodedUopsIn.valid && !stallLackingResources && !io.flushIn
   io.renamedUopsOut.valid := overallOutputValid
