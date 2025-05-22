@@ -65,6 +65,16 @@ class RenameUnit(
       uopIsValidAndDecoded(
         i
       ) && uop.writeArchDestEn && (uop.archDest.isGPR || uop.archDest.isFPR)
+    
+      when(!uopNeedsNewPhysDest(i)) {
+        when(!uopIsValidAndDecoded(i)) {
+        ParallaxSim.debug(L"RenameUnit: Slot ${i.toString()} uop does not need new phys dest because it is invalid.")
+        } elsewhen(!uop.writeArchDestEn) {
+        ParallaxSim.debug(L"RenameUnit: Slot ${i.toString()} uop does not need new phys dest because writeArchDestEn is false.")
+        } elsewhen(!(uop.archDest.isGPR || uop.archDest.isFPR)) {
+        ParallaxSim.debug(L"RenameUnit: Slot ${i.toString()} uop does not need new phys dest because it is not GPR or FPR.")
+        }
+      }
   }
 
   // --- 2. 计算本周期总共需要分配的物理寄存器数量 ---
@@ -74,9 +84,12 @@ class RenameUnit(
 
   // --- 3. Stall 条件判断 ---
   val notEnoughPhysRegs = io.numFreePhysRegs < numPhysRegsToAllocateResized
+
   // stallLackingResources: 当有有效输入，但物理寄存器不足时，RenameUnit内部需要stall
   val stallLackingResources = notEnoughPhysRegs && io.decodedUopsIn.valid
-
+  when(io.decodedUopsIn.valid && notEnoughPhysRegs) {
+    ParallaxSim.warning(L"RenameUnit: Not enough free physical registers to allocate ${numPhysRegsToAllocateResized} physical registers.")
+  }
   // --- 4. 初始化所有IO端口驱动的默认值 ---
   // RAT读端口：默认不指定读取哪个架构寄存器 (或指定一个安全默认值)
   io.ratReadPorts.foreach(_.archReg.assignDontCare()) // 或者 := U(0)
@@ -132,7 +145,7 @@ class RenameUnit(
         renamedUop.rename.physSrc2.idx := physSrc2Port.physReg
         renamedUop.rename.physSrc2IsFpr := decodedUop.archSrc2.isFPR
       }
-      // TODO: 处理 archSrc3
+      // TODO: 处理 archSrc3 暂时没必要，反而扩大硬件面积
 
       // --- 5b. 分配新物理目标并读取旧物理目标 (如果需要) ---
       when(uopNeedsNewPhysDest(slotIdx)) {
@@ -149,10 +162,10 @@ class RenameUnit(
         // 直接使用 slotIdx 作为物理端口索引
         val flPort = io.flAllocate(slotIdx)
         flPort.enable := True // 在 proceedWithUop 条件下发出分配请求
-
+        ParallaxSim.debug(L"RenameUnit: Slot ${slotIdx.toString()} FreeList allocation request.")
         // FreeList的响应 (flPort.success, flPort.physReg) 是组合可见的
         when(flPort.success) {
-          report(L"RenameUnit: Slot ${slotIdx.toString()} allocated new physical register ${flPort.physReg}.")
+          ParallaxSim.success(L"RenameUnit: Slot ${slotIdx.toString()} allocated new physical register ${flPort.physReg}.")
           renamedUop.rename.allocatesPhysDest := True
           renamedUop.rename.physDest.idx := flPort.physReg
           renamedUop.rename.physDestIsFpr := decodedUop.archDest.isFPR
@@ -165,7 +178,7 @@ class RenameUnit(
         } otherwise {
           // 如果 flPort.enable 为真但分配失败 (理论上已被 stallLackingResources 避免)
           // 这表示一个更严重的问题或 FreeList 的意外行为
-          report(L"RenameUnit: Slot ${slotIdx.toString()} FreeList allocation failed unexpectedly when enable was high. flPort.physReg=${flPort.physReg}")
+          ParallaxSim.error(L"RenameUnit: Slot ${slotIdx.toString()} FreeList allocation failed unexpectedly when enable was high. flPort.physReg=${flPort.physReg}")
           renamedUop.decoded.isValid := False // 将此uop标记为无效以阻止后续处理
           renamedUop.rename.allocatesPhysDest := False
           renamedUop.rename.writesToPhysReg := False
@@ -177,8 +190,18 @@ class RenameUnit(
       // 确保不向RAT/FL发出意外的使能信号 (已由外部默认值处理)
       // 如果uop本身就无效 (uopIsValidAndDecoded(slotIdx)为假)，则renamedUop.decoded.isValid也应为假
       when(!uopIsValidAndDecoded(slotIdx)) {
-        report(L"RenameUnit: Slot ${slotIdx.toString()} uop is invalid.")
+        ParallaxSim.warning(L"RenameUnit: Slot ${slotIdx.toString()} uop is invalid.")
         renamedUop.decoded.isValid := False
+      } otherwise {
+        when(!io.decodedUopsIn.valid){
+          ParallaxSim.debug(L"RenameUnit: Slot ${slotIdx.toString()} stall or flush or invalid, not processing uop because io.decodedUopsIn.valid is false.")
+        }
+        when(stallLackingResources){
+          ParallaxSim.debug(L"RenameUnit: Slot ${slotIdx.toString()} stall or flush or invalid, not processing uop because stallLackingResources is true.")
+        }
+         when(!io.flushIn){
+          ParallaxSim.debug(L"RenameUnit: Slot ${slotIdx.toString()} stall or flush or invalid, not processing uop because io.flushIn is true.")
+        }
       }
     }
     renamedUop

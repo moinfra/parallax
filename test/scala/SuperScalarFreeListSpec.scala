@@ -45,7 +45,9 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
       frees.length <= dutIo.config.numFreePorts,
       "Too many free requests for available free ports"
     )
-    println(s"[TB] Driving Free Ports - Requests (enable, preg): ${frees.map(f => s"(${f._1},p${f._2})").mkString(",")}")
+    println(
+      s"[TB] Driving Free Ports - Requests (enable, preg): ${frees.map(f => s"(${f._1},p${f._2})").mkString(",")}"
+    )
     for (i <- 0 until dutIo.config.numFreePorts) {
       if (i < frees.length) {
         dutIo.free(i).enable #= frees(i)._1
@@ -98,7 +100,9 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
       val actualSuccess = port.success.toBoolean
       val actualPhysRegVal = port.physReg.toInt // Read once
       val actualPhysRegStr = if (actualSuccess || expectedSuccess(i)) s"p${actualPhysRegVal}" else "N/A"
-      println(f"[TB]   Port $i: Actual Success=${actualSuccess}, Actual PhysReg=${actualPhysRegStr}%-4s (Input Enable was ${port.enable.toBoolean})")
+      println(
+        f"[TB]   Port $i: Actual Success=${actualSuccess}, Actual PhysReg=${actualPhysRegStr}%-4s (Input Enable was ${port.enable.toBoolean})"
+      )
       assert(
         actualSuccess == expectedSuccess(i),
         s"Alloc port $i: success mismatch. Expected ${expectedSuccess(i)}, got $actualSuccess"
@@ -129,7 +133,9 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
       dut.clockDomain.waitSampling() // Let reset and init take effect. All enables are false.
       sleep(1) // Ensure outputs like numFreeRegs are stable after reset and init drives.
 
-      println(s"[TB Init Check] Enabling all ${testConfig.numAllocatePorts} allocate ports simultaneously to check potential.")
+      println(
+        s"[TB Init Check] Enabling all ${testConfig.numAllocatePorts} allocate ports simultaneously to check potential."
+      )
       // Enable ALL ports we want to check for their initial allocation capability
       for (k <- 0 until testConfig.numAllocatePorts) {
         dut.io.allocate(k).enable #= true
@@ -338,14 +344,16 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
 
       println("[TB Concurrent A/F] Step 2: Concurrently Alloc(p3,p4) and Free(p1)")
       driveAllocatePorts(dut.io, Seq(true, true)) // Sets alloc enables, sleep(1)
-      driveFreePorts(dut.io, Seq((true, p1_val)))   // Sets free enable, sleep(1). Alloc enables are still true.
+      driveFreePorts(dut.io, Seq((true, p1_val))) // Sets free enable, sleep(1). Alloc enables are still true.
 
       // Combinational check: All enables (2 alloc, 1 free) are now active.
       // DUT's current freeRegsMask_reg has p1,p2 allocated.
       // Alloc logic: port0 wants p3, port1 wants p4.
       val chosenForAlloc0 = dut.io.allocate(0).physReg.toInt
       val chosenForAlloc1 = dut.io.allocate(1).physReg.toInt
-      println(s"[TB Concurrent A/F] Combinational check: alloc0 gets p$chosenForAlloc0, alloc1 gets p$chosenForAlloc1 (p1_val was p$p1_val)")
+      println(
+        s"[TB Concurrent A/F] Combinational check: alloc0 gets p$chosenForAlloc0, alloc1 gets p$chosenForAlloc1 (p1_val was p$p1_val)"
+      )
       assert(dut.io.allocate(0).success.toBoolean && dut.io.allocate(1).success.toBoolean, "Both allocs should succeed")
       assert(chosenForAlloc0 == 3, s"Expected alloc port 0 to choose p3, got p$chosenForAlloc0")
       assert(chosenForAlloc1 == 4, s"Expected alloc port 1 to choose p4, got p$chosenForAlloc1")
@@ -356,8 +364,10 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
       driveFreePorts(dut.io, Seq((false, 0)))
       dut.clockDomain.waitSampling(); sleep(1)
 
-      assert(dut.io.numFreeRegs.toInt == numAllocatableRegs - 3,
-        s"Expected ${numAllocatableRegs - 3} free regs, got ${dut.io.numFreeRegs.toInt}")
+      assert(
+        dut.io.numFreeRegs.toInt == numAllocatableRegs - 3,
+        s"Expected ${numAllocatableRegs - 3} free regs, got ${dut.io.numFreeRegs.toInt}"
+      )
 
       val finalMask = getInternalMask(dut)
       println(s"[TB Concurrent A/F] Final mask: ${finalMask.toString(16)}")
@@ -370,7 +380,10 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
 
   test("SuperScalarFreeList - Checkpoint Save and Restore (2-wide alloc)") {
     val testConfig = SuperScalarFreeListConfig(
-      numPhysRegs = numTotalPhysRegs, resetToFull = true, numAllocatePorts = 2, numFreePorts = 1
+      numPhysRegs = numTotalPhysRegs,
+      resetToFull = true,
+      numAllocatePorts = 2,
+      numFreePorts = 1
     )
     simConfig.compile(new SuperScalarFreeListTestBench(testConfig)).doSim(seed = 204) { dut =>
       dut.clockDomain.forkStimulus(10)
@@ -390,7 +403,7 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
 
       println("[TB Checkpoint] Allocating p5,p6 (after checkpoint save)")
       driveAllocatePorts(dut.io, Seq(true, true))
-      checkAllocResults(dut.io.allocate, Seq(true,true), Seq(Some(5), Some(6))) // Assuming p5,p6 are next
+      checkAllocResults(dut.io.allocate, Seq(true, true), Seq(Some(5), Some(6))) // Assuming p5,p6 are next
       val p5_before_restore = dut.io.allocate(0).physReg.toInt
       val p6_before_restore = dut.io.allocate(1).physReg.toInt
       dut.clockDomain.waitSampling(); sleep(1)
@@ -398,21 +411,24 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
       assert(getInternalMask(dut) != maskAtCheckpoint)
       println(s"[TB Checkpoint] After allocating p5,p6: mask=${getInternalMask(dut).toString(16)}")
 
-
       println("[TB Checkpoint] Restoring to checkpoint")
       driveRestore(dut.io, true, maskAtCheckpoint) // driveRestore has sleep(0)
-      dut.clockDomain.waitSampling(); sleep(1)      // Restore takes effect
+      dut.clockDomain.waitSampling(); sleep(1) // Restore takes effect
       driveRestore(dut.io, false, 0)
-      dut.clockDomain.waitSampling(); sleep(1)      // Allow restore valid=false to propagate
+      dut.clockDomain.waitSampling(); sleep(1) // Allow restore valid=false to propagate
 
-      assert(getInternalMask(dut) == maskAtCheckpoint, s"Mask did not restore. Expected ${maskAtCheckpoint.toString(16)}, got ${getInternalMask(dut).toString(16)}")
+      assert(
+        getInternalMask(dut) == maskAtCheckpoint,
+        s"Mask did not restore. Expected ${maskAtCheckpoint.toString(16)}, got ${getInternalMask(dut).toString(16)}"
+      )
       assert(dut.io.numFreeRegs.toInt == numFreeAtCheckpoint, "NumFreeRegs incorrect after restore")
-      println(s"[TB Checkpoint] After restore: mask=${getInternalMask(dut).toString(16)}, numFree=${dut.io.numFreeRegs.toInt}")
-
+      println(
+        s"[TB Checkpoint] After restore: mask=${getInternalMask(dut).toString(16)}, numFree=${dut.io.numFreeRegs.toInt}"
+      )
 
       println("[TB Checkpoint] Allocating again, should get p5,p6")
       driveAllocatePorts(dut.io, Seq(true, true))
-      checkAllocResults(dut.io.allocate, Seq(true,true), Seq(Some(p5_before_restore), Some(p6_before_restore)))
+      checkAllocResults(dut.io.allocate, Seq(true, true), Seq(Some(p5_before_restore), Some(p6_before_restore)))
       val p5_again = dut.io.allocate(0).physReg.toInt
       val p6_again = dut.io.allocate(1).physReg.toInt
       dut.clockDomain.waitSampling(); sleep(1)
@@ -427,7 +443,10 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
   test("SuperScalarFreeList - Allocate with Limited Availability (e.g., 1 free, 2 alloc ports)") {
     val numAllocPorts = 2
     val testConfig = SuperScalarFreeListConfig(
-      numPhysRegs = numTotalPhysRegs, resetToFull = false, numAllocatePorts = numAllocPorts, numFreePorts = 1
+      numPhysRegs = numTotalPhysRegs,
+      resetToFull = false,
+      numAllocatePorts = numAllocPorts,
+      numFreePorts = 1
     )
     simConfig.compile(new SuperScalarFreeListTestBench(testConfig)).doSim(seed = 205) { dut =>
       dut.clockDomain.forkStimulus(10)
@@ -466,7 +485,10 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
   test("SuperScalarFreeList - Freeing the Same Register on Multiple Ports Simultaneously") {
     val numFreePorts = 2
     val testConfig = SuperScalarFreeListConfig(
-      numPhysRegs = numTotalPhysRegs, resetToFull = true, numAllocatePorts = 1, numFreePorts = numFreePorts
+      numPhysRegs = numTotalPhysRegs,
+      resetToFull = true,
+      numAllocatePorts = 1,
+      numFreePorts = numFreePorts
     )
     simConfig.compile(new SuperScalarFreeListTestBench(testConfig)).doSim(seed = 206) { dut =>
       dut.clockDomain.forkStimulus(10)
@@ -496,7 +518,10 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
 
   test("SuperScalarFreeList - Concurrent Allocate and Free Targeting the Same Register") {
     val testConfig = SuperScalarFreeListConfig(
-      numPhysRegs = numTotalPhysRegs, resetToFull = true, numAllocatePorts = 1, numFreePorts = 1
+      numPhysRegs = numTotalPhysRegs,
+      resetToFull = true,
+      numAllocatePorts = 1,
+      numFreePorts = 1
     )
     simConfig.compile(new SuperScalarFreeListTestBench(testConfig)).doSim(seed = 207) { dut =>
       dut.clockDomain.forkStimulus(10)
@@ -504,7 +529,7 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
       val initialNumFree = dut.io.numFreeRegs.toInt
 
       println("[TB Alloc/Free Same] Port 0 wants to allocate (p1). Free port 0 wants to free p1.")
-      driveAllocatePorts(dut.io, Seq(true))   // Sets alloc enable, sleep(1)
+      driveAllocatePorts(dut.io, Seq(true)) // Sets alloc enable, sleep(1)
       driveFreePorts(dut.io, Seq((true, 1))) // Sets free enable for p1, sleep(1). Alloc enable still true.
 
       // Combinational check:
@@ -519,16 +544,24 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
       driveFreePorts(dut.io, Seq((false, 0)))
       dut.clockDomain.waitSampling(); sleep(1)
 
-      assert((getInternalMask(dut) & (BigInt(1) << 1)) != 0, "p1 should be free in the mask after concurrent alloc/free")
-      assert(dut.io.numFreeRegs.toInt == initialNumFree,
-        s"NumFreeRegs should be $initialNumFree (unchanged), got ${dut.io.numFreeRegs.toInt}")
+      assert(
+        (getInternalMask(dut) & (BigInt(1) << 1)) != 0,
+        "p1 should be free in the mask after concurrent alloc/free"
+      )
+      assert(
+        dut.io.numFreeRegs.toInt == initialNumFree,
+        s"NumFreeRegs should be $initialNumFree (unchanged), got ${dut.io.numFreeRegs.toInt}"
+      )
     }
   }
 
   test("SuperScalarFreeList - Allocation Exhaustion and Recovery (2-alloc, 2-free)") {
     val numPorts = 2
     val testConfig = SuperScalarFreeListConfig(
-      numPhysRegs = numTotalPhysRegs, resetToFull = true, numAllocatePorts = numPorts, numFreePorts = numPorts
+      numPhysRegs = numTotalPhysRegs,
+      resetToFull = true,
+      numAllocatePorts = numPorts,
+      numFreePorts = numPorts
     )
     simConfig.compile(new SuperScalarFreeListTestBench(testConfig)).doSim(seed = 208) { dut =>
       dut.clockDomain.forkStimulus(10)
@@ -546,7 +579,8 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
         allAllocatedPregsList = allAllocatedPregsList ++ newlyAllocatedThisCycle
         dut.clockDomain.waitSampling(); sleep(1)
         totalAllocated += newlyAllocatedThisCycle.length
-        println(s"Cycle $cycle: Allocated ${newlyAllocatedThisCycle.mkString(",")}. Total allocated: $totalAllocated. Free: ${dut.io.numFreeRegs.toInt}")
+        println(s"Cycle $cycle: Allocated ${newlyAllocatedThisCycle
+            .mkString(",")}. Total allocated: $totalAllocated. Free: ${dut.io.numFreeRegs.toInt}")
         if (newlyAllocatedThisCycle.isEmpty && totalAllocated < numAllocatableRegs) {
           assert(false, "Allocation stalled before filling up")
         }
@@ -557,14 +591,16 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
       println("--- Phase 2: Freeing all ---")
       var totalFreed = 0
       val regsToFree = allAllocatedPregsList.distinct.sorted // Free in defined order for predictability
-      
+
       for (batch <- regsToFree.grouped(numPorts)) {
         cycle += 1
         val freeOps = batch.map(pReg => (true, pReg))
         driveFreePorts(dut.io, freeOps)
         dut.clockDomain.waitSampling(); sleep(1)
         totalFreed += batch.length
-        println(s"Cycle $cycle: Freed ${batch.mkString(",")}. Total freed: $totalFreed. Free: ${dut.io.numFreeRegs.toInt}")
+        println(
+          s"Cycle $cycle: Freed ${batch.mkString(",")}. Total freed: $totalFreed. Free: ${dut.io.numFreeRegs.toInt}"
+        )
       }
       assert(dut.io.numFreeRegs.toInt == numAllocatableRegs, "All allocatable regs should be free")
       driveFreePorts(dut.io, Seq.fill(numPorts)((false, 0))); dut.clockDomain.waitSampling(); sleep(1)
@@ -579,7 +615,8 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
         allAllocatedPregsList = allAllocatedPregsList ++ newlyAllocatedThisCycle
         dut.clockDomain.waitSampling(); sleep(1)
         totalAllocated += newlyAllocatedThisCycle.length
-        println(s"Cycle $cycle: Re-Allocated ${newlyAllocatedThisCycle.mkString(",")}. Total allocated: $totalAllocated. Free: ${dut.io.numFreeRegs.toInt}")
+        println(s"Cycle $cycle: Re-Allocated ${newlyAllocatedThisCycle
+            .mkString(",")}. Total allocated: $totalAllocated. Free: ${dut.io.numFreeRegs.toInt}")
       }
       assert(dut.io.numFreeRegs.toInt == 0, "All allocatable regs should be re-allocated")
       driveAllocatePorts(dut.io, Seq.fill(numPorts)(false)); dut.clockDomain.waitSampling()
@@ -588,7 +625,10 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
 
   test("SuperScalarFreeList - Restore to Partially Full then Allocate/Free") {
     val testConfig = SuperScalarFreeListConfig(
-      numPhysRegs = numTotalPhysRegs, resetToFull = true, numAllocatePorts = 2, numFreePorts = 2
+      numPhysRegs = numTotalPhysRegs,
+      resetToFull = true,
+      numAllocatePorts = 2,
+      numFreePorts = 2
     )
     simConfig.compile(new SuperScalarFreeListTestBench(testConfig)).doSim(seed = 209) { dut =>
       dut.clockDomain.forkStimulus(10)
@@ -599,12 +639,17 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
       partialMask &= ~(BigInt(1) << 1); partialMask &= ~(BigInt(1) << 3); partialMask &= ~(BigInt(1) << 5)
       val numFreeInPartialMask = partialMask.bitCount // BitCount on BigInt is convenient
 
-      println(s"[TB Restore Partial] Restoring to partialMask=${partialMask.toString(16)} (numFree=$numFreeInPartialMask)")
+      println(
+        s"[TB Restore Partial] Restoring to partialMask=${partialMask.toString(16)} (numFree=$numFreeInPartialMask)"
+      )
       driveRestore(dut.io, true, partialMask); dut.clockDomain.waitSampling(); sleep(1)
       driveRestore(dut.io, false, 0); dut.clockDomain.waitSampling(); sleep(1)
 
       assert(getInternalMask(dut) == partialMask, "Mask did not restore to partialMask correctly")
-      assert(dut.io.numFreeRegs.toInt == numFreeInPartialMask, s"NumFreeRegs expected $numFreeInPartialMask, got ${dut.io.numFreeRegs.toInt}")
+      assert(
+        dut.io.numFreeRegs.toInt == numFreeInPartialMask,
+        s"NumFreeRegs expected $numFreeInPartialMask, got ${dut.io.numFreeRegs.toInt}"
+      )
 
       println("[TB Restore Partial] Allocating 2 (expect p2, p4)")
       driveAllocatePorts(dut.io, Seq(true, true))
@@ -615,16 +660,119 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
       driveAllocatePorts(dut.io, Seq(false, false)); dut.clockDomain.waitSampling(); sleep(1)
 
       assert(p2_alloc == 2 && p4_alloc == 4, "Allocation after partial restore incorrect")
-      assert(dut.io.numFreeRegs.toInt == numFreeInPartialMask - 2, "NumFreeRegs incorrect after alloc from partial restore")
+      assert(
+        dut.io.numFreeRegs.toInt == numFreeInPartialMask - 2,
+        "NumFreeRegs incorrect after alloc from partial restore"
+      )
 
       println(s"[TB Restore Partial] Freeing p1 and p$p2_alloc (p2)")
       driveFreePorts(dut.io, Seq((true, 1), (true, p2_alloc)))
       dut.clockDomain.waitSampling(); sleep(1)
       driveFreePorts(dut.io, Seq((false, 0), (false, 0))); dut.clockDomain.waitSampling(); sleep(1)
-      
-      assert(dut.io.numFreeRegs.toInt == numFreeInPartialMask, "NumFreeRegs incorrect after free from partial restore state")
+
+      assert(
+        dut.io.numFreeRegs.toInt == numFreeInPartialMask,
+        "NumFreeRegs incorrect after free from partial restore state"
+      )
       assert((getInternalMask(dut) & (BigInt(1) << 1)) != 0, "p1 should be free")
       assert((getInternalMask(dut) & (BigInt(1) << p2_alloc)) != 0, "p2 should be free")
+    }
+  }
+
+  testOnly("SuperScalarFreeList - Freeing and Re-allocating an Initially Mapped Register") {
+    val numArchRegsMapped = 4 // P0, P1, P2, P3 are initially "mapped" (not in free list)
+    val testConfig = SuperScalarFreeListConfig(
+      numPhysRegs = numTotalPhysRegs, // e.g., 16
+      resetToFull = true, // Other regs (P4 onwards) are free
+      numInitialArchMappings = numArchRegsMapped,
+      numAllocatePorts = 1,
+      numFreePorts = 1
+    )
+    // Expected initial free regs: numTotalPhysRegs - numArchRegsMapped = 16 - 4 = 12
+    // Expected initial free mask: P0,P1,P2,P3 are 0, P4-P15 are 1.
+    // Example: if numTotalPhysRegs = 8, numArchRegsMapped = 2. initMask = ...00111100 (P0,P1 used, P2-P7 free)
+
+    simConfig.compile(new SuperScalarFreeListTestBench(testConfig)).doSim(seed = 210) { dut =>
+      dut.clockDomain.forkStimulus(10)
+      initSimSuper(dut.io)
+      dut.clockDomain.waitSampling(); sleep(1)
+
+      val expectedInitialFreeCount = numTotalPhysRegs - numArchRegsMapped
+      assert(
+        dut.io.numFreeRegs.toInt == expectedInitialFreeCount,
+        s"Initial free count mismatch. Expected $expectedInitialFreeCount, got ${dut.io.numFreeRegs.toInt}"
+      )
+
+      var initialMask = BigInt(0)
+      if (testConfig.resetToFull) {
+        for (i <- numArchRegsMapped until numTotalPhysRegs) {
+          initialMask |= (BigInt(1) << i)
+        }
+      }
+      assert(
+        getInternalMask(dut) == initialMask,
+        s"Initial mask incorrect. Expected ${initialMask.toString(16)}, got ${getInternalMask(dut).toString(16)}"
+      )
+
+      println(s"[TB Re-alloc Mapped] Step 1: Allocate first available register (should be P${numArchRegsMapped})")
+      driveAllocatePorts(dut.io, Seq(true))
+      checkAllocResults(dut.io.allocate, Seq(true), Seq(Some(numArchRegsMapped)))
+      val allocatedPReg1 = dut.io.allocate(0).physReg.toInt
+      dut.clockDomain.waitSampling(); sleep(1)
+      driveAllocatePorts(dut.io, Seq(false))
+      dut.clockDomain.waitSampling(); sleep(1)
+
+      assert(
+        allocatedPReg1 == numArchRegsMapped,
+        s"First allocation should be P${numArchRegsMapped}, got P${allocatedPReg1}"
+      )
+      assert(
+        dut.io.numFreeRegs.toInt == expectedInitialFreeCount - 1,
+        s"Free count after first alloc mismatch. Expected ${expectedInitialFreeCount - 1}, got ${dut.io.numFreeRegs.toInt}"
+      )
+
+      val initiallyMappedRegToFree = 1 // Let's choose P1 (which was initially mapped)
+      println(s"[TB Re-alloc Mapped] Step 2: Manually free P${initiallyMappedRegToFree} (an initially mapped reg)")
+      driveFreePorts(dut.io, Seq((true, initiallyMappedRegToFree)))
+      dut.clockDomain.waitSampling(); sleep(1)
+      driveFreePorts(dut.io, Seq((false, 0)))
+      dut.clockDomain.waitSampling(); sleep(1)
+
+      // Now P_initiallyMappedRegToFree should be in the free list.
+      // Num free regs should increase by 1.
+      assert(
+        dut.io.numFreeRegs.toInt == expectedInitialFreeCount, // Back to initial count because we alloc'd one, then freed one different
+        s"Free count after freeing P${initiallyMappedRegToFree} mismatch. Expected ${expectedInitialFreeCount}, got ${dut.io.numFreeRegs.toInt}"
+      )
+      assert(
+        (getInternalMask(dut) & (BigInt(1) << initiallyMappedRegToFree)) != 0,
+        s"P${initiallyMappedRegToFree} should now be free in the mask."
+      )
+
+      println(
+        s"[TB Re-alloc Mapped] Step 3: Allocate again. It should now pick P${initiallyMappedRegToFree} (as it's the lowest available index)."
+      )
+      driveAllocatePorts(dut.io, Seq(true))
+      // The PriorityEncoderOH will pick the lowest indexed bit that is set in the mask.
+      // Since P_initiallyMappedRegToFree (e.g., P1) was just freed, it should be the lowest available.
+      checkAllocResults(dut.io.allocate, Seq(true), Seq(Some(initiallyMappedRegToFree)))
+      val allocatedPReg2 = dut.io.allocate(0).physReg.toInt
+      dut.clockDomain.waitSampling(); sleep(1)
+      driveAllocatePorts(dut.io, Seq(false))
+      dut.clockDomain.waitSampling(); sleep(1)
+
+      assert(
+        allocatedPReg2 == initiallyMappedRegToFree,
+        s"Second allocation after freeing P${initiallyMappedRegToFree} should have re-allocated P${initiallyMappedRegToFree}, but got P${allocatedPReg2}"
+      )
+      assert(
+        dut.io.numFreeRegs.toInt == expectedInitialFreeCount - 1,
+        s"Free count after re-allocating P${initiallyMappedRegToFree} mismatch. Expected ${expectedInitialFreeCount - 1}, got ${dut.io.numFreeRegs.toInt}"
+      )
+      assert(
+        (getInternalMask(dut) & (BigInt(1) << initiallyMappedRegToFree)) == 0,
+        s"P${initiallyMappedRegToFree} should now be allocated (not free) in the mask."
+      )
     }
   }
   thatsAll()

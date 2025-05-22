@@ -3,17 +3,32 @@ package parallax.components.rename
 import spinal.core._
 import spinal.lib._
 import parallax.utils.Encoders.PriorityEncoderOH
+import parallax.utilities.ParallaxLogger
 
 case class SuperScalarFreeListConfig(
     numPhysRegs: Int,
+    // If true, phys regs NOT in numInitialArchMappings are initially free.
+    // If false, phys regs NOT in numInitialArchMappings are initially used.
     resetToFull: Boolean = true,
+    // Number of phys regs (P0 to P(N-1)) initially mapped/reserved.
+    // These are NEVER free at reset. Default 1 to keep p0 reserved.
+    numInitialArchMappings: Int = 1,
     numAllocatePorts: Int = 1,
     numFreePorts: Int = 1
 ) {
   val physRegIdxWidth: BitCount = BitCount(log2Up(numPhysRegs))
   require(numPhysRegs > 0)
+  require(
+    numInitialArchMappings >= 0 && numInitialArchMappings <= numPhysRegs,
+    "numInitialArchMappings must be between 0 and numPhysRegs"
+  )
   require(numAllocatePorts > 0)
   require(numFreePorts > 0)
+  
+  ParallaxLogger.log(
+    s"[SuperScalarFreeListConfig] numPhysRegs = ${numPhysRegs}, resetToFull = ${resetToFull}, " +
+    s"numInitialArchMappings = ${numInitialArchMappings}, numAllocatePorts = ${numAllocatePorts}, numFreePorts = ${numFreePorts}"
+  )
 }
 
 case class SuperScalarFreeListCheckpoint(config: SuperScalarFreeListConfig) extends Bundle {
@@ -74,12 +89,23 @@ class SuperScalarFreeList(val config: SuperScalarFreeListConfig) extends Compone
 
   val freeRegsMask = Reg(Bits(config.numPhysRegs bits)) setName ("freeRegsMask_reg")
   val initMask = Bits(config.numPhysRegs bits)
+
+  // Initialize based on numInitialArchMappings and resetToFull
+  // Physical registers from 0 to (numInitialArchMappings - 1) are always considered 'used' (not free) at reset.
+  // The 'resetToFull' flag determines the state of the remaining physical registers.
+  initMask.clearAll() // Start with all physical registers marked as 'used' (False)
+
   if (config.resetToFull) {
-    initMask.setAll()
-    if (config.numPhysRegs > 0) { initMask(0) := False } // p0 not free
-  } else {
-    initMask := B(0, config.numPhysRegs bits)
+    // If resetToFull is true, mark physical registers from numInitialArchMappings
+    // up to numPhysRegs-1 as 'free' (True).
+    for (i <- config.numInitialArchMappings until config.numPhysRegs) {
+      initMask(i) := True
+    }
   }
+  // If resetToFull is false, initMask remains all False, meaning the free list is empty.
+  // In both cases (resetToFull true or false), the first 'numInitialArchMappings' registers
+  // (indices 0 to numInitialArchMappings-1) remain False (used) as per initMask.clearAll().
+
   freeRegsMask.init(initMask)
   report(L"[DUT] Initial freeRegsMask (after init): ${freeRegsMask}")
 
@@ -103,12 +129,18 @@ class SuperScalarFreeList(val config: SuperScalarFreeListConfig) extends Compone
     port.success := canAllocateThisPort && port.enable
     port.physReg := chosenPhysReg
 
-    report(L"[SSFreeList: Alloc Port ${i.toString()}] currentMaskForAlloc_iter (before this port) = ${currentMaskForAlloc_iter}, ")
+    report(
+      L"[SSFreeList: Alloc Port ${i.toString()}] currentMaskForAlloc_iter (before this port) = ${currentMaskForAlloc_iter}, "
+    )
     report(
       L"    isAnyFreeInCurrentIterMask = ${isAnyFreeInCurrentIterMask}, enoughOverallRegs = ${enoughOverallRegsForThisPort}, "
     )
-    report(L"    canAllocateThisPort (pre-enable) = ${canAllocateThisPort}, chosenPhysReg (pre-enable) = ${chosenPhysReg}")
-    report(L"[SSFreeList: *** Alloc Port ${i.toString()}] Output success = ${port.success}, Output physReg = ${port.physReg}")
+    report(
+      L"    canAllocateThisPort (pre-enable) = ${canAllocateThisPort}, chosenPhysReg (pre-enable) = ${chosenPhysReg}"
+    )
+    report(
+      L"[SSFreeList: *** Alloc Port ${i.toString()}] Output success = ${port.success}, Output physReg = ${port.physReg}"
+    )
 
     // Define the mask for the *next* port based on this port's action
     val maskAfterThisPort = Bits(config.numPhysRegs bits) // This signal will always be assigned.
@@ -142,8 +174,17 @@ class SuperScalarFreeList(val config: SuperScalarFreeListConfig) extends Compone
     report(L"[SSFreeList: Free Port ${i.toString()}] Input enable = ${port.enable}, Input physReg = ${port.physReg}")
 
     when(port.enable) {
+      // Physical register 0 (if numInitialArchMappings > 0) should ideally not be freed explicitly
+      // as it's considered permanently mapped or special.
+      // However, the logic here allows freeing any register.
+      // The primary protection for p0 (or initial arch regs) is that they are not initially free.
+      // If one of these is mistakenly freed and then re-allocated, it could lead to issues
+      // if the architecture assumes p0 (or similar) has special properties beyond its initial value.
+      // Current logic: canFreeThisReg allows freeing p0 unless it's the *only* register (edge case).
+      // This behavior is kept, but users should be cautious about freeing registers in the
+      // [0, numInitialArchMappings-1] range if they have special architectural significance.
       val canFreeThisReg = port.physReg =/= U(0, config.physRegIdxWidth) ||
-        Bool(config.numPhysRegs == 1 && port.physReg == U(0))
+        Bool(config.numPhysRegs == 1 && port.physReg == U(0)) // Original condition for p0
 
       report(L"[SSFreeList: Free Port ${i.toString()}] canFreeThisReg = ${canFreeThisReg}")
 

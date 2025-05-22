@@ -262,14 +262,19 @@ trait LockedImpl extends LockedService {
   override def release() = lock.release()
 }
 
-object ParallaxLogger {
-  val ANSI_GREEN = "\u001B[32m";
-  val ANSI_BLUE = "\u001B[34m";
-  val ANSI_RED = "\u001B[31m";
-  val ANSI_YELLOW = "\u001B[33m";
-  val ANSI_RESET = "\u001B[0m";
-  val ANSI_GRAY = "\u001B[37m";
+object ConsoleColor {
+  var enabled = true
 
+  def ANSI_GREEN = if (enabled) "\u001B[32m" else "";
+  def ANSI_BLUE = if (enabled) "\u001B[34m" else "";
+  def ANSI_RED = if (enabled) "\u001B[31m" else "";
+  def ANSI_YELLOW = if (enabled) "\u001B[33m" else "";
+  def ANSI_RESET = if (enabled) "\u001B[0m" else "";
+  def ANSI_GRAY = if (enabled) "\u001B[37m" else "";
+}
+
+object ParallaxLogger {
+  import ConsoleColor._
   def log(foo: String)(implicit line: sourcecode.Line, file: sourcecode.File) = {
     println(s"$ANSI_GRAY${file.value}:${line.value}\n\t$ANSI_BLUE$foo$ANSI_RESET")
   }
@@ -288,13 +293,60 @@ object ParallaxLogger {
   }
 }
 object ParallaxSim {
+  import ConsoleColor._
   def flattenRecursively(input: Any): Seq[Any] = input match {
-    case seq: Seq[Any] => seq.flatMap(flattenRecursively)  // 递归处理子元素
-    case elem => Seq(elem)  // 非 Seq 元素，包装成单元素 Seq
+    case seq: Seq[Any] => seq.flatMap(flattenRecursively) // 递归处理子元素
+    case elem          => Seq(elem) // 非 Seq 元素，包装成单元素 Seq
   }
 
   def dump(message: Seq[Any])(implicit loc: Location) {
     report(flattenRecursively(message))(loc)
   }
-}
 
+  def debug(message: Seq[Any])(implicit loc: Location) {
+    report(
+      flattenRecursively(
+        Seq(
+          ANSI_BLUE,
+          message,
+          ANSI_RESET
+        )
+      )
+    )(loc)
+  }
+
+  def success(message: Seq[Any])(implicit loc: Location) {
+    report(
+      flattenRecursively(
+        Seq(
+          ANSI_GREEN,
+          message,
+          ANSI_RESET
+        )
+      )
+    )(loc)
+  }
+
+  def error(message: Seq[Any])(implicit loc: Location) {
+    report(
+      flattenRecursively(
+        Seq(
+          ANSI_RED,
+          message,
+          ANSI_RESET
+        )
+      )
+    )(loc)
+  }
+  def warning(message: Seq[Any])(implicit loc: Location) {
+    report(
+      flattenRecursively(
+        Seq(
+          ANSI_YELLOW,
+          message,
+          ANSI_RESET
+        )
+      )
+    )(loc)
+  }
+}
