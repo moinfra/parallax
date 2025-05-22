@@ -49,7 +49,7 @@ case class RatCheckpoint(config: RenameMapTableConfig) extends Bundle {
 }
 
 // The IO Bundle for RenameMapTable
-case class RenameMapTableIo(config: RenameMapTableConfig) extends Bundle with IMasterSlave { // -- MODIFICATION START (Add IMasterSlave) --
+case class RenameMapTableIo(config: RenameMapTableConfig) extends Bundle with IMasterSlave {
   // Read ports for source operands
   // slave(RatReadPort(config)) means the RenameMapTable component has slave read ports.
   // The signals inside RatReadPort will have their directions flipped from its asMaster() definition.
@@ -102,15 +102,15 @@ class RenameMapTable(val config: RenameMapTableConfig) extends Component {
   require(
     config.numWritePorts > 0,
     "Number of write ports must be positive."
-  ) // -- MODIFICATION START (Add validation for numWritePorts) --
+  )
+
   require(
     config.archRegIdxWidth.value == log2Up(config.archRegCount),
     s"archRegIdxWidth (${config.archRegIdxWidth.value}) must be log2Up(archRegCount = ${config.archRegCount}), which is ${log2Up(config.archRegCount)}"
-  ) // -- MODIFICATION END --
+  )
 
   val io = RenameMapTableIo(config)
 
-  // -- MODIFICATION START (Rename mapState to mapReg and refactor write logic) --
   val mapReg = Reg(RatCheckpoint(config)) init (initRatCheckpoint())
 
   private def initRatCheckpoint(): RatCheckpoint = {
@@ -155,7 +155,6 @@ class RenameMapTable(val config: RenameMapTableConfig) extends Component {
   }
   // Assign the calculated next state to the actual register at the clock edge
   mapReg.mapping := nextMapRegMapping
-  // -- MODIFICATION END --
 
   // --- Checkpoint Save IO ---
   io.checkpointSave.ready := True // RAT is always ready to have its state read for a save

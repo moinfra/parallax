@@ -51,12 +51,10 @@ class RenameUnitTestBench(
   freeList.io.restoreState.freeMask.setAll() // Default init, but FL init handles this
   freeList.io.restoreState.valid := False
 
-  // -- MODIFICATION START (Ensure free ports are properly initialized for simulation) --
   freeList.io.free.foreach { port =>
     port.enable := False
     port.physReg.assignDontCare() // Or #= 0, ensure it's driven
   }
-  // -- MODIFICATION END --
 
   // SimPublics for internal component states for easier wave viewing and assertions
   renameMapTable.mapReg.mapping.simPublic() // Expose RAT's internal mapping register
@@ -197,7 +195,7 @@ class RenameUnitSpec extends CustomSpinalSimFunSuite {
   }
 
   // Test 1: Single instruction rename
-  test("RenameUnit_Single_ADD") { 
+  test("RenameUnit_Single_ADD") {
     val renameWidth = 1
     val numPhys = 8
     val numArch = 4 // Default archGprCount
@@ -285,9 +283,7 @@ class RenameUnitSpec extends CustomSpinalSimFunSuite {
     val renameWidth = 2
     val numPhys = 10 // p0..p9
     val numArch = 5 // r0..r4
-    // -- MODIFICATION START (Correct initial free count calculation) --
     val initialNumFree = numPhys - numArch // 10 - 5 = 5 free (p5, p6, p7, p8, p9)
-    // -- MODIFICATION END --
     val pCfg = defaultPipelineConfig(renameWidth, numPhysRegs = numPhys, archGprCount = numArch)
     val rCfg = defaultRatConfig(pCfg.archGprCount, pCfg.physGprCount, renameWidth)
     val fCfg = defaultFlConfig(numArch, numPhys, renameWidth)
@@ -296,14 +292,12 @@ class RenameUnitSpec extends CustomSpinalSimFunSuite {
       dut.clockDomain.forkStimulus(10)
       dut.clockDomain.waitSampling() // Let DUT initialize
 
-      // -- MODIFICATION START (Rely on SuperScalarFreeList's own initialization) --
       ParallaxLogger.log(s"Initial FreeList mask from DUT: ${dut.freeList.freeRegsMask.toBigInt.toString(2)}")
       ParallaxLogger.log(s"Initial FreeList numFreeRegs from DUT: ${dut.freeList.io.numFreeRegs.toInt}")
       assert(
         dut.freeList.io.numFreeRegs.toInt == initialNumFree,
         s"Initial FreeList count incorrect, expected $initialNumFree"
       )
-      // -- MODIFICATION END --
 
       val (decodedUopsInDriver, decodedUopsInQueue) = StreamDriver.queue(dut.io.decodedUopsIn, dut.clockDomain)
       StreamReadyRandomizer(dut.io.decodedUopsIn, dut.clockDomain)
@@ -400,11 +394,9 @@ class RenameUnitSpec extends CustomSpinalSimFunSuite {
   // Test 3: Stall when FreeList is (almost) empty
   test("RenameUnit_Stall_NoFreeRegs") {
     val renameWidth = 1
-    // -- MODIFICATION START (Adjust config for "1 initial free reg" scenario) --
     val numPhys = 3 // p0, p1, p2
     val numArch = 2 // r0, r1. So, r0->p0, r1->p1. p2 is free.
     val initialNumFree = numPhys - numArch // 3 - 2 = 1 free (p2)
-    // -- MODIFICATION END --
     val pCfg = defaultPipelineConfig(renameWidth, numPhysRegs = numPhys, archGprCount = numArch)
     val rCfg = defaultRatConfig(pCfg.archGprCount, pCfg.physGprCount, renameWidth)
     val fCfg = defaultFlConfig(numArch, numPhys, renameWidth)
@@ -413,13 +405,11 @@ class RenameUnitSpec extends CustomSpinalSimFunSuite {
       dut.clockDomain.forkStimulus(10)
       dut.clockDomain.waitSampling() // Let DUT initialize
 
-      // -- MODIFICATION START (Rely on SuperScalarFreeList's own initialization) --
       ParallaxLogger.log(s"Initial FreeList mask from DUT: ${dut.freeList.freeRegsMask.toBigInt.toString(2)}")
       assert(
         dut.freeList.io.numFreeRegs.toInt == initialNumFree,
         s"Initial FreeList count incorrect (expected $initialNumFree)"
       )
-      // -- MODIFICATION END --
 
       val (decodedUopsInDriver, decodedUopsInQueue) = StreamDriver.queue(dut.io.decodedUopsIn, dut.clockDomain)
       StreamReadyRandomizer(dut.io.decodedUopsIn, dut.clockDomain)
@@ -457,7 +447,6 @@ class RenameUnitSpec extends CustomSpinalSimFunSuite {
       }
       assert(!timeoutOccurred3a, "Timeout waiting for first uop output (stall test)")
 
-      // -- MODIFICATION START (Update assertions based on new config) --
       // After allocating p2 for r1, FreeList should be empty.
       // numFreeRegs is checked after RAT update cycle below.
       val renamed1 = renamedUopsOutBuffer.dequeue().uops.head
@@ -467,7 +456,6 @@ class RenameUnitSpec extends CustomSpinalSimFunSuite {
       dut.clockDomain.waitSampling() // Advance for RAT and FreeList state updates
       assert(dut.renameMapTable.mapReg.mapping(1).toInt == numArch, s"RAT r1 should map to p$numArch")
       assert(dut.freeList.io.numFreeRegs.toInt == 0, "FreeList should be empty after allocating p${numArch}")
-      // -- MODIFICATION END --
 
       ParallaxLogger.log("[Test Stall] Driving ADDI r1, r0, 2. FreeList is empty.")
       decodedUopsInQueue.enqueue { payloadVec =>
@@ -497,7 +485,6 @@ class RenameUnitSpec extends CustomSpinalSimFunSuite {
       )
       assert(dut.freeList.io.numFreeRegs.toInt == 0, "FreeList should still be empty during stall")
 
-      // -- MODIFICATION START (Free the correct physical register: p2) --
       val physRegToFree = numArch // This was p2, allocated to the first r1
       ParallaxLogger.log(s"[Test Stall] Simulating free of p$physRegToFree.")
       dut.freeList.io.free(0).enable #= true
@@ -506,14 +493,12 @@ class RenameUnitSpec extends CustomSpinalSimFunSuite {
       dut.freeList.io.free(0).enable #= false
       sleep(0)
       assert(dut.freeList.io.numFreeRegs.toInt == 1, s"FreeList should have 1 free reg after freeing p$physRegToFree")
-      // -- MODIFICATION END --
 
       val timeoutOccurred3b = dut.clockDomain.waitSamplingWhere(100) {
         renamedUopsOutBuffer.nonEmpty
       }
       assert(!timeoutOccurred3b, "Timeout waiting for second uop output (stall test, after free)")
 
-      // -- MODIFICATION START (Update assertions for second r1 allocation) --
       val renamed2 = renamedUopsOutBuffer.dequeue().uops.head
       // OldPhysDest for this new r1 is the physical register previously mapped to archReg 1.
       // This was p2 (numArch) from the *previous* allocation.
@@ -525,7 +510,6 @@ class RenameUnitSpec extends CustomSpinalSimFunSuite {
       ParallaxLogger
         .log(s"[Test Stall] ADDI r1 (2nd) processed. FreeList numFree: ${dut.freeList.io.numFreeRegs.toInt}")
       assert(dut.freeList.io.numFreeRegs.toInt == 0, s"FreeList should be empty after allocating p$physRegToFree again")
-      // -- MODIFICATION END --
 
       dut.clockDomain.waitSampling(5)
     }
@@ -536,9 +520,7 @@ class RenameUnitSpec extends CustomSpinalSimFunSuite {
     val renameWidth = 1
     val numPhys = 4
     val numArch = 2 // r0, r1
-    // -- MODIFICATION START (Correct initial free calculation) --
     val initialNumFree = numPhys - numArch // 4 - 2 = 2 free (p2, p3)
-    // -- MODIFICATION END --
     val pCfg = defaultPipelineConfig(renameWidth, numPhysRegs = numPhys, archGprCount = numArch)
     val rCfg = defaultRatConfig(pCfg.archGprCount, pCfg.physGprCount, renameWidth)
     val fCfg = defaultFlConfig(numArch, numPhys, renameWidth)
@@ -547,12 +529,10 @@ class RenameUnitSpec extends CustomSpinalSimFunSuite {
       dut.clockDomain.forkStimulus(10)
       dut.clockDomain.waitSampling() // Let DUT initialize
 
-      // -- MODIFICATION START (Correct initial free assertion) --
       assert(
         dut.freeList.io.numFreeRegs.toInt == initialNumFree,
         s"Initial FreeList count incorrect, expected $initialNumFree"
       )
-      // -- MODIFICATION END --
 
       val (decodedUopsInDriver, decodedUopsInQueue) = StreamDriver.queue(dut.io.decodedUopsIn, dut.clockDomain)
       StreamReadyRandomizer(dut.io.decodedUopsIn, dut.clockDomain)
@@ -599,9 +579,7 @@ class RenameUnitSpec extends CustomSpinalSimFunSuite {
       assert(renamedR0.physDestIdx == 0, "PhysDest for r0 should be p0")
       assert(renamedR0.oldPhysDestIdx == 0, "OldPhysDest for r0 should be p0")
 
-      // -- MODIFICATION START (Ensure FreeList state unchanged with correct initial count) --
       assert(dut.freeList.io.numFreeRegs.toInt == initialNumFree, "FreeList count should not change for r0 write")
-      // -- MODIFICATION END --
 
       dut.clockDomain.waitSampling(5)
     }
@@ -612,26 +590,20 @@ class RenameUnitSpec extends CustomSpinalSimFunSuite {
     val renameWidth = 1
     val numPhys = 4
     val numArch = 2 // r0, r1
-    // -- MODIFICATION START (Correct initial free calculation) --
     val initialNumFree = numPhys - numArch // 4 - 2 = 2 free
-    // -- MODIFICATION END --
     val pCfg = defaultPipelineConfig(renameWidth, numPhysRegs = numPhys, archGprCount = numArch)
     val rCfg = defaultRatConfig(pCfg.archGprCount, pCfg.physGprCount, renameWidth)
     val fCfg = defaultFlConfig(numArch, numPhys, renameWidth)
 
     SimConfig.withWave.compile(new RenameUnitTestBench(pCfg, rCfg, fCfg)).doSim { dut =>
       dut.clockDomain.forkStimulus(10)
-      // -- MODIFICATION START (Standard reset sequence) --
       dut.clockDomain.forkSimSpeedPrinter(2) // Optional: print sim speed
       dut.clockDomain.waitSampling(2) // Initial wait for reset and components to settle
-      // -- MODIFICATION END --
 
-      // -- MODIFICATION START (Correct initial free assertion) --
       assert(
         dut.freeList.io.numFreeRegs.toInt == initialNumFree,
         s"Initial FreeList count incorrect, expected $initialNumFree"
       )
-      // -- MODIFICATION END --
 
       dut.io.decodedUopsIn.valid #= false
       dut.io.decodedUopsIn.payload(0).setDefaultForSim()
@@ -665,10 +637,8 @@ class RenameUnitSpec extends CustomSpinalSimFunSuite {
         dut.io.decodedUopsIn.ready.toBoolean && renamedUopsOutBuffer.nonEmpty // Ensure input is taken and output is produced
       }
 
-      
       println(f"Driving pc=${dut.io.decodedUopsIn.payload(0).pc.toLong}%x")
       assert(dut.io.decodedUopsIn.payload(0).pc.toLong == 0x100, "Payload PC not set correctly before waitSampling")
-
 
       assert(!timeoutOccurred4b, "Timeout waiting for manual R0 handling uop output")
 
@@ -685,9 +655,7 @@ class RenameUnitSpec extends CustomSpinalSimFunSuite {
       assert(renamedR0.physDestIdx == 0, "PhysDest for r0 should be p0")
       assert(renamedR0.oldPhysDestIdx == 0, "OldPhysDest for r0 should be p0")
 
-      // -- MODIFICATION START (Ensure FreeList state unchanged with correct initial count) --
       assert(dut.freeList.io.numFreeRegs.toInt == initialNumFree, "FreeList count should not change for r0 write")
-      // -- MODIFICATION END --
       assert(dut.renameMapTable.mapReg.mapping(0).toInt == 0, "RAT mapping for r0 should remain p0")
 
       dut.clockDomain.waitSampling(5)

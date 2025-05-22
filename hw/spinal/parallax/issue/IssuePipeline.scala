@@ -17,10 +17,10 @@ case class IssuePipelineSignals(val config: PipelineConfig) extends AreaObject {
   // --- s0_decode 的输出 / s1_rename 的输入 ---
   val DECODED_UOPS = Stageable(Vec.fill(config.fetchWidth)(DecodedUop(config)))
 
-  // --- s1_rename 的输出 / s2_dispatch 的输入 ---
+  // --- s1_rename 的输出 / s2_Dispatch 的输入 ---
   val RENAMED_UOPS = Stageable(Vec.fill(config.fetchWidth)(RenamedUop(config)))
 
-  // --- s2_dispatch 的输出 (送往IQ/ROB写等) ---
+  // --- s2_Dispatch 的输出 (送往IQ/ROB写等) ---
   // 仍然是 RenamedUop，但其 robIdx 字段已被填充
   val DISPATCHED_UOPS = Stageable(Vec.fill(config.fetchWidth)(RenamedUop(config)))
 
@@ -36,11 +36,11 @@ class IssuePipeline(val issueConfig: PipelineConfig) extends Plugin with LockedI
     val pipeline = create early new Pipeline {
       val s0_decode   = newStage().setName("s0_Decode")
       val s1_rename   = newStage().setName("s1_Rename")
-      val s2_dispatch = newStage().setName("s2_Dispatch")
+      val s2_Dispatch = newStage().setName("s2_Dispatch")
   
       // 连接阶段
       connect(s0_decode, s1_rename)(Connection.M2S())   // Master to Slave connection (通常带寄存器)
-      connect(s1_rename, s2_dispatch)(Connection.M2S())
+      connect(s1_rename, s2_Dispatch)(Connection.M2S())
     }
   
     // 流水线构建和可选的全局逻辑 (如冲刷)
@@ -58,7 +58,7 @@ class IssuePipeline(val issueConfig: PipelineConfig) extends Plugin with LockedI
         // 而是其输入有效性会被控制，或者其内容被新PC覆盖。
         // 更安全的做法是让Fetch流水线处理PC重定向，Issue流水线仅清空其内容。
         pipeline.s1_rename.flushIt()   // 冲刷 Rename 阶段
-        pipeline.s2_dispatch.flushIt() // 冲刷 Dispatch 阶段
+        pipeline.s2_Dispatch.flushIt() // 冲刷 Dispatch 阶段
         // s0_decode 阶段可能需要特殊处理，例如，如果它有内部状态，
         // 或者它的输入 valid 应该被拉低，或者它的输出 Stageable 被设置为无效/NOP。
         // 通常，`flushIt()` 会处理阶段的输出有效性。
@@ -76,7 +76,7 @@ class IssuePipeline(val issueConfig: PipelineConfig) extends Plugin with LockedI
   
     // 定义流水线的入口和出口阶段
     def entryStage: Stage = pipeline.s0_decode
-    def exitStage: Stage = pipeline.s2_dispatch
+    def exitStage: Stage = pipeline.s2_Dispatch
   
     // （可选）提供服务，例如获取 signals 对象
     // def getSignals(): IssuePipelineSignals = signals

@@ -270,28 +270,31 @@ object ConsoleColor {
   def ANSI_RED = if (enabled) "\u001B[31m" else "";
   def ANSI_YELLOW = if (enabled) "\u001B[33m" else "";
   def ANSI_RESET = if (enabled) "\u001B[0m" else "";
-  def ANSI_GRAY = if (enabled) "\u001B[37m" else "";
+  def ANSI_DIM = if (enabled) "\u001B[2m" else "";
 }
 
+// elaborate 时打印。
 object ParallaxLogger {
   import ConsoleColor._
   def log(foo: String)(implicit line: sourcecode.Line, file: sourcecode.File) = {
-    println(s"$ANSI_GRAY${file.value}:${line.value}\n\t$ANSI_BLUE$foo$ANSI_RESET")
+    println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_BLUE$foo$ANSI_RESET")
   }
 
   def warning(foo: String)(implicit line: sourcecode.Line, file: sourcecode.File) = {
-    println(s"$ANSI_GRAY${file.value}:${line.value}\n\t$ANSI_YELLOW$foo$ANSI_RESET")
+    println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_YELLOW$foo$ANSI_RESET")
   }
 
   def error(foo: String)(implicit line: sourcecode.Line, file: sourcecode.File) = {
-    println(s"$ANSI_GRAY${file.value}:${line.value}\n\t$ANSI_RED$foo$ANSI_RESET")
+    println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_RED$foo$ANSI_RESET")
   }
 
   def panic(foo: String)(implicit line: sourcecode.Line, file: sourcecode.File) = {
-    println(s"$ANSI_GRAY${file.value}:${line.value}\n\t$ANSI_RED$foo$ANSI_RESET")
+    println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_RED$foo$ANSI_RESET")
     sys.exit(1)
   }
 }
+
+// sim 时打印（最终编译为 verilog $display stmt）
 object ParallaxSim {
   import ConsoleColor._
   def flattenRecursively(input: Any): Seq[Any] = input match {
@@ -301,6 +304,14 @@ object ParallaxSim {
 
   def dump(message: Seq[Any])(implicit loc: Location) {
     report(flattenRecursively(message))(loc)
+  }
+
+  def log(message: Seq[Any])(implicit loc: Location) {
+    report(
+      flattenRecursively(
+        message
+      )
+    )(loc)
   }
 
   def debug(message: Seq[Any])(implicit loc: Location) {

@@ -396,7 +396,7 @@ case class DecodedUop(val config: PipelineConfig) extends Bundle {
 
   // --- Operands (Architectural) ---
   val archDest = ArchRegOperand(config)
-  val writeArchDestEn = Bool() // Enable architectural destination write (e.g. rd != x0)
+  val writeArchDestEn = Bool() // Enable architectural destination write (e.g. rd != x0) 这里是精确的。例如如果 rd = 0 译码器会保证 writeArchDestEn 是 false
 
   val archSrc1 = ArchRegOperand(config)
   val useArchSrc1 = Bool()

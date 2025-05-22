@@ -182,6 +182,8 @@ class Fetch1Plugin(
     }
 
     // 如果收到了有效的指令，指令尚未送入IFU，则waitingIfuRspReg依然是False，那么不应该允许输出
+    // s.input.ready := False
+    // s.output.valid := False
     s1_Fetch.haltIt(
       !rspValidReg // 如果没有有效影响，则不允许输出
     )
@@ -240,7 +242,6 @@ case class FetchBridgeOutput(val pipelineConfig: PipelineConfig) extends Bundle 
   val fault = Bool()
 }
 
-// -- MODIFICATION START (FetchOutputBridge using inserted stage and toStream) --
 class FetchOutputBridge(val pipelineConfig: PipelineConfig, val fetchOutput: Stream[FetchBridgeOutput])
     extends Plugin
     with LockedImpl {
@@ -304,4 +305,3 @@ class FetchOutputBridge(val pipelineConfig: PipelineConfig, val fetchOutput: Str
     setup.fetchPipeline.release()
   }
 }
-// -- MODIFICATION END --
