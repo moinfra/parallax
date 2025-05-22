@@ -70,12 +70,7 @@ class SimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends Compo
     pc = io.pcIn,
     isa = IsaType.DEMO
   )
-
-  // Constants for logic operations (example)
-  val LOGIC_OP_AND = B"001"
-  val LOGIC_OP_OR = B"010"
-  val LOGIC_OP_XOR = B"011"
-  // val LOGIC_OP_PASS_ADD_SUB = B"000" // If ALU uses logicOp to select add/sub path
+  // val LogicOp.PASS_ADD_SUB = B"000" // If ALU uses logicOp to select add/sub path
 
   val imm_sext_16_to_dataWidth = S(fields.imm16).resize(config.dataWidth)
   val r0_idx = U(0, config.archRegIdxWidth)
@@ -142,6 +137,7 @@ class SimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends Compo
       io.decodedUop.useArchSrc2 := True
 
       io.decodedUop.aluCtrl.isSub := False
+      io.decodedUop.aluCtrl.isAdd := True
     }
     is(InstructionOpcodes.ADDI) { // ADDI Rd, Rs, Imm
       io.decodedUop.isValid := True
@@ -160,6 +156,7 @@ class SimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends Compo
       io.decodedUop.immUsage := ImmUsageType.SRC_ALU
 
       io.decodedUop.aluCtrl.isSub := False
+      io.decodedUop.aluCtrl.isAdd := True
     }
     is(InstructionOpcodes.NEG) { // NEG Rd, Rs (Rd = 0 - Rs)
       io.decodedUop.isValid := True
@@ -179,6 +176,7 @@ class SimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends Compo
       io.decodedUop.immUsage := ImmUsageType.SRC_ALU
 
       io.decodedUop.aluCtrl.isSub := True
+      io.decodedUop.aluCtrl.isAdd := False
     }
     is(InstructionOpcodes.AND) { // AND Rd, Rs, Rt
       io.decodedUop.isValid := True
@@ -192,7 +190,7 @@ class SimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends Compo
       io.decodedUop.archSrc2.idx := fields.rt; io.decodedUop.archSrc2.rtype := ArchRegType.GPR
       io.decodedUop.useArchSrc2 := True
 
-      io.decodedUop.aluCtrl.logicOp := LOGIC_OP_AND
+      io.decodedUop.aluCtrl.logicOp := LogicOp.AND
     }
     is(InstructionOpcodes.OR) { // OR Rd, Rs, Rt
       io.decodedUop.isValid := True
@@ -206,7 +204,7 @@ class SimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends Compo
       io.decodedUop.archSrc2.idx := fields.rt; io.decodedUop.archSrc2.rtype := ArchRegType.GPR
       io.decodedUop.useArchSrc2 := True
 
-      io.decodedUop.aluCtrl.logicOp := LOGIC_OP_OR
+      io.decodedUop.aluCtrl.logicOp := LogicOp.OR
     }
     is(InstructionOpcodes.XOR) { // XOR Rd, Rs, Rt
       io.decodedUop.isValid := True
@@ -220,7 +218,7 @@ class SimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends Compo
       io.decodedUop.archSrc2.idx := fields.rt; io.decodedUop.archSrc2.rtype := ArchRegType.GPR
       io.decodedUop.useArchSrc2 := True
 
-      io.decodedUop.aluCtrl.logicOp := LOGIC_OP_XOR
+      io.decodedUop.aluCtrl.logicOp := LogicOp.XOR
     }
     is(InstructionOpcodes.NOT) { // NOT Rd, Rs (Rd = Rs XOR -1)
       io.decodedUop.isValid := True
@@ -238,7 +236,7 @@ class SimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends Compo
       io.decodedUop.imm := S(-1, config.dataWidth).asBits // The value to XOR with (0xFFFFFFFF...)
       io.decodedUop.immUsage := ImmUsageType.SRC_ALU
 
-      io.decodedUop.aluCtrl.logicOp := LOGIC_OP_XOR // ALU will compute archSrc1_value XOR Imm
+      io.decodedUop.aluCtrl.logicOp := LogicOp.XOR // ALU will compute archSrc1_value XOR Imm
     }
     is(InstructionOpcodes.MUL) { // MUL Rd, Rs, Rt
       io.decodedUop.isValid := True
@@ -288,6 +286,7 @@ class SimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends Compo
       io.decodedUop.immUsage := ImmUsageType.SRC_ALU
 
       io.decodedUop.aluCtrl.isSub := False // For 0 + imm
+      io.decodedUop.aluCtrl.isAdd := True
     }
     is(InstructionOpcodes.EQ) { // EQ Rd, Rs, Rt (Rd = (Rs == Rt) ? 1 : 0)
       io.decodedUop.isValid := True
@@ -303,6 +302,7 @@ class SimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends Compo
 
       // To implement Rd = (Rs == Rt): ALU computes Rs - Rt. If zero, Rd = 1, else Rd = 0.
       io.decodedUop.aluCtrl.isSub := True
+      io.decodedUop.aluCtrl.isAdd := False
       // The ALU execution unit would need a mode to output 1 if (src1-src2)==0, else 0.
       // This might need an extension to AluCtrlFlags or a specific BaseUopCode.CMP if not directly mappable.
       // For now, this is a simplification.
@@ -324,6 +324,7 @@ class SimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends Compo
       // Typically (Rs > Rt) is equivalent to (Rt < Rs).
       // (Rs - Rt) -> check sign bit and zero bit.
       io.decodedUop.aluCtrl.isSub := True
+      io.decodedUop.aluCtrl.isAdd := False
       io.decodedUop.aluCtrl.isSigned := True // Comparison is signed
       // ALU unit needs mode for "set if signed greater than".
     }

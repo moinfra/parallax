@@ -1,3 +1,4 @@
+// testOnly parallax.test.scala.SimpleDecoderSpec
 package parallax.test.scala
 
 import spinal.core._

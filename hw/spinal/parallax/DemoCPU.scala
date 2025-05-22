@@ -33,7 +33,7 @@ object DemoCPUGen extends App {
       numPhysRegs = 32,
       dataWidth = 32 bits,
     )
-    plugins += new TestPRF()
+    // plugins += new TestPRF()
     // plugins += new BypassPlugin()
     // plugins += new FetchPipeline()
     // plugins += new FrontendPipeline()

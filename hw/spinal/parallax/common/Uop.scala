@@ -84,16 +84,23 @@ object ImmUsageType extends SpinalEnum {
   = newElement()
 }
 
+object LogicOp extends SpinalEnum {
+  val NONE,
+  AND, OR, XOR  = newElement()
+}
+
 // --- Control Flags Sub-Bundles ---
 case class AluCtrlFlags() extends Bundle {
   val isSub = Bool()
+  val isAdd = Bool()
   val isSigned = Bool()
-  val logicOp = Bits(3 bits)
+  val logicOp = LogicOp()
 
   def setDefault(): this.type = {
     isSub := False
+    isAdd := False
     isSigned := False
-    logicOp := 0 // Default to a benign/NOP logic op representation
+    logicOp := LogicOp.NONE // Default to a benign/NOP logic op representation
     this
   }
 
@@ -101,13 +108,14 @@ case class AluCtrlFlags() extends Bundle {
     import spinal.core.sim._
 
     isSub #= false
+    isAdd #= false
     isSigned #= false
-    logicOp #= 0
+    logicOp #= LogicOp.NONE
     this
   }
 
   def dump(): Seq[Any] = {
-    Seq("AluCtrlFlags: isSub=", isSub, " isSigned=", isSigned, " logicOp=", logicOp)
+    Seq("AluCtrlFlags: isSub=", isSub, " isAdd=", isAdd, " isSigned=", isSigned, " logicOp=", logicOp)
   }
 }
 case class ShiftCtrlFlags() extends Bundle {

@@ -349,6 +349,19 @@ object ParallaxSim {
       )
     )(loc)
   }
+
+  def fatal(message: Seq[Any])(implicit loc: Location) {
+    report(
+      flattenRecursively(
+        Seq(
+          ANSI_RED,
+          message,
+          ANSI_RESET
+        )
+      )
+    )(loc)
+  }
+
   def warning(message: Seq[Any])(implicit loc: Location) {
     report(
       flattenRecursively(

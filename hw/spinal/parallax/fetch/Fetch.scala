@@ -264,24 +264,7 @@ class FetchOutputBridge(val pipelineConfig: PipelineConfig, val fetchOutput: Str
     val bridgeStageStream = s_bridge.toStream()
     bridgeStageStream.ready := fetchOutput.ready
 
-    // Drive the payload and the final valid signal of the fetchOutput Stream
-    // The valid from toStream() is s_bridge.isValid (input valid) AND !s_bridge.isRemoved.
-    // We need fetchOutput.valid to be true only when s_bridge *actually fires* data
-    // or more precisely, when s_bridge's output would be valid based on its internal logic.
-    //
-    // `s_bridge.isFiring` is `s_bridge.internals.output.valid && s_bridge.internals.output.ready`
-    // `s_bridge.internals.output.valid` is `s_bridge.internals.input.valid` (from previous stage) unless halted/spawned.
-    // `s_bridge.internals.output.ready` is driven by `fetchOutput.ready` via the `haltIt(!fetchOutput.ready)` in `toStream()` effect on `s_bridge.internals.input.ready`.
-
-    // Let's use s_bridge.isFiring to drive the actual output stream's valid.
-    // This ensures data is only considered valid on the output stream when the stage is truly processing and ready to send.
-    // However, s_bridge.isFiring might be too restrictive if s_bridge.internals.output.valid itself is what we want.
-
-    // The `toStream()` method's `ret.valid` is `s_bridge.isValid && !s_bridge.isRemoved`.
-    // This `ret.valid` is the valid signal from s_bridge *before* considering s_bridge.isReady (downstream).
     fetchOutput.valid := bridgeStageStream.valid
-    // This means fetchOutput.valid is high if s_bridge has valid input (from s1_fetch) and is not removed.
-    // The flow control (s_bridge being halted if fetchOutput.ready is low) is handled by toStream's haltIt.
 
     fetchOutput.payload.pc := s_bridge(signals.FETCHED_PC)
     for (i <- 0 until pipelineConfig.fetchWidth) {
