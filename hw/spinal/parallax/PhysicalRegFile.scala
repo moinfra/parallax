@@ -44,6 +44,9 @@ trait PhysicalRegFileService extends Service {
 
   def readPort(index: Int): PrfReadPort
   def writePort(index: Int): PrfWritePort
+
+  def isGprService(): Boolean = true
+  def isFprService(): Boolean = false
 }
 
 trait PhysicalRegFreeService extends Service {
