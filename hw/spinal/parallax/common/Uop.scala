@@ -632,7 +632,7 @@ case class RenamedUop(
   val exceptionCode = UInt(8 bits) // Actual exception code from execution
 
   def setDefault(decoded: DecodedUop = null): this.type = {
-    if (decoded != null) this.decoded := decoded else decoded.setDefault()
+    if (decoded != null) this.decoded := decoded else this.decoded.setDefault()
     rename.setDefault()
     robIdx := 0 // Or a specific "invalid" index if 0 is valid
     uniqueId := 0
