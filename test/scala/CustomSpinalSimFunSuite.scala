@@ -5,6 +5,7 @@ import scala.collection.mutable.ArrayBuffer
 import parallax.utilities.ParallaxLogger.warning
 import spinal.lib.pipeline.Stage
 import spinal.core.sim.SimBoolPimper
+import spinal.core.Data
 
 class CustomSpinalSimFunSuite extends SpinalSimFunSuite {
     
@@ -43,4 +44,8 @@ class CustomSpinalSimFunSuite extends SpinalSimFunSuite {
   def isStageInputFiring(stage: Stage): Boolean = {
     stage.internals.input.ready.toBoolean && stage.internals.input.valid.toBoolean
   }
+
+  def isStreamFiring[T <: Data](stream: spinal.lib.Stream[T]): Boolean = {
+    stream.valid.toBoolean && stream.ready.toBoolean
+    }
 }
