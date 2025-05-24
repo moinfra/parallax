@@ -6,13 +6,6 @@ trait RobIndexedData {
   def getRobIdx(): UInt
 }
 
-/** Minimal Trait for messages broadcast over a CDB identifying a target.
-  * @tparam K Type of the index/tag (e.g., ROB index).
-  */
-trait CdbTargetedMessage[K <: Data] extends Bundle {
-  def cdbTargetIdx: K // Renamed for brevity
-}
-
 /** Concrete completion message from an EU to the ROB.
   * This is what will be arbitrated over the CDBs for ROB writeback.
   * It aligns with the information needed by Parallax's ROBWritebackPort.

@@ -4,7 +4,7 @@ import spinal.core._
 import spinal.core.sim._
 import spinal.lib._
 import parallax.common._
-import parallax.components.rename._
+import parallax.components.rob._
 import scala.collection.mutable.ArrayBuffer
 
 case class DummyUop() extends Bundle {

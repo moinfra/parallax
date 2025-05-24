@@ -1,4 +1,4 @@
-package parallax.components.rename
+package parallax.components.rob
 
 import spinal.core._
 import spinal.lib._
