@@ -7,7 +7,7 @@ import parallax.common._
 import parallax.components.rob._
 import scala.collection.mutable.ArrayBuffer
 
-case class DummyUop() extends Bundle {
+case class DummyUop() extends Bundle with Dumpable with HasRobIdx{
   val pc: UInt = UInt(32 bits)
   val robIdx: UInt = UInt(5 bits)
   val hasException: Bool = Bool()
@@ -23,6 +23,10 @@ case class DummyUop() extends Bundle {
     robIdx #= 0
     hasException #= false
     this
+  }
+
+  def dump(): Seq[Any] = {
+    L"DummyUop(pc=${pc}, robIdx=${robIdx}, hasException=${hasException})"
   }
 }
 

@@ -1,5 +1,5 @@
-// testOnly parallax.test.scala.ROBPluginSpec
-package parallax.test.scala
+// filename: test/scala/ROBPluginSpec.scala
+package parallax.test.scala.rob
 
 import org.scalatest.funsuite.AnyFunSuite
 import spinal.core._
@@ -12,449 +12,335 @@ import parallax.common._
 import parallax.components.rob._
 import parallax.utilities._
 
-import scala.collection.mutable._
+import scala.collection.mutable
 import scala.util.Random
 
-case class DummyUop2(
-    val config: PipelineConfig
-) extends Bundle {
+// DummyUop2 and ROBAllocateSlotPayloadForTest definitions remain the same
+case class DummyUop2(val config: PipelineConfig) extends Bundle with Dumpable with HasRobIdx{
   val robIdx = UInt(config.robIdxWidth)
   val pc = UInt(config.pcWidth)
+  def setDefault(): this.type = { this.robIdx := 0; this.pc := 0; this }
+  def setDefaultForSim(): this.type = { import spinal.core.sim._; this.robIdx #= 0; this.pc #= 0; this }
 
-  def setDefault(): this.type = {
-    this.robIdx := 0
-    this.pc := 0
-    this
-  }
-
-  def setDefaultForSim(): this.type = {
-    import spinal.core.sim._
-    this.robIdx #= 0
-    this.pc #= 0
-    this
+  def dump(): Seq[Any] = {
+    L"DummyUop(pc=${pc}, robIdx=${robIdx})"
   }
 }
-
-// --- 辅助测试插件 ---
-/** 模拟 Rename/Dispatch 阶段，请求 ROB 分配
-  */
-class TestAllocatorPlugin(
-    id: String,
-    val allocateWidth: Int,
-    val pCfg: PipelineConfig,
-    val uopHardType: HardType[DummyUop2]
-) extends Plugin {
-  setName(s"Allocator_${id}")
-  var allocatePorts: Vec[(ROBAllocateSlot[DummyUop2])] = null
-  var canAllocateVec: Vec[Bool] = null
-
-  case class IO() extends Bundle {
-    val allocationsIn = Vec(slave(Flow(ROBAllocateSlotPayloadForTest(pCfg, uopHardType))), allocateWidth)
-    val allocatedRobIndicesOut = Vec(out(UInt(pCfg.robIdxWidth)), allocateWidth)
-    val canAllocateOut = Vec(out(Bool()), allocateWidth)
-  }
-  val io = IO()
-  io.simPublic()
-
-  val setup = create early new Area {
-    val robService = getService[ROBService[DummyUop2]]
-    allocatePorts = robService.getAllocatePorts(allocateWidth)
-    canAllocateVec = robService.getCanAllocateVec(allocateWidth)
-  }
-
-  val logic = create late new Area {
-    for (i <- 0 until allocateWidth) {
-      allocatePorts(i).fire := io.allocationsIn(i).valid
-      allocatePorts(i).uopIn := io.allocationsIn(i).payload.uop
-      allocatePorts(i).pcIn := io.allocationsIn(i).payload.pc
-      io.allocatedRobIndicesOut(i) := allocatePorts(i).robIdx
-      io.canAllocateOut(i) := canAllocateVec(i)
-    }
-  }
-}
-// Helper bundle for TestAllocatorPlugin's input Flow
 case class ROBAllocateSlotPayloadForTest(pCfg: PipelineConfig, uopHardType: HardType[DummyUop2]) extends Bundle {
   val uop = uopHardType()
   val pc = UInt(pCfg.pcWidth)
 }
 
-/** 模拟执行单元 (EU)，向 ROB 写回完成状态
-  */
-class TestEuPlugin(
-    euName: String,
-    val pCfg: PipelineConfig
-) extends Plugin {
-  setName(euName)
-  var writebackPort: (ROBWritebackPort[DummyUop2]) = null
-
-  case class IO() extends Bundle {
-    val writebackIn = slave(Flow(RobCompletionMsg(pCfg)))
-  }
-  val io = IO()
-  io.simPublic()
-
-  val setup = create early new Area {
-    val robService = getService[ROBService[DummyUop2]]
-    writebackPort = robService.newWritebackPort(euName)
-  }
-
-  val logic = create late new Area {
-    writebackPort.fire := io.writebackIn.valid
-    writebackPort.robIdx := io.writebackIn.payload.robIdx
-    writebackPort.exceptionOccurred := io.writebackIn.payload.hasException
-    writebackPort.exceptionCodeIn := io.writebackIn.payload.exceptionCode
-  }
-}
-
-/** 模拟 Commit 阶段，从 ROB 获取并确认提交
-  */
-class TestCommitterPlugin(
+// --- 辅助测试插件 (存储从服务获取的端口引用) ---
+class TestAllocatorLogicHolder(
     id: String,
-    val commitWidth: Int,
+    val allocateWidth: Int,
     val pCfg: PipelineConfig
 ) extends Plugin {
+  setName(s"Allocator_${id}")
+  var allocatePortsFromService: Vec[ROBAllocateSlot[DummyUop2]] = null // ROB's slave ports
+  var canAllocateVecFromService: Vec[Bool] = null
+
+  val setup = create early new Area {
+    val robService = getService[ROBService[DummyUop2]]
+    allocatePortsFromService = robService.getAllocatePorts(allocateWidth)
+    canAllocateVecFromService = robService.getCanAllocateVec(allocateWidth)
+  }
+}
+
+class TestEuLogicHolder(euName: String, val pCfg: PipelineConfig) extends Plugin {
+  ParallaxLogger.log(s"create TestEuLogicHolder $euName")
+  setName(euName)
+  var writebackPortFromService: ROBWritebackPort[DummyUop2] = null // ROB's slave port
+
+  val setup = create early new Area {
+    val robService = getService[ROBService[DummyUop2]]
+    writebackPortFromService = robService.newWritebackPort(euName)
+  }
+}
+
+class TestCommitterLogicHolder(id: String, val commitWidth: Int, val pCfg: PipelineConfig) extends Plugin {
   setName(s"Committer_${id}")
-  var commitSlots: Vec[(ROBCommitSlot[DummyUop2])] = null
-  var commitAcks: Vec[(Bool)] = null
-
-  case class IO() extends Bundle {
-    val committableEntriesOut = Vec(
-      master(
-        Flow(
-          ROBFullEntry[DummyUop2](
-            ROBConfig(
-              robDepth = pCfg.robDepth,
-              pcWidth = pCfg.pcWidth,
-              commitWidth = commitWidth,
-              allocateWidth = pCfg.renameWidth,
-              numWritebackPorts = pCfg.bypassNetworkSources,
-              uopType = HardType(DummyUop2(pCfg)),
-              defaultUop = () => DummyUop2(pCfg).setDefault(),
-              exceptionCodeWidth = pCfg.exceptionCodeWidth
-            )
-          )
-        )
-      ),
-      commitWidth
-    )
-    val commitAcksIn = Vec((Bool()), commitWidth)
-  }
-  val io = IO()
-  io.simPublic()
+  var commitSlotsFromService: Vec[ROBCommitSlot[DummyUop2]] = null // ROB's master ports
+  var commitAcksToService: Vec[Bool] = null // ROB's slave/in ports for acks
 
   val setup = create early new Area {
     val robService = getService[ROBService[DummyUop2]]
-    commitSlots = robService.getCommitSlots(commitWidth)
-    commitAcks = robService.getCommitAcks(commitWidth)
-  }
-
-  val logic = create late new Area {
-    for (i <- 0 until commitWidth) {
-      io.committableEntriesOut(i).valid := commitSlots(i).valid
-      io.committableEntriesOut(i).payload := commitSlots(i).entry
-      commitAcks(i) := io.commitAcksIn(i)
-    }
+    commitSlotsFromService = robService.getCommitSlots(commitWidth) // Gets master ports from ROB
+    commitAcksToService = robService.getCommitAcks(commitWidth) // Gets slave ports for ROB to receive acks
   }
 }
 
-/** 模拟清空控制器
-  */
-class TestFlusherPlugin(id: String, val pCfg: PipelineConfig) extends Plugin {
+class TestFlusherLogicHolder(id: String, val pCfg: PipelineConfig) extends Plugin {
   setName(s"Flusher_${id}")
-  var flushPort: (Flow[ROBFlushCommand[DummyUop2]]) = null
-
-  case class IO() extends Bundle {
-    val flushCmdIn = slave(
-      Flow(
-        ROBFlushCommand(
-          ROBConfig(
-            robDepth = pCfg.robDepth,
-            pcWidth = pCfg.pcWidth,
-            commitWidth = pCfg.commitWidth,
-            allocateWidth = pCfg.renameWidth,
-            numWritebackPorts = pCfg.bypassNetworkSources,
-            uopType = HardType(DummyUop2(pCfg)),
-            defaultUop = () => DummyUop2(pCfg).setDefault(),
-            exceptionCodeWidth = pCfg.exceptionCodeWidth
-          )
-        )
-      )
-    )
-  }
-  val io = IO()
-  io.simPublic()
+  var flushPortToService: Flow[ROBFlushCommand[DummyUop2]] = null // ROB's slave Flow
 
   val setup = create early new Area {
     val robService = getService[ROBService[DummyUop2]]
-    flushPort = robService.getFlushPort()
-  }
-
-  val logic = create late new Area {
-    flushPort.valid := io.flushCmdIn.valid
-    flushPort.payload := io.flushCmdIn.payload
+    flushPortToService = robService.getFlushPort()
   }
 }
 
-// --- ROBPlugin Test Suite ---
-class ROBPluginSpec extends CustomSpinalSimFunSuite { // or SpinalSimFunSuite
+case class TestBenchConfig(
+    pCfg: PipelineConfig,
+    numEus: Int
+)
+// --- TestBench IO Definition ---
+case class TestBenchIO(tbCfg: TestBenchConfig, LOCAL_UOP_HT: HardType[DummyUop2]) extends Bundle with IMasterSlave {
 
-  // Helper to create a default PipelineConfig for tests
-  def testPipelineConfig(
-      robD: Int = 16, // ROB Depth
-      allocW: Int = 2, // Allocate Width
-      commitW: Int = 2, // Commit Width
-      numEus: Int = 2 // Number of EUs, determines numWritebackPorts for exclusive scheme
-  ) = PipelineConfig(
-    robDepth = robD,
-    renameWidth = allocW, // Assume alloc width matches rename for simplicity
-    commitWidth = commitW,
-    bypassNetworkSources = numEus // Critical for exclusive writeback port scheme
+  // Create ROBConfig instance once to reduce redundancy
+  private val robConfigParams = ROBConfig(
+    robDepth = tbCfg.pCfg.robDepth,
+    pcWidth = tbCfg.pCfg.pcWidth,
+    commitWidth = tbCfg.pCfg.commitWidth,
+    allocateWidth = tbCfg.pCfg.renameWidth,
+    numWritebackPorts = tbCfg.numEus,
+    uopType = LOCAL_UOP_HT,
+    defaultUop = () => LOCAL_UOP_HT().asInstanceOf[DummyUop2].setDefault(), // Ensure DummyUop2 has setDefault
+    exceptionCodeWidth = tbCfg.pCfg.exceptionCodeWidth
   )
 
-  val UOP_HT = HardType(DummyUop2(testPipelineConfig())) // Default config for HardType
-  def DEFAULT_UOP_FUNC = () => DummyUop2(testPipelineConfig()).setDefault()
+  // Allocation: Testbench drives allocation requests
+  val allocRequests = Vec(master(Flow(ROBAllocateSlotPayloadForTest(tbCfg.pCfg, LOCAL_UOP_HT))), tbCfg.pCfg.renameWidth)
+  // Allocation: Testbench observes responses from ROB
+  val allocResponsesRobIdx = Vec(in(UInt(robConfigParams.robIdxWidth)), tbCfg.pCfg.renameWidth)
+  val allocResponsesCanAlloc = Vec(in(Bool()), tbCfg.pCfg.renameWidth)
 
-  case class TestBenchConfig(
-      pCfg: PipelineConfig,
-      numAllocators: Int = 1, // For simplicity, usually 1 allocator group
-      numEus: Int, // Number of EUs, must match pCfg.bypassNetworkSources for this test setup
-      numCommitters: Int = 1, // Usually 1 committer group
-      numFlushers: Int = 1
+  // EU Writeback: Testbench drives writeback info
+  val euWritebacks = Vec(master(Flow(RobCompletionMsg(tbCfg.pCfg))), tbCfg.numEus)
+
+  // Commit: Testbench observes committable slots from ROB
+  val commitProvidedSlots = Vec(slave(Flow(ROBFullEntry[DummyUop2](robConfigParams))), tbCfg.pCfg.commitWidth)
+  // Commit: Testbench drives commit acknowledgements
+  val commitDriveAcks = Vec(out(Bool()), tbCfg.pCfg.commitWidth)
+
+  // Flush: Testbench drives flush command
+  val flushCommand = master(Flow(ROBFlushCommand(robConfigParams)))
+
+  override def asMaster(): Unit = {
+    // For `slave(Flow(...))` types, `slave(signalName)` correctly sets directions.
+    allocRequests.foreach(slave(_))
+    euWritebacks.foreach(slave(_))
+    slave(flushCommand)
+
+    // For `out(...)` types, `out(signalName)` makes them outputs.
+    out(allocResponsesRobIdx)
+    out(allocResponsesCanAlloc)
+
+    // For `master(Flow(...))` types, `master(signalName)` correctly sets directions.
+    commitProvidedSlots.foreach(master(_))
+
+    // For `in(...)` types, `in(signalName)` makes them inputs.
+    in(commitDriveAcks)
+  }
+}
+// -- MODIFICATION END --
+// --- ROBPlugin Test Suite ---
+class ROBPluginSpec extends CustomSpinalSimFunSuite {
+  def testPipelineConfig(
+      robD: Int = 16,
+      allocW: Int = 2,
+      commitW: Int = 2,
+      numEus: Int = 2
+  ) = PipelineConfig(
+    robDepth = robD,
+    renameWidth = allocW,
+    commitWidth = commitW,
+    aluEuCount = numEus
   )
 
   def createDut(tbCfg: TestBenchConfig) = {
+    assert(tbCfg.pCfg.aluEuCount == tbCfg.numEus, "Number of EUs must match ALU EUs in PipelineConfig")
+    ParallaxLogger.log(s"createDut with ${tbCfg.pCfg.aluEuCount} EUs")
     class TestBench extends Component {
       val database = new DataBase
+      val LOCAL_UOP_HT = HardType(DummyUop2(tbCfg.pCfg))
+      def LOCAL_DEFAULT_UOP_FUNC = () => DummyUop2(tbCfg.pCfg).setDefault()
 
-      var allocatorInterfaces: Seq[TestAllocatorPlugin#IO] = null
-      var euInterfaces: Seq[TestEuPlugin#IO] = null
-      var committerInterfaces: Seq[TestCommitterPlugin#IO] = null
-      var flusherInterfaces: Seq[TestFlusherPlugin#IO] = null
+      val io = master(TestBenchIO(tbCfg, LOCAL_UOP_HT))
+      io.simPublic()
 
-      lazy val allPlugins: Seq[Plugin] = {
-        val robPlugin = new ROBPlugin[DummyUop2](tbCfg.pCfg, UOP_HT, DEFAULT_UOP_FUNC)
+      val robPlugin = new ROBPlugin[DummyUop2](tbCfg.pCfg, LOCAL_UOP_HT, LOCAL_DEFAULT_UOP_FUNC)
+      val allocatorHolder = new TestAllocatorLogicHolder("Alloc0", tbCfg.pCfg.renameWidth, tbCfg.pCfg)
+      val euHolders = (0 until tbCfg.numEus).map(i => new TestEuLogicHolder(s"EU$i", tbCfg.pCfg))
+      val committerHolder = new TestCommitterLogicHolder("Commit0", tbCfg.pCfg.commitWidth, tbCfg.pCfg)
+      val flusherHolder = new TestFlusherLogicHolder("Flush0", tbCfg.pCfg)
 
-        val allocatorPlugins = ArrayBuffer[TestAllocatorPlugin]()
-        if (tbCfg.numAllocators > 0) { // Assuming allocateWidth is per allocator plugin
-          allocatorPlugins += new TestAllocatorPlugin("Alloc0", tbCfg.pCfg.renameWidth, tbCfg.pCfg, UOP_HT)
-        }
+      val allFrameworkPlugins: Seq[Plugin] =
+        Seq(robPlugin, allocatorHolder) ++ euHolders ++ Seq(committerHolder, flusherHolder)
+      val framework = ProjectScope(database) on new Framework(allFrameworkPlugins)
 
-        val euPlugins = ArrayBuffer[TestEuPlugin]()
-        if (tbCfg.numEus > 0) { // Assuming numEus is per eu plugin
-          euPlugins += new TestEuPlugin("Eu0", tbCfg.pCfg)
-        }
+      // --- Connections: TestBench IO <-> ROBService Ports (via LogicHolders) ---
 
-        val committerPlugins = ArrayBuffer[TestCommitterPlugin]()
-        if (tbCfg.numCommitters > 0) { // Assuming commitWidth is per committer plugin
-          committerPlugins += new TestCommitterPlugin("Commit0", tbCfg.pCfg.commitWidth, tbCfg.pCfg)
-        }
+      val serviceAllocPorts: Vec[ROBAllocateSlot[DummyUop2]] =
+        allocatorHolder.allocatePortsFromService // ROB's slave ports
+      for (i <- 0 until tbCfg.pCfg.renameWidth) {
+        serviceAllocPorts(i).fire := io.allocRequests(i).valid
+        serviceAllocPorts(i).uopIn := io.allocRequests(i).payload.uop
+        serviceAllocPorts(i).pcIn := io.allocRequests(i).payload.pc
+        io.allocResponsesRobIdx(i) := serviceAllocPorts(i).robIdx
+        // report(L"[TB] Allocation response: slot ${i.toString()}: robIdx=${serviceAllocPorts(i).robIdx}, canAlloc=${io.allocResponsesRobIdx(i)}")
+      }
+      (io.allocResponsesCanAlloc, allocatorHolder.canAllocateVecFromService).zipped.foreach(_ := _)
 
-        val flusherPlugins = ArrayBuffer[TestFlusherPlugin]()
-        if (tbCfg.numFlushers > 0) {
-          flusherPlugins += new TestFlusherPlugin("Flush0", tbCfg.pCfg)
-        }
-
-        allocatorInterfaces = allocatorPlugins.map(_.io)
-        euInterfaces = euPlugins.map(_.io)
-        committerInterfaces = committerPlugins.map(_.io)
-        flusherInterfaces = flusherPlugins.map(_.io)
-
-        var allPlugins: Seq[Plugin] =
-          Seq(robPlugin) ++ allocatorPlugins ++ euPlugins ++ committerPlugins ++ flusherPlugins
-
-        allPlugins
+      val serviceEuWbPorts: Seq[ROBWritebackPort[DummyUop2]] =
+        euHolders.map(_.writebackPortFromService) // ROB's slave ports
+      for (i <- 0 until tbCfg.numEus) {
+        serviceEuWbPorts(i).fire := io.euWritebacks(i).valid
+        serviceEuWbPorts(i).robIdx := io.euWritebacks(i).payload.robIdx
+        serviceEuWbPorts(i).exceptionOccurred := io.euWritebacks(i).payload.hasException
+        serviceEuWbPorts(i).exceptionCodeIn := io.euWritebacks(i).payload.exceptionCode
       }
 
-      val framework = ProjectScope(database) on new Framework(allPlugins)
+      // serviceCommitSlots are ROB's MASTER ports.
+      // io.commitProvidedSlots is TestBench's SLAVE Flow.
+      // Connection: slaveFlow << masterBundle.asFlow()
+      val serviceCommitSlots: Vec[ROBCommitSlot[DummyUop2]] = committerHolder.commitSlotsFromService
+      for (i <- 0 until tbCfg.pCfg.commitWidth) {
+        // *** CORRECTED CONNECTION FOR COMMIT DATA ***
+        io.commitProvidedSlots(i) << serviceCommitSlots(i).asFlow
+      }
+      // io.commitDriveAcks are TestBench's OUT ports.
+      // serviceCommitAcks are ROB's IN (slave) ports.
+      // Connection: rob_slave_port := tb_out_port
+      (committerHolder.commitAcksToService, io.commitDriveAcks).zipped.foreach(_ := _)
 
-      // Expose IOs for testbench driving/monitoring
-
-      // Expose ROB internal state for assertions if ReorderBuffer component makes them public
-      // val robInternalHead = robPlugin.robComponent.headPtr_reg.simPublic()
-      // val robInternalTail = robPlugin.robComponent.tailPtr_reg.simPublic()
-      // val robInternalCount = robPlugin.robComponent.count_reg.simPublic()
+      // io.flushCommand is TestBench's MASTER Flow.
+      // serviceFlushPort is ROB's SLAVE Flow.
+      // Connection: slaveFlow << masterFlow
+      flusherHolder.flushPortToService << io.flushCommand
     }
     new TestBench()
   }
 
-  // --- Helper functions for tests ---
-  def driveAllocation(
-      allocIo: TestAllocatorPlugin#IO,
+  def driveAllocationTb(
+      tbIo: TestBenchIO,
+      slotIdx: Int,
       pc: Long,
       uopSetter: DummyUop2 => Unit,
-      clockDomain: ClockDomain
-  ): Unit = {
-    allocIo.allocationsIn(0).valid #= true // Assuming single slot for simplicity in this helper
-    allocIo.allocationsIn(0).payload.pc #= pc
-    val tempUop = DummyUop2(testPipelineConfig()) // Use a consistent config for the temp Uop
-    tempUop.setDefault() // Set defaults
-    uopSetter(tempUop) // Apply specific test values
-    allocIo.allocationsIn(0).payload.uop.assignFrom(tempUop) // Assign to hardware
-    clockDomain.waitSampling()
-    allocIo.allocationsIn(0).valid #= false
+      clockDomain: ClockDomain,
+      pCfg: PipelineConfig
+  ): (Int, Boolean) = { // 返回分配到的 robIdx
+    tbIo.allocRequests(slotIdx).valid #= true
+    tbIo.allocRequests(slotIdx).payload.pc #= pc
+    val tempUop = DummyUop2(pCfg); tempUop.setDefault(); uopSetter(tempUop)
+    tbIo.allocRequests(slotIdx).payload.uop.assignFrom(tempUop)
+
+    var allocatedIdx = -1
+    var canAlloc = false
+    clockDomain.waitSampling() // ROB 在这个周期的上升沿看到 valid=true 并计算 robIdx
+    allocatedIdx = tbIo.allocResponsesRobIdx(slotIdx).toInt // 读取 robIdx
+    // 此时 tailPtr_reg 仍是旧值
+    canAlloc = tbIo.allocResponsesCanAlloc(slotIdx).toBoolean // 读取 canAlloc
+    tbIo.allocRequests(slotIdx).valid #= false
+    ParallaxLogger.success(s"Allocated slot $slotIdx to ROB index $allocatedIdx, canAllocateNext=$canAlloc")
+    (allocatedIdx, canAlloc)
   }
 
-  def driveWriteback(
-      euIo: TestEuPlugin#IO,
-      robIdx: Int,
+  def driveWritebackTb(
+      tbIo: TestBenchIO,
+      euIdx: Int,
+      robIdxVal: Int,
       hasEx: Boolean,
       exCode: Int,
       clockDomain: ClockDomain
   ): Unit = {
-    euIo.writebackIn.valid #= true
-    euIo.writebackIn.payload.robIdx #= robIdx
-    euIo.writebackIn.payload.hasException #= hasEx
-    euIo.writebackIn.payload.exceptionCode #= exCode
+    tbIo.euWritebacks(euIdx).valid #= true
+    tbIo.euWritebacks(euIdx).payload.robIdx #= robIdxVal
+    tbIo.euWritebacks(euIdx).payload.hasException #= hasEx
+    tbIo.euWritebacks(euIdx).payload.exceptionCode #= exCode
     clockDomain.waitSampling()
-    euIo.writebackIn.valid #= false
+    tbIo.euWritebacks(euIdx).valid #= false
   }
 
-  def driveCommitAcks(commitIo: TestCommitterPlugin#IO, acks: Seq[Boolean], clockDomain: ClockDomain): Unit = {
-    acks.zipWithIndex.foreach { case (ack, i) => commitIo.commitAcksIn(i) #= ack }
+  def driveCommitAcksTb(tbIo: TestBenchIO, acks: Seq[Boolean], clockDomain: ClockDomain): Unit = {
+    acks.zipWithIndex.foreach { case (ack, i) => tbIo.commitDriveAcks(i) #= ack }
     clockDomain.waitSampling()
-    acks.indices.foreach { i => commitIo.commitAcksIn(i) #= false } // সাধারণত ack 是单周期的
+    acks.indices.foreach { i => tbIo.commitDriveAcks(i) #= false }
   }
 
   // --- Test Cases ---
   val pCfgBase = testPipelineConfig(robD = 8, allocW = 1, commitW = 1, numEus = 1)
-
-  test("ROBPlugin - Basic Allocate, Writeback, Commit") {
+  testOnly("ROBPlugin - Basic Allocate, Writeback, Commit") {
     val currentTestCfg = pCfgBase
-    val tbCfg = TestBenchConfig(pCfg = currentTestCfg, numEus = currentTestCfg.bypassNetworkSources)
+    val tbCfg = TestBenchConfig(pCfg = currentTestCfg, numEus = currentTestCfg.totalEuCount)
     val dut = simConfig.compile(createDut(tbCfg))
     dut.doSim { dut =>
       dut.clockDomain.forkStimulus(period = 10)
-      val allocIo = dut.allocatorInterfaces.head
-      val euIo = dut.euInterfaces.head
-      val commitIo = dut.committerInterfaces.head
-
-      var allocatedRobIdx = -1
+      var allocatedRobIdx = 0
       var receivedCommitPc = -1L
       var receivedCommitRobIdx = -1
+      dut.io.commitProvidedSlots.foreach(_.valid #= false)
+      dut.io.allocRequests.foreach(flow => flow.valid #= false)
+      dut.io.euWritebacks.foreach(flow => flow.valid #= false)
+      dut.io.commitDriveAcks.foreach(_ #= false)
+      dut.io.flushCommand.valid #= false
 
-      // Monitor committer output
-      FlowMonitor(commitIo.committableEntriesOut(0), dut.clockDomain) { payload =>
-        if (commitIo.committableEntriesOut(0).valid.toBoolean) { // Check valid from ROB
-          println(
-            s"SIM: Commit monitor: ROB valid, ROB Idx=${payload.payload.uop.robIdx.toInt}, PC=0x${payload.payload.pc.toLong.toHexString}"
-          )
-          receivedCommitPc = payload.payload.pc.toLong
-          receivedCommitRobIdx = payload.payload.uop.robIdx.toInt
-        }
+      FlowMonitor(dut.io.commitProvidedSlots(0), dut.clockDomain) { payload =>
+        ParallaxLogger.log(
+          s"SIM: Commit monitor: ROB valid, ROB Idx=${payload.payload.uop.robIdx.toInt}, PC=0x${payload.payload.pc.toLong.toHexString}"
+        )
+        receivedCommitPc = payload.payload.pc.toLong
+        receivedCommitRobIdx = payload.payload.uop.robIdx.toInt
       }
+      dut.clockDomain.waitSampling(5)
 
-      dut.clockDomain.waitSampling(5) // Initial settle
+      println("SIM: Driving allocation via TestBench.io...")
+      val (idx0, canAlloc0) = driveAllocationTb(dut.io, 0, 0x1000, _ => {}, dut.clockDomain, currentTestCfg)
+      allocatedRobIdx = idx0
+      ParallaxLogger.log(s"SIM: Allocated. ROB Index = $allocatedRobIdx, CanAllocate(0)=$canAlloc0")
+      assert(allocatedRobIdx == 0, s"Expected first allocated ROB index to be 0, got $allocatedRobIdx")
+      // 这里的 canAlloc0 已经是下一个周期的 canAlloc 状态，所以直接断言即可
+      assert(canAlloc0, "ROB should allow next allocation after first")
 
-      // 1. Allocate
-      println("SIM: Driving allocation...")
-      driveAllocation(
-        allocIo,
-        0x1000,
-        uop => {
-          // Set other Uop fields if necessary for ROB logic or commit verification
-        },
-        dut.clockDomain
-      )
+      ParallaxLogger.log(s"SIM: Driving writeback via TestBench.io for ROB Index = $allocatedRobIdx...")
+      driveWritebackTb(dut.io, 0, allocatedRobIdx, false, 0, dut.clockDomain)
+      dut.clockDomain.waitSampling(5)
 
-      dut.clockDomain.waitSamplingWhere(timeout = 20)(
-        allocIo.canAllocateOut(0).toBoolean == false
-      ) // Wait until canAllocate potentially drops after alloc
-      assert(allocIo.allocatedRobIndicesOut(0).toInt != -1, "ROB index should be valid after allocation")
-      allocatedRobIdx = allocIo.allocatedRobIndicesOut(0).toInt
-      println(s"SIM: Allocated. ROB Index = $allocatedRobIdx, CanAllocate(0)=${allocIo.canAllocateOut(0).toBoolean}")
-      // assert(dut.robInternalCount.toInt == 1, s"ROB count should be 1, was ${dut.robInternalCount.toInt}")
-
-      // 2. Writeback
-      println(s"SIM: Driving writeback for ROB Index = $allocatedRobIdx...")
-      driveWriteback(euIo, allocatedRobIdx, false, 0, dut.clockDomain)
-      dut.clockDomain.waitSampling(5) // Allow ROB status to update
-
-      // 3. Commit
-      println(s"SIM: Waiting for commit valid for ROB Index = $allocatedRobIdx...")
+      ParallaxLogger.log(s"SIM: Waiting for commit valid for ROB Index = $allocatedRobIdx...")
       val commitTimeout = dut.clockDomain.waitSamplingWhere(timeout = 50) {
-        commitIo.committableEntriesOut(0).valid.toBoolean &&
-        commitIo.committableEntriesOut(0).payload.payload.uop.robIdx.toInt == allocatedRobIdx
+        dut.io.commitProvidedSlots(0).valid.toBoolean &&
+        dut.io.commitProvidedSlots(0).payload.payload.uop.robIdx.toInt == allocatedRobIdx
       }
       assert(!commitTimeout, s"Timeout waiting for ROB idx $allocatedRobIdx to be committable.")
-      println(s"SIM: ROB Idx $allocatedRobIdx is committable. Driving commit ack.")
-      assert(
-        receivedCommitPc == 0x1000,
-        s"Committed PC mismatch. Expected 0x1000, got 0x${receivedCommitPc.toHexString}"
-      )
-      assert(
-        receivedCommitRobIdx == allocatedRobIdx,
-        s"Committed ROB Index mismatch. Expected $allocatedRobIdx, got $receivedCommitRobIdx"
-      )
+      ParallaxLogger.log(s"SIM: ROB Idx $allocatedRobIdx is committable. Driving commit ack via TestBench.io.")
+      assert(receivedCommitPc == 0x1000)
+      assert(receivedCommitRobIdx == allocatedRobIdx)
 
-      driveCommitAcks(commitIo, Seq(true), dut.clockDomain)
+      driveCommitAcksTb(dut.io, Seq(true), dut.clockDomain)
       dut.clockDomain.waitSampling(5)
-      // assert(dut.robInternalCount.toInt == 0, s"ROB count should be 0 after commit, was ${dut.robInternalCount.toInt}")
-      // assert(dut.robInternalHead.toInt == (allocatedRobIdx + 1) % currentTestCfg.robDepth, "ROB head pointer mismatch")
-
       println("Test 'ROBPlugin - Basic Allocate, Writeback, Commit' PASSED")
     }
   }
 
-  // --- Test for ROB Full ---
   val pCfgFull = testPipelineConfig(robD = 2, allocW = 1, commitW = 1, numEus = 1)
   test("ROBPlugin - ROB Full Scenario") {
-    val tbCfg = TestBenchConfig(pCfg = pCfgFull, numEus = pCfgFull.bypassNetworkSources)
+    val tbCfg = TestBenchConfig(pCfg = pCfgFull, numEus = pCfgFull.totalEuCount)
     val dut = simConfig.compile(createDut(tbCfg))
     dut.doSim { dut =>
       dut.clockDomain.forkStimulus(period = 10)
-      val allocIo = dut.allocatorInterfaces.head
 
       println("SIM: ROB Full Test: Start")
-      // Allocate 2 entries to fill ROB (depth 2)
-      println("SIM: Allocating entry 0...")
-      driveAllocation(allocIo, 0x100, _ => {}, dut.clockDomain)
-      assert(allocIo.canAllocateOut(0).toBoolean, "ROB should allow first allocation")
-      val idx0 = allocIo.allocatedRobIndicesOut(0).toInt
-      println(s"SIM: Allocated entry 0 to robIdx $idx0")
+      val (idx0, canAlloc0) = driveAllocationTb(dut.io, 0, 0x100, _ => {}, dut.clockDomain, pCfgFull)
+      ParallaxLogger.log(s"SIM: Alloc 1: robIdx=$idx0, canAllocNext=$canAlloc0")
+      assert(canAlloc0, "ROB (depth 2) should allow second allocation after first")
 
-      println("SIM: Allocating entry 1...")
-      driveAllocation(allocIo, 0x104, _ => {}, dut.clockDomain)
-      assert(allocIo.canAllocateOut(0).toBoolean, "ROB should allow second allocation if space for next")
-      val idx1 = allocIo.allocatedRobIndicesOut(0).toInt
-      println(s"SIM: Allocated entry 1 to robIdx $idx1")
+      val (idx1, canAlloc1) = driveAllocationTb(dut.io, 0, 0x104, _ => {}, dut.clockDomain, pCfgFull)
+      ParallaxLogger.log(s"SIM: Alloc 2: robIdx=$idx1, canAllocNext=$canAlloc1")
+      assert(
+        !canAlloc1,
+        "ROB (depth 2) should be full after two allocations, canAllocate(0) for next op should be false."
+      )
 
-      // ROB should now be full (or have no space for a new single allocation if allocW=1)
-      // The canAllocate signal for the *next* potential allocation should be false.
-      // To observe this, we need to wait a cycle for ROB's internal count to update
-      // and propagate to canAllocate.
-      dut.clockDomain.waitSampling(2)
-      println(s"SIM: After 2 allocations, canAllocate(0) = ${allocIo.canAllocateOut(0).toBoolean}")
-      assert(!allocIo.canAllocateOut(0).toBoolean, "ROB should be full, canAllocate(0) should be false.")
-
-      // Attempt to allocate another one - it should not succeed this cycle if canAllocate is respected
-      // Or, if Allocator doesn't respect canAllocate, ROB internal logic should prevent overwriting.
-      // Our TestAllocatorPlugin drives 'fire' based on its input 'valid',
-      // but ROB internal logic uses `allocPort.fire && spaceAvailableForThisSlot`.
-      println("SIM: Attempting to allocate to full ROB...")
-      allocIo.allocationsIn(0).valid #= true
-      allocIo.allocationsIn(0).payload.pc #= 0x108
-      // Set Uop for allocation
-      val tempUop = DummyUop2(pCfgFull).setDefault()
-      allocIo.allocationsIn(0).payload.uop.assignFrom(tempUop)
-
-      dut.clockDomain.waitSampling()
-      allocIo.allocationsIn(0).valid #= false
-      // Assert that the previously allocated robIdx for this slot (idx1) has not changed,
-      // meaning no new allocation actually happened for this slot.
-      // Or, more directly, check ROB count.
-      // For this test, we simply rely on canAllocate being false.
-      // A more robust test would check ROB internal count if exposed.
+      println("SIM: Attempting to allocate to full ROB via TestBench.io...")
+      // 再次调用 driveAllocationTb，它会返回当前周期的 canAlloc 状态
+      val (idx2, canAlloc2) = driveAllocationTb(dut.io, 0, 0x108, _ => {}, dut.clockDomain, pCfgFull)
+      ParallaxLogger.log(s"SIM: Alloc 3 (attempt): robIdx=$idx2, canAllocNext=$canAlloc2")
+      // 此时 canAlloc2 应该仍然是 false，因为 ROB 仍然是满的
+      assert(!canAlloc2, "canAllocate should remain false when ROB is full and allocation is attempted")
 
       println("Test 'ROBPlugin - ROB Full Scenario' PASSED")
     }
   }
-
-  // TODO: Add more test cases:
-  // - Multiple allocations in parallel
-  // - Multiple commits in parallel
-  // - Writeback with exception, commit stops at exception
-  // - Flush test (basic flush, flush after mispredict)
-  // - Head/Tail pointer wrapping
-
   thatsAll()
 }

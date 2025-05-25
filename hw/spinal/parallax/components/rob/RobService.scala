@@ -3,20 +3,20 @@ package parallax.components.rob
 
 import spinal.core._
 import spinal.lib._
-import parallax.common.RenamedUop // Assuming RU is typically RenamedUop
+import parallax.common._
 import parallax.utilities.Service
 
 // Forward declaration of Bundles used in the service, assuming they are in the same package or imported.
-// case class ROBAllocateSlot[RU <: Data](...) // Defined in ReorderBuffer.scala
-// case class ROBCommitSlot[RU <: Data](...)   // Defined in ReorderBuffer.scala
-// case class ROBWritebackPort[RU <: Data](...) // Defined in ReorderBuffer.scala
-// case class ROBFlushCommand[RU <: Data](...) // Defined in ReorderBuffer.scala
+// case class ROBAllocateSlot[RU <: Data with Dumpable with HasRobIdx](...) // Defined in ReorderBuffer.scala
+// case class ROBCommitSlot[RU <: Data with Dumpable with HasRobIdx](...)   // Defined in ReorderBuffer.scala
+// case class ROBWritebackPort[RU <: Data with Dumpable with HasRobIdx](...) // Defined in ReorderBuffer.scala
+// case class ROBFlushCommand[RU <: Data with Dumpable with HasRobIdx](...) // Defined in ReorderBuffer.scala
 
 /**
  * ROBService 提供了与 Reorder Buffer 交互的接口。
  * @tparam RU ROB中存储的Uop的数据类型 (通常是 RenamedUop)
  */
-trait ROBService[RU <: Data] extends Service {
+trait ROBService[RU <: Data with Dumpable with HasRobIdx] extends Service {
 
   // --- 分配阶段 (Allocation Interface) ---
 

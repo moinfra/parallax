@@ -16,6 +16,7 @@ class CustomSpinalSimFunSuite extends SpinalSimFunSuite {
   val tests = ArrayBuffer[(String, () => Unit)]()
   val testsOnly = ArrayBuffer[(String, () => Unit)]()
   override def test(testName: String)(testFun: => Unit): Unit = {
+    println(s"add test $testName")
     tests += ((testName, () => testFun))
   }
 

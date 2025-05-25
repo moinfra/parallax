@@ -4,9 +4,10 @@ import spinal.core._
 import spinal.lib._
 import parallax.common._
 import parallax.components.decode._
+import parallax.utilities.ParallaxSim
 
 // --- Configuration for ROB ---
-case class ROBConfig[RU <: Data](
+case class ROBConfig[RU <: Data with Dumpable with HasRobIdx](
     val robDepth: Int,
     val pcWidth: BitCount,
     val commitWidth: Int,
@@ -14,8 +15,8 @@ case class ROBConfig[RU <: Data](
     // Number of writeback ports for execution units.
     // Can be different from commit/allocate widths.
     val numWritebackPorts: Int,
-    val uopType: HardType[RU], // Used to instantiate RU
-    val defaultUop: () => RU, // Used for Mem initialization
+    val uopType: HardType[RU],
+    val defaultUop: () => RU,
     val exceptionCodeWidth: BitCount = 8 bits
 ) {
 
@@ -28,7 +29,7 @@ case class ROBConfig[RU <: Data](
 
 // --- Data Bundles for ROB Internal Storage ---
 // Status part of the ROB entry (frequently updated)
-case class ROBStatus[RU <: Data](config: ROBConfig[RU]) extends Bundle {
+case class ROBStatus[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[RU]) extends Bundle {
   val busy = Bool()
   val done = Bool()
   val hasException = Bool()
@@ -36,13 +37,13 @@ case class ROBStatus[RU <: Data](config: ROBConfig[RU]) extends Bundle {
 }
 
 // Payload part of the ROB entry (written once at allocation)
-case class ROBPayload[RU <: Data](config: ROBConfig[RU]) extends Bundle {
+case class ROBPayload[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[RU]) extends Bundle {
   val uop = config.uopType() // Contains physReg info
   val pc = UInt(config.pcWidth)
 }
 
 // Combined entry for communication (e.g., commit port)
-case class ROBFullEntry[RU <: Data](config: ROBConfig[RU]) extends Bundle {
+case class ROBFullEntry[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[RU]) extends Bundle {
   val payload = ROBPayload(config)
   val status = ROBStatus(config)
 }
@@ -50,7 +51,9 @@ case class ROBFullEntry[RU <: Data](config: ROBConfig[RU]) extends Bundle {
 // --- IO Bundles for ROB ---
 
 // For allocation port (per slot)
-case class ROBAllocateSlot[RU <: Data](config: ROBConfig[RU]) extends Bundle with IMasterSlave {
+case class ROBAllocateSlot[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[RU])
+    extends Bundle
+    with IMasterSlave {
   val fire = Bool() // From Rename: attempt to allocate this slot
   val uopIn = config.uopType()
   val pcIn = UInt(config.pcWidth)
@@ -63,7 +66,9 @@ case class ROBAllocateSlot[RU <: Data](config: ROBConfig[RU]) extends Bundle wit
 }
 
 // For writeback port (per execution unit writeback)
-case class ROBWritebackPort[RU <: Data](config: ROBConfig[RU]) extends Bundle with IMasterSlave {
+case class ROBWritebackPort[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[RU])
+    extends Bundle
+    with IMasterSlave {
   val fire = Bool()
   val robIdx = UInt(config.robIdxWidth)
   // isDone is implicit if fire is true for a normal writeback.
@@ -71,30 +76,38 @@ case class ROBWritebackPort[RU <: Data](config: ROBConfig[RU]) extends Bundle wi
   val exceptionCodeIn = UInt(config.exceptionCodeWidth)
 
   override def asMaster(): Unit = { // Perspective of Execute Stage
-    // out(fire, robIdx, exceptionOccurred, exceptionCodeIn)
     in(fire, robIdx, exceptionOccurred, exceptionCodeIn)
   }
 }
 
 // For commit port (per slot)
-case class ROBCommitSlot[RU <: Data](config: ROBConfig[RU]) extends Bundle with IMasterSlave {
+case class ROBCommitSlot[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[RU])
+    extends Bundle
+    with IMasterSlave {
   val valid = Bool() // From ROB: this entry is ready to commit
   val entry = ROBFullEntry(config) // From ROB: data of the entry
 
   override def asMaster(): Unit = { // Perspective of ROB
     out(valid, entry)
   }
+
+  def asFlow: Flow[ROBFullEntry[RU]] = {
+    val ret = Flow(ROBFullEntry(config))
+    ret.valid := this.valid
+    ret.payload := this.entry
+    ret
+  }
 }
 
 // For flush command (restoring ROB pointers)
-case class ROBFlushCommand[RU <: Data](config: ROBConfig[RU]) extends Bundle {
+case class ROBFlushCommand[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[RU]) extends Bundle {
   val newHead = UInt(config.robIdxWidth)
   val newTail = UInt(config.robIdxWidth)
   val newCount = UInt(log2Up(config.robDepth + 1) bits)
 }
 
 // Top-level IO for ReorderBuffer
-case class ROBIo[RU <: Data](config: ROBConfig[RU]) extends Bundle with IMasterSlave {
+case class ROBIo[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[RU]) extends Bundle with IMasterSlave {
   // Allocation: Vector of master ports from ROB's perspective (Rename stage is slave)
   val allocate = Vec(master(ROBAllocateSlot(config)), config.allocateWidth)
   val canAllocate = out Vec (Bool(), config.allocateWidth) // To Rename: can each slot be allocated?
@@ -126,7 +139,7 @@ case class ROBIo[RU <: Data](config: ROBConfig[RU]) extends Bundle with IMasterS
   }
 }
 
-class ReorderBuffer[RU <: Data](config: ROBConfig[RU]) extends Component {
+class ReorderBuffer[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[RU]) extends Component {
   val io = slave(ROBIo(config))
 
   val payloads = Mem(ROBPayload(config), config.robDepth)
@@ -159,112 +172,72 @@ class ReorderBuffer[RU <: Data](config: ROBConfig[RU]) extends Component {
   val robIdxAtSlotStart = Vec(UInt(config.robIdxWidth), config.allocateWidth + 1)
 
   numPrevAllocations(0) := U(0)
-  robIdxAtSlotStart(0) := currentTail // Use combinational currentTail
+  robIdxAtSlotStart(0) := currentTail
   report(
     Seq(
-      "[ROB] ALLOC_PRE: Cycle Start. tailPtr=",
-      currentTail,
-      ", count=",
-      currentCount,
-      ", headPtr=",
-      currentHead,
-      ", empty=",
-      (currentCount === 0)
+      L"[ROB] ALLOC_PRE: Cycle Start. tailPtr=${currentTail}, count=${currentCount}, ",
+      L"headPtr=${currentHead}, empty=${(currentCount === 0)}"
     )
   )
 
   for (i <- 0 until config.allocateWidth) {
     val allocPort = io.allocate(i)
-    // --- START OF MODIFIED SECTION ---
-    val spaceAvailableForThisSlot = (currentCount + numPrevAllocations(i)) < config.robDepth // Use currentCount
-    // --- END OF MODIFIED SECTION ---
+    val spaceAvailableForThisSlot = (currentCount + numPrevAllocations(i)) < config.robDepth
     io.canAllocate(i) := spaceAvailableForThisSlot
     slotWillAllocate(i) := allocPort.fire && spaceAvailableForThisSlot
     slotRobIdx(i) := robIdxAtSlotStart(i)
     allocPort.robIdx := slotRobIdx(i)
-
+    ParallaxSim.warning(L"allocPort.robIdx := slotRobIdx(i) LHS: ${allocPort.robIdx}, RHS: ${slotRobIdx(i)}")
     when(allocPort.fire) {
-      report(
+      ParallaxSim.debug(
         Seq(
-          "[ROB] ALLOC_ATTEMPT[",
-          i.toString(),
-          "]: fire=",
-          allocPort.fire,
-          ", pcIn=",
-          allocPort.pcIn,
-          ", spaceAvailableForSlot=",
-          spaceAvailableForThisSlot,
-          // --- START OF MODIFIED SECTION ---
-          ", currentCountPlusPrevAllocs=",
-          (currentCount + numPrevAllocations(i)), // Use currentCount
-          // --- END OF MODIFIED SECTION ---
-          ", robDepth=",
-          U(config.robDepth),
-          ", calculatedRobIdx=",
-          slotRobIdx(i)
+          L"[ROB] ALLOC_ATTEMPT[${i}]: fire=${allocPort.fire}, pcIn=${allocPort.pcIn}, ",
+          L"spaceAvailableForSlot=${spaceAvailableForThisSlot}, currentCountPlusPrevAllocs=${(currentCount + numPrevAllocations(
+              i
+            ))}, robDepth=${U(config.robDepth)}, calculatedRobIdx=${slotRobIdx(i)}"
         )
       )
     }
     when(allocPort.fire && !spaceAvailableForThisSlot) {
-      // --- START OF MODIFIED SECTION ---
       report(
         Seq(
-          "[ROB] ALLOC_ATTEMPT[",
-          i.toString(),
-          "]: Fired but NO SPACE. count=",
-          currentCount,
-          ", numPrevAllocationsForThisSlot=",
-          numPrevAllocations(i)
+          L"[ROB] ALLOC_ATTEMPT[${i}]: Fired but NO SPACE. count=${currentCount}, ",
+          L"numPrevAllocationsForThisSlot=${numPrevAllocations(i)}"
         )
-      ) // Use currentCount
-      // --- END OF MODIFIED SECTION ---
+      )
     }
     numPrevAllocations(i + 1) := numPrevAllocations(i) + U(slotWillAllocate(i))
     robIdxAtSlotStart(i + 1) := robIdxAtSlotStart(i) + U(slotWillAllocate(i))
     when(slotWillAllocate(i)) {
       report(
-        Seq(
-          "[ROB] ALLOC_DO[",
-          i.toString(),
-          "]: Allocating to robIdx=",
-          slotRobIdx(i),
-          ", pcIn=",
-          allocPort.pcIn
-        )
+        L"[ROB] ALLOC_DO[${i}]: Allocating to robIdx=${slotRobIdx(i)}, pcIn=${allocPort.pcIn}"
       )
-      val newPayload = ROBPayload(config); newPayload.uop := allocPort.uopIn; newPayload.pc := allocPort.pcIn
+      val newPayload = ROBPayload(config).allowOverride()
+      newPayload.uop := allocPort.uopIn
+      newPayload.uop.robIdx := slotRobIdx(i)
+      newPayload.pc := allocPort.pcIn
       payloads.write(address = slotRobIdx(i), data = newPayload)
+      report(L"[ROB] ALLOC_PAYLOAD_WRITE[${i}]: Writing payload to robIdx=${slotRobIdx(i)}: ${newPayload.uop.dump()}")
       statuses(slotRobIdx(i)).busy := True
       statuses(slotRobIdx(i)).done := False
-      // --- START OF MODIFIED SECTION ---
       // Removed .resized from statuses indices as slotRobIdx(i) should have correct width
       statuses(slotRobIdx(i)).hasException := False
       statuses(slotRobIdx(i)).exceptionCode := U(0, config.exceptionCodeWidth)
-      // --- END OF MODIFIED SECTION ---
       report(
-        Seq("[ROB] ALLOC_STATUS_SET[", i.toString(), "]: robIdx=", slotRobIdx(i), " set busy=T, done=F, hasException=F")
+        Seq(L"[ROB] ALLOC_STATUS_SET[${i}]: robIdx=${slotRobIdx(i)} set busy=T, ", L"done=F, hasException=F")
       )
     }
   }
 
   val numActuallyAllocatedThisCycle = numPrevAllocations(config.allocateWidth)
   when(numActuallyAllocatedThisCycle > 0) {
-    // --- START OF MODIFIED SECTION ---
     report(
       Seq(
-        "[ROB] ALLOC_SUMMARY: numActuallyAllocatedThisCycle=",
-        numActuallyAllocatedThisCycle,
-        ", currentTailPtr=",
-        currentTail,
-        " -> newTailPtr (calculated for next reg)=",
-        (currentTail + numActuallyAllocatedThisCycle),
-        ", currentCount=",
-        currentCount,
-        " -> newCount (calculated for next reg)=",
-        (currentCount + numActuallyAllocatedThisCycle)
+        L"[ROB] ALLOC_SUMMARY: numActuallyAllocatedThisCycle=${numActuallyAllocatedThisCycle}, ",
+        L"currentTailPtr=${currentTail} -> newTailPtr (calculated for next reg)=${(currentTail + numActuallyAllocatedThisCycle)}, ",
+        L"currentCount=${currentCount} -> newCount (calculated for next reg)=${(currentCount + numActuallyAllocatedThisCycle)}"
       )
-    ) // Use currentTail, currentCount
-    // --- END OF MODIFIED SECTION ---
+    )
   }
 
   // --- Writeback Logic (Superscalar) ---
@@ -273,31 +246,15 @@ class ReorderBuffer[RU <: Data](config: ROBConfig[RU]) extends Component {
     when(wbPort.fire) {
       report(
         Seq(
-          "[ROB] WRITEBACK[",
-          portIdx.toString(),
-          "]: Fired. robIdx=",
-          wbPort.robIdx,
-          ", exceptionOccurred=",
-          wbPort.exceptionOccurred,
-          ", exceptionCodeIn=",
-          wbPort.exceptionCodeIn
+          L"[ROB] WRITEBACK[${portIdx}]: Fired. robIdx=${wbPort.robIdx}, exceptionOccurred=${wbPort.exceptionOccurred}, ",
+          L"exceptionCodeIn=${wbPort.exceptionCodeIn}"
         )
       )
       val statusBeforeWb = statuses(wbPort.robIdx)
       report(
         Seq(
-          "[ROB] WRITEBACK_STATUS_OLD[",
-          portIdx.toString(),
-          "]: robIdx=",
-          wbPort.robIdx,
-          ", oldBusy=",
-          statusBeforeWb.busy,
-          ", oldDone=",
-          statusBeforeWb.done,
-          ", oldHasExcp=",
-          statusBeforeWb.hasException,
-          ", oldExcpCode=",
-          statusBeforeWb.exceptionCode
+          L"[ROB] WRITEBACK_STATUS_OLD[${portIdx}]: robIdx=${wbPort.robIdx}, oldBusy=${statusBeforeWb.busy}, ",
+          L"oldDone=${statusBeforeWb.done}, oldHasExcp=${statusBeforeWb.hasException}, oldExcpCode=${statusBeforeWb.exceptionCode}"
         )
       )
       statuses(wbPort.robIdx).busy := False; statuses(wbPort.robIdx).done := True
@@ -309,16 +266,8 @@ class ReorderBuffer[RU <: Data](config: ROBConfig[RU]) extends Component {
       )
       report(
         Seq(
-          "[ROB] WRITEBACK_STATUS_NEW[",
-          portIdx.toString(),
-          "]: robIdx=",
-          wbPort.robIdx,
-          ", newBusy=F",
-          ", newDone=T",
-          ", newHasExcp=",
-          wbPort.exceptionOccurred,
-          ", newExcpCode=",
-          Mux(wbPort.exceptionOccurred, wbPort.exceptionCodeIn, statusBeforeWb.exceptionCode.resized)
+          L"[ROB] WRITEBACK_STATUS_NEW[${portIdx}]: robIdx=${wbPort.robIdx}, newBusy=F, newDone=T, ",
+          L"newHasExcp=${wbPort.exceptionOccurred}, newExcpCode=${Mux(wbPort.exceptionOccurred, wbPort.exceptionCodeIn, statusBeforeWb.exceptionCode.resized)}"
         )
       )
     }
@@ -326,169 +275,85 @@ class ReorderBuffer[RU <: Data](config: ROBConfig[RU]) extends Component {
 
   // --- Commit Logic (Superscalar) ---
   val canCommitFlags = Vec(Bool(), config.commitWidth)
-  // --- START OF MODIFIED SECTION ---
   report(
-    Seq(
-      "[ROB] COMMIT_PRE: Cycle Start. headPtr=",
-      currentHead,
-      ", count=",
-      currentCount,
-      ", empty=",
-      (currentCount === 0)
-    )
-  ) // Use currentHead, currentCount
-  // --- END OF MODIFIED SECTION ---
+    L"[ROB] COMMIT_PRE: Cycle Start. headPtr=${currentHead}, count=${currentCount}, empty=${(currentCount === 0)}"
+  )
 
   for (i <- 0 until config.commitWidth) {
-    // --- START OF MODIFIED SECTION ---
-    val currentCommitIdx = currentHead + U(i) // Use currentHead
-    // --- END OF MODIFIED SECTION ---
+    val currentCommitIdx = currentHead + U(i)
     val currentPayload = payloads.readAsync(address = currentCommitIdx)
     val currentStatus = statuses(currentCommitIdx)
-    // --- START OF MODIFIED SECTION ---
-    when(currentCount > U(i)) { // Use currentCount
+    when(currentCount > U(i)) {
       report(
         Seq(
-          "[ROB] COMMIT_CHECK_SLOT[",
-          i.toString(),
-          "]: Considering commit. robIdx=",
-          currentCommitIdx,
-          ", status.busy=",
-          currentStatus.busy,
-          ", status.done=",
-          currentStatus.done,
-          ", status.hasException=",
-          currentStatus.hasException,
-          ", status.exceptionCode=",
-          currentStatus.exceptionCode,
-          ", pc=",
-          currentPayload.pc,
-          ", count=",
-          currentCount // Use currentCount
+          L"[ROB] COMMIT_CHECK_SLOT[${i}]: Considering commit. robIdx=${currentCommitIdx}, ",
+          L"status.busy=${currentStatus.busy}, status.done=${currentStatus.done}, status.hasException=${currentStatus.hasException}, ",
+          L"status.exceptionCode=${currentStatus.exceptionCode}, pc=${currentPayload.pc}, count=${currentCount}"
         )
       )
     }
-    canCommitFlags(i) := (currentCount > U(i)) && currentStatus.done // Use currentCount
-    // --- END OF MODIFIED SECTION ---
+    canCommitFlags(i) := (currentCount > U(i)) && currentStatus.done
     io.commit(i).valid := canCommitFlags(i)
     io.commit(i).entry.payload := currentPayload
     io.commit(i).entry.status := currentStatus
     when(canCommitFlags(i)) {
       report(
         Seq(
-          "[ROB] COMMIT_VALID_SLOT[",
-          i.toString(),
-          "]: Slot IS VALID for commit. robIdx=",
-          currentCommitIdx,
-          ", io.commit(i).valid=",
-          io.commit(i).valid,
-          ", external commitFire(",
-          i.toString(),
-          ")=",
-          io.commitFire(i)
+          L"[ROB] COMMIT_VALID_SLOT[${i}]: Slot IS VALID for commit. robIdx=${currentCommitIdx}, ",
+          L"io.commit(i).valid=${io
+              .commit(i)
+              .valid}, external commitFire(${i})=${io.commitFire(i)}"
         )
       )
     }
-    // --- START OF MODIFIED SECTION ---
-    when(!canCommitFlags(i) && (currentCount > U(i))) { // Use currentCount
+    when(!canCommitFlags(i) && (currentCount > U(i))) {
       report(
         Seq(
-          "[ROB] COMMIT_NOT_VALID_SLOT[",
-          i.toString(),
-          "]: Slot NOT VALID for commit. robIdx=",
-          currentCommitIdx,
-          ", status.done=",
-          currentStatus.done,
-          ", count=",
-          currentCount, // Use currentCount
-          ", external commitFire(",
-          i.toString(),
-          ")=",
-          io.commitFire(i)
+          L"[ROB] COMMIT_NOT_VALID_SLOT[${i}]: Slot NOT VALID for commit. robIdx=${currentCommitIdx}, ",
+          L"status.done=${currentStatus.done}, count=${currentCount}, external commitFire(${i})=${io.commitFire(i)}"
         )
       )
     }
     when(io.commitFire(i) && !canCommitFlags(i)) {
       report(
         Seq(
-          "[ROB] COMMIT_WARN_SLOT[",
-          i.toString(),
-          "]: Commit stage fired for non-committable slot! robIdx=",
-          currentCommitIdx,
-          ", canCommitFlag=",
-          canCommitFlags(i),
-          ", status.done=",
-          currentStatus.done,
-          ", count=",
-          currentCount
+          L"[ROB] COMMIT_WARN_SLOT[${i}]: Commit stage fired for non-committable slot! robIdx=${currentCommitIdx}, ",
+          L"canCommitFlag=${canCommitFlags(
+              i
+            )}, status.done=${currentStatus.done}, count=${currentCount}"
         )
-      ) // Use currentCount
+      )
     }
-    // --- END OF MODIFIED SECTION ---
   }
   val actualCommittedMask = Vec(Bool(), config.commitWidth)
   if (config.commitWidth > 0) {
     actualCommittedMask(0) := canCommitFlags(0) && io.commitFire(0)
     report(
-      Seq(
-        "[ROB] COMMIT_MASK_CALC[0]: canCommitFlags(0)=",
-        canCommitFlags(0),
-        ", io.commitFire(0)=",
-        io.commitFire(0),
-        ", -> actualCommittedMask(0)=",
-        actualCommittedMask(0)
-      )
+      L"[ROB] COMMIT_MASK_CALC[0]: canCommitFlags(0)=${canCommitFlags(0)}, io.commitFire(0)=${io
+          .commitFire(0)}, -> actualCommittedMask(0)=${actualCommittedMask(0)}"
     )
     for (i <- 1 until config.commitWidth) {
       actualCommittedMask(i) := actualCommittedMask(i - 1) && canCommitFlags(i) && io.commitFire(i)
       report(
-        Seq(
-          "[ROB] COMMIT_MASK_CALC[",
-          i.toString(),
-          "]: prevActualCommittedMask(",
-          (i - 1).toString(),
-          ")=",
-          actualCommittedMask(i - 1),
-          ", canCommitFlags(",
-          i.toString(),
-          ")=",
-          canCommitFlags(i),
-          ", io.commitFire(",
-          i.toString(),
-          ")=",
-          io.commitFire(i),
-          ", -> actualCommittedMask(",
-          i.toString(),
-          ")=",
-          actualCommittedMask(i)
-        )
+        L"[ROB] COMMIT_MASK_CALC[${i}]: prevActualCommittedMask(${(i - 1)})=${actualCommittedMask(
+            i - 1
+          )}, canCommitFlags(${i})=${canCommitFlags(i)}, io.commitFire(${i})=${io
+            .commitFire(i)}, -> actualCommittedMask(${i})=${actualCommittedMask(i)}"
       )
     }
   }
   val numToCommit = if (config.commitWidth > 0) CountOne(actualCommittedMask) else U(0, 1 bits)
 
   when(numToCommit > 0) {
-    // --- START OF MODIFIED SECTION ---
     report(
       Seq(
-        "[ROB] COMMIT_SUMMARY: numToCommit=",
-        numToCommit,
-        ", actualCommittedMask=",
-        actualCommittedMask.asBits,
-        ", currentHeadPtr=",
-        currentHead,
-        " -> newHeadPtr (calculated for next reg)=",
-        (currentHead + numToCommit.resized),
-        ", currentCount=",
-        currentCount,
-        " -> newCount (calculated for next reg)=",
-        (currentCount - numToCommit.resized)
+        L"[ROB] COMMIT_SUMMARY: numToCommit=${numToCommit}, actualCommittedMask=${actualCommittedMask.asBits}, ",
+        L"currentHeadPtr=${currentHead} -> newHeadPtr (calculated for next reg)=${(currentHead + numToCommit.resized)}, ",
+        L"currentCount=${currentCount} -> newCount (calculated for next reg)=${(currentCount - numToCommit.resized)}"
       )
-    ) // Use currentHead, currentCount
-    // --- END OF MODIFIED SECTION ---
+    )
   }
 
-  // --- START OF MODIFIED SECTION ---
   // --- Pointer and Count Update Logic ---
   // Calculate the next state based on this cycle's operations
   val nextHead = UInt(config.robIdxWidth)
@@ -519,25 +384,17 @@ class ReorderBuffer[RU <: Data](config: ROBConfig[RU]) extends Component {
 
   // Apply updates to registers, with flush having highest priority
   when(io.flush.valid) {
-    report(Seq("[ROB] FLUSH: Received flush command. Valid=", io.flush.valid))
+    report(L"[ROB] FLUSH: Received flush command. Valid=${io.flush.valid}")
     report(
       Seq(
-        "[ROB] FLUSH: Payload: newHead=",
-        io.flush.payload.newHead,
-        ", newTail=",
-        io.flush.payload.newTail,
-        ", newCount=",
-        io.flush.payload.newCount
+        L"[ROB] FLUSH: Payload: newHead=${io.flush.payload.newHead}, ",
+        L"newTail=${io.flush.payload.newTail}, newCount=${io.flush.payload.newCount}"
       )
     )
     report(
       Seq(
-        "[ROB] FLUSH: Pointers BEFORE flush: headPtr=",
-        currentHead,
-        ", tailPtr=",
-        currentTail,
-        ", count=",
-        currentCount
+        L"[ROB] FLUSH: Pointers BEFORE flush: headPtr=${currentHead}, ",
+        L"tailPtr=${currentTail}, count=${currentCount}"
       )
     )
 
@@ -547,13 +404,9 @@ class ReorderBuffer[RU <: Data](config: ROBConfig[RU]) extends Component {
 
     report(
       Seq(
-        "[ROB] FLUSH: Pointers AFTER flush (assigned values): headPtr=",
-        io.flush.payload.newHead,
-        ", tailPtr=",
-        io.flush.payload.newTail,
-        ", count=",
-        io.flush.payload.newCount,
-        " (These override alloc/commit effects on pointers for this cycle)"
+        L"[ROB] FLUSH: Pointers AFTER flush (assigned values): headPtr=${io.flush.payload.newHead}, ",
+        L"tailPtr=${io.flush.payload.newTail}, count=${io.flush.payload.newCount} ",
+        L"(These override alloc/commit effects on pointers for this cycle)"
       )
     )
   } otherwise {
@@ -562,43 +415,19 @@ class ReorderBuffer[RU <: Data](config: ROBConfig[RU]) extends Component {
     count_reg := nextCount
     report(
       Seq(
-        "[ROB] POINTER_UPDATE: nextHead=",
-        nextHead,
-        ", nextTail=",
-        nextTail,
-        ", nextCount=",
-        nextCount,
-        " (from currentH=",
-        currentHead,
-        ", currentT=",
-        currentTail,
-        ", currentC=",
-        currentCount,
-        ", alloc=",
-        numActuallyAllocatedThisCycle,
-        ", commit=",
-        numToCommit,
-        ")"
+        L"[ROB] POINTER_UPDATE: nextHead=${nextHead}, nextTail=${nextTail}, nextCount=${nextCount} (from currentH=${currentHead}, ",
+        L"currentT=${currentTail}, currentC=${currentCount}, alloc=${numActuallyAllocatedThisCycle}, commit=${numToCommit})"
       )
     )
   }
   // --- Status Outputs ---
-  io.empty := count_reg === 0 // Use registered value for output
-  io.headPtrOut := headPtr_reg // Use registered value for output
-  io.tailPtrOut := tailPtr_reg // Use registered value for output
-  io.countOut := count_reg // Use registered value for output
+  io.empty := count_reg === 0
+  io.headPtrOut := headPtr_reg
+  io.tailPtrOut := tailPtr_reg
+  io.countOut := count_reg
 
   // Report final state of actual registers for the cycle end
   report(
-    Seq(
-      "[ROB] CYCLE_END_REG_VALUES: headPtr_reg=",
-      headPtr_reg,
-      ", tailPtr_reg=",
-      tailPtr_reg,
-      ", count_reg=",
-      count_reg,
-      ", empty_reg=",
-      (count_reg === 0)
-    )
+    L"[ROB] CYCLE_END_REG_VALUES: headPtr_reg=${headPtr_reg}, tailPtr_reg=${tailPtr_reg}, count_reg=${count_reg}, empty_reg=${(count_reg === 0)}"
   )
 }

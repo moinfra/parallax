@@ -1,13 +1,12 @@
-// filename: hw/spinal/parallax/components/rob/ROBPlugin.scala (或类似路径)
 package parallax.components.rob
 
 import spinal.core._
 import spinal.lib._
-import parallax.common.{PipelineConfig, RenamedUop} // 假设 RU 是 RenamedUop
+import parallax.common._
 import parallax.utilities.{Framework, Plugin, ParallaxLogger} // 导入 Plugin
 import scala.collection.mutable.ArrayBuffer
 
-class ROBPlugin[RU <: Data](
+class ROBPlugin[RU <: Data with Dumpable with HasRobIdx](
     // ROBPlugin 的构造参数通常是更高层次的配置，比如 PipelineConfig，
     // 然后它在内部派生出具体的 ROBConfig。
     // 或者直接传递 ROBConfig。为了简单，我们假设它能获取或构建 ROBConfig。
@@ -28,8 +27,7 @@ class ROBPlugin[RU <: Data](
     pcWidth = pipelineConfig.pcWidth,
     commitWidth = pipelineConfig.commitWidth,
     allocateWidth = pipelineConfig.renameWidth, // 通常分配宽度匹配重命名/分派宽度
-    numWritebackPorts = pipelineConfig.totalEuCount, // 这个参数代表了最大EU写回数量
-    // 或者需要一个专门的参数 for ROBPlugin
+    numWritebackPorts = pipelineConfig.totalEuCount,
     uopType = uopType,
     defaultUop = defaultUop,
     exceptionCodeWidth = pipelineConfig.exceptionCodeWidth
@@ -44,7 +42,7 @@ class ROBPlugin[RU <: Data](
 
   // 用于分配物理 ROB 写回端口的计数器
   private var nextWbPortIdx = 0
-  private val writebackPortsLock = new Object // 用于同步分配（如果需要，但在SpinalHDL早期阶段通常单线程）
+  // private val writebackPortsLock = new Object // 用于同步分配（如果需要，但在SpinalHDL早期阶段通常单线程）
 
   // --- 实现 ROBService 接口 ---
 
@@ -55,6 +53,9 @@ class ROBPlugin[RU <: Data](
         s"ROBPlugin: Requested allocate width ($width) does not match ROB config allocateWidth (${robConfig.allocateWidth})"
       )
     }
+    // robComponent.io.allocate 是 Vec[master(ROBAllocateSlot)]，
+    // 提供给外部的 Allocate 阶段需要 slave 视角。
+    // 这里直接返回 robComponent.io.allocate，SpinalHDL 会自动处理方向。
     robComponent.io.allocate
   }
 
@@ -64,6 +65,9 @@ class ROBPlugin[RU <: Data](
         s"ROBPlugin: Requested canAllocate width ($width) does not match ROB config allocateWidth (${robConfig.allocateWidth})"
       )
     }
+    // robComponent.io.canAllocate 是 Vec[out(Bool)]，
+    // 提供给外部的 Allocate 阶段需要 in 视角。
+    // 这里直接返回 robComponent.io.canAllocate，SpinalHDL 会自动处理方向。
     robComponent.io.canAllocate
   }
 
@@ -83,6 +87,9 @@ class ROBPlugin[RU <: Data](
       dummyPort.exceptionCodeIn.assignDontCare()
       dummyPort
     } else {
+      // robComponent.io.writeback 是 Vec[slave(ROBWritebackPort)]，
+      // 提供给外部的 EU 需要 master 视角。
+      // 这里直接返回 robComponent.io.writeback(idx)，SpinalHDL 会自动处理方向。
       val physicalPortMaster = robComponent.io.writeback(nextWbPortIdx)
       nextWbPortIdx += 1
       ParallaxLogger.log(
@@ -99,11 +106,10 @@ class ROBPlugin[RU <: Data](
         s"ROBPlugin: Requested commit width ($width) does not match ROB config commitWidth (${robConfig.commitWidth})"
       )
     }
-    // robComponent.io.commit 是 Vec[slave(ROBCommitSlot)]
-    // Commit 阶段需要 master 视角
-    val masterSlots = Vec.fill(width)(master(ROBCommitSlot(robConfig)))
-    masterSlots <> robComponent.io.commit // 连接，方向自动处理
-    masterSlots
+    // robComponent.io.commit 是 Vec[master(ROBCommitSlot)]，
+    // 提供给外部的 Committer 阶段需要 slave 视角。
+    // 这里直接返回 robComponent.io.commit，SpinalHDL 会自动处理方向。
+    robComponent.io.commit
   }
 
   override def getCommitAcks(width: Int): Vec[(Bool)] = {
@@ -112,17 +118,14 @@ class ROBPlugin[RU <: Data](
         s"ROBPlugin: Requested commitAcks width ($width) does not match ROB config commitWidth (${robConfig.commitWidth})"
       )
     }
-    // robComponent.io.commitFire 是 Vec[in(Bool)]
-    // Commit 阶段需要驱动它，所以需要 slave 视角的 Bool
-    // 直接返回这个 Vec[in(Bool)]，调用者可以直接赋值
-    val ackDrivers = Vec.fill(width)((Bool()))
-    robComponent.io.commitFire <> ackDrivers // 连接，Commit 驱动 ackDrivers, 实际驱动 robComponent.io.commitFire
-    ackDrivers
+    robComponent.io.commitFire
   }
 
   // 清空/恢复阶段
   override def getFlushPort(): (Flow[ROBFlushCommand[RU]]) = {
-    // robComponent.io.flush 已经是 slave Flow(ROBFlushCommand[RU])
+    // robComponent.io.flush 已经是 slave Flow(ROBFlushCommand[RU])，
+    // 提供给外部的 Flusher 阶段需要 master 视角。
+    // 这里直接返回 robComponent.io.flush，SpinalHDL 会自动处理方向。
     robComponent.io.flush
   }
 

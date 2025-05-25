@@ -292,6 +292,10 @@ object ParallaxLogger {
     println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_RED$foo$ANSI_RESET")
     sys.exit(1)
   }
+
+  def success(foo: String)(implicit line: sourcecode.Line, file: sourcecode.File) = {
+    println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_GREEN$foo$ANSI_RESET")
+  }
 }
 
 // sim 时打印（最终编译为 verilog $display stmt）

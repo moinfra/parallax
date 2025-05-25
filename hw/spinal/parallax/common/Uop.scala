@@ -612,7 +612,7 @@ case class RenameInfo(val config: PipelineConfig) extends Bundle {
 
 case class RenamedUop(
     val config: PipelineConfig
-) extends Bundle {
+) extends Bundle with Dumpable with HasRobIdx {
   // --- Original Decoded Information ---
   val decoded = DecodedUop(config) // Embeds all architectural and control info
 
@@ -650,4 +650,12 @@ case class RenamedUop(
         "dispatched=", dispatched, " executed=", executed, "\n",
         "hasException=", hasException, " exceptionCode=", exceptionCode)
   }
+}
+
+trait Dumpable {
+  def dump(): Seq[Any]
+}
+
+trait HasRobIdx {
+  def robIdx: UInt
 }
