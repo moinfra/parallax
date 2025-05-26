@@ -63,7 +63,6 @@ trait ROBService[RU <: Data with Dumpable with HasRobIdx] extends Service {
    * @return 一个 Vec of Bool 的 slave 视角。Commit 阶段驱动这些信号。
    */
   def getCommitAcks(width: Int): Vec[(Bool)]
-  //  альтернативно, можно было бы сделать driveCommitAcks(acks: Vec[Bool])
 
 
   // --- 清空/恢复阶段 (Flush Interface) ---
