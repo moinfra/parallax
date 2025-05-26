@@ -122,7 +122,7 @@ class ROBPlugin[RU <: Data with Dumpable with HasRobIdx](
   }
 
   // 清空/恢复阶段
-  override def getFlushPort(): (Flow[ROBFlushCommand[RU]]) = {
+  override def getFlushPort(): (Flow[ROBFlushPayload[RU]]) = {
     // robComponent.io.flush 已经是 slave Flow(ROBFlushCommand[RU])，
     // 提供给外部的 Flusher 阶段需要 master 视角。
     // 这里直接返回 robComponent.io.flush，SpinalHDL 会自动处理方向。

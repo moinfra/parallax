@@ -5,6 +5,7 @@ import spinal.lib._
 import parallax.common._
 import parallax.components.decode._
 import parallax.utilities.ParallaxSim
+import _root_.parallax.utilities.ParallaxLogger
 
 // --- Configuration for ROB ---
 case class ROBConfig[RU <: Data with Dumpable with HasRobIdx](
@@ -18,14 +19,45 @@ case class ROBConfig[RU <: Data with Dumpable with HasRobIdx](
     val uopType: HardType[RU],
     val defaultUop: () => RU,
     val exceptionCodeWidth: BitCount = 8 bits
-) {
+) extends Dumpable {
 
   require(robDepth > 0 && isPow2(robDepth), "ROB depth must be a positive power of 2.")
   require(commitWidth > 0 && commitWidth <= robDepth)
   require(allocateWidth > 0 && allocateWidth <= robDepth)
   require(numWritebackPorts > 0)
   val robIdxWidth: BitCount = log2Up(robDepth) bits
+
+  def dump(): Seq[Any] = {
+    val str = L"""ROBConfig(
+        robDepth: ${robDepth},
+        pcWidth: ${pcWidth},
+        commitWidth: ${commitWidth},
+        allocateWidth: ${allocateWidth},
+        numWritebackPorts: ${numWritebackPorts},
+        uopType: ${uopType.getClass.getName},
+        defaultUop: ${defaultUop.getClass.getName},
+        defaultUop.width: ${defaultUop().robIdx.getWidth},
+        exceptionCodeWidth: ${exceptionCodeWidth},
+        robIdxWidth: ${robIdxWidth},
+      )"""
+    str
+  }
 }
+
+// --- MODIFICATION START (Flush Mechanism Refactor: Enum and Command Bundle) ---
+object FlushReason extends SpinalEnum {
+  val NONE, FULL_FLUSH, ROLLBACK_TO_ROB_IDX = newElement()
+  // NONE is implicitly the default for SpinalEnum, but explicit for clarity if needed.
+  // We'll assume io.flush.valid implies reason is not NONE.
+}
+
+// For flush command (restoring ROB pointers)
+// This is the payload of the io.flush Flow
+case class ROBFlushPayload[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[RU]) extends Bundle {
+  val reason = FlushReason()
+  val targetRobIdx = UInt(config.robIdxWidth) // Relevant for ROLLBACK_TO_ROB_IDX
+}
+// --- MODIFICATION END ---
 
 // --- Data Bundles for ROB Internal Storage ---
 // Status part of the ROB entry (frequently updated)
@@ -99,13 +131,6 @@ case class ROBCommitSlot[RU <: Data with Dumpable with HasRobIdx](config: ROBCon
   }
 }
 
-// For flush command (restoring ROB pointers)
-case class ROBFlushCommand[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[RU]) extends Bundle {
-  val newHead = UInt(config.robIdxWidth)
-  val newTail = UInt(config.robIdxWidth)
-  val newCount = UInt(log2Up(config.robDepth + 1) bits)
-}
-
 // Top-level IO for ReorderBuffer
 case class ROBIo[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[RU]) extends Bundle with IMasterSlave {
   // Allocation: Vector of master ports from ROB's perspective (Rename stage is slave)
@@ -119,8 +144,11 @@ case class ROBIo[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[RU])
   val commit = Vec(slave(ROBCommitSlot(config)), config.commitWidth)
   val commitFire = in Vec (Bool(), config.commitWidth) // From Commit: which slots are actually committed
 
+  // --- MODIFICATION START (Flush Mechanism Refactor: IO Update) ---
   // Flush: Slave Flow port from ROB's perspective (Recovery/Checkpoint manager is master)
-  val flush = slave Flow (ROBFlushCommand(config))
+  val flush = slave Flow (ROBFlushPayload(config))
+  val flushed = out Bool () // Indicates ROB has completed flush operation this cycle
+  // --- MODIFICATION END ---
 
   // Status outputs
   val empty = out Bool ()
@@ -132,27 +160,41 @@ case class ROBIo[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[RU])
     allocate.foreach(_.asSlave())
     writeback.foreach(_.asSlave())
     commit.foreach(_.asSlave())
+    // --- MODIFICATION START (Flush Mechanism Refactor: IO asMaster Update) ---
+    master(flush)
+    in(flushed)
+    // --- MODIFICATION END ---
     in(canAllocate)
     out(commitFire)
     in(empty, headPtrOut, tailPtrOut, countOut)
-    master(flush)
   }
 }
 
 class ReorderBuffer[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[RU]) extends Component {
-  val io = slave(ROBIo(config))
+  ParallaxLogger.log(
+    s"Creating ReorderBuffer with config: ${config.dump().mkString("")}"
+  )
+  val io = slave(ROBIo(config)) // ROB is slave to the overall system for its IO bundle
 
   val payloads = Mem(ROBPayload(config), config.robDepth)
   val statuses = Vec(Reg(ROBStatus(config)), config.robDepth)
 
   payloads.init(
     Seq.fill(config.robDepth)(
-      { val dp = ROBPayload(config); dp.uop := config.defaultUop(); dp.pc := U(0); dp }
+      {
+        assert(config.defaultUop().robIdx.getBitsWidth == config.robIdxWidth.value)
+        val dp = ROBPayload(config)
+        dp.uop := config.defaultUop()
+        dp.pc := U(0)
+        dp
+      }
     )
   )
   for (i <- 0 until config.robDepth) {
-    statuses(i).busy init (False); statuses(i).done init (False)
-    statuses(i).hasException init (False); statuses(i).exceptionCode init (0)
+    statuses(i).busy init (False)
+    statuses(i).done init (False)
+    statuses(i).hasException init (False)
+    statuses(i).exceptionCode init (0)
   }
 
   // Actual registers for state
@@ -160,8 +202,7 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[R
   val tailPtr_reg = Reg(UInt(config.robIdxWidth)) init (0)
   val count_reg = Reg(UInt(log2Up(config.robDepth + 1) bits)) init (0)
 
-  // Combinational view of current state for calculations this cycle
-  // These are used by the allocation, commit, and other logic sections below.
+  // Combinational view of current state for calculations this cycle.
   val currentHead = headPtr_reg
   val currentTail = tailPtr_reg
   val currentCount = count_reg
@@ -187,7 +228,6 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[R
     slotWillAllocate(i) := allocPort.fire && spaceAvailableForThisSlot
     slotRobIdx(i) := robIdxAtSlotStart(i)
     allocPort.robIdx := slotRobIdx(i)
-    ParallaxSim.warning(L"allocPort.robIdx := slotRobIdx(i) LHS: ${allocPort.robIdx}, RHS: ${slotRobIdx(i)}")
     when(allocPort.fire) {
       ParallaxSim.debug(
         Seq(
@@ -220,7 +260,6 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[R
       report(L"[ROB] ALLOC_PAYLOAD_WRITE[${i}]: Writing payload to robIdx=${slotRobIdx(i)}: ${newPayload.uop.dump()}")
       statuses(slotRobIdx(i)).busy := True
       statuses(slotRobIdx(i)).done := False
-      // Removed .resized from statuses indices as slotRobIdx(i) should have correct width
       statuses(slotRobIdx(i)).hasException := False
       statuses(slotRobIdx(i)).exceptionCode := U(0, config.exceptionCodeWidth)
       report(
@@ -257,17 +296,25 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[R
           L"oldDone=${statusBeforeWb.done}, oldHasExcp=${statusBeforeWb.hasException}, oldExcpCode=${statusBeforeWb.exceptionCode}"
         )
       )
-      statuses(wbPort.robIdx).busy := False; statuses(wbPort.robIdx).done := True
+      statuses(wbPort.robIdx).busy := False
+      statuses(wbPort.robIdx).done := True
       statuses(wbPort.robIdx).hasException := wbPort.exceptionOccurred
       statuses(wbPort.robIdx).exceptionCode := Mux(
         wbPort.exceptionOccurred,
         wbPort.exceptionCodeIn,
-        statuses(wbPort.robIdx).exceptionCode.resized
+        statuses(wbPort.robIdx).exceptionCode // Keep old if no new exception
       )
       report(
         Seq(
           L"[ROB] WRITEBACK_STATUS_NEW[${portIdx}]: robIdx=${wbPort.robIdx}, newBusy=F, newDone=T, ",
-          L"newHasExcp=${wbPort.exceptionOccurred}, newExcpCode=${Mux(wbPort.exceptionOccurred, wbPort.exceptionCodeIn, statusBeforeWb.exceptionCode.resized)}"
+          L"newHasExcp=${wbPort.exceptionOccurred}, newExcpCode=${Mux(wbPort.exceptionOccurred, wbPort.exceptionCodeIn, statusBeforeWb.exceptionCode)}"
+        )
+      )
+    } otherwise {
+      report(
+        Seq(
+          L"[ROB] WRITEBACK[${portIdx}]: NOT Fired. robIdx=${wbPort.robIdx}, exceptionOccurred=${wbPort.exceptionOccurred}, ",
+          L"exceptionCodeIn=${wbPort.exceptionCodeIn}"
         )
       )
     }
@@ -280,7 +327,7 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[R
   )
 
   for (i <- 0 until config.commitWidth) {
-    val currentCommitIdx = currentHead + U(i)
+    val currentCommitIdx = currentHead + U(i) // Pointer arithmetic handles wrap
     val currentPayload = payloads.readAsync(address = currentCommitIdx)
     val currentStatus = statuses(currentCommitIdx)
     when(currentCount > U(i)) {
@@ -342,86 +389,177 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[R
       )
     }
   }
-  val numToCommit = if (config.commitWidth > 0) CountOne(actualCommittedMask) else U(0, 1 bits)
+  val numToCommit = if (config.commitWidth > 0) CountOne(actualCommittedMask) else U(0, 1 bits).resized
 
   when(numToCommit > 0) {
     report(
       Seq(
         L"[ROB] COMMIT_SUMMARY: numToCommit=${numToCommit}, actualCommittedMask=${actualCommittedMask.asBits}, ",
-        L"currentHeadPtr=${currentHead} -> newHeadPtr (calculated for next reg)=${(currentHead + numToCommit.resized)}, ",
+        L"currentHeadPtr=${currentHead} -> newHeadPtr (calculated for next reg)=${(currentHead + numToCommit.resized)}, ", // Pointer arithmetic handles wrap
         L"currentCount=${currentCount} -> newCount (calculated for next reg)=${(currentCount - numToCommit.resized)}"
       )
     )
   }
 
   // --- Pointer and Count Update Logic ---
-  // Calculate the next state based on this cycle's operations
-  val nextHead = UInt(config.robIdxWidth)
-  val nextTail = UInt(config.robIdxWidth)
-  val nextCount = UInt(log2Up(config.robDepth + 1) bits)
+  // Calculate the next state based on this cycle's operations (alloc/commit)
+  val nextHeadFromOps = UInt(config.robIdxWidth)
+  val nextTailFromOps = UInt(config.robIdxWidth)
+  val nextCountFromOps = UInt(log2Up(config.robDepth + 1) bits)
 
-  // Default to no change from registered values for pointers
-  nextHead := currentHead
-  nextTail := currentTail
-  // nextCount will be calculated based on net effect
+  nextHeadFromOps := currentHead + numToCommit.resized // Pointer arithmetic handles wrap
+  nextTailFromOps := currentTail + numActuallyAllocatedThisCycle // Pointer arithmetic handles wrap
 
-  // Effect of allocation on tail pointer
-  when(numActuallyAllocatedThisCycle > 0) {
-    nextTail := currentTail + numActuallyAllocatedThisCycle
-  }
+  val sAlloc = S(numActuallyAllocatedThisCycle.resize(nextCountFromOps.getWidth))
+  val sCommit = S(numToCommit.resize(nextCountFromOps.getWidth))
+  val sCurrentCount = S(currentCount.resize(nextCountFromOps.getWidth))
+  nextCountFromOps := (sCurrentCount + sAlloc - sCommit).asUInt.resize(nextCountFromOps.getWidth)
 
-  // Effect of commit on head pointer
-  when(numToCommit > 0) {
-    nextHead := currentHead + numToCommit.resized
-  }
-
-  // Calculate next count based on net effect of alloc and commit
-  val sAlloc = S(numActuallyAllocatedThisCycle.resize(nextCount.getWidth))
-  val sCommit = S(numToCommit.resize(nextCount.getWidth))
-  val sCurrentCount = S(currentCount.resize(nextCount.getWidth))
-
-  nextCount := (sCurrentCount + sAlloc - sCommit).asUInt.resize(nextCount.getWidth)
-
+  // --- MODIFICATION START (Flush Mechanism Refactor: Core Logic) ---
   // Apply updates to registers, with flush having highest priority
+  io.flushed := False // Default flushed to False
+
   when(io.flush.valid) {
-    report(L"[ROB] FLUSH: Received flush command. Valid=${io.flush.valid}")
+    io.flushed := True // Flush operation completes in this cycle
     report(
-      Seq(
-        L"[ROB] FLUSH: Payload: newHead=${io.flush.payload.newHead}, ",
-        L"newTail=${io.flush.payload.newTail}, newCount=${io.flush.payload.newCount}"
-      )
+      L"[ROB] FLUSH: Received flush command. Valid=${io.flush.valid}, Reason=${io.flush.payload.reason}, TargetROBIdx=${io.flush.payload.targetRobIdx}"
     )
+
+    val headAtFlushStart = headPtr_reg // State at the beginning of the cycle
+    val tailAtFlushStart = tailPtr_reg
+    val countAtFlushStart = count_reg
+
+    val headAfterFlush = UInt(config.robIdxWidth)
+    val tailAfterFlush = UInt(config.robIdxWidth)
+    val countAfterFlush = UInt(log2Up(config.robDepth + 1) bits)
+
+    // Default to current _reg values, to be overridden by specific flush reason
+    headAfterFlush := headAtFlushStart
+    tailAfterFlush := tailAtFlushStart
+    countAfterFlush := countAtFlushStart
+
+    switch(io.flush.payload.reason) {
+      is(FlushReason.FULL_FLUSH) {
+        report(L"[ROB] FLUSH: Reason=FULL_FLUSH")
+        headAfterFlush := U(0)
+        tailAfterFlush := U(0)
+        countAfterFlush := U(0)
+        for (k <- 0 until config.robDepth) {
+          statuses(k).busy := False
+          statuses(k).done := False
+          statuses(k).hasException := False
+          statuses(k).exceptionCode := 0
+        }
+        ParallaxSim.debug(L"[ROB DEBUG] Before final reg assignment in flush path: head=${headAfterFlush}, tail=${tailAfterFlush}, count=${countAfterFlush}") // <--- AND THIS
+      }
+      is(FlushReason.ROLLBACK_TO_ROB_IDX) {
+        val targetIdx = io.flush.payload.targetRobIdx
+        report(L"[ROB] FLUSH: Reason=ROLLBACK_TO_ROB_IDX, Target ROB Index=${targetIdx}")
+        report(
+          L"[ROB] FLUSH: State before rollback: head=${headAtFlushStart}, tail=${tailAtFlushStart}, count=${countAtFlushStart}"
+        )
+
+        headAfterFlush := headAtFlushStart // Head pointer usually doesn't change on rollback unless target is head
+        tailAfterFlush := targetIdx
+
+        // Calculate new count: number of elements from headAtFlushStart (inclusive) to targetIdx (exclusive)
+        val h_ext = headAtFlushStart.resize(config.robIdxWidth.value + 1)
+        val t_ext = targetIdx.resize(config.robIdxWidth.value + 1)
+        val depth_val_ext = U(config.robDepth, config.robIdxWidth.value + 1 bits)
+        val tempCount = UInt(log2Up(config.robDepth + 1) bits)
+
+        when(t_ext >= h_ext) {
+          tempCount := (t_ext - h_ext).resized
+        } otherwise {
+          tempCount := (t_ext - h_ext + depth_val_ext).resized
+        }
+        countAfterFlush := tempCount
+        report(
+          L"[ROB] FLUSH: ROLLBACK_TO_ROB_IDX calculated: new head=${headAfterFlush}, new tail=${tailAfterFlush}, new count=${countAfterFlush}"
+        )
+
+        // Clear statuses for entries from targetIdx (inclusive) up to tailAtFlushStart (exclusive)
+        // These are the entries being squashed by the rollback.
+        report(
+          L"[ROB] FLUSH: Clearing statuses for entries from ${targetIdx} (inclusive) to ${tailAtFlushStart} (exclusive)"
+        )
+        for (k <- 0 until config.robDepth) {
+          val currentRobEntryIdx = U(k, config.robIdxWidth)
+          var shouldClearThisEntryInRollback = False
+
+          if (config.robDepth > 0) { // Ensure robDepth is positive
+            // Check if currentRobEntryIdx is in the range [targetIdx, tailAtFlushStart)
+            // This range represents entries that were valid before flush and are now being squashed.
+            val rangeIsEmptyOrInvalid =
+              (targetIdx === tailAtFlushStart) // If new tail is old tail, no entries in this specific range to clear
+            // (count logic handles the overall state)
+
+            when(!rangeIsEmptyOrInvalid) {
+              val noWrapInRange = targetIdx < tailAtFlushStart
+              val wrapInRange = targetIdx > tailAtFlushStart // target is numerically larger, so range wraps
+
+              when(noWrapInRange) {
+                when(currentRobEntryIdx >= targetIdx && currentRobEntryIdx < tailAtFlushStart) {
+                  shouldClearThisEntryInRollback := True
+                }
+              } elsewhen (wrapInRange) { // wrap
+                when(currentRobEntryIdx >= targetIdx || currentRobEntryIdx < tailAtFlushStart) {
+                  shouldClearThisEntryInRollback := True
+                }
+              }
+            }
+          }
+          when(shouldClearThisEntryInRollback) {
+            report(L"[ROB] FLUSH: Clearing status for ROB entry index ${currentRobEntryIdx}")
+            statuses(currentRobEntryIdx).busy := False
+            statuses(currentRobEntryIdx).done := False
+            statuses(currentRobEntryIdx).hasException := False
+            statuses(currentRobEntryIdx).exceptionCode := U(0, config.exceptionCodeWidth)
+          }
+        }
+      }
+      default { // Should include FlushReason.NONE if it can be valid with io.flush.valid
+        // This case should ideally not be hit if io.flush.valid implies a meaningful flush reason.
+        // If io.flush.valid is true but reason is NONE, treat as no-op for pointers/count from flush perspective.
+        // Pointers will take on alloc/commit values if this path is taken and then the 'otherwise' branch for flush.
+        // However, the outer when(io.flush.valid) means we *must* assign to _reg here.
+        // So, if reason is NONE, we effectively override alloc/commit with current _reg values.
+        report(
+          L"[ROB] FLUSH: WARNING - Flush valid but reason is NONE or unhandled. No change from flush logic itself."
+        )
+        headAfterFlush := headAtFlushStart
+        tailAfterFlush := tailAtFlushStart
+        countAfterFlush := countAtFlushStart
+      }
+    }
+
+    headPtr_reg := headAfterFlush
+    tailPtr_reg := tailAfterFlush
+    count_reg := countAfterFlush
+
     report(
       Seq(
-        L"[ROB] FLUSH: Pointers BEFORE flush: headPtr=${currentHead}, ",
-        L"tailPtr=${currentTail}, count=${currentCount}"
+        L"[ROB] FLUSH: Pointers AFTER flush logic: headPtr_reg=${headPtr_reg}, ",
+        L"tailPtr_reg=${tailPtr_reg}, count_reg=${count_reg}"
       )
     )
 
-    headPtr_reg := io.flush.payload.newHead
-    tailPtr_reg := io.flush.payload.newTail
-    count_reg := io.flush.payload.newCount
-
+  } otherwise { // No flush request
+    io.flushed := False
+    headPtr_reg := nextHeadFromOps
+    tailPtr_reg := nextTailFromOps
+    count_reg := nextCountFromOps
     report(
       Seq(
-        L"[ROB] FLUSH: Pointers AFTER flush (assigned values): headPtr=${io.flush.payload.newHead}, ",
-        L"tailPtr=${io.flush.payload.newTail}, count=${io.flush.payload.newCount} ",
-        L"(These override alloc/commit effects on pointers for this cycle)"
-      )
-    )
-  } otherwise {
-    headPtr_reg := nextHead
-    tailPtr_reg := nextTail
-    count_reg := nextCount
-    report(
-      Seq(
-        L"[ROB] POINTER_UPDATE: nextHead=${nextHead}, nextTail=${nextTail}, nextCount=${nextCount} (from currentH=${currentHead}, ",
+        L"[ROB] POINTER_UPDATE (No Flush): nextHead=${nextHeadFromOps}, nextTail=${nextTailFromOps}, nextCount=${nextCountFromOps} (from currentH=${currentHead}, ",
         L"currentT=${currentTail}, currentC=${currentCount}, alloc=${numActuallyAllocatedThisCycle}, commit=${numToCommit})"
       )
     )
   }
+  // --- MODIFICATION END ---
+
   // --- Status Outputs ---
-  io.empty := count_reg === 0
+  io.empty := count_reg === 0 // Based on the final updated count_reg
   io.headPtrOut := headPtr_reg
   io.tailPtrOut := tailPtr_reg
   io.countOut := count_reg

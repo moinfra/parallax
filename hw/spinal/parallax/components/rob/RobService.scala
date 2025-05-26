@@ -72,5 +72,5 @@ trait ROBService[RU <: Data with Dumpable with HasRobIdx] extends Service {
    * 分支预测恢复逻辑或异常处理逻辑调用此方法来获取向 ROB 发送清空命令的端口。
    * @return 一个 ROBFlushCommand 的 slave Flow 视角。调用者驱动 valid 和 payload。
    */
-  def getFlushPort(): (Flow[ROBFlushCommand[RU]])
+  def getFlushPort(): (Flow[ROBFlushPayload[RU]])
 }

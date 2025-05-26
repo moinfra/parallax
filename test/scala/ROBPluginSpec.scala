@@ -16,7 +16,7 @@ import scala.collection.mutable
 import scala.util.Random
 
 // DummyUop2 and ROBAllocateSlotPayloadForTest definitions remain the same
-case class DummyUop2(val config: PipelineConfig) extends Bundle with Dumpable with HasRobIdx{
+case class DummyUop2(val config: PipelineConfig) extends Bundle with Dumpable with HasRobIdx {
   val robIdx = UInt(config.robIdxWidth)
   val pc = UInt(config.pcWidth)
   def setDefault(): this.type = { this.robIdx := 0; this.pc := 0; this }
@@ -73,7 +73,7 @@ class TestCommitterLogicHolder(id: String, val commitWidth: Int, val pCfg: Pipel
 
 class TestFlusherLogicHolder(id: String, val pCfg: PipelineConfig) extends Plugin {
   setName(s"Flusher_${id}")
-  var flushPortToService: Flow[ROBFlushCommand[DummyUop2]] = null // ROB's slave Flow
+  var flushPortToService: Flow[ROBFlushPayload[DummyUop2]] = null // ROB's slave Flow
 
   val setup = create early new Area {
     val robService = getService[ROBService[DummyUop2]]
@@ -115,7 +115,7 @@ case class TestBenchIO(tbCfg: TestBenchConfig, LOCAL_UOP_HT: HardType[DummyUop2]
   val commitDriveAcks = Vec(out(Bool()), tbCfg.pCfg.commitWidth)
 
   // Flush: Testbench drives flush command
-  val flushCommand = master(Flow(ROBFlushCommand(robConfigParams)))
+  val flushCommand = master(Flow(ROBFlushPayload(robConfigParams)))
 
   override def asMaster(): Unit = {
     // For `slave(Flow(...))` types, `slave(signalName)` correctly sets directions.
@@ -134,7 +134,6 @@ case class TestBenchIO(tbCfg: TestBenchConfig, LOCAL_UOP_HT: HardType[DummyUop2]
     in(commitDriveAcks)
   }
 }
-// -- MODIFICATION END --
 // --- ROBPlugin Test Suite ---
 class ROBPluginSpec extends CustomSpinalSimFunSuite {
   def testPipelineConfig(
@@ -213,6 +212,20 @@ class ROBPluginSpec extends CustomSpinalSimFunSuite {
     new TestBench()
   }
 
+  def driveFlushTb(
+      tbIo: TestBenchIO, 
+      newHead: Int,
+      newTail: Int,
+      newCount: Int,
+      clockDomain: ClockDomain
+  ): Unit = {
+    tbIo.flushCommand.valid #= true
+    // FIXME
+    clockDomain.waitSampling()
+    tbIo.flushCommand.valid #= false
+    ParallaxLogger.log(s"SIM: Flushed ROB. newHead=$newHead, newTail=$newTail, newCount=$newCount")
+  }
+
   def driveAllocationTb(
       tbIo: TestBenchIO,
       slotIdx: Int,
@@ -261,7 +274,7 @@ class ROBPluginSpec extends CustomSpinalSimFunSuite {
 
   // --- Test Cases ---
   val pCfgBase = testPipelineConfig(robD = 8, allocW = 1, commitW = 1, numEus = 1)
-  testOnly("ROBPlugin - Basic Allocate, Writeback, Commit") {
+  test("ROBPlugin - Basic Allocate, Writeback, Commit") {
     val currentTestCfg = pCfgBase
     val tbCfg = TestBenchConfig(pCfg = currentTestCfg, numEus = currentTestCfg.totalEuCount)
     val dut = simConfig.compile(createDut(tbCfg))
@@ -342,5 +355,212 @@ class ROBPluginSpec extends CustomSpinalSimFunSuite {
       println("Test 'ROBPlugin - ROB Full Scenario' PASSED")
     }
   }
+// TC_ROB_003: ROB Full, then Commit, then Allocate
+test("ROBPlugin - ROB Full, Commit, then Allocate") {
+  val currentTestCfg = pCfgFull // robD = 2
+  val tbCfg = TestBenchConfig(pCfg = currentTestCfg, numEus = currentTestCfg.totalEuCount)
+  val dut = simConfig.compile(createDut(tbCfg))
+  dut.doSim { dut =>
+    dut.clockDomain.forkStimulus(period = 10)
+    dut.io.commitProvidedSlots.foreach(_.valid #= false)
+    dut.io.allocRequests.foreach(flow => flow.valid #= false)
+    dut.io.euWritebacks.foreach(flow => flow.valid #= false)
+    dut.io.commitDriveAcks.foreach(_ #= false)
+    dut.io.flushCommand.valid #= false
+    dut.clockDomain.waitSampling(5)
+
+    var lastCommittedRobIdx = -1
+    FlowMonitor(dut.io.commitProvidedSlots(0), dut.clockDomain) { payload =>
+        ParallaxLogger.log(s"SIM: Commit monitor: PC=0x${payload.payload.pc.toLong.toHexString}, ROB Idx=${payload.payload.uop.robIdx.toInt}")
+        lastCommittedRobIdx = payload.payload.uop.robIdx.toInt
+    }
+
+    println("SIM: Allocating to fill ROB (depth 2)...")
+    val (idx0, canAlloc0) = driveAllocationTb(dut.io, 0, 0x100, _ => {}, dut.clockDomain, currentTestCfg)
+    assert(idx0 == 0, s"Expected idx0=0, got $idx0")
+    assert(canAlloc0, "Should be able to alloc second op")
+
+    val (idx1, canAlloc1) = driveAllocationTb(dut.io, 0, 0x104, _ => {}, dut.clockDomain, currentTestCfg)
+    assert(idx1 == 1, s"Expected idx1=1, got $idx1")
+    assert(!canAlloc1, "ROB should be full, canAllocNext should be false")
+
+    println(s"SIM: ROB is full. Writing back idx0 ($idx0)...")
+    driveWritebackTb(dut.io, 0, idx0, false, 0, dut.clockDomain)
+
+    println(s"SIM: Waiting for idx0 ($idx0) to be committable...")
+    val commitTimeout = dut.clockDomain.waitSamplingWhere(timeout = 50) {
+      dut.io.commitProvidedSlots(0).valid.toBoolean &&
+      dut.io.commitProvidedSlots(0).payload.payload.uop.robIdx.toInt == idx0
+    }
+    assert(!commitTimeout, s"Timeout waiting for ROB idx $idx0 to be committable.")
+    assert(lastCommittedRobIdx == idx0)
+
+    println(s"SIM: Committing idx0 ($idx0)...")
+    driveCommitAcksTb(dut.io, Seq(true), dut.clockDomain)
+    dut.clockDomain.waitSampling(2) // Allow commit to process and free up space
+
+    println("SIM: ROB should have space now. Attempting new allocation...")
+    // After commit, tailPtr moves, canAlloc should be true
+    // The driveAllocationTb will sample canAlloc *after* the allocation request is seen by ROB
+    // So we need to check the canAlloc *returned* by the *next* allocation attempt
+    // Or, we can try to read dut.io.allocResponsesCanAlloc(0) directly for one cycle if ROB updates it combinationally
+    // For now, let's rely on the returned canAlloc from a new allocation.
+    // To be super sure about the canAlloc status *before* new allocation, we might need a dedicated signal or observe internal ROB state if possible.
+    // However, driveAllocationTb's returned canAlloc is for the *next* potential allocation *after* the current one is processed.
+
+    // Attempt allocation, expecting it to succeed and canAlloc to be potentially false if ROB becomes full again
+    val (idx2, canAlloc2) = driveAllocationTb(dut.io, 0, 0x200, _ => {}, dut.clockDomain, currentTestCfg)
+    ParallaxLogger.log(s"SIM: Alloc after commit: robIdx=$idx2, canAllocNext=$canAlloc2")
+    assert(idx2 == 0, s"Expected new allocation to use ROB index 0 (or wrapped around), got $idx2.") // Assuming ROB wraps and idx0 is now free
+    // If ROB depth is 2, and idx0 (0) and idx1 (1) were allocated. idx0 committed.
+    // New allocation should go into entry 0. ROB now contains [new, idx1]. It's full again.
+    assert(!canAlloc2, "ROB should be full again after allocating into the freed slot.")
+
+    println("Test 'ROBPlugin - ROB Full, Commit, then Allocate' PASSED")
+  }
+}
+
+// TC_ROB_004: Out-of-Order Writeback, In-Order Commit
+test("ROBPlugin - Out-of-Order Writeback, In-Order Commit") {
+  val currentTestCfg = testPipelineConfig(robD = 4, allocW = 1, commitW = 1, numEus = 1) // Need ROB depth >= 3
+  val tbCfg = TestBenchConfig(pCfg = currentTestCfg, numEus = currentTestCfg.totalEuCount)
+  val dut = simConfig.compile(createDut(tbCfg))
+  dut.doSim { dut =>
+    dut.clockDomain.forkStimulus(period = 10)
+    dut.io.commitProvidedSlots.foreach(_.valid #= false)
+    dut.io.allocRequests.foreach(flow => flow.valid #= false)
+    dut.io.euWritebacks.foreach(flow => flow.valid #= false)
+    dut.io.commitDriveAcks.foreach(_ #= false)
+    dut.io.flushCommand.valid #= false
+    dut.clockDomain.waitSampling(5)
+
+    val committedOrder = mutable.ArrayBuffer[Int]()
+    val committedPcs = mutable.ArrayBuffer[Long]()
+    FlowMonitor(dut.io.commitProvidedSlots(0), dut.clockDomain) { payload =>
+      val robIdx = payload.payload.uop.robIdx.toInt
+      val pc = payload.payload.pc.toLong
+      ParallaxLogger.log(s"SIM: Commit monitor: PC=0x${pc.toHexString}, ROB Idx=$robIdx")
+      committedOrder += robIdx
+      committedPcs += pc
+    }
+
+    println("SIM: Allocating 3 instructions...")
+    val (idx0, _) = driveAllocationTb(dut.io, 0, 0x100, _ => {}, dut.clockDomain, currentTestCfg) // robIdx 0
+    val (idx1, _) = driveAllocationTb(dut.io, 0, 0x104, _ => {}, dut.clockDomain, currentTestCfg) // robIdx 1
+    val (idx2, _) = driveAllocationTb(dut.io, 0, 0x108, _ => {}, dut.clockDomain, currentTestCfg) // robIdx 2
+    assert(idx0 == 0 && idx1 == 1 && idx2 == 2)
+
+    println("SIM: Writing back in out-of-order: idx1, then idx2, then idx0")
+    driveWritebackTb(dut.io, 0, idx1, false, 0, dut.clockDomain)
+    driveWritebackTb(dut.io, 0, idx2, false, 0, dut.clockDomain)
+    driveWritebackTb(dut.io, 0, idx0, false, 0, dut.clockDomain) // Head instruction written back last
+
+    println("SIM: Waiting for commits and acknowledging...")
+    for (expectedRobIdx <- Seq(idx0, idx1, idx2)) {
+      val commitTimeout = dut.clockDomain.waitSamplingWhere(timeout = 50) {
+        dut.io.commitProvidedSlots(0).valid.toBoolean &&
+        dut.io.commitProvidedSlots(0).payload.payload.uop.robIdx.toInt == expectedRobIdx
+      }
+      assert(!commitTimeout, s"Timeout waiting for ROB idx $expectedRobIdx to be committable.")
+      driveCommitAcksTb(dut.io, Seq(true), dut.clockDomain)
+      dut.clockDomain.waitSampling() // Give a cycle for ack to be processed
+    }
+    dut.clockDomain.waitSampling(5) // Ensure all monitor events are processed
+
+    assert(committedOrder.toList == List(0, 1, 2), s"Commit order incorrect: ${committedOrder.toList}")
+    assert(committedPcs.toList == List(0x100, 0x104, 0x108), s"Committed PCs incorrect: ${committedPcs.map(_.toHexString).toList}")
+
+    println("Test 'ROBPlugin - Out-of-Order Writeback, In-Order Commit' PASSED")
+  }
+}
+
+// TC_ROB_005: Flush Empty ROB
+test("ROBPlugin - Flush Empty ROB") {
+  val currentTestCfg = pCfgBase // robD = 8
+  val tbCfg = TestBenchConfig(pCfg = currentTestCfg, numEus = currentTestCfg.totalEuCount)
+  val dut = simConfig.compile(createDut(tbCfg))
+  dut.doSim { dut =>
+    dut.clockDomain.forkStimulus(period = 10)
+    dut.io.commitProvidedSlots.foreach(_.valid #= false)
+    dut.io.allocRequests.foreach(flow => flow.valid #= false)
+    dut.io.euWritebacks.foreach(flow => flow.valid #= false)
+    dut.io.commitDriveAcks.foreach(_ #= false)
+    dut.io.flushCommand.valid #= false
+    dut.clockDomain.waitSampling(5)
+
+    println("SIM: ROB is empty. Flushing to newHead=0, newTail=0, newCount=0")
+    driveFlushTb(dut.io, 0, 0, 0, dut.clockDomain)
+    dut.clockDomain.waitSampling(2) // Allow flush to propagate
+
+    println("SIM: Attempting allocation after flush...")
+    val (idx0, canAlloc0) = driveAllocationTb(dut.io, 0, 0x300, _ => {}, dut.clockDomain, currentTestCfg)
+    assert(idx0 == 0, s"Expected first allocation after flush to be ROB index 0, got $idx0")
+    assert(canAlloc0, "Should be able to allocate further after first allocation post-flush")
+
+    println("Test 'ROBPlugin - Flush Empty ROB' PASSED")
+  }
+}
+
+
+// TC_ROB_006: Flush Partially Full ROB
+test("ROBPlugin - Flush Partially Full ROB") {
+  val currentTestCfg = testPipelineConfig(robD = 8, allocW = 1, commitW = 1, numEus = 1)
+  val tbCfg = TestBenchConfig(pCfg = currentTestCfg, numEus = currentTestCfg.totalEuCount)
+  val dut = simConfig.compile(createDut(tbCfg))
+  dut.doSim { dut =>
+    dut.clockDomain.forkStimulus(period = 10)
+    // Initialize IOs
+    dut.io.commitProvidedSlots.foreach(_.valid #= false)
+    dut.io.allocRequests.foreach(flow => flow.valid #= false)
+    dut.io.euWritebacks.foreach(flow => flow.valid #= false)
+    dut.io.commitDriveAcks.foreach(_ #= false)
+    dut.io.flushCommand.valid #= false
+    dut.clockDomain.waitSampling(5)
+
+    println("SIM: Allocating 3 instructions...")
+    val (idx0, _) = driveAllocationTb(dut.io, 0, 0x100, _ => {}, dut.clockDomain, currentTestCfg) // robIdx 0
+    val (idx1, _) = driveAllocationTb(dut.io, 0, 0x104, _ => {}, dut.clockDomain, currentTestCfg) // robIdx 1
+    val (idx2, _) = driveAllocationTb(dut.io, 0, 0x108, _ => {}, dut.clockDomain, currentTestCfg) // robIdx 2
+    assert(idx0 == 0 && idx1 == 1 && idx2 == 2)
+    // ROB state: [0x100 (idx0), 0x104 (idx1), 0x108 (idx2)], head=0, tail=3, count=3
+
+    println("SIM: Flushing ROB to keep only the first instruction (idx0). newHead=0, newTail=1, newCount=1")
+    // This means idx0 is still valid, idx1 and idx2 are conceptually discarded.
+    // The next allocation should go into ROB slot 1.
+    driveFlushTb(dut.io, 0, 1, 1, dut.clockDomain)
+    dut.clockDomain.waitSampling(2) // Allow flush to propagate
+
+    println("SIM: Attempting allocation after partial flush...")
+    // The next allocation should use the new tail pointer, which is 1.
+    val (idx3, canAllocA) = driveAllocationTb(dut.io, 0, 0x200, _ => {}, dut.clockDomain, currentTestCfg)
+    ParallaxLogger.log(s"SIM: Alloc after partial flush: robIdx=$idx3, canAllocNext=$canAllocA")
+    assert(idx3 == 1, s"Expected allocation after partial flush to use ROB index 1, got $idx3")
+
+    println("SIM: Writing back original idx0 and newly allocated idx3 (at ROB slot 1)...")
+    driveWritebackTb(dut.io, 0, idx0, false, 0, dut.clockDomain) // Writeback original inst at robIdx 0
+    driveWritebackTb(dut.io, 0, idx3, false, 0, dut.clockDomain) // Writeback new inst at robIdx 1
+
+    val committedOrder = mutable.ArrayBuffer[Int]()
+    FlowMonitor(dut.io.commitProvidedSlots(0), dut.clockDomain) { payload =>
+        committedOrder += payload.payload.uop.robIdx.toInt
+    }
+
+    println("SIM: Waiting for commits and acknowledging...")
+    for (expectedRobIdx <- Seq(idx0, idx3)) { // Expect to commit 0, then 1 (which is idx3)
+      val commitTimeout = dut.clockDomain.waitSamplingWhere(timeout = 50) {
+        dut.io.commitProvidedSlots(0).valid.toBoolean &&
+        dut.io.commitProvidedSlots(0).payload.payload.uop.robIdx.toInt == expectedRobIdx
+      }
+      assert(!commitTimeout, s"Timeout waiting for ROB idx $expectedRobIdx to be committable.")
+      driveCommitAcksTb(dut.io, Seq(true), dut.clockDomain)
+      dut.clockDomain.waitSampling()
+    }
+    dut.clockDomain.waitSampling(5)
+    assert(committedOrder.toList == List(0, 1), s"Commit order after partial flush incorrect: ${committedOrder.toList}")
+
+
+    println("Test 'ROBPlugin - Flush Partially Full ROB' PASSED")
+  }
+}
   thatsAll()
 }
