@@ -6,9 +6,13 @@ import parallax.utilities.ParallaxLogger.warning
 import spinal.lib.pipeline.Stage
 import spinal.core.sim.SimBoolPimper
 import spinal.core.Data
+import spinal.core.ClockDomain
+import spinal.core.sim.SimClockDomainPimper
+import spinal.core.fiber.Handle
+import parallax.utilities.ParallaxLogger
 
 class CustomSpinalSimFunSuite extends SpinalSimFunSuite {
-    
+
   onlyVerilator
 
   def simConfig = SimConfig.withWave // FST is generally preferred over VCD
@@ -48,5 +52,14 @@ class CustomSpinalSimFunSuite extends SpinalSimFunSuite {
 
   def isStreamFiring[T <: Data](stream: spinal.lib.Stream[T]): Boolean = {
     stream.valid.toBoolean && stream.ready.toBoolean
-    }
+  }
+
+  var __cycleNo = 0
+  def enableCycleTicker(cd: ClockDomain): Unit = {
+    ParallaxLogger.warning("Cycle Ticker enabled")
+    cd.onRisingEdges(() => {
+      ParallaxLogger.warning(s"Cycle ${__cycleNo}")
+      __cycleNo += 1
+    })
+  }
 }

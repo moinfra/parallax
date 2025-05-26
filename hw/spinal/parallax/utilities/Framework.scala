@@ -279,7 +279,6 @@ object ParallaxLogger {
   def log(foo: String)(implicit line: sourcecode.Line, file: sourcecode.File) = {
     println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_BLUE$foo$ANSI_RESET")
   }
-
   def warning(foo: String)(implicit line: sourcecode.Line, file: sourcecode.File) = {
     println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_YELLOW$foo$ANSI_RESET")
   }
