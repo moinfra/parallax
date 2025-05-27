@@ -25,7 +25,7 @@ trait BypassService[P <: Data] extends Service {
   def getBypassFlow(consumerName: String): Flow[P] // Changed to Flow and renamed for clarity
 }
 
-class BypassServicePlugin[P <: Data](
+class BypassPlugin[P <: Data](
     val payloadType: HardType[P] // Explicitly pass the HardType for the generic payload P
 ) extends Plugin
     with BypassService[P] {
@@ -52,7 +52,7 @@ class BypassServicePlugin[P <: Data](
   ): Flow[P] = {
     if (mergedBypassFlow == null) {
       ParallaxLogger.error(
-        s"BypassService: Consumer '$consumerName' (Payload: ${payloadType.getClass.getSimpleName}) requested bypass Flow before it was built. Call in 'late' or after BypassServicePlugin.logic."
+        s"BypassService: Consumer '$consumerName' (Payload: ${payloadType.getClass.getSimpleName}) requested bypass Flow before it was built. Call in 'late' or after BypassPlugin.logic."
       )
       val errorFlow = Flow(payloadType)
       errorFlow.valid := False

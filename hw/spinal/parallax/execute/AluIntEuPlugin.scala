@@ -9,6 +9,11 @@ import parallax.utilities.ParallaxLogger
 import parallax.components.execute.DemoAlu
 import parallax.utilities.ParallaxSim
 
+case class AluIntEuSignals(val pipelineConfig: PipelineConfig) {
+  val S1_RS1_DATA = Stageable(Bits(pipelineConfig.dataWidth))
+  val S1_RS2_DATA = Stageable(Bits(pipelineConfig.dataWidth))
+}
+
 class AluIntEuPlugin(
     override val euName: String,
     override val pipelineConfig: PipelineConfig,
@@ -17,8 +22,8 @@ class AluIntEuPlugin(
 
   // --- ParallaxEuBase Implementation ---
   override type T_EuSpecificContext = EmptyBundle
-  override protected def euSpecificContextType: HardType[EmptyBundle] = HardType(EmptyBundle())
-  override protected def euRegType: EuRegType.C = EuRegType.GPR_ONLY
+  override def euSpecificContextType: HardType[EmptyBundle] = EmptyBundle()
+  override def euRegType: EuRegType.C = EuRegType.GPR_ONLY
 
   addMicroOp(BaseUopCode.ALU)
   // Consider adding NOP explicitly if it needs special handling beyond DemoAlu's default
@@ -26,21 +31,25 @@ class AluIntEuPlugin(
 
   // --- Stageables for PRF Read Results (if needed) ---
   // These are only used if !readPhysRsDataFromPush
-  val S1_RS1_DATA = Stageable(Bits(pipelineConfig.dataWidth))
-  val S1_RS2_DATA = Stageable(Bits(pipelineConfig.dataWidth))
 
   // --- Micro-pipeline Stages ---
-  val s0_dispatch = euPipeline.newStage().setName("s0_Dispatch")
-  val s1_readRegs = if (!readPhysRsDataFromPush) euPipeline.newStage().setName("s1_ReadRegs") else null
-  val s2_execute = euPipeline.newStage().setName("s2_Execute")
-  // Optional s3_writeBuffer if needed for timing, for now s2 is the wb stage.
 
-  override protected def buildMicroPipeline(pipeline: Pipeline): Unit = {
+  // Optional s3_writeBuffer if needed for timing, for now s2 is the wb stage.
+  var s0_dispatch: Stage = null
+  var s1_readRegs: Stage = null
+  var s2_execute: Stage = null
+
+  lazy val signals = AluIntEuSignals(pipelineConfig)
+  override def buildMicroPipeline(pipeline: Pipeline): Unit = {
+    s0_dispatch = euPipeline.newStage().setName("s0_Dispatch")
+    s1_readRegs = if (!readPhysRsDataFromPush) euPipeline.newStage().setName("s1_ReadRegs") else null
+    s2_execute = euPipeline.newStage().setName("s2_Execute")
+
     var lastStage = s0_dispatch
 
     if (!readPhysRsDataFromPush) {
-      s1_readRegs(S1_RS1_DATA) // Declare for this stage
-      s1_readRegs(S1_RS2_DATA) // Declare for this stage
+      s1_readRegs(signals.S1_RS1_DATA) // Declare for this stage
+      s1_readRegs(signals.S1_RS2_DATA) // Declare for this stage
       pipeline.connect(lastStage, s1_readRegs)(Connection.M2S())
       lastStage = s1_readRegs
     }
@@ -55,55 +64,59 @@ class AluIntEuPlugin(
     pipeline.connect(lastStage, s2_execute)(Connection.M2S())
   }
 
-  override protected def getWritebackStage(pipeline: Pipeline): Stage = {
+  override def getWritebackStage(pipeline: Pipeline): Stage = {
     s2_execute // s2_execute produces all final signals for ParallaxEuBase
   }
 
-  override protected def connectPipelineLogic(pipeline: Pipeline): Unit = {
+  override def connectPipelineLogic(pipeline: Pipeline): Unit = {
+    ParallaxLogger.log(s"[AluInt ${euName}] Logic start definition.")
+
     // --- Stage S0: Dispatch ---
     // EU_INPUT_PAYLOAD is available in all stages if declared in the first stage.
     // s0_dispatch is the first stage, so EU_INPUT_PAYLOAD is implicitly available.
-    val uopFullPayload_s0 = s0_dispatch(EU_INPUT_PAYLOAD)
+    s0_dispatch.valid := this.obtainedEuInput.valid
+    this.obtainedEuInput.ready := s0_dispatch.isReady
+
+    s0_dispatch(commonSignals.EU_INPUT_PAYLOAD) := this.obtainedEuInput.payload // Stack overflow
+
+    val uopFullPayload_s0 = this.obtainedEuInput.payload
     val renamedUop_s0 = uopFullPayload_s0.renamedUop
     val decodedUop_s0 = renamedUop_s0.decoded
 
+    ParallaxLogger.log(s"[AluInt ${euName}] Stage S0 logic defined.")
     // --- Stage S1: Read Registers (Conditional) ---
-    if (!readPhysRsDataFromPush) {
+    if (readPhysRsDataFromPush) {
+      ParallaxLogger.log("读寄存器逻辑跳过，因为从推送端口读取寄存器数据。")
+    } else {
+      ParallaxLogger.log("读寄存器逻辑开始定义。")
       // EU_INPUT_PAYLOAD is passed from s0 to s1.
-      val uopFullPayload_s1 = s1_readRegs(EU_INPUT_PAYLOAD) // Get it from s1's input
+      val uopFullPayload_s1 = s1_readRegs(commonSignals.EU_INPUT_PAYLOAD) // Get it from s1's input
       val renamedUop_s1 = uopFullPayload_s1.renamedUop
       val decodedUop_s1 = renamedUop_s1.decoded
 
       // Use ParallaxEuBase helper to connect GPR reads
       // Reads are driven by s1_readRegs.isFiring
-      connectGprRead(
+      val data_rs1: Bits = connectGprRead(
         stage = s1_readRegs,
         prfReadPortIdx = 0,
         physRegIdx = renamedUop_s1.rename.physSrc1.idx,
-        useThisSrcSignal = decodedUop_s1.useArchSrc1, // Condition for this read
-        prfDataTarget = S1_RS1_DATA // Store result in S1_RS1_DATA
+        useThisSrcSignal = decodedUop_s1.useArchSrc1 // Condition for this read
       )
-      connectGprRead(
+      val data_rs2: Bits = connectGprRead(
         stage = s1_readRegs,
         prfReadPortIdx = 1,
         physRegIdx = renamedUop_s1.rename.physSrc2.idx,
         useThisSrcSignal =
-          decodedUop_s1.useArchSrc2 && (decodedUop_s1.immUsage =/= ImmUsageType.SRC_ALU), // Don't read src2 if imm is used
-        prfDataTarget = S1_RS2_DATA
+          decodedUop_s1.useArchSrc2 && (decodedUop_s1.immUsage =/= ImmUsageType.SRC_ALU) // Don't read src2 if imm is used
       )
 
-      // Handle cases where src is not used or comes from immediate
-      when(!decodedUop_s1.useArchSrc1) {
-        s1_readRegs(S1_RS1_DATA) := B(0) // Or some other default if src1 not used
-      }
-      when(!decodedUop_s1.useArchSrc2 || decodedUop_s1.immUsage === ImmUsageType.SRC_ALU) {
-        // If src2 not used OR immediate replaces src2, provide a default for S1_RS2_DATA
-        s1_readRegs(S1_RS2_DATA) := B(0)
-      }
+      s1_readRegs(signals.S1_RS1_DATA) := data_rs1
+      s1_readRegs(signals.S1_RS2_DATA) := data_rs2
     }
+    ParallaxLogger.log(s"[AluInt ${euName}] Stage S1 logic defined.")
 
     // --- Stage S2: Execute ---
-    val uopFullPayload_s2 = s2_execute(EU_INPUT_PAYLOAD) // Get payload propagated to s2
+    val uopFullPayload_s2 = s2_execute(commonSignals.EU_INPUT_PAYLOAD) // Get payload propagated to s2
     val renamedUop_s2 = uopFullPayload_s2.renamedUop
     val decodedUop_s2 = renamedUop_s2.decoded
 
@@ -117,8 +130,8 @@ class AluIntEuPlugin(
       aluSrc1Data := uopFullPayload_s2.src1Data // Data was pushed with uop
       aluSrc2Data := uopFullPayload_s2.src2Data
     } else {
-      aluSrc1Data := s2_execute(S1_RS1_DATA) // Data was read from PRF in S1
-      aluSrc2Data := s2_execute(S1_RS2_DATA)
+      aluSrc1Data := s2_execute(signals.S1_RS1_DATA) // Data was read from PRF in S1
+      aluSrc2Data := s2_execute(signals.S1_RS2_DATA)
     }
 
     // Connect inputs to DemoAlu
@@ -164,5 +177,8 @@ class AluIntEuPlugin(
         )
       )
     }
+
+    ParallaxLogger.log(s"[AluInt ${euName}] Stage S2 logic defined.")
+
   }
 }

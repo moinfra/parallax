@@ -1,5 +1,7 @@
 package parallax.common
 
-import spinal.core.Bundle
+import spinal.core._
 
-case class EmptyBundle() extends Bundle {}
+case class EmptyBundle() extends Bundle {
+    val _phatom_data = Bool()
+}

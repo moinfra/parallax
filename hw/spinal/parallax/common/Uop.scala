@@ -562,6 +562,12 @@ case class PhysicalRegOperand(physRegIdxWidth: BitCount) extends Bundle {
     this
   }
 
+  def setDefaultForSim(): this.type = {
+    import spinal.core.sim._
+    idx #= 0
+    this
+  }
+
   def dump(): Seq[Any] = {
     Seq("PhysicalRegOperand: idx=", idx)
   }
@@ -597,6 +603,18 @@ case class RenameInfo(val config: PipelineConfig) extends Bundle {
     oldPhysDest.setDefault(); oldPhysDestIsFpr := False
     allocatesPhysDest := False
     writesToPhysReg := False
+    this
+  }
+
+  def setDefaultForSim(): this.type= {
+    import spinal.core.sim._
+    physSrc1.setDefaultForSim(); physSrc1IsFpr #= false
+    physSrc2.setDefaultForSim(); physSrc2IsFpr #= false
+    physSrc3.setDefaultForSim(); physSrc3IsFpr #= false
+    physDest.setDefaultForSim(); physDestIsFpr #= false
+    oldPhysDest.setDefaultForSim(); oldPhysDestIsFpr #= false
+    allocatesPhysDest #= false
+    writesToPhysReg #= false
     this
   }
 
@@ -640,6 +658,19 @@ case class RenamedUop(
     executed := False
     hasException := False
     exceptionCode := 0 // Default to "No Exception"
+    this
+  }
+
+  def setDefaultForSim(decoded: DecodedUop = null): this.type = {
+    import spinal.core.sim._
+    if (decoded != null) this.decoded := decoded else this.decoded.setDefaultForSim()
+    rename.setDefaultForSim()
+    robIdx #= 0
+    uniqueId #= 0
+    dispatched #= false
+    executed #= false
+    hasException #= false
+    exceptionCode #= 0
     this
   }
 

@@ -1,6 +1,6 @@
 package parallax.test.scala
 
-import parallax.execute.{BypassService, BypassServicePlugin}
+import parallax.execute.{BypassService, BypassPlugin}
 import parallax.utilities._
 import org.scalatest.funsuite.AnyFunSuite
 import spinal.core._
@@ -49,14 +49,14 @@ class EarlyBypassTestConsumerPlugin(consumerName: String, val payloadType: HardT
 }
 
 
-class BypassServicePluginSpec extends SpinalSimFunSuite {
+class BypassPluginSpec extends SpinalSimFunSuite {
   def simConfig = SimConfig.withWave.withVcdWave
   val PAYLOAD_HT = HardType(TestBypassPayload(UInt(32 bits)))
 
   def createDut(numProducers: Int, includeConsumer: Boolean, includeEarlyConsumer: Boolean = false) = {
     class TestBench extends Component {
       val database = new DataBase
-      val servicePlugin = new BypassServicePlugin(PAYLOAD_HT())
+      val servicePlugin = new BypassPlugin(PAYLOAD_HT())
       val producerPluginsList = (0 until numProducers).map(i => new BypassTestSourcePlugin(s"EU$i", PAYLOAD_HT()))
       val consumerPluginOpt = if (includeConsumer) Some(new BypassTestConsumerPlugin("NormalConsumer", PAYLOAD_HT())) else None
       val earlyConsumerPluginOpt = if (includeEarlyConsumer) Some(new EarlyBypassTestConsumerPlugin("EarlyConsumer", PAYLOAD_HT())) else None
@@ -79,7 +79,7 @@ class BypassServicePluginSpec extends SpinalSimFunSuite {
     driverQueue.enqueue(payloadSetter)
   }
 
-  test("BypassServicePlugin - no producers") {
+  test("BypassPlugin - no producers") {
     val dut = simConfig.compile(createDut(numProducers = 0, includeConsumer = true))
     dut.doSim { dut =>
       dut.clockDomain.forkStimulus(period = 10)
@@ -96,7 +96,7 @@ class BypassServicePluginSpec extends SpinalSimFunSuite {
     }
   }
 
-  test("BypassServicePlugin - one producer") {
+  test("BypassPlugin - one producer") {
     val dut = simConfig.compile(createDut(numProducers = 1, includeConsumer = true))
     dut.doSim { dut =>
       dut.clockDomain.forkStimulus(period = 10)
@@ -126,7 +126,7 @@ class BypassServicePluginSpec extends SpinalSimFunSuite {
     }
   }
 
-  test("BypassServicePlugin - two producers, sequential send") {
+  test("BypassPlugin - two producers, sequential send") {
     val dut = simConfig.compile(createDut(numProducers = 2, includeConsumer = true))
     dut.doSim { dut =>
       dut.clockDomain.forkStimulus(period = 10)
@@ -162,7 +162,7 @@ class BypassServicePluginSpec extends SpinalSimFunSuite {
     }
   }
 
-  test("BypassServicePlugin - two producers, simultaneous send (one data drop expected)") {
+  test("BypassPlugin - two producers, simultaneous send (one data drop expected)") {
     val dut = simConfig.compile(createDut(numProducers = 2, includeConsumer = true))
     dut.doSim { dut =>
       dut.clockDomain.forkStimulus(period = 10)
@@ -211,7 +211,7 @@ class BypassServicePluginSpec extends SpinalSimFunSuite {
     }
   }
   
-  test("BypassServicePlugin - consumer requests flow early") {
+  test("BypassPlugin - consumer requests flow early") {
     val dut = simConfig.compile(createDut(numProducers = 0, includeConsumer = false, includeEarlyConsumer = true))
     dut.doSim { dut =>
       dut.clockDomain.forkStimulus(period = 10)
