@@ -1,4 +1,4 @@
-package parallax
+package parallax.common
 
 import spinal.lib.IMasterSlave
 import spinal.core.Bundle

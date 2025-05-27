@@ -1,6 +1,6 @@
 package parallax.test.scala
 
-import parallax.PhysicalRegFilePlugin
+import parallax.common.PhysicalRegFilePlugin
 import parallax.common._
 import parallax.utilities._
 
@@ -11,7 +11,7 @@ import spinal.lib.Flow
 import spinal.lib.sim.{FlowDriver, FlowMonitor}
 import scala.util.Random
 import spinal.tester.{SpinalSimFunSuite, SpinalAnyFunSuite}
-import parallax.PhysicalRegFileService
+import parallax.common.PhysicalRegFileService
 
 class PhysicalRegFilePluginSpec extends SpinalSimFunSuite {
 

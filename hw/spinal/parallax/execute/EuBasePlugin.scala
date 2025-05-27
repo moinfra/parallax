@@ -9,6 +9,7 @@ import parallax._
 import parallax.components.rob._
 import parallax.utilities._ // 包含 Plugin, Service, ParallaxLogger, findService, getService 等
 import scala.collection.mutable.ArrayBuffer
+import parallax.common.{PhysicalRegFileService, PrfReadPort, PrfWritePort}
 
 // --- ParallaxEuCommonSignals (包含 EuPushPortPayload 和 EXEC_ Stageables) ---
 // 这个 case class 通常定义在一个共享的文件中，或者在 parallax.common 包内
@@ -44,7 +45,7 @@ object EuRegType extends SpinalEnum {
 }
 
 
-abstract class ParallaxEuBase(
+abstract class EuBasePlugin(
     val euName: String,
     val pipelineConfig: PipelineConfig,
     val readPhysRsDataFromPush: Boolean

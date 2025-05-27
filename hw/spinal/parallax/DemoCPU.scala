@@ -14,6 +14,7 @@ import scala.collection.mutable.ArrayBuffer
 import parallax.utilities.{Plugin, DataBase, ProjectScope, Framework, Service}
 import spinal.lib.pipeline.Connection.M2S
 import parallax.utilities.LockedImpl
+import common.PhysicalRegFilePlugin
 
 class DemoCPU(val plugins: Seq[Plugin]) extends Component {
   val database = new DataBase
