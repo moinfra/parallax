@@ -84,9 +84,9 @@ class TestPrfPreloadPlugin(
     // Connect the TestBench's master port (tbPreloadWriteCmdPort) to drive the service's slave port
     // serviceWritePort is slave-like from the perspective of the driver (TestBench)
     // tbPreloadWriteCmdPort is master-like (TestBench drives its .valid, .address, .data)
-    serviceWritePort.valid   := tbPreloadWriteCmdPort.valid
+    serviceWritePort.valid := tbPreloadWriteCmdPort.valid
     serviceWritePort.address := tbPreloadWriteCmdPort.address
-    serviceWritePort.data    := tbPreloadWriteCmdPort.data
+    serviceWritePort.data := tbPreloadWriteCmdPort.data
   }
 }
 
@@ -108,12 +108,11 @@ class AluIntEuTestBench(
   val io = new Bundle {
     val driveEuInput = slave Stream (HT_EuPushPayload())
 
-    val prfReadCmd = slave(PrfReadPort(pCfg.physGprIdxWidth)) simPublic() 
+    val prfReadCmd = slave(PrfReadPort(pCfg.physGprIdxWidth)) simPublic ()
 
-    val prfPreloadWriteCmd = if (!readPushDataSetting) slave(PrfWritePort(pCfg.physGprIdxWidth)) simPublic() else null
+    val prfPreloadWriteCmd = if (!readPushDataSetting) slave(PrfWritePort(pCfg.physGprIdxWidth)) simPublic () else null
   }
   io.driveEuInput.simPublic()
-
 
   def plugins: Seq[Plugin] = {
     val ret = mutable.ArrayBuffer(
@@ -138,10 +137,10 @@ class AluIntEuTestBench(
         euName = aluEuName,
         pipelineConfig = pCfg,
         readPhysRsDataFromPush = readPushDataSetting
-      ),
+      )
     )
 
-    if (io.prfPreloadWriteCmd!= null) {
+    if (io.prfPreloadWriteCmd != null) {
       ret += new TestPrfPreloadPlugin(
         pCfg = pCfg,
         tbPreloadWriteCmdPort = io.prfPreloadWriteCmd
@@ -427,8 +426,335 @@ class AluIntEuIntegrationSpec extends CustomSpinalSimFunSuite {
         dut.clockDomain.waitSampling(10)
       }
     }
-    // You would add other test cases (ADDI, NOP, Exception) here,
-    // following the same pattern of setup, enqueueing AluEuTestInputParams, waiting, and asserting.
+
+    test(s"AluIntEuPlugin - SUB Operation - $modeName") {
+      val pCfg = createTestPipelineConfig()
+      simCfg.compile(new AluIntEuTestBench(pCfg, readPushDataSetting = readPushDataValue)).doSim { dut =>
+        dut.clockDomain.forkStimulus(10)
+        val inputQueue = mutable.Queue[AluEuTestInputParams]()
+        SimTestHelpers.SimpleStreamDrive(dut.io.driveEuInput, dut.clockDomain, inputQueue)((payload, params) =>
+          driveFullEuPushPayload(payload, pCfg, params)
+        )
+        val robCompletionsMon = mutable.ArrayBuffer[RobCompletionSnapshot]();
+        val bypassMessagesMon = mutable.ArrayBuffer[BypassMessageSnapshot]()
+        setupAluEuMonitors(
+          dut,
+          pCfg,
+          mutable.ArrayBuffer(),
+          robCompletionsMon,
+          bypassMessagesMon
+        ) // gprWritesMon not primary for this check
+        dut.clockDomain.waitSampling()
+
+        val robIdxTest = 1; val physSrc1 = 4; val physSrc2 = 5; val physDest = 6
+        val src1Val = BigInt(100); val src2Val = BigInt(30); val expectedResult = src1Val - src2Val
+        if (!readPushDataValue) {
+          preloadPrfWritePort(dut, physSrc1, src1Val, dut.clockDomain);
+          preloadPrfWritePort(dut, physSrc2, src2Val, dut.clockDomain); dut.clockDomain.waitSampling(2)
+        }
+        inputQueue.enqueue(
+          AluEuTestInputParams(
+            BaseUopCode.ALU,
+            robIdxTest,
+            physSrc1,
+            true,
+            src1Val,
+            physSrc2,
+            true,
+            src2Val,
+            physDest,
+            true,
+            0,
+            ImmUsageType.NONE,
+            true,
+            false,
+            LogicOp.NONE,
+            false,
+            false,
+            DecodeExCode.OK,
+            0x200L
+          )
+        )
+        dut.clockDomain.waitSamplingWhere(50)(robCompletionsMon.nonEmpty && bypassMessagesMon.nonEmpty)
+
+        assert(robCompletionsMon.nonEmpty, s"[$modeName] SUB: No ROB completion"); val robComp = robCompletionsMon.head
+        assert(!robComp.hasException, s"[$modeName] SUB: Exception. Code: ${robComp.exceptionCode}");
+        assert(robComp.robIdx == robIdxTest, s"[$modeName] SUB: ROB index")
+        assert(bypassMessagesMon.nonEmpty, s"[$modeName] SUB: No bypass"); val bypassMsg = bypassMessagesMon.head
+        assert(
+          bypassMsg.physRegData == expectedResult,
+          s"[$modeName] SUB: Bypass data. Exp $expectedResult, Got ${bypassMsg.physRegData}"
+        )
+        val gprRead = readPrf(dut, physDest, dut.clockDomain);
+        assert(gprRead == expectedResult, s"[$modeName] SUB: GPR read. Exp $expectedResult, Got $gprRead")
+        println(s"Test 'AluIntEuPlugin - SUB Operation - $modeName' PASSED"); dut.clockDomain.waitSampling(10)
+      }
+    }
+
+    test(s"AluIntEuPlugin - AND Operation - $modeName") {
+      val pCfg = createTestPipelineConfig()
+      simCfg.compile(new AluIntEuTestBench(pCfg, readPushDataSetting = readPushDataValue)).doSim { dut =>
+        dut.clockDomain.forkStimulus(10)
+        val inputQueue = mutable.Queue[AluEuTestInputParams]()
+        SimTestHelpers.SimpleStreamDrive(dut.io.driveEuInput, dut.clockDomain, inputQueue)((payload, params) =>
+          driveFullEuPushPayload(payload, pCfg, params)
+        )
+        val robCompletionsMon = mutable.ArrayBuffer[RobCompletionSnapshot]();
+        val bypassMessagesMon = mutable.ArrayBuffer[BypassMessageSnapshot]()
+        setupAluEuMonitors(dut, pCfg, mutable.ArrayBuffer(), robCompletionsMon, bypassMessagesMon)
+        dut.clockDomain.waitSampling()
+
+        val robIdxTest = 2; val physSrc1 = 7; val physSrc2 = 8; val physDest = 9
+        val src1Val = BigInt("FFFF0000", 16); val src2Val = BigInt("00FFFF00", 16);
+        val expectedResult = src1Val & src2Val
+        if (!readPushDataValue) {
+          preloadPrfWritePort(dut, physSrc1, src1Val, dut.clockDomain);
+          preloadPrfWritePort(dut, physSrc2, src2Val, dut.clockDomain); dut.clockDomain.waitSampling(2)
+        }
+        inputQueue.enqueue(
+          AluEuTestInputParams(
+            BaseUopCode.ALU,
+            robIdxTest,
+            physSrc1,
+            true,
+            src1Val,
+            physSrc2,
+            true,
+            src2Val,
+            physDest,
+            true,
+            0,
+            ImmUsageType.NONE,
+            false,
+            false,
+            LogicOp.AND,
+            false,
+            false,
+            DecodeExCode.OK,
+            0x300L
+          )
+        )
+        dut.clockDomain.waitSamplingWhere(50)(robCompletionsMon.nonEmpty && bypassMessagesMon.nonEmpty)
+
+        assert(robCompletionsMon.nonEmpty, s"[$modeName] AND: No ROB completion"); val robComp = robCompletionsMon.head
+        assert(!robComp.hasException, s"[$modeName] AND: Exception. Code: ${robComp.exceptionCode}");
+        assert(robComp.robIdx == robIdxTest, s"[$modeName] AND: ROB index")
+        assert(bypassMessagesMon.nonEmpty, s"[$modeName] AND: No bypass"); val bypassMsg = bypassMessagesMon.head
+        assert(
+          bypassMsg.physRegData == expectedResult,
+          s"[$modeName] AND: Bypass data. Exp $expectedResult, Got ${bypassMsg.physRegData}"
+        )
+        val gprRead = readPrf(dut, physDest, dut.clockDomain);
+        assert(gprRead == expectedResult, s"[$modeName] AND: GPR read. Exp $expectedResult, Got $gprRead")
+        println(s"Test 'AluIntEuPlugin - AND Operation - $modeName' PASSED"); dut.clockDomain.waitSampling(10)
+      }
+    }
+
+    // test(s"AluIntEuPlugin - Decode Exception Propagation - $modeName") {
+    //   val pCfg = createTestPipelineConfig()
+    //   simCfg.compile(new AluIntEuTestBench(pCfg, readPushDataSetting = readPushDataValue)).doSim { dut =>
+    //     dut.clockDomain.forkStimulus(10)
+    //     val inputQueue = mutable.Queue[AluEuTestInputParams]()
+    //     SimTestHelpers.SimpleStreamDrive(dut.io.driveEuInput, dut.clockDomain, inputQueue)((payload, params) =>
+    //       driveFullEuPushPayload(payload, pCfg, params)
+    //     )
+    //     val robCompletionsMon = mutable.ArrayBuffer[RobCompletionSnapshot]()
+    //     setupAluEuMonitors(
+    //       dut,
+    //       pCfg,
+    //       mutable.ArrayBuffer(),
+    //       robCompletionsMon,
+    //       mutable.ArrayBuffer()
+    //     ) // Bypass may or may not happen with exception
+    //     dut.clockDomain.waitSampling()
+
+    //     val robIdxTest = 3; val physDest = 10
+    //     val expectedExcCode = AluExceptionCode.DECODE_EXCEPTION // This is what DemoAlu should output
+    //     inputQueue.enqueue(
+    //       AluEuTestInputParams(
+    //         BaseUopCode.ALU,
+    //         robIdxTest,
+    //         0,
+    //         false,
+    //         0,
+    //         0,
+    //         false,
+    //         0,
+    //         physDest,
+    //         false,
+    //         0,
+    //         ImmUsageType.NONE,
+    //         false,
+    //         true,
+    //         LogicOp.NONE,
+    //         false,
+    //         true,
+    //         DecodeExCode.DECODE_ERROR,
+    //         0x400L
+    //       )
+    //     )
+    //     dut.clockDomain.waitSamplingWhere(50)(robCompletionsMon.nonEmpty)
+
+    //     assert(robCompletionsMon.nonEmpty, s"[$modeName] DecodeExc: No ROB completion");
+    //     val robComp = robCompletionsMon.head
+    //     assert(robComp.hasException, s"[$modeName] DecodeExc: Should have exception");
+    //     assert(robComp.robIdx == robIdxTest, s"[$modeName] DecodeExc: ROB index")
+    //     assert(
+    //       robComp.exceptionCode == expectedExcCode.asUInt.toBigInt,
+    //       s"[$modeName] DecodeExc: Exc code. Exp ${expectedExcCode.asUInt.toBigInt}, Got ${robComp.exceptionCode}"
+    //     )
+    //     println(s"Test 'AluIntEuPlugin - Decode Exception Propagation - $modeName' PASSED");
+    //     dut.clockDomain.waitSampling(10)
+    //   }
+    // }
+
+    // test(s"AluIntEuPlugin - Dispatch to Wrong EU (LOAD to ALU) - $modeName") {
+    //   val pCfg = createTestPipelineConfig()
+    //   simCfg.compile(new AluIntEuTestBench(pCfg, readPushDataSetting = readPushDataValue)).doSim { dut =>
+    //     dut.clockDomain.forkStimulus(10)
+    //     val inputQueue = mutable.Queue[AluEuTestInputParams]()
+    //     SimTestHelpers.SimpleStreamDrive(dut.io.driveEuInput, dut.clockDomain, inputQueue)((payload, params) =>
+    //       driveFullEuPushPayload(payload, pCfg, params)
+    //     )
+    //     val robCompletionsMon = mutable.ArrayBuffer[RobCompletionSnapshot]()
+    //     setupAluEuMonitors(dut, pCfg, mutable.ArrayBuffer(), robCompletionsMon, mutable.ArrayBuffer())
+    //     dut.clockDomain.waitSampling()
+
+    //     val robIdxTest = 4; val physDest = 11
+    //     val expectedExcCode = AluExceptionCode.DISPATCH_TO_WRONG_EU
+    //     inputQueue.enqueue(
+    //       AluEuTestInputParams(
+    //         BaseUopCode.LOAD,
+    //         robIdxTest,
+    //         0,
+    //         false,
+    //         0,
+    //         0,
+    //         false,
+    //         0,
+    //         physDest,
+    //         true,
+    //         0,
+    //         ImmUsageType.MEM_OFFSET,
+    //         false,
+    //         false,
+    //         LogicOp.NONE,
+    //         false,
+    //         false,
+    //         DecodeExCode.OK,
+    //         0x500L
+    //       )
+    //     )
+    //     dut.clockDomain.waitSamplingWhere(50)(robCompletionsMon.nonEmpty)
+
+    //     assert(robCompletionsMon.nonEmpty, s"[$modeName] WrongEU: No ROB completion");
+    //     val robComp = robCompletionsMon.head
+    //     assert(robComp.hasException, s"[$modeName] WrongEU: Should have exception");
+    //     assert(robComp.robIdx == robIdxTest, s"[$modeName] WrongEU: ROB index")
+    //     assert(
+    //       robComp.exceptionCode == expectedExcCode.asUInt.toBigInt,
+    //       s"[$modeName] WrongEU: Exc code. Exp ${expectedExcCode.asUInt.toBigInt}, Got ${robComp.exceptionCode}"
+    //     )
+    //     println(s"Test 'AluIntEuPlugin - Dispatch to Wrong EU - $modeName' PASSED"); dut.clockDomain.waitSampling(10)
+    //   }
+    // }
+
+    test(s"AluIntEuPlugin - Back-to-back ADD Operations - $modeName") {
+      val pCfg = createTestPipelineConfig()
+      simCfg.compile(new AluIntEuTestBench(pCfg, readPushDataSetting = readPushDataValue)).doSim { dut =>
+        dut.clockDomain.forkStimulus(10)
+        val inputQueue = mutable.Queue[AluEuTestInputParams]()
+        SimTestHelpers.SimpleStreamDrive(dut.io.driveEuInput, dut.clockDomain, inputQueue)((payload, params) =>
+          driveFullEuPushPayload(payload, pCfg, params)
+        )
+        val robCompletionsMon = mutable.ArrayBuffer[RobCompletionSnapshot]();
+        val bypassMessagesMon = mutable.ArrayBuffer[BypassMessageSnapshot]()
+        setupAluEuMonitors(dut, pCfg, mutable.ArrayBuffer(), robCompletionsMon, bypassMessagesMon)
+        dut.clockDomain.waitSampling()
+
+        val robIdx1 = 5; val ps1_1 = 12; val ps2_1 = 13; val pd_1 = 14; val sd1_1 = 1; val sd2_1 = 2; val exp1 = 3
+        val robIdx2 = 6; val ps1_2 = 15; val ps2_2 = 16; val pd_2 = 17; val sd1_2 = 5; val sd2_2 = 6; val exp2 = 11
+
+        if (!readPushDataValue) {
+          preloadPrfWritePort(dut, ps1_1, sd1_1, dut.clockDomain);
+          preloadPrfWritePort(dut, ps2_1, sd2_1, dut.clockDomain)
+          preloadPrfWritePort(dut, ps1_2, sd1_2, dut.clockDomain);
+          preloadPrfWritePort(dut, ps2_2, sd2_2, dut.clockDomain)
+          dut.clockDomain.waitSampling(2)
+        }
+        inputQueue.enqueue(
+          AluEuTestInputParams(
+            BaseUopCode.ALU,
+            robIdx1,
+            ps1_1,
+            true,
+            sd1_1,
+            ps2_1,
+            true,
+            sd2_1,
+            pd_1,
+            true,
+            0,
+            ImmUsageType.NONE,
+            false,
+            true,
+            LogicOp.NONE,
+            false,
+            false,
+            DecodeExCode.OK,
+            0x600L
+          )
+        )
+        inputQueue.enqueue(
+          AluEuTestInputParams(
+            BaseUopCode.ALU,
+            robIdx2,
+            ps1_2,
+            true,
+            sd1_2,
+            ps2_2,
+            true,
+            sd2_2,
+            pd_2,
+            true,
+            0,
+            ImmUsageType.NONE,
+            false,
+            true,
+            LogicOp.NONE,
+            false,
+            false,
+            DecodeExCode.OK,
+            0x604L
+          )
+        )
+        dut.clockDomain.waitSamplingWhere(100)(robCompletionsMon.length >= 2 && bypassMessagesMon.length >= 2)
+        dut.clockDomain.waitSampling(5)
+
+        assert(
+          robCompletionsMon.length == 2,
+          s"[$modeName] B2B: Expected 2 ROB completions, got ${robCompletionsMon.length}"
+        )
+        assert(
+          bypassMessagesMon.length == 2,
+          s"[$modeName] B2B: Expected 2 bypass messages, got ${bypassMessagesMon.length}"
+        )
+
+        val robComp1 = robCompletionsMon.find(_.robIdx == robIdx1).get;
+        assert(!robComp1.hasException && robComp1.robIdx == robIdx1)
+        val bypass1 = bypassMessagesMon.find(_.robIdx == robIdx1).get;
+        assert(bypass1.physRegIdx == pd_1 && bypass1.physRegData == exp1)
+        val gpr1 = readPrf(dut, pd_1, dut.clockDomain); assert(gpr1 == exp1)
+
+        val robComp2 = robCompletionsMon.find(_.robIdx == robIdx2).get;
+        assert(!robComp2.hasException && robComp2.robIdx == robIdx2)
+        val bypass2 = bypassMessagesMon.find(_.robIdx == robIdx2).get;
+        assert(bypass2.physRegIdx == pd_2 && bypass2.physRegData == exp2)
+        val gpr2 = readPrf(dut, pd_2, dut.clockDomain); assert(gpr2 == exp2)
+        println(s"Test 'AluIntEuPlugin - Back-to-back ADD Operations - $modeName' PASSED");
+        dut.clockDomain.waitSampling(10)
+      }
+    }
   }
   thatsAll()
 }
