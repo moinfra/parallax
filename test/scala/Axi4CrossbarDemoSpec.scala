@@ -301,7 +301,6 @@ class BridgeSpec extends SpinalSimFunSuite {
       .doSimUntilVoid { dut =>
         implicit val cd = dut.clockDomain
         dut.clockDomain.forkStimulus(10)
-
         val gmbCmd = dut.io.gmbCmdIn
         val gmbRsp = dut.io.gmbRspOut
 
