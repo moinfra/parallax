@@ -11,7 +11,7 @@ import parallax.common._
 
 // Components under test and its dependencies
 import parallax.components.memory._ // For GenericMemoryBusConfig, SimulatedSplitGeneralMemory, etc.
-import parallax.components.icache._ // For AdvancedICacheConfig, AdvancedICacheCpuRsp, etc.
+import parallax.components.icache._ // For BasicICacheConfig, BasicICacheCpuRsp, etc.
 
 import scala.collection.mutable
 import scala.util.Random
@@ -26,10 +26,10 @@ class InstructionFetchUnitTestBench(
 
   val io = new Bundle {
     val pcIn = slave(Stream(UInt(ifuConfig.pcWidth)))
-    // Implicit config for AdvancedICacheCpuRsp used in dataOut
-    implicit val advIcacheCfg: AdvancedICacheConfig = ifuConfig.icacheConfig
-    val dataOut = master(Stream(AdvancedICacheCpuRsp()))
-    // val flush = if(ifuConfig.enableFlush) slave(AdvancedICacheFlushBus()) else null // If flush testing is needed
+    // Implicit config for BasicICacheCpuRsp used in dataOut
+    implicit val advIcacheCfg: BasicICacheConfig = ifuConfig.icacheConfig
+    val dataOut = master(Stream(BasicICacheCpuRsp()))
+    // val flush = if(ifuConfig.enableFlush) slave(BasicICacheFlushBus()) else null // If flush testing is needed
   }
 
   val fma = new InstructionFetchUnit(ifuConfig)
@@ -148,7 +148,7 @@ class InstructionFetchUnitSpec extends SpinalSimFunSuite {
       fetchGroupDataWidth = fetchGrpWidth,
       memBusConfig = memBusCfg,
       icacheConfig = if (useCache) {
-        AdvancedICacheConfig( // Using AdvancedICacheConfig
+        BasicICacheConfig( // Using BasicICacheConfig
           cacheSize = 2048, // Bytes
           bytePerLine = 16, // Bytes
           wayCount = 1,     // For simpler replacement logic in this test
@@ -157,8 +157,8 @@ class InstructionFetchUnitSpec extends SpinalSimFunSuite {
           fetchDataWidth = fetchGrpWidth // Corresponds to IFUConfig.fetchGroupDataWidth
         )
       } else {
-        // Minimal AdvancedICacheConfig, as IFUConfig needs its structure for io.dataOut
-        AdvancedICacheConfig(
+        // Minimal BasicICacheConfig, as IFUConfig needs its structure for io.dataOut
+        BasicICacheConfig(
           addressWidth = pcWidth,
           dataWidth = instrWidth,
           fetchDataWidth = fetchGrpWidth

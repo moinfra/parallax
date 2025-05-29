@@ -11,7 +11,7 @@ case class InstructionFetchUnitConfig(
     val instructionWidth: BitCount = 32 bits, // Width of a single instruction/word in a fetch group
     val fetchGroupDataWidth: BitCount = 64 bits, // Total data width fetched by IFU/ICache per request
     val memBusConfig: GenericMemoryBusConfig,
-    var icacheConfig: AdvancedICacheConfig = null,
+    var icacheConfig: BasicICacheConfig = null,
     val enableLog: Boolean = true
 ) {
   require(
@@ -23,11 +23,11 @@ case class InstructionFetchUnitConfig(
 
   // Create the icacheConfig regardless of useICache, as it defines the io.dataOut structure
   if (icacheConfig == null) {
-    icacheConfig = AdvancedICacheConfig(
+    icacheConfig = BasicICacheConfig(
       addressWidth = pcWidth,
-      dataWidth = instructionWidth, // This is the 'word' size for AdvancedICache entries
-      fetchDataWidth = fetchGroupDataWidth // This is how much AdvancedICache fetches/outputs in its rsp bundle
-      // Other AdvancedICacheConfig parameters can be defaulted or added here if needed
+      dataWidth = instructionWidth, // This is the 'word' size for BasicICache entries
+      fetchDataWidth = fetchGroupDataWidth // This is how much BasicICache fetches/outputs in its rsp bundle
+      // Other BasicICacheConfig parameters can be defaulted or added here if needed
     )
   } else {
     // Ensure provided icacheConfig matches IFU's expectations
@@ -43,16 +43,16 @@ case class InstructionFetchUnitConfig(
   require(memBusConfig.addressWidth.value >= pcWidth.value, "memBus addressWidth too small for pcWidth")
 
   if (useICache) {
-    // AdvancedICache requires its internal dataWidth (for cache lines/refills)
+    // BasicICache requires its internal dataWidth (for cache lines/refills)
     // to match the memory bus dataWidth it uses for refills.
     require(
       icacheConfig.dataWidth == memBusConfig.dataWidth,
-      "When using ICache, AdvancedICacheConfig.dataWidth (IFU instructionWidth) must match memBusConfig.dataWidth for cache refills."
+      "When using ICache, BasicICacheConfig.dataWidth (IFU instructionWidth) must match memBusConfig.dataWidth for cache refills."
     )
     // Address width for cache memory port should also match
     require(
       icacheConfig.addressWidth == memBusConfig.addressWidth,
-      "When using ICache, AdvancedICacheConfig.addressWidth (IFU pcWidth) must match memBusConfig.addressWidth."
+      "When using ICache, BasicICacheConfig.addressWidth (IFU pcWidth) must match memBusConfig.addressWidth."
     )
   } else { // Direct memory access without ICache
     // For simplicity in the direct path, the memory bus should provide the entire fetch group in one go.
@@ -69,9 +69,9 @@ case class InstructionFetchUnitConfig(
 }
 
 class InstructionFetchUnit(val config: InstructionFetchUnitConfig) extends Component {
-  // Implicitly use config.icacheConfig for AdvancedICache* types
-  implicit val advCacheConfigForIFU: AdvancedICacheConfig = config.icacheConfig
-  // Implicitly use config.memBusConfig for AdvancedICache's memory port constructor
+  // Implicitly use config.icacheConfig for BasicICache* types
+  implicit val advCacheConfigForIFU: BasicICacheConfig = config.icacheConfig
+  // Implicitly use config.memBusConfig for BasicICache's memory port constructor
   implicit val genericMemBusConfigForICacheMemPort: GenericMemoryBusConfig = config.memBusConfig
 
   val io = new Bundle {
@@ -79,11 +79,11 @@ class InstructionFetchUnit(val config: InstructionFetchUnitConfig) extends Compo
     val pcIn = slave Stream (UInt(config.pcWidth))
 
     // Output to next pipeline stage (e.g., F1 stage output)
-    // AdvancedICacheCpuRsp is implicitly configured by advCacheConfigForIFU
-    val dataOut = master Stream (AdvancedICacheCpuRsp())
+    // BasicICacheCpuRsp is implicitly configured by advCacheConfigForIFU
+    val dataOut = master Stream (BasicICacheCpuRsp())
 
     // ICache Flush interface (only active if ICache is used)
-    val flush = config.enableFlush generate slave(AdvancedICacheFlushBus())
+    val flush = config.enableFlush generate slave(BasicICacheFlushBus())
 
     // External memory bus interface using SplitGenericMemoryBus
     val memBus = master(SplitGenericMemoryBus(config.memBusConfig))
@@ -91,16 +91,16 @@ class InstructionFetchUnit(val config: InstructionFetchUnitConfig) extends Compo
 
   // --- Component Instantiation ---
   val icache = if (config.useICache) {
-    // AdvancedICache takes AdvancedICacheConfig and GenericMemoryBusConfig (for its mem port) implicitly
-    new AdvancedICache() // enableLog can be passed if needed: new AdvancedICache(enableLog = true)
+    // BasicICache takes BasicICacheConfig and GenericMemoryBusConfig (for its mem port) implicitly
+    new BasicICache() // enableLog can be passed if needed: new BasicICache(enableLog = true)
   } else null
 
   // --- Connections ---
   if (config.useICache) {
-    val typedIcach = icache // Just for type inference if needed, already AdvancedICache
+    val typedIcach = icache // Just for type inference if needed, already BasicICache
 
     // Connect ICache to CPU-like interface (pcIn, dataOut)
-    // pcIn (Stream[UInt]) -> icache.io.cpu.cmd (Stream[AdvancedICacheCpuCmd])
+    // pcIn (Stream[UInt]) -> icache.io.cpu.cmd (Stream[BasicICacheCpuCmd])
     typedIcach.io.cpu.cmd.valid := io.pcIn.valid
     typedIcach.io.cpu.cmd.payload.address := io.pcIn.payload
     io.pcIn.ready := typedIcach.io.cpu.cmd.ready
@@ -122,7 +122,7 @@ class InstructionFetchUnit(val config: InstructionFetchUnitConfig) extends Compo
       typedIcach.io.flush <> io.flush
     } else {
       // Ensure flush is properly terminated if present on ICache but not enabled externally
-      if (typedIcach.io.flush != null) { // Should always be non-null due to AdvancedICache definition
+      if (typedIcach.io.flush != null) { // Should always be non-null due to BasicICache definition
         typedIcach.io.flush.cmd.valid := False
         typedIcach.io.flush.cmd.payload.assignDontCare()
         typedIcach.io.flush.rsp.ready := True // Or False, True is usually safer for unused slave inputs

@@ -5,35 +5,35 @@ import spinal.lib._
 import spinal.lib.fsm._
 import parallax.components.memory.{GenericMemoryBusConfig, SplitGenericMemoryBus}
 
-case class AdvancedICacheCpuCmd(implicit config: AdvancedICacheConfig) extends Bundle {
+case class BasicICacheCpuCmd(implicit config: BasicICacheConfig) extends Bundle {
   val address = UInt(config.addressWidth)
 }
 
-case class AdvancedICacheCpuRsp(implicit config: AdvancedICacheConfig) extends Bundle {
+case class BasicICacheCpuRsp(implicit config: BasicICacheConfig) extends Bundle {
   val instructions = Vec(Bits(config.dataWidth), config.fetchWordsPerFetchGroup)
   val fault = Bool()
   val pc = UInt(config.addressWidth)
 }
 
-case class AdvancedICacheCpuBus(implicit config: AdvancedICacheConfig) extends Bundle with IMasterSlave {
-  val cmd = Stream(AdvancedICacheCpuCmd())
-  val rsp = Stream(AdvancedICacheCpuRsp())
+case class BasicICacheCpuBus(implicit config: BasicICacheConfig) extends Bundle with IMasterSlave {
+  val cmd = Stream(BasicICacheCpuCmd())
+  val rsp = Stream(BasicICacheCpuRsp())
   override def asMaster(): Unit = { master(cmd); slave(rsp) }
 }
 
-case class AdvancedICacheFlushCmd() extends Bundle {
+case class BasicICacheFlushCmd() extends Bundle {
   val start = Bool()
 }
-case class AdvancedICacheFlushRsp() extends Bundle {
+case class BasicICacheFlushRsp() extends Bundle {
   val done = Bool()
 }
-case class AdvancedICacheFlushBus() extends Bundle with IMasterSlave {
-  val cmd = Stream(AdvancedICacheFlushCmd())
-  val rsp = Stream(AdvancedICacheFlushRsp())
+case class BasicICacheFlushBus() extends Bundle with IMasterSlave {
+  val cmd = Stream(BasicICacheFlushCmd())
+  val rsp = Stream(BasicICacheFlushRsp())
   override def asMaster(): Unit = { master(cmd); slave(rsp) }
 }
 
-case class AdvancedICacheConfig(
+case class BasicICacheConfig(
     cacheSize: BigInt = 1 KiB,
     bytePerLine: Int = 32,
     wayCount: Int = 2,
@@ -126,7 +126,7 @@ case class AdvancedICacheConfig(
   }
 }
 
-case class CacheLineEntry(implicit val cacheConfig: AdvancedICacheConfig) extends Bundle {
+case class CacheLineEntry(implicit val cacheConfig: BasicICacheConfig) extends Bundle {
   val tag = UInt(cacheConfig.tagWidth) // tagWidth is required > 0
   val data = Bits(cacheConfig.bitsPerLine bits)
   val valid = Bool()
@@ -134,24 +134,24 @@ case class CacheLineEntry(implicit val cacheConfig: AdvancedICacheConfig) extend
   val age: UInt = if (cacheConfig.wayCount > 1) UInt(log2Up(cacheConfig.wayCount) bits) else null
 }
 
-class AdvancedICache(implicit
-    val cacheConfig: AdvancedICacheConfig,
+class BasicICache(implicit
+    val cacheConfig: BasicICacheConfig,
     val memBusConfig: GenericMemoryBusConfig,
     val enableLog: Boolean = true
 ) extends Component {
   require(
     cacheConfig.dataWidth == memBusConfig.dataWidth,
-    "AdvancedICache config.dataWidth must match memBusConfig.dataWidth for refills."
+    "BasicICache config.dataWidth must match memBusConfig.dataWidth for refills."
   )
   require(
     cacheConfig.addressWidth == memBusConfig.addressWidth,
-    "AdvancedICache config.addressWidth must match memBusConfig.addressWidth."
+    "BasicICache config.addressWidth must match memBusConfig.addressWidth."
   )
 
   val io = new Bundle {
-    val cpu = slave(AdvancedICacheCpuBus())
+    val cpu = slave(BasicICacheCpuBus())
     val mem = master(SplitGenericMemoryBus(memBusConfig))
-    val flush = slave(AdvancedICacheFlushBus())
+    val flush = slave(BasicICacheFlushBus())
   }
 
   // Helper booleans for conditional hardware generation
