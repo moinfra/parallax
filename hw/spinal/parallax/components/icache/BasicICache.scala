@@ -246,6 +246,7 @@ class BasicICache(implicit
     io.mem.write.cmd.payload.address := U(0)
     io.mem.write.cmd.payload.data := B(0)
     io.mem.write.cmd.payload.byteEnables := B(0)
+    io.mem.write.cmd.payload.last := False
     if (memBusConfig.useId) io.mem.write.cmd.payload.id := U(0)
     io.mem.write.rsp.ready := True
 

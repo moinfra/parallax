@@ -4,123 +4,139 @@ import spinal.core._
 import spinal.lib._
 import spinal.lib.bus.amba4.axi.{Axi4, Axi4Config, Axi4Ax}
 import spinal.lib.pipeline._
+import parallax.utilities.Formattable
 
 case class DataCacheParameters(
-    cacheSize: Int,            // 总缓存大小 (字节)
-    wayCount: Int,             // 路数 (N-way associative)
-    memDataWidth: Int,         // 内存总线数据宽度 (位)
-    cpuDataWidth: Int,         // CPU数据路径宽度 (位)
-    physicalWidth: Int,        // 物理地址宽度 (位)
-    lineSize: Int = 64,        // 缓存行大小 (字节)
-    refillBufferDepth: Int = 2,  // 填充缓冲区深度 (简化，较小的值)
+    cacheSize: Int, // 总缓存大小 (字节)
+    wayCount: Int, // 路数 (N-way associative)
+    memDataWidth: Int, // 内存总线数据宽度 (位)
+    cpuDataWidth: Int, // CPU数据路径宽度 (位)
+    physicalWidth: Int, // 物理地址宽度 (位)
+    lineSize: Int = 64, // 缓存行大小 (字节)
+    refillBufferDepth: Int = 2, // 填充缓冲区深度 (简化，较小的值)
     writebackBufferDepth: Int = 2, // 回写缓冲区深度 (简化)
     tagsReadAsync: Boolean = true // 标签/状态SRAM是否异步读取 (影响S1时序)
 ) {
-    // 派生参数
-    val bytePerMemWord = memDataWidth / 8
-    val bytePerCpuWord = cpuDataWidth / 8
-    val waySize = cacheSize / wayCount
-    val linePerWay = waySize / lineSize
-    val memWordPerLine = lineSize / bytePerMemWord // 每行包含的内存字数
-    val cpuWordPerLine = lineSize / bytePerCpuWord // 每行包含的CPU字数
+  // 派生参数
+  val bytePerMemWord = memDataWidth / 8
+  val bytePerCpuWord = cpuDataWidth / 8
+  val waySize = cacheSize / wayCount
+  val linePerWay = waySize / lineSize
+  val memWordPerLine = lineSize / bytePerMemWord // 每行包含的内存字数
+  val cpuWordPerLine = lineSize / bytePerCpuWord // 每行包含的CPU字数
 
-    val tagWidth = physicalWidth - log2Up(waySize)
-    val lineIndexWidth = log2Up(linePerWay)
-    val lineOffsetWidth = log2Up(lineSize)           // 行内字节偏移位宽
-    val cpuWordOffsetWidth = log2Up(cpuWordPerLine)  // 行内CPU字偏移位宽
-    val cpuWordByteOffsetWidth = log2Up(bytePerCpuWord) // CPU字内字节偏移位宽 (用于对齐)
+  val tagWidth = physicalWidth - log2Up(waySize)
+  val lineIndexWidth = log2Up(linePerWay)
+  val lineOffsetWidth = log2Up(lineSize) // 行内字节偏移位宽
+  val cpuWordOffsetWidth = log2Up(cpuWordPerLine) // 行内CPU字偏移位宽
+  val cpuWordByteOffsetWidth = log2Up(bytePerCpuWord) // CPU字内字节偏移位宽 (用于对齐)
 
-    // 地址范围
-    val tagRange = physicalWidth - 1 downto (lineIndexWidth + lineOffsetWidth)
-    val lineIndexRange = (lineIndexWidth + lineOffsetWidth - 1) downto lineOffsetWidth
-    val lineOffsetRange = lineOffsetWidth - 1 downto 0
+  // 地址范围
+  val tagRange = physicalWidth - 1 downto (lineIndexWidth + lineOffsetWidth)
+  val lineIndexRange = (lineIndexWidth + lineOffsetWidth - 1) downto lineOffsetWidth
+  val lineOffsetRange = lineOffsetWidth - 1 downto 0
 
-    def axi4Config = Axi4Config(
-        addressWidth = physicalWidth,
-        dataWidth = memDataWidth,
-        idWidth = log2Up(refillBufferDepth max writebackBufferDepth max 1), // 确保至少1位
-        useId = true,
-        useRegion = false,
-        useBurst = true,
-        useLock = false,
-        useCache = false,
-        useSize = true, // AXI Size for burst length calculation by interconnect
-        useQos = false,
-        useLen = true,  // AXI Len (burst length - 1)
-        useLast = true,
-        useResp = true,
-        useProt = true, // Typically needed
-        useStrb = true  // For write data
-    )
+  def axi4Config = Axi4Config(
+    addressWidth = physicalWidth,
+    dataWidth = memDataWidth,
+    idWidth = log2Up(refillBufferDepth max writebackBufferDepth max 1), // 确保至少1位
+    useId = true,
+    useRegion = false,
+    useBurst = true,
+    useLock = false,
+    useCache = false,
+    useSize = true, // AXI Size for burst length calculation by interconnect
+    useQos = false,
+    useLen = true, // AXI Len (burst length - 1)
+    useLast = true,
+    useResp = true,
+    useProt = true, // Typically needed
+    useStrb = true // For write data
+  )
 }
 
-case class CacheTag(p: DataCacheParameters) extends Bundle {
-    val valid = Bool()
-    val address = UInt(p.tagWidth bits)
+case class CacheTag(p: DataCacheParameters) extends Bundle with Formattable {
+  val valid = Bool()
+  val tag = UInt(p.tagWidth bits)
+
+  def format: Seq[Any] = {
+    Seq(
+      L"CacheTag(valid=$valid, tag=$tag)"
+    )
+  }
+
+  def setDefault(): this.type = {
+    valid := False
+    tag := 0
+    this
+  }
 }
 
 case class CacheLineStatus() extends Bundle {
-    val dirty = Bool()
+  val dirty = Bool()
+
+  def setDefault(): this.type = {
+    dirty := False
+    this
+  }
+}
+case class DCacheCpuCmd(p: DataCacheParameters) extends Bundle {
+  val write = Bool() // True for store, False for load
+  val address = UInt(p.physicalWidth bits)
+  val data = Bits(p.cpuDataWidth bits) // For store
+  val mask = Bits(p.bytePerCpuWord bits) // For store (byte mask)
+  val size = UInt(log2Up(p.bytePerCpuWord + 1) bits) // For load (bytes to load, e.g. 1,2,4,8)
+  val io = Bool() // True for non-cacheable IO access
 }
 
-case class CpuCmd(p: DataCacheParameters) extends Bundle {
-    val write = Bool() // True for store, False for load
-    val address = UInt(p.physicalWidth bits)
-    val data = Bits(p.cpuDataWidth bits)    // For store
-    val mask = Bits(p.bytePerCpuWord bits)  // For store (byte mask)
-    val size = UInt(log2Up(p.bytePerCpuWord + 1) bits) // For load (bytes to load, e.g. 1,2,4,8)
-    val io = Bool()                         // True for non-cacheable IO access
-}
-
-case class CpuRsp(p: DataCacheParameters) extends Bundle {
-    val readData = Bits(p.cpuDataWidth bits) // For load
-    val fault = Bool()
-    val redo = Bool()
+case class DCacheCpuRsp(p: DataCacheParameters) extends Bundle {
+  val readData = Bits(p.cpuDataWidth bits) // For load
+  val fault = Bool()
+  val redo = Bool()
 }
 
 class DataCacheCpuIO(p: DataCacheParameters) extends Bundle {
-    val cmd = slave(Stream(CpuCmd(p)))
-    val rsp = master(Flow(CpuRsp(p))) // Flow because response is fixed latency on hit
+  val cmd = slave(Stream(DCacheCpuCmd(p)))
+  val rsp = master(Flow(DCacheCpuRsp(p))) // Flow because response is fixed latency on hit
 }
 
 class DataCacheIO(p: DataCacheParameters) extends Bundle {
-    val cpu = new DataCacheCpuIO(p)
-    val mem = master(Axi4(p.axi4Config))
-    val invalidate = in Bool() // Global invalidate signal ( synchronous )
+  val cpu = new DataCacheCpuIO(p)
+  val mem = master(Axi4(p.axi4Config))
+  val invalidate = in Bool () // Global invalidate signal ( synchronous )
 }
-
 
 // Define Stageable signals for the Data Cache Pipeline
 case class DataCachePipelineSignals(p: DataCacheParameters) extends AreaObject {
-    // Signals originating from CPU command or derived in S0
-    val CPU_CMD = Stageable(CpuCmd(p))
-    val PHYSICAL_ADDRESS = Stageable(UInt(p.physicalWidth bits))
-    val LINE_INDEX = Stageable(UInt(p.lineIndexWidth bits))
-    val CPU_WORD_OFFSET = Stageable(UInt(p.cpuWordOffsetWidth bits)) // Word offset in line
-    val TAG_FROM_ADDRESS = Stageable(UInt(p.tagWidth bits))
+  // Signals originating from CPU command or derived in S0
+  val CPU_CMD = Stageable(DCacheCpuCmd(p))
+  val PHYSICAL_ADDRESS = Stageable(UInt(p.physicalWidth bits))
+  val LINE_INDEX = Stageable(UInt(p.lineIndexWidth bits))
+  val CPU_WORD_OFFSET = Stageable(UInt(p.cpuWordOffsetWidth bits)) // Word offset in line
+  val TAG_FROM_ADDRESS = Stageable(UInt(p.tagWidth bits))
 
-    // Signals from RAMs, available in S1 based on S0's request
-    val WAYS_TAGS_FROM_RAM = Stageable(Vec.fill(p.wayCount)(CacheTag(p)))
-    val WAYS_STATUS_FROM_RAM = Stageable(Vec.fill(p.wayCount)(CacheLineStatus()))
-    val SPECULATIVE_DATA_FROM_RAM = Stageable(Vec.fill(p.wayCount)(Bits(p.cpuDataWidth bits)))
+  // Signals from RAMs, available in S1 based on S0's request
+  val WAYS_TAGS_FROM_RAM = Stageable(Vec.fill(p.wayCount)(CacheTag(p)))
+  val WAYS_STATUS_FROM_RAM = Stageable(Vec.fill(p.wayCount)(CacheLineStatus()))
+  val SPECULATIVE_DATA_FROM_RAM = Stageable(Vec.fill(p.wayCount)(Bits(p.cpuDataWidth bits)))
 
-    // Hit detection results from S1
-    val CACHE_HIT = Stageable(Bool())
-    val HIT_WAY = Stageable(UInt(log2Up(p.wayCount) bits))
+  // Hit detection results from S1
+  val CACHE_HIT = Stageable(Bool())
+  val HIT_WAY = Stageable(UInt(log2Up(p.wayCount) bits))
 
-    // Control signals determined in S2
-    val FAULT = Stageable(Bool())
-    val REDO = Stageable(Bool())
-    val MISS = Stageable(Bool()) // Cache miss, not IO, not already redo
+  // Control signals determined in S2
+  val FAULT = Stageable(Bool())
+  val REDO = Stageable(Bool())
+  val MISS = Stageable(Bool()) // Cache miss, not IO, not already redo
 
-    // Victim selection from S2 for miss handling
-    val EVICT_WAY = Stageable(UInt(log2Up(p.wayCount) bits))
-    val VICTIM_TAG_FROM_RAM = Stageable(CacheTag(p)) // Tag of the victim line
-    val VICTIM_STATUS_FROM_RAM = Stageable(CacheLineStatus()) // Status of the victim line
-    val VICTIM_IS_DIRTY = Stageable(Bool())
+  // Victim selection from S2 for miss handling
+  val EVICT_WAY = Stageable(UInt(log2Up(p.wayCount) bits))
+  val VICTIM_TAG_FROM_RAM = Stageable(CacheTag(p)) // Tag of the victim line
+  val VICTIM_STATUS_FROM_RAM = Stageable(CacheLineStatus()) // Status of the victim line
+  val VICTIM_IS_DIRTY = Stageable(Bool())
 
-    // Output data for load
-    val LOAD_DATA_OUTPUT = Stageable(Bits(p.cpuDataWidth bits))
+  // Output data for load
+  val LOAD_DATA_OUTPUT = Stageable(Bits(p.cpuDataWidth bits))
 }
 
 /*
@@ -252,7 +268,7 @@ class DataCache(val p: DataCacheParameters) extends Component with LockedImpl {
         io.mem.r.ready := True // Assume always ready to accept refill data
         when(io.mem.r.fire) {
             val respSlot = slots(io.mem.r.payload.id.resized) // Simpler indexing if IDs are 0..N-1
-            
+
             respSlot.lineBuffer.subdivideIn(p.memDataWidth bits)(respSlot.currentMemWord) := io.mem.r.payload.data
             respSlot.currentMemWord := respSlot.currentMemWord + 1
 
@@ -273,7 +289,7 @@ class DataCache(val p: DataCacheParameters) extends Component with LockedImpl {
                     statusRam.io.writeCmd.payload.index := respSlot.address(p.lineIndexRange)
                     statusRam.io.writeCmd.payload.way := respSlot.wayToRefill
                     statusRam.io.writeCmd.payload.data.dirty := False
-                    
+
                     // Ensure Tag/Status RAMs accept write before freeing slot
                     when(tagRam.io.writeCmd.ready && statusRam.io.writeCmd.ready){
                         respSlot.valid := False
@@ -367,7 +383,7 @@ class DataCache(val p: DataCacheParameters) extends Component with LockedImpl {
         // This needs an arbiter if multiple slots could be ready, or ensure only one AW is inflight.
         // Simplified: use axiAwSlot if it's in the right state
         val axiWSlot = axiAwSlot // Assume W follows AW for the same slot for simplicity
-        
+
         io.mem.w.valid := axiWSlot.valid && axiWSlot.axiAwSent && axiWSlot.dataReadFromBanks && (axiWSlot.currentMemWord < p.memWordPerLine)
         io.mem.w.payload.data := axiWSlot.lineBuffer.subdivideIn(p.memDataWidth bits)(axiWSlot.currentMemWord)
         io.mem.w.payload.strb.setAll()
@@ -425,7 +441,7 @@ class DataCache(val p: DataCacheParameters) extends Component with LockedImpl {
             }
         }
         cpuCmd.ready := arbitration.isFiring // Consume CPU cmd if S0 fires
-        
+
         // Default for non-IO reads if S0 is stalled or no cmd
         when(!arbitration.isFiring || !cpuCmd.valid || cpuCmd.payload.io){
             tagRam.io.readCmd.valid := False
@@ -577,7 +593,7 @@ class DataCache(val p: DataCacheParameters) extends Component with LockedImpl {
                     refillCtrl.push.valid := True
                     refillCtrl.push.payload.address := physicalAddress
                     refillCtrl.push.payload.wayToRefill := evictWay
-                    
+
                     io.cpu.rsp.valid := True // Miss started, CPU must redo
                     io.cpu.rsp.payload.redo := True
                 }
@@ -602,4 +618,4 @@ class DataCache(val p: DataCacheParameters) extends Component with LockedImpl {
     }
 
 }
-*/
+ */

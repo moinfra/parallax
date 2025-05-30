@@ -2,85 +2,91 @@ package parallax.components.dcache
 
 import spinal.core._
 import spinal.lib._
-import spinal.lib.bus.amba4.axi.{Axi4, Axi4Config, Axi4Ax}
-import spinal.lib.pipeline._ // Ensure new pipeline API is imported
+import spinal.lib.bus.amba4.axi._
+import spinal.lib.pipeline._
 
+case class TagRamReadCmd(lineIndexWidth: Int) extends Bundle {
+  val index = UInt(lineIndexWidth bits)
+}
+
+case class TagRamWriteCmd(lineIndexWidth: Int, wayCount: Int, tagConfig: CacheTag) extends Bundle {
+  val index = UInt(lineIndexWidth bits)
+  val way = UInt(log2Up(wayCount) bits)
+  val data = cloneOf(tagConfig)
+}
+
+case class TagRamIo(p: DataCacheParameters) extends Bundle {
+  val readCmd = slave(Stream(TagRamReadCmd(p.lineIndexWidth)))
+  val readRsp = master(Stream(Vec.fill(p.wayCount)(CacheTag(p))))
+  val writeCmd = slave(Stream(TagRamWriteCmd(p.lineIndexWidth, p.wayCount, CacheTag(p))))
+}
 
 class TagRamComponent(p: DataCacheParameters) extends Component {
-    val io = new Bundle {
-        val readCmd = slave(Stream(UInt(p.lineIndexWidth bits)))
-        val readRsp = master(Stream(Vec.fill(p.wayCount)(CacheTag(p)))) // Data next cycle
-        val writeCmd = slave(Stream(new Bundle {
-            val index = UInt(p.lineIndexWidth bits)
-            val way = UInt(log2Up(p.wayCount) bits)
-            val data = CacheTag(p)
-        }))
+  val io = TagRamIo(p)
+  val enableLog = true
+
+  val ways_logic = Range(0, p.wayCount).map { wayIdx =>
+    new Area {
+      val mem = Mem.fill(p.linePerWay)(CacheTag(p)) init {
+        Seq.fill(p.linePerWay)(CacheTag(p).setDefault())
+      }
+
+      val readDataForThisWay = mem.readAsync(
+        address = io.readCmd.payload.index
+      )
+      if (enableLog) { report(L"Way ${wayIdx}: readDataForThisWay = ${readDataForThisWay.format}") }
+
+      val isTargetThisWay = io.writeCmd.valid && io.writeCmd.payload.way === wayIdx
+      if (enableLog) { report(L"Way ${wayIdx}: isTargetThisWay = ${isTargetThisWay}") }
+
+      mem.write(
+        address = io.writeCmd.payload.index,
+        data = io.writeCmd.payload.data,
+        enable = isTargetThisWay
+      )
+
+      val data = readDataForThisWay
     }
+  }
 
-    // Each way has its own memory and logic
-    val ways_logic = Range(0, p.wayCount).map { wayIdx =>
-        new Area {
-            report(L"Creating Tag RAM for way ${wayIdx}")
-            val mem = Mem.fill(p.linePerWay)(CacheTag(p))
+  val s0_allWaysReadData = Vec(ways_logic.map(_.data))
 
-            // Read path for this way
-            // The read command is broadcast to all ways, and each way reads its own data
-            val readDataForThisWay = mem.readAsync(
-                address = io.readCmd.payload,
-            )
-            report(L"Way ${wayIdx}: readDataForThisWay = ${readDataForThisWay}")
+  val readRspPayloadReg = Reg(Vec.fill(p.wayCount)(CacheTag(p)))
+  val readRspValidReg = RegInit(False)
 
-            // Write path for this way
-            val is_targeting_this_way = io.writeCmd.valid && io.writeCmd.payload.way === wayIdx
-            report(L"Way ${wayIdx}: is_targeting_this_way = ${is_targeting_this_way}")
+  when(io.readCmd.fire) { // 当新的读命令被接受
+    readRspPayloadReg := s0_allWaysReadData
+    readRspValidReg   := True       // 下个周期响应个 valid
+}.elsewhen(io.readRsp.fire) { // 当当前的有效响应被下游消耗
+    readRspValidReg   := False      // 在消耗的下一个周期标记为无效
+}
 
-            // For Tag RAM, typically a single write port is sufficient.
-            // If multiple write sources are needed in the future, a StreamArbiter would be used here.
-            mem.write(
-                address = io.writeCmd.payload.index,
-                data = io.writeCmd.payload.data,
-                enable = is_targeting_this_way // Only enable write for the targeted way
-            )
+  io.readRsp.valid := readRspValidReg
+  io.readRsp.payload := readRspPayloadReg
 
-            // Expose the read data for aggregation
-            val s0_read_data = readDataForThisWay
-        }
-    }
+  // 当响应无效或者 io.readRsp.ready 时，允许新的读命令
+  // 当 T0 时，接受了一个命令
+  // T1 readRspValidReg 还不成立。此时 io.readCmd.ready 会为真，导致继续接受一个命令。
+  // T2 readRspValidReg 成立。此时响应第一个命令。但由于发送方已经发送了第二个命令，响应会被当作第二个命令的响应。
+  io.readCmd.ready := !readRspValidReg || io.readRsp.ready
+  if (enableLog) {
+    report(L"io.readCmd.ready = ${io.readCmd.ready}, readRspValidReg = ${readRspValidReg} io.readRsp.ready = ${io.readRsp.ready}, io.readRsp.valid = ${io.readRsp.valid}, io.readRsp.payload = ${io.readRsp.payload.map(_.format)}")
+  }
+  when(io.readCmd.valid) {
+    report(L"readCmd valid! readCmd.index = ${io.readCmd.payload.index}")
+  }
+  if (enableLog) { report(L"io.readCmd.ready = ${io.readCmd.ready}, io.readCmd.valid = ${io.readCmd.ready}") }
+  when(io.readCmd.fire) {
+    report(L"readCmd fire! readCmd.index = ${io.readCmd.payload.index}")
+  }
 
-    // Aggregate read responses from all ways
-    val s0_allWaysReadData = Vec(ways_logic.map(_.s0_read_data))
+  val writeTargetWayOH = UIntToOh(io.writeCmd.payload.way, p.wayCount)
+  val writeReadysPerWay = Vec.fill(p.wayCount)(True)
 
-    // Register the read response to pipeline it to the next stage
-    val readRspPayloadReg = Reg(Vec.fill(p.wayCount)(CacheTag(p)))
-    val readRspValidReg = RegInit(False)
-
-    // Pipeline the read response
-    when(io.readCmd.fire) { // cmd is valid and ready
-        readRspPayloadReg := s0_allWaysReadData
-    }
-    readRspValidReg := RegNext(io.readCmd.fire) init(False) // Response valid one cycle after command fires
-
-    io.readRsp.valid := readRspValidReg
-    io.readRsp.payload := readRspPayloadReg
-    // The read command is ready if no valid response is pending, or if the current response is being consumed
-    io.readCmd.ready := !readRspValidReg || io.readRsp.ready // Can accept if output buffer empty or consumed
-    report(L"io.readRsp.valid = ${io.readRsp.valid}, io.readRsp.payload = ${io.readRsp.payload}")
-    report(L"io.readCmd.ready = ${io.readCmd.ready}")
-
-
-    // Handle write command ready signal
-    // The write command is ready if the target way is ready to accept the write.
-    // Since each way's RAM has a single write port and we enable based on 'is_targeting_this_way',
-    // the write is always ready as long as the command is valid and targets a specific way.
-    // We can use OhMux.or for consistency, though for a single write port per way, it simplifies to True.
-    val write_target_way_oh = UIntToOh(io.writeCmd.payload.way, p.wayCount)
-    // Assuming RAM write port is always ready when enabled
-    val write_readys_per_way = Vec.fill(p.wayCount)(True)
-
-    io.writeCmd.ready := Mux(
-        io.writeCmd.valid,
-        OhMux.or(write_target_way_oh, write_readys_per_way),
-        True // If writeCmd.valid is False, we are always ready to accept
-    )
-    report(L"io.writeCmd.ready = ${io.writeCmd.ready}")
+  io.writeCmd.ready := Mux(
+    io.writeCmd.valid,
+    OhMux.or(writeTargetWayOH, writeReadysPerWay),
+    True
+  )
+  if (enableLog) { report(L"io.writeCmd.ready = ${io.writeCmd.ready}") }
 }

@@ -74,7 +74,7 @@ class Axi4ToSplitGmbBridge(
   }
   gmbWriteCmd.payload.data := axiW.payload.data
   gmbWriteCmd.payload.byteEnables := axiW.payload.strb // AXI strb 映射到 GMB byteEnables
-
+  gmbWriteCmd.payload.last := axiW.last
   // 写响应通道
   val gmbWriteRsp = io.gmbOut.write.rsp
   val axiB = io.axiIn.b

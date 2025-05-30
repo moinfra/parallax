@@ -98,6 +98,7 @@ case class SplitGmbWriteCmd(config: GenericMemoryBusConfig) extends Bundle {
   val data = Bits(config.dataWidth)
   val byteEnables = Bits(config.dataWidth.value / 8 bits)
   val id = if (config.useId) UInt(config.idWidth) else null
+  val last = Bool()
 }
 case class SplitGmbWriteRsp(config: GenericMemoryBusConfig) extends Bundle {
   val error = Bool()

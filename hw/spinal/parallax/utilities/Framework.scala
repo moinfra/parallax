@@ -377,3 +377,7 @@ object ParallaxSim {
     )(loc)
   }
 }
+
+trait Formattable {
+  def format: Seq[Any]
+}
