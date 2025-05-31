@@ -1,6 +1,4 @@
-// SPDX-FileCopyrightText: 2023 "Everybody"
-//
-// SPDX-License-Identifier: MIT
+// testOnly parallax.test.scala.dcache2.DataCacheSpec
 
 package parallax.test.scala.dcache2
 
@@ -14,11 +12,15 @@ import parallax.components.dcache2._
 
 import scala.collection.mutable
 import scala.util.Random
+import parallax.components.memory.SimulatedSRAM
+import parallax.components.memory.ExtSRAMConfig
+import parallax.components.memory.ExtSRAMController
+import parallax.utilities.ParallaxLogger
 
 // Define a helper class for Load Response data for easier comparison
-case class SimDataLoadRsp(data: BigInt, fault: Boolean, redo: Boolean, refillSlot: BigInt, refillSlotAny: Boolean)  {
+case class SimDataLoadRsp(data: BigInt, fault: Boolean, redo: Boolean, refillSlot: BigInt, refillSlotAny: Boolean) {
   override def toString: String = {
-      s"SimDataLoadRsp(data=${data}, fault=${fault}, redo=${redo}, refillSlot=${refillSlot}, refillSlotAny=${refillSlotAny})"
+    s"SimDataLoadRsp(data=${data.toString(16)}, fault=${fault}, redo=${redo}, refillSlot=${refillSlot.toString(16)}}, refillSlotAny=${refillSlotAny})"
   }
 }
 
@@ -33,13 +35,13 @@ case class SimDataStoreRsp(
     prefetch: Boolean,
     address: BigInt,
     io: Boolean
-)  {
+) {
   override def toString: String = {
-      s"SimDataStoreRsp(fault=${fault}, redo=${redo}, refillSlot=${refillSlot}, refillSlotAny=${refillSlotAny}, generationKo=${generationKo}, flush=${flush}, prefetch=${prefetch}, address=${address}, io=${io})"
+    s"SimDataStoreRsp(fault=${fault}, redo=${redo}, refillSlot=${refillSlot}, refillSlotAny=${refillSlotAny}, generationKo=${generationKo}, flush=${flush}, prefetch=${prefetch}, address=${address}, io=${io})"
   }
 }
 
-class DataCacheTestbench(val p: DataCacheParameters) extends Component {
+class DataCacheTestbench(val p: DataCacheParameters, val useSimulatedSRAM: Boolean = false) extends Component {
   val dcache = new DataCache(p)
   val axiMasterNode = dcache.io.mem.toAxi4()
 
@@ -62,7 +64,7 @@ class DataCacheTestbench(val p: DataCacheParameters) extends Component {
         refillCount = p.refillCount
       )
     )
-    val mem_axi = master(Axi4(axiMasterNode.config))
+    val mem_axi = !useSimulatedSRAM generate master(Axi4(axiMasterNode.config))
     val refillCompletions = out(Bits(p.refillCount bits))
     val refillEvent = out(Bool())
     val writebackEvent = out(Bool())
@@ -72,7 +74,28 @@ class DataCacheTestbench(val p: DataCacheParameters) extends Component {
   dcache.io.lock <> io.lock
   dcache.io.load <> io.load
   dcache.io.store <> io.store
-  io.mem_axi <> axiMasterNode
+
+  var sram: SimulatedSRAM = null
+  if (useSimulatedSRAM) {
+    val sramSize = 10 KiB
+    val extSramCfg = ExtSRAMConfig(
+      addressWidth = 16,
+      dataWidth = 64,
+      virtualBaseAddress = 0x00000000L,
+      sramSize = sramSize,
+      readWaitCycles = 0,
+      enableLog = true
+    )
+    sram = new SimulatedSRAM(extSramCfg)
+    val ctrl = new ExtSRAMController(axiMasterNode.config, extSramCfg)
+    ctrl.io.axi <> axiMasterNode
+    ctrl.io.ram <> sram.io.ram
+    ctrl.io.simPublic()
+    sram.io.simPublic()
+  } else {
+    io.mem_axi <> axiMasterNode
+  }
+
   io.refillCompletions := dcache.io.refillCompletions
   io.refillEvent := dcache.io.refillEvent
   io.writebackEvent := dcache.io.writebackEvent
@@ -146,6 +169,43 @@ class DataCacheSpec extends CustomSpinalSimFunSuite {
     // dut.io.store.rsp is Flow, master from DUT, no ready from testbench side
 
     clockDomain.waitSampling() // Allow one cycle for initial values to settle
+  }
+
+  def sramFillData(
+      dut: DataCacheTestbench, // Updated TestBench IO type
+      address: BigInt,
+      data: BigInt,
+      dataWidthBytes: Int // Width of the 'value' being passed
+  ): Unit = {
+    val dataWidth = dataWidthBytes * 8
+    val internalDataWidth = dut.sram.config.dataWidth
+    require(
+      dataWidth >= internalDataWidth,
+      "Value's width must be >= internal data width."
+    )
+    if (dataWidth > internalDataWidth) {
+      require(
+        dataWidth % internalDataWidth == 0,
+        "Value's width must be a multiple of internal data width if greater."
+      )
+    }
+    val tbIo = dut.sram.io
+    val numInternalChunks = dataWidth / internalDataWidth
+
+    tbIo.tb_writeEnable #= true
+    for (i <- 0 until numInternalChunks) {
+      val slice = (data >> (i * internalDataWidth)) & ((BigInt(1) << internalDataWidth) - 1)
+      val internalChunkByteAddress = address + i * (internalDataWidth / 8)
+      ParallaxLogger.debug(s"internalChunkByteAddress ${internalChunkByteAddress.toString(16)}")
+      tbIo.tb_writeAddress #= address
+      tbIo.tb_writeData #= slice
+      dut.clockDomain.waitSampling()
+    }
+    tbIo.tb_writeEnable #= false
+    dut.clockDomain.waitSampling()
+    ParallaxLogger.success(
+      s"Memory initialized via TB ports at 0x${address.toString(16)} with 0x${data.toString(16)} (${numInternalChunks} chunk(s))"
+    ) // Kept original comment status
   }
 
   def toSim(rsp: DataLoadRsp): SimDataLoadRsp = SimDataLoadRsp(
@@ -305,14 +365,22 @@ class DataCacheSpec extends CustomSpinalSimFunSuite {
   }
   // -- MODIFICATION END --
 
-  test("DataCache - Load Miss then Hit") {
+  testOnly("DataCache - Load Miss then Hit") {
     val cacheP = defaultCacheP
-    simConfig.compile(new DataCacheTestbench(cacheP)).doSim { dut =>
+    val sram = true
+    simConfig.compile(new DataCacheTestbench(cacheP, sram)).doSim { dut =>
       dut.clockDomain.forkStimulus(period = 10)
       initDutInputs(dut, dut.clockDomain.get)
-      val axiMemSim =
-        AxiMemorySim(dut.io.mem_axi, dut.clockDomain, AxiMemorySimConfig(readResponseDelay = 2, writeResponseDelay = 2))
-      axiMemSim.start()
+      val axiMemSim = if (!sram) {
+        val ret = AxiMemorySim(
+          dut.io.mem_axi,
+          dut.clockDomain,
+          AxiMemorySimConfig(readResponseDelay = 2, writeResponseDelay = 2)
+        )
+        ret.start()
+        ret
+      } else null
+
       dut.clockDomain.assertReset()
       sleep(10)
       dut.clockDomain.deassertReset()
@@ -326,23 +394,27 @@ class DataCacheSpec extends CustomSpinalSimFunSuite {
         StreamDriver.queue(dut.io.load.cmd, dut.clockDomain) // Get the queue from StreamDriver
       StreamReadyRandomizer(dut.io.load.cmd, dut.clockDomain)
 
-      val testAddr = 0x100L
+      val testAddr = BigInt("100", 16)
       val testData = BigInt("11223344AABBCCDD", 16)
       val dataWidthBytes = cacheP.cpuDataWidth / 8
       val lineSizeBytes = cacheP.lineSize
       val wordsPerLine = lineSizeBytes / dataWidthBytes
 
       val lineBaseAddr = (testAddr / lineSizeBytes) * lineSizeBytes
-      println(s"SIM: Initializing memory for line starting at 0x${lineBaseAddr.toHexString}")
+      println(s"SIM: Initializing memory for line starting at 0x${lineBaseAddr.toString(16)}")
       for (i <- 0 until wordsPerLine) {
         val currentWordAddr = lineBaseAddr + i * dataWidthBytes
         val dataForWord = if (currentWordAddr == testAddr) testData else testData + i + 1
-        axiMemSim.memory.writeBigInt(currentWordAddr, dataForWord, dataWidthBytes)
-        println(s"  Wrote 0x${dataForWord.toString(16)} to 0x${currentWordAddr.toHexString}")
+        if (sram) {
+          sramFillData(dut, currentWordAddr, dataForWord, dataWidthBytes)
+        } else {
+          axiMemSim.memory.writeBigInt(currentWordAddr.toLong, dataForWord, dataWidthBytes)
+        }
+        println(s"  Wrote 0x${dataForWord.toString(16)} to 0x${currentWordAddr.toString(16)}")
       }
       dut.clockDomain.waitSampling(5)
 
-      println(s"SIM: Issuing load to 0x${testAddr.toHexString} (expect miss)")
+      println(s"SIM: Issuing load to 0x${testAddr.toString(16)} (expect miss)")
       val missTimeoutPerAttempt = wordsPerLine * (2 + 5) + cacheP.loadRspAt + 100
       val maxLoadRetries = 5
 
@@ -367,14 +439,14 @@ class DataCacheSpec extends CustomSpinalSimFunSuite {
         opName = "Load Miss"
       )
 
-      println(s"SIM: Received final miss response: $rsp1 for address 0x${testAddr.toHexString}")
+      println(s"SIM: Received final miss response: $rsp1 for address 0x${testAddr.toString(16)}")
       assert(!rsp1.fault, "Load (miss) resulted in fault")
       assert(
         rsp1.data == testData,
         s"Load (miss) data mismatch. Expected ${testData.toString(16)}, got ${rsp1.data.toString(16)}"
       )
 
-      println(s"SIM: Issuing load to 0x${testAddr.toHexString} (expect hit)")
+      println(s"SIM: Issuing load to 0x${testAddr.toString(16)} (expect hit)")
       val hitTimeoutPerAttempt = cacheP.loadRspAt + 20
       val rsp2 = executeCmdWithRedo[DataLoadCmd, DataLoadRsp, SimDataLoadRsp](
         cmdAction = () => {
@@ -396,7 +468,7 @@ class DataCacheSpec extends CustomSpinalSimFunSuite {
         opName = "Load Hit"
       )
 
-      println(s"SIM: Received hit response: $rsp2 for address 0x${testAddr.toHexString}")
+      println(s"SIM: Received hit response: $rsp2 for address 0x${testAddr.toString(16)}")
       assert(!rsp2.fault, "Load (hit) resulted in fault")
       assert(
         rsp2.data == testData,

@@ -20,6 +20,9 @@ case class ExtSRAMConfig(
   require(isPow2(dataWidth / 8), "dataWidth must be a power of 2 bytes")
   require(sramSize > 0 && sramSize % (dataWidth / 8) == 0, "sramSize must be a multiple of data bus width")
   val sramSizeHw = sramSize
+  val internalWordCount: Int = (sramSize / dataWidth).toInt
+  val internalWordMaxAddr: Int = internalWordCount - 1
+  val internalMaxAddr = sramSize
 }
 
 // ExtSRAM 的外部引脚定义
@@ -39,7 +42,10 @@ case class ExtSRAMIo(c: ExtSRAMConfig) extends Bundle with IMasterSlave {
 
 // ExtSRAMController 组件
 class ExtSRAMController(axiConfig: Axi4Config, ExtSRAMConfig: ExtSRAMConfig) extends Component {
-  require(axiConfig.dataWidth == ExtSRAMConfig.dataWidth, "AXI and SRAM data width must match")
+  require(
+    axiConfig.dataWidth == ExtSRAMConfig.dataWidth,
+    s"AXI and SRAM data width must match axiConfig.dataWidth = ${axiConfig.dataWidth} ExtSRAMConfig.dataWidth = ${ExtSRAMConfig.dataWidth}"
+  )
   val hasReadWaitCycles = ExtSRAMConfig.readWaitCycles > 0
   val io = new Bundle {
     val axi = slave(Axi4(axiConfig))
@@ -49,26 +55,29 @@ class ExtSRAMController(axiConfig: Axi4Config, ExtSRAMConfig: ExtSRAMConfig) ext
   // --- AXI4 Slave 接口就绪信号 ---
   io.axi.aw.ready := False
   io.axi.ar.ready := False
-  io.axi.w.ready  := False
-  io.axi.b.valid  := False
-  io.axi.r.valid  := False
+  io.axi.w.ready := False
+  io.axi.b.valid := False
+  io.axi.r.valid := False
 
   // --- AXI4 Slave 接口默认 payload ---
-  io.axi.b.payload.id   := 0
+  io.axi.b.payload.id := 0
   io.axi.b.payload.resp := Axi4.resp.OKAY
-  io.axi.r.payload.id   := 0
+  io.axi.r.payload.id := 0
   io.axi.r.payload.data := B(0, axiConfig.dataWidth bits)
   io.axi.r.payload.resp := Axi4.resp.OKAY
   io.axi.r.payload.last := False
 
   // --- SRAM 控制信号初始化 ---
   // START PATCH: SRAM control signal defaults, registers for write, and address drive
-  val sram_write_addr_reg = Reg(UInt(ExtSRAMConfig.addressWidth bits)) init(0)
-  val sram_write_data_reg = Reg(Bits(ExtSRAMConfig.dataWidth bits)) init(0)
+  val sram_write_addr_reg = Reg(UInt(ExtSRAMConfig.addressWidth bits)) init (0)
+  val sram_write_data_reg = Reg(Bits(ExtSRAMConfig.dataWidth bits)) init (0)
   // 初始化字节使能寄存器，如果低有效，则全1表示无效；如果高有效，则全0表示无效
-  val sram_be_n_inactive_value = if(ExtSRAMConfig.sramByteEnableIsActiveLow) B((1 << (ExtSRAMConfig.dataWidth / 8)) - 1, ExtSRAMConfig.dataWidth / 8 bits) else B(0, ExtSRAMConfig.dataWidth / 8 bits)
-  val sram_write_be_n_reg = Reg(Bits(ExtSRAMConfig.dataWidth / 8 bits)) init(sram_be_n_inactive_value)
-  val sram_perform_write  = Reg(Bool()) init (False)
+  val sram_be_n_inactive_value =
+    if (ExtSRAMConfig.sramByteEnableIsActiveLow)
+      B((1 << (ExtSRAMConfig.dataWidth / 8)) - 1, ExtSRAMConfig.dataWidth / 8 bits)
+    else B(0, ExtSRAMConfig.dataWidth / 8 bits)
+  val sram_write_be_n_reg = Reg(Bits(ExtSRAMConfig.dataWidth / 8 bits)) init (sram_be_n_inactive_value)
+  val sram_perform_write = Reg(Bool()) init (False)
 
   io.ram.ce_n := True
   io.ram.oe_n := True
@@ -77,7 +86,7 @@ class ExtSRAMController(axiConfig: Axi4Config, ExtSRAMConfig: ExtSRAMConfig) ext
   io.ram.addr := 0 // 默认地址为0，或使用 assignDontCare() 如果无关紧要
 
   // SRAM 写操作时的数据和地址由寄存器驱动
-  io.ram.data.write       := sram_write_data_reg
+  io.ram.data.write := sram_write_data_reg
   io.ram.data.writeEnable := sram_perform_write
   // SRAM 地址在写和读状态下会被明确设置
   // END PATCH
@@ -117,7 +126,7 @@ class ExtSRAMController(axiConfig: Axi4Config, ExtSRAMConfig: ExtSRAMConfig) ext
         addr_prefetch_valid := False
 
         io.axi.aw.ready := !read_priority || !io.axi.ar.valid
-        io.axi.ar.ready :=  read_priority || !io.axi.aw.valid
+        io.axi.ar.ready := read_priority || !io.axi.aw.valid
 
         when(io.axi.aw.fire) {
           val sizeInfo = if (axiConfig.useSize) L", Size=${(io.axi.aw).size}" else L""
@@ -193,7 +202,7 @@ class ExtSRAMController(axiConfig: Axi4Config, ExtSRAMConfig: ExtSRAMConfig) ext
             transaction_error_occurred := True
             goto(READ_RESPONSE_ERROR)
           } otherwise {
-            hasReadWaitCycles generate {read_wait_counter := 0}
+            hasReadWaitCycles generate { read_wait_counter := 0 }
             goto(READ_SETUP)
           }
         }
@@ -208,12 +217,12 @@ class ExtSRAMController(axiConfig: Axi4Config, ExtSRAMConfig: ExtSRAMConfig) ext
           )
 
         io.axi.w.ready := !sram_perform_write
-        io.ram.ce_n    := False
-        io.ram.oe_n    := True
+        io.ram.ce_n := False
+        io.ram.oe_n := True
         // START PATCH: SRAM 地址由锁存的 sram_write_addr_reg 驱动，字节使能由锁存的 sram_write_be_n_reg 驱动
-        io.ram.addr    := sram_write_addr_reg
-        io.ram.we_n    := !sram_perform_write
-        io.ram.be_n    := sram_write_be_n_reg
+        io.ram.addr := sram_write_addr_reg
+        io.ram.we_n := !sram_perform_write
+        io.ram.be_n := sram_write_be_n_reg
         // END PATCH
 
         when(sram_perform_write) {
@@ -226,20 +235,22 @@ class ExtSRAMController(axiConfig: Axi4Config, ExtSRAMConfig: ExtSRAMConfig) ext
           when(burst_count_remaining === 1) {
             goto(WRITE_RESPONSE)
           }
-        } elsewhen(io.axi.w.fire) {
+        } elsewhen (io.axi.w.fire) {
           if (ExtSRAMConfig.enableLog)
-            report(L"ExtSRAMController: W Fire. Data=0x${io.axi.w.data}, Strb=0x${io.axi.w.strb}, Last=${io.axi.w.last}")
+            report(
+              L"ExtSRAMController: W Fire. Data=0x${io.axi.w.data}, Strb=0x${io.axi.w.strb}, Last=${io.axi.w.last}"
+            )
 
           sram_write_addr_reg := current_sram_addr
           sram_write_data_reg := io.axi.w.data
           // START PATCH: 字节使能处理
-          if(ExtSRAMConfig.sramByteEnableIsActiveLow) {
+          if (ExtSRAMConfig.sramByteEnableIsActiveLow) {
             sram_write_be_n_reg := ~io.axi.w.strb
           } else {
             sram_write_be_n_reg := io.axi.w.strb
           }
           // END PATCH
-          sram_perform_write  := True
+          sram_perform_write := True
         }
       }
     }
@@ -251,11 +262,11 @@ class ExtSRAMController(axiConfig: Axi4Config, ExtSRAMConfig: ExtSRAMConfig) ext
             L"ExtSRAMController: WRITE_DATA_ERROR_CONSUME. BurstCountRem=${burst_count_remaining}"
           )
         io.axi.w.ready := True
-        io.ram.ce_n    := True
-        io.ram.we_n    := True
-        io.ram.oe_n    := True
+        io.ram.ce_n := True
+        io.ram.we_n := True
+        io.ram.oe_n := True
         // START PATCH: SRAM 地址在错误消耗数据时可以设为不关心或固定值
-        io.ram.addr    := 0
+        io.ram.addr := 0
         // END PATCH
         sram_perform_write := False
 
@@ -302,7 +313,7 @@ class ExtSRAMController(axiConfig: Axi4Config, ExtSRAMConfig: ExtSRAMConfig) ext
         io.ram.oe_n := False
         io.ram.we_n := True
         io.ram.addr := current_sram_addr
-        hasReadWaitCycles generate {read_wait_counter := 0}
+        hasReadWaitCycles generate { read_wait_counter := 0 }
         goto(READ_WAIT)
       }
     }
@@ -318,8 +329,9 @@ class ExtSRAMController(axiConfig: Axi4Config, ExtSRAMConfig: ExtSRAMConfig) ext
         io.ram.we_n := True
         io.ram.addr := current_sram_addr
 
-        val prefetch_trigger_cycle = if (ExtSRAMConfig.readWaitCycles == 0) U(0) else U(ExtSRAMConfig.readWaitCycles - 1)
-        val prefetch_waitCond = if (hasReadWaitCycles) read_wait_counter === prefetch_trigger_cycle  else True
+        val prefetch_trigger_cycle =
+          if (ExtSRAMConfig.readWaitCycles == 0) U(0) else U(ExtSRAMConfig.readWaitCycles - 1)
+        val prefetch_waitCond = if (hasReadWaitCycles) read_wait_counter === prefetch_trigger_cycle else True
         when(
           prefetch_waitCond &&
             burst_count_remaining > 1 &&
@@ -333,7 +345,7 @@ class ExtSRAMController(axiConfig: Axi4Config, ExtSRAMConfig: ExtSRAMConfig) ext
               L"ExtSRAMController: Address prefetch at wait_cycle ${hasReadWaitCycles generate read_wait_counter} - Next sram_addr 0x${(current_sram_addr + bytesIncrement)}"
             )
         }
-        val waitCond = if (hasReadWaitCycles) read_wait_counter === ExtSRAMConfig.readWaitCycles  else True
+        val waitCond = if (hasReadWaitCycles) read_wait_counter === ExtSRAMConfig.readWaitCycles else True
         when(waitCond) {
           read_data_buffer := io.ram.data.read
           if (ExtSRAMConfig.readWaitCycles == 0) {
@@ -345,7 +357,7 @@ class ExtSRAMController(axiConfig: Axi4Config, ExtSRAMConfig: ExtSRAMConfig) ext
           }
           goto(READ_RESPONSE)
         } otherwise {
-          hasReadWaitCycles generate {read_wait_counter := read_wait_counter + 1}
+          hasReadWaitCycles generate { read_wait_counter := read_wait_counter + 1 }
         }
       }
     }
@@ -394,7 +406,9 @@ class ExtSRAMController(axiConfig: Axi4Config, ExtSRAMConfig: ExtSRAMConfig) ext
       whenIsActive {
         val is_last_beat = burst_count_remaining === 1
         if (ExtSRAMConfig.enableLog)
-          report(L"ExtSRAMController: READ_RESPONSE_ERROR. ID=${ar_cmd_reg.id}, BurstCountRem=${burst_count_remaining}, Resp=${Axi4.resp.SLVERR}, Last=${is_last_beat}")
+          report(
+            L"ExtSRAMController: READ_RESPONSE_ERROR. ID=${ar_cmd_reg.id}, BurstCountRem=${burst_count_remaining}, Resp=${Axi4.resp.SLVERR}, Last=${is_last_beat}"
+          )
 
         io.ram.ce_n := True
         io.ram.oe_n := True
