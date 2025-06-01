@@ -61,7 +61,7 @@ class IssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
       val s1WokenByBypassThisCycle = io.bypassIn.foldLeft(False) { (acc, bypassPort) =>
         val matches =
           currentEntryReg.src1Tag === bypassPort.payload.physRegIdx && currentEntryReg.src1IsFpr === bypassPort.payload.isFPR
-        val canWake = bypassPort.valid && bypassPort.payload.physRegDataValid && src1NeedsWakeup && matches
+        val canWake = bypassPort.valid && src1NeedsWakeup && matches
         when(canWake && !acc) {
           entries(i).src1Data := bypassPort.payload.physRegData
           entries(i).src1Ready := True // Update the register for next cycle
@@ -74,7 +74,7 @@ class IssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
       val s2WokenByBypassThisCycle = io.bypassIn.foldLeft(False) { (acc, bypassPort) =>
         val matches =
           currentEntryReg.src2Tag === bypassPort.payload.physRegIdx && currentEntryReg.src2IsFpr === bypassPort.payload.isFPR
-        val canWake = bypassPort.valid && bypassPort.payload.physRegDataValid && src2NeedsWakeup && matches
+        val canWake = bypassPort.valid && src2NeedsWakeup && matches
         when(canWake && !acc) {
           entries(i).src2Data := bypassPort.payload.physRegData
           entries(i).src2Ready := True // Update the register for next cycle
@@ -89,7 +89,7 @@ class IssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
         val s3WokenByBypassThisCycle = io.bypassIn.foldLeft(False) { (acc, bypassPort) =>
           val matches =
             entryWithSrc3.src3Tag === bypassPort.payload.physRegIdx && entryWithSrc3.src3IsFpr === bypassPort.payload.isFPR
-          val canWake = bypassPort.valid && bypassPort.payload.physRegDataValid && src3NeedsWakeup && matches
+          val canWake = bypassPort.valid && src3NeedsWakeup && matches
           when(canWake && !acc) {
             entries(i).asInstanceOf[IQEntryFpu].src3Data := bypassPort.payload.physRegData
             entries(i).asInstanceOf[IQEntryFpu].src3Ready := True // Update the register for next cycle

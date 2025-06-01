@@ -154,7 +154,6 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
     bypassPort.valid #= true
     bypassPort.payload.physRegIdx #= pRegIdx
     bypassPort.payload.physRegData #= data
-    bypassPort.payload.physRegDataValid #= true
     bypassPort.payload.robIdx #= robIdxProducer
     bypassPort.payload.isFPR #= isFpr
     bypassPort.payload.hasException #= isExcp

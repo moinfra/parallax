@@ -51,7 +51,6 @@ case class RobCompletionSnapshot(
 case class BypassMessageSnapshot(
     physRegIdx: BigInt,
     physRegData: BigInt,
-    physRegDataValid: Boolean,
     robIdx: BigInt,
     isFPR: Boolean,
     hasException: Boolean,
@@ -304,7 +303,6 @@ class AluIntEuIntegrationSpec extends CustomSpinalSimFunSuite {
         bypassMessagesMon += BypassMessageSnapshot(
           bpPayload.physRegIdx.toBigInt,
           bpPayload.physRegData.toBigInt,
-          bpPayload.physRegDataValid.toBoolean,
           bpPayload.robIdx.toBigInt,
           bpPayload.isFPR.toBoolean,
           bpPayload.hasException.toBoolean,

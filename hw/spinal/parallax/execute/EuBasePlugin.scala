@@ -249,7 +249,6 @@ abstract class EuBasePlugin(
     bypassOutputPort.valid := wbStage.isFiring && resultWritesToPreg && !resultHasException
     bypassOutputPort.payload.physRegIdx := renamedUopAtWb.rename.physDest.idx
     bypassOutputPort.payload.physRegData := resultData
-    bypassOutputPort.payload.physRegDataValid := True // 如果旁路，数据有效
     bypassOutputPort.payload.robIdx := renamedUopAtWb.robIdx
     bypassOutputPort.payload.isFPR := finalDestIsFpr
     bypassOutputPort.payload.hasException := resultHasException // 旁路消息可以携带异常信息供唤醒逻辑使用

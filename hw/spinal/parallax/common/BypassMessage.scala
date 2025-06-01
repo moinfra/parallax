@@ -13,11 +13,6 @@ case class BypassMessage(val config: PipelineConfig) extends Bundle {
   // The data value of the physical register.
   val physRegData = Bits(config.dataWidth)
 
-  // Indicates if the data in this message is valid.
-  // Typically, if the Flow carrying this message is valid, this is also true.
-  // Can be used if a bypass source might fire speculatively without valid data yet.
-  val physRegDataValid = Bool() // Renamed from physRegDataValid for clarity
-
   // ROB index of the Uop that produced this result.
   // Useful for wake-up logic if tags are ROB-based, or for debugging and linking back to ROB.
   val robIdx = UInt(config.robIdxWidth)
@@ -33,7 +28,6 @@ case class BypassMessage(val config: PipelineConfig) extends Bundle {
   def setDefault(): this.type = {
     physRegIdx := U(0)
     physRegData := B(0)
-    physRegDataValid := False
     robIdx := U(0)
     isFPR := False
     hasException := False
