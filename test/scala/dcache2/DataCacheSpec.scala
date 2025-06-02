@@ -30,14 +30,14 @@ case class SimDataStoreRsp(
     redo: Boolean,
     refillSlot: BigInt,
     refillSlotAny: Boolean,
-    generationKo: Boolean,
+    // generationKo: Boolean,
     flush: Boolean,
     prefetch: Boolean,
     address: BigInt,
     io: Boolean
 ) {
   override def toString: String = {
-    s"SimDataStoreRsp(fault=${fault}, redo=${redo}, refillSlot=${refillSlot}, refillSlotAny=${refillSlotAny}, generationKo=${generationKo}, flush=${flush}, prefetch=${prefetch}, address=${address}, io=${io})"
+    s"SimDataStoreRsp(fault=${fault}, redo=${redo}, refillSlot=${refillSlot}, refillSlotAny=${refillSlotAny}, flush=${flush}, prefetch=${prefetch}, address=${address}, io=${io})"
   }
 }
 
@@ -46,7 +46,7 @@ class DataCacheTestbench(val p: DataCacheParameters, val useSimulatedSRAM: Boole
   val axiMasterNode = dcache.io.mem.toAxi4()
 
   val io = new Bundle {
-    val lock = slave(LockPort())
+    // val lock = slave(LockPort())
     val load = slave(
       DataLoadPort(
         preTranslationWidth = p.preTranslationWidth,
@@ -71,7 +71,7 @@ class DataCacheTestbench(val p: DataCacheParameters, val useSimulatedSRAM: Boole
     val writebackBusy = out(Bool())
   }
 
-  dcache.io.lock <> io.lock
+  // dcache.io.lock <> io.lock
   dcache.io.load <> io.load
   dcache.io.store <> io.store
 
@@ -116,9 +116,9 @@ class DataCacheSpec extends CustomSpinalSimFunSuite {
     preTranslationWidth = 32,
     postTranslationWidth = 32,
     lineSize = 64,
-    withCoherency = false,
-    probeIdWidth = 1,
-    ackIdWidth = 1,
+    // withCoherency = false,
+    // probeIdWidth = 1,
+    // ackIdWidth = 1,
     loadReadBanksAt = 0,
     loadReadTagsAt = 1,
     loadTranslatedAt = 1,
@@ -140,16 +140,16 @@ class DataCacheSpec extends CustomSpinalSimFunSuite {
 
   // -- MODIFICATION START (DUT Input Initialization Function) --
   def initDutInputs(dut: DataCacheTestbench, clockDomain: ClockDomain): Unit = {
-    dut.io.lock.valid #= false
-    dut.io.lock.address #= 0
+    // dut.io.lock.valid #= false
+    // dut.io.lock.address #= 0
 
     dut.io.load.cmd.valid #= false
     // dut.io.load.cmd.payload.assignDontCare() // Or set to defaults
     dut.io.load.cmd.payload.virtual #= 0
     dut.io.load.cmd.payload.size #= 0
     dut.io.load.cmd.payload.redoOnDataHazard #= false
-    dut.io.load.cmd.payload.unlocked #= false
-    dut.io.load.cmd.payload.unique #= false
+    // dut.io.load.cmd.payload.unlocked #= false
+    // dut.io.load.cmd.payload.unique #= false
 
     dut.io.load.translated.physical #= 0
     dut.io.load.translated.abord #= false
@@ -161,7 +161,7 @@ class DataCacheSpec extends CustomSpinalSimFunSuite {
     dut.io.store.cmd.payload.address #= 0
     dut.io.store.cmd.payload.data #= 0
     dut.io.store.cmd.payload.mask #= 0
-    dut.io.store.cmd.payload.generation #= false
+    // dut.io.store.cmd.payload.generation #= false
     dut.io.store.cmd.payload.io #= false
     dut.io.store.cmd.payload.flush #= false
     dut.io.store.cmd.payload.flushFree #= false
@@ -221,7 +221,7 @@ class DataCacheSpec extends CustomSpinalSimFunSuite {
     redo = rsp.redo.toBoolean,
     refillSlot = rsp.refillSlot.toBigInt,
     refillSlotAny = rsp.refillSlotAny.toBoolean,
-    generationKo = rsp.generationKo.toBoolean,
+    // generationKo = rsp.generationKo.toBoolean,
     flush = rsp.flush.toBoolean,
     prefetch = rsp.prefetch.toBoolean,
     address = rsp.address.toBigInt,
@@ -332,7 +332,8 @@ class DataCacheSpec extends CustomSpinalSimFunSuite {
         retries += 1
       } else if (storeRspBuffer.nonEmpty) {
         val simRsp = storeRspBuffer.dequeue()
-        if (simRsp.generationKo) {
+        if (false) {
+        // if (simRsp.generationKo) {
           println(
             s"SIM [$opName]: Received GENERATION_KO on attempt ${retries + 1}. Response: $simRsp. Flipping generation for next retry."
           )
@@ -365,7 +366,7 @@ class DataCacheSpec extends CustomSpinalSimFunSuite {
   }
   // -- MODIFICATION END --
 
-  testOnly("DataCache - Load Miss then Hit") {
+  test("DataCache - Load Miss then Hit") {
     val cacheP = defaultCacheP
     val sram = true
     simConfig.compile(new DataCacheTestbench(cacheP, sram)).doSim { dut =>
@@ -393,7 +394,7 @@ class DataCacheSpec extends CustomSpinalSimFunSuite {
       val (loadCmdStreamDriver, loadCmdQueue) =
         StreamDriver.queue(dut.io.load.cmd, dut.clockDomain) // Get the queue from StreamDriver
       StreamReadyRandomizer(dut.io.load.cmd, dut.clockDomain)
-
+// 
       val testAddr = BigInt("100", 16)
       val testData = BigInt("11223344AABBCCDD", 16)
       val dataWidthBytes = cacheP.cpuDataWidth / 8
@@ -424,8 +425,8 @@ class DataCacheSpec extends CustomSpinalSimFunSuite {
           loadCmdQueue.enqueue { cmd =>
             cmd.virtual #= testAddr
             cmd.size #= log2Up(dataWidthBytes)
-            cmd.unlocked #= true
-            cmd.unique #= false
+            // cmd.unlocked #= true
+            // cmd.unique #= false
             cmd.redoOnDataHazard #= false
             dut.io.load.translated.physical #= testAddr
             dut.io.load.translated.abord #= false
@@ -453,8 +454,8 @@ class DataCacheSpec extends CustomSpinalSimFunSuite {
           loadCmdQueue.enqueue { cmd =>
             cmd.virtual #= testAddr
             cmd.size #= log2Up(dataWidthBytes)
-            cmd.unlocked #= true
-            cmd.unique #= false
+            // cmd.unlocked #= true
+            // cmd.unique #= false
             cmd.redoOnDataHazard #= false
             dut.io.load.translated.physical #= testAddr
             dut.io.load.translated.abord #= false
@@ -532,7 +533,7 @@ class DataCacheSpec extends CustomSpinalSimFunSuite {
           cmdPayload.address #= testAddr
           cmdPayload.data #= storeData
           cmdPayload.mask #= (1 << cmdPayload.mask.getWidth) - 1 // 显式赋值为全1
-          cmdPayload.generation #= currentGen
+          // cmdPayload.generation #= currentGen
           cmdPayload.io #= false
           cmdPayload.flush #= false
           cmdPayload.flushFree #= false
@@ -550,7 +551,7 @@ class DataCacheSpec extends CustomSpinalSimFunSuite {
 
       println(s"SIM: Received final store response: ${storeRsp1.toString} for address 0x${testAddr.toHexString}")
       assert(!storeRsp1.fault, "Store (miss) resulted in fault")
-      assert(!storeRsp1.generationKo, "Store (miss) still has generationKo after retries")
+      // assert(!storeRsp1.generationKo, "Store (miss) still has generationKo after retries")
 
       println(s"SIM: Issuing load to 0x${testAddr.toHexString} (expect hit with stored data)")
       val loadHitTimeoutPerAttempt = cacheP.loadRspAt + 20
@@ -560,8 +561,8 @@ class DataCacheSpec extends CustomSpinalSimFunSuite {
           loadCmdQueue.enqueue { cmd =>
             cmd.virtual #= testAddr
             cmd.size #= log2Up(dataWidthBytes)
-            cmd.unlocked #= true
-            cmd.unique #= false
+            // cmd.unlocked #= true
+            // cmd.unique #= false
             dut.io.load.translated.physical #= testAddr
             dut.io.load.translated.abord #= false
           }
