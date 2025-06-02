@@ -25,7 +25,13 @@ case class ROBConfig[RU <: Data with Dumpable with HasRobIdx](
   require(commitWidth > 0 && commitWidth <= robDepth)
   require(allocateWidth > 0 && allocateWidth <= robDepth)
   require(numWritebackPorts > 0)
-  val robIdxWidth: BitCount = log2Up(robDepth) bits
+  
+  // robIdxWidth 现在表示的是物理索引的位宽
+  val robPhysIdxWidth: BitCount = log2Up(robDepth) bits
+  // 增加一个世代位
+  val robGenBitWidth: BitCount = 1 bits
+  // 对外暴露的 robIdx 的总位宽 (物理索引 + 世代位)
+  val robIdxWidth: BitCount = robPhysIdxWidth + robGenBitWidth
 
   def dump(): Seq[Any] = {
     val str = L"""ROBConfig(
@@ -38,7 +44,9 @@ case class ROBConfig[RU <: Data with Dumpable with HasRobIdx](
         defaultUop: ${defaultUop.getClass.getName},
         defaultUop.width: ${defaultUop().robIdx.getWidth},
         exceptionCodeWidth: ${exceptionCodeWidth},
-        robIdxWidth: ${robIdxWidth},
+        robPhysIdxWidth: ${robPhysIdxWidth}, // 物理索引位宽
+        robGenBitWidth: ${robGenBitWidth},   // 世代位位宽
+        robIdxWidth: ${robIdxWidth}          // 对外暴露的 robIdx 总位宽
       )"""
     str
   }
@@ -47,15 +55,14 @@ case class ROBConfig[RU <: Data with Dumpable with HasRobIdx](
 // --- MODIFICATION START (Flush Mechanism Refactor: Enum and Command Bundle) ---
 object FlushReason extends SpinalEnum {
   val NONE, FULL_FLUSH, ROLLBACK_TO_ROB_IDX = newElement()
-  // NONE is implicitly the default for SpinalEnum, but explicit for clarity if needed.
-  // We'll assume io.flush.valid implies reason is not NONE.
 }
 
 // For flush command (restoring ROB pointers)
 // This is the payload of the io.flush Flow
 case class ROBFlushPayload[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[RU]) extends Bundle {
   val reason = FlushReason()
-  val targetRobIdx = UInt(config.robIdxWidth) // Relevant for ROLLBACK_TO_ROB_IDX
+  // targetRobIdx 现在是完整的 ROB ID (物理索引 + 世代位)
+  val targetRobIdx = UInt(config.robIdxWidth) 
 }
 // --- MODIFICATION END ---
 
@@ -66,6 +73,7 @@ case class ROBStatus[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[
   val done = Bool()
   val hasException = Bool()
   val exceptionCode = UInt(config.exceptionCodeWidth)
+  val genBit = Bool() // 增加世代位
 }
 
 // Payload part of the ROB entry (written once at allocation)
@@ -87,9 +95,10 @@ case class ROBAllocateSlot[RU <: Data with Dumpable with HasRobIdx](config: ROBC
     extends Bundle
     with IMasterSlave {
   val fire = Bool() // From Rename: attempt to allocate this slot
-  val uopIn = config.uopType()
+  val uopIn = config.uopType() // uopIn.robIdx 应该已经是 config.robIdxWidth
   val pcIn = UInt(config.pcWidth)
-  val robIdx = UInt(config.robIdxWidth) // To Rename: allocated ROB index for this slot
+  // robIdx 现在是完整的 ROB ID (物理索引 + 世代位)
+  val robIdx = UInt(config.robIdxWidth) 
 
   override def asMaster(): Unit = { // Perspective of Rename Stage
     in(fire, uopIn, pcIn)
@@ -102,8 +111,8 @@ case class ROBWritebackPort[RU <: Data with Dumpable with HasRobIdx](config: ROB
     extends Bundle
     with IMasterSlave {
   val fire = Bool()
-  val robIdx = UInt(config.robIdxWidth)
-  // isDone is implicit if fire is true for a normal writeback.
+  // robIdx 现在是完整的 ROB ID (物理索引 + 世代位)
+  val robIdx = UInt(config.robIdxWidth) 
   val exceptionOccurred = Bool()
   val exceptionCodeIn = UInt(config.exceptionCodeWidth)
 
@@ -152,7 +161,8 @@ case class ROBIo[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[RU])
 
   // Status outputs
   val empty = out Bool ()
-  val headPtrOut = out UInt (config.robIdxWidth)
+  // headPtrOut 和 tailPtrOut 现在输出完整的 ROB ID (物理索引 + 世代位)
+  val headPtrOut = out UInt (config.robIdxWidth) 
   val tailPtrOut = out UInt (config.robIdxWidth)
   val countOut = out UInt (log2Up(config.robDepth + 1) bits)
 
@@ -176,13 +186,15 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[R
   )
   val io = slave(ROBIo(config)) // ROB is slave to the overall system for its IO bundle
 
+  // payloads 和 statuses 仍然使用物理索引作为地址
   val payloads = Mem(ROBPayload(config), config.robDepth)
   val statuses = Vec(Reg(ROBStatus(config)), config.robDepth)
 
   payloads.init(
     Seq.fill(config.robDepth)(
       {
-        assert(config.defaultUop().robIdx.getBitsWidth == config.robIdxWidth.value)
+        // 这里的 assert 需要调整，因为 uop.robIdx 现在是 robIdxWidth
+        assert(config.defaultUop().robIdx.getBitsWidth == config.robIdxWidth.value) 
         val dp = ROBPayload(config)
         dp.uop := config.defaultUop()
         dp.pc := U(0)
@@ -195,11 +207,13 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[R
     statuses(i).done init (False)
     statuses(i).hasException init (False)
     statuses(i).exceptionCode init (0)
+    statuses(i).genBit init (False) // 初始化世代位
   }
 
   // Actual registers for state
-  val headPtr_reg = Reg(UInt(config.robIdxWidth)) init (0)
-  val tailPtr_reg = Reg(UInt(config.robIdxWidth)) init (0)
+  // headPtr_reg 和 tailPtr_reg 现在存储完整的 ROB ID (物理索引 + 世代位)
+  val headPtr_reg = Reg(UInt(config.robIdxWidth)) init (0) 
+  val tailPtr_reg = Reg(UInt(config.robIdxWidth)) init (0) 
   val count_reg = Reg(UInt(log2Up(config.robDepth + 1) bits)) init (0)
 
   // Combinational view of current state for calculations this cycle.
@@ -208,8 +222,10 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[R
   val currentCount = count_reg
 
   val slotWillAllocate = Vec(Bool(), config.allocateWidth)
-  val slotRobIdx = Vec(UInt(config.robIdxWidth), config.allocateWidth)
+  // slotRobIdx 现在存储完整的 ROB ID (物理索引 + 世代位)
+  val slotRobIdx = Vec(UInt(config.robIdxWidth), config.allocateWidth) 
   val numPrevAllocations = Vec(UInt(log2Up(config.allocateWidth + 1) bits), config.allocateWidth + 1)
+  // robIdxAtSlotStart 也存储完整的 ROB ID (物理索引 + 世代位)
   val robIdxAtSlotStart = Vec(UInt(config.robIdxWidth), config.allocateWidth + 1)
 
   numPrevAllocations(0) := U(0)
@@ -226,8 +242,11 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[R
     val spaceAvailableForThisSlot = (currentCount + numPrevAllocations(i)) < config.robDepth
     io.canAllocate(i) := spaceAvailableForThisSlot
     slotWillAllocate(i) := allocPort.fire && spaceAvailableForThisSlot
-    slotRobIdx(i) := robIdxAtSlotStart(i)
+    
+    // 分配给外部的 robIdx 是完整的 ROB ID
+    slotRobIdx(i) := robIdxAtSlotStart(i) 
     allocPort.robIdx := slotRobIdx(i)
+
     when(allocPort.fire) {
       ParallaxSim.debug(
         Seq(
@@ -247,23 +266,31 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[R
       )
     }
     numPrevAllocations(i + 1) := numPrevAllocations(i) + U(slotWillAllocate(i))
-    robIdxAtSlotStart(i + 1) := robIdxAtSlotStart(i) + U(slotWillAllocate(i))
+    // robIdxAtSlotStart(i + 1) 也是完整的 ROB ID，自动处理进位
+    robIdxAtSlotStart(i + 1) := robIdxAtSlotStart(i) + U(slotWillAllocate(i)) 
     when(slotWillAllocate(i)) {
       report(
         L"[ROB] ALLOC_DO[${i}]: Allocating to robIdx=${slotRobIdx(i)}, pcIn=${allocPort.pcIn}"
       )
       val newPayload = ROBPayload(config).allowOverride()
       newPayload.uop := allocPort.uopIn
-      newPayload.uop.robIdx := slotRobIdx(i)
+      newPayload.uop.robIdx := slotRobIdx(i) // uop 内部的 robIdx 也是完整的 ROB ID
       newPayload.pc := allocPort.pcIn
-      payloads.write(address = slotRobIdx(i), data = newPayload)
-      report(L"[ROB] ALLOC_PAYLOAD_WRITE[${i}]: Writing payload to robIdx=${slotRobIdx(i)}: ${newPayload.uop.dump()}")
-      statuses(slotRobIdx(i)).busy := True
-      statuses(slotRobIdx(i)).done := False
-      statuses(slotRobIdx(i)).hasException := False
-      statuses(slotRobIdx(i)).exceptionCode := U(0, config.exceptionCodeWidth)
+      
+      // 提取物理索引和世代位，用于内部存储
+      val physIdx = slotRobIdx(i).resize(config.robPhysIdxWidth)
+      val genBit = slotRobIdx(i).msb // 假设 robGenBitWidth = 1
+
+      payloads.write(address = physIdx, data = newPayload) // 使用物理索引写入 Mem
+      report(L"[ROB] ALLOC_PAYLOAD_WRITE[${i}]: Writing payload to robIdx=${slotRobIdx(i)} (physIdx=${physIdx}, genBit=${genBit}): ${newPayload.uop.dump()}")
+      
+      statuses(physIdx).busy := True
+      statuses(physIdx).done := False
+      statuses(physIdx).hasException := False
+      statuses(physIdx).exceptionCode := U(0, config.exceptionCodeWidth)
+      statuses(physIdx).genBit := genBit // 存储世代位
       report(
-        Seq(L"[ROB] ALLOC_STATUS_SET[${i}]: robIdx=${slotRobIdx(i)} set busy=T, ", L"done=F, hasException=F")
+        Seq(L"[ROB] ALLOC_STATUS_SET[${i}]: robIdx=${slotRobIdx(i)} (physIdx=${physIdx}, genBit=${genBit}) set busy=T, ", L"done=F, hasException=F")
       )
     }
   }
@@ -282,34 +309,46 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[R
   // --- Writeback Logic (Superscalar) ---
   for (portIdx <- 0 until config.numWritebackPorts) {
     val wbPort = io.writeback(portIdx)
-    when(wbPort.fire) {
+    // 提取物理索引和世代位
+    val wbPhysIdx = wbPort.robIdx.resize(config.robPhysIdxWidth)
+    val wbGenBit = wbPort.robIdx.msb // 假设 robGenBitWidth = 1
+
+    val statusBeforeWb = statuses(wbPhysIdx) // 使用物理索引访问状态
+    
+    // 匹配世代位
+    when(wbPort.fire && wbGenBit === statusBeforeWb.genBit) {
       report(
         Seq(
-          L"[ROB] WRITEBACK[${portIdx}]: Fired. robIdx=${wbPort.robIdx}, exceptionOccurred=${wbPort.exceptionOccurred}, ",
+          L"[ROB] WRITEBACK[${portIdx}]: Fired. robIdx=${wbPort.robIdx} (physIdx=${wbPhysIdx}, genBit=${wbGenBit}), exceptionOccurred=${wbPort.exceptionOccurred}, ",
           L"exceptionCodeIn=${wbPort.exceptionCodeIn}"
         )
       )
-      val statusBeforeWb = statuses(wbPort.robIdx)
       report(
         Seq(
           L"[ROB] WRITEBACK_STATUS_OLD[${portIdx}]: robIdx=${wbPort.robIdx}, oldBusy=${statusBeforeWb.busy}, ",
-          L"oldDone=${statusBeforeWb.done}, oldHasExcp=${statusBeforeWb.hasException}, oldExcpCode=${statusBeforeWb.exceptionCode}"
+          L"oldDone=${statusBeforeWb.done}, oldHasExcp=${statusBeforeWb.hasException}, oldExcpCode=${statusBeforeWb.exceptionCode}, oldGen=${statusBeforeWb.genBit}"
         )
       )
-      statuses(wbPort.robIdx).busy := False
-      statuses(wbPort.robIdx).done := True
-      statuses(wbPort.robIdx).hasException := wbPort.exceptionOccurred
-      statuses(wbPort.robIdx).exceptionCode := Mux(
+      statuses(wbPhysIdx).busy := False
+      statuses(wbPhysIdx).done := True
+      statuses(wbPhysIdx).hasException := wbPort.exceptionOccurred
+      statuses(wbPhysIdx).exceptionCode := Mux(
         wbPort.exceptionOccurred,
         wbPort.exceptionCodeIn,
-        statuses(wbPort.robIdx).exceptionCode // Keep old if no new exception
+        statuses(wbPhysIdx).exceptionCode // Keep old if no new exception
       )
       report(
         Seq(
           L"[ROB] WRITEBACK_STATUS_NEW[${portIdx}]: robIdx=${wbPort.robIdx}, newBusy=F, newDone=T, ",
-          L"newHasExcp=${wbPort.exceptionOccurred}, newExcpCode=${Mux(wbPort.exceptionOccurred, wbPort.exceptionCodeIn, statusBeforeWb.exceptionCode)}"
+          L"newHasExcp=${wbPort.exceptionOccurred}, newExcpCode=${Mux(wbPort.exceptionOccurred, wbPort.exceptionCodeIn, statusBeforeWb.exceptionCode)}, newGen=${statuses(wbPhysIdx).genBit}"
         )
       )
+    } elsewhen(wbPort.fire) { // Fired but generation bit mismatch
+        report(
+            Seq(
+                L"[ROB] WRITEBACK[${portIdx}]: Fired but GEN_BIT MISMATCH. robIdx=${wbPort.robIdx} (physIdx=${wbPhysIdx}, wbGen=${wbGenBit}), storedGen=${statusBeforeWb.genBit}"
+            )
+        )
     } otherwise {
       report(
         Seq(
@@ -327,26 +366,32 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[R
   )
 
   for (i <- 0 until config.commitWidth) {
-    val currentCommitIdx = currentHead + U(i) // Pointer arithmetic handles wrap
-    val currentPayload = payloads.readAsync(address = currentCommitIdx)
-    val currentStatus = statuses(currentCommitIdx)
+    // currentCommitIdx 是完整的 ROB ID
+    val currentCommitFullIdx = currentHead + U(i) 
+    val currentCommitPhysIdx = currentCommitFullIdx.resize(config.robPhysIdxWidth) // 物理索引
+    val currentCommitGenBit = currentCommitFullIdx.msb // 世代位
+
+    val currentPayload = payloads.readAsync(address = currentCommitPhysIdx)
+    val currentStatus = statuses(currentCommitPhysIdx) // 使用物理索引访问状态
+
     when(currentCount > U(i)) {
       report(
         Seq(
-          L"[ROB] COMMIT_CHECK_SLOT[${i}]: Considering commit. robIdx=${currentCommitIdx}, ",
+          L"[ROB] COMMIT_CHECK_SLOT[${i}]: Considering commit. robIdx=${currentCommitFullIdx} (physIdx=${currentCommitPhysIdx}, genBit=${currentCommitGenBit}), ",
           L"status.busy=${currentStatus.busy}, status.done=${currentStatus.done}, status.hasException=${currentStatus.hasException}, ",
-          L"status.exceptionCode=${currentStatus.exceptionCode}, pc=${currentPayload.pc}, count=${currentCount}"
+          L"status.exceptionCode=${currentStatus.exceptionCode}, status.genBit=${currentStatus.genBit}, pc=${currentPayload.pc}, count=${currentCount}"
         )
       )
     }
-    canCommitFlags(i) := (currentCount > U(i)) && currentStatus.done
+    // 提交条件：ROB 中有指令，指令已完成，且世代位匹配
+    canCommitFlags(i) := (currentCount > U(i)) && currentStatus.done && (currentCommitGenBit === currentStatus.genBit)
     io.commit(i).valid := canCommitFlags(i)
     io.commit(i).entry.payload := currentPayload
     io.commit(i).entry.status := currentStatus
     when(canCommitFlags(i)) {
       report(
         Seq(
-          L"[ROB] COMMIT_VALID_SLOT[${i}]: Slot IS VALID for commit. robIdx=${currentCommitIdx}, ",
+          L"[ROB] COMMIT_VALID_SLOT[${i}]: Slot IS VALID for commit. robIdx=${currentCommitFullIdx}, ",
           L"io.commit(i).valid=${io
               .commit(i)
               .valid}, external commitFire(${i})=${io.commitFire(i)}"
@@ -356,18 +401,18 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[R
     when(!canCommitFlags(i) && (currentCount > U(i))) {
       report(
         Seq(
-          L"[ROB] COMMIT_NOT_VALID_SLOT[${i}]: Slot NOT VALID for commit. robIdx=${currentCommitIdx}, ",
-          L"status.done=${currentStatus.done}, count=${currentCount}, external commitFire(${i})=${io.commitFire(i)}"
+          L"[ROB] COMMIT_NOT_VALID_SLOT[${i}]: Slot NOT VALID for commit. robIdx=${currentCommitFullIdx}, ",
+          L"status.done=${currentStatus.done}, status.genBit=${currentStatus.genBit}, count=${currentCount}, external commitFire(${i})=${io.commitFire(i)}"
         )
       )
     }
     when(io.commitFire(i) && !canCommitFlags(i)) {
       report(
         Seq(
-          L"[ROB] COMMIT_WARN_SLOT[${i}]: Commit stage fired for non-committable slot! robIdx=${currentCommitIdx}, ",
+          L"[ROB] COMMIT_WARN_SLOT[${i}]: Commit stage fired for non-committable slot! robIdx=${currentCommitFullIdx}, ",
           L"canCommitFlag=${canCommitFlags(
               i
-            )}, status.done=${currentStatus.done}, count=${currentCount}"
+            )}, status.done=${currentStatus.done}, status.genBit=${currentStatus.genBit}, count=${currentCount}"
         )
       )
     }
@@ -403,8 +448,9 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[R
 
   // --- Pointer and Count Update Logic ---
   // Calculate the next state based on this cycle's operations (alloc/commit)
-  val nextHeadFromOps = UInt(config.robIdxWidth)
-  val nextTailFromOps = UInt(config.robIdxWidth)
+  // nextHeadFromOps 和 nextTailFromOps 现在是完整的 ROB ID
+  val nextHeadFromOps = UInt(config.robIdxWidth) 
+  val nextTailFromOps = UInt(config.robIdxWidth) 
   val nextCountFromOps = UInt(log2Up(config.robDepth + 1) bits)
 
   nextHeadFromOps := currentHead + numToCommit.resized // Pointer arithmetic handles wrap
@@ -425,11 +471,13 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[R
       L"[ROB] FLUSH: Received flush command. Valid=${io.flush.valid}, Reason=${io.flush.payload.reason}, TargetROBIdx=${io.flush.payload.targetRobIdx}"
     )
 
-    val headAtFlushStart = headPtr_reg // State at the beginning of the cycle
+    // headAtFlushStart 和 tailAtFlushStart 存储完整的 ROB ID
+    val headAtFlushStart = headPtr_reg 
     val tailAtFlushStart = tailPtr_reg
     val countAtFlushStart = count_reg
 
-    val headAfterFlush = UInt(config.robIdxWidth)
+    // headAfterFlush 和 tailAfterFlush 也存储完整的 ROB ID
+    val headAfterFlush = UInt(config.robIdxWidth) 
     val tailAfterFlush = UInt(config.robIdxWidth)
     val countAfterFlush = UInt(log2Up(config.robDepth + 1) bits)
 
@@ -441,36 +489,39 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[R
     switch(io.flush.payload.reason) {
       is(FlushReason.FULL_FLUSH) {
         report(L"[ROB] FLUSH: Reason=FULL_FLUSH")
-        headAfterFlush := U(0)
-        tailAfterFlush := U(0)
+        headAfterFlush := U(0, config.robIdxWidth) // 重置为 0 (物理索引 0，世代位 0)
+        tailAfterFlush := U(0, config.robIdxWidth) // 重置为 0
         countAfterFlush := U(0)
         for (k <- 0 until config.robDepth) {
           statuses(k).busy := False
           statuses(k).done := False
           statuses(k).hasException := False
           statuses(k).exceptionCode := 0
+          statuses(k).genBit := False // 重置世代位
         }
-        ParallaxSim.debug(L"[ROB DEBUG] Before final reg assignment in flush path: head=${headAfterFlush}, tail=${tailAfterFlush}, count=${countAfterFlush}") // <--- AND THIS
+        ParallaxSim.debug(L"[ROB DEBUG] Before final reg assignment in flush path: head=${headAfterFlush}, tail=${tailAfterFlush}, count=${countAfterFlush}")
       }
       is(FlushReason.ROLLBACK_TO_ROB_IDX) {
-        val targetIdx = io.flush.payload.targetRobIdx
-        report(L"[ROB] FLUSH: Reason=ROLLBACK_TO_ROB_IDX, Target ROB Index=${targetIdx}")
+        // targetIdx 是完整的 ROB ID
+        val targetFullIdx = io.flush.payload.targetRobIdx 
+        report(L"[ROB] FLUSH: Reason=ROLLBACK_TO_ROB_IDX, Target ROB Index=${targetFullIdx}")
         report(
           L"[ROB] FLUSH: State before rollback: head=${headAtFlushStart}, tail=${tailAtFlushStart}, count=${countAtFlushStart}"
         )
 
         headAfterFlush := headAtFlushStart // Head pointer usually doesn't change on rollback unless target is head
-        tailAfterFlush := targetIdx
+        tailAfterFlush := targetFullIdx // tail 回滚到目标 ID
 
-        // Calculate new count: number of elements from headAtFlushStart (inclusive) to targetIdx (exclusive)
-        val h_ext = headAtFlushStart.resize(config.robIdxWidth.value + 1)
-        val t_ext = targetIdx.resize(config.robIdxWidth.value + 1)
-        val depth_val_ext = U(config.robDepth, config.robIdxWidth.value + 1 bits)
+        // Calculate new count: number of elements from headAtFlushStart (inclusive) to targetFullIdx (exclusive)
+        // 这里的计算需要使用完整的 ROB ID 进行比较和减法
+        val h_ext = headAtFlushStart.resize(config.robIdxWidth.value + 1) // 扩展一位用于比较
+        val t_ext = targetFullIdx.resize(config.robIdxWidth.value + 1) // 扩展一位用于比较
+        val depth_val_ext = U(config.robDepth, config.robIdxWidth.value + 1 bits) // 深度也扩展一位
         val tempCount = UInt(log2Up(config.robDepth + 1) bits)
 
         when(t_ext >= h_ext) {
           tempCount := (t_ext - h_ext).resized
-        } otherwise {
+        } otherwise { // Wrap around
           tempCount := (t_ext - h_ext + depth_val_ext).resized
         }
         countAfterFlush := tempCount
@@ -478,52 +529,50 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[R
           L"[ROB] FLUSH: ROLLBACK_TO_ROB_IDX calculated: new head=${headAfterFlush}, new tail=${tailAfterFlush}, new count=${countAfterFlush}"
         )
 
-        // Clear statuses for entries from targetIdx (inclusive) up to tailAtFlushStart (exclusive)
+        // Clear statuses for entries from targetFullIdx (inclusive) up to tailAtFlushStart (exclusive)
         // These are the entries being squashed by the rollback.
         report(
-          L"[ROB] FLUSH: Clearing statuses for entries from ${targetIdx} (inclusive) to ${tailAtFlushStart} (exclusive)"
+          L"[ROB] FLUSH: Clearing statuses for entries from ${targetFullIdx} (inclusive) to ${tailAtFlushStart} (exclusive)"
         )
         for (k <- 0 until config.robDepth) {
-          val currentRobEntryIdx = U(k, config.robIdxWidth)
+          val currentRobEntryPhysIdx = U(k, config.robPhysIdxWidth) // 物理索引
+          val currentRobEntryGenBit = statuses(currentRobEntryPhysIdx).genBit // 获取当前存储的世代位
+          // 构造当前条目的完整 ROB ID
+          val currentRobEntryFullIdx = (currentRobEntryGenBit ## currentRobEntryPhysIdx.resize(config.robPhysIdxWidth)).asUInt
+
           var shouldClearThisEntryInRollback = False
 
-          if (config.robDepth > 0) { // Ensure robDepth is positive
-            // Check if currentRobEntryIdx is in the range [targetIdx, tailAtFlushStart)
-            // This range represents entries that were valid before flush and are now being squashed.
-            val rangeIsEmptyOrInvalid =
-              (targetIdx === tailAtFlushStart) // If new tail is old tail, no entries in this specific range to clear
-            // (count logic handles the overall state)
+          if (config.robDepth > 0) { 
+            // Check if currentRobEntryFullIdx is in the range [targetFullIdx, tailAtFlushStart)
+            val rangeIsEmptyOrInvalid = (targetFullIdx === tailAtFlushStart)
 
             when(!rangeIsEmptyOrInvalid) {
-              val noWrapInRange = targetIdx < tailAtFlushStart
-              val wrapInRange = targetIdx > tailAtFlushStart // target is numerically larger, so range wraps
+              val noWrapInRange = targetFullIdx < tailAtFlushStart
+              val wrapInRange = targetFullIdx > tailAtFlushStart 
 
               when(noWrapInRange) {
-                when(currentRobEntryIdx >= targetIdx && currentRobEntryIdx < tailAtFlushStart) {
+                when(currentRobEntryFullIdx >= targetFullIdx && currentRobEntryFullIdx < tailAtFlushStart) {
                   shouldClearThisEntryInRollback := True
                 }
               } elsewhen (wrapInRange) { // wrap
-                when(currentRobEntryIdx >= targetIdx || currentRobEntryIdx < tailAtFlushStart) {
+                when(currentRobEntryFullIdx >= targetFullIdx || currentRobEntryFullIdx < tailAtFlushStart) {
                   shouldClearThisEntryInRollback := True
                 }
               }
             }
           }
           when(shouldClearThisEntryInRollback) {
-            report(L"[ROB] FLUSH: Clearing status for ROB entry index ${currentRobEntryIdx}")
-            statuses(currentRobEntryIdx).busy := False
-            statuses(currentRobEntryIdx).done := False
-            statuses(currentRobEntryIdx).hasException := False
-            statuses(currentRobEntryIdx).exceptionCode := U(0, config.exceptionCodeWidth)
+            report(L"[ROB] FLUSH: Clearing status for ROB entry index ${currentRobEntryPhysIdx} (Full ID: ${currentRobEntryFullIdx})")
+            statuses(currentRobEntryPhysIdx).busy := False
+            statuses(currentRobEntryPhysIdx).done := False
+            statuses(currentRobEntryPhysIdx).hasException := False
+            statuses(currentRobEntryPhysIdx).exceptionCode := U(0, config.exceptionCodeWidth)
+            // 关键：被清除的槽位，其世代位应该翻转，表示它现在属于下一个世代
+            statuses(currentRobEntryPhysIdx).genBit := !currentRobEntryGenBit 
           }
         }
       }
-      default { // Should include FlushReason.NONE if it can be valid with io.flush.valid
-        // This case should ideally not be hit if io.flush.valid implies a meaningful flush reason.
-        // If io.flush.valid is true but reason is NONE, treat as no-op for pointers/count from flush perspective.
-        // Pointers will take on alloc/commit values if this path is taken and then the 'otherwise' branch for flush.
-        // However, the outer when(io.flush.valid) means we *must* assign to _reg here.
-        // So, if reason is NONE, we effectively override alloc/commit with current _reg values.
+      default { 
         report(
           L"[ROB] FLUSH: WARNING - Flush valid but reason is NONE or unhandled. No change from flush logic itself."
         )

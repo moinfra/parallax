@@ -55,7 +55,7 @@ case class PipelineConfig(
   def archFprIdxWidth: BitCount = if (archFprCount > 0) log2Up(archFprCount) bits else 1 bit // Avoid log2Up(0)
   def physFprIdxWidth: BitCount = if (physFprCount > 0) log2Up(physFprCount) bits else 1 bit
 
-  def robIdxWidth: BitCount = log2Up(robDepth) bits
+  def robIdxWidth: BitCount = log2Up(robDepth) + 1 bits // extra bit for generation
 
   // Helper to check if Floating Point is notionally supported by config
   def hasFpu: Boolean = archFprCount > 0 && physFprCount > 0
