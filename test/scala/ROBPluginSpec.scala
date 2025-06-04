@@ -116,7 +116,7 @@ case class TestBenchIO(tbCfg: TestBenchConfig, LOCAL_UOP_HT: HardType[DummyUop2]
   val commitDriveAcks = Vec(out(Bool()), tbCfg.pCfg.commitWidth)
 
   // Flush: Testbench drives flush command
-  val flushCommand = master(Flow(ROBFlushPayload(robConfigParams)))
+  val flushCommand = master(Flow(ROBFlushPayload(robConfigParams.robIdxWidth)))
 
   override def asMaster(): Unit = {
     // For `slave(Flow(...))` types, `slave(signalName)` correctly sets directions.

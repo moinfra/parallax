@@ -7,6 +7,16 @@ import parallax.components.decode._
 import parallax.utilities.ParallaxSim
 import _root_.parallax.utilities.ParallaxLogger
 
+import spinal.core._
+
+object ROBFlushReason extends SpinalEnum {
+  val NONE,                // No flush, or an invalid reason
+  FULL_FLUSH,          // Complete flush of the ROB and dependent structures (e.g., after major exception)
+  ROLLBACK_TO_ROB_IDX, // Rollback ROB state to a specific instruction (e.g., branch mispredict, LSU replay)
+  EXCEPTION_HANDLING = newElement()  // Flush due to an exception being handled (might be similar to FULL_FLUSH or specific rollback)
+  // Add other reasons as needed, e.g., DEBUG_FLUSH
+}
+
 // --- Configuration for ROB ---
 case class ROBConfig[RU <: Data with Dumpable with HasRobIdx](
     val robDepth: Int,
@@ -59,10 +69,10 @@ object FlushReason extends SpinalEnum {
 
 // For flush command (restoring ROB pointers)
 // This is the payload of the io.flush Flow
-case class ROBFlushPayload[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[RU]) extends Bundle {
+case class ROBFlushPayload[RU <: Data with Dumpable with HasRobIdx](robIdxWidth: BitCount) extends Bundle {
   val reason = FlushReason()
   // targetRobIdx 现在是完整的 ROB ID (物理索引 + 世代位)
-  val targetRobIdx = UInt(config.robIdxWidth) 
+  val targetRobIdx = UInt(robIdxWidth) 
 }
 // --- MODIFICATION END ---
 
@@ -155,7 +165,7 @@ case class ROBIo[RU <: Data with Dumpable with HasRobIdx](config: ROBConfig[RU])
 
   // --- MODIFICATION START (Flush Mechanism Refactor: IO Update) ---
   // Flush: Slave Flow port from ROB's perspective (Recovery/Checkpoint manager is master)
-  val flush = slave Flow (ROBFlushPayload(config))
+  val flush = slave Flow (ROBFlushPayload(config.robIdxWidth))
   val flushed = out Bool () // Indicates ROB has completed flush operation this cycle
   // --- MODIFICATION END ---
 
