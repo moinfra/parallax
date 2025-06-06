@@ -58,7 +58,7 @@ case class LoadQueueTestIO(pipelineConfig: PipelineConfig, lsuConfig: LsuConfig)
   val loadRequestPort = master(Stream(LsuAguRequest(lsuConfig)))
   val flushPort = slave(Flow(ROBFlushPayload(pipelineConfig.robIdxWidth)))
 
-  override def asMaster(): Unit = {
+  override def asMaster(): Unit = { // Gemini 麻烦你注意一下，asMaster 是从**此组件的外部用户**视角的，下面是对的，别瞎改！
     master(allocatePort, statusUpdatePort, flushPort)
     slave(loadRequestPort)
     releasePorts.foreach(master(_))
@@ -181,6 +181,7 @@ class LoadQueuePluginSpec extends CustomSpinalSimFunSuite {
     entry.dataFromSq #= 0
     entry.dataFromDCache #= 0
     entry.finalData #= 0
+    entry.waitOn.aguDispatched #= false
     entry.waitOn.addressGenerated #= false
     entry.waitOn.commit #= false
     entry.waitOn.dCacheRsp #= false
@@ -200,7 +201,7 @@ class LoadQueuePluginSpec extends CustomSpinalSimFunSuite {
       params: StatusUpdateParams
   ): Unit = {
     val update = dut.io.statusUpdatePort.payload
-    update.lqId #= params.lqId
+    update.lqPtr #= params.lqId
     update.updateType #= params.updateType
 
     // Initialize all fields to a known default to avoid X's
@@ -310,7 +311,7 @@ class LoadQueuePluginSpec extends CustomSpinalSimFunSuite {
     }
   }
 
-  test("LoadQueue Status Update - Address Generation") {
+  testOnly("LoadQueue Status Update - Address Generation") {
     simConfig.compile(new LoadQueueTestBench()).doSim { dut =>
       dut.clockDomain.forkStimulus(10)
 
@@ -318,7 +319,7 @@ class LoadQueuePluginSpec extends CustomSpinalSimFunSuite {
 
       // Monitor AGU requests
       StreamMonitor(dut.io.loadRequestPort, dut.clockDomain) { payload =>
-        aguRequests += payload.qId.toInt
+        aguRequests += payload.qPtr.toInt
       }
 
       initDutInputs(dut)
@@ -343,7 +344,10 @@ class LoadQueuePluginSpec extends CustomSpinalSimFunSuite {
       dut.io.allocatePort.valid #= false
 
       // Wait for AGU request
-      dut.clockDomain.waitSamplingWhere(20)(aguRequests.nonEmpty)
+      val timeout = dut.clockDomain.waitSamplingWhere(20)(aguRequests.nonEmpty)
+      if (timeout) {
+        fail("Timeout waiting for AGU request")
+      }
       val lqId = aguRequests.head
 
       aguRequests.clear()

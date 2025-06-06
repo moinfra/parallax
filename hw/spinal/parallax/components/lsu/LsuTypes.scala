@@ -32,6 +32,7 @@ case class LsuConfig(
 // --- Wait-On States for LQ/SQ ---
 // These bits indicate what an entry is waiting for.
 case class LqWaitOn(val lsuConfig: LsuConfig) extends Bundle with Formattable { // 移除 dCacheConfig，只保留 lsuConfig
+  val aguDispatched = Bool() // True if sent to AGU, waiting for address
   val addressGenerated = Bool() // True if AGU has produced the address
   val dCacheRsp = Bool() // Waiting for D-Cache response (hit/miss/data)
   val dCacheRefill = Bits(lsuConfig.dcacheRefillCount bits) // Waiting for specific D-Cache refill slots
@@ -42,6 +43,7 @@ case class LqWaitOn(val lsuConfig: LsuConfig) extends Bundle with Formattable { 
   val robFlush = Bool() // Entry is stalled due to a ROB flush/reschedule
 
   def setDefault(): this.type = {
+    aguDispatched := False // Make sure to default new fields
     addressGenerated := False
     dCacheRsp := False
     dCacheRefill := 0
@@ -57,19 +59,20 @@ case class LqWaitOn(val lsuConfig: LsuConfig) extends Bundle with Formattable { 
   def isStalledForDCache: Bool = addressGenerated && dCacheRsp && !robFlush
   def isStalledForCommit: Bool = commit && !robFlush // Waiting for ROB to pick it up
   def isReadyForCommit: Bool = addressGenerated && !dCacheRsp && !dCacheRefill.orR &&
-    !dCacheRefillAny && !sqBypass && !sqCompletion && !robFlush && !commit
+  !dCacheRefillAny && !sqBypass && !sqCompletion && !robFlush && !commit
 
   def format: Seq[Any] = {
     Seq(
       "LQWaitOn(",
-      s"addressGenerated=$addressGenerated",
-      s"dCacheRsp=$dCacheRsp",
-      s"dCacheRefill=$dCacheRefill",
-      s"dCacheRefillAny=$dCacheRefillAny",
-      s"sqBypass=$sqBypass",
-      s"sqCompletion=$sqCompletion",
-      s"commit=$commit",
-      s"robFlush=$robFlush)"
+      L"aguDispatched=$aguDispatched",
+      L"addressGenerated=$addressGenerated",
+      L"dCacheRsp=$dCacheRsp",
+      L"dCacheRefill=$dCacheRefill",
+      L"dCacheRefillAny=$dCacheRefillAny",
+      L"sqBypass=$sqBypass",
+      L"sqCompletion=$sqCompletion",
+      L"commit=$commit",
+      L"robFlush=$robFlush)"
     )
   }
 }
@@ -105,7 +108,7 @@ case class LoadQueueEntry(
     with HasRobIdx {
   // --- Static Info (from Dispatch) ---
   val robIdx = UInt(lsuConfig.robIdxWidth) // 指令在 ROB 中的 ID (包含世代位)
-  val lqId = UInt(lsuConfig.lqIdxWidth) // LQ 内部物理索引
+  val lqPtr = UInt(lsuConfig.lqPtrWidth) // LQ 内部物理索引
   val pc = UInt(lsuConfig.pcWidth)
   val isValid = Bool() // Is this LQ entry valid?
 
@@ -133,7 +136,7 @@ case class LoadQueueEntry(
   val sqIdToWaitForValid = Bool()
 
   def setDefault(): this.type = {
-    robIdx := 0; lqId := 0; pc := 0; isValid := False
+    robIdx := 0; lqPtr := 0; pc := 0; isValid := False
     physDest := 0; physDestIsFpr := False; writePhysDestEn := False
     aguBasePhysReg := 0; aguBaseIsFpr := False; aguUsePcAsBase := False; aguImmediate := 0
     physicalAddress := 0
@@ -154,7 +157,7 @@ case class StoreQueueEntry(
     with HasRobIdx {
   // --- Static Info (from Dispatch) ---
   val robIdx = UInt(lsuConfig.robIdxWidth) // 指令在 ROB 中的 ID (包含世代位)
-  val sqId = UInt(lsuConfig.sqIdxWidth) // SQ 内部物理索引
+  val sqPtr = UInt(lsuConfig.sqPtrWidth) 
   val pc = UInt(lsuConfig.pcWidth)
   val isValid = Bool()
 
@@ -183,7 +186,7 @@ case class StoreQueueEntry(
   val lqIdToReplayValid = Bool()
 
   def setDefault(): this.type = {
-    robIdx := 0; sqId := 0; pc := 0; isValid := False
+    robIdx := 0; sqPtr := 0; pc := 0; isValid := False
     physDataSrc := 0; physDataSrcIsFpr := False
     aguBasePhysReg := 0; aguBaseIsFpr := False; aguUsePcAsBase := False; aguImmediate := 0
     physicalAddress := 0; dataToWrite := 0; storeMask := 0
@@ -207,10 +210,11 @@ case class LsuAguRequest(lsuConfig: LsuConfig) extends Bundle { // 替换 pCfg
   val pcForAgu = UInt(lsuConfig.pcWidth) // PC 值，如果 usePc 为 true
 
   // Context to pass through AGU
+  // 本来打算直通的，但是好像让 AGU 直通这些信息不太符合迪米特法则。
   val robIdx = UInt(lsuConfig.robIdxWidth)
   val isLoad = Bool()
   val isStore = Bool()
-  val qId = UInt(Math.max(lsuConfig.lqIdxWidth.value, lsuConfig.sqIdxWidth.value) bits) // LQ or SQ ID (物理索引)
+  val qPtr = UInt(Math.max(lsuConfig.lqPtrWidth.value, lsuConfig.sqPtrWidth.value) bits)
   val physDestOrSrc = UInt(lsuConfig.physGprIdxWidth) // 对于 Load 是 physDest, 对于 Store 是 physDataSrc
   val physDestOrSrcIsFpr = Bool()
   val writePhysDestEn = Bool() // 对于 Load
@@ -234,7 +238,7 @@ case class LsuAguRequest(lsuConfig: LsuConfig) extends Bundle { // 替换 pCfg
 // --- LSU 内部状态更新消息 (与之前的定义类似，但使用新的 LQ/SQ Entry 字段) ---
 // 用于更新 LQ 条目状态的消息
 case class LqStatusUpdate(lsuConfig: LsuConfig) extends Bundle { // 替换 pCfg, 移除 dCacheConfig
-  val lqId = UInt(lsuConfig.lqIdxWidth) // 目标 LQ 条目 ID (物理索引)
+  val lqPtr = UInt(lsuConfig.lqPtrWidth) // 目标 LQ 条目 ID (物理索引)
   val updateType = LqUpdateType()
 
   // Data for ADDRESS_GENERATED
@@ -264,7 +268,7 @@ case class LqStatusUpdate(lsuConfig: LsuConfig) extends Bundle { // 替换 pCfg,
 }
 
 object LqUpdateType extends SpinalEnum {
-  val ADDRESS_GENERATED, DCACHE_RESPONSE, DCACHE_REFILL_WAIT, DCACHE_REFILL_DONE, SQ_BYPASS_READY,
+  val AGU_DISPATCHED, ADDRESS_GENERATED, DCACHE_RESPONSE, DCACHE_REFILL_WAIT, DCACHE_REFILL_DONE, SQ_BYPASS_READY,
       SQ_OLDER_STORE_COMPLETED, EXCEPTION_OCCURRED, MARK_READY_FOR_COMMIT = newElement()
 }
 
