@@ -35,6 +35,7 @@ case class AguPort() extends Bundle with IMasterSlave {
 }
 
 case class AguInput() extends Bundle with Formattable {
+  val qPtr = UInt(6 bits)
   val basePhysReg = UInt(6 bits)
   val immediate = SInt(12 bits)
   val accessSize = MemAccessSize()
@@ -50,6 +51,7 @@ case class AguInput() extends Bundle with Formattable {
   def format: Seq[Any] = {
     Seq(
       L"AguInput(",
+      L"qPtr=${qPtr},",
       L"basePhysReg=${basePhysReg},",
       L"immediate=${immediate},",
       L"accessSize=${accessSize},",
@@ -60,9 +62,10 @@ case class AguInput() extends Bundle with Formattable {
 }
 
 case class AguOutput() extends Bundle with Formattable{
+  val qPtr = UInt(6 bits)
   val address = UInt(32 bits)
   val alignException = Bool()
-
+  val accessSize = MemAccessSize()
   // 透传上下文信息
   val robPtr = UInt(6 bits)
   val isLoad = Bool()
@@ -72,8 +75,14 @@ case class AguOutput() extends Bundle with Formattable{
   def format: Seq[Any] = {
     Seq(
       L"AguOutput(",
+      L"qPtr=${qPtr},",
       L"address=${address},",
-      L"alignException=${alignException})"
+      L"alignException=${alignException})",
+      L"accessSize=${accessSize},",
+      L"robPtr=${robPtr},",
+      L"isLoad=${isLoad},",
+      L"isStore=${isStore},",
+      L"physDst=${physDst})"
     )
   }
 }
@@ -203,6 +212,8 @@ class AguPlugin(
 
         // 透传上下文信息
         externalPort.output.payload.robPtr := stage0.payload.robPtr
+        externalPort.output.payload.accessSize := stage0.payload.accessSize
+        externalPort.output.payload.qPtr := stage0.payload.qPtr
         externalPort.output.payload.isLoad := stage0.payload.isLoad
         externalPort.output.payload.isStore := stage0.payload.isStore
         externalPort.output.payload.physDst := stage0.payload.physDst

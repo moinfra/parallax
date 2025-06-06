@@ -1,5 +1,5 @@
 // testOnly parallax.test.issue.IssueQueueComponentSpec
-package parallax.test.issue
+package test.issue
 
 import parallax.common._
 import parallax.components.issue._

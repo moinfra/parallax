@@ -1,4 +1,4 @@
-package parallax.test.scala
+package test.scala
 
 import spinal.core._
 import spinal.sim._

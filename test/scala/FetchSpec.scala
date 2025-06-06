@@ -1,4 +1,4 @@
-package parallax.test.scala // Or your test package
+package test.scala // Or your test package
 
 import parallax.common._
 import parallax.fetch._

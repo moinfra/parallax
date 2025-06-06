@@ -1,4 +1,4 @@
-package parallax.test.scala.memory // Using a new package for clarity
+package test.scala.memory // Using a new package for clarity
 
 import spinal.core._
 import spinal.core.sim._

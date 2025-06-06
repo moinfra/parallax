@@ -1,4 +1,4 @@
-package parallax.test.scala.memory
+package test.scala.memory
 
 import spinal.core._
 import spinal.core.sim._

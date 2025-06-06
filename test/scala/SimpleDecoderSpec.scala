@@ -1,5 +1,5 @@
 // testOnly parallax.test.scala.SimpleDecoderSpec
-package parallax.test.scala
+package test.scala
 
 import spinal.core._
 import spinal.lib._

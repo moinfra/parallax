@@ -1,5 +1,5 @@
 // filename: parallax/test/scala/AluIntEuIntegrationSpec.scala
-package parallax.test.scala
+package test.scala
 
 import org.scalatest.funsuite.AnyFunSuite
 import spinal.core._

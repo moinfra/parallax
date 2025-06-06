@@ -274,7 +274,7 @@ object LqUpdateType extends SpinalEnum {
 
 // 用于更新 SQ 条目状态的消息
 case class SqStatusUpdate(lsuConfig: LsuConfig) extends Bundle { // 替换 pCfg, 移除 dCacheConfig
-  val sqId = UInt(lsuConfig.sqIdxWidth) // 目标 SQ 条目 ID (物理索引)
+  val sqPtr = UInt(lsuConfig.sqPtrWidth) // 目标 SQ 条目 ID (物理索引)
   val updateType = SqUpdateType()
 
   // Data for ADDRESS_GENERATED
@@ -285,13 +285,15 @@ case class SqStatusUpdate(lsuConfig: LsuConfig) extends Bundle { // 替换 pCfg,
   // Data for PRF_DATA_READY
   val dataFromPrfPdr = Bits(lsuConfig.dataWidth)
 
-  // Data for DCACHE_STORE_RESPONSE
+  // --- 来自 DCache Store Response 的数据 ---
   val dCacheFaultDsr = Bool()
   val dCacheRedoDsr = Bool()
+  val dCacheRefillSlotDsr = Bits(lsuConfig.dcacheRefillCount bits) // DSR = DCache Store Response
+  val dCacheRefillAnyDsr = Bool()                                // DSR = DCache Store Response
 
-  // Data for DCACHE_REFILL_WAIT / DCACHE_REFILL_DONE
-  val dCacheRefillSlotDsr = Bits(lsuConfig.dcacheRefillCount bits)
-  val dCacheRefillAnyDsr = Bool()
+  // --- 来自 DCache Refill Done 事件的数据 ---
+  val dCacheRefillSlotDr = Bits(lsuConfig.dcacheRefillCount bits) // DR = DCache Refill (Done)
+  val dCacheRefillAnyDr = Bool()       
 
   // Data for YOUNGER_LOAD_REPLAY
   val lqIdToReplayYlr = UInt(lsuConfig.lqPtrWidth)

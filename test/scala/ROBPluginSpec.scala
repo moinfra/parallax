@@ -1,5 +1,5 @@
 // filename: test/scala/ROBPluginSpec.scala
-package parallax.test.scala
+package test.scala
 
 import org.scalatest.funsuite.AnyFunSuite
 import spinal.core._

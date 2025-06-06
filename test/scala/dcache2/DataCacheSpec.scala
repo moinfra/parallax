@@ -1,6 +1,6 @@
 // testOnly parallax.test.scala.dcache2.DataCacheSpec
 
-package parallax.test.scala.dcache2
+package test.scala.dcache2
 
 import spinal.core._
 import spinal.core.sim._

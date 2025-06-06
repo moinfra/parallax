@@ -1,4 +1,4 @@
-package parallax.test.scala.icache
+package test.scala.icache
 
 import scala.collection.mutable
 import scala.util.Random

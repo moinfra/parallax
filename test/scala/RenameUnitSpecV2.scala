@@ -1,4 +1,4 @@
-package parallax.test.rename
+package test.rename
 
 import spinal.core._
 import spinal.core.sim._

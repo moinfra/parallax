@@ -1,4 +1,4 @@
-package parallax.test.scala
+package test.scala
 
 import parallax.execute.{BypassService, BypassPlugin}
 import parallax.utilities._

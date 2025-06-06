@@ -174,6 +174,15 @@ case class MulDivCtrlFlags() extends Bundle {
 }
 object MemAccessSize extends SpinalEnum(binarySequential) {
   val B, H, W, D = newElement() // Byte, Half, Word, Double
+
+  def toByteSize(v: MemAccessSize.C): Int = {
+    v match {
+      case B => 1
+      case H => 2
+      case W => 4
+      case D => 8
+    }
+  }
 }
 case class MemCtrlFlags() extends Bundle {
   val size = MemAccessSize()

@@ -1,5 +1,5 @@
 // testOnly parallax.test.scala.dcache.DataRamBanksComponentSpec
-package parallax.test.scala.dcache
+package test.scala.dcache
 
 import spinal.core._
 import spinal.core.sim._

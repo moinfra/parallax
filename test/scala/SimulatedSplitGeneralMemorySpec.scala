@@ -1,5 +1,5 @@
 // test/scala/SimulatedSplitGeneralMemorySpec.scala
-package parallax.test.scala // Assuming same package, or adjust as needed
+package test.scala // Assuming same package, or adjust as needed
 
 import org.scalatest.funsuite.AnyFunSuite // Keep, though CustomSpinalSimFunSuite is used
 import scala.collection.mutable

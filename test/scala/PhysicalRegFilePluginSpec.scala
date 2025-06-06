@@ -1,4 +1,4 @@
-package parallax.test.scala
+package test.scala
 
 import parallax.common.PhysicalRegFilePlugin
 import parallax.common._

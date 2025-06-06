@@ -1,4 +1,4 @@
-package parallax.test.scala // Or your test utility package
+package test.scala // Or your test utility package
 
 import parallax.components.memory.SimulatedSplitGeneralMemory // Updated import
 import spinal.core._

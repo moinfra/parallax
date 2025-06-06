@@ -1,4 +1,4 @@
-package parallax.test.scala // Or your preferred test package
+package test.scala // Or your preferred test package
 
 import org.scalatest.funsuite.AnyFunSuite
 import scala.collection.mutable

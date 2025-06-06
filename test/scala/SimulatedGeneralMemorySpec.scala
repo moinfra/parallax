@@ -1,5 +1,5 @@
 // test/scala/SimulatedGeneralMemorySpec.scala
-package parallax.test.scala
+package test.scala
 
 import org.scalatest.funsuite.AnyFunSuite
 import scala.collection.mutable

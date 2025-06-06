@@ -1,6 +1,6 @@
 // filename: parallax/test/scala/execute/DemoAluSpec.scala
 // testOnly parallax.test.scala.execute.DemoAluSpec
-package parallax.test.scala.execute
+package test.scala.execute
 
 import spinal.core._
 import spinal.lib._

@@ -1,4 +1,4 @@
-package parallax.test.issue
+package test.issue
 
 import spinal.core._
 import spinal.core.sim._

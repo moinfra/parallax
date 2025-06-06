@@ -246,36 +246,6 @@ case class DataMemReadBus(p: DataMemBusParameter) extends Bundle with IMasterSla
                                 True) // Corrected: rspOutputStream.ready on RHS was self.rsp.ready in original for this specific assignment. Should be driven by consumer.
   }.ret
 
-  // toBmb 方法：将 DataMemReadBus 转换为 BMB (Bus Management Bus) 读总线。
-  def toBmb(): Bmb = new Composite(this, "toBmb") {
-    val bmbConfig = BmbAccessParameter(
-      addressWidth = p.addressWidth,
-      dataWidth = p.dataWidth
-    ).addSources(
-      p.readIdCount,
-      BmbSourceParameter(
-        contextWidth = 0,
-        lengthWidth = log2Up(p.lineSize),
-        alignment = BmbParameter.BurstAlignement.LENGTH,
-        canWrite = false,
-        canRead = true // Explicitly set canRead
-      )
-    )
-
-    val bmb = Bmb(bmbConfig) // 创建 BMB 总线
-    bmb.cmd.arbitrationFrom(cmd) // 从 DataMemReadBus 的命令流获取仲裁信号
-    bmb.cmd.setRead() // 设置为读命令
-    bmb.cmd.address := cmd.address // 地址
-    bmb.cmd.length := p.lineSize - 1 // 长度（缓存行大小-1）
-    bmb.cmd.source := cmd.id // 源ID
-    bmb.cmd.last := True // 最后一个突发传输
-
-    rsp.arbitrationFrom(bmb.rsp) // 从 BMB 响应流获取仲裁信号
-    rsp.id := bmb.rsp.source // 响应ID
-    rsp.data := bmb.rsp.data // 响应数据
-    rsp.error := bmb.rsp.isError // 响应错误
-  }.bmb
-
 }
 
 // DataMemWriteCmd 类：定义主存写命令的负载。
@@ -328,38 +298,6 @@ case class DataMemWriteBus(p: DataMemBusParameter) extends Bundle with IMasterSl
 
     self.rsp << ret.rsp // 响应直接连接
   }.ret
-
-  // toBmb 方法：将 DataMemWriteBus 转换为 BMB 写总线。
-  def toBmb(): Bmb = new Composite(this, "toBmb") {
-    val bmbConfig = BmbAccessParameter(
-      addressWidth = p.addressWidth,
-      dataWidth = p.dataWidth
-    ).addSources(
-      p.writeIdCount, // Corrected to use writeIdCount for write sources
-      BmbSourceParameter(
-        contextWidth = 0,
-        lengthWidth = log2Up(p.lineSize),
-        alignment = BmbParameter.BurstAlignement.LENGTH,
-        canRead = false,
-        canWrite = true // Explicitly set canWrite
-      )
-    )
-
-    val bmb = Bmb(bmbConfig) // 创建 BMB 总线
-    bmb.cmd.arbitrationFrom(cmd) // 从 DataMemWriteBus 的命令流获取仲裁信号
-    bmb.cmd.setWrite() // 设置为写命令
-    bmb.cmd.address := cmd.address // 地址
-    bmb.cmd.length := p.lineSize - 1 // 长度（缓存行大小-1）
-    bmb.cmd.source := cmd.id // 源ID
-    bmb.cmd.data := cmd.data // 数据
-    bmb.cmd.last := cmd.last // 最后一个突发传输
-    bmb.cmd.mask.setAll() // 掩码全1（表示写入所有字节）
-
-    bmb.rsp.ready := True // BMB 响应始终就绪
-    rsp.valid := bmb.rsp.valid // 响应有效性
-    rsp.id := bmb.rsp.source // 响应ID
-    rsp.error := bmb.rsp.isError // 响应错误
-  }.bmb
 }
 
 // DataMemBus 类：定义完整的主存总线接口，包括读、写和可选的探测。
