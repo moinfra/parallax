@@ -105,7 +105,7 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
       accessSize: MemAccessSize.E,
       usePc: Boolean,
       pcVal: Long,
-      robId: Int,
+      robPtr: Int,
       isLoad: Boolean,
       isStore: Boolean,
       physDst: Int
@@ -115,7 +115,7 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
   case class AguResultSnapshot(
       address: BigInt,
       alignException: Boolean,
-      robId: BigInt,
+      robPtr: BigInt,
       isLoad: Boolean,
       isStore: Boolean,
       physDst: BigInt
@@ -141,13 +141,13 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
       dut: AguTestFrameworkWithBypass,
       physRegIdx: Int,
       data: BigInt,
-      robIdx: Int,
+      robPtr: Int,
       clockDomain: ClockDomain
   ): Unit = {
     dut.io.bypassInject.valid #= true
     dut.io.bypassInject.payload.physRegIdx #= physRegIdx
     dut.io.bypassInject.payload.physRegData #= data
-    dut.io.bypassInject.payload.robIdx #= robIdx
+    dut.io.bypassInject.payload.robPtr #= robPtr
     dut.io.bypassInject.payload.valid #= true
     clockDomain.waitSampling(3)
     dut.io.bypassInject.valid #= false
@@ -161,7 +161,7 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
     payload.accessSize #= params.accessSize
     payload.usePc #= params.usePc
     payload.pc #= params.pcVal
-    payload.robId #= params.robId
+    payload.robPtr #= params.robPtr
     payload.isLoad #= params.isLoad
     payload.isStore #= params.isStore
     payload.physDst #= params.physDst
@@ -192,7 +192,7 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
           outputSnapshots += AguResultSnapshot(
             payload.address.toBigInt,
             payload.alignException.toBoolean,
-            payload.robId.toBigInt,
+            payload.robPtr.toBigInt,
             payload.isLoad.toBoolean,
             payload.isStore.toBoolean,
             payload.physDst.toBigInt
@@ -223,7 +223,7 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
           accessSize = MemAccessSize.H,
           usePc = false,
           pcVal = 0,
-          robId = 15,
+          robPtr = 15,
           isLoad = true,
           isStore = false,
           physDst = 20
@@ -241,7 +241,7 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
         s"Address mismatch: expected ${expectedAddr.toHexString}, got ${result.address.toString(16)}"
       )
       assert(!result.alignException, "Should not have alignment exception")
-      assert(result.robId == 15, "ROB ID mismatch")
+      assert(result.robPtr == 15, "ROB ID mismatch")
 
       println("✓ Basic address calculation with registers PASSED")
     }
@@ -275,7 +275,7 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
           outputSnapshots += AguResultSnapshot(
             payload.address.toBigInt,
             payload.alignException.toBoolean,
-            payload.robId.toBigInt,
+            payload.robPtr.toBigInt,
             payload.isLoad.toBoolean,
             payload.isStore.toBoolean,
             payload.physDst.toBigInt
@@ -312,7 +312,7 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
           accessSize = MemAccessSize.H,
           usePc = false,
           pcVal = 0,
-          robId = 30,
+          robPtr = 30,
           isLoad = false,
           isStore = true,
           physDst = 35
@@ -331,7 +331,7 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
         s"Bypass data not used: expected ${expectedAddr.toHexString}, got ${result.address.toString(16)}"
       )
       assert(!result.alignException, "Should not have alignment exception")
-      assert(result.robId == 30, "ROB ID mismatch")
+      assert(result.robPtr == 30, "ROB ID mismatch")
       assert(result.isStore, "IsStore flag mismatch")
 
       println("✓ Bypass data usage test PASSED")
@@ -363,7 +363,7 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
           outputSnapshots += AguResultSnapshot(
             payload.address.toBigInt,
             payload.alignException.toBoolean,
-            payload.robId.toBigInt,
+            payload.robPtr.toBigInt,
             payload.isLoad.toBoolean,
             payload.isStore.toBoolean,
             payload.physDst.toBigInt
@@ -386,12 +386,12 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
         (7, 0x6000, 300, 42)
       )
 
-      for ((reg, bypassVal, imm, robId) <- testCases) {
+      for ((reg, bypassVal, imm, robPtr) <- testCases) {
         outputSnapshots.clear()
 
         // 注入旁路数据
         fork {
-          injectBypassData(dut, reg, bypassVal, robId, dut.clockDomain)
+          injectBypassData(dut, reg, bypassVal, robPtr, dut.clockDomain)
         }
 
         inputQueue.enqueue(
@@ -401,7 +401,7 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
             accessSize = MemAccessSize.H,
             usePc = false,
             pcVal = 0,
-            robId = robId,
+            robPtr = robPtr,
             isLoad = true,
             isStore = false,
             physDst = reg + 10
@@ -418,7 +418,7 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
           result.address == expectedAddr,
           s"Reg $reg: expected ${expectedAddr.toHexString}, got ${result.address.toString(16)}"
         )
-        assert(result.robId == robId, s"Reg $reg: ROB ID mismatch")
+        assert(result.robPtr == robPtr, s"Reg $reg: ROB ID mismatch")
 
         dut.clockDomain.waitSampling(3)
       }

@@ -42,13 +42,13 @@ class MallocNStreamArbiterTestBench[T_REQ <: Data, T_RSP <: Data](
 
 // DummyMsg2 (不变)
 case class DummyMsg2() extends CdbTargetedMessage[UInt] {
-  val robIdx = UInt(8 bits)
-  override def cdbTargetIdx: UInt = robIdx
+  val robPtr = UInt(8 bits)
+  override def cdbTargetIdx: UInt = robPtr
 }
 
 // --- SimTestHelpers2 Object (不变) ---
 object SimTestHelpers2 {
-  def SimpleStreamDriveRobIdx(
+  def SimpleStreamDriveRobPtr(
       stream: Stream[DummyMsg2],
       clockDomain: ClockDomain,
       queue: mutable.Queue[BigInt]
@@ -65,7 +65,7 @@ object SimTestHelpers2 {
         }
 
         if (activeData.isDefined) {
-          stream.payload.robIdx #= activeData.get
+          stream.payload.robPtr #= activeData.get
           stream.valid #= true
 
           clockDomain.waitSamplingWhere(stream.ready.toBoolean && stream.valid.toBoolean)
@@ -86,9 +86,9 @@ object SimTestHelpers2 {
 
 // --- DummyMsg2Collector (不变) ---
 class DummyMsg2Collector(stream: Stream[DummyMsg2], clockDomain: ClockDomain) {
-  val receivedRobIdxs = mutable.Queue[BigInt]()
+  val receivedRobPtrs = mutable.Queue[BigInt]()
   StreamMonitor(stream, clockDomain) { payload =>
-    receivedRobIdxs.enqueue(payload.robIdx.toBigInt)
+    receivedRobPtrs.enqueue(payload.robPtr.toBigInt)
   }
 }
 
@@ -100,7 +100,7 @@ object GrantSlotProcessorSim {
       grantRspPort: Stream[DummyMsg2],
       grantSlotIdx: Int,
       clockDomain: ClockDomain,
-      rspRobIdxGen: (BigInt) => BigInt,
+      rspRobPtrGen: (BigInt) => BigInt,
       processingDelayCycles: () => Int = () => Random.nextInt(5) + 1,
       enableProcessingLog: Boolean = false,
       logPrefix: String = "GrantSlot"
@@ -108,26 +108,26 @@ object GrantSlotProcessorSim {
     fork {
       grantReqPort.ready #= false
       grantRspPort.valid #= false
-      grantRspPort.payload.robIdx.randomize()
+      grantRspPort.payload.robPtr.randomize()
 
       while(true) {
         grantReqPort.ready #= true
         clockDomain.waitSamplingWhere(grantReqPort.valid.toBoolean && grantReqPort.ready.toBoolean)
 
-        val receivedReqRobIdx = grantReqPort.payload.robIdx.toBigInt
+        val receivedReqRobPtr = grantReqPort.payload.robPtr.toBigInt
         grantReqPort.ready #= false
 
-        if(enableProcessingLog) println(s"[SimTime ${simTime()}] $logPrefix[${grantSlotIdx.toString()}] RECV REQ_robIdx: ${receivedReqRobIdx}")
+        if(enableProcessingLog) println(s"[SimTime ${simTime()}] $logPrefix[${grantSlotIdx.toString()}] RECV REQ_robPtr: ${receivedReqRobPtr}")
 
         val delay = processingDelayCycles()
         if(delay > 0) sleep(delay)
 
-        val responseRobIdxToSend = rspRobIdxGen(receivedReqRobIdx)
+        val responseRobPtrToSend = rspRobPtrGen(receivedReqRobPtr)
 
-        grantRspPort.payload.robIdx #= responseRobIdxToSend
+        grantRspPort.payload.robPtr #= responseRobPtrToSend
         grantRspPort.valid #= true
 
-        if(enableProcessingLog) println(s"[SimTime ${simTime()}] $logPrefix[${grantSlotIdx.toString()}] SEND RSP_robIdx: ${responseRobIdxToSend}")
+        if(enableProcessingLog) println(s"[SimTime ${simTime()}] $logPrefix[${grantSlotIdx.toString()}] SEND RSP_robPtr: ${responseRobPtrToSend}")
 
         clockDomain.waitSamplingWhere(grantRspPort.valid.toBoolean && grantRspPort.ready.toBoolean)
         grantRspPort.valid #= false
@@ -168,43 +168,43 @@ class MallocNStreamArbiterSpec extends CustomSpinalSimFunSuite {
         val requester0_req_q = mutable.Queue[BigInt]()
         val requester0_rsp_collector = new DummyMsg2Collector(dutTb.io_tb.requester_rsp(0), cd)
 
-        SimTestHelpers2.SimpleStreamDriveRobIdx(dutTb.io_tb.requester_req(0), cd, requester0_req_q)
+        SimTestHelpers2.SimpleStreamDriveRobPtr(dutTb.io_tb.requester_req(0), cd, requester0_req_q)
 
         GrantSlotProcessorSim(
           dutTb.io_tb.grant_req(0), dutTb.io_tb.grant_rsp(0), 0, cd,
-          rspRobIdxGen = (reqRobIdx) => (reqRobIdx + 100) & 0xFFL,
+          rspRobPtrGen = (reqRobPtr) => (reqRobPtr + 100) & 0xFFL,
           enableProcessingLog = p.enableTestLog
         )
 
         dutTb.io_tb.requester_rsp(0).ready #= true
 
-        val tx1_req_robIdx = 10L
-        requester0_req_q.enqueue(tx1_req_robIdx)
-        if(p.enableTestLog) println(s"[Test 1-1] Sent REQ_robIdx: ${tx1_req_robIdx}")
+        val tx1_req_robPtr = 10L
+        requester0_req_q.enqueue(tx1_req_robPtr)
+        if(p.enableTestLog) println(s"[Test 1-1] Sent REQ_robPtr: ${tx1_req_robPtr}")
 
-        var timedOut = cd.waitSamplingWhere(defaultTimeout)(requester0_rsp_collector.receivedRobIdxs.nonEmpty)
+        var timedOut = cd.waitSamplingWhere(defaultTimeout)(requester0_rsp_collector.receivedRobPtrs.nonEmpty)
         assert(!timedOut, "Timeout waiting for first response")
 
-        assert(requester0_rsp_collector.receivedRobIdxs.nonEmpty, "Response queue should not be empty")
-        val tx1_rsp_robIdx = requester0_rsp_collector.receivedRobIdxs.dequeue()
-        val expectedRspRobIdx = (10L + 100L) & 0xFFL
-        assert(tx1_rsp_robIdx == expectedRspRobIdx,
-               s"RSP1 mismatch. Expected robIdx $expectedRspRobIdx, got ${tx1_rsp_robIdx}")
-        if(p.enableTestLog) println(s"[Test 1-1] Recv RSP_robIdx: ${tx1_rsp_robIdx}")
+        assert(requester0_rsp_collector.receivedRobPtrs.nonEmpty, "Response queue should not be empty")
+        val tx1_rsp_robPtr = requester0_rsp_collector.receivedRobPtrs.dequeue()
+        val expectedRspRobPtr = (10L + 100L) & 0xFFL
+        assert(tx1_rsp_robPtr == expectedRspRobPtr,
+               s"RSP1 mismatch. Expected robPtr $expectedRspRobPtr, got ${tx1_rsp_robPtr}")
+        if(p.enableTestLog) println(s"[Test 1-1] Recv RSP_robPtr: ${tx1_rsp_robPtr}")
 
-        val tx2_req_robIdx = 25L
-        requester0_req_q.enqueue(tx2_req_robIdx)
-        if(p.enableTestLog) println(s"[Test 1-1] Sent REQ_robIdx: ${tx2_req_robIdx}")
+        val tx2_req_robPtr = 25L
+        requester0_req_q.enqueue(tx2_req_robPtr)
+        if(p.enableTestLog) println(s"[Test 1-1] Sent REQ_robPtr: ${tx2_req_robPtr}")
 
-        timedOut = cd.waitSamplingWhere(defaultTimeout)(requester0_rsp_collector.receivedRobIdxs.nonEmpty)
+        timedOut = cd.waitSamplingWhere(defaultTimeout)(requester0_rsp_collector.receivedRobPtrs.nonEmpty)
         assert(!timedOut, "Timeout waiting for second response")
 
-        assert(requester0_rsp_collector.receivedRobIdxs.nonEmpty, "Second response queue should not be empty")
-        val tx2_rsp_robIdx = requester0_rsp_collector.receivedRobIdxs.dequeue()
-        val expectedRspRobIdx2 = (25L + 100L) & 0xFFL
-        assert(tx2_rsp_robIdx == expectedRspRobIdx2,
-               s"Second response data mismatch. Expected robIdx $expectedRspRobIdx2, got ${tx2_rsp_robIdx}")
-        if(p.enableTestLog) println(s"[Test 1-1] Recv RSP_robIdx: ${tx2_rsp_robIdx}")
+        assert(requester0_rsp_collector.receivedRobPtrs.nonEmpty, "Second response queue should not be empty")
+        val tx2_rsp_robPtr = requester0_rsp_collector.receivedRobPtrs.dequeue()
+        val expectedRspRobPtr2 = (25L + 100L) & 0xFFL
+        assert(tx2_rsp_robPtr == expectedRspRobPtr2,
+               s"Second response data mismatch. Expected robPtr $expectedRspRobPtr2, got ${tx2_rsp_robPtr}")
+        if(p.enableTestLog) println(s"[Test 1-1] Recv RSP_robPtr: ${tx2_rsp_robPtr}")
 
         cd.waitSampling(20)
       }
@@ -226,13 +226,13 @@ class MallocNStreamArbiterSpec extends CustomSpinalSimFunSuite {
         val rspCollectors = IndexedSeq.tabulate(p.numRequesters)(idx => new DummyMsg2Collector(dutTb.io_tb.requester_rsp(idx), cd))
 
         reqQueues.zipWithIndex.foreach { case (q, idx) =>
-          SimTestHelpers2.SimpleStreamDriveRobIdx(dutTb.io_tb.requester_req(idx), cd, q)
+          SimTestHelpers2.SimpleStreamDriveRobPtr(dutTb.io_tb.requester_req(idx), cd, q)
         }
         dutTb.io_tb.requester_rsp.foreach(_.ready #= true)
 
         GrantSlotProcessorSim(
           dutTb.io_tb.grant_req(0), dutTb.io_tb.grant_rsp(0), 0, cd,
-          rspRobIdxGen = (reqRobIdx) => (reqRobIdx + 100) & 0xFFL,
+          rspRobPtrGen = (reqRobPtr) => (reqRobPtr + 100) & 0xFFL,
           enableProcessingLog = p.enableTestLog
         )
 
@@ -242,24 +242,24 @@ class MallocNStreamArbiterSpec extends CustomSpinalSimFunSuite {
 
         for (i <- 0 until numTxPerReq) {
           for (reqIdx <- 0 until p.numRequesters) {
-            val robIdxVal = BigInt(reqIdx * 100 + i * 10 + reqIdx)
-            reqQueues(reqIdx).enqueue(robIdxVal)
-            expectedResponses(reqIdx).enqueue((robIdxVal + 100) & 0xFFL)
-            if(p.enableTestLog) println(s"[Test 2R-1S] Req[${reqIdx.toString}] Enqueued REQ_robIdx=${robIdxVal}")
+            val robPtrVal = BigInt(reqIdx * 100 + i * 10 + reqIdx)
+            reqQueues(reqIdx).enqueue(robPtrVal)
+            expectedResponses(reqIdx).enqueue((robPtrVal + 100) & 0xFFL)
+            if(p.enableTestLog) println(s"[Test 2R-1S] Req[${reqIdx.toString}] Enqueued REQ_robPtr=${robPtrVal}")
           }
         }
 
         val totalTx = numTxPerReq * p.numRequesters
         val timedOut = cd.waitSamplingWhere(defaultTimeout * totalTx + 200) {
-          rspCollectors.map(_.receivedRobIdxs.size).sum == totalTx
+          rspCollectors.map(_.receivedRobPtrs.size).sum == totalTx
         }
-        assert(!timedOut, s"Timeout waiting for all $totalTx responses. Got ${rspCollectors.map(_.receivedRobIdxs.size).sum}")
+        assert(!timedOut, s"Timeout waiting for all $totalTx responses. Got ${rspCollectors.map(_.receivedRobPtrs.size).sum}")
 
         for (reqIdx <- 0 until p.numRequesters) {
-          assert(rspCollectors(reqIdx).receivedRobIdxs.size == numTxPerReq, s"Requester $reqIdx did not receive all $numTxPerReq responses.")
+          assert(rspCollectors(reqIdx).receivedRobPtrs.size == numTxPerReq, s"Requester $reqIdx did not receive all $numTxPerReq responses.")
           for (i <- 0 until numTxPerReq) {
             val expected = expectedResponses(reqIdx).dequeue()
-            val received = rspCollectors(reqIdx).receivedRobIdxs.dequeue()
+            val received = rspCollectors(reqIdx).receivedRobPtrs.dequeue()
             assert(received == expected, s"RSP mismatch for Req[$reqIdx], tx $i. Expected $expected, got $received")
           }
         }
@@ -283,7 +283,7 @@ class MallocNStreamArbiterSpec extends CustomSpinalSimFunSuite {
         val requester0_req_q = mutable.Queue[BigInt]()
         val requester0_rsp_collector = new DummyMsg2Collector(dutTb.io_tb.requester_rsp(0), cd)
 
-        SimTestHelpers2.SimpleStreamDriveRobIdx(dutTb.io_tb.requester_req(0), cd, requester0_req_q)
+        SimTestHelpers2.SimpleStreamDriveRobPtr(dutTb.io_tb.requester_req(0), cd, requester0_req_q)
 
         // GrantSlotProcessor will introduce a small delay *after* grant
         // before sending its response on grant_rsp. This ensures slotBusy/Owner regs are set in DUT.
@@ -293,7 +293,7 @@ class MallocNStreamArbiterSpec extends CustomSpinalSimFunSuite {
           dutTb.io_tb.grant_rsp(0),
           0, // grantSlotIdx
           cd,
-          rspRobIdxGen = (reqRobIdx) => (reqRobIdx + 100) & 0xFFL,
+          rspRobPtrGen = (reqRobPtr) => (reqRobPtr + 100) & 0xFFL,
           processingDelayCycles = () => grantSlotProcessingDelay,
           enableProcessingLog = p.enableTestLog,
           logPrefix = "GrantSlotSCRPF"
@@ -314,12 +314,12 @@ class MallocNStreamArbiterSpec extends CustomSpinalSimFunSuite {
                 grantRspFireCycleTime == -1L) { // Capture only the first time it fires for this test instance
   
               grantRspFireCycleTime = simTime()
-              grantRspPayloadAtFire = dutTb.io_tb.grant_rsp(0).payload.robIdx.toBigInt
+              grantRspPayloadAtFire = dutTb.io_tb.grant_rsp(0).payload.robPtr.toBigInt
   
               // Check the DUT's output requester_rsp(0) in the *same* cycle
               requesterRspValidAtGrantRspFireCycle = dutTb.io_tb.requester_rsp(0).valid.toBoolean
               if (requesterRspValidAtGrantRspFireCycle) { // Only read payload if valid to avoid Xes
-                requesterRspPayloadAtGrantRspFireCycle = dutTb.io_tb.requester_rsp(0).payload.robIdx.toBigInt
+                requesterRspPayloadAtGrantRspFireCycle = dutTb.io_tb.requester_rsp(0).payload.robPtr.toBigInt
               }
   
               if (p.enableTestLog) {
@@ -331,38 +331,38 @@ class MallocNStreamArbiterSpec extends CustomSpinalSimFunSuite {
           }
         }
 
-        val testReqRobIdx = 55L
-        requester0_req_q.enqueue(testReqRobIdx)
-        if (p.enableTestLog) println(s"[Test SCRPF @ ${simTime()}] Enqueued REQ_robIdx: ${testReqRobIdx} to requester0_req_q")
+        val testReqRobPtr = 55L
+        requester0_req_q.enqueue(testReqRobPtr)
+        if (p.enableTestLog) println(s"[Test SCRPF @ ${simTime()}] Enqueued REQ_robPtr: ${testReqRobPtr} to requester0_req_q")
 
         // Wait for the response to be collected by the standard collector.
         // This ensures the transaction (including the grant_rsp fire event) has occurred.
         val timedOut = cd.waitSamplingWhere(defaultTimeout) {
-          requester0_rsp_collector.receivedRobIdxs.nonEmpty
+          requester0_rsp_collector.receivedRobPtrs.nonEmpty
         }
         assert(!timedOut, "Timeout waiting for response in collector. grant_rsp might not have fired.")
 
         // Now, perform the assertions based on the values captured by onSamplings
         assert(grantRspFireCycleTime != -1L, "grant_rsp(0) never fired. Check GrantSlotProcessorSim or DUT response path logic.")
 
-        val expectedRspRobIdx = (testReqRobIdx + 100) & 0xFFL
+        val expectedRspRobPtr = (testReqRobPtr + 100) & 0xFFL
         // Verify the payload that was on grant_rsp when it fired
-        assert(grantRspPayloadAtFire == expectedRspRobIdx,
-               s"Payload on grant_rsp(0) at fire (T=${grantRspFireCycleTime}) was ${grantRspPayloadAtFire}, expected ${expectedRspRobIdx}")
+        assert(grantRspPayloadAtFire == expectedRspRobPtr,
+               s"Payload on grant_rsp(0) at fire (T=${grantRspFireCycleTime}) was ${grantRspPayloadAtFire}, expected ${expectedRspRobPtr}")
 
         // THE CRITICAL ASSERTION: requester_rsp was valid in the SAME cycle as grant_rsp fired
         assert(requesterRspValidAtGrantRspFireCycle,
                s"dut.requester_rsp(0).valid was false in the same cycle (T=${grantRspFireCycleTime}) that grant_rsp(0) fired.")
 
         // Verify the payload on requester_rsp in that same cycle
-        assert(requesterRspPayloadAtGrantRspFireCycle == expectedRspRobIdx,
-               s"dut.requester_rsp(0).payload was ${requesterRspPayloadAtGrantRspFireCycle} in cycle T=${grantRspFireCycleTime}, expected ${expectedRspRobIdx}")
+        assert(requesterRspPayloadAtGrantRspFireCycle == expectedRspRobPtr,
+               s"dut.requester_rsp(0).payload was ${requesterRspPayloadAtGrantRspFireCycle} in cycle T=${grantRspFireCycleTime}, expected ${expectedRspRobPtr}")
 
         // Final sanity check with the collector
-        assert(requester0_rsp_collector.receivedRobIdxs.nonEmpty, "Collector queue is empty after timeout condition met.")
-        val collectedRsp = requester0_rsp_collector.receivedRobIdxs.dequeue()
-        assert(collectedRsp == expectedRspRobIdx,
-               s"Collector received ${collectedRsp}, expected ${expectedRspRobIdx}")
+        assert(requester0_rsp_collector.receivedRobPtrs.nonEmpty, "Collector queue is empty after timeout condition met.")
+        val collectedRsp = requester0_rsp_collector.receivedRobPtrs.dequeue()
+        assert(collectedRsp == expectedRspRobPtr,
+               s"Collector received ${collectedRsp}, expected ${expectedRspRobPtr}")
 
         if (p.enableTestLog) println(s"[Test SCRPF] Single cycle response path forwarding successfully verified for cycle ${grantRspFireCycleTime}.")
         cd.waitSampling(10) // Allow simulation to settle

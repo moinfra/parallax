@@ -17,12 +17,12 @@ case class AluOutputPayload(config: PipelineConfig) extends Bundle with IMasterS
   val data = Bits(config.dataWidth)
   val physDest = PhysicalRegOperand(config.physGprIdxWidth)
   val writesToPhysReg = Bool()
-  val robIdx = UInt(config.robIdxWidth)
+  val robPtr = UInt(config.robPtrWidth)
   val hasException = Bool()
   val exceptionCode = AluExceptionCode() // Use the SpinalEnum type
 
   override def asMaster(): Unit = {
-    in(data, physDest, writesToPhysReg, robIdx, hasException, exceptionCode)
+    in(data, physDest, writesToPhysReg, robPtr, hasException, exceptionCode)
   }
 }
 
@@ -52,7 +52,7 @@ class DemoAlu(val config: PipelineConfig) extends Component {
   io.resultOut.payload.data := B(0)
   io.resultOut.payload.physDest.idx := U(0) // Or use config.physGprIdxWidth for width if U(0) is ambiguous
   io.resultOut.payload.writesToPhysReg := False
-  io.resultOut.payload.robIdx := U(0) // Or use config.robIdxWidth
+  io.resultOut.payload.robPtr := U(0) // Or use config.robPtrWidth
   io.resultOut.payload.hasException := False
   io.resultOut.payload.exceptionCode := AluExceptionCode.NONE // Default to NONE
 
@@ -76,7 +76,7 @@ class DemoAlu(val config: PipelineConfig) extends Component {
     exceptionCodeVal := AluExceptionCode.NONE // Default to no exception for this transaction
 
     // Pass through ROB index and destination info
-    io.resultOut.payload.robIdx := uop.robIdx
+    io.resultOut.payload.robPtr := uop.robPtr
     io.resultOut.payload.physDest := renameInfo.physDest
     io.resultOut.payload.writesToPhysReg := renameInfo.writesToPhysReg
 

@@ -3,7 +3,7 @@ package parallax.common
 import spinal.core._
 
 trait RobIndexedData {
-  def getRobIdx(): UInt
+  def getRobPtr(): UInt
 }
 
 /** Concrete completion message from an EU to the ROB.
@@ -13,16 +13,16 @@ trait RobIndexedData {
 case class RobCompletionMsg(val pCfg: PipelineConfig) // pCfg for widths
     extends CdbTargetedMessage[UInt] {
 
-  val robIdx = UInt(pCfg.robIdxWidth)
+  val robPtr = UInt(pCfg.robPtrWidth)
   val hasException = Bool()
   val exceptionCode = UInt(pCfg.exceptionCodeWidth)
 
-  override def cdbTargetIdx: UInt = robIdx
+  override def cdbTargetIdx: UInt = robPtr
 
   def setDefaultSimValues(): this.type = {
     import spinal.core.sim._
     
-    robIdx #= 0
+    robPtr #= 0
     hasException #= false
     exceptionCode #= 0
     this

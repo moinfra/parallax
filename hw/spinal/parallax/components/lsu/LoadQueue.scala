@@ -27,11 +27,11 @@ class LoadQueuePlugin(val lsuConfig: LsuConfig, val pipelineConfig: PipelineConf
   ParallaxLogger.log(s"LQPlugin: Creating LoadQueue with config: $lsuConfig")
 
   // --- Helper for ROB ID comparison (handles generation bit wrap-around) ---
-  private def isNewerOrSame(robIdA: UInt, robIdB: UInt): Bool = {
-    val genA = robIdA.msb
-    val idxA = robIdA(robIdA.high - 1 downto 0)
-    val genB = robIdB.msb
-    val idxB = robIdB(robIdB.high - 1 downto 0)
+  private def isNewerOrSame(robPtrA: UInt, robPtrB: UInt): Bool = {
+    val genA = robPtrA.msb
+    val idxA = robPtrA(robPtrA.high - 1 downto 0)
+    val genB = robPtrB.msb
+    val idxB = robPtrB(robPtrB.high - 1 downto 0)
 
     (genA === genB && idxA >= idxB) || (genA =/= genB && idxA < idxB)
   }
@@ -66,10 +66,10 @@ class LoadQueuePlugin(val lsuConfig: LsuConfig, val pipelineConfig: PipelineConf
     // Service Port Instantiation
     val allocatePortInst = Stream(LoadQueueEntry(lsuConfig))
     val statusUpdatePortInst = Flow(LqStatusUpdate(lsuConfig))
-    val releasePortsInst = Vec(Flow(UInt(pipelineConfig.robIdxWidth)), lsuConfig.commitWidth)
+    val releasePortsInst = Vec(Flow(UInt(pipelineConfig.robPtrWidth)), lsuConfig.commitWidth)
     val releaseMaskInst = Vec(Bool(), lsuConfig.commitWidth) // Gemini 注意：这里是无方向信号，不要擅自加上 in
     val loadRequestPortInst = Stream(LsuAguRequest(lsuConfig))
-    val lqFlushPortInst = Flow(ROBFlushPayload(pipelineConfig.robIdxWidth))
+    val lqFlushPortInst = Flow(ROBFlushPayload(pipelineConfig.robPtrWidth))
 
     // Internal feedback path to mark AGU dispatch
     val aguDispatchUpdatePort = Flow(LqStatusUpdate(lsuConfig))
@@ -133,7 +133,7 @@ class LoadQueuePlugin(val lsuConfig: LsuConfig, val pipelineConfig: PipelineConf
         aguReq.accessSize := entry.accessSize
         aguReq.usePc := entry.aguUsePcAsBase
         aguReq.pcForAgu := entry.pc
-        aguReq.robIdx := entry.robIdx
+        aguReq.robPtr := entry.robPtr
         aguReq.isLoad := True
         aguReq.isStore := False
         aguReq.qPtr := entry.lqPtr // Pass the full pointer
@@ -152,7 +152,7 @@ class LoadQueuePlugin(val lsuConfig: LsuConfig, val pipelineConfig: PipelineConf
     hw.loadRequestPortInst.payload := selectedData
 
     when(hw.loadRequestPortInst.fire) {
-      ParallaxSim.debug(L"[LQPlugin] AGU Request sent for LQ Ptr ${selectedData.qPtr} (ROB ID ${selectedData.robIdx})")
+      ParallaxSim.debug(L"[LQPlugin] AGU Request sent for LQ Ptr ${selectedData.qPtr} (ROB ID ${selectedData.robPtr})")
       hw.aguDispatchUpdatePort.valid := True
       hw.aguDispatchUpdatePort.payload.lqPtr := selectedData.qPtr // Use the full pointer for update
       hw.aguDispatchUpdatePort.payload.updateType := LqUpdateType.AGU_DISPATCHED
@@ -188,7 +188,7 @@ class LoadQueuePlugin(val lsuConfig: LsuConfig, val pipelineConfig: PipelineConf
         val updatedEntryData = CombInit(currentEntry)
 
         ParallaxSim.debug(
-          L"[LQPlugin] Status Update for LQ Ptr ${update.lqPtr} (ROB ${currentEntry.robIdx}): Type=${update.updateType}"
+          L"[LQPlugin] Status Update for LQ Ptr ${update.lqPtr} (ROB ${currentEntry.robPtr}): Type=${update.updateType}"
         )
 
         switch(update.updateType) {
@@ -223,7 +223,7 @@ class LoadQueuePlugin(val lsuConfig: LsuConfig, val pipelineConfig: PipelineConf
     val releasedThisCycleCount =
       (0 until lsuConfig.commitWidth).foldLeft(U(0, log2Up(lsuConfig.commitWidth + 1) bits)) {
         (releasedCountSoFar, i) =>
-          val robIdToReleaseFromCommitSlot = hw.releasePortsInst(i).payload
+          val robPtrToReleaseFromCommitSlot = hw.releasePortsInst(i).payload
           val doReleaseForThisSlot = hw.releasePortsInst(i).valid && hw.releaseMaskInst(i) && !hw.isEmpty
 
           val currentReleaseFullPtr = hw.commitPtrReg + releasedCountSoFar
@@ -238,7 +238,7 @@ class LoadQueuePlugin(val lsuConfig: LsuConfig, val pipelineConfig: PipelineConf
             when(
               headEntry.isValid &&
                 headEntry.lqPtr === currentReleaseFullPtr && // Crucial GenBit check
-                headEntry.robIdx === robIdToReleaseFromCommitSlot &&
+                headEntry.robPtr === robPtrToReleaseFromCommitSlot &&
                 headEntry.waitOn.commit
             ) {
               val clearedEntry = LoadQueueEntry(lsuConfig).setDefault().allowOverride()
@@ -247,11 +247,11 @@ class LoadQueuePlugin(val lsuConfig: LsuConfig, val pipelineConfig: PipelineConf
 
               success := True
               ParallaxSim.debug(
-                L"[LQPlugin] Released LQ Ptr ${currentReleaseFullPtr} for ROB ID ${robIdToReleaseFromCommitSlot}"
+                L"[LQPlugin] Released LQ Ptr ${currentReleaseFullPtr} for ROB ID ${robPtrToReleaseFromCommitSlot}"
               )
             } otherwise {
               ParallaxSim.warning(
-                L"[LQPlugin] WARNING: Commit for ROB ID ${robIdToReleaseFromCommitSlot} mismatch at LQ head. Expected Ptr: ${currentReleaseFullPtr}, Head Ptr: ${headEntry.lqPtr}, Head ROB: ${headEntry.robIdx}, Head waitOn.commit: ${headEntry.waitOn.commit}"
+                L"[LQPlugin] WARNING: Commit for ROB ID ${robPtrToReleaseFromCommitSlot} mismatch at LQ head. Expected Ptr: ${currentReleaseFullPtr}, Head Ptr: ${headEntry.lqPtr}, Head ROB: ${headEntry.robPtr}, Head waitOn.commit: ${headEntry.waitOn.commit}"
               )
             }
           }
@@ -265,19 +265,19 @@ class LoadQueuePlugin(val lsuConfig: LsuConfig, val pipelineConfig: PipelineConf
     lock.await()
     when(hw.lqFlushPortInst.valid) {
       val flushCmd = hw.lqFlushPortInst.payload
-      ParallaxSim.debug(L"[LQPlugin] Precise Flush received: TargetROB=${flushCmd.targetRobIdx}")
+      ParallaxSim.debug(L"[LQPlugin] Precise Flush received: TargetROB=${flushCmd.targetRobPtr}")
 
-      val newPtr = flushCmd.targetRobIdx.resized
+      val newPtr = flushCmd.targetRobPtr.resized
       hw.allocPtrReg := newPtr
       hw.commitPtrReg := newPtr
 
       for (i <- 0 until lsuConfig.lqDepth) {
         val entry = hw.entries.readAsync(U(i, lsuConfig.lqIdxWidth))
-        when(entry.isValid && isNewerOrSame(entry.robIdx, flushCmd.targetRobIdx)) {
+        when(entry.isValid && isNewerOrSame(entry.robPtr, flushCmd.targetRobPtr)) {
           val clearedEntry = LoadQueueEntry(lsuConfig).setDefault().allowOverride()
           clearedEntry.isValid := False
           hw.entries.write(U(i, lsuConfig.lqIdxWidth), clearedEntry)
-          ParallaxSim.debug(L"[LQPlugin] Invalidating LQ entry with ROB ID ${entry.robIdx} due to flush.")
+          ParallaxSim.debug(L"[LQPlugin] Invalidating LQ entry with ROB ID ${entry.robPtr} due to flush.")
         }
       }
     }

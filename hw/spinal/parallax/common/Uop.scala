@@ -633,7 +633,7 @@ case class RenameInfo(val config: PipelineConfig) extends Bundle {
 
 case class RenamedUop(
     val config: PipelineConfig
-) extends Bundle with Dumpable with HasRobIdx {
+) extends Bundle with Dumpable with HasRobPtr {
   // --- Original Decoded Information ---
   val decoded = DecodedUop(config) // Embeds all architectural and control info
 
@@ -641,7 +641,7 @@ case class RenamedUop(
   val rename = RenameInfo(config)
 
   // --- ROB / Dispatch / Execute Info ---
-  val robIdx = UInt(config.robIdxWidth)
+  val robPtr = UInt(config.robPtrWidth)
   val uniqueId = UInt(config.uopUniqueIdWidth) // For debugging, tracing
 
   // These flags are typically set/cleared as the Uop moves through the pipeline
@@ -655,7 +655,7 @@ case class RenamedUop(
   def setDefault(decoded: DecodedUop = null): this.type = {
     if (decoded != null) this.decoded := decoded else this.decoded.setDefault()
     rename.setDefault()
-    robIdx := 0 // Or a specific "invalid" index if 0 is valid
+    robPtr := 0 // Or a specific "invalid" index if 0 is valid
     uniqueId := 0
     dispatched := False
     executed := False
@@ -668,7 +668,7 @@ case class RenamedUop(
     import spinal.core.sim._
     if (decoded != null) this.decoded := decoded else this.decoded.setDefaultForSim()
     rename.setDefaultForSim()
-    robIdx #= 0
+    robPtr #= 0
     uniqueId #= 0
     dispatched #= false
     executed #= false
@@ -680,7 +680,7 @@ case class RenamedUop(
   def dump(): Seq[Any] = {
     Seq("RenamedUop: decoded=", decoded.dump(), "\n",
         "rename=", rename.dump(), "\n",
-        "robIdx=", robIdx, " uniqueId=", uniqueId, "\n",
+        "robPtr=", robPtr, " uniqueId=", uniqueId, "\n",
         "dispatched=", dispatched, " executed=", executed, "\n",
         "hasException=", hasException, " exceptionCode=", exceptionCode)
   }
@@ -690,6 +690,6 @@ trait Dumpable {
   def dump(): Seq[Any]
 }
 
-trait HasRobIdx {
-  def robIdx: UInt
+trait HasRobPtr {
+  def robPtr: UInt
 }

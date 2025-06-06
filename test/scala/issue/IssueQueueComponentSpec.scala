@@ -81,7 +81,7 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
   // -- MODIFICATION START (Corrected driveAllocRequest) --
   def driveAllocRequest(
       allocFlowTarget: Flow[IQEntryAluInt], // Target the DUT's allocateIn Flow directly
-      robIdxVal: Int,
+      robPtrVal: Int,
       pCfg: PipelineConfig,
       physDestIdxVal: Int = 1,
       writesPhysVal: Boolean = true,
@@ -99,7 +99,7 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
   )(implicit cd: ClockDomain): Unit = {
     allocFlowTarget.valid #= true
 
-    allocFlowTarget.payload.robIdx #= robIdxVal
+    allocFlowTarget.payload.robPtr #= robPtrVal
     allocFlowTarget.payload.physDest.idx #= physDestIdxVal
     allocFlowTarget.payload.writesToPhysReg #= writesPhysVal
     allocFlowTarget.payload.physDestIsFpr #= destIsFprVal
@@ -148,13 +148,13 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
       pRegIdx: Int,
       data: BigInt,
       isFpr: Boolean = false,
-      robIdxProducer: Int = 0,
+      robPtrProducer: Int = 0,
       isExcp: Boolean = false
   )(implicit cd: ClockDomain): Unit = {
     bypassPort.valid #= true
     bypassPort.payload.physRegIdx #= pRegIdx
     bypassPort.payload.physRegData #= data
-    bypassPort.payload.robIdx #= robIdxProducer
+    bypassPort.payload.robPtr #= robPtrProducer
     bypassPort.payload.isFPR #= isFpr
     bypassPort.payload.hasException #= isExcp
     // bypassPort.payload.exceptionCode will be default (0) from setDefault if not driven
@@ -184,12 +184,12 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
 
         val scoreboard = ScoreboardInOrder[Int]()
         StreamMonitor(dut.io.issueOut, cd) { payload =>
-          scoreboard.pushDut(payload.robIdx.toInt)
-          ParallaxLogger.log(s"SIM MONITOR: Issued ROBIdx=${payload.robIdx.toInt}")
+          scoreboard.pushDut(payload.robPtr.toInt)
+          ParallaxLogger.log(s"SIM MONITOR: Issued RobPtr=${payload.robPtr.toInt}")
         }
 
         scoreboard.pushRef(10)
-        driveAllocRequest(dut.io.allocateIn, robIdxVal = 10, pCfg = pCfg, useSrc1Val = false, useSrc2Val = false)
+        driveAllocRequest(dut.io.allocateIn, robPtrVal = 10, pCfg = pCfg, useSrc1Val = false, useSrc2Val = false)
 
         cd.waitSampling() // Allow allocation to propagate
         assert(dut.io.canAccept.toBoolean, "IQ should still accept after 1 alloc if not full")
@@ -221,13 +221,13 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
         initDutIO(dut)
 
         val scoreboard = ScoreboardInOrder[Int]()
-        StreamMonitor(dut.io.issueOut, cd) { payload => scoreboard.pushDut(payload.robIdx.toInt) }
+        StreamMonitor(dut.io.issueOut, cd) { payload => scoreboard.pushDut(payload.robPtr.toInt) }
         StreamReadyRandomizer(dut.io.issueOut, cd)
 
         scoreboard.pushRef(20)
         driveAllocRequest(
           dut.io.allocateIn,
-          robIdxVal = 20,
+          robPtrVal = 20,
           pCfg = pCfg,
           useSrc1Val = true,
           src1TagVal = 5,
@@ -260,13 +260,13 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
         dut.clockDomain.forkStimulus(10)
         initDutIO(dut)
         val scoreboard = ScoreboardInOrder[Int]()
-        StreamMonitor(dut.io.issueOut, cd) { payload => scoreboard.pushDut(payload.robIdx.toInt) }
+        StreamMonitor(dut.io.issueOut, cd) { payload => scoreboard.pushDut(payload.robPtr.toInt) }
         StreamReadyRandomizer(dut.io.issueOut, cd)
 
         scoreboard.pushRef(30)
         driveAllocRequest(
           dut.io.allocateIn,
-          robIdxVal = 30,
+          robPtrVal = 30,
           pCfg = pCfg,
           useSrc1Val = true,
           src1TagVal = 10,
@@ -310,13 +310,13 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
           dut.clockDomain.forkStimulus(10)
           initDutIO(dut)
           val scoreboard = ScoreboardInOrder[Int]()
-          StreamMonitor(dut.io.issueOut, cd) { payload => scoreboard.pushDut(payload.robIdx.toInt) }
+          StreamMonitor(dut.io.issueOut, cd) { payload => scoreboard.pushDut(payload.robPtr.toInt) }
           StreamReadyRandomizer(dut.io.issueOut, cd)
 
           scoreboard.pushRef(35)
           driveAllocRequest(
             dut.io.allocateIn,
-            robIdxVal = 35,
+            robPtrVal = 35,
             pCfg = pCfg,
             useSrc1Val = true,
             src1TagVal = 15,
@@ -356,13 +356,13 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
         initDutIO(dut)
 
         val scoreboard = ScoreboardInOrder[Int]()
-        StreamMonitor(dut.io.issueOut, cd) { payload => scoreboard.pushDut(payload.robIdx.toInt) }
+        StreamMonitor(dut.io.issueOut, cd) { payload => scoreboard.pushDut(payload.robPtr.toInt) }
 
         dut.io.issueOut.ready #= false
         for (i <- 0 until iqDepth) {
-          val robId = 40 + i
-          scoreboard.pushRef(robId)
-          driveAllocRequest(dut.io.allocateIn, robIdxVal = robId, pCfg = pCfg, useSrc1Val = false, useSrc2Val = false)
+          val robPtr = 40 + i
+          scoreboard.pushRef(robPtr)
+          driveAllocRequest(dut.io.allocateIn, robPtrVal = robPtr, pCfg = pCfg, useSrc1Val = false, useSrc2Val = false)
         }
         cd.waitSampling() // After all allocations
         assert(
@@ -404,7 +404,7 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
         dut.io.issueOut.ready #= false // Prevent issues to observe flush effect clearly
         driveAllocRequest(
           dut.io.allocateIn,
-          robIdxVal = 50,
+          robPtrVal = 50,
           pCfg = pCfg,
           useSrc1Val = false,
           useSrc2Val = false
@@ -413,7 +413,7 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
         if (iqDepth > 1) {
           driveAllocRequest(
             dut.io.allocateIn,
-            robIdxVal = 51,
+            robPtrVal = 51,
             pCfg = pCfg,
             useSrc1Val = true,
             src1TagVal = 20,
@@ -449,13 +449,13 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
         initDutIO(dut)
 
         val scoreboard = ScoreboardInOrder[Int]()
-        StreamMonitor(dut.io.issueOut, cd) { payload => scoreboard.pushDut(payload.robIdx.toInt) }
+        StreamMonitor(dut.io.issueOut, cd) { payload => scoreboard.pushDut(payload.robPtr.toInt) }
 
         dut.io.issueOut.ready #= false // Prevent issue while filling
         for (i <- 0 until iqDepth) {
-          val robId = 60 + i
-          scoreboard.pushRef(robId)
-          driveAllocRequest(dut.io.allocateIn, robIdxVal = robId, pCfg = pCfg, useSrc1Val = false, useSrc2Val = false)
+          val robPtr = 60 + i
+          scoreboard.pushRef(robPtr)
+          driveAllocRequest(dut.io.allocateIn, robPtrVal = robPtr, pCfg = pCfg, useSrc1Val = false, useSrc2Val = false)
         }
         cd.waitSampling()
         assert(

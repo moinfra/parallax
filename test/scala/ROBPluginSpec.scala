@@ -17,14 +17,14 @@ import scala.util.Random
 import spinal.lib.misc.BinTools.initRam
 
 // DummyUop2 and ROBAllocateSlotPayloadForTest definitions remain the same
-case class DummyUop2(val config: PipelineConfig) extends Bundle with Dumpable with HasRobIdx {
-  val robIdx = UInt(config.robIdxWidth)
+case class DummyUop2(val config: PipelineConfig) extends Bundle with Dumpable with HasRobPtr {
+  val robPtr = UInt(config.robPtrWidth)
   val pc = UInt(config.pcWidth)
-  def setDefault(): this.type = { this.robIdx := 0; this.pc := 0; this }
-  def setDefaultForSim(): this.type = { import spinal.core.sim._; this.robIdx #= 0; this.pc #= 0; this }
+  def setDefault(): this.type = { this.robPtr := 0; this.pc := 0; this }
+  def setDefaultForSim(): this.type = { import spinal.core.sim._; this.robPtr #= 0; this.pc #= 0; this }
 
   def dump(): Seq[Any] = {
-    L"DummyUop(pc=${pc}, robIdx=${robIdx})"
+    L"DummyUop(pc=${pc}, robPtr=${robPtr})"
   }
 }
 case class ROBAllocateSlotPayloadForTest(pCfg: PipelineConfig, uopHardType: HardType[DummyUop2]) extends Bundle {
@@ -104,7 +104,7 @@ case class TestBenchIO(tbCfg: TestBenchConfig, LOCAL_UOP_HT: HardType[DummyUop2]
   // Allocation: Testbench drives allocation requests
   val allocRequests = Vec(master(Flow(ROBAllocateSlotPayloadForTest(tbCfg.pCfg, LOCAL_UOP_HT))), tbCfg.pCfg.renameWidth)
   // Allocation: Testbench observes responses from ROB
-  val allocResponsesRobIdx = Vec(in(UInt(robConfigParams.robIdxWidth)), tbCfg.pCfg.renameWidth)
+  val allocResponsesRobPtr = Vec(in(UInt(robConfigParams.robPtrWidth)), tbCfg.pCfg.renameWidth)
   val allocResponsesCanAlloc = Vec(in(Bool()), tbCfg.pCfg.renameWidth)
 
   // EU Writeback: Testbench drives writeback info
@@ -116,7 +116,7 @@ case class TestBenchIO(tbCfg: TestBenchConfig, LOCAL_UOP_HT: HardType[DummyUop2]
   val commitDriveAcks = Vec(out(Bool()), tbCfg.pCfg.commitWidth)
 
   // Flush: Testbench drives flush command
-  val flushCommand = master(Flow(ROBFlushPayload(robConfigParams.robIdxWidth)))
+  val flushCommand = master(Flow(ROBFlushPayload(robConfigParams.robPtrWidth)))
 
   override def asMaster(): Unit = {
     // For `slave(Flow(...))` types, `slave(signalName)` correctly sets directions.
@@ -125,7 +125,7 @@ case class TestBenchIO(tbCfg: TestBenchConfig, LOCAL_UOP_HT: HardType[DummyUop2]
     slave(flushCommand)
 
     // For `out(...)` types, `out(signalName)` makes them outputs.
-    out(allocResponsesRobIdx)
+    out(allocResponsesRobPtr)
     out(allocResponsesCanAlloc)
 
     // For `master(Flow(...))` types, `master(signalName)` correctly sets directions.
@@ -178,8 +178,8 @@ class ROBPluginSpec extends CustomSpinalSimFunSuite {
         serviceAllocPorts(i).fire := io.allocRequests(i).valid
         serviceAllocPorts(i).uopIn := io.allocRequests(i).payload.uop
         serviceAllocPorts(i).pcIn := io.allocRequests(i).payload.pc
-        io.allocResponsesRobIdx(i) := serviceAllocPorts(i).robIdx
-        // report(L"[TB] Allocation response: slot ${i.toString()}: robIdx=${serviceAllocPorts(i).robIdx}, canAlloc=${io.allocResponsesRobIdx(i)}")
+        io.allocResponsesRobPtr(i) := serviceAllocPorts(i).robPtr
+        // report(L"[TB] Allocation response: slot ${i.toString()}: robPtr=${serviceAllocPorts(i).robPtr}, canAlloc=${io.allocResponsesRobPtr(i)}")
       }
       (io.allocResponsesCanAlloc, allocatorHolder.canAllocateVecFromService).zipped.foreach(_ := _)
 
@@ -187,7 +187,7 @@ class ROBPluginSpec extends CustomSpinalSimFunSuite {
         euHolders.map(_.writebackPortFromService) // ROB's slave ports
       for (i <- 0 until tbCfg.numEus) {
         serviceEuWbPorts(i).fire := io.euWritebacks(i).valid
-        serviceEuWbPorts(i).robIdx := io.euWritebacks(i).payload.robIdx
+        serviceEuWbPorts(i).robPtr := io.euWritebacks(i).payload.robPtr
         serviceEuWbPorts(i).exceptionOccurred := io.euWritebacks(i).payload.hasException
         serviceEuWbPorts(i).exceptionCodeIn := io.euWritebacks(i).payload.exceptionCode
       }
@@ -235,7 +235,7 @@ class ROBPluginSpec extends CustomSpinalSimFunSuite {
       uopSetter: DummyUop2 => Unit,
       clockDomain: ClockDomain,
       pCfg: PipelineConfig
-  ): (Int, Boolean) = { // 返回分配到的 robIdx
+  ): (Int, Boolean) = { // 返回分配到的 robPtr
     tbIo.allocRequests(slotIdx).valid #= true
     tbIo.allocRequests(slotIdx).payload.pc #= pc
     val tempUop = DummyUop2(pCfg); tempUop.setDefault(); uopSetter(tempUop)
@@ -243,8 +243,8 @@ class ROBPluginSpec extends CustomSpinalSimFunSuite {
 
     var allocatedIdx = -1
     var canAlloc = false
-    clockDomain.waitSampling() // ROB 在这个周期的上升沿看到 valid=true 并计算 robIdx
-    allocatedIdx = tbIo.allocResponsesRobIdx(slotIdx).toInt // 读取 robIdx
+    clockDomain.waitSampling() // ROB 在这个周期的上升沿看到 valid=true 并计算 robPtr
+    allocatedIdx = tbIo.allocResponsesRobPtr(slotIdx).toInt // 读取 robPtr
     // 此时 tailPtr_reg 仍是旧值
     canAlloc = tbIo.allocResponsesCanAlloc(slotIdx).toBoolean // 读取 canAlloc
     tbIo.allocRequests(slotIdx).valid #= false
@@ -255,13 +255,13 @@ class ROBPluginSpec extends CustomSpinalSimFunSuite {
   def driveWritebackTb(
       tbIo: TestBenchIO,
       euIdx: Int,
-      robIdxVal: Int,
+      robPtrVal: Int,
       hasEx: Boolean,
       exCode: Int,
       clockDomain: ClockDomain
   ): Unit = {
     tbIo.euWritebacks(euIdx).valid #= true
-    tbIo.euWritebacks(euIdx).payload.robIdx #= robIdxVal
+    tbIo.euWritebacks(euIdx).payload.robPtr #= robPtrVal
     tbIo.euWritebacks(euIdx).payload.hasException #= hasEx
     tbIo.euWritebacks(euIdx).payload.exceptionCode #= exCode
     clockDomain.waitSampling()
@@ -290,41 +290,41 @@ class ROBPluginSpec extends CustomSpinalSimFunSuite {
     val dut = simConfig.compile(createDut(tbCfg))
     dut.doSim { dut =>
       dut.clockDomain.forkStimulus(period = 10)
-      var allocatedRobIdx = 0
+      var allocatedRobPtr = 0
       var receivedCommitPc = -1L
-      var receivedCommitRobIdx = -1
+      var receivedCommitRobPtr = -1
       driveInitTb(dut.io)
 
       FlowMonitor(dut.io.commitProvidedSlots(0), dut.clockDomain) { payload =>
         ParallaxLogger.log(
-          s"SIM: Commit monitor: ROB valid, ROB Idx=${payload.payload.uop.robIdx.toInt}, PC=0x${payload.payload.pc.toLong.toHexString}"
+          s"SIM: Commit monitor: ROB valid, ROB Idx=${payload.payload.uop.robPtr.toInt}, PC=0x${payload.payload.pc.toLong.toHexString}"
         )
         receivedCommitPc = payload.payload.pc.toLong
-        receivedCommitRobIdx = payload.payload.uop.robIdx.toInt
+        receivedCommitRobPtr = payload.payload.uop.robPtr.toInt
       }
       dut.clockDomain.waitSampling(5)
 
       println("SIM: Driving allocation via TestBench.io...")
       val (idx0, canAlloc0) = driveAllocationTb(dut.io, 0, 0x1000, _ => {}, dut.clockDomain, currentTestCfg)
-      allocatedRobIdx = idx0
-      ParallaxLogger.log(s"SIM: Allocated. ROB Index = $allocatedRobIdx, CanAllocate(0)=$canAlloc0")
-      assert(allocatedRobIdx == 0, s"Expected first allocated ROB index to be 0, got $allocatedRobIdx")
+      allocatedRobPtr = idx0
+      ParallaxLogger.log(s"SIM: Allocated. ROB Index = $allocatedRobPtr, CanAllocate(0)=$canAlloc0")
+      assert(allocatedRobPtr == 0, s"Expected first allocated ROB index to be 0, got $allocatedRobPtr")
       // 这里的 canAlloc0 已经是下一个周期的 canAlloc 状态，所以直接断言即可
       assert(canAlloc0, "ROB should allow next allocation after first")
 
-      ParallaxLogger.log(s"SIM: Driving writeback via TestBench.io for ROB Index = $allocatedRobIdx...")
-      driveWritebackTb(dut.io, 0, allocatedRobIdx, false, 0, dut.clockDomain)
+      ParallaxLogger.log(s"SIM: Driving writeback via TestBench.io for ROB Index = $allocatedRobPtr...")
+      driveWritebackTb(dut.io, 0, allocatedRobPtr, false, 0, dut.clockDomain)
       dut.clockDomain.waitSampling(5)
 
-      ParallaxLogger.log(s"SIM: Waiting for commit valid for ROB Index = $allocatedRobIdx...")
+      ParallaxLogger.log(s"SIM: Waiting for commit valid for ROB Index = $allocatedRobPtr...")
       val commitTimeout = dut.clockDomain.waitSamplingWhere(timeout = 50) {
         dut.io.commitProvidedSlots(0).valid.toBoolean &&
-        dut.io.commitProvidedSlots(0).payload.payload.uop.robIdx.toInt == allocatedRobIdx
+        dut.io.commitProvidedSlots(0).payload.payload.uop.robPtr.toInt == allocatedRobPtr
       }
-      assert(!commitTimeout, s"Timeout waiting for ROB idx $allocatedRobIdx to be committable.")
-      ParallaxLogger.log(s"SIM: ROB Idx $allocatedRobIdx is committable. Driving commit ack via TestBench.io.")
+      assert(!commitTimeout, s"Timeout waiting for ROB idx $allocatedRobPtr to be committable.")
+      ParallaxLogger.log(s"SIM: ROB Idx $allocatedRobPtr is committable. Driving commit ack via TestBench.io.")
       assert(receivedCommitPc == 0x1000)
-      assert(receivedCommitRobIdx == allocatedRobIdx)
+      assert(receivedCommitRobPtr == allocatedRobPtr)
 
       driveCommitAcksTb(dut.io, Seq(true), dut.clockDomain)
       dut.clockDomain.waitSampling(5)
@@ -342,11 +342,11 @@ class ROBPluginSpec extends CustomSpinalSimFunSuite {
       dut.clockDomain.waitSampling(5)
       println("SIM: ROB Full Test: Start")
       val (idx0, canAlloc0) = driveAllocationTb(dut.io, 0, 0x100, _ => {}, dut.clockDomain, pCfgFull)
-      ParallaxLogger.log(s"SIM: Alloc 1: robIdx=$idx0, canAllocNext=$canAlloc0")
+      ParallaxLogger.log(s"SIM: Alloc 1: robPtr=$idx0, canAllocNext=$canAlloc0")
       assert(canAlloc0, "ROB (depth 2) should allow second allocation after first")
 
       val (idx1, canAlloc1) = driveAllocationTb(dut.io, 0, 0x104, _ => {}, dut.clockDomain, pCfgFull)
-      ParallaxLogger.log(s"SIM: Alloc 2: robIdx=$idx1, canAllocNext=$canAlloc1")
+      ParallaxLogger.log(s"SIM: Alloc 2: robPtr=$idx1, canAllocNext=$canAlloc1")
       dut.clockDomain.waitSampling(1)
       val canAlloc2 = dut.io.allocResponsesCanAlloc(0).toBoolean
       assert(
@@ -357,7 +357,7 @@ class ROBPluginSpec extends CustomSpinalSimFunSuite {
       println("SIM: Attempting to allocate to full ROB via TestBench.io...")
       // 再次调用 driveAllocationTb，它会返回当前周期的 canAlloc 状态
       val (idx2, canAlloc3) = driveAllocationTb(dut.io, 0, 0x108, _ => {}, dut.clockDomain, pCfgFull)
-      ParallaxLogger.log(s"SIM: Alloc 3 (attempt): robIdx=$idx2, canAllocNext=$canAlloc2")
+      ParallaxLogger.log(s"SIM: Alloc 3 (attempt): robPtr=$idx2, canAllocNext=$canAlloc2")
       // 此时 canAlloc2 应该仍然是 false，因为 ROB 仍然是满的
       assert(!canAlloc2, "canAllocate should remain false when ROB is full and allocation is attempted")
 
@@ -374,12 +374,12 @@ class ROBPluginSpec extends CustomSpinalSimFunSuite {
       driveInitTb(dut.io)
       dut.clockDomain.waitSampling(5)
 
-      var lastCommittedRobIdx = -1
+      var lastCommittedRobPtr = -1
       FlowMonitor(dut.io.commitProvidedSlots(0), dut.clockDomain) { payload =>
         ParallaxLogger.log(
-          s"SIM: Commit monitor: PC=0x${payload.payload.pc.toLong.toHexString}, ROB Idx=${payload.payload.uop.robIdx.toInt}"
+          s"SIM: Commit monitor: PC=0x${payload.payload.pc.toLong.toHexString}, ROB Idx=${payload.payload.uop.robPtr.toInt}"
         )
-        lastCommittedRobIdx = payload.payload.uop.robIdx.toInt
+        lastCommittedRobPtr = payload.payload.uop.robPtr.toInt
       }
 
       println("SIM: Allocating to fill ROB (depth 2)...")
@@ -399,10 +399,10 @@ class ROBPluginSpec extends CustomSpinalSimFunSuite {
       println(s"SIM: Waiting for idx0 ($idx0) to be committable...")
       val commitTimeout = dut.clockDomain.waitSamplingWhere(timeout = 50) {
         dut.io.commitProvidedSlots(0).valid.toBoolean &&
-        dut.io.commitProvidedSlots(0).payload.payload.uop.robIdx.toInt == idx0
+        dut.io.commitProvidedSlots(0).payload.payload.uop.robPtr.toInt == idx0
       }
       assert(!commitTimeout, s"Timeout waiting for ROB idx $idx0 to be committable.")
-      assert(lastCommittedRobIdx == idx0)
+      assert(lastCommittedRobPtr == idx0)
 
       println(s"SIM: Committing idx0 ($idx0)...")
       driveCommitAcksTb(dut.io, Seq(true), dut.clockDomain)
@@ -419,7 +419,7 @@ class ROBPluginSpec extends CustomSpinalSimFunSuite {
 
       // Attempt allocation, expecting it to succeed and canAlloc to be potentially false if ROB becomes full again
       val (idx2, canAlloc3) = driveAllocationTb(dut.io, 0, 0x200, _ => {}, dut.clockDomain, currentTestCfg)
-      ParallaxLogger.log(s"SIM: Alloc after commit: robIdx=$idx2, canAllocNext=$canAlloc3")
+      ParallaxLogger.log(s"SIM: Alloc after commit: robPtr=$idx2, canAllocNext=$canAlloc3")
       assert(
         idx2 == 0,
         s"Expected new allocation to use ROB index 0 (or wrapped around), got $idx2."
@@ -448,19 +448,19 @@ class ROBPluginSpec extends CustomSpinalSimFunSuite {
       val committedOrder = mutable.ArrayBuffer[Int]()
       val committedPcs = mutable.ArrayBuffer[Long]()
       FlowMonitor(dut.io.commitProvidedSlots(0), dut.clockDomain) { payload =>
-        val robIdx = payload.payload.uop.robIdx.toInt
+        val robPtr = payload.payload.uop.robPtr.toInt
         val pc = payload.payload.pc.toLong
-        ParallaxLogger.log(s"SIM: Commit monitor: PC=0x${pc.toHexString}, ROB Idx=$robIdx")
-        if (committedOrder.isEmpty || committedOrder.last != robIdx) {
-          committedOrder += robIdx
+        ParallaxLogger.log(s"SIM: Commit monitor: PC=0x${pc.toHexString}, ROB Idx=$robPtr")
+        if (committedOrder.isEmpty || committedOrder.last != robPtr) {
+          committedOrder += robPtr
           committedPcs += pc
         }
       }
 
       println("SIM: Allocating 3 instructions...")
-      val (idx0, _) = driveAllocationTb(dut.io, 0, 0x100, _ => {}, dut.clockDomain, currentTestCfg) // robIdx 0
-      val (idx1, _) = driveAllocationTb(dut.io, 0, 0x104, _ => {}, dut.clockDomain, currentTestCfg) // robIdx 1
-      val (idx2, _) = driveAllocationTb(dut.io, 0, 0x108, _ => {}, dut.clockDomain, currentTestCfg) // robIdx 2
+      val (idx0, _) = driveAllocationTb(dut.io, 0, 0x100, _ => {}, dut.clockDomain, currentTestCfg) // robPtr 0
+      val (idx1, _) = driveAllocationTb(dut.io, 0, 0x104, _ => {}, dut.clockDomain, currentTestCfg) // robPtr 1
+      val (idx2, _) = driveAllocationTb(dut.io, 0, 0x108, _ => {}, dut.clockDomain, currentTestCfg) // robPtr 2
       assert(idx0 == 0 && idx1 == 1 && idx2 == 2)
 
       println("SIM: Writing back in out-of-order: idx1, then idx2, then idx0")
@@ -469,14 +469,14 @@ class ROBPluginSpec extends CustomSpinalSimFunSuite {
       driveWritebackTb(dut.io, 0, idx0, false, 0, dut.clockDomain) // Head instruction written back last
 
       println("SIM: Waiting for commits and acknowledging...")
-      for (expectedRobIdx <- Seq(idx0, idx1, idx2)) {
+      for (expectedRobPtr <- Seq(idx0, idx1, idx2)) {
         val commitTimeout = dut.clockDomain.waitSamplingWhere(timeout = 50) {
           dut.io.commitProvidedSlots(0).valid.toBoolean &&
-          dut.io.commitProvidedSlots(0).payload.payload.uop.robIdx.toInt == expectedRobIdx
+          dut.io.commitProvidedSlots(0).payload.payload.uop.robPtr.toInt == expectedRobPtr
         }
-        assert(!commitTimeout, s"Timeout waiting for ROB idx $expectedRobIdx to be committable.")
+        assert(!commitTimeout, s"Timeout waiting for ROB idx $expectedRobPtr to be committable.")
         driveCommitAcksTb(dut.io, Seq(true), dut.clockDomain)
-        ParallaxLogger.log(s"SIM: Acknowledging commit of ROB idx $expectedRobIdx")
+        ParallaxLogger.log(s"SIM: Acknowledging commit of ROB idx $expectedRobPtr")
         dut.clockDomain.waitSampling() // Give a cycle for ack to be processed
       }
       dut.clockDomain.waitSampling(5) // Ensure all monitor events are processed

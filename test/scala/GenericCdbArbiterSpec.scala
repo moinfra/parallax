@@ -35,13 +35,13 @@ class GenericCdbArbiterTestBench[K <: Data, T <: CdbTargetedMessage[K]](
 
 // DummyMsg (no changes)
 case class DummyMsg() extends CdbTargetedMessage[UInt] {
-  val robIdx = UInt(32 bits)
-  override def cdbTargetIdx: UInt = robIdx
-  def setDefaultSimValuesOnPort(portPayload: DummyMsg): Unit = { portPayload.robIdx #= 0 }
+  val robPtr = UInt(32 bits)
+  override def cdbTargetIdx: UInt = robPtr
+  def setDefaultSimValuesOnPort(portPayload: DummyMsg): Unit = { portPayload.robPtr #= 0 }
 }
 
 object DummyMsg {
-  def apply(robIdxVal: BigInt): DummyMsg = {
+  def apply(robPtrVal: BigInt): DummyMsg = {
     val msg = new DummyMsg()
     msg
   }
@@ -56,7 +56,7 @@ class StreamMonitorCounter[T <: Data](stream: Stream[T], clockDomain: ClockDomai
     _transactionCount += 1
     if (เก็บPayload) {
       payload match {
-        case p: DummyMsg => _receivedDataInternal += p.robIdx.toBigInt
+        case p: DummyMsg => _receivedDataInternal += p.robPtr.toBigInt
         case _           => // Or handle other types, or throw an error
       }
     }
@@ -121,10 +121,10 @@ class GenericCdbArbiterSpec extends CustomSpinalSimFunSuite {
         val outputTransactions = mutable.Queue[BigInt]()
 
         SimTestHelpers.SimpleStreamDrive(io.arbiterInputs(0), cd, inputTransactions) { (payload, data) =>
-          payload.robIdx #= data
+          payload.robPtr #= data
         }
         StreamMonitor(io.arbiterOutputs(0), cd) { payload =>
-          outputTransactions.enqueue(payload.robIdx.toBigInt)
+          outputTransactions.enqueue(payload.robPtr.toBigInt)
         }
         io.arbiterOutputs(0).ready #= true
 
@@ -157,10 +157,10 @@ class GenericCdbArbiterSpec extends CustomSpinalSimFunSuite {
         val outputTransactions = mutable.Queue[BigInt]()
 
         SimTestHelpers.SimpleStreamDrive(io.arbiterInputs(0), cd, inputTransactions) { (payload, data) =>
-          payload.robIdx #= data
+          payload.robPtr #= data
         }
         StreamMonitor(io.arbiterOutputs(0), cd) { payload =>
-          outputTransactions.enqueue(payload.robIdx.toBigInt)
+          outputTransactions.enqueue(payload.robPtr.toBigInt)
         }
         StreamReadyRandomizer(io.arbiterOutputs(0), dutTb.clockDomain)
 
@@ -190,11 +190,11 @@ class GenericCdbArbiterSpec extends CustomSpinalSimFunSuite {
 
         euInputQueues.zipWithIndex.foreach { case (q, idx) =>
           SimTestHelpers.SimpleStreamDrive(io.arbiterInputs(idx), cd, q) { (payload, data) =>
-            payload.robIdx #= data
+            payload.robPtr #= data
           }
         }
         cdbOutputQueues.zipWithIndex.foreach { case (q, idx) =>
-          StreamMonitor(io.arbiterOutputs(idx), cd) { payload => q.enqueue(payload.robIdx.toBigInt) }
+          StreamMonitor(io.arbiterOutputs(idx), cd) { payload => q.enqueue(payload.robPtr.toBigInt) }
           io.arbiterOutputs(idx).ready #= true
         }
 
@@ -250,14 +250,14 @@ class GenericCdbArbiterSpec extends CustomSpinalSimFunSuite {
         val outputQueues = IndexedSeq.fill(p.numOutputs)(mutable.Queue[BigInt]())
 
         SimTestHelpers.SimpleStreamDrive(io.arbiterInputs(0), cd, input0Queue) { (payload, data) =>
-          payload.robIdx #= data
+          payload.robPtr #= data
         }
         SimTestHelpers.SimpleStreamDrive(io.arbiterInputs(1), cd, input1Queue) { (payload, data) =>
-          payload.robIdx #= data
+          payload.robPtr #= data
         }
 
         outputQueues.zipWithIndex.foreach { case (q, idx) =>
-          StreamMonitor(io.arbiterOutputs(idx), cd) { p => q.enqueue(p.robIdx.toBigInt) }
+          StreamMonitor(io.arbiterOutputs(idx), cd) { p => q.enqueue(p.robPtr.toBigInt) }
           io.arbiterOutputs(idx).ready #= true
         }
 
@@ -300,7 +300,7 @@ class GenericCdbArbiterSpec extends CustomSpinalSimFunSuite {
 
         euInputQueues.zipWithIndex.foreach { case (q, idx) =>
           SimTestHelpers.SimpleStreamDrive(io.arbiterInputs(idx), cd, q) { (payload, data) =>
-            payload.robIdx #= data
+            payload.robPtr #= data
           }
         }
         io.arbiterOutputs.foreach(_.ready #= true) // Outputs always ready
@@ -373,7 +373,7 @@ class GenericCdbArbiterSpec extends CustomSpinalSimFunSuite {
 
         euInputQueues.zipWithIndex.foreach { case (q, idx) =>
           SimTestHelpers.SimpleStreamDrive(io.arbiterInputs(idx), cd, q) { (payload, data) =>
-            payload.robIdx #= data
+            payload.robPtr #= data
           }
         }
 

@@ -34,7 +34,7 @@ class DemoAluTestBench(val config: PipelineConfig) extends Component {
     val uopIn_payload_rename_writesToPhysReg = in Bool ()
 
     // RenamedUop direct parts
-    val uopIn_payload_robIdx = in UInt (config.robIdxWidth)
+    val uopIn_payload_robPtr = in UInt (config.robPtrWidth)
 
     val uopIn_valid = in Bool ()
     val src1DataIn = in Bits (config.dataWidth)
@@ -72,7 +72,7 @@ class DemoAluTestBench(val config: PipelineConfig) extends Component {
   // alu.io.uopIn.payload.rename.physSrc1.idx := U(0) // Assuming PhysicalRegOperand exists
   // alu.io.uopIn.payload.rename.usesPhysSrc1 := False
 
-  alu.io.uopIn.payload.robIdx := io.uopIn_payload_robIdx
+  alu.io.uopIn.payload.robPtr := io.uopIn_payload_robPtr
 
   alu.io.src1DataIn := io.src1DataIn
   alu.io.src2DataIn := io.src2DataIn
@@ -102,7 +102,7 @@ object AluTestHelper {
       hasDecodeExc: Boolean = false,
       physDestIdx: Int = 1,
       writesToPhysReg: Boolean = true,
-      robIdx: Int = 1,
+      robPtr: Int = 1,
       src1Val: BigInt = 0, // This is the intended (possibly signed) source 1 value
       src2Val: BigInt = 0 // This is the intended (possibly signed) source 2 value
   ): Unit = {
@@ -119,7 +119,7 @@ object AluTestHelper {
 
     dut.io.uopIn_payload_rename_physDest_idx #= physDestIdx
     dut.io.uopIn_payload_rename_writesToPhysReg #= writesToPhysReg
-    dut.io.uopIn_payload_robIdx #= robIdx
+    dut.io.uopIn_payload_robPtr #= robPtr
 
     // Apply the dataMask to convert BigInt to its bit pattern representation
     dut.io.src1DataIn #= (src1Val & dataMask)
@@ -133,7 +133,7 @@ object AluTestHelper {
       expectedData: Option[BigInt] = None,
       expectedPhysDestIdx: Option[Int] = None,
       expectedWritesToPhysReg: Option[Boolean] = None,
-      expectedRobIdx: Option[Int] = None,
+      expectedRobPtr: Option[Int] = None,
       expectedHasException: Option[Boolean] = None,
       expectedExceptionCode: Option[AluExceptionCode.E] = None
   ): Unit = {
@@ -163,10 +163,10 @@ object AluTestHelper {
           s"${prefix}writesToPhysReg mismatch. Expected $exp, Got ${dut.io.resultOut_payload.writesToPhysReg.toBoolean}"
         )
       )
-      expectedRobIdx.foreach(exp =>
+      expectedRobPtr.foreach(exp =>
         assert(
-          dut.io.resultOut_payload.robIdx.toInt == exp,
-          s"${prefix}robIdx mismatch. Expected $exp, Got ${dut.io.resultOut_payload.robIdx.toInt}"
+          dut.io.resultOut_payload.robPtr.toInt == exp,
+          s"${prefix}robPtr mismatch. Expected $exp, Got ${dut.io.resultOut_payload.robPtr.toInt}"
         )
       )
 
@@ -204,7 +204,7 @@ class DemoAluSpec extends CustomSpinalSimFunSuite { // Ensure CustomSpinalSimFun
   val alu_config = DemoAluTestConfig.testConfig // Use the config for instantiating testbench
 
   val testDestReg = 5
-  val testRobIdx = 3
+  val testRobPtr = 3
 
   // Helper to run a standard test sequence
   def runTest(
@@ -218,7 +218,7 @@ class DemoAluSpec extends CustomSpinalSimFunSuite { // Ensure CustomSpinalSimFun
       hasDecodeExc: Boolean = false,
       physDestIdx: Int = testDestReg,
       writesToPhysReg: Boolean = true,
-      robIdx: Int = testRobIdx,
+      robPtr: Int = testRobPtr,
       src1Val: BigInt,
       src2Val: BigInt,
       expectedData: BigInt,
@@ -243,7 +243,7 @@ class DemoAluSpec extends CustomSpinalSimFunSuite { // Ensure CustomSpinalSimFun
           hasDecodeExc = hasDecodeExc,
           physDestIdx = physDestIdx,
           writesToPhysReg = writesToPhysReg,
-          robIdx = robIdx,
+          robPtr = robPtr,
           src1Val = src1Val,
           src2Val = src2Val
         )
@@ -262,7 +262,7 @@ class DemoAluSpec extends CustomSpinalSimFunSuite { // Ensure CustomSpinalSimFun
             else None, // Expect 0 data on exception per DemoAlu logic
           expectedPhysDestIdx = if (effectiveOutputValid) Some(physDestIdx) else None,
           expectedWritesToPhysReg = if (effectiveOutputValid) Some(writesToPhysReg) else None,
-          expectedRobIdx = if (effectiveOutputValid) Some(robIdx) else None,
+          expectedRobPtr = if (effectiveOutputValid) Some(robPtr) else None,
           expectedHasException = if (effectiveOutputValid) Some(expectedHasException) else None,
           expectedExceptionCode =
             if (effectiveOutputValid && expectedHasException) Some(expectedExceptionCode)

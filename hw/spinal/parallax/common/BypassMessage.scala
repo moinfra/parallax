@@ -15,7 +15,7 @@ case class BypassMessage(val config: PipelineConfig) extends Bundle {
 
   // ROB index of the Uop that produced this result.
   // Useful for wake-up logic if tags are ROB-based, or for debugging and linking back to ROB.
-  val robIdx = UInt(config.robIdxWidth)
+  val robPtr = UInt(config.robPtrWidth)
 
   // If GPR/FPR share a physical register file or bypass network and need to be distinguished.
   // For now, let's assume GPRs, or that the physRegIdx space is unique.
@@ -28,7 +28,7 @@ case class BypassMessage(val config: PipelineConfig) extends Bundle {
   def setDefault(): this.type = {
     physRegIdx := U(0)
     physRegData := B(0)
-    robIdx := U(0)
+    robPtr := U(0)
     isFPR := False
     hasException := False
     exceptionCode := U(0)

@@ -4,7 +4,7 @@ package parallax.components.lsu
 import spinal.core._
 import spinal.lib._
 import parallax.components.rob.ROBFlushPayload // 假设 ROBFlushPayload 是可访问的
-import parallax.common.HasRobIdx
+import parallax.common.HasRobPtr
 import parallax.components.lsu.AguInput
 import parallax.common.RenamedUop
 import parallax.common.PipelineConfig
@@ -14,7 +14,7 @@ import parallax.utilities.Formattable
 case class LsuConfig(
     lqDepth: Int,
     sqDepth: Int,
-    robIdxWidth: BitCount,
+    robPtrWidth: BitCount,
     pcWidth: BitCount,
     dataWidth: BitCount,
     physGprIdxWidth: BitCount,
@@ -105,9 +105,9 @@ case class SqWaitOn(val lsuConfig: LsuConfig) extends Bundle { // 移除 dCacheC
 case class LoadQueueEntry(
     val lsuConfig: LsuConfig // 替换 pCfg
 ) extends Bundle
-    with HasRobIdx {
+    with HasRobPtr {
   // --- Static Info (from Dispatch) ---
-  val robIdx = UInt(lsuConfig.robIdxWidth) // 指令在 ROB 中的 ID (包含世代位)
+  val robPtr = UInt(lsuConfig.robPtrWidth) // 指令在 ROB 中的 ID (包含世代位)
   val lqPtr = UInt(lsuConfig.lqPtrWidth) // LQ 内部物理索引
   val pc = UInt(lsuConfig.pcWidth)
   val isValid = Bool() // Is this LQ entry valid?
@@ -136,7 +136,7 @@ case class LoadQueueEntry(
   val sqIdToWaitForValid = Bool()
 
   def setDefault(): this.type = {
-    robIdx := 0; lqPtr := 0; pc := 0; isValid := False
+    robPtr := 0; lqPtr := 0; pc := 0; isValid := False
     physDest := 0; physDestIsFpr := False; writePhysDestEn := False
     aguBasePhysReg := 0; aguBaseIsFpr := False; aguUsePcAsBase := False; aguImmediate := 0
     physicalAddress := 0
@@ -154,9 +154,9 @@ case class LoadQueueEntry(
 case class StoreQueueEntry(
     val lsuConfig: LsuConfig // 替换 pCfg
 ) extends Bundle
-    with HasRobIdx {
+    with HasRobPtr {
   // --- Static Info (from Dispatch) ---
-  val robIdx = UInt(lsuConfig.robIdxWidth) // 指令在 ROB 中的 ID (包含世代位)
+  val robPtr = UInt(lsuConfig.robPtrWidth) // 指令在 ROB 中的 ID (包含世代位)
   val sqPtr = UInt(lsuConfig.sqPtrWidth) 
   val pc = UInt(lsuConfig.pcWidth)
   val isValid = Bool()
@@ -186,7 +186,7 @@ case class StoreQueueEntry(
   val lqIdToReplayValid = Bool()
 
   def setDefault(): this.type = {
-    robIdx := 0; sqPtr := 0; pc := 0; isValid := False
+    robPtr := 0; sqPtr := 0; pc := 0; isValid := False
     physDataSrc := 0; physDataSrcIsFpr := False
     aguBasePhysReg := 0; aguBaseIsFpr := False; aguUsePcAsBase := False; aguImmediate := 0
     physicalAddress := 0; dataToWrite := 0; storeMask := 0
@@ -211,7 +211,7 @@ case class LsuAguRequest(lsuConfig: LsuConfig) extends Bundle { // 替换 pCfg
 
   // Context to pass through AGU
   // 本来打算直通的，但是好像让 AGU 直通这些信息不太符合迪米特法则。
-  val robIdx = UInt(lsuConfig.robIdxWidth)
+  val robPtr = UInt(lsuConfig.robPtrWidth)
   val isLoad = Bool()
   val isStore = Bool()
   val qPtr = UInt(Math.max(lsuConfig.lqPtrWidth.value, lsuConfig.sqPtrWidth.value) bits)
@@ -226,7 +226,7 @@ case class LsuAguRequest(lsuConfig: LsuConfig) extends Bundle { // 替换 pCfg
     aguIn.accessSize := accessSize
     aguIn.usePc := usePc
     aguIn.pc := pcForAgu
-    aguIn.robId := robIdx
+    aguIn.robPtr := robPtr
     aguIn.isLoad := isLoad
     aguIn.isStore := isStore
     aguIn.physDst := Mux(isLoad, physDestOrSrc, U(0)) // AGU 的 physDst 主要用于 Load

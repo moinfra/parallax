@@ -20,7 +20,7 @@ case class EuPushPortPayload[T_EuSpecificContext <: Bundle](
   val src1Data = Bits(config.dataWidth)
   val src2Data = Bits(config.dataWidth)
   val euSpecificPayload = euSpecificContextType()
-  override def getRobIdx(): UInt = renamedUop.robIdx
+  override def getRobPtr(): UInt = renamedUop.robPtr
   def setDefault(): this.type = {
     renamedUop.setDefault()
     src1Data := B(0)
@@ -240,7 +240,7 @@ abstract class EuBasePlugin(
     // 2. ROB 完成
     // 驱动从 ROBService 获取的 slave ROBWritebackPort Bundle 的字段
     robWritebackPortBundle.fire := wbStage.isFiring // EU 发信号表示有完成需要报告
-    robWritebackPortBundle.robIdx := renamedUopAtWb.robIdx
+    robWritebackPortBundle.robPtr := renamedUopAtWb.robPtr
     robWritebackPortBundle.exceptionOccurred := resultHasException
     robWritebackPortBundle.exceptionCodeIn := resultExceptionCode
     ParallaxLogger.log(s"EUBase ($euName): ROB 完成逻辑已连接。")
@@ -249,7 +249,7 @@ abstract class EuBasePlugin(
     bypassOutputPort.valid := wbStage.isFiring && resultWritesToPreg && !resultHasException
     bypassOutputPort.payload.physRegIdx := renamedUopAtWb.rename.physDest.idx
     bypassOutputPort.payload.physRegData := resultData
-    bypassOutputPort.payload.robIdx := renamedUopAtWb.robIdx
+    bypassOutputPort.payload.robPtr := renamedUopAtWb.robPtr
     bypassOutputPort.payload.isFPR := finalDestIsFpr
     bypassOutputPort.payload.hasException := resultHasException // 旁路消息可以携带异常信息供唤醒逻辑使用
     bypassOutputPort.payload.exceptionCode := resultExceptionCode

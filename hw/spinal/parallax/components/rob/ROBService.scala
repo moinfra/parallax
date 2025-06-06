@@ -7,16 +7,16 @@ import parallax.common._
 import parallax.utilities.Service
 
 // Forward declaration of Bundles used in the service, assuming they are in the same package or imported.
-// case class ROBAllocateSlot[RU <: Data with Dumpable with HasRobIdx](...) // Defined in ReorderBuffer.scala
-// case class ROBCommitSlot[RU <: Data with Dumpable with HasRobIdx](...)   // Defined in ReorderBuffer.scala
-// case class ROBWritebackPort[RU <: Data with Dumpable with HasRobIdx](...) // Defined in ReorderBuffer.scala
-// case class ROBFlushCommand[RU <: Data with Dumpable with HasRobIdx](...) // Defined in ReorderBuffer.scala
+// case class ROBAllocateSlot[RU <: Data with Dumpable with HasRobPtr](...) // Defined in ReorderBuffer.scala
+// case class ROBCommitSlot[RU <: Data with Dumpable with HasRobPtr](...)   // Defined in ReorderBuffer.scala
+// case class ROBWritebackPort[RU <: Data with Dumpable with HasRobPtr](...) // Defined in ReorderBuffer.scala
+// case class ROBFlushCommand[RU <: Data with Dumpable with HasRobPtr](...) // Defined in ReorderBuffer.scala
 
 /**
  * ROBService 提供了与 Reorder Buffer 交互的接口。
  * @tparam RU ROB中存储的Uop的数据类型 (通常是 RenamedUop)
  */
-trait ROBService[RU <: Data with Dumpable with HasRobIdx] extends Service {
+trait ROBService[RU <: Data with Dumpable with HasRobPtr] extends Service {
 
   // --- 分配阶段 (Allocation Interface) ---
 
@@ -43,7 +43,7 @@ trait ROBService[RU <: Data with Dumpable with HasRobIdx] extends Service {
    * 执行单元 (EU) 调用此方法来获取一个专属的 ROB 写回端口。
    * ROBService 的实现者（如 ROBPlugin）负责从 ROB 组件的物理写回端口池中分配一个。
    * @param euName 请求端口的 EU 名称 (用于调试或追踪，可选)。
-   * @return 一个 ROBWritebackPort 的 slave 视角。EU 驱动 fire, robIdx, exceptionOccurred, exceptionCodeIn。
+   * @return 一个 ROBWritebackPort 的 slave 视角。EU 驱动 fire, robPtr, exceptionOccurred, exceptionCodeIn。
    */
   def newWritebackPort(euName: String = ""): (ROBWritebackPort[RU])
 

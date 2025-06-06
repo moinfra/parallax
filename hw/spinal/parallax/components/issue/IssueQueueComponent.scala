@@ -41,7 +41,7 @@ class IssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
     entries(allocateIdx) := io.allocateIn.payload 
     // srcXReady fields in payload are initialized by its initFrom/setDefault
     entryValids(allocateIdx) := True
-    report(L"${idStr}: Allocated entry at index ${allocateIdx}, ROBIdx=${io.allocateIn.payload.robIdx}")
+    report(L"${idStr}: Allocated entry at index ${allocateIdx}, RobPtr=${io.allocateIn.payload.robPtr}")
   }
 
   val entriesReadyToIssueComb = Vec(Bool(), iqConfig.depth)
@@ -125,7 +125,7 @@ class IssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
 
   when(io.issueOut.fire) {
     entryValids(issueIdx) := False
-    report(L"${idStr}: Issued entry at index ${issueIdx}, ROBIdx=${entries(issueIdx).robIdx}.")
+    report(L"${idStr}: Issued entry at index ${issueIdx}, RobPtr=${entries(issueIdx).robPtr}.")
   }
 
   when(io.flush) {

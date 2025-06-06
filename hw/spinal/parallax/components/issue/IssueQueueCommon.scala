@@ -29,7 +29,7 @@ case class IssueQueueConfig[T_IQEntry <: Data with IQEntryLike](
     isPow2(depth) || depth < 8, // Or some other reasonable check
     s"$name depth should ideally be a power of 2 or small for simpler logic."
   )
-  val robIdxWidth: BitCount = pipelineConfig.robIdxWidth
+  val robPtrWidth: BitCount = pipelineConfig.robPtrWidth
   val physRegIdxWidth: BitCount = pipelineConfig.physGprIdxWidth // Assume GPR/FPR phys reg idx width is same for now
                                                                   // If different, this needs to be more complex or IQs become more specialized
   val dataWidth: BitCount = pipelineConfig.dataWidth
@@ -44,7 +44,7 @@ case class IssueQueueConfig[T_IQEntry <: Data with IQEntryLike](
  */
 trait IQEntryLike extends Bundle {
   // --- Common Identifiers & Status ---
-  val robIdx: UInt
+  val robPtr: UInt
 
   // --- Destination Info (Potentially common, or can be specific if needed by select logic) ---
   val physDest: PhysicalRegOperand // Physical destination register
@@ -77,7 +77,7 @@ trait IQEntryLike extends Bundle {
 
   // --- Common Methods ---
   def setDefault(): this.type
-  def initFrom(renamedUop: RenamedUop, allocatedRobIdx: UInt): this.type
+  def initFrom(renamedUop: RenamedUop, allocatedRobPtr: UInt): this.type
 }
 // -- MODIFICATION END --
 

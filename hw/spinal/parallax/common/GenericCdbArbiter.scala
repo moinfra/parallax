@@ -52,7 +52,7 @@ class GenericCdbArbiter[K <: Data, T <: CdbTargetedMessage[K]](
 
         if (enableLog) {
             val pLoad = input0_payload.cdbTargetIdx // Safe as input0_valid is true here
-            report(L"${arbiterId} Port[${portIdx_p.toString()}] (1-Input Case) GRANTS Input[0] (robIdx=${pLoad})")
+            report(L"${arbiterId} Port[${portIdx_p.toString()}] (1-Input Case) GRANTS Input[0] (robPtr=${pLoad})")
         }
       }
     }
@@ -75,10 +75,10 @@ class GenericCdbArbiter[K <: Data, T <: CdbTargetedMessage[K]](
         report(L"${arbiterId} Cycle End (1-Input Case): grantsMade=${anyGrant_log}, fires=${anyFire_log}")
         // Potentially access payload only if valid for log
         when(input0_valid || grantedInputToOutputPortMap_single(0) =/= S(BigInt(-1), mapElementSIntWidth bits)){
-             val robIdx_log = Mux(input0_valid, input0_payload.cdbTargetIdx, U(0)) // Default for log if not valid
+             val robPtr_log = Mux(input0_valid, input0_payload.cdbTargetIdx, U(0)) // Default for log if not valid
              val mapVal_log = grantedInputToOutputPortMap_single(0)
              val inputReady_log = io.inputs(0).ready
-             report(L"${arbiterId}: InputState[0] valid=${input0_valid}, reqRobIdx=${robIdx_log}, gToOutP=${mapVal_log}, inputRdy=${inputReady_log}")
+             report(L"${arbiterId}: InputState[0] valid=${input0_valid}, reqRobPtr=${robPtr_log}, gToOutP=${mapVal_log}, inputRdy=${inputReady_log}")
         }
         for(p_s <- 0 until numOutputs){
              val outValid_log = io.outputs(p_s).valid
@@ -169,8 +169,8 @@ class GenericCdbArbiter[K <: Data, T <: CdbTargetedMessage[K]](
         if(enableLog && numInputs > 0){ 
             // Log all conditions for canGrantThisSlot regardless of inputRequestsValid(candidateInput)
             // to see why a grant might not happen for an expected candidate.
-            val robIdxVal = Mux(currentInputReqValid, inputRequestsPayload(candidateInput).cdbTargetIdx, U(0)) // Default for log
-            report(L"${arbiterId} Port[${portIdx_p.toString()}] ScanOff[${scanOffset.toString()}] CandIn[${candidateInput}] robIdx=${robIdxVal}: reqV=${currentInputReqValid}, avail=${currentInputAvailable}, !found=${notYetFoundGrantInThisPortScan} => canG=${canGrantThisSlot}")
+            val robPtrVal = Mux(currentInputReqValid, inputRequestsPayload(candidateInput).cdbTargetIdx, U(0)) // Default for log
+            report(L"${arbiterId} Port[${portIdx_p.toString()}] ScanOff[${scanOffset.toString()}] CandIn[${candidateInput}] robPtr=${robPtrVal}: reqV=${currentInputReqValid}, avail=${currentInputAvailable}, !found=${notYetFoundGrantInThisPortScan} => canG=${canGrantThisSlot}")
         }
         
         when(canGrantThisSlot) {
@@ -179,8 +179,8 @@ class GenericCdbArbiter[K <: Data, T <: CdbTargetedMessage[K]](
           outputPortMakesGrant(portIdx_p) := True
           grantedInputIndexByPort(portIdx_p) := candidateInput
           if(enableLog){
-              val robIdxGranted = inputRequestsPayload(candidateInput).cdbTargetIdx // Safe, canGrantThisSlot is true
-              report(L"${arbiterId} Port[${portIdx_p.toString()}] GRANTS to Input[${candidateInput}] (robIdx=${robIdxGranted})")
+              val robPtrGranted = inputRequestsPayload(candidateInput).cdbTargetIdx // Safe, canGrantThisSlot is true
+              report(L"${arbiterId} Port[${portIdx_p.toString()}] GRANTS to Input[${candidateInput}] (robPtr=${robPtrGranted})")
           }
         }
         foundGrantInScan(scanOffset + 1) := foundGrantInScan(scanOffset) || canGrantThisSlot
@@ -239,11 +239,11 @@ class GenericCdbArbiter[K <: Data, T <: CdbTargetedMessage[K]](
         when(io.outputs(outputIdx_s).fire) {
           val payloadVal = io.outputs(outputIdx_s).payload 
           val targetIdxAny = payloadVal.cdbTargetIdx
-          report(L"${arbiterId}: Output[${outputIdx_s.toString()}] FIRES. Payload robIdx: ${targetIdxAny}")
+          report(L"${arbiterId}: Output[${outputIdx_s.toString()}] FIRES. Payload robPtr: ${targetIdxAny}")
         } elsewhen(io.outputs(outputIdx_s).valid) {
              val payloadValStall = io.outputs(outputIdx_s).payload
              val targetIdxAnyStall = payloadValStall.cdbTargetIdx
-             report(L"${arbiterId}: Output[${outputIdx_s.toString()}] VALID STALLED. Payload robIdx: ${targetIdxAnyStall}")
+             report(L"${arbiterId}: Output[${outputIdx_s.toString()}] VALID STALLED. Payload robPtr: ${targetIdxAnyStall}")
         }
       }
       val grantsMadeCount_forLog = CountOne(outputPortMakesGrant)
@@ -261,10 +261,10 @@ class GenericCdbArbiter[K <: Data, T <: CdbTargetedMessage[K]](
               val isValid_log = inputRequestsValid(i_s)
               val isMapped_log = grantedInputToOutputPortMap(i_s) =/= S(BigInt(-1), mapElementSIntWidth bits)
               when(isValid_log || isMapped_log) { 
-                  val robIdxReq_log = Mux(isValid_log, inputRequestsPayload(i_s).cdbTargetIdx, U(0))
+                  val robPtrReq_log = Mux(isValid_log, inputRequestsPayload(i_s).cdbTargetIdx, U(0))
                   val grantedTo_log = grantedInputToOutputPortMap(i_s)
                   val readyVal_log = io.inputs(i_s).ready
-                  report(L"${arbiterId}: InputState[${i_s.toString()}] valid=${isValid_log}, reqRobIdx=${robIdxReq_log}, gToOutP=${grantedTo_log}, inputRdy=${readyVal_log}")
+                  report(L"${arbiterId}: InputState[${i_s.toString()}] valid=${isValid_log}, reqRobPtr=${robPtrReq_log}, gToOutP=${grantedTo_log}, inputRdy=${readyVal_log}")
               }
           }
            for(p_s <- 0 until numOutputs){ 

@@ -118,7 +118,7 @@ class RenameUnit(
       decoded = decodedUop  // 复制解码信息
     ) // 初始化为默认值
     renamedUop.uniqueId.assignDontCare() // TODO: uniqueId 生成
-    renamedUop.robIdx.assignDontCare() // 由Dispatch阶段填充
+    renamedUop.robPtr.assignDontCare() // 由Dispatch阶段填充
 
     // 只在 RenameUnit 不 stall、输入流有效、且当前 uop 有效时，才进行实际的重命名操作
     val proceedWithUop =

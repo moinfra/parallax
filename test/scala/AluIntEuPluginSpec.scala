@@ -21,7 +21,7 @@ import parallax.components.execute.AluExceptionCode
 // --- Scala Case Class for Driving EU Input ---
 case class AluEuTestInputParams(
     uopCode: BaseUopCode.E,
-    robIdxVal: Int,
+    robPtrVal: Int,
     physSrc1Val: Int,
     useSrc1: Boolean,
     src1DataVal: BigInt,
@@ -43,7 +43,7 @@ case class AluEuTestInputParams(
 
 // --- Scala Snapshot Classes for Monitoring ---
 case class RobCompletionSnapshot(
-    robIdx: BigInt,
+    robPtr: BigInt,
     hasException: Boolean,
     exceptionCode: BigInt
 )
@@ -51,7 +51,7 @@ case class RobCompletionSnapshot(
 case class BypassMessageSnapshot(
     physRegIdx: BigInt,
     physRegData: BigInt,
-    robIdx: BigInt,
+    robPtr: BigInt,
     isFPR: Boolean,
     hasException: Boolean,
     exceptionCode: BigInt
@@ -247,7 +247,7 @@ class AluIntEuIntegrationSpec extends CustomSpinalSimFunSuite {
     rename.writesToPhysReg #= params.writesDest
 
     // Drive RenamedUop direct fields
-    targetRenamedUop.robIdx #= params.robIdxVal
+    targetRenamedUop.robPtr #= params.robPtrVal
 
     // Drive EuPushPortPayload specific fields
     targetPortPayload.src1Data #= params.src1DataVal
@@ -293,7 +293,7 @@ class AluIntEuIntegrationSpec extends CustomSpinalSimFunSuite {
       ) {
         val wbBundle = dut.aluIntEuPlugin.robWritebackPortBundle
         robCompletionsMon += RobCompletionSnapshot(
-          wbBundle.robIdx.toBigInt,
+          wbBundle.robPtr.toBigInt,
           wbBundle.exceptionOccurred.toBoolean,
           wbBundle.exceptionCodeIn.toBigInt
         )
@@ -303,7 +303,7 @@ class AluIntEuIntegrationSpec extends CustomSpinalSimFunSuite {
         bypassMessagesMon += BypassMessageSnapshot(
           bpPayload.physRegIdx.toBigInt,
           bpPayload.physRegData.toBigInt,
-          bpPayload.robIdx.toBigInt,
+          bpPayload.robPtr.toBigInt,
           bpPayload.isFPR.toBoolean,
           bpPayload.hasException.toBoolean,
           bpPayload.exceptionCode.toBigInt
@@ -337,7 +337,7 @@ class AluIntEuIntegrationSpec extends CustomSpinalSimFunSuite {
 
         dut.clockDomain.waitSampling() // Initial sampling
 
-        val robIdxTest = 0
+        val robPtrTest = 0
         val physSrc1 = 1; val physSrc2 = 2; val physDest = 3
         val src1Val = BigInt(10); val src2Val = BigInt(20)
         val expectedResult = src1Val + src2Val
@@ -352,7 +352,7 @@ class AluIntEuIntegrationSpec extends CustomSpinalSimFunSuite {
         inputQueue.enqueue(
           AluEuTestInputParams(
             uopCode = BaseUopCode.ALU,
-            robIdxVal = robIdxTest,
+            robPtrVal = robPtrTest,
             physSrc1Val = physSrc1,
             useSrc1 = true,
             src1DataVal = src1Val,
@@ -392,8 +392,8 @@ class AluIntEuIntegrationSpec extends CustomSpinalSimFunSuite {
         val robComp = robCompletionsMon.head
         assert(!robComp.hasException, s"[$modeName] ADD: Op should not have exception. Code: ${robComp.exceptionCode}")
         assert(
-          robComp.robIdx == robIdxTest,
-          s"[$modeName] ADD: ROB index mismatch. Expected $robIdxTest, got ${robComp.robIdx}"
+          robComp.robPtr == robPtrTest,
+          s"[$modeName] ADD: ROB index mismatch. Expected $robPtrTest, got ${robComp.robPtr}"
         )
 
         assert(bypassMessagesMon.nonEmpty, s"[$modeName] ADD: No bypass message received")
@@ -444,7 +444,7 @@ class AluIntEuIntegrationSpec extends CustomSpinalSimFunSuite {
         ) // gprWritesMon not primary for this check
         dut.clockDomain.waitSampling()
 
-        val robIdxTest = 1; val physSrc1 = 4; val physSrc2 = 5; val physDest = 6
+        val robPtrTest = 1; val physSrc1 = 4; val physSrc2 = 5; val physDest = 6
         val src1Val = BigInt(100); val src2Val = BigInt(30); val expectedResult = src1Val - src2Val
         if (!readPushDataValue) {
           preloadPrfWritePort(dut, physSrc1, src1Val, dut.clockDomain);
@@ -453,7 +453,7 @@ class AluIntEuIntegrationSpec extends CustomSpinalSimFunSuite {
         inputQueue.enqueue(
           AluEuTestInputParams(
             BaseUopCode.ALU,
-            robIdxTest,
+            robPtrTest,
             physSrc1,
             true,
             src1Val,
@@ -477,7 +477,7 @@ class AluIntEuIntegrationSpec extends CustomSpinalSimFunSuite {
 
         assert(robCompletionsMon.nonEmpty, s"[$modeName] SUB: No ROB completion"); val robComp = robCompletionsMon.head
         assert(!robComp.hasException, s"[$modeName] SUB: Exception. Code: ${robComp.exceptionCode}");
-        assert(robComp.robIdx == robIdxTest, s"[$modeName] SUB: ROB index")
+        assert(robComp.robPtr == robPtrTest, s"[$modeName] SUB: ROB index")
         assert(bypassMessagesMon.nonEmpty, s"[$modeName] SUB: No bypass"); val bypassMsg = bypassMessagesMon.head
         assert(
           bypassMsg.physRegData == expectedResult,
@@ -502,7 +502,7 @@ class AluIntEuIntegrationSpec extends CustomSpinalSimFunSuite {
         setupAluEuMonitors(dut, pCfg, mutable.ArrayBuffer(), robCompletionsMon, bypassMessagesMon)
         dut.clockDomain.waitSampling()
 
-        val robIdxTest = 2; val physSrc1 = 7; val physSrc2 = 8; val physDest = 9
+        val robPtrTest = 2; val physSrc1 = 7; val physSrc2 = 8; val physDest = 9
         val src1Val = BigInt("FFFF0000", 16); val src2Val = BigInt("00FFFF00", 16);
         val expectedResult = src1Val & src2Val
         if (!readPushDataValue) {
@@ -512,7 +512,7 @@ class AluIntEuIntegrationSpec extends CustomSpinalSimFunSuite {
         inputQueue.enqueue(
           AluEuTestInputParams(
             BaseUopCode.ALU,
-            robIdxTest,
+            robPtrTest,
             physSrc1,
             true,
             src1Val,
@@ -536,7 +536,7 @@ class AluIntEuIntegrationSpec extends CustomSpinalSimFunSuite {
 
         assert(robCompletionsMon.nonEmpty, s"[$modeName] AND: No ROB completion"); val robComp = robCompletionsMon.head
         assert(!robComp.hasException, s"[$modeName] AND: Exception. Code: ${robComp.exceptionCode}");
-        assert(robComp.robIdx == robIdxTest, s"[$modeName] AND: ROB index")
+        assert(robComp.robPtr == robPtrTest, s"[$modeName] AND: ROB index")
         assert(bypassMessagesMon.nonEmpty, s"[$modeName] AND: No bypass"); val bypassMsg = bypassMessagesMon.head
         assert(
           bypassMsg.physRegData == expectedResult,
@@ -566,12 +566,12 @@ class AluIntEuIntegrationSpec extends CustomSpinalSimFunSuite {
     //     ) // Bypass may or may not happen with exception
     //     dut.clockDomain.waitSampling()
 
-    //     val robIdxTest = 3; val physDest = 10
+    //     val robPtrTest = 3; val physDest = 10
     //     val expectedExcCode = AluExceptionCode.DECODE_EXCEPTION // This is what DemoAlu should output
     //     inputQueue.enqueue(
     //       AluEuTestInputParams(
     //         BaseUopCode.ALU,
-    //         robIdxTest,
+    //         robPtrTest,
     //         0,
     //         false,
     //         0,
@@ -596,7 +596,7 @@ class AluIntEuIntegrationSpec extends CustomSpinalSimFunSuite {
     //     assert(robCompletionsMon.nonEmpty, s"[$modeName] DecodeExc: No ROB completion");
     //     val robComp = robCompletionsMon.head
     //     assert(robComp.hasException, s"[$modeName] DecodeExc: Should have exception");
-    //     assert(robComp.robIdx == robIdxTest, s"[$modeName] DecodeExc: ROB index")
+    //     assert(robComp.robPtr == robPtrTest, s"[$modeName] DecodeExc: ROB index")
     //     assert(
     //       robComp.exceptionCode == expectedExcCode.asUInt.toBigInt,
     //       s"[$modeName] DecodeExc: Exc code. Exp ${expectedExcCode.asUInt.toBigInt}, Got ${robComp.exceptionCode}"
@@ -618,12 +618,12 @@ class AluIntEuIntegrationSpec extends CustomSpinalSimFunSuite {
     //     setupAluEuMonitors(dut, pCfg, mutable.ArrayBuffer(), robCompletionsMon, mutable.ArrayBuffer())
     //     dut.clockDomain.waitSampling()
 
-    //     val robIdxTest = 4; val physDest = 11
+    //     val robPtrTest = 4; val physDest = 11
     //     val expectedExcCode = AluExceptionCode.DISPATCH_TO_WRONG_EU
     //     inputQueue.enqueue(
     //       AluEuTestInputParams(
     //         BaseUopCode.LOAD,
-    //         robIdxTest,
+    //         robPtrTest,
     //         0,
     //         false,
     //         0,
@@ -648,7 +648,7 @@ class AluIntEuIntegrationSpec extends CustomSpinalSimFunSuite {
     //     assert(robCompletionsMon.nonEmpty, s"[$modeName] WrongEU: No ROB completion");
     //     val robComp = robCompletionsMon.head
     //     assert(robComp.hasException, s"[$modeName] WrongEU: Should have exception");
-    //     assert(robComp.robIdx == robIdxTest, s"[$modeName] WrongEU: ROB index")
+    //     assert(robComp.robPtr == robPtrTest, s"[$modeName] WrongEU: ROB index")
     //     assert(
     //       robComp.exceptionCode == expectedExcCode.asUInt.toBigInt,
     //       s"[$modeName] WrongEU: Exc code. Exp ${expectedExcCode.asUInt.toBigInt}, Got ${robComp.exceptionCode}"
@@ -670,8 +670,8 @@ class AluIntEuIntegrationSpec extends CustomSpinalSimFunSuite {
         setupAluEuMonitors(dut, pCfg, mutable.ArrayBuffer(), robCompletionsMon, bypassMessagesMon)
         dut.clockDomain.waitSampling()
 
-        val robIdx1 = 5; val ps1_1 = 12; val ps2_1 = 13; val pd_1 = 14; val sd1_1 = 1; val sd2_1 = 2; val exp1 = 3
-        val robIdx2 = 6; val ps1_2 = 15; val ps2_2 = 16; val pd_2 = 17; val sd1_2 = 5; val sd2_2 = 6; val exp2 = 11
+        val robPtr1 = 5; val ps1_1 = 12; val ps2_1 = 13; val pd_1 = 14; val sd1_1 = 1; val sd2_1 = 2; val exp1 = 3
+        val robPtr2 = 6; val ps1_2 = 15; val ps2_2 = 16; val pd_2 = 17; val sd1_2 = 5; val sd2_2 = 6; val exp2 = 11
 
         if (!readPushDataValue) {
           preloadPrfWritePort(dut, ps1_1, sd1_1, dut.clockDomain);
@@ -683,7 +683,7 @@ class AluIntEuIntegrationSpec extends CustomSpinalSimFunSuite {
         inputQueue.enqueue(
           AluEuTestInputParams(
             BaseUopCode.ALU,
-            robIdx1,
+            robPtr1,
             ps1_1,
             true,
             sd1_1,
@@ -706,7 +706,7 @@ class AluIntEuIntegrationSpec extends CustomSpinalSimFunSuite {
         inputQueue.enqueue(
           AluEuTestInputParams(
             BaseUopCode.ALU,
-            robIdx2,
+            robPtr2,
             ps1_2,
             true,
             sd1_2,
@@ -738,15 +738,15 @@ class AluIntEuIntegrationSpec extends CustomSpinalSimFunSuite {
           s"[$modeName] B2B: Expected 2 bypass messages, got ${bypassMessagesMon.length}"
         )
 
-        val robComp1 = robCompletionsMon.find(_.robIdx == robIdx1).get;
-        assert(!robComp1.hasException && robComp1.robIdx == robIdx1)
-        val bypass1 = bypassMessagesMon.find(_.robIdx == robIdx1).get;
+        val robComp1 = robCompletionsMon.find(_.robPtr == robPtr1).get;
+        assert(!robComp1.hasException && robComp1.robPtr == robPtr1)
+        val bypass1 = bypassMessagesMon.find(_.robPtr == robPtr1).get;
         assert(bypass1.physRegIdx == pd_1 && bypass1.physRegData == exp1)
         val gpr1 = readPrf(dut, pd_1, dut.clockDomain); assert(gpr1 == exp1)
 
-        val robComp2 = robCompletionsMon.find(_.robIdx == robIdx2).get;
-        assert(!robComp2.hasException && robComp2.robIdx == robIdx2)
-        val bypass2 = bypassMessagesMon.find(_.robIdx == robIdx2).get;
+        val robComp2 = robCompletionsMon.find(_.robPtr == robPtr2).get;
+        assert(!robComp2.hasException && robComp2.robPtr == robPtr2)
+        val bypass2 = bypassMessagesMon.find(_.robPtr == robPtr2).get;
         assert(bypass2.physRegIdx == pd_2 && bypass2.physRegData == exp2)
         val gpr2 = readPrf(dut, pd_2, dut.clockDomain); assert(gpr2 == exp2)
         println(s"Test 'AluIntEuPlugin - Back-to-back ADD Operations - $modeName' PASSED");

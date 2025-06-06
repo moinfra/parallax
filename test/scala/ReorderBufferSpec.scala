@@ -8,28 +8,28 @@ import parallax.components.rob._
 import scala.collection.mutable.ArrayBuffer
 import _root_.parallax.utilities.ParallaxLogger
 
-// DummyUop 现在接收完整的 robIdxWidth
-case class DummyUop(robIdxWidth: BitCount) extends Bundle with Dumpable with HasRobIdx {
+// DummyUop 现在接收完整的 robPtrWidth
+case class DummyUop(robPtrWidth: BitCount) extends Bundle with Dumpable with HasRobPtr {
   val pc: UInt = UInt(32 bits)
-  // robIdx 现在是完整的 ROB ID (物理索引 + 世代位)
-  val robIdx: UInt = UInt(robIdxWidth) 
+  // robPtr 现在是完整的 ROB ID (物理索引 + 世代位)
+  val robPtr: UInt = UInt(robPtrWidth) 
   val hasException: Bool = Bool()
   def setDefault(): this.type = {
     pc := 0
-    robIdx := 0
+    robPtr := 0
     hasException := False
     this
   }
 
   def setDefaultForSim(): this.type = {
     pc #= 0
-    robIdx #= 0
+    robPtr #= 0
     hasException #= false
     this
   }
 
   def dump(): Seq[Any] = {
-    L"DummyUop(pc=${pc}, robIdx=${robIdx}, hasException=${hasException})"
+    L"DummyUop(pc=${pc}, robPtr=${robPtr}, hasException=${hasException})"
   }
 }
 
@@ -54,12 +54,12 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
   // Default PipelineConfig for tests
   val pipelineCfg: PipelineConfig = PipelineConfig() // 确保 PipelineConfig 包含 robGenBitWidth
 
-  // Helper: 从完整的 robIdx 中提取物理索引和世代位
-  def getPhysIdx(robIdx: BigInt, physIdxWidth: Int): Int = {
-    (robIdx & ((1 << physIdxWidth) - 1)).toInt
+  // Helper: 从完整的 robPtr 中提取物理索引和世代位
+  def getPhysIdx(robPtr: BigInt, physIdxWidth: Int): Int = {
+    (robPtr & ((1 << physIdxWidth) - 1)).toInt
   }
-  def getGenBit(robIdx: BigInt, physIdxWidth: Int): Boolean = {
-    ((robIdx >> physIdxWidth) & 1) == 1
+  def getGenBit(robPtr: BigInt, physIdxWidth: Int): Boolean = {
+    ((robPtr >> physIdxWidth) & 1) == 1
   }
   
   // --- Helper Functions for Driving ROB IO ---
@@ -69,14 +69,14 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
   }
 
   def createDummyUop(
-      robIdxWidth: BitCount, // 完整的 robIdx 宽度
-      robIdxForUop: BigInt,    // 完整的 robIdx 值
+      robPtrWidth: BitCount, // 完整的 robPtr 宽度
+      robPtrForUop: BigInt,    // 完整的 robPtr 值
       hasException: Bool = False,
       pcVal: Int = 0 
   ): DummyUop = {
-    val uop = DummyUop(robIdxWidth)
+    val uop = DummyUop(robPtrWidth)
     uop.setDefault()
-    uop.robIdx := robIdxForUop 
+    uop.robPtr := robPtrForUop 
     uop.hasException := hasException
     uop.pc := pcVal
     uop
@@ -112,21 +112,21 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
 
   def driveWriteback(
       dutIo: ROBIo[DummyUop],
-      // wbRequests: Seq of (fire, fullRobIdx, hasException, excCode)
+      // wbRequests: Seq of (fire, fullRobPtr, hasException, excCode)
       wbRequests: Seq[(Boolean, BigInt, Boolean, Int)] 
   ): Unit = {
     require(wbRequests.length <= dutIo.config.numWritebackPorts)
     ParallaxLogger.log(
-      s"[TB] Driving Writeback - Count: ${wbRequests.count(_._1)}, Requests (fire,fullRobIdx,exc,code): [" +
+      s"[TB] Driving Writeback - Count: ${wbRequests.count(_._1)}, Requests (fire,fullRobPtr,exc,code): [" +
         wbRequests.map(r => s"(${r._1},#${r._2},${r._3},${r._4})").mkString(",") + "]"
     )
     for (i <- 0 until dutIo.config.numWritebackPorts) {
       if (i < wbRequests.length) {
         if(wbRequests(i)._1) {
-          ParallaxLogger.log(s"[TB] Driving Writeback - Port $i: Fire=${wbRequests(i)._1}, FullRobIdx=${wbRequests(i)._2}, ExceptionOccurred=${wbRequests(i)._3}, ExceptionCode=${wbRequests(i)._4}")
+          ParallaxLogger.log(s"[TB] Driving Writeback - Port $i: Fire=${wbRequests(i)._1}, FullRobPtr=${wbRequests(i)._2}, ExceptionOccurred=${wbRequests(i)._3}, ExceptionCode=${wbRequests(i)._4}")
         }
         dutIo.writeback(i).fire #= wbRequests(i)._1
-        dutIo.writeback(i).robIdx #= wbRequests(i)._2 // 驱动完整的 robIdx
+        dutIo.writeback(i).robPtr #= wbRequests(i)._2 // 驱动完整的 robPtr
         dutIo.writeback(i).exceptionOccurred #= wbRequests(i)._3
         dutIo.writeback(i).exceptionCodeIn #= wbRequests(i)._4
       } else {
@@ -165,17 +165,17 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       dutIo: ROBIo[DummyUop],
       fire: Boolean,
       reason: FlushReason.E = FlushReason.NONE,
-      // targetRobIdx 现在是完整的 ROB ID
-      targetRobIdx: BigInt = BigInt(0) 
+      // targetRobPtr 现在是完整的 ROB ID
+      targetRobPtr: BigInt = BigInt(0) 
   ): Unit = {
-    ParallaxLogger.log(s"[TB] Driving Flush - Fire: $fire, Reason: ${reason.toString()}, TargetFullROBIdx: $targetRobIdx")
+    ParallaxLogger.log(s"[TB] Driving Flush - Fire: $fire, Reason: ${reason.toString()}, TargetFullRobPtr: $targetRobPtr")
     dutIo.flush.valid #= fire
     if (fire) {
       dutIo.flush.payload.reason #= reason
-      dutIo.flush.payload.targetRobIdx #= targetRobIdx // 驱动完整的 robIdx
+      dutIo.flush.payload.targetRobPtr #= targetRobPtr // 驱动完整的 robPtr
     } else {
       dutIo.flush.payload.reason #= FlushReason.NONE
-      dutIo.flush.payload.targetRobIdx #= 0
+      dutIo.flush.payload.targetRobPtr #= 0
     }
   }
 
@@ -194,7 +194,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
   }
 
   // --- Test Cases ---
-  // 调整 robDepth 和相关的 robIdxWidth
+  // 调整 robDepth 和相关的 robPtrWidth
   val robDepth = 16
   val allocW = 2
   val commitW = 2
@@ -204,7 +204,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
     commitWidth = commitW,
     allocateWidth = allocW,
     numWritebackPorts = wbW,
-    // DummyUop 的 robIdxWidth 现在是完整的 ROB ID 宽度
+    // DummyUop 的 robPtrWidth 现在是完整的 ROB ID 宽度
     uopType = HardType(DummyUop(log2Up(robDepth) + 1 bits)), 
     defaultUop = () => DummyUop(log2Up(robDepth) + 1 bits).setDefault(),
     pcWidth = 32 bits,
@@ -234,16 +234,16 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
 
       // Fill the ROB
       var allocatedIndices = List[BigInt]() // 存储完整的 ROB ID
-      var expectedNextFullRobId = BigInt(0)
+      var expectedNextFullRobPtr = BigInt(0)
       for (i <- 0 until testConfig.robDepth / testConfig.allocateWidth) {
         val uopsToAlloc = (0 until testConfig.allocateWidth)
           .map { slot =>
-            val currentFullRobId = expectedNextFullRobId
-            expectedNextFullRobId += 1
+            val currentFullRobPtr = expectedNextFullRobPtr
+            expectedNextFullRobPtr += 1
             (
               true,
-              // createDummyUop 的 robIdxForUop 现在是完整的 ROB ID
-              createDummyUop(testConfig.robIdxWidth, currentFullRobId), 
+              // createDummyUop 的 robPtrForUop 现在是完整的 ROB ID
+              createDummyUop(testConfig.robPtrWidth, currentFullRobPtr), 
               (i * testConfig.allocateWidth + slot) * 4 // PC
             )
           }
@@ -251,7 +251,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
         
         for (k <- 0 until testConfig.allocateWidth) {
           assert(dut.io.canAllocate(k).toBoolean, s"Fill loop iter $i, slot $k: canAllocate should be true")
-          allocatedIndices = allocatedIndices :+ dut.io.allocate(k).robIdx.toBigInt
+          allocatedIndices = allocatedIndices :+ dut.io.allocate(k).robPtr.toBigInt
         }
         dut.clockDomain.waitSampling() 
         sleep(1)
@@ -268,7 +268,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       driveAllocate(
         dut.io,
         Seq(
-          (true, createDummyUop(testConfig.robIdxWidth, expectedNextFullRobId), 0)
+          (true, createDummyUop(testConfig.robPtrWidth, expectedNextFullRobPtr), 0)
         )
       )
       dut.clockDomain.waitSampling()
@@ -294,17 +294,17 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       val numOps = 3
 
       var allocatedRobIndices = ArrayBuffer[BigInt]() // 存储完整的 ROB ID
-      var expectedFullRobId = BigInt(0)
+      var expectedFullRobPtr = BigInt(0)
       for (i <- 0 until numOps) {
-        // createDummyUop 的 robIdxForUop 现在是完整的 ROB ID
-        val uop = createDummyUop(testConfig.robIdxWidth, expectedFullRobId) 
+        // createDummyUop 的 robPtrForUop 现在是完整的 ROB ID
+        val uop = createDummyUop(testConfig.robPtrWidth, expectedFullRobPtr) 
         driveAllocate(dut.io, Seq((true, uop, currentPC)))
         assert(dut.io.canAllocate(0).toBoolean, s"Alloc $i: canAllocate should be true")
-        val fullRobIdx = dut.io.allocate(0).robIdx.toBigInt
-        allocatedRobIndices += fullRobIdx
-        ParallaxLogger.log(s"[TB] Allocated op $i to Full ROB index $fullRobIdx, PC $currentPC")
-        assert(fullRobIdx == expectedFullRobId, s"Allocated fullRobIdx mismatch. Expected $expectedFullRobId, got $fullRobIdx")
-        expectedFullRobId += 1
+        val fullRobPtr = dut.io.allocate(0).robPtr.toBigInt
+        allocatedRobIndices += fullRobPtr
+        ParallaxLogger.log(s"[TB] Allocated op $i to Full ROB index $fullRobPtr, PC $currentPC")
+        assert(fullRobPtr == expectedFullRobPtr, s"Allocated fullRobPtr mismatch. Expected $expectedFullRobPtr, got $fullRobPtr")
+        expectedFullRobPtr += 1
         dut.clockDomain.waitSampling(); sleep(1)
         currentPC += 4
       }
@@ -319,9 +319,9 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
 
       val wbOrder =
         Seq(allocatedRobIndices(1), allocatedRobIndices(0), allocatedRobIndices(2))
-      for (fullRobIdxToWb <- wbOrder) {
-        driveWriteback(dut.io, Seq((true, fullRobIdxToWb, false, 0))) // 使用完整的 ROB ID
-        ParallaxLogger.log(s"[TB] Writing back Full ROB index $fullRobIdxToWb")
+      for (fullRobPtrToWb <- wbOrder) {
+        driveWriteback(dut.io, Seq((true, fullRobPtrToWb, false, 0))) // 使用完整的 ROB ID
+        ParallaxLogger.log(s"[TB] Writing back Full ROB index $fullRobPtrToWb")
         dut.clockDomain.waitSampling(); sleep(1)
       }
       driveWriteback(dut.io, Seq.empty) 
@@ -334,15 +334,15 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
           s"Commit $i: commit(0).valid should be true. Head: ${dut.rob.headPtr_reg.toBigInt}, Count: ${dut.rob.count_reg.toInt}"
         )
         val committedEntry = dut.io.commit(0).entry
-        val committedFullRobIdx = dut.rob.headPtr_reg.toBigInt
+        val committedFullRobPtr = dut.rob.headPtr_reg.toBigInt
         println(
-          s"[TB] Commit $i: Full ROB Idx ${committedFullRobIdx}, Valid=${dut.io.commit(0).valid.toBoolean}, " +
-            s"PC=${committedEntry.payload.pc.toBigInt}, Done=${committedEntry.status.done.toBoolean}, GenBitInStatus=${dut.rob.statuses(getPhysIdx(committedFullRobIdx, robPhysIdxWidth)).genBit.toBoolean}"
+          s"[TB] Commit $i: Full ROB Idx ${committedFullRobPtr}, Valid=${dut.io.commit(0).valid.toBoolean}, " +
+            s"PC=${committedEntry.payload.pc.toBigInt}, Done=${committedEntry.status.done.toBoolean}, GenBitInStatus=${dut.rob.statuses(getPhysIdx(committedFullRobPtr, robPhysIdxWidth)).genBit.toBoolean}"
         )
         assert(committedEntry.status.done.toBoolean, s"Commit $i: Entry should be done.")
         // 查找原始分配的 PC
-        val originalAllocatedUop = allocatedRobIndices.zipWithIndex.find(_._1 == committedFullRobIdx)
-        assert(originalAllocatedUop.isDefined, s"Committed Full ROB Idx $committedFullRobIdx not found in allocated list.")
+        val originalAllocatedUop = allocatedRobIndices.zipWithIndex.find(_._1 == committedFullRobPtr)
+        assert(originalAllocatedUop.isDefined, s"Committed Full ROB Idx $committedFullRobPtr not found in allocated list.")
         val originalPC = 100 + originalAllocatedUop.get._2 * 4
         assert(
           committedEntry.payload.pc.toBigInt == originalPC,
@@ -375,22 +375,22 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       val numOpsToProcess = 4 
       assert(numOpsToProcess % numSlots == 0)
       var pcCounter = 200
-      var allocatedRobIdxList = List[BigInt]() // 存储完整的 ROB ID
-      var expectedNextFullRobId = BigInt(0)
+      var allocatedRobPtrList = List[BigInt]() // 存储完整的 ROB ID
+      var expectedNextFullRobPtr = BigInt(0)
 
       println("--- Phase 1: Superscalar Allocation ---")
       for (i <- 0 until numOpsToProcess / numSlots) {
         val uopsForCycle = (0 until numSlots).map { j =>
-          val currentFullRobId = expectedNextFullRobId
-          expectedNextFullRobId += 1
-          val uop = createDummyUop(testConfig.robIdxWidth, currentFullRobId)
+          val currentFullRobPtr = expectedNextFullRobPtr
+          expectedNextFullRobPtr += 1
+          val uop = createDummyUop(testConfig.robPtrWidth, currentFullRobPtr)
           (true, uop, pcCounter + j * 4)
         }
         driveAllocate(dut.io, uopsForCycle)
         for (k_alloc <- 0 until numSlots) {
           assert(dut.io.canAllocate(k_alloc).toBoolean, s"Cycle $i, Alloc slot $k_alloc: canAllocate should be true")
-          val allocatedFullId = dut.io.allocate(k_alloc).robIdx.toBigInt
-          allocatedRobIdxList = allocatedRobIdxList :+ allocatedFullId
+          val allocatedFullId = dut.io.allocate(k_alloc).robPtr.toBigInt
+          allocatedRobPtrList = allocatedRobPtrList :+ allocatedFullId
           println(
             s"[TB] Allocated for PC ${pcCounter + k_alloc * 4} to Full ROB index ${allocatedFullId}"
           )
@@ -401,11 +401,11 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       driveAllocate(dut.io, Seq.empty)
       val (h_after_alloc, t_after_alloc, c_after_alloc) = getInternalRobPointers(dut)
       assert(c_after_alloc == numOpsToProcess, s"Count mismatch after alloc: $c_after_alloc vs $numOpsToProcess")
-      assert(t_after_alloc == expectedNextFullRobId, s"Tail pointer mismatch after alloc: $t_after_alloc vs $expectedNextFullRobId")
+      assert(t_after_alloc == expectedNextFullRobPtr, s"Tail pointer mismatch after alloc: $t_after_alloc vs $expectedNextFullRobPtr")
 
 
       println("--- Phase 2: Superscalar Writeback (all ops) ---")
-      val wbBatches = allocatedRobIdxList.grouped(testConfig.numWritebackPorts).toList
+      val wbBatches = allocatedRobPtrList.grouped(testConfig.numWritebackPorts).toList
       for (batch <- wbBatches) {
         val wbRequestsForCycle = batch.map(idx => (true, idx, false, 0)) // 使用完整的 ROB ID
         driveWriteback(dut.io, wbRequestsForCycle)
@@ -426,16 +426,16 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
           val entry = dut.io.commit(k_commit).entry
           assert(entry.status.done.toBoolean, s"Commit cycle $i, slot $k_commit: Entry not done.")
           
-          val expectedFullRobIdxForCommitSlot = (dut.rob.headPtr_reg.toBigInt + k_commit)
-          val originalIdxInAllocList = allocatedRobIdxList.indexOf(expectedFullRobIdxForCommitSlot)
-          assert(originalIdxInAllocList != -1, s"Committed Full ROB index $expectedFullRobIdxForCommitSlot not found in original allocation list")
+          val expectedFullRobPtrForCommitSlot = (dut.rob.headPtr_reg.toBigInt + k_commit)
+          val originalIdxInAllocList = allocatedRobPtrList.indexOf(expectedFullRobPtrForCommitSlot)
+          assert(originalIdxInAllocList != -1, s"Committed Full ROB index $expectedFullRobPtrForCommitSlot not found in original allocation list")
           val expectedPC = 200 + originalIdxInAllocList * 4
           assert(
             entry.payload.pc.toBigInt == expectedPC,
-            s"Commit cycle $i, slot $k_commit: PC mismatch. Expected $expectedPC, got ${entry.payload.pc.toBigInt}. Full ROB Idx: $expectedFullRobIdxForCommitSlot"
+            s"Commit cycle $i, slot $k_commit: PC mismatch. Expected $expectedPC, got ${entry.payload.pc.toBigInt}. Full ROB Idx: $expectedFullRobPtrForCommitSlot"
           )
           println(
-            s"[TB] Commit candidate slot $k_commit: Full ROB Idx $expectedFullRobIdxForCommitSlot, PC ${entry.payload.pc.toBigInt}"
+            s"[TB] Commit candidate slot $k_commit: Full ROB Idx $expectedFullRobPtrForCommitSlot, PC ${entry.payload.pc.toBigInt}"
           )
         }
 
@@ -469,63 +469,63 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       val pcOp3 = 108
       val testExceptionCode = 0xab
 
-      var expectedNextFullRobId = BigInt(0)
+      var expectedNextFullRobPtr = BigInt(0)
 
       println("--- Phase 1: Allocation ---")
       // Op1
-      val uop1 = createDummyUop(testConfig.robIdxWidth, expectedNextFullRobId)
+      val uop1 = createDummyUop(testConfig.robPtrWidth, expectedNextFullRobPtr)
       setAllocateInputs(dut.io, Seq((true, uop1, pcOp1)))
       dut.clockDomain.waitSampling(0) 
-      val robIdxOp1 = dut.io.allocate(0).robIdx.toBigInt
-      ParallaxLogger.log(s"[TB CAPTURE] robIdxOp1 CAPTURED AS: $robIdxOp1, dut.rob.tailPtr_reg=${dut.rob.tailPtr_reg.toBigInt}")
-      assert(robIdxOp1 == expectedNextFullRobId)
-      expectedNextFullRobId += 1
+      val robPtrOp1 = dut.io.allocate(0).robPtr.toBigInt
+      ParallaxLogger.log(s"[TB CAPTURE] robPtrOp1 CAPTURED AS: $robPtrOp1, dut.rob.tailPtr_reg=${dut.rob.tailPtr_reg.toBigInt}")
+      assert(robPtrOp1 == expectedNextFullRobPtr)
+      expectedNextFullRobPtr += 1
       dut.clockDomain.waitSampling(); sleep(1)
 
       // Op2
-      val uop2 = createDummyUop(testConfig.robIdxWidth, expectedNextFullRobId, hasException = False) 
+      val uop2 = createDummyUop(testConfig.robPtrWidth, expectedNextFullRobPtr, hasException = False) 
       setAllocateInputs(dut.io, Seq((true, uop2, pcOp2Exc)))
       dut.clockDomain.waitSampling(0)
-      val robIdxOp2Exc = dut.io.allocate(0).robIdx.toBigInt
-      ParallaxLogger.log(s"[TB CAPTURE] robIdxOp2Exc CAPTURED AS: $robIdxOp2Exc, dut.rob.tailPtr_reg=${dut.rob.tailPtr_reg.toBigInt}")
-      assert(robIdxOp2Exc == expectedNextFullRobId)
-      expectedNextFullRobId += 1
+      val robPtrOp2Exc = dut.io.allocate(0).robPtr.toBigInt
+      ParallaxLogger.log(s"[TB CAPTURE] robPtrOp2Exc CAPTURED AS: $robPtrOp2Exc, dut.rob.tailPtr_reg=${dut.rob.tailPtr_reg.toBigInt}")
+      assert(robPtrOp2Exc == expectedNextFullRobPtr)
+      expectedNextFullRobPtr += 1
       dut.clockDomain.waitSampling(); sleep(1)
 
       // Op3
-      val uop3 = createDummyUop(testConfig.robIdxWidth, expectedNextFullRobId)
+      val uop3 = createDummyUop(testConfig.robPtrWidth, expectedNextFullRobPtr)
       setAllocateInputs(dut.io, Seq((true, uop3, pcOp3)))
       dut.clockDomain.waitSampling(0)
-      val robIdxOp3 = dut.io.allocate(0).robIdx.toBigInt
-      ParallaxLogger.log(s"[TB CAPTURE] robIdxOp3 CAPTURED AS: $robIdxOp3, dut.rob.tailPtr_reg=${dut.rob.tailPtr_reg.toBigInt}")
-      assert(robIdxOp3 == expectedNextFullRobId)
-      expectedNextFullRobId += 1
+      val robPtrOp3 = dut.io.allocate(0).robPtr.toBigInt
+      ParallaxLogger.log(s"[TB CAPTURE] robPtrOp3 CAPTURED AS: $robPtrOp3, dut.rob.tailPtr_reg=${dut.rob.tailPtr_reg.toBigInt}")
+      assert(robPtrOp3 == expectedNextFullRobPtr)
+      expectedNextFullRobPtr += 1
       dut.clockDomain.waitSampling(); sleep(1)
 
       setAllocateInputs(dut.io, Seq.empty)
       dut.clockDomain.waitSampling(0) 
 
-      ParallaxLogger.log(s"[TB FINAL CAPTURED IDs] robIdxOp1=$robIdxOp1, robIdxOp2Exc=$robIdxOp2Exc, robIdxOp3=$robIdxOp3")
-      assert(robIdxOp1 == 0, "robIdxOp1 should be 0")
-      assert(robIdxOp2Exc == 1, "robIdxOp2Exc should be 1")
-      assert(robIdxOp3 == 2, "robIdxOp3 should be 2")
+      ParallaxLogger.log(s"[TB FINAL CAPTURED IDs] robPtrOp1=$robPtrOp1, robPtrOp2Exc=$robPtrOp2Exc, robPtrOp3=$robPtrOp3")
+      assert(robPtrOp1 == 0, "robPtrOp1 should be 0")
+      assert(robPtrOp2Exc == 1, "robPtrOp2Exc should be 1")
+      assert(robPtrOp3 == 2, "robPtrOp3 should be 2")
 
       println("--- Phase 2: Writeback ---")
       // Op1 (normal)
-      driveWriteback(dut.io, Seq((true, robIdxOp1, false, 0)))
+      driveWriteback(dut.io, Seq((true, robPtrOp1, false, 0)))
       dut.clockDomain.waitSampling(); sleep(1)
       // Op2 (exception) - This is where the exception is signaled during writeback
-      driveWriteback(dut.io, Seq((true, robIdxOp2Exc, true, testExceptionCode)))
+      driveWriteback(dut.io, Seq((true, robPtrOp2Exc, true, testExceptionCode)))
       dut.clockDomain.waitSampling(); sleep(1)
       // Op3 (normal, after exception op)
-      driveWriteback(dut.io, Seq((true, robIdxOp3, false, 0)))
+      driveWriteback(dut.io, Seq((true, robPtrOp3, false, 0)))
       dut.clockDomain.waitSampling(); sleep(1)
       driveWriteback(dut.io, Seq.empty)
       dut.clockDomain.waitSampling(0) 
 
       println("--- Phase 3: Commit ---")
       // Commit Op1 (should be fine)
-      println("[TB] Attempting to commit Op1 (robIdx=0)")
+      println("[TB] Attempting to commit Op1 (robPtr=0)")
       dut.clockDomain.waitSampling(0); 
       sleep(1) 
       assert(dut.io.commit(0).valid.toBoolean, "Op1 should be valid for commit")
@@ -534,7 +534,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       dut.clockDomain.waitSampling(); sleep(1)
 
       // Commit Op2 (exception op)
-      println("[TB] Attempting to commit Op2 (robIdx=1, the exception op)")
+      println("[TB] Attempting to commit Op2 (robPtr=1, the exception op)")
       dut.clockDomain.waitSampling(0); sleep(1)
       assert(dut.io.commit(0).valid.toBoolean, "Op2 (exception) should be valid for commit check")
       assert(dut.io.commit(0).entry.status.done.toBoolean, "Op2 (exception) should be done")
@@ -550,8 +550,8 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       val (h_after_exc, t_after_exc, c_after_exc) = getInternalRobPointers(dut)
       ParallaxLogger.log(s"ROB state: Head=$h_after_exc, Tail=$t_after_exc, Count=$c_after_exc")
 
-      if (c_after_exc > 0 && h_after_exc == robIdxOp3) { 
-        println("[TB] Attempting to commit Op3 (robIdx=2)")
+      if (c_after_exc > 0 && h_after_exc == robPtrOp3) { 
+        println("[TB] Attempting to commit Op3 (robPtr=2)")
         dut.clockDomain.waitSampling(0); sleep(1)
         assert(dut.io.commit(0).valid.toBoolean, "Op3 should be valid for commit if not flushed")
         assert(!dut.io.commit(0).entry.status.hasException.toBoolean, "Op3 should not have exception")
@@ -563,7 +563,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
         assert(dut.io.empty.toBoolean, "ROB should be empty if Op2 caused full flush on commit")
       } else {
         println(
-          s"[TB] ROB state after Op2 commit is unexpected for Op3 check. Head is $h_after_exc (expected $robIdxOp3 if Op3 is next)."
+          s"[TB] ROB state after Op2 commit is unexpected for Op3 check. Head is $h_after_exc (expected $robPtrOp3 if Op3 is next)."
         )
       }
 
@@ -590,17 +590,17 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
 
       var pc = 0
       var allocatedFullRobIndices = ArrayBuffer[BigInt]() 
-      var expectedNextFullRobId = BigInt(0)
+      var expectedNextFullRobPtr = BigInt(0)
 
       println("--- Filling ROB to wrap tail ---")
       for (i <- 0 until testConfig.robDepth + 2) { 
         val canAllocNow = dut.io.canAllocate(0).toBoolean
         if (canAllocNow) {
-          driveAllocate(dut.io, Seq((true, createDummyUop(testConfig.robIdxWidth, expectedNextFullRobId, pcVal = pc), pc)))
-          val allocatedFullId = dut.io.allocate(0).robIdx.toBigInt
-          assert(allocatedFullId == expectedNextFullRobId, s"Alloc iter $i, Full ID mismatch. Expected $expectedNextFullRobId, got $allocatedFullId")
+          driveAllocate(dut.io, Seq((true, createDummyUop(testConfig.robPtrWidth, expectedNextFullRobPtr, pcVal = pc), pc)))
+          val allocatedFullId = dut.io.allocate(0).robPtr.toBigInt
+          assert(allocatedFullId == expectedNextFullRobPtr, s"Alloc iter $i, Full ID mismatch. Expected $expectedNextFullRobPtr, got $allocatedFullId")
           allocatedFullRobIndices += allocatedFullId
-          expectedNextFullRobId += 1
+          expectedNextFullRobPtr += 1
           pc += 4
         } else {
           driveAllocate(dut.io, Seq.empty) 
@@ -666,7 +666,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       allocateWidth = allocW,
       commitWidth = commitW,
       numWritebackPorts = wbW,
-      defaultUop = () => createDummyUop(log2Up(robDepth) + 1 bits, BigInt(0), hasException = False), // 完整的 robIdx 宽度
+      defaultUop = () => createDummyUop(log2Up(robDepth) + 1 bits, BigInt(0), hasException = False), // 完整的 robPtr 宽度
       uopType = HardType(DummyUop(log2Up(robDepth) + 1 bits)),
     )
     val robPhysIdxWidth = testConfig.robPhysIdxWidth.value
@@ -678,25 +678,25 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
 
       // --- 1. Pre-fill ROB ---
       var pcCounter = 0
-      var allocatedOpsFull = ArrayBuffer[(BigInt, Int)]() // (fullRobIdx, pc)
-      var expectedNextFullRobId_prefill = BigInt(0)
+      var allocatedOpsFull = ArrayBuffer[(BigInt, Int)]() // (fullRobPtr, pc)
+      var expectedNextFullRobPtr_prefill = BigInt(0)
 
-      // Allocate 4 ops (ops 0, 1, 2, 3 with fullRobIdx 0, 1, 2, 3)
+      // Allocate 4 ops (ops 0, 1, 2, 3 with fullRobPtr 0, 1, 2, 3)
       val numOpsToPrefill = 4
       assert(numOpsToPrefill % allocW == 0, "numOpsToPrefill should be a multiple of allocW for simplicity")
 
       ParallaxLogger.log("--- Phase 1: Pre-filling ROB ---")
       for (i <- 0 until numOpsToPrefill / allocW) {
         val uopsForCycle = (0 until allocW).map { j =>
-          val currentFullRobId = expectedNextFullRobId_prefill
+          val currentFullRobPtr = expectedNextFullRobPtr_prefill
           val currentPc = pcCounter
-          expectedNextFullRobId_prefill += 1
+          expectedNextFullRobPtr_prefill += 1
           pcCounter += 4
-          (true, createDummyUop(testConfig.robIdxWidth, currentFullRobId, pcVal = currentPc), currentPc)
+          (true, createDummyUop(testConfig.robPtrWidth, currentFullRobPtr, pcVal = currentPc), currentPc)
         }
         driveAllocate(dut.io, uopsForCycle)
         for (k <- 0 until allocW) {
-            val allocatedFullId = dut.io.allocate(k).robIdx.toBigInt
+            val allocatedFullId = dut.io.allocate(k).robPtr.toBigInt
             allocatedOpsFull += ((allocatedFullId, uopsForCycle(k)._3))
         }
         dut.clockDomain.waitSampling(); sleep(1)
@@ -705,23 +705,23 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       val (h_pre, t_pre, c_pre) = getInternalRobPointers(dut)
       ParallaxLogger.log(s"Pre-fill: Allocated ${allocatedOpsFull.length} ops. H=$h_pre, T=$t_pre, C=$c_pre. Indices: ${allocatedOpsFull.map(_._1).mkString(",")}")
       assert(c_pre == numOpsToPrefill, s"Count after pre-fill should be $numOpsToPrefill, got $c_pre")
-      // expectedNextFullRobId_prefill 此时是下一个可分配的 fullRobId
+      // expectedNextFullRobPtr_prefill 此时是下一个可分配的 fullRobPtr
 
       // Mark first 'commitW' ops as done for commit in the concurrent cycle
       // These are allocatedOpsFull(0) and allocatedOpsFull(1)
       val opsToMarkDone = allocatedOpsFull.take(commitW)
       ParallaxLogger.log(s"--- Phase 1.1: Marking first ${commitW} ops as done for commit: ${opsToMarkDone.map(_._1).mkString(",")} ---")
-      val wbReqsForDone = opsToMarkDone.map { case (fullRobId, _) => (true, fullRobId, false, 0) }
+      val wbReqsForDone = opsToMarkDone.map { case (fullRobPtr, _) => (true, fullRobPtr, false, 0) }
       driveWriteback(dut.io, wbReqsForDone)
       dut.clockDomain.waitSampling(); sleep(1) // Writeback takes effect
       driveWriteback(dut.io, Seq.empty) // Stop writeback
 
       // Verify they are done (optional, but good for sanity)
-      opsToMarkDone.foreach { case (fullRobId, _) =>
-        val physIdx = getPhysIdx(fullRobId, robPhysIdxWidth)
-        val genBit = getGenBit(fullRobId, robPhysIdxWidth)
-        assert(dut.rob.statuses(physIdx).done.toBoolean, s"ROB entry fullId $fullRobId (phys $physIdx) should be done.")
-        assert(dut.rob.statuses(physIdx).genBit.toBoolean == genBit, s"ROB entry fullId $fullRobId (phys $physIdx) genBit mismatch.")
+      opsToMarkDone.foreach { case (fullRobPtr, _) =>
+        val physIdx = getPhysIdx(fullRobPtr, robPhysIdxWidth)
+        val genBit = getGenBit(fullRobPtr, robPhysIdxWidth)
+        assert(dut.rob.statuses(physIdx).done.toBoolean, s"ROB entry fullId $fullRobPtr (phys $physIdx) should be done.")
+        assert(dut.rob.statuses(physIdx).genBit.toBoolean == genBit, s"ROB entry fullId $fullRobPtr (phys $physIdx) genBit mismatch.")
       }
 
       // --- 2. Concurrent Operations Cycle ---
@@ -733,19 +733,19 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
 
       // Setup Commit for the ops marked done (opsToMarkDone)
       // These are at the head of the ROB
-      ParallaxLogger.log(s"Driving Commit for ${commitW} ops (expected fullRobIdx: ${allocatedOpsFull.take(commitW).map(_._1).mkString(",")})")
+      ParallaxLogger.log(s"Driving Commit for ${commitW} ops (expected fullRobPtr: ${allocatedOpsFull.take(commitW).map(_._1).mkString(",")})")
       driveCommitFire(dut.io, Seq.fill(commitW)(true)) // This helper includes sleep(1) - NO, it's a set and then one sleep
 
       // Setup Allocate for new ops
-      var expectedNextFullRobId_alloc = t_before_concurrent // New allocations start from current tail
+      var expectedNextFullRobPtr_alloc = t_before_concurrent // New allocations start from current tail
       val newPcBase = 800
       val allocReqs = (0 until allocW).map { i =>
-        val currentFullRobId = expectedNextFullRobId_alloc
+        val currentFullRobPtr = expectedNextFullRobPtr_alloc
         val currentPc = newPcBase + i * 4
-        expectedNextFullRobId_alloc += 1
-        (true, createDummyUop(testConfig.robIdxWidth, currentFullRobId, pcVal = currentPc), currentPc)
+        expectedNextFullRobPtr_alloc += 1
+        (true, createDummyUop(testConfig.robPtrWidth, currentFullRobPtr, pcVal = currentPc), currentPc)
       }
-      ParallaxLogger.log(s"Driving Allocate for ${allocW} new ops (expected starting fullRobIdx: ${t_before_concurrent})")
+      ParallaxLogger.log(s"Driving Allocate for ${allocW} new ops (expected starting fullRobPtr: ${t_before_concurrent})")
       // driveAllocate(dut.io, allocReqs) // This helper includes sleep(1) - NO
       setAllocateInputs(dut.io, allocReqs) // Use set, no sleep
 
@@ -753,13 +753,13 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       // These are allocatedOpsFull(commitW) to allocatedOpsFull(numOpsToPrefill - 1)
       val opsForWbConcurrent = allocatedOpsFull.slice(commitW, numOpsToPrefill)
       ParallaxLogger.log(s"Driving Writeback for ${opsForWbConcurrent.length} ops: ${opsForWbConcurrent.map(_._1).mkString(",")}")
-      val wbReqsConcurrent = opsForWbConcurrent.map { case (fullRobId, _) => (true, fullRobId, false, 0) }
+      val wbReqsConcurrent = opsForWbConcurrent.map { case (fullRobPtr, _) => (true, fullRobPtr, false, 0) }
       // driveWriteback(dut.io, wbReqsConcurrent) // This helper includes sleep(1) - NO
       // Manually drive writeback inputs without sleep
       for (i <- 0 until dut.io.config.numWritebackPorts) {
         if (i < wbReqsConcurrent.length) {
           dut.io.writeback(i).fire #= wbReqsConcurrent(i)._1
-          dut.io.writeback(i).robIdx #= wbReqsConcurrent(i)._2
+          dut.io.writeback(i).robPtr #= wbReqsConcurrent(i)._2
           dut.io.writeback(i).exceptionOccurred #= wbReqsConcurrent(i)._3
           dut.io.writeback(i).exceptionCodeIn #= wbReqsConcurrent(i)._4
         } else {
@@ -774,13 +774,13 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       for (i <- 0 until commitW) {
         assert(dut.io.commit(i).valid.toBoolean, s"Concurrent: commit($i).valid should be true (for pre-filled op ${allocatedOpsFull(i)._1})")
         val committedEntry = dut.io.commit(i).entry
-        val expectedFullRobIdxAtCommitSlot = h_before_concurrent + i
-        val physIdx = getPhysIdx(expectedFullRobIdxAtCommitSlot, robPhysIdxWidth)
-        val genBit = getGenBit(expectedFullRobIdxAtCommitSlot, robPhysIdxWidth)
-        assert(committedEntry.payload.uop.robIdx.toBigInt == expectedFullRobIdxAtCommitSlot, s"Commit slot $i Full ROB ID mismatch")
+        val expectedFullRobPtrAtCommitSlot = h_before_concurrent + i
+        val physIdx = getPhysIdx(expectedFullRobPtrAtCommitSlot, robPhysIdxWidth)
+        val genBit = getGenBit(expectedFullRobPtrAtCommitSlot, robPhysIdxWidth)
+        assert(committedEntry.payload.uop.robPtr.toBigInt == expectedFullRobPtrAtCommitSlot, s"Commit slot $i Full ROB ID mismatch")
         assert(dut.rob.statuses(physIdx).done.toBoolean, s"Commit slot $i (phys $physIdx) should be done")
         assert(dut.rob.statuses(physIdx).genBit.toBoolean == genBit, s"Commit slot $i (phys $physIdx) genBit mismatch")
-        ParallaxLogger.log(s"Concurrent: Commit slot $i valid for FullRobIdx ${expectedFullRobIdxAtCommitSlot}, PC ${committedEntry.payload.pc.toBigInt}")
+        ParallaxLogger.log(s"Concurrent: Commit slot $i valid for FullRobPtr ${expectedFullRobPtrAtCommitSlot}, PC ${committedEntry.payload.pc.toBigInt}")
       }
 
       // Check canAllocate based on the state *before* this cycle's clock edge (but considering potential commits)
@@ -790,8 +790,8 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
         val canAlloc = (countAfterPotentialCommit + i) < testConfig.robDepth
         assert(dut.io.canAllocate(i).toBoolean == canAlloc, s"Concurrent: canAllocate($i) expected $canAlloc. Count Before=${c_before_concurrent}, Commits=${commitW}, AllocsSoFar=${i}")
       }
-      val newAllocatedFullRobIds = dut.io.allocate.takeWhile(_.fire.toBoolean).map(_.robIdx.toBigInt)
-      ParallaxLogger.log(s"Concurrent: Allocating to Full ROB indices (combinational): ${newAllocatedFullRobIds.mkString(",")}")
+      val newAllocatedFullRobPtrs = dut.io.allocate.takeWhile(_.fire.toBoolean).map(_.robPtr.toBigInt)
+      ParallaxLogger.log(s"Concurrent: Allocating to Full ROB indices (combinational): ${newAllocatedFullRobPtrs.mkString(",")}")
 
 
       // --- THE BIG CLOCK EDGE ---
@@ -825,12 +825,12 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
 
       // Verify that the ops that were meant to be written back concurrently are now 'done'
       ParallaxLogger.log("--- Verifying concurrently written-back ops ---")
-      opsForWbConcurrent.foreach { case (fullRobId, pc) =>
-        val physIdx = getPhysIdx(fullRobId, robPhysIdxWidth)
-        val genBit = getGenBit(fullRobId, robPhysIdxWidth)
-        assert(dut.rob.statuses(physIdx).done.toBoolean, s"ROB entry fullId $fullRobId (phys $physIdx, pc $pc) should be done after concurrent WB.")
-        assert(dut.rob.statuses(physIdx).genBit.toBoolean == genBit, s"ROB entry fullId $fullRobId (phys $physIdx) genBit mismatch after WB.")
-         ParallaxLogger.log(s"Verified concurrently WB op: FullID=$fullRobId, PC=$pc, PhysIdx=$physIdx, StoredGen=${dut.rob.statuses(physIdx).genBit.toBoolean}, ExpectedGen=$genBit, Done=${dut.rob.statuses(physIdx).done.toBoolean}")
+      opsForWbConcurrent.foreach { case (fullRobPtr, pc) =>
+        val physIdx = getPhysIdx(fullRobPtr, robPhysIdxWidth)
+        val genBit = getGenBit(fullRobPtr, robPhysIdxWidth)
+        assert(dut.rob.statuses(physIdx).done.toBoolean, s"ROB entry fullId $fullRobPtr (phys $physIdx, pc $pc) should be done after concurrent WB.")
+        assert(dut.rob.statuses(physIdx).genBit.toBoolean == genBit, s"ROB entry fullId $fullRobPtr (phys $physIdx) genBit mismatch after WB.")
+         ParallaxLogger.log(s"Verified concurrently WB op: FullID=$fullRobPtr, PC=$pc, PhysIdx=$physIdx, StoredGen=${dut.rob.statuses(physIdx).genBit.toBoolean}, ExpectedGen=$genBit, Done=${dut.rob.statuses(physIdx).done.toBoolean}")
       }
       
       // Verify that the newly allocated ops have correct initial status (busy=T, done=F, correct genBit)
@@ -867,10 +867,10 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
 
       // 1. Allocate 3 entries
       val numToAlloc = 3
-      var expectedNextFullRobId = BigInt(0)
+      var expectedNextFullRobPtr = BigInt(0)
       for (i <- 0 until numToAlloc) {
-        driveAllocate(dut.io, Seq((true, createDummyUop(testConfig.robIdxWidth, expectedNextFullRobId, pcVal = 100 + i * 4), 100 + i * 4)))
-        expectedNextFullRobId += 1
+        driveAllocate(dut.io, Seq((true, createDummyUop(testConfig.robPtrWidth, expectedNextFullRobPtr, pcVal = 100 + i * 4), 100 + i * 4)))
+        expectedNextFullRobPtr += 1
         dut.clockDomain.waitSampling()
       }
       initRobInputs(dut.io) 
@@ -879,7 +879,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       var (h, t, c) = getInternalRobPointers(dut)
       ParallaxLogger.log(s"After alloc: H=$h, T=$t, C=$c")
       assert(c == numToAlloc, s"Count should be $numToAlloc, got $c")
-      assert(t == expectedNextFullRobId, s"Tail should be $expectedNextFullRobId, got $t")
+      assert(t == expectedNextFullRobPtr, s"Tail should be $expectedNextFullRobPtr, got $t")
       assert(!dut.io.empty.toBoolean)
 
       // 2. Drive FULL_FLUSH
@@ -917,17 +917,17 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       dut.clockDomain.waitSampling()
 
       // 1. Fill the ROB
-      var expectedNextFullRobId = BigInt(0)
+      var expectedNextFullRobPtr = BigInt(0)
       for (i <- 0 until testConfig.robDepth) {
-        driveAllocate(dut.io, Seq((true, createDummyUop(testConfig.robIdxWidth, expectedNextFullRobId, pcVal = 100 + i * 4), 100 + i * 4)))
-        expectedNextFullRobId += 1
+        driveAllocate(dut.io, Seq((true, createDummyUop(testConfig.robPtrWidth, expectedNextFullRobPtr, pcVal = 100 + i * 4), 100 + i * 4)))
+        expectedNextFullRobPtr += 1
         dut.clockDomain.waitSampling()
       }
       initRobInputs(dut.io)
       dut.clockDomain.waitSampling()
       var (h, t, c) = getInternalRobPointers(dut)
       assert(c == testConfig.robDepth, s"Count should be ${testConfig.robDepth}, got $c")
-      assert(t == expectedNextFullRobId, s"Tail should be $expectedNextFullRobId, got $t")
+      assert(t == expectedNextFullRobPtr, s"Tail should be $expectedNextFullRobPtr, got $t")
 
 
       // 2. Drive FULL_FLUSH
@@ -966,10 +966,10 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       // 1. Allocate 5 entries (full IDs 0, 1, 2, 3, 4)
       // Head=0, Tail=5, Count=5
       val numToAlloc = 5
-      var expectedNextFullRobId = BigInt(0)
+      var expectedNextFullRobPtr = BigInt(0)
       for (i <- 0 until numToAlloc) {
-        driveAllocate(dut.io, Seq((true, createDummyUop(testConfig.robIdxWidth, expectedNextFullRobId, pcVal = 100 + i * 4), 100 + i * 4)))
-        expectedNextFullRobId += 1
+        driveAllocate(dut.io, Seq((true, createDummyUop(testConfig.robPtrWidth, expectedNextFullRobPtr, pcVal = 100 + i * 4), 100 + i * 4)))
+        expectedNextFullRobPtr += 1
         dut.clockDomain.waitSampling()
       }
       initRobInputs(dut.io)
@@ -977,11 +977,11 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       var (h, t, c) = getInternalRobPointers(dut)
       ParallaxLogger.log(s"Before rollback: H=$h, T=$t, C=$c")
       assert(c == numToAlloc)
-      assert(t == expectedNextFullRobId)
+      assert(t == expectedNextFullRobPtr)
 
       // 2. Rollback to full ID 2. Entries 0, 1 should remain. New tail=2, new count=2.
       val targetFullIdx = BigInt(2)
-      driveFlushNew(dut.io, fire = true, reason = FlushReason.ROLLBACK_TO_ROB_IDX, targetRobIdx = targetFullIdx)
+      driveFlushNew(dut.io, fire = true, reason = FlushReason.ROLLBACK_TO_ROB_IDX, targetRobPtr = targetFullIdx)
       dut.clockDomain.waitSampling()
 
       // 3. Check
@@ -1015,21 +1015,21 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
 
       // 1. Allocate 3 entries. Head=0, Tail=3, Count=3
       val numToAlloc = 3
-      var expectedNextFullRobId = BigInt(0)
+      var expectedNextFullRobPtr = BigInt(0)
       for (i <- 0 until numToAlloc) {
-        driveAllocate(dut.io, Seq((true, createDummyUop(testConfig.robIdxWidth, expectedNextFullRobId, pcVal = 100 + i * 4), 100 + i * 4)))
-        expectedNextFullRobId += 1
+        driveAllocate(dut.io, Seq((true, createDummyUop(testConfig.robPtrWidth, expectedNextFullRobPtr, pcVal = 100 + i * 4), 100 + i * 4)))
+        expectedNextFullRobPtr += 1
         dut.clockDomain.waitSampling()
       }
       initRobInputs(dut.io)
       dut.clockDomain.waitSampling()
       var (h_before, t_before, c_before) = getInternalRobPointers(dut)
       assert(c_before == numToAlloc)
-      assert(t_before == expectedNextFullRobId)
+      assert(t_before == expectedNextFullRobPtr)
 
       // 2. Rollback to index 0 (current head). ROB should become empty.
       val targetFullIdx = h_before 
-      driveFlushNew(dut.io, fire = true, reason = FlushReason.ROLLBACK_TO_ROB_IDX, targetRobIdx = targetFullIdx)
+      driveFlushNew(dut.io, fire = true, reason = FlushReason.ROLLBACK_TO_ROB_IDX, targetRobPtr = targetFullIdx)
       dut.clockDomain.waitSampling()
 
       // 3. Check
@@ -1059,7 +1059,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
     //    - Alloc full ID 10 (ROB entry 2, gen 1). H=4, T=11, C=7. Entries: 4,5,6,7,8,9,10
     //    Current state: Head=4 (phys 4, gen 0), Tail=11 (phys 3, gen 1), Count=7.
     //    Valid ROB full IDs: 4, 5, 6, 7, 8, 9, 10 (in logical order)
-    // 4. Rollback to Full ROB ID 7 (targetRobIdx=7).
+    // 4. Rollback to Full ROB ID 7 (targetRobPtr=7).
     //    Expected: Head=4, Tail=7, Count=3. Entries 4,5,6 remain.
     //    Entries 7,8,9,10 are flushed.
     val robDepth = 8
@@ -1078,15 +1078,15 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
 
       var pc = 0
       var allocatedFullRobIndices = ArrayBuffer[BigInt]() 
-      var expectedNextFullRobId = BigInt(0)
+      var expectedNextFullRobPtr = BigInt(0)
 
       println("--- Phase 1: Alloc 6 ---")
       for (i <- 0 until 6) {
-        driveAllocate(dut.io, Seq((true, createDummyUop(testConfig.robIdxWidth, expectedNextFullRobId, pcVal = pc), pc)))
-        val allocatedFullId = dut.io.allocate(0).robIdx.toBigInt
-        assert(allocatedFullId == expectedNextFullRobId)
+        driveAllocate(dut.io, Seq((true, createDummyUop(testConfig.robPtrWidth, expectedNextFullRobPtr, pcVal = pc), pc)))
+        val allocatedFullId = dut.io.allocate(0).robPtr.toBigInt
+        assert(allocatedFullId == expectedNextFullRobPtr)
         allocatedFullRobIndices += allocatedFullId
-        expectedNextFullRobId += 1
+        expectedNextFullRobPtr += 1
         pc += 4
         dut.clockDomain.waitSampling()
       }
@@ -1119,10 +1119,10 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       val allocTargetFullIds = Seq(BigInt(6), BigInt(7), BigInt(8), BigInt(9), BigInt(10))
       for (i <- 0 until 5) {
         val targetAllocFullId = allocTargetFullIds(i)
-        driveAllocate(dut.io, Seq((true, createDummyUop(testConfig.robIdxWidth, targetAllocFullId, pcVal = pc), pc)))
+        driveAllocate(dut.io, Seq((true, createDummyUop(testConfig.robPtrWidth, targetAllocFullId, pcVal = pc), pc)))
         pc += 4
         dut.clockDomain.waitSampling()
-        val allocatedFullId = dut.io.allocate(0).robIdx.toBigInt
+        val allocatedFullId = dut.io.allocate(0).robPtr.toBigInt
         assert(allocatedFullId == targetAllocFullId)
         val (h_alloc, t_alloc, c_alloc) = getInternalRobPointers(dut)
         ParallaxLogger.log(s"Alloc iter ${6 + i}: H=$h_alloc, T=$t_alloc (PhysT=${getPhysIdx(t_alloc,robPhysIdxWidth)}), C=$c_alloc. ROB Full Idx: ${allocatedFullId}")
@@ -1143,7 +1143,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       println("--- Phase 4: Rollback to Full ROB ID 7 ---")
       // We want to keep entries with Full ID 4, 5, 6. Target for new tail is Full ID 7.
       val targetFullIdxForRollback = BigInt(7) 
-      driveFlushNew(dut.io, fire = true, reason = FlushReason.ROLLBACK_TO_ROB_IDX, targetRobIdx = targetFullIdxForRollback)
+      driveFlushNew(dut.io, fire = true, reason = FlushReason.ROLLBACK_TO_ROB_IDX, targetRobPtr = targetFullIdxForRollback)
       dut.clockDomain.waitSampling()
 
       assert(dut.io.flushed.toBoolean)
@@ -1177,10 +1177,10 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
 
       // 1. Pre-fill: Alloc 4 ops (full IDs 0,1,2,3). Mark op 0 done.
       // State: H=0, T=4, C=4. Op 0 is committable.
-      var expectedNextFullRobId = BigInt(0)
+      var expectedNextFullRobPtr = BigInt(0)
       for (i <- 0 until 4) {
-        driveAllocate(dut.io, Seq((true, createDummyUop(testConfig.robIdxWidth, expectedNextFullRobId, pcVal = 100 + i * 4), 100 + i * 4)))
-        expectedNextFullRobId += 1
+        driveAllocate(dut.io, Seq((true, createDummyUop(testConfig.robPtrWidth, expectedNextFullRobPtr, pcVal = 100 + i * 4), 100 + i * 4)))
+        expectedNextFullRobPtr += 1
         dut.clockDomain.waitSampling()
       }
       initRobInputs(dut.io)
@@ -1202,7 +1202,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       //    - Drive commit fire for op 0
       println("--- Driving Concurrent Flush, Alloc, Commit ---")
       driveFlushNew(dut.io, fire = true, reason = FlushReason.FULL_FLUSH)
-      driveAllocate(dut.io, Seq((true, createDummyUop(testConfig.robIdxWidth, expectedNextFullRobId, pcVal = 200), 200)))
+      driveAllocate(dut.io, Seq((true, createDummyUop(testConfig.robPtrWidth, expectedNextFullRobPtr, pcVal = 200), 200)))
       driveCommitFire(dut.io, Seq(true)) 
 
       dut.clockDomain.waitSampling() 

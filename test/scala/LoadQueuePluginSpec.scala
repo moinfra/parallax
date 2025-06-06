@@ -53,10 +53,10 @@ class LoadQueueTestSetupPlugin(
 case class LoadQueueTestIO(pipelineConfig: PipelineConfig, lsuConfig: LsuConfig) extends Bundle with IMasterSlave {
   val allocatePort = slave(Stream(LoadQueueEntry(lsuConfig)))
   val statusUpdatePort = slave(Flow(LqStatusUpdate(lsuConfig)))
-  val releasePorts = Vec(slave(Flow(UInt(lsuConfig.robIdxWidth))), lsuConfig.commitWidth)
+  val releasePorts = Vec(slave(Flow(UInt(lsuConfig.robPtrWidth))), lsuConfig.commitWidth)
   val releaseMask = Vec(in Bool (), lsuConfig.commitWidth)
   val loadRequestPort = master(Stream(LsuAguRequest(lsuConfig)))
-  val flushPort = slave(Flow(ROBFlushPayload(pipelineConfig.robIdxWidth)))
+  val flushPort = slave(Flow(ROBFlushPayload(pipelineConfig.robPtrWidth)))
 
   override def asMaster(): Unit = { // Gemini 麻烦你注意一下，asMaster 是从**此组件的外部用户**视角的，下面是对的，别瞎改！
     master(allocatePort, statusUpdatePort, flushPort)
@@ -78,7 +78,7 @@ class LoadQueueTestBench extends Component {
   val lsuConfig = LsuConfig(
     lqDepth = 8,
     sqDepth = 8,
-    robIdxWidth = 5 bits,
+    robPtrWidth = 5 bits,
     pcWidth = 32 bits,
     dataWidth = 32 bits,
     physGprIdxWidth = 5 bits,
@@ -110,7 +110,7 @@ class LoadQueuePluginSpec extends CustomSpinalSimFunSuite {
   // Test data structures
   case class LoadQueueTestParams(
       pc: Long,
-      robIdx: Int,
+      robPtr: Int,
       physDest: Int,
       physDestIsFpr: Boolean,
       writePhysDestEn: Boolean,
@@ -136,7 +136,7 @@ class LoadQueuePluginSpec extends CustomSpinalSimFunSuite {
   )
 
   case class LsuAguRequestCapture(
-      val robIdx: Int,
+      val robPtr: Int,
       val basePhysReg: Int,
       val immediate: Int,
       val isLoad: Boolean,
@@ -146,7 +146,7 @@ class LoadQueuePluginSpec extends CustomSpinalSimFunSuite {
   object LsuAguRequestCapture {
     def fromSim(req: LsuAguRequest): LsuAguRequestCapture = {
       LsuAguRequestCapture(
-        req.robIdx.toInt,
+        req.robPtr.toInt,
         req.basePhysReg.toInt,
         req.immediate.toInt,
         req.isLoad.toBoolean,
@@ -163,7 +163,7 @@ class LoadQueuePluginSpec extends CustomSpinalSimFunSuite {
     val entry = dut.io.allocatePort.payload
 
     // Correctly drive the DUT's input port payload fields
-    entry.robIdx #= params.robIdx
+    entry.robPtr #= params.robPtr
     entry.pc #= params.pc
     entry.isValid #= true
     entry.physDest #= params.physDest
@@ -273,7 +273,7 @@ class LoadQueuePluginSpec extends CustomSpinalSimFunSuite {
       // Test Case 1: Basic allocation
       val testUop = LoadQueueTestParams(
         pc = 0x1000,
-        robIdx = 5,
+        robPtr = 5,
         physDest = 10,
         physDestIsFpr = false,
         writePhysDestEn = true,
@@ -301,7 +301,7 @@ class LoadQueuePluginSpec extends CustomSpinalSimFunSuite {
       assert(aguRequests.nonEmpty, "LoadQueue should generate AGU request")
 
       val aguReq = aguRequests.head
-      assert(aguReq.robIdx == testUop.robIdx, "ROB ID mismatch in AGU request")
+      assert(aguReq.robPtr == testUop.robPtr, "ROB ID mismatch in AGU request")
       assert(aguReq.basePhysReg == testUop.aguBasePhysReg, "Base register mismatch in AGU request")
       assert(aguReq.immediate == testUop.aguImmediate, "Immediate mismatch in AGU request")
       assert(aguReq.isLoad, "Should be marked as load")
@@ -328,7 +328,7 @@ class LoadQueuePluginSpec extends CustomSpinalSimFunSuite {
       // Allocate a uop first
       val testUop = LoadQueueTestParams(
         pc = 0x2000,
-        robIdx = 10,
+        robPtr = 10,
         physDest = 15,
         physDestIsFpr = false,
         writePhysDestEn = true,
@@ -387,7 +387,7 @@ class LoadQueuePluginSpec extends CustomSpinalSimFunSuite {
       // Allocate and progress through address generation
       val testUop = LoadQueueTestParams(
         pc = 0x4000,
-        robIdx = 20,
+        robPtr = 20,
         physDest = 25,
         physDestIsFpr = false,
         writePhysDestEn = true,
@@ -464,7 +464,7 @@ class LoadQueuePluginSpec extends CustomSpinalSimFunSuite {
       val testUops = Seq(
         LoadQueueTestParams(
           pc = 0x1000,
-          robIdx = 5,
+          robPtr = 5,
           physDest = 10,
           physDestIsFpr = false,
           writePhysDestEn = true,
@@ -476,7 +476,7 @@ class LoadQueuePluginSpec extends CustomSpinalSimFunSuite {
         ),
         LoadQueueTestParams(
           pc = 0x1004,
-          robIdx = 6,
+          robPtr = 6,
           physDest = 11,
           physDestIsFpr = false,
           writePhysDestEn = true,
@@ -532,7 +532,7 @@ class LoadQueuePluginSpec extends CustomSpinalSimFunSuite {
 
       // Release first uop from commit slot 0
       dut.io.releasePorts(0).valid #= true
-      dut.io.releasePorts(0).payload #= testUops(0).robIdx
+      dut.io.releasePorts(0).payload #= testUops(0).robPtr
       dut.io.releaseMask(0) #= true
       dut.clockDomain.waitSampling()
       dut.io.releasePorts(0).valid #= false
@@ -542,7 +542,7 @@ class LoadQueuePluginSpec extends CustomSpinalSimFunSuite {
 
       // Release second uop from commit slot 0 again (as it's now the head)
       dut.io.releasePorts(0).valid #= true
-      dut.io.releasePorts(0).payload #= testUops(1).robIdx
+      dut.io.releasePorts(0).payload #= testUops(1).robPtr
       dut.io.releaseMask(0) #= true
       dut.clockDomain.waitSampling()
       dut.io.releasePorts(0).valid #= false
@@ -551,7 +551,7 @@ class LoadQueuePluginSpec extends CustomSpinalSimFunSuite {
       dut.clockDomain.waitSampling(5)
 
       // Try to allocate again to verify queue is available
-      driveAllocatePort(dut, testUops(0).copy(robIdx = 30))
+      driveAllocatePort(dut, testUops(0).copy(robPtr = 30))
       dut.clockDomain.waitSampling()
       assert(dut.io.allocatePort.ready.toBoolean, "LoadQueue should be ready after releases")
 
@@ -572,7 +572,7 @@ class LoadQueuePluginSpec extends CustomSpinalSimFunSuite {
       for (i <- 0 until 3) {
         val testUop = LoadQueueTestParams(
           pc = 0x1000 + i * 4,
-          robIdx = 10 + i,
+          robPtr = 10 + i,
           physDest = 20 + i,
           physDestIsFpr = false,
           writePhysDestEn = true,
@@ -595,7 +595,7 @@ class LoadQueuePluginSpec extends CustomSpinalSimFunSuite {
       // Send flush command
       val flushPayload = dut.io.flushPort.payload
       flushPayload.reason #= FlushReason.ROLLBACK_TO_ROB_IDX;
-      flushPayload.targetRobIdx #= 11
+      flushPayload.targetRobPtr #= 11
 
       dut.io.flushPort.valid #= true
       dut.clockDomain.waitSampling()
@@ -606,7 +606,7 @@ class LoadQueuePluginSpec extends CustomSpinalSimFunSuite {
       // Verify queue is ready for new allocations after flush
       val newUopParams = LoadQueueTestParams(
         pc = 0x8000,
-        robIdx = 30,
+        robPtr = 30,
         physDest = 10,
         physDestIsFpr = false,
         writePhysDestEn = true,
@@ -639,7 +639,7 @@ class LoadQueuePluginSpec extends CustomSpinalSimFunSuite {
       for (i <- 0 until lqDepth) {
         val testUop = LoadQueueTestParams(
           pc = 0x1000 + i * 4,
-          robIdx = i,
+          robPtr = i,
           physDest = 10 + i,
           physDestIsFpr = false,
           writePhysDestEn = true,
@@ -666,7 +666,7 @@ class LoadQueuePluginSpec extends CustomSpinalSimFunSuite {
       // Try one more allocation - should not be ready
       // val overflowUopParams = LoadQueueTestParams(
       //     pc = 0x9000,
-      //     robIdx = 99,
+      //     robPtr = 99,
       //     physDest = 99,
       //     physDestIsFpr = false,
       //     writePhysDestEn = true,

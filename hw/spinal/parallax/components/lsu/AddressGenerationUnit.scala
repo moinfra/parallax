@@ -11,7 +11,7 @@ import scala.collection.mutable.ArrayBuffer
 case class AguBypassData() extends Bundle {
   val physRegIdx = UInt(6 bits)
   val physRegData = Bits(32 bits)
-  val robIdx = UInt(6 bits)
+  val robPtr = UInt(6 bits)
   val valid = Bool()
 }
 
@@ -42,7 +42,7 @@ case class AguInput() extends Bundle with Formattable {
   val pc = UInt(32 bits)
 
   // 上下文信息
-  val robId = UInt(6 bits)
+  val robPtr = UInt(6 bits)
   val isLoad = Bool()
   val isStore = Bool()
   val physDst = UInt(6 bits)
@@ -64,7 +64,7 @@ case class AguOutput() extends Bundle with Formattable{
   val alignException = Bool()
 
   // 透传上下文信息
-  val robId = UInt(6 bits)
+  val robPtr = UInt(6 bits)
   val isLoad = Bool()
   val isStore = Bool()
   val physDst = UInt(6 bits)
@@ -202,7 +202,7 @@ class AguPlugin(
         externalPort.output.payload.alignException := alignmentCheck.alignException
 
         // 透传上下文信息
-        externalPort.output.payload.robId := stage0.payload.robId
+        externalPort.output.payload.robPtr := stage0.payload.robPtr
         externalPort.output.payload.isLoad := stage0.payload.isLoad
         externalPort.output.payload.isStore := stage0.payload.isStore
         externalPort.output.payload.physDst := stage0.payload.physDst

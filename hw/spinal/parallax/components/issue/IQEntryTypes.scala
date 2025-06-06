@@ -6,7 +6,7 @@ import parallax.common._
 
 case class IQEntryAluInt(val pipelineConfig: PipelineConfig) extends Bundle with IQEntryLike {
   // --- Common IQEntryLike fields ---
-  override val robIdx = UInt(pipelineConfig.robIdxWidth)
+  override val robPtr = UInt(pipelineConfig.robPtrWidth)
   override val physDest = PhysicalRegOperand(pipelineConfig.physGprIdxWidth)
   override val physDestIsFpr = Bool()
   override val writesToPhysReg = Bool()
@@ -28,7 +28,7 @@ case class IQEntryAluInt(val pipelineConfig: PipelineConfig) extends Bundle with
   val shiftCtrl = ShiftCtrlFlags()
 
   override def setDefault(): this.type = {
-    robIdx := U(0)
+    robPtr := U(0)
 
     physDest.setDefault()
     physDestIsFpr := False
@@ -51,10 +51,10 @@ case class IQEntryAluInt(val pipelineConfig: PipelineConfig) extends Bundle with
     this
   }
 
-  override def initFrom(renamedUop: RenamedUop, allocatedRobIdx: UInt): this.type = {
+  override def initFrom(renamedUop: RenamedUop, allocatedRobPtr: UInt): this.type = {
     this.setDefault() // Start with defaults
 
-    this.robIdx := allocatedRobIdx
+    this.robPtr := allocatedRobPtr
 
     this.physDest := renamedUop.rename.physDest
     this.physDestIsFpr := renamedUop.rename.physDestIsFpr
@@ -80,7 +80,7 @@ case class IQEntryAluInt(val pipelineConfig: PipelineConfig) extends Bundle with
 
 case class IQEntryFpu(val pipelineConfig: PipelineConfig, val usesSrc3: Boolean) extends Bundle with IQEntryLike {
   // --- Common IQEntryLike fields ---
-  override val robIdx = UInt(pipelineConfig.robIdxWidth)
+  override val robPtr = UInt(pipelineConfig.robPtrWidth)
 
   override val physDest = PhysicalRegOperand(
     pipelineConfig.physGprIdxWidth
@@ -111,7 +111,7 @@ case class IQEntryFpu(val pipelineConfig: PipelineConfig, val usesSrc3: Boolean)
   val fpuCtrl = FpuCtrlFlags()
 
   override def setDefault(): this.type = {
-    robIdx := U(0)
+    robPtr := U(0)
 
     physDest.setDefault()
     physDestIsFpr := True // Default to true for an FPU entry's dest
@@ -141,10 +141,10 @@ case class IQEntryFpu(val pipelineConfig: PipelineConfig, val usesSrc3: Boolean)
     this
   }
 
-  override def initFrom(renamedUop: RenamedUop, allocatedRobIdx: UInt): this.type = {
+  override def initFrom(renamedUop: RenamedUop, allocatedRobPtr: UInt): this.type = {
     this.setDefault()
 
-    this.robIdx := allocatedRobIdx
+    this.robPtr := allocatedRobPtr
 
     this.physDest := renamedUop.rename.physDest
     this.physDestIsFpr := renamedUop.rename.physDestIsFpr // Should be true if dispatched to FPU IQ

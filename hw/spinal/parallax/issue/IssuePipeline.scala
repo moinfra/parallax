@@ -21,7 +21,7 @@ case class IssuePipelineSignals(val config: PipelineConfig) extends AreaObject {
   val RENAMED_UOPS = Stageable(Vec.fill(config.fetchWidth)(RenamedUop(config)))
 
   // --- s2_Dispatch 的输出 (送往IQ/ROB写等) ---
-  // 仍然是 RenamedUop，但其 robIdx 字段已被填充
+  // 仍然是 RenamedUop，但其 robPtr 字段已被填充
   val DISPATCHED_UOPS = Stageable(Vec.fill(config.fetchWidth)(RenamedUop(config)))
 
   // 流水线冲刷信号 (可被插入到任何阶段，通常由BRU或Commit阶段驱动回来)

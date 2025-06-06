@@ -171,7 +171,7 @@ class AluIntEuPlugin(
       ParallaxSim.debug(
         Seq(
           L"AluIntEu (${euName}) S2 Firing: UopCode=${decodedUop_s2.uopCode}, ",
-          L"RobIdx=${renamedUop_s2.robIdx}, ResultData=${s2_execute(commonSignals.EXEC_RESULT_DATA)}, ",
+          L"RobPtr=${renamedUop_s2.robPtr}, ResultData=${s2_execute(commonSignals.EXEC_RESULT_DATA)}, ",
           L"WritesPreg=${s2_execute(commonSignals.EXEC_WRITES_TO_PREG)}, ",
           L"HasExc=${s2_execute(commonSignals.EXEC_HAS_EXCEPTION)}, ExcCode=${s2_execute(commonSignals.EXEC_EXCEPTION_CODE)}"
         )
