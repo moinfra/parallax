@@ -437,6 +437,9 @@ case class DecodedUop(val config: PipelineConfig) extends Bundle {
   val isSerializing = Bool() // Instruction that must serialize execution (e.g. FENCE, ERET)
   val isBranchOrJump = Bool() // Hint for frontend/predictor
 
+  val allocateLq = Bool() // 是否为该 uop 分配 LQ
+  val allocateSq = Bool() // 是否为该 uop 分配 SQ
+
   def setDefault(
       pc: UInt = 0,
       isa: SpinalEnumCraft[IsaType.type] = IsaType.UNKNOWN

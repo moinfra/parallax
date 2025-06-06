@@ -156,7 +156,7 @@ class FrameworkConfig() {
 class Framework(val plugins: Seq[Plugin]) extends Area {
   // 收集所有服务：包括插件本身以及它们通过 getSubServices() 提供的子服务
   val services = plugins ++ plugins.flatMap(_.getSubServices())
-
+  ParallaxLogger.log("Framework: services collected")
   // --- 用于控制构建阶段的锁 ---
   val configLock = Lock() // 配置阶段锁
   val earlyLock = Lock() // 早期阶段锁
@@ -169,24 +169,32 @@ class Framework(val plugins: Seq[Plugin]) extends Area {
   configLock.retain()
   earlyLock.retain()
   lateLock.retain()
+
+  ParallaxLogger.log("Framework: locks retained")
   // 注意：buildLock 初始时是未锁定的，允许任务尝试获取它
 
   // 2. 将当前框架实例（this）加载到每个插件的 framework 句柄中
   //    这样插件内部就可以通过 framework 访问框架的功能（如服务查找、锁）
   plugins.foreach(_.framework.load(this)) // 这也会触发插件内部 Handle 的依赖解析
 
+  ParallaxLogger.log("Framework: framework injected to plugins")
+
   // 3. 释放配置锁，允许通过 plugin.create.config 创建的任务开始执行
   configLock.release()
+  ParallaxLogger.log("Framework: config lock released")
+
   // 4. 等待所有插件的配置任务（configsHandles 中的句柄）完成
   plugins.foreach(_.configsHandles.foreach(_.await()))
-
+  ParallaxLogger.log("Framework: config tasks completed")
   // 5. 释放早期锁，允许通过 plugin.create.early 创建的任务开始执行
   earlyLock.release()
+  ParallaxLogger.log("Framework: early lock released")
   // 6. 等待所有插件的早期任务（earlyHandles 中的句柄）完成
   plugins.foreach(_.earlyHandles.foreach(_.await()))
-
+  ParallaxLogger.log("Framework: early tasks completed")
   // 7. 释放晚期锁，允许通过 plugin.create.late 创建的任务开始执行
   lateLock.release()
+  ParallaxLogger.log("Framework: late lock released")
   // 注意：框架本身不显式等待晚期任务完成，它们会在后台运行，直到其自身逻辑结束或整个构建过程完成
 
   // --- 服务查找方法 ---
@@ -300,6 +308,7 @@ object ParallaxLogger {
   def success(foo: String)(implicit line: sourcecode.Line, file: sourcecode.File) = {
     println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_GREEN$foo$ANSI_RESET")
   }
+
 }
 
 // sim 时打印（最终编译为 verilog $display stmt）

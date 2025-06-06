@@ -37,7 +37,7 @@ case class AguPort() extends Bundle with IMasterSlave {
 case class AguInput() extends Bundle with Formattable {
   val basePhysReg = UInt(6 bits)
   val immediate = SInt(12 bits)
-  val accessSize = UInt(3 bits)
+  val accessSize = MemAccessSize()
   val usePc = Bool()
   val pc = UInt(32 bits)
 
@@ -184,14 +184,14 @@ class AguPlugin(
         val alignmentCheck = new Area {
           val alignMask = UInt(3 bits)
           switch(stage0.payload.accessSize) {
-            is(0) { alignMask := 0x0 } // Byte
-            is(1) { alignMask := 0x1 } // Half-word
-            is(2) { alignMask := 0x3 } // Word
-            is(3) { alignMask := 0x7 } // Double-word
+            is(MemAccessSize.B) { alignMask := 0x0 } // Byte
+            is(MemAccessSize.H) { alignMask := 0x1 } // Half-word
+            is(MemAccessSize.W) { alignMask := 0x3 } // Word
+            is(MemAccessSize.D) { alignMask := 0x7 } // Double-word
             default { alignMask := 0x0 }
           }
 
-          val mustAlign = stage0.payload.accessSize =/= 0
+          val mustAlign = stage0.payload.accessSize =/= MemAccessSize.B
           val misaligned = (addressCalc.effectiveAddress & alignMask.resized) =/= 0
           val alignException = misaligned && mustAlign
         }

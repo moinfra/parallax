@@ -102,7 +102,7 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
   case class AguTestParams(
       basePhysReg: Int,
       immediate: Int,
-      accessSize: Int,
+      accessSize: MemAccessSize.E,
       usePc: Boolean,
       pcVal: Long,
       robId: Int,
@@ -220,7 +220,7 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
         AguTestParams(
           basePhysReg = baseReg,
           immediate = immediate,
-          accessSize = 2,
+          accessSize = MemAccessSize.H,
           usePc = false,
           pcVal = 0,
           robId = 15,
@@ -309,7 +309,7 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
         AguTestParams(
           basePhysReg = baseReg,
           immediate = immediate,
-          accessSize = 2,
+          accessSize = MemAccessSize.H,
           usePc = false,
           pcVal = 0,
           robId = 30,
@@ -398,7 +398,7 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
           AguTestParams(
             basePhysReg = reg,
             immediate = imm,
-            accessSize = 2,
+            accessSize = MemAccessSize.H,
             usePc = false,
             pcVal = 0,
             robId = robId,

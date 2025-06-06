@@ -74,7 +74,7 @@ class TestCommitterLogicHolder(id: String, val commitWidth: Int, val pCfg: Pipel
 
 class TestFlusherLogicHolder(id: String, val pCfg: PipelineConfig) extends Plugin {
   setName(s"Flusher_${id}")
-  var flushPortToService: Flow[ROBFlushPayload[DummyUop2]] = null // ROB's slave Flow
+  var flushPortToService: Flow[ROBFlushPayload] = null // ROB's slave Flow
 
   val setup = create early new Area {
     val robService = getService[ROBService[DummyUop2]]

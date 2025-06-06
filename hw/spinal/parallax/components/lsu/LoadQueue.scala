@@ -1,315 +1,328 @@
+// -- MODIFICATION START (Fix combinational loops) --
 package parallax.components.lsu
 
 import spinal.core._
 import spinal.lib._
 import parallax.common._
-import parallax.utilities._
-import parallax.components.rob.{ROBFlushPayload, ROBFlushReason, ROBService}
-import parallax.components.dcache2.DataCachePluginConfig
+import parallax.components.rob.{ROBFlushPayload, ROBService} // ROBFlushPayload
+import parallax.components.dcache2.DataCachePluginConfig // For LsuConfig
+import parallax.utilities.{Plugin, Service, LockedImpl, ParallaxLogger, ParallaxSim}
 
 // --- Service Definition ---
 trait LoadQueueService extends Service with LockedImpl {
-  def newAllocatePort(): Stream[RenamedUop] // Changed to Stream for backpressure
-  def newStatusUpdatePort(): Flow[LqStatusUpdate]
-  def newReleasePort(): Vec[Flow[UInt]]
-  def newReleaseMask(): Vec[Bool]
-  def getLoadRequestPort(): Stream[LsuAguRequest]
-  def getLQFlushPort(): Flow[ROBFlushPayload[RenamedUop]]
+  def getAllocatePort(): Stream[LoadQueueEntry] // 从 Rename/Dispatch 接收 LoadQueueEntry
+  def getStatusUpdatePort(): Flow[LqStatusUpdate] // 从 LSU Core/DCache 更新 LQ 条目状态
+  def getReleasePorts(): Vec[Flow[UInt]] // 从 Commit 接收释放的 ROB ID (完整 ID)
+  def getReleaseMask(): Vec[Bool] // Commit 阶段的有效释放掩码 (输入给 LQ)
+  def getLoadRequestPort(): Stream[LsuAguRequest] // LQ 向 LSU Scheduler/AGU 发送加载请求
+  def getLQFlushPort(): Flow[ROBFlushPayload] // 从 ROB/FlushController 接收刷新命令
 }
 
 // --- Configuration ---
-case class LoadQueueConfig(
-    pCfg: PipelineConfig,
-    lqDepth: Int,
-    sqIdxWidth: BitCount,
-    dCacheConfig: DataCachePluginConfig
-) {
-  val lqIdxWidth = log2Up(lqDepth) bits
-  val lqPtrWidth = (lqIdxWidth.value + 1).bits
-  require(isPow2(lqDepth), "LQ depth must be a power of 2 for simple pointer arithmetic.")
-  val commitWidth = pCfg.commitWidth
-}
 
-class LoadQueuePlugin(val lqConfig: LoadQueueConfig) extends Plugin with LoadQueueService with LockedImpl {
+class LoadQueuePlugin(val lsuConfig: LsuConfig, val pipelineConfig: PipelineConfig) extends Plugin with LoadQueueService with LockedImpl {
+  ParallaxLogger.log(s"LQPlugin: Creating LoadQueue with config: $lsuConfig")
+  // --- Hardware Definition Area ---
+  private val hw = create early new Area {
+    ParallaxLogger.debug(s"LQPlugin: early stage")
+    val entries = Mem(LoadQueueEntry(lsuConfig), lsuConfig.lqDepth)
+    val defaultLqEntry = LoadQueueEntry(lsuConfig).setDefault()
 
-  import lqConfig._
+    // Pointers (store full ID: physical index + generation bit)
+    val allocPtrReg = Reg(UInt(lsuConfig.lqPtrWidth)) init (0)
+    val commitPtrReg = Reg(UInt(lsuConfig.lqPtrWidth)) init (0)
 
-  private val entries = Mem(LoadQueueEntry(pCfg, lqIdxWidth, sqIdxWidth, dCacheConfig), lqDepth)
-  private val defaultLqEntry = LoadQueueEntry(pCfg, lqIdxWidth, sqIdxWidth, dCacheConfig).setDefault()
-  entries.init(Seq.fill(lqDepth)(defaultLqEntry))
+    // Entry count and full/empty status
+    val entryCount = UInt(log2Up(lsuConfig.lqDepth + 1) bits)
+    val isFull = Bool()
+    val isEmpty = Bool()
 
-  private val allocPtrReg = Reg(UInt(lqPtrWidth)) init (0)
-  private val commitPtrReg = Reg(UInt(lqPtrWidth)) init (0)
-  private val entryCount = UInt(log2Up(lqDepth + 1) bits)
-  private val isFull = Bool()
-  private val isEmpty = Bool()
+    val ptrsSameGen = allocPtrReg.msb === commitPtrReg.msb
+    val allocIdxForCount = allocPtrReg(lsuConfig.lqIdxWidth.value - 1 downto 0)
+    val commitIdxForCount = commitPtrReg(lsuConfig.lqIdxWidth.value - 1 downto 0)
 
-  private val ptrsSameGen = allocPtrReg.msb === commitPtrReg.msb
-  private val allocIdxForCount = allocPtrReg(lqIdxWidth.value - 1 downto 0)
-  private val commitIdxForCount = commitPtrReg(lqIdxWidth.value - 1 downto 0)
+    when(ptrsSameGen) {
+      entryCount := (allocIdxForCount - commitIdxForCount).resize(entryCount.getWidth)
+    } otherwise {
+      entryCount := (U(lsuConfig.lqDepth, entryCount.getWidth bits) + allocIdxForCount - commitIdxForCount)
+        .resize(entryCount.getWidth)
+    }
+    isFull := entryCount === lsuConfig.lqDepth
+    isEmpty := entryCount === 0
 
-  when(ptrsSameGen) {
-    entryCount := (allocIdxForCount - commitIdxForCount).resize(entryCount.getWidth)
-  } otherwise {
-    entryCount := (U(lqDepth, entryCount.getWidth bits) + allocIdxForCount - commitIdxForCount)
-      .resize(entryCount.getWidth)
+    // Service Port Instantiation
+    val allocatePortInst = Stream(LoadQueueEntry(lsuConfig)) // Receives LoadQueueEntry
+    val statusUpdatePortInst = Flow(LqStatusUpdate(lsuConfig))
+    val releasePortsInst = Vec(Flow(UInt(lsuConfig.robIdxWidth)), lsuConfig.commitWidth)
+    val releaseMaskInst = Vec(Bool(), lsuConfig.commitWidth) // Input from Commit
+    val loadRequestPortInst = Stream(LsuAguRequest(lsuConfig))
+    val lqFlushPortInst = Flow(ROBFlushPayload(pipelineConfig.robIdxWidth)) // Pass PipelineConfig
   }
-  isFull := entryCount === lqDepth
-  isEmpty := entryCount === 0
 
-  // Service Port Instantiation
-  private val allocatePortInst = Stream(RenamedUop(pCfg)) // Changed to Stream
-  private val statusUpdatePortInst = Flow(LqStatusUpdate(pCfg, lqIdxWidth, dCacheConfig))
-  private val releasePortsInst = Vec(Flow(UInt(pCfg.robIdxWidth)), commitWidth)
-  private val releaseMaskInst = Vec(Bool(), commitWidth)
-  private val loadRequestPortInst = Stream(LsuAguRequest(pCfg, lqIdxWidth, sqIdxWidth))
-  private val lqFlushPortInst = Flow(ROBFlushPayload[RenamedUop](pCfg.robIdxWidth))
+  // --- Service Implementation ---
+  override def getAllocatePort(): Stream[LoadQueueEntry] = hw.allocatePortInst
+  override def getStatusUpdatePort(): Flow[LqStatusUpdate] = hw.statusUpdatePortInst
+  override def getReleasePorts(): Vec[Flow[UInt]] = hw.releasePortsInst
+  override def getReleaseMask(): Vec[Bool] = hw.releaseMaskInst
+  override def getLoadRequestPort(): Stream[LsuAguRequest] = hw.loadRequestPortInst
+  override def getLQFlushPort(): Flow[ROBFlushPayload] = hw.lqFlushPortInst
 
-  // Service Implementation
-  override def newAllocatePort(): Stream[RenamedUop] = allocatePortInst // Changed to Stream
-  override def newStatusUpdatePort(): Flow[LqStatusUpdate] = statusUpdatePortInst
-  override def newReleasePort(): Vec[Flow[UInt]] = releasePortsInst
-  override def newReleaseMask(): Vec[Bool] = releaseMaskInst
-  override def getLoadRequestPort(): Stream[LsuAguRequest] = loadRequestPortInst
-  override def getLQFlushPort(): Flow[ROBFlushPayload[RenamedUop]] = lqFlushPortInst
+  // --- Helper Functions for Internal Use ---
+  private def getEntryPhysicalIndex(ptrWithGenBit: UInt): UInt = ptrWithGenBit(lsuConfig.lqIdxWidth.value - 1 downto 0)
+  private def getEntryGenBit(ptrWithGenBit: UInt): Bool = ptrWithGenBit.msb
 
-  private def getEntryIndex(ptrWithGenBit: UInt): UInt = ptrWithGenBit(lqIdxWidth.value - 1 downto 0)
-
-  private def readEntryAsync(idxPtr: UInt): LoadQueueEntry = {
-    entries.readAsync(getEntryIndex(idxPtr))
+  private def readEntryAsync(physicalIdx: UInt): LoadQueueEntry = {
+    hw.entries.readAsync(physicalIdx)
   }
-  private def writeEntry(idxPtr: UInt, data: LoadQueueEntry): Unit = {
-    entries.write(getEntryIndex(idxPtr), data)
+  private def writeEntryOnEdge(physicalIdx: UInt, data: LoadQueueEntry): Unit = {
+    hw.entries.write(physicalIdx, data)
   }
 
   // --- Internal Logic Areas ---
 
   private val allocationLogic = create late new Area {
+    ParallaxLogger.debug("LQPlugin allocationLogic: Wait dependents ready")
     lock.await()
-    // LQ is ready to allocate if it's not full.
-    allocatePortInst.ready := !isFull // Drive ready for the Stream interface
+    ParallaxLogger.debug("LQPlugin allocationLogic: Elaborate logic")
+    hw.allocatePortInst.ready := !hw.isFull // Drive ready for the Stream interface
 
-    val currentAllocIdx = getEntryIndex(allocPtrReg)
+    val currentAllocPhysIdx = getEntryPhysicalIndex(hw.allocPtrReg)
+    val currentAllocGenBit = getEntryGenBit(hw.allocPtrReg) // For logging/debug
 
-    when(allocatePortInst.fire) { // .fire incorporates .valid & .ready
-      assert(!isFull, "LQ allocation fired when LQ is full! Upstream should check ready.")
+    when(hw.allocatePortInst.fire) {
+      assert(!hw.isFull, "LQ allocation fired when LQ is full! Upstream should check ready.")
 
-      val newEntry = LoadQueueEntry(pCfg, lqIdxWidth, sqIdxWidth, dCacheConfig).setDefault()
-      newEntry.uop := allocatePortInst.payload
-      newEntry.lqId := currentAllocIdx
-      newEntry.isValid := True
-      newEntry.waitOn.address := True
-      newEntry.memCtrlFlags := allocatePortInst.payload.decoded.memCtrl
-      newEntry.exception.robIdx := allocatePortInst.payload.robIdx
+      val newEntry = hw.allocatePortInst.payload
 
-      writeEntry(allocPtrReg, newEntry)
-      allocPtrReg := allocPtrReg + 1
-      ParallaxSim.log(
-        L"[LQPlugin] Allocated LQ genPtr ${allocPtrReg} (idx ${currentAllocIdx}) for ROB ID ${allocatePortInst.payload.robIdx}"
-      )
+      writeEntryOnEdge(currentAllocPhysIdx, newEntry)
+      hw.allocPtrReg := hw.allocPtrReg + 1
+
     }
   }
 
   private val requestGenerationLogic = create late new Area {
-    // TODO: Consider pipelining or hierarchical arbitration if lqDepth is large.
+    ParallaxLogger.debug("LQPlugin requestGenerationLogic: Wait dependents ready")
     lock.await()
+    ParallaxLogger.debug("LQPlugin requestGenerationLogic: Elaborate logic")
 
-    val candidatesValid = Vec(Bool(), lqDepth)
-    val candidatesAguRequest = Vec(LsuAguRequest(pCfg, lqIdxWidth, sqIdxWidth), lqDepth)
-    val numValidEntriesInQueue = entryCount
+    val candidatesValid = Vec(Bool(), lsuConfig.lqDepth)
+    val candidatesAguRequest = Vec.fill(lsuConfig.lqDepth)(LsuAguRequest(lsuConfig).assignDontCare())
+    val numValidEntriesInQueue = hw.entryCount
 
-    for (i <- 0 until lqDepth) {
-      val currentReadGenPtr = commitPtrReg + U(i)
-      val currentReadIdx = getEntryIndex(currentReadGenPtr)
-      val entry = readEntryAsync(currentReadGenPtr)
+    // Iterate through potential LQ entries starting from commitPtr
+    for (i <- 0 until lsuConfig.lqDepth) {
+      val currentReadFullPtr = hw.commitPtrReg + U(i)
+      val currentReadPhysIdx = getEntryPhysicalIndex(currentReadFullPtr)
+      val entry = readEntryAsync(currentReadPhysIdx)
 
       val isWithinValidRange = U(i) < numValidEntriesInQueue
-      candidatesValid(i) := isWithinValidRange &&
-        entry.isValid &&
-        entry.waitOn.address &&
-        !entry.waitOn.robFlush &&
-        !entry.waitOn.commit
+      // A more robust gen bit check would be to store gen bit in entry and match
+      // val genBitMatches = getEntryGenBit(currentReadFullPtr) === entry.genBitStoredAtAlloc
+      // For now, rely on commitPtr tracking the "oldest valid generation"
+      val genBitMatches = True // Simplified: assume commitPtr always points to a valid generation if entry is valid
 
-      val aguReq = LsuAguRequest(pCfg, lqIdxWidth, sqIdxWidth)
-      aguReq.uop := entry.uop
-      aguReq.memCtrlFlags := entry.memCtrlFlags
-      aguReq.isLoad := True
-      aguReq.isStore := False
-      aguReq.qId := currentReadIdx
-      aguReq.robIdx := entry.robIdx
-      candidatesAguRequest(i) := aguReq
+      candidatesValid(i) := isWithinValidRange &&
+                            entry.isValid &&
+                            genBitMatches &&
+                            entry.waitOn.isStalledForAgu && // Check specific wait condition
+                            !entry.waitOn.robFlush
+
+      when(candidatesValid(i)) {
+        val aguReq = LsuAguRequest(lsuConfig)
+        aguReq.basePhysReg    := entry.aguBasePhysReg
+        aguReq.immediate      := entry.aguImmediate
+        aguReq.accessSize     := entry.accessSize
+        aguReq.usePc          := entry.aguUsePcAsBase
+        aguReq.pcForAgu       := entry.pc
+        aguReq.robIdx         := entry.robIdx
+        aguReq.isLoad         := True
+        aguReq.isStore        := False
+        aguReq.qId            := entry.lqId // Physical LQ ID
+        aguReq.physDestOrSrc  := entry.physDest
+        aguReq.physDestOrSrcIsFpr := entry.physDestIsFpr
+        aguReq.writePhysDestEn:= entry.writePhysDestEn
+        candidatesAguRequest(i) := aguReq
+      }
     }
 
     val selectedValid = candidatesValid.orR
+    // Simple fixed-priority arbitration (older entries first)
     val selectedOh = OHMasking.first(candidatesValid)
     val selectedData = MuxOH(selectedOh, candidatesAguRequest)
 
-    loadRequestPortInst.valid := selectedValid
-    loadRequestPortInst.payload := selectedData
+    hw.loadRequestPortInst.valid := selectedValid
+    hw.loadRequestPortInst.payload := selectedData
 
-    when(loadRequestPortInst.fire) {
-      ParallaxSim.log(L"[LQPlugin] AGU Request sent for LQ ID ${selectedData.qId} (ROB ID ${selectedData.robIdx})")
+    when(hw.loadRequestPortInst.fire) {
+      ParallaxSim.debug(L"[LQPlugin] AGU Request sent for LQ ID ${selectedData.qId} (ROB ID ${selectedData.robIdx})")
+      // The LSU Core/AGU will send an LqStatusUpdate when the address is generated.
     }
   }
 
   private val statusUpdateLogic = create late new Area {
+    ParallaxLogger.debug("LQPlugin statusUpdateLogic: Wait dependents ready")
     lock.await()
+    ParallaxLogger.debug("LQPlugin statusUpdateLogic: Elaborate logic")
+    when(hw.statusUpdatePortInst.valid) {
+      val update = hw.statusUpdatePortInst.payload
+      val lqPhysIdxToUpdate = update.lqId
 
-    when(statusUpdatePortInst.fire) {
-      val update = statusUpdatePortInst.payload
-      val lqIdToUpdate = update.lqId
+      val currentEntry = readEntryAsync(lqPhysIdxToUpdate)
+      // It's crucial that this update is for a valid entry of the current generation.
+      // A robust check would involve matching robIdx or a stored generation bit.
+      // For now, assume lqId is sufficient and points to the correct active entry.
+      when(currentEntry.isValid) {
+        val updatedEntryData = CombInit(currentEntry)
 
-      val currentEntry = readEntryAsync(lqIdToUpdate)
-      val updatedEntryData = CombInit(currentEntry)
-
-      ParallaxSim.log(
-        L"[LQPlugin] Status Update for LQ ID ${lqIdToUpdate}: AddrGen=${update.addressGenerated}, MarkCommit=${update.markReadyForCommit}"
-      )
-
-      // Assuming sender drives fields meaningfully. If a field is not relevant for an update,
-      // its value in 'update' payload should not cause unintended changes.
-      // This requires careful construction of LqStatusUpdate messages by senders.
-      // For truly optional fields, LqStatusUpdate would need explicit valid bits per field.
-
-      when(update.addressGenerated) { // If this update indicates address is generated
-        updatedEntryData.physicalAddress := update.physicalAddress
-        updatedEntryData.addressValid := True
-        updatedEntryData.waitOn.address := False
-        updatedEntryData.waitOn.dCacheRsp := True
-        ParallaxSim.log(
-          L"[LQPlugin] LQ ID ${lqIdToUpdate}: Address generated ${update.physicalAddress}, now waiting D-Cache."
+        ParallaxSim.debug(
+          L"[LQPlugin] Status Update for LQ ID ${lqPhysIdxToUpdate} (ROB ${currentEntry.robIdx}): Type=${update.updateType}"
         )
-      }
 
-      when(update.finalDataValid || update.dCacheMissOrFault) {
-        updatedEntryData.waitOn.dCacheRsp := False
-        when(update.finalDataValid && !update.dCacheMissOrFault) {
-          updatedEntryData.finalData := Mux(update.sqBypassComplete, update.dataFromSqBypass, update.dataFromDCache)
-          ParallaxSim.log(L"[LQPlugin] LQ ID ${lqIdToUpdate}: Data received. SQBypassDone=${update.sqBypassComplete}")
-        }
-        when(update.dCacheMissOrFault) {
-          when(update.dCacheNeedsRedo) {
-            updatedEntryData.waitOn.dCacheRefill := update.dCacheRefillSlot
-            updatedEntryData.waitOn.dCacheRefillAny := update.dCacheRefillAny
-            ParallaxSim.log(
-              L"[LQPlugin] LQ ID ${lqIdToUpdate}: D-Cache redo. Waiting refill slot ${update.dCacheRefillSlot} / any ${update.dCacheRefillAny}"
-            )
-          } otherwise {
-            updatedEntryData.exception.hasException := True
-            updatedEntryData.exception.exceptionCode := update.dCacheFaultCode
+        switch(update.updateType) {
+          is(LqUpdateType.ADDRESS_GENERATED) {
+            updatedEntryData.physicalAddress := update.physicalAddressAg
+            updatedEntryData.waitOn.addressGenerated := True
+            updatedEntryData.waitOn.dCacheRsp := True // Now wait for D-Cache
+            when(update.alignExceptionAg) {
+              updatedEntryData.waitOn.commit := True
+              updatedEntryData.waitOn.dCacheRsp := False
+            }
+          }
+          is(LqUpdateType.DCACHE_RESPONSE) {
+            updatedEntryData.waitOn.dCacheRsp := False
+            when(update.dCacheFaultDr) {
+              updatedEntryData.waitOn.commit := True
+            } elsewhen (update.dCacheRedoDr) {
+              // Read from the original entry, not the one being modified
+              updatedEntryData.waitOn.dCacheRefill := currentEntry.waitOn.dCacheRefill | update.dCacheRefillSlotDr
+              updatedEntryData.waitOn.dCacheRefillAny := currentEntry.waitOn.dCacheRefillAny | update.dCacheRefillAnyDr
+            } otherwise {
+              updatedEntryData.dataFromDCache := update.dataFromDCacheDr
+              // LSU Core will decide if this data is final or if SQ bypass is needed
+            }
+          }
+          is(LqUpdateType.DCACHE_REFILL_WAIT) {
+              // Read from the original entry
+              updatedEntryData.waitOn.dCacheRefill := currentEntry.waitOn.dCacheRefill | update.dCacheRefillSlotDr
+              updatedEntryData.waitOn.dCacheRefillAny := currentEntry.waitOn.dCacheRefillAny | update.dCacheRefillAnyDr
+          }
+          is(LqUpdateType.DCACHE_REFILL_DONE) {
+            // Read from the original entry to avoid combinational loop
+            val prevRefill = currentEntry.waitOn.dCacheRefill
+            val prevRefillAny = currentEntry.waitOn.dCacheRefillAny
+
+            updatedEntryData.waitOn.dCacheRefill := prevRefill & ~update.dCacheRefillSlotDr
+            
+            when(prevRefillAny && update.dCacheRefillAnyDr) {
+                 updatedEntryData.waitOn.dCacheRefillAny := False
+            }
+            when( (prevRefill & ~update.dCacheRefillSlotDr) === 0 ) {
+                updatedEntryData.waitOn.dCacheRefillAny := False
+            }
+          }
+          is(LqUpdateType.SQ_BYPASS_READY) {
+            updatedEntryData.dataFromSq := update.dataFromSqBypassSb
+            // LSU Core will decide if this bypass is taken and set finalData
+            updatedEntryData.waitOn.sqBypass := False // No longer waiting for this specific bypass opportunity
+            when(update.sqBypassSuccessSb){ // If LSU Core confirms bypass is taken
+                updatedEntryData.finalData := update.dataFromSqBypassSb
+                updatedEntryData.waitOn.sqCompletion := False // Consider it completed w.r.t this store
+            }
+          }
+          is(LqUpdateType.SQ_OLDER_STORE_COMPLETED) {
+            updatedEntryData.waitOn.sqCompletion := False // The specific store we were waiting for is done
+          }
+          is(LqUpdateType.EXCEPTION_OCCURRED) {
             updatedEntryData.waitOn.commit := True
-            ParallaxSim.log(
-              L"[LQPlugin] LQ ID ${lqIdToUpdate}: D-Cache fault (or redo not specified) ${update.dCacheFaultCode}."
-            )
+            updatedEntryData.waitOn.addressGenerated := True; updatedEntryData.waitOn.dCacheRsp := False
+            updatedEntryData.waitOn.dCacheRefill := 0; updatedEntryData.waitOn.dCacheRefillAny := False
+            updatedEntryData.waitOn.sqBypass := False; updatedEntryData.waitOn.sqCompletion := False
+          }
+          is(LqUpdateType.MARK_READY_FOR_COMMIT) {
+            // Check based on the state of the original entry to avoid loop
+            when(currentEntry.waitOn.isReadyForCommit) {
+                 updatedEntryData.waitOn.commit := True
+            } otherwise {
+                ParallaxSim.warning(L"[LQPlugin] LQ ID ${lqPhysIdxToUpdate} (ROB ${currentEntry.robIdx}): MARK_READY_FOR_COMMIT received, but not all waits cleared. Current waits: ${currentEntry.waitOn.format}")
+            }
           }
         }
+        writeEntryOnEdge(lqPhysIdxToUpdate, updatedEntryData)
+      } otherwise {
+        ParallaxSim.warning(L"[LQPlugin] Status Update for LQ ID ${lqPhysIdxToUpdate} received, but entry is NOT VALID or GenBit mismatch.")
       }
-
-      when(update.sqBypassAvailable) {
-        updatedEntryData.waitOn.sqBypass := True
-        updatedEntryData.dataFromSq := update.dataFromSqBypass
-        ParallaxSim.log(L"[LQPlugin] LQ ID ${lqIdToUpdate}: SQ Bypass available.")
-      }
-      when(update.sqBypassComplete || update.sqOlderStoreCompleted) {
-        updatedEntryData.waitOn.sqBypass := False
-        updatedEntryData.waitOn.sqCompletion := False
-        ParallaxSim.log(L"[LQPlugin] LQ ID ${lqIdToUpdate}: SQ Bypass/Completion resolved.")
-      }
-
-      when(update.exceptionOccurred) {
-        updatedEntryData.exception.hasException := True
-        updatedEntryData.exception.exceptionCode := update.exceptionCode
-        updatedEntryData.waitOn.commit := True
-        ParallaxSim.log(L"[LQPlugin] LQ ID ${lqIdToUpdate}: External Exception Occurred ${update.exceptionCode}.")
-      }
-
-      when(update.markReadyForCommit && !updatedEntryData.exception.hasException) {
-        val canBeCommitted = !updatedEntryData.waitOn.address &&
-          !updatedEntryData.waitOn.translation &&
-          !updatedEntryData.waitOn.dCacheRsp &&
-          !updatedEntryData.waitOn.dCacheRefill.orR &&
-          !updatedEntryData.waitOn.dCacheRefillAny &&
-          !updatedEntryData.waitOn.sqBypass &&
-          !updatedEntryData.waitOn.sqCompletion &&
-          !updatedEntryData.waitOn.robFlush
-        when(canBeCommitted) {
-          updatedEntryData.waitOn.commit := True
-          ParallaxSim.log(L"[LQPlugin] LQ ID ${lqIdToUpdate}: Marked ready for commit.")
-        } otherwise {
-          ParallaxSim.warning(
-            L"[LQPlugin] LQ ID ${lqIdToUpdate}: markReadyForCommit received, but other waits pending. Not marking. Waits: Addr=${updatedEntryData.waitOn.address}, DCRsp=${updatedEntryData.waitOn.dCacheRsp}, Refill=${(updatedEntryData.waitOn.dCacheRefill.orR || updatedEntryData.waitOn.dCacheRefillAny)}, SQB=${updatedEntryData.waitOn.sqBypass}, SQC=${updatedEntryData.waitOn.sqCompletion}"
-          )
-        }
-      }
-      writeEntry(lqIdToUpdate, updatedEntryData)
     }
   }
 
   private val releaseLogic = create late new Area {
+    ParallaxLogger.debug("LQPlugin releaseLogic: Wait dependents ready")
     lock.await()
+    ParallaxLogger.debug("LQPlugin releaseLogic: Elaborate logic")
 
-    var tempCommitPtr = commitPtrReg
+    // Use foldLeft to build a combinatorial chain instead of a loop.
+    // The accumulator tracks the number of releases so far in this cycle.
+    val releasedThisCycleCount = (0 until lsuConfig.commitWidth).foldLeft(U(0, log2Up(lsuConfig.commitWidth + 1) bits)) {
+      (releasedCountSoFar, i) =>
+        val robIdToReleaseFromCommitSlot = hw.releasePortsInst(i).payload
+        val doReleaseForThisSlot = hw.releasePortsInst(i).valid && hw.releaseMaskInst(i) && !hw.isEmpty
 
-    for (i <- 0 until commitWidth) {
-      val robIdToReleaseFromCommitSlot = releasePortsInst(i).payload
-      val doReleaseForThisSlot = releasePortsInst(i).fire && releaseMaskInst(i) && !isEmpty
+        // Tentative pointer for this commit slot based on releases from previous slots
+        val currentReleaseFullPtr = hw.commitPtrReg + releasedCountSoFar
+        val headPhysIdx = getEntryPhysicalIndex(currentReleaseFullPtr)
+        val headEntry = readEntryAsync(headPhysIdx)
 
-      when(doReleaseForThisSlot) {
-        assert(!isEmpty, "LQ release fired when LQ is empty!")
+        val success = False // Will be set to True if this slot successfully releases an entry
 
-        val headEntry = readEntryAsync(tempCommitPtr)
+        when(doReleaseForThisSlot) {
+          assert(!hw.isEmpty, "LQ release fired when LQ is empty!")
 
-        when(headEntry.isValid && headEntry.robIdx === robIdToReleaseFromCommitSlot && headEntry.waitOn.commit) {
-          val clearedEntry = LoadQueueEntry(pCfg, lqIdxWidth, sqIdxWidth, dCacheConfig).setDefault()
-          clearedEntry.isValid := False
-          writeEntry(tempCommitPtr, clearedEntry)
+          when(headEntry.isValid && headEntry.robIdx === robIdToReleaseFromCommitSlot && headEntry.waitOn.commit) {
+            val clearedEntry = LoadQueueEntry(lsuConfig).setDefault().allowOverride()
+            clearedEntry.isValid := False
+            writeEntryOnEdge(headPhysIdx, clearedEntry)
 
-          tempCommitPtr \= tempCommitPtr + 1
-          ParallaxSim.log(L"[LQPlugin] Released LQ (genPtr ${tempCommitPtr}, idx ${getEntryIndex(
-              tempCommitPtr - U(1, tempCommitPtr.getWidth bits)
-            )}) for ROB ID ${robIdToReleaseFromCommitSlot} from commit slot ${i.toString}")
-        } otherwise {
-          ParallaxSim.warning(
-            L"[LQPlugin] WARNING: Commit slot ${i.toString} fired for ROB ID ${robIdToReleaseFromCommitSlot}, but LQ head (genPtr ${tempCommitPtr}, ROB ID ${headEntry.robIdx}) mismatch or not ready. isValid=${headEntry.isValid}, waitOn.commit=${headEntry.waitOn.commit}"
-          )
-          assert(
-            False,
-            L"LQ Release Mismatch: CommitSlot ROBID=${robIdToReleaseFromCommitSlot} vs LQHead ROBID=${headEntry.robIdx}, isValid=${headEntry.isValid}, waitCommit=${headEntry.waitOn.commit}"
-          )
+            success := True
+            ParallaxSim.debug(L"[LQPlugin] Released LQ Ptr ${currentReleaseFullPtr} (PhysIdx ${headPhysIdx}) for ROB ID ${robIdToReleaseFromCommitSlot} from commit slot ${i.toString}")
+          } otherwise {
+            ParallaxSim.warning(
+              L"[LQPlugin] WARNING: Commit slot ${i.toString} fired for ROB ID ${robIdToReleaseFromCommitSlot}, but LQ head (Ptr ${currentReleaseFullPtr}, ROB ID ${headEntry.robIdx}) mismatch or not ready. isValid=${headEntry.isValid}, waitOn.commit=${headEntry.waitOn.commit}"
+            )
+          }
         }
-      }
+        // The accumulator for the next iteration is the previous count plus 1 if this iteration was successful.
+        releasedCountSoFar + success.asUInt
     }
-    commitPtrReg := tempCommitPtr
+
+    hw.commitPtrReg := hw.commitPtrReg + releasedThisCycleCount
   }
 
   private val flushLogic = create late new Area {
+    ParallaxLogger.debug("LQPlugin flushLogic: Wait dependents ready")
     lock.await()
+    ParallaxLogger.debug("LQPlugin flushLogic: Elaborate logic")
 
-    when(lqFlushPortInst.fire) {
-      val flushCmd = lqFlushPortInst.payload
-      ParallaxSim.log(L"[LQPlugin] Flush received: Reason=${flushCmd.reason}, TargetROB=${flushCmd.targetRobIdx}")
+    when(hw.lqFlushPortInst.valid) {
+      val flushCmd = hw.lqFlushPortInst.payload
+      ParallaxSim.debug(L"[LQPlugin] Flush received: Reason=${flushCmd.reason}, TargetROB=${flushCmd.targetRobIdx}")
 
-      allocPtrReg := 0
-      commitPtrReg := 0
-
-      for (i <- 0 until lqDepth) {
-        val entryToClear = LoadQueueEntry(pCfg, lqIdxWidth, sqIdxWidth, dCacheConfig).setDefault()
+      // Simplified flush: reset pointers and invalidate all entries.
+      // A precise rollback would compare ROB IDs of LQ entries with flushCmd.targetRobIdx.
+      hw.allocPtrReg := 0
+      hw.commitPtrReg := 0
+      for (i <- 0 until lsuConfig.lqDepth) {
+        val entryToClear = LoadQueueEntry(lsuConfig).setDefault().allowOverride()
         entryToClear.isValid := False
-        entries.write(U(i), entryToClear)
+        writeEntryOnEdge(U(i), entryToClear)
       }
-      ParallaxSim.log(L"[LQPlugin] LQ Flushed. Pointers reset, all entries invalidated.")
+      ParallaxSim.debug(L"[LQPlugin] LQ Flushed (Simplified: All entries invalidated, pointers reset).")
     }
   }
-
-  // Default assignments for service ports
-  allocatePortInst.valid := False
-  allocatePortInst.payload.assignDontCare()
-  statusUpdatePortInst.valid := False
-  statusUpdatePortInst.payload.assignDontCare()
-  releasePortsInst.foreach { p => p.valid := False; p.payload.assignDontCare() }
-  releaseMaskInst.foreach(_ := False) // Mask is an input, should be driven by Commit
-  loadRequestPortInst.valid := False
-  loadRequestPortInst.payload.assignDontCare()
-  lqFlushPortInst.valid := False
-  lqFlushPortInst.payload.assignDontCare()
 }
+
+// Helper for Exception Codes (should be in a common place)
+object ExceptionCode {
+  def LOAD_ADDR_MISALIGNED = U(4, 8 bits) // Example code
+  def LOAD_ACCESS_FAULT    = U(5, 8 bits) // Example code
+  // Add other codes as needed
+}
+// -- MODIFICATION END --

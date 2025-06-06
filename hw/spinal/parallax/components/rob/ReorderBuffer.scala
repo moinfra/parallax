@@ -69,7 +69,7 @@ object FlushReason extends SpinalEnum {
 
 // For flush command (restoring ROB pointers)
 // This is the payload of the io.flush Flow
-case class ROBFlushPayload[RU <: Data with Dumpable with HasRobIdx](robIdxWidth: BitCount) extends Bundle {
+case class ROBFlushPayload(robIdxWidth: BitCount) extends Bundle {
   val reason = FlushReason()
   // targetRobIdx 现在是完整的 ROB ID (物理索引 + 世代位)
   val targetRobIdx = UInt(robIdxWidth) 
