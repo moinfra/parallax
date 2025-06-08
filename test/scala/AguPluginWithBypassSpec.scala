@@ -38,11 +38,22 @@ class TestSetupPlugin(
 }
 
 // AGU测试Framework（使用BypassService）
-class AguTestFrameworkWithBypass extends Component {
+class AguTestFrameworkWithBypass() extends Component {
+  val lsuConfig = LsuConfig(
+    lqDepth = 8,
+    sqDepth = 8,
+    robPtrWidth = 5 bits,
+    pcWidth = 32 bits,
+    dataWidth = 32 bits,
+    physGprIdxWidth = 5 bits,
+    exceptionCodeWidth = 5 bits,
+    commitWidth = 2,
+    dcacheRefillCount = 2
+  )
 
   val io = new Bundle {
-    val testInput = slave(Stream(AguInput()))
-    val testOutput = master(Stream(AguOutput()))
+    val testInput = slave(Stream(AguInput(lsuConfig)))
+    val testOutput = master(Stream(AguOutput(lsuConfig)))
     val flush = in Bool ()
 
     val prfWrite = slave(PrfWritePort(6 bits, 32 bits))
@@ -61,6 +72,7 @@ class AguTestFrameworkWithBypass extends Component {
   ))
 
   lazy val aguPlugin = (new AguPlugin(
+    lsuConfig,
     supportPcRel = true
   ))
 

@@ -62,14 +62,15 @@ case class DataLoadPort(
     dataWidth: Int, // 数据宽度
     refillCount: Int, // 重填槽位数量
     rspAt: Int, // 响应阶段的索引
-    translatedAt: Int // 翻译完成的阶段索引
+    translatedAt: Int, // 翻译完成的阶段索引
+    transactionIdWidth: Int
 ) extends Bundle
     with IMasterSlave {
-  val cmd = Stream(DataLoadCmd(preTranslationWidth, dataWidth)) // 加载命令流
+  val cmd = Stream(DataLoadCmd(preTranslationWidth, dataWidth, transactionIdWidth)) // 加载命令流
   val translated = DataLoadTranslated(postTranslationWidth) // 翻译后的地址信息
   val cancels = Bits(rspAt + 1 bits) // 用于取消流水线中后续加载请求的掩码
   val rsp = Flow(
-    DataLoadRsp(dataWidth, refillCount)
+    DataLoadRsp(dataWidth, refillCount, transactionIdWidth)
   ) // 加载响应流，固定延迟 (rsp.valid 必须存在)
 
   override def asMaster() = {
@@ -81,12 +82,14 @@ case class DataLoadPort(
 }
 
 // DataLoadCmd 类：定义加载命令的负载（payload）。
-case class DataLoadCmd(preTranslationWidth: Int, dataWidth: Int) extends Bundle {
+case class DataLoadCmd(preTranslationWidth: Int, dataWidth: Int, transactionIdWidth: Int) extends Bundle {
   val virtual = UInt(preTranslationWidth bits) // 虚拟地址
   val size = UInt(log2Up(log2Up(dataWidth / 8) + 1) bits) // 加载大小（log2_bytes）
   val redoOnDataHazard = Bool() // 当发生数据冒险时是否重做（例如，MMU重填可能不是LSU保护的）
+  val transactionId = transactionIdWidth > 0 generate UInt(transactionIdWidth bits) // 事务ID
   // val unlocked = Bool() // 加载是否允许在未锁定状态下进行 - Removed, related to LockPort
   // val unique = Bool() // 用于原子操作，确保行处于一致的独占状态 - Removed, coherency
+  val id = if(transactionIdWidth > 0) UInt(transactionIdWidth bits) else null
 
   // format 方法：用于打印调试信息。
   def format(): Seq[Any] = {
@@ -110,25 +113,28 @@ case class DataLoadTranslated(physicalWidth: Int) extends Bundle {
 }
 
 // DataLoadRsp 类：定义加载响应的负载。
-case class DataLoadRsp(dataWidth: Int, refillCount: Int) extends Bundle {
+case class DataLoadRsp(dataWidth: Int, refillCount: Int, transactionIdWidth: Int) extends Bundle {
   val data = Bits(dataWidth bits) // 加载到的数据
   val fault = Bool() // 是否发生错误（例如，权限错误）
   val redo = Bool() // 是否需要重做（例如，缓存缺失或冲突）
   val refillSlot = Bits(refillCount bits) // 重填槽位掩码（如果重填槽位任意，则为0）
   val refillSlotAny = Bool() // 重填槽位是否是任意的（如果不是缺失，则无效）
+  val id = if(transactionIdWidth > 0) UInt(transactionIdWidth bits) else null
 
   // format 方法：用于打印调试信息。
   def format(): Seq[Any] = {
-    Seq(
+    var base: Seq[Any] = Seq(
       L"DataLoadRsp(data = ${data}, fault = ${fault}, redo = ${redo}, refillSlot = ${refillSlot}, refillSlotAny = ${refillSlotAny})"
     )
+    if(transactionIdWidth > 0) base = base :+ L", id = ${id}"
+    base
   }
 }
 
 // DataStorePort 类：定义数据存储端口的接口，用于LSU向数据缓存发送存储命令。
-case class DataStorePort(postTranslationWidth: Int, dataWidth: Int, refillCount: Int) extends Bundle with IMasterSlave {
-  val cmd = Stream(DataStoreCmd(postTranslationWidth, dataWidth)) // 存储命令流
-  val rsp = Flow(DataStoreRsp(postTranslationWidth, refillCount)) // 存储响应流
+case class DataStorePort(postTranslationWidth: Int, dataWidth: Int, refillCount: Int, transactionIdWidth: Int) extends Bundle with IMasterSlave {
+  val cmd = Stream(DataStoreCmd(postTranslationWidth, dataWidth, transactionIdWidth)) // 存储命令流
+  val rsp = Flow(DataStoreRsp(postTranslationWidth, refillCount, transactionIdWidth)) // 存储响应流
 
   override def asMaster() = {
     master(cmd) // 命令作为主接口
@@ -137,7 +143,7 @@ case class DataStorePort(postTranslationWidth: Int, dataWidth: Int, refillCount:
 }
 
 // DataStoreCmd 类：定义存储命令的负载。
-case class DataStoreCmd(postTranslationWidth: Int, dataWidth: Int) extends Bundle {
+case class DataStoreCmd(postTranslationWidth: Int, dataWidth: Int, transactionIdWidth: Int) extends Bundle {
   val address = UInt(postTranslationWidth bits) // 物理地址
   val data = Bits(dataWidth bits) // 要存储的数据
   val mask = Bits(dataWidth / 8 bits) // 字节掩码
@@ -146,6 +152,7 @@ case class DataStoreCmd(postTranslationWidth: Int, dataWidth: Int) extends Bundl
   val flush = Bool() // 是否刷新给定地址行的所有缓存行，可能会导致rsp.redo
   val flushFree = Bool() // 刷新后是否释放（将状态设置为Invalid）
   val prefetch = Bool() // 是否是预取操作
+  val id = if(transactionIdWidth > 0) UInt(transactionIdWidth bits) else null
 
   // format 方法：用于打印调试信息。
   def format(): Seq[Any] = {
@@ -157,7 +164,7 @@ case class DataStoreCmd(postTranslationWidth: Int, dataWidth: Int) extends Bundl
 }
 
 // DataStoreRsp 类：定义存储响应的负载。
-case class DataStoreRsp(addressWidth: Int, refillCount: Int) extends Bundle {
+case class DataStoreRsp(addressWidth: Int, refillCount: Int, transactionIdWidth: Int) extends Bundle {
   val fault = Bool() // 是否发生错误
   val redo = Bool() // 是否需要重做
   val refillSlot = Bits(refillCount bits) // 重填槽位掩码（如果重填槽位任意，则为0）
@@ -166,6 +173,7 @@ case class DataStoreRsp(addressWidth: Int, refillCount: Int) extends Bundle {
   val prefetch = Bool() // 响应对应的命令是否是 prefetch
   val address = UInt(addressWidth bits) // 响应对应的地址
   val io = Bool() // 响应对应的命令是否是 IO 访问
+  val id = if(transactionIdWidth > 0) UInt(transactionIdWidth bits) else null
 
   // format 方法：用于打印调试信息。
   def format(): Seq[Any] = {
@@ -420,6 +428,7 @@ case class DataCacheParameters(
     storeRspAt: Int = 2, // 存储在哪个流水线阶段给出响应
     tagsReadAsync: Boolean = true, // Tag是否异步读取
     reducedBankWidth: Boolean = false, // 数据bank是否使用缩减宽度
+    transactionIdWidth: Int = 0,        // 事务ID的位宽
     val enableLog: Boolean = false // 是否启用日志
 ) {
   // memParameter：生成 DataMemBusParameter，用于创建主存总线接口。
@@ -434,7 +443,45 @@ case class DataCacheParameters(
 
 }
 
-// DataCache 类：实现一个数据缓存模块。
+/** A highly configurable, pipelined, write-back, write-allocate L1 Data Cache.
+  *
+  * == Core Features ==
+  *
+  * - **Pipelined Architecture**: Separate, parallel pipelines for load and store operations.
+  * - **Write-Back & Write-Allocate**: Employs a write-back policy. Store misses trigger a line refill (write-allocate)
+  *   before the store is completed.
+  * - **Non-Blocking Refills & Writebacks**: Utilizes multiple internal slots (`refillCount`, `writebackCount`)
+  *   to handle concurrent cache misses and dirty line writebacks, minimizing stalls on the primary load/store paths.
+  * - **Parameterization**: Almost all aspects, including size, associativity, bus widths, and internal pipeline latencies,
+  *   are configurable through `DataCacheParameters`.
+  * - **Bypass Logic**: Internal forwarding paths for cache status to mitigate read-after-write hazards within the pipeline.
+  *
+  * == Design Assumptions & Usage Constraints ==
+  *
+  * - **In-Order Completion**: This cache processes requests for each port (load/store) **in-order**.
+  *   The `rsp` (response) for a given `cmd` (command) is guaranteed to correspond to that command.
+  *   The cache **does not support out-of-order completion**. There are no transaction tags in the `DataLoadPort`
+  *   or `DataStorePort` interfaces to correlate responses with arbitrary requests.
+  *
+  * - **Fixed Latency (for Loads)**: The load-to-use latency is determined by the `loadRspAt` parameter.
+  *   A response (`io.load.rsp`) will appear a fixed number of cycles after the command is accepted, unless
+  *   a `redo` is asserted.
+  *
+  * - **No Store-to-Load Forwarding**: This module is a pure data cache. It **does not** implement
+  *   store-to-load forwarding logic. This critical functionality, which allows a load to get data from a
+  *   pending store that has not yet been committed to the cache, **must be handled by the LSU (Load/Store Unit)**,
+  *   typically by having the Load Queue query the Store Queue before accessing the cache.
+  *
+  * - **Single Ported (per type)**: The cache exposes one `DataLoadPort` and one `DataStorePort`. It cannot
+  *   accept more than one load and one store command per cycle.
+  *
+  * - **Blocking on Port Resources**: While refills are non-blocking, the primary load and store pipelines
+  *   will stall (`redo`) on various hazards, such as cache misses, bank conflicts, or resource contention
+  *   (e.g., refill/writeback slots are full). The caller is responsible for handling the `redo` signal correctly
+  *   by re-issuing the command.
+  *
+  * @param p The configuration parameters for this Data Cache instance.
+  */
 class DataCache(val p: DataCacheParameters) extends Component {
   import p._ // 导入参数
 
@@ -446,14 +493,16 @@ class DataCache(val p: DataCacheParameters) extends Component {
         dataWidth = cpuDataWidth,
         refillCount = refillCount,
         rspAt = loadRspAt,
-        translatedAt = loadTranslatedAt
+        translatedAt = loadTranslatedAt,
+        transactionIdWidth = p.transactionIdWidth
       )
     ) // 加载端口
     val store = slave(
       DataStorePort(
         postTranslationWidth = postTranslationWidth,
         dataWidth = cpuDataWidth,
-        refillCount = refillCount
+        refillCount = refillCount,
+        transactionIdWidth = p.transactionIdWidth
       )
     ) // 存储端口
     val mem = master(DataMemBus(memParameter)) // 主存总线接口
@@ -485,12 +534,13 @@ class DataCache(val p: DataCacheParameters) extends Component {
   val bankWordToCpuWordRange = log2Up(bankWidth / 8) - 1 downto log2Up(bytePerFetchWord) // Bank字到CPU字的范围
   val memToBankRatio = bankWidth * bankCount / memDataWidth // 主存到Bank的比例
   val bankWord = HardType(Bits(bankWidth bits)) // Bank字类型
-
+  val withTransactionId = transactionIdWidth > 0
   assert(bankWidth <= memDataWidth) // 断言：Bank宽度不能超过主存数据宽度
 
   // Stageable 定义：用于流水线阶段之间传递信号。
   val ADDRESS_PRE_TRANSLATION = Stageable(UInt(preTranslationWidth bits)) // 翻译前地址
   val ADDRESS_POST_TRANSLATION = Stageable(UInt(postTranslationWidth bits)) // 翻译后地址
+  val TRANSACTION_ID = if(withTransactionId) Stageable(UInt(transactionIdWidth bits)) else null
   val ABORD = Stageable(Bool()) // 终止标志
   val CPU_WORD = Stageable(Bits(cpuWordWidth bits)) // CPU字
   val CPU_MASK = Stageable(Bits(cpuWordWidth / 8 bits)) // CPU掩码
@@ -1024,6 +1074,7 @@ class DataCache(val p: DataCacheParameters) extends Component {
       isValid := io.load.cmd.valid // 阶段有效性来自命令有效性
       ADDRESS_PRE_TRANSLATION := io.load.cmd.virtual // 翻译前地址
       REDO_ON_DATA_HAZARD := io.load.cmd.redoOnDataHazard // 数据冒险时重做
+      if(withTransactionId) TRANSACTION_ID := io.load.cmd.id
       WAYS_HAZARD := 0 // 冒险掩码清零
       if (enableLog) { report(L"Load: cmd received. ${io.load.cmd.format()}") }
     }
@@ -1240,6 +1291,7 @@ class DataCache(val p: DataCacheParameters) extends Component {
       io.load.rsp.data := CPU_WORD // 响应数据
       io.load.rsp.fault := FAULT // 响应错误
       io.load.rsp.redo := REDO // 响应重做
+      if(withTransactionId) io.load.rsp.id := TRANSACTION_ID
 
       (loadRspAt - loadControlAt) match { // 根据响应延迟处理重填槽位信息。
         case 0 => { // 如果响应阶段与控制阶段相同
@@ -1294,6 +1346,7 @@ class DataCache(val p: DataCacheParameters) extends Component {
       FLUSH := io.store.cmd.flush // 刷新
       FLUSH_FREE := io.store.cmd.flushFree // 刷新后释放
       PREFETCH := io.store.cmd.prefetch // 预取
+      if(withTransactionId) TRANSACTION_ID := io.store.cmd.id
 
       WAYS_HAZARD := 0 // 冒险掩码清零
 
@@ -1526,6 +1579,8 @@ class DataCache(val p: DataCacheParameters) extends Component {
       io.store.rsp.valid := isValid // Removed: && !PROBE (PROBE stageable removed)
       io.store.rsp.fault := False // TODO：错误标志
       io.store.rsp.redo := REDO // 重做
+      if(withTransactionId) io.store.rsp.id := TRANSACTION_ID
+
       io.store.rsp.refillSlotAny := REFILL_SLOT_FULL // 重填槽位任意
       io.store.rsp.refillSlot := REFILL_SLOT // 重填槽位
       io.store.rsp.flush := FLUSH // 刷新

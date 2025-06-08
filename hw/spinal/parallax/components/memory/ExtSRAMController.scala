@@ -12,17 +12,21 @@ case class ExtSRAMConfig(
     addressWidth: Int,
     dataWidth: Int,
     virtualBaseAddress: BigInt = 0x0,
-    sramSize: BigInt,
+    sizeBytes: BigInt,
     readWaitCycles: Int = 0,
-    sramByteEnableIsActiveLow: Boolean = true, // 新增：SRAM字节使能是否低有效
+    sramByteEnableIsActiveLow: Boolean = true,
     enableLog: Boolean = true
 ) {
   require(isPow2(dataWidth / 8), "dataWidth must be a power of 2 bytes")
-  require(sramSize > 0 && sramSize % (dataWidth / 8) == 0, "sramSize must be a multiple of data bus width")
-  val sramSizeHw = sramSize
-  val internalWordCount: Int = (sramSize / dataWidth).toInt
-  val internalWordMaxAddr: Int = internalWordCount - 1
-  val internalMaxAddr = sramSize
+  require(sizeBytes > 0 && sizeBytes % (dataWidth / 8) == 0, "sramSize must be a multiple of data bus width")
+  require(sizeBytes <= (BigInt(1) << addressWidth), "sizeBytes exceeds addressable space")
+
+  val sramSizeHw = sizeBytes
+  val bytesPerWord: Int = dataWidth / 8
+  val internalWordCount: BigInt = sizeBytes / bytesPerWord
+  val internalWordMaxAddr: BigInt = internalWordCount - 1
+  val internalMaxByteAddr = sizeBytes - 1
+  val internalWordAddrWidth = log2Up(internalWordCount)
 }
 
 // ExtSRAM 的外部引脚定义
@@ -455,7 +459,7 @@ object ExtSRAMControllerGen extends App {
     addressWidth = 20,
     dataWidth = 32,
     virtualBaseAddress = 0x80000000L,
-    sramSize = 1 << 20,
+    sizeBytes = 1 << 20,
     readWaitCycles = 0,
     sramByteEnableIsActiveLow = true, // 假设低有效
     enableLog = true

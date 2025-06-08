@@ -202,7 +202,7 @@ class LoadQueuePlugin(val lsuConfig: LsuConfig, val pipelineConfig: PipelineConf
           }
           is(LqUpdateType.ADDRESS_GENERATED) {
             updatedEntryData.physicalAddress := update.physicalAddressAg
-            updatedEntryData.waitOn.addressGenerated := True
+            updatedEntryData.waitOn.address := True
             updatedEntryData.waitOn.dCacheRsp := True
             when(update.alignExceptionAg) {
               updatedEntryData.waitOn.commit := True
@@ -217,7 +217,7 @@ class LoadQueuePlugin(val lsuConfig: LsuConfig, val pipelineConfig: PipelineConf
               updatedEntryData.waitOn.dCacheRefill := currentEntry.waitOn.dCacheRefill | update.dCacheRefillSlotDr
               updatedEntryData.waitOn.dCacheRefillAny := currentEntry.waitOn.dCacheRefillAny | update.dCacheRefillAnyDr
               updatedEntryData.waitOn.aguDispatched := False
-              updatedEntryData.waitOn.addressGenerated := False
+              updatedEntryData.waitOn.address := False
             } otherwise {
               updatedEntryData.dataFromDCache := update.dataFromDCacheDr
             }
@@ -250,7 +250,7 @@ class LoadQueuePlugin(val lsuConfig: LsuConfig, val pipelineConfig: PipelineConf
           }
           is(LqUpdateType.EXCEPTION_OCCURRED) {
             updatedEntryData.waitOn.commit := True
-            updatedEntryData.waitOn.addressGenerated := True; updatedEntryData.waitOn.dCacheRsp := False
+            updatedEntryData.waitOn.address := True; updatedEntryData.waitOn.dCacheRsp := False
             updatedEntryData.waitOn.dCacheRefill := 0; updatedEntryData.waitOn.dCacheRefillAny := False
             updatedEntryData.waitOn.sqBypass := False; updatedEntryData.waitOn.sqCompletion := False
           }

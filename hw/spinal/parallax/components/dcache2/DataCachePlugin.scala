@@ -16,6 +16,7 @@ case class DataCachePluginConfig(
     val refillCount: Int,
     val writebackCount: Int,
     val lineSize: Int = 64,
+    val transactionIdWidth: Int = 0,
     val loadRefillCheckEarly: Boolean = true,
     val storeRefillCheckEarly: Boolean = true,
     val loadReadBanksAt: Int = 0,
@@ -37,72 +38,22 @@ case class DataCachePluginConfig(
     val reducedBankWidth: Boolean = false
 ) {}
 
-class DataCachePlugin(config: DataCachePluginConfig) extends Plugin with LockedImpl {
-  import config._
+object DataCachePluginConfig {
 
-  val PHYSICAL_WIDTH = pipelineConfig.pcWidth.value
-  val VIRTUAL_EXT_WIDTH = pipelineConfig.pcWidth.value
-  val XLEN = pipelineConfig.xlen
+  /** Converts a DataCachePluginConfig to DataCacheParameters.
+    *
+    * @param config The DataCachePluginConfig to convert.
+    * @return A DataCacheParameters instance derived from the config.
+    */
+  def toDataCacheParameters(config: DataCachePluginConfig): DataCacheParameters = {
+    import config._
 
-  def loadRspLatency = loadRspAt
-  def storeRspLatency = storeRspAt
+    val PHYSICAL_WIDTH = config.pipelineConfig.pcWidth.value
+    val VIRTUAL_EXT_WIDTH = config.pipelineConfig.pcWidth.value
+    val XLEN = config.pipelineConfig.xlen
+    val cpuDataWidth = XLEN
 
-  def storeRspHazardFreeLatency = (storeControlAt + 1) - storeRspAt
-  def loadCmdHazardFreeLatency = (loadReadBanksAt)
-
-  def waySize = cacheSize / wayCount
-  def linePerWay = waySize / lineSize
-  def lineRange = log2Up(linePerWay * lineSize) - 1 downto log2Up(lineSize)
-
-  def cpuDataWidth = XLEN
-
-  def writebackBusy = setup.writebackBusy
-
-  case class LoadPortSpec(port: DataLoadPort, priority: Int)
-  val loadPorts = ArrayBuffer[LoadPortSpec]()
-  def newLoadPort(priority: Int): DataLoadPort = {
-    loadPorts
-      .addRet(
-        LoadPortSpec(
-          DataLoadPort(
-            preTranslationWidth = VIRTUAL_EXT_WIDTH,
-            postTranslationWidth = PHYSICAL_WIDTH,
-            dataWidth = cpuDataWidth,
-            refillCount = refillCount,
-            rspAt = loadRspAt,
-            translatedAt = loadTranslatedAt
-          ),
-          priority
-        )
-      )
-      .port
-  }
-
-  case class StorePortSpec(port: DataStorePort)
-  val storePorts = ArrayBuffer[StorePortSpec]()
-  def newStorePort(): DataStorePort = {
-    storePorts
-      .addRet(
-        StorePortSpec(
-          DataStorePort(
-            postTranslationWidth = PHYSICAL_WIDTH,
-            dataWidth = cpuDataWidth,
-            refillCount = refillCount
-          )
-        )
-      )
-      .port
-  }
-
-  def refillCompletions = setup.refillCompletions
-
-  val setup = create early new Area {
-
-    val writebackBusy = Bool()
-
-    val refillCompletions = Bits(refillCount bits)
-
-    val dataCacheParameters = DataCacheParameters(
+    DataCacheParameters(
       cacheSize = cacheSize,
       wayCount = wayCount,
       memDataWidth = memDataWidth,
@@ -130,30 +81,107 @@ class DataCachePlugin(config: DataCachePluginConfig) extends Plugin with LockedI
       storeControlAt = storeControlAt,
       storeRspAt = storeRspAt,
       tagsReadAsync = tagsReadAsync,
-      reducedBankWidth = reducedBankWidth
+      reducedBankWidth = reducedBankWidth,
+      transactionIdWidth = transactionIdWidth,
     )
   }
+}
 
-  val logic = create late new Area {
-    // Removed lock.await() as LockedImpl is removed
+class DataCachePlugin(config: DataCachePluginConfig) extends Plugin with LockedImpl with DataCacheService {
+  import config._
 
+  val PHYSICAL_WIDTH = pipelineConfig.pcWidth.value
+  val VIRTUAL_EXT_WIDTH = pipelineConfig.pcWidth.value
+  val XLEN = pipelineConfig.xlen
+  val transactionIdWidth = config.transactionIdWidth
+
+  def loadRspLatency = loadRspAt
+  def storeRspLatency = storeRspAt
+
+  def storeRspHazardFreeLatency = (storeControlAt + 1) - storeRspAt
+  def loadCmdHazardFreeLatency = (loadReadBanksAt)
+
+  def waySize = cacheSize / wayCount
+  def linePerWay = waySize / lineSize
+  def lineRange = log2Up(linePerWay * lineSize) - 1 downto log2Up(lineSize)
+
+  def cpuDataWidth = XLEN
+
+  def writebackBusy = setup.writebackBusy
+
+  case class LoadPortSpec(port: DataLoadPort, priority: Int)
+  val loadPorts = ArrayBuffer[LoadPortSpec]()
+  override def newLoadPort(priority: Int): DataLoadPort = {
+    loadPorts
+      .addRet(
+        LoadPortSpec(
+          DataLoadPort(
+            preTranslationWidth = VIRTUAL_EXT_WIDTH,
+            postTranslationWidth = PHYSICAL_WIDTH,
+            dataWidth = cpuDataWidth,
+            refillCount = refillCount,
+            rspAt = loadRspAt,
+            translatedAt = loadTranslatedAt,
+            transactionIdWidth = transactionIdWidth
+          ),
+          priority
+        )
+      )
+      .port
+  }
+
+  case class StorePortSpec(port: DataStorePort)
+  val storePorts = ArrayBuffer[StorePortSpec]()
+  override def newStorePort(): DataStorePort = {
+    storePorts
+      .addRet(
+        StorePortSpec(
+          DataStorePort(
+            postTranslationWidth = PHYSICAL_WIDTH,
+            dataWidth = cpuDataWidth,
+            refillCount = refillCount,
+            transactionIdWidth = transactionIdWidth
+          )
+        )
+      )
+      .port
+  }
+
+  def refillCompletions = setup.refillCompletions
+
+  private val setup = create early new Area {
+
+    val writebackBusy = Bool()
+
+    val refillCompletions = Bits(refillCount bits)
+
+    val dataCacheParameters = DataCachePluginConfig.toDataCacheParameters(config)
+
+    
     val cache = new DataCache(
-      setup.dataCacheParameters
+      dataCacheParameters
     )
 
-    setup.writebackBusy <> cache.io.writebackBusy
-    // Removed lockPort connection as cache.io.lock and setup.lockPort are removed
-    // setup.lockPort <> cache.io.lock
+    writebackBusy <> cache.io.writebackBusy
+    // Removed lockPort connection as cache.io.lock and lockPort are removed
+    // lockPort <> cache.io.lock
 
-    setup.refillCompletions := cache.io.refillCompletions
+    refillCompletions := cache.io.refillCompletions
 
-    val load = new Area {
+    val dbusSvc = getService[DBusService]
+    dbusSvc.getBus() <> cache.io.mem.toAxi4()
+  }
+  private val logic = create late new Area {
+    // Removed lock.await() as LockedImpl is removed
+    private val cache = setup.cache
+    private val load = new Area {
       assert(loadPorts.map(_.priority).distinct.size == loadPorts.size)
-      val sorted = loadPorts.sortBy(_.priority).reverse // High priority first
-      val hits = B(sorted.map(_.port.cmd.valid))
-      val hit = hits.orR
-      val oh = OHMasking.firstV2(hits)
-      val ohHistory = History(oh, 0 to loadRspAt, init = B(0, sorted.size bits))
+
+      private val sorted = loadPorts.sortBy(_.priority).reverse // High priority first
+      private val hits = B(sorted.map(_.port.cmd.valid))
+      private val hit = hits.orR
+      private val oh = OHMasking.firstV2(hits)
+      private val ohHistory = History(oh, 0 to loadRspAt, init = B(0, sorted.size bits))
 
       cache.io.load.cmd.valid := hit
       cache.io.load.cmd.payload := OhMux(oh, sorted.map(_.port.cmd.payload))
@@ -168,11 +196,19 @@ class DataCachePlugin(config: DataCachePluginConfig) extends Plugin with LockedI
       }
     }
 
-    val store = new Area {
-      assert(storePorts.size == 1) // Kept assertion as it is not coherency related
+    private val store = new Area {
+      if (storePorts.size != 1) // Kept assertion as it is not coherency related
+        {
+          ParallaxLogger.warning("Only one store port is supported for now, unless you know what you are doing.")
+        }
       cache.io.store <> storePorts.head.port
     }
   }
 
-  val mem = create late logic.cache.io.mem.toIo()
+  // val mem = create late logic.cache.io.mem.toIo()
+}
+
+trait DataCacheService extends Service {
+  def newLoadPort(priority: Int): DataLoadPort
+  def newStorePort(): DataStorePort
 }

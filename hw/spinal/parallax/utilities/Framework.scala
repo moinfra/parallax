@@ -331,6 +331,8 @@ object ParallaxSim {
     )(loc)
   }
 
+  def info = log _
+
   def debug(message: Seq[Any])(implicit loc: Location) {
     report(
       flattenRecursively(

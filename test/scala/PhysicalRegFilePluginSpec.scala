@@ -29,6 +29,9 @@ class PhysicalRegFilePluginSpec extends SpinalSimFunSuite {
         val readPort = regfile.newReadPort().simPublic()
         val writePort = regfile.newWritePort().simPublic()
       }
+
+      def getTbReadPort = setup.readPort
+      def getTbWritePort = setup.writePort
     }
 
     class TestBench extends Component {
@@ -44,8 +47,8 @@ class PhysicalRegFilePluginSpec extends SpinalSimFunSuite {
       )
 
       def testPlugin = framework.getService[TestPlugin]
-      def readPort = testPlugin.setup.readPort
-      def writePort = testPlugin.setup.writePort
+      def readPort = testPlugin.getTbReadPort
+      def writePort = testPlugin.getTbWritePort
     }
     new TestBench()
   }

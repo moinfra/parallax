@@ -54,14 +54,16 @@ class DataCacheTestbench(val p: DataCacheParameters, val useSimulatedSRAM: Boole
         dataWidth = p.cpuDataWidth,
         refillCount = p.refillCount,
         rspAt = p.loadRspAt,
-        translatedAt = p.loadTranslatedAt
+        translatedAt = p.loadTranslatedAt,
+        transactionIdWidth = p.transactionIdWidth,
       )
     )
     val store = slave(
       DataStorePort(
         postTranslationWidth = p.postTranslationWidth,
         dataWidth = p.cpuDataWidth,
-        refillCount = p.refillCount
+        refillCount = p.refillCount,
+        transactionIdWidth = p.transactionIdWidth,
       )
     )
     val mem_axi = !useSimulatedSRAM generate master(Axi4(axiMasterNode.config))
@@ -82,7 +84,7 @@ class DataCacheTestbench(val p: DataCacheParameters, val useSimulatedSRAM: Boole
       addressWidth = 16,
       dataWidth = 64,
       virtualBaseAddress = 0x00000000L,
-      sramSize = sramSize,
+      sizeBytes = sramSize,
       readWaitCycles = 0,
       enableLog = true
     )

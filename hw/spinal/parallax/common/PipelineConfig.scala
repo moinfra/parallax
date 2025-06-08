@@ -17,7 +17,7 @@ case class PipelineConfig(
     val archFprCount: Int = 0, // Number of architectural FPRs (if supporting FP)
     val physFprCount: Int = 0, // Number of physical FPRs (if supporting FP and renaming them)
 
-    val robDepth: Int = 64,
+    val robDepth: Int = 32,
     val uopUniqueIdWidth: BitCount = 16 bits, // For debugging/tracing
 
     // Number of parallel sources feeding the bypass network

@@ -183,7 +183,7 @@ class LoadQueuePluginSpec extends CustomSpinalSimFunSuite {
     entry.dataFromDCache #= 0
     entry.finalData #= 0
     entry.waitOn.aguDispatched #= false
-    entry.waitOn.addressGenerated #= false
+    entry.waitOn.address #= false
     entry.waitOn.commit #= false
     entry.waitOn.dCacheRsp #= false
     entry.waitOn.dCacheRefill #= 0

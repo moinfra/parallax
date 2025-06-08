@@ -27,13 +27,16 @@ case class LsuConfig(
 
   val sqIdxWidth = log2Up(sqDepth) bits
   val sqPtrWidth = (sqIdxWidth.value + 1).bits
+
+  val qIdxWidth = BitCount(Math.max(lqIdxWidth.value, sqIdxWidth.value))
+  val qPtrWidth = (qIdxWidth.value + 1).bits
 }
 
 // --- Wait-On States for LQ/SQ ---
 // These bits indicate what an entry is waiting for.
 case class LqWaitOn(val lsuConfig: LsuConfig) extends Bundle with Formattable { // 移除 dCacheConfig，只保留 lsuConfig
   val aguDispatched = Bool() // True if sent to AGU, waiting for address
-  val addressGenerated = Bool() // True if AGU has produced the address
+  val address = Bool() // True if AGU has produced the address
   val dCacheRsp = Bool() // Waiting for D-Cache response (hit/miss/data)
   val dCacheRefill = Bits(lsuConfig.dcacheRefillCount bits) // Waiting for specific D-Cache refill slots
   val dCacheRefillAny = Bool() // Waiting for any D-Cache refill to complete
@@ -44,7 +47,7 @@ case class LqWaitOn(val lsuConfig: LsuConfig) extends Bundle with Formattable { 
 
   def setDefault(): this.type = {
     aguDispatched := False // Make sure to default new fields
-    addressGenerated := False
+    address := False
     dCacheRsp := False
     dCacheRefill := 0
     dCacheRefillAny := False
@@ -55,17 +58,17 @@ case class LqWaitOn(val lsuConfig: LsuConfig) extends Bundle with Formattable { 
     this
   }
 
-  def isStalledForAgu: Bool = !addressGenerated && !robFlush
-  def isStalledForDCache: Bool = addressGenerated && dCacheRsp && !robFlush
+  def isStalledForAgu: Bool = !address && !robFlush
+  def isStalledForDCache: Bool = address && dCacheRsp && !robFlush
   def isStalledForCommit: Bool = commit && !robFlush // Waiting for ROB to pick it up
-  def isReadyForCommit: Bool = addressGenerated && !dCacheRsp && !dCacheRefill.orR &&
-  !dCacheRefillAny && !sqBypass && !sqCompletion && !robFlush && !commit
+  def isReadyForCommit: Bool = address && !dCacheRsp && !dCacheRefill.orR &&
+    !dCacheRefillAny && !sqBypass && !sqCompletion && !robFlush && !commit
 
   def format: Seq[Any] = {
     Seq(
       "LQWaitOn(",
       L"aguDispatched=$aguDispatched",
-      L"addressGenerated=$addressGenerated",
+      L"address=$address",
       L"dCacheRsp=$dCacheRsp",
       L"dCacheRefill=$dCacheRefill",
       L"dCacheRefillAny=$dCacheRefillAny",
@@ -78,8 +81,7 @@ case class LqWaitOn(val lsuConfig: LsuConfig) extends Bundle with Formattable { 
 }
 
 case class SqWaitOn(val lsuConfig: LsuConfig) extends Bundle { // 移除 dCacheConfig，只保留 lsuConfig
-  val addressGenerated = Bool() // True if AGU has produced the address
-  val prfRead = Bool() // Waiting for store data to be read from PRF
+  val address = Bool() // True if AGU has produced the address
   val dCacheStoreRsp = Bool() // Waiting for D-Cache store/writeback response
   val dCacheRefill = Bits(lsuConfig.dcacheRefillCount bits) // If a store causes a line allocation/refill
   val dCacheRefillAny = Bool()
@@ -87,18 +89,17 @@ case class SqWaitOn(val lsuConfig: LsuConfig) extends Bundle { // 移除 dCacheC
   val robFlush = Bool() // Entry is stalled due to a ROB flush/reschedule
 
   def setDefault(): this.type = {
-    addressGenerated := False
-    prfRead := False
+    address := False
     dCacheStoreRsp := False
-    dCacheRefill := 0
+    dCacheRefill := U(0, lsuConfig.dcacheRefillCount bits).asBits
     dCacheRefillAny := False
     youngerLoadStall := False
     robFlush := False
     this
   }
-  def isStalledForAgu: Bool = !addressGenerated && !robFlush
-  def isStalledForPrfRead: Bool = addressGenerated && prfRead && !robFlush
-  def isStalledForDCache: Bool = addressGenerated && !prfRead && dCacheStoreRsp && !robFlush
+  def isStalledForAgu: Bool = !address && !robFlush
+  def isStalledForPrfRead: Bool = address && !robFlush
+  def isStalledForDCache: Bool = address && dCacheStoreRsp && !robFlush
 }
 
 // --- Load Queue Entry (扁平化) ---
@@ -157,7 +158,7 @@ case class StoreQueueEntry(
     with HasRobPtr {
   // --- Static Info (from Dispatch) ---
   val robPtr = UInt(lsuConfig.robPtrWidth) // 指令在 ROB 中的 ID (包含世代位)
-  val sqPtr = UInt(lsuConfig.sqPtrWidth) 
+  val sqPtr = UInt(lsuConfig.sqPtrWidth)
   val pc = UInt(lsuConfig.pcWidth)
   val isValid = Bool()
 
@@ -180,7 +181,7 @@ case class StoreQueueEntry(
   val waitOn = SqWaitOn(lsuConfig) // 传递 lsuConfig
   val committed = Bool() // ROB has committed this store
   val dataReadFromPrf = Bool() // Store data has been read from PRF
-  val addressGenerated = Bool() // AGU has generated the address
+  val address = Bool() // AGU has generated the address
 
   val lqIdToReplay = UInt(lsuConfig.lqPtrWidth) // 如果需要重放年轻加载
   val lqIdToReplayValid = Bool()
@@ -191,7 +192,7 @@ case class StoreQueueEntry(
     aguBasePhysReg := 0; aguBaseIsFpr := False; aguUsePcAsBase := False; aguImmediate := 0
     physicalAddress := 0; dataToWrite := 0; storeMask := 0
     waitOn.setDefault()
-    committed := False; dataReadFromPrf := False; addressGenerated := False
+    committed := False; dataReadFromPrf := False; address := False
     lqIdToReplay := 0; lqIdToReplayValid := False
     accessSize := MemAccessSize.W
 
@@ -220,7 +221,7 @@ case class LsuAguRequest(lsuConfig: LsuConfig) extends Bundle { // 替换 pCfg
   val writePhysDestEn = Bool() // 对于 Load
 
   def toAguInput(): AguInput = {
-    val aguIn = AguInput()
+    val aguIn = AguInput(lsuConfig)
     aguIn.basePhysReg := basePhysReg
     aguIn.immediate := immediate
     aguIn.accessSize := accessSize
@@ -233,7 +234,6 @@ case class LsuAguRequest(lsuConfig: LsuConfig) extends Bundle { // 替换 pCfg
     aguIn
   }
 }
-
 
 // --- LSU 内部状态更新消息 (与之前的定义类似，但使用新的 LQ/SQ Entry 字段) ---
 // 用于更新 LQ 条目状态的消息
@@ -289,11 +289,11 @@ case class SqStatusUpdate(lsuConfig: LsuConfig) extends Bundle { // 替换 pCfg,
   val dCacheFaultDsr = Bool()
   val dCacheRedoDsr = Bool()
   val dCacheRefillSlotDsr = Bits(lsuConfig.dcacheRefillCount bits) // DSR = DCache Store Response
-  val dCacheRefillAnyDsr = Bool()                                // DSR = DCache Store Response
+  val dCacheRefillAnyDsr = Bool() // DSR = DCache Store Response
 
   // --- 来自 DCache Refill Done 事件的数据 ---
   val dCacheRefillSlotDr = Bits(lsuConfig.dcacheRefillCount bits) // DR = DCache Refill (Done)
-  val dCacheRefillAnyDr = Bool()       
+  val dCacheRefillAnyDr = Bool()
 
   // Data for YOUNGER_LOAD_REPLAY
   val lqIdToReplayYlr = UInt(lsuConfig.lqPtrWidth)
@@ -307,7 +307,7 @@ case class SqStatusUpdate(lsuConfig: LsuConfig) extends Bundle { // 替换 pCfg,
 }
 
 object SqUpdateType extends SpinalEnum {
-  val ADDRESS_GENERATED, PRF_DATA_READY, DCACHE_STORE_RESPONSE, DCACHE_REFILL_WAIT, DCACHE_REFILL_DONE,
+  val ADDRESS_GENERATED, DCACHE_STORE_RESPONSE, DCACHE_REFILL_WAIT, DCACHE_REFILL_DONE,
       YOUNGER_LOAD_REPLAY, EXCEPTION_OCCURRED, MARK_COMMITTED, MARK_WRITTEN_BACK = newElement()
 }
 

@@ -22,9 +22,9 @@ trait AguService extends Service with LockedImpl {
 }
 
 // AGU端口定义
-case class AguPort() extends Bundle with IMasterSlave {
-  val input = Stream(AguInput())
-  val output = Stream(AguOutput())
+case class AguPort(lsuConfig: LsuConfig) extends Bundle with IMasterSlave {
+  val input = Stream(AguInput(lsuConfig))
+  val output = Stream(AguOutput(lsuConfig))
   val flush = Bool()
 
   override def asMaster(): Unit = {
@@ -34,8 +34,8 @@ case class AguPort() extends Bundle with IMasterSlave {
   }
 }
 
-case class AguInput() extends Bundle with Formattable {
-  val qPtr = UInt(6 bits)
+case class AguInput(lsuConfig: LsuConfig) extends Bundle with Formattable {
+  val qPtr = UInt(lsuConfig.qPtrWidth)
   val basePhysReg = UInt(6 bits)
   val immediate = SInt(12 bits)
   val accessSize = MemAccessSize()
@@ -43,7 +43,7 @@ case class AguInput() extends Bundle with Formattable {
   val pc = UInt(32 bits)
 
   // 上下文信息
-  val robPtr = UInt(6 bits)
+  val robPtr = UInt(5 + 1 bits)
   val isLoad = Bool()
   val isStore = Bool()
   val physDst = UInt(6 bits)
@@ -61,9 +61,9 @@ case class AguInput() extends Bundle with Formattable {
   }
 }
 
-case class AguOutput() extends Bundle with Formattable{
-  val qPtr = UInt(6 bits)
-  val address = UInt(32 bits)
+case class AguOutput(lsuConfig: LsuConfig) extends Bundle with Formattable {
+  val qPtr = UInt(lsuConfig.qPtrWidth)
+  val address = UInt(lsuConfig.pcWidth)
   val alignException = Bool()
   val accessSize = MemAccessSize()
   // 透传上下文信息
@@ -71,7 +71,7 @@ case class AguOutput() extends Bundle with Formattable{
   val isLoad = Bool()
   val isStore = Bool()
   val physDst = UInt(6 bits)
-  
+
   def format: Seq[Any] = {
     Seq(
       L"AguOutput(",
@@ -88,15 +88,16 @@ case class AguOutput() extends Bundle with Formattable{
 }
 
 class AguPlugin(
+    lsuConfig: LsuConfig,
     supportPcRel: Boolean = true
 ) extends Plugin
     with AguService
     with LockedImpl {
-
+  val enableLog = false // 默认设置为 false
   private val aguPortRequests = ArrayBuffer[AguPort]()
 
   override def newAguPort(): AguPort = {
-    val port = AguPort()
+    val port = AguPort(lsuConfig)
     aguPortRequests += port
     port
   }
@@ -105,14 +106,14 @@ class AguPlugin(
 
   // 依赖服务
   private var prfService: PhysicalRegFileService = null
-  private var bypassService: BypassService[AguBypassData] = null
+  private var bypassService: Option[BypassService[AguBypassData]] = null
 
   val setup = create early new Area {
     // 获取物理寄存器服务
     prfService = getService[PhysicalRegFileService]
 
     // 获取旁路服务
-    bypassService = getService[BypassService[AguBypassData]]
+    bypassService = getServiceOption[BypassService[AguBypassData]]
 
     ParallaxLogger.log("[AguPlugin] AGU插件已创建，依赖服务获取完成")
   }
@@ -122,7 +123,7 @@ class AguPlugin(
     lock.await()
 
     // 获取统一的旁路数据流
-    val bypassFlow = bypassService.getBypassFlow("AguPlugin")
+    val bypassFlow = bypassService.map(_.getBypassFlow("AguPlugin")).getOrElse(null)
 
     // 为每个AGU端口创建实例
     aguPortRequests.zipWithIndex.foreach { case (externalPort, i) =>
@@ -133,37 +134,63 @@ class AguPlugin(
         // Stage0 流水线寄存器
         val stage0 = new Area {
           val fire = externalPort.input.valid && externalPort.input.ready && !externalPort.flush
-          report(L"[AGU ${i}] Fire = ${fire} because valid=${externalPort.input.valid} and ready=${externalPort.input.ready} and flush=${externalPort.flush}")
-          when(externalPort.flush) { report(L"[AGU ${i}] Flush") }
+          if (enableLog) {
+            report(
+              L"[AGU ${i}] Fire = ${fire} because valid=${externalPort.input.valid} and ready=${externalPort.input.ready} and flush=${externalPort.flush}"
+            )
+          }
+          if (enableLog) {
+            when(externalPort.flush) { report(L"[AGU ${i}] Flush") }
+          }
           val payload = RegNextWhen(externalPort.input.payload, fire)
           val valid = RegNext(fire, init = False) clearWhen (externalPort.flush)
-          report(L"[AGU ${i}] valid = ${valid}, payload = ${payload.format}")
+          if (enableLog) {
+            report(L"[AGU ${i}] valid = ${valid}, payload = ${payload.format}")
+          }
         }
-        when(stage0.valid) {
-          report(L"[AGU ${i}] 输入有效 ${stage0.payload.format}")
+        if (enableLog) {
+          when(stage0.valid) {
+            report(L"[AGU ${i}] 输入有效 ${stage0.payload.format}")
+          }
         }
         // 获取寄存器读端口
         val regRead = prfService.newReadPort()
         regRead.valid := stage0.valid
         regRead.address := stage0.payload.basePhysReg
         val regReadRsp = regRead.rsp
-        when(regRead.valid) { report(L"[AGU ${i}] 寄存器读端口地址为 ${stage0.payload.basePhysReg}, 读端口响应为 ${regReadRsp.asUInt}") }
+        if (enableLog) {
+          when(regRead.valid) {
+            report(L"[AGU ${i}] 寄存器读端口地址为 ${stage0.payload.basePhysReg}, 读端口响应为 ${regReadRsp.asUInt}")
+          }
+        }
         // 旁路逻辑：使用BypassService提供的统一旁路流
         val bypassLogic = new Area {
-          // 检查旁路命中
-          val hit = bypassFlow.valid &&
-            bypassFlow.payload.valid &&
-            bypassFlow.payload.physRegIdx === stage0.payload.basePhysReg
+          var valid: Bool = null
+          var data: UInt = null
+          if (bypassFlow == null) {
+            if (enableLog) {
+              report(L"[AGU ${i}] 旁路服务未提供")
+            }
+            valid = False
+            data = 0
+          } else {
+            // 检查旁路命中
+            val hit = bypassFlow.valid &&
+              bypassFlow.payload.valid &&
+              bypassFlow.payload.physRegIdx === stage0.payload.basePhysReg
 
-          // 旁路数据选择
-          val data = bypassFlow.payload.physRegData.asUInt
-          val valid = hit
-          when(valid) {
-            report(L"[AGU ${i}] 旁路命中，使用旁路数据 ${data}")
-          } otherwise {
-            report(L"[AGU ${i}] 旁路未命中，使用寄存器读端口响应 ${regReadRsp.asUInt}")
+            // 旁路数据选择
+            data = bypassFlow.payload.physRegData.asUInt
+            valid = hit
+            if (enableLog) {
+              when(valid) {
+                report(L"[AGU ${i}] 旁路命中，使用旁路数据 ${data}")
+              } otherwise {
+                report(L"[AGU ${i}] 旁路未命中，使用寄存器读端口响应 ${regReadRsp.asUInt}")
+              }
+            }
+            ParallaxLogger.log(s"[AguPlugin] AGU实例 $i 旁路逻辑已连接到BypassService")
           }
-          ParallaxLogger.log(s"[AguPlugin] AGU实例 $i 旁路逻辑已连接到BypassService")
         }
 
         // 数据选择
@@ -197,7 +224,6 @@ class AguPlugin(
             is(MemAccessSize.H) { alignMask := 0x1 } // Half-word
             is(MemAccessSize.W) { alignMask := 0x3 } // Word
             is(MemAccessSize.D) { alignMask := 0x7 } // Double-word
-            default { alignMask := 0x0 }
           }
 
           val mustAlign = stage0.payload.accessSize =/= MemAccessSize.B
@@ -221,14 +247,18 @@ class AguPlugin(
         // Ready信号
         externalPort.input.ready := !externalPort.flush &&
           (!stage0.valid || (externalPort.output.ready && dataReady))
-        when(externalPort.input.ready) {
-          report (L"[AGU ${i}] 输入端口准备就绪")
+        if (enableLog) {
+          when(externalPort.input.ready) {
+            report(L"[AGU ${i}] 输入端口准备就绪")
+          }
         }
-        
-        when(externalPort.output.valid) {
-          report(L"[AGU ${i}] 输出有效：${externalPort.output.payload.format}")
-        } otherwise {
-          report(L"[AGU ${i}] 输出无效")
+
+        if (enableLog) {
+          when(externalPort.output.valid) {
+            report(L"[AGU ${i}] 输出有效：${externalPort.output.payload.format}")
+          } otherwise {
+            report(L"[AGU ${i}] 输出无效")
+          }
         }
       }
 

@@ -2,6 +2,7 @@ package parallax.common
 
 import spinal.core._
 import spinal.lib._
+import spinal.lib.experimental.hdl.VerilogToSpinal.matches
 
 // --- ISA Identifier ---
 object IsaType extends SpinalEnum {
@@ -175,13 +176,16 @@ case class MulDivCtrlFlags() extends Bundle {
 object MemAccessSize extends SpinalEnum(binarySequential) {
   val B, H, W, D = newElement() // Byte, Half, Word, Double
 
-  def toByteSize(v: MemAccessSize.C): Int = {
-    v match {
-      case B => 1
-      case H => 2
-      case W => 4
-      case D => 8
+  def toByteSize(v: MemAccessSize.C): UInt = {
+    val width = BitCount(4)
+    val out = U(0, width)
+    switch(v) {
+      is(B) { out := U(1, width) }
+      is(H) { out := U(2, width) }
+      is(W) { out := U(4, width) }
+      is(D) { out := U(8, width) }
     }
+    return out
   }
 }
 case class MemCtrlFlags() extends Bundle {

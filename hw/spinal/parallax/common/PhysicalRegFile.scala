@@ -29,7 +29,7 @@ case class PrfReadPort(
 
 case class PrfWritePort(
     val idxWidth: BitCount,
-    val dataWidth: BitCount = 32 bits
+    val dataWidth: BitCount = 32 bits,
 ) extends Bundle
     with IMasterSlave {
   val valid = Bool()

@@ -345,7 +345,7 @@ class ExtSRAMControllerSpec extends CustomSpinalSimFunSuite {
       addressWidth = 16,
       dataWidth = 32,
       virtualBaseAddress = 0x80000000L,
-      sramSize = sramSize,
+      sizeBytes = sramSize,
       readWaitCycles = readWaitCycles,
       enableLog = true
     )
