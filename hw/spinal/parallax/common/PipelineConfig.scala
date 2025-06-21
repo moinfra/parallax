@@ -19,7 +19,7 @@ case class PipelineConfig(
 
     val robDepth: Int = 32,
     val uopUniqueIdWidth: BitCount = 16 bits, // For debugging/tracing
-
+    val transactionIdWidth: Int = 8, 
     // Number of parallel sources feeding the bypass network
     // This should typically match the number of writeback ports from EUs.
     val bypassNetworkSources: Int = 2,

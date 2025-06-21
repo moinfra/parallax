@@ -59,7 +59,7 @@ class FetchPipelineTestBench(
   )
 
   val fetchPipeline = framework.getService[FetchPipeline]
-  val iBusService = framework.getService[IBusService] // Get IBusService
+  val iBusService = framework.getService[IBusServiceSGMB] // Get IBusService
   val fetchOutputBridge = framework.getService[FetchOutputBridge]
   val signals = fetchPipeline.signals
 

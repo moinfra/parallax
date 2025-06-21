@@ -142,7 +142,7 @@ class Fetch1Plugin(
     fetchPipeline.retain()
     ParallaxLogger.log(s"Fetch1Plugin: setup")
 
-    val iBusProvider = getService[IBusService]
+    val iBusProvider = getService[IBusServiceSGMB]
     val s1_Fetch = fetchPipeline.pipeline.s1_Fetch
 
     val ifu = new InstructionFetchUnit(ifuConfig)

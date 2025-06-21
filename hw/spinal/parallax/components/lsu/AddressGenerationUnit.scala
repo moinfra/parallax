@@ -66,6 +66,7 @@ case class AguOutput(lsuConfig: LsuConfig) extends Bundle with Formattable {
   val address = UInt(lsuConfig.pcWidth)
   val alignException = Bool()
   val accessSize = MemAccessSize()
+  val storeMask = Bits(lsuConfig.dataWidth.value / 8 bits)
   // 透传上下文信息
   val robPtr = UInt(6 bits)
   val isLoad = Bool()
@@ -79,6 +80,7 @@ case class AguOutput(lsuConfig: LsuConfig) extends Bundle with Formattable {
       L"address=${address},",
       L"alignException=${alignException})",
       L"accessSize=${accessSize},",
+      L"storeMask=${storeMask},",
       L"robPtr=${robPtr},",
       L"isLoad=${isLoad},",
       L"isStore=${isStore},",
@@ -231,10 +233,23 @@ class AguPlugin(
           val alignException = misaligned && mustAlign
         }
 
+         val maskCalc = new Area {
+          val calculatedMask = Bits(lsuConfig.dataWidth.value / 8 bits)
+          val addrLow = addressCalc.effectiveAddress(log2Up(lsuConfig.dataWidth.value / 8) -1 downto 0)
+
+          switch(stage0.payload.accessSize) {
+            is(MemAccessSize.B) { calculatedMask := (B(1) |<< addrLow).resized }
+            is(MemAccessSize.H) { calculatedMask := (B(3) |<< (addrLow >> 1)).resized } // 0b0011, 0b1100
+            is(MemAccessSize.W) { calculatedMask := B"1111" } // 假设 dataWidth 是 32
+            is(MemAccessSize.D) { calculatedMask := B"1111" } // FIXME 目前不支持 64 位
+          }
+        }
+
         // 输出逻辑
         externalPort.output.valid := stage0.valid && dataReady && !externalPort.flush
         externalPort.output.payload.address := addressCalc.effectiveAddress
         externalPort.output.payload.alignException := alignmentCheck.alignException
+        externalPort.output.payload.storeMask := maskCalc.calculatedMask
 
         // 透传上下文信息
         externalPort.output.payload.robPtr := stage0.payload.robPtr

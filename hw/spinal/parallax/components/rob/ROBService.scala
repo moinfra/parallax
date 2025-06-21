@@ -5,6 +5,7 @@ import spinal.core._
 import spinal.lib._
 import parallax.common._
 import parallax.utilities.Service
+import parallax.utilities.LockedImpl
 
 // Forward declaration of Bundles used in the service, assuming they are in the same package or imported.
 // case class ROBAllocateSlot[RU <: Data with Dumpable with HasRobPtr](...) // Defined in ReorderBuffer.scala
@@ -16,7 +17,7 @@ import parallax.utilities.Service
  * ROBService 提供了与 Reorder Buffer 交互的接口。
  * @tparam RU ROB中存储的Uop的数据类型 (通常是 RenamedUop)
  */
-trait ROBService[RU <: Data with Dumpable with HasRobPtr] extends Service {
+trait ROBService[RU <: Data with Dumpable with HasRobPtr] extends Service with LockedImpl {
 
   // --- 分配阶段 (Allocation Interface) ---
 

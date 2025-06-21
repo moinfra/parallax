@@ -82,7 +82,7 @@ object DataCachePluginConfig {
       storeRspAt = storeRspAt,
       tagsReadAsync = tagsReadAsync,
       reducedBankWidth = reducedBankWidth,
-      transactionIdWidth = transactionIdWidth,
+      transactionIdWidth = transactionIdWidth
     )
   }
 }
@@ -147,7 +147,7 @@ class DataCachePlugin(config: DataCachePluginConfig) extends Plugin with LockedI
       .port
   }
 
-  def refillCompletions = setup.refillCompletions
+  def getRefillCompletions = setup.refillCompletions
 
   private val setup = create early new Area {
 
@@ -157,7 +157,6 @@ class DataCachePlugin(config: DataCachePluginConfig) extends Plugin with LockedI
 
     val dataCacheParameters = DataCachePluginConfig.toDataCacheParameters(config)
 
-    
     val cache = new DataCache(
       dataCacheParameters
     )
@@ -170,7 +169,18 @@ class DataCachePlugin(config: DataCachePluginConfig) extends Plugin with LockedI
 
     val dbusSvc = getService[DBusService]
     dbusSvc.getBus() <> cache.io.mem.toAxi4()
+
+    val testFlushPort = DataStorePort(
+      postTranslationWidth = PHYSICAL_WIDTH,
+      dataWidth = cpuDataWidth,
+      refillCount = config.refillCount,
+      transactionIdWidth = config.transactionIdWidth
+    ) // **关键: 冲刷端口也必须是 DataStorePort**
+
   }
+
+  override def getTestFlushPort(): DataStorePort = setup.testFlushPort // **返回类型也是 DataStorePort**
+
   private val logic = create late new Area {
     // Removed lock.await() as LockedImpl is removed
     private val cache = setup.cache
@@ -204,11 +214,11 @@ class DataCachePlugin(config: DataCachePluginConfig) extends Plugin with LockedI
       cache.io.store <> storePorts.head.port
     }
   }
-
-  // val mem = create late logic.cache.io.mem.toIo()
 }
 
-trait DataCacheService extends Service {
+trait DataCacheService extends Service with LockedImpl {
   def newLoadPort(priority: Int): DataLoadPort
   def newStorePort(): DataStorePort
+  def getRefillCompletions(): Bits
+  def getTestFlushPort(): DataStorePort
 }

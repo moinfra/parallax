@@ -397,3 +397,31 @@ object ParallaxSim {
 trait Formattable {
   def format: Seq[Any]
 }
+
+object AddressToMask {
+  /**
+   * 生成地址对齐的位掩码
+   * @param address 目标地址（决定掩码偏移）
+   * @param size    掩码尺寸（决定连续1的个数 = 2^size）
+   * @param width   输出位宽
+   * @return        移位后的位掩码
+   */
+  def apply(address: UInt, size: UInt, width: Int): Bits = {
+    // 1. 生成基础掩码选项：从1位到全1的掩码
+    val maskOptions = (0 to log2Up(width)).map { i =>
+      // 计算连续1的个数：2^i
+      val onesCount = (1 << (1 << i)) - 1
+      // 创建指定位宽的基础掩码（低位连续onesCount个1）
+      U(i) -> B(onesCount, width bits)
+    }
+    
+    // 2. 根据size选择对应的基础掩码
+    val baseMask = size.muxListDc(maskOptions)
+    
+    // 3. 计算有效移位量（取address低位，避免越界）
+    val shiftAmount = address(log2Up(width) - 1 downto 0)
+    
+    // 4. 将掩码左移并返回
+    baseMask |<< shiftAmount
+  }
+}

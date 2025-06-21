@@ -35,13 +35,16 @@ case class StoreQueueTestIO(
   val flushPort = Flow(ROBFlushPayload(pipelineConfig.robPtrWidth))
   val prfWrite = PrfWritePort(lsuConfig.physGprIdxWidth, lsuConfig.dataWidth)
   val prfRead = PrfReadPort(lsuConfig.physGprIdxWidth, lsuConfig.dataWidth)
-  val dcacheStoreRsp = Flow(
-    DataStoreRsp(pipelineConfig.xlen, dCacheConfig.refillCount, dCacheConfig.transactionIdWidth)
+  val dCacheFlushPort = DataStorePort(
+    postTranslationWidth = pipelineConfig.xlen,
+    dataWidth = pipelineConfig.xlen,
+    refillCount = dCacheConfig.refillCount,
+    transactionIdWidth = dCacheConfig.transactionIdWidth
   )
 
   override def asMaster(): Unit = {
-    // toAI 从用户的视角，StoreQueueTestIO 是被驱动的存在，下面是对的，别瞎改！
-    slave(allocatePort, flushPort, prfWrite, prfRead, dcacheStoreRsp)
+    // toAI 从用户的视角，StoreQueueTestIO 是**被**驱动的存在，下面是对的，别瞎改！
+    slave(allocatePort, flushPort, prfWrite, prfRead, dCacheFlushPort)
     in(releasePorts, releaseMask)
     in(statusUpdatePort)
   }
@@ -71,6 +74,9 @@ class StoreQueueTestPlugin(private val io: StoreQueueTestIO)
     // 3. 将真实插件的监控端口连接到 IO
     val prfReadPort = prfService.newReadPort()
     io.prfRead <> prfReadPort
+
+    val dCacheFlushPort = dcacheService.getTestFlushPort()
+    io.dCacheFlushPort <> dCacheFlushPort
 
     // 4. 象征性地获取并端接未使用的端口
     val unusedLoadPort = dcacheService.newLoadPort(priority = 0)
@@ -114,7 +120,7 @@ class StoreQueueTestBench extends Component {
     refillCount = 2, // 2个并行的缓存回填槽。这个值的对数决定了 DCache 访问 axi 总线的 id width
     writebackCount = 2, // 2个并行的写回/victim缓存槽
     lineSize = 64, // 64-byte cache line
-    
+    transactionIdWidth = 8
     // 其他参数使用默认值
   )
 
@@ -134,7 +140,7 @@ class StoreQueueTestBench extends Component {
   private val axiConfig = Axi4Config(
     addressWidth = pipelineConfig.xlen,
     dataWidth = pipelineConfig.xlen,
-    idWidth = 1,
+    idWidth = pipelineConfig.transactionIdWidth,
     useLock = false,
     useCache = false,
     useProt = true,
@@ -157,7 +163,7 @@ class StoreQueueTestBench extends Component {
 
   private val framework = new Framework(
     Seq(
-      new StoreQueuePlugin(lsuConfig, pipelineConfig, dataCacheParameters),
+      new StoreQueuePlugin(lsuConfig, pipelineConfig, dataCacheParameters, true),
       new AguPlugin(lsuConfig, supportPcRel = true),
       new PhysicalRegFilePlugin(pipelineConfig.physGprCount, lsuConfig.dataWidth),
       new DataCachePlugin(dcacheConfig),
@@ -255,12 +261,65 @@ class StoreQueuePluginSpec extends CustomSpinalSimFunSuite {
     dut.io.releaseMask.foreach(_ #= false)
     dut.io.flushPort.valid #= false
     dut.io.prfWrite.valid #= false
+    dut.io.dCacheFlushPort.cmd.valid #= false
+
+    dut.sram.io.tb_writeEnable #= false
+    dut.sram.io.tb_readEnable #= false
+  }
+
+  def flushDCache(dut: StoreQueueTestBench, addr: BigInt): Unit = {
+    var flushCycles = 0
+    val maxFlushCycles = 100 // 设置一个足够大的超时
+    var redo = true
+
+    // 使用一个循环，只要 D-Cache 要求 REDO，就继续发送 FLUSH 命令
+    while (redo && flushCycles < maxFlushCycles) {
+      ParallaxLogger.log(s"Sending FLUSH command, cycle ${flushCycles}")
+      // 发送冲刷命令
+      dut.io.dCacheFlushPort.cmd.valid #= true
+      dut.io.dCacheFlushPort.cmd.payload.flush #= true
+      dut.io.dCacheFlushPort.cmd.payload.address #= addr
+      dut.io.dCacheFlushPort.cmd.payload.mask #= 0
+      dut.io.dCacheFlushPort.cmd.payload.data #= 0
+      dut.io.dCacheFlushPort.cmd.payload.io #= false
+      dut.io.dCacheFlushPort.cmd.payload.flushFree #= false
+      dut.io.dCacheFlushPort.cmd.payload.prefetch #= false
+      dut.io.dCacheFlushPort.cmd.payload.id #= 88
+
+      // 等待命令被接收
+      dut.clockDomain.waitSamplingWhere(dut.io.dCacheFlushPort.cmd.ready.toBoolean)
+      dut.io.dCacheFlushPort.cmd.valid #= false
+
+      // 等待响应
+      dut.clockDomain.waitSamplingWhere(dut.io.dCacheFlushPort.rsp.valid.toBoolean)
+      assert(dut.io.dCacheFlushPort.rsp.payload.id.toBigInt == 88, "D-Cache flush response ID mismatch")
+      // 检查响应中的 redo 标志
+      redo = dut.io.dCacheFlushPort.rsp.payload.redo.toBoolean
+      if (redo) {
+        ParallaxLogger.log("D-Cache requested REDO, flushing again.")
+      } else {
+        ParallaxLogger.log("D-Cache flush sequence completed (REDO is false).")
+      }
+
+      flushCycles += 1
+      // 给写回留出一些时间
+      dut.clockDomain.waitSampling(5)
+    }
+
+    assert(!redo, s"D-Cache flush sequence timed out after ${maxFlushCycles} cycles.")
+
+    // 在所有冲刷操作完成后，再额外等待一段时间，确保所有AXI事务完成
+    ParallaxLogger.debug("Flush sequence finished. Waiting for AXI transactions to complete.")
+    // dut.clockDomain.waitSampling(50)
   }
 
   // -- TEST CASE 1: Complete Lifecycle (使用正确的 StreamDriver.queue) --
   testOnly("StoreQueue Complete Lifecycle") {
     simConfig.compile(new StoreQueueTestBench()).doSim { dut =>
       dut.clockDomain.forkStimulus(10)
+      dut.clockDomain.onActiveEdges {
+        println("pos edge.")
+      }
       initDutInputs(dut)
 
       // --- 设置阶段 ---
@@ -286,12 +345,12 @@ class StoreQueuePluginSpec extends CustomSpinalSimFunSuite {
         aguImmediate = offset
       )
 
-      // 1. 预加载
+      ParallaxLogger.debug("1. 预加载")
       preloadGpr(dut, addr = testParams.aguBasePhysReg, data = baseAddr)
       preloadGpr(dut, addr = testParams.physDataSrc, data = storeData)
       preloadMemory(sram, addr = finalAddr, data = initialMemValue)
 
-      // 2. 将分配事务入队
+      ParallaxLogger.debug("2. 将分配事务入队")
       allocQueue.enqueue { p =>
         p.pc #= testParams.pc
         p.robPtr #= testParams.robPtr
@@ -305,21 +364,26 @@ class StoreQueuePluginSpec extends CustomSpinalSimFunSuite {
         p.sqPtr.assignDontCare()
       }
 
-      // 3. 等待，此时内存值不应改变
-      dut.clockDomain.waitSampling(20)
+      ParallaxLogger.debug("3. 等待，此时内存值不应改变")
+      dut.clockDomain.waitSampling(5)
       verifyMemory(sram, addr = finalAddr, expectedData = initialMemValue)
 
       // 4. 提交指令
+      ParallaxLogger.debug("4. 提交指令")
       dut.io.releasePorts(0).valid #= true
       dut.io.releasePorts(0).payload #= testParams.robPtr
       dut.io.releaseMask(0) #= true
       dut.clockDomain.waitSampling()
       dut.io.releasePorts(0).valid #= false
-
-      // 5. 等待足够长的时间让 DCache 完成写回
+      dut.clockDomain.waitSampling()
+      ParallaxLogger.debug("4.a. 等待提交的指令完成")
       dut.clockDomain.waitSampling(50)
 
-      // 6. 验证内存内容是否已被更新
+      ParallaxLogger.debug("5. 刷新DCache")
+      // dut.clockDomain.waitSampling(50)
+      flushDCache(dut, finalAddr)
+
+      ParallaxLogger.debug("6. 验证内存内容是否已被更新")
       verifyMemory(sram, addr = finalAddr, expectedData = storeData)
       println("Test 'Complete Lifecycle' PASSED.")
     }

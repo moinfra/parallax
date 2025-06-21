@@ -8,11 +8,11 @@ import spinal.lib.bus.misc.SizeMapping
 import parallax.bus.{SplitGmbToAxi4Bridge, Axi4ToSplitGmbBridge} // Import both bridges
 
 // IBusService and DBusService traits remain the same
-trait IBusService extends Service {
+trait IBusServiceSGMB extends Service {
   def iBus: SplitGenericMemoryBus
 }
 
-trait DBusService extends Service {
+trait DBusServiceSGMB extends Service {
   def dBus: SplitGenericMemoryBus
 }
 
@@ -64,8 +64,8 @@ class SimulatedUnifiedBusPlugin(
     ),
     val simMemBaseAddress: Long = 0x00000000L
 ) extends Plugin
-    with IBusService
-    with DBusService {
+    with IBusServiceSGMB
+    with DBusServiceSGMB {
 
   // The GMB slave ports that this plugin will offer as services
   val iBusPort = slave(SplitGenericMemoryBus(iBusGmbConfig))

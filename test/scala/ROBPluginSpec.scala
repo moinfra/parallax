@@ -241,14 +241,16 @@ class ROBPluginSpec extends CustomSpinalSimFunSuite {
     val tempUop = DummyUop2(pCfg); tempUop.setDefault(); uopSetter(tempUop)
     tbIo.allocRequests(slotIdx).payload.uop.assignFrom(tempUop)
 
-    var allocatedIdx = -1
+    var allocatedPtr = -1
     var canAlloc = false
     clockDomain.waitSampling() // ROB 在这个周期的上升沿看到 valid=true 并计算 robPtr
-    allocatedIdx = tbIo.allocResponsesRobPtr(slotIdx).toInt // 读取 robPtr
+    allocatedPtr = tbIo.allocResponsesRobPtr(slotIdx).toInt // 读取 robPtr
     // 此时 tailPtr_reg 仍是旧值
     canAlloc = tbIo.allocResponsesCanAlloc(slotIdx).toBoolean // 读取 canAlloc
     tbIo.allocRequests(slotIdx).valid #= false
-    ParallaxLogger.success(s"Allocated slot $slotIdx to ROB index $allocatedIdx, canAllocateNext=$canAlloc")
+    ParallaxLogger.success(s"Allocated slot $slotIdx to ROB index $allocatedPtr, canAllocateNext=$canAlloc")
+    // remove genbit
+    val allocatedIdx = allocatedPtr & ~(1 << pCfg.robPtrWidth.value - 1)
     (allocatedIdx, canAlloc)
   }
 

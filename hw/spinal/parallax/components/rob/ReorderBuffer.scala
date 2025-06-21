@@ -35,6 +35,8 @@ case class ROBConfig[RU <: Data with Dumpable with HasRobPtr](
   require(commitWidth > 0 && commitWidth <= robDepth)
   require(allocateWidth > 0 && allocateWidth <= robDepth)
   require(numWritebackPorts > 0)
+  require(uopType != null)
+  require(defaultUop != null)
   
   // robPtrWidth 现在表示的是物理索引的位宽
   val robPhysIdxWidth: BitCount = log2Up(robDepth) bits
@@ -117,6 +119,7 @@ case class ROBAllocateSlot[RU <: Data with Dumpable with HasRobPtr](config: ROBC
 }
 
 // For writeback port (per execution unit writeback)
+// 用来标记 ROB 条目完成或者异常发生
 case class ROBWritebackPort[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[RU])
     extends Bundle
     with IMasterSlave {
@@ -191,6 +194,7 @@ case class ROBIo[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[RU])
 }
 
 class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[RU]) extends Component {
+  val enableLog = false
   ParallaxLogger.log(
     s"Creating ReorderBuffer with config: ${config.dump().mkString("")}"
   )
@@ -200,18 +204,23 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
   val payloads = Mem(ROBPayload(config), config.robDepth)
   val statuses = Vec(Reg(ROBStatus(config)), config.robDepth)
 
-  payloads.init(
-    Seq.fill(config.robDepth)(
-      {
-        // 这里的 assert 需要调整，因为 uop.robPtr 现在是 robPtrWidth
-        assert(config.defaultUop().robPtr.getBitsWidth == config.robPtrWidth.value) 
-        val dp = ROBPayload(config)
-        dp.uop := config.defaultUop()
-        dp.pc := U(0)
-        dp
-      }
-    )
-  )
+  ParallaxLogger.log("x");
+  ParallaxLogger.log("x");
+  assert(config.robDepth > 0)
+  // payloads.init(
+  //   Seq.fill(config.robDepth)(
+  //     {
+  //       // 这里的 assert 需要调整，因为 uop.robPtr 现在是 robPtrWidth
+  //       assert(config.defaultUop().robPtr.getBitsWidth == config.robPtrWidth.value) 
+  //       val dp = ROBPayload(config)
+  //       dp.uop := config.defaultUop()
+  //       dp.pc := U(0)
+  //       dp
+  //     }
+  //   )
+  // )
+  
+  ParallaxLogger.log("y");
   for (i <- 0 until config.robDepth) {
     statuses(i).busy init (False)
     statuses(i).done init (False)
@@ -219,12 +228,14 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
     statuses(i).exceptionCode init (0)
     statuses(i).genBit init (False) // 初始化世代位
   }
+  ParallaxLogger.log("x");
 
   // Actual registers for state
   // headPtr_reg 和 tailPtr_reg 现在存储完整的 ROB ID (物理索引 + 世代位)
   val headPtr_reg = Reg(UInt(config.robPtrWidth)) init (0) 
   val tailPtr_reg = Reg(UInt(config.robPtrWidth)) init (0) 
   val count_reg = Reg(UInt(log2Up(config.robDepth + 1) bits)) init (0)
+  ParallaxLogger.log("x");
 
   // Combinational view of current state for calculations this cycle.
   val currentHead = headPtr_reg
@@ -237,10 +248,11 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
   val numPrevAllocations = Vec(UInt(log2Up(config.allocateWidth + 1) bits), config.allocateWidth + 1)
   // robPtrAtSlotStart 也存储完整的 ROB ID (物理索引 + 世代位)
   val robPtrAtSlotStart = Vec(UInt(config.robPtrWidth), config.allocateWidth + 1)
+  ParallaxLogger.log("x");
 
   numPrevAllocations(0) := U(0)
   robPtrAtSlotStart(0) := currentTail
-  report(
+  if(enableLog) report(
     Seq(
       L"[ROB] ALLOC_PRE: Cycle Start. tailPtr=${currentTail}, count=${currentCount}, ",
       L"headPtr=${currentHead}, empty=${(currentCount === 0)}"
@@ -268,7 +280,7 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
       )
     }
     when(allocPort.fire && !spaceAvailableForThisSlot) {
-      report(
+      if(enableLog) report(
         Seq(
           L"[ROB] ALLOC_ATTEMPT[${i}]: Fired but NO SPACE. count=${currentCount}, ",
           L"numPrevAllocationsForThisSlot=${numPrevAllocations(i)}"
@@ -279,7 +291,7 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
     // robPtrAtSlotStart(i + 1) 也是完整的 ROB ID，自动处理进位
     robPtrAtSlotStart(i + 1) := robPtrAtSlotStart(i) + U(slotWillAllocate(i)) 
     when(slotWillAllocate(i)) {
-      report(
+      if(enableLog) report(
         L"[ROB] ALLOC_DO[${i}]: Allocating to robPtr=${slotRobPtr(i)}, pcIn=${allocPort.pcIn}"
       )
       val newPayload = ROBPayload(config).allowOverride()
@@ -292,14 +304,14 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
       val genBit = slotRobPtr(i).msb // 假设 robGenBitWidth = 1
 
       payloads.write(address = physIdx, data = newPayload) // 使用物理索引写入 Mem
-      report(L"[ROB] ALLOC_PAYLOAD_WRITE[${i}]: Writing payload to robPtr=${slotRobPtr(i)} (physIdx=${physIdx}, genBit=${genBit}): ${newPayload.uop.dump()}")
+      if(enableLog) report(L"[ROB] ALLOC_PAYLOAD_WRITE[${i}]: Writing payload to robPtr=${slotRobPtr(i)} (physIdx=${physIdx}, genBit=${genBit}): ${newPayload.uop.dump()}")
       
       statuses(physIdx).busy := True
       statuses(physIdx).done := False
       statuses(physIdx).hasException := False
       statuses(physIdx).exceptionCode := U(0, config.exceptionCodeWidth)
       statuses(physIdx).genBit := genBit // 存储世代位
-      report(
+      if(enableLog) report(
         Seq(L"[ROB] ALLOC_STATUS_SET[${i}]: robPtr=${slotRobPtr(i)} (physIdx=${physIdx}, genBit=${genBit}) set busy=T, ", L"done=F, hasException=F")
       )
     }
@@ -307,7 +319,7 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
 
   val numActuallyAllocatedThisCycle = numPrevAllocations(config.allocateWidth)
   when(numActuallyAllocatedThisCycle > 0) {
-    report(
+    if(enableLog) report(
       Seq(
         L"[ROB] ALLOC_SUMMARY: numActuallyAllocatedThisCycle=${numActuallyAllocatedThisCycle}, ",
         L"currentTailPtr=${currentTail} -> newTailPtr (calculated for next reg)=${(currentTail + numActuallyAllocatedThisCycle)}, ",
@@ -327,13 +339,13 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
     
     // 匹配世代位
     when(wbPort.fire && wbGenBit === statusBeforeWb.genBit) {
-      report(
+      if(enableLog) report(
         Seq(
           L"[ROB] WRITEBACK[${portIdx}]: Fired. robPtr=${wbPort.robPtr} (physIdx=${wbPhysIdx}, genBit=${wbGenBit}), exceptionOccurred=${wbPort.exceptionOccurred}, ",
           L"exceptionCodeIn=${wbPort.exceptionCodeIn}"
         )
       )
-      report(
+      if(enableLog) report(
         Seq(
           L"[ROB] WRITEBACK_STATUS_OLD[${portIdx}]: robPtr=${wbPort.robPtr}, oldBusy=${statusBeforeWb.busy}, ",
           L"oldDone=${statusBeforeWb.done}, oldHasExcp=${statusBeforeWb.hasException}, oldExcpCode=${statusBeforeWb.exceptionCode}, oldGen=${statusBeforeWb.genBit}"
@@ -347,20 +359,20 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
         wbPort.exceptionCodeIn,
         statuses(wbPhysIdx).exceptionCode // Keep old if no new exception
       )
-      report(
+      if(enableLog) report(
         Seq(
           L"[ROB] WRITEBACK_STATUS_NEW[${portIdx}]: robPtr=${wbPort.robPtr}, newBusy=F, newDone=T, ",
           L"newHasExcp=${wbPort.exceptionOccurred}, newExcpCode=${Mux(wbPort.exceptionOccurred, wbPort.exceptionCodeIn, statusBeforeWb.exceptionCode)}, newGen=${statuses(wbPhysIdx).genBit}"
         )
       )
     } elsewhen(wbPort.fire) { // Fired but generation bit mismatch
-        report(
+        if(enableLog) report(
             Seq(
                 L"[ROB] WRITEBACK[${portIdx}]: Fired but GEN_BIT MISMATCH. robPtr=${wbPort.robPtr} (physIdx=${wbPhysIdx}, wbGen=${wbGenBit}), storedGen=${statusBeforeWb.genBit}"
             )
         )
     } otherwise {
-      report(
+      if(enableLog) report(
         Seq(
           L"[ROB] WRITEBACK[${portIdx}]: NOT Fired. robPtr=${wbPort.robPtr}, exceptionOccurred=${wbPort.exceptionOccurred}, ",
           L"exceptionCodeIn=${wbPort.exceptionCodeIn}"
@@ -371,7 +383,7 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
 
   // --- Commit Logic (Superscalar) ---
   val canCommitFlags = Vec(Bool(), config.commitWidth)
-  report(
+  if(enableLog) report(
     L"[ROB] COMMIT_PRE: Cycle Start. headPtr=${currentHead}, count=${currentCount}, empty=${(currentCount === 0)}"
   )
 
@@ -385,7 +397,7 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
     val currentStatus = statuses(currentCommitPhysIdx) // 使用物理索引访问状态
 
     when(currentCount > U(i)) {
-      report(
+      if(enableLog) report(
         Seq(
           L"[ROB] COMMIT_CHECK_SLOT[${i}]: Considering commit. robPtr=${currentCommitFullIdx} (physIdx=${currentCommitPhysIdx}, genBit=${currentCommitGenBit}), ",
           L"status.busy=${currentStatus.busy}, status.done=${currentStatus.done}, status.hasException=${currentStatus.hasException}, ",
@@ -399,7 +411,7 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
     io.commit(i).entry.payload := currentPayload
     io.commit(i).entry.status := currentStatus
     when(canCommitFlags(i)) {
-      report(
+      if(enableLog) report(
         Seq(
           L"[ROB] COMMIT_VALID_SLOT[${i}]: Slot IS VALID for commit. robPtr=${currentCommitFullIdx}, ",
           L"io.commit(i).valid=${io
@@ -409,7 +421,7 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
       )
     }
     when(!canCommitFlags(i) && (currentCount > U(i))) {
-      report(
+      if(enableLog) report(
         Seq(
           L"[ROB] COMMIT_NOT_VALID_SLOT[${i}]: Slot NOT VALID for commit. robPtr=${currentCommitFullIdx}, ",
           L"status.done=${currentStatus.done}, status.genBit=${currentStatus.genBit}, count=${currentCount}, external commitFire(${i})=${io.commitFire(i)}"
@@ -417,7 +429,7 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
       )
     }
     when(io.commitFire(i) && !canCommitFlags(i)) {
-      report(
+      if(enableLog) report(
         Seq(
           L"[ROB] COMMIT_WARN_SLOT[${i}]: Commit stage fired for non-committable slot! robPtr=${currentCommitFullIdx}, ",
           L"canCommitFlag=${canCommitFlags(
@@ -430,13 +442,13 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
   val actualCommittedMask = Vec(Bool(), config.commitWidth)
   if (config.commitWidth > 0) {
     actualCommittedMask(0) := canCommitFlags(0) && io.commitFire(0)
-    report(
+    if(enableLog) report(
       L"[ROB] COMMIT_MASK_CALC[0]: canCommitFlags(0)=${canCommitFlags(0)}, io.commitFire(0)=${io
           .commitFire(0)}, -> actualCommittedMask(0)=${actualCommittedMask(0)}"
     )
     for (i <- 1 until config.commitWidth) {
       actualCommittedMask(i) := actualCommittedMask(i - 1) && canCommitFlags(i) && io.commitFire(i)
-      report(
+      if(enableLog) report(
         L"[ROB] COMMIT_MASK_CALC[${i}]: prevActualCommittedMask(${(i - 1)})=${actualCommittedMask(
             i - 1
           )}, canCommitFlags(${i})=${canCommitFlags(i)}, io.commitFire(${i})=${io
@@ -447,7 +459,7 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
   val numToCommit = if (config.commitWidth > 0) CountOne(actualCommittedMask) else U(0, 1 bits).resized
 
   when(numToCommit > 0) {
-    report(
+    if(enableLog) report(
       Seq(
         L"[ROB] COMMIT_SUMMARY: numToCommit=${numToCommit}, actualCommittedMask=${actualCommittedMask.asBits}, ",
         L"currentHeadPtr=${currentHead} -> newHeadPtr (calculated for next reg)=${(currentHead + numToCommit.resized)}, ", // Pointer arithmetic handles wrap
@@ -477,7 +489,7 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
 
   when(io.flush.valid) {
     io.flushed := True // Flush operation completes in this cycle
-    report(
+    if(enableLog) report(
       L"[ROB] FLUSH: Received flush command. Valid=${io.flush.valid}, Reason=${io.flush.payload.reason}, TargetRobPtr=${io.flush.payload.targetRobPtr}"
     )
 
@@ -498,7 +510,7 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
 
     switch(io.flush.payload.reason) {
       is(FlushReason.FULL_FLUSH) {
-        report(L"[ROB] FLUSH: Reason=FULL_FLUSH")
+        if(enableLog) report(L"[ROB] FLUSH: Reason=FULL_FLUSH")
         headAfterFlush := U(0, config.robPtrWidth) // 重置为 0 (物理索引 0，世代位 0)
         tailAfterFlush := U(0, config.robPtrWidth) // 重置为 0
         countAfterFlush := U(0)
@@ -514,8 +526,8 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
       is(FlushReason.ROLLBACK_TO_ROB_IDX) {
         // targetIdx 是完整的 ROB ID
         val targetFullIdx = io.flush.payload.targetRobPtr 
-        report(L"[ROB] FLUSH: Reason=ROLLBACK_TO_ROB_IDX, Target ROB Index=${targetFullIdx}")
-        report(
+        if(enableLog) report(L"[ROB] FLUSH: Reason=ROLLBACK_TO_ROB_IDX, Target ROB Index=${targetFullIdx}")
+        if(enableLog) report(
           L"[ROB] FLUSH: State before rollback: head=${headAtFlushStart}, tail=${tailAtFlushStart}, count=${countAtFlushStart}"
         )
 
@@ -535,13 +547,13 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
           tempCount := (t_ext - h_ext + depth_val_ext).resized
         }
         countAfterFlush := tempCount
-        report(
+        if(enableLog) report(
           L"[ROB] FLUSH: ROLLBACK_TO_ROB_IDX calculated: new head=${headAfterFlush}, new tail=${tailAfterFlush}, new count=${countAfterFlush}"
         )
 
         // Clear statuses for entries from targetFullIdx (inclusive) up to tailAtFlushStart (exclusive)
         // These are the entries being squashed by the rollback.
-        report(
+        if(enableLog) report(
           L"[ROB] FLUSH: Clearing statuses for entries from ${targetFullIdx} (inclusive) to ${tailAtFlushStart} (exclusive)"
         )
         for (k <- 0 until config.robDepth) {
@@ -572,7 +584,7 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
             }
           }
           when(shouldClearThisEntryInRollback) {
-            report(L"[ROB] FLUSH: Clearing status for ROB entry index ${currentRobEntryPhysIdx} (Full ID: ${currentRobEntryFullIdx})")
+            if(enableLog) report(L"[ROB] FLUSH: Clearing status for ROB entry index ${currentRobEntryPhysIdx} (Full ID: ${currentRobEntryFullIdx})")
             statuses(currentRobEntryPhysIdx).busy := False
             statuses(currentRobEntryPhysIdx).done := False
             statuses(currentRobEntryPhysIdx).hasException := False
@@ -583,7 +595,7 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
         }
       }
       default { 
-        report(
+        if(enableLog) report(
           L"[ROB] FLUSH: WARNING - Flush valid but reason is NONE or unhandled. No change from flush logic itself."
         )
         headAfterFlush := headAtFlushStart
@@ -596,7 +608,7 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
     tailPtr_reg := tailAfterFlush
     count_reg := countAfterFlush
 
-    report(
+    if(enableLog) report(
       Seq(
         L"[ROB] FLUSH: Pointers AFTER flush logic: headPtr_reg=${headPtr_reg}, ",
         L"tailPtr_reg=${tailPtr_reg}, count_reg=${count_reg}"
@@ -608,7 +620,7 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
     headPtr_reg := nextHeadFromOps
     tailPtr_reg := nextTailFromOps
     count_reg := nextCountFromOps
-    report(
+    if(enableLog) report(
       Seq(
         L"[ROB] POINTER_UPDATE (No Flush): nextHead=${nextHeadFromOps}, nextTail=${nextTailFromOps}, nextCount=${nextCountFromOps} (from currentH=${currentHead}, ",
         L"currentT=${currentTail}, currentC=${currentCount}, alloc=${numActuallyAllocatedThisCycle}, commit=${numToCommit})"
@@ -624,7 +636,7 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
   io.countOut := count_reg
 
   // Report final state of actual registers for the cycle end
-  report(
+  if(enableLog) report(
     L"[ROB] CYCLE_END_REG_VALUES: headPtr_reg=${headPtr_reg}, tailPtr_reg=${tailPtr_reg}, count_reg=${count_reg}, empty_reg=${(count_reg === 0)}"
   )
 }

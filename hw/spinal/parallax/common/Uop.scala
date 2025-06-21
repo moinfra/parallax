@@ -86,8 +86,7 @@ object ImmUsageType extends SpinalEnum {
 }
 
 object LogicOp extends SpinalEnum {
-  val NONE,
-  AND, OR, XOR  = newElement()
+  val NONE, AND, OR, XOR = newElement()
 }
 
 // --- Control Flags Sub-Bundles ---
@@ -144,8 +143,16 @@ case class ShiftCtrlFlags() extends Bundle {
   }
 
   def dump(): Seq[Any] = {
-    Seq("ShiftCtrlFlags: isRight=", isRight, " isArithmetic=", isArithmetic, 
-        " isRotate=", isRotate, " isDoubleWord=", isDoubleWord)
+    Seq(
+      "ShiftCtrlFlags: isRight=",
+      isRight,
+      " isArithmetic=",
+      isArithmetic,
+      " isRotate=",
+      isRotate,
+      " isDoubleWord=",
+      isDoubleWord
+    )
   }
 }
 case class MulDivCtrlFlags() extends Bundle {
@@ -186,6 +193,23 @@ object MemAccessSize extends SpinalEnum(binarySequential) {
       is(D) { out := U(8, width) }
     }
     return out
+  }
+
+  def toByteEnable(size: MemAccessSize.C, lowerAddressBits: UInt, dataWidthBytes: Int): Bits = {
+    val resultBE = Bits(dataWidthBytes bits)
+    resultBE := 0
+
+    val addrWidth = log2Up(dataWidthBytes)
+    // 确保我们只取需要的地址位，防止位宽不匹配
+    val addr = lowerAddressBits(addrWidth-1 downto 0)
+
+    switch(size) {
+      is(MemAccessSize.B) { resultBE := (U(1) << addr).asBits.resized }
+      is(MemAccessSize.H) { resultBE := (U(3) << (addr(addrWidth-1 downto 1) << 1) ).asBits.resized } // addr(1) is the half-word selector
+      is(MemAccessSize.W) { resultBE := (U(15) << (addr(addrWidth-1 downto 2) << 2) ).asBits.resized } // addr(2) is the word selector
+      is(MemAccessSize.D) { resultBE.setAll() } // Assumes dataWidthBytes is 8 for a Double Word access
+    }
+    resultBE.resize(dataWidthBytes) // 确保最终位宽正确
   }
 }
 case class MemCtrlFlags() extends Bundle {
@@ -234,12 +258,30 @@ case class MemCtrlFlags() extends Bundle {
   }
 
   def dump(): Seq[Any] = {
-    Seq("MemCtrlFlags: size=", size, " isSignedLoad=", isSignedLoad, 
-        " isStore=", isStore, " isLoadLinked=", isLoadLinked,
-        " isStoreCond=", isStoreCond, " atomicOp=", atomicOp,
-        " isFence=", isFence, " fenceMode=", fenceMode,
-        " isCacheOp=", isCacheOp, " cacheOpType=", cacheOpType,
-        " isPrefetch=", isPrefetch)
+    Seq(
+      "MemCtrlFlags: size=",
+      size,
+      " isSignedLoad=",
+      isSignedLoad,
+      " isStore=",
+      isStore,
+      " isLoadLinked=",
+      isLoadLinked,
+      " isStoreCond=",
+      isStoreCond,
+      " atomicOp=",
+      atomicOp,
+      " isFence=",
+      isFence,
+      " fenceMode=",
+      fenceMode,
+      " isCacheOp=",
+      isCacheOp,
+      " cacheOpType=",
+      cacheOpType,
+      " isPrefetch=",
+      isPrefetch
+    )
   }
 }
 object BranchCondition extends SpinalEnum {
@@ -281,9 +323,20 @@ case class BranchCtrlFlags(val config: PipelineConfig) extends Bundle { // Added
   }
 
   def dump(): Seq[Any] = {
-    Seq("BranchCtrlFlags: condition=", condition, " isJump=", isJump,
-        " isLink=", isLink, " linkReg=", linkReg.dump(),
-        " isIndirect=", isIndirect, " laCfIdx=", laCfIdx)
+    Seq(
+      "BranchCtrlFlags: condition=",
+      condition,
+      " isJump=",
+      isJump,
+      " isLink=",
+      isLink,
+      " linkReg=",
+      linkReg.dump(),
+      " isIndirect=",
+      isIndirect,
+      " laCfIdx=",
+      laCfIdx
+    )
   }
 }
 case class FpuCtrlFlags() extends Bundle {
@@ -332,12 +385,30 @@ case class FpuCtrlFlags() extends Bundle {
   }
 
   def dump(): Seq[Any] = {
-    Seq("FpuCtrlFlags: opType=", opType, " fpSizeSrc1=", fpSizeSrc1,
-        " fpSizeSrc2=", fpSizeSrc2, " fpSizeSrc3=", fpSizeSrc3,
-        " fpSizeDest=", fpSizeDest, " roundingMode=", roundingMode,
-        " isIntegerDest=", isIntegerDest, " isSignedCvt=", isSignedCvt,
-        " fmaNegSrc1=", fmaNegSrc1, " fmaNegSrc3=", fmaNegSrc3,
-        " fcmpCond=", fcmpCond)
+    Seq(
+      "FpuCtrlFlags: opType=",
+      opType,
+      " fpSizeSrc1=",
+      fpSizeSrc1,
+      " fpSizeSrc2=",
+      fpSizeSrc2,
+      " fpSizeSrc3=",
+      fpSizeSrc3,
+      " fpSizeDest=",
+      fpSizeDest,
+      " roundingMode=",
+      roundingMode,
+      " isIntegerDest=",
+      isIntegerDest,
+      " isSignedCvt=",
+      isSignedCvt,
+      " fmaNegSrc1=",
+      fmaNegSrc1,
+      " fmaNegSrc3=",
+      fmaNegSrc3,
+      " fcmpCond=",
+      fcmpCond
+    )
   }
 }
 
@@ -369,9 +440,18 @@ case class CsrCtrlFlags(config: PipelineConfig) extends Bundle {
   }
 
   def dump(): Seq[Any] = {
-    Seq("CsrCtrlFlags: csrAddr=", csrAddr, " isWrite=", isWrite,
-        " isRead=", isRead, " isExchange=", isExchange,
-        " useUimmAsSrc=", useUimmAsSrc)
+    Seq(
+      "CsrCtrlFlags: csrAddr=",
+      csrAddr,
+      " isWrite=",
+      isWrite,
+      " isRead=",
+      isRead,
+      " isExchange=",
+      isExchange,
+      " useUimmAsSrc=",
+      useUimmAsSrc
+    )
   }
 }
 case class SystemCtrlFlags() extends Bundle {
@@ -399,8 +479,16 @@ case class SystemCtrlFlags() extends Bundle {
   }
 
   def dump(): Seq[Any] = {
-    Seq("SystemCtrlFlags: sysCode=", sysCode, " isExceptionReturn=", isExceptionReturn,
-        " isTlbOp=", isTlbOp, " tlbOpType=", tlbOpType)
+    Seq(
+      "SystemCtrlFlags: sysCode=",
+      sysCode,
+      " isExceptionReturn=",
+      isExceptionReturn,
+      " isTlbOp=",
+      isTlbOp,
+      " tlbOpType=",
+      tlbOpType
+    )
   }
 }
 
@@ -417,7 +505,8 @@ case class DecodedUop(val config: PipelineConfig) extends Bundle {
 
   // --- Operands (Architectural) ---
   val archDest = ArchRegOperand(config)
-  val writeArchDestEn = Bool() // Enable architectural destination write (e.g. rd != x0) 这里是精确的。例如如果 rd = 0 译码器会保证 writeArchDestEn 是 false
+  val writeArchDestEn =
+    Bool() // Enable architectural destination write (e.g. rd != x0) 这里是精确的。例如如果 rd = 0 译码器会保证 writeArchDestEn 是 false
 
   val archSrc1 = ArchRegOperand(config)
   val useArchSrc1 = Bool()
@@ -534,36 +623,95 @@ case class DecodedUop(val config: PipelineConfig) extends Bundle {
 
   def dump(): Seq[Any] = {
     Seq(
-      "DecodedUop @ pc=", pc, " (", isValid, ")\n",
+      "DecodedUop @ pc=",
+      pc,
+      " (",
+      isValid,
+      ")\n",
       "  Core Info: ",
-      "  uopCode=", uopCode, 
-      "  exeUnit=", exeUnit, 
-      "  isa=", isa, "\n",
+      "  uopCode=",
+      uopCode,
+      "  exeUnit=",
+      exeUnit,
+      "  isa=",
+      isa,
+      "\n",
       "  Operands:\n",
-      "    dest=", archDest.dump(), " writeEn=", writeArchDestEn, "\n",
-      "    src1=", archSrc1.dump(), " use=", useArchSrc1, "\n",
-      "    src2=", archSrc2.dump(), " use=", useArchSrc2, "\n",
-      "    src3=", archSrc3.dump(), " use=", useArchSrc3, "\n",
-      "    imm=", imm, " (usage=", immUsage, ")\n",
+      "    dest=",
+      archDest.dump(),
+      " writeEn=",
+      writeArchDestEn,
+      "\n",
+      "    src1=",
+      archSrc1.dump(),
+      " use=",
+      useArchSrc1,
+      "\n",
+      "    src2=",
+      archSrc2.dump(),
+      " use=",
+      useArchSrc2,
+      "\n",
+      "    src3=",
+      archSrc3.dump(),
+      " use=",
+      useArchSrc3,
+      "\n",
+      "    imm=",
+      imm,
+      " (usage=",
+      immUsage,
+      ")\n",
       "  Control Flags:\n",
-      "    ALU: ", aluCtrl.dump(), "\n",
-      "    Shift: ", shiftCtrl.dump(), "\n",
-      "    MulDiv: ", mulDivCtrl.dump(), "\n",
-      "    Mem: ", memCtrl.dump(), "\n",
-      "    Branch: ", branchCtrl.dump(), "\n",
-      "    FPU: ", fpuCtrl.dump(), "\n",
-      "    CSR: ", csrCtrl.dump(), "\n",
-      "    System: ", sysCtrl.dump(), "\n",
+      "    ALU: ",
+      aluCtrl.dump(),
+      "\n",
+      "    Shift: ",
+      shiftCtrl.dump(),
+      "\n",
+      "    MulDiv: ",
+      mulDivCtrl.dump(),
+      "\n",
+      "    Mem: ",
+      memCtrl.dump(),
+      "\n",
+      "    Branch: ",
+      branchCtrl.dump(),
+      "\n",
+      "    FPU: ",
+      fpuCtrl.dump(),
+      "\n",
+      "    CSR: ",
+      csrCtrl.dump(),
+      "\n",
+      "    System: ",
+      sysCtrl.dump(),
+      "\n",
       "  Status:\n",
-      "    decodeEx=", decodeExceptionCode, " hasEx=", hasDecodeException, "\n",
-      "    isMicrocode=", isMicrocode, " entry=", microcodeEntry, "\n",
-      "    isSerializing=", isSerializing, " isBranchOrJump=", isBranchOrJump
+      "    decodeEx=",
+      decodeExceptionCode,
+      " hasEx=",
+      hasDecodeException,
+      "\n",
+      "    isMicrocode=",
+      isMicrocode,
+      " entry=",
+      microcodeEntry,
+      "\n",
+      "    isSerializing=",
+      isSerializing,
+      " isBranchOrJump=",
+      isBranchOrJump
     )
   }
 
   def tinyDump(): Seq[Any] = {
     Seq(
-      "DecodedUop @ pc=", pc, " (", isValid, ")\n",
+      "DecodedUop @ pc=",
+      pc,
+      " (",
+      isValid,
+      ")\n"
     )
   }
 }
@@ -622,7 +770,7 @@ case class RenameInfo(val config: PipelineConfig) extends Bundle {
     this
   }
 
-  def setDefaultForSim(): this.type= {
+  def setDefaultForSim(): this.type = {
     import spinal.core.sim._
     physSrc1.setDefaultForSim(); physSrc1IsFpr #= false
     physSrc2.setDefaultForSim(); physSrc2IsFpr #= false
@@ -635,18 +783,40 @@ case class RenameInfo(val config: PipelineConfig) extends Bundle {
   }
 
   def dump(): Seq[Any] = {
-    Seq("RenameInfo: physSrc1=", physSrc1.dump(), " physSrc1IsFpr=", physSrc1IsFpr,
-        " physSrc2=", physSrc2.dump(), " physSrc2IsFpr=", physSrc2IsFpr,
-        " physSrc3=", physSrc3.dump(), " physSrc3IsFpr=", physSrc3IsFpr,
-        " physDest=", physDest.dump(), " physDestIsFpr=", physDestIsFpr,
-        " oldPhysDest=", oldPhysDest.dump(), " oldPhysDestIsFpr=", oldPhysDestIsFpr,
-        " allocatesPhysDest=", allocatesPhysDest, " writesToPhysReg=", writesToPhysReg)
+    Seq(
+      "RenameInfo: physSrc1=",
+      physSrc1.dump(),
+      " physSrc1IsFpr=",
+      physSrc1IsFpr,
+      " physSrc2=",
+      physSrc2.dump(),
+      " physSrc2IsFpr=",
+      physSrc2IsFpr,
+      " physSrc3=",
+      physSrc3.dump(),
+      " physSrc3IsFpr=",
+      physSrc3IsFpr,
+      " physDest=",
+      physDest.dump(),
+      " physDestIsFpr=",
+      physDestIsFpr,
+      " oldPhysDest=",
+      oldPhysDest.dump(),
+      " oldPhysDestIsFpr=",
+      oldPhysDestIsFpr,
+      " allocatesPhysDest=",
+      allocatesPhysDest,
+      " writesToPhysReg=",
+      writesToPhysReg
+    )
   }
 }
 
 case class RenamedUop(
     val config: PipelineConfig
-) extends Bundle with Dumpable with HasRobPtr {
+) extends Bundle
+    with Dumpable
+    with HasRobPtr {
   // --- Original Decoded Information ---
   val decoded = DecodedUop(config) // Embeds all architectural and control info
 
@@ -691,11 +861,28 @@ case class RenamedUop(
   }
 
   def dump(): Seq[Any] = {
-    Seq("RenamedUop: decoded=", decoded.dump(), "\n",
-        "rename=", rename.dump(), "\n",
-        "robPtr=", robPtr, " uniqueId=", uniqueId, "\n",
-        "dispatched=", dispatched, " executed=", executed, "\n",
-        "hasException=", hasException, " exceptionCode=", exceptionCode)
+    Seq(
+      "RenamedUop: decoded=",
+      decoded.dump(),
+      "\n",
+      "rename=",
+      rename.dump(),
+      "\n",
+      "robPtr=",
+      robPtr,
+      " uniqueId=",
+      uniqueId,
+      "\n",
+      "dispatched=",
+      dispatched,
+      " executed=",
+      executed,
+      "\n",
+      "hasException=",
+      hasException,
+      " exceptionCode=",
+      exceptionCode
+    )
   }
 }
 
