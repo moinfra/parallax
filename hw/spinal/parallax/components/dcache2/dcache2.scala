@@ -819,7 +819,7 @@ class DataCache(val p: DataCacheParameters) extends Component {
             report(L"[DCache] Refill: slot ${io.mem.read.rsp.id} data loaded for address 0x${rspAddress}, fault ${faulty}")
           }
         } otherwise {
-          // report(L"字索引: ${wordIndex}H 最大值: ${wordIndex.maxValue.toString(16)}H rspWithData: ${rspWithData}") // Too verbose
+          report(L"字索引: ${wordIndex}H 最大值: ${wordIndex.maxValue.toString(16)}H rspWithData: ${rspWithData}") // Too verbose
         } // wordIndex === wordIndex.maxValue || !rspWithData
       } // when(io.mem.read.rsp.valid
     }

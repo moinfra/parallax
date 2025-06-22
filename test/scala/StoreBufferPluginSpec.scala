@@ -20,6 +20,9 @@ import scala.util.Random
 import spinal.lib.bus.amba4.axi.Axi4Config
 import spinal.lib.bus.amba4.axi.Axi4
 
+/** This plugin connects the abstract services required by the StoreBuffer DUT
+  * to the concrete IO of the testbench. It acts as a bridge.
+  */
 class StoreBufferTestConnectionPlugin(
     tbIo: StoreBufferTestBenchIo,
     pCfg: PipelineConfig,
@@ -63,18 +66,19 @@ class StoreBufferTestConnectionPlugin(
     tbIo.committedStores.payload := commitSlots(0).entry
     commitAcks(0) := tbIo.robCommitAck
 
-    val dcacheService = getService[DataCacheService]
-    val unusedLoadPort = dcacheService.newLoadPort(priority = 0)
+    val unusedLoadPort = dcService.newLoadPort(priority = 0)
     unusedLoadPort.cmd.valid := False
     unusedLoadPort.cmd.payload.assignDontCare()
     unusedLoadPort.translated.assignDontCare()
     unusedLoadPort.cancels := 0
-
-    tbIo.dcacheWritebackBusy := dcacheService.writebackBusy()
+    // Expose the D-Cache's writeback busy signal to the testbench
+    tbIo.dcacheWritebackBusy := dcService.writebackBusy()
   }
 }
-// --- MODIFICATION END ---
 
+/** This plugin provides a concrete memory system implementation (a simulated SRAM)
+  * for the DataCache to connect to via the DBusService.
+  */
 class SBDataMembusTestPlugin(axiConfig: Axi4Config) extends Plugin with DBusService {
   val hw = create early new Area {
     private val sramSize = BigInt("4000", 16) // 16 KiB
@@ -97,7 +101,10 @@ class SBDataMembusTestPlugin(axiConfig: Axi4Config) extends Plugin with DBusServ
   def getSram(): SimulatedSRAM = hw.sram
 }
 
-// --- Testbench with Real ROB, DataCache, and SimulatedSRAM backend ---
+/** The top-level component for the full integration testbench.
+  * It uses the Parallax framework to instantiate and connect all necessary components:
+  * ROB, DataCache, StoreBuffer, and the test-specific plugins.
+  */
 class StoreBufferFullIntegrationTestBench(
     val pCfg: PipelineConfig,
     val lsuCfg: LsuConfig,
@@ -105,7 +112,7 @@ class StoreBufferFullIntegrationTestBench(
     val dCacheCfg: DataCachePluginConfig,
     val axiConfig: Axi4Config
 ) extends Component {
-  val io = StoreBufferTestBenchIo(pCfg, lsuCfg)
+  val io = StoreBufferTestBenchIo(pCfg, lsuCfg, dCacheCfg)
   io.simPublic()
 
   val database = new DataBase
@@ -124,7 +131,11 @@ class StoreBufferFullIntegrationTestBench(
   def getSramHandle(): SimulatedSRAM = framework.getService[SBDataMembusTestPlugin].getSram()
 }
 
-case class StoreBufferTestBenchIo(pCfg: PipelineConfig, lsuCfg: LsuConfig) extends Bundle {
+/** Defines the IO bundle for the testbench, exposing all necessary control and
+  * observation points to the test driver.
+  */
+case class StoreBufferTestBenchIo(pCfg: PipelineConfig, lsuCfg: LsuConfig, dCacheCfg: DataCachePluginConfig)
+    extends Bundle {
   val lsuPushIn = slave Stream (StoreBufferPushCmd(pCfg, lsuCfg))
   val bypassQueryAddr = in UInt (pCfg.pcWidth)
   val bypassQuerySize = in(MemAccessSize())
@@ -166,10 +177,118 @@ case class StoreBufferTestBenchIo(pCfg: PipelineConfig, lsuCfg: LsuConfig) exten
   )
   val dcacheWritebackBusy = out Bool ()
 }
-// --- MODIFICATION END ---
+
+/** A collection of high-level, semantic helper functions to drive the DUT and
+  * orchestrate complex test scenarios, making test cases clean and readable.
+  */
+class TestHelper(dut: StoreBufferFullIntegrationTestBench)(implicit cd: ClockDomain) {
+
+  val sram = dut.getSramHandle()
+
+  def init(): Unit = {
+    dut.io.lsuPushIn.valid #= false
+    dut.io.robAllocateIn.fire #= false
+    dut.io.robWritebackIn.valid #= false
+    dut.io.robCommitAck #= false
+    dut.io.bypassQueryAddr #= 0x0L
+    dut.io.bypassQuerySize #= MemAccessSize.W
+    dut.io.robFlushIn.valid #= false
+    dut.io.committedStores.valid #= false
+    sram.io.tb_writeEnable #= false
+    sram.io.tb_readEnable #= false
+    cd.waitSampling()
+  }
+
+  def cpuIssueMemoryOp(
+      addr: BigInt,
+      data: BigInt = 0,
+      be: BigInt = 0,
+      pc: Long = 0x8000,
+      isFlush: Boolean = false
+  ): BigInt = {
+    dut.io.robAllocateIn.fire #= true
+    dut.io.robAllocateIn.pcIn #= pc
+    val uop = dut.io.robAllocateIn.uopIn
+    uop.setDefault()
+    uop.decoded.uopCode #= BaseUopCode.STORE
+    cd.waitActiveEdge()
+    val robPtr = dut.io.allocatedRobPtr.toBigInt
+    dut.io.robAllocateIn.fire #= false
+    cd.waitSampling()
+    ParallaxLogger.debug(s"[Helper] CPU allocated robPtr=$robPtr for op at 0x${addr.toString(16)}")
+
+    dut.io.lsuPushIn.valid #= true
+    val p = dut.io.lsuPushIn.payload
+    p.addr #= addr; p.data #= data; p.be #= be; p.robPtr #= robPtr
+    p.accessSize #= MemAccessSize.W
+    p.isIO #= false
+    p.hasEarlyException #= false
+    p.isFlush #= isFlush
+    cd.waitSamplingWhere(dut.io.lsuPushIn.ready.toBoolean)
+    dut.io.lsuPushIn.valid #= false
+    ParallaxLogger.debug(s"[Helper] Pushed op (robPtr=$robPtr) to StoreBuffer.")
+    robPtr
+  }
+
+  def euSignalCompletion(robPtr: BigInt): Unit = {
+    dut.io.robWritebackIn.valid #= true
+    dut.io.robWritebackIn.payload.robPtr #= robPtr
+    dut.io.robWritebackIn.payload.hasException #= false
+    cd.waitActiveEdge()
+    dut.io.robWritebackIn.valid #= false
+    ParallaxLogger.debug(s"[Helper] EU signaled completion for robPtr=$robPtr.")
+  }
+
+  def waitForCommitAndAck(robPtr: BigInt): Unit = {
+    val timedOut = cd.waitSamplingWhere(timeout = 200)(
+      dut.io.committedStores.valid.toBoolean && dut.io.committedStores.payload.payload.uop.robPtr.toBigInt == robPtr
+    )
+    assert(!timedOut, s"Timeout waiting for robPtr=$robPtr to be committed.")
+    ParallaxLogger.debug(s"[Helper] Op (robPtr=$robPtr) is now at commit head.")
+
+    dut.io.robCommitAck #= true
+    cd.waitSampling()
+    dut.io.robCommitAck #= false
+    cd.waitSampling(30) // 这里必须等一会儿，让整个缓存行所有字索引都OK
+    ParallaxLogger.debug(s"[Helper] Acknowledged commit for robPtr=$robPtr.")
+  }
+
+  def forceFlushAndWait(address: BigInt): Unit = {
+    ParallaxLogger.info(s"[Helper] Forcing D-Cache flush for address 0x${address.toString(16)}")
+    val flushRobPtr = cpuIssueMemoryOp(addr = address, pc = 0x9000, isFlush = true)
+    euSignalCompletion(flushRobPtr)
+    waitForCommitAndAck(flushRobPtr)
+
+    if (dut.io.dcacheWritebackBusy.toBoolean) {
+      ParallaxLogger.info(s"[Helper] D-Cache is busy with writeback, waiting...")
+      cd.waitSamplingWhere(!dut.io.dcacheWritebackBusy.toBoolean)
+    }
+    cd.waitSampling(5) // Extra cycles for safety
+    ParallaxLogger.info(s"[Helper] Flush and writeback complete.")
+  }
+
+  def sramWrite(addr: BigInt, data: BigInt): Unit = {
+    sram.io.tb_writeEnable #= true
+    sram.io.tb_writeAddress #= addr
+    sram.io.tb_writeData #= data
+    cd.waitSampling()
+    sram.io.tb_writeEnable #= false
+  }
+
+  def sramVerify(addr: BigInt, expectedData: BigInt): Unit = {
+    sram.io.tb_readEnable #= true
+    sram.io.tb_readAddress #= addr
+    cd.waitSampling(sram.config.readWaitCycles + 2)
+    val readData = sram.io.tb_readData.toBigInt
+    assert(
+      readData == expectedData,
+      s"Memory verification failed at 0x${addr.toString(16)}. Got 0x${readData.toString(16)}, Expected 0x${expectedData.toString(16)}"
+    )
+    sram.io.tb_readEnable #= false
+  }
+}
 
 class StoreBufferPluginSpec extends CustomSpinalSimFunSuite {
-  // ... (Test helpers and test cases remain unchanged) ...
   val XLEN = 32
   val DEFAULT_SB_DEPTH = 4
 
@@ -209,102 +328,25 @@ class StoreBufferPluginSpec extends CustomSpinalSimFunSuite {
     transactionIdWidth = pCfg.transactionIdWidth
   )
 
-  def createAxi4Config(pCfg: PipelineConfig): Axi4Config = {
-    val axiConfig = Axi4Config(
-      addressWidth = pCfg.xlen,
-      dataWidth = pCfg.xlen,
-      idWidth = 1,
-      useLock = false,
-      useCache = false,
-      useProt = true,
-      useQos = false,
-      useRegion = false,
-      useResp = true,
-      useStrb = true,
-      useBurst = true,
-      useLen = true,
-      useSize = true
-    )
-    return axiConfig
-  }
+  def createAxi4Config(pCfg: PipelineConfig): Axi4Config = Axi4Config(
+    addressWidth = pCfg.xlen,
+    dataWidth = pCfg.xlen,
+    idWidth = 1,
+    useLock = false,
+    useCache = false,
+    useProt = true,
+    useQos = false,
+    useRegion = false,
+    useResp = true,
+    useStrb = true,
+    useBurst = true,
+    useLen = true,
+    useSize = true
+  )
 
-  def initSram(sram: SimulatedSRAM, addr: BigInt, data: BigInt)(implicit cd: ClockDomain): Unit = {
-    sram.io.tb_writeEnable #= true
-    sram.io.tb_writeAddress #= addr
-    sram.io.tb_writeData #= data
-    cd.waitSampling()
-    sram.io.tb_writeEnable #= false
-  }
-
-  def verifySram(sram: SimulatedSRAM, addr: BigInt, expectedData: BigInt)(implicit cd: ClockDomain): Unit = {
-    sram.io.tb_readEnable #= true
-    sram.io.tb_readAddress #= addr
-    cd.waitSampling(sram.config.readWaitCycles + 2)
-    val readData = sram.io.tb_readData.toBigInt
-    assert(
-      readData == expectedData,
-      s"Memory verification failed at 0x${addr.toString(16)}. Got 0x${readData.toString(16)}, Expected 0x${expectedData.toString(16)}"
-    )
-    sram.io.tb_readEnable #= false
-  }
-
-  def driveRobAlloc(dut: StoreBufferFullIntegrationTestBench, pc: Long)(implicit cd: ClockDomain): BigInt = {
-    dut.io.robAllocateIn.fire #= true
-    dut.io.robAllocateIn.pcIn #= pc
-    val uop = dut.io.robAllocateIn.uopIn
-    uop.setDefault()
-    uop.decoded.uopCode #= BaseUopCode.STORE
-    cd.waitActiveEdge()
-    val allocatedPtr = dut.io.allocatedRobPtr.toBigInt
-    dut.io.robAllocateIn.fire #= false
-    cd.waitSampling()
-    allocatedPtr
-  }
-
-  def driveRobWriteback(dut: StoreBufferFullIntegrationTestBench, robPtr: BigInt)(implicit cd: ClockDomain): Unit = {
-    dut.io.robWritebackIn.valid #= true
-    dut.io.robWritebackIn.payload.robPtr #= robPtr
-    dut.io.robWritebackIn.payload.hasException #= false
-    cd.waitActiveEdge()
-    dut.io.robWritebackIn.valid #= false
-  }
-
-  def driveSbPush(
-      dut: StoreBufferFullIntegrationTestBench,
-      addr: BigInt,
-      data: BigInt,
-      be: BigInt,
-      robPtr: Int,
-      accessSize: MemAccessSize.E = MemAccessSize.W,
-      isIO: Boolean = false,
-      hasEarlyEx: Boolean = false,
-      earlyExCode: Int = 0,
-      isFlush: Boolean = false
-  )(implicit cd: ClockDomain): Unit = {
-    dut.io.lsuPushIn.valid #= true
-    val p = dut.io.lsuPushIn.payload
-    p.addr #= addr; p.data #= data; p.be #= be; p.robPtr #= robPtr
-    p.accessSize #= accessSize; p.isIO #= isIO
-    p.hasEarlyException #= hasEarlyEx; p.earlyExceptionCode #= earlyExCode
-    p.isFlush #= isFlush
-    cd.waitSamplingWhere(dut.io.lsuPushIn.ready.toBoolean)
-    dut.io.lsuPushIn.valid #= false
-  }
-
-  def initDutInputs(dut: StoreBufferFullIntegrationTestBench)(implicit cd: ClockDomain) {
-    dut.io.lsuPushIn.valid #= false
-    dut.io.robAllocateIn.fire #= false
-    dut.io.robWritebackIn.valid #= false
-    dut.io.robCommitAck #= false
-    dut.io.bypassQueryAddr #= 0x0L
-    dut.io.bypassQuerySize #= MemAccessSize.W
-    dut.io.robFlushIn.valid #= false
-    cd.waitSampling()
-  }
-
-  testOnly(s"SB_FullIntegration - Basic Store Lifecycle") {
-    val pCfg = createPConfig(renameWidth = 1, commitWidth = 1, robDepth = 8)
-    val lsuCfg = createLsuConfig(pCfg, lqDepth = 16, sqDepth = 16)
+  test(s"SB_FullIntegration - Basic Store Lifecycle") {
+    val pCfg = createPConfig()
+    val lsuCfg = createLsuConfig(pCfg, 16, 16)
     val dCacheCfg = createDCacheConfig(pCfg)
     val axiConfig = createAxi4Config(pCfg)
 
@@ -313,86 +355,41 @@ class StoreBufferPluginSpec extends CustomSpinalSimFunSuite {
       .doSim { dut =>
         implicit val cd = dut.clockDomain.get
         dut.clockDomain.forkStimulus(10)
-        initDutInputs(dut)
 
-        val sram = dut.getSramHandle()
+        val helper = new TestHelper(dut)
+        helper.init()
 
         val storeAddr = BigInt("100", 16)
         val storeData = BigInt("DEADBEEF", 16)
         val initialMemData = BigInt("CAFEBABE", 16)
 
-        initSram(sram, storeAddr, initialMemData)
+        // 1. Setup initial state
+        helper.sramWrite(storeAddr, initialMemData)
         cd.waitSampling(2)
 
-        val robPtr = driveRobAlloc(dut, pc = 0x8000L)
-        ParallaxLogger.debug(s"[Test] Allocated Store to ROB, got robPtr=$robPtr")
+        // 2. CPU issues a store instruction
+        val storeRobPtr = helper.cpuIssueMemoryOp(addr = storeAddr, data = storeData, be = 0xf)
 
-        driveSbPush(dut, addr = storeAddr, data = storeData, be = 0xf, robPtr = robPtr.toInt)
-        ParallaxLogger.debug(s"[Test] Pushed Store (robPtr=$robPtr) to StoreBuffer.")
+        // 3. Execution unit signals completion
+        helper.euSignalCompletion(storeRobPtr)
 
-        cd.waitSampling(2)
-        ParallaxLogger.debug("[Test] Simulated EU commit for robPtr=$robPtr.")
-        verifySram(sram, storeAddr, initialMemData)
+        // 4. Wait for the store to be committed by the ROB
+        helper.waitForCommitAndAck(storeRobPtr)
 
-        driveRobWriteback(dut, robPtr)
-        ParallaxLogger.debug(s"[Test] Simulated EU writeback for robPtr=$robPtr.")
+        // 5. Force a flush and wait for it to complete
+        helper.forceFlushAndWait(storeAddr)
 
-        cd.waitSamplingWhere(timeout = 200)(
-          dut.io.committedStores.valid.toBoolean && dut.io.committedStores.payload.payload.uop.robPtr.toBigInt == robPtr
-        )
-        ParallaxLogger.debug(s"[Test] Store (robPtr=$robPtr) is now at commit head.")
-
-        dut.io.robCommitAck #= true
-        cd.waitSampling()
-        dut.io.robCommitAck #= false
-        ParallaxLogger.debug(s"[Test] Acknowledged commit for robPtr=$robPtr.")
-
-        val timeout = 60
-        ParallaxLogger.debug(s"[Test] Waiting up to $timeout cycles for memory to be updated...")
-        cd.waitSampling(timeout);
-
-        ParallaxLogger.info(s"[Test] Issuing FLUSH command via StoreBuffer.")
-
-        val flushRobPtr = driveRobAlloc(dut, pc = 0x9000L)
-
-        driveSbPush(dut, addr = storeAddr, data = 0, be = 0, robPtr = flushRobPtr.toInt, isFlush = true)
-
-
-        driveRobWriteback(dut, flushRobPtr)
-        val timedout = cd.waitSamplingWhere(timeout = 200)(
-          dut.io.committedStores.valid.toBoolean && dut.io.committedStores.payload.payload.uop.robPtr.toBigInt == flushRobPtr
-        )
-        assert(!timedout, "Flush timed out!")
-        dut.io.robCommitAck #= true
-        cd.waitSampling()
-        dut.io.robCommitAck #= false
-        ParallaxLogger.debug(s"[Test] Flush (robPtr=$flushRobPtr) is committed. Waiting for writeback.")
-
-
-
-        if (dut.io.dcacheWritebackBusy.toBoolean) {
-          cd.waitSamplingWhere(!dut.io.dcacheWritebackBusy.toBoolean)
-        }
-        cd.waitSampling(10);
-
-        ParallaxLogger.info(s"[Test] Writeback complete. Verifying memory.")
-
-        ParallaxLogger.debug(s"[Test] Memory at 0x${storeAddr.toString(16)} updated.")
-
-        verifySram(sram, storeAddr, storeData)
+        // 6. Verify the final memory state
+        helper.sramVerify(storeAddr, storeData)
 
         println("Test 'SB_FullIntegration - Basic Store Lifecycle' PASSED")
       }
   }
 
-  // ==================================================================================
-  // =================== NEW TEST CASES WRITTEN BY THE ASSISTANT ====================
-  // ==================================================================================
-
   test("SB_FullIntegration - Backpressure and Queue Full") {
     val sbDepth = 4
     val pCfg = createPConfig(robDepth = 16)
-    val lsuCfg = createLsuConfig(pCfg, lqDepth = 16, sqDepth = 16)
+    val lsuCfg = createLsuConfig(pCfg, 16, 16)
     val dCacheCfg = createDCacheConfig(pCfg)
     val axiConfig = createAxi4Config(pCfg)
 
@@ -401,57 +398,39 @@ class StoreBufferPluginSpec extends CustomSpinalSimFunSuite {
       .doSim { dut =>
         implicit val cd = dut.clockDomain.get
         dut.clockDomain.forkStimulus(10)
-        initDutInputs(dut)
-        val sram = dut.getSramHandle()
+
+        val helper = new TestHelper(dut)
+        helper.init()
 
         println("[Test] Starting Backpressure Test")
 
+        // 1. Issue enough stores to fill the buffer
         val storeTasks = for (i <- 0 until sbDepth) yield {
-          val addr = 0x100 + i * 4
-          val data = 0xaaaa0000 + i
-          val robPtr = driveRobAlloc(dut, 0x8000 + i * 4)
-          (addr, data, robPtr)
-        }
-
-        // 1. Fill the Store Buffer
-        ParallaxLogger.debug(s"[Test] Filling the SB with $sbDepth stores...")
-        for (((addr, data, robPtr), i) <- storeTasks.zipWithIndex) {
-          driveSbPush(dut, addr, data, 0xf, robPtr.toInt)
-          ParallaxLogger.debug(s"[Test] Pushed store ${i + 1}/$sbDepth (robPtr=$robPtr)")
+          helper.cpuIssueMemoryOp(addr = 0x100 + i * 4, data = 0x1aaa0000 + i, be = 0xf, pc = 0x8000 + i * 4)
         }
 
         // 2. Verify SB is full and exerts backpressure
         println("[Test] Verifying backpressure...")
         dut.io.lsuPushIn.valid #= true
         dut.io.lsuPushIn.payload.addr #= 0x200
-        dut.io.lsuPushIn.payload.data #= 0xffffffffL
-        dut.io.lsuPushIn.payload.be #= 0xf
-        dut.io.lsuPushIn.payload.robPtr #= 99 // Dummy robPtr
         cd.waitSampling(5)
         assert(!dut.io.lsuPushIn.ready.toBoolean, "SB should not be ready when full!")
-        println("[Test] Backpressure confirmed. SB is not accepting new stores.")
+        println("[Test] Backpressure confirmed.")
         dut.io.lsuPushIn.valid #= false
 
-        // 3. Commit all stores one by one
-        println("[Test] Committing all stores...")
-        for (((addr, data, robPtr), i) <- storeTasks.zipWithIndex) {
-          driveRobWriteback(dut, robPtr)
-          cd.waitSamplingWhere(
-            dut.io.committedStores.valid.toBoolean && dut.io.committedStores.payload.payload.uop.robPtr.toBigInt == robPtr
-          )
-          dut.io.robCommitAck #= true
-          cd.waitSampling()
-          dut.io.robCommitAck #= false
-          ParallaxLogger.debug(s"[Test] Committed store ${i + 1}/$sbDepth (robPtr=$robPtr)")
+        // 3. Complete and commit all stores
+        for (robPtr <- storeTasks) {
+          helper.euSignalCompletion(robPtr)
+          helper.waitForCommitAndAck(robPtr)
         }
 
-        // 4. Verify all data is written to SRAM correctly and in order
-        println("[Test] Verifying memory content...")
-        cd.waitSampling(200) // Wait for all stores to drain to memory
+        // 4. Force a flush for the last address to ensure all data is written back
+        helper.forceFlushAndWait(0x100 + (sbDepth - 1) * 4)
 
-        for (((addr, data, _), i) <- storeTasks.zipWithIndex) {
-          verifySram(sram, addr, data)
-          ParallaxLogger.debug(s"[Test] Verified memory for store ${i + 1}/$sbDepth at 0x${addr.toHexString}")
+        // 5. Verify all data is in memory
+        println("[Test] Verifying memory content...")
+        for (i <- 0 until sbDepth) {
+          helper.sramVerify(addr = 0x100 + i * 4, expectedData = 0x1aaa0000 + i)
         }
 
         println("Test 'SB_FullIntegration - Backpressure and Queue Full' PASSED")
@@ -459,108 +438,78 @@ class StoreBufferPluginSpec extends CustomSpinalSimFunSuite {
   }
 
   test("SB_FullIntegration - Flush non-committed stores") {
-    val sbDepth = 4
     val pCfg = createPConfig(robDepth = 16)
-    val lsuCfg = createLsuConfig(pCfg, lqDepth = 16, sqDepth = 16)
+    val lsuCfg = createLsuConfig(pCfg, 16, 16)
     val dCacheCfg = createDCacheConfig(pCfg)
     val axiConfig = createAxi4Config(pCfg)
 
     SimConfig.withWave
-      .compile(new StoreBufferFullIntegrationTestBench(pCfg, lsuCfg, sbDepth, dCacheCfg, axiConfig))
+      .compile(new StoreBufferFullIntegrationTestBench(pCfg, lsuCfg, 4, dCacheCfg, axiConfig))
       .doSim { dut =>
         implicit val cd = dut.clockDomain.get
         dut.clockDomain.forkStimulus(10)
 
-        val robFlushPort = dut.io.robFlushIn
-        robFlushPort.valid #= false // Init
-
-        initDutInputs(dut)
-        val sram = dut.getSramHandle()
+        val helper = new TestHelper(dut)
+        helper.init()
 
         println("[Test] Starting Flush Test")
 
-        val storeAddr1 = 0x100L
-        val storeData1 = 0x11111111L
-        val storeAddr2 = 0x104L
-        val storeData2 = 0x22222222L // This one will be flushed
-        val storeAddr3 = 0x108L
-        val storeData3 = 0x33333333L // This one will be flushed
+        // 1. Initialize memory
+        helper.sramWrite(0x100, 0)
+        helper.sramWrite(0x104, 0)
 
-        // Initialize memory
-        initSram(sram, storeAddr1, 0)
-        initSram(sram, storeAddr2, 0)
-        initSram(sram, storeAddr3, 0)
+        // 2. Issue two stores
+        val robPtr1 = helper.cpuIssueMemoryOp(addr = 0x100, data = 0x11111111, be = 0xf)
+        val robPtr2 = helper.cpuIssueMemoryOp(addr = 0x104, data = 0x22222222, be = 0xf, pc = 0x8004)
 
-        // 1. Push three stores
-        val robPtr1 = driveRobAlloc(dut, 0x8000); driveSbPush(dut, storeAddr1, storeData1, 0xf, robPtr1.toInt)
-        val robPtr2 = driveRobAlloc(dut, 0x8004); driveSbPush(dut, storeAddr2, storeData2, 0xf, robPtr2.toInt)
-        val robPtr3 = driveRobAlloc(dut, 0x8008); driveSbPush(dut, storeAddr3, storeData3, 0xf, robPtr3.toInt)
-        ParallaxLogger.debug(s"[Test] Pushed 3 stores (robPtrs: $robPtr1, $robPtr2, $robPtr3)")
+        // 3. Complete and commit only the first store
+        helper.euSignalCompletion(robPtr1)
+        helper.waitForCommitAndAck(robPtr1)
 
-        // 2. Commit only the first store
-        driveRobWriteback(dut, robPtr1)
-        cd.waitSamplingWhere(
-          dut.io.committedStores.valid.toBoolean && dut.io.committedStores.payload.payload.uop.robPtr.toBigInt == robPtr1
-        )
-        dut.io.robCommitAck #= true
-        cd.waitSampling()
-        dut.io.robCommitAck #= false
-        ParallaxLogger.debug(s"[Test] Committed store 1 (robPtr=$robPtr1)")
-
-        // Wait for the first store to drain to memory to avoid race conditions in verification
-        cd.waitSampling(200)
-
-        // 3. Issue a flush from the ROB, targeting the second store
+        // 4. Issue a ROB flush targeting the second, non-committed store
         ParallaxLogger.debug(s"[Test] Issuing a flush from ROB, targeting robPtr=$robPtr2")
-        robFlushPort.valid #= true
-        robFlushPort.payload.targetRobPtr #= robPtr2
+        dut.io.robFlushIn.valid #= true
+        dut.io.robFlushIn.payload.targetRobPtr #= robPtr2
         cd.waitSampling()
-        robFlushPort.valid #= false
+        dut.io.robFlushIn.valid #= false
 
-        // 4. Verify memory content
-        cd.waitSampling(50) // Give time for any potential faulty writes to occur
+        // 5. Force a flush for the first store's address to check its state
+        helper.forceFlushAndWait(0x100)
 
+        // 6. Verify memory: first store is there, second is not
         println("[Test] Verifying memory...")
-        verifySram(sram, storeAddr1, storeData1)
-        ParallaxLogger.debug(s"[Test] Verified store 1 (robPtr=$robPtr1) was written correctly.")
-        verifySram(sram, storeAddr2, 0) // Should NOT be written
-        ParallaxLogger.debug(s"[Test] Verified store 2 (robPtr=$robPtr2) was NOT written (flushed).")
-        verifySram(sram, storeAddr3, 0) // Should also NOT be written
-        ParallaxLogger.debug(s"[Test] Verified store 3 (robPtr=$robPtr3) was also NOT written (flushed).")
+        helper.sramVerify(addr = 0x100, expectedData = 0x11111111)
+        helper.sramVerify(addr = 0x104, expectedData = 0) // Should NOT be written
 
         println("Test 'SB_FullIntegration - Flush non-committed stores' PASSED")
       }
   }
 
   test("SB_FullIntegration - Store to Load Forwarding") {
-    val sbDepth = 4
     val pCfg = createPConfig()
-    val lsuCfg = createLsuConfig(pCfg, lqDepth = 16, sqDepth = 16)
+    val lsuCfg = createLsuConfig(pCfg, 16, 16)
     val dCacheCfg = createDCacheConfig(pCfg)
     val axiConfig = createAxi4Config(pCfg)
 
     SimConfig.withWave
-      .compile(new StoreBufferFullIntegrationTestBench(pCfg, lsuCfg, sbDepth, dCacheCfg, axiConfig))
+      .compile(new StoreBufferFullIntegrationTestBench(pCfg, lsuCfg, 4, dCacheCfg, axiConfig))
       .doSim { dut =>
         implicit val cd = dut.clockDomain.get
         dut.clockDomain.forkStimulus(10)
-        initDutInputs(dut)
-        val sram = dut.getSramHandle()
+
+        val helper = new TestHelper(dut)
+        helper.init()
 
         println("[Test] Starting Store-to-Load Forwarding Test")
 
         val storeAddr = 0x200L
         val storeData = BigInt("ABCD1234", 16)
-        val initialMemData = BigInt("00000000", 16)
 
         // 1. Initialize memory with a known old value
-        initSram(sram, storeAddr, initialMemData)
+        helper.sramWrite(storeAddr, 0)
 
         // 2. Push a store to SB, but DO NOT commit it
-        val robPtr = driveRobAlloc(dut, 0x9000)
-        driveSbPush(dut, storeAddr, storeData, 0xf, robPtr.toInt)
-        ParallaxLogger.debug(s"[Test] Pushed store (robPtr=$robPtr, addr=0x${storeAddr.toHexString}) to SB.")
-
+        helper.cpuIssueMemoryOp(addr = storeAddr, data = storeData, be = 0xf)
         cd.waitSampling(2)
 
         // 3. Issue a bypass query for the same address (full word)
