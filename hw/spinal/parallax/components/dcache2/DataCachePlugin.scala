@@ -221,4 +221,5 @@ trait DataCacheService extends Service with LockedImpl {
   def newStorePort(): DataStorePort
   def getRefillCompletions(): Bits
   def getTestFlushPort(): DataStorePort
+  def writebackBusy(): Bool
 }

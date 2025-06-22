@@ -20,7 +20,11 @@ import scala.util.Random
 import spinal.lib.bus.amba4.axi.Axi4Config
 import spinal.lib.bus.amba4.axi.Axi4
 
-class StoreBufferTestConnectionPlugin(tbIo: StoreBufferTestBenchIo, pCfg: PipelineConfig) extends Plugin {
+class StoreBufferTestConnectionPlugin(
+    tbIo: StoreBufferTestBenchIo,
+    pCfg: PipelineConfig,
+    dCacheCfg: DataCachePluginConfig
+) extends Plugin {
   val setup = create early new Area {
     val sbPlugin = getService[StoreBufferPlugin]
     val robService = getService[ROBService[RenamedUop]]
@@ -65,6 +69,8 @@ class StoreBufferTestConnectionPlugin(tbIo: StoreBufferTestBenchIo, pCfg: Pipeli
     unusedLoadPort.cmd.payload.assignDontCare()
     unusedLoadPort.translated.assignDontCare()
     unusedLoadPort.cancels := 0
+
+    tbIo.dcacheWritebackBusy := dcacheService.writebackBusy()
   }
 }
 // --- MODIFICATION END ---
@@ -103,14 +109,15 @@ class StoreBufferFullIntegrationTestBench(
   io.simPublic()
 
   val database = new DataBase
+  val dCacheParams = DataCachePluginConfig.toDataCacheParameters(dCacheCfg)
 
   val framework = ProjectScope(database) on new Framework(
     Seq(
       new ROBPlugin[RenamedUop](pCfg, HardType(RenamedUop(pCfg)), () => RenamedUop(pCfg).setDefault()),
       new DataCachePlugin(dCacheCfg),
-      new StoreBufferPlugin(pCfg, lsuCfg, sbDepth),
+      new StoreBufferPlugin(pCfg, lsuCfg, dCacheParams, sbDepth),
       new SBDataMembusTestPlugin(axiConfig),
-      new StoreBufferTestConnectionPlugin(io, pCfg)
+      new StoreBufferTestConnectionPlugin(io, pCfg, dCacheCfg)
     )
   )
 
@@ -122,18 +129,20 @@ case class StoreBufferTestBenchIo(pCfg: PipelineConfig, lsuCfg: LsuConfig) exten
   val bypassQueryAddr = in UInt (pCfg.pcWidth)
   val bypassQuerySize = in(MemAccessSize())
   val bypassDataOut = master Flow (StoreBufferBypassData(pCfg))
-  val robAllocateIn = in (ROBAllocateSlot(
-    ROBConfig(
-      robDepth = pCfg.robDepth,
-      pcWidth = pCfg.pcWidth,
-      commitWidth = pCfg.commitWidth,
-      allocateWidth = pCfg.renameWidth,
-      numWritebackPorts = pCfg.totalEuCount,
-      uopType = HardType(RenamedUop(pCfg)),
-      defaultUop = () => RenamedUop(pCfg).setDefault(),
-      exceptionCodeWidth = pCfg.exceptionCodeWidth
+  val robAllocateIn = in(
+    ROBAllocateSlot(
+      ROBConfig(
+        robDepth = pCfg.robDepth,
+        pcWidth = pCfg.pcWidth,
+        commitWidth = pCfg.commitWidth,
+        allocateWidth = pCfg.renameWidth,
+        numWritebackPorts = pCfg.totalEuCount,
+        uopType = HardType(RenamedUop(pCfg)),
+        defaultUop = () => RenamedUop(pCfg).setDefault(),
+        exceptionCodeWidth = pCfg.exceptionCodeWidth
+      )
     )
-  ))
+  )
   val robFlushIn = slave Flow (ROBFlushPayload(robPtrWidth = pCfg.robPtrWidth))
   val robWritebackIn = slave Flow (RobCompletionMsg(pCfg))
   val robCommitAck = in Bool ()
@@ -155,6 +164,7 @@ case class StoreBufferTestBenchIo(pCfg: PipelineConfig, lsuCfg: LsuConfig) exten
       )
     )
   )
+  val dcacheWritebackBusy = out Bool ()
 }
 // --- MODIFICATION END ---
 
@@ -268,13 +278,15 @@ class StoreBufferPluginSpec extends CustomSpinalSimFunSuite {
       accessSize: MemAccessSize.E = MemAccessSize.W,
       isIO: Boolean = false,
       hasEarlyEx: Boolean = false,
-      earlyExCode: Int = 0
+      earlyExCode: Int = 0,
+      isFlush: Boolean = false
   )(implicit cd: ClockDomain): Unit = {
     dut.io.lsuPushIn.valid #= true
     val p = dut.io.lsuPushIn.payload
     p.addr #= addr; p.data #= data; p.be #= be; p.robPtr #= robPtr
     p.accessSize #= accessSize; p.isIO #= isIO
     p.hasEarlyException #= hasEarlyEx; p.earlyExceptionCode #= earlyExCode
+    p.isFlush #= isFlush
     cd.waitSamplingWhere(dut.io.lsuPushIn.ready.toBoolean)
     dut.io.lsuPushIn.valid #= false
   }
@@ -305,7 +317,7 @@ class StoreBufferPluginSpec extends CustomSpinalSimFunSuite {
 
         val sram = dut.getSramHandle()
 
-        val storeAddr = 0x100L
+        val storeAddr = BigInt("100", 16)
         val storeData = BigInt("DEADBEEF", 16)
         val initialMemData = BigInt("CAFEBABE", 16)
 
@@ -335,20 +347,37 @@ class StoreBufferPluginSpec extends CustomSpinalSimFunSuite {
         dut.io.robCommitAck #= false
         ParallaxLogger.debug(s"[Test] Acknowledged commit for robPtr=$robPtr.")
 
-        val timeout = 20
+        val timeout = 60
         ParallaxLogger.debug(s"[Test] Waiting up to $timeout cycles for memory to be updated...")
-        val isTimeout = cd.waitSamplingWhere(timeout) {
-          sram.io.tb_readEnable #= true
-          sram.io.tb_readAddress #= storeAddr
-          cd.waitSampling(sram.config.readWaitCycles + 1)
-          val currentData = sram.io.tb_readData.toBigInt
-          sram.io.tb_readEnable #= false
-          currentData == storeData
+        cd.waitSampling(timeout);
+
+        ParallaxLogger.info(s"[Test] Issuing FLUSH command via StoreBuffer.")
+
+        val flushRobPtr = driveRobAlloc(dut, pc = 0x9000L)
+
+        driveSbPush(dut, addr = storeAddr, data = 0, be = 0, robPtr = flushRobPtr.toInt, isFlush = true)
+
+
+        driveRobWriteback(dut, flushRobPtr)
+        val timedout = cd.waitSamplingWhere(timeout = 200)(
+          dut.io.committedStores.valid.toBoolean && dut.io.committedStores.payload.payload.uop.robPtr.toBigInt == flushRobPtr
+        )
+        assert(!timedout, "Flush timed out!")
+        dut.io.robCommitAck #= true
+        cd.waitSampling()
+        dut.io.robCommitAck #= false
+        ParallaxLogger.debug(s"[Test] Flush (robPtr=$flushRobPtr) is committed. Waiting for writeback.")
+
+
+
+        if (dut.io.dcacheWritebackBusy.toBoolean) {
+          cd.waitSamplingWhere(!dut.io.dcacheWritebackBusy.toBoolean)
         }
-        if (isTimeout) {
-            fail(s"Memory verification timed out after $timeout cycles.")
-        }
-        ParallaxLogger.debug(s"[Test] Memory at 0x${storeAddr.toHexString} updated.")
+        cd.waitSampling(10);
+
+        ParallaxLogger.info(s"[Test] Writeback complete. Verifying memory.")
+
+        ParallaxLogger.debug(s"[Test] Memory at 0x${storeAddr.toString(16)} updated.")
 
         verifySram(sram, storeAddr, storeData)
 

@@ -15,12 +15,14 @@ case class StoreBufferPushCmd(val pCfg: PipelineConfig, val lsuCfg: LsuConfig) e
     val be      = Bits(pCfg.dataWidth.value / 8 bits)
     val robPtr  = UInt(lsuCfg.robPtrWidth)
     val accessSize = MemAccessSize()
+    val isFlush = Bool() // Bench Test only
     val isIO    = Bool()
     val hasEarlyException = Bool()
     val earlyExceptionCode= UInt(pCfg.exceptionCodeWidth)
 }
 
-case class StoreBufferSlot(val pCfg: PipelineConfig, val lsuCfg: LsuConfig) extends Bundle {
+case class StoreBufferSlot(val pCfg: PipelineConfig, val lsuCfg: LsuConfig, val dCacheParams: DataCacheParameters) extends Bundle {
+    val isFlush             = Bool() 
     val addr                = UInt(pCfg.pcWidth)
     val data                = Bits(pCfg.dataWidth)
     val be                  = Bits(pCfg.dataWidth.value / 8 bits)
@@ -38,7 +40,14 @@ case class StoreBufferSlot(val pCfg: PipelineConfig, val lsuCfg: LsuConfig) exte
     val isSentToDCache      = Bool()
     val dcacheOpPending     = Bool()
 
+    // =========================================================
+    // >> 修改 1: 增加用于智能重试的状态字段
+    // =========================================================
+    val isWaitingForRefill  = Bool()
+    val refillSlotToWatch   = Bits(dCacheParams.refillCount bits)
+
     def setDefault(): this.type = {
+        isFlush             := False
         valid               := False
         addr                := 0
         data                := 0
@@ -51,10 +60,14 @@ case class StoreBufferSlot(val pCfg: PipelineConfig, val lsuCfg: LsuConfig) exte
         isCommitted         := False
         isSentToDCache      := False
         dcacheOpPending     := False
+        // >> 初始化新字段
+        isWaitingForRefill  := False
+        refillSlotToWatch   := 0
         this
     }
 
     def initFromCommand(command: StoreBufferPushCmd): this.type = {
+        this.isFlush             := command.isFlush
         this.addr                := command.addr
         this.data                := command.data
         this.be                  := command.be
@@ -67,6 +80,9 @@ case class StoreBufferSlot(val pCfg: PipelineConfig, val lsuCfg: LsuConfig) exte
         this.isCommitted         := False
         this.isSentToDCache      := False
         this.dcacheOpPending     := False
+        // >> 初始化新字段
+        this.isWaitingForRefill  := False
+        this.refillSlotToWatch   := 0
         this
     }
 }
@@ -93,7 +109,8 @@ trait StoreBufferService extends Service {
 class StoreBufferPlugin(
     val pipelineConfig: PipelineConfig,
     val lsuConfig: LsuConfig,
-    val sbDepth: Int = 8
+    val dCacheParams: DataCacheParameters, // >> 修改 2: 传入D-Cache参数以获取refillCount
+    val sbDepth: Int
 ) extends Plugin with StoreBufferService with LockedImpl {
 
     val hw = create early new Area {
@@ -122,8 +139,6 @@ class StoreBufferPlugin(
         val robService    = hw.robServiceInst
         val dcacheService = hw.dcacheServiceInst
         
-        // Connect our master port to the slave port provided by the service.
-        // All internal logic now uses our own correctly-directed master port.
         val storePortDCache = hw.dCacheStorePort
 
         val pushPortIn    = hw.pushPortInst
@@ -131,12 +146,13 @@ class StoreBufferPlugin(
         val bypassQuerySz = hw.bypassQuerySizeIn
         val bypassDataOut = hw.bypassDataOutInst
         
-        val slots       = Vec.fill(sbDepth)(Reg(StoreBufferSlot(pipelineConfig, lsuConfig)))
+        // >> 修改 3: 实例化Slot时传入D-Cache参数
+        val slots       = Vec.fill(sbDepth)(Reg(StoreBufferSlot(pipelineConfig, lsuConfig, dCacheParams)))
         val slotsAfterUpdates = CombInit(slots)
         val slotsNext   = CombInit(slotsAfterUpdates)
 
         for(i <- 0 until sbDepth) {
-            slots(i).init(StoreBufferSlot(pipelineConfig, lsuConfig).setDefault())
+            slots(i).init(StoreBufferSlot(pipelineConfig, lsuConfig, dCacheParams).setDefault())
         }
 
         val validFall = Vec(Bool(), sbDepth)
@@ -147,29 +163,49 @@ class StoreBufferPlugin(
 
         when(pushPortIn.fire) {
             val pushIdx = OHToUInt(validFall)
-            val newSlotData = StoreBufferSlot(pipelineConfig, lsuConfig)
+            val newSlotData = StoreBufferSlot(pipelineConfig, lsuConfig, dCacheParams)
             newSlotData.initFromCommand(pushPortIn.payload)
             slotsAfterUpdates(pushIdx) := newSlotData
             ParallaxSim.log(L"[SB] PUSH: robPtr=${pushPortIn.payload.robPtr} to slotIdx=${pushIdx}")
         }
 
         val headSlot = slots(0)
+        // =========================================================
+        // >> 修改 4: 在发送条件中加入对新状态的检查
+        // =========================================================
         val canPopToDCache = headSlot.valid && headSlot.isCommitted &&
                              !headSlot.isSentToDCache && !headSlot.dcacheOpPending &&
+                             !headSlot.isWaitingForRefill && // << 不能在等待Refill时发送
                              !headSlot.hasEarlyException && !headSlot.isIO
 
         storePortDCache.cmd.valid := canPopToDCache
         storePortDCache.cmd.payload.assignDontCare()
         when(canPopToDCache) {
-            storePortDCache.cmd.payload.address  := headSlot.addr
-            storePortDCache.cmd.payload.data     := headSlot.data
-            storePortDCache.cmd.payload.mask     := headSlot.be
-            storePortDCache.cmd.payload.io       := False
-            storePortDCache.cmd.payload.flush    := False
-            storePortDCache.cmd.payload.flushFree:= False
-            storePortDCache.cmd.payload.prefetch := False
-            if(pipelineConfig.transactionIdWidth > 0) {
-                storePortDCache.cmd.payload.id := headSlot.robPtr.resize(pipelineConfig.transactionIdWidth bits)
+            // 根据 headSlot.isFlush 来设置不同的payload
+            when(headSlot.isFlush) {
+                // 这是一个 FLUSH 命令
+                storePortDCache.cmd.payload.address  := headSlot.addr
+                storePortDCache.cmd.payload.flush    := True // <--- 关键！
+                storePortDCache.cmd.payload.data     := 0
+                storePortDCache.cmd.payload.mask     := 0
+                storePortDCache.cmd.payload.io       := False
+                storePortDCache.cmd.payload.flushFree:= False // or True, depending on policy
+                storePortDCache.cmd.payload.prefetch := False
+                if(pipelineConfig.transactionIdWidth > 0) {
+                    storePortDCache.cmd.payload.id := headSlot.robPtr.resize(pipelineConfig.transactionIdWidth bits)
+                }
+            } otherwise {
+                // 这是一个常规的 STORE 命令 (保持原样)
+                storePortDCache.cmd.payload.address  := headSlot.addr
+                storePortDCache.cmd.payload.data     := headSlot.data
+                storePortDCache.cmd.payload.mask     := headSlot.be
+                storePortDCache.cmd.payload.io       := headSlot.isIO
+                storePortDCache.cmd.payload.flush    := False
+                storePortDCache.cmd.payload.flushFree:= False
+                storePortDCache.cmd.payload.prefetch := False
+                if(pipelineConfig.transactionIdWidth > 0) {
+                    storePortDCache.cmd.payload.id := headSlot.robPtr.resize(pipelineConfig.transactionIdWidth bits)
+                }
             }
         }
         
@@ -184,8 +220,29 @@ class StoreBufferPlugin(
         when(dcacheRspArrived) {
             slotsAfterUpdates(0).dcacheOpPending := False
             when(storePortDCache.rsp.payload.redo) {
-                slotsAfterUpdates(0).isSentToDCache := False
+                // =========================================================
+                // >> 修改 5: 收到redo后，不再是简单重试，而是进入等待状态
+                // =========================================================
+                slotsAfterUpdates(0).isWaitingForRefill := True
+                slotsAfterUpdates(0).refillSlotToWatch  := storePortDCache.rsp.payload.refillSlot
+                ParallaxSim.log(L"[SB] REDO received, entering WAIT_FOR_REFILL for robPtr=${slots(0).robPtr}, watching slot=${storePortDCache.rsp.payload.refillSlot}")
             }
+        }
+
+        // =========================================================
+        // >> 修改 6: 增加监听 refillCompletions 的核心逻辑
+        // =========================================================
+        val refillCompletionsFromDCache = dcacheService.getRefillCompletions()
+        ParallaxSim.log(L"[SB] Watching... refillCompletionsFromDCache=${refillCompletionsFromDCache}")
+        val waitedRefillIsDone = slots(0).valid && slots(0).isWaitingForRefill && 
+                                 (slots(0).refillSlotToWatch & refillCompletionsFromDCache).orR
+
+        when(waitedRefillIsDone) {
+            // Refill 完成，我们可以准备重试了！
+            // 将状态恢复到可以再次发送的状态
+            slotsAfterUpdates(0).isWaitingForRefill := False
+            slotsAfterUpdates(0).isSentToDCache     := False // 允许重新发送
+            ParallaxSim.log(L"[SB] REFILL_DONE observed for robPtr=${slots(0).robPtr}. Ready to retry.")
         }
 
         val commitInfoFromRob = robService.getCommitSlots(pipelineConfig.commitWidth)
@@ -217,25 +274,36 @@ class StoreBufferPlugin(
         }
         
         val popHeadSlot         = slotsAfterUpdates(0)
-        val normalStoreDone     = popHeadSlot.valid && popHeadSlot.isCommitted &&
+
+        // 为 flush 指令定义一个完成条件
+        val flushDone           = popHeadSlot.isFlush && popHeadSlot.valid && popHeadSlot.isCommitted &&
                                     popHeadSlot.isSentToDCache && !popHeadSlot.dcacheOpPending &&
+                                    !popHeadSlot.isWaitingForRefill &&
+                                    !popHeadSlot.hasEarlyException
+
+        val normalStoreDone     = !popHeadSlot.isFlush && popHeadSlot.valid && popHeadSlot.isCommitted &&
+                                    popHeadSlot.isSentToDCache && !popHeadSlot.dcacheOpPending &&
+                                    !popHeadSlot.isWaitingForRefill && 
                                     !popHeadSlot.hasEarlyException && !popHeadSlot.isIO
         val canPopIO            = popHeadSlot.valid && popHeadSlot.isCommitted &&
                                     !popHeadSlot.isSentToDCache &&
                                     !popHeadSlot.dcacheOpPending &&
+                                    !popHeadSlot.isWaitingForRefill && // << 也需要在pop条件里检查
                                     !popHeadSlot.hasEarlyException && popHeadSlot.isIO
         val earlyExcStoreDone   = popHeadSlot.valid && popHeadSlot.isCommitted &&
                                     popHeadSlot.hasEarlyException
 
-        val popRequest = normalStoreDone || canPopIO || earlyExcStoreDone
-
+        // 将 flushDone 添加到 popRequest 中
+        val popRequest = normalStoreDone || canPopIO || earlyExcStoreDone || flushDone
+        report(L"[SB] popRequest=${popRequest}, flushDone=${flushDone}, normalStoreDone=${normalStoreDone}, canPopIO=${canPopIO}, earlyExcStoreDone=${earlyExcStoreDone}")
         when(popRequest) {
-            ParallaxSim.log(L"[SB] POP: Popping slot 0 (robPtr=${popHeadSlot.robPtr})")
+            ParallaxSim.log(L"[SB] POP: Popping slot 0 (robPtr=${popHeadSlot.robPtr}, isFlush=${popHeadSlot.isFlush})")
             for (i <- 0 until sbDepth - 1) {
                 slotsNext(i) := slotsAfterUpdates(i + 1)
             }
             slotsNext(sbDepth - 1).setDefault()
         }
+
 
         val bypassResult            = StoreBufferBypassData(pipelineConfig)
 
@@ -246,12 +314,7 @@ class StoreBufferPlugin(
         bypassInitial.data.assignFromBits(B(0))
         bypassInitial.hitMask.assignFromBits(B(0))
 
-        // slots 是从 0 到 sbDepth-1 的，我们需要从最新的store开始检查，所以要 .reverse
         val finalBypassResult = slots.reverse.foldLeft(bypassInitial) { (acc, slot) =>
-            // acc: 上一轮迭代的结果 (accumulator)
-            // slot: 当前正在检查的 SB 槽位 (slots(i))
-
-            // 为本轮迭代创建一个新的累加器，初始值为上一轮的结果
             val nextAcc = BypassAccumulator(pipelineConfig)
             nextAcc := acc
 
@@ -261,23 +324,18 @@ class StoreBufferPlugin(
 
                 when(loadWordAddr === storeWordAddr) {
                     for (k <- 0 until dataWidthBytes) {
-                        // 如果当前store的这个字节是有效的，并且load也需要它
                         when(slot.be(k) && loadQueryBe(k)) {
-                            // 更新 *本轮* 累加器的值
-                            // 注意：我们只在需要时覆盖，之前更新的值会从acc继承下来
                             nextAcc.data(k*8, 8 bits) := slot.data(k*8, 8 bits)
                             nextAcc.hitMask(k)        := True
                         }
                     }
                 }
             }
-            // 返回本轮迭代更新后的累加器，供下一轮使用
             nextAcc
         }
 
-        // foldLeft 结束后，finalBypassResult 就包含了最终的转发结果
         val finalHitMask = finalBypassResult.hitMask
-        val overallBypassHit = finalHitMask.orR // 只要有任何一个字节命中，就认为有部分命中
+        val overallBypassHit = finalHitMask.orR
 
         bypassDataOut.valid            := overallBypassHit
         bypassDataOut.payload.data     := finalBypassResult.data

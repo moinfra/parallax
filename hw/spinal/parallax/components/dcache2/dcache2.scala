@@ -107,7 +107,7 @@ case class DataLoadRsp(dataWidth: Int, refillCount: Int, transactionIdWidth: Int
   // format 方法：用于打印调试信息。
   def format(): Seq[Any] = {
     var base: Seq[Any] = Seq(
-      L"DataLoadRsp(data = ${data}, fault = ${fault}, redo = ${redo}, refillSlot = ${refillSlot}, refillSlotAny = ${refillSlotAny})"
+      L"DataLoadRsp(data = ${data}, fault = ${fault.asBits}, redo = ${redo.asBits}, refillSlot = ${refillSlot}, refillSlotAny = ${refillSlotAny})"
     )
     if(transactionIdWidth > 0) base = base :+ L", id = ${id}"
     base
@@ -141,7 +141,7 @@ case class DataStoreCmd(postTranslationWidth: Int, dataWidth: Int, transactionId
   def format(): Seq[Any] = {
     Seq(
       L"DataStoreCmd(address = ${address}, data = ${data}, mask = ${mask}, ",
-      L"io = ${io}, flush = ${flush}, flushFree = ${flushFree}, prefetch = ${prefetch})"
+      L"io = ${io.asBits}, flush = ${flush.asBits}, flushFree = ${flushFree}, prefetch = ${prefetch.asBits})"
     )
   }
 }
@@ -161,8 +161,8 @@ case class DataStoreRsp(addressWidth: Int, refillCount: Int, transactionIdWidth:
   // format 方法：用于打印调试信息。
   def format(): Seq[Any] = {
     Seq(
-      L"DataStoreRsp(fault = ${fault}, redo = ${redo}, refillSlot = ${refillSlot}, refillSlotAny = ${refillSlotAny}, ",
-      L"flush = ${flush}, prefetch = ${prefetch}, address = ${address}, io = ${io})"
+      L"DataStoreRsp(fault = ${fault.asBits}, redo = ${redo.asBits}, refillSlot = ${refillSlot}, refillSlotAny = ${refillSlotAny}, ",
+      L"flush = ${flush.asBits}, prefetch = ${prefetch.asBits}, address = ${address}, io = ${io.asBits})"
     )
   }
 }
@@ -659,7 +659,9 @@ class DataCache(val p: DataCacheParameters) extends Component {
       waysWrite.mask.setAll() // 设置所有路的写掩码
       waysWrite.address := counter.resized // 写地址为当前计数器值
       waysWrite.tag.loaded := False // 标记Tag为未加载（即失效）
+      if (enableLog) { report(L"[DCache] Invalidate: Invalidation in progress, line ${counter.resized} invalidated.") }
     }
+    if (enableLog) { when(done) { report(L"[DCache] Invalidate: All cache lines invalidated.") } }
   }
 
   // PriorityArea 类：实现优先级仲裁逻辑。
@@ -729,7 +731,7 @@ class DataCache(val p: DataCacheParameters) extends Component {
         //   slot.unique := push.unique
         //   slot.data := push.data
         // }
-        if (enableLog) { report(L"[DCache] Refill: slot ${slot.id} allocated for address ${push.address} (way ${push.way})") }
+        if (enableLog) { report(L"[DCache] Refill: slot ${slot.id} allocated for address 0x${push.address} (way ${push.way})") }
       } otherwise {
         val freeFiltred = free.asBools.patch(slot.id, Nil, 1) // 过滤掉当前槽位后的空闲掩码
         // 降低未选中槽位的优先级，确保仲裁器能够选中被选中的槽位。
@@ -758,7 +760,7 @@ class DataCache(val p: DataCacheParameters) extends Component {
       whenMasked(slots, arbiter.oh) { slot => // 当仲裁器选中某个槽位时
         slot.writebackHazards := writebackHazards // 更新写回冒险掩码
         slot.cmdSent setWhen (io.mem.read.cmd.ready && !writebackHazard) // 命令发送成功
-        if (enableLog) { report(L"[DCache] Refill: slot ${slot.id} command sent for address ${slot.address}") }
+        if (enableLog) { report(L"[DCache] Refill: slot ${slot.id} command sent for address 0x${slot.address}") }
       }
 
       val rspAddress = slots.map(_.address).read(io.mem.read.rsp.id) // 响应地址
@@ -795,10 +797,12 @@ class DataCache(val p: DataCacheParameters) extends Component {
       io.refillCompletions := 0 // 重填完成标志清零
       io.mem.read.rsp.ready := True // 内存响应始终就绪
       when(io.mem.read.rsp.valid) { // 如果内存响应有效
+        // report(L"内存响应有效") // Moved to more specific location
         when(rspWithData) { // 如果响应携带数据 (always true now)
           wordIndex := wordIndex + 1 // 字索引递增
-        }
-        when(wordIndex === wordIndex.maxValue) { // Simplified from: wordIndex === wordIndex.maxValue || !rspWithData
+          if (enableLog) { report(L"[DCache] Refill: slot ${io.mem.read.rsp.id} received data word ${wordIndex} for address 0x${rspAddress}") }
+        } // rspWithData
+        when(wordIndex === wordIndex.maxValue || !rspWithData) {
           hadError := False // 清除错误标志
           fire := True // 标记重填完成
           io.refillCompletions(io.mem.read.rsp.id) := True // 设置重填完成标志
@@ -812,10 +816,12 @@ class DataCache(val p: DataCacheParameters) extends Component {
             s.loaded := True // 标记槽位数据已加载
           }
           if (enableLog) {
-            report(L"[DCache] Refill: slot ${io.mem.read.rsp.id} data loaded for address ${rspAddress}, fault ${faulty}")
+            report(L"[DCache] Refill: slot ${io.mem.read.rsp.id} data loaded for address 0x${rspAddress}, fault ${faulty}")
           }
-        }
-      }
+        } otherwise {
+          // report(L"字索引: ${wordIndex}H 最大值: ${wordIndex.maxValue.toString(16)}H rspWithData: ${rspWithData}") // Too verbose
+        } // wordIndex === wordIndex.maxValue || !rspWithData
+      } // when(io.mem.read.rsp.valid
     }
     // ackSender Removed
   }
@@ -870,7 +876,7 @@ class DataCache(val p: DataCacheParameters) extends Component {
         slot.readCmdDone := False
         slot.readRspDone := False
         slot.victimBufferReady := False
-        if (enableLog) { report(L"[DCache] Writeback: slot ${slot.id} allocated for address ${push.address} (way ${push.way})") }
+        if (enableLog) { report(L"[DCache] Writeback: slot ${slot.id} allocated for address 0x${push.address} (way ${push.way})") }
       } otherwise {
         val freeFiltred = free.asBools.patch(slot.id, Nil, 1) // 过滤掉当前槽位后的空闲掩码
         // 降低未选中槽位的优先级。
@@ -902,7 +908,7 @@ class DataCache(val p: DataCacheParameters) extends Component {
       when(slotRead.valid && slotRead.last) { // 如果读槽位有效且是最后一个字
         whenMasked(slots, arbiter.oh) { _.readCmdDone := True } // 标记读命令完成
         arbiter.lock := 0 // 清除仲裁锁定
-        if (enableLog) { report(L"[DCache] Writeback: slot ${slotRead.id} all bank reads commanded") }
+        if (enableLog) { report(L"[DCache] Writeback: slot ${slotRead.id} all bank reads commanded for address 0x${address}") }
       }
       when(slotRead.fire) { // 如果读槽位触发
         for (slot <- refill.slots) slot.victim(slotRead.id) := False // 清除重填槽位的受害者标记
@@ -956,7 +962,7 @@ class DataCache(val p: DataCacheParameters) extends Component {
         whenIndexed(slots, slotReadLast.id) { _.victimBufferReady := True } // 标记受害者缓冲就绪
         when(slotReadLast.last) { // 如果是最后一个字
           whenIndexed(slots, slotReadLast.id) { _.readRspDone := True } // 标记读响应完成
-          if (enableLog) { report(L"[DCache] Writeback: slot ${slotReadLast.id} victim buffer loaded") }
+          if (enableLog) { report(L"[DCache] Writeback: slot ${slotReadLast.id} victim buffer loaded for address 0x${slots.map(_.address).read(slotReadLast.id)}") }
         }
       }
     }
@@ -985,7 +991,7 @@ class DataCache(val p: DataCacheParameters) extends Component {
       when(bufferRead.fire && last) { // 如果受害者缓冲读触发且是最后一个字
         whenMasked(slots, arbiter.oh)(_.writeCmdDone := True) // 标记写命令完成
         arbiter.lock := 0 // 清除仲裁锁定
-        if (enableLog) { report(L"[DCache] Writeback: slot ${bufferRead.id} all mem writes commanded") }
+        if (enableLog) { report(L"[DCache] Writeback: slot ${bufferRead.id} all mem writes commanded for address 0x${bufferRead.address}") }
       }
 
       val cmd = bufferRead.stage() // 命令流过一个阶段
@@ -1000,7 +1006,7 @@ class DataCache(val p: DataCacheParameters) extends Component {
         whenIndexed(slots, io.mem.write.rsp.id) { s => // 选中对应的写回槽位
           s.fire := True // 标记写回完成
           if (enableLog) {
-            report(L"[DCache] Writeback: slot ${io.mem.write.rsp.id} completed, error ${io.mem.write.rsp.error}")
+            report(L"[DCache] Writeback: slot ${io.mem.write.rsp.id} completed for address 0x${s.address}, error ${io.mem.write.rsp.error}")
           }
         }
       }
@@ -1059,7 +1065,9 @@ class DataCache(val p: DataCacheParameters) extends Component {
       REDO_ON_DATA_HAZARD := io.load.cmd.redoOnDataHazard // 数据冒险时重做
       if(withTransactionId) TRANSACTION_ID := io.load.cmd.id
       WAYS_HAZARD := 0 // 冒险掩码清零
-      when(isValid) {if (enableLog) { report(L"[DCache] Load: cmd received. ${io.load.cmd.format()}") }}
+      when(isValid) {
+        if (enableLog) { report(L"[DCache] Load: cmd received. ${io.load.cmd.format()}") }
+      }
     }
 
     // fetch 区域：加载流水线的取数和Tag检查阶段。
@@ -1123,6 +1131,10 @@ class DataCache(val p: DataCacheParameters) extends Component {
 
       translatedStage(ADDRESS_POST_TRANSLATION) := io.load.translated.physical // 翻译后地址
       translatedStage(ABORD) := io.load.translated.abord // 终止标志
+      when(translatedStage.isValid) {
+        report(L"[DCache] Load: Translated address 0x${translatedStage(ADDRESS_POST_TRANSLATION)}, abord ${translatedStage(ABORD)}")
+      }
+
 
       for ((way, wayId) <- ways.zipWithIndex) yield new Area { // 遍历所有路
         {
@@ -1135,12 +1147,18 @@ class DataCache(val p: DataCacheParameters) extends Component {
           import hitsStage._; // 导入计算命中阶段的信号
           // 命中判断：Tag已加载且Tag地址与翻译后地址的Tag部分匹配。
           WAYS_HITS(wayId) := WAYS_TAGS(wayId).loaded && WAYS_TAGS(wayId).address === ADDRESS_POST_TRANSLATION(tagRange)
+          when(isValid) {
+            report(L"[DCache] Load: Way ${wayId} Tag read: loaded ${WAYS_TAGS(wayId).loaded}, address 0x${WAYS_TAGS(wayId).address}, hit ${WAYS_HITS(wayId)}")
+          }
         }
       }
 
       {
         import hitStage._; // 导入最终命中阶段的信号
         WAYS_HIT := B(WAYS_HITS).orR // 最终命中标志
+        when(isValid) {
+          report(L"[DCache] Load: Final hit decision: ${WAYS_HIT.asBits}, ways hits: ${WAYS_HITS.asBits}")
+        }
       }
 
       status.loadRead.cmd.valid := !readTagsStage.isStuck // 状态读命令有效
@@ -1214,19 +1232,20 @@ class DataCache(val p: DataCacheParameters) extends Component {
       when(ABORD) { // 如果地址转换失败
         REDO := False // 不重做
         MISS := False // 不缺失
+        if (enableLog) { report(L"[DCache] Load: ABORD detected, no redo/miss.") }
       }
 
       when(startRefill) { // Simplified from: startRefill || startUpgrade
         reservation.takeIt() // 占用仲裁
         if (enableLog) {
-          report(L"[DCache] Load: reservation taken for refill for address ${controlStage(ADDRESS_POST_TRANSLATION)}")
+          report(L"[DCache] Load: reservation taken for refill for address 0x${controlStage(ADDRESS_POST_TRANSLATION)}")
         }
 
         refill.push.valid := True // 重填push有效
         refill.push.address := ADDRESS_POST_TRANSLATION // 重填地址
         if (enableLog) {
           report(
-            L"Load: refill push valid for address ${controlStage(ADDRESS_POST_TRANSLATION)}" // Removed unique, data
+            L"[DCache] Load: refill push valid for address 0x${controlStage(ADDRESS_POST_TRANSLATION)}" // Removed unique, data
           )
         }
       }
@@ -1243,24 +1262,30 @@ class DataCache(val p: DataCacheParameters) extends Component {
         status.write.address := ADDRESS_POST_TRANSLATION(lineRange)
         status.write.data := STATUS // 状态写数据（所有路的状态）
         status.write.data(refillWay).dirty := False // 重填路的脏标志清零
-        if (enableLog) { report(L"[DCache] Load: status write (clear dirty) for refill way ${refillWay}") }
+        if (enableLog) { report(L"[DCache] Load: status write (clear dirty) for refill way ${refillWay} at address 0x${ADDRESS_POST_TRANSLATION(lineRange)}") }
 
         waysWrite.mask(refillWay) := True // Tag写掩码
         waysWrite.address := ADDRESS_POST_TRANSLATION(lineRange)
         waysWrite.tag.loaded := False // Tag未加载（变为Invalid）
-        if (enableLog) { report(L"[DCache] Load: ways write (invalidate) for refill way ${refillWay}") }
+        if (enableLog) { report(L"[DCache] Load: ways write (invalidate) for refill way ${refillWay} at address 0x${ADDRESS_POST_TRANSLATION(lineRange)}") }
 
         writeback.push.valid := refillWayNeedWriteback // 写回push有效
         // 写回地址：Tag地址与行地址组合
         writeback.push.address := (WAYS_TAGS(refillWay).address @@ ADDRESS_POST_TRANSLATION(lineRange)) << lineRange.low
         writeback.push.way := refillWay // 写回路数
-        if (enableLog) { report(L"[DCache] Load: writeback push valid (refill way) for address ${writeback.push.address}") }
+        if (enableLog) { report(L"[DCache] Load: writeback push valid (refill way) for address 0x${writeback.push.address}") }
       }
 
       // REFILL_SLOT_FULL：重填槽位是否已满且有缺失。
       REFILL_SLOT_FULL := MISS && !refillHit && refill.full
       // REFILL_SLOT：实际重填槽位（如果重填命中且未加载，则使用命中槽位；否则使用空闲槽位）。
       REFILL_SLOT := REFILL_HITS.andMask(!refillLoaded) | refill.free.andMask(askRefill)
+
+      when(isValid) {
+        report(L"[DCache] Load: Control stage - WAYS_HIT: ${WAYS_HIT.asBits}, MISS: ${MISS.asBits}, REDO: ${REDO.asBits}, FAULT: ${FAULT.asBits}")
+        report(L"  RefillHit: ${refillHit}, LineBusy: ${lineBusy}, BankBusy: ${bankBusy}, WaysHitHazard: ${waysHitHazard}")
+        report(L"  CanRefill: ${canRefill}, AskRefill: ${askRefill}, StartRefill: ${startRefill}")
+      }
     }
 
     // inject 区域：加载流水线的响应注入。
@@ -1335,6 +1360,9 @@ class DataCache(val p: DataCacheParameters) extends Component {
       io.store.cmd.ready := True // 存储命令始终就绪
       when(isValid) {
         if (enableLog) { report(L"[DCache] Store: cmd received. ${io.store.cmd.format()}") }
+        when(FLUSH) {
+          if (enableLog) { report(L"[DCache] Store: FLUSH command received for address 0x${ADDRESS_POST_TRANSLATION.asBits}, flushFree: ${FLUSH_FREE.asBits}") }
+        }
       }
     }
 
@@ -1353,12 +1381,18 @@ class DataCache(val p: DataCacheParameters) extends Component {
           import hitsStage._; // 导入计算命中阶段的信号
           // 命中判断：Tag已加载且Tag地址与翻译后地址的Tag部分匹配。
           WAYS_HITS(wayId) := WAYS_TAGS(wayId).loaded && WAYS_TAGS(wayId).address === ADDRESS_POST_TRANSLATION(tagRange)
+          when(isValid) {
+            report(L"[DCache] Store: Way ${wayId} Tag read: loaded ${WAYS_TAGS(wayId).loaded}, address 0x${WAYS_TAGS(wayId).address}, hit ${WAYS_HITS(wayId)}")
+          }
         }
       }
 
       {
         import hitStage._; // 导入最终命中阶段的信号
         WAYS_HIT := B(WAYS_HITS).orR // 最终命中标志
+        when(isValid) {
+          report(L"[DCache] Store: Final hit decision: ${WAYS_HIT.asBits}, ways hits: ${WAYS_HITS.asBits}")
+        }
       }
 
       status.storeRead.cmd.valid := !readTagsStage.isStuck // 状态读命令有效
@@ -1455,7 +1489,7 @@ class DataCache(val p: DataCacheParameters) extends Component {
       val canFlush =
         reservation.win && !writeback.full && !refill.slots.map(_.valid).orR && !resulting(WAYS_HAZARD).orR // 是否可以刷新
       val startFlush = isValid && FLUSH && generationOk && needFlush && canFlush // 开始刷新
-      // report(L"[DCache] Store: startFlush: ${startFlush}, isValid: ${isValid}, generationOk: ${generationOk}, needFlush: ${needFlush}, canFlush: ${canFlush}")
+      // report(L"[DCache] Store: startFlush: ${startFlush}, isValid: ${isValid}, generationOk: ${generationOk}, needFlush: ${needFlush}, canFlush: ${canFlush}") // Moved to more specific location
 
       val refillWay = CombInit(replacedWay) // 重填路数
 
@@ -1464,7 +1498,7 @@ class DataCache(val p: DataCacheParameters) extends Component {
         setDirty := False // 不设置脏标志
         writeCache := False // 不写缓存
         startRefill := False // 不开始重填
-        when(isValid) {if (enableLog) { report(L"[DCache] Store: FLUSH command. REDO ${controlStage(REDO)}") }}
+        if (enableLog) { report(L"[DCache] Store: FLUSH command processing. REDO: ${REDO.asBits}, needFlush: ${needFlush}, waysHazard: ${resulting(WAYS_HAZARD).orR}") }
       }
 
       when(IO) { // 如果是IO访问
@@ -1472,7 +1506,7 @@ class DataCache(val p: DataCacheParameters) extends Component {
         MISS := False // 不缺失
         setDirty := False // 不设置脏标志
         writeCache := False // 不写缓存
-        when(isValid) {if (enableLog) { report(L"[DCache] Store: IO command. REDO ${controlStage(REDO)}") }}
+        if (enableLog) { report(L"[DCache] Store: IO access, no cache write/refill/dirty set.") }
       }
 
       when(startRefill || setDirty || startFlush) { // Simplified from: startRefill || startUpgrade || setDirty || startFlush
@@ -1481,7 +1515,7 @@ class DataCache(val p: DataCacheParameters) extends Component {
         status.write.address := ADDRESS_POST_TRANSLATION(lineRange)
         status.write.data := STATUS // 状态写数据
         if (enableLog) {
-          report(L"[DCache] Store: reservation taken for status write. Address ${ADDRESS_POST_TRANSLATION(lineRange)}")
+          report(L"[DCache] Store: reservation taken for status write. Address 0x${ADDRESS_POST_TRANSLATION(lineRange)}")
         }
       }
 
@@ -1494,8 +1528,9 @@ class DataCache(val p: DataCacheParameters) extends Component {
         // Non-coherent flush clears dirty bit:
         when(startFlush) {
           status.write.data.onSel(needFlushSel)(_.dirty := False)
+          if (enableLog) { report(L"[DCache] Store: FLUSH: Clearing dirty bit for way ${needFlushSel} at address 0x${ADDRESS_POST_TRANSLATION(lineRange)}") }
         }
-        if (enableLog) { report(L"[DCache] Store: writeback push valid. Address ${writeback.push.address}") }
+        if (enableLog) { report(L"[DCache] Store: writeback push valid. Address 0x${writeback.push.address}, way ${writeback.push.way}") }
       }
 
       when(startRefill) { // Simplified from: startRefill || startUpgrade
@@ -1509,7 +1544,7 @@ class DataCache(val p: DataCacheParameters) extends Component {
         waysWrite.mask(refillWay) := True // Tag写掩码
         waysWrite.address := ADDRESS_POST_TRANSLATION(lineRange)
         waysWrite.tag.loaded := False // Tag未加载（变为Invalid）
-        if (enableLog) { report(L"[DCache] Store: refill push valid. Address ${refill.push.address}") }
+        if (enableLog) { report(L"[DCache] Store: refill push valid. Address 0x${refill.push.address}, way ${refill.push.way}") }
 
         whenIndexed(status.write.data, refillWay)(_.dirty := False) // 清除重填路的脏标志
       }
@@ -1527,16 +1562,16 @@ class DataCache(val p: DataCacheParameters) extends Component {
           when(bank.write.valid) {
             if (enableLog) {
               report(
-                L"Store: write cache for bank ${bankId}, data ${bank.write.data}, address ${controlStage(ADDRESS_POST_TRANSLATION)} mask ${bank.write.mask}"
+                L"[DCache] Store: write cache for bank ${bankId}, data 0x${bank.write.data}, address 0x${controlStage(ADDRESS_POST_TRANSLATION)} mask 0x${bank.write.mask}"
               )
             }
           }
         }
-        if (enableLog) { report(L"[DCache] Store: write cache for address ${controlStage(ADDRESS_POST_TRANSLATION)}") }
+        if (enableLog) { report(L"[DCache] Store: write cache for address 0x${controlStage(ADDRESS_POST_TRANSLATION)}") }
       }
       when(setDirty) { // 如果设置脏标志
         whenMasked(status.write.data, WAYS_HITS)(_.dirty := True) // 设置命中路的脏标志
-        if (enableLog) { report(L"[DCache] Store: set dirty for address ${controlStage(ADDRESS_POST_TRANSLATION)}") }
+        if (enableLog) { report(L"[DCache] Store: set dirty for address 0x${controlStage(ADDRESS_POST_TRANSLATION)}") }
       }
 
       when(startFlush) {
@@ -1549,10 +1584,17 @@ class DataCache(val p: DataCacheParameters) extends Component {
           whenMasked(waysWrite.mask.asBools, needFlushOh)(_ := True)
           waysWrite.address := ADDRESS_POST_TRANSLATION(lineRange)
           waysWrite.tag.loaded := False // Invalidate the line
+          if (enableLog) { report(L"[DCache] Store: FLUSH_FREE: Invalidating line for way ${needFlushSel} at address 0x${ADDRESS_POST_TRANSLATION(lineRange)}") }
         }
         if (enableLog) {
-          report(L"[DCache] Store: FLUSH start, invalidate/release for address ${controlStage(ADDRESS_POST_TRANSLATION)}")
+          report(L"[DCache] Store: FLUSH start, invalidate/release for address 0x${controlStage(ADDRESS_POST_TRANSLATION)}, needFlush: ${needFlush}, canFlush: ${canFlush}")
         }
+      }
+
+      when(isValid) {
+        report(L"[DCache] Store: Control stage - WAYS_HIT: ${WAYS_HIT.asBits}, MISS: ${MISS.asBits}, REDO: ${REDO.asBits}, IO: ${IO.asBits}, FLUSH: ${FLUSH.asBits}, PREFETCH: ${PREFETCH.asBits}")
+        report(L"  RefillHit: ${refillHit}, LineBusy: ${lineBusy}, WaysHitHazard: ${waysHitHazard}, BankBusy: ${bankBusy}")
+        report(L"  NeedFlush: ${needFlush}, CanFlush: ${canFlush}, StartFlush: ${startFlush}")
       }
     }
 
@@ -1572,7 +1614,9 @@ class DataCache(val p: DataCacheParameters) extends Component {
       io.store.rsp.prefetch := PREFETCH // 预取
       io.store.rsp.address := ADDRESS_POST_TRANSLATION // 地址
       io.store.rsp.io := IO // IO
-      when(isValid) {if (enableLog) { report(L"[DCache] Store: rsp sent. ${io.store.rsp.format()}") }}
+      when(isValid) {
+        if (enableLog) { report(L"[DCache] Store: rsp sent. ${io.store.rsp.format()}") }
+      }
     }
     pipeline.build() // 构建存储流水线
   }
