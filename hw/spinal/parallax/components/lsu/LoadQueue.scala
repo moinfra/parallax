@@ -347,6 +347,7 @@ class LoadQueuePlugin(val lsuConfig: LsuConfig, val pipelineConfig: PipelineConf
 object ExceptionCode {
   def LOAD_ADDR_MISALIGNED = U(4, 8 bits) // Example code
   def LOAD_ACCESS_FAULT = U(5, 8 bits) // Example code
+  def STORE_ADDRESS_MISALIGNED = U(6, 8 bits) // Example code
   // Add other codes as needed
 }
 // -- MODIFICATION END --

@@ -195,18 +195,34 @@ object MemAccessSize extends SpinalEnum(binarySequential) {
     return out
   }
 
+  def toByteSizeLog2(v: MemAccessSize.C): UInt = {
+    val width = BitCount(2)
+    val out = U(0, width)
+    switch(v) {
+      is(B) { out := U(0, width) }
+      is(H) { out := U(1, width) }
+      is(W) { out := U(2, width) }
+      is(D) { out := U(3, width) }
+    }
+    return out
+  }
+
   def toByteEnable(size: MemAccessSize.C, lowerAddressBits: UInt, dataWidthBytes: Int): Bits = {
     val resultBE = Bits(dataWidthBytes bits)
     resultBE := 0
 
     val addrWidth = log2Up(dataWidthBytes)
     // 确保我们只取需要的地址位，防止位宽不匹配
-    val addr = lowerAddressBits(addrWidth-1 downto 0)
+    val addr = lowerAddressBits(addrWidth - 1 downto 0)
 
     switch(size) {
       is(MemAccessSize.B) { resultBE := (U(1) << addr).asBits.resized }
-      is(MemAccessSize.H) { resultBE := (U(3) << (addr(addrWidth-1 downto 1) << 1) ).asBits.resized } // addr(1) is the half-word selector
-      is(MemAccessSize.W) { resultBE := (U(15) << (addr(addrWidth-1 downto 2) << 2) ).asBits.resized } // addr(2) is the word selector
+      is(MemAccessSize.H) {
+        resultBE := (U(3) << (addr(addrWidth - 1 downto 1) << 1)).asBits.resized
+      } // addr(1) is the half-word selector
+      is(MemAccessSize.W) {
+        resultBE := (U(15) << (addr(addrWidth - 1 downto 2) << 2)).asBits.resized
+      } // addr(2) is the word selector
       is(MemAccessSize.D) { resultBE.setAll() } // Assumes dataWidthBytes is 8 for a Double Word access
     }
     resultBE.resize(dataWidthBytes) // 确保最终位宽正确

@@ -8,6 +8,26 @@ import parallax.components.rob._
 import parallax.components.dcache2._
 import parallax.utilities._
 
+case class SqQuery(lsuCfg: LsuConfig, pipelineCfg: PipelineConfig) extends Bundle {
+    val robPtr      = UInt(pipelineCfg.robPtrWidth) // ESSENTIAL for ordering
+    val address     = UInt(lsuCfg.pcWidth)
+    val size        = MemAccessSize()
+}
+
+case class SqQueryRsp(lsuCfg: LsuConfig) extends Bundle {
+    val hit         = Bool() // 是否命中一个可以转发的store
+    val data        = Bits(lsuCfg.dataWidth)
+
+    // 依赖相关 (Disambiguation)
+    val olderStoreHasUnknownAddress = Bool() // 是否存在一个更早的、地址未知的store
+    val olderStoreMatchingAddress = Bool() // 是否存在一个更早的、地址匹配但数据未就绪的store
+}
+
+case class SqQueryPort(lsuCfg: LsuConfig, pipelineCfg: PipelineConfig) extends Bundle with IMasterSlave {
+    val cmd = Flow(SqQuery(lsuCfg, pipelineCfg))
+    val rsp = SqQueryRsp(lsuCfg)
+    override def asMaster(): Unit = { master(cmd); in(rsp) }
+}
 
 case class StoreBufferPushCmd(val pCfg: PipelineConfig, val lsuCfg: LsuConfig) extends Bundle {
     val addr    = UInt(pCfg.pcWidth)
@@ -22,7 +42,7 @@ case class StoreBufferPushCmd(val pCfg: PipelineConfig, val lsuCfg: LsuConfig) e
 }
 
 case class StoreBufferSlot(val pCfg: PipelineConfig, val lsuCfg: LsuConfig, val dCacheParams: DataCacheParameters) extends Bundle {
-    val isFlush             = Bool() 
+    val isFlush             = Bool()
     val addr                = UInt(pCfg.pcWidth)
     val data                = Bits(pCfg.dataWidth)
     val be                  = Bits(pCfg.dataWidth.value / 8 bits)
@@ -39,10 +59,6 @@ case class StoreBufferSlot(val pCfg: PipelineConfig, val lsuCfg: LsuConfig, val 
     val isCommitted         = Bool()
     val isSentToDCache      = Bool()
     val dcacheOpPending     = Bool()
-
-    // =========================================================
-    // >> 修改 1: 增加用于智能重试的状态字段
-    // =========================================================
     val isWaitingForRefill  = Bool()
     val refillSlotToWatch   = Bits(dCacheParams.refillCount bits)
 
@@ -60,7 +76,6 @@ case class StoreBufferSlot(val pCfg: PipelineConfig, val lsuCfg: LsuConfig, val 
         isCommitted         := False
         isSentToDCache      := False
         dcacheOpPending     := False
-        // >> 初始化新字段
         isWaitingForRefill  := False
         refillSlotToWatch   := 0
         this
@@ -80,7 +95,6 @@ case class StoreBufferSlot(val pCfg: PipelineConfig, val lsuCfg: LsuConfig, val 
         this.isCommitted         := False
         this.isSentToDCache      := False
         this.dcacheOpPending     := False
-        // >> 初始化新字段
         this.isWaitingForRefill  := False
         this.refillSlotToWatch   := 0
         this
@@ -104,12 +118,13 @@ trait StoreBufferService extends Service {
     def getBypassQueryAddressInput(): UInt
     def getBypassQuerySizeInput(): MemAccessSize.C
     def getBypassDataOutput(): Flow[StoreBufferBypassData]
+    def getStoreQueueQueryPort(): SqQueryPort
 }
 
 class StoreBufferPlugin(
     val pipelineConfig: PipelineConfig,
     val lsuConfig: LsuConfig,
-    val dCacheParams: DataCacheParameters, // >> 修改 2: 传入D-Cache参数以获取refillCount
+    val dCacheParams: DataCacheParameters,
     val sbDepth: Int
 ) extends Plugin with StoreBufferService with LockedImpl {
 
@@ -118,11 +133,10 @@ class StoreBufferPlugin(
         val bypassQueryAddrIn = UInt(pipelineConfig.pcWidth)
         val bypassQuerySizeIn = MemAccessSize()
         val bypassDataOutInst = Flow(StoreBufferBypassData(pipelineConfig))
+        val sqQueryPort       = slave(SqQueryPort(lsuConfig, pipelineConfig))
         val robServiceInst    = getService[ROBService[RenamedUop]]
         val dcacheServiceInst = getService[DataCacheService]
-
         val dCacheStorePort = dcacheServiceInst.newStorePort();
-        
         dcacheServiceInst.retain()
         robServiceInst.retain()
     }
@@ -131,6 +145,7 @@ class StoreBufferPlugin(
     override def getBypassQueryAddressInput(): UInt = hw.bypassQueryAddrIn
     override def getBypassQuerySizeInput(): MemAccessSize.C = hw.bypassQuerySizeIn
     override def getBypassDataOutput(): Flow[StoreBufferBypassData] = hw.bypassDataOutInst
+    override def getStoreQueueQueryPort(): SqQueryPort = hw.sqQueryPort
 
 
     val logic = create late new Area {
@@ -155,6 +170,16 @@ class StoreBufferPlugin(
             slots(i).init(StoreBufferSlot(pipelineConfig, lsuConfig, dCacheParams).setDefault())
         }
 
+        private def isNewerOrSame(robPtrA: UInt, robPtrB: UInt): Bool = {
+            val genA = robPtrA.msb
+            val idxA = robPtrA(robPtrA.high - 1 downto 0)
+            val genB = robPtrB.msb
+            val idxB = robPtrB(robPtrB.high - 1 downto 0)
+            (genA === genB && idxA >= idxB) || (genA =/= genB && idxA < idxB)
+        }
+        private def isOlder(robPtrA: UInt, robPtrB: UInt): Bool = !isNewerOrSame(robPtrA, robPtrB)
+
+        // --- SB Push/Pop/Commit/Flush Logic (Existing Logic) ---
         val validFall = Vec(Bool(), sbDepth)
         validFall(0) := !slots(0).valid
         for(i <- 1 until sbDepth) { validFall(i) := slots(i-1).valid && !slots(i).valid }
@@ -170,9 +195,6 @@ class StoreBufferPlugin(
         }
 
         val headSlot = slots(0)
-        // =========================================================
-        // >> 修改 4: 在发送条件中加入对新状态的检查
-        // =========================================================
         val canPopToDCache = headSlot.valid && headSlot.isCommitted &&
                              !headSlot.isSentToDCache && !headSlot.dcacheOpPending &&
                              !headSlot.isWaitingForRefill && // << 不能在等待Refill时发送
@@ -185,17 +207,16 @@ class StoreBufferPlugin(
             when(headSlot.isFlush) {
                 // 这是一个 FLUSH 命令
                 storePortDCache.cmd.payload.address  := headSlot.addr
-                storePortDCache.cmd.payload.flush    := True // <--- 关键！
+                storePortDCache.cmd.payload.flush    := True
                 storePortDCache.cmd.payload.data     := 0
                 storePortDCache.cmd.payload.mask     := 0
                 storePortDCache.cmd.payload.io       := False
-                storePortDCache.cmd.payload.flushFree:= False // or True, depending on policy
+                storePortDCache.cmd.payload.flushFree:= False
                 storePortDCache.cmd.payload.prefetch := False
                 if(pipelineConfig.transactionIdWidth > 0) {
                     storePortDCache.cmd.payload.id := headSlot.robPtr.resize(pipelineConfig.transactionIdWidth bits)
                 }
             } otherwise {
-                // 这是一个常规的 STORE 命令 (保持原样)
                 storePortDCache.cmd.payload.address  := headSlot.addr
                 storePortDCache.cmd.payload.data     := headSlot.data
                 storePortDCache.cmd.payload.mask     := headSlot.be
@@ -220,18 +241,12 @@ class StoreBufferPlugin(
         when(dcacheRspArrived) {
             slotsAfterUpdates(0).dcacheOpPending := False
             when(storePortDCache.rsp.payload.redo) {
-                // =========================================================
-                // >> 修改 5: 收到redo后，不再是简单重试，而是进入等待状态
-                // =========================================================
                 slotsAfterUpdates(0).isWaitingForRefill := True
                 slotsAfterUpdates(0).refillSlotToWatch  := storePortDCache.rsp.payload.refillSlot
                 ParallaxSim.log(L"[SB] REDO received, entering WAIT_FOR_REFILL for robPtr=${slots(0).robPtr}, watching slot=${storePortDCache.rsp.payload.refillSlot}")
             }
         }
 
-        // =========================================================
-        // >> 修改 6: 增加监听 refillCompletions 的核心逻辑
-        // =========================================================
         val refillCompletionsFromDCache = dcacheService.getRefillCompletions()
         ParallaxSim.log(L"[SB] Watching... refillCompletionsFromDCache=${refillCompletionsFromDCache}")
         val waitedRefillIsDone = slots(0).valid && slots(0).isWaitingForRefill && 
@@ -266,7 +281,7 @@ class StoreBufferPlugin(
             val flushedRobStartIdx = robFlushPort.payload.targetRobPtr
             ParallaxLogger.warning(s"[SB] FLUSH received from ROB: targetRobPtr=${flushedRobStartIdx}")
             for(i <- 0 until sbDepth){
-                when(slots(i).valid && slots(i).robPtr >= flushedRobStartIdx && !slots(i).isCommitted){
+                when(slots(i).valid && !slots(i).isCommitted && isNewerOrSame(slots(i).robPtr, flushedRobStartIdx)){
                     slotsAfterUpdates(i).valid := False
                     ParallaxSim.log(L"[SB] FLUSH: Invalidating slotIdx=${i} (robPtr=${slots(i).robPtr})")
                 }
@@ -304,32 +319,104 @@ class StoreBufferPlugin(
             slotsNext(sbDepth - 1).setDefault()
         }
 
+        // =============================================================================
+        // >> 集成: Store-to-Load 转发逻辑 (SqQueryPort)
+        // =============================================================================
+        val forwardingLogic = new Area {
+            ParallaxLogger.log("StoreBufferPlugin: Elaborating Store-to-Load forwarding logic.")
 
-        val bypassResult            = StoreBufferBypassData(pipelineConfig)
+            val query = hw.sqQueryPort.cmd
+            val rsp   = hw.sqQueryPort.rsp
 
-        val dataWidthBytes          = pipelineConfig.dataWidth.value / 8
-        val loadQueryBe             = MemAccessSize.toByteEnable(bypassQuerySz, bypassQueryAddr(log2Up(dataWidthBytes)-1 downto 0), dataWidthBytes)
+            val dataWidthBytes = pipelineConfig.dataWidth.value / 8
+            val pcAddrWidth = pipelineConfig.pcWidth.value
+            val wordAddrBits = log2Up(dataWidthBytes)
 
-        val bypassInitial           = BypassAccumulator(pipelineConfig)
-        bypassInitial.data.assignFromBits(B(0))
-        bypassInitial.hitMask.assignFromBits(B(0))
+            val loadMask = Bits(dataWidthBytes bits)
+            loadMask := MemAccessSize.toByteEnable(query.payload.size, query.payload.address(wordAddrBits-1 downto 0), dataWidthBytes)
 
-        val finalBypassResult = slots.reverse.foldLeft(bypassInitial) { (acc, slot) =>
-            val nextAcc = BypassAccumulator(pipelineConfig)
-            nextAcc := acc
+            val bypassInitial = BypassAccumulator(pipelineConfig)
+            bypassInitial.data.assignFromBits(B(0))
+            bypassInitial.hitMask.assignFromBits(B(0))
 
-            when(slot.valid && !slot.hasEarlyException) {
-                val loadWordAddr = bypassQueryAddr(pipelineConfig.pcWidth.value-1 downto log2Up(dataWidthBytes))
-                val storeWordAddr= slot.addr(pipelineConfig.pcWidth.value-1 downto log2Up(dataWidthBytes))
-
-                when(loadWordAddr === storeWordAddr) {
+            val forwardingResult = slots.reverse.foldLeft(bypassInitial) { (acc, slot) =>
+                val nextAcc = CombInit(acc)
+                val loadWordAddr = query.payload.address(pcAddrWidth-1 downto wordAddrBits)
+                val storeWordAddr = slot.addr(pcAddrWidth-1 downto wordAddrBits)
+                val canForward = slot.valid && !slot.hasEarlyException &&
+                                 isOlder(slot.robPtr, query.payload.robPtr) &&
+                                 (loadWordAddr === storeWordAddr)
+                when(canForward) {
                     for (k <- 0 until dataWidthBytes) {
-                        when(slot.be(k) && loadQueryBe(k)) {
+                        when(slot.be(k) && loadMask(k) && !acc.hitMask(k)) {
                             nextAcc.data(k*8, 8 bits) := slot.data(k*8, 8 bits)
                             nextAcc.hitMask(k)        := True
                         }
                     }
                 }
+                nextAcc
+            }
+
+            val allRequiredBytesHit = (forwardingResult.hitMask & loadMask) === loadMask
+            rsp.hit  := query.valid && allRequiredBytesHit
+            rsp.data := forwardingResult.data
+
+            // --- 依赖关系检查 (Disambiguation) ---
+            rsp.olderStoreHasUnknownAddress := False
+            val potentialConflict = Bool()
+            potentialConflict := False
+            for(slot <- slots) {
+                val loadWordAddr = query.payload.address(pcAddrWidth-1 downto wordAddrBits)
+                val storeWordAddr = slot.addr(pcAddrWidth-1 downto wordAddrBits)
+
+                // =================================================================
+                // >> 语法修正处 <<
+                // =================================================================
+                // 判断Store是否完全覆盖了Load所需的所有字节
+                val isFullContainment = (slot.be & loadMask) === loadMask
+                // 判断是否存在任何字节的重叠
+                val hasSomeOverlap    = (slot.be & loadMask).orR
+                // 部分重叠 = 有重叠 但 非完全覆盖
+                val isPartialOverlap  = hasSomeOverlap && !isFullContainment
+                // =================================================================
+
+                when(slot.valid && !slot.hasEarlyException &&
+                     isOlder(slot.robPtr, query.payload.robPtr) &&
+                     (loadWordAddr === storeWordAddr) &&
+                     isPartialOverlap) {
+                    potentialConflict := True
+                }
+            }
+            rsp.olderStoreMatchingAddress := query.valid && !rsp.hit && potentialConflict
+
+            when(query.valid && rsp.hit){
+                ParallaxSim.debug(L"[SB-Fwd] HIT: Forwarding to Load(rob=${query.payload.robPtr}) data=${rsp.data} from SB.")
+            }
+        }
+
+
+        // --- 同周期流水线旁路逻辑 (Existing Logic) ---
+        val bypassResult            = StoreBufferBypassData(pipelineConfig)
+        val loadQueryBe             = MemAccessSize.toByteEnable(bypassQuerySz, bypassQueryAddr(log2Up(pipelineConfig.dataWidth.value/8)-1 downto 0), pipelineConfig.dataWidth.value / 8)
+        val bypassInitial           = BypassAccumulator(pipelineConfig)
+        bypassInitial.data.assignFromBits(B(0))
+        bypassInitial.hitMask.assignFromBits(B(0))
+
+        val finalBypassResult = slots.reverse.foldLeft(bypassInitial) { (acc, slot) =>
+            val nextAcc = CombInit(acc)
+            when(slot.valid && !slot.hasEarlyException) {
+                 val dataWidthBytes = pipelineConfig.dataWidth.value / 8
+                 val loadWordAddr = bypassQueryAddr(pipelineConfig.pcWidth.value-1 downto log2Up(dataWidthBytes))
+                 val storeWordAddr= slot.addr(pipelineConfig.pcWidth.value-1 downto log2Up(dataWidthBytes))
+
+                 when(loadWordAddr === storeWordAddr) {
+                     for (k <- 0 until dataWidthBytes) {
+                         when(slot.be(k) && loadQueryBe(k) && !acc.hitMask(k)) {
+                             nextAcc.data(k*8, 8 bits) := slot.data(k*8, 8 bits)
+                             nextAcc.hitMask(k)        := True
+                         }
+                     }
+                 }
             }
             nextAcc
         }
@@ -341,6 +428,8 @@ class StoreBufferPlugin(
         bypassDataOut.payload.data     := finalBypassResult.data
         bypassDataOut.payload.hitMask  := finalHitMask
         bypassDataOut.payload.hit      := overallBypassHit && (finalHitMask === loadQueryBe)
+        // --- End of Bypass Logic ---
+
 
         slots := slotsNext
 
