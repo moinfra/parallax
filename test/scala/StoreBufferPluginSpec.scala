@@ -43,7 +43,7 @@ class StoreBufferTestConnectionPlugin(
 
     // Drive ROB allocation from Testbench IO
     val robAllocPorts = robService.getAllocatePorts(pCfg.renameWidth)
-    robAllocPorts(0).fire := tbIo.robAllocateIn.fire
+    robAllocPorts(0).valid := tbIo.robAllocateIn.valid
     robAllocPorts(0).pcIn := tbIo.robAllocateIn.pcIn
     robAllocPorts(0).uopIn := tbIo.robAllocateIn.uopIn
 
@@ -192,7 +192,7 @@ class TestHelper(dut: StoreBufferFullIntegrationTestBench)(implicit cd: ClockDom
 
   def init(): Unit = {
     dut.io.lsuPushIn.valid #= false
-    dut.io.robAllocateIn.fire #= false
+    dut.io.robAllocateIn.valid #= false
     dut.io.robWritebackIn.valid #= false
     dut.io.robCommitAck #= false
     dut.io.bypassQueryAddr #= 0x0L
@@ -213,12 +213,12 @@ class TestHelper(dut: StoreBufferFullIntegrationTestBench)(implicit cd: ClockDom
     */
   def cpuIssueStore(addr: BigInt, data: BigInt, size: MemAccessSize.E, pc: Long = 0x8000): BigInt = {
     // 1. Allocate a ROB entry
-    dut.io.robAllocateIn.fire #= true
+    dut.io.robAllocateIn.valid #= true
     dut.io.robAllocateIn.pcIn #= pc
     dut.io.robAllocateIn.uopIn.decoded.uopCode #= BaseUopCode.STORE
     cd.waitActiveEdge()
     val robPtr = dut.io.allocatedRobPtr.toBigInt
-    dut.io.robAllocateIn.fire #= false
+    dut.io.robAllocateIn.valid #= false
     cd.waitSampling()
     ParallaxLogger.debug(s"[Helper] CPU allocated robPtr=$robPtr for store at 0x${addr.toString(16)}")
 
@@ -255,14 +255,14 @@ class TestHelper(dut: StoreBufferFullIntegrationTestBench)(implicit cd: ClockDom
       pc: Long = 0x8000,
       isFlush: Boolean = false
   ): BigInt = {
-    dut.io.robAllocateIn.fire #= true
+    dut.io.robAllocateIn.valid #= true
     dut.io.robAllocateIn.pcIn #= pc
     val uop = dut.io.robAllocateIn.uopIn
     uop.setDefault()
     uop.decoded.uopCode #= BaseUopCode.STORE
     cd.waitActiveEdge()
     val robPtr = dut.io.allocatedRobPtr.toBigInt
-    dut.io.robAllocateIn.fire #= false
+    dut.io.robAllocateIn.valid #= false
     cd.waitSampling()
     ParallaxLogger.debug(s"[Helper] CPU allocated robPtr=$robPtr for op at 0x${addr.toString(16)}")
 

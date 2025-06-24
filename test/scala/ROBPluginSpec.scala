@@ -175,7 +175,7 @@ class ROBPluginSpec extends CustomSpinalSimFunSuite {
       val serviceAllocPorts: Vec[ROBAllocateSlot[DummyUop2]] =
         allocatorHolder.allocatePortsFromService // ROB's slave ports
       for (i <- 0 until tbCfg.pCfg.renameWidth) {
-        serviceAllocPorts(i).fire := io.allocRequests(i).valid
+        serviceAllocPorts(i).valid := io.allocRequests(i).valid
         serviceAllocPorts(i).uopIn := io.allocRequests(i).payload.uop
         serviceAllocPorts(i).pcIn := io.allocRequests(i).payload.pc
         io.allocResponsesRobPtr(i) := serviceAllocPorts(i).robPtr

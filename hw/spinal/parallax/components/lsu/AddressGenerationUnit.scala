@@ -165,7 +165,7 @@ class AguPlugin(
           }
         }
         // 获取寄存器读端口
-        val regReadBase = prfService.newReadPort()
+        val regReadBase = master(prfService.newReadPort())
         regReadBase.valid := stage0.valid
         regReadBase.address := stage0.payload.basePhysReg
         val regReadBaseRsp = regReadBase.rsp
@@ -175,7 +175,7 @@ class AguPlugin(
           }
         }
 
-        val regReadData = prfService.newReadPort()
+        val regReadData = master(prfService.newReadPort())
         // 只有当是Store指令时才需要读取数据
         regReadData.valid := stage0.valid && stage0.payload.isStore
         regReadData.address := stage0.payload.dataReg // << 使用LsuInputCmd传来的dataReg索引

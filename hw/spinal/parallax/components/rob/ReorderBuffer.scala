@@ -106,14 +106,14 @@ case class ROBFullEntry[RU <: Data with Dumpable with HasRobPtr](config: ROBConf
 case class ROBAllocateSlot[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[RU])
     extends Bundle
     with IMasterSlave {
-  val fire = Bool() // From Rename: attempt to allocate this slot
+  val valid = Bool() // From Rename: attempt to allocate this slot
   val uopIn = config.uopType() // uopIn.robPtr 应该已经是 config.robPtrWidth
   val pcIn = UInt(config.pcWidth)
   // robPtr 现在是完整的 ROB ID (物理索引 + 世代位)
   val robPtr = UInt(config.robPtrWidth) 
 
   override def asMaster(): Unit = { // Perspective of Rename Stage
-    in(fire, uopIn, pcIn)
+    in(valid, uopIn, pcIn)
     out(robPtr)
   }
 }
@@ -263,23 +263,23 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
     val allocPort = io.allocate(i)
     val spaceAvailableForThisSlot = (currentCount + numPrevAllocations(i)) < config.robDepth
     io.canAllocate(i) := spaceAvailableForThisSlot
-    slotWillAllocate(i) := allocPort.fire && spaceAvailableForThisSlot
+    slotWillAllocate(i) := allocPort.valid && spaceAvailableForThisSlot
     
     // 分配给外部的 robPtr 是完整的 ROB ID
     slotRobPtr(i) := robPtrAtSlotStart(i) 
     allocPort.robPtr := slotRobPtr(i)
 
-    when(allocPort.fire) {
+    when(allocPort.valid) {
       ParallaxSim.debug(
         Seq(
-          L"[ROB] ALLOC_ATTEMPT[${i}]: fire=${allocPort.fire}, pcIn=${allocPort.pcIn}, ",
+          L"[ROB] ALLOC_ATTEMPT[${i}]: fire=${allocPort.valid}, pcIn=${allocPort.pcIn}, ",
           L"spaceAvailableForSlot=${spaceAvailableForThisSlot}, currentCountPlusPrevAllocs=${(currentCount + numPrevAllocations(
               i
             ))}, robDepth=${U(config.robDepth)}, calculatedRobPtr=${slotRobPtr(i)}"
         )
       )
     }
-    when(allocPort.fire && !spaceAvailableForThisSlot) {
+    when(allocPort.valid && !spaceAvailableForThisSlot) {
       if(enableLog) report(
         Seq(
           L"[ROB] ALLOC_ATTEMPT[${i}]: Fired but NO SPACE. count=${currentCount}, ",

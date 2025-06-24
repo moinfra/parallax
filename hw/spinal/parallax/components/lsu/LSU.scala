@@ -46,7 +46,6 @@ case class LoadQueueSlot(pCfg: PipelineConfig, lsuCfg: LsuConfig, dCacheParams: 
     val hasException      = Bool()
     val exceptionCode     = UInt(8 bits)
 
-    // >> MODIFICATION 1: Reworked state flags for clarity
     val isWaitingForFwdRsp    = Bool() // Query sent to SB, waiting for response.
     val isStalledByDependency = Bool() // SB response indicated a dependency, must wait and retry.
     val isReadyForDCache      = Bool() // SB cleared this load for D-Cache access.
@@ -62,7 +61,6 @@ case class LoadQueueSlot(pCfg: PipelineConfig, lsuCfg: LsuConfig, dCacheParams: 
         this.hasException          := False
         this.exceptionCode         := 0
         
-        // >> MODIFICATION 1.1: Initialize new state flags
         this.isWaitingForFwdRsp    := False
         this.isStalledByDependency := False
         this.isReadyForDCache      := False
@@ -92,7 +90,6 @@ class LsuPlugin(
         val storeBufferServiceInst = getService[StoreBufferService]
 
         // --- 为LSU获取硬件端口 ---
-        // 我们现在有两个独立的AGU端口，一个给Load，一个给Store
         val lqAguPort        = aguServiceInst.newAguPort()
         val sqAguPort        = aguServiceInst.newAguPort()
         
@@ -124,47 +121,54 @@ class LsuPlugin(
         val robWritebackPort = hw.robWritebackPort
         val prfWritePort     = hw.prfWritePort
 
-        // >> MODIFICATION 1: 统一的指令分派到AGU
-        // Load 和 Store 指令都直接发送给各自的AGU端口
+        // >>> FIX: 从ROB服务获取冲刷信号并连接到AGU端口
+        val robService = hw.robServiceInst
+        val robFlushPort = robService.getFlushPort()
+        lqAguPort.flush := robFlushPort.valid
+        sqAguPort.flush := robFlushPort.valid
+        // <<< FIX END
+
+        // 统一的指令分派到AGU
         val (loadStream, storeStream) = StreamDemux.two(cmdIn, select = cmdIn.isLoad)
 
         // --- 连接Load指令到LQ的AGU端口 ---
         lqAguPort.input.valid           := loadStream.valid
         lqAguPort.input.payload.isLoad  := True
         lqAguPort.input.payload.isStore := False
-        // ... (其他字段连接)
+        lqAguPort.input.payload.isFlush := loadStream.payload.isFlush
         lqAguPort.input.payload.robPtr        := loadStream.payload.robPtr
-        lqAguPort.input.payload.basePhysReg       := loadStream.payload.baseReg
+        lqAguPort.input.payload.basePhysReg   := loadStream.payload.baseReg
         lqAguPort.input.payload.immediate     := loadStream.payload.immediate
         lqAguPort.input.payload.usePc         := loadStream.payload.usePc
         lqAguPort.input.payload.pc            := loadStream.payload.pc
-        lqAguPort.input.payload.physDst         := loadStream.payload.pdest
+        lqAguPort.input.payload.physDst       := loadStream.payload.pdest
         lqAguPort.input.payload.accessSize    := loadStream.payload.accessSize
+        lqAguPort.input.payload.dataReg       := 0 // Load不需要
         loadStream.ready := lqAguPort.input.ready
 
         // --- 连接Store指令到SQ的AGU端口 ---
         sqAguPort.input.valid           := storeStream.valid
         sqAguPort.input.payload.isLoad  := False
         sqAguPort.input.payload.isStore := True
+        // >>> FIX: 补全 isFlush 字段的连接
+        sqAguPort.input.payload.isFlush := storeStream.payload.isFlush
+        // <<< FIX END
         sqAguPort.input.payload.robPtr        := storeStream.payload.robPtr
-        sqAguPort.input.payload.basePhysReg       := storeStream.payload.baseReg
+        sqAguPort.input.payload.basePhysReg   := storeStream.payload.baseReg
         sqAguPort.input.payload.immediate     := storeStream.payload.immediate
         sqAguPort.input.payload.usePc         := storeStream.payload.usePc
         sqAguPort.input.payload.pc            := storeStream.payload.pc
         sqAguPort.input.payload.dataReg       := storeStream.payload.dataReg
-        sqAguPort.input.payload.physDst         := 0 // Store不需要
+        sqAguPort.input.payload.physDst       := 0 // Store不需要
         sqAguPort.input.payload.accessSize    := storeStream.payload.accessSize
-        // 关键: storeData直接来自输入命令
         storeStream.ready := sqAguPort.input.ready
 
         // =========================================================
-        // >> Store Path Area (Now extremely simple)
+        // >> Store Path Area
         // =========================================================
         val storePath = new Area {
-            // 从AGU获取已处理完的Store指令
             val aguRsp = sqAguPort.output
             
-            // 直接将AGU的输出连接到Store Buffer的输入
             sbPushPort << aguRsp.translateWith {
                 val sbCmd = StoreBufferPushCmd(pipelineConfig, lsuConfig)
                 sbCmd.addr      := aguRsp.payload.address
@@ -186,7 +190,7 @@ class LsuPlugin(
 
 
         // =========================================================
-        // >> 加载队列区域 (Load Queue Area) - 逻辑大幅简化
+        // >> 加载队列区域 (Load Queue Area)
         // =========================================================
         val loadQueue = new Area {
             val slots = Vec.fill(lqDepth)(Reg(LoadQueueSlot(pipelineConfig, lsuConfig, dCacheParams)))
@@ -197,7 +201,6 @@ class LsuPlugin(
                 slots(i).init(LoadQueueSlot(pipelineConfig, lsuConfig, dCacheParams).setDefault())
             }
 
-            // >> MODIFICATION 2: LQ不再自己管理AGU请求，而是接收AGU的结果
             val aguRsp = lqAguPort.output
 
             // --- 1. LQ Push (from AGU Response) ---
@@ -210,17 +213,14 @@ class LsuPlugin(
                 val cmd = aguRsp.payload
                 
                 newSlot.valid       := True
-                newSlot.addrValid   := True // 地址在进入LQ时就已有效
+                newSlot.addrValid   := True
                 newSlot.address     := cmd.address
                 newSlot.hasException:= cmd.alignException
                 newSlot.exceptionCode := ExceptionCode.LOAD_ADDR_MISALIGNED
-                
-                // 保存上下文
                 newSlot.size        := cmd.accessSize
                 newSlot.robPtr      := cmd.robPtr
                 newSlot.pdest       := cmd.physDst
                 
-                // 重置状态标志
                 newSlot.isWaitingForFwdRsp    := False
                 newSlot.isStalledByDependency := False
                 newSlot.isReadyForDCache      := False
@@ -228,11 +228,8 @@ class LsuPlugin(
                 ParallaxSim.log(L"[LQ] PUSH from AGU: robPtr=${cmd.robPtr} addr=${cmd.address} to slotIdx=${pushIdx}")
             }
 
-            // >> 后续逻辑 (2-6) 与上一版完全相同，因为它们处理的是进入LQ之后的事情
-            
             // --- 2. Store-to-Load Forwarding & Disambiguation ---
             val head = slots(0)
-            // 地址在入队时就有效，所以检查条件简化
             val headIsReadyForFwdQuery = head.valid && !head.hasException &&
                                          !head.isWaitingForFwdRsp && !head.isStalledByDependency &&
                                          !head.isReadyForDCache && !head.isWaitingForDCacheRsp
@@ -247,19 +244,11 @@ class LsuPlugin(
                 ParallaxSim.log(L"[LQ-Fwd] QUERY: robPtr=${head.robPtr} addr=${head.address}")
             }
             
-            // (这段代码无需改动，直接复制即可)
             when(head.isWaitingForFwdRsp) {
                 val fwdRsp = sbQueryPort.rsp
-                slotsAfterUpdates(0).isWaitingForFwdRsp := False // Consume the response
+                slotsAfterUpdates(0).isWaitingForFwdRsp := False
                 when(fwdRsp.hit) {
-                    ParallaxSim.log(L"[LQ-Fwd] HIT: robPtr=${head.robPtr}, data=${fwdRsp.data}. Completing instruction.")
-                    prfWritePort.valid   := True
-                    prfWritePort.address := head.pdest
-                    prfWritePort.data    := fwdRsp.data
-                    robWritebackPort.fire := True
-                    robWritebackPort.robPtr := head.robPtr
-                    robWritebackPort.exceptionOccurred := False
-                    popRequest := True
+                    // Completion logic is handled below by popOnFwdHit
                 } .elsewhen(fwdRsp.olderStoreHasUnknownAddress || fwdRsp.olderStoreMatchingAddress) {
                     ParallaxSim.log(L"[LQ-Fwd] STALL: robPtr=${head.robPtr} has dependency...")
                     slotsAfterUpdates(0).isStalledByDependency := True
@@ -289,14 +278,27 @@ class LsuPlugin(
             
             when(dCacheLoadPort.cmd.fire) {
                 slotsAfterUpdates(0).isWaitingForDCacheRsp := True
-                slotsAfterUpdates(0).isReadyForDCache      := False // State transition
+                slotsAfterUpdates(0).isReadyForDCache      := False
                 ParallaxSim.log(L"[LQ-DCache] SEND_TO_DCACHE: robPtr=${head.robPtr} addr=${head.address}")
             }
 
-            // --- 6. Completion & Writeback Logic ---
-            val popRequest = False // This will be set by different completion paths
-            
-            // Default assignments to avoid latches
+            // --- 4. D-Cache Response Handling (for Redo) ---
+            when(dCacheLoadPort.rsp.valid && head.valid && head.isWaitingForDCacheRsp) {
+                when(dCacheLoadPort.rsp.payload.redo) {
+                    slotsAfterUpdates(0).isWaitingForDCacheRsp := False
+                    slotsAfterUpdates(0).isReadyForDCache      := True 
+                    ParallaxSim.log(L"[LQ-DCache] REDO received for robPtr=${head.robPtr}")
+                }
+            }
+
+            // --- 5. Completion & Pop Logic (Refactored) ---
+            val popOnFwdHit = head.isWaitingForFwdRsp && sbQueryPort.rsp.hit
+            val popOnDCacheSuccess = dCacheLoadPort.rsp.valid && head.valid && head.isWaitingForDCacheRsp && !dCacheLoadPort.rsp.payload.redo
+            val popOnEarlyException = head.valid && head.hasException && !head.isWaitingForFwdRsp && !head.isWaitingForDCacheRsp
+            val popRequest = popOnFwdHit || popOnDCacheSuccess || popOnEarlyException
+
+            // >>> FIX: 使用 if/elsewhen 结构避免赋值冲突
+            // Default assignments to prevent latches
             robWritebackPort.fire := False
             robWritebackPort.robPtr.assignDontCare()
             robWritebackPort.exceptionOccurred.assignDontCare()
@@ -306,44 +308,36 @@ class LsuPlugin(
             prfWritePort.address.assignDontCare()
             prfWritePort.data.assignDontCare()
 
-            // Path A: Completion from D-Cache Response
-            when(dCacheLoadPort.rsp.valid && head.valid && head.isWaitingForDCacheRsp) {
-                when(dCacheLoadPort.rsp.payload.redo) {
-                    // D-Cache is busy (e.g., MSHR full), must retry.
-                    // Reset state to allow re-sending to D-Cache.
-                    slotsAfterUpdates(0).isWaitingForDCacheRsp := False
-                    slotsAfterUpdates(0).isReadyForDCache      := True 
-                    ParallaxSim.log(L"[LQ-DCache] REDO received for robPtr=${head.robPtr}")
-                } otherwise {
-                    // D-Cache operation finished.
-                    prfWritePort.valid   := !dCacheLoadPort.rsp.payload.fault
-                    prfWritePort.address := head.pdest
-                    prfWritePort.data    := dCacheLoadPort.rsp.payload.data
+            // Completion paths
+            when(popOnFwdHit) {
+                ParallaxSim.log(L"[LQ-Fwd] HIT: robPtr=${head.robPtr}, data=${sbQueryPort.rsp.data}. Completing instruction.")
+                prfWritePort.valid   := True
+                prfWritePort.address := head.pdest
+                prfWritePort.data    := sbQueryPort.rsp.data
+                
+                robWritebackPort.fire := True
+                robWritebackPort.robPtr := head.robPtr
+                robWritebackPort.exceptionOccurred := False
+            } elsewhen (popOnDCacheSuccess) {
+                ParallaxSim.log(L"[LQ-DCache] DCACHE_RSP_OK for robPtr=${head.robPtr}, data=${dCacheLoadPort.rsp.payload.data}, fault=${dCacheLoadPort.rsp.payload.fault}")
+                prfWritePort.valid   := !dCacheLoadPort.rsp.payload.fault
+                prfWritePort.address := head.pdest
+                prfWritePort.data    := dCacheLoadPort.rsp.payload.data
 
-                    robWritebackPort.fire := True
-                    robWritebackPort.robPtr := head.robPtr
-                    robWritebackPort.exceptionOccurred := dCacheLoadPort.rsp.payload.fault
-                    robWritebackPort.exceptionCodeIn   := ExceptionCode.LOAD_ACCESS_FAULT // Example code
-
-                    popRequest := True
-                    ParallaxSim.log(L"[LQ-DCache] DCACHE_RSP_OK for robPtr=${head.robPtr}, data=${dCacheLoadPort.rsp.payload.data}, fault=${dCacheLoadPort.rsp.payload.fault}")
-                }
-            }
-
-            // Path B: Completion from early alignment exception
-            // This check must ensure it's not waiting for anything else.
-            val canFireException = head.valid && head.hasException && !head.isWaitingForFwdRsp && !head.isWaitingForDCacheRsp
-            when(canFireException) {
+                robWritebackPort.fire := True
+                robWritebackPort.robPtr := head.robPtr
+                robWritebackPort.exceptionOccurred := dCacheLoadPort.rsp.payload.fault
+                robWritebackPort.exceptionCodeIn   := ExceptionCode.LOAD_ACCESS_FAULT
+            } elsewhen (popOnEarlyException) {
+                ParallaxSim.log(L"[LQ] Alignment exception for robPtr=${head.robPtr}")
                 robWritebackPort.fire := True
                 robWritebackPort.robPtr := head.robPtr
                 robWritebackPort.exceptionOccurred := True
                 robWritebackPort.exceptionCodeIn := head.exceptionCode
-                
-                popRequest := True
-                ParallaxSim.log(L"[LQ] Alignment exception for robPtr=${head.robPtr}")
             }
+            // <<< FIX END
 
-            // --- 7. LQ Pop Logic ---
+            // --- 6. LQ Pop Execution ---
             when(popRequest) {
                 ParallaxSim.log(L"[LQ] POP: Popping slot 0 (robPtr=${slotsAfterUpdates(0).robPtr})")
                 for (i <- 0 until lqDepth - 1) {
@@ -352,10 +346,6 @@ class LsuPlugin(
                 slotsNext(lqDepth - 1).setDefault()
             }
         } // End of loadQueue Area
-
-
-        // The 'controller' area is now obsolete, as its logic is integrated
-        // into the Store Path and Load Path directly.
 
         // Release services
         hw.robServiceInst.release()

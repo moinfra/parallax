@@ -90,7 +90,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
     for (i <- 0 until dutIo.config.allocateWidth) {
       val port = dutIo.allocate(i)
       if (i < allocRequests.length) {
-        port.fire #= allocRequests(i)._1
+        port.valid #= allocRequests(i)._1
         // Assign members of the uop Bundle individually
         val reqUop = allocRequests(i)._2
         // Assign directly from reqUop's fields (which hold SpinalHDL literals/values)
@@ -102,7 +102,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
 
         port.pcIn #= allocRequests(i)._3.toInt
       } else {
-        port.fire #= false
+        port.valid #= false
         driveDefaultDummyUop(port.uopIn) // 确保默认值
         port.pcIn #= 0
       }
@@ -141,11 +141,11 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
     for (i <- 0 until dutIo.config.allocateWidth) {
       val port = dutIo.allocate(i)
       if (i < allocRequests.length) {
-        port.fire #= allocRequests(i)._1
+        port.valid #= allocRequests(i)._1
         port.uopIn := allocRequests(i)._2
         port.pcIn #= allocRequests(i)._3
       } else {
-        port.fire #= false
+        port.valid #= false
         driveDefaultDummyUop(port.uopIn)
         port.pcIn #= 0
       }
@@ -790,7 +790,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
         val canAlloc = (countAfterPotentialCommit + i) < testConfig.robDepth
         assert(dut.io.canAllocate(i).toBoolean == canAlloc, s"Concurrent: canAllocate($i) expected $canAlloc. Count Before=${c_before_concurrent}, Commits=${commitW}, AllocsSoFar=${i}")
       }
-      val newAllocatedFullRobPtrs = dut.io.allocate.takeWhile(_.fire.toBoolean).map(_.robPtr.toBigInt)
+      val newAllocatedFullRobPtrs = dut.io.allocate.takeWhile(_.valid.toBoolean).map(_.robPtr.toBigInt)
       ParallaxLogger.log(s"Concurrent: Allocating to Full ROB indices (combinational): ${newAllocatedFullRobPtrs.mkString(",")}")
 
 
