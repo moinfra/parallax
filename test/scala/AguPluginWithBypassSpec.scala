@@ -135,7 +135,8 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
       robPtr: BigInt,
       isLoad: Boolean,
       isStore: Boolean,
-      physDst: BigInt
+      physDst: BigInt,
+      storeData: BigInt,
   )
 
   // 预载寄存器
@@ -166,7 +167,7 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
     dut.io.bypassInject.payload.physRegData #= data
     dut.io.bypassInject.payload.robPtr #= robPtr
     dut.io.bypassInject.payload.valid #= true
-    clockDomain.waitSampling(3)
+    clockDomain.waitSampling(10)
     dut.io.bypassInject.valid #= false
     clockDomain.waitSampling()
   }
@@ -183,6 +184,8 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
     payload.isLoad #= params.isLoad
     payload.isStore #= params.isStore
     payload.physDst #= params.physDst
+    payload.isFlush #= false
+    payload.qPtr #= 0
   }
 
   test("AGU Plugin with BypassService - Basic Address Calculation") {
@@ -213,7 +216,8 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
             payload.robPtr.toBigInt,
             payload.isLoad.toBoolean,
             payload.isStore.toBoolean,
-            payload.physDst.toBigInt
+            payload.physDst.toBigInt,
+            payload.storeData.toBigInt
           )
         }
       }
@@ -297,7 +301,8 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
             payload.robPtr.toBigInt,
             payload.isLoad.toBoolean,
             payload.isStore.toBoolean,
-            payload.physDst.toBigInt
+            payload.physDst.toBigInt,
+            payload.storeData.toBigInt
           )
           ParallaxLogger.debug(s"Received agu output: ${outputSnapshots}")
 
@@ -386,7 +391,8 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
             payload.robPtr.toBigInt,
             payload.isLoad.toBoolean,
             payload.isStore.toBoolean,
-            payload.physDst.toBigInt
+            payload.physDst.toBigInt,
+            payload.storeData.toBigInt
           )
         }
       }
@@ -468,7 +474,8 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
             payload.robPtr.toBigInt,
             payload.isLoad.toBoolean,
             payload.isStore.toBoolean,
-            payload.physDst.toBigInt
+            payload.physDst.toBigInt,
+            payload.storeData.toBigInt
           )
         )
         // 为了调试，打印收到的数据
@@ -476,7 +483,7 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
       }
 
       // 3. 随机化下游的 'ready' 信号，以模拟真实的背压
-      StreamReadyRandomizer(dut.io.testOutput, dut.clockDomain).setFactor(0.5f)
+      StreamReadyRandomizer(dut.io.testOutput, dut.clockDomain).setFactor(0.2f)
 
       // 初始化
       dut.io.flush #= false
@@ -568,7 +575,7 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
       }
 
       // 等待结果
-      val timedout2 = dut.clockDomain.waitSamplingWhere(timeout=100)(outputQueue.nonEmpty)
+      val timedout2 = dut.clockDomain.waitSamplingWhere(timeout=10)(outputQueue.nonEmpty)
       if (timedout2) {
         fail(s"No output received for testParams2")
       }
@@ -580,7 +587,7 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
         s"Part 2: Address mismatch. Expected ${baseValue2 + 200}, got ${result2.address}"
       )
       // 假设 AguOutput 中有 storeData:
-      // assert(result2.storeData == storeDataBypassValue2, s"Part 2: Store data from bypass is wrong. Expected $storeDataBypassValue2, got ${result2.storeData}")
+      assert(result2.storeData == storeDataBypassValue2, s"Part 2: Store data from bypass is wrong. Expected $storeDataBypassValue2, got ${result2.storeData}")
       println("✓ Store data from bypass PASSED")
 
       dut.clockDomain.waitSampling(10)
