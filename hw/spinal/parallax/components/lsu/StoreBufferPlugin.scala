@@ -8,19 +8,40 @@ import parallax.components.rob._
 import parallax.components.dcache2._
 import parallax.utilities._
 
-case class SqQuery(lsuCfg: LsuConfig, pipelineCfg: PipelineConfig) extends Bundle {
+case class SqQuery(lsuCfg: LsuConfig, pipelineCfg: PipelineConfig) extends Bundle with Formattable {
     val robPtr      = UInt(pipelineCfg.robPtrWidth) // ESSENTIAL for ordering
     val address     = UInt(lsuCfg.pcWidth)
     val size        = MemAccessSize()
+
+    def format: Seq[Any] = {
+        Seq(
+            L"SqQuery(",
+            L"robPtr=${robPtr},",
+            L"address=${address},",
+            L"size=${size}",
+            L")"
+        )
+    }
 }
 
-case class SqQueryRsp(lsuCfg: LsuConfig) extends Bundle {
+case class SqQueryRsp(lsuCfg: LsuConfig) extends Bundle with Formattable {
     val hit         = Bool() // 是否命中一个可以转发的store
     val data        = Bits(lsuCfg.dataWidth)
 
     // 依赖相关 (Disambiguation)
     val olderStoreHasUnknownAddress = Bool() // 是否存在一个更早的、地址未知的store
     val olderStoreMatchingAddress = Bool() // 是否存在一个更早的、地址匹配但数据未就绪的store
+
+    def format: Seq[Any] = {
+        Seq(
+            L"SqQueryRsp(",
+            L"hit=${hit},",
+            L"data=${data},",
+            L"olderStoreHasUnknownAddress=${olderStoreHasUnknownAddress},",
+            L"olderStoreMatchingAddress=${olderStoreMatchingAddress}",
+            L")"
+        )
+    }
 }
 
 case class SqQueryPort(lsuCfg: LsuConfig, pipelineCfg: PipelineConfig) extends Bundle with IMasterSlave {
@@ -52,7 +73,7 @@ case class StoreBufferSlot(val pCfg: PipelineConfig, val lsuCfg: LsuConfig, val 
     val valid               = Bool()
     val hasEarlyException   = Bool()
     val earlyExceptionCode  = UInt(pCfg.exceptionCodeWidth)
-    /* 
+    /*
         推测阶段 (isCommitted = False): Store位于SB中，但其结果是临时的。如果发生冲刷，它可能被作废。它只对后续的Load指令（通过转发）可见，但对系统的其它部分（如D-Cache和其他核心）不可见。
         提交阶段 (isCommitted = True):  ROB已经确认这条指令是正确路径上的一部分。它的写操作现在必须发生，且不可撤销。这个标志是触发Store从SB写入D-Cache的先决条件。
      */
@@ -60,6 +81,7 @@ case class StoreBufferSlot(val pCfg: PipelineConfig, val lsuCfg: LsuConfig, val 
     val isSentToDCache      = Bool()
     val dcacheOpPending     = Bool()
     val isWaitingForRefill  = Bool()
+    val isWaitingForWb      = Bool() 
     val refillSlotToWatch   = Bits(dCacheParams.refillCount bits)
 
     def setDefault(): this.type = {
@@ -77,6 +99,7 @@ case class StoreBufferSlot(val pCfg: PipelineConfig, val lsuCfg: LsuConfig, val 
         isSentToDCache      := False
         dcacheOpPending     := False
         isWaitingForRefill  := False
+        isWaitingForWb      := False
         refillSlotToWatch   := 0
         this
     }
@@ -96,6 +119,7 @@ case class StoreBufferSlot(val pCfg: PipelineConfig, val lsuCfg: LsuConfig, val 
         this.isSentToDCache      := False
         this.dcacheOpPending     := False
         this.isWaitingForRefill  := False
+        this.isWaitingForWb      := False
         this.refillSlotToWatch   := 0
         this
     }
@@ -113,7 +137,7 @@ case class StoreBufferBypassData(val pCfg: PipelineConfig) extends Bundle {
     def setDefault(): this.type = { hit := False; data := 0; hitMask := 0; this }
 }
 
-trait StoreBufferService extends Service {
+trait StoreBufferService extends Service with LockedImpl {
     def getPushPort(): Stream[StoreBufferPushCmd]
     def getBypassQueryAddressInput(): UInt
     def getBypassQuerySizeInput(): MemAccessSize.C
@@ -133,7 +157,7 @@ class StoreBufferPlugin(
         val bypassQueryAddrIn = UInt(pipelineConfig.pcWidth)
         val bypassQuerySizeIn = MemAccessSize()
         val bypassDataOutInst = Flow(StoreBufferBypassData(pipelineConfig))
-        val sqQueryPort       = slave(SqQueryPort(lsuConfig, pipelineConfig))
+        val sqQueryPort       = SqQueryPort(lsuConfig, pipelineConfig)
         val robServiceInst    = getService[ROBService[RenamedUop]]
         val dcacheServiceInst = getService[DataCacheService]
         val dCacheStorePort = dcacheServiceInst.newStorePort();
@@ -153,15 +177,14 @@ class StoreBufferPlugin(
 
         val robService    = hw.robServiceInst
         val dcacheService = hw.dcacheServiceInst
-        
+
         val storePortDCache = hw.dCacheStorePort
 
         val pushPortIn    = hw.pushPortInst
         val bypassQueryAddr= hw.bypassQueryAddrIn
         val bypassQuerySz = hw.bypassQuerySizeIn
         val bypassDataOut = hw.bypassDataOutInst
-        
-        // >> 修改 3: 实例化Slot时传入D-Cache参数
+
         val slots       = Vec.fill(sbDepth)(Reg(StoreBufferSlot(pipelineConfig, lsuConfig, dCacheParams)))
         val slotsAfterUpdates = CombInit(slots)
         val slotsNext   = CombInit(slotsAfterUpdates)
@@ -179,7 +202,7 @@ class StoreBufferPlugin(
         }
         private def isOlder(robPtrA: UInt, robPtrB: UInt): Bool = !isNewerOrSame(robPtrA, robPtrB)
 
-        // --- SB Push/Pop/Commit/Flush Logic (Existing Logic) ---
+        // --- SB Push/Pop/Commit/Flush Logic ---
         val validFall = Vec(Bool(), sbDepth)
         validFall(0) := !slots(0).valid
         for(i <- 1 until sbDepth) { validFall(i) := slots(i-1).valid && !slots(i).valid }
@@ -193,19 +216,24 @@ class StoreBufferPlugin(
             slotsAfterUpdates(pushIdx) := newSlotData
             ParallaxSim.log(L"[SB] PUSH: robPtr=${pushPortIn.payload.robPtr} to slotIdx=${pushIdx}")
         }
-
+        
+        // --- Sending Logic: Strict In-Order from the head ---
         val headSlot = slots(0)
-        val canPopToDCache = headSlot.valid && headSlot.isCommitted &&
-                             !headSlot.isSentToDCache && !headSlot.dcacheOpPending &&
-                             !headSlot.isWaitingForRefill && // << 不能在等待Refill时发送
-                             !headSlot.hasEarlyException && !headSlot.isIO
+        // A request can be sent from the head if it's ready and not already pending a response or a resource.
+        val canPopNormalOp = headSlot.valid && headSlot.isCommitted && !headSlot.isFlush &&
+                            !headSlot.dcacheOpPending && !headSlot.isWaitingForRefill && !headSlot.isWaitingForWb && // **增加 !isWaitingForWb**
+                            !headSlot.hasEarlyException && !headSlot.isIO
+
+        // Flush指令: 只要它到达头部就可以立即发送，不需要等待提交
+        val canPopFlushOp = headSlot.valid && headSlot.isFlush && !headSlot.dcacheOpPending && !headSlot.isWaitingForWb // **增加 !isWaitingForWb**
+
+        val canPopToDCache = canPopNormalOp || canPopFlushOp
+
 
         storePortDCache.cmd.valid := canPopToDCache
         storePortDCache.cmd.payload.assignDontCare()
         when(canPopToDCache) {
-            // 根据 headSlot.isFlush 来设置不同的payload
             when(headSlot.isFlush) {
-                // 这是一个 FLUSH 命令
                 storePortDCache.cmd.payload.address  := headSlot.addr
                 storePortDCache.cmd.payload.flush    := True
                 storePortDCache.cmd.payload.data     := 0
@@ -229,37 +257,70 @@ class StoreBufferPlugin(
                 }
             }
         }
-        
+        // --- Response and Retry Logic ---
+        // Signal that a command was fired from the head to the D-Cache THIS cycle.
         val dcacheCmdFired = canPopToDCache && storePortDCache.cmd.ready
+
+        // A D-Cache response is for the head slot if:
+        // 1. The response is valid.
+        // 2. The head slot is valid.
+        // 3. The response ID matches the head's robPtr.
+        // 4. The head was either already waiting for a response (dcacheOpPending=true) OR it just fired the command this cycle (dcacheCmdFired=true).
+        // This is the key change to handle the race condition.
+        val responseIsForHead = storePortDCache.rsp.valid && slots(0).valid &&
+                               (slots(0).dcacheOpPending || dcacheCmdFired) &&
+                               (slots(0).robPtr === storePortDCache.rsp.payload.id.resize(lsuConfig.robPtrWidth))
+
+        // When a command is fired, we mark it as sent.
         when(dcacheCmdFired) {
-            slotsAfterUpdates(0).isSentToDCache  := True
-            slotsAfterUpdates(0).dcacheOpPending := True
-            ParallaxSim.log(L"[SB] SEND_TO_DCACHE: robPtr=${headSlot.robPtr} (slotIdx=0), addr=${headSlot.addr}, data=${headSlot.data}, be=${headSlot.be}")
+            slotsAfterUpdates(0).isSentToDCache := True
+            ParallaxSim.log(L"[SB] SEND_TO_DCACHE: robPtr=${slots(0).robPtr} (slotIdx=0), addr=${slots(0).addr}, data=${slots(0).data}, be=${slots(0).be}")
         }
 
-        val dcacheRspArrived = storePortDCache.rsp.valid && slots(0).valid && slots(0).dcacheOpPending
-        when(dcacheRspArrived) {
+        // Centralized, prioritized management of the dcacheOpPending state.
+        // The `if/elsewhen` structure ensures correctness.
+        when(responseIsForHead) {
+            // A response arrived, so the operation is no longer pending.
             slotsAfterUpdates(0).dcacheOpPending := False
+            
             when(storePortDCache.rsp.payload.redo) {
-                slotsAfterUpdates(0).isWaitingForRefill := True
-                slotsAfterUpdates(0).refillSlotToWatch  := storePortDCache.rsp.payload.refillSlot
-                ParallaxSim.log(L"[SB] REDO received, entering WAIT_FOR_REFILL for robPtr=${slots(0).robPtr}, watching slot=${storePortDCache.rsp.payload.refillSlot}")
+                // REDO means we must retry. We clear isSentToDCache to re-enable sending.
+                slotsAfterUpdates(0).isSentToDCache := False
+                
+                when(storePortDCache.rsp.payload.flush) {
+                    slotsAfterUpdates(0).isWaitingForWb := True
+                    ParallaxSim.log(L"[SB] REDO_FOR_FLUSH received for robPtr=${slots(0).robPtr}. Entering WAIT_FOR_WB.")
+                } otherwise {
+                    slotsAfterUpdates(0).isWaitingForRefill := True
+                    slotsAfterUpdates(0).refillSlotToWatch  := storePortDCache.rsp.payload.refillSlot
+                    ParallaxSim.log(L"[SB] REDO_FOR_REFILL received for robPtr=${slots(0).robPtr}. Entering WAIT_FOR_REFILL.")
+                }
+            } otherwise {
+                // Successful response (redo=0). The operation is done.
+                ParallaxSim.log(L"[SB] RSP_SUCCESS received for robPtr=${slots(0).robPtr}.")
             }
+        } elsewhen(dcacheCmdFired) {
+            // No response arrived THIS cycle, but we just fired a command.
+            // So, we must enter the pending state and wait for a response next cycle.
+            slotsAfterUpdates(0).dcacheOpPending := True
         }
 
         val refillCompletionsFromDCache = dcacheService.getRefillCompletions()
         ParallaxSim.log(L"[SB] Watching... refillCompletionsFromDCache=${refillCompletionsFromDCache}")
-        val waitedRefillIsDone = slots(0).valid && slots(0).isWaitingForRefill && 
-                                 (slots(0).refillSlotToWatch & refillCompletionsFromDCache).orR
+        val waitedRefillIsDone = slots(0).valid && slots(0).isWaitingForRefill &&
+                         (slots(0).refillSlotToWatch & refillCompletionsFromDCache).orR
 
         when(waitedRefillIsDone) {
-            // Refill 完成，我们可以准备重试了！
-            // 将状态恢复到可以再次发送的状态
             slotsAfterUpdates(0).isWaitingForRefill := False
-            slotsAfterUpdates(0).isSentToDCache     := False // 允许重新发送
             ParallaxSim.log(L"[SB] REFILL_DONE observed for robPtr=${slots(0).robPtr}. Ready to retry.")
         }
-
+        
+        val dCacheIsWbBusy = dcacheService.writebackBusy()
+        when(slots(0).valid && slots(0).isWaitingForWb && !dCacheIsWbBusy) {
+            slotsAfterUpdates(0).isWaitingForWb := False
+            ParallaxSim.log(L"[SB] DCACHE_READY observed for robPtr=${slots(0).robPtr}. Exiting WAIT_FOR_WB.")
+        }
+        // --- Commit and Flush Logic (Unchanged) ---
         val commitInfoFromRob = robService.getCommitSlots(pipelineConfig.commitWidth)
         val commitAcksFromRob = robService.getCommitAcks(pipelineConfig.commitWidth)
         for(i <- 0 until sbDepth){
@@ -287,29 +348,30 @@ class StoreBufferPlugin(
                 }
             }
         }
+
+        // --- Pop Logic (Unchanged from previous correct version) ---
+        val popHeadSlot = slotsAfterUpdates(0)
+
+        val operationDone = popHeadSlot.isSentToDCache && !popHeadSlot.dcacheOpPending && !popHeadSlot.isWaitingForRefill && !popHeadSlot.isWaitingForWb
+
+        // 一个 `flush` 指令，只要它在SB头部，并且它对D-Cache的操作已完成，就可以从SB中弹出。
+        // 它不需要等待isCommitted，因为它不产生对架构状态的永久性修改。它的作用是同步，这个同步任务已经完成了。
+        val flushDone = popHeadSlot.isFlush && popHeadSlot.valid && operationDone
+
+        // 普通Store的弹出条件不变，仍然需要isCommitted
+        val normalStoreDone = !popHeadSlot.isFlush && popHeadSlot.valid && popHeadSlot.isCommitted && operationDone && !popHeadSlot.hasEarlyException && !popHeadSlot.isIO
+
         
-        val popHeadSlot         = slotsAfterUpdates(0)
-
-        // 为 flush 指令定义一个完成条件
-        val flushDone           = popHeadSlot.isFlush && popHeadSlot.valid && popHeadSlot.isCommitted &&
-                                    popHeadSlot.isSentToDCache && !popHeadSlot.dcacheOpPending &&
-                                    !popHeadSlot.isWaitingForRefill &&
-                                    !popHeadSlot.hasEarlyException
-
-        val normalStoreDone     = !popHeadSlot.isFlush && popHeadSlot.valid && popHeadSlot.isCommitted &&
-                                    popHeadSlot.isSentToDCache && !popHeadSlot.dcacheOpPending &&
-                                    !popHeadSlot.isWaitingForRefill && 
-                                    !popHeadSlot.hasEarlyException && !popHeadSlot.isIO
         val canPopIO            = popHeadSlot.valid && popHeadSlot.isCommitted &&
-                                    !popHeadSlot.isSentToDCache &&
-                                    !popHeadSlot.dcacheOpPending &&
-                                    !popHeadSlot.isWaitingForRefill && // << 也需要在pop条件里检查
-                                    !popHeadSlot.hasEarlyException && popHeadSlot.isIO
+                                    popHeadSlot.isIO && !popHeadSlot.hasEarlyException
+
         val earlyExcStoreDone   = popHeadSlot.valid && popHeadSlot.isCommitted &&
                                     popHeadSlot.hasEarlyException
+        
+        val isSbEmpty = !slots.map(_.valid).orR
+        val popInvalidSlot = !isSbEmpty && !popHeadSlot.valid
+        val popRequest = normalStoreDone || canPopIO || earlyExcStoreDone || flushDone || popInvalidSlot
 
-        // 将 flushDone 添加到 popRequest 中
-        val popRequest = normalStoreDone || canPopIO || earlyExcStoreDone || flushDone
         report(L"[SB] popRequest=${popRequest}, flushDone=${flushDone}, normalStoreDone=${normalStoreDone}, canPopIO=${canPopIO}, earlyExcStoreDone=${earlyExcStoreDone}")
         when(popRequest) {
             ParallaxSim.log(L"[SB] POP: Popping slot 0 (robPtr=${popHeadSlot.robPtr}, isFlush=${popHeadSlot.isFlush})")
@@ -321,6 +383,7 @@ class StoreBufferPlugin(
 
         // =============================================================================
         // >> 集成: Store-to-Load 转发逻辑 (SqQueryPort)
+        // (Unchanged)
         // =============================================================================
         val forwardingLogic = new Area {
             ParallaxLogger.log("StoreBufferPlugin: Elaborating Store-to-Load forwarding logic.")
@@ -338,6 +401,7 @@ class StoreBufferPlugin(
             val bypassInitial = BypassAccumulator(pipelineConfig)
             bypassInitial.data.assignFromBits(B(0))
             bypassInitial.hitMask.assignFromBits(B(0))
+            ParallaxSim.debug(L"[SB-Fwd] Query: valid=${query.valid} robPtr=${query.payload.robPtr} addr=${query.payload.address} size=${query.payload.size}")
 
             val forwardingResult = slots.reverse.foldLeft(bypassInitial) { (acc, slot) =>
                 val nextAcc = CombInit(acc)
@@ -346,6 +410,10 @@ class StoreBufferPlugin(
                 val canForward = slot.valid && !slot.hasEarlyException &&
                                  isOlder(slot.robPtr, query.payload.robPtr) &&
                                  (loadWordAddr === storeWordAddr)
+                when(slot.valid) {
+                    // ParallaxSim.debug(L"[SB-Fwd] Checking slot(rob=${slot.robPtr}, addr=${slot.addr}): canForward=${canForward} (isOlder=${isOlder(slot.robPtr, query.payload.robPtr)}, addrMatch=${loadWordAddr === storeWordAddr})")
+                }
+                // ParallaxSim.debug(L"[SB-Fwd] Forwarding? slot=${slot.robPtr} (load=${loadWordAddr}, store=${storeWordAddr}) canForward=${canForward}")
                 when(canForward) {
                     for (k <- 0 until dataWidthBytes) {
                         when(slot.be(k) && loadMask(k) && !acc.hitMask(k)) {
@@ -358,40 +426,49 @@ class StoreBufferPlugin(
             }
 
             val allRequiredBytesHit = (forwardingResult.hitMask & loadMask) === loadMask
-            rsp.hit  := query.valid && allRequiredBytesHit
             rsp.data := forwardingResult.data
+            val hasSomeOverlap = (forwardingResult.hitMask & loadMask).orR
 
             // --- 依赖关系检查 (Disambiguation) ---
             rsp.olderStoreHasUnknownAddress := False
             val potentialConflict = Bool()
+            rsp.hit  := query.valid && allRequiredBytesHit
+            ParallaxSim.debug(L"[SB-Fwd] Forwarding? hit=${rsp.hit}, because query.valid=${query.valid}, allRequiredBytesHit=${allRequiredBytesHit}")
             potentialConflict := False
             for(slot <- slots) {
                 val loadWordAddr = query.payload.address(pcAddrWidth-1 downto wordAddrBits)
                 val storeWordAddr = slot.addr(pcAddrWidth-1 downto wordAddrBits)
 
-                // =================================================================
-                // >> 语法修正处 <<
-                // =================================================================
                 // 判断Store是否完全覆盖了Load所需的所有字节
                 val isFullContainment = (slot.be & loadMask) === loadMask
                 // 判断是否存在任何字节的重叠
                 val hasSomeOverlap    = (slot.be & loadMask).orR
                 // 部分重叠 = 有重叠 但 非完全覆盖
                 val isPartialOverlap  = hasSomeOverlap && !isFullContainment
-                // =================================================================
 
-                when(slot.valid && !slot.hasEarlyException &&
+                val thisSlotConfigt = slot.valid && !slot.hasEarlyException &&
                      isOlder(slot.robPtr, query.payload.robPtr) &&
                      (loadWordAddr === storeWordAddr) &&
-                     isPartialOverlap) {
+                     isPartialOverlap
+
+                when(thisSlotConfigt) {
+                    ParallaxSim.debug(L"[SB-Fwd] Conflict detected: slot=${slot.robPtr} (load=${loadWordAddr}, store=${storeWordAddr})")
                     potentialConflict := True
                 }
             }
-            rsp.olderStoreMatchingAddress := query.valid && !rsp.hit && potentialConflict
+            rsp.olderStoreMatchingAddress := query.valid && !allRequiredBytesHit && hasSomeOverlap
 
             when(query.valid && rsp.hit){
                 ParallaxSim.debug(L"[SB-Fwd] HIT: Forwarding to Load(rob=${query.payload.robPtr}) data=${rsp.data} from SB.")
             }
+
+            when(query.valid) {
+                // debug print
+                ParallaxSim.debug(L"[SB-Fwd] Query: ${query.payload.format}")
+                ParallaxSim.debug(L"[SB-Fwd] Rsp: ${rsp.format}")
+            }
+                ParallaxSim.debug(L"[SB-Fwd] Result: hitMask=${forwardingResult.hitMask} (loadMask=${loadMask}), allHit=${allRequiredBytesHit}, finalRsp.hit=${rsp.hit}")
+
         }
 
 
@@ -429,9 +506,38 @@ class StoreBufferPlugin(
         bypassDataOut.payload.hitMask  := finalHitMask
         bypassDataOut.payload.hit      := overallBypassHit && (finalHitMask === loadQueryBe)
         // --- End of Bypass Logic ---
-
+        ParallaxSim.log(L"[SB] bypassDataOut: valid=${bypassDataOut.valid}, data=${bypassDataOut.payload.data}, hit=${bypassDataOut.payload.hit}, hitMask=${bypassDataOut.payload.hitMask}")
 
         slots := slotsNext
+
+        // 在StoreBufferPlugin中添加调试输出
+        for (i <- 0 until sbDepth) {
+        when(slots(i).valid) {
+            ParallaxSim.log(L"[SB-Debug] HeadSlot State: " :+
+                L"valid=${slots(i).valid}, " :+
+                L"isCommitted=${slots(i).isCommitted}, " :+
+                L"isSentToDCache=${slots(i).isSentToDCache}, " :+
+                L"dcacheOpPending=${slots(i).dcacheOpPending}, " :+
+                L"isWaitingForRefill=${slots(i).isWaitingForRefill}, " :+
+                L"isWaitingForWb=${slots(i).isWaitingForWb}, " :+
+                L"hasEarlyException=${slots(i).hasEarlyException}, " :+
+                L"isIO=${slots(i).isIO}, " :+
+                L"isFlush=${slots(i).isFlush}"
+            )
+        }}
+        // 监控DCache接口状态
+        ParallaxSim.log(L"[SB-Debug] DCache Interface: " :+
+            L"cmd.valid=${storePortDCache.cmd.valid}, " :+
+            L"cmd.ready=${storePortDCache.cmd.ready}, " :+
+            L"rsp.valid=${storePortDCache.rsp.valid}, " :+
+            L"canPopToDCache=${canPopToDCache}"
+        )
+
+        for(i <- 0 until sbDepth){
+            when(slots(i).valid && !slots(i).isCommitted){
+                ParallaxSim.log(L"[SB-Debug] Slot ${i}: waiting for commit, robPtr=${slots(i).robPtr}")
+            }
+        }
 
         hw.dcacheServiceInst.release();
         hw.robServiceInst.release()

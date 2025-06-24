@@ -194,7 +194,7 @@ case class ROBIo[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[RU])
 }
 
 class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[RU]) extends Component {
-  val enableLog = false
+  val enableLog = true
   ParallaxLogger.log(
     s"Creating ReorderBuffer with config: ${config.dump().mkString("")}"
   )
@@ -406,7 +406,7 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
       )
     }
     // 提交条件：ROB 中有指令，指令已完成，且世代位匹配
-    canCommitFlags(i) := (currentCount > U(i)) && currentStatus.done && (currentCommitGenBit === currentStatus.genBit)
+    canCommitFlags(i) := !io.flush.valid && (currentCount > U(i)) && currentStatus.done && (currentCommitGenBit === currentStatus.genBit)
     io.commit(i).valid := canCommitFlags(i)
     io.commit(i).entry.payload := currentPayload
     io.commit(i).entry.status := currentStatus

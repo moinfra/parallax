@@ -227,6 +227,31 @@ object MemAccessSize extends SpinalEnum(binarySequential) {
     }
     resultBE.resize(dataWidthBytes) // 确保最终位宽正确
   }
+
+  def toByteEnable_sw(size: MemAccessSize.E, address: BigInt, dataWidthBytes: Int): BigInt = {
+    // We only care about the lower bits of the address within the data word boundary
+    val lowerAddr = (address % dataWidthBytes).toInt
+
+    size match {
+      case MemAccessSize.B => BigInt(1) << lowerAddr
+      case MemAccessSize.H =>
+        // Aligns the address to the start of the 2-byte half-word it falls into
+        val alignedAddr = lowerAddr & ~(2 - 1)
+        BigInt(0x3) << alignedAddr // 0b11
+      case MemAccessSize.W =>
+        // Aligns the address to the start of the 4-byte word it falls into
+        val alignedAddr = lowerAddr & ~(4 - 1)
+        BigInt(0xF) << alignedAddr // 0b1111
+      case MemAccessSize.D =>
+        if (dataWidthBytes < 8) {
+          throw new IllegalArgumentException(s"Double-word access not possible on data bus of $dataWidthBytes bytes")
+        }
+        // Aligns the address to the start of the 8-byte double-word it falls into
+        val alignedAddr = lowerAddr & ~(8 - 1)
+        BigInt(0xFF) << alignedAddr // 0b11111111
+    }
+  }
+
 }
 case class MemCtrlFlags() extends Bundle {
   val size = MemAccessSize()

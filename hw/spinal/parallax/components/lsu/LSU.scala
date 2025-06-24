@@ -19,8 +19,8 @@ case class LsuInputCmd(pCfg: PipelineConfig) extends Bundle {
   val usePc         = Bool()
   val pc            = UInt(pCfg.pcWidth)
 
-  val dataReg       = UInt(pCfg.physGprIdxWidth)
-  val pdest         = UInt(pCfg.physGprIdxWidth)
+  val dataReg       = UInt(pCfg.physGprIdxWidth) // For Stores: source data reg
+  val pdest         = UInt(pCfg.physGprIdxWidth) // For Loads: destination reg
 
   val accessSize    = MemAccessSize()
 }
@@ -46,21 +46,27 @@ case class LoadQueueSlot(pCfg: PipelineConfig, lsuCfg: LsuConfig, dCacheParams: 
     val hasException      = Bool()
     val exceptionCode     = UInt(8 bits)
 
-    val isWaitingForDCache= Bool() // 是否已发送给D-Cache并等待响应
-    val isWaitingForFwd   = Bool() // 是否正在等待转发查询结果 (为未来预留)
+    // >> MODIFICATION 1: Reworked state flags for clarity
+    val isWaitingForFwdRsp    = Bool() // Query sent to SB, waiting for response.
+    val isStalledByDependency = Bool() // SB response indicated a dependency, must wait and retry.
+    val isReadyForDCache      = Bool() // SB cleared this load for D-Cache access.
+    val isWaitingForDCacheRsp = Bool() // Request sent to D-Cache, waiting for response.
     
     def setDefault(): this.type = {
+        this.valid                 := False
+        this.addrValid             := False
+        this.address               := 0
+        this.size                  := MemAccessSize.W
+        this.robPtr                := 0
+        this.pdest                 := 0
+        this.hasException          := False
+        this.exceptionCode         := 0
         
-        this.valid               := False
-        this.addrValid           := False
-        this.address             := 0
-        this.size                := MemAccessSize.W
-        this.robPtr              := 0
-        this.pdest               := 0
-        this.hasException        := False
-        this.exceptionCode       := 0
-        this.isWaitingForDCache  := False
-        this.isWaitingForFwd     := False
+        // >> MODIFICATION 1.1: Initialize new state flags
+        this.isWaitingForFwdRsp    := False
+        this.isStalledByDependency := False
+        this.isReadyForDCache      := False
+        this.isWaitingForDCacheRsp := False
         this
     }
 }
@@ -75,33 +81,33 @@ class LsuPlugin(
     val dCacheParams: DataCacheParameters,
     val lqDepth: Int = 16,
     val sbDepth: Int = 16
-) extends Plugin with LsuService { // LsuService 现在是可选的，因为没有外部端口了
+) extends Plugin with LsuService {
 
     val hw = create early new Area {
-        // IO
         val lsuInputCmd = slave(Stream(LsuInputCmd(pipelineConfig)))
-        // --- 获取所有需要的服务 ---
         val robServiceInst    = getService[ROBService[RenamedUop]]
         val dcacheServiceInst = getService[DataCacheService]
         val prfServiceInst    = getService[PhysicalRegFileService]
         val aguServiceInst    = getService[AguService]
+        val storeBufferServiceInst = getService[StoreBufferService]
 
-        // --- 实例化内部插件 ---
-        // StoreBufferPlugin现在是LSU的内部实现细节，不再需要作为独立服务
-        val storeBuffer = getService[StoreBufferService]
-
-        // --- 为LSU获取自己的硬件端口 ---
+        // --- 为LSU获取硬件端口 ---
+        // 我们现在有两个独立的AGU端口，一个给Load，一个给Store
         val lqAguPort        = aguServiceInst.newAguPort()
         val sqAguPort        = aguServiceInst.newAguPort()
+        
         val dCacheLoadPort   = dcacheServiceInst.newLoadPort(priority = 0)
         val robWritebackPort = robServiceInst.newWritebackPort("LSU_Load")
         val prfWritePort     = prfServiceInst.newWritePort()
+        val sbQueryPort      = storeBufferServiceInst.getStoreQueueQueryPort()
+        val sbPushPort       = storeBufferServiceInst.getPushPort()
 
-        // 保持服务引用
+        // -- 服务保持 --
         robServiceInst.retain()
         dcacheServiceInst.retain()
         prfServiceInst.retain()
         aguServiceInst.retain()
+        storeBufferServiceInst.retain()
     }
 
     override def getInputPort(): Stream[LsuInputCmd] = hw.lsuInputCmd
@@ -110,111 +116,168 @@ class LsuPlugin(
         lock.await()
 
         val cmdIn = hw.lsuInputCmd
-        val lqPush = Stream(LsuInputCmd(pipelineConfig))
-        val sbPush = Stream(LsuInputCmd(pipelineConfig))
-        val (loadStream, storeStream) = StreamDemux.two(cmdIn, select = cmdIn.isLoad)
-
-        // 直接连接
-        loadStream >> lqPush
-        storeStream >> sbPush
-
-        // --- 引用硬件实例 ---
         val lqAguPort        = hw.lqAguPort
-        val sbAguPort        = hw.sqAguPort
-        val sbPushPort       = hw.storeBuffer.getPushPort()
+        val sqAguPort        = hw.sqAguPort
+        val sbQueryPort      = hw.sbQueryPort
+        val sbPushPort       = hw.sbPushPort
         val dCacheLoadPort   = hw.dCacheLoadPort
         val robWritebackPort = hw.robWritebackPort
         val prfWritePort     = hw.prfWritePort
 
+        // >> MODIFICATION 1: 统一的指令分派到AGU
+        // Load 和 Store 指令都直接发送给各自的AGU端口
+        val (loadStream, storeStream) = StreamDemux.two(cmdIn, select = cmdIn.isLoad)
+
+        // --- 连接Load指令到LQ的AGU端口 ---
+        lqAguPort.input.valid           := loadStream.valid
+        lqAguPort.input.payload.isLoad  := True
+        lqAguPort.input.payload.isStore := False
+        // ... (其他字段连接)
+        lqAguPort.input.payload.robPtr        := loadStream.payload.robPtr
+        lqAguPort.input.payload.basePhysReg       := loadStream.payload.baseReg
+        lqAguPort.input.payload.immediate     := loadStream.payload.immediate
+        lqAguPort.input.payload.usePc         := loadStream.payload.usePc
+        lqAguPort.input.payload.pc            := loadStream.payload.pc
+        lqAguPort.input.payload.physDst         := loadStream.payload.pdest
+        lqAguPort.input.payload.accessSize    := loadStream.payload.accessSize
+        loadStream.ready := lqAguPort.input.ready
+
+        // --- 连接Store指令到SQ的AGU端口 ---
+        sqAguPort.input.valid           := storeStream.valid
+        sqAguPort.input.payload.isLoad  := False
+        sqAguPort.input.payload.isStore := True
+        sqAguPort.input.payload.robPtr        := storeStream.payload.robPtr
+        sqAguPort.input.payload.basePhysReg       := storeStream.payload.baseReg
+        sqAguPort.input.payload.immediate     := storeStream.payload.immediate
+        sqAguPort.input.payload.usePc         := storeStream.payload.usePc
+        sqAguPort.input.payload.pc            := storeStream.payload.pc
+        sqAguPort.input.payload.dataReg       := storeStream.payload.dataReg
+        sqAguPort.input.payload.physDst         := 0 // Store不需要
+        sqAguPort.input.payload.accessSize    := storeStream.payload.accessSize
+        // 关键: storeData直接来自输入命令
+        storeStream.ready := sqAguPort.input.ready
+
         // =========================================================
-        // >> 加载队列区域 (Load Queue Area)
+        // >> Store Path Area (Now extremely simple)
+        // =========================================================
+        val storePath = new Area {
+            // 从AGU获取已处理完的Store指令
+            val aguRsp = sqAguPort.output
+            
+            // 直接将AGU的输出连接到Store Buffer的输入
+            sbPushPort << aguRsp.translateWith {
+                val sbCmd = StoreBufferPushCmd(pipelineConfig, lsuConfig)
+                sbCmd.addr      := aguRsp.payload.address
+                sbCmd.data      := aguRsp.payload.storeData
+                sbCmd.be        := aguRsp.payload.storeMask
+                sbCmd.robPtr    := aguRsp.payload.robPtr
+                sbCmd.accessSize:= aguRsp.payload.accessSize
+                sbCmd.isFlush   := aguRsp.payload.isFlush
+                sbCmd.isIO      := False // 假设
+                sbCmd.hasEarlyException := aguRsp.payload.alignException
+                sbCmd.earlyExceptionCode:= ExceptionCode.STORE_ADDRESS_MISALIGNED
+                sbCmd
+            }
+            
+            when(sbPushPort.fire) {
+                ParallaxSim.log(L"[LSU-Store] AGU result pushed to SB: robPtr=${sbPushPort.payload.robPtr}")
+            }
+        }
+
+
+        // =========================================================
+        // >> 加载队列区域 (Load Queue Area) - 逻辑大幅简化
         // =========================================================
         val loadQueue = new Area {
             val slots = Vec.fill(lqDepth)(Reg(LoadQueueSlot(pipelineConfig, lsuConfig, dCacheParams)))
             val slotsAfterUpdates = CombInit(slots)
-            val slotsNext   = CombInit(slotsAfterUpdates)
+            val slotsNext   = CombInit(slots)
 
             for(i <- 0 until lqDepth) {
                 slots(i).init(LoadQueueSlot(pipelineConfig, lsuConfig, dCacheParams).setDefault())
             }
-            // --- 1. Dispatch & AGU Request ---
-            
-            // a. Push Logic
+
+            // >> MODIFICATION 2: LQ不再自己管理AGU请求，而是接收AGU的结果
+            val aguRsp = lqAguPort.output
+
+            // --- 1. LQ Push (from AGU Response) ---
             val canPush = !slots.map(_.valid).andR
-            lqPush.ready := canPush
+            aguRsp.ready := canPush
             
             val pushIdx = OHToUInt(slots.map(!_.valid).asBits)
-            when(lqPush.fire) {
+            when(aguRsp.fire) {
                 val newSlot = slotsAfterUpdates(pushIdx)
-                val cmd = lqPush.payload
+                val cmd = aguRsp.payload
                 
                 newSlot.valid       := True
-                newSlot.addrValid   := False // 明确指出地址无效
+                newSlot.addrValid   := True // 地址在进入LQ时就已有效
+                newSlot.address     := cmd.address
+                newSlot.hasException:= cmd.alignException
+                newSlot.exceptionCode := ExceptionCode.LOAD_ADDR_MISALIGNED
                 
-                // 保存地址计算所需的操作数
-                newSlot.baseReg     := cmd.baseReg
-                newSlot.immediate   := cmd.immediate
-                newSlot.usePc       := cmd.usePc
-                newSlot.pc          := cmd.pc
-
                 // 保存上下文
                 newSlot.size        := cmd.accessSize
                 newSlot.robPtr      := cmd.robPtr
-                newSlot.pdest       := cmd.pdest
+                newSlot.pdest       := cmd.physDst
                 
-                newSlot.hasException      := False // 异常将在AGU返回后更新
-                newSlot.isWaitingForDCache  := False
-                newSlot.isWaitingForFwd     := False
-                ParallaxSim.log(L"[LQ] PUSH: robPtr=${cmd.robPtr} to slotIdx=${pushIdx}")
+                // 重置状态标志
+                newSlot.isWaitingForFwdRsp    := False
+                newSlot.isStalledByDependency := False
+                newSlot.isReadyForDCache      := False
+                newSlot.isWaitingForDCacheRsp := False
+                ParallaxSim.log(L"[LQ] PUSH from AGU: robPtr=${cmd.robPtr} addr=${cmd.address} to slotIdx=${pushIdx}")
             }
 
-            // b. AGU Request Logic
-            val aguRequest = Stream(AguInput(lsuConfig))
+            // >> 后续逻辑 (2-6) 与上一版完全相同，因为它们处理的是进入LQ之后的事情
             
-            // 找到第一个需要计算地址的、有效的LQ槽位
-            val needsAddrCalc = slots.map(s => s.valid && !s.addrValid)
-            val needsAddrOh = OHMasking.first(needsAddrCalc)
-            val needsAddrIdx = OHToUInt(needsAddrOh)
-            val requestSlot = slots(needsAddrIdx)
-
-            aguRequest.valid := needsAddrCalc.orR
-            aguRequest.basePhysReg := requestSlot.baseReg
-            aguRequest.immediate   := requestSlot.immediate
-            aguRequest.usePc       := requestSlot.usePc
-            aguRequest.pc          := requestSlot.pc
-            aguRequest.accessSize  := requestSlot.size
-            aguRequest.qPtr        := needsAddrIdx // **关键**: 将LQ索引作为qPtr传给AGU
-            // --- 透传上下文 ---
-            aguRequest.robPtr      := requestSlot.robPtr
-            aguRequest.isLoad      := True
-            aguRequest.isStore     := False
-            aguRequest.isFlush    := False
-            aguRequest.physDst     := requestSlot.pdest
-            
-            lqAguPort.input << aguRequest
-
-            // --- 2. AGU Response & Address Update ---
-            
-            val aguRsp = lqAguPort.output
-            when(aguRsp.fire) {
-                val updateIdx = aguRsp.payload.qPtr // **关键**: 使用AGU返回的qPtr来定位槽位
-                val targetSlot = slotsAfterUpdates(updateIdx)
-                
-                targetSlot.addrValid := True
-                targetSlot.address   := aguRsp.payload.address
-                targetSlot.hasException   := aguRsp.payload.alignException
-                targetSlot.exceptionCode := ExceptionCode.LOAD_ADDR_MISALIGNED
-                ParallaxSim.log(L"[LQ] AGU_RSP: robPtr=${aguRsp.payload.robPtr} got address=${aguRsp.payload.address} for slotIdx=${updateIdx}")
-            }
-            aguRsp.ready := True // 总是准备好接收AGU的结果
-
-            // --- 3. Execution (at head) ---
+            // --- 2. Store-to-Load Forwarding & Disambiguation ---
             val head = slots(0)
-            val headIsReadyToExecute = head.valid && head.addrValid && !head.isWaitingForDCache && !head.isWaitingForFwd
+            // 地址在入队时就有效，所以检查条件简化
+            val headIsReadyForFwdQuery = head.valid && !head.hasException &&
+                                         !head.isWaitingForFwdRsp && !head.isStalledByDependency &&
+                                         !head.isReadyForDCache && !head.isWaitingForDCacheRsp
 
-            // ---- 与D-Cache的交互 ----
+            sbQueryPort.cmd.valid   := headIsReadyForFwdQuery
+            sbQueryPort.cmd.payload.address := head.address
+            sbQueryPort.cmd.payload.size    := head.size
+            sbQueryPort.cmd.payload.robPtr  := head.robPtr
+
+            when(sbQueryPort.cmd.fire) {
+                slotsAfterUpdates(0).isWaitingForFwdRsp := True
+                ParallaxSim.log(L"[LQ-Fwd] QUERY: robPtr=${head.robPtr} addr=${head.address}")
+            }
+            
+            // (这段代码无需改动，直接复制即可)
+            when(head.isWaitingForFwdRsp) {
+                val fwdRsp = sbQueryPort.rsp
+                slotsAfterUpdates(0).isWaitingForFwdRsp := False // Consume the response
+                when(fwdRsp.hit) {
+                    ParallaxSim.log(L"[LQ-Fwd] HIT: robPtr=${head.robPtr}, data=${fwdRsp.data}. Completing instruction.")
+                    prfWritePort.valid   := True
+                    prfWritePort.address := head.pdest
+                    prfWritePort.data    := fwdRsp.data
+                    robWritebackPort.fire := True
+                    robWritebackPort.robPtr := head.robPtr
+                    robWritebackPort.exceptionOccurred := False
+                    popRequest := True
+                } .elsewhen(fwdRsp.olderStoreHasUnknownAddress || fwdRsp.olderStoreMatchingAddress) {
+                    ParallaxSim.log(L"[LQ-Fwd] STALL: robPtr=${head.robPtr} has dependency...")
+                    slotsAfterUpdates(0).isStalledByDependency := True
+                } otherwise {
+                    ParallaxSim.log(L"[LQ-Fwd] MISS: robPtr=${head.robPtr} is clear to access D-Cache.")
+                    slotsAfterUpdates(0).isReadyForDCache := True
+                }
+            }
+
+            when(head.isStalledByDependency) {
+                slotsAfterUpdates(0).isStalledByDependency := False
+            }
+
+            // --- 3. D-Cache Interaction ---
+            val headIsReadyToExecute = head.valid && head.isReadyForDCache && !head.isWaitingForDCacheRsp
+
             dCacheLoadPort.cmd.valid                 := headIsReadyToExecute && !head.hasException
-            dCacheLoadPort.cmd.payload.virtual       := head.address // 假设VA=PA
+            dCacheLoadPort.cmd.payload.virtual       := head.address
             dCacheLoadPort.cmd.payload.size          := MemAccessSize.toByteSizeLog2(head.size)
             dCacheLoadPort.cmd.payload.redoOnDataHazard := True
             if(pipelineConfig.transactionIdWidth > 0) {
@@ -225,13 +288,15 @@ class LsuPlugin(
             dCacheLoadPort.cancels                   := 0
             
             when(dCacheLoadPort.cmd.fire) {
-                slotsAfterUpdates(0).isWaitingForDCache := True
-                ParallaxSim.log(L"[LQ] SEND_TO_DCACHE: robPtr=${head.robPtr} addr=${head.address}")
+                slotsAfterUpdates(0).isWaitingForDCacheRsp := True
+                slotsAfterUpdates(0).isReadyForDCache      := False // State transition
+                ParallaxSim.log(L"[LQ-DCache] SEND_TO_DCACHE: robPtr=${head.robPtr} addr=${head.address}")
             }
 
-            // --- LQ Pop & Writeback Logic ---
-            val popRequest = False
+            // --- 6. Completion & Writeback Logic ---
+            val popRequest = False // This will be set by different completion paths
             
+            // Default assignments to avoid latches
             robWritebackPort.fire := False
             robWritebackPort.robPtr.assignDontCare()
             robWritebackPort.exceptionOccurred.assignDontCare()
@@ -241,37 +306,44 @@ class LsuPlugin(
             prfWritePort.address.assignDontCare()
             prfWritePort.data.assignDontCare()
 
-            when(dCacheLoadPort.rsp.valid && head.valid && head.isWaitingForDCache) {
+            // Path A: Completion from D-Cache Response
+            when(dCacheLoadPort.rsp.valid && head.valid && head.isWaitingForDCacheRsp) {
                 when(dCacheLoadPort.rsp.payload.redo) {
-                    slotsAfterUpdates(0).isWaitingForDCache := False
-                    ParallaxSim.log(L"[LQ] REDO received for robPtr=${head.robPtr}")
+                    // D-Cache is busy (e.g., MSHR full), must retry.
+                    // Reset state to allow re-sending to D-Cache.
+                    slotsAfterUpdates(0).isWaitingForDCacheRsp := False
+                    slotsAfterUpdates(0).isReadyForDCache      := True 
+                    ParallaxSim.log(L"[LQ-DCache] REDO received for robPtr=${head.robPtr}")
                 } otherwise {
-                    // 步骤1: 驱动PRF写端口
-                    prfWritePort.valid   := True
+                    // D-Cache operation finished.
+                    prfWritePort.valid   := !dCacheLoadPort.rsp.payload.fault
                     prfWritePort.address := head.pdest
                     prfWritePort.data    := dCacheLoadPort.rsp.payload.data
 
-                    // 步骤2: 通知ROB指令已完成
                     robWritebackPort.fire := True
                     robWritebackPort.robPtr := head.robPtr
                     robWritebackPort.exceptionOccurred := dCacheLoadPort.rsp.payload.fault
-                    
+                    robWritebackPort.exceptionCodeIn   := ExceptionCode.LOAD_ACCESS_FAULT // Example code
+
                     popRequest := True
-                    ParallaxSim.log(L"[LQ] DCACHE_RSP_OK for robPtr=${head.robPtr}, data=${dCacheLoadPort.rsp.payload.data}")
+                    ParallaxSim.log(L"[LQ-DCache] DCACHE_RSP_OK for robPtr=${head.robPtr}, data=${dCacheLoadPort.rsp.payload.data}, fault=${dCacheLoadPort.rsp.payload.fault}")
                 }
             }
 
-            // 处理指令自带的对齐异常
-            when(head.valid && head.hasException && !head.isWaitingForDCache) {
+            // Path B: Completion from early alignment exception
+            // This check must ensure it's not waiting for anything else.
+            val canFireException = head.valid && head.hasException && !head.isWaitingForFwdRsp && !head.isWaitingForDCacheRsp
+            when(canFireException) {
                 robWritebackPort.fire := True
                 robWritebackPort.robPtr := head.robPtr
                 robWritebackPort.exceptionOccurred := True
-                robWritebackPort.exceptionCodeIn := ExceptionCode.LOAD_ADDR_MISALIGNED // 使用标准异常码
+                robWritebackPort.exceptionCodeIn := head.exceptionCode
                 
                 popRequest := True
                 ParallaxSim.log(L"[LQ] Alignment exception for robPtr=${head.robPtr}")
             }
 
+            // --- 7. LQ Pop Logic ---
             when(popRequest) {
                 ParallaxSim.log(L"[LQ] POP: Popping slot 0 (robPtr=${slotsAfterUpdates(0).robPtr})")
                 for (i <- 0 until lqDepth - 1) {
@@ -281,37 +353,15 @@ class LsuPlugin(
             }
         } // End of loadQueue Area
 
-        // =========================================================
-        // >> 控制器区域 (Controller Area) - 协调AGU, SB, LQ
-        // =========================================================
-        val controller = new Area {
-            val aguOutput = hw.lqAguPort.output
-            val aguOut = aguOutput.payload
-            
-            // --- Store 指令分派 ---
-            sbPushPort.valid := aguOutput.valid && aguOut.isStore
-            sbPushPort.payload.addr      := aguOut.address
-            sbPushPort.payload.data      := aguOut.storeData // 假设AGU输出中有storeData
-            sbPushPort.payload.be        := aguOut.storeMask
-            sbPushPort.payload.robPtr    := aguOut.robPtr
-            sbPushPort.payload.accessSize:= aguOut.accessSize
-            sbPushPort.payload.isFlush   := False // 假设AGU还不支持flush
-            sbPushPort.payload.isIO      := False // 假设AGU还不支持IO
-            sbPushPort.payload.hasEarlyException := aguOut.alignException
-            sbPushPort.payload.earlyExceptionCode:= ExceptionCode.STORE_ADDRESS_MISALIGNED
 
-            // --- 背压逻辑 ---
-            // LSU准备好接收AGU的数据，当
-            // 1. 如果是Store，SB准备好接收
-            // 2. 如果是Load，LQ准备好接收
-            aguOutput.ready := (aguOut.isStore && sbPushPort.ready) ||
-                                 (aguOut.isLoad  && loadQueue.canPush)
-        }
+        // The 'controller' area is now obsolete, as its logic is integrated
+        // into the Store Path and Load Path directly.
 
-        // 释放服务引用
+        // Release services
         hw.robServiceInst.release()
         hw.dcacheServiceInst.release()
         hw.prfServiceInst.release()
         hw.aguServiceInst.release()
+        hw.storeBufferServiceInst.release()
     }
 }

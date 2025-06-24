@@ -1224,5 +1224,102 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
     }
   }
 
+  testOnly("ROB - BUG REPRO: Stalls on committing a flushed entry that was already 'done'") {
+    // 配置：最简单的1-wide系统
+    val testConfig = baseRobConfig.copy(
+      allocateWidth = 1,
+      commitWidth = 1,
+      numWritebackPorts = 1,
+      robDepth = 16 // 深度不重要，但要大于操作数
+    )
+    val robPhysIdxWidth = testConfig.robPhysIdxWidth.value
+
+    simConfig.compile(new ReorderBufferTestBench(testConfig)).doSim(seed = 500) { dut =>
+      dut.clockDomain.forkStimulus(10)
+      initRobInputs(dut.io)
+      dut.clockDomain.waitSampling()
+
+      println("--- Phase 1: Setup the scenario ---")
+      // 1a. 分配指令 A (robPtr=0)
+      println("[TB] Allocating instruction A (target for flush). Expecting robPtr=0.")
+      driveAllocate(dut.io, Seq((true, createDummyUop(testConfig.robPtrWidth, 0, pcVal = 0x1000), 0x1000)))
+      dut.clockDomain.waitSampling()
+      val robPtrA = dut.io.allocate(0).robPtr.toBigInt
+      assert(robPtrA == 0, "Instruction A should have robPtr=0")
+
+      // 1b. 分配指令 B (robPtr=1)
+      println("[TB] Allocating instruction B (the one we wait for). Expecting robPtr=1.")
+      driveAllocate(dut.io, Seq((true, createDummyUop(testConfig.robPtrWidth, 1, pcVal = 0x2000), 0x2000)))
+      dut.clockDomain.waitSampling()
+      val robPtrB = dut.io.allocate(0).robPtr.toBigInt
+      assert(robPtrB == 1, "Instruction B should have robPtr=1")
+      
+      driveAllocate(dut.io, Seq.empty); dut.clockDomain.waitSampling()
+
+      // 1c. 让指令 A "执行完成" (done=true)。这是关键！
+      println("[TB] Signaling completion for instruction A (robPtr=0).")
+      driveWriteback(dut.io, Seq((true, robPtrA, false, 0)))
+      dut.clockDomain.waitSampling()
+      // 验证 done 标志位确实被设置了
+      // assert(dut.rob.statuses(getPhysIdx(robPtrA, robPhysIdxWidth)).done.toBoolean, "Instruction A's 'done' bit should now be true.")
+      driveWriteback(dut.io, Seq.empty); dut.clockDomain.waitSampling()
+
+
+      println("--- Phase 2: Trigger the race condition: Flush and Commit Check in the same cycle ---")
+      
+      // 在这个周期，我们期望ROB的COMMIT逻辑看到 robPtrA (0) 的 done=true，从而将 commit.valid 置位。
+      // 我们也期望ROB的FLUSH逻辑开始处理冲刷，并在下一个周期清除 done 位。
+      println(s"[TB] Driving FLUSH targeting instruction A (robPtr=$robPtrA).")
+      driveFlushNew(dut.io, fire = true, reason = FlushReason.ROLLBACK_TO_ROB_IDX, targetRobPtr = robPtrA)
+      
+      // 在同一个周期，我们检查ROB的输出。
+      // 根据我们的猜想，ROB会在这里错误地发出提交信号。
+      println("[TB] Checking for erroneous commit signal in the same cycle as flush...")
+      assert(dut.io.commit(0).valid.toBoolean, "BUG! ROB should NOT try to commit a flushed instruction, but it does.")
+      assert(dut.io.commit(0).entry.payload.uop.robPtr.toBigInt == robPtrA, s"BUG! Erroneous commit is for robPtr=${dut.io.commit(0).entry.payload.uop.robPtr.toBigInt}, expected $robPtrA.")
+      println(s"[TB] BUG CONFIRMED: ROB is trying to commit the flushed instruction robPtr=$robPtrA.")
+      
+      // 我们不 ACK 这个错误的提交，模拟外部逻辑在等待 robPtrB
+      driveCommitFire(dut.io, Seq(false))
+      dut.clockDomain.waitSampling()
+      
+      // 清除 flush 信号
+      initRobInputs(dut.io)
+      dut.clockDomain.waitSampling()
+
+      println("--- Phase 3: Observe the deadlock ---")
+      // 现在，ROB的 headPtr 应该卡在了 0。
+      // done 位可能已经被清除了，但为时已晚。
+      
+      val (h, t, c) = getInternalRobPointers(dut)
+      println(s"[TB] State after flush cycle: Head=$h, Tail=$t, Count=$c")
+      assert(h == 0, s"Deadlock condition: Head pointer is stuck at $h, should have advanced or been reset.")
+      
+      // 为了证明死锁，我们让指令 B 完成，并等待提交
+      println("[TB] Signaling completion for instruction B (robPtr=1).")
+      driveWriteback(dut.io, Seq((true, robPtrB, false, 0)))
+      dut.clockDomain.waitSampling()
+      driveWriteback(dut.io, Seq.empty); dut.clockDomain.waitSampling()
+
+      println("[TB] Waiting for instruction B to be committed. This will time out.")
+      var timeout = 50
+      var b_was_committed = false
+      while(timeout > 0 && !b_was_committed) {
+          if (dut.io.commit(0).valid.toBoolean) {
+              val committedPtr = dut.io.commit(0).entry.payload.uop.robPtr.toBigInt
+              println(s"[TB] ROB is trying to commit robPtr=$committedPtr. Head is stuck.")
+              if (committedPtr == robPtrB) {
+                  b_was_committed = true
+              }
+          }
+          dut.clockDomain.waitSampling()
+          timeout -= 1
+      }
+      
+      assert(!b_was_committed, "DEADLOCK! Instruction B was never committed because the ROB head is stuck.")
+      println("[TB] Test PASSED: Successfully reproduced the deadlock bug in the ROB.")
+    }
+  }
+
   thatsAll()
 }

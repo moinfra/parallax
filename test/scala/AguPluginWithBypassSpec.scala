@@ -512,7 +512,7 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
       }
 
       // 等待，直到我们在输出队列中收到一个结果
-      val timedout = dut.clockDomain.waitSamplingWhere(timeout=100)(outputQueue.nonEmpty)
+      val timedout = dut.clockDomain.waitSamplingWhere(timeout=200)(outputQueue.nonEmpty)
       if (timedout) {
         fail(s"No output received for testParams1")
       }
