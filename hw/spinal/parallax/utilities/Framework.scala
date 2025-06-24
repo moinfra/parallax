@@ -332,6 +332,16 @@ object ParallaxSim {
       )
     )(loc)
   }
+  
+  def logWhen(cond: Bool, message: Seq[Any])(implicit loc: Location) {
+    when(cond) {
+      report(
+        flattenRecursively(
+          message
+        )
+      )(loc)
+    }
+  }
 
   def info = log _
 

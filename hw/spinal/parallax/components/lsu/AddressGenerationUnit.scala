@@ -79,6 +79,10 @@ case class AguOutput(lsuConfig: LsuConfig) extends Bundle with Formattable {
   val accessSize = MemAccessSize()
   val storeMask = Bits(lsuConfig.dataWidth.value / 8 bits)
   // 透传上下文信息
+  val basePhysReg = UInt(lsuConfig.physGprIdxWidth)
+  val immediate = SInt(12 bits)
+  val usePc = Bool()
+  val pc = UInt(lsuConfig.pcWidth)
   val robPtr = UInt(lsuConfig.robPtrWidth)
   val isLoad = Bool()
   val isStore = Bool()
@@ -94,6 +98,10 @@ case class AguOutput(lsuConfig: LsuConfig) extends Bundle with Formattable {
       L"alignException=${alignException},", // 修正了原始代码中多余的 ')'
       L"accessSize=${accessSize},",
       L"storeMask=${storeMask},",
+      L"basePhysReg=${basePhysReg},",
+      L"immediate=${immediate},",
+      L"usePc=${usePc},",
+      L"pc=${pc},",
       L"robPtr=${robPtr},",
       L"isLoad=${isLoad},",
       L"isStore=${isStore},",
@@ -258,6 +266,10 @@ class AguPlugin(
         s1_stream.payload.address       := addressCalc.effectiveAddress
         s1_stream.payload.alignException  := alignmentCheck.alignException
         s1_stream.payload.storeMask     := maskCalc.calculatedMask
+        s1_stream.payload.basePhysReg   := s1.payload.basePhysReg
+        s1_stream.payload.immediate     := s1.payload.immediate
+        s1_stream.payload.usePc         := s1.payload.usePc
+        s1_stream.payload.pc            := s1.payload.pc
         s1_stream.payload.storeData     := storeData
         s1_stream.payload.robPtr        := s1.payload.robPtr
         s1_stream.payload.accessSize    := s1.payload.accessSize

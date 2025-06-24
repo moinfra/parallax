@@ -24,6 +24,7 @@ case class PipelineConfig(
     // This should typically match the number of writeback ports from EUs.
     val bypassNetworkSources: Int = 2,
     val aluEuCount: Int = 2, // Number of ALU EUs
+    val lsuEuCount: Int = 1,
     
     val exceptionCodeWidth: BitCount = 8 bits, // Width of the exception code signal
 
@@ -34,11 +35,10 @@ case class PipelineConfig(
     // val lsuIqDepth: Int = 16
     // val mulIqDepth: Int = 4
 ) {
-  def lsuEuCount: Int = 0
   def mulEuCount: Int = 0
   def divEuCount: Int = 0
   def csrEuCount: Int = 0
-  def totalEuCount: Int = aluEuCount + lsuEuCount + mulEuCount + divEuCount + csrEuCount
+  def totalEuCount: Int = aluEuCount + lsuEuCount * 2 + mulEuCount + divEuCount + csrEuCount // * 2 for load/store
   
   // GPR/FPR data width (also individual instruction width)
   def dataWidth: BitCount = xlen bits

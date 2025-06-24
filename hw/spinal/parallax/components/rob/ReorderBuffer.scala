@@ -111,10 +111,11 @@ case class ROBAllocateSlot[RU <: Data with Dumpable with HasRobPtr](config: ROBC
   val pcIn = UInt(config.pcWidth)
   // robPtr 现在是完整的 ROB ID (物理索引 + 世代位)
   val robPtr = UInt(config.robPtrWidth) 
+  val ready = Bool()
 
   override def asMaster(): Unit = { // Perspective of Rename Stage
     in(valid, uopIn, pcIn)
-    out(robPtr)
+    out(robPtr, ready)
   }
 }
 
@@ -204,8 +205,6 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
   val payloads = Mem(ROBPayload(config), config.robDepth)
   val statuses = Vec(Reg(ROBStatus(config)), config.robDepth)
 
-  ParallaxLogger.log("x");
-  ParallaxLogger.log("x");
   assert(config.robDepth > 0)
   // payloads.init(
   //   Seq.fill(config.robDepth)(
@@ -228,14 +227,12 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
     statuses(i).exceptionCode init (0)
     statuses(i).genBit init (False) // 初始化世代位
   }
-  ParallaxLogger.log("x");
 
   // Actual registers for state
   // headPtr_reg 和 tailPtr_reg 现在存储完整的 ROB ID (物理索引 + 世代位)
   val headPtr_reg = Reg(UInt(config.robPtrWidth)) init (0) 
   val tailPtr_reg = Reg(UInt(config.robPtrWidth)) init (0) 
   val count_reg = Reg(UInt(log2Up(config.robDepth + 1) bits)) init (0)
-  ParallaxLogger.log("x");
 
   // Combinational view of current state for calculations this cycle.
   val currentHead = headPtr_reg
@@ -248,7 +245,6 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
   val numPrevAllocations = Vec(UInt(log2Up(config.allocateWidth + 1) bits), config.allocateWidth + 1)
   // robPtrAtSlotStart 也存储完整的 ROB ID (物理索引 + 世代位)
   val robPtrAtSlotStart = Vec(UInt(config.robPtrWidth), config.allocateWidth + 1)
-  ParallaxLogger.log("x");
 
   numPrevAllocations(0) := U(0)
   robPtrAtSlotStart(0) := currentTail
@@ -268,6 +264,7 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
     // 分配给外部的 robPtr 是完整的 ROB ID
     slotRobPtr(i) := robPtrAtSlotStart(i) 
     allocPort.robPtr := slotRobPtr(i)
+    allocPort.ready := spaceAvailableForThisSlot
 
     when(allocPort.valid) {
       ParallaxSim.debug(

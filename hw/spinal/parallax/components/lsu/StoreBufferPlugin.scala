@@ -214,7 +214,7 @@ class StoreBufferPlugin(
             val newSlotData = StoreBufferSlot(pipelineConfig, lsuConfig, dCacheParams)
             newSlotData.initFromCommand(pushPortIn.payload)
             slotsAfterUpdates(pushIdx) := newSlotData
-            ParallaxSim.log(L"[SB] PUSH: robPtr=${pushPortIn.payload.robPtr} to slotIdx=${pushIdx}")
+            ParallaxSim.log(L"[SQ] PUSH: robPtr=${pushPortIn.payload.robPtr} to slotIdx=${pushIdx}")
         }
         
         // --- Sending Logic: Strict In-Order from the head ---
@@ -274,7 +274,7 @@ class StoreBufferPlugin(
         // When a command is fired, we mark it as sent.
         when(dcacheCmdFired) {
             slotsAfterUpdates(0).isSentToDCache := True
-            ParallaxSim.log(L"[SB] SEND_TO_DCACHE: robPtr=${slots(0).robPtr} (slotIdx=0), addr=${slots(0).addr}, data=${slots(0).data}, be=${slots(0).be}")
+            ParallaxSim.log(L"[SQ] SEND_TO_DCACHE: robPtr=${slots(0).robPtr} (slotIdx=0), addr=${slots(0).addr}, data=${slots(0).data}, be=${slots(0).be}")
         }
 
         // Centralized, prioritized management of the dcacheOpPending state.
@@ -289,15 +289,15 @@ class StoreBufferPlugin(
                 
                 when(storePortDCache.rsp.payload.flush) {
                     slotsAfterUpdates(0).isWaitingForWb := True
-                    ParallaxSim.log(L"[SB] REDO_FOR_FLUSH received for robPtr=${slots(0).robPtr}. Entering WAIT_FOR_WB.")
+                    ParallaxSim.log(L"[SQ] REDO_FOR_FLUSH received for robPtr=${slots(0).robPtr}. Entering WAIT_FOR_WB.")
                 } otherwise {
                     slotsAfterUpdates(0).isWaitingForRefill := True
                     slotsAfterUpdates(0).refillSlotToWatch  := storePortDCache.rsp.payload.refillSlot
-                    ParallaxSim.log(L"[SB] REDO_FOR_REFILL received for robPtr=${slots(0).robPtr}. Entering WAIT_FOR_REFILL.")
+                    ParallaxSim.log(L"[SQ] REDO_FOR_REFILL received for robPtr=${slots(0).robPtr}. Entering WAIT_FOR_REFILL.")
                 }
             } otherwise {
                 // Successful response (redo=0). The operation is done.
-                ParallaxSim.log(L"[SB] RSP_SUCCESS received for robPtr=${slots(0).robPtr}.")
+                ParallaxSim.log(L"[SQ] RSP_SUCCESS received for robPtr=${slots(0).robPtr}.")
             }
         } elsewhen(dcacheCmdFired) {
             // No response arrived THIS cycle, but we just fired a command.
@@ -306,45 +306,52 @@ class StoreBufferPlugin(
         }
 
         val refillCompletionsFromDCache = dcacheService.getRefillCompletions()
-        ParallaxSim.log(L"[SB] Watching... refillCompletionsFromDCache=${refillCompletionsFromDCache}")
+        ParallaxSim.log(L"[SQ] Watching... refillCompletionsFromDCache=${refillCompletionsFromDCache}")
         val waitedRefillIsDone = slots(0).valid && slots(0).isWaitingForRefill &&
                          (slots(0).refillSlotToWatch & refillCompletionsFromDCache).orR
 
         when(waitedRefillIsDone) {
             slotsAfterUpdates(0).isWaitingForRefill := False
-            ParallaxSim.log(L"[SB] REFILL_DONE observed for robPtr=${slots(0).robPtr}. Ready to retry.")
+            ParallaxSim.log(L"[SQ] REFILL_DONE observed for robPtr=${slots(0).robPtr}. Ready to retry.")
         }
         
         val dCacheIsWbBusy = dcacheService.writebackBusy()
         when(slots(0).valid && slots(0).isWaitingForWb && !dCacheIsWbBusy) {
             slotsAfterUpdates(0).isWaitingForWb := False
-            ParallaxSim.log(L"[SB] DCACHE_READY observed for robPtr=${slots(0).robPtr}. Exiting WAIT_FOR_WB.")
+            ParallaxSim.log(L"[SQ] DCACHE_READY observed for robPtr=${slots(0).robPtr}. Exiting WAIT_FOR_WB.")
         }
         // --- Commit and Flush Logic (Unchanged) ---
         val commitInfoFromRob = robService.getCommitSlots(pipelineConfig.commitWidth)
-        val commitAcksFromRob = robService.getCommitAcks(pipelineConfig.commitWidth)
         for(i <- 0 until sbDepth){
             when(slots(i).valid && !slots(i).isCommitted){
                 for(j <- 0 until pipelineConfig.commitWidth){
-                    when(commitInfoFromRob(j).valid && commitAcksFromRob(j) &&
+                    // 关键修复：移除了对 commitAcksFromRob 的依赖
+                    when(commitInfoFromRob(j).valid &&
                          commitInfoFromRob(j).entry.payload.uop.robPtr === slots(i).robPtr &&
                          commitInfoFromRob(j).entry.payload.uop.decoded.uopCode === BaseUopCode.STORE &&
                          !commitInfoFromRob(j).entry.status.hasException) {
                         slotsAfterUpdates(i).isCommitted := True
-                        ParallaxSim.log(L"[SB] COMMIT_SIGNAL: robPtr=${slots(i).robPtr} (slotIdx=${i}) marked as committed.")
+                        ParallaxSim.log(L"[SQ] COMMIT_SIGNAL: robPtr=${slots(i).robPtr} (slotIdx=${i}) marked as committed.")
                     }
                 }
             }
         }
 
+
+
         val robFlushPort = robService.getFlushPort()
-        when(robFlushPort.valid) {
+        when(robFlushPort.valid && robFlushPort.payload.reason === FlushReason.FULL_FLUSH) {
+                ParallaxSim.log(L"[SQ] FULL_FLUSH received. Clearing all slots.")
+                for(i <- 0 until sbDepth) {
+                    slotsAfterUpdates(i).valid := False
+                }
+        }.elsewhen (robFlushPort.valid && robFlushPort.payload.reason === FlushReason.ROLLBACK_TO_ROB_IDX) {
             val flushedRobStartIdx = robFlushPort.payload.targetRobPtr
-            ParallaxLogger.warning(s"[SB] FLUSH received from ROB: targetRobPtr=${flushedRobStartIdx}")
+            ParallaxLogger.warning(s"[SQ] FLUSH received from ROB: targetRobPtr=${flushedRobStartIdx}")
             for(i <- 0 until sbDepth){
                 when(slots(i).valid && !slots(i).isCommitted && isNewerOrSame(slots(i).robPtr, flushedRobStartIdx)){
                     slotsAfterUpdates(i).valid := False
-                    ParallaxSim.log(L"[SB] FLUSH: Invalidating slotIdx=${i} (robPtr=${slots(i).robPtr})")
+                    ParallaxSim.log(L"[SQ] FLUSH: Invalidating slotIdx=${i} (robPtr=${slots(i).robPtr})")
                 }
             }
         }
@@ -372,9 +379,9 @@ class StoreBufferPlugin(
         val popInvalidSlot = !isSbEmpty && !popHeadSlot.valid
         val popRequest = normalStoreDone || canPopIO || earlyExcStoreDone || flushDone || popInvalidSlot
 
-        report(L"[SB] popRequest=${popRequest}, flushDone=${flushDone}, normalStoreDone=${normalStoreDone}, canPopIO=${canPopIO}, earlyExcStoreDone=${earlyExcStoreDone}")
+        report(L"[SQ] popRequest=${popRequest}, flushDone=${flushDone}, normalStoreDone=${normalStoreDone}, canPopIO=${canPopIO}, earlyExcStoreDone=${earlyExcStoreDone}")
         when(popRequest) {
-            ParallaxSim.log(L"[SB] POP: Popping slot 0 (robPtr=${popHeadSlot.robPtr}, isFlush=${popHeadSlot.isFlush})")
+            ParallaxSim.log(L"[SQ] POP: Popping slot 0 (robPtr=${popHeadSlot.robPtr}, isFlush=${popHeadSlot.isFlush})")
             for (i <- 0 until sbDepth - 1) {
                 slotsNext(i) := slotsAfterUpdates(i + 1)
             }
@@ -506,7 +513,7 @@ class StoreBufferPlugin(
         bypassDataOut.payload.hitMask  := finalHitMask
         bypassDataOut.payload.hit      := overallBypassHit && (finalHitMask === loadQueryBe)
         // --- End of Bypass Logic ---
-        ParallaxSim.log(L"[SB] bypassDataOut: valid=${bypassDataOut.valid}, data=${bypassDataOut.payload.data}, hit=${bypassDataOut.payload.hit}, hitMask=${bypassDataOut.payload.hitMask}")
+        ParallaxSim.log(L"[SQ] bypassDataOut: valid=${bypassDataOut.valid}, data=${bypassDataOut.payload.data}, hit=${bypassDataOut.payload.hit}, hitMask=${bypassDataOut.payload.hitMask}")
 
         slots := slotsNext
 

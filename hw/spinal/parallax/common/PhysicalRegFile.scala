@@ -10,6 +10,7 @@ import scala.collection.mutable.ArrayBuffer
 import parallax.utilities.Plugin
 import parallax.utilities.ParallaxLogger
 import parallax.utilities.LockedImpl
+import parallax.utilities.ParallaxSim
 
 case class PrfReadPort(
     val idxWidth: BitCount,
@@ -83,10 +84,11 @@ class PhysicalRegFilePlugin(
   def writePort(index: Int): PrfWritePort = writePortRequests(index)
 
   val setup = create early new Area {
-    ParallaxLogger.log("[PRegPlugin] 物理寄存器堆已创建")
+    ParallaxLogger.log("[PRegPlugin] early")
   }
 
   val logic = create late new Area {
+    ParallaxLogger.log("[PRegPlugin] late")
     ParallaxLogger.log("[PRegPlugin] 物理寄存器在生成逻辑前，等待依赖它的插件就绪")
     lock.await()
     ParallaxLogger.log("[PRegPlugin] 好，物理寄存器开始连接读写逻辑")
@@ -97,6 +99,9 @@ class PhysicalRegFilePlugin(
       val data = Mux(externalPort.address === 0, B(0, dataWidth), regFile.readAsync(address = externalPort.address))
       externalPort.rsp := data
       ParallaxLogger.log(s"[PRegPlugin] 物理寄存器堆读端口 $i 已连接")
+      when(externalPort.valid) {
+        ParallaxSim.log(L"[PRegPlugin] 物理寄存器堆读端口 ${externalPort.address} 已读取 ${data}")
+      }
     }
 
     writePortRequests.zipWithIndex.foreach { case (externalPort, i) =>
@@ -105,6 +110,9 @@ class PhysicalRegFilePlugin(
         data = externalPort.data,
         enable = externalPort.valid && (externalPort.address =/= 0)
       )
+      when(externalPort.valid && (externalPort.address =/= 0)) {
+        ParallaxSim.log(L"[PRegPlugin] 物理寄存器堆寄存器 ${externalPort.address} 已写入 ${externalPort.data}")
+      }
       ParallaxLogger.log(s"[PRegPlugin] 物理寄存器堆写端口 $i 已连接")
     }
   }
