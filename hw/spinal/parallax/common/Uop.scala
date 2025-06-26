@@ -3,6 +3,11 @@ package parallax.common
 import spinal.core._
 import spinal.lib._
 import spinal.lib.experimental.hdl.VerilogToSpinal.matches
+import parallax.utilities.Formattable
+
+trait HasRobPtr {
+  def robPtr: UInt
+}
 
 // --- ISA Identifier ---
 object IsaType extends SpinalEnum {
@@ -17,6 +22,33 @@ object BaseUopCode extends SpinalEnum {
 
 object DecodeExCode extends SpinalEnum {
   val INVALID, FETCH_ERROR, DECODE_ERROR, OK = newElement()
+}
+
+case class BranchPredictionInfo(pplCfg: PipelineConfig) extends Bundle {
+  val isTaken = Bool()
+  val target  = UInt(pplCfg.pcWidth)
+  val wasPredicted = Bool()
+  // 可以包含更多信息，如预测器状态等
+
+  def setDefault(): this.type = {
+    isTaken := False
+    target := 0
+    wasPredicted := False
+    this
+  }
+
+  def format(): Seq[Any] = {
+    Seq("BranchPredictionInfo: isTaken=", isTaken, " target=", target, " wasPredicted=", wasPredicted)
+  }
+
+  def setDefaultForSim(): this.type = {
+    import spinal.core.sim._
+
+    isTaken #= false
+    target #= 0
+    wasPredicted #= false
+    this
+  }
 }
 
 // --- Execution Unit Hint ---
@@ -68,7 +100,7 @@ case class ArchRegOperand(config: PipelineConfig) extends Bundle {
     this
   }
 
-  def dump(): Seq[Any] = {
+  def format(): Seq[Any] = {
     Seq("ArchRegOperand: idx=", idx, "rtype=", rtype, "isGPR=", isGPR, "isFPR=", isFPR, "isCSR=", isCSR)
   }
 }
@@ -114,7 +146,7 @@ case class AluCtrlFlags() extends Bundle {
     this
   }
 
-  def dump(): Seq[Any] = {
+  def format(): Seq[Any] = {
     Seq("AluCtrlFlags: isSub=", isSub, " isAdd=", isAdd, " isSigned=", isSigned, " logicOp=", logicOp)
   }
 }
@@ -142,7 +174,7 @@ case class ShiftCtrlFlags() extends Bundle {
     this
   }
 
-  def dump(): Seq[Any] = {
+  def format(): Seq[Any] = {
     Seq(
       "ShiftCtrlFlags: isRight=",
       isRight,
@@ -176,7 +208,7 @@ case class MulDivCtrlFlags() extends Bundle {
     this
   }
 
-  def dump(): Seq[Any] = {
+  def format(): Seq[Any] = {
     Seq("MulDivCtrlFlags: isDiv=", isDiv, " isSigned=", isSigned, " isWordOp=", isWordOp)
   }
 }
@@ -298,7 +330,7 @@ case class MemCtrlFlags() extends Bundle {
     this
   }
 
-  def dump(): Seq[Any] = {
+  def format(): Seq[Any] = {
     Seq(
       "MemCtrlFlags: size=",
       size,
@@ -363,7 +395,7 @@ case class BranchCtrlFlags(val config: PipelineConfig) extends Bundle { // Added
     this
   }
 
-  def dump(): Seq[Any] = {
+  def format(): Seq[Any] = {
     Seq(
       "BranchCtrlFlags: condition=",
       condition,
@@ -372,7 +404,7 @@ case class BranchCtrlFlags(val config: PipelineConfig) extends Bundle { // Added
       " isLink=",
       isLink,
       " linkReg=",
-      linkReg.dump(),
+      linkReg.format(),
       " isIndirect=",
       isIndirect,
       " laCfIdx=",
@@ -425,7 +457,7 @@ case class FpuCtrlFlags() extends Bundle {
     this
   }
 
-  def dump(): Seq[Any] = {
+  def format(): Seq[Any] = {
     Seq(
       "FpuCtrlFlags: opType=",
       opType,
@@ -480,7 +512,7 @@ case class CsrCtrlFlags(config: PipelineConfig) extends Bundle {
     this
   }
 
-  def dump(): Seq[Any] = {
+  def format(): Seq[Any] = {
     Seq(
       "CsrCtrlFlags: csrAddr=",
       csrAddr,
@@ -519,7 +551,7 @@ case class SystemCtrlFlags() extends Bundle {
     this
   }
 
-  def dump(): Seq[Any] = {
+  def format(): Seq[Any] = {
     Seq(
       "SystemCtrlFlags: sysCode=",
       sysCode,
@@ -662,7 +694,7 @@ case class DecodedUop(val config: PipelineConfig) extends Bundle {
     isBranchOrJump #= false
   }
 
-  def dump(): Seq[Any] = {
+  def format(): Seq[Any] = {
     Seq(
       "DecodedUop @ pc=",
       pc,
@@ -679,22 +711,22 @@ case class DecodedUop(val config: PipelineConfig) extends Bundle {
       "\n",
       "  Operands:\n",
       "    dest=",
-      archDest.dump(),
+      archDest.format(),
       " writeEn=",
       writeArchDestEn,
       "\n",
       "    src1=",
-      archSrc1.dump(),
+      archSrc1.format(),
       " use=",
       useArchSrc1,
       "\n",
       "    src2=",
-      archSrc2.dump(),
+      archSrc2.format(),
       " use=",
       useArchSrc2,
       "\n",
       "    src3=",
-      archSrc3.dump(),
+      archSrc3.format(),
       " use=",
       useArchSrc3,
       "\n",
@@ -705,28 +737,28 @@ case class DecodedUop(val config: PipelineConfig) extends Bundle {
       ")\n",
       "  Control Flags:\n",
       "    ALU: ",
-      aluCtrl.dump(),
+      aluCtrl.format(),
       "\n",
       "    Shift: ",
-      shiftCtrl.dump(),
+      shiftCtrl.format(),
       "\n",
       "    MulDiv: ",
-      mulDivCtrl.dump(),
+      mulDivCtrl.format(),
       "\n",
       "    Mem: ",
-      memCtrl.dump(),
+      memCtrl.format(),
       "\n",
       "    Branch: ",
-      branchCtrl.dump(),
+      branchCtrl.format(),
       "\n",
       "    FPU: ",
-      fpuCtrl.dump(),
+      fpuCtrl.format(),
       "\n",
       "    CSR: ",
-      csrCtrl.dump(),
+      csrCtrl.format(),
       "\n",
       "    System: ",
-      sysCtrl.dump(),
+      sysCtrl.format(),
       "\n",
       "  Status:\n",
       "    decodeEx=",
@@ -773,7 +805,7 @@ case class PhysicalRegOperand(physRegIdxWidth: BitCount) extends Bundle {
     this
   }
 
-  def dump(): Seq[Any] = {
+  def format(): Seq[Any] = {
     Seq("PhysicalRegOperand: idx=", idx)
   }
 }
@@ -800,6 +832,8 @@ case class RenameInfo(val config: PipelineConfig) extends Bundle {
   val writesToPhysReg = Bool() // Does this uop's execution result go to physDest?
   // (False for ST data, some branches)
 
+  val branchPrediction = BranchPredictionInfo(config)
+
   def setDefault(): this.type = {
     physSrc1.setDefault(); physSrc1IsFpr := False
     physSrc2.setDefault(); physSrc2IsFpr := False
@@ -808,6 +842,7 @@ case class RenameInfo(val config: PipelineConfig) extends Bundle {
     oldPhysDest.setDefault(); oldPhysDestIsFpr := False
     allocatesPhysDest := False
     writesToPhysReg := False
+    branchPrediction.setDefault()
     this
   }
 
@@ -820,35 +855,38 @@ case class RenameInfo(val config: PipelineConfig) extends Bundle {
     oldPhysDest.setDefaultForSim(); oldPhysDestIsFpr #= false
     allocatesPhysDest #= false
     writesToPhysReg #= false
+    branchPrediction.setDefaultForSim()
     this
   }
 
-  def dump(): Seq[Any] = {
+  def format(): Seq[Any] = {
     Seq(
       "RenameInfo: physSrc1=",
-      physSrc1.dump(),
+      physSrc1.format(),
       " physSrc1IsFpr=",
       physSrc1IsFpr,
       " physSrc2=",
-      physSrc2.dump(),
+      physSrc2.format(),
       " physSrc2IsFpr=",
       physSrc2IsFpr,
       " physSrc3=",
-      physSrc3.dump(),
+      physSrc3.format(),
       " physSrc3IsFpr=",
       physSrc3IsFpr,
       " physDest=",
-      physDest.dump(),
+      physDest.format(),
       " physDestIsFpr=",
       physDestIsFpr,
       " oldPhysDest=",
-      oldPhysDest.dump(),
+      oldPhysDest.format(),
       " oldPhysDestIsFpr=",
       oldPhysDestIsFpr,
       " allocatesPhysDest=",
       allocatesPhysDest,
       " writesToPhysReg=",
-      writesToPhysReg
+      writesToPhysReg,
+      " branchPrediction=",
+      branchPrediction.format()
     )
   }
 }
@@ -856,7 +894,7 @@ case class RenameInfo(val config: PipelineConfig) extends Bundle {
 case class RenamedUop(
     val config: PipelineConfig
 ) extends Bundle
-    with Dumpable
+    with Formattable
     with HasRobPtr {
   // --- Original Decoded Information ---
   val decoded = DecodedUop(config) // Embeds all architectural and control info
@@ -901,13 +939,13 @@ case class RenamedUop(
     this
   }
 
-  def dump(): Seq[Any] = {
+  def format(): Seq[Any] = {
     Seq(
       "RenamedUop: decoded=",
-      decoded.dump(),
+      decoded.format(),
       "\n",
       "rename=",
-      rename.dump(),
+      rename.format(),
       "\n",
       "robPtr=",
       robPtr,
@@ -925,12 +963,4 @@ case class RenamedUop(
       exceptionCode
     )
   }
-}
-
-trait Dumpable {
-  def dump(): Seq[Any]
-}
-
-trait HasRobPtr {
-  def robPtr: UInt
 }

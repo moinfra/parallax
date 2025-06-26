@@ -293,7 +293,7 @@ object ParallaxLogger {
   def debug(foo: String)(implicit line: sourcecode.Line, file: sourcecode.File) = {
     println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_BLUE$foo$ANSI_RESET")
   }
-  
+
   def warning(foo: String)(implicit line: sourcecode.Line, file: sourcecode.File) = {
     println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_YELLOW$foo$ANSI_RESET")
   }
@@ -325,6 +325,17 @@ object ParallaxSim {
     report(flattenRecursively(message))(loc)
   }
 
+  def debugStage(stage: Stage) {
+    // stage.internals.input.ready...
+    debug(
+      Seq(
+        L"Stage status of ${stage.name}: ",
+        L"Inputs: ready=${stage.internals.input.ready}, valid=${stage.internals.input.valid}; ",
+        L"Outputs: ready=${stage.internals.output.ready}, valid=${stage.internals.output.valid}"
+      )
+    )
+  }
+
   def log(message: Seq[Any])(implicit loc: Location) {
     report(
       flattenRecursively(
@@ -332,7 +343,7 @@ object ParallaxSim {
       )
     )(loc)
   }
-  
+
   def logWhen(cond: Bool, message: Seq[Any])(implicit loc: Location) {
     when(cond) {
       report(
@@ -411,13 +422,13 @@ trait Formattable {
 }
 
 object AddressToMask {
-  /**
-   * 生成地址对齐的位掩码
-   * @param address 目标地址（决定掩码偏移）
-   * @param size    掩码尺寸（决定连续1的个数 = 2^size）
-   * @param width   输出位宽
-   * @return        移位后的位掩码
-   */
+
+  /** 生成地址对齐的位掩码
+    * @param address 目标地址（决定掩码偏移）
+    * @param size    掩码尺寸（决定连续1的个数 = 2^size）
+    * @param width   输出位宽
+    * @return        移位后的位掩码
+    */
   def apply(address: UInt, size: UInt, width: Int): Bits = {
     // 1. 生成基础掩码选项：从1位到全1的掩码
     val maskOptions = (0 to log2Up(width)).map { i =>
@@ -426,13 +437,13 @@ object AddressToMask {
       // 创建指定位宽的基础掩码（低位连续onesCount个1）
       U(i) -> B(onesCount, width bits)
     }
-    
+
     // 2. 根据size选择对应的基础掩码
     val baseMask = size.muxListDc(maskOptions)
-    
+
     // 3. 计算有效移位量（取address低位，避免越界）
     val shiftAmount = address(log2Up(width) - 1 downto 0)
-    
+
     // 4. 将掩码左移并返回
     baseMask |<< shiftAmount
   }

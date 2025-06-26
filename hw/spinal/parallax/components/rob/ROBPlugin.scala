@@ -5,8 +5,9 @@ import spinal.lib._
 import parallax.common._
 import parallax.utilities.{Framework, Plugin, ParallaxLogger} // 导入 Plugin
 import scala.collection.mutable.ArrayBuffer
+import parallax.utilities.Formattable
 
-class ROBPlugin[RU <: Data with Dumpable with HasRobPtr](
+class ROBPlugin[RU <: Data with Formattable with HasRobPtr](
     // ROBPlugin 的构造参数通常是更高层次的配置，比如 PipelineConfig，
     // 然后它在内部派生出具体的 ROBConfig。
     // 或者直接传递 ROBConfig。为了简单，我们假设它能获取或构建 ROBConfig。

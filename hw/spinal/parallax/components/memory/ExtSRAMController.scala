@@ -119,7 +119,7 @@ class ExtSRAMController(axiConfig: Axi4Config, ExtSRAMConfig: ExtSRAMConfig) ext
         sram_perform_write := False
       }
       whenIsActive {
-        if (ExtSRAMConfig.enableLog) report(L"ExtSRAMController: IDLE, read_priority=${read_priority}")
+        // if (ExtSRAMConfig.enableLog) report(L"ExtSRAMController: IDLE, read_priority=${read_priority}")
         io.ram.ce_n := True
         io.ram.oe_n := True
         io.ram.we_n := True

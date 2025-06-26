@@ -123,7 +123,7 @@ class DataCacheSpec extends CustomSpinalSimFunSuite {
     // ackIdWidth = 1,
     loadReadBanksAt = 0,
     loadReadTagsAt = 1,
-    loadTranslatedAt = 1,
+    loadTranslatedAt = 0,
     loadHitsAt = 1,
     loadHitAt = 1,
     loadBankMuxesAt = 1,

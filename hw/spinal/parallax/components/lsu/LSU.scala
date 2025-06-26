@@ -153,7 +153,7 @@ class LsuPlugin(
         val lqAguPort        = aguServiceInst.newAguPort()
         val sqAguPort        = aguServiceInst.newAguPort()
         
-        val dCacheLoadPort   = dcacheServiceInst.newLoadPort(priority = 0)
+        val dCacheLoadPort   = dcacheServiceInst.newLoadPort(priority = 1)
         val robLoadWritebackPort = robServiceInst.newWritebackPort("LSU_Load")
         val robStoreWritebackPort = robServiceInst.newWritebackPort("LSU_Store")
 

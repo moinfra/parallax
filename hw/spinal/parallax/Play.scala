@@ -5,20 +5,20 @@
 // import scala.collection.Seq // 显式导入 Seq
 // import scala.util.Random
 
-// // 1. Dumpable Trait: 定义对象如何提供调试信息
-// trait Dumpable {
+// // 1. Formattable Trait: 定义对象如何提供调试信息
+// trait Formattable {
 //   def dump(): Seq[Any]
 // }
 
-// // 2. InfoProvider: 一个简单的数据类，实现 Dumpable
-// case class InfoProvider(id: String, value: Int, tags: List[String]) extends Dumpable {
+// // 2. InfoProvider: 一个简单的数据类，实现 Formattable
+// case class InfoProvider(id: String, value: Int, tags: List[String]) extends Formattable {
 //   override def dump(): Seq[Any] = L"ID:'$id' Value:$value Tags:$tags"
 //   // 注意: L"Tags:$tags" 会将整个 List 作为 Seq 中的一个元素。
 //   // flattenMessage 会负责展开这个 List。
 // }
 
-// // 3. ModuleDetail: 另一个实现 Dumpable 的类，它包含一个 InfoProvider 以产生嵌套
-// case class ModuleDetail(moduleName: String, status: String, subProvider: InfoProvider) extends Dumpable {
+// // 3. ModuleDetail: 另一个实现 Formattable 的类，它包含一个 InfoProvider 以产生嵌套
+// case class ModuleDetail(moduleName: String, status: String, subProvider: InfoProvider) extends Formattable {
 //   override def dump(): Seq[Any] = L"Module:'$moduleName' Status:$status ProviderInfo:[${subProvider.dump()}]"
 //   // subProvider.dump() 返回一个 Seq[Any]，它将作为 L"..." 结果序列中的一个元素，从而形成嵌套。
 // }

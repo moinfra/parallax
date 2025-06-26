@@ -7,9 +7,10 @@ import parallax.common._
 import parallax.components.rob._
 import scala.collection.mutable.ArrayBuffer
 import _root_.parallax.utilities.ParallaxLogger
+import parallax.utilities.Formattable
 
 // DummyUop 现在接收完整的 robPtrWidth
-case class DummyUop(robPtrWidth: BitCount) extends Bundle with Dumpable with HasRobPtr {
+case class DummyUop(robPtrWidth: BitCount) extends Bundle with Formattable with HasRobPtr {
   val pc: UInt = UInt(32 bits)
   // robPtr 现在是完整的 ROB ID (物理索引 + 世代位)
   val robPtr: UInt = UInt(robPtrWidth) 
@@ -28,7 +29,7 @@ case class DummyUop(robPtrWidth: BitCount) extends Bundle with Dumpable with Has
     this
   }
 
-  def dump(): Seq[Any] = {
+  def format(): Seq[Any] = {
     L"DummyUop(pc=${pc}, robPtr=${robPtr}, hasException=${hasException})"
   }
 }

@@ -2,110 +2,105 @@ package parallax.issue
 
 import spinal.core._
 import spinal.lib._
-import parallax.common.PipelineConfig // 假设RenameMapTableConfig可从PipelineConfig推断或独立配置
-import parallax.utilities.{Framework, LockedImpl, ParallaxLogger, Plugin, Service}
-import parallax.components.rename.{RenameMapTable, RenameMapTableConfig, RenameMapTableIo, SuperScalarFreeList, SuperScalarFreeListConfig, SuperScalarFreeListIO}
-import parallax.components.rename.RenameUnit
-
-
-// // --- RenameMapTableService ---
-// // 这个服务提供对RenameMapTable的访问
-// // 为了让RenamePlugin能够获取RAT的配置，我们让服务也持有它
-// class RenameMapTableService(
-//   val ratConfig: RenameMapTableConfig // 配置在实例化服务时传入
-// ) extends Plugin with Service with LockedImpl { // 实现Service标记
-
-//   val ratIo = slave(RenameMapTableIo(ratConfig)) // 暴露RAT的IO，方向从服务的角度看
-
-//   val setup = create early new Area{
-//     lock.retain() // 服务自身构建锁
-//   }
-
-//   val logic = create late new Area {
-//     lock.await() // 确保所有依赖本服务的setup完成（如果其他插件retain了本服务）
-//                  // 或者确保本服务自身的配置完成。
-
-//     val rat = new RenameMapTable(ratConfig) // 实例化RAT组件
-//     ratIo <> rat.io // 将内部RAT的IO连接到服务的IO接口
-
-//     ParallaxLogger.log(s"RenameMapTableService: RenameMapTable instantiated with ${ratConfig.numWritePorts} write ports.")
-//     lock.release() // 服务构建完成
-//   }
-// }
-
-// // --- FreeListService ---
-// class FreeListService(
-//   val freeListConfig: SuperScalarFreeListConfig // 配置在实例化服务时传入
-// ) extends Plugin with Service with LockedImpl {
-
-//   val freeListIo = slave(SuperScalarFreeListIO(freeListConfig)) // 暴露FreeList的IO
-
-//   val setup = create early new Area{
-//     lock.retain()
-//   }
-
-//   val logic = create late new Area {
-//     lock.await()
-
-//     val freeList = new SuperScalarFreeList(freeListConfig) // 实例化FreeList组件
-//     freeListIo <> freeList.io
-
-//     ParallaxLogger.log(s"FreeListService: SuperScalarFreeList instantiated with ${freeListConfig.numAllocatePorts} allocate ports.")
-//     lock.release()
-//   }
-// }
+import spinal.lib.pipeline._
+import parallax.common._
+import parallax.components.rename._
+import parallax.utilities.{Plugin, LockedImpl, ParallaxLogger}
+import parallax.bpu.IssueBpuSignalService // 引入正确的 BPU 信号服务
 
 class RenamePlugin(
     val pipelineConfig: PipelineConfig,
     val ratConfig: RenameMapTableConfig,
     val flConfig: SuperScalarFreeListConfig
-) extends Plugin {
+) extends Plugin with LockedImpl {
+
   val setup = create early new Area {
-    // getService for RAT/FL if they were services, or just instantiate
-    // For simplicity, instantiate here. In a larger system, RAT/FL might be global services.
+    // 1. 获取所需服务
+    val issuePpl = getService[IssuePipeline]
+    val bpuSignalService = getService[IssueBpuSignalService] // BPU信号服务
+
+    // 2. 保留服务，防止它们过早完成
+    issuePpl.retain()
+    bpuSignalService.retain()
+
+    // 3. 在 s1_rename 阶段声明所有需要的 Stageable
+    val s1_rename = issuePpl.pipeline.s1_rename
+    s1_rename(issuePpl.signals.DECODED_UOPS) // 输入
+    s1_rename(issuePpl.signals.RENAMED_UOPS) // 输出
+    s1_rename(issuePpl.signals.FLUSH_PIPELINE) // 输入 (用于冲刷)
+    
+    // 从 BPU 服务获取信号包并声明 Stageable
+    val bpuSignals = bpuSignalService.getBpuSignals()
+    s1_rename(bpuSignals.PREDICTION_INFO) // 输入
   }
 
   val logic = create late new Area {
-    val s1_Rename = getService[IssuePipeline].pipeline.s1_rename
-    val issueSignals = getService[IssuePipeline].signals // To access DECODED_UOPS, RENAMED_UOPS
+    lock.await() // 等待所有依赖项就绪
 
+    val issuePpl = setup.issuePpl
+    val s1_rename = issuePpl.pipeline.s1_rename
+    val issueSignals = issuePpl.signals
+    val bpuSignals = setup.bpuSignals // 从 setup 区域获取信号包
+
+    ParallaxLogger.log(s"RenamePlugin: logic LATE area entered for s1_rename")
+
+    // --- 实例化核心组件 ---
     val renameUnit = new RenameUnit(pipelineConfig, ratConfig, flConfig)
     val rat = new RenameMapTable(ratConfig)
     val freeList = new SuperScalarFreeList(flConfig)
+    // TODO: 在未来，RAT 和 FreeList 可能是独立的服务插件，这里为了简化直接实例化。
 
-    // Connect RenameUnit to RAT and FreeList
-    renameUnit.io.ratReadPorts <> rat.io.readPorts
+    // --- 连接 RenameUnit, RAT, 和 FreeList ---
+    renameUnit.io.ratReadPorts  <> rat.io.readPorts
     renameUnit.io.ratWritePorts <> rat.io.writePorts
-    renameUnit.io.flAllocate <> freeList.io.allocate
-    renameUnit.io.numFreePhysRegs := freeList.io.numFreeRegs // Note: direct assignment
-
-    // --- Input to RenameUnit from s1_rename Stageable ---
-    renameUnit.io.decodedUopsIn.valid := s1_Rename.valid && !s1_Rename.isStuck // s1_Rename.valid implies input is valid
-    renameUnit.io.decodedUopsIn.payload := s1_Rename(issueSignals.DECODED_UOPS)
-    s1_Rename.haltIt(renameUnit.io.decodedUopsIn.valid && !renameUnit.io.decodedUopsIn.ready) // Stall s1 if RU not ready
-
-    // --- Output from RenameUnit to s1_rename Stageable ---
-    // This drives s1_rename.output.valid
-    when(renameUnit.io.renamedUopsOut.fire) { 
-      s1_Rename(issueSignals.RENAMED_UOPS) := renameUnit.io.renamedUopsOut.payload
-    } otherwise {
-      // Ensure payload is safe if not firing (e.g. set all uops to invalid)
-      s1_Rename(issueSignals.RENAMED_UOPS).foreach(_.decoded.isValid := False)
-    }
-    // Let the pipeline manage s1_rename.output.valid based on renameUnit.io.renamedUopsOut.valid
-    // And s1_rename.output.ready will drive renameUnit.io.renamedUopsOut.ready
-    // A direct way if s1_rename only contains this stream:
-    // s1_Rename.output << renameUnit.io.renamedUopsOut.s1_Rename() // s1_Rename() converts Stream to Flow, then implicit conversion to Stage output
-                                                       // This handles valid/ready propagation correctly.
-    s1_Rename.haltWhen(!renameUnit.io.renamedUopsOut.valid)
-    // Flush Logic
-    renameUnit.io.flushIn := s1_Rename(issueSignals.FLUSH_PIPELINE) || s1_Rename.isFlushed // Or just s1_Rename.isFlushed
+    renameUnit.io.flAllocate    <> freeList.io.allocate
+    renameUnit.io.numFreePhysRegs := freeList.io.numFreeRegs
     
-    // If RAT/FL need checkpoint/restore, connect those too (e.g., from a CommitPlugin service)
-    // For now, assume they are reset externally or don't need explicit pipeline flush linkage here
-    rat.io.checkpointRestore.valid := False // Default
-    rat.io.checkpointRestore.payload.assignDontCare()
-    freeList.io.restoreState.valid := False // Default
-    freeList.io.restoreState.freeMask.assignDontCare()
+    // TODO: FreeList 的 free 端口需要由 Commit 阶段驱动，这里暂时不连接
+    freeList.io.free.foreach(_.enable := False)
+
+    // TODO: RAT 和 FreeList 的 checkpoint/restore 端口需要由分支处理/异常恢复逻辑驱动
+    rat.io.checkpointRestore.setIdle()
+    freeList.io.restoreState.setIdle()
+
+    // --- 将 RenameUnit 连接到流水线 s1_rename 阶段 ---
+
+    // 1. 驱动 RenameUnit 的输入
+    val decodedUopsFromStage = s1_rename(issueSignals.DECODED_UOPS)
+    renameUnit.io.decodedUopsIn.valid   := s1_rename.isValid // 只有当 s1_rename 阶段有效时，才向 RenameUnit 发送有效请求
+    renameUnit.io.decodedUopsIn.payload := decodedUopsFromStage
+    
+    // 2. 处理 RenameUnit 的输出和流水线暂停
+    val renamedUopsFromRU = renameUnit.io.renamedUopsOut.payload
+    val predictionInfoFromStage = s1_rename(bpuSignals.PREDICTION_INFO)
+
+    // 组合逻辑：将预测信息附加到重命名后的Uop上
+    val finalRenamedUops = Vec.fill(pipelineConfig.renameWidth)(RenamedUop(pipelineConfig))
+    for(i <- 0 until pipelineConfig.renameWidth) {
+      finalRenamedUops(i) := renamedUopsFromRU(i)
+      // 只有有效的、且是分支/跳转的指令才需要附加预测信息
+      when(renamedUopsFromRU(i).decoded.isValid && renamedUopsFromRU(i).decoded.isBranchOrJump) {
+        finalRenamedUops(i).rename.branchPrediction := predictionInfoFromStage
+      }
+    }
+
+    // 将最终结果驱动到 s1_rename 的输出 Stageable
+    s1_rename(issueSignals.RENAMED_UOPS) := finalRenamedUops
+
+    // 3. 控制流水线握手
+    // 当 RenameUnit 不能接受新指令时 (例如资源不足)，暂停 s1_rename 阶段
+    s1_rename.haltWhen(!renameUnit.io.decodedUopsIn.ready)
+    
+    // --- 冲刷逻辑 ---
+    val doFlush = s1_rename(issueSignals.FLUSH_PIPELINE) || s1_rename.isFlushed
+    renameUnit.io.flushIn := doFlush
+    
+    // 如果流水线被冲刷，RenameUnit 的输出将是无效的，这会自动阻止 s1_rename 向下游传递有效数据。
+    
+    // 释放服务
+    setup.issuePpl.release()
+    setup.bpuSignalService.release()
+
+    ParallaxLogger.log(s"RenamePlugin: Logic elaborated.")
   }
 }

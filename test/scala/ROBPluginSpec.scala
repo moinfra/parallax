@@ -17,13 +17,13 @@ import scala.util.Random
 import spinal.lib.misc.BinTools.initRam
 
 // DummyUop2 and ROBAllocateSlotPayloadForTest definitions remain the same
-case class DummyUop2(val config: PipelineConfig) extends Bundle with Dumpable with HasRobPtr {
+case class DummyUop2(val config: PipelineConfig) extends Bundle with Formattable with HasRobPtr {
   val robPtr = UInt(config.robPtrWidth)
   val pc = UInt(config.pcWidth)
   def setDefault(): this.type = { this.robPtr := 0; this.pc := 0; this }
   def setDefaultForSim(): this.type = { import spinal.core.sim._; this.robPtr #= 0; this.pc #= 0; this }
 
-  def dump(): Seq[Any] = {
+  def format(): Seq[Any] = {
     L"DummyUop(pc=${pc}, robPtr=${robPtr})"
   }
 }

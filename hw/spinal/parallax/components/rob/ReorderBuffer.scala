@@ -8,6 +8,7 @@ import parallax.utilities.ParallaxSim
 import _root_.parallax.utilities.ParallaxLogger
 
 import spinal.core._
+import parallax.utilities.Formattable
 
 object ROBFlushReason extends SpinalEnum {
   val NONE,                // No flush, or an invalid reason
@@ -18,7 +19,7 @@ object ROBFlushReason extends SpinalEnum {
 }
 
 // --- Configuration for ROB ---
-case class ROBConfig[RU <: Data with Dumpable with HasRobPtr](
+case class ROBConfig[RU <: Data with Formattable with HasRobPtr](
     val robDepth: Int,
     val pcWidth: BitCount,
     val commitWidth: Int,
@@ -29,7 +30,7 @@ case class ROBConfig[RU <: Data with Dumpable with HasRobPtr](
     val uopType: HardType[RU],
     val defaultUop: () => RU,
     val exceptionCodeWidth: BitCount = 8 bits
-) extends Dumpable {
+) extends Formattable {
 
   require(robDepth > 0 && isPow2(robDepth), "ROB depth must be a positive power of 2.")
   require(commitWidth > 0 && commitWidth <= robDepth)
@@ -45,7 +46,7 @@ case class ROBConfig[RU <: Data with Dumpable with HasRobPtr](
   // 对外暴露的 robPtr 的总位宽 (物理索引 + 世代位)
   val robPtrWidth: BitCount = robPhysIdxWidth + robGenBitWidth
 
-  def dump(): Seq[Any] = {
+  def format(): Seq[Any] = {
     val str = L"""ROBConfig(
         robDepth: ${robDepth},
         pcWidth: ${pcWidth},
@@ -64,7 +65,6 @@ case class ROBConfig[RU <: Data with Dumpable with HasRobPtr](
   }
 }
 
-// --- MODIFICATION START (Flush Mechanism Refactor: Enum and Command Bundle) ---
 object FlushReason extends SpinalEnum {
   val NONE, FULL_FLUSH, ROLLBACK_TO_ROB_IDX = newElement()
 }
@@ -76,11 +76,10 @@ case class ROBFlushPayload(robPtrWidth: BitCount) extends Bundle {
   // targetRobPtr 现在是完整的 ROB ID (物理索引 + 世代位)
   val targetRobPtr = UInt(robPtrWidth) 
 }
-// --- MODIFICATION END ---
 
 // --- Data Bundles for ROB Internal Storage ---
 // Status part of the ROB entry (frequently updated)
-case class ROBStatus[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[RU]) extends Bundle {
+case class ROBStatus[RU <: Data with Formattable with HasRobPtr](config: ROBConfig[RU]) extends Bundle {
   val busy = Bool()
   val done = Bool()
   val hasException = Bool()
@@ -89,13 +88,13 @@ case class ROBStatus[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[
 }
 
 // Payload part of the ROB entry (written once at allocation)
-case class ROBPayload[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[RU]) extends Bundle {
+case class ROBPayload[RU <: Data with Formattable with HasRobPtr](config: ROBConfig[RU]) extends Bundle {
   val uop = config.uopType() // Contains physReg info
   val pc = UInt(config.pcWidth)
 }
 
 // Combined entry for communication (e.g., commit port)
-case class ROBFullEntry[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[RU]) extends Bundle {
+case class ROBFullEntry[RU <: Data with Formattable with HasRobPtr](config: ROBConfig[RU]) extends Bundle {
   val payload = ROBPayload(config)
   val status = ROBStatus(config)
 }
@@ -103,7 +102,7 @@ case class ROBFullEntry[RU <: Data with Dumpable with HasRobPtr](config: ROBConf
 // --- IO Bundles for ROB ---
 
 // For allocation port (per slot)
-case class ROBAllocateSlot[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[RU])
+case class ROBAllocateSlot[RU <: Data with Formattable with HasRobPtr](config: ROBConfig[RU])
     extends Bundle
     with IMasterSlave {
   val valid = Bool() // From Rename: attempt to allocate this slot
@@ -121,7 +120,7 @@ case class ROBAllocateSlot[RU <: Data with Dumpable with HasRobPtr](config: ROBC
 
 // For writeback port (per execution unit writeback)
 // 用来标记 ROB 条目完成或者异常发生
-case class ROBWritebackPort[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[RU])
+case class ROBWritebackPort[RU <: Data with Formattable with HasRobPtr](config: ROBConfig[RU])
     extends Bundle
     with IMasterSlave {
   val fire = Bool()
@@ -136,7 +135,7 @@ case class ROBWritebackPort[RU <: Data with Dumpable with HasRobPtr](config: ROB
 }
 
 // For commit port (per slot)
-case class ROBCommitSlot[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[RU])
+case class ROBCommitSlot[RU <: Data with Formattable with HasRobPtr](config: ROBConfig[RU])
     extends Bundle
     with IMasterSlave {
   val valid = Bool() // From ROB: this entry is ready to commit
@@ -155,7 +154,7 @@ case class ROBCommitSlot[RU <: Data with Dumpable with HasRobPtr](config: ROBCon
 }
 
 // Top-level IO for ReorderBuffer
-case class ROBIo[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[RU]) extends Bundle with IMasterSlave {
+case class ROBIo[RU <: Data with Formattable with HasRobPtr](config: ROBConfig[RU]) extends Bundle with IMasterSlave {
   // Allocation: Vector of master ports from ROB's perspective (Rename stage is slave)
   val allocate = Vec(master(ROBAllocateSlot(config)), config.allocateWidth)
   val canAllocate = out Vec (Bool(), config.allocateWidth) // To Rename: can each slot be allocated?
@@ -167,11 +166,9 @@ case class ROBIo[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[RU])
   val commit = Vec(slave(ROBCommitSlot(config)), config.commitWidth)
   val commitFire = in Vec (Bool(), config.commitWidth) // From Commit: which slots are actually committed
 
-  // --- MODIFICATION START (Flush Mechanism Refactor: IO Update) ---
   // Flush: Slave Flow port from ROB's perspective (Recovery/Checkpoint manager is master)
   val flush = slave Flow (ROBFlushPayload(config.robPtrWidth))
   val flushed = out Bool () // Indicates ROB has completed flush operation this cycle
-  // --- MODIFICATION END ---
 
   // Status outputs
   val empty = out Bool ()
@@ -184,20 +181,18 @@ case class ROBIo[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[RU])
     allocate.foreach(_.asSlave())
     writeback.foreach(_.asSlave())
     commit.foreach(_.asSlave())
-    // --- MODIFICATION START (Flush Mechanism Refactor: IO asMaster Update) ---
     master(flush)
     in(flushed)
-    // --- MODIFICATION END ---
     in(canAllocate)
     out(commitFire)
     in(empty, headPtrOut, tailPtrOut, countOut)
   }
 }
 
-class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[RU]) extends Component {
+class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfig[RU]) extends Component {
   val enableLog = true
   ParallaxLogger.log(
-    s"Creating ReorderBuffer with config: ${config.dump().mkString("")}"
+    s"Creating ReorderBuffer with config: ${config.format().mkString("")}"
   )
   val io = slave(ROBIo(config)) // ROB is slave to the overall system for its IO bundle
 
@@ -301,7 +296,7 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
       val genBit = slotRobPtr(i).msb // 假设 robGenBitWidth = 1
 
       payloads.write(address = physIdx, data = newPayload) // 使用物理索引写入 Mem
-      if(enableLog) report(L"[ROB] ALLOC_PAYLOAD_WRITE[${i}]: Writing payload to robPtr=${slotRobPtr(i)} (physIdx=${physIdx}, genBit=${genBit}): ${newPayload.uop.dump()}")
+      if(enableLog) report(L"[ROB] ALLOC_PAYLOAD_WRITE[${i}]: Writing payload to robPtr=${slotRobPtr(i)} (physIdx=${physIdx}, genBit=${genBit}): ${newPayload.uop.format}")
       
       statuses(physIdx).busy := True
       statuses(physIdx).done := False
@@ -480,7 +475,6 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
   val sCurrentCount = S(currentCount.resize(nextCountFromOps.getWidth))
   nextCountFromOps := (sCurrentCount + sAlloc - sCommit).asUInt.resize(nextCountFromOps.getWidth)
 
-  // --- MODIFICATION START (Flush Mechanism Refactor: Core Logic) ---
   // Apply updates to registers, with flush having highest priority
   io.flushed := False // Default flushed to False
 
@@ -624,7 +618,6 @@ class ReorderBuffer[RU <: Data with Dumpable with HasRobPtr](config: ROBConfig[R
       )
     )
   }
-  // --- MODIFICATION END ---
 
   // --- Status Outputs ---
   io.empty := count_reg === 0 // Based on the final updated count_reg

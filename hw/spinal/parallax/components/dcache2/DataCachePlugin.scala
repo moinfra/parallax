@@ -21,7 +21,7 @@ case class DataCachePluginConfig(
     val storeRefillCheckEarly: Boolean = true,
     val loadReadBanksAt: Int = 0,
     val loadReadTagsAt: Int = 1,
-    val loadTranslatedAt: Int = 1,
+    val loadTranslatedAt: Int = 0,
     val loadHitsAt: Int = 1,
     val loadHitAt: Int = 2,
     val loadBankMuxesAt: Int = 1,
@@ -170,16 +170,9 @@ class DataCachePlugin(config: DataCachePluginConfig) extends Plugin with LockedI
     val dbusSvc = getService[DBusService]
     dbusSvc.getBus() <> cache.io.mem.toAxi4()
 
-    val testFlushPort = DataStorePort(
-      postTranslationWidth = PHYSICAL_WIDTH,
-      dataWidth = cpuDataWidth,
-      refillCount = config.refillCount,
-      transactionIdWidth = config.transactionIdWidth
-    ) // **关键: 冲刷端口也必须是 DataStorePort**
 
   }
 
-  override def getTestFlushPort(): DataStorePort = setup.testFlushPort // **返回类型也是 DataStorePort**
 
   private val logic = create late new Area {
     // Removed lock.await() as LockedImpl is removed
@@ -211,6 +204,7 @@ class DataCachePlugin(config: DataCachePluginConfig) extends Plugin with LockedI
         {
           ParallaxLogger.warning("Only one store port is supported for now, unless you know what you are doing.")
         }
+      assert(storePorts.size == 1, s"Expected 1 store port, got ${storePorts.size}")
       cache.io.store <> storePorts.head.port
     }
   }
@@ -220,6 +214,5 @@ trait DataCacheService extends Service with LockedImpl {
   def newLoadPort(priority: Int): DataLoadPort
   def newStorePort(): DataStorePort
   def getRefillCompletions(): Bits
-  def getTestFlushPort(): DataStorePort
   def writebackBusy(): Bool
 }
