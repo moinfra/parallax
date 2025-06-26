@@ -4,7 +4,6 @@ import spinal.core._
 import spinal.lib._
 import spinal.lib.pipeline._
 import parallax.common._
-import parallax.bpu._
 import parallax.components.decode._ // For SimpleDecoder
 import parallax.utilities.{LockedImpl, ParallaxLogger, Plugin} // 确保有这些import
 
@@ -13,17 +12,14 @@ class DecodePlugin(val issueConfig: PipelineConfig) extends Plugin with LockedIm
   val setup = create early new Area {
     val issuePpl = getService[IssuePipeline] // 获取 IssuePipeline 服务
     issuePpl.retain() // 因为我们要配置其阶段
-    val bpuSignalService = getService[IssueBpuSignalService]
-    val bpuSignals = bpuSignalService.getBpuSignals()
-
 
     val s0_decode = issuePpl.pipeline.s0_decode // 获取 s0_decode 阶段
     // 声明 s0_decode 阶段将消耗的输入 Stageable 和产生的输出 Stageable
     s0_decode(issuePpl.signals.GROUP_PC_IN) // consumes
     s0_decode(issuePpl.signals.RAW_INSTRUCTIONS_IN) // consumes
     s0_decode(issuePpl.signals.IS_FAULT_IN) // consumes
-    s0_decode(bpuSignals.INSTRUCTION_VALID_MASK)
     s0_decode(issuePpl.signals.DECODED_UOPS) // produces
+
   }
 
   val logic = create late new Area {
@@ -39,11 +35,12 @@ class DecodePlugin(val issueConfig: PipelineConfig) extends Plugin with LockedIm
     val groupPcIn = s0_decode(signals.GROUP_PC_IN)
     val rawInstructionsIn = s0_decode(signals.RAW_INSTRUCTIONS_IN)
     val isGroupFaultIn = s0_decode(signals.IS_FAULT_IN)
+  val groupValidMask = s0_decode(signals.VALID_MASK)
 
     // --- 并行解码逻辑 ---
     // 创建一个 Vec 来存储每个解码槽的 DecodedUop 结果
     val decodedUopsOutputVec = Vec(HardType(DecodedUop(issueConfig)), issueConfig.fetchWidth)
-    val validMaskIn = s0_decode(setup.bpuSignals.INSTRUCTION_VALID_MASK)
+
     for (i <- 0 until issueConfig.fetchWidth) {
       val decoder = new SimpleDecoder(issueConfig) // 每个槽位一个解码器实例
 
@@ -65,9 +62,12 @@ class DecodePlugin(val issueConfig: PipelineConfig) extends Plugin with LockedIm
         currentDecodedUop.decodeExceptionCode := DecodeExCode.FETCH_ERROR
         currentDecodedUop.uopCode := BaseUopCode.ILLEGAL // 或 NOP
       }
+          when(!groupValidMask(i)) {
+      currentDecodedUop.isValid := False
+    }
       // 如果解码器本身发现错误 (e.g., 非法指令), currentDecodedUop.hasDecodeException 会是 True
       // isGroupFaultIn 的优先级更高
-      currentDecodedUop.isValid := currentDecodedUop.isValid && validMaskIn(i)
+
       decodedUopsOutputVec(i) := currentDecodedUop
     }
 

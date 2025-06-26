@@ -1,3 +1,4 @@
+// cmd: testOnly test.issue.DecodePluginSpec
 package test.issue
 
 import spinal.core._
