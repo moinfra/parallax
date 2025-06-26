@@ -132,6 +132,7 @@ class FetchPipelinePlugin(
 
       ifuPort.cmd.valid      := canSendRequest
       ifuPort.cmd.payload.pc := pcReg
+      ifuPort.flush          := pipelineFlush
       
       // Connect IFU response directly to the buffer.
       // This decouples the fetch request from the instruction consumption.

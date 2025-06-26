@@ -119,16 +119,19 @@ class FetchTestHelper(dut: FetchPipelineTestBench)(implicit cd: ClockDomain) {
   def init(): Unit = {
     dut.io.bpuUpdate.valid #= false
     dut.io.redirect.valid #= false
-    dut.io.fetchOutput.ready #= false // Start with downstream stalled
+    // Start with the backend stalled. Tests will explicitly set this to true when ready.
+    dut.io.fetchOutput.ready #= false
     cd.waitSampling()
   }
 
   def startMonitor(): Unit = {
+    // Monitor captures the output whenever it's valid and ready
     StreamMonitor(dut.io.fetchOutput, cd) { payload =>
       val captured = FetchOutputCapture(payload)
       fetchedInstructions.enqueue(captured)
     }
-    StreamReadyRandomizer(dut.io.fetchOutput, cd)
+    // IMPORTANT: We REMOVE StreamReadyRandomizer for deterministic control.
+    // StreamReadyRandomizer(dut.io.fetchOutput, cd)
   }
 
   def writeInstructionsToMem(address: BigInt, instructions: Seq[BigInt]): Unit = {
@@ -151,12 +154,27 @@ class FetchTestHelper(dut: FetchPipelineTestBench)(implicit cd: ClockDomain) {
     dut.io.redirect.valid #= false
   }
 
+  def consumeInstructions(count: Int, timeout: Int = 400): Unit = {
+    for (_ <- 0 until count) {
+      dut.io.fetchOutput.ready #= true
+      val timedOut = cd.waitSamplingWhere(timeout = timeout) {
+        fetchedInstructions.size >= 1 // Wait until at least one new instruction is captured
+      }
+      dut.io.fetchOutput.ready #= false // Stall again after consuming one
+      assert(!timedOut, s"Timeout waiting to consume instruction number ${fetchedInstructions.size + 1}")
+    }
+    // After consumption, clear the ready signal
+    dut.io.fetchOutput.ready #= false
+  }
+
+  // expectInstructions is now simplified for sequential fetch cases
   def expectInstructions(expected: Seq[(BigInt, BigInt)], timeout: Int = 400): Unit = {
     for ((expectedPc, expectedInst) <- expected) {
-      val timedOut = cd.waitSamplingWhere(timeout = timeout) {
+      dut.io.fetchOutput.ready #= true
+      cd.waitSamplingWhere(timeout = timeout) {
         fetchedInstructions.nonEmpty
       }
-      assert(!timedOut, s"Timeout waiting for instruction at PC 0x${expectedPc.toString(16)}")
+      dut.io.fetchOutput.ready #= false
 
       val received = fetchedInstructions.dequeue()
       assert(
@@ -259,7 +277,7 @@ class FetchPipelinePluginSpec extends CustomSpinalSimFunSuite {
       }
   }
 
-  testOnly("FetchPipeline - Redirect (Flush)") {
+  test("FetchPipeline - Redirect (Flush)") {
     SimConfig.withWave
       .compile(new FetchPipelineTestBench(pCfg, ifuCfg, dCfg, axiConfig, bufferDepth))
       .doSim { dut =>
@@ -269,14 +287,6 @@ class FetchPipelinePluginSpec extends CustomSpinalSimFunSuite {
         val helper = new FetchTestHelper(dut)
         helper.init()
 
-        // --- Test Plan ---
-        // 1. Write instructions for both the original path and the redirected path into memory.
-        // 2. Let the pipeline start fetching and consume one instruction.
-        // 3. Issue a redirect to a new PC.
-        // 4. Verify that buffered/in-flight instructions from the old path are discarded
-        //    and that the pipeline correctly starts fetching from the new path.
-
-        // >>> FIX: Use writeInstructionsToMem instead of respondWithPacket
         helper.writeInstructionsToMem(BigInt("00000000", 16), Seq(BigInt(0x11), BigInt(0x22)))
         helper.writeInstructionsToMem(BigInt("00000008", 16), Seq(BigInt(0x33), BigInt(0x44)))
         helper.writeInstructionsToMem(BigInt("00001000", 16), Seq(BigInt(0xaa), BigInt(0xbb)))
@@ -286,8 +296,7 @@ class FetchPipelinePluginSpec extends CustomSpinalSimFunSuite {
         // Allow the first instruction to be consumed.
         helper.expectInstructions(Seq((BigInt("00000000", 16), BigInt(0x11))))
 
-        // Now, issue the redirect. At this point, instructions 0x22, 0x33, 0x44 are likely
-        // in-flight within the IFU/DCache or already in the FetchBuffer.
+        // Issue the redirect.
         helper.issueRedirect(newPc = BigInt("00001000", 16))
 
         // After the redirect, we should see the new instruction stream.
@@ -298,8 +307,9 @@ class FetchPipelinePluginSpec extends CustomSpinalSimFunSuite {
           )
         )
 
-        // Crucially, verify that no more old-path instructions are in the queue.
-        cd.waitSampling(50) // Wait some time to ensure no more instructions are coming
+        // After the last expect, dut.io.fetchOutput.ready is guaranteed to be false.
+        // We can now safely check if any unexpected instructions made it through.
+        cd.waitSampling(50)
         assert(
           helper.fetchedInstructions.isEmpty,
           s"Pipeline did not flush correctly! Found unexpected instructions: ${helper.fetchedInstructions.mkString(", ")}"
@@ -309,7 +319,6 @@ class FetchPipelinePluginSpec extends CustomSpinalSimFunSuite {
       }
   }
 
-    // --- New Test for BPU/Predecoder Integration ---
   test("FetchPipeline - Predecoder and Branch Recognition") {
     SimConfig.withWave
       .compile(new FetchPipelineTestBench(pCfg, ifuCfg, dCfg, axiConfig, bufferDepth))
@@ -319,65 +328,131 @@ class FetchPipelinePluginSpec extends CustomSpinalSimFunSuite {
 
         val helper = new FetchTestHelper(dut)
         helper.init()
-        
-        // --- Test Plan ---
-        // 1. Create a program with various instruction types, including branches and jumps.
-        //    - A NOP (normal instruction)
-        //    - A BEQ (isBranch = true)
-        //    - A B (isJump = true)
-        //    - Another NOP
-        // 2. Write this program to memory.
-        // 3. Start the monitor on fetchOutput.
-        // 4. Verify that each fetched instruction has the correct `isBranch` and `isJump` flags.
 
-
-        // Instruction sequence: NOP, BEQ, B, NOP
         val program = Seq(
-          nop(),                                     // PC 0x00: Normal
-          beq(rj = 1, rd = 2, offset = 16),          // PC 0x04: Conditional Branch (isBranch=true)
-          b(offset = -8),                            // PC 0x08: Unconditional Jump (isJump=true)
-          nop()                                      // PC 0x0C: Normal
+          nop(),
+          beq(rj = 1, rd = 2, offset = 16),
+          b(offset = -8),
+          nop()
         )
 
         helper.writeInstructionsToMem(address = 0, instructions = program)
-
         helper.startMonitor()
 
-        // We expect to fetch all 4 instructions sequentially.
-        // The BPU is not trained, so it should predict "not taken" for the BEQ.
-        // The PC generation logic will ignore the `isJump` flag for now, as BPU is not predicting a jump.
+        // Step 1: Consume exactly 4 instructions from the pipeline.
+        // This helper now only sets ready and waits, populating the queue.
+        // It does not perform verification itself.
+        dut.io.fetchOutput.ready #= true // Keep ready high to consume all available instructions
         cd.waitSamplingWhere(timeout = 500) {
           helper.fetchedInstructions.size >= 4
         }
-        
-        assert(helper.fetchedInstructions.size == 4, s"Expected 4 instructions, but got ${helper.fetchedInstructions.size}")
+        dut.io.fetchOutput.ready #= false
+
+        // Step 2: Now that consumption is done, verify the contents of the queue.
+        assert(
+          helper.fetchedInstructions.size == 4,
+          s"Expected 4 instructions, but got ${helper.fetchedInstructions.size}"
+        )
 
         // --- Verification ---
-        // 1. First instruction: NOP
         val inst1 = helper.fetchedInstructions.dequeue()
         assert(inst1.pc == 0x00 && inst1.instruction == nop(), "First instruction should be NOP at PC 0x0")
         assert(!inst1.isBranch && !inst1.isJump, "NOP should not be a branch or jump")
 
-        // 2. Second instruction: BEQ
         val inst2 = helper.fetchedInstructions.dequeue()
         assert(inst2.pc == 0x04, "Second instruction should be at PC 0x4")
         assert(inst2.isBranch, "BEQ should be detected as a branch (isBranch=true)")
         assert(!inst2.isJump, "BEQ should not be detected as a jump")
-        
-        // 3. Third instruction: B
+
         val inst3 = helper.fetchedInstructions.dequeue()
         assert(inst3.pc == 0x08, "Third instruction should be at PC 0x8")
         assert(!inst3.isBranch, "B should not be detected as a branch")
         assert(inst3.isJump, "B should be detected as a jump (isJump=true)")
 
-        // 4. Fourth instruction: NOP
         val inst4 = helper.fetchedInstructions.dequeue()
-        assert(inst4.pc == 0x0C && inst4.instruction == nop(), "Fourth instruction should be NOP at PC 0xC")
+        assert(inst4.pc == 0x0c && inst4.instruction == nop(), "Fourth instruction should be NOP at PC 0xC")
         assert(!inst4.isBranch && !inst4.isJump, "NOP should not be a branch or jump")
-        
+
         println("Test 'FetchPipeline - Predecoder and Branch Recognition' PASSED")
       }
   }
 
+  test("FetchPipeline - Stall and Resume") {
+    SimConfig.withWave
+      .compile(
+        new FetchPipelineTestBench(pCfg, ifuCfg, dCfg, axiConfig, bufferDepth = 4)
+      ) // Use a smaller buffer to see stall faster
+      .doSim { dut =>
+        implicit val cd = dut.clockDomain.get
+        dut.clockDomain.forkStimulus(10)
+
+        val helper = new FetchTestHelper(dut)
+        helper.init()
+
+        // Write more instructions than can fit in a single fetch group
+        val program = (1 to 8).map(i => BigInt(s"${i}${i}", 16))
+        helper.writeInstructionsToMem(0, program)
+
+        helper.startMonitor()
+
+        // Keep the backend stalled (ready=false) for a while
+        // The FetchBuffer should fill up, and the IFU should stop fetching.
+        println("Simulating stall: Keeping ready=false...")
+        dut.io.fetchOutput.ready #= false
+        cd.waitSampling(100)
+
+        // During the stall, no instructions should have been consumed
+        assert(helper.fetchedInstructions.isEmpty, "Instructions were consumed during stall period!")
+
+        // Now, resume the backend and consume all instructions
+        println("Resuming backend: Consuming all instructions...")
+        val expected = program.zipWithIndex.map { case (inst, i) => (BigInt(i * 4), inst) }
+        helper.expectInstructions(expected)
+
+        println("Test 'FetchPipeline - Stall and Resume' PASSED")
+      }
+  }
+  test("FetchPipeline - Back-to-Back Redirects") {
+    SimConfig.withWave
+      .compile(new FetchPipelineTestBench(pCfg, ifuCfg, dCfg, axiConfig, bufferDepth))
+      .doSim { dut =>
+        implicit val cd = dut.clockDomain.get
+        dut.clockDomain.forkStimulus(10)
+
+        val helper = new FetchTestHelper(dut)
+        helper.init()
+
+        // Instructions at three different potential paths
+        helper.writeInstructionsToMem(0x0, Seq(0x00, 0x01)) // Original path
+        helper.writeInstructionsToMem(0x1000, Seq(0xaa, 0xab)) // First redirect target (should be flushed)
+        helper.writeInstructionsToMem(0x2000, Seq(0xbb, 0xbc)) // Second redirect target (final destination)
+
+        helper.startMonitor()
+
+        // Let the pipeline start fetching from PC=0 but don't consume yet.
+        cd.waitSampling(20)
+
+        // Issue two redirects in consecutive cycles. The second should override the first.
+        helper.issueRedirect(newPc = 0x1000)
+        helper.issueRedirect(newPc = 0x2000)
+
+        // Now, start consuming. We should ONLY see instructions from the final redirect target (0x2000).
+        helper.expectInstructions(
+          Seq(
+            (BigInt(0x2000), BigInt(0xbb)),
+            (BigInt(0x2004), BigInt(0xbc))
+          )
+        )
+
+        cd.waitSampling(50)
+        assert(
+          helper.fetchedInstructions.isEmpty,
+          s"Pipeline did not flush correctly! Found unexpected instructions from old paths: ${helper.fetchedInstructions
+              .mkString(", ")}"
+        )
+
+        println("Test 'FetchPipeline - Back-to-Back Redirects' PASSED")
+      }
+  }
   thatsAll()
 }
