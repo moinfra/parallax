@@ -679,7 +679,7 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
     }
   }
 
-  testOnly("SuperScalarFreeList - Freeing and Re-allocating an Initially Mapped Register") {
+  test("SuperScalarFreeList - Freeing and Re-allocating an Initially Mapped Register") {
     val numArchRegsMapped = 4 // P0, P1, P2, P3 are initially "mapped" (not in free list)
     val testConfig = SuperScalarFreeListConfig(
       numPhysRegs = numTotalPhysRegs, // e.g., 16

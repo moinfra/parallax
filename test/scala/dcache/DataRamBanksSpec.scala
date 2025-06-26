@@ -382,7 +382,7 @@ class DataRamBanksComponentSpec extends CustomSpinalSimFunSuite {
     }
   }
 
-  testOnly("DataRamBanksComponent - TP1.4.1 - Line Read (Writeback) - Basic") {
+  test("DataRamBanksComponent - TP1.4.1 - Line Read (Writeback) - Basic") {
     val p = defaultCacheParams.copy(wayCount = 1) // Single way for simplicity
     simConfig.compile(new DataRamBanksTestBench(p)).doSim(seed = Random.nextInt()) { dutTb =>
       import DataRamBankTestHelpers._

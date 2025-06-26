@@ -1225,7 +1225,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
     }
   }
 
-  testOnly("ROB - BUG REPRO: Stalls on committing a flushed entry that was already 'done'") {
+  test("ROB - BUG REPRO: Stalls on committing a flushed entry that was already 'done'") {
     // 配置：最简单的1-wide系统
     val testConfig = baseRobConfig.copy(
       allocateWidth = 1,

@@ -367,7 +367,7 @@ class ROBPluginSpec extends CustomSpinalSimFunSuite {
     }
   }
 // TC_ROB_003: ROB Full, then Commit, then Allocate
-  testOnly("ROBPlugin - ROB Full, Commit, then Allocate") {
+  test("ROBPlugin - ROB Full, Commit, then Allocate") {
     val currentTestCfg = pCfgFull // robD = 2
     val tbCfg = TestBenchConfig(pCfg = currentTestCfg, numEus = currentTestCfg.totalEuCount)
     val dut = simConfig.compile(createDut(tbCfg))

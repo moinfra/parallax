@@ -19,36 +19,27 @@ import scala.util.Random
 import spinal.lib.bus.amba4.axi.Axi4Config
 import parallax.components.memory.IFetchPort
 import parallax.utilities._
-import test.scala.lsu.SBDataMembusTestPlugin
+import test.scala.lsu.TestOnlyMemSystemPlugin
 
 /** Test Setup Plugin for IFU tests.
   */
-class IFUTestSetupPlugin(
-    // Callback to connect the testbench to the IFU's fetch port
-    ifuPortSetup: IFetchPort => Unit,
-    dCacheIoSetup: Bool => Unit
-) extends Plugin {
+class IFUTestSetupPlugin(io: IFUTBIO) extends Plugin {
   ParallaxLogger.log(s"[IFUTestSetupPlugin] Creating IFUTestSetupPlugin")
   val setup = create early new Area {
     val ifuService = getService[IFUService]
     val dcService = getService[DataCacheService]
-    ParallaxLogger.log(s"1")
     ifuService.retain()
     dcService.retain()
-    ParallaxLogger.log(s"2")
-    // Get the IFetchPort from the IFUService
-    val cpuFetchPort = ifuService.newFetchPort()
-    // The testbench will act as the CPU, so it will drive cpuFetchPort.cmd
-    // and monitor cpuFetchPort.rsp.
-    ifuPortSetup(cpuFetchPort) // Pass it to the testbench for connection
 
-    // IMPORTANT: DataCachePlugin requires at least one store port to be created
-    // for its internal logic to build correctly, even if it's unused.
+    val ifuPort = ifuService.newFetchPort()
+    ifuPort <> io.tbCpuFetchPort
+
+    io.tbDcacheWritebackBusy <> dcService.writebackBusy()
+
     val unusedStorePort = dcService.newStorePort()
     unusedStorePort.cmd.valid := False
     unusedStorePort.cmd.payload.assignDontCare()
 
-    dCacheIoSetup(dcService.writebackBusy())
   }
 
   val logic = create late new Area {
@@ -57,35 +48,34 @@ class IFUTestSetupPlugin(
   }
 }
 
+case class IFUTBIO(ifuCfg: InstructionFetchUnitConfig) extends Bundle with IMasterSlave {
+  val tbCpuFetchPort = slave(IFetchPort(ifuCfg))
+  val tbDcacheWritebackBusy = out Bool ()
+  override def asMaster(): Unit = {
+    master(tbCpuFetchPort)
+    in(tbDcacheWritebackBusy)
+  }
+}
+
 /** Top-level DUT for IFU tests.
   */
 class IFUTestBench(
     val pCfg: PipelineConfig,
-    val ifuCfgExternal: InstructionFetchUnitConfig,
+    val ifuCfg: InstructionFetchUnitConfig,
     val dCacheCfg: DataCachePluginConfig,
     val axiConfig: Axi4Config
 ) extends Component {
-  val io = new Bundle {
-    val tbCpuFetchPort = slave(IFetchPort(ifuCfgExternal))
-    val tbDcacheWritebackBusy = out Bool ()
-  }
+  val io = IFUTBIO(ifuCfg)
   io.simPublic()
   val framework = new Framework(
     Seq(
-      new IFUTestSetupPlugin(
-        ifuPortSetup = testBenchSideCpuPort => {
-          testBenchSideCpuPort <> io.tbCpuFetchPort
-        },
-        dCacheIoSetup = writebackBusy => {
-          io.tbDcacheWritebackBusy := writebackBusy
-        }
-      ),
-      new SBDataMembusTestPlugin(axiConfig),
+      new IFUTestSetupPlugin(io),
+      new TestOnlyMemSystemPlugin(axiConfig),
       new DataCachePlugin(dCacheCfg),
-      new IFUPlugin(ifuCfgExternal)
+      new IFUPlugin(ifuCfg)
     )
   )
-  def getSramHandle(): SimulatedSRAM = framework.getService[SBDataMembusTestPlugin].getSram()
+  def getSramHandle(): SimulatedSRAM = framework.getService[TestOnlyMemSystemPlugin].getSram()
 }
 
 /** Test Helper for IFU simulations.
@@ -102,11 +92,12 @@ class IFUTestHelper(dut: IFUTestBench, enableRspReadyRandomizer: Boolean = true)
     receivedRspQueue.enqueue(IFetchRspCapture(payload))
   }
 
-  if(enableRspReadyRandomizer) StreamReadyRandomizer(dut.io.tbCpuFetchPort.rsp, cd)
+  if (enableRspReadyRandomizer) StreamReadyRandomizer(dut.io.tbCpuFetchPort.rsp, cd)
 
   def init(): Unit = {
     dut.io.tbCpuFetchPort.cmd.valid #= false
     dut.io.tbCpuFetchPort.rsp.ready #= true
+    dut.io.tbCpuFetchPort.flush #= false
     sram.io.tb_writeEnable #= false
     sram.io.tb_readEnable #= false
     receivedRspQueue.clear()
@@ -120,7 +111,7 @@ class IFUTestHelper(dut: IFUTestBench, enableRspReadyRandomizer: Boolean = true)
     * @param data The entire data for the fetch group (e.g., 64-bit value).
     */
   def sramWriteFetchGroup(baseAddress: BigInt, data: BigInt): Unit = {
-    val fetchGroupWidth = dut.ifuCfgExternal.fetchGroupDataWidth.value
+    val fetchGroupWidth = dut.ifuCfg.fetchGroupDataWidth.value
     val numWords = fetchGroupWidth / sramWordWidth
     val mask = (BigInt(1) << sramWordWidth) - 1
 
@@ -521,7 +512,7 @@ class InstructionFetchUnitSpec extends CustomSpinalSimFunSuite {
       }
   }
 
-  testOnly("IFU_Response_Stalled_By_CPU") {
+  test("IFU_Response_Stalled_By_CPU") {
     val fetchGroupWidthBits = 64
     val instrWidthBits = 32
     val pCfg = createPConfig()

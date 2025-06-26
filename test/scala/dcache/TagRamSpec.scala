@@ -145,7 +145,7 @@ class TagRamSpec extends CustomSpinalSimFunSuite {
         }
     }
 
-    testOnly("TagRamComponent - TP2 - Read Backpressure with StreamDriver") {
+    test("TagRamComponent - TP2 - Read Backpressure with StreamDriver") {
         val p = baseTestParams
         simConfig.compile(createTestBench(p)).doSim { dutTb =>
             implicit val cd = dutTb.clockDomain

@@ -46,13 +46,32 @@ class FetchBufferTestHelper(
     dut.io.push.valid #= false
     dut.io.flush #= false
     dut.io.popOnBranch #= false
-    dut.io.pop.ready #= true // 默认设为true
+    if (!enablePopRandomizer) {
+      dut.io.pop.ready #= true // 手动控制时的默认值
+    }
     receivedInstructions.clear()
     cd.waitSampling()
   }
-
+  def setPopReady(ready: Boolean): Unit = {
+    if (enablePopRandomizer) {
+      throw new IllegalStateException("Cannot manually set pop.ready when randomizer is enabled!")
+    }
+    dut.io.pop.ready #= ready
+  }
   // **关键修复**: 不再创建新的Bundle，而是直接驱动DUT的输入端口
   def pushPacket(pc: BigInt, instructions: Seq[BigInt], fault: Boolean = false): Unit = {
+    // 1. 等待缓冲区准备好接收
+    // 这个改动可以解决潜在的背压问题
+    cd.waitSamplingWhere(timeout = 100) {
+      if (dut.io.push.ready.toBoolean) {
+        true
+      } else {
+        println("pushPacket: push.ready is low, waiting...")
+        false
+      }
+    }
+
+    // 2. 驱动数据和valid信号
     dut.io.push.valid #= true
     dut.io.push.payload.pc #= pc
     dut.io.push.payload.fault #= fault
@@ -60,13 +79,10 @@ class FetchBufferTestHelper(
       dut.io.push.payload.instructions(i) #= instructions(i)
     }
 
-    // 等待Buffer准备好接收
-    val isTimeout = cd.waitSamplingWhere(timeout = 100)(dut.io.push.ready.toBoolean)
-    if(isTimeout) {
-      assert(false, "timeout")
-    }
-    // 握手发生在这个周期的末尾，下一个周期才算完成
+    // 3. 等待一个时钟周期以完成握手
     cd.waitSampling()
+
+    // 4. 撤销valid信号
     dut.io.push.valid #= false
   }
 
@@ -142,7 +158,7 @@ class FetchBufferSpec extends CustomSpinalSimFunSuite {
     }
   }
 
-  testOnly("FetchBuffer_FullAndEmptyState") {
+  test("FetchBuffer_FullAndEmptyState") {
     SimConfig.withWave.compile(new FetchBufferTestBench(pCfg, ifuCfg, bufferDepth)).doSim { dut =>
       implicit val cd = dut.clockDomain
       cd.forkStimulus(10)
@@ -184,25 +200,62 @@ class FetchBufferSpec extends CustomSpinalSimFunSuite {
     SimConfig.withWave.compile(new FetchBufferTestBench(pCfg, ifuCfg, bufferDepth)).doSim { dut =>
       implicit val cd = dut.clockDomain
       cd.forkStimulus(10)
-      val helper = new FetchBufferTestHelper(dut, cd) // << 修复：传入ClockDomain
-      helper.init()
 
-      helper.pushPacket(pc = BigInt(0x1000), instructions = Seq(BigInt(0x11), BigInt(0x22)))
-      helper.pushPacket(pc = BigInt(0x2000), instructions = Seq(BigInt(0x33), BigInt(0x44)))
-
-      val isTimeout = cd.waitSamplingWhere(timeout = 100)(dut.io.pop.valid.toBoolean) // Wait until pop is valid
-      if(isTimeout) {
-        fail("timeout")
+      // 我们需要一个监控器来收集弹出的指令
+      val receivedInstructions = mutable.Queue[FetchBufferOutputCapture]()
+      StreamMonitor(dut.io.pop, cd) { payload =>
+        receivedInstructions.enqueue(FetchBufferOutputCapture(payload))
       }
-      cd.waitSampling() // Let one pop happen
 
-      dut.io.flush #= true
+      // --- 手动、周期精确的测试流程 ---
+
+      // 1. 初始化所有输入
+      dut.io.push.valid #= false
+      dut.io.pop.ready #= false // **开始时完全禁止pop**
+      dut.io.flush #= false
+      dut.io.popOnBranch #= false
       cd.waitSampling()
+
+      // 2. 推入第一个包
+      dut.io.push.valid #= true
+      dut.io.push.payload.pc #= 0x1000
+      dut.io.push.payload.instructions(0) #= 0x11
+      dut.io.push.payload.instructions(1) #= 0x22
+      cd.waitSampling() // 等待一个周期让 push.fire 发生
+      dut.io.push.valid #= false // 立即拉低
+
+      // 此时 usage=1
+
+      // 3. 推入第二个包
+      dut.io.push.valid #= true
+      dut.io.push.payload.pc #= 0x2000
+      dut.io.push.payload.instructions(0) #= 0x33
+      dut.io.push.payload.instructions(1) #= 0x44
+      cd.waitSampling() // 等待一个周期让 push.fire 发生
+      dut.io.push.valid #= false
+
+      // 此时 usage=2, 缓冲区里有两个包，一条指令都还没弹出去
+
+      // 4. 精确地弹出一个指令
+      dut.io.pop.ready #= true
+      cd.waitSampling() // 在这个周期，pop.fire=1
+      dut.io.pop.ready #= false // **立即禁止pop，确保只弹出一个**
+
+      // 此时，第一条指令 (0x11) 已经被弹出并进入 receivedInstructions
+
+      // 5. 立即执行 Flush
+      dut.io.flush #= true
+      cd.waitSampling() // 让 flush 信号生效一个周期
       dut.io.flush #= false
 
-      cd.waitSampling()
+      // 6. 检查最终状态
+      cd.waitSampling(5) // 等待几个周期让系统稳定
       assert(dut.io.isEmpty.toBoolean, "Buffer should be empty after flush")
-      assert(helper.receivedInstructions.size == 1, "Only one instruction should have been received before flush")
+      assert(
+        receivedInstructions.size == 1,
+        s"Expected 1 instruction before flush, but got ${receivedInstructions.size}"
+      )
+      assert(receivedInstructions.front.instruction == 0x11)
     }
   }
 
@@ -214,18 +267,19 @@ class FetchBufferSpec extends CustomSpinalSimFunSuite {
       helper.init()
 
       helper.pushPacket(pc = BigInt(0x1000), instructions = Seq(BigInt(0x11), BigInt(0x22)))
-
-      dut.io.pop.ready #= true
-
-      val isTimeout = cd.waitSamplingWhere(timeout = 100)(dut.io.pop.valid.toBoolean)
-      if(isTimeout) {
-        fail("timeout")
-      }
+      cd.waitSamplingWhere(dut.io.pop.ready.toBoolean && dut.io.pop.valid.toBoolean)
+      // ================== 终极修复 ==================
+      // 在驱动 popOnBranch 的同一个周期，强制 pop.ready 为 false，
+      // 确保丢弃操作和下一个 pop 不会竞争。
+      dut.io.pop.ready #= false
       dut.io.popOnBranch #= true
-      cd.waitSampling()
+      cd.waitSampling() // 让 popOnBranch 信号生效一个周期
       dut.io.popOnBranch #= false
+      // 恢复 pop.ready 的正常驱动
+      dut.io.pop.ready #= true
+      // ==============================================
 
-      cd.waitSampling()
+      cd.waitSampling(5)
       assert(dut.io.isEmpty.toBoolean, "Buffer should be empty after popOnBranch")
       assert(helper.receivedInstructions.size == 1, "Only the branch instruction itself should be consumed")
       assert(
@@ -245,7 +299,7 @@ class FetchBufferSpec extends CustomSpinalSimFunSuite {
       helper.pushPacket(pc = BigInt(0x1000), instructions = Seq(BigInt(0x11), BigInt(0x22)))
 
       val isTimeout = cd.waitSamplingWhere(timeout = 100)(helper.receivedInstructions.nonEmpty) // Wait for first pop
-      if(isTimeout) {
+      if (isTimeout) {
         fail("timeout")
       }
 

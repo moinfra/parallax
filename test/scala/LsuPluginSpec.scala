@@ -80,7 +80,7 @@ class LsuFullIntegrationTestBench(
       new AguPlugin(lsuCfg, supportPcRel = true),
       new DataCachePlugin(dCacheCfg),
       new LsuPlugin(pCfg, lsuCfg, dCacheParams, lsuCfg.lqDepth, lsuCfg.sqDepth),
-      new SBDataMembusTestPlugin(axiConfig),
+      new TestOnlyMemSystemPlugin(axiConfig),
       // >>> FIX: 使用新的 TestSetupPlugin
       new LsuTestSetupPlugin(
         lsuIoSetup = lsuPort => {
@@ -113,7 +113,7 @@ class LsuFullIntegrationTestBench(
     )
   )
 
-  def getSramHandle(): SimulatedSRAM = framework.getService[SBDataMembusTestPlugin].getSram()
+  def getSramHandle(): SimulatedSRAM = framework.getService[TestOnlyMemSystemPlugin].getSram()
 }
 
 /**

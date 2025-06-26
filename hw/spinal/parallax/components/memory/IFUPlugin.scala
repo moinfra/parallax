@@ -16,6 +16,7 @@ import parallax.utilities.LockedImpl
 import parallax.components.memory.IFetchPort
 import scala.collection.mutable.ArrayBuffer
 import parallax.utilities.ParallaxLogger
+import parallax.components.memory.IFUIO
 
 /** Service provided by the IFUPlugin.
   * The CPU core will request this service to get the instruction fetch port.
@@ -44,17 +45,19 @@ class IFUPlugin(
   }
 
   val setup = create early new Area {
-    val ifu = new InstructionFetchUnit(ifuConfigExternal)
-    private val dcacheService = getService[DataCacheService]
-    private val ifuDCacheLoadPort = dcacheService.newLoadPort(priority = 0)
-    ifu.io.dcacheLoadPort <> ifuDCacheLoadPort
+    val dcacheService = getService[DataCacheService]
+    dcacheService.retain()
+    val ifuDCacheLoadPort = dcacheService.newLoadPort(priority = 0)
   }
 
   val logic = create late new Area {
-    val ifu = setup.ifu
+    val ifu = new InstructionFetchUnit(ifuConfigExternal)
     lock.await()
     assert(ifPorts.length == 1, "No IFetchPort available for IFUPlugin")
     private val ifPort = ifPorts.head
     ifPort <> ifu.io.cpuPort
+
+    ifu.io.dcacheLoadPort <> setup.ifuDCacheLoadPort
+    setup.dcacheService.release()
   }
 }

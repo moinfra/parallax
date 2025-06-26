@@ -29,8 +29,8 @@ case class PipelineConfig(
     val exceptionCodeWidth: BitCount = 8 bits, // Width of the exception code signal
 
     // Configuration for specific Issue Queues (example for ALU IQ)
-    val aluIntIqDepth: Int = 8 // Depth of the ALU Integer IQ
-
+    val aluIntIqDepth: Int = 8, // Depth of the ALU Integer IQ
+    val resetVector: Int = 0x00000000, // Address of reset vector
     // Add other IQ depths as needed, e.g.:
     // val lsuIqDepth: Int = 16
     // val mulIqDepth: Int = 4

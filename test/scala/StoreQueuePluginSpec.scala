@@ -314,7 +314,7 @@
 //   }
 
 //   // -- TEST CASE 1: Complete Lifecycle (使用正确的 StreamDriver.queue) --
-//   testOnly("StoreQueue Complete Lifecycle") {
+//   test("StoreQueue Complete Lifecycle") {
 //     simConfig.compile(new StoreQueueTestBench()).doSim { dut =>
 //       dut.clockDomain.forkStimulus(10)
 //       dut.clockDomain.onActiveEdges {

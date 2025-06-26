@@ -47,6 +47,9 @@ case class FetchBufferIo(pCfg: PipelineConfig, ifuCfg: InstructionFetchUnitConfi
   }
 }
 
+// filename: 
+// filename: parallax/components/fetch/FetchBuffer.scala
+
 // filename: parallax/components/fetch/FetchBuffer.scala
 
 class FetchBuffer(
@@ -68,86 +71,102 @@ class FetchBuffer(
   }
   val buffer = Mem(BufferSlot(), depth)
 
-  // --- 循环队列指针 ---
+  // --- 循环队列指针和状态 ---
   val pushPtr = Counter(depth)
   val popPtr = Counter(depth)
   val usage = Reg(UInt(log2Up(depth + 1) bits)) init (0)
-
-  // --- 指令内的读指针 ---
   val instReadPtr = Reg(UInt(instIdxWidth bits)) init (0)
 
   // --- 状态信号 ---
   io.isEmpty := usage === 0
   io.isFull := usage === depth
 
-  // --- Push 逻辑 ---
-  io.push.ready := !io.isFull
+  // --- Push/Pop 事件 ---
+  val instReadPtrMax = U(ifuCfg.instructionsPerFetchGroup - 1, instReadPtr.getWidth bits)
+  
+  io.push.ready := (usage =/= depth)
   val pushing = io.push.fire
-  val popping = io.pop.fire && (usage =/= 0)
-  val branchDiscard = (usage =/= 0) && io.popOnBranch
-  val isLastInstInPacket = instReadPtr === (ifuCfg.instructionsPerFetchGroup - 1)
-  val packetConsumed = popping && isLastInstInPacket
 
-  when(pushing) {
-    val newSlot = BufferSlot()
-    newSlot.pc := io.push.payload.pc
-    newSlot.data := io.push.payload.instructions
-    newSlot.fault := io.push.payload.fault
-    buffer.write(pushPtr.value, newSlot)
-    ParallaxSim.log(L"[FetchBuffer] PUSHED packet for PC=0x${io.push.payload.pc} to slot ${pushPtr.value}. Usage: ${usage + 1}")
-  }
+  io.pop.valid := (usage =/= 0)
+  val popping = io.pop.fire
 
-  // --- Pop 逻辑 ---
-  val canPop = usage =/= 0
+  // --- 输出组合逻辑 ---
   val currentPacket = buffer.readAsync(popPtr.value)
   val currentPc = currentPacket.pc + (instReadPtr << log2Up(pCfg.dataWidth.value / 8)).resized
   val currentInstruction = currentPacket.data(instReadPtr)
 
-  io.pop.valid := canPop
   io.pop.payload.pc := currentPc
   io.pop.payload.instruction := currentInstruction
   io.pop.payload.isFirstInGroup := (instReadPtr === 0)
   io.pop.payload.hasFault := currentPacket.fault
 
-  // =========================================================
-  //  控制与指针更新逻辑 (V3 核心改进)
-  // =========================================================
+  // ====================== 核心逻辑修复 ======================
+  // --- 定义独立的消耗/丢弃条件 ---
+
+  // 条件1: 正常弹出一个 slot 的最后一条指令
+  val slotNormallyConsumed = popping && (instReadPtr === instReadPtrMax)
+
+  // 条件2: 丢弃当前 slot (因分支)，此操作独立于 pop.fire
+  // 只要 popOnBranch 为高，并且缓冲区非空，就执行丢弃
+  val slotDiscardedOnBranch = io.popOnBranch && (usage > 0)
+
+  // 任何一个条件满足，都意味着一个 slot 被消耗/丢弃了
+  val slotConsumedOrDiscarded = slotNormallyConsumed || slotDiscardedOnBranch
+
+  // --- Flush 优先 ---
   when(io.flush) {
     pushPtr.clear()
     popPtr.clear()
     usage := 0
     instReadPtr := 0
-    ParallaxSim.log(L"[FetchBuffer] FLUSH received. All pointers and usage cleared.")
   } otherwise {
-    // 优先级 2: Pop on Branch (丢弃当前包)
-    when(branchDiscard) {
+    // 1. usage 更新
+    // 注意：这里的 pushing 和 slotConsumedOrDiscarded 是互斥的吗？
+    // 一个周期内，可能既 pushing，又 slotDiscardedOnBranch。
+    // 所以，需要分别计算增量和减量。
+    val usageWillIncrement = pushing
+    val usageWillDecrement = slotConsumedOrDiscarded
+    
+    when(usageWillIncrement && !usageWillDecrement) {
+      usage := usage + 1
+    } .elsewhen(!usageWillIncrement && usageWillDecrement) {
+      usage := usage - 1
+    } // 如果同时发生或都不发生，usage 不变
+
+    // 2. Pop 指针更新
+    when(slotConsumedOrDiscarded) {
+      // 无论是正常消耗还是分支丢弃，都移动到下一个 slot
       popPtr.increment()
-      usage := Mux(pushing, usage, usage - 1)
       instReadPtr := 0
-      ParallaxSim.log(L"[FetchBuffer] POP_ON_BRANCH. Discarding rest of packet in slot ${popPtr.value}.")
-    } otherwise {
-      // 优先级 3: 正常的Push/Pop行为
-      when(pushing && !io.isFull) {
-        pushPtr.increment()
-      }
-      when(packetConsumed) {
-        popPtr.increment()
-      }
-      // usage只在此处赋值
-      val nextUsage = usage + (pushing.asUInt - (popping && !branchDiscard).asUInt)
-      usage := nextUsage
-      // instReadPtr只在此处赋值
-      when(popping && !branchDiscard) {
-        when(isLastInstInPacket) {
-          instReadPtr := 0
-        } otherwise {
-          when(instReadPtr =/= (ifuCfg.instructionsPerFetchGroup - 1)) {
-            instReadPtr := instReadPtr + 1
-          }
-        }
-      }
+    } .elsewhen(popping) {
+      // 只有在没有消耗/丢弃整个 slot 的情况下，才在 slot 内部移动
+      instReadPtr := instReadPtr + 1
+    }
+
+    // 3. Push 指针和写操作
+    when(pushing) {
+      val newSlot = BufferSlot()
+      newSlot.pc := io.push.payload.pc
+      newSlot.data := io.push.payload.instructions
+      newSlot.fault := io.push.payload.fault
+      buffer.write(pushPtr.value, newSlot)
+      pushPtr.increment()
     }
   }
+  // =========================================================
+
+  // --- 详细日志 ---
+  // 为了调试，我们把新信号也加到日志里
+  ParallaxSim.log(
+    Seq(
+      L"[[FB]] ",
+      L"push(v=${io.push.valid},r=${io.push.ready},fire=${pushing}) ",
+      L"pop(v=${io.pop.valid},r=${io.pop.ready},fire=${popping}) ",
+      L"flush=${io.flush} popOnBranch=${io.popOnBranch} | ",
+      L"State(usage=${usage}, pushPtr=${pushPtr.value}, popPtr=${popPtr.value}, instReadPtr=${instReadPtr}) | ",
+      L"Conditions(consumed=${slotNormallyConsumed}, discarded=${slotDiscardedOnBranch})"
+    )
+  )
 
   if (GenerationFlags.simulation) {
     assert(!(io.push.fire && io.isFull), "Push to a full FetchBuffer is not allowed!")

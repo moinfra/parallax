@@ -551,7 +551,7 @@ class BasicICacheSpec extends CustomSpinalSimFunSuite {
   }
 
   // T2.1: Filling All Ways in a Set, then Hit
-  testOnly("T2.1 - Filling All Ways in a Set, then Hit") {
+  test("T2.1 - Filling All Ways in a Set, then Hit") {
     val lineSizeBytes = 32
     val coreDataWidth = 32 bits
     val ways = 4 // 测试 4 路组相联
@@ -940,7 +940,7 @@ class BasicICacheSpec extends CustomSpinalSimFunSuite {
   }
 
   // T3.1: Flush Empty Cache
-  testOnly("T3.1 - Flush Empty Cache") {
+  test("T3.1 - Flush Empty Cache") {
     val lineSizeBytes = 32
     val coreDataWidth = 32 bits
     val ways = 2
@@ -1037,7 +1037,7 @@ class BasicICacheSpec extends CustomSpinalSimFunSuite {
   }
 
   // T3.2: Flush Partially Filled Cache
-  testOnly("T3.2 - Flush Partially Filled Cache") {
+  test("T3.2 - Flush Partially Filled Cache") {
     val lineSizeBytes = 32
     val coreDataWidth = 32 bits
     val ways = 2

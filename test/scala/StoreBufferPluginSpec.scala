@@ -81,7 +81,7 @@ class StoreBufferTestConnectionPlugin(
 /** This plugin provides a concrete memory system implementation (a simulated SRAM)
   * for the DataCache to connect to via the DBusService.
   */
-class SBDataMembusTestPlugin(axiConfig: Axi4Config) extends Plugin with DBusService {
+class TestOnlyMemSystemPlugin(axiConfig: Axi4Config) extends Plugin with DBusService {
   val hw = create early new Area {
     private val sramSize = BigInt("4000", 16) // 16 KiB
     private val extSramCfg = ExtSRAMConfig(
@@ -125,12 +125,12 @@ class StoreBufferFullIntegrationTestBench(
       new ROBPlugin[RenamedUop](pCfg, HardType(RenamedUop(pCfg)), () => RenamedUop(pCfg).setDefault()),
       new DataCachePlugin(dCacheCfg),
       new StoreBufferPlugin(pCfg, lsuCfg, dCacheParams, sbDepth),
-      new SBDataMembusTestPlugin(axiConfig),
+      new TestOnlyMemSystemPlugin(axiConfig),
       new StoreBufferTestConnectionPlugin(io, pCfg, dCacheCfg)
     )
   )
 
-  def getSramHandle(): SimulatedSRAM = framework.getService[SBDataMembusTestPlugin].getSram()
+  def getSramHandle(): SimulatedSRAM = framework.getService[TestOnlyMemSystemPlugin].getSram()
 }
 
 /** Defines the IO bundle for the testbench, exposing all necessary control and
