@@ -5,7 +5,7 @@ import spinal.lib._
 
 class SimulatedSRAM(val config: ExtSRAMConfig) extends Component {
   val prefix = this.getClass.getName.replace("$", "")
-  val enableLog = true
+  val enableLog = false
   val init = false
   val io = new Bundle {
     val ram = slave(ExtSRAMIo(config))

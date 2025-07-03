@@ -30,7 +30,8 @@ case class PipelineConfig(
 
     // Configuration for specific Issue Queues (example for ALU IQ)
     val aluIntIqDepth: Int = 8, // Depth of the ALU Integer IQ
-    val resetVector: Int = 0x00000000, // Address of reset vector
+    val resetVector: BigInt = 0x00000000, // Address of reset vector
+    val bpuTransactionIdWidth: BitCount = 3 bits,
     // Add other IQ depths as needed, e.g.:
     // val lsuIqDepth: Int = 16
     // val mulIqDepth: Int = 4

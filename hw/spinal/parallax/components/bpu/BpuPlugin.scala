@@ -9,8 +9,8 @@ import parallax.utilities.Plugin
 import parallax.utilities.ParallaxSim
 
 case class BpuPluginConfig(
-    phtDepth: Int = 4096,
-    btbDepth: Int = 512,
+    phtDepth: Int = 1024,
+    btbDepth: Int = 256,
     enableLog: Boolean = false
 ) {
   require(isPow2(phtDepth), "PHT depth must be a power of 2")
@@ -54,9 +54,11 @@ class BpuPipelinePlugin(
     //  查询流水线 (Query Pipeline)
     // =================================================================
 
-    val Q_PC = Stageable(UInt(pCfg.pcWidth))
+  val Q_PC = Stageable(UInt(pCfg.pcWidth))
     val IS_TAKEN = Stageable(Bool())
     val TARGET_PC = Stageable(UInt(pCfg.pcWidth))
+    // Stageable to carry the transaction ID through the query pipeline.
+    val TRANSACTION_ID = Stageable(UInt(pCfg.bpuTransactionIdWidth))
 
     val queryPipe = new Pipeline()
     val s1_read = queryPipe.newStage()
@@ -65,11 +67,15 @@ class BpuPipelinePlugin(
 
     s1_read.valid := queryPortIn.valid
     s1_read(Q_PC) := queryPortIn.payload.pc
+    // +++ ADDED +++
+    // Capture the transaction ID in the first stage.
+    s1_read(TRANSACTION_ID) := queryPortIn.payload.transactionId
 
     if (enableLog) {
       when(s1_read.isFiring) {
         ParallaxSim.debug(
-          L"[BPU.S1] Query Firing for PC=0x${(s1_read(Q_PC))}, PHT Idx=0x${(phtIndex(s1_read(Q_PC)))}, BTB Idx=0x${(btbIndex(s1_read(Q_PC)))}"
+          // --- CHANGED --- (Added TID to log)
+          L"[BPU.S1] Query Firing for PC=0x${(s1_read(Q_PC))}, TID=${s1_read(TRANSACTION_ID)}, PHT Idx=0x${(phtIndex(s1_read(Q_PC)))}, BTB Idx=0x${(btbIndex(s1_read(Q_PC)))}"
         )
       }
     }
@@ -90,7 +96,8 @@ class BpuPipelinePlugin(
     if (enableLog) {
       when(s2_predict.isFiring) {
         ParallaxSim.debug(
-          L"[BPU.S2] Predict Firing for PC=0x${(s2_pc)} | PHT Readout=${s2_phtReadout} -> Predict=${phtPrediction} | BTB Readout: valid=${s2_btbReadout.valid} tag_match=${s2_btbReadout.tag === btbTag(
+          // --- CHANGED --- (Added TID to log)
+          L"[BPU.S2] Predict Firing for PC=0x${(s2_pc)}, TID=${s2_predict(TRANSACTION_ID)} | PHT Readout=${s2_phtReadout} -> Predict=${phtPrediction} | BTB Readout: valid=${s2_btbReadout.valid} tag_match=${s2_btbReadout.tag === btbTag(
               s2_pc
             )} -> Hit=${btbHit} | Final Predict: isTaken=${s2_predict(IS_TAKEN)} target=0x${(s2_predict(TARGET_PC))}"
         )
@@ -109,7 +116,7 @@ class BpuPipelinePlugin(
 
     u1_read.driveFrom(updatePortIn)
     u1_read(U_PAYLOAD) := updatePortIn.payload
-    ParallaxSim.debugStage(u1_read)
+    // ParallaxSim.debugStage(u1_read)
     if (enableLog) {
       when(u1_read.isFiring) {
         ParallaxSim.debug(
@@ -206,7 +213,8 @@ class BpuPipelinePlugin(
     responseFlowOut.valid := s2_predict.isValid
     responseFlowOut.payload.isTaken := s2_predict(IS_TAKEN)
     responseFlowOut.payload.target := s2_predict(TARGET_PC)
-   
+    responseFlowOut.payload.transactionId := s2_predict(TRANSACTION_ID)
+
     queryPipe.build()
     updatePipe.build()
 

@@ -40,7 +40,8 @@ object LA32RInstrBuilder {
   // Format: opcode[31:26] | offs[25:16] | offs[15:0]
   def b(offset: Int): BigInt = {
     val opcode = "010100"
-    val imm26 = offset & 0x3FFFFFF
+    val wordOffset = offset >> 2
+    val imm26 = wordOffset & 0x3FFFFFF
     val imm15_0 = toBinary((imm26 >> 0), 16)
     val imm25_16 = toBinary((imm26 >> 16), 10)
     fromBinary(s"$opcode$imm25_16$imm15_0")
@@ -49,12 +50,14 @@ object LA32RInstrBuilder {
   // --- BR-Type (Conditional Branch) ---
   // >>> FIX: The field order is opcode, rj, rd, immediate <<<
   // Format: opcode[31:26] | rj[25:21] | rd[20:16] | immediate[15:0]
-  def beq(rj: Int, rd: Int, offset: Int): BigInt = {
+def beq(rj: Int, rd: Int, offset: Int): BigInt = {
     val opcode = "010110"
-    val imm16 = offset & 0xFFFF
-    // Use the corrected field order!
+    val wordOffset = offset >> 2
+    
+    val imm16 = wordOffset & 0xFFFF
     fromBinary(s"$opcode${toBinary(rj, 5)}${toBinary(rd, 5)}${toBinary(imm16, 16)}")
   }
+
 
   // NOP is ADDI.W r0, r0, 0
   def nop(): BigInt = addi_w(0, 0, 0)
@@ -93,12 +96,12 @@ class LA32RInstrBuilderSpec extends AnyFunSuite {
   test("b should correctly encode unconditional jumps") {
     // >>> Corrected Expected Value
     val inst1 = LA32RInstrBuilder.b(offset = 16)
-    assertHex(inst1, "50000010", "B with positive offset")
+    assertHex(inst1, "14000004", "B with positive offset")
   }
 
   test("beq should correctly encode conditional branches") {
     // >>> Corrected Expected Value
     val inst1 = LA32RInstrBuilder.beq(rj = 1, rd = 2, offset = 32)
-    assertHex(inst1, "58220020", "BEQ with positive offset")
+    assertHex(inst1, "15840008", "BEQ with positive offset")
   }
 }

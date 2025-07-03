@@ -415,7 +415,7 @@ case class DataCacheParameters(
     tagsReadAsync: Boolean = true, // Tag是否异步读取
     reducedBankWidth: Boolean = false, // 数据bank是否使用缩减宽度
     transactionIdWidth: Int = 0,        // 事务ID的位宽
-    val enableLog: Boolean = true // 是否启用日志
+    val enableLog: Boolean = false // 是否启用日志
 ) {
   // memParameter：生成 DataMemBusParameter，用于创建主存总线接口。
   def memParameter = DataMemBusParameter(
@@ -1135,7 +1135,7 @@ class DataCache(val p: DataCacheParameters) extends Component {
       translatedStage(ADDRESS_POST_TRANSLATION) := io.load.translated.physical // 翻译后地址
       translatedStage(ABORD) := io.load.translated.abord // 终止标志
       when(translatedStage.isValid) {
-        ParallaxSim.log(L"[DCache] Load: Translated address 0x${translatedStage(ADDRESS_POST_TRANSLATION)}, abord ${translatedStage(ABORD)}")
+   if(enableLog)      ParallaxSim.log(L"[DCache] Load: Translated address 0x${translatedStage(ADDRESS_POST_TRANSLATION)}, abord ${translatedStage(ABORD)}")
       }
 
 
@@ -1151,7 +1151,7 @@ class DataCache(val p: DataCacheParameters) extends Component {
           // 命中判断：Tag已加载且Tag地址与翻译后地址的Tag部分匹配。
           WAYS_HITS(wayId) := WAYS_TAGS(wayId).loaded && WAYS_TAGS(wayId).address === ADDRESS_POST_TRANSLATION(tagRange)
           when(isValid) {
-            ParallaxSim.log(L"[DCache] Load: Way ${wayId} Tag read: loaded ${WAYS_TAGS(wayId).loaded}, address 0x${WAYS_TAGS(wayId).address}, hit ${WAYS_HITS(wayId)}")
+if(enableLog)             ParallaxSim.log(L"[DCache] Load: Way ${wayId} Tag read: loaded ${WAYS_TAGS(wayId).loaded}, address 0x${WAYS_TAGS(wayId).address}, hit ${WAYS_HITS(wayId)}")
           }
         }
       }
@@ -1160,7 +1160,7 @@ class DataCache(val p: DataCacheParameters) extends Component {
         import hitStage._; // 导入最终命中阶段的信号
         WAYS_HIT := B(WAYS_HITS).orR // 最终命中标志
         when(isValid) {
-          ParallaxSim.log(L"[DCache] Load: Final hit decision: ${WAYS_HIT.asBits}, ways hits: ${WAYS_HITS.asBits}")
+          if(enableLog) ParallaxSim.log(L"[DCache] Load: Final hit decision: ${WAYS_HIT.asBits}, ways hits: ${WAYS_HITS.asBits}")
         }
       }
 
@@ -1285,9 +1285,9 @@ class DataCache(val p: DataCacheParameters) extends Component {
       REFILL_SLOT := REFILL_HITS.andMask(!refillLoaded) | refill.free.andMask(askRefill)
 
       when(isValid) {
-        ParallaxSim.log(L"[DCache] Load: Control stage - WAYS_HIT: ${WAYS_HIT.asBits}, MISS: ${MISS.asBits}, REDO: ${REDO.asBits}, FAULT: ${FAULT.asBits}")
-        ParallaxSim.log(L"  RefillHit: ${refillHit}, LineBusy: ${lineBusy}, BankBusy: ${bankBusy}, WaysHitHazard: ${waysHitHazard}")
-        ParallaxSim.log(L"  CanRefill: ${canRefill}, AskRefill: ${askRefill}, StartRefill: ${startRefill}")
+if(enableLog)         ParallaxSim.log(L"[DCache] Load: Control stage - WAYS_HIT: ${WAYS_HIT.asBits}, MISS: ${MISS.asBits}, REDO: ${REDO.asBits}, FAULT: ${FAULT.asBits}")
+if(enableLog)         ParallaxSim.log(L"  RefillHit: ${refillHit}, LineBusy: ${lineBusy}, BankBusy: ${bankBusy}, WaysHitHazard: ${waysHitHazard}")
+if(enableLog)         ParallaxSim.log(L"  CanRefill: ${canRefill}, AskRefill: ${askRefill}, StartRefill: ${startRefill}")
       }
     }
 

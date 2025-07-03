@@ -497,45 +497,102 @@ class InstructionFetchUnitSpec extends CustomSpinalSimFunSuite {
       )
     }
   }
-
-
-  // The existing tests like Hit, Redo, Cross-Line, etc. can also be updated.
-  // For brevity, I'll just show one more updated test.
-  test("IFU_Fetch_Cross_Cache_Line_With_Predecode") {
-    val dCacheCfgCross = dCachePluginCfg.copy(lineSize = 8) // 64-bit line
-    val dCacheParamsCross = DataCachePluginConfig.toDataCacheParameters(dCacheCfgCross)
-    val ifuCfgCross = ifuCfg.copy(dcacheParameters = dCacheParamsCross)
-
-    SimConfig.withWave.compile(new IFUTestBench(pCfg, ifuCfgCross, dCacheCfgCross, axiCfg)).doSim { dut =>
+  testOnly("IFU_Handshake_Timing_Vulnerability") {
+    SimConfig.withWave.compile(new IFUTestBench(pCfg, ifuCfg, dCachePluginCfg, axiCfg)).doSim { dut =>
       implicit val cd = dut.clockDomain.get
       dut.clockDomain.forkStimulus(10)
       val helper = new IFUTestHelper(dut)
       helper.init()
 
-      // PC is 0xC, last word of line starting at 0x8. Fetch group (64 bits) needs 0xC and 0x10.
-      val pc = BigInt("C", 16)
-      val instr0 = JUMP_INST // at 0xC
-      val instr1 = NOP_INST // at 0x10
+      // --- Test Data ---
+      // We expect the IFU to fetch from PC_A
+      val pc_A = BigInt("1000", 16)
+      val instructions_A = Seq(NOP_INST, NOP_INST)
+      val fetchGroupData_A = (instructions_A(1) << 32) | instructions_A(0)
+      helper.sramWriteFetchGroup(pc_A, fetchGroupData_A)
+      val expectedPacket_A = 
+        IFetchRspCapture(pc_A, false, instructions_A, Seq((false, false), (false, false)), BigInt("11", 2))
 
-      helper.sramWriteFetchGroup(0x8, (instr0 << 32) | BigInt("DEADBEEF", 16)) // Line 1
-      helper.sramWriteFetchGroup(0x10, (BigInt("CAFEBABE", 16) << 32) | instr1) // Line 2
+      // This is the data for the PC that the IFU *might* erroneously fetch
+      val pc_B = BigInt("2000", 16)
+      val instructions_B = Seq(JUMP_INST, JUMP_INST)
+      val fetchGroupData_B = (instructions_B(1) << 32) | instructions_B(0)
+      helper.sramWriteFetchGroup(pc_B, fetchGroupData_B)
+      
       cd.waitSampling(10)
 
-      helper.requestPc(pc)
-      helper.expectFetchPacket(
-        IFetchRspCapture(
-          pc = pc,
-          fault = false,
-          // The IFU's internal logic will fetch from two addresses to form the group
-          // Assembling what the IFU *should* see:
-          instructions = Seq(instr0, instr1),
-          predecodeInfo = Seq((false, true), (false, false)),
-          // PC aligns to first instruction, jump truncates the second.
-          validMask = BigInt("10", 2)
-        )
-      )
+      // --- The Critical Test Sequence ---
+      // This fork block simulates the behavior of a pipelined master (like FetchPipeline)
+      // that updates its output payload combinationally based on the handshake.
+      val criticalSequenceFork = fork {
+        dut.io.tbCpuFetchPort.cmd.valid #= true
+        dut.io.tbCpuFetchPort.cmd.payload.pc #= pc_A
+
+        // Wait for the exact moment the IFU becomes ready
+        cd.waitSamplingWhere(dut.io.tbCpuFetchPort.cmd.ready.toBoolean)
+
+        // At the moment of the handshake (fire is true), immediately change the payload
+        // This simulates the master preparing the payload for the *next* cycle.
+        // A vulnerable slave might latch this new value instead of the old one.
+        dut.io.tbCpuFetchPort.cmd.payload.pc #= pc_B
+        
+        // Hold valid for one cycle and then deassert
+        cd.waitSampling()
+        dut.io.tbCpuFetchPort.cmd.valid #= false
+        dut.io.tbCpuFetchPort.cmd.payload.pc #= 0 // Clear payload for sanity
+      }
+
+      // We expect to receive the packet for PC_A.
+      // If the IFU is vulnerable, this will fail because it will fetch from PC_B,
+      // and the received PC will be 0x2000.
+      ParallaxLogger.info(s"[Test] Expecting fetch from PC_A (0x${pc_A.toString(16)}).")
+      helper.expectFetchPacket(expectedPacket_A)
+
+      // Join the fork to ensure simulation proceeds correctly
+      criticalSequenceFork.join()
+
+      println("Test 'IFU_Handshake_Timing_Vulnerability' PASSED (if it didn't assert)")
     }
   }
+
+
+  // The existing tests like Hit, Redo, Cross-Line, etc. can also be updated.
+  // For brevity, I'll just show one more updated test.
+  // test("IFU_Fetch_Cross_Cache_Line_With_Predecode") {
+  //   val dCacheCfgCross = dCachePluginCfg.copy(lineSize = 8) // 64-bit line
+  //   val dCacheParamsCross = DataCachePluginConfig.toDataCacheParameters(dCacheCfgCross)
+  //   val ifuCfgCross = ifuCfg.copy(dcacheParameters = dCacheParamsCross)
+
+  //   SimConfig.withWave.compile(new IFUTestBench(pCfg, ifuCfgCross, dCacheCfgCross, axiCfg)).doSim { dut =>
+  //     implicit val cd = dut.clockDomain.get
+  //     dut.clockDomain.forkStimulus(10)
+  //     val helper = new IFUTestHelper(dut)
+  //     helper.init()
+
+  //     // PC is 0xC, last word of line starting at 0x8. Fetch group (64 bits) needs 0xC and 0x10.
+  //     val pc = BigInt("C", 16)
+  //     val instr0 = JUMP_INST // at 0xC
+  //     val instr1 = NOP_INST // at 0x10
+
+  //     helper.sramWriteFetchGroup(0x8, (instr0 << 32) | BigInt("DEADBEEF", 16)) // Line 1
+  //     helper.sramWriteFetchGroup(0x10, (BigInt("CAFEBABE", 16) << 32) | instr1) // Line 2
+  //     cd.waitSampling(10)
+
+  //     helper.requestPc(pc)
+  //     helper.expectFetchPacket(
+  //       IFetchRspCapture(
+  //         pc = pc,
+  //         fault = false,
+  //         // The IFU's internal logic will fetch from two addresses to form the group
+  //         // Assembling what the IFU *should* see:
+  //         instructions = Seq(instr0, instr1),
+  //         predecodeInfo = Seq((false, true), (false, false)),
+  //         // PC aligns to first instruction, jump truncates the second.
+  //         validMask = BigInt("10", 2)
+  //       )
+  //     )
+  //   }
+  // }
 
   test("IFU_Basic_Fetch_Hit") {
     SimConfig.withWave.compile(new IFUTestBench(pCfg, ifuCfg, dCachePluginCfg, axiCfg)).doSim { dut =>

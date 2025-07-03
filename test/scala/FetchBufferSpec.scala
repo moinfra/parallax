@@ -100,7 +100,10 @@ class FetchBufferTestHelper(
       validMask: BigInt = -1,
       predecode: Seq[(Boolean, Boolean)] = null // Default to non-control-flow
   ): Unit = {
+    ParallaxLogger.debug(s"[Helper] pushPacket for PC=0x${pc.toString(16)}: Waiting for ready...")
     cd.waitSamplingWhere(timeout = 100) { dut.io.push.ready.toBoolean }
+    ParallaxLogger.debug(s"[Helper] pushPacket for PC=0x${pc.toString(16)}: Got ready. Driving valid.")
+
     dut.io.push.valid #= true
     val payload = dut.io.push.payload
 
@@ -118,6 +121,7 @@ class FetchBufferTestHelper(
 
     cd.waitSampling()
     dut.io.push.valid #= false
+        ParallaxLogger.debug(s"[Helper] pushPacket for PC=0x${pc.toString(16)}: Done.")
   }
 
   def signalPopOnBranch(): Unit = {
@@ -320,7 +324,35 @@ class FetchBufferSpec extends CustomSpinalSimFunSuite {
       assert(dut.io.isEmpty.toBoolean, "Buffer should be empty at the end")
     }
   }
+test("FetchBuffer_IsFull_Timing_Check_Sanitized") {
+    val bufferDepth = 2
+    SimConfig.withWave.compile(new FetchBufferTestBench(ifuCfg, bufferDepth)).doSim { dut =>
+      implicit val cd = dut.clockDomain
+      cd.forkStimulus(10)
+      val helper = new FetchBufferTestHelper(dut, cd, ifuCfg, enablePopRandomizer = false)
+      helper.init()
+      helper.setPopReady(false)
+      
+      // Cycle 1: Push first packet
+      dut.io.push.valid #= true
+      dut.io.push.payload.pc #= 0x1000
+      cd.waitSampling() // usage becomes 1
+      
+      // Cycle 2: Push second packet
+      dut.io.push.payload.pc #= 0x2000
+      cd.waitSampling() // usage becomes 2
+      
+      // Cycle 3: Deassert valid and check
+      dut.io.push.valid #= false
+      cd.waitSampling()
 
+      // After two full push cycles, usage MUST be 2.
+      assert(dut.io.isFull.toBoolean, "Buffer must be full after two push cycles.")
+      assert(!dut.io.push.ready.toBoolean, "Buffer must not be ready when full.")
+      
+      println("Test 'FetchBuffer_IsFull_Timing_Check_Sanitized' PASSED")
+    }
+  }
   thatsAll
 
 }

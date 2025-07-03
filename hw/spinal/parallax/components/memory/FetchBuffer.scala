@@ -10,7 +10,7 @@ import parallax.utilities._
 // case class FetchBufferOutputCapture(...)
 
 // IO 定义更新: pop 的 payload 现在是 IFetchRsp
-case class FetchBufferIo(ifuCfg: InstructionFetchUnitConfig) extends Bundle with IMasterSlave {
+case class FetchBufferIo(ifuCfg: InstructionFetchUnitConfig) extends Bundle with IMasterSlave{
   // push 和 pop 的数据类型对称，都是一个取指响应包
   val push = slave Stream (IFetchRsp(ifuCfg))
   val pop = master Stream (IFetchRsp(ifuCfg))
@@ -24,6 +24,8 @@ case class FetchBufferIo(ifuCfg: InstructionFetchUnitConfig) extends Bundle with
     out(push, flush, popOnBranch)
     in(isEmpty, isFull)
   }
+
+
 }
 
 /**
@@ -89,6 +91,25 @@ class FetchBuffer(
     popPtr.clear()
     usage := 0
   } otherwise {
+
+  // +++ START: 增加诊断日志 +++
+  val usageWillUpdate = pushing =/= headConsumed
+  val usageWillIncrement = usageWillUpdate && pushing
+  val usageWillDecrement = usageWillUpdate && !pushing
+
+  ParallaxSim.debug(
+    Seq(
+      L"[[FB-DBG]] Usage Logic | ",
+      L"pushing=${pushing} ",
+      L"popping=${popping} ",
+      L"discardingOnBranch=${discardingOnBranch} ",
+      L"-> headConsumed=${headConsumed} | ",
+      L"cond(pushing =/= headConsumed)=${usageWillUpdate} | ",
+      L"usage_in=${usage} -> will_inc=${usageWillIncrement}, will_dec=${usageWillDecrement}"
+    )
+  )
+  // +++ END: 增加诊断日志 +++
+
     // 1. usage 更新
     // 根据推入和消耗事件更新计数器
     // - pushing 和 headConsumed 可能同时发生，此时 usage 不变
@@ -117,16 +138,16 @@ class FetchBuffer(
   // =========================================================
 
   // --- 详细日志 ---
-  ParallaxSim.log(
-    Seq(
-      L"[[FB]] ",
-      L"push(v=${io.push.valid},r=${io.push.ready},fire=${pushing}) ",
-      L"pop(v=${io.pop.valid},r=${io.pop.ready},fire=${popping}) ",
-      L"flush=${io.flush} popOnBranch=${io.popOnBranch} | ",
-      L"State(usage=${usage}, pushPtr=${pushPtr.value}, popPtr=${popPtr.value}) | ",
-      L"Conditions(headConsumed=${headConsumed}, discardingOnBranch=${discardingOnBranch})"
-    )
-  )
+  // ParallaxSim.log(
+  //   Seq(
+  //     L"[[FB]] ",
+  //     L"push(v=${io.push.valid},r=${io.push.ready},fire=${pushing}) ",
+  //     L"pop(v=${io.pop.valid},r=${io.pop.ready},fire=${popping}) ",
+  //     L"flush=${io.flush} popOnBranch=${io.popOnBranch} | ",
+  //     L"State(usage=${usage}, pushPtr=${pushPtr.value}, popPtr=${popPtr.value}) | ",
+  //     L"Conditions(headConsumed=${headConsumed}, discardingOnBranch=${discardingOnBranch})"
+  //   )
+  // )
 
   if (GenerationFlags.simulation) {
     // 检查：不能在缓冲区满时推入
