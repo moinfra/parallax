@@ -19,18 +19,18 @@ class DispatchPlugin(val pCfg: PipelineConfig) extends Plugin with LockedImpl {
     issuePpl.retain()
     iqService.retain()
 
-    val s2_dispatch = issuePpl.pipeline.s2_Dispatch
-    s2_dispatch(issuePpl.signals.RENAMED_UOPS) // Input
+    val s3_dispatch = issuePpl.pipeline.s3_dispatch
+    s3_dispatch(issuePpl.signals.RENAMED_UOPS)
   }
 
   val logic = create late new Area {
     lock.await()
     val issuePpl = setup.issuePpl
     val iqService = setup.iqService
-    val s2_dispatch = issuePpl.pipeline.s2_Dispatch
+    val s3_dispatch = setup.s3_dispatch
     val issueSignals = issuePpl.signals
     
-    val renamedUopIn = s2_dispatch(issueSignals.RENAMED_UOPS)(0)
+    val renamedUopIn = s3_dispatch(issueSignals.ALLOCATED_UOPS)(0)
     val decodedUop = renamedUopIn.decoded
     val robPtr = renamedUopIn.robPtr
 
@@ -40,18 +40,8 @@ class DispatchPlugin(val pCfg: PipelineConfig) extends Plugin with LockedImpl {
     iqPorts.foreach(_.valid := False)
     iqPorts.foreach(_.payload.assignDontCare())
 
-    val driveOutputValid = s2_dispatch.isValid && decodedUop.isValid
+    val driveOutputValid = s3_dispatch.isValid && decodedUop.isValid
 
-    val dispatchOH = B(iqRegistrations.map { case (uopCodes, _) =>
-      uopCodes.map(decodedUop.uopCode === _).orR
-    })
-
-    val iqPortsReady = Vec(iqPorts.map(_.ready))
-    val destinationIqReady = MuxOH(dispatchOH, iqPortsReady)
-    
-    // -- MODIFICATION START: Minimal change to correctly identify "real" operations --
-
-    // 1. Define `isRealOperation` using a robust when/elsewhen chain.
     val isRealOperation = Bool()
     when(decodedUop.uopCode === BaseUopCode.ALU || decodedUop.uopCode === BaseUopCode.SHIFT) {
       isRealOperation := decodedUop.writeArchDestEn
@@ -67,14 +57,13 @@ class DispatchPlugin(val pCfg: PipelineConfig) extends Plugin with LockedImpl {
       isRealOperation := False
     }
 
-    // 2. Correct the `isHandledByIq` calculation.
-    val isHandledByIq = dispatchOH.orR && isRealOperation
-    
-    // -- MODIFICATION END --
+    val dispatchOH = B(iqRegistrations.map { case (uopCodes, _) =>
+      uopCodes.map(decodedUop.uopCode === _).orR
+    })
+    val iqPortsReady = Vec(iqPorts.map(_.ready))
+    val destinationIqReady = MuxOH(dispatchOH, iqPortsReady)
+    val destinationReady = destinationIqReady || !isRealOperation
 
-    val destinationReady = destinationIqReady || !isHandledByIq
-
-    // 3. The driving condition for ports must also respect `isRealOperation`.
     for (((uopCodes, port), i) <- iqRegistrations.zipWithIndex) {
       when(driveOutputValid && dispatchOH(i) && isRealOperation) {
         port.valid := True
@@ -82,11 +71,13 @@ class DispatchPlugin(val pCfg: PipelineConfig) extends Plugin with LockedImpl {
       }
     }
     
-    s2_dispatch.haltWhen(driveOutputValid && !destinationReady)
+    s3_dispatch.haltWhen(driveOutputValid && isRealOperation && !destinationReady)
 
-    when(s2_dispatch.isFiring && decodedUop.isValid) {
+    when(s3_dispatch.isFiring && decodedUop.isValid) {
       ParallaxSim.log(L"DispatchPlugin: Firing robPtr=${robPtr} (UopCode=${decodedUop.uopCode}), isRealOp=${isRealOperation}")
     }
+
+    report(L"DEBUG: s3_dispatch.isFiring=${s3_dispatch.isFiring}, isReady=${s3_dispatch.isReady}, driveOutputValid=${driveOutputValid}, decodedUop.isValid=${decodedUop.isValid}, destinationReady=${destinationReady}")
     
     setup.issuePpl.release()
     setup.iqService.release()

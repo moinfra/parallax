@@ -284,31 +284,32 @@ object ConsoleColor {
 // elaborate 时打印。
 object ParallaxLogger {
   import ConsoleColor._
+  var enabled = false
   def log(foo: String)(implicit line: sourcecode.Line, file: sourcecode.File) = {
-    println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_RESET$foo$ANSI_RESET")
+    if(enabled) println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_RESET$foo$ANSI_RESET")
   }
   def info(foo: String)(implicit line: sourcecode.Line, file: sourcecode.File) = {
-    println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_RESET$foo$ANSI_RESET")
+    if(enabled) println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_RESET$foo$ANSI_RESET")
   }
   def debug(foo: String)(implicit line: sourcecode.Line, file: sourcecode.File) = {
-    println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_BLUE$foo$ANSI_RESET")
+    if(enabled) println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_BLUE$foo$ANSI_RESET")
   }
 
   def warning(foo: String)(implicit line: sourcecode.Line, file: sourcecode.File) = {
-    println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_YELLOW$foo$ANSI_RESET")
+    if(enabled) println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_YELLOW$foo$ANSI_RESET")
   }
 
   def error(foo: String)(implicit line: sourcecode.Line, file: sourcecode.File) = {
-    println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_RED$foo$ANSI_RESET")
+    if(enabled) println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_RED$foo$ANSI_RESET")
   }
 
   def panic(foo: String)(implicit line: sourcecode.Line, file: sourcecode.File) = {
-    println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_RED$foo$ANSI_RESET")
+    if(enabled) println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_RED$foo$ANSI_RESET")
     sys.exit(1)
   }
 
   def success(foo: String)(implicit line: sourcecode.Line, file: sourcecode.File) = {
-    println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_GREEN$foo$ANSI_RESET")
+    if(enabled) println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_GREEN$foo$ANSI_RESET")
   }
 
 }

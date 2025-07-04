@@ -20,9 +20,7 @@ class RenamePlugin(
 
   val early_setup = create early new Area {
     val issuePpl = getService[IssuePipeline]
-    val robService = getService[ROBService[RenamedUop]]
     issuePpl.retain()
-    robService.retain()
 
     val renameUnit = new RenameUnit(pipelineConfig, ratConfig, flConfig)
     val rat = new RenameMapTable(ratConfig)
@@ -39,18 +37,18 @@ class RenamePlugin(
   override def getFreePorts(): Vec[SuperScalarFreeListFreePort] = early_setup.freeList.io.free
   override def newRestorePort(): Stream[SuperScalarFreeListCheckpoint] = early_setup.freeList.io.restoreState
 
+  // --- MODIFICATION START: Simplified logic for Rename-only stage ---
   val logic = create late new Area {
     lock.await()
     val issuePpl = early_setup.issuePpl
     val s1_rename = early_setup.s1_rename
     val issueSignals = issuePpl.signals
-    val robService = early_setup.robService
     
     val renameUnit = early_setup.renameUnit
     val rat = early_setup.rat
     val freeList = early_setup.freeList
 
-    // --- 1. Connect data paths to RenameUnit ---
+    // --- 1. Connect data paths ---
     val decodedUopsIn = s1_rename(issueSignals.DECODED_UOPS)
     renameUnit.io.decodedUopsIn := decodedUopsIn
     
@@ -59,41 +57,31 @@ class RenamePlugin(
     }
     
     rat.io.readPorts <> renameUnit.io.ratReadPorts
-    
     rat.io.writePorts.zip(renameUnit.io.ratWritePorts).foreach { case (ratPort, ruPort) =>
       ratPort.wen     := ruPort.wen && s1_rename.isFiring
       ratPort.archReg := ruPort.archReg
       ratPort.physReg := ruPort.physReg
     }
 
-    // --- 2. Independently check all resource availabilities ---
-    val robAllocPort = robService.getAllocatePorts(pipelineConfig.renameWidth)(0)
-    val notEnoughPhysRegs = freeList.io.numFreeRegs < renameUnit.io.numPhysRegsRequired
-    val robIsFull = !robAllocPort.ready
+    // --- 2. Define HALT condition (only depends on FreeList) ---
+    val willNeedPhysRegs = decodedUopsIn(0).isValid && decodedUopsIn(0).writeArchDestEn
+    val notEnoughPhysRegs = freeList.io.numFreeRegs < Mux(willNeedPhysRegs, U(1), U(0))
+    s1_rename.haltWhen(notEnoughPhysRegs)
 
-    // --- 3. Define the halt condition based *only* on resource availability ---
-    val resourcesNotReady = notEnoughPhysRegs || robIsFull
-    s1_rename.haltWhen(s1_rename.isValid && resourcesNotReady)
-
-    // --- 4. Drive state-changing requests only when firing ---
+    // --- 3. Drive state-changing requests only when firing ---
     val fire = s1_rename.isFiring
-    
     for(i <- 0 until pipelineConfig.renameWidth) {
       val needsReg = renameUnit.io.numPhysRegsRequired > i
       freeList.io.allocate(i).enable := fire && needsReg
     }
+    report(L"DEBUG: s1_rename.isFiring=${s1_rename.isFiring}, decodedUopsIn(0).isValid=${decodedUopsIn(0).isValid}")
 
-    robAllocPort.valid := fire && decodedUopsIn(0).isValid
-    robAllocPort.pcIn  := decodedUopsIn(0).pc
-    val tempUopForRob = RenamedUop(pipelineConfig).setDefault(decoded = decodedUopsIn(0))
-    robAllocPort.uopIn := tempUopForRob
-    
-    // --- 5. Connect outputs ---
-    val finalRenamedUop = RenamedUop(pipelineConfig)
-    finalRenamedUop.initWithRobPtr(renameUnit.io.renamedUopsOut(0), robPtr = robAllocPort.robPtr)
-    s1_rename(issueSignals.RENAMED_UOPS)(0) := finalRenamedUop
+    // --- 4. Connect outputs ---
+    // The output RenamedUop will have a garbage robPtr, which is fine.
+    // It will be overwritten in the next stage.
+    s1_rename(issueSignals.RENAMED_UOPS) := renameUnit.io.renamedUopsOut
     
     issuePpl.release()
-    robService.release()
   }
+  // --- MODIFICATION END --
 }

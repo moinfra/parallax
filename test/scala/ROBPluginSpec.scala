@@ -1,4 +1,5 @@
 // filename: test/scala/ROBPluginSpec.scala
+// testOnly test.scala.ROBPluginSpec
 package test.scala
 
 import org.scalatest.funsuite.AnyFunSuite
@@ -141,12 +142,14 @@ class ROBPluginSpec extends CustomSpinalSimFunSuite {
       robD: Int = 16,
       allocW: Int = 2,
       commitW: Int = 2,
-      numEus: Int = 2
+      numEus: Int = 2,
+      lsuEuCount: Int = 0,
   ) = PipelineConfig(
     robDepth = robD,
     renameWidth = allocW,
     commitWidth = commitW,
-    aluEuCount = numEus
+    aluEuCount = numEus,
+    lsuEuCount = lsuEuCount,
   )
 
   def createDut(tbCfg: TestBenchConfig) = {
