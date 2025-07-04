@@ -23,11 +23,11 @@ class BusyTableTestSetupPlugin(
       setPorts(i) <> testIO.setPorts(i)
     }
     
-    // Connect clear ports  
-    val clearPorts = busyTableService.newClearPort()
-    for (i <- 0 until clearPorts.length) {
-      clearPorts(i) <> testIO.clearPorts(i)
-    }
+    // Connect clear ports - test multiple clear ports
+    val clearPort1 = busyTableService.newClearPort()
+    val clearPort2 = busyTableService.newClearPort()
+    clearPort1 <> testIO.clearPorts(0)
+    clearPort2 <> testIO.clearPorts(1)
     
     // Connect busy bits output
     testIO.busyBitsOut := busyTableService.getBusyBits()
@@ -37,7 +37,7 @@ class BusyTableTestSetupPlugin(
 // Test IO bundle
 case class BusyTableTestIO(pCfg: PipelineConfig) extends Bundle with IMasterSlave {
   val setPorts = Vec(slave(Flow(UInt(pCfg.physGprIdxWidth))), pCfg.renameWidth)
-  val clearPorts = Vec(slave(Flow(UInt(pCfg.physGprIdxWidth))), 1) // Single clear port for now
+  val clearPorts = Vec(slave(Flow(UInt(pCfg.physGprIdxWidth))), 2) // Two clear ports for testing
   val busyBitsOut = out(Bits(pCfg.physGprCount bits))
   
   override def asMaster(): Unit = {
@@ -180,6 +180,46 @@ class BusyTablePluginSpec extends CustomSpinalSimFunSuite {
         tb.clockDomain.waitSampling()
       }
       assert(tb.io.busyBitsOut.toBigInt == 0, "All should be not busy after clear")
+    }
+  }
+
+  test("BusyTable - Multiple Clear Ports") {
+    simConfig.compile(new BusyTableTestBench(pCfg)).doSim { tb =>
+      tb.clockDomain.forkStimulus(2)
+      clearAllPorts(tb)
+      tb.clockDomain.waitSampling()
+      
+      // Set busy for p1, p2, p3
+      setPort(tb, 0, true, 1)
+      setPort(tb, 1, true, 2)
+      tb.clockDomain.waitSampling()
+      setPort(tb, 0, false, 0)
+      setPort(tb, 1, false, 0)
+      tb.clockDomain.waitSampling()
+      
+      // Set busy for p3
+      setPort(tb, 0, true, 3)
+      tb.clockDomain.waitSampling()
+      setPort(tb, 0, false, 0)
+      tb.clockDomain.waitSampling()
+      
+      // Verify all are busy
+      assert((tb.io.busyBitsOut.toBigInt & (1 << 1)) != 0, "p1 should be busy")
+      assert((tb.io.busyBitsOut.toBigInt & (1 << 2)) != 0, "p2 should be busy")
+      assert((tb.io.busyBitsOut.toBigInt & (1 << 3)) != 0, "p3 should be busy")
+      
+      // Clear p1 using port 0, p2 using port 1 in the same cycle
+      clearPort(tb, 0, true, 1)
+      clearPort(tb, 1, true, 2)
+      tb.clockDomain.waitSampling()
+      clearPort(tb, 0, false, 0)
+      clearPort(tb, 1, false, 0)
+      tb.clockDomain.waitSampling()
+      
+      // Verify p1 and p2 are cleared, p3 is still busy
+      assert((tb.io.busyBitsOut.toBigInt & (1 << 1)) == 0, "p1 should be not busy")
+      assert((tb.io.busyBitsOut.toBigInt & (1 << 2)) == 0, "p2 should be not busy")
+      assert((tb.io.busyBitsOut.toBigInt & (1 << 3)) != 0, "p3 should still be busy")
     }
   }
 

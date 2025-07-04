@@ -13,8 +13,8 @@ trait BusyTableService extends Service with LockedImpl {
   /** Called by Rename to mark a new physical register as busy */
   def newSetPort(): Vec[Flow[UInt]]
 
-  /** Called by Bypass/Writeback to mark a physical register as ready */
-  def newClearPort(): Vec[Flow[UInt]]
+  /** Called by EUs to claim an unused clear port */
+  def newClearPort(): Flow[UInt]
 
   /** Combinational query port for IQs or other units */
   def getBusyBits(): Bits
@@ -24,12 +24,11 @@ trait BusyTableService extends Service with LockedImpl {
 class BusyTablePlugin(pCfg: PipelineConfig) extends Plugin with BusyTableService {
 
   private val setPorts = ArrayBuffer[Flow[UInt]]()
-  private val clearPorts = ArrayBuffer[Flow[UInt]]()
+  private val clearPortsBuffer = ArrayBuffer[Flow[UInt]]() // 使用ArrayBuffer存储所有清除端口
 
   // All hardware resources must be declared in early or late Area
   val early_setup = create early new Area {
     val busyTableReg = Reg(Bits(pCfg.physGprCount bits)) init (0)
-
   }
 
   val logic = create late new Area {
@@ -39,7 +38,8 @@ class BusyTablePlugin(pCfg: PipelineConfig) extends Plugin with BusyTableService
     // Handle clears first (higher priority)
     val clearMask = Bits(pCfg.physGprCount bits)
     clearMask.clearAll()
-    for (port <- clearPorts; if port != null) {
+    // 现在迭代的是 ArrayBuffer 中的端口
+    for (port <- clearPortsBuffer) {
       when(port.valid) {
         clearMask(port.payload) := True
         report(L"[BusyTable] Clear port valid: physReg=${port.payload}")
@@ -69,11 +69,13 @@ class BusyTablePlugin(pCfg: PipelineConfig) extends Plugin with BusyTableService
     setPorts ++= ports
     ports
   }
-  override def newClearPort(): Vec[Flow[UInt]] = {
-    // Allow multiple EUs to clear bits
+  
+  // 【修正】: 每次调用都创建一个新的、唯一的端口
+  override def newClearPort(): Flow[UInt] = {
     val port = Flow(UInt(pCfg.physGprIdxWidth))
-    clearPorts += port
-    Vec(port) // Return as a Vec for consistency, though it's a single element
+    clearPortsBuffer += port // 将新端口加入Buffer
+    port
   }
+  
   override def getBusyBits(): Bits = early_setup.busyTableReg
 }

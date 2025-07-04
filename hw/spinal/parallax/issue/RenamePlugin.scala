@@ -9,6 +9,9 @@ import parallax.components.rename._
 import parallax.components.rob.ROBService
 import parallax.utilities.{Plugin, LockedImpl, ParallaxLogger}
 
+// 引入 BusyTableService
+import parallax.components.rename.BusyTableService
+
 class RenamePlugin(
     val pipelineConfig: PipelineConfig,
     val ratConfig: RenameMapTableConfig,
@@ -20,7 +23,9 @@ class RenamePlugin(
 
   val early_setup = create early new Area {
     val issuePpl = getService[IssuePipeline]
+    val busyTableService = getService[BusyTableService] // 获取服务
     issuePpl.retain()
+    busyTableService.retain() // 保持服务
 
     val renameUnit = new RenameUnit(pipelineConfig, ratConfig, flConfig)
     val rat = new RenameMapTable(ratConfig)
@@ -47,6 +52,7 @@ class RenamePlugin(
     val renameUnit = early_setup.renameUnit
     val rat = early_setup.rat
     val freeList = early_setup.freeList
+    val setBusyPorts = early_setup.busyTableService.newSetPort() // 获取set端口
 
     // --- 1. Connect data paths ---
     val decodedUopsIn = s1_rename(issueSignals.DECODED_UOPS)
@@ -73,6 +79,16 @@ class RenamePlugin(
     for(i <- 0 until pipelineConfig.renameWidth) {
       val needsReg = renameUnit.io.numPhysRegsRequired > i
       freeList.io.allocate(i).enable := fire && needsReg
+
+      // *** 新增逻辑: 驱动 BusyTable set 端口 ***
+      val uopOut = renameUnit.io.renamedUopsOut(i)
+      when(fire && uopOut.decoded.isValid && uopOut.rename.allocatesPhysDest) {
+          setBusyPorts(i).valid   := True
+          setBusyPorts(i).payload := uopOut.rename.physDest.idx
+      } otherwise {
+          setBusyPorts(i).valid   := False
+          setBusyPorts(i).payload.assignDontCare()
+      }
     }
     report(L"DEBUG: s1_rename.isFiring=${s1_rename.isFiring}, decodedUopsIn(0).isValid=${decodedUopsIn(0).isValid}")
 
@@ -82,6 +98,7 @@ class RenamePlugin(
     s1_rename(issueSignals.RENAMED_UOPS) := renameUnit.io.renamedUopsOut
     
     issuePpl.release()
+    early_setup.busyTableService.release() // 释放服务
   }
   // --- MODIFICATION END --
 }

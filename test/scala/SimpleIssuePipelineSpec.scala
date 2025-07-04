@@ -200,6 +200,7 @@ class SimpleIssuePipelineTestBench(
   val framework = new Framework(
     Seq(
       new MockFetchService(pCfg),
+      new BusyTablePlugin(pCfg),
       new PhysicalRegFilePlugin(pCfg.physGprCount, pCfg.xlen bits),
       new ROBPlugin(pCfg, UOP_HT, () => RenamedUop(pCfg).setDefault()),
       new IssuePipeline(pCfg),

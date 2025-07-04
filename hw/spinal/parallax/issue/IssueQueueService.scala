@@ -14,6 +14,8 @@ import parallax.utilities.LockedImpl
  */
 case class IqDispatchCmd(pCfg: PipelineConfig) extends Bundle {
   val uop = RenamedUop(pCfg)
+  val src1InitialReady = Bool()
+  val src2InitialReady = Bool()
 }
 
 /**

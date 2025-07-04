@@ -10,6 +10,10 @@ import parallax.components.rob._
 import parallax.utilities._ // 包含 Plugin, Service, ParallaxLogger, findService, getService 等
 import scala.collection.mutable.ArrayBuffer
 import parallax.common.{PhysicalRegFileService, PrfReadPort, PrfWritePort}
+import parallax.execute.{WakeupService, WakeupPayload}
+
+// 引入 BusyTableService
+import parallax.components.rename.BusyTableService
 
 case class EuPushPortPayload[T_EuSpecificContext <: Bundle](
     euSpecificContextType: HardType[T_EuSpecificContext],
@@ -116,6 +120,11 @@ abstract class EuBasePlugin(
   // BypassService 现在是泛型的，我们需要指定 Payload 类型 (BypassMessage)
   lazy val bypassService: BypassService[BypassMessage] = getService[BypassService[BypassMessage]]
 
+  // --- 新增服务: BusyTableService 和 WakeupService ---
+  lazy val busyTableService: BusyTableService = getService[BusyTableService]
+  lazy val wakeupService: WakeupService = getService[WakeupService]
+  lazy val wakeupSourcePort: Flow[WakeupPayload] = wakeupService.newWakeupSource()
+
   // --- PRF 读/写端口 ---
   val numGprReadPortsPerEu = if (readPhysRsDataFromPush) 0 else 2 // 每个 EU 实例的 GPR 读端口数量
   val numFprReadPortsPerEu = if (pipelineConfig.hasFpu && readPhysRsDataFromPush) 2 else 0 // 每个 EU 实例的 FPR 读端口数量
@@ -209,7 +218,7 @@ abstract class EuBasePlugin(
     connectPipelineLogic(euPipeline)
     ParallaxLogger.log(s"EUBase ($euName): EU 特定流水线逻辑已连接。")
 
-    // --- 连接通用输出 (PRF 写、ROB、旁路) ---
+    // --- 连接通用输出 (PRF 写、ROB、旁路、唤醒、BusyTable) ---
     val wbStage = getWritebackStage(euPipeline) // 从派生 EU 获取最终阶段
     val uopFullPayloadAtWb = wbStage(commonSignals.EU_INPUT_PAYLOAD) // 获取该阶段的完整 Uop 输入
     val renamedUopAtWb = uopFullPayloadAtWb.renamedUop
@@ -223,38 +232,70 @@ abstract class EuBasePlugin(
     // 最终目标是否为 FPR。派生 EU 必须在其 wbStage 中驱动 commonSignals.EXEC_DEST_IS_FPR。
     val finalDestIsFpr: Bool = wbStage(commonSignals.EXEC_DEST_IS_FPR)
 
+    // --- 定义关键条件 ---
+
+    // 指令是否"执行完成"。无论有无异常，只要它写寄存器，就认为它完成了。
+    // 后续指令可以被唤醒了。
+    val executionCompletes = wbStage.isFiring && resultWritesToPreg
+
+    // 指令是否"成功完成"并可以写入PRF/Bypass。这需要没有异常。
+    val completesSuccessfully = executionCompletes && !resultHasException
+
+    // 用于调试的日志
+    when(wbStage.isFiring) {
+      report(L"EUBase ($euName): WB firing, writesToPreg=${resultWritesToPreg}, hasException=${resultHasException}, executionCompletes=${executionCompletes}, completesSuccessfully=${completesSuccessfully}")
+    }
+
     // 1. 物理寄存器文件写
     if (gprWritePort != null) { // 仅当 gprWritePort 有效时连接 (即 gprFileService 存在且 EU 类型匹配)
-      gprWritePort.valid := wbStage.isFiring && resultWritesToPreg && !finalDestIsFpr && !resultHasException
+      gprWritePort.valid := completesSuccessfully && !finalDestIsFpr
       gprWritePort.address := renamedUopAtWb.rename.physDest.idx
       gprWritePort.data := resultData
     }
 
     if (fprWritePort != null) { // 仅当 fprWritePort 有效时连接
-      fprWritePort.valid := wbStage.isFiring && resultWritesToPreg && finalDestIsFpr && !resultHasException
+      fprWritePort.valid := completesSuccessfully && finalDestIsFpr
       fprWritePort.address := renamedUopAtWb.rename.physDest.idx
       fprWritePort.data := resultData
     }
     ParallaxLogger.log(s"EUBase ($euName): PRF 写逻辑已连接。")
 
     // 2. ROB 完成
-    // 驱动从 ROBService 获取的 slave ROBWritebackPort Bundle 的字段
-    robWritebackPortBundle.fire := wbStage.isFiring // EU 发信号表示有完成需要报告
+    // 总是向ROB报告完成状态，无论有无异常。ROB需要记录异常信息。
+    robWritebackPortBundle.fire := wbStage.isFiring
     robWritebackPortBundle.robPtr := renamedUopAtWb.robPtr
     robWritebackPortBundle.exceptionOccurred := resultHasException
     robWritebackPortBundle.exceptionCodeIn := resultExceptionCode
     ParallaxLogger.log(s"EUBase ($euName): ROB 完成逻辑已连接。")
 
     // 3. 旁路网络输出 (基于 Flow)
-    bypassOutputPort.valid := wbStage.isFiring && resultWritesToPreg && !resultHasException
+    // Bypass网络也需要广播结果，但会携带异常标志。
+    // 消费者可以选择如何处理带有异常标志的旁路数据。
+    bypassOutputPort.valid := executionCompletes // 即使有异常也要广播，让消费者知道这个tag已完成
     bypassOutputPort.payload.physRegIdx := renamedUopAtWb.rename.physDest.idx
-    bypassOutputPort.payload.physRegData := resultData
+    bypassOutputPort.payload.physRegData := resultData // 数据可以是任意值，因为hasException会为true
     bypassOutputPort.payload.robPtr := renamedUopAtWb.robPtr
     bypassOutputPort.payload.isFPR := finalDestIsFpr
-    bypassOutputPort.payload.hasException := resultHasException // 旁路消息可以携带异常信息供唤醒逻辑使用
+    bypassOutputPort.payload.hasException := resultHasException
     bypassOutputPort.payload.exceptionCode := resultExceptionCode
     // Flow 没有 .ready 信号
     ParallaxLogger.log(s"EUBase ($euName): 旁路输出 Flow 逻辑已连接。")
+
+    // *** 4. 唤醒总线输出 (核心修正) ***
+    // 只要指令执行完成（无论有无异常），就必须广播其tag以唤醒等待者。
+    wakeupSourcePort.valid := executionCompletes
+    wakeupSourcePort.payload.physRegIdx := renamedUopAtWb.rename.physDest.idx
+    ParallaxLogger.log(s"EUBase ($euName): 唤醒总线逻辑已连接。")
+
+    // *** 5. BusyTable 清除端口 ***
+    // 当指令执行完成时，清除对应的BusyTable位
+    // 注意：无论有无异常，只要指令写寄存器，就必须清除BusyTable位
+    // - 有异常：指令不写入PRF，但BusyTable位需要清除（寄存器不再"in flight"）
+    // - 无异常：指令成功写入PRF，BusyTable位需要清除（寄存器现在有有效数据）
+    val clearBusyPort = busyTableService.newClearPort()
+    clearBusyPort.valid := executionCompletes
+    clearBusyPort.payload := renamedUopAtWb.rename.physDest.idx
+    ParallaxLogger.log(s"EUBase ($euName): BusyTable 清除逻辑已连接。")
 
     // 最后，在所有连接完成后构建 EU 的内部流水线
     euPipeline.build()

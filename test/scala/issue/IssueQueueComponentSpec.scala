@@ -3,6 +3,7 @@ package test.issue
 
 import parallax.common._
 import parallax.components.issue._
+import parallax.execute.WakeupPayload
 import parallax.utilities.ParallaxLogger
 
 import spinal.core._
@@ -46,16 +47,14 @@ class IntIssueQueueTestBench(
 class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
   val XLEN = 32
   val DEFAULT_IQ_DEPTH = 4
-  val DEFAULT_NUM_BYPASS_SOURCES = 2
 
   def createPipelineConfig(
-      iqDepth: Int = DEFAULT_IQ_DEPTH,
-      bypassSources: Int = DEFAULT_NUM_BYPASS_SOURCES
+      iqDepth: Int = DEFAULT_IQ_DEPTH
   ): PipelineConfig = PipelineConfig(
     xlen = XLEN,
-    physGprCount = 32 + 16 + bypassSources,
+    physGprCount = 32 + 16,
     archGprCount = 32,
-    bypassNetworkSources = bypassSources,
+    bypassNetworkSources = 0, // No longer needed with wakeup bus
     uopUniqueIdWidth = 8 bits,
     exceptionCodeWidth = 8 bits,
     fetchWidth = 2,
@@ -67,10 +66,8 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
   def initDutIO(dut: IntIssueQueueTestBench)(implicit cd: ClockDomain): Unit = {
     dut.io.allocateIn.valid #= false
     dut.io.issueOut.ready #= false
-    dut.io.bypassIn.foreach { bp =>
-      bp.valid #= false
-      bp.payload.setDefault()
-    }
+    dut.io.wakeupIn.valid #= false
+    dut.io.wakeupIn.payload.physRegIdx #= 0
     dut.io.flush #= false
     cd.waitSampling()
   }
@@ -88,7 +85,10 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
       src1IsFprVal: Boolean = false,
       useSrc2Val: Boolean = false,
       src2TagVal: Int = 0,
-      src2IsFprVal: Boolean = false
+      src2IsFprVal: Boolean = false,
+      
+    src1InitialReadyVal: Boolean = true,
+    src2InitialReadyVal: Boolean = true,
   )(implicit cd: ClockDomain): Unit = {
     allocFlowTarget.valid #= true
     
@@ -130,40 +130,44 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
       uop.rename.physSrc2IsFpr #= src2IsFprVal
     }
 
+        allocFlowTarget.payload.uop := uop
+    allocFlowTarget.payload.src1InitialReady #= src1InitialReadyVal
+    allocFlowTarget.payload.src2InitialReady #= src2InitialReadyVal
     cd.waitSampling()
+
     allocFlowTarget.valid #= false
   }
   
-  def driveBypassOnPort(
-      bypassPort: Flow[BypassMessage],
-      pRegIdx: Int,
-      data: BigInt,
-      isFpr: Boolean = false,
-      robPtrProducer: Int = 0,
-      isExcp: Boolean = false
+  def driveWakeup(
+      wakeupFlow: Flow[WakeupPayload],
+      pRegIdx: Int
   )(implicit cd: ClockDomain): Unit = {
-    bypassPort.valid #= true
-    bypassPort.payload.physRegIdx #= pRegIdx
-    bypassPort.payload.physRegData #= data
-    bypassPort.payload.robPtr #= robPtrProducer
-    bypassPort.payload.isFPR #= isFpr
-    bypassPort.payload.hasException #= isExcp
+    wakeupFlow.valid #= true
+    wakeupFlow.payload.physRegIdx #= pRegIdx
   }
 
-  def deassertBypassOnPort(bypassPort: Flow[BypassMessage]): Unit = {
-    bypassPort.valid #= false
+  def deassertWakeup(wakeupFlow: Flow[WakeupPayload]): Unit = {
+    wakeupFlow.valid #= false
   }
 
   val testParams = Seq(
-    (DEFAULT_IQ_DEPTH, DEFAULT_NUM_BYPASS_SOURCES),
-    (2, 1),
-    (8, 4)
+    DEFAULT_IQ_DEPTH,
+    2,
+    8
   )
 
-  for ((iqDepth, numBypass) <- testParams) {
-    val pCfg = createPipelineConfig(iqDepth = iqDepth, bypassSources = numBypass)
+  test("Basic elaboration test") {
+    SimConfig.withWave.compile(new IntIssueQueueTestBench(createPipelineConfig(), 4)).doSim { dut =>
+      implicit val cd = dut.clockDomain.get
+      dut.clockDomain.forkStimulus(10)
+      initDutIO(dut)
+    }
+  }
 
-    test(s"IntIQ_${iqDepth}deep_${numBypass}bp - Basic Allocation and Issue (Immediately Ready)") {
+  for (iqDepth <- testParams) {
+    val pCfg = createPipelineConfig(iqDepth = iqDepth)
+
+    test(s"IntIQ_${iqDepth}deep - Basic Allocation and Issue (Immediately Ready)") {
       SimConfig.withWave.compile(new IntIssueQueueTestBench(pCfg, iqDepth)).doSim { dut =>
         implicit val cd = dut.clockDomain.get
         dut.clockDomain.forkStimulus(10)
@@ -195,7 +199,7 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
       }
     }
 
-    test(s"IntIQ_${iqDepth}deep_${numBypass}bp - Single Source Wakeup via Bypass") {
+    test(s"IntIQ_${iqDepth}deep - Single Source Wakeup via Global Wakeup") {
       SimConfig.withWave.compile(new IntIssueQueueTestBench(pCfg, iqDepth)).doSim { dut =>
         implicit val cd = dut.clockDomain.get
         dut.clockDomain.forkStimulus(10)
@@ -217,9 +221,9 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
         cd.waitSampling()
         assert(dut.internalValidCount.toInt == 1)
 
-        driveBypassOnPort(dut.io.bypassIn(0), pRegIdx = 5, data = 123)
+        driveWakeup(dut.io.wakeupIn, pRegIdx = 5)
         cd.waitSampling()
-        deassertBypassOnPort(dut.io.bypassIn(0))
+        deassertWakeup(dut.io.wakeupIn)
 
         var timeout = 30
         while ((scoreboard.dut.nonEmpty || scoreboard.ref.nonEmpty) && timeout > 0) {
@@ -233,7 +237,7 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
       }
     }
 
-    test(s"IntIQ_${iqDepth}deep_${numBypass}bp - Two Sources Wakeup (Sequential Bypass)") {
+    test(s"IntIQ_${iqDepth}deep - Two Sources Wakeup (Sequential Global Wakeup)") {
       SimConfig.withWave.compile(new IntIssueQueueTestBench(pCfg, iqDepth)).doSim { dut =>
         implicit val cd = dut.clockDomain.get
         dut.clockDomain.forkStimulus(10)
@@ -255,14 +259,14 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
         cd.waitSampling()
         assert(dut.internalValidCount.toInt == 1, "Count after alloc for 2-src wakeup")
 
-        driveBypassOnPort(dut.io.bypassIn(0), pRegIdx = 10, data = 301)
+        driveWakeup(dut.io.wakeupIn, pRegIdx = 10)
         cd.waitSampling()
-        deassertBypassOnPort(dut.io.bypassIn(0))
+        deassertWakeup(dut.io.wakeupIn)
         cd.waitSampling(2)
 
-        driveBypassOnPort(dut.io.bypassIn(0), pRegIdx = 11, data = 302)
+        driveWakeup(dut.io.wakeupIn, pRegIdx = 11)
         cd.waitSampling()
-        deassertBypassOnPort(dut.io.bypassIn(0))
+        deassertWakeup(dut.io.wakeupIn)
 
         var timeout = 40
         while ((scoreboard.dut.nonEmpty || scoreboard.ref.nonEmpty) && timeout > 0) {
@@ -275,52 +279,75 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
         assert(dut.internalValidCount.toInt == 0)
       }
     }
+testOnly(s"IntIQ_${iqDepth}deep - Local Wakeup via Issue Port") {
+  SimConfig.withWave.compile(new IntIssueQueueTestBench(pCfg, iqDepth)).doSim { dut =>
+    implicit val cd = dut.clockDomain.get
+    dut.clockDomain.forkStimulus(10)
+    initDutIO(dut)
+    val scoreboard = ScoreboardInOrder[Int]()
+    StreamMonitor(dut.io.issueOut, cd) { payload => scoreboard.pushDut(payload.robPtr.toInt) }
 
-    test(s"IntIQ_${iqDepth}deep_${numBypass}bp - Two Sources Wakeup (Simultaneous Bypass on different ports)") {
-      if (numBypass < 2) {
-        ParallaxLogger.log(s"Skipping IntIQ_${iqDepth}deep_${numBypass}bp - Simultaneous Bypass test as numBypass < 2")
-      } else {
-        SimConfig.withWave.compile(new IntIssueQueueTestBench(pCfg, iqDepth)).doSim { dut =>
-          implicit val cd = dut.clockDomain.get
-          dut.clockDomain.forkStimulus(10)
-          initDutIO(dut)
-          val scoreboard = ScoreboardInOrder[Int]()
-          StreamMonitor(dut.io.issueOut, cd) { payload => scoreboard.pushDut(payload.robPtr.toInt) }
-          StreamReadyRandomizer(dut.io.issueOut, cd)
+    // 【关键修复】步骤1：在分配指令前，通过将 ready 拉低来阻止 IQ 发射指令。
+    dut.io.issueOut.ready #= false
 
-          scoreboard.pushRef(35)
-          driveAllocRequest(
-            dut.io.allocateIn,
-            robPtrVal = 35,
-            pCfg = pCfg,
-            useSrc1Val = true,
-            src1TagVal = 15,
-            useSrc2Val = true,
-            src2TagVal = 16
-          )
-          cd.waitSampling()
-          assert(dut.internalValidCount.toInt == 1, "Count after alloc for simultaneous wakeup")
+    // --- 1. 分配生产者指令 (Inst_A) ---
+    // 这条指令本身是就绪的，但因为 issueOut.ready=false，它不会被发射
+    scoreboard.pushRef(40)
+    driveAllocRequest(
+      allocFlowTarget = dut.io.allocateIn,
+      robPtrVal = 40,
+      pCfg = pCfg,
+      physDestIdxVal = 5,
+      writesPhysVal = true,
+      src1InitialReadyVal = true, 
+      src2InitialReadyVal = true
+    )
+    cd.waitSampling(1) 
+    println(s"[SIM] After first alloc (Producer): validCount = ${dut.internalValidCount.toInt}")
+    assert(dut.internalValidCount.toInt == 1, "After 1st alloc, IQ should have 1 entry.")
 
-          driveBypassOnPort(dut.io.bypassIn(0), pRegIdx = 15, data = 351)
-          driveBypassOnPort(dut.io.bypassIn(1), pRegIdx = 16, data = 352)
-          cd.waitSampling()
-          deassertBypassOnPort(dut.io.bypassIn(0))
-          deassertBypassOnPort(dut.io.bypassIn(1))
+    // --- 2. 分配消费者指令 (Inst_B) ---
+    // 这条指令依赖 Inst_A (通过 physDest 5)，所以它不是就绪的
+    scoreboard.pushRef(41)
+    driveAllocRequest(
+      allocFlowTarget = dut.io.allocateIn,
+      robPtrVal = 41,
+      pCfg = pCfg,
+      writesPhysVal = false,
+      useSrc1Val = true,
+      src1TagVal = 5,
+      src1InitialReadyVal = false
+    )
+    cd.waitSampling(1)
+    println(s"[SIM] After second alloc (Consumer): validCount = ${dut.internalValidCount.toInt}")
+    
+    // 【关键修复】步骤2：现在两条指令都在 IQ 中，可以安全地进行断言了。
+    assert(dut.internalValidCount.toInt == 2, "IQ should contain 2 entries before issue.")
 
-          var timeout = 40
-          while ((scoreboard.dut.nonEmpty || scoreboard.ref.nonEmpty) && timeout > 0) {
-            cd.waitSampling()
-            timeout -= 1
-          }
-          assert(timeout > 0, "Timeout waiting for two-source simultaneous wakeup")
-          scoreboard.checkEmptyness()
-          cd.waitSampling()
-          assert(dut.internalValidCount.toInt == 0)
-        }
-      }
+    // 【关键修复】步骤3：重新打开发射端口，让 IQ 开始工作。
+    dut.io.issueOut.ready #= true
+    
+    // --- 3. 验证背靠背发射 ---
+    // 现在，我们期望 Inst_A 在下一个周期发射，
+    // 并在再下一个周期，被唤醒的 Inst_B 被发射。
+    var timeout = 30
+    while (scoreboard.ref.nonEmpty && timeout > 0) {
+      cd.waitSampling()
+      timeout -= 1
     }
+    
+    assert(timeout > 0, "Timeout! Not all instructions were issued. Local wakeup might have failed.")
+    scoreboard.checkEmptyness()
+    
+    cd.waitSampling(5)
+    assert(dut.internalValidCount.toInt == 0, s"IQ should be empty, but still has ${dut.internalValidCount.toInt} entries.")
 
-    test(s"IntIQ_${iqDepth}deep_${numBypass}bp - Fill IQ and Drain (Oldest First)") {
+    println(s"\n[SUCCESS] Test 'IntIQ_${iqDepth}deep - Local Wakeup via Issue Port' PASSED!")
+  }
+}
+
+
+    test(s"IntIQ_${iqDepth}deep - Fill IQ and Drain (Oldest First)") {
       SimConfig.withWave.compile(new IntIssueQueueTestBench(pCfg, iqDepth)).doSim { dut =>
         implicit val cd = dut.clockDomain.get
         dut.clockDomain.forkStimulus(10)
@@ -331,7 +358,7 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
 
         dut.io.issueOut.ready #= false
         for (i <- 0 until iqDepth) {
-          val robPtr = 40 + i
+          val robPtr = 50 + i
           scoreboard.pushRef(robPtr)
           driveAllocRequest(dut.io.allocateIn, robPtrVal = robPtr, pCfg = pCfg)
         }
@@ -353,19 +380,19 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
       }
     }
 
-    test(s"IntIQ_${iqDepth}deep_${numBypass}bp - Flush Operation") {
+    test(s"IntIQ_${iqDepth}deep - Flush Operation") {
       SimConfig.withWave.compile(new IntIssueQueueTestBench(pCfg, iqDepth)).doSim { dut =>
         implicit val cd = dut.clockDomain.get
         dut.clockDomain.forkStimulus(10)
         initDutIO(dut)
 
         dut.io.issueOut.ready #= false
-        driveAllocRequest(dut.io.allocateIn, robPtrVal = 50, pCfg = pCfg)
+        driveAllocRequest(dut.io.allocateIn, robPtrVal = 60, pCfg = pCfg)
         var expectedCountBeforeFlush = 1
         if (iqDepth > 1) {
           driveAllocRequest(
             dut.io.allocateIn,
-            robPtrVal = 51,
+            robPtrVal = 61,
             pCfg = pCfg,
             useSrc1Val = true,
             src1TagVal = 20
@@ -389,7 +416,7 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
       }
     }
 
-    test(s"IntIQ_${iqDepth}deep_${numBypass}bp - Back-to-Back Issue") {
+    test(s"IntIQ_${iqDepth}deep - Back-to-Back Issue") {
       SimConfig.withWave.compile(new IntIssueQueueTestBench(pCfg, iqDepth)).doSim { dut =>
         implicit val cd = dut.clockDomain.get
         dut.clockDomain.forkStimulus(10)
@@ -400,7 +427,7 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
 
         dut.io.issueOut.ready #= false
         for (i <- 0 until iqDepth) {
-          val robPtr = 60 + i
+          val robPtr = 70 + i
           scoreboard.pushRef(robPtr)
           driveAllocRequest(dut.io.allocateIn, robPtrVal = robPtr, pCfg = pCfg)
         }

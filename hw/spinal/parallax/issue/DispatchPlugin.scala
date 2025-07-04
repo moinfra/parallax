@@ -1,85 +1,78 @@
-// filename: src/main/scala/parallax/issue/DispatchPlugin.scala
+// filename: hw/spinal/parallax/issue/DispatchPlugin.scala
 package parallax.issue
 
 import spinal.core._
 import spinal.lib._
 import spinal.lib.pipeline._
 import parallax.common._
-import parallax.utilities.{Plugin, LockedImpl, ParallaxLogger}
-import parallax.components.issue._
-import parallax.utilities.ParallaxSim
+import parallax.utilities._
+import parallax.components.rename.BusyTableService
 
-class DispatchPlugin(val pCfg: PipelineConfig) extends Plugin with LockedImpl {
+class DispatchPlugin(pCfg: PipelineConfig) extends Plugin with LockedImpl {
   
-  assert(pCfg.renameWidth == 1, "This DispatchPlugin is designed for a rename/dispatch width of 1.")
+  assert(pCfg.renameWidth == 1, "This DispatchPlugin is designed for a dispatch width of 1.")
 
   val setup = create early new Area {
     val issuePpl = getService[IssuePipeline]
     val iqService = getService[IssueQueueService]
-    issuePpl.retain()
-    iqService.retain()
+    val busyTableService = getService[BusyTableService]
+    issuePpl.retain(); iqService.retain(); busyTableService.retain()
 
     val s3_dispatch = issuePpl.pipeline.s3_dispatch
-    s3_dispatch(issuePpl.signals.RENAMED_UOPS)
+    s3_dispatch(issuePpl.signals.ALLOCATED_UOPS)
   }
 
   val logic = create late new Area {
     lock.await()
-    val issuePpl = setup.issuePpl
-    val iqService = setup.iqService
     val s3_dispatch = setup.s3_dispatch
-    val issueSignals = issuePpl.signals
+    val busyBits = setup.busyTableService.getBusyBits()
+    val iqRegs = setup.iqService.getRegistrations
+
+    val uopIn = s3_dispatch(setup.issuePpl.signals.ALLOCATED_UOPS)(0)
+    val decoded = uopIn.decoded
+    val rename = uopIn.rename
+
+    // 查询BusyTable以确定初始就绪状态
+    val src1InitialReady = !decoded.useArchSrc1 || !busyBits(rename.physSrc1.idx)
+    val src2InitialReady = !decoded.useArchSrc2 || !busyBits(rename.physSrc2.idx)
     
-    val renamedUopIn = s3_dispatch(issueSignals.ALLOCATED_UOPS)(0)
-    val decodedUop = renamedUopIn.decoded
-    val robPtr = renamedUopIn.robPtr
-
-    val iqRegistrations = iqService.getRegistrations
-    val iqPorts = iqRegistrations.map(_._2)
-
-    iqPorts.foreach(_.valid := False)
-    iqPorts.foreach(_.payload.assignDontCare())
-
-    val driveOutputValid = s3_dispatch.isValid && decodedUop.isValid
-
-    val isRealOperation = Bool()
-    when(decodedUop.uopCode === BaseUopCode.ALU || decodedUop.uopCode === BaseUopCode.SHIFT) {
-      isRealOperation := decodedUop.writeArchDestEn
-    } .elsewhen (
-      decodedUop.uopCode === BaseUopCode.LOAD || 
-      decodedUop.uopCode === BaseUopCode.STORE || 
-      decodedUop.uopCode === BaseUopCode.BRANCH || 
-      decodedUop.uopCode === BaseUopCode.JUMP_REG || 
-      decodedUop.uopCode === BaseUopCode.MUL
-    ) {
-      isRealOperation := True
-    } .otherwise {
-      isRealOperation := False
-    }
-
-    val dispatchOH = B(iqRegistrations.map { case (uopCodes, _) =>
-      uopCodes.map(decodedUop.uopCode === _).orR
+    // --- 路由和停顿逻辑 ---
+    val iqPorts = iqRegs.map(_._2)
+    val dispatchOH = B(iqRegs.map { case (uopCodes, _) =>
+      uopCodes.map(decoded.uopCode === _).orR
     })
-    val iqPortsReady = Vec(iqPorts.map(_.ready))
-    val destinationIqReady = MuxOH(dispatchOH, iqPortsReady)
-    val destinationReady = destinationIqReady || !isRealOperation
+    val destinationIqReady = MuxOH(dispatchOH, Vec(iqPorts.map(_.ready)))
 
-    for (((uopCodes, port), i) <- iqRegistrations.zipWithIndex) {
-      when(driveOutputValid && dispatchOH(i) && isRealOperation) {
-        port.valid := True
-        port.payload.uop := renamedUopIn
+    // 停顿条件：当本阶段有效，且指令有效，但目标IQ已满时，停顿流水线。
+    // 【修正】: 移除了 isRealOperation 的判断，因为无效指令在Decode阶段已被过滤。
+    s3_dispatch.haltWhen(s3_dispatch.isValid && decoded.isValid && !destinationIqReady)
+    
+    // --- 输出驱动 ---
+    for (((_, port), i) <- iqRegs.zipWithIndex) {
+      val isTarget = dispatchOH(i)
+      
+      // 【修正】: 移除了 isRealOperation 的判断
+      port.valid := s3_dispatch.isFiring && decoded.isValid && isTarget
+
+      when(port.valid) { // 仅在驱动时赋值，避免latch
+          port.payload.uop             := uopIn
+          port.payload.src1InitialReady := src1InitialReady
+          port.payload.src2InitialReady := src2InitialReady
+      } otherwise {
+          port.payload.assignDontCare() // 在不驱动时，明确表示不关心payload的值
       }
     }
     
-    s3_dispatch.haltWhen(driveOutputValid && isRealOperation && !destinationReady)
-
-    when(s3_dispatch.isFiring && decodedUop.isValid) {
-      ParallaxSim.log(L"DispatchPlugin: Firing robPtr=${robPtr} (UopCode=${decodedUop.uopCode}), isRealOp=${isRealOperation}")
+    // --- 日志和收尾 ---
+    when(s3_dispatch.isFiring && decoded.isValid) {
+      ParallaxSim.log(
+        L"DispatchPlugin: Firing robPtr=${uopIn.robPtr} (UopCode=${decoded.uopCode}), " :+
+        L"s1_ready=${src1InitialReady}, s2_ready=${src2InitialReady}"
+      )
     }
-
-    report(L"DEBUG: s3_dispatch.isFiring=${s3_dispatch.isFiring}, isReady=${s3_dispatch.isReady}, driveOutputValid=${driveOutputValid}, decodedUop.isValid=${decodedUop.isValid}, destinationReady=${destinationReady}")
     
     setup.issuePpl.release()
     setup.iqService.release()
+    setup.busyTableService.release()
   }
 }
