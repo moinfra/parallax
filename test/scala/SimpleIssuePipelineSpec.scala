@@ -289,5 +289,157 @@ class SimpleIssuePipelineSpec extends CustomSpinalSimFunSuite {
             println("Test 'Issue Pipeline dispatch with real ROB and PRF' PASSED!")
         }
     }
+
+    test("Pipeline should stall correctly when a target IQ is full") {
+        val compiled = SimConfig.withFstWave.compile(
+            new SimpleIssuePipelineTestBench(pCfg, ratCfg, flCfg)
+        )
+        
+        compiled.doSim { dut =>
+            dut.clockDomain.forkStimulus(10)
+            
+            val (feederDriver, feederQueue) = StreamDriver.queue(dut.io.fetchStreamIn, dut.clockDomain)
+
+            val aluReceived = mutable.Queue[RenamedUopCapture]()
+            val mulReceived = mutable.Queue[RenamedUopCapture]()
+
+            StreamMonitor(dut.io.aluIqOut, dut.clockDomain) { p => aluReceived.enqueue(RenamedUopCapture.from(p.uop)) }
+            StreamMonitor(dut.io.mulIqOut, dut.clockDomain) { p => mulReceived.enqueue(RenamedUopCapture.from(p.uop)) }
+
+            dut.io.aluIqOut.ready #= true
+            dut.io.mulIqOut.ready #= true
+            dut.io.divIqOut.ready #= true
+            dut.io.lsuIqOut.ready #= true
+            dut.io.bruIqOut.ready #= true
+
+            // 1. Send first ADD, it should pass
+            driveFetchedInstr(feederQueue, 0x2000, LA32RInstrBuilder.add_w(1, 2, 3))
+            dut.clockDomain.waitSamplingWhere(aluReceived.nonEmpty)
+            assert(aluReceived.size == 1, "First ALU instruction should be dispatched")
+            aluReceived.clear()
+
+            // 2. Make ALU IQ not ready (full)
+            println("[Test IQ Stall] Making ALU IQ not ready.")
+            dut.io.aluIqOut.ready #= false
+            
+            // 3. Send the second ADD (will get stuck in dispatch) and the MUL (will get stuck behind the ADD)
+            driveFetchedInstr(feederQueue, 0x2004, LA32RInstrBuilder.add_w(4, 5, 6))
+            driveFetchedInstr(feederQueue, 0x2008, LA32RInstrBuilder.mul_w(7, 8, 9))
+
+            // 4. Wait a few cycles to ensure the pipeline is stalled.
+            //    Nothing should be dispatched during this time.
+            dut.clockDomain.waitSampling(5)
+            assert(aluReceived.isEmpty, "Second ALU instruction should be stalled in dispatch")
+            assert(mulReceived.isEmpty, "MUL instruction should be stalled behind the ALU instruction")
+            
+            // 5. Make ALU IQ ready again. Now both instructions should flow through.
+            println("[Test IQ Stall] Making ALU IQ ready again.")
+            dut.io.aluIqOut.ready #= true
+            
+            // 6. Wait for both instructions to be received.
+            dut.clockDomain.waitSamplingWhere(aluReceived.nonEmpty && mulReceived.nonEmpty)
+            
+            assert(aluReceived.size == 1, "Stalled ALU instruction should now be dispatched")
+            assert(mulReceived.size == 1, "Following MUL instruction should now be dispatched")
+            
+            val stalledAlu = aluReceived.dequeue()
+            val followingMul = mulReceived.dequeue()
+            
+            assert(stalledAlu.decoded.pc == 0x2004, "The correct stalled ALU instruction should be dispatched")
+            assert(followingMul.decoded.pc == 0x2008, "The correct following MUL instruction should be dispatched")
+
+            println("Test 'Pipeline stall on full IQ' PASSED!")
+        }
+    }
+
+
+    test("Pipeline should handle back-to-back data dependencies") {
+        val compiled = SimConfig.withFstWave.compile(
+            new SimpleIssuePipelineTestBench(pCfg, ratCfg, flCfg)
+        )
+        
+        compiled.doSim { dut =>
+            dut.clockDomain.forkStimulus(10)
+            
+            val (feederDriver, feederQueue) = StreamDriver.queue(dut.io.fetchStreamIn, dut.clockDomain)
+            val aluReceived = mutable.Queue[RenamedUopCapture]()
+            StreamMonitor(dut.io.aluIqOut, dut.clockDomain) { p => aluReceived.enqueue(RenamedUopCapture.from(p.uop)) }
+
+            dut.io.aluIqOut.ready #= true
+            dut.io.mulIqOut.ready #= true
+            dut.io.divIqOut.ready #= true
+            dut.io.lsuIqOut.ready #= true
+            dut.io.bruIqOut.ready #= true
+
+            // Instruction sequence with dependencies: r4 <- r1 <- r2
+            driveFetchedInstr(feederQueue, 0x3000, LA32RInstrBuilder.add_w(2, 10, 11)) // r2 = r10 + r11
+            driveFetchedInstr(feederQueue, 0x3004, LA32RInstrBuilder.add_w(1, 2, 12))  // r1 = r2 + r12
+            driveFetchedInstr(feederQueue, 0x3008, LA32RInstrBuilder.add_w(4, 1, 13))  // r4 = r1 + r13
+            
+            dut.clockDomain.waitSamplingWhere(aluReceived.size == 3)
+
+            assert(aluReceived.size == 3, "All 3 dependent instructions should be dispatched")
+            
+            val uop1 = aluReceived.dequeue() // add r2, ...
+            val uop2 = aluReceived.dequeue() // add r1, r2, ...
+            val uop3 = aluReceived.dequeue() // add r4, r1, ...
+
+            assert(uop1.decoded.pc == 0x3000)
+            assert(uop2.decoded.pc == 0x3004)
+            assert(uop3.decoded.pc == 0x3008)
+
+            // Verify dependency r2 -> r1
+            assert(uop2.rename.physSrc1Idx == uop1.rename.physDestIdx, "Dependency check failed: r1 depends on r2")
+            
+            // Verify dependency r1 -> r4
+            assert(uop3.rename.physSrc1Idx == uop2.rename.physDestIdx, "Dependency check failed: r4 depends on r1")
+
+            println("Test 'Back-to-back data dependencies' PASSED!")
+        }
+    }
+    
+    test("Pipeline should correctly process NOP instructions") {
+        val compiled = SimConfig.withFstWave.compile(
+            new SimpleIssuePipelineTestBench(pCfg, ratCfg, flCfg)
+        )
+        
+        compiled.doSim { dut =>
+            dut.clockDomain.forkStimulus(10)
+            
+            val (feederDriver, feederQueue) = StreamDriver.queue(dut.io.fetchStreamIn, dut.clockDomain)
+
+            val aluReceived = mutable.Queue[RenamedUopCapture]()
+            val mulReceived = mutable.Queue[RenamedUopCapture]()
+            StreamMonitor(dut.io.aluIqOut, dut.clockDomain) { p => aluReceived.enqueue(RenamedUopCapture.from(p.uop)) }
+            StreamMonitor(dut.io.mulIqOut, dut.clockDomain) { p => mulReceived.enqueue(RenamedUopCapture.from(p.uop)) }
+
+            dut.io.aluIqOut.ready #= true
+            dut.io.mulIqOut.ready #= true
+            dut.io.divIqOut.ready #= true
+            dut.io.lsuIqOut.ready #= true
+            dut.io.bruIqOut.ready #= true
+            
+            driveFetchedInstr(feederQueue, 0x4000, LA32RInstrBuilder.add_w(1, 2, 3))
+            driveFetchedInstr(feederQueue, 0x4004, LA32RInstrBuilder.nop())
+            driveFetchedInstr(feederQueue, 0x4008, LA32RInstrBuilder.mul_w(4, 5, 6))
+
+            dut.clockDomain.waitSamplingWhere(aluReceived.size == 1 && mulReceived.size == 1)
+            
+            // Give one extra cycle to ensure NOP doesn't appear anywhere late
+            dut.clockDomain.waitSampling() 
+
+            assert(aluReceived.size == 1, "Should only receive one ALU instruction")
+            assert(mulReceived.size == 1, "Should only receive one MUL instruction")
+            
+            val aluUop = aluReceived.dequeue()
+            val mulUop = mulReceived.dequeue()
+            
+            // The key check: ROB pointers should be consecutive, skipping the NOP.
+            assert(aluUop.robPtr == 0, "First instruction should have robPtr 0")
+            assert(mulUop.robPtr == 1, "Instruction after NOP should have robPtr 1")
+            
+            println("Test 'NOP instruction processing' PASSED!")
+        }
+    }
     thatsAll()
 }

@@ -18,7 +18,6 @@ class RenamePlugin(
     with RatControlService
     with FreeListControlService {
 
-  // --- 实例化硬件组件和获取服务 (在 'early' 区域) ---
   val early_setup = create early new Area {
     val issuePpl = getService[IssuePipeline]
     val robService = getService[ROBService[RenamedUop]]
@@ -35,13 +34,11 @@ class RenamePlugin(
     s1_rename(issuePpl.signals.FLUSH_PIPELINE)
   }
 
-  // --- 服务接口的实现 ---
   override def newCheckpointSavePort(): Stream[RatCheckpoint] = early_setup.rat.io.checkpointSave
   override def newCheckpointRestorePort(): Stream[RatCheckpoint] = early_setup.rat.io.checkpointRestore
   override def getFreePorts(): Vec[SuperScalarFreeListFreePort] = early_setup.freeList.io.free
   override def newRestorePort(): Stream[SuperScalarFreeListCheckpoint] = early_setup.freeList.io.restoreState
 
-  // --- 连接逻辑 (在 'late' 区域) ---
   val logic = create late new Area {
     lock.await()
     val issuePpl = early_setup.issuePpl
@@ -53,71 +50,49 @@ class RenamePlugin(
     val rat = early_setup.rat
     val freeList = early_setup.freeList
 
-    // --- 1. 连接 RenameUnit 的内部依赖 ---
-    renameUnit.io.ratReadPorts  <> rat.io.readPorts
-    renameUnit.io.ratWritePorts <> rat.io.writePorts
-    renameUnit.io.flAllocate    <> freeList.io.allocate
-    renameUnit.io.numFreePhysRegs := freeList.io.numFreeRegs
-    
-    // --- 2. 连接流水线与 RenameUnit / ROB (并行) ---
+    // --- 1. Connect data paths to RenameUnit ---
     val decodedUopsIn = s1_rename(issueSignals.DECODED_UOPS)
-    val decodedUop = decodedUopsIn(0) // width = 1
+    renameUnit.io.decodedUopsIn := decodedUopsIn
+    
+    for(i <- 0 until pipelineConfig.renameWidth) {
+      renameUnit.io.physRegsIn(i) := freeList.io.allocate(i).physReg
+    }
+    
+    rat.io.readPorts <> renameUnit.io.ratReadPorts
+    
+    rat.io.writePorts.zip(renameUnit.io.ratWritePorts).foreach { case (ratPort, ruPort) =>
+      ratPort.wen     := ruPort.wen && s1_rename.isFiring
+      ratPort.archReg := ruPort.archReg
+      ratPort.physReg := ruPort.physReg
+    }
 
-    // a) 驱动 RenameUnit 的输入
-    renameUnit.io.decodedUopsIn.valid   := s1_rename.isValid // RenameUnit 只在 s1 有效时才工作
-    renameUnit.io.decodedUopsIn.payload := decodedUopsIn
-    
-    // b) 并行地向 ROB 请求分配
+    // --- 2. Independently check all resource availabilities ---
     val robAllocPort = robService.getAllocatePorts(pipelineConfig.renameWidth)(0)
-    robAllocPort.valid := s1_rename.isValid && decodedUop.isValid // 只有有效的uop才请求分配
-    robAllocPort.pcIn  := decodedUop.pc
+    val notEnoughPhysRegs = freeList.io.numFreeRegs < renameUnit.io.numPhysRegsRequired
+    val robIsFull = !robAllocPort.ready
+
+    // --- 3. Define the halt condition based *only* on resource availability ---
+    val resourcesNotReady = notEnoughPhysRegs || robIsFull
+    s1_rename.haltWhen(s1_rename.isValid && resourcesNotReady)
+
+    // --- 4. Drive state-changing requests only when firing ---
+    val fire = s1_rename.isFiring
     
-    val tempUopForRob = RenamedUop(pipelineConfig)
-    tempUopForRob.setDefault(decoded = decodedUop)
+    for(i <- 0 until pipelineConfig.renameWidth) {
+      val needsReg = renameUnit.io.numPhysRegsRequired > i
+      freeList.io.allocate(i).enable := fire && needsReg
+    }
+
+    robAllocPort.valid := fire && decodedUopsIn(0).isValid
+    robAllocPort.pcIn  := decodedUopsIn(0).pc
+    val tempUopForRob = RenamedUop(pipelineConfig).setDefault(decoded = decodedUopsIn(0))
     robAllocPort.uopIn := tempUopForRob
     
-    // -- MODIFICATION START: Correct assignment and pipeline control --
-
-    // 3. 组合地构建最终的重命名 UOP
-    // 这是解决 ASSIGNMENT OVERLAP 的最稳健方法
+    // --- 5. Connect outputs ---
     val finalRenamedUop = RenamedUop(pipelineConfig)
-    finalRenamedUop.decoded      := renameUnit.io.renamedUopsOut.payload(0).decoded
-    finalRenamedUop.rename       := renameUnit.io.renamedUopsOut.payload(0).rename
-    finalRenamedUop.uniqueId     := renameUnit.io.renamedUopsOut.payload(0).uniqueId
-    finalRenamedUop.dispatched   := renameUnit.io.renamedUopsOut.payload(0).dispatched
-    finalRenamedUop.executed     := renameUnit.io.renamedUopsOut.payload(0).executed
-    finalRenamedUop.hasException := renameUnit.io.renamedUopsOut.payload(0).hasException
-    finalRenamedUop.exceptionCode:= renameUnit.io.renamedUopsOut.payload(0).exceptionCode
-    finalRenamedUop.robPtr       := robAllocPort.robPtr // 从 ROB 获取 robPtr
-
-    // 将最终构建好的 uop 驱动到 Stageable
+    finalRenamedUop.initWithRobPtr(renameUnit.io.renamedUopsOut(0), robPtr = robAllocPort.robPtr)
     s1_rename(issueSignals.RENAMED_UOPS)(0) := finalRenamedUop
-
-    // 4. 处理握手和流水线控制 (无环路方式)
     
-    // RenameUnit 的输出端口的 ready 信号应该由下游的 ready (s1_rename.isReady) 决定。
-    // 这是正确的反压传递。
-    renameUnit.io.renamedUopsOut.ready := s1_rename.isReady
-    
-    // Rename 阶段暂停的条件是：
-    // 1. RenameUnit 自身由于资源不足而无法接收新的输入。
-    // 2. 或者，ROB 无法分配新的条目。
-    // 这两个条件都来自于“上游”或“同级”的模块，不依赖于下游的 `s1_rename.isReady`。
-    val renameUnitNotReady = !renameUnit.io.decodedUopsIn.ready
-    val robNotReady = !robAllocPort.ready
-    
-    // haltIt 会自动处理 s1_rename.isValid 的条件。
-    // 当 haltIt(cond) 的 cond 为真时，它会强制 s1_rename.input.ready (即 s1_rename.isReady) 为 False。
-    // 因为 renameUnitNotReady 和 robNotReady 不依赖于 s1_rename.isReady，所以环路被打破。
-    s1_rename.haltWhen(renameUnitNotReady || robNotReady)
-
-    // -- MODIFICATION END --
-    
-    // 5. 冲刷逻辑
-    val doFlush = s1_rename(issueSignals.FLUSH_PIPELINE) || s1_rename.isFlushed
-    renameUnit.io.flushIn := doFlush
-    
-    // 6. 释放服务锁定
     issuePpl.release()
     robService.release()
   }

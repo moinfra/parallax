@@ -37,46 +37,55 @@ class DispatchPlugin(val pCfg: PipelineConfig) extends Plugin with LockedImpl {
     val iqRegistrations = iqService.getRegistrations
     val iqPorts = iqRegistrations.map(_._2)
 
-    // --- Default assignments for output ports ---
     iqPorts.foreach(_.valid := False)
     iqPorts.foreach(_.payload.assignDontCare())
 
     val driveOutputValid = s2_dispatch.isValid && decodedUop.isValid
 
-    // -- MODIFICATION START: High-performance structural modeling --
-
-    // 1. Create a one-hot vector indicating which IQ the uop should be dispatched to.
-    //    Each bit of this vector corresponds to an IQ port.
     val dispatchOH = B(iqRegistrations.map { case (uopCodes, _) =>
       uopCodes.map(decodedUop.uopCode === _).orR
     })
 
-    // 2. Use MuxOH to select the ready signal from the chosen IQ port.
-    //    This creates a fast, parallel Mux instead of a slow priority encoder.
-    //    The inputs to the MuxOH are all the ready signals from the IQ ports.
     val iqPortsReady = Vec(iqPorts.map(_.ready))
     val destinationIqReady = MuxOH(dispatchOH, iqPortsReady)
+    
+    // -- MODIFICATION START: Minimal change to correctly identify "real" operations --
 
-    // 3. The final destination is ready if either the target IQ is ready,
-    //    or if the instruction doesn't need to be dispatched to any IQ (e.g., NOP).
-    val isHandledByIq = dispatchOH.orR
+    // 1. Define `isRealOperation` using a robust when/elsewhen chain.
+    val isRealOperation = Bool()
+    when(decodedUop.uopCode === BaseUopCode.ALU || decodedUop.uopCode === BaseUopCode.SHIFT) {
+      isRealOperation := decodedUop.writeArchDestEn
+    } .elsewhen (
+      decodedUop.uopCode === BaseUopCode.LOAD || 
+      decodedUop.uopCode === BaseUopCode.STORE || 
+      decodedUop.uopCode === BaseUopCode.BRANCH || 
+      decodedUop.uopCode === BaseUopCode.JUMP_REG || 
+      decodedUop.uopCode === BaseUopCode.MUL
+    ) {
+      isRealOperation := True
+    } .otherwise {
+      isRealOperation := False
+    }
+
+    // 2. Correct the `isHandledByIq` calculation.
+    val isHandledByIq = dispatchOH.orR && isRealOperation
+    
+    // -- MODIFICATION END --
+
     val destinationReady = destinationIqReady || !isHandledByIq
 
-    // 4. Drive the output ports' valid and payload signals using the one-hot vector.
+    // 3. The driving condition for ports must also respect `isRealOperation`.
     for (((uopCodes, port), i) <- iqRegistrations.zipWithIndex) {
-      when(driveOutputValid && dispatchOH(i)) {
+      when(driveOutputValid && dispatchOH(i) && isRealOperation) {
         port.valid := True
         port.payload.uop := renamedUopIn
       }
     }
     
-    // --- Pipeline Handshake ---
     s2_dispatch.haltWhen(driveOutputValid && !destinationReady)
 
-    // -- MODIFICATION END --
-    
     when(s2_dispatch.isFiring && decodedUop.isValid) {
-      ParallaxSim.log(L"DispatchPlugin: Firing robPtr=${robPtr} (UopCode=${decodedUop.uopCode})")
+      ParallaxSim.log(L"DispatchPlugin: Firing robPtr=${robPtr} (UopCode=${decodedUop.uopCode}), isRealOp=${isRealOperation}")
     }
     
     setup.issuePpl.release()
