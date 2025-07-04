@@ -53,10 +53,6 @@ trait PhysicalRegFileService extends Service with LockedImpl {
   def isFprService(): Boolean = false
 }
 
-trait PhysicalRegFreeService extends Service {
-  def getFreePort(): Flow[UInt] // Port for Commit to send stale tags
-}
-
 class PhysicalRegFilePlugin(
     numPhysRegs: Int,
     dataWidth: BitCount = 32 bits
