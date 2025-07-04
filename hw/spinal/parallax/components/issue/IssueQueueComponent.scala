@@ -4,12 +4,15 @@ import spinal.core._
 import spinal.lib._
 import parallax.common._
 import parallax.utilities.ParallaxLogger
+import parallax.issue.IqDispatchCmd
 
 case class IssueQueueComponentIo[T_IQEntry <: Data with IQEntryLike](
     val iqConfig: IssueQueueConfig[T_IQEntry]
 ) extends Bundle
     with IMasterSlave {
-  val allocateIn = Flow(iqConfig.getIQEntry())
+  // -- MODIFICATION START: Input is now architecturally correct IqDispatchCmd --
+  val allocateIn = Flow(IqDispatchCmd(iqConfig.pipelineConfig))
+  // -- MODIFICATION END --
   val canAccept = Bool()
   val issueOut = Stream(iqConfig.getIQEntry())
   val bypassIn = Vec(Flow(BypassMessage(iqConfig.pipelineConfig)), iqConfig.bypassNetworkSources)
@@ -38,10 +41,13 @@ class IssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
 
   when(io.allocateIn.valid && io.canAccept && !io.flush) {
     val allocateIdx = OHToUInt(OHMasking.first(entryValids.map(!_)))
-    entries(allocateIdx) := io.allocateIn.payload 
-    // srcXReady fields in payload are initialized by its initFrom/setDefault
+    // -- MODIFICATION START: Use initFrom to convert RenamedUop from IqDispatchCmd to IQEntry --
+    val renamedUop = io.allocateIn.payload.uop
+    // The IQEntry's initFrom method performs the conversion.
+    entries(allocateIdx).initFrom(renamedUop, renamedUop.robPtr)
+    // -- MODIFICATION END --
     entryValids(allocateIdx) := True
-    report(L"${idStr}: Allocated entry at index ${allocateIdx}, RobPtr=${io.allocateIn.payload.robPtr}")
+    report(L"${idStr}: Allocated entry at index ${allocateIdx}, RobPtr=${renamedUop.robPtr}")
   }
 
   val entriesReadyToIssueComb = Vec(Bool(), iqConfig.depth)
@@ -53,9 +59,6 @@ class IssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
     when(entryValids(i)) {
       val s1RegisteredReady = currentEntryReg.src1Ready
       val s2RegisteredReady = currentEntryReg.src2Ready
-      val s3RegisteredReady =
-        if (iqConfig.usesSrc3) currentEntryReg.asInstanceOf[IQEntryFpu].src3Ready
-        else True // Assuming src3Ready is present
 
       val src1NeedsWakeup = currentEntryReg.useSrc1 && !s1RegisteredReady
       val s1WokenByBypassThisCycle = io.bypassIn.foldLeft(False) { (acc, bypassPort) =>
@@ -83,32 +86,12 @@ class IssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
       }
       val s2EffectivelyReadyThisCycle = s2RegisteredReady || s2WokenByBypassThisCycle
 
-      val s3EffectivelyReadyThisCycle = if (iqConfig.usesSrc3) {
-        val entryWithSrc3 = currentEntryReg.asInstanceOf[IQEntryFpu]
-        val src3NeedsWakeup = entryWithSrc3.useSrc3 && !entryWithSrc3.src3Ready
-        val s3WokenByBypassThisCycle = io.bypassIn.foldLeft(False) { (acc, bypassPort) =>
-          val matches =
-            entryWithSrc3.src3Tag === bypassPort.payload.physRegIdx && entryWithSrc3.src3IsFpr === bypassPort.payload.isFPR
-          val canWake = bypassPort.valid && src3NeedsWakeup && matches
-          when(canWake && !acc) {
-            entries(i).asInstanceOf[IQEntryFpu].src3Data := bypassPort.payload.physRegData
-            entries(i).asInstanceOf[IQEntryFpu].src3Ready := True // Update the register for next cycle
-          }
-          acc || canWake
-        }
-        s3RegisteredReady || s3WokenByBypassThisCycle
-      } else {
-        True
-      }
-
       val useSrc1Comb = currentEntryReg.useSrc1
       val useSrc2Comb = currentEntryReg.useSrc2
-      val useSrc3Comb = if (iqConfig.usesSrc3) currentEntryReg.asInstanceOf[IQEntryFpu].useSrc3 else False
 
       entriesReadyToIssueComb(i) := // This is the combinational ready signal
         (!useSrc1Comb || s1EffectivelyReadyThisCycle) &&
-          (!useSrc2Comb || s2EffectivelyReadyThisCycle) &&
-          (if (iqConfig.usesSrc3) !useSrc3Comb || s3EffectivelyReadyThisCycle else True)
+          (!useSrc2Comb || s2EffectivelyReadyThisCycle)
     }
   }
 
@@ -159,20 +142,20 @@ object IssueQueueComponent {
     new IssueQueueComponent(iqConf, id)
   }
 
-  def FpuIQ(
-      pipelineConfig: PipelineConfig,
-      depth: Int,
-      usesSrc3: Boolean,
-      id: Int = 0
-  ): IssueQueueComponent[IQEntryFpu] = {
-    val iqConf = IssueQueueConfig[IQEntryFpu](
-      pipelineConfig = pipelineConfig,
-      depth = depth,
-      exeUnitType = ExeUnitType.FPU_ADD_MUL_CVT_CMP,
-      uopEntryType = HardType(IQEntryFpu(pipelineConfig, usesSrc3)),
-      usesSrc3 = usesSrc3,
-      name = "FpuIQ"
-    )
-    new IssueQueueComponent(iqConf, id)
-  }
+  // def FpuIQ(
+  //     pipelineConfig: PipelineConfig,
+  //     depth: Int,
+  //     usesSrc3: Boolean,
+  //     id: Int = 0
+  // ): IssueQueueComponent[IQEntryFpu] = {
+  //   val iqConf = IssueQueueConfig[IQEntryFpu](
+  //     pipelineConfig = pipelineConfig,
+  //     depth = depth,
+  //     exeUnitType = ExeUnitType.FPU_ADD_MUL_CVT_CMP,
+  //     uopEntryType = HardType(IQEntryFpu(pipelineConfig, usesSrc3)),
+  //     usesSrc3 = usesSrc3,
+  //     name = "FpuIQ"
+  //   )
+  //   new IssueQueueComponent(iqConf, id)
+  // }
 }

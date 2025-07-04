@@ -46,6 +46,11 @@ case class SuperScalarFreeListFreePort(config: SuperScalarFreeListConfig) extend
   val enable = Bool()
   val physReg = UInt(config.physRegIdxWidth)
   override def asMaster(): Unit = { out(enable); out(physReg) }
+
+  def setIdle(): Unit = {
+    enable := False
+    physReg := 0
+  }
 }
 
 case class SuperScalarFreeListIO(config: SuperScalarFreeListConfig) extends Bundle with IMasterSlave {
@@ -86,7 +91,7 @@ case class SuperScalarFreeListIO(config: SuperScalarFreeListConfig) extends Bund
 
 class SuperScalarFreeList(val config: SuperScalarFreeListConfig) extends Component {
   val io = slave(SuperScalarFreeListIO(config))
-
+  val enableLog = false
   val freeRegsMask = Reg(Bits(config.numPhysRegs bits)) setName ("freeRegsMask_reg")
   val initMask = Bits(config.numPhysRegs bits)
 
@@ -107,19 +112,19 @@ class SuperScalarFreeList(val config: SuperScalarFreeListConfig) extends Compone
   // (indices 0 to numInitialArchMappings-1) remain False (used) as per initMask.clearAll().
 
   freeRegsMask.init(initMask)
-  report(L"[DUT] Initial freeRegsMask (after init): ${freeRegsMask}")
+  if(enableLog) report(L"[DUT] Initial freeRegsMask (after init): ${freeRegsMask}")
 
   // --- Allocation Logic (Superscalar) ---
   var currentMaskForAlloc_iter = freeRegsMask // This var will hold the mask state as it passes through ports
   val availableRegsForAlloc_at_cycle_start = CountOne(freeRegsMask)
 
-  report(
+  if(enableLog) report(
     L"[SSFreeList: Alloc Phase] Start of cycle. freeRegsMask_reg = ${freeRegsMask}, availableRegsForAlloc_at_cycle_start = ${availableRegsForAlloc_at_cycle_start}"
   )
 
   for (i <- 0 until config.numAllocatePorts) {
     val port = io.allocate(i)
-    report(L"[SSFreeList: Alloc Port ${i.toString()}] Input alloc enable = ${port.enable}")
+    if(enableLog) report(L"[SSFreeList: Alloc Port ${i.toString()}] Input alloc enable = ${port.enable}")
 
     val isAnyFreeInCurrentIterMask = currentMaskForAlloc_iter.orR
     val enoughOverallRegsForThisPort = availableRegsForAlloc_at_cycle_start > U(i)
@@ -129,16 +134,16 @@ class SuperScalarFreeList(val config: SuperScalarFreeListConfig) extends Compone
     port.success := canAllocateThisPort && port.enable
     port.physReg := chosenPhysReg
 
-    report(
+    if(enableLog) report(
       L"[SSFreeList: Alloc Port ${i.toString()}] currentMaskForAlloc_iter (before this port) = ${currentMaskForAlloc_iter}, "
     )
-    report(
+    if(enableLog) report(
       L"    isAnyFreeInCurrentIterMask = ${isAnyFreeInCurrentIterMask}, enoughOverallRegs = ${enoughOverallRegsForThisPort}, "
     )
-    report(
+    if(enableLog) report(
       L"    canAllocateThisPort (pre-enable) = ${canAllocateThisPort}, chosenPhysReg (pre-enable) = ${chosenPhysReg}"
     )
-    report(
+    if(enableLog) report(
       L"[SSFreeList: *** Alloc Port ${i.toString()}] Output success = ${port.success}, Output physReg = ${port.physReg}"
     )
 
@@ -147,12 +152,12 @@ class SuperScalarFreeList(val config: SuperScalarFreeListConfig) extends Compone
     when(port.enable && canAllocateThisPort) {
       maskAfterThisPort := currentMaskForAlloc_iter
       maskAfterThisPort(chosenPhysReg) := False
-      report(
+      if(enableLog) report(
         L"[SSFreeList: Alloc Port ${i.toString()}] SUCCESSFUL ALLOC. Chosen p${chosenPhysReg}. maskAfterThisPort calculated as ${maskAfterThisPort} (from ${currentMaskForAlloc_iter})"
       )
     } otherwise {
       maskAfterThisPort := currentMaskForAlloc_iter // No change if no alloc
-      report(
+      if(enableLog) report(
         L"[SSFreeList: Alloc Port ${i.toString()}] NO ALLOC happened or disabled. maskAfterThisPort is ${maskAfterThisPort} (same as currentMaskForAlloc_iter)"
       )
     }
@@ -164,14 +169,14 @@ class SuperScalarFreeList(val config: SuperScalarFreeListConfig) extends Compone
   val nextFreeRegsMask_final_comb = CombInit(
     currentMaskForAlloc_iter
   ) // Use the final state of currentMaskForAlloc_iter
-  report(
+  if(enableLog) report(
     L"[SSFreeList: Free Phase] Mask after all alloc ports (currentMaskForAlloc_iter) = ${currentMaskForAlloc_iter}"
   )
-  report(L"[SSFreeList: Free Phase] Initial nextFreeRegsMask_final_comb = ${nextFreeRegsMask_final_comb}")
+  if(enableLog) report(L"[SSFreeList: Free Phase] Initial nextFreeRegsMask_final_comb = ${nextFreeRegsMask_final_comb}")
 
   for (i <- 0 until config.numFreePorts) {
     val port = io.free(i)
-    report(L"[SSFreeList: Free Port ${i.toString()}] Input enable = ${port.enable}, Input physReg = ${port.physReg}")
+    if(enableLog) report(L"[SSFreeList: Free Port ${i.toString()}] Input enable = ${port.enable}, Input physReg = ${port.physReg}")
 
     when(port.enable) {
       // Physical register 0 (if numInitialArchMappings > 0) should ideally not be freed explicitly
@@ -186,7 +191,7 @@ class SuperScalarFreeList(val config: SuperScalarFreeListConfig) extends Compone
       val canFreeThisReg = port.physReg =/= U(0, config.physRegIdxWidth) ||
         Bool(config.numPhysRegs == 1 && port.physReg == U(0)) // Original condition for p0
 
-      report(L"[SSFreeList: Free Port ${i.toString()}] canFreeThisReg = ${canFreeThisReg}")
+      if(enableLog) report(L"[SSFreeList: Free Port ${i.toString()}] canFreeThisReg = ${canFreeThisReg}")
 
       when(canFreeThisReg) {
         // IMPORTANT: If multiple free ports target the same physReg, this is fine (idempotent True).
@@ -195,33 +200,33 @@ class SuperScalarFreeList(val config: SuperScalarFreeListConfig) extends Compone
         val physRegToFree = port.physReg
         val oldBitVal = nextFreeRegsMask_final_comb(physRegToFree)
         nextFreeRegsMask_final_comb(physRegToFree) := True
-        report(
+        if(enableLog) report(
           L"[SSFreeList: Free Port ${i.toString()}] SUCCESSFUL FREE. Marking p${physRegToFree} as True. Old bit value was ${oldBitVal}. nextFreeRegsMask_final_comb now ${nextFreeRegsMask_final_comb}"
         )
       } otherwise {
-        report(
+        if(enableLog) report(
           L"[SSFreeList: Free Port ${i.toString()}] Cannot free this reg (p0 special or invalid). No change to mask from this port."
         )
       }
     }
   }
 
-  report(
+  if(enableLog) report(
     L"[SSFreeList: Update Phase] Final nextFreeRegsMask_final_comb (before restore check) = ${nextFreeRegsMask_final_comb}"
   )
 
   // --- Checkpoint Restore and Final Update ---
   io.restoreState.ready := True // Always ready to accept restore
-  report(
+  if(enableLog) report(
     L"[SSFreeList: Update Phase] Restore input: valid=${io.restoreState.valid}, payload=${io.restoreState.payload.freeMask}"
   )
 
   when(io.restoreState.valid) {
     freeRegsMask := io.restoreState.payload.freeMask
-    report(L"[SSFreeList: Update Phase] RESTORING freeRegsMask_reg to ${io.restoreState.payload.freeMask}")
+    if(enableLog) report(L"[SSFreeList: Update Phase] RESTORING freeRegsMask_reg to ${io.restoreState.payload.freeMask}")
   } otherwise {
     freeRegsMask := nextFreeRegsMask_final_comb
-    report(
+    if(enableLog) report(
       L"[SSFreeList: Update Phase] UPDATING freeRegsMask_reg with nextFreeRegsMask_final_comb = ${nextFreeRegsMask_final_comb}"
     )
   }
@@ -230,13 +235,13 @@ class SuperScalarFreeList(val config: SuperScalarFreeListConfig) extends Compone
   io.currentState.freeMask := freeRegsMask // This reflects the *register's* value
   io.numFreeRegs := CountOne(freeRegsMask) // This also reflects the *register's* value
 
-  // Report final register value at the end of the cycle evaluation (for next cycle's start)
+  // If(enableLog) Report final register value at the end of the cycle evaluation (for next cycle's start)
   // This needs to be done carefully, perhaps in a post-cycle check if the simulator allows,
-  // or rely on the "Start of cycle" report in the next cycle.
-  // For now, let's add a report that shows what io.numFreeRegs and io.currentState will be based on the update.
+  // or rely on the "Start of cycle" if(enableLog) report in the next cycle.
+  // For now, let's add a if(enableLog) report that shows what io.numFreeRegs and io.currentState will be based on the update.
   val finalRegValueForNextCycle =
     Mux(io.restoreState.valid, io.restoreState.payload.freeMask, nextFreeRegsMask_final_comb)
-  report(L"[SSFreeList: End Of Cycle Eval] freeRegsMask_reg will be ${finalRegValueForNextCycle} for next cycle.")
-  report(L"[SSFreeList: End Of Cycle Eval] io.numFreeRegs output will be ${CountOne(finalRegValueForNextCycle)}.")
-  report(L"[SSFreeList: End Of Cycle Eval] io.currentState.freeMask output will be ${finalRegValueForNextCycle}.")
+  if(enableLog) report(L"[SSFreeList: End Of Cycle Eval] freeRegsMask_reg will be ${finalRegValueForNextCycle} for next cycle.")
+  if(enableLog) report(L"[SSFreeList: End Of Cycle Eval] io.numFreeRegs output will be ${CountOne(finalRegValueForNextCycle)}.")
+  if(enableLog) report(L"[SSFreeList: End Of Cycle Eval] io.currentState.freeMask output will be ${finalRegValueForNextCycle}.")
 }

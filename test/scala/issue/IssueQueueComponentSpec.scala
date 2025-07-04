@@ -1,4 +1,4 @@
-// testOnly parallax.test.issue.IssueQueueComponentSpec
+// filename: src/test/scala/parallax/issue/IssueQueueComponentSpec.scala
 package test.issue
 
 import parallax.common._
@@ -12,6 +12,7 @@ import spinal.lib.sim.{StreamDriver, StreamMonitor, StreamReadyRandomizer, Score
 
 import scala.collection.mutable
 import scala.util.Random
+import parallax.issue.IqDispatchCmd
 
 // Testbench component that wraps the generic IssueQueueComponent for IntIQ
 class IntIssueQueueTestBench(
@@ -33,11 +34,9 @@ class IntIssueQueueTestBench(
 
   iq.io <> io
 
-  val internalValidCount = iq.currentValidCount // This is a Reg
+  val internalValidCount = iq.currentValidCount
   internalValidCount.simPublic()
 
-  // For white-box inspection, make internal state accessible
-  // These are Reg(...) or Vec(Reg(...)) so their values are from the *start* of the current cycle
   val simInternalEntries = Vec(iq.entries.map(e => e.simPublic()))
   val simInternalEntryValids = Vec(iq.entryValids.map(ev => ev.simPublic()))
 
@@ -54,7 +53,7 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
       bypassSources: Int = DEFAULT_NUM_BYPASS_SOURCES
   ): PipelineConfig = PipelineConfig(
     xlen = XLEN,
-    physGprCount = 32 + 16 + bypassSources, // Adjusted for unique phys regs
+    physGprCount = 32 + 16 + bypassSources,
     archGprCount = 32,
     bypassNetworkSources = bypassSources,
     uopUniqueIdWidth = 8 bits,
@@ -62,13 +61,11 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
     fetchWidth = 2,
     dispatchWidth = 2,
     commitWidth = 2,
-    robDepth = 64 + iqDepth // Adjusted for unique ROB idx
-    // archRegIdxWidth, physGprIdxWidth, etc. are now correctly derived inside PipelineConfig
+    robDepth = 64 + iqDepth
   )
 
   def initDutIO(dut: IntIssueQueueTestBench)(implicit cd: ClockDomain): Unit = {
     dut.io.allocateIn.valid #= false
-    // dut.io.allocateIn.payload.setDefault() // Payload is driven per-test
     dut.io.issueOut.ready #= false
     dut.io.bypassIn.foreach { bp =>
       bp.valid #= false
@@ -78,9 +75,9 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
     cd.waitSampling()
   }
 
-  // -- MODIFICATION START (Corrected driveAllocRequest) --
+  // driveAllocRequest now drives an IqDispatchCmd
   def driveAllocRequest(
-      allocFlowTarget: Flow[IQEntryAluInt], // Target the DUT's allocateIn Flow directly
+      allocFlowTarget: Flow[IqDispatchCmd], // Target the DUT's allocateIn Flow
       robPtrVal: Int,
       pCfg: PipelineConfig,
       physDestIdxVal: Int = 1,
@@ -88,61 +85,55 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
       destIsFprVal: Boolean = false,
       useSrc1Val: Boolean = false,
       src1TagVal: Int = 0,
-      src1InitialReadyVal: Boolean = true,
-      src1DataVal: BigInt = 0,
       src1IsFprVal: Boolean = false,
       useSrc2Val: Boolean = false,
       src2TagVal: Int = 0,
-      src2InitialReadyVal: Boolean = true,
-      src2DataVal: BigInt = 0,
       src2IsFprVal: Boolean = false
   )(implicit cd: ClockDomain): Unit = {
     allocFlowTarget.valid #= true
+    
+    val cmd = allocFlowTarget.payload
+    val uop = cmd.uop
+    
+    uop.setDefaultForSim()
 
-    allocFlowTarget.payload.robPtr #= robPtrVal
-    allocFlowTarget.payload.physDest.idx #= physDestIdxVal
-    allocFlowTarget.payload.writesToPhysReg #= writesPhysVal
-    allocFlowTarget.payload.physDestIsFpr #= destIsFprVal
+    uop.robPtr #= robPtrVal
+    
+    uop.decoded.isValid #= true
+    uop.decoded.writeArchDestEn #= writesPhysVal
+    uop.decoded.archDest.idx #= physDestIdxVal
 
-    allocFlowTarget.payload.useSrc1 #= useSrc1Val
+    uop.decoded.useArchSrc1 #= useSrc1Val
     if (useSrc1Val) {
-      allocFlowTarget.payload.src1Tag #= src1TagVal
-      allocFlowTarget.payload.src1Ready #= src1InitialReadyVal
-      allocFlowTarget.payload.src1Data #= src1DataVal
-      allocFlowTarget.payload.src1IsFpr #= src1IsFprVal
-    } else {
-      allocFlowTarget.payload.src1Ready #= true // If not used, effectively ready
-      allocFlowTarget.payload.src1Tag #= 0 // Default
-      allocFlowTarget.payload.src1Data #= 0
-      allocFlowTarget.payload.src1IsFpr #= false
+      uop.decoded.archSrc1.idx #= src1TagVal
+      uop.decoded.archSrc1.rtype #= (if(src1IsFprVal) ArchRegType.FPR else ArchRegType.GPR)
     }
-
-    allocFlowTarget.payload.useSrc2 #= useSrc2Val
+    
+    uop.decoded.useArchSrc2 #= useSrc2Val
     if (useSrc2Val) {
-      allocFlowTarget.payload.src2Tag #= src2TagVal
-      allocFlowTarget.payload.src2Ready #= src2InitialReadyVal
-      allocFlowTarget.payload.src2Data #= src2DataVal
-      allocFlowTarget.payload.src2IsFpr #= src2IsFprVal
-    } else {
-      allocFlowTarget.payload.src2Ready #= true // If not used, effectively ready
-      allocFlowTarget.payload.src2Tag #= 0
-      allocFlowTarget.payload.src2Data #= 0
-      allocFlowTarget.payload.src2IsFpr #= false
+      uop.decoded.archSrc2.idx #= src2TagVal
+      uop.decoded.archSrc2.rtype #= (if(src2IsFprVal) ArchRegType.FPR else ArchRegType.GPR)
+    }
+    
+    uop.rename.writesToPhysReg #= writesPhysVal
+    if (writesPhysVal) {
+      uop.rename.physDest.idx #= physDestIdxVal
+      uop.rename.physDestIsFpr #= destIsFprVal
+      uop.rename.allocatesPhysDest #= true
+    }
+    if (useSrc1Val) {
+      uop.rename.physSrc1.idx #= src1TagVal
+      uop.rename.physSrc1IsFpr #= src1IsFprVal
+    }
+    if (useSrc2Val) {
+      uop.rename.physSrc2.idx #= src2TagVal
+      uop.rename.physSrc2IsFpr #= src2IsFprVal
     }
 
-    // isReadyToIssue should be determined by the IQ logic based on the source ready states.
-    // For IQEntryAluInt, it doesn't have a separate 'valid' field beyond its presence in entryValids.
-    // The default state of aluCtrl/shiftCtrl is handled by IQEntryAluInt.setDefault if needed,
-    // or they are driven directly if specific values are required for a test.
-    // Here, we assume the default controls are fine for typical issue tests.
-    allocFlowTarget.payload.aluCtrl.setDefault()
-    allocFlowTarget.payload.shiftCtrl.setDefault()
-  
     cd.waitSampling()
     allocFlowTarget.valid #= false
   }
-  // -- MODIFICATION END --
-
+  
   def driveBypassOnPort(
       bypassPort: Flow[BypassMessage],
       pRegIdx: Int,
@@ -157,12 +148,10 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
     bypassPort.payload.robPtr #= robPtrProducer
     bypassPort.payload.isFPR #= isFpr
     bypassPort.payload.hasException #= isExcp
-    // bypassPort.payload.exceptionCode will be default (0) from setDefault if not driven
   }
 
   def deassertBypassOnPort(bypassPort: Flow[BypassMessage]): Unit = {
     bypassPort.valid #= false
-    // bypassPort.payload.setDefault() // Payload values don't matter when valid is false
   }
 
   val testParams = Seq(
@@ -176,41 +165,33 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
 
     test(s"IntIQ_${iqDepth}deep_${numBypass}bp - Basic Allocation and Issue (Immediately Ready)") {
       SimConfig.withWave.compile(new IntIssueQueueTestBench(pCfg, iqDepth)).doSim { dut =>
-        // -- MODIFICATION START (Corrected clock domain and scoreboard usage) --
-        implicit val cd = dut.clockDomain.get // Corrected
-        // -- MODIFICATION END --
+        implicit val cd = dut.clockDomain.get
         dut.clockDomain.forkStimulus(10)
         initDutIO(dut)
 
         val scoreboard = ScoreboardInOrder[Int]()
         StreamMonitor(dut.io.issueOut, cd) { payload =>
           scoreboard.pushDut(payload.robPtr.toInt)
-          ParallaxLogger.log(s"SIM MONITOR: Issued RobPtr=${payload.robPtr.toInt}")
         }
 
         scoreboard.pushRef(10)
-        driveAllocRequest(dut.io.allocateIn, robPtrVal = 10, pCfg = pCfg, useSrc1Val = false, useSrc2Val = false)
+        driveAllocRequest(dut.io.allocateIn, robPtrVal = 10, pCfg = pCfg)
 
-        cd.waitSampling() // Allow allocation to propagate
-        assert(dut.io.canAccept.toBoolean, "IQ should still accept after 1 alloc if not full")
-        // internalValidCount is a Reg, reflects state from *start* of this cycle
-        // After driveAllocRequest, alloc happened in previous cycle.
-        assert(dut.internalValidCount.toInt == 1, "Valid count should be 1 (checked at start of cycle after alloc)")
+        cd.waitSampling()
+        assert(dut.io.canAccept.toBoolean)
+        assert(dut.internalValidCount.toInt == 1)
 
         dut.io.issueOut.ready #= true
-        // -- MODIFICATION START (Corrected scoreboard wait condition) --
-        // Wait for scoreboard to process, or a timeout
         var timeout = 20
         while ((scoreboard.dut.nonEmpty || scoreboard.ref.nonEmpty) && timeout > 0) {
           cd.waitSampling()
           timeout -= 1
         }
-        assert(timeout > 0, "Timeout waiting for basic alloc/issue to complete in scoreboard")
-        // -- MODIFICATION END --
+        assert(timeout > 0, "Timeout waiting for basic alloc/issue")
 
-        scoreboard.checkEmptyness() // Final check
-        cd.waitSampling() // Sample again for internalValidCount to reflect the issue
-        assert(dut.internalValidCount.toInt == 0, "Valid count should be 0 after issue")
+        scoreboard.checkEmptyness()
+        cd.waitSampling()
+        assert(dut.internalValidCount.toInt == 0)
       }
     }
 
@@ -231,14 +212,12 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
           pCfg = pCfg,
           useSrc1Val = true,
           src1TagVal = 5,
-          src1InitialReadyVal = false,
-          src1IsFprVal = false,
           useSrc2Val = false
         )
         cd.waitSampling()
         assert(dut.internalValidCount.toInt == 1)
 
-        driveBypassOnPort(dut.io.bypassIn(0), pRegIdx = 5, data = 123, isFpr = false)
+        driveBypassOnPort(dut.io.bypassIn(0), pRegIdx = 5, data = 123)
         cd.waitSampling()
         deassertBypassOnPort(dut.io.bypassIn(0))
 
@@ -247,7 +226,7 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
           cd.waitSampling()
           timeout -= 1
         }
-        assert(timeout > 0, "Timeout waiting for single source wakeup to complete")
+        assert(timeout > 0, "Timeout waiting for single source wakeup")
         scoreboard.checkEmptyness()
         cd.waitSampling()
         assert(dut.internalValidCount.toInt == 0)
@@ -270,22 +249,18 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
           pCfg = pCfg,
           useSrc1Val = true,
           src1TagVal = 10,
-          src1InitialReadyVal = false,
-          src1IsFprVal = false,
           useSrc2Val = true,
-          src2TagVal = 11,
-          src2InitialReadyVal = false,
-          src2IsFprVal = false
+          src2TagVal = 11
         )
         cd.waitSampling()
         assert(dut.internalValidCount.toInt == 1, "Count after alloc for 2-src wakeup")
 
-        driveBypassOnPort(dut.io.bypassIn(0), pRegIdx = 10, data = 301, isFpr = false)
+        driveBypassOnPort(dut.io.bypassIn(0), pRegIdx = 10, data = 301)
         cd.waitSampling()
         deassertBypassOnPort(dut.io.bypassIn(0))
-        cd.waitSampling(2) // Wait to ensure it doesn't issue yet
+        cd.waitSampling(2)
 
-        driveBypassOnPort(dut.io.bypassIn(0), pRegIdx = 11, data = 302, isFpr = false)
+        driveBypassOnPort(dut.io.bypassIn(0), pRegIdx = 11, data = 302)
         cd.waitSampling()
         deassertBypassOnPort(dut.io.bypassIn(0))
 
@@ -320,18 +295,14 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
             pCfg = pCfg,
             useSrc1Val = true,
             src1TagVal = 15,
-            src1InitialReadyVal = false,
-            src1IsFprVal = false,
             useSrc2Val = true,
-            src2TagVal = 16,
-            src2InitialReadyVal = false,
-            src2IsFprVal = false
+            src2TagVal = 16
           )
           cd.waitSampling()
           assert(dut.internalValidCount.toInt == 1, "Count after alloc for simultaneous wakeup")
 
-          driveBypassOnPort(dut.io.bypassIn(0), pRegIdx = 15, data = 351, isFpr = false)
-          driveBypassOnPort(dut.io.bypassIn(1), pRegIdx = 16, data = 352, isFpr = false) // Simultaneous
+          driveBypassOnPort(dut.io.bypassIn(0), pRegIdx = 15, data = 351)
+          driveBypassOnPort(dut.io.bypassIn(1), pRegIdx = 16, data = 352)
           cd.waitSampling()
           deassertBypassOnPort(dut.io.bypassIn(0))
           deassertBypassOnPort(dut.io.bypassIn(1))
@@ -362,33 +333,23 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
         for (i <- 0 until iqDepth) {
           val robPtr = 40 + i
           scoreboard.pushRef(robPtr)
-          driveAllocRequest(dut.io.allocateIn, robPtrVal = robPtr, pCfg = pCfg, useSrc1Val = false, useSrc2Val = false)
+          driveAllocRequest(dut.io.allocateIn, robPtrVal = robPtr, pCfg = pCfg)
         }
-        cd.waitSampling() // After all allocations
-        assert(
-          dut.internalValidCount.toInt == iqDepth,
-          s"IQ should be full with $iqDepth entries. Actual: ${dut.internalValidCount.toInt}"
-        )
+        cd.waitSampling()
+        assert(dut.internalValidCount.toInt == iqDepth)
         assert(!dut.io.canAccept.toBoolean, "IQ should not accept when full")
 
         dut.io.issueOut.ready #= true
         var timeout = iqDepth * 5 + 20
         while ((scoreboard.dut.nonEmpty || scoreboard.ref.nonEmpty) && timeout > 0) {
-          // ParallaxLogger.log(s"Fill/Drain Loop: DUT Q: ${scoreboard.dut.size}, REF Q: ${scoreboard.ref.size}, Timeout: $timeout")
-          // ParallaxLogger.log(s"IQ Valid Count: ${dut.internalValidCount.toInt}, canAccept: ${dut.io.canAccept.toBoolean}, issueOut.valid: ${dut.io.issueOut.valid.toBoolean}")
-          // for(k_idx <- 0 until iqDepth){
-          // }
           cd.waitSampling()
           timeout -= 1
         }
-        assert(
-          timeout > 0,
-          s"Timeout waiting for fill and drain. DUT Q: ${scoreboard.dut.size}, REF Q: ${scoreboard.ref.size}"
-        )
+        assert(timeout > 0, "Timeout waiting for fill and drain")
         scoreboard.checkEmptyness()
         cd.waitSampling()
-        assert(dut.internalValidCount.toInt == 0, "IQ should be empty after draining")
-        assert(dut.io.canAccept.toBoolean, "IQ should accept after draining")
+        assert(dut.internalValidCount.toInt == 0)
+        assert(dut.io.canAccept.toBoolean)
       }
     }
 
@@ -398,17 +359,8 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
         dut.clockDomain.forkStimulus(10)
         initDutIO(dut)
 
-        // No scoreboard needed here as we expect no issues after flush for non-ready items.
-        // And ready items might issue before flush if issueOut.ready is high.
-
-        dut.io.issueOut.ready #= false // Prevent issues to observe flush effect clearly
-        driveAllocRequest(
-          dut.io.allocateIn,
-          robPtrVal = 50,
-          pCfg = pCfg,
-          useSrc1Val = false,
-          useSrc2Val = false
-        ) // Ready
+        dut.io.issueOut.ready #= false
+        driveAllocRequest(dut.io.allocateIn, robPtrVal = 50, pCfg = pCfg)
         var expectedCountBeforeFlush = 1
         if (iqDepth > 1) {
           driveAllocRequest(
@@ -416,28 +368,23 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
             robPtrVal = 51,
             pCfg = pCfg,
             useSrc1Val = true,
-            src1TagVal = 20,
-            src1InitialReadyVal = false // Not ready
+            src1TagVal = 20
           )
           expectedCountBeforeFlush = 2
         }
         cd.waitSampling()
-        assert(
-          dut.internalValidCount.toInt == expectedCountBeforeFlush,
-          s"Count should be $expectedCountBeforeFlush before flush. Actual: ${dut.internalValidCount.toInt}"
-        )
+        assert(dut.internalValidCount.toInt == expectedCountBeforeFlush)
 
         dut.io.flush #= true
-        cd.waitSampling() // Flush is combinational to entryValids write enable for Regs
+        cd.waitSampling()
         dut.io.flush #= false
-        cd.waitSampling() // entryValids registers are cleared, internalValidCount (Reg) updates
+        cd.waitSampling()
 
         assert(dut.internalValidCount.toInt == 0, "IQ should be empty after flush")
         assert(dut.io.canAccept.toBoolean, "IQ should accept after flush")
 
-        dut.io.issueOut.ready #= true // Enable issue
-        cd.waitSampling(5) // Wait a few cycles
-        // If StreamMonitor existed and recorded anything, it'd be an error.
+        dut.io.issueOut.ready #= true
+        cd.waitSampling(5)
         assert(dut.internalValidCount.toInt == 0, "IQ should remain empty, nothing issued post-flush")
       }
     }
@@ -451,31 +398,25 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
         val scoreboard = ScoreboardInOrder[Int]()
         StreamMonitor(dut.io.issueOut, cd) { payload => scoreboard.pushDut(payload.robPtr.toInt) }
 
-        dut.io.issueOut.ready #= false // Prevent issue while filling
+        dut.io.issueOut.ready #= false
         for (i <- 0 until iqDepth) {
           val robPtr = 60 + i
           scoreboard.pushRef(robPtr)
-          driveAllocRequest(dut.io.allocateIn, robPtrVal = robPtr, pCfg = pCfg, useSrc1Val = false, useSrc2Val = false)
+          driveAllocRequest(dut.io.allocateIn, robPtrVal = robPtr, pCfg = pCfg)
         }
         cd.waitSampling()
-        assert(
-          dut.internalValidCount.toInt == iqDepth,
-          s"IQ should be full for back-to-back test. Actual: ${dut.internalValidCount.toInt}"
-        )
+        assert(dut.internalValidCount.toInt == iqDepth)
 
-        dut.io.issueOut.ready #= true // Enable issue
+        dut.io.issueOut.ready #= true
         var timeout = iqDepth + 10
         while ((scoreboard.dut.nonEmpty || scoreboard.ref.nonEmpty) && timeout > 0) {
           cd.waitSampling()
           timeout -= 1
         }
-        assert(
-          timeout > 0,
-          s"Timeout waiting for back-to-back issue. DUT Q: ${scoreboard.dut.size}, REF Q: ${scoreboard.ref.size}"
-        )
+        assert(timeout > 0, "Timeout waiting for back-to-back issue")
         scoreboard.checkEmptyness()
         cd.waitSampling()
-        assert(dut.internalValidCount.toInt == 0, "IQ should be empty after back-to-back draining")
+        assert(dut.internalValidCount.toInt == 0)
       }
     }
   }

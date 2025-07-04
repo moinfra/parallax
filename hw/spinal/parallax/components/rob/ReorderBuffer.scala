@@ -296,7 +296,7 @@ class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfi
       val genBit = slotRobPtr(i).msb // 假设 robGenBitWidth = 1
 
       payloads.write(address = physIdx, data = newPayload) // 使用物理索引写入 Mem
-      if(enableLog) report(L"[ROB] ALLOC_PAYLOAD_WRITE[${i}]: Writing payload to robPtr=${slotRobPtr(i)} (physIdx=${physIdx}, genBit=${genBit}): ${newPayload.uop.format}")
+      if(enableLog) report(L"[ROB] ALLOC_PAYLOAD_WRITE[${i}]: Writing payload to robPtr=${slotRobPtr(i)} (physIdx=${physIdx}, genBit=${genBit}): ") // ${newPayload.uop.format}
       
       statuses(physIdx).busy := True
       statuses(physIdx).done := False

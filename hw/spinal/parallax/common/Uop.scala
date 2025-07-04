@@ -923,6 +923,18 @@ case class RenamedUop(
     this
   }
 
+  def initWithRobPtr(uop: RenamedUop, robPtr: UInt): this.type = {
+    this.decoded := uop.decoded
+    this.rename := uop.rename
+    this.robPtr := robPtr
+    this.uniqueId := uop.uniqueId
+    this.dispatched := uop.dispatched
+    this.executed := uop.executed
+    this.hasException := uop.hasException
+    this.exceptionCode := uop.exceptionCode
+    this
+  }
+
   def setDefaultForSim(decoded: DecodedUop = null): this.type = {
     import spinal.core.sim._
     if (decoded != null) this.decoded := decoded else this.decoded.setDefaultForSim()

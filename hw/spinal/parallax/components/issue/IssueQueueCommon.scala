@@ -81,6 +81,3 @@ trait IQEntryLike extends Bundle {
 }
 // -- MODIFICATION END --
 
-// Keep IQEntryAluInt, but make it implement IQEntryLike
-// Add IQEntryFpu as well
-// ... (IQEntryAluInt and new IQEntryFpu definitions will follow below)

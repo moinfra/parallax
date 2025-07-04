@@ -35,14 +35,14 @@ class DecodePlugin(val issueConfig: PipelineConfig) extends Plugin with LockedIm
     val groupPcIn = s0_decode(signals.GROUP_PC_IN)
     val rawInstructionsIn = s0_decode(signals.RAW_INSTRUCTIONS_IN)
     val isGroupFaultIn = s0_decode(signals.IS_FAULT_IN)
-  val groupValidMask = s0_decode(signals.VALID_MASK)
+    val groupValidMask = s0_decode(signals.VALID_MASK)
 
     // --- 并行解码逻辑 ---
     // 创建一个 Vec 来存储每个解码槽的 DecodedUop 结果
     val decodedUopsOutputVec = Vec(HardType(DecodedUop(issueConfig)), issueConfig.fetchWidth)
 
     for (i <- 0 until issueConfig.fetchWidth) {
-      val decoder = new SimpleDecoder(issueConfig) // 每个槽位一个解码器实例
+      val decoder = new LA32RSimpleDecoder(issueConfig) // 每个槽位一个解码器实例
 
       // 计算当前指令的精确PC
       val instructionPC = groupPcIn + U(i * issueConfig.bytesPerInstruction)

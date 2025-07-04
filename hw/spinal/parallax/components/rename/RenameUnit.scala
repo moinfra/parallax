@@ -211,7 +211,7 @@ class RenameUnit(
   val overallOutputValid = io.decodedUopsIn.valid && !stallLackingResources && !io.flushIn
   io.renamedUopsOut.valid := overallOutputValid
   io.renamedUopsOut.payload := calculatedRenamedUops
-  io.decodedUopsIn.ready := io.renamedUopsOut.ready && !stallLackingResources && !io.flushIn
+  io.decodedUopsIn.ready := !stallLackingResources && !io.flushIn
 
   // --- 7. Flush Logic ---
   // 当 io.flushIn 为高时，overallOutputValid 会因为 !io.flushIn 而变为 False。

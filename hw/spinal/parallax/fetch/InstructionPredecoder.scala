@@ -7,9 +7,26 @@ case class PredecodeInfo() extends Bundle {
   val isBranch = Bool()
   val isJump = Bool()
   // is a jump with a PC-relative offset known at this stage
-  val isDirectJump = Bool() 
+  val isDirectJump = Bool()
   // The sign-extended, byte-addressed offset
-  val jumpOffset = SInt(32 bits) 
+  val jumpOffset = SInt(32 bits)
+
+  def setDefault(): this.type = {
+    isBranch := False
+    isJump := False
+    isDirectJump := False
+    jumpOffset := 0
+    this
+  }
+
+  def setDefaultForSim(): this.type = {
+    import spinal.core.sim._
+    isBranch #= false
+    isJump #= false
+    isDirectJump #= false
+    jumpOffset #= 0
+    this
+  }
 }
 
 class InstructionPredecoder(pCfg: PipelineConfig) extends Component {
