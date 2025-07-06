@@ -77,6 +77,7 @@ trait IQEntryLike extends Bundle {
 
   // --- Common Methods ---
   def setDefault(): this.type
+  def getEuType(): ExeUnitType.E
   def initFrom(renamedUop: RenamedUop, allocatedRobPtr: UInt): this.type
 }
 // -- MODIFICATION END --

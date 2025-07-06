@@ -63,14 +63,19 @@ class PhysicalRegFilePlugin(
   val regIdxWidth = log2Up(numPhysRegs) bits
   private val readPortRequests = ArrayBuffer[PrfReadPort]()
   private val writePortRequests = ArrayBuffer[PrfWritePort]()
+  
+  // 标记逻辑是否已经执行
+  private var logicExecuted = false
 
   override def newReadPort(): PrfReadPort = {
+    assert(!logicExecuted, "Cannot create read port after logic has been executed")
     val port = PrfReadPort(regIdxWidth, dataWidth)
     readPortRequests += port
     port
   }
 
   override def newWritePort(): PrfWritePort = {
+    assert(!logicExecuted, "Cannot create write port after logic has been executed")
     val port = PrfWritePort(regIdxWidth, dataWidth)
     writePortRequests += port
     port
@@ -88,6 +93,9 @@ class PhysicalRegFilePlugin(
     ParallaxLogger.log("[PRegPlugin] 物理寄存器在生成逻辑前，等待依赖它的插件就绪")
     lock.await()
     ParallaxLogger.log("[PRegPlugin] 好，物理寄存器开始连接读写逻辑")
+    
+    // 标记逻辑开始执行
+    logicExecuted = true
 
     val regFile = Mem.fill(numPhysRegs)(Bits(dataWidth))
 

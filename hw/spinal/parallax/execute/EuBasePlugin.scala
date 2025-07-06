@@ -15,44 +15,8 @@ import parallax.execute.{WakeupService, WakeupPayload}
 // 引入 BusyTableService
 import parallax.components.rename.BusyTableService
 
-case class EuPushPortPayload[T_EuSpecificContext <: Bundle](
-    euSpecificContextType: HardType[T_EuSpecificContext],
-    config: PipelineConfig
-) extends Bundle
-    with RobIndexedData {
-  val renamedUop = RenamedUop(config)
-  val src1Data = Bits(config.dataWidth)
-  val src2Data = Bits(config.dataWidth)
-  val euSpecificPayload = euSpecificContextType()
-  override def getRobPtr(): UInt = renamedUop.robPtr
-  def setDefault(): this.type = {
-    renamedUop.setDefault()
-    src1Data := B(0)
-    src2Data := B(0)
-    if (euSpecificContextType != null && euSpecificPayload.isInstanceOf[Bundle]) euSpecificPayload.assignDontCare()
-    this
-  }
-}
-
-trait EuInputSourceService[T_Ctx <: Bundle] extends Service {
-  def getEuInputPort(): Stream[EuPushPortPayload[T_Ctx]]
-  def getTargetName(): String
-}
-
-case class ParallaxEuCommonSignals[T_EuSpecificContext <: Bundle](
-    euSpecificContextType: HardType[T_EuSpecificContext],
-    config: PipelineConfig
-) {
-  val EU_INPUT_PAYLOAD = Stageable(
-    EuPushPortPayload(euSpecificContextType, config)
-  ) // Stageable now uses the same type as obtainedEuInput
-
-  val EXEC_RESULT_DATA = Stageable(Bits(config.dataWidth))
-  val EXEC_WRITES_TO_PREG = Stageable(Bool())
-  val EXEC_HAS_EXCEPTION = Stageable(Bool())
-  val EXEC_EXCEPTION_CODE = Stageable(UInt(config.exceptionCodeWidth))
-  val EXEC_DEST_IS_FPR = Stageable(Bool()) // 可选：如果目标类型改变，EU 可以驱动此信号
-}
+// 引入 IQEntryLike trait
+import parallax.components.issue.IQEntryLike
 
 // --- EU 寄存器文件类型枚举 ---
 sealed trait EuRegType
@@ -67,34 +31,38 @@ object EuRegType {
 
 abstract class EuBasePlugin(
     val euName: String,
-    val pipelineConfig: PipelineConfig,
-    val readPhysRsDataFromPush: Boolean
+    val pipelineConfig: PipelineConfig
 ) extends Plugin // Plugin 已经继承了 Area 和 Service
     with LockedImpl { // LockedImpl 用于 lock.await()
 
   // --- 需要由派生 EU 实现的抽象成员 ---
-  type T_EuSpecificContext <: Bundle // EU 特定上下文 Bundle 的类型 (如果不需要，可以是 EmptyBundle)
-  def euSpecificContextType: HardType[T_EuSpecificContext] // 返回 EU 特定上下文的 HardType
+  type T_IQEntry <: Bundle with IQEntryLike // EU 特定 IQ Entry Bundle 的类型
+  def iqEntryType: HardType[T_IQEntry] // 返回 EU 特定 IQ Entry 的 HardType
   def euRegType: EuRegType.C // 指定此 EU 与哪些物理寄存器文件交互
-
-  // 派生 EU 必须实现这些方法来定义其微流水线
-  def buildMicroPipeline(pipeline: Pipeline): Unit
-  def connectPipelineLogic(pipeline: Pipeline): Unit
-  // 派生 EU 必须返回其结果准备就绪的最终阶段
-  def getWritebackStage(pipeline: Pipeline): Stage
+  def getEuType: ExeUnitType.E
+  // 新增：由子类决定端口数量
+  def numGprReadPortsPerEu: Int
+  def numFprReadPortsPerEu: Int
+  // **新的抽象方法**: 子类必须实现这个方法来构建它们的内部逻辑
+  def buildEuLogic(): Unit
 
   // --- 通用基础设施 ---
-  lazy val commonSignals = ParallaxEuCommonSignals(euSpecificContextType, pipelineConfig)
-  // EU 流水线输入 Payload 的 Stageable
-
-  lazy val euInputPayloadType = EuPushPortPayload(euSpecificContextType, pipelineConfig)
-  var obtainedEuInput: Stream[EuPushPortPayload[T_EuSpecificContext]] = null
+  // EU的输入端口，由Linker连接
+  lazy val euInputPort = Stream(iqEntryType())
+  def getEuInputPort: Stream[T_IQEntry] = euInputPort
 
   // 为此 EU Plugin 内的所有信号/组件添加前缀，以便在 Verilog 中清晰显示
   this.withPrefix(euName)
 
   // ROBService 的泛型参数类型，通常是 RenamedUop
   type RU_TYPE_FOR_ROB = RenamedUop
+
+  // --- 新增：类型安全的连接方法 ---
+  // 这个方法接收一个"任何类型"的IQ输出流
+  // 它在内部进行类型安全的检查和连接
+  def connectIssueQueue(iqOutput: Stream[Bundle with IQEntryLike]): Unit = {
+    this.euInputPort << iqOutput.asInstanceOf[Stream[T_IQEntry]]
+  }
 
   // --- 服务依赖 (使用 lazy 实现延迟获取) ---
   lazy val gprFileService: PhysicalRegFileService = {
@@ -126,9 +94,7 @@ abstract class EuBasePlugin(
   lazy val wakeupSourcePort: Flow[WakeupPayload] = wakeupService.newWakeupSource()
 
   // --- PRF 读/写端口 ---
-  val numGprReadPortsPerEu = if (readPhysRsDataFromPush) 0 else 2 // 每个 EU 实例的 GPR 读端口数量
-  val numFprReadPortsPerEu = if (pipelineConfig.hasFpu && readPhysRsDataFromPush) 2 else 0 // 每个 EU 实例的 FPR 读端口数量
-
+  // 由子类决定端口数量
   lazy val gprReadPorts: Seq[PrfReadPort] =
     if (euRegType == EuRegType.GPR_ONLY || euRegType == EuRegType.MIXED_GPR_FPR) {
       if (gprFileService == null) SpinalError(s"$euName: GPRFileService 为 null，但 GPR 操作需要它。")
@@ -168,24 +134,30 @@ abstract class EuBasePlugin(
   def addMicroOp(uopCode: BaseUopCode.C): Unit = {
     if (!microOpsHandled.contains(uopCode)) microOpsHandled += uopCode
   }
-  // def handlesUop(uopCode: BaseUopCode.C): Boolean = microOpsHandled.contains(uopCode) // 可选的辅助方法
 
-  // --- 流水线构建 ---
-  // EU 的内部微流水线
-  val euPipeline = create early {
-    this.obtainedEuInput =
-      findService[EuInputSourceService[T_EuSpecificContext]](_.getTargetName() == euName).getEuInputPort()
-    setName(s"${euName}_internal_pipeline")
-    ParallaxLogger.log(s"EUBase ($euName): 微流水线创建。")
-    if (gprFileService != null) {
-      gprFileService.retain()
-      ParallaxLogger.log(s"EUBase ($euName): 要求 GPR 先别生成读写逻辑，因为我们要增加一些端口。")
-    }
-    new Pipeline
+  // --- 新的"结果契约" Area ---
+  // 子类必须在完成计算时驱动这个区域的信号
+  protected val euResult = new Area {
+    val valid = Bool() // 子类在结果就绪时置为 True
+    val uop = iqEntryType() // 产生该结果的微指令
+    val data = Bits(pipelineConfig.dataWidth) // 计算结果
+    val writesToPreg = Bool() // 是否写物理寄存器
+    val hasException = Bool()
+    val exceptionCode = UInt(pipelineConfig.exceptionCodeWidth)
+    val destIsFpr = Bool() // 目标是否为 FPR
+
+    // 必须在 buildEuLogic 之外为它们设置默认值，以防子类未驱动时产生锁存器
+    valid := False
+    uop.setDefault() // 使用 setDefault() 而不是 assignDontCare()
+    data := B(0)
+    writesToPreg := False
+    hasException := False
+    exceptionCode := U(0)
+    destIsFpr := False
   }
 
-  // Setup 阶段：获取服务，构建流水线结构
-  val setupPhase = create early new Area {
+  // Setup 阶段：获取服务，创建端口
+  val setup = create early new Area {
     ParallaxLogger.log(s"EUBase ($euName): Setup 阶段入口。")
     // 服务获取的有效性检查（gprFileService 和 fprFileService 可能为 null）
     if ((euRegType == EuRegType.GPR_ONLY || euRegType == EuRegType.MIXED_GPR_FPR) && gprFileService == null) {
@@ -198,15 +170,7 @@ abstract class EuBasePlugin(
     }
     // robService 和 bypassService 由 getService 获取，如果未找到会抛出异常，所以它们不会是 null。
 
-    buildMicroPipeline(euPipeline) // 调用派生 EU 的方法来定义阶段和连接
-
-    // 派生 EU 负责在其 getWritebackStage 返回的阶段上声明 commonSignals.EXEC_DEST_IS_FPR
-    // 并且必须驱动它为一个确定的布尔值 (True 或 False)。
-    // ParallaxEuBase 将读取此值。我们在此处使用 assignDontCare 确保它被声明，
-    // 如果 EU 未驱动它，其值将为 'X'，这表示 EU 的实现存在问题。
-    getWritebackStage(euPipeline)(commonSignals.EXEC_DEST_IS_FPR).assignDontCare()
-
-    ParallaxLogger.log(s"EUBase ($euName): 微流水线结构已构建。")
+    ParallaxLogger.log(s"EUBase ($euName): Setup 阶段完成。")
   }
 
   // Logic 阶段：连接 EU 特定逻辑，然后是通用的写回/旁路/ROB 逻辑
@@ -214,77 +178,61 @@ abstract class EuBasePlugin(
     ParallaxLogger.log(s"EUBase ($euName): Logic 阶段入口。")
     lock.await() // 等待所有 early 操作完成
 
-    // 派生 EU 连接其特定的数据处理逻辑
-    connectPipelineLogic(euPipeline)
-    ParallaxLogger.log(s"EUBase ($euName): EU 特定流水线逻辑已连接。")
+    // 1. 调用子类来构建它们自己的内部逻辑
+    buildEuLogic()
+    ParallaxLogger.log(s"EUBase ($euName): 子类 EU 特定逻辑已构建。")
 
-    // --- 连接通用输出 (PRF 写、ROB、旁路、唤醒、BusyTable) ---
-    val wbStage = getWritebackStage(euPipeline) // 从派生 EU 获取最终阶段
-    val uopFullPayloadAtWb = wbStage(commonSignals.EU_INPUT_PAYLOAD) // 获取该阶段的完整 Uop 输入
-    val renamedUopAtWb = uopFullPayloadAtWb.renamedUop
+    // 2. 将 "结果契约" (euResult) 连接到所有输出服务
+    val uopAtWb = euResult.uop
+    val finalDestIsFpr = euResult.destIsFpr
 
-    // EU 执行逻辑产生的数据
-    val resultData = wbStage(commonSignals.EXEC_RESULT_DATA)
-    val resultWritesToPreg = wbStage(commonSignals.EXEC_WRITES_TO_PREG)
-    val resultHasException = wbStage(commonSignals.EXEC_HAS_EXCEPTION)
-    val resultExceptionCode = wbStage(commonSignals.EXEC_EXCEPTION_CODE)
-
-    // 最终目标是否为 FPR。派生 EU 必须在其 wbStage 中驱动 commonSignals.EXEC_DEST_IS_FPR。
-    val finalDestIsFpr: Bool = wbStage(commonSignals.EXEC_DEST_IS_FPR)
-
-    // --- 定义关键条件 ---
-
-    // 指令是否"执行完成"。无论有无异常，只要它写寄存器，就认为它完成了。
-    // 后续指令可以被唤醒了。
-    val executionCompletes = wbStage.isFiring && resultWritesToPreg
-
-    // 指令是否"成功完成"并可以写入PRF/Bypass。这需要没有异常。
-    val completesSuccessfully = executionCompletes && !resultHasException
+    val executionCompletes = euResult.valid && euResult.writesToPreg
+    val completesSuccessfully = executionCompletes && !euResult.hasException
 
     // 用于调试的日志
-    when(wbStage.isFiring) {
-      report(L"EUBase ($euName): WB firing, writesToPreg=${resultWritesToPreg}, hasException=${resultHasException}, executionCompletes=${executionCompletes}, completesSuccessfully=${completesSuccessfully}")
+    when(euResult.valid) {
+      report(L"EUBase ($euName): Result valid, writesToPreg=${euResult.writesToPreg}, hasException=${euResult.hasException}, executionCompletes=${executionCompletes}, completesSuccessfully=${completesSuccessfully}")
     }
 
     // 1. 物理寄存器文件写
     if (gprWritePort != null) { // 仅当 gprWritePort 有效时连接 (即 gprFileService 存在且 EU 类型匹配)
       gprWritePort.valid := completesSuccessfully && !finalDestIsFpr
-      gprWritePort.address := renamedUopAtWb.rename.physDest.idx
-      gprWritePort.data := resultData
+      gprWritePort.address := uopAtWb.physDest.idx
+      gprWritePort.data := euResult.data
     }
 
     if (fprWritePort != null) { // 仅当 fprWritePort 有效时连接
       fprWritePort.valid := completesSuccessfully && finalDestIsFpr
-      fprWritePort.address := renamedUopAtWb.rename.physDest.idx
-      fprWritePort.data := resultData
+      fprWritePort.address := uopAtWb.physDest.idx
+      fprWritePort.data := euResult.data
     }
     ParallaxLogger.log(s"EUBase ($euName): PRF 写逻辑已连接。")
 
     // 2. ROB 完成
     // 总是向ROB报告完成状态，无论有无异常。ROB需要记录异常信息。
-    robWritebackPortBundle.fire := wbStage.isFiring
-    robWritebackPortBundle.robPtr := renamedUopAtWb.robPtr
-    robWritebackPortBundle.exceptionOccurred := resultHasException
-    robWritebackPortBundle.exceptionCodeIn := resultExceptionCode
+    robWritebackPortBundle.fire := euResult.valid
+    robWritebackPortBundle.robPtr := uopAtWb.robPtr
+    robWritebackPortBundle.exceptionOccurred := euResult.hasException
+    robWritebackPortBundle.exceptionCodeIn := euResult.exceptionCode
     ParallaxLogger.log(s"EUBase ($euName): ROB 完成逻辑已连接。")
 
     // 3. 旁路网络输出 (基于 Flow)
     // Bypass网络也需要广播结果，但会携带异常标志。
     // 消费者可以选择如何处理带有异常标志的旁路数据。
     bypassOutputPort.valid := executionCompletes // 即使有异常也要广播，让消费者知道这个tag已完成
-    bypassOutputPort.payload.physRegIdx := renamedUopAtWb.rename.physDest.idx
-    bypassOutputPort.payload.physRegData := resultData // 数据可以是任意值，因为hasException会为true
-    bypassOutputPort.payload.robPtr := renamedUopAtWb.robPtr
+    bypassOutputPort.payload.physRegIdx := uopAtWb.physDest.idx
+    bypassOutputPort.payload.physRegData := euResult.data // 数据可以是任意值，因为hasException会为true
+    bypassOutputPort.payload.robPtr := uopAtWb.robPtr
     bypassOutputPort.payload.isFPR := finalDestIsFpr
-    bypassOutputPort.payload.hasException := resultHasException
-    bypassOutputPort.payload.exceptionCode := resultExceptionCode
+    bypassOutputPort.payload.hasException := euResult.hasException
+    bypassOutputPort.payload.exceptionCode := euResult.exceptionCode
     // Flow 没有 .ready 信号
     ParallaxLogger.log(s"EUBase ($euName): 旁路输出 Flow 逻辑已连接。")
 
     // *** 4. 唤醒总线输出 (核心修正) ***
     // 只要指令执行完成（无论有无异常），就必须广播其tag以唤醒等待者。
     wakeupSourcePort.valid := executionCompletes
-    wakeupSourcePort.payload.physRegIdx := renamedUopAtWb.rename.physDest.idx
+    wakeupSourcePort.payload.physRegIdx := uopAtWb.physDest.idx
     ParallaxLogger.log(s"EUBase ($euName): 唤醒总线逻辑已连接。")
 
     // *** 5. BusyTable 清除端口 ***
@@ -294,16 +242,10 @@ abstract class EuBasePlugin(
     // - 无异常：指令成功写入PRF，BusyTable位需要清除（寄存器现在有有效数据）
     val clearBusyPort = busyTableService.newClearPort()
     clearBusyPort.valid := executionCompletes
-    clearBusyPort.payload := renamedUopAtWb.rename.physDest.idx
+    clearBusyPort.payload := uopAtWb.physDest.idx
     ParallaxLogger.log(s"EUBase ($euName): BusyTable 清除逻辑已连接。")
 
-    // 最后，在所有连接完成后构建 EU 的内部流水线
-    euPipeline.build()
-    ParallaxLogger.log(s"EUBase ($euName): Logic 阶段完成。EU 流水线已构建。是否从 Push 读取数据: $readPhysRsDataFromPush。")
-    if (gprFileService != null) {
-      gprFileService.release()
-      ParallaxLogger.log(s"EUBase ($euName): 释放对 GPRFileService 的锁定。")
-    }
+    ParallaxLogger.log(s"EUBase ($euName): Logic 阶段完成。")
   }
 
   def connectGprRead(
@@ -312,6 +254,8 @@ abstract class EuBasePlugin(
       physRegIdx: UInt, // 要读取的物理寄存器索引
       useThisSrcSignal: Bool // 此读取激活的条件 (例如 uop.useArchSrc1)
   ): Bits = {
+    ParallaxLogger.debug(s"$euName: 连接 GPR 读取 (端口 $prfReadPortIdx)")
+
     if (gprFileService == null) {
       ParallaxLogger.panic(s"$euName: 尝试 GPR 读取，但 GPR 服务不存在。")
     }

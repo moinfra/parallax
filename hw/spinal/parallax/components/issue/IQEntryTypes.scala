@@ -30,6 +30,14 @@ case class IQEntryAluInt(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
   // --- Unit-Specific Control Fields ---
   val aluCtrl         = AluCtrlFlags()
   val shiftCtrl       = ShiftCtrlFlags()
+  
+  // --- Immediate Support ---
+  val imm             = Bits(pCfg.dataWidth) // Immediate value for I-type instructions
+  val immUsage        = ImmUsageType() // How the immediate is used
+
+  override def getEuType(): ExeUnitType.E = {
+    ExeUnitType.ALU_INT
+  }
 
   override def setDefault(): this.type = {
     robPtr := 0
@@ -48,6 +56,8 @@ case class IQEntryAluInt(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
     src2IsFpr := False
     aluCtrl.setDefault()
     shiftCtrl.setDefault()
+    imm := B(0)
+    immUsage := ImmUsageType.NONE
     this
   }
   
@@ -69,6 +79,8 @@ case class IQEntryAluInt(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
     src2IsFpr #= false
     aluCtrl.setDefaultForSim()
     shiftCtrl.setDefaultForSim()
+    imm #= 0
+    immUsage #= ImmUsageType.NONE
     this
   }
 
@@ -96,6 +108,10 @@ case class IQEntryAluInt(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
 
     this.aluCtrl         := decoded.aluCtrl
     this.shiftCtrl       := decoded.shiftCtrl
+    
+    // Initialize immediate fields
+    this.imm             := decoded.imm
+    this.immUsage        := decoded.immUsage
     this
   }
 }
@@ -104,6 +120,9 @@ case class IQEntryAluInt(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
 //  Integer Multiplier IQ Entry (现在只处理 MUL)
 // =========================================================================
 case class IQEntryMul(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
+
+  override def getEuType(): ExeUnitType.E = ExeUnitType.MUL_INT
+
   // --- Common Fields ---
   val robPtr          = UInt(pCfg.robPtrWidth)
   val physDest        = PhysicalRegOperand(pCfg.physGprIdxWidth)
@@ -163,7 +182,7 @@ case class IQEntryMul(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
 }
 
 // =========================================================================
-//  Integer Divider IQ Entry (新增)
+//  Integer Divider IQ Entry (新增，但是不使用)
 // =========================================================================
 case class IQEntryDiv(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
   // 结构与 IQEntryMul 完全相同，但它是一个独立的类型，用于路由到不同的IQ
@@ -201,6 +220,10 @@ case class IQEntryDiv(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
     useSrc2 #= false; src2Data #= 0; src2Tag #= 0; src2Ready #= false; src2IsFpr #= false
     mulDivCtrl.setDefaultForSim()
     this
+  }
+
+  override def getEuType(): ExeUnitType.E = {
+     ExeUnitType.DIV_INT
   }
   
   override def initFrom(renamedUop: RenamedUop, allocatedRobPtr: UInt): this.type = {
@@ -249,6 +272,9 @@ case class IQEntryLsu(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
   val memCtrl         = MemCtrlFlags()
   val imm             = Bits(pCfg.dataWidth)
 
+  override def getEuType(): ExeUnitType.E = {
+    ExeUnitType.MEM
+  }
   override def setDefault(): this.type = {
     robPtr := 0; physDest.setDefault(); physDestIsFpr := False; writesToPhysReg := False
     useSrc1 := False; src1Data := B(0); src1Tag := 0; src1Ready := False; src1IsFpr := False
@@ -313,7 +339,9 @@ case class IQEntryBru(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
   val branchCtrl      = BranchCtrlFlags(pCfg)
   val imm             = Bits(pCfg.dataWidth) // For branch/jump offsets
   val pc              = UInt(pCfg.pcWidth)    // For PC-relative calculations
-
+  override def getEuType(): ExeUnitType.E = {
+    ExeUnitType.BRU
+  }
   override def setDefault(): this.type = {
     robPtr := 0; physDest.setDefault(); physDestIsFpr := False; writesToPhysReg := False
     useSrc1 := False; src1Data := B(0); src1Tag := 0; src1Ready := False; src1IsFpr := False

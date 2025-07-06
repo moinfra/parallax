@@ -6,8 +6,9 @@ import spinal.lib._
 import spinal.lib.pipeline._
 import parallax.common._
 import parallax.utilities.ParallaxLogger
-import parallax.components.execute.DemoAlu
+import parallax.components.execute.IntAlu
 import parallax.utilities.ParallaxSim
+import parallax.components.issue.IQEntryAluInt
 
 case class AluIntEuSignals(val pipelineConfig: PipelineConfig) {
   val S1_RS1_DATA = Stageable(Bits(pipelineConfig.dataWidth))
@@ -16,169 +17,128 @@ case class AluIntEuSignals(val pipelineConfig: PipelineConfig) {
 
 class AluIntEuPlugin(
     override val euName: String,
-    override val pipelineConfig: PipelineConfig,
-    override val readPhysRsDataFromPush: Boolean
-) extends EuBasePlugin(euName, pipelineConfig, readPhysRsDataFromPush) {
+    override val pipelineConfig: PipelineConfig
+) extends EuBasePlugin(euName, pipelineConfig) {
+
+  // 只需要2个GPR读端口，不需要FPR端口
+  override def numGprReadPortsPerEu: Int = 2
+  override def numFprReadPortsPerEu: Int = 0
 
   // --- ParallaxEuBase Implementation ---
-  override type T_EuSpecificContext = EmptyBundle
-  override def euSpecificContextType: HardType[EmptyBundle] = EmptyBundle()
+  override type T_IQEntry = IQEntryAluInt
+  override def iqEntryType: HardType[IQEntryAluInt] = HardType(IQEntryAluInt(pipelineConfig))
   override def euRegType: EuRegType.C = EuRegType.GPR_ONLY
+  override def getEuType: ExeUnitType.E = ExeUnitType.ALU_INT
 
   addMicroOp(BaseUopCode.ALU)
   // Consider adding NOP explicitly if it needs special handling beyond DemoAlu's default
   // addMicroOp(BaseUopCode.NOP) // If NOPs are dispatched to ALUs
 
-  // --- Stageables for PRF Read Results (if needed) ---
-  // These are only used if !readPhysRsDataFromPush
-
-  // --- Micro-pipeline Stages ---
-
-  // Optional s3_writeBuffer if needed for timing, for now s2 is the wb stage.
-  var s0_dispatch: Stage = null
-  var s1_readRegs: Stage = null
-  var s2_execute: Stage = null
-
+  // 将 IntAlu 实例化移到插件的主体中
+  val intAlu = new IntAlu(pipelineConfig)
+  
   lazy val signals = AluIntEuSignals(pipelineConfig)
-  override def buildMicroPipeline(pipeline: Pipeline): Unit = {
-    s0_dispatch = euPipeline.newStage().setName("s0_Dispatch")
-    s1_readRegs = if (!readPhysRsDataFromPush) euPipeline.newStage().setName("s1_ReadRegs") else null
-    s2_execute = euPipeline.newStage().setName("s2_Execute")
 
-    var lastStage = s0_dispatch
-
-    if (!readPhysRsDataFromPush) {
-      s1_readRegs(signals.S1_RS1_DATA) // Declare for this stage
-      s1_readRegs(signals.S1_RS2_DATA) // Declare for this stage
-      pipeline.connect(lastStage, s1_readRegs)(Connection.M2S())
-      lastStage = s1_readRegs
-    }
-
-    // EXEC_ signals are produced in s2_execute
-    s2_execute(commonSignals.EXEC_RESULT_DATA)
-    s2_execute(commonSignals.EXEC_WRITES_TO_PREG)
-    s2_execute(commonSignals.EXEC_HAS_EXCEPTION)
-    s2_execute(commonSignals.EXEC_EXCEPTION_CODE)
-    s2_execute(commonSignals.EXEC_DEST_IS_FPR) // Must be declared by writeback stage
-
-    pipeline.connect(lastStage, s2_execute)(Connection.M2S())
-  }
-
-  override def getWritebackStage(pipeline: Pipeline): Stage = {
-    s2_execute // s2_execute produces all final signals for ParallaxEuBase
-  }
-
-  override def connectPipelineLogic(pipeline: Pipeline): Unit = {
+  // 实现新的抽象方法
+  override def buildEuLogic(): Unit = {
     ParallaxLogger.log(s"[AluInt ${euName}] Logic start definition.")
 
-    // --- Stage S0: Dispatch ---
-    // EU_INPUT_PAYLOAD is available in all stages if declared in the first stage.
-    // s0_dispatch is the first stage, so EU_INPUT_PAYLOAD is implicitly available.
-    s0_dispatch.valid := this.obtainedEuInput.valid
-    this.obtainedEuInput.ready := s0_dispatch.isReady
+    // 1. 子类自己定义流水线
+    val pipeline = new Pipeline {
+      val s0_dispatch = newStage().setName("s0_Dispatch")
+      val s1_readRegs = newStage().setName("s1_ReadRegs")
+      val s2_execute  = newStage().setName("s2_Execute")
+    }.setCompositeName(this, "internal_pipeline")
 
-    s0_dispatch(commonSignals.EU_INPUT_PAYLOAD) := this.obtainedEuInput.payload // Stack overflow
+    // 3. 定义流水线内部的信号和逻辑 - 在流水线外部定义 Stageable
+    val S1_RS1_DATA = Stageable(Bits(pipelineConfig.dataWidth))
+    val S1_RS2_DATA = Stageable(Bits(pipelineConfig.dataWidth))
+    val EU_INPUT_PAYLOAD = Stageable(iqEntryType()) // 在流水线外部定义，所有阶段共享
 
-    val uopFullPayload_s0 = this.obtainedEuInput.payload
-    val renamedUop_s0 = uopFullPayload_s0.renamedUop
-    val decodedUop_s0 = renamedUop_s0.decoded
+    // 2. 连接输入端口到流水线入口，并初始化 EU_INPUT_PAYLOAD
+    pipeline.s0_dispatch.driveFrom(getEuInputPort)
+    pipeline.s0_dispatch(EU_INPUT_PAYLOAD) := getEuInputPort.payload // 初始化 EU_INPUT_PAYLOAD
 
-    ParallaxLogger.log(s"[AluInt ${euName}] Stage S0 logic defined.")
-    // --- Stage S1: Read Registers (Conditional) ---
-    if (readPhysRsDataFromPush) {
-      ParallaxLogger.log("读寄存器逻辑跳过，因为从推送端口读取寄存器数据。")
-    } else {
-      ParallaxLogger.log("读寄存器逻辑开始定义。")
-      // EU_INPUT_PAYLOAD is passed from s0 to s1.
-      val uopFullPayload_s1 = s1_readRegs(commonSignals.EU_INPUT_PAYLOAD) // Get it from s1's input
-      val renamedUop_s1 = uopFullPayload_s1.renamedUop
-      val decodedUop_s1 = renamedUop_s1.decoded
-
-      // Use ParallaxEuBase helper to connect GPR reads
-      // Reads are driven by s1_readRegs.isFiring
-      val data_rs1: Bits = connectGprRead(
-        stage = s1_readRegs,
-        prfReadPortIdx = 0,
-        physRegIdx = renamedUop_s1.rename.physSrc1.idx,
-        useThisSrcSignal = decodedUop_s1.useArchSrc1 // Condition for this read
-      )
-      val data_rs2: Bits = connectGprRead(
-        stage = s1_readRegs,
-        prfReadPortIdx = 1,
-        physRegIdx = renamedUop_s1.rename.physSrc2.idx,
-        useThisSrcSignal =
-          decodedUop_s1.useArchSrc2 && (decodedUop_s1.immUsage =/= ImmUsageType.SRC_ALU) // Don't read src2 if imm is used
-      )
-
-      s1_readRegs(signals.S1_RS1_DATA) := data_rs1
-      s1_readRegs(signals.S1_RS2_DATA) := data_rs2
-    }
-    ParallaxLogger.log(s"[AluInt ${euName}] Stage S1 logic defined.")
+    // 连接阶段
+    pipeline.connect(pipeline.s0_dispatch, pipeline.s1_readRegs)(Connection.M2S())
+    pipeline.connect(pipeline.s1_readRegs, pipeline.s2_execute)(Connection.M2S())
+    
+    // --- Stage S1: Read Registers ---
+    val iqEntry_s1 = pipeline.s1_readRegs(EU_INPUT_PAYLOAD) // 使用共享的 Stageable
+    val data_rs1 = connectGprRead(pipeline.s1_readRegs, 0, iqEntry_s1.src1Tag, iqEntry_s1.useSrc1)
+    val data_rs2 = connectGprRead(pipeline.s1_readRegs, 1, iqEntry_s1.src2Tag, iqEntry_s1.useSrc2)
+    pipeline.s1_readRegs(S1_RS1_DATA) := data_rs1
+    pipeline.s1_readRegs(S1_RS2_DATA) := data_rs2
 
     // --- Stage S2: Execute ---
-    val uopFullPayload_s2 = s2_execute(commonSignals.EU_INPUT_PAYLOAD) // Get payload propagated to s2
-    val renamedUop_s2 = uopFullPayload_s2.renamedUop
-    val decodedUop_s2 = renamedUop_s2.decoded
+    val uopAtS2 = pipeline.s2_execute(EU_INPUT_PAYLOAD) // 使用共享的 Stageable
 
-    val demoAlu = new DemoAlu(pipelineConfig) // Instantiate the ALU component
+    // ALU source operands from PRF read in S1
+    val aluSrc1Data = pipeline.s2_execute(S1_RS1_DATA) // Data was read from PRF in S1
+    val aluSrc2Data = pipeline.s2_execute(S1_RS2_DATA)
 
-    // Determine ALU source operands based on readPhysRsDataFromPush
-    val aluSrc1Data = Bits(pipelineConfig.dataWidth)
-    val aluSrc2Data = Bits(pipelineConfig.dataWidth)
+    // Handle immediate vs register operand for src2
+    val effectiveSrc2Data = Mux(
+      uopAtS2.immUsage === ImmUsageType.SRC_ALU,
+      uopAtS2.imm, // Use immediate when specified
+      aluSrc2Data  // Use register data otherwise
+    )
 
-    if (readPhysRsDataFromPush) {
-      aluSrc1Data := uopFullPayload_s2.src1Data // Data was pushed with uop
-      aluSrc2Data := uopFullPayload_s2.src2Data
-    } else {
-      aluSrc1Data := s2_execute(signals.S1_RS1_DATA) // Data was read from PRF in S1
-      aluSrc2Data := s2_execute(signals.S1_RS2_DATA)
-    }
+    // Create a modified IQEntry with the actual data from PRF
+    val iqEntryWithData = IQEntryAluInt(pipelineConfig)
+    // 逐个字段赋值，避免重复赋值
+    iqEntryWithData.robPtr := uopAtS2.robPtr
+    iqEntryWithData.physDest := uopAtS2.physDest
+    iqEntryWithData.physDestIsFpr := uopAtS2.physDestIsFpr
+    iqEntryWithData.writesToPhysReg := uopAtS2.writesToPhysReg
+    iqEntryWithData.useSrc1 := uopAtS2.useSrc1
+    iqEntryWithData.src1Tag := uopAtS2.src1Tag
+    iqEntryWithData.src1Ready := uopAtS2.src1Ready
+    iqEntryWithData.src1IsFpr := uopAtS2.src1IsFpr
+    iqEntryWithData.useSrc2 := uopAtS2.useSrc2
+    iqEntryWithData.src2Tag := uopAtS2.src2Tag
+    iqEntryWithData.src2Ready := uopAtS2.src2Ready
+    iqEntryWithData.src2IsFpr := uopAtS2.src2IsFpr
+    iqEntryWithData.aluCtrl := uopAtS2.aluCtrl
+    iqEntryWithData.shiftCtrl := uopAtS2.shiftCtrl
+    iqEntryWithData.imm := uopAtS2.imm
+    iqEntryWithData.immUsage := uopAtS2.immUsage
+    // 使用从PRF读取的实际数据
+    iqEntryWithData.src1Data := aluSrc1Data
+    iqEntryWithData.src2Data := effectiveSrc2Data
 
-    // Connect inputs to DemoAlu
-    demoAlu.io.uopIn.valid := s2_execute.isFiring // DemoAlu processes when this stage is firing
-    demoAlu.io.uopIn.payload := renamedUop_s2
-    demoAlu.io.src1DataIn := aluSrc1Data
-    // src2DataIn for DemoAlu will be handled by its internal Mux for immediate
-    // So, we pass the register value (or pushed value) here. DemoAlu will select imm if needed.
-    demoAlu.io.src2DataIn := aluSrc2Data
+    // Connect inputs to IntAlu
+    intAlu.io.iqEntryIn.valid := pipeline.s2_execute.isFiring // IntAlu processes when this stage is firing
+    intAlu.io.iqEntryIn.payload := iqEntryWithData
 
-    // Drive the common execution result Stageables based on DemoAlu's output
-    val aluResultPayload = demoAlu.io.resultOut.payload
-
-    // Handle NOP explicitly if it's dispatched here and DemoAlu doesn't make it a no-op
-    // A NOP should not write to a register and should not have an exception.
-    // DemoAlu might already handle this if uop.rename.writesToPhysReg is False for NOP.
-    val isNopInstruction = decodedUop_s2.uopCode === BaseUopCode.NOP // Assuming NOP is a BaseUopCode
-
-    s2_execute(commonSignals.EXEC_RESULT_DATA) := aluResultPayload.data
-    s2_execute(commonSignals.EXEC_WRITES_TO_PREG) := aluResultPayload.writesToPhysReg && !isNopInstruction
-    s2_execute(commonSignals.EXEC_HAS_EXCEPTION) := aluResultPayload.hasException && !isNopInstruction
-    s2_execute(
-      commonSignals.EXEC_EXCEPTION_CODE
-    ) := aluResultPayload.exceptionCode.asBits.asUInt.resized // FIXME: it's wrong
-    s2_execute(commonSignals.EXEC_DEST_IS_FPR) := False // Integer ALU never writes to FPR
-
-    // Ensure NOPs don't cause exceptions if DemoAlu might raise one for an unhandled NOP pattern
-    when(isNopInstruction) {
-      s2_execute(commonSignals.EXEC_RESULT_DATA) := B(0) // NOPs usually produce 0 or don't care
-      s2_execute(commonSignals.EXEC_WRITES_TO_PREG) := False
-      s2_execute(commonSignals.EXEC_HAS_EXCEPTION) := False
-      s2_execute(commonSignals.EXEC_EXCEPTION_CODE) := U(0)
+    // 4. 在流水线最后阶段，驱动 euResult "契约"
+    val aluResultPayload = intAlu.io.resultOut.payload
+    
+    when(pipeline.s2_execute.isFiring) {
+      euResult.valid         := True
+      euResult.uop           := uopAtS2
+      euResult.data          := aluResultPayload.data
+      euResult.writesToPreg  := aluResultPayload.writesToPhysReg
+      euResult.hasException  := aluResultPayload.hasException
+      euResult.exceptionCode := aluResultPayload.exceptionCode.asBits.asUInt.resized
+      euResult.destIsFpr     := False // Integer ALU never writes to FPR
     }
 
     // Logging
-    when(s2_execute.isFiring) {
+    when(pipeline.s2_execute.isFiring) {
       ParallaxSim.debug(
         Seq(
-          L"AluIntEu (${euName}) S2 Firing: UopCode=${decodedUop_s2.uopCode}, ",
-          L"RobPtr=${renamedUop_s2.robPtr}, ResultData=${s2_execute(commonSignals.EXEC_RESULT_DATA)}, ",
-          L"WritesPreg=${s2_execute(commonSignals.EXEC_WRITES_TO_PREG)}, ",
-          L"HasExc=${s2_execute(commonSignals.EXEC_HAS_EXCEPTION)}, ExcCode=${s2_execute(commonSignals.EXEC_EXCEPTION_CODE)}"
+          L"AluIntEu (${euName}) S2 Firing: ",
+          L"RobPtr=${uopAtS2.robPtr}, ResultData=${aluResultPayload.data}, ",
+          L"WritesPreg=${aluResultPayload.writesToPhysReg}, ",
+          L"HasExc=${aluResultPayload.hasException}, ExcCode=${aluResultPayload.exceptionCode}, ",
+          L"ImmUsage=${uopAtS2.immUsage}, UseSrc2=${uopAtS2.useSrc2}"
         )
       )
     }
 
-    ParallaxLogger.log(s"[AluInt ${euName}] Stage S2 logic defined.")
-
+    // 5. 构建流水线
+    pipeline.build()
+    ParallaxLogger.log(s"[AluInt ${euName}] Logic defined and pipeline built.")
   }
 }
