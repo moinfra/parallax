@@ -39,7 +39,8 @@ case class PipelineConfig(
   def mulEuCount: Int = 0
   def divEuCount: Int = 0
   def csrEuCount: Int = 0
-  def totalEuCount: Int = aluEuCount + lsuEuCount * 2 + mulEuCount + divEuCount + csrEuCount // * 2 for load/store
+  def bruEuCount: Int = 1  // Add BRU count
+  def totalEuCount: Int = aluEuCount + lsuEuCount * 2 + mulEuCount + divEuCount + csrEuCount + bruEuCount // * 2 for load/store
   
   // GPR/FPR data width (also individual instruction width)
   def dataWidth: BitCount = xlen bits

@@ -101,35 +101,3 @@ object FibonacciLFSR {
     // (可选) 提供一个直接接受 Config 对象的 apply 方法，虽然不常用，但保持完整性
     def apply(config: FibonacciLFSRConfig): FibonacciLFSR = new FibonacciLFSR(config)
 }
-
-
-// --- 生成 Verilog 的示例 (现在使用 companion object 的 apply 方法) ---
-object GenerateFibonacciLFSR {
-    def main(args: Array[String]): Unit = {
-        println("Generating Verilog for FibonacciLFSR...")
-        val lfsrWidth = 16 bits
-        val lfsrSeed = BigInt("ABCD", 16)
-        // 使用推荐的抽头 (例如针对 16位 X^16 + X^14 + X^13 + X^11 + 1)
-        // 这里仅使用两个抽头作为示例: 15 和 13
-        val lfsrTap1 = 15
-        val lfsrTap2 = 13
-
-        SpinalConfig(
-            targetDirectory = "hdl/FibonacciLFSR", // Verilog 输出目录
-            defaultConfigForClockDomains = ClockDomainConfig(resetKind = SYNC) // 可以根据需要选择 SYNC 或 ASYNC 复位
-        ).generateVerilog(
-            // 使用 companion object 的 apply 方法实例化
-            // 可以不传 taps 使用默认值，或者像下面这样显式指定
-            FibonacciLFSR(
-                width = lfsrWidth,
-                seed = lfsrSeed,
-                tap1Opt = Some(lfsrTap1), // 使用 Option 传递明确的抽头
-                tap2Opt = Some(lfsrTap2)
-                // 如果不传 tap1Opt/tap2Opt, 则会使用 apply 方法内部的默认计算
-                // FibonacciLFSR(width = lfsrWidth, seed = lfsrSeed) // 使用默认抽头
-            )
-        ).printPruned() // 在控制台打印优化后的 Verilog 代码
-
-        println(s"Verilog files generated in hdl/FibonacciLFSR directory.")
-    }
-}

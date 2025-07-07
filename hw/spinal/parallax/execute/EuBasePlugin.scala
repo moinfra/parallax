@@ -137,7 +137,7 @@ abstract class EuBasePlugin(
 
   // --- 新的"结果契约" Area ---
   // 子类必须在完成计算时驱动这个区域的信号
-  protected val euResult = new Area {
+  val euResult = new Area {
     val valid = Bool() // 子类在结果就绪时置为 True
     val uop = iqEntryType() // 产生该结果的微指令
     val data = Bits(pipelineConfig.dataWidth) // 计算结果
