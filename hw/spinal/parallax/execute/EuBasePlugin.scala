@@ -170,6 +170,11 @@ abstract class EuBasePlugin(
     }
     // robService 和 bypassService 由 getService 获取，如果未找到会抛出异常，所以它们不会是 null。
 
+    // --- 新增：保留服务 ---
+    // 在 setup 阶段保留我们需要的服务，防止它们提前进入 late 阶段
+    if (gprFileService != null) gprFileService.retain()
+    if (fprFileService != null) fprFileService.retain()
+
     ParallaxLogger.log(s"EUBase ($euName): Setup 阶段完成。")
   }
 
@@ -244,6 +249,11 @@ abstract class EuBasePlugin(
     clearBusyPort.valid := executionCompletes
     clearBusyPort.payload := uopAtWb.physDest.idx
     ParallaxLogger.log(s"EUBase ($euName): BusyTable 清除逻辑已连接。")
+
+    // --- 新增：释放服务 ---
+    // EU 逻辑已全部连接，可以释放之前保留的服务
+    if (gprFileService != null) gprFileService.release()
+    if (fprFileService != null) fprFileService.release()
 
     ParallaxLogger.log(s"EUBase ($euName): Logic 阶段完成。")
   }

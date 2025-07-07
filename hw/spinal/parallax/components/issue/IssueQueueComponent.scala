@@ -83,12 +83,18 @@ class IssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
     entryValidsNext(issueIdx) := False
   }
 
+  val localWakeupValid = io.issueOut.fire && io.issueOut.payload.writesToPhysReg
+  val localWakeupTag = io.issueOut.payload.physDest.idx
+  
+  val globalWakeupValid = io.wakeupIn.valid
+  val globalWakeupTag = io.wakeupIn.payload.physRegIdx
+
   // b. Update based on Allocation: Fill the chosen free slot.
   when(io.allocateIn.valid && io.canAccept && !io.flush) {
     // Initialize the entry with the uop data
     entriesNext(allocateIdx).initFrom(io.allocateIn.payload.uop, io.allocateIn.payload.uop.robPtr)
     
-    // Override the src1Ready and src2Ready with the initial ready states from dispatch
+    // Use the initial ready states from dispatch (now BusyTable should be correct)
     entriesNext(allocateIdx).src1Ready := io.allocateIn.payload.src1InitialReady
     entriesNext(allocateIdx).src2Ready := io.allocateIn.payload.src2InitialReady
     
@@ -105,12 +111,6 @@ class IssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
     )
   }
   
-  // c. Update based on Wakeup events
-  val localWakeupValid = io.issueOut.fire && io.issueOut.payload.writesToPhysReg
-  val localWakeupTag = io.issueOut.payload.physDest.idx
-  
-  val globalWakeupValid = io.wakeupIn.valid
-  val globalWakeupTag = io.wakeupIn.payload.physRegIdx
 
   // Add logging for wakeup events
   when(localWakeupValid) {
@@ -133,6 +133,16 @@ class IssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
     // Only update entries that will remain valid in the next cycle.
     // This prevents wasting logic on entries that are being cleared.
     when(entryValidsNext(i)) {
+      // 添加详细的调试日志
+      when(localWakeupValid && currentEntry.src2Tag === localWakeupTag) {
+        ParallaxSim.log(
+          L"${idStr}: WAKEUP DEBUG for entry ${i}, " :+
+          L"RobPtr=${currentEntry.robPtr}, " :+
+          L"Src2Tag=${currentEntry.src2Tag}, WakeupTag=${localWakeupTag}, " :+
+          L"Src2Ready=${currentEntry.src2Ready}, EntryValid=${entryValidsNext(i)}"
+        )
+      }
+      
       // Wakeup logic only applies if the ready bit isn't already set.
       when(!currentEntry.src1Ready) {
         val s1LocalWakeup  = localWakeupValid  && currentEntry.src1Tag === localWakeupTag
@@ -175,8 +185,8 @@ class IssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
   // --- Debug and Monitoring ---
   val currentValidCount = CountOne(entryValids)
 
-  // Add periodic status logging
-  when(True) { // This will log every cycle
+  // Add periodic status logging (reduced frequency)
+  when(currentValidCount > 0 && (issueRequestOh.orR || io.allocateIn.valid)) { // Only log when there's activity
     ParallaxSim.log(
       L"${idStr}: STATUS - ValidCount=${currentValidCount}, " :+
       L"CanAccept=${canAccept}, " :+

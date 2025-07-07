@@ -5,10 +5,10 @@ import spinal.lib._
 
 case class PipelineConfig(
     val xlen: Int = 32,
-    val fetchWidth: Int = 2,
-    val renameWidth: Int = 2, // Should match dispatchWidth if uops are processed in lockstep
-    val dispatchWidth: Int = 2, // Number of uops that can be dispatched to IQs in parallel
-    val commitWidth: Int = 2, // Number of uops that can be committed in parallel
+    val fetchWidth: Int = 2, // Number of instructions fetched per cycle from I-cache
+    val renameWidth: Int = 1, // Number of instructions processed per cycle in decode/rename stages (currently always 1)
+    val dispatchWidth: Int = 1, // Number of uops that can be dispatched to IQs in parallel (currently always 1)
+    val commitWidth: Int = 1, // Number of uops that can be committed in parallel (currently always 1)
 
     val csrArchAddrWidth: BitCount = 14 bits,
     val archGprCount: Int = 32,

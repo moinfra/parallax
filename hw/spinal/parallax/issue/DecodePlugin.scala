@@ -35,9 +35,9 @@ class DecodePlugin(val issueConfig: PipelineConfig) extends Plugin with LockedIm
     val isGroupFaultIn = s0_decode(signals.IS_FAULT_IN)
     val groupValidMask = s0_decode(signals.VALID_MASK)
 
-    val decodedUopsOutputVec = Vec(HardType(DecodedUop(issueConfig)), issueConfig.fetchWidth)
+    val decodedUopsOutputVec = Vec(HardType(DecodedUop(issueConfig)), issueConfig.renameWidth)
 
-    for (i <- 0 until issueConfig.fetchWidth) {
+    for (i <- 0 until issueConfig.renameWidth) {
       val decoder = new LA32RSimpleDecoder(issueConfig)
       val instructionPC = groupPcIn + U(i * issueConfig.bytesPerInstruction)
 
@@ -83,7 +83,7 @@ class DecodePlugin(val issueConfig: PipelineConfig) extends Plugin with LockedIm
 
     when(s0_decode.isFiring) {
       report(L"DecodePlugin (s0_decode): Firing. Input PC_Group=${groupPcIn}, Input GroupFault=${isGroupFaultIn}")
-      for (i <- 0 until issueConfig.fetchWidth) {
+      for (i <- 0 until issueConfig.renameWidth) {
         val pc = groupPcIn + U(i * issueConfig.bytesPerInstruction)
         report(
           L"  Slot ${i.toString()}: RawInstr=${rawInstructionsIn(i)}, Calc PC=${pc} -> Decoded PC=${decodedUopsOutputVec(i).pc}, Valid=${decodedUopsOutputVec(

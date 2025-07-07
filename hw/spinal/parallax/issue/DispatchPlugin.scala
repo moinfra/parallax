@@ -28,6 +28,9 @@ class DispatchPlugin(pCfg: PipelineConfig) extends Plugin with LockedImpl {
     val busyBits = setup.busyTableService.getBusyBits()
     val iqRegs = setup.iqService.getRegistrations
 
+    // 强硬断言：IQ注册列表不能为空
+    assert(iqRegs.nonEmpty, "DispatchPlugin: No IQ registrations found! This indicates a retain/release timing issue.")
+
     val uopIn = s3_dispatch(setup.issuePpl.signals.ALLOCATED_UOPS)(0)
     val decoded = uopIn.decoded
     val rename = uopIn.rename

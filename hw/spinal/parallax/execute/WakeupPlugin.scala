@@ -27,6 +27,12 @@ class WakeupPlugin(pCfg: PipelineConfig) extends Plugin with WakeupService {
     private val wakeupSources = ArrayBuffer[Flow[WakeupPayload]]()
     private var mergedWakeupFlow: Flow[WakeupPayload] = null
 
+    // Early initialization of the wakeup flow to allow other plugins to access it
+    val setup = create early new Area {
+        mergedWakeupFlow = Flow(WakeupPayload(pCfg))
+        mergedWakeupFlow.setName("globalWakeupFlow")
+    }
+
     override def newWakeupSource(): Flow[WakeupPayload] = {
         val source = Flow(WakeupPayload(pCfg))
         wakeupSources += source
@@ -35,7 +41,7 @@ class WakeupPlugin(pCfg: PipelineConfig) extends Plugin with WakeupService {
 
     override def getWakeupFlow(): Flow[WakeupPayload] = {
         if (mergedWakeupFlow == null) {
-            SpinalError("getWakeupFlow() called before WakeupPlugin logic is built.")
+            SpinalError("getWakeupFlow() called before WakeupPlugin early setup.")
         }
         mergedWakeupFlow
     }
@@ -53,22 +59,17 @@ class WakeupPlugin(pCfg: PipelineConfig) extends Plugin with WakeupService {
                 // Create a free-running stream (always ready)
                 val freeRunningStream = arbitratedStream.freeRun()
                 
-                // Manually create Flow from the free-running stream
-                val manualFlow = Flow(WakeupPayload(pCfg))
-                manualFlow.valid := freeRunningStream.valid
-                manualFlow.payload := freeRunningStream.payload
-                
-                mergedWakeupFlow = manualFlow
+                // Connect to the pre-created flow
+                mergedWakeupFlow.valid := freeRunningStream.valid
+                mergedWakeupFlow.payload := freeRunningStream.payload
             } else {
                 // Single source, no arbitration needed
-                mergedWakeupFlow = wakeupSources.head
+                mergedWakeupFlow << wakeupSources.head
             }
         } else {
             // No sources, create empty flow
-            val emptyFlow = Flow(WakeupPayload(pCfg))
-            emptyFlow.valid := False
-            emptyFlow.payload.assignDontCare()
-            mergedWakeupFlow = emptyFlow
+            mergedWakeupFlow.valid := False
+            mergedWakeupFlow.payload.assignDontCare()
         }
     }
 }

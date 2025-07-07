@@ -1,5 +1,5 @@
 // filename: test/scala/IssueToExecuteSpec.scala
-// command: test test.scala.IssueToExecuteSpec
+// command: testOnly test.scala.IssueToExecuteSpec
 package test.scala
 
 import spinal.core._

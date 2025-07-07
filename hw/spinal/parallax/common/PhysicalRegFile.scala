@@ -102,9 +102,9 @@ class PhysicalRegFilePlugin(
     readPortRequests.zipWithIndex.foreach { case (externalPort, i) =>
       val data = Mux(externalPort.address === 0, B(0, dataWidth), regFile.readAsync(address = externalPort.address))
       externalPort.rsp := data
-      ParallaxLogger.log(s"[PRegPlugin] 物理寄存器堆读端口 $i 已连接")
+      ParallaxLogger.log(s"[PRegPlugin] PRF Port $i 已连接")
       when(externalPort.valid) {
-        ParallaxSim.log(L"[PRegPlugin] 物理寄存器堆读端口 ${externalPort.address} 已读取 ${data}")
+        ParallaxSim.log(L"[PRegPlugin] PRF Port ${externalPort.address} read ${data}")
       }
     }
 
@@ -115,7 +115,7 @@ class PhysicalRegFilePlugin(
         enable = externalPort.valid && (externalPort.address =/= 0)
       )
       when(externalPort.valid && (externalPort.address =/= 0)) {
-        ParallaxSim.log(L"[PRegPlugin] 物理寄存器堆寄存器 ${externalPort.address} 已写入 ${externalPort.data}")
+        ParallaxSim.log(L"[PRegPlugin] PRF Port ${externalPort.address} write ${externalPort.data}")
       }
       ParallaxLogger.log(s"[PRegPlugin] 物理寄存器堆写端口 $i 已连接")
     }

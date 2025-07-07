@@ -62,7 +62,13 @@ class BusyTablePlugin(pCfg: PipelineConfig) extends Plugin with BusyTableService
     report(L"[BusyTable] Current: busyTableReg=${busyTableReg}, clearMask=${clearMask}, setMask=${setMask}, next=${busyTableNext}")
 
     busyTableReg := busyTableNext
+    
+    // Connect the combinational output
+    combinationalBusyBits := busyTableNext
   }
+
+  // Public signal for combinational queries that considers current cycle updates
+  val combinationalBusyBits = Bits(pCfg.physGprCount bits)
 
   override def newSetPort(): Vec[Flow[UInt]] = {
     val ports = Vec.fill(pCfg.renameWidth)(Flow(UInt(pCfg.physGprIdxWidth)))
@@ -77,5 +83,9 @@ class BusyTablePlugin(pCfg: PipelineConfig) extends Plugin with BusyTableService
     port
   }
   
-  override def getBusyBits(): Bits = early_setup.busyTableReg
+  override def getBusyBits(): Bits = {
+    // Return the combinational result that considers current cycle clears
+    // This prevents read-after-write hazards
+    combinationalBusyBits
+  }
 }

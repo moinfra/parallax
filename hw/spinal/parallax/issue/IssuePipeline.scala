@@ -13,9 +13,10 @@ case class IssuePipelineSignals(val config: PipelineConfig) extends AreaObject {
   val IS_FAULT_IN = Stageable(Bool())
   val VALID_MASK = Stageable(Bits(config.fetchWidth bits))
 
-  val DECODED_UOPS = Stageable(Vec.fill(config.fetchWidth)(DecodedUop(config)))
+  // DECODED_UOPS should use renameWidth since decode stage processes renameWidth instructions
+  val DECODED_UOPS = Stageable(Vec.fill(config.renameWidth)(DecodedUop(config)))
   // RENAMED_UOPS will be used across s1_rename, s2_rob_alloc, and s3_dispatch
-  val RENAMED_UOPS = Stageable(Vec.fill(config.fetchWidth)(RenamedUop(config)))
+  val RENAMED_UOPS = Stageable(Vec.fill(config.renameWidth)(RenamedUop(config)))
   // 注册新的 Stageable 信号用于插入分配后的 Uops
   val ALLOCATED_UOPS = Stageable(Vec(RenamedUop(config), config.renameWidth))
 
