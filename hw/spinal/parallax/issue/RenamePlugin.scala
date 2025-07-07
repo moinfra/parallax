@@ -91,6 +91,7 @@ class RenamePlugin(
       }
     }
     report(L"DEBUG: s1_rename.isFiring=${s1_rename.isFiring}, decodedUopsIn(0).isValid=${decodedUopsIn(0).isValid}")
+    report(L"DEBUG: s1_rename.isReady=${s1_rename.isReady}, s1_rename.isValid=${s1_rename.isValid}, willNeedPhysRegs=${willNeedPhysRegs}, notEnoughPhysRegs=${notEnoughPhysRegs}")
 
     // --- 4. Connect outputs ---
     // The output RenamedUop will have a garbage robPtr, which is fine.

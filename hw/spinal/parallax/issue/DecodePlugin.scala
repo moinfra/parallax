@@ -93,6 +93,7 @@ class DecodePlugin(val issueConfig: PipelineConfig) extends Plugin with LockedIm
       }
     }
     report(L"DEBUG: s0_decode.isFiring=${s0_decode.isFiring}, groupValidMask=${groupValidMask}, isGroupFaultIn=${isGroupFaultIn}")
+    report(L"DEBUG: decodedUopsOutputVec(0).isValid=${decodedUopsOutputVec(0).isValid}, decodedUopsOutputVec(0).uopCode=${decodedUopsOutputVec(0).uopCode}")
 
     setup.issuePpl.release()
   }
