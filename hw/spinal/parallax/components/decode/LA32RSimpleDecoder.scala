@@ -50,6 +50,10 @@ object LoongArchOpcodes {
   def Minor_BEQ = B"010110"
   def Minor_BNE = B"010111"
   def Minor_BLTU = B"011010"
+  
+  // IDLE instruction: 0000011 00100 10001 level[14:0]
+  def OP_IDLE = B"0000011" // [31:25]
+  def IDLE_FIXED_BITS = B"0010010001" // [24:15] = 00100 10001
 }
 
 // --- Raw Fields (修正) ---
@@ -72,6 +76,9 @@ case class LA32RRawInstructionFields() extends Bundle {
 
   // FIX: Correctly extract the 26-bit offset for B and BL
   def offs26_b_type = inst(25 downto 16) ## inst(15 downto 0)
+  
+  // For IDLE instruction level field
+  def idle_level = inst(14 downto 0) // level[14:0]
 
   // Opcode fields for decoding (more structured)
   def opcode_6b = inst(31 downto 26)
@@ -116,6 +123,20 @@ class LA32RSimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends 
 
   // --- Main Decoding Logic (重构) ---
   switch(fields.opcode_7b) {
+    is(LoongArchOpcodes.OP_IDLE) {
+      // IDLE instruction: 0000011 00100 10001 level[14:0]
+      // Check if bits [24:15] match the fixed pattern
+      when(fields.opcode_r_minor === LoongArchOpcodes.IDLE_FIXED_BITS) {
+        io.decodedUop.isValid := True
+        io.decodedUop.uopCode := BaseUopCode.NOP
+        io.decodedUop.exeUnit := ExeUnitType.ALU_INT
+        io.decodedUop.writeArchDestEn := False
+        // Level field is in fields.idle_level but we don't use it for basic CPU halt
+      } otherwise {
+        io.decodedUop.isValid := False
+      }
+    }
+    
     is(LoongArchOpcodes.OP_GROUP_00) {
       // This group contains both standard R-type and shift-imm R-type
       // They have different opcode fields, so we need a nested check.

@@ -10,12 +10,15 @@ case class PredecodeInfo() extends Bundle {
   val isDirectJump = Bool()
   // The sign-extended, byte-addressed offset
   val jumpOffset = SInt(32 bits)
+  // IDLE instruction detection - causes fetch pipeline to halt
+  val isIdle = Bool()
 
   def setDefault(): this.type = {
     isBranch := False
     isJump := False
     isDirectJump := False
     jumpOffset := 0
+    isIdle := False
     this
   }
 
@@ -25,6 +28,7 @@ case class PredecodeInfo() extends Bundle {
     isJump #= false
     isDirectJump #= false
     jumpOffset #= 0
+    isIdle #= false
     this
   }
 }
@@ -37,12 +41,17 @@ class InstructionPredecoder(pCfg: PipelineConfig) extends Component {
   }
 
   val opcode = io.instruction(31 downto 26)
+  
+  // IDLE instruction pattern: 0000011 00100 10001 level[14:0]
+  val opcode_7b = io.instruction(31 downto 25)
+  val idle_fixed_bits = io.instruction(24 downto 15)
 
   // 默认值
   io.predecodeInfo.isBranch := False
   io.predecodeInfo.isJump := False
   io.predecodeInfo.isDirectJump := False
   io.predecodeInfo.jumpOffset := 0
+  io.predecodeInfo.isIdle := False
 
   // 根据手册，offs26 是由 offs[15:0] 和 offs[25:16] 拼接而成
   // offs[15:0] 位于 instruction[15:0]
@@ -51,6 +60,11 @@ class InstructionPredecoder(pCfg: PipelineConfig) extends Component {
 
   // 计算偏移量：{offs26, 2'b0} 然后符号扩展
   val offset = Cat(offs26, B"00").asSInt.resize(pCfg.xlen)
+  
+  // IDLE instruction detection
+  when(opcode_7b === B"0000011" && idle_fixed_bits === B"0010010001") {
+    io.predecodeInfo.isIdle := True
+  }
 
   switch(opcode) {
     // --- Conditional Branches & Indirect Jumps (isBranch = True) ---

@@ -91,7 +91,7 @@ case class SuperScalarFreeListIO(config: SuperScalarFreeListConfig) extends Bund
 
 class SuperScalarFreeList(val config: SuperScalarFreeListConfig) extends Component {
   val io = slave(SuperScalarFreeListIO(config))
-  val enableLog = true
+  val enableLog = false
   val freeRegsMask = Reg(Bits(config.numPhysRegs bits)) setName ("freeRegsMask_reg")
   val initMask = Bits(config.numPhysRegs bits)
 

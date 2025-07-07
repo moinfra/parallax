@@ -108,7 +108,16 @@ object LA32RInstrBuilder {
   def bne(rj: Int, rd: Int, offset: Int): BigInt  = buildBranch16_pdf("010111", rj, rd, offset)
   def bltu(rj: Int, rd: Int, offset: Int): BigInt = buildBranch16_pdf("011010", rj, rd, offset)
 
+  // --- Special Instructions ---
   def nop(): BigInt = addi_w(0, 0, 0)
+  
+  // IDLE instruction: 0000011 00100 10001 level[14:0]
+  // Format: opcode[31:25] | fixed_bits[24:15] | level[14:0]
+  def idle(level: Int = 0): BigInt = {
+    val opcode = "0000011"
+    val fixed_bits = "0010010001"
+    fromBinary(s"$opcode$fixed_bits${toBinary(level, 15)}")
+  }
 }
 
 
@@ -151,5 +160,16 @@ class LA32RInstrBuilderSpec extends AnyFunSuite {
     // >>> Corrected Expected Value
     val inst1 = LA32RInstrBuilder.beq(rj = 1, rd = 2, offset = 32)
     assertHex(inst1, "15840008", "BEQ with positive offset")
+  }
+  
+  test("idle should correctly encode IDLE instruction") {
+    // IDLE instruction: 0000011 00100 10001 level[14:0]
+    // Binary: 0000011 0010010001 000000000000000 = 00000110010010001000000000000000
+    val inst1 = LA32RInstrBuilder.idle(level = 0)
+    assertHex(inst1, "06488000", "IDLE with level 0")
+    
+    // With level=1: 0000011 0010010001 000000000000001 = 00000110010010001000000000000001
+    val inst2 = LA32RInstrBuilder.idle(level = 1)
+    assertHex(inst2, "06488001", "IDLE with level 1")
   }
 }

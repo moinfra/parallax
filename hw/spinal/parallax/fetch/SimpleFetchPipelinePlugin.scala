@@ -25,7 +25,7 @@ case class FetchedInstr(pCfg: PipelineConfig) extends Bundle with Formattable {
   )
 }
 
-case class FetchedInstrCapture(pc: BigInt, instruction: BigInt, isBranch: Boolean, isJump: Boolean, isDirectJump: Boolean, jumpOffset: BigInt, bpuPredictionValid: Boolean, bpuPredictedTaken: Boolean, bpuPredictedTarget: BigInt)
+case class FetchedInstrCapture(pc: BigInt, instruction: BigInt, isBranch: Boolean, isJump: Boolean, isDirectJump: Boolean, jumpOffset: BigInt, isIdle: Boolean, bpuPredictionValid: Boolean, bpuPredictedTaken: Boolean, bpuPredictedTarget: BigInt)
 object FetchedInstrCapture {
   def apply(payload: FetchedInstr): FetchedInstrCapture = {
     import spinal.core.sim._
@@ -36,6 +36,7 @@ object FetchedInstrCapture {
         isJump = payload.predecode.isJump.toBoolean,
         isDirectJump = payload.predecode.isDirectJump.toBoolean,
         jumpOffset = payload.predecode.jumpOffset.toBigInt,
+        isIdle = payload.predecode.isIdle.toBoolean,
         bpuPredictionValid = payload.bpuPrediction.valid.toBoolean, 
         bpuPredictedTaken = payload.bpuPrediction.isTaken.toBoolean, 
         bpuPredictedTarget = payload.bpuPrediction.target.toBigInt
@@ -133,6 +134,7 @@ val doJumpRedirect = unpackedStream.valid && unpackedInstr.predecode.isDirectJum
         val IDLE = new State with EntryPoint
         val WAITING = new State
         val UPDATE_PC = new State
+        val HALTED = new State
 
         ifuPort.cmd.valid := False
         ifuPort.cmd.pc := fetchPc
@@ -158,8 +160,18 @@ val doJumpRedirect = unpackedStream.valid && unpackedInstr.predecode.isDirectJum
         }
         
         UPDATE_PC.whenIsActive {
-            fetchPc := pcOnRequest + ifuCfg.bytesPerFetchGroup
-            goto(IDLE)
+            // Check for IDLE instruction before updating PC
+            when(unpackedStream.valid && predecode.isIdle) {
+                goto(HALTED)
+            } .otherwise {
+                fetchPc := pcOnRequest + ifuCfg.bytesPerFetchGroup
+                goto(IDLE)
+            }
+        }
+
+        HALTED.whenIsActive {
+            // Stay halted until hard redirect
+            // Do nothing - fetch pipeline is stopped
         }
 
         always {
@@ -188,7 +200,7 @@ val doJumpRedirect = unpackedStream.valid && unpackedInstr.predecode.isDirectJum
             L"[[FETCH-PLUGIN]] ",
             L"PC(fetch=0x${fetchPc}, onReq=0x${pcOnRequest}) | ",
             L"REQ(fire=${ifuPort.cmd.fire}) | ",
-            L"UNPACKED(valid=${unpackedStream.valid}, fire=${unpackedStream.fire}, pc=0x${unpackedInstr.pc}, isJmp=${predecode.isJump}, isBranch=${predecode.isBranch}) | ",
+            L"UNPACKED(valid=${unpackedStream.valid}, fire=${unpackedStream.fire}, pc=0x${unpackedInstr.pc}, isJmp=${predecode.isJump}, isBranch=${predecode.isBranch}, isIdle=${predecode.isIdle}) | ",
             L"BPU(QueryFire=${bpuQueryPort.fire}, RspValid=${bpuResponse.valid}, RspTaken=${bpuResponse.isTaken}) | ",
             L"JUMP(do=${doJumpRedirect}, target=0x${jumpTarget}) | ",
             L"REDIRECT(Soft=${doSoftRedirect}, Hard=${doHardRedirect}, Target=0x${softRedirectTarget}) | ",
