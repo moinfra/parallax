@@ -115,6 +115,6 @@ class IntAlu(val config: PipelineConfig) extends Component {
     io.resultOut.payload.exceptionCode := exceptionCodeVal
   } otherwise {
     // When io.iqEntryIn is not valid, default assignments at the beginning of the class apply.
-    report("Unexpected invalid input to IntAlu (io.iqEntryIn.valid is False)")
+    report("IntAlu: iqEntryIn.valid is false")
   }
 }

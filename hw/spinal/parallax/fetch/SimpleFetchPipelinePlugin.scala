@@ -100,7 +100,14 @@ class SimpleFetchPipelinePlugin(
     ifuRspFifo.io.push << ifuPort.rsp
     unpacker.io.input << ifuRspFifo.io.pop
     val unpackedStream = unpacker.io.output
-    outputFifo.io.push << unpackedStream
+    
+    // IDLE instruction filtering: block IDLE instructions from flowing downstream
+    val filteredStream = Stream(FetchedInstr(pCfg))
+    filteredStream.valid := unpackedStream.valid && !unpackedStream.payload.predecode.isIdle
+    filteredStream.payload := unpackedStream.payload
+    unpackedStream.ready := filteredStream.ready || unpackedStream.payload.predecode.isIdle
+    
+    outputFifo.io.push << filteredStream
     hw.finalOutputInst << outputFifo.io.pop
 
     // --- PC & Redirect Logic ---
@@ -143,6 +150,7 @@ val doJumpRedirect = unpackedStream.valid && unpackedInstr.predecode.isDirectJum
             ifuPort.cmd.valid := True
             when(ifuPort.cmd.fire) {
                 pcOnRequest := fetchPc
+                report(L"[FSM] IDLE->WAITING: IFU cmd fired, pcOnRequest=0x${fetchPc}")
                 goto(WAITING)
             }
         }
@@ -153,25 +161,28 @@ val doJumpRedirect = unpackedStream.valid && unpackedInstr.predecode.isDirectJum
         WAITING.whenIsActive {
             when(doSoftRedirect) {
                 fetchPc := softRedirectTarget
+                report(L"[FSM] WAITING->IDLE: Soft redirect to 0x${softRedirectTarget}")
                 goto(IDLE)
+            } .elsewhen(unpackedStream.valid && predecode.isIdle) {
+                report(L"[FSM] WAITING: IDLE detected at PC=0x${unpackedInstr.pc}, going to HALTED")
+                goto(HALTED)
             } .elsewhen(unpackerJustFinished) {
+                report(L"[FSM] WAITING->UPDATE_PC: Unpacker finished")
                 goto(UPDATE_PC)
             }
         }
         
         UPDATE_PC.whenIsActive {
-            // Check for IDLE instruction before updating PC
-            when(unpackedStream.valid && predecode.isIdle) {
-                goto(HALTED)
-            } .otherwise {
-                fetchPc := pcOnRequest + ifuCfg.bytesPerFetchGroup
-                goto(IDLE)
-            }
+            // Normal PC increment by fetch group size (8 bytes for fetchWidth=2)
+            report(L"[FSM] UPDATE_PC: Normal PC update from 0x${pcOnRequest} to 0x${pcOnRequest + ifuCfg.bytesPerFetchGroup}")
+            fetchPc := pcOnRequest + ifuCfg.bytesPerFetchGroup
+            goto(IDLE)
         }
 
         HALTED.whenIsActive {
             // Stay halted until hard redirect
             // Do nothing - fetch pipeline is stopped
+            report(L"[FSM] HALTED: Fetch pipeline stopped")
         }
 
         always {
@@ -201,6 +212,7 @@ val doJumpRedirect = unpackedStream.valid && unpackedInstr.predecode.isDirectJum
             L"PC(fetch=0x${fetchPc}, onReq=0x${pcOnRequest}) | ",
             L"REQ(fire=${ifuPort.cmd.fire}) | ",
             L"UNPACKED(valid=${unpackedStream.valid}, fire=${unpackedStream.fire}, pc=0x${unpackedInstr.pc}, isJmp=${predecode.isJump}, isBranch=${predecode.isBranch}, isIdle=${predecode.isIdle}) | ",
+            L"FILTERED(valid=${filteredStream.valid}, fire=${filteredStream.fire}) | ",
             L"BPU(QueryFire=${bpuQueryPort.fire}, RspValid=${bpuResponse.valid}, RspTaken=${bpuResponse.isTaken}) | ",
             L"JUMP(do=${doJumpRedirect}, target=0x${jumpTarget}) | ",
             L"REDIRECT(Soft=${doSoftRedirect}, Hard=${doHardRedirect}, Target=0x${softRedirectTarget}) | ",

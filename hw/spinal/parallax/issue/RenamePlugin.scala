@@ -20,7 +20,7 @@ class RenamePlugin(
     with LockedImpl
     with RatControlService
     with FreeListControlService {
-
+  val enableLog = false
   val early_setup = create early new Area {
     val issuePpl = getService[IssuePipeline]
     val busyTableService = getService[BusyTableService] // 获取服务
@@ -90,8 +90,8 @@ class RenamePlugin(
           setBusyPorts(i).payload.assignDontCare()
       }
     }
-    report(L"DEBUG: s1_rename.isFiring=${s1_rename.isFiring}, decodedUopsIn(0).isValid=${decodedUopsIn(0).isValid}")
-    report(L"DEBUG: s1_rename.isReady=${s1_rename.isReady}, s1_rename.isValid=${s1_rename.isValid}, willNeedPhysRegs=${willNeedPhysRegs}, notEnoughPhysRegs=${notEnoughPhysRegs}")
+    if(enableLog) report(L"DEBUG: s1_rename.isFiring=${s1_rename.isFiring}, decodedUopsIn(0).isValid=${decodedUopsIn(0).isValid}")
+    if(enableLog) report(L"DEBUG: s1_rename.isReady=${s1_rename.isReady}, s1_rename.isValid=${s1_rename.isValid}, willNeedPhysRegs=${willNeedPhysRegs}, notEnoughPhysRegs=${notEnoughPhysRegs}")
 
     // --- 4. Connect outputs ---
     // The output RenamedUop will have a garbage robPtr, which is fine.

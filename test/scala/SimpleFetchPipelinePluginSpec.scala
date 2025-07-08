@@ -15,11 +15,11 @@ import parallax.components.ifu._
 import parallax.components.memory._
 import parallax.utilities._
 import parallax.components.dcache2._
-import test.scala.lsu.TestOnlyMemSystemPlugin
 import spinal.lib.bus.amba4.axi.Axi4Config
 import test.scala.LA32RInstrBuilder._
 import scala.collection.mutable
 import parallax.components.bpu.BpuPipelinePlugin
+import test.scala.TestOnlyMemSystemPlugin
 
 // =========================================================================
 //  Test Bench Setup (Rewritten for single-instruction output)
@@ -93,7 +93,7 @@ class SimpleFetchPipelineTestBench(
 
 /** Helper class for verifying single instruction outputs */
 class SimpleFetchTestHelper(dut: SimpleFetchPipelineTestBench)(implicit cd: ClockDomain) {
-  val sram = dut.framework.getService[TestOnlyMemSystemPlugin].getSram()
+  val sram = dut.framework.getService[test.scala.TestOnlyMemSystemPlugin].getSram()
   // The queue now holds FetchedInstr objects
   val receivedInstrs = mutable.Queue[FetchedInstrCapture]()
 

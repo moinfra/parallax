@@ -9,7 +9,7 @@ import parallax.components.decode._
 import parallax.utilities.{LockedImpl, ParallaxLogger, Plugin}
 
 class DecodePlugin(val issueConfig: PipelineConfig) extends Plugin with LockedImpl {
-
+  val enableLog = false
   val setup = create early new Area {
     val issuePpl = getService[IssuePipeline]
     issuePpl.retain()
@@ -82,18 +82,18 @@ class DecodePlugin(val issueConfig: PipelineConfig) extends Plugin with LockedIm
     s0_decode(signals.DECODED_UOPS) := decodedUopsOutputVec
 
     when(s0_decode.isFiring) {
-      report(L"DecodePlugin (s0_decode): Firing. Input PC_Group=${groupPcIn}, Input GroupFault=${isGroupFaultIn}")
+      if(enableLog) report(L"DecodePlugin (s0_decode): Firing. Input PC_Group=${groupPcIn}, Input GroupFault=${isGroupFaultIn}")
       for (i <- 0 until issueConfig.renameWidth) {
         val pc = groupPcIn + U(i * issueConfig.bytesPerInstruction)
-        report(
+        if(enableLog) report(
           L"  Slot ${i.toString()}: RawInstr=${rawInstructionsIn(i)}, Calc PC=${pc} -> Decoded PC=${decodedUopsOutputVec(i).pc}, Valid=${decodedUopsOutputVec(
               i
             ).isValid}, UopCode=${decodedUopsOutputVec(i).uopCode}, Excp=${decodedUopsOutputVec(i).hasDecodeException}"
         )
       }
     }
-    report(L"DEBUG: s0_decode.isFiring=${s0_decode.isFiring}, groupValidMask=${groupValidMask}, isGroupFaultIn=${isGroupFaultIn}")
-    report(L"DEBUG: decodedUopsOutputVec(0).isValid=${decodedUopsOutputVec(0).isValid}, decodedUopsOutputVec(0).uopCode=${decodedUopsOutputVec(0).uopCode}")
+    if(enableLog) report(L"DEBUG: s0_decode.isFiring=${s0_decode.isFiring}, groupValidMask=${groupValidMask}, isGroupFaultIn=${isGroupFaultIn}")
+    if(enableLog) report(L"DEBUG: decodedUopsOutputVec(0).isValid=${decodedUopsOutputVec(0).isValid}, decodedUopsOutputVec(0).uopCode=${decodedUopsOutputVec(0).uopCode}")
 
     setup.issuePpl.release()
   }

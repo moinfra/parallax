@@ -19,7 +19,7 @@ import scala.util.Random
 import spinal.lib.bus.amba4.axi.Axi4Config
 import parallax.components.memory.IFetchPort
 import parallax.utilities._
-import test.scala.lsu.TestOnlyMemSystemPlugin
+import test.scala.TestOnlyMemSystemPlugin
 
 // Test framework classes (IFUTestSetupPlugin, IFUTBIO, IFUTestBench) remain unchanged.
 class IFUTestSetupPlugin(io: IFUTBIO) extends Plugin {

@@ -2,6 +2,7 @@
 // command: test test.scala.lsu.LsuPluginSpec
 package test.scala.lsu
 
+import test.scala.TestOnlyMemSystemPlugin
 import spinal.core._
 import spinal.core.sim._
 import spinal.lib._
