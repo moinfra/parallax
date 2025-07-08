@@ -117,9 +117,9 @@ class BranchEuPlugin(
     val nextPc = uopAtS1.pc + 4 // 默认下一条指令地址
     
     switch(uopAtS1.branchCtrl.isJump ## uopAtS1.branchCtrl.isIndirect) {
-      // 00: 条件分支 (BEQ, BNE 等)
+      // 00: 条件分支 (BEQ, BNE 等) - LoongArch uses PC+4 for branch target calculation
       is(B"00") {
-        branchTarget := uopAtS1.pc + uopAtS1.imm.asSInt.resize(pipelineConfig.pcWidth).asUInt
+        branchTarget := uopAtS1.pc + 4 + uopAtS1.imm.asSInt.resize(pipelineConfig.pcWidth).asUInt
       }
       // 01: 间接跳转 (JALR)
       is(B"01") {
@@ -172,8 +172,9 @@ class BranchEuPlugin(
       val targetCorrect = (!actuallyTaken) || (predictedTarget === finalTarget)
       predictionCorrect := directionCorrect && targetCorrect
     } otherwise {
-      // 如果没有预测信息，假设预测正确（避免不必要的刷新）
-      predictionCorrect := True
+      // CRITICAL FIX: When no prediction is available, default assumption is "not taken"
+      // If branch is actually taken, this is a misprediction
+      predictionCorrect := !actuallyTaken
     }
 
     // 添加分支预测验证日志
@@ -230,7 +231,10 @@ class BranchEuPlugin(
     when(pipeline.s1_resolve.isFiring && !predictionCorrect) {
       hw.robFlushPort.valid := True
       hw.robFlushPort.payload.reason := FlushReason.ROLLBACK_TO_ROB_IDX
-      hw.robFlushPort.payload.targetRobPtr := uopAtS1.robPtr
+      // CRITICAL FIX: Flush from the instruction AFTER the branch, not the branch itself
+      // The branch instruction should commit, but all following speculative instructions should be flushed
+      hw.robFlushPort.payload.targetRobPtr := uopAtS1.robPtr + 1
+      report(L"[BranchEU-S1] MISPREDICTION DETECTED: Flushing ROB from robPtr=${uopAtS1.robPtr + 1}, targetPC=0x${finalTarget}")
     } otherwise {
       hw.robFlushPort.valid := False
       hw.robFlushPort.payload.reason := FlushReason.NONE
@@ -238,7 +242,7 @@ class BranchEuPlugin(
     }
 
     pipeline.build()
-    
+
     ParallaxLogger.log(s"[BranchEu ${euName}] Pipeline with branch logic built.")
   }
 }
