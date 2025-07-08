@@ -67,10 +67,20 @@ class BranchEuPlugin(
     pipeline.s0_dispatch.driveFrom(getEuInputPort)
     pipeline.s0_dispatch(EU_INPUT_PAYLOAD) := getEuInputPort.payload
     
+    // 添加调试日志 - S0阶段
+    when(pipeline.s0_dispatch.isFiring) {
+      report(L"[BranchEU-S0] DISPATCH: PC=0x${pipeline.s0_dispatch(EU_INPUT_PAYLOAD).pc}, branchCtrl.condition=${pipeline.s0_dispatch(EU_INPUT_PAYLOAD).branchCtrl.condition}")
+    }
+    
     pipeline.connect(pipeline.s0_dispatch, pipeline.s1_resolve)(Connection.M2S())
 
     // --- Stage S1: Resolve Branch ---
     val uopAtS1 = pipeline.s1_resolve(EU_INPUT_PAYLOAD)
+
+    // 添加调试日志 - S1开始阶段
+    when(pipeline.s1_resolve.isFiring) {
+      report(L"[BranchEU-S1] RESOLVE START: PC=0x${uopAtS1.pc}, useSrc1=${uopAtS1.useSrc1}, useSrc2=${uopAtS1.useSrc2}, src1Tag=${uopAtS1.src1Tag}, src2Tag=${uopAtS1.src2Tag}")
+    }
 
     // 1. 获取操作数数据 - 从PRF读取
     val data_rs1 = connectGprRead(pipeline.s1_resolve, 0, uopAtS1.src1Tag, uopAtS1.useSrc1)
@@ -95,6 +105,11 @@ class BranchEuPlugin(
       is(BranchCondition.GTZ) { branchTaken := (src1Data.asSInt > 0) }
       is(BranchCondition.LEZ) { branchTaken := (src1Data.asSInt <= 0) }
       default { branchTaken := True } // 无条件跳转(JAL等)
+    }
+
+    // 添加分支条件判断日志
+    when(pipeline.s1_resolve.isFiring) {
+      report(L"[BranchEU-S1] CONDITION: src1Data=0x${src1Data}, src2Data=0x${src2Data}, condition=${uopAtS1.branchCtrl.condition}, branchTaken=${branchTaken}")
     }
 
     // 3. 计算分支目标地址
@@ -145,8 +160,26 @@ class BranchEuPlugin(
 
     // 5. 分支预测验证
     val predictionCorrect = Bool()
-    // 这里假设分支预测信息在uopAtS1中可用，实际实现可能需要调整
-    predictionCorrect := True // TODO: 实现真正的预测验证逻辑
+    val predictedTaken = uopAtS1.branchPrediction.isTaken
+    val predictedTarget = uopAtS1.branchPrediction.target
+    val wasPredicted = uopAtS1.branchPrediction.wasPredicted
+    
+    // 验证预测结果：
+    // 1. 检查预测的跳转方向是否正确
+    // 2. 如果预测跳转，检查目标地址是否正确
+    when(wasPredicted) {
+      val directionCorrect = (predictedTaken === actuallyTaken)
+      val targetCorrect = (!actuallyTaken) || (predictedTarget === finalTarget)
+      predictionCorrect := directionCorrect && targetCorrect
+    } otherwise {
+      // 如果没有预测信息，假设预测正确（避免不必要的刷新）
+      predictionCorrect := True
+    }
+
+    // 添加分支预测验证日志
+    when(pipeline.s1_resolve.isFiring) {
+      report(L"[BranchEU-S1] PREDICTION: wasPredicted=${wasPredicted}, predictedTaken=${predictedTaken}, actuallyTaken=${actuallyTaken}, finalTarget=0x${finalTarget}, predictionCorrect=${predictionCorrect}")
+    }
 
     // 6. 更新euResult输出
     when(pipeline.s1_resolve.isFiring) {
@@ -167,6 +200,9 @@ class BranchEuPlugin(
       euResult.hasException := False
       euResult.exceptionCode := 0
       euResult.destIsFpr := False
+      
+      // 添加执行结果日志
+      report(L"[BranchEU-S1] RESULT: euResult.valid=1, writesToPreg=${euResult.writesToPreg}, data=0x${euResult.data}")
     } otherwise {
       euResult.valid := False
       euResult.uop := uopAtS1

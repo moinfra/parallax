@@ -339,6 +339,8 @@ case class IQEntryBru(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
   val branchCtrl      = BranchCtrlFlags(pCfg)
   val imm             = Bits(pCfg.dataWidth) // For branch/jump offsets
   val pc              = UInt(pCfg.pcWidth)    // For PC-relative calculations
+  val branchPrediction = BranchPredictionInfo(pCfg) // 添加分支预测信息
+  
   override def getEuType(): ExeUnitType.E = {
     ExeUnitType.BRU
   }
@@ -347,6 +349,7 @@ case class IQEntryBru(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
     useSrc1 := False; src1Data := B(0); src1Tag := 0; src1Ready := False; src1IsFpr := False
     useSrc2 := False; src2Data := B(0); src2Tag := 0; src2Ready := False; src2IsFpr := False
     branchCtrl.setDefault(); imm := 0; pc := 0
+    branchPrediction.setDefault() // 初始化分支预测信息
     this
   }
 
@@ -356,6 +359,7 @@ case class IQEntryBru(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
     useSrc1 #= false; src1Data #= 0; src1Tag #= 0; src1Ready #= false; src1IsFpr #= false
     useSrc2 #= false; src2Data #= 0; src2Tag #= 0; src2Ready #= false; src2IsFpr #= false
     branchCtrl.setDefaultForSim(); imm #= 0; pc #= 0
+    branchPrediction.setDefaultForSim() // 初始化分支预测信息
     this
   }
 
@@ -379,6 +383,7 @@ case class IQEntryBru(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
     this.branchCtrl := decoded.branchCtrl
     this.imm := decoded.imm
     this.pc := decoded.pc
+    this.branchPrediction := renamedUop.rename.branchPrediction // 复制分支预测信息
     this
   }
 }

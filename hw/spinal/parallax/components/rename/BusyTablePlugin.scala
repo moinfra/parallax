@@ -22,7 +22,8 @@ trait BusyTableService extends Service with LockedImpl {
 
 // --- Plugin Implementation ---
 class BusyTablePlugin(pCfg: PipelineConfig) extends Plugin with BusyTableService {
-
+  val enableLog = false
+  println("[BusyTablePlugin] enableLog: " + enableLog)
   private val setPorts = ArrayBuffer[Flow[UInt]]()
   private val clearPortsBuffer = ArrayBuffer[Flow[UInt]]() // 使用ArrayBuffer存储所有清除端口
 
@@ -42,7 +43,7 @@ class BusyTablePlugin(pCfg: PipelineConfig) extends Plugin with BusyTableService
     for (port <- clearPortsBuffer) {
       when(port.valid) {
         clearMask(port.payload) := True
-        report(L"[BusyTable] Clear port valid: physReg=${port.payload}")
+        if(enableLog) report(L"[BusyTable] Clear port valid: physReg=${port.payload}")
       }
     }
 
@@ -52,14 +53,14 @@ class BusyTablePlugin(pCfg: PipelineConfig) extends Plugin with BusyTableService
     for (port <- setPorts; if port != null) {
       when(port.valid) {
         setMask(port.payload) := True
-        report(L"[BusyTable] Set port valid: physReg=${port.payload}")
+        if(enableLog) report(L"[BusyTable] Set port valid: physReg=${port.payload}")
       }
     }
 
     // Combine clear and set operations in one statement: clear has higher priority
     val busyTableNext = (busyTableReg & ~clearMask) | setMask
 
-    report(L"[BusyTable] Current: busyTableReg=${busyTableReg}, clearMask=${clearMask}, setMask=${setMask}, next=${busyTableNext}")
+    if(enableLog) report(L"[BusyTable] Current: busyTableReg=${busyTableReg}, clearMask=${clearMask}, setMask=${setMask}, next=${busyTableNext}")
 
     busyTableReg := busyTableNext
     

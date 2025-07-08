@@ -48,28 +48,58 @@ class WakeupPlugin(pCfg: PipelineConfig) extends Plugin with WakeupService {
 
     val logic = create late new Area {
         lock.await()
+        
+        // Add logging to debug wakeup source collection (elaboration time)
+        ParallaxLogger.log(s"WakeupPlugin: Found ${wakeupSources.length} wakeup sources")
+        
+        // FORCE a simulation log to confirm WakeupPlugin is running
+        ParallaxSim.log(L"WakeupPlugin: Initialize with ${wakeupSources.length} sources")
+        
         if (wakeupSources.nonEmpty) {
             if (wakeupSources.length > 1) {
-                // Convert input Flows to Streams
-                val streamsToArbiter = wakeupSources.map(_.toStream)
+                // FIXED: Direct Flow merging instead of Stream arbitration
+                // Multiple wakeup signals can occur simultaneously and should all be propagated
+                // We use a priority encoder: any valid wakeup will be forwarded
+                val anyValid = wakeupSources.map(_.valid).reduce(_ || _)
                 
-                // Arbitrate these streams
-                val arbitratedStream = StreamArbiterFactory().roundRobin.on(streamsToArbiter)
+                // Priority-based selection: first valid source wins
+                val selectedPayload = WakeupPayload(pCfg)
+                selectedPayload.assignDontCare()
                 
-                // Create a free-running stream (always ready)
-                val freeRunningStream = arbitratedStream.freeRun()
+                // Use when-elsewhen chain for priority selection
+                var priorityChain = when(False) {} // Start with dummy condition
+                for ((source, idx) <- wakeupSources.zipWithIndex) {
+                    priorityChain = priorityChain.elsewhen(source.valid) {
+                        selectedPayload := source.payload
+                        // Add debugging for each wakeup source (simulation time)
+                        ParallaxSim.log(L"WakeupPlugin: Forwarding wakeup from source ${idx}, physReg=${source.payload.physRegIdx}")
+                    }
+                }
                 
-                // Connect to the pre-created flow
-                mergedWakeupFlow.valid := freeRunningStream.valid
-                mergedWakeupFlow.payload := freeRunningStream.payload
+                mergedWakeupFlow.valid := anyValid
+                mergedWakeupFlow.payload := selectedPayload
+                
+                // Debug logging for merged output (simulation time)
+                when(mergedWakeupFlow.valid) {
+                    ParallaxSim.log(L"WakeupPlugin: GLOBAL WAKEUP sent for physReg=${mergedWakeupFlow.payload.physRegIdx}")
+                }
             } else {
-                // Single source, no arbitration needed
+                // Single source, direct connection
                 mergedWakeupFlow << wakeupSources.head
+                ParallaxLogger.log("WakeupPlugin: Single source - direct connection")
+                
+                // Debug logging for single source (simulation time)
+                when(mergedWakeupFlow.valid) {
+                    ParallaxSim.log(L"WakeupPlugin: GLOBAL WAKEUP (single source) sent for physReg=${mergedWakeupFlow.payload.physRegIdx}")
+                }
             }
         } else {
             // No sources, create empty flow
             mergedWakeupFlow.valid := False
             mergedWakeupFlow.payload.assignDontCare()
+            ParallaxLogger.log("WakeupPlugin: No wakeup sources found")
+            // Also log at simulation time
+            ParallaxSim.log(L"WakeupPlugin: ERROR - No wakeup sources registered!")
         }
     }
 }

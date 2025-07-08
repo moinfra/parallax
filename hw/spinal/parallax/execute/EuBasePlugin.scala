@@ -174,6 +174,11 @@ abstract class EuBasePlugin(
     // 在 setup 阶段保留我们需要的服务，防止它们提前进入 late 阶段
     if (gprFileService != null) gprFileService.retain()
     if (fprFileService != null) fprFileService.retain()
+    
+    // CRITICAL FIX: Force initialization of wakeupSourcePort in setup phase
+    // This ensures that wakeup sources are registered before WakeupPlugin's late phase
+    val _ = wakeupSourcePort  // Force lazy val evaluation
+    ParallaxLogger.log(s"EUBase ($euName): Wakeup source registered")
 
     ParallaxLogger.log(s"EUBase ($euName): Setup 阶段完成。")
   }
