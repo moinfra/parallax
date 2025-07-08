@@ -37,7 +37,8 @@ class RenameUnitTestBench(
   renameMapTable.mapReg.mapping.simPublic()
   renameUnit.io.simPublic()
   
-  renameMapTable.io.checkpointSave.ready := True
+  renameMapTable.io.checkpointSave.valid := False
+  renameMapTable.io.checkpointSave.payload.assignDontCare()
   renameMapTable.io.checkpointRestore.valid := False
   renameMapTable.io.checkpointRestore.payload.assignDontCare()
 }
@@ -162,6 +163,93 @@ class RenameUnitSpec extends CustomSpinalSimFunSuite {
       assert(dut.renameUnit.io.ratWritePorts(0).archReg.toInt == 3, "RAT write should target r3")
       assert(dut.renameUnit.io.ratWritePorts(0).physReg.toInt == 4, "RAT write should use p4")
       // -- MODIFICATION END --
+    }
+  }
+
+  test("RenameUnit_RAW_Hazard_Sequence") {
+    val renameWidth = 1
+    val numPhys = 16  // Use more physical registers to avoid aliasing
+    val numArch = 8
+    val pCfg = defaultPipelineConfig(renameWidth, numPhysRegs = numPhys, archGprCount = numArch)
+    val rCfg = defaultRatConfig(pCfg.archGprCount, pCfg.physGprCount, renameWidth)
+    
+    SimConfig.withWave.compile(new RenameUnitTestBench(pCfg, rCfg)).doSim { dut =>
+      dut.clockDomain.forkStimulus(10)
+      dut.clockDomain.waitSampling()
+
+      println("=== Testing RAW Hazard Sequence ===")
+      
+      // Instruction 1: addi r1, r0, 100 (r1 gets new physical register)
+      println("Step 1: addi r1, r0, 100")
+      driveDecodedUop(
+        dut.io.decodedUopsIn(0),
+        pc = 0x0, isValid = true, uopCode = BaseUopCode.ALU, exeUnit = ExeUnitType.ALU_INT,
+        writeArchDestEn = true, archDestIdx = 1, // r1
+        useArchSrc1 = true, archSrc1Idx = 0,     // r0
+        useArchSrc2 = false
+      )
+      dut.io.allocatedPhysRegsIn(0) #= 8 // Allocate p8 for r1
+      
+      dut.clockDomain.waitSampling()
+      
+      val uop1 = RenamedUopData.from(dut.io.renamedUopsOut(0))
+      println(s"Instruction 1 result: $uop1")
+      assert(uop1.physDestIdx == 8, s"r1 should be mapped to p8, got p${uop1.physDestIdx}")
+      assert(uop1.physSrc1Idx == 0, s"r0 should be mapped to p0, got p${uop1.physSrc1Idx}")
+      
+      // Instruction 2: addi r2, r0, 200 (r2 gets new physical register)  
+      println("Step 2: addi r2, r0, 200")
+      driveDecodedUop(
+        dut.io.decodedUopsIn(0),
+        pc = 0x4, isValid = true, uopCode = BaseUopCode.ALU, exeUnit = ExeUnitType.ALU_INT,
+        writeArchDestEn = true, archDestIdx = 2, // r2
+        useArchSrc1 = true, archSrc1Idx = 0,     // r0
+        useArchSrc2 = false
+      )
+      dut.io.allocatedPhysRegsIn(0) #= 9 // Allocate p9 for r2
+      
+      dut.clockDomain.waitSampling()
+      
+      val uop2 = RenamedUopData.from(dut.io.renamedUopsOut(0))
+      println(s"Instruction 2 result: $uop2")
+      assert(uop2.physDestIdx == 9, s"r2 should be mapped to p9, got p${uop2.physDestIdx}")
+      assert(uop2.physSrc1Idx == 0, s"r0 should be mapped to p0, got p${uop2.physSrc1Idx}")
+      
+      // Instruction 3: add r3, r1, r2 (RAW dependency on both r1 and r2)
+      println("Step 3: add r3, r1, r2 (RAW dependency)")
+      driveDecodedUop(
+        dut.io.decodedUopsIn(0),
+        pc = 0x8, isValid = true, uopCode = BaseUopCode.ALU, exeUnit = ExeUnitType.ALU_INT,
+        writeArchDestEn = true, archDestIdx = 3, // r3
+        useArchSrc1 = true, archSrc1Idx = 1,     // r1 (should use p8)
+        useArchSrc2 = true, archSrc2Idx = 2      // r2 (should use p9)
+      )
+      dut.io.allocatedPhysRegsIn(0) #= 10 // Allocate p10 for r3
+      
+      dut.clockDomain.waitSampling()
+      
+      val uop3 = RenamedUopData.from(dut.io.renamedUopsOut(0))
+      println(s"Instruction 3 result: $uop3")
+      
+      // Critical assertions for RAW hazard handling
+      assert(uop3.physDestIdx == 10, s"r3 should be mapped to p10, got p${uop3.physDestIdx}")
+      assert(uop3.physSrc1Idx == 8, s"r1 should be mapped to p8 (from instruction 1), got p${uop3.physSrc1Idx}")
+      assert(uop3.physSrc2Idx == 9, s"r2 should be mapped to p9 (from instruction 2), got p${uop3.physSrc2Idx}")
+      
+      // Wait for mapping table to be updated on clock edge
+      dut.clockDomain.waitSampling()
+      
+      // Additional verification: Check that the mapping table is correctly updated
+      println("=== Verification: Final mapping table state ===")
+      println(s"r1 -> p${dut.renameMapTable.mapReg.mapping(1).toInt}")
+      println(s"r2 -> p${dut.renameMapTable.mapReg.mapping(2).toInt}")
+      println(s"r3 -> p${dut.renameMapTable.mapReg.mapping(3).toInt}")
+      
+      assert(dut.renameMapTable.mapReg.mapping(1).toInt == 8, "r1 should map to p8 in table")
+      assert(dut.renameMapTable.mapReg.mapping(2).toInt == 9, "r2 should map to p9 in table") 
+      assert(dut.renameMapTable.mapReg.mapping(3).toInt == 10, "r3 should map to p10 in table")
+      
+      println("✅ RAW Hazard sequence test passed!")
     }
   }
 

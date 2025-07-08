@@ -248,6 +248,12 @@ abstract class EuBasePlugin(
     val clearBusyPort = busyTableService.newClearPort()
     clearBusyPort.valid := executionCompletes
     clearBusyPort.payload := uopAtWb.physDest.idx
+    
+    // RAW HAZARD DEBUG: Track when each EU clears busy bits (only for registers 1-5)
+    when(executionCompletes && uopAtWb.physDest.idx < 6) {
+      report(L"[RAW_DEBUG] EU ($euName) clearing BusyTable: physReg=${uopAtWb.physDest.idx}, robPtr=${uopAtWb.robPtr}")
+    }
+    
     ParallaxLogger.log(s"EUBase ($euName): BusyTable 清除逻辑已连接。")
 
     // --- 新增：释放服务 ---
