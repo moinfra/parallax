@@ -196,7 +196,9 @@ abstract class EuBasePlugin(
     val uopAtWb = euResult.uop
     val finalDestIsFpr = euResult.destIsFpr
 
-    val executionCompletes = euResult.valid && euResult.writesToPreg
+    // CRITICAL FIX: Instructions complete when valid, regardless of whether they write to registers
+    // Branch instructions like BNE don't write registers but still need to complete for ROB commit
+    val executionCompletes = euResult.valid
     val completesSuccessfully = executionCompletes && !euResult.hasException
 
     // 用于调试的日志
@@ -206,13 +208,13 @@ abstract class EuBasePlugin(
 
     // 1. 物理寄存器文件写
     if (gprWritePort != null) { // 仅当 gprWritePort 有效时连接 (即 gprFileService 存在且 EU 类型匹配)
-      gprWritePort.valid := completesSuccessfully && !finalDestIsFpr
+      gprWritePort.valid := completesSuccessfully && euResult.writesToPreg && !finalDestIsFpr
       gprWritePort.address := uopAtWb.physDest.idx
       gprWritePort.data := euResult.data
     }
 
     if (fprWritePort != null) { // 仅当 fprWritePort 有效时连接
-      fprWritePort.valid := completesSuccessfully && finalDestIsFpr
+      fprWritePort.valid := completesSuccessfully && euResult.writesToPreg && finalDestIsFpr
       fprWritePort.address := uopAtWb.physDest.idx
       fprWritePort.data := euResult.data
     }
@@ -240,22 +242,24 @@ abstract class EuBasePlugin(
     ParallaxLogger.log(s"EUBase ($euName): 旁路输出 Flow 逻辑已连接。")
 
     // *** 4. 唤醒总线输出 (核心修正) ***
-    // 只要指令执行完成（无论有无异常），就必须广播其tag以唤醒等待者。
-    wakeupSourcePort.valid := executionCompletes
+    // 只要指令执行完成且写寄存器（无论有无异常），就必须广播其tag以唤醒等待者。
+    // 对于不写寄存器的指令（如分支），无需发送wakeup信号
+    wakeupSourcePort.valid := executionCompletes && euResult.writesToPreg
     wakeupSourcePort.payload.physRegIdx := uopAtWb.physDest.idx
     ParallaxLogger.log(s"EUBase ($euName): 唤醒总线逻辑已连接。")
 
     // *** 5. BusyTable 清除端口 ***
-    // 当指令执行完成时，清除对应的BusyTable位
+    // 当指令执行完成且写寄存器时，清除对应的BusyTable位
     // 注意：无论有无异常，只要指令写寄存器，就必须清除BusyTable位
     // - 有异常：指令不写入PRF，但BusyTable位需要清除（寄存器不再"in flight"）
     // - 无异常：指令成功写入PRF，BusyTable位需要清除（寄存器现在有有效数据）
+    // 对于不写寄存器的指令（如分支），无需清除BusyTable位
     val clearBusyPort = busyTableService.newClearPort()
-    clearBusyPort.valid := executionCompletes
+    clearBusyPort.valid := executionCompletes && euResult.writesToPreg
     clearBusyPort.payload := uopAtWb.physDest.idx
     
-    // RAW HAZARD DEBUG: Track when each EU clears busy bits (only for registers 1-5)
-    when(executionCompletes && uopAtWb.physDest.idx < 6) {
+    // RAW HAZARD DEBUG: Track when each EU clears busy bits (only for registers 1-5 and only when actually writing)
+    when(executionCompletes && euResult.writesToPreg && uopAtWb.physDest.idx < 6) {
       report(L"[RAW_DEBUG] EU ($euName) clearing BusyTable: physReg=${uopAtWb.physDest.idx}, robPtr=${uopAtWb.robPtr}")
     }
     
