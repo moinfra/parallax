@@ -69,10 +69,37 @@ class RenamePlugin(
       ratPort.physReg := ruPort.physReg
     }
 
-    // --- 2. Define HALT condition (only depends on FreeList) ---
+    // --- 2. Define HALT condition (includes FreeList AND branch throttling) ---
     val willNeedPhysRegs = decodedUopsIn(0).isValid && decodedUopsIn(0).writeArchDestEn
     val notEnoughPhysRegs = freeList.io.numFreeRegs < Mux(willNeedPhysRegs, U(1), U(0))
-    s1_rename.haltWhen(notEnoughPhysRegs)
+    
+    // *** NEW: Branch instruction throttling logic ***
+    // Count branch instructions in current rename group
+    val branchMask = Vec(Bool(), pipelineConfig.renameWidth)
+    for(i <- 0 until pipelineConfig.renameWidth) {
+      val uopIn = decodedUopsIn(i)
+      branchMask(i) := uopIn.isValid && (uopIn.uopCode === BaseUopCode.BRANCH)
+    }
+    
+    // Use PopCount to count branches without combinatorial loop
+    val branchCount = CountOne(branchMask)
+    
+    // Branch throttling: only allow 1 branch instruction at a time
+    val tooManyBranches = branchCount > U(1)
+    
+    // Combined halt condition: halt if not enough physical registers OR too many branches
+    val shouldHalt = notEnoughPhysRegs || tooManyBranches
+    s1_rename.haltWhen(shouldHalt)
+    
+    // Debug logging for branch throttling
+    if(enableLog) {
+      when(s1_rename.isValid && tooManyBranches) {
+        report(L"[RENAME] BRANCH THROTTLING: ${branchCount} branches detected, halting rename stage")
+      }
+      when(s1_rename.isValid && notEnoughPhysRegs) {
+        report(L"[RENAME] FREELIST STALL: Not enough physical registers")
+      }
+    }
 
     // --- 3. Drive state-changing requests only when firing ---
     val fire = s1_rename.isFiring

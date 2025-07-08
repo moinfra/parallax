@@ -48,7 +48,7 @@ class SimpleFetchTestSetupPlugin(io: SimpleFetchPipelineTestBenchIo) extends Plu
     bpuService.newBpuUpdatePort() <> io.bpuUpdate
 
     // SimpleFetchPipeline Connections
-    fetchService.getRedirectPort() <> io.redirect
+    fetchService.newRedirectPort(0) <> io.redirect
     io.fetchOutput <> fetchService.fetchOutput()
 
     // D-Cache Connection (unused but needed for service resolution)

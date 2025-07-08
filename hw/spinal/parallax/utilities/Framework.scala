@@ -257,6 +257,13 @@ class Framework(val plugins: Seq[Plugin]) extends Area {
     * @return 所有服务的序列
     */
   def getServices = services
+
+  /**
+    * 断言当前出于early阶段
+    */
+  def requireEarly() = {
+    assert(earlyLock.numRetains == 0 && lateLock.numRetains > 0, "当前不处于early阶段" + s" earlyLock.numRetains=${earlyLock.numRetains}")
+  }
 }
 
 trait LockedService {

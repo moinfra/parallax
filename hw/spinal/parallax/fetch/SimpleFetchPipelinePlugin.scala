@@ -9,6 +9,7 @@ import parallax.bpu._
 import parallax.utilities._
 import parallax.components.memory.{IFetchRsp, InstructionFetchUnitConfig}
 import parallax.components.ifu.IFUService
+import scala.collection.mutable
 
 
 case class FetchedInstr(pCfg: PipelineConfig) extends Bundle with Formattable {
@@ -46,7 +47,14 @@ object FetchedInstrCapture {
 
 trait SimpleFetchPipelineService extends Service with LockedImpl {
   def fetchOutput(): Stream[FetchedInstr]
-  def getRedirectPort(): Flow[UInt]
+ /**
+    * Requests a new port for a hard redirect.
+    * Multiple ports can be requested. The one with the highest priority integer
+    * that is valid in a given cycle will win arbitration.
+    * @param priority The priority of this redirect source. A higher number means higher priority.
+    * @return A Flow port to be driven by the requesting module.
+    */
+  def newRedirectPort(priority: Int): Flow[UInt]
 }
 
 // ========================================================================
@@ -67,7 +75,15 @@ class SimpleFetchPipelinePlugin(
     val finalOutputInst = Stream(FetchedInstr(pCfg))
   }
 
-  override def getRedirectPort(): Flow[UInt] = hw.redirectFlowInst
+  // --- Service Implementation: Collect redirect requests ---
+  private val hardRedirectPorts = mutable.ArrayBuffer[(Int, Flow[UInt])]()
+  override def newRedirectPort(priority: Int): Flow[UInt] = {
+    framework.requireEarly()
+    val port = Flow(UInt(pCfg.pcWidth))
+    hardRedirectPorts += (priority -> port)
+    port
+  }
+
   override def fetchOutput(): Stream[FetchedInstr] = hw.finalOutputInst
 
   val logic = create late new Area {
@@ -121,7 +137,27 @@ class SimpleFetchPipelinePlugin(
     bpuQueryPort.valid := unpackedStream.valid && predecode.isBranch
     bpuQueryPort.payload.pc := unpackedInstr.pc
     bpuQueryPort.payload.transactionId.assignDontCare()
+        // ====================== NEW: Priority Arbitrator for Hard Redirects ======================
+    // Sort ports by priority, descending. Highest priority first.
+    val sortedHardRedirects = hardRedirectPorts.sortBy(-_._1).map(_._2)
+
+    if (sortedHardRedirects.nonEmpty) {
+        val valids = sortedHardRedirects.map(_.valid)
+        val payloads = sortedHardRedirects.map(_.payload)
+
+        // The winning hard redirect is the first valid one in the prioritized list.
+        hw.redirectFlowInst.valid   := valids.orR
+        hw.redirectFlowInst.payload := MuxOH(OHMasking.first(valids), payloads)
+    } else {
+        // If no hard redirect ports were ever requested, it can never be valid.
+        hw.redirectFlowInst.valid := False
+        hw.redirectFlowInst.payload.assignDontCare()
+    }
+    // =======================================================================================
+    
+    // THIS LOGIC IS NOW UNCHANGED. It consumes the result of the new arbitrator.
     val doHardRedirect = hw.redirectFlowInst.valid
+
 
     // BPU Redirect (from prediction)
 val doBpuRedirect = bpuResponse.valid && bpuResponse.isTaken && !doHardRedirect

@@ -117,9 +117,9 @@ class BranchEuPlugin(
     val nextPc = uopAtS1.pc + 4 // 默认下一条指令地址
     
     switch(uopAtS1.branchCtrl.isJump ## uopAtS1.branchCtrl.isIndirect) {
-      // 00: 条件分支 (BEQ, BNE 等) - LoongArch uses PC+4 for branch target calculation
+      // 00: 条件分支 (BEQ, BNE 等) - LoongArch uses PC + offset for branch target calculation
       is(B"00") {
-        branchTarget := uopAtS1.pc + 4 + uopAtS1.imm.asSInt.resize(pipelineConfig.pcWidth).asUInt
+        branchTarget := uopAtS1.pc + uopAtS1.imm.asSInt.resize(pipelineConfig.pcWidth).asUInt
       }
       // 01: 间接跳转 (JALR)
       is(B"01") {

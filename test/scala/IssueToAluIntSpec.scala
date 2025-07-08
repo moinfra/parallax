@@ -24,7 +24,7 @@ import scala.util.Random
 class MockFetchService(pCfg: PipelineConfig) extends Plugin with SimpleFetchPipelineService {
   val fetchStreamIn = Stream(FetchedInstr(pCfg))
   override def fetchOutput(): Stream[FetchedInstr] = fetchStreamIn
-  override def getRedirectPort(): Flow[UInt] = Flow(UInt(pCfg.pcWidth))
+  override def newRedirectPort(priority: Int): Flow[UInt] = Flow(UInt(pCfg.pcWidth))
 }
 
 class MockCommitController(pCfg: PipelineConfig) extends Plugin {
