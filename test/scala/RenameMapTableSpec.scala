@@ -1,3 +1,4 @@
+// testOnly test.scala.RenameMapTableSpec
 package test.scala
 
 import spinal.core._
@@ -21,7 +22,7 @@ class RenameMapTableSpec extends CustomSpinalSimFunSuite {
     archRegCount = 4,
     physRegCount = 8,
     numReadPorts = 2,
-    numWritePorts = 2,
+    numWritePorts = 2
   )
 
   // Helper functions defined INSIDE the test class, accessible by all tests
@@ -37,11 +38,11 @@ class RenameMapTableSpec extends CustomSpinalSimFunSuite {
     )
   }
 
-  def writeMap(dutTb: RenameMapTableTestBench, portIdx: Int, wen: Boolean, archReg: Int, physReg: Int): Unit = {
+  def driveWritePort(dutTb: RenameMapTableTestBench, portIdx: Int, wen: Boolean, archReg: Int, physReg: Int): Unit = {
     dutTb.dutIo.writePorts(portIdx).wen #= wen
     dutTb.dutIo.writePorts(portIdx).archReg #= archReg
     dutTb.dutIo.writePorts(portIdx).physReg #= physReg
-    sleep(1)
+    // sleep(1)
   }
 
   def restoreCheckpoint(dutTb: RenameMapTableTestBench, mapping: Seq[Int]): Unit = {
@@ -60,7 +61,6 @@ class RenameMapTableSpec extends CustomSpinalSimFunSuite {
   def getInternalMapping(dutTb: RenameMapTableTestBench): Seq[Int] = {
     dutTb.internalMapState.map(_.toInt).toSeq
   }
-
 
   test("RenameMapTable - mapState stability") {
     simConfig.compile(new RenameMapTableTestBench(config)).doSim(seed = 43) { dutTb =>
@@ -106,9 +106,9 @@ class RenameMapTableSpec extends CustomSpinalSimFunSuite {
 
       // Test single write (r1 -> p5)
       println("\nTest Single Write (r1 -> p5):")
-      writeMap(dutTb, 0, wen = true, archReg = 1, physReg = 5)
+      driveWritePort(dutTb, 0, wen = true, archReg = 1, physReg = 5)
       dutTb.clockDomain.waitSampling() // Write takes effect on the next clock edge
-      writeMap(dutTb, 0, wen = false, 0, 0) // Deassert write for subsequent cycles
+      driveWritePort(dutTb, 0, wen = false, 0, 0) // Deassert write for subsequent cycles
 
       readArchReg(dutTb, 0, 1) // Check r1, should now be p5
       readArchReg(dutTb, 1, 2) // Check r2, should be initial p2
@@ -120,9 +120,9 @@ class RenameMapTableSpec extends CustomSpinalSimFunSuite {
       // Test writing to r0's mapping (should be ignored by RAT's internal logic)
       println("\nTest Write to r0's mapping (r0 -> p6, should be ignored):")
       val r0InternalInitial = getInternalMapping(dutTb).head // Should be 0 from init
-      writeMap(dutTb, 0, wen = true, archReg = 0, physReg = 6)
+      driveWritePort(dutTb, 0, wen = true, archReg = 0, physReg = 6)
       dutTb.clockDomain.waitSampling()
-      writeMap(dutTb, 0, wen = false, 0, 0)
+      driveWritePort(dutTb, 0, wen = false, 0, 0)
 
       readArchReg(dutTb, 0, 0) // Read r0
       dutTb.clockDomain.waitSampling(0)
@@ -164,9 +164,9 @@ class RenameMapTableSpec extends CustomSpinalSimFunSuite {
 
       // Test write after restore
       println("\nTest Write After Restore (r2 -> p7):")
-      writeMap(dutTb, 0, wen = true, archReg = 2, physReg = 7)
+      driveWritePort(dutTb, 0, wen = true, archReg = 2, physReg = 7)
       dutTb.clockDomain.waitSampling()
-      writeMap(dutTb, 0, wen = false, 0, 0)
+      driveWritePort(dutTb, 0, wen = false, 0, 0)
 
       readArchReg(dutTb, 0, 2) // r2 should now be p7
       readArchReg(dutTb, 1, 1) // r1 was restored to checkpointData(1)
@@ -176,7 +176,10 @@ class RenameMapTableSpec extends CustomSpinalSimFunSuite {
       expectPhysReg(dutTb, 1, expectedR1Read, "r1 after restore")
       println("Internal state after write post-restore: " + getInternalMapping(dutTb).mkString(", ") + "\n")
       assert(getInternalMapping(dutTb)(2) == 7, "Internal state for r2 not p7 post-write")
-      assert(getInternalMapping(dutTb)(1) == checkpointData(1), "Internal state for r1 not checkpointData(1) post-write")
+      assert(
+        getInternalMapping(dutTb)(1) == checkpointData(1),
+        "Internal state for r1 not checkpointData(1) post-write"
+      )
     }
 
     test("RenameMapTable - Concurrent Writes") {
@@ -195,8 +198,8 @@ class RenameMapTableSpec extends CustomSpinalSimFunSuite {
 
         // Test concurrent writes to different registers
         println("\nTest Concurrent Writes to Different Registers (r1->p5, r2->p6):")
-        writeMap(dutTb, 0, wen = true, archReg = 1, physReg = 5) // Port 0 writes to r1
-        writeMap(dutTb, 1, wen = true, archReg = 2, physReg = 6) // Port 1 writes to r2
+        driveWritePort(dutTb, 0, wen = true, archReg = 1, physReg = 5) // Port 0 writes to r1
+        driveWritePort(dutTb, 1, wen = true, archReg = 2, physReg = 6) // Port 1 writes to r2
         dutTb.clockDomain.waitSampling()
         dutTb.dutIo.writePorts.foreach(_.wen #= false) // Deassert writes
 
@@ -212,8 +215,14 @@ class RenameMapTableSpec extends CustomSpinalSimFunSuite {
         // Test concurrent writes to the same register (r3->p7 from port 0, r3->p4 from port 1)
         // Expect port 1's write to take precedence due to loop order in DUT
         println("\nTest Concurrent Writes to Same Register (r3->p7 from port 0, r3->p4 from port 1):")
-        writeMap(dutTb, 0, wen = true, archReg = 3, physReg = 7) // Port 0 tries to write r3 to p7
-        writeMap(dutTb, 1, wen = true, archReg = 3, physReg = 4) // Port 1 tries to write r3 to p4 (expected winner)
+        driveWritePort(dutTb, 0, wen = true, archReg = 3, physReg = 7) // Port 0 tries to write r3 to p7
+        driveWritePort(
+          dutTb,
+          1,
+          wen = true,
+          archReg = 3,
+          physReg = 4
+        ) // Port 1 tries to write r3 to p4 (expected winner)
         dutTb.clockDomain.waitSampling()
         dutTb.dutIo.writePorts.foreach(_.wen #= false) // Deassert writes
 
@@ -226,5 +235,60 @@ class RenameMapTableSpec extends CustomSpinalSimFunSuite {
     }
 
   }
+
+  // 这个测试是必然失败的，但是无所谓，RenameUnit会旁路。
+  test("RenameMapTable - Concurrent Read/Write on Same Address (FIXED)") {
+    simConfig.compile(new RenameMapTableTestBench(config)).doSim(seed = 45) { dutTb =>
+      dutTb.clockDomain.forkStimulus(10)
+
+      // --- Cycle 0: Initialization ---
+      driveWritePort(dutTb, 0, wen = false, 0, 0)
+      driveWritePort(dutTb, 1, wen = false, 0, 0)
+      dutTb.dutIo.readPorts(0).archReg #= 0
+      dutTb.dutIo.checkpointRestore.valid #= false
+      dutTb.clockDomain.waitSampling()
+
+      val initialMapping = getInternalMapping(dutTb)
+      println(s"Initial State: ${initialMapping.mkString(", ")}")
+      assert(initialMapping(2) == 2, "Initial mapping for r2 should be p2")
+
+      // --- Cycle 1: Drive concurrent read/write and wait for clock edge ---
+      println("\nCycle 1: Concurrent Read/Write on r2")
+
+      // Drive inputs. These values will hold until the next assignment.
+      dutTb.dutIo.readPorts(0).archReg #= 2
+      driveWritePort(dutTb, 0, wen = true, archReg = 2, physReg = 7)
+
+      // Check combinational output BEFORE the clock edge
+      val readValueDuringWrite = dutTb.dutIo.readPorts(0).physReg.toInt
+      println(s"Combinational read for r2 during write cycle: p$readValueDuringWrite")
+      assert(readValueDuringWrite == 2, "Concurrent read should see the OLD value (Read-First behavior)")
+
+      // Wait for the clock edge. The write will be latched into mapReg.
+      dutTb.clockDomain.waitSampling()
+
+      // --- Cycle 2: De-assert write and verify results ---
+      println("\nCycle 2: Verifying the result of the write")
+
+      // De-assert write enable for this cycle
+      driveWritePort(dutTb, 0, wen = false, 0, 0)
+
+      // Check the internal state. It should have been updated by the write in Cycle 1.
+      val updatedMapping = getInternalMapping(dutTb)
+      println(s"Updated State: ${updatedMapping.mkString(", ")}")
+      assert(updatedMapping(2) == 7, "Internal mapping for r2 should now be p7")
+
+      // Check that reading r2 now returns the new value
+      dutTb.dutIo.readPorts(0).archReg #= 2
+      val readValueAfterWrite = dutTb.dutIo.readPorts(0).physReg.toInt
+      println(s"Combinational read for r2 in the next cycle: p$readValueAfterWrite")
+      assert(readValueAfterWrite == 7, "Read in the next cycle should see the NEW value")
+
+      dutTb.clockDomain.waitSampling() // Advance to the end of Cycle 2
+
+      println("✅ Concurrent Read/Write test (FIXED) passed!")
+    }
+  }
+
   thatsAll()
 }

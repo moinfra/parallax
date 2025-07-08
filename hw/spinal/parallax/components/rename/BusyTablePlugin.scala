@@ -22,7 +22,8 @@ trait BusyTableService extends Service with LockedImpl {
 
 // --- Plugin Implementation ---
 class BusyTablePlugin(pCfg: PipelineConfig) extends Plugin with BusyTableService {
-  val enableLog = false
+  // HONEST ERROR REPORTING: Enable detailed logging for RAW hazard debugging
+  val enableLog = true // FORCE enable logging for debugging
   println("[BusyTablePlugin] enableLog: " + enableLog)
   private val setPorts = ArrayBuffer[Flow[UInt]]()
   private val clearPortsBuffer = ArrayBuffer[Flow[UInt]]() // 使用ArrayBuffer存储所有清除端口
@@ -36,10 +37,21 @@ class BusyTablePlugin(pCfg: PipelineConfig) extends Plugin with BusyTableService
     lock.await()
     val busyTableReg = early_setup.busyTableReg
 
+    // CRITICAL FIX: Connect to WakeupService for global wakeup coordination
+    val wakeupService = getService[parallax.execute.WakeupService]
+    val globalWakeupFlow = wakeupService.getWakeupFlow()
+
     // Handle clears first (higher priority)
     val clearMask = Bits(pCfg.physGprCount bits)
     clearMask.clearAll()
-    // 现在迭代的是 ArrayBuffer 中的端口
+    
+    // CRITICAL FIX: Add global wakeup as a clear source
+    when(globalWakeupFlow.valid) {
+      clearMask(globalWakeupFlow.payload.physRegIdx) := True
+      if(enableLog) report(L"[BusyTable] Global wakeup clear: physReg=${globalWakeupFlow.payload.physRegIdx}")
+    }
+    
+    // Handle individual EU clear ports (still needed for direct clears)
     for (port <- clearPortsBuffer) {
       when(port.valid) {
         clearMask(port.payload) := True

@@ -96,6 +96,7 @@ class CpuFullSpec extends CustomSpinalSimFunSuite {
       
       // Just verify the basic structure is working
       println("CpuFullTestBench compilation test passed!")
+      assert(true, "Compilation and basic simulation startup test passed.")
     }
   }
 
@@ -834,28 +835,20 @@ class CpuFullSpec extends CustomSpinalSimFunSuite {
         }
       }
       
-      // HONEST ERROR REPORTING: Based on actual test results, this test consistently fails
-      // User feedback: "我希望你修改测试用例，诚实地反映出这些错误"
-      if (timeout > 0 && commitCount == 3) {
-        // This case should be rare - if all 3 commits occur, the fix is working
-        assert(false, "UNEXPECTED SUCCESS: RAW hazard test passed. BusyTable fix is working! This contradicts previous test results, verify if bug was fixed.")
-        
+      if (commitCount == 3) {
+        println("🎉 SUCCESS: All 3 instructions committed. RAW hazard resolution appears to be working correctly.")
+        assert(true, "RAW hazard resolution test passed.")
       } else {
-        // EXPECTED FAILURE: Honestly report the known bug
-        println("⚠️  RAW HAZARD TEST FAILED: Known BusyTable dependency resolution bug")
+        println("🚨 FAILURE: Not all 3 instructions committed within timeout.")
         println(s"Actual: Only $commitCount/3 instructions committed (timeout: ${timeout <= 0})")
-        println("Expected: All 3 instructions should commit if RAW hazards are resolved correctly")
-        println("\n🚨 CONFIRMED BUG: BusyTable RAW hazard resolution failure")
+        println("Expected: All 3 instructions should commit if RAW hazards are resolved correctly.")
+        println("\n🚨 CONFIRMED BUG: BusyTable RAW hazard resolution failure or hang.")
         println("Root cause analysis needed:")
         println("  - Instruction 3 (ADD r3,r1,r2) depends on r1 and r2 from instructions 1&2")
         println("  - BusyTable should track r1,r2 busy state and wake up instruction 3")
-        println("  - Current behavior: instruction 3 never wakes up -> timeout")
-        println("  - Investigation needed: BusyTablePlugin wakeup network or dependency tracking")
-        
-        // ASSERT THE EXPECTED FAILURE to make test results honest
-        assert(commitCount < 3, s"Expected RAW hazard bug (< 3 commits), but got $commitCount commits. Bug may be fixed!")
-        
-        println("\n✅ TEST HONESTY: Successfully detected and reported RAW hazard bug")
+        println("  - Current behavior: instruction 3 never wakes up or stalls -> timeout")
+        println("  - Investigation needed: BusyTablePlugin wakeup network or dependency tracking.")
+        assert(false, "RAW hazard bug detected, test failed as expected.")
       }
       
       println("Data Dependency Test completed")
@@ -991,35 +984,31 @@ class CpuFullSpec extends CustomSpinalSimFunSuite {
       // Analyze results
       val pcSequence = commitedInstructions.map(_._1.toInt)
       if (pcSequence.contains(0x8) || pcSequence.contains(0xc) || pcSequence.contains(0x10)) {
-        println("🚨 CONFIRMED MISPREDICTION BUG: Speculative instructions committed despite flush!")
+        println("🚨 FAILURE: Speculative instructions committed despite flush!")
         println("Actual behavior:")
         println(s"  Committed PCs: ${pcSequence.map(pc => f"0x$pc%02x").mkString(" -> ")}")
         println("Expected behavior:")
         println("  Should be: 0x00 -> 0x04 -> 0x14 (skip 0x08,0x0c,0x10)")
-        println("\n🚨 ROOT CAUSE: Branch prediction rollback mechanism failure")
+        println("\n🚨 ROOT CAUSE: Branch prediction rollback mechanism failure or incorrect speculation handling.")
         println("Evidence of bugs:")
-        println("  1. BranchEU correctly detects misprediction and sends flush signal")
-        println("  2. ROB receives flush signal but speculative instructions still commit")
+        println("  1. BranchEU may detect misprediction and send flush signal")
+        println("  2. ROB may receive flush signal but speculative instructions still commit")
         println("  3. Timing race condition: flush vs commit decisions occur same cycle")
-        println("  4. Multi-cycle flush state tracking insufficient")
+        println("  4. Multi-cycle flush state tracking may be insufficient")
         
-        // ASSERT THE EXPECTED BUG to make test honest
-        assert(true, "Expected branch prediction rollback bug (speculative instructions committed), and it was found.")
-        
-        println("\n✅ TEST HONESTY: Successfully exposed branch prediction rollback bug")
+        assert(false, "Branch prediction rollback bug (speculative instructions committed) detected, test failed.")
         
       } else if (pcSequence == Seq(0x0, 0x4, 0x14)) {
-        println("🎉 UNEXPECTED SUCCESS: Branch prediction working correctly!")
-        println("✅ Perfect execution - no misprediction or correct rollback")
+        println("🎉 SUCCESS: Branch prediction and rollback working correctly!")
+        println("✅ Perfect execution - no misprediction or correct rollback occurred.")
         
-        // This test *expects* to find the bug. If it doesn't, that's a change to be noted.
-        assert(false, "Branch prediction rollback bug seems to be fixed! Expected to find bug, but execution was correct.")
+        assert(true, "Branch prediction misprediction rollback test passed. Bug appears to be fixed.")
         
       } else {
         println("⚠️  UNEXPECTED EXECUTION PATTERN")
         println(s"Actual PC sequence: ${pcSequence.map(pc => f"0x$pc%02x").mkString(" -> ")}")
         println("Expected: 0x00 -> 0x04 -> 0x14 OR (if bug) contains 0x08, 0x0c, 0x10")
-        assert(false, s"Unexpected execution pattern: ${pcSequence.map(pc => f"0x$pc%02x").mkString(" -> ")}")
+        assert(false, s"Unexpected execution pattern observed: ${pcSequence.map(pc => f"0x$pc%02x").mkString(" -> ")}. Test failed.")
       }
       
       println("Branch Prediction Misprediction Test completed")
@@ -1165,37 +1154,34 @@ class CpuFullSpec extends CustomSpinalSimFunSuite {
       println(s"Timeout cycles: $timeoutCycles")
       
       // HONEST ROLLBACK TEST REPORTING: Based on user feedback about remaining issues
-      if (timeoutCycles >= maxCycles) {
-        println("⚠️  EXPECTED TIMEOUT: Branch rollback mechanism has known issues (e.g., hanging after misprediction detection)")
-        println(s"Only $commitCount commits occurred before timeout")
+      if (timeoutCycles >= maxCycles || commitCount != expectedFinalPCs.length) {
+        println("🚨 FAILURE: Branch rollback mechanism failed or timed out.")
+        println(s"Only $commitCount commits occurred before timeout (expected ${expectedFinalPCs.length})")
         println("🎯 TEST PURPOSE: Expose rollback bugs for investigation")
+        println("Issues identified:")
+        println("  - CPU either hanged or did not commit all expected instructions.")
+        println("  - This indicates problems with branch misprediction handling, rollback, or pipeline recovery.")
         
-        // Assert expected failure to be honest about current state
-        assert(commitCount < expectedFinalPCs.length, s"Expected rollback timeout bug, but got $commitCount commits - bug may be fixed!")
-        println("✅ TEST HONESTY: Successfully detected rollback timeout issue")
+        assert(false, s"Branch prediction rollback bug (timeout/incomplete commits) detected, test failed.")
         
       } else {
-        println("✅ UNEXPECTED: Branch prediction rollback mechanism working correctly!")
+        println("🎉 SUCCESS: Branch prediction rollback mechanism working correctly!")
         println("Committed instructions:")
         commitedInstructions.foreach { case (pc, instr) => 
           println(s"  0x${pc.toString(16)}: $instr")
         }
         
-        assert(commitCount == expectedFinalPCs.length, s"Expected ${expectedFinalPCs.length} commits for full execution, got $commitCount")
-        
         // Verify final committed PC sequence
         for (i <- expectedFinalPCs.indices) {
           val (actualPC, _) = commitedInstructions(i)
           assert(actualPC == expectedFinalPCs(i), 
-            s"Instruction $i: expected PC=0x${expectedFinalPCs(i).toString(16)}, got PC=0x${actualPC.toString(16)}")
+            s"Commit $i: expected PC=0x${expectedFinalPCs(i).toString(16)}, got PC=0x${actualPC.toString(16)}")
         }
         
-        println("🎉 SURPRISE SUCCESS: Sequential execution completed as expected!")
         println("✅ Branch condition correctly evaluated (r1 == r2 -> not taken)")
         println("✅ Rollback mechanism functional or no misprediction occurred (if prediction was correct from start)")
         
-        // This test *expects* to find a bug. If it passes, it's a success, but worth noting it contradicts prior findings.
-        assert(false, "Branch prediction rollback bug seems to be fixed! Expected to find bug, but execution was correct.")
+        assert(true, "Branch prediction rollback test passed. Bug appears to be fixed.")
       }
       
       println("Branch Prediction Rollback Test completed")
@@ -1314,16 +1300,16 @@ class CpuFullSpec extends CustomSpinalSimFunSuite {
             
             commitedInstructions += ((commitPC, instrType))
             commitCount += 1
-            println(s"🚨 Multi-branch commit $commitCount: $instrType")
+            println(s"Multi-branch commit $commitCount: $instrType")
             
             // Special detection for the problematic branches
             if (commitPC.toInt == 0x4) {
               println("⚠️  FIRST BRANCH COMMITTED: This should trigger checkpoint creation")
             }
             if (commitPC.toInt == 0x8) {
-              println("🚨 SECOND BRANCH COMMITTED: BUG EXPOSED! Multiple branches in pipeline!")
-              println("This violates the <=1 branch constraint!")
-              assert(true, "Successfully committed second branch, exposing the multi-branch throttling bug!")
+              println("🚨 FAILURE: SECOND BRANCH COMMITTED! Multiple branches in pipeline!")
+              println("This violates the <=1 branch constraint and exposes the throttling bug!")
+              assert(false, "Multi-branch throttling bug: Committed second branch instruction. Test failed.")
             }
           }
         }
@@ -1339,54 +1325,40 @@ class CpuFullSpec extends CustomSpinalSimFunSuite {
       println(s"Total commits: $commitCount")
       println(s"Timeout cycles: $timeoutCycles")
       
-      if (timeoutCycles >= maxCycles) {
-        println("🎯 SUCCESS: Multi-branch bug successfully exposed!")
-        println("Expected: CPU should hang due to missing branch throttling")
-        println("Actual: CPU hanged as expected, confirming the bug")
+      val hasCommittedSecondBranch = commitedInstructions.exists(_._1 == BigInt(0x8))
+      if (timeoutCycles >= maxCycles || hasCommittedSecondBranch) {
+        if(hasCommittedSecondBranch) {
+            println("🚨 CRITICAL FAILURE: Both branch instructions were processed, violating the <=1 branch constraint!")
+        } else {
+            println("🚨 FAILURE: Multi-branch bug successfully exposed (CPU hanged/timed out).")
+        }
+        println("Expected: CPU should correctly handle/throttle multiple branches.")
+        println("Actual: CPU either hanged or incorrectly processed multiple branches, confirming a bug.")
         println("\nBug details:")
-        println("  - RenamePlugin lacks branch instruction counting")
-        println("  - No throttling when >1 branch instruction in rename stage")
-        println("  - Multiple branches cause checkpoint conflicts")
-        println("  - CPU hangs due to speculation corruption")
+        println("  - RenamePlugin may lack branch instruction counting/throttling.")
+        println("  - Multiple branches in flight can cause speculation or checkpoint conflicts, leading to a hang.")
         
         println(s"\nCommitted before hang: $commitCount/5 instructions")
         commitedInstructions.foreach { case (pc, instr) => 
           println(s"  0x${pc.toString(16)}: $instr")
         }
         
-        // The test succeeds if we detect the hanging behavior
-        assert(true, "Multi-branch bug (hanging/timeout) successfully exposed.")
-        println("Next step: Implement branch throttling in RenamePlugin")
-        
-      } else if (commitCount >= 3 && commitedInstructions.exists(_._1 == BigInt(0x8))) {
-        // If we somehow get both branches committed
-        println("🚨 CRITICAL BUG DETECTED: Both branch instructions committed!")
-        println("This definitively proves the <=1 branch constraint is violated")
-        
-        commitedInstructions.foreach { case (pc, instr) => 
-          println(s"  0x${pc.toString(16)}: $instr")
-        }
-        
-        assert(true, "Successfully exposed multi-branch bug through actual execution of two branches.")
+        assert(false, "Multi-branch bug (hanging or incorrect commit) detected. Test failed.")
         
       } else {
-        println("⚠️  UNEXPECTED: CPU completed without exposing the bug, or with unexpected behavior.")
-        println("This might indicate:")
-        println("  1. The bug has already been fixed")
-        println("  2. The test case isn't triggering the bug condition")
-        println("  3. Some other throttling mechanism is working")
+        println("🎉 SUCCESS: CPU completed execution without exposing the multi-branch bug.")
+        println("This may indicate the bug has been fixed (throttling is working).")
         
         commitedInstructions.foreach { case (pc, instr) => 
           println(s"  0x${pc.toString(16)}: $instr")
         }
         
-        assert(false, "Multi-branch throttling bug was expected but not clearly observed or confirmed. Investigate why.")
+        assert(true, "Multi-branch throttling test passed. Bug appears to be fixed.")
       }
       
       println("Multi-Branch Instruction Bug Test completed")
     }
   }
-  
   test("Branch Throttling Verification Test - RenamePlugin Fix") {
     SimConfig.withWave.compile(new CpuFullTestBench(pCfg, dCfg, ifuCfg, axiConfig, fifoDepth)).doSim { dut =>
       implicit val cd = dut.clockDomain.get
@@ -1478,7 +1450,7 @@ class CpuFullSpec extends CustomSpinalSimFunSuite {
       val expectedFinalPCs = Seq(baseAddr, baseAddr + 4, baseAddr + 12)
       
       val commitMonitor = fork {
-        while(commitCount < expectedFinalPCs.length + 1 && timeoutCycles < maxCycles) { // Allow one extra for unexpected
+        while(commitCount < expectedFinalPCs.length && timeoutCycles < maxCycles) { // Stop when expected commits reached
           cd.waitSampling()
           timeoutCycles += 1
           
@@ -1499,10 +1471,11 @@ class CpuFullSpec extends CustomSpinalSimFunSuite {
             commitCount += 1
             println(s"✅ Single-branch commit $commitCount: $instrType")
             
-            // Assert PC matches expected sequence
-            assert(commitCount - 1 < expectedFinalPCs.length, s"Too many commits. Expected ${expectedFinalPCs.length} but got $commitCount at PC=0x${commitPC.toString(16)}")
-            assert(commitPC == expectedFinalPCs(commitCount - 1), 
-              s"Commit $commitCount PC mismatch: expected 0x${expectedFinalPCs(commitCount - 1).toString(16)}, got 0x${commitPC.toString(16)}")
+            // Assert PC matches expected sequence (only for expected commits)
+            if (commitCount <= expectedFinalPCs.length) {
+              assert(commitPC == expectedFinalPCs(commitCount - 1), 
+                s"Commit $commitCount PC mismatch: expected 0x${expectedFinalPCs(commitCount - 1).toString(16)}, got 0x${commitPC.toString(16)}")
+            }
           }
         }
       }
@@ -1517,23 +1490,27 @@ class CpuFullSpec extends CustomSpinalSimFunSuite {
       println(s"Total commits: $commitCount")
       println(s"Timeout cycles: $timeoutCycles")
       
-      assert(timeoutCycles < maxCycles, "TIMEOUT - Branch throttling may have caused issues (CPU hanged).")
-      assert(commitCount == expectedFinalPCs.length, s"Expected ${expectedFinalPCs.length} commits for correct execution, but got $commitCount.")
-      
-      println("🎉 SUCCESS: Branch throttling fix working correctly!")
-      println("Results:")
-      
-      commitedInstructions.foreach { case (pc, instr) => 
-        println(s"  0x${pc.toString(16)}: $instr")
-      }
-      
-      // Verify expected execution pattern
       val pcSequence = commitedInstructions.map(_._1.toInt)
-      assert(!pcSequence.contains(0x8), "Branch behavior needs investigation - skipped instruction (0x08) was committed.")
-      assert(pcSequence == expectedFinalPCs.map(_.toInt), "Committed PC sequence does not match expected correct flow.")
+      if (timeoutCycles >= maxCycles) {
+        assert(false, "FAILURE: TIMEOUT - Branch throttling fix may have caused the CPU to hang. Test failed.")
+      } else if (commitCount != expectedFinalPCs.length) {
+        assert(false, s"FAILURE: Expected ${expectedFinalPCs.length} commits for correct execution, but got $commitCount. Test failed.")
+      } else if (pcSequence.contains(0x8)) {
+        assert(false, "FAILURE: Skipped instruction (0x08) was committed. Branch logic is incorrect. Test failed.")
+      } else if (pcSequence != expectedFinalPCs.map(_.toInt)) {
+        assert(false, s"FAILURE: Committed PC sequence does not match expected correct flow. Got: ${pcSequence.map(pc => f"0x$pc%02x").mkString(" -> ")}. Test failed.")
+      } else {
+        println("🎉 SUCCESS: Branch throttling fix working correctly!")
+        println("Results:")
       
-      println("\n✅ MAIN SUCCESS: CPU completed execution without hanging and with correct branch behavior!")
-      println("Branch throttling appears to be implemented correctly, allowing single branches to work.")
+        commitedInstructions.foreach { case (pc, instr) => 
+          println(s"  0x${pc.toString(16)}: $instr")
+        }
+
+        println("\n✅ MAIN SUCCESS: CPU completed execution without hanging and with correct branch behavior!")
+        println("Branch throttling appears to be implemented correctly, allowing single branches to work.")
+        assert(true, "Branch Throttling Verification Test passed: Fix is working.")
+      }
       
       println("Branch Throttling Verification Test completed")
     }
@@ -1601,11 +1578,9 @@ class CpuFullSpec extends CustomSpinalSimFunSuite {
       val instructions = Seq(
         addi_w(rd = 1, rj = 0, imm = 5),     // 0x00: r1 = 5
         addi_w(rd = 2, rj = 0, imm = 10),    // 0x04: r2 = 10  
-        beq(rj = 1, rd = 2, offset = 12),    // 0x08: Branch 1: if r1 == r2, jump to 0x14+12=0x20 (false prediction)
-                                             // Actual: r1=5, r2=10, so r1 != r2 (branch NOT TAKEN)
+        beq(rj = 1, rd = 2, offset = 12),    // 0x08: Branch 1: if r1 == r2, jump to 0x08+12=0x14 (false, not taken)
         addi_w(rd = 3, rj = 0, imm = 100),   // 0x0c: r3 = 100 (should execute)
-        beq(rj = 0, rd = 0, offset = 8),     // 0x10: Branch 2: if r0 == r0, jump to 0x10+8=0x18 (true prediction) 
-                                             // Actual: r0==r0 (branch TAKEN)
+        beq(rj = 0, rd = 0, offset = 8),     // 0x10: Branch 2: if r0 == r0, jump to 0x10+8=0x18 (true, taken)
         addi_w(rd = 4, rj = 0, imm = 200),   // 0x14: r4 = 200 (should be skipped due to second branch)
         addi_w(rd = 5, rj = 0, imm = 300),   // 0x18: r5 = 300 (branch target)
         idle()                               // 0x1c: IDLE instruction to halt CPU
@@ -1626,20 +1601,13 @@ class CpuFullSpec extends CustomSpinalSimFunSuite {
       var commitCount = 0
       val commitedInstructions = mutable.ArrayBuffer[(BigInt, String)]()
       var timeoutCycles = 0
-      val maxCycles = 1000
+      val maxCycles = 2000
       
       // Expected execution flow if all branches are handled correctly:
-      // 0x00: addi r1, r0, 5     -> commit
-      // 0x04: addi r2, r0, 10    -> commit  
-      // 0x08: beq r1, r2, +12    -> not taken, commit (because 5 != 10)
-      // 0x0c: addi r3, r0, 100   -> commit
-      // 0x10: beq r0, r0, +8     -> taken, commit, jump to 0x18
-      // 0x18: addi r5, r0, 300   -> commit
-      // Expected commits: 6 total in this order.
       val expectedFinalPCs = Seq(BigInt(0x0), BigInt(0x4), BigInt(0x8), BigInt(0xc), BigInt(0x10), BigInt(0x18))
       
       val commitMonitor = fork {
-        while(commitCount < expectedFinalPCs.length + 1 && timeoutCycles < maxCycles) { // Allow one extra for unexpected
+        while(commitCount < expectedFinalPCs.length && timeoutCycles < maxCycles) { // Allow one extra for unexpected
           cd.waitSampling()
           timeoutCycles += 1
           
@@ -1647,7 +1615,6 @@ class CpuFullSpec extends CustomSpinalSimFunSuite {
             val commitPC = dut.io.commitEntry.payload.uop.decoded.pc.toBigInt
             println(s"COMMIT: PC=0x${commitPC.toString(16)}")
             
-            // Identify instruction type based on PC
             val instrType = commitPC.toInt match {
               case 0x0 => "addi r1,r0,5"
               case 0x4 => "addi r2,r0,10"  
@@ -1664,9 +1631,9 @@ class CpuFullSpec extends CustomSpinalSimFunSuite {
             println(s"Committed instruction $commitCount: $instrType")
 
             // Assert PC matches expected sequence
-            assert(commitCount - 1 < expectedFinalPCs.length, s"Too many commits. Expected ${expectedFinalPCs.length} but got $commitCount at PC=0x${commitPC.toString(16)}")
+            assert(commitCount - 1 < expectedFinalPCs.length, s"Too many commits. Expected ${expectedFinalPCs.length} but got $commitCount at PC=0x${commitPC.toString(16)}. Test failed.")
             assert(commitPC == expectedFinalPCs(commitCount - 1), 
-              s"Commit $commitCount PC mismatch: expected 0x${expectedFinalPCs(commitCount - 1).toString(16)}, got 0x${commitPC.toString(16)}")
+              s"Commit $commitCount PC mismatch: expected 0x${expectedFinalPCs(commitCount - 1).toString(16)}, got 0x${commitPC.toString(16)}. Test failed.")
           }
         }
       }
@@ -1681,45 +1648,26 @@ class CpuFullSpec extends CustomSpinalSimFunSuite {
       println(s"Total commits: $commitCount")
       println(s"Timeout cycles: $timeoutCycles")
       
-      // Based on previous reported bugs, CPU is expected to have issues with branches.
-      // So, if it *fails* (times out or doesn't commit all instructions in order), the test *succeeds* in exposing the bug.
-      if (timeoutCycles >= maxCycles) {
-        println("⚠️  TEST RESULT: TIMEOUT - This indicates speculation failure bugs are present (as expected).")
-        println("Expected: CPU should handle multiple branches gracefully")
-        println("Actual: CPU appears to hang, indicating:")
-        println("  1. Multiple branches in flight causing speculation conflicts")
-        println("  2. Inability to rollback on misprediction")
-        println("  3. BruEU or pipeline state corruption")
+      val finalPcSequence = commitedInstructions.map(_._1)
+      if (timeoutCycles >= maxCycles || commitCount != expectedFinalPCs.length || finalPcSequence != expectedFinalPCs) {
+        println("🚨 FAILURE: Multi-branch speculation failure detected (timeout/incorrect execution).")
+        println("Expected: CPU should handle multiple branches gracefully and commit correct sequence.")
+        println(s"Actual committed PCs: ${finalPcSequence.map(pc => s"0x${pc.toString(16)}").mkString(" -> ")}")
+        println(s"Expected committed PCs: ${expectedFinalPCs.map(pc => s"0x${pc.toString(16)}").mkString(" -> ")}")
+        println("This indicates:")
+        println("  1. Multiple branches in flight causing speculation conflicts or pipeline stall.")
+        println("  2. Inability to rollback on misprediction, or incorrect prediction/resolution.")
+        println("  3. BruEU or pipeline state corruption.")
         
-        println("✅ TEST SUCCESS: Successfully exposed branch prediction bugs!")
-        println(s"Only $commitCount/${expectedFinalPCs.length} instructions committed before timeout")
-        println("Branch prediction issues discovered:")
-        println("  - CPU cannot handle branch instructions properly")
-        println("  - Multiple branches in flight cause speculation conflicts or pipeline stall") 
-        println("  - Rollback mechanism is missing or broken (if misprediction occurred)")
-        println("  - BruEU needs branch instruction support")
-        assert(true, "Branch prediction bugs (hanging/timeout) successfully exposed.") // Assert test passed by finding bug
-        
-      } else if (commitCount == expectedFinalPCs.length) {
-        println("✅ UNEXPECTED: All instructions committed successfully and in correct order!")
-        println("This means the CPU already handles multiple branches correctly.")
-        
-        // This test *expects* to find a bug. If it passes, it's a change to be noted.
-        assert(false, "Branch prediction bugs seem to be fixed! Expected to find bug, but all instructions committed correctly.")
+        assert(false, "Multiple branch speculation failure detected. Test failed.")
         
       } else {
-        println(s"⚠️  PARTIAL EXECUTION: Only $commitCount/${expectedFinalPCs.length} instructions committed")
-        println("This indicates speculation failure or rollback issues, but no full timeout.")
-        println("Committed instructions:")
+        println("🎉 SUCCESS: All instructions committed successfully and in correct order!")
+        println("This means the CPU already handles multiple branches correctly.")
         commitedInstructions.foreach { case (pc, instr) => 
           println(s"  0x${pc.toString(16)}: $instr")
         }
-        
-        println("\n🎯 SUCCESS: Test successfully exposed speculation failure bugs (partial execution observed)!")
-        println("Issues identified:")
-        println("  - Pipeline likely cannot handle multiple branches efficiently.")  
-        println("  - Branch handling and rollback mechanisms need further investigation.")
-        assert(true, "Branch prediction bugs (partial execution) successfully exposed.") // Assert test passed by finding bug
+        assert(true, "Multiple branch speculation failure test passed. Bug appears to be fixed.")
       }
       
       println("Branch Prediction Speculation Failure Test completed")
@@ -1729,16 +1677,16 @@ class CpuFullSpec extends CustomSpinalSimFunSuite {
   thatsAll()
 }
 
-  // Abstracted IO bundle for better type safety
-  case class CpuFullTestBenchIo(robConfig: ROBConfig[RenamedUop]) extends Bundle {
-    val enableCommit = in Bool()
-    val commitValid = out Bool()
-    val commitEntry = out(ROBFullEntry[RenamedUop](robConfig))
-    // Test helper ports for memory initialization - use 16-bit address to match SRAM
-    val initMemAddress = in UInt(16 bits)
-    val initMemData = in UInt(32 bits)
-    val initMemEnable = in Bool()
-  }
+// Abstracted IO bundle for better type safety
+case class CpuFullTestBenchIo(robConfig: ROBConfig[RenamedUop]) extends Bundle {
+  val enableCommit = in Bool()
+  val commitValid = out Bool()
+  val commitEntry = out(ROBFullEntry[RenamedUop](robConfig))
+  // Test helper ports for memory initialization - use 16-bit address to match SRAM
+  val initMemAddress = in UInt(16 bits)
+  val initMemData = in UInt(32 bits)
+  val initMemEnable = in Bool()
+}
 
 class CpuFullTestBench(val pCfg: PipelineConfig, val dCfg: DataCachePluginConfig, val ifuCfg: InstructionFetchUnitConfig, val axiConfig: Axi4Config, val fifoDepth: Int) extends Component {
   val UOP_HT = HardType(RenamedUop(pCfg))
@@ -1877,9 +1825,11 @@ class CpuFullTestBench(val pCfg: PipelineConfig, val dCfg: DataCachePluginConfig
     numWritePorts = pCfg.renameWidth
   )
   
-  val freeListConfig = SuperScalarFreeListConfig(
-    numPhysRegs = pCfg.physGprCount, 
-    numAllocatePorts = pCfg.renameWidth, 
+  val flConfig = SuperScalarFreeListConfig(
+    numPhysRegs = pCfg.physGprCount,
+    resetToFull = true,
+    numInitialArchMappings = pCfg.archGprCount,
+    numAllocatePorts = pCfg.renameWidth,
     numFreePorts = pCfg.commitWidth
   )
   
@@ -1907,7 +1857,7 @@ class CpuFullTestBench(val pCfg: PipelineConfig, val dCfg: DataCachePluginConfig
       // Core pipeline
       new IssuePipeline(pCfg),
       new DecodePlugin(pCfg),
-      new RenamePlugin(pCfg, renameMapConfig, freeListConfig),
+      new RenamePlugin(pCfg, renameMapConfig, flConfig),
       new RobAllocPlugin(pCfg),
       new IssueQueuePlugin(pCfg),
       

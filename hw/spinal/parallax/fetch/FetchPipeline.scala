@@ -1,3 +1,4 @@
+// 此模块暂时不启用。
 package parallax.fetch
 
 import spinal.core._

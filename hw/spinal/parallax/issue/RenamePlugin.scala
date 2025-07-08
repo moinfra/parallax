@@ -20,7 +20,7 @@ class RenamePlugin(
     with LockedImpl
     with RatControlService
     with FreeListControlService {
-  val enableLog = false
+  val enableLog = true // FORCE enable for RAW hazard debugging
   val early_setup = create early new Area {
     val issuePpl = getService[IssuePipeline]
     val busyTableService = getService[BusyTableService] // 获取服务
@@ -78,7 +78,11 @@ class RenamePlugin(
     val branchMask = Vec(Bool(), pipelineConfig.renameWidth)
     for(i <- 0 until pipelineConfig.renameWidth) {
       val uopIn = decodedUopsIn(i)
-      branchMask(i) := uopIn.isValid && (uopIn.uopCode === BaseUopCode.BRANCH)
+      val isControlFlowInst = uopIn.uopCode === BaseUopCode.BRANCH   ||
+                              uopIn.uopCode === BaseUopCode.JUMP_REG ||
+                              uopIn.uopCode === BaseUopCode.JUMP_IMM
+                              
+      branchMask(i) := uopIn.isValid && isControlFlowInst
     }
     
     // Use PopCount to count branches without combinatorial loop
@@ -124,7 +128,7 @@ class RenamePlugin(
     // The output RenamedUop will have a garbage robPtr, which is fine.
     // It will be overwritten in the next stage.
     s1_rename(issueSignals.RENAMED_UOPS) := renameUnit.io.renamedUopsOut
-    
+
     issuePpl.release()
     early_setup.busyTableService.release() // 释放服务
   }

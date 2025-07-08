@@ -148,6 +148,10 @@ class SimpleFetchPipelinePlugin(
         // The winning hard redirect is the first valid one in the prioritized list.
         hw.redirectFlowInst.valid   := valids.orR
         hw.redirectFlowInst.payload := MuxOH(OHMasking.first(valids), payloads)
+
+        when(valids.orR) {
+            report(L"[FETCH-PLUGIN] Taken hard redirect to 0x${hw.redirectFlowInst.payload}")
+        }
     } else {
         // If no hard redirect ports were ever requested, it can never be valid.
         hw.redirectFlowInst.valid := False

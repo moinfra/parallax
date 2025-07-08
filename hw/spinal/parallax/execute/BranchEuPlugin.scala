@@ -34,12 +34,15 @@ class BranchEuPlugin(
   val hw = create early new Area {
     val robServiceInst = getService[ROBService[RenamedUop]]
     val bpuServiceInst = getService[BpuService]
+    val fetchPplInst = getService[parallax.fetch.SimpleFetchPipelineService]
 
     val robFlushPort     = robServiceInst.getFlushPort()
     val bpuUpdatePort    = bpuServiceInst.newBpuUpdatePort()
+    val redirectPort     = fetchPplInst.newRedirectPort(priority = 10)  // High priority for branch misprediction
 
     robServiceInst.retain()
     bpuServiceInst.retain()
+    fetchPplInst.retain()
   }
 
   // --- 监控信号暴露 (用于测试) ---
@@ -235,14 +238,27 @@ class BranchEuPlugin(
       // The branch instruction should commit, but all following speculative instructions should be flushed
       hw.robFlushPort.payload.targetRobPtr := uopAtS1.robPtr + 1
       report(L"[BranchEU-S1] MISPREDICTION DETECTED: Flushing ROB from robPtr=${uopAtS1.robPtr + 1}, targetPC=0x${finalTarget}")
+      report(L"[BranchEU-S1] DEBUG: ROB flush valid=${hw.robFlushPort.valid}")
+      
+      // CRITICAL FIX: Issue fetch redirect to correct the fetch pipeline
+      hw.redirectPort.valid := True
+      hw.redirectPort.payload := finalTarget
+      report(L"[BranchEU-S1] FETCH REDIRECT: Redirecting fetch to 0x${finalTarget}")
+      report(L"[BranchEU-S1] REDIRECT DEBUG: valid=${hw.redirectPort.valid}, payload=0x${hw.redirectPort.payload}")
     } otherwise {
       hw.robFlushPort.valid := False
       hw.robFlushPort.payload.reason := FlushReason.NONE
       hw.robFlushPort.payload.targetRobPtr := 0
+      
+      hw.redirectPort.valid := False
+      hw.redirectPort.payload := 0
     }
 
     pipeline.build()
 
     ParallaxLogger.log(s"[BranchEu ${euName}] Pipeline with branch logic built.")
+    hw.robServiceInst.release()
+    hw.bpuServiceInst.release()
+    hw.fetchPplInst.release()
   }
 }

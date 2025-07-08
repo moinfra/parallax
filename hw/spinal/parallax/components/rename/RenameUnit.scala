@@ -33,76 +33,92 @@ class RenameUnit(
 
   val io = slave(RenameUnitIo(pipelineConfig, ratConfig))
 
-  val uopNeedsNewPhysDest = Vec.tabulate(pipelineConfig.renameWidth) { i =>
-    val uop = io.decodedUopsIn(i)
-    uop.isValid && uop.writeArchDestEn && (uop.archDest.isGPR || uop.archDest.isFPR)
-  }
+  // 假设 renameWidth = 1
+  val slotIdx = 0
+  val decodedUop = io.decodedUopsIn(slotIdx)
+  val renamedUop = io.renamedUopsOut(slotIdx)
+
+  val uopNeedsNewPhysDest = decodedUop.isValid && decodedUop.writeArchDestEn && (decodedUop.archDest.isGPR || decodedUop.archDest.isFPR)
+  io.numPhysRegsRequired := uopNeedsNewPhysDest.asUInt.resized
+
+  // --- 1. 驱动所有RAT读端口 ---
+  val physSrc1Port    = io.ratReadPorts(0)
+  val physSrc2Port    = io.ratReadPorts(1)
+  val oldDestReadPort = io.ratReadPorts(2)
+
+  physSrc1Port.archReg    := Mux(decodedUop.useArchSrc1, decodedUop.archSrc1.idx, U(0))
+  physSrc2Port.archReg    := Mux(decodedUop.useArchSrc2, decodedUop.archSrc2.idx, U(0))
+  oldDestReadPort.archReg := Mux(uopNeedsNewPhysDest, decodedUop.archDest.idx, U(0))
+
+  // --- 2. 构建输出 (renamedUop) ---
+  // 直通部分
+  renamedUop.decoded      := decodedUop
+  renamedUop.uniqueId.assignDontCare()
+  renamedUop.robPtr.assignDontCare()
+  renamedUop.dispatched   := False
+  renamedUop.executed     := False
+  renamedUop.hasException := False
+  renamedUop.exceptionCode:= 0
+
+  val renameInfo = renamedUop.rename
   
-  io.numPhysRegsRequired := CountOne(uopNeedsNewPhysDest).resized
+  // --- 3. 核心修正：直接对输出进行带旁路的赋值 ---
+  
+  // 对 physSrc1 进行赋值
+  when(uopNeedsNewPhysDest && decodedUop.useArchSrc1 && (decodedUop.archSrc1 === decodedUop.archDest)) {
+    // 旁路情况：源1就是目的，使用新分配的物理寄存器
+    renameInfo.physSrc1.idx := io.physRegsIn(slotIdx)
+  } otherwise {
+    // 正常情况：使用从RAT读出的值
+    renameInfo.physSrc1.idx := physSrc1Port.physReg
+  }
+  renameInfo.physSrc1IsFpr := decodedUop.archSrc1.isFPR
 
-  for (slotIdx <- 0 until pipelineConfig.renameWidth) {
-    val decodedUop = io.decodedUopsIn(slotIdx)
-    val renamedUop = io.renamedUopsOut(slotIdx)
-    
-    // -- MODIFICATION START: Build the output bundle field-by-field without setDefault --
+  // 对 physSrc2 进行赋值
+  when(uopNeedsNewPhysDest && decodedUop.useArchSrc2 && (decodedUop.archSrc2 === decodedUop.archDest)) {
+    // 旁路情况：源2就是目的，使用新分配的物理寄存器
+    renameInfo.physSrc2.idx := io.physRegsIn(slotIdx)
+  } otherwise {
+    // 正常情况：使用从RAT读出的值
+    renameInfo.physSrc2.idx := physSrc2Port.physReg
+  }
+  renameInfo.physSrc2IsFpr := decodedUop.archSrc2.isFPR
 
-    // 1. Connect the parts that are always passed through
-    renamedUop.decoded := decodedUop
-    renamedUop.uniqueId.assignDontCare()
-    renamedUop.robPtr.assignDontCare()
-    // Default values for other fields in RenamedUop
-    renamedUop.dispatched := False
-    renamedUop.executed := False
-    renamedUop.hasException := False
-    renamedUop.exceptionCode := 0
+  // 其他字段
+  renameInfo.physSrc3.setDefault()
+  renameInfo.physSrc3IsFpr := False
+  renameInfo.branchPrediction.setDefault()
 
-    // 2. Drive RAT ports
-    val baseReadPortIdx = slotIdx * 3
-    val physSrc1Port = io.ratReadPorts(baseReadPortIdx)
-    val physSrc2Port = io.ratReadPorts(baseReadPortIdx + 1)
-    val oldDestReadPort = io.ratReadPorts(baseReadPortIdx + 2)
-    val ratWp = io.ratWritePorts(slotIdx)
+  // 目的寄存器相关信息
+  when(uopNeedsNewPhysDest) {
+    renameInfo.writesToPhysReg    := True
+    // oldPhysDest 永远从RAT读取，它代表写入前的状态，所以不需要旁路
+    renameInfo.oldPhysDest.idx    := oldDestReadPort.physReg
+    renameInfo.oldPhysDestIsFpr   := decodedUop.archDest.isFPR
+    renameInfo.allocatesPhysDest  := True
+    renameInfo.physDest.idx       := io.physRegsIn(slotIdx)
+    renameInfo.physDestIsFpr      := decodedUop.archDest.isFPR
+  } .otherwise {
+    renameInfo.writesToPhysReg    := False
+    renameInfo.oldPhysDest.setDefault()
+    renameInfo.oldPhysDestIsFpr   := False
+    renameInfo.allocatesPhysDest  := False
+    renameInfo.physDest.setDefault()
+    renameInfo.physDestIsFpr      := False
+  }
 
-    physSrc1Port.archReg := Mux(decodedUop.useArchSrc1, decodedUop.archSrc1.idx, U(0))
-    physSrc2Port.archReg := Mux(decodedUop.useArchSrc2, decodedUop.archSrc2.idx, U(0))
-    oldDestReadPort.archReg := Mux(uopNeedsNewPhysDest(slotIdx), decodedUop.archDest.idx, U(0))
-    
-    // 3. Drive the RenameInfo bundle field by field using Mux logic
-    val renameInfo = renamedUop.rename
+  // --- 4. 驱动RAT写端口 ---
+  val ratWp = io.ratWritePorts(slotIdx)
+  ratWp.wen     := uopNeedsNewPhysDest
+  ratWp.archReg := decodedUop.archDest.idx
+  ratWp.physReg := io.physRegsIn(slotIdx)
 
-    renameInfo.physSrc1.idx   := physSrc1Port.physReg
-    renameInfo.physSrc1IsFpr  := decodedUop.archSrc1.isFPR
-
-    renameInfo.physSrc2.idx   := physSrc2Port.physReg
-    renameInfo.physSrc2IsFpr  := decodedUop.archSrc2.isFPR
-    
-    // Default values for other fields in RenameInfo
-    renameInfo.physSrc3.setDefault()
-    renameInfo.physSrc3IsFpr := False
-    renameInfo.branchPrediction.setDefault()
-
-    // Conditional logic for destination register
-    when(uopNeedsNewPhysDest(slotIdx)) {
-      renameInfo.writesToPhysReg    := True
-      renameInfo.oldPhysDest.idx    := oldDestReadPort.physReg
-      renameInfo.oldPhysDestIsFpr   := decodedUop.archDest.isFPR
-      renameInfo.allocatesPhysDest  := True
-      renameInfo.physDest.idx       := io.physRegsIn(slotIdx)
-      renameInfo.physDestIsFpr      := decodedUop.archDest.isFPR
-    } .otherwise {
-      renameInfo.writesToPhysReg    := False
-      renameInfo.oldPhysDest.setDefault()
-      renameInfo.oldPhysDestIsFpr   := False
-      renameInfo.allocatesPhysDest  := False
-      renameInfo.physDest.setDefault()
-      renameInfo.physDestIsFpr      := False
+  val logger = new Area {
+    when(uopNeedsNewPhysDest) {
+      report(L"[RenameUnit] Rename: archDest=${decodedUop.archDest.idx} -> physReg=${io.physRegsIn(slotIdx)} (isFPR=${decodedUop.archDest.isFPR})")
+      report(L"[RenameUnit] Src1: archSrc1=${decodedUop.archSrc1.idx} -> physReg=${renameInfo.physSrc1.idx} (isFPR=${decodedUop.archSrc1.isFPR}, bypassed=${(uopNeedsNewPhysDest && decodedUop.useArchSrc1 && (decodedUop.archSrc1 === decodedUop.archDest))})")
+      report(L"[RenameUnit] Src2: archSrc2=${decodedUop.archSrc2.idx} -> physReg=${renameInfo.physSrc2.idx} (isFPR=${decodedUop.archSrc2.isFPR}, bypassed=${(uopNeedsNewPhysDest && decodedUop.useArchSrc2 && (decodedUop.archSrc2 === decodedUop.archDest))})")
+      report(L"[RenameUnit] oldPhysDest: archDest=${decodedUop.archDest.idx} -> oldPhysReg=${renameInfo.oldPhysDest.idx} (isFPR=${decodedUop.archDest.isFPR})")
     }
-
-    // Drive RAT write port
-    ratWp.wen     := uopNeedsNewPhysDest(slotIdx)
-    ratWp.archReg := decodedUop.archDest.idx
-    ratWp.physReg := io.physRegsIn(slotIdx)
-    
-    // -- MODIFICATION END --
   }
 }

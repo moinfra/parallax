@@ -125,6 +125,7 @@ class RenameMapTable(val config: RenameMapTableConfig) extends Component {
     }
     checkpoint
   }
+  val nextMapRegMapping = CombInit(mapReg.mapping)
 
   // --- Read Logic ---
   for (i <- 0 until config.numReadPorts) {
@@ -138,7 +139,6 @@ class RenameMapTable(val config: RenameMapTableConfig) extends Component {
 
   // --- Write and Restore Logic ---
   // Create a combinational signal for the next state of the mapping, initially copying the current state
-  val nextMapRegMapping = CombInit(mapReg.mapping)
 
   when(io.checkpointRestore.valid) {
     // Restore has highest priority
