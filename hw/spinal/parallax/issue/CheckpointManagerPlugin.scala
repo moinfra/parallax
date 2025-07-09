@@ -5,12 +5,13 @@ import spinal.lib._
 import parallax.common._
 import parallax.components.rename._
 import parallax.utilities.{Plugin, Service}
+import parallax.utilities.LockedImpl
 
 /**
  * Service interface for single checkpoint management in speculative execution.
  * Provides single-cycle save/restore operations for RAT and FreeList state.
  */
-trait CheckpointManagerService extends Service {
+trait CheckpointManagerService extends Service with LockedImpl {
   /**
    * Trigger checkpoint save operation.
    * Single-cycle operation - when asserted, captures current RAT and FreeList state.
@@ -39,19 +40,22 @@ class CheckpointManagerPlugin(
   override def getSaveCheckpointTrigger(): Bool = saveCheckpointTrigger
   override def getRestoreCheckpointTrigger(): Bool = restoreCheckpointTrigger
 
-  val early_setup = create early new Area {
+  val setup = create early new Area {
     // Get the actual services that control RAT and FreeList
     val ratControlService = getService[RatControlService]
     val flControlService = getService[FreeListControlService]
-  }
 
-  val logic = create late new Area {
-    val ratControlService = early_setup.ratControlService
-    val flControlService = early_setup.flControlService
-
+    
     // Get actual checkpoint ports from the services
     val ratRestorePort = ratControlService.newCheckpointRestorePort()
     val flRestorePort = flControlService.newRestorePort()
+  }
+
+  val logic = create late new Area {
+    val ratControlService = setup.ratControlService
+    val flControlService = setup.flControlService
+    val ratRestorePort = setup.ratRestorePort
+    val flRestorePort = setup.flRestorePort
 
     // Single checkpoint storage
     val storedRatCheckpoint = Reg(RatCheckpoint(ratConfig))

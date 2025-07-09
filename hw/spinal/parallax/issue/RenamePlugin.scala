@@ -20,8 +20,11 @@ class RenamePlugin(
   val early_setup = create early new Area {
     val issuePpl = getService[IssuePipeline]
     val busyTableService = getService[BusyTableService] // 获取服务
+    val checkpointManagerService = getService[CheckpointManagerService]
+
     issuePpl.retain()
     busyTableService.retain() // 保持服务
+    checkpointManagerService.retain()
 
     val renameUnit = new RenameUnit(pipelineConfig, ratConfig, flConfig)
     val rat = getService[RatControlService]
@@ -44,6 +47,7 @@ class RenamePlugin(
     val rat = early_setup.rat
     val freeList = early_setup.freeList
     val setBusyPorts = early_setup.busyTableService.newSetPort() // 获取set端口
+    val saveCheckpointTrigger = early_setup.checkpointManagerService.getSaveCheckpointTrigger() // 新增：获取 saveCheckpointTrigger
 
     // --- 1. Connect data paths ---
     val decodedUopsIn = s1_rename(issueSignals.DECODED_UOPS)
@@ -112,6 +116,18 @@ class RenamePlugin(
           setBusyPorts(i).payload.assignDontCare()
       }
     }
+
+    saveCheckpointTrigger := False // 默认不触发
+    when(s1_rename.isFiring && branchCount > 0) {
+      // 这里的假设是：只要有分支指令被重命名，就尝试保存检查点。
+      // CheckpointManagerPlugin 会处理是更新现有检查点还是保存新检查点。
+      saveCheckpointTrigger := True
+      if (enableLog) {
+        report(L"[RENAME] Triggering Checkpoint SAVE due to branch instruction in current batch.")
+      }
+    }
+
+
     if(enableLog) report(L"DEBUG: s1_rename.isFiring=${s1_rename.isFiring}, decodedUopsIn(0).isValid=${decodedUopsIn(0).isValid}")
     if(enableLog) report(L"DEBUG: s1_rename.isReady=${s1_rename.isReady}, s1_rename.isValid=${s1_rename.isValid}, willNeedPhysRegs=${willNeedPhysRegs}, notEnoughPhysRegs=${notEnoughPhysRegs}")
 

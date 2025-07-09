@@ -54,6 +54,7 @@ trait ROBService[RU <: Data with Formattable with HasRobPtr] extends Service wit
 
   /**
    * Commit 阶段调用此方法来获取驱动 ROB 提交确认信号的端口。
+   * CommitPlugin 向 ROB 发送的确认信号，表示它已经成功地从 ROB 提交了（或将要提交）相应的指令，并且 ROB 现在可以安全地将其从内部队列中移除。
    * @param width 并行提交的 Uops 数量。
    * @return 一个 Vec of Bool 的 slave 视角。Commit 阶段驱动这些信号。
    */
