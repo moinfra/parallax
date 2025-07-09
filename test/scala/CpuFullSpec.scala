@@ -1917,6 +1917,7 @@ class CpuFullTestBench(val pCfg: PipelineConfig, val dCfg: DataCachePluginConfig
     val logic = create late new Area {
       val checkpointService = getService[CheckpointManagerService]
       val robService = getService[ROBService[RenamedUop]]
+      val fetchService = getService[SimpleFetchPipelineService]
       
       // CRITICAL: Connect checkpoint triggers for real branch prediction recovery
       // 1. Save checkpoint trigger: For simplicity, always save on any branch prediction
@@ -1925,6 +1926,21 @@ class CpuFullTestBench(val pCfg: PipelineConfig, val dCfg: DataCachePluginConfig
       // - saveCheckpointTrigger: Driven by RenamePlugin when branch instructions are renamed
       // - restoreCheckpointTrigger: Driven by CommitPlugin when ROB flush occurs
       val robFlushPort = robService.getFlushPort()
+      
+      // CRITICAL FIX: Trigger ROB flush when IDLE instruction is detected
+      // This ensures that any instructions already in the pipeline are flushed
+      // and don't get committed after IDLE detection
+      val idleDetected = fetchService.getIdleDetected()
+      val idleDetectedReg = RegNext(idleDetected, init = False)
+      val idleJustDetected = idleDetected && !idleDetectedReg
+      
+      when(idleJustDetected) {
+        robFlushPort.valid := True
+        robFlushPort.reason := FlushReason.FULL_FLUSH
+        report(L"[IDLE_FIX] IDLE instruction detected, flushing ROB to prevent speculative commits")
+      } otherwise {
+        robFlushPort.setIdle()
+      }
       
       // Add debug logging for checkpoint operations
       when(checkpointService.getSaveCheckpointTrigger()) {

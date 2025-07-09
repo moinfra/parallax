@@ -49,3 +49,4 @@ null
 #custom
 bundle.md
 verilator
+*.tmp.*

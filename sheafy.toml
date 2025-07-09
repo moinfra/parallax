@@ -1,17 +1,34 @@
 [sheafy]
-filters = ["scala"]
-bundle_name = "bundle.md"
-working_dir = "./hw/spinal/parallax"
+# Output filename for bundle command
+bundle_name = "project_bundle.md"
+
+# Optional working directory / default export directory (relative to config file)
+working_dir = "."
+
+# Whether to respect .gitignore files (default: true)
 use_gitignore = true
 
-prologue = """
-<!-- Start of Project Bundle -->
-# Project Bundle
+# Optional: Add custom ignore patterns (multi-line string, gitignore syntax)
+# These patterns are applied *in addition* to .gitignore rules (if enabled).
+# Example: ignore all '.log' files and the 'temp/' directory
+ignore_patterns = """
+*.log
+web/
+temp/
+project/
+docs/
+README.md
+build.sbt
+build.sc
+*Spec.scala
+"""
 
-This is a bundle of all the source files in the project directory, including subdirectories.
+# Optional prologue text to include at start of bundle
+prologue = """
 
 """
 
+# Optional epilogue text to include at end of bundle
 epilogue = """
-<!-- End of Project Bundle -->
+
 """

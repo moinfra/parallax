@@ -1,0 +1,167 @@
+digraph LS_Pipeline_Detail {
+    rankdir=TB;
+    compound=true;
+    node [shape=box, style=filled];
+    
+    // Load Pipeline stages
+    subgraph cluster_load_pipeline {
+        label="LOAD PIPELINE";
+        color=blue;
+        style=filled;
+        fillcolor=lightcyan;
+        
+        subgraph cluster_load_s0 {
+            label="Load S0 - Feed";
+            color=darkblue;
+            style=filled;
+            fillcolor=lightblue;
+            
+            LOAD_ARB [label="Load Arbiter\n• LQ ready selection\n• Age-based priority", fillcolor=lightblue];
+            LOAD_FEED [label="Feed Logic\n• Issue to pipeline\n• Resource check", fillcolor=lightblue];
+        }
+        
+        subgraph cluster_load_s1 {
+            label="Load S1 - Context & SQ Check";
+            color=darkblue;
+            style=filled;
+            fillcolor=lightblue;
+            
+            LOAD_CTX [label="Load Context\n• Size/alignment\n• Virtual address", fillcolor=lightblue];
+            LOAD_SQ_CHK [label="SQ Address Check\n• Address comparison\n• Dependency detection", fillcolor=lightblue];
+        }
+        
+        subgraph cluster_load_s2 {
+            label="Load S2 - Forwarding & Speculation";
+            color=darkblue;
+            style=filled;
+            fillcolor=lightblue;
+            
+            LOAD_FWD_ARB [label="Forwarding Arbiter\n• SQ data selection\n• Bypass mux control", fillcolor=lightblue];
+            LOAD_HIT_SPEC [label="Hit Speculation\n• Cache hit predict\n• Early wakeup", fillcolor=lightblue];
+        }
+        
+        subgraph cluster_load_s3 {
+            label="Load S3 - Response & Control";
+            color=darkblue;
+            style=filled;
+            fillcolor=lightblue;
+            
+            LOAD_CACHE_RSP [label="Cache Response\n• Data formatting\n• Miss handling", fillcolor=lightblue];
+            LOAD_CTRL [label="Load Control\n• Exception check\n• Completion logic", fillcolor=lightblue];
+        }
+    }
+    
+    // Store Pipeline stages
+    subgraph cluster_store_pipeline {
+        label="STORE PIPELINE";
+        color=orange;
+        style=filled;
+        fillcolor=lightyellow;
+        
+        subgraph cluster_store_s0 {
+            label="Store S0 - Feed";
+            color=darkorange;
+            style=filled;
+            fillcolor=moccasin;
+            
+            STORE_ARB [label="Store Arbiter\n• SQ ready selection\n• Commit order check", fillcolor=moccasin];
+            STORE_FEED [label="Feed Logic\n• Issue to pipeline\n• Data availability", fillcolor=moccasin];
+        }
+        
+        subgraph cluster_store_s1 {
+            label="Store S1 - LQ Check & Misc";
+            color=darkorange;
+            style=filled;
+            fillcolor=moccasin;
+            
+            STORE_MISC [label="Store Misc\n• Alignment check\n• Size validation", fillcolor=moccasin];
+            STORE_LQ_CHK [label="LQ Hits Check\n• Younger load scan\n• Conflict detection", fillcolor=moccasin];
+        }
+        
+        subgraph cluster_store_s2 {
+            label="Store S2 - Priority & PreComp";
+            color=darkorange;
+            style=filled;
+            fillcolor=moccasin;
+            
+            STORE_LQ_PRIO [label="LQ Priority\n• Hazard resolution\n• Ordering check", fillcolor=moccasin];
+            STORE_PRECOMP [label="Pre-Completion\n• Address translation\n• Permission check", fillcolor=moccasin];
+        }
+        
+        subgraph cluster_store_s3 {
+            label="Store S3 - Completion";
+            color=darkorange;
+            style=filled;
+            fillcolor=moccasin;
+            
+            STORE_COMP [label="Store Completion\n• Trap handling\n• Buffer allocation", fillcolor=moccasin];
+            STORE_COMMIT [label="Commit Logic\n• ROB interaction\n• Memory write", fillcolor=moccasin];
+        }
+    }
+    
+    // External interfaces (simplified)
+    subgraph cluster_external {
+        label="External Interfaces";
+        color=gray;
+        style=filled;
+        fillcolor=lightgray;
+        
+        LQ_INTF [label="Load Queue\nInterface", fillcolor=lightgray];
+        SQ_INTF [label="Store Queue\nInterface", fillcolor=lightgray];
+        CACHE_INTF [label="Cache\nInterface", fillcolor=lightgray];
+        ROB_INTF [label="ROB\nInterface", fillcolor=lightgray];
+        EXCEPT_INTF [label="Exception\nInterface", fillcolor=lightgray];
+    }
+    
+    // Load pipeline internal flow
+    LOAD_ARB -> LOAD_FEED [label="select", color=blue];
+    LOAD_FEED -> LOAD_CTX [label="issue", color=blue];
+    LOAD_CTX -> LOAD_SQ_CHK [label="addr", color=blue];
+    LOAD_SQ_CHK -> LOAD_FWD_ARB [label="deps", color=blue];
+    LOAD_FWD_ARB -> LOAD_HIT_SPEC [label="fwd_sel", color=blue];
+    LOAD_HIT_SPEC -> LOAD_CACHE_RSP [label="spec", color=blue];
+    LOAD_CACHE_RSP -> LOAD_CTRL [label="data", color=blue];
+    
+    // Store pipeline internal flow
+    STORE_ARB -> STORE_FEED [label="select", color=orange];
+    STORE_FEED -> STORE_MISC [label="issue", color=orange];
+    STORE_MISC -> STORE_LQ_CHK [label="addr", color=orange];
+    STORE_LQ_CHK -> STORE_LQ_PRIO [label="hits", color=orange];
+    STORE_LQ_PRIO -> STORE_PRECOMP [label="clear", color=orange];
+    STORE_PRECOMP -> STORE_COMP [label="ready", color=orange];
+    STORE_COMP -> STORE_COMMIT [label="valid", color=orange];
+    
+    // Critical cross-pipeline interactions
+    STORE_LQ_CHK -> LOAD_CTRL [label="younger_load\n_violation", color=red, fontcolor=red];
+    LOAD_SQ_CHK -> STORE_PRECOMP [label="store_depend\n_check", color=red, fontcolor=red];
+    
+    // Store-to-Load forwarding path
+    SQ_INTF -> LOAD_SQ_CHK [label="sq_entries", color=purple, fontcolor=purple];
+    LOAD_SQ_CHK -> LOAD_FWD_ARB [label="fwd_match", color=purple, fontcolor=purple];
+    SQ_INTF -> LOAD_FWD_ARB [label="fwd_data", color=purple, fontcolor=purple];
+    
+    // Load-to-Store dependency
+    LQ_INTF -> STORE_LQ_CHK [label="lq_entries", color=purple, fontcolor=purple];
+    STORE_LQ_CHK -> STORE_LQ_PRIO [label="conflict_mask", color=purple, fontcolor=purple];
+    
+    // External interfaces
+    LQ_INTF -> LOAD_ARB [label="ready_mask", color=gray];
+    SQ_INTF -> STORE_ARB [label="ready_mask", color=gray];
+    
+    LOAD_FEED -> CACHE_INTF [label="load_req", color=blue];
+    CACHE_INTF -> LOAD_CACHE_RSP [label="load_rsp", color=blue];
+    
+    STORE_COMMIT -> CACHE_INTF [label="store_req", color=orange];
+    
+    LOAD_CTRL -> ROB_INTF [label="load_complete", color=blue];
+    STORE_COMMIT -> ROB_INTF [label="store_complete", color=orange];
+    
+    LOAD_CTRL -> EXCEPT_INTF [label="load_except", color=red];
+    STORE_COMP -> EXCEPT_INTF [label="store_except", color=red];
+    
+    // Pipeline stall/flush signals
+    EXCEPT_INTF -> LOAD_ARB [label="flush", color=red, style=dashed];
+    EXCEPT_INTF -> STORE_ARB [label="flush", color=red, style=dashed];
+    CACHE_INTF -> LOAD_ARB [label="stall", color=red, style=dashed];
+    CACHE_INTF -> STORE_ARB [label="stall", color=red, style=dashed];
+}

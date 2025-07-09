@@ -242,13 +242,17 @@ val doJumpRedirect = unpackedStream.valid && unpackedInstr.predecode.isDirectJum
         }
 
         always {
-            when(doHardRedirect) {
+            // CRITICAL FIX: Don't allow redirects to override HALTED state (IDLE instruction detected)
+            // Once CPU is halted due to IDLE, only very specific types of redirects should restart it
+            // This prevents spurious branch redirects from causing CPU runaway after IDLE
+            when(doHardRedirect && !isActive(HALTED)) {
                 fetchPc := hw.redirectFlowInst.payload
                 goto(IDLE)
-            } .elsewhen(doSoftRedirect) {
+            } .elsewhen(doSoftRedirect && !isActive(HALTED)) {
                 fetchPc := softRedirectTarget
                 goto(IDLE)
             }
+            // Note: When in HALTED state, ignore all redirects - this keeps CPU stopped after IDLE
         }
     }
     

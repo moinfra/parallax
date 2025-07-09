@@ -1,0 +1,144 @@
+digraph LSU_Architecture {
+    rankdir=TB;
+    compound=true;
+    node [shape=box, style=filled];
+    
+    // 定义颜色方案
+    subgraph cluster_issue {
+        label="Issue Stage";
+        color=lightblue;
+        style=filled;
+        fillcolor=lightcyan;
+        
+        ISSUE [label="Issue Queue\n(Load/Store μops)", fillcolor=lightblue];
+    }
+    
+    subgraph cluster_lsu_core {
+        label="Load-Store Unit Core";
+        color=red;
+        style=filled;
+        fillcolor=mistyrose;
+        
+        // Address Generation
+        subgraph cluster_agu {
+            label="Address Generation";
+            color=green;
+            style=filled;
+            fillcolor=lightgreen;
+            
+            AGU [label="Address Gen Unit\n(Base + Offset)", fillcolor=lightgreen];
+            ADDR_QUEUE [label="Address Queue", fillcolor=lightgreen];
+        }
+        
+        // Load Queue subsystem
+        subgraph cluster_load_path {
+            label="Load Path";
+            color=blue;
+            style=filled;
+            fillcolor=lightblue;
+            
+            LQ [label="Load Queue\n(LQ Entries)", fillcolor=lightblue];
+            LOAD_PIPE [label="Load Pipeline\nS0→S1→S2→S3", fillcolor=lightblue];
+            LOAD_ARB [label="Load Arbiter", fillcolor=lightblue];
+        }
+        
+        // Store Queue subsystem  
+        subgraph cluster_store_path {
+            label="Store Path";
+            color=orange;
+            style=filled;
+            fillcolor=lightyellow;
+            
+            SQ [label="Store Queue\n(SQ Entries)", fillcolor=lightyellow];
+            STORE_PIPE [label="Store Pipeline\nS0→S1→S2→S3", fillcolor=lightyellow];
+            STORE_ARB [label="Store Arbiter", fillcolor=lightyellow];
+            STORE_BUFFER [label="Store Buffer", fillcolor=lightyellow];
+        }
+        
+        // Critical interaction logic
+        subgraph cluster_interaction {
+            label="Memory Disambiguation";
+            color=purple;
+            style=filled;
+            fillcolor=lavender;
+            
+            ADDR_CMP [label="Address\nComparator", fillcolor=lavender];
+            STL_FWD [label="Store-to-Load\nForwarding", fillcolor=lavender];
+            MEM_ORDER [label="Memory Ordering\nChecker", fillcolor=lavender];
+            HAZARD_DET [label="Hazard\nDetection", fillcolor=lavender];
+        }
+    }
+    
+    // Memory Hierarchy
+    subgraph cluster_memory {
+        label="Memory Hierarchy";
+        color=gray;
+        style=filled;
+        fillcolor=lightgray;
+        
+        DCACHE [label="Data Cache\n(L1D)", fillcolor=lightgray];
+        DCACHE_CTRL [label="Cache Controller", fillcolor=lightgray];
+        MEM_BUS [label="Memory Bus\n(AXI4)", fillcolor=lightgray];
+    }
+    
+    // ROB and Exception handling
+    subgraph cluster_commit {
+        label="Commit & Exception";
+        color=brown;
+        style=filled;
+        fillcolor=wheat;
+        
+        ROB [label="Reorder Buffer\n(ROB)", fillcolor=wheat];
+        EXCEPTION [label="Exception\nHandler", fillcolor=wheat];
+        COMMIT_ARB [label="Commit\nArbiter", fillcolor=wheat];
+    }
+    
+    // 主要数据流
+    ISSUE -> AGU [label="μop", color=blue, fontcolor=blue];
+    AGU -> ADDR_QUEUE [label="addr", color=green, fontcolor=green];
+    
+    // Load path
+    ADDR_QUEUE -> LQ [label="load addr", color=blue, fontcolor=blue];
+    LQ -> LOAD_ARB [label="ready", color=blue, fontcolor=blue];
+    LOAD_ARB -> LOAD_PIPE [label="select", color=blue, fontcolor=blue];
+    LOAD_PIPE -> DCACHE [label="load req", color=blue, fontcolor=blue];
+    DCACHE -> LOAD_PIPE [label="load rsp", color=blue, fontcolor=blue];
+    
+    // Store path  
+    ADDR_QUEUE -> SQ [label="store addr", color=orange, fontcolor=orange];
+    SQ -> STORE_ARB [label="ready", color=orange, fontcolor=orange];
+    STORE_ARB -> STORE_PIPE [label="select", color=orange, fontcolor=orange];
+    STORE_PIPE -> STORE_BUFFER [label="store data", color=orange, fontcolor=orange];
+    STORE_BUFFER -> DCACHE [label="store req", color=orange, fontcolor=orange];
+    
+    // Critical interactions (双向)
+    LQ -> ADDR_CMP [label="load addr", color=purple, fontcolor=purple];
+    SQ -> ADDR_CMP [label="store addr", color=purple, fontcolor=purple];
+    ADDR_CMP -> STL_FWD [label="match", color=purple, fontcolor=purple];
+    STL_FWD -> LOAD_PIPE [label="fwd data", color=purple, fontcolor=purple];
+    
+    ADDR_CMP -> MEM_ORDER [label="conflict", color=purple, fontcolor=purple];
+    MEM_ORDER -> HAZARD_DET [label="violation", color=purple, fontcolor=purple];
+    HAZARD_DET -> LOAD_PIPE [label="stall", color=red, fontcolor=red];
+    HAZARD_DET -> STORE_PIPE [label="stall", color=red, fontcolor=red];
+    
+    // ROB interactions
+    LOAD_PIPE -> ROB [label="complete", color=blue, fontcolor=blue];
+    STORE_PIPE -> COMMIT_ARB [label="ready", color=orange, fontcolor=orange];
+    ROB -> COMMIT_ARB [label="commit", color=brown, fontcolor=brown];
+    COMMIT_ARB -> STORE_BUFFER [label="commit store", color=brown, fontcolor=brown];
+    
+    // Exception handling
+    LOAD_PIPE -> EXCEPTION [label="exception", color=red, fontcolor=red];
+    STORE_PIPE -> EXCEPTION [label="exception", color=red, fontcolor=red];
+    EXCEPTION -> ROB [label="flush", color=red, fontcolor=red];
+    
+    // Memory hierarchy
+    DCACHE -> DCACHE_CTRL [label="miss", color=gray, fontcolor=gray];
+    DCACHE_CTRL -> MEM_BUS [label="mem req", color=gray, fontcolor=gray];
+    MEM_BUS -> DCACHE_CTRL [label="mem rsp", color=gray, fontcolor=gray];
+    
+    // Back pressure
+    DCACHE -> LOAD_ARB [label="stall", color=red, fontcolor=red, style=dashed];
+    DCACHE -> STORE_ARB [label="stall", color=red, fontcolor=red, style=dashed];
+}
