@@ -25,6 +25,7 @@ class MockFetchService(pCfg: PipelineConfig) extends Plugin with SimpleFetchPipe
   val fetchStreamIn = Stream(FetchedInstr(pCfg))
   override def fetchOutput(): Stream[FetchedInstr] = fetchStreamIn
   override def newRedirectPort(priority: Int): Flow[UInt] = Flow(UInt(pCfg.pcWidth))
+  override def getIdleDetected(): Bool = Bool(false) // Default implementation for testing
 }
 
 class MockCommitController(pCfg: PipelineConfig) extends Plugin {

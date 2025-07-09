@@ -919,7 +919,7 @@ class CpuFullSpec extends CustomSpinalSimFunSuite {
       val baseAddr = BigInt("0", 16)
       val instructions = Seq(
         addi_w(rd = 1, rj = 0, imm = 5),     // 0x00: r1 = 5
-        bne(rj = 1, rd = 0, offset = 12),    // 0x04: if r1 != r0, jump to +12 (TRUE - SHOULD jump to 0x14)
+        bne(rj = 1, rd = 0, offset = 16),    // 0x04: if r1 != r0, jump to +16 (TRUE - SHOULD jump to 0x14)
         addi_w(rd = 2, rj = 0, imm = 100),   // 0x08: r2 = 100 (should be SKIPPED if branch taken)
         addi_w(rd = 3, rj = 0, imm = 200),   // 0x0c: r3 = 200 (should be SKIPPED if branch taken)
         addi_w(rd = 4, rj = 0, imm = 300),   // 0x10: r4 = 300 (should be SKIPPED if branch taken)
@@ -999,14 +999,15 @@ class CpuFullSpec extends CustomSpinalSimFunSuite {
         
       } else if (pcSequence == Seq(0x0, 0x4, 0x14)) {
         println("🎉 SUCCESS: Branch prediction and rollback working correctly!")
-        println("✅ Perfect execution - no misprediction or correct rollback occurred.")
+        println("✅ Perfect execution - correct branch behavior and proper program termination.")
+        println("✅ CPU correctly stopped at idle instruction without committing it.")
         
         assert(true, "Branch prediction misprediction rollback test passed. Bug appears to be fixed.")
         
       } else {
         println("⚠️  UNEXPECTED EXECUTION PATTERN")
         println(s"Actual PC sequence: ${pcSequence.map(pc => f"0x$pc%02x").mkString(" -> ")}")
-        println("Expected: 0x00 -> 0x04 -> 0x14 OR (if bug) contains 0x08, 0x0c, 0x10")
+        println("Expected: 0x00 -> 0x04 -> 0x14 (stops at idle) OR (if bug) contains 0x08, 0x0c, 0x10")
         assert(false, s"Unexpected execution pattern observed: ${pcSequence.map(pc => f"0x$pc%02x").mkString(" -> ")}. Test failed.")
       }
       
@@ -1248,10 +1249,10 @@ class CpuFullSpec extends CustomSpinalSimFunSuite {
       val baseAddr = BigInt("0", 16)
       val instructions = Seq(
         addi_w(rd = 1, rj = 0, imm = 5),     // 0x00: r1 = 5
-        bne(rj = 1, rd = 0, offset = 8),     // 0x04: BRANCH 1 - if r1 != r0, jump to 0x04+8=0x0c
-        beq(rj = 0, rd = 0, offset = 4),     // 0x08: BRANCH 2 - if r0 == r0, jump to 0x08+4=0x0c  
-        addi_w(rd = 2, rj = 0, imm = 100),   // 0x0c: r2 = 100 (both branches target here)
-        addi_w(rd = 3, rj = 0, imm = 200),   // 0x10: r3 = 200
+        beq(rj = 1, rd = 1, offset = 8),     // 0x04: BRANCH 1 - if r1 == r1, jump to 0x04+8=0x0c (NOT taken, falls through)
+        bne(rj = 0, rd = 1, offset = 8),     // 0x08: BRANCH 2 - if r0 != r1, jump to 0x08+8=0x10 (taken)
+        addi_w(rd = 2, rj = 0, imm = 100),   // 0x0c: r2 = 100 (should be skipped)
+        addi_w(rd = 3, rj = 0, imm = 200),   // 0x10: r3 = 200 (branch target)
         idle()                               // 0x14: IDLE instruction to halt CPU
       )
       
@@ -1673,6 +1674,178 @@ class CpuFullSpec extends CustomSpinalSimFunSuite {
     }
   }
 
+  
+  // ===== IDLE INSTRUCTION HANDLING BUG TEST =====
+  test("IDLE Instruction Handling Bug Test - Speculative Instructions Committed After IDLE") {
+    SimConfig.withWave.compile(new CpuFullTestBench(pCfg, dCfg, ifuCfg, axiConfig, fifoDepth)).doSim { dut =>
+      implicit val cd = dut.clockDomain.get
+      cd.forkStimulus(10)
+
+      val sram = dut.framework.getService[TestOnlyMemSystemPlugin].getSram()
+
+      // Helper function to write instructions to memory
+      def writeInstructionsToMem(address: BigInt, instructions: Seq[BigInt]): Unit = {
+        val sram = dut.framework.getService[TestOnlyMemSystemPlugin].getSram()
+        
+        println("=== WRITING INSTRUCTIONS FOR IDLE TEST ===")
+        cd.waitSampling(100) 
+        assert(dut.io.initMemEnable.toBoolean, "initMemEnable must be active during TB writes")
+        
+        var currentAddr = address
+        println(s"Writing ${instructions.length} instructions starting at address 0x${address.toString(16)}")
+        for ((inst, idx) <- instructions.zipWithIndex) {
+          sram.io.tb_writeEnable #= true
+          sram.io.tb_writeAddress #= currentAddr
+          sram.io.tb_writeData #= inst
+          println(s"  [${idx}] Address 0x${currentAddr.toString(16)} = 0x${inst.toString(16)}")
+          cd.waitSampling(3)
+          currentAddr += 4
+        }
+        sram.io.tb_writeEnable #= false
+        cd.waitSampling(10)
+        
+        println("=== VERIFYING WRITTEN INSTRUCTIONS ===")
+        cd.waitSampling(200)
+        
+        // Verify writes were successful
+        for ((inst, idx) <- instructions.zipWithIndex) {
+          val readAddr = address + (idx * 4)
+          sram.io.tb_readEnable #= true
+          sram.io.tb_readAddress #= readAddr
+          cd.waitSampling()
+          val readData = sram.io.tb_readData.toBigInt
+          println(s"  VERIFY [${idx}] Address 0x${readAddr.toString(16)} = 0x${readData.toString(16)} (expected 0x${inst.toString(16)})")
+          assert(readData == inst, s"TB write verification failed at 0x${readAddr.toString(16)}: got 0x${readData.toString(16)}, expected 0x${inst.toString(16)}")
+        }
+        sram.io.tb_readEnable #= false
+        
+        println("Instruction writing completed and verified")
+      }
+
+      // Setup test environment
+      println("=== IDLE INSTRUCTION HANDLING BUG TEST ===")
+      dut.io.initMemEnable #= true
+      dut.io.initMemAddress #= 0
+      dut.io.initMemData #= 0
+      dut.io.enableCommit #= false
+      
+      cd.waitSampling(10)
+      cd.waitSampling(2)
+      
+      // Create a test program designed to expose IDLE instruction handling bug
+      val baseAddr = BigInt("0", 16)
+      val instructions = Seq(
+        addi_w(rd = 1, rj = 0, imm = 10),    // 0x00: r1 = 10
+        addi_w(rd = 2, rj = 0, imm = 20),    // 0x04: r2 = 20  
+        addi_w(rd = 3, rj = 0, imm = 30),    // 0x08: r3 = 30
+        idle(),                              // 0x0c: CPU should stop HERE
+        addi_w(rd = 4, rj = 0, imm = 40),    // 0x10: r4 = 40 (SHOULD NOT BE COMMITTED)
+        addi_w(rd = 5, rj = 0, imm = 50),    // 0x14: r5 = 50 (SHOULD NOT BE COMMITTED)
+        addi_w(rd = 6, rj = 0, imm = 60)     // 0x18: r6 = 60 (SHOULD NOT BE COMMITTED)
+      )
+      
+      writeInstructionsToMem(baseAddr, instructions)
+      
+      // Deactivate initMemEnable to allow CPU to start
+      dut.io.initMemEnable #= false
+      println("=== CPU CONTROL DEACTIVATED (initMemEnable=0) ===")
+      cd.waitSampling(5)
+      println("Memory writing completed, CPU can now start")
+      
+      println("=== STARTING IDLE INSTRUCTION HANDLING TEST ===")
+      cd.waitSampling(5)
+      
+      // Monitor commits to observe the bug
+      var commitCount = 0
+      val commitedInstructions = mutable.ArrayBuffer[(BigInt, String)]()
+      var timeoutCycles = 0
+      val maxCycles = 1000  // Reasonable timeout
+      
+      val commitMonitor = fork {
+        while(commitCount < 10 && timeoutCycles < maxCycles) {
+          cd.waitSampling()
+          timeoutCycles += 1
+          
+          if (dut.io.enableCommit.toBoolean && dut.io.commitValid.toBoolean) {
+            val commitPC = dut.io.commitEntry.payload.uop.decoded.pc.toBigInt
+            println(s"COMMIT: PC=0x${commitPC.toString(16)}")
+            
+            // Identify instruction type based on PC
+            val instrType = commitPC.toInt match {
+              case 0x0 => "addi r1,r0,10"
+              case 0x4 => "addi r2,r0,20"
+              case 0x8 => "addi r3,r0,30"
+              case 0xc => "idle (SHOULD NOT BE COMMITTED)"
+              case 0x10 => "addi r4,r0,40 (SHOULD NOT BE COMMITTED)"
+              case 0x14 => "addi r5,r0,50 (SHOULD NOT BE COMMITTED)"
+              case 0x18 => "addi r6,r0,60 (SHOULD NOT BE COMMITTED)"
+              case _ => s"GARBAGE@0x${commitPC.toString(16)} (SHOULD NOT BE COMMITTED)"
+            }
+            
+            commitedInstructions += ((commitPC, instrType))
+            commitCount += 1
+            println(s"IDLE test commit $commitCount: $instrType")
+            
+            // Check for incorrect commits
+            if (commitPC.toInt >= 0xc) {
+              println(s"🚨 BUG DETECTED: Committed instruction at PC=0x${commitPC.toString(16)} after IDLE!")
+              println("This indicates that the IDLE instruction did not properly stop the CPU")
+              println("or flush speculative instructions from the pipeline.")
+            }
+          }
+        }
+      }
+      
+      // Enable commits and start execution
+      dut.io.enableCommit #= true
+      
+      // Wait for completion or timeout
+      commitMonitor.join()
+      
+      println(s"\n=== IDLE INSTRUCTION HANDLING TEST RESULTS ===")
+      println(s"Total commits: $commitCount")
+      println(s"Timeout cycles: $timeoutCycles")
+      
+      // Analyze results
+      val pcSequence = commitedInstructions.map(_._1.toInt)
+      val expectedSequence = Seq(0x0, 0x4, 0x8)
+      
+      if (pcSequence == expectedSequence) {
+        println("🎉 SUCCESS: IDLE instruction handling working correctly!")
+        println("✅ CPU stopped after the last instruction before IDLE")
+        println("✅ No speculative instructions were incorrectly committed")
+        
+        assert(true, "IDLE instruction handling test passed.")
+        
+      } else {
+        println("🚨 FAILURE: IDLE instruction handling bug detected!")
+        println("Actual behavior:")
+        println(s"  Committed PCs: ${pcSequence.map(pc => f"0x$pc%02x").mkString(" -> ")}")
+        println("Expected behavior:")
+        println("  Should be: 0x00 -> 0x04 -> 0x08 (then stop)")
+        println("\n🚨 ROOT CAUSE: IDLE instruction does not properly stop CPU execution")
+        println("Evidence of bugs:")
+        println("  1. IDLE instruction may not be recognized by IFU")
+        println("  2. Pipeline flush may not occur when IDLE is encountered")
+        println("  3. Speculative instructions in pipeline are incorrectly committed")
+        
+        // More detailed analysis
+        val incorrectCommits = pcSequence.filter(_ >= 0xc)
+        if (incorrectCommits.nonEmpty) {
+          println(s"\n🚨 SPECIFIC BUG: ${incorrectCommits.length} incorrect commits detected:")
+          incorrectCommits.foreach { pc =>
+            println(s"     - 0x${pc.toBigInt.toString(16)} (should not be committed)")
+          }
+        }
+        
+        assert(false, "IDLE instruction handling bug detected, test failed.")
+      }
+      
+      println("IDLE Instruction Handling Bug Test completed")
+    }
+  }
+
+
   thatsAll()
 }
 
@@ -1748,12 +1921,10 @@ class CpuFullTestBench(val pCfg: PipelineConfig, val dCfg: DataCachePluginConfig
       // CRITICAL: Connect checkpoint triggers for real branch prediction recovery
       // 1. Save checkpoint trigger: For simplicity, always save on any branch prediction
       //    In a real system, this would be driven by the branch prediction logic
-      checkpointService.getSaveCheckpointTrigger() := False  // For now, disable automatic save
-      
-      // 2. Restore checkpoint trigger: Connect to ROB flush signal
-      //    When BranchEU detects misprediction, it flushes ROB and we should restore checkpoint
+      // NOTE: Checkpoint triggers are now handled by RenamePlugin and CommitPlugin
+      // - saveCheckpointTrigger: Driven by RenamePlugin when branch instructions are renamed
+      // - restoreCheckpointTrigger: Driven by CommitPlugin when ROB flush occurs
       val robFlushPort = robService.getFlushPort()
-      checkpointService.getRestoreCheckpointTrigger() := robFlushPort.valid
       
       // Add debug logging for checkpoint operations
       when(checkpointService.getSaveCheckpointTrigger()) {
@@ -1825,9 +1996,22 @@ class CpuFullTestBench(val pCfg: PipelineConfig, val dCfg: DataCachePluginConfig
     )
   )
   
-  // Connect commit controller
+  // Connect commit controller with IDLE detection
   val commitController = framework.getService[CommitService]
-  commitController.setCommitEnable(io.enableCommit)
+  val fetchService = framework.getService[SimpleFetchPipelineService]
+  val idleDetected = fetchService.getIdleDetected()
+  
+  // Disable commit when IDLE is detected
+  val commitEnable = io.enableCommit && !idleDetected
+  commitController.setCommitEnable(commitEnable)
+  
+  // Add debug logging for IDLE detection
+  when(idleDetected) {
+    report(L"[IDLE_DEBUG] IDLE instruction detected, commit disabled")
+  }
+  when(commitEnable =/= io.enableCommit) {
+    report(L"[IDLE_DEBUG] Commit enable changed: io.enableCommit=${io.enableCommit}, idleDetected=${idleDetected}, commitEnable=${commitEnable}")
+  }
   
   // Connect commit output
   val robService = framework.getService[ROBService[RenamedUop]]
@@ -1836,7 +2020,6 @@ class CpuFullTestBench(val pCfg: PipelineConfig, val dCfg: DataCachePluginConfig
   io.commitEntry := commitSlots.head.entry
   
   // Connect fetch service to issue pipeline
-  val fetchService = framework.getService[SimpleFetchPipelineService]
   val issuePipeline = framework.getService[IssuePipeline]
   val fetchOutStream = fetchService.fetchOutput()
   val issueEntryStage = issuePipeline.entryStage

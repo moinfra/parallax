@@ -47,6 +47,7 @@ object FetchedInstrCapture {
 
 trait SimpleFetchPipelineService extends Service with LockedImpl {
   def fetchOutput(): Stream[FetchedInstr]
+  def getIdleDetected(): Bool // New method to get IDLE detection status
  /**
     * Requests a new port for a hard redirect.
     * Multiple ports can be requested. The one with the highest priority integer
@@ -65,7 +66,7 @@ class SimpleFetchPipelinePlugin(
     ifuCfg: InstructionFetchUnitConfig,
     fifoDepth: Int = 16
 ) extends Plugin with SimpleFetchPipelineService {
-    val enableLog = false
+    val enableLog = true
   val hw = create early new Area {
     val bpuService = getService[BpuService]
     val ifuService = getService[IFUService]
@@ -73,6 +74,7 @@ class SimpleFetchPipelinePlugin(
     
     val redirectFlowInst = Flow(UInt(pCfg.pcWidth))
     val finalOutputInst = Stream(FetchedInstr(pCfg))
+    val idleDetectedInst = Bool() // New signal to indicate IDLE detection
   }
 
   // --- Service Implementation: Collect redirect requests ---
@@ -85,11 +87,15 @@ class SimpleFetchPipelinePlugin(
   }
 
   override def fetchOutput(): Stream[FetchedInstr] = hw.finalOutputInst
+  override def getIdleDetected(): Bool = hw.idleDetectedInst
 
   val logic = create late new Area {
     lock.await()
     val bpu = hw.bpuService
     val ifu = hw.ifuService
+
+    // Initialize IDLE detection signal
+    hw.idleDetectedInst := False
 
     // --- Components ---
     val ifuPort = ifu.newFetchPort()
@@ -203,9 +209,18 @@ val doJumpRedirect = unpackedStream.valid && unpackedInstr.predecode.isDirectJum
                 fetchPc := softRedirectTarget
                 if(enableLog) report(L"[FSM] WAITING->IDLE: Soft redirect to 0x${softRedirectTarget}")
                 goto(IDLE)
-            } .elsewhen(unpackedStream.valid && predecode.isIdle) {
-                if(enableLog) report(L"[FSM] WAITING: IDLE detected at PC=0x${unpackedInstr.pc}, going to HALTED")
-                goto(HALTED)
+            } .elsewhen(unpackedStream.fire || (unpacker.io.isBusy && predecode.isIdle)) {
+                when(predecode.isIdle) {
+                    if(enableLog) report(L"[FSM] WAITING: IDLE detected at PC=0x${unpackedInstr.pc}, going to HALTED")
+                    hw.idleDetectedInst := True // Set IDLE detection flag
+                    goto(HALTED)
+                } .elsewhen(unpackedStream.fire) {
+                    if(enableLog) report(L"[FSM] WAITING->UPDATE_PC: Unpacker finished (fire path)")
+                    goto(UPDATE_PC)
+                } .otherwise {
+                    if(enableLog) report(L"[FSM] WAITING->UPDATE_PC: Unpacker finished (alternative path)")
+                    goto(UPDATE_PC)
+                }
             } .elsewhen(unpackerJustFinished) {
                 if(enableLog) report(L"[FSM] WAITING->UPDATE_PC: Unpacker finished")
                 goto(UPDATE_PC)
@@ -221,7 +236,8 @@ val doJumpRedirect = unpackedStream.valid && unpackedInstr.predecode.isDirectJum
 
         HALTED.whenIsActive {
             // Stay halted until hard redirect
-            // Do nothing - fetch pipeline is stopped
+            // Keep IDLE detection signal active
+            hw.idleDetectedInst := True
             if(enableLog) report(L"[FSM] HALTED: Fetch pipeline stopped")
         }
 
@@ -276,7 +292,7 @@ class StreamUnpacker[T_IN <: Bundle, T_OUT <: Data](
     unpack_func: (T_IN, UInt) => T_OUT,
     valid_mask_getter: T_IN => Bits
 ) extends Component {
-    val enableLog = false
+    val enableLog = true
     val instructionsPerGroup = widthOf(valid_mask_getter(input_type()))
     
     val io = new Bundle {

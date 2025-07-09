@@ -24,6 +24,7 @@ import scala.util.Random
 class MockFetchServiceForBru(pCfg: PipelineConfig) extends Plugin with SimpleFetchPipelineService {
   val fetchStreamIn = Stream(FetchedInstr(pCfg))
   override def fetchOutput(): Stream[FetchedInstr] = fetchStreamIn
+  override def getIdleDetected(): Bool = Bool(false) // Default implementation for testing
   override def newRedirectPort(priority: Int): Flow[UInt] = Flow(UInt(pCfg.pcWidth))
 }
 

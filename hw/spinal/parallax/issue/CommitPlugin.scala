@@ -158,7 +158,7 @@ class CommitPlugin(
     val commitSlotLogs = Vec(CommitSlotLog(pipelineConfig), pipelineConfig.commitWidth)
 
     for (i <- 0 until pipelineConfig.commitWidth) {
-      val doCommit = commitMask(i) && !robFlushPort.valid 
+      val doCommit = commitMask(i) // Let ROB handle flush blocking via canCommitFlags 
       val committedEntry = commitSlots(i).entry 
       val committedUop = committedEntry.payload.uop 
 
