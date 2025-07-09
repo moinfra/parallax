@@ -24,19 +24,6 @@ trait CheckpointManagerService extends Service {
   def getRestoreCheckpointTrigger(): Bool
 }
 
-/**
- * CheckpointManagerPlugin manages a single checkpoint for speculative execution.
- * 
- * THIS IS A REAL IMPLEMENTATION that:
- * 1. Depends on RatControlService and FreeListControlService
- * 2. Captures actual current state on save
- * 3. Restores actual state on restore
- * 4. Single-cycle operations
- * 
- * Integration Points:
- * - Branch prediction unit: saveCheckpointTrigger := speculationStart
- * - ROB/flush logic: restoreCheckpointTrigger := mispredictionDetected
- */
 class CheckpointManagerPlugin(
     val pipelineConfig: PipelineConfig,
     val ratConfig: RenameMapTableConfig,

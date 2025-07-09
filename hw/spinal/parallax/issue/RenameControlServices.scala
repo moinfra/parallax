@@ -10,6 +10,7 @@ import parallax.components.rename.RatReadPort
 import parallax.components.rename.RatWritePort
 import parallax.components.rename.SuperScalarFreeListCheckpoint
 import parallax.components.rename.SuperScalarFreeListFreePort
+import parallax.components.rename.SuperScalarFreeListAllocatePort
 
 // RatCheckpoint 定义已经由您提供，这里不再重复
 
@@ -68,10 +69,11 @@ trait FreeListControlService extends Service {
    * The Commit stage will drive these ports.
    */
   def getFreePorts(): Vec[SuperScalarFreeListFreePort]
-  
+  def getAllocatePorts(): Vec[SuperScalarFreeListAllocatePort]
   /** 
    * Get a master port to command the FreeList to restore its state.
    * The controller drives this stream.
    */
   def newRestorePort(): Stream[SuperScalarFreeListCheckpoint]
+  def getNumFreeRegs(): UInt
 }

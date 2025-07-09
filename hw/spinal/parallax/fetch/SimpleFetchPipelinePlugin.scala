@@ -65,7 +65,7 @@ class SimpleFetchPipelinePlugin(
     ifuCfg: InstructionFetchUnitConfig,
     fifoDepth: Int = 16
 ) extends Plugin with SimpleFetchPipelineService {
-
+    val enableLog = false
   val hw = create early new Area {
     val bpuService = getService[BpuService]
     val ifuService = getService[IFUService]
@@ -150,7 +150,7 @@ class SimpleFetchPipelinePlugin(
         hw.redirectFlowInst.payload := MuxOH(OHMasking.first(valids), payloads)
 
         when(valids.orR) {
-            report(L"[FETCH-PLUGIN] Taken hard redirect to 0x${hw.redirectFlowInst.payload}")
+            if(enableLog) report(L"[FETCH-PLUGIN] Taken hard redirect to 0x${hw.redirectFlowInst.payload}")
         }
     } else {
         // If no hard redirect ports were ever requested, it can never be valid.
@@ -190,7 +190,7 @@ val doJumpRedirect = unpackedStream.valid && unpackedInstr.predecode.isDirectJum
             ifuPort.cmd.valid := True
             when(ifuPort.cmd.fire) {
                 pcOnRequest := fetchPc
-                report(L"[FSM] IDLE->WAITING: IFU cmd fired, pcOnRequest=0x${fetchPc}")
+                if(enableLog) report(L"[FSM] IDLE->WAITING: IFU cmd fired, pcOnRequest=0x${fetchPc}")
                 goto(WAITING)
             }
         }
@@ -201,20 +201,20 @@ val doJumpRedirect = unpackedStream.valid && unpackedInstr.predecode.isDirectJum
         WAITING.whenIsActive {
             when(doSoftRedirect) {
                 fetchPc := softRedirectTarget
-                report(L"[FSM] WAITING->IDLE: Soft redirect to 0x${softRedirectTarget}")
+                if(enableLog) report(L"[FSM] WAITING->IDLE: Soft redirect to 0x${softRedirectTarget}")
                 goto(IDLE)
             } .elsewhen(unpackedStream.valid && predecode.isIdle) {
-                report(L"[FSM] WAITING: IDLE detected at PC=0x${unpackedInstr.pc}, going to HALTED")
+                if(enableLog) report(L"[FSM] WAITING: IDLE detected at PC=0x${unpackedInstr.pc}, going to HALTED")
                 goto(HALTED)
             } .elsewhen(unpackerJustFinished) {
-                report(L"[FSM] WAITING->UPDATE_PC: Unpacker finished")
+                if(enableLog) report(L"[FSM] WAITING->UPDATE_PC: Unpacker finished")
                 goto(UPDATE_PC)
             }
         }
         
         UPDATE_PC.whenIsActive {
             // Normal PC increment by fetch group size (8 bytes for fetchWidth=2)
-            report(L"[FSM] UPDATE_PC: Normal PC update from 0x${pcOnRequest} to 0x${pcOnRequest + ifuCfg.bytesPerFetchGroup}")
+            if(enableLog) report(L"[FSM] UPDATE_PC: Normal PC update from 0x${pcOnRequest} to 0x${pcOnRequest + ifuCfg.bytesPerFetchGroup}")
             fetchPc := pcOnRequest + ifuCfg.bytesPerFetchGroup
             goto(IDLE)
         }
@@ -222,7 +222,7 @@ val doJumpRedirect = unpackedStream.valid && unpackedInstr.predecode.isDirectJum
         HALTED.whenIsActive {
             // Stay halted until hard redirect
             // Do nothing - fetch pipeline is stopped
-            report(L"[FSM] HALTED: Fetch pipeline stopped")
+            if(enableLog) report(L"[FSM] HALTED: Fetch pipeline stopped")
         }
 
         always {
@@ -247,7 +247,7 @@ val doJumpRedirect = unpackedStream.valid && unpackedInstr.predecode.isDirectJum
     //  Detailed Logs
     // ========================================================================
     val logger = new Area {
-        report(Seq(
+        if(enableLog) report(Seq(
             L"[[FETCH-PLUGIN]] ",
             L"PC(fetch=0x${fetchPc}, onReq=0x${pcOnRequest}) | ",
             L"REQ(fire=${ifuPort.cmd.fire}) | ",
@@ -276,7 +276,7 @@ class StreamUnpacker[T_IN <: Bundle, T_OUT <: Data](
     unpack_func: (T_IN, UInt) => T_OUT,
     valid_mask_getter: T_IN => Bits
 ) extends Component {
-    
+    val enableLog = false
     val instructionsPerGroup = widthOf(valid_mask_getter(input_type()))
     
     val io = new Bundle {
@@ -322,7 +322,7 @@ class StreamUnpacker[T_IN <: Bundle, T_OUT <: Data](
 
     val logger = new Area {
         val outPayload = io.output.payload.asInstanceOf[FetchedInstr]
-        report(Seq(
+        if(enableLog) report(Seq(
             L"  [[UNPACKER]] ",
             L"State(busy=${io.isBusy}, bufV=${bufferValid}, idx=${unpackIndex}) | ",
             L"Input(fire=${io.input.fire}) | ",

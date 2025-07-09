@@ -8,8 +8,6 @@ import parallax.common._
 import parallax.components.rename._
 import parallax.components.rob.ROBService
 import parallax.utilities.{Plugin, LockedImpl, ParallaxLogger}
-
-// 引入 BusyTableService
 import parallax.components.rename.BusyTableService
 
 class RenamePlugin(
@@ -17,9 +15,7 @@ class RenamePlugin(
     val ratConfig: RenameMapTableConfig,
     val flConfig: SuperScalarFreeListConfig
 ) extends Plugin 
-    with LockedImpl
-    with RatControlService
-    with FreeListControlService {
+    with LockedImpl {
   val enableLog = true // FORCE enable for RAW hazard debugging
   val early_setup = create early new Area {
     val issuePpl = getService[IssuePipeline]
@@ -28,25 +24,14 @@ class RenamePlugin(
     busyTableService.retain() // 保持服务
 
     val renameUnit = new RenameUnit(pipelineConfig, ratConfig, flConfig)
-    val rat = new RenameMapTable(ratConfig)
-    val freeList = new SuperScalarFreeList(flConfig)
+    val rat = getService[RatControlService]
+    val freeList = getService[FreeListControlService]
     
     val s1_rename = issuePpl.pipeline.s1_rename
     s1_rename(issuePpl.signals.DECODED_UOPS)
     s1_rename(issuePpl.signals.RENAMED_UOPS)
     s1_rename(issuePpl.signals.FLUSH_PIPELINE)
   }
-
-  override def getCurrentState(): RatCheckpoint = early_setup.rat.io.currentState
-  override def newCheckpointRestorePort(): Stream[RatCheckpoint] = early_setup.rat.io.checkpointRestore
-  override def getReadPorts(): Vec[RatReadPort] = early_setup.rat.io.readPorts
-  override def getWritePorts(): Vec[RatWritePort] = early_setup.rat.io.writePorts
-  
-  // BACKWARD COMPATIBILITY: Provide dummy save port for existing tests
-  override def newCheckpointSavePort(): Stream[RatCheckpoint] = early_setup.rat.io.checkpointSave
-  override def getCurrentFreeListState(): SuperScalarFreeListCheckpoint = early_setup.freeList.io.currentState
-  override def getFreePorts(): Vec[SuperScalarFreeListFreePort] = early_setup.freeList.io.free
-  override def newRestorePort(): Stream[SuperScalarFreeListCheckpoint] = early_setup.freeList.io.restoreState
 
   // --- MODIFICATION START: Simplified logic for Rename-only stage ---
   val logic = create late new Area {
@@ -65,11 +50,11 @@ class RenamePlugin(
     renameUnit.io.decodedUopsIn := decodedUopsIn
     
     for(i <- 0 until pipelineConfig.renameWidth) {
-      renameUnit.io.physRegsIn(i) := freeList.io.allocate(i).physReg
+      renameUnit.io.physRegsIn(i) := freeList.getAllocatePorts()(i).physReg
     }
     
-    rat.io.readPorts <> renameUnit.io.ratReadPorts
-    rat.io.writePorts.zip(renameUnit.io.ratWritePorts).foreach { case (ratPort, ruPort) =>
+    rat.getReadPorts() <> renameUnit.io.ratReadPorts
+    rat.getWritePorts.zip(renameUnit.io.ratWritePorts).foreach { case (ratPort, ruPort) =>
       ratPort.wen     := ruPort.wen && s1_rename.isFiring
       ratPort.archReg := ruPort.archReg
       ratPort.physReg := ruPort.physReg
@@ -77,7 +62,7 @@ class RenamePlugin(
 
     // --- 2. Define HALT condition (includes FreeList AND branch throttling) ---
     val willNeedPhysRegs = decodedUopsIn(0).isValid && decodedUopsIn(0).writeArchDestEn
-    val notEnoughPhysRegs = freeList.io.numFreeRegs < Mux(willNeedPhysRegs, U(1), U(0))
+    val notEnoughPhysRegs = freeList.getNumFreeRegs < Mux(willNeedPhysRegs, U(1), U(0))
     
     // *** NEW: Branch instruction throttling logic ***
     // Count branch instructions in current rename group
@@ -115,7 +100,7 @@ class RenamePlugin(
     val fire = s1_rename.isFiring
     for(i <- 0 until pipelineConfig.renameWidth) {
       val needsReg = renameUnit.io.numPhysRegsRequired > i
-      freeList.io.allocate(i).enable := fire && needsReg
+      freeList.getAllocatePorts()(i).enable := fire && needsReg
 
       // *** 新增逻辑: 驱动 BusyTable set 端口 ***
       val uopOut = renameUnit.io.renamedUopsOut(i)

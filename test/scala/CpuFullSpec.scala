@@ -926,7 +926,6 @@ class CpuFullSpec extends CustomSpinalSimFunSuite {
         addi_w(rd = 5, rj = 0, imm = 400),   // 0x14: r5 = 400 (branch target)
         idle()                               // 0x18: IDLE instruction to halt CPU
       )
-      
       writeInstructionsToMem(baseAddr, instructions)
       
       // CRITICAL: Deactivate initMemEnable to allow CPU to start
@@ -1801,7 +1800,8 @@ class CpuFullTestBench(val pCfg: PipelineConfig, val dCfg: DataCachePluginConfig
       
       // CheckpointManagerPlugin for proper branch prediction recovery
       new CheckpointManagerPlugin(pCfg, renameMapConfig, flConfig),
-      
+      new RenameMapTablePlugin(ratConfig = renameMapConfig),
+      new SuperScalarFreeListPlugin(flConfig),
       // Core pipeline
       new IssuePipeline(pCfg),
       

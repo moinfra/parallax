@@ -23,6 +23,10 @@ class SuperScalarFreeListPlugin(
   override def getFreePorts(): Vec[SuperScalarFreeListFreePort] = early_setup.freeList.io.free
   override def newRestorePort(): Stream[SuperScalarFreeListCheckpoint] = early_setup.freeList.io.restoreState
 
+  override def getAllocatePorts(): Vec[SuperScalarFreeListAllocatePort] = early_setup.freeList.io.allocate
+
+  override def getNumFreeRegs(): UInt = early_setup.freeList.io.numFreeRegs
+
   val logic = create late new Area {
     // FreeList is ready - no additional logic needed for basic service
   }
