@@ -94,7 +94,7 @@ class SimpleFetchPipelinePlugin(
     val bpu = hw.bpuService
     val ifu = hw.ifuService
 
-    // Initialize IDLE detection signal
+    // Initialize IDLE detection signal to false (not used in this version)
     hw.idleDetectedInst := False
 
     // --- Components ---
@@ -187,7 +187,6 @@ val doJumpRedirect = unpackedStream.valid && unpackedInstr.predecode.isDirectJum
         val IDLE = new State with EntryPoint
         val WAITING = new State
         val UPDATE_PC = new State
-        val HALTED = new State
 
         ifuPort.cmd.valid := False
         ifuPort.cmd.pc := fetchPc
@@ -209,18 +208,9 @@ val doJumpRedirect = unpackedStream.valid && unpackedInstr.predecode.isDirectJum
                 fetchPc := softRedirectTarget
                 if(enableLog) report(L"[FSM] WAITING->IDLE: Soft redirect to 0x${softRedirectTarget}")
                 goto(IDLE)
-            } .elsewhen(unpackedStream.fire || (unpacker.io.isBusy && predecode.isIdle)) {
-                when(predecode.isIdle) {
-                    if(enableLog) report(L"[FSM] WAITING: IDLE detected at PC=0x${unpackedInstr.pc}, going to HALTED")
-                    hw.idleDetectedInst := True // Set IDLE detection flag
-                    goto(HALTED)
-                } .elsewhen(unpackedStream.fire) {
-                    if(enableLog) report(L"[FSM] WAITING->UPDATE_PC: Unpacker finished (fire path)")
-                    goto(UPDATE_PC)
-                } .otherwise {
-                    if(enableLog) report(L"[FSM] WAITING->UPDATE_PC: Unpacker finished (alternative path)")
-                    goto(UPDATE_PC)
-                }
+            } .elsewhen(unpackedStream.fire) {
+                if(enableLog) report(L"[FSM] WAITING->UPDATE_PC: Unpacker finished (fire path)")
+                goto(UPDATE_PC)
             } .elsewhen(unpackerJustFinished) {
                 if(enableLog) report(L"[FSM] WAITING->UPDATE_PC: Unpacker finished")
                 goto(UPDATE_PC)
@@ -234,25 +224,14 @@ val doJumpRedirect = unpackedStream.valid && unpackedInstr.predecode.isDirectJum
             goto(IDLE)
         }
 
-        HALTED.whenIsActive {
-            // Stay halted until hard redirect
-            // Keep IDLE detection signal active
-            hw.idleDetectedInst := True
-            if(enableLog) report(L"[FSM] HALTED: Fetch pipeline stopped")
-        }
-
         always {
-            // CRITICAL FIX: Don't allow redirects to override HALTED state (IDLE instruction detected)
-            // Once CPU is halted due to IDLE, only very specific types of redirects should restart it
-            // This prevents spurious branch redirects from causing CPU runaway after IDLE
-            when(doHardRedirect && !isActive(HALTED)) {
+            when(doHardRedirect) {
                 fetchPc := hw.redirectFlowInst.payload
                 goto(IDLE)
-            } .elsewhen(doSoftRedirect && !isActive(HALTED)) {
+            } .elsewhen(doSoftRedirect) {
                 fetchPc := softRedirectTarget
                 goto(IDLE)
             }
-            // Note: When in HALTED state, ignore all redirects - this keeps CPU stopped after IDLE
         }
     }
     
