@@ -100,36 +100,74 @@ class CpuComprehensiveSpec extends CustomSpinalSimFunSuite {
       def writeInstructionsToMem(address: BigInt, instructions: Seq[BigInt]): Unit = {
         val sram = dut.framework.getService[TestOnlyMemSystemPlugin].getSram()
         
-        cd.waitSampling(10)
+        // CRITICAL FIX: Ensure TB writes are completely isolated from cache operations
+        println(s"=== ISOLATING MEMORY SYSTEM FOR TB WRITES [$testName] ===")
+        
+        // Step 1: Wait for any pending cache operations to complete
+        cd.waitSampling(100) 
+        
+        // Step 2: Ensure initMemEnable is active (CPU should be redirected)
         assert(dut.io.initMemEnable.toBoolean, "initMemEnable must be active during TB writes")
         
         var currentAddr = address
+        println(s"Writing ${instructions.length} instructions starting at address 0x${address.toString(16)}")
         for ((inst, idx) <- instructions.zipWithIndex) {
           sram.io.tb_writeEnable #= true
           sram.io.tb_writeAddress #= currentAddr
           sram.io.tb_writeData #= inst
           println(s"  [$testName] Writing instruction ${idx}: 0x${currentAddr.toString(16)} = 0x${inst.toString(16)}")
-          cd.waitSampling(3)
+          cd.waitSampling(3) // Longer wait per write to ensure completion
           currentAddr += 4
         }
         sram.io.tb_writeEnable #= false
         cd.waitSampling(10)
+        
+        // Step 3: Force memory system synchronization
+        println(s"=== SYNCHRONIZING MEMORY SYSTEM AFTER TB WRITES [$testName] ===")
+        cd.waitSampling(200) // Extended wait for memory hierarchy to sync
+        
+        // Step 4: Verify writes were successful by reading back
+        for ((inst, idx) <- instructions.zipWithIndex) {
+          val readAddr = address + (idx * 4)
+          sram.io.tb_readEnable #= true
+          sram.io.tb_readAddress #= readAddr
+          cd.waitSampling()
+          val readData = sram.io.tb_readData.toBigInt
+          println(s"  [$testName] VERIFY [${idx}] Address 0x${readAddr.toString(16)} = 0x${readData.toString(16)} (expected 0x${inst.toString(16)})")
+          assert(readData == inst, s"TB write verification failed at 0x${readAddr.toString(16)}: got 0x${readData.toString(16)}, expected 0x${inst.toString(16)}")
+        }
+        sram.io.tb_readEnable #= false
+        
+        println(s"Instruction writing completed and verified for $testName")
       }
       
-      // Setup test environment
-      dut.io.initMemEnable #= true
+      // CRITICAL: Write instructions IMMEDIATELY after reset, before any cache initialization
+      println(s"=== WRITING INSTRUCTIONS IMMEDIATELY AFTER RESET [$testName] ===")
+      
+      // Initialize memory control signals - activate CPU control IMMEDIATELY
+      dut.io.initMemEnable #= true  // Activate BEFORE any cache operations
       dut.io.initMemAddress #= 0
       dut.io.initMemData #= 0
       dut.io.enableCommit #= false
       
-      cd.waitSampling(10)
+      // Minimal reset time - just enough for hardware to stabilize
+      println(s"=== MINIMAL RESET WAIT [$testName] ===")
+      cd.waitSampling(10) // Minimal reset time
+      
+      println(s"=== CPU CONTROL ACTIVATED (initMemEnable=1) [$testName] ===")
+      cd.waitSampling(2) // Minimal signal propagation
       
       // Write instructions to memory
       val baseAddr = BigInt("0", 16)
       writeInstructionsToMem(baseAddr, instructions)
       
-      // Start CPU execution
+      // CRITICAL: Deactivate initMemEnable to allow CPU to start
       dut.io.initMemEnable #= false
+      println(s"=== CPU CONTROL DEACTIVATED (initMemEnable=0) [$testName] ===")
+      cd.waitSampling(5) // Allow signal to propagate
+      println(s"Memory writing completed, CPU can now start for $testName")
+      
+      println(s"=== STARTING CPU EXECUTION [$testName] ===")
       cd.waitSampling(5)
       
       // Monitor commits
