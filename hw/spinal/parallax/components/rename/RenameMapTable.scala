@@ -51,46 +51,32 @@ case class RatCheckpoint(config: RenameMapTableConfig) extends Bundle {
 // The IO Bundle for RenameMapTable
 case class RenameMapTableIo(config: RenameMapTableConfig) extends Bundle with IMasterSlave {
   // Read ports for source operands
-  // slave(RatReadPort(config)) means the RenameMapTable component has slave read ports.
-  // The signals inside RatReadPort will have their directions flipped from its asMaster() definition.
-  // So, for the RAT:
-  //   readPorts.archReg will be an INPUT
-  //   readPorts.physReg will be an OUTPUT
   val readPorts = Vec(slave(RatReadPort(config)), config.numReadPorts)
 
   // Write port for destination operand mapping update
-  // For the RAT:
-  //   writePort.wen, writePort.archReg, writePort.physReg will all be INPUTS
   val writePorts = Vec(slave(RatWritePort(config)), config.numWritePorts)
 
-  // Checkpoint mechanism
-  // For slave Stream, payload is an input, valid is an input, ready is an output.
-  val checkpointSave = slave Stream (RatCheckpoint(config))
+  // Read-only port for monitoring current internal state (for external checkpoint management)
+  val currentState = RatCheckpoint(config)
+
+  // Checkpoint restore mechanism (external manager provides state to restore)
   val checkpointRestore = slave Stream (RatCheckpoint(config))
+  
+  // BACKWARD COMPATIBILITY: Deprecated save port for existing tests
+  val checkpointSave = slave Stream (RatCheckpoint(config))
 
   override def asMaster(): Unit = {
-    // When this RenameMapTableIo Bundle is instantiated as a master(RenameMapTableIo(...)),
-    // its internal signals' directions are flipped relative to the slave role defined above.
-
-    // readPorts: The RenameMapTable component has `slave(RatReadPort)`.
-    // For the RenameMapTableIo master, it means it provides the read request.
-    // So, each read port should be `master(RatReadPort)` to drive `archReg` and receive `physReg`.
     readPorts.foreach(master(_))
-
-    // writePorts: The RenameMapTable component has `slave(RatWritePort)`.
-    // For the RenameMapTableIo master, it means it provides the write request.
-    // So, each write port should be `master(RatWritePort)` to drive `wen`, `archReg`, `physReg`.
     writePorts.foreach(master(_))
-
-    // checkpointSave: The RenameMapTable component has `slave Stream`.
-    // For the RenameMapTableIo master, it means it initiates a save request.
-    // So, it should be a `master Stream`.
-    master(checkpointSave)
-
-    // checkpointRestore: The RenameMapTable component has `slave Stream`.
-    // For the RenameMapTableIo master, it means it initiates a restore request.
-    // So, it should be a `master Stream`.
+    
+    // currentState: From caller's perspective, receives current state from RAT
+    in(currentState)
+    
+    // checkpointRestore: External manager initiates restore by providing state
     master(checkpointRestore)
+    
+    // BACKWARD COMPATIBILITY: checkpointSave (deprecated)
+    master(checkpointSave)
   }
 }
 
@@ -109,7 +95,7 @@ class RenameMapTable(val config: RenameMapTableConfig) extends Component {
     s"archRegIdxWidth (${config.archRegIdxWidth.value}) must be log2Up(archRegCount = ${config.archRegCount}), which is ${log2Up(config.archRegCount)}"
   )
 
-  val io = RenameMapTableIo(config)
+  val io = slave(RenameMapTableIo(config))
 
   val mapReg = Reg(RatCheckpoint(config)) init (initRatCheckpoint())
 
@@ -156,7 +142,12 @@ class RenameMapTable(val config: RenameMapTableConfig) extends Component {
   // Assign the calculated next state to the actual register at the clock edge
   mapReg.mapping := nextMapRegMapping
 
-  // --- Checkpoint Save IO ---
-  io.checkpointSave.ready := True // RAT is always ready to have its state read for a save
+  // --- Checkpoint Restore Logic ---
   io.checkpointRestore.ready := True // RAT is always ready to restore
+  
+  // --- BACKWARD COMPATIBILITY: Checkpoint Save (deprecated) ---
+  io.checkpointSave.ready := True // Always ready but ignored
+
+  // --- Current State Output (Read-only monitoring port) ---
+  io.currentState.mapping := mapReg.mapping
 }

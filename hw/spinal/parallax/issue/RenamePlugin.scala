@@ -37,8 +37,14 @@ class RenamePlugin(
     s1_rename(issuePpl.signals.FLUSH_PIPELINE)
   }
 
-  override def newCheckpointSavePort(): Stream[RatCheckpoint] = early_setup.rat.io.checkpointSave
+  override def getCurrentState(): RatCheckpoint = early_setup.rat.io.currentState
   override def newCheckpointRestorePort(): Stream[RatCheckpoint] = early_setup.rat.io.checkpointRestore
+  override def getReadPorts(): Vec[RatReadPort] = early_setup.rat.io.readPorts
+  override def getWritePorts(): Vec[RatWritePort] = early_setup.rat.io.writePorts
+  
+  // BACKWARD COMPATIBILITY: Provide dummy save port for existing tests
+  override def newCheckpointSavePort(): Stream[RatCheckpoint] = early_setup.rat.io.checkpointSave
+  override def getCurrentFreeListState(): SuperScalarFreeListCheckpoint = early_setup.freeList.io.currentState
   override def getFreePorts(): Vec[SuperScalarFreeListFreePort] = early_setup.freeList.io.free
   override def newRestorePort(): Stream[SuperScalarFreeListCheckpoint] = early_setup.freeList.io.restoreState
 
