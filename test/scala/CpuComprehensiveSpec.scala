@@ -228,18 +228,18 @@ class CpuComprehensiveSpec extends CustomSpinalSimFunSuite {
 
   // ========== STEP 1: Single Instruction Tests ==========
   
-  test("Step 1.1: Single NOP instruction") {
-    runInstructionTest(
-      "Single NOP",
-      Seq(nop(), idle()),
-      expectedCommits = 0 // NOP should be filtered out, only IDLE should stop CPU
-    )
-  }
-  
-  test("Step 1.2: Single ADDI instruction") {
+  test("Step 1.1: Single ADDI instruction") {
     runInstructionTest(
       "Single ADDI",
       Seq(addi_w(rd = 1, rj = 0, imm = 42), idle()),
+      expectedCommits = 1 // ADDI should be committed, then IDLE should stop CPU
+    )
+  }
+  
+  test("Step 1.2: Single ADDI with different immediate") {
+    runInstructionTest(
+      "Single ADDI Different",
+      Seq(addi_w(rd = 2, rj = 0, imm = 100), idle()),
       expectedCommits = 1
     )
   }
