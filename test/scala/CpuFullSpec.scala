@@ -1741,79 +1741,27 @@ class CpuFullTestBench(val pCfg: PipelineConfig, val dCfg: DataCachePluginConfig
       bpuUpdatePort.valid := False
       bpuUpdatePort.payload.assignDontCare()
     }
-  }
-  
-  // Simple CommitPlugin implementation
-  class CommitPlugin(pCfg: PipelineConfig) extends Plugin {
-    private val enableCommit = Bool()
-    
-    def getCommitEnable(): Bool = enableCommit
-    
-    val setup = create early new Area {
-      val ratControl = getService[RatControlService]
-      val flControl = getService[FreeListControlService]
-      val robService = getService[ROBService[RenamedUop]]
-    }
     
     val logic = create late new Area {
-      // CRITICAL FIX: Connect checkpoint save/restore for branch prediction recovery
-      // SIMPLIFIED: Single branch instruction support with initial state checkpoint
-      val checkpointSavePort = setup.ratControl.newCheckpointSavePort()
-      val checkpointRestorePort = setup.ratControl.newCheckpointRestorePort()
-      val freeListRestorePort = setup.flControl.newRestorePort()
-
-      // Get ROB flush port to monitor for branch mispredictions
-      val robFlushPort = setup.robService.getFlushPort()
+      val checkpointService = getService[CheckpointManagerService]
+      val robService = getService[ROBService[RenamedUop]]
       
-      // Simple approach: always restore to initial state when misprediction occurs
-      // This works for single branch instruction scenarios. In a real CPU, you'd restore to
-      // the checkpoint taken at the mispredicted branch instruction.
-      checkpointRestorePort.valid := robFlushPort.valid && 
-                                   (robFlushPort.payload.reason === FlushReason.ROLLBACK_TO_ROB_IDX)
+      // CRITICAL: Connect checkpoint triggers for real branch prediction recovery
+      // 1. Save checkpoint trigger: For simplicity, always save on any branch prediction
+      //    In a real system, this would be driven by the branch prediction logic
+      checkpointService.getSaveCheckpointTrigger() := False  // For now, disable automatic save
       
-      // Create initial checkpoint state for restore (r0 maps to p0, others map to themselves)
-      val renamePlugin = setup.ratControl.asInstanceOf[RenamePlugin]
-      val initialRatCheckpoint = RatCheckpoint(renamePlugin.ratConfig)
-      for (i <- 0 until renamePlugin.ratConfig.archRegCount) {
-        if (i == 0) {
-          initialRatCheckpoint.mapping(i) := U(0, renamePlugin.ratConfig.physRegIdxWidth) // r0 -> p0
-        } else {
-          initialRatCheckpoint.mapping(i) := U(i, renamePlugin.ratConfig.physRegIdxWidth) // rX -> pX initially
-        }
+      // 2. Restore checkpoint trigger: Connect to ROB flush signal
+      //    When BranchEU detects misprediction, it flushes ROB and we should restore checkpoint
+      val robFlushPort = robService.getFlushPort()
+      checkpointService.getRestoreCheckpointTrigger() := robFlushPort.valid
+      
+      // Add debug logging for checkpoint operations
+      when(checkpointService.getSaveCheckpointTrigger()) {
+        report(L"[CHECKPOINT] Save checkpoint triggered")
       }
-      checkpointRestorePort.payload := initialRatCheckpoint
-      
-      freeListRestorePort.valid := robFlushPort.valid && 
-                                 (robFlushPort.payload.reason === FlushReason.ROLLBACK_TO_ROB_IDX)
-      
-      // Create initial free list state (assuming p0-p31 are used for r0-r31, p32-p63 are free)
-      val initialFreeListCheckpoint = SuperScalarFreeListCheckpoint(renamePlugin.flConfig)
-      val initialFreeMask = Bits(renamePlugin.flConfig.numPhysRegs bits)
-      initialFreeMask := B(BigInt("FFFFFFFF00000000", 16), renamePlugin.flConfig.numPhysRegs bits) // Upper 32 bits free
-      initialFreeListCheckpoint.freeMask := initialFreeMask
-      freeListRestorePort.payload := initialFreeListCheckpoint
-      
-      // For single branch: no checkpoint saving needed, always restore to initial state
-      checkpointSavePort.setIdle()
-
-      val freePorts = setup.flControl.getFreePorts()
-      val commitSlots = setup.robService.getCommitSlots(pCfg.commitWidth)
-      val commitAcks = setup.robService.getCommitAcks(pCfg.commitWidth)
-      
-      // Commit controller implementation
-      for (i <- 0 until pCfg.commitWidth) {
-        val canCommit = commitSlots(i).valid
-        val doCommit = enableCommit && canCommit
-        commitAcks(i) := doCommit
-
-        when(doCommit) {
-          val committedUop = commitSlots(i).entry.payload.uop
-          freePorts(i).enable := committedUop.rename.allocatesPhysDest
-          freePorts(i).physReg := committedUop.rename.oldPhysDest.idx
-        } otherwise {
-          freePorts(i).enable := False
-          freePorts(i).physReg := 0
-        }
+      when(checkpointService.getRestoreCheckpointTrigger()) {
+        report(L"[CHECKPOINT] Restore checkpoint triggered due to ROB flush")
       }
     }
   }
@@ -1851,11 +1799,14 @@ class CpuFullTestBench(val pCfg: PipelineConfig, val dCfg: DataCachePluginConfig
       new WakeupPlugin(pCfg),
       new BypassPlugin[BypassMessage](payloadType = HardType(BypassMessage(pCfg))),
       
-      // Real CommitPlugin
-      new CommitPlugin(pCfg),
+      // CheckpointManagerPlugin for proper branch prediction recovery
+      new CheckpointManagerPlugin(pCfg, renameMapConfig, flConfig),
       
       // Core pipeline
       new IssuePipeline(pCfg),
+      
+      // Real CommitPlugin from parallax.issue package (moved after pipeline)
+      new parallax.issue.CommitPlugin(pCfg),
       new DecodePlugin(pCfg),
       new RenamePlugin(pCfg, renameMapConfig, flConfig),
       new RobAllocPlugin(pCfg),
@@ -1875,8 +1826,8 @@ class CpuFullTestBench(val pCfg: PipelineConfig, val dCfg: DataCachePluginConfig
   )
   
   // Connect commit controller
-  val commitController = framework.getService[CommitPlugin]
-  commitController.getCommitEnable() := io.enableCommit
+  val commitController = framework.getService[CommitService]
+  commitController.setCommitEnable(io.enableCommit)
   
   // Connect commit output
   val robService = framework.getService[ROBService[RenamedUop]]
