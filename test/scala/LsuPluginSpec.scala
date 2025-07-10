@@ -77,7 +77,7 @@ class LsuFullIntegrationTestBench(
       new StoreBufferPlugin(pCfg, lsuCfg, dCacheParams, lsuCfg.sqDepth),
       new ROBPlugin[RenamedUop](pCfg, HardType(RenamedUop(pCfg)), () => RenamedUop(pCfg).setDefault()),
       new PhysicalRegFilePlugin(pCfg.physGprCount, pCfg.dataWidth),
-      new BypassPlugin[AguBypassData](payloadType = HardType(AguBypassData())),
+      new BypassPlugin[BypassMessage](payloadType = HardType(BypassMessage(pCfg))),
       new AguPlugin(lsuCfg, supportPcRel = true),
       new DataCachePlugin(dCacheCfg),
       new LsuPlugin(pCfg, lsuCfg, dCacheParams, lsuCfg.lqDepth, lsuCfg.sqDepth),

@@ -300,5 +300,43 @@ class LA32RSimpleDecoderSpec extends CustomSpinalSimFunSuite {
     assertImm(uop, 32)
   }
 
+  // ** SHIFT Instructions **
+  testInstruction("SLLI.W r2, r1, 2", LA32RInstrBuilder.slli_w(2, 1, 2)) { uop =>
+    assert(uop.uopCode.toEnum == BaseUopCode.SHIFT)
+    assert(uop.exeUnit.toEnum == ExeUnitType.ALU_INT)
+    assert(uop.archSrc1.idx.toInt == 1)
+    assert(uop.useArchSrc1.toBoolean)
+    assert(!uop.useArchSrc2.toBoolean) // Uses immediate, not register
+    assert(uop.immUsage.toEnum == ImmUsageType.SRC_SHIFT_AMT)
+    assertImm(uop, 2)
+    assert(!uop.shiftCtrl.isRight.toBoolean) // Left shift
+    assert(!uop.shiftCtrl.isArithmetic.toBoolean)
+    assert(uop.writeArchDestEn.toBoolean)
+    assert(uop.archDest.idx.toInt == 2)
+  }
+
+  testInstruction("SRLI.W r3, r2, 1", LA32RInstrBuilder.srli_w(3, 2, 1)) { uop =>
+    assert(uop.uopCode.toEnum == BaseUopCode.SHIFT)
+    assert(uop.exeUnit.toEnum == ExeUnitType.ALU_INT)
+    assert(uop.archSrc1.idx.toInt == 2)
+    assert(uop.useArchSrc1.toBoolean)
+    assert(!uop.useArchSrc2.toBoolean) // Uses immediate, not register
+    assert(uop.immUsage.toEnum == ImmUsageType.SRC_SHIFT_AMT)
+    assertImm(uop, 1)
+    assert(uop.shiftCtrl.isRight.toBoolean) // Right shift
+    assert(!uop.shiftCtrl.isArithmetic.toBoolean) // Logical right shift
+    assert(uop.writeArchDestEn.toBoolean)
+    assert(uop.archDest.idx.toInt == 3)
+  }
+
+  // ** IDLE Instructions **
+  testInstruction("IDLE", LA32RInstrBuilder.idle()) { uop =>
+    assert(uop.uopCode.toEnum == BaseUopCode.IDLE)
+    assert(uop.exeUnit.toEnum == ExeUnitType.ALU_INT)
+    assert(!uop.useArchSrc1.toBoolean)
+    assert(!uop.useArchSrc2.toBoolean)
+    assert(!uop.writeArchDestEn.toBoolean)
+  }
+
   thatsAll()
 }

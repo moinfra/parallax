@@ -120,8 +120,41 @@ class DemoAlu(val config: PipelineConfig) extends Component {
             resultData := B(0) // Define result on exception
           }
         }
+        is(BaseUopCode.SHIFT) {
+          // Determine shift amount source: immediate or register
+          val shiftAmount = Mux(
+            decoded.immUsage === ImmUsageType.SRC_SHIFT_AMT,
+            decoded.imm(4 downto 0).asUInt, // 5-bit immediate
+            src2(4 downto 0).asUInt         // 5-bit from register src2
+          )
+          
+          when(decoded.shiftCtrl.isRight) {
+            when(decoded.shiftCtrl.isArithmetic) {
+              // Arithmetic right shift
+              resultData := (src1.asSInt >> shiftAmount).asBits.resize(config.dataWidth)
+            } otherwise {
+              // Logical right shift
+              resultData := (src1.asUInt >> shiftAmount).asBits.resize(config.dataWidth)
+            }
+          } otherwise {
+            // Left shift (always logical) - explicitly resize to target width
+            resultData := (src1.asUInt << shiftAmount).asBits.resize(config.dataWidth)
+          }
+        }
+        is(BaseUopCode.NOP) {
+          // NOP: do nothing, just pass through (no result needed)
+          resultData := B(0)
+        }
+        is(BaseUopCode.IDLE) {
+          // IDLE: similar to NOP but marks CPU halt point
+          // ALU just needs to complete successfully, actual halt happens at commit
+          resultData := B(0)
+        }
         is(BaseUopCode.MUL) {
           // NOT SUPPORTED
+          exceptionOccurred := True
+          exceptionCodeVal := AluExceptionCode.UNDEFINED_ALU_OP
+          resultData := B(0)
         }
         // DIV, SHIFT, LOAD, STORE, BRANCH, JUMP etc. are not handled by this DemoAlu
         default {

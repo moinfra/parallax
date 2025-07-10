@@ -59,7 +59,6 @@ class MockFetchServiceForLsu(pCfg: PipelineConfig) extends Plugin with SimpleFet
   val fetchStreamIn = Stream(FetchedInstr(pCfg))
   override def fetchOutput(): Stream[FetchedInstr] = fetchStreamIn
   override def newRedirectPort(priority: Int): Flow[UInt] = Flow(UInt(pCfg.pcWidth))
-  override def getIdleDetected(): Bool = Bool(false) // Default implementation for testing
 }
 
 class MockCommitControllerForLsu(pCfg: PipelineConfig) extends Plugin {
@@ -185,17 +184,13 @@ class IssueToAluAndLsuComplexTestBench(val pCfg: PipelineConfig) extends Compone
       new BusyTablePlugin(pCfg),
       new ROBPlugin[RenamedUop](pCfg, HardType(RenamedUop(pCfg)), () => RenamedUop(pCfg).setDefault()),
       new WakeupPlugin(pCfg),
-      // 分离ALU和LSU的旁路网络
       new BypassPlugin[BypassMessage](payloadType = HardType(BypassMessage(pCfg))),
-      new BypassPlugin[AguBypassData](payloadType = HardType(AguBypassData())),
       new MockCommitControllerForLsu(pCfg),
       new BpuPipelinePlugin(pCfg),
-      // Add LSU infrastructure with unified configuration
       new StoreBufferPlugin(pCfg, lsuConfig, dCacheParams, lsuConfig.sqDepth),
       new AguPlugin(lsuConfig, supportPcRel = true),
       new DataCachePlugin(dCacheConfig),
       new TestOnlyMemSystemPlugin(axiConfig),
-      // Core pipeline - 同时包含ALU和LSU
       new IssuePipeline(pCfg),
       new DecodePlugin(pCfg),
       new RenamePlugin(
@@ -340,15 +335,13 @@ class IssueToAluAndLsuTestBench(val pCfg: PipelineConfig) extends Component {
       new BusyTablePlugin(pCfg),
       new ROBPlugin[RenamedUop](pCfg, HardType(RenamedUop(pCfg)), () => RenamedUop(pCfg).setDefault()),
       new WakeupPlugin(pCfg),
-      new BypassPlugin[AguBypassData](payloadType = HardType(AguBypassData())),
+      new BypassPlugin[BypassMessage](payloadType = HardType(BypassMessage(pCfg))),
       new MockCommitControllerForLsu(pCfg),
       new BpuPipelinePlugin(pCfg),
-      // Add LSU infrastructure with unified configuration
       new StoreBufferPlugin(pCfg, lsuConfig, dCacheParams, lsuConfig.sqDepth),
       new AguPlugin(lsuConfig, supportPcRel = true),
       new DataCachePlugin(dCacheConfig),
       new TestOnlyMemSystemPlugin(axiConfig),
-      // Core pipeline - simplified without ALU
       new IssuePipeline(pCfg),
       new DecodePlugin(pCfg),
       new RenamePlugin(

@@ -17,11 +17,11 @@ import spinal.lib.sim.StreamReadyRandomizer
 class TestSetupPlugin(
     aguIoSetup: AguPort => Unit,
     prfIoSetup: (PrfReadPort, PrfWritePort) => Unit,
-    bypassIoSetup: (Flow[AguBypassData]) => Unit
+    bypassIoSetup: (Flow[BypassMessage]) => Unit
 ) extends Plugin {
   lazy val aguPlugin = getService[AguPlugin]
   lazy val prfPlugin = getService[PhysicalRegFilePlugin]
-  lazy val bypassPlugin = getService[BypassPlugin[AguBypassData]]
+  lazy val bypassPlugin = getService[BypassPlugin[BypassMessage]]
   val setup = create early new Area {
     aguPlugin.retain()
     prfPlugin.retain()
@@ -43,18 +43,20 @@ class TestSetupPlugin(
 
 // AGU测试Framework（使用BypassService）
 class AguTestFrameworkWithBypass() extends Component {
-  val lsuConfig = LsuConfig(
-    lqDepth = 8,
-    sqDepth = 8,
-    robPtrWidth = 6 bits,
-    pcWidth = 32 bits,
-    dataWidth = 32 bits,
-    physGprIdxWidth = 6 bits,
-    exceptionCodeWidth = 5 bits,
-    commitWidth = 2,
+
+
+  val pCfg = PipelineConfig()
+    val lsuConfig = LsuConfig(
+    lqDepth = 16,
+    sqDepth = 16,
+    robPtrWidth = pCfg.robPtrWidth,
+    pcWidth = pCfg.pcWidth,
+    dataWidth = pCfg.dataWidth,
+    physGprIdxWidth = pCfg.physGprIdxWidth,
+    exceptionCodeWidth = pCfg.exceptionCodeWidth,
+    commitWidth = pCfg.commitWidth,
     dcacheRefillCount = 2
   )
-
   val io = new Bundle {
     val testInput = slave(Stream(AguInput(lsuConfig)))
     val testOutput = master(Stream(AguOutput(lsuConfig)))
@@ -63,7 +65,7 @@ class AguTestFrameworkWithBypass() extends Component {
     val prfWrite = slave(PrfWritePort(6 bits, 32 bits))
     val prfRead = slave(PrfReadPort(6 bits, 32 bits))
 
-    val bypassInject = slave(Flow(AguBypassData()))
+    val bypassInject = slave(Flow(BypassMessage(pCfg)))
   }
 
   lazy val prfPlugin = (new PhysicalRegFilePlugin(
@@ -71,8 +73,8 @@ class AguTestFrameworkWithBypass() extends Component {
     dataWidth = 32 bits
   ))
 
-  lazy val bypassPlugin = (new BypassPlugin[AguBypassData](
-    payloadType = HardType(AguBypassData())
+  lazy val bypassPlugin = (new BypassPlugin[BypassMessage](
+    payloadType = HardType(BypassMessage(pCfg))
   ))
 
   lazy val aguPlugin = (new AguPlugin(
@@ -166,7 +168,6 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
     dut.io.bypassInject.payload.physRegIdx #= physRegIdx
     dut.io.bypassInject.payload.physRegData #= data
     dut.io.bypassInject.payload.robPtr #= robPtr
-    dut.io.bypassInject.payload.valid #= true
     clockDomain.waitSampling(10)
     dut.io.bypassInject.valid #= false
     clockDomain.waitSampling()

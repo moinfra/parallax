@@ -10,12 +10,11 @@ import parallax.execute.BypassService
 import scala.collection.mutable.ArrayBuffer
 
 // AGU旁路数据类型
-case class AguBypassData() extends Bundle {
-  val physRegIdx = UInt(6 bits)
-  val physRegData = Bits(32 bits)
-  val robPtr = UInt(6 bits)
-  val valid = Bool()
-}
+// case class AguBypassData() extends Bundle {
+//   val physRegIdx = UInt(6 bits)
+//   val physRegData = Bits(32 bits)
+//   val robPtr = UInt(6 bits)
+// }
 
 // AGU服务接口
 trait AguService extends Service with LockedImpl {
@@ -140,7 +139,7 @@ class AguPlugin(
   // --- 结构性修复 2: 在 setup 阶段获取服务实例 ---
   val setup = create early new Area {
     val prfService = getService[PhysicalRegFileService]
-    val bypassService = getServiceOption[BypassService[AguBypassData]]
+    val bypassService = getServiceOption[BypassService[BypassMessage]]
     ParallaxLogger.log("[AguPlugin] AGU插件已创建，依赖服务获取完成")
   }
 
@@ -196,7 +195,7 @@ class AguPlugin(
                 )
             }
             val bypassPayload = bypassFlow.payload
-            when(bypassFlow.valid && bypassPayload.valid) {
+            when(bypassFlow.valid) {
               when(bypassPayload.physRegIdx === s1.payload.basePhysReg) {
                 baseBypassValid := True
                 baseBypassData := bypassPayload.physRegData

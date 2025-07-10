@@ -25,7 +25,6 @@ class MockFetchService(pCfg: PipelineConfig) extends Plugin with SimpleFetchPipe
   val fetchStreamIn = Stream(FetchedInstr(pCfg))
   override def fetchOutput(): Stream[FetchedInstr] = fetchStreamIn
   override def newRedirectPort(priority: Int): Flow[UInt] = Flow(UInt(pCfg.pcWidth))
-  override def getIdleDetected(): Bool = Bool(false) // Default implementation for testing
 }
 
 class MockCommitController(pCfg: PipelineConfig) extends Plugin {
@@ -36,42 +35,22 @@ class MockCommitController(pCfg: PipelineConfig) extends Plugin {
   def getCommitEnable(): Bool = enableCommit
 
   val setup = create early new Area {
-    val ratControl = getService[RatControlService]
-    val flControl  = getService[FreeListControlService]
     val robService = getService[ROBService[RenamedUop]]
   }
 
   val logic = create late new Area {
-    setup.ratControl.newCheckpointSavePort().setIdle()
-    setup.ratControl.newCheckpointRestorePort().setIdle()
-    setup.flControl.newRestorePort().setIdle()
-
     // Handle ROB flush signals - set to idle for ALU-only test
     val robFlushPort = setup.robService.getFlushPort()
     robFlushPort.setIdle()
 
-    val freePorts = setup.flControl.getFreePorts()
     val commitSlots = setup.robService.getCommitSlots(pCfg.commitWidth)
     val commitAcks = setup.robService.getCommitAcks(pCfg.commitWidth)
 
-    // 修复：使用脉冲信号而不是持续信号
-    // 我们需要确保commit ack只在指令真正可以提交且enableCommit为true时触发一次
-    val commitPending = Vec(Reg(Bool()) init(False), pCfg.commitWidth)
-    
     // 简化的commit controller实现
     for (i <- 0 until pCfg.commitWidth) {
       val canCommit = commitSlots(i).valid
       val doCommit = enableCommit && canCommit
       commitAcks(i) := doCommit
-
-      when(doCommit) {
-        val committedUop = commitSlots(i).entry.payload.uop
-        freePorts(i).enable := committedUop.rename.allocatesPhysDest
-        freePorts(i).physReg := committedUop.rename.oldPhysDest.idx
-      } otherwise {
-        freePorts(i).enable := False
-        freePorts(i).physReg := 0
-      }
     }
   }
 }
@@ -303,6 +282,186 @@ class IssueToAluIntSpec extends CustomSpinalSimFunSuite {
       val result = dut.prfReadPorts(r_dest).rsp.toBigInt
       assert(result == expectedResult, s"PRF final value check failed: Result was ${result}, expected ${expectedResult}")
       println(s"SUCCESS: r${r_dest} contains ${result} as expected.")
+
+      cd.waitSampling(10)
+    }
+  }
+
+  test("AluInt_SHIFT_Test - Debug SHIFT Execution Exception") {
+    val compiled = SimConfig.withFstWave.compile(new IssueToAluIntTestBench(pCfg))
+    compiled.doSim { dut =>
+      val cd = dut.clockDomain
+      cd.forkStimulus(period = 10)
+      SimTimeout(20000)
+
+      def issueInstr(pc: BigInt, insn: BigInt): Unit = {
+        println(s"DEBUG: [SHIFT] Starting to issue instruction at PC=0x${pc.toString(16)}, insn=0x${insn.toString(16)}")
+        dut.io.fetchStreamIn.valid #= true
+        dut.io.fetchStreamIn.payload.pc #= pc
+        dut.io.fetchStreamIn.payload.instruction #= insn
+        dut.io.fetchStreamIn.payload.predecode.setDefaultForSim()
+        dut.io.fetchStreamIn.payload.bpuPrediction.valid #= false
+        cd.waitSamplingWhere(dut.io.fetchStreamIn.ready.toBoolean)
+        println(s"DEBUG: [SHIFT] Instruction accepted at PC=0x${pc.toString(16)}")
+        dut.io.fetchStreamIn.valid #= false
+        cd.waitSampling(2)
+        println(s"DEBUG: [SHIFT] Finished issuing instruction at PC=0x${pc.toString(16)}")
+      }
+
+      val (r_input, r_result1, r_result2) = (1, 2, 3)
+      val input_value = 8  // r1 = 8
+      val shift_left_amount = 2  // r2 = r1 << 2 = 32
+      val shift_right_amount = 1  // r3 = r2 >> 1 = 16
+      val expected_result1 = input_value << shift_left_amount  // 32
+      val expected_result2 = expected_result1 >> shift_right_amount  // 16
+      val pc_start = BigInt("80000000", 16)
+
+      println(s"=== SHIFT Test Debug ===")
+      println(s"Input: r$r_input = $input_value")
+      println(s"Expected: r$r_result1 = r$r_input << $shift_left_amount = $expected_result1")
+      println(s"Expected: r$r_result2 = r$r_result1 >> $shift_right_amount = $expected_result2")
+      
+      val expectedCommits = scala.collection.mutable.Queue[BigInt]()
+      expectedCommits += pc_start         // addi r1, r0, 8
+      expectedCommits += (pc_start + 4)   // slli r2, r1, 2
+      expectedCommits += (pc_start + 8)   // srli r3, r2, 1
+      
+      var commitCount = 0
+      var hasException = false
+      
+      // Enhanced commit monitor with exception tracking
+      val commitMonitor = fork {
+        while(true) {
+          cd.waitSampling()
+          
+          if (dut.io.enableCommit.toBoolean && dut.io.commitValid.toBoolean) {
+            val commitPC = dut.io.commitEntry.payload.uop.decoded.pc.toBigInt
+            val robEntry = dut.io.commitEntry
+            val uop = robEntry.payload.uop
+            val decoded = uop.decoded
+            val hasExc = robEntry.status.hasException.toBoolean
+            val excCode = if (hasExc) robEntry.status.exceptionCode.toInt else -1
+            
+            println(s"DEBUG: [SHIFT COMMIT] PC=0x${commitPC.toString(16)}")
+            println(s"  UopCode: ${decoded.uopCode.toEnum}")
+            println(s"  ExeUnit: ${decoded.exeUnit.toEnum}")
+            println(s"  HasException: $hasExc")
+            if (hasExc) {
+              println(s"  ExceptionCode: $excCode")
+              hasException = true
+            }
+            
+            if (expectedCommits.nonEmpty) {
+              val expectedPC = expectedCommits.dequeue()
+              assert(commitPC == expectedPC, s"PC mismatch: expected 0x${expectedPC.toString(16)}, got 0x${commitPC.toString(16)}")
+              commitCount += 1
+              
+              // Check for specific instruction types
+              commitCount match {
+                case 1 => println(s"  ✓ ADDI committed: r$r_input = $input_value")
+                case 2 => 
+                  println(s"  ✓ SLLI committed: r$r_result1 = r$r_input << $shift_left_amount")
+                  if (hasExc) {
+                    println(s"  🚨 SHIFT LEFT EXCEPTION DETECTED: ExcCode=$excCode")
+                  }
+                case 3 => 
+                  println(s"  ✓ SRLI committed: r$r_result2 = r$r_result1 >> $shift_right_amount")
+                  if (hasExc) {
+                    println(s"  🚨 SHIFT RIGHT EXCEPTION DETECTED: ExcCode=$excCode")
+                  }
+                case _ =>
+              }
+            } else {
+              println(s"DEBUG: [SHIFT COMMIT] Unexpected commit with PC=0x${commitPC.toString(16)}")
+            }
+          }
+        }
+      }
+
+      dut.io.enableCommit #= false
+      cd.waitSampling(5)
+
+      // Create shift test instructions
+      val instr_addi = LA32RInstrBuilder.addi_w(rd = r_input, rj = 0, imm = input_value)  // r1 = 8
+      val instr_slli = LA32RInstrBuilder.slli_w(rd = r_result1, rj = r_input, imm = shift_left_amount)  // r2 = r1 << 2
+      val instr_srli = LA32RInstrBuilder.srli_w(rd = r_result2, rj = r_result1, imm = shift_right_amount)  // r3 = r2 >> 1
+
+      println(s"Instruction encodings:")
+      println(s"  ADDI: 0x${instr_addi.toString(16)}")
+      println(s"  SLLI: 0x${instr_slli.toString(16)}")
+      println(s"  SRLI: 0x${instr_srli.toString(16)}")
+
+      println(s"Issuing ADDI instruction at PC 0x${pc_start.toString(16)}")
+      issueInstr(pc_start, instr_addi)
+      
+      println(s"Issuing SLLI instruction at PC 0x${(pc_start + 4).toString(16)}")
+      issueInstr(pc_start + 4, instr_slli)
+
+      println(s"Issuing SRLI instruction at PC 0x${(pc_start + 8).toString(16)}")
+      issueInstr(pc_start + 8, instr_srli)
+
+      println("All shift instructions issued. Waiting for execution...")
+      cd.waitSampling(10)
+
+      println("Enabling commit and monitoring for exceptions...")
+      dut.io.enableCommit #= true
+      
+      var timeout = 300  // Increased timeout for debugging
+      while(commitCount < 3 && timeout > 0) {
+        cd.waitSampling()
+        timeout -= 1
+        
+        if (timeout % 20 == 0) {
+          println(s"DEBUG: [SHIFT TIMEOUT] Commits: $commitCount/3, timeout: $timeout")
+          if (hasException) {
+            println(s"  Exception detected during execution!")
+          }
+        }
+      }
+
+      if (timeout == 0) {
+        println(s"🚨 TIMEOUT: Only $commitCount/3 instructions committed")
+        println(s"🚨 This confirms the SHIFT execution exception issue!")
+        assert(false, s"SHIFT instruction execution timeout - only $commitCount/3 committed")
+      }
+      
+      if (hasException) {
+        println(s"🚨 SHIFT EXECUTION EXCEPTION CONFIRMED")
+        println(s"🚨 Exception occurred during SHIFT instruction execution")
+        assert(false, "SHIFT instruction execution exception detected")
+      }
+
+      assert(commitCount == 3, s"Expected 3 commits, got $commitCount")
+      assert(expectedCommits.isEmpty, "Not all expected commits were processed")
+
+      dut.io.enableCommit #= false
+      println("All SHIFT instructions committed successfully.")
+
+      // Verify final results
+      cd.waitSampling(5)
+
+      println("Verifying SHIFT operation results...")
+      
+      // Check r2 (left shift result)
+      dut.prfReadPorts(r_result1).valid #= true
+      dut.prfReadPorts(r_result1).address #= r_result1
+      cd.waitSampling()
+      val result1 = dut.prfReadPorts(r_result1).rsp.toBigInt
+      println(s"r$r_result1 = $result1, expected = $expected_result1")
+      assert(result1 == expected_result1, s"SLLI result check failed: got $result1, expected $expected_result1")
+      
+      // Check r3 (right shift result) 
+      dut.prfReadPorts(r_result2).valid #= true
+      dut.prfReadPorts(r_result2).address #= r_result2
+      cd.waitSampling()
+      val result2 = dut.prfReadPorts(r_result2).rsp.toBigInt
+      println(s"r$r_result2 = $result2, expected = $expected_result2")
+      assert(result2 == expected_result2, s"SRLI result check failed: got $result2, expected $expected_result2")
+
+      println(s"🎉 SUCCESS: SHIFT operations working correctly!")
+      println(s"  r$r_input = $input_value")
+      println(s"  r$r_result1 = $result1 (left shift)")
+      println(s"  r$r_result2 = $result2 (right shift)")
 
       cd.waitSampling(10)
     }

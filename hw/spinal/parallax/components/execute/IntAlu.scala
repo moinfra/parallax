@@ -102,6 +102,26 @@ class IntAlu(val config: PipelineConfig) extends Component {
       } otherwise {
         resultData := (src1.asUInt + src2.asUInt).asBits
       }
+    } elsewhen (!iqEntry.aluCtrl.isSub && iqEntry.aluCtrl.logicOp === LogicOp.NONE && !iqEntry.aluCtrl.isAdd) { // SHIFT operations - detect when no ALU flags are set
+      // Determine shift amount source: immediate or register
+      val shiftAmount = Mux(
+        iqEntry.immUsage === ImmUsageType.SRC_SHIFT_AMT,
+        iqEntry.imm(4 downto 0).asUInt, // 5-bit immediate
+        src2(4 downto 0).asUInt         // 5-bit from register src2
+      )
+      
+      when(iqEntry.shiftCtrl.isRight) {
+        when(iqEntry.shiftCtrl.isArithmetic) {
+          // Arithmetic right shift
+          resultData := (src1.asSInt >> shiftAmount).asBits.resize(config.dataWidth)
+        } otherwise {
+          // Logical right shift
+          resultData := (src1.asUInt >> shiftAmount).asBits.resize(config.dataWidth)
+        }
+      } otherwise {
+        // Left shift (always logical) - explicitly resize to target width
+        resultData := (src1.asUInt << shiftAmount).asBits.resize(config.dataWidth)
+      }
     } otherwise {
       // This case implies it's an ALU uopCode, but control flags (isSub, logicOp, isAdd) don't specify a known operation.
       exceptionOccurred := True

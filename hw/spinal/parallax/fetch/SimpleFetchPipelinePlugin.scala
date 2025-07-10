@@ -47,7 +47,6 @@ object FetchedInstrCapture {
 
 trait SimpleFetchPipelineService extends Service with LockedImpl {
   def fetchOutput(): Stream[FetchedInstr]
-  def getIdleDetected(): Bool // New method to get IDLE detection status
  /**
     * Requests a new port for a hard redirect.
     * Multiple ports can be requested. The one with the highest priority integer
@@ -74,7 +73,6 @@ class SimpleFetchPipelinePlugin(
     
     val redirectFlowInst = Flow(UInt(pCfg.pcWidth))
     val finalOutputInst = Stream(FetchedInstr(pCfg))
-    val idleDetectedInst = Bool() // New signal to indicate IDLE detection
   }
 
   // --- Service Implementation: Collect redirect requests ---
@@ -87,17 +85,13 @@ class SimpleFetchPipelinePlugin(
   }
 
   override def fetchOutput(): Stream[FetchedInstr] = hw.finalOutputInst
-  override def getIdleDetected(): Bool = hw.idleDetectedInst
 
   val logic = create late new Area {
     lock.await()
     val bpu = hw.bpuService
     val ifu = hw.ifuService
 
-    // Initialize IDLE detection signal to false (not used in this version)
-    hw.idleDetectedInst := False
-
-    // --- Components ---
+    // Components
     val ifuPort = ifu.newFetchPort()
     val bpuQueryPort = bpu.newBpuQueryPort()
     val bpuResponse = bpu.getBpuResponse()
@@ -123,11 +117,12 @@ class SimpleFetchPipelinePlugin(
     unpacker.io.input << ifuRspFifo.io.pop
     val unpackedStream = unpacker.io.output
     
-    // IDLE instruction filtering: block IDLE instructions from flowing downstream
+    // Modified IDLE instruction handling: let IDLE instructions flow through pipeline
+    // They will be handled at commit stage, not filtered at fetch stage
     val filteredStream = Stream(FetchedInstr(pCfg))
-    filteredStream.valid := unpackedStream.valid && !unpackedStream.payload.predecode.isIdle
+    filteredStream.valid := unpackedStream.valid  // Don't filter IDLE instructions
     filteredStream.payload := unpackedStream.payload
-    unpackedStream.ready := filteredStream.ready || unpackedStream.payload.predecode.isIdle
+    unpackedStream.ready := filteredStream.ready  // Normal backpressure
     
     outputFifo.io.push << filteredStream
     hw.finalOutputInst << outputFifo.io.pop

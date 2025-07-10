@@ -31,8 +31,9 @@ class AluIntEuPlugin(
   override def getEuType: ExeUnitType.E = ExeUnitType.ALU_INT
 
   addMicroOp(BaseUopCode.ALU)
-  // Consider adding NOP explicitly if it needs special handling beyond DemoAlu's default
-  // addMicroOp(BaseUopCode.NOP) // If NOPs are dispatched to ALUs
+  addMicroOp(BaseUopCode.SHIFT)
+  addMicroOp(BaseUopCode.NOP)
+  addMicroOp(BaseUopCode.IDLE)
 
   // 将 IntAlu 实例化移到插件的主体中
   val intAlu = new IntAlu(pipelineConfig)

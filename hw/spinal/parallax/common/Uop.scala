@@ -17,7 +17,7 @@ object IsaType extends SpinalEnum {
 // --- General UopCode (higher level, execution unit can refine) ---
 object BaseUopCode extends SpinalEnum {
   val NOP, ILLEGAL, ALU, SHIFT, MUL, DIV, LOAD, STORE, ATOMIC, MEM_BARRIER, PREFETCH, BRANCH, JUMP_REG, JUMP_IMM,
-      SYSTEM_OP, CSR_ACCESS, FPU_ALU, FPU_CVT, FPU_CMP, FPU_SEL, LA_BITMANIP, LA_CACOP, LA_TLB = newElement()
+      SYSTEM_OP, CSR_ACCESS, FPU_ALU, FPU_CVT, FPU_CMP, FPU_SEL, LA_BITMANIP, LA_CACOP, LA_TLB, IDLE = newElement()
 }
 
 object DecodeExCode extends SpinalEnum {

@@ -26,11 +26,16 @@ object LoongArchOpcodes {
   def Minor_OR = B"0000101010"
   def Minor_XOR = B"0000101011"
   def Minor_MUL_W = B"0000111000"
-  def Minor_SRL_W = B"0000101111"
 
-  // For shift-immediate R-type (distinguished by inst[24:10])
-  def Minor_SLLI_W = B"0010000001" // This is the value of inst[24:15]
-  def Minor_SRLI_W = B"0010001001" // This is the value of inst[24:15]
+  // For shift-immediate R-type (distinguished by inst[24:15])
+  def Minor_SLLI_W = B"0010000001" // inst[24:15] for SLLI.W
+  def Minor_SRLI_W = B"0010001001" // inst[24:15] for SRLI.W
+  def Minor_SRAI_W = B"0010010001" // inst[24:15] for SRAI.W
+
+  // For register-register shift instructions (distinguished by inst[24:15])
+  def Minor_SLL_W = B"0000101110"  // inst[24:15] for SLL.W
+  def Minor_SRL_W = B"0000101111"  // inst[24:15] for SRL.W
+  def Minor_SRA_W = B"0000110000"  // inst[24:15] for SRA.W
 
   // Minor Opcodes for OP_RTYPE_2R1I (distinguished by inst[24:22])
   def Minor_ADDI_W_i = B"010"
@@ -128,7 +133,7 @@ class LA32RSimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends 
       // Check if bits [24:15] match the fixed pattern
       when(fields.opcode_r_minor === LoongArchOpcodes.IDLE_FIXED_BITS) {
         io.decodedUop.isValid := True
-        io.decodedUop.uopCode := BaseUopCode.NOP
+        io.decodedUop.uopCode := BaseUopCode.IDLE
         io.decodedUop.exeUnit := ExeUnitType.ALU_INT
         io.decodedUop.writeArchDestEn := False
         // Level field is in fields.idle_level but we don't use it for basic CPU halt
@@ -139,79 +144,99 @@ class LA32RSimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends 
     
     is(LoongArchOpcodes.OP_GROUP_00) {
       // This group contains both standard R-type and shift-imm R-type
-      // They have different opcode fields, so we need a nested check.
-      // We can check the most specific one first. SLLI/SRLI have a unique inst[14:10] pattern.
-      // Let's use `sub_opcode_r` (inst[24:15]) which is 10 bits and distinguishes them well.
-
+      // Shift instructions have different encoding: inst[24:10] contains both opcode and imm5
+      // Standard R-type uses inst[24:15] for opcode and inst[14:10] for rk
+      // We need to check for shift instructions first (by checking inst[24:15])
+      
       io.decodedUop.isValid := True
       io.decodedUop.archDest.idx := fields.rd
       io.decodedUop.archDest.rtype := ArchRegType.GPR
       io.decodedUop.writeArchDestEn := fields.rd =/= r0_idx
 
-      switch(fields.opcode_r_minor) {
-        is(LoongArchOpcodes.Minor_SLLI_W) {
-          io.decodedUop.uopCode := BaseUopCode.SHIFT
-          io.decodedUop.exeUnit := ExeUnitType.ALU_INT
-          io.decodedUop.archSrc1.idx := fields.rj
-          io.decodedUop.archSrc1.rtype := ArchRegType.GPR
-          io.decodedUop.useArchSrc1 := True
-          io.decodedUop.imm := imm_shift_5.asBits
-          io.decodedUop.immUsage := ImmUsageType.SRC_SHIFT_AMT
-          io.decodedUop.shiftCtrl.isRight := False
-        }
-        is(LoongArchOpcodes.Minor_SRLI_W) {
-          io.decodedUop.uopCode := BaseUopCode.SHIFT
-          io.decodedUop.exeUnit := ExeUnitType.ALU_INT
-          io.decodedUop.archSrc1.idx := fields.rj
-          io.decodedUop.archSrc1.rtype := ArchRegType.GPR
-          io.decodedUop.useArchSrc1 := True
-          io.decodedUop.imm := imm_shift_5.asBits
-          io.decodedUop.immUsage := ImmUsageType.SRC_SHIFT_AMT
-          io.decodedUop.shiftCtrl.isRight := True
-          io.decodedUop.shiftCtrl.isArithmetic := False
-        }
-        // Fallback for other R-type instructions
-        default {
-          // All these use rj and rk as sources
-          io.decodedUop.archSrc1.idx := fields.rj
-          io.decodedUop.archSrc1.rtype := ArchRegType.GPR
-          io.decodedUop.useArchSrc1 := True
-          io.decodedUop.archSrc2.idx := fields.rk
-          io.decodedUop.archSrc2.rtype := ArchRegType.GPR
-          io.decodedUop.useArchSrc2 := True
+      // Check for shift-immediate instructions first (inst[24:15] determines the operation)
+      // SLLI.W, SRLI.W, and SRAI.W use the pattern where inst[24:15] contains the shift opcode
+      when(fields.opcode_r_minor === LoongArchOpcodes.Minor_SLLI_W) {
+        io.decodedUop.uopCode := BaseUopCode.SHIFT
+        io.decodedUop.exeUnit := ExeUnitType.ALU_INT
+        io.decodedUop.archSrc1.idx := fields.rj
+        io.decodedUop.archSrc1.rtype := ArchRegType.GPR
+        io.decodedUop.useArchSrc1 := True
+        io.decodedUop.imm := imm_shift_5.asBits
+        io.decodedUop.immUsage := ImmUsageType.SRC_SHIFT_AMT
+        io.decodedUop.shiftCtrl.isRight := False
+      } .elsewhen(fields.opcode_r_minor === LoongArchOpcodes.Minor_SRLI_W) {
+        io.decodedUop.uopCode := BaseUopCode.SHIFT
+        io.decodedUop.exeUnit := ExeUnitType.ALU_INT
+        io.decodedUop.archSrc1.idx := fields.rj
+        io.decodedUop.archSrc1.rtype := ArchRegType.GPR
+        io.decodedUop.useArchSrc1 := True
+        io.decodedUop.imm := imm_shift_5.asBits
+        io.decodedUop.immUsage := ImmUsageType.SRC_SHIFT_AMT
+        io.decodedUop.shiftCtrl.isRight := True
+        io.decodedUop.shiftCtrl.isArithmetic := False
+      } .elsewhen(fields.opcode_r_minor === LoongArchOpcodes.Minor_SRAI_W) {
+        io.decodedUop.uopCode := BaseUopCode.SHIFT
+        io.decodedUop.exeUnit := ExeUnitType.ALU_INT
+        io.decodedUop.archSrc1.idx := fields.rj
+        io.decodedUop.archSrc1.rtype := ArchRegType.GPR
+        io.decodedUop.useArchSrc1 := True
+        io.decodedUop.imm := imm_shift_5.asBits
+        io.decodedUop.immUsage := ImmUsageType.SRC_SHIFT_AMT
+        io.decodedUop.shiftCtrl.isRight := True
+        io.decodedUop.shiftCtrl.isArithmetic := True
+      } .otherwise {
+        // All these use rj and rk as sources
+        io.decodedUop.archSrc1.idx := fields.rj
+        io.decodedUop.archSrc1.rtype := ArchRegType.GPR
+        io.decodedUop.useArchSrc1 := True
+        io.decodedUop.archSrc2.idx := fields.rk
+        io.decodedUop.archSrc2.rtype := ArchRegType.GPR
+        io.decodedUop.useArchSrc2 := True
 
-          switch(fields.opcode_r_minor) {
-            is(LoongArchOpcodes.Minor_ADD_W) {
-              io.decodedUop.uopCode := BaseUopCode.ALU; io.decodedUop.exeUnit := ExeUnitType.ALU_INT
-              io.decodedUop.aluCtrl.isAdd := True
-            }
-            is(LoongArchOpcodes.Minor_SUB_W) {
-              io.decodedUop.uopCode := BaseUopCode.ALU; io.decodedUop.exeUnit := ExeUnitType.ALU_INT
-              io.decodedUop.aluCtrl.isSub := True
-            }
-            is(LoongArchOpcodes.Minor_AND) {
-              io.decodedUop.uopCode := BaseUopCode.ALU; io.decodedUop.exeUnit := ExeUnitType.ALU_INT
-              io.decodedUop.aluCtrl.logicOp := LogicOp.AND
-            }
-            is(LoongArchOpcodes.Minor_OR) {
-              io.decodedUop.uopCode := BaseUopCode.ALU; io.decodedUop.exeUnit := ExeUnitType.ALU_INT
-              io.decodedUop.aluCtrl.logicOp := LogicOp.OR
-            }
-            is(LoongArchOpcodes.Minor_XOR) {
-              io.decodedUop.uopCode := BaseUopCode.ALU; io.decodedUop.exeUnit := ExeUnitType.ALU_INT
-              io.decodedUop.aluCtrl.logicOp := LogicOp.XOR
-            }
-            is(LoongArchOpcodes.Minor_MUL_W) {
-              io.decodedUop.uopCode := BaseUopCode.MUL; io.decodedUop.exeUnit := ExeUnitType.MUL_INT
-              io.decodedUop.mulDivCtrl.isSigned := True
-            }
-            is(LoongArchOpcodes.Minor_SRL_W) {
-              io.decodedUop.uopCode := BaseUopCode.SHIFT; io.decodedUop.exeUnit := ExeUnitType.ALU_INT
-              io.decodedUop.shiftCtrl.isRight := True
-              io.decodedUop.shiftCtrl.isArithmetic := False
-            }
-            default { io.decodedUop.isValid := False }
+        switch(fields.opcode_r_minor) {
+          is(LoongArchOpcodes.Minor_ADD_W) {
+            io.decodedUop.uopCode := BaseUopCode.ALU; io.decodedUop.exeUnit := ExeUnitType.ALU_INT
+            io.decodedUop.aluCtrl.isAdd := True
           }
+          is(LoongArchOpcodes.Minor_SUB_W) {
+            io.decodedUop.uopCode := BaseUopCode.ALU; io.decodedUop.exeUnit := ExeUnitType.ALU_INT
+            io.decodedUop.aluCtrl.isSub := True
+          }
+          is(LoongArchOpcodes.Minor_AND) {
+            io.decodedUop.uopCode := BaseUopCode.ALU; io.decodedUop.exeUnit := ExeUnitType.ALU_INT
+            io.decodedUop.aluCtrl.logicOp := LogicOp.AND
+          }
+          is(LoongArchOpcodes.Minor_OR) {
+            io.decodedUop.uopCode := BaseUopCode.ALU; io.decodedUop.exeUnit := ExeUnitType.ALU_INT
+            io.decodedUop.aluCtrl.logicOp := LogicOp.OR
+          }
+          is(LoongArchOpcodes.Minor_XOR) {
+            io.decodedUop.uopCode := BaseUopCode.ALU; io.decodedUop.exeUnit := ExeUnitType.ALU_INT
+            io.decodedUop.aluCtrl.logicOp := LogicOp.XOR
+          }
+          is(LoongArchOpcodes.Minor_MUL_W) {
+            io.decodedUop.uopCode := BaseUopCode.MUL; io.decodedUop.exeUnit := ExeUnitType.MUL_INT
+            io.decodedUop.mulDivCtrl.isSigned := True
+          }
+          // Register-register shift instructions
+          is(LoongArchOpcodes.Minor_SLL_W) {
+            io.decodedUop.uopCode := BaseUopCode.SHIFT; io.decodedUop.exeUnit := ExeUnitType.ALU_INT
+            io.decodedUop.shiftCtrl.isRight := False
+            io.decodedUop.immUsage := ImmUsageType.NONE // Uses register src2, not immediate
+          }
+          is(LoongArchOpcodes.Minor_SRL_W) {
+            io.decodedUop.uopCode := BaseUopCode.SHIFT; io.decodedUop.exeUnit := ExeUnitType.ALU_INT
+            io.decodedUop.shiftCtrl.isRight := True
+            io.decodedUop.shiftCtrl.isArithmetic := False
+            io.decodedUop.immUsage := ImmUsageType.NONE // Uses register src2, not immediate
+          }
+          is(LoongArchOpcodes.Minor_SRA_W) {
+            io.decodedUop.uopCode := BaseUopCode.SHIFT; io.decodedUop.exeUnit := ExeUnitType.ALU_INT
+            io.decodedUop.shiftCtrl.isRight := True
+            io.decodedUop.shiftCtrl.isArithmetic := True
+            io.decodedUop.immUsage := ImmUsageType.NONE // Uses register src2, not immediate
+          }
+          default { io.decodedUop.isValid := False }
         }
       }
     }

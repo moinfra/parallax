@@ -22,6 +22,8 @@ class DemoAluTestBench(val config: PipelineConfig) extends Component {
     val uopIn_payload_decoded_aluCtrl_isSub = in Bool ()
     val uopIn_payload_decoded_aluCtrl_logicOp = in(LogicOp())
     val uopIn_payload_decoded_aluCtrl_isAdd = in Bool ()
+    val uopIn_payload_decoded_shiftCtrl_isRight = in Bool ()
+    val uopIn_payload_decoded_shiftCtrl_isArithmetic = in Bool ()
     val uopIn_payload_decoded_imm = in Bits (config.dataWidth)
     val uopIn_payload_decoded_immUsage = in(ImmUsageType())
     val uopIn_payload_decoded_hasDecodeException = in Bool ()
@@ -57,14 +59,11 @@ class DemoAluTestBench(val config: PipelineConfig) extends Component {
   alu.io.uopIn.payload.decoded.aluCtrl.isSub := io.uopIn_payload_decoded_aluCtrl_isSub
   alu.io.uopIn.payload.decoded.aluCtrl.logicOp := io.uopIn_payload_decoded_aluCtrl_logicOp
   alu.io.uopIn.payload.decoded.aluCtrl.isAdd := io.uopIn_payload_decoded_aluCtrl_isAdd
+  alu.io.uopIn.payload.decoded.shiftCtrl.isRight := io.uopIn_payload_decoded_shiftCtrl_isRight
+  alu.io.uopIn.payload.decoded.shiftCtrl.isArithmetic := io.uopIn_payload_decoded_shiftCtrl_isArithmetic
   alu.io.uopIn.payload.decoded.imm := io.uopIn_payload_decoded_imm
   alu.io.uopIn.payload.decoded.immUsage := io.uopIn_payload_decoded_immUsage
   alu.io.uopIn.payload.decoded.hasDecodeException := io.uopIn_payload_decoded_hasDecodeException
-  // Example of defaulting other fields if they exist in DecodedUop and must be driven:
-  // alu.io.uopIn.payload.decoded.pc := U(0)
-  // alu.io.uopIn.payload.decoded.archSrc1.idx := U(0) // Assuming ArchSrcOperand exists
-  // alu.io.uopIn.payload.decoded.archSrc1.rtype := ArchRegType.GPR
-  // alu.io.uopIn.payload.decoded.useArchSrc1 := False
 
   alu.io.uopIn.payload.rename.physDest.idx := io.uopIn_payload_rename_physDest_idx
   alu.io.uopIn.payload.rename.writesToPhysReg := io.uopIn_payload_rename_writesToPhysReg
@@ -97,6 +96,8 @@ object AluTestHelper {
       aluIsSub: Boolean = false,
       aluLogicOp: LogicOp.E = LogicOp.NONE,
       aluIsAdd: Boolean = false,
+      shiftIsRight: Boolean = false,
+      shiftIsArithmetic: Boolean = false,
       imm: BigInt = 0, // This is the intended (possibly signed) immediate value
       immUsage: ImmUsageType.E = ImmUsageType.NONE,
       hasDecodeExc: Boolean = false,
@@ -112,6 +113,8 @@ object AluTestHelper {
     dut.io.uopIn_payload_decoded_aluCtrl_isSub #= aluIsSub
     dut.io.uopIn_payload_decoded_aluCtrl_logicOp #= aluLogicOp
     dut.io.uopIn_payload_decoded_aluCtrl_isAdd #= aluIsAdd
+    dut.io.uopIn_payload_decoded_shiftCtrl_isRight #= shiftIsRight
+    dut.io.uopIn_payload_decoded_shiftCtrl_isArithmetic #= shiftIsArithmetic
     // Apply the dataMask to convert BigInt to its bit pattern representation
     dut.io.uopIn_payload_decoded_imm #= (imm & dataMask)
     dut.io.uopIn_payload_decoded_immUsage #= immUsage
@@ -213,6 +216,8 @@ class DemoAluSpec extends CustomSpinalSimFunSuite { // Ensure CustomSpinalSimFun
       aluIsSub: Boolean = false,
       aluLogicOp: LogicOp.E = LogicOp.NONE,
       aluIsAdd: Boolean = false,
+      shiftIsRight: Boolean = false,
+      shiftIsArithmetic: Boolean = false,
       imm: BigInt = 0,
       immUsage: ImmUsageType.E = ImmUsageType.NONE,
       hasDecodeExc: Boolean = false,
@@ -238,6 +243,8 @@ class DemoAluSpec extends CustomSpinalSimFunSuite { // Ensure CustomSpinalSimFun
           aluIsSub = aluIsSub,
           aluLogicOp = aluLogicOp,
           aluIsAdd = aluIsAdd,
+          shiftIsRight = shiftIsRight,
+          shiftIsArithmetic = shiftIsArithmetic,
           imm = imm,
           immUsage = immUsage,
           hasDecodeExc = hasDecodeExc,
@@ -395,6 +402,65 @@ class DemoAluSpec extends CustomSpinalSimFunSuite { // Ensure CustomSpinalSimFun
       checkAluOutput(dut, "Input Not Valid", expectedValid = false)
     }
   }
+
+  // --- SHIFT Instruction Tests ---
+  runTest(
+    "SHIFT Left Immediate", 
+    uopCode = BaseUopCode.SHIFT,
+    shiftIsRight = false,
+    immUsage = ImmUsageType.SRC_SHIFT_AMT,
+    imm = 2,
+    src1Val = 8,
+    src2Val = 0, // ignored for immediate shift
+    expectedData = 32 // 8 << 2 = 32
+  )
+
+  runTest(
+    "SHIFT Right Logical Immediate", 
+    uopCode = BaseUopCode.SHIFT,
+    shiftIsRight = true,
+    shiftIsArithmetic = false,
+    immUsage = ImmUsageType.SRC_SHIFT_AMT,
+    imm = 1,
+    src1Val = 32,
+    src2Val = 0, // ignored for immediate shift
+    expectedData = 16 // 32 >> 1 = 16
+  )
+
+  runTest(
+    "SHIFT Right Arithmetic Immediate", 
+    uopCode = BaseUopCode.SHIFT,
+    shiftIsRight = true,
+    shiftIsArithmetic = true,
+    immUsage = ImmUsageType.SRC_SHIFT_AMT,
+    imm = 1,
+    src1Val = BigInt("FFFFFFFE", 16), // -2 in 32-bit two's complement
+    src2Val = 0,
+    expectedData = BigInt("FFFFFFFF", 16) // -1 in 32-bit two's complement
+  )
+
+  runTest(
+    "SHIFT Left Register", 
+    uopCode = BaseUopCode.SHIFT,
+    shiftIsRight = false,
+    immUsage = ImmUsageType.NONE, // Use register for shift amount
+    imm = 0,
+    src1Val = 5,
+    src2Val = 3, // shift amount from register
+    expectedData = 40 // 5 << 3 = 40
+  )
+
+  runTest(
+    "SHIFT Right Logical Register", 
+    uopCode = BaseUopCode.SHIFT,
+    shiftIsRight = true,
+    shiftIsArithmetic = false,
+    immUsage = ImmUsageType.NONE, // Use register for shift amount
+    imm = 0,
+    src1Val = 40,
+    src2Val = 2, // shift amount from register  
+    expectedData = 10 // 40 >> 2 = 10
+  )
 
   thatsAll()
 }
