@@ -124,7 +124,7 @@ case class LoadQueueEntry(
   val aguBasePhysReg = UInt(lsuConfig.physGprIdxWidth)
   val aguBaseIsFpr = Bool() // 通常为 False
   val aguUsePcAsBase = Bool()
-  val aguImmediate = SInt(12 bits) // 假设 S-type/I-type offset
+  val aguImmediate = SInt(lsuConfig.dataWidth) // 假设 S-type/I-type offset
 
   // --- Dynamic Info (updated during LSU pipeline) ---
   val physicalAddress = UInt(lsuConfig.pcWidth) // 由 AGU 计算
@@ -205,7 +205,7 @@ case class StoreQueueEntry(
 case class LsuAguRequest(lsuConfig: LsuConfig) extends Bundle { // 替换 pCfg
   // AGU Input fields
   val basePhysReg = UInt(lsuConfig.physGprIdxWidth)
-  val immediate = SInt(12 bits)
+  val immediate = SInt(lsuConfig.dataWidth)
   val accessSize = MemAccessSize()
   val usePc = Bool()
   val pcForAgu = UInt(lsuConfig.pcWidth) // PC 值，如果 usePc 为 true

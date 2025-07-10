@@ -291,7 +291,7 @@ object ConsoleColor {
 // elaborate 时打印。
 object ParallaxLogger {
   import ConsoleColor._
-  var enabled = false
+  var enabled = true
   def log(foo: String)(implicit line: sourcecode.Line, file: sourcecode.File) = {
     if(enabled) println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_RESET$foo$ANSI_RESET")
   }

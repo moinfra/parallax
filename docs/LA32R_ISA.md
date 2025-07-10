@@ -304,7 +304,7 @@ MOD.W rd, rj, rk        0000000 0001000001 rk    rj    rd
 DIV.WU rd, rj, rk       0000000 0001000010 rk    rj    rd
 MOD.WU rd, rj, rk       0000000 0001000011 rk    rj    rd
 BREAK code              0000000 0001010100 code[14:0]
-SYSCALL code            0000000 0001010110 code
+SYSCALL code            0000000 0001010110 code[14:0]
 SLLI.W rd, rj, ui5      0000000 0010000001 ui5   rj    rd
 SRLI.W rd, rj, ui5      0000000 0010001001 ui5   rj    rd
 SRAI.W rd, rj, ui5      0000000 0010010001 ui5   rj    rd

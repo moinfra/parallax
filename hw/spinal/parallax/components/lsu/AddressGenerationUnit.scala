@@ -39,7 +39,7 @@ case class AguPort(lsuConfig: LsuConfig) extends Bundle with IMasterSlave {
 case class AguInput(lsuConfig: LsuConfig) extends Bundle with Formattable {
   val qPtr = UInt(lsuConfig.qPtrWidth)
   val basePhysReg = UInt(lsuConfig.physGprIdxWidth)
-  val immediate = SInt(12 bits)
+  val immediate = SInt(lsuConfig.dataWidth)
   val accessSize = MemAccessSize()
   val usePc = Bool()
   val pc = UInt(lsuConfig.pcWidth)
@@ -79,7 +79,7 @@ case class AguOutput(lsuConfig: LsuConfig) extends Bundle with Formattable {
   val storeMask = Bits(lsuConfig.dataWidth.value / 8 bits)
   // 透传上下文信息
   val basePhysReg = UInt(lsuConfig.physGprIdxWidth)
-  val immediate = SInt(12 bits)
+  val immediate = SInt(lsuConfig.dataWidth)
   val usePc = Bool()
   val pc = UInt(lsuConfig.pcWidth)
   val robPtr = UInt(lsuConfig.robPtrWidth)

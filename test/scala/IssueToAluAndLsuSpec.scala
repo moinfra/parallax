@@ -61,212 +61,30 @@ class MockFetchServiceForLsu(pCfg: PipelineConfig) extends Plugin with SimpleFet
   override def newRedirectPort(priority: Int): Flow[UInt] = Flow(UInt(pCfg.pcWidth))
 }
 
-class MockCommitControllerForLsu(pCfg: PipelineConfig) extends Plugin {
-  // Private control signal
-  private val enableCommit = Bool()
-  
-  // Public interface to get the control signal
-  def getCommitEnable(): Bool = enableCommit
-
-  val setup = create early new Area {
-    val ratControl = getService[RatControlService]
-    val flControl  = getService[FreeListControlService]
-    val robService = getService[ROBService[RenamedUop]]
-  }
-
+// Mock flush source to provide default values for ROB flush signals
+class MockFlushService(pCfg: PipelineConfig) extends Plugin {
   val logic = create late new Area {
-    setup.ratControl.newCheckpointSavePort().setIdle()
-    setup.ratControl.newCheckpointRestorePort().setIdle()
-    setup.flControl.newRestorePort().setIdle()
-
-    // Handle ROB flush signals - 使用寄存器避免对字面量的位片操作
-    val robFlushPort = setup.robService.getFlushPort()
-    val flushTargetPtr = Reg(UInt(pCfg.robPtrWidth)) init(0)
-    flushTargetPtr.allowUnsetRegToAvoidLatch
-    robFlushPort.valid := False
-    robFlushPort.payload.reason := FlushReason.FULL_FLUSH
-    robFlushPort.payload.targetRobPtr := flushTargetPtr
-
-    val freePorts = setup.flControl.getFreePorts()
-    val commitSlots = setup.robService.getCommitSlots(pCfg.commitWidth)
-    val commitAcks = setup.robService.getCommitAcks(pCfg.commitWidth)
-
-    val commitPending = Vec(Reg(Bool()) init(False), pCfg.commitWidth)
+    val robService = getService[ROBService[RenamedUop]]
+    val robFlushPort = robService.getFlushPort()
     
-    // Commit controller implementation
-    for (i <- 0 until pCfg.commitWidth) {
-      val canCommit = commitSlots(i).valid
-      val doCommit = enableCommit && canCommit
-      commitAcks(i) := doCommit
-
-      when(doCommit) {
-        val committedUop = commitSlots(i).entry.payload.uop
-        freePorts(i).enable := committedUop.rename.allocatesPhysDest
-        freePorts(i).physReg := committedUop.rename.oldPhysDest.idx
-      } otherwise {
-        freePorts(i).enable := False
-        freePorts(i).physReg := 0
-      }
-    }
+    // Create a register to drive targetRobPtr to avoid constant optimization issues
+    val flushTargetReg = Reg(UInt(pCfg.robPtrWidth)) init(0)
+    
+    // Provide default inactive values
+    robFlushPort.valid := False
+    robFlushPort.payload.reason := FlushReason.NONE 
+    robFlushPort.payload.targetRobPtr := flushTargetReg  // Use register instead of constant
   }
 }
 
-// =========================================================================
-//  Test Bench with Both ALU and LSU
-// =========================================================================
-
-class IssueToAluAndLsuComplexTestBench(val pCfg: PipelineConfig) extends Component {
-  val UOP_HT = HardType(RenamedUop(pCfg))
-
-  val io = new Bundle {
-    val fetchStreamIn = slave(Stream(FetchedInstr(pCfg)))
-    val enableCommit = in Bool ()
-    // Expose commit port for monitoring
-    val commitValid = out Bool()
-    val commitEntry = out(ROBFullEntry(ROBConfig(
-      robDepth = pCfg.robDepth,
-      pcWidth = pCfg.pcWidth,
-      commitWidth = pCfg.commitWidth,
-      allocateWidth = pCfg.renameWidth,
-      numWritebackPorts = pCfg.totalEuCount,
-      uopType = UOP_HT,
-      defaultUop = () => RenamedUop(pCfg).setDefault(),
-      exceptionCodeWidth = pCfg.exceptionCodeWidth
-    )))
-  }
-
-  // 在Framework创建前统一创建所有配置
-  val lsuConfig = LsuConfig(
-    lqDepth = 16,
-    sqDepth = 16,
-    robPtrWidth = pCfg.robPtrWidth,
-    pcWidth = pCfg.pcWidth,
-    dataWidth = pCfg.dataWidth,
-    physGprIdxWidth = pCfg.physGprIdxWidth,
-    exceptionCodeWidth = pCfg.exceptionCodeWidth,
-    commitWidth = pCfg.commitWidth,
-    dcacheRefillCount = 2
-  )
-
-  val dCacheConfig = DataCachePluginConfig(
-    pipelineConfig = pCfg,
-    memDataWidth = pCfg.dataWidth.value,
-    cacheSize = 1024,
-    wayCount = 2,
-    refillCount = 2,
-    writebackCount = 2,
-    lineSize = 64,
-    transactionIdWidth = pCfg.transactionIdWidth
-  )
-
-  val dCacheParams = DataCachePluginConfig.toDataCacheParameters(dCacheConfig)
-
-  val axiConfig = Axi4Config(
-    addressWidth = pCfg.xlen,
-    dataWidth = pCfg.xlen,
-    idWidth = 1,
-    useLock = false,
-    useCache = false,
-    useProt = true,
-    useQos = false,
-    useRegion = false,
-    useResp = true,
-    useStrb = true,
-    useBurst = true,
-    useLen = true,
-    useSize = true
-  )
-
-  val framework = new Framework(
-    Seq(
-      new MockFetchServiceForLsu(pCfg),
-      new PhysicalRegFilePlugin(pCfg.physGprCount, pCfg.dataWidth),
-      new BusyTablePlugin(pCfg),
-      new ROBPlugin[RenamedUop](pCfg, HardType(RenamedUop(pCfg)), () => RenamedUop(pCfg).setDefault()),
-      new WakeupPlugin(pCfg),
-      new BypassPlugin[BypassMessage](payloadType = HardType(BypassMessage(pCfg))),
-      new MockCommitControllerForLsu(pCfg),
-      new BpuPipelinePlugin(pCfg),
-      new StoreBufferPlugin(pCfg, lsuConfig, dCacheParams, lsuConfig.sqDepth),
-      new AguPlugin(lsuConfig, supportPcRel = true),
-      new DataCachePlugin(dCacheConfig),
-      new TestOnlyMemSystemPlugin(axiConfig),
-      new IssuePipeline(pCfg),
-      new DecodePlugin(pCfg),
-      new RenamePlugin(
-        pCfg,
-        RenameMapTableConfig(
-          archRegCount = pCfg.archGprCount,
-          physRegCount = pCfg.physGprCount,
-          numReadPorts = pCfg.renameWidth * 3,
-          numWritePorts = pCfg.renameWidth
-        ),
-        SuperScalarFreeListConfig(
-          numPhysRegs = pCfg.physGprCount, 
-          numAllocatePorts = pCfg.renameWidth, 
-          numFreePorts = pCfg.commitWidth
-        )
-      ),
-      new RobAllocPlugin(pCfg),
-      new IssueQueuePlugin(pCfg),
-      // 添加ALU和LSU执行单元
-      new AluIntEuPlugin("AluIntEU", pCfg),
-      new LsuEuPlugin("LsuEU", pCfg, lsuConfig, dCacheParams),
-      new LinkerPlugin(pCfg),
-      new DispatchPlugin(pCfg)
-    )
-  )
-
-  val fetchService = framework.getService[MockFetchServiceForLsu]
-  fetchService.fetchStreamIn << io.fetchStreamIn
-
-  val commitController = framework.getService[MockCommitControllerForLsu]
-  commitController.getCommitEnable() := io.enableCommit
-
-  val robService = framework.getService[ROBService[RenamedUop]]
-  val commitSlot = robService.getCommitSlots(pCfg.commitWidth).head
-  io.commitValid := commitSlot.valid
-  io.commitEntry := commitSlot.entry
-
-  // Connect fetch service to issue pipeline
-  val issuePipeline = framework.getService[IssuePipeline]
-  val fetchOutStream = fetchService.fetchOutput()
-  val issueEntryStage = issuePipeline.entryStage
-  val issueSignals = issuePipeline.signals
-  
-  issueEntryStage.valid := fetchOutStream.valid
-  fetchOutStream.ready := issueEntryStage.isReady
-
-  val fetched = fetchOutStream.payload
-  val instructionVec = Vec(Bits(pCfg.dataWidth), pCfg.fetchWidth)
-  instructionVec(0) := fetched.instruction
-  for (i <- 1 until pCfg.fetchWidth) {
-    instructionVec(i) := 0
-  }
-
-  issueEntryStage(issueSignals.GROUP_PC_IN) := fetched.pc
-  issueEntryStage(issueSignals.RAW_INSTRUCTIONS_IN) := instructionVec
-  issueEntryStage(issueSignals.VALID_MASK) := B"1"
-  issueEntryStage(issueSignals.IS_FAULT_IN) := False
-  issueEntryStage(issueSignals.FLUSH_PIPELINE) := False
-  issueEntryStage(issueSignals.FLUSH_TARGET_PC) := 0
-
-  // 为结果验证添加PRF读端口
-  val prfService = framework.getService[PhysicalRegFileService]
-  val prfReadPorts = Vec.tabulate(pCfg.archGprCount) { i =>
-    val port = prfService.newReadPort()
-    port.valid.setName(s"tb_prfRead_valid_$i")
-    port.address.setName(s"tb_prfRead_addr_$i")
-    port
-  }
-  prfReadPorts.simPublic()
-}
 
 // =========================================================================
 //  The Test Bench (original LSU-only)
 // =========================================================================
 
 class IssueToAluAndLsuTestBench(val pCfg: PipelineConfig) extends Component {
+  ParallaxLogger.warning(s"pCfg.totalEuCount = ${pCfg.totalEuCount}");
+
   val UOP_HT = HardType(RenamedUop(pCfg))
 
   val io = new Bundle {
@@ -328,22 +146,43 @@ class IssueToAluAndLsuTestBench(val pCfg: PipelineConfig) extends Component {
     useSize = true
   )
 
+  val renameMapConfig = RenameMapTableConfig(
+    archRegCount = pCfg.archGprCount,
+    physRegCount = pCfg.physGprCount,
+    numReadPorts = pCfg.renameWidth * 3,
+    numWritePorts = pCfg.renameWidth
+  )
+  
+  val flConfig = SuperScalarFreeListConfig(
+    numPhysRegs = pCfg.physGprCount,
+    resetToFull = true,
+    numInitialArchMappings = pCfg.archGprCount,
+    numAllocatePorts = pCfg.renameWidth,
+    numFreePorts = pCfg.commitWidth
+  )
+
   val framework = new Framework(
     Seq(
       new MockFetchServiceForLsu(pCfg),
+      new MockFlushService(pCfg),  // Add mock flush service
       new PhysicalRegFilePlugin(pCfg.physGprCount, pCfg.dataWidth),
       new BusyTablePlugin(pCfg),
       new ROBPlugin[RenamedUop](pCfg, HardType(RenamedUop(pCfg)), () => RenamedUop(pCfg).setDefault()),
       new WakeupPlugin(pCfg),
       new BypassPlugin[BypassMessage](payloadType = HardType(BypassMessage(pCfg))),
-      new MockCommitControllerForLsu(pCfg),
+      new CommitPlugin(pCfg),
       new BpuPipelinePlugin(pCfg),
+      new LoadQueuePlugin(pCfg, lsuConfig, dCacheParams, lsuConfig.lqDepth),
       new StoreBufferPlugin(pCfg, lsuConfig, dCacheParams, lsuConfig.sqDepth),
       new AguPlugin(lsuConfig, supportPcRel = true),
       new DataCachePlugin(dCacheConfig),
       new TestOnlyMemSystemPlugin(axiConfig),
       new IssuePipeline(pCfg),
       new DecodePlugin(pCfg),
+      new CheckpointManagerPlugin(pCfg, renameMapConfig, flConfig),
+      new RenameMapTablePlugin(ratConfig = renameMapConfig),
+      new SuperScalarFreeListPlugin(flConfig),
+
       new RenamePlugin(
         pCfg,
         RenameMapTableConfig(
@@ -370,7 +209,7 @@ class IssueToAluAndLsuTestBench(val pCfg: PipelineConfig) extends Component {
   val fetchService = framework.getService[MockFetchServiceForLsu]
   fetchService.fetchStreamIn << io.fetchStreamIn
 
-  val commitController = framework.getService[MockCommitControllerForLsu]
+  val commitController = framework.getService[CommitPlugin]
   commitController.getCommitEnable() := io.enableCommit
 
   val robService = framework.getService[ROBService[RenamedUop]]
@@ -426,8 +265,6 @@ class IssueToAluAndLsuSpec extends CustomSpinalSimFunSuite {
   ) {
     // 重写bruEuCount以修复totalEuCount计算
     override def bruEuCount: Int = 0  // 测试中没有BRU插件
-    // totalEuCount = aluEuCount + lsuEuCount + bruEuCount = 1 + 1 + 0 = 2
-    override def totalEuCount: Int = 2
   }
 
   // 创建只有LSU的配置类（保持向后兼容）
@@ -447,7 +284,6 @@ class IssueToAluAndLsuSpec extends CustomSpinalSimFunSuite {
     // 重写bruEuCount以修复totalEuCount计算
     override def bruEuCount: Int = 0  // 测试中没有BRU插件
     // 重写totalEuCount，因为我们的LsuEuPlugin是单一EU处理load和store
-    override def totalEuCount: Int = 1  // 只有1个LsuEuPlugin
   }
 
   val pCfg_complex = new AluAndLsuPipelineConfig()  // 复杂测试使用ALU+LSU配置
@@ -458,7 +294,7 @@ class IssueToAluAndLsuSpec extends CustomSpinalSimFunSuite {
     val compiled = SimConfig.withConfig(SpinalConfig().copy(
       defaultConfigForClockDomains = ClockDomainConfig(resetKind = SYNC),
       targetDirectory = "simWorkspace/scala_sim"
-    )).compile(new IssueToAluAndLsuTestBench(pCfg))
+    )).allOptimisation.workspacePath("simWorkspace/scala_sim").compile(new IssueToAluAndLsuTestBench(pCfg))
     
     compiled.doSim { dut =>
       val cd = dut.clockDomain

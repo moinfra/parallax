@@ -10,6 +10,13 @@ import parallax.utilities._
 import scala.collection.mutable.ArrayBuffer
 import parallax.utils.Encoders.PriorityEncoderOH
 
+ object ExceptionCode {
+   def LOAD_ADDR_MISALIGNED = U(4, 8 bits) // Example code
+   def LOAD_ACCESS_FAULT = U(5, 8 bits) // Example code
+   def STORE_ADDRESS_MISALIGNED = U(6, 8 bits) // Example code
+   // Add other codes as needed
+ }
+
 case class LsuInputCmd(pCfg: PipelineConfig) extends Bundle {
   val robPtr        = UInt(pCfg.robPtrWidth)
   val isLoad        = Bool()
@@ -38,97 +45,97 @@ trait LsuService extends Service with LockedImpl {
     def newLsuPort(): LsuPort
 }
 
-case class LoadQueueSlot(pCfg: PipelineConfig, lsuCfg: LsuConfig, dCacheParams: DataCacheParameters) extends Bundle with Formattable {
-    val valid             = Bool()
-    val addrValid         = Bool()
-    val address           = UInt(lsuCfg.pcWidth)
-    val size              = MemAccessSize()
-    val robPtr            = UInt(lsuCfg.robPtrWidth)
-    val pdest             = UInt(pCfg.physGprIdxWidth)
+// case class LoadQueueSlot(pCfg: PipelineConfig, lsuCfg: LsuConfig, dCacheParams: DataCacheParameters) extends Bundle with Formattable {
+//     val valid             = Bool()
+//     val addrValid         = Bool()
+//     val address           = UInt(lsuCfg.pcWidth)
+//     val size              = MemAccessSize()
+//     val robPtr            = UInt(lsuCfg.robPtrWidth)
+//     val pdest             = UInt(pCfg.physGprIdxWidth)
     
-    val baseReg           = UInt(pCfg.physGprIdxWidth) // 基地址寄存器
-    val immediate         = SInt(12 bits) // 立即数
-    val usePc             = Bool() // 是否使用PC作为基址
-    val pc                = UInt(pCfg.pcWidth) // PC值
+//     val baseReg           = UInt(pCfg.physGprIdxWidth) // 基地址寄存器
+//     val immediate         = SInt(12 bits) // 立即数
+//     val usePc             = Bool() // 是否使用PC作为基址
+//     val pc                = UInt(pCfg.pcWidth) // PC值
 
-    val hasException      = Bool()
-    val exceptionCode     = UInt(8 bits)
+//     val hasException      = Bool()
+//     val exceptionCode     = UInt(8 bits)
 
-    val isWaitingForFwdRsp    = Bool() // Query sent to SB, waiting for response.
-    val isStalledByDependency = Bool() // SB response indicated a dependency, must wait and retry.
-    val isReadyForDCache      = Bool() // SB cleared this load for D-Cache access.
-    val isWaitingForDCacheRsp = Bool() // Request sent to D-Cache, waiting for response.
+//     val isWaitingForFwdRsp    = Bool() // Query sent to SB, waiting for response.
+//     val isStalledByDependency = Bool() // SB response indicated a dependency, must wait and retry.
+//     val isReadyForDCache      = Bool() // SB cleared this load for D-Cache access.
+//     val isWaitingForDCacheRsp = Bool() // Request sent to D-Cache, waiting for response.
     
-    def setDefault(): this.type = {
-        this.valid                 := False
-        this.addrValid             := False
-        this.address               := 0
-        this.size                  := MemAccessSize.W
-        this.robPtr                := 0
-        this.pdest                 := 0
+//     def setDefault(): this.type = {
+//         this.valid                 := False
+//         this.addrValid             := False
+//         this.address               := 0
+//         this.size                  := MemAccessSize.W
+//         this.robPtr                := 0
+//         this.pdest                 := 0
         
-        this.baseReg               := 0 // 新增
-        this.immediate             := 0 // 新增
-        this.usePc                 := False // 新增
-        this.pc                    := 0 // 新增
+//         this.baseReg               := 0 // 新增
+//         this.immediate             := 0 // 新增
+//         this.usePc                 := False // 新增
+//         this.pc                    := 0 // 新增
 
-        this.hasException          := False
-        this.exceptionCode         := 0
+//         this.hasException          := False
+//         this.exceptionCode         := 0
         
-        this.isWaitingForFwdRsp    := False
-        this.isStalledByDependency := False
-        this.isReadyForDCache      := False
-        this.isWaitingForDCacheRsp := False
-        this
-    }
+//         this.isWaitingForFwdRsp    := False
+//         this.isStalledByDependency := False
+//         this.isReadyForDCache      := False
+//         this.isWaitingForDCacheRsp := False
+//         this
+//     }
 
-        // 新增方法，用于从 AguRspCmd 初始化
-    def initFromAguOutput(cmd: AguOutput): this.type = {
-        this.valid                 := True
-        this.addrValid             := True
-        this.address               := cmd.address
-        this.size                  := cmd.accessSize
-        this.robPtr                := cmd.robPtr
-        this.pdest                 := cmd.physDst
+//         // 新增方法，用于从 AguRspCmd 初始化
+//     def initFromAguOutput(cmd: AguOutput): this.type = {
+//         this.valid                 := True
+//         this.addrValid             := True
+//         this.address               := cmd.address
+//         this.size                  := cmd.accessSize
+//         this.robPtr                := cmd.robPtr
+//         this.pdest                 := cmd.physDst
         
-        // 这些字段在 AguRspCmd 中可能没有直接对应，但为了完整性，这里也进行初始化
-        // 如果 AguRspCmd 提供了这些信息，可以根据需要进行映射
-        this.baseReg               := cmd.basePhysReg // 假设 AguRspCmd 提供了
-        this.immediate             := cmd.immediate // 假设 AguRspCmd 提供了
-        this.usePc                 := cmd.usePc // 假设 AguRspCmd 提供了
-        this.pc                    := cmd.pc // 假设 AguRspCmd 提供了
+//         // 这些字段在 AguRspCmd 中可能没有直接对应，但为了完整性，这里也进行初始化
+//         // 如果 AguRspCmd 提供了这些信息，可以根据需要进行映射
+//         this.baseReg               := cmd.basePhysReg // 假设 AguRspCmd 提供了
+//         this.immediate             := cmd.immediate // 假设 AguRspCmd 提供了
+//         this.usePc                 := cmd.usePc // 假设 AguRspCmd 提供了
+//         this.pc                    := cmd.pc // 假设 AguRspCmd 提供了
 
-        this.hasException          := cmd.alignException
-        this.exceptionCode         := ExceptionCode.LOAD_ADDR_MISALIGNED // 假设只有对齐异常
+//         this.hasException          := cmd.alignException
+//         this.exceptionCode         := ExceptionCode.LOAD_ADDR_MISALIGNED // 假设只有对齐异常
         
-        this.isWaitingForFwdRsp    := False
-        this.isStalledByDependency := False
-        this.isReadyForDCache      := False
-        this.isWaitingForDCacheRsp := False
-        this
-    }
+//         this.isWaitingForFwdRsp    := False
+//         this.isStalledByDependency := False
+//         this.isReadyForDCache      := False
+//         this.isWaitingForDCacheRsp := False
+//         this
+//     }
 
-    def format: Seq[Any] = {
-        Seq(
-            L"LQSlot(valid=${valid}, " :+
-            L"addrValid=${addrValid}, " :+
-            L"address=${address}, " :+
-            L"size=${size}, " :+
-            L"robPtr=${robPtr}, " :+
-            L"pdest=${pdest}, " :+
-            L"baseReg=${baseReg}, " :+
-            L"immediate=${immediate}, " :+
-            L"usePc=${usePc}, " :+
-            L"pc=${pc}, " :+
-            L"hasException=${hasException}, " :+
-            L"exceptionCode=${exceptionCode}, " :+
-            L"isWaitingForFwdRsp=${isWaitingForFwdRsp}, " :+
-            L"isStalledByDependency=${isStalledByDependency}, " :+
-            L"isReadyForDCache=${isReadyForDCache}, " :+
-            L"isWaitingForDCacheRsp=${isWaitingForDCacheRsp})"
-        )
-    }
-}
+//     def format: Seq[Any] = {
+//         Seq(
+//             L"LQSlot(valid=${valid}, " :+
+//             L"addrValid=${addrValid}, " :+
+//             L"address=${address}, " :+
+//             L"size=${size}, " :+
+//             L"robPtr=${robPtr}, " :+
+//             L"pdest=${pdest}, " :+
+//             L"baseReg=${baseReg}, " :+
+//             L"immediate=${immediate}, " :+
+//             L"usePc=${usePc}, " :+
+//             L"pc=${pc}, " :+
+//             L"hasException=${hasException}, " :+
+//             L"exceptionCode=${exceptionCode}, " :+
+//             L"isWaitingForFwdRsp=${isWaitingForFwdRsp}, " :+
+//             L"isStalledByDependency=${isStalledByDependency}, " :+
+//             L"isReadyForDCache=${isReadyForDCache}, " :+
+//             L"isWaitingForDCacheRsp=${isWaitingForDCacheRsp})"
+//         )
+//     }
+// }
 
 
 // =========================================================
@@ -346,7 +353,7 @@ class LsuPlugin(
                 val newSlot = slotsAfterUpdates(pushIdx)
                 val rsp = aguRsp.payload
                 
-                newSlot.initFromAguOutput(rsp)
+                // newSlot.initFromAguOutput(rsp)
                 ParallaxSim.log(L"[LQ] PUSH from AGU: robPtr=${rsp.robPtr} addr=${rsp.address} to slotIdx=${pushIdx}")
             }
 

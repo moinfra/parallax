@@ -3,7 +3,7 @@ package parallax.execute
 
 import spinal.core._
 import spinal.lib._
-import spinal.lib.pipeline._
+import spinal.lib.pipeline._ // 仍然需要，因为 EuBasePlugin 依赖它
 import parallax.common._
 import parallax.components.rob._
 import parallax.components.dcache2._
@@ -19,208 +19,152 @@ class LsuEuPlugin(
     val dCacheParams: DataCacheParameters
 ) extends EuBasePlugin(euName, pipelineConfig) {
 
-  // LSU 需要2个GPR读端口（基址寄存器和存储数据寄存器）
-  override def numGprReadPortsPerEu: Int = 2
+  // =========================================================================
+  // === EuBasePlugin 契约实现 (修正版) ===
+  // =========================================================================
+
+  // 关键修正：LSU EU 不再需要任何GPR读端口，所有读取由AGU服务完成。
+  override def numGprReadPortsPerEu: Int = 0
   override def numFprReadPortsPerEu: Int = 0
 
-  // --- EuBasePlugin Implementation ---
   override type T_IQEntry = IQEntryLsu
   override def iqEntryType: HardType[IQEntryLsu] = HardType(IQEntryLsu(pipelineConfig))
-  override def euRegType: EuRegType.C = EuRegType.GPR_ONLY
+  override def euRegType: EuRegType.C = EuRegType.GPR_ONLY // 仍然与GPR交互，但通过服务
   override def getEuType: ExeUnitType.E = ExeUnitType.MEM
 
-  // LSU 处理的微操作
   addMicroOp(BaseUopCode.LOAD)
   addMicroOp(BaseUopCode.STORE)
 
-  // --- 硬件服务与端口获取 ---
+  // =========================================================================
+  // === 硬件服务与端口获取 ===
+  // =========================================================================
   val hw = create early new Area {
-    val dcacheServiceInst = getService[DataCacheService]
     val aguServiceInst = getService[AguService]
     val storeBufferServiceInst = getService[StoreBufferService]
+    val loadQueueServiceInst = getService[LoadQueueService]
+    val robServiceInst = getService[ROBService[RenamedUop]]
 
-    // 获取硬件端口
-    val lqAguPort = aguServiceInst.newAguPort()
-    val sqAguPort = aguServiceInst.newAguPort()
-    val dCacheLoadPort = dcacheServiceInst.newLoadPort(priority = 1)
-    val sbQueryPort = storeBufferServiceInst.getStoreQueueQueryPort()
+    // 从AGU服务获取端口。我们只需要一个，因为Load/Store可以仲裁后共用
+    val aguPort = aguServiceInst.newAguPort()
+
+    // 获取到后端队列的推送端口
     val sbPushPort = storeBufferServiceInst.getPushPort()
+    val lqPushPort = loadQueueServiceInst.newPushPort()
+    val robFlushPort = robServiceInst.getFlushPort()
 
     // 保留服务
-    dcacheServiceInst.retain()
+        robServiceInst.retain() // 保留服务
     aguServiceInst.retain()
     storeBufferServiceInst.retain()
+    loadQueueServiceInst.retain()
   }
 
-  // 实现抽象方法
+  // =========================================================================
+  // === EU 核心逻辑构建 ===
+  // =========================================================================
   override def buildEuLogic(): Unit = {
     ParallaxLogger.log(s"[LsuEu ${euName}] Logic start definition.")
-
-    // 1. 创建内部流水线
-    val pipeline = new Pipeline {
-      val s0_dispatch = newStage().setName("s0_Dispatch")
-      val s1_aguExecute = newStage().setName("s1_AguExecute")
-      val s2_memoryAccess = newStage().setName("s2_MemoryAccess")
-    }.setCompositeName(this, "internal_pipeline")
-
-    // 2. 定义 Stageable 信号
-    val EU_INPUT_PAYLOAD = Stageable(iqEntryType())
-    val S1_BASE_ADDR_DATA = Stageable(Bits(pipelineConfig.dataWidth))
-    val S1_STORE_DATA = Stageable(Bits(pipelineConfig.dataWidth))
-    val S1_EFFECTIVE_ADDR = Stageable(UInt(pipelineConfig.pcWidth))
-    val S1_IS_LOAD = Stageable(Bool())
-    val S1_IS_STORE = Stageable(Bool())
-    val S1_ACCESS_SIZE = Stageable(MemAccessSize())
-
-    // 3. 连接输入端口到流水线
-    pipeline.s0_dispatch.driveFrom(getEuInputPort)
-    pipeline.s0_dispatch(EU_INPUT_PAYLOAD) := getEuInputPort.payload
-
-    // 连接流水线阶段
-    pipeline.connect(pipeline.s0_dispatch, pipeline.s1_aguExecute)(Connection.M2S())
-    pipeline.connect(pipeline.s1_aguExecute, pipeline.s2_memoryAccess)(Connection.M2S())
-
-    // --- Stage S1: AGU Execute ---
-    val uopAtS1 = pipeline.s1_aguExecute(EU_INPUT_PAYLOAD)
+    hw.aguPort.flush := hw.robFlushPort.valid
     
-    // 读取寄存器数据
-    val baseAddrData = connectGprRead(pipeline.s1_aguExecute, 0, uopAtS1.src1Tag, uopAtS1.useSrc1)
-    val storeData = connectGprRead(pipeline.s1_aguExecute, 1, uopAtS1.src2Tag, uopAtS1.useSrc2)
-    
-    // 地址计算
-    val effectiveAddr = (baseAddrData.asSInt + uopAtS1.imm.asSInt).asUInt.resized
-    
-    // 从memCtrl解析访问类型和大小
-    val isLoad = !uopAtS1.memCtrl.isStore
-    val isStore = uopAtS1.memCtrl.isStore
-    val accessSize = uopAtS1.memCtrl.size
-    
-    // 存储到下一阶段
-    pipeline.s1_aguExecute(S1_BASE_ADDR_DATA) := baseAddrData
-    pipeline.s1_aguExecute(S1_STORE_DATA) := storeData
-    pipeline.s1_aguExecute(S1_EFFECTIVE_ADDR) := effectiveAddr
-    pipeline.s1_aguExecute(S1_IS_LOAD) := isLoad
-    pipeline.s1_aguExecute(S1_IS_STORE) := isStore
-    pipeline.s1_aguExecute(S1_ACCESS_SIZE) := accessSize
 
-    // 连接AGU端口 - 始终驱动所有信号以避免latch
-    val isFiring = pipeline.s1_aguExecute.isFiring
-    val shouldSendToLoadAgu = isFiring && isLoad
-    val shouldSendToStoreAgu = isFiring && isStore
-    
-    // Load AGU端口
-    hw.lqAguPort.input.valid := shouldSendToLoadAgu
-    when(shouldSendToLoadAgu) {
-      hw.lqAguPort.input.payload.qPtr := 0  // 简化测试，使用固定值
-      hw.lqAguPort.input.payload.isLoad := True
-      hw.lqAguPort.input.payload.isStore := False
-      hw.lqAguPort.input.payload.isFlush := False
-      hw.lqAguPort.input.payload.robPtr := uopAtS1.robPtr
-      hw.lqAguPort.input.payload.basePhysReg := uopAtS1.src1Tag
-      hw.lqAguPort.input.payload.immediate := uopAtS1.imm.asSInt.resized
-      hw.lqAguPort.input.payload.usePc := False
-      hw.lqAguPort.input.payload.pc := 0
-      hw.lqAguPort.input.payload.physDst := uopAtS1.physDest.idx
-      hw.lqAguPort.input.payload.accessSize := accessSize
-      hw.lqAguPort.input.payload.dataReg := 0
-    } otherwise {
-      // 使用明确的默认值替代 assignDontCare() 避免Verilog语法错误
-      hw.lqAguPort.input.payload.qPtr := 0
-      hw.lqAguPort.input.payload.isLoad := False
-      hw.lqAguPort.input.payload.isStore := False
-      hw.lqAguPort.input.payload.isFlush := False
-      hw.lqAguPort.input.payload.robPtr := 0
-      hw.lqAguPort.input.payload.basePhysReg := 0
-      hw.lqAguPort.input.payload.immediate := 0
-      hw.lqAguPort.input.payload.usePc := False
-      hw.lqAguPort.input.payload.pc := 0
-      hw.lqAguPort.input.payload.physDst := 0
-      hw.lqAguPort.input.payload.accessSize := MemAccessSize.B
-      hw.lqAguPort.input.payload.dataReg := 0
-    }
-    
-    // Store AGU端口
-    hw.sqAguPort.input.valid := shouldSendToStoreAgu
-    when(shouldSendToStoreAgu) {
-      hw.sqAguPort.input.payload.qPtr := 0  // 简化测试，使用固定值
-      hw.sqAguPort.input.payload.isLoad := False
-      hw.sqAguPort.input.payload.isStore := True
-      hw.sqAguPort.input.payload.isFlush := False
-      hw.sqAguPort.input.payload.robPtr := uopAtS1.robPtr
-      hw.sqAguPort.input.payload.basePhysReg := uopAtS1.src1Tag
-      hw.sqAguPort.input.payload.immediate := uopAtS1.imm.asSInt.resized
-      hw.sqAguPort.input.payload.usePc := False
-      hw.sqAguPort.input.payload.pc := 0
-      hw.sqAguPort.input.payload.dataReg := uopAtS1.src2Tag
-      hw.sqAguPort.input.payload.physDst := 0
-      hw.sqAguPort.input.payload.accessSize := accessSize
-    } otherwise {
-      // 使用明确的默认值替代 assignDontCare() 避免Verilog语法错误
-      hw.sqAguPort.input.payload.qPtr := 0
-      hw.sqAguPort.input.payload.isLoad := False
-      hw.sqAguPort.input.payload.isStore := False
-      hw.sqAguPort.input.payload.isFlush := False
-      hw.sqAguPort.input.payload.robPtr := 0
-      hw.sqAguPort.input.payload.basePhysReg := 0
-      hw.sqAguPort.input.payload.immediate := 0
-      hw.sqAguPort.input.payload.usePc := False
-      hw.sqAguPort.input.payload.pc := 0
-      hw.sqAguPort.input.payload.dataReg := 0
-      hw.sqAguPort.input.payload.physDst := 0
-      hw.sqAguPort.input.payload.accessSize := MemAccessSize.B
+    // --- 1. EU输入处理 & 分流 ---
+    val euIn = getEuInputPort
+    val uop = euIn.payload
+    val isStore = uop.memCtrl.isStore
+
+    // --- 2. 将EU输入流转换为AGU输入流 ---
+    val aguInStream = euIn.translateWith {
+      val aguCmd = AguInput(lsuConfig)
+      aguCmd.qPtr        := 0 // AGU内部使用的指针，这里用不到
+      aguCmd.basePhysReg := uop.src1Tag
+      aguCmd.immediate   := uop.imm.asSInt
+      aguCmd.accessSize  := uop.memCtrl.size
+      aguCmd.usePc       := False // 假设PC相对寻址已在解码阶段处理
+      aguCmd.pc          := 0
+      aguCmd.dataReg     := uop.src2Tag // AGU需要知道从哪个寄存器读store data
+      aguCmd.robPtr      := uop.robPtr
+      aguCmd.isLoad      := !isStore
+      aguCmd.isStore     := isStore
+      aguCmd.isFlush     := False // Flush由ROB直接控制AGU
+      aguCmd.physDst     := uop.physDest.idx
+      aguCmd
     }
 
-    // --- Stage S2: Memory Access ---
-    val uopAtS2 = pipeline.s2_memoryAccess(EU_INPUT_PAYLOAD)
-    val effectiveAddrS2 = pipeline.s2_memoryAccess(S1_EFFECTIVE_ADDR)
-    val isLoadS2 = pipeline.s2_memoryAccess(S1_IS_LOAD)
-    val isStoreS2 = pipeline.s2_memoryAccess(S1_IS_STORE)
-    val accessSizeS2 = pipeline.s2_memoryAccess(S1_ACCESS_SIZE)
-    val storeDataS2 = pipeline.s2_memoryAccess(S1_STORE_DATA)
+    // 将转换后的流连接到AGU端口
+    hw.aguPort.input << aguInStream
 
-    // 简化的内存访问逻辑 - 为了快速测试
-    // 实际应该通过AGU和缓存进行复杂的内存访问流程
-    val memAccessComplete = Bool()
-    val memAccessData = Bits(pipelineConfig.dataWidth)
-    val memAccessException = Bool()
+    // --- 3. AGU响应处理 & 分派到后端队列 ---
+    val aguOutStream = hw.aguPort.output
+    val aguOutPayload = aguOutStream.payload
 
-    // 简化逻辑：假设内存访问总是成功
-    memAccessComplete := pipeline.s2_memoryAccess.isFiring
-    memAccessData := Mux(isLoadS2, 
-      effectiveAddrS2.asBits.resized, // Load时返回地址作为数据（测试用）
-      storeDataS2                     // Store时返回存储的数据
-    )
-    memAccessException := False
+    // 将AGU输出流分流给Load Queue和Store Buffer
+    val (lqDispatchStream, sbDispatchStream) = StreamDemux.two(aguOutStream, aguOutPayload.isStore)
 
-    // 驱动euResult
-    when(pipeline.s2_memoryAccess.isFiring) {
-      euResult.valid := True
-      euResult.uop := uopAtS2
-      euResult.data := memAccessData
-      euResult.writesToPreg := isLoadS2 // 只有Load指令写寄存器
-      euResult.hasException := memAccessException
-      euResult.exceptionCode := 0
-      euResult.destIsFpr := False
-      
-      // 添加日志
-      ParallaxSim.log(L"[LsuEu ${euName}] S2 Firing: isLoad=${isLoadS2}, isStore=${isStoreS2}, addr=${effectiveAddrS2}, data=${memAccessData}")
+    // 连接到Load Queue
+    hw.lqPushPort << lqDispatchStream.translateWith {
+        val cmd = LoadQueuePushCmd(pipelineConfig, lsuConfig)
+        cmd.robPtr             := aguOutPayload.robPtr
+        cmd.pdest              := aguOutPayload.physDst
+        cmd.address            := aguOutPayload.address
+        cmd.size               := aguOutPayload.accessSize
+        cmd.hasEarlyException  := aguOutPayload.alignException
+        cmd.earlyExceptionCode := ExceptionCode.LOAD_ADDR_MISALIGNED
+        cmd
     }
 
-    // 构建流水线
-    pipeline.build()
-    
+    // 连接到Store Buffer
+    hw.sbPushPort << sbDispatchStream.translateWith {
+        val cmd = StoreBufferPushCmd(pipelineConfig, lsuConfig)
+        cmd.addr               := aguOutPayload.address
+        cmd.data               := aguOutPayload.storeData // 正确：使用AGU提供的storeData
+        cmd.be                 := aguOutPayload.storeMask
+        cmd.robPtr             := aguOutPayload.robPtr
+        cmd.accessSize         := aguOutPayload.accessSize
+        cmd.isFlush            := aguOutPayload.isFlush
+        cmd.isIO               := False // TODO: Add MMIO detection
+        cmd.hasEarlyException  := aguOutPayload.alignException
+        cmd.earlyExceptionCode := ExceptionCode.STORE_ADDRESS_MISALIGNED
+        cmd
+    }
+
+    // --- 4. 驱动 EuBasePlugin 的结果契约 ---
+    // EU的"完成"事件，就是成功将AGU的结果推送到后端队列。
+    // 这两个fire信号是互斥的，可以直接或操作。
+    val dispatchCompleted = hw.lqPushPort.fire || hw.sbPushPort.fire
+
+    // 我们需要知道是哪个AGU输出的信息触发了完成事件。
+    // 因为lqPushPort和sbPushPort的valid信号直接来自aguOutStream.valid，
+    // 所以当它们fire时，aguOutStream.payload中的数据是有效的。
+    when(dispatchCompleted) {
+        euResult.valid := True
+        
+        // `euResult.uop` 无法完美重建，因为AGU输出没有携带所有原始uop信息。
+        // 但根据EuBasePlugin的实现，下游（ROB，Bypass等）主要关心
+        // robPtr, physDest, writesToPreg, 和异常信息。我们填充这些关键字段。
+        euResult.uop.robPtr       := aguOutPayload.robPtr
+        euResult.uop.physDest.idx     := aguOutPayload.physDst.andMask(aguOutPayload.isLoad) // Store没有pdest
+        euResult.uop.writesToPhysReg := aguOutPayload.isLoad // 只有Load指令最终会写回（由LQ完成）
+
+        euResult.writesToPreg  := False // LsuEu自身不写寄存器
+        euResult.hasException  := aguOutPayload.alignException
+        euResult.exceptionCode := Mux(aguOutPayload.isLoad,
+                                      ExceptionCode.LOAD_ADDR_MISALIGNED,
+                                      ExceptionCode.STORE_ADDRESS_MISALIGNED)
+        euResult.destIsFpr     := False
+
+        ParallaxSim.logWhen(aguOutPayload.isLoad, L"[LsuEu] Dispatched LOAD to LQ: robPtr=${aguOutPayload.robPtr}")
+        ParallaxSim.logWhen(aguOutPayload.isStore, L"[LsuEu] Dispatched STORE to SB: robPtr=${aguOutPayload.robPtr}")
+    }
+
     // 释放服务
-    hw.dcacheServiceInst.release()
     hw.aguServiceInst.release()
     hw.storeBufferServiceInst.release()
-    
-    ParallaxLogger.log(s"[LsuEu ${euName}] Logic defined and pipeline built.")
+    hw.loadQueueServiceInst.release()
+
+    ParallaxLogger.log(s"[LsuEu ${euName}] Logic defined.")
   }
-  
-  // 重写EuBasePlugin的旁路逻辑，因为我们不需要通用的BypassMessage
-  // 但需要提供虚拟端口以避免空指针
+
+  // LsuEu不直接参与数据旁路，因此旁路端口保持虚拟即可
   override lazy val bypassService = null
   override lazy val bypassOutputPort = Flow(BypassMessage(pipelineConfig))
-  
-  // 注意：不需要 disableBypass area，因为 EuBasePlugin 会完全处理 bypassOutputPort 的驱动
 }
