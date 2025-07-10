@@ -65,8 +65,9 @@ class RenameUnit(
   // --- 3. 核心修正：直接对输出进行带旁路的赋值 ---
   
   // 对 physSrc1 进行赋值
-  when(uopNeedsNewPhysDest && decodedUop.useArchSrc1 && (decodedUop.archSrc1 === decodedUop.archDest)) {
+  when(uopNeedsNewPhysDest && decodedUop.useArchSrc1 && (decodedUop.archSrc1 === decodedUop.archDest) && (decodedUop.archSrc1.idx =/= 0)) {
     // 旁路情况：源1就是目的，使用新分配的物理寄存器
+    // 但是 r0 例外，r0 永远不需要旁路，因为它在硬件中恒为0
     renameInfo.physSrc1.idx := io.physRegsIn(slotIdx)
   } otherwise {
     // 正常情况：使用从RAT读出的值
@@ -75,8 +76,9 @@ class RenameUnit(
   renameInfo.physSrc1IsFpr := decodedUop.archSrc1.isFPR
 
   // 对 physSrc2 进行赋值
-  when(uopNeedsNewPhysDest && decodedUop.useArchSrc2 && (decodedUop.archSrc2 === decodedUop.archDest)) {
+  when(uopNeedsNewPhysDest && decodedUop.useArchSrc2 && (decodedUop.archSrc2 === decodedUop.archDest) && (decodedUop.archSrc2.idx =/= 0)) {
     // 旁路情况：源2就是目的，使用新分配的物理寄存器
+    // 但是 r0 例外，r0 永远不需要旁路，因为它在硬件中恒为0
     renameInfo.physSrc2.idx := io.physRegsIn(slotIdx)
   } otherwise {
     // 正常情况：使用从RAT读出的值
