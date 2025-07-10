@@ -45,6 +45,7 @@ case class RatWritePort(config: RenameMapTableConfig) extends Bundle with IMaste
 // Its directionality is handled by the Stream that carries it.
 // So, it usually does NOT need to implement IMasterSlave unless used directly as an IO port.
 case class RatCheckpoint(config: RenameMapTableConfig) extends Bundle {
+  // arch -> phys mapping
   val mapping = Vec(UInt(config.physRegIdxWidth), config.archRegCount)
 }
 

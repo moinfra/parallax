@@ -29,6 +29,10 @@ case class SuperScalarFreeListConfig(
     s"[SuperScalarFreeListConfig] numPhysRegs = ${numPhysRegs}, resetToFull = ${resetToFull}, " +
     s"numInitialArchMappings = ${numInitialArchMappings}, numAllocatePorts = ${numAllocatePorts}, numFreePorts = ${numFreePorts}"
   )
+
+  if(numInitialArchMappings == 1) {
+    println("WARNING: numInitialArchMappings is set to 1 which is very small. This may be a bug unless you surely only have one physical register.")
+  }
 }
 
 case class SuperScalarFreeListCheckpoint(config: SuperScalarFreeListConfig) extends Bundle {

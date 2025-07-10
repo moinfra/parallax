@@ -58,6 +58,22 @@ class RenamePlugin(
     }
     
     rat.getReadPorts() <> renameUnit.io.ratReadPorts
+    
+    // === RAT Write Port Arbitration ===
+    // Rename requests RAT write port (lower priority than commit)
+    val renameWriteReqs = Vec(Bool(), pipelineConfig.renameWidth)
+    val renameWriteData = Vec(RatWritePort(ratConfig), pipelineConfig.renameWidth)
+    
+    for(i <- 0 until pipelineConfig.renameWidth) {
+      val ruPort = renameUnit.io.ratWritePorts(i)
+      renameWriteReqs(i) := ruPort.wen && s1_rename.isFiring
+      renameWriteData(i).wen := ruPort.wen && s1_rename.isFiring
+      renameWriteData(i).archReg := ruPort.archReg
+      renameWriteData(i).physReg := ruPort.physReg
+    }
+    
+    // Note: Actual RAT write port assignment will be handled by arbitration logic
+    // For now, directly connect (will be overridden by CommitPlugin arbitration)
     rat.getWritePorts.zip(renameUnit.io.ratWritePorts).foreach { case (ratPort, ruPort) =>
       ratPort.wen     := ruPort.wen && s1_rename.isFiring
       ratPort.archReg := ruPort.archReg

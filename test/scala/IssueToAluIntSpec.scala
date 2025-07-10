@@ -1,4 +1,5 @@
 // filename: test/scala/IssueToAluIntSpec.scala
+// command: sbt "testOnly test.scala.IssueToAluIntSpec"
 package test.scala
 
 import org.scalatest.funsuite.AnyFunSuite
@@ -27,37 +28,24 @@ class MockFetchService(pCfg: PipelineConfig) extends Plugin with SimpleFetchPipe
   override def newRedirectPort(priority: Int): Flow[UInt] = Flow(UInt(pCfg.pcWidth))
 }
 
-class MockCommitController(pCfg: PipelineConfig) extends Plugin {
-  // Private control signal
-  private val enableCommit = Bool()
-  
-  // Public interface to get the control signal
-  def getCommitEnable(): Bool = enableCommit
-
-  val setup = create early new Area {
-    val robService = getService[ROBService[RenamedUop]]
-  }
-
-  val logic = create late new Area {
-    // Handle ROB flush signals - set to idle for ALU-only test
-    val robFlushPort = setup.robService.getFlushPort()
-    robFlushPort.setIdle()
-
-    val commitSlots = setup.robService.getCommitSlots(pCfg.commitWidth)
-    val commitAcks = setup.robService.getCommitAcks(pCfg.commitWidth)
-
-    // 简化的commit controller实现
-    for (i <- 0 until pCfg.commitWidth) {
-      val canCommit = commitSlots(i).valid
-      val doCommit = enableCommit && canCommit
-      commitAcks(i) := doCommit
-    }
-  }
-}
-
+// Mock flush source to provide default values for ROB flush signals
+// class MockFlushService defined in another file in same package
 // =========================================================================
 //  The Test Bench
 // =========================================================================
+
+object IssueToAluIntSpecHelper {
+      def readArchReg(dut: IssueToAluIntTestBench, archRegIdx: Int): BigInt = {
+        val cd = dut.clockDomain
+        val physRegIdx = dut.ratMapping(archRegIdx).toBigInt
+        dut.prfReadPort.valid #= true
+        dut.prfReadPort.address #= physRegIdx
+        dut.clockDomain.waitSampling(1)
+        val rsp = dut.prfReadPort.rsp.toBigInt
+        dut.prfReadPort.valid #= false
+        return rsp
+      }
+}
 
 class IssueToAluIntTestBench(val pCfg: PipelineConfig) extends Component {
   val UOP_HT = HardType(RenamedUop(pCfg))
@@ -71,6 +59,22 @@ class IssueToAluIntTestBench(val pCfg: PipelineConfig) extends Component {
     uopType = UOP_HT,
     defaultUop = () => RenamedUop(pCfg).setDefault(),
     exceptionCodeWidth = pCfg.exceptionCodeWidth
+  )
+
+  val renameMapConfig = RenameMapTableConfig(
+    archRegCount = pCfg.archGprCount,
+    physRegCount = pCfg.physGprCount,
+    numReadPorts = pCfg.renameWidth * 3,
+    numWritePorts = pCfg.renameWidth
+  )
+
+  
+  val flConfig = SuperScalarFreeListConfig(
+    numPhysRegs = pCfg.physGprCount,
+    resetToFull = true,
+    numInitialArchMappings = pCfg.archGprCount,
+    numAllocatePorts = pCfg.renameWidth,
+    numFreePorts = pCfg.commitWidth
   )
 
   val io = new Bundle {
@@ -89,35 +93,26 @@ class IssueToAluIntTestBench(val pCfg: PipelineConfig) extends Component {
       new ROBPlugin(pCfg, UOP_HT, () => RenamedUop(pCfg).setDefault()),
       new WakeupPlugin(pCfg),
       new BypassPlugin(HardType(BypassMessage(pCfg))),
-      new MockCommitController(pCfg),
+      new CommitPlugin(pCfg),
       new IssuePipeline(pCfg),
       new DecodePlugin(pCfg),
-      new RenamePlugin(
-        pCfg,
-        RenameMapTableConfig(
-          archRegCount = pCfg.archGprCount,
-          physRegCount = pCfg.physGprCount,
-          numReadPorts = pCfg.renameWidth * 3,
-          numWritePorts = pCfg.renameWidth
-        ),
-        SuperScalarFreeListConfig(
-          numPhysRegs = pCfg.physGprCount, 
-          numAllocatePorts = pCfg.renameWidth, 
-          numFreePorts = pCfg.commitWidth
-        )
-      ),
+new RenamePlugin(pCfg, renameMapConfig, flConfig),
       new RobAllocPlugin(pCfg),
       new IssueQueuePlugin(pCfg),
       new AluIntEuPlugin("AluIntEU", pCfg),
       new LinkerPlugin(pCfg),
-      new DispatchPlugin(pCfg)
+      new CheckpointManagerPlugin(pCfg, renameMapConfig, flConfig),
+      new RenameMapTablePlugin(ratConfig = renameMapConfig),
+      new SuperScalarFreeListPlugin(flConfig),
+      new DispatchPlugin(pCfg),
+      new MockFlushService(pCfg)
     )
   )
 
   val fetchService = framework.getService[MockFetchService]
   fetchService.fetchStreamIn << io.fetchStreamIn
 
-  val commitController = framework.getService[MockCommitController]
+  val commitController = framework.getService[CommitPlugin]
   commitController.getCommitEnable() := io.enableCommit
 
   val robService = framework.getService[ROBService[RenamedUop]]
@@ -149,13 +144,16 @@ class IssueToAluIntTestBench(val pCfg: PipelineConfig) extends Component {
   issueEntryStage(issueSignals.FLUSH_TARGET_PC) := 0
 
   val prfService = framework.getService[PhysicalRegFileService]
-  val prfReadPorts = Vec.tabulate(pCfg.archGprCount) { i =>
-    val port = prfService.newReadPort()
-    port.valid.setName(s"tb_prfRead_valid_$i")
-    port.address.setName(s"tb_prfRead_addr_$i")
-    port
-  }
-  prfReadPorts.simPublic()
+  val prfReadPort = prfService.newReadPort()
+  prfReadPort.simPublic()
+    prfReadPort.valid   := False 
+  prfReadPort.address := 0
+  
+  // === RAT Query Interface for Testing ===
+  // Create a new RAT read port through the service
+  val ratService = framework.getService[RatControlService]
+  val ratMapping = ratService.getCurrentState().mapping
+  ratMapping.simPublic()
 }
 
 // =========================================================================
@@ -275,11 +273,7 @@ class IssueToAluIntSpec extends CustomSpinalSimFunSuite {
 
       cd.waitSampling(5)
 
-      dut.prfReadPorts(r_dest).valid #= true
-      dut.prfReadPorts(r_dest).address #= r_dest
-      cd.waitSampling()
-
-      val result = dut.prfReadPorts(r_dest).rsp.toBigInt
+      val result = IssueToAluIntSpecHelper.readArchReg(dut, r_dest)
       assert(result == expectedResult, s"PRF final value check failed: Result was ${result}, expected ${expectedResult}")
       println(s"SUCCESS: r${r_dest} contains ${result} as expected.")
 
@@ -443,18 +437,12 @@ class IssueToAluIntSpec extends CustomSpinalSimFunSuite {
       println("Verifying SHIFT operation results...")
       
       // Check r2 (left shift result)
-      dut.prfReadPorts(r_result1).valid #= true
-      dut.prfReadPorts(r_result1).address #= r_result1
-      cd.waitSampling()
-      val result1 = dut.prfReadPorts(r_result1).rsp.toBigInt
+      val result1 = IssueToAluIntSpecHelper.readArchReg(dut, r_result1)
       println(s"r$r_result1 = $result1, expected = $expected_result1")
       assert(result1 == expected_result1, s"SLLI result check failed: got $result1, expected $expected_result1")
       
       // Check r3 (right shift result) 
-      dut.prfReadPorts(r_result2).valid #= true
-      dut.prfReadPorts(r_result2).address #= r_result2
-      cd.waitSampling()
-      val result2 = dut.prfReadPorts(r_result2).rsp.toBigInt
+      val result2 = IssueToAluIntSpecHelper.readArchReg(dut, r_result2)
       println(s"r$r_result2 = $result2, expected = $expected_result2")
       assert(result2 == expected_result2, s"SRLI result check failed: got $result2, expected $expected_result2")
 

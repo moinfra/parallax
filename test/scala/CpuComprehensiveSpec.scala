@@ -23,6 +23,23 @@ import test.scala.LA32RInstrBuilder._
 import scala.collection.mutable
 import scala.util.Random
 
+// =========================================================================
+//  Helper Functions for Architectural Register Verification
+// =========================================================================
+
+object CpuComprehensiveSpecHelper {
+  def readArchReg(dut: CpuFullTestBench, archRegIdx: Int): BigInt = {
+    val cd = dut.clockDomain
+    val physRegIdx = dut.ratMapping(archRegIdx).toBigInt
+    dut.prfReadPort.valid #= true
+    dut.prfReadPort.address #= physRegIdx
+    dut.clockDomain.waitSampling(1)
+    val rsp = dut.prfReadPort.rsp.toBigInt
+    dut.prfReadPort.valid #= false
+    return rsp
+  }
+}
+
 /**
  * Comprehensive CPU testing suite that starts simple and builds up complexity
  * Each test stage validates CPU correctness before moving to more complex scenarios
@@ -31,7 +48,7 @@ class CpuComprehensiveSpec extends CustomSpinalSimFunSuite {
   
   val pCfg = PipelineConfig(
     aluEuCount = 1,
-    lsuEuCount = 0,  // Start with no LSU to focus on core functionality
+    lsuEuCount = 1,
     dispatchWidth = 1,
     renameWidth = 1,
     fetchWidth = 2,

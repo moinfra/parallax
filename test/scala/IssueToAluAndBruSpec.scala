@@ -27,52 +27,6 @@ class MockFetchServiceForBru(pCfg: PipelineConfig) extends Plugin with SimpleFet
   override def newRedirectPort(priority: Int): Flow[UInt] = Flow(UInt(pCfg.pcWidth))
 }
 
-class MockCommitControllerForBru(pCfg: PipelineConfig) extends Plugin {
-  // Private control signal
-  private val enableCommit = Bool()
-  
-  // Public interface to get the control signal
-  def getCommitEnable(): Bool = enableCommit
-
-  val setup = create early new Area {
-    val ratControl = getService[RatControlService]
-    val flControl  = getService[FreeListControlService]
-    val robService = getService[ROBService[RenamedUop]]
-  }
-
-  val logic = create late new Area {
-    setup.ratControl.newCheckpointSavePort().setIdle()
-    setup.ratControl.newCheckpointRestorePort().setIdle()
-    setup.flControl.newRestorePort().setIdle()
-
-    // Handle ROB flush signals - important for branch misprediction handling
-    val robFlushPort = setup.robService.getFlushPort()
-    robFlushPort.setIdle()
-
-    val freePorts = setup.flControl.getFreePorts()
-    val commitSlots = setup.robService.getCommitSlots(pCfg.commitWidth)
-    val commitAcks = setup.robService.getCommitAcks(pCfg.commitWidth)
-
-    val commitPending = Vec(Reg(Bool()) init(False), pCfg.commitWidth)
-    
-    // Commit controller implementation
-    for (i <- 0 until pCfg.commitWidth) {
-      val canCommit = commitSlots(i).valid
-      val doCommit = enableCommit && canCommit
-      commitAcks(i) := doCommit
-
-      when(doCommit) {
-        val committedUop = commitSlots(i).entry.payload.uop
-        freePorts(i).enable := committedUop.rename.allocatesPhysDest
-        freePorts(i).physReg := committedUop.rename.oldPhysDest.idx
-      } otherwise {
-        freePorts(i).enable := False
-        freePorts(i).physReg := 0
-      }
-    }
-  }
-}
-
 // =========================================================================
 //  The Test Bench
 // =========================================================================
@@ -97,10 +51,25 @@ class IssueToAluAndBruTestBench(val pCfg: PipelineConfig) extends Component {
     // Expose commit port for monitoring
     val commitValid = out Bool()
     val commitEntry = out(ROBFullEntry(robConfig))
-    // Expose branch redirect port for monitoring
-    val branchRedirectValid = out Bool()
-    val branchRedirectPC = out UInt(pCfg.pcWidth)
+    val branchRedirectValid = in Bool()
+    val branchRedirectPC = in UInt(pCfg.pcWidth)
   }
+
+  val renameMapConfig = RenameMapTableConfig(
+    archRegCount = pCfg.archGprCount,
+    physRegCount = pCfg.physGprCount,
+    numReadPorts = pCfg.renameWidth * 3,
+    numWritePorts = pCfg.renameWidth
+  )
+
+  
+  val flConfig = SuperScalarFreeListConfig(
+    numPhysRegs = pCfg.physGprCount,
+    resetToFull = true,
+    numInitialArchMappings = pCfg.archGprCount,
+    numAllocatePorts = pCfg.renameWidth,
+    numFreePorts = pCfg.commitWidth
+  )
 
   val framework = new Framework(
     Seq(
@@ -110,29 +79,20 @@ class IssueToAluAndBruTestBench(val pCfg: PipelineConfig) extends Component {
       new ROBPlugin(pCfg, UOP_HT, () => RenamedUop(pCfg).setDefault()),
       new WakeupPlugin(pCfg),
       new BypassPlugin(HardType(BypassMessage(pCfg))),
-      new MockCommitControllerForBru(pCfg),
+      new CommitPlugin(pCfg),
       new BpuPipelinePlugin(pCfg), // Add BPU service
       new IssuePipeline(pCfg),
       new DecodePlugin(pCfg),
-      new RenamePlugin(
-        pCfg,
-        RenameMapTableConfig(
-          archRegCount = pCfg.archGprCount,
-          physRegCount = pCfg.physGprCount,
-          numReadPorts = pCfg.renameWidth * 3,
-          numWritePorts = pCfg.renameWidth
-        ),
-        SuperScalarFreeListConfig(
-          numPhysRegs = pCfg.physGprCount, 
-          numAllocatePorts = pCfg.renameWidth, 
-          numFreePorts = pCfg.commitWidth
-        )
-      ),
+      new RenamePlugin(pCfg, renameMapConfig, flConfig),
       new RobAllocPlugin(pCfg),
       new IssueQueuePlugin(pCfg),
       new AluIntEuPlugin("AluIntEU", pCfg),
       new BranchEuPlugin("BranchEU", pCfg),
       new LinkerPlugin(pCfg),
+      new CheckpointManagerPlugin(pCfg, renameMapConfig, flConfig),
+      new RenameMapTablePlugin(ratConfig = renameMapConfig),
+      new SuperScalarFreeListPlugin(flConfig),
+      new MockFlushService(pCfg),
       new DispatchPlugin(pCfg)
     )
   )
@@ -140,7 +100,7 @@ class IssueToAluAndBruTestBench(val pCfg: PipelineConfig) extends Component {
   val fetchService = framework.getService[MockFetchServiceForBru]
   fetchService.fetchStreamIn << io.fetchStreamIn
 
-  val commitController = framework.getService[MockCommitControllerForBru]
+  val commitController = framework.getService[CommitPlugin]
   commitController.getCommitEnable() := io.enableCommit
 
   val robService = framework.getService[ROBService[RenamedUop]]
@@ -150,8 +110,8 @@ class IssueToAluAndBruTestBench(val pCfg: PipelineConfig) extends Component {
 
   // Connect branch redirect port
   val branchRedirectPort = fetchService.newRedirectPort(0)
-  io.branchRedirectValid := branchRedirectPort.valid
-  io.branchRedirectPC := branchRedirectPort.payload
+  io.branchRedirectValid <> branchRedirectPort.valid
+  io.branchRedirectPC <> branchRedirectPort.payload
 
   // Connect fetch service to issue pipeline
   val issuePipeline = framework.getService[IssuePipeline]
@@ -177,13 +137,32 @@ class IssueToAluAndBruTestBench(val pCfg: PipelineConfig) extends Component {
   issueEntryStage(issueSignals.FLUSH_TARGET_PC) := 0
 
   val prfService = framework.getService[PhysicalRegFileService]
-  val prfReadPorts = Vec.tabulate(pCfg.archGprCount) { i =>
-    val port = prfService.newReadPort()
-    port.valid.setName(s"tb_prfRead_valid_$i")
-    port.address.setName(s"tb_prfRead_addr_$i")
-    port
+  val prfReadPort = prfService.newReadPort()
+  prfReadPort.simPublic()
+    prfReadPort.valid   := False 
+  prfReadPort.address := 0
+  // === RAT Query Interface for Testing ===
+  // Create a new RAT read port through the service
+  val ratService = framework.getService[RatControlService]
+  val ratMapping = ratService.getCurrentState().mapping
+  ratMapping.simPublic()
+}
+
+// =========================================================================
+//  Helper Functions for Architectural Register Verification
+// =========================================================================
+
+object IssueToAluAndBruSpecHelper {
+  def readArchReg(dut: IssueToAluAndBruTestBench, archRegIdx: Int): BigInt = {
+    val cd = dut.clockDomain
+    val physRegIdx = dut.ratMapping(archRegIdx).toBigInt
+    dut.prfReadPort.valid #= true
+    dut.prfReadPort.address #= physRegIdx
+    dut.clockDomain.waitSampling(1)
+    val rsp = dut.prfReadPort.rsp.toBigInt
+    dut.prfReadPort.valid #= false
+    return rsp
   }
-  prfReadPorts.simPublic()
 }
 
 // =========================================================================
@@ -194,6 +173,7 @@ class IssueToAluAndBruSpec extends CustomSpinalSimFunSuite {
 
   val pCfg = PipelineConfig(
     aluEuCount = 1,
+    bruEuCount = 1,
     lsuEuCount = 0,
     dispatchWidth = 1,
     renameWidth = 1,
@@ -264,6 +244,17 @@ class IssueToAluAndBruSpec extends CustomSpinalSimFunSuite {
       
       assert(timeout > 0, "Timeout waiting for commits")
       assert(commitCount == 3, s"Expected 3 commits, got $commitCount")
+      
+      dut.io.enableCommit #= false
+      cd.waitSampling(5)
+
+      // Verify architectural register state using corrected approach
+      val r1_value = IssueToAluAndBruSpecHelper.readArchReg(dut, 1)
+      val r2_value = IssueToAluAndBruSpecHelper.readArchReg(dut, 2)
+      
+      assert(r1_value == 100, s"r1 final value check failed: Result was ${r1_value}, expected 100")
+      assert(r2_value == 100, s"r2 final value check failed: Result was ${r2_value}, expected 100")
+      println(s"SUCCESS: r1 contains ${r1_value}, r2 contains ${r2_value} as expected.")
       
       println(s"SUCCESS: 简单分支测试完成, 提交了${commitCount}条指令")
       cd.waitSampling(5)

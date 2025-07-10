@@ -25,6 +25,24 @@ import scala.util.Random
 import parallax.components.lsu.LsuConfig
 import parallax.components.lsu.AguPlugin
 import parallax.components.lsu.StoreBufferPlugin
+import parallax.components.lsu.LoadQueuePlugin
+
+// =========================================================================
+//  Helper Functions for Architectural Register Verification
+// =========================================================================
+
+object CpuFullSpecHelper {
+  def readArchReg(dut: CpuFullTestBench, archRegIdx: Int): BigInt = {
+    val cd = dut.clockDomain
+    val physRegIdx = dut.ratMapping(archRegIdx).toBigInt
+    dut.prfReadPort.valid #= true
+    dut.prfReadPort.address #= physRegIdx
+    dut.clockDomain.waitSampling(1)
+    val rsp = dut.prfReadPort.rsp.toBigInt
+    dut.prfReadPort.valid #= false
+    return rsp
+  }
+}
 
 class CpuFullSpec extends CustomSpinalSimFunSuite {
   val pCfg = PipelineConfig(
@@ -1658,6 +1676,7 @@ class CpuFullTestBench(val pCfg: PipelineConfig, val dCfg: DataCachePluginConfig
       new LsuEuPlugin("LsuEU", pCfg, lsuConfig = lsuConfig, dParams),
       new AguPlugin(lsuConfig, supportPcRel = true),
       new StoreBufferPlugin(pCfg, lsuConfig, dParams, lsuConfig.sqDepth),
+      new LoadQueuePlugin(pCfg, lsuConfig, dParams, lsuConfig.lqDepth),
       // Dispatch and linking
       new LinkerPlugin(pCfg),
       new DispatchPlugin(pCfg),
@@ -1763,4 +1782,14 @@ class CpuFullTestBench(val pCfg: PipelineConfig, val dCfg: DataCachePluginConfig
     issueEntryStage(issueSignals.FLUSH_PIPELINE) := False
     issueEntryStage(issueSignals.FLUSH_TARGET_PC) := 0
   }
+  
+  // === PRF Access for Architectural Register Verification ===
+  val prfService = framework.getService[PhysicalRegFileService]
+  val prfReadPort = prfService.newReadPort()
+  prfReadPort.simPublic()
+  
+  // === RAT Query Interface for Testing ===
+  val ratService = framework.getService[RatControlService]
+  val ratMapping = ratService.getCurrentState().mapping
+  ratMapping.simPublic()
 }

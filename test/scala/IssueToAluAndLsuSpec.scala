@@ -182,24 +182,11 @@ class IssueToAluAndLsuTestBench(val pCfg: PipelineConfig) extends Component {
       new CheckpointManagerPlugin(pCfg, renameMapConfig, flConfig),
       new RenameMapTablePlugin(ratConfig = renameMapConfig),
       new SuperScalarFreeListPlugin(flConfig),
-
-      new RenamePlugin(
-        pCfg,
-        RenameMapTableConfig(
-          archRegCount = pCfg.archGprCount,
-          physRegCount = pCfg.physGprCount,
-          numReadPorts = pCfg.renameWidth * 3,
-          numWritePorts = pCfg.renameWidth
-        ),
-        SuperScalarFreeListConfig(
-          numPhysRegs = pCfg.physGprCount, 
-          numAllocatePorts = pCfg.renameWidth, 
-          numFreePorts = pCfg.commitWidth
-        )
-      ),
+new RenamePlugin(pCfg, renameMapConfig, flConfig),
       new RobAllocPlugin(pCfg),
       new IssueQueuePlugin(pCfg),
-      // Only LSU EU for now - pass unified configurations
+      // Add ALU EU for ADDI support and LSU EU for store/load
+      new AluIntEuPlugin("AluEU", pCfg),
       new LsuEuPlugin("LsuEU", pCfg, lsuConfig, dCacheParams),
       new LinkerPlugin(pCfg),
       new DispatchPlugin(pCfg)
@@ -217,6 +204,9 @@ class IssueToAluAndLsuTestBench(val pCfg: PipelineConfig) extends Component {
   io.commitValid := commitSlot.valid
   io.commitEntry := commitSlot.entry
 
+  // Expose memory system for verification
+  val memSystem = framework.getService[TestOnlyMemSystemPlugin]
+  
   // Connect fetch service to issue pipeline
   val issuePipeline = framework.getService[IssuePipeline]
   val fetchOutStream = fetchService.fetchOutput()
@@ -240,7 +230,33 @@ class IssueToAluAndLsuTestBench(val pCfg: PipelineConfig) extends Component {
   issueEntryStage(issueSignals.FLUSH_PIPELINE) := False
   issueEntryStage(issueSignals.FLUSH_TARGET_PC) := 0
 
-  // 注意：不在Framework外部创建PRF读端口，这应该在Plugin内部的early阶段完成
+  // === PRF Access for Architectural Register Verification ===
+  val prfService = framework.getService[PhysicalRegFileService]
+  val prfReadPort = prfService.newReadPort()
+  prfReadPort.simPublic()
+    prfReadPort.valid   := False 
+  prfReadPort.address := 0
+  // === RAT Query Interface for Testing ===
+  val ratService = framework.getService[RatControlService]
+  val ratMapping = ratService.getCurrentState().mapping
+  ratMapping.simPublic()
+}
+
+// =========================================================================
+//  Helper Functions for Architectural Register Verification
+// =========================================================================
+
+object IssueToAluAndLsuSpecHelper {
+  def readArchReg(dut: IssueToAluAndLsuTestBench, archRegIdx: Int): BigInt = {
+    val cd = dut.clockDomain
+    val physRegIdx = dut.ratMapping(archRegIdx).toBigInt
+    dut.prfReadPort.valid #= true
+    dut.prfReadPort.address #= physRegIdx
+    dut.clockDomain.waitSampling(1)
+    val rsp = dut.prfReadPort.rsp.toBigInt
+    dut.prfReadPort.valid #= false
+    return rsp
+  }
 }
 
 // =========================================================================
@@ -263,38 +279,16 @@ class IssueToAluAndLsuSpec extends CustomSpinalSimFunSuite {
     commitWidth = 1,
     transactionIdWidth = 8
   ) {
-    // 重写bruEuCount以修复totalEuCount计算
-    override def bruEuCount: Int = 0  // 测试中没有BRU插件
-  }
-
-  // 创建只有LSU的配置类（保持向后兼容）
-  class LsuOnlyPipelineConfig extends PipelineConfig(
-    aluEuCount = 0,
-    lsuEuCount = 1,
-    dispatchWidth = 1,
-    renameWidth = 1,
-    fetchWidth = 1,
-    xlen = 32,
-    physGprCount = 64,
-    archGprCount = 32,
-    robDepth = 16,  // 明确设置和LsuPluginSpec一致
-    commitWidth = 1,
-    transactionIdWidth = 8
-  ) {
-    // 重写bruEuCount以修复totalEuCount计算
-    override def bruEuCount: Int = 0  // 测试中没有BRU插件
-    // 重写totalEuCount，因为我们的LsuEuPlugin是单一EU处理load和store
   }
 
   val pCfg_complex = new AluAndLsuPipelineConfig()  // 复杂测试使用ALU+LSU配置
-  val pCfg = new LsuOnlyPipelineConfig()            // 简单测试使用LSU-only配置
 
   test("StoreAndLoad_Test") {
-    // 使用纯Scala仿真后端，专注于Store和Load操作，但仍然使用简单的LSU-only配置
+    // 使用ALU+LSU配置来支持ADDI指令
     val compiled = SimConfig.withConfig(SpinalConfig().copy(
       defaultConfigForClockDomains = ClockDomainConfig(resetKind = SYNC),
       targetDirectory = "simWorkspace/scala_sim"
-    )).allOptimisation.workspacePath("simWorkspace/scala_sim").compile(new IssueToAluAndLsuTestBench(pCfg))
+    )).allOptimisation.workspacePath("simWorkspace/scala_sim").compile(new IssueToAluAndLsuTestBench(pCfg_complex))
     
     compiled.doSim { dut =>
       val cd = dut.clockDomain
@@ -338,30 +332,42 @@ class IssueToAluAndLsuSpec extends CustomSpinalSimFunSuite {
       dut.io.enableCommit #= false
       cd.waitSampling(5)
 
-      // 更简单的测试序列，使用寄存器0作为基址，但测试Store和Load：
-      // 1. ST.W r0, r0, 0x200  (存储0到地址0x200，因为r0总是0)
-      // 2. LD.W r1, r0, 0x200  (从地址0x200加载，应该得到0)
-      // 3. LD.W r2, r0, 0x204  (从地址0x204加载，应该得到0，因为没有写过)
+      // 真正有说服力的测试序列：
+      // 1. ADDI r3, r0, 0x123  (r3 = 0 + 0x123 = 0x123, 给r3设置一个非零值)
+      // 2. ST.W r3, r0, 0x200  (存储r3的值0x123到地址0x200)
+      // 3. LD.W r1, r0, 0x200  (从地址0x200加载，应该得到0x123)
+      // 4. ST.W r0, r0, 0x204  (存储r0的值0到地址0x204)  
+      // 5. LD.W r2, r0, 0x204  (从地址0x204加载，应该得到0)
 
       val store_addr = 0x200
-      val instr_store = LA32RInstrBuilder.st_w(rd = 0, rj = 0, offset = store_addr)  // MEM[0x200] = r0 (=0)
+      val test_value = 0x123
+      
+      val instr_addi = LA32RInstrBuilder.addi_w(rd = 3, rj = 0, imm = test_value)  // r3 = r0 + 0x123
+      val instr_store1 = LA32RInstrBuilder.st_w(rd = 3, rj = 0, offset = store_addr)  // MEM[0x200] = r3 (=0x123)
       val instr_load1 = LA32RInstrBuilder.ld_w(rd = 1, rj = 0, offset = store_addr)  // r1 = MEM[0x200]
+      val instr_store2 = LA32RInstrBuilder.st_w(rd = 0, rj = 0, offset = store_addr + 4)  // MEM[0x204] = r0 (=0)
       val instr_load2 = LA32RInstrBuilder.ld_w(rd = 2, rj = 0, offset = store_addr + 4)  // r2 = MEM[0x204]
 
-      println(s"[TEST] Store和Load测试序列:")
-      println(f"  1. ST.W r0, r0, 0x${store_addr}%x (insn=0x${instr_store}%x) - 存储0到内存")
-      println(f"  2. LD.W r1, r0, 0x${store_addr}%x (insn=0x${instr_load1}%x) - 从同一地址加载")
-      println(f"  3. LD.W r2, r0, 0x${store_addr + 4}%x (insn=0x${instr_load2}%x) - 从不同地址加载")
+      println(s"[TEST] 多数据模式Store和Load测试序列:")
+      println(f"  1. ADDI r3, r0, 0x${test_value}%x (insn=0x${instr_addi}%x) - 设置r3=0x${test_value}%x")
+      println(f"  2. ST.W r3, r0, 0x${store_addr}%x (insn=0x${instr_store1}%x) - 存储非零值0x${test_value}%x")
+      println(f"  3. LD.W r1, r0, 0x${store_addr}%x (insn=0x${instr_load1}%x) - 验证非零值读取")
+      println(f"  4. ST.W r0, r0, 0x${store_addr + 4}%x (insn=0x${instr_store2}%x) - 存储零值0")
+      println(f"  5. LD.W r2, r0, 0x${store_addr + 4}%x (insn=0x${instr_load2}%x) - 验证零值读取")
 
       // 准备期望的提交顺序
-      expectedCommits += pc_start        // Store
-      expectedCommits += (pc_start + 4)  // Load 1
-      expectedCommits += (pc_start + 8)  // Load 2
+      expectedCommits += pc_start          // ADDI r3, r0, 0x123
+      expectedCommits += (pc_start + 4)    // Store 1 (非零值)
+      expectedCommits += (pc_start + 8)    // Load 1
+      expectedCommits += (pc_start + 12)   // Store 2 (零值)
+      expectedCommits += (pc_start + 16)   // Load 2
 
       println("=== 📤 发射指令序列 ===")
-      issueInstr(pc_start, instr_store)      // PC: 0x80000000
-      issueInstr(pc_start + 4, instr_load1)  // PC: 0x80000004
-      issueInstr(pc_start + 8, instr_load2)  // PC: 0x80000008
+      issueInstr(pc_start, instr_addi)         // PC: 0x80000000
+      issueInstr(pc_start + 4, instr_store1)   // PC: 0x80000004
+      issueInstr(pc_start + 8, instr_load1)    // PC: 0x80000008
+      issueInstr(pc_start + 12, instr_store2)  // PC: 0x8000000C
+      issueInstr(pc_start + 16, instr_load2)   // PC: 0x80000010
 
       println("=== ⏱️ 等待执行完成 ===")
       cd.waitSampling(30)  // 给Store和Load序列足够的处理时间
@@ -369,19 +375,41 @@ class IssueToAluAndLsuSpec extends CustomSpinalSimFunSuite {
       println("=== ✅ 启用提交 ===")
       dut.io.enableCommit #= true
       
-      var timeout = 400  // 增加超时时间
-      while(commitCount < 3 && timeout > 0) {
+      var timeout = 600  // 增加超时时间，因为有5条指令
+      while(commitCount < 5 && timeout > 0) {
         cd.waitSampling()
         timeout -= 1
-        if (timeout % 80 == 0) {
-          println(s"[WAIT] commitCount=$commitCount/3, timeout=$timeout")
+        if (timeout % 100 == 0) {
+          println(s"[WAIT] commitCount=$commitCount/5, timeout=$timeout")
         }
       }
       
       if (timeout > 0) {
-        println(s"🎉 SUCCESS: Store和Load测试完成，成功提交了${commitCount}条指令!")
-        assert(commitCount == 3, s"Expected 3 commits, got $commitCount")
+        println(s"🎉 SUCCESS: 多数据模式测试完成，成功提交了${commitCount}条指令!")
+        assert(commitCount == 5, s"Expected 5 commits, got $commitCount")
         assert(expectedCommits.isEmpty, "Not all expected commits were processed")
+        
+        // === 验证内存写入 ===
+        println("=== 🔍 验证 Store 指令通过 Load 指令 ===")
+        cd.waitSampling(50)  // 增加等待时间，让数据有机会写回内存
+        
+        // 使用正确的架构寄存器验证方法
+        println("验证 ADDI 指令是否正确设置了 r3 = 0x123")
+        val r3_value = IssueToAluAndLsuSpecHelper.readArchReg(dut, 3)
+        assert(r3_value == test_value, s"r3 final value check failed: Result was ${r3_value}, expected ${test_value}")
+        println(f"✅ ADDI 指令验证通过: r3 = 0x${r3_value}%x")
+        
+        println("验证 Load1 指令从 Store1 地址读取的非零数据")
+        val r1_value = IssueToAluAndLsuSpecHelper.readArchReg(dut, 1)
+        assert(r1_value == test_value, s"r1 final value check failed: Result was ${r1_value}, expected ${test_value}")
+        println(f"✅ Load1 指令验证通过: r1 = 0x${r1_value}%x")
+        
+        println("验证 Load2 指令从 Store2 地址读取的零数据")
+        val r2_value = IssueToAluAndLsuSpecHelper.readArchReg(dut, 2)
+        assert(r2_value == 0, s"r2 final value check failed: Result was ${r2_value}, expected 0")
+        println(f"✅ Load2 指令验证通过: r2 = 0x${r2_value}%x")
+        
+        println("✅ Store 指令验证完成: Load 指令成功读取到 Store 的数据!")
       } else {
         println("⚠️ TIMEOUT: 指令未能在预期时间内提交")
         println("这可能表明LSU EU的Store/Load序列处理存在问题，需要分析日志")
@@ -397,7 +425,7 @@ class IssueToAluAndLsuSpec extends CustomSpinalSimFunSuite {
     val compiled = SimConfig.withConfig(SpinalConfig().copy(
       defaultConfigForClockDomains = ClockDomainConfig(resetKind = SYNC),
       targetDirectory = "simWorkspace/scala_sim"
-    )).compile(new IssueToAluAndLsuTestBench(pCfg))
+    )).compile(new IssueToAluAndLsuTestBench(pCfg_complex))
     
     compiled.doSim { dut =>
       val cd = dut.clockDomain
@@ -496,6 +524,10 @@ class IssueToAluAndLsuSpec extends CustomSpinalSimFunSuite {
         println("✅ 测试覆盖: Store-to-Load forwarding, 多重Store, 多重Load, Cache miss处理")
         assert(commitCount == 5, s"Expected 5 commits, got $commitCount")
         assert(expectedCommits.isEmpty, "Not all expected commits were processed")
+        
+        // === FIXME: 验证内存写入 ===
+        assert(false, "FIXME: 验证内存写入")
+        cd.waitSampling(50)  // 增加等待时间，让数据有机会写回内存
       } else {
         println("⚠️ TIMEOUT: 指令未能在预期时间内提交")
         println("这可能表明复杂LSU序列处理存在问题，需要分析Store/Load依赖关系")
@@ -511,7 +543,7 @@ class IssueToAluAndLsuSpec extends CustomSpinalSimFunSuite {
     val compiled = SimConfig.withConfig(SpinalConfig().copy(
       defaultConfigForClockDomains = ClockDomainConfig(resetKind = SYNC),
       targetDirectory = "simWorkspace/scala_sim"
-    )).compile(new IssueToAluAndLsuTestBench(pCfg))
+    )).compile(new IssueToAluAndLsuTestBench(pCfg_complex))
     
     compiled.doSim { dut =>
       val cd = dut.clockDomain
@@ -574,6 +606,8 @@ class IssueToAluAndLsuSpec extends CustomSpinalSimFunSuite {
       if (timeout > 0) {
         println(s"🎉 SUCCESS: LSU测试完成，成功提交了${commitCount}条指令!")
         assert(commitCount == 1, s"Expected 1 commits, got $commitCount")
+        assert(false, "FIXME: 验证内存写入")
+
       } else {
         println("⚠️ TIMEOUT: 指令未能在预期时间内提交")
         println("这可能表明LSU EU的某个阶段存在问题，需要分析日志")

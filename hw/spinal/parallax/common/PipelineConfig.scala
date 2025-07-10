@@ -25,7 +25,7 @@ case class PipelineConfig(
     val bypassNetworkSources: Int = 2,
     val aluEuCount: Int = 2, // Number of ALU EUs
     val lsuEuCount: Int = 1,
-    
+    val bruEuCount: Int = 0, // Number of BRU EUs
     val exceptionCodeWidth: BitCount = 8 bits, // Width of the exception code signal
 
     // Configuration for specific Issue Queues (example for ALU IQ)
@@ -39,7 +39,6 @@ case class PipelineConfig(
   def mulEuCount: Int = 0
   def divEuCount: Int = 0
   def csrEuCount: Int = 0
-  def bruEuCount: Int = 1  // Add BRU count
   def totalEuCount: Int = aluEuCount + lsuEuCount * 2 + mulEuCount + divEuCount + csrEuCount + bruEuCount // * 2 for load/store
   
   // GPR/FPR data width (also individual instruction width)

@@ -76,6 +76,22 @@ class SimpleBruTestBench(val pCfg: PipelineConfig) extends Component {
     exceptionCodeWidth = pCfg.exceptionCodeWidth
   )
 
+  val renameMapConfig = RenameMapTableConfig(
+    archRegCount = pCfg.archGprCount,
+    physRegCount = pCfg.physGprCount,
+    numReadPorts = pCfg.renameWidth * 3,
+    numWritePorts = pCfg.renameWidth
+  )
+
+  
+  val flConfig = SuperScalarFreeListConfig(
+    numPhysRegs = pCfg.physGprCount,
+    resetToFull = true,
+    numInitialArchMappings = pCfg.archGprCount,
+    numAllocatePorts = pCfg.renameWidth,
+    numFreePorts = pCfg.commitWidth
+  )
+
   val io = new Bundle {
     val fetchStreamIn = slave(Stream(FetchedInstr(pCfg)))
     val enableCommit = in Bool ()
@@ -95,20 +111,7 @@ class SimpleBruTestBench(val pCfg: PipelineConfig) extends Component {
       new BpuPipelinePlugin(pCfg),
       new IssuePipeline(pCfg),
       new DecodePlugin(pCfg),
-      new RenamePlugin(
-        pCfg,
-        RenameMapTableConfig(
-          archRegCount = pCfg.archGprCount,
-          physRegCount = pCfg.physGprCount,
-          numReadPorts = pCfg.renameWidth * 3,
-          numWritePorts = pCfg.renameWidth
-        ),
-        SuperScalarFreeListConfig(
-          numPhysRegs = pCfg.physGprCount, 
-          numAllocatePorts = pCfg.renameWidth, 
-          numFreePorts = pCfg.commitWidth
-        )
-      ),
+new RenamePlugin(pCfg, renameMapConfig, flConfig),
       new RobAllocPlugin(pCfg),
       new IssueQueuePlugin(pCfg),
       new BranchEuPlugin("BranchEU", pCfg),  // 重新添加BRU

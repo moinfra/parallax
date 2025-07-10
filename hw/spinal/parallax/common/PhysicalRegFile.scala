@@ -98,6 +98,8 @@ class PhysicalRegFilePlugin(
     logicExecuted = true
 
     val regFile = Mem.fill(numPhysRegs)(Bits(dataWidth))
+    // Initialize all physical registers to 0, especially physical register 0
+    regFile.init(Seq.fill(numPhysRegs)(B(0, dataWidth)))
 
     readPortRequests.zipWithIndex.foreach { case (externalPort, i) =>
       val data = Mux(externalPort.address === 0, B(0, dataWidth), regFile.readAsync(address = externalPort.address))
