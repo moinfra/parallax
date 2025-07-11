@@ -23,11 +23,27 @@ class MockFetchServiceBru(pCfg: PipelineConfig) extends Plugin with SimpleFetchP
   val fetchStreamIn = Stream(FetchedInstr(pCfg))
   override def fetchOutput(): Stream[FetchedInstr] = fetchStreamIn
   override def newRedirectPort(priority: Int): Flow[UInt] = Flow(UInt(pCfg.pcWidth))
+  override def newFetchDisablePort(): Bool = Bool()
 }
 
-class MockCommitControllerBru(pCfg: PipelineConfig) extends Plugin {
+class MockCommitControllerBru(pCfg: PipelineConfig) extends Plugin with CommitService {
   private val enableCommit = Bool()
   def getCommitEnable(): Bool = enableCommit
+
+  override def setCommitEnable(enable: Bool): Unit = {
+    enableCommit := enable
+  }
+
+  override def getCommitStats(): CommitStats = {
+    val stats = CommitStats(pCfg)
+    stats.committedThisCycle := 0
+    stats.totalCommitted := 0
+    stats.robFlushCount := 0
+    stats.physRegRecycled := 0
+    stats
+  }
+
+  override def isIdle(): Bool = False
 
   val setup = create early new Area {
     val ratControl = getService[RatControlService]
@@ -39,7 +55,7 @@ class MockCommitControllerBru(pCfg: PipelineConfig) extends Plugin {
     setup.ratControl.newCheckpointSavePort().setIdle()
     setup.ratControl.newCheckpointRestorePort().setIdle()
     setup.flControl.newRestorePort().setIdle()
-    val robFlushPort = setup.robService.getFlushPort()
+    val robFlushPort = setup.robService.newFlushPort()
     robFlushPort.setIdle()
 
     val freePorts = setup.flControl.getFreePorts()
@@ -127,7 +143,7 @@ new RenamePlugin(pCfg, renameMapConfig, flConfig),
   
   // 连接输入
   fetchService.fetchStreamIn << io.fetchStreamIn
-  commitController.getCommitEnable() := io.enableCommit
+  commitController.setCommitEnable(io.enableCommit)
   
   // 连接到issue pipeline
   val issuePipeline = framework.getService[IssuePipeline]

@@ -36,7 +36,7 @@ class BranchEuPlugin(
     val bpuServiceInst = getService[BpuService]
     val fetchPplInst = getService[parallax.fetch.SimpleFetchPipelineService]
 
-    val robFlushPort     = robServiceInst.getFlushPort()
+    val robFlushPort     = robServiceInst.newFlushPort()
     val bpuUpdatePort    = bpuServiceInst.newBpuUpdatePort()
     val redirectPort     = fetchPplInst.newRedirectPort(priority = 10)  // High priority for branch misprediction
 

@@ -50,7 +50,7 @@ class LsuEuPlugin(
     // 获取到后端队列的推送端口
     val sbPushPort = storeBufferServiceInst.getPushPort()
     val lqPushPort = loadQueueServiceInst.newPushPort()
-    val robFlushPort = robServiceInst.getFlushPort()
+    val robFlushPort = robServiceInst.getFlushListeningPort()
 
     // 保留服务
     robServiceInst.retain() // 保留服务

@@ -42,7 +42,7 @@ class LsuTestSetupPlugin(
 
     // Setup ROB ports
     val robAllocPort = robService.getAllocatePorts(1)(0)
-    val robFlushPort = robService.getFlushPort()
+    val robFlushPort = robService.newFlushPort()
     val robCommitSlot = robService.getCommitSlots(1)(0)
     val robCommitAck = robService.getCommitAcks(1)(0)
     robIoSetup(robAllocPort, robFlushPort, robCommitSlot, robCommitAck)

@@ -347,7 +347,7 @@ class StoreBufferPlugin(
 
 
 
-        val robFlushPort = robService.getFlushPort()
+        val robFlushPort = robService.getFlushListeningPort()
         when(robFlushPort.valid && robFlushPort.payload.reason === FlushReason.FULL_FLUSH) {
                 ParallaxSim.log(L"[SQ] FULL_FLUSH received. Clearing all slots.")
                 for(i <- 0 until sbDepth) {

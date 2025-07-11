@@ -153,6 +153,36 @@ class CpuFullSpec extends CustomSpinalSimFunSuite {
   val axiConfig = createAxi4Config(pCfg)
   val fifoDepth = 8
 
+  
+  // 通用 Commit 监控工具函数
+  def monitorCommits(
+    dut: CpuFullTestBench,
+    cd: ClockDomain,
+    expectedCount: Int,
+    idleLimit: Int = 50
+  ): Seq[BigInt] = {
+    val commitedPCs = mutable.ArrayBuffer[BigInt]()
+    var lastCommitCount = 0
+    var idleCycles = 0
+    while (idleCycles < idleLimit) {
+      cd.waitSampling()
+      if (dut.io.enableCommit.toBoolean && dut.io.commitValid.toBoolean) {
+        val commitPC = dut.io.commitEntry.payload.uop.decoded.pc.toBigInt
+        commitedPCs += commitPC
+        println(s"COMMIT #${commitedPCs.length}: PC=0x${commitPC.toString(16)}")
+      }
+      if (commitedPCs.length == lastCommitCount) {
+        idleCycles += 1
+        println(s"No new commits for $idleCycles cycles.")
+      } else {
+        idleCycles = 0
+        lastCommitCount = commitedPCs.length
+      }
+    }
+    println(s"Commit monitor exited after $idleCycles idle cycles. Got ${commitedPCs.length} commits, expect $expectedCount.")
+    commitedPCs.toSeq
+  }
+
   test("CpuFullTestBench compilation test") {
     val compiled = SimConfig.withFstWave.compile(new CpuFullTestBench(pCfg, dCfg, ifuCfg, axiConfig, fifoDepth))
     compiled.doSim { dut =>
@@ -175,7 +205,7 @@ class CpuFullSpec extends CustomSpinalSimFunSuite {
     }
   }
 
-testOnly("Basic Addition and Store Test") {
+  test("IDLE after ADDI Test - addi+idle+addi+addi") {
     val pCfgWithLsu = pCfg.copy(lsuEuCount = 1)
     
     val compiled = SimConfig.withFstWave.compile(new CpuFullTestBench(pCfgWithLsu, dCfg, ifuCfg, axiConfig, fifoDepth))
@@ -184,9 +214,83 @@ testOnly("Basic Addition and Store Test") {
       cd.forkStimulus(period = 10)
       SimTimeout(50000)
 
+      // --- Test Setup ---
+      dut.io.initMemEnable #= true
+      cd.waitSampling(10)
+
+      val baseAddr = BigInt("0", 16)
+      val instructions = Seq(
+        addi_w(rd = 1, rj = 0, imm = 100),         // 0x00: r1 = 100 (should commit)
+        idle(),                                   // 0x04: IDLE instruction (should commit, then stop)
+        addi_w(rd = 2, rj = 0, imm = 200),         // 0x08: r2 = 200 (should NOT commit)
+        addi_w(rd = 3, rj = 0, imm = 300)          // 0x0C: r3 = 300 (should NOT commit)
+      )
+      val expectedCommitPCs = Seq(baseAddr, baseAddr + 4) // Only first two instructions should commit
+      CpuFullSpecHelper.writeInstructionsToMem(dut, baseAddr, instructions)
+
+      dut.io.initMemEnable #= false
+      cd.waitSampling(20)
+      dut.io.enableCommit #= true
+      println("Starting IDLE after ADDI test...")
+
+            val commitedPCs = monitorCommits(dut, cd, expectedCommitPCs.length)
+
+
+      // --- Verify Result ---
+      println("Verifying IDLE after ADDI test results...")
+      assert(commitedPCs.length == expectedCommitPCs.length, s"Expected ${expectedCommitPCs.length} commits, but got ${commitedPCs.length}")
+      assert(commitedPCs.toSeq == expectedCommitPCs, s"PC sequence mismatch!\nExpected: $expectedCommitPCs\nGot: ${commitedPCs.toSeq}")
       
+      println("IDLE after ADDI Test passed - IDLE instruction correctly stopped further commits!")
+    }
+  }
+
+  test("IDLE first Test - idle+addi+addi") {
+    val pCfgWithLsu = pCfg.copy(lsuEuCount = 1)
+    
+    val compiled = SimConfig.withFstWave.compile(new CpuFullTestBench(pCfgWithLsu, dCfg, ifuCfg, axiConfig, fifoDepth))
+    compiled.doSim { dut =>
+      val cd = dut.clockDomain
+      cd.forkStimulus(period = 10)
+      SimTimeout(50000)
+
+      // --- Test Setup ---
+      dut.io.initMemEnable #= true
+      cd.waitSampling(10)
+
+      val baseAddr = BigInt("0", 16)
+      val instructions = Seq(
+        idle(),                                   // 0x00: IDLE instruction (should commit, then stop)
+        addi_w(rd = 1, rj = 0, imm = 100),         // 0x04: r1 = 100 (should NOT commit)
+        addi_w(rd = 2, rj = 0, imm = 200)          // 0x08: r2 = 200 (should NOT commit)
+      )
+      val expectedCommitPCs = Seq(baseAddr) // Only IDLE instruction should commit
+      CpuFullSpecHelper.writeInstructionsToMem(dut, baseAddr, instructions)
+
+      dut.io.initMemEnable #= false
+      cd.waitSampling(20)
+      dut.io.enableCommit #= true
+      println("Starting IDLE first test...")
+
+            val commitedPCs = monitorCommits(dut, cd, expectedCommitPCs.length)
 
 
+      // --- Verify Result ---
+      println("Verifying IDLE first test results...")
+      assert(commitedPCs.length == expectedCommitPCs.length, s"Expected ${expectedCommitPCs.length} commits, but got ${commitedPCs.length}")
+      assert(commitedPCs.toSeq == expectedCommitPCs, s"PC sequence mismatch!\nExpected: $expectedCommitPCs\nGot: ${commitedPCs.toSeq}")
+      
+      println("IDLE first Test passed - IDLE instruction correctly stopped all subsequent commits!")
+    }
+  }
+
+  test("Basic Addition and Store Test") {
+    val pCfgWithLsu = pCfg.copy(lsuEuCount = 1)
+    val compiled = SimConfig.withFstWave.compile(new CpuFullTestBench(pCfgWithLsu, dCfg, ifuCfg, axiConfig, fifoDepth))
+    compiled.doSim { dut =>
+      val cd = dut.clockDomain
+      cd.forkStimulus(period = 10)
+      SimTimeout(50000)
       // --- Test Setup ---
       dut.io.initMemEnable #= true
       cd.waitSampling(10)
@@ -199,7 +303,6 @@ testOnly("Basic Addition and Store Test") {
         add_w(rd = 3, rj = 1, rk = 2),             // 0x08: r3 = r1 + r2 = 300
         lu12i_w(rd=10, imm = storeAddr.toInt >> 12), // 0x0C: r10 = storeAddr base
         ori(rd=10, rj=10, imm = storeAddr.toInt & 0xFFF), // 0x10: r10 = storeAddr full
-        // FIX: Correct parameter names for st_w (rd=source, rj=base address)
         st_w(rd = 3, rj = 10, offset = 0),         // 0x14: mem[r10] = r3
         idle()                                     // 0x18: Halt CPU
       )
@@ -212,26 +315,10 @@ testOnly("Basic Addition and Store Test") {
       println("Starting execution...")
 
       // --- Monitor Commits ---
-      // FIX: New robust commit monitoring logic
-      val commitedPCs = mutable.ArrayBuffer[BigInt]()
-      val commitMonitor = fork {
-        while (true) {
-          cd.waitSampling()
-          if (dut.io.enableCommit.toBoolean && dut.io.commitValid.toBoolean) {
-            val commitPC = dut.io.commitEntry.payload.uop.decoded.pc.toBigInt
-            commitedPCs += commitPC
-            println(s"COMMIT #${commitedPCs.length}: PC=0x${commitPC.toString(16)}")
-          }
-        }
-      }
-
-      // Wait for a fixed duration, long enough for all commits and a cool-down period.
-      cd.waitSampling(8000)
-      commitMonitor.join() // Ensure collector thread finishes
+      val commitedPCs = monitorCommits(dut, cd, expectedCommitPCs.length)
 
       // --- Verify Result ---
       println("Verifying final commit count and sequence...")
-      // This assertion now catches both too few and too many commits.
       assert(commitedPCs.length == expectedCommitPCs.length, s"Expected ${expectedCommitPCs.length} commits, but got ${commitedPCs.length}")
       assert(commitedPCs.toSeq == expectedCommitPCs, s"Final PC sequence mismatch!\nExpected: $expectedCommitPCs\nGot: ${commitedPCs.toSeq}")
       
@@ -240,9 +327,7 @@ testOnly("Basic Addition and Store Test") {
 
       println("Basic Addition and Store Test passed with PC sequence and data verification!")
     }
-}
-
-  // =======================================================================
+  }
 // =====          FIXED: Branch and Memory Instructions Test         =====
 // =======================================================================
 // 修正说明：
@@ -291,20 +376,7 @@ test("Branch with Load/Store Test") {
 
       // --- Monitor Commits ---
       // FIX: New robust commit monitoring logic
-      val commitedPCs = mutable.ArrayBuffer[BigInt]()
-      val commitMonitor = fork {
-        while (true) {
-          cd.waitSampling()
-          if (dut.io.enableCommit.toBoolean && dut.io.commitValid.toBoolean) {
-            val pc = dut.io.commitEntry.payload.uop.decoded.pc.toBigInt
-            commitedPCs += pc
-            println(s"COMMIT #${commitedPCs.length}: PC=0x${pc.toString(16)}")
-          }
-        }
-      }
-
-      cd.waitSampling(8000)
-      commitMonitor.join()
+      val commitedPCs = monitorCommits(dut, cd, expectedCommitPCs.length)
       
       // --- Verify Result ---
       println("Verifying final commit count and sequence...")
@@ -371,20 +443,7 @@ test("Register and Memory State Verification via Stores") {
 
       // --- Monitor Commits ---
       // FIX: New robust commit monitoring logic
-      val commitedPCs = mutable.ArrayBuffer[BigInt]()
-      val commitMonitor = fork {
-        while(true) {
-          cd.waitSampling()
-          if (dut.io.enableCommit.toBoolean && dut.io.commitValid.toBoolean) {
-            val pc = dut.io.commitEntry.payload.uop.decoded.pc.toBigInt
-            commitedPCs += pc
-            println(s"COMMIT #${commitedPCs.length}: PC=0x${pc.toString(16)}")
-          }
-        }
-      }
-
-      cd.waitSampling(10000)
-      commitMonitor.join()
+      val commitedPCs = monitorCommits(dut, cd, expectedCommitPCs.length)
 
       // --- Verify Result ---
       println("Verifying final commit count and sequence...")
@@ -1465,58 +1524,13 @@ class CpuFullTestBench(val pCfg: PipelineConfig, val dCfg: DataCachePluginConfig
     )
   )
   
-  // Connect commit controller with IDLE instruction handling
+  // Connect commit controller - let CommitPlugin handle IDLE logic
   val commitController = framework.getService[CommitService]
   val robService = framework.getService[ROBService[RenamedUop]]
   val commitSlots = robService.getCommitSlots(pCfg.commitWidth)
   
-  // Track if IDLE instruction has been committed
-  val idleCommitted = RegInit(False)
-  val idleRobPtr = Reg(UInt(pCfg.robPtrWidth))  // Store ROB ptr of IDLE instruction
-  
-  // Check if IDLE instruction is being committed this cycle
-  val idleBeingCommitted = commitSlots.head.valid && 
-                          commitSlots.head.entry.payload.uop.decoded.uopCode === BaseUopCode.IDLE
-  
-  // Get ROB flush port for IDLE handling
-  val robFlushPort = robService.getFlushPort()
-  
-  // CRITICAL FIX: Break combinatorial loop by using delayed flush
-  // Use RegNext to delay the flush by one cycle, breaking the loop
-  val idleWasCommittedLastCycle = RegNext(idleBeingCommitted && io.enableCommit, init = False)
-  
-  // Set idleCommitted flag AFTER IDLE instruction is committed (next cycle)
-  when(idleBeingCommitted && io.enableCommit) {
-    idleCommitted := True
-    idleRobPtr := commitSlots.head.entry.payload.uop.robPtr  // Save ROB ptr for next cycle
-    report(L"[IDLE_FIX] IDLE instruction committed, will flush ROB next cycle to remove subsequent instructions")
-  }
-  
-  // Flush ROB the cycle after IDLE is committed
-  when(idleWasCommittedLastCycle) {
-    robFlushPort.valid := True
-    robFlushPort.payload.reason := FlushReason.ROLLBACK_TO_ROB_IDX
-    robFlushPort.payload.targetRobPtr := idleRobPtr + 1  // Keep IDLE and everything before it
-    report(L"[IDLE_FIX] Flushing ROB to remove instructions after IDLE at robPtr=${idleRobPtr}")
-  } otherwise {
-    robFlushPort.valid := False
-    robFlushPort.payload.reason := FlushReason.NONE
-    robFlushPort.payload.targetRobPtr := 0
-  }
-  
-  // Allow IDLE instruction to commit, but stop all commits after IDLE
-  // Use RegNext to delay the blocking by one cycle, allowing IDLE itself to commit
-  val idleCommittedDelayed = RegNext(idleCommitted, init = False)
-  val commitEnable = io.enableCommit && !idleCommittedDelayed
-  commitController.setCommitEnable(commitEnable)
-  
-  // Add debug logging for IDLE detection
-  when(idleBeingCommitted) {
-    report(L"[IDLE_DEBUG] IDLE instruction being committed this cycle")
-  }
-  when(commitEnable =/= io.enableCommit) {
-    report(L"[IDLE_DEBUG] Commit enable changed: io.enableCommit=${io.enableCommit}, idleCommitted=${idleCommitted}, commitEnable=${commitEnable}")
-  }
+  // Simple commit enable without IDLE handling - CommitPlugin handles IDLE
+  commitController.setCommitEnable(io.enableCommit)
   
   // Connect commit output
   io.commitValid := commitSlots.head.valid // Assuming commitWidth=1 for simplicity in testbench IO

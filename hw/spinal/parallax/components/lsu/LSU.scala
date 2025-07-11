@@ -200,7 +200,7 @@ class LsuPlugin(
 
         // FIXME 这里有问题，robFlushPort 应该被控制而非监听
         val robService = hw.robServiceInst
-        val robFlushPort = robService.getFlushPort()
+        val robFlushPort = robService.getFlushListeningPort()
         lqAguPort.flush := robFlushPort.valid
         sqAguPort.flush := robFlushPort.valid
 

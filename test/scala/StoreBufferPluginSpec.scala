@@ -50,7 +50,7 @@ class StoreBufferTestConnectionPlugin(
     tbIo.canRobAllocate := robService.getCanAllocateVec(pCfg.renameWidth)(0)
     tbIo.allocatedRobPtr := robAllocPorts(0).robPtr
 
-    tbIo.robFlushIn <> robService.getFlushPort()
+    tbIo.robFlushIn <> robService.newFlushPort()
 
     // Drive ROB writeback from Testbench IO
     val robWbPort = robService.newWritebackPort("TestEU")

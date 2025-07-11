@@ -109,7 +109,7 @@ class LinkerPlugin(pCfg: PipelineConfig) extends Plugin with LockedImpl {
       conn.issueQueue.io.flush := globalFlushSignal
     }
     ParallaxLogger.log("LinkerPlugin: Connected global wakeup and flush signals to all IQs.")
-    ParallaxSim.logWhen(globalFlushSignal, L"LinkerPlugin: Global FLUSH signal is asserted!")
+    ParallaxSim.logWhen(globalFlushSignal, L"LinkerPlugin: Global FLUSH_PIPELINE signal is asserted!")
 
 
     // --- 3. Connect each IQ's output to its corresponding EU's input ---

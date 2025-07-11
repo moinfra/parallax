@@ -25,6 +25,7 @@ class MockFetchServiceForBru(pCfg: PipelineConfig) extends Plugin with SimpleFet
   val fetchStreamIn = Stream(FetchedInstr(pCfg))
   override def fetchOutput(): Stream[FetchedInstr] = fetchStreamIn
   override def newRedirectPort(priority: Int): Flow[UInt] = Flow(UInt(pCfg.pcWidth))
+  override def newFetchDisablePort(): Bool = Bool()
 }
 
 // =========================================================================
@@ -101,7 +102,7 @@ class IssueToAluAndBruTestBench(val pCfg: PipelineConfig) extends Component {
   fetchService.fetchStreamIn << io.fetchStreamIn
 
   val commitController = framework.getService[CommitPlugin]
-  commitController.getCommitEnable() := io.enableCommit
+  commitController.setCommitEnable(io.enableCommit)
 
   val robService = framework.getService[ROBService[RenamedUop]]
   val commitSlot = robService.getCommitSlots(pCfg.commitWidth).head

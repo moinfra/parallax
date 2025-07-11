@@ -134,7 +134,7 @@ class BranchInstructionTestBench(val pCfg: PipelineConfig) extends Component {
   io.robFlushReason := branchEuPlugin.hw.robFlushPort.payload.reason
 
   // 提交控制连接
-  commitController.getCommitEnable() := io.enableCommit
+  commitController.setCommitEnable(io.enableCommit)
   
   // 设置fetch service为空闲
   fetchService.fetchStreamIn.valid := False

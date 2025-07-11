@@ -3,7 +3,7 @@ package parallax.components.rob
 import spinal.core._
 import spinal.lib._
 import parallax.common._
-import parallax.utilities.{Framework, Plugin, ParallaxLogger} // 导入 Plugin
+import parallax.utilities.{Framework, Plugin, ParallaxLogger, ParallaxSim} // 导入 Plugin
 import scala.collection.mutable.ArrayBuffer
 import parallax.utilities.Formattable
 
@@ -44,6 +44,12 @@ class ROBPlugin[RU <: Data with Formattable with HasRobPtr](
   // 用于分配物理 ROB 写回端口的计数器
   private var nextWbPortIdx = 0
   // private val writebackPortsLock = new Object // 用于同步分配（如果需要，但在SpinalHDL早期阶段通常单线程）
+  
+  // 用于管理多个 flush 端口的聚合
+  private val flushPortsList = ArrayBuffer[Flow[ROBFlushPayload]]()
+  
+  // 聚合信号，在late阶段填充
+  val aggregatedFlushSignal = Flow(ROBFlushPayload(robConfig.robPtrWidth))
 
   // --- 实现 ROBService 接口 ---
 
@@ -119,21 +125,79 @@ class ROBPlugin[RU <: Data with Formattable with HasRobPtr](
         s"ROBPlugin: Requested commitAcks width ($width) does not match ROB config commitWidth (${robConfig.commitWidth})"
       )
     }
-    robComponent.io.commitFire
+    robComponent.io.commitAck
   }
 
   // 清空/恢复阶段
-  override def getFlushPort(): (Flow[ROBFlushPayload]) = {
-    // robComponent.io.flush 已经是 slave Flow(ROBFlushCommand[RU])，
-    // 提供给外部的 Flusher 阶段需要 master 视角。
-    // 这里直接返回 robComponent.io.flush，SpinalHDL 会自动处理方向。
-    robComponent.io.flush
+  override def newFlushPort(): (Flow[ROBFlushPayload]) = {
+    // 创建一个新的 flush 端口
+    val flushPort = Flow(ROBFlushPayload(robConfig.robPtrWidth))
+    
+    // 将其添加到 flush 端口列表中
+    flushPortsList += flushPort
+    
+    ParallaxLogger.log(s"ROBPlugin: Created flush port ${flushPortsList.size}. Total flush ports: ${flushPortsList.size}")
+    
+    // 返回新创建的端口
+    flushPort
   }
 
+  override def getFlushListeningPort(): (Flow[ROBFlushPayload]) = {
+    // 返回聚合信号而不是直接返回 robComponent.io.flush
+    // 这样其他服务可以监听聚合后的flush信号
+    aggregatedFlushSignal
+  }
   // ROBPlugin 可能还有自己的 setup/logic 区域来处理一些初始化或全局逻辑，
   // 但主要的服务实现是通过连接到 robComponent.io。
   val logic = create late new Area {
     ParallaxLogger.log(s"ROBPlugin logic area entered. ROB component IO is now connected via service methods.")
+    
+    // 聚合所有 flush 端口的信号
+    if (flushPortsList.nonEmpty) {
+      // 使用 OR 逻辑聚合所有 flush 端口的 valid 信号，模仿DataCachePlugin的reduceBalancedTree
+      val aggregatedValid = flushPortsList.map(_.valid).reduceBalancedTree(_ || _)
+      aggregatedFlushSignal.valid := aggregatedValid
+      
+      // 当有任何一个 flush 端口有效时，使用优先级选择逻辑选择第一个有效端口的 payload
+      // 这里采用优先级选择逻辑，优先级按照端口创建顺序
+      val aggregatedPayload = ROBFlushPayload(robConfig.robPtrWidth)
+      aggregatedPayload.assignDontCare()
+      
+      // 从后往前遍历，后面的端口优先级更高（覆盖前面的）
+      for (flushPort <- flushPortsList.reverse) {
+        when(flushPort.valid) {
+          aggregatedPayload := flushPort.payload
+        }
+      }
+      aggregatedFlushSignal.payload := aggregatedPayload
+      
+      ParallaxLogger.log(s"ROBPlugin: Aggregated ${flushPortsList.size} flush ports with OR logic")
+      
+      // 添加调试日志
+      when(aggregatedFlushSignal.valid) {
+        report(L"[ROBPlugin] Aggregated flush signal is valid! Total ports: ${flushPortsList.size}")
+      }
+      for (i <- flushPortsList.indices) {
+        when(flushPortsList(i).valid) {
+          report(L"[ROBPlugin] Flush port ${i} is valid (reason=${flushPortsList(i).payload.reason})")
+        }
+      }
+    } else {
+      // 如果没有 flush 端口，则保持聚合信号为无效
+      aggregatedFlushSignal.valid := False
+      aggregatedFlushSignal.payload.assignDontCare()
+      ParallaxLogger.log(s"ROBPlugin: No flush ports created, keeping aggregated signal invalid")
+    }
+    
+    // 将聚合信号连接到 ROB 组件，直接连接而不使用<<操作符
+    robComponent.io.flush.valid := aggregatedFlushSignal.valid
+    robComponent.io.flush.payload := aggregatedFlushSignal.payload
+    
+    // 添加调试日志
+    when(robComponent.io.flush.valid) {
+      report(L"[ROBPlugin] ROB component flush input is valid!")
+    }
+    
     // 如果 robComponent 需要在 late 阶段进行某些连接或构建，可以在这里完成。
     // 例如，如果 robComponent 内部有复杂的流水线，其 .build() 可能在这里调用。
     // 但通常组件的构建在其自身内部完成。

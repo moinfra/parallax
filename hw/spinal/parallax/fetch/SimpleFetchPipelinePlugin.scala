@@ -55,6 +55,13 @@ trait SimpleFetchPipelineService extends Service with LockedImpl {
     * @return A Flow port to be driven by the requesting module.
     */
   def newRedirectPort(priority: Int): Flow[UInt]
+  
+  /**
+    * Requests a new port for external fetch control (e.g., IDLE state).
+    * When any connected port is high, fetch operations will be suspended.
+    * @return A Bool signal to be driven by the requesting module.
+    */
+  def newFetchDisablePort(): Bool
 }
 
 // ========================================================================
@@ -77,10 +84,19 @@ class SimpleFetchPipelinePlugin(
 
   // --- Service Implementation: Collect redirect requests ---
   private val hardRedirectPorts = mutable.ArrayBuffer[(Int, Flow[UInt])]()
+  private val fetchDisablePorts = mutable.ArrayBuffer[Bool]()
+  
   override def newRedirectPort(priority: Int): Flow[UInt] = {
     framework.requireEarly()
     val port = Flow(UInt(pCfg.pcWidth))
     hardRedirectPorts += (priority -> port)
+    port
+  }
+  
+  override def newFetchDisablePort(): Bool = {
+    framework.requireEarly()
+    val port = Bool()
+    fetchDisablePorts += port
     port
   }
 
@@ -177,21 +193,36 @@ val doJumpRedirect = unpackedStream.valid && unpackedInstr.predecode.isDirectJum
     
     // Hard Redirect (from backend)
     
-    // --- Control FSM ---
+    // --- Control FSM with Fetch Disable Support ---
+    val fetchDisable = if (fetchDisablePorts.nonEmpty) fetchDisablePorts.orR else False
+    
     val fsm = new StateMachine {
         val IDLE = new State with EntryPoint
         val WAITING = new State
         val UPDATE_PC = new State
+        val DISABLED = new State  // New state for when fetch is disabled
 
         ifuPort.cmd.valid := False
         ifuPort.cmd.pc := fetchPc
 
         IDLE.whenIsActive {
-            ifuPort.cmd.valid := True
-            when(ifuPort.cmd.fire) {
-                pcOnRequest := fetchPc
-                if(enableLog) report(L"[FSM] IDLE->WAITING: IFU cmd fired, pcOnRequest=0x${fetchPc}")
-                goto(WAITING)
+            when(fetchDisable) {
+                if(enableLog) report(L"[FSM] IDLE->DISABLED: Fetch disabled")
+                goto(DISABLED)
+            } .otherwise {
+                ifuPort.cmd.valid := True
+                when(ifuPort.cmd.fire) {
+                    pcOnRequest := fetchPc
+                    if(enableLog) report(L"[FSM] IDLE->WAITING: IFU cmd fired, pcOnRequest=0x${fetchPc}")
+                    goto(WAITING)
+                }
+            }
+        }
+        
+        DISABLED.whenIsActive {
+            when(!fetchDisable) {
+                if(enableLog) report(L"[FSM] DISABLED->IDLE: Fetch re-enabled")
+                goto(IDLE)
             }
         }
 
@@ -199,7 +230,10 @@ val doJumpRedirect = unpackedStream.valid && unpackedInstr.predecode.isDirectJum
         val unpackerJustFinished = unpackerWasBusy && !unpacker.io.isBusy
 
         WAITING.whenIsActive {
-            when(doSoftRedirect) {
+            when(fetchDisable) {
+                if(enableLog) report(L"[FSM] WAITING->DISABLED: Fetch disabled")
+                goto(DISABLED)
+            } .elsewhen(doSoftRedirect) {
                 fetchPc := softRedirectTarget
                 if(enableLog) report(L"[FSM] WAITING->IDLE: Soft redirect to 0x${softRedirectTarget}")
                 goto(IDLE)
@@ -213,10 +247,15 @@ val doJumpRedirect = unpackedStream.valid && unpackedInstr.predecode.isDirectJum
         }
         
         UPDATE_PC.whenIsActive {
-            // Normal PC increment by fetch group size (8 bytes for fetchWidth=2)
-            if(enableLog) report(L"[FSM] UPDATE_PC: Normal PC update from 0x${pcOnRequest} to 0x${pcOnRequest + ifuCfg.bytesPerFetchGroup}")
-            fetchPc := pcOnRequest + ifuCfg.bytesPerFetchGroup
-            goto(IDLE)
+            when(fetchDisable) {
+                if(enableLog) report(L"[FSM] UPDATE_PC->DISABLED: Fetch disabled")
+                goto(DISABLED)
+            } .otherwise {
+                // Normal PC increment by fetch group size (8 bytes for fetchWidth=2)
+                if(enableLog) report(L"[FSM] UPDATE_PC: Normal PC update from 0x${pcOnRequest} to 0x${pcOnRequest + ifuCfg.bytesPerFetchGroup}")
+                fetchPc := pcOnRequest + ifuCfg.bytesPerFetchGroup
+                goto(IDLE)
+            }
         }
 
         always {
@@ -249,7 +288,7 @@ val doJumpRedirect = unpackedStream.valid && unpackedInstr.predecode.isDirectJum
             L"FILTERED(valid=${filteredStream.valid}, fire=${filteredStream.fire}) | ",
             L"BPU(QueryFire=${bpuQueryPort.fire}, RspValid=${bpuResponse.valid}, RspTaken=${bpuResponse.isTaken}) | ",
             L"JUMP(do=${doJumpRedirect}, target=0x${jumpTarget}) | ",
-            L"REDIRECT(Soft=${doSoftRedirect}, Hard=${doHardRedirect}, Target=0x${softRedirectTarget}) | ",
+            L"REDIRECT(Soft=${doSoftRedirect}, Hard=${doHardRedirect}, Soft Target=0x${softRedirectTarget}) | Hard Target=0x${hw.redirectFlowInst.payload}) | ",
             L"FLUSH(needs=${needsFlush}, outFifo=${outputFifo.io.flush}) | ",
             L"UNPACK_STATE(busy=${unpacker.io.isBusy}, fin=${fsm.unpackerJustFinished}) | ",
             L"FIFOS(rsp=${ifuRspFifo.io.occupancy}, out=${outputFifo.io.occupancy})"

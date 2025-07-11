@@ -158,7 +158,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
     require(fires.length == dutIo.config.commitWidth)
     ParallaxLogger.log(s"[TB] Driving CommitFire - Fires: ${fires.mkString(",")}")
     for (i <- 0 until dutIo.config.commitWidth) {
-      dutIo.commitFire(i) #= fires(i)
+      dutIo.commitAck(i) #= fires(i)
     }
     sleep(1)
   }

@@ -79,7 +79,7 @@ class TestFlusherLogicHolder(id: String, val pCfg: PipelineConfig) extends Plugi
 
   val setup = create early new Area {
     val robService = getService[ROBService[DummyUop2]]
-    flushPortToService = robService.getFlushPort()
+    flushPortToService = robService.newFlushPort()
   }
 }
 
@@ -515,6 +515,253 @@ class ROBPluginSpec extends CustomSpinalSimFunSuite {
       assert(canAlloc0, "Should be able to allocate further after first allocation post-flush")
 
       println("Test 'ROBPlugin - Flush Empty ROB' PASSED")
+    }
+  }
+
+  test("ROBPlugin - Multiple Flush Ports Aggregation") {
+    val currentTestCfg = pCfgBase // robD = 8
+    val tbCfg = TestBenchConfig(pCfg = currentTestCfg, numEus = currentTestCfg.totalEuCount)
+    
+    // 创建一个简化的测试，只测试多个flush端口
+    class SimpleMultiFlushTest extends Component {
+      val robPlugin = new ROBPlugin(currentTestCfg, HardType(DummyUop2(currentTestCfg)), () => DummyUop2(currentTestCfg).setDefault())
+      val framework = new Framework(List(robPlugin))
+      
+      // 获取ROB服务并创建多个flush端口
+      val robService = framework.getService[ROBService[DummyUop2]]
+      val flushPort1 = robService.newFlushPort()
+      val flushPort2 = robService.newFlushPort() 
+      val flushPort3 = robService.newFlushPort()
+      val listeningPort = robService.getFlushListeningPort()
+      
+      // 测试IO
+      val flush1Valid = in Bool()
+      val flush2Valid = in Bool()
+      val flush3Valid = in Bool()
+      val flush1Reason = in(FlushReason())
+      val flush2Reason = in(FlushReason())
+      val flush3Reason = in(FlushReason())
+      val flush1Target = in UInt(log2Up(currentTestCfg.robDepth) + 1 bits)
+      val flush2Target = in UInt(log2Up(currentTestCfg.robDepth) + 1 bits)
+      val flush3Target = in UInt(log2Up(currentTestCfg.robDepth) + 1 bits)
+      
+      val aggregatedValid = out Bool()
+      val aggregatedReason = out(FlushReason())
+      val aggregatedTarget = out UInt(log2Up(currentTestCfg.robDepth) + 1 bits)
+      
+      // 连接flush端口
+      flushPort1.valid := flush1Valid
+      flushPort1.payload.reason := flush1Reason
+      flushPort1.payload.targetRobPtr := flush1Target
+      
+      flushPort2.valid := flush2Valid
+      flushPort2.payload.reason := flush2Reason
+      flushPort2.payload.targetRobPtr := flush2Target
+      
+      flushPort3.valid := flush3Valid
+      flushPort3.payload.reason := flush3Reason
+      flushPort3.payload.targetRobPtr := flush3Target
+      
+      // 观察聚合结果
+      aggregatedValid := listeningPort.valid
+      aggregatedReason := listeningPort.payload.reason
+      aggregatedTarget := listeningPort.payload.targetRobPtr
+    }
+    
+    val dut = simConfig.compile(new SimpleMultiFlushTest)
+    dut.doSim { dut =>
+      dut.clockDomain.forkStimulus(period = 10)
+      
+      // 初始化
+      dut.flush1Valid #= false
+      dut.flush2Valid #= false
+      dut.flush3Valid #= false
+      dut.flush1Reason #= FlushReason.NONE
+      dut.flush2Reason #= FlushReason.NONE
+      dut.flush3Reason #= FlushReason.NONE
+      dut.flush1Target #= 0
+      dut.flush2Target #= 0
+      dut.flush3Target #= 0
+      dut.clockDomain.waitSampling(2)
+      
+      println("Test 1: No flush - aggregated should be invalid")
+      assert(!dut.aggregatedValid.toBoolean, "Aggregated signal should be invalid when no flush is active")
+      
+      println("Test 2: Single flush port 1")
+      dut.flush1Valid #= true
+      dut.flush1Reason #= FlushReason.FULL_FLUSH
+      dut.flush1Target #= 0
+      dut.clockDomain.waitSampling(1)
+      assert(dut.aggregatedValid.toBoolean, "Aggregated signal should be valid when port 1 is active")
+      assert(dut.aggregatedReason.toEnum == FlushReason.FULL_FLUSH, "Should forward port 1 reason")
+      assert(dut.aggregatedTarget.toInt == 0, "Should forward port 1 target")
+      dut.flush1Valid #= false
+      dut.clockDomain.waitSampling(1)
+      
+      println("Test 3: Single flush port 2")
+      dut.flush2Valid #= true
+      dut.flush2Reason #= FlushReason.ROLLBACK_TO_ROB_IDX
+      dut.flush2Target #= 3
+      dut.clockDomain.waitSampling(1)
+      assert(dut.aggregatedValid.toBoolean, "Aggregated signal should be valid when port 2 is active")
+      assert(dut.aggregatedReason.toEnum == FlushReason.ROLLBACK_TO_ROB_IDX, "Should forward port 2 reason")
+      assert(dut.aggregatedTarget.toInt == 3, "Should forward port 2 target")
+      dut.flush2Valid #= false
+      dut.clockDomain.waitSampling(1)
+      
+      println("Test 4: Multiple flush ports (should see port 1 priority)")
+      dut.flush1Valid #= true
+      dut.flush2Valid #= true
+      dut.flush3Valid #= true
+      dut.flush1Reason #= FlushReason.FULL_FLUSH
+      dut.flush2Reason #= FlushReason.ROLLBACK_TO_ROB_IDX
+      dut.flush3Reason #= FlushReason.ROLLBACK_TO_ROB_IDX
+      dut.flush1Target #= 1
+      dut.flush2Target #= 2
+      dut.flush3Target #= 5
+      dut.clockDomain.waitSampling(1)
+      assert(dut.aggregatedValid.toBoolean, "Aggregated signal should be valid when multiple ports are active")
+      // 从日志看来，端口1（索引0）具有最高优先级
+      assert(dut.aggregatedReason.toEnum == FlushReason.FULL_FLUSH, "Should forward port 1 reason")
+      assert(dut.aggregatedTarget.toInt == 1, "Should forward port 1 target")
+      dut.flush1Valid #= false
+      dut.flush2Valid #= false  
+      dut.flush3Valid #= false
+      dut.clockDomain.waitSampling(1)
+      
+      println("Test 'ROBPlugin - Multiple Flush Ports Aggregation' PASSED")
+    }
+  }
+
+  test("ROBPlugin - Multiple Flush Listeners") {
+    val currentTestCfg = pCfgBase // robD = 8
+    
+    // 创建一个测试，验证多个监听者都能收到flush信号
+    class MultiListenerFlushTest extends Component {
+      val robPlugin = new ROBPlugin(currentTestCfg, HardType(DummyUop2(currentTestCfg)), () => DummyUop2(currentTestCfg).setDefault())
+      val framework = new Framework(List(robPlugin))
+      
+      // 获取ROB服务
+      val robService = framework.getService[ROBService[DummyUop2]]
+      
+      // 创建多个flush端口（发送者）
+      val flushPort1 = robService.newFlushPort()
+      val flushPort2 = robService.newFlushPort()
+      
+      // 创建多个监听端口（接收者）
+      val listener1 = robService.getFlushListeningPort()
+      val listener2 = robService.getFlushListeningPort()
+      val listener3 = robService.getFlushListeningPort()
+      
+      // 测试IO - 发送者控制
+      val flush1Valid = in Bool()
+      val flush2Valid = in Bool()
+      val flush1Reason = in(FlushReason())
+      val flush2Reason = in(FlushReason())
+      val flush1Target = in UInt(log2Up(currentTestCfg.robDepth) + 1 bits)
+      val flush2Target = in UInt(log2Up(currentTestCfg.robDepth) + 1 bits)
+      
+      // 测试IO - 监听者观察
+      val listener1Valid = out Bool()
+      val listener2Valid = out Bool()
+      val listener3Valid = out Bool()
+      val listener1Reason = out(FlushReason())
+      val listener2Reason = out(FlushReason())
+      val listener3Reason = out(FlushReason())
+      val listener1Target = out UInt(log2Up(currentTestCfg.robDepth) + 1 bits)
+      val listener2Target = out UInt(log2Up(currentTestCfg.robDepth) + 1 bits)
+      val listener3Target = out UInt(log2Up(currentTestCfg.robDepth) + 1 bits)
+      
+      // 连接发送者
+      flushPort1.valid := flush1Valid
+      flushPort1.payload.reason := flush1Reason
+      flushPort1.payload.targetRobPtr := flush1Target
+      
+      flushPort2.valid := flush2Valid
+      flushPort2.payload.reason := flush2Reason
+      flushPort2.payload.targetRobPtr := flush2Target
+      
+      // 连接监听者
+      listener1Valid := listener1.valid
+      listener1Reason := listener1.payload.reason
+      listener1Target := listener1.payload.targetRobPtr
+      
+      listener2Valid := listener2.valid
+      listener2Reason := listener2.payload.reason
+      listener2Target := listener2.payload.targetRobPtr
+      
+      listener3Valid := listener3.valid
+      listener3Reason := listener3.payload.reason
+      listener3Target := listener3.payload.targetRobPtr
+    }
+    
+    val dut = simConfig.compile(new MultiListenerFlushTest)
+    dut.doSim { dut =>
+      dut.clockDomain.forkStimulus(period = 10)
+      
+      // 初始化
+      dut.flush1Valid #= false
+      dut.flush2Valid #= false
+      dut.flush1Reason #= FlushReason.NONE
+      dut.flush2Reason #= FlushReason.NONE
+      dut.flush1Target #= 0
+      dut.flush2Target #= 0
+      dut.clockDomain.waitSampling(2)
+      
+      println("Test 1: No flush - all listeners should be invalid")
+      assert(!dut.listener1Valid.toBoolean, "Listener 1 should be invalid when no flush")
+      assert(!dut.listener2Valid.toBoolean, "Listener 2 should be invalid when no flush")
+      assert(!dut.listener3Valid.toBoolean, "Listener 3 should be invalid when no flush")
+      
+      println("Test 2: Single flush - all listeners should receive the same signal")
+      dut.flush1Valid #= true
+      dut.flush1Reason #= FlushReason.FULL_FLUSH
+      dut.flush1Target #= 7
+      dut.clockDomain.waitSampling(1)
+      
+      // 验证所有监听者都收到相同的信号
+      assert(dut.listener1Valid.toBoolean, "Listener 1 should be valid")
+      assert(dut.listener2Valid.toBoolean, "Listener 2 should be valid")
+      assert(dut.listener3Valid.toBoolean, "Listener 3 should be valid")
+      
+      assert(dut.listener1Reason.toEnum == FlushReason.FULL_FLUSH, "Listener 1 should receive correct reason")
+      assert(dut.listener2Reason.toEnum == FlushReason.FULL_FLUSH, "Listener 2 should receive correct reason")
+      assert(dut.listener3Reason.toEnum == FlushReason.FULL_FLUSH, "Listener 3 should receive correct reason")
+      
+      assert(dut.listener1Target.toInt == 7, "Listener 1 should receive correct target")
+      assert(dut.listener2Target.toInt == 7, "Listener 2 should receive correct target")
+      assert(dut.listener3Target.toInt == 7, "Listener 3 should receive correct target")
+      
+      dut.flush1Valid #= false
+      dut.clockDomain.waitSampling(1)
+      
+      println("Test 3: Multiple flush sources - all listeners should receive aggregated signal")
+      dut.flush1Valid #= true
+      dut.flush2Valid #= true
+      dut.flush1Reason #= FlushReason.FULL_FLUSH
+      dut.flush2Reason #= FlushReason.ROLLBACK_TO_ROB_IDX
+      dut.flush1Target #= 3
+      dut.flush2Target #= 5
+      dut.clockDomain.waitSampling(1)
+      
+      // 根据优先级逻辑，应该看到端口1的信号（FULL_FLUSH, target=3）
+      assert(dut.listener1Valid.toBoolean, "Listener 1 should be valid during multi-flush")
+      assert(dut.listener2Valid.toBoolean, "Listener 2 should be valid during multi-flush")
+      assert(dut.listener3Valid.toBoolean, "Listener 3 should be valid during multi-flush")
+      
+      assert(dut.listener1Reason.toEnum == FlushReason.FULL_FLUSH, "Listener 1 should receive priority signal")
+      assert(dut.listener2Reason.toEnum == FlushReason.FULL_FLUSH, "Listener 2 should receive priority signal")
+      assert(dut.listener3Reason.toEnum == FlushReason.FULL_FLUSH, "Listener 3 should receive priority signal")
+      
+      assert(dut.listener1Target.toInt == 3, "Listener 1 should receive priority target")
+      assert(dut.listener2Target.toInt == 3, "Listener 2 should receive priority target")
+      assert(dut.listener3Target.toInt == 3, "Listener 3 should receive priority target")
+      
+      dut.flush1Valid #= false
+      dut.flush2Valid #= false
+      dut.clockDomain.waitSampling(1)
+      
+      println("Test 'ROBPlugin - Multiple Flush Listeners' PASSED")
     }
   }
 

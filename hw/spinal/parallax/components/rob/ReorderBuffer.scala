@@ -126,7 +126,7 @@ case class ROBWritebackPort[RU <: Data with Formattable with HasRobPtr](config: 
 case class ROBCommitSlot[RU <: Data with Formattable with HasRobPtr](config: ROBConfig[RU])
     extends Bundle
     with IMasterSlave {
-  val valid = Bool()
+  val valid = Bool() // ok to commit
   val entry = ROBFullEntry(config)
 
   override def asMaster(): Unit = {
@@ -146,7 +146,7 @@ case class ROBIo[RU <: Data with Formattable with HasRobPtr](config: ROBConfig[R
   val canAllocate = out Vec (Bool(), config.allocateWidth)
   val writeback = Vec(master(ROBWritebackPort(config)), config.numWritebackPorts)
   val commit = Vec(slave(ROBCommitSlot(config)), config.commitWidth)
-  val commitFire = in Vec (Bool(), config.commitWidth)
+  val commitAck = in Vec (Bool(), config.commitWidth)
   val flush = slave Flow (ROBFlushPayload(config.robPtrWidth))
   val flushed = out Bool ()
   val empty = out Bool ()
@@ -161,7 +161,7 @@ case class ROBIo[RU <: Data with Formattable with HasRobPtr](config: ROBConfig[R
     master(flush)
     in(flushed)
     in(canAllocate)
-    out(commitFire)
+    out(commitAck)
     in(empty, headPtrOut, tailPtrOut, countOut)
   }
 }
@@ -224,20 +224,21 @@ class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfi
   // CRITICAL FIX: Enhanced flush state tracking with pipeline delay to prevent timing races
   // The core issue is that flush signals arrive at the exact same cycle as commit decisions,
   // creating a race condition where speculative instructions commit before flush takes effect
-  val flushInProgress = RegInit(False) 
+  val flushInProgressReg = RegInit(False) 
   val flushWasActiveLastCycle = RegNext(io.flush.valid, False)  // KEY: Previous cycle flush detection
   val flushProcessedThisCycle = io.flush.valid
   
   // Multi-cycle flush state management for robust timing
   when(io.flush.valid) {
-    flushInProgress := True
+    flushInProgressReg := True
   } elsewhen(flushWasActiveLastCycle) {
-    flushInProgress := False  // Clear flush state the cycle after flush was processed
+    flushInProgressReg := False  // Clear flush state the cycle after flush was processed
   }
   
   if(enableLog) when(io.flush.valid) {
     report(L"[ROB] FLUSH_STATE: Starting flush, setting flushInProgress=True")
   }
+
   if(enableLog) when(flushWasActiveLastCycle) {
     report(L"[ROB] FLUSH_STATE: Clearing flushInProgress after flush processing")
   }
@@ -251,9 +252,7 @@ class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfi
     val currentCommitGenBit = currentCommitFullIdx.msb
     val currentStatus = statuses(currentCommitPhysIdx)
     
-    // ENHANCED FIX: Multi-cycle flush protection with previous cycle detection
-    // Block commits if: flush active this cycle, flush in progress, OR flush was active last cycle
-    val flushBlocking = io.flush.valid || flushInProgress || flushWasActiveLastCycle
+    val flushBlocking = io.flush.valid || flushInProgressReg || flushWasActiveLastCycle
     canCommitFlags(i) := !flushBlocking && 
                         (count_reg > U(i)) && currentStatus.done && (currentCommitGenBit === currentStatus.genBit)
     
@@ -262,12 +261,12 @@ class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfi
     io.commit(i).entry.status := currentStatus
 
     val prevCommitsAccepted = if (i == 0) True else actualCommittedMask(i - 1)
-    actualCommittedMask(i) := prevCommitsAccepted && canCommitFlags(i) && io.commitFire(i)
+    actualCommittedMask(i) := prevCommitsAccepted && canCommitFlags(i) && io.commitAck(i)
 
     if(enableLog) when(count_reg > U(i)) {
-      report(L"[ROB] COMMIT_CHECK[${i}]: ptr=${currentCommitFullIdx}, done=${currentStatus.done}, genMatch=${currentCommitGenBit === currentStatus.genBit}, flushBlocking=${flushBlocking} -> canCommit=${canCommitFlags(i)}. ExternalFire=${io.commitFire(i)} -> actualCommit=${actualCommittedMask(i)}")
+      report(L"[ROB] COMMIT_CHECK[${i}]: ptr=${currentCommitFullIdx}, done=${currentStatus.done}, genMatch=${currentCommitGenBit === currentStatus.genBit}, flushBlocking=${flushBlocking} -> canCommitFlags(i)=${canCommitFlags(i)}. io.commitAck(i)=${io.commitAck(i)} -> actualCommit=${actualCommittedMask(i)}")
       when(flushBlocking) {
-        report(L"[ROB] COMMIT_BLOCKED[${i}]: Commit blocked due to flush (current=${io.flush.valid}, inProgress=${flushInProgress}, wasActive=${flushWasActiveLastCycle})")
+        report(L"[ROB] COMMIT_BLOCKED[${i}]: Commit blocked due to flush (current=${io.flush.valid}, inProgress=${flushInProgressReg}, wasActive=${flushWasActiveLastCycle})")
       }
     }
   }

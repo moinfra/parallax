@@ -92,6 +92,7 @@ class MockFetchService(pCfg: PipelineConfig) extends Plugin with SimpleFetchPipe
   val fetchStreamIn = Stream(FetchedInstr(pCfg))
   override def fetchOutput(): Stream[FetchedInstr] = fetchStreamIn
   override def newRedirectPort(priority: Int): Flow[UInt] = Flow(UInt(pCfg.pcWidth))
+  override def newFetchDisablePort(): Bool = Bool()
 }
 
 // -- MODIFICATION START: Add enableCommit control to MockControllerPlugin --
@@ -261,7 +262,7 @@ class SimpleIssuePipelineTestBench(
     issueEntryStage(issueSignals.FLUSH_PIPELINE) := False
     issueEntryStage(issueSignals.FLUSH_TARGET_PC) := 0
 
-    robService.getFlushPort().setIdle()
+    robService.newFlushPort().setIdle()
 
     val wbPortFromTest = robService.newWritebackPort("TestBench_WB_From_Test")
     wbPortFromTest <> io.testWbPort

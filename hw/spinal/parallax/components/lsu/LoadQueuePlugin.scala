@@ -160,7 +160,7 @@ class LoadQueuePlugin(
         val dCacheLoadPort   = hw.dCacheLoadPort
         val robLoadWritebackPort = hw.robLoadWritebackPort
         val prfWritePort     = hw.prfWritePort
-        val robFlushPort = hw.robServiceInst.getFlushPort()
+        val robFlushPort = hw.robServiceInst.getFlushListeningPort()
 
         // Store Path Area is completely removed.
 

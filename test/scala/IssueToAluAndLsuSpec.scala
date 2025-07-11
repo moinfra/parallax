@@ -59,13 +59,14 @@ class MockFetchServiceForLsu(pCfg: PipelineConfig) extends Plugin with SimpleFet
   val fetchStreamIn = Stream(FetchedInstr(pCfg))
   override def fetchOutput(): Stream[FetchedInstr] = fetchStreamIn
   override def newRedirectPort(priority: Int): Flow[UInt] = Flow(UInt(pCfg.pcWidth))
+  override def newFetchDisablePort(): Bool = Bool()
 }
 
 // Mock flush source to provide default values for ROB flush signals
 class MockFlushService(pCfg: PipelineConfig) extends Plugin {
   val logic = create late new Area {
     val robService = getService[ROBService[RenamedUop]]
-    val robFlushPort = robService.getFlushPort()
+    val robFlushPort = robService.newFlushPort()
     
     // Create a register to drive targetRobPtr to avoid constant optimization issues
     val flushTargetReg = Reg(UInt(pCfg.robPtrWidth)) init(0)
@@ -197,7 +198,7 @@ new RenamePlugin(pCfg, renameMapConfig, flConfig),
   fetchService.fetchStreamIn << io.fetchStreamIn
 
   val commitController = framework.getService[CommitPlugin]
-  commitController.getCommitEnable() := io.enableCommit
+  commitController.setCommitEnable(io.enableCommit)
 
   val robService = framework.getService[ROBService[RenamedUop]]
   val commitSlot = robService.getCommitSlots(pCfg.commitWidth).head
