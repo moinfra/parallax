@@ -5,7 +5,6 @@ import spinal.core._
 import spinal.lib._
 import parallax.components.rob.ROBFlushPayload // 假设 ROBFlushPayload 是可访问的
 import parallax.common.HasRobPtr
-import parallax.components.lsu.AguInput
 import parallax.common.RenamedUop
 import parallax.common.PipelineConfig
 import parallax.common.MemAccessSize
@@ -170,7 +169,7 @@ case class StoreQueueEntry(
   val aguBasePhysReg = UInt(lsuConfig.physGprIdxWidth)
   val aguBaseIsFpr = Bool()
   val aguUsePcAsBase = Bool()
-  val aguImmediate = SInt(12 bits)
+  val aguImmediate = SInt(lsuConfig.dataWidth)
 
   val accessSize = MemAccessSize()
   // --- Dynamic Info ---

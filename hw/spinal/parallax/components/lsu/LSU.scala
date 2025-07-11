@@ -24,7 +24,7 @@ case class LsuInputCmd(pCfg: PipelineConfig) extends Bundle {
   val isFlush       = Bool()
 
   val baseReg       = UInt(pCfg.physGprIdxWidth)
-  val immediate     = SInt(12 bits)
+  val immediate     = SInt(pCfg.dataWidth)
   val usePc         = Bool()
   val pc            = UInt(pCfg.pcWidth)
 
@@ -353,7 +353,7 @@ class LsuPlugin(
                 val newSlot = slotsAfterUpdates(pushIdx)
                 val rsp = aguRsp.payload
                 
-                // newSlot.initFromAguOutput(rsp)
+                newSlot.initFromAguOutput(rsp)
                 ParallaxSim.log(L"[LQ] PUSH from AGU: robPtr=${rsp.robPtr} addr=${rsp.address} to slotIdx=${pushIdx}")
             }
 

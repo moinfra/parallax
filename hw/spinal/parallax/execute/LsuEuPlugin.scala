@@ -53,7 +53,7 @@ class LsuEuPlugin(
     val robFlushPort = robServiceInst.getFlushPort()
 
     // 保留服务
-        robServiceInst.retain() // 保留服务
+    robServiceInst.retain() // 保留服务
     aguServiceInst.retain()
     storeBufferServiceInst.retain()
     loadQueueServiceInst.retain()
@@ -75,17 +75,17 @@ class LsuEuPlugin(
     // --- 2. 将EU输入流转换为AGU输入流 ---
     val aguInStream = euIn.translateWith {
       val aguCmd = AguInput(lsuConfig)
-      aguCmd.qPtr        := 0 // AGU内部使用的指针，这里用不到
+      aguCmd.qPtr        := 0
       aguCmd.basePhysReg := uop.src1Tag
       aguCmd.immediate   := uop.imm.asSInt
       aguCmd.accessSize  := uop.memCtrl.size
-      aguCmd.usePc       := False // 假设PC相对寻址已在解码阶段处理
-      aguCmd.pc          := 0
-      aguCmd.dataReg     := uop.src2Tag // AGU需要知道从哪个寄存器读store data
+      aguCmd.usePc       := uop.usePc
+      aguCmd.pc          := uop.pcData
+      aguCmd.dataReg     := uop.src2Tag
       aguCmd.robPtr      := uop.robPtr
       aguCmd.isLoad      := !isStore
       aguCmd.isStore     := isStore
-      aguCmd.isFlush     := False // Flush由ROB直接控制AGU
+      aguCmd.isFlush     := False
       aguCmd.physDst     := uop.physDest.idx
       aguCmd
     }
@@ -127,39 +127,51 @@ class LsuEuPlugin(
         cmd
     }
 
-    // --- 4. 驱动 EuBasePlugin 的结果契约 ---
-    // EU的"完成"事件，就是成功将AGU的结果推送到后端队列。
-    // 这两个fire信号是互斥的，可以直接或操作。
+    // --- 4. 驱动 EuBasePlugin 的结果契约 (修正版) ---
     val dispatchCompleted = hw.lqPushPort.fire || hw.sbPushPort.fire
+    val isStoreDispatch = hw.sbPushPort.fire
 
-    // 我们需要知道是哪个AGU输出的信息触发了完成事件。
-    // 因为lqPushPort和sbPushPort的valid信号直接来自aguOutStream.valid，
-    // 所以当它们fire时，aguOutStream.payload中的数据是有效的。
+    // 默认情况下，euResult 无效，这个赋值在基类已经做了，这里注释掉
+    // euResult.valid := False
+
+
+    // 只有当分派事件发生时才进行处理
     when(dispatchCompleted) {
+        ParallaxSim.logWhen(aguOutPayload.isLoad, L"[LsuEu] Dispatched LOAD to LQ: robPtr=${aguOutPayload.robPtr}")
+        ParallaxSim.logWhen(aguOutPayload.isStore, L"[LsuEu] Dispatched STORE to SB: robPtr=${aguOutPayload.robPtr}")
+        
+        // =======================================================================
+    // >> 关键修正 <<
+    // =======================================================================
+    // 对于Store指令，进入Store Buffer就可以认为其“执行阶段”完成。
+    // ROB可以继续处理，等待该Store指令成为队头再提交到内存。
+    // 因此，Store指令需要在此处向ROB报告完成。
+    //
+    // 对于Load指令，进入Load Queue仅仅是开始。它必须等待数据返回。
+    // 因此，LsuEu绝对不能在此处为Load指令报告完成。这个责任完全在LoadQueuePlugin。
+    when(isStoreDispatch) {
         euResult.valid := True
         
-        // `euResult.uop` 无法完美重建，因为AGU输出没有携带所有原始uop信息。
-        // 但根据EuBasePlugin的实现，下游（ROB，Bypass等）主要关心
-        // robPtr, physDest, writesToPreg, 和异常信息。我们填充这些关键字段。
-        euResult.uop.robPtr       := aguOutPayload.robPtr
-        euResult.uop.physDest.idx     := aguOutPayload.physDst.andMask(aguOutPayload.isLoad) // Store没有pdest
-        euResult.uop.writesToPhysReg := aguOutPayload.isLoad // 只有Load指令最终会写回（由LQ完成）
+        // 填充ROB需要的信息
+        euResult.uop.robPtr          := aguOutPayload.robPtr
+        euResult.uop.physDest.idx    := 0 // Store没有物理目标寄存器
+        euResult.uop.writesToPhysReg := False
 
-        euResult.writesToPreg  := False // LsuEu自身不写寄存器
+        euResult.writesToPreg  := False
         euResult.hasException  := aguOutPayload.alignException
-        euResult.exceptionCode := Mux(aguOutPayload.isLoad,
-                                      ExceptionCode.LOAD_ADDR_MISALIGNED,
-                                      ExceptionCode.STORE_ADDRESS_MISALIGNED)
+        euResult.exceptionCode := ExceptionCode.STORE_ADDRESS_MISALIGNED
         euResult.destIsFpr     := False
 
         ParallaxSim.logWhen(aguOutPayload.isLoad, L"[LsuEu] Dispatched LOAD to LQ: robPtr=${aguOutPayload.robPtr}")
         ParallaxSim.logWhen(aguOutPayload.isStore, L"[LsuEu] Dispatched STORE to SB: robPtr=${aguOutPayload.robPtr}")
+    }
     }
 
     // 释放服务
     hw.aguServiceInst.release()
     hw.storeBufferServiceInst.release()
     hw.loadQueueServiceInst.release()
+    hw.robServiceInst.release()
 
     ParallaxLogger.log(s"[LsuEu ${euName}] Logic defined.")
   }

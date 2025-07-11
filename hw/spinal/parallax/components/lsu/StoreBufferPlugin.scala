@@ -194,20 +194,19 @@ class StoreBufferPlugin(
         }
 
         private def isNewerOrSame(robPtrA: UInt, robPtrB: UInt): Bool = {
-            val widthA = robPtrA.getWidth
-            val widthB = robPtrB.getWidth
-            require(widthA == widthB, s"ROB pointer widths must match: $widthA vs $widthB")
-            
-            if (widthA == 1) {
-                // Only 1 bit, no generation bit
-                robPtrA >= robPtrB
-            } else {
-                val genA = robPtrA.msb
-                val idxA = robPtrA.resize(widthA - 1)
-                val genB = robPtrB.msb  
-                val idxB = robPtrB.resize(widthB - 1)
-                (genA === genB && idxA >= idxB) || (genA =/= genB && idxA < idxB)
+            val width = robPtrA.getWidth
+            require(width == robPtrB.getWidth, "ROB pointer widths must match")
+
+            if (width <= 1) { // 处理没有generation bit的情况
+                return robPtrA >= robPtrB
             }
+
+            val genA = robPtrA.msb
+            val idxA = robPtrA(width - 2 downto 0)
+            val genB = robPtrB.msb
+            val idxB = robPtrB(width - 2 downto 0)
+
+            (genA === genB && idxA >= idxB) || (genA =/= genB && idxA < idxB)
         }
         private def isOlder(robPtrA: UInt, robPtrB: UInt): Bool = !isNewerOrSame(robPtrA, robPtrB)
 

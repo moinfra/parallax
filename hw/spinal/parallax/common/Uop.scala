@@ -587,7 +587,7 @@ case class DecodedUop(val config: PipelineConfig) extends Bundle {
   val useArchSrc2 = Bool()
   val archSrc3 = ArchRegOperand(config) // For FMA, some LA ops and future ops
   val useArchSrc3 = Bool()
-
+  val usePcForAddr = Bool() // 是否使用pc寻址
   // Immediate Value (Sign/Zero extended as needed by the operation by decoder)
   val imm = Bits(config.dataWidth)
   val immUsage = ImmUsageType() // How the immediate is used (as operand, offset, etc.)
@@ -630,6 +630,8 @@ case class DecodedUop(val config: PipelineConfig) extends Bundle {
     useArchSrc2 := False
     archSrc3.setDefault()
     useArchSrc3 := False
+    
+    usePcForAddr := False
 
     imm := 0
     immUsage := ImmUsageType.NONE
@@ -670,6 +672,8 @@ case class DecodedUop(val config: PipelineConfig) extends Bundle {
     useArchSrc2 #= false
     archSrc3.setDefaultForSim()
     useArchSrc3 #= false
+
+    usePcForAddr #= false
 
     imm #= 0
     immUsage #= ImmUsageType.NONE

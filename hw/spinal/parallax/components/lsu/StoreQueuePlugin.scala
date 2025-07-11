@@ -73,7 +73,7 @@ class StoreQueuePlugin(
     private val pcs = Mem(UInt(lsuConfig.pcWidth), lsuConfig.sqDepth)
     private val physDataSrcs = Mem(UInt(lsuConfig.physGprIdxWidth), lsuConfig.sqDepth)
     private val physDataSrcIsFprs = Mem(Bool(), lsuConfig.sqDepth)
-    private val agImm = Mem(SInt(12 bits), lsuConfig.sqDepth)
+    private val agImm = Mem(SInt(lsuConfig.dataWidth), lsuConfig.sqDepth)
     private val agBasePhysReg = Mem(UInt(lsuConfig.physGprIdxWidth), lsuConfig.sqDepth)
     private val agUsePc = Mem(Bool(), lsuConfig.sqDepth)
     private val accessSizes = Mem(MemAccessSize(), lsuConfig.sqDepth)
@@ -157,7 +157,7 @@ class StoreQueuePlugin(
         }
         val SQ_PTR = Stageable(UInt(lsuConfig.sqPtrWidth))
         val AGU_BASE_PHYS_REG = Stageable(UInt(lsuConfig.physGprIdxWidth))
-        val AGU_IMM = Stageable(SInt(12 bits))
+        val AGU_IMM = Stageable(SInt(lsuConfig.dataWidth))
         val ACCESS_SIZE = Stageable(MemAccessSize())
         val AGU_USE_PC = Stageable(Bool())
         val PC = Stageable(UInt(lsuConfig.pcWidth))

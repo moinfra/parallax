@@ -240,6 +240,11 @@ new RenamePlugin(pCfg, renameMapConfig, flConfig),
   val ratService = framework.getService[RatControlService]
   val ratMapping = ratService.getCurrentState().mapping
   ratMapping.simPublic()
+  
+  // === Memory System for Direct Access ===
+  val memSystemPlugin = framework.getService[TestOnlyMemSystemPlugin]
+  val sram = memSystemPlugin.getSram()
+  sram.io.simPublic()
 }
 
 // =========================================================================
@@ -256,6 +261,25 @@ object IssueToAluAndLsuSpecHelper {
     val rsp = dut.prfReadPort.rsp.toBigInt
     dut.prfReadPort.valid #= false
     return rsp
+  }
+  
+  def readMemoryWord(dut: IssueToAluAndLsuTestBench, address: BigInt): BigInt = {
+    val cd = dut.clockDomain
+    
+    // Use SRAM testbench interface for direct memory access
+    dut.sram.io.tb_readEnable #= true
+    dut.sram.io.tb_readAddress #= address // 直接使用字节地址，与DCache一致
+    dut.sram.io.tb_writeEnable #= false
+    
+    // Wait a few cycles for SRAM read
+    cd.waitSampling(3)
+    
+    val data = dut.sram.io.tb_readData.toBigInt
+    
+    // Clean up
+    dut.sram.io.tb_readEnable #= false
+    
+    return data
   }
 }
 
@@ -307,7 +331,7 @@ class IssueToAluAndLsuSpec extends CustomSpinalSimFunSuite {
         cd.waitSampling(1)
       }
 
-      val pc_start = BigInt("80000000", 16)
+      val pc_start = BigInt("00000000", 16)
       var commitCount = 0
       val expectedCommits = scala.collection.mutable.Queue[BigInt]()
 
@@ -363,11 +387,11 @@ class IssueToAluAndLsuSpec extends CustomSpinalSimFunSuite {
       expectedCommits += (pc_start + 16)   // Load 2
 
       println("=== 📤 发射指令序列 ===")
-      issueInstr(pc_start, instr_addi)         // PC: 0x80000000
-      issueInstr(pc_start + 4, instr_store1)   // PC: 0x80000004
-      issueInstr(pc_start + 8, instr_load1)    // PC: 0x80000008
-      issueInstr(pc_start + 12, instr_store2)  // PC: 0x8000000C
-      issueInstr(pc_start + 16, instr_load2)   // PC: 0x80000010
+      issueInstr(pc_start, instr_addi)         // PC: 0x00000000
+      issueInstr(pc_start + 4, instr_store1)   // PC: 0x00000004
+      issueInstr(pc_start + 8, instr_load1)    // PC: 0x00000008
+      issueInstr(pc_start + 12, instr_store2)  // PC: 0x0000000C
+      issueInstr(pc_start + 16, instr_load2)   // PC: 0x00000010
 
       println("=== ⏱️ 等待执行完成 ===")
       cd.waitSampling(30)  // 给Store和Load序列足够的处理时间
@@ -389,27 +413,29 @@ class IssueToAluAndLsuSpec extends CustomSpinalSimFunSuite {
         assert(commitCount == 5, s"Expected 5 commits, got $commitCount")
         assert(expectedCommits.isEmpty, "Not all expected commits were processed")
         
-        // === 验证内存写入 ===
+        // === 验证Store/Load指令序列的语义正确性 ===
         println("=== 🔍 验证 Store 指令通过 Load 指令 ===")
-        cd.waitSampling(50)  // 增加等待时间，让数据有机会写回内存
+        cd.waitSampling(50)  // 等待更长时间确保数据稳定
         
-        // 使用正确的架构寄存器验证方法
+        // 验证 ADDI 指令是否正确设置了 r3 = 0x123
         println("验证 ADDI 指令是否正确设置了 r3 = 0x123")
         val r3_value = IssueToAluAndLsuSpecHelper.readArchReg(dut, 3)
         assert(r3_value == test_value, s"r3 final value check failed: Result was ${r3_value}, expected ${test_value}")
         println(f"✅ ADDI 指令验证通过: r3 = 0x${r3_value}%x")
         
-        println("验证 Load1 指令从 Store1 地址读取的非零数据")
+        // 验证 Load1 指令从 Store1 地址读取的数据
+        println("验证 Load1 指令从 Store1 地址读取的数据")
         val r1_value = IssueToAluAndLsuSpecHelper.readArchReg(dut, 1)
         assert(r1_value == test_value, s"r1 final value check failed: Result was ${r1_value}, expected ${test_value}")
         println(f"✅ Load1 指令验证通过: r1 = 0x${r1_value}%x")
         
-        println("验证 Load2 指令从 Store2 地址读取的零数据")
+        // 验证 Load2 指令从 Store2 地址读取的数据
+        println("验证 Load2 指令从 Store2 地址读取的数据")
         val r2_value = IssueToAluAndLsuSpecHelper.readArchReg(dut, 2)
         assert(r2_value == 0, s"r2 final value check failed: Result was ${r2_value}, expected 0")
         println(f"✅ Load2 指令验证通过: r2 = 0x${r2_value}%x")
         
-        println("✅ Store 指令验证完成: Load 指令成功读取到 Store 的数据!")
+        println("✅ Store/Load指令序列验证完成: Load 指令成功读取到 Store 的数据!")
       } else {
         println("⚠️ TIMEOUT: 指令未能在预期时间内提交")
         println("这可能表明LSU EU的Store/Load序列处理存在问题，需要分析日志")
@@ -444,7 +470,7 @@ class IssueToAluAndLsuSpec extends CustomSpinalSimFunSuite {
         cd.waitSampling(1)
       }
 
-      val pc_start = BigInt("80000000", 16)
+      val pc_start = BigInt("00000000", 16)
       var commitCount = 0
       val expectedCommits = scala.collection.mutable.Queue[BigInt]()
 
@@ -477,18 +503,20 @@ class IssueToAluAndLsuSpec extends CustomSpinalSimFunSuite {
       // 5. LD.W r3, r0, 0x208  (加载：r3 = MEM[0x208] = 未初始化)
       // 这测试了多个连续的Store和Load操作，以及Store-to-Load forwarding
 
-      val instr_store1 = LA32RInstrBuilder.st_w(rd = 0, rj = 0, offset = 0x200)  // MEM[0x200] = r0
-      val instr_store2 = LA32RInstrBuilder.st_w(rd = 0, rj = 0, offset = 0x204)  // MEM[0x204] = r0
-      val instr_load1 = LA32RInstrBuilder.ld_w(rd = 1, rj = 0, offset = 0x200)   // r1 = MEM[0x200]
-      val instr_load2 = LA32RInstrBuilder.ld_w(rd = 2, rj = 0, offset = 0x204)   // r2 = MEM[0x204]
-      val instr_load3 = LA32RInstrBuilder.ld_w(rd = 3, rj = 0, offset = 0x208)   // r3 = MEM[0x208]
+     val instr_addi1 = LA32RInstrBuilder.addi_w(rd = 10, rj = 0, imm = 0x123)
+    val instr_addi2 = LA32RInstrBuilder.addi_w(rd = 11, rj = 0, imm = 0x456)
 
-      println(s"[TEST] 复杂LSU序列（Store/Load forwarding测试）:")
-      println(f"  1. ST.W r0, r0, 0x200 (insn=0x${instr_store1}%x) - 存储到0x200")
-      println(f"  2. ST.W r0, r0, 0x204 (insn=0x${instr_store2}%x) - 存储到0x204")
-      println(f"  3. LD.W r1, r0, 0x200 (insn=0x${instr_load1}%x) - 从0x200加载（应该hit store）")
-      println(f"  4. LD.W r2, r0, 0x204 (insn=0x${instr_load2}%x) - 从0x204加载（应该hit store）")
-      println(f"  5. LD.W r3, r0, 0x208 (insn=0x${instr_load3}%x) - 从0x208加载（miss，读cache）")
+    // 修改指令序列
+    // 1. ST.W r10, r0, 0x200  (存储：MEM[0x200] = 0x123)
+    val instr_store1 = LA32RInstrBuilder.st_w(rd = 10, rj = 0, offset = 0x200)
+    // 2. ST.W r11, r0, 0x204  (存储：MEM[0x204] = 0x456)
+    val instr_store2 = LA32RInstrBuilder.st_w(rd = 11, rj = 0, offset = 0x204)
+    // 3. LD.W r3, r0, 0x200  (加载：r3 = MEM[0x200] = 0x123)
+    val instr_load1 = LA32RInstrBuilder.ld_w(rd = 3, rj = 0, offset = 0x200)
+    // 4. LD.W r4, r0, 0x204  (加载：r4 = MEM[0x204] = 0x456)
+    val instr_load2 = LA32RInstrBuilder.ld_w(rd = 4, rj = 0, offset = 0x204)
+    // 5. LD.W r5, r0, 0x200  (加载：r5 = MEM[0x200] = 0x123, 再次加载验证)
+    val instr_load3 = LA32RInstrBuilder.ld_w(rd = 5, rj = 0, offset = 0x200)
 
       // 准备期望的提交顺序
       expectedCommits += pc_start        // Store 1
@@ -498,11 +526,13 @@ class IssueToAluAndLsuSpec extends CustomSpinalSimFunSuite {
       expectedCommits += (pc_start + 16) // Load 3
 
       println("=== 📤 发射指令序列 ===")
-      issueInstr(pc_start, instr_store1)       // PC: 0x80000000
-      issueInstr(pc_start + 4, instr_store2)   // PC: 0x80000004
-      issueInstr(pc_start + 8, instr_load1)    // PC: 0x80000008
-      issueInstr(pc_start + 12, instr_load2)   // PC: 0x8000000C
-      issueInstr(pc_start + 16, instr_load3)   // PC: 0x80000010
+      issueInstr(pc_start, instr_addi1)
+      issueInstr(pc_start + 4, instr_addi2)
+      issueInstr(pc_start + 8, instr_store1)
+      issueInstr(pc_start + 12, instr_store2)
+      issueInstr(pc_start + 16, instr_load1)
+      issueInstr(pc_start + 20, instr_load2)
+      issueInstr(pc_start + 24, instr_load3)
 
       println("=== ⏱️ 等待执行完成 ===")
       cd.waitSampling(50)  // 给复杂LSU序列更多处理时间
@@ -525,8 +555,34 @@ class IssueToAluAndLsuSpec extends CustomSpinalSimFunSuite {
         assert(commitCount == 5, s"Expected 5 commits, got $commitCount")
         assert(expectedCommits.isEmpty, "Not all expected commits were processed")
         
-        // === FIXME: 验证内存写入 ===
-        assert(false, "FIXME: 验证内存写入")
+        // === 验证复杂Store/Load序列的语义正确性 ===
+        println("🔍 开始验证复杂Store/Load序列...")
+        cd.waitSampling(50)  // 等待更长时间确保数据稳定
+        
+        // 验证第三条指令 lw x3, 0x200 的结果 (应该得到第一条store指令的值0x123)
+        val r3_value = IssueToAluAndLsuSpecHelper.readArchReg(dut, 3)
+        println(s"📍 寄存器 r3 = 0x${r3_value.toString(16)} (期望来自store/load序列的0x123)")
+        
+        // 验证第四条指令 lw x4, 0x204 的结果 (应该得到第二条store指令的值0x456)  
+        val r4_value = IssueToAluAndLsuSpecHelper.readArchReg(dut, 4)
+        println(s"📍 寄存器 r4 = 0x${r4_value.toString(16)} (期望来自store/load序列的0x456)")
+        
+        // 验证第五条指令 lw x5, 0x200 的结果 (应该得到第一条store指令的值0x123)
+        val r5_value = IssueToAluAndLsuSpecHelper.readArchReg(dut, 5)
+        println(s"📍 寄存器 r5 = 0x${r5_value.toString(16)} (期望来自store/load序列的0x123)")
+        
+        // 验证store/load序列的语义正确性
+        assert(r3_value == BigInt("123", 16), 
+               s"Store/Load sequence failed for 0x200: r3=0x${r3_value.toString(16)}, expected 0x123")
+        
+        assert(r4_value == BigInt("456", 16), 
+               s"Store/Load sequence failed for 0x204: r4=0x${r4_value.toString(16)}, expected 0x456")
+               
+        assert(r5_value == BigInt("123", 16), 
+               s"Store/Load sequence failed for 0x200 (second load): r5=0x${r5_value.toString(16)}, expected 0x123")
+        
+        println("✅ 复杂Store/Load序列的语义验证通过!")
+        println("   这验证了Store指令、Load指令、Store-to-Load forwarding和Cache操作的正确性")
         cd.waitSampling(50)  // 增加等待时间，让数据有机会写回内存
       } else {
         println("⚠️ TIMEOUT: 指令未能在预期时间内提交")
@@ -562,8 +618,22 @@ class IssueToAluAndLsuSpec extends CustomSpinalSimFunSuite {
         cd.waitSampling(1)
       }
 
-      val pc_start = BigInt("80000000", 16)
+      val pc_start = BigInt("00000000", 16)
       var commitCount = 0
+
+      // 预先初始化内存地址0x100为已知值
+      val test_value = BigInt("deadbeef", 16)
+      println(s"🔧 预初始化内存 0x100 = 0x${test_value.toString(16)}")
+      dut.sram.io.tb_writeEnable #= true
+      dut.sram.io.tb_writeAddress #= BigInt("100", 16) // 直接使用字节地址，与DCache一致
+      dut.sram.io.tb_writeData #= test_value
+      cd.waitSampling(2)
+      dut.sram.io.tb_writeEnable #= false
+      
+      // 验证初始化成功
+      val verify_value = IssueToAluAndLsuSpecHelper.readMemoryWord(dut, BigInt("100", 16))
+      println(s"🔍 验证初始化: 内存 0x100 = 0x${verify_value.toString(16)}")
+      assert(verify_value == test_value, s"Memory initialization failed: got 0x${verify_value.toString(16)}, expected 0x${test_value.toString(16)}")
 
       // Simple commit monitoring with detailed logging
       val commitMonitor = fork {
@@ -586,7 +656,7 @@ class IssueToAluAndLsuSpec extends CustomSpinalSimFunSuite {
       println(s"[TEST] Load指令: ld.w r2, r0, 0x100 (insn=0x${instr_lw.toString(16)})")
 
       println("=== 📤 发射指令序列 ===")
-      issueInstr(pc_start, instr_lw)   // PC: 0x80000000
+      issueInstr(pc_start, instr_lw)   // PC: 0x00000000
 
       println("=== ⏱️ 等待执行完成 ===")
       cd.waitSampling(20)  // 增加等待时间给LSU更多处理时间
@@ -606,7 +676,29 @@ class IssueToAluAndLsuSpec extends CustomSpinalSimFunSuite {
       if (timeout > 0) {
         println(s"🎉 SUCCESS: LSU测试完成，成功提交了${commitCount}条指令!")
         assert(commitCount == 1, s"Expected 1 commits, got $commitCount")
-        assert(false, "FIXME: 验证内存写入")
+        // === 验证load指令结果 ===
+        println("🔍 开始验证load指令结果...")
+        cd.waitSampling(50)  // 等待更长时间确保数据写回
+        
+        // 先检查物理寄存器映射
+        val physReg2 = dut.ratMapping(2).toBigInt
+        println(s"📍 寄存器r2映射到物理寄存器p${physReg2}")
+        
+        // 验证load指令是否正确读取了预初始化的内存数据并存储到寄存器
+        val r2_value = IssueToAluAndLsuSpecHelper.readArchReg(dut, 2)
+        println(s"📍 寄存器 r2 = 0x${r2_value.toString(16)} (期望 0x${test_value.toString(16)})")
+        
+        // 再次检查内存中的值确认初始化正确
+        val current_mem_value = IssueToAluAndLsuSpecHelper.readMemoryWord(dut, BigInt("100", 16))
+        println(s"📍 内存 0x100 = 0x${current_mem_value.toString(16)} (确认初始化)")
+        
+        // 验证load指令正确地从内存读取了预初始化的数据
+        assert(r2_value == test_value, 
+               s"Load instruction failed: r2=0x${r2_value.toString(16)}, expected 0x${test_value.toString(16)}. " +
+               s"Memory contains 0x${current_mem_value.toString(16)}. " +
+               s"Physical register mapping: r2->p${physReg2}")
+        
+        println("✅ Load指令验证通过!")
 
       } else {
         println("⚠️ TIMEOUT: 指令未能在预期时间内提交")

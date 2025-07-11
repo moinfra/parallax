@@ -167,7 +167,7 @@ case class ROBIo[RU <: Data with Formattable with HasRobPtr](config: ROBConfig[R
 }
 
 class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfig[RU]) extends Component {
-  val enableLog = false
+  val enableLog = true
   ParallaxLogger.log(
     s"Creating ReorderBuffer with config: ${config.format().mkString("")}"
   )

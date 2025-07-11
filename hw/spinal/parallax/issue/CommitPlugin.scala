@@ -89,7 +89,7 @@ class CommitPlugin(
   val enableLog = true // 控制是否启用周期性详细日志
   
   // Service interface state
-  private val commitEnable = Bool() 
+  private val commitEnable = Bool()
   private val commitStats = Reg(CommitStats(pipelineConfig)).initZero()
   
   override def setCommitEnable(enable: Bool): Unit = {

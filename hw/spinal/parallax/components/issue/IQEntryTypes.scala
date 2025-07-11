@@ -271,6 +271,8 @@ case class IQEntryLsu(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
   // --- Unit-Specific Control Fields ---
   val memCtrl         = MemCtrlFlags()
   val imm             = Bits(pCfg.dataWidth)
+  val usePc           = Bool()
+  val pcData          = UInt(pCfg.pcWidth)
 
   override def getEuType(): ExeUnitType.E = {
     ExeUnitType.MEM
@@ -279,7 +281,7 @@ case class IQEntryLsu(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
     robPtr := 0; physDest.setDefault(); physDestIsFpr := False; writesToPhysReg := False
     useSrc1 := False; src1Data := B(0); src1Tag := 0; src1Ready := False; src1IsFpr := False
     useSrc2 := False; src2Data := B(0); src2Tag := 0; src2Ready := False; src2IsFpr := False
-    memCtrl.setDefault(); imm := 0
+    memCtrl.setDefault(); imm := 0; usePc := False; pcData := 0
     this
   }
 
@@ -288,7 +290,7 @@ case class IQEntryLsu(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
     robPtr #= 0; physDest.setDefaultForSim(); physDestIsFpr #= false; writesToPhysReg #= false
     useSrc1 #= false; src1Data #= 0; src1Tag #= 0; src1Ready #= false; src1IsFpr #= false
     useSrc2 #= false; src2Data #= 0; src2Tag #= 0; src2Ready #= false; src2IsFpr #= false
-    memCtrl.setDefaultForSim(); imm #= 0
+    memCtrl.setDefaultForSim(); imm #= 0; usePc #= false; pcData #= 0
     this
   }
   
@@ -311,6 +313,8 @@ case class IQEntryLsu(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
     this.src2Data.assignDontCare()
     this.memCtrl := decoded.memCtrl
     this.imm := decoded.imm
+    this.usePc := decoded.usePcForAddr
+    this.pcData := decoded.pc
     this
   }
 }

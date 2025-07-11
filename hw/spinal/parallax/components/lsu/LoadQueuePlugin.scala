@@ -40,7 +40,7 @@ case class LoadQueueSlot(pCfg: PipelineConfig, lsuCfg: LsuConfig, dCacheParams: 
 
     val isWaitingForFwdRsp    = Bool()
     val isStalledByDependency = Bool()
-    val isReadyForDCache      = Bool()
+    val isReadyForDCache      = Bool() // 可以安全地向数据缓存（D-Cache）发出加载请求。
     val isWaitingForDCacheRsp = Bool()
     
     def setDefault(): this.type = {
@@ -69,7 +69,32 @@ case class LoadQueueSlot(pCfg: PipelineConfig, lsuCfg: LsuConfig, dCacheParams: 
         
         this.isWaitingForFwdRsp    := False // Will be set to true next cycle if it queries
         this.isStalledByDependency := False
-        this.isReadyForDCache      := !cmd.hasEarlyException
+        this.isReadyForDCache      := False // Will be set by forwarding logic or early exception handling
+        this.isWaitingForDCacheRsp := False
+        this
+    }
+
+    def initFromAguOutput(cmd: AguOutput): this.type = {
+        this.valid                 := True
+        // this.addrValid             := True
+        this.address               := cmd.address
+        this.size                  := cmd.accessSize
+        this.robPtr                := cmd.robPtr
+        this.pdest                 := cmd.physDst
+        
+        // 这些字段在 AguRspCmd 中可能没有直接对应，但为了完整性，这里也进行初始化
+        // 如果 AguRspCmd 提供了这些信息，可以根据需要进行映射
+        // this.baseReg               := cmd.basePhysReg
+        // this.immediate             := cmd.immediate
+        // this.usePc                 := cmd.usePc
+        // this.pc                    := cmd.pc
+
+        this.hasException          := cmd.alignException
+        this.exceptionCode         := ExceptionCode.LOAD_ADDR_MISALIGNED // 假设只有对齐异常
+        
+        this.isWaitingForFwdRsp    := False
+        this.isStalledByDependency := False
+        this.isReadyForDCache      := False
         this.isWaitingForDCacheRsp := False
         this
     }
@@ -139,22 +164,20 @@ class LoadQueuePlugin(
 
         // Store Path Area is completely removed.
 
-        // isNewerOrSame 辅助函数保持不变
         private def isNewerOrSame(robPtrA: UInt, robPtrB: UInt): Bool = {
-            val widthA = robPtrA.getWidth
-            val widthB = robPtrB.getWidth
-            require(widthA == widthB, s"ROB pointer widths must match: $widthA vs $widthB")
-            
-            if (widthA == 1) {
-                // Only 1 bit, no generation bit
-                robPtrA >= robPtrB
-            } else {
-                val genA = robPtrA.msb
-                val idxA = robPtrA.resize(widthA - 1)
-                val genB = robPtrB.msb  
-                val idxB = robPtrB.resize(widthB - 1)
-                (genA === genB && idxA >= idxB) || (genA =/= genB && idxA < idxB)
+            val width = robPtrA.getWidth
+            require(width == robPtrB.getWidth, "ROB pointer widths must match")
+
+            if (width <= 1) { // 处理没有generation bit的情况
+                return robPtrA >= robPtrB
             }
+
+            val genA = robPtrA.msb
+            val idxA = robPtrA(width - 2 downto 0)
+            val genB = robPtrB.msb
+            val idxB = robPtrB(width - 2 downto 0)
+
+            (genA === genB && idxA >= idxB) || (genA =/= genB && idxA < idxB)
         }
 
         // =========================================================
@@ -163,8 +186,13 @@ class LoadQueuePlugin(
         val loadQueue = new Area {
             val slots = Vec.fill(lqDepth)(Reg(LoadQueueSlot(pipelineConfig, lsuConfig, dCacheParams)))
             val slotsAfterUpdates = CombInit(slots)
-            val slotsNext   = CombInit(slots)
-
+            val slotsNext   = CombInit(slotsAfterUpdates)
+            
+            val sbQueryRspReg = Reg(SqQueryRsp(lsuConfig))
+            val sbQueryRspValid = RegNext(sbQueryPort.cmd.fire, init = False)
+            when(sbQueryPort.cmd.fire) {
+                sbQueryRspReg := sbQueryPort.rsp
+            }
             // 初始化和Flush逻辑几乎不变
             for(i <- 0 until lqDepth) {
                 slots(i).init(LoadQueueSlot(pipelineConfig, lsuConfig, dCacheParams).setDefault())
@@ -193,31 +221,30 @@ class LoadQueuePlugin(
             }
 
             // --- 2-6. 队列头部的处理逻辑 (Store Forwarding, D-Cache, Completion, Pop) ---
-            // 这部分逻辑与原 LsuPlugin 中的 loadQueue 区域完全相同，可以直接复制过来。
-            // 为了简洁，这里只展示关键部分，实际应包含所有细节。
             val head = slots(0)
             val headIsValid = head.valid
 
             // --- Disambiguation ---
             val headIsReadyForFwdQuery = headIsValid && !head.hasException &&
                                          !head.isWaitingForFwdRsp && !head.isStalledByDependency &&
-                                         head.isReadyForDCache && !head.isWaitingForDCacheRsp
+                                         !head.isWaitingForDCacheRsp && !head.isReadyForDCache
 
             sbQueryPort.cmd.valid   := headIsReadyForFwdQuery
-            sbQueryPort.cmd.payload.address := head.address
-            sbQueryPort.cmd.payload.size    := head.size
-            sbQueryPort.cmd.payload.robPtr  := head.robPtr
+            sbQueryPort.cmd.address := head.address
+            sbQueryPort.cmd.size    := head.size
+            sbQueryPort.cmd.robPtr  := head.robPtr
 
-            when(sbQueryPort.cmd.fire) {
+            when(sbQueryPort.cmd.valid) {
                 slotsAfterUpdates(0).isWaitingForFwdRsp := True
                 ParallaxSim.log(L"[LQ-Fwd] QUERY: robPtr=${head.robPtr} addr=${head.address}")
             }
             
-            when(head.isWaitingForFwdRsp) {
-                val fwdRsp = sbQueryPort.rsp
+            when(head.isWaitingForFwdRsp && sbQueryRspValid) {
+                val fwdRsp = sbQueryRspReg
                 slotsAfterUpdates(0).isWaitingForFwdRsp := False
                 when(fwdRsp.hit) {
                     // Completion logic is handled below by popOnFwdHit
+                    ParallaxSim.log(L"[LQ-Fwd] HIT: robPtr=${head.robPtr}, data=${fwdRsp.data}. Will complete via popOnFwdHit.")
                 } .elsewhen(fwdRsp.olderStoreHasUnknownAddress || fwdRsp.olderStoreMatchingAddress) {
                     ParallaxSim.log(L"[LQ-Fwd] STALL: robPtr=${head.robPtr} has dependency...")
                     slotsAfterUpdates(0).isStalledByDependency := True
@@ -231,16 +258,26 @@ class LoadQueuePlugin(
                 slotsAfterUpdates(0).isStalledByDependency := False
             }
             
+            // --- Handle Early Exceptions ---
+            // For instructions with early exceptions, skip forwarding and mark as ready for exception handling
+            when(headIsValid && head.hasException && !head.isReadyForDCache && !head.isWaitingForFwdRsp && !head.isWaitingForDCacheRsp) {
+                slotsAfterUpdates(0).isReadyForDCache := True
+                ParallaxSim.log(L"[LQ] Early exception for robPtr=${head.robPtr}, marking ready for exception handling")
+            }
+            
             // --- D-Cache Interaction ---
             // 注意: isReadyForDCache 现在在入队时就设置好了，不再需要等待转发结果（除非转发失败）
             val headIsReadyToExecute = headIsValid && head.isReadyForDCache && !head.isWaitingForDCacheRsp
+            
+            // 如果正在等待转发响应，或者转发命中，则不应该发送到DCache
+            val shouldNotSendToDCache = head.isWaitingForFwdRsp || (head.isWaitingForFwdRsp && sbQueryPort.rsp.hit)
 
-            dCacheLoadPort.cmd.valid                 := headIsReadyToExecute && !head.hasException
-            dCacheLoadPort.cmd.payload.virtual       := head.address
-            dCacheLoadPort.cmd.payload.size          := MemAccessSize.toByteSizeLog2(head.size)
-            dCacheLoadPort.cmd.payload.redoOnDataHazard := True
+            dCacheLoadPort.cmd.valid                 := headIsReadyToExecute && !head.hasException && !shouldNotSendToDCache
+            dCacheLoadPort.cmd.virtual       := head.address
+            dCacheLoadPort.cmd.size          := MemAccessSize.toByteSizeLog2(head.size)
+            dCacheLoadPort.cmd.redoOnDataHazard := True
             if(pipelineConfig.transactionIdWidth > 0) {
-                 dCacheLoadPort.cmd.payload.id       := head.robPtr.resize(pipelineConfig.transactionIdWidth)
+                 dCacheLoadPort.cmd.id       := head.robPtr.resize(pipelineConfig.transactionIdWidth)
             }
             dCacheLoadPort.translated.physical       := head.address
             dCacheLoadPort.translated.abord          := head.hasException
@@ -262,8 +299,8 @@ class LoadQueuePlugin(
             }
 
             // --- Completion & Pop Logic ---
-            // 这部分也保持不变
-            val popOnFwdHit = head.isWaitingForFwdRsp && sbQueryPort.rsp.hit
+            // 修复时序问题：使用当前状态而不是更新后的状态来判断forwarding hit
+            val popOnFwdHit = head.isWaitingForFwdRsp && sbQueryRspReg.hit
             val popOnDCacheSuccess = dCacheLoadPort.rsp.valid && head.valid && head.isWaitingForDCacheRsp && !dCacheLoadPort.rsp.payload.redo
             val popOnEarlyException = head.valid && head.hasException && !head.isReadyForDCache // Exception was known at dispatch
             val popRequest = popOnFwdHit || popOnDCacheSuccess || popOnEarlyException
@@ -279,10 +316,10 @@ class LoadQueuePlugin(
 
             // Completion paths
             when(popOnFwdHit) {
-                ParallaxSim.log(L"[LQ-Fwd] HIT: robPtr=${head.robPtr}, data=${sbQueryPort.rsp.data}. Completing instruction.")
+                ParallaxSim.log(L"[LQ-Fwd] HIT: robPtr=${head.robPtr}, data=${sbQueryRspReg.data}. Completing instruction.")
                 prfWritePort.valid   := True
                 prfWritePort.address := head.pdest
-                prfWritePort.data    := sbQueryPort.rsp.data
+                prfWritePort.data    := sbQueryRspReg.data
                 
                 robLoadWritebackPort.fire := True
                 robLoadWritebackPort.robPtr := head.robPtr
