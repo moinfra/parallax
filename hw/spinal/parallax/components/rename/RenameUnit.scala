@@ -62,28 +62,14 @@ class RenameUnit(
 
   val renameInfo = renamedUop.rename
   
-  // --- 3. 核心修正：直接对输出进行带旁路的赋值 ---
+  // --- 3. 源寄存器映射：总是使用RAT读出的值 ---
   
-  // 对 physSrc1 进行赋值
-  when(uopNeedsNewPhysDest && decodedUop.useArchSrc1 && (decodedUop.archSrc1 === decodedUop.archDest) && (decodedUop.archSrc1.idx =/= 0)) {
-    // 旁路情况：源1就是目的，使用新分配的物理寄存器
-    // 但是 r0 例外，r0 永远不需要旁路，因为它在硬件中恒为0
-    renameInfo.physSrc1.idx := io.physRegsIn(slotIdx)
-  } otherwise {
-    // 正常情况：使用从RAT读出的值
-    renameInfo.physSrc1.idx := physSrc1Port.physReg
-  }
+  // 对 physSrc1 进行赋值 - 不需要bypassing，因为单指令内源和目标相同时应该读取当前值
+  renameInfo.physSrc1.idx := physSrc1Port.physReg
   renameInfo.physSrc1IsFpr := decodedUop.archSrc1.isFPR
 
-  // 对 physSrc2 进行赋值
-  when(uopNeedsNewPhysDest && decodedUop.useArchSrc2 && (decodedUop.archSrc2 === decodedUop.archDest) && (decodedUop.archSrc2.idx =/= 0)) {
-    // 旁路情况：源2就是目的，使用新分配的物理寄存器
-    // 但是 r0 例外，r0 永远不需要旁路，因为它在硬件中恒为0
-    renameInfo.physSrc2.idx := io.physRegsIn(slotIdx)
-  } otherwise {
-    // 正常情况：使用从RAT读出的值
-    renameInfo.physSrc2.idx := physSrc2Port.physReg
-  }
+  // 对 physSrc2 进行赋值 - 同样不需要bypassing
+  renameInfo.physSrc2.idx := physSrc2Port.physReg
   renameInfo.physSrc2IsFpr := decodedUop.archSrc2.isFPR
 
   // 其他字段
@@ -118,8 +104,8 @@ class RenameUnit(
   val logger = new Area {
     when(uopNeedsNewPhysDest) {
       report(L"[RenameUnit] Rename: archDest=${decodedUop.archDest.idx} -> physReg=${io.physRegsIn(slotIdx)} (isFPR=${decodedUop.archDest.isFPR})")
-      report(L"[RenameUnit] Src1: archSrc1=${decodedUop.archSrc1.idx} -> physReg=${renameInfo.physSrc1.idx} (isFPR=${decodedUop.archSrc1.isFPR}, bypassed=${(uopNeedsNewPhysDest && decodedUop.useArchSrc1 && (decodedUop.archSrc1 === decodedUop.archDest))})")
-      report(L"[RenameUnit] Src2: archSrc2=${decodedUop.archSrc2.idx} -> physReg=${renameInfo.physSrc2.idx} (isFPR=${decodedUop.archSrc2.isFPR}, bypassed=${(uopNeedsNewPhysDest && decodedUop.useArchSrc2 && (decodedUop.archSrc2 === decodedUop.archDest))})")
+      report(L"[RenameUnit] Src1: archSrc1=${decodedUop.archSrc1.idx} -> physReg=${renameInfo.physSrc1.idx} (isFPR=${decodedUop.archSrc1.isFPR}, bypassed=0)")
+      report(L"[RenameUnit] Src2: archSrc2=${decodedUop.archSrc2.idx} -> physReg=${renameInfo.physSrc2.idx} (isFPR=${decodedUop.archSrc2.isFPR}, bypassed=0)")
       report(L"[RenameUnit] oldPhysDest: archDest=${decodedUop.archDest.idx} -> oldPhysReg=${renameInfo.oldPhysDest.idx} (isFPR=${decodedUop.archDest.isFPR})")
     }
   }

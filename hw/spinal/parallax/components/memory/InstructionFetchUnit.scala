@@ -192,12 +192,12 @@ class InstructionFetchUnit(val config: InstructionFetchUnitConfig) extends Compo
         receivedChunksBuffer(chunkReceivedIdx) := io.dcacheLoadPort.rsp.data
         chunksReceivedMask(chunkReceivedIdx) := True
         faultOccurred := faultOccurred | io.dcacheLoadPort.rsp.fault
-        report(L"[IFU] DCache response processed: chunkIdx=${chunkReceivedIdx}, data=0x${io.dcacheLoadPort.rsp.data}, mask=${chunksReceivedMask}")
+        // report(L"[IFU] DCache response processed: chunkIdx=${chunkReceivedIdx}, data=0x${io.dcacheLoadPort.rsp.data}, mask=${chunksReceivedMask}")
       } otherwise {
-        report(L"[IFU] DCache response REDO: data=0x${io.dcacheLoadPort.rsp.data} - will retry")
+        // report(L"[IFU] DCache response REDO: data=0x${io.dcacheLoadPort.rsp.data} - will retry")
       }
     } otherwise {
-      report(L"[IFU] DCache response IGNORED: inflightValid=${inflight_valid}, rspId=${io.dcacheLoadPort.rsp.id}, inflightId=${inflight_transId}")
+      // report(L"[IFU] DCache response IGNORED: inflightValid=${inflight_valid}, rspId=${io.dcacheLoadPort.rsp.id}, inflightId=${inflight_transId}")
     }
   }
 

@@ -139,7 +139,7 @@ class IssueToAluAndBruTestBench(val pCfg: PipelineConfig) extends Component {
   val prfService = framework.getService[PhysicalRegFileService]
   val prfReadPort = prfService.newReadPort()
   prfReadPort.simPublic()
-    prfReadPort.valid   := False 
+  prfReadPort.valid   := False 
   prfReadPort.address := 0
   // === RAT Query Interface for Testing ===
   // Create a new RAT read port through the service

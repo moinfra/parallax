@@ -52,9 +52,6 @@ class WakeupPlugin(pCfg: PipelineConfig) extends Plugin with WakeupService {
         // Add logging to debug wakeup source collection (elaboration time)
         ParallaxLogger.log(s"WakeupPlugin: Found ${wakeupSources.length} wakeup sources")
         
-        // FORCE a simulation log to confirm WakeupPlugin is running
-        ParallaxSim.log(L"WakeupPlugin: Initialize with ${wakeupSources.length} sources")
-        
         if (wakeupSources.nonEmpty) {
             if (wakeupSources.length > 1) {
                 // FIXED: Direct Flow merging instead of Stream arbitration

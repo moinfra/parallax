@@ -1,4 +1,4 @@
-// filename: src/test/scala/parallax/issue/RenameUnitSpec.scala
+// filename: src/test/scala/parallax/issue/RenameUnitSpecV2.scala
 // testOnly test.issue.RenameUnitSpec
 package test.issue
 
@@ -127,7 +127,15 @@ class RenameUnitSpec extends CustomSpinalSimFunSuite {
       targetUop.archSrc2.rtype #= archSrc2Type
     }
   }
-
+ def driveIdle(dut: RenameUnitTestBench, cycles: Int = 1): Unit = {
+    for (_ <- 0 until cycles) {
+      driveDecodedUop(
+        dut.io.decodedUopsIn(0), pc = 0, isValid = false, uopCode = BaseUopCode.NOP, exeUnit = ExeUnitType.NONE
+      )
+      dut.io.allocatedPhysRegsIn(0) #= 0
+      dut.clockDomain.waitSampling()
+    }
+  }
   test("RenameUnit_Single_ADD (Refactored Test)") {
     val renameWidth = 1
     val numPhys = 8
@@ -253,94 +261,196 @@ class RenameUnitSpec extends CustomSpinalSimFunSuite {
   }
 
   test("RenameUnit_RAW_Internal_Hazard (e.g. add r1, r1, r2)") {
-  val renameWidth = 1
-  val numPhys = 16
-  val numArch = 8
-  val pCfg = defaultPipelineConfig(renameWidth, numPhysRegs = numPhys, archGprCount = numArch)
-  val rCfg = defaultRatConfig(pCfg.archGprCount, pCfg.physGprCount, renameWidth)
-  
-  SimConfig.withWave.compile(new RenameUnitTestBench(pCfg, rCfg)).doSim { dut =>
-    dut.clockDomain.forkStimulus(10)
-
-    println("=== Testing Internal RAW Hazard (add r1, r1, r2) ===")
+      val renameWidth = 1
+    val numPhys = 16
+    val numArch = 8
+    val pCfg = defaultPipelineConfig(renameWidth, numPhysRegs = numPhys, archGprCount = numArch)
+    val rCfg = defaultRatConfig(pCfg.archGprCount, pCfg.physGprCount, renameWidth)
     
-    // --- Step 1 & 2: Pre-load RAT with initial mappings for r1 and r2 ---
-    // This is similar to the start of the previous test.
-    println("Setup: map r1 -> p8 and r2 -> p9")
-    // addi r1, r0, 100
-    driveDecodedUop(
-      dut.io.decodedUopsIn(0), pc = 0x0, isValid = true, uopCode = BaseUopCode.ALU, exeUnit = ExeUnitType.ALU_INT,
-      writeArchDestEn = true, archDestIdx = 1, useArchSrc1 = true, archSrc1Idx = 0
-    )
-    dut.io.allocatedPhysRegsIn(0) #= 8
-    dut.clockDomain.waitSampling()
+    SimConfig.withWave.compile(new RenameUnitTestBench(pCfg, rCfg)).doSim { dut =>
+      dut.clockDomain.forkStimulus(10)
+      println("=== Testing Correct Handling of Self-Dependency (add r1, r1, r2) ===")
 
-    // addi r2, r0, 200
-    driveDecodedUop(
-      dut.io.decodedUopsIn(0), pc = 0x4, isValid = true, uopCode = BaseUopCode.ALU, exeUnit = ExeUnitType.ALU_INT,
-      writeArchDestEn = true, archDestIdx = 2, useArchSrc1 = true, archSrc1Idx = 0
-    )
-    dut.io.allocatedPhysRegsIn(0) #= 9
-    dut.clockDomain.waitSampling()
+      // --- Step 1: Setup ---
+      // First, establish initial mappings for r1 and r2 so they don't have their default identity mappings.
+      // Instruction 1: addi r1, r0, 5   (maps r1 -> p8)
+      println("Step 1: Setup - 'addi r1, r0, 5' to map r1 -> p8")
+      driveDecodedUop(
+        dut.io.decodedUopsIn(0), pc = 0x100, isValid = true, uopCode = BaseUopCode.ALU, exeUnit = ExeUnitType.ALU_INT,
+        writeArchDestEn = true, archDestIdx = 1, // dest: r1
+        useArchSrc1 = true, archSrc1Idx = 0
+      )
+      dut.io.allocatedPhysRegsIn(0) #= 8 // r1 is allocated p8
+      dut.clockDomain.waitSampling()
 
-    // At this point, RAT should map: r1 -> p8, r2 -> p9
-    println("RAT state before test: r1 -> p8, r2 -> p9")
+      // Instruction 2: addi r2, r0, 99  (maps r2 -> p9)
+      println("Step 1: Setup - 'addi r2, r0, 99' to map r2 -> p9")
+      driveDecodedUop(
+        dut.io.decodedUopsIn(0), pc = 0x104, isValid = true, uopCode = BaseUopCode.ALU, exeUnit = ExeUnitType.ALU_INT,
+        writeArchDestEn = true, archDestIdx = 2, // dest: r2
+        useArchSrc1 = true, archSrc1Idx = 0
+      )
+      dut.io.allocatedPhysRegsIn(0) #= 9 // r2 is allocated p9
+      dut.clockDomain.waitSampling()
 
-    // --- Step 3: The actual test instruction: add r1, r1, r2 ---
-    println("Test: add r1, r1, r2")
-    driveDecodedUop(
-      dut.io.decodedUopsIn(0),
-      pc = 0x8, isValid = true, uopCode = BaseUopCode.ALU, exeUnit = ExeUnitType.ALU_INT,
-      writeArchDestEn = true, archDestIdx = 1,     // Dest is r1
-      useArchSrc1 = true, archSrc1Idx = 1,         // Src1 is r1
-      useArchSrc2 = true, archSrc2Idx = 2          // Src2 is r2
-    )
-    // Allocate a new physical register for the destination r1
-    dut.io.allocatedPhysRegsIn(0) #= 10 // r1 will be remapped to p10
-    
-    // In order to correctly verify the "Read-First" behavior of the RAT
-    // for oldPhysDest, we need to check the combinational output BEFORE the clock edge.
-    sleep(1) // Allow combinational logic to settle
+      // At this point, the RAT state should be: r1 -> p8, r2 -> p9.
+      println("\nRAT state before test: r1 is mapped to p8, r2 is mapped to p9")
 
-    // --- Verification ---
-    val renamedUopData = RenamedUopData.from(dut.io.renamedUopsOut(0))
-    println(s"Instruction result: $renamedUopData")
+      // --- Step 2: The Trigger Instruction ---
+      // Now, issue the instruction with the self-dependency.
+      println("\nStep 2: Trigger - 'add r1, r1, r2'")
+      driveDecodedUop(
+        dut.io.decodedUopsIn(0),
+        pc = 0x108, isValid = true, uopCode = BaseUopCode.ALU, exeUnit = ExeUnitType.ALU_INT,
+        writeArchDestEn = true, archDestIdx = 1, // Dest is r1
+        useArchSrc1 = true, archSrc1Idx = 1,     // Src1 is also r1
+        useArchSrc2 = true, archSrc2Idx = 2      // Src2 is r2
+      )
+      // The free list allocates a new physical register for the destination r1.
+      dut.io.allocatedPhysRegsIn(0) #= 10 // New destination for r1 is p10
+      
+      dut.clockDomain.waitSampling()
 
-    // 1. Critical Bypass Assertion: physSrc1 must be the NEWLY allocated p10, not the old p8 from RAT.
-    assert(renamedUopData.physSrc1Idx == 10, s"BYPASS FAILED: physSrc1 for r1 should be the new p10, but got p${renamedUopData.physSrc1Idx}")
-    
-    // 2. Normal Read Assertion: physSrc2 should be p9 from the RAT.
-    assert(renamedUopData.physSrc2Idx == 9, s"RAT Read FAILED: physSrc2 for r2 should be p9, but got p${renamedUopData.physSrc2Idx}")
+      // --- Step 3: Verification ---
+      // We must check if the renamed uop has the correct physical register indices.
+      println("\nStep 3: Verification")
+      val uop = RenamedUopData.from(dut.io.renamedUopsOut(0))
+      println(s"Result: $uop")
 
-    // 3. Old Destination Assertion: oldPhysDest for r1 should be the value from RAT BEFORE the update.
-    assert(renamedUopData.oldPhysDestIdx == 8, s"RAT Read-First FAILED: oldPhysDest for r1 should be the old p8, but got p${renamedUopData.oldPhysDestIdx}")
-    
-    // 4. New Destination Assertion: The new destination must be the allocated register.
-    assert(renamedUopData.physDestIdx == 10, s"Allocation FAILED: physDest for r1 should be p10, but got p${renamedUopData.physDestIdx}")
+      // CRITICAL ASSERTION: The source operand (physSrc1) must be the *old* mapping of r1 (p8).
+      // If this fails, it means the hardware is incorrectly using the new destination (p10) as a source.
+      assert(uop.physSrc1Idx == 8, s"LOGIC ERROR: Source r1 should use its old mapping (p8), but got p${uop.physSrc1Idx}. This indicates an incorrect self-bypass.")
+      
+      // Check other operands for correctness.
+      assert(uop.physSrc2Idx == 9, s"RAT Read FAILED: Source r2 should be mapped to p9, but got p${uop.physSrc2Idx}")
+      assert(uop.physDestIdx == 10, s"Allocation FAILED: New destination r1 should be mapped to p10, but got p${uop.physDestIdx}")
+      assert(uop.oldPhysDestIdx == 8, s"Old Destination FAILED: The old physical register for r1 should be p8, but got p${uop.oldPhysDestIdx}")
 
-    // Let the clock edge pass to update the RAT
-    dut.clockDomain.waitSampling()
-
-    // --- Optional: Verify RAT state after the instruction ---
-    // Now that the clock has ticked, the mapping for r1 should be updated to p10
-    // We need another cycle to read it back from the RAT
-   driveDecodedUop(
-  targetUop = dut.io.decodedUopsIn(0), 
-  pc = 0, 
-  isValid = false,
-  uopCode = BaseUopCode.NOP, // Provide a value, even for an invalid uop
-  exeUnit = ExeUnitType.NONE     // Provide a value
-)
-    dut.clockDomain.waitSampling()
-
-    println("Verification: Checking RAT state in the next cycle")
-    println(s"r1 -> p${dut.renameMapTable.mapReg.mapping(1).toInt}")
-    assert(dut.renameMapTable.mapReg.mapping(1).toInt == 10, "RAT state for r1 was not updated to p10")
-
-    println("✅ Internal RAW Hazard test passed!")
-  }
+      println("\n✅ Correct handling of self-dependency test passed!")
+      
+      // --- Optional: Verify final RAT state ---
+      driveIdle(dut) // Drive an idle cycle to let the last write commit and be readable
+      println("\nVerifying final RAT state after one cycle...")
+      assert(dut.renameMapTable.mapReg.mapping(1).toInt == 10, s"Final RAT state for r1 should be p10, but it is p${dut.renameMapTable.mapReg.mapping(1).toInt}")
+      assert(dut.renameMapTable.mapReg.mapping(2).toInt == 9, s"Final RAT state for r2 should be p9, but it is p${dut.renameMapTable.mapReg.mapping(2).toInt}")
+      println("Final RAT state is correct.")
+    }
 }
+test("Bug 1 - RenameUnit Self-Dependency Error (e.g. add r1, r1, r2)") {
+    val renameWidth = 1
+    val numPhys = 16
+    val numArch = 8
+    val pCfg = defaultPipelineConfig(renameWidth, numPhysRegs = numPhys, archGprCount = numArch)
+    val rCfg = defaultRatConfig(pCfg.archGprCount, pCfg.physGprCount, renameWidth)
+    
+    SimConfig.withWave.compile(new RenameUnitTestBench(pCfg, rCfg)).doSim { dut =>
+      dut.clockDomain.forkStimulus(10)
+      println("=== Testing Bug 1: RenameUnit Self-Dependency (add r1, r1, r2) ===")
+      
+      // Step 1: Establish an initial mapping for r1.
+      // Instruction: addi r1, r0, 5  (maps r1 -> p8)
+      println("Step 1: Setup - 'addi r1, r0, 5' to map r1 -> p8")
+      driveDecodedUop(
+        dut.io.decodedUopsIn(0), pc = 0x100, isValid = true, uopCode = BaseUopCode.ALU, exeUnit = ExeUnitType.ALU_INT,
+        writeArchDestEn = true, archDestIdx = 1, useArchSrc1 = true, archSrc1Idx = 0
+      )
+      dut.io.allocatedPhysRegsIn(0) #= 8 // r1 is allocated p8
+      dut.clockDomain.waitSampling()
 
+      // Step 2: The trigger instruction with self-dependency.
+      // Instruction: add r1, r1, r2
+      // We expect the *source* r1 to use the *old* physical register (p8).
+      // The *destination* r1 will be allocated a *new* physical register (p10).
+      println("\nStep 2: Trigger - 'add r1, r1, r2'")
+      driveDecodedUop(
+        dut.io.decodedUopsIn(0), pc = 0x104, isValid = true, uopCode = BaseUopCode.ALU, exeUnit = ExeUnitType.ALU_INT,
+        writeArchDestEn = true, archDestIdx = 1, // Dest: r1
+        useArchSrc1 = true, archSrc1Idx = 1,     // Src1: r1
+        useArchSrc2 = true, archSrc2Idx = 2      // Src2: r2
+      )
+      dut.io.allocatedPhysRegsIn(0) #= 10 // New destination for r1 is p10
+      
+      dut.clockDomain.waitSampling()
+
+      // Step 3: Verification
+      // The buggy code will incorrectly bypass the new p10 to physSrc1.
+      // The correct code will read p8 from the RAT for physSrc1.
+      println("\nStep 3: Verification")
+      val uop = RenamedUopData.from(dut.io.renamedUopsOut(0))
+      println(s"Result: $uop")
+
+      // CRITICAL ASSERTION FOR BUG 1
+      assert(uop.physSrc1Idx == 8, s"BUG 1 DETECTED: Source r1 should use its old mapping (p8), but got p${uop.physSrc1Idx}. The new destination was incorrectly bypassed to the source.")
+      
+      // Other correctness checks
+      assert(uop.physSrc2Idx == 2, s"Source r2 should be initially mapped to p2, but got p${uop.physSrc2Idx}")
+      assert(uop.physDestIdx == 10, s"Destination r1 should be newly mapped to p10, but got p${uop.physDestIdx}")
+      assert(uop.oldPhysDestIdx == 8, s"Old destination for r1 should be p8, but got p${uop.oldPhysDestIdx}")
+
+      println("\n✅ Bug 1 Test Passed (or would have failed on buggy code).")
+    }
+  }
+
+
+  test("Bug 2 - RAT Missing Write-to-Read Bypass") {
+    val renameWidth = 1
+    val numPhys = 16
+    val numArch = 8
+    val pCfg = defaultPipelineConfig(renameWidth, numPhysRegs = numPhys, archGprCount = numArch)
+    val rCfg = defaultRatConfig(pCfg.archGprCount, pCfg.physGprCount, renameWidth)
+    
+    SimConfig.withWave.compile(new RenameUnitTestBench(pCfg, rCfg)).doSim { dut =>
+      dut.clockDomain.forkStimulus(10)
+      println("=== Testing Bug 2: RAT Missing Write-to-Read Bypass ===")
+      
+      // Step 1: Write to r5. This creates a write request for the RAT.
+      // Instruction: addi r5, r0, 10 (maps r5 -> p8)
+      // This write will only be committed to the RAT's internal register at the clock edge.
+      println("Step 1 (Cycle 0): 'addi r5, r0, 10' writes to r5, allocating p8.")
+      driveDecodedUop(
+        dut.io.decodedUopsIn(0), pc = 0x200, isValid = true, uopCode = BaseUopCode.ALU, exeUnit = ExeUnitType.ALU_INT,
+        writeArchDestEn = true, archDestIdx = 5, useArchSrc1 = true, archSrc1Idx = 0
+      )
+      dut.io.allocatedPhysRegsIn(0) #= 8 // r5 is allocated p8
+      dut.clockDomain.waitSampling()
+      
+      val uop1 = RenamedUopData.from(dut.io.renamedUopsOut(0))
+      println(s"Result 1: $uop1")
+      assert(uop1.physDestIdx == 8, "Cycle 0: r5 should be mapped to p8")
+
+      // Step 2: In the very next cycle, read from r5.
+      // Instruction: addi r6, r5, 20
+      // The RAT's read port must get the value from the *pending write* of the previous cycle (p8),
+      // not from the RAT's internal register which still holds the old value (p5).
+      println("\nStep 2 (Cycle 1): 'addi r6, r5, 20' reads r5 immediately.")
+      driveDecodedUop(
+        dut.io.decodedUopsIn(0), pc = 0x204, isValid = true, uopCode = BaseUopCode.ALU, exeUnit = ExeUnitType.ALU_INT,
+        writeArchDestEn = true, archDestIdx = 6, // Dest: r6
+        useArchSrc1 = true, archSrc1Idx = 5      // Src: r5
+      )
+      dut.io.allocatedPhysRegsIn(0) #= 9 // r6 is allocated p9
+      dut.clockDomain.waitSampling()
+
+      // Step 3: Verification
+      println("\nStep 3: Verification")
+      val uop2 = RenamedUopData.from(dut.io.renamedUopsOut(0))
+      println(s"Result 2: $uop2")
+      
+      // CRITICAL ASSERTION FOR BUG 2
+      assert(uop2.physSrc1Idx == 8, s"BUG 2 DETECTED: RAT should have bypassed the write from the previous cycle, mapping source r5 to p8. Instead, it returned the stale mapping p${uop2.physSrc1Idx}.")
+
+      // Other correctness checks
+      assert(uop2.physDestIdx == 9, s"Destination r6 should be newly mapped to p9, but got p${uop2.physDestIdx}")
+      assert(uop2.oldPhysDestIdx == 6, s"Old destination for r6 should be its initial mapping p6, but got p${uop2.oldPhysDestIdx}")
+
+      // Final check: after this cycle, the RAT state itself should be updated
+      driveIdle(dut)
+      assert(dut.renameMapTable.mapReg.mapping(5).toInt == 8, "RAT internal state for r5 was not updated to p8.")
+      assert(dut.renameMapTable.mapReg.mapping(6).toInt == 9, "RAT internal state for r6 was not updated to p9.")
+      
+      println("\n✅ Bug 2 Test Passed (or would have failed on buggy code).")
+    }
+  }
 
   thatsAll()
 }

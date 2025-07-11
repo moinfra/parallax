@@ -64,6 +64,7 @@ class InstructionPredecoder(pCfg: PipelineConfig) extends Component {
   // IDLE instruction detection
   when(opcode_7b === B"0000011" && idle_fixed_bits === B"0010010001") {
     io.predecodeInfo.isIdle := True
+    report(L"Found IDLE instruction: ${io.instruction.asUInt}")
   }
 
   switch(opcode) {

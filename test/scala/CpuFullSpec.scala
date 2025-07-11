@@ -42,6 +42,58 @@ object CpuFullSpecHelper {
     dut.prfReadPort.valid #= false
     return rsp
   }
+
+  def writeInstructionsToMem(dut: CpuFullTestBench, address: BigInt, instructions: Seq[BigInt]): Unit = {
+    val sram = dut.framework.getService[TestOnlyMemSystemPlugin].getSram()
+    val cd = dut.clockDomain
+    
+    println("=== ISOLATING MEMORY SYSTEM FOR TB WRITES ===")
+    cd.waitSampling(100) 
+    assert(dut.io.initMemEnable.toBoolean, "initMemEnable must be active during TB writes")
+    
+    var currentAddr = address
+    println(s"Writing ${instructions.length} instructions starting at address 0x${address.toString(16)}")
+    for ((inst, idx) <- instructions.zipWithIndex) {
+      sram.io.tb_writeEnable #= true
+      sram.io.tb_writeAddress #= currentAddr
+      sram.io.tb_writeData #= inst
+      println(s"  [${idx}] Address 0x${currentAddr.toString(16)} = 0x${inst.toString(16)}")
+      cd.waitSampling(3)
+      currentAddr += 4
+    }
+    sram.io.tb_writeEnable #= false
+    cd.waitSampling(10)
+    
+    println("=== SYNCHRONIZING MEMORY SYSTEM AFTER TB WRITES ===")
+    cd.waitSampling(200)
+    
+    // Verify writes were successful
+    for ((inst, idx) <- instructions.zipWithIndex) {
+      val readAddr = address + (idx * 4)
+      sram.io.tb_readEnable #= true
+      sram.io.tb_readAddress #= readAddr
+      cd.waitSampling()
+      val readData = sram.io.tb_readData.toBigInt
+      println(s"  VERIFY [${idx}] Address 0x${readAddr.toString(16)} = 0x${readData.toString(16)} (expected 0x${inst.toString(16)})")
+      assert(readData == inst, s"TB write verification failed at 0x${readAddr.toString(16)}: got 0x${readData.toString(16)}, expected 0x${inst.toString(16)}")
+    }
+    sram.io.tb_readEnable #= false
+    
+    println("Instruction writing completed and verified")
+  }
+
+  
+      def verifyMemory(dut: CpuFullTestBench,address: BigInt, expectedValue: BigInt): Unit = {
+        val cd = dut.clockDomain
+        val sram = dut.framework.getService[TestOnlyMemSystemPlugin].getSram()
+        sram.io.tb_readEnable #= true
+        sram.io.tb_readAddress #= address
+        cd.waitSampling()
+        val actualValue = sram.io.tb_readData.toBigInt
+        sram.io.tb_readEnable #= false
+        assert(actualValue == expectedValue, 
+          s"Memory mismatch at 0x${address.toString(16)}: expected 0x${expectedValue.toString(16)}, got 0x${actualValue.toString(16)}")
+      }
 }
 
 class CpuFullSpec extends CustomSpinalSimFunSuite {
@@ -49,6 +101,7 @@ class CpuFullSpec extends CustomSpinalSimFunSuite {
     aluEuCount = 1,
     lsuEuCount = 1,
     dispatchWidth = 1,
+    bruEuCount = 1,
     renameWidth = 1,
     fetchWidth = 2,
     xlen = 32,
@@ -100,7 +153,7 @@ class CpuFullSpec extends CustomSpinalSimFunSuite {
   val axiConfig = createAxi4Config(pCfg)
   val fifoDepth = 8
 
-  testOnly("CpuFullTestBench compilation test") {
+  test("CpuFullTestBench compilation test") {
     val compiled = SimConfig.withFstWave.compile(new CpuFullTestBench(pCfg, dCfg, ifuCfg, axiConfig, fifoDepth))
     compiled.doSim { dut =>
       val cd = dut.clockDomain
@@ -122,16 +175,7 @@ class CpuFullSpec extends CustomSpinalSimFunSuite {
     }
   }
 
-  // =======================================================================
-// =====                FIXED: Basic Addition Test                   =====
-// =======================================================================
-// 修正说明：
-// 1. **增加了数据结果验证**：测试程序现在会将r1+r2的结果存入内存地址0x1000。
-//    测试台在最后会回读该地址，验证结果是否为300。
-// 2. **启用了LSU**：创建了新的pCfg，将lsuEuCount设为1，以支持st.w指令。
-// 3. **增加了PC序列验证**：测试现在会检查每一条指令是否按正确的PC顺序提交。
-// 4. **更名**：测试名称改为 "Basic Addition and Store Test"，更准确地反映其内容。
-test("Basic Addition and Store Test") {
+testOnly("Basic Addition and Store Test") {
     val pCfgWithLsu = pCfg.copy(lsuEuCount = 1)
     
     val compiled = SimConfig.withFstWave.compile(new CpuFullTestBench(pCfgWithLsu, dCfg, ifuCfg, axiConfig, fifoDepth))
@@ -140,8 +184,8 @@ test("Basic Addition and Store Test") {
       cd.forkStimulus(period = 10)
       SimTimeout(50000)
 
-      def verifyMemory(address: BigInt, expectedValue: BigInt): Unit = { /* ... (no changes) ... */ }
-      def writeInstructionsToMem(address: BigInt, instructions: Seq[BigInt]): Unit = { /* ... (no changes) ... */ }
+      
+
 
       // --- Test Setup ---
       dut.io.initMemEnable #= true
@@ -160,7 +204,7 @@ test("Basic Addition and Store Test") {
         idle()                                     // 0x18: Halt CPU
       )
       val expectedCommitPCs = instructions.indices.map(i => baseAddr + i * 4)
-      writeInstructionsToMem(baseAddr, instructions)
+      CpuFullSpecHelper.writeInstructionsToMem(dut, baseAddr, instructions)
 
       dut.io.initMemEnable #= false
       cd.waitSampling(20)
@@ -192,7 +236,7 @@ test("Basic Addition and Store Test") {
       assert(commitedPCs.toSeq == expectedCommitPCs, s"Final PC sequence mismatch!\nExpected: $expectedCommitPCs\nGot: ${commitedPCs.toSeq}")
       
       println(s"Verifying result at memory address 0x${storeAddr.toString(16)}...")
-      verifyMemory(storeAddr, 300)
+      CpuFullSpecHelper.verifyMemory(dut, storeAddr, 300)
 
       println("Basic Addition and Store Test passed with PC sequence and data verification!")
     }
@@ -215,8 +259,8 @@ test("Branch with Load/Store Test") {
       cd.forkStimulus(period = 10)
       SimTimeout(8000)
 
-      def verifyMemory(address: BigInt, expectedValue: BigInt): Unit = { /* ... (no changes) ... */ }
-      def writeInstructionsToMem(address: BigInt, instructions: Seq[BigInt]): Unit = { /* ... (no changes) ... */ }
+      
+
 
       // --- Test Setup ---
       dut.io.initMemEnable #= true
@@ -238,7 +282,7 @@ test("Branch with Load/Store Test") {
         idle()                                            // 0x20: Halt CPU
       )
       val expectedCommitPCs = Seq(0x00, 0x04, 0x08, 0x0c, 0x10, 0x18, 0x1c, 0x20).map(baseAddr + _)
-      writeInstructionsToMem(baseAddr, instructions)
+      CpuFullSpecHelper.writeInstructionsToMem(dut, baseAddr, instructions)
 
       dut.io.initMemEnable #= false
       cd.waitSampling(20)
@@ -268,8 +312,8 @@ test("Branch with Load/Store Test") {
       assert(commitedPCs.toSeq == expectedCommitPCs, s"Final PC sequence mismatch!\nExpected: $expectedCommitPCs\nGot: ${commitedPCs.toSeq}")
       
       println("Verifying memory state after store and load operations...")
-      verifyMemory(dataAddr1, 777)
-      verifyMemory(dataAddr2, 777)
+      CpuFullSpecHelper.verifyMemory(dut, dataAddr1, 777)
+      CpuFullSpecHelper.verifyMemory(dut, dataAddr2, 777)
 
       println("Branch with Load/Store Test passed with PC sequence and data verification!")
     }
@@ -293,8 +337,8 @@ test("Register and Memory State Verification via Stores") {
       cd.forkStimulus(period = 10)
       SimTimeout(50000)
 
-      def verifyMemory(address: BigInt, expectedValue: BigInt): Unit = { /* ... (no changes) ... */ }
-      def writeInstructionsToMem(address: BigInt, instructions: Seq[BigInt]): Unit = { /* ... (no changes) ... */ }
+      
+
 
       // --- Test Setup ---
       dut.io.initMemEnable #= true
@@ -318,7 +362,7 @@ test("Register and Memory State Verification via Stores") {
         idle()                                                   // 0x20: Halt CPU
       )
       val expectedCommitPCs = instructions.indices.map(i => baseAddr + i * 4)
-      writeInstructionsToMem(baseAddr, instructions)
+      CpuFullSpecHelper.writeInstructionsToMem(dut, baseAddr, instructions)
 
       dut.io.initMemEnable #= false
       cd.waitSampling(20)
@@ -348,9 +392,9 @@ test("Register and Memory State Verification via Stores") {
       assert(commitedPCs.toSeq == expectedCommitPCs, s"Final PC sequence mismatch!\nExpected: $expectedCommitPCs\nGot: ${commitedPCs.toSeq}")
       
       println("Verifying memory to confirm final register states...")
-      verifyMemory(dataAddr + 0, 0x123) // Verifies r1's final state
-      verifyMemory(dataAddr + 4, 0x456) // Verifies r2's final state
-      verifyMemory(dataAddr + 8, 0x579) // Verifies r3's final state (result of add_w)
+      CpuFullSpecHelper.verifyMemory(dut, dataAddr + 0, 0x123) // Verifies r1's final state
+      CpuFullSpecHelper.verifyMemory(dut, dataAddr + 4, 0x456) // Verifies r2's final state
+      CpuFullSpecHelper.verifyMemory(dut, dataAddr + 8, 0x579) // Verifies r3's final state (result of add_w)
 
       println("Register and Memory State Verification via Stores passed with PC sequence and data verification!")
     }
@@ -364,55 +408,9 @@ test("Register and Memory State Verification via Stores") {
       SimTimeout(50000)
       
       // Helper function to verify memory content
-      def verifyMemory(address: BigInt, expectedValue: BigInt): Unit = {
-        val sram = dut.framework.getService[TestOnlyMemSystemPlugin].getSram()
-        sram.io.tb_readEnable #= true
-        sram.io.tb_readAddress #= address
-        cd.waitSampling()
-        val actualValue = sram.io.tb_readData.toBigInt
-        sram.io.tb_readEnable #= false
-        assert(actualValue == expectedValue, 
-          s"Memory mismatch at 0x${address.toString(16)}: expected 0x${expectedValue.toString(16)}, got 0x${actualValue.toString(16)}")
-      }
       
       // Helper function to write instructions to memory - following existing pattern
-      def writeInstructionsToMem(address: BigInt, instructions: Seq[BigInt]): Unit = {
-        val sram = dut.framework.getService[TestOnlyMemSystemPlugin].getSram()
-        
-        println("=== ISOLATING MEMORY SYSTEM FOR TB WRITES ===")
-        cd.waitSampling(100) 
-        assert(dut.io.initMemEnable.toBoolean, "initMemEnable must be active during TB writes")
-        
-        var currentAddr = address
-        println(s"Writing ${instructions.length} instructions starting at address 0x${address.toString(16)}")
-        for ((inst, idx) <- instructions.zipWithIndex) {
-          sram.io.tb_writeEnable #= true
-          sram.io.tb_writeAddress #= currentAddr
-          sram.io.tb_writeData #= inst
-          println(s"  [${idx}] Address 0x${currentAddr.toString(16)} = 0x${inst.toString(16)}")
-          cd.waitSampling(3)
-          currentAddr += 4
-        }
-        sram.io.tb_writeEnable #= false
-        cd.waitSampling(10)
-        
-        println("=== SYNCHRONIZING MEMORY SYSTEM AFTER TB WRITES ===")
-        cd.waitSampling(200)
-        
-        // Verify writes were successful
-        for ((inst, idx) <- instructions.zipWithIndex) {
-          val readAddr = address + (idx * 4)
-          sram.io.tb_readEnable #= true
-          sram.io.tb_readAddress #= readAddr
-          cd.waitSampling()
-          val readData = sram.io.tb_readData.toBigInt
-          println(s"  VERIFY [${idx}] Address 0x${readAddr.toString(16)} = 0x${readData.toString(16)} (expected 0x${inst.toString(16)})")
-          assert(readData == inst, s"TB write verification failed at 0x${readAddr.toString(16)}: got 0x${readData.toString(16)}, expected 0x${inst.toString(16)}")
-        }
-        sram.io.tb_readEnable #= false
-        
-        println("Instruction writing completed and verified")
-      }
+      
       
       // Setup test environment
       println("=== TESTING RAW HAZARD RESOLUTION ===")
@@ -433,7 +431,7 @@ test("Register and Memory State Verification via Stores") {
         idle()                              // IDLE instruction to halt CPU
       )
       
-      writeInstructionsToMem(baseAddr, instructions)
+      CpuFullSpecHelper.writeInstructionsToMem(dut, baseAddr, instructions)
       
       // Start CPU execution
       dut.io.initMemEnable #= false
@@ -537,43 +535,7 @@ test("Register and Memory State Verification via Stores") {
       val sram = dut.framework.getService[TestOnlyMemSystemPlugin].getSram()
 
       // Helper function to write instructions to memory - using the proven pattern
-      def writeInstructionsToMem(address: BigInt, instructions: Seq[BigInt]): Unit = {
-        val sram = dut.framework.getService[TestOnlyMemSystemPlugin].getSram()
-        
-        println("=== ISOLATING MEMORY SYSTEM FOR TB WRITES ===")
-        cd.waitSampling(100) 
-        assert(dut.io.initMemEnable.toBoolean, "initMemEnable must be active during TB writes")
-        
-        var currentAddr = address
-        println(s"Writing ${instructions.length} instructions starting at address 0x${address.toString(16)}")
-        for ((inst, idx) <- instructions.zipWithIndex) {
-          sram.io.tb_writeEnable #= true
-          sram.io.tb_writeAddress #= currentAddr
-          sram.io.tb_writeData #= inst
-          println(s"  [${idx}] Address 0x${currentAddr.toString(16)} = 0x${inst.toString(16)}")
-          cd.waitSampling(3)
-          currentAddr += 4
-        }
-        sram.io.tb_writeEnable #= false
-        cd.waitSampling(10)
-        
-        println("=== SYNCHRONIZING MEMORY SYSTEM AFTER TB WRITES ===")
-        cd.waitSampling(200)
-        
-        // Verify writes were successful
-        for ((inst, idx) <- instructions.zipWithIndex) {
-          val readAddr = address + (idx * 4)
-          sram.io.tb_readEnable #= true
-          sram.io.tb_readAddress #= readAddr
-          cd.waitSampling()
-          val readData = sram.io.tb_readData.toBigInt
-          println(s"  VERIFY [${idx}] Address 0x${readAddr.toString(16)} = 0x${readData.toString(16)} (expected 0x${inst.toString(16)})")
-          assert(readData == inst, s"TB write verification failed at 0x${readAddr.toString(16)}: got 0x${readData.toString(16)}, expected 0x${inst.toString(16)}")
-        }
-        sram.io.tb_readEnable #= false
-        
-        println("Instruction writing completed and verified")
-      }
+      
 
       // Setup test environment
       println("=== BRANCH PREDICTION MISPREDICTION TEST ===")
@@ -600,7 +562,7 @@ test("Register and Memory State Verification via Stores") {
         addi_w(rd = 5, rj = 0, imm = 400),   // 0x14: r5 = 400 (branch target)
         idle()                               // 0x18: IDLE instruction to halt CPU
       )
-      writeInstructionsToMem(baseAddr, instructions)
+      CpuFullSpecHelper.writeInstructionsToMem(dut, baseAddr, instructions)
       
       // CRITICAL: Deactivate initMemEnable to allow CPU to start
       dut.io.initMemEnable #= false
@@ -697,45 +659,6 @@ test("Register and Memory State Verification via Stores") {
 
       val sram = dut.framework.getService[TestOnlyMemSystemPlugin].getSram()
 
-      // Helper function to write instructions to memory - using the proven pattern
-      def writeInstructionsToMem(address: BigInt, instructions: Seq[BigInt]): Unit = {
-        val sram = dut.framework.getService[TestOnlyMemSystemPlugin].getSram()
-        
-        println("=== ISOLATING MEMORY SYSTEM FOR TB WRITES ===")
-        cd.waitSampling(100) 
-        assert(dut.io.initMemEnable.toBoolean, "initMemEnable must be active during TB writes")
-        
-        var currentAddr = address
-        println(s"Writing ${instructions.length} instructions starting at address 0x${address.toString(16)}")
-        for ((inst, idx) <- instructions.zipWithIndex) {
-          sram.io.tb_writeEnable #= true
-          sram.io.tb_writeAddress #= currentAddr
-          sram.io.tb_writeData #= inst
-          println(s"  [${idx}] Address 0x${currentAddr.toString(16)} = 0x${inst.toString(16)}")
-          cd.waitSampling(3)
-          currentAddr += 4
-        }
-        sram.io.tb_writeEnable #= false
-        cd.waitSampling(10)
-        
-        println("=== SYNCHRONIZING MEMORY SYSTEM AFTER TB WRITES ===")
-        cd.waitSampling(200)
-        
-        // Verify writes were successful
-        for ((inst, idx) <- instructions.zipWithIndex) {
-          val readAddr = address + (idx * 4)
-          sram.io.tb_readEnable #= true
-          sram.io.tb_readAddress #= readAddr
-          cd.waitSampling()
-          val readData = sram.io.tb_readData.toBigInt
-          println(s"  VERIFY [${idx}] Address 0x${readAddr.toString(16)} = 0x${readData.toString(16)} (expected 0x${inst.toString(16)})")
-          assert(readData == inst, s"TB write verification failed at 0x${readAddr.toString(16)}: got 0x${readData.toString(16)}, expected 0x${inst.toString(16)}")
-        }
-        sram.io.tb_readEnable #= false
-        
-        println("Instruction writing completed and verified")
-      }
-
       // Setup test environment - use proven initialization pattern
       println("=== BRANCH PREDICTION ROLLBACK TEST ===")
       dut.io.initMemEnable #= true  // Activate BEFORE any cache operations
@@ -764,7 +687,7 @@ test("Register and Memory State Verification via Stores") {
         idle()                               // 0x18: IDLE instruction to halt CPU
       )
       
-      writeInstructionsToMem(baseAddr, instructions)
+      CpuFullSpecHelper.writeInstructionsToMem(dut, baseAddr, instructions)
       
       // CRITICAL: Deactivate initMemEnable to allow CPU to start
       dut.io.initMemEnable #= false
@@ -871,43 +794,7 @@ test("Register and Memory State Verification via Stores") {
       val sram = dut.framework.getService[TestOnlyMemSystemPlugin].getSram()
 
       // Helper function to write instructions to memory - using the proven pattern
-      def writeInstructionsToMem(address: BigInt, instructions: Seq[BigInt]): Unit = {
-        val sram = dut.framework.getService[TestOnlyMemSystemPlugin].getSram()
-        
-        println("=== ISOLATING MEMORY SYSTEM FOR TB WRITES ===")
-        cd.waitSampling(100) 
-        assert(dut.io.initMemEnable.toBoolean, "initMemEnable must be active during TB writes")
-        
-        var currentAddr = address
-        println(s"Writing ${instructions.length} instructions starting at address 0x${address.toString(16)}")
-        for ((inst, idx) <- instructions.zipWithIndex) {
-          sram.io.tb_writeEnable #= true
-          sram.io.tb_writeAddress #= currentAddr
-          sram.io.tb_writeData #= inst
-          println(s"  [${idx}] Address 0x${currentAddr.toString(16)} = 0x${inst.toString(16)}")
-          cd.waitSampling(3)
-          currentAddr += 4
-        }
-        sram.io.tb_writeEnable #= false
-        cd.waitSampling(10)
-        
-        println("=== SYNCHRONIZING MEMORY SYSTEM AFTER TB WRITES ===")
-        cd.waitSampling(200)
-        
-        // Verify writes were successful
-        for ((inst, idx) <- instructions.zipWithIndex) {
-          val readAddr = address + (idx * 4)
-          sram.io.tb_readEnable #= true
-          sram.io.tb_readAddress #= readAddr
-          cd.waitSampling()
-          val readData = sram.io.tb_readData.toBigInt
-          println(s"  VERIFY [${idx}] Address 0x${readAddr.toString(16)} = 0x${readData.toString(16)} (expected 0x${inst.toString(16)})")
-          assert(readData == inst, s"TB write verification failed at 0x${readAddr.toString(16)}: got 0x${readData.toString(16)}, expected 0x${inst.toString(16)}")
-        }
-        sram.io.tb_readEnable #= false
-        
-        println("Instruction writing completed and verified")
-      }
+      
 
       // Setup test environment
       println("=== MULTI-BRANCH BUG EXPOSURE TEST ===")
@@ -931,7 +818,7 @@ test("Register and Memory State Verification via Stores") {
         idle()                               // 0x14: IDLE instruction to halt CPU
       )
       
-      writeInstructionsToMem(baseAddr, instructions)
+      CpuFullSpecHelper.writeInstructionsToMem(dut, baseAddr, instructions)
       
       // Deactivate initMemEnable to allow CPU to start
       dut.io.initMemEnable #= false
@@ -1042,43 +929,7 @@ test("Register and Memory State Verification via Stores") {
       val sram = dut.framework.getService[TestOnlyMemSystemPlugin].getSram()
 
       // Helper function to write instructions to memory - using the proven pattern
-      def writeInstructionsToMem(address: BigInt, instructions: Seq[BigInt]): Unit = {
-        val sram = dut.framework.getService[TestOnlyMemSystemPlugin].getSram()
-        
-        println("=== ISOLATING MEMORY SYSTEM FOR TB WRITES ===")
-        cd.waitSampling(100) 
-        assert(dut.io.initMemEnable.toBoolean, "initMemEnable must be active during TB writes")
-        
-        var currentAddr = address
-        println(s"Writing ${instructions.length} instructions starting at address 0x${address.toString(16)}")
-        for ((inst, idx) <- instructions.zipWithIndex) {
-          sram.io.tb_writeEnable #= true
-          sram.io.tb_writeAddress #= currentAddr
-          sram.io.tb_writeData #= inst
-          println(s"  [${idx}] Address 0x${currentAddr.toString(16)} = 0x${inst.toString(16)}")
-          cd.waitSampling(3)
-          currentAddr += 4
-        }
-        sram.io.tb_writeEnable #= false
-        cd.waitSampling(10)
-        
-        println("=== SYNCHRONIZING MEMORY SYSTEM AFTER TB WRITES ===")
-        cd.waitSampling(200)
-        
-        // Verify writes were successful
-        for ((inst, idx) <- instructions.zipWithIndex) {
-          val readAddr = address + (idx * 4)
-          sram.io.tb_readEnable #= true
-          sram.io.tb_readAddress #= readAddr
-          cd.waitSampling()
-          val readData = sram.io.tb_readData.toBigInt
-          println(s"  VERIFY [${idx}] Address 0x${readAddr.toString(16)} = 0x${readData.toString(16)} (expected 0x${inst.toString(16)})")
-          assert(readData == inst, s"TB write verification failed at 0x${readAddr.toString(16)}: got 0x${readData.toString(16)}, expected 0x${inst.toString(16)}")
-        }
-        sram.io.tb_readEnable #= false
-        
-        println("Instruction writing completed and verified")
-      }
+      
 
       // Setup test environment
       println("=== BRANCH THROTTLING VERIFICATION TEST ===")
@@ -1101,7 +952,7 @@ test("Register and Memory State Verification via Stores") {
         idle()                               // 0x10: IDLE instruction to halt CPU
       )
       
-      writeInstructionsToMem(baseAddr, instructions)
+      CpuFullSpecHelper.writeInstructionsToMem(dut, baseAddr, instructions)
       
       // Deactivate initMemEnable to allow CPU to start
       dut.io.initMemEnable #= false
@@ -1199,43 +1050,7 @@ test("Register and Memory State Verification via Stores") {
 
       val sram = dut.framework.getService[TestOnlyMemSystemPlugin].getSram()
 
-      def writeInstructionsToMem(address: BigInt, instructions: Seq[BigInt]): Unit = {
-        val sram = dut.framework.getService[TestOnlyMemSystemPlugin].getSram()
-        
-        println("=== ISOLATING MEMORY SYSTEM FOR TB WRITES ===")
-        cd.waitSampling(100) 
-        assert(dut.io.initMemEnable.toBoolean, "initMemEnable must be active during TB writes")
-        
-        var currentAddr = address
-        println(s"Writing ${instructions.length} instructions starting at address 0x${address.toString(16)}")
-        for ((inst, idx) <- instructions.zipWithIndex) {
-          sram.io.tb_writeEnable #= true
-          sram.io.tb_writeAddress #= currentAddr
-          sram.io.tb_writeData #= inst
-          println(s"  [${idx}] Address 0x${currentAddr.toString(16)} = 0x${inst.toString(16)}")
-          cd.waitSampling(3)
-          currentAddr += 4
-        }
-        sram.io.tb_writeEnable #= false
-        cd.waitSampling(10)
-        
-        println("=== SYNCHRONIZING MEMORY SYSTEM AFTER TB WRITES ===")
-        cd.waitSampling(200)
-        
-        // Verify writes were successful
-        for ((inst, idx) <- instructions.zipWithIndex) {
-          val readAddr = address + (idx * 4)
-          sram.io.tb_readEnable #= true
-          sram.io.tb_readAddress #= readAddr
-          cd.waitSampling()
-          val readData = sram.io.tb_readData.toBigInt
-          println(s"  VERIFY [${idx}] Address 0x${readAddr.toString(16)} = 0x${readData.toString(16)} (expected 0x${inst.toString(16)})")
-          assert(readData == inst, s"TB write verification failed at 0x${readAddr.toString(16)}: got 0x${readData.toString(16)}, expected 0x${inst.toString(16)}")
-        }
-        sram.io.tb_readEnable #= false
-        
-        println("Instruction writing completed and verified")
-      }
+      
 
       // Setup test environment
       println("=== BRANCH PREDICTION SPECULATION FAILURE TEST ===")
@@ -1261,7 +1076,7 @@ test("Register and Memory State Verification via Stores") {
         idle()                               // 0x1c: IDLE instruction to halt CPU
       )
       
-      writeInstructionsToMem(baseAddr, instructions)
+      CpuFullSpecHelper.writeInstructionsToMem(dut, baseAddr, instructions)
       
       // Deactivate initMemEnable to allow CPU to start
       dut.io.initMemEnable #= false
@@ -1359,43 +1174,7 @@ test("Register and Memory State Verification via Stores") {
       val sram = dut.framework.getService[TestOnlyMemSystemPlugin].getSram()
 
       // Helper function to write instructions to memory
-      def writeInstructionsToMem(address: BigInt, instructions: Seq[BigInt]): Unit = {
-        val sram = dut.framework.getService[TestOnlyMemSystemPlugin].getSram()
-        
-        println("=== WRITING INSTRUCTIONS FOR IDLE TEST ===")
-        cd.waitSampling(100) 
-        assert(dut.io.initMemEnable.toBoolean, "initMemEnable must be active during TB writes")
-        
-        var currentAddr = address
-        println(s"Writing ${instructions.length} instructions starting at address 0x${address.toString(16)}")
-        for ((inst, idx) <- instructions.zipWithIndex) {
-          sram.io.tb_writeEnable #= true
-          sram.io.tb_writeAddress #= currentAddr
-          sram.io.tb_writeData #= inst
-          println(s"  [${idx}] Address 0x${currentAddr.toString(16)} = 0x${inst.toString(16)}")
-          cd.waitSampling(3)
-          currentAddr += 4
-        }
-        sram.io.tb_writeEnable #= false
-        cd.waitSampling(10)
-        
-        println("=== VERIFYING WRITTEN INSTRUCTIONS ===")
-        cd.waitSampling(200)
-        
-        // Verify writes were successful
-        for ((inst, idx) <- instructions.zipWithIndex) {
-          val readAddr = address + (idx * 4)
-          sram.io.tb_readEnable #= true
-          sram.io.tb_readAddress #= readAddr
-          cd.waitSampling()
-          val readData = sram.io.tb_readData.toBigInt
-          println(s"  VERIFY [${idx}] Address 0x${readAddr.toString(16)} = 0x${readData.toString(16)} (expected 0x${inst.toString(16)})")
-          assert(readData == inst, s"TB write verification failed at 0x${readAddr.toString(16)}: got 0x${readData.toString(16)}, expected 0x${inst.toString(16)}")
-        }
-        sram.io.tb_readEnable #= false
-        
-        println("Instruction writing completed and verified")
-      }
+      
 
       // Setup test environment
       println("=== IDLE INSTRUCTION HANDLING BUG TEST ===")
@@ -1419,7 +1198,7 @@ test("Register and Memory State Verification via Stores") {
         addi_w(rd = 6, rj = 0, imm = 60)     // 0x18: r6 = 60 (SHOULD NOT BE COMMITTED)
       )
       
-      writeInstructionsToMem(baseAddr, instructions)
+      CpuFullSpecHelper.writeInstructionsToMem(dut, baseAddr, instructions)
       
       // Deactivate initMemEnable to allow CPU to start
       dut.io.initMemEnable #= false
@@ -1787,7 +1566,8 @@ class CpuFullTestBench(val pCfg: PipelineConfig, val dCfg: DataCachePluginConfig
   val prfService = framework.getService[PhysicalRegFileService]
   val prfReadPort = prfService.newReadPort()
   prfReadPort.simPublic()
-  
+  prfReadPort.valid   := False 
+  prfReadPort.address := 0
   // === RAT Query Interface for Testing ===
   val ratService = framework.getService[RatControlService]
   val ratMapping = ratService.getCurrentState().mapping
