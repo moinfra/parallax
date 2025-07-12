@@ -10,6 +10,7 @@ import parallax.components.memory._
 import parallax.utilities._
 import scala.collection.mutable.ArrayBuffer
 import parallax.utils.Encoders.PriorityEncoderOH
+import parallax.execute.WakeupService
 
 // --- 输入到Load Queue的命令 ---
 // 这个命令由LsuEu在地址计算后发出
@@ -151,6 +152,8 @@ class LoadQueuePlugin(
         val robLoadWritebackPort = robServiceInst.newWritebackPort("LQ_Load")
         val prfWritePort     = prfServiceInst.newWritePort()
         val sbQueryPort      = storeBufferServiceInst.getStoreQueueQueryPort()
+        val wakeupServiceInst = getService[WakeupService]
+        val wakeupPort = wakeupServiceInst.newWakeupSource()
 
         // MMIO支持：如果配置了MMIO，则创建SGMB读通道
         var sgmbServiceOpt: Option[SgmbService] = None
@@ -166,6 +169,7 @@ class LoadQueuePlugin(
         dcacheServiceInst.retain()
         prfServiceInst.retain()
         storeBufferServiceInst.retain()
+        wakeupServiceInst.retain()
     }
 
     val logic = create late new Area {
@@ -179,6 +183,7 @@ class LoadQueuePlugin(
         val robLoadWritebackPort = hw.robLoadWritebackPort
         val prfWritePort     = hw.prfWritePort
         val robFlushPort = hw.robServiceInst.getFlushListeningPort()
+        val wakeupPort       = hw.wakeupPort
 
         // Store Path Area is completely removed.
 
@@ -357,7 +362,7 @@ class LoadQueuePlugin(
             val popOnEarlyException = head.valid && head.hasException && !head.isReadyForDCache // Exception was known at dispatch
             val popRequest = popOnFwdHit || popOnDCacheSuccess || popOnMMIOSuccess || popOnEarlyException
             
-                        robLoadWritebackPort.fire := False
+            robLoadWritebackPort.fire := False
             robLoadWritebackPort.robPtr.assignDontCare()
             robLoadWritebackPort.exceptionOccurred.assignDontCare()
             robLoadWritebackPort.exceptionCodeIn.assignDontCare()
@@ -365,6 +370,9 @@ class LoadQueuePlugin(
             prfWritePort.valid   := False
             prfWritePort.address.assignDontCare()
             prfWritePort.data.assignDontCare()
+
+            wakeupPort.valid := False
+            wakeupPort.payload.physRegIdx.assignDontCare()
 
             // Completion paths
             when(popOnFwdHit) {
@@ -376,6 +384,9 @@ class LoadQueuePlugin(
                 robLoadWritebackPort.fire := True
                 robLoadWritebackPort.robPtr := head.robPtr
                 robLoadWritebackPort.exceptionOccurred := False
+
+                wakeupPort.valid := True
+                wakeupPort.payload.physRegIdx := head.pdest
             } elsewhen (popOnDCacheSuccess) {
                 ParallaxSim.log(L"[LQ-DCache] DCACHE_RSP_OK for robPtr=${head.robPtr}, data=${dCacheLoadPort.rsp.payload.data}, fault=${dCacheLoadPort.rsp.payload.fault}")
                 prfWritePort.valid   := !dCacheLoadPort.rsp.payload.fault
@@ -386,6 +397,11 @@ class LoadQueuePlugin(
                 robLoadWritebackPort.robPtr := head.robPtr
                 robLoadWritebackPort.exceptionOccurred := dCacheLoadPort.rsp.payload.fault
                 robLoadWritebackPort.exceptionCodeIn   := ExceptionCode.LOAD_ACCESS_FAULT
+
+                when(!dCacheLoadPort.rsp.payload.fault) {
+                    wakeupPort.valid := True
+                    wakeupPort.payload.physRegIdx := head.pdest
+                }
             } elsewhen (popOnMMIOSuccess) { // Uses current response
                 hw.mmioReadChannel.foreach { mmioChannel =>
                     val mmioRsp = mmioChannel.rsp.payload
@@ -398,6 +414,11 @@ class LoadQueuePlugin(
                     robLoadWritebackPort.robPtr := head.robPtr
                     robLoadWritebackPort.exceptionOccurred := mmioRsp.error
                     robLoadWritebackPort.exceptionCodeIn   := ExceptionCode.LOAD_ACCESS_FAULT
+
+                    when(!mmioRsp.error) {
+                        wakeupPort.valid := True
+                        wakeupPort.payload.physRegIdx := head.pdest
+                    }
                 }
             } elsewhen (popOnEarlyException) {
                 ParallaxSim.log(L"[LQ] Alignment exception for robPtr=${head.robPtr}")
@@ -405,8 +426,13 @@ class LoadQueuePlugin(
                 robLoadWritebackPort.robPtr := head.robPtr
                 robLoadWritebackPort.exceptionOccurred := True
                 robLoadWritebackPort.exceptionCodeIn := head.exceptionCode
+                
+                // An instruction with an exception still "completes" its reservation on a physical register.
+                // The register won't be written, but it's no longer in flight. Wakeup listeners need to know.
+                // NOTE: This behavior might be debatable. A simpler model is to only wakeup on success.
+                // Let's stick to waking up only on successful write to PRF to match the log behavior.
+                // So, no wakeup here. This is correct as no data is produced.
             }
-            // <<< FIX END
 
             // --- LQ Pop Execution ---
             when(popRequest) {
@@ -427,5 +453,6 @@ class LoadQueuePlugin(
         hw.prfServiceInst.release()
         hw.storeBufferServiceInst.release()
         hw.sgmbServiceOpt.foreach(_.release())
+        hw.wakeupServiceInst.release()
     }
 }
