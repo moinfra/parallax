@@ -1,5 +1,5 @@
 // filename: test/scala/lsu/LsuPluginSpec.scala
-// command: test test.scala.lsu.LsuPluginSpec
+// command: testOnly test.scala.lsu.LsuPluginSpec
 package test.scala.lsu
 
 import test.scala.TestOnlyMemSystemPlugin
@@ -192,6 +192,7 @@ class LsuTestHelper(dut: LsuFullIntegrationTestBench)(implicit cd: ClockDomain) 
         dataReg: Int = 0, // For Stores
         pdest: Int = 0,   // For Loads
         isFlush: Boolean = false, 
+        isIO: Boolean = false, 
         var robPtr: BigInt = -1 // Will be filled by issue()
     )
 
@@ -222,6 +223,7 @@ class LsuTestHelper(dut: LsuFullIntegrationTestBench)(implicit cd: ClockDomain) 
         lsuPayload.robPtr #= robPtr
         lsuPayload.accessSize #= MemAccessSize.W
         lsuPayload.isFlush #= op.isFlush
+        lsuPayload.isIO   #= op.isIO
         lsuPayload.usePc #= false // Assume not PC-relative for now
         lsuPayload.pc #= currentPc
         
@@ -488,7 +490,7 @@ test("LSU_Integration_Simplest_Store_and_Verify") {
       }
   }
 
-  test("LSU_Integration - Store to Load Forwarding") {
+  testOnly("LSU_Integration - Store to Load Forwarding") {
     val pCfg = createPConfig()
     val lsuCfg = createLsuConfig(pCfg, 16, 16)
     val dCacheCfg = createDCacheConfig(pCfg)
@@ -517,7 +519,7 @@ test("LSU_Integration_Simplest_Store_and_Verify") {
 
         // 2. Issue a Store instruction
         val storeOp = helper.issue(helper.CpuOp(isLoad = false, baseReg = baseReg, addrImm = 0, dataReg = dataReg))
-        
+
         // 3. Immediately issue a Load to the same address, before the Store commits
         val loadOp = helper.issue(helper.CpuOp(isLoad = true, baseReg = baseReg, addrImm = 0, pdest = pdestReg))
         

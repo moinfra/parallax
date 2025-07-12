@@ -1,4 +1,5 @@
-package test.scala.memory
+// testOnly test.scala.SplitGmbToAxi4BridgeSpec
+package test.scala
 
 import spinal.core._
 import spinal.core.sim._
@@ -16,7 +17,6 @@ import parallax.components.memory.Axi4SlaveRam
 class SplitGmbToAxi4BridgeSpec extends SpinalSimFunSuite {
     onlyVerilator()
   
-    test("SplitGmbToAxi4Bridge_UnitTest") {
       val GMB_SPLIT_CONFIG = GenericMemoryBusConfig(
           addressWidth = 8 bits, dataWidth = 32 bits, useId = true, idWidth = 3 bits
       )
@@ -30,7 +30,7 @@ class SplitGmbToAxi4BridgeSpec extends SpinalSimFunSuite {
           useCache = false, useProt = false, useQos = false
       )
   
-      SimConfig.withWave.compile(new Component {
+    def createTB = new Component {
         val io = new Bundle {
           val gmbReadCmdIn = slave(Stream(SplitGmbReadCmd(GMB_SPLIT_CONFIG)))
           val gmbReadRspOut = master(Stream(SplitGmbReadRsp(GMB_SPLIT_CONFIG)))
@@ -51,7 +51,9 @@ class SplitGmbToAxi4BridgeSpec extends SpinalSimFunSuite {
         slaveRam.io.axi <> bridge.io.axiOut
   
         io.simPublic(); bridge.io.simPublic(); slaveRam.io.axi.simPublic()
-      }).doSimUntilVoid { dut =>
+      }
+    test("SplitGmbToAxi4Bridge_UnitTest") {
+      SimConfig.withWave.compile(createTB).doSimUntilVoid { dut =>
         // ... (Your test logic from previous "SplitBridgeTest: Driving GMB Write..." etc.)
         // (Ensure to use BigInt for hex values assigned to data, and correct burst enum value)
         implicit val cd = dut.clockDomain
@@ -112,5 +114,79 @@ class SplitGmbToAxi4BridgeSpec extends SpinalSimFunSuite {
       }
       println("--- Test: SplitGmbToAxi4Bridge_UnitTest Passed ---")
     }
+
+      test("SplitGmbToAxi4Bridge_Back-to-Back_Writes_Test") {
+    SimConfig.withWave.compile(createTB).doSim { dut =>
+      implicit val cd = dut.clockDomain
+      dut.clockDomain.forkStimulus(10)
+
+      val gmbWriteCmd = dut.io.gmbWriteCmdIn
+      val gmbWriteRsp = dut.io.gmbWriteRspOut
+      
+      // Always be ready to accept responses
+      gmbWriteRsp.ready #= true
+      
+      // Fork a process to send two write commands back-to-back
+      val writeProcess = fork {
+        // --- First Write Transaction ---
+        val writeAddr1 = 0x80
+        val writeData1 = BigInt("AAAAAAAA", 16)
+        val writeId1 = 1
+        
+        gmbWriteCmd.valid #= true
+        gmbWriteCmd.payload.address #= writeAddr1
+        gmbWriteCmd.payload.data #= writeData1
+        gmbWriteCmd.payload.byteEnables #= 0xF
+        if(GMB_SPLIT_CONFIG.useId) gmbWriteCmd.payload.id #= writeId1
+        
+        // Wait for the first command to be accepted by the bridge
+        dut.clockDomain.waitSamplingWhere(gmbWriteCmd.ready.toBoolean)
+        println(s"Test @${simTime()}: First write cmd accepted (ID=$writeId1).")
+
+        // --- Second Write Transaction (IMMEDIATELY after the first one is accepted) ---
+        val writeAddr2 = 0x84
+        val writeData2 = BigInt("BBBBBBBB", 16)
+        val writeId2 = 2
+
+        // The 'valid' signal stays high, presenting the new command immediately
+        gmbWriteCmd.payload.address #= writeAddr2
+        gmbWriteCmd.payload.data #= writeData2
+        if(GMB_SPLIT_CONFIG.useId) gmbWriteCmd.payload.id #= writeId2
+
+        // Wait for the second command to be accepted
+        dut.clockDomain.waitSamplingWhere(gmbWriteCmd.ready.toBoolean)
+        println(s"Test @${simTime()}: Second write cmd accepted (ID=$writeId2).")
+
+        // De-assert valid after the second command
+        gmbWriteCmd.valid #= false
+      }
+
+      // Fork a process to receive the responses
+      var responsesReceived = 0
+      val responseProcess = fork {
+        while(responsesReceived < 2) {
+          dut.clockDomain.waitSamplingWhere(gmbWriteRsp.valid.toBoolean)
+          val id = if(GMB_SPLIT_CONFIG.useId) gmbWriteRsp.payload.id.toInt else -1
+          println(s"Test @${simTime()}: Received write response for ID=$id.")
+          responsesReceived += 1
+        }
+      }
+
+      // Wait for both processes to complete, with a timeout to detect the deadlock
+      val timeoutWatcher = fork {
+        dut.clockDomain.waitSampling(200) // 200 cycles should be more than enough
+        if (responsesReceived < 2) {
+          simFailure("Deadlock detected: Did not receive 2 write responses.")
+        }
+      }
+      
+      writeProcess.join()
+      responseProcess.join()
+      timeoutWatcher.join()
+
+      simSuccess()
+      println("--- Test: SplitGmbToAxi4Bridge_Back-to-Back_Writes_Test Passed ---")
+    }
+  }
   }
   

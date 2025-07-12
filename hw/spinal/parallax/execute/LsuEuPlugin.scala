@@ -16,7 +16,8 @@ class LsuEuPlugin(
     override val euName: String,
     override val pipelineConfig: PipelineConfig,
     val lsuConfig: LsuConfig,
-    val dCacheParams: DataCacheParameters
+    val dCacheParams: DataCacheParameters,
+    val defaultIsIO: Boolean = false
 ) extends EuBasePlugin(euName, pipelineConfig) {
 
   // =========================================================================
@@ -86,7 +87,7 @@ class LsuEuPlugin(
       aguCmd.isLoad      := !isStore
       aguCmd.isStore     := isStore
       aguCmd.isFlush     := False
-      aguCmd.isIO        := False // 默认 False
+      aguCmd.isIO        := Bool(defaultIsIO) // 使用配置参数
       aguCmd.physDst     := uop.physDest.idx
       aguCmd
     }

@@ -101,7 +101,7 @@ case class SqWaitOn(val lsuConfig: LsuConfig) extends Bundle { // 移除 dCacheC
   def isStalledForDCache: Bool = address && dCacheStoreRsp && !robFlush
 }
 
-// --- Load Queue Entry (扁平化) ---
+// deprecated
 case class LoadQueueEntry(
     val lsuConfig: LsuConfig // 替换 pCfg
 ) extends Bundle
@@ -214,6 +214,7 @@ case class LsuAguRequest(lsuConfig: LsuConfig) extends Bundle { // 替换 pCfg
   val robPtr = UInt(lsuConfig.robPtrWidth)
   val isLoad = Bool()
   val isStore = Bool()
+  val isIO = Bool()
   val qPtr = UInt(Math.max(lsuConfig.lqPtrWidth.value, lsuConfig.sqPtrWidth.value) bits)
   val physDestOrSrc = UInt(lsuConfig.physGprIdxWidth) // 对于 Load 是 physDest, 对于 Store 是 physDataSrc
   val physDestOrSrcIsFpr = Bool()
@@ -222,6 +223,7 @@ case class LsuAguRequest(lsuConfig: LsuConfig) extends Bundle { // 替换 pCfg
   def toAguInput(): AguInput = {
     val aguIn = AguInput(lsuConfig)
     aguIn.basePhysReg := basePhysReg
+    aguIn.isIO := isIO
     aguIn.immediate := immediate
     aguIn.accessSize := accessSize
     aguIn.usePc := usePc

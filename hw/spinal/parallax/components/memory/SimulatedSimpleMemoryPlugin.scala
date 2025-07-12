@@ -13,7 +13,7 @@ trait SimpleMemoryService extends Service {
 
 class SimulatedSimpleMemoryPlugin(
     val memBusConfig: GenericMemoryBusConfig =
-      GenericMemoryBusConfig(addressWidth = 32 bits, dataWidth = 32 bits),
+      GenericMemoryBusConfig(addressWidth = 32 bits, dataWidth = 32 bits, useId = false),
     val simMemConfig: SimulatedMemoryConfig = SimulatedMemoryConfig(
       internalDataWidth = 16 bits,
       memSize = 8 KiB,

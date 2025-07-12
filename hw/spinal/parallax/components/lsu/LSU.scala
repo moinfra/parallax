@@ -22,6 +22,7 @@ case class LsuInputCmd(pCfg: PipelineConfig) extends Bundle {
   val isLoad        = Bool()
   val isStore       = Bool()
   val isFlush       = Bool()
+  val isIO       = Bool()
 
   val baseReg       = UInt(pCfg.physGprIdxWidth)
   val immediate     = SInt(pCfg.dataWidth)
@@ -64,7 +65,7 @@ trait LsuService extends Service with LockedImpl {
 //     val isWaitingForFwdRsp    = Bool() // Query sent to SB, waiting for response.
 //     val isStalledByDependency = Bool() // SB response indicated a dependency, must wait and retry.
 //     val isReadyForDCache      = Bool() // SB cleared this load for D-Cache access.
-//     val isWaitingForDCacheRsp = Bool() // Request sent to D-Cache, waiting for response.
+//     val isWaitingForRsp = Bool() // Request sent to D-Cache, waiting for response.
     
 //     def setDefault(): this.type = {
 //         this.valid                 := False
@@ -85,7 +86,7 @@ trait LsuService extends Service with LockedImpl {
 //         this.isWaitingForFwdRsp    := False
 //         this.isStalledByDependency := False
 //         this.isReadyForDCache      := False
-//         this.isWaitingForDCacheRsp := False
+//         this.isWaitingForRsp := False
 //         this
 //     }
 
@@ -111,7 +112,7 @@ trait LsuService extends Service with LockedImpl {
 //         this.isWaitingForFwdRsp    := False
 //         this.isStalledByDependency := False
 //         this.isReadyForDCache      := False
-//         this.isWaitingForDCacheRsp := False
+//         this.isWaitingForRsp := False
 //         this
 //     }
 
@@ -132,7 +133,7 @@ trait LsuService extends Service with LockedImpl {
 //             L"isWaitingForFwdRsp=${isWaitingForFwdRsp}, " :+
 //             L"isStalledByDependency=${isStalledByDependency}, " :+
 //             L"isReadyForDCache=${isReadyForDCache}, " :+
-//             L"isWaitingForDCacheRsp=${isWaitingForDCacheRsp})"
+//             L"isWaitingForRsp=${isWaitingForRsp})"
 //         )
 //     }
 // }
@@ -222,6 +223,7 @@ class LsuPlugin(
         lqAguPort.input.payload.isLoad  := True
         lqAguPort.input.payload.isStore := False
         lqAguPort.input.payload.isFlush := loadStream.payload.isFlush
+        lqAguPort.input.payload.isIO := loadStream.payload.isIO
         lqAguPort.input.payload.robPtr        := loadStream.payload.robPtr
         lqAguPort.input.payload.basePhysReg   := loadStream.payload.baseReg
         lqAguPort.input.payload.immediate     := loadStream.payload.immediate
@@ -238,6 +240,7 @@ class LsuPlugin(
         sqAguPort.input.payload.isStore := True
         // >>> FIX: 补全 isFlush 字段的连接
         sqAguPort.input.payload.isFlush := storeStream.payload.isFlush
+        sqAguPort.input.payload.isIO := storeStream.payload.isIO
         // <<< FIX END
         sqAguPort.input.payload.robPtr        := storeStream.payload.robPtr
         sqAguPort.input.payload.basePhysReg   := storeStream.payload.baseReg
@@ -362,7 +365,7 @@ class LsuPlugin(
             ParallaxSim.debug(head.format)
             val headIsReadyForFwdQuery = head.valid && !head.hasException &&
                                          !head.isWaitingForFwdRsp && !head.isStalledByDependency &&
-                                         !head.isReadyForDCache && !head.isWaitingForDCacheRsp
+                                         !head.isReadyForDCache && !head.isWaitingForRsp
 
             sbQueryPort.cmd.valid   := headIsReadyForFwdQuery
             sbQueryPort.cmd.payload.address := head.address
@@ -393,7 +396,7 @@ class LsuPlugin(
             }
 
             // --- 3. D-Cache Interaction ---
-            val headIsReadyToExecute = head.valid && head.isReadyForDCache && !head.isWaitingForDCacheRsp
+            val headIsReadyToExecute = head.valid && head.isReadyForDCache && !head.isWaitingForRsp
 
             dCacheLoadPort.cmd.valid                 := headIsReadyToExecute && !head.hasException
             dCacheLoadPort.cmd.payload.virtual       := head.address
@@ -407,15 +410,15 @@ class LsuPlugin(
             dCacheLoadPort.cancels                   := 0
             
             when(dCacheLoadPort.cmd.fire) {
-                slotsAfterUpdates(0).isWaitingForDCacheRsp := True
+                slotsAfterUpdates(0).isWaitingForRsp := True
                 slotsAfterUpdates(0).isReadyForDCache      := False
                 ParallaxSim.log(L"[LQ-DCache] SEND_TO_DCACHE: robPtr=${head.robPtr} addr=${head.address}")
             }
 
             // --- 4. D-Cache Response Handling (for Redo) ---
-            when(dCacheLoadPort.rsp.valid && head.valid && head.isWaitingForDCacheRsp) {
+            when(dCacheLoadPort.rsp.valid && head.valid && head.isWaitingForRsp) {
                 when(dCacheLoadPort.rsp.payload.redo) {
-                    slotsAfterUpdates(0).isWaitingForDCacheRsp := False
+                    slotsAfterUpdates(0).isWaitingForRsp := False
                     slotsAfterUpdates(0).isReadyForDCache      := True 
                     ParallaxSim.log(L"[LQ-DCache] REDO received for robPtr=${head.robPtr}")
                 }
@@ -423,8 +426,8 @@ class LsuPlugin(
 
             // --- 5. Completion & Pop Logic (Refactored) ---
             val popOnFwdHit = head.isWaitingForFwdRsp && sbQueryPort.rsp.hit
-            val popOnDCacheSuccess = dCacheLoadPort.rsp.valid && head.valid && head.isWaitingForDCacheRsp && !dCacheLoadPort.rsp.payload.redo
-            val popOnEarlyException = head.valid && head.hasException && !head.isWaitingForFwdRsp && !head.isWaitingForDCacheRsp
+            val popOnDCacheSuccess = dCacheLoadPort.rsp.valid && head.valid && head.isWaitingForRsp && !dCacheLoadPort.rsp.payload.redo
+            val popOnEarlyException = head.valid && head.hasException && !head.isWaitingForFwdRsp && !head.isWaitingForRsp
             val popRequest = popOnFwdHit || popOnDCacheSuccess || popOnEarlyException
 
             // >>> FIX: 使用 if/elsewhen 结构避免赋值冲突

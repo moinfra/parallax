@@ -80,7 +80,7 @@ class SimpleICacheSpec extends CustomSpinalSimFunSuite {
       addressWidth = 32 bits,
       dataWidth = dataWidthBits
     )
-    val memBusConfig = GenericMemoryBusConfig(addressWidth = 32 bits, dataWidth = dataWidthBits)
+    val memBusConfig = GenericMemoryBusConfig(addressWidth = 32 bits, dataWidth = dataWidthBits, useId = false)
     val simMemConfig = SimulatedMemoryConfig(
       internalDataWidth = dataWidthBits,
       memSize = 8 KiB, // Increased memory size
@@ -234,7 +234,7 @@ class SimpleICacheSpec extends CustomSpinalSimFunSuite {
     // Addr 0x0040 -> Index 2
     // Addr 0x0080 -> Index 0 (Tag will be different from 0x0000)
 
-    val memBusConfig = GenericMemoryBusConfig(addressWidth = 32 bits, dataWidth = dataWidthBits)
+    val memBusConfig = GenericMemoryBusConfig(addressWidth = 32 bits, dataWidth = dataWidthBits, useId = false)
     val simMemConfig = SimulatedMemoryConfig(
       internalDataWidth = dataWidthBits,
       memSize = 16 KiB,
@@ -379,7 +379,7 @@ class SimpleICacheSpec extends CustomSpinalSimFunSuite {
       addressWidth = 32 bits,
       dataWidth = dataWidthBits
     )
-    val memBusConfig = GenericMemoryBusConfig(addressWidth = 32 bits, dataWidth = dataWidthBits)
+    val memBusConfig = GenericMemoryBusConfig(addressWidth = 32 bits, dataWidth = dataWidthBits, useId = false)
     val simMemConfig = SimulatedMemoryConfig(internalDataWidth = dataWidthBits, memSize = 8 KiB, initialLatency = 2)
 
     def tb = new SimpleICacheTestbench(cacheConfig, memBusConfig, simMemConfig)
@@ -483,7 +483,7 @@ class SimpleICacheSpec extends CustomSpinalSimFunSuite {
       addressWidth = 32 bits,
       dataWidth = dataWidthBits
     )
-    val memBusConfig = GenericMemoryBusConfig(addressWidth = 32 bits, dataWidth = dataWidthBits)
+    val memBusConfig = GenericMemoryBusConfig(addressWidth = 32 bits, dataWidth = dataWidthBits, useId = false)
     val simMemConfig = SimulatedMemoryConfig(internalDataWidth = dataWidthBits, memSize = 16 KiB, initialLatency = 2)
 
     def tb = new SimpleICacheTestbench(cacheConfig, memBusConfig, simMemConfig)

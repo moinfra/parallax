@@ -1,6 +1,6 @@
 // filename: test/scala/lsu/StoreBufferPluginSpec.scala
-// cmd: testOnly test.scala.lsu.StoreBufferPluginSpec
-package test.scala.lsu
+// cmd: testOnly test.scala.StoreBufferPluginSpec
+package test.scala
 
 import spinal.core._
 import spinal.core.sim._
@@ -21,12 +21,6 @@ import scala.util.Random
 import spinal.lib.bus.amba4.axi.{Axi4Config, Axi4, Axi4CrossbarFactory}
 import spinal.lib.bus.misc.SizeMapping
 import spinal.lib.bus.amba4.axi.Axi4Shared
-
-// SGMB服务接口，用于测试时提供MMIO端口
-trait SgmbService extends Service with LockedImpl {
-  def newReadPort(): SplitGmbReadChannel
-  def newWritePort(): SplitGmbWriteChannel
-}
 
 /** This plugin connects the abstract services required by the StoreBuffer DUT
   * to the concrete IO of the testbench. It acts as a bridge.
@@ -85,108 +79,6 @@ class StoreBufferTestConnectionPlugin(
   }
 }
 
-/** This plugin provides a concrete memory system implementation (a simulated SRAM)
-  * for the DataCache to connect to via the DBusService, and also provides SGMB
-  * interfaces for MMIO operations.
-  */
-class TestOnlyMemSystemPluginForSB(axiConfig: Axi4Config) extends Plugin with DBusService with SgmbService {
-  import scala.collection.mutable.ArrayBuffer
-  
-  // SGMB 部分保持不变
-  private val readPorts = ArrayBuffer[SplitGmbReadChannel]()
-  private val writePorts = ArrayBuffer[SplitGmbWriteChannel]()
-  
-  override def newReadPort(): SplitGmbReadChannel = {
-    this.framework.requireEarly()
-    val sgmbConfig = GenericMemoryBusConfig(
-      addressWidth = axiConfig.addressWidth bits,
-      dataWidth = axiConfig.dataWidth bits,
-      useId = true,
-      idWidth = axiConfig.idWidth bits
-    )
-    val port = slave(SplitGmbReadChannel(sgmbConfig))
-    readPorts += port
-    port
-  }
-  
-  override def newWritePort(): SplitGmbWriteChannel = {
-    this.framework.requireEarly()
-    val sgmbConfig = GenericMemoryBusConfig(
-      addressWidth = axiConfig.addressWidth bits,
-      dataWidth = axiConfig.dataWidth bits,
-      useId = true,
-      idWidth = axiConfig.idWidth bits
-    )
-    val port = slave(SplitGmbWriteChannel(sgmbConfig))
-    writePorts += port
-    port
-  }
-
-
-  override def getBus(): Axi4 = {
-    println("CALL getBus.")
-    null
-  }
-
-  val hw = create early new Area {
-    // SRAM 和控制器定义
-    private val sramSize = BigInt("4000", 16)
-    private val extSramCfg = ExtSRAMConfig(
-      addressWidth = 16,
-      dataWidth = 32,
-      virtualBaseAddress = BigInt("00000000", 16),
-      sizeBytes = sramSize,
-      readWaitCycles = 0,
-      enableLog = true
-    )
-    val sram = new SimulatedSRAM(extSramCfg)
-    val ctrl = new ExtSRAMController(axiConfig, extSramCfg)
-    ctrl.io.ram <> sram.io.ram
-    ctrl.io.simPublic()
-    sram.io.simPublic()
-  }
-  
-  val logic = create late new Area {
-    lock.await()
-    val dcacheMaster = getService[DataCachePlugin].getDCacheMaster
-    // SGMB 桥接器部分
-    val sgmbConfig = GenericMemoryBusConfig(
-      addressWidth = axiConfig.addressWidth bits,
-      dataWidth = axiConfig.dataWidth bits,
-      useId = true,
-      idWidth = axiConfig.idWidth bits
-    )
-    val readBridges = readPorts.map(_ => new SplitGmbToAxi4Bridge(sgmbConfig, axiConfig))
-    val writeBridges = writePorts.map(_ => new SplitGmbToAxi4Bridge(sgmbConfig, axiConfig))
-    
-    // ... SGMB 桥接器连接 ... (这部分是正确的)
-    for ((port, bridge) <- readPorts.zip(readBridges)) {
-      bridge.io.gmbIn.read.cmd <> port.cmd
-      bridge.io.gmbIn.read.rsp <> port.rsp
-      bridge.io.gmbIn.write.cmd.setIdle()
-      bridge.io.gmbIn.write.rsp.ready := True
-    }
-    for ((port, bridge) <- writePorts.zip(writeBridges)) {
-      bridge.io.gmbIn.write.cmd <> port.cmd
-      bridge.io.gmbIn.write.rsp <> port.rsp
-      bridge.io.gmbIn.read.cmd.setIdle()
-      bridge.io.gmbIn.read.rsp.ready := True
-    }
-    val sramMasters = writeBridges.map(_.io.axiOut) ++ readBridges.map(_.io.axiOut) ++ Seq(dcacheMaster)
-
-      val crossbar = Axi4CrossbarFactory()
-      val sramSize = BigInt("4000", 16)
-      crossbar.addSlave(hw.ctrl.io.axi, SizeMapping(0x0000L, sramSize))
-      for (master <- sramMasters) {
-        crossbar.addConnection(master, Seq(hw.ctrl.io.axi))
-      }
-      crossbar.build()
-  
-  }
-
-  def getSram(): SimulatedSRAM = hw.sram
-}
-
 /** The top-level component for the full integration testbench.
   * It uses the Parallax framework to instantiate and connect all necessary components:
   * ROB, DataCache, StoreBuffer, and the test-specific plugins.
@@ -217,12 +109,12 @@ class StoreBufferFullIntegrationTestBench(
       new ROBPlugin[RenamedUop](pCfg, HardType(RenamedUop(pCfg)), () => RenamedUop(pCfg).setDefault()),
       new DataCachePlugin(dCacheCfg),
       new StoreBufferPlugin(pCfg, lsuCfg, dCacheParams, sbDepth, Some(mmioConfig)),
-      new TestOnlyMemSystemPluginForSB(axiConfig),
+      new TestOnlyMemSystemPlugin(axiConfig),
       new StoreBufferTestConnectionPlugin(io, pCfg, dCacheCfg)
     )
   )
 
-  def getSramHandle(): SimulatedSRAM = framework.getService[TestOnlyMemSystemPluginForSB].getSram()
+  def getSramHandle(): SimulatedSRAM = framework.getService[TestOnlyMemSystemPlugin].getSram()
 }
 
 /** Defines the IO bundle for the testbench, exposing all necessary control and

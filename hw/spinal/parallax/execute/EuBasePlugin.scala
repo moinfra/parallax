@@ -178,6 +178,7 @@ abstract class EuBasePlugin(
     // CRITICAL FIX: Force initialization of wakeupSourcePort in setup phase
     // This ensures that wakeup sources are registered before WakeupPlugin's late phase
     val _ = wakeupSourcePort  // Force lazy val evaluation
+    val _2 = robWritebackPortBundle
     ParallaxLogger.log(s"EUBase ($euName): Wakeup source registered")
 
     ParallaxLogger.log(s"EUBase ($euName): Setup 阶段完成。")
