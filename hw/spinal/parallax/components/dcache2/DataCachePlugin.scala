@@ -167,15 +167,18 @@ class DataCachePlugin(config: DataCachePluginConfig) extends Plugin with LockedI
 
     refillCompletions := cache.io.refillCompletions
 
-    val dbusSvc = getService[DBusService]
-    dbusSvc.getBus() <> cache.io.mem.toAxi4()
-
-
+    // val dbusSvc = getService[DBusService]
+    // dbusSvc.retain()
+    val dcacheMaster = cache.io.mem.toAxi4()
   }
+
+  def getDCacheMaster = setup.dcacheMaster
 
 
   private val logic = create late new Area {
-    // Removed lock.await() as LockedImpl is removed
+    ParallaxLogger.debug("[DCache] logic before lock await")
+    lock.await()
+
     private val cache = setup.cache
     private val load = new Area {
       assert(loadPorts.map(_.priority).distinct.size == loadPorts.size)
@@ -207,7 +210,12 @@ class DataCachePlugin(config: DataCachePluginConfig) extends Plugin with LockedI
       assert(storePorts.size == 1, s"Expected 1 store port, got ${storePorts.size}")
       cache.io.store <> storePorts.head.port
     }
+
+    // setup.dbusSvc.release()
+    // ParallaxLogger.debug("[DCache] release dbusSvc")
+
   }
+  
 }
 
 trait DataCacheService extends Service with LockedImpl {

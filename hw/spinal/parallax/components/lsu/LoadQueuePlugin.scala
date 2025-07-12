@@ -6,6 +6,7 @@ import spinal.lib._
 import parallax.common._
 import parallax.components.rob._
 import parallax.components.dcache2._
+import parallax.components.memory._
 import parallax.utilities._
 import scala.collection.mutable.ArrayBuffer
 import parallax.utils.Encoders.PriorityEncoderOH
@@ -16,6 +17,7 @@ case class LoadQueuePushCmd(pCfg: PipelineConfig, lsuCfg: LsuConfig) extends Bun
   val robPtr            = UInt(lsuCfg.robPtrWidth)
   val pdest             = UInt(pCfg.physGprIdxWidth)
   val address           = UInt(lsuCfg.pcWidth)
+  val isIO              = Bool()
   val size              = MemAccessSize()
   val hasEarlyException = Bool()
   val earlyExceptionCode = UInt(8 bits)
@@ -34,6 +36,7 @@ case class LoadQueueSlot(pCfg: PipelineConfig, lsuCfg: LsuConfig, dCacheParams: 
     val size              = MemAccessSize()
     val robPtr            = UInt(lsuCfg.robPtrWidth)
     val pdest             = UInt(pCfg.physGprIdxWidth)
+    val isIO              = Bool()
 
     val hasException      = Bool()
     val exceptionCode     = UInt(8 bits)
@@ -49,6 +52,7 @@ case class LoadQueueSlot(pCfg: PipelineConfig, lsuCfg: LsuConfig, dCacheParams: 
         this.size                  := MemAccessSize.W
         this.robPtr                := 0
         this.pdest                 := 0
+        this.isIO                  := False
         this.hasException          := False
         this.exceptionCode         := 0
         this.isWaitingForFwdRsp    := False
@@ -64,6 +68,7 @@ case class LoadQueueSlot(pCfg: PipelineConfig, lsuCfg: LsuConfig, dCacheParams: 
         this.size                  := cmd.size
         this.robPtr                := cmd.robPtr
         this.pdest                 := cmd.pdest
+        this.isIO                  := cmd.isIO
         this.hasException          := cmd.hasEarlyException
         this.exceptionCode         := cmd.earlyExceptionCode
         
@@ -81,6 +86,7 @@ case class LoadQueueSlot(pCfg: PipelineConfig, lsuCfg: LsuConfig, dCacheParams: 
         this.size                  := cmd.accessSize
         this.robPtr                := cmd.robPtr
         this.pdest                 := cmd.physDst
+        this.isIO                  := cmd.isIO
         
         // 这些字段在 AguRspCmd 中可能没有直接对应，但为了完整性，这里也进行初始化
         // 如果 AguRspCmd 提供了这些信息，可以根据需要进行映射
@@ -107,6 +113,7 @@ case class LoadQueueSlot(pCfg: PipelineConfig, lsuCfg: LsuConfig, dCacheParams: 
             L"size=${size}, " :+
             L"robPtr=${robPtr}, " :+
             L"pdest=${pdest}, " :+
+            L"isIO=${isIO}, " :+
             L"hasException=${hasException}, " :+
             L"isWaitingForFwdRsp=${isWaitingForFwdRsp}, " :+
             L"isStalledByDependency=${isStalledByDependency}, " :+
@@ -123,7 +130,8 @@ class LoadQueuePlugin(
     val pipelineConfig: PipelineConfig,
     val lsuConfig: LsuConfig,
     val dCacheParams: DataCacheParameters,
-    val lqDepth: Int = 16
+    val lqDepth: Int = 16,
+    val mmioConfig: Option[GenericMemoryBusConfig] = None
 ) extends Plugin with LoadQueueService {
 
     private val pushPorts = ArrayBuffer[Stream[LoadQueuePushCmd]]()
@@ -143,6 +151,9 @@ class LoadQueuePlugin(
         val robLoadWritebackPort = robServiceInst.newWritebackPort("LQ_Load")
         val prfWritePort     = prfServiceInst.newWritePort()
         val sbQueryPort      = storeBufferServiceInst.getStoreQueueQueryPort()
+
+        // MMIO支持：如果配置了MMIO，则创建SGMB读通道
+        val mmioReadChannel = mmioConfig.map(config => master(SplitGmbReadChannel(config)))
 
         robServiceInst.retain()
         dcacheServiceInst.retain()
@@ -265,14 +276,15 @@ class LoadQueuePlugin(
                 ParallaxSim.log(L"[LQ] Early exception for robPtr=${head.robPtr}, marking ready for exception handling")
             }
             
-            // --- D-Cache Interaction ---
+            // --- Cache/MMIO Interaction ---
             // 注意: isReadyForDCache 现在在入队时就设置好了，不再需要等待转发结果（除非转发失败）
             val headIsReadyToExecute = headIsValid && head.isReadyForDCache && !head.isWaitingForDCacheRsp
             
-            // 如果正在等待转发响应，或者转发命中，则不应该发送到DCache
-            val shouldNotSendToDCache = head.isWaitingForFwdRsp || (head.isWaitingForFwdRsp && sbQueryPort.rsp.hit)
+            // 如果正在等待转发响应，或者转发命中，则不应该发送到DCache/MMIO
+            val shouldNotSendToMemory = head.isWaitingForFwdRsp || (head.isWaitingForFwdRsp && sbQueryPort.rsp.hit)
 
-            dCacheLoadPort.cmd.valid                 := headIsReadyToExecute && !head.hasException && !shouldNotSendToDCache
+            // DCache路径（非MMIO）
+            dCacheLoadPort.cmd.valid := headIsReadyToExecute && !head.hasException && !shouldNotSendToMemory && !head.isIO
             dCacheLoadPort.cmd.virtual       := head.address
             dCacheLoadPort.cmd.size          := MemAccessSize.toByteSizeLog2(head.size)
             dCacheLoadPort.cmd.redoOnDataHazard := True
@@ -289,8 +301,25 @@ class LoadQueuePlugin(
                 ParallaxSim.log(L"[LQ-DCache] SEND_TO_DCACHE: robPtr=${head.robPtr} addr=${head.address}")
             }
 
-            // --- 4. D-Cache Response Handling (for Redo) ---
-            when(dCacheLoadPort.rsp.valid && head.valid && head.isWaitingForDCacheRsp) {
+            // MMIO路径
+            val mmioReadCmd = hw.mmioReadChannel.map { mmioChannel =>
+                mmioChannel.cmd.valid := headIsReadyToExecute && !head.hasException && !shouldNotSendToMemory && head.isIO
+                mmioChannel.cmd.address := head.address
+                if (mmioConfig.get.useId) {
+                    mmioChannel.cmd.id := head.robPtr.resized
+                }
+                
+                when(mmioChannel.cmd.fire) {
+                    slotsAfterUpdates(0).isWaitingForDCacheRsp := True  // 复用这个状态
+                    slotsAfterUpdates(0).isReadyForDCache      := False
+                    ParallaxSim.log(L"[LQ-MMIO] SEND_TO_MMIO: robPtr=${head.robPtr} addr=${head.address}")
+                }
+                mmioChannel.cmd
+            }
+
+            // --- 4. Memory Response Handling ---
+            // DCache Response Handling (for Redo)
+            when(dCacheLoadPort.rsp.valid && head.valid && head.isWaitingForDCacheRsp && !head.isIO) {
                 when(dCacheLoadPort.rsp.payload.redo) {
                     slotsAfterUpdates(0).isWaitingForDCacheRsp := False
                     slotsAfterUpdates(0).isReadyForDCache      := True 
@@ -298,12 +327,19 @@ class LoadQueuePlugin(
                 }
             }
 
+            // MMIO Response Handling (MMIO operations don't have redo)
+            val mmioRspReady = hw.mmioReadChannel.map { mmioChannel =>
+                mmioChannel.rsp.ready := head.valid && head.isWaitingForDCacheRsp && head.isIO
+                mmioChannel.rsp.valid && head.valid && head.isWaitingForDCacheRsp && head.isIO
+            }.getOrElse(False)
+
             // --- Completion & Pop Logic ---
             // 修复时序问题：使用当前状态而不是更新后的状态来判断forwarding hit
             val popOnFwdHit = head.isWaitingForFwdRsp && sbQueryRspReg.hit
-            val popOnDCacheSuccess = dCacheLoadPort.rsp.valid && head.valid && head.isWaitingForDCacheRsp && !dCacheLoadPort.rsp.payload.redo
+            val popOnDCacheSuccess = dCacheLoadPort.rsp.valid && head.valid && head.isWaitingForDCacheRsp && !head.isIO && !dCacheLoadPort.rsp.payload.redo
+            val popOnMMIOSuccess = mmioRspReady
             val popOnEarlyException = head.valid && head.hasException && !head.isReadyForDCache // Exception was known at dispatch
-            val popRequest = popOnFwdHit || popOnDCacheSuccess || popOnEarlyException
+            val popRequest = popOnFwdHit || popOnDCacheSuccess || popOnMMIOSuccess || popOnEarlyException
             
                         robLoadWritebackPort.fire := False
             robLoadWritebackPort.robPtr.assignDontCare()
@@ -333,6 +369,17 @@ class LoadQueuePlugin(
                 robLoadWritebackPort.fire := True
                 robLoadWritebackPort.robPtr := head.robPtr
                 robLoadWritebackPort.exceptionOccurred := dCacheLoadPort.rsp.payload.fault
+                robLoadWritebackPort.exceptionCodeIn   := ExceptionCode.LOAD_ACCESS_FAULT
+            } elsewhen (popOnMMIOSuccess) {
+                val mmioRsp = hw.mmioReadChannel.get.rsp.payload
+                ParallaxSim.log(L"[LQ-MMIO] MMIO_RSP_OK for robPtr=${head.robPtr}, data=${mmioRsp.data}, error=${mmioRsp.error}")
+                prfWritePort.valid   := !mmioRsp.error
+                prfWritePort.address := head.pdest
+                prfWritePort.data    := mmioRsp.data
+
+                robLoadWritebackPort.fire := True
+                robLoadWritebackPort.robPtr := head.robPtr
+                robLoadWritebackPort.exceptionOccurred := mmioRsp.error
                 robLoadWritebackPort.exceptionCodeIn   := ExceptionCode.LOAD_ACCESS_FAULT
             } elsewhen (popOnEarlyException) {
                 ParallaxSim.log(L"[LQ] Alignment exception for robPtr=${head.robPtr}")

@@ -86,6 +86,7 @@ class LsuEuPlugin(
       aguCmd.isLoad      := !isStore
       aguCmd.isStore     := isStore
       aguCmd.isFlush     := False
+      aguCmd.isIO        := False // 默认 False
       aguCmd.physDst     := uop.physDest.idx
       aguCmd
     }
@@ -106,6 +107,7 @@ class LsuEuPlugin(
         cmd.robPtr             := aguOutPayload.robPtr
         cmd.pdest              := aguOutPayload.physDst
         cmd.address            := aguOutPayload.address
+        cmd.isIO               := aguOutPayload.isIO
         cmd.size               := aguOutPayload.accessSize
         cmd.hasEarlyException  := aguOutPayload.alignException
         cmd.earlyExceptionCode := ExceptionCode.LOAD_ADDR_MISALIGNED
@@ -121,7 +123,7 @@ class LsuEuPlugin(
         cmd.robPtr             := aguOutPayload.robPtr
         cmd.accessSize         := aguOutPayload.accessSize
         cmd.isFlush            := aguOutPayload.isFlush
-        cmd.isIO               := False // TODO: Add MMIO detection
+        cmd.isIO               := aguOutPayload.isIO
         cmd.hasEarlyException  := aguOutPayload.alignException
         cmd.earlyExceptionCode := ExceptionCode.STORE_ADDRESS_MISALIGNED
         cmd

@@ -18,8 +18,15 @@ import parallax.components.memory._
 
 import scala.collection.mutable
 import scala.util.Random
-import spinal.lib.bus.amba4.axi.Axi4Config
-import spinal.lib.bus.amba4.axi.Axi4
+import spinal.lib.bus.amba4.axi.{Axi4Config, Axi4, Axi4CrossbarFactory}
+import spinal.lib.bus.misc.SizeMapping
+import spinal.lib.bus.amba4.axi.Axi4Shared
+
+// SGMB服务接口，用于测试时提供MMIO端口
+trait SgmbService extends Service with LockedImpl {
+  def newReadPort(): SplitGmbReadChannel
+  def newWritePort(): SplitGmbWriteChannel
+}
 
 /** This plugin connects the abstract services required by the StoreBuffer DUT
   * to the concrete IO of the testbench. It acts as a bridge.
@@ -79,11 +86,51 @@ class StoreBufferTestConnectionPlugin(
 }
 
 /** This plugin provides a concrete memory system implementation (a simulated SRAM)
-  * for the DataCache to connect to via the DBusService.
+  * for the DataCache to connect to via the DBusService, and also provides SGMB
+  * interfaces for MMIO operations.
   */
-class TestOnlyMemSystemPluginForSB(axiConfig: Axi4Config) extends Plugin with DBusService {
+class TestOnlyMemSystemPluginForSB(axiConfig: Axi4Config) extends Plugin with DBusService with SgmbService {
+  import scala.collection.mutable.ArrayBuffer
+  
+  // SGMB 部分保持不变
+  private val readPorts = ArrayBuffer[SplitGmbReadChannel]()
+  private val writePorts = ArrayBuffer[SplitGmbWriteChannel]()
+  
+  override def newReadPort(): SplitGmbReadChannel = {
+    this.framework.requireEarly()
+    val sgmbConfig = GenericMemoryBusConfig(
+      addressWidth = axiConfig.addressWidth bits,
+      dataWidth = axiConfig.dataWidth bits,
+      useId = true,
+      idWidth = axiConfig.idWidth bits
+    )
+    val port = slave(SplitGmbReadChannel(sgmbConfig))
+    readPorts += port
+    port
+  }
+  
+  override def newWritePort(): SplitGmbWriteChannel = {
+    this.framework.requireEarly()
+    val sgmbConfig = GenericMemoryBusConfig(
+      addressWidth = axiConfig.addressWidth bits,
+      dataWidth = axiConfig.dataWidth bits,
+      useId = true,
+      idWidth = axiConfig.idWidth bits
+    )
+    val port = slave(SplitGmbWriteChannel(sgmbConfig))
+    writePorts += port
+    port
+  }
+
+
+  override def getBus(): Axi4 = {
+    println("CALL getBus.")
+    null
+  }
+
   val hw = create early new Area {
-    private val sramSize = BigInt("4000", 16) // 16 KiB
+    // SRAM 和控制器定义
+    private val sramSize = BigInt("4000", 16)
     private val extSramCfg = ExtSRAMConfig(
       addressWidth = 16,
       dataWidth = 32,
@@ -98,8 +145,45 @@ class TestOnlyMemSystemPluginForSB(axiConfig: Axi4Config) extends Plugin with DB
     ctrl.io.simPublic()
     sram.io.simPublic()
   }
+  
+  val logic = create late new Area {
+    lock.await()
+    val dcacheMaster = getService[DataCachePlugin].getDCacheMaster
+    // SGMB 桥接器部分
+    val sgmbConfig = GenericMemoryBusConfig(
+      addressWidth = axiConfig.addressWidth bits,
+      dataWidth = axiConfig.dataWidth bits,
+      useId = true,
+      idWidth = axiConfig.idWidth bits
+    )
+    val readBridges = readPorts.map(_ => new SplitGmbToAxi4Bridge(sgmbConfig, axiConfig))
+    val writeBridges = writePorts.map(_ => new SplitGmbToAxi4Bridge(sgmbConfig, axiConfig))
+    
+    // ... SGMB 桥接器连接 ... (这部分是正确的)
+    for ((port, bridge) <- readPorts.zip(readBridges)) {
+      bridge.io.gmbIn.read.cmd <> port.cmd
+      bridge.io.gmbIn.read.rsp <> port.rsp
+      bridge.io.gmbIn.write.cmd.setIdle()
+      bridge.io.gmbIn.write.rsp.ready := True
+    }
+    for ((port, bridge) <- writePorts.zip(writeBridges)) {
+      bridge.io.gmbIn.write.cmd <> port.cmd
+      bridge.io.gmbIn.write.rsp <> port.rsp
+      bridge.io.gmbIn.read.cmd.setIdle()
+      bridge.io.gmbIn.read.rsp.ready := True
+    }
+    val sramMasters = writeBridges.map(_.io.axiOut) ++ readBridges.map(_.io.axiOut) ++ Seq(dcacheMaster)
 
-  override def getBus(): Axi4 = hw.ctrl.io.axi
+      val crossbar = Axi4CrossbarFactory()
+      val sramSize = BigInt("4000", 16)
+      crossbar.addSlave(hw.ctrl.io.axi, SizeMapping(0x0000L, sramSize))
+      for (master <- sramMasters) {
+        crossbar.addConnection(master, Seq(hw.ctrl.io.axi))
+      }
+      crossbar.build()
+  
+  }
+
   def getSram(): SimulatedSRAM = hw.sram
 }
 
@@ -119,12 +203,20 @@ class StoreBufferFullIntegrationTestBench(
 
   val database = new DataBase
   val dCacheParams = DataCachePluginConfig.toDataCacheParameters(dCacheCfg)
+  
+  // 创建MMIO配置，与AXI4配置匹配
+  val mmioConfig = GenericMemoryBusConfig(
+    addressWidth = axiConfig.addressWidth bits,
+    dataWidth = axiConfig.dataWidth bits,
+    useId = true,
+    idWidth = axiConfig.idWidth bits
+  )
 
   val framework = ProjectScope(database) on new Framework(
     Seq(
       new ROBPlugin[RenamedUop](pCfg, HardType(RenamedUop(pCfg)), () => RenamedUop(pCfg).setDefault()),
       new DataCachePlugin(dCacheCfg),
-      new StoreBufferPlugin(pCfg, lsuCfg, dCacheParams, sbDepth),
+      new StoreBufferPlugin(pCfg, lsuCfg, dCacheParams, sbDepth, Some(mmioConfig)),
       new TestOnlyMemSystemPluginForSB(axiConfig),
       new StoreBufferTestConnectionPlugin(io, pCfg, dCacheCfg)
     )
@@ -282,6 +374,42 @@ class TestHelper(dut: StoreBufferFullIntegrationTestBench)(implicit cd: ClockDom
     robPtr
   }
 
+  /** Issues a MMIO store operation to the StoreBuffer.
+    * Similar to cpuIssueFullWordStore but with isIO=true.
+    */
+  def cpuIssueMMIOStore(
+      addr: BigInt,
+      data: BigInt = 0,
+      be: BigInt = 0xF,
+      pc: Long = 0x8000
+  ): BigInt = {
+    dut.io.robAllocateIn.valid #= true
+    dut.io.robAllocateIn.pcIn #= pc
+    val uop = dut.io.robAllocateIn.uopIn
+    uop.setDefault()
+    uop.decoded.uopCode #= BaseUopCode.STORE
+    cd.waitActiveEdge()
+    val robPtr = dut.io.allocatedRobPtr.toBigInt
+    dut.io.robAllocateIn.valid #= false
+    cd.waitSampling()
+    ParallaxLogger.debug(s"[Helper] CPU allocated robPtr=$robPtr for MMIO op at 0x${addr.toString(16)}")
+
+    dut.io.lsuPushIn.valid #= true
+    val p = dut.io.lsuPushIn.payload
+    p.addr #= addr; p.data #= data; p.be #= be; p.robPtr #= robPtr
+    p.accessSize #= MemAccessSize.W
+    p.isIO #= true  // 关键：设置为MMIO操作
+    p.hasEarlyException #= false
+    p.isFlush #= false
+    val timeout = cd.waitSamplingWhere(timeout = 100)(dut.io.lsuPushIn.ready.toBoolean)
+    if (timeout) {
+      assert(false, "timeout waiting for StoreBuffer to accept MMIO store")
+    }
+    dut.io.lsuPushIn.valid #= false
+    ParallaxLogger.debug(s"[Helper] Pushed MMIO op (robPtr=$robPtr) to StoreBuffer.")
+    robPtr
+  }
+
   /** Issues a query to the SqQueryPort and immediately checks the response
     * in the same clock cycle, correctly testing combinational logic.
     * @param comment A string to identify the test case in logs.
@@ -401,6 +529,7 @@ class StoreBufferPluginSpec extends CustomSpinalSimFunSuite {
     fetchWidth = 1,
     dispatchWidth = 1,
     aluEuCount = 1,
+    lsuEuCount = 0,
     transactionIdWidth = 8
   )
 
@@ -674,6 +803,80 @@ class StoreBufferPluginSpec extends CustomSpinalSimFunSuite {
         cd.waitSampling()
 
         println("Test 'SB_FullIntegration - Store to Load Forwarding' PASSED")
+      }
+  }
+
+  test("SB_FullIntegration - MMIO Store Operations") {
+    val pCfg = createPConfig()
+    val lsuCfg = createLsuConfig(pCfg, 16, 16)
+    val dCacheCfg = createDCacheConfig(pCfg)
+    val axiConfig = createAxi4Config(pCfg)
+
+    SimConfig.withWave
+      .compile(new StoreBufferFullIntegrationTestBench(pCfg, lsuCfg, DEFAULT_SB_DEPTH, dCacheCfg, axiConfig))
+      .doSim { dut =>
+        implicit val cd = dut.clockDomain.get
+        dut.clockDomain.forkStimulus(10)
+
+        val helper = new TestHelper(dut)
+        helper.init()
+
+        println("[Test] Starting MMIO Store Operations Test")
+
+        // Test data
+        val mmioAddr = 0x1000L  // MMIO address range
+        val mmioData = BigInt("BAADC0DE", 16)
+        val regularAddr = 0x100L  // Regular memory address
+        val regularData = BigInt("DEADBEEF", 16)
+        
+        // 1. Issue a regular store operation first (as baseline)
+        println("[Test] Issuing regular store operation...")
+        val regularStoreRobPtr = helper.cpuIssueFullWordStore(addr = regularAddr, data = regularData, be = 0xf)
+        helper.euSignalCompletion(regularStoreRobPtr)
+        helper.waitForCommitAndAck(regularStoreRobPtr)
+        
+        // 2. Issue MMIO store operation
+        println("[Test] Issuing MMIO store operation...")
+        val mmioStoreRobPtr = helper.cpuIssueMMIOStore(addr = mmioAddr, data = mmioData, be = 0xf)
+        
+        // 3. Complete the MMIO operation
+        helper.euSignalCompletion(mmioStoreRobPtr)
+        helper.waitForCommitAndAck(mmioStoreRobPtr)
+        
+        // 4. Verify regular store worked (flush and check SRAM)
+        helper.forceFlushAndWait(regularAddr)
+        helper.sramVerify(regularAddr, regularData)
+        
+        // 5. Test MMIO and regular store mixed operations
+        println("[Test] Testing mixed MMIO and regular operations...")
+        val mixedOps = Seq(
+          (0x200L, BigInt("12345678", 16), false), // Regular
+          (0x1004L, BigInt("87654321", 16), true), // MMIO  
+          (0x204L, BigInt("ABCDEF00", 16), false), // Regular
+          (0x1008L, BigInt("FEDCBA09", 16), true)  // MMIO
+        )
+        
+        val mixedRobPtrs = mixedOps.map { case (addr, data, isMMIO) =>
+          if (isMMIO) {
+            helper.cpuIssueMMIOStore(addr = addr, data = data, be = 0xf)
+          } else {
+            helper.cpuIssueFullWordStore(addr = addr, data = data, be = 0xf)
+          }
+        }
+        
+        // Complete all mixed operations
+        for (robPtr <- mixedRobPtrs) {
+          helper.euSignalCompletion(robPtr)
+          helper.waitForCommitAndAck(robPtr)
+        }
+        
+        // 6. Verify regular memory stores worked
+        println("[Test] Verifying regular memory stores...")
+        helper.forceFlushAndWait(0x204L)
+        helper.sramVerify(0x200L, BigInt("12345678", 16))
+        helper.sramVerify(0x204L, BigInt("ABCDEF00", 16))
+        
+        println("Test 'SB_FullIntegration - MMIO Store Operations' PASSED")
       }
   }
 

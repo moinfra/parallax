@@ -283,7 +283,7 @@ class LsuPlugin(
                 sbCmd.robPtr    := aguRsp.payload.robPtr
                 sbCmd.accessSize:= aguRsp.payload.accessSize
                 sbCmd.isFlush   := aguRsp.payload.isFlush
-                sbCmd.isIO      := False // 假设
+                sbCmd.isIO      := aguRsp.payload.isIO
                 sbCmd.hasEarlyException := aguRsp.payload.alignException
                 sbCmd.earlyExceptionCode:= ExceptionCode.STORE_ADDRESS_MISALIGNED
                 sbCmd

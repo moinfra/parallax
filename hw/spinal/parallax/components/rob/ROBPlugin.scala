@@ -80,6 +80,7 @@ class ROBPlugin[RU <: Data with Formattable with HasRobPtr](
 
   // 写回阶段
   override def newWritebackPort(euName: String = ""): (ROBWritebackPort[RU]) = {
+    this.framework.requireEarly()
     if (nextWbPortIdx >= robConfig.numWritebackPorts) {
       SpinalError(
         s"ROBPlugin: All ${robConfig.numWritebackPorts} physical ROB writeback ports have been allocated. Cannot provide more for EU '$euName'. Increase ROBConfig.numWritebackPorts or use an arbiter."
@@ -130,6 +131,7 @@ class ROBPlugin[RU <: Data with Formattable with HasRobPtr](
 
   // 清空/恢复阶段
   override def newFlushPort(): (Flow[ROBFlushPayload]) = {
+    this.framework.requireEarly()
     // 创建一个新的 flush 端口
     val flushPort = Flow(ROBFlushPayload(robConfig.robPtrWidth))
     
@@ -150,6 +152,7 @@ class ROBPlugin[RU <: Data with Formattable with HasRobPtr](
   // ROBPlugin 可能还有自己的 setup/logic 区域来处理一些初始化或全局逻辑，
   // 但主要的服务实现是通过连接到 robComponent.io。
   val logic = create late new Area {
+    lock.await()
     ParallaxLogger.log(s"ROBPlugin logic area entered. ROB component IO is now connected via service methods.")
     
     // 聚合所有 flush 端口的信号

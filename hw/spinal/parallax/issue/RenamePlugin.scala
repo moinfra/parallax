@@ -154,6 +154,7 @@ class RenamePlugin(
 
     issuePpl.release()
     early_setup.busyTableService.release() // 释放服务
+    early_setup.checkpointManagerService.release()
   }
   // --- MODIFICATION END --
 }

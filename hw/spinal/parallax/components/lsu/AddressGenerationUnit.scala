@@ -49,6 +49,7 @@ case class AguInput(lsuConfig: LsuConfig) extends Bundle with Formattable {
   val isLoad = Bool()
   val isStore = Bool()
   val isFlush = Bool()
+  val isIO = Bool()
   val physDst = UInt(lsuConfig.physGprIdxWidth)
 
   def format: Seq[Any] = {
@@ -65,6 +66,7 @@ case class AguInput(lsuConfig: LsuConfig) extends Bundle with Formattable {
       L"isLoad=${isLoad},",
       L"isStore=${isStore},",
       L"isFlush=${isFlush},",
+      L"isIO=${isIO},",
       L"physDst=${physDst})"
     )
   }
@@ -88,6 +90,7 @@ case class AguOutput(lsuConfig: LsuConfig) extends Bundle with Formattable {
   val physDst = UInt(lsuConfig.physGprIdxWidth)
   val storeData = Bits(lsuConfig.dataWidth)
   val isFlush = Bool()
+  val isIO = Bool()
 
   def format: Seq[Any] = {
     Seq(
@@ -104,15 +107,22 @@ case class AguOutput(lsuConfig: LsuConfig) extends Bundle with Formattable {
       L"robPtr=${robPtr},",
       L"isLoad=${isLoad},",
       L"isStore=${isStore},",
+      L"isIO=${isIO},",
       L"physDst=${physDst},",
       L"storeData=${storeData})"
     )
   }
 }
 
+// MMIO地址范围定义
+case class MmioRange(start: UInt, end: UInt) {
+  def contains(address: UInt): Bool = address >= start && address <= end
+}
+
 class AguPlugin(
     lsuConfig: LsuConfig,
-    supportPcRel: Boolean = true
+    supportPcRel: Boolean = true,
+    mmioRanges: Seq[MmioRange] = Seq()
 ) extends Plugin
     with AguService
     with LockedImpl {
@@ -222,6 +232,15 @@ class AguPlugin(
           val effectiveAddress = baseValue + extendedImm
         }
 
+        val mmioDetection = new Area {
+          val isInMmioRange = Bool()
+          val mmioHits = mmioRanges.map(_.contains(addressCalc.effectiveAddress))
+          isInMmioRange := mmioHits.fold(False)(_ || _)
+          
+          // MMIO检测：如果输入的isIO为true，或者地址在MMIO范围内，则标记为IO操作
+          val finalIsIO = s1.payload.isIO || isInMmioRange
+        }
+
         val alignmentCheck = new Area {
           val alignMask = UInt(3 bits)
           switch(s1.payload.accessSize) {
@@ -277,6 +296,7 @@ class AguPlugin(
         s1_stream.payload.isStore       := s1.payload.isStore
         s1_stream.payload.physDst       := s1.payload.physDst
         s1_stream.payload.isFlush       := s1.payload.isFlush
+        s1_stream.payload.isIO       := mmioDetection.finalIsIO
         
         externalPort.output << s1_stream.stage()
         s0.ready := s1_stream.ready && !externalPort.flush

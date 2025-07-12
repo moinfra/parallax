@@ -262,7 +262,11 @@ class Framework(val plugins: Seq[Plugin]) extends Area {
     * 断言当前出于early阶段
     */
   def requireEarly() = {
-    assert(earlyLock.numRetains == 0 && lateLock.numRetains > 0, "当前不处于early阶段" + s" earlyLock.numRetains=${earlyLock.numRetains}")
+    require(earlyLock.numRetains == 0 && lateLock.numRetains > 0, "当前不处于early阶段" + s" earlyLock.numRetains=${earlyLock.numRetains}")
+  }
+
+  def requireLate() = {
+    require(lateLock.numRetains == 0, "当前不处于late阶段" + s" lateLock.numRetains=${lateLock.numRetains}")
   }
 }
 
@@ -291,7 +295,7 @@ object ConsoleColor {
 // elaborate 时打印。
 object ParallaxLogger {
   import ConsoleColor._
-  var enabled = false
+  var enabled = true
   def log(foo: String)(implicit line: sourcecode.Line, file: sourcecode.File) = {
     if(enabled) println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_RESET$foo$ANSI_RESET")
   }

@@ -79,7 +79,11 @@ class AguTestFrameworkWithBypass() extends Component {
 
   lazy val aguPlugin = (new AguPlugin(
     lsuConfig,
-    supportPcRel = true
+    supportPcRel = true,
+    mmioRanges = Seq(
+      MmioRange(U(0x10000000L, 32 bits), U(0x1000FFFFL, 32 bits)), // MMIO range 1: 256MB-256MB+64KB
+      MmioRange(U(0x20000000L, 32 bits), U(0x2000FFFFL, 32 bits))  // MMIO range 2: 512MB-512MB+64KB
+    )
   ))
 
   lazy val testSetupPlugin = (new TestSetupPlugin(
@@ -127,7 +131,8 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
       robPtr: Int,
       isLoad: Boolean,
       isStore: Boolean,
-      physDst: Int
+      physDst: Int,
+      isIO: Boolean = false
   )
 
   // 输出快照
@@ -139,6 +144,7 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
       isStore: Boolean,
       physDst: BigInt,
       storeData: BigInt,
+      isIO: Boolean
   )
 
   // 预载寄存器
@@ -187,6 +193,7 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
     payload.physDst #= params.physDst
     payload.isFlush #= false
     payload.qPtr #= 0
+    payload.isIO #= params.isIO
   }
 
   test("AGU Plugin with BypassService - Basic Address Calculation") {
@@ -218,7 +225,8 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
             payload.isLoad.toBoolean,
             payload.isStore.toBoolean,
             payload.physDst.toBigInt,
-            payload.storeData.toBigInt
+            payload.storeData.toBigInt,
+            payload.isIO.toBoolean
           )
         }
       }
@@ -303,7 +311,8 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
             payload.isLoad.toBoolean,
             payload.isStore.toBoolean,
             payload.physDst.toBigInt,
-            payload.storeData.toBigInt
+            payload.storeData.toBigInt,
+            payload.isIO.toBoolean
           )
           ParallaxLogger.debug(s"Received agu output: ${outputSnapshots}")
 
@@ -393,7 +402,8 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
             payload.isLoad.toBoolean,
             payload.isStore.toBoolean,
             payload.physDst.toBigInt,
-            payload.storeData.toBigInt
+            payload.storeData.toBigInt,
+            payload.isIO.toBoolean
           )
         }
       }
@@ -476,7 +486,8 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
             payload.isLoad.toBoolean,
             payload.isStore.toBoolean,
             payload.physDst.toBigInt,
-            payload.storeData.toBigInt
+            payload.storeData.toBigInt,
+            payload.isIO.toBoolean
           )
         )
         // 为了调试，打印收到的数据
@@ -592,6 +603,188 @@ class AguPluginWithBypassSpec extends CustomSpinalSimFunSuite {
       println("✓ Store data from bypass PASSED")
 
       dut.clockDomain.waitSampling(10)
+    }
+  }
+
+  test("AGU Plugin - MMIO Address Detection") {
+    simConfig.compile(new AguTestFrameworkWithBypass()).doSim { dut =>
+      dut.clockDomain.forkStimulus(10)
+
+      val inputQueue = mutable.Queue[AguTestParams]()
+      val outputSnapshots = mutable.ArrayBuffer[AguResultSnapshot]()
+
+      // 输入驱动器
+      dut.clockDomain.onSamplings {
+        if (dut.io.testInput.ready.toBoolean && inputQueue.nonEmpty) {
+          val params = inputQueue.dequeue()
+          dut.io.testInput.valid #= true
+          driveAguInput(dut.io.testInput.payload, params)
+        } else {
+          dut.io.testInput.valid #= false
+        }
+      }
+
+      // 输出监控器
+      dut.clockDomain.onSamplings {
+        if (dut.io.testOutput.valid.toBoolean && dut.io.testOutput.ready.toBoolean) {
+          val payload = dut.io.testOutput.payload
+          outputSnapshots += AguResultSnapshot(
+            payload.address.toBigInt,
+            payload.alignException.toBoolean,
+            payload.robPtr.toBigInt,
+            payload.isLoad.toBoolean,
+            payload.isStore.toBoolean,
+            payload.physDst.toBigInt,
+            payload.storeData.toBigInt,
+            payload.isIO.toBoolean
+          )
+        }
+      }
+
+      // 初始化
+      dut.io.testOutput.ready #= true
+      dut.io.flush #= false
+      dut.io.prfRead.valid #= false
+      dut.io.bypassInject.valid #= false
+
+      dut.clockDomain.waitSampling(5)
+
+      // Test case 1: 地址在MMIO范围1内 (0x10000000-0x1000FFFF)
+      val baseReg = 10
+      val baseValue = BigInt("10000000", 16)  // MMIO range 1 start
+      val immediate = 0x1000       // Still within range 1
+      val expectedAddr = baseValue + immediate
+
+      preloadRegister(dut, baseReg, baseValue, dut.clockDomain)
+
+      inputQueue.enqueue(
+        AguTestParams(
+          basePhysReg = baseReg,
+          dataReg = 0,
+          immediate = immediate,
+          accessSize = MemAccessSize.W,
+          usePc = false,
+          pcVal = 0,
+          robPtr = 10,
+          isLoad = true,
+          isStore = false,
+          physDst = 20,
+          isIO = false // 输入的isIO=false，但应该被AGU自动检测为true
+        )
+      )
+
+      // 等待结果
+      dut.clockDomain.waitSamplingWhere(100)(outputSnapshots.nonEmpty)
+
+      assert(outputSnapshots.nonEmpty, "No AGU output received for MMIO test case 1")
+      val result1 = outputSnapshots.head
+      outputSnapshots.clear()
+
+      assert(
+        result1.address == expectedAddr,
+        s"MMIO Test 1: Address mismatch: expected 0x${expectedAddr.toString(16)}, got 0x${result1.address.toString(16)}"
+      )
+      assert(result1.isIO, "MMIO Test 1: isIO should be true for MMIO address range")
+      println("✓ MMIO detection test 1 (range 1) PASSED")
+
+      // Test case 2: 地址在MMIO范围2内 (0x20000000-0x2000FFFF)
+      val baseValue2 = BigInt("20000500", 16)  // MMIO range 2
+      val immediate2 = 0x100
+      val expectedAddr2 = baseValue2 + immediate2
+
+      preloadRegister(dut, baseReg, baseValue2, dut.clockDomain)
+
+      inputQueue.enqueue(
+        AguTestParams(
+          basePhysReg = baseReg,
+          dataReg = 0,
+          immediate = immediate2,
+          accessSize = MemAccessSize.W,
+          usePc = false,
+          pcVal = 0,
+          robPtr = 11,
+          isLoad = false,
+          isStore = true,
+          physDst = 21,
+          isIO = false // 输入的isIO=false，但应该被AGU自动检测为true
+        )
+      )
+
+      dut.clockDomain.waitSamplingWhere(100)(outputSnapshots.nonEmpty)
+
+      assert(outputSnapshots.nonEmpty, "No AGU output received for MMIO test case 2")
+      val result2 = outputSnapshots.head
+      outputSnapshots.clear()
+
+      assert(
+        result2.address == expectedAddr2,
+        s"MMIO Test 2: Address mismatch: expected 0x${expectedAddr2.toString(16)}, got 0x${result2.address.toString(16)}"
+      )
+      assert(result2.isIO, "MMIO Test 2: isIO should be true for MMIO address range")
+      println("✓ MMIO detection test 2 (range 2) PASSED")
+
+      // Test case 3: 地址不在MMIO范围内
+      val baseValue3 = BigInt("30000000", 16)  // 不在任何MMIO范围内
+      val immediate3 = 0x1000
+      val expectedAddr3 = baseValue3 + immediate3
+
+      preloadRegister(dut, baseReg, baseValue3, dut.clockDomain)
+
+      inputQueue.enqueue(
+        AguTestParams(
+          basePhysReg = baseReg,
+          dataReg = 0,
+          immediate = immediate3,
+          accessSize = MemAccessSize.W,
+          usePc = false,
+          pcVal = 0,
+          robPtr = 12,
+          isLoad = true,
+          isStore = false,
+          physDst = 22,
+          isIO = false
+        )
+      )
+
+      dut.clockDomain.waitSamplingWhere(100)(outputSnapshots.nonEmpty)
+
+      assert(outputSnapshots.nonEmpty, "No AGU output received for non-MMIO test case")
+      val result3 = outputSnapshots.head
+      outputSnapshots.clear()
+
+      assert(
+        result3.address == expectedAddr3,
+        s"Non-MMIO Test: Address mismatch: expected 0x${expectedAddr3.toString(16)}, got 0x${result3.address.toString(16)}"
+      )
+      assert(!result3.isIO, "Non-MMIO Test: isIO should be false for non-MMIO address")
+      println("✓ Non-MMIO detection test PASSED")
+
+      // Test case 4: 输入isIO=true时应该保持true，即使地址不在MMIO范围内
+      inputQueue.enqueue(
+        AguTestParams(
+          basePhysReg = baseReg,
+          dataReg = 0,
+          immediate = immediate3,
+          accessSize = MemAccessSize.W,
+          usePc = false,
+          pcVal = 0,
+          robPtr = 13,
+          isLoad = true,
+          isStore = false,
+          physDst = 23,
+          isIO = true // 显式设置为true
+        )
+      )
+
+      dut.clockDomain.waitSamplingWhere(100)(outputSnapshots.nonEmpty)
+
+      assert(outputSnapshots.nonEmpty, "No AGU output received for explicit isIO test")
+      val result4 = outputSnapshots.head
+
+      assert(result4.isIO, "Explicit isIO Test: isIO should remain true when explicitly set")
+      println("✓ Explicit isIO preservation test PASSED")
+
+      println("✓ All MMIO address detection tests PASSED")
     }
   }
   thatsAll()
