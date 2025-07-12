@@ -24,6 +24,10 @@ class CustomSpinalSimFunSuite extends SpinalSimFunSuite {
     tests += ((testName, () => testFun))
   }
 
+  def hello() = {
+    print("hello")
+  }
+
   def testOnly(testName: String)(testFun: => Unit): Unit = {
     testsOnly += ((testName, () => testFun))
   }

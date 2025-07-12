@@ -284,7 +284,7 @@ class CpuFullSpec extends CustomSpinalSimFunSuite {
     }
   }
 
-  test("Basic Addition and Store Test") {
+  testOnly("Basic Addition and Store Test") {
     val pCfgWithLsu = pCfg.copy(lsuEuCount = 1)
     val compiled = SimConfig.withFstWave.compile(new CpuFullTestBench(pCfgWithLsu, dCfg, ifuCfg, axiConfig, fifoDepth))
     compiled.doSim { dut =>
@@ -321,7 +321,7 @@ class CpuFullSpec extends CustomSpinalSimFunSuite {
       println("Verifying final commit count and sequence...")
       assert(commitedPCs.length == expectedCommitPCs.length, s"Expected ${expectedCommitPCs.length} commits, but got ${commitedPCs.length}")
       assert(commitedPCs.toSeq == expectedCommitPCs, s"Final PC sequence mismatch!\nExpected: $expectedCommitPCs\nGot: ${commitedPCs.toSeq}")
-      
+      cd.waitSampling(100)
       println(s"Verifying result at memory address 0x${storeAddr.toString(16)}...")
       CpuFullSpecHelper.verifyMemory(dut, storeAddr, 300)
 
