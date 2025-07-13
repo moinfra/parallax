@@ -43,8 +43,8 @@ case class PrfWritePort(
 }
 
 trait PhysicalRegFileService extends Service with LockedImpl {
-  def newReadPort(): PrfReadPort
-  def newWritePort(): PrfWritePort
+  def newPrfReadPort(): PrfReadPort
+  def newPrfWritePort(): PrfWritePort
 
   def readPort(index: Int): PrfReadPort
   def writePort(index: Int): PrfWritePort
@@ -63,18 +63,18 @@ class PhysicalRegFilePlugin(
   val regIdxWidth = log2Up(numPhysRegs) bits
   private val readPortRequests = ArrayBuffer[PrfReadPort]()
   private val writePortRequests = ArrayBuffer[PrfWritePort]()
-  
+
   // 标记逻辑是否已经执行
   private var logicExecuted = false
 
-  override def newReadPort(): PrfReadPort = {
+  override def newPrfReadPort(): PrfReadPort = {
     assert(!logicExecuted, "Cannot create read port after logic has been executed")
     val port = PrfReadPort(regIdxWidth, dataWidth)
     readPortRequests += port
     port
   }
 
-  override def newWritePort(): PrfWritePort = {
+  override def newPrfWritePort(): PrfWritePort = {
     assert(!logicExecuted, "Cannot create write port after logic has been executed")
     val port = PrfWritePort(regIdxWidth, dataWidth)
     writePortRequests += port
@@ -93,7 +93,7 @@ class PhysicalRegFilePlugin(
     ParallaxLogger.log("[PRegPlugin] 物理寄存器在生成逻辑前，等待依赖它的插件就绪")
     lock.await()
     ParallaxLogger.log("[PRegPlugin] 好，物理寄存器开始连接读写逻辑")
-    
+
     // 标记逻辑开始执行
     logicExecuted = true
 
@@ -110,16 +110,39 @@ class PhysicalRegFilePlugin(
       }
     }
 
-    writePortRequests.zipWithIndex.foreach { case (externalPort, i) =>
+    // --- 自定义写端口仲裁逻辑 ---
+    if (writePortRequests.nonEmpty) {
+      // 创建一个Bundle来承载仲裁后的写请求
+      val arbitratedWrite = PrfWritePort(regIdxWidth, dataWidth)
+
+      // 1. 获取所有写请求的有效信号
+      val writeValids = Vec(writePortRequests.map(_.valid))
+
+      // 2. 生成一个one-hot的授权信号 (grant)，只有第一个有效的请求对应的位为1
+      // OHMasking.first 正是用于固定优先级仲裁
+      val writeGrants = OHMasking.first(writeValids)
+
+      // 3. 决定最终的仲裁输出
+      // 如果任何一个请求被授权，则仲裁后的端口有效
+      arbitratedWrite.valid := writeGrants.orR
+
+      // 使用 MuxOH (One-Hot Mux) 根据授权信号选择获胜者的数据和地址
+      arbitratedWrite.address := MuxOH(writeGrants, writePortRequests.map(_.address))
+      arbitratedWrite.data    := MuxOH(writeGrants, writePortRequests.map(_.data))
+
+      // 4. 使用仲裁后胜出的端口执行唯一的物理写操作
       regFile.write(
-        address = externalPort.address,
-        data = externalPort.data,
-        enable = externalPort.valid && (externalPort.address =/= 0)
+        address = arbitratedWrite.address,
+        data    = arbitratedWrite.data,
+        enable  = arbitratedWrite.valid && (arbitratedWrite.address =/= 0)
       )
-      when(externalPort.valid && (externalPort.address =/= 0)) {
-        ParallaxSim.log(L"[PRegPlugin] PRF Port ${externalPort.address} write ${externalPort.data}")
+
+      // 仿真和编译日志
+      when(arbitratedWrite.valid && (arbitratedWrite.address =/= 0)) {
+        ParallaxSim.log(L"[PRegPlugin] PRF Port ${arbitratedWrite.address} write ${arbitratedWrite.data} (Arbitrated)")
       }
-      ParallaxLogger.log(s"[PRegPlugin] 物理寄存器堆写端口 $i 已连接")
+      ParallaxLogger.log(s"[PRegPlugin] ${writePortRequests.size}个物理寄存器堆写端口已连接到一个自定义的固定优先级仲裁器，形成一个物理写端口")
     }
+    // --- 自定义写端口仲裁逻辑结束 ---
   }
 }

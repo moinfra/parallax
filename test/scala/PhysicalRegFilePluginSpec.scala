@@ -12,6 +12,7 @@ import spinal.lib.sim.{FlowDriver, FlowMonitor}
 import scala.util.Random
 import spinal.tester.{SpinalSimFunSuite, SpinalAnyFunSuite}
 import parallax.common.PhysicalRegFileService
+import scala.collection.mutable.ArrayBuffer
 
 class PhysicalRegFilePluginSpec extends SpinalSimFunSuite {
 
@@ -21,13 +22,13 @@ class PhysicalRegFilePluginSpec extends SpinalSimFunSuite {
   // Define a test clock domain
   def simConfig = SimConfig.withWave.withVcdWave // 必须用 def，不要擅自改成 val
 
-  // Helper function to create and compile the DUT
+  // Helper function to create the original DUT with 1 read/1 write port
   def createDut() = {
     class TestPlugin extends Plugin {
       val setup = create early new Area {
         val regfile = getService[PhysicalRegFileService]
-        val readPort = regfile.newReadPort().simPublic()
-        val writePort = regfile.newWritePort().simPublic()
+        val readPort = regfile.newPrfReadPort().simPublic()
+        val writePort = regfile.newPrfWritePort().simPublic()
       }
 
       def getTbReadPort = setup.readPort
@@ -53,148 +54,171 @@ class PhysicalRegFilePluginSpec extends SpinalSimFunSuite {
     new TestBench()
   }
 
+  // Helper function to create a DUT for arbitration test (1 read, 3 write ports)
+  def createArbitrationDut() = {
+    class ArbitrationTestPlugin extends Plugin {
+      val setup = create early new Area {
+        val regfile = getService[PhysicalRegFileService]
+        val readPort = regfile.newPrfReadPort().simPublic()
+        // Create 3 write ports to test arbitration
+        val writePorts = ArrayBuffer.fill(3)(regfile.newPrfWritePort().simPublic())
+      }
+      def getTbReadPort = setup.readPort
+      def getTbWritePorts = setup.writePorts
+    }
+
+    class ArbitrationTestBench extends Component {
+      val database = new DataBase
+      val framework = ProjectScope(database) on new Framework(
+        Seq(
+          new PhysicalRegFilePlugin(
+            numPhysRegs = 32,
+            dataWidth = 32 bits
+          ),
+          new ArbitrationTestPlugin()
+        )
+      )
+      def testPlugin = framework.getService[ArbitrationTestPlugin]
+      def readPort = testPlugin.getTbReadPort
+      def writePorts = testPlugin.getTbWritePorts
+    }
+    new ArbitrationTestBench()
+  }
+
+  // Helper function for reading a value from a specific address
+  def readValue(addr: Int, readPort: PrfReadPort, dut: Component): BigInt = {
+    readPort.valid #= true
+    readPort.address #= addr
+    dut.clockDomain.waitSampling()
+    readPort.valid #= false
+    readPort.rsp.toBigInt
+  }
+
   test("Write to a reg and read it back") {
     simConfig
       .compile(createDut())
       .doSim { dut =>
-        {
-          val readPort = dut.readPort
-          val writePort = dut.writePort
+        val readPort = dut.readPort
+        val writePort = dut.writePort
 
-          dut.clockDomain.forkStimulus(period = 10)
-          // Initialize port signals to a known state
-          writePort.valid #= false
-          writePort.address #= 0
-          writePort.data #= 0
+        dut.clockDomain.forkStimulus(period = 10)
+        // Initialize
+        writePort.valid #= false
+        readPort.valid #= false
+        dut.clockDomain.waitSampling()
 
-          readPort.valid #= false
-          readPort.address #= 0
-          dut.clockDomain.waitSampling() // Wait for initial values to propagate
+        // Test 1: Write and read back
+        println("Starting Test 1: Write to a non-R0 register and read it back.")
+        val testAddr1 = 5
+        val testData1 = 0x12345678L
+        writePort.valid #= true
+        writePort.address #= testAddr1
+        writePort.data #= testData1
+        dut.clockDomain.waitSampling()
+        writePort.valid #= false
+        dut.clockDomain.waitSampling()
+        val readData1 = readValue(testAddr1, readPort, dut)
+        assert(readData1 == testData1, s"Test 1 Read data mismatch: Expected ${testData1.toHexString}, got ${readData1.toString(16)}")
 
-          // Constants for testing.
-          // It's assumed Config.R0_PHYS_TAG is 0. If it's different, this literal must change.
-          // The DUT's behavior is dictated by the actual Config.R0_PHYS_TAG value used during its compilation.
-          val R0_TAG = 0
-          // val DATA_WIDTH = 32 // dataWidth is set to 32 bits in plugin instantiation
+        // Test 2: Write to R0 is ignored
+        println("Starting Test 2: Attempt to write to R0 and read it back.")
+        val R0_TAG = 0
+        writePort.valid #= true
+        writePort.address #= R0_TAG
+        writePort.data #= 0xFFFFFFFFL
+        dut.clockDomain.waitSampling()
+        writePort.valid #= false
+        dut.clockDomain.waitSampling()
+        val readDataR0 = readValue(R0_TAG, readPort, dut)
+        assert(readDataR0 == 0, s"Test 2 Read from R0 mismatch: Expected 0, got ${readDataR0.toString(16)}")
 
-          // --- Test 1: Write to a non-R0 register and read it back ---
-          println("Starting Test 1: Write to a non-R0 register and read it back.")
-          val testAddr1 = 5 // Arbitrary non-R0 address
-          val testData1 = 0x12345678L // 'L' suffix to ensure it's a Long, good for BigInt conversion
-
-          // Write Operation
-          writePort.valid #= true
-          writePort.address #= testAddr1
-          writePort.data #= testData1
-          println(s"Tick ${simTime()}: Writing ${testData1.toHexString} to PReg ${testAddr1}")
-          dut.clockDomain.waitSampling() // Write occurs at this clock edge
-
-          writePort.valid #= false // De-assert valid
-          dut.clockDomain
-            .waitSampling() // Wait a tick before reading for clarity, though not strictly needed if readAsync is truly async
-
-          // Read Operation
-          readPort.valid #= true
-          readPort.address #= testAddr1
-          println(s"Tick ${simTime()}: Reading from PReg ${testAddr1}")
-          dut.clockDomain.waitSampling() // Read command sent; rsp should be updated in this tick due to readAsync
-
-          val readData1 = readPort.rsp.toBigInt
-          println(s"Tick ${simTime()}: Read back ${readData1.toString(16)} from PReg ${testAddr1}")
-          assert(
-            readData1 == testData1,
-            s"Test 1 Read data mismatch: Expected ${testData1.toHexString}, got ${readData1.toString(16)}"
-          )
-
-          readPort.valid #= false
-          dut.clockDomain.waitSampling(5) // Some delay
-
-          // --- Test 2: Attempt to write to R0 (physical tag R0_TAG) and read it back (should be 0) ---
-          println(s"Starting Test 2: Attempt to write to R0 (PReg $R0_TAG) and read it back.")
-          val nonZeroDataForR0 = 0xffffffffL
-
-          // Attempt to write to R0
-          writePort.valid #= true
-          writePort.address #= R0_TAG
-          writePort.data #= nonZeroDataForR0 // This write should be ignored by the DUT
-          println(s"Tick ${simTime()}: Attempting to write ${nonZeroDataForR0.toHexString} to PReg ${R0_TAG}")
-          dut.clockDomain.waitSampling()
-
-          writePort.valid #= false
-          dut.clockDomain.waitSampling()
-
-          // Read from R0
-          readPort.valid #= true
-          readPort.address #= R0_TAG
-          println(s"Tick ${simTime()}: Reading from PReg ${R0_TAG}")
-          dut.clockDomain.waitSampling()
-
-          val readDataR0 = readPort.rsp.toBigInt
-          println(s"Tick ${simTime()}: Read back ${readDataR0.toString(16)} from PReg ${R0_TAG}")
-          assert(readDataR0 == 0, s"Test 2 Read from R0 mismatch: Expected 0, got ${readDataR0.toString(16)}")
-
-          readPort.valid #= false
-          dut.clockDomain.waitSampling(5)
-
-          // --- Test 3: Write to a different non-R0 register, then read previously written non-R0, then R0 ---
-          println("Starting Test 3: Write to another reg, verify, then re-check first reg and R0.")
-          val testAddr2 = 10 // Another arbitrary non-R0 address
-          val testData2 = 0xaabbccddL
-
-          // Write to testAddr2
-          writePort.valid #= true
-          writePort.address #= testAddr2
-          writePort.data #= testData2
-          println(s"Tick ${simTime()}: Writing ${testData2.toHexString} to PReg ${testAddr2}")
-          dut.clockDomain.waitSampling()
-          writePort.valid #= false
-          dut.clockDomain.waitSampling()
-
-          // Read from testAddr2 to verify
-          readPort.valid #= true
-          readPort.address #= testAddr2
-          println(s"Tick ${simTime()}: Reading from PReg ${testAddr2}")
-          dut.clockDomain.waitSampling()
-          val readData2 = readPort.rsp.toBigInt
-          println(s"Tick ${simTime()}: Read back ${readData2.toString(16)} from PReg ${testAddr2}")
-          assert(
-            readData2 == testData2,
-            s"Test 3 Read from testAddr2 mismatch: Expected ${testData2.toHexString}, got ${readData2.toString(16)}"
-          )
-          readPort.valid #= false
-          dut.clockDomain.waitSampling()
-
-          // Read from testAddr1 again (should still hold testData1)
-          readPort.valid #= true
-          readPort.address #= testAddr1
-          println(s"Tick ${simTime()}: Reading again from PReg ${testAddr1}")
-          dut.clockDomain.waitSampling()
-          val readData1Again = readPort.rsp.toBigInt
-          println(s"Tick ${simTime()}: Read back ${readData1Again.toString(16)} from PReg ${testAddr1}")
-          assert(
-            readData1Again == testData1,
-            s"Test 3 Read from testAddr1 (second time) mismatch: Expected ${testData1.toHexString}, got ${readData1Again
-                .toString(16)}"
-          )
-          readPort.valid #= false
-          dut.clockDomain.waitSampling()
-
-          // Read from R0 again (should still be 0)
-          readPort.valid #= true
-          readPort.address #= R0_TAG
-          println(s"Tick ${simTime()}: Reading again from PReg ${R0_TAG}")
-          dut.clockDomain.waitSampling()
-          val readDataR0Again = readPort.rsp.toBigInt
-          println(s"Tick ${simTime()}: Read back ${readDataR0Again.toString(16)} from PReg ${R0_TAG}")
-          assert(
-            readDataR0Again == 0,
-            s"Test 3 Read from R0 (second time) mismatch: Expected 0, got ${readDataR0Again.toString(16)}"
-          )
-          readPort.valid #= false
-
-          println(s"Tick ${simTime()}: All tests completed.")
-          dut.clockDomain.waitSampling(10) // Final wait for waves to capture last states
-        }
+        println("All basic tests completed.")
+        dut.clockDomain.waitSampling(10)
       }
+  }
+
+  test("Write arbitration logic") {
+    simConfig.compile(createArbitrationDut()).doSim { dut =>
+      val readPort = dut.readPort
+      val writePorts = dut.writePorts
+
+      dut.clockDomain.forkStimulus(period = 10)
+      // Initialize all ports
+      readPort.valid #= false
+      writePorts.foreach { port =>
+        port.valid #= false
+        port.address #= 0
+        port.data #= 0
+      }
+      dut.clockDomain.waitSampling()
+
+      // Define test data for each port
+      val (addr0, data0) = (10, 0xAAAAAAAAL)
+      val (addr1, data1) = (11, 0xBBBBBBBBL)
+      val (addr2, data2) = (12, 0xCCCCCCCCL)
+
+      // --- Scenario 1: All 3 ports request write. Port 0 should win. ---
+      println("Starting Arbitration Scenario 1: All ports request, port 0 should win.")
+      // Set requests
+      writePorts(0).valid #= true; writePorts(0).address #= addr0; writePorts(0).data #= data0
+      writePorts(1).valid #= true; writePorts(1).address #= addr1; writePorts(1).data #= data1
+      writePorts(2).valid #= true; writePorts(2).address #= addr2; writePorts(2).data #= data2
+      dut.clockDomain.waitSampling()
+      // De-assert requests
+      writePorts.foreach(_.valid #= false)
+      dut.clockDomain.waitSampling()
+
+      // Verify results of Scenario 1
+      println("Verifying Scenario 1...")
+      var readBack = readValue(addr0, readPort, dut)
+      assert(readBack == data0, s"Scenario 1 (Winner): Address $addr0 FAILED. Expected ${data0.toHexString}, got ${readBack.toString(16)}")
+      readBack = readValue(addr1, readPort, dut)
+      assert(readBack == 0, s"Scenario 1 (Loser): Address $addr1 FAILED. Expected 0, got ${readBack.toString(16)}")
+      readBack = readValue(addr2, readPort, dut)
+      assert(readBack == 0, s"Scenario 1 (Loser): Address $addr2 FAILED. Expected 0, got ${readBack.toString(16)}")
+      println("Scenario 1 PASSED.")
+      dut.clockDomain.waitSampling(5)
+
+      // --- Scenario 2: Ports 1 and 2 request write. Port 1 should win. ---
+      println("Starting Arbitration Scenario 2: Ports 1 and 2 request, port 1 should win.")
+      writePorts(1).valid #= true; writePorts(1).address #= addr1; writePorts(1).data #= data1
+      writePorts(2).valid #= true; writePorts(2).address #= addr2; writePorts(2).data #= data2
+      dut.clockDomain.waitSampling()
+      writePorts.foreach(_.valid #= false)
+      dut.clockDomain.waitSampling()
+
+      // Verify results of Scenario 2
+      println("Verifying Scenario 2...")
+      readBack = readValue(addr1, readPort, dut)
+      assert(readBack == data1, s"Scenario 2 (Winner): Address $addr1 FAILED. Expected ${data1.toHexString}, got ${readBack.toString(16)}")
+      readBack = readValue(addr2, readPort, dut)
+      assert(readBack == 0, s"Scenario 2 (Loser): Address $addr2 FAILED. Expected 0, got ${readBack.toString(16)}")
+      // Also check that addr0 was not disturbed
+      readBack = readValue(addr0, readPort, dut)
+      assert(readBack == data0, s"Scenario 2 (Sanity Check): Address $addr0 FAILED. Expected ${data0.toHexString}, got ${readBack.toString(16)}")
+      println("Scenario 2 PASSED.")
+      dut.clockDomain.waitSampling(5)
+
+      // --- Scenario 3: Only port 2 requests write. Port 2 should win. ---
+      println("Starting Arbitration Scenario 3: Only port 2 requests, port 2 should win.")
+      writePorts(2).valid #= true; writePorts(2).address #= addr2; writePorts(2).data #= data2
+      dut.clockDomain.waitSampling()
+      writePorts.foreach(_.valid #= false)
+      dut.clockDomain.waitSampling()
+      
+      // Verify results of Scenario 3
+      println("Verifying Scenario 3...")
+      readBack = readValue(addr2, readPort, dut)
+      assert(readBack == data2, s"Scenario 3 (Winner): Address $addr2 FAILED. Expected ${data2.toHexString}, got ${readBack.toString(16)}")
+      // Check that others were not disturbed
+      readBack = readValue(addr0, readPort, dut)
+      assert(readBack == data0, s"Scenario 3 (Sanity Check): Address $addr0 FAILED. Expected ${data0.toHexString}, got ${readBack.toString(16)}")
+      readBack = readValue(addr1, readPort, dut)
+      assert(readBack == data1, s"Scenario 3 (Sanity Check): Address $addr1 FAILED. Expected ${data1.toHexString}, got ${readBack.toString(16)}")
+      println("Scenario 3 PASSED.")
+      
+      println("All arbitration tests completed successfully.")
+      dut.clockDomain.waitSampling(10)
+    }
   }
 }

@@ -334,7 +334,7 @@ class IssueToAluAndLsuTestBench(val pCfg: PipelineConfig, val isIO: Boolean = fa
 
   // === PRF Access for Architectural Register Verification ===
   val prfService = framework.getService[PhysicalRegFileService]
-  val prfReadPort = prfService.newReadPort()
+  val prfReadPort = prfService.newPrfReadPort()
   prfReadPort.simPublic()
   prfReadPort.valid := False
   prfReadPort.address := 0

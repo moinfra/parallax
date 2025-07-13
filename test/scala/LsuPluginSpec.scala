@@ -48,8 +48,8 @@ class LsuTestSetupPlugin(
     robIoSetup(robAllocPort, robFlushPort, robCommitSlot, robCommitAck)
     
     // Setup PRF ports
-    val prfReadPort = prfService.newReadPort()
-    val prfWritePort = prfService.newWritePort()
+    val prfReadPort = prfService.newPrfReadPort()
+    val prfWritePort = prfService.newPrfWritePort()
     prfIoSetup(prfReadPort, prfWritePort)
 
     // Setup D-Cache ports

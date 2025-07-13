@@ -67,7 +67,7 @@ class TestPrfPreloadPlugin(
 
   val setup = create early new Area {
     val gprService = findService[PhysicalRegFileService](_.isGprService()) // Assuming GPR for preload
-    val serviceWritePort = gprService.newWritePort() // Get a write port from the service
+    val serviceWritePort = gprService.newPrfWritePort() // Get a write port from the service
 
     // Connect the TestBench's master port (tbPreloadWriteCmdPort) to drive the service's slave port
     // serviceWritePort is slave-like from the perspective of the driver (TestBench)
@@ -139,7 +139,7 @@ class AluIntEuTestBench(
   val aluIntEuPlugin = framework.getServiceWhere[AluIntEuPlugin](_.euName == aluEuName)
   val gprService = framework.getServiceWhere[PhysicalRegFileService](_.isGprService())
 
-  val tbPrfReadPortInstance = gprService.newReadPort()
+  val tbPrfReadPortInstance = gprService.newPrfReadPort()
   tbPrfReadPortInstance.simPublic()
   tbPrfReadPortInstance.valid := io.prfReadCmd.valid
   tbPrfReadPortInstance.address := io.prfReadCmd.address

@@ -145,7 +145,7 @@ new RenamePlugin(pCfg, renameMapConfig, flConfig),
   issueEntryStage(issueSignals.FLUSH_TARGET_PC) := 0
 
   val prfService = framework.getService[PhysicalRegFileService]
-  val prfReadPort = prfService.newReadPort()
+  val prfReadPort = prfService.newPrfReadPort()
   prfReadPort.simPublic()
     prfReadPort.valid   := False 
   prfReadPort.address := 0

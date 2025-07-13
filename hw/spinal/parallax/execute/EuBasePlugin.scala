@@ -99,26 +99,26 @@ abstract class EuBasePlugin(
     if (euRegType == EuRegType.GPR_ONLY || euRegType == EuRegType.MIXED_GPR_FPR) {
       if (gprFileService == null) SpinalError(s"$euName: GPRFileService 为 null，但 GPR 操作需要它。")
       ParallaxLogger.log(s"生成了 ${numGprReadPortsPerEu} 个 GPR 读端口。")
-      Seq.fill(numGprReadPortsPerEu)(gprFileService.newReadPort())
+      Seq.fill(numGprReadPortsPerEu)(gprFileService.newPrfReadPort())
     } else Seq.empty
 
   lazy val fprReadPorts: Seq[PrfReadPort] =
     if (pipelineConfig.hasFpu && (euRegType == EuRegType.FPR_ONLY || euRegType == EuRegType.MIXED_GPR_FPR)) {
       if (fprFileService == null) SpinalError(s"$euName: FPRFileService 为 null，但启用 FPU 时的 FPR 操作需要它。")
       ParallaxLogger.log(s"生成了 ${numFprReadPortsPerEu} 个 FPR 读端口。")
-      Seq.fill(numFprReadPortsPerEu)(fprFileService.newReadPort())
+      Seq.fill(numFprReadPortsPerEu)(fprFileService.newPrfReadPort())
     } else Seq.empty
 
   lazy val gprWritePort: PrfWritePort =
     if (euRegType == EuRegType.GPR_ONLY || euRegType == EuRegType.MIXED_GPR_FPR) {
       if (gprFileService == null) SpinalError(s"$euName: GPRFileService 为 null，但 GPR 写端口需要它。")
-      gprFileService.newWritePort()
+      gprFileService.newPrfWritePort()
     } else null
 
   lazy val fprWritePort: PrfWritePort =
     if (pipelineConfig.hasFpu && (euRegType == EuRegType.FPR_ONLY || euRegType == EuRegType.MIXED_GPR_FPR)) {
       if (fprFileService == null) SpinalError(s"$euName: FPRFileService 为 null，但启用 FPU 时的 FPR 写端口需要它。")
-      fprFileService.newWritePort()
+      fprFileService.newPrfWritePort()
     } else null
 
   // --- ROB 完成端口 ---

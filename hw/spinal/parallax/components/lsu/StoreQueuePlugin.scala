@@ -49,7 +49,7 @@ class StoreQueuePlugin(
 
     // 3. Store the ports that SQ will drive or be driven by
     val aguPort = aguService.newAguPort()
-    val prfReadPort = prfService.newReadPort()
+    val prfReadPort = prfService.newPrfReadPort()
     val dCacheStorePort = dcacheService.newStorePort()
     val dCacheRelatedQPtr = UInt(lsuConfig.sqPtrWidth)
 

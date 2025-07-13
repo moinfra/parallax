@@ -28,8 +28,8 @@ class TestSetupPlugin(
     val aguPort = aguPlugin.newAguPort().simPublic()
     aguIoSetup(aguPort)
 
-    val prfWritePort = prfPlugin.newWritePort()
-    val prfReadPort = prfPlugin.newReadPort()
+    val prfWritePort = prfPlugin.newPrfWritePort()
+    val prfReadPort = prfPlugin.newPrfReadPort()
     prfIoSetup(prfReadPort, prfWritePort)
 
     val bypassSource = bypassPlugin.newBypassSource("TestEU")

@@ -150,7 +150,7 @@ class LoadQueuePlugin(
 
         val dCacheLoadPort   = dcacheServiceInst.newLoadPort(priority = 1)
         val robLoadWritebackPort = robServiceInst.newWritebackPort("LQ_Load")
-        val prfWritePort     = prfServiceInst.newWritePort()
+        val prfWritePort     = prfServiceInst.newPrfWritePort()
         val sbQueryPort      = storeBufferServiceInst.getStoreQueueQueryPort()
         val wakeupServiceInst = getService[WakeupService]
         val wakeupPort = wakeupServiceInst.newWakeupSource()

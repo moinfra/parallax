@@ -134,8 +134,8 @@ class AguPlugin(
   override def newAguPort(): AguPort = {
     // 因为 newAguPort() 是在用户的 `early` 区域被调用的，所以这里的 `newReadPort()` 调用也是在 `early` 阶段
     val aguPort = AguPort(lsuConfig)
-    val prfReadBase = setup.prfService.newReadPort().setCompositeName(aguPort, "prfReadBase")
-    val prfReadData = setup.prfService.newReadPort().setCompositeName(aguPort, "prfReadData")
+    val prfReadBase = setup.prfService.newPrfReadPort().setCompositeName(aguPort, "prfReadBase")
+    val prfReadData = setup.prfService.newPrfReadPort().setCompositeName(aguPort, "prfReadData")
     
     // 将这个完整的“资源包”保存起来
     portResources += ((aguPort, prfReadBase, prfReadData))
