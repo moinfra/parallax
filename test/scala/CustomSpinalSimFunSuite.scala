@@ -24,6 +24,10 @@ class CustomSpinalSimFunSuite extends SpinalSimFunSuite {
     tests += ((testName, () => testFun))
   }
 
+  def testSkip(testName: String)(testFun: => Unit): Unit = {
+    warning(s"Skipping test $testName")
+  }
+
   def hello() = {
     print("hello")
   }

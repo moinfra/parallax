@@ -422,3 +422,13 @@ BLT rj, rd, offs        011000 offs[15:0]        rj    rd
 BGE rj, rd, offs        011001 offs[15:0]        rj    rd
 BLTU rj, rd, offs       011010 offs[15:0]        rj    rd
 BGEU rj, rd, offs       011011 offs[15:0]        rj    rd
+
+通用寄存器使用约定
+$r0 ($zero)
+$r4 - $r5 ($a0 - $a1)
+$r6 - $r11 ($a2 - $a7)
+$r12 - $r20 ($t0 - $t8)
+$r21 保留
+$r22 $fp / $s9 栈帧指针 / 静态寄存器
+$r23 - $r31 ($s0 - $s8) 静态寄存器
+https://loongson.github.io/LoongArch-Documentation/LoongArch-ELF-ABI-CN.html
