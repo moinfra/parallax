@@ -44,22 +44,27 @@ class CheckpointManagerPlugin(
     // Get the actual services that control RAT and FreeList
     val ratControlService = getService[RatControlService]
     val flControlService = getService[FreeListControlService]
+    val btCheckpointService = getService[BusyTableCheckpointService]
 
     
     // Get actual checkpoint ports from the services
     val ratRestorePort = ratControlService.newCheckpointRestorePort()
     val flRestorePort = flControlService.newRestorePort()
+    val btRestorePort = btCheckpointService.newRestorePort()
   }
 
   val logic = create late new Area {
     val ratControlService = setup.ratControlService
     val flControlService = setup.flControlService
+    val btCheckpointService = setup.btCheckpointService
     val ratRestorePort = setup.ratRestorePort
     val flRestorePort = setup.flRestorePort
+    val btRestorePort = setup.btRestorePort
 
     // Single checkpoint storage
     val storedRatCheckpoint = Reg(RatCheckpoint(ratConfig))
     val storedFlCheckpoint = Reg(SuperScalarFreeListCheckpoint(flConfig))
+    val storedBtCheckpoint = Reg(BusyTableCheckpoint(pipelineConfig))
     val hasValidCheckpoint = RegInit(False)
     
     // Initialize with proper initial state
@@ -79,10 +84,14 @@ class CheckpointManagerPlugin(
       initialFreeMask(i) := True
     }
     initialFlCheckpoint.freeMask := initialFreeMask
+
+    val initialBtCheckpoint = BusyTableCheckpoint(pipelineConfig)
+    initialBtCheckpoint.busyBits.clearAll()
     
     // Initialize storage
     storedRatCheckpoint init(initialRatCheckpoint)
     storedFlCheckpoint init(initialFlCheckpoint)
+    storedBtCheckpoint init(initialBtCheckpoint)
     
     // REAL SAVE OPERATION: Capture ACTUAL current state
     when(saveCheckpointTrigger) {
@@ -93,11 +102,15 @@ class CheckpointManagerPlugin(
       // Capture the REAL current state from FreeList service
       val currentFlState = flControlService.getCurrentFreeListState()
       storedFlCheckpoint := currentFlState
+
+      // Capture the REAL current state from BusyTable service
+      val currentBtState = btCheckpointService.getBusyTableState()
+      storedBtCheckpoint := currentBtState
       
       hasValidCheckpoint := True
       
       if (enableLog) {
-        report(L"[CheckpointManager] Checkpoint saved - captured REAL RAT and FreeList state (single-cycle)")
+        report(L"[CheckpointManager] Checkpoint saved - captured REAL RAT, FreeList and BusyTable state (single-cycle)")
       }
     }
     
@@ -110,6 +123,10 @@ class CheckpointManagerPlugin(
       // Drive FreeList restore
       flRestorePort.valid := True
       flRestorePort.payload := storedFlCheckpoint
+
+      // Drive BusyTable restore
+      btRestorePort.valid := True
+      btRestorePort.payload := storedBtCheckpoint
       
       if (enableLog) {
         report(L"[CheckpointManager] Checkpoint restored - restored REAL state (single-cycle)")
@@ -120,6 +137,9 @@ class CheckpointManagerPlugin(
       
       flRestorePort.valid := False
       flRestorePort.payload.assignDontCare()
+
+      btRestorePort.valid := False
+      btRestorePort.payload.assignDontCare()
     }
   }
 }

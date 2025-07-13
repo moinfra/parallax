@@ -20,13 +20,26 @@ trait BusyTableService extends Service with LockedImpl {
   def getBusyBits(): Bits
 }
 
+case class BusyTableCheckpoint(pCfg: PipelineConfig) extends Bundle {
+  val busyBits = Bits(pCfg.physGprCount bits)
+}
+
+trait BusyTableCheckpointService extends Service with LockedImpl {
+  def getBusyTableState(): BusyTableCheckpoint
+  def newRestorePort(): Flow[BusyTableCheckpoint]
+}
+
 // --- Plugin Implementation ---
-class BusyTablePlugin(pCfg: PipelineConfig) extends Plugin with BusyTableService {
+class BusyTablePlugin(pCfg: PipelineConfig)
+    extends Plugin
+    with BusyTableService
+    with BusyTableCheckpointService {
   // HONEST ERROR REPORTING: Enable detailed logging for RAW hazard debugging
   val enableLog = true // FORCE enable logging for debugging
   println("[BusyTablePlugin] enableLog: " + enableLog)
   private val setPorts = ArrayBuffer[Flow[UInt]]()
   private val clearPortsBuffer = ArrayBuffer[Flow[UInt]]() // 使用ArrayBuffer存储所有清除端口
+  private val restorePorts = ArrayBuffer[Flow[BusyTableCheckpoint]]()
 
   // All hardware resources must be declared in early or late Area
   val early_setup = create early new Area {
@@ -44,13 +57,13 @@ class BusyTablePlugin(pCfg: PipelineConfig) extends Plugin with BusyTableService
     // Handle clears first (higher priority)
     val clearMask = Bits(pCfg.physGprCount bits)
     clearMask.clearAll()
-    
+
     // CRITICAL FIX: Add global wakeup as a clear source
     when(globalWakeupFlow.valid) {
       clearMask(globalWakeupFlow.payload.physRegIdx) := True
       if(enableLog) report(L"[BusyTable] Global wakeup clear: physReg=${globalWakeupFlow.payload.physRegIdx}")
     }
-    
+
     // Handle individual EU clear ports (still needed for direct clears)
     for (port <- clearPortsBuffer) {
       when(port.valid) {
@@ -74,8 +87,15 @@ class BusyTablePlugin(pCfg: PipelineConfig) extends Plugin with BusyTableService
 
     if(enableLog) report(L"[BusyTable] Current: busyTableReg=${busyTableReg}, clearMask=${clearMask}, setMask=${setMask}, next=${busyTableNext}")
 
-    busyTableReg := busyTableNext
-    
+    // Handle Restore
+    val restorePort = restorePorts.head // Assuming single restore port for now
+    when(restorePort.valid) {
+      busyTableReg := restorePort.payload.busyBits
+      if(enableLog) report(L"[BusyTable] Restored from checkpoint: busyBits=${restorePort.payload.busyBits}")
+    } .otherwise {
+      busyTableReg := busyTableNext
+    }
+
     // Connect the combinational output
     combinationalBusyBits := busyTableNext
   }
@@ -88,17 +108,30 @@ class BusyTablePlugin(pCfg: PipelineConfig) extends Plugin with BusyTableService
     setPorts ++= ports
     ports
   }
-  
+
   // 【修正】: 每次调用都创建一个新的、唯一的端口
   override def newClearPort(): Flow[UInt] = {
     val port = Flow(UInt(pCfg.physGprIdxWidth))
     clearPortsBuffer += port // 将新端口加入Buffer
     port
   }
-  
+
   override def getBusyBits(): Bits = {
     // Return the combinational result that considers current cycle clears
     // This prevents read-after-write hazards
     combinationalBusyBits
   }
+
+  override def getBusyTableState(): BusyTableCheckpoint = {
+    val state = BusyTableCheckpoint(pCfg)
+    state.busyBits := logic.busyTableReg
+    state
+  }
+
+  override def newRestorePort(): Flow[BusyTableCheckpoint] = {
+    val port = Flow(BusyTableCheckpoint(pCfg))
+    restorePorts += port
+    port
+  }
 }
+
