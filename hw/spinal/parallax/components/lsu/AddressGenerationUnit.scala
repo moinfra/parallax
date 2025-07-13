@@ -1,5 +1,3 @@
-// 文件路径: parallax/components/lsu/AguPlugin.scala
-
 package parallax.components.lsu
 
 import spinal.core._

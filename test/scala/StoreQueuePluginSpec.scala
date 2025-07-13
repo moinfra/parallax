@@ -15,7 +15,7 @@
 // import parallax.components.dcache2._
 // import spinal.lib.bus.amba4.axi.Axi4
 // import parallax.components.memory.ExtSRAMConfig
-// import parallax.components.memory.ExtSRAMController
+// import parallax.components.memory.SRAMController
 // import spinal.lib.bus.amba4.axi.Axi4Config
 // import parallax.components.memory.SimulatedSRAM
 // import spinal.lib.sim.StreamDriver
@@ -188,7 +188,7 @@
 //       enableLog = true
 //     )
 //     val sram = new SimulatedSRAM(extSramCfg)
-//     val ctrl = new ExtSRAMController(axiConfig, extSramCfg)
+//     val ctrl = new SRAMController(axiConfig, extSramCfg)
 //     ctrl.io.ram <> sram.io.ram
 //     ctrl.io.simPublic()
 //     sram.io.simPublic()

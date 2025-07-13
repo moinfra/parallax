@@ -14,7 +14,7 @@ import scala.collection.mutable
 import scala.util.Random
 import parallax.components.memory.SimulatedSRAM
 import parallax.components.memory.ExtSRAMConfig
-import parallax.components.memory.ExtSRAMController
+import parallax.components.memory.SRAMController
 import parallax.utilities.ParallaxLogger
 
 // Define a helper class for Load Response data for easier comparison
@@ -89,7 +89,7 @@ class DataCacheTestbench(val p: DataCacheParameters, val useSimulatedSRAM: Boole
       enableLog = true
     )
     sram = new SimulatedSRAM(extSramCfg)
-    val ctrl = new ExtSRAMController(axiMasterNode.config, extSramCfg)
+    val ctrl = new SRAMController(axiMasterNode.config, extSramCfg)
     ctrl.io.axi <> axiMasterNode
     ctrl.io.ram <> sram.io.ram
     ctrl.io.simPublic()

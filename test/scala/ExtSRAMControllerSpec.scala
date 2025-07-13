@@ -11,7 +11,7 @@ import scala.collection.mutable
 import parallax.components.memory._
 import _root_.parallax.utilities.ParallaxLogger
 
-// 测试台 - 连接ExtSRAMController和SRAM模拟器
+// 测试台 - 连接SRAMController和SRAM模拟器
 class ExtSRAMTestBench(axiConfig: Axi4Config, ramConfig: ExtSRAMConfig) extends Component {
   val io = new Bundle {
     val axi = slave(Axi4(axiConfig))
@@ -22,7 +22,7 @@ class ExtSRAMTestBench(axiConfig: Axi4Config, ramConfig: ExtSRAMConfig) extends 
   }
 
   // 实例化被测组件
-  val dut = new ExtSRAMController(axiConfig, ramConfig)
+  val dut = new SRAMController(axiConfig, ramConfig)
   val sram = new SimulatedSRAM(ramConfig)
 
   // 连接AXI接口
@@ -321,7 +321,7 @@ class AxiMasterHelper(axi: Axi4, clockDomain: ClockDomain) {
   }
 }
 
-class ExtSRAMControllerSpec extends CustomSpinalSimFunSuite {
+class SRAMControllerSpec extends CustomSpinalSimFunSuite {
 
   // 测试配置
   val axiConfig = Axi4Config(
