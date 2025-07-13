@@ -201,7 +201,7 @@ class CoreNSCSCC extends Component {
     xlen = 32,
     physGprCount = 64,
     archGprCount = 32,
-    robDepth = 32,
+    robDepth = 8,
     commitWidth = 1,
     resetVector = BigInt("80000000", 16), // 新的启动地址
     transactionIdWidth = 1,
@@ -277,8 +277,8 @@ class CoreNSCSCC extends Component {
   )
   
   val lsuConfig = LsuConfig(
-    lqDepth = 16,
-    sqDepth = 16,
+    lqDepth = 4,
+    sqDepth = 4,
     robPtrWidth = pCfg.robPtrWidth,
     pcWidth = pCfg.pcWidth,
     dataWidth = pCfg.dataWidth,

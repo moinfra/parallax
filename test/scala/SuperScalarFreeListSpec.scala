@@ -1,3 +1,4 @@
+// testOnly test.scala.SuperScalarFreeListSpec
 package test.scala // Or your test package
 
 import spinal.core._

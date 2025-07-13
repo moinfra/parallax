@@ -119,64 +119,45 @@ class SuperScalarFreeList(val config: SuperScalarFreeListConfig) extends Compone
   if(enableLog) report(L"[DUT] Initial freeRegsMask (after init): ${freeRegsMask}")
 
   // --- Allocation Logic (Superscalar) ---
-  var currentMaskForAlloc_iter = freeRegsMask // This var will hold the mask state as it passes through ports
-  val availableRegsForAlloc_at_cycle_start = CountOne(freeRegsMask)
+  // 1. Find all available free registers in parallel
+  val freeRegsOh = freeRegsMask.asBools.map(b => b.asBits).asBits // Get an OH representation of all free regs
+  val availableRegs = CountOne(freeRegsMask) // Count how many are free at the start of the cycle
 
-  if(enableLog) report(
-    L"[SSFreeList: Alloc Phase] Start of cycle. freeRegsMask_reg = ${freeRegsMask}, availableRegsForAlloc_at_cycle_start = ${availableRegsForAlloc_at_cycle_start}"
-  )
+  // 2. Find the first N free registers for the N allocate ports
+  val allocatedRegsOh = Vec(Bits(config.numPhysRegs bits), config.numAllocatePorts)
+  val allocatedRegsIdx = Vec(UInt(config.physRegIdxWidth), config.numAllocatePorts)
 
+  // This logic finds the top N set bits in parallel, which is much better for timing.
+  // We use a temporary variable to hold the mask as we select bits from it.
+  var tempMask = freeRegsOh
+  for (i <- 0 until config.numAllocatePorts) {
+    val oh = OHMasking.first(tempMask) // Find the first available register
+    allocatedRegsOh(i) := oh
+    allocatedRegsIdx(i) := OHToUInt(oh)
+    tempMask = tempMask & ~oh // Remove the found register from the mask for the next iteration
+  }
+  
+  // 3. Drive port outputs in parallel and generate the final allocation mask
   for (i <- 0 until config.numAllocatePorts) {
     val port = io.allocate(i)
-    if(enableLog) report(L"[SSFreeList: Alloc Port ${i.toString()}] Input alloc enable = ${port.enable}")
-
-    val isAnyFreeInCurrentIterMask = currentMaskForAlloc_iter.orR
-    val enoughOverallRegsForThisPort = availableRegsForAlloc_at_cycle_start > U(i)
-    val canAllocateThisPort = isAnyFreeInCurrentIterMask && enoughOverallRegsForThisPort
-    val chosenPhysReg = OHToUInt(PriorityEncoderOH(currentMaskForAlloc_iter))
-
-    port.success := canAllocateThisPort && port.enable
-    port.physReg := chosenPhysReg
-
-    if(enableLog) report(
-      L"[SSFreeList: Alloc Port ${i.toString()}] currentMaskForAlloc_iter (before this port) = ${currentMaskForAlloc_iter}, "
-    )
-    if(enableLog) report(
-      L"    isAnyFreeInCurrentIterMask = ${isAnyFreeInCurrentIterMask}, enoughOverallRegs = ${enoughOverallRegsForThisPort}, "
-    )
-    if(enableLog) report(
-      L"    canAllocateThisPort (pre-enable) = ${canAllocateThisPort}, chosenPhysReg (pre-enable) = ${chosenPhysReg}"
-    )
-    if(enableLog) report(
-      L"[SSFreeList: *** Alloc Port ${i.toString()}] Output success = ${port.success}, Output physReg = ${port.physReg}"
-    )
-
-    // Define the mask for the *next* port based on this port's action
-    val maskAfterThisPort = Bits(config.numPhysRegs bits) // This signal will always be assigned.
-    when(port.enable && canAllocateThisPort) {
-      maskAfterThisPort := currentMaskForAlloc_iter
-      maskAfterThisPort(chosenPhysReg) := False
-      if(enableLog) report(
-        L"[SSFreeList: Alloc Port ${i.toString()}] SUCCESSFUL ALLOC. Chosen p${chosenPhysReg}. maskAfterThisPort calculated as ${maskAfterThisPort} (from ${currentMaskForAlloc_iter})"
-      )
-    } otherwise {
-      maskAfterThisPort := currentMaskForAlloc_iter // No change if no alloc
-      if(enableLog) report(
-        L"[SSFreeList: Alloc Port ${i.toString()}] NO ALLOC happened or disabled. maskAfterThisPort is ${maskAfterThisPort} (same as currentMaskForAlloc_iter)"
-      )
-    }
-    currentMaskForAlloc_iter = maskAfterThisPort // Update the 'var' for the next iteration
+    val canAllocate = availableRegs > i
+    
+    port.success := port.enable && canAllocate
+    port.physReg := allocatedRegsIdx(i)
   }
 
+  // Now, construct the allocatedMask based on the final success signals in a parallel and safe way.
+  val allocatedMask = (0 until config.numAllocatePorts).map { i =>
+    // If the i-th port was successful, take its one-hot allocated register. Otherwise, take a mask of all zeros.
+    Mux(io.allocate(i).success, allocatedRegsOh(i), B(0, config.numPhysRegs bits))
+  }.reduce(_ | _) // OR all the individual masks together to get the final mask.
+
   // --- State Update Logic ---
-  // nextFreeRegsMask_final_comb starts with the mask *after* all allocations in the current cycle are considered
-  val nextFreeRegsMask_final_comb = CombInit(
-    currentMaskForAlloc_iter
-  ) // Use the final state of currentMaskForAlloc_iter
+  // Start with the current mask, remove allocated registers, then add freed registers.
+  val nextFreeRegsMask_after_alloc = freeRegsMask & ~allocatedMask
+  val nextFreeRegsMask_final_comb = CombInit(nextFreeRegsMask_after_alloc)
   if(enableLog) report(
-    L"[SSFreeList: Free Phase] Mask after all alloc ports (currentMaskForAlloc_iter) = ${currentMaskForAlloc_iter}"
-  )
-  if(enableLog) report(L"[SSFreeList: Free Phase] Initial nextFreeRegsMask_final_comb = ${nextFreeRegsMask_final_comb}")
+    L"[SSFreeList: Free Phase] nextFreeRegsMask_after_alloc = ${nextFreeRegsMask_after_alloc} nextFreeRegsMask_final_comb = ${nextFreeRegsMask_final_comb}")
 
   for (i <- 0 until config.numFreePorts) {
     val port = io.free(i)
@@ -237,7 +218,7 @@ class SuperScalarFreeList(val config: SuperScalarFreeListConfig) extends Compone
 
   // --- Outputs ---
   io.currentState.freeMask := freeRegsMask // This reflects the *register's* value
-  io.numFreeRegs := CountOne(freeRegsMask) // This also reflects the *register's* value
+  io.numFreeRegs := availableRegs // This also reflects the *register's* value
 
   // If(enableLog) Report final register value at the end of the cycle evaluation (for next cycle's start)
   // This needs to be done carefully, perhaps in a post-cycle check if the simulator allows,
