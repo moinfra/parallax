@@ -1,10 +1,12 @@
 // Generator : SpinalHDL dev    git head : 3105a33b457518a7afeed8b0527b4d8b9dab2383
 // Component : CoreNSCSCC
-// Git hash  : 322cd4be709c8f31bc4e33f79c345c29471f6026
+// Git hash  : 468e433df15c4e2bc0f16cfc5607830e45526440
 
 `timescale 1ns/1ps
 
 module CoreNSCSCC (
+  output wire [7:0]    io_dpy0,
+  output wire [7:0]    io_dpy1,
   input  wire [31:0]   io_isram_dout,
   output wire [19:0]   io_isram_addr,
   output wire [31:0]   io_isram_din,
@@ -1288,6 +1290,8 @@ module CoreNSCSCC (
   wire       [3:0]    axi4WriteOnlyArbiter_5_io_output_w_payload_strb;
   wire                axi4WriteOnlyArbiter_5_io_output_w_payload_last;
   wire                axi4WriteOnlyArbiter_5_io_output_b_ready;
+  wire       [7:0]    dpyController_io_dpy0_out;
+  wire       [7:0]    dpyController_io_dpy1_out;
   wire       [9:0]    _zz_BpuPipelinePlugin_logic_pht_port;
   wire       [7:0]    _zz_BpuPipelinePlugin_logic_btb_port;
   wire       [54:0]   _zz_BpuPipelinePlugin_logic_btb_port_1;
@@ -2380,8 +2384,6 @@ module CoreNSCSCC (
   wire                _zz_LoadQueuePlugin_logic_loadQueue_mmioCmdFired;
   wire       [31:0]   _zz_LoadQueuePlugin_hw_prfWritePort_data;
   wire                _zz_LoadQueuePlugin_hw_prfWritePort_valid;
-  wire                CoreNSCSCCSetupPlugin_setup_redirectPort_valid;
-  wire       [31:0]   CoreNSCSCCSetupPlugin_setup_redirectPort_payload;
   reg                 CheckpointManagerPlugin_setup_btRestorePort_valid;
   reg        [63:0]   CheckpointManagerPlugin_setup_btRestorePort_payload_busyBits;
   wire                LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_valid;
@@ -7493,6 +7495,11 @@ module CoreNSCSCC (
     .clk                          (clk                                                                                   ), //i
     .reset                        (reset                                                                                 )  //i
   );
+  SevenSegmentDisplayController dpyController (
+    .io_value    (8'hff                         ), //i
+    .io_dpy0_out (dpyController_io_dpy0_out[7:0]), //o
+    .io_dpy1_out (dpyController_io_dpy1_out[7:0])  //o
+  );
   always @(*) begin
     case(_zz_CommitPlugin_logic_commitCount_1)
       1'b0 : _zz_CommitPlugin_logic_commitCount = 1'b0;
@@ -12236,44 +12243,6 @@ module CoreNSCSCC (
   assign io_mem_toAxi4_w_ready = DataCachePlugin_setup_dcacheMaster_w_ready;
   assign DataCachePlugin_setup_cache_io_mem_write_rsp_payload_error = (! (DataCachePlugin_setup_dcacheMaster_b_payload_resp == 2'b00));
   assign DataCachePlugin_setup_dcacheMaster_b_ready = 1'b1;
-  assign CoreNSCSCCSetupPlugin_setup_redirectPort_valid = 1'b0;
-  assign CoreNSCSCCSetupPlugin_setup_redirectPort_payload = 32'h0;
-  always @(*) begin
-    BpuPipelinePlugin_updatePortIn_valid = 1'b0;
-    if(s1_Resolve_isFiring) begin
-      BpuPipelinePlugin_updatePortIn_valid = 1'b1;
-    end else begin
-      BpuPipelinePlugin_updatePortIn_valid = 1'b0;
-    end
-  end
-
-  always @(*) begin
-    BpuPipelinePlugin_updatePortIn_payload_pc = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-    if(s1_Resolve_isFiring) begin
-      BpuPipelinePlugin_updatePortIn_payload_pc = _zz_BpuPipelinePlugin_updatePortIn_payload_pc;
-    end else begin
-      BpuPipelinePlugin_updatePortIn_payload_pc = 32'h0;
-    end
-  end
-
-  always @(*) begin
-    BpuPipelinePlugin_updatePortIn_payload_isTaken = 1'bx;
-    if(s1_Resolve_isFiring) begin
-      BpuPipelinePlugin_updatePortIn_payload_isTaken = _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken;
-    end else begin
-      BpuPipelinePlugin_updatePortIn_payload_isTaken = 1'b0;
-    end
-  end
-
-  always @(*) begin
-    BpuPipelinePlugin_updatePortIn_payload_target = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-    if(s1_Resolve_isFiring) begin
-      BpuPipelinePlugin_updatePortIn_payload_target = _zz_BpuPipelinePlugin_updatePortIn_payload_target_1;
-    end else begin
-      BpuPipelinePlugin_updatePortIn_payload_target = 32'h0;
-    end
-  end
-
   assign BpuPipelinePlugin_logic_s1_read_valid = BpuPipelinePlugin_queryPortIn_valid;
   assign BpuPipelinePlugin_logic_s1_read_Q_PC = BpuPipelinePlugin_queryPortIn_payload_pc;
   assign BpuPipelinePlugin_logic_s1_read_TRANSACTION_ID = BpuPipelinePlugin_queryPortIn_payload_transactionId;
@@ -15911,6 +15880,38 @@ module CoreNSCSCC (
     end
   end
 
+  always @(*) begin
+    if(s1_Resolve_isFiring) begin
+      BpuPipelinePlugin_updatePortIn_valid = 1'b1;
+    end else begin
+      BpuPipelinePlugin_updatePortIn_valid = 1'b0;
+    end
+  end
+
+  always @(*) begin
+    if(s1_Resolve_isFiring) begin
+      BpuPipelinePlugin_updatePortIn_payload_pc = _zz_BpuPipelinePlugin_updatePortIn_payload_pc;
+    end else begin
+      BpuPipelinePlugin_updatePortIn_payload_pc = 32'h0;
+    end
+  end
+
+  always @(*) begin
+    if(s1_Resolve_isFiring) begin
+      BpuPipelinePlugin_updatePortIn_payload_isTaken = _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken;
+    end else begin
+      BpuPipelinePlugin_updatePortIn_payload_isTaken = 1'b0;
+    end
+  end
+
+  always @(*) begin
+    if(s1_Resolve_isFiring) begin
+      BpuPipelinePlugin_updatePortIn_payload_target = _zz_BpuPipelinePlugin_updatePortIn_payload_target_1;
+    end else begin
+      BpuPipelinePlugin_updatePortIn_payload_target = 32'h0;
+    end
+  end
+
   assign when_BranchEuPlugin_l234 = (s1_Resolve_isFiring && (! _zz_when_BranchEuPlugin_l234));
   always @(*) begin
     if(when_BranchEuPlugin_l234) begin
@@ -16230,9 +16231,9 @@ module CoreNSCSCC (
   assign BpuPipelinePlugin_queryPortIn_valid = (SimpleFetchPipelinePlugin_logic_unpacker_io_output_valid && SimpleFetchPipelinePlugin_logic_unpacker_io_output_payload_predecode_isBranch);
   assign BpuPipelinePlugin_queryPortIn_payload_pc = SimpleFetchPipelinePlugin_logic_unpacker_io_output_payload_pc;
   assign BpuPipelinePlugin_queryPortIn_payload_transactionId = 3'bxxx;
-  assign SimpleFetchPipelinePlugin_hw_redirectFlowInst_valid = (|{CoreNSCSCCSetupPlugin_setup_redirectPort_valid,BranchEU_BranchEuPlugin_hw_redirectPort_valid});
-  assign SimpleFetchPipelinePlugin_hw_redirectFlowInst_payload = (BranchEU_BranchEuPlugin_hw_redirectPort_valid ? BranchEU_BranchEuPlugin_hw_redirectPort_payload : CoreNSCSCCSetupPlugin_setup_redirectPort_payload);
-  assign when_SimpleFetchPipelinePlugin_l169 = (|{CoreNSCSCCSetupPlugin_setup_redirectPort_valid,BranchEU_BranchEuPlugin_hw_redirectPort_valid});
+  assign SimpleFetchPipelinePlugin_hw_redirectFlowInst_valid = (|BranchEU_BranchEuPlugin_hw_redirectPort_valid);
+  assign SimpleFetchPipelinePlugin_hw_redirectFlowInst_payload = BranchEU_BranchEuPlugin_hw_redirectPort_payload;
+  assign when_SimpleFetchPipelinePlugin_l169 = (|BranchEU_BranchEuPlugin_hw_redirectPort_valid);
   assign SimpleFetchPipelinePlugin_logic_doBpuRedirect = ((BpuPipelinePlugin_responseFlowOut_valid && BpuPipelinePlugin_responseFlowOut_payload_isTaken) && (! SimpleFetchPipelinePlugin_hw_redirectFlowInst_valid));
   assign SimpleFetchPipelinePlugin_logic_doJumpRedirect = ((SimpleFetchPipelinePlugin_logic_unpacker_io_output_valid && SimpleFetchPipelinePlugin_logic_unpacker_io_output_payload_predecode_isDirectJump) && (! SimpleFetchPipelinePlugin_hw_redirectFlowInst_valid));
   assign SimpleFetchPipelinePlugin_logic_jumpTarget = (SimpleFetchPipelinePlugin_logic_unpacker_io_output_payload_pc + SimpleFetchPipelinePlugin_logic_unpacker_io_output_payload_predecode_jumpOffset);
@@ -20472,6 +20473,8 @@ module CoreNSCSCC (
   assign axi4WriteOnlyArbiter_5_io_inputs_0_aw_payload_id = {1'd0, io_outputs_2_aw_validPipe_payload_id};
   assign axi4WriteOnlyArbiter_5_io_inputs_1_aw_payload_id = {1'd0, io_outputs_2_aw_validPipe_payload_id_1};
   assign axi4WriteOnlyArbiter_5_io_inputs_2_aw_payload_id = {1'd0, io_outputs_2_aw_validPipe_payload_id_2};
+  assign io_dpy0 = dpyController_io_dpy0_out;
+  assign io_dpy1 = dpyController_io_dpy1_out;
   always @(*) begin
     SimpleFetchPipelinePlugin_logic_fsm_stateNext = SimpleFetchPipelinePlugin_logic_fsm_stateReg;
     case(SimpleFetchPipelinePlugin_logic_fsm_stateReg)
@@ -22898,6 +22901,132 @@ module CoreNSCSCC (
     endcase
   end
 
+
+endmodule
+
+module SevenSegmentDisplayController (
+  input  wire [7:0]    io_value,
+  output wire [7:0]    io_dpy0_out,
+  output wire [7:0]    io_dpy1_out
+);
+
+  wire       [3:0]    displayArea_digit0;
+  wire       [3:0]    displayArea_digit1;
+  reg        [7:0]    _zz_io_dpy0_out;
+  reg        [7:0]    _zz_io_dpy1_out;
+
+  assign displayArea_digit0 = io_value[3 : 0];
+  assign displayArea_digit1 = io_value[7 : 4];
+  always @(*) begin
+    case(displayArea_digit0)
+      4'b0000 : begin
+        _zz_io_dpy0_out = 8'h3f;
+      end
+      4'b0001 : begin
+        _zz_io_dpy0_out = 8'h06;
+      end
+      4'b0010 : begin
+        _zz_io_dpy0_out = 8'h5b;
+      end
+      4'b0011 : begin
+        _zz_io_dpy0_out = 8'h4f;
+      end
+      4'b0100 : begin
+        _zz_io_dpy0_out = 8'h66;
+      end
+      4'b0101 : begin
+        _zz_io_dpy0_out = 8'h6d;
+      end
+      4'b0110 : begin
+        _zz_io_dpy0_out = 8'h7d;
+      end
+      4'b0111 : begin
+        _zz_io_dpy0_out = 8'h07;
+      end
+      4'b1000 : begin
+        _zz_io_dpy0_out = 8'h7f;
+      end
+      4'b1001 : begin
+        _zz_io_dpy0_out = 8'h6f;
+      end
+      4'b1010 : begin
+        _zz_io_dpy0_out = 8'h77;
+      end
+      4'b1011 : begin
+        _zz_io_dpy0_out = 8'h7c;
+      end
+      4'b1100 : begin
+        _zz_io_dpy0_out = 8'h39;
+      end
+      4'b1101 : begin
+        _zz_io_dpy0_out = 8'h5e;
+      end
+      4'b1110 : begin
+        _zz_io_dpy0_out = 8'h79;
+      end
+      default : begin
+        _zz_io_dpy0_out = 8'h71;
+      end
+    endcase
+    _zz_io_dpy0_out[7] = 1'b0;
+  end
+
+  assign io_dpy0_out = _zz_io_dpy0_out;
+  always @(*) begin
+    case(displayArea_digit1)
+      4'b0000 : begin
+        _zz_io_dpy1_out = 8'h3f;
+      end
+      4'b0001 : begin
+        _zz_io_dpy1_out = 8'h06;
+      end
+      4'b0010 : begin
+        _zz_io_dpy1_out = 8'h5b;
+      end
+      4'b0011 : begin
+        _zz_io_dpy1_out = 8'h4f;
+      end
+      4'b0100 : begin
+        _zz_io_dpy1_out = 8'h66;
+      end
+      4'b0101 : begin
+        _zz_io_dpy1_out = 8'h6d;
+      end
+      4'b0110 : begin
+        _zz_io_dpy1_out = 8'h7d;
+      end
+      4'b0111 : begin
+        _zz_io_dpy1_out = 8'h07;
+      end
+      4'b1000 : begin
+        _zz_io_dpy1_out = 8'h7f;
+      end
+      4'b1001 : begin
+        _zz_io_dpy1_out = 8'h6f;
+      end
+      4'b1010 : begin
+        _zz_io_dpy1_out = 8'h77;
+      end
+      4'b1011 : begin
+        _zz_io_dpy1_out = 8'h7c;
+      end
+      4'b1100 : begin
+        _zz_io_dpy1_out = 8'h39;
+      end
+      4'b1101 : begin
+        _zz_io_dpy1_out = 8'h5e;
+      end
+      4'b1110 : begin
+        _zz_io_dpy1_out = 8'h79;
+      end
+      default : begin
+        _zz_io_dpy1_out = 8'h71;
+      end
+    endcase
+    _zz_io_dpy1_out[7] = 1'b0;
+  end
+
+  assign io_dpy1_out = _zz_io_dpy1_out;
 
 endmodule
 

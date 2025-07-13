@@ -22,10 +22,15 @@ import parallax.components.ifu._
 import parallax.components.memory._
 import parallax.components.dcache2._
 import scala.collection.mutable.ArrayBuffer
+import parallax.components.display.SevenSegmentDisplayController
 
 // CoreNSCSCC IO Bundle - matches thinpad_top.v interface exactly
 case class CoreNSCSCCIo(traceCommit: Boolean = false) extends Bundle {
   val commitStats = traceCommit generate out(CommitStats())
+
+  // New 7-segment display ports
+  val dpy0 = out Bits(8 bits) // Low digit
+  val dpy1 = out Bits(8 bits) // High digit
 
   // ISRAM (BaseRAM) interface
   val isram_dout = in Bits(32 bits)
@@ -316,14 +321,14 @@ class CoreNSCSCC(traceCommit: Boolean = false) extends Component {
       val bpuService = getService[BpuService]
       
       // 连接重定向端口 - 在正常运行时保持空闲
-      val redirectPort = fetchService.newRedirectPort(0)
-      redirectPort.valid := False
-      redirectPort.payload := 0
+      // val redirectPort = fetchService.newRedirectPort(0)
+      // redirectPort.valid := False
+      // redirectPort.payload := 0
       
-      // BPU更新端口 - 设置为空闲状态
-      val bpuUpdatePort = bpuService.newBpuUpdatePort()
-      bpuUpdatePort.valid := False
-      bpuUpdatePort.payload.assignDontCare()
+      // // BPU更新端口 - 设置为空闲状态
+      // val bpuUpdatePort = bpuService.newBpuUpdatePort()
+      // bpuUpdatePort.valid := False
+      // bpuUpdatePort.payload.assignDontCare()
     }
     
     val logic = create late new Area {
@@ -486,6 +491,26 @@ class CoreNSCSCC(traceCommit: Boolean = false) extends Component {
     io.commitStats := commitService.getCommitStats()
   }
 
+
+  // Instantiate the 7-segment display controller
+  val dpyController = new SevenSegmentDisplayController()
+  
+  // Connect clock and reset
+  // dpyController.io.clk := ClockDomain.current.readClockWire
+  // dpyController.io.rst := ClockDomain.current.readResetWire
+
+  // val fetchService = framework.getService[SimpleFetchPipelineService]
+  // val fetchout = fetchService.fetchOutput()
+
+  // Connect the last 8 bits of the committed PC to the display controller
+  // PC is 32-bit, so committedPc(7 downto 0) gives the last byte.
+  // This will be displayed as two hexadecimal digits (00-FF).
+  // dpyController.io.value := (Mux[UInt](fetchout.valid, fetchout.payload.pc(7 downto 0), 0xff))
+  dpyController.io.value := 0xff
+
+  // Connect the display controller outputs to the top-level IO
+  io.dpy0 := dpyController.io.dpy0_out
+  io.dpy1 := dpyController.io.dpy1_out
 }
 
 // Verilog生成器

@@ -209,7 +209,10 @@ CoreNSCSCC core(
     .io_uart_w_bits_strb(io_uart_w_strb),
     .io_uart_w_bits_last(io_uart_w_last),
     .io_uart_w_valid(io_uart_w_valid),
-    .io_uart_b_ready(io_uart_b_ready)
+    .io_uart_b_ready(io_uart_b_ready),
+    // 连接新增的数码管端口
+    .io_dpy0(dpy0),
+    .io_dpy1(dpy1)
 );
 
 uart_wrapper#(
