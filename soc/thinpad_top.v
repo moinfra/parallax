@@ -164,7 +164,7 @@ end
 
 CoreNSCSCC core(
     .clk(clk_cpu),
-    .rst(rst_cpu),
+    .reset(rst_cpu),
     .io_isram_dout(io_isram_dout),
     .io_dsram_dout(io_dsram_dout),
     .io_isram_addr(io_isram_addr),
