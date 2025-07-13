@@ -13,7 +13,7 @@ import parallax.components.dcache2._
 import scala.collection.mutable
 import scala.util.Random
 import parallax.components.memory.SimulatedSRAM
-import parallax.components.memory.ExtSRAMConfig
+import parallax.components.memory.SRAMConfig
 import parallax.components.memory.SRAMController
 import parallax.utilities.ParallaxLogger
 
@@ -80,7 +80,7 @@ class DataCacheTestbench(val p: DataCacheParameters, val useSimulatedSRAM: Boole
   var sram: SimulatedSRAM = null
   if (useSimulatedSRAM) {
     val sramSize = 10 KiB
-    val extSramCfg = ExtSRAMConfig(
+    val extSramCfg = SRAMConfig(
       addressWidth = 16,
       dataWidth = 64,
       virtualBaseAddress = 0x00000000L,

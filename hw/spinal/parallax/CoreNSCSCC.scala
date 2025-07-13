@@ -102,23 +102,31 @@ class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: Option[GenericMemoryBu
   }
 
   val hw = create early new Area {
-    // SRAM配置 - 基于新的内存映射
-    val sramSize = BigInt("100000", 16) // 1MB per SRAM (20-bit addressing)
-    val extSramCfg = ExtSRAMConfig(
-      addressWidth = 20, // 1MB addressing 
+
+    val sramSize = BigInt(4 * 1024 * 1024) // 4MB per SRAM (20-bit addressing)
+    val baseramCfg = SRAMConfig(
+      addressWidth = 20, // 1M * 4 bytes addressing 
       dataWidth = 32,
       virtualBaseAddress = BigInt("80000000", 16),
       sizeBytes = sramSize,
       readWaitCycles = 0,
       enableLog = false
     )
-    
+    val extsramCfg = SRAMConfig(
+      addressWidth = 20, // 1M * 4 bytes addressing 
+      dataWidth = 32,
+      virtualBaseAddress = BigInt("80400000", 16),
+      sizeBytes = sramSize,
+      readWaitCycles = 0,
+      enableLog = false
+    )
+
     val numMasters = 6 // DCache + SGMB bridges
-    val sramCfg = axiConfig.copy(idWidth = axiConfig.idWidth + log2Up(numMasters))
+    val sramAxi4Cfg = axiConfig.copy(idWidth = axiConfig.idWidth + log2Up(numMasters))
     
     // BaseRAM和ExtRAM使用相同的控制器
-    val baseramCtrl = new SRAMController(sramCfg, extSramCfg)
-    val extramCtrl = new SRAMController(sramCfg, extSramCfg)
+    val baseramCtrl = new SRAMController(sramAxi4Cfg, baseramCfg)
+    val extramCtrl = new SRAMController(sramAxi4Cfg, extsramCfg)
   }
 
   val logic = create late new Area {
@@ -194,7 +202,8 @@ class CoreNSCSCC extends Component {
     robDepth = 32,
     commitWidth = 1,
     resetVector = BigInt("80000000", 16), // 新的启动地址
-    transactionIdWidth = 1
+    transactionIdWidth = 1,
+    forceMMIO = true
   )
   
   val dCfg = DataCachePluginConfig(
@@ -391,7 +400,7 @@ class CoreNSCSCC extends Component {
       // Execution units
       new AluIntEuPlugin("AluIntEU", pCfg),
       new BranchEuPlugin("BranchEU", pCfg),
-      new LsuEuPlugin("LsuEU", pCfg, lsuConfig = lsuConfig, dParams),
+      new LsuEuPlugin("LsuEU", pCfg, lsuConfig = lsuConfig, dParams, pCfg.forceMMIO),
       new AguPlugin(lsuConfig, supportPcRel = true, mmioRanges = Seq(uartMmioRange)),
       new StoreBufferPlugin(pCfg, lsuConfig, dParams, lsuConfig.sqDepth, mmioConfig),
       new LoadQueuePlugin(pCfg, lsuConfig, dParams, lsuConfig.lqDepth, mmioConfig),

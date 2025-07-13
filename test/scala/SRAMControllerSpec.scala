@@ -1,3 +1,4 @@
+// testOnly test.scala.SRAMControllerSpec
 package test.scala
 
 import spinal.core._
@@ -12,7 +13,7 @@ import parallax.components.memory._
 import _root_.parallax.utilities.ParallaxLogger
 
 // 测试台 - 连接SRAMController和SRAM模拟器
-class ExtSRAMTestBench(axiConfig: Axi4Config, ramConfig: ExtSRAMConfig) extends Component {
+class ExtSRAMTestBench(axiConfig: Axi4Config, ramConfig: SRAMConfig) extends Component {
   val io = new Bundle {
     val axi = slave(Axi4(axiConfig))
     val sramStats = out(new Bundle {
@@ -340,8 +341,8 @@ class SRAMControllerSpec extends CustomSpinalSimFunSuite {
     useSize = true
   )
 
-  def createRamConfig(readWaitCycles: Int = 1, sramSize: BigInt = 1 << 16): ExtSRAMConfig = {
-    ExtSRAMConfig(
+  def createRamConfig(readWaitCycles: Int = 1, sramSize: BigInt = 1 << 16): SRAMConfig = {
+    SRAMConfig(
       addressWidth = 16,
       dataWidth = 32,
       virtualBaseAddress = 0x80000000L,
@@ -351,7 +352,7 @@ class SRAMControllerSpec extends CustomSpinalSimFunSuite {
     )
   }
 
-  def withTestBench[T](ramConfig: ExtSRAMConfig)(testCode: (ExtSRAMTestBench, AxiMasterHelper, ClockDomain) => T) = {
+  def withTestBench[T](ramConfig: SRAMConfig)(testCode: (ExtSRAMTestBench, AxiMasterHelper, ClockDomain) => T) = {
     val compiled = SimConfig.withWave.compile(new ExtSRAMTestBench(axiConfig, ramConfig))
     compiled.doSim { dut =>
       val clockDomain = dut.clockDomain

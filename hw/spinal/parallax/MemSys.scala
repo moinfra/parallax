@@ -11,7 +11,7 @@ import parallax.components.dcache2.DataCachePlugin
 import parallax.bus.SplitGmbToAxi4Bridge
 import spinal.lib.bus.misc.SizeMapping
 
-class MemSysPlugin(axiConfig: Axi4Config, sgmbConfig: GenericMemoryBusConfig, sram1io: ExtSRAMIo, sram2io: ExtSRAMIo)
+class MemSysPlugin(axiConfig: Axi4Config, sgmbConfig: GenericMemoryBusConfig, sram1io: SRAMIO, sram2io: SRAMIO)
     extends Plugin
     with DBusService // DBusService 已经弃用了
     with SgmbService {
@@ -45,7 +45,7 @@ class MemSysPlugin(axiConfig: Axi4Config, sgmbConfig: GenericMemoryBusConfig, sr
   val hw = create early new Area {
     // SRAM 和控制器定义
     private val sramSize = BigInt("4000", 16)
-    private val extSramCfg = ExtSRAMConfig(
+    private val extSramCfg = SRAMConfig(
       addressWidth = 16,
       dataWidth = 32,
       virtualBaseAddress = BigInt("00000000", 16),

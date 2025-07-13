@@ -3,45 +3,68 @@ package parallax.components.memory
 import spinal.core._
 import spinal.lib._
 
-class SimulatedSRAM(val config: ExtSRAMConfig) extends Component {
+class SimulatedSRAM(val config: SRAMConfig) extends Component {
   val prefix = this.getClass.getName.replace("$", "")
-  val enableLog = true  // Temporarily enable for debugging
+  val enableLog = true // Temporarily enable for debugging
   val init = false
   val io = new Bundle {
-    val ram = slave(ExtSRAMIo(config))
+    val ram = slave(SRAMIO(config))
 
     val tb_writeEnable = in Bool () default (False)
-    val tb_writeAddress = in UInt (config.addressWidth bits) default (U(0, config.addressWidth bits))
+    val tb_writeAddress = in UInt (config.byteAddrWidth bits) default (U(0, config.byteAddrWidth bits))
     val tb_writeData = in Bits (config.dataWidth bits) default (B(0, config.dataWidth bits))
 
     val tb_readEnable = in Bool () default (False)
-    val tb_readAddress = in UInt (config.addressWidth bits) default (U(0, config.addressWidth bits)) default (U(
-      0,
-      config.addressWidth bits
-    ))
+    val tb_readAddress = in UInt (config.byteAddrWidth bits) default (U(0, config.byteAddrWidth bits))
     val tb_readData = out Bits (config.dataWidth bits)
   }
+  // This line had a duplicate `default` which is a syntax error, I'm removing the second one.
+  // io.tb_readAddress.setDefault(U(0, config.addressWidth bits))
 
-  val addrInRange = io.ram.addr <= config.internalMaxByteAddr
+  // --- MODIFIED: Conditional address range check ---
+  val addrInRange = if (config.useWordAddressing) {
+    // In word-addressing mode, the incoming address is a word address.
+    // Check it against the maximum word address.
+    io.ram.addr <= config.internalWordMaxAddr
+  } else {
+    // In byte-addressing mode, check against the maximum byte address.
+    io.ram.addr <= config.internalMaxByteAddr
+  }
+
   val writeCondition = !io.ram.we_n && !io.ram.ce_n && !io.tb_writeEnable
   val readCondition = !io.ram.oe_n && !io.ram.ce_n && io.ram.we_n
-  val wordAddr = (io.ram.addr >> log2Up(config.bytesPerWord)).resize(config.internalWordAddrWidth)
+
+  // --- MODIFIED: Conditional word address calculation ---
+  val wordAddr = if (config.useWordAddressing) {
+    // In word-addressing mode, the controller has already done the conversion.
+    // The incoming address is the word address.
+    io.ram.addr.resize(config.internalWordAddrWidth)
+  } else {
+    // In byte-addressing mode, convert the byte address to a word address.
+    (io.ram.addr >> log2Up(config.bytesPerWord)).resize(config.internalWordAddrWidth)
+  }
+
 
   assert(!(readCondition && writeCondition), "Read and write cannot be active simultaneously")
   assert(!(io.tb_writeEnable && writeCondition), "Test/normal write conflict")
 
-  val mem = Mem(Bits(config.dataWidth bits), config.internalWordCount)
+  // Using config.internalWordCount as requested.
+  val mem = Mem(Bits(config.dataWidth bits), wordCount = config.internalWordCount)
   if (init) mem.init(Seq.fill((config.internalWordCount).toInt)(B(0, config.dataWidth bits)))
 
+  // --- NO CHANGE TO TB LOGIC ---
+  // The testbench helper ports always work with byte addresses from the test's perspective,
+  // so their internal logic to convert to a word address is always correct.
   private val tb_writeLogic = new Area {
     when(io.tb_writeEnable) {
-      val addr = io.tb_writeAddress
+      val addr = io.tb_writeAddress // This is a byte address
+      // The max check for TB should be against byte address size
       when(addr <= config.internalMaxByteAddr) {
         if (enableLog) {
           report(L"$prefix TB_WRITE: Addr=${addr}, Data=${io.tb_writeData}")
         }
-        val wordAddr = (addr >> log2Up(config.bytesPerWord)).resize(config.internalWordAddrWidth)
-        mem.write(address = wordAddr, data = io.tb_writeData)
+        val wordAddrForTb = (addr >> log2Up(config.bytesPerWord)).resize(config.internalWordAddrWidth)
+        mem.write(address = wordAddrForTb, data = io.tb_writeData)
       } otherwise {
         report(
           L"$prefix TB_WRITE: ILLEGAL ADDRESS Addr=${addr} (max addr ${config.internalMaxByteAddr} for ${config.sizeBytes} bytes of memory)"
@@ -53,13 +76,14 @@ class SimulatedSRAM(val config: ExtSRAMConfig) extends Component {
   private val tb_readLogic = new Area {
     io.tb_readData.assignDontCare()
     when(io.tb_readEnable) {
-      val addr = io.tb_readAddress
+      val addr = io.tb_readAddress // This is a byte address
+      // The max check for TB should be against byte address size
       when(addr <= config.internalMaxByteAddr) {
         if (enableLog) {
           report(L"$prefix TB_READ: Addr=${addr}")
         }
-        val wordAddr = (addr >> log2Up(config.bytesPerWord)).resize(config.internalWordAddrWidth)
-        io.tb_readData := mem.readAsync(address = wordAddr)
+        val wordAddrForTb = (addr >> log2Up(config.bytesPerWord)).resize(config.internalWordAddrWidth)
+        io.tb_readData := mem.readAsync(address = wordAddrForTb)
       } otherwise {
         report(
           L"$prefix TB_READ: ILLEGAL ADDRESS Addr=${addr} (max addr ${config.internalMaxByteAddr} for ${config.sizeBytes} bytes of memory)"
@@ -68,6 +92,9 @@ class SimulatedSRAM(val config: ExtSRAMConfig) extends Component {
     }
   }
 
+
+  // --- NO CHANGE TO WRITE/READ LOGIC ---
+  // The logic below now correctly uses the conditionally defined `wordAddr` and `addrInRange`
   private val writeLogic = new Area {
     // 写操作
 
@@ -79,28 +106,27 @@ class SimulatedSRAM(val config: ExtSRAMConfig) extends Component {
       // 如果 be_n(byteIdx) 为低（0），则对应字节被使能，mask 对应位为高（1）
       // 如果 be_n(byteIdx) 为高（1），则对应字节被禁用，mask 对应位为低（0）
       val byteMask = !io.ram.be_n(byteIdx) // 反转 be_n 的逻辑
-      byteEnableMask(byteIdx * 8 + 7 downto byteIdx * 8) := (default -> byteMask)
+      byteEnableMask(byteIdx * 8, 8 bits) := (default -> byteMask)
     }
 
     when(addrInRange && writeCondition) {
       // 使用 Mem.write 的 mask 参数
       mem.write(
-        address = wordAddr,
+        address = wordAddr, // This now uses the correct wordAddr
         data = io.ram.data.write,
         mask = byteEnableMask // 使用转换后的高有效 mask
       )
       if (enableLog) {
-        report(L"$prefix written ${io.ram.data.write} to ${io.ram.addr} with mask ${byteEnableMask}")
+        report(L"$prefix written ${io.ram.data.write} to ${io.ram.addr} (word addr ${wordAddr}) with mask ${byteEnableMask}")
       }
     }
-
   }
 
   private val readLogic = new Area {
     // 修复版本的SimulatedSRAM读逻辑
-    val readDataRaw = mem.readAsync(wordAddr)
+    val readDataRaw = mem.readAsync(wordAddr) // This now uses the correct wordAddr
 
-// 更明确的延迟实现
+    // 更明确的延迟实现
     val delayedData = if (config.readWaitCycles == 0) {
       readDataRaw
     } else {
@@ -118,7 +144,7 @@ class SimulatedSRAM(val config: ExtSRAMConfig) extends Component {
       when(readCondition) {
         report(
           Seq(
-            L"READ: addr=${io.ram.addr}",
+            L"READ: addr=${io.ram.addr} (word addr ${wordAddr})",
             L", raw=${readDataRaw}",
             L", delayed=${delayedData}",
             L", waitCycles=${config.readWaitCycles}",

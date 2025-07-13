@@ -37,9 +37,9 @@ class SimulatedSRAMSpec extends CustomSpinalSimFunSuite {
     dut.clockDomain.waitSampling()
   }
 
-  val defaultConfig = ExtSRAMConfig(sizeBytes = 4 KiB, addressWidth = 12, dataWidth = 32, readWaitCycles = 0)
-  val configWithWait = ExtSRAMConfig(sizeBytes = 4 KiB, addressWidth = 12, dataWidth = 32, readWaitCycles = 2)
-  val byteEnableConfig = ExtSRAMConfig(sizeBytes = 4 KiB, addressWidth = 12, dataWidth = 32, readWaitCycles = 0)
+  val defaultConfig = SRAMConfig(sizeBytes = 4 KiB, addressWidth = 12, dataWidth = 32, readWaitCycles = 0)
+  val configWithWait = SRAMConfig(sizeBytes = 4 KiB, addressWidth = 12, dataWidth = 32, readWaitCycles = 2)
+  val byteEnableConfig = SRAMConfig(sizeBytes = 4 KiB, addressWidth = 12, dataWidth = 32, readWaitCycles = 0)
 
   // === 辅助函数 ===
   

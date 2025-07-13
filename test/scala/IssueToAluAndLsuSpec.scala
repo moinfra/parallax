@@ -79,7 +79,7 @@ class TestOnlyMemSystemPlugin(axiConfig: Axi4Config, sgmbConfig: Option[GenericM
   val hw = create early new Area {
     // SRAM 和控制器定义
     private val sramSize = BigInt("4000", 16)
-    private val extSramCfg = ExtSRAMConfig(
+    private val extSramCfg = SRAMConfig(
       addressWidth = 16,
       dataWidth = 32,
       virtualBaseAddress = BigInt("00000000", 16),
