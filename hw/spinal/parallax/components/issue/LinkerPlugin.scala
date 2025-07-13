@@ -65,10 +65,10 @@ class LinkerPlugin(pCfg: PipelineConfig) extends Plugin with LockedImpl {
       
       // Determine IQ depth based on EU type. This can be configured more flexibly if needed.
       val iqDepth = eu.getEuType match {
-        case ExeUnitType.MEM     => 32 // LSU often benefits from a deeper queue
-        case ExeUnitType.MUL_INT => 8
-        case ExeUnitType.DIV_INT => 4
-        case _                   => 16 // Default depth for ALU, BRU, etc.
+        case ExeUnitType.MEM     => 4 // LSU often benefits from a deeper queue
+        case ExeUnitType.MUL_INT => 4
+        case ExeUnitType.DIV_INT => 2
+        case _                   => 4 // Default depth for ALU, BRU, etc.
       }
       
       ParallaxLogger.log(s"LinkerPlugin: Preparing to instantiate IQ for EU '${eu.euName}' (Type: ${eu.getEuType}) with depth ${iqDepth}.")
