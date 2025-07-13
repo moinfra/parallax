@@ -481,8 +481,10 @@ class CoreNSCSCC(traceCommit: Boolean = false) extends Component {
   // 连接UART AXI到LSU的MMIO路径
   memSysPlugin.logic.connectUartAxi(uartAxi)
 
-  val commitService = framework.getService[CommitPlugin]
-  io.commitStats := commitService.getCommitStats()
+  traceCommit generate {
+    val commitService = framework.getService[CommitPlugin]
+    io.commitStats := commitService.getCommitStats()
+  }
 
 }
 
