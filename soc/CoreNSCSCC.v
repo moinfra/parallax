@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 3105a33b457518a7afeed8b0527b4d8b9dab2383
 // Component : CoreNSCSCC
-// Git hash  : 225a54f45a7c7037cf1065bddbf305aa6885048a
+// Git hash  : 322cd4be709c8f31bc4e33f79c345c29471f6026
 
 `timescale 1ns/1ps
 
@@ -46049,9 +46049,6 @@ module SRAMController_1 (
   wire       [19:0]   _zz_fsm_next_sram_addr_prefetch;
   wire       [7:0]    _zz_fsm_next_sram_addr_prefetch_1;
   wire       [7:0]    _zz_fsm_next_sram_addr_prefetch_2;
-  wire       [19:0]   _zz_fsm_next_sram_addr_prefetch_3;
-  wire       [7:0]    _zz_fsm_next_sram_addr_prefetch_4;
-  wire       [7:0]    _zz_fsm_next_sram_addr_prefetch_5;
   wire       [19:0]   _zz_fsm_current_sram_addr_7;
   wire       [7:0]    _zz_fsm_current_sram_addr_8;
   wire       [7:0]    _zz_fsm_current_sram_addr_9;
@@ -46078,6 +46075,7 @@ module SRAMController_1 (
   reg        [8:0]    fsm_burst_count_remaining;
   reg        [19:0]   fsm_current_sram_addr;
   reg        [31:0]   fsm_read_data_buffer;
+  reg        [0:0]    fsm_read_wait_counter;
   reg                 fsm_transaction_error_occurred;
   reg                 fsm_read_priority;
   reg        [19:0]   fsm_next_sram_addr_prefetch;
@@ -46101,7 +46099,6 @@ module SRAMController_1 (
   wire                when_SRAMController_l295;
   wire                when_SRAMController_l364;
   wire                when_SRAMController_l373;
-  wire                when_SRAMController_l376;
   wire                when_SRAMController_l406;
   wire                io_axi_r_fire;
   wire                when_SRAMController_l446;
@@ -46157,9 +46154,6 @@ module SRAMController_1 (
   assign _zz_fsm_next_sram_addr_prefetch_1 = (_zz_fsm_next_sram_addr_prefetch_2 / 3'b100);
   assign _zz_fsm_next_sram_addr_prefetch = {12'd0, _zz_fsm_next_sram_addr_prefetch_1};
   assign _zz_fsm_next_sram_addr_prefetch_2 = ({7'd0,1'b1} <<< fsm_ar_cmd_reg_size);
-  assign _zz_fsm_next_sram_addr_prefetch_4 = (_zz_fsm_next_sram_addr_prefetch_5 / 3'b100);
-  assign _zz_fsm_next_sram_addr_prefetch_3 = {12'd0, _zz_fsm_next_sram_addr_prefetch_4};
-  assign _zz_fsm_next_sram_addr_prefetch_5 = ({7'd0,1'b1} <<< fsm_ar_cmd_reg_size);
   assign _zz_fsm_current_sram_addr_8 = (_zz_fsm_current_sram_addr_9 / 3'b100);
   assign _zz_fsm_current_sram_addr_7 = {12'd0, _zz_fsm_current_sram_addr_8};
   assign _zz_fsm_current_sram_addr_9 = ({7'd0,1'b1} <<< fsm_ar_cmd_reg_size);
@@ -46762,9 +46756,8 @@ module SRAMController_1 (
   assign when_SRAMController_l262 = (fsm_burst_count_remaining == 9'h001);
   assign io_axi_w_fire = (io_axi_w_valid && io_axi_w_ready);
   assign when_SRAMController_l295 = (fsm_burst_count_remaining == 9'h001);
-  assign when_SRAMController_l364 = ((1'b1 && (9'h001 < fsm_burst_count_remaining)) && (! fsm_addr_prefetch_valid));
-  assign when_SRAMController_l373 = 1'b1;
-  assign when_SRAMController_l376 = ((9'h001 < fsm_burst_count_remaining) && (! fsm_addr_prefetch_valid));
+  assign when_SRAMController_l364 = (((fsm_read_wait_counter == 1'b0) && (9'h001 < fsm_burst_count_remaining)) && (! fsm_addr_prefetch_valid));
+  assign when_SRAMController_l373 = (fsm_read_wait_counter == 1'b1);
   assign when_SRAMController_l406 = (fsm_burst_count_remaining == 9'h001);
   assign io_axi_r_fire = (io_axi_r_valid && io_axi_r_ready);
   assign when_SRAMController_l446 = (fsm_burst_count_remaining == 9'h001);
@@ -46855,11 +46848,6 @@ module SRAMController_1 (
           if(when_SRAMController_l364) begin
             fsm_addr_prefetch_valid <= 1'b1;
           end
-          if(when_SRAMController_l373) begin
-            if(when_SRAMController_l376) begin
-              fsm_addr_prefetch_valid <= 1'b1;
-            end
-          end
         end
         fsm_READ_RESPONSE : begin
           if(!io_axi_r_fire) begin
@@ -46910,6 +46898,13 @@ module SRAMController_1 (
           fsm_ar_cmd_reg_prot <= io_axi_ar_payload_prot;
           fsm_burst_count_remaining <= {1'd0, _zz_fsm_burst_count_remaining_1};
           fsm_current_sram_addr <= _zz_fsm_current_sram_addr_3[19:0];
+          if(!when_SRAMController_l217) begin
+            if(!when_SRAMController_l221) begin
+              if(!when_SRAMController_l225) begin
+                fsm_read_wait_counter <= 1'b0;
+              end
+            end
+          end
         end
       end
       fsm_WRITE_DATA : begin
@@ -46926,6 +46921,7 @@ module SRAMController_1 (
       fsm_WRITE_RESPONSE : begin
       end
       fsm_READ_SETUP : begin
+        fsm_read_wait_counter <= 1'b0;
       end
       fsm_READ_WAIT : begin
         if(when_SRAMController_l364) begin
@@ -46933,9 +46929,8 @@ module SRAMController_1 (
         end
         if(when_SRAMController_l373) begin
           fsm_read_data_buffer <= io_ram_data_read;
-          if(when_SRAMController_l376) begin
-            fsm_next_sram_addr_prefetch <= (fsm_current_sram_addr + _zz_fsm_next_sram_addr_prefetch_3);
-          end
+        end else begin
+          fsm_read_wait_counter <= (fsm_read_wait_counter + 1'b1);
         end
       end
       fsm_READ_RESPONSE : begin
@@ -47044,9 +47039,6 @@ module SRAMController (
   wire       [19:0]   _zz_fsm_next_sram_addr_prefetch;
   wire       [7:0]    _zz_fsm_next_sram_addr_prefetch_1;
   wire       [7:0]    _zz_fsm_next_sram_addr_prefetch_2;
-  wire       [19:0]   _zz_fsm_next_sram_addr_prefetch_3;
-  wire       [7:0]    _zz_fsm_next_sram_addr_prefetch_4;
-  wire       [7:0]    _zz_fsm_next_sram_addr_prefetch_5;
   wire       [19:0]   _zz_fsm_current_sram_addr_7;
   wire       [7:0]    _zz_fsm_current_sram_addr_8;
   wire       [7:0]    _zz_fsm_current_sram_addr_9;
@@ -47073,6 +47065,7 @@ module SRAMController (
   reg        [8:0]    fsm_burst_count_remaining;
   reg        [19:0]   fsm_current_sram_addr;
   reg        [31:0]   fsm_read_data_buffer;
+  reg        [0:0]    fsm_read_wait_counter;
   reg                 fsm_transaction_error_occurred;
   reg                 fsm_read_priority;
   reg        [19:0]   fsm_next_sram_addr_prefetch;
@@ -47096,7 +47089,6 @@ module SRAMController (
   wire                when_SRAMController_l295;
   wire                when_SRAMController_l364;
   wire                when_SRAMController_l373;
-  wire                when_SRAMController_l376;
   wire                when_SRAMController_l406;
   wire                io_axi_r_fire;
   wire                when_SRAMController_l446;
@@ -47152,9 +47144,6 @@ module SRAMController (
   assign _zz_fsm_next_sram_addr_prefetch_1 = (_zz_fsm_next_sram_addr_prefetch_2 / 3'b100);
   assign _zz_fsm_next_sram_addr_prefetch = {12'd0, _zz_fsm_next_sram_addr_prefetch_1};
   assign _zz_fsm_next_sram_addr_prefetch_2 = ({7'd0,1'b1} <<< fsm_ar_cmd_reg_size);
-  assign _zz_fsm_next_sram_addr_prefetch_4 = (_zz_fsm_next_sram_addr_prefetch_5 / 3'b100);
-  assign _zz_fsm_next_sram_addr_prefetch_3 = {12'd0, _zz_fsm_next_sram_addr_prefetch_4};
-  assign _zz_fsm_next_sram_addr_prefetch_5 = ({7'd0,1'b1} <<< fsm_ar_cmd_reg_size);
   assign _zz_fsm_current_sram_addr_8 = (_zz_fsm_current_sram_addr_9 / 3'b100);
   assign _zz_fsm_current_sram_addr_7 = {12'd0, _zz_fsm_current_sram_addr_8};
   assign _zz_fsm_current_sram_addr_9 = ({7'd0,1'b1} <<< fsm_ar_cmd_reg_size);
@@ -47757,9 +47746,8 @@ module SRAMController (
   assign when_SRAMController_l262 = (fsm_burst_count_remaining == 9'h001);
   assign io_axi_w_fire = (io_axi_w_valid && io_axi_w_ready);
   assign when_SRAMController_l295 = (fsm_burst_count_remaining == 9'h001);
-  assign when_SRAMController_l364 = ((1'b1 && (9'h001 < fsm_burst_count_remaining)) && (! fsm_addr_prefetch_valid));
-  assign when_SRAMController_l373 = 1'b1;
-  assign when_SRAMController_l376 = ((9'h001 < fsm_burst_count_remaining) && (! fsm_addr_prefetch_valid));
+  assign when_SRAMController_l364 = (((fsm_read_wait_counter == 1'b0) && (9'h001 < fsm_burst_count_remaining)) && (! fsm_addr_prefetch_valid));
+  assign when_SRAMController_l373 = (fsm_read_wait_counter == 1'b1);
   assign when_SRAMController_l406 = (fsm_burst_count_remaining == 9'h001);
   assign io_axi_r_fire = (io_axi_r_valid && io_axi_r_ready);
   assign when_SRAMController_l446 = (fsm_burst_count_remaining == 9'h001);
@@ -47850,11 +47838,6 @@ module SRAMController (
           if(when_SRAMController_l364) begin
             fsm_addr_prefetch_valid <= 1'b1;
           end
-          if(when_SRAMController_l373) begin
-            if(when_SRAMController_l376) begin
-              fsm_addr_prefetch_valid <= 1'b1;
-            end
-          end
         end
         fsm_READ_RESPONSE : begin
           if(!io_axi_r_fire) begin
@@ -47905,6 +47888,13 @@ module SRAMController (
           fsm_ar_cmd_reg_prot <= io_axi_ar_payload_prot;
           fsm_burst_count_remaining <= {1'd0, _zz_fsm_burst_count_remaining_1};
           fsm_current_sram_addr <= _zz_fsm_current_sram_addr_3[19:0];
+          if(!when_SRAMController_l217) begin
+            if(!when_SRAMController_l221) begin
+              if(!when_SRAMController_l225) begin
+                fsm_read_wait_counter <= 1'b0;
+              end
+            end
+          end
         end
       end
       fsm_WRITE_DATA : begin
@@ -47921,6 +47911,7 @@ module SRAMController (
       fsm_WRITE_RESPONSE : begin
       end
       fsm_READ_SETUP : begin
+        fsm_read_wait_counter <= 1'b0;
       end
       fsm_READ_WAIT : begin
         if(when_SRAMController_l364) begin
@@ -47928,9 +47919,8 @@ module SRAMController (
         end
         if(when_SRAMController_l373) begin
           fsm_read_data_buffer <= io_ram_data_read;
-          if(when_SRAMController_l376) begin
-            fsm_next_sram_addr_prefetch <= (fsm_current_sram_addr + _zz_fsm_next_sram_addr_prefetch_3);
-          end
+        end else begin
+          fsm_read_wait_counter <= (fsm_read_wait_counter + 1'b1);
         end
       end
       fsm_READ_RESPONSE : begin
