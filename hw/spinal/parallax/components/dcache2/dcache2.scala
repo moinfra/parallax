@@ -1496,7 +1496,7 @@ if(enableLog)         ParallaxSim.log(L"  CanRefill: ${canRefill}, AskRefill: ${
       // setDirty：是否设置脏标志。
       val setDirty = writeCache && wasClean
       when(setDirty) {
-        report(L"[DCache] Store: set dirty for address 0x${controlStage(ADDRESS_POST_TRANSLATION)}")
+        if(enableLog) report(L"[DCache] Store: set dirty for address 0x${controlStage(ADDRESS_POST_TRANSLATION)}")
       }
       val wayId = OHToUInt(WAYS_HITS) // 命中路ID
       // bankHitId：命中Bank ID。
@@ -1653,7 +1653,7 @@ if(enableLog)         ParallaxSim.log(L"  CanRefill: ${canRefill}, AskRefill: ${
     // 1. 定义 D-Cache 的"空闲"状态
     // val isIdle = invalidate.done && !io.load.cmd.valid && !io.store.cmd.valid && !refill.slots.map(_.valid).orR && !io.writebackBusy
     val isIdle = False // 下面的功能有时序 BUG，先禁用。
-    report(L"[DCache] IdleWriteback: isIdle: ${isIdle} because invalidate.done: ${invalidate.done}  io.load.cmd.valid: ${io.load.cmd.valid}  io.store.cmd.valid: ${io.store.cmd.valid}  refill.slots.map(_.valid).orR: ${refill.slots.map(_.valid).orR}  io.writebackBusy: ${io.writebackBusy}")
+    if(enableLog) report(L"[DCache] IdleWriteback: isIdle: ${isIdle} because invalidate.done: ${invalidate.done}  io.load.cmd.valid: ${io.load.cmd.valid}  io.store.cmd.valid: ${io.store.cmd.valid}  refill.slots.map(_.valid).orR: ${refill.slots.map(_.valid).orR}  io.writebackBusy: ${io.writebackBusy}")
     // 4. 写回完成后清除脏位的状态机 (读-修改-写) - 先定义FSM
     val clearDirtyFsm = new StateMachine {
       val reservation = tagsOrStatusWriteArbitration.create(1) // 高优先级(1)
@@ -1770,7 +1770,7 @@ if(enableLog)         ParallaxSim.log(L"  CanRefill: ${canRefill}, AskRefill: ${
 
       // doWriteback 的计算完全在流水线的第二阶段，与第一阶段的输入（isIdle）解耦
       val doWriteback = valid && hasCandidate && !isAlreadyBusy && writebackQueueFree
-      report(L"[DCache] IdleWriteback: doWriteback: ${doWriteback}  valid: ${valid}  hasCandidate: ${hasCandidate}  isAlreadyBusy: ${isAlreadyBusy}  writebackQueueFree: ${writebackQueueFree}")
+      if(enableLog) report(L"[DCache] IdleWriteback: doWriteback: ${doWriteback}  valid: ${valid}  hasCandidate: ${hasCandidate}  isAlreadyBusy: ${isAlreadyBusy}  writebackQueueFree: ${writebackQueueFree}")
       when(valid) { // 只在分析阶段有效时打印
     if(enableLog) {
         // 构建一个动态的字符串来表示所有way的状态

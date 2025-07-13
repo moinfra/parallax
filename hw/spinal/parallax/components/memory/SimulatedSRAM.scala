@@ -3,10 +3,41 @@ package parallax.components.memory
 import spinal.core._
 import spinal.lib._
 
-class SimulatedSRAM(val config: SRAMConfig) extends Component {
+object MemoryInitHelper {
+
+  /** Pads a sequence of BigInt instructions with zeros to a specified total word count.
+    * This is typically used for initializing memories where the initial content
+    * is smaller than the total memory size.
+    *
+    * @param instructions The sequence of BigInt instructions to be placed at the beginning of memory.
+    * @param totalWordCount The total number of words the memory can hold.
+    * @param paddingValue The BigInt value to use for padding (default is 0).
+    * @return A new sequence of BigInts with the instructions followed by padding values,
+    *         matching totalWordCount in length.
+    * @throws IllegalArgumentException if the instructions sequence is longer than totalWordCount.
+    */
+  def padInstructions(
+      instructions: Seq[BigInt],
+      totalWordCount: BigInt, // Use BigInt for totalWordCount to match config.internalWordCount
+      paddingValue: BigInt = BigInt(0)
+  ): Seq[BigInt] = {
+    require(
+      instructions.length <= totalWordCount.toInt,
+      s"Initial instructions (${instructions.length}) cannot be longer than total memory word count (${totalWordCount})."
+    )
+
+    val wordsToPad = totalWordCount.toInt - instructions.length
+    instructions ++ Seq.fill(wordsToPad)(paddingValue)
+  }
+}
+
+class SimulatedSRAM(
+    val config: SRAMConfig,
+    val initialContent: Seq[BigInt] = Seq()
+) extends Component {
   val prefix = this.getClass.getName.replace("$", "")
   val enableLog = true // Temporarily enable for debugging
-  val init = false
+
   val io = new Bundle {
     val ram = slave(SRAMIO(config))
 
@@ -44,14 +75,32 @@ class SimulatedSRAM(val config: SRAMConfig) extends Component {
     (io.ram.addr >> log2Up(config.bytesPerWord)).resize(config.internalWordAddrWidth)
   }
 
-
   assert(!(readCondition && writeCondition), "Read and write cannot be active simultaneously")
   assert(!(io.tb_writeEnable && writeCondition), "Test/normal write conflict")
 
   // Using config.internalWordCount as requested.
   val mem = Mem(Bits(config.dataWidth bits), wordCount = config.internalWordCount)
-  if (init) mem.init(Seq.fill((config.internalWordCount).toInt)(B(0, config.dataWidth bits)))
+  // if (init) mem.init(Seq.fill((config.internalWordCount).toInt)(B(0, config.dataWidth bits)))
+  if (initialContent.nonEmpty) {
+    val paddedInitialContent = MemoryInitHelper.padInstructions(
+      instructions = initialContent,
+      totalWordCount = config.internalWordCount, // Pass BigInt directly
+      paddingValue = BigInt(0) // Assuming 0 is NOP or desired default
+    )
 
+    // Convert BigInt to Bits for initialization
+    val initialBitsSeq = paddedInitialContent.map(value => B(value, config.dataWidth bits))
+    
+    // The assert for length matching is now implicitly handled by MemoryInitHelper.padInstructions
+    // but a final check here is still good for robustness if padding logic changes.
+    assert(initialBitsSeq.length == config.internalWordCount.toInt, 
+           s"Internal Error: Padded initial content size (${initialBitsSeq.length}) does not match memory word count (${config.internalWordCount}). This should not happen if MemoryInitHelper works correctly.")
+
+    mem.init(initialBitsSeq)
+    if (enableLog) {
+      report(L"$prefix Memory initialized with ${initialContent.length} words of data and ${paddedInitialContent.length - initialContent.length} words of padding.")
+    }
+  } 
   // --- NO CHANGE TO TB LOGIC ---
   // The testbench helper ports always work with byte addresses from the test's perspective,
   // so their internal logic to convert to a word address is always correct.
@@ -92,7 +141,6 @@ class SimulatedSRAM(val config: SRAMConfig) extends Component {
     }
   }
 
-
   // --- NO CHANGE TO WRITE/READ LOGIC ---
   // The logic below now correctly uses the conditionally defined `wordAddr` and `addrInRange`
   private val writeLogic = new Area {
@@ -117,7 +165,9 @@ class SimulatedSRAM(val config: SRAMConfig) extends Component {
         mask = byteEnableMask // 使用转换后的高有效 mask
       )
       if (enableLog) {
-        report(L"$prefix written ${io.ram.data.write} to ${io.ram.addr} (word addr ${wordAddr}) with mask ${byteEnableMask}")
+        report(
+          L"$prefix written ${io.ram.data.write} to ${io.ram.addr} (word addr ${wordAddr}) with mask ${byteEnableMask}"
+        )
       }
     }
   }

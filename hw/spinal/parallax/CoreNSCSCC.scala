@@ -24,7 +24,9 @@ import parallax.components.dcache2._
 import scala.collection.mutable.ArrayBuffer
 
 // CoreNSCSCC IO Bundle - matches thinpad_top.v interface exactly
-case class CoreNSCSCCIo() extends Bundle {
+case class CoreNSCSCCIo(traceCommit: Boolean = false) extends Bundle {
+  val commitStats = traceCommit generate out(CommitStats())
+
   // ISRAM (BaseRAM) interface
   val isram_dout = in Bits(32 bits)
   val isram_addr = out UInt(20 bits)
@@ -187,8 +189,8 @@ class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: Option[GenericMemoryBu
   }
 }
 
-class CoreNSCSCC extends Component {
-  val io = CoreNSCSCCIo()
+class CoreNSCSCC(traceCommit: Boolean = false) extends Component {
+  val io = CoreNSCSCCIo(traceCommit)
   
   // 基本配置
   val pCfg = PipelineConfig(
@@ -478,6 +480,10 @@ class CoreNSCSCC extends Component {
   
   // 连接UART AXI到LSU的MMIO路径
   memSysPlugin.logic.connectUartAxi(uartAxi)
+
+  val commitService = framework.getService[CommitPlugin]
+  io.commitStats := commitService.getCommitStats()
+
 }
 
 // Verilog生成器

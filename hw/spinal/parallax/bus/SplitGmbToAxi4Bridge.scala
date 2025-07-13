@@ -26,8 +26,8 @@ class SplitGmbToAxi4Bridge(
     assert(axiConfig.idWidth >= gmbConfig.idWidth.value,
       s"AXI idWidth (${axiConfig.idWidth}) must be >= GMB idWidth (${gmbConfig.idWidth.value})")
   }
-  report(L"[SplitGmbToAxi4Bridge] io.gmbIn.write.cmd.ready=${io.gmbIn.write.cmd.ready}")
-  report(L"[SplitGmbToAxi4Bridge] io.gmbIn.read.cmd.ready=${io.gmbIn.read.cmd.ready}")
+  if(false) report(L"[SplitGmbToAxi4Bridge] io.gmbIn.write.cmd.ready=${io.gmbIn.write.cmd.ready}")
+  if(false) report(L"[SplitGmbToAxi4Bridge] io.gmbIn.read.cmd.ready=${io.gmbIn.read.cmd.ready}")
   // --- READ CHANNEL ---
   val gmbReadCmd = io.gmbIn.read.cmd
   val axiAr = io.axiOut.ar
@@ -117,6 +117,6 @@ class SplitGmbToAxi4Bridge(
   axiB.ready     := gmbWriteRsp.ready // Backpressure for write response
 
   when(axiB.valid && !axiB.isOKAY()) {
-    report(L"[SplitGmbToAxi4Bridge] AXI write response error: ${axiB.resp}")
+    if(false) report(L"[SplitGmbToAxi4Bridge] AXI write response error: ${axiB.resp}")
   }
 }

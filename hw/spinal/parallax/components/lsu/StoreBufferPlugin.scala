@@ -160,6 +160,7 @@ class StoreBufferPlugin(
     val mmioConfig: Option[GenericMemoryBusConfig] = None
 ) extends Plugin with StoreBufferService with LockedImpl {
     ParallaxLogger.debug("Creating Store Buffer Plugin, mmioConfig = " + mmioConfig.toString())
+    val enableLog = false
     val hw = create early new Area {
         val pushPortInst      = Stream(StoreBufferPushCmd(pipelineConfig, lsuConfig))
         val bypassQueryAddrIn = UInt(pipelineConfig.pcWidth)
@@ -268,7 +269,7 @@ class StoreBufferPlugin(
             assert(False, "Got isIO but no MMIO service.")
         }
         val canPopToDCache = canPopNormalOp || canPopFlushOp
-        report(Seq(
+        if(enableLog) report(Seq(
             L"[SQ] sharedWriteCond = ${sharedWriteCond} because headSlot.valid=${headSlot.valid}, headSlot.isCommitted=${headSlot.isCommitted}, headSlot.isFlush=${headSlot.isFlush}, headSlot.waitRsp=${headSlot.waitRsp}, headSlot.isWaitingForRefill=${headSlot.isWaitingForRefill}, headSlot.isWaitingForWb=${headSlot.isWaitingForWb}, headSlot.hasEarlyException=${headSlot.hasEarlyException}. ",
             L"canPopNormalOp = ${canPopNormalOp} because sharedWriteCond=${sharedWriteCond} and !headSlot.isIO=${!headSlot.isIO}. ",
             L"canPopFlushOp = ${canPopFlushOp} because headSlot.valid=${headSlot.valid}, headSlot.isFlush=${headSlot.isFlush}, headSlot.waitRsp=${headSlot.waitRsp}, headSlot.isWaitingForWb=${headSlot.isWaitingForWb}. ",
@@ -290,7 +291,7 @@ class StoreBufferPlugin(
                 if(pipelineConfig.transactionIdWidth > 0) {
                     storePortDCache.cmd.payload.id := headSlot.robPtr.resize(pipelineConfig.transactionIdWidth bits)
                 }
-                report(L"[SQ] Sending FLUSH to D-Cache: addr=${headSlot.addr}, robPtr=${headSlot.robPtr}")
+                if(enableLog) report(L"[SQ] Sending FLUSH to D-Cache: addr=${headSlot.addr}, robPtr=${headSlot.robPtr}")
             } otherwise {
                 storePortDCache.cmd.payload.address  := headSlot.addr
                 storePortDCache.cmd.payload.data     := headSlot.data
@@ -302,7 +303,7 @@ class StoreBufferPlugin(
                 if(pipelineConfig.transactionIdWidth > 0) {
                     storePortDCache.cmd.payload.id := headSlot.robPtr.resize(pipelineConfig.transactionIdWidth bits)
                 }
-                report(L"[SQ] Sending STORE to D-Cache: addr=${headSlot.addr}, data=${headSlot.data}, be=${headSlot.be}, robPtr=${headSlot.robPtr}")
+                if(enableLog) report(L"[SQ] Sending STORE to D-Cache: addr=${headSlot.addr}, data=${headSlot.data}, be=${headSlot.be}, robPtr=${headSlot.robPtr}")
             }
         }
 
@@ -322,7 +323,7 @@ class StoreBufferPlugin(
         // Signal that a command was fired from the head THIS cycle.
         val dcacheCmdFired = canPopToDCache && storePortDCache.cmd.ready
         val mmioCmdFired = hw.mmioWriteChannel.map(channel => canPopMMIOOp && channel.cmd.ready).getOrElse(False)
-        report(L"[SQ] mmioCmdFired=${mmioCmdFired} because canPopMMIOOp=${canPopMMIOOp}, channel.cmd.ready=${hw.mmioWriteChannel.map(_.cmd.ready).getOrElse(null)}")
+        if(enableLog) report(L"[SQ] mmioCmdFired=${mmioCmdFired} because canPopMMIOOp=${canPopMMIOOp}, channel.cmd.ready=${hw.mmioWriteChannel.map(_.cmd.ready).getOrElse(null)}")
 
         // A D-Cache response is for the head slot if:
         val responseIsForHead = storePortDCache.rsp.valid && slots(0).valid &&
@@ -334,7 +335,7 @@ class StoreBufferPlugin(
             (slots(0).waitRsp || mmioCmdFired) && slots(0).isIO
         }.getOrElse(False)
 
-        report(L"[SQ] responseIsForHead=${responseIsForHead}, mmioResponseIsForHead=${mmioResponseIsForHead}")
+        if(enableLog) report(L"[SQ] responseIsForHead=${responseIsForHead}, mmioResponseIsForHead=${mmioResponseIsForHead}")
 
         // When a command is fired, we mark it as sent.
         when(dcacheCmdFired) {
@@ -394,13 +395,13 @@ class StoreBufferPlugin(
         ParallaxSim.log(L"[SQ] Watching... refillCompletionsFromDCache=${refillCompletionsFromDCache}")
         val waitedRefillIsDone = slots(0).valid && slots(0).isWaitingForRefill &&
                          (slots(0).refillSlotToWatch & refillCompletionsFromDCache).orR
-        report(L"[SQ] waitedRefillIsDone=${waitedRefillIsDone} because: valid=${slots(0).valid} isWaitingForRefill=${slots(0).isWaitingForRefill} refillSlotToWatch=${slots(0).refillSlotToWatch} refillCompletionsFromDCache=${refillCompletionsFromDCache}")
+        if(enableLog) report(L"[SQ] waitedRefillIsDone=${waitedRefillIsDone} because: valid=${slots(0).valid} isWaitingForRefill=${slots(0).isWaitingForRefill} refillSlotToWatch=${slots(0).refillSlotToWatch} refillCompletionsFromDCache=${refillCompletionsFromDCache}")
         when(waitedRefillIsDone) {
             slotsAfterUpdates(0).isWaitingForRefill := False
             ParallaxSim.log(L"[SQ] REFILL_DONE observed for robPtr=${slots(0).robPtr}. Ready to retry.")
         }
         val dCacheIsWbBusy = dcacheService.writebackBusy()
-        report(L"[SQ] dCacheIsWbBusy=${dCacheIsWbBusy}")
+        if(enableLog) report(L"[SQ] dCacheIsWbBusy=${dCacheIsWbBusy}")
         when(slots(0).valid && slots(0).isWaitingForWb && !dCacheIsWbBusy) {
             slotsAfterUpdates(0).isWaitingForWb := False
             ParallaxSim.log(L"[SQ] DCACHE_READY observed for robPtr=${slots(0).robPtr}. Exiting WAIT_FOR_WB.")
@@ -461,7 +462,7 @@ class StoreBufferPlugin(
         val popInvalidSlot = !isSbEmpty && !popHeadSlot.valid
         val popRequest = normalStoreDone || mmioStoreDone || earlyExcStoreDone || flushDone || popInvalidSlot
 
-        report(L"[SQ] popRequest=${popRequest}, flushDone=${flushDone}, normalStoreDone=${normalStoreDone}, mmioStoreDone=${mmioStoreDone}, earlyExcStoreDone=${earlyExcStoreDone}")
+        if(enableLog) report(L"[SQ] popRequest=${popRequest}, flushDone=${flushDone}, normalStoreDone=${normalStoreDone}, mmioStoreDone=${mmioStoreDone}, earlyExcStoreDone=${earlyExcStoreDone}")
         when(popRequest) {
             ParallaxSim.log(L"[SQ] POP: Popping slot 0 (robPtr=${popHeadSlot.robPtr}, isFlush=${popHeadSlot.isFlush})")
             for (i <- 0 until sbDepth - 1) {

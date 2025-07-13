@@ -1,3 +1,4 @@
+// filename: parallax/components/lsu/AguPlugin.scala
 package parallax.components.lsu
 
 import spinal.core._
@@ -187,6 +188,14 @@ class AguPlugin(
             val prfDataRsp = RegNext(regReadData.rsp)
         }
         
+        // --- 增加 AGU S0 和 S1 阶段的详细输入日志 ---
+        when(s0.fire) {
+          if(enableLog) report(L"[AGU-${i}-S0-Input] PC=0x${s0.payload.pc}, basePhysReg=${s0.payload.basePhysReg}, dataReg=${s0.payload.dataReg}, isLoad=${s0.payload.isLoad}, isStore=${s0.payload.isStore}, robPtr=${s0.payload.robPtr}")
+        }
+        when(s1.valid) {
+          if(enableLog) report(L"[AGU-${i}-S1-Input] PC=0x${s1.payload.pc}, basePhysReg=${s1.payload.basePhysReg}, dataReg=${s1.payload.dataReg}, prfBaseRsp=0x${s1.prfBaseRsp}, prfDataRsp=0x${s1.prfDataRsp}")
+        }
+
         // --- storeData 依赖修复 ---
         val bypassLogic = new Area {
           val baseBypassValid: Bool = False
@@ -194,23 +203,23 @@ class AguPlugin(
           val dataBypassValid: Bool = False
           val dataBypassData: Bits = B(0)
 
+          // 增加旁路流状态日志
           if (bypassFlow != null) {
-            when(s1.valid && bypassFlow.valid) {
-                ParallaxSim.log(
-                    L"[AGU-${i}-BypassDebug] s1.payload.dataReg=${s1.payload.dataReg}, " :+
-                    L"bypassFlow.payload.physRegIdx=${bypassFlow.payload.physRegIdx}, " :+
-                    L"bypassFlow.payload.data=${bypassFlow.payload.physRegData}"
-                )
+            when(s1.valid) { // 只要 s1 阶段有效，就打印旁路流的状态
+              if(enableLog) report(L"[AGU-${i}-BypassFlowState] PC=0x${s1.payload.pc}, bypassFlow.valid=${bypassFlow.valid}, bypassFlow.physRegIdx=${bypassFlow.payload.physRegIdx}, bypassFlow.data=0x${bypassFlow.payload.physRegData}")
             }
+            
             val bypassPayload = bypassFlow.payload
             when(bypassFlow.valid) {
               when(bypassPayload.physRegIdx === s1.payload.basePhysReg) {
                 baseBypassValid := True
                 baseBypassData := bypassPayload.physRegData
+                if(enableLog) report(L"[AGU-${i}-BypassMatch] PC=0x${s1.payload.pc}, BaseReg Matched! PhysReg=${s1.payload.basePhysReg}, BypassData=0x${bypassPayload.physRegData}")
               }
               when(s1.payload.isStore && bypassPayload.physRegIdx === s1.payload.dataReg) {
                 dataBypassValid := True
                 dataBypassData := bypassPayload.physRegData
+                if(enableLog) report(L"[AGU-${i}-BypassMatch] PC=0x${s1.payload.pc}, DataReg Matched! PhysReg=${s1.payload.dataReg}, BypassData=0x${bypassPayload.physRegData}")
               }
             }
           }
@@ -251,10 +260,11 @@ class AguPlugin(
           val misaligned = (addressCalc.effectiveAddress & alignMask.resized) =/= 0
           val alignException = misaligned && mustAlign
 
+          // 原始的 AGU Debug 日志，现在更名为 AGU-S1-Output-Debug
           when(s1.valid) {
               ParallaxSim.log(
-                L"[AGU-${i}-Debug] s1.payload=${s1.payload.format} " :+
-                L"baseData=0x${(baseData)} " :+
+                L"[AGU-${i}-S1-Output-Debug] s1.payload=${s1.payload.format} " :+
+                L"baseData=0x${(baseData)} " :+ // 打印最终选择的 baseData
                 L"==> effAddr=0x${(addressCalc.effectiveAddress)}"
               )
           }

@@ -13,8 +13,9 @@ import parallax.utilities.ParallaxSim
 /**
  * Commit statistics bundle for monitoring commit stage performance.
  */
-case class CommitStats(pCfg: PipelineConfig) extends Bundle with Formattable {
-  val committedThisCycle = UInt(log2Up(pCfg.commitWidth + 1) bits)
+case class CommitStats(pCfg: PipelineConfig = null) extends Bundle with Formattable {
+  private val cw = if (pCfg == null) 1 else pCfg.commitWidth
+  val committedThisCycle = UInt(log2Up(cw + 1) bits)
   val totalCommitted = UInt(32 bits)
   val robFlushCount = UInt(32 bits)
   val physRegRecycled = UInt(32 bits)

@@ -35,7 +35,7 @@ class BusyTablePlugin(pCfg: PipelineConfig)
     with BusyTableService
     with BusyTableCheckpointService {
   // HONEST ERROR REPORTING: Enable detailed logging for RAW hazard debugging
-  val enableLog = true // FORCE enable logging for debugging
+  val enableLog = false // FORCE enable logging for debugging
   println("[BusyTablePlugin] enableLog: " + enableLog)
   private val setPorts = ArrayBuffer[Flow[UInt]]()
   private val clearPortsBuffer = ArrayBuffer[Flow[UInt]]() // 使用ArrayBuffer存储所有清除端口
