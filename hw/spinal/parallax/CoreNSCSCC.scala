@@ -110,6 +110,7 @@ class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: Option[GenericMemoryBu
       virtualBaseAddress = BigInt("80000000", 16),
       sizeBytes = sramSize,
       readWaitCycles = 0,
+      useWordAddressing = true,
       enableLog = false
     )
     val extsramCfg = SRAMConfig(
@@ -117,6 +118,7 @@ class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: Option[GenericMemoryBu
       dataWidth = 32,
       virtualBaseAddress = BigInt("80400000", 16),
       sizeBytes = sramSize,
+      useWordAddressing = true,
       readWaitCycles = 0,
       enableLog = false
     )
@@ -161,9 +163,9 @@ class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: Option[GenericMemoryBu
     val crossbar = Axi4CrossbarFactory()
     
     // BaseRAM: 0x80000000～0x800FFFFF (1MB)
-    crossbar.addSlave(hw.baseramCtrl.io.axi, SizeMapping(0x80000000L, BigInt("100000", 16)))
+    crossbar.addSlave(hw.baseramCtrl.io.axi, SizeMapping(BigInt("80000000", 16), hw.sramSize))
     // ExtRAM: 0x80100000～0x801FFFFF (1MB) 
-    crossbar.addSlave(hw.extramCtrl.io.axi, SizeMapping(0x80100000L, BigInt("100000", 16)))
+    crossbar.addSlave(hw.extramCtrl.io.axi, SizeMapping(BigInt("80400000", 16), hw.sramSize))
     
     // 暴露SRAM控制器以便外部连接
     def getBaseRamIo = hw.baseramCtrl.io.ram
