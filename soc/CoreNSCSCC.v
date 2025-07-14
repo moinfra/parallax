@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 3105a33b457518a7afeed8b0527b4d8b9dab2383
 // Component : CoreNSCSCC
-// Git hash  : fa48b90a928fde417e1a69c1642652820335a5cb
+// Git hash  : 426093f32a00675940795843d95fad3dfea0991a
 
 `timescale 1ns/1ps
 
@@ -2328,6 +2328,8 @@ module CoreNSCSCC (
   wire                SimpleFetchPipelinePlugin_hw_finalOutputInst_payload_bpuPrediction_payload_isTaken;
   wire       [31:0]   SimpleFetchPipelinePlugin_hw_finalOutputInst_payload_bpuPrediction_payload_target;
   reg        [63:0]   BusyTablePlugin_early_setup_busyTableReg;
+  reg        [63:0]   BusyTablePlugin_early_setup_clearMask;
+  reg        [63:0]   BusyTablePlugin_early_setup_setMask;
   wire                globalWakeupFlow_valid;
   wire       [5:0]    globalWakeupFlow_payload_physRegIdx;
   wire                s0_Decode_valid;
@@ -3507,14 +3509,22 @@ module CoreNSCSCC (
   wire                LsuEU_LsuEuPlugin_euInputPort_fire;
   wire       [4:0]    _zz_when_Debug_l67_7;
   wire                when_Debug_l67_6;
+  wire                DispatchPlugin_logic_physSrc1ConflictS1;
+  wire                DispatchPlugin_logic_physSrc1ConflictS2;
+  wire                DispatchPlugin_logic_physSrc2ConflictS1;
+  wire                DispatchPlugin_logic_physSrc2ConflictS2;
+  wire                DispatchPlugin_logic_src1SetBypass;
+  wire                DispatchPlugin_logic_src2SetBypass;
+  wire                DispatchPlugin_logic_src1ReadyCandidate;
   wire                DispatchPlugin_logic_src1InitialReady;
+  wire                DispatchPlugin_logic_src2ReadyCandidate;
   wire                DispatchPlugin_logic_src2InitialReady;
   wire       [2:0]    DispatchPlugin_logic_dispatchOH;
   wire                _zz_DispatchPlugin_logic_destinationIqReady;
   wire                _zz_DispatchPlugin_logic_destinationIqReady_1;
   wire                DispatchPlugin_logic_destinationIqReady;
-  wire                s3_Dispatch_haltRequest_DispatchPlugin_l51;
-  wire                when_DispatchPlugin_l70;
+  wire                s3_Dispatch_haltRequest_DispatchPlugin_l85;
+  wire                when_DispatchPlugin_l104;
   wire       [31:0]   CoreNSCSCCSetupPlugin_logic_instructionVec_0;
   wire       [31:0]   CoreNSCSCCSetupPlugin_logic_instructionVec_1;
   reg                 DebugDisplayPlugin_logic_displayArea_dpToggle;
@@ -3688,8 +3698,6 @@ module CoreNSCSCC (
   wire                when_Connection_l74;
   wire                when_Connection_l74_1;
   wire                when_Connection_l74_2;
-  reg        [63:0]   BusyTablePlugin_logic_clearMask;
-  reg        [63:0]   BusyTablePlugin_logic_setMask;
   wire       [63:0]   BusyTablePlugin_logic_busyTableNext;
   reg                 SimpleFetchPipelinePlugin_logic_ifuPort_cmd_valid;
   wire                SimpleFetchPipelinePlugin_logic_ifuPort_cmd_ready;
@@ -13591,13 +13599,21 @@ module CoreNSCSCC (
   assign oneShot_18_io_triggerIn = (AluIntEU_AluIntEuPlugin_euInputPort_fire && (_zz_when_Debug_l67 < _zz_io_triggerIn_12));
   assign _zz_when_Debug_l67_7 = 5'h17;
   assign when_Debug_l67_6 = (_zz_when_Debug_l67 < _zz_when_Debug_l67_6_1);
-  assign DispatchPlugin_logic_src1InitialReady = ((! s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc1) || (! BusyTablePlugin_combinationalBusyBits[s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc1_idx]));
-  assign DispatchPlugin_logic_src2InitialReady = ((! s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc2) || (! BusyTablePlugin_combinationalBusyBits[s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2_idx]));
+  assign DispatchPlugin_logic_physSrc1ConflictS1 = ((s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isValid && s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_allocatesPhysDest) && (s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physDest_idx == s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc1_idx));
+  assign DispatchPlugin_logic_physSrc1ConflictS2 = ((s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isValid && s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_allocatesPhysDest) && (s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physDest_idx == s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc1_idx));
+  assign DispatchPlugin_logic_physSrc2ConflictS1 = ((s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isValid && s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_allocatesPhysDest) && (s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physDest_idx == s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2_idx));
+  assign DispatchPlugin_logic_physSrc2ConflictS2 = ((s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isValid && s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_allocatesPhysDest) && (s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physDest_idx == s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2_idx));
+  assign DispatchPlugin_logic_src1SetBypass = (DispatchPlugin_logic_physSrc1ConflictS1 || DispatchPlugin_logic_physSrc1ConflictS2);
+  assign DispatchPlugin_logic_src2SetBypass = (DispatchPlugin_logic_physSrc2ConflictS1 || DispatchPlugin_logic_physSrc2ConflictS2);
+  assign DispatchPlugin_logic_src1ReadyCandidate = ((! BusyTablePlugin_early_setup_busyTableReg[s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc1_idx]) || BusyTablePlugin_early_setup_clearMask[s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc1_idx]);
+  assign DispatchPlugin_logic_src1InitialReady = ((! s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc1) || (DispatchPlugin_logic_src1ReadyCandidate && (! DispatchPlugin_logic_src1SetBypass)));
+  assign DispatchPlugin_logic_src2ReadyCandidate = ((! BusyTablePlugin_early_setup_busyTableReg[s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2_idx]) || BusyTablePlugin_early_setup_clearMask[s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2_idx]);
+  assign DispatchPlugin_logic_src2InitialReady = ((! s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc2) || (DispatchPlugin_logic_src2ReadyCandidate && (! DispatchPlugin_logic_src2SetBypass)));
   assign DispatchPlugin_logic_dispatchOH = {(|{(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode == DispatchPlugin_logic_iqRegs_2_0_1),(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode == DispatchPlugin_logic_iqRegs_2_0_0)}),{(|{(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode == DispatchPlugin_logic_iqRegs_1_0_2),{_zz_DispatchPlugin_logic_dispatchOH,_zz_DispatchPlugin_logic_dispatchOH_1}}),(|{(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode == DispatchPlugin_logic_iqRegs_0_0_3),{_zz_DispatchPlugin_logic_dispatchOH_2,{_zz_DispatchPlugin_logic_dispatchOH_3,_zz_DispatchPlugin_logic_dispatchOH_4}}})}};
   assign _zz_DispatchPlugin_logic_destinationIqReady = DispatchPlugin_logic_dispatchOH[1];
   assign _zz_DispatchPlugin_logic_destinationIqReady_1 = DispatchPlugin_logic_dispatchOH[2];
   assign DispatchPlugin_logic_destinationIqReady = _zz_DispatchPlugin_logic_destinationIqReady_2;
-  assign s3_Dispatch_haltRequest_DispatchPlugin_l51 = ((s3_Dispatch_valid && s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isValid) && (! DispatchPlugin_logic_destinationIqReady));
+  assign s3_Dispatch_haltRequest_DispatchPlugin_l85 = ((s3_Dispatch_valid && s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isValid) && (! DispatchPlugin_logic_destinationIqReady));
   assign DispatchPlugin_logic_iqRegs_0_1_valid = ((s3_Dispatch_isFiring && s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isValid) && DispatchPlugin_logic_dispatchOH[0]);
   always @(*) begin
     if(DispatchPlugin_logic_iqRegs_0_1_valid) begin
@@ -15953,7 +15969,7 @@ module CoreNSCSCC (
     end
   end
 
-  assign when_DispatchPlugin_l70 = (s3_Dispatch_isFiring && s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isValid);
+  assign when_DispatchPlugin_l104 = (s3_Dispatch_isFiring && s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isValid);
   assign CommitPlugin_commitEnableExt = 1'b1;
   assign CoreNSCSCCSetupPlugin_logic_instructionVec_0 = SimpleFetchPipelinePlugin_hw_finalOutputInst_payload_instruction;
   assign CoreNSCSCCSetupPlugin_logic_instructionVec_1 = 32'h0;
@@ -16434,7 +16450,7 @@ module CoreNSCSCC (
     end
   end
 
-  assign when_Pipeline_l282_2 = (|s3_Dispatch_haltRequest_DispatchPlugin_l51);
+  assign when_Pipeline_l282_2 = (|s3_Dispatch_haltRequest_DispatchPlugin_l85);
   always @(*) begin
     s0_Decode_ready_output = s1_Rename_ready;
     if(when_Connection_l74) begin
@@ -16460,29 +16476,29 @@ module CoreNSCSCC (
 
   assign when_Connection_l74_2 = (! s3_Dispatch_valid);
   always @(*) begin
-    BusyTablePlugin_logic_clearMask = 64'h0;
+    BusyTablePlugin_early_setup_clearMask = 64'h0;
     if(globalWakeupFlow_valid) begin
-      BusyTablePlugin_logic_clearMask[globalWakeupFlow_payload_physRegIdx] = 1'b1;
+      BusyTablePlugin_early_setup_clearMask[globalWakeupFlow_payload_physRegIdx] = 1'b1;
     end
     if(AluIntEU_AluIntEuPlugin_logicPhase_clearBusyPort_valid) begin
-      BusyTablePlugin_logic_clearMask[AluIntEU_AluIntEuPlugin_logicPhase_clearBusyPort_payload] = 1'b1;
+      BusyTablePlugin_early_setup_clearMask[AluIntEU_AluIntEuPlugin_logicPhase_clearBusyPort_payload] = 1'b1;
     end
     if(BranchEU_BranchEuPlugin_logicPhase_clearBusyPort_valid) begin
-      BusyTablePlugin_logic_clearMask[BranchEU_BranchEuPlugin_logicPhase_clearBusyPort_payload] = 1'b1;
+      BusyTablePlugin_early_setup_clearMask[BranchEU_BranchEuPlugin_logicPhase_clearBusyPort_payload] = 1'b1;
     end
     if(LsuEU_LsuEuPlugin_logicPhase_clearBusyPort_valid) begin
-      BusyTablePlugin_logic_clearMask[LsuEU_LsuEuPlugin_logicPhase_clearBusyPort_payload] = 1'b1;
+      BusyTablePlugin_early_setup_clearMask[LsuEU_LsuEuPlugin_logicPhase_clearBusyPort_payload] = 1'b1;
     end
   end
 
   always @(*) begin
-    BusyTablePlugin_logic_setMask = 64'h0;
+    BusyTablePlugin_early_setup_setMask = 64'h0;
     if(RenamePlugin_logic_setBusyPorts_0_valid) begin
-      BusyTablePlugin_logic_setMask[RenamePlugin_logic_setBusyPorts_0_payload] = 1'b1;
+      BusyTablePlugin_early_setup_setMask[RenamePlugin_logic_setBusyPorts_0_payload] = 1'b1;
     end
   end
 
-  assign BusyTablePlugin_logic_busyTableNext = ((BusyTablePlugin_early_setup_busyTableReg & (~ BusyTablePlugin_logic_clearMask)) | BusyTablePlugin_logic_setMask);
+  assign BusyTablePlugin_logic_busyTableNext = ((BusyTablePlugin_early_setup_busyTableReg & (~ BusyTablePlugin_early_setup_clearMask)) | BusyTablePlugin_early_setup_setMask);
   assign BusyTablePlugin_combinationalBusyBits = BusyTablePlugin_logic_busyTableNext;
   assign SimpleFetchPipelinePlugin_logic_ifuPort_rsp_ready = SimpleFetchPipelinePlugin_logic_ifuRspFifo_io_push_ready;
   assign SimpleFetchPipelinePlugin_logic_filteredStream_valid = SimpleFetchPipelinePlugin_logic_unpacker_io_output_valid;
@@ -21400,13 +21416,13 @@ module CoreNSCSCC (
           `endif
         end
       end
-      if(when_DispatchPlugin_l70) begin
+      if(when_DispatchPlugin_l104) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // DispatchPlugin.scala:L71
+            assert(1'b0); // DispatchPlugin.scala:L105
           `else
             if(!1'b0) begin
-              $display("NOTE(DispatchPlugin.scala:71):  DispatchPlugin: Firing robPtr=%x (UopCode=%s), s1_ready=%x, s2_ready=%x", s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_robPtr, s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string, DispatchPlugin_logic_src1InitialReady, DispatchPlugin_logic_src2InitialReady); // DispatchPlugin.scala:L71
+              $display("NOTE(DispatchPlugin.scala:105):  DispatchPlugin: Firing robPtr=%x (UopCode=%s), s1_ready=%x, s2_ready=%x", s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_robPtr, s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string, DispatchPlugin_logic_src1InitialReady, DispatchPlugin_logic_src2InitialReady); // DispatchPlugin.scala:L105
             end
           `endif
         `endif
@@ -46761,7 +46777,8 @@ module SRAMController_1 (
   reg        [8:0]    fsm_burst_count_remaining;
   reg        [19:0]   fsm_current_sram_addr;
   reg        [31:0]   fsm_read_data_buffer;
-  reg        [0:0]    fsm_read_wait_counter;
+  reg        [1:0]    fsm_read_wait_counter;
+  reg        [1:0]    fsm_write_wait_counter;
   reg                 fsm_transaction_error_occurred;
   reg                 fsm_read_priority;
   reg        [19:0]   fsm_next_sram_addr_prefetch;
@@ -47434,6 +47451,10 @@ module SRAMController_1 (
           if(when_SRAMController_l284) begin
             fsm_stateNext = fsm_WRITE_RESPONSE;
           end
+        end else begin
+          if(io_axi_w_fire) begin
+            fsm_stateNext = fsm_WRITE_WAIT;
+          end
         end
       end
       fsm_WRITE_WAIT : begin
@@ -47504,10 +47525,10 @@ module SRAMController_1 (
   assign when_SRAMController_l247 = (($signed(_zz_when_SRAMController_l247) < $signed(32'h0)) || (32'h00400000 <= _zz_when_SRAMController_l247_1));
   assign when_SRAMController_l284 = (fsm_burst_count_remaining == 9'h001);
   assign io_axi_w_fire = (io_axi_w_valid && io_axi_w_ready);
-  assign when_SRAMController_l326 = 1'b1;
+  assign when_SRAMController_l326 = (fsm_write_wait_counter == 2'b10);
   assign when_SRAMController_l347 = (fsm_burst_count_remaining == 9'h001);
-  assign when_SRAMController_l416 = (((fsm_read_wait_counter == 1'b0) && (9'h001 < fsm_burst_count_remaining)) && (! fsm_addr_prefetch_valid));
-  assign when_SRAMController_l425 = (fsm_read_wait_counter == 1'b1);
+  assign when_SRAMController_l416 = (((fsm_read_wait_counter == 2'b01) && (9'h001 < fsm_burst_count_remaining)) && (! fsm_addr_prefetch_valid));
+  assign when_SRAMController_l425 = (fsm_read_wait_counter == 2'b10);
   assign when_SRAMController_l458 = (fsm_burst_count_remaining == 9'h001);
   assign io_axi_r_fire = (io_axi_r_valid && io_axi_r_ready);
   assign when_SRAMController_l500 = (fsm_burst_count_remaining == 9'h001);
@@ -47593,7 +47614,6 @@ module SRAMController_1 (
               sram_write_addr_reg <= fsm_current_sram_addr;
               sram_write_data_reg <= io_axi_w_payload_data;
               sram_write_be_n_reg <= (~ io_axi_w_payload_strb);
-              sram_perform_write <= 1'b1;
             end
           end
         end
@@ -47668,7 +47688,7 @@ module SRAMController_1 (
             if(!when_SRAMController_l239) begin
               if(!when_SRAMController_l243) begin
                 if(!when_SRAMController_l247) begin
-                  fsm_read_wait_counter <= 1'b0;
+                  fsm_read_wait_counter <= 2'b00;
                 end
               end
             end
@@ -47679,9 +47699,16 @@ module SRAMController_1 (
         if(sram_perform_write) begin
           fsm_current_sram_addr <= (fsm_current_sram_addr + _zz_fsm_current_sram_addr_4);
           fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
+        end else begin
+          if(io_axi_w_fire) begin
+            fsm_write_wait_counter <= 2'b00;
+          end
         end
       end
       fsm_WRITE_WAIT : begin
+        if(!when_SRAMController_l326) begin
+          fsm_write_wait_counter <= (fsm_write_wait_counter + 2'b01);
+        end
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
         if(io_axi_w_fire) begin
@@ -47691,7 +47718,7 @@ module SRAMController_1 (
       fsm_WRITE_RESPONSE : begin
       end
       fsm_READ_SETUP : begin
-        fsm_read_wait_counter <= 1'b0;
+        fsm_read_wait_counter <= 2'b00;
       end
       fsm_READ_WAIT : begin
         if(when_SRAMController_l416) begin
@@ -47700,7 +47727,7 @@ module SRAMController_1 (
         if(when_SRAMController_l425) begin
           fsm_read_data_buffer <= io_ram_data_read;
         end else begin
-          fsm_read_wait_counter <= (fsm_read_wait_counter + 1'b1);
+          fsm_read_wait_counter <= (fsm_read_wait_counter + 2'b01);
         end
       end
       fsm_READ_RESPONSE : begin
@@ -47836,7 +47863,8 @@ module SRAMController (
   reg        [8:0]    fsm_burst_count_remaining;
   reg        [19:0]   fsm_current_sram_addr;
   reg        [31:0]   fsm_read_data_buffer;
-  reg        [0:0]    fsm_read_wait_counter;
+  reg        [1:0]    fsm_read_wait_counter;
+  reg        [1:0]    fsm_write_wait_counter;
   reg                 fsm_transaction_error_occurred;
   reg                 fsm_read_priority;
   reg        [19:0]   fsm_next_sram_addr_prefetch;
@@ -48509,6 +48537,10 @@ module SRAMController (
           if(when_SRAMController_l284) begin
             fsm_stateNext = fsm_WRITE_RESPONSE;
           end
+        end else begin
+          if(io_axi_w_fire) begin
+            fsm_stateNext = fsm_WRITE_WAIT;
+          end
         end
       end
       fsm_WRITE_WAIT : begin
@@ -48579,10 +48611,10 @@ module SRAMController (
   assign when_SRAMController_l247 = (($signed(_zz_when_SRAMController_l247) < $signed(32'h0)) || (32'h00400000 <= _zz_when_SRAMController_l247_1));
   assign when_SRAMController_l284 = (fsm_burst_count_remaining == 9'h001);
   assign io_axi_w_fire = (io_axi_w_valid && io_axi_w_ready);
-  assign when_SRAMController_l326 = 1'b1;
+  assign when_SRAMController_l326 = (fsm_write_wait_counter == 2'b10);
   assign when_SRAMController_l347 = (fsm_burst_count_remaining == 9'h001);
-  assign when_SRAMController_l416 = (((fsm_read_wait_counter == 1'b0) && (9'h001 < fsm_burst_count_remaining)) && (! fsm_addr_prefetch_valid));
-  assign when_SRAMController_l425 = (fsm_read_wait_counter == 1'b1);
+  assign when_SRAMController_l416 = (((fsm_read_wait_counter == 2'b01) && (9'h001 < fsm_burst_count_remaining)) && (! fsm_addr_prefetch_valid));
+  assign when_SRAMController_l425 = (fsm_read_wait_counter == 2'b10);
   assign when_SRAMController_l458 = (fsm_burst_count_remaining == 9'h001);
   assign io_axi_r_fire = (io_axi_r_valid && io_axi_r_ready);
   assign when_SRAMController_l500 = (fsm_burst_count_remaining == 9'h001);
@@ -48668,7 +48700,6 @@ module SRAMController (
               sram_write_addr_reg <= fsm_current_sram_addr;
               sram_write_data_reg <= io_axi_w_payload_data;
               sram_write_be_n_reg <= (~ io_axi_w_payload_strb);
-              sram_perform_write <= 1'b1;
             end
           end
         end
@@ -48743,7 +48774,7 @@ module SRAMController (
             if(!when_SRAMController_l239) begin
               if(!when_SRAMController_l243) begin
                 if(!when_SRAMController_l247) begin
-                  fsm_read_wait_counter <= 1'b0;
+                  fsm_read_wait_counter <= 2'b00;
                 end
               end
             end
@@ -48754,9 +48785,16 @@ module SRAMController (
         if(sram_perform_write) begin
           fsm_current_sram_addr <= (fsm_current_sram_addr + _zz_fsm_current_sram_addr_4);
           fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
+        end else begin
+          if(io_axi_w_fire) begin
+            fsm_write_wait_counter <= 2'b00;
+          end
         end
       end
       fsm_WRITE_WAIT : begin
+        if(!when_SRAMController_l326) begin
+          fsm_write_wait_counter <= (fsm_write_wait_counter + 2'b01);
+        end
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
         if(io_axi_w_fire) begin
@@ -48766,7 +48804,7 @@ module SRAMController (
       fsm_WRITE_RESPONSE : begin
       end
       fsm_READ_SETUP : begin
-        fsm_read_wait_counter <= 1'b0;
+        fsm_read_wait_counter <= 2'b00;
       end
       fsm_READ_WAIT : begin
         if(when_SRAMController_l416) begin
@@ -48775,7 +48813,7 @@ module SRAMController (
         if(when_SRAMController_l425) begin
           fsm_read_data_buffer <= io_ram_data_read;
         end else begin
-          fsm_read_wait_counter <= (fsm_read_wait_counter + 1'b1);
+          fsm_read_wait_counter <= (fsm_read_wait_counter + 2'b01);
         end
       end
       fsm_READ_RESPONSE : begin

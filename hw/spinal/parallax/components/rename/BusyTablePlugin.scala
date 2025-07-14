@@ -17,7 +17,10 @@ trait BusyTableService extends Service with LockedImpl {
   def newClearPort(): Flow[UInt]
 
   /** Combinational query port for IQs or other units */
-  def getBusyBits(): Bits
+  def getBusyBitsComb(): Bits // For s1 rename
+  def getBusyBitsReg(): Bits // For dispatch
+  def getClearBypass(): Bits // 新增：获取本周期的清零掩码
+
 }
 
 case class BusyTableCheckpoint(pCfg: PipelineConfig) extends Bundle {
@@ -44,18 +47,24 @@ class BusyTablePlugin(pCfg: PipelineConfig)
   // All hardware resources must be declared in early or late Area
   val early_setup = create early new Area {
     val busyTableReg = Reg(Bits(pCfg.physGprCount bits)) init (0)
+    val clearMask = Bits(pCfg.physGprCount bits)
+    val setMask = Bits(pCfg.physGprCount bits)
+
   }
 
   val logic = create late new Area {
     lock.await()
+
+    val clearMask = early_setup.clearMask
+    val setMask = early_setup.setMask
     val busyTableReg = early_setup.busyTableReg
+    
 
     // CRITICAL FIX: Connect to WakeupService for global wakeup coordination
     val wakeupService = getService[parallax.execute.WakeupService]
     val globalWakeupFlow = wakeupService.getWakeupFlow()
 
     // Handle clears first (higher priority)
-    val clearMask = Bits(pCfg.physGprCount bits)
     clearMask.clearAll()
 
     // CRITICAL FIX: Add global wakeup as a clear source
@@ -73,7 +82,6 @@ class BusyTablePlugin(pCfg: PipelineConfig)
     }
 
     // Handle sets
-    val setMask = Bits(pCfg.physGprCount bits)
     setMask.clearAll()
     for (port <- setPorts; if port != null) {
       when(port.valid) {
@@ -84,6 +92,7 @@ class BusyTablePlugin(pCfg: PipelineConfig)
 
     // Combine clear and set operations in one statement: clear has higher priority
     val busyTableNext = (busyTableReg & ~clearMask) | setMask
+    // val busyTableNext = (busyTableReg | setMask) & ~clearMask
 
     if(enableLog) report(L"[BusyTable] Current: busyTableReg=${busyTableReg}, clearMask=${clearMask}, setMask=${setMask}, next=${busyTableNext}")
 
@@ -116,12 +125,15 @@ class BusyTablePlugin(pCfg: PipelineConfig)
     port
   }
 
-  override def getBusyBits(): Bits = {
+  override def getBusyBitsComb(): Bits = {
     // Return the combinational result that considers current cycle clears
     // This prevents read-after-write hazards
     combinationalBusyBits
   }
 
+  override def getBusyBitsReg(): Bits = {
+    early_setup.busyTableReg
+  }
   override def getBusyTableState(): BusyTableCheckpoint = {
     val state = BusyTableCheckpoint(pCfg)
     state.busyBits := logic.busyTableReg
@@ -133,5 +145,7 @@ class BusyTablePlugin(pCfg: PipelineConfig)
     restorePorts += port
     port
   }
+
+  override def getClearBypass(): Bits = early_setup.clearMask
 }
 

@@ -117,7 +117,8 @@ class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: Option[GenericMemoryBu
       dataWidth = 32,
       virtualBaseAddress = BigInt("80000000", 16),
       sizeBytes = sramSize,
-      readWaitCycles = 1,
+      readWaitCycles = 2,
+      writeWaitCycles = 2,
       useWordAddressing = true,
       enableLog = false
     )
@@ -127,7 +128,8 @@ class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: Option[GenericMemoryBu
       virtualBaseAddress = BigInt("80400000", 16),
       sizeBytes = sramSize,
       useWordAddressing = true,
-      readWaitCycles = 1,
+      readWaitCycles = 2,
+      writeWaitCycles = 2,
       enableLog = false
     )
 

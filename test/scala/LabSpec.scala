@@ -254,7 +254,7 @@ class LabSpec extends CustomSpinalSimFunSuite {
       println("--- 'mem write test' Passed ---")
     }
   }
-testOnly("Isolate Data Register r14") {
+test("Isolate Data Register r14") {
   val instructions = Seq(
     // 使用 r14 (来自失败的测试) 作为数据寄存器
     lu12i_w(rd = 14, imm = 0x12340000 >>> 12),
@@ -411,8 +411,8 @@ testOnly("Isolate Data Register r14") {
     }
   }
 
-  test("Fibonacci Test on CoreNSCSCC") {
-
+  testOnly("Fibonacci Test on CoreNSCSCC") {
+    
     val instructions = ArrayBuffer[BigInt]()
     // Original Assembly:
     // addi.w      $t0,$zero,0x1   # t0 = 1
@@ -436,31 +436,40 @@ testOnly("Isolate Data Register r14") {
     // $t0 = r12, $t1 = r13, $t2 = r14, $t3 = r15
     // $a0 = r4, $a1 = r5
 
-        instructions += addi_w(rd = 12, rj = 0, imm = 1)     // $t0 ($r12) = 1
-    instructions += addi_w(rd = 13, rj = 0, imm = 1)     // $t1 ($r13) = 1
-    instructions += lu12i_w(rd = 4, imm = 0x80400)       // $a0 ($r4) = 0x80400000
+    instructions += addi_w(rd = 12, rj = 0, imm = 1) // $t0 ($r12) = 1
+    instructions += addi_w(rd = 13, rj = 0, imm = 1) // $t1 ($r13) = 1
+    instructions += lu12i_w(rd = 4, imm = 0x80400) // $a0 ($r4) = 0x80400000 (imm -0x7fc00 for lu12i.w)
+    instructions += addi_w(rd = 5, rj = 4, imm = 0x100) // $a1 ($r5) = $a0 + 0x100 (0x80400100)
 
-    // *** 修改点 1: 改变循环结束条件 ***
-    // 原来是 addi_w(..., imm = 0x100)，让循环跑 64 次
-    // 现在改为 imm = 4，这样 $a1 = 0x80400004。
-    // 在第一次循环后，$a0 会被增加到 0x80400004，与 $a1 相等，从而退出循环。
-    instructions += addi_w(rd = 5, rj = 4, imm = 4)      // $a1 ($r5) = $a0 + 4 (0x80400004)
+    // loop: (PC = 0x10, relative to start)
+    instructions += add_w(rd = 14, rj = 12, rk = 13) // $t2 ($r14) = $t0 + $t1
+    instructions += addi_w(rd = 12, rj = 13, imm = 0) // $t0 = $t1
+    instructions += addi_w(rd = 13, rj = 14, imm = 0) // $t1 = $t2
+    instructions += st_w(rd = 14, rj = 4, offset = 0) // mem[$a0] = $t2
+    instructions += ld_w(rd = 15, rj = 4, offset = 0) // $t3 ($r15) = mem[$a0]
 
-    // loop: (PC = 0x10)
-    instructions += add_w(rd = 14, rj = 12, rk = 13)    // $t2 = $t0 + $t1 (1 + 1 = 2)
-    instructions += addi_w(rd = 12, rj = 13, imm = 0)    // $t0 = $t1
-    instructions += addi_w(rd = 13, rj = 14, imm = 0)    // $t1 = $t2
-    instructions += st_w(rd = 14, rj = 4, offset = 0)   // mem[$a0] = $t2 (将 2 写入 0x80400000)
-    instructions += ld_w(rd = 15, rj = 4, offset = 0)   // $t3 = mem[$a0] (读回 2)
-    instructions += bne(rj = 14, rd = 15, offset = 12)  // if $t2 != $t3, goto end
-    instructions += addi_w(rd = 4, rj = 4, imm = 4)     // $a0 += 4 (a0 = 0x80400004)
-    instructions += bne(rj = 4, rd = 5, offset = -28)   // if $a0 != $a1, goto loop (此时 $a0 == $a1, 不会跳转)
+    // bne $t2,$t3,end
+    // Current PC for this instruction is 0x20 (relative to start)
+    // 'end' label is at 0x30 (relative to start)
+    // Offset = 0x30 - 0x20 = 0x10 bytes = 4 words
+    instructions += bne(rj = 14, rd = 15, offset = 12) // if $t2 != $t3, goto end
 
-    // end: (PC = 0x30)
-    instructions += bne(rj = 4, rd = 0, offset = 0)     // infinite loop to halt
+    instructions += addi_w(rd = 4, rj = 4, imm = 4) // $a0 += 4
 
-    LabHelper.dumpBinary(instructions, "bin/labspec1.bin")
-    fail()
+    // bne $a0,$a1,loop
+    // Current PC for this instruction is 0x2C (relative to start)
+    // 'loop' label is at 0x10 (relative to start)
+    // Offset = 0x10 - 0x2C = -0x1C bytes = -7 words
+    instructions += bne(rj = 4, rd = 5, offset = -28) // if $a0 != $a1, goto loop
+
+    // end: (PC = 0x30, relative to start)
+    // bne $a0,$zero,end
+    // Current PC for this instruction is 0x30 (relative to start)
+    // 'end' label is at 0x30 (relative to start)
+    // Offset = 0x30 - 0x30 = 0 bytes = 0 words
+    instructions += bne(rj = 4, rd = 0, offset = 0) // infinite loop to halt
+
+    LabHelper.dumpBinary(instructions, "bin/LabSpec.bin")
 
     val compiled = SimConfig.withFstWave.compile(new LabTestBench(instructions))
 
@@ -485,7 +494,6 @@ testOnly("Isolate Data Register r14") {
       // 注意：循环的最后一次迭代会执行 bne(rj=10, rd=11, offset=-28)，但它不会跳转，然后会执行 bne(rj=0, rd=0, offset=0)
       // 所以循环体是完整执行 64 次的。
       val expectedTotalCommitted = numInitInstructions + (numIterations * numLoopInstructions) + numHaltInstructions
-      // val expectedTotalCommitted = 10
 
       // 运行模拟直到提交数量达到预期
       var currentCommitted = 0
@@ -530,13 +538,6 @@ testOnly("Isolate Data Register r14") {
         fib_curr = expected_fib
       }
       dSram.io.tb_readEnable #= false
-
-      LabHelper.ramdump(
-        sram = dSram,
-        vaddr = BigInt("80400000", 16),
-        size = 256, // Dump 256 bytes (0x100)
-        filename = "dsram_dump.bin"
-      )(cd.get)
 
       println("--- LabSpec Test Passed ---")
     }

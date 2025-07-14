@@ -30,7 +30,7 @@ class BusyTableTestSetupPlugin(
     clearPort2 <> testIO.clearPorts(1)
     
     // Connect busy bits output
-    testIO.busyBitsOut := busyTableService.getBusyBits()
+    testIO.busyBitsOut := busyTableService.getBusyBitsComb()
   }
 }
 

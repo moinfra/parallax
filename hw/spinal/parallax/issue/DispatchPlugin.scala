@@ -25,37 +25,71 @@ class DispatchPlugin(pCfg: PipelineConfig) extends Plugin with LockedImpl {
   val logic = create late new Area {
     lock.await()
     val s3_dispatch = setup.s3_dispatch
-    val busyBits = setup.busyTableService.getBusyBits()
+    val busyBitsReg = setup.busyTableService.getBusyBitsReg()
     val iqRegs = setup.iqService.getRegistrations
 
     // 强硬断言：IQ注册列表不能为空
     assert(iqRegs.nonEmpty, "DispatchPlugin: No IQ registrations found! This indicates a retain/release timing issue.")
 
     val uopIn = s3_dispatch(setup.issuePpl.signals.ALLOCATED_UOPS)(0)
-    val decoded = uopIn.decoded
-    val rename = uopIn.rename
+    val physSrc1 = uopIn.rename.physSrc1.idx
+    val physSrc2 = uopIn.rename.physSrc2.idx
 
-    // 查询BusyTable以确定初始就绪状态
-    val src1InitialReady = !decoded.useArchSrc1 || !busyBits(rename.physSrc1.idx)
-    val src2InitialReady = !decoded.useArchSrc2 || !busyBits(rename.physSrc2.idx)
+    // --- 检查与 physSrc1 的冲突 ---
+    val uopInS1 = setup.issuePpl.pipeline.s1_rename(setup.issuePpl.signals.RENAMED_UOPS)(0)
+    val uopInS2 = setup.issuePpl.pipeline.s2_rob_alloc(setup.issuePpl.signals.ALLOCATED_UOPS)(0)
+    val physSrc1ConflictS1 = 
+        uopInS1.decoded.isValid && 
+        uopInS1.rename.allocatesPhysDest && 
+        uopInS1.rename.physDest.idx === physSrc1
     
+    // 检查指令 X 的源，是否与指令 Z 的目标冲突
+    val physSrc1ConflictS2 = 
+        uopInS2.decoded.isValid &&
+        uopInS2.rename.allocatesPhysDest &&
+        uopInS2.rename.physDest.idx === physSrc1
+    
+    // --- 检查与 physSrc2 的冲突 (逻辑同上) ---
+    val physSrc2ConflictS1 = 
+        uopInS1.decoded.isValid && 
+        uopInS1.rename.allocatesPhysDest && 
+        uopInS1.rename.physDest.idx === physSrc2
+    
+    val physSrc2ConflictS2 = 
+        uopInS2.decoded.isValid &&
+        uopInS2.rename.allocatesPhysDest &&
+        uopInS2.rename.physDest.idx === physSrc2
+
+    val clearBypass = setup.busyTableService.getClearBypass()
+
+    val src1SetBypass = physSrc1ConflictS1 || physSrc1ConflictS2
+    val src2SetBypass = physSrc2ConflictS1 || physSrc2ConflictS2
+
+    // --- 修正后的最终就绪逻辑 (紧凑版) ---
+    val src1ReadyCandidate = !busyBitsReg(physSrc1) || clearBypass(physSrc1)
+    val src1InitialReady = !uopIn.decoded.useArchSrc1 || (src1ReadyCandidate && !src1SetBypass)
+
+    val src2ReadyCandidate = !busyBitsReg(physSrc2) || clearBypass(physSrc2)
+    val src2InitialReady = !uopIn.decoded.useArchSrc2 || (src2ReadyCandidate && !src2SetBypass)
+
+
     // --- 路由和停顿逻辑 ---
     val iqPorts = iqRegs.map(_._2)
     val dispatchOH = B(iqRegs.map { case (uopCodes, _) =>
-      uopCodes.map(decoded.uopCode === _).orR
+      uopCodes.map(uopIn.decoded.uopCode === _).orR
     })
     val destinationIqReady = MuxOH(dispatchOH, Vec(iqPorts.map(_.ready)))
 
     // 停顿条件：当本阶段有效，且指令有效，但目标IQ已满时，停顿流水线。
     // 【修正】: 移除了 isRealOperation 的判断，因为无效指令在Decode阶段已被过滤。
-    s3_dispatch.haltWhen(s3_dispatch.isValid && decoded.isValid && !destinationIqReady)
+    s3_dispatch.haltWhen(s3_dispatch.isValid && uopIn.decoded.isValid && !destinationIqReady)
     
     // --- 输出驱动 ---
     for (((_, port), i) <- iqRegs.zipWithIndex) {
       val isTarget = dispatchOH(i)
       
       // 【修正】: 移除了 isRealOperation 的判断
-      port.valid := s3_dispatch.isFiring && decoded.isValid && isTarget
+      port.valid := s3_dispatch.isFiring && uopIn.decoded.isValid && isTarget
 
       when(port.valid) { // 仅在驱动时赋值，避免latch
           port.payload.uop             := uopIn
@@ -67,9 +101,9 @@ class DispatchPlugin(pCfg: PipelineConfig) extends Plugin with LockedImpl {
     }
     
     // --- 日志和收尾 ---
-    when(s3_dispatch.isFiring && decoded.isValid) {
+    when(s3_dispatch.isFiring && uopIn.decoded.isValid) {
       ParallaxSim.log(
-        L"DispatchPlugin: Firing robPtr=${uopIn.robPtr} (UopCode=${decoded.uopCode}), " :+
+        L"DispatchPlugin: Firing robPtr=${uopIn.robPtr} (UopCode=${uopIn.decoded.uopCode}), " :+
         L"s1_ready=${src1InitialReady}, s2_ready=${src2InitialReady}"
       )
     }
