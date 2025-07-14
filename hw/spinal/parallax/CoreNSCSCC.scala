@@ -22,7 +22,7 @@ import parallax.components.ifu._
 import parallax.components.memory._
 import parallax.components.dcache2._
 import scala.collection.mutable.ArrayBuffer
-import parallax.components.display.SevenSegmentDisplayController
+import parallax.components.display.EightSegmentDisplayController
 
 // CoreNSCSCC IO Bundle - matches thinpad_top.v interface exactly
 case class CoreNSCSCCIo(traceCommit: Boolean = false) extends Bundle {
@@ -491,26 +491,48 @@ class CoreNSCSCC(traceCommit: Boolean = false) extends Component {
     io.commitStats := commitService.getCommitStats()
   }
 
+  val displayArea = new Area {
+    val divider = new FrequencyDivider(100000000, 1)  // 100MHz -> 1Hz
+    val updateTick = divider.io.tick
+    
+    val displayValue = Reg(UInt(8 bits)) init(0)
+    when(updateTick) {
+      displayValue := baseRamIo.addr(7 downto 0)
+    }
 
-  // Instantiate the 7-segment display controller
-  val dpyController = new SevenSegmentDisplayController()
-  
-  // Connect clock and reset
-  // dpyController.io.clk := ClockDomain.current.readClockWire
-  // dpyController.io.rst := ClockDomain.current.readResetWire
+    val dpToggle = Reg(Bool()) init(False)
+    when(updateTick) {
+      dpToggle := !dpToggle
+    }
+  }
 
-  // val fetchService = framework.getService[SimpleFetchPipelineService]
-  // val fetchout = fetchService.fetchOutput()
-
-  // Connect the last 8 bits of the committed PC to the display controller
-  // PC is 32-bit, so committedPc(7 downto 0) gives the last byte.
-  // This will be displayed as two hexadecimal digits (00-FF).
-  // dpyController.io.value := (Mux[UInt](fetchout.valid, fetchout.payload.pc(7 downto 0), 0xff))
-  dpyController.io.value := 0xff
+  val dpyController = new EightSegmentDisplayController()
+  dpyController.io.value := displayArea.displayValue
+  dpyController.io.dp0 := !displayArea.dpToggle
+  dpyController.io.dp1 := displayArea.dpToggle
 
   // Connect the display controller outputs to the top-level IO
   io.dpy0 := dpyController.io.dpy0_out
   io.dpy1 := dpyController.io.dpy1_out
+}
+
+class FrequencyDivider(inputFreq: Int, outputFreq: Int) extends Component {
+  val io = new Bundle {
+    val tick = out Bool()
+  }
+  
+  val divideRatio = inputFreq / outputFreq
+  val counterMax = divideRatio - 1
+  val counterWidth = log2Up(divideRatio)
+  
+  val counter = Reg(UInt(counterWidth bits)) init(0)
+  io.tick := counter === counterMax
+  
+  when(io.tick) {
+    counter := 0
+  } otherwise {
+    counter := counter + 1
+  }
 }
 
 // Verilog生成器

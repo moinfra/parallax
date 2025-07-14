@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 3105a33b457518a7afeed8b0527b4d8b9dab2383
 // Component : CoreNSCSCC
-// Git hash  : 468e433df15c4e2bc0f16cfc5607830e45526440
+// Git hash  : 626840fcba05056e053947f4e5067f9cd4a6afea
 
 `timescale 1ns/1ps
 
@@ -244,6 +244,7 @@ module CoreNSCSCC (
   wire       [1:0]    axi4WriteOnlyArbiter_5_io_inputs_0_aw_payload_id;
   wire       [1:0]    axi4WriteOnlyArbiter_5_io_inputs_1_aw_payload_id;
   wire       [1:0]    axi4WriteOnlyArbiter_5_io_inputs_2_aw_payload_id;
+  wire                dpyController_io_dp0;
   reg        [1:0]    BpuPipelinePlugin_logic_pht_spinal_port0;
   reg        [1:0]    BpuPipelinePlugin_logic_pht_spinal_port1;
   reg        [54:0]   BpuPipelinePlugin_logic_btb_spinal_port0;
@@ -1290,6 +1291,7 @@ module CoreNSCSCC (
   wire       [3:0]    axi4WriteOnlyArbiter_5_io_output_w_payload_strb;
   wire                axi4WriteOnlyArbiter_5_io_output_w_payload_last;
   wire                axi4WriteOnlyArbiter_5_io_output_b_ready;
+  wire                displayArea_divider_io_tick;
   wire       [7:0]    dpyController_io_dpy0_out;
   wire       [7:0]    dpyController_io_dpy1_out;
   wire       [9:0]    _zz_BpuPipelinePlugin_logic_pht_port;
@@ -4646,6 +4648,8 @@ module CoreNSCSCC (
   wire       [2:0]    io_outputs_2_aw_validPipe_payload_prot_2;
   reg                 io_outputs_2_aw_rValid_2;
   wire                io_outputs_2_aw_validPipe_fire_2;
+  reg        [7:0]    displayArea_displayValue;
+  reg                 displayArea_dpToggle;
   reg        [2:0]    SimpleFetchPipelinePlugin_logic_fsm_stateReg;
   reg        [2:0]    SimpleFetchPipelinePlugin_logic_fsm_stateNext;
   wire       [31:0]   _zz_36;
@@ -7495,8 +7499,15 @@ module CoreNSCSCC (
     .clk                          (clk                                                                                   ), //i
     .reset                        (reset                                                                                 )  //i
   );
-  SevenSegmentDisplayController dpyController (
-    .io_value    (8'hff                         ), //i
+  FrequencyDivider displayArea_divider (
+    .io_tick (displayArea_divider_io_tick), //o
+    .clk     (clk                        ), //i
+    .reset   (reset                      )  //i
+  );
+  EightSegmentDisplayController dpyController (
+    .io_value    (displayArea_displayValue[7:0] ), //i
+    .io_dp0      (dpyController_io_dp0          ), //i
+    .io_dp1      (displayArea_dpToggle          ), //i
     .io_dpy0_out (dpyController_io_dpy0_out[7:0]), //o
     .io_dpy1_out (dpyController_io_dpy1_out[7:0])  //o
   );
@@ -20473,6 +20484,7 @@ module CoreNSCSCC (
   assign axi4WriteOnlyArbiter_5_io_inputs_0_aw_payload_id = {1'd0, io_outputs_2_aw_validPipe_payload_id};
   assign axi4WriteOnlyArbiter_5_io_inputs_1_aw_payload_id = {1'd0, io_outputs_2_aw_validPipe_payload_id_1};
   assign axi4WriteOnlyArbiter_5_io_inputs_2_aw_payload_id = {1'd0, io_outputs_2_aw_validPipe_payload_id_2};
+  assign dpyController_io_dp0 = (! displayArea_dpToggle);
   assign io_dpy0 = dpyController_io_dpy0_out;
   assign io_dpy1 = dpyController_io_dpy1_out;
   always @(*) begin
@@ -20739,6 +20751,8 @@ module CoreNSCSCC (
       io_outputs_0_aw_rValid_2 <= 1'b0;
       io_outputs_1_aw_rValid_2 <= 1'b0;
       io_outputs_2_aw_rValid_2 <= 1'b0;
+      displayArea_displayValue <= 8'h0;
+      displayArea_dpToggle <= 1'b0;
       SimpleFetchPipelinePlugin_logic_fsm_stateReg <= SimpleFetchPipelinePlugin_logic_fsm_BOOT;
     end else begin
       if(io_mem_toAxi4_awRaw_fire) begin
@@ -22347,6 +22361,12 @@ module CoreNSCSCC (
       if(io_outputs_2_aw_validPipe_fire_2) begin
         io_outputs_2_aw_rValid_2 <= 1'b0;
       end
+      if(displayArea_divider_io_tick) begin
+        displayArea_displayValue <= CoreMemSysPlugin_hw_baseramCtrl_io_ram_addr[7 : 0];
+      end
+      if(displayArea_divider_io_tick) begin
+        displayArea_dpToggle <= (! displayArea_dpToggle);
+      end
       SimpleFetchPipelinePlugin_logic_fsm_stateReg <= SimpleFetchPipelinePlugin_logic_fsm_stateNext;
       case(SimpleFetchPipelinePlugin_logic_fsm_stateReg)
         SimpleFetchPipelinePlugin_logic_fsm_IDLE : begin
@@ -22904,129 +22924,153 @@ module CoreNSCSCC (
 
 endmodule
 
-module SevenSegmentDisplayController (
+module EightSegmentDisplayController (
   input  wire [7:0]    io_value,
+  input  wire          io_dp0,
+  input  wire          io_dp1,
   output wire [7:0]    io_dpy0_out,
   output wire [7:0]    io_dpy1_out
 );
 
   wire       [3:0]    displayArea_digit0;
   wire       [3:0]    displayArea_digit1;
-  reg        [7:0]    _zz_io_dpy0_out;
-  reg        [7:0]    _zz_io_dpy1_out;
+  reg        [6:0]    displayArea_seg0;
+  reg        [6:0]    displayArea_seg1;
 
   assign displayArea_digit0 = io_value[3 : 0];
   assign displayArea_digit1 = io_value[7 : 4];
   always @(*) begin
     case(displayArea_digit0)
       4'b0000 : begin
-        _zz_io_dpy0_out = 8'h3f;
+        displayArea_seg0 = 7'h3f;
       end
       4'b0001 : begin
-        _zz_io_dpy0_out = 8'h06;
+        displayArea_seg0 = 7'h06;
       end
       4'b0010 : begin
-        _zz_io_dpy0_out = 8'h5b;
+        displayArea_seg0 = 7'h5b;
       end
       4'b0011 : begin
-        _zz_io_dpy0_out = 8'h4f;
+        displayArea_seg0 = 7'h4f;
       end
       4'b0100 : begin
-        _zz_io_dpy0_out = 8'h66;
+        displayArea_seg0 = 7'h66;
       end
       4'b0101 : begin
-        _zz_io_dpy0_out = 8'h6d;
+        displayArea_seg0 = 7'h6d;
       end
       4'b0110 : begin
-        _zz_io_dpy0_out = 8'h7d;
+        displayArea_seg0 = 7'h7d;
       end
       4'b0111 : begin
-        _zz_io_dpy0_out = 8'h07;
+        displayArea_seg0 = 7'h07;
       end
       4'b1000 : begin
-        _zz_io_dpy0_out = 8'h7f;
+        displayArea_seg0 = 7'h7f;
       end
       4'b1001 : begin
-        _zz_io_dpy0_out = 8'h6f;
+        displayArea_seg0 = 7'h6f;
       end
       4'b1010 : begin
-        _zz_io_dpy0_out = 8'h77;
+        displayArea_seg0 = 7'h77;
       end
       4'b1011 : begin
-        _zz_io_dpy0_out = 8'h7c;
+        displayArea_seg0 = 7'h7c;
       end
       4'b1100 : begin
-        _zz_io_dpy0_out = 8'h39;
+        displayArea_seg0 = 7'h39;
       end
       4'b1101 : begin
-        _zz_io_dpy0_out = 8'h5e;
+        displayArea_seg0 = 7'h5e;
       end
       4'b1110 : begin
-        _zz_io_dpy0_out = 8'h79;
+        displayArea_seg0 = 7'h79;
       end
       default : begin
-        _zz_io_dpy0_out = 8'h71;
+        displayArea_seg0 = 7'h71;
       end
     endcase
-    _zz_io_dpy0_out[7] = 1'b0;
   end
 
-  assign io_dpy0_out = _zz_io_dpy0_out;
   always @(*) begin
     case(displayArea_digit1)
       4'b0000 : begin
-        _zz_io_dpy1_out = 8'h3f;
+        displayArea_seg1 = 7'h3f;
       end
       4'b0001 : begin
-        _zz_io_dpy1_out = 8'h06;
+        displayArea_seg1 = 7'h06;
       end
       4'b0010 : begin
-        _zz_io_dpy1_out = 8'h5b;
+        displayArea_seg1 = 7'h5b;
       end
       4'b0011 : begin
-        _zz_io_dpy1_out = 8'h4f;
+        displayArea_seg1 = 7'h4f;
       end
       4'b0100 : begin
-        _zz_io_dpy1_out = 8'h66;
+        displayArea_seg1 = 7'h66;
       end
       4'b0101 : begin
-        _zz_io_dpy1_out = 8'h6d;
+        displayArea_seg1 = 7'h6d;
       end
       4'b0110 : begin
-        _zz_io_dpy1_out = 8'h7d;
+        displayArea_seg1 = 7'h7d;
       end
       4'b0111 : begin
-        _zz_io_dpy1_out = 8'h07;
+        displayArea_seg1 = 7'h07;
       end
       4'b1000 : begin
-        _zz_io_dpy1_out = 8'h7f;
+        displayArea_seg1 = 7'h7f;
       end
       4'b1001 : begin
-        _zz_io_dpy1_out = 8'h6f;
+        displayArea_seg1 = 7'h6f;
       end
       4'b1010 : begin
-        _zz_io_dpy1_out = 8'h77;
+        displayArea_seg1 = 7'h77;
       end
       4'b1011 : begin
-        _zz_io_dpy1_out = 8'h7c;
+        displayArea_seg1 = 7'h7c;
       end
       4'b1100 : begin
-        _zz_io_dpy1_out = 8'h39;
+        displayArea_seg1 = 7'h39;
       end
       4'b1101 : begin
-        _zz_io_dpy1_out = 8'h5e;
+        displayArea_seg1 = 7'h5e;
       end
       4'b1110 : begin
-        _zz_io_dpy1_out = 8'h79;
+        displayArea_seg1 = 7'h79;
       end
       default : begin
-        _zz_io_dpy1_out = 8'h71;
+        displayArea_seg1 = 7'h71;
       end
     endcase
-    _zz_io_dpy1_out[7] = 1'b0;
   end
 
-  assign io_dpy1_out = _zz_io_dpy1_out;
+  assign io_dpy0_out = {io_dp0,displayArea_seg0};
+  assign io_dpy1_out = {io_dp1,displayArea_seg1};
+
+endmodule
+
+module FrequencyDivider (
+  output wire          io_tick,
+  input  wire          clk,
+  input  wire          reset
+);
+
+  reg        [26:0]   counter;
+
+  assign io_tick = (counter == 27'h5f5e0ff);
+  always @(posedge clk or posedge reset) begin
+    if(reset) begin
+      counter <= 27'h0;
+    end else begin
+      if(io_tick) begin
+        counter <= 27'h0;
+      end else begin
+        counter <= (counter + 27'h0000001);
+      end
+    end
+  end
+
 
 endmodule
 
