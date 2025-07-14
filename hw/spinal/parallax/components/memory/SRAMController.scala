@@ -15,6 +15,7 @@ case class SRAMConfig(
     virtualBaseAddress: BigInt = 0x0,
     sizeBytes: BigInt,
     readWaitCycles: Int = 0,
+    writeWaitCycles: Int = 0,
     sramByteEnableIsActiveLow: Boolean = true,
     // --- NEW ---: 添加字地址模式配置
     useWordAddressing: Boolean = false,
@@ -60,7 +61,7 @@ case class SRAMIO(c: SRAMConfig) extends Bundle with IMasterSlave {
 }
 
 // SRAMController 组件
-class SRAMController(axiConfig: Axi4Config, config: SRAMConfig) extends Component {
+class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends Component {
   require(
     axiConfig.dataWidth == config.dataWidth,
     s"AXI and SRAM data width must match axiConfig.dataWidth = ${axiConfig.dataWidth} ExtSRAMConfig.dataWidth = ${config.dataWidth}"
@@ -72,6 +73,7 @@ class SRAMController(axiConfig: Axi4Config, config: SRAMConfig) extends Componen
 
   ParallaxLogger.debug(s"Creating SRAMController with axiConfig=${axiConfig}, config=${config}")
   val hasReadWaitCycles = config.readWaitCycles > 0
+  val hasWriteWaitCycles = config.writeWaitCycles > 0
   val io = new Bundle {
     val axi = slave(Axi4(axiConfig))
     val ram = master(SRAMIO(config))
@@ -119,6 +121,7 @@ class SRAMController(axiConfig: Axi4Config, config: SRAMConfig) extends Componen
     val current_sram_addr = Reg(UInt(config.addressWidth bits))
     val read_data_buffer = Reg(Bits(config.dataWidth bits))
     val read_wait_counter = hasReadWaitCycles generate Reg(UInt(log2Up(config.readWaitCycles + 1) bits))
+    val write_wait_counter = hasWriteWaitCycles generate Reg(UInt(log2Up(config.writeWaitCycles + 1) bits))
     val transaction_error_occurred = Reg(Bool()) init (False)
 
     val read_priority = Reg(Bool()) init (False)
@@ -132,7 +135,6 @@ class SRAMController(axiConfig: Axi4Config, config: SRAMConfig) extends Componen
         sram_perform_write := False
       }
       whenIsActive {
-        if (config.enableLog) report(L"SRAMController: IDLE, read_priority=${read_priority}")
         io.ram.ce_n := True
         io.ram.oe_n := True
         io.ram.we_n := True
@@ -169,6 +171,12 @@ class SRAMController(axiConfig: Axi4Config, config: SRAMConfig) extends Componen
           } else {
               True
           }
+          // 在字地址模式下，检查传输大小是否与字大小兼容
+          val size_compatible_if_needed = if (config.useWordAddressing && axiConfig.useSize) {
+              io.axi.aw.size === log2Up(config.bytesPerWord)
+          } else {
+              True
+          }
 
           when(io.axi.aw.burst =/= Axi4.burst.INCR) {
             if (config.enableLog) report(L"SRAMController: AW Error - Unsupported burst type: ${io.axi.aw.burst}")
@@ -176,6 +184,10 @@ class SRAMController(axiConfig: Axi4Config, config: SRAMConfig) extends Componen
             goto(WRITE_DATA_ERROR_CONSUME)
           } elsewhen (!addr_aligned || !word_aligned_if_needed) {
             if (config.enableLog) report(L"SRAMController: AW Error - Address unaligned: 0x${io.axi.aw.addr} for size ${bytesPerBeat} or word boundary")
+            transaction_error_occurred := True
+            goto(WRITE_DATA_ERROR_CONSUME)
+          } elsewhen (!size_compatible_if_needed) {
+            if (config.enableLog) report(L"SRAMController: AW Error - Incompatible size: ${io.axi.aw.size} for word addressing mode")
             transaction_error_occurred := True
             goto(WRITE_DATA_ERROR_CONSUME)
           } elsewhen (byte_offset_addr.asSInt < 0 || end_byte_offset_addr >= config.sizeBytes) {
@@ -213,6 +225,12 @@ class SRAMController(axiConfig: Axi4Config, config: SRAMConfig) extends Componen
           } else {
               True
           }
+          // 在字地址模式下，检查传输大小是否与字大小兼容
+          val size_compatible_if_needed = if (config.useWordAddressing && axiConfig.useSize) {
+              io.axi.ar.size === log2Up(config.bytesPerWord)
+          } else {
+              True
+          }
 
           when(io.axi.ar.burst =/= Axi4.burst.INCR) {
             if (config.enableLog) report(L"SRAMController: AR Error - Unsupported burst type: ${io.axi.ar.burst}")
@@ -220,6 +238,10 @@ class SRAMController(axiConfig: Axi4Config, config: SRAMConfig) extends Componen
             goto(READ_RESPONSE_ERROR)
           } elsewhen (!addr_aligned || !word_aligned_if_needed) {
             if (config.enableLog) report(L"SRAMController: AR Error - Address unaligned: 0x${io.axi.ar.addr} for size ${bytesPerBeat} or word boundary")
+            transaction_error_occurred := True
+            goto(READ_RESPONSE_ERROR)
+          } elsewhen (!size_compatible_if_needed) {
+            if (config.enableLog) report(L"SRAMController: AR Error - Incompatible size: ${io.axi.ar.size} for word addressing mode")
             transaction_error_occurred := True
             goto(READ_RESPONSE_ERROR)
           } elsewhen (byte_offset_addr.asSInt < 0 || end_byte_offset_addr >= config.sizeBytes) {
@@ -275,7 +297,37 @@ class SRAMController(axiConfig: Axi4Config, config: SRAMConfig) extends Componen
           } else {
             sram_write_be_n_reg := io.axi.w.strb
           }
+          
+          if (hasWriteWaitCycles && config.writeWaitCycles > 0) {
+            hasWriteWaitCycles generate { write_wait_counter := 0 }
+            goto(WRITE_WAIT)
+          } else {
+            sram_perform_write := True
+          }
+        }
+      }
+    }
+
+    val WRITE_WAIT: State = new State {
+      whenIsActive {
+        if (config.enableLog)
+          report(
+            L"SRAMController: WRITE_WAIT. SRAM Addr=0x${sram_write_addr_reg}, WaitCounter=${hasWriteWaitCycles generate write_wait_counter}"
+          )
+        
+        io.axi.w.ready := False
+        io.ram.ce_n := False
+        io.ram.oe_n := True
+        io.ram.addr := sram_write_addr_reg
+        io.ram.we_n := False
+        io.ram.be_n := sram_write_be_n_reg
+
+        val waitCond = if (hasWriteWaitCycles) write_wait_counter === config.writeWaitCycles else True
+        when(waitCond) {
           sram_perform_write := True
+          goto(WRITE_DATA)
+        } otherwise {
+          hasWriteWaitCycles generate { write_wait_counter := write_wait_counter + 1 }
         }
       }
     }
@@ -427,7 +479,7 @@ class SRAMController(axiConfig: Axi4Config, config: SRAMConfig) extends Componen
         val is_last_beat = burst_count_remaining === 1
         if (config.enableLog)
           report(
-            L"SRAMController: READ_RESPONSE_ERROR. ID=${ar_cmd_reg.id}, BurstCountRem=${burst_count_remaining}, Resp=${Axi4.resp.SLVERR}, Last=${is_last_beat}"
+            L"SRAMController: READ_RESPONSE_ERROR. ID=${ar_cmd_reg.id}, BurstCountRem=${burst_count_remaining}, Resp=${Axi4.resp.SLVERR}, Last=${is_last_beat}, r.valid=${io.axi.r.valid}, r.ready=${io.axi.r.ready}, r.fire=${io.axi.r.fire}"
           )
 
         io.ram.ce_n := True
@@ -442,8 +494,12 @@ class SRAMController(axiConfig: Axi4Config, config: SRAMConfig) extends Componen
         io.axi.r.payload.last := is_last_beat
 
         when(io.axi.r.fire) {
+          if (config.enableLog)
+            report(L"SRAMController: READ_RESPONSE_ERROR - r.fire detected! BurstCountRem=${burst_count_remaining}, is_last_beat=${is_last_beat}")
           burst_count_remaining := burst_count_remaining - 1
           when(is_last_beat) {
+            if (config.enableLog)
+              report(L"SRAMController: READ_RESPONSE_ERROR - Going to IDLE")
             goto(IDLE)
           }
         }
@@ -483,6 +539,7 @@ object SRAMControllerGen extends App {
     sizeBytes = 1 << 20, // 1MB
     useWordAddressing = false, // 明确禁用字地址模式
     readWaitCycles = 0,
+    writeWaitCycles = 0,
     sramByteEnableIsActiveLow = true,
     enableLog = true
   )
@@ -506,6 +563,7 @@ object SRAMControllerGen extends App {
     sizeBytes = 4 * 1024 * 1024, // 4MB
     useWordAddressing = true,    // 启用字地址模式
     readWaitCycles = 1,
+    writeWaitCycles = 1,
     sramByteEnableIsActiveLow = true,
     enableLog = true
   )
