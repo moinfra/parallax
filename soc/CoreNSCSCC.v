@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 3105a33b457518a7afeed8b0527b4d8b9dab2383
 // Component : CoreNSCSCC
-// Git hash  : 626840fcba05056e053947f4e5067f9cd4a6afea
+// Git hash  : 16d0fef52d5f4211e1e9f842821c33d08f4bbc8f
 
 `timescale 1ns/1ps
 
@@ -202,6 +202,7 @@ module CoreNSCSCC (
   wire       [5:0]    SuperScalarFreeListPlugin_early_setup_freeList_io_free_0_physReg;
   reg                 SuperScalarFreeListPlugin_early_setup_freeList_io_restoreState_valid;
   reg        [63:0]   SuperScalarFreeListPlugin_early_setup_freeList_io_restoreState_payload_freeMask;
+  wire                DebugDisplayPlugin_hw_dpyController_io_dp0;
   wire       [31:0]   lA32RSimpleDecoder_1_io_pcIn;
   wire       [0:0]    streamDemux_1_io_select;
   wire       [0:0]    CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_cmd_payload_id;
@@ -244,7 +245,6 @@ module CoreNSCSCC (
   wire       [1:0]    axi4WriteOnlyArbiter_5_io_inputs_0_aw_payload_id;
   wire       [1:0]    axi4WriteOnlyArbiter_5_io_inputs_1_aw_payload_id;
   wire       [1:0]    axi4WriteOnlyArbiter_5_io_inputs_2_aw_payload_id;
-  wire                dpyController_io_dp0;
   reg        [1:0]    BpuPipelinePlugin_logic_pht_spinal_port0;
   reg        [1:0]    BpuPipelinePlugin_logic_pht_spinal_port1;
   reg        [54:0]   BpuPipelinePlugin_logic_btb_spinal_port0;
@@ -585,6 +585,8 @@ module CoreNSCSCC (
   wire                RenamePlugin_early_setup_renameUnit_io_ratWritePorts_0_wen;
   wire       [4:0]    RenamePlugin_early_setup_renameUnit_io_ratWritePorts_0_archReg;
   wire       [5:0]    RenamePlugin_early_setup_renameUnit_io_ratWritePorts_0_physReg;
+  wire       [7:0]    DebugDisplayPlugin_hw_dpyController_io_dpy0_out;
+  wire       [7:0]    DebugDisplayPlugin_hw_dpyController_io_dpy1_out;
   wire                IFUPlugin_logic_ifu_io_cpuPort_cmd_ready;
   wire                IFUPlugin_logic_ifu_io_cpuPort_rsp_valid;
   wire       [31:0]   IFUPlugin_logic_ifu_io_cpuPort_rsp_payload_pc;
@@ -770,6 +772,7 @@ module CoreNSCSCC (
   wire       [31:0]   issueQueueComponent_5_io_issueOut_payload_imm;
   wire                issueQueueComponent_5_io_issueOut_payload_usePc;
   wire       [31:0]   issueQueueComponent_5_io_issueOut_payload_pcData;
+  wire                DebugDisplayPlugin_logic_displayArea_divider_io_tick;
   wire                streamDemux_1_io_input_ready;
   wire                streamDemux_1_io_outputs_0_valid;
   wire       [2:0]    streamDemux_1_io_outputs_0_payload_qPtr;
@@ -1291,9 +1294,6 @@ module CoreNSCSCC (
   wire       [3:0]    axi4WriteOnlyArbiter_5_io_output_w_payload_strb;
   wire                axi4WriteOnlyArbiter_5_io_output_w_payload_last;
   wire                axi4WriteOnlyArbiter_5_io_output_b_ready;
-  wire                displayArea_divider_io_tick;
-  wire       [7:0]    dpyController_io_dpy0_out;
-  wire       [7:0]    dpyController_io_dpy1_out;
   wire       [9:0]    _zz_BpuPipelinePlugin_logic_pht_port;
   wire       [7:0]    _zz_BpuPipelinePlugin_logic_btb_port;
   wire       [54:0]   _zz_BpuPipelinePlugin_logic_btb_port_1;
@@ -1338,7 +1338,7 @@ module CoreNSCSCC (
   wire       [3:0]    _zz_LoadQueuePlugin_logic_loadQueue_pushOh;
   wire       [3:0]    _zz__zz_when_PhysicalRegFile_l141_3;
   reg        [5:0]    _zz__zz_when_PhysicalRegFile_l141_1;
-  reg        [31:0]   _zz__zz_26;
+  reg        [31:0]   _zz__zz_28;
   wire                _zz_PhysicalRegFilePlugin_logic_regFile_port;
   wire       [1:0]    _zz__zz_StoreBufferPlugin_logic_forwardingLogic_loadMask_1;
   wire       [3:0]    _zz__zz_StoreBufferPlugin_logic_forwardingLogic_loadMask;
@@ -1358,6 +1358,7 @@ module CoreNSCSCC (
   wire       [7:0]    _zz_uartAxi_r_payload_id;
   wire       [3:0]    _zz_io_uart_aw_bits_id;
   wire       [7:0]    _zz_uartAxi_b_payload_id;
+  wire       [7:0]    _zz_when_Debug_l48;
   wire                s3_Dispatch_isFlushingRoot;
   wire                s2_RobAlloc_isFlushingRoot;
   wire                s1_Rename_isFlushingRoot;
@@ -2149,6 +2150,7 @@ module CoreNSCSCC (
   reg                 LsuEU_LsuEuPlugin_euResult_destIsFpr;
   wire       [4:0]    DispatchPlugin_logic_iqRegs_2_0_0;
   wire       [4:0]    DispatchPlugin_logic_iqRegs_2_0_1;
+  reg        [7:0]    DebugDisplayPlugin_valueReg;
   wire                DataCachePlugin_setup_writebackBusy;
   wire       [1:0]    DataCachePlugin_setup_refillCompletions;
   wire                DataCachePlugin_setup_dcacheMaster_aw_valid;
@@ -2227,6 +2229,9 @@ module CoreNSCSCC (
   wire       [31:0]   io_mem_toAxi4_w_payload_fragment_address;
   wire       [31:0]   io_mem_toAxi4_w_payload_fragment_data;
   wire       [0:0]    io_mem_toAxi4_w_payload_fragment_id;
+  reg                 _zz_3;
+  reg                 _zz_4;
+  wire       [0:0]    _zz_DebugDisplayPlugin_valueReg;
   wire                IFUPlugin_setup_ifuDCacheLoadPort_cmd_valid;
   wire                IFUPlugin_setup_ifuDCacheLoadPort_cmd_ready;
   wire       [31:0]   IFUPlugin_setup_ifuDCacheLoadPort_cmd_payload_virtual;
@@ -2506,7 +2511,7 @@ module CoreNSCSCC (
   wire       [0:0]    CommitPlugin_logic_commitCount;
   wire                CommitPlugin_logic_commitAckMasks_0;
   wire                CommitPlugin_logic_commitIdleThisCycle;
-  wire                _zz_8;
+  wire                _zz_10;
   reg                 CommitPlugin_logic_idleJustCommitted;
   wire                CommitPlugin_logic_commitSlotLogs_0_valid;
   wire                CommitPlugin_logic_commitSlotLogs_0_canCommit;
@@ -2521,9 +2526,9 @@ module CoreNSCSCC (
   wire       [31:0]   CommitPlugin_logic_fwd_totalCommitted;
   wire       [31:0]   CommitPlugin_logic_fwd_robFlushCount;
   wire       [31:0]   CommitPlugin_logic_fwd_physRegRecycled;
-  wire                _zz_9;
-  wire       [4:0]    _zz_10;
-  wire       [1:0]    _zz_11;
+  wire                _zz_11;
+  wire       [4:0]    _zz_12;
+  wire       [1:0]    _zz_13;
   wire       [31:0]   DecodePlugin_logic_decodedUopsOutputVec_0_pc;
   wire                DecodePlugin_logic_decodedUopsOutputVec_0_isValid;
   wire       [4:0]    DecodePlugin_logic_decodedUopsOutputVec_0_uopCode;
@@ -3436,6 +3441,7 @@ module CoreNSCSCC (
   wire                when_DispatchPlugin_l70;
   wire       [31:0]   CoreNSCSCCSetupPlugin_logic_instructionVec_0;
   wire       [31:0]   CoreNSCSCCSetupPlugin_logic_instructionVec_1;
+  reg                 DebugDisplayPlugin_logic_displayArea_dpToggle;
   wire                s0_Dispatch_valid;
   reg                 s1_ReadRegs_valid;
   reg                 s2_Execute_valid;
@@ -3449,8 +3455,8 @@ module CoreNSCSCC (
   wire       [1:0]    _zz_io_iqEntryIn_payload_aluCtrl_logicOp;
   wire       [2:0]    _zz_io_iqEntryIn_payload_immUsage;
   wire                s2_Execute_isFiring;
-  wire       [1:0]    _zz_12;
-  wire       [2:0]    _zz_13;
+  wire       [1:0]    _zz_14;
+  wire       [2:0]    _zz_15;
   wire                AluIntEU_AluIntEuPlugin_logicPhase_completesSuccessfully;
   wire                AluIntEU_AluIntEuPlugin_gprWritePort_valid;
   wire       [5:0]    AluIntEU_AluIntEuPlugin_gprWritePort_address;
@@ -3483,7 +3489,7 @@ module CoreNSCSCC (
   reg                 _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken;
   reg                 _zz_when_BranchEuPlugin_l234;
   wire                when_BranchEuPlugin_l234;
-  wire       [3:0]    _zz_14;
+  wire       [3:0]    _zz_16;
   wire                BranchEU_BranchEuPlugin_logicPhase_completesSuccessfully;
   wire                BranchEU_BranchEuPlugin_gprWritePort_valid;
   wire       [5:0]    BranchEU_BranchEuPlugin_gprWritePort_address;
@@ -3893,11 +3899,11 @@ module CoreNSCSCC (
   wire                _zz_LoadQueuePlugin_logic_loadQueue_pushIdx_2;
   wire       [1:0]    LoadQueuePlugin_logic_loadQueue_pushIdx;
   wire                LoadQueuePlugin_logic_pushCmd_fire;
-  wire       [3:0]    _zz_15;
-  wire                _zz_16;
-  wire                _zz_17;
+  wire       [3:0]    _zz_17;
   wire                _zz_18;
   wire                _zz_19;
+  wire                _zz_20;
+  wire                _zz_21;
   wire                LoadQueuePlugin_logic_loadQueue_headIsReadyForFwdQuery;
   wire                when_LoadQueuePlugin_l265;
   wire                when_LoadQueuePlugin_l271;
@@ -3924,7 +3930,7 @@ module CoreNSCSCC (
   wire       [31:0]   _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp;
   wire                _zz_when_PhysicalRegFile_l141;
   wire       [5:0]    _zz_when_PhysicalRegFile_l141_1;
-  wire       [31:0]   _zz_26;
+  wire       [31:0]   _zz_28;
   wire       [3:0]    _zz_when_PhysicalRegFile_l141_2;
   wire       [3:0]    _zz_when_PhysicalRegFile_l141_3;
   wire                _zz_when_PhysicalRegFile_l141_4;
@@ -4131,9 +4137,9 @@ module CoreNSCSCC (
   wire                StoreBufferPlugin_logic_validFall_2;
   wire                StoreBufferPlugin_logic_validFall_3;
   wire                StoreBufferPlugin_logic_canPush;
-  wire                _zz_28;
-  wire                _zz_29;
-  wire       [1:0]    _zz_30;
+  wire                _zz_30;
+  wire                _zz_31;
+  wire       [1:0]    _zz_32;
   wire                _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush;
   wire       [31:0]   _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr;
   wire       [31:0]   _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data;
@@ -4143,11 +4149,11 @@ module CoreNSCSCC (
   wire                _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO;
   wire                _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException;
   wire       [7:0]    _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode;
-  wire       [3:0]    _zz_31;
-  wire                _zz_32;
-  wire                _zz_33;
+  wire       [3:0]    _zz_33;
   wire                _zz_34;
   wire                _zz_35;
+  wire                _zz_36;
+  wire                _zz_37;
   wire                StoreBufferPlugin_logic_sharedWriteCond;
   wire                StoreBufferPlugin_logic_canPopNormalOp;
   wire                StoreBufferPlugin_logic_canPopFlushOp;
@@ -4648,12 +4654,17 @@ module CoreNSCSCC (
   wire       [2:0]    io_outputs_2_aw_validPipe_payload_prot_2;
   reg                 io_outputs_2_aw_rValid_2;
   wire                io_outputs_2_aw_validPipe_fire_2;
-  reg        [7:0]    displayArea_displayValue;
-  reg                 displayArea_dpToggle;
   reg        [2:0]    SimpleFetchPipelinePlugin_logic_fsm_stateReg;
   reg        [2:0]    SimpleFetchPipelinePlugin_logic_fsm_stateNext;
-  wire       [31:0]   _zz_36;
-  wire                when_SimpleFetchPipelinePlugin_l223;
+  reg                 _zz_38;
+  reg                 _zz_39;
+  wire       [4:0]    _zz_DebugDisplayPlugin_valueReg_1;
+  reg                 _zz_40;
+  reg                 _zz_41;
+  wire       [4:0]    _zz_DebugDisplayPlugin_valueReg_2;
+  wire                when_Debug_l48;
+  wire       [31:0]   _zz_42;
+  wire                when_SimpleFetchPipelinePlugin_l229;
   wire                SimpleFetchPipelinePlugin_logic_fsm_onExit_BOOT;
   wire                SimpleFetchPipelinePlugin_logic_fsm_onExit_IDLE;
   wire                SimpleFetchPipelinePlugin_logic_fsm_onExit_WAITING;
@@ -5043,7 +5054,7 @@ module CoreNSCSCC (
       zz_CheckpointManagerPlugin_logic_initialFreeMask[63] = 1'b1;
     end
   endfunction
-  wire [63:0] _zz_37;
+  wire [63:0] _zz_43;
 
   assign _zz_CommitPlugin_commitStatsReg_totalCommitted = {31'd0, CommitPlugin_logic_committedThisCycle_comb};
   assign _zz_CommitPlugin_commitStatsReg_physRegRecycled = {31'd0, CommitPlugin_logic_recycledThisCycle_comb};
@@ -5088,6 +5099,7 @@ module CoreNSCSCC (
   assign _zz_uartAxi_r_payload_id = io_uart_r_bits_id;
   assign _zz_io_uart_aw_bits_id = uartAxi_aw_payload_id;
   assign _zz_uartAxi_b_payload_id = io_uart_b_bits_id;
+  assign _zz_when_Debug_l48 = {3'd0, _zz_DebugDisplayPlugin_valueReg_2};
   assign _zz_BpuPipelinePlugin_logic_pht_port = BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_pc[11 : 2];
   assign _zz_BpuPipelinePlugin_logic_btb_port = BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_pc[9 : 2];
   assign _zz_BpuPipelinePlugin_logic_btb_port_1 = {BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_target,{BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_pc[31 : 10],1'b1}};
@@ -5149,7 +5161,7 @@ module CoreNSCSCC (
   assign PhysicalRegFilePlugin_logic_regFile_spinal_port5 = PhysicalRegFilePlugin_logic_regFile[BranchEU_BranchEuPlugin_gprReadPorts_1_address];
   always @(posedge clk) begin
     if(_zz_PhysicalRegFilePlugin_logic_regFile_port) begin
-      PhysicalRegFilePlugin_logic_regFile[_zz_when_PhysicalRegFile_l141_1] <= _zz_26;
+      PhysicalRegFilePlugin_logic_regFile[_zz_when_PhysicalRegFile_l141_1] <= _zz_28;
     end
   end
 
@@ -5884,6 +5896,13 @@ module CoreNSCSCC (
     .clk                                                      (clk                                                                                          ), //i
     .reset                                                    (reset                                                                                        )  //i
   );
+  EightSegmentDisplayController DebugDisplayPlugin_hw_dpyController (
+    .io_value    (DebugDisplayPlugin_valueReg[7:0]                    ), //i
+    .io_dp0      (DebugDisplayPlugin_hw_dpyController_io_dp0          ), //i
+    .io_dp1      (DebugDisplayPlugin_logic_displayArea_dpToggle       ), //i
+    .io_dpy0_out (DebugDisplayPlugin_hw_dpyController_io_dpy0_out[7:0]), //o
+    .io_dpy1_out (DebugDisplayPlugin_hw_dpyController_io_dpy1_out[7:0])  //o
+  );
   InstructionFetchUnit IFUPlugin_logic_ifu (
     .io_cpuPort_cmd_valid                                (SimpleFetchPipelinePlugin_logic_ifuPort_cmd_valid                          ), //i
     .io_cpuPort_cmd_ready                                (IFUPlugin_logic_ifu_io_cpuPort_cmd_ready                                   ), //o
@@ -6409,6 +6428,11 @@ module CoreNSCSCC (
     .io_flush                                                       (s3_Dispatch_IssuePipelineSignals_FLUSH_PIPELINE                                         ), //i
     .clk                                                            (clk                                                                                     ), //i
     .reset                                                          (reset                                                                                   )  //i
+  );
+  FrequencyDivider DebugDisplayPlugin_logic_displayArea_divider (
+    .io_tick (DebugDisplayPlugin_logic_displayArea_divider_io_tick), //o
+    .clk     (clk                                                 ), //i
+    .reset   (reset                                               )  //i
   );
   StreamDemux streamDemux_1 (
     .io_select                           (streamDemux_1_io_select                                     ), //i
@@ -7499,18 +7523,6 @@ module CoreNSCSCC (
     .clk                          (clk                                                                                   ), //i
     .reset                        (reset                                                                                 )  //i
   );
-  FrequencyDivider displayArea_divider (
-    .io_tick (displayArea_divider_io_tick), //o
-    .clk     (clk                        ), //i
-    .reset   (reset                      )  //i
-  );
-  EightSegmentDisplayController dpyController (
-    .io_value    (displayArea_displayValue[7:0] ), //i
-    .io_dp0      (dpyController_io_dp0          ), //i
-    .io_dp1      (displayArea_dpToggle          ), //i
-    .io_dpy0_out (dpyController_io_dpy0_out[7:0]), //o
-    .io_dpy1_out (dpyController_io_dpy1_out[7:0])  //o
-  );
   always @(*) begin
     case(_zz_CommitPlugin_logic_commitCount_1)
       1'b0 : _zz_CommitPlugin_logic_commitCount = 1'b0;
@@ -7551,19 +7563,19 @@ module CoreNSCSCC (
     case(_zz_when_PhysicalRegFile_l141_9)
       2'b00 : begin
         _zz__zz_when_PhysicalRegFile_l141_1 = LoadQueuePlugin_hw_prfWritePort_address;
-        _zz__zz_26 = LoadQueuePlugin_hw_prfWritePort_data;
+        _zz__zz_28 = LoadQueuePlugin_hw_prfWritePort_data;
       end
       2'b01 : begin
         _zz__zz_when_PhysicalRegFile_l141_1 = AluIntEU_AluIntEuPlugin_gprWritePort_address;
-        _zz__zz_26 = AluIntEU_AluIntEuPlugin_gprWritePort_data;
+        _zz__zz_28 = AluIntEU_AluIntEuPlugin_gprWritePort_data;
       end
       2'b10 : begin
         _zz__zz_when_PhysicalRegFile_l141_1 = BranchEU_BranchEuPlugin_gprWritePort_address;
-        _zz__zz_26 = BranchEU_BranchEuPlugin_gprWritePort_data;
+        _zz__zz_28 = BranchEU_BranchEuPlugin_gprWritePort_data;
       end
       default : begin
         _zz__zz_when_PhysicalRegFile_l141_1 = LsuEU_LsuEuPlugin_gprWritePort_address;
-        _zz__zz_26 = LsuEU_LsuEuPlugin_gprWritePort_data;
+        _zz__zz_28 = LsuEU_LsuEuPlugin_gprWritePort_data;
       end
     endcase
   end
@@ -12254,6 +12266,14 @@ module CoreNSCSCC (
   assign io_mem_toAxi4_w_ready = DataCachePlugin_setup_dcacheMaster_w_ready;
   assign DataCachePlugin_setup_cache_io_mem_write_rsp_payload_error = (! (DataCachePlugin_setup_dcacheMaster_b_payload_resp == 2'b00));
   assign DataCachePlugin_setup_dcacheMaster_b_ready = 1'b1;
+  always @(*) begin
+    _zz_4 = 1'b1;
+    if(_zz_3) begin
+      _zz_4 = 1'b0;
+    end
+  end
+
+  assign _zz_DebugDisplayPlugin_valueReg = 1'b1;
   assign BpuPipelinePlugin_logic_s1_read_valid = BpuPipelinePlugin_queryPortIn_valid;
   assign BpuPipelinePlugin_logic_s1_read_Q_PC = BpuPipelinePlugin_queryPortIn_payload_pc;
   assign BpuPipelinePlugin_logic_s1_read_TRANSACTION_ID = BpuPipelinePlugin_queryPortIn_payload_transactionId;
@@ -12359,13 +12379,13 @@ module CoreNSCSCC (
   assign CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_29 = 6'h1d;
   assign CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_30 = 6'h1e;
   assign CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_31 = 6'h1f;
-  assign _zz_37 = zz_CheckpointManagerPlugin_logic_initialFreeMask(1'b0);
-  always @(*) CheckpointManagerPlugin_logic_initialFreeMask = _zz_37;
+  assign _zz_43 = zz_CheckpointManagerPlugin_logic_initialFreeMask(1'b0);
+  always @(*) CheckpointManagerPlugin_logic_initialFreeMask = _zz_43;
   assign CheckpointManagerPlugin_logic_initialFlCheckpoint_freeMask = CheckpointManagerPlugin_logic_initialFreeMask;
   assign CheckpointManagerPlugin_logic_initialBtCheckpoint_busyBits = 64'h0;
   assign CommitPlugin_logic_commitAckMasks_0 = ((CommitPlugin_commitEnableExt && ROBPlugin_robComponent_io_commit_0_valid) && (! CommitPlugin_committedIdleReg));
   assign CommitPlugin_logic_commitIdleThisCycle = ((ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_IDLE) && CommitPlugin_logic_commitAckMasks_0);
-  assign _zz_8 = (! CommitPlugin_committedIdleReg);
+  assign _zz_10 = (! CommitPlugin_committedIdleReg);
   assign CommitPlugin_hw_fetchDisable = CommitPlugin_committedIdleReg;
   always @(*) begin
     if(CommitPlugin_logic_idleJustCommitted) begin
@@ -12408,9 +12428,9 @@ module CoreNSCSCC (
   assign CommitPlugin_logic_fwd_totalCommitted = (CommitPlugin_commitStatsReg_totalCommitted + _zz_CommitPlugin_logic_fwd_totalCommitted);
   assign CommitPlugin_logic_fwd_physRegRecycled = (CommitPlugin_commitStatsReg_physRegRecycled + _zz_CommitPlugin_logic_fwd_physRegRecycled);
   assign CommitPlugin_logic_fwd_robFlushCount = (CommitPlugin_commitStatsReg_robFlushCount + _zz_CommitPlugin_logic_fwd_robFlushCount);
-  assign _zz_9 = (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_IDLE);
-  assign _zz_10 = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode;
-  assign _zz_11 = CommitPlugin_hw_robFlushPort_payload_reason;
+  assign _zz_11 = (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_IDLE);
+  assign _zz_12 = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode;
+  assign _zz_13 = CommitPlugin_hw_robFlushPort_payload_reason;
   assign lA32RSimpleDecoder_1_io_pcIn = (s0_Decode_IssuePipelineSignals_GROUP_PC_IN + 32'h0);
   always @(*) begin
     _zz_DecodePlugin_logic_decodedUopsOutputVec_0_isValid = lA32RSimpleDecoder_1_io_decodedUop_isValid;
@@ -15756,6 +15776,7 @@ module CoreNSCSCC (
   end
 
   assign SimpleFetchPipelinePlugin_hw_finalOutputInst_ready = s0_Decode_ready;
+  assign DebugDisplayPlugin_hw_dpyController_io_dp0 = (! DebugDisplayPlugin_logic_displayArea_dpToggle);
   assign s0_Dispatch_valid = AluIntEU_AluIntEuPlugin_euInputPort_valid;
   assign AluIntEU_AluIntEuPlugin_euInputPort_ready = s0_Dispatch_ready_1;
   assign _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_2 = AluIntEU_AluIntEuPlugin_euInputPort_payload_aluCtrl_logicOp;
@@ -15769,8 +15790,8 @@ module CoreNSCSCC (
   assign _zz_io_iqEntryIn_payload_immUsage = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage;
   assign s2_Execute_isFiring = (s2_Execute_valid && s2_Execute_ready);
   assign AluIntEU_AluIntEuPlugin_intAlu_io_iqEntryIn_payload_src2Data = ((_zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage == ImmUsageType_SRC_ALU) ? _zz_AluIntEU_AluIntEuPlugin_euResult_uop_imm : _zz_io_iqEntryIn_payload_src2Data);
-  assign _zz_12 = AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_exceptionCode;
-  assign _zz_13 = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage;
+  assign _zz_14 = AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_exceptionCode;
+  assign _zz_15 = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage;
   assign s0_Dispatch_ready_1 = 1'b1;
   assign s1_ReadRegs_ready = 1'b1;
   assign s2_Execute_ready = 1'b1;
@@ -15948,7 +15969,7 @@ module CoreNSCSCC (
     end
   end
 
-  assign _zz_14 = (_zz_BranchEU_BranchEuPlugin_euResult_uop_robPtr + 4'b0001);
+  assign _zz_16 = (_zz_BranchEU_BranchEuPlugin_euResult_uop_robPtr + 4'b0001);
   always @(*) begin
     if(when_BranchEuPlugin_l234) begin
       BranchEU_BranchEuPlugin_hw_redirectPort_valid = 1'b1;
@@ -16424,7 +16445,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_valid = LoadQueuePlugin_logic_loadQueue_slots_0_valid;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_16) begin
+      if(_zz_18) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_valid = 1'b1;
       end
     end
@@ -16433,7 +16454,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_address = LoadQueuePlugin_logic_loadQueue_slots_0_address;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_16) begin
+      if(_zz_18) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_address = LoadQueuePlugin_logic_pushCmd_payload_address;
       end
     end
@@ -16442,7 +16463,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_size = LoadQueuePlugin_logic_loadQueue_slots_0_size;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_16) begin
+      if(_zz_18) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_size = LoadQueuePlugin_logic_pushCmd_payload_size;
       end
     end
@@ -16451,7 +16472,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_robPtr = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_16) begin
+      if(_zz_18) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_robPtr = LoadQueuePlugin_logic_pushCmd_payload_robPtr;
       end
     end
@@ -16460,7 +16481,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_pdest = LoadQueuePlugin_logic_loadQueue_slots_0_pdest;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_16) begin
+      if(_zz_18) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_pdest = LoadQueuePlugin_logic_pushCmd_payload_pdest;
       end
     end
@@ -16469,7 +16490,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isIO = LoadQueuePlugin_logic_loadQueue_slots_0_isIO;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_16) begin
+      if(_zz_18) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isIO = LoadQueuePlugin_logic_pushCmd_payload_isIO;
       end
     end
@@ -16478,7 +16499,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_hasException = LoadQueuePlugin_logic_loadQueue_slots_0_hasException;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_16) begin
+      if(_zz_18) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_hasException = LoadQueuePlugin_logic_pushCmd_payload_hasEarlyException;
       end
     end
@@ -16487,7 +16508,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_exceptionCode = LoadQueuePlugin_logic_loadQueue_slots_0_exceptionCode;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_16) begin
+      if(_zz_18) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_exceptionCode = LoadQueuePlugin_logic_pushCmd_payload_earlyExceptionCode;
       end
     end
@@ -16496,7 +16517,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForFwdRsp;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_16) begin
+      if(_zz_18) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isWaitingForFwdRsp = 1'b0;
       end
     end
@@ -16511,7 +16532,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slots_0_isStalledByDependency;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_16) begin
+      if(_zz_18) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isStalledByDependency = 1'b0;
       end
     end
@@ -16530,7 +16551,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slots_0_isReadyForDCache;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_16) begin
+      if(_zz_18) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isReadyForDCache = 1'b0;
       end
     end
@@ -16560,7 +16581,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForRsp;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_16) begin
+      if(_zz_18) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isWaitingForRsp = 1'b0;
       end
     end
@@ -16580,7 +16601,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_valid = LoadQueuePlugin_logic_loadQueue_slots_1_valid;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_17) begin
+      if(_zz_19) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_valid = 1'b1;
       end
     end
@@ -16589,7 +16610,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_address = LoadQueuePlugin_logic_loadQueue_slots_1_address;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_17) begin
+      if(_zz_19) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_address = LoadQueuePlugin_logic_pushCmd_payload_address;
       end
     end
@@ -16598,7 +16619,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_size = LoadQueuePlugin_logic_loadQueue_slots_1_size;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_17) begin
+      if(_zz_19) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_size = LoadQueuePlugin_logic_pushCmd_payload_size;
       end
     end
@@ -16607,7 +16628,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_robPtr = LoadQueuePlugin_logic_loadQueue_slots_1_robPtr;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_17) begin
+      if(_zz_19) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_robPtr = LoadQueuePlugin_logic_pushCmd_payload_robPtr;
       end
     end
@@ -16616,7 +16637,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_pdest = LoadQueuePlugin_logic_loadQueue_slots_1_pdest;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_17) begin
+      if(_zz_19) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_pdest = LoadQueuePlugin_logic_pushCmd_payload_pdest;
       end
     end
@@ -16625,7 +16646,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isIO = LoadQueuePlugin_logic_loadQueue_slots_1_isIO;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_17) begin
+      if(_zz_19) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isIO = LoadQueuePlugin_logic_pushCmd_payload_isIO;
       end
     end
@@ -16634,7 +16655,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_hasException = LoadQueuePlugin_logic_loadQueue_slots_1_hasException;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_17) begin
+      if(_zz_19) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_hasException = LoadQueuePlugin_logic_pushCmd_payload_hasEarlyException;
       end
     end
@@ -16643,7 +16664,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_exceptionCode = LoadQueuePlugin_logic_loadQueue_slots_1_exceptionCode;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_17) begin
+      if(_zz_19) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_exceptionCode = LoadQueuePlugin_logic_pushCmd_payload_earlyExceptionCode;
       end
     end
@@ -16652,7 +16673,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slots_1_isWaitingForFwdRsp;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_17) begin
+      if(_zz_19) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isWaitingForFwdRsp = 1'b0;
       end
     end
@@ -16661,7 +16682,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slots_1_isStalledByDependency;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_17) begin
+      if(_zz_19) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isStalledByDependency = 1'b0;
       end
     end
@@ -16670,7 +16691,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slots_1_isReadyForDCache;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_17) begin
+      if(_zz_19) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isReadyForDCache = 1'b0;
       end
     end
@@ -16679,7 +16700,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slots_1_isWaitingForRsp;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_17) begin
+      if(_zz_19) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isWaitingForRsp = 1'b0;
       end
     end
@@ -16688,7 +16709,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_valid = LoadQueuePlugin_logic_loadQueue_slots_2_valid;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_18) begin
+      if(_zz_20) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_valid = 1'b1;
       end
     end
@@ -16697,7 +16718,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_address = LoadQueuePlugin_logic_loadQueue_slots_2_address;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_18) begin
+      if(_zz_20) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_address = LoadQueuePlugin_logic_pushCmd_payload_address;
       end
     end
@@ -16706,7 +16727,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_size = LoadQueuePlugin_logic_loadQueue_slots_2_size;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_18) begin
+      if(_zz_20) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_size = LoadQueuePlugin_logic_pushCmd_payload_size;
       end
     end
@@ -16715,7 +16736,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_robPtr = LoadQueuePlugin_logic_loadQueue_slots_2_robPtr;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_18) begin
+      if(_zz_20) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_robPtr = LoadQueuePlugin_logic_pushCmd_payload_robPtr;
       end
     end
@@ -16724,7 +16745,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_pdest = LoadQueuePlugin_logic_loadQueue_slots_2_pdest;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_18) begin
+      if(_zz_20) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_pdest = LoadQueuePlugin_logic_pushCmd_payload_pdest;
       end
     end
@@ -16733,7 +16754,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isIO = LoadQueuePlugin_logic_loadQueue_slots_2_isIO;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_18) begin
+      if(_zz_20) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isIO = LoadQueuePlugin_logic_pushCmd_payload_isIO;
       end
     end
@@ -16742,7 +16763,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_hasException = LoadQueuePlugin_logic_loadQueue_slots_2_hasException;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_18) begin
+      if(_zz_20) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_hasException = LoadQueuePlugin_logic_pushCmd_payload_hasEarlyException;
       end
     end
@@ -16751,7 +16772,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_exceptionCode = LoadQueuePlugin_logic_loadQueue_slots_2_exceptionCode;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_18) begin
+      if(_zz_20) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_exceptionCode = LoadQueuePlugin_logic_pushCmd_payload_earlyExceptionCode;
       end
     end
@@ -16760,7 +16781,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slots_2_isWaitingForFwdRsp;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_18) begin
+      if(_zz_20) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isWaitingForFwdRsp = 1'b0;
       end
     end
@@ -16769,7 +16790,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slots_2_isStalledByDependency;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_18) begin
+      if(_zz_20) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isStalledByDependency = 1'b0;
       end
     end
@@ -16778,7 +16799,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slots_2_isReadyForDCache;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_18) begin
+      if(_zz_20) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isReadyForDCache = 1'b0;
       end
     end
@@ -16787,7 +16808,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slots_2_isWaitingForRsp;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_18) begin
+      if(_zz_20) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isWaitingForRsp = 1'b0;
       end
     end
@@ -16796,7 +16817,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_valid = LoadQueuePlugin_logic_loadQueue_slots_3_valid;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_19) begin
+      if(_zz_21) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_valid = 1'b1;
       end
     end
@@ -16805,7 +16826,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_address = LoadQueuePlugin_logic_loadQueue_slots_3_address;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_19) begin
+      if(_zz_21) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_address = LoadQueuePlugin_logic_pushCmd_payload_address;
       end
     end
@@ -16814,7 +16835,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_size = LoadQueuePlugin_logic_loadQueue_slots_3_size;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_19) begin
+      if(_zz_21) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_size = LoadQueuePlugin_logic_pushCmd_payload_size;
       end
     end
@@ -16823,7 +16844,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_robPtr = LoadQueuePlugin_logic_loadQueue_slots_3_robPtr;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_19) begin
+      if(_zz_21) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_robPtr = LoadQueuePlugin_logic_pushCmd_payload_robPtr;
       end
     end
@@ -16832,7 +16853,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_pdest = LoadQueuePlugin_logic_loadQueue_slots_3_pdest;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_19) begin
+      if(_zz_21) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_pdest = LoadQueuePlugin_logic_pushCmd_payload_pdest;
       end
     end
@@ -16841,7 +16862,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isIO = LoadQueuePlugin_logic_loadQueue_slots_3_isIO;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_19) begin
+      if(_zz_21) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isIO = LoadQueuePlugin_logic_pushCmd_payload_isIO;
       end
     end
@@ -16850,7 +16871,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_hasException = LoadQueuePlugin_logic_loadQueue_slots_3_hasException;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_19) begin
+      if(_zz_21) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_hasException = LoadQueuePlugin_logic_pushCmd_payload_hasEarlyException;
       end
     end
@@ -16859,7 +16880,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_exceptionCode = LoadQueuePlugin_logic_loadQueue_slots_3_exceptionCode;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_19) begin
+      if(_zz_21) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_exceptionCode = LoadQueuePlugin_logic_pushCmd_payload_earlyExceptionCode;
       end
     end
@@ -16868,7 +16889,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slots_3_isWaitingForFwdRsp;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_19) begin
+      if(_zz_21) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isWaitingForFwdRsp = 1'b0;
       end
     end
@@ -16877,7 +16898,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slots_3_isStalledByDependency;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_19) begin
+      if(_zz_21) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isStalledByDependency = 1'b0;
       end
     end
@@ -16886,7 +16907,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slots_3_isReadyForDCache;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_19) begin
+      if(_zz_21) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isReadyForDCache = 1'b0;
       end
     end
@@ -16895,7 +16916,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slots_3_isWaitingForRsp;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_19) begin
+      if(_zz_21) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isWaitingForRsp = 1'b0;
       end
     end
@@ -17700,11 +17721,11 @@ module CoreNSCSCC (
   assign _zz_LoadQueuePlugin_logic_loadQueue_pushIdx_2 = (LoadQueuePlugin_logic_loadQueue_pushOh[2] || _zz_LoadQueuePlugin_logic_loadQueue_pushIdx);
   assign LoadQueuePlugin_logic_loadQueue_pushIdx = {_zz_LoadQueuePlugin_logic_loadQueue_pushIdx_2,_zz_LoadQueuePlugin_logic_loadQueue_pushIdx_1};
   assign LoadQueuePlugin_logic_pushCmd_fire = (LoadQueuePlugin_logic_pushCmd_valid && LoadQueuePlugin_logic_pushCmd_ready);
-  assign _zz_15 = ({3'd0,1'b1} <<< LoadQueuePlugin_logic_loadQueue_pushIdx);
-  assign _zz_16 = _zz_15[0];
-  assign _zz_17 = _zz_15[1];
-  assign _zz_18 = _zz_15[2];
-  assign _zz_19 = _zz_15[3];
+  assign _zz_17 = ({3'd0,1'b1} <<< LoadQueuePlugin_logic_loadQueue_pushIdx);
+  assign _zz_18 = _zz_17[0];
+  assign _zz_19 = _zz_17[1];
+  assign _zz_20 = _zz_17[2];
+  assign _zz_21 = _zz_17[3];
   assign LoadQueuePlugin_logic_loadQueue_headIsReadyForFwdQuery = (((((LoadQueuePlugin_logic_loadQueue_slots_0_valid && (! LoadQueuePlugin_logic_loadQueue_slots_0_hasException)) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForFwdRsp)) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isStalledByDependency)) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForRsp)) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isReadyForDCache));
   assign StoreBufferPlugin_hw_sqQueryPort_cmd_valid = LoadQueuePlugin_logic_loadQueue_headIsReadyForFwdQuery;
   assign StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address = LoadQueuePlugin_logic_loadQueue_slots_0_address;
@@ -18254,12 +18275,12 @@ module CoreNSCSCC (
   assign _zz_when_PhysicalRegFile_l141_8 = (_zz_when_PhysicalRegFile_l141_5 || _zz_when_PhysicalRegFile_l141_6);
   assign _zz_when_PhysicalRegFile_l141_9 = {_zz_when_PhysicalRegFile_l141_8,_zz_when_PhysicalRegFile_l141_7};
   assign _zz_when_PhysicalRegFile_l141_1 = _zz__zz_when_PhysicalRegFile_l141_1;
-  assign _zz_26 = _zz__zz_26;
+  assign _zz_28 = _zz__zz_28;
   assign when_PhysicalRegFile_l141 = (_zz_when_PhysicalRegFile_l141 && (_zz_when_PhysicalRegFile_l141_1 != 6'h0));
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush = StoreBufferPlugin_logic_slots_0_isFlush;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_32) begin
+      if(_zz_34) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush;
       end
     end
@@ -18268,7 +18289,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_addr = StoreBufferPlugin_logic_slots_0_addr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_32) begin
+      if(_zz_34) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_addr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr;
       end
     end
@@ -18277,7 +18298,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_data = StoreBufferPlugin_logic_slots_0_data;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_32) begin
+      if(_zz_34) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_data = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data;
       end
     end
@@ -18286,7 +18307,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_be = StoreBufferPlugin_logic_slots_0_be;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_32) begin
+      if(_zz_34) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_be = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_be;
       end
     end
@@ -18295,7 +18316,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr = StoreBufferPlugin_logic_slots_0_robPtr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_32) begin
+      if(_zz_34) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr;
       end
     end
@@ -18304,7 +18325,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize = StoreBufferPlugin_logic_slots_0_accessSize;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_32) begin
+      if(_zz_34) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize;
       end
     end
@@ -18313,7 +18334,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO = StoreBufferPlugin_logic_slots_0_isIO;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_32) begin
+      if(_zz_34) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO;
       end
     end
@@ -18322,7 +18343,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_valid = StoreBufferPlugin_logic_slots_0_valid;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_32) begin
+      if(_zz_34) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_valid = 1'b1;
       end
     end
@@ -18340,7 +18361,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException = StoreBufferPlugin_logic_slots_0_hasEarlyException;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_32) begin
+      if(_zz_34) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException;
       end
     end
@@ -18349,7 +18370,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode = StoreBufferPlugin_logic_slots_0_earlyExceptionCode;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_32) begin
+      if(_zz_34) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode;
       end
     end
@@ -18358,7 +18379,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_isCommitted = StoreBufferPlugin_logic_slots_0_isCommitted;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_32) begin
+      if(_zz_34) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_isCommitted = 1'b0;
       end
     end
@@ -18372,7 +18393,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_sentCmd = StoreBufferPlugin_logic_slots_0_sentCmd;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_32) begin
+      if(_zz_34) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_sentCmd = 1'b0;
       end
     end
@@ -18392,7 +18413,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_waitRsp = StoreBufferPlugin_logic_slots_0_waitRsp;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_32) begin
+      if(_zz_34) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_waitRsp = 1'b0;
       end
     end
@@ -18412,7 +18433,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForRefill = StoreBufferPlugin_logic_slots_0_isWaitingForRefill;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_32) begin
+      if(_zz_34) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForRefill = 1'b0;
       end
     end
@@ -18431,7 +18452,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForWb = StoreBufferPlugin_logic_slots_0_isWaitingForWb;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_32) begin
+      if(_zz_34) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForWb = 1'b0;
       end
     end
@@ -18450,7 +18471,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_refillSlotToWatch = StoreBufferPlugin_logic_slots_0_refillSlotToWatch;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_32) begin
+      if(_zz_34) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_refillSlotToWatch = 2'b00;
       end
     end
@@ -18466,7 +18487,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_isFlush = StoreBufferPlugin_logic_slots_1_isFlush;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_33) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_isFlush = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush;
       end
     end
@@ -18475,7 +18496,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_addr = StoreBufferPlugin_logic_slots_1_addr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_33) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_addr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr;
       end
     end
@@ -18484,7 +18505,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_data = StoreBufferPlugin_logic_slots_1_data;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_33) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_data = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data;
       end
     end
@@ -18493,7 +18514,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_be = StoreBufferPlugin_logic_slots_1_be;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_33) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_be = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_be;
       end
     end
@@ -18502,7 +18523,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_robPtr = StoreBufferPlugin_logic_slots_1_robPtr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_33) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_robPtr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr;
       end
     end
@@ -18511,7 +18532,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_accessSize = StoreBufferPlugin_logic_slots_1_accessSize;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_33) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_accessSize = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize;
       end
     end
@@ -18520,7 +18541,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_isIO = StoreBufferPlugin_logic_slots_1_isIO;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_33) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_isIO = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO;
       end
     end
@@ -18529,7 +18550,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_valid = StoreBufferPlugin_logic_slots_1_valid;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_33) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_valid = 1'b1;
       end
     end
@@ -18547,7 +18568,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_hasEarlyException = StoreBufferPlugin_logic_slots_1_hasEarlyException;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_33) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_hasEarlyException = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException;
       end
     end
@@ -18556,7 +18577,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_earlyExceptionCode = StoreBufferPlugin_logic_slots_1_earlyExceptionCode;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_33) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_earlyExceptionCode = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode;
       end
     end
@@ -18565,7 +18586,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_isCommitted = StoreBufferPlugin_logic_slots_1_isCommitted;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_33) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_isCommitted = 1'b0;
       end
     end
@@ -18579,7 +18600,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_sentCmd = StoreBufferPlugin_logic_slots_1_sentCmd;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_33) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_sentCmd = 1'b0;
       end
     end
@@ -18588,7 +18609,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_waitRsp = StoreBufferPlugin_logic_slots_1_waitRsp;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_33) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_waitRsp = 1'b0;
       end
     end
@@ -18597,7 +18618,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_isWaitingForRefill = StoreBufferPlugin_logic_slots_1_isWaitingForRefill;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_33) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_isWaitingForRefill = 1'b0;
       end
     end
@@ -18606,7 +18627,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_isWaitingForWb = StoreBufferPlugin_logic_slots_1_isWaitingForWb;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_33) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_isWaitingForWb = 1'b0;
       end
     end
@@ -18615,7 +18636,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_refillSlotToWatch = StoreBufferPlugin_logic_slots_1_refillSlotToWatch;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_33) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_refillSlotToWatch = 2'b00;
       end
     end
@@ -18624,7 +18645,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_isFlush = StoreBufferPlugin_logic_slots_2_isFlush;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_isFlush = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush;
       end
     end
@@ -18633,7 +18654,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_addr = StoreBufferPlugin_logic_slots_2_addr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_addr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr;
       end
     end
@@ -18642,7 +18663,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_data = StoreBufferPlugin_logic_slots_2_data;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_data = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data;
       end
     end
@@ -18651,7 +18672,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_be = StoreBufferPlugin_logic_slots_2_be;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_be = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_be;
       end
     end
@@ -18660,7 +18681,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_robPtr = StoreBufferPlugin_logic_slots_2_robPtr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_robPtr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr;
       end
     end
@@ -18669,7 +18690,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_accessSize = StoreBufferPlugin_logic_slots_2_accessSize;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_accessSize = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize;
       end
     end
@@ -18678,7 +18699,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_isIO = StoreBufferPlugin_logic_slots_2_isIO;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_isIO = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO;
       end
     end
@@ -18687,7 +18708,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_valid = StoreBufferPlugin_logic_slots_2_valid;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_valid = 1'b1;
       end
     end
@@ -18705,7 +18726,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_hasEarlyException = StoreBufferPlugin_logic_slots_2_hasEarlyException;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_hasEarlyException = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException;
       end
     end
@@ -18714,7 +18735,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_earlyExceptionCode = StoreBufferPlugin_logic_slots_2_earlyExceptionCode;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_earlyExceptionCode = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode;
       end
     end
@@ -18723,7 +18744,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_isCommitted = StoreBufferPlugin_logic_slots_2_isCommitted;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_isCommitted = 1'b0;
       end
     end
@@ -18737,7 +18758,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_sentCmd = StoreBufferPlugin_logic_slots_2_sentCmd;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_sentCmd = 1'b0;
       end
     end
@@ -18746,7 +18767,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_waitRsp = StoreBufferPlugin_logic_slots_2_waitRsp;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_waitRsp = 1'b0;
       end
     end
@@ -18755,7 +18776,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_isWaitingForRefill = StoreBufferPlugin_logic_slots_2_isWaitingForRefill;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_isWaitingForRefill = 1'b0;
       end
     end
@@ -18764,7 +18785,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_isWaitingForWb = StoreBufferPlugin_logic_slots_2_isWaitingForWb;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_isWaitingForWb = 1'b0;
       end
     end
@@ -18773,7 +18794,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_refillSlotToWatch = StoreBufferPlugin_logic_slots_2_refillSlotToWatch;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_refillSlotToWatch = 2'b00;
       end
     end
@@ -18782,7 +18803,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_isFlush = StoreBufferPlugin_logic_slots_3_isFlush;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_37) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_isFlush = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush;
       end
     end
@@ -18791,7 +18812,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_addr = StoreBufferPlugin_logic_slots_3_addr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_37) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_addr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr;
       end
     end
@@ -18800,7 +18821,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_data = StoreBufferPlugin_logic_slots_3_data;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_37) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_data = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data;
       end
     end
@@ -18809,7 +18830,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_be = StoreBufferPlugin_logic_slots_3_be;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_37) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_be = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_be;
       end
     end
@@ -18818,7 +18839,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_robPtr = StoreBufferPlugin_logic_slots_3_robPtr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_37) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_robPtr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr;
       end
     end
@@ -18827,7 +18848,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_accessSize = StoreBufferPlugin_logic_slots_3_accessSize;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_37) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_accessSize = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize;
       end
     end
@@ -18836,7 +18857,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_isIO = StoreBufferPlugin_logic_slots_3_isIO;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_37) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_isIO = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO;
       end
     end
@@ -18845,7 +18866,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_valid = StoreBufferPlugin_logic_slots_3_valid;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_37) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_valid = 1'b1;
       end
     end
@@ -18863,7 +18884,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_hasEarlyException = StoreBufferPlugin_logic_slots_3_hasEarlyException;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_37) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_hasEarlyException = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException;
       end
     end
@@ -18872,7 +18893,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_earlyExceptionCode = StoreBufferPlugin_logic_slots_3_earlyExceptionCode;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_37) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_earlyExceptionCode = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode;
       end
     end
@@ -18881,7 +18902,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_isCommitted = StoreBufferPlugin_logic_slots_3_isCommitted;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_37) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_isCommitted = 1'b0;
       end
     end
@@ -18895,7 +18916,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_sentCmd = StoreBufferPlugin_logic_slots_3_sentCmd;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_37) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_sentCmd = 1'b0;
       end
     end
@@ -18904,7 +18925,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_waitRsp = StoreBufferPlugin_logic_slots_3_waitRsp;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_37) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_waitRsp = 1'b0;
       end
     end
@@ -18913,7 +18934,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_isWaitingForRefill = StoreBufferPlugin_logic_slots_3_isWaitingForRefill;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_37) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_isWaitingForRefill = 1'b0;
       end
     end
@@ -18922,7 +18943,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_isWaitingForWb = StoreBufferPlugin_logic_slots_3_isWaitingForWb;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_37) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_isWaitingForWb = 1'b0;
       end
     end
@@ -18931,7 +18952,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_refillSlotToWatch = StoreBufferPlugin_logic_slots_3_refillSlotToWatch;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_37) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_refillSlotToWatch = 2'b00;
       end
     end
@@ -19391,9 +19412,9 @@ module CoreNSCSCC (
   assign StoreBufferPlugin_logic_validFall_3 = (StoreBufferPlugin_logic_slots_2_valid && (! StoreBufferPlugin_logic_slots_3_valid));
   assign StoreBufferPlugin_logic_canPush = (|{StoreBufferPlugin_logic_validFall_3,{StoreBufferPlugin_logic_validFall_2,{StoreBufferPlugin_logic_validFall_1,StoreBufferPlugin_logic_validFall_0}}});
   assign StoreBufferPlugin_hw_pushPortInst_ready = StoreBufferPlugin_logic_canPush;
-  assign _zz_28 = (StoreBufferPlugin_logic_validFall_1 || StoreBufferPlugin_logic_validFall_3);
-  assign _zz_29 = (StoreBufferPlugin_logic_validFall_2 || StoreBufferPlugin_logic_validFall_3);
-  assign _zz_30 = {_zz_29,_zz_28};
+  assign _zz_30 = (StoreBufferPlugin_logic_validFall_1 || StoreBufferPlugin_logic_validFall_3);
+  assign _zz_31 = (StoreBufferPlugin_logic_validFall_2 || StoreBufferPlugin_logic_validFall_3);
+  assign _zz_32 = {_zz_31,_zz_30};
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush = StoreBufferPlugin_hw_pushPortInst_payload_isFlush;
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr = StoreBufferPlugin_hw_pushPortInst_payload_addr;
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data = StoreBufferPlugin_hw_pushPortInst_payload_data;
@@ -19403,11 +19424,11 @@ module CoreNSCSCC (
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO = StoreBufferPlugin_hw_pushPortInst_payload_isIO;
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException = StoreBufferPlugin_hw_pushPortInst_payload_hasEarlyException;
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode = StoreBufferPlugin_hw_pushPortInst_payload_earlyExceptionCode;
-  assign _zz_31 = ({3'd0,1'b1} <<< _zz_30);
-  assign _zz_32 = _zz_31[0];
-  assign _zz_33 = _zz_31[1];
-  assign _zz_34 = _zz_31[2];
-  assign _zz_35 = _zz_31[3];
+  assign _zz_33 = ({3'd0,1'b1} <<< _zz_32);
+  assign _zz_34 = _zz_33[0];
+  assign _zz_35 = _zz_33[1];
+  assign _zz_36 = _zz_33[2];
+  assign _zz_37 = _zz_33[3];
   assign StoreBufferPlugin_logic_sharedWriteCond = ((((((StoreBufferPlugin_logic_slots_0_valid && StoreBufferPlugin_logic_slots_0_isCommitted) && (! StoreBufferPlugin_logic_slots_0_isFlush)) && (! StoreBufferPlugin_logic_slots_0_waitRsp)) && (! StoreBufferPlugin_logic_slots_0_isWaitingForRefill)) && (! StoreBufferPlugin_logic_slots_0_isWaitingForWb)) && (! StoreBufferPlugin_logic_slots_0_hasEarlyException));
   assign StoreBufferPlugin_logic_canPopNormalOp = (StoreBufferPlugin_logic_sharedWriteCond && (! StoreBufferPlugin_logic_slots_0_isIO));
   assign StoreBufferPlugin_logic_canPopFlushOp = (((StoreBufferPlugin_logic_slots_0_valid && StoreBufferPlugin_logic_slots_0_isFlush) && (! StoreBufferPlugin_logic_slots_0_waitRsp)) && (! StoreBufferPlugin_logic_slots_0_isWaitingForWb));
@@ -20484,9 +20505,8 @@ module CoreNSCSCC (
   assign axi4WriteOnlyArbiter_5_io_inputs_0_aw_payload_id = {1'd0, io_outputs_2_aw_validPipe_payload_id};
   assign axi4WriteOnlyArbiter_5_io_inputs_1_aw_payload_id = {1'd0, io_outputs_2_aw_validPipe_payload_id_1};
   assign axi4WriteOnlyArbiter_5_io_inputs_2_aw_payload_id = {1'd0, io_outputs_2_aw_validPipe_payload_id_2};
-  assign dpyController_io_dp0 = (! displayArea_dpToggle);
-  assign io_dpy0 = dpyController_io_dpy0_out;
-  assign io_dpy1 = dpyController_io_dpy1_out;
+  assign io_dpy0 = DebugDisplayPlugin_hw_dpyController_io_dpy0_out;
+  assign io_dpy1 = DebugDisplayPlugin_hw_dpyController_io_dpy1_out;
   always @(*) begin
     SimpleFetchPipelinePlugin_logic_fsm_stateNext = SimpleFetchPipelinePlugin_logic_fsm_stateReg;
     case(SimpleFetchPipelinePlugin_logic_fsm_stateReg)
@@ -20524,7 +20544,7 @@ module CoreNSCSCC (
         end
       end
       SimpleFetchPipelinePlugin_logic_fsm_DISABLED : begin
-        if(when_SimpleFetchPipelinePlugin_l223) begin
+        if(when_SimpleFetchPipelinePlugin_l229) begin
           SimpleFetchPipelinePlugin_logic_fsm_stateNext = SimpleFetchPipelinePlugin_logic_fsm_IDLE;
         end
       end
@@ -20546,8 +20566,25 @@ module CoreNSCSCC (
     end
   end
 
-  assign _zz_36 = (SimpleFetchPipelinePlugin_logic_pcOnRequest + 32'h00000008);
-  assign when_SimpleFetchPipelinePlugin_l223 = (! SimpleFetchPipelinePlugin_logic_fetchDisable);
+  always @(*) begin
+    _zz_39 = 1'b1;
+    if(_zz_38) begin
+      _zz_39 = 1'b0;
+    end
+  end
+
+  assign _zz_DebugDisplayPlugin_valueReg_1 = 5'h11;
+  always @(*) begin
+    _zz_41 = 1'b1;
+    if(_zz_40) begin
+      _zz_41 = 1'b0;
+    end
+  end
+
+  assign _zz_DebugDisplayPlugin_valueReg_2 = 5'h12;
+  assign when_Debug_l48 = (DebugDisplayPlugin_valueReg < _zz_when_Debug_l48);
+  assign _zz_42 = (SimpleFetchPipelinePlugin_logic_pcOnRequest + 32'h00000008);
+  assign when_SimpleFetchPipelinePlugin_l229 = (! SimpleFetchPipelinePlugin_logic_fetchDisable);
   assign SimpleFetchPipelinePlugin_logic_fsm_onExit_BOOT = ((SimpleFetchPipelinePlugin_logic_fsm_stateNext != SimpleFetchPipelinePlugin_logic_fsm_BOOT) && (SimpleFetchPipelinePlugin_logic_fsm_stateReg == SimpleFetchPipelinePlugin_logic_fsm_BOOT));
   assign SimpleFetchPipelinePlugin_logic_fsm_onExit_IDLE = ((SimpleFetchPipelinePlugin_logic_fsm_stateNext != SimpleFetchPipelinePlugin_logic_fsm_IDLE) && (SimpleFetchPipelinePlugin_logic_fsm_stateReg == SimpleFetchPipelinePlugin_logic_fsm_IDLE));
   assign SimpleFetchPipelinePlugin_logic_fsm_onExit_WAITING = ((SimpleFetchPipelinePlugin_logic_fsm_stateNext != SimpleFetchPipelinePlugin_logic_fsm_WAITING) && (SimpleFetchPipelinePlugin_logic_fsm_stateReg == SimpleFetchPipelinePlugin_logic_fsm_WAITING));
@@ -20565,10 +20602,12 @@ module CoreNSCSCC (
       CommitPlugin_commitStatsReg_robFlushCount <= 32'h0;
       CommitPlugin_commitStatsReg_physRegRecycled <= 32'h0;
       CommitPlugin_committedIdleReg <= 1'b0;
+      DebugDisplayPlugin_valueReg <= 8'h0;
       io_mem_write_cmd_fork2_logic_linkEnable_0 <= 1'b1;
       io_mem_write_cmd_fork2_logic_linkEnable_1 <= 1'b1;
       io_mem_toAxi4_awRaw_payload_first <= 1'b1;
       io_mem_toAxi4_awFiltred_rValid <= 1'b0;
+      _zz_3 <= 1'b1;
       BusyTablePlugin_early_setup_busyTableReg <= 64'h0;
       BpuPipelinePlugin_logic_s2_predict_valid <= 1'b0;
       BpuPipelinePlugin_logic_u2_write_valid <= 1'b0;
@@ -20608,6 +20647,7 @@ module CoreNSCSCC (
       CheckpointManagerPlugin_logic_storedFlCheckpoint_freeMask <= CheckpointManagerPlugin_logic_initialFlCheckpoint_freeMask;
       CheckpointManagerPlugin_logic_storedBtCheckpoint_busyBits <= CheckpointManagerPlugin_logic_initialBtCheckpoint_busyBits;
       CommitPlugin_logic_idleJustCommitted <= 1'b0;
+      DebugDisplayPlugin_logic_displayArea_dpToggle <= 1'b0;
       s1_ReadRegs_valid <= 1'b0;
       s2_Execute_valid <= 1'b0;
       s1_Resolve_valid <= 1'b0;
@@ -20751,8 +20791,6 @@ module CoreNSCSCC (
       io_outputs_0_aw_rValid_2 <= 1'b0;
       io_outputs_1_aw_rValid_2 <= 1'b0;
       io_outputs_2_aw_rValid_2 <= 1'b0;
-      displayArea_displayValue <= 8'h0;
-      displayArea_dpToggle <= 1'b0;
       SimpleFetchPipelinePlugin_logic_fsm_stateReg <= SimpleFetchPipelinePlugin_logic_fsm_BOOT;
     end else begin
       if(io_mem_toAxi4_awRaw_fire) begin
@@ -20771,6 +20809,19 @@ module CoreNSCSCC (
       if(io_mem_toAxi4_awFiltred_ready) begin
         io_mem_toAxi4_awFiltred_rValid <= io_mem_toAxi4_awFiltred_valid;
       end
+      if(_zz_3) begin
+        DebugDisplayPlugin_valueReg <= {7'd0, _zz_DebugDisplayPlugin_valueReg};
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // Debug.scala:L54
+          `else
+            if(!1'b0) begin
+              $display("NOTE(Debug.scala:54):  [DbgSvc] Set value to 0x%x", _zz_DebugDisplayPlugin_valueReg); // Debug.scala:L54
+            end
+          `endif
+        `endif
+      end
+      _zz_3 <= _zz_4;
       `ifndef SYNTHESIS
         `ifdef FORMAL
           assert(1'b0); // CommitPlugin.scala:L128
@@ -20856,7 +20907,7 @@ module CoreNSCSCC (
           assert(1'b0); // CommitPlugin.scala:L175
         `else
           if(!1'b0) begin
-            $display("NOTE(CommitPlugin.scala:175):  commitIdleThisCycle=%x, commitAckMasks(0)=%x: commitEnableExt=%x, commitSlots(0).valid=%x, !committedIdleReg=%x", CommitPlugin_logic_commitIdleThisCycle, CommitPlugin_logic_commitAckMasks_0, CommitPlugin_commitEnableExt, ROBPlugin_robComponent_io_commit_0_valid, _zz_8); // CommitPlugin.scala:L175
+            $display("NOTE(CommitPlugin.scala:175):  commitIdleThisCycle=%x, commitAckMasks(0)=%x: commitEnableExt=%x, commitSlots(0).valid=%x, !committedIdleReg=%x", CommitPlugin_logic_commitIdleThisCycle, CommitPlugin_logic_commitAckMasks_0, CommitPlugin_commitEnableExt, ROBPlugin_robComponent_io_commit_0_valid, _zz_10); // CommitPlugin.scala:L175
           end
         `endif
       `endif
@@ -20881,7 +20932,7 @@ module CoreNSCSCC (
           assert(1'b0); // CommitPlugin.scala:L270
         `else
           if(!1'b0) begin
-            $display("NOTE(CommitPlugin.scala:270):  [COMMIT] Cycle Log: commitEnableExt=%x, commitCount=%x, committedIdleReg=%x, IDLE_AtHead=%x, IDLE_BeingCommitted=%x, committedIdlePcReg=0x%x, ROB_Head_Valid=%x, ROB_Head_Done=%x, ROB_Head_UopCode=%x, ROB_Flush_Valid=%x, ROB_Flush_Reason=%x, Restore_Checkpoint_Trigger=%x, Fetch_Disable=%x, Stats=CommitStats(committedThisCycle=%x, totalCommitted=%x, robFlushCount=%x, physRegRecycled=%x)\n  Slot Details: \n    Slot: (valid=%x, canCommit=%x, doCommit=%x, robPtr=%x, oldPhysDest=p%x, allocatesPhysDest=%x) commitAck=%x", CommitPlugin_commitEnableExt, CommitPlugin_logic_commitCount, CommitPlugin_committedIdleReg, _zz_9, CommitPlugin_logic_commitIdleThisCycle, CommitPlugin_committedIdlePcReg, ROBPlugin_robComponent_io_commit_0_valid, ROBPlugin_robComponent_io_commit_0_entry_status_done, _zz_10, CommitPlugin_hw_robFlushPort_valid, _zz_11, CheckpointManagerPlugin_restoreCheckpointTrigger, CommitPlugin_hw_fetchDisable, CommitPlugin_commitStatsReg_committedThisCycle, CommitPlugin_commitStatsReg_totalCommitted, CommitPlugin_commitStatsReg_robFlushCount, CommitPlugin_commitStatsReg_physRegRecycled, CommitPlugin_logic_commitSlotLogs_0_valid, CommitPlugin_logic_commitSlotLogs_0_canCommit, CommitPlugin_logic_commitSlotLogs_0_doCommit, CommitPlugin_logic_commitSlotLogs_0_robPtr, CommitPlugin_logic_commitSlotLogs_0_oldPhysDest, CommitPlugin_logic_commitSlotLogs_0_allocatesPhysDest, CommitPlugin_logic_commitAckMasks_0); // CommitPlugin.scala:L270
+            $display("NOTE(CommitPlugin.scala:270):  [COMMIT] Cycle Log: commitEnableExt=%x, commitCount=%x, committedIdleReg=%x, IDLE_AtHead=%x, IDLE_BeingCommitted=%x, committedIdlePcReg=0x%x, ROB_Head_Valid=%x, ROB_Head_Done=%x, ROB_Head_UopCode=%x, ROB_Flush_Valid=%x, ROB_Flush_Reason=%x, Restore_Checkpoint_Trigger=%x, Fetch_Disable=%x, Stats=CommitStats(committedThisCycle=%x, totalCommitted=%x, robFlushCount=%x, physRegRecycled=%x)\n  Slot Details: \n    Slot: (valid=%x, canCommit=%x, doCommit=%x, robPtr=%x, oldPhysDest=p%x, allocatesPhysDest=%x) commitAck=%x", CommitPlugin_commitEnableExt, CommitPlugin_logic_commitCount, CommitPlugin_committedIdleReg, _zz_11, CommitPlugin_logic_commitIdleThisCycle, CommitPlugin_committedIdlePcReg, ROBPlugin_robComponent_io_commit_0_valid, ROBPlugin_robComponent_io_commit_0_entry_status_done, _zz_12, CommitPlugin_hw_robFlushPort_valid, _zz_13, CheckpointManagerPlugin_restoreCheckpointTrigger, CommitPlugin_hw_fetchDisable, CommitPlugin_commitStatsReg_committedThisCycle, CommitPlugin_commitStatsReg_totalCommitted, CommitPlugin_commitStatsReg_robFlushCount, CommitPlugin_commitStatsReg_physRegRecycled, CommitPlugin_logic_commitSlotLogs_0_valid, CommitPlugin_logic_commitSlotLogs_0_canCommit, CommitPlugin_logic_commitSlotLogs_0_doCommit, CommitPlugin_logic_commitSlotLogs_0_robPtr, CommitPlugin_logic_commitSlotLogs_0_oldPhysDest, CommitPlugin_logic_commitSlotLogs_0_allocatesPhysDest, CommitPlugin_logic_commitAckMasks_0); // CommitPlugin.scala:L270
           end
         `endif
       `endif
@@ -21029,13 +21080,16 @@ module CoreNSCSCC (
           `endif
         `endif
       end
+      if(DebugDisplayPlugin_logic_displayArea_divider_io_tick) begin
+        DebugDisplayPlugin_logic_displayArea_dpToggle <= (! DebugDisplayPlugin_logic_displayArea_dpToggle);
+      end
       if(s2_Execute_isFiring) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
             assert(1'b0); // AluIntEuPlugin.scala:L130
           `else
             if(!1'b0) begin
-              $display("NOTE(AluIntEuPlugin.scala:130):  [34mAluIntEu (AluIntEU) S2 Firing: RobPtr=%x, ResultData=%x, WritesPreg=%x, HasExc=%x, ExcCode=%x, ImmUsage=%x, UseSrc2=%x[0m", _zz_AluIntEU_AluIntEuPlugin_euResult_uop_robPtr, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_data, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_writesToPhysReg, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_hasException, _zz_12, _zz_13, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_useSrc2); // AluIntEuPlugin.scala:L130
+              $display("NOTE(AluIntEuPlugin.scala:130):  [34mAluIntEu (AluIntEU) S2 Firing: RobPtr=%x, ResultData=%x, WritesPreg=%x, HasExc=%x, ExcCode=%x, ImmUsage=%x, UseSrc2=%x[0m", _zz_AluIntEU_AluIntEuPlugin_euResult_uop_robPtr, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_data, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_writesToPhysReg, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_hasException, _zz_14, _zz_15, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_useSrc2); // AluIntEuPlugin.scala:L130
             end
           `endif
         `endif
@@ -21125,7 +21179,7 @@ module CoreNSCSCC (
             assert(1'b0); // BranchEuPlugin.scala:L240
           `else
             if(!1'b0) begin
-              $display("NOTE(BranchEuPlugin.scala:240):  [BranchEU-S1] MISPREDICTION DETECTED: Flushing ROB from robPtr=%x, targetPC=0x%x", _zz_14, _zz_BpuPipelinePlugin_updatePortIn_payload_target_1); // BranchEuPlugin.scala:L240
+              $display("NOTE(BranchEuPlugin.scala:240):  [BranchEU-S1] MISPREDICTION DETECTED: Flushing ROB from robPtr=%x, targetPC=0x%x", _zz_16, _zz_BpuPipelinePlugin_updatePortIn_payload_target_1); // BranchEuPlugin.scala:L240
             end
           `endif
         `endif
@@ -21298,10 +21352,10 @@ module CoreNSCSCC (
       SimpleFetchPipelinePlugin_logic_fsm_unpackerWasBusy <= SimpleFetchPipelinePlugin_logic_unpacker_io_isBusy;
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // SimpleFetchPipelinePlugin.scala:L283
+          assert(1'b0); // SimpleFetchPipelinePlugin.scala:L289
         `else
           if(!1'b0) begin
-            $display("NOTE(SimpleFetchPipelinePlugin.scala:283):  [[FETCH-PLUGIN]] PC(fetch=0x%x, onReq=0x%x) | REQ(fire=%x) | UNPACKED(valid=%x, fire=%x, pc=0x%x, isJmp=%x, isBranch=%x, isIdle=%x) | FILTERED(valid=%x, fire=%x) | BPU(QueryFire=%x, RspValid=%x, RspTaken=%x) | JUMP(do=%x, target=0x%x) | REDIRECT(Soft=%x, Hard=%x, Soft Target=0x%x) | Hard Target=0x%x) | FLUSH(needs=%x, outFifo=%x) | UNPACK_STATE(busy=%x, fin=%x) | FIFOS(rsp=%x, out=%x)", SimpleFetchPipelinePlugin_logic_fetchPc, SimpleFetchPipelinePlugin_logic_pcOnRequest, SimpleFetchPipelinePlugin_logic_ifuPort_cmd_fire, SimpleFetchPipelinePlugin_logic_unpacker_io_output_valid, io_output_fire, SimpleFetchPipelinePlugin_logic_unpacker_io_output_payload_pc, SimpleFetchPipelinePlugin_logic_unpacker_io_output_payload_predecode_isJump, SimpleFetchPipelinePlugin_logic_unpacker_io_output_payload_predecode_isBranch, SimpleFetchPipelinePlugin_logic_unpacker_io_output_payload_predecode_isIdle, SimpleFetchPipelinePlugin_logic_filteredStream_valid, SimpleFetchPipelinePlugin_logic_filteredStream_fire, BpuPipelinePlugin_queryPortIn_valid, BpuPipelinePlugin_responseFlowOut_valid, BpuPipelinePlugin_responseFlowOut_payload_isTaken, SimpleFetchPipelinePlugin_logic_doJumpRedirect, SimpleFetchPipelinePlugin_logic_jumpTarget, SimpleFetchPipelinePlugin_logic_doSoftRedirect, SimpleFetchPipelinePlugin_hw_redirectFlowInst_valid, SimpleFetchPipelinePlugin_logic_softRedirectTarget, SimpleFetchPipelinePlugin_hw_redirectFlowInst_payload, SimpleFetchPipelinePlugin_logic_needsFlush, SimpleFetchPipelinePlugin_hw_redirectFlowInst_valid, SimpleFetchPipelinePlugin_logic_unpacker_io_isBusy, SimpleFetchPipelinePlugin_logic_fsm_unpackerJustFinished, SimpleFetchPipelinePlugin_logic_ifuRspFifo_io_occupancy, SimpleFetchPipelinePlugin_logic_outputFifo_io_occupancy); // SimpleFetchPipelinePlugin.scala:L283
+            $display("NOTE(SimpleFetchPipelinePlugin.scala:289):  [[FETCH-PLUGIN]] PC(fetch=0x%x, onReq=0x%x) | REQ(fire=%x) | UNPACKED(valid=%x, fire=%x, pc=0x%x, isJmp=%x, isBranch=%x, isIdle=%x) | FILTERED(valid=%x, fire=%x) | BPU(QueryFire=%x, RspValid=%x, RspTaken=%x) | JUMP(do=%x, target=0x%x) | REDIRECT(Soft=%x, Hard=%x, Soft Target=0x%x) | Hard Target=0x%x) | FLUSH(needs=%x, outFifo=%x) | UNPACK_STATE(busy=%x, fin=%x) | FIFOS(rsp=%x, out=%x)", SimpleFetchPipelinePlugin_logic_fetchPc, SimpleFetchPipelinePlugin_logic_pcOnRequest, SimpleFetchPipelinePlugin_logic_ifuPort_cmd_fire, SimpleFetchPipelinePlugin_logic_unpacker_io_output_valid, io_output_fire, SimpleFetchPipelinePlugin_logic_unpacker_io_output_payload_pc, SimpleFetchPipelinePlugin_logic_unpacker_io_output_payload_predecode_isJump, SimpleFetchPipelinePlugin_logic_unpacker_io_output_payload_predecode_isBranch, SimpleFetchPipelinePlugin_logic_unpacker_io_output_payload_predecode_isIdle, SimpleFetchPipelinePlugin_logic_filteredStream_valid, SimpleFetchPipelinePlugin_logic_filteredStream_fire, BpuPipelinePlugin_queryPortIn_valid, BpuPipelinePlugin_responseFlowOut_valid, BpuPipelinePlugin_responseFlowOut_payload_isTaken, SimpleFetchPipelinePlugin_logic_doJumpRedirect, SimpleFetchPipelinePlugin_logic_jumpTarget, SimpleFetchPipelinePlugin_logic_doSoftRedirect, SimpleFetchPipelinePlugin_hw_redirectFlowInst_valid, SimpleFetchPipelinePlugin_logic_softRedirectTarget, SimpleFetchPipelinePlugin_hw_redirectFlowInst_payload, SimpleFetchPipelinePlugin_logic_needsFlush, SimpleFetchPipelinePlugin_hw_redirectFlowInst_valid, SimpleFetchPipelinePlugin_logic_unpacker_io_isBusy, SimpleFetchPipelinePlugin_logic_fsm_unpackerJustFinished, SimpleFetchPipelinePlugin_logic_ifuRspFifo_io_occupancy, SimpleFetchPipelinePlugin_logic_outputFifo_io_occupancy); // SimpleFetchPipelinePlugin.scala:L289
           end
         `endif
       `endif
@@ -21605,7 +21659,7 @@ module CoreNSCSCC (
             assert(1'b0); // PhysicalRegFile.scala:L142
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:142):  [PRegPlugin] PRF Port %x write %x (Arbitrated)", _zz_when_PhysicalRegFile_l141_1, _zz_26); // PhysicalRegFile.scala:L142
+              $display("NOTE(PhysicalRegFile.scala:142):  [PRegPlugin] PRF Port %x write %x (Arbitrated)", _zz_when_PhysicalRegFile_l141_1, _zz_28); // PhysicalRegFile.scala:L142
             end
           `endif
         `endif
@@ -21616,7 +21670,7 @@ module CoreNSCSCC (
             assert(1'b0); // StoreBufferPlugin.scala:L251
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:251):  [SQ] PUSH: robPtr=%x to slotIdx=%x", StoreBufferPlugin_hw_pushPortInst_payload_robPtr, _zz_30); // StoreBufferPlugin.scala:L251
+              $display("NOTE(StoreBufferPlugin.scala:251):  [SQ] PUSH: robPtr=%x to slotIdx=%x", StoreBufferPlugin_hw_pushPortInst_payload_robPtr, _zz_32); // StoreBufferPlugin.scala:L251
             end
           `endif
         `endif
@@ -22361,12 +22415,6 @@ module CoreNSCSCC (
       if(io_outputs_2_aw_validPipe_fire_2) begin
         io_outputs_2_aw_rValid_2 <= 1'b0;
       end
-      if(displayArea_divider_io_tick) begin
-        displayArea_displayValue <= CoreMemSysPlugin_hw_baseramCtrl_io_ram_addr[7 : 0];
-      end
-      if(displayArea_divider_io_tick) begin
-        displayArea_dpToggle <= (! displayArea_dpToggle);
-      end
       SimpleFetchPipelinePlugin_logic_fsm_stateReg <= SimpleFetchPipelinePlugin_logic_fsm_stateNext;
       case(SimpleFetchPipelinePlugin_logic_fsm_stateReg)
         SimpleFetchPipelinePlugin_logic_fsm_IDLE : begin
@@ -22376,21 +22424,47 @@ module CoreNSCSCC (
                 assert(1'b0); // SimpleFetchPipelinePlugin.scala:L210
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SimpleFetchPipelinePlugin.scala:210):  [FSM] IDLE->DISABLED: Fetch disabled"); // SimpleFetchPipelinePlugin.scala:L210
+                  $display("NOTE(SimpleFetchPipelinePlugin.scala:210):  [Fetch-FSM] IDLE->DISABLED: Fetch disabled"); // SimpleFetchPipelinePlugin.scala:L210
                 end
               `endif
             `endif
           end else begin
-            if(SimpleFetchPipelinePlugin_logic_ifuPort_cmd_fire) begin
+            if(_zz_38) begin
+              DebugDisplayPlugin_valueReg <= {3'd0, _zz_DebugDisplayPlugin_valueReg_1};
               `ifndef SYNTHESIS
                 `ifdef FORMAL
-                  assert(1'b0); // SimpleFetchPipelinePlugin.scala:L216
+                  assert(1'b0); // Debug.scala:L54
                 `else
                   if(!1'b0) begin
-                    $display("NOTE(SimpleFetchPipelinePlugin.scala:216):  [FSM] IDLE->WAITING: IFU cmd fired, pcOnRequest=0x%x", SimpleFetchPipelinePlugin_logic_fetchPc); // SimpleFetchPipelinePlugin.scala:L216
+                    $display("NOTE(Debug.scala:54):  [DbgSvc] Set value to 0x%x", _zz_DebugDisplayPlugin_valueReg_1); // Debug.scala:L54
                   end
                 `endif
               `endif
+            end
+            if(SimpleFetchPipelinePlugin_logic_ifuPort_cmd_fire) begin
+              `ifndef SYNTHESIS
+                `ifdef FORMAL
+                  assert(1'b0); // SimpleFetchPipelinePlugin.scala:L219
+                `else
+                  if(!1'b0) begin
+                    $display("NOTE(SimpleFetchPipelinePlugin.scala:219):  [Fetch-FSM] IDLE->WAITING: IFU cmd fired, pcOnRequest=0x%x", SimpleFetchPipelinePlugin_logic_fetchPc); // SimpleFetchPipelinePlugin.scala:L219
+                  end
+                `endif
+              `endif
+              if(_zz_40) begin
+                if(when_Debug_l48) begin
+                  DebugDisplayPlugin_valueReg <= {3'd0, _zz_DebugDisplayPlugin_valueReg_2};
+                  `ifndef SYNTHESIS
+                    `ifdef FORMAL
+                      assert(1'b0); // Debug.scala:L50
+                    `else
+                      if(!1'b0) begin
+                        $display("NOTE(Debug.scala:50):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_DebugDisplayPlugin_valueReg_2); // Debug.scala:L50
+                      end
+                    `endif
+                  `endif
+                end
+              end
             end
           end
         end
@@ -22398,10 +22472,10 @@ module CoreNSCSCC (
           if(SimpleFetchPipelinePlugin_logic_fetchDisable) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // SimpleFetchPipelinePlugin.scala:L234
+                assert(1'b0); // SimpleFetchPipelinePlugin.scala:L240
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SimpleFetchPipelinePlugin.scala:234):  [FSM] WAITING->DISABLED: Fetch disabled"); // SimpleFetchPipelinePlugin.scala:L234
+                  $display("NOTE(SimpleFetchPipelinePlugin.scala:240):  [Fetch-FSM] WAITING->DISABLED: Fetch disabled"); // SimpleFetchPipelinePlugin.scala:L240
                 end
               `endif
             `endif
@@ -22410,10 +22484,10 @@ module CoreNSCSCC (
               SimpleFetchPipelinePlugin_logic_fetchPc <= SimpleFetchPipelinePlugin_logic_softRedirectTarget;
               `ifndef SYNTHESIS
                 `ifdef FORMAL
-                  assert(1'b0); // SimpleFetchPipelinePlugin.scala:L238
+                  assert(1'b0); // SimpleFetchPipelinePlugin.scala:L244
                 `else
                   if(!1'b0) begin
-                    $display("NOTE(SimpleFetchPipelinePlugin.scala:238):  [FSM] WAITING->IDLE: Soft redirect to 0x%x", SimpleFetchPipelinePlugin_logic_softRedirectTarget); // SimpleFetchPipelinePlugin.scala:L238
+                    $display("NOTE(SimpleFetchPipelinePlugin.scala:244):  [Fetch-FSM] WAITING->IDLE: Soft redirect to 0x%x", SimpleFetchPipelinePlugin_logic_softRedirectTarget); // SimpleFetchPipelinePlugin.scala:L244
                   end
                 `endif
               `endif
@@ -22421,10 +22495,10 @@ module CoreNSCSCC (
               if(io_output_fire) begin
                 `ifndef SYNTHESIS
                   `ifdef FORMAL
-                    assert(1'b0); // SimpleFetchPipelinePlugin.scala:L241
+                    assert(1'b0); // SimpleFetchPipelinePlugin.scala:L247
                   `else
                     if(!1'b0) begin
-                      $display("NOTE(SimpleFetchPipelinePlugin.scala:241):  [FSM] WAITING->UPDATE_PC: Unpacker finished (fire path)"); // SimpleFetchPipelinePlugin.scala:L241
+                      $display("NOTE(SimpleFetchPipelinePlugin.scala:247):  [Fetch-FSM] WAITING->UPDATE_PC: Unpacker finished (fire path)"); // SimpleFetchPipelinePlugin.scala:L247
                     end
                   `endif
                 `endif
@@ -22432,10 +22506,10 @@ module CoreNSCSCC (
                 if(SimpleFetchPipelinePlugin_logic_fsm_unpackerJustFinished) begin
                   `ifndef SYNTHESIS
                     `ifdef FORMAL
-                      assert(1'b0); // SimpleFetchPipelinePlugin.scala:L244
+                      assert(1'b0); // SimpleFetchPipelinePlugin.scala:L250
                     `else
                       if(!1'b0) begin
-                        $display("NOTE(SimpleFetchPipelinePlugin.scala:244):  [FSM] WAITING->UPDATE_PC: Unpacker finished"); // SimpleFetchPipelinePlugin.scala:L244
+                        $display("NOTE(SimpleFetchPipelinePlugin.scala:250):  [Fetch-FSM] WAITING->UPDATE_PC: Unpacker finished"); // SimpleFetchPipelinePlugin.scala:L250
                       end
                     `endif
                   `endif
@@ -22448,20 +22522,20 @@ module CoreNSCSCC (
           if(SimpleFetchPipelinePlugin_logic_fetchDisable) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // SimpleFetchPipelinePlugin.scala:L251
+                assert(1'b0); // SimpleFetchPipelinePlugin.scala:L257
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SimpleFetchPipelinePlugin.scala:251):  [FSM] UPDATE_PC->DISABLED: Fetch disabled"); // SimpleFetchPipelinePlugin.scala:L251
+                  $display("NOTE(SimpleFetchPipelinePlugin.scala:257):  [Fetch-FSM] UPDATE_PC->DISABLED: Fetch disabled"); // SimpleFetchPipelinePlugin.scala:L257
                 end
               `endif
             `endif
           end else begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // SimpleFetchPipelinePlugin.scala:L255
+                assert(1'b0); // SimpleFetchPipelinePlugin.scala:L261
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SimpleFetchPipelinePlugin.scala:255):  [FSM] UPDATE_PC: Normal PC update from 0x%x to 0x%x", SimpleFetchPipelinePlugin_logic_pcOnRequest, _zz_36); // SimpleFetchPipelinePlugin.scala:L255
+                  $display("NOTE(SimpleFetchPipelinePlugin.scala:261):  [Fetch-FSM] UPDATE_PC: Normal PC update from 0x%x to 0x%x", SimpleFetchPipelinePlugin_logic_pcOnRequest, _zz_42); // SimpleFetchPipelinePlugin.scala:L261
                 end
               `endif
             `endif
@@ -22469,13 +22543,13 @@ module CoreNSCSCC (
           end
         end
         SimpleFetchPipelinePlugin_logic_fsm_DISABLED : begin
-          if(when_SimpleFetchPipelinePlugin_l223) begin
+          if(when_SimpleFetchPipelinePlugin_l229) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // SimpleFetchPipelinePlugin.scala:L224
+                assert(1'b0); // SimpleFetchPipelinePlugin.scala:L230
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SimpleFetchPipelinePlugin.scala:224):  [FSM] DISABLED->IDLE: Fetch re-enabled"); // SimpleFetchPipelinePlugin.scala:L224
+                  $display("NOTE(SimpleFetchPipelinePlugin.scala:230):  [Fetch-FSM] DISABLED->IDLE: Fetch re-enabled"); // SimpleFetchPipelinePlugin.scala:L230
                 end
               `endif
             `endif
@@ -22921,153 +22995,19 @@ module CoreNSCSCC (
     endcase
   end
 
-
-endmodule
-
-module EightSegmentDisplayController (
-  input  wire [7:0]    io_value,
-  input  wire          io_dp0,
-  input  wire          io_dp1,
-  output wire [7:0]    io_dpy0_out,
-  output wire [7:0]    io_dpy1_out
-);
-
-  wire       [3:0]    displayArea_digit0;
-  wire       [3:0]    displayArea_digit1;
-  reg        [6:0]    displayArea_seg0;
-  reg        [6:0]    displayArea_seg1;
-
-  assign displayArea_digit0 = io_value[3 : 0];
-  assign displayArea_digit1 = io_value[7 : 4];
-  always @(*) begin
-    case(displayArea_digit0)
-      4'b0000 : begin
-        displayArea_seg0 = 7'h3f;
-      end
-      4'b0001 : begin
-        displayArea_seg0 = 7'h06;
-      end
-      4'b0010 : begin
-        displayArea_seg0 = 7'h5b;
-      end
-      4'b0011 : begin
-        displayArea_seg0 = 7'h4f;
-      end
-      4'b0100 : begin
-        displayArea_seg0 = 7'h66;
-      end
-      4'b0101 : begin
-        displayArea_seg0 = 7'h6d;
-      end
-      4'b0110 : begin
-        displayArea_seg0 = 7'h7d;
-      end
-      4'b0111 : begin
-        displayArea_seg0 = 7'h07;
-      end
-      4'b1000 : begin
-        displayArea_seg0 = 7'h7f;
-      end
-      4'b1001 : begin
-        displayArea_seg0 = 7'h6f;
-      end
-      4'b1010 : begin
-        displayArea_seg0 = 7'h77;
-      end
-      4'b1011 : begin
-        displayArea_seg0 = 7'h7c;
-      end
-      4'b1100 : begin
-        displayArea_seg0 = 7'h39;
-      end
-      4'b1101 : begin
-        displayArea_seg0 = 7'h5e;
-      end
-      4'b1110 : begin
-        displayArea_seg0 = 7'h79;
-      end
-      default : begin
-        displayArea_seg0 = 7'h71;
-      end
-    endcase
-  end
-
-  always @(*) begin
-    case(displayArea_digit1)
-      4'b0000 : begin
-        displayArea_seg1 = 7'h3f;
-      end
-      4'b0001 : begin
-        displayArea_seg1 = 7'h06;
-      end
-      4'b0010 : begin
-        displayArea_seg1 = 7'h5b;
-      end
-      4'b0011 : begin
-        displayArea_seg1 = 7'h4f;
-      end
-      4'b0100 : begin
-        displayArea_seg1 = 7'h66;
-      end
-      4'b0101 : begin
-        displayArea_seg1 = 7'h6d;
-      end
-      4'b0110 : begin
-        displayArea_seg1 = 7'h7d;
-      end
-      4'b0111 : begin
-        displayArea_seg1 = 7'h07;
-      end
-      4'b1000 : begin
-        displayArea_seg1 = 7'h7f;
-      end
-      4'b1001 : begin
-        displayArea_seg1 = 7'h6f;
-      end
-      4'b1010 : begin
-        displayArea_seg1 = 7'h77;
-      end
-      4'b1011 : begin
-        displayArea_seg1 = 7'h7c;
-      end
-      4'b1100 : begin
-        displayArea_seg1 = 7'h39;
-      end
-      4'b1101 : begin
-        displayArea_seg1 = 7'h5e;
-      end
-      4'b1110 : begin
-        displayArea_seg1 = 7'h79;
-      end
-      default : begin
-        displayArea_seg1 = 7'h71;
-      end
-    endcase
-  end
-
-  assign io_dpy0_out = {io_dp0,displayArea_seg0};
-  assign io_dpy1_out = {io_dp1,displayArea_seg1};
-
-endmodule
-
-module FrequencyDivider (
-  output wire          io_tick,
-  input  wire          clk,
-  input  wire          reset
-);
-
-  reg        [26:0]   counter;
-
-  assign io_tick = (counter == 27'h5f5e0ff);
   always @(posedge clk or posedge reset) begin
     if(reset) begin
-      counter <= 27'h0;
+      _zz_38 <= 1'b1;
     end else begin
-      if(io_tick) begin
-        counter <= 27'h0;
-      end else begin
-        counter <= (counter + 27'h0000001);
-      end
+      _zz_38 <= _zz_39;
+    end
+  end
+
+  always @(posedge clk or posedge reset) begin
+    if(reset) begin
+      _zz_40 <= 1'b1;
+    end else begin
+      _zz_40 <= _zz_41;
     end
   end
 
@@ -24588,10 +24528,10 @@ module StreamUnpacker (
       end
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // SimpleFetchPipelinePlugin.scala:L358
+          assert(1'b0); // SimpleFetchPipelinePlugin.scala:L364
         `else
           if(!1'b0) begin
-            $display("NOTE(SimpleFetchPipelinePlugin.scala:358):    [[UNPACKER]] State(busy=%x, bufV=%x, idx=%x) | Input(fire=%x) | Output(v=%x, r=%x, fire=%x) | Payload(pc=0x%x) | Control(mask=%x, isLast=%x, canAdv=%x) | Flush(f=%x)", io_isBusy, bufferValid, unpackIndex, io_input_fire, io_output_valid, io_output_ready, io_output_fire, io_output_payload_pc, currentMaskBit, isLast, canAdvance, io_flush); // SimpleFetchPipelinePlugin.scala:L358
+            $display("NOTE(SimpleFetchPipelinePlugin.scala:364):    [[UNPACKER]] State(busy=%x, bufV=%x, idx=%x) | Input(fire=%x) | Output(v=%x, r=%x, fire=%x) | Payload(pc=0x%x) | Control(mask=%x, isLast=%x, canAdv=%x) | Flush(f=%x)", io_isBusy, bufferValid, unpackIndex, io_input_fire, io_output_valid, io_output_ready, io_output_fire, io_output_payload_pc, currentMaskBit, isLast, canAdvance, io_flush); // SimpleFetchPipelinePlugin.scala:L364
           end
         `endif
       `endif
@@ -25335,6 +25275,30 @@ module StreamDemux (
       io_outputs_1_valid = 1'b0;
     end else begin
       io_outputs_1_valid = io_input_valid;
+    end
+  end
+
+
+endmodule
+
+module FrequencyDivider (
+  output wire          io_tick,
+  input  wire          clk,
+  input  wire          reset
+);
+
+  reg        [26:0]   counter;
+
+  assign io_tick = (counter == 27'h5f5e0ff);
+  always @(posedge clk or posedge reset) begin
+    if(reset) begin
+      counter <= 27'h0;
+    end else begin
+      if(io_tick) begin
+        counter <= 27'h0;
+      end else begin
+        counter <= (counter + 27'h0000001);
+      end
     end
   end
 
@@ -36414,6 +36378,132 @@ module InstructionFetchUnit (
     end
   end
 
+
+endmodule
+
+module EightSegmentDisplayController (
+  input  wire [7:0]    io_value,
+  input  wire          io_dp0,
+  input  wire          io_dp1,
+  output wire [7:0]    io_dpy0_out,
+  output wire [7:0]    io_dpy1_out
+);
+
+  wire       [3:0]    displayArea_digit0;
+  wire       [3:0]    displayArea_digit1;
+  reg        [6:0]    displayArea_seg0;
+  reg        [6:0]    displayArea_seg1;
+
+  assign displayArea_digit0 = io_value[3 : 0];
+  assign displayArea_digit1 = io_value[7 : 4];
+  always @(*) begin
+    case(displayArea_digit0)
+      4'b0000 : begin
+        displayArea_seg0 = 7'h3f;
+      end
+      4'b0001 : begin
+        displayArea_seg0 = 7'h06;
+      end
+      4'b0010 : begin
+        displayArea_seg0 = 7'h5b;
+      end
+      4'b0011 : begin
+        displayArea_seg0 = 7'h4f;
+      end
+      4'b0100 : begin
+        displayArea_seg0 = 7'h66;
+      end
+      4'b0101 : begin
+        displayArea_seg0 = 7'h6d;
+      end
+      4'b0110 : begin
+        displayArea_seg0 = 7'h7d;
+      end
+      4'b0111 : begin
+        displayArea_seg0 = 7'h07;
+      end
+      4'b1000 : begin
+        displayArea_seg0 = 7'h7f;
+      end
+      4'b1001 : begin
+        displayArea_seg0 = 7'h6f;
+      end
+      4'b1010 : begin
+        displayArea_seg0 = 7'h77;
+      end
+      4'b1011 : begin
+        displayArea_seg0 = 7'h7c;
+      end
+      4'b1100 : begin
+        displayArea_seg0 = 7'h39;
+      end
+      4'b1101 : begin
+        displayArea_seg0 = 7'h5e;
+      end
+      4'b1110 : begin
+        displayArea_seg0 = 7'h79;
+      end
+      default : begin
+        displayArea_seg0 = 7'h71;
+      end
+    endcase
+  end
+
+  always @(*) begin
+    case(displayArea_digit1)
+      4'b0000 : begin
+        displayArea_seg1 = 7'h3f;
+      end
+      4'b0001 : begin
+        displayArea_seg1 = 7'h06;
+      end
+      4'b0010 : begin
+        displayArea_seg1 = 7'h5b;
+      end
+      4'b0011 : begin
+        displayArea_seg1 = 7'h4f;
+      end
+      4'b0100 : begin
+        displayArea_seg1 = 7'h66;
+      end
+      4'b0101 : begin
+        displayArea_seg1 = 7'h6d;
+      end
+      4'b0110 : begin
+        displayArea_seg1 = 7'h7d;
+      end
+      4'b0111 : begin
+        displayArea_seg1 = 7'h07;
+      end
+      4'b1000 : begin
+        displayArea_seg1 = 7'h7f;
+      end
+      4'b1001 : begin
+        displayArea_seg1 = 7'h6f;
+      end
+      4'b1010 : begin
+        displayArea_seg1 = 7'h77;
+      end
+      4'b1011 : begin
+        displayArea_seg1 = 7'h7c;
+      end
+      4'b1100 : begin
+        displayArea_seg1 = 7'h39;
+      end
+      4'b1101 : begin
+        displayArea_seg1 = 7'h5e;
+      end
+      4'b1110 : begin
+        displayArea_seg1 = 7'h79;
+      end
+      default : begin
+        displayArea_seg1 = 7'h71;
+      end
+    endcase
+  end
+
+  assign io_dpy0_out = {displayArea_seg0,io_dp0};
+  assign io_dpy1_out = {displayArea_seg1,io_dp1};
 
 endmodule
 

@@ -170,6 +170,8 @@ class DataCachePlugin(config: DataCachePluginConfig) extends Plugin with LockedI
     // val dbusSvc = getService[DBusService]
     // dbusSvc.retain()
     val dcacheMaster = cache.io.mem.toAxi4()
+
+    getServiceOption[DebugDisplayService].foreach(dbg => dbg.setDebugOnce(DebugValue.DCACHE_INIT))
   }
 
   def getDCacheMaster = setup.dcacheMaster

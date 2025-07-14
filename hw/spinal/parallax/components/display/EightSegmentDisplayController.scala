@@ -53,8 +53,8 @@ class EightSegmentDisplayController extends Component {
     val seg1 = SevenSegmentDecoder.commonCathodeMap(digit1)
 
     // Combine segments with decimal points
-    io.dpy0_out := io.dp0 ## seg0  // [dp, a, b, c, d, e, f, g]
-    io.dpy1_out := io.dp1 ## seg1  // [dp, a, b, c, d, e, f, g]
+    io.dpy0_out := seg0 ## io.dp0   // [dp, a, b, c, d, e, f, g]
+    io.dpy1_out := seg1 ## io.dp1   // [dp, a, b, c, d, e, f, g]
   }
 }
 

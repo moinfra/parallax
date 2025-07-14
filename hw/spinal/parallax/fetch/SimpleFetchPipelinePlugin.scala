@@ -181,10 +181,10 @@ class SimpleFetchPipelinePlugin(
 
 
     // BPU Redirect (from prediction)
-val doBpuRedirect = bpuResponse.valid && bpuResponse.isTaken && !doHardRedirect
+    val doBpuRedirect = bpuResponse.valid && bpuResponse.isTaken && !doHardRedirect
     
     // Unconditional Direct Jump Redirect (from predecode)
-val doJumpRedirect = unpackedStream.valid && unpackedInstr.predecode.isDirectJump && !doHardRedirect
+    val doJumpRedirect = unpackedStream.valid && unpackedInstr.predecode.isDirectJump && !doHardRedirect
     val jumpTarget = unpackedInstr.pc + predecode.jumpOffset.asUInt
 
     // Combine all soft redirect sources
@@ -195,7 +195,7 @@ val doJumpRedirect = unpackedStream.valid && unpackedInstr.predecode.isDirectJum
     
     // --- Control FSM with Fetch Disable Support ---
     val fetchDisable = if (fetchDisablePorts.nonEmpty) fetchDisablePorts.orR else False
-    
+    val debugService = getServiceOption[DebugDisplayService]
     val fsm = new StateMachine {
         val IDLE = new State with EntryPoint
         val WAITING = new State
@@ -207,21 +207,27 @@ val doJumpRedirect = unpackedStream.valid && unpackedInstr.predecode.isDirectJum
 
         IDLE.whenIsActive {
             when(fetchDisable) {
-                if(enableLog) report(L"[FSM] IDLE->DISABLED: Fetch disabled")
+                if(enableLog) report(L"[Fetch-FSM] IDLE->DISABLED: Fetch disabled")
                 goto(DISABLED)
             } .otherwise {
                 ifuPort.cmd.valid := True
+                debugService.foreach(dbg => {
+                    dbg.setDebugOnce(DebugValue.FETCH_START, expectIncr=false)
+                })
                 when(ifuPort.cmd.fire) {
                     pcOnRequest := fetchPc
-                    if(enableLog) report(L"[FSM] IDLE->WAITING: IFU cmd fired, pcOnRequest=0x${fetchPc}")
+                    if(enableLog) report(L"[Fetch-FSM] IDLE->WAITING: IFU cmd fired, pcOnRequest=0x${fetchPc}")
                     goto(WAITING)
+                    debugService.foreach(dbg => {
+                        dbg.setDebugOnce(DebugValue.FETCH_SUCC, expectIncr=true)
+                    })
                 }
             }
         }
         
         DISABLED.whenIsActive {
             when(!fetchDisable) {
-                if(enableLog) report(L"[FSM] DISABLED->IDLE: Fetch re-enabled")
+                if(enableLog) report(L"[Fetch-FSM] DISABLED->IDLE: Fetch re-enabled")
                 goto(IDLE)
             }
         }
@@ -231,28 +237,28 @@ val doJumpRedirect = unpackedStream.valid && unpackedInstr.predecode.isDirectJum
 
         WAITING.whenIsActive {
             when(fetchDisable) {
-                if(enableLog) report(L"[FSM] WAITING->DISABLED: Fetch disabled")
+                if(enableLog) report(L"[Fetch-FSM] WAITING->DISABLED: Fetch disabled")
                 goto(DISABLED)
             } .elsewhen(doSoftRedirect) {
                 fetchPc := softRedirectTarget
-                if(enableLog) report(L"[FSM] WAITING->IDLE: Soft redirect to 0x${softRedirectTarget}")
+                if(enableLog) report(L"[Fetch-FSM] WAITING->IDLE: Soft redirect to 0x${softRedirectTarget}")
                 goto(IDLE)
             } .elsewhen(unpackedStream.fire) {
-                if(enableLog) report(L"[FSM] WAITING->UPDATE_PC: Unpacker finished (fire path)")
+                if(enableLog) report(L"[Fetch-FSM] WAITING->UPDATE_PC: Unpacker finished (fire path)")
                 goto(UPDATE_PC)
             } .elsewhen(unpackerJustFinished) {
-                if(enableLog) report(L"[FSM] WAITING->UPDATE_PC: Unpacker finished")
+                if(enableLog) report(L"[Fetch-FSM] WAITING->UPDATE_PC: Unpacker finished")
                 goto(UPDATE_PC)
             }
         }
         
         UPDATE_PC.whenIsActive {
             when(fetchDisable) {
-                if(enableLog) report(L"[FSM] UPDATE_PC->DISABLED: Fetch disabled")
+                if(enableLog) report(L"[Fetch-FSM] UPDATE_PC->DISABLED: Fetch disabled")
                 goto(DISABLED)
             } .otherwise {
                 // Normal PC increment by fetch group size (8 bytes for fetchWidth=2)
-                if(enableLog) report(L"[FSM] UPDATE_PC: Normal PC update from 0x${pcOnRequest} to 0x${pcOnRequest + ifuCfg.bytesPerFetchGroup}")
+                if(enableLog) report(L"[Fetch-FSM] UPDATE_PC: Normal PC update from 0x${pcOnRequest} to 0x${pcOnRequest + ifuCfg.bytesPerFetchGroup}")
                 fetchPc := pcOnRequest + ifuCfg.bytesPerFetchGroup
                 goto(IDLE)
             }

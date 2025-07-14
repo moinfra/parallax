@@ -25,12 +25,13 @@ import scala.collection.mutable.ArrayBuffer
 import parallax.components.display.EightSegmentDisplayController
 
 // CoreNSCSCC IO Bundle - matches thinpad_top.v interface exactly
-case class CoreNSCSCCIo(traceCommit: Boolean = false) extends Bundle {
-  val commitStats = traceCommit generate out(CommitStats())
+case class CoreNSCSCCIo(simDebug: Boolean = false) extends Bundle {
+  val onboardDebug = !simDebug
+  val commitStats = simDebug generate out(CommitStats())
 
   // New 7-segment display ports
-  val dpy0 = out Bits(8 bits) // Low digit
-  val dpy1 = out Bits(8 bits) // High digit
+  val dpy0 = onboardDebug generate {out Bits(8 bits)} // Low digit
+  val dpy1 = onboardDebug generate {out Bits(8 bits)} // High digit
 
   // ISRAM (BaseRAM) interface
   val isram_dout = in Bits(32 bits)
@@ -194,8 +195,10 @@ class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: Option[GenericMemoryBu
   }
 }
 
-class CoreNSCSCC(traceCommit: Boolean = false) extends Component {
-  val io = CoreNSCSCCIo(traceCommit)
+class CoreNSCSCC(simDebug: Boolean = false) extends Component {
+  val onboardDebug = !simDebug
+  println(s"Creating CoreNSCSCC with simDebug=${simDebug}")
+  val io = CoreNSCSCCIo(simDebug)
   
   // 基本配置
   val pCfg = PipelineConfig(
@@ -311,9 +314,6 @@ class CoreNSCSCC(traceCommit: Boolean = false) extends Component {
     end = U(0xbfd00000L + 0x400000L, 32 bits)
   )
   
-  // 创建内存系统插件
-  val memSysPlugin = new CoreMemSysPlugin(axiConfig, mmioConfig)
-
   // CoreNSCSCC设置插件 - 连接必要的控制信号
   class CoreNSCSCCSetupPlugin(pCfg: PipelineConfig) extends Plugin {
     val setup = create early new Area {
@@ -375,10 +375,11 @@ class CoreNSCSCC(traceCommit: Boolean = false) extends Component {
     }
   }
 
-  val framework = new Framework(
-    Seq(
+  def plugins() = {
+    val _plugins = ArrayBuffer[Plugin]()
+    val requried = Seq(
       // Memory system
-      memSysPlugin,
+      new CoreMemSysPlugin(axiConfig, mmioConfig),
       new DataCachePlugin(dCfg),
       new IFUPlugin(ifuCfg),
       
@@ -421,8 +422,24 @@ class CoreNSCSCC(traceCommit: Boolean = false) extends Component {
       // CoreNSCSCC setup
       new CoreNSCSCCSetupPlugin(pCfg)
     )
+
+    for (plugin <- requried) {
+      _plugins += plugin
+    }
+
+    if (onboardDebug) {
+      _plugins += new DebugDisplayPlugin()
+    } else {
+      _plugins += new SimDebugDisplayPlugin()
+    }
+
+    _plugins.toSeq
+  }
+
+  val framework = new Framework(
+    plugins()
   )
-  
+  val memSysPlugin = framework.getService[CoreMemSysPlugin]
   // 获取内存系统的SRAM接口
   val baseRamIo = memSysPlugin.logic.getBaseRamIo
   val extRamIo = memSysPlugin.logic.getExtRamIo
@@ -477,7 +494,7 @@ class CoreNSCSCC(traceCommit: Boolean = false) extends Component {
   io.uart_w_bits_last := uartAxi.w.last
   io.uart_w_valid := uartAxi.w.valid
   uartAxi.w.ready := io.uart_w_ready
-  
+
   uartAxi.b.id := io.uart_b_bits_id.asUInt.resized
   uartAxi.b.resp := io.uart_b_bits_resp.asBits
   uartAxi.b.valid := io.uart_b_valid
@@ -486,54 +503,20 @@ class CoreNSCSCC(traceCommit: Boolean = false) extends Component {
   // 连接UART AXI到LSU的MMIO路径
   memSysPlugin.logic.connectUartAxi(uartAxi)
 
-  traceCommit generate {
+  simDebug generate {
     val commitService = framework.getService[CommitPlugin]
     io.commitStats := commitService.getCommitStats()
   }
 
-  val displayArea = new Area {
-    val divider = new FrequencyDivider(100000000, 1)  // 100MHz -> 1Hz
-    val updateTick = divider.io.tick
-    
-    val displayValue = Reg(UInt(8 bits)) init(0)
-    when(updateTick) {
-      displayValue := baseRamIo.addr(7 downto 0)
-    }
-
-    val dpToggle = Reg(Bool()) init(False)
-    when(updateTick) {
-      dpToggle := !dpToggle
-    }
-  }
-
-  val dpyController = new EightSegmentDisplayController()
-  dpyController.io.value := displayArea.displayValue
-  dpyController.io.dp0 := !displayArea.dpToggle
-  dpyController.io.dp1 := displayArea.dpToggle
-
-  // Connect the display controller outputs to the top-level IO
-  io.dpy0 := dpyController.io.dpy0_out
-  io.dpy1 := dpyController.io.dpy1_out
-}
-
-class FrequencyDivider(inputFreq: Int, outputFreq: Int) extends Component {
-  val io = new Bundle {
-    val tick = out Bool()
-  }
-  
-  val divideRatio = inputFreq / outputFreq
-  val counterMax = divideRatio - 1
-  val counterWidth = log2Up(divideRatio)
-  
-  val counter = Reg(UInt(counterWidth bits)) init(0)
-  io.tick := counter === counterMax
-  
-  when(io.tick) {
-    counter := 0
-  } otherwise {
-    counter := counter + 1
+  onboardDebug generate {
+    val debugInfoDisplayService = framework.getService[DebugDisplayService]
+    val (dpy0, dpy1) = debugInfoDisplayService.getDpyOutputs()
+    io.dpy0 := dpy0
+    io.dpy1 := dpy1
   }
 }
+
+
 
 // Verilog生成器
 object CoreNSCSCCGen extends App {
