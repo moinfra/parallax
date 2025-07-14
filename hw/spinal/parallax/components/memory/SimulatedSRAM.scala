@@ -97,9 +97,6 @@ class SimulatedSRAM(
            s"Internal Error: Padded initial content size (${initialBitsSeq.length}) does not match memory word count (${config.internalWordCount}). This should not happen if MemoryInitHelper works correctly.")
 
     mem.init(initialBitsSeq)
-    if (enableLog) {
-      report(L"$prefix Memory initialized with ${initialContent.length} words of data and ${paddedInitialContent.length - initialContent.length} words of padding.")
-    }
   } 
   // --- NO CHANGE TO TB LOGIC ---
   // The testbench helper ports always work with byte addresses from the test's perspective,

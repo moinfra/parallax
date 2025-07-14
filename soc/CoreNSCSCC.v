@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 3105a33b457518a7afeed8b0527b4d8b9dab2383
 // Component : CoreNSCSCC
-// Git hash  : f5b27689e3527a08f9fd5eda31505b6971787346
+// Git hash  : 50106ed1ebe9728f6eec4523b84d1a0911412f40
 
 `timescale 1ns/1ps
 
@@ -1320,19 +1320,19 @@ module CoreNSCSCC (
   wire                axi4WriteOnlyArbiter_5_io_output_b_ready;
   wire       [7:0]    _zz_io_triggerIn;
   wire       [0:0]    _zz_io_triggerIn_1;
-  wire       [7:0]    _zz_when_Debug_l64_13;
+  wire       [7:0]    _zz_when_Debug_l67_13;
   wire       [7:0]    _zz_io_triggerIn_2;
   wire       [4:0]    _zz_io_triggerIn_3;
-  wire       [7:0]    _zz_when_Debug_l64_1_1;
+  wire       [7:0]    _zz_when_Debug_l67_1_1;
   wire       [7:0]    _zz_io_triggerIn_4;
   wire       [4:0]    _zz_io_triggerIn_5;
-  wire       [7:0]    _zz_when_Debug_l64_2_1;
+  wire       [7:0]    _zz_when_Debug_l67_2_1;
   wire       [7:0]    _zz_io_triggerIn_6;
   wire       [4:0]    _zz_io_triggerIn_7;
-  wire       [7:0]    _zz_when_Debug_l64_3_1;
+  wire       [7:0]    _zz_when_Debug_l67_3_1;
   wire       [7:0]    _zz_io_triggerIn_8;
   wire       [4:0]    _zz_io_triggerIn_9;
-  wire       [7:0]    _zz_when_Debug_l64_4_1;
+  wire       [7:0]    _zz_when_Debug_l67_4_1;
   wire       [9:0]    _zz_BpuPipelinePlugin_logic_pht_port;
   wire       [7:0]    _zz_BpuPipelinePlugin_logic_btb_port;
   wire       [54:0]   _zz_BpuPipelinePlugin_logic_btb_port_1;
@@ -1347,7 +1347,7 @@ module CoreNSCSCC (
   wire       [31:0]   _zz_CommitPlugin_commitStatsReg_robFlushCount;
   wire       [7:0]    _zz_io_triggerIn_10;
   wire       [4:0]    _zz_io_triggerIn_11;
-  wire       [7:0]    _zz_when_Debug_l64_5_1;
+  wire       [7:0]    _zz_when_Debug_l67_5_1;
   wire       [31:0]   _zz_CommitPlugin_logic_fwd_totalCommitted;
   wire       [31:0]   _zz_CommitPlugin_logic_fwd_physRegRecycled;
   wire       [31:0]   _zz_CommitPlugin_logic_fwd_robFlushCount;
@@ -1357,7 +1357,7 @@ module CoreNSCSCC (
   wire       [0:0]    _zz_RenamePlugin_logic_branchCount_1;
   wire       [7:0]    _zz_io_triggerIn_12;
   wire       [4:0]    _zz_io_triggerIn_13;
-  wire       [7:0]    _zz_when_Debug_l64_6_1;
+  wire       [7:0]    _zz_when_Debug_l67_6_1;
   wire                _zz_DispatchPlugin_logic_dispatchOH;
   wire                _zz_DispatchPlugin_logic_dispatchOH_1;
   wire                _zz_DispatchPlugin_logic_dispatchOH_2;
@@ -1368,7 +1368,7 @@ module CoreNSCSCC (
   wire       [1:0]    _zz_AluIntEU_AluIntEuPlugin_euResult_exceptionCode;
   wire       [7:0]    _zz_io_triggerIn_14;
   wire       [4:0]    _zz_io_triggerIn_15;
-  wire       [7:0]    _zz_when_Debug_l64_7_1;
+  wire       [7:0]    _zz_when_Debug_l67_7_1;
   wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken;
   wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1;
   wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_2;
@@ -1384,22 +1384,28 @@ module CoreNSCSCC (
   wire       [31:0]   _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_4;
   wire       [7:0]    _zz_io_triggerIn_16;
   wire       [4:0]    _zz_io_triggerIn_17;
-  wire       [7:0]    _zz_when_Debug_l64_8_1;
+  wire       [7:0]    _zz_when_Debug_l67_8_1;
   wire       [7:0]    _zz_io_triggerIn_18;
   wire       [4:0]    _zz_io_triggerIn_19;
-  wire       [7:0]    _zz_when_Debug_l64_9_1;
+  wire       [7:0]    _zz_when_Debug_l67_9_1;
   wire       [7:0]    _zz_io_triggerIn_20;
   wire       [4:0]    _zz_io_triggerIn_21;
-  wire       [7:0]    _zz_when_Debug_l64_10_1;
+  wire       [7:0]    _zz_when_Debug_l67_10_1;
   wire       [7:0]    _zz_io_triggerIn_22;
   wire       [4:0]    _zz_io_triggerIn_23;
-  wire       [7:0]    _zz_when_Debug_l64_11_1;
+  wire       [7:0]    _zz_when_Debug_l67_11_1;
   wire       [31:0]   _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException_2;
   wire       [3:0]    _zz_LoadQueuePlugin_logic_loadQueue_pushOh;
   wire       [3:0]    _zz__zz_when_PhysicalRegFile_l141_3;
   reg        [5:0]    _zz__zz_when_PhysicalRegFile_l141_1;
   reg        [31:0]   _zz__zz_26;
   wire                _zz_PhysicalRegFilePlugin_logic_regFile_port;
+  wire       [2:0]    _zz_when_PhysicalRegFile_l150_8;
+  reg        [2:0]    _zz_when_PhysicalRegFile_l150_9;
+  wire       [2:0]    _zz_when_PhysicalRegFile_l150_10;
+  reg        [2:0]    _zz_when_PhysicalRegFile_l150_11;
+  wire       [2:0]    _zz_when_PhysicalRegFile_l150_12;
+  wire       [0:0]    _zz_when_PhysicalRegFile_l150_13;
   wire       [1:0]    _zz__zz_StoreBufferPlugin_logic_forwardingLogic_loadMask_1;
   wire       [3:0]    _zz__zz_StoreBufferPlugin_logic_forwardingLogic_loadMask;
   wire       [4:0]    _zz__zz_StoreBufferPlugin_logic_forwardingLogic_loadMask_2;
@@ -2209,7 +2215,7 @@ module CoreNSCSCC (
   reg                 LsuEU_LsuEuPlugin_euResult_destIsFpr;
   wire       [4:0]    DispatchPlugin_logic_iqRegs_2_0_0;
   wire       [4:0]    DispatchPlugin_logic_iqRegs_2_0_1;
-  reg        [7:0]    _zz_when_Debug_l64;
+  reg        [7:0]    _zz_when_Debug_l67;
   wire                DataCachePlugin_setup_writebackBusy;
   wire       [1:0]    DataCachePlugin_setup_refillCompletions;
   wire                DataCachePlugin_setup_dcacheMaster_aw_valid;
@@ -2288,8 +2294,8 @@ module CoreNSCSCC (
   wire       [31:0]   io_mem_toAxi4_w_payload_fragment_address;
   wire       [31:0]   io_mem_toAxi4_w_payload_fragment_data;
   wire       [0:0]    io_mem_toAxi4_w_payload_fragment_id;
-  wire       [0:0]    _zz_when_Debug_l64_1;
-  wire                when_Debug_l64;
+  wire       [0:0]    _zz_when_Debug_l67_1;
+  wire                when_Debug_l67;
   wire                IFUPlugin_setup_ifuDCacheLoadPort_cmd_valid;
   wire                IFUPlugin_setup_ifuDCacheLoadPort_cmd_ready;
   wire       [31:0]   IFUPlugin_setup_ifuDCacheLoadPort_cmd_payload_virtual;
@@ -2331,17 +2337,17 @@ module CoreNSCSCC (
   reg                 _zz_s3_Dispatch_valid;
   reg                 s3_Dispatch_valid;
   wire                s0_Decode_isFiring;
-  wire       [4:0]    _zz_when_Debug_l64_2;
-  wire                when_Debug_l64_1;
+  wire       [4:0]    _zz_when_Debug_l67_2;
+  wire                when_Debug_l67_1;
   wire                s1_Rename_isFiring;
-  wire       [4:0]    _zz_when_Debug_l64_3;
-  wire                when_Debug_l64_2;
+  wire       [4:0]    _zz_when_Debug_l67_3;
+  wire                when_Debug_l67_2;
   wire                s2_RobAlloc_isFiring;
-  wire       [4:0]    _zz_when_Debug_l64_4;
-  wire                when_Debug_l64_3;
+  wire       [4:0]    _zz_when_Debug_l67_4;
+  wire                when_Debug_l67_3;
   wire                s3_Dispatch_isFiring;
-  wire       [4:0]    _zz_when_Debug_l64_5;
-  wire                when_Debug_l64_4;
+  wire       [4:0]    _zz_when_Debug_l67_5;
+  wire                when_Debug_l67_4;
   wire                CommitPlugin_hw_fetchDisable;
   reg                 CommitPlugin_hw_robFlushPort_valid;
   reg        [1:0]    CommitPlugin_hw_robFlushPort_payload_reason;
@@ -2592,8 +2598,8 @@ module CoreNSCSCC (
   wire       [0:0]    CommitPlugin_logic_committedThisCycle_comb;
   wire       [0:0]    CommitPlugin_logic_recycledThisCycle_comb;
   wire       [0:0]    CommitPlugin_logic_flushedThisCycle_comb;
-  wire       [4:0]    _zz_when_Debug_l64_6;
-  wire                when_Debug_l64_5;
+  wire       [4:0]    _zz_when_Debug_l67_6;
+  wire                when_Debug_l67_5;
   wire       [0:0]    CommitPlugin_logic_fwd_committedThisCycle;
   wire       [31:0]   CommitPlugin_logic_fwd_totalCommitted;
   wire       [31:0]   CommitPlugin_logic_fwd_robFlushCount;
@@ -3499,8 +3505,8 @@ module CoreNSCSCC (
   wire                LsuEU_LsuEuPlugin_euInputPort_payload_usePc;
   wire       [31:0]   LsuEU_LsuEuPlugin_euInputPort_payload_pcData;
   wire                LsuEU_LsuEuPlugin_euInputPort_fire;
-  wire       [4:0]    _zz_when_Debug_l64_7;
-  wire                when_Debug_l64_6;
+  wire       [4:0]    _zz_when_Debug_l67_7;
+  wire                when_Debug_l67_6;
   wire                DispatchPlugin_logic_src1InitialReady;
   wire                DispatchPlugin_logic_src2InitialReady;
   wire       [2:0]    DispatchPlugin_logic_dispatchOH;
@@ -3528,8 +3534,8 @@ module CoreNSCSCC (
   wire       [1:0]    _zz_12;
   wire       [2:0]    _zz_13;
   wire                AluIntEU_AluIntEuPlugin_logicPhase_completesSuccessfully;
-  wire       [4:0]    _zz_when_Debug_l64_8;
-  wire                when_Debug_l64_7;
+  wire       [4:0]    _zz_when_Debug_l67_8;
+  wire                when_Debug_l67_7;
   wire                AluIntEU_AluIntEuPlugin_gprWritePort_valid;
   wire       [5:0]    AluIntEU_AluIntEuPlugin_gprWritePort_address;
   wire       [31:0]   AluIntEU_AluIntEuPlugin_gprWritePort_data;
@@ -3563,8 +3569,8 @@ module CoreNSCSCC (
   wire                when_BranchEuPlugin_l234;
   wire       [3:0]    _zz_14;
   wire                BranchEU_BranchEuPlugin_logicPhase_completesSuccessfully;
-  wire       [4:0]    _zz_when_Debug_l64_9;
-  wire                when_Debug_l64_8;
+  wire       [4:0]    _zz_when_Debug_l67_9;
+  wire                when_Debug_l67_8;
   wire                BranchEU_BranchEuPlugin_gprWritePort_valid;
   wire       [5:0]    BranchEU_BranchEuPlugin_gprWritePort_address;
   wire       [31:0]   BranchEU_BranchEuPlugin_gprWritePort_data;
@@ -3656,8 +3662,8 @@ module CoreNSCSCC (
   wire                StoreBufferPlugin_hw_pushPortInst_fire;
   wire                when_LsuEuPlugin_l142;
   wire                LsuEU_LsuEuPlugin_logicPhase_completesSuccessfully;
-  wire       [4:0]    _zz_when_Debug_l64_10;
-  wire                when_Debug_l64_9;
+  wire       [4:0]    _zz_when_Debug_l67_10;
+  wire                when_Debug_l67_9;
   wire                LsuEU_LsuEuPlugin_gprWritePort_valid;
   wire       [5:0]    LsuEU_LsuEuPlugin_gprWritePort_address;
   wire       [31:0]   LsuEU_LsuEuPlugin_gprWritePort_data;
@@ -3727,11 +3733,11 @@ module CoreNSCSCC (
   wire                SimpleFetchPipelinePlugin_logic_doSoftRedirect;
   wire       [31:0]   SimpleFetchPipelinePlugin_logic_softRedirectTarget;
   wire                SimpleFetchPipelinePlugin_logic_fetchDisable;
-  wire       [4:0]    _zz_when_Debug_l64_11;
-  wire                when_Debug_l64_10;
+  wire       [4:0]    _zz_when_Debug_l67_11;
+  wire                when_Debug_l67_10;
   wire                SimpleFetchPipelinePlugin_logic_ifuPort_cmd_fire;
-  wire       [4:0]    _zz_when_Debug_l64_12;
-  wire                when_Debug_l64_11;
+  wire       [4:0]    _zz_when_Debug_l67_12;
+  wire                when_Debug_l67_11;
   wire                SimpleFetchPipelinePlugin_logic_fsm_wantExit;
   reg                 SimpleFetchPipelinePlugin_logic_fsm_wantStart;
   wire                SimpleFetchPipelinePlugin_logic_fsm_wantKill;
@@ -4020,6 +4026,16 @@ module CoreNSCSCC (
   wire                _zz_when_PhysicalRegFile_l141_8;
   wire       [1:0]    _zz_when_PhysicalRegFile_l141_9;
   wire                when_PhysicalRegFile_l141;
+  wire       [2:0]    _zz_when_PhysicalRegFile_l150;
+  wire       [2:0]    _zz_when_PhysicalRegFile_l150_1;
+  wire       [2:0]    _zz_when_PhysicalRegFile_l150_2;
+  wire       [2:0]    _zz_when_PhysicalRegFile_l150_3;
+  wire       [2:0]    _zz_when_PhysicalRegFile_l150_4;
+  wire       [2:0]    _zz_when_PhysicalRegFile_l150_5;
+  wire       [2:0]    _zz_when_PhysicalRegFile_l150_6;
+  wire       [2:0]    _zz_when_PhysicalRegFile_l150_7;
+  wire                when_PhysicalRegFile_l150;
+  wire       [7:0]    _zz_28;
   reg                 StoreBufferPlugin_logic_slots_0_isFlush;
   reg        [31:0]   StoreBufferPlugin_logic_slots_0_addr;
   reg        [31:0]   StoreBufferPlugin_logic_slots_0_data;
@@ -4217,9 +4233,9 @@ module CoreNSCSCC (
   wire                StoreBufferPlugin_logic_validFall_2;
   wire                StoreBufferPlugin_logic_validFall_3;
   wire                StoreBufferPlugin_logic_canPush;
-  wire                _zz_28;
   wire                _zz_29;
-  wire       [1:0]    _zz_30;
+  wire                _zz_30;
+  wire       [1:0]    _zz_31;
   wire                _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush;
   wire       [31:0]   _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr;
   wire       [31:0]   _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data;
@@ -4229,11 +4245,11 @@ module CoreNSCSCC (
   wire                _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO;
   wire                _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException;
   wire       [7:0]    _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode;
-  wire       [3:0]    _zz_31;
-  wire                _zz_32;
+  wire       [3:0]    _zz_32;
   wire                _zz_33;
   wire                _zz_34;
   wire                _zz_35;
+  wire                _zz_36;
   wire                StoreBufferPlugin_logic_sharedWriteCond;
   wire                StoreBufferPlugin_logic_canPopNormalOp;
   wire                StoreBufferPlugin_logic_canPopFlushOp;
@@ -4736,7 +4752,7 @@ module CoreNSCSCC (
   wire                io_outputs_2_aw_validPipe_fire_2;
   reg        [2:0]    SimpleFetchPipelinePlugin_logic_fsm_stateReg;
   reg        [2:0]    SimpleFetchPipelinePlugin_logic_fsm_stateNext;
-  wire       [31:0]   _zz_36;
+  wire       [31:0]   _zz_37;
   wire                when_SimpleFetchPipelinePlugin_l231;
   wire                SimpleFetchPipelinePlugin_logic_fsm_onExit_BOOT;
   wire                SimpleFetchPipelinePlugin_logic_fsm_onExit_IDLE;
@@ -5127,29 +5143,29 @@ module CoreNSCSCC (
       zz_CheckpointManagerPlugin_logic_initialFreeMask[63] = 1'b1;
     end
   endfunction
-  wire [63:0] _zz_37;
+  wire [63:0] _zz_38;
 
   assign _zz_io_triggerIn_1 = 1'b1;
   assign _zz_io_triggerIn = {7'd0, _zz_io_triggerIn_1};
-  assign _zz_when_Debug_l64_13 = {7'd0, _zz_when_Debug_l64_1};
+  assign _zz_when_Debug_l67_13 = {7'd0, _zz_when_Debug_l67_1};
   assign _zz_io_triggerIn_3 = 5'h13;
   assign _zz_io_triggerIn_2 = {3'd0, _zz_io_triggerIn_3};
-  assign _zz_when_Debug_l64_1_1 = {3'd0, _zz_when_Debug_l64_2};
+  assign _zz_when_Debug_l67_1_1 = {3'd0, _zz_when_Debug_l67_2};
   assign _zz_io_triggerIn_5 = 5'h15;
   assign _zz_io_triggerIn_4 = {3'd0, _zz_io_triggerIn_5};
-  assign _zz_when_Debug_l64_2_1 = {3'd0, _zz_when_Debug_l64_3};
+  assign _zz_when_Debug_l67_2_1 = {3'd0, _zz_when_Debug_l67_3};
   assign _zz_io_triggerIn_7 = 5'h14;
   assign _zz_io_triggerIn_6 = {3'd0, _zz_io_triggerIn_7};
-  assign _zz_when_Debug_l64_3_1 = {3'd0, _zz_when_Debug_l64_4};
+  assign _zz_when_Debug_l67_3_1 = {3'd0, _zz_when_Debug_l67_4};
   assign _zz_io_triggerIn_9 = 5'h16;
   assign _zz_io_triggerIn_8 = {3'd0, _zz_io_triggerIn_9};
-  assign _zz_when_Debug_l64_4_1 = {3'd0, _zz_when_Debug_l64_5};
+  assign _zz_when_Debug_l67_4_1 = {3'd0, _zz_when_Debug_l67_5};
   assign _zz_CommitPlugin_commitStatsReg_totalCommitted = {31'd0, CommitPlugin_logic_committedThisCycle_comb};
   assign _zz_CommitPlugin_commitStatsReg_physRegRecycled = {31'd0, CommitPlugin_logic_recycledThisCycle_comb};
   assign _zz_CommitPlugin_commitStatsReg_robFlushCount = {31'd0, CommitPlugin_logic_flushedThisCycle_comb};
   assign _zz_io_triggerIn_11 = 5'h19;
   assign _zz_io_triggerIn_10 = {3'd0, _zz_io_triggerIn_11};
-  assign _zz_when_Debug_l64_5_1 = {3'd0, _zz_when_Debug_l64_6};
+  assign _zz_when_Debug_l67_5_1 = {3'd0, _zz_when_Debug_l67_6};
   assign _zz_CommitPlugin_logic_fwd_totalCommitted = {31'd0, CommitPlugin_logic_committedThisCycle_comb};
   assign _zz_CommitPlugin_logic_fwd_physRegRecycled = {31'd0, CommitPlugin_logic_recycledThisCycle_comb};
   assign _zz_CommitPlugin_logic_fwd_robFlushCount = {31'd0, CommitPlugin_logic_flushedThisCycle_comb};
@@ -5157,11 +5173,11 @@ module CoreNSCSCC (
   assign _zz_RenamePlugin_logic_notEnoughPhysRegs = {6'd0, _zz_RenamePlugin_logic_notEnoughPhysRegs_1};
   assign _zz_io_triggerIn_13 = 5'h17;
   assign _zz_io_triggerIn_12 = {3'd0, _zz_io_triggerIn_13};
-  assign _zz_when_Debug_l64_6_1 = {3'd0, _zz_when_Debug_l64_7};
+  assign _zz_when_Debug_l67_6_1 = {3'd0, _zz_when_Debug_l67_7};
   assign _zz_AluIntEU_AluIntEuPlugin_euResult_exceptionCode = AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_exceptionCode;
   assign _zz_io_triggerIn_15 = 5'h18;
   assign _zz_io_triggerIn_14 = {3'd0, _zz_io_triggerIn_15};
-  assign _zz_when_Debug_l64_7_1 = {3'd0, _zz_when_Debug_l64_8};
+  assign _zz_when_Debug_l67_7_1 = {3'd0, _zz_when_Debug_l67_8};
   assign _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken = BranchEU_BranchEuPlugin_gprReadPorts_0_rsp;
   assign _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1 = BranchEU_BranchEuPlugin_gprReadPorts_1_rsp;
   assign _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_2 = BranchEU_BranchEuPlugin_gprReadPorts_1_rsp;
@@ -5177,19 +5193,22 @@ module CoreNSCSCC (
   assign _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_4 = _zz_BranchEU_BranchEuPlugin_euResult_uop_imm;
   assign _zz_io_triggerIn_17 = 5'h18;
   assign _zz_io_triggerIn_16 = {3'd0, _zz_io_triggerIn_17};
-  assign _zz_when_Debug_l64_8_1 = {3'd0, _zz_when_Debug_l64_9};
+  assign _zz_when_Debug_l67_8_1 = {3'd0, _zz_when_Debug_l67_9};
   assign _zz_io_triggerIn_19 = 5'h18;
   assign _zz_io_triggerIn_18 = {3'd0, _zz_io_triggerIn_19};
-  assign _zz_when_Debug_l64_9_1 = {3'd0, _zz_when_Debug_l64_10};
+  assign _zz_when_Debug_l67_9_1 = {3'd0, _zz_when_Debug_l67_10};
   assign _zz_io_triggerIn_21 = 5'h11;
   assign _zz_io_triggerIn_20 = {3'd0, _zz_io_triggerIn_21};
-  assign _zz_when_Debug_l64_10_1 = {3'd0, _zz_when_Debug_l64_11};
+  assign _zz_when_Debug_l67_10_1 = {3'd0, _zz_when_Debug_l67_11};
   assign _zz_io_triggerIn_23 = 5'h12;
   assign _zz_io_triggerIn_22 = {3'd0, _zz_io_triggerIn_23};
-  assign _zz_when_Debug_l64_11_1 = {3'd0, _zz_when_Debug_l64_12};
+  assign _zz_when_Debug_l67_11_1 = {3'd0, _zz_when_Debug_l67_12};
   assign _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException_2 = {29'd0, _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException_1};
   assign _zz_LoadQueuePlugin_logic_loadQueue_pushOh = ((~ LoadQueuePlugin_logic_loadQueue_availableSlotsMask) + 4'b0001);
   assign _zz__zz_when_PhysicalRegFile_l141_3 = (_zz_when_PhysicalRegFile_l141_2 - 4'b0001);
+  assign _zz_when_PhysicalRegFile_l150_8 = (_zz_when_PhysicalRegFile_l150_9 + _zz_when_PhysicalRegFile_l150_11);
+  assign _zz_when_PhysicalRegFile_l150_13 = LsuEU_LsuEuPlugin_gprWritePort_valid;
+  assign _zz_when_PhysicalRegFile_l150_12 = {2'd0, _zz_when_PhysicalRegFile_l150_13};
   assign _zz__zz_StoreBufferPlugin_logic_forwardingLogic_loadMask_1 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[1 : 0];
   assign _zz__zz_StoreBufferPlugin_logic_forwardingLogic_loadMask = ({3'd0,1'b1} <<< _zz_StoreBufferPlugin_logic_forwardingLogic_loadMask_1);
   assign _zz__zz_StoreBufferPlugin_logic_forwardingLogic_loadMask_2 = _zz__zz_StoreBufferPlugin_logic_forwardingLogic_loadMask_3;
@@ -5217,6 +5236,7 @@ module CoreNSCSCC (
   assign _zz_CommitPlugin_logic_recycledThisCycle_comb_1 = SuperScalarFreeListPlugin_early_setup_freeList_io_free_0_enable;
   assign _zz_RenamePlugin_logic_branchCount_1 = RenamePlugin_logic_branchMask_0;
   assign _zz_DispatchPlugin_logic_destinationIqReady_3 = {_zz_DispatchPlugin_logic_destinationIqReady_1,_zz_DispatchPlugin_logic_destinationIqReady};
+  assign _zz_when_PhysicalRegFile_l150_10 = {BranchEU_BranchEuPlugin_gprWritePort_valid,{AluIntEU_AluIntEuPlugin_gprWritePort_valid,LoadQueuePlugin_hw_prfWritePort_valid}};
   assign _zz_DispatchPlugin_logic_dispatchOH = (s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode == DispatchPlugin_logic_iqRegs_1_0_1);
   assign _zz_DispatchPlugin_logic_dispatchOH_1 = (s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode == DispatchPlugin_logic_iqRegs_1_0_0);
   assign _zz_DispatchPlugin_logic_dispatchOH_2 = (s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode == DispatchPlugin_logic_iqRegs_0_0_2);
@@ -6035,7 +6055,7 @@ module CoreNSCSCC (
     .reset                                                    (reset                                                                                        )  //i
   );
   EightSegmentDisplayController DebugDisplayPlugin_hw_dpyController (
-    .io_value    (_zz_when_Debug_l64[7:0]                             ), //i
+    .io_value    (_zz_when_Debug_l67[7:0]                             ), //i
     .io_dp0      (DebugDisplayPlugin_hw_dpyController_io_dp0          ), //i
     .io_dp1      (DebugDisplayPlugin_logic_displayArea_dpToggle       ), //i
     .io_dpy0_out (DebugDisplayPlugin_hw_dpyController_io_dpy0_out[7:0]), //o
@@ -7757,6 +7777,32 @@ module CoreNSCSCC (
         _zz__zz_when_PhysicalRegFile_l141_1 = LsuEU_LsuEuPlugin_gprWritePort_address;
         _zz__zz_26 = LsuEU_LsuEuPlugin_gprWritePort_data;
       end
+    endcase
+  end
+
+  always @(*) begin
+    case(_zz_when_PhysicalRegFile_l150_10)
+      3'b000 : _zz_when_PhysicalRegFile_l150_9 = _zz_when_PhysicalRegFile_l150;
+      3'b001 : _zz_when_PhysicalRegFile_l150_9 = _zz_when_PhysicalRegFile_l150_1;
+      3'b010 : _zz_when_PhysicalRegFile_l150_9 = _zz_when_PhysicalRegFile_l150_2;
+      3'b011 : _zz_when_PhysicalRegFile_l150_9 = _zz_when_PhysicalRegFile_l150_3;
+      3'b100 : _zz_when_PhysicalRegFile_l150_9 = _zz_when_PhysicalRegFile_l150_4;
+      3'b101 : _zz_when_PhysicalRegFile_l150_9 = _zz_when_PhysicalRegFile_l150_5;
+      3'b110 : _zz_when_PhysicalRegFile_l150_9 = _zz_when_PhysicalRegFile_l150_6;
+      default : _zz_when_PhysicalRegFile_l150_9 = _zz_when_PhysicalRegFile_l150_7;
+    endcase
+  end
+
+  always @(*) begin
+    case(_zz_when_PhysicalRegFile_l150_12)
+      3'b000 : _zz_when_PhysicalRegFile_l150_11 = _zz_when_PhysicalRegFile_l150;
+      3'b001 : _zz_when_PhysicalRegFile_l150_11 = _zz_when_PhysicalRegFile_l150_1;
+      3'b010 : _zz_when_PhysicalRegFile_l150_11 = _zz_when_PhysicalRegFile_l150_2;
+      3'b011 : _zz_when_PhysicalRegFile_l150_11 = _zz_when_PhysicalRegFile_l150_3;
+      3'b100 : _zz_when_PhysicalRegFile_l150_11 = _zz_when_PhysicalRegFile_l150_4;
+      3'b101 : _zz_when_PhysicalRegFile_l150_11 = _zz_when_PhysicalRegFile_l150_5;
+      3'b110 : _zz_when_PhysicalRegFile_l150_11 = _zz_when_PhysicalRegFile_l150_6;
+      default : _zz_when_PhysicalRegFile_l150_11 = _zz_when_PhysicalRegFile_l150_7;
     endcase
   end
 
@@ -12446,25 +12492,25 @@ module CoreNSCSCC (
   assign io_mem_toAxi4_w_ready = DataCachePlugin_setup_dcacheMaster_w_ready;
   assign DataCachePlugin_setup_cache_io_mem_write_rsp_payload_error = (! (DataCachePlugin_setup_dcacheMaster_b_payload_resp == 2'b00));
   assign DataCachePlugin_setup_dcacheMaster_b_ready = 1'b1;
-  assign oneShot_12_io_triggerIn = (1'b1 && (_zz_when_Debug_l64 < _zz_io_triggerIn));
-  assign _zz_when_Debug_l64_1 = 1'b1;
-  assign when_Debug_l64 = (_zz_when_Debug_l64 < _zz_when_Debug_l64_13);
+  assign oneShot_12_io_triggerIn = (1'b1 && (_zz_when_Debug_l67 < _zz_io_triggerIn));
+  assign _zz_when_Debug_l67_1 = 1'b1;
+  assign when_Debug_l67 = (_zz_when_Debug_l67 < _zz_when_Debug_l67_13);
   assign s0_Decode_isFiring = (s0_Decode_valid && s0_Decode_ready);
-  assign oneShot_13_io_triggerIn = (s0_Decode_isFiring && (_zz_when_Debug_l64 < _zz_io_triggerIn_2));
-  assign _zz_when_Debug_l64_2 = 5'h13;
-  assign when_Debug_l64_1 = (_zz_when_Debug_l64 < _zz_when_Debug_l64_1_1);
+  assign oneShot_13_io_triggerIn = (s0_Decode_isFiring && (_zz_when_Debug_l67 < _zz_io_triggerIn_2));
+  assign _zz_when_Debug_l67_2 = 5'h13;
+  assign when_Debug_l67_1 = (_zz_when_Debug_l67 < _zz_when_Debug_l67_1_1);
   assign s1_Rename_isFiring = (s1_Rename_valid && s1_Rename_ready);
-  assign oneShot_14_io_triggerIn = (s1_Rename_isFiring && (_zz_when_Debug_l64 < _zz_io_triggerIn_4));
-  assign _zz_when_Debug_l64_3 = 5'h15;
-  assign when_Debug_l64_2 = (_zz_when_Debug_l64 < _zz_when_Debug_l64_2_1);
+  assign oneShot_14_io_triggerIn = (s1_Rename_isFiring && (_zz_when_Debug_l67 < _zz_io_triggerIn_4));
+  assign _zz_when_Debug_l67_3 = 5'h15;
+  assign when_Debug_l67_2 = (_zz_when_Debug_l67 < _zz_when_Debug_l67_2_1);
   assign s2_RobAlloc_isFiring = (s2_RobAlloc_valid && s2_RobAlloc_ready);
-  assign oneShot_15_io_triggerIn = (s2_RobAlloc_isFiring && (_zz_when_Debug_l64 < _zz_io_triggerIn_6));
-  assign _zz_when_Debug_l64_4 = 5'h14;
-  assign when_Debug_l64_3 = (_zz_when_Debug_l64 < _zz_when_Debug_l64_3_1);
+  assign oneShot_15_io_triggerIn = (s2_RobAlloc_isFiring && (_zz_when_Debug_l67 < _zz_io_triggerIn_6));
+  assign _zz_when_Debug_l67_4 = 5'h14;
+  assign when_Debug_l67_3 = (_zz_when_Debug_l67 < _zz_when_Debug_l67_3_1);
   assign s3_Dispatch_isFiring = (s3_Dispatch_valid && s3_Dispatch_ready);
-  assign oneShot_16_io_triggerIn = (s3_Dispatch_isFiring && (_zz_when_Debug_l64 < _zz_io_triggerIn_8));
-  assign _zz_when_Debug_l64_5 = 5'h16;
-  assign when_Debug_l64_4 = (_zz_when_Debug_l64 < _zz_when_Debug_l64_4_1);
+  assign oneShot_16_io_triggerIn = (s3_Dispatch_isFiring && (_zz_when_Debug_l67 < _zz_io_triggerIn_8));
+  assign _zz_when_Debug_l67_5 = 5'h16;
+  assign when_Debug_l67_4 = (_zz_when_Debug_l67 < _zz_when_Debug_l67_4_1);
   assign BpuPipelinePlugin_logic_s1_read_valid = BpuPipelinePlugin_queryPortIn_valid;
   assign BpuPipelinePlugin_logic_s1_read_Q_PC = BpuPipelinePlugin_queryPortIn_payload_pc;
   assign BpuPipelinePlugin_logic_s1_read_TRANSACTION_ID = BpuPipelinePlugin_queryPortIn_payload_transactionId;
@@ -12570,8 +12616,8 @@ module CoreNSCSCC (
   assign CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_29 = 6'h1d;
   assign CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_30 = 6'h1e;
   assign CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_31 = 6'h1f;
-  assign _zz_37 = zz_CheckpointManagerPlugin_logic_initialFreeMask(1'b0);
-  always @(*) CheckpointManagerPlugin_logic_initialFreeMask = _zz_37;
+  assign _zz_38 = zz_CheckpointManagerPlugin_logic_initialFreeMask(1'b0);
+  always @(*) CheckpointManagerPlugin_logic_initialFreeMask = _zz_38;
   assign CheckpointManagerPlugin_logic_initialFlCheckpoint_freeMask = CheckpointManagerPlugin_logic_initialFreeMask;
   assign CheckpointManagerPlugin_logic_initialBtCheckpoint_busyBits = 64'h0;
   assign CommitPlugin_logic_commitAckMasks_0 = ((CommitPlugin_commitEnableExt && ROBPlugin_robComponent_io_commit_0_valid) && (! CommitPlugin_committedIdleReg));
@@ -12615,9 +12661,9 @@ module CoreNSCSCC (
   assign CommitPlugin_logic_committedThisCycle_comb = _zz_CommitPlugin_logic_committedThisCycle_comb;
   assign CommitPlugin_logic_recycledThisCycle_comb = _zz_CommitPlugin_logic_recycledThisCycle_comb;
   assign CommitPlugin_logic_flushedThisCycle_comb = CommitPlugin_hw_robFlushPort_valid;
-  assign oneShot_17_io_triggerIn = (CommitPlugin_logic_committedThisCycle_comb[0] && (_zz_when_Debug_l64 < _zz_io_triggerIn_10));
-  assign _zz_when_Debug_l64_6 = 5'h19;
-  assign when_Debug_l64_5 = (_zz_when_Debug_l64 < _zz_when_Debug_l64_5_1);
+  assign oneShot_17_io_triggerIn = (CommitPlugin_logic_committedThisCycle_comb[0] && (_zz_when_Debug_l67 < _zz_io_triggerIn_10));
+  assign _zz_when_Debug_l67_6 = 5'h19;
+  assign when_Debug_l67_5 = (_zz_when_Debug_l67 < _zz_when_Debug_l67_5_1);
   assign CommitPlugin_logic_fwd_committedThisCycle = CommitPlugin_logic_committedThisCycle_comb;
   assign CommitPlugin_logic_fwd_totalCommitted = (CommitPlugin_commitStatsReg_totalCommitted + _zz_CommitPlugin_logic_fwd_totalCommitted);
   assign CommitPlugin_logic_fwd_physRegRecycled = (CommitPlugin_commitStatsReg_physRegRecycled + _zz_CommitPlugin_logic_fwd_physRegRecycled);
@@ -13542,9 +13588,9 @@ module CoreNSCSCC (
   assign LsuEU_LsuEuPlugin_euInputPort_payload_usePc = issueQueueComponent_5_io_issueOut_payload_usePc;
   assign LsuEU_LsuEuPlugin_euInputPort_payload_pcData = issueQueueComponent_5_io_issueOut_payload_pcData;
   assign LsuEU_LsuEuPlugin_euInputPort_fire = (LsuEU_LsuEuPlugin_euInputPort_valid && LsuEU_LsuEuPlugin_euInputPort_ready);
-  assign oneShot_18_io_triggerIn = (AluIntEU_AluIntEuPlugin_euInputPort_fire && (_zz_when_Debug_l64 < _zz_io_triggerIn_12));
-  assign _zz_when_Debug_l64_7 = 5'h17;
-  assign when_Debug_l64_6 = (_zz_when_Debug_l64 < _zz_when_Debug_l64_6_1);
+  assign oneShot_18_io_triggerIn = (AluIntEU_AluIntEuPlugin_euInputPort_fire && (_zz_when_Debug_l67 < _zz_io_triggerIn_12));
+  assign _zz_when_Debug_l67_7 = 5'h17;
+  assign when_Debug_l67_6 = (_zz_when_Debug_l67 < _zz_when_Debug_l67_6_1);
   assign DispatchPlugin_logic_src1InitialReady = ((! s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc1) || (! BusyTablePlugin_combinationalBusyBits[s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc1_idx]));
   assign DispatchPlugin_logic_src2InitialReady = ((! s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc2) || (! BusyTablePlugin_combinationalBusyBits[s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2_idx]));
   assign DispatchPlugin_logic_dispatchOH = {(|{(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode == DispatchPlugin_logic_iqRegs_2_0_1),(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode == DispatchPlugin_logic_iqRegs_2_0_0)}),{(|{(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode == DispatchPlugin_logic_iqRegs_1_0_2),{_zz_DispatchPlugin_logic_dispatchOH,_zz_DispatchPlugin_logic_dispatchOH_1}}),(|{(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode == DispatchPlugin_logic_iqRegs_0_0_3),{_zz_DispatchPlugin_logic_dispatchOH_2,{_zz_DispatchPlugin_logic_dispatchOH_3,_zz_DispatchPlugin_logic_dispatchOH_4}}})}};
@@ -15989,9 +16035,9 @@ module CoreNSCSCC (
   assign s1_ReadRegs_ready = 1'b1;
   assign s2_Execute_ready = 1'b1;
   assign AluIntEU_AluIntEuPlugin_logicPhase_completesSuccessfully = (AluIntEU_AluIntEuPlugin_euResult_valid && (! AluIntEU_AluIntEuPlugin_euResult_hasException));
-  assign oneShot_19_io_triggerIn = (AluIntEU_AluIntEuPlugin_euResult_valid && (_zz_when_Debug_l64 < _zz_io_triggerIn_14));
-  assign _zz_when_Debug_l64_8 = 5'h18;
-  assign when_Debug_l64_7 = (_zz_when_Debug_l64 < _zz_when_Debug_l64_7_1);
+  assign oneShot_19_io_triggerIn = (AluIntEU_AluIntEuPlugin_euResult_valid && (_zz_when_Debug_l67 < _zz_io_triggerIn_14));
+  assign _zz_when_Debug_l67_8 = 5'h18;
+  assign when_Debug_l67_7 = (_zz_when_Debug_l67 < _zz_when_Debug_l67_7_1);
   assign AluIntEU_AluIntEuPlugin_gprWritePort_valid = ((AluIntEU_AluIntEuPlugin_logicPhase_completesSuccessfully && AluIntEU_AluIntEuPlugin_euResult_writesToPreg) && (! AluIntEU_AluIntEuPlugin_euResult_destIsFpr));
   assign AluIntEU_AluIntEuPlugin_gprWritePort_address = AluIntEU_AluIntEuPlugin_euResult_uop_physDest_idx;
   assign AluIntEU_AluIntEuPlugin_gprWritePort_data = AluIntEU_AluIntEuPlugin_euResult_data;
@@ -16185,9 +16231,9 @@ module CoreNSCSCC (
   assign s0_Dispatch_ready = 1'b1;
   assign s1_Resolve_ready = 1'b1;
   assign BranchEU_BranchEuPlugin_logicPhase_completesSuccessfully = (BranchEU_BranchEuPlugin_euResult_valid && (! BranchEU_BranchEuPlugin_euResult_hasException));
-  assign oneShot_20_io_triggerIn = (BranchEU_BranchEuPlugin_euResult_valid && (_zz_when_Debug_l64 < _zz_io_triggerIn_16));
-  assign _zz_when_Debug_l64_9 = 5'h18;
-  assign when_Debug_l64_8 = (_zz_when_Debug_l64 < _zz_when_Debug_l64_8_1);
+  assign oneShot_20_io_triggerIn = (BranchEU_BranchEuPlugin_euResult_valid && (_zz_when_Debug_l67 < _zz_io_triggerIn_16));
+  assign _zz_when_Debug_l67_9 = 5'h18;
+  assign when_Debug_l67_8 = (_zz_when_Debug_l67 < _zz_when_Debug_l67_8_1);
   assign BranchEU_BranchEuPlugin_gprWritePort_valid = ((BranchEU_BranchEuPlugin_logicPhase_completesSuccessfully && BranchEU_BranchEuPlugin_euResult_writesToPreg) && (! BranchEU_BranchEuPlugin_euResult_destIsFpr));
   assign BranchEU_BranchEuPlugin_gprWritePort_address = BranchEU_BranchEuPlugin_euResult_uop_physDest_idx;
   assign BranchEU_BranchEuPlugin_gprWritePort_data = BranchEU_BranchEuPlugin_euResult_data;
@@ -16317,9 +16363,9 @@ module CoreNSCSCC (
   assign StoreBufferPlugin_hw_pushPortInst_fire = (StoreBufferPlugin_hw_pushPortInst_valid && StoreBufferPlugin_hw_pushPortInst_ready);
   assign when_LsuEuPlugin_l142 = (LsuEU_LsuEuPlugin_hw_lqPushPort_fire || StoreBufferPlugin_hw_pushPortInst_fire);
   assign LsuEU_LsuEuPlugin_logicPhase_completesSuccessfully = (LsuEU_LsuEuPlugin_euResult_valid && (! LsuEU_LsuEuPlugin_euResult_hasException));
-  assign oneShot_21_io_triggerIn = (LsuEU_LsuEuPlugin_euResult_valid && (_zz_when_Debug_l64 < _zz_io_triggerIn_18));
-  assign _zz_when_Debug_l64_10 = 5'h18;
-  assign when_Debug_l64_9 = (_zz_when_Debug_l64 < _zz_when_Debug_l64_9_1);
+  assign oneShot_21_io_triggerIn = (LsuEU_LsuEuPlugin_euResult_valid && (_zz_when_Debug_l67 < _zz_io_triggerIn_18));
+  assign _zz_when_Debug_l67_10 = 5'h18;
+  assign when_Debug_l67_9 = (_zz_when_Debug_l67 < _zz_when_Debug_l67_9_1);
   assign LsuEU_LsuEuPlugin_gprWritePort_valid = ((LsuEU_LsuEuPlugin_logicPhase_completesSuccessfully && LsuEU_LsuEuPlugin_euResult_writesToPreg) && (! LsuEU_LsuEuPlugin_euResult_destIsFpr));
   assign LsuEU_LsuEuPlugin_gprWritePort_address = LsuEU_LsuEuPlugin_euResult_uop_physDest_idx;
   assign LsuEU_LsuEuPlugin_gprWritePort_data = LsuEU_LsuEuPlugin_euResult_data;
@@ -16474,13 +16520,13 @@ module CoreNSCSCC (
   assign SimpleFetchPipelinePlugin_logic_doSoftRedirect = (SimpleFetchPipelinePlugin_logic_doBpuRedirect || SimpleFetchPipelinePlugin_logic_doJumpRedirect);
   assign SimpleFetchPipelinePlugin_logic_softRedirectTarget = (SimpleFetchPipelinePlugin_logic_doBpuRedirect ? BpuPipelinePlugin_responseFlowOut_payload_target : SimpleFetchPipelinePlugin_logic_jumpTarget);
   assign SimpleFetchPipelinePlugin_logic_fetchDisable = (|CommitPlugin_hw_fetchDisable);
-  assign oneShot_22_io_triggerIn = (SimpleFetchPipelinePlugin_logic_ifuPort_cmd_valid && (_zz_when_Debug_l64 < _zz_io_triggerIn_20));
-  assign _zz_when_Debug_l64_11 = 5'h11;
-  assign when_Debug_l64_10 = (_zz_when_Debug_l64 < _zz_when_Debug_l64_10_1);
+  assign oneShot_22_io_triggerIn = (SimpleFetchPipelinePlugin_logic_ifuPort_cmd_valid && (_zz_when_Debug_l67 < _zz_io_triggerIn_20));
+  assign _zz_when_Debug_l67_11 = 5'h11;
+  assign when_Debug_l67_10 = (_zz_when_Debug_l67 < _zz_when_Debug_l67_10_1);
   assign SimpleFetchPipelinePlugin_logic_ifuPort_cmd_fire = (SimpleFetchPipelinePlugin_logic_ifuPort_cmd_valid && SimpleFetchPipelinePlugin_logic_ifuPort_cmd_ready);
-  assign oneShot_23_io_triggerIn = (SimpleFetchPipelinePlugin_logic_ifuPort_cmd_fire && (_zz_when_Debug_l64 < _zz_io_triggerIn_22));
-  assign _zz_when_Debug_l64_12 = 5'h12;
-  assign when_Debug_l64_11 = (_zz_when_Debug_l64 < _zz_when_Debug_l64_11_1);
+  assign oneShot_23_io_triggerIn = (SimpleFetchPipelinePlugin_logic_ifuPort_cmd_fire && (_zz_when_Debug_l67 < _zz_io_triggerIn_22));
+  assign _zz_when_Debug_l67_12 = 5'h12;
+  assign when_Debug_l67_11 = (_zz_when_Debug_l67 < _zz_when_Debug_l67_11_1);
   assign SimpleFetchPipelinePlugin_logic_fsm_wantExit = 1'b0;
   always @(*) begin
     SimpleFetchPipelinePlugin_logic_fsm_wantStart = 1'b0;
@@ -18485,10 +18531,20 @@ module CoreNSCSCC (
   assign _zz_when_PhysicalRegFile_l141_1 = _zz__zz_when_PhysicalRegFile_l141_1;
   assign _zz_26 = _zz__zz_26;
   assign when_PhysicalRegFile_l141 = (_zz_when_PhysicalRegFile_l141 && (_zz_when_PhysicalRegFile_l141_1 != 6'h0));
+  assign _zz_when_PhysicalRegFile_l150 = 3'b000;
+  assign _zz_when_PhysicalRegFile_l150_1 = 3'b001;
+  assign _zz_when_PhysicalRegFile_l150_2 = 3'b001;
+  assign _zz_when_PhysicalRegFile_l150_3 = 3'b010;
+  assign _zz_when_PhysicalRegFile_l150_4 = 3'b001;
+  assign _zz_when_PhysicalRegFile_l150_5 = 3'b010;
+  assign _zz_when_PhysicalRegFile_l150_6 = 3'b010;
+  assign _zz_when_PhysicalRegFile_l150_7 = 3'b011;
+  assign when_PhysicalRegFile_l150 = (3'b001 < _zz_when_PhysicalRegFile_l150_8);
+  assign _zz_28 = 8'he0;
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush = StoreBufferPlugin_logic_slots_0_isFlush;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_32) begin
+      if(_zz_33) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush;
       end
     end
@@ -18497,7 +18553,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_addr = StoreBufferPlugin_logic_slots_0_addr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_32) begin
+      if(_zz_33) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_addr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr;
       end
     end
@@ -18506,7 +18562,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_data = StoreBufferPlugin_logic_slots_0_data;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_32) begin
+      if(_zz_33) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_data = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data;
       end
     end
@@ -18515,7 +18571,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_be = StoreBufferPlugin_logic_slots_0_be;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_32) begin
+      if(_zz_33) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_be = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_be;
       end
     end
@@ -18524,7 +18580,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr = StoreBufferPlugin_logic_slots_0_robPtr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_32) begin
+      if(_zz_33) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr;
       end
     end
@@ -18533,7 +18589,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize = StoreBufferPlugin_logic_slots_0_accessSize;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_32) begin
+      if(_zz_33) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize;
       end
     end
@@ -18542,7 +18598,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO = StoreBufferPlugin_logic_slots_0_isIO;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_32) begin
+      if(_zz_33) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO;
       end
     end
@@ -18551,7 +18607,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_valid = StoreBufferPlugin_logic_slots_0_valid;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_32) begin
+      if(_zz_33) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_valid = 1'b1;
       end
     end
@@ -18569,7 +18625,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException = StoreBufferPlugin_logic_slots_0_hasEarlyException;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_32) begin
+      if(_zz_33) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException;
       end
     end
@@ -18578,7 +18634,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode = StoreBufferPlugin_logic_slots_0_earlyExceptionCode;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_32) begin
+      if(_zz_33) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode;
       end
     end
@@ -18587,7 +18643,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_isCommitted = StoreBufferPlugin_logic_slots_0_isCommitted;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_32) begin
+      if(_zz_33) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_isCommitted = 1'b0;
       end
     end
@@ -18601,7 +18657,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_sentCmd = StoreBufferPlugin_logic_slots_0_sentCmd;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_32) begin
+      if(_zz_33) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_sentCmd = 1'b0;
       end
     end
@@ -18621,7 +18677,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_waitRsp = StoreBufferPlugin_logic_slots_0_waitRsp;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_32) begin
+      if(_zz_33) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_waitRsp = 1'b0;
       end
     end
@@ -18641,7 +18697,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForRefill = StoreBufferPlugin_logic_slots_0_isWaitingForRefill;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_32) begin
+      if(_zz_33) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForRefill = 1'b0;
       end
     end
@@ -18660,7 +18716,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForWb = StoreBufferPlugin_logic_slots_0_isWaitingForWb;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_32) begin
+      if(_zz_33) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForWb = 1'b0;
       end
     end
@@ -18679,7 +18735,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_refillSlotToWatch = StoreBufferPlugin_logic_slots_0_refillSlotToWatch;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_32) begin
+      if(_zz_33) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_refillSlotToWatch = 2'b00;
       end
     end
@@ -18695,7 +18751,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_isFlush = StoreBufferPlugin_logic_slots_1_isFlush;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_33) begin
+      if(_zz_34) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_isFlush = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush;
       end
     end
@@ -18704,7 +18760,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_addr = StoreBufferPlugin_logic_slots_1_addr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_33) begin
+      if(_zz_34) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_addr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr;
       end
     end
@@ -18713,7 +18769,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_data = StoreBufferPlugin_logic_slots_1_data;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_33) begin
+      if(_zz_34) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_data = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data;
       end
     end
@@ -18722,7 +18778,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_be = StoreBufferPlugin_logic_slots_1_be;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_33) begin
+      if(_zz_34) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_be = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_be;
       end
     end
@@ -18731,7 +18787,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_robPtr = StoreBufferPlugin_logic_slots_1_robPtr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_33) begin
+      if(_zz_34) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_robPtr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr;
       end
     end
@@ -18740,7 +18796,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_accessSize = StoreBufferPlugin_logic_slots_1_accessSize;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_33) begin
+      if(_zz_34) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_accessSize = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize;
       end
     end
@@ -18749,7 +18805,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_isIO = StoreBufferPlugin_logic_slots_1_isIO;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_33) begin
+      if(_zz_34) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_isIO = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO;
       end
     end
@@ -18758,7 +18814,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_valid = StoreBufferPlugin_logic_slots_1_valid;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_33) begin
+      if(_zz_34) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_valid = 1'b1;
       end
     end
@@ -18776,7 +18832,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_hasEarlyException = StoreBufferPlugin_logic_slots_1_hasEarlyException;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_33) begin
+      if(_zz_34) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_hasEarlyException = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException;
       end
     end
@@ -18785,7 +18841,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_earlyExceptionCode = StoreBufferPlugin_logic_slots_1_earlyExceptionCode;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_33) begin
+      if(_zz_34) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_earlyExceptionCode = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode;
       end
     end
@@ -18794,7 +18850,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_isCommitted = StoreBufferPlugin_logic_slots_1_isCommitted;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_33) begin
+      if(_zz_34) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_isCommitted = 1'b0;
       end
     end
@@ -18808,7 +18864,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_sentCmd = StoreBufferPlugin_logic_slots_1_sentCmd;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_33) begin
+      if(_zz_34) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_sentCmd = 1'b0;
       end
     end
@@ -18817,7 +18873,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_waitRsp = StoreBufferPlugin_logic_slots_1_waitRsp;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_33) begin
+      if(_zz_34) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_waitRsp = 1'b0;
       end
     end
@@ -18826,7 +18882,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_isWaitingForRefill = StoreBufferPlugin_logic_slots_1_isWaitingForRefill;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_33) begin
+      if(_zz_34) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_isWaitingForRefill = 1'b0;
       end
     end
@@ -18835,7 +18891,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_isWaitingForWb = StoreBufferPlugin_logic_slots_1_isWaitingForWb;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_33) begin
+      if(_zz_34) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_isWaitingForWb = 1'b0;
       end
     end
@@ -18844,7 +18900,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_refillSlotToWatch = StoreBufferPlugin_logic_slots_1_refillSlotToWatch;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_33) begin
+      if(_zz_34) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_refillSlotToWatch = 2'b00;
       end
     end
@@ -18853,7 +18909,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_isFlush = StoreBufferPlugin_logic_slots_2_isFlush;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_isFlush = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush;
       end
     end
@@ -18862,7 +18918,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_addr = StoreBufferPlugin_logic_slots_2_addr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_addr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr;
       end
     end
@@ -18871,7 +18927,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_data = StoreBufferPlugin_logic_slots_2_data;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_data = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data;
       end
     end
@@ -18880,7 +18936,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_be = StoreBufferPlugin_logic_slots_2_be;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_be = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_be;
       end
     end
@@ -18889,7 +18945,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_robPtr = StoreBufferPlugin_logic_slots_2_robPtr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_robPtr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr;
       end
     end
@@ -18898,7 +18954,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_accessSize = StoreBufferPlugin_logic_slots_2_accessSize;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_accessSize = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize;
       end
     end
@@ -18907,7 +18963,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_isIO = StoreBufferPlugin_logic_slots_2_isIO;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_isIO = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO;
       end
     end
@@ -18916,7 +18972,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_valid = StoreBufferPlugin_logic_slots_2_valid;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_valid = 1'b1;
       end
     end
@@ -18934,7 +18990,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_hasEarlyException = StoreBufferPlugin_logic_slots_2_hasEarlyException;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_hasEarlyException = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException;
       end
     end
@@ -18943,7 +18999,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_earlyExceptionCode = StoreBufferPlugin_logic_slots_2_earlyExceptionCode;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_earlyExceptionCode = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode;
       end
     end
@@ -18952,7 +19008,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_isCommitted = StoreBufferPlugin_logic_slots_2_isCommitted;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_isCommitted = 1'b0;
       end
     end
@@ -18966,7 +19022,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_sentCmd = StoreBufferPlugin_logic_slots_2_sentCmd;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_sentCmd = 1'b0;
       end
     end
@@ -18975,7 +19031,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_waitRsp = StoreBufferPlugin_logic_slots_2_waitRsp;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_waitRsp = 1'b0;
       end
     end
@@ -18984,7 +19040,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_isWaitingForRefill = StoreBufferPlugin_logic_slots_2_isWaitingForRefill;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_isWaitingForRefill = 1'b0;
       end
     end
@@ -18993,7 +19049,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_isWaitingForWb = StoreBufferPlugin_logic_slots_2_isWaitingForWb;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_isWaitingForWb = 1'b0;
       end
     end
@@ -19002,7 +19058,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_refillSlotToWatch = StoreBufferPlugin_logic_slots_2_refillSlotToWatch;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_refillSlotToWatch = 2'b00;
       end
     end
@@ -19011,7 +19067,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_isFlush = StoreBufferPlugin_logic_slots_3_isFlush;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_isFlush = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush;
       end
     end
@@ -19020,7 +19076,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_addr = StoreBufferPlugin_logic_slots_3_addr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_addr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr;
       end
     end
@@ -19029,7 +19085,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_data = StoreBufferPlugin_logic_slots_3_data;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_data = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data;
       end
     end
@@ -19038,7 +19094,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_be = StoreBufferPlugin_logic_slots_3_be;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_be = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_be;
       end
     end
@@ -19047,7 +19103,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_robPtr = StoreBufferPlugin_logic_slots_3_robPtr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_robPtr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr;
       end
     end
@@ -19056,7 +19112,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_accessSize = StoreBufferPlugin_logic_slots_3_accessSize;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_accessSize = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize;
       end
     end
@@ -19065,7 +19121,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_isIO = StoreBufferPlugin_logic_slots_3_isIO;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_isIO = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO;
       end
     end
@@ -19074,7 +19130,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_valid = StoreBufferPlugin_logic_slots_3_valid;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_valid = 1'b1;
       end
     end
@@ -19092,7 +19148,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_hasEarlyException = StoreBufferPlugin_logic_slots_3_hasEarlyException;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_hasEarlyException = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException;
       end
     end
@@ -19101,7 +19157,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_earlyExceptionCode = StoreBufferPlugin_logic_slots_3_earlyExceptionCode;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_earlyExceptionCode = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode;
       end
     end
@@ -19110,7 +19166,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_isCommitted = StoreBufferPlugin_logic_slots_3_isCommitted;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_isCommitted = 1'b0;
       end
     end
@@ -19124,7 +19180,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_sentCmd = StoreBufferPlugin_logic_slots_3_sentCmd;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_sentCmd = 1'b0;
       end
     end
@@ -19133,7 +19189,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_waitRsp = StoreBufferPlugin_logic_slots_3_waitRsp;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_waitRsp = 1'b0;
       end
     end
@@ -19142,7 +19198,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_isWaitingForRefill = StoreBufferPlugin_logic_slots_3_isWaitingForRefill;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_isWaitingForRefill = 1'b0;
       end
     end
@@ -19151,7 +19207,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_isWaitingForWb = StoreBufferPlugin_logic_slots_3_isWaitingForWb;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_isWaitingForWb = 1'b0;
       end
     end
@@ -19160,7 +19216,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_refillSlotToWatch = StoreBufferPlugin_logic_slots_3_refillSlotToWatch;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_refillSlotToWatch = 2'b00;
       end
     end
@@ -19620,9 +19676,9 @@ module CoreNSCSCC (
   assign StoreBufferPlugin_logic_validFall_3 = (StoreBufferPlugin_logic_slots_2_valid && (! StoreBufferPlugin_logic_slots_3_valid));
   assign StoreBufferPlugin_logic_canPush = (|{StoreBufferPlugin_logic_validFall_3,{StoreBufferPlugin_logic_validFall_2,{StoreBufferPlugin_logic_validFall_1,StoreBufferPlugin_logic_validFall_0}}});
   assign StoreBufferPlugin_hw_pushPortInst_ready = StoreBufferPlugin_logic_canPush;
-  assign _zz_28 = (StoreBufferPlugin_logic_validFall_1 || StoreBufferPlugin_logic_validFall_3);
-  assign _zz_29 = (StoreBufferPlugin_logic_validFall_2 || StoreBufferPlugin_logic_validFall_3);
-  assign _zz_30 = {_zz_29,_zz_28};
+  assign _zz_29 = (StoreBufferPlugin_logic_validFall_1 || StoreBufferPlugin_logic_validFall_3);
+  assign _zz_30 = (StoreBufferPlugin_logic_validFall_2 || StoreBufferPlugin_logic_validFall_3);
+  assign _zz_31 = {_zz_30,_zz_29};
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush = StoreBufferPlugin_hw_pushPortInst_payload_isFlush;
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr = StoreBufferPlugin_hw_pushPortInst_payload_addr;
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data = StoreBufferPlugin_hw_pushPortInst_payload_data;
@@ -19632,11 +19688,11 @@ module CoreNSCSCC (
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO = StoreBufferPlugin_hw_pushPortInst_payload_isIO;
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException = StoreBufferPlugin_hw_pushPortInst_payload_hasEarlyException;
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode = StoreBufferPlugin_hw_pushPortInst_payload_earlyExceptionCode;
-  assign _zz_31 = ({3'd0,1'b1} <<< _zz_30);
-  assign _zz_32 = _zz_31[0];
-  assign _zz_33 = _zz_31[1];
-  assign _zz_34 = _zz_31[2];
-  assign _zz_35 = _zz_31[3];
+  assign _zz_32 = ({3'd0,1'b1} <<< _zz_31);
+  assign _zz_33 = _zz_32[0];
+  assign _zz_34 = _zz_32[1];
+  assign _zz_35 = _zz_32[2];
+  assign _zz_36 = _zz_32[3];
   assign StoreBufferPlugin_logic_sharedWriteCond = ((((((StoreBufferPlugin_logic_slots_0_valid && StoreBufferPlugin_logic_slots_0_isCommitted) && (! StoreBufferPlugin_logic_slots_0_isFlush)) && (! StoreBufferPlugin_logic_slots_0_waitRsp)) && (! StoreBufferPlugin_logic_slots_0_isWaitingForRefill)) && (! StoreBufferPlugin_logic_slots_0_isWaitingForWb)) && (! StoreBufferPlugin_logic_slots_0_hasEarlyException));
   assign StoreBufferPlugin_logic_canPopNormalOp = (StoreBufferPlugin_logic_sharedWriteCond && (! StoreBufferPlugin_logic_slots_0_isIO));
   assign StoreBufferPlugin_logic_canPopFlushOp = (((StoreBufferPlugin_logic_slots_0_valid && StoreBufferPlugin_logic_slots_0_isFlush) && (! StoreBufferPlugin_logic_slots_0_waitRsp)) && (! StoreBufferPlugin_logic_slots_0_isWaitingForWb));
@@ -20774,7 +20830,7 @@ module CoreNSCSCC (
     end
   end
 
-  assign _zz_36 = (SimpleFetchPipelinePlugin_logic_pcOnRequest + 32'h00000008);
+  assign _zz_37 = (SimpleFetchPipelinePlugin_logic_pcOnRequest + 32'h00000008);
   assign when_SimpleFetchPipelinePlugin_l231 = (! SimpleFetchPipelinePlugin_logic_fetchDisable);
   assign SimpleFetchPipelinePlugin_logic_fsm_onExit_BOOT = ((SimpleFetchPipelinePlugin_logic_fsm_stateNext != SimpleFetchPipelinePlugin_logic_fsm_BOOT) && (SimpleFetchPipelinePlugin_logic_fsm_stateReg == SimpleFetchPipelinePlugin_logic_fsm_BOOT));
   assign SimpleFetchPipelinePlugin_logic_fsm_onExit_IDLE = ((SimpleFetchPipelinePlugin_logic_fsm_stateNext != SimpleFetchPipelinePlugin_logic_fsm_IDLE) && (SimpleFetchPipelinePlugin_logic_fsm_stateReg == SimpleFetchPipelinePlugin_logic_fsm_IDLE));
@@ -20793,7 +20849,7 @@ module CoreNSCSCC (
       CommitPlugin_commitStatsReg_robFlushCount <= 32'h0;
       CommitPlugin_commitStatsReg_physRegRecycled <= 32'h0;
       CommitPlugin_committedIdleReg <= 1'b0;
-      _zz_when_Debug_l64 <= 8'h0;
+      _zz_when_Debug_l67 <= 8'h0;
       io_mem_write_cmd_fork2_logic_linkEnable_0 <= 1'b1;
       io_mem_write_cmd_fork2_logic_linkEnable_1 <= 1'b1;
       io_mem_toAxi4_awRaw_payload_first <= 1'b1;
@@ -21000,70 +21056,70 @@ module CoreNSCSCC (
         io_mem_toAxi4_awFiltred_rValid <= io_mem_toAxi4_awFiltred_valid;
       end
       if(oneShot_12_io_pulseOut) begin
-        if(when_Debug_l64) begin
-          _zz_when_Debug_l64 <= {7'd0, _zz_when_Debug_l64_1};
+        if(when_Debug_l67) begin
+          _zz_when_Debug_l67 <= {7'd0, _zz_when_Debug_l67_1};
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // Debug.scala:L66
+              assert(1'b0); // Debug.scala:L69
             `else
               if(!1'b0) begin
-                $display("NOTE(Debug.scala:66):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l64_1); // Debug.scala:L66
+                $display("NOTE(Debug.scala:69):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l67_1); // Debug.scala:L69
               end
             `endif
           `endif
         end
       end
       if(oneShot_13_io_pulseOut) begin
-        if(when_Debug_l64_1) begin
-          _zz_when_Debug_l64 <= {3'd0, _zz_when_Debug_l64_2};
+        if(when_Debug_l67_1) begin
+          _zz_when_Debug_l67 <= {3'd0, _zz_when_Debug_l67_2};
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // Debug.scala:L66
+              assert(1'b0); // Debug.scala:L69
             `else
               if(!1'b0) begin
-                $display("NOTE(Debug.scala:66):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l64_2); // Debug.scala:L66
+                $display("NOTE(Debug.scala:69):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l67_2); // Debug.scala:L69
               end
             `endif
           `endif
         end
       end
       if(oneShot_14_io_pulseOut) begin
-        if(when_Debug_l64_2) begin
-          _zz_when_Debug_l64 <= {3'd0, _zz_when_Debug_l64_3};
+        if(when_Debug_l67_2) begin
+          _zz_when_Debug_l67 <= {3'd0, _zz_when_Debug_l67_3};
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // Debug.scala:L66
+              assert(1'b0); // Debug.scala:L69
             `else
               if(!1'b0) begin
-                $display("NOTE(Debug.scala:66):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l64_3); // Debug.scala:L66
+                $display("NOTE(Debug.scala:69):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l67_3); // Debug.scala:L69
               end
             `endif
           `endif
         end
       end
       if(oneShot_15_io_pulseOut) begin
-        if(when_Debug_l64_3) begin
-          _zz_when_Debug_l64 <= {3'd0, _zz_when_Debug_l64_4};
+        if(when_Debug_l67_3) begin
+          _zz_when_Debug_l67 <= {3'd0, _zz_when_Debug_l67_4};
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // Debug.scala:L66
+              assert(1'b0); // Debug.scala:L69
             `else
               if(!1'b0) begin
-                $display("NOTE(Debug.scala:66):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l64_4); // Debug.scala:L66
+                $display("NOTE(Debug.scala:69):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l67_4); // Debug.scala:L69
               end
             `endif
           `endif
         end
       end
       if(oneShot_16_io_pulseOut) begin
-        if(when_Debug_l64_4) begin
-          _zz_when_Debug_l64 <= {3'd0, _zz_when_Debug_l64_5};
+        if(when_Debug_l67_4) begin
+          _zz_when_Debug_l67 <= {3'd0, _zz_when_Debug_l67_5};
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // Debug.scala:L66
+              assert(1'b0); // Debug.scala:L69
             `else
               if(!1'b0) begin
-                $display("NOTE(Debug.scala:66):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l64_5); // Debug.scala:L66
+                $display("NOTE(Debug.scala:69):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l67_5); // Debug.scala:L69
               end
             `endif
           `endif
@@ -21175,14 +21231,14 @@ module CoreNSCSCC (
       CommitPlugin_commitStatsReg_physRegRecycled <= (CommitPlugin_commitStatsReg_physRegRecycled + _zz_CommitPlugin_commitStatsReg_physRegRecycled);
       CommitPlugin_commitStatsReg_robFlushCount <= (CommitPlugin_commitStatsReg_robFlushCount + _zz_CommitPlugin_commitStatsReg_robFlushCount);
       if(oneShot_17_io_pulseOut) begin
-        if(when_Debug_l64_5) begin
-          _zz_when_Debug_l64 <= {3'd0, _zz_when_Debug_l64_6};
+        if(when_Debug_l67_5) begin
+          _zz_when_Debug_l67 <= {3'd0, _zz_when_Debug_l67_6};
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // Debug.scala:L66
+              assert(1'b0); // Debug.scala:L69
             `else
               if(!1'b0) begin
-                $display("NOTE(Debug.scala:66):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l64_6); // Debug.scala:L66
+                $display("NOTE(Debug.scala:69):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l67_6); // Debug.scala:L69
               end
             `endif
           `endif
@@ -21331,14 +21387,14 @@ module CoreNSCSCC (
         `endif
       end
       if(oneShot_18_io_pulseOut) begin
-        if(when_Debug_l64_6) begin
-          _zz_when_Debug_l64 <= {3'd0, _zz_when_Debug_l64_7};
+        if(when_Debug_l67_6) begin
+          _zz_when_Debug_l67 <= {3'd0, _zz_when_Debug_l67_7};
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // Debug.scala:L66
+              assert(1'b0); // Debug.scala:L69
             `else
               if(!1'b0) begin
-                $display("NOTE(Debug.scala:66):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l64_7); // Debug.scala:L66
+                $display("NOTE(Debug.scala:69):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l67_7); // Debug.scala:L69
               end
             `endif
           `endif
@@ -21383,14 +21439,14 @@ module CoreNSCSCC (
         `endif
       end
       if(oneShot_19_io_pulseOut) begin
-        if(when_Debug_l64_7) begin
-          _zz_when_Debug_l64 <= {3'd0, _zz_when_Debug_l64_8};
+        if(when_Debug_l67_7) begin
+          _zz_when_Debug_l67 <= {3'd0, _zz_when_Debug_l67_8};
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // Debug.scala:L66
+              assert(1'b0); // Debug.scala:L69
             `else
               if(!1'b0) begin
-                $display("NOTE(Debug.scala:66):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l64_8); // Debug.scala:L66
+                $display("NOTE(Debug.scala:69):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l67_8); // Debug.scala:L69
               end
             `endif
           `endif
@@ -21513,14 +21569,14 @@ module CoreNSCSCC (
         `endif
       end
       if(oneShot_20_io_pulseOut) begin
-        if(when_Debug_l64_8) begin
-          _zz_when_Debug_l64 <= {3'd0, _zz_when_Debug_l64_9};
+        if(when_Debug_l67_8) begin
+          _zz_when_Debug_l67 <= {3'd0, _zz_when_Debug_l67_9};
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // Debug.scala:L66
+              assert(1'b0); // Debug.scala:L69
             `else
               if(!1'b0) begin
-                $display("NOTE(Debug.scala:66):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l64_9); // Debug.scala:L66
+                $display("NOTE(Debug.scala:69):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l67_9); // Debug.scala:L69
               end
             `endif
           `endif
@@ -21597,14 +21653,14 @@ module CoreNSCSCC (
         `endif
       end
       if(oneShot_21_io_pulseOut) begin
-        if(when_Debug_l64_9) begin
-          _zz_when_Debug_l64 <= {3'd0, _zz_when_Debug_l64_10};
+        if(when_Debug_l67_9) begin
+          _zz_when_Debug_l67 <= {3'd0, _zz_when_Debug_l67_10};
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // Debug.scala:L66
+              assert(1'b0); // Debug.scala:L69
             `else
               if(!1'b0) begin
-                $display("NOTE(Debug.scala:66):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l64_10); // Debug.scala:L66
+                $display("NOTE(Debug.scala:69):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l67_10); // Debug.scala:L69
               end
             `endif
           `endif
@@ -21667,28 +21723,28 @@ module CoreNSCSCC (
         `endif
       end
       if(oneShot_22_io_pulseOut) begin
-        if(when_Debug_l64_10) begin
-          _zz_when_Debug_l64 <= {3'd0, _zz_when_Debug_l64_11};
+        if(when_Debug_l67_10) begin
+          _zz_when_Debug_l67 <= {3'd0, _zz_when_Debug_l67_11};
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // Debug.scala:L66
+              assert(1'b0); // Debug.scala:L69
             `else
               if(!1'b0) begin
-                $display("NOTE(Debug.scala:66):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l64_11); // Debug.scala:L66
+                $display("NOTE(Debug.scala:69):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l67_11); // Debug.scala:L69
               end
             `endif
           `endif
         end
       end
       if(oneShot_23_io_pulseOut) begin
-        if(when_Debug_l64_11) begin
-          _zz_when_Debug_l64 <= {3'd0, _zz_when_Debug_l64_12};
+        if(when_Debug_l67_11) begin
+          _zz_when_Debug_l67 <= {3'd0, _zz_when_Debug_l67_12};
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // Debug.scala:L66
+              assert(1'b0); // Debug.scala:L69
             `else
               if(!1'b0) begin
-                $display("NOTE(Debug.scala:66):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l64_12); // Debug.scala:L66
+                $display("NOTE(Debug.scala:69):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l67_12); // Debug.scala:L69
               end
             `endif
           `endif
@@ -22009,13 +22065,25 @@ module CoreNSCSCC (
           `endif
         `endif
       end
+      if(when_PhysicalRegFile_l150) begin
+        _zz_when_Debug_l67 <= 8'he0;
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // Debug.scala:L73
+          `else
+            if(!1'b0) begin
+              $display("NOTE(Debug.scala:73):  [DbgSvc] Set value to 0x%x", _zz_28); // Debug.scala:L73
+            end
+          `endif
+        `endif
+      end
       if(StoreBufferPlugin_hw_pushPortInst_fire) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
             assert(1'b0); // StoreBufferPlugin.scala:L251
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:251):  [SQ] PUSH: robPtr=%x to slotIdx=%x", StoreBufferPlugin_hw_pushPortInst_payload_robPtr, _zz_30); // StoreBufferPlugin.scala:L251
+              $display("NOTE(StoreBufferPlugin.scala:251):  [SQ] PUSH: robPtr=%x to slotIdx=%x", StoreBufferPlugin_hw_pushPortInst_payload_robPtr, _zz_31); // StoreBufferPlugin.scala:L251
             end
           `endif
         `endif
@@ -22854,7 +22922,7 @@ module CoreNSCSCC (
                 assert(1'b0); // SimpleFetchPipelinePlugin.scala:L263
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SimpleFetchPipelinePlugin.scala:263):  [Fetch-FSM] UPDATE_PC: Normal PC update from 0x%x to 0x%x", SimpleFetchPipelinePlugin_logic_pcOnRequest, _zz_36); // SimpleFetchPipelinePlugin.scala:L263
+                  $display("NOTE(SimpleFetchPipelinePlugin.scala:263):  [Fetch-FSM] UPDATE_PC: Normal PC update from 0x%x to 0x%x", SimpleFetchPipelinePlugin_logic_pcOnRequest, _zz_37); // SimpleFetchPipelinePlugin.scala:L263
                 end
               `endif
             `endif
@@ -33967,7 +34035,6 @@ module LA32RSimpleDecoder (
 
   wire       [11:0]   _zz_imm_sext_12;
   wire       [11:0]   _zz_imm_zext_12;
-  wire       [19:0]   _zz_imm_lu12i;
   wire       [19:0]   _zz_imm_pcadd_u12i;
   wire       [17:0]   _zz_imm_branch_16;
   wire       [15:0]   _zz_imm_branch_16_1;
@@ -33984,19 +34051,19 @@ module LA32RSimpleDecoder (
   wire       [31:0]   imm_branch_16;
   wire       [31:0]   imm_branch_26;
   wire       [31:0]   imm_shift_5;
-  wire       [6:0]    switch_LA32RSimpleDecoder_l130;
-  wire                when_LA32RSimpleDecoder_l134;
-  wire                when_LA32RSimpleDecoder_l158;
-  wire       [9:0]    switch_LA32RSimpleDecoder_l196;
-  wire                when_LA32RSimpleDecoder_l167;
-  wire                when_LA32RSimpleDecoder_l177;
-  wire       [2:0]    switch_LA32RSimpleDecoder_l256;
-  wire       [2:0]    switch_LA32RSimpleDecoder_l309;
-  wire       [5:0]    switch_LA32RSimpleDecoder_l340;
-  wire                when_LA32RSimpleDecoder_l377;
-  wire                when_LA32RSimpleDecoder_l380;
-  wire                when_LA32RSimpleDecoder_l383;
-  wire                when_LA32RSimpleDecoder_l394;
+  wire       [6:0]    switch_LA32RSimpleDecoder_l131;
+  wire                when_LA32RSimpleDecoder_l135;
+  wire                when_LA32RSimpleDecoder_l159;
+  wire       [9:0]    switch_LA32RSimpleDecoder_l197;
+  wire                when_LA32RSimpleDecoder_l168;
+  wire                when_LA32RSimpleDecoder_l178;
+  wire       [2:0]    switch_LA32RSimpleDecoder_l257;
+  wire       [2:0]    switch_LA32RSimpleDecoder_l310;
+  wire       [5:0]    switch_LA32RSimpleDecoder_l341;
+  wire                when_LA32RSimpleDecoder_l378;
+  wire                when_LA32RSimpleDecoder_l381;
+  wire                when_LA32RSimpleDecoder_l384;
+  wire                when_LA32RSimpleDecoder_l395;
   `ifndef SYNTHESIS
   reg [87:0] io_decodedUop_uopCode_string;
   reg [151:0] io_decodedUop_exeUnit_string;
@@ -34020,7 +34087,6 @@ module LA32RSimpleDecoder (
 
   assign _zz_imm_sext_12 = fields_inst[21 : 10];
   assign _zz_imm_zext_12 = fields_inst[21 : 10];
-  assign _zz_imm_lu12i = fields_inst[24 : 5];
   assign _zz_imm_pcadd_u12i = fields_inst[24 : 5];
   assign _zz_imm_branch_16 = ({2'd0,_zz_imm_branch_16_1} <<< 2'd2);
   assign _zz_imm_branch_16_1 = fields_inst[25 : 10];
@@ -34231,9 +34297,9 @@ module LA32RSimpleDecoder (
   assign io_decodedUop_pc = io_pcIn;
   always @(*) begin
     io_decodedUop_isValid = 1'b0;
-    case(switch_LA32RSimpleDecoder_l130)
+    case(switch_LA32RSimpleDecoder_l131)
       7'h03 : begin
-        if(when_LA32RSimpleDecoder_l134) begin
+        if(when_LA32RSimpleDecoder_l135) begin
           io_decodedUop_isValid = 1'b1;
         end else begin
           io_decodedUop_isValid = 1'b0;
@@ -34241,10 +34307,10 @@ module LA32RSimpleDecoder (
       end
       7'h0 : begin
         io_decodedUop_isValid = 1'b1;
-        if(!when_LA32RSimpleDecoder_l158) begin
-          if(!when_LA32RSimpleDecoder_l167) begin
-            if(!when_LA32RSimpleDecoder_l177) begin
-              case(switch_LA32RSimpleDecoder_l196)
+        if(!when_LA32RSimpleDecoder_l159) begin
+          if(!when_LA32RSimpleDecoder_l168) begin
+            if(!when_LA32RSimpleDecoder_l178) begin
+              case(switch_LA32RSimpleDecoder_l197)
                 10'h020 : begin
                 end
                 10'h022 : begin
@@ -34273,7 +34339,7 @@ module LA32RSimpleDecoder (
       end
       7'h01 : begin
         io_decodedUop_isValid = 1'b1;
-        case(switch_LA32RSimpleDecoder_l256)
+        case(switch_LA32RSimpleDecoder_l257)
           3'b010 : begin
           end
           3'b000 : begin
@@ -34295,7 +34361,7 @@ module LA32RSimpleDecoder (
       end
       7'h14 : begin
         io_decodedUop_isValid = 1'b1;
-        case(switch_LA32RSimpleDecoder_l309)
+        case(switch_LA32RSimpleDecoder_l310)
           3'b000 : begin
           end
           3'b010 : begin
@@ -34310,7 +34376,7 @@ module LA32RSimpleDecoder (
         endcase
       end
       default : begin
-        case(switch_LA32RSimpleDecoder_l340)
+        case(switch_LA32RSimpleDecoder_l341)
           6'h13 : begin
             io_decodedUop_isValid = 1'b1;
           end
@@ -34333,23 +34399,23 @@ module LA32RSimpleDecoder (
 
   always @(*) begin
     io_decodedUop_uopCode = BaseUopCode_NOP;
-    case(switch_LA32RSimpleDecoder_l130)
+    case(switch_LA32RSimpleDecoder_l131)
       7'h03 : begin
-        if(when_LA32RSimpleDecoder_l134) begin
+        if(when_LA32RSimpleDecoder_l135) begin
           io_decodedUop_uopCode = BaseUopCode_IDLE;
         end
       end
       7'h0 : begin
-        if(when_LA32RSimpleDecoder_l158) begin
+        if(when_LA32RSimpleDecoder_l159) begin
           io_decodedUop_uopCode = BaseUopCode_SHIFT;
         end else begin
-          if(when_LA32RSimpleDecoder_l167) begin
+          if(when_LA32RSimpleDecoder_l168) begin
             io_decodedUop_uopCode = BaseUopCode_SHIFT;
           end else begin
-            if(when_LA32RSimpleDecoder_l177) begin
+            if(when_LA32RSimpleDecoder_l178) begin
               io_decodedUop_uopCode = BaseUopCode_SHIFT;
             end else begin
-              case(switch_LA32RSimpleDecoder_l196)
+              case(switch_LA32RSimpleDecoder_l197)
                 10'h020 : begin
                   io_decodedUop_uopCode = BaseUopCode_ALU;
                 end
@@ -34394,7 +34460,7 @@ module LA32RSimpleDecoder (
         io_decodedUop_uopCode = BaseUopCode_ALU;
       end
       7'h14 : begin
-        case(switch_LA32RSimpleDecoder_l309)
+        case(switch_LA32RSimpleDecoder_l310)
           3'b000 : begin
             io_decodedUop_uopCode = BaseUopCode_LOAD;
           end
@@ -34412,7 +34478,7 @@ module LA32RSimpleDecoder (
         endcase
       end
       default : begin
-        case(switch_LA32RSimpleDecoder_l340)
+        case(switch_LA32RSimpleDecoder_l341)
           6'h13 : begin
             io_decodedUop_uopCode = BaseUopCode_JUMP_REG;
           end
@@ -34430,30 +34496,30 @@ module LA32RSimpleDecoder (
         endcase
       end
     endcase
-    if(when_LA32RSimpleDecoder_l394) begin
+    if(when_LA32RSimpleDecoder_l395) begin
       io_decodedUop_uopCode = BaseUopCode_ILLEGAL;
     end
   end
 
   always @(*) begin
     io_decodedUop_exeUnit = ExeUnitType_NONE;
-    case(switch_LA32RSimpleDecoder_l130)
+    case(switch_LA32RSimpleDecoder_l131)
       7'h03 : begin
-        if(when_LA32RSimpleDecoder_l134) begin
+        if(when_LA32RSimpleDecoder_l135) begin
           io_decodedUop_exeUnit = ExeUnitType_ALU_INT;
         end
       end
       7'h0 : begin
-        if(when_LA32RSimpleDecoder_l158) begin
+        if(when_LA32RSimpleDecoder_l159) begin
           io_decodedUop_exeUnit = ExeUnitType_ALU_INT;
         end else begin
-          if(when_LA32RSimpleDecoder_l167) begin
+          if(when_LA32RSimpleDecoder_l168) begin
             io_decodedUop_exeUnit = ExeUnitType_ALU_INT;
           end else begin
-            if(when_LA32RSimpleDecoder_l177) begin
+            if(when_LA32RSimpleDecoder_l178) begin
               io_decodedUop_exeUnit = ExeUnitType_ALU_INT;
             end else begin
-              case(switch_LA32RSimpleDecoder_l196)
+              case(switch_LA32RSimpleDecoder_l197)
                 10'h020 : begin
                   io_decodedUop_exeUnit = ExeUnitType_ALU_INT;
                 end
@@ -34501,7 +34567,7 @@ module LA32RSimpleDecoder (
         io_decodedUop_exeUnit = ExeUnitType_MEM;
       end
       default : begin
-        case(switch_LA32RSimpleDecoder_l340)
+        case(switch_LA32RSimpleDecoder_l341)
           6'h13 : begin
             io_decodedUop_exeUnit = ExeUnitType_BRU;
           end
@@ -34524,7 +34590,7 @@ module LA32RSimpleDecoder (
   assign io_decodedUop_isa = IsaType_LOONGARCH;
   always @(*) begin
     io_decodedUop_archDest_idx = 5'h0;
-    case(switch_LA32RSimpleDecoder_l130)
+    case(switch_LA32RSimpleDecoder_l131)
       7'h03 : begin
       end
       7'h0 : begin
@@ -34540,7 +34606,7 @@ module LA32RSimpleDecoder (
         io_decodedUop_archDest_idx = fields_inst[4 : 0];
       end
       7'h14 : begin
-        case(switch_LA32RSimpleDecoder_l309)
+        case(switch_LA32RSimpleDecoder_l310)
           3'b000 : begin
             io_decodedUop_archDest_idx = fields_inst[4 : 0];
           end
@@ -34556,7 +34622,7 @@ module LA32RSimpleDecoder (
         endcase
       end
       default : begin
-        case(switch_LA32RSimpleDecoder_l340)
+        case(switch_LA32RSimpleDecoder_l341)
           6'h13 : begin
             io_decodedUop_archDest_idx = fields_inst[4 : 0];
           end
@@ -34576,7 +34642,7 @@ module LA32RSimpleDecoder (
 
   always @(*) begin
     io_decodedUop_archDest_rtype = ArchRegType_GPR;
-    case(switch_LA32RSimpleDecoder_l130)
+    case(switch_LA32RSimpleDecoder_l131)
       7'h03 : begin
       end
       7'h0 : begin
@@ -34592,7 +34658,7 @@ module LA32RSimpleDecoder (
         io_decodedUop_archDest_rtype = ArchRegType_GPR;
       end
       7'h14 : begin
-        case(switch_LA32RSimpleDecoder_l309)
+        case(switch_LA32RSimpleDecoder_l310)
           3'b000 : begin
             io_decodedUop_archDest_rtype = ArchRegType_GPR;
           end
@@ -34608,7 +34674,7 @@ module LA32RSimpleDecoder (
         endcase
       end
       default : begin
-        case(switch_LA32RSimpleDecoder_l340)
+        case(switch_LA32RSimpleDecoder_l341)
           6'h13 : begin
             io_decodedUop_archDest_rtype = ArchRegType_GPR;
           end
@@ -34628,9 +34694,9 @@ module LA32RSimpleDecoder (
 
   always @(*) begin
     io_decodedUop_writeArchDestEn = 1'b0;
-    case(switch_LA32RSimpleDecoder_l130)
+    case(switch_LA32RSimpleDecoder_l131)
       7'h03 : begin
-        if(when_LA32RSimpleDecoder_l134) begin
+        if(when_LA32RSimpleDecoder_l135) begin
           io_decodedUop_writeArchDestEn = 1'b0;
         end
       end
@@ -34647,7 +34713,7 @@ module LA32RSimpleDecoder (
         io_decodedUop_writeArchDestEn = (fields_inst[4 : 0] != r0_idx);
       end
       7'h14 : begin
-        case(switch_LA32RSimpleDecoder_l309)
+        case(switch_LA32RSimpleDecoder_l310)
           3'b000 : begin
             io_decodedUop_writeArchDestEn = (fields_inst[4 : 0] != r0_idx);
           end
@@ -34665,7 +34731,7 @@ module LA32RSimpleDecoder (
         endcase
       end
       default : begin
-        case(switch_LA32RSimpleDecoder_l340)
+        case(switch_LA32RSimpleDecoder_l341)
           6'h13 : begin
             io_decodedUop_writeArchDestEn = (fields_inst[4 : 0] != r0_idx);
           end
@@ -34687,17 +34753,17 @@ module LA32RSimpleDecoder (
 
   always @(*) begin
     io_decodedUop_archSrc1_idx = 5'h0;
-    case(switch_LA32RSimpleDecoder_l130)
+    case(switch_LA32RSimpleDecoder_l131)
       7'h03 : begin
       end
       7'h0 : begin
-        if(when_LA32RSimpleDecoder_l158) begin
+        if(when_LA32RSimpleDecoder_l159) begin
           io_decodedUop_archSrc1_idx = fields_inst[9 : 5];
         end else begin
-          if(when_LA32RSimpleDecoder_l167) begin
+          if(when_LA32RSimpleDecoder_l168) begin
             io_decodedUop_archSrc1_idx = fields_inst[9 : 5];
           end else begin
-            if(when_LA32RSimpleDecoder_l177) begin
+            if(when_LA32RSimpleDecoder_l178) begin
               io_decodedUop_archSrc1_idx = fields_inst[9 : 5];
             end else begin
               io_decodedUop_archSrc1_idx = fields_inst[9 : 5];
@@ -34716,7 +34782,7 @@ module LA32RSimpleDecoder (
         io_decodedUop_archSrc1_idx = fields_inst[9 : 5];
       end
       default : begin
-        case(switch_LA32RSimpleDecoder_l340)
+        case(switch_LA32RSimpleDecoder_l341)
           6'h13 : begin
             io_decodedUop_archSrc1_idx = fields_inst[9 : 5];
           end
@@ -34736,17 +34802,17 @@ module LA32RSimpleDecoder (
 
   always @(*) begin
     io_decodedUop_archSrc1_rtype = ArchRegType_GPR;
-    case(switch_LA32RSimpleDecoder_l130)
+    case(switch_LA32RSimpleDecoder_l131)
       7'h03 : begin
       end
       7'h0 : begin
-        if(when_LA32RSimpleDecoder_l158) begin
+        if(when_LA32RSimpleDecoder_l159) begin
           io_decodedUop_archSrc1_rtype = ArchRegType_GPR;
         end else begin
-          if(when_LA32RSimpleDecoder_l167) begin
+          if(when_LA32RSimpleDecoder_l168) begin
             io_decodedUop_archSrc1_rtype = ArchRegType_GPR;
           end else begin
-            if(when_LA32RSimpleDecoder_l177) begin
+            if(when_LA32RSimpleDecoder_l178) begin
               io_decodedUop_archSrc1_rtype = ArchRegType_GPR;
             end else begin
               io_decodedUop_archSrc1_rtype = ArchRegType_GPR;
@@ -34765,7 +34831,7 @@ module LA32RSimpleDecoder (
         io_decodedUop_archSrc1_rtype = ArchRegType_GPR;
       end
       default : begin
-        case(switch_LA32RSimpleDecoder_l340)
+        case(switch_LA32RSimpleDecoder_l341)
           6'h13 : begin
             io_decodedUop_archSrc1_rtype = ArchRegType_GPR;
           end
@@ -34785,17 +34851,17 @@ module LA32RSimpleDecoder (
 
   always @(*) begin
     io_decodedUop_useArchSrc1 = 1'b0;
-    case(switch_LA32RSimpleDecoder_l130)
+    case(switch_LA32RSimpleDecoder_l131)
       7'h03 : begin
       end
       7'h0 : begin
-        if(when_LA32RSimpleDecoder_l158) begin
+        if(when_LA32RSimpleDecoder_l159) begin
           io_decodedUop_useArchSrc1 = 1'b1;
         end else begin
-          if(when_LA32RSimpleDecoder_l167) begin
+          if(when_LA32RSimpleDecoder_l168) begin
             io_decodedUop_useArchSrc1 = 1'b1;
           end else begin
-            if(when_LA32RSimpleDecoder_l177) begin
+            if(when_LA32RSimpleDecoder_l178) begin
               io_decodedUop_useArchSrc1 = 1'b1;
             end else begin
               io_decodedUop_useArchSrc1 = 1'b1;
@@ -34815,7 +34881,7 @@ module LA32RSimpleDecoder (
         io_decodedUop_useArchSrc1 = 1'b1;
       end
       default : begin
-        case(switch_LA32RSimpleDecoder_l340)
+        case(switch_LA32RSimpleDecoder_l341)
           6'h13 : begin
             io_decodedUop_useArchSrc1 = 1'b1;
           end
@@ -34835,13 +34901,13 @@ module LA32RSimpleDecoder (
 
   always @(*) begin
     io_decodedUop_archSrc2_idx = 5'h0;
-    case(switch_LA32RSimpleDecoder_l130)
+    case(switch_LA32RSimpleDecoder_l131)
       7'h03 : begin
       end
       7'h0 : begin
-        if(!when_LA32RSimpleDecoder_l158) begin
-          if(!when_LA32RSimpleDecoder_l167) begin
-            if(!when_LA32RSimpleDecoder_l177) begin
+        if(!when_LA32RSimpleDecoder_l159) begin
+          if(!when_LA32RSimpleDecoder_l168) begin
+            if(!when_LA32RSimpleDecoder_l178) begin
               io_decodedUop_archSrc2_idx = fields_inst[14 : 10];
             end
           end
@@ -34854,7 +34920,7 @@ module LA32RSimpleDecoder (
       7'h0e : begin
       end
       7'h14 : begin
-        case(switch_LA32RSimpleDecoder_l309)
+        case(switch_LA32RSimpleDecoder_l310)
           3'b000 : begin
           end
           3'b010 : begin
@@ -34870,7 +34936,7 @@ module LA32RSimpleDecoder (
         endcase
       end
       default : begin
-        case(switch_LA32RSimpleDecoder_l340)
+        case(switch_LA32RSimpleDecoder_l341)
           6'h13 : begin
           end
           6'h14 : begin
@@ -34889,13 +34955,13 @@ module LA32RSimpleDecoder (
 
   always @(*) begin
     io_decodedUop_archSrc2_rtype = ArchRegType_GPR;
-    case(switch_LA32RSimpleDecoder_l130)
+    case(switch_LA32RSimpleDecoder_l131)
       7'h03 : begin
       end
       7'h0 : begin
-        if(!when_LA32RSimpleDecoder_l158) begin
-          if(!when_LA32RSimpleDecoder_l167) begin
-            if(!when_LA32RSimpleDecoder_l177) begin
+        if(!when_LA32RSimpleDecoder_l159) begin
+          if(!when_LA32RSimpleDecoder_l168) begin
+            if(!when_LA32RSimpleDecoder_l178) begin
               io_decodedUop_archSrc2_rtype = ArchRegType_GPR;
             end
           end
@@ -34908,7 +34974,7 @@ module LA32RSimpleDecoder (
       7'h0e : begin
       end
       7'h14 : begin
-        case(switch_LA32RSimpleDecoder_l309)
+        case(switch_LA32RSimpleDecoder_l310)
           3'b000 : begin
           end
           3'b010 : begin
@@ -34924,7 +34990,7 @@ module LA32RSimpleDecoder (
         endcase
       end
       default : begin
-        case(switch_LA32RSimpleDecoder_l340)
+        case(switch_LA32RSimpleDecoder_l341)
           6'h13 : begin
           end
           6'h14 : begin
@@ -34943,13 +35009,13 @@ module LA32RSimpleDecoder (
 
   always @(*) begin
     io_decodedUop_useArchSrc2 = 1'b0;
-    case(switch_LA32RSimpleDecoder_l130)
+    case(switch_LA32RSimpleDecoder_l131)
       7'h03 : begin
       end
       7'h0 : begin
-        if(!when_LA32RSimpleDecoder_l158) begin
-          if(!when_LA32RSimpleDecoder_l167) begin
-            if(!when_LA32RSimpleDecoder_l177) begin
+        if(!when_LA32RSimpleDecoder_l159) begin
+          if(!when_LA32RSimpleDecoder_l168) begin
+            if(!when_LA32RSimpleDecoder_l178) begin
               io_decodedUop_useArchSrc2 = 1'b1;
             end
           end
@@ -34962,7 +35028,7 @@ module LA32RSimpleDecoder (
       7'h0e : begin
       end
       7'h14 : begin
-        case(switch_LA32RSimpleDecoder_l309)
+        case(switch_LA32RSimpleDecoder_l310)
           3'b000 : begin
           end
           3'b010 : begin
@@ -34978,7 +35044,7 @@ module LA32RSimpleDecoder (
         endcase
       end
       default : begin
-        case(switch_LA32RSimpleDecoder_l340)
+        case(switch_LA32RSimpleDecoder_l341)
           6'h13 : begin
           end
           6'h14 : begin
@@ -35001,24 +35067,24 @@ module LA32RSimpleDecoder (
   assign io_decodedUop_usePcForAddr = 1'b0;
   always @(*) begin
     io_decodedUop_imm = 32'h0;
-    case(switch_LA32RSimpleDecoder_l130)
+    case(switch_LA32RSimpleDecoder_l131)
       7'h03 : begin
       end
       7'h0 : begin
-        if(when_LA32RSimpleDecoder_l158) begin
+        if(when_LA32RSimpleDecoder_l159) begin
           io_decodedUop_imm = imm_shift_5;
         end else begin
-          if(when_LA32RSimpleDecoder_l167) begin
+          if(when_LA32RSimpleDecoder_l168) begin
             io_decodedUop_imm = imm_shift_5;
           end else begin
-            if(when_LA32RSimpleDecoder_l177) begin
+            if(when_LA32RSimpleDecoder_l178) begin
               io_decodedUop_imm = imm_shift_5;
             end
           end
         end
       end
       7'h01 : begin
-        case(switch_LA32RSimpleDecoder_l256)
+        case(switch_LA32RSimpleDecoder_l257)
           3'b010 : begin
             io_decodedUop_imm = imm_sext_12;
           end
@@ -35045,7 +35111,7 @@ module LA32RSimpleDecoder (
         io_decodedUop_imm = imm_sext_12;
       end
       default : begin
-        case(switch_LA32RSimpleDecoder_l340)
+        case(switch_LA32RSimpleDecoder_l341)
           6'h13 : begin
             io_decodedUop_imm = imm_branch_16;
           end
@@ -35067,20 +35133,20 @@ module LA32RSimpleDecoder (
 
   always @(*) begin
     io_decodedUop_immUsage = ImmUsageType_NONE;
-    case(switch_LA32RSimpleDecoder_l130)
+    case(switch_LA32RSimpleDecoder_l131)
       7'h03 : begin
       end
       7'h0 : begin
-        if(when_LA32RSimpleDecoder_l158) begin
+        if(when_LA32RSimpleDecoder_l159) begin
           io_decodedUop_immUsage = ImmUsageType_SRC_SHIFT_AMT;
         end else begin
-          if(when_LA32RSimpleDecoder_l167) begin
+          if(when_LA32RSimpleDecoder_l168) begin
             io_decodedUop_immUsage = ImmUsageType_SRC_SHIFT_AMT;
           end else begin
-            if(when_LA32RSimpleDecoder_l177) begin
+            if(when_LA32RSimpleDecoder_l178) begin
               io_decodedUop_immUsage = ImmUsageType_SRC_SHIFT_AMT;
             end else begin
-              case(switch_LA32RSimpleDecoder_l196)
+              case(switch_LA32RSimpleDecoder_l197)
                 10'h020 : begin
                 end
                 10'h022 : begin
@@ -35122,7 +35188,7 @@ module LA32RSimpleDecoder (
         io_decodedUop_immUsage = ImmUsageType_MEM_OFFSET;
       end
       default : begin
-        case(switch_LA32RSimpleDecoder_l340)
+        case(switch_LA32RSimpleDecoder_l341)
           6'h13 : begin
             io_decodedUop_immUsage = ImmUsageType_BRANCH_OFFSET;
           end
@@ -35144,14 +35210,14 @@ module LA32RSimpleDecoder (
 
   always @(*) begin
     io_decodedUop_aluCtrl_isSub = 1'b0;
-    case(switch_LA32RSimpleDecoder_l130)
+    case(switch_LA32RSimpleDecoder_l131)
       7'h03 : begin
       end
       7'h0 : begin
-        if(!when_LA32RSimpleDecoder_l158) begin
-          if(!when_LA32RSimpleDecoder_l167) begin
-            if(!when_LA32RSimpleDecoder_l177) begin
-              case(switch_LA32RSimpleDecoder_l196)
+        if(!when_LA32RSimpleDecoder_l159) begin
+          if(!when_LA32RSimpleDecoder_l168) begin
+            if(!when_LA32RSimpleDecoder_l178) begin
+              case(switch_LA32RSimpleDecoder_l197)
                 10'h020 : begin
                 end
                 10'h022 : begin
@@ -35179,7 +35245,7 @@ module LA32RSimpleDecoder (
         end
       end
       7'h01 : begin
-        case(switch_LA32RSimpleDecoder_l256)
+        case(switch_LA32RSimpleDecoder_l257)
           3'b010 : begin
           end
           3'b000 : begin
@@ -35206,14 +35272,14 @@ module LA32RSimpleDecoder (
 
   always @(*) begin
     io_decodedUop_aluCtrl_isAdd = 1'b0;
-    case(switch_LA32RSimpleDecoder_l130)
+    case(switch_LA32RSimpleDecoder_l131)
       7'h03 : begin
       end
       7'h0 : begin
-        if(!when_LA32RSimpleDecoder_l158) begin
-          if(!when_LA32RSimpleDecoder_l167) begin
-            if(!when_LA32RSimpleDecoder_l177) begin
-              case(switch_LA32RSimpleDecoder_l196)
+        if(!when_LA32RSimpleDecoder_l159) begin
+          if(!when_LA32RSimpleDecoder_l168) begin
+            if(!when_LA32RSimpleDecoder_l178) begin
+              case(switch_LA32RSimpleDecoder_l197)
                 10'h020 : begin
                   io_decodedUop_aluCtrl_isAdd = 1'b1;
                 end
@@ -35241,7 +35307,7 @@ module LA32RSimpleDecoder (
         end
       end
       7'h01 : begin
-        case(switch_LA32RSimpleDecoder_l256)
+        case(switch_LA32RSimpleDecoder_l257)
           3'b010 : begin
             io_decodedUop_aluCtrl_isAdd = 1'b1;
           end
@@ -35270,13 +35336,13 @@ module LA32RSimpleDecoder (
 
   always @(*) begin
     io_decodedUop_aluCtrl_isSigned = 1'b0;
-    case(switch_LA32RSimpleDecoder_l130)
+    case(switch_LA32RSimpleDecoder_l131)
       7'h03 : begin
       end
       7'h0 : begin
       end
       7'h01 : begin
-        case(switch_LA32RSimpleDecoder_l256)
+        case(switch_LA32RSimpleDecoder_l257)
           3'b010 : begin
           end
           3'b000 : begin
@@ -35303,14 +35369,14 @@ module LA32RSimpleDecoder (
 
   always @(*) begin
     io_decodedUop_aluCtrl_logicOp = LogicOp_NONE;
-    case(switch_LA32RSimpleDecoder_l130)
+    case(switch_LA32RSimpleDecoder_l131)
       7'h03 : begin
       end
       7'h0 : begin
-        if(!when_LA32RSimpleDecoder_l158) begin
-          if(!when_LA32RSimpleDecoder_l167) begin
-            if(!when_LA32RSimpleDecoder_l177) begin
-              case(switch_LA32RSimpleDecoder_l196)
+        if(!when_LA32RSimpleDecoder_l159) begin
+          if(!when_LA32RSimpleDecoder_l168) begin
+            if(!when_LA32RSimpleDecoder_l178) begin
+              case(switch_LA32RSimpleDecoder_l197)
                 10'h020 : begin
                 end
                 10'h022 : begin
@@ -35340,7 +35406,7 @@ module LA32RSimpleDecoder (
         end
       end
       7'h01 : begin
-        case(switch_LA32RSimpleDecoder_l256)
+        case(switch_LA32RSimpleDecoder_l257)
           3'b010 : begin
           end
           3'b000 : begin
@@ -35368,20 +35434,20 @@ module LA32RSimpleDecoder (
 
   always @(*) begin
     io_decodedUop_shiftCtrl_isRight = 1'b0;
-    case(switch_LA32RSimpleDecoder_l130)
+    case(switch_LA32RSimpleDecoder_l131)
       7'h03 : begin
       end
       7'h0 : begin
-        if(when_LA32RSimpleDecoder_l158) begin
+        if(when_LA32RSimpleDecoder_l159) begin
           io_decodedUop_shiftCtrl_isRight = 1'b0;
         end else begin
-          if(when_LA32RSimpleDecoder_l167) begin
+          if(when_LA32RSimpleDecoder_l168) begin
             io_decodedUop_shiftCtrl_isRight = 1'b1;
           end else begin
-            if(when_LA32RSimpleDecoder_l177) begin
+            if(when_LA32RSimpleDecoder_l178) begin
               io_decodedUop_shiftCtrl_isRight = 1'b1;
             end else begin
-              case(switch_LA32RSimpleDecoder_l196)
+              case(switch_LA32RSimpleDecoder_l197)
                 10'h020 : begin
                 end
                 10'h022 : begin
@@ -35425,18 +35491,18 @@ module LA32RSimpleDecoder (
 
   always @(*) begin
     io_decodedUop_shiftCtrl_isArithmetic = 1'b0;
-    case(switch_LA32RSimpleDecoder_l130)
+    case(switch_LA32RSimpleDecoder_l131)
       7'h03 : begin
       end
       7'h0 : begin
-        if(!when_LA32RSimpleDecoder_l158) begin
-          if(when_LA32RSimpleDecoder_l167) begin
+        if(!when_LA32RSimpleDecoder_l159) begin
+          if(when_LA32RSimpleDecoder_l168) begin
             io_decodedUop_shiftCtrl_isArithmetic = 1'b0;
           end else begin
-            if(when_LA32RSimpleDecoder_l177) begin
+            if(when_LA32RSimpleDecoder_l178) begin
               io_decodedUop_shiftCtrl_isArithmetic = 1'b1;
             end else begin
-              case(switch_LA32RSimpleDecoder_l196)
+              case(switch_LA32RSimpleDecoder_l197)
                 10'h020 : begin
                 end
                 10'h022 : begin
@@ -35482,14 +35548,14 @@ module LA32RSimpleDecoder (
   assign io_decodedUop_mulDivCtrl_isDiv = 1'b0;
   always @(*) begin
     io_decodedUop_mulDivCtrl_isSigned = 1'b0;
-    case(switch_LA32RSimpleDecoder_l130)
+    case(switch_LA32RSimpleDecoder_l131)
       7'h03 : begin
       end
       7'h0 : begin
-        if(!when_LA32RSimpleDecoder_l158) begin
-          if(!when_LA32RSimpleDecoder_l167) begin
-            if(!when_LA32RSimpleDecoder_l177) begin
-              case(switch_LA32RSimpleDecoder_l196)
+        if(!when_LA32RSimpleDecoder_l159) begin
+          if(!when_LA32RSimpleDecoder_l168) begin
+            if(!when_LA32RSimpleDecoder_l178) begin
+              case(switch_LA32RSimpleDecoder_l197)
                 10'h020 : begin
                 end
                 10'h022 : begin
@@ -35532,7 +35598,7 @@ module LA32RSimpleDecoder (
   assign io_decodedUop_mulDivCtrl_isWordOp = 1'b0;
   always @(*) begin
     io_decodedUop_memCtrl_size = MemAccessSize_W;
-    case(switch_LA32RSimpleDecoder_l130)
+    case(switch_LA32RSimpleDecoder_l131)
       7'h03 : begin
       end
       7'h0 : begin
@@ -35544,7 +35610,7 @@ module LA32RSimpleDecoder (
       7'h0e : begin
       end
       7'h14 : begin
-        case(switch_LA32RSimpleDecoder_l309)
+        case(switch_LA32RSimpleDecoder_l310)
           3'b000 : begin
             io_decodedUop_memCtrl_size = MemAccessSize_B;
           end
@@ -35568,7 +35634,7 @@ module LA32RSimpleDecoder (
 
   always @(*) begin
     io_decodedUop_memCtrl_isSignedLoad = 1'b0;
-    case(switch_LA32RSimpleDecoder_l130)
+    case(switch_LA32RSimpleDecoder_l131)
       7'h03 : begin
       end
       7'h0 : begin
@@ -35580,7 +35646,7 @@ module LA32RSimpleDecoder (
       7'h0e : begin
       end
       7'h14 : begin
-        case(switch_LA32RSimpleDecoder_l309)
+        case(switch_LA32RSimpleDecoder_l310)
           3'b000 : begin
             io_decodedUop_memCtrl_isSignedLoad = 1'b1;
           end
@@ -35602,7 +35668,7 @@ module LA32RSimpleDecoder (
 
   always @(*) begin
     io_decodedUop_memCtrl_isStore = 1'b0;
-    case(switch_LA32RSimpleDecoder_l130)
+    case(switch_LA32RSimpleDecoder_l131)
       7'h03 : begin
       end
       7'h0 : begin
@@ -35614,7 +35680,7 @@ module LA32RSimpleDecoder (
       7'h0e : begin
       end
       7'h14 : begin
-        case(switch_LA32RSimpleDecoder_l309)
+        case(switch_LA32RSimpleDecoder_l310)
           3'b000 : begin
             io_decodedUop_memCtrl_isStore = 1'b0;
           end
@@ -35646,7 +35712,7 @@ module LA32RSimpleDecoder (
   assign io_decodedUop_memCtrl_isPrefetch = 1'b0;
   always @(*) begin
     io_decodedUop_branchCtrl_condition = BranchCondition_NUL;
-    case(switch_LA32RSimpleDecoder_l130)
+    case(switch_LA32RSimpleDecoder_l131)
       7'h03 : begin
       end
       7'h0 : begin
@@ -35660,7 +35726,7 @@ module LA32RSimpleDecoder (
       7'h14 : begin
       end
       default : begin
-        case(switch_LA32RSimpleDecoder_l340)
+        case(switch_LA32RSimpleDecoder_l341)
           6'h13 : begin
           end
           6'h14 : begin
@@ -35668,13 +35734,13 @@ module LA32RSimpleDecoder (
           6'h15 : begin
           end
           6'h16, 6'h17, 6'h1a : begin
-            if(when_LA32RSimpleDecoder_l377) begin
+            if(when_LA32RSimpleDecoder_l378) begin
               io_decodedUop_branchCtrl_condition = BranchCondition_EQ;
             end else begin
-              if(when_LA32RSimpleDecoder_l380) begin
+              if(when_LA32RSimpleDecoder_l381) begin
                 io_decodedUop_branchCtrl_condition = BranchCondition_NE;
               end else begin
-                if(when_LA32RSimpleDecoder_l383) begin
+                if(when_LA32RSimpleDecoder_l384) begin
                   io_decodedUop_branchCtrl_condition = BranchCondition_LTU;
                 end
               end
@@ -35689,7 +35755,7 @@ module LA32RSimpleDecoder (
 
   always @(*) begin
     io_decodedUop_branchCtrl_isJump = 1'b0;
-    case(switch_LA32RSimpleDecoder_l130)
+    case(switch_LA32RSimpleDecoder_l131)
       7'h03 : begin
       end
       7'h0 : begin
@@ -35703,7 +35769,7 @@ module LA32RSimpleDecoder (
       7'h14 : begin
       end
       default : begin
-        case(switch_LA32RSimpleDecoder_l340)
+        case(switch_LA32RSimpleDecoder_l341)
           6'h13 : begin
             io_decodedUop_branchCtrl_isJump = 1'b1;
           end
@@ -35724,7 +35790,7 @@ module LA32RSimpleDecoder (
 
   always @(*) begin
     io_decodedUop_branchCtrl_isLink = 1'b0;
-    case(switch_LA32RSimpleDecoder_l130)
+    case(switch_LA32RSimpleDecoder_l131)
       7'h03 : begin
       end
       7'h0 : begin
@@ -35738,7 +35804,7 @@ module LA32RSimpleDecoder (
       7'h14 : begin
       end
       default : begin
-        case(switch_LA32RSimpleDecoder_l340)
+        case(switch_LA32RSimpleDecoder_l341)
           6'h13 : begin
             io_decodedUop_branchCtrl_isLink = 1'b1;
           end
@@ -35758,7 +35824,7 @@ module LA32RSimpleDecoder (
 
   always @(*) begin
     io_decodedUop_branchCtrl_linkReg_idx = 5'h0;
-    case(switch_LA32RSimpleDecoder_l130)
+    case(switch_LA32RSimpleDecoder_l131)
       7'h03 : begin
       end
       7'h0 : begin
@@ -35772,7 +35838,7 @@ module LA32RSimpleDecoder (
       7'h14 : begin
       end
       default : begin
-        case(switch_LA32RSimpleDecoder_l340)
+        case(switch_LA32RSimpleDecoder_l341)
           6'h13 : begin
             io_decodedUop_branchCtrl_linkReg_idx = fields_inst[4 : 0];
           end
@@ -35793,7 +35859,7 @@ module LA32RSimpleDecoder (
   assign io_decodedUop_branchCtrl_linkReg_rtype = ArchRegType_GPR;
   always @(*) begin
     io_decodedUop_branchCtrl_isIndirect = 1'b0;
-    case(switch_LA32RSimpleDecoder_l130)
+    case(switch_LA32RSimpleDecoder_l131)
       7'h03 : begin
       end
       7'h0 : begin
@@ -35807,7 +35873,7 @@ module LA32RSimpleDecoder (
       7'h14 : begin
       end
       default : begin
-        case(switch_LA32RSimpleDecoder_l340)
+        case(switch_LA32RSimpleDecoder_l341)
           6'h13 : begin
             io_decodedUop_branchCtrl_isIndirect = 1'b1;
           end
@@ -35847,14 +35913,14 @@ module LA32RSimpleDecoder (
   assign io_decodedUop_sysCtrl_tlbOpType = 4'b0000;
   always @(*) begin
     io_decodedUop_decodeExceptionCode = DecodeExCode_OK;
-    if(when_LA32RSimpleDecoder_l394) begin
+    if(when_LA32RSimpleDecoder_l395) begin
       io_decodedUop_decodeExceptionCode = DecodeExCode_DECODE_ERROR;
     end
   end
 
   always @(*) begin
     io_decodedUop_hasDecodeException = 1'b0;
-    if(when_LA32RSimpleDecoder_l394) begin
+    if(when_LA32RSimpleDecoder_l395) begin
       io_decodedUop_hasDecodeException = 1'b1;
     end
   end
@@ -35864,7 +35930,7 @@ module LA32RSimpleDecoder (
   assign io_decodedUop_isSerializing = 1'b0;
   always @(*) begin
     io_decodedUop_isBranchOrJump = 1'b0;
-    case(switch_LA32RSimpleDecoder_l130)
+    case(switch_LA32RSimpleDecoder_l131)
       7'h03 : begin
       end
       7'h0 : begin
@@ -35878,7 +35944,7 @@ module LA32RSimpleDecoder (
       7'h14 : begin
       end
       default : begin
-        case(switch_LA32RSimpleDecoder_l340)
+        case(switch_LA32RSimpleDecoder_l341)
           6'h13 : begin
             io_decodedUop_isBranchOrJump = 1'b1;
           end
@@ -35902,24 +35968,24 @@ module LA32RSimpleDecoder (
   assign r1_idx = 5'h01;
   assign imm_sext_12 = {{20{_zz_imm_sext_12[11]}}, _zz_imm_sext_12};
   assign imm_zext_12 = {20'd0, _zz_imm_zext_12};
-  assign imm_lu12i = ({12'd0,_zz_imm_lu12i} <<< 4'd12);
+  assign imm_lu12i = {fields_inst[24 : 5],12'h0};
   assign imm_pcadd_u12i = ({12'd0,_zz_imm_pcadd_u12i} <<< 4'd12);
   assign imm_branch_16 = {{14{_zz_imm_branch_16[17]}}, _zz_imm_branch_16};
   assign imm_branch_26 = {{4{_zz_imm_branch_26[27]}}, _zz_imm_branch_26};
   assign imm_shift_5 = {27'd0, _zz_imm_shift_5};
-  assign switch_LA32RSimpleDecoder_l130 = fields_inst[31 : 25];
-  assign when_LA32RSimpleDecoder_l134 = (fields_inst[24 : 15] == 10'h091);
-  assign when_LA32RSimpleDecoder_l158 = (fields_inst[24 : 15] == 10'h081);
-  assign switch_LA32RSimpleDecoder_l196 = fields_inst[24 : 15];
-  assign when_LA32RSimpleDecoder_l167 = (fields_inst[24 : 15] == 10'h089);
-  assign when_LA32RSimpleDecoder_l177 = (fields_inst[24 : 15] == 10'h091);
-  assign switch_LA32RSimpleDecoder_l256 = fields_inst[24 : 22];
-  assign switch_LA32RSimpleDecoder_l309 = fields_inst[24 : 22];
-  assign switch_LA32RSimpleDecoder_l340 = fields_inst[31 : 26];
-  assign when_LA32RSimpleDecoder_l377 = (fields_inst[31 : 26] == 6'h16);
-  assign when_LA32RSimpleDecoder_l380 = (fields_inst[31 : 26] == 6'h17);
-  assign when_LA32RSimpleDecoder_l383 = (fields_inst[31 : 26] == 6'h1a);
-  assign when_LA32RSimpleDecoder_l394 = (! io_decodedUop_isValid);
+  assign switch_LA32RSimpleDecoder_l131 = fields_inst[31 : 25];
+  assign when_LA32RSimpleDecoder_l135 = (fields_inst[24 : 15] == 10'h091);
+  assign when_LA32RSimpleDecoder_l159 = (fields_inst[24 : 15] == 10'h081);
+  assign switch_LA32RSimpleDecoder_l197 = fields_inst[24 : 15];
+  assign when_LA32RSimpleDecoder_l168 = (fields_inst[24 : 15] == 10'h089);
+  assign when_LA32RSimpleDecoder_l178 = (fields_inst[24 : 15] == 10'h091);
+  assign switch_LA32RSimpleDecoder_l257 = fields_inst[24 : 22];
+  assign switch_LA32RSimpleDecoder_l310 = fields_inst[24 : 22];
+  assign switch_LA32RSimpleDecoder_l341 = fields_inst[31 : 26];
+  assign when_LA32RSimpleDecoder_l378 = (fields_inst[31 : 26] == 6'h16);
+  assign when_LA32RSimpleDecoder_l381 = (fields_inst[31 : 26] == 6'h17);
+  assign when_LA32RSimpleDecoder_l384 = (fields_inst[31 : 26] == 6'h1a);
+  assign when_LA32RSimpleDecoder_l395 = (! io_decodedUop_isValid);
 
 endmodule
 
@@ -43348,21 +43414,21 @@ module OneShot (
 );
 
   reg                 hasFired;
-  wire                when_Debug_l143;
+  wire                when_Debug_l146;
 
   always @(*) begin
     io_pulseOut = 1'b0;
-    if(when_Debug_l143) begin
+    if(when_Debug_l146) begin
       io_pulseOut = 1'b1;
     end
   end
 
-  assign when_Debug_l143 = (io_triggerIn && (! hasFired));
+  assign when_Debug_l146 = (io_triggerIn && (! hasFired));
   always @(posedge clk or posedge reset) begin
     if(reset) begin
       hasFired <= 1'b0;
     end else begin
-      if(when_Debug_l143) begin
+      if(when_Debug_l146) begin
         hasFired <= 1'b1;
       end
     end

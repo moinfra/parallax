@@ -20,6 +20,9 @@ object DebugValue {
   val ISSUE_FIRE = 0x17
   val EXEC_FIRE = 0x18
   val COMMIT_FIRE = 0x19
+
+  // Error
+  val REG_WRITE_CONFLICT = 0xE0
 }
 
 trait DebugDisplayService extends Service {

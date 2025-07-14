@@ -114,7 +114,8 @@ class LA32RSimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends 
 
   val imm_sext_12 = S(fields.si12).resize(config.dataWidth)
   val imm_zext_12 = U(fields.ui12).resize(config.dataWidth)
-  val imm_lu12i = (S(fields.si20) << 12).resize(config.dataWidth)
+  // val imm_lu12i = (S(fields.si20) << 12).resize(config.dataWidth)
+  val imm_lu12i = (fields.si20 ## B(0, 12 bits)).asUInt.resize(config.dataWidth)
   val imm_pcadd_u12i = (S(fields.si20) << 12).resize(config.dataWidth)
 
   // For JIRL, BEQ, BNE, BLTU. Format: [offs[15:0], rj, rd]

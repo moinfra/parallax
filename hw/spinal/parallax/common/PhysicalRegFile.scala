@@ -30,7 +30,7 @@ case class PrfReadPort(
 
 case class PrfWritePort(
     val idxWidth: BitCount,
-    val dataWidth: BitCount = 32 bits,
+    val dataWidth: BitCount = 32 bits
 ) extends Bundle
     with IMasterSlave {
   val valid = Bool()
@@ -128,13 +128,13 @@ class PhysicalRegFilePlugin(
 
       // 使用 MuxOH (One-Hot Mux) 根据授权信号选择获胜者的数据和地址
       arbitratedWrite.address := MuxOH(writeGrants, writePortRequests.map(_.address))
-      arbitratedWrite.data    := MuxOH(writeGrants, writePortRequests.map(_.data))
+      arbitratedWrite.data := MuxOH(writeGrants, writePortRequests.map(_.data))
 
       // 4. 使用仲裁后胜出的端口执行唯一的物理写操作
       regFile.write(
         address = arbitratedWrite.address,
-        data    = arbitratedWrite.data,
-        enable  = arbitratedWrite.valid && (arbitratedWrite.address =/= 0)
+        data = arbitratedWrite.data,
+        enable = arbitratedWrite.valid && (arbitratedWrite.address =/= 0)
       )
 
       // 仿真和编译日志
@@ -142,6 +142,14 @@ class PhysicalRegFilePlugin(
         ParallaxSim.log(L"[PRegPlugin] PRF Port ${arbitratedWrite.address} write ${arbitratedWrite.data} (Arbitrated)")
       }
       ParallaxLogger.log(s"[PRegPlugin] ${writePortRequests.size}个物理寄存器堆写端口已连接到一个自定义的固定优先级仲裁器，形成一个物理写端口")
+
+      val activeWritePortsCount = CountOne(writeValids)
+
+      // 当有效写请求数量大于1时，意味着发生了意外的冲突
+      // 这是一个严重的架构级问题，需要立即报警
+      when(activeWritePortsCount > 1) {
+        getServiceOption[DebugDisplayService].foreach(_.setDebugValue(DebugValue.REG_WRITE_CONFLICT))
+      }
     }
     // --- 自定义写端口仲裁逻辑结束 ---
   }
