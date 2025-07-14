@@ -206,6 +206,9 @@ abstract class EuBasePlugin(
     when(euResult.valid) {
       report(L"EUBase ($euName): Result valid, writesToPreg=${euResult.writesToPreg}, hasException=${euResult.hasException}, executionCompletes=${executionCompletes}, completesSuccessfully=${completesSuccessfully}")
     }
+    getServiceOption[DebugDisplayService].foreach(dbg => { 
+      dbg.setDebugValueOnce(euResult.valid, DebugValue.EXEC_FIRE, expectIncr = true)
+    })
 
     // 1. 物理寄存器文件写
     if (gprWritePort != null) { // 仅当 gprWritePort 有效时连接 (即 gprFileService 存在且 EU 类型匹配)

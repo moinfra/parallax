@@ -35,6 +35,14 @@ class IssuePipeline(val issueConfig: PipelineConfig) extends Plugin with LockedI
     val s2_rob_alloc = newStage().setName("s2_RobAlloc") // New stage
     val s3_dispatch  = newStage().setName("s3_Dispatch") // Old s2 is now s3
 
+
+    getServiceOption[DebugDisplayService].foreach(dbg => {
+      dbg.setDebugValueOnce(s0_decode.isFiring, DebugValue.DECODE_FIRE, expectIncr = true)
+      dbg.setDebugValueOnce(s1_rename.isFiring, DebugValue.RENAME_FIRE, expectIncr = true)
+      dbg.setDebugValueOnce(s2_rob_alloc.isFiring, DebugValue.ROBALLOC_FIRE, expectIncr = true)
+      dbg.setDebugValueOnce(s3_dispatch.isFiring, DebugValue.DISPATCH_FIRE, expectIncr = true)
+    })
+
     connect(s0_decode, s1_rename)(Connection.M2S())
     connect(s1_rename, s2_rob_alloc)(Connection.M2S()) // Connect new stage
     connect(s2_rob_alloc, s3_dispatch)(Connection.M2S())

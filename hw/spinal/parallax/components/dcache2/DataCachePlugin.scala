@@ -171,11 +171,12 @@ class DataCachePlugin(config: DataCachePluginConfig) extends Plugin with LockedI
     // dbusSvc.retain()
     val dcacheMaster = cache.io.mem.toAxi4()
 
-    getServiceOption[DebugDisplayService].foreach(dbg => dbg.setDebugOnce(DebugValue.DCACHE_INIT))
+    getServiceOption[DebugDisplayService].foreach(dbg => { 
+      dbg.setDebugValueOnce(True, DebugValue.DCACHE_INIT, expectIncr = true)
+     })
   }
 
   def getDCacheMaster = setup.dcacheMaster
-
 
   private val logic = create late new Area {
     ParallaxLogger.debug("[DCache] logic before lock await")
@@ -217,7 +218,7 @@ class DataCachePlugin(config: DataCachePluginConfig) extends Plugin with LockedI
     // ParallaxLogger.debug("[DCache] release dbusSvc")
 
   }
-  
+
 }
 
 trait DataCacheService extends Service with LockedImpl {

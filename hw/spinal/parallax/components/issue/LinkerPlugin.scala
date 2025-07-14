@@ -128,6 +128,10 @@ class LinkerPlugin(pCfg: PipelineConfig) extends Plugin with LockedImpl {
       }
     }
 
+    getServiceOption[DebugDisplayService].foreach(dbg => { 
+      dbg.setDebugValueOnce(connections(0).execUnit.getEuInputPort.fire, DebugValue.ISSUE_FIRE, expectIncr = true)
+    })
+
     // --- 4. Finalization: Release all retained services ---
     setup.issuePpl.release()
     setup.iqService.release()

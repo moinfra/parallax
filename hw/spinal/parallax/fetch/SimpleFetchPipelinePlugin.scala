@@ -198,6 +198,12 @@ class SimpleFetchPipelinePlugin(
     // --- Control FSM with Fetch Disable Support ---
     val fetchDisable = if (fetchDisablePorts.nonEmpty) fetchDisablePorts.orR else False
     val debugService = getServiceOption[DebugDisplayService]
+
+    debugService.foreach(dbg => {
+        dbg.setDebugValueOnce(ifuPort.cmd.valid, DebugValue.FETCH_START, expectIncr = true)
+        dbg.setDebugValueOnce(ifuPort.cmd.fire, DebugValue.FETCH_FIRE, expectIncr = true)
+    })
+
     val fsm = new StateMachine {
         val IDLE = new State with EntryPoint
         val WAITING = new State
@@ -213,16 +219,10 @@ class SimpleFetchPipelinePlugin(
                 goto(DISABLED)
             } .otherwise {
                 ifuPort.cmd.valid := True
-                debugService.foreach(dbg => {
-                    dbg.setDebugOnce(DebugValue.FETCH_START, expectIncr=false)
-                })
                 when(ifuPort.cmd.fire) {
                     pcOnRequest := fetchPc
                     if(enableLog) report(L"[Fetch-FSM] IDLE->WAITING: IFU cmd fired, pcOnRequest=0x${fetchPc}")
                     goto(WAITING)
-                    debugService.foreach(dbg => {
-                        dbg.setDebugOnce(DebugValue.FETCH_SUCC, expectIncr=true)
-                    })
                 }
             }
         }

@@ -243,7 +243,9 @@ class CommitPlugin(
     commitStatsReg.robFlushCount      := commitStatsReg.robFlushCount + flushedThisCycle_comb
     
     // restoreCheckpointTrigger is already set above in the IDLE logic
-
+    getServiceOption[DebugDisplayService].foreach(dbg => { 
+      dbg.setDebugValueOnce(committedThisCycle_comb.asBool, DebugValue.COMMIT_FIRE, expectIncr = true)
+    })
     // ==============================================================================
     // 核心修改 2: 创建前馈统计信号
     // ==============================================================================
