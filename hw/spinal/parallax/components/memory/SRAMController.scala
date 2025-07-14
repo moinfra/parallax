@@ -450,6 +450,12 @@ class SRAMController(axiConfig: Axi4Config, config: SRAMConfig) extends Componen
       }
     }
   }
+
+  fsm.build()
+  fsm.stateReg.addAttribute("MARK_DEBUG", "TRUE")
+  Seq(io.axi.aw.fire, io.axi.ar.fire, io.axi.w.fire, io.axi.r.fire, io.axi.b.fire).foreach(
+    _.addAttribute("mark_debug", "true")
+  )
 }
 
 object SRAMControllerGen extends App {
