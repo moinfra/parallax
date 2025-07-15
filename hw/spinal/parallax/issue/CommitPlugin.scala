@@ -106,8 +106,8 @@ class CommitPlugin(
   // Service interface state
   private val commitEnableExt = Bool()
   private val commitStatsReg = Reg(CommitStats(pipelineConfig)).initZero()
-  private val maxCommitPcExt = in UInt(pipelineConfig.pcWidth)
-  private val maxCommitPcEnabledExt = in Bool()
+  private val maxCommitPcExt = UInt(pipelineConfig.pcWidth)
+  private val maxCommitPcEnabledExt = Bool()
   
   // IDLE instruction state
   private val committedIdleReg = Reg(Bool()) init(False)

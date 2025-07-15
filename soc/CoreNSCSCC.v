@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 3105a33b457518a7afeed8b0527b4d8b9dab2383
 // Component : CoreNSCSCC
-// Git hash  : ad71bbc5fda13111c0ba12b54efbde5985b011ec
+// Git hash  : 00abef03422b677a22459ec4f7684d469aced0a9
 
 `timescale 1ns/1ps
 
@@ -51,8 +51,6 @@ module CoreNSCSCC (
   output wire          io_uart_w_bits_last,
   output wire          io_uart_w_valid,
   output wire          io_uart_b_ready,
-  input  wire [31:0]   CommitPlugin_maxCommitPcExt,
-  input  wire          CommitPlugin_maxCommitPcEnabledExt,
   input  wire          clk,
   input  wire          reset
 );
@@ -2114,6 +2112,8 @@ module CoreNSCSCC (
   reg        [31:0]   CommitPlugin_commitStatsReg_physRegRecycled;
   (* mark_debug = "true" *) reg                 CommitPlugin_commitStatsReg_commitOOB;
   (* mark_debug = "true" *) reg        [31:0]   CommitPlugin_commitStatsReg_maxCommitPc;
+  wire       [31:0]   CommitPlugin_maxCommitPcExt;
+  wire                CommitPlugin_maxCommitPcEnabledExt;
   reg                 CommitPlugin_committedIdleReg;
   reg        [31:0]   CommitPlugin_committedIdlePcReg;
   reg        [31:0]   CommitPlugin_maxCommitPcReg;
@@ -12540,6 +12540,8 @@ module CoreNSCSCC (
   assign oneShot_17_io_triggerIn = (s3_Dispatch_isFiring && (_zz_when_Debug_l71 < _zz_io_triggerIn_8));
   assign _zz_when_Debug_l71_5 = 5'h16;
   assign when_Debug_l71_4 = (_zz_when_Debug_l71 < _zz_when_Debug_l71_4_1);
+  assign CommitPlugin_maxCommitPcExt = 32'h80001000;
+  assign CommitPlugin_maxCommitPcEnabledExt = 1'b1;
   assign BpuPipelinePlugin_logic_s1_read_valid = BpuPipelinePlugin_queryPortIn_valid;
   assign BpuPipelinePlugin_logic_s1_read_Q_PC = BpuPipelinePlugin_queryPortIn_payload_pc;
   assign BpuPipelinePlugin_logic_s1_read_TRANSACTION_ID = BpuPipelinePlugin_queryPortIn_payload_transactionId;
