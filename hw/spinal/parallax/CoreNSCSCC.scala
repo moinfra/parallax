@@ -538,7 +538,9 @@ class CoreNSCSCC(simDebug: Boolean = false) extends Component {
 
     val commitService = framework.getService[CommitPlugin]
     val switch_reg = Reg(Bool) init (False) // 用于切换显示模式, 1 表示查看最大commit pc 0 表示查看commit数量，
-    when(io.switch_btn) {
+    val switch_btn_sync = BufferCC(io.switch_btn)
+    val switch_btn_edge = switch_btn_sync.rise()
+    when(switch_btn_edge) {
       switch_reg := ~switch_reg
     }
     val commitStat = commitService.getCommitStatsReg()

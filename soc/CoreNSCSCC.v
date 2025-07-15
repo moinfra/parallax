@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 3105a33b457518a7afeed8b0527b4d8b9dab2383
 // Component : CoreNSCSCC
-// Git hash  : caa6f278847627bac0c3e619ddac8da445ca9962
+// Git hash  : 3696244a7518c5db58dab4f94d5dd8a6c40274c8
 
 `timescale 1ns/1ps
 
@@ -1321,6 +1321,7 @@ module CoreNSCSCC (
   wire       [3:0]    axi4WriteOnlyArbiter_5_io_output_w_payload_strb;
   wire                axi4WriteOnlyArbiter_5_io_output_w_payload_last;
   wire                axi4WriteOnlyArbiter_5_io_output_b_ready;
+  wire                io_switch_btn_buffercc_io_dataOut;
   wire       [7:0]    _zz_io_triggerIn;
   wire       [0:0]    _zz_io_triggerIn_1;
   wire       [7:0]    _zz_when_Debug_l71_13;
@@ -4776,6 +4777,9 @@ module CoreNSCSCC (
   reg                 io_outputs_2_aw_rValid_2;
   wire                io_outputs_2_aw_validPipe_fire_2;
   reg                 _zz_io_leds;
+  wire                _zz_when_CoreNSCSCC_l543;
+  reg                 _zz_when_CoreNSCSCC_l543_1;
+  wire                when_CoreNSCSCC_l543;
   reg        [2:0]    SimpleFetchPipelinePlugin_logic_fsm_stateReg;
   reg        [2:0]    SimpleFetchPipelinePlugin_logic_fsm_stateNext;
   wire       [31:0]   _zz_38;
@@ -7755,6 +7759,12 @@ module CoreNSCSCC (
     .io_output_b_payload_resp     (uartAxi_b_payload_resp[1:0]                                                           ), //i
     .clk                          (clk                                                                                   ), //i
     .reset                        (reset                                                                                 )  //i
+  );
+  (* keep_hierarchy = "TRUE" *) BufferCC io_switch_btn_buffercc (
+    .io_dataIn  (io_switch_btn                    ), //i
+    .io_dataOut (io_switch_btn_buffercc_io_dataOut), //o
+    .clk        (clk                              ), //i
+    .reset      (reset                            )  //i
   );
   always @(*) begin
     case(_zz_CommitPlugin_logic_commitCount_1)
@@ -20821,6 +20831,8 @@ module CoreNSCSCC (
   assign axi4WriteOnlyArbiter_5_io_inputs_2_aw_payload_id = {1'd0, io_outputs_2_aw_validPipe_payload_id_2};
   assign io_dpy0 = DebugDisplayPlugin_hw_dpyController_io_dpy0_out;
   assign io_dpy1 = DebugDisplayPlugin_hw_dpyController_io_dpy1_out;
+  assign _zz_when_CoreNSCSCC_l543 = io_switch_btn_buffercc_io_dataOut;
+  assign when_CoreNSCSCC_l543 = (_zz_when_CoreNSCSCC_l543 && (! _zz_when_CoreNSCSCC_l543_1));
   assign io_leds = _zz_io_leds_1[15:0];
   always @(*) begin
     SimpleFetchPipelinePlugin_logic_fsm_stateNext = SimpleFetchPipelinePlugin_logic_fsm_stateReg;
@@ -22915,7 +22927,7 @@ module CoreNSCSCC (
       if(io_outputs_2_aw_validPipe_fire_2) begin
         io_outputs_2_aw_rValid_2 <= 1'b0;
       end
-      if(io_switch_btn) begin
+      if(when_CoreNSCSCC_l543) begin
         _zz_io_leds <= (! _zz_io_leds);
       end
       SimpleFetchPipelinePlugin_logic_fsm_stateReg <= SimpleFetchPipelinePlugin_logic_fsm_stateNext;
@@ -23453,6 +23465,7 @@ module CoreNSCSCC (
       LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_olderStoreHasUnknownAddress <= StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreHasUnknownAddress;
       LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_olderStoreMatchingAddress <= StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreMatchingAddress;
     end
+    _zz_when_CoreNSCSCC_l543_1 <= _zz_when_CoreNSCSCC_l543;
     case(SimpleFetchPipelinePlugin_logic_fsm_stateReg)
       SimpleFetchPipelinePlugin_logic_fsm_IDLE : begin
         if(!SimpleFetchPipelinePlugin_logic_fetchDisable) begin
@@ -23470,6 +23483,25 @@ module CoreNSCSCC (
       default : begin
       end
     endcase
+  end
+
+
+endmodule
+
+module BufferCC (
+  input  wire          io_dataIn,
+  output wire          io_dataOut,
+  input  wire          clk,
+  input  wire          reset
+);
+
+  (* async_reg = "true" *) reg                 buffers_0;
+  (* async_reg = "true" *) reg                 buffers_1;
+
+  assign io_dataOut = buffers_1;
+  always @(posedge clk) begin
+    buffers_0 <= io_dataIn;
+    buffers_1 <= buffers_0;
   end
 
 
