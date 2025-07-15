@@ -1,7 +1,6 @@
 // Generator : SpinalHDL dev    git head : 3105a33b457518a7afeed8b0527b4d8b9dab2383
 // Component : CoreNSCSCC
-// Git hash  : 14df35505ae0ed49b0ecaabc48d7ec789c718aa5
-// ...
+// Git hash  : 5c7e197d5650c934ee5176f26b142154f6421ae1
 
 `timescale 1ns/1ps
 
@@ -46705,47 +46704,48 @@ module SRAMController_1 (
   input  wire [31:0]   io_ram_data_read,
   output wire [31:0]   io_ram_data_write,
   output wire          io_ram_data_writeEnable,
-  output reg  [19:0]   io_ram_addr,
-  output reg  [3:0]    io_ram_be_n,
-  output reg           io_ram_ce_n,
-  output reg           io_ram_oe_n,
-  output reg           io_ram_we_n,
+  output wire [19:0]   io_ram_addr,
+  output wire [3:0]    io_ram_be_n,
+  output wire          io_ram_ce_n,
+  output wire          io_ram_oe_n,
+  output wire          io_ram_we_n,
   input  wire          clk,
   input  wire          reset
 );
   localparam fsm_BOOT = 4'd0;
   localparam fsm_IDLE = 4'd1;
-  localparam fsm_WRITE_DATA = 4'd2;
-  localparam fsm_WRITE_WAIT = 4'd3;
-  localparam fsm_WRITE_DATA_ERROR_CONSUME = 4'd4;
-  localparam fsm_WRITE_RESPONSE = 4'd5;
-  localparam fsm_READ_SETUP = 4'd6;
-  localparam fsm_READ_WAIT = 4'd7;
-  localparam fsm_READ_RESPONSE = 4'd8;
-  localparam fsm_READ_RESPONSE_ERROR = 4'd9;
+  localparam fsm_WRITE_DATA_FETCH = 4'd2;
+  localparam fsm_WRITE_EXECUTE = 4'd3;
+  localparam fsm_WRITE_DEASSERT = 4'd4;
+  localparam fsm_WRITE_DATA_ERROR_CONSUME = 4'd5;
+  localparam fsm_WRITE_RESPONSE = 4'd6;
+  localparam fsm_READ_SETUP = 4'd7;
+  localparam fsm_READ_WAIT = 4'd8;
+  localparam fsm_READ_RESPONSE = 4'd9;
+  localparam fsm_READ_RESPONSE_ERROR = 4'd10;
 
   wire       [7:0]    _zz_fsm_burst_count_remaining;
   wire       [29:0]   _zz_fsm_current_sram_addr_2;
-  wire       [31:0]   _zz_when_SRAMController_l185_1;
-  wire       [7:0]    _zz_when_SRAMController_l185_2;
-  wire       [31:0]   _zz_when_SRAMController_l193;
-  wire       [31:0]   _zz_when_SRAMController_l193_1;
-  wire       [31:0]   _zz_when_SRAMController_l193_2;
-  wire       [31:0]   _zz_when_SRAMController_l193_3;
-  wire       [15:0]   _zz_when_SRAMController_l193_4;
-  wire       [7:0]    _zz_when_SRAMController_l193_5;
-  wire       [31:0]   _zz_when_SRAMController_l193_6;
+  wire       [31:0]   _zz_when_SRAMController_l202_1;
+  wire       [7:0]    _zz_when_SRAMController_l202_2;
+  wire       [31:0]   _zz_when_SRAMController_l210;
+  wire       [31:0]   _zz_when_SRAMController_l210_1;
+  wire       [31:0]   _zz_when_SRAMController_l210_2;
+  wire       [31:0]   _zz_when_SRAMController_l210_3;
+  wire       [15:0]   _zz_when_SRAMController_l210_4;
+  wire       [7:0]    _zz_when_SRAMController_l210_5;
+  wire       [31:0]   _zz_when_SRAMController_l210_6;
   wire       [7:0]    _zz_fsm_burst_count_remaining_1;
   wire       [29:0]   _zz_fsm_current_sram_addr_3;
-  wire       [31:0]   _zz_when_SRAMController_l239_1;
-  wire       [7:0]    _zz_when_SRAMController_l239_2;
-  wire       [31:0]   _zz_when_SRAMController_l247;
-  wire       [31:0]   _zz_when_SRAMController_l247_1;
-  wire       [31:0]   _zz_when_SRAMController_l247_2;
-  wire       [31:0]   _zz_when_SRAMController_l247_3;
-  wire       [15:0]   _zz_when_SRAMController_l247_4;
-  wire       [7:0]    _zz_when_SRAMController_l247_5;
-  wire       [31:0]   _zz_when_SRAMController_l247_6;
+  wire       [31:0]   _zz_when_SRAMController_l256_1;
+  wire       [7:0]    _zz_when_SRAMController_l256_2;
+  wire       [31:0]   _zz_when_SRAMController_l264;
+  wire       [31:0]   _zz_when_SRAMController_l264_1;
+  wire       [31:0]   _zz_when_SRAMController_l264_2;
+  wire       [31:0]   _zz_when_SRAMController_l264_3;
+  wire       [15:0]   _zz_when_SRAMController_l264_4;
+  wire       [7:0]    _zz_when_SRAMController_l264_5;
+  wire       [31:0]   _zz_when_SRAMController_l264_6;
   wire       [19:0]   _zz_fsm_current_sram_addr_4;
   wire       [7:0]    _zz_fsm_current_sram_addr_5;
   wire       [7:0]    _zz_fsm_current_sram_addr_6;
@@ -46755,11 +46755,14 @@ module SRAMController_1 (
   wire       [19:0]   _zz_fsm_current_sram_addr_7;
   wire       [7:0]    _zz_fsm_current_sram_addr_8;
   wire       [7:0]    _zz_fsm_current_sram_addr_9;
-  reg        [19:0]   sram_write_addr_reg;
-  reg        [31:0]   sram_write_data_reg;
   wire       [3:0]    sram_be_n_inactive_value;
-  reg        [3:0]    sram_write_be_n_reg;
-  reg                 sram_perform_write;
+  reg        [19:0]   sram_addr_out_reg;
+  reg        [31:0]   sram_data_out_reg;
+  reg        [3:0]    sram_be_n_out_reg;
+  reg                 sram_ce_n_out_reg;
+  reg                 sram_oe_n_out_reg;
+  reg                 sram_we_n_out_reg;
+  reg                 sram_data_writeEnable_out_reg;
   wire                fsm_wantExit;
   reg                 fsm_wantStart;
   wire                fsm_wantKill;
@@ -46788,31 +46791,32 @@ module SRAMController_1 (
   reg        [3:0]    fsm_stateNext;
   (* mark_debug = "true" *) wire                io_axi_aw_fire;
   wire       [31:0]   _zz_fsm_current_sram_addr;
-  wire       [7:0]    _zz_when_SRAMController_l185;
-  wire                when_SRAMController_l181;
-  wire                when_SRAMController_l185;
-  wire                when_SRAMController_l189;
-  wire                when_SRAMController_l193;
+  wire       [7:0]    _zz_when_SRAMController_l202;
+  wire                when_SRAMController_l198;
+  wire                when_SRAMController_l202;
+  wire                when_SRAMController_l206;
+  wire                when_SRAMController_l210;
   (* mark_debug = "true" *) wire                io_axi_ar_fire;
   wire       [31:0]   _zz_fsm_current_sram_addr_1;
-  wire       [7:0]    _zz_when_SRAMController_l239;
-  wire                when_SRAMController_l235;
-  wire                when_SRAMController_l239;
-  wire                when_SRAMController_l243;
-  wire                when_SRAMController_l247;
-  wire                when_SRAMController_l284;
+  wire       [7:0]    _zz_when_SRAMController_l256;
+  wire                when_SRAMController_l252;
+  wire                when_SRAMController_l256;
+  wire                when_SRAMController_l260;
+  wire                when_SRAMController_l264;
   (* mark_debug = "true" *) wire                io_axi_w_fire;
-  wire                when_SRAMController_l326;
-  wire                when_SRAMController_l347;
-  wire                when_SRAMController_l416;
-  wire                when_SRAMController_l425;
-  wire                when_SRAMController_l458;
+  wire                when_SRAMController_l340;
+  wire                when_SRAMController_l377;
+  wire                when_SRAMController_l406;
+  wire                when_SRAMController_l501;
+  wire                when_SRAMController_l510;
+  wire                when_SRAMController_l559;
   (* mark_debug = "true" *) wire                io_axi_r_fire;
-  wire                when_SRAMController_l500;
+  wire                when_SRAMController_l611;
   wire                fsm_onExit_BOOT;
   wire                fsm_onExit_IDLE;
-  wire                fsm_onExit_WRITE_DATA;
-  wire                fsm_onExit_WRITE_WAIT;
+  wire                fsm_onExit_WRITE_DATA_FETCH;
+  wire                fsm_onExit_WRITE_EXECUTE;
+  wire                fsm_onExit_WRITE_DEASSERT;
   wire                fsm_onExit_WRITE_DATA_ERROR_CONSUME;
   wire                fsm_onExit_WRITE_RESPONSE;
   wire                fsm_onExit_READ_SETUP;
@@ -46821,8 +46825,9 @@ module SRAMController_1 (
   wire                fsm_onExit_READ_RESPONSE_ERROR;
   wire                fsm_onEntry_BOOT;
   wire                fsm_onEntry_IDLE;
-  wire                fsm_onEntry_WRITE_DATA;
-  wire                fsm_onEntry_WRITE_WAIT;
+  wire                fsm_onEntry_WRITE_DATA_FETCH;
+  wire                fsm_onEntry_WRITE_EXECUTE;
+  wire                fsm_onEntry_WRITE_DEASSERT;
   wire                fsm_onEntry_WRITE_DATA_ERROR_CONSUME;
   wire                fsm_onEntry_WRITE_RESPONSE;
   wire                fsm_onEntry_READ_SETUP;
@@ -46838,26 +46843,26 @@ module SRAMController_1 (
 
   assign _zz_fsm_burst_count_remaining = (io_axi_aw_payload_len + 8'h01);
   assign _zz_fsm_current_sram_addr_2 = (_zz_fsm_current_sram_addr >>> 2'd2);
-  assign _zz_when_SRAMController_l185_2 = (_zz_when_SRAMController_l185 - 8'h01);
-  assign _zz_when_SRAMController_l185_1 = {24'd0, _zz_when_SRAMController_l185_2};
-  assign _zz_when_SRAMController_l193 = _zz_fsm_current_sram_addr;
-  assign _zz_when_SRAMController_l193_1 = (_zz_when_SRAMController_l193_2 - _zz_when_SRAMController_l193_6);
-  assign _zz_when_SRAMController_l193_2 = (_zz_fsm_current_sram_addr + _zz_when_SRAMController_l193_3);
-  assign _zz_when_SRAMController_l193_4 = (_zz_when_SRAMController_l193_5 * _zz_when_SRAMController_l185);
-  assign _zz_when_SRAMController_l193_3 = {16'd0, _zz_when_SRAMController_l193_4};
-  assign _zz_when_SRAMController_l193_5 = (io_axi_aw_payload_len + 8'h01);
-  assign _zz_when_SRAMController_l193_6 = {24'd0, _zz_when_SRAMController_l185};
+  assign _zz_when_SRAMController_l202_2 = (_zz_when_SRAMController_l202 - 8'h01);
+  assign _zz_when_SRAMController_l202_1 = {24'd0, _zz_when_SRAMController_l202_2};
+  assign _zz_when_SRAMController_l210 = _zz_fsm_current_sram_addr;
+  assign _zz_when_SRAMController_l210_1 = (_zz_when_SRAMController_l210_2 - _zz_when_SRAMController_l210_6);
+  assign _zz_when_SRAMController_l210_2 = (_zz_fsm_current_sram_addr + _zz_when_SRAMController_l210_3);
+  assign _zz_when_SRAMController_l210_4 = (_zz_when_SRAMController_l210_5 * _zz_when_SRAMController_l202);
+  assign _zz_when_SRAMController_l210_3 = {16'd0, _zz_when_SRAMController_l210_4};
+  assign _zz_when_SRAMController_l210_5 = (io_axi_aw_payload_len + 8'h01);
+  assign _zz_when_SRAMController_l210_6 = {24'd0, _zz_when_SRAMController_l202};
   assign _zz_fsm_burst_count_remaining_1 = (io_axi_ar_payload_len + 8'h01);
   assign _zz_fsm_current_sram_addr_3 = (_zz_fsm_current_sram_addr_1 >>> 2'd2);
-  assign _zz_when_SRAMController_l239_2 = (_zz_when_SRAMController_l239 - 8'h01);
-  assign _zz_when_SRAMController_l239_1 = {24'd0, _zz_when_SRAMController_l239_2};
-  assign _zz_when_SRAMController_l247 = _zz_fsm_current_sram_addr_1;
-  assign _zz_when_SRAMController_l247_1 = (_zz_when_SRAMController_l247_2 - _zz_when_SRAMController_l247_6);
-  assign _zz_when_SRAMController_l247_2 = (_zz_fsm_current_sram_addr_1 + _zz_when_SRAMController_l247_3);
-  assign _zz_when_SRAMController_l247_4 = (_zz_when_SRAMController_l247_5 * _zz_when_SRAMController_l239);
-  assign _zz_when_SRAMController_l247_3 = {16'd0, _zz_when_SRAMController_l247_4};
-  assign _zz_when_SRAMController_l247_5 = (io_axi_ar_payload_len + 8'h01);
-  assign _zz_when_SRAMController_l247_6 = {24'd0, _zz_when_SRAMController_l239};
+  assign _zz_when_SRAMController_l256_2 = (_zz_when_SRAMController_l256 - 8'h01);
+  assign _zz_when_SRAMController_l256_1 = {24'd0, _zz_when_SRAMController_l256_2};
+  assign _zz_when_SRAMController_l264 = _zz_fsm_current_sram_addr_1;
+  assign _zz_when_SRAMController_l264_1 = (_zz_when_SRAMController_l264_2 - _zz_when_SRAMController_l264_6);
+  assign _zz_when_SRAMController_l264_2 = (_zz_fsm_current_sram_addr_1 + _zz_when_SRAMController_l264_3);
+  assign _zz_when_SRAMController_l264_4 = (_zz_when_SRAMController_l264_5 * _zz_when_SRAMController_l256);
+  assign _zz_when_SRAMController_l264_3 = {16'd0, _zz_when_SRAMController_l264_4};
+  assign _zz_when_SRAMController_l264_5 = (io_axi_ar_payload_len + 8'h01);
+  assign _zz_when_SRAMController_l264_6 = {24'd0, _zz_when_SRAMController_l256};
   assign _zz_fsm_current_sram_addr_5 = (_zz_fsm_current_sram_addr_6 / 3'b100);
   assign _zz_fsm_current_sram_addr_4 = {12'd0, _zz_fsm_current_sram_addr_5};
   assign _zz_fsm_current_sram_addr_6 = ({7'd0,1'b1} <<< fsm_aw_cmd_reg_size);
@@ -46872,8 +46877,9 @@ module SRAMController_1 (
     case(fsm_stateReg)
       fsm_BOOT : fsm_stateReg_string = "BOOT                    ";
       fsm_IDLE : fsm_stateReg_string = "IDLE                    ";
-      fsm_WRITE_DATA : fsm_stateReg_string = "WRITE_DATA              ";
-      fsm_WRITE_WAIT : fsm_stateReg_string = "WRITE_WAIT              ";
+      fsm_WRITE_DATA_FETCH : fsm_stateReg_string = "WRITE_DATA_FETCH        ";
+      fsm_WRITE_EXECUTE : fsm_stateReg_string = "WRITE_EXECUTE           ";
+      fsm_WRITE_DEASSERT : fsm_stateReg_string = "WRITE_DEASSERT          ";
       fsm_WRITE_DATA_ERROR_CONSUME : fsm_stateReg_string = "WRITE_DATA_ERROR_CONSUME";
       fsm_WRITE_RESPONSE : fsm_stateReg_string = "WRITE_RESPONSE          ";
       fsm_READ_SETUP : fsm_stateReg_string = "READ_SETUP              ";
@@ -46887,8 +46893,9 @@ module SRAMController_1 (
     case(fsm_stateNext)
       fsm_BOOT : fsm_stateNext_string = "BOOT                    ";
       fsm_IDLE : fsm_stateNext_string = "IDLE                    ";
-      fsm_WRITE_DATA : fsm_stateNext_string = "WRITE_DATA              ";
-      fsm_WRITE_WAIT : fsm_stateNext_string = "WRITE_WAIT              ";
+      fsm_WRITE_DATA_FETCH : fsm_stateNext_string = "WRITE_DATA_FETCH        ";
+      fsm_WRITE_EXECUTE : fsm_stateNext_string = "WRITE_EXECUTE           ";
+      fsm_WRITE_DEASSERT : fsm_stateNext_string = "WRITE_DEASSERT          ";
       fsm_WRITE_DATA_ERROR_CONSUME : fsm_stateNext_string = "WRITE_DATA_ERROR_CONSUME";
       fsm_WRITE_RESPONSE : fsm_stateNext_string = "WRITE_RESPONSE          ";
       fsm_READ_SETUP : fsm_stateNext_string = "READ_SETUP              ";
@@ -46906,9 +46913,11 @@ module SRAMController_1 (
       fsm_IDLE : begin
         io_axi_aw_ready = ((! fsm_read_priority) || (! io_axi_ar_valid));
       end
-      fsm_WRITE_DATA : begin
+      fsm_WRITE_DATA_FETCH : begin
       end
-      fsm_WRITE_WAIT : begin
+      fsm_WRITE_EXECUTE : begin
+      end
+      fsm_WRITE_DEASSERT : begin
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
       end
@@ -46933,9 +46942,11 @@ module SRAMController_1 (
       fsm_IDLE : begin
         io_axi_ar_ready = (fsm_read_priority || (! io_axi_aw_valid));
       end
-      fsm_WRITE_DATA : begin
+      fsm_WRITE_DATA_FETCH : begin
       end
-      fsm_WRITE_WAIT : begin
+      fsm_WRITE_EXECUTE : begin
+      end
+      fsm_WRITE_DEASSERT : begin
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
       end
@@ -46959,11 +46970,12 @@ module SRAMController_1 (
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
-      fsm_WRITE_DATA : begin
-        io_axi_w_ready = (! sram_perform_write);
+      fsm_WRITE_DATA_FETCH : begin
+        io_axi_w_ready = 1'b1;
       end
-      fsm_WRITE_WAIT : begin
-        io_axi_w_ready = 1'b0;
+      fsm_WRITE_EXECUTE : begin
+      end
+      fsm_WRITE_DEASSERT : begin
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
         io_axi_w_ready = 1'b1;
@@ -46988,9 +47000,11 @@ module SRAMController_1 (
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
-      fsm_WRITE_DATA : begin
+      fsm_WRITE_DATA_FETCH : begin
       end
-      fsm_WRITE_WAIT : begin
+      fsm_WRITE_EXECUTE : begin
+      end
+      fsm_WRITE_DEASSERT : begin
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
       end
@@ -47015,9 +47029,11 @@ module SRAMController_1 (
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
-      fsm_WRITE_DATA : begin
+      fsm_WRITE_DATA_FETCH : begin
       end
-      fsm_WRITE_WAIT : begin
+      fsm_WRITE_EXECUTE : begin
+      end
+      fsm_WRITE_DEASSERT : begin
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
       end
@@ -47043,9 +47059,11 @@ module SRAMController_1 (
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
-      fsm_WRITE_DATA : begin
+      fsm_WRITE_DATA_FETCH : begin
       end
-      fsm_WRITE_WAIT : begin
+      fsm_WRITE_EXECUTE : begin
+      end
+      fsm_WRITE_DEASSERT : begin
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
       end
@@ -47070,9 +47088,11 @@ module SRAMController_1 (
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
-      fsm_WRITE_DATA : begin
+      fsm_WRITE_DATA_FETCH : begin
       end
-      fsm_WRITE_WAIT : begin
+      fsm_WRITE_EXECUTE : begin
+      end
+      fsm_WRITE_DEASSERT : begin
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
       end
@@ -47097,9 +47117,11 @@ module SRAMController_1 (
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
-      fsm_WRITE_DATA : begin
+      fsm_WRITE_DATA_FETCH : begin
       end
-      fsm_WRITE_WAIT : begin
+      fsm_WRITE_EXECUTE : begin
+      end
+      fsm_WRITE_DEASSERT : begin
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
       end
@@ -47125,9 +47147,11 @@ module SRAMController_1 (
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
-      fsm_WRITE_DATA : begin
+      fsm_WRITE_DATA_FETCH : begin
       end
-      fsm_WRITE_WAIT : begin
+      fsm_WRITE_EXECUTE : begin
+      end
+      fsm_WRITE_DEASSERT : begin
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
       end
@@ -47153,9 +47177,11 @@ module SRAMController_1 (
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
-      fsm_WRITE_DATA : begin
+      fsm_WRITE_DATA_FETCH : begin
       end
-      fsm_WRITE_WAIT : begin
+      fsm_WRITE_EXECUTE : begin
+      end
+      fsm_WRITE_DEASSERT : begin
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
       end
@@ -47181,9 +47207,11 @@ module SRAMController_1 (
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
-      fsm_WRITE_DATA : begin
+      fsm_WRITE_DATA_FETCH : begin
       end
-      fsm_WRITE_WAIT : begin
+      fsm_WRITE_EXECUTE : begin
+      end
+      fsm_WRITE_DEASSERT : begin
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
       end
@@ -47194,10 +47222,10 @@ module SRAMController_1 (
       fsm_READ_WAIT : begin
       end
       fsm_READ_RESPONSE : begin
-        io_axi_r_payload_last = when_SRAMController_l458;
+        io_axi_r_payload_last = when_SRAMController_l559;
       end
       fsm_READ_RESPONSE_ERROR : begin
-        io_axi_r_payload_last = when_SRAMController_l500;
+        io_axi_r_payload_last = when_SRAMController_l611;
       end
       default : begin
       end
@@ -47205,185 +47233,24 @@ module SRAMController_1 (
   end
 
   assign sram_be_n_inactive_value = 4'b1111;
-  always @(*) begin
-    io_ram_ce_n = 1'b1;
-    case(fsm_stateReg)
-      fsm_IDLE : begin
-        io_ram_ce_n = 1'b1;
-      end
-      fsm_WRITE_DATA : begin
-        io_ram_ce_n = 1'b0;
-      end
-      fsm_WRITE_WAIT : begin
-        io_ram_ce_n = 1'b0;
-      end
-      fsm_WRITE_DATA_ERROR_CONSUME : begin
-        io_ram_ce_n = 1'b1;
-      end
-      fsm_WRITE_RESPONSE : begin
-        io_ram_ce_n = 1'b1;
-      end
-      fsm_READ_SETUP : begin
-        io_ram_ce_n = 1'b0;
-      end
-      fsm_READ_WAIT : begin
-        io_ram_ce_n = 1'b0;
-      end
-      fsm_READ_RESPONSE : begin
-      end
-      fsm_READ_RESPONSE_ERROR : begin
-        io_ram_ce_n = 1'b1;
-      end
-      default : begin
-      end
-    endcase
-  end
-
-  always @(*) begin
-    io_ram_oe_n = 1'b1;
-    case(fsm_stateReg)
-      fsm_IDLE : begin
-        io_ram_oe_n = 1'b1;
-      end
-      fsm_WRITE_DATA : begin
-        io_ram_oe_n = 1'b1;
-      end
-      fsm_WRITE_WAIT : begin
-        io_ram_oe_n = 1'b1;
-      end
-      fsm_WRITE_DATA_ERROR_CONSUME : begin
-        io_ram_oe_n = 1'b1;
-      end
-      fsm_WRITE_RESPONSE : begin
-        io_ram_oe_n = 1'b1;
-      end
-      fsm_READ_SETUP : begin
-        io_ram_oe_n = 1'b0;
-      end
-      fsm_READ_WAIT : begin
-        io_ram_oe_n = 1'b0;
-      end
-      fsm_READ_RESPONSE : begin
-      end
-      fsm_READ_RESPONSE_ERROR : begin
-        io_ram_oe_n = 1'b1;
-      end
-      default : begin
-      end
-    endcase
-    if(fsm_onExit_READ_RESPONSE) begin
-      io_ram_oe_n = 1'b1;
-    end
-  end
-
-  always @(*) begin
-    io_ram_we_n = 1'b1;
-    case(fsm_stateReg)
-      fsm_IDLE : begin
-        io_ram_we_n = 1'b1;
-      end
-      fsm_WRITE_DATA : begin
-        io_ram_we_n = (! sram_perform_write);
-      end
-      fsm_WRITE_WAIT : begin
-        io_ram_we_n = 1'b0;
-      end
-      fsm_WRITE_DATA_ERROR_CONSUME : begin
-        io_ram_we_n = 1'b1;
-      end
-      fsm_WRITE_RESPONSE : begin
-        io_ram_we_n = 1'b1;
-      end
-      fsm_READ_SETUP : begin
-        io_ram_we_n = 1'b1;
-      end
-      fsm_READ_WAIT : begin
-        io_ram_we_n = 1'b1;
-      end
-      fsm_READ_RESPONSE : begin
-      end
-      fsm_READ_RESPONSE_ERROR : begin
-        io_ram_we_n = 1'b1;
-      end
-      default : begin
-      end
-    endcase
-  end
-
-  always @(*) begin
-    io_ram_be_n = sram_be_n_inactive_value;
-    case(fsm_stateReg)
-      fsm_IDLE : begin
-      end
-      fsm_WRITE_DATA : begin
-        io_ram_be_n = sram_write_be_n_reg;
-      end
-      fsm_WRITE_WAIT : begin
-        io_ram_be_n = sram_write_be_n_reg;
-      end
-      fsm_WRITE_DATA_ERROR_CONSUME : begin
-      end
-      fsm_WRITE_RESPONSE : begin
-      end
-      fsm_READ_SETUP : begin
-      end
-      fsm_READ_WAIT : begin
-      end
-      fsm_READ_RESPONSE : begin
-      end
-      fsm_READ_RESPONSE_ERROR : begin
-      end
-      default : begin
-      end
-    endcase
-  end
-
-  always @(*) begin
-    io_ram_addr = 20'h0;
-    case(fsm_stateReg)
-      fsm_IDLE : begin
-        io_ram_addr = 20'h0;
-      end
-      fsm_WRITE_DATA : begin
-        io_ram_addr = sram_write_addr_reg;
-      end
-      fsm_WRITE_WAIT : begin
-        io_ram_addr = sram_write_addr_reg;
-      end
-      fsm_WRITE_DATA_ERROR_CONSUME : begin
-        io_ram_addr = 20'h0;
-      end
-      fsm_WRITE_RESPONSE : begin
-        io_ram_addr = 20'h0;
-      end
-      fsm_READ_SETUP : begin
-        io_ram_addr = fsm_current_sram_addr;
-      end
-      fsm_READ_WAIT : begin
-        io_ram_addr = fsm_current_sram_addr;
-      end
-      fsm_READ_RESPONSE : begin
-        io_ram_addr = fsm_current_sram_addr;
-      end
-      fsm_READ_RESPONSE_ERROR : begin
-        io_ram_addr = 20'h0;
-      end
-      default : begin
-      end
-    endcase
-  end
-
-  assign io_ram_data_write = sram_write_data_reg;
-  assign io_ram_data_writeEnable = sram_perform_write;
+  assign io_ram_addr = sram_addr_out_reg;
+  assign io_ram_ce_n = sram_ce_n_out_reg;
+  assign io_ram_oe_n = sram_oe_n_out_reg;
+  assign io_ram_we_n = sram_we_n_out_reg;
+  assign io_ram_be_n = sram_be_n_out_reg;
+  assign io_ram_data_write = sram_data_out_reg;
+  assign io_ram_data_writeEnable = sram_data_writeEnable_out_reg;
   assign fsm_wantExit = 1'b0;
   always @(*) begin
     fsm_wantStart = 1'b0;
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
-      fsm_WRITE_DATA : begin
+      fsm_WRITE_DATA_FETCH : begin
       end
-      fsm_WRITE_WAIT : begin
+      fsm_WRITE_EXECUTE : begin
+      end
+      fsm_WRITE_DEASSERT : begin
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
       end
@@ -47409,35 +47276,35 @@ module SRAMController_1 (
     case(fsm_stateReg)
       fsm_IDLE : begin
         if(io_axi_aw_fire) begin
-          if(when_SRAMController_l181) begin
+          if(when_SRAMController_l198) begin
             fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
           end else begin
-            if(when_SRAMController_l185) begin
+            if(when_SRAMController_l202) begin
               fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
             end else begin
-              if(when_SRAMController_l189) begin
+              if(when_SRAMController_l206) begin
                 fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
               end else begin
-                if(when_SRAMController_l193) begin
+                if(when_SRAMController_l210) begin
                   fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
                 end else begin
-                  fsm_stateNext = fsm_WRITE_DATA;
+                  fsm_stateNext = fsm_WRITE_DATA_FETCH;
                 end
               end
             end
           end
         end
         if(io_axi_ar_fire) begin
-          if(when_SRAMController_l235) begin
+          if(when_SRAMController_l252) begin
             fsm_stateNext = fsm_READ_RESPONSE_ERROR;
           end else begin
-            if(when_SRAMController_l239) begin
+            if(when_SRAMController_l256) begin
               fsm_stateNext = fsm_READ_RESPONSE_ERROR;
             end else begin
-              if(when_SRAMController_l243) begin
+              if(when_SRAMController_l260) begin
                 fsm_stateNext = fsm_READ_RESPONSE_ERROR;
               end else begin
-                if(when_SRAMController_l247) begin
+                if(when_SRAMController_l264) begin
                   fsm_stateNext = fsm_READ_RESPONSE_ERROR;
                 end else begin
                   fsm_stateNext = fsm_READ_SETUP;
@@ -47447,25 +47314,26 @@ module SRAMController_1 (
           end
         end
       end
-      fsm_WRITE_DATA : begin
-        if(sram_perform_write) begin
-          if(when_SRAMController_l284) begin
-            fsm_stateNext = fsm_WRITE_RESPONSE;
-          end
-        end else begin
-          if(io_axi_w_fire) begin
-            fsm_stateNext = fsm_WRITE_WAIT;
-          end
+      fsm_WRITE_DATA_FETCH : begin
+        if(io_axi_w_fire) begin
+          fsm_stateNext = fsm_WRITE_EXECUTE;
         end
       end
-      fsm_WRITE_WAIT : begin
-        if(when_SRAMController_l326) begin
-          fsm_stateNext = fsm_WRITE_DATA;
+      fsm_WRITE_EXECUTE : begin
+        if(when_SRAMController_l340) begin
+          fsm_stateNext = fsm_WRITE_DEASSERT;
+        end
+      end
+      fsm_WRITE_DEASSERT : begin
+        if(when_SRAMController_l377) begin
+          fsm_stateNext = fsm_WRITE_RESPONSE;
+        end else begin
+          fsm_stateNext = fsm_WRITE_DATA_FETCH;
         end
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
         if(io_axi_w_fire) begin
-          if(when_SRAMController_l347) begin
+          if(when_SRAMController_l406) begin
             fsm_stateNext = fsm_WRITE_RESPONSE;
           end
         end
@@ -47479,13 +47347,13 @@ module SRAMController_1 (
         fsm_stateNext = fsm_READ_WAIT;
       end
       fsm_READ_WAIT : begin
-        if(when_SRAMController_l425) begin
+        if(when_SRAMController_l510) begin
           fsm_stateNext = fsm_READ_RESPONSE;
         end
       end
       fsm_READ_RESPONSE : begin
         if(io_axi_r_fire) begin
-          if(when_SRAMController_l458) begin
+          if(when_SRAMController_l559) begin
             fsm_stateNext = fsm_IDLE;
           end else begin
             fsm_stateNext = fsm_READ_SETUP;
@@ -47494,7 +47362,7 @@ module SRAMController_1 (
       end
       fsm_READ_RESPONSE_ERROR : begin
         if(io_axi_r_fire) begin
-          if(when_SRAMController_l500) begin
+          if(when_SRAMController_l611) begin
             fsm_stateNext = fsm_IDLE;
           end
         end
@@ -47512,31 +47380,32 @@ module SRAMController_1 (
 
   assign io_axi_aw_fire = (io_axi_aw_valid && io_axi_aw_ready);
   assign _zz_fsm_current_sram_addr = (io_axi_aw_payload_addr - 32'h80400000);
-  assign _zz_when_SRAMController_l185 = ({7'd0,1'b1} <<< io_axi_aw_payload_size);
-  assign when_SRAMController_l181 = (io_axi_aw_payload_burst != 2'b01);
-  assign when_SRAMController_l185 = ((! ((io_axi_aw_payload_addr & _zz_when_SRAMController_l185_1) == 32'h0)) || (! ((io_axi_aw_payload_addr & 32'h00000003) == 32'h0)));
-  assign when_SRAMController_l189 = (! (io_axi_aw_payload_size == 3'b010));
-  assign when_SRAMController_l193 = (($signed(_zz_when_SRAMController_l193) < $signed(32'h0)) || (32'h00400000 <= _zz_when_SRAMController_l193_1));
+  assign _zz_when_SRAMController_l202 = ({7'd0,1'b1} <<< io_axi_aw_payload_size);
+  assign when_SRAMController_l198 = (io_axi_aw_payload_burst != 2'b01);
+  assign when_SRAMController_l202 = ((! ((io_axi_aw_payload_addr & _zz_when_SRAMController_l202_1) == 32'h0)) || (! ((io_axi_aw_payload_addr & 32'h00000003) == 32'h0)));
+  assign when_SRAMController_l206 = (! (io_axi_aw_payload_size == 3'b010));
+  assign when_SRAMController_l210 = (($signed(_zz_when_SRAMController_l210) < $signed(32'h0)) || (32'h00400000 <= _zz_when_SRAMController_l210_1));
   assign io_axi_ar_fire = (io_axi_ar_valid && io_axi_ar_ready);
   assign _zz_fsm_current_sram_addr_1 = (io_axi_ar_payload_addr - 32'h80400000);
-  assign _zz_when_SRAMController_l239 = ({7'd0,1'b1} <<< io_axi_ar_payload_size);
-  assign when_SRAMController_l235 = (io_axi_ar_payload_burst != 2'b01);
-  assign when_SRAMController_l239 = ((! ((io_axi_ar_payload_addr & _zz_when_SRAMController_l239_1) == 32'h0)) || (! ((io_axi_ar_payload_addr & 32'h00000003) == 32'h0)));
-  assign when_SRAMController_l243 = (! (io_axi_ar_payload_size == 3'b010));
-  assign when_SRAMController_l247 = (($signed(_zz_when_SRAMController_l247) < $signed(32'h0)) || (32'h00400000 <= _zz_when_SRAMController_l247_1));
-  assign when_SRAMController_l284 = (fsm_burst_count_remaining == 9'h001);
+  assign _zz_when_SRAMController_l256 = ({7'd0,1'b1} <<< io_axi_ar_payload_size);
+  assign when_SRAMController_l252 = (io_axi_ar_payload_burst != 2'b01);
+  assign when_SRAMController_l256 = ((! ((io_axi_ar_payload_addr & _zz_when_SRAMController_l256_1) == 32'h0)) || (! ((io_axi_ar_payload_addr & 32'h00000003) == 32'h0)));
+  assign when_SRAMController_l260 = (! (io_axi_ar_payload_size == 3'b010));
+  assign when_SRAMController_l264 = (($signed(_zz_when_SRAMController_l264) < $signed(32'h0)) || (32'h00400000 <= _zz_when_SRAMController_l264_1));
   assign io_axi_w_fire = (io_axi_w_valid && io_axi_w_ready);
-  assign when_SRAMController_l326 = (fsm_write_wait_counter == 2'b10);
-  assign when_SRAMController_l347 = (fsm_burst_count_remaining == 9'h001);
-  assign when_SRAMController_l416 = (((fsm_read_wait_counter == 2'b01) && (9'h001 < fsm_burst_count_remaining)) && (! fsm_addr_prefetch_valid));
-  assign when_SRAMController_l425 = (fsm_read_wait_counter == 2'b10);
-  assign when_SRAMController_l458 = (fsm_burst_count_remaining == 9'h001);
+  assign when_SRAMController_l340 = (fsm_write_wait_counter == 2'b10);
+  assign when_SRAMController_l377 = (fsm_burst_count_remaining == 9'h0);
+  assign when_SRAMController_l406 = (fsm_burst_count_remaining == 9'h001);
+  assign when_SRAMController_l501 = (((fsm_read_wait_counter == 2'b01) && (9'h001 < fsm_burst_count_remaining)) && (! fsm_addr_prefetch_valid));
+  assign when_SRAMController_l510 = (fsm_read_wait_counter == 2'b10);
+  assign when_SRAMController_l559 = (fsm_burst_count_remaining == 9'h001);
   assign io_axi_r_fire = (io_axi_r_valid && io_axi_r_ready);
-  assign when_SRAMController_l500 = (fsm_burst_count_remaining == 9'h001);
+  assign when_SRAMController_l611 = (fsm_burst_count_remaining == 9'h001);
   assign fsm_onExit_BOOT = ((fsm_stateNext != fsm_BOOT) && (fsm_stateReg == fsm_BOOT));
   assign fsm_onExit_IDLE = ((fsm_stateNext != fsm_IDLE) && (fsm_stateReg == fsm_IDLE));
-  assign fsm_onExit_WRITE_DATA = ((fsm_stateNext != fsm_WRITE_DATA) && (fsm_stateReg == fsm_WRITE_DATA));
-  assign fsm_onExit_WRITE_WAIT = ((fsm_stateNext != fsm_WRITE_WAIT) && (fsm_stateReg == fsm_WRITE_WAIT));
+  assign fsm_onExit_WRITE_DATA_FETCH = ((fsm_stateNext != fsm_WRITE_DATA_FETCH) && (fsm_stateReg == fsm_WRITE_DATA_FETCH));
+  assign fsm_onExit_WRITE_EXECUTE = ((fsm_stateNext != fsm_WRITE_EXECUTE) && (fsm_stateReg == fsm_WRITE_EXECUTE));
+  assign fsm_onExit_WRITE_DEASSERT = ((fsm_stateNext != fsm_WRITE_DEASSERT) && (fsm_stateReg == fsm_WRITE_DEASSERT));
   assign fsm_onExit_WRITE_DATA_ERROR_CONSUME = ((fsm_stateNext != fsm_WRITE_DATA_ERROR_CONSUME) && (fsm_stateReg == fsm_WRITE_DATA_ERROR_CONSUME));
   assign fsm_onExit_WRITE_RESPONSE = ((fsm_stateNext != fsm_WRITE_RESPONSE) && (fsm_stateReg == fsm_WRITE_RESPONSE));
   assign fsm_onExit_READ_SETUP = ((fsm_stateNext != fsm_READ_SETUP) && (fsm_stateReg == fsm_READ_SETUP));
@@ -47545,8 +47414,9 @@ module SRAMController_1 (
   assign fsm_onExit_READ_RESPONSE_ERROR = ((fsm_stateNext != fsm_READ_RESPONSE_ERROR) && (fsm_stateReg == fsm_READ_RESPONSE_ERROR));
   assign fsm_onEntry_BOOT = ((fsm_stateNext == fsm_BOOT) && (fsm_stateReg != fsm_BOOT));
   assign fsm_onEntry_IDLE = ((fsm_stateNext == fsm_IDLE) && (fsm_stateReg != fsm_IDLE));
-  assign fsm_onEntry_WRITE_DATA = ((fsm_stateNext == fsm_WRITE_DATA) && (fsm_stateReg != fsm_WRITE_DATA));
-  assign fsm_onEntry_WRITE_WAIT = ((fsm_stateNext == fsm_WRITE_WAIT) && (fsm_stateReg != fsm_WRITE_WAIT));
+  assign fsm_onEntry_WRITE_DATA_FETCH = ((fsm_stateNext == fsm_WRITE_DATA_FETCH) && (fsm_stateReg != fsm_WRITE_DATA_FETCH));
+  assign fsm_onEntry_WRITE_EXECUTE = ((fsm_stateNext == fsm_WRITE_EXECUTE) && (fsm_stateReg != fsm_WRITE_EXECUTE));
+  assign fsm_onEntry_WRITE_DEASSERT = ((fsm_stateNext == fsm_WRITE_DEASSERT) && (fsm_stateReg != fsm_WRITE_DEASSERT));
   assign fsm_onEntry_WRITE_DATA_ERROR_CONSUME = ((fsm_stateNext == fsm_WRITE_DATA_ERROR_CONSUME) && (fsm_stateReg != fsm_WRITE_DATA_ERROR_CONSUME));
   assign fsm_onEntry_WRITE_RESPONSE = ((fsm_stateNext == fsm_WRITE_RESPONSE) && (fsm_stateReg != fsm_WRITE_RESPONSE));
   assign fsm_onEntry_READ_SETUP = ((fsm_stateNext == fsm_READ_SETUP) && (fsm_stateReg != fsm_READ_SETUP));
@@ -47556,10 +47426,13 @@ module SRAMController_1 (
   assign io_axi_b_fire = (io_axi_b_valid && io_axi_b_ready);
   always @(posedge clk or posedge reset) begin
     if(reset) begin
-      sram_write_addr_reg <= 20'h0;
-      sram_write_data_reg <= 32'h0;
-      sram_write_be_n_reg <= sram_be_n_inactive_value;
-      sram_perform_write <= 1'b0;
+      sram_addr_out_reg <= 20'h0;
+      sram_data_out_reg <= 32'h0;
+      sram_be_n_out_reg <= sram_be_n_inactive_value;
+      sram_ce_n_out_reg <= 1'b1;
+      sram_oe_n_out_reg <= 1'b1;
+      sram_we_n_out_reg <= 1'b1;
+      sram_data_writeEnable_out_reg <= 1'b0;
       fsm_transaction_error_occurred <= 1'b0;
       fsm_read_priority <= 1'b0;
       fsm_addr_prefetch_valid <= 1'b0;
@@ -47572,16 +47445,16 @@ module SRAMController_1 (
           fsm_addr_prefetch_valid <= 1'b0;
           if(io_axi_aw_fire) begin
             fsm_read_priority <= (! fsm_read_priority);
-            if(when_SRAMController_l181) begin
+            if(when_SRAMController_l198) begin
               fsm_transaction_error_occurred <= 1'b1;
             end else begin
-              if(when_SRAMController_l185) begin
+              if(when_SRAMController_l202) begin
                 fsm_transaction_error_occurred <= 1'b1;
               end else begin
-                if(when_SRAMController_l189) begin
+                if(when_SRAMController_l206) begin
                   fsm_transaction_error_occurred <= 1'b1;
                 end else begin
-                  if(when_SRAMController_l193) begin
+                  if(when_SRAMController_l210) begin
                     fsm_transaction_error_occurred <= 1'b1;
                   end
                 end
@@ -47590,16 +47463,16 @@ module SRAMController_1 (
           end
           if(io_axi_ar_fire) begin
             fsm_read_priority <= (! fsm_read_priority);
-            if(when_SRAMController_l235) begin
+            if(when_SRAMController_l252) begin
               fsm_transaction_error_occurred <= 1'b1;
             end else begin
-              if(when_SRAMController_l239) begin
+              if(when_SRAMController_l256) begin
                 fsm_transaction_error_occurred <= 1'b1;
               end else begin
-                if(when_SRAMController_l243) begin
+                if(when_SRAMController_l260) begin
                   fsm_transaction_error_occurred <= 1'b1;
                 end else begin
-                  if(when_SRAMController_l247) begin
+                  if(when_SRAMController_l264) begin
                     fsm_transaction_error_occurred <= 1'b1;
                   end
                 end
@@ -47607,46 +47480,60 @@ module SRAMController_1 (
             end
           end
         end
-        fsm_WRITE_DATA : begin
-          if(sram_perform_write) begin
-            sram_perform_write <= 1'b0;
-          end else begin
-            if(io_axi_w_fire) begin
-              sram_write_addr_reg <= fsm_current_sram_addr;
-              sram_write_data_reg <= io_axi_w_payload_data;
-              sram_write_be_n_reg <= (~ io_axi_w_payload_strb);
-            end
+        fsm_WRITE_DATA_FETCH : begin
+          if(io_axi_w_fire) begin
+            sram_addr_out_reg <= fsm_current_sram_addr;
+            sram_data_out_reg <= io_axi_w_payload_data;
+            sram_be_n_out_reg <= (~ io_axi_w_payload_strb);
           end
         end
-        fsm_WRITE_WAIT : begin
-          if(when_SRAMController_l326) begin
-            sram_perform_write <= 1'b1;
-          end
+        fsm_WRITE_EXECUTE : begin
+          sram_ce_n_out_reg <= 1'b0;
+          sram_oe_n_out_reg <= 1'b1;
+          sram_we_n_out_reg <= 1'b0;
+          sram_data_writeEnable_out_reg <= 1'b1;
+        end
+        fsm_WRITE_DEASSERT : begin
+          sram_ce_n_out_reg <= 1'b1;
+          sram_we_n_out_reg <= 1'b1;
+          sram_oe_n_out_reg <= 1'b1;
+          sram_data_writeEnable_out_reg <= 1'b0;
         end
         fsm_WRITE_DATA_ERROR_CONSUME : begin
-          sram_perform_write <= 1'b0;
         end
         fsm_WRITE_RESPONSE : begin
         end
         fsm_READ_SETUP : begin
           fsm_addr_prefetch_valid <= 1'b0;
+          sram_ce_n_out_reg <= 1'b0;
+          sram_oe_n_out_reg <= 1'b0;
+          sram_we_n_out_reg <= 1'b1;
+          sram_data_writeEnable_out_reg <= 1'b0;
+          sram_addr_out_reg <= fsm_current_sram_addr;
+          sram_be_n_out_reg <= 4'b0000;
         end
         fsm_READ_WAIT : begin
-          if(when_SRAMController_l416) begin
+          sram_ce_n_out_reg <= 1'b0;
+          sram_oe_n_out_reg <= 1'b0;
+          sram_we_n_out_reg <= 1'b1;
+          sram_data_writeEnable_out_reg <= 1'b0;
+          if(when_SRAMController_l501) begin
             fsm_addr_prefetch_valid <= 1'b1;
           end
         end
         fsm_READ_RESPONSE : begin
-          if(!io_axi_r_fire) begin
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(1'b0); // SRAMController.scala:L469
-              `else
-                if(!1'b0) begin
-                  $display("NOTE(SRAMController.scala:469):  io.axi.r.valid = %x, io.axi.r.ready = %x", io_axi_r_valid, io_axi_r_ready); // SRAMController.scala:L469
-                end
-              `endif
-            `endif
+          sram_ce_n_out_reg <= 1'b0;
+          sram_oe_n_out_reg <= 1'b0;
+          sram_we_n_out_reg <= 1'b1;
+          sram_data_writeEnable_out_reg <= 1'b0;
+          sram_addr_out_reg <= fsm_current_sram_addr;
+          sram_be_n_out_reg <= 4'b0000;
+          if(io_axi_r_fire) begin
+            if(!when_SRAMController_l559) begin
+              if(fsm_addr_prefetch_valid) begin
+                fsm_addr_prefetch_valid <= 1'b0;
+              end
+            end
           end
         end
         fsm_READ_RESPONSE_ERROR : begin
@@ -47654,11 +47541,90 @@ module SRAMController_1 (
         default : begin
         end
       endcase
+      if(fsm_onExit_WRITE_EXECUTE) begin
+        sram_data_writeEnable_out_reg <= 1'b0;
+      end
+      if(fsm_onExit_READ_RESPONSE) begin
+        sram_oe_n_out_reg <= 1'b1;
+        sram_ce_n_out_reg <= 1'b1;
+        sram_we_n_out_reg <= 1'b1;
+        sram_data_writeEnable_out_reg <= 1'b0;
+        sram_be_n_out_reg <= sram_be_n_inactive_value;
+        sram_addr_out_reg <= 20'h0;
+      end
       if(fsm_onEntry_IDLE) begin
-        sram_perform_write <= 1'b0;
+        sram_ce_n_out_reg <= 1'b1;
+        sram_oe_n_out_reg <= 1'b1;
+        sram_we_n_out_reg <= 1'b1;
+        sram_data_writeEnable_out_reg <= 1'b0;
+        sram_be_n_out_reg <= sram_be_n_inactive_value;
+        sram_addr_out_reg <= 20'h0;
+      end
+      if(fsm_onEntry_WRITE_DATA_FETCH) begin
+        sram_ce_n_out_reg <= 1'b1;
+        sram_oe_n_out_reg <= 1'b1;
+        sram_we_n_out_reg <= 1'b1;
+        sram_data_writeEnable_out_reg <= 1'b0;
+        sram_be_n_out_reg <= sram_be_n_inactive_value;
+      end
+      if(fsm_onEntry_WRITE_EXECUTE) begin
+        sram_ce_n_out_reg <= 1'b0;
+        sram_oe_n_out_reg <= 1'b1;
+        sram_we_n_out_reg <= 1'b0;
+        sram_data_writeEnable_out_reg <= 1'b1;
+      end
+      if(fsm_onEntry_WRITE_DEASSERT) begin
+        sram_ce_n_out_reg <= 1'b1;
+        sram_we_n_out_reg <= 1'b1;
+        sram_oe_n_out_reg <= 1'b1;
+        sram_be_n_out_reg <= sram_be_n_inactive_value;
+      end
+      if(fsm_onEntry_WRITE_DATA_ERROR_CONSUME) begin
+        sram_ce_n_out_reg <= 1'b1;
+        sram_we_n_out_reg <= 1'b1;
+        sram_oe_n_out_reg <= 1'b1;
+        sram_data_writeEnable_out_reg <= 1'b0;
+        sram_be_n_out_reg <= sram_be_n_inactive_value;
+        sram_addr_out_reg <= 20'h0;
       end
       if(fsm_onEntry_WRITE_RESPONSE) begin
-        sram_perform_write <= 1'b0;
+        sram_ce_n_out_reg <= 1'b1;
+        sram_we_n_out_reg <= 1'b1;
+        sram_oe_n_out_reg <= 1'b1;
+        sram_data_writeEnable_out_reg <= 1'b0;
+        sram_be_n_out_reg <= sram_be_n_inactive_value;
+        sram_addr_out_reg <= 20'h0;
+      end
+      if(fsm_onEntry_READ_SETUP) begin
+        sram_ce_n_out_reg <= 1'b0;
+        sram_oe_n_out_reg <= 1'b0;
+        sram_we_n_out_reg <= 1'b1;
+        sram_data_writeEnable_out_reg <= 1'b0;
+        sram_addr_out_reg <= fsm_current_sram_addr;
+        sram_be_n_out_reg <= 4'b0000;
+      end
+      if(fsm_onEntry_READ_WAIT) begin
+        sram_ce_n_out_reg <= 1'b0;
+        sram_oe_n_out_reg <= 1'b0;
+        sram_we_n_out_reg <= 1'b1;
+        sram_data_writeEnable_out_reg <= 1'b0;
+        sram_be_n_out_reg <= 4'b0000;
+      end
+      if(fsm_onEntry_READ_RESPONSE) begin
+        sram_ce_n_out_reg <= 1'b0;
+        sram_oe_n_out_reg <= 1'b0;
+        sram_we_n_out_reg <= 1'b1;
+        sram_data_writeEnable_out_reg <= 1'b0;
+        sram_addr_out_reg <= fsm_current_sram_addr;
+        sram_be_n_out_reg <= 4'b0000;
+      end
+      if(fsm_onEntry_READ_RESPONSE_ERROR) begin
+        sram_ce_n_out_reg <= 1'b1;
+        sram_oe_n_out_reg <= 1'b1;
+        sram_we_n_out_reg <= 1'b1;
+        sram_data_writeEnable_out_reg <= 1'b0;
+        sram_be_n_out_reg <= sram_be_n_inactive_value;
+        sram_addr_out_reg <= 20'h0;
       end
     end
   end
@@ -47685,10 +47651,10 @@ module SRAMController_1 (
           fsm_ar_cmd_reg_prot <= io_axi_ar_payload_prot;
           fsm_burst_count_remaining <= {1'd0, _zz_fsm_burst_count_remaining_1};
           fsm_current_sram_addr <= _zz_fsm_current_sram_addr_3[19:0];
-          if(!when_SRAMController_l235) begin
-            if(!when_SRAMController_l239) begin
-              if(!when_SRAMController_l243) begin
-                if(!when_SRAMController_l247) begin
+          if(!when_SRAMController_l252) begin
+            if(!when_SRAMController_l256) begin
+              if(!when_SRAMController_l260) begin
+                if(!when_SRAMController_l264) begin
                   fsm_read_wait_counter <= 2'b00;
                 end
               end
@@ -47696,19 +47662,18 @@ module SRAMController_1 (
           end
         end
       end
-      fsm_WRITE_DATA : begin
-        if(sram_perform_write) begin
-          fsm_current_sram_addr <= (fsm_current_sram_addr + _zz_fsm_current_sram_addr_4);
+      fsm_WRITE_DATA_FETCH : begin
+      end
+      fsm_WRITE_EXECUTE : begin
+        if(when_SRAMController_l340) begin
           fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
         end else begin
-          if(io_axi_w_fire) begin
-            fsm_write_wait_counter <= 2'b00;
-          end
+          fsm_write_wait_counter <= (fsm_write_wait_counter + 2'b01);
         end
       end
-      fsm_WRITE_WAIT : begin
-        if(!when_SRAMController_l326) begin
-          fsm_write_wait_counter <= (fsm_write_wait_counter + 2'b01);
+      fsm_WRITE_DEASSERT : begin
+        if(!when_SRAMController_l377) begin
+          fsm_current_sram_addr <= (fsm_current_sram_addr + _zz_fsm_current_sram_addr_4);
         end
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
@@ -47722,10 +47687,10 @@ module SRAMController_1 (
         fsm_read_wait_counter <= 2'b00;
       end
       fsm_READ_WAIT : begin
-        if(when_SRAMController_l416) begin
+        if(when_SRAMController_l501) begin
           fsm_next_sram_addr_prefetch <= (fsm_current_sram_addr + _zz_fsm_next_sram_addr_prefetch);
         end
-        if(when_SRAMController_l425) begin
+        if(when_SRAMController_l510) begin
           fsm_read_data_buffer <= io_ram_data_read;
         end else begin
           fsm_read_wait_counter <= (fsm_read_wait_counter + 2'b01);
@@ -47734,7 +47699,7 @@ module SRAMController_1 (
       fsm_READ_RESPONSE : begin
         if(io_axi_r_fire) begin
           fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
-          if(!when_SRAMController_l458) begin
+          if(!when_SRAMController_l559) begin
             if(fsm_addr_prefetch_valid) begin
               fsm_current_sram_addr <= fsm_next_sram_addr_prefetch;
             end else begin
@@ -47751,6 +47716,9 @@ module SRAMController_1 (
       default : begin
       end
     endcase
+    if(fsm_onEntry_WRITE_EXECUTE) begin
+      fsm_write_wait_counter <= 2'b00;
+    end
   end
 
 
@@ -47791,47 +47759,48 @@ module SRAMController (
   input  wire [31:0]   io_ram_data_read,
   output wire [31:0]   io_ram_data_write,
   output wire          io_ram_data_writeEnable,
-  output reg  [19:0]   io_ram_addr,
-  output reg  [3:0]    io_ram_be_n,
-  output reg           io_ram_ce_n,
-  output reg           io_ram_oe_n,
-  output reg           io_ram_we_n,
+  output wire [19:0]   io_ram_addr,
+  output wire [3:0]    io_ram_be_n,
+  output wire          io_ram_ce_n,
+  output wire          io_ram_oe_n,
+  output wire          io_ram_we_n,
   input  wire          clk,
   input  wire          reset
 );
   localparam fsm_BOOT = 4'd0;
   localparam fsm_IDLE = 4'd1;
-  localparam fsm_WRITE_DATA = 4'd2;
-  localparam fsm_WRITE_WAIT = 4'd3;
-  localparam fsm_WRITE_DATA_ERROR_CONSUME = 4'd4;
-  localparam fsm_WRITE_RESPONSE = 4'd5;
-  localparam fsm_READ_SETUP = 4'd6;
-  localparam fsm_READ_WAIT = 4'd7;
-  localparam fsm_READ_RESPONSE = 4'd8;
-  localparam fsm_READ_RESPONSE_ERROR = 4'd9;
+  localparam fsm_WRITE_DATA_FETCH = 4'd2;
+  localparam fsm_WRITE_EXECUTE = 4'd3;
+  localparam fsm_WRITE_DEASSERT = 4'd4;
+  localparam fsm_WRITE_DATA_ERROR_CONSUME = 4'd5;
+  localparam fsm_WRITE_RESPONSE = 4'd6;
+  localparam fsm_READ_SETUP = 4'd7;
+  localparam fsm_READ_WAIT = 4'd8;
+  localparam fsm_READ_RESPONSE = 4'd9;
+  localparam fsm_READ_RESPONSE_ERROR = 4'd10;
 
   wire       [7:0]    _zz_fsm_burst_count_remaining;
   wire       [29:0]   _zz_fsm_current_sram_addr_2;
-  wire       [31:0]   _zz_when_SRAMController_l185_1;
-  wire       [7:0]    _zz_when_SRAMController_l185_2;
-  wire       [31:0]   _zz_when_SRAMController_l193;
-  wire       [31:0]   _zz_when_SRAMController_l193_1;
-  wire       [31:0]   _zz_when_SRAMController_l193_2;
-  wire       [31:0]   _zz_when_SRAMController_l193_3;
-  wire       [15:0]   _zz_when_SRAMController_l193_4;
-  wire       [7:0]    _zz_when_SRAMController_l193_5;
-  wire       [31:0]   _zz_when_SRAMController_l193_6;
+  wire       [31:0]   _zz_when_SRAMController_l202_1;
+  wire       [7:0]    _zz_when_SRAMController_l202_2;
+  wire       [31:0]   _zz_when_SRAMController_l210;
+  wire       [31:0]   _zz_when_SRAMController_l210_1;
+  wire       [31:0]   _zz_when_SRAMController_l210_2;
+  wire       [31:0]   _zz_when_SRAMController_l210_3;
+  wire       [15:0]   _zz_when_SRAMController_l210_4;
+  wire       [7:0]    _zz_when_SRAMController_l210_5;
+  wire       [31:0]   _zz_when_SRAMController_l210_6;
   wire       [7:0]    _zz_fsm_burst_count_remaining_1;
   wire       [29:0]   _zz_fsm_current_sram_addr_3;
-  wire       [31:0]   _zz_when_SRAMController_l239_1;
-  wire       [7:0]    _zz_when_SRAMController_l239_2;
-  wire       [31:0]   _zz_when_SRAMController_l247;
-  wire       [31:0]   _zz_when_SRAMController_l247_1;
-  wire       [31:0]   _zz_when_SRAMController_l247_2;
-  wire       [31:0]   _zz_when_SRAMController_l247_3;
-  wire       [15:0]   _zz_when_SRAMController_l247_4;
-  wire       [7:0]    _zz_when_SRAMController_l247_5;
-  wire       [31:0]   _zz_when_SRAMController_l247_6;
+  wire       [31:0]   _zz_when_SRAMController_l256_1;
+  wire       [7:0]    _zz_when_SRAMController_l256_2;
+  wire       [31:0]   _zz_when_SRAMController_l264;
+  wire       [31:0]   _zz_when_SRAMController_l264_1;
+  wire       [31:0]   _zz_when_SRAMController_l264_2;
+  wire       [31:0]   _zz_when_SRAMController_l264_3;
+  wire       [15:0]   _zz_when_SRAMController_l264_4;
+  wire       [7:0]    _zz_when_SRAMController_l264_5;
+  wire       [31:0]   _zz_when_SRAMController_l264_6;
   wire       [19:0]   _zz_fsm_current_sram_addr_4;
   wire       [7:0]    _zz_fsm_current_sram_addr_5;
   wire       [7:0]    _zz_fsm_current_sram_addr_6;
@@ -47841,11 +47810,14 @@ module SRAMController (
   wire       [19:0]   _zz_fsm_current_sram_addr_7;
   wire       [7:0]    _zz_fsm_current_sram_addr_8;
   wire       [7:0]    _zz_fsm_current_sram_addr_9;
-  reg        [19:0]   sram_write_addr_reg;
-  reg        [31:0]   sram_write_data_reg;
   wire       [3:0]    sram_be_n_inactive_value;
-  reg        [3:0]    sram_write_be_n_reg;
-  reg                 sram_perform_write;
+  reg        [19:0]   sram_addr_out_reg;
+  reg        [31:0]   sram_data_out_reg;
+  reg        [3:0]    sram_be_n_out_reg;
+  reg                 sram_ce_n_out_reg;
+  reg                 sram_oe_n_out_reg;
+  reg                 sram_we_n_out_reg;
+  reg                 sram_data_writeEnable_out_reg;
   wire                fsm_wantExit;
   reg                 fsm_wantStart;
   wire                fsm_wantKill;
@@ -47874,31 +47846,32 @@ module SRAMController (
   reg        [3:0]    fsm_stateNext;
   (* mark_debug = "true" *) wire                io_axi_aw_fire;
   wire       [31:0]   _zz_fsm_current_sram_addr;
-  wire       [7:0]    _zz_when_SRAMController_l185;
-  wire                when_SRAMController_l181;
-  wire                when_SRAMController_l185;
-  wire                when_SRAMController_l189;
-  wire                when_SRAMController_l193;
+  wire       [7:0]    _zz_when_SRAMController_l202;
+  wire                when_SRAMController_l198;
+  wire                when_SRAMController_l202;
+  wire                when_SRAMController_l206;
+  wire                when_SRAMController_l210;
   (* mark_debug = "true" *) wire                io_axi_ar_fire;
   wire       [31:0]   _zz_fsm_current_sram_addr_1;
-  wire       [7:0]    _zz_when_SRAMController_l239;
-  wire                when_SRAMController_l235;
-  wire                when_SRAMController_l239;
-  wire                when_SRAMController_l243;
-  wire                when_SRAMController_l247;
-  wire                when_SRAMController_l284;
+  wire       [7:0]    _zz_when_SRAMController_l256;
+  wire                when_SRAMController_l252;
+  wire                when_SRAMController_l256;
+  wire                when_SRAMController_l260;
+  wire                when_SRAMController_l264;
   (* mark_debug = "true" *) wire                io_axi_w_fire;
-  wire                when_SRAMController_l326;
-  wire                when_SRAMController_l347;
-  wire                when_SRAMController_l416;
-  wire                when_SRAMController_l425;
-  wire                when_SRAMController_l458;
+  wire                when_SRAMController_l340;
+  wire                when_SRAMController_l377;
+  wire                when_SRAMController_l406;
+  wire                when_SRAMController_l501;
+  wire                when_SRAMController_l510;
+  wire                when_SRAMController_l559;
   (* mark_debug = "true" *) wire                io_axi_r_fire;
-  wire                when_SRAMController_l500;
+  wire                when_SRAMController_l611;
   wire                fsm_onExit_BOOT;
   wire                fsm_onExit_IDLE;
-  wire                fsm_onExit_WRITE_DATA;
-  wire                fsm_onExit_WRITE_WAIT;
+  wire                fsm_onExit_WRITE_DATA_FETCH;
+  wire                fsm_onExit_WRITE_EXECUTE;
+  wire                fsm_onExit_WRITE_DEASSERT;
   wire                fsm_onExit_WRITE_DATA_ERROR_CONSUME;
   wire                fsm_onExit_WRITE_RESPONSE;
   wire                fsm_onExit_READ_SETUP;
@@ -47907,8 +47880,9 @@ module SRAMController (
   wire                fsm_onExit_READ_RESPONSE_ERROR;
   wire                fsm_onEntry_BOOT;
   wire                fsm_onEntry_IDLE;
-  wire                fsm_onEntry_WRITE_DATA;
-  wire                fsm_onEntry_WRITE_WAIT;
+  wire                fsm_onEntry_WRITE_DATA_FETCH;
+  wire                fsm_onEntry_WRITE_EXECUTE;
+  wire                fsm_onEntry_WRITE_DEASSERT;
   wire                fsm_onEntry_WRITE_DATA_ERROR_CONSUME;
   wire                fsm_onEntry_WRITE_RESPONSE;
   wire                fsm_onEntry_READ_SETUP;
@@ -47924,26 +47898,26 @@ module SRAMController (
 
   assign _zz_fsm_burst_count_remaining = (io_axi_aw_payload_len + 8'h01);
   assign _zz_fsm_current_sram_addr_2 = (_zz_fsm_current_sram_addr >>> 2'd2);
-  assign _zz_when_SRAMController_l185_2 = (_zz_when_SRAMController_l185 - 8'h01);
-  assign _zz_when_SRAMController_l185_1 = {24'd0, _zz_when_SRAMController_l185_2};
-  assign _zz_when_SRAMController_l193 = _zz_fsm_current_sram_addr;
-  assign _zz_when_SRAMController_l193_1 = (_zz_when_SRAMController_l193_2 - _zz_when_SRAMController_l193_6);
-  assign _zz_when_SRAMController_l193_2 = (_zz_fsm_current_sram_addr + _zz_when_SRAMController_l193_3);
-  assign _zz_when_SRAMController_l193_4 = (_zz_when_SRAMController_l193_5 * _zz_when_SRAMController_l185);
-  assign _zz_when_SRAMController_l193_3 = {16'd0, _zz_when_SRAMController_l193_4};
-  assign _zz_when_SRAMController_l193_5 = (io_axi_aw_payload_len + 8'h01);
-  assign _zz_when_SRAMController_l193_6 = {24'd0, _zz_when_SRAMController_l185};
+  assign _zz_when_SRAMController_l202_2 = (_zz_when_SRAMController_l202 - 8'h01);
+  assign _zz_when_SRAMController_l202_1 = {24'd0, _zz_when_SRAMController_l202_2};
+  assign _zz_when_SRAMController_l210 = _zz_fsm_current_sram_addr;
+  assign _zz_when_SRAMController_l210_1 = (_zz_when_SRAMController_l210_2 - _zz_when_SRAMController_l210_6);
+  assign _zz_when_SRAMController_l210_2 = (_zz_fsm_current_sram_addr + _zz_when_SRAMController_l210_3);
+  assign _zz_when_SRAMController_l210_4 = (_zz_when_SRAMController_l210_5 * _zz_when_SRAMController_l202);
+  assign _zz_when_SRAMController_l210_3 = {16'd0, _zz_when_SRAMController_l210_4};
+  assign _zz_when_SRAMController_l210_5 = (io_axi_aw_payload_len + 8'h01);
+  assign _zz_when_SRAMController_l210_6 = {24'd0, _zz_when_SRAMController_l202};
   assign _zz_fsm_burst_count_remaining_1 = (io_axi_ar_payload_len + 8'h01);
   assign _zz_fsm_current_sram_addr_3 = (_zz_fsm_current_sram_addr_1 >>> 2'd2);
-  assign _zz_when_SRAMController_l239_2 = (_zz_when_SRAMController_l239 - 8'h01);
-  assign _zz_when_SRAMController_l239_1 = {24'd0, _zz_when_SRAMController_l239_2};
-  assign _zz_when_SRAMController_l247 = _zz_fsm_current_sram_addr_1;
-  assign _zz_when_SRAMController_l247_1 = (_zz_when_SRAMController_l247_2 - _zz_when_SRAMController_l247_6);
-  assign _zz_when_SRAMController_l247_2 = (_zz_fsm_current_sram_addr_1 + _zz_when_SRAMController_l247_3);
-  assign _zz_when_SRAMController_l247_4 = (_zz_when_SRAMController_l247_5 * _zz_when_SRAMController_l239);
-  assign _zz_when_SRAMController_l247_3 = {16'd0, _zz_when_SRAMController_l247_4};
-  assign _zz_when_SRAMController_l247_5 = (io_axi_ar_payload_len + 8'h01);
-  assign _zz_when_SRAMController_l247_6 = {24'd0, _zz_when_SRAMController_l239};
+  assign _zz_when_SRAMController_l256_2 = (_zz_when_SRAMController_l256 - 8'h01);
+  assign _zz_when_SRAMController_l256_1 = {24'd0, _zz_when_SRAMController_l256_2};
+  assign _zz_when_SRAMController_l264 = _zz_fsm_current_sram_addr_1;
+  assign _zz_when_SRAMController_l264_1 = (_zz_when_SRAMController_l264_2 - _zz_when_SRAMController_l264_6);
+  assign _zz_when_SRAMController_l264_2 = (_zz_fsm_current_sram_addr_1 + _zz_when_SRAMController_l264_3);
+  assign _zz_when_SRAMController_l264_4 = (_zz_when_SRAMController_l264_5 * _zz_when_SRAMController_l256);
+  assign _zz_when_SRAMController_l264_3 = {16'd0, _zz_when_SRAMController_l264_4};
+  assign _zz_when_SRAMController_l264_5 = (io_axi_ar_payload_len + 8'h01);
+  assign _zz_when_SRAMController_l264_6 = {24'd0, _zz_when_SRAMController_l256};
   assign _zz_fsm_current_sram_addr_5 = (_zz_fsm_current_sram_addr_6 / 3'b100);
   assign _zz_fsm_current_sram_addr_4 = {12'd0, _zz_fsm_current_sram_addr_5};
   assign _zz_fsm_current_sram_addr_6 = ({7'd0,1'b1} <<< fsm_aw_cmd_reg_size);
@@ -47958,8 +47932,9 @@ module SRAMController (
     case(fsm_stateReg)
       fsm_BOOT : fsm_stateReg_string = "BOOT                    ";
       fsm_IDLE : fsm_stateReg_string = "IDLE                    ";
-      fsm_WRITE_DATA : fsm_stateReg_string = "WRITE_DATA              ";
-      fsm_WRITE_WAIT : fsm_stateReg_string = "WRITE_WAIT              ";
+      fsm_WRITE_DATA_FETCH : fsm_stateReg_string = "WRITE_DATA_FETCH        ";
+      fsm_WRITE_EXECUTE : fsm_stateReg_string = "WRITE_EXECUTE           ";
+      fsm_WRITE_DEASSERT : fsm_stateReg_string = "WRITE_DEASSERT          ";
       fsm_WRITE_DATA_ERROR_CONSUME : fsm_stateReg_string = "WRITE_DATA_ERROR_CONSUME";
       fsm_WRITE_RESPONSE : fsm_stateReg_string = "WRITE_RESPONSE          ";
       fsm_READ_SETUP : fsm_stateReg_string = "READ_SETUP              ";
@@ -47973,8 +47948,9 @@ module SRAMController (
     case(fsm_stateNext)
       fsm_BOOT : fsm_stateNext_string = "BOOT                    ";
       fsm_IDLE : fsm_stateNext_string = "IDLE                    ";
-      fsm_WRITE_DATA : fsm_stateNext_string = "WRITE_DATA              ";
-      fsm_WRITE_WAIT : fsm_stateNext_string = "WRITE_WAIT              ";
+      fsm_WRITE_DATA_FETCH : fsm_stateNext_string = "WRITE_DATA_FETCH        ";
+      fsm_WRITE_EXECUTE : fsm_stateNext_string = "WRITE_EXECUTE           ";
+      fsm_WRITE_DEASSERT : fsm_stateNext_string = "WRITE_DEASSERT          ";
       fsm_WRITE_DATA_ERROR_CONSUME : fsm_stateNext_string = "WRITE_DATA_ERROR_CONSUME";
       fsm_WRITE_RESPONSE : fsm_stateNext_string = "WRITE_RESPONSE          ";
       fsm_READ_SETUP : fsm_stateNext_string = "READ_SETUP              ";
@@ -47992,9 +47968,11 @@ module SRAMController (
       fsm_IDLE : begin
         io_axi_aw_ready = ((! fsm_read_priority) || (! io_axi_ar_valid));
       end
-      fsm_WRITE_DATA : begin
+      fsm_WRITE_DATA_FETCH : begin
       end
-      fsm_WRITE_WAIT : begin
+      fsm_WRITE_EXECUTE : begin
+      end
+      fsm_WRITE_DEASSERT : begin
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
       end
@@ -48019,9 +47997,11 @@ module SRAMController (
       fsm_IDLE : begin
         io_axi_ar_ready = (fsm_read_priority || (! io_axi_aw_valid));
       end
-      fsm_WRITE_DATA : begin
+      fsm_WRITE_DATA_FETCH : begin
       end
-      fsm_WRITE_WAIT : begin
+      fsm_WRITE_EXECUTE : begin
+      end
+      fsm_WRITE_DEASSERT : begin
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
       end
@@ -48045,11 +48025,12 @@ module SRAMController (
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
-      fsm_WRITE_DATA : begin
-        io_axi_w_ready = (! sram_perform_write);
+      fsm_WRITE_DATA_FETCH : begin
+        io_axi_w_ready = 1'b1;
       end
-      fsm_WRITE_WAIT : begin
-        io_axi_w_ready = 1'b0;
+      fsm_WRITE_EXECUTE : begin
+      end
+      fsm_WRITE_DEASSERT : begin
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
         io_axi_w_ready = 1'b1;
@@ -48074,9 +48055,11 @@ module SRAMController (
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
-      fsm_WRITE_DATA : begin
+      fsm_WRITE_DATA_FETCH : begin
       end
-      fsm_WRITE_WAIT : begin
+      fsm_WRITE_EXECUTE : begin
+      end
+      fsm_WRITE_DEASSERT : begin
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
       end
@@ -48101,9 +48084,11 @@ module SRAMController (
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
-      fsm_WRITE_DATA : begin
+      fsm_WRITE_DATA_FETCH : begin
       end
-      fsm_WRITE_WAIT : begin
+      fsm_WRITE_EXECUTE : begin
+      end
+      fsm_WRITE_DEASSERT : begin
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
       end
@@ -48129,9 +48114,11 @@ module SRAMController (
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
-      fsm_WRITE_DATA : begin
+      fsm_WRITE_DATA_FETCH : begin
       end
-      fsm_WRITE_WAIT : begin
+      fsm_WRITE_EXECUTE : begin
+      end
+      fsm_WRITE_DEASSERT : begin
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
       end
@@ -48156,9 +48143,11 @@ module SRAMController (
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
-      fsm_WRITE_DATA : begin
+      fsm_WRITE_DATA_FETCH : begin
       end
-      fsm_WRITE_WAIT : begin
+      fsm_WRITE_EXECUTE : begin
+      end
+      fsm_WRITE_DEASSERT : begin
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
       end
@@ -48183,9 +48172,11 @@ module SRAMController (
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
-      fsm_WRITE_DATA : begin
+      fsm_WRITE_DATA_FETCH : begin
       end
-      fsm_WRITE_WAIT : begin
+      fsm_WRITE_EXECUTE : begin
+      end
+      fsm_WRITE_DEASSERT : begin
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
       end
@@ -48211,9 +48202,11 @@ module SRAMController (
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
-      fsm_WRITE_DATA : begin
+      fsm_WRITE_DATA_FETCH : begin
       end
-      fsm_WRITE_WAIT : begin
+      fsm_WRITE_EXECUTE : begin
+      end
+      fsm_WRITE_DEASSERT : begin
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
       end
@@ -48239,9 +48232,11 @@ module SRAMController (
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
-      fsm_WRITE_DATA : begin
+      fsm_WRITE_DATA_FETCH : begin
       end
-      fsm_WRITE_WAIT : begin
+      fsm_WRITE_EXECUTE : begin
+      end
+      fsm_WRITE_DEASSERT : begin
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
       end
@@ -48267,9 +48262,11 @@ module SRAMController (
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
-      fsm_WRITE_DATA : begin
+      fsm_WRITE_DATA_FETCH : begin
       end
-      fsm_WRITE_WAIT : begin
+      fsm_WRITE_EXECUTE : begin
+      end
+      fsm_WRITE_DEASSERT : begin
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
       end
@@ -48280,10 +48277,10 @@ module SRAMController (
       fsm_READ_WAIT : begin
       end
       fsm_READ_RESPONSE : begin
-        io_axi_r_payload_last = when_SRAMController_l458;
+        io_axi_r_payload_last = when_SRAMController_l559;
       end
       fsm_READ_RESPONSE_ERROR : begin
-        io_axi_r_payload_last = when_SRAMController_l500;
+        io_axi_r_payload_last = when_SRAMController_l611;
       end
       default : begin
       end
@@ -48291,185 +48288,24 @@ module SRAMController (
   end
 
   assign sram_be_n_inactive_value = 4'b1111;
-  always @(*) begin
-    io_ram_ce_n = 1'b1;
-    case(fsm_stateReg)
-      fsm_IDLE : begin
-        io_ram_ce_n = 1'b1;
-      end
-      fsm_WRITE_DATA : begin
-        io_ram_ce_n = 1'b0;
-      end
-      fsm_WRITE_WAIT : begin
-        io_ram_ce_n = 1'b0;
-      end
-      fsm_WRITE_DATA_ERROR_CONSUME : begin
-        io_ram_ce_n = 1'b1;
-      end
-      fsm_WRITE_RESPONSE : begin
-        io_ram_ce_n = 1'b1;
-      end
-      fsm_READ_SETUP : begin
-        io_ram_ce_n = 1'b0;
-      end
-      fsm_READ_WAIT : begin
-        io_ram_ce_n = 1'b0;
-      end
-      fsm_READ_RESPONSE : begin
-      end
-      fsm_READ_RESPONSE_ERROR : begin
-        io_ram_ce_n = 1'b1;
-      end
-      default : begin
-      end
-    endcase
-  end
-
-  always @(*) begin
-    io_ram_oe_n = 1'b1;
-    case(fsm_stateReg)
-      fsm_IDLE : begin
-        io_ram_oe_n = 1'b1;
-      end
-      fsm_WRITE_DATA : begin
-        io_ram_oe_n = 1'b1;
-      end
-      fsm_WRITE_WAIT : begin
-        io_ram_oe_n = 1'b1;
-      end
-      fsm_WRITE_DATA_ERROR_CONSUME : begin
-        io_ram_oe_n = 1'b1;
-      end
-      fsm_WRITE_RESPONSE : begin
-        io_ram_oe_n = 1'b1;
-      end
-      fsm_READ_SETUP : begin
-        io_ram_oe_n = 1'b0;
-      end
-      fsm_READ_WAIT : begin
-        io_ram_oe_n = 1'b0;
-      end
-      fsm_READ_RESPONSE : begin
-      end
-      fsm_READ_RESPONSE_ERROR : begin
-        io_ram_oe_n = 1'b1;
-      end
-      default : begin
-      end
-    endcase
-    if(fsm_onExit_READ_RESPONSE) begin
-      io_ram_oe_n = 1'b1;
-    end
-  end
-
-  always @(*) begin
-    io_ram_we_n = 1'b1;
-    case(fsm_stateReg)
-      fsm_IDLE : begin
-        io_ram_we_n = 1'b1;
-      end
-      fsm_WRITE_DATA : begin
-        io_ram_we_n = (! sram_perform_write);
-      end
-      fsm_WRITE_WAIT : begin
-        io_ram_we_n = 1'b0;
-      end
-      fsm_WRITE_DATA_ERROR_CONSUME : begin
-        io_ram_we_n = 1'b1;
-      end
-      fsm_WRITE_RESPONSE : begin
-        io_ram_we_n = 1'b1;
-      end
-      fsm_READ_SETUP : begin
-        io_ram_we_n = 1'b1;
-      end
-      fsm_READ_WAIT : begin
-        io_ram_we_n = 1'b1;
-      end
-      fsm_READ_RESPONSE : begin
-      end
-      fsm_READ_RESPONSE_ERROR : begin
-        io_ram_we_n = 1'b1;
-      end
-      default : begin
-      end
-    endcase
-  end
-
-  always @(*) begin
-    io_ram_be_n = sram_be_n_inactive_value;
-    case(fsm_stateReg)
-      fsm_IDLE : begin
-      end
-      fsm_WRITE_DATA : begin
-        io_ram_be_n = sram_write_be_n_reg;
-      end
-      fsm_WRITE_WAIT : begin
-        io_ram_be_n = sram_write_be_n_reg;
-      end
-      fsm_WRITE_DATA_ERROR_CONSUME : begin
-      end
-      fsm_WRITE_RESPONSE : begin
-      end
-      fsm_READ_SETUP : begin
-      end
-      fsm_READ_WAIT : begin
-      end
-      fsm_READ_RESPONSE : begin
-      end
-      fsm_READ_RESPONSE_ERROR : begin
-      end
-      default : begin
-      end
-    endcase
-  end
-
-  always @(*) begin
-    io_ram_addr = 20'h0;
-    case(fsm_stateReg)
-      fsm_IDLE : begin
-        io_ram_addr = 20'h0;
-      end
-      fsm_WRITE_DATA : begin
-        io_ram_addr = sram_write_addr_reg;
-      end
-      fsm_WRITE_WAIT : begin
-        io_ram_addr = sram_write_addr_reg;
-      end
-      fsm_WRITE_DATA_ERROR_CONSUME : begin
-        io_ram_addr = 20'h0;
-      end
-      fsm_WRITE_RESPONSE : begin
-        io_ram_addr = 20'h0;
-      end
-      fsm_READ_SETUP : begin
-        io_ram_addr = fsm_current_sram_addr;
-      end
-      fsm_READ_WAIT : begin
-        io_ram_addr = fsm_current_sram_addr;
-      end
-      fsm_READ_RESPONSE : begin
-        io_ram_addr = fsm_current_sram_addr;
-      end
-      fsm_READ_RESPONSE_ERROR : begin
-        io_ram_addr = 20'h0;
-      end
-      default : begin
-      end
-    endcase
-  end
-
-  assign io_ram_data_write = sram_write_data_reg;
-  assign io_ram_data_writeEnable = sram_perform_write;
+  assign io_ram_addr = sram_addr_out_reg;
+  assign io_ram_ce_n = sram_ce_n_out_reg;
+  assign io_ram_oe_n = sram_oe_n_out_reg;
+  assign io_ram_we_n = sram_we_n_out_reg;
+  assign io_ram_be_n = sram_be_n_out_reg;
+  assign io_ram_data_write = sram_data_out_reg;
+  assign io_ram_data_writeEnable = sram_data_writeEnable_out_reg;
   assign fsm_wantExit = 1'b0;
   always @(*) begin
     fsm_wantStart = 1'b0;
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
-      fsm_WRITE_DATA : begin
+      fsm_WRITE_DATA_FETCH : begin
       end
-      fsm_WRITE_WAIT : begin
+      fsm_WRITE_EXECUTE : begin
+      end
+      fsm_WRITE_DEASSERT : begin
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
       end
@@ -48495,35 +48331,35 @@ module SRAMController (
     case(fsm_stateReg)
       fsm_IDLE : begin
         if(io_axi_aw_fire) begin
-          if(when_SRAMController_l181) begin
+          if(when_SRAMController_l198) begin
             fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
           end else begin
-            if(when_SRAMController_l185) begin
+            if(when_SRAMController_l202) begin
               fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
             end else begin
-              if(when_SRAMController_l189) begin
+              if(when_SRAMController_l206) begin
                 fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
               end else begin
-                if(when_SRAMController_l193) begin
+                if(when_SRAMController_l210) begin
                   fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
                 end else begin
-                  fsm_stateNext = fsm_WRITE_DATA;
+                  fsm_stateNext = fsm_WRITE_DATA_FETCH;
                 end
               end
             end
           end
         end
         if(io_axi_ar_fire) begin
-          if(when_SRAMController_l235) begin
+          if(when_SRAMController_l252) begin
             fsm_stateNext = fsm_READ_RESPONSE_ERROR;
           end else begin
-            if(when_SRAMController_l239) begin
+            if(when_SRAMController_l256) begin
               fsm_stateNext = fsm_READ_RESPONSE_ERROR;
             end else begin
-              if(when_SRAMController_l243) begin
+              if(when_SRAMController_l260) begin
                 fsm_stateNext = fsm_READ_RESPONSE_ERROR;
               end else begin
-                if(when_SRAMController_l247) begin
+                if(when_SRAMController_l264) begin
                   fsm_stateNext = fsm_READ_RESPONSE_ERROR;
                 end else begin
                   fsm_stateNext = fsm_READ_SETUP;
@@ -48533,25 +48369,26 @@ module SRAMController (
           end
         end
       end
-      fsm_WRITE_DATA : begin
-        if(sram_perform_write) begin
-          if(when_SRAMController_l284) begin
-            fsm_stateNext = fsm_WRITE_RESPONSE;
-          end
-        end else begin
-          if(io_axi_w_fire) begin
-            fsm_stateNext = fsm_WRITE_WAIT;
-          end
+      fsm_WRITE_DATA_FETCH : begin
+        if(io_axi_w_fire) begin
+          fsm_stateNext = fsm_WRITE_EXECUTE;
         end
       end
-      fsm_WRITE_WAIT : begin
-        if(when_SRAMController_l326) begin
-          fsm_stateNext = fsm_WRITE_DATA;
+      fsm_WRITE_EXECUTE : begin
+        if(when_SRAMController_l340) begin
+          fsm_stateNext = fsm_WRITE_DEASSERT;
+        end
+      end
+      fsm_WRITE_DEASSERT : begin
+        if(when_SRAMController_l377) begin
+          fsm_stateNext = fsm_WRITE_RESPONSE;
+        end else begin
+          fsm_stateNext = fsm_WRITE_DATA_FETCH;
         end
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
         if(io_axi_w_fire) begin
-          if(when_SRAMController_l347) begin
+          if(when_SRAMController_l406) begin
             fsm_stateNext = fsm_WRITE_RESPONSE;
           end
         end
@@ -48565,13 +48402,13 @@ module SRAMController (
         fsm_stateNext = fsm_READ_WAIT;
       end
       fsm_READ_WAIT : begin
-        if(when_SRAMController_l425) begin
+        if(when_SRAMController_l510) begin
           fsm_stateNext = fsm_READ_RESPONSE;
         end
       end
       fsm_READ_RESPONSE : begin
         if(io_axi_r_fire) begin
-          if(when_SRAMController_l458) begin
+          if(when_SRAMController_l559) begin
             fsm_stateNext = fsm_IDLE;
           end else begin
             fsm_stateNext = fsm_READ_SETUP;
@@ -48580,7 +48417,7 @@ module SRAMController (
       end
       fsm_READ_RESPONSE_ERROR : begin
         if(io_axi_r_fire) begin
-          if(when_SRAMController_l500) begin
+          if(when_SRAMController_l611) begin
             fsm_stateNext = fsm_IDLE;
           end
         end
@@ -48598,31 +48435,32 @@ module SRAMController (
 
   assign io_axi_aw_fire = (io_axi_aw_valid && io_axi_aw_ready);
   assign _zz_fsm_current_sram_addr = (io_axi_aw_payload_addr - 32'h80000000);
-  assign _zz_when_SRAMController_l185 = ({7'd0,1'b1} <<< io_axi_aw_payload_size);
-  assign when_SRAMController_l181 = (io_axi_aw_payload_burst != 2'b01);
-  assign when_SRAMController_l185 = ((! ((io_axi_aw_payload_addr & _zz_when_SRAMController_l185_1) == 32'h0)) || (! ((io_axi_aw_payload_addr & 32'h00000003) == 32'h0)));
-  assign when_SRAMController_l189 = (! (io_axi_aw_payload_size == 3'b010));
-  assign when_SRAMController_l193 = (($signed(_zz_when_SRAMController_l193) < $signed(32'h0)) || (32'h00400000 <= _zz_when_SRAMController_l193_1));
+  assign _zz_when_SRAMController_l202 = ({7'd0,1'b1} <<< io_axi_aw_payload_size);
+  assign when_SRAMController_l198 = (io_axi_aw_payload_burst != 2'b01);
+  assign when_SRAMController_l202 = ((! ((io_axi_aw_payload_addr & _zz_when_SRAMController_l202_1) == 32'h0)) || (! ((io_axi_aw_payload_addr & 32'h00000003) == 32'h0)));
+  assign when_SRAMController_l206 = (! (io_axi_aw_payload_size == 3'b010));
+  assign when_SRAMController_l210 = (($signed(_zz_when_SRAMController_l210) < $signed(32'h0)) || (32'h00400000 <= _zz_when_SRAMController_l210_1));
   assign io_axi_ar_fire = (io_axi_ar_valid && io_axi_ar_ready);
   assign _zz_fsm_current_sram_addr_1 = (io_axi_ar_payload_addr - 32'h80000000);
-  assign _zz_when_SRAMController_l239 = ({7'd0,1'b1} <<< io_axi_ar_payload_size);
-  assign when_SRAMController_l235 = (io_axi_ar_payload_burst != 2'b01);
-  assign when_SRAMController_l239 = ((! ((io_axi_ar_payload_addr & _zz_when_SRAMController_l239_1) == 32'h0)) || (! ((io_axi_ar_payload_addr & 32'h00000003) == 32'h0)));
-  assign when_SRAMController_l243 = (! (io_axi_ar_payload_size == 3'b010));
-  assign when_SRAMController_l247 = (($signed(_zz_when_SRAMController_l247) < $signed(32'h0)) || (32'h00400000 <= _zz_when_SRAMController_l247_1));
-  assign when_SRAMController_l284 = (fsm_burst_count_remaining == 9'h001);
+  assign _zz_when_SRAMController_l256 = ({7'd0,1'b1} <<< io_axi_ar_payload_size);
+  assign when_SRAMController_l252 = (io_axi_ar_payload_burst != 2'b01);
+  assign when_SRAMController_l256 = ((! ((io_axi_ar_payload_addr & _zz_when_SRAMController_l256_1) == 32'h0)) || (! ((io_axi_ar_payload_addr & 32'h00000003) == 32'h0)));
+  assign when_SRAMController_l260 = (! (io_axi_ar_payload_size == 3'b010));
+  assign when_SRAMController_l264 = (($signed(_zz_when_SRAMController_l264) < $signed(32'h0)) || (32'h00400000 <= _zz_when_SRAMController_l264_1));
   assign io_axi_w_fire = (io_axi_w_valid && io_axi_w_ready);
-  assign when_SRAMController_l326 = (fsm_write_wait_counter == 2'b10);
-  assign when_SRAMController_l347 = (fsm_burst_count_remaining == 9'h001);
-  assign when_SRAMController_l416 = (((fsm_read_wait_counter == 2'b01) && (9'h001 < fsm_burst_count_remaining)) && (! fsm_addr_prefetch_valid));
-  assign when_SRAMController_l425 = (fsm_read_wait_counter == 2'b10);
-  assign when_SRAMController_l458 = (fsm_burst_count_remaining == 9'h001);
+  assign when_SRAMController_l340 = (fsm_write_wait_counter == 2'b10);
+  assign when_SRAMController_l377 = (fsm_burst_count_remaining == 9'h0);
+  assign when_SRAMController_l406 = (fsm_burst_count_remaining == 9'h001);
+  assign when_SRAMController_l501 = (((fsm_read_wait_counter == 2'b01) && (9'h001 < fsm_burst_count_remaining)) && (! fsm_addr_prefetch_valid));
+  assign when_SRAMController_l510 = (fsm_read_wait_counter == 2'b10);
+  assign when_SRAMController_l559 = (fsm_burst_count_remaining == 9'h001);
   assign io_axi_r_fire = (io_axi_r_valid && io_axi_r_ready);
-  assign when_SRAMController_l500 = (fsm_burst_count_remaining == 9'h001);
+  assign when_SRAMController_l611 = (fsm_burst_count_remaining == 9'h001);
   assign fsm_onExit_BOOT = ((fsm_stateNext != fsm_BOOT) && (fsm_stateReg == fsm_BOOT));
   assign fsm_onExit_IDLE = ((fsm_stateNext != fsm_IDLE) && (fsm_stateReg == fsm_IDLE));
-  assign fsm_onExit_WRITE_DATA = ((fsm_stateNext != fsm_WRITE_DATA) && (fsm_stateReg == fsm_WRITE_DATA));
-  assign fsm_onExit_WRITE_WAIT = ((fsm_stateNext != fsm_WRITE_WAIT) && (fsm_stateReg == fsm_WRITE_WAIT));
+  assign fsm_onExit_WRITE_DATA_FETCH = ((fsm_stateNext != fsm_WRITE_DATA_FETCH) && (fsm_stateReg == fsm_WRITE_DATA_FETCH));
+  assign fsm_onExit_WRITE_EXECUTE = ((fsm_stateNext != fsm_WRITE_EXECUTE) && (fsm_stateReg == fsm_WRITE_EXECUTE));
+  assign fsm_onExit_WRITE_DEASSERT = ((fsm_stateNext != fsm_WRITE_DEASSERT) && (fsm_stateReg == fsm_WRITE_DEASSERT));
   assign fsm_onExit_WRITE_DATA_ERROR_CONSUME = ((fsm_stateNext != fsm_WRITE_DATA_ERROR_CONSUME) && (fsm_stateReg == fsm_WRITE_DATA_ERROR_CONSUME));
   assign fsm_onExit_WRITE_RESPONSE = ((fsm_stateNext != fsm_WRITE_RESPONSE) && (fsm_stateReg == fsm_WRITE_RESPONSE));
   assign fsm_onExit_READ_SETUP = ((fsm_stateNext != fsm_READ_SETUP) && (fsm_stateReg == fsm_READ_SETUP));
@@ -48631,8 +48469,9 @@ module SRAMController (
   assign fsm_onExit_READ_RESPONSE_ERROR = ((fsm_stateNext != fsm_READ_RESPONSE_ERROR) && (fsm_stateReg == fsm_READ_RESPONSE_ERROR));
   assign fsm_onEntry_BOOT = ((fsm_stateNext == fsm_BOOT) && (fsm_stateReg != fsm_BOOT));
   assign fsm_onEntry_IDLE = ((fsm_stateNext == fsm_IDLE) && (fsm_stateReg != fsm_IDLE));
-  assign fsm_onEntry_WRITE_DATA = ((fsm_stateNext == fsm_WRITE_DATA) && (fsm_stateReg != fsm_WRITE_DATA));
-  assign fsm_onEntry_WRITE_WAIT = ((fsm_stateNext == fsm_WRITE_WAIT) && (fsm_stateReg != fsm_WRITE_WAIT));
+  assign fsm_onEntry_WRITE_DATA_FETCH = ((fsm_stateNext == fsm_WRITE_DATA_FETCH) && (fsm_stateReg != fsm_WRITE_DATA_FETCH));
+  assign fsm_onEntry_WRITE_EXECUTE = ((fsm_stateNext == fsm_WRITE_EXECUTE) && (fsm_stateReg != fsm_WRITE_EXECUTE));
+  assign fsm_onEntry_WRITE_DEASSERT = ((fsm_stateNext == fsm_WRITE_DEASSERT) && (fsm_stateReg != fsm_WRITE_DEASSERT));
   assign fsm_onEntry_WRITE_DATA_ERROR_CONSUME = ((fsm_stateNext == fsm_WRITE_DATA_ERROR_CONSUME) && (fsm_stateReg != fsm_WRITE_DATA_ERROR_CONSUME));
   assign fsm_onEntry_WRITE_RESPONSE = ((fsm_stateNext == fsm_WRITE_RESPONSE) && (fsm_stateReg != fsm_WRITE_RESPONSE));
   assign fsm_onEntry_READ_SETUP = ((fsm_stateNext == fsm_READ_SETUP) && (fsm_stateReg != fsm_READ_SETUP));
@@ -48642,10 +48481,13 @@ module SRAMController (
   assign io_axi_b_fire = (io_axi_b_valid && io_axi_b_ready);
   always @(posedge clk or posedge reset) begin
     if(reset) begin
-      sram_write_addr_reg <= 20'h0;
-      sram_write_data_reg <= 32'h0;
-      sram_write_be_n_reg <= sram_be_n_inactive_value;
-      sram_perform_write <= 1'b0;
+      sram_addr_out_reg <= 20'h0;
+      sram_data_out_reg <= 32'h0;
+      sram_be_n_out_reg <= sram_be_n_inactive_value;
+      sram_ce_n_out_reg <= 1'b1;
+      sram_oe_n_out_reg <= 1'b1;
+      sram_we_n_out_reg <= 1'b1;
+      sram_data_writeEnable_out_reg <= 1'b0;
       fsm_transaction_error_occurred <= 1'b0;
       fsm_read_priority <= 1'b0;
       fsm_addr_prefetch_valid <= 1'b0;
@@ -48658,16 +48500,16 @@ module SRAMController (
           fsm_addr_prefetch_valid <= 1'b0;
           if(io_axi_aw_fire) begin
             fsm_read_priority <= (! fsm_read_priority);
-            if(when_SRAMController_l181) begin
+            if(when_SRAMController_l198) begin
               fsm_transaction_error_occurred <= 1'b1;
             end else begin
-              if(when_SRAMController_l185) begin
+              if(when_SRAMController_l202) begin
                 fsm_transaction_error_occurred <= 1'b1;
               end else begin
-                if(when_SRAMController_l189) begin
+                if(when_SRAMController_l206) begin
                   fsm_transaction_error_occurred <= 1'b1;
                 end else begin
-                  if(when_SRAMController_l193) begin
+                  if(when_SRAMController_l210) begin
                     fsm_transaction_error_occurred <= 1'b1;
                   end
                 end
@@ -48676,16 +48518,16 @@ module SRAMController (
           end
           if(io_axi_ar_fire) begin
             fsm_read_priority <= (! fsm_read_priority);
-            if(when_SRAMController_l235) begin
+            if(when_SRAMController_l252) begin
               fsm_transaction_error_occurred <= 1'b1;
             end else begin
-              if(when_SRAMController_l239) begin
+              if(when_SRAMController_l256) begin
                 fsm_transaction_error_occurred <= 1'b1;
               end else begin
-                if(when_SRAMController_l243) begin
+                if(when_SRAMController_l260) begin
                   fsm_transaction_error_occurred <= 1'b1;
                 end else begin
-                  if(when_SRAMController_l247) begin
+                  if(when_SRAMController_l264) begin
                     fsm_transaction_error_occurred <= 1'b1;
                   end
                 end
@@ -48693,46 +48535,60 @@ module SRAMController (
             end
           end
         end
-        fsm_WRITE_DATA : begin
-          if(sram_perform_write) begin
-            sram_perform_write <= 1'b0;
-          end else begin
-            if(io_axi_w_fire) begin
-              sram_write_addr_reg <= fsm_current_sram_addr;
-              sram_write_data_reg <= io_axi_w_payload_data;
-              sram_write_be_n_reg <= (~ io_axi_w_payload_strb);
-            end
+        fsm_WRITE_DATA_FETCH : begin
+          if(io_axi_w_fire) begin
+            sram_addr_out_reg <= fsm_current_sram_addr;
+            sram_data_out_reg <= io_axi_w_payload_data;
+            sram_be_n_out_reg <= (~ io_axi_w_payload_strb);
           end
         end
-        fsm_WRITE_WAIT : begin
-          if(when_SRAMController_l326) begin
-            sram_perform_write <= 1'b1;
-          end
+        fsm_WRITE_EXECUTE : begin
+          sram_ce_n_out_reg <= 1'b0;
+          sram_oe_n_out_reg <= 1'b1;
+          sram_we_n_out_reg <= 1'b0;
+          sram_data_writeEnable_out_reg <= 1'b1;
+        end
+        fsm_WRITE_DEASSERT : begin
+          sram_ce_n_out_reg <= 1'b1;
+          sram_we_n_out_reg <= 1'b1;
+          sram_oe_n_out_reg <= 1'b1;
+          sram_data_writeEnable_out_reg <= 1'b0;
         end
         fsm_WRITE_DATA_ERROR_CONSUME : begin
-          sram_perform_write <= 1'b0;
         end
         fsm_WRITE_RESPONSE : begin
         end
         fsm_READ_SETUP : begin
           fsm_addr_prefetch_valid <= 1'b0;
+          sram_ce_n_out_reg <= 1'b0;
+          sram_oe_n_out_reg <= 1'b0;
+          sram_we_n_out_reg <= 1'b1;
+          sram_data_writeEnable_out_reg <= 1'b0;
+          sram_addr_out_reg <= fsm_current_sram_addr;
+          sram_be_n_out_reg <= 4'b0000;
         end
         fsm_READ_WAIT : begin
-          if(when_SRAMController_l416) begin
+          sram_ce_n_out_reg <= 1'b0;
+          sram_oe_n_out_reg <= 1'b0;
+          sram_we_n_out_reg <= 1'b1;
+          sram_data_writeEnable_out_reg <= 1'b0;
+          if(when_SRAMController_l501) begin
             fsm_addr_prefetch_valid <= 1'b1;
           end
         end
         fsm_READ_RESPONSE : begin
-          if(!io_axi_r_fire) begin
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(1'b0); // SRAMController.scala:L469
-              `else
-                if(!1'b0) begin
-                  $display("NOTE(SRAMController.scala:469):  io.axi.r.valid = %x, io.axi.r.ready = %x", io_axi_r_valid, io_axi_r_ready); // SRAMController.scala:L469
-                end
-              `endif
-            `endif
+          sram_ce_n_out_reg <= 1'b0;
+          sram_oe_n_out_reg <= 1'b0;
+          sram_we_n_out_reg <= 1'b1;
+          sram_data_writeEnable_out_reg <= 1'b0;
+          sram_addr_out_reg <= fsm_current_sram_addr;
+          sram_be_n_out_reg <= 4'b0000;
+          if(io_axi_r_fire) begin
+            if(!when_SRAMController_l559) begin
+              if(fsm_addr_prefetch_valid) begin
+                fsm_addr_prefetch_valid <= 1'b0;
+              end
+            end
           end
         end
         fsm_READ_RESPONSE_ERROR : begin
@@ -48740,11 +48596,90 @@ module SRAMController (
         default : begin
         end
       endcase
+      if(fsm_onExit_WRITE_EXECUTE) begin
+        sram_data_writeEnable_out_reg <= 1'b0;
+      end
+      if(fsm_onExit_READ_RESPONSE) begin
+        sram_oe_n_out_reg <= 1'b1;
+        sram_ce_n_out_reg <= 1'b1;
+        sram_we_n_out_reg <= 1'b1;
+        sram_data_writeEnable_out_reg <= 1'b0;
+        sram_be_n_out_reg <= sram_be_n_inactive_value;
+        sram_addr_out_reg <= 20'h0;
+      end
       if(fsm_onEntry_IDLE) begin
-        sram_perform_write <= 1'b0;
+        sram_ce_n_out_reg <= 1'b1;
+        sram_oe_n_out_reg <= 1'b1;
+        sram_we_n_out_reg <= 1'b1;
+        sram_data_writeEnable_out_reg <= 1'b0;
+        sram_be_n_out_reg <= sram_be_n_inactive_value;
+        sram_addr_out_reg <= 20'h0;
+      end
+      if(fsm_onEntry_WRITE_DATA_FETCH) begin
+        sram_ce_n_out_reg <= 1'b1;
+        sram_oe_n_out_reg <= 1'b1;
+        sram_we_n_out_reg <= 1'b1;
+        sram_data_writeEnable_out_reg <= 1'b0;
+        sram_be_n_out_reg <= sram_be_n_inactive_value;
+      end
+      if(fsm_onEntry_WRITE_EXECUTE) begin
+        sram_ce_n_out_reg <= 1'b0;
+        sram_oe_n_out_reg <= 1'b1;
+        sram_we_n_out_reg <= 1'b0;
+        sram_data_writeEnable_out_reg <= 1'b1;
+      end
+      if(fsm_onEntry_WRITE_DEASSERT) begin
+        sram_ce_n_out_reg <= 1'b1;
+        sram_we_n_out_reg <= 1'b1;
+        sram_oe_n_out_reg <= 1'b1;
+        sram_be_n_out_reg <= sram_be_n_inactive_value;
+      end
+      if(fsm_onEntry_WRITE_DATA_ERROR_CONSUME) begin
+        sram_ce_n_out_reg <= 1'b1;
+        sram_we_n_out_reg <= 1'b1;
+        sram_oe_n_out_reg <= 1'b1;
+        sram_data_writeEnable_out_reg <= 1'b0;
+        sram_be_n_out_reg <= sram_be_n_inactive_value;
+        sram_addr_out_reg <= 20'h0;
       end
       if(fsm_onEntry_WRITE_RESPONSE) begin
-        sram_perform_write <= 1'b0;
+        sram_ce_n_out_reg <= 1'b1;
+        sram_we_n_out_reg <= 1'b1;
+        sram_oe_n_out_reg <= 1'b1;
+        sram_data_writeEnable_out_reg <= 1'b0;
+        sram_be_n_out_reg <= sram_be_n_inactive_value;
+        sram_addr_out_reg <= 20'h0;
+      end
+      if(fsm_onEntry_READ_SETUP) begin
+        sram_ce_n_out_reg <= 1'b0;
+        sram_oe_n_out_reg <= 1'b0;
+        sram_we_n_out_reg <= 1'b1;
+        sram_data_writeEnable_out_reg <= 1'b0;
+        sram_addr_out_reg <= fsm_current_sram_addr;
+        sram_be_n_out_reg <= 4'b0000;
+      end
+      if(fsm_onEntry_READ_WAIT) begin
+        sram_ce_n_out_reg <= 1'b0;
+        sram_oe_n_out_reg <= 1'b0;
+        sram_we_n_out_reg <= 1'b1;
+        sram_data_writeEnable_out_reg <= 1'b0;
+        sram_be_n_out_reg <= 4'b0000;
+      end
+      if(fsm_onEntry_READ_RESPONSE) begin
+        sram_ce_n_out_reg <= 1'b0;
+        sram_oe_n_out_reg <= 1'b0;
+        sram_we_n_out_reg <= 1'b1;
+        sram_data_writeEnable_out_reg <= 1'b0;
+        sram_addr_out_reg <= fsm_current_sram_addr;
+        sram_be_n_out_reg <= 4'b0000;
+      end
+      if(fsm_onEntry_READ_RESPONSE_ERROR) begin
+        sram_ce_n_out_reg <= 1'b1;
+        sram_oe_n_out_reg <= 1'b1;
+        sram_we_n_out_reg <= 1'b1;
+        sram_data_writeEnable_out_reg <= 1'b0;
+        sram_be_n_out_reg <= sram_be_n_inactive_value;
+        sram_addr_out_reg <= 20'h0;
       end
     end
   end
@@ -48771,10 +48706,10 @@ module SRAMController (
           fsm_ar_cmd_reg_prot <= io_axi_ar_payload_prot;
           fsm_burst_count_remaining <= {1'd0, _zz_fsm_burst_count_remaining_1};
           fsm_current_sram_addr <= _zz_fsm_current_sram_addr_3[19:0];
-          if(!when_SRAMController_l235) begin
-            if(!when_SRAMController_l239) begin
-              if(!when_SRAMController_l243) begin
-                if(!when_SRAMController_l247) begin
+          if(!when_SRAMController_l252) begin
+            if(!when_SRAMController_l256) begin
+              if(!when_SRAMController_l260) begin
+                if(!when_SRAMController_l264) begin
                   fsm_read_wait_counter <= 2'b00;
                 end
               end
@@ -48782,19 +48717,18 @@ module SRAMController (
           end
         end
       end
-      fsm_WRITE_DATA : begin
-        if(sram_perform_write) begin
-          fsm_current_sram_addr <= (fsm_current_sram_addr + _zz_fsm_current_sram_addr_4);
+      fsm_WRITE_DATA_FETCH : begin
+      end
+      fsm_WRITE_EXECUTE : begin
+        if(when_SRAMController_l340) begin
           fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
         end else begin
-          if(io_axi_w_fire) begin
-            fsm_write_wait_counter <= 2'b00;
-          end
+          fsm_write_wait_counter <= (fsm_write_wait_counter + 2'b01);
         end
       end
-      fsm_WRITE_WAIT : begin
-        if(!when_SRAMController_l326) begin
-          fsm_write_wait_counter <= (fsm_write_wait_counter + 2'b01);
+      fsm_WRITE_DEASSERT : begin
+        if(!when_SRAMController_l377) begin
+          fsm_current_sram_addr <= (fsm_current_sram_addr + _zz_fsm_current_sram_addr_4);
         end
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
@@ -48808,10 +48742,10 @@ module SRAMController (
         fsm_read_wait_counter <= 2'b00;
       end
       fsm_READ_WAIT : begin
-        if(when_SRAMController_l416) begin
+        if(when_SRAMController_l501) begin
           fsm_next_sram_addr_prefetch <= (fsm_current_sram_addr + _zz_fsm_next_sram_addr_prefetch);
         end
-        if(when_SRAMController_l425) begin
+        if(when_SRAMController_l510) begin
           fsm_read_data_buffer <= io_ram_data_read;
         end else begin
           fsm_read_wait_counter <= (fsm_read_wait_counter + 2'b01);
@@ -48820,7 +48754,7 @@ module SRAMController (
       fsm_READ_RESPONSE : begin
         if(io_axi_r_fire) begin
           fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
-          if(!when_SRAMController_l458) begin
+          if(!when_SRAMController_l559) begin
             if(fsm_addr_prefetch_valid) begin
               fsm_current_sram_addr <= fsm_next_sram_addr_prefetch;
             end else begin
@@ -48837,6 +48771,9 @@ module SRAMController (
       default : begin
       end
     endcase
+    if(fsm_onEntry_WRITE_EXECUTE) begin
+      fsm_write_wait_counter <= 2'b00;
+    end
   end
 
 

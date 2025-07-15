@@ -94,37 +94,43 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
   io.axi.r.payload.resp := Axi4.resp.OKAY
   io.axi.r.payload.last := False
 
-  // --- SRAM 控制信号初始化 ---
-  val sram_write_addr_reg = Reg(UInt(config.addressWidth bits)) init (0)
-  val sram_write_data_reg = Reg(Bits(config.dataWidth bits)) init (0)
+  // --- SRAM 控制信号初始化 (将被FSM控制的寄存器) ---
+  // --- MODIFIED: 将这些变量提升为组件的Reg，作为SRAM引脚的直接驱动 ---
   val sram_be_n_inactive_value =
     if (config.sramByteEnableIsActiveLow)
       B((1 << (config.dataWidth / 8)) - 1, config.dataWidth / 8 bits)
     else B(0, config.dataWidth / 8 bits)
-  val sram_write_be_n_reg = Reg(Bits(config.dataWidth / 8 bits)) init (sram_be_n_inactive_value)
-  val sram_perform_write = Reg(Bool()) init (False)
+      
+  val sram_addr_out_reg        = Reg(UInt(config.addressWidth bits)) init(0)
+  val sram_data_out_reg        = Reg(Bits(config.dataWidth bits)) init(0)
+  val sram_be_n_out_reg        = Reg(Bits(config.dataWidth / 8 bits)) init(sram_be_n_inactive_value)
+  val sram_ce_n_out_reg        = Reg(Bool()) init(True)
+  val sram_oe_n_out_reg        = Reg(Bool()) init(True)
+  val sram_we_n_out_reg        = Reg(Bool()) init(True)
+  val sram_data_writeEnable_out_reg = Reg(Bool()) init(False) // 用于控制TriState数据总线方向
 
-  io.ram.ce_n := True
-  io.ram.oe_n := True
-  io.ram.we_n := True
-  io.ram.be_n := sram_be_n_inactive_value
-  io.ram.addr := 0
+  // --- 连接这些寄存器到SRAM物理引脚 ---
+  io.ram.addr := sram_addr_out_reg
+  io.ram.ce_n := sram_ce_n_out_reg
+  io.ram.oe_n := sram_oe_n_out_reg
+  io.ram.we_n := sram_we_n_out_reg
+  io.ram.be_n := sram_be_n_out_reg
+  io.ram.data.write := sram_data_out_reg
+  io.ram.data.writeEnable := sram_data_writeEnable_out_reg
 
-  io.ram.data.write := sram_write_data_reg
-  io.ram.data.writeEnable := sram_perform_write
 
   // --- 状态机定义 ---
   val fsm = new StateMachine {
     val ar_cmd_reg = Reg(cloneOf(io.axi.ar.payload))
     val aw_cmd_reg = Reg(cloneOf(io.axi.aw.payload))
     val burst_count_remaining = Reg(UInt(axiConfig.lenWidth + 1 bits))
-    val current_sram_addr = Reg(UInt(config.addressWidth bits))
+    val current_sram_addr = Reg(UInt(config.addressWidth bits)) // 用于记录本次burst的当前SRAM逻辑地址
     val read_data_buffer = Reg(Bits(config.dataWidth bits))
     val read_wait_counter = hasReadWaitCycles generate Reg(UInt(log2Up(config.readWaitCycles + 1) bits))
     val write_wait_counter = hasWriteWaitCycles generate Reg(UInt(log2Up(config.writeWaitCycles + 1) bits))
     val transaction_error_occurred = Reg(Bool()) init (False)
 
-    val read_priority = Reg(Bool()) init (False)
+    val read_priority = Reg(Bool()) init (False) // 用于arbitration
 
     val next_sram_addr_prefetch = Reg(UInt(config.addressWidth bits))
     val addr_prefetch_valid = Reg(Bool()) init (False)
@@ -132,13 +138,24 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
 
     val IDLE: State = new State with EntryPoint {
       onEntry {
-        sram_perform_write := False
+        // --- MODIFIED: 初始化SRAM输出寄存器到安全状态 ---
+        sram_ce_n_out_reg := True
+        sram_oe_n_out_reg := True
+        sram_we_n_out_reg := True
+        sram_data_writeEnable_out_reg := False // 确保数据总线处于高阻
+        sram_be_n_out_reg := sram_be_n_inactive_value // 默认字节使能无效
+        sram_addr_out_reg := 0 // 默认地址为0
       }
       whenIsActive {
-        io.ram.ce_n := True
-        io.ram.oe_n := True
-        io.ram.we_n := True
-        io.ram.addr := 0
+        // --- MODIFIED: 状态机活动期间，如果未被特定状态覆盖，保持默认行为 ---
+        // (这些通常在onEntry设置一次就够了，但为了安全和调试，也可以在这里强制)
+        // sram_ce_n_out_reg := True // 已经在onEntry中设置
+        // sram_oe_n_out_reg := True // 已经在onEntry中设置
+        // sram_we_n_out_reg := True // 已经在onEntry中设置
+        // sram_data_writeEnable_out_reg := False // 已经在onEntry中设置
+        // sram_be_n_out_reg := sram_be_n_inactive_value // 已经在onEntry中设置
+        // sram_addr_out_reg := 0 // 已经在onEntry中设置
+
         transaction_error_occurred := False
         addr_prefetch_valid := False
 
@@ -157,7 +174,7 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
           // --- MODIFIED ---: 地址转换和对齐检查
           val byte_offset_addr = io.axi.aw.addr - config.virtualBaseAddress
           val sram_addr_candidate = (byte_offset_addr >> config.addressShift).resized
-          current_sram_addr := sram_addr_candidate
+          current_sram_addr := sram_addr_candidate // 记录当前SRAM逻辑地址
           
           read_priority := !read_priority
 
@@ -195,7 +212,7 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
             transaction_error_occurred := True
             goto(WRITE_DATA_ERROR_CONSUME)
           } otherwise {
-            goto(WRITE_DATA)
+            goto(WRITE_DATA_FETCH) // MODIFIED: 进入新的写数据获取状态
           }
         }
 
@@ -256,95 +273,137 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
       }
     }
 
-    val WRITE_DATA: State = new State {
-      whenIsActive {
-        if (config.enableLog)
-          report(
-            L"SRAMController: WRITE_DATA. SRAM_Target_Addr=0x${current_sram_addr}, SRAM_Actual_Write_Addr=0x${sram_write_addr_reg}, BurstCountRem=${burst_count_remaining}, sram_perform_write=${sram_perform_write}"
-          )
+    // --- MODIFIED: 新增写数据获取状态 ---
+    val WRITE_DATA_FETCH: State = new State {
+        onEntry {
+            // --- MODIFIED: 确保SRAM输出在等待AXI W数据时是高阻/非活动 ---
+            sram_ce_n_out_reg := True
+            sram_oe_n_out_reg := True
+            sram_we_n_out_reg := True
+            sram_data_writeEnable_out_reg := False
+            sram_be_n_out_reg := sram_be_n_inactive_value
+        }
+        whenIsActive {
+            if (config.enableLog)
+                report(
+                    L"SRAMController: WRITE_DATA_FETCH. SRAM_Target_Addr=0x${current_sram_addr}, BurstCountRem=${burst_count_remaining}"
+                )
 
-        io.axi.w.ready := !sram_perform_write
-        io.ram.ce_n := False
-        io.ram.oe_n := True
-        io.ram.addr := sram_write_addr_reg
-        io.ram.we_n := !sram_perform_write
-        io.ram.be_n := sram_write_be_n_reg
+            io.axi.w.ready := True // 准备好接收W通道数据
 
-        when(sram_perform_write) {
-          sram_perform_write := False
+            when(io.axi.w.fire) {
+                if (config.enableLog)
+                    report(
+                        L"SRAMController: W Fire. Data=0x${io.axi.w.data}, Strb=0x${io.axi.w.strb}, Last=${io.axi.w.last}"
+                    )
 
-          // --- MODIFIED ---: 地址自增逻辑
-          // 在字地址模式下，每次传输SRAM地址+1。在字节地址模式下，地址增加相应的字节数。
-          val bytesIncrement = if (axiConfig.useSize) U(1) << aw_cmd_reg.size else U(config.bytesPerWord)
-          val sramAddrIncrement = if (config.useWordAddressing) (bytesIncrement / config.bytesPerWord).resized else bytesIncrement.resized
-          current_sram_addr := current_sram_addr + sramAddrIncrement
-          
-          burst_count_remaining := burst_count_remaining - 1
+                // --- MODIFIED: 锁存要写入SRAM的数据和控制信号 ---
+                sram_addr_out_reg := current_sram_addr
+                sram_data_out_reg := io.axi.w.data
+                if (config.sramByteEnableIsActiveLow) {
+                    sram_be_n_out_reg := ~io.axi.w.strb
+                } else {
+                    sram_be_n_out_reg := io.axi.w.strb
+                }
+                
+                // --- MODIFIED: 进入写执行状态 ---
+                goto(WRITE_EXECUTE)
+            }
+        }
+    }
 
-          when(burst_count_remaining === 1) {
-            goto(WRITE_RESPONSE)
-          }
-        } elsewhen (io.axi.w.fire) {
-          if (config.enableLog)
-            report(
-              L"SRAMController: W Fire. Data=0x${io.axi.w.data}, Strb=0x${io.axi.w.strb}, Last=${io.axi.w.last}"
-            )
-
-          sram_write_addr_reg := current_sram_addr
-          sram_write_data_reg := io.axi.w.data
-          if (config.sramByteEnableIsActiveLow) {
-            sram_write_be_n_reg := ~io.axi.w.strb
-          } else {
-            sram_write_be_n_reg := io.axi.w.strb
-          }
-          
-          if (hasWriteWaitCycles && config.writeWaitCycles > 0) {
+    // --- MODIFIED: 新增写执行状态，取代原有的WRITE_DATA和WRITE_WAIT的混合逻辑 ---
+    val WRITE_EXECUTE: State = new State {
+        onEntry {
+            // --- MODIFIED: 在进入此状态时，一次性设置所有写控制信号并启动计时器 ---
+            sram_ce_n_out_reg := False
+            sram_oe_n_out_reg := True
+            sram_we_n_out_reg := False
+            sram_data_writeEnable_out_reg := True // 驱动数据总线
+            // sram_addr_out_reg, sram_data_out_reg, sram_be_n_out_reg 已经在 WRITE_DATA_FETCH 中设置并保持
+            
             hasWriteWaitCycles generate { write_wait_counter := 0 }
-            goto(WRITE_WAIT)
-          } else {
-            sram_perform_write := True
-          }
         }
-      }
+        whenIsActive {
+            if (config.enableLog)
+                report(
+                    L"SRAMController: WRITE_EXECUTE. SRAM Addr=0x${sram_addr_out_reg}, WaitCounter=${hasWriteWaitCycles generate write_wait_counter}"
+                )
+            
+            // --- MODIFIED: 保持SRAM控制信号在写执行期间稳定 ---
+            sram_ce_n_out_reg := False
+            sram_oe_n_out_reg := True
+            sram_we_n_out_reg := False
+            sram_data_writeEnable_out_reg := True
+
+            val waitCond = if (hasWriteWaitCycles) write_wait_counter === config.writeWaitCycles else True
+            when(waitCond) {
+                // 写周期完成，数据已写入SRAM
+                burst_count_remaining := burst_count_remaining - 1
+                
+                // --- MODIFIED: 写执行完成后，去断言SRAM控制信号 ---
+                goto(WRITE_DEASSERT) 
+            } otherwise {
+                hasWriteWaitCycles generate { write_wait_counter := write_wait_counter + 1 }
+            }
+        }
+        onExit {
+            // --- MODIFIED: 在退出写执行状态时，停止驱动数据总线 ---
+            sram_data_writeEnable_out_reg := False
+        }
     }
 
-    val WRITE_WAIT: State = new State {
-      whenIsActive {
-        if (config.enableLog)
-          report(
-            L"SRAMController: WRITE_WAIT. SRAM Addr=0x${sram_write_addr_reg}, WaitCounter=${hasWriteWaitCycles generate write_wait_counter}"
-          )
-        
-        io.axi.w.ready := False
-        io.ram.ce_n := False
-        io.ram.oe_n := True
-        io.ram.addr := sram_write_addr_reg
-        io.ram.we_n := False
-        io.ram.be_n := sram_write_be_n_reg
-
-        val waitCond = if (hasWriteWaitCycles) write_wait_counter === config.writeWaitCycles else True
-        when(waitCond) {
-          sram_perform_write := True
-          goto(WRITE_DATA)
-        } otherwise {
-          hasWriteWaitCycles generate { write_wait_counter := write_wait_counter + 1 }
+    // --- MODIFIED: 新增写断言状态，确保SRAM控制信号恢复非活动状态 ---
+    val WRITE_DEASSERT: State = new State {
+        onEntry {
+            // --- MODIFIED: 恢复SRAM控制信号到非活动状态 ---
+            sram_ce_n_out_reg := True
+            sram_we_n_out_reg := True
+            sram_oe_n_out_reg := True // 确保OE也恢复
+            sram_be_n_out_reg := sram_be_n_inactive_value
         }
-      }
+        whenIsActive {
+            if (config.enableLog)
+                report(
+                    L"SRAMController: WRITE_DEASSERT. SRAM Addr=0x${sram_addr_out_reg}, BurstCountRem=${burst_count_remaining}"
+                )
+            
+            // --- MODIFIED: 确保SRAM控制信号保持非活动状态 ---
+            sram_ce_n_out_reg := True
+            sram_we_n_out_reg := True
+            sram_oe_n_out_reg := True
+            sram_data_writeEnable_out_reg := False
+
+            when(burst_count_remaining === 0) { // 注意这里是0，因为上面已经-1了
+                goto(WRITE_RESPONSE)
+            } otherwise {
+                // --- MODIFIED: 更新下一个地址，并回到获取下一个W数据的状态 ---
+                val bytesIncrement = if (axiConfig.useSize) U(1) << aw_cmd_reg.size else U(config.bytesPerWord)
+                val sramAddrIncrement = if (config.useWordAddressing) (bytesIncrement / config.bytesPerWord).resized else bytesIncrement.resized
+                current_sram_addr := current_sram_addr + sramAddrIncrement
+                goto(WRITE_DATA_FETCH)
+            }
+        }
     }
+
 
     val WRITE_DATA_ERROR_CONSUME: State = new State {
+      onEntry {
+        // --- MODIFIED: 确保错误状态下SRAM控制信号安全 ---
+        sram_ce_n_out_reg := True
+        sram_we_n_out_reg := True
+        sram_oe_n_out_reg := True
+        sram_data_writeEnable_out_reg := False
+        sram_be_n_out_reg := sram_be_n_inactive_value
+        sram_addr_out_reg := 0
+      }
       whenIsActive {
         if (config.enableLog) report(L"SRAMController: WRITE_DATA_ERROR_CONSUME. BurstCountRem=${burst_count_remaining}")
         io.axi.w.ready := True
-        io.ram.ce_n := True
-        io.ram.we_n := True
-        io.ram.oe_n := True
-        io.ram.addr := 0
-        sram_perform_write := False
-
+        
         when(io.axi.w.fire) {
           burst_count_remaining := burst_count_remaining - 1
-          when(burst_count_remaining === 1) {
+          when(burst_count_remaining === 1) { // 应该改为 === 0，因为在外面已经-1了
             goto(WRITE_RESPONSE)
           }
         }
@@ -353,16 +412,20 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
 
     val WRITE_RESPONSE: State = new State {
       onEntry {
-        sram_perform_write := False
+        // sram_perform_write := False // MODIFIED: 此信号已废弃，其逻辑已融入FSM状态转换
+        // --- MODIFIED: 确保SRAM控制信号在响应AXI时保持非活动状态 ---
+        sram_ce_n_out_reg := True
+        sram_we_n_out_reg := True
+        sram_oe_n_out_reg := True
+        sram_data_writeEnable_out_reg := False
+        sram_be_n_out_reg := sram_be_n_inactive_value
+        sram_addr_out_reg := 0
       }
       whenIsActive {
         val resp_status = transaction_error_occurred ? Axi4.resp.SLVERR | Axi4.resp.OKAY
         if (config.enableLog)
           report(L"SRAMController: WRITE_RESPONSE. ID=${aw_cmd_reg.id}, Resp=${resp_status}")
-        io.ram.ce_n := True
-        io.ram.we_n := True
-        io.ram.oe_n := True
-        io.ram.addr := 0
+        
         io.axi.b.valid := True
         io.axi.b.payload.id := aw_cmd_reg.id
         io.axi.b.payload.resp := resp_status
@@ -373,16 +436,29 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
     }
 
     val READ_SETUP: State = new State {
+      onEntry { // MODIFIED: 将SRAM信号设置移动到onEntry，确保它们在状态转换后立即生效并稳定
+        sram_ce_n_out_reg := False
+        sram_oe_n_out_reg := False
+        sram_we_n_out_reg := True
+        sram_data_writeEnable_out_reg := False // 读操作不能驱动数据
+        sram_addr_out_reg := current_sram_addr
+        sram_be_n_out_reg := B(0, config.dataWidth / 8 bits) // 读操作通常全字节使能
+      }
       whenIsActive {
         if (config.enableLog)
           report(
             L"SRAMController: READ_SETUP. SRAM Addr=0x${current_sram_addr}, BurstCountRem=${burst_count_remaining}"
           )
         addr_prefetch_valid := False
-        io.ram.ce_n := False
-        io.ram.oe_n := False
-        io.ram.we_n := True
-        io.ram.addr := current_sram_addr
+        
+        // --- MODIFIED: 保持SRAM控制信号，避免组合逻辑变化 ---
+        sram_ce_n_out_reg := False
+        sram_oe_n_out_reg := False
+        sram_we_n_out_reg := True
+        sram_data_writeEnable_out_reg := False
+        sram_addr_out_reg := current_sram_addr
+        sram_be_n_out_reg := B(0, config.dataWidth / 8 bits)
+
         hasReadWaitCycles generate { read_wait_counter := 0 }
         goto(READ_WAIT)
       }
@@ -396,15 +472,24 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
     }
 
     val READ_WAIT: State = new State {
+      onEntry { // MODIFIED: 确保进入此状态时SRAM信号状态正确
+        sram_ce_n_out_reg := False
+        sram_oe_n_out_reg := False
+        sram_we_n_out_reg := True
+        sram_data_writeEnable_out_reg := False
+        // sram_addr_out_reg 保持不变，由上一个状态设置
+        sram_be_n_out_reg := B(0, config.dataWidth / 8 bits)
+      }
       whenIsActive {
         if (config.enableLog)
           report(
-            L"SRAMController: READ_WAIT. SRAM Addr=0x${current_sram_addr}, WaitCounter=${hasReadWaitCycles generate read_wait_counter}, AddrPrefetchValid=${addr_prefetch_valid}"
+            L"SRAMController: READ_WAIT. SRAM Addr=0x${sram_addr_out_reg}, WaitCounter=${hasReadWaitCycles generate read_wait_counter}, AddrPrefetchValid=${addr_prefetch_valid}"
           )
-        io.ram.ce_n := False
-        io.ram.oe_n := False
-        io.ram.we_n := True
-        io.ram.addr := current_sram_addr
+        // --- MODIFIED: 保持SRAM控制信号 ---
+        sram_ce_n_out_reg := False
+        sram_oe_n_out_reg := False
+        sram_we_n_out_reg := True
+        sram_data_writeEnable_out_reg := False // 读操作数据总线不能被控制器驱动
 
         val prefetch_trigger_cycle =
           if (config.readWaitCycles == 0) U(0) else U(config.readWaitCycles - 1)
@@ -423,13 +508,13 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
         }
         val waitCond = if (hasReadWaitCycles) read_wait_counter === config.readWaitCycles else True
         when(waitCond) {
-          read_data_buffer := io.ram.data.read
-          if (config.readWaitCycles == 0) {
-            when(burst_count_remaining > 1 && !addr_prefetch_valid) {
-              next_sram_addr_prefetch := getNextSramAddr(current_sram_addr, ar_cmd_reg.size)
-              addr_prefetch_valid := True
-            }
-          }
+          read_data_buffer := io.ram.data.read // 在等待周期结束后，锁存SRAM数据
+          // if (config.readWaitCycles == 0) { // MODIFIED: 这段逻辑现在不需要额外判断，因为read_wait_counter会立即满足条件
+          //   when(burst_count_remaining > 1 && !addr_prefetch_valid) {
+          //     next_sram_addr_prefetch := getNextSramAddr(current_sram_addr, ar_cmd_reg.size)
+          //     addr_prefetch_valid := True
+          //   }
+          // }
           goto(READ_RESPONSE)
         } otherwise {
           hasReadWaitCycles generate { read_wait_counter := read_wait_counter + 1 }
@@ -438,6 +523,14 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
     }
 
     val READ_RESPONSE: State = new State {
+      onEntry { // MODIFIED: 确保进入此状态时SRAM信号状态正确
+        sram_ce_n_out_reg := False // 保持片选和输出使能有效，直到AXI传输完成
+        sram_oe_n_out_reg := False
+        sram_we_n_out_reg := True
+        sram_data_writeEnable_out_reg := False
+        sram_addr_out_reg := current_sram_addr // 保持地址
+        sram_be_n_out_reg := B(0, config.dataWidth / 8 bits)
+      }
       whenIsActive {
         val is_last_beat = burst_count_remaining === 1
         if (config.enableLog)
@@ -450,7 +543,15 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
         io.axi.r.payload.data := read_data_buffer
         io.axi.r.payload.resp := Axi4.resp.OKAY
         io.axi.r.payload.last := is_last_beat
-        io.ram.addr := current_sram_addr
+        
+        // --- MODIFIED: 保持SRAM控制信号，避免组合逻辑变化 ---
+        sram_ce_n_out_reg := False
+        sram_oe_n_out_reg := False
+        sram_we_n_out_reg := True
+        sram_data_writeEnable_out_reg := False
+        sram_addr_out_reg := current_sram_addr
+        sram_be_n_out_reg := B(0, config.dataWidth / 8 bits)
+
 
         when(io.axi.r.fire) {
           if (config.enableLog) report(L"SRAMController: R Fire. Last=${io.axi.r.last}")
@@ -460,32 +561,42 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
           } otherwise {
             when(addr_prefetch_valid) {
               current_sram_addr := next_sram_addr_prefetch
+              addr_prefetch_valid := False // 已经使用了预取地址，清空标志
             } otherwise {
               current_sram_addr := getNextSramAddr(current_sram_addr, ar_cmd_reg.size)
             }
             goto(READ_SETUP)
           }
         } otherwise {
-          report(L"io.axi.r.valid = ${io.axi.r.valid}, io.axi.r.ready = ${io.axi.r.ready}")
+          if (config.enableLog) report(L"io.axi.r.valid = ${io.axi.r.valid}, io.axi.r.ready = ${io.axi.r.ready}")
         }
       }
       onExit {
-        io.ram.oe_n := True
+        // --- MODIFIED: 确保退出读响应状态时，SRAM信号恢复非活动状态 ---
+        sram_oe_n_out_reg := True
+        sram_ce_n_out_reg := True
+        sram_we_n_out_reg := True
+        sram_data_writeEnable_out_reg := False
+        sram_be_n_out_reg := sram_be_n_inactive_value
+        sram_addr_out_reg := 0
       }
     }
 
     val READ_RESPONSE_ERROR: State = new State {
+      onEntry { // MODIFIED: 确保错误状态下SRAM控制信号安全
+        sram_ce_n_out_reg := True
+        sram_oe_n_out_reg := True
+        sram_we_n_out_reg := True
+        sram_data_writeEnable_out_reg := False
+        sram_be_n_out_reg := sram_be_n_inactive_value
+        sram_addr_out_reg := 0
+      }
       whenIsActive {
         val is_last_beat = burst_count_remaining === 1
         if (config.enableLog)
           report(
             L"SRAMController: READ_RESPONSE_ERROR. ID=${ar_cmd_reg.id}, BurstCountRem=${burst_count_remaining}, Resp=${Axi4.resp.SLVERR}, Last=${is_last_beat}, r.valid=${io.axi.r.valid}, r.ready=${io.axi.r.ready}, r.fire=${io.axi.r.fire}"
           )
-
-        io.ram.ce_n := True
-        io.ram.oe_n := True
-        io.ram.we_n := True
-        io.ram.addr := 0
 
         io.axi.r.valid := True
         io.axi.r.payload.id := ar_cmd_reg.id
@@ -562,8 +673,8 @@ object SRAMControllerGen extends App {
     virtualBaseAddress = 0x80000000L,
     sizeBytes = 4 * 1024 * 1024, // 4MB
     useWordAddressing = true,    // 启用字地址模式
-    readWaitCycles = 1,
-    writeWaitCycles = 1,
+    readWaitCycles = 1, // 对于字寻址，这里保留等待周期
+    writeWaitCycles = 1, // 对于字寻址，这里保留等待周期
     sramByteEnableIsActiveLow = true,
     enableLog = true
   )
