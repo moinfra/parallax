@@ -256,7 +256,7 @@ class LabSpec extends CustomSpinalSimFunSuite {
     LabHelper.dumpBinary(instructions, "bin/why_stopped.bin")
   }
 
-  testOnly("mem write test") {
+  test("mem write test") {
     val instructions = Seq(
       // Load 0xdeadbeef into $t0 (R12)
       lu12i_w(rd = 12, imm = 0xdeadbeef >>> 12),

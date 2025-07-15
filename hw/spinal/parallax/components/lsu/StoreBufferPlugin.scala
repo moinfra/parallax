@@ -608,7 +608,11 @@ class StoreBufferPlugin(
 
         val finalBypassResult = slots.reverse.foldLeft(bypassInitial) { (acc, slot) =>
             val nextAcc = CombInit(acc)
-            when(slot.valid && !slot.hasEarlyException) {
+            
+            // 使用 isSlotVisible 来控制旁路逻辑，与 forwardingLogic 保持一致
+            val isSlotVisible = slot.valid && !(flushInProgress && !slot.isCommitted && isNewerOrSame(slot.robPtr, flushTargetRobPtr))
+            
+            when(isSlotVisible && !slot.hasEarlyException) {
                  val dataWidthBytes = pipelineConfig.dataWidth.value / 8
                  val loadWordAddr = bypassQueryAddr(pipelineConfig.pcWidth.value-1 downto log2Up(dataWidthBytes))
                  val storeWordAddr= slot.addr(pipelineConfig.pcWidth.value-1 downto log2Up(dataWidthBytes))
