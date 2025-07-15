@@ -250,7 +250,7 @@ class LabSpec extends CustomSpinalSimFunSuite {
     LabHelper.dumpBinary(instructions, "bin/why_stopped.bin")
   }
 
-  test("mem write test") {
+  testOnly("mem write test") {
     val instructions = Seq(
       // Load 0xdeadbeef into $t0 (R12)
       lu12i_w(rd = 12, imm = 0xdeadbeef >>> 12),
@@ -303,7 +303,6 @@ class LabSpec extends CustomSpinalSimFunSuite {
       val actual_val = dSram.io.tb_readData.toBigInt
       dSram.io.tb_readEnable #= false
 
-
       println(f"Checking dSram[0x$verificationAddress%x]: Expected=0x$expectedValue%x, Got=0x$actual_val%x")
       assert(
         actual_val == expectedValue,
@@ -321,47 +320,48 @@ class LabSpec extends CustomSpinalSimFunSuite {
       println("--- 'mem write test' Passed ---")
     }
   }
-test("Isolate Data Register r14") {
-  val instructions = Seq(
-    // 使用 r14 (来自失败的测试) 作为数据寄存器
-    lu12i_w(rd = 14, imm = 0x12340000 >>> 12),
-    ori(rd = 14, rj = 14, imm = 0x12340000 & 0xfff), // Data = 0x12340000
 
-    // 使用 r13 (来自成功的测试) 作为地址寄存器
-    lu12i_w(rd = 13, imm = 0x80400000 >>> 12),
-    ori(rd = 13, rj = 13, imm = 0x80400000 & 0xfff), // Address = 0x80400000
+  test("Isolate Data Register r14") {
+    val instructions = Seq(
+      // 使用 r14 (来自失败的测试) 作为数据寄存器
+      lu12i_w(rd = 14, imm = 0x12340000 >>> 12),
+      ori(rd = 14, rj = 14, imm = 0x12340000 & 0xfff), // Data = 0x12340000
 
-    // 存储指令 st.w $t2, 0($t1)  (st.w r14, 0(r13))
-    st_w(rd = 14, rj = 13, offset = 0),
+      // 使用 r13 (来自成功的测试) 作为地址寄存器
+      lu12i_w(rd = 13, imm = 0x80400000 >>> 12),
+      ori(rd = 13, rj = 13, imm = 0x80400000 & 0xfff), // Address = 0x80400000
 
-    // 停机
-    bne(rj = 0, rd = 0, offset = 0)
-  )
+      // 存储指令 st.w $t2, 0($t1)  (st.w r14, 0(r13))
+      st_w(rd = 14, rj = 13, offset = 0),
+
+      // 停机
+      bne(rj = 0, rd = 0, offset = 0)
+    )
     LabHelper.dumpBinary(instructions, "bin/isolate_r14_test.bin")
 
-  val compiled = SimConfig.withFstWave.compile(new LabTestBench(instructions))
-  compiled.doSim { dut =>
-    val cd = dut.clockDomain
-    cd.forkStimulus(10)
-    SimTimeout(10000)
+    val compiled = SimConfig.withFstWave.compile(new LabTestBench(instructions))
+    compiled.doSim { dut =>
+      val cd = dut.clockDomain
+      cd.forkStimulus(10)
+      SimTimeout(10000)
 
-    cd.waitSampling(600)
+      cd.waitSampling(600)
 
-    println("--- Verification for 'Isolate Data Register r14' ---")
-    val verificationAddress = 0
-    val expectedValue = BigInt("12340000", 16)
+      println("--- Verification for 'Isolate Data Register r14' ---")
+      val verificationAddress = 0
+      val expectedValue = BigInt("12340000", 16)
 
-    dut.dSram.io.tb_readEnable #= true
-    dut.dSram.io.tb_readAddress #= verificationAddress
-    cd.waitSampling()
-    val actual_val = dut.dSram.io.tb_readData.toBigInt
-    dut.dSram.io.tb_readEnable #= false
+      dut.dSram.io.tb_readEnable #= true
+      dut.dSram.io.tb_readAddress #= verificationAddress
+      cd.waitSampling()
+      val actual_val = dut.dSram.io.tb_readData.toBigInt
+      dut.dSram.io.tb_readEnable #= false
 
-    println(f"Checking dSram: Expected=0x$expectedValue%x, Got=0x$actual_val%x")
-    assert(actual_val == expectedValue, "Test for r14 FAILED!")
-    println("--- Test for r14 PASSED ---")
+      println(f"Checking dSram: Expected=0x$expectedValue%x, Got=0x$actual_val%x")
+      assert(actual_val == expectedValue, "Test for r14 FAILED!")
+      println("--- Test for r14 PASSED ---")
+    }
   }
-}
   test("Isolate Address Register r4") {
     val instructions = Seq(
       // 使用 r12 (来自成功的测试) 作为数据寄存器
@@ -406,15 +406,14 @@ test("Isolate Data Register r14") {
     }
   }
 
-  /**
-   * 这是一个极简的内存写入测试，旨在调试为何斐波那契测试无法写入内存。
-   * 它只做三件事：
-   * 1. 将数据 0x12345678 加载到 $t2 (r14)
-   * 2. 将地址 0x80400000 加载到 $a0 (r4)
-   * 3. 将 $t2 的内容存储到 $a0 指向的内存地址
-   * 4. 停机
-   * 它使用了和斐波那契测试相同的寄存器，以进行精确的问题定位。
-   */
+  /** 这是一个极简的内存写入测试，旨在调试为何斐波那契测试无法写入内存。
+    * 它只做三件事：
+    * 1. 将数据 0x12345678 加载到 $t2 (r14)
+    * 2. 将地址 0x80400000 加载到 $a0 (r4)
+    * 3. 将 $t2 的内容存储到 $a0 指向的内存地址
+    * 4. 停机
+    * 它使用了和斐波那契测试相同的寄存器，以进行精确的问题定位。
+    */
   test("Minimal Store Test (using fib registers)") {
     val instructions = Seq(
       // 1. 将数据 0x12345678 加载到 $t2 (R14)
@@ -442,7 +441,7 @@ test("Isolate Data Register r14") {
       SimTimeout(10000) // 这个测试非常快，10000个周期足够了
 
       val dSram = dut.dSram
-      
+
       println("--- Starting 'Minimal Store Test' ---")
 
       // 总共只有 5 条指令会提交（2个lu12i, 2个ori, 1个st_w），然后进入无限循环
@@ -479,7 +478,7 @@ test("Isolate Data Register r14") {
   }
 
   testOnly("Fibonacci Test on CoreNSCSCC") {
-    
+
     val instructions = ArrayBuffer[BigInt]()
     // Original Assembly:
     // addi.w      $t0,$zero,0x1   # t0 = 1
