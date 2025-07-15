@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 3105a33b457518a7afeed8b0527b4d8b9dab2383
 // Component : CoreNSCSCC
-// Git hash  : 3696244a7518c5db58dab4f94d5dd8a6c40274c8
+// Git hash  : ab5a0caf91b2f11d4f4998ba2b6a71400481ce24
 
 `timescale 1ns/1ps
 
@@ -4254,6 +4254,9 @@ module CoreNSCSCC (
   reg                 StoreBufferPlugin_logic_slotsNext_3_isWaitingForRefill;
   reg                 StoreBufferPlugin_logic_slotsNext_3_isWaitingForWb;
   reg        [1:0]    StoreBufferPlugin_logic_slotsNext_3_refillSlotToWatch;
+  wire                StoreBufferPlugin_logic_flushInProgress;
+  reg                 StoreBufferPlugin_logic_registeredFlush_valid;
+  reg        [3:0]    StoreBufferPlugin_logic_registeredFlush_targetRobPtr;
   wire                StoreBufferPlugin_logic_validFall_0;
   wire                StoreBufferPlugin_logic_validFall_1;
   wire                StoreBufferPlugin_logic_validFall_2;
@@ -4280,45 +4283,44 @@ module CoreNSCSCC (
   wire                StoreBufferPlugin_logic_canPopNormalOp;
   wire                StoreBufferPlugin_logic_canPopFlushOp;
   wire                StoreBufferPlugin_logic_canPopMMIOOp;
-  wire                when_StoreBufferPlugin_l268;
+  wire                when_StoreBufferPlugin_l292;
   wire                StoreBufferPlugin_logic_canPopToDCache;
   wire                StoreBufferPlugin_logic_dcacheCmdFired;
   wire                StoreBufferPlugin_logic_mmioCmdFired;
   wire                StoreBufferPlugin_logic_responseIsForHead;
   wire                StoreBufferPlugin_logic_mmioResponseIsForHead;
-  wire                when_StoreBufferPlugin_l383;
+  wire                when_StoreBufferPlugin_l407;
   wire                StoreBufferPlugin_logic_waitedRefillIsDone;
-  wire                when_StoreBufferPlugin_l405;
-  wire                when_StoreBufferPlugin_l412;
-  wire                when_StoreBufferPlugin_l418;
-  wire                when_StoreBufferPlugin_l412_1;
-  wire                when_StoreBufferPlugin_l418_1;
-  wire                when_StoreBufferPlugin_l412_2;
-  wire                when_StoreBufferPlugin_l418_2;
-  wire                when_StoreBufferPlugin_l412_3;
-  wire                when_StoreBufferPlugin_l418_3;
   wire                when_StoreBufferPlugin_l429;
-  wire                _zz_when_StoreBufferPlugin_l438;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l438_1;
-  wire                _zz_when_StoreBufferPlugin_l438_2;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l438_3;
-  wire                when_StoreBufferPlugin_l438;
-  wire                _zz_when_StoreBufferPlugin_l438_4;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l438_5;
-  wire                _zz_when_StoreBufferPlugin_l438_6;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l438_7;
-  wire                when_StoreBufferPlugin_l438_1;
-  wire                _zz_when_StoreBufferPlugin_l438_8;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l438_9;
-  wire                _zz_when_StoreBufferPlugin_l438_10;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l438_11;
-  wire                when_StoreBufferPlugin_l438_2;
-  wire                _zz_when_StoreBufferPlugin_l438_12;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l438_13;
-  wire                _zz_when_StoreBufferPlugin_l438_14;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l438_15;
-  wire                when_StoreBufferPlugin_l438_3;
-  wire                when_StoreBufferPlugin_l434;
+  wire                _zz_when_StoreBufferPlugin_l445;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l445_1;
+  wire                _zz_when_StoreBufferPlugin_l445_2;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l445_3;
+  wire                when_StoreBufferPlugin_l445;
+  wire                when_StoreBufferPlugin_l455;
+  wire                when_StoreBufferPlugin_l449;
+  wire                _zz_when_StoreBufferPlugin_l445_4;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l445_5;
+  wire                _zz_when_StoreBufferPlugin_l445_6;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l445_7;
+  wire                when_StoreBufferPlugin_l445_1;
+  wire                when_StoreBufferPlugin_l455_1;
+  wire                when_StoreBufferPlugin_l449_1;
+  wire                _zz_when_StoreBufferPlugin_l445_8;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l445_9;
+  wire                _zz_when_StoreBufferPlugin_l445_10;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l445_11;
+  wire                when_StoreBufferPlugin_l445_2;
+  wire                when_StoreBufferPlugin_l455_2;
+  wire                when_StoreBufferPlugin_l449_2;
+  wire                _zz_when_StoreBufferPlugin_l445_12;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l445_13;
+  wire                _zz_when_StoreBufferPlugin_l445_14;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l445_15;
+  wire                when_StoreBufferPlugin_l445_3;
+  wire                when_StoreBufferPlugin_l455_3;
+  wire                when_StoreBufferPlugin_l449_3;
+  wire                when_StoreBufferPlugin_l466;
   wire                StoreBufferPlugin_logic_operationDone;
   wire                StoreBufferPlugin_logic_flushDone;
   wire                StoreBufferPlugin_logic_normalStoreDone;
@@ -4333,81 +4335,121 @@ module CoreNSCSCC (
   wire       [31:0]   StoreBufferPlugin_logic_forwardingLogic_bypassInitial_data;
   wire       [3:0]    StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask;
   reg        [31:0]   _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data;
-  reg        [3:0]    _zz_when_StoreBufferPlugin_l509;
-  wire                _zz_when_StoreBufferPlugin_l507;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l507_1;
-  wire                _zz_when_StoreBufferPlugin_l507_2;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l507_3;
-  wire                when_StoreBufferPlugin_l507;
-  wire                when_StoreBufferPlugin_l509;
-  wire                when_StoreBufferPlugin_l509_1;
-  wire                when_StoreBufferPlugin_l509_2;
-  wire                when_StoreBufferPlugin_l509_3;
+  reg        [3:0]    _zz_when_StoreBufferPlugin_l540;
+  wire                _zz_when_StoreBufferPlugin_l531;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l531_1;
+  wire                _zz_when_StoreBufferPlugin_l531_2;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l531_3;
+  wire                when_StoreBufferPlugin_l531;
+  wire                _zz_when_StoreBufferPlugin_l538;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l538_1;
+  wire                _zz_when_StoreBufferPlugin_l538_2;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l538_3;
+  wire                when_StoreBufferPlugin_l538;
+  wire                when_StoreBufferPlugin_l540;
+  wire                when_StoreBufferPlugin_l540_1;
+  wire                when_StoreBufferPlugin_l540_2;
+  wire                when_StoreBufferPlugin_l540_3;
   reg        [31:0]   _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_1;
-  reg        [3:0]    _zz_when_StoreBufferPlugin_l509_1;
-  wire                _zz_when_StoreBufferPlugin_l507_4;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l507_5;
-  wire                _zz_when_StoreBufferPlugin_l507_6;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l507_7;
-  wire                when_StoreBufferPlugin_l507_1;
-  wire                when_StoreBufferPlugin_l509_4;
-  wire                when_StoreBufferPlugin_l509_5;
-  wire                when_StoreBufferPlugin_l509_6;
-  wire                when_StoreBufferPlugin_l509_7;
+  reg        [3:0]    _zz_when_StoreBufferPlugin_l540_1;
+  wire                _zz_when_StoreBufferPlugin_l531_4;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l531_5;
+  wire                _zz_when_StoreBufferPlugin_l531_6;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l531_7;
+  wire                when_StoreBufferPlugin_l531_1;
+  wire                _zz_when_StoreBufferPlugin_l538_4;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l538_5;
+  wire                _zz_when_StoreBufferPlugin_l538_6;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l538_7;
+  wire                when_StoreBufferPlugin_l538_1;
+  wire                when_StoreBufferPlugin_l540_4;
+  wire                when_StoreBufferPlugin_l540_5;
+  wire                when_StoreBufferPlugin_l540_6;
+  wire                when_StoreBufferPlugin_l540_7;
   reg        [31:0]   _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_2;
   reg        [3:0]    _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask;
-  wire                _zz_when_StoreBufferPlugin_l507_8;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l507_9;
-  wire                _zz_when_StoreBufferPlugin_l507_10;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l507_11;
-  wire                when_StoreBufferPlugin_l507_2;
-  wire                when_StoreBufferPlugin_l509_8;
-  wire                when_StoreBufferPlugin_l509_9;
-  wire                when_StoreBufferPlugin_l509_10;
-  wire                when_StoreBufferPlugin_l509_11;
+  wire                _zz_when_StoreBufferPlugin_l531_8;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l531_9;
+  wire                _zz_when_StoreBufferPlugin_l531_10;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l531_11;
+  wire                when_StoreBufferPlugin_l531_2;
+  wire                _zz_when_StoreBufferPlugin_l538_8;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l538_9;
+  wire                _zz_when_StoreBufferPlugin_l538_10;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l538_11;
+  wire                when_StoreBufferPlugin_l538_2;
+  wire                when_StoreBufferPlugin_l540_8;
+  wire                when_StoreBufferPlugin_l540_9;
+  wire                when_StoreBufferPlugin_l540_10;
+  wire                when_StoreBufferPlugin_l540_11;
   reg        [31:0]   StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data;
   reg        [3:0]    StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask;
-  wire                _zz_when_StoreBufferPlugin_l507_12;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l507_13;
-  wire                _zz_when_StoreBufferPlugin_l507_14;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l507_15;
-  wire                when_StoreBufferPlugin_l507_3;
-  wire                when_StoreBufferPlugin_l509_12;
-  wire                when_StoreBufferPlugin_l509_13;
-  wire                when_StoreBufferPlugin_l509_14;
-  wire                when_StoreBufferPlugin_l509_15;
+  wire                _zz_when_StoreBufferPlugin_l531_12;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l531_13;
+  wire                _zz_when_StoreBufferPlugin_l531_14;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l531_15;
+  wire                when_StoreBufferPlugin_l531_3;
+  wire                _zz_when_StoreBufferPlugin_l538_12;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l538_13;
+  wire                _zz_when_StoreBufferPlugin_l538_14;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l538_15;
+  wire                when_StoreBufferPlugin_l538_3;
+  wire                when_StoreBufferPlugin_l540_12;
+  wire                when_StoreBufferPlugin_l540_13;
+  wire                when_StoreBufferPlugin_l540_14;
+  wire                when_StoreBufferPlugin_l540_15;
   wire                StoreBufferPlugin_logic_forwardingLogic_allRequiredBytesHit;
   wire                StoreBufferPlugin_logic_forwardingLogic_hasSomeOverlap;
   reg                 StoreBufferPlugin_logic_forwardingLogic_potentialConflict;
-  wire       [29:0]   _zz_when_StoreBufferPlugin_l544;
-  wire       [29:0]   _zz_when_StoreBufferPlugin_l544_1;
-  wire                _zz_when_StoreBufferPlugin_l544_2;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l544_3;
-  wire                _zz_when_StoreBufferPlugin_l544_4;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l544_5;
-  wire                when_StoreBufferPlugin_l544;
-  wire       [29:0]   _zz_when_StoreBufferPlugin_l544_6;
-  wire       [29:0]   _zz_when_StoreBufferPlugin_l544_7;
-  wire                _zz_when_StoreBufferPlugin_l544_8;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l544_9;
-  wire                _zz_when_StoreBufferPlugin_l544_10;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l544_11;
-  wire                when_StoreBufferPlugin_l544_1;
-  wire       [29:0]   _zz_when_StoreBufferPlugin_l544_12;
-  wire       [29:0]   _zz_when_StoreBufferPlugin_l544_13;
-  wire                _zz_when_StoreBufferPlugin_l544_14;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l544_15;
-  wire                _zz_when_StoreBufferPlugin_l544_16;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l544_17;
-  wire                when_StoreBufferPlugin_l544_2;
-  wire       [29:0]   _zz_when_StoreBufferPlugin_l544_18;
-  wire       [29:0]   _zz_when_StoreBufferPlugin_l544_19;
-  wire                _zz_when_StoreBufferPlugin_l544_20;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l544_21;
-  wire                _zz_when_StoreBufferPlugin_l544_22;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l544_23;
-  wire                when_StoreBufferPlugin_l544_3;
-  wire                when_StoreBufferPlugin_l551;
+  wire       [29:0]   _zz_when_StoreBufferPlugin_l580;
+  wire       [29:0]   _zz_when_StoreBufferPlugin_l580_1;
+  wire                _zz_when_StoreBufferPlugin_l567;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l567_1;
+  wire                _zz_when_StoreBufferPlugin_l567_2;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l567_3;
+  wire                when_StoreBufferPlugin_l567;
+  wire                _zz_when_StoreBufferPlugin_l580_2;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l580_3;
+  wire                _zz_when_StoreBufferPlugin_l580_4;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l580_5;
+  wire                when_StoreBufferPlugin_l580;
+  wire       [29:0]   _zz_when_StoreBufferPlugin_l580_6;
+  wire       [29:0]   _zz_when_StoreBufferPlugin_l580_7;
+  wire                _zz_when_StoreBufferPlugin_l567_4;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l567_5;
+  wire                _zz_when_StoreBufferPlugin_l567_6;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l567_7;
+  wire                when_StoreBufferPlugin_l567_1;
+  wire                _zz_when_StoreBufferPlugin_l580_8;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l580_9;
+  wire                _zz_when_StoreBufferPlugin_l580_10;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l580_11;
+  wire                when_StoreBufferPlugin_l580_1;
+  wire       [29:0]   _zz_when_StoreBufferPlugin_l580_12;
+  wire       [29:0]   _zz_when_StoreBufferPlugin_l580_13;
+  wire                _zz_when_StoreBufferPlugin_l567_8;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l567_9;
+  wire                _zz_when_StoreBufferPlugin_l567_10;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l567_11;
+  wire                when_StoreBufferPlugin_l567_2;
+  wire                _zz_when_StoreBufferPlugin_l580_14;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l580_15;
+  wire                _zz_when_StoreBufferPlugin_l580_16;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l580_17;
+  wire                when_StoreBufferPlugin_l580_2;
+  wire       [29:0]   _zz_when_StoreBufferPlugin_l580_18;
+  wire       [29:0]   _zz_when_StoreBufferPlugin_l580_19;
+  wire                _zz_when_StoreBufferPlugin_l567_12;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l567_13;
+  wire                _zz_when_StoreBufferPlugin_l567_14;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l567_15;
+  wire                when_StoreBufferPlugin_l567_3;
+  wire                _zz_when_StoreBufferPlugin_l580_20;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l580_21;
+  wire                _zz_when_StoreBufferPlugin_l580_22;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l580_23;
+  wire                when_StoreBufferPlugin_l580_3;
+  wire                when_StoreBufferPlugin_l588;
   wire                StoreBufferPlugin_logic_bypassResult_hit;
   wire       [31:0]   StoreBufferPlugin_logic_bypassResult_data;
   wire       [3:0]    StoreBufferPlugin_logic_bypassResult_hitMask;
@@ -4417,42 +4459,58 @@ module CoreNSCSCC (
   wire       [31:0]   StoreBufferPlugin_logic_bypassInitial_data;
   wire       [3:0]    StoreBufferPlugin_logic_bypassInitial_hitMask;
   reg        [31:0]   _zz_StoreBufferPlugin_logic_finalBypassResult_data;
-  reg        [3:0]    _zz_when_StoreBufferPlugin_l581;
-  wire                when_StoreBufferPlugin_l574;
-  wire                when_StoreBufferPlugin_l579;
-  wire                when_StoreBufferPlugin_l581;
-  wire                when_StoreBufferPlugin_l581_1;
-  wire                when_StoreBufferPlugin_l581_2;
-  wire                when_StoreBufferPlugin_l581_3;
+  reg        [3:0]    _zz_when_StoreBufferPlugin_l622;
+  wire                _zz_when_StoreBufferPlugin_l615;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l615_1;
+  wire                _zz_when_StoreBufferPlugin_l615_2;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l615_3;
+  wire                when_StoreBufferPlugin_l615;
+  wire                when_StoreBufferPlugin_l620;
+  wire                when_StoreBufferPlugin_l622;
+  wire                when_StoreBufferPlugin_l622_1;
+  wire                when_StoreBufferPlugin_l622_2;
+  wire                when_StoreBufferPlugin_l622_3;
   reg        [31:0]   _zz_StoreBufferPlugin_logic_finalBypassResult_data_1;
-  reg        [3:0]    _zz_when_StoreBufferPlugin_l581_1;
-  wire                when_StoreBufferPlugin_l574_1;
-  wire                when_StoreBufferPlugin_l579_1;
-  wire                when_StoreBufferPlugin_l581_4;
-  wire                when_StoreBufferPlugin_l581_5;
-  wire                when_StoreBufferPlugin_l581_6;
-  wire                when_StoreBufferPlugin_l581_7;
+  reg        [3:0]    _zz_when_StoreBufferPlugin_l622_1;
+  wire                _zz_when_StoreBufferPlugin_l615_4;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l615_5;
+  wire                _zz_when_StoreBufferPlugin_l615_6;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l615_7;
+  wire                when_StoreBufferPlugin_l615_1;
+  wire                when_StoreBufferPlugin_l620_1;
+  wire                when_StoreBufferPlugin_l622_4;
+  wire                when_StoreBufferPlugin_l622_5;
+  wire                when_StoreBufferPlugin_l622_6;
+  wire                when_StoreBufferPlugin_l622_7;
   reg        [31:0]   _zz_StoreBufferPlugin_logic_finalBypassResult_data_2;
   reg        [3:0]    _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask;
-  wire                when_StoreBufferPlugin_l574_2;
-  wire                when_StoreBufferPlugin_l579_2;
-  wire                when_StoreBufferPlugin_l581_8;
-  wire                when_StoreBufferPlugin_l581_9;
-  wire                when_StoreBufferPlugin_l581_10;
-  wire                when_StoreBufferPlugin_l581_11;
+  wire                _zz_when_StoreBufferPlugin_l615_8;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l615_9;
+  wire                _zz_when_StoreBufferPlugin_l615_10;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l615_11;
+  wire                when_StoreBufferPlugin_l615_2;
+  wire                when_StoreBufferPlugin_l620_2;
+  wire                when_StoreBufferPlugin_l622_8;
+  wire                when_StoreBufferPlugin_l622_9;
+  wire                when_StoreBufferPlugin_l622_10;
+  wire                when_StoreBufferPlugin_l622_11;
   reg        [31:0]   StoreBufferPlugin_logic_finalBypassResult_data;
   reg        [3:0]    StoreBufferPlugin_logic_finalBypassResult_hitMask;
-  wire                when_StoreBufferPlugin_l574_3;
-  wire                when_StoreBufferPlugin_l579_3;
-  wire                when_StoreBufferPlugin_l581_12;
-  wire                when_StoreBufferPlugin_l581_13;
-  wire                when_StoreBufferPlugin_l581_14;
-  wire                when_StoreBufferPlugin_l581_15;
+  wire                _zz_when_StoreBufferPlugin_l615_12;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l615_13;
+  wire                _zz_when_StoreBufferPlugin_l615_14;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l615_15;
+  wire                when_StoreBufferPlugin_l615_3;
+  wire                when_StoreBufferPlugin_l620_3;
+  wire                when_StoreBufferPlugin_l622_12;
+  wire                when_StoreBufferPlugin_l622_13;
+  wire                when_StoreBufferPlugin_l622_14;
+  wire                when_StoreBufferPlugin_l622_15;
   wire                StoreBufferPlugin_logic_overallBypassHit;
-  wire                when_StoreBufferPlugin_l627;
-  wire                when_StoreBufferPlugin_l627_1;
-  wire                when_StoreBufferPlugin_l627_2;
-  wire                when_StoreBufferPlugin_l627_3;
+  wire                when_StoreBufferPlugin_l668;
+  wire                when_StoreBufferPlugin_l668_1;
+  wire                when_StoreBufferPlugin_l668_2;
+  wire                when_StoreBufferPlugin_l668_3;
   reg        [5:0]    _zz_globalWakeupFlow_payload_physRegIdx;
   wire                when_WakeupPlugin_l67;
   wire       [1:0]    DataCachePlugin_logic_load_hits;
@@ -12554,7 +12612,7 @@ module CoreNSCSCC (
   assign oneShot_17_io_triggerIn = (s3_Dispatch_isFiring && (_zz_when_Debug_l71 < _zz_io_triggerIn_8));
   assign _zz_when_Debug_l71_5 = 5'h16;
   assign when_Debug_l71_4 = (_zz_when_Debug_l71 < _zz_when_Debug_l71_4_1);
-  assign CommitPlugin_maxCommitPcExt = 32'h80001000;
+  assign CommitPlugin_maxCommitPcExt = 32'h80000100;
   assign CommitPlugin_maxCommitPcEnabledExt = 1'b1;
   assign BpuPipelinePlugin_logic_s1_read_valid = BpuPipelinePlugin_queryPortIn_valid;
   assign BpuPipelinePlugin_logic_s1_read_Q_PC = BpuPipelinePlugin_queryPortIn_payload_pc;
@@ -18671,14 +18729,11 @@ module CoreNSCSCC (
         StoreBufferPlugin_logic_slotsAfterUpdates_0_valid = 1'b1;
       end
     end
-    if(when_StoreBufferPlugin_l429) begin
+    if(when_StoreBufferPlugin_l445) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_0_valid = 1'b0;
-    end else begin
-      if(when_StoreBufferPlugin_l434) begin
-        if(when_StoreBufferPlugin_l438) begin
-          StoreBufferPlugin_logic_slotsAfterUpdates_0_valid = 1'b0;
-        end
-      end
+    end
+    if(when_StoreBufferPlugin_l466) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_0_valid = 1'b0;
     end
   end
 
@@ -18707,9 +18762,11 @@ module CoreNSCSCC (
         StoreBufferPlugin_logic_slotsAfterUpdates_0_isCommitted = 1'b0;
       end
     end
-    if(when_StoreBufferPlugin_l412) begin
-      if(when_StoreBufferPlugin_l418) begin
-        StoreBufferPlugin_logic_slotsAfterUpdates_0_isCommitted = 1'b1;
+    if(!when_StoreBufferPlugin_l445) begin
+      if(when_StoreBufferPlugin_l449) begin
+        if(when_StoreBufferPlugin_l455) begin
+          StoreBufferPlugin_logic_slotsAfterUpdates_0_isCommitted = 1'b1;
+        end
       end
     end
   end
@@ -18747,7 +18804,7 @@ module CoreNSCSCC (
       if(StoreBufferPlugin_logic_mmioResponseIsForHead) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_waitRsp = 1'b0;
       end else begin
-        if(when_StoreBufferPlugin_l383) begin
+        if(when_StoreBufferPlugin_l407) begin
           StoreBufferPlugin_logic_slotsAfterUpdates_0_waitRsp = 1'b1;
         end
       end
@@ -18787,7 +18844,7 @@ module CoreNSCSCC (
         end
       end
     end
-    if(when_StoreBufferPlugin_l405) begin
+    if(when_StoreBufferPlugin_l429) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForWb = 1'b0;
     end
   end
@@ -18878,14 +18935,11 @@ module CoreNSCSCC (
         StoreBufferPlugin_logic_slotsAfterUpdates_1_valid = 1'b1;
       end
     end
-    if(when_StoreBufferPlugin_l429) begin
+    if(when_StoreBufferPlugin_l445_1) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_1_valid = 1'b0;
-    end else begin
-      if(when_StoreBufferPlugin_l434) begin
-        if(when_StoreBufferPlugin_l438_1) begin
-          StoreBufferPlugin_logic_slotsAfterUpdates_1_valid = 1'b0;
-        end
-      end
+    end
+    if(when_StoreBufferPlugin_l466) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_1_valid = 1'b0;
     end
   end
 
@@ -18914,9 +18968,11 @@ module CoreNSCSCC (
         StoreBufferPlugin_logic_slotsAfterUpdates_1_isCommitted = 1'b0;
       end
     end
-    if(when_StoreBufferPlugin_l412_1) begin
-      if(when_StoreBufferPlugin_l418_1) begin
-        StoreBufferPlugin_logic_slotsAfterUpdates_1_isCommitted = 1'b1;
+    if(!when_StoreBufferPlugin_l445_1) begin
+      if(when_StoreBufferPlugin_l449_1) begin
+        if(when_StoreBufferPlugin_l455_1) begin
+          StoreBufferPlugin_logic_slotsAfterUpdates_1_isCommitted = 1'b1;
+        end
       end
     end
   end
@@ -19036,14 +19092,11 @@ module CoreNSCSCC (
         StoreBufferPlugin_logic_slotsAfterUpdates_2_valid = 1'b1;
       end
     end
-    if(when_StoreBufferPlugin_l429) begin
+    if(when_StoreBufferPlugin_l445_2) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_2_valid = 1'b0;
-    end else begin
-      if(when_StoreBufferPlugin_l434) begin
-        if(when_StoreBufferPlugin_l438_2) begin
-          StoreBufferPlugin_logic_slotsAfterUpdates_2_valid = 1'b0;
-        end
-      end
+    end
+    if(when_StoreBufferPlugin_l466) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_2_valid = 1'b0;
     end
   end
 
@@ -19072,9 +19125,11 @@ module CoreNSCSCC (
         StoreBufferPlugin_logic_slotsAfterUpdates_2_isCommitted = 1'b0;
       end
     end
-    if(when_StoreBufferPlugin_l412_2) begin
-      if(when_StoreBufferPlugin_l418_2) begin
-        StoreBufferPlugin_logic_slotsAfterUpdates_2_isCommitted = 1'b1;
+    if(!when_StoreBufferPlugin_l445_2) begin
+      if(when_StoreBufferPlugin_l449_2) begin
+        if(when_StoreBufferPlugin_l455_2) begin
+          StoreBufferPlugin_logic_slotsAfterUpdates_2_isCommitted = 1'b1;
+        end
       end
     end
   end
@@ -19194,14 +19249,11 @@ module CoreNSCSCC (
         StoreBufferPlugin_logic_slotsAfterUpdates_3_valid = 1'b1;
       end
     end
-    if(when_StoreBufferPlugin_l429) begin
+    if(when_StoreBufferPlugin_l445_3) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_3_valid = 1'b0;
-    end else begin
-      if(when_StoreBufferPlugin_l434) begin
-        if(when_StoreBufferPlugin_l438_3) begin
-          StoreBufferPlugin_logic_slotsAfterUpdates_3_valid = 1'b0;
-        end
-      end
+    end
+    if(when_StoreBufferPlugin_l466) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_3_valid = 1'b0;
     end
   end
 
@@ -19230,9 +19282,11 @@ module CoreNSCSCC (
         StoreBufferPlugin_logic_slotsAfterUpdates_3_isCommitted = 1'b0;
       end
     end
-    if(when_StoreBufferPlugin_l412_3) begin
-      if(when_StoreBufferPlugin_l418_3) begin
-        StoreBufferPlugin_logic_slotsAfterUpdates_3_isCommitted = 1'b1;
+    if(!when_StoreBufferPlugin_l445_3) begin
+      if(when_StoreBufferPlugin_l449_3) begin
+        if(when_StoreBufferPlugin_l455_3) begin
+          StoreBufferPlugin_logic_slotsAfterUpdates_3_isCommitted = 1'b1;
+        end
       end
     end
   end
@@ -19730,11 +19784,12 @@ module CoreNSCSCC (
     end
   end
 
+  assign StoreBufferPlugin_logic_flushInProgress = (ROBPlugin_aggregatedFlushSignal_valid && (ROBPlugin_aggregatedFlushSignal_payload_reason == FlushReason_ROLLBACK_TO_ROB_IDX));
   assign StoreBufferPlugin_logic_validFall_0 = (! StoreBufferPlugin_logic_slots_0_valid);
   assign StoreBufferPlugin_logic_validFall_1 = (StoreBufferPlugin_logic_slots_0_valid && (! StoreBufferPlugin_logic_slots_1_valid));
   assign StoreBufferPlugin_logic_validFall_2 = (StoreBufferPlugin_logic_slots_1_valid && (! StoreBufferPlugin_logic_slots_2_valid));
   assign StoreBufferPlugin_logic_validFall_3 = (StoreBufferPlugin_logic_slots_2_valid && (! StoreBufferPlugin_logic_slots_3_valid));
-  assign StoreBufferPlugin_logic_canPush = (|{StoreBufferPlugin_logic_validFall_3,{StoreBufferPlugin_logic_validFall_2,{StoreBufferPlugin_logic_validFall_1,StoreBufferPlugin_logic_validFall_0}}});
+  assign StoreBufferPlugin_logic_canPush = ((|{StoreBufferPlugin_logic_validFall_3,{StoreBufferPlugin_logic_validFall_2,{StoreBufferPlugin_logic_validFall_1,StoreBufferPlugin_logic_validFall_0}}}) && (! StoreBufferPlugin_logic_flushInProgress));
   assign StoreBufferPlugin_hw_pushPortInst_ready = StoreBufferPlugin_logic_canPush;
   assign _zz_30 = (StoreBufferPlugin_logic_validFall_1 || StoreBufferPlugin_logic_validFall_3);
   assign _zz_31 = (StoreBufferPlugin_logic_validFall_2 || StoreBufferPlugin_logic_validFall_3);
@@ -19757,7 +19812,7 @@ module CoreNSCSCC (
   assign StoreBufferPlugin_logic_canPopNormalOp = (StoreBufferPlugin_logic_sharedWriteCond && (! StoreBufferPlugin_logic_slots_0_isIO));
   assign StoreBufferPlugin_logic_canPopFlushOp = (((StoreBufferPlugin_logic_slots_0_valid && StoreBufferPlugin_logic_slots_0_isFlush) && (! StoreBufferPlugin_logic_slots_0_waitRsp)) && (! StoreBufferPlugin_logic_slots_0_isWaitingForWb));
   assign StoreBufferPlugin_logic_canPopMMIOOp = (StoreBufferPlugin_logic_sharedWriteCond && StoreBufferPlugin_logic_slots_0_isIO);
-  assign when_StoreBufferPlugin_l268 = (1'b0 && StoreBufferPlugin_logic_slots_0_isIO);
+  assign when_StoreBufferPlugin_l292 = (1'b0 && StoreBufferPlugin_logic_slots_0_isIO);
   assign StoreBufferPlugin_logic_canPopToDCache = (StoreBufferPlugin_logic_canPopNormalOp || StoreBufferPlugin_logic_canPopFlushOp);
   assign StoreBufferPlugin_hw_dCacheStorePort_cmd_valid = StoreBufferPlugin_logic_canPopToDCache;
   always @(*) begin
@@ -19852,39 +19907,38 @@ module CoreNSCSCC (
   assign StoreBufferPlugin_logic_mmioCmdFired = (StoreBufferPlugin_logic_canPopMMIOOp && CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_cmd_ready);
   assign StoreBufferPlugin_logic_responseIsForHead = (((StoreBufferPlugin_hw_dCacheStorePort_rsp_valid && StoreBufferPlugin_logic_slots_0_valid) && (StoreBufferPlugin_logic_slots_0_waitRsp || StoreBufferPlugin_logic_dcacheCmdFired)) && (! StoreBufferPlugin_logic_slots_0_isIO));
   assign StoreBufferPlugin_logic_mmioResponseIsForHead = (((CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_rsp_valid && StoreBufferPlugin_logic_slots_0_valid) && (StoreBufferPlugin_logic_slots_0_waitRsp || StoreBufferPlugin_logic_mmioCmdFired)) && StoreBufferPlugin_logic_slots_0_isIO);
-  assign when_StoreBufferPlugin_l383 = (StoreBufferPlugin_logic_dcacheCmdFired || StoreBufferPlugin_logic_mmioCmdFired);
+  assign when_StoreBufferPlugin_l407 = (StoreBufferPlugin_logic_dcacheCmdFired || StoreBufferPlugin_logic_mmioCmdFired);
   assign StoreBufferPlugin_logic_waitedRefillIsDone = ((StoreBufferPlugin_logic_slots_0_valid && StoreBufferPlugin_logic_slots_0_isWaitingForRefill) && (|(StoreBufferPlugin_logic_slots_0_refillSlotToWatch & DataCachePlugin_setup_refillCompletions)));
-  assign when_StoreBufferPlugin_l405 = ((StoreBufferPlugin_logic_slots_0_valid && StoreBufferPlugin_logic_slots_0_isWaitingForWb) && (! DataCachePlugin_setup_writebackBusy));
-  assign when_StoreBufferPlugin_l412 = (StoreBufferPlugin_logic_slots_0_valid && (! StoreBufferPlugin_logic_slots_0_isCommitted));
-  assign when_StoreBufferPlugin_l418 = (((ROBPlugin_robComponent_io_commit_0_valid && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr == StoreBufferPlugin_logic_slots_0_robPtr)) && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_STORE)) && (! ROBPlugin_robComponent_io_commit_0_entry_status_hasException));
-  assign when_StoreBufferPlugin_l412_1 = (StoreBufferPlugin_logic_slots_1_valid && (! StoreBufferPlugin_logic_slots_1_isCommitted));
-  assign when_StoreBufferPlugin_l418_1 = (((ROBPlugin_robComponent_io_commit_0_valid && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr == StoreBufferPlugin_logic_slots_1_robPtr)) && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_STORE)) && (! ROBPlugin_robComponent_io_commit_0_entry_status_hasException));
-  assign when_StoreBufferPlugin_l412_2 = (StoreBufferPlugin_logic_slots_2_valid && (! StoreBufferPlugin_logic_slots_2_isCommitted));
-  assign when_StoreBufferPlugin_l418_2 = (((ROBPlugin_robComponent_io_commit_0_valid && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr == StoreBufferPlugin_logic_slots_2_robPtr)) && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_STORE)) && (! ROBPlugin_robComponent_io_commit_0_entry_status_hasException));
-  assign when_StoreBufferPlugin_l412_3 = (StoreBufferPlugin_logic_slots_3_valid && (! StoreBufferPlugin_logic_slots_3_isCommitted));
-  assign when_StoreBufferPlugin_l418_3 = (((ROBPlugin_robComponent_io_commit_0_valid && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr == StoreBufferPlugin_logic_slots_3_robPtr)) && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_STORE)) && (! ROBPlugin_robComponent_io_commit_0_entry_status_hasException));
-  assign when_StoreBufferPlugin_l429 = (ROBPlugin_aggregatedFlushSignal_valid && (ROBPlugin_aggregatedFlushSignal_payload_reason == FlushReason_FULL_FLUSH));
-  assign _zz_when_StoreBufferPlugin_l438 = StoreBufferPlugin_logic_slots_0_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l438_1 = StoreBufferPlugin_logic_slots_0_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l438_2 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
-  assign _zz_when_StoreBufferPlugin_l438_3 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
-  assign when_StoreBufferPlugin_l438 = ((StoreBufferPlugin_logic_slots_0_valid && (! StoreBufferPlugin_logic_slots_0_isCommitted)) && (((_zz_when_StoreBufferPlugin_l438 == _zz_when_StoreBufferPlugin_l438_2) && (_zz_when_StoreBufferPlugin_l438_3 <= _zz_when_StoreBufferPlugin_l438_1)) || ((_zz_when_StoreBufferPlugin_l438 != _zz_when_StoreBufferPlugin_l438_2) && (_zz_when_StoreBufferPlugin_l438_1 < _zz_when_StoreBufferPlugin_l438_3))));
-  assign _zz_when_StoreBufferPlugin_l438_4 = StoreBufferPlugin_logic_slots_1_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l438_5 = StoreBufferPlugin_logic_slots_1_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l438_6 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
-  assign _zz_when_StoreBufferPlugin_l438_7 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
-  assign when_StoreBufferPlugin_l438_1 = ((StoreBufferPlugin_logic_slots_1_valid && (! StoreBufferPlugin_logic_slots_1_isCommitted)) && (((_zz_when_StoreBufferPlugin_l438_4 == _zz_when_StoreBufferPlugin_l438_6) && (_zz_when_StoreBufferPlugin_l438_7 <= _zz_when_StoreBufferPlugin_l438_5)) || ((_zz_when_StoreBufferPlugin_l438_4 != _zz_when_StoreBufferPlugin_l438_6) && (_zz_when_StoreBufferPlugin_l438_5 < _zz_when_StoreBufferPlugin_l438_7))));
-  assign _zz_when_StoreBufferPlugin_l438_8 = StoreBufferPlugin_logic_slots_2_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l438_9 = StoreBufferPlugin_logic_slots_2_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l438_10 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
-  assign _zz_when_StoreBufferPlugin_l438_11 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
-  assign when_StoreBufferPlugin_l438_2 = ((StoreBufferPlugin_logic_slots_2_valid && (! StoreBufferPlugin_logic_slots_2_isCommitted)) && (((_zz_when_StoreBufferPlugin_l438_8 == _zz_when_StoreBufferPlugin_l438_10) && (_zz_when_StoreBufferPlugin_l438_11 <= _zz_when_StoreBufferPlugin_l438_9)) || ((_zz_when_StoreBufferPlugin_l438_8 != _zz_when_StoreBufferPlugin_l438_10) && (_zz_when_StoreBufferPlugin_l438_9 < _zz_when_StoreBufferPlugin_l438_11))));
-  assign _zz_when_StoreBufferPlugin_l438_12 = StoreBufferPlugin_logic_slots_3_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l438_13 = StoreBufferPlugin_logic_slots_3_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l438_14 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
-  assign _zz_when_StoreBufferPlugin_l438_15 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
-  assign when_StoreBufferPlugin_l438_3 = ((StoreBufferPlugin_logic_slots_3_valid && (! StoreBufferPlugin_logic_slots_3_isCommitted)) && (((_zz_when_StoreBufferPlugin_l438_12 == _zz_when_StoreBufferPlugin_l438_14) && (_zz_when_StoreBufferPlugin_l438_15 <= _zz_when_StoreBufferPlugin_l438_13)) || ((_zz_when_StoreBufferPlugin_l438_12 != _zz_when_StoreBufferPlugin_l438_14) && (_zz_when_StoreBufferPlugin_l438_13 < _zz_when_StoreBufferPlugin_l438_15))));
-  assign when_StoreBufferPlugin_l434 = (ROBPlugin_aggregatedFlushSignal_valid && (ROBPlugin_aggregatedFlushSignal_payload_reason == FlushReason_ROLLBACK_TO_ROB_IDX));
+  assign when_StoreBufferPlugin_l429 = ((StoreBufferPlugin_logic_slots_0_valid && StoreBufferPlugin_logic_slots_0_isWaitingForWb) && (! DataCachePlugin_setup_writebackBusy));
+  assign _zz_when_StoreBufferPlugin_l445 = StoreBufferPlugin_logic_slots_0_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l445_1 = StoreBufferPlugin_logic_slots_0_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l445_2 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[3];
+  assign _zz_when_StoreBufferPlugin_l445_3 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[2 : 0];
+  assign when_StoreBufferPlugin_l445 = (((StoreBufferPlugin_logic_registeredFlush_valid && StoreBufferPlugin_logic_slots_0_valid) && (! StoreBufferPlugin_logic_slots_0_isCommitted)) && (((_zz_when_StoreBufferPlugin_l445 == _zz_when_StoreBufferPlugin_l445_2) && (_zz_when_StoreBufferPlugin_l445_3 <= _zz_when_StoreBufferPlugin_l445_1)) || ((_zz_when_StoreBufferPlugin_l445 != _zz_when_StoreBufferPlugin_l445_2) && (_zz_when_StoreBufferPlugin_l445_1 < _zz_when_StoreBufferPlugin_l445_3))));
+  assign when_StoreBufferPlugin_l455 = (((ROBPlugin_robComponent_io_commit_0_valid && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr == StoreBufferPlugin_logic_slots_0_robPtr)) && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_STORE)) && (! ROBPlugin_robComponent_io_commit_0_entry_status_hasException));
+  assign when_StoreBufferPlugin_l449 = (StoreBufferPlugin_logic_slots_0_valid && (! StoreBufferPlugin_logic_slots_0_isCommitted));
+  assign _zz_when_StoreBufferPlugin_l445_4 = StoreBufferPlugin_logic_slots_1_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l445_5 = StoreBufferPlugin_logic_slots_1_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l445_6 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[3];
+  assign _zz_when_StoreBufferPlugin_l445_7 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[2 : 0];
+  assign when_StoreBufferPlugin_l445_1 = (((StoreBufferPlugin_logic_registeredFlush_valid && StoreBufferPlugin_logic_slots_1_valid) && (! StoreBufferPlugin_logic_slots_1_isCommitted)) && (((_zz_when_StoreBufferPlugin_l445_4 == _zz_when_StoreBufferPlugin_l445_6) && (_zz_when_StoreBufferPlugin_l445_7 <= _zz_when_StoreBufferPlugin_l445_5)) || ((_zz_when_StoreBufferPlugin_l445_4 != _zz_when_StoreBufferPlugin_l445_6) && (_zz_when_StoreBufferPlugin_l445_5 < _zz_when_StoreBufferPlugin_l445_7))));
+  assign when_StoreBufferPlugin_l455_1 = (((ROBPlugin_robComponent_io_commit_0_valid && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr == StoreBufferPlugin_logic_slots_1_robPtr)) && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_STORE)) && (! ROBPlugin_robComponent_io_commit_0_entry_status_hasException));
+  assign when_StoreBufferPlugin_l449_1 = (StoreBufferPlugin_logic_slots_1_valid && (! StoreBufferPlugin_logic_slots_1_isCommitted));
+  assign _zz_when_StoreBufferPlugin_l445_8 = StoreBufferPlugin_logic_slots_2_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l445_9 = StoreBufferPlugin_logic_slots_2_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l445_10 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[3];
+  assign _zz_when_StoreBufferPlugin_l445_11 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[2 : 0];
+  assign when_StoreBufferPlugin_l445_2 = (((StoreBufferPlugin_logic_registeredFlush_valid && StoreBufferPlugin_logic_slots_2_valid) && (! StoreBufferPlugin_logic_slots_2_isCommitted)) && (((_zz_when_StoreBufferPlugin_l445_8 == _zz_when_StoreBufferPlugin_l445_10) && (_zz_when_StoreBufferPlugin_l445_11 <= _zz_when_StoreBufferPlugin_l445_9)) || ((_zz_when_StoreBufferPlugin_l445_8 != _zz_when_StoreBufferPlugin_l445_10) && (_zz_when_StoreBufferPlugin_l445_9 < _zz_when_StoreBufferPlugin_l445_11))));
+  assign when_StoreBufferPlugin_l455_2 = (((ROBPlugin_robComponent_io_commit_0_valid && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr == StoreBufferPlugin_logic_slots_2_robPtr)) && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_STORE)) && (! ROBPlugin_robComponent_io_commit_0_entry_status_hasException));
+  assign when_StoreBufferPlugin_l449_2 = (StoreBufferPlugin_logic_slots_2_valid && (! StoreBufferPlugin_logic_slots_2_isCommitted));
+  assign _zz_when_StoreBufferPlugin_l445_12 = StoreBufferPlugin_logic_slots_3_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l445_13 = StoreBufferPlugin_logic_slots_3_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l445_14 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[3];
+  assign _zz_when_StoreBufferPlugin_l445_15 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[2 : 0];
+  assign when_StoreBufferPlugin_l445_3 = (((StoreBufferPlugin_logic_registeredFlush_valid && StoreBufferPlugin_logic_slots_3_valid) && (! StoreBufferPlugin_logic_slots_3_isCommitted)) && (((_zz_when_StoreBufferPlugin_l445_12 == _zz_when_StoreBufferPlugin_l445_14) && (_zz_when_StoreBufferPlugin_l445_15 <= _zz_when_StoreBufferPlugin_l445_13)) || ((_zz_when_StoreBufferPlugin_l445_12 != _zz_when_StoreBufferPlugin_l445_14) && (_zz_when_StoreBufferPlugin_l445_13 < _zz_when_StoreBufferPlugin_l445_15))));
+  assign when_StoreBufferPlugin_l455_3 = (((ROBPlugin_robComponent_io_commit_0_valid && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr == StoreBufferPlugin_logic_slots_3_robPtr)) && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_STORE)) && (! ROBPlugin_robComponent_io_commit_0_entry_status_hasException));
+  assign when_StoreBufferPlugin_l449_3 = (StoreBufferPlugin_logic_slots_3_valid && (! StoreBufferPlugin_logic_slots_3_isCommitted));
+  assign when_StoreBufferPlugin_l466 = (ROBPlugin_aggregatedFlushSignal_valid && (ROBPlugin_aggregatedFlushSignal_payload_reason == FlushReason_FULL_FLUSH));
   assign StoreBufferPlugin_logic_operationDone = (((StoreBufferPlugin_logic_slotsAfterUpdates_0_sentCmd && (! StoreBufferPlugin_logic_slotsAfterUpdates_0_waitRsp)) && (! StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForRefill)) && (! StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForWb));
   assign StoreBufferPlugin_logic_flushDone = ((StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush && StoreBufferPlugin_logic_slotsAfterUpdates_0_valid) && StoreBufferPlugin_logic_operationDone);
   assign StoreBufferPlugin_logic_normalStoreDone = ((((((! StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush) && StoreBufferPlugin_logic_slotsAfterUpdates_0_valid) && StoreBufferPlugin_logic_slotsAfterUpdates_0_isCommitted) && StoreBufferPlugin_logic_operationDone) && (! StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException)) && (! StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO));
@@ -19917,184 +19971,220 @@ module CoreNSCSCC (
   assign StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask = 4'b0000;
   always @(*) begin
     _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data = StoreBufferPlugin_logic_forwardingLogic_bypassInitial_data;
-    if(when_StoreBufferPlugin_l507) begin
-      if(when_StoreBufferPlugin_l509) begin
-        _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[7 : 0] = StoreBufferPlugin_logic_slots_3_data[7 : 0];
-      end
-      if(when_StoreBufferPlugin_l509_1) begin
-        _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[15 : 8] = StoreBufferPlugin_logic_slots_3_data[15 : 8];
-      end
-      if(when_StoreBufferPlugin_l509_2) begin
-        _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[23 : 16] = StoreBufferPlugin_logic_slots_3_data[23 : 16];
-      end
-      if(when_StoreBufferPlugin_l509_3) begin
-        _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[31 : 24] = StoreBufferPlugin_logic_slots_3_data[31 : 24];
+    if(when_StoreBufferPlugin_l531) begin
+      if(when_StoreBufferPlugin_l538) begin
+        if(when_StoreBufferPlugin_l540) begin
+          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[7 : 0] = StoreBufferPlugin_logic_slots_3_data[7 : 0];
+        end
+        if(when_StoreBufferPlugin_l540_1) begin
+          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[15 : 8] = StoreBufferPlugin_logic_slots_3_data[15 : 8];
+        end
+        if(when_StoreBufferPlugin_l540_2) begin
+          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[23 : 16] = StoreBufferPlugin_logic_slots_3_data[23 : 16];
+        end
+        if(when_StoreBufferPlugin_l540_3) begin
+          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[31 : 24] = StoreBufferPlugin_logic_slots_3_data[31 : 24];
+        end
       end
     end
   end
 
   always @(*) begin
-    _zz_when_StoreBufferPlugin_l509 = StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask;
-    if(when_StoreBufferPlugin_l507) begin
-      if(when_StoreBufferPlugin_l509) begin
-        _zz_when_StoreBufferPlugin_l509[0] = 1'b1;
-      end
-      if(when_StoreBufferPlugin_l509_1) begin
-        _zz_when_StoreBufferPlugin_l509[1] = 1'b1;
-      end
-      if(when_StoreBufferPlugin_l509_2) begin
-        _zz_when_StoreBufferPlugin_l509[2] = 1'b1;
-      end
-      if(when_StoreBufferPlugin_l509_3) begin
-        _zz_when_StoreBufferPlugin_l509[3] = 1'b1;
+    _zz_when_StoreBufferPlugin_l540 = StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask;
+    if(when_StoreBufferPlugin_l531) begin
+      if(when_StoreBufferPlugin_l538) begin
+        if(when_StoreBufferPlugin_l540) begin
+          _zz_when_StoreBufferPlugin_l540[0] = 1'b1;
+        end
+        if(when_StoreBufferPlugin_l540_1) begin
+          _zz_when_StoreBufferPlugin_l540[1] = 1'b1;
+        end
+        if(when_StoreBufferPlugin_l540_2) begin
+          _zz_when_StoreBufferPlugin_l540[2] = 1'b1;
+        end
+        if(when_StoreBufferPlugin_l540_3) begin
+          _zz_when_StoreBufferPlugin_l540[3] = 1'b1;
+        end
       end
     end
   end
 
-  assign _zz_when_StoreBufferPlugin_l507 = StoreBufferPlugin_logic_slots_3_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l507_1 = StoreBufferPlugin_logic_slots_3_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l507_2 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l507_3 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
-  assign when_StoreBufferPlugin_l507 = (((StoreBufferPlugin_logic_slots_3_valid && (! StoreBufferPlugin_logic_slots_3_hasEarlyException)) && (! (((_zz_when_StoreBufferPlugin_l507 == _zz_when_StoreBufferPlugin_l507_2) && (_zz_when_StoreBufferPlugin_l507_3 <= _zz_when_StoreBufferPlugin_l507_1)) || ((_zz_when_StoreBufferPlugin_l507 != _zz_when_StoreBufferPlugin_l507_2) && (_zz_when_StoreBufferPlugin_l507_1 < _zz_when_StoreBufferPlugin_l507_3))))) && (StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2] == StoreBufferPlugin_logic_slots_3_addr[31 : 2]));
-  assign when_StoreBufferPlugin_l509 = ((StoreBufferPlugin_logic_slots_3_be[0] && StoreBufferPlugin_logic_forwardingLogic_loadMask[0]) && (! StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask[0]));
-  assign when_StoreBufferPlugin_l509_1 = ((StoreBufferPlugin_logic_slots_3_be[1] && StoreBufferPlugin_logic_forwardingLogic_loadMask[1]) && (! StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask[1]));
-  assign when_StoreBufferPlugin_l509_2 = ((StoreBufferPlugin_logic_slots_3_be[2] && StoreBufferPlugin_logic_forwardingLogic_loadMask[2]) && (! StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask[2]));
-  assign when_StoreBufferPlugin_l509_3 = ((StoreBufferPlugin_logic_slots_3_be[3] && StoreBufferPlugin_logic_forwardingLogic_loadMask[3]) && (! StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask[3]));
+  assign _zz_when_StoreBufferPlugin_l531 = StoreBufferPlugin_logic_slots_3_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l531_1 = StoreBufferPlugin_logic_slots_3_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l531_2 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
+  assign _zz_when_StoreBufferPlugin_l531_3 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
+  assign when_StoreBufferPlugin_l531 = (StoreBufferPlugin_logic_slots_3_valid && (! ((StoreBufferPlugin_logic_flushInProgress && (! StoreBufferPlugin_logic_slots_3_isCommitted)) && (((_zz_when_StoreBufferPlugin_l531 == _zz_when_StoreBufferPlugin_l531_2) && (_zz_when_StoreBufferPlugin_l531_3 <= _zz_when_StoreBufferPlugin_l531_1)) || ((_zz_when_StoreBufferPlugin_l531 != _zz_when_StoreBufferPlugin_l531_2) && (_zz_when_StoreBufferPlugin_l531_1 < _zz_when_StoreBufferPlugin_l531_3))))));
+  assign _zz_when_StoreBufferPlugin_l538 = StoreBufferPlugin_logic_slots_3_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l538_1 = StoreBufferPlugin_logic_slots_3_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l538_2 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l538_3 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign when_StoreBufferPlugin_l538 = (((! StoreBufferPlugin_logic_slots_3_hasEarlyException) && (! (((_zz_when_StoreBufferPlugin_l538 == _zz_when_StoreBufferPlugin_l538_2) && (_zz_when_StoreBufferPlugin_l538_3 <= _zz_when_StoreBufferPlugin_l538_1)) || ((_zz_when_StoreBufferPlugin_l538 != _zz_when_StoreBufferPlugin_l538_2) && (_zz_when_StoreBufferPlugin_l538_1 < _zz_when_StoreBufferPlugin_l538_3))))) && (StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2] == StoreBufferPlugin_logic_slots_3_addr[31 : 2]));
+  assign when_StoreBufferPlugin_l540 = ((StoreBufferPlugin_logic_slots_3_be[0] && StoreBufferPlugin_logic_forwardingLogic_loadMask[0]) && (! StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask[0]));
+  assign when_StoreBufferPlugin_l540_1 = ((StoreBufferPlugin_logic_slots_3_be[1] && StoreBufferPlugin_logic_forwardingLogic_loadMask[1]) && (! StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask[1]));
+  assign when_StoreBufferPlugin_l540_2 = ((StoreBufferPlugin_logic_slots_3_be[2] && StoreBufferPlugin_logic_forwardingLogic_loadMask[2]) && (! StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask[2]));
+  assign when_StoreBufferPlugin_l540_3 = ((StoreBufferPlugin_logic_slots_3_be[3] && StoreBufferPlugin_logic_forwardingLogic_loadMask[3]) && (! StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask[3]));
   always @(*) begin
     _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_1 = _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data;
-    if(when_StoreBufferPlugin_l507_1) begin
-      if(when_StoreBufferPlugin_l509_4) begin
-        _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_1[7 : 0] = StoreBufferPlugin_logic_slots_2_data[7 : 0];
-      end
-      if(when_StoreBufferPlugin_l509_5) begin
-        _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_1[15 : 8] = StoreBufferPlugin_logic_slots_2_data[15 : 8];
-      end
-      if(when_StoreBufferPlugin_l509_6) begin
-        _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_1[23 : 16] = StoreBufferPlugin_logic_slots_2_data[23 : 16];
-      end
-      if(when_StoreBufferPlugin_l509_7) begin
-        _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_1[31 : 24] = StoreBufferPlugin_logic_slots_2_data[31 : 24];
+    if(when_StoreBufferPlugin_l531_1) begin
+      if(when_StoreBufferPlugin_l538_1) begin
+        if(when_StoreBufferPlugin_l540_4) begin
+          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_1[7 : 0] = StoreBufferPlugin_logic_slots_2_data[7 : 0];
+        end
+        if(when_StoreBufferPlugin_l540_5) begin
+          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_1[15 : 8] = StoreBufferPlugin_logic_slots_2_data[15 : 8];
+        end
+        if(when_StoreBufferPlugin_l540_6) begin
+          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_1[23 : 16] = StoreBufferPlugin_logic_slots_2_data[23 : 16];
+        end
+        if(when_StoreBufferPlugin_l540_7) begin
+          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_1[31 : 24] = StoreBufferPlugin_logic_slots_2_data[31 : 24];
+        end
       end
     end
   end
 
   always @(*) begin
-    _zz_when_StoreBufferPlugin_l509_1 = _zz_when_StoreBufferPlugin_l509;
-    if(when_StoreBufferPlugin_l507_1) begin
-      if(when_StoreBufferPlugin_l509_4) begin
-        _zz_when_StoreBufferPlugin_l509_1[0] = 1'b1;
-      end
-      if(when_StoreBufferPlugin_l509_5) begin
-        _zz_when_StoreBufferPlugin_l509_1[1] = 1'b1;
-      end
-      if(when_StoreBufferPlugin_l509_6) begin
-        _zz_when_StoreBufferPlugin_l509_1[2] = 1'b1;
-      end
-      if(when_StoreBufferPlugin_l509_7) begin
-        _zz_when_StoreBufferPlugin_l509_1[3] = 1'b1;
+    _zz_when_StoreBufferPlugin_l540_1 = _zz_when_StoreBufferPlugin_l540;
+    if(when_StoreBufferPlugin_l531_1) begin
+      if(when_StoreBufferPlugin_l538_1) begin
+        if(when_StoreBufferPlugin_l540_4) begin
+          _zz_when_StoreBufferPlugin_l540_1[0] = 1'b1;
+        end
+        if(when_StoreBufferPlugin_l540_5) begin
+          _zz_when_StoreBufferPlugin_l540_1[1] = 1'b1;
+        end
+        if(when_StoreBufferPlugin_l540_6) begin
+          _zz_when_StoreBufferPlugin_l540_1[2] = 1'b1;
+        end
+        if(when_StoreBufferPlugin_l540_7) begin
+          _zz_when_StoreBufferPlugin_l540_1[3] = 1'b1;
+        end
       end
     end
   end
 
-  assign _zz_when_StoreBufferPlugin_l507_4 = StoreBufferPlugin_logic_slots_2_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l507_5 = StoreBufferPlugin_logic_slots_2_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l507_6 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l507_7 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
-  assign when_StoreBufferPlugin_l507_1 = (((StoreBufferPlugin_logic_slots_2_valid && (! StoreBufferPlugin_logic_slots_2_hasEarlyException)) && (! (((_zz_when_StoreBufferPlugin_l507_4 == _zz_when_StoreBufferPlugin_l507_6) && (_zz_when_StoreBufferPlugin_l507_7 <= _zz_when_StoreBufferPlugin_l507_5)) || ((_zz_when_StoreBufferPlugin_l507_4 != _zz_when_StoreBufferPlugin_l507_6) && (_zz_when_StoreBufferPlugin_l507_5 < _zz_when_StoreBufferPlugin_l507_7))))) && (StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2] == StoreBufferPlugin_logic_slots_2_addr[31 : 2]));
-  assign when_StoreBufferPlugin_l509_4 = ((StoreBufferPlugin_logic_slots_2_be[0] && StoreBufferPlugin_logic_forwardingLogic_loadMask[0]) && (! _zz_when_StoreBufferPlugin_l509[0]));
-  assign when_StoreBufferPlugin_l509_5 = ((StoreBufferPlugin_logic_slots_2_be[1] && StoreBufferPlugin_logic_forwardingLogic_loadMask[1]) && (! _zz_when_StoreBufferPlugin_l509[1]));
-  assign when_StoreBufferPlugin_l509_6 = ((StoreBufferPlugin_logic_slots_2_be[2] && StoreBufferPlugin_logic_forwardingLogic_loadMask[2]) && (! _zz_when_StoreBufferPlugin_l509[2]));
-  assign when_StoreBufferPlugin_l509_7 = ((StoreBufferPlugin_logic_slots_2_be[3] && StoreBufferPlugin_logic_forwardingLogic_loadMask[3]) && (! _zz_when_StoreBufferPlugin_l509[3]));
+  assign _zz_when_StoreBufferPlugin_l531_4 = StoreBufferPlugin_logic_slots_2_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l531_5 = StoreBufferPlugin_logic_slots_2_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l531_6 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
+  assign _zz_when_StoreBufferPlugin_l531_7 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
+  assign when_StoreBufferPlugin_l531_1 = (StoreBufferPlugin_logic_slots_2_valid && (! ((StoreBufferPlugin_logic_flushInProgress && (! StoreBufferPlugin_logic_slots_2_isCommitted)) && (((_zz_when_StoreBufferPlugin_l531_4 == _zz_when_StoreBufferPlugin_l531_6) && (_zz_when_StoreBufferPlugin_l531_7 <= _zz_when_StoreBufferPlugin_l531_5)) || ((_zz_when_StoreBufferPlugin_l531_4 != _zz_when_StoreBufferPlugin_l531_6) && (_zz_when_StoreBufferPlugin_l531_5 < _zz_when_StoreBufferPlugin_l531_7))))));
+  assign _zz_when_StoreBufferPlugin_l538_4 = StoreBufferPlugin_logic_slots_2_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l538_5 = StoreBufferPlugin_logic_slots_2_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l538_6 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l538_7 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign when_StoreBufferPlugin_l538_1 = (((! StoreBufferPlugin_logic_slots_2_hasEarlyException) && (! (((_zz_when_StoreBufferPlugin_l538_4 == _zz_when_StoreBufferPlugin_l538_6) && (_zz_when_StoreBufferPlugin_l538_7 <= _zz_when_StoreBufferPlugin_l538_5)) || ((_zz_when_StoreBufferPlugin_l538_4 != _zz_when_StoreBufferPlugin_l538_6) && (_zz_when_StoreBufferPlugin_l538_5 < _zz_when_StoreBufferPlugin_l538_7))))) && (StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2] == StoreBufferPlugin_logic_slots_2_addr[31 : 2]));
+  assign when_StoreBufferPlugin_l540_4 = ((StoreBufferPlugin_logic_slots_2_be[0] && StoreBufferPlugin_logic_forwardingLogic_loadMask[0]) && (! _zz_when_StoreBufferPlugin_l540[0]));
+  assign when_StoreBufferPlugin_l540_5 = ((StoreBufferPlugin_logic_slots_2_be[1] && StoreBufferPlugin_logic_forwardingLogic_loadMask[1]) && (! _zz_when_StoreBufferPlugin_l540[1]));
+  assign when_StoreBufferPlugin_l540_6 = ((StoreBufferPlugin_logic_slots_2_be[2] && StoreBufferPlugin_logic_forwardingLogic_loadMask[2]) && (! _zz_when_StoreBufferPlugin_l540[2]));
+  assign when_StoreBufferPlugin_l540_7 = ((StoreBufferPlugin_logic_slots_2_be[3] && StoreBufferPlugin_logic_forwardingLogic_loadMask[3]) && (! _zz_when_StoreBufferPlugin_l540[3]));
   always @(*) begin
     _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_2 = _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_1;
-    if(when_StoreBufferPlugin_l507_2) begin
-      if(when_StoreBufferPlugin_l509_8) begin
-        _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_2[7 : 0] = StoreBufferPlugin_logic_slots_1_data[7 : 0];
-      end
-      if(when_StoreBufferPlugin_l509_9) begin
-        _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_2[15 : 8] = StoreBufferPlugin_logic_slots_1_data[15 : 8];
-      end
-      if(when_StoreBufferPlugin_l509_10) begin
-        _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_2[23 : 16] = StoreBufferPlugin_logic_slots_1_data[23 : 16];
-      end
-      if(when_StoreBufferPlugin_l509_11) begin
-        _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_2[31 : 24] = StoreBufferPlugin_logic_slots_1_data[31 : 24];
+    if(when_StoreBufferPlugin_l531_2) begin
+      if(when_StoreBufferPlugin_l538_2) begin
+        if(when_StoreBufferPlugin_l540_8) begin
+          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_2[7 : 0] = StoreBufferPlugin_logic_slots_1_data[7 : 0];
+        end
+        if(when_StoreBufferPlugin_l540_9) begin
+          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_2[15 : 8] = StoreBufferPlugin_logic_slots_1_data[15 : 8];
+        end
+        if(when_StoreBufferPlugin_l540_10) begin
+          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_2[23 : 16] = StoreBufferPlugin_logic_slots_1_data[23 : 16];
+        end
+        if(when_StoreBufferPlugin_l540_11) begin
+          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_2[31 : 24] = StoreBufferPlugin_logic_slots_1_data[31 : 24];
+        end
       end
     end
   end
 
   always @(*) begin
-    _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask = _zz_when_StoreBufferPlugin_l509_1;
-    if(when_StoreBufferPlugin_l507_2) begin
-      if(when_StoreBufferPlugin_l509_8) begin
-        _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[0] = 1'b1;
-      end
-      if(when_StoreBufferPlugin_l509_9) begin
-        _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[1] = 1'b1;
-      end
-      if(when_StoreBufferPlugin_l509_10) begin
-        _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[2] = 1'b1;
-      end
-      if(when_StoreBufferPlugin_l509_11) begin
-        _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[3] = 1'b1;
+    _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask = _zz_when_StoreBufferPlugin_l540_1;
+    if(when_StoreBufferPlugin_l531_2) begin
+      if(when_StoreBufferPlugin_l538_2) begin
+        if(when_StoreBufferPlugin_l540_8) begin
+          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[0] = 1'b1;
+        end
+        if(when_StoreBufferPlugin_l540_9) begin
+          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[1] = 1'b1;
+        end
+        if(when_StoreBufferPlugin_l540_10) begin
+          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[2] = 1'b1;
+        end
+        if(when_StoreBufferPlugin_l540_11) begin
+          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[3] = 1'b1;
+        end
       end
     end
   end
 
-  assign _zz_when_StoreBufferPlugin_l507_8 = StoreBufferPlugin_logic_slots_1_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l507_9 = StoreBufferPlugin_logic_slots_1_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l507_10 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l507_11 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
-  assign when_StoreBufferPlugin_l507_2 = (((StoreBufferPlugin_logic_slots_1_valid && (! StoreBufferPlugin_logic_slots_1_hasEarlyException)) && (! (((_zz_when_StoreBufferPlugin_l507_8 == _zz_when_StoreBufferPlugin_l507_10) && (_zz_when_StoreBufferPlugin_l507_11 <= _zz_when_StoreBufferPlugin_l507_9)) || ((_zz_when_StoreBufferPlugin_l507_8 != _zz_when_StoreBufferPlugin_l507_10) && (_zz_when_StoreBufferPlugin_l507_9 < _zz_when_StoreBufferPlugin_l507_11))))) && (StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2] == StoreBufferPlugin_logic_slots_1_addr[31 : 2]));
-  assign when_StoreBufferPlugin_l509_8 = ((StoreBufferPlugin_logic_slots_1_be[0] && StoreBufferPlugin_logic_forwardingLogic_loadMask[0]) && (! _zz_when_StoreBufferPlugin_l509_1[0]));
-  assign when_StoreBufferPlugin_l509_9 = ((StoreBufferPlugin_logic_slots_1_be[1] && StoreBufferPlugin_logic_forwardingLogic_loadMask[1]) && (! _zz_when_StoreBufferPlugin_l509_1[1]));
-  assign when_StoreBufferPlugin_l509_10 = ((StoreBufferPlugin_logic_slots_1_be[2] && StoreBufferPlugin_logic_forwardingLogic_loadMask[2]) && (! _zz_when_StoreBufferPlugin_l509_1[2]));
-  assign when_StoreBufferPlugin_l509_11 = ((StoreBufferPlugin_logic_slots_1_be[3] && StoreBufferPlugin_logic_forwardingLogic_loadMask[3]) && (! _zz_when_StoreBufferPlugin_l509_1[3]));
+  assign _zz_when_StoreBufferPlugin_l531_8 = StoreBufferPlugin_logic_slots_1_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l531_9 = StoreBufferPlugin_logic_slots_1_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l531_10 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
+  assign _zz_when_StoreBufferPlugin_l531_11 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
+  assign when_StoreBufferPlugin_l531_2 = (StoreBufferPlugin_logic_slots_1_valid && (! ((StoreBufferPlugin_logic_flushInProgress && (! StoreBufferPlugin_logic_slots_1_isCommitted)) && (((_zz_when_StoreBufferPlugin_l531_8 == _zz_when_StoreBufferPlugin_l531_10) && (_zz_when_StoreBufferPlugin_l531_11 <= _zz_when_StoreBufferPlugin_l531_9)) || ((_zz_when_StoreBufferPlugin_l531_8 != _zz_when_StoreBufferPlugin_l531_10) && (_zz_when_StoreBufferPlugin_l531_9 < _zz_when_StoreBufferPlugin_l531_11))))));
+  assign _zz_when_StoreBufferPlugin_l538_8 = StoreBufferPlugin_logic_slots_1_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l538_9 = StoreBufferPlugin_logic_slots_1_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l538_10 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l538_11 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign when_StoreBufferPlugin_l538_2 = (((! StoreBufferPlugin_logic_slots_1_hasEarlyException) && (! (((_zz_when_StoreBufferPlugin_l538_8 == _zz_when_StoreBufferPlugin_l538_10) && (_zz_when_StoreBufferPlugin_l538_11 <= _zz_when_StoreBufferPlugin_l538_9)) || ((_zz_when_StoreBufferPlugin_l538_8 != _zz_when_StoreBufferPlugin_l538_10) && (_zz_when_StoreBufferPlugin_l538_9 < _zz_when_StoreBufferPlugin_l538_11))))) && (StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2] == StoreBufferPlugin_logic_slots_1_addr[31 : 2]));
+  assign when_StoreBufferPlugin_l540_8 = ((StoreBufferPlugin_logic_slots_1_be[0] && StoreBufferPlugin_logic_forwardingLogic_loadMask[0]) && (! _zz_when_StoreBufferPlugin_l540_1[0]));
+  assign when_StoreBufferPlugin_l540_9 = ((StoreBufferPlugin_logic_slots_1_be[1] && StoreBufferPlugin_logic_forwardingLogic_loadMask[1]) && (! _zz_when_StoreBufferPlugin_l540_1[1]));
+  assign when_StoreBufferPlugin_l540_10 = ((StoreBufferPlugin_logic_slots_1_be[2] && StoreBufferPlugin_logic_forwardingLogic_loadMask[2]) && (! _zz_when_StoreBufferPlugin_l540_1[2]));
+  assign when_StoreBufferPlugin_l540_11 = ((StoreBufferPlugin_logic_slots_1_be[3] && StoreBufferPlugin_logic_forwardingLogic_loadMask[3]) && (! _zz_when_StoreBufferPlugin_l540_1[3]));
   always @(*) begin
     StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data = _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_2;
-    if(when_StoreBufferPlugin_l507_3) begin
-      if(when_StoreBufferPlugin_l509_12) begin
-        StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[7 : 0] = StoreBufferPlugin_logic_slots_0_data[7 : 0];
-      end
-      if(when_StoreBufferPlugin_l509_13) begin
-        StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[15 : 8] = StoreBufferPlugin_logic_slots_0_data[15 : 8];
-      end
-      if(when_StoreBufferPlugin_l509_14) begin
-        StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[23 : 16] = StoreBufferPlugin_logic_slots_0_data[23 : 16];
-      end
-      if(when_StoreBufferPlugin_l509_15) begin
-        StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[31 : 24] = StoreBufferPlugin_logic_slots_0_data[31 : 24];
+    if(when_StoreBufferPlugin_l531_3) begin
+      if(when_StoreBufferPlugin_l538_3) begin
+        if(when_StoreBufferPlugin_l540_12) begin
+          StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[7 : 0] = StoreBufferPlugin_logic_slots_0_data[7 : 0];
+        end
+        if(when_StoreBufferPlugin_l540_13) begin
+          StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[15 : 8] = StoreBufferPlugin_logic_slots_0_data[15 : 8];
+        end
+        if(when_StoreBufferPlugin_l540_14) begin
+          StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[23 : 16] = StoreBufferPlugin_logic_slots_0_data[23 : 16];
+        end
+        if(when_StoreBufferPlugin_l540_15) begin
+          StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[31 : 24] = StoreBufferPlugin_logic_slots_0_data[31 : 24];
+        end
       end
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask = _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask;
-    if(when_StoreBufferPlugin_l507_3) begin
-      if(when_StoreBufferPlugin_l509_12) begin
-        StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[0] = 1'b1;
-      end
-      if(when_StoreBufferPlugin_l509_13) begin
-        StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[1] = 1'b1;
-      end
-      if(when_StoreBufferPlugin_l509_14) begin
-        StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[2] = 1'b1;
-      end
-      if(when_StoreBufferPlugin_l509_15) begin
-        StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[3] = 1'b1;
+    if(when_StoreBufferPlugin_l531_3) begin
+      if(when_StoreBufferPlugin_l538_3) begin
+        if(when_StoreBufferPlugin_l540_12) begin
+          StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[0] = 1'b1;
+        end
+        if(when_StoreBufferPlugin_l540_13) begin
+          StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[1] = 1'b1;
+        end
+        if(when_StoreBufferPlugin_l540_14) begin
+          StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[2] = 1'b1;
+        end
+        if(when_StoreBufferPlugin_l540_15) begin
+          StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[3] = 1'b1;
+        end
       end
     end
   end
 
-  assign _zz_when_StoreBufferPlugin_l507_12 = StoreBufferPlugin_logic_slots_0_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l507_13 = StoreBufferPlugin_logic_slots_0_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l507_14 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l507_15 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
-  assign when_StoreBufferPlugin_l507_3 = (((StoreBufferPlugin_logic_slots_0_valid && (! StoreBufferPlugin_logic_slots_0_hasEarlyException)) && (! (((_zz_when_StoreBufferPlugin_l507_12 == _zz_when_StoreBufferPlugin_l507_14) && (_zz_when_StoreBufferPlugin_l507_15 <= _zz_when_StoreBufferPlugin_l507_13)) || ((_zz_when_StoreBufferPlugin_l507_12 != _zz_when_StoreBufferPlugin_l507_14) && (_zz_when_StoreBufferPlugin_l507_13 < _zz_when_StoreBufferPlugin_l507_15))))) && (StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2] == StoreBufferPlugin_logic_slots_0_addr[31 : 2]));
-  assign when_StoreBufferPlugin_l509_12 = ((StoreBufferPlugin_logic_slots_0_be[0] && StoreBufferPlugin_logic_forwardingLogic_loadMask[0]) && (! _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[0]));
-  assign when_StoreBufferPlugin_l509_13 = ((StoreBufferPlugin_logic_slots_0_be[1] && StoreBufferPlugin_logic_forwardingLogic_loadMask[1]) && (! _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[1]));
-  assign when_StoreBufferPlugin_l509_14 = ((StoreBufferPlugin_logic_slots_0_be[2] && StoreBufferPlugin_logic_forwardingLogic_loadMask[2]) && (! _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[2]));
-  assign when_StoreBufferPlugin_l509_15 = ((StoreBufferPlugin_logic_slots_0_be[3] && StoreBufferPlugin_logic_forwardingLogic_loadMask[3]) && (! _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[3]));
+  assign _zz_when_StoreBufferPlugin_l531_12 = StoreBufferPlugin_logic_slots_0_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l531_13 = StoreBufferPlugin_logic_slots_0_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l531_14 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
+  assign _zz_when_StoreBufferPlugin_l531_15 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
+  assign when_StoreBufferPlugin_l531_3 = (StoreBufferPlugin_logic_slots_0_valid && (! ((StoreBufferPlugin_logic_flushInProgress && (! StoreBufferPlugin_logic_slots_0_isCommitted)) && (((_zz_when_StoreBufferPlugin_l531_12 == _zz_when_StoreBufferPlugin_l531_14) && (_zz_when_StoreBufferPlugin_l531_15 <= _zz_when_StoreBufferPlugin_l531_13)) || ((_zz_when_StoreBufferPlugin_l531_12 != _zz_when_StoreBufferPlugin_l531_14) && (_zz_when_StoreBufferPlugin_l531_13 < _zz_when_StoreBufferPlugin_l531_15))))));
+  assign _zz_when_StoreBufferPlugin_l538_12 = StoreBufferPlugin_logic_slots_0_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l538_13 = StoreBufferPlugin_logic_slots_0_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l538_14 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l538_15 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign when_StoreBufferPlugin_l538_3 = (((! StoreBufferPlugin_logic_slots_0_hasEarlyException) && (! (((_zz_when_StoreBufferPlugin_l538_12 == _zz_when_StoreBufferPlugin_l538_14) && (_zz_when_StoreBufferPlugin_l538_15 <= _zz_when_StoreBufferPlugin_l538_13)) || ((_zz_when_StoreBufferPlugin_l538_12 != _zz_when_StoreBufferPlugin_l538_14) && (_zz_when_StoreBufferPlugin_l538_13 < _zz_when_StoreBufferPlugin_l538_15))))) && (StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2] == StoreBufferPlugin_logic_slots_0_addr[31 : 2]));
+  assign when_StoreBufferPlugin_l540_12 = ((StoreBufferPlugin_logic_slots_0_be[0] && StoreBufferPlugin_logic_forwardingLogic_loadMask[0]) && (! _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[0]));
+  assign when_StoreBufferPlugin_l540_13 = ((StoreBufferPlugin_logic_slots_0_be[1] && StoreBufferPlugin_logic_forwardingLogic_loadMask[1]) && (! _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[1]));
+  assign when_StoreBufferPlugin_l540_14 = ((StoreBufferPlugin_logic_slots_0_be[2] && StoreBufferPlugin_logic_forwardingLogic_loadMask[2]) && (! _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[2]));
+  assign when_StoreBufferPlugin_l540_15 = ((StoreBufferPlugin_logic_slots_0_be[3] && StoreBufferPlugin_logic_forwardingLogic_loadMask[3]) && (! _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[3]));
   assign StoreBufferPlugin_logic_forwardingLogic_allRequiredBytesHit = ((StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask & StoreBufferPlugin_logic_forwardingLogic_loadMask) == StoreBufferPlugin_logic_forwardingLogic_loadMask);
   assign StoreBufferPlugin_hw_sqQueryPort_rsp_data = StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data;
   assign StoreBufferPlugin_logic_forwardingLogic_hasSomeOverlap = (|(StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask & StoreBufferPlugin_logic_forwardingLogic_loadMask));
@@ -20102,50 +20192,78 @@ module CoreNSCSCC (
   assign StoreBufferPlugin_hw_sqQueryPort_rsp_hit = (StoreBufferPlugin_hw_sqQueryPort_cmd_valid && StoreBufferPlugin_logic_forwardingLogic_allRequiredBytesHit);
   always @(*) begin
     StoreBufferPlugin_logic_forwardingLogic_potentialConflict = 1'b0;
-    if(when_StoreBufferPlugin_l544) begin
-      StoreBufferPlugin_logic_forwardingLogic_potentialConflict = 1'b1;
+    if(when_StoreBufferPlugin_l567) begin
+      if(when_StoreBufferPlugin_l580) begin
+        StoreBufferPlugin_logic_forwardingLogic_potentialConflict = 1'b1;
+      end
     end
-    if(when_StoreBufferPlugin_l544_1) begin
-      StoreBufferPlugin_logic_forwardingLogic_potentialConflict = 1'b1;
+    if(when_StoreBufferPlugin_l567_1) begin
+      if(when_StoreBufferPlugin_l580_1) begin
+        StoreBufferPlugin_logic_forwardingLogic_potentialConflict = 1'b1;
+      end
     end
-    if(when_StoreBufferPlugin_l544_2) begin
-      StoreBufferPlugin_logic_forwardingLogic_potentialConflict = 1'b1;
+    if(when_StoreBufferPlugin_l567_2) begin
+      if(when_StoreBufferPlugin_l580_2) begin
+        StoreBufferPlugin_logic_forwardingLogic_potentialConflict = 1'b1;
+      end
     end
-    if(when_StoreBufferPlugin_l544_3) begin
-      StoreBufferPlugin_logic_forwardingLogic_potentialConflict = 1'b1;
+    if(when_StoreBufferPlugin_l567_3) begin
+      if(when_StoreBufferPlugin_l580_3) begin
+        StoreBufferPlugin_logic_forwardingLogic_potentialConflict = 1'b1;
+      end
     end
   end
 
-  assign _zz_when_StoreBufferPlugin_l544 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2];
-  assign _zz_when_StoreBufferPlugin_l544_1 = StoreBufferPlugin_logic_slots_0_addr[31 : 2];
-  assign _zz_when_StoreBufferPlugin_l544_2 = StoreBufferPlugin_logic_slots_0_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l544_3 = StoreBufferPlugin_logic_slots_0_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l544_4 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l544_5 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
-  assign when_StoreBufferPlugin_l544 = ((((StoreBufferPlugin_logic_slots_0_valid && (! StoreBufferPlugin_logic_slots_0_hasEarlyException)) && (! (((_zz_when_StoreBufferPlugin_l544_2 == _zz_when_StoreBufferPlugin_l544_4) && (_zz_when_StoreBufferPlugin_l544_5 <= _zz_when_StoreBufferPlugin_l544_3)) || ((_zz_when_StoreBufferPlugin_l544_2 != _zz_when_StoreBufferPlugin_l544_4) && (_zz_when_StoreBufferPlugin_l544_3 < _zz_when_StoreBufferPlugin_l544_5))))) && (_zz_when_StoreBufferPlugin_l544 == _zz_when_StoreBufferPlugin_l544_1)) && ((|(StoreBufferPlugin_logic_slots_0_be & StoreBufferPlugin_logic_forwardingLogic_loadMask)) && (! ((StoreBufferPlugin_logic_slots_0_be & StoreBufferPlugin_logic_forwardingLogic_loadMask) == StoreBufferPlugin_logic_forwardingLogic_loadMask))));
-  assign _zz_when_StoreBufferPlugin_l544_6 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2];
-  assign _zz_when_StoreBufferPlugin_l544_7 = StoreBufferPlugin_logic_slots_1_addr[31 : 2];
-  assign _zz_when_StoreBufferPlugin_l544_8 = StoreBufferPlugin_logic_slots_1_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l544_9 = StoreBufferPlugin_logic_slots_1_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l544_10 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l544_11 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
-  assign when_StoreBufferPlugin_l544_1 = ((((StoreBufferPlugin_logic_slots_1_valid && (! StoreBufferPlugin_logic_slots_1_hasEarlyException)) && (! (((_zz_when_StoreBufferPlugin_l544_8 == _zz_when_StoreBufferPlugin_l544_10) && (_zz_when_StoreBufferPlugin_l544_11 <= _zz_when_StoreBufferPlugin_l544_9)) || ((_zz_when_StoreBufferPlugin_l544_8 != _zz_when_StoreBufferPlugin_l544_10) && (_zz_when_StoreBufferPlugin_l544_9 < _zz_when_StoreBufferPlugin_l544_11))))) && (_zz_when_StoreBufferPlugin_l544_6 == _zz_when_StoreBufferPlugin_l544_7)) && ((|(StoreBufferPlugin_logic_slots_1_be & StoreBufferPlugin_logic_forwardingLogic_loadMask)) && (! ((StoreBufferPlugin_logic_slots_1_be & StoreBufferPlugin_logic_forwardingLogic_loadMask) == StoreBufferPlugin_logic_forwardingLogic_loadMask))));
-  assign _zz_when_StoreBufferPlugin_l544_12 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2];
-  assign _zz_when_StoreBufferPlugin_l544_13 = StoreBufferPlugin_logic_slots_2_addr[31 : 2];
-  assign _zz_when_StoreBufferPlugin_l544_14 = StoreBufferPlugin_logic_slots_2_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l544_15 = StoreBufferPlugin_logic_slots_2_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l544_16 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l544_17 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
-  assign when_StoreBufferPlugin_l544_2 = ((((StoreBufferPlugin_logic_slots_2_valid && (! StoreBufferPlugin_logic_slots_2_hasEarlyException)) && (! (((_zz_when_StoreBufferPlugin_l544_14 == _zz_when_StoreBufferPlugin_l544_16) && (_zz_when_StoreBufferPlugin_l544_17 <= _zz_when_StoreBufferPlugin_l544_15)) || ((_zz_when_StoreBufferPlugin_l544_14 != _zz_when_StoreBufferPlugin_l544_16) && (_zz_when_StoreBufferPlugin_l544_15 < _zz_when_StoreBufferPlugin_l544_17))))) && (_zz_when_StoreBufferPlugin_l544_12 == _zz_when_StoreBufferPlugin_l544_13)) && ((|(StoreBufferPlugin_logic_slots_2_be & StoreBufferPlugin_logic_forwardingLogic_loadMask)) && (! ((StoreBufferPlugin_logic_slots_2_be & StoreBufferPlugin_logic_forwardingLogic_loadMask) == StoreBufferPlugin_logic_forwardingLogic_loadMask))));
-  assign _zz_when_StoreBufferPlugin_l544_18 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2];
-  assign _zz_when_StoreBufferPlugin_l544_19 = StoreBufferPlugin_logic_slots_3_addr[31 : 2];
-  assign _zz_when_StoreBufferPlugin_l544_20 = StoreBufferPlugin_logic_slots_3_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l544_21 = StoreBufferPlugin_logic_slots_3_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l544_22 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l544_23 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
-  assign when_StoreBufferPlugin_l544_3 = ((((StoreBufferPlugin_logic_slots_3_valid && (! StoreBufferPlugin_logic_slots_3_hasEarlyException)) && (! (((_zz_when_StoreBufferPlugin_l544_20 == _zz_when_StoreBufferPlugin_l544_22) && (_zz_when_StoreBufferPlugin_l544_23 <= _zz_when_StoreBufferPlugin_l544_21)) || ((_zz_when_StoreBufferPlugin_l544_20 != _zz_when_StoreBufferPlugin_l544_22) && (_zz_when_StoreBufferPlugin_l544_21 < _zz_when_StoreBufferPlugin_l544_23))))) && (_zz_when_StoreBufferPlugin_l544_18 == _zz_when_StoreBufferPlugin_l544_19)) && ((|(StoreBufferPlugin_logic_slots_3_be & StoreBufferPlugin_logic_forwardingLogic_loadMask)) && (! ((StoreBufferPlugin_logic_slots_3_be & StoreBufferPlugin_logic_forwardingLogic_loadMask) == StoreBufferPlugin_logic_forwardingLogic_loadMask))));
+  assign _zz_when_StoreBufferPlugin_l580 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2];
+  assign _zz_when_StoreBufferPlugin_l580_1 = StoreBufferPlugin_logic_slots_0_addr[31 : 2];
+  assign _zz_when_StoreBufferPlugin_l567 = StoreBufferPlugin_logic_slots_0_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l567_1 = StoreBufferPlugin_logic_slots_0_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l567_2 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
+  assign _zz_when_StoreBufferPlugin_l567_3 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
+  assign when_StoreBufferPlugin_l567 = (StoreBufferPlugin_logic_slots_0_valid && (! ((StoreBufferPlugin_logic_flushInProgress && (! StoreBufferPlugin_logic_slots_0_isCommitted)) && (((_zz_when_StoreBufferPlugin_l567 == _zz_when_StoreBufferPlugin_l567_2) && (_zz_when_StoreBufferPlugin_l567_3 <= _zz_when_StoreBufferPlugin_l567_1)) || ((_zz_when_StoreBufferPlugin_l567 != _zz_when_StoreBufferPlugin_l567_2) && (_zz_when_StoreBufferPlugin_l567_1 < _zz_when_StoreBufferPlugin_l567_3))))));
+  assign _zz_when_StoreBufferPlugin_l580_2 = StoreBufferPlugin_logic_slots_0_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l580_3 = StoreBufferPlugin_logic_slots_0_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l580_4 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l580_5 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign when_StoreBufferPlugin_l580 = ((((! StoreBufferPlugin_logic_slots_0_hasEarlyException) && (! (((_zz_when_StoreBufferPlugin_l580_2 == _zz_when_StoreBufferPlugin_l580_4) && (_zz_when_StoreBufferPlugin_l580_5 <= _zz_when_StoreBufferPlugin_l580_3)) || ((_zz_when_StoreBufferPlugin_l580_2 != _zz_when_StoreBufferPlugin_l580_4) && (_zz_when_StoreBufferPlugin_l580_3 < _zz_when_StoreBufferPlugin_l580_5))))) && (_zz_when_StoreBufferPlugin_l580 == _zz_when_StoreBufferPlugin_l580_1)) && ((|(StoreBufferPlugin_logic_slots_0_be & StoreBufferPlugin_logic_forwardingLogic_loadMask)) && (! ((StoreBufferPlugin_logic_slots_0_be & StoreBufferPlugin_logic_forwardingLogic_loadMask) == StoreBufferPlugin_logic_forwardingLogic_loadMask))));
+  assign _zz_when_StoreBufferPlugin_l580_6 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2];
+  assign _zz_when_StoreBufferPlugin_l580_7 = StoreBufferPlugin_logic_slots_1_addr[31 : 2];
+  assign _zz_when_StoreBufferPlugin_l567_4 = StoreBufferPlugin_logic_slots_1_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l567_5 = StoreBufferPlugin_logic_slots_1_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l567_6 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
+  assign _zz_when_StoreBufferPlugin_l567_7 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
+  assign when_StoreBufferPlugin_l567_1 = (StoreBufferPlugin_logic_slots_1_valid && (! ((StoreBufferPlugin_logic_flushInProgress && (! StoreBufferPlugin_logic_slots_1_isCommitted)) && (((_zz_when_StoreBufferPlugin_l567_4 == _zz_when_StoreBufferPlugin_l567_6) && (_zz_when_StoreBufferPlugin_l567_7 <= _zz_when_StoreBufferPlugin_l567_5)) || ((_zz_when_StoreBufferPlugin_l567_4 != _zz_when_StoreBufferPlugin_l567_6) && (_zz_when_StoreBufferPlugin_l567_5 < _zz_when_StoreBufferPlugin_l567_7))))));
+  assign _zz_when_StoreBufferPlugin_l580_8 = StoreBufferPlugin_logic_slots_1_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l580_9 = StoreBufferPlugin_logic_slots_1_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l580_10 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l580_11 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign when_StoreBufferPlugin_l580_1 = ((((! StoreBufferPlugin_logic_slots_1_hasEarlyException) && (! (((_zz_when_StoreBufferPlugin_l580_8 == _zz_when_StoreBufferPlugin_l580_10) && (_zz_when_StoreBufferPlugin_l580_11 <= _zz_when_StoreBufferPlugin_l580_9)) || ((_zz_when_StoreBufferPlugin_l580_8 != _zz_when_StoreBufferPlugin_l580_10) && (_zz_when_StoreBufferPlugin_l580_9 < _zz_when_StoreBufferPlugin_l580_11))))) && (_zz_when_StoreBufferPlugin_l580_6 == _zz_when_StoreBufferPlugin_l580_7)) && ((|(StoreBufferPlugin_logic_slots_1_be & StoreBufferPlugin_logic_forwardingLogic_loadMask)) && (! ((StoreBufferPlugin_logic_slots_1_be & StoreBufferPlugin_logic_forwardingLogic_loadMask) == StoreBufferPlugin_logic_forwardingLogic_loadMask))));
+  assign _zz_when_StoreBufferPlugin_l580_12 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2];
+  assign _zz_when_StoreBufferPlugin_l580_13 = StoreBufferPlugin_logic_slots_2_addr[31 : 2];
+  assign _zz_when_StoreBufferPlugin_l567_8 = StoreBufferPlugin_logic_slots_2_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l567_9 = StoreBufferPlugin_logic_slots_2_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l567_10 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
+  assign _zz_when_StoreBufferPlugin_l567_11 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
+  assign when_StoreBufferPlugin_l567_2 = (StoreBufferPlugin_logic_slots_2_valid && (! ((StoreBufferPlugin_logic_flushInProgress && (! StoreBufferPlugin_logic_slots_2_isCommitted)) && (((_zz_when_StoreBufferPlugin_l567_8 == _zz_when_StoreBufferPlugin_l567_10) && (_zz_when_StoreBufferPlugin_l567_11 <= _zz_when_StoreBufferPlugin_l567_9)) || ((_zz_when_StoreBufferPlugin_l567_8 != _zz_when_StoreBufferPlugin_l567_10) && (_zz_when_StoreBufferPlugin_l567_9 < _zz_when_StoreBufferPlugin_l567_11))))));
+  assign _zz_when_StoreBufferPlugin_l580_14 = StoreBufferPlugin_logic_slots_2_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l580_15 = StoreBufferPlugin_logic_slots_2_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l580_16 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l580_17 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign when_StoreBufferPlugin_l580_2 = ((((! StoreBufferPlugin_logic_slots_2_hasEarlyException) && (! (((_zz_when_StoreBufferPlugin_l580_14 == _zz_when_StoreBufferPlugin_l580_16) && (_zz_when_StoreBufferPlugin_l580_17 <= _zz_when_StoreBufferPlugin_l580_15)) || ((_zz_when_StoreBufferPlugin_l580_14 != _zz_when_StoreBufferPlugin_l580_16) && (_zz_when_StoreBufferPlugin_l580_15 < _zz_when_StoreBufferPlugin_l580_17))))) && (_zz_when_StoreBufferPlugin_l580_12 == _zz_when_StoreBufferPlugin_l580_13)) && ((|(StoreBufferPlugin_logic_slots_2_be & StoreBufferPlugin_logic_forwardingLogic_loadMask)) && (! ((StoreBufferPlugin_logic_slots_2_be & StoreBufferPlugin_logic_forwardingLogic_loadMask) == StoreBufferPlugin_logic_forwardingLogic_loadMask))));
+  assign _zz_when_StoreBufferPlugin_l580_18 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2];
+  assign _zz_when_StoreBufferPlugin_l580_19 = StoreBufferPlugin_logic_slots_3_addr[31 : 2];
+  assign _zz_when_StoreBufferPlugin_l567_12 = StoreBufferPlugin_logic_slots_3_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l567_13 = StoreBufferPlugin_logic_slots_3_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l567_14 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
+  assign _zz_when_StoreBufferPlugin_l567_15 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
+  assign when_StoreBufferPlugin_l567_3 = (StoreBufferPlugin_logic_slots_3_valid && (! ((StoreBufferPlugin_logic_flushInProgress && (! StoreBufferPlugin_logic_slots_3_isCommitted)) && (((_zz_when_StoreBufferPlugin_l567_12 == _zz_when_StoreBufferPlugin_l567_14) && (_zz_when_StoreBufferPlugin_l567_15 <= _zz_when_StoreBufferPlugin_l567_13)) || ((_zz_when_StoreBufferPlugin_l567_12 != _zz_when_StoreBufferPlugin_l567_14) && (_zz_when_StoreBufferPlugin_l567_13 < _zz_when_StoreBufferPlugin_l567_15))))));
+  assign _zz_when_StoreBufferPlugin_l580_20 = StoreBufferPlugin_logic_slots_3_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l580_21 = StoreBufferPlugin_logic_slots_3_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l580_22 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l580_23 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign when_StoreBufferPlugin_l580_3 = ((((! StoreBufferPlugin_logic_slots_3_hasEarlyException) && (! (((_zz_when_StoreBufferPlugin_l580_20 == _zz_when_StoreBufferPlugin_l580_22) && (_zz_when_StoreBufferPlugin_l580_23 <= _zz_when_StoreBufferPlugin_l580_21)) || ((_zz_when_StoreBufferPlugin_l580_20 != _zz_when_StoreBufferPlugin_l580_22) && (_zz_when_StoreBufferPlugin_l580_21 < _zz_when_StoreBufferPlugin_l580_23))))) && (_zz_when_StoreBufferPlugin_l580_18 == _zz_when_StoreBufferPlugin_l580_19)) && ((|(StoreBufferPlugin_logic_slots_3_be & StoreBufferPlugin_logic_forwardingLogic_loadMask)) && (! ((StoreBufferPlugin_logic_slots_3_be & StoreBufferPlugin_logic_forwardingLogic_loadMask) == StoreBufferPlugin_logic_forwardingLogic_loadMask))));
   assign StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreMatchingAddress = ((StoreBufferPlugin_hw_sqQueryPort_cmd_valid && (! StoreBufferPlugin_logic_forwardingLogic_allRequiredBytesHit)) && StoreBufferPlugin_logic_forwardingLogic_hasSomeOverlap);
-  assign when_StoreBufferPlugin_l551 = (StoreBufferPlugin_hw_sqQueryPort_cmd_valid && StoreBufferPlugin_hw_sqQueryPort_rsp_hit);
+  assign when_StoreBufferPlugin_l588 = (StoreBufferPlugin_hw_sqQueryPort_cmd_valid && StoreBufferPlugin_hw_sqQueryPort_rsp_hit);
   always @(*) begin
     _zz_StoreBufferPlugin_logic_loadQueryBe = 4'b0000;
     case(StoreBufferPlugin_hw_bypassQuerySizeIn)
@@ -20170,18 +20288,18 @@ module CoreNSCSCC (
   assign StoreBufferPlugin_logic_bypassInitial_hitMask = 4'b0000;
   always @(*) begin
     _zz_StoreBufferPlugin_logic_finalBypassResult_data = StoreBufferPlugin_logic_bypassInitial_data;
-    if(when_StoreBufferPlugin_l574) begin
-      if(when_StoreBufferPlugin_l579) begin
-        if(when_StoreBufferPlugin_l581) begin
+    if(when_StoreBufferPlugin_l615) begin
+      if(when_StoreBufferPlugin_l620) begin
+        if(when_StoreBufferPlugin_l622) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data[7 : 0] = StoreBufferPlugin_logic_slots_3_data[7 : 0];
         end
-        if(when_StoreBufferPlugin_l581_1) begin
+        if(when_StoreBufferPlugin_l622_1) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data[15 : 8] = StoreBufferPlugin_logic_slots_3_data[15 : 8];
         end
-        if(when_StoreBufferPlugin_l581_2) begin
+        if(when_StoreBufferPlugin_l622_2) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data[23 : 16] = StoreBufferPlugin_logic_slots_3_data[23 : 16];
         end
-        if(when_StoreBufferPlugin_l581_3) begin
+        if(when_StoreBufferPlugin_l622_3) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data[31 : 24] = StoreBufferPlugin_logic_slots_3_data[31 : 24];
         end
       end
@@ -20189,45 +20307,49 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    _zz_when_StoreBufferPlugin_l581 = StoreBufferPlugin_logic_bypassInitial_hitMask;
-    if(when_StoreBufferPlugin_l574) begin
-      if(when_StoreBufferPlugin_l579) begin
-        if(when_StoreBufferPlugin_l581) begin
-          _zz_when_StoreBufferPlugin_l581[0] = 1'b1;
+    _zz_when_StoreBufferPlugin_l622 = StoreBufferPlugin_logic_bypassInitial_hitMask;
+    if(when_StoreBufferPlugin_l615) begin
+      if(when_StoreBufferPlugin_l620) begin
+        if(when_StoreBufferPlugin_l622) begin
+          _zz_when_StoreBufferPlugin_l622[0] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l581_1) begin
-          _zz_when_StoreBufferPlugin_l581[1] = 1'b1;
+        if(when_StoreBufferPlugin_l622_1) begin
+          _zz_when_StoreBufferPlugin_l622[1] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l581_2) begin
-          _zz_when_StoreBufferPlugin_l581[2] = 1'b1;
+        if(when_StoreBufferPlugin_l622_2) begin
+          _zz_when_StoreBufferPlugin_l622[2] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l581_3) begin
-          _zz_when_StoreBufferPlugin_l581[3] = 1'b1;
+        if(when_StoreBufferPlugin_l622_3) begin
+          _zz_when_StoreBufferPlugin_l622[3] = 1'b1;
         end
       end
     end
   end
 
-  assign when_StoreBufferPlugin_l574 = (StoreBufferPlugin_logic_slots_3_valid && (! StoreBufferPlugin_logic_slots_3_hasEarlyException));
-  assign when_StoreBufferPlugin_l579 = (StoreBufferPlugin_hw_bypassQueryAddrIn[31 : 2] == StoreBufferPlugin_logic_slots_3_addr[31 : 2]);
-  assign when_StoreBufferPlugin_l581 = ((StoreBufferPlugin_logic_slots_3_be[0] && StoreBufferPlugin_logic_loadQueryBe[0]) && (! StoreBufferPlugin_logic_bypassInitial_hitMask[0]));
-  assign when_StoreBufferPlugin_l581_1 = ((StoreBufferPlugin_logic_slots_3_be[1] && StoreBufferPlugin_logic_loadQueryBe[1]) && (! StoreBufferPlugin_logic_bypassInitial_hitMask[1]));
-  assign when_StoreBufferPlugin_l581_2 = ((StoreBufferPlugin_logic_slots_3_be[2] && StoreBufferPlugin_logic_loadQueryBe[2]) && (! StoreBufferPlugin_logic_bypassInitial_hitMask[2]));
-  assign when_StoreBufferPlugin_l581_3 = ((StoreBufferPlugin_logic_slots_3_be[3] && StoreBufferPlugin_logic_loadQueryBe[3]) && (! StoreBufferPlugin_logic_bypassInitial_hitMask[3]));
+  assign _zz_when_StoreBufferPlugin_l615 = StoreBufferPlugin_logic_slots_3_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l615_1 = StoreBufferPlugin_logic_slots_3_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l615_2 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
+  assign _zz_when_StoreBufferPlugin_l615_3 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
+  assign when_StoreBufferPlugin_l615 = ((StoreBufferPlugin_logic_slots_3_valid && (! ((StoreBufferPlugin_logic_flushInProgress && (! StoreBufferPlugin_logic_slots_3_isCommitted)) && (((_zz_when_StoreBufferPlugin_l615 == _zz_when_StoreBufferPlugin_l615_2) && (_zz_when_StoreBufferPlugin_l615_3 <= _zz_when_StoreBufferPlugin_l615_1)) || ((_zz_when_StoreBufferPlugin_l615 != _zz_when_StoreBufferPlugin_l615_2) && (_zz_when_StoreBufferPlugin_l615_1 < _zz_when_StoreBufferPlugin_l615_3)))))) && (! StoreBufferPlugin_logic_slots_3_hasEarlyException));
+  assign when_StoreBufferPlugin_l620 = (StoreBufferPlugin_hw_bypassQueryAddrIn[31 : 2] == StoreBufferPlugin_logic_slots_3_addr[31 : 2]);
+  assign when_StoreBufferPlugin_l622 = ((StoreBufferPlugin_logic_slots_3_be[0] && StoreBufferPlugin_logic_loadQueryBe[0]) && (! StoreBufferPlugin_logic_bypassInitial_hitMask[0]));
+  assign when_StoreBufferPlugin_l622_1 = ((StoreBufferPlugin_logic_slots_3_be[1] && StoreBufferPlugin_logic_loadQueryBe[1]) && (! StoreBufferPlugin_logic_bypassInitial_hitMask[1]));
+  assign when_StoreBufferPlugin_l622_2 = ((StoreBufferPlugin_logic_slots_3_be[2] && StoreBufferPlugin_logic_loadQueryBe[2]) && (! StoreBufferPlugin_logic_bypassInitial_hitMask[2]));
+  assign when_StoreBufferPlugin_l622_3 = ((StoreBufferPlugin_logic_slots_3_be[3] && StoreBufferPlugin_logic_loadQueryBe[3]) && (! StoreBufferPlugin_logic_bypassInitial_hitMask[3]));
   always @(*) begin
     _zz_StoreBufferPlugin_logic_finalBypassResult_data_1 = _zz_StoreBufferPlugin_logic_finalBypassResult_data;
-    if(when_StoreBufferPlugin_l574_1) begin
-      if(when_StoreBufferPlugin_l579_1) begin
-        if(when_StoreBufferPlugin_l581_4) begin
+    if(when_StoreBufferPlugin_l615_1) begin
+      if(when_StoreBufferPlugin_l620_1) begin
+        if(when_StoreBufferPlugin_l622_4) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data_1[7 : 0] = StoreBufferPlugin_logic_slots_2_data[7 : 0];
         end
-        if(when_StoreBufferPlugin_l581_5) begin
+        if(when_StoreBufferPlugin_l622_5) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data_1[15 : 8] = StoreBufferPlugin_logic_slots_2_data[15 : 8];
         end
-        if(when_StoreBufferPlugin_l581_6) begin
+        if(when_StoreBufferPlugin_l622_6) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data_1[23 : 16] = StoreBufferPlugin_logic_slots_2_data[23 : 16];
         end
-        if(when_StoreBufferPlugin_l581_7) begin
+        if(when_StoreBufferPlugin_l622_7) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data_1[31 : 24] = StoreBufferPlugin_logic_slots_2_data[31 : 24];
         end
       end
@@ -20235,45 +20357,49 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    _zz_when_StoreBufferPlugin_l581_1 = _zz_when_StoreBufferPlugin_l581;
-    if(when_StoreBufferPlugin_l574_1) begin
-      if(when_StoreBufferPlugin_l579_1) begin
-        if(when_StoreBufferPlugin_l581_4) begin
-          _zz_when_StoreBufferPlugin_l581_1[0] = 1'b1;
+    _zz_when_StoreBufferPlugin_l622_1 = _zz_when_StoreBufferPlugin_l622;
+    if(when_StoreBufferPlugin_l615_1) begin
+      if(when_StoreBufferPlugin_l620_1) begin
+        if(when_StoreBufferPlugin_l622_4) begin
+          _zz_when_StoreBufferPlugin_l622_1[0] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l581_5) begin
-          _zz_when_StoreBufferPlugin_l581_1[1] = 1'b1;
+        if(when_StoreBufferPlugin_l622_5) begin
+          _zz_when_StoreBufferPlugin_l622_1[1] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l581_6) begin
-          _zz_when_StoreBufferPlugin_l581_1[2] = 1'b1;
+        if(when_StoreBufferPlugin_l622_6) begin
+          _zz_when_StoreBufferPlugin_l622_1[2] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l581_7) begin
-          _zz_when_StoreBufferPlugin_l581_1[3] = 1'b1;
+        if(when_StoreBufferPlugin_l622_7) begin
+          _zz_when_StoreBufferPlugin_l622_1[3] = 1'b1;
         end
       end
     end
   end
 
-  assign when_StoreBufferPlugin_l574_1 = (StoreBufferPlugin_logic_slots_2_valid && (! StoreBufferPlugin_logic_slots_2_hasEarlyException));
-  assign when_StoreBufferPlugin_l579_1 = (StoreBufferPlugin_hw_bypassQueryAddrIn[31 : 2] == StoreBufferPlugin_logic_slots_2_addr[31 : 2]);
-  assign when_StoreBufferPlugin_l581_4 = ((StoreBufferPlugin_logic_slots_2_be[0] && StoreBufferPlugin_logic_loadQueryBe[0]) && (! _zz_when_StoreBufferPlugin_l581[0]));
-  assign when_StoreBufferPlugin_l581_5 = ((StoreBufferPlugin_logic_slots_2_be[1] && StoreBufferPlugin_logic_loadQueryBe[1]) && (! _zz_when_StoreBufferPlugin_l581[1]));
-  assign when_StoreBufferPlugin_l581_6 = ((StoreBufferPlugin_logic_slots_2_be[2] && StoreBufferPlugin_logic_loadQueryBe[2]) && (! _zz_when_StoreBufferPlugin_l581[2]));
-  assign when_StoreBufferPlugin_l581_7 = ((StoreBufferPlugin_logic_slots_2_be[3] && StoreBufferPlugin_logic_loadQueryBe[3]) && (! _zz_when_StoreBufferPlugin_l581[3]));
+  assign _zz_when_StoreBufferPlugin_l615_4 = StoreBufferPlugin_logic_slots_2_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l615_5 = StoreBufferPlugin_logic_slots_2_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l615_6 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
+  assign _zz_when_StoreBufferPlugin_l615_7 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
+  assign when_StoreBufferPlugin_l615_1 = ((StoreBufferPlugin_logic_slots_2_valid && (! ((StoreBufferPlugin_logic_flushInProgress && (! StoreBufferPlugin_logic_slots_2_isCommitted)) && (((_zz_when_StoreBufferPlugin_l615_4 == _zz_when_StoreBufferPlugin_l615_6) && (_zz_when_StoreBufferPlugin_l615_7 <= _zz_when_StoreBufferPlugin_l615_5)) || ((_zz_when_StoreBufferPlugin_l615_4 != _zz_when_StoreBufferPlugin_l615_6) && (_zz_when_StoreBufferPlugin_l615_5 < _zz_when_StoreBufferPlugin_l615_7)))))) && (! StoreBufferPlugin_logic_slots_2_hasEarlyException));
+  assign when_StoreBufferPlugin_l620_1 = (StoreBufferPlugin_hw_bypassQueryAddrIn[31 : 2] == StoreBufferPlugin_logic_slots_2_addr[31 : 2]);
+  assign when_StoreBufferPlugin_l622_4 = ((StoreBufferPlugin_logic_slots_2_be[0] && StoreBufferPlugin_logic_loadQueryBe[0]) && (! _zz_when_StoreBufferPlugin_l622[0]));
+  assign when_StoreBufferPlugin_l622_5 = ((StoreBufferPlugin_logic_slots_2_be[1] && StoreBufferPlugin_logic_loadQueryBe[1]) && (! _zz_when_StoreBufferPlugin_l622[1]));
+  assign when_StoreBufferPlugin_l622_6 = ((StoreBufferPlugin_logic_slots_2_be[2] && StoreBufferPlugin_logic_loadQueryBe[2]) && (! _zz_when_StoreBufferPlugin_l622[2]));
+  assign when_StoreBufferPlugin_l622_7 = ((StoreBufferPlugin_logic_slots_2_be[3] && StoreBufferPlugin_logic_loadQueryBe[3]) && (! _zz_when_StoreBufferPlugin_l622[3]));
   always @(*) begin
     _zz_StoreBufferPlugin_logic_finalBypassResult_data_2 = _zz_StoreBufferPlugin_logic_finalBypassResult_data_1;
-    if(when_StoreBufferPlugin_l574_2) begin
-      if(when_StoreBufferPlugin_l579_2) begin
-        if(when_StoreBufferPlugin_l581_8) begin
+    if(when_StoreBufferPlugin_l615_2) begin
+      if(when_StoreBufferPlugin_l620_2) begin
+        if(when_StoreBufferPlugin_l622_8) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data_2[7 : 0] = StoreBufferPlugin_logic_slots_1_data[7 : 0];
         end
-        if(when_StoreBufferPlugin_l581_9) begin
+        if(when_StoreBufferPlugin_l622_9) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data_2[15 : 8] = StoreBufferPlugin_logic_slots_1_data[15 : 8];
         end
-        if(when_StoreBufferPlugin_l581_10) begin
+        if(when_StoreBufferPlugin_l622_10) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data_2[23 : 16] = StoreBufferPlugin_logic_slots_1_data[23 : 16];
         end
-        if(when_StoreBufferPlugin_l581_11) begin
+        if(when_StoreBufferPlugin_l622_11) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data_2[31 : 24] = StoreBufferPlugin_logic_slots_1_data[31 : 24];
         end
       end
@@ -20281,45 +20407,49 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask = _zz_when_StoreBufferPlugin_l581_1;
-    if(when_StoreBufferPlugin_l574_2) begin
-      if(when_StoreBufferPlugin_l579_2) begin
-        if(when_StoreBufferPlugin_l581_8) begin
+    _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask = _zz_when_StoreBufferPlugin_l622_1;
+    if(when_StoreBufferPlugin_l615_2) begin
+      if(when_StoreBufferPlugin_l620_2) begin
+        if(when_StoreBufferPlugin_l622_8) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[0] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l581_9) begin
+        if(when_StoreBufferPlugin_l622_9) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[1] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l581_10) begin
+        if(when_StoreBufferPlugin_l622_10) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[2] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l581_11) begin
+        if(when_StoreBufferPlugin_l622_11) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[3] = 1'b1;
         end
       end
     end
   end
 
-  assign when_StoreBufferPlugin_l574_2 = (StoreBufferPlugin_logic_slots_1_valid && (! StoreBufferPlugin_logic_slots_1_hasEarlyException));
-  assign when_StoreBufferPlugin_l579_2 = (StoreBufferPlugin_hw_bypassQueryAddrIn[31 : 2] == StoreBufferPlugin_logic_slots_1_addr[31 : 2]);
-  assign when_StoreBufferPlugin_l581_8 = ((StoreBufferPlugin_logic_slots_1_be[0] && StoreBufferPlugin_logic_loadQueryBe[0]) && (! _zz_when_StoreBufferPlugin_l581_1[0]));
-  assign when_StoreBufferPlugin_l581_9 = ((StoreBufferPlugin_logic_slots_1_be[1] && StoreBufferPlugin_logic_loadQueryBe[1]) && (! _zz_when_StoreBufferPlugin_l581_1[1]));
-  assign when_StoreBufferPlugin_l581_10 = ((StoreBufferPlugin_logic_slots_1_be[2] && StoreBufferPlugin_logic_loadQueryBe[2]) && (! _zz_when_StoreBufferPlugin_l581_1[2]));
-  assign when_StoreBufferPlugin_l581_11 = ((StoreBufferPlugin_logic_slots_1_be[3] && StoreBufferPlugin_logic_loadQueryBe[3]) && (! _zz_when_StoreBufferPlugin_l581_1[3]));
+  assign _zz_when_StoreBufferPlugin_l615_8 = StoreBufferPlugin_logic_slots_1_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l615_9 = StoreBufferPlugin_logic_slots_1_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l615_10 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
+  assign _zz_when_StoreBufferPlugin_l615_11 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
+  assign when_StoreBufferPlugin_l615_2 = ((StoreBufferPlugin_logic_slots_1_valid && (! ((StoreBufferPlugin_logic_flushInProgress && (! StoreBufferPlugin_logic_slots_1_isCommitted)) && (((_zz_when_StoreBufferPlugin_l615_8 == _zz_when_StoreBufferPlugin_l615_10) && (_zz_when_StoreBufferPlugin_l615_11 <= _zz_when_StoreBufferPlugin_l615_9)) || ((_zz_when_StoreBufferPlugin_l615_8 != _zz_when_StoreBufferPlugin_l615_10) && (_zz_when_StoreBufferPlugin_l615_9 < _zz_when_StoreBufferPlugin_l615_11)))))) && (! StoreBufferPlugin_logic_slots_1_hasEarlyException));
+  assign when_StoreBufferPlugin_l620_2 = (StoreBufferPlugin_hw_bypassQueryAddrIn[31 : 2] == StoreBufferPlugin_logic_slots_1_addr[31 : 2]);
+  assign when_StoreBufferPlugin_l622_8 = ((StoreBufferPlugin_logic_slots_1_be[0] && StoreBufferPlugin_logic_loadQueryBe[0]) && (! _zz_when_StoreBufferPlugin_l622_1[0]));
+  assign when_StoreBufferPlugin_l622_9 = ((StoreBufferPlugin_logic_slots_1_be[1] && StoreBufferPlugin_logic_loadQueryBe[1]) && (! _zz_when_StoreBufferPlugin_l622_1[1]));
+  assign when_StoreBufferPlugin_l622_10 = ((StoreBufferPlugin_logic_slots_1_be[2] && StoreBufferPlugin_logic_loadQueryBe[2]) && (! _zz_when_StoreBufferPlugin_l622_1[2]));
+  assign when_StoreBufferPlugin_l622_11 = ((StoreBufferPlugin_logic_slots_1_be[3] && StoreBufferPlugin_logic_loadQueryBe[3]) && (! _zz_when_StoreBufferPlugin_l622_1[3]));
   always @(*) begin
     StoreBufferPlugin_logic_finalBypassResult_data = _zz_StoreBufferPlugin_logic_finalBypassResult_data_2;
-    if(when_StoreBufferPlugin_l574_3) begin
-      if(when_StoreBufferPlugin_l579_3) begin
-        if(when_StoreBufferPlugin_l581_12) begin
+    if(when_StoreBufferPlugin_l615_3) begin
+      if(when_StoreBufferPlugin_l620_3) begin
+        if(when_StoreBufferPlugin_l622_12) begin
           StoreBufferPlugin_logic_finalBypassResult_data[7 : 0] = StoreBufferPlugin_logic_slots_0_data[7 : 0];
         end
-        if(when_StoreBufferPlugin_l581_13) begin
+        if(when_StoreBufferPlugin_l622_13) begin
           StoreBufferPlugin_logic_finalBypassResult_data[15 : 8] = StoreBufferPlugin_logic_slots_0_data[15 : 8];
         end
-        if(when_StoreBufferPlugin_l581_14) begin
+        if(when_StoreBufferPlugin_l622_14) begin
           StoreBufferPlugin_logic_finalBypassResult_data[23 : 16] = StoreBufferPlugin_logic_slots_0_data[23 : 16];
         end
-        if(when_StoreBufferPlugin_l581_15) begin
+        if(when_StoreBufferPlugin_l622_15) begin
           StoreBufferPlugin_logic_finalBypassResult_data[31 : 24] = StoreBufferPlugin_logic_slots_0_data[31 : 24];
         end
       end
@@ -20328,39 +20458,43 @@ module CoreNSCSCC (
 
   always @(*) begin
     StoreBufferPlugin_logic_finalBypassResult_hitMask = _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask;
-    if(when_StoreBufferPlugin_l574_3) begin
-      if(when_StoreBufferPlugin_l579_3) begin
-        if(when_StoreBufferPlugin_l581_12) begin
+    if(when_StoreBufferPlugin_l615_3) begin
+      if(when_StoreBufferPlugin_l620_3) begin
+        if(when_StoreBufferPlugin_l622_12) begin
           StoreBufferPlugin_logic_finalBypassResult_hitMask[0] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l581_13) begin
+        if(when_StoreBufferPlugin_l622_13) begin
           StoreBufferPlugin_logic_finalBypassResult_hitMask[1] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l581_14) begin
+        if(when_StoreBufferPlugin_l622_14) begin
           StoreBufferPlugin_logic_finalBypassResult_hitMask[2] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l581_15) begin
+        if(when_StoreBufferPlugin_l622_15) begin
           StoreBufferPlugin_logic_finalBypassResult_hitMask[3] = 1'b1;
         end
       end
     end
   end
 
-  assign when_StoreBufferPlugin_l574_3 = (StoreBufferPlugin_logic_slots_0_valid && (! StoreBufferPlugin_logic_slots_0_hasEarlyException));
-  assign when_StoreBufferPlugin_l579_3 = (StoreBufferPlugin_hw_bypassQueryAddrIn[31 : 2] == StoreBufferPlugin_logic_slots_0_addr[31 : 2]);
-  assign when_StoreBufferPlugin_l581_12 = ((StoreBufferPlugin_logic_slots_0_be[0] && StoreBufferPlugin_logic_loadQueryBe[0]) && (! _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[0]));
-  assign when_StoreBufferPlugin_l581_13 = ((StoreBufferPlugin_logic_slots_0_be[1] && StoreBufferPlugin_logic_loadQueryBe[1]) && (! _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[1]));
-  assign when_StoreBufferPlugin_l581_14 = ((StoreBufferPlugin_logic_slots_0_be[2] && StoreBufferPlugin_logic_loadQueryBe[2]) && (! _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[2]));
-  assign when_StoreBufferPlugin_l581_15 = ((StoreBufferPlugin_logic_slots_0_be[3] && StoreBufferPlugin_logic_loadQueryBe[3]) && (! _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[3]));
+  assign _zz_when_StoreBufferPlugin_l615_12 = StoreBufferPlugin_logic_slots_0_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l615_13 = StoreBufferPlugin_logic_slots_0_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l615_14 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
+  assign _zz_when_StoreBufferPlugin_l615_15 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
+  assign when_StoreBufferPlugin_l615_3 = ((StoreBufferPlugin_logic_slots_0_valid && (! ((StoreBufferPlugin_logic_flushInProgress && (! StoreBufferPlugin_logic_slots_0_isCommitted)) && (((_zz_when_StoreBufferPlugin_l615_12 == _zz_when_StoreBufferPlugin_l615_14) && (_zz_when_StoreBufferPlugin_l615_15 <= _zz_when_StoreBufferPlugin_l615_13)) || ((_zz_when_StoreBufferPlugin_l615_12 != _zz_when_StoreBufferPlugin_l615_14) && (_zz_when_StoreBufferPlugin_l615_13 < _zz_when_StoreBufferPlugin_l615_15)))))) && (! StoreBufferPlugin_logic_slots_0_hasEarlyException));
+  assign when_StoreBufferPlugin_l620_3 = (StoreBufferPlugin_hw_bypassQueryAddrIn[31 : 2] == StoreBufferPlugin_logic_slots_0_addr[31 : 2]);
+  assign when_StoreBufferPlugin_l622_12 = ((StoreBufferPlugin_logic_slots_0_be[0] && StoreBufferPlugin_logic_loadQueryBe[0]) && (! _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[0]));
+  assign when_StoreBufferPlugin_l622_13 = ((StoreBufferPlugin_logic_slots_0_be[1] && StoreBufferPlugin_logic_loadQueryBe[1]) && (! _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[1]));
+  assign when_StoreBufferPlugin_l622_14 = ((StoreBufferPlugin_logic_slots_0_be[2] && StoreBufferPlugin_logic_loadQueryBe[2]) && (! _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[2]));
+  assign when_StoreBufferPlugin_l622_15 = ((StoreBufferPlugin_logic_slots_0_be[3] && StoreBufferPlugin_logic_loadQueryBe[3]) && (! _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[3]));
   assign StoreBufferPlugin_logic_overallBypassHit = (|StoreBufferPlugin_logic_finalBypassResult_hitMask);
   assign StoreBufferPlugin_hw_bypassDataOutInst_valid = StoreBufferPlugin_logic_overallBypassHit;
   assign StoreBufferPlugin_hw_bypassDataOutInst_payload_data = StoreBufferPlugin_logic_finalBypassResult_data;
   assign StoreBufferPlugin_hw_bypassDataOutInst_payload_hitMask = StoreBufferPlugin_logic_finalBypassResult_hitMask;
   assign StoreBufferPlugin_hw_bypassDataOutInst_payload_hit = (StoreBufferPlugin_logic_overallBypassHit && (StoreBufferPlugin_logic_finalBypassResult_hitMask == StoreBufferPlugin_logic_loadQueryBe));
-  assign when_StoreBufferPlugin_l627 = (StoreBufferPlugin_logic_slots_0_valid && (! StoreBufferPlugin_logic_slots_0_isCommitted));
-  assign when_StoreBufferPlugin_l627_1 = (StoreBufferPlugin_logic_slots_1_valid && (! StoreBufferPlugin_logic_slots_1_isCommitted));
-  assign when_StoreBufferPlugin_l627_2 = (StoreBufferPlugin_logic_slots_2_valid && (! StoreBufferPlugin_logic_slots_2_isCommitted));
-  assign when_StoreBufferPlugin_l627_3 = (StoreBufferPlugin_logic_slots_3_valid && (! StoreBufferPlugin_logic_slots_3_isCommitted));
+  assign when_StoreBufferPlugin_l668 = (StoreBufferPlugin_logic_slots_0_valid && (! StoreBufferPlugin_logic_slots_0_isCommitted));
+  assign when_StoreBufferPlugin_l668_1 = (StoreBufferPlugin_logic_slots_1_valid && (! StoreBufferPlugin_logic_slots_1_isCommitted));
+  assign when_StoreBufferPlugin_l668_2 = (StoreBufferPlugin_logic_slots_2_valid && (! StoreBufferPlugin_logic_slots_2_isCommitted));
+  assign when_StoreBufferPlugin_l668_3 = (StoreBufferPlugin_logic_slots_3_valid && (! StoreBufferPlugin_logic_slots_3_isCommitted));
   always @(*) begin
     _zz_globalWakeupFlow_payload_physRegIdx = 6'bxxxxxx;
     if(!when_WakeupPlugin_l67) begin
@@ -21084,6 +21218,8 @@ module CoreNSCSCC (
       StoreBufferPlugin_logic_slots_3_isWaitingForRefill <= 1'b0;
       StoreBufferPlugin_logic_slots_3_isWaitingForWb <= 1'b0;
       StoreBufferPlugin_logic_slots_3_refillSlotToWatch <= 2'b00;
+      StoreBufferPlugin_logic_registeredFlush_valid <= 1'b0;
+      StoreBufferPlugin_logic_registeredFlush_targetRobPtr <= 4'b0000;
       _zz_DataCachePlugin_logic_load_ohHistory_1 <= 2'b00;
       _zz_DataCachePlugin_logic_load_ohHistory_2 <= 2'b00;
       io_outputs_0_ar_rValid <= 1'b0;
@@ -22176,24 +22312,26 @@ module CoreNSCSCC (
           `endif
         `endif
       end
+      StoreBufferPlugin_logic_registeredFlush_valid <= StoreBufferPlugin_logic_flushInProgress;
+      StoreBufferPlugin_logic_registeredFlush_targetRobPtr <= ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr;
       if(StoreBufferPlugin_hw_pushPortInst_fire) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L251
+            assert(1'b0); // StoreBufferPlugin.scala:L275
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:251):  [SQ] PUSH: robPtr=%x to slotIdx=%x", StoreBufferPlugin_hw_pushPortInst_payload_robPtr, _zz_32); // StoreBufferPlugin.scala:L251
+              $display("NOTE(StoreBufferPlugin.scala:275):  [SQ] PUSH: robPtr=%x to slotIdx=%x", StoreBufferPlugin_hw_pushPortInst_payload_robPtr, _zz_32); // StoreBufferPlugin.scala:L275
             end
           `endif
         `endif
       end
-      if(when_StoreBufferPlugin_l268) begin
+      if(when_StoreBufferPlugin_l292) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L269
+            assert(1'b0); // StoreBufferPlugin.scala:L293
           `else
             if(!1'b0) begin
-              $display("FAILURE Got isIO but no MMIO service."); // StoreBufferPlugin.scala:L269
+              $display("FAILURE Got isIO but no MMIO service."); // StoreBufferPlugin.scala:L293
               $finish;
             end
           `endif
@@ -22202,10 +22340,10 @@ module CoreNSCSCC (
       if(StoreBufferPlugin_logic_dcacheCmdFired) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L343
+            assert(1'b0); // StoreBufferPlugin.scala:L367
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:343):  [SQ] SEND_TO_DCACHE: robPtr=%x (slotIdx=0), addr=%x, data=%x, be=%x", StoreBufferPlugin_logic_slots_0_robPtr, StoreBufferPlugin_logic_slots_0_addr, StoreBufferPlugin_logic_slots_0_data, StoreBufferPlugin_logic_slots_0_be); // StoreBufferPlugin.scala:L343
+              $display("NOTE(StoreBufferPlugin.scala:367):  [SQ] SEND_TO_DCACHE: robPtr=%x (slotIdx=0), addr=%x, data=%x, be=%x", StoreBufferPlugin_logic_slots_0_robPtr, StoreBufferPlugin_logic_slots_0_addr, StoreBufferPlugin_logic_slots_0_data, StoreBufferPlugin_logic_slots_0_be); // StoreBufferPlugin.scala:L367
             end
           `endif
         `endif
@@ -22213,10 +22351,10 @@ module CoreNSCSCC (
       if(StoreBufferPlugin_logic_mmioCmdFired) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L348
+            assert(1'b0); // StoreBufferPlugin.scala:L372
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:348):  [SQ] SEND_TO_MMIO: robPtr=%x (slotIdx=0), addr=%x, data=%x, be=%x", StoreBufferPlugin_logic_slots_0_robPtr, StoreBufferPlugin_logic_slots_0_addr, StoreBufferPlugin_logic_slots_0_data, StoreBufferPlugin_logic_slots_0_be); // StoreBufferPlugin.scala:L348
+              $display("NOTE(StoreBufferPlugin.scala:372):  [SQ] SEND_TO_MMIO: robPtr=%x (slotIdx=0), addr=%x, data=%x, be=%x", StoreBufferPlugin_logic_slots_0_robPtr, StoreBufferPlugin_logic_slots_0_addr, StoreBufferPlugin_logic_slots_0_data, StoreBufferPlugin_logic_slots_0_be); // StoreBufferPlugin.scala:L372
             end
           `endif
         `endif
@@ -22226,20 +22364,20 @@ module CoreNSCSCC (
           if(StoreBufferPlugin_hw_dCacheStorePort_rsp_payload_flush) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // StoreBufferPlugin.scala:L362
+                assert(1'b0); // StoreBufferPlugin.scala:L386
               `else
                 if(!1'b0) begin
-                  $display("NOTE(StoreBufferPlugin.scala:362):  [SQ] REDO_FOR_FLUSH received for robPtr=%x. Entering WAIT_FOR_WB.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L362
+                  $display("NOTE(StoreBufferPlugin.scala:386):  [SQ] REDO_FOR_FLUSH received for robPtr=%x. Entering WAIT_FOR_WB.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L386
                 end
               `endif
             `endif
           end else begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // StoreBufferPlugin.scala:L366
+                assert(1'b0); // StoreBufferPlugin.scala:L390
               `else
                 if(!1'b0) begin
-                  $display("NOTE(StoreBufferPlugin.scala:366):  [SQ] REDO_FOR_REFILL received for robPtr=%x. Entering WAIT_FOR_REFILL.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L366
+                  $display("NOTE(StoreBufferPlugin.scala:390):  [SQ] REDO_FOR_REFILL received for robPtr=%x. Entering WAIT_FOR_REFILL.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L390
                 end
               `endif
             `endif
@@ -22247,10 +22385,10 @@ module CoreNSCSCC (
         end else begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // StoreBufferPlugin.scala:L370
+              assert(1'b0); // StoreBufferPlugin.scala:L394
             `else
               if(!1'b0) begin
-                $display("NOTE(StoreBufferPlugin.scala:370):  [SQ] RSP_SUCCESS received for robPtr=%x.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L370
+                $display("NOTE(StoreBufferPlugin.scala:394):  [SQ] RSP_SUCCESS received for robPtr=%x.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L394
               end
             `endif
           `endif
@@ -22260,20 +22398,20 @@ module CoreNSCSCC (
           if(CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_rsp_payload_error) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // StoreBufferPlugin.scala:L378
+                assert(1'b0); // StoreBufferPlugin.scala:L402
               `else
                 if(!1'b0) begin
-                  $display("NOTE(StoreBufferPlugin.scala:378):  [SQ] MMIO RSP_ERROR received for robPtr=%x.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L378
+                  $display("NOTE(StoreBufferPlugin.scala:402):  [SQ] MMIO RSP_ERROR received for robPtr=%x.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L402
                 end
               `endif
             `endif
           end else begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // StoreBufferPlugin.scala:L380
+                assert(1'b0); // StoreBufferPlugin.scala:L404
               `else
                 if(!1'b0) begin
-                  $display("NOTE(StoreBufferPlugin.scala:380):  [SQ] MMIO RSP_SUCCESS received for robPtr=%x.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L380
+                  $display("NOTE(StoreBufferPlugin.scala:404):  [SQ] MMIO RSP_SUCCESS received for robPtr=%x.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L404
                 end
               `endif
             `endif
@@ -22282,234 +22420,234 @@ module CoreNSCSCC (
       end
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // StoreBufferPlugin.scala:L395
+          assert(1'b0); // StoreBufferPlugin.scala:L419
         `else
           if(!1'b0) begin
-            $display("NOTE(StoreBufferPlugin.scala:395):  [SQ] Watching... refillCompletionsFromDCache=%x", DataCachePlugin_setup_refillCompletions); // StoreBufferPlugin.scala:L395
+            $display("NOTE(StoreBufferPlugin.scala:419):  [SQ] Watching... refillCompletionsFromDCache=%x", DataCachePlugin_setup_refillCompletions); // StoreBufferPlugin.scala:L419
           end
         `endif
       `endif
       if(StoreBufferPlugin_logic_waitedRefillIsDone) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L401
+            assert(1'b0); // StoreBufferPlugin.scala:L425
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:401):  [SQ] REFILL_DONE observed for robPtr=%x. Ready to retry.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L401
+              $display("NOTE(StoreBufferPlugin.scala:425):  [SQ] REFILL_DONE observed for robPtr=%x. Ready to retry.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L425
             end
           `endif
         `endif
-      end
-      if(when_StoreBufferPlugin_l405) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L407
-          `else
-            if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:407):  [SQ] DCACHE_READY observed for robPtr=%x. Exiting WAIT_FOR_WB.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L407
-            end
-          `endif
-        `endif
-      end
-      if(when_StoreBufferPlugin_l412) begin
-        if(when_StoreBufferPlugin_l418) begin
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // StoreBufferPlugin.scala:L420
-            `else
-              if(!1'b0) begin
-                $display("NOTE(StoreBufferPlugin.scala:420):  [SQ] COMMIT_SIGNAL: robPtr=%x (slotIdx=0) marked as committed.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L420
-              end
-            `endif
-          `endif
-        end
-      end
-      if(when_StoreBufferPlugin_l412_1) begin
-        if(when_StoreBufferPlugin_l418_1) begin
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // StoreBufferPlugin.scala:L420
-            `else
-              if(!1'b0) begin
-                $display("NOTE(StoreBufferPlugin.scala:420):  [SQ] COMMIT_SIGNAL: robPtr=%x (slotIdx=1) marked as committed.", StoreBufferPlugin_logic_slots_1_robPtr); // StoreBufferPlugin.scala:L420
-              end
-            `endif
-          `endif
-        end
-      end
-      if(when_StoreBufferPlugin_l412_2) begin
-        if(when_StoreBufferPlugin_l418_2) begin
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // StoreBufferPlugin.scala:L420
-            `else
-              if(!1'b0) begin
-                $display("NOTE(StoreBufferPlugin.scala:420):  [SQ] COMMIT_SIGNAL: robPtr=%x (slotIdx=2) marked as committed.", StoreBufferPlugin_logic_slots_2_robPtr); // StoreBufferPlugin.scala:L420
-              end
-            `endif
-          `endif
-        end
-      end
-      if(when_StoreBufferPlugin_l412_3) begin
-        if(when_StoreBufferPlugin_l418_3) begin
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // StoreBufferPlugin.scala:L420
-            `else
-              if(!1'b0) begin
-                $display("NOTE(StoreBufferPlugin.scala:420):  [SQ] COMMIT_SIGNAL: robPtr=%x (slotIdx=3) marked as committed.", StoreBufferPlugin_logic_slots_3_robPtr); // StoreBufferPlugin.scala:L420
-              end
-            `endif
-          `endif
-        end
       end
       if(when_StoreBufferPlugin_l429) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L430
+            assert(1'b0); // StoreBufferPlugin.scala:L431
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:430):  [SQ] FULL_FLUSH received. Clearing all slots."); // StoreBufferPlugin.scala:L430
+              $display("NOTE(StoreBufferPlugin.scala:431):  [SQ] DCACHE_READY observed for robPtr=%x. Exiting WAIT_FOR_WB.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L431
+            end
+          `endif
+        `endif
+      end
+      if(when_StoreBufferPlugin_l445) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // StoreBufferPlugin.scala:L448
+          `else
+            if(!1'b0) begin
+              $display("NOTE(StoreBufferPlugin.scala:448):  [SQ] FLUSH (Exec): Invalidating slotIdx=0 (robPtr=%x)", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L448
             end
           `endif
         `endif
       end else begin
-        if(when_StoreBufferPlugin_l434) begin
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // StoreBufferPlugin.scala:L436
-            `else
-              if(!1'b0) begin
-                $display("NOTE(StoreBufferPlugin.scala:436):  [33m[SQ] FLUSH received from ROB: targetRobPtr=%x[0m", ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr); // StoreBufferPlugin.scala:L436
-              end
-            `endif
-          `endif
-          if(when_StoreBufferPlugin_l438) begin
+        if(when_StoreBufferPlugin_l449) begin
+          if(when_StoreBufferPlugin_l455) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // StoreBufferPlugin.scala:L440
+                assert(1'b0); // StoreBufferPlugin.scala:L458
               `else
                 if(!1'b0) begin
-                  $display("NOTE(StoreBufferPlugin.scala:440):  [SQ] FLUSH: Invalidating slotIdx=0 (robPtr=%x)", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L440
-                end
-              `endif
-            `endif
-          end
-          if(when_StoreBufferPlugin_l438_1) begin
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(1'b0); // StoreBufferPlugin.scala:L440
-              `else
-                if(!1'b0) begin
-                  $display("NOTE(StoreBufferPlugin.scala:440):  [SQ] FLUSH: Invalidating slotIdx=1 (robPtr=%x)", StoreBufferPlugin_logic_slots_1_robPtr); // StoreBufferPlugin.scala:L440
-                end
-              `endif
-            `endif
-          end
-          if(when_StoreBufferPlugin_l438_2) begin
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(1'b0); // StoreBufferPlugin.scala:L440
-              `else
-                if(!1'b0) begin
-                  $display("NOTE(StoreBufferPlugin.scala:440):  [SQ] FLUSH: Invalidating slotIdx=2 (robPtr=%x)", StoreBufferPlugin_logic_slots_2_robPtr); // StoreBufferPlugin.scala:L440
-                end
-              `endif
-            `endif
-          end
-          if(when_StoreBufferPlugin_l438_3) begin
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(1'b0); // StoreBufferPlugin.scala:L440
-              `else
-                if(!1'b0) begin
-                  $display("NOTE(StoreBufferPlugin.scala:440):  [SQ] FLUSH: Invalidating slotIdx=3 (robPtr=%x)", StoreBufferPlugin_logic_slots_3_robPtr); // StoreBufferPlugin.scala:L440
+                  $display("NOTE(StoreBufferPlugin.scala:458):  [SQ] COMMIT_SIGNAL: robPtr=%x (slotIdx=0) marked as committed.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L458
                 end
               `endif
             `endif
           end
         end
       end
-      if(StoreBufferPlugin_logic_popRequest) begin
+      if(when_StoreBufferPlugin_l445_1) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // StoreBufferPlugin.scala:L448
+          `else
+            if(!1'b0) begin
+              $display("NOTE(StoreBufferPlugin.scala:448):  [SQ] FLUSH (Exec): Invalidating slotIdx=1 (robPtr=%x)", StoreBufferPlugin_logic_slots_1_robPtr); // StoreBufferPlugin.scala:L448
+            end
+          `endif
+        `endif
+      end else begin
+        if(when_StoreBufferPlugin_l449_1) begin
+          if(when_StoreBufferPlugin_l455_1) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // StoreBufferPlugin.scala:L458
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(StoreBufferPlugin.scala:458):  [SQ] COMMIT_SIGNAL: robPtr=%x (slotIdx=1) marked as committed.", StoreBufferPlugin_logic_slots_1_robPtr); // StoreBufferPlugin.scala:L458
+                end
+              `endif
+            `endif
+          end
+        end
+      end
+      if(when_StoreBufferPlugin_l445_2) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // StoreBufferPlugin.scala:L448
+          `else
+            if(!1'b0) begin
+              $display("NOTE(StoreBufferPlugin.scala:448):  [SQ] FLUSH (Exec): Invalidating slotIdx=2 (robPtr=%x)", StoreBufferPlugin_logic_slots_2_robPtr); // StoreBufferPlugin.scala:L448
+            end
+          `endif
+        `endif
+      end else begin
+        if(when_StoreBufferPlugin_l449_2) begin
+          if(when_StoreBufferPlugin_l455_2) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // StoreBufferPlugin.scala:L458
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(StoreBufferPlugin.scala:458):  [SQ] COMMIT_SIGNAL: robPtr=%x (slotIdx=2) marked as committed.", StoreBufferPlugin_logic_slots_2_robPtr); // StoreBufferPlugin.scala:L458
+                end
+              `endif
+            `endif
+          end
+        end
+      end
+      if(when_StoreBufferPlugin_l445_3) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // StoreBufferPlugin.scala:L448
+          `else
+            if(!1'b0) begin
+              $display("NOTE(StoreBufferPlugin.scala:448):  [SQ] FLUSH (Exec): Invalidating slotIdx=3 (robPtr=%x)", StoreBufferPlugin_logic_slots_3_robPtr); // StoreBufferPlugin.scala:L448
+            end
+          `endif
+        `endif
+      end else begin
+        if(when_StoreBufferPlugin_l449_3) begin
+          if(when_StoreBufferPlugin_l455_3) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // StoreBufferPlugin.scala:L458
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(StoreBufferPlugin.scala:458):  [SQ] COMMIT_SIGNAL: robPtr=%x (slotIdx=3) marked as committed.", StoreBufferPlugin_logic_slots_3_robPtr); // StoreBufferPlugin.scala:L458
+                end
+              `endif
+            `endif
+          end
+        end
+      end
+      if(when_StoreBufferPlugin_l466) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
             assert(1'b0); // StoreBufferPlugin.scala:L467
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:467):  [SQ] POP: Popping slot 0 (robPtr=%x, isFlush=%x)", StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr, StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush); // StoreBufferPlugin.scala:L467
+              $display("NOTE(StoreBufferPlugin.scala:467):  [SQ] FULL_FLUSH received. Clearing all slots."); // StoreBufferPlugin.scala:L467
+            end
+          `endif
+        `endif
+      end
+      if(StoreBufferPlugin_logic_popRequest) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // StoreBufferPlugin.scala:L495
+          `else
+            if(!1'b0) begin
+              $display("NOTE(StoreBufferPlugin.scala:495):  [SQ] POP: Popping slot 0 (robPtr=%x, isFlush=%x)", StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr, StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush); // StoreBufferPlugin.scala:L495
             end
           `endif
         `endif
       end
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // StoreBufferPlugin.scala:L494
+          assert(1'b0); // StoreBufferPlugin.scala:L522
         `else
           if(!1'b0) begin
-            $display("NOTE(StoreBufferPlugin.scala:494):  [34m[SQ-Fwd] Query: valid=%x robPtr=%x addr=%x size=%s[0m", StoreBufferPlugin_hw_sqQueryPort_cmd_valid, StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr, StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address, StoreBufferPlugin_hw_sqQueryPort_cmd_payload_size_string); // StoreBufferPlugin.scala:L494
+            $display("NOTE(StoreBufferPlugin.scala:522):  [34m[SQ-Fwd] Query: valid=%x robPtr=%x addr=%x size=%s[0m", StoreBufferPlugin_hw_sqQueryPort_cmd_valid, StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr, StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address, StoreBufferPlugin_hw_sqQueryPort_cmd_payload_size_string); // StoreBufferPlugin.scala:L522
           end
         `endif
       `endif
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // StoreBufferPlugin.scala:L526
+          assert(1'b0); // StoreBufferPlugin.scala:L558
         `else
           if(!1'b0) begin
-            $display("NOTE(StoreBufferPlugin.scala:526):  [34m[SQ-Fwd] Forwarding? hit=%x, because query.valid=%x, allRequiredBytesHit=%x[0m", StoreBufferPlugin_hw_sqQueryPort_rsp_hit, StoreBufferPlugin_hw_sqQueryPort_cmd_valid, StoreBufferPlugin_logic_forwardingLogic_allRequiredBytesHit); // StoreBufferPlugin.scala:L526
+            $display("NOTE(StoreBufferPlugin.scala:558):  [34m[SQ-Fwd] Forwarding? hit=%x, because query.valid=%x, allRequiredBytesHit=%x[0m", StoreBufferPlugin_hw_sqQueryPort_rsp_hit, StoreBufferPlugin_hw_sqQueryPort_cmd_valid, StoreBufferPlugin_logic_forwardingLogic_allRequiredBytesHit); // StoreBufferPlugin.scala:L558
           end
         `endif
       `endif
-      if(when_StoreBufferPlugin_l544) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L545
-          `else
-            if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:545):  [34m[SQ-Fwd] Conflict detected: slot=%x (load=%x, store=%x)[0m", StoreBufferPlugin_logic_slots_0_robPtr, _zz_when_StoreBufferPlugin_l544, _zz_when_StoreBufferPlugin_l544_1); // StoreBufferPlugin.scala:L545
-            end
+      if(when_StoreBufferPlugin_l567) begin
+        if(when_StoreBufferPlugin_l580) begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // StoreBufferPlugin.scala:L581
+            `else
+              if(!1'b0) begin
+                $display("NOTE(StoreBufferPlugin.scala:581):  [34m[SQ-Fwd] Conflict detected: slot=%x (load=%x, store=%x)[0m", StoreBufferPlugin_logic_slots_0_robPtr, _zz_when_StoreBufferPlugin_l580, _zz_when_StoreBufferPlugin_l580_1); // StoreBufferPlugin.scala:L581
+              end
+            `endif
           `endif
-        `endif
+        end
       end
-      if(when_StoreBufferPlugin_l544_1) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L545
-          `else
-            if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:545):  [34m[SQ-Fwd] Conflict detected: slot=%x (load=%x, store=%x)[0m", StoreBufferPlugin_logic_slots_1_robPtr, _zz_when_StoreBufferPlugin_l544_6, _zz_when_StoreBufferPlugin_l544_7); // StoreBufferPlugin.scala:L545
-            end
+      if(when_StoreBufferPlugin_l567_1) begin
+        if(when_StoreBufferPlugin_l580_1) begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // StoreBufferPlugin.scala:L581
+            `else
+              if(!1'b0) begin
+                $display("NOTE(StoreBufferPlugin.scala:581):  [34m[SQ-Fwd] Conflict detected: slot=%x (load=%x, store=%x)[0m", StoreBufferPlugin_logic_slots_1_robPtr, _zz_when_StoreBufferPlugin_l580_6, _zz_when_StoreBufferPlugin_l580_7); // StoreBufferPlugin.scala:L581
+              end
+            `endif
           `endif
-        `endif
+        end
       end
-      if(when_StoreBufferPlugin_l544_2) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L545
-          `else
-            if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:545):  [34m[SQ-Fwd] Conflict detected: slot=%x (load=%x, store=%x)[0m", StoreBufferPlugin_logic_slots_2_robPtr, _zz_when_StoreBufferPlugin_l544_12, _zz_when_StoreBufferPlugin_l544_13); // StoreBufferPlugin.scala:L545
-            end
+      if(when_StoreBufferPlugin_l567_2) begin
+        if(when_StoreBufferPlugin_l580_2) begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // StoreBufferPlugin.scala:L581
+            `else
+              if(!1'b0) begin
+                $display("NOTE(StoreBufferPlugin.scala:581):  [34m[SQ-Fwd] Conflict detected: slot=%x (load=%x, store=%x)[0m", StoreBufferPlugin_logic_slots_2_robPtr, _zz_when_StoreBufferPlugin_l580_12, _zz_when_StoreBufferPlugin_l580_13); // StoreBufferPlugin.scala:L581
+              end
+            `endif
           `endif
-        `endif
+        end
       end
-      if(when_StoreBufferPlugin_l544_3) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L545
-          `else
-            if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:545):  [34m[SQ-Fwd] Conflict detected: slot=%x (load=%x, store=%x)[0m", StoreBufferPlugin_logic_slots_3_robPtr, _zz_when_StoreBufferPlugin_l544_18, _zz_when_StoreBufferPlugin_l544_19); // StoreBufferPlugin.scala:L545
-            end
+      if(when_StoreBufferPlugin_l567_3) begin
+        if(when_StoreBufferPlugin_l580_3) begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // StoreBufferPlugin.scala:L581
+            `else
+              if(!1'b0) begin
+                $display("NOTE(StoreBufferPlugin.scala:581):  [34m[SQ-Fwd] Conflict detected: slot=%x (load=%x, store=%x)[0m", StoreBufferPlugin_logic_slots_3_robPtr, _zz_when_StoreBufferPlugin_l580_18, _zz_when_StoreBufferPlugin_l580_19); // StoreBufferPlugin.scala:L581
+              end
+            `endif
           `endif
-        `endif
+        end
       end
-      if(when_StoreBufferPlugin_l551) begin
+      if(when_StoreBufferPlugin_l588) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L552
+            assert(1'b0); // StoreBufferPlugin.scala:L589
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:552):  [34m[SQ-Fwd] HIT: Forwarding to Load(rob=%x) data=%x from SB.[0m", StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr, StoreBufferPlugin_hw_sqQueryPort_rsp_data); // StoreBufferPlugin.scala:L552
+              $display("NOTE(StoreBufferPlugin.scala:589):  [34m[SQ-Fwd] HIT: Forwarding to Load(rob=%x) data=%x from SB.[0m", StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr, StoreBufferPlugin_hw_sqQueryPort_rsp_data); // StoreBufferPlugin.scala:L589
             end
           `endif
         `endif
@@ -22517,38 +22655,38 @@ module CoreNSCSCC (
       if(StoreBufferPlugin_hw_sqQueryPort_cmd_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L557
+            assert(1'b0); // StoreBufferPlugin.scala:L594
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:557):  [34m[SQ-Fwd] Query: SqQuery(robPtr=%x,address=%x,size=%s)[0m", StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr, StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address, StoreBufferPlugin_hw_sqQueryPort_cmd_payload_size_string); // StoreBufferPlugin.scala:L557
+              $display("NOTE(StoreBufferPlugin.scala:594):  [34m[SQ-Fwd] Query: SqQuery(robPtr=%x,address=%x,size=%s)[0m", StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr, StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address, StoreBufferPlugin_hw_sqQueryPort_cmd_payload_size_string); // StoreBufferPlugin.scala:L594
             end
           `endif
         `endif
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L558
+            assert(1'b0); // StoreBufferPlugin.scala:L595
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:558):  [34m[SQ-Fwd] Rsp: SqQueryRsp(hit=%x,data=%x,olderStoreHasUnknownAddress=%x,olderStoreMatchingAddress=%x)[0m", StoreBufferPlugin_hw_sqQueryPort_rsp_hit, StoreBufferPlugin_hw_sqQueryPort_rsp_data, StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreHasUnknownAddress, StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreMatchingAddress); // StoreBufferPlugin.scala:L558
+              $display("NOTE(StoreBufferPlugin.scala:595):  [34m[SQ-Fwd] Rsp: SqQueryRsp(hit=%x,data=%x,olderStoreHasUnknownAddress=%x,olderStoreMatchingAddress=%x)[0m", StoreBufferPlugin_hw_sqQueryPort_rsp_hit, StoreBufferPlugin_hw_sqQueryPort_rsp_data, StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreHasUnknownAddress, StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreMatchingAddress); // StoreBufferPlugin.scala:L595
             end
           `endif
         `endif
       end
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // StoreBufferPlugin.scala:L560
+          assert(1'b0); // StoreBufferPlugin.scala:L597
         `else
           if(!1'b0) begin
-            $display("NOTE(StoreBufferPlugin.scala:560):  [34m[SQ-Fwd] Result: hitMask=%x (loadMask=%x), allHit=%x, finalRsp.hit=%x[0m", StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask, StoreBufferPlugin_logic_forwardingLogic_loadMask, StoreBufferPlugin_logic_forwardingLogic_allRequiredBytesHit, StoreBufferPlugin_hw_sqQueryPort_rsp_hit); // StoreBufferPlugin.scala:L560
+            $display("NOTE(StoreBufferPlugin.scala:597):  [34m[SQ-Fwd] Result: hitMask=%x (loadMask=%x), allHit=%x, finalRsp.hit=%x[0m", StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask, StoreBufferPlugin_logic_forwardingLogic_loadMask, StoreBufferPlugin_logic_forwardingLogic_allRequiredBytesHit, StoreBufferPlugin_hw_sqQueryPort_rsp_hit); // StoreBufferPlugin.scala:L597
           end
         `endif
       `endif
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // StoreBufferPlugin.scala:L599
+          assert(1'b0); // StoreBufferPlugin.scala:L640
         `else
           if(!1'b0) begin
-            $display("NOTE(StoreBufferPlugin.scala:599):  [SQ] bypassDataOut: valid=%x, data=%x, hit=%x, hitMask=%x", StoreBufferPlugin_hw_bypassDataOutInst_valid, StoreBufferPlugin_hw_bypassDataOutInst_payload_data, StoreBufferPlugin_hw_bypassDataOutInst_payload_hit, StoreBufferPlugin_hw_bypassDataOutInst_payload_hitMask); // StoreBufferPlugin.scala:L599
+            $display("NOTE(StoreBufferPlugin.scala:640):  [SQ] bypassDataOut: valid=%x, data=%x, hit=%x, hitMask=%x", StoreBufferPlugin_hw_bypassDataOutInst_valid, StoreBufferPlugin_hw_bypassDataOutInst_payload_data, StoreBufferPlugin_hw_bypassDataOutInst_payload_hit, StoreBufferPlugin_hw_bypassDataOutInst_payload_hitMask); // StoreBufferPlugin.scala:L640
           end
         `endif
       `endif
@@ -22619,10 +22757,10 @@ module CoreNSCSCC (
       if(StoreBufferPlugin_logic_slots_0_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L606
+            assert(1'b0); // StoreBufferPlugin.scala:L647
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:606):  [SQ-Debug] HeadSlot State: valid=%x, isCommitted=%x, isSentToDCache=%x, dcacheOpPending=%x, isWaitingForRefill=%x, isWaitingForWb=%x, hasEarlyException=%x, isIO=%x, isFlush=%x", StoreBufferPlugin_logic_slots_0_valid, StoreBufferPlugin_logic_slots_0_isCommitted, StoreBufferPlugin_logic_slots_0_sentCmd, StoreBufferPlugin_logic_slots_0_waitRsp, StoreBufferPlugin_logic_slots_0_isWaitingForRefill, StoreBufferPlugin_logic_slots_0_isWaitingForWb, StoreBufferPlugin_logic_slots_0_hasEarlyException, StoreBufferPlugin_logic_slots_0_isIO, StoreBufferPlugin_logic_slots_0_isFlush); // StoreBufferPlugin.scala:L606
+              $display("NOTE(StoreBufferPlugin.scala:647):  [SQ-Debug] HeadSlot State: valid=%x, isCommitted=%x, isSentToDCache=%x, dcacheOpPending=%x, isWaitingForRefill=%x, isWaitingForWb=%x, hasEarlyException=%x, isIO=%x, isFlush=%x", StoreBufferPlugin_logic_slots_0_valid, StoreBufferPlugin_logic_slots_0_isCommitted, StoreBufferPlugin_logic_slots_0_sentCmd, StoreBufferPlugin_logic_slots_0_waitRsp, StoreBufferPlugin_logic_slots_0_isWaitingForRefill, StoreBufferPlugin_logic_slots_0_isWaitingForWb, StoreBufferPlugin_logic_slots_0_hasEarlyException, StoreBufferPlugin_logic_slots_0_isIO, StoreBufferPlugin_logic_slots_0_isFlush); // StoreBufferPlugin.scala:L647
             end
           `endif
         `endif
@@ -22630,10 +22768,10 @@ module CoreNSCSCC (
       if(StoreBufferPlugin_logic_slots_1_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L606
+            assert(1'b0); // StoreBufferPlugin.scala:L647
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:606):  [SQ-Debug] HeadSlot State: valid=%x, isCommitted=%x, isSentToDCache=%x, dcacheOpPending=%x, isWaitingForRefill=%x, isWaitingForWb=%x, hasEarlyException=%x, isIO=%x, isFlush=%x", StoreBufferPlugin_logic_slots_1_valid, StoreBufferPlugin_logic_slots_1_isCommitted, StoreBufferPlugin_logic_slots_1_sentCmd, StoreBufferPlugin_logic_slots_1_waitRsp, StoreBufferPlugin_logic_slots_1_isWaitingForRefill, StoreBufferPlugin_logic_slots_1_isWaitingForWb, StoreBufferPlugin_logic_slots_1_hasEarlyException, StoreBufferPlugin_logic_slots_1_isIO, StoreBufferPlugin_logic_slots_1_isFlush); // StoreBufferPlugin.scala:L606
+              $display("NOTE(StoreBufferPlugin.scala:647):  [SQ-Debug] HeadSlot State: valid=%x, isCommitted=%x, isSentToDCache=%x, dcacheOpPending=%x, isWaitingForRefill=%x, isWaitingForWb=%x, hasEarlyException=%x, isIO=%x, isFlush=%x", StoreBufferPlugin_logic_slots_1_valid, StoreBufferPlugin_logic_slots_1_isCommitted, StoreBufferPlugin_logic_slots_1_sentCmd, StoreBufferPlugin_logic_slots_1_waitRsp, StoreBufferPlugin_logic_slots_1_isWaitingForRefill, StoreBufferPlugin_logic_slots_1_isWaitingForWb, StoreBufferPlugin_logic_slots_1_hasEarlyException, StoreBufferPlugin_logic_slots_1_isIO, StoreBufferPlugin_logic_slots_1_isFlush); // StoreBufferPlugin.scala:L647
             end
           `endif
         `endif
@@ -22641,10 +22779,10 @@ module CoreNSCSCC (
       if(StoreBufferPlugin_logic_slots_2_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L606
+            assert(1'b0); // StoreBufferPlugin.scala:L647
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:606):  [SQ-Debug] HeadSlot State: valid=%x, isCommitted=%x, isSentToDCache=%x, dcacheOpPending=%x, isWaitingForRefill=%x, isWaitingForWb=%x, hasEarlyException=%x, isIO=%x, isFlush=%x", StoreBufferPlugin_logic_slots_2_valid, StoreBufferPlugin_logic_slots_2_isCommitted, StoreBufferPlugin_logic_slots_2_sentCmd, StoreBufferPlugin_logic_slots_2_waitRsp, StoreBufferPlugin_logic_slots_2_isWaitingForRefill, StoreBufferPlugin_logic_slots_2_isWaitingForWb, StoreBufferPlugin_logic_slots_2_hasEarlyException, StoreBufferPlugin_logic_slots_2_isIO, StoreBufferPlugin_logic_slots_2_isFlush); // StoreBufferPlugin.scala:L606
+              $display("NOTE(StoreBufferPlugin.scala:647):  [SQ-Debug] HeadSlot State: valid=%x, isCommitted=%x, isSentToDCache=%x, dcacheOpPending=%x, isWaitingForRefill=%x, isWaitingForWb=%x, hasEarlyException=%x, isIO=%x, isFlush=%x", StoreBufferPlugin_logic_slots_2_valid, StoreBufferPlugin_logic_slots_2_isCommitted, StoreBufferPlugin_logic_slots_2_sentCmd, StoreBufferPlugin_logic_slots_2_waitRsp, StoreBufferPlugin_logic_slots_2_isWaitingForRefill, StoreBufferPlugin_logic_slots_2_isWaitingForWb, StoreBufferPlugin_logic_slots_2_hasEarlyException, StoreBufferPlugin_logic_slots_2_isIO, StoreBufferPlugin_logic_slots_2_isFlush); // StoreBufferPlugin.scala:L647
             end
           `endif
         `endif
@@ -22652,63 +22790,63 @@ module CoreNSCSCC (
       if(StoreBufferPlugin_logic_slots_3_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L606
+            assert(1'b0); // StoreBufferPlugin.scala:L647
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:606):  [SQ-Debug] HeadSlot State: valid=%x, isCommitted=%x, isSentToDCache=%x, dcacheOpPending=%x, isWaitingForRefill=%x, isWaitingForWb=%x, hasEarlyException=%x, isIO=%x, isFlush=%x", StoreBufferPlugin_logic_slots_3_valid, StoreBufferPlugin_logic_slots_3_isCommitted, StoreBufferPlugin_logic_slots_3_sentCmd, StoreBufferPlugin_logic_slots_3_waitRsp, StoreBufferPlugin_logic_slots_3_isWaitingForRefill, StoreBufferPlugin_logic_slots_3_isWaitingForWb, StoreBufferPlugin_logic_slots_3_hasEarlyException, StoreBufferPlugin_logic_slots_3_isIO, StoreBufferPlugin_logic_slots_3_isFlush); // StoreBufferPlugin.scala:L606
+              $display("NOTE(StoreBufferPlugin.scala:647):  [SQ-Debug] HeadSlot State: valid=%x, isCommitted=%x, isSentToDCache=%x, dcacheOpPending=%x, isWaitingForRefill=%x, isWaitingForWb=%x, hasEarlyException=%x, isIO=%x, isFlush=%x", StoreBufferPlugin_logic_slots_3_valid, StoreBufferPlugin_logic_slots_3_isCommitted, StoreBufferPlugin_logic_slots_3_sentCmd, StoreBufferPlugin_logic_slots_3_waitRsp, StoreBufferPlugin_logic_slots_3_isWaitingForRefill, StoreBufferPlugin_logic_slots_3_isWaitingForWb, StoreBufferPlugin_logic_slots_3_hasEarlyException, StoreBufferPlugin_logic_slots_3_isIO, StoreBufferPlugin_logic_slots_3_isFlush); // StoreBufferPlugin.scala:L647
             end
           `endif
         `endif
       end
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // StoreBufferPlugin.scala:L619
+          assert(1'b0); // StoreBufferPlugin.scala:L660
         `else
           if(!1'b0) begin
-            $display("NOTE(StoreBufferPlugin.scala:619):  [SQ-Debug] DCache Interface: cmd.valid=%x, cmd.ready=%x, rsp.valid=%x, canPopToDCache=%x", StoreBufferPlugin_hw_dCacheStorePort_cmd_valid, StoreBufferPlugin_hw_dCacheStorePort_cmd_ready, StoreBufferPlugin_hw_dCacheStorePort_rsp_valid, StoreBufferPlugin_logic_canPopToDCache); // StoreBufferPlugin.scala:L619
+            $display("NOTE(StoreBufferPlugin.scala:660):  [SQ-Debug] DCache Interface: cmd.valid=%x, cmd.ready=%x, rsp.valid=%x, canPopToDCache=%x", StoreBufferPlugin_hw_dCacheStorePort_cmd_valid, StoreBufferPlugin_hw_dCacheStorePort_cmd_ready, StoreBufferPlugin_hw_dCacheStorePort_rsp_valid, StoreBufferPlugin_logic_canPopToDCache); // StoreBufferPlugin.scala:L660
           end
         `endif
       `endif
-      if(when_StoreBufferPlugin_l627) begin
+      if(when_StoreBufferPlugin_l668) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L628
+            assert(1'b0); // StoreBufferPlugin.scala:L669
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:628):  [SQ-Debug] Slot 0: waiting for commit, robPtr=%x", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L628
+              $display("NOTE(StoreBufferPlugin.scala:669):  [SQ-Debug] Slot 0: waiting for commit, robPtr=%x", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L669
             end
           `endif
         `endif
       end
-      if(when_StoreBufferPlugin_l627_1) begin
+      if(when_StoreBufferPlugin_l668_1) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L628
+            assert(1'b0); // StoreBufferPlugin.scala:L669
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:628):  [SQ-Debug] Slot 1: waiting for commit, robPtr=%x", StoreBufferPlugin_logic_slots_1_robPtr); // StoreBufferPlugin.scala:L628
+              $display("NOTE(StoreBufferPlugin.scala:669):  [SQ-Debug] Slot 1: waiting for commit, robPtr=%x", StoreBufferPlugin_logic_slots_1_robPtr); // StoreBufferPlugin.scala:L669
             end
           `endif
         `endif
       end
-      if(when_StoreBufferPlugin_l627_2) begin
+      if(when_StoreBufferPlugin_l668_2) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L628
+            assert(1'b0); // StoreBufferPlugin.scala:L669
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:628):  [SQ-Debug] Slot 2: waiting for commit, robPtr=%x", StoreBufferPlugin_logic_slots_2_robPtr); // StoreBufferPlugin.scala:L628
+              $display("NOTE(StoreBufferPlugin.scala:669):  [SQ-Debug] Slot 2: waiting for commit, robPtr=%x", StoreBufferPlugin_logic_slots_2_robPtr); // StoreBufferPlugin.scala:L669
             end
           `endif
         `endif
       end
-      if(when_StoreBufferPlugin_l627_3) begin
+      if(when_StoreBufferPlugin_l668_3) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L628
+            assert(1'b0); // StoreBufferPlugin.scala:L669
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:628):  [SQ-Debug] Slot 3: waiting for commit, robPtr=%x", StoreBufferPlugin_logic_slots_3_robPtr); // StoreBufferPlugin.scala:L628
+              $display("NOTE(StoreBufferPlugin.scala:669):  [SQ-Debug] Slot 3: waiting for commit, robPtr=%x", StoreBufferPlugin_logic_slots_3_robPtr); // StoreBufferPlugin.scala:L669
             end
           `endif
         `endif
