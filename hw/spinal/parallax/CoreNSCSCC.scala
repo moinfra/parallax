@@ -455,11 +455,11 @@ class CoreNSCSCC(simDebug: Boolean = false) extends Component {
     plugins()
   )
 
-  if (onboardDebug) {
+  // if (onboardDebug) {
     val commitService = framework.getService[CommitPlugin]
     // TODO: REMOVE THIS HARDCODED AFTER BUG FIXED
     commitService.setMaxCommitPc(U(BigInt("80001000", 16), 32 bits), True)
-  }
+  // }
 
   val memSysPlugin = framework.getService[CoreMemSysPlugin]
   // 获取内存系统的SRAM接口

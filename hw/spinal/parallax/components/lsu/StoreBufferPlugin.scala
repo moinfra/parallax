@@ -236,11 +236,35 @@ class StoreBufferPlugin(
         }
         private def isOlder(robPtrA: UInt, robPtrB: UInt): Bool = !isNewerOrSame(robPtrA, robPtrB)
 
+        // --- Flush Logic (moved here to define flushInProgress early) ---
+        val robFlushPort = robService.getFlushListeningPort()
+        
+        // 1. 立即生效的组合逻辑信号：用于立即屏蔽交互
+        val flushInProgress = robFlushPort.valid && robFlushPort.payload.reason === FlushReason.ROLLBACK_TO_ROB_IDX
+        val flushTargetRobPtr = robFlushPort.payload.targetRobPtr // 立即生效的冲刷目标
+        
+        // 2. 延迟一拍的寄存器信号：用于实际执行槽位清理
+        case class FlushInfo() extends Bundle {
+            val valid = Bool()
+            val targetRobPtr = UInt(pipelineConfig.robPtrWidth)
+        }
+        val registeredFlush = RegNext({
+            val info = FlushInfo()
+            info.valid      := flushInProgress
+            info.targetRobPtr := flushTargetRobPtr
+            info
+        }).init({
+            val info = FlushInfo()
+            info.valid := False
+            info.targetRobPtr := 0
+            info
+        })
+        
         // --- SB Push/Pop/Commit/Flush Logic ---
         val validFall = Vec(Bool(), sbDepth)
         validFall(0) := !slots(0).valid
         for(i <- 1 until sbDepth) { validFall(i) := slots(i-1).valid && !slots(i).valid }
-        val canPush = validFall.orR
+        val canPush = validFall.orR && !flushInProgress
         pushPortIn.ready := canPush
 
         when(pushPortIn.fire) {
@@ -408,14 +432,28 @@ class StoreBufferPlugin(
         }
         // --- Commit and Flush Logic (Unchanged) ---
         val commitInfoFromRob = robService.getCommitSlots(pipelineConfig.commitWidth)
+        
+        // <<<<<<< 重构: 循环更新每个槽位，并确保冲刷优先 >>>>>>>
         for(i <- 0 until sbDepth){
-            when(slots(i).valid && !slots(i).isCommitted){
+            // 检查这个槽位是否在此周期被延迟的冲刷信号命中
+            val toBeFlushed = registeredFlush.valid && 
+                              slots(i).valid && 
+                              !slots(i).isCommitted && 
+                              isNewerOrSame(slots(i).robPtr, registeredFlush.targetRobPtr)
+
+            // 优先处理冲刷
+            when(toBeFlushed) {
+                // 如果要冲刷，则直接将槽位置为无效，忽略所有其他信号
+                slotsAfterUpdates(i).valid := False
+                ParallaxSim.log(L"[SQ] FLUSH (Exec): Invalidating slotIdx=${i} (robPtr=${slots(i).robPtr})")
+            } .elsewhen(slots(i).valid && !slots(i).isCommitted) {
+                // 只有在不被冲刷的前提下，才检查提交信号
                 for(j <- 0 until pipelineConfig.commitWidth){
-                    // 关键修复：移除了对 commitAcksFromRob 的依赖
                     when(commitInfoFromRob(j).valid &&
                          commitInfoFromRob(j).entry.payload.uop.robPtr === slots(i).robPtr &&
                          commitInfoFromRob(j).entry.payload.uop.decoded.uopCode === BaseUopCode.STORE &&
                          !commitInfoFromRob(j).entry.status.hasException) {
+                        
                         slotsAfterUpdates(i).isCommitted := True
                         ParallaxSim.log(L"[SQ] COMMIT_SIGNAL: robPtr=${slots(i).robPtr} (slotIdx=${i}) marked as committed.")
                     }
@@ -425,21 +463,11 @@ class StoreBufferPlugin(
 
 
 
-        val robFlushPort = robService.getFlushListeningPort()
         when(robFlushPort.valid && robFlushPort.payload.reason === FlushReason.FULL_FLUSH) {
                 ParallaxSim.log(L"[SQ] FULL_FLUSH received. Clearing all slots.")
                 for(i <- 0 until sbDepth) {
                     slotsAfterUpdates(i).valid := False
                 }
-        }.elsewhen (robFlushPort.valid && robFlushPort.payload.reason === FlushReason.ROLLBACK_TO_ROB_IDX) {
-            val flushedRobStartIdx = robFlushPort.payload.targetRobPtr
-            ParallaxSim.warning(L"[SQ] FLUSH received from ROB: targetRobPtr=${flushedRobStartIdx}")
-            for(i <- 0 until sbDepth){
-                when(slots(i).valid && !slots(i).isCommitted && isNewerOrSame(slots(i).robPtr, flushedRobStartIdx)){
-                    slotsAfterUpdates(i).valid := False
-                    ParallaxSim.log(L"[SQ] FLUSH: Invalidating slotIdx=${i} (robPtr=${slots(i).robPtr})")
-                }
-            }
         }
 
         // --- Pop Logic ---
@@ -495,20 +523,24 @@ class StoreBufferPlugin(
 
             val forwardingResult = slots.reverse.foldLeft(bypassInitial) { (acc, slot) =>
                 val nextAcc = CombInit(acc)
-                val loadWordAddr = query.payload.address(pcAddrWidth-1 downto wordAddrBits)
-                val storeWordAddr = slot.addr(pcAddrWidth-1 downto wordAddrBits)
-                val canForward = slot.valid && !slot.hasEarlyException &&
-                                 isOlder(slot.robPtr, query.payload.robPtr) &&
-                                 (loadWordAddr === storeWordAddr)
-                when(slot.valid) {
-                    // ParallaxSim.debug(L"[SQ-Fwd] Checking slot(rob=${slot.robPtr}, addr=${slot.addr}): canForward=${canForward} (isOlder=${isOlder(slot.robPtr, query.payload.robPtr)}, addrMatch=${loadWordAddr === storeWordAddr})")
-                }
-                // ParallaxSim.debug(L"[SQ-Fwd] Forwarding? slot=${slot.robPtr} (load=${loadWordAddr}, store=${storeWordAddr}) canForward=${canForward}")
-                when(canForward) {
-                    for (k <- 0 until dataWidthBytes) {
-                        when(slot.be(k) && loadMask(k) && !acc.hitMask(k)) {
-                            nextAcc.data(k*8, 8 bits) := slot.data(k*8, 8 bits)
-                            nextAcc.hitMask(k)        := True
+                
+                // <<<<<<< 新增: 定义一个槽位是否"可见"的条件 >>>>>>>>>
+                // 一个槽位只有在它本身有效，并且它不是一个正在被冲刷的推测性条目时，才是可见的。
+                val isSlotVisible = slot.valid && !(flushInProgress && !slot.isCommitted && isNewerOrSame(slot.robPtr, flushTargetRobPtr))
+                
+                when(isSlotVisible) {
+                    val loadWordAddr = query.payload.address(pcAddrWidth-1 downto wordAddrBits)
+                    val storeWordAddr = slot.addr(pcAddrWidth-1 downto wordAddrBits)
+                    val canForward = !slot.hasEarlyException &&
+                                     isOlder(slot.robPtr, query.payload.robPtr) &&
+                                     (loadWordAddr === storeWordAddr)
+                    
+                    when(canForward) {
+                        for (k <- 0 until dataWidthBytes) {
+                            when(slot.be(k) && loadMask(k) && !acc.hitMask(k)) {
+                                nextAcc.data(k*8, 8 bits) := slot.data(k*8, 8 bits)
+                                nextAcc.hitMask(k)        := True
+                            }
                         }
                     }
                 }
@@ -528,22 +560,27 @@ class StoreBufferPlugin(
             for(slot <- slots) {
                 val loadWordAddr = query.payload.address(pcAddrWidth-1 downto wordAddrBits)
                 val storeWordAddr = slot.addr(pcAddrWidth-1 downto wordAddrBits)
+                
+                // 使用 isSlotVisible 来控制所有后续逻辑
+                val isSlotVisible = slot.valid && !(flushInProgress && !slot.isCommitted && isNewerOrSame(slot.robPtr, flushTargetRobPtr))
 
-                // 判断Store是否完全覆盖了Load所需的所有字节
-                val isFullContainment = (slot.be & loadMask) === loadMask
-                // 判断是否存在任何字节的重叠
-                val hasSomeOverlap    = (slot.be & loadMask).orR
-                // 部分重叠 = 有重叠 但 非完全覆盖
-                val isPartialOverlap  = hasSomeOverlap && !isFullContainment
+                when(isSlotVisible) {
+                    // 判断Store是否完全覆盖了Load所需的所有字节
+                    val isFullContainment = (slot.be & loadMask) === loadMask
+                    // 判断是否存在任何字节的重叠
+                    val hasSomeOverlap    = (slot.be & loadMask).orR
+                    // 部分重叠 = 有重叠 但 非完全覆盖
+                    val isPartialOverlap  = hasSomeOverlap && !isFullContainment
 
-                val thisSlotConfigt = slot.valid && !slot.hasEarlyException &&
-                     isOlder(slot.robPtr, query.payload.robPtr) &&
-                     (loadWordAddr === storeWordAddr) &&
-                     isPartialOverlap
+                    val thisSlotConfigt = !slot.hasEarlyException &&
+                         isOlder(slot.robPtr, query.payload.robPtr) &&
+                         (loadWordAddr === storeWordAddr) &&
+                         isPartialOverlap
 
-                when(thisSlotConfigt) {
-                    ParallaxSim.debug(L"[SQ-Fwd] Conflict detected: slot=${slot.robPtr} (load=${loadWordAddr}, store=${storeWordAddr})")
-                    potentialConflict := True
+                    when(thisSlotConfigt) {
+                        ParallaxSim.debug(L"[SQ-Fwd] Conflict detected: slot=${slot.robPtr} (load=${loadWordAddr}, store=${storeWordAddr})")
+                        potentialConflict := True
+                    }
                 }
             }
             rsp.olderStoreMatchingAddress := query.valid && !allRequiredBytesHit && hasSomeOverlap

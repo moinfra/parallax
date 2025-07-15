@@ -27,10 +27,10 @@ class LabTestBench(val iDataWords: Seq[BigInt], val maxCommitPc: BigInt = 0, val
   io.commitStats.simPublic()
 
   // Configure PC bounds checking if enabled
-  if (enablePcCheck) {
-    val commitService = dut.framework.getService[CommitService]
-    commitService.setMaxCommitPc(U(maxCommitPc, 32 bits), True)
-  }
+  // if (enablePcCheck) {
+  //   val commitService = dut.framework.getService[CommitService]
+  //   commitService.setMaxCommitPc(U(maxCommitPc, 32 bits), True)
+  // }
 
   // Configure and instantiate the Instruction SRAM (iSram)
   val iSramConfig = SRAMConfig(
