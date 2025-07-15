@@ -121,7 +121,11 @@ class SuperScalarFreeList(val config: SuperScalarFreeListConfig) extends Compone
   // --- Allocation Logic (Superscalar) ---
   // 1. Find all available free registers in parallel
   val freeRegsOh = freeRegsMask.asBools.map(b => b.asBits).asBits // Get an OH representation of all free regs
-  val availableRegs = CountOne(freeRegsMask) // Count how many are free at the start of the cycle
+  val availableRegs = CountOne(freeRegsMask) // 组合逻辑计算
+
+  // 新增一个寄存器来锁存计算结果
+  val numFreeRegs_reg = RegNext(availableRegs) init(config.numPhysRegs - config.numInitialArchMappings)
+
 
   // 2. Find the first N free registers for the N allocate ports
   val allocatedRegsOh = Vec(Bits(config.numPhysRegs bits), config.numAllocatePorts)
@@ -218,7 +222,7 @@ class SuperScalarFreeList(val config: SuperScalarFreeListConfig) extends Compone
 
   // --- Outputs ---
   io.currentState.freeMask := freeRegsMask // This reflects the *register's* value
-  io.numFreeRegs := availableRegs // This also reflects the *register's* value
+  io.numFreeRegs := numFreeRegs_reg // This also reflects the *register's* value 这里是一个悲观值，主要是优化时序。
 
   // If(enableLog) Report final register value at the end of the cycle evaluation (for next cycle's start)
   // This needs to be done carefully, perhaps in a post-cycle check if the simulator allows,

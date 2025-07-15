@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 3105a33b457518a7afeed8b0527b4d8b9dab2383
 // Component : CoreNSCSCC
-// Git hash  : f23633ad9fc4c567952ab3ed25b7510345b96dcf
+// Git hash  : 2af7af78c4ec0adfafa6c91b517bb10be8abb7d4
 
 `timescale 1ns/1ps
 
@@ -38782,6 +38782,7 @@ module SuperScalarFreeList (
   wire       [6:0]    _zz_availableRegs_6;
   wire       [6:0]    _zz_availableRegs_7;
   wire       [6:0]    availableRegs;
+  reg        [6:0]    numFreeRegs_reg;
   wire       [63:0]   allocatedRegsOh_0;
   wire       [5:0]    allocatedRegsIdx_0;
   wire       [63:0]   freeRegsOh_ohFirst_input;
@@ -38853,7 +38854,7 @@ module SuperScalarFreeList (
   wire       [63:0]   allocatedMask;
   wire       [63:0]   nextFreeRegsMask_after_alloc;
   reg        [63:0]   nextFreeRegsMask_final_comb;
-  wire                when_SuperScalarFreeList_l181;
+  wire                when_SuperScalarFreeList_l185;
   wire       [63:0]   finalRegValueForNextCycle;
   function [63:0] zz_initMask(input dummy);
     begin
@@ -39391,21 +39392,23 @@ module SuperScalarFreeList (
   always @(*) begin
     nextFreeRegsMask_final_comb = nextFreeRegsMask_after_alloc;
     if(io_free_0_enable) begin
-      if(when_SuperScalarFreeList_l181) begin
+      if(when_SuperScalarFreeList_l185) begin
         nextFreeRegsMask_final_comb[io_free_0_physReg] = 1'b1;
       end
     end
   end
 
-  assign when_SuperScalarFreeList_l181 = ((io_free_0_physReg != 6'h0) || 1'b0);
+  assign when_SuperScalarFreeList_l185 = ((io_free_0_physReg != 6'h0) || 1'b0);
   assign io_restoreState_ready = 1'b1;
   assign io_currentState_freeMask = freeRegsMask_reg;
-  assign io_numFreeRegs = availableRegs;
+  assign io_numFreeRegs = numFreeRegs_reg;
   assign finalRegValueForNextCycle = (io_restoreState_valid ? io_restoreState_payload_freeMask : nextFreeRegsMask_final_comb);
   always @(posedge clk or posedge reset) begin
     if(reset) begin
       freeRegsMask_reg <= initMask;
+      numFreeRegs_reg <= 7'h20;
     end else begin
+      numFreeRegs_reg <= availableRegs;
       if(io_restoreState_valid) begin
         freeRegsMask_reg <= io_restoreState_payload_freeMask;
       end else begin
