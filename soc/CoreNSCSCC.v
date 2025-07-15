@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 3105a33b457518a7afeed8b0527b4d8b9dab2383
 // Component : CoreNSCSCC
-// Git hash  : ab5a0caf91b2f11d4f4998ba2b6a71400481ce24
+// Git hash  : 92b647918d33492017bb0962567f56267cb61fce
 
 `timescale 1ns/1ps
 
@@ -1340,21 +1340,19 @@ module CoreNSCSCC (
   wire       [9:0]    _zz_BpuPipelinePlugin_logic_pht_port;
   wire       [7:0]    _zz_BpuPipelinePlugin_logic_btb_port;
   wire       [54:0]   _zz_BpuPipelinePlugin_logic_btb_port_1;
-  reg        [0:0]    _zz_CommitPlugin_logic_commitCount;
-  wire       [0:0]    _zz_CommitPlugin_logic_commitCount_1;
-  reg        [0:0]    _zz_CommitPlugin_logic_committedThisCycle_comb;
-  wire       [0:0]    _zz_CommitPlugin_logic_committedThisCycle_comb_1;
-  reg        [0:0]    _zz_CommitPlugin_logic_recycledThisCycle_comb;
-  wire       [0:0]    _zz_CommitPlugin_logic_recycledThisCycle_comb_1;
+  reg        [0:0]    _zz_CommitPlugin_logic_s0_committedThisCycle_comb;
+  wire       [0:0]    _zz_CommitPlugin_logic_s0_committedThisCycle_comb_1;
+  reg        [0:0]    _zz_CommitPlugin_logic_s0_recycledThisCycle_comb;
+  wire       [0:0]    _zz_CommitPlugin_logic_s0_recycledThisCycle_comb_1;
+  wire       [31:0]   _zz_CommitPlugin_logic_s0_fwd_totalCommitted;
+  wire       [31:0]   _zz_CommitPlugin_logic_s0_fwd_physRegRecycled;
+  wire       [31:0]   _zz_CommitPlugin_logic_s0_fwd_robFlushCount;
   wire       [31:0]   _zz_CommitPlugin_commitStatsReg_totalCommitted;
   wire       [31:0]   _zz_CommitPlugin_commitStatsReg_physRegRecycled;
   wire       [31:0]   _zz_CommitPlugin_commitStatsReg_robFlushCount;
   wire       [7:0]    _zz_io_triggerIn_10;
   wire       [4:0]    _zz_io_triggerIn_11;
   wire       [7:0]    _zz_when_Debug_l71_5_1;
-  wire       [31:0]   _zz_CommitPlugin_logic_fwd_totalCommitted;
-  wire       [31:0]   _zz_CommitPlugin_logic_fwd_physRegRecycled;
-  wire       [31:0]   _zz_CommitPlugin_logic_fwd_robFlushCount;
   wire       [6:0]    _zz_RenamePlugin_logic_notEnoughPhysRegs;
   wire       [0:0]    _zz_RenamePlugin_logic_notEnoughPhysRegs_1;
   reg        [0:0]    _zz_RenamePlugin_logic_branchCount;
@@ -2598,32 +2596,135 @@ module CoreNSCSCC (
   reg        [63:0]   CheckpointManagerPlugin_logic_initialFreeMask;
   wire       [63:0]   CheckpointManagerPlugin_logic_initialBtCheckpoint_busyBits;
   wire       [0:0]    CommitPlugin_logic_commitCount;
-  wire                CommitPlugin_logic_commitAckMasks_0;
-  wire                CommitPlugin_logic_commitIdleThisCycle;
-  wire                _zz_8;
+  wire                CommitPlugin_logic_s0_commitAckMasks_0;
+  wire                CommitPlugin_logic_s0_commitIdleThisCycle;
+  wire       [0:0]    CommitPlugin_logic_s0_committedThisCycle_comb;
+  wire       [0:0]    CommitPlugin_logic_s0_recycledThisCycle_comb;
+  wire       [0:0]    CommitPlugin_logic_s0_flushedThisCycle_comb;
+  (* mark_debug = "true" *) wire       [31:0]   CommitPlugin_logic_s0_commitPcs_0;
+  wire                CommitPlugin_logic_s0_anyCommitOOB;
+  wire       [31:0]   CommitPlugin_logic_s0_maxCommitPcThisCycle;
+  wire       [0:0]    CommitPlugin_logic_s0_fwd_committedThisCycle;
+  (* mark_debug = "true" *) wire       [31:0]   CommitPlugin_logic_s0_fwd_totalCommitted;
+  wire       [31:0]   CommitPlugin_logic_s0_fwd_robFlushCount;
+  wire       [31:0]   CommitPlugin_logic_s0_fwd_physRegRecycled;
+  (* mark_debug = "true" *) wire                CommitPlugin_logic_s0_fwd_commitOOB;
+  (* mark_debug = "true" *) wire       [31:0]   CommitPlugin_logic_s0_fwd_maxCommitPc;
+  wire                CommitPlugin_logic_s0_commitSlotLogs_0_valid;
+  wire                CommitPlugin_logic_s0_commitSlotLogs_0_canCommit;
+  wire                CommitPlugin_logic_s0_commitSlotLogs_0_doCommit;
+  wire       [3:0]    CommitPlugin_logic_s0_commitSlotLogs_0_robPtr;
+  wire       [5:0]    CommitPlugin_logic_s0_commitSlotLogs_0_oldPhysDest;
+  wire                CommitPlugin_logic_s0_commitSlotLogs_0_allocatesPhysDest;
+  reg                 CommitPlugin_logic_s1_s1_commitIdleThisCycle;
+  reg        [31:0]   CommitPlugin_logic_s1_s1_headUop_decoded_pc;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_isValid;
+  reg        [4:0]    CommitPlugin_logic_s1_s1_headUop_decoded_uopCode;
+  reg        [3:0]    CommitPlugin_logic_s1_s1_headUop_decoded_exeUnit;
+  reg        [1:0]    CommitPlugin_logic_s1_s1_headUop_decoded_isa;
+  reg        [4:0]    CommitPlugin_logic_s1_s1_headUop_decoded_archDest_idx;
+  reg        [1:0]    CommitPlugin_logic_s1_s1_headUop_decoded_archDest_rtype;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_writeArchDestEn;
+  reg        [4:0]    CommitPlugin_logic_s1_s1_headUop_decoded_archSrc1_idx;
+  reg        [1:0]    CommitPlugin_logic_s1_s1_headUop_decoded_archSrc1_rtype;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_useArchSrc1;
+  reg        [4:0]    CommitPlugin_logic_s1_s1_headUop_decoded_archSrc2_idx;
+  reg        [1:0]    CommitPlugin_logic_s1_s1_headUop_decoded_archSrc2_rtype;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_useArchSrc2;
+  reg        [4:0]    CommitPlugin_logic_s1_s1_headUop_decoded_archSrc3_idx;
+  reg        [1:0]    CommitPlugin_logic_s1_s1_headUop_decoded_archSrc3_rtype;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_useArchSrc3;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_usePcForAddr;
+  reg        [31:0]   CommitPlugin_logic_s1_s1_headUop_decoded_imm;
+  reg        [2:0]    CommitPlugin_logic_s1_s1_headUop_decoded_immUsage;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_isSub;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_isAdd;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_isSigned;
+  reg        [1:0]    CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_logicOp;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_shiftCtrl_isRight;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_shiftCtrl_isArithmetic;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_shiftCtrl_isRotate;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_shiftCtrl_isDoubleWord;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_mulDivCtrl_isDiv;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_mulDivCtrl_isSigned;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_mulDivCtrl_isWordOp;
+  reg        [1:0]    CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_size;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_isSignedLoad;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_isStore;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_isLoadLinked;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_isStoreCond;
+  reg        [4:0]    CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_atomicOp;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_isFence;
+  reg        [7:0]    CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_fenceMode;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_isCacheOp;
+  reg        [4:0]    CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_cacheOpType;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_isPrefetch;
+  reg        [4:0]    CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_isJump;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_isLink;
+  reg        [4:0]    CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_linkReg_idx;
+  reg        [1:0]    CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_linkReg_rtype;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_isIndirect;
+  reg        [2:0]    CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_laCfIdx;
+  reg        [3:0]    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_opType;
+  reg        [1:0]    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc1;
+  reg        [1:0]    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc2;
+  reg        [1:0]    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc3;
+  reg        [1:0]    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeDest;
+  reg        [2:0]    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_roundingMode;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_isIntegerDest;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_isSignedCvt;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fmaNegSrc1;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fmaNegSrc3;
+  reg        [4:0]    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fcmpCond;
+  reg        [13:0]   CommitPlugin_logic_s1_s1_headUop_decoded_csrCtrl_csrAddr;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_csrCtrl_isWrite;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_csrCtrl_isRead;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_csrCtrl_isExchange;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_csrCtrl_useUimmAsSrc;
+  reg        [19:0]   CommitPlugin_logic_s1_s1_headUop_decoded_sysCtrl_sysCode;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_sysCtrl_isExceptionReturn;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_sysCtrl_isTlbOp;
+  reg        [3:0]    CommitPlugin_logic_s1_s1_headUop_decoded_sysCtrl_tlbOpType;
+  reg        [1:0]    CommitPlugin_logic_s1_s1_headUop_decoded_decodeExceptionCode;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_hasDecodeException;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_isMicrocode;
+  reg        [7:0]    CommitPlugin_logic_s1_s1_headUop_decoded_microcodeEntry;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_isSerializing;
+  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_isBranchOrJump;
+  reg        [5:0]    CommitPlugin_logic_s1_s1_headUop_rename_physSrc1_idx;
+  reg                 CommitPlugin_logic_s1_s1_headUop_rename_physSrc1IsFpr;
+  reg        [5:0]    CommitPlugin_logic_s1_s1_headUop_rename_physSrc2_idx;
+  reg                 CommitPlugin_logic_s1_s1_headUop_rename_physSrc2IsFpr;
+  reg        [5:0]    CommitPlugin_logic_s1_s1_headUop_rename_physSrc3_idx;
+  reg                 CommitPlugin_logic_s1_s1_headUop_rename_physSrc3IsFpr;
+  reg        [5:0]    CommitPlugin_logic_s1_s1_headUop_rename_physDest_idx;
+  reg                 CommitPlugin_logic_s1_s1_headUop_rename_physDestIsFpr;
+  reg        [5:0]    CommitPlugin_logic_s1_s1_headUop_rename_oldPhysDest_idx;
+  reg                 CommitPlugin_logic_s1_s1_headUop_rename_oldPhysDestIsFpr;
+  reg                 CommitPlugin_logic_s1_s1_headUop_rename_allocatesPhysDest;
+  reg                 CommitPlugin_logic_s1_s1_headUop_rename_writesToPhysReg;
+  reg                 CommitPlugin_logic_s1_s1_headUop_rename_branchPrediction_isTaken;
+  reg        [31:0]   CommitPlugin_logic_s1_s1_headUop_rename_branchPrediction_target;
+  reg                 CommitPlugin_logic_s1_s1_headUop_rename_branchPrediction_wasPredicted;
+  reg        [3:0]    CommitPlugin_logic_s1_s1_headUop_robPtr;
+  reg        [15:0]   CommitPlugin_logic_s1_s1_headUop_uniqueId;
+  reg                 CommitPlugin_logic_s1_s1_headUop_dispatched;
+  reg                 CommitPlugin_logic_s1_s1_headUop_executed;
+  reg                 CommitPlugin_logic_s1_s1_headUop_hasException;
+  reg        [7:0]    CommitPlugin_logic_s1_s1_headUop_exceptionCode;
+  reg                 CommitPlugin_logic_s1_s1_hasCommitsThisCycle;
+  reg        [31:0]   CommitPlugin_logic_s1_s1_maxCommitPcThisCycle;
+  reg                 CommitPlugin_logic_s1_s1_anyCommitOOB;
+  reg        [0:0]    CommitPlugin_logic_s1_s1_committedThisCycle_comb;
+  reg        [0:0]    CommitPlugin_logic_s1_s1_recycledThisCycle_comb;
+  reg        [0:0]    CommitPlugin_logic_s1_s1_flushedThisCycle_comb;
+  wire                when_CommitPlugin_l320;
   reg                 CommitPlugin_logic_idleJustCommitted;
-  wire                CommitPlugin_logic_commitSlotLogs_0_valid;
-  wire                CommitPlugin_logic_commitSlotLogs_0_canCommit;
-  wire                CommitPlugin_logic_commitSlotLogs_0_doCommit;
-  wire       [3:0]    CommitPlugin_logic_commitSlotLogs_0_robPtr;
-  wire       [5:0]    CommitPlugin_logic_commitSlotLogs_0_oldPhysDest;
-  wire                CommitPlugin_logic_commitSlotLogs_0_allocatesPhysDest;
-  (* mark_debug = "true" *) wire       [31:0]   CommitPlugin_logic_commitPcs_0;
-  wire                CommitPlugin_logic_anyCommitOOB;
-  wire       [31:0]   CommitPlugin_logic_maxCommitPcThisCycle;
-  wire                when_CommitPlugin_l262;
-  wire       [0:0]    CommitPlugin_logic_committedThisCycle_comb;
-  wire       [0:0]    CommitPlugin_logic_recycledThisCycle_comb;
-  wire       [0:0]    CommitPlugin_logic_flushedThisCycle_comb;
+  wire                _zz_8;
   wire       [4:0]    _zz_when_Debug_l71_6;
   wire                when_Debug_l71_5;
   wire       [7:0]    _zz_9;
-  wire       [0:0]    CommitPlugin_logic_fwd_committedThisCycle;
-  (* mark_debug = "true" *) wire       [31:0]   CommitPlugin_logic_fwd_totalCommitted;
-  wire       [31:0]   CommitPlugin_logic_fwd_robFlushCount;
-  wire       [31:0]   CommitPlugin_logic_fwd_physRegRecycled;
-  (* mark_debug = "true" *) wire                CommitPlugin_logic_fwd_commitOOB;
-  (* mark_debug = "true" *) wire       [31:0]   CommitPlugin_logic_fwd_maxCommitPc;
   wire                _zz_10;
   wire       [4:0]    _zz_11;
   wire       [1:0]    _zz_12;
@@ -3981,28 +4082,10 @@ module CoreNSCSCC (
   reg                 LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_olderStoreHasUnknownAddress;
   reg                 LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_olderStoreMatchingAddress;
   reg                 LoadQueuePlugin_logic_loadQueue_sbQueryRspValid;
-  wire                when_LoadQueuePlugin_l223;
-  wire                _zz_when_LoadQueuePlugin_l228;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l228_1;
-  wire                _zz_when_LoadQueuePlugin_l228_2;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l228_3;
-  wire                when_LoadQueuePlugin_l228;
-  wire                _zz_when_LoadQueuePlugin_l228_4;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l228_5;
-  wire                _zz_when_LoadQueuePlugin_l228_6;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l228_7;
-  wire                when_LoadQueuePlugin_l228_1;
-  wire                _zz_when_LoadQueuePlugin_l228_8;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l228_9;
-  wire                _zz_when_LoadQueuePlugin_l228_10;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l228_11;
-  wire                when_LoadQueuePlugin_l228_2;
-  wire                _zz_when_LoadQueuePlugin_l228_12;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l228_13;
-  wire                _zz_when_LoadQueuePlugin_l228_14;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l228_15;
-  wire                when_LoadQueuePlugin_l228_3;
-  wire                when_LoadQueuePlugin_l225;
+  wire                LoadQueuePlugin_logic_loadQueue_flushInProgress;
+  reg                 LoadQueuePlugin_logic_loadQueue_registeredFlush_valid;
+  reg        [3:0]    LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr;
+  wire                when_LoadQueuePlugin_l246;
   wire                LoadQueuePlugin_logic_loadQueue_canPush;
   wire       [3:0]    LoadQueuePlugin_logic_loadQueue_availableSlotsMask;
   wire       [3:0]    LoadQueuePlugin_logic_loadQueue_pushOh;
@@ -4016,23 +4099,48 @@ module CoreNSCSCC (
   wire                _zz_18;
   wire                _zz_19;
   wire                _zz_20;
+  wire                _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible;
+  wire       [2:0]    _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_1;
+  wire                _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_2;
+  wire       [2:0]    _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_3;
+  wire                LoadQueuePlugin_logic_loadQueue_headIsVisible;
   wire                LoadQueuePlugin_logic_loadQueue_headIsReadyForFwdQuery;
-  wire                when_LoadQueuePlugin_l265;
-  wire                when_LoadQueuePlugin_l271;
-  wire                when_LoadQueuePlugin_l286;
+  wire                when_LoadQueuePlugin_l284;
+  wire                when_LoadQueuePlugin_l290;
+  wire                when_LoadQueuePlugin_l305;
   wire                LoadQueuePlugin_logic_loadQueue_headIsReadyToExecute;
   wire                LoadQueuePlugin_logic_loadQueue_shouldNotSendToMemory;
   reg        [1:0]    _zz_LoadQueuePlugin_hw_dCacheLoadPort_cmd_payload_size;
   wire                LoadQueuePlugin_hw_dCacheLoadPort_cmd_fire;
   wire                LoadQueuePlugin_logic_loadQueue_mmioCmdFired;
   wire                LoadQueuePlugin_logic_loadQueue_mmioResponseIsForHead;
-  wire                when_LoadQueuePlugin_l344;
+  wire                when_LoadQueuePlugin_l363;
   wire                LoadQueuePlugin_logic_loadQueue_popOnFwdHit;
   wire                LoadQueuePlugin_logic_loadQueue_popOnDCacheSuccess;
   wire                LoadQueuePlugin_logic_loadQueue_popOnEarlyException;
   wire                LoadQueuePlugin_logic_loadQueue_popRequest;
-  wire                when_LoadQueuePlugin_l401;
-  wire                when_LoadQueuePlugin_l418;
+  wire                when_LoadQueuePlugin_l420;
+  wire                when_LoadQueuePlugin_l437;
+  wire                _zz_when_LoadQueuePlugin_l472;
+  wire       [2:0]    _zz_when_LoadQueuePlugin_l472_1;
+  wire                _zz_when_LoadQueuePlugin_l472_2;
+  wire       [2:0]    _zz_when_LoadQueuePlugin_l472_3;
+  wire                when_LoadQueuePlugin_l472;
+  wire                _zz_when_LoadQueuePlugin_l472_4;
+  wire       [2:0]    _zz_when_LoadQueuePlugin_l472_5;
+  wire                _zz_when_LoadQueuePlugin_l472_6;
+  wire       [2:0]    _zz_when_LoadQueuePlugin_l472_7;
+  wire                when_LoadQueuePlugin_l472_1;
+  wire                _zz_when_LoadQueuePlugin_l472_8;
+  wire       [2:0]    _zz_when_LoadQueuePlugin_l472_9;
+  wire                _zz_when_LoadQueuePlugin_l472_10;
+  wire       [2:0]    _zz_when_LoadQueuePlugin_l472_11;
+  wire                when_LoadQueuePlugin_l472_2;
+  wire                _zz_when_LoadQueuePlugin_l472_12;
+  wire       [2:0]    _zz_when_LoadQueuePlugin_l472_13;
+  wire                _zz_when_LoadQueuePlugin_l472_14;
+  wire       [2:0]    _zz_when_LoadQueuePlugin_l472_15;
+  wire                when_LoadQueuePlugin_l472_3;
   wire                when_CheckpointManagerPlugin_l118;
   wire       [31:0]   _zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp;
   wire       [31:0]   _zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp;
@@ -4988,6 +5096,23 @@ module CoreNSCSCC (
   reg [7:0] StoreBufferPlugin_hw_bypassQuerySizeIn_string;
   reg [7:0] StoreBufferPlugin_hw_sqQueryPort_cmd_payload_size_string;
   reg [7:0] LsuEU_LsuEuPlugin_hw_lqPushPort_payload_size_string;
+  reg [87:0] CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string;
+  reg [151:0] CommitPlugin_logic_s1_s1_headUop_decoded_exeUnit_string;
+  reg [71:0] CommitPlugin_logic_s1_s1_headUop_decoded_isa_string;
+  reg [39:0] CommitPlugin_logic_s1_s1_headUop_decoded_archDest_rtype_string;
+  reg [39:0] CommitPlugin_logic_s1_s1_headUop_decoded_archSrc1_rtype_string;
+  reg [39:0] CommitPlugin_logic_s1_s1_headUop_decoded_archSrc2_rtype_string;
+  reg [39:0] CommitPlugin_logic_s1_s1_headUop_decoded_archSrc3_rtype_string;
+  reg [103:0] CommitPlugin_logic_s1_s1_headUop_decoded_immUsage_string;
+  reg [39:0] CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_logicOp_string;
+  reg [7:0] CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_size_string;
+  reg [87:0] CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string;
+  reg [39:0] CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_linkReg_rtype_string;
+  reg [7:0] CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc1_string;
+  reg [7:0] CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc2_string;
+  reg [7:0] CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc3_string;
+  reg [7:0] CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeDest_string;
+  reg [95:0] CommitPlugin_logic_s1_s1_headUop_decoded_decodeExceptionCode_string;
   reg [87:0] DecodePlugin_logic_decodedUopsOutputVec_0_uopCode_string;
   reg [151:0] DecodePlugin_logic_decodedUopsOutputVec_0_exeUnit_string;
   reg [71:0] DecodePlugin_logic_decodedUopsOutputVec_0_isa_string;
@@ -5248,15 +5373,15 @@ module CoreNSCSCC (
   assign _zz_io_triggerIn_9 = 5'h16;
   assign _zz_io_triggerIn_8 = {3'd0, _zz_io_triggerIn_9};
   assign _zz_when_Debug_l71_4_1 = {3'd0, _zz_when_Debug_l71_5};
-  assign _zz_CommitPlugin_commitStatsReg_totalCommitted = {31'd0, CommitPlugin_logic_committedThisCycle_comb};
-  assign _zz_CommitPlugin_commitStatsReg_physRegRecycled = {31'd0, CommitPlugin_logic_recycledThisCycle_comb};
-  assign _zz_CommitPlugin_commitStatsReg_robFlushCount = {31'd0, CommitPlugin_logic_flushedThisCycle_comb};
+  assign _zz_CommitPlugin_logic_s0_fwd_totalCommitted = {31'd0, CommitPlugin_logic_s0_committedThisCycle_comb};
+  assign _zz_CommitPlugin_logic_s0_fwd_physRegRecycled = {31'd0, CommitPlugin_logic_s0_recycledThisCycle_comb};
+  assign _zz_CommitPlugin_logic_s0_fwd_robFlushCount = {31'd0, CommitPlugin_logic_s0_flushedThisCycle_comb};
+  assign _zz_CommitPlugin_commitStatsReg_totalCommitted = {31'd0, CommitPlugin_logic_s1_s1_committedThisCycle_comb};
+  assign _zz_CommitPlugin_commitStatsReg_physRegRecycled = {31'd0, CommitPlugin_logic_s1_s1_recycledThisCycle_comb};
+  assign _zz_CommitPlugin_commitStatsReg_robFlushCount = {31'd0, CommitPlugin_logic_s1_s1_flushedThisCycle_comb};
   assign _zz_io_triggerIn_11 = 5'h19;
   assign _zz_io_triggerIn_10 = {3'd0, _zz_io_triggerIn_11};
   assign _zz_when_Debug_l71_5_1 = {3'd0, _zz_when_Debug_l71_6};
-  assign _zz_CommitPlugin_logic_fwd_totalCommitted = {31'd0, CommitPlugin_logic_committedThisCycle_comb};
-  assign _zz_CommitPlugin_logic_fwd_physRegRecycled = {31'd0, CommitPlugin_logic_recycledThisCycle_comb};
-  assign _zz_CommitPlugin_logic_fwd_robFlushCount = {31'd0, CommitPlugin_logic_flushedThisCycle_comb};
   assign _zz_RenamePlugin_logic_notEnoughPhysRegs_1 = (RenamePlugin_logic_willNeedPhysRegs ? 1'b1 : 1'b0);
   assign _zz_RenamePlugin_logic_notEnoughPhysRegs = {6'd0, _zz_RenamePlugin_logic_notEnoughPhysRegs_1};
   assign _zz_io_triggerIn_13 = 5'h17;
@@ -5320,9 +5445,8 @@ module CoreNSCSCC (
   assign _zz_BpuPipelinePlugin_logic_btb_port = BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_pc[9 : 2];
   assign _zz_BpuPipelinePlugin_logic_btb_port_1 = {BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_target,{BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_pc[31 : 10],1'b1}};
   assign _zz_PhysicalRegFilePlugin_logic_regFile_port = (_zz_when_PhysicalRegFile_l141 && (_zz_when_PhysicalRegFile_l141_1 != 6'h0));
-  assign _zz_CommitPlugin_logic_commitCount_1 = CommitPlugin_logic_commitAckMasks_0;
-  assign _zz_CommitPlugin_logic_committedThisCycle_comb_1 = CommitPlugin_logic_commitAckMasks_0;
-  assign _zz_CommitPlugin_logic_recycledThisCycle_comb_1 = SuperScalarFreeListPlugin_early_setup_freeList_io_free_0_enable;
+  assign _zz_CommitPlugin_logic_s0_committedThisCycle_comb_1 = CommitPlugin_logic_s0_commitAckMasks_0;
+  assign _zz_CommitPlugin_logic_s0_recycledThisCycle_comb_1 = SuperScalarFreeListPlugin_early_setup_freeList_io_free_0_enable;
   assign _zz_RenamePlugin_logic_branchCount_1 = RenamePlugin_logic_branchMask_0;
   assign _zz_DispatchPlugin_logic_destinationIqReady_3 = {_zz_DispatchPlugin_logic_destinationIqReady_1,_zz_DispatchPlugin_logic_destinationIqReady};
   assign _zz_when_PhysicalRegFile_l150_10 = {BranchEU_BranchEuPlugin_gprWritePort_valid,{AluIntEU_AluIntEuPlugin_gprWritePort_valid,LoadQueuePlugin_hw_prfWritePort_valid}};
@@ -5794,7 +5918,7 @@ module CoreNSCSCC (
     .io_commit_0_entry_status_hasException                              (ROBPlugin_robComponent_io_commit_0_entry_status_hasException                              ), //o
     .io_commit_0_entry_status_exceptionCode                             (ROBPlugin_robComponent_io_commit_0_entry_status_exceptionCode[7:0]                        ), //o
     .io_commit_0_entry_status_genBit                                    (ROBPlugin_robComponent_io_commit_0_entry_status_genBit                                    ), //o
-    .io_commitAck_0                                                     (CommitPlugin_logic_commitAckMasks_0                                                       ), //i
+    .io_commitAck_0                                                     (CommitPlugin_logic_s0_commitAckMasks_0                                                    ), //i
     .io_flush_valid                                                     (ROBPlugin_aggregatedFlushSignal_valid                                                     ), //i
     .io_flush_payload_reason                                            (ROBPlugin_aggregatedFlushSignal_payload_reason[1:0]                                       ), //i
     .io_flush_payload_targetRobPtr                                      (ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3:0]                                 ), //i
@@ -7825,23 +7949,16 @@ module CoreNSCSCC (
     .reset      (reset                            )  //i
   );
   always @(*) begin
-    case(_zz_CommitPlugin_logic_commitCount_1)
-      1'b0 : _zz_CommitPlugin_logic_commitCount = 1'b0;
-      default : _zz_CommitPlugin_logic_commitCount = 1'b1;
+    case(_zz_CommitPlugin_logic_s0_committedThisCycle_comb_1)
+      1'b0 : _zz_CommitPlugin_logic_s0_committedThisCycle_comb = 1'b0;
+      default : _zz_CommitPlugin_logic_s0_committedThisCycle_comb = 1'b1;
     endcase
   end
 
   always @(*) begin
-    case(_zz_CommitPlugin_logic_committedThisCycle_comb_1)
-      1'b0 : _zz_CommitPlugin_logic_committedThisCycle_comb = 1'b0;
-      default : _zz_CommitPlugin_logic_committedThisCycle_comb = 1'b1;
-    endcase
-  end
-
-  always @(*) begin
-    case(_zz_CommitPlugin_logic_recycledThisCycle_comb_1)
-      1'b0 : _zz_CommitPlugin_logic_recycledThisCycle_comb = 1'b0;
-      default : _zz_CommitPlugin_logic_recycledThisCycle_comb = 1'b1;
+    case(_zz_CommitPlugin_logic_s0_recycledThisCycle_comb_1)
+      1'b0 : _zz_CommitPlugin_logic_s0_recycledThisCycle_comb = 1'b0;
+      default : _zz_CommitPlugin_logic_s0_recycledThisCycle_comb = 1'b1;
     endcase
   end
 
@@ -9622,6 +9739,203 @@ module CoreNSCSCC (
       MemAccessSize_W : LsuEU_LsuEuPlugin_hw_lqPushPort_payload_size_string = "W";
       MemAccessSize_D : LsuEU_LsuEuPlugin_hw_lqPushPort_payload_size_string = "D";
       default : LsuEU_LsuEuPlugin_hw_lqPushPort_payload_size_string = "?";
+    endcase
+  end
+  always @(*) begin
+    case(CommitPlugin_logic_s1_s1_headUop_decoded_uopCode)
+      BaseUopCode_NOP : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "NOP        ";
+      BaseUopCode_ILLEGAL : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "ILLEGAL    ";
+      BaseUopCode_ALU : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "ALU        ";
+      BaseUopCode_SHIFT : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "SHIFT      ";
+      BaseUopCode_MUL : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "MUL        ";
+      BaseUopCode_DIV : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "DIV        ";
+      BaseUopCode_LOAD : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "LOAD       ";
+      BaseUopCode_STORE : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "STORE      ";
+      BaseUopCode_ATOMIC : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "ATOMIC     ";
+      BaseUopCode_MEM_BARRIER : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "MEM_BARRIER";
+      BaseUopCode_PREFETCH : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "PREFETCH   ";
+      BaseUopCode_BRANCH : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "BRANCH     ";
+      BaseUopCode_JUMP_REG : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "JUMP_REG   ";
+      BaseUopCode_JUMP_IMM : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "JUMP_IMM   ";
+      BaseUopCode_SYSTEM_OP : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "SYSTEM_OP  ";
+      BaseUopCode_CSR_ACCESS : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "CSR_ACCESS ";
+      BaseUopCode_FPU_ALU : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "FPU_ALU    ";
+      BaseUopCode_FPU_CVT : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "FPU_CVT    ";
+      BaseUopCode_FPU_CMP : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "FPU_CMP    ";
+      BaseUopCode_FPU_SEL : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "FPU_SEL    ";
+      BaseUopCode_LA_BITMANIP : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "LA_BITMANIP";
+      BaseUopCode_LA_CACOP : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "LA_CACOP   ";
+      BaseUopCode_LA_TLB : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "LA_TLB     ";
+      BaseUopCode_IDLE : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "IDLE       ";
+      default : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "???????????";
+    endcase
+  end
+  always @(*) begin
+    case(CommitPlugin_logic_s1_s1_headUop_decoded_exeUnit)
+      ExeUnitType_NONE : CommitPlugin_logic_s1_s1_headUop_decoded_exeUnit_string = "NONE               ";
+      ExeUnitType_ALU_INT : CommitPlugin_logic_s1_s1_headUop_decoded_exeUnit_string = "ALU_INT            ";
+      ExeUnitType_MUL_INT : CommitPlugin_logic_s1_s1_headUop_decoded_exeUnit_string = "MUL_INT            ";
+      ExeUnitType_DIV_INT : CommitPlugin_logic_s1_s1_headUop_decoded_exeUnit_string = "DIV_INT            ";
+      ExeUnitType_MEM : CommitPlugin_logic_s1_s1_headUop_decoded_exeUnit_string = "MEM                ";
+      ExeUnitType_BRU : CommitPlugin_logic_s1_s1_headUop_decoded_exeUnit_string = "BRU                ";
+      ExeUnitType_CSR : CommitPlugin_logic_s1_s1_headUop_decoded_exeUnit_string = "CSR                ";
+      ExeUnitType_FPU_ADD_MUL_CVT_CMP : CommitPlugin_logic_s1_s1_headUop_decoded_exeUnit_string = "FPU_ADD_MUL_CVT_CMP";
+      ExeUnitType_FPU_DIV_SQRT : CommitPlugin_logic_s1_s1_headUop_decoded_exeUnit_string = "FPU_DIV_SQRT       ";
+      default : CommitPlugin_logic_s1_s1_headUop_decoded_exeUnit_string = "???????????????????";
+    endcase
+  end
+  always @(*) begin
+    case(CommitPlugin_logic_s1_s1_headUop_decoded_isa)
+      IsaType_UNKNOWN : CommitPlugin_logic_s1_s1_headUop_decoded_isa_string = "UNKNOWN  ";
+      IsaType_DEMO : CommitPlugin_logic_s1_s1_headUop_decoded_isa_string = "DEMO     ";
+      IsaType_RISCV : CommitPlugin_logic_s1_s1_headUop_decoded_isa_string = "RISCV    ";
+      IsaType_LOONGARCH : CommitPlugin_logic_s1_s1_headUop_decoded_isa_string = "LOONGARCH";
+      default : CommitPlugin_logic_s1_s1_headUop_decoded_isa_string = "?????????";
+    endcase
+  end
+  always @(*) begin
+    case(CommitPlugin_logic_s1_s1_headUop_decoded_archDest_rtype)
+      ArchRegType_GPR : CommitPlugin_logic_s1_s1_headUop_decoded_archDest_rtype_string = "GPR  ";
+      ArchRegType_FPR : CommitPlugin_logic_s1_s1_headUop_decoded_archDest_rtype_string = "FPR  ";
+      ArchRegType_CSR : CommitPlugin_logic_s1_s1_headUop_decoded_archDest_rtype_string = "CSR  ";
+      ArchRegType_LA_CF : CommitPlugin_logic_s1_s1_headUop_decoded_archDest_rtype_string = "LA_CF";
+      default : CommitPlugin_logic_s1_s1_headUop_decoded_archDest_rtype_string = "?????";
+    endcase
+  end
+  always @(*) begin
+    case(CommitPlugin_logic_s1_s1_headUop_decoded_archSrc1_rtype)
+      ArchRegType_GPR : CommitPlugin_logic_s1_s1_headUop_decoded_archSrc1_rtype_string = "GPR  ";
+      ArchRegType_FPR : CommitPlugin_logic_s1_s1_headUop_decoded_archSrc1_rtype_string = "FPR  ";
+      ArchRegType_CSR : CommitPlugin_logic_s1_s1_headUop_decoded_archSrc1_rtype_string = "CSR  ";
+      ArchRegType_LA_CF : CommitPlugin_logic_s1_s1_headUop_decoded_archSrc1_rtype_string = "LA_CF";
+      default : CommitPlugin_logic_s1_s1_headUop_decoded_archSrc1_rtype_string = "?????";
+    endcase
+  end
+  always @(*) begin
+    case(CommitPlugin_logic_s1_s1_headUop_decoded_archSrc2_rtype)
+      ArchRegType_GPR : CommitPlugin_logic_s1_s1_headUop_decoded_archSrc2_rtype_string = "GPR  ";
+      ArchRegType_FPR : CommitPlugin_logic_s1_s1_headUop_decoded_archSrc2_rtype_string = "FPR  ";
+      ArchRegType_CSR : CommitPlugin_logic_s1_s1_headUop_decoded_archSrc2_rtype_string = "CSR  ";
+      ArchRegType_LA_CF : CommitPlugin_logic_s1_s1_headUop_decoded_archSrc2_rtype_string = "LA_CF";
+      default : CommitPlugin_logic_s1_s1_headUop_decoded_archSrc2_rtype_string = "?????";
+    endcase
+  end
+  always @(*) begin
+    case(CommitPlugin_logic_s1_s1_headUop_decoded_archSrc3_rtype)
+      ArchRegType_GPR : CommitPlugin_logic_s1_s1_headUop_decoded_archSrc3_rtype_string = "GPR  ";
+      ArchRegType_FPR : CommitPlugin_logic_s1_s1_headUop_decoded_archSrc3_rtype_string = "FPR  ";
+      ArchRegType_CSR : CommitPlugin_logic_s1_s1_headUop_decoded_archSrc3_rtype_string = "CSR  ";
+      ArchRegType_LA_CF : CommitPlugin_logic_s1_s1_headUop_decoded_archSrc3_rtype_string = "LA_CF";
+      default : CommitPlugin_logic_s1_s1_headUop_decoded_archSrc3_rtype_string = "?????";
+    endcase
+  end
+  always @(*) begin
+    case(CommitPlugin_logic_s1_s1_headUop_decoded_immUsage)
+      ImmUsageType_NONE : CommitPlugin_logic_s1_s1_headUop_decoded_immUsage_string = "NONE         ";
+      ImmUsageType_SRC_ALU : CommitPlugin_logic_s1_s1_headUop_decoded_immUsage_string = "SRC_ALU      ";
+      ImmUsageType_SRC_SHIFT_AMT : CommitPlugin_logic_s1_s1_headUop_decoded_immUsage_string = "SRC_SHIFT_AMT";
+      ImmUsageType_SRC_CSR_UIMM : CommitPlugin_logic_s1_s1_headUop_decoded_immUsage_string = "SRC_CSR_UIMM ";
+      ImmUsageType_MEM_OFFSET : CommitPlugin_logic_s1_s1_headUop_decoded_immUsage_string = "MEM_OFFSET   ";
+      ImmUsageType_BRANCH_OFFSET : CommitPlugin_logic_s1_s1_headUop_decoded_immUsage_string = "BRANCH_OFFSET";
+      ImmUsageType_JUMP_OFFSET : CommitPlugin_logic_s1_s1_headUop_decoded_immUsage_string = "JUMP_OFFSET  ";
+      default : CommitPlugin_logic_s1_s1_headUop_decoded_immUsage_string = "?????????????";
+    endcase
+  end
+  always @(*) begin
+    case(CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_logicOp)
+      LogicOp_NONE : CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_logicOp_string = "NONE ";
+      LogicOp_AND_1 : CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_logicOp_string = "AND_1";
+      LogicOp_OR_1 : CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_logicOp_string = "OR_1 ";
+      LogicOp_XOR_1 : CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_logicOp_string = "XOR_1";
+      default : CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_logicOp_string = "?????";
+    endcase
+  end
+  always @(*) begin
+    case(CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_size)
+      MemAccessSize_B : CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_size_string = "B";
+      MemAccessSize_H : CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_size_string = "H";
+      MemAccessSize_W : CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_size_string = "W";
+      MemAccessSize_D : CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_size_string = "D";
+      default : CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_size_string = "?";
+    endcase
+  end
+  always @(*) begin
+    case(CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition)
+      BranchCondition_NUL : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "NUL        ";
+      BranchCondition_EQ : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "EQ         ";
+      BranchCondition_NE : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "NE         ";
+      BranchCondition_LT : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "LT         ";
+      BranchCondition_GE : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "GE         ";
+      BranchCondition_LTU : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "LTU        ";
+      BranchCondition_GEU : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "GEU        ";
+      BranchCondition_EQZ : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "EQZ        ";
+      BranchCondition_NEZ : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "NEZ        ";
+      BranchCondition_LTZ : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "LTZ        ";
+      BranchCondition_GEZ : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "GEZ        ";
+      BranchCondition_GTZ : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "GTZ        ";
+      BranchCondition_LEZ : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "LEZ        ";
+      BranchCondition_F_EQ : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "F_EQ       ";
+      BranchCondition_F_NE : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "F_NE       ";
+      BranchCondition_F_LT : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "F_LT       ";
+      BranchCondition_F_LE : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "F_LE       ";
+      BranchCondition_F_UN : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "F_UN       ";
+      BranchCondition_LA_CF_TRUE : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "LA_CF_TRUE ";
+      BranchCondition_LA_CF_FALSE : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "LA_CF_FALSE";
+      default : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "???????????";
+    endcase
+  end
+  always @(*) begin
+    case(CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_linkReg_rtype)
+      ArchRegType_GPR : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_linkReg_rtype_string = "GPR  ";
+      ArchRegType_FPR : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_linkReg_rtype_string = "FPR  ";
+      ArchRegType_CSR : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_linkReg_rtype_string = "CSR  ";
+      ArchRegType_LA_CF : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_linkReg_rtype_string = "LA_CF";
+      default : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_linkReg_rtype_string = "?????";
+    endcase
+  end
+  always @(*) begin
+    case(CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc1)
+      MemAccessSize_B : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc1_string = "B";
+      MemAccessSize_H : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc1_string = "H";
+      MemAccessSize_W : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc1_string = "W";
+      MemAccessSize_D : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc1_string = "D";
+      default : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc1_string = "?";
+    endcase
+  end
+  always @(*) begin
+    case(CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc2)
+      MemAccessSize_B : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc2_string = "B";
+      MemAccessSize_H : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc2_string = "H";
+      MemAccessSize_W : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc2_string = "W";
+      MemAccessSize_D : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc2_string = "D";
+      default : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc2_string = "?";
+    endcase
+  end
+  always @(*) begin
+    case(CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc3)
+      MemAccessSize_B : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc3_string = "B";
+      MemAccessSize_H : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc3_string = "H";
+      MemAccessSize_W : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc3_string = "W";
+      MemAccessSize_D : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc3_string = "D";
+      default : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc3_string = "?";
+    endcase
+  end
+  always @(*) begin
+    case(CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeDest)
+      MemAccessSize_B : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeDest_string = "B";
+      MemAccessSize_H : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeDest_string = "H";
+      MemAccessSize_W : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeDest_string = "W";
+      MemAccessSize_D : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeDest_string = "D";
+      default : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeDest_string = "?";
+    endcase
+  end
+  always @(*) begin
+    case(CommitPlugin_logic_s1_s1_headUop_decoded_decodeExceptionCode)
+      DecodeExCode_INVALID : CommitPlugin_logic_s1_s1_headUop_decoded_decodeExceptionCode_string = "INVALID     ";
+      DecodeExCode_FETCH_ERROR : CommitPlugin_logic_s1_s1_headUop_decoded_decodeExceptionCode_string = "FETCH_ERROR ";
+      DecodeExCode_DECODE_ERROR : CommitPlugin_logic_s1_s1_headUop_decoded_decodeExceptionCode_string = "DECODE_ERROR";
+      DecodeExCode_OK : CommitPlugin_logic_s1_s1_headUop_decoded_decodeExceptionCode_string = "OK          ";
+      default : CommitPlugin_logic_s1_s1_headUop_decoded_decodeExceptionCode_string = "????????????";
     endcase
   end
   always @(*) begin
@@ -12723,9 +13037,30 @@ module CoreNSCSCC (
   always @(*) CheckpointManagerPlugin_logic_initialFreeMask = _zz_39;
   assign CheckpointManagerPlugin_logic_initialFlCheckpoint_freeMask = CheckpointManagerPlugin_logic_initialFreeMask;
   assign CheckpointManagerPlugin_logic_initialBtCheckpoint_busyBits = 64'h0;
-  assign CommitPlugin_logic_commitAckMasks_0 = ((CommitPlugin_commitEnableExt && ROBPlugin_robComponent_io_commit_0_valid) && (! CommitPlugin_committedIdleReg));
-  assign CommitPlugin_logic_commitIdleThisCycle = ((ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_IDLE) && CommitPlugin_logic_commitAckMasks_0);
-  assign _zz_8 = (! CommitPlugin_committedIdleReg);
+  assign CommitPlugin_logic_s0_commitAckMasks_0 = ((CommitPlugin_commitEnableExt && ROBPlugin_robComponent_io_commit_0_valid) && (! CommitPlugin_committedIdleReg));
+  assign CommitPlugin_logic_s0_commitIdleThisCycle = ((ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_IDLE) && CommitPlugin_logic_s0_commitAckMasks_0);
+  assign SuperScalarFreeListPlugin_early_setup_freeList_io_free_0_enable = (CommitPlugin_logic_s0_commitAckMasks_0 && ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_allocatesPhysDest);
+  assign SuperScalarFreeListPlugin_early_setup_freeList_io_free_0_physReg = ((CommitPlugin_logic_s0_commitAckMasks_0 && ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_allocatesPhysDest) ? ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx : 6'h0);
+  assign CommitPlugin_logic_s0_committedThisCycle_comb = _zz_CommitPlugin_logic_s0_committedThisCycle_comb;
+  assign CommitPlugin_logic_s0_recycledThisCycle_comb = _zz_CommitPlugin_logic_s0_recycledThisCycle_comb;
+  assign CommitPlugin_logic_s0_flushedThisCycle_comb = CommitPlugin_hw_robFlushPort_valid;
+  assign CommitPlugin_logic_s0_commitPcs_0 = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc;
+  assign CommitPlugin_logic_s0_maxCommitPcThisCycle = (CommitPlugin_logic_s0_commitAckMasks_0 ? CommitPlugin_logic_s0_commitPcs_0 : 32'h0);
+  assign CommitPlugin_logic_s0_anyCommitOOB = (CommitPlugin_maxCommitPcEnabledExt && (CommitPlugin_logic_s0_commitAckMasks_0 && (CommitPlugin_maxCommitPcExt < CommitPlugin_logic_s0_commitPcs_0)));
+  assign CommitPlugin_logic_s0_fwd_committedThisCycle = CommitPlugin_logic_s0_committedThisCycle_comb;
+  assign CommitPlugin_logic_s0_fwd_totalCommitted = (CommitPlugin_commitStatsReg_totalCommitted + _zz_CommitPlugin_logic_s0_fwd_totalCommitted);
+  assign CommitPlugin_logic_s0_fwd_physRegRecycled = (CommitPlugin_commitStatsReg_physRegRecycled + _zz_CommitPlugin_logic_s0_fwd_physRegRecycled);
+  assign CommitPlugin_logic_s0_fwd_robFlushCount = (CommitPlugin_commitStatsReg_robFlushCount + _zz_CommitPlugin_logic_s0_fwd_robFlushCount);
+  assign CommitPlugin_logic_s0_fwd_commitOOB = (CommitPlugin_commitOOBReg || CommitPlugin_logic_s0_anyCommitOOB);
+  assign CommitPlugin_logic_s0_fwd_maxCommitPc = ((CommitPlugin_logic_s0_commitAckMasks_0 && (CommitPlugin_maxCommitPcReg < CommitPlugin_logic_s0_maxCommitPcThisCycle)) ? CommitPlugin_logic_s0_maxCommitPcThisCycle : CommitPlugin_maxCommitPcReg);
+  assign CommitPlugin_logic_s0_commitSlotLogs_0_valid = ROBPlugin_robComponent_io_commit_0_valid;
+  assign CommitPlugin_logic_s0_commitSlotLogs_0_canCommit = ROBPlugin_robComponent_io_commit_0_valid;
+  assign CommitPlugin_logic_s0_commitSlotLogs_0_doCommit = CommitPlugin_logic_s0_commitAckMasks_0;
+  assign CommitPlugin_logic_s0_commitSlotLogs_0_robPtr = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr;
+  assign CommitPlugin_logic_s0_commitSlotLogs_0_oldPhysDest = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx;
+  assign CommitPlugin_logic_s0_commitSlotLogs_0_allocatesPhysDest = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_allocatesPhysDest;
+  assign CommitPlugin_logic_commitCount = CommitPlugin_logic_s0_committedThisCycle_comb;
+  assign when_CommitPlugin_l320 = (CommitPlugin_maxCommitPcReg < CommitPlugin_logic_s1_s1_maxCommitPcThisCycle);
   assign CommitPlugin_hw_fetchDisable = CommitPlugin_committedIdleReg;
   always @(*) begin
     if(CommitPlugin_logic_idleJustCommitted) begin
@@ -12751,33 +13086,12 @@ module CoreNSCSCC (
     end
   end
 
-  assign CheckpointManagerPlugin_restoreCheckpointTrigger = CommitPlugin_logic_idleJustCommitted;
-  assign CommitPlugin_logic_commitPcs_0 = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc;
-  assign CommitPlugin_logic_maxCommitPcThisCycle = (CommitPlugin_logic_commitAckMasks_0 ? CommitPlugin_logic_commitPcs_0 : 32'h0);
-  assign CommitPlugin_logic_anyCommitOOB = (CommitPlugin_maxCommitPcEnabledExt && (CommitPlugin_logic_commitAckMasks_0 && (CommitPlugin_maxCommitPcExt < CommitPlugin_logic_commitPcs_0)));
-  assign when_CommitPlugin_l262 = (CommitPlugin_maxCommitPcReg < CommitPlugin_logic_maxCommitPcThisCycle);
-  assign SuperScalarFreeListPlugin_early_setup_freeList_io_free_0_enable = (CommitPlugin_logic_commitAckMasks_0 && ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_allocatesPhysDest);
-  assign SuperScalarFreeListPlugin_early_setup_freeList_io_free_0_physReg = ((CommitPlugin_logic_commitAckMasks_0 && ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_allocatesPhysDest) ? ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx : 6'h0);
-  assign CommitPlugin_logic_commitSlotLogs_0_valid = ROBPlugin_robComponent_io_commit_0_valid;
-  assign CommitPlugin_logic_commitSlotLogs_0_canCommit = ROBPlugin_robComponent_io_commit_0_valid;
-  assign CommitPlugin_logic_commitSlotLogs_0_doCommit = CommitPlugin_logic_commitAckMasks_0;
-  assign CommitPlugin_logic_commitSlotLogs_0_robPtr = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr;
-  assign CommitPlugin_logic_commitSlotLogs_0_oldPhysDest = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx;
-  assign CommitPlugin_logic_commitSlotLogs_0_allocatesPhysDest = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_allocatesPhysDest;
-  assign CommitPlugin_logic_commitCount = _zz_CommitPlugin_logic_commitCount;
-  assign CommitPlugin_logic_committedThisCycle_comb = _zz_CommitPlugin_logic_committedThisCycle_comb;
-  assign CommitPlugin_logic_recycledThisCycle_comb = _zz_CommitPlugin_logic_recycledThisCycle_comb;
-  assign CommitPlugin_logic_flushedThisCycle_comb = CommitPlugin_hw_robFlushPort_valid;
-  assign oneShot_18_io_triggerIn = (CommitPlugin_logic_committedThisCycle_comb[0] && (_zz_when_Debug_l71 < _zz_io_triggerIn_10));
+  assign CheckpointManagerPlugin_restoreCheckpointTrigger = CommitPlugin_logic_s0_commitIdleThisCycle;
+  assign _zz_8 = (! CommitPlugin_committedIdleReg);
+  assign oneShot_18_io_triggerIn = (CommitPlugin_logic_s0_committedThisCycle_comb[0] && (_zz_when_Debug_l71 < _zz_io_triggerIn_10));
   assign _zz_when_Debug_l71_6 = 5'h19;
   assign when_Debug_l71_5 = (_zz_when_Debug_l71 < _zz_when_Debug_l71_5_1);
   assign _zz_9 = 8'he3;
-  assign CommitPlugin_logic_fwd_committedThisCycle = CommitPlugin_logic_committedThisCycle_comb;
-  assign CommitPlugin_logic_fwd_totalCommitted = (CommitPlugin_commitStatsReg_totalCommitted + _zz_CommitPlugin_logic_fwd_totalCommitted);
-  assign CommitPlugin_logic_fwd_physRegRecycled = (CommitPlugin_commitStatsReg_physRegRecycled + _zz_CommitPlugin_logic_fwd_physRegRecycled);
-  assign CommitPlugin_logic_fwd_robFlushCount = (CommitPlugin_commitStatsReg_robFlushCount + _zz_CommitPlugin_logic_fwd_robFlushCount);
-  assign CommitPlugin_logic_fwd_commitOOB = (CommitPlugin_commitOOBReg || CommitPlugin_logic_anyCommitOOB);
-  assign CommitPlugin_logic_fwd_maxCommitPc = ((CommitPlugin_logic_commitAckMasks_0 && (CommitPlugin_maxCommitPcReg < CommitPlugin_logic_maxCommitPcThisCycle)) ? CommitPlugin_logic_maxCommitPcThisCycle : CommitPlugin_maxCommitPcReg);
   assign _zz_10 = (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_IDLE);
   assign _zz_11 = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode;
   assign _zz_12 = CommitPlugin_hw_robFlushPort_payload_reason;
@@ -16896,7 +17210,7 @@ module CoreNSCSCC (
     if(StoreBufferPlugin_hw_sqQueryPort_cmd_valid) begin
       LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isWaitingForFwdRsp = 1'b1;
     end
-    if(when_LoadQueuePlugin_l265) begin
+    if(when_LoadQueuePlugin_l284) begin
       LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isWaitingForFwdRsp = 1'b0;
     end
   end
@@ -16908,9 +17222,9 @@ module CoreNSCSCC (
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isStalledByDependency = 1'b0;
       end
     end
-    if(when_LoadQueuePlugin_l265) begin
+    if(when_LoadQueuePlugin_l284) begin
       if(!LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_hit) begin
-        if(when_LoadQueuePlugin_l271) begin
+        if(when_LoadQueuePlugin_l290) begin
           LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isStalledByDependency = 1'b1;
         end
       end
@@ -16927,14 +17241,14 @@ module CoreNSCSCC (
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isReadyForDCache = 1'b0;
       end
     end
-    if(when_LoadQueuePlugin_l265) begin
+    if(when_LoadQueuePlugin_l284) begin
       if(!LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_hit) begin
-        if(!when_LoadQueuePlugin_l271) begin
+        if(!when_LoadQueuePlugin_l290) begin
           LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isReadyForDCache = 1'b1;
         end
       end
     end
-    if(when_LoadQueuePlugin_l286) begin
+    if(when_LoadQueuePlugin_l305) begin
       LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isReadyForDCache = 1'b1;
     end
     if(LoadQueuePlugin_hw_dCacheLoadPort_cmd_fire) begin
@@ -16943,7 +17257,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_mmioCmdFired) begin
       LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isReadyForDCache = 1'b0;
     end
-    if(when_LoadQueuePlugin_l344) begin
+    if(when_LoadQueuePlugin_l363) begin
       if(LoadQueuePlugin_hw_dCacheLoadPort_rsp_payload_redo) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isReadyForDCache = 1'b1;
       end
@@ -16963,7 +17277,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_mmioCmdFired) begin
       LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isWaitingForRsp = 1'b1;
     end
-    if(when_LoadQueuePlugin_l344) begin
+    if(when_LoadQueuePlugin_l363) begin
       if(LoadQueuePlugin_hw_dCacheLoadPort_rsp_payload_redo) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isWaitingForRsp = 1'b0;
       end
@@ -17296,795 +17610,631 @@ module CoreNSCSCC (
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_0_valid = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_valid;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_valid = 1'b0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_0_valid = 1'b0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_valid = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_valid;
+    end
+    if(when_LoadQueuePlugin_l472) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_0_valid = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_0_address = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_address;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_address = 32'h0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_0_address = 32'h0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_address = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_address;
+    end
+    if(when_LoadQueuePlugin_l472) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_0_address = 32'h0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_0_size = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_size;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_size = MemAccessSize_W;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_0_size = MemAccessSize_W;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_size = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_size;
+    end
+    if(when_LoadQueuePlugin_l472) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_0_size = MemAccessSize_W;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_0_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_robPtr;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_robPtr = 4'b0000;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_0_robPtr = 4'b0000;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_robPtr;
+    end
+    if(when_LoadQueuePlugin_l472) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_0_robPtr = 4'b0000;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_0_pdest = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_pdest;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_pdest = 6'h0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_0_pdest = 6'h0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_pdest = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_pdest;
+    end
+    if(when_LoadQueuePlugin_l472) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_0_pdest = 6'h0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_0_isIO = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isIO;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isIO = 1'b0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_0_isIO = 1'b0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isIO = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isIO;
+    end
+    if(when_LoadQueuePlugin_l472) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_0_isIO = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_0_hasException = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_hasException;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_hasException = 1'b0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_0_hasException = 1'b0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_hasException = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_hasException;
+    end
+    if(when_LoadQueuePlugin_l472) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_0_hasException = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_0_exceptionCode = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_exceptionCode;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_exceptionCode = 8'h0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_0_exceptionCode = 8'h0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_exceptionCode = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_exceptionCode;
+    end
+    if(when_LoadQueuePlugin_l472) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_0_exceptionCode = 8'h0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_0_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isWaitingForFwdRsp;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isWaitingForFwdRsp = 1'b0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_0_isWaitingForFwdRsp = 1'b0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isWaitingForFwdRsp;
+    end
+    if(when_LoadQueuePlugin_l472) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_0_isWaitingForFwdRsp = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_0_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isStalledByDependency;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isStalledByDependency = 1'b0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_0_isStalledByDependency = 1'b0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isStalledByDependency;
+    end
+    if(when_LoadQueuePlugin_l472) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_0_isStalledByDependency = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_0_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isReadyForDCache;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isReadyForDCache = 1'b0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_0_isReadyForDCache = 1'b0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isReadyForDCache;
+    end
+    if(when_LoadQueuePlugin_l472) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_0_isReadyForDCache = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_0_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isWaitingForRsp;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isWaitingForRsp = 1'b0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_0_isWaitingForRsp = 1'b0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isWaitingForRsp;
+    end
+    if(when_LoadQueuePlugin_l472) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_0_isWaitingForRsp = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_1_valid = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_valid;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_valid = 1'b0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_1) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_1_valid = 1'b0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_valid = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_valid;
+    end
+    if(when_LoadQueuePlugin_l472_1) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_1_valid = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_1_address = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_address;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_address = 32'h0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_1) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_1_address = 32'h0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_address = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_address;
+    end
+    if(when_LoadQueuePlugin_l472_1) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_1_address = 32'h0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_1_size = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_size;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_size = MemAccessSize_W;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_1) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_1_size = MemAccessSize_W;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_size = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_size;
+    end
+    if(when_LoadQueuePlugin_l472_1) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_1_size = MemAccessSize_W;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_1_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_robPtr;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_robPtr = 4'b0000;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_1) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_1_robPtr = 4'b0000;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_robPtr;
+    end
+    if(when_LoadQueuePlugin_l472_1) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_1_robPtr = 4'b0000;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_1_pdest = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_pdest;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_pdest = 6'h0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_1) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_1_pdest = 6'h0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_pdest = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_pdest;
+    end
+    if(when_LoadQueuePlugin_l472_1) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_1_pdest = 6'h0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_1_isIO = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isIO;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isIO = 1'b0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_1) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_1_isIO = 1'b0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isIO = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isIO;
+    end
+    if(when_LoadQueuePlugin_l472_1) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_1_isIO = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_1_hasException = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_hasException;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_hasException = 1'b0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_1) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_1_hasException = 1'b0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_hasException = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_hasException;
+    end
+    if(when_LoadQueuePlugin_l472_1) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_1_hasException = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_1_exceptionCode = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_exceptionCode;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_exceptionCode = 8'h0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_1) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_1_exceptionCode = 8'h0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_exceptionCode = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_exceptionCode;
+    end
+    if(when_LoadQueuePlugin_l472_1) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_1_exceptionCode = 8'h0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_1_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isWaitingForFwdRsp;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isWaitingForFwdRsp = 1'b0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_1) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_1_isWaitingForFwdRsp = 1'b0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isWaitingForFwdRsp;
+    end
+    if(when_LoadQueuePlugin_l472_1) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_1_isWaitingForFwdRsp = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_1_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isStalledByDependency;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isStalledByDependency = 1'b0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_1) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_1_isStalledByDependency = 1'b0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isStalledByDependency;
+    end
+    if(when_LoadQueuePlugin_l472_1) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_1_isStalledByDependency = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_1_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isReadyForDCache;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isReadyForDCache = 1'b0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_1) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_1_isReadyForDCache = 1'b0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isReadyForDCache;
+    end
+    if(when_LoadQueuePlugin_l472_1) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_1_isReadyForDCache = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_1_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isWaitingForRsp;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isWaitingForRsp = 1'b0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_1) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_1_isWaitingForRsp = 1'b0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isWaitingForRsp;
+    end
+    if(when_LoadQueuePlugin_l472_1) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_1_isWaitingForRsp = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_2_valid = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_valid;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_valid = 1'b0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_2) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_2_valid = 1'b0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_valid = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_valid;
+    end
+    if(when_LoadQueuePlugin_l472_2) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_2_valid = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_2_address = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_address;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_address = 32'h0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_2) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_2_address = 32'h0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_address = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_address;
+    end
+    if(when_LoadQueuePlugin_l472_2) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_2_address = 32'h0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_2_size = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_size;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_size = MemAccessSize_W;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_2) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_2_size = MemAccessSize_W;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_size = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_size;
+    end
+    if(when_LoadQueuePlugin_l472_2) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_2_size = MemAccessSize_W;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_2_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_robPtr;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_robPtr = 4'b0000;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_2) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_2_robPtr = 4'b0000;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_robPtr;
+    end
+    if(when_LoadQueuePlugin_l472_2) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_2_robPtr = 4'b0000;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_2_pdest = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_pdest;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_pdest = 6'h0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_2) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_2_pdest = 6'h0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_pdest = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_pdest;
+    end
+    if(when_LoadQueuePlugin_l472_2) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_2_pdest = 6'h0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_2_isIO = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isIO;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isIO = 1'b0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_2) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_2_isIO = 1'b0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isIO = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isIO;
+    end
+    if(when_LoadQueuePlugin_l472_2) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_2_isIO = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_2_hasException = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_hasException;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_hasException = 1'b0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_2) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_2_hasException = 1'b0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_hasException = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_hasException;
+    end
+    if(when_LoadQueuePlugin_l472_2) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_2_hasException = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_2_exceptionCode = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_exceptionCode;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_exceptionCode = 8'h0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_2) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_2_exceptionCode = 8'h0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_exceptionCode = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_exceptionCode;
+    end
+    if(when_LoadQueuePlugin_l472_2) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_2_exceptionCode = 8'h0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_2_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isWaitingForFwdRsp;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isWaitingForFwdRsp = 1'b0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_2) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_2_isWaitingForFwdRsp = 1'b0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isWaitingForFwdRsp;
+    end
+    if(when_LoadQueuePlugin_l472_2) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_2_isWaitingForFwdRsp = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_2_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isStalledByDependency;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isStalledByDependency = 1'b0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_2) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_2_isStalledByDependency = 1'b0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isStalledByDependency;
+    end
+    if(when_LoadQueuePlugin_l472_2) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_2_isStalledByDependency = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_2_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isReadyForDCache;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isReadyForDCache = 1'b0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_2) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_2_isReadyForDCache = 1'b0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isReadyForDCache;
+    end
+    if(when_LoadQueuePlugin_l472_2) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_2_isReadyForDCache = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_2_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isWaitingForRsp;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isWaitingForRsp = 1'b0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_2) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_2_isWaitingForRsp = 1'b0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isWaitingForRsp;
+    end
+    if(when_LoadQueuePlugin_l472_2) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_2_isWaitingForRsp = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_3_valid = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_valid;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_valid = 1'b0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_3) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_3_valid = 1'b0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_3_valid = 1'b0;
+    end
+    if(when_LoadQueuePlugin_l472_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_valid = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_3_address = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_address;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_address = 32'h0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_3) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_3_address = 32'h0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_3_address = 32'h0;
+    end
+    if(when_LoadQueuePlugin_l472_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_address = 32'h0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_3_size = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_size;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_size = MemAccessSize_W;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_3) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_3_size = MemAccessSize_W;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_3_size = MemAccessSize_W;
+    end
+    if(when_LoadQueuePlugin_l472_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_size = MemAccessSize_W;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_3_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_robPtr;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_robPtr = 4'b0000;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_3) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_3_robPtr = 4'b0000;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_3_robPtr = 4'b0000;
+    end
+    if(when_LoadQueuePlugin_l472_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_robPtr = 4'b0000;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_3_pdest = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_pdest;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_pdest = 6'h0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_3) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_3_pdest = 6'h0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_3_pdest = 6'h0;
+    end
+    if(when_LoadQueuePlugin_l472_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_pdest = 6'h0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_3_isIO = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isIO;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isIO = 1'b0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_3) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_3_isIO = 1'b0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_3_isIO = 1'b0;
+    end
+    if(when_LoadQueuePlugin_l472_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isIO = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_3_hasException = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_hasException;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_hasException = 1'b0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_3) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_3_hasException = 1'b0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_3_hasException = 1'b0;
+    end
+    if(when_LoadQueuePlugin_l472_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_hasException = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_3_exceptionCode = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_exceptionCode;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_exceptionCode = 8'h0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_3) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_3_exceptionCode = 8'h0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_3_exceptionCode = 8'h0;
+    end
+    if(when_LoadQueuePlugin_l472_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_exceptionCode = 8'h0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_3_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isWaitingForFwdRsp;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isWaitingForFwdRsp = 1'b0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_3) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_3_isWaitingForFwdRsp = 1'b0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_3_isWaitingForFwdRsp = 1'b0;
+    end
+    if(when_LoadQueuePlugin_l472_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isWaitingForFwdRsp = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_3_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isStalledByDependency;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isStalledByDependency = 1'b0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_3) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_3_isStalledByDependency = 1'b0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_3_isStalledByDependency = 1'b0;
+    end
+    if(when_LoadQueuePlugin_l472_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isStalledByDependency = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_3_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isReadyForDCache;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isReadyForDCache = 1'b0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_3) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_3_isReadyForDCache = 1'b0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_3_isReadyForDCache = 1'b0;
+    end
+    if(when_LoadQueuePlugin_l472_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isReadyForDCache = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_3_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isWaitingForRsp;
-    if(when_LoadQueuePlugin_l223) begin
+    if(when_LoadQueuePlugin_l246) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isWaitingForRsp = 1'b0;
-    end else begin
-      if(when_LoadQueuePlugin_l225) begin
-        if(when_LoadQueuePlugin_l228_3) begin
-          LoadQueuePlugin_logic_loadQueue_slotsNext_3_isWaitingForRsp = 1'b0;
-        end
-      end
     end
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isWaitingForRsp = 1'b0;
     end
+    if(when_LoadQueuePlugin_l472_3) begin
+      LoadQueuePlugin_logic_loadQueue_slotsNext_3_isWaitingForRsp = 1'b0;
+    end
   end
 
-  assign when_LoadQueuePlugin_l223 = (ROBPlugin_aggregatedFlushSignal_valid && (ROBPlugin_aggregatedFlushSignal_payload_reason == FlushReason_FULL_FLUSH));
-  assign _zz_when_LoadQueuePlugin_l228 = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[3];
-  assign _zz_when_LoadQueuePlugin_l228_1 = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[2 : 0];
-  assign _zz_when_LoadQueuePlugin_l228_2 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
-  assign _zz_when_LoadQueuePlugin_l228_3 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
-  assign when_LoadQueuePlugin_l228 = (LoadQueuePlugin_logic_loadQueue_slots_0_valid && (((_zz_when_LoadQueuePlugin_l228 == _zz_when_LoadQueuePlugin_l228_2) && (_zz_when_LoadQueuePlugin_l228_3 <= _zz_when_LoadQueuePlugin_l228_1)) || ((_zz_when_LoadQueuePlugin_l228 != _zz_when_LoadQueuePlugin_l228_2) && (_zz_when_LoadQueuePlugin_l228_1 < _zz_when_LoadQueuePlugin_l228_3))));
-  assign _zz_when_LoadQueuePlugin_l228_4 = LoadQueuePlugin_logic_loadQueue_slots_1_robPtr[3];
-  assign _zz_when_LoadQueuePlugin_l228_5 = LoadQueuePlugin_logic_loadQueue_slots_1_robPtr[2 : 0];
-  assign _zz_when_LoadQueuePlugin_l228_6 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
-  assign _zz_when_LoadQueuePlugin_l228_7 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
-  assign when_LoadQueuePlugin_l228_1 = (LoadQueuePlugin_logic_loadQueue_slots_1_valid && (((_zz_when_LoadQueuePlugin_l228_4 == _zz_when_LoadQueuePlugin_l228_6) && (_zz_when_LoadQueuePlugin_l228_7 <= _zz_when_LoadQueuePlugin_l228_5)) || ((_zz_when_LoadQueuePlugin_l228_4 != _zz_when_LoadQueuePlugin_l228_6) && (_zz_when_LoadQueuePlugin_l228_5 < _zz_when_LoadQueuePlugin_l228_7))));
-  assign _zz_when_LoadQueuePlugin_l228_8 = LoadQueuePlugin_logic_loadQueue_slots_2_robPtr[3];
-  assign _zz_when_LoadQueuePlugin_l228_9 = LoadQueuePlugin_logic_loadQueue_slots_2_robPtr[2 : 0];
-  assign _zz_when_LoadQueuePlugin_l228_10 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
-  assign _zz_when_LoadQueuePlugin_l228_11 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
-  assign when_LoadQueuePlugin_l228_2 = (LoadQueuePlugin_logic_loadQueue_slots_2_valid && (((_zz_when_LoadQueuePlugin_l228_8 == _zz_when_LoadQueuePlugin_l228_10) && (_zz_when_LoadQueuePlugin_l228_11 <= _zz_when_LoadQueuePlugin_l228_9)) || ((_zz_when_LoadQueuePlugin_l228_8 != _zz_when_LoadQueuePlugin_l228_10) && (_zz_when_LoadQueuePlugin_l228_9 < _zz_when_LoadQueuePlugin_l228_11))));
-  assign _zz_when_LoadQueuePlugin_l228_12 = LoadQueuePlugin_logic_loadQueue_slots_3_robPtr[3];
-  assign _zz_when_LoadQueuePlugin_l228_13 = LoadQueuePlugin_logic_loadQueue_slots_3_robPtr[2 : 0];
-  assign _zz_when_LoadQueuePlugin_l228_14 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
-  assign _zz_when_LoadQueuePlugin_l228_15 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
-  assign when_LoadQueuePlugin_l228_3 = (LoadQueuePlugin_logic_loadQueue_slots_3_valid && (((_zz_when_LoadQueuePlugin_l228_12 == _zz_when_LoadQueuePlugin_l228_14) && (_zz_when_LoadQueuePlugin_l228_15 <= _zz_when_LoadQueuePlugin_l228_13)) || ((_zz_when_LoadQueuePlugin_l228_12 != _zz_when_LoadQueuePlugin_l228_14) && (_zz_when_LoadQueuePlugin_l228_13 < _zz_when_LoadQueuePlugin_l228_15))));
-  assign when_LoadQueuePlugin_l225 = (ROBPlugin_aggregatedFlushSignal_valid && (ROBPlugin_aggregatedFlushSignal_payload_reason == FlushReason_ROLLBACK_TO_ROB_IDX));
-  assign LoadQueuePlugin_logic_loadQueue_canPush = (! (&{LoadQueuePlugin_logic_loadQueue_slots_3_valid,{LoadQueuePlugin_logic_loadQueue_slots_2_valid,{LoadQueuePlugin_logic_loadQueue_slots_1_valid,LoadQueuePlugin_logic_loadQueue_slots_0_valid}}}));
+  assign LoadQueuePlugin_logic_loadQueue_flushInProgress = (ROBPlugin_aggregatedFlushSignal_valid && (ROBPlugin_aggregatedFlushSignal_payload_reason == FlushReason_ROLLBACK_TO_ROB_IDX));
+  assign when_LoadQueuePlugin_l246 = (ROBPlugin_aggregatedFlushSignal_valid && (ROBPlugin_aggregatedFlushSignal_payload_reason == FlushReason_FULL_FLUSH));
+  assign LoadQueuePlugin_logic_loadQueue_canPush = ((! (&{LoadQueuePlugin_logic_loadQueue_slots_3_valid,{LoadQueuePlugin_logic_loadQueue_slots_2_valid,{LoadQueuePlugin_logic_loadQueue_slots_1_valid,LoadQueuePlugin_logic_loadQueue_slots_0_valid}}})) && (! LoadQueuePlugin_logic_loadQueue_flushInProgress));
   assign LoadQueuePlugin_logic_pushCmd_ready = LoadQueuePlugin_logic_loadQueue_canPush;
   assign LoadQueuePlugin_logic_loadQueue_availableSlotsMask = {(! LoadQueuePlugin_logic_loadQueue_slots_3_valid),{(! LoadQueuePlugin_logic_loadQueue_slots_2_valid),{(! LoadQueuePlugin_logic_loadQueue_slots_1_valid),(! LoadQueuePlugin_logic_loadQueue_slots_0_valid)}}};
   assign LoadQueuePlugin_logic_loadQueue_pushOh = (LoadQueuePlugin_logic_loadQueue_availableSlotsMask & _zz_LoadQueuePlugin_logic_loadQueue_pushOh);
@@ -18098,15 +18248,20 @@ module CoreNSCSCC (
   assign _zz_18 = _zz_16[1];
   assign _zz_19 = _zz_16[2];
   assign _zz_20 = _zz_16[3];
-  assign LoadQueuePlugin_logic_loadQueue_headIsReadyForFwdQuery = (((((LoadQueuePlugin_logic_loadQueue_slots_0_valid && (! LoadQueuePlugin_logic_loadQueue_slots_0_hasException)) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForFwdRsp)) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isStalledByDependency)) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForRsp)) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isReadyForDCache));
+  assign _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[3];
+  assign _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_1 = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[2 : 0];
+  assign _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_2 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
+  assign _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_3 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
+  assign LoadQueuePlugin_logic_loadQueue_headIsVisible = (LoadQueuePlugin_logic_loadQueue_slots_0_valid && (! (LoadQueuePlugin_logic_loadQueue_flushInProgress && (((_zz_LoadQueuePlugin_logic_loadQueue_headIsVisible == _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_2) && (_zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_3 <= _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_1)) || ((_zz_LoadQueuePlugin_logic_loadQueue_headIsVisible != _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_2) && (_zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_1 < _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_3))))));
+  assign LoadQueuePlugin_logic_loadQueue_headIsReadyForFwdQuery = (((((LoadQueuePlugin_logic_loadQueue_headIsVisible && (! LoadQueuePlugin_logic_loadQueue_slots_0_hasException)) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForFwdRsp)) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isStalledByDependency)) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForRsp)) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isReadyForDCache));
   assign StoreBufferPlugin_hw_sqQueryPort_cmd_valid = LoadQueuePlugin_logic_loadQueue_headIsReadyForFwdQuery;
   assign StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address = LoadQueuePlugin_logic_loadQueue_slots_0_address;
   assign StoreBufferPlugin_hw_sqQueryPort_cmd_payload_size = LoadQueuePlugin_logic_loadQueue_slots_0_size;
   assign StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr;
-  assign when_LoadQueuePlugin_l265 = (LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForFwdRsp && LoadQueuePlugin_logic_loadQueue_sbQueryRspValid);
-  assign when_LoadQueuePlugin_l271 = (LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_olderStoreHasUnknownAddress || LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_olderStoreMatchingAddress);
-  assign when_LoadQueuePlugin_l286 = ((((LoadQueuePlugin_logic_loadQueue_slots_0_valid && LoadQueuePlugin_logic_loadQueue_slots_0_hasException) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isReadyForDCache)) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForFwdRsp)) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForRsp));
-  assign LoadQueuePlugin_logic_loadQueue_headIsReadyToExecute = ((LoadQueuePlugin_logic_loadQueue_slots_0_valid && LoadQueuePlugin_logic_loadQueue_slots_0_isReadyForDCache) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForRsp));
+  assign when_LoadQueuePlugin_l284 = (LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForFwdRsp && LoadQueuePlugin_logic_loadQueue_sbQueryRspValid);
+  assign when_LoadQueuePlugin_l290 = (LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_olderStoreHasUnknownAddress || LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_olderStoreMatchingAddress);
+  assign when_LoadQueuePlugin_l305 = ((((LoadQueuePlugin_logic_loadQueue_headIsVisible && LoadQueuePlugin_logic_loadQueue_slots_0_hasException) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isReadyForDCache)) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForFwdRsp)) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForRsp));
+  assign LoadQueuePlugin_logic_loadQueue_headIsReadyToExecute = ((LoadQueuePlugin_logic_loadQueue_headIsVisible && LoadQueuePlugin_logic_loadQueue_slots_0_isReadyForDCache) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForRsp));
   assign LoadQueuePlugin_logic_loadQueue_shouldNotSendToMemory = (LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForFwdRsp || (LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForFwdRsp && StoreBufferPlugin_hw_sqQueryPort_rsp_hit));
   assign LoadQueuePlugin_hw_dCacheLoadPort_cmd_valid = (((LoadQueuePlugin_logic_loadQueue_headIsReadyToExecute && (! LoadQueuePlugin_logic_loadQueue_slots_0_hasException)) && (! LoadQueuePlugin_logic_loadQueue_shouldNotSendToMemory)) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isIO));
   assign LoadQueuePlugin_hw_dCacheLoadPort_cmd_payload_virtual = LoadQueuePlugin_logic_loadQueue_slots_0_address;
@@ -18138,7 +18293,7 @@ module CoreNSCSCC (
   assign _zz_LoadQueuePlugin_logic_loadQueue_mmioCmdFired = (((LoadQueuePlugin_logic_loadQueue_headIsReadyToExecute && (! LoadQueuePlugin_logic_loadQueue_slots_0_hasException)) && (! LoadQueuePlugin_logic_loadQueue_shouldNotSendToMemory)) && LoadQueuePlugin_logic_loadQueue_slots_0_isIO);
   assign LoadQueuePlugin_logic_loadQueue_mmioCmdFired = (_zz_LoadQueuePlugin_logic_loadQueue_mmioCmdFired && CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_cmd_ready);
   assign LoadQueuePlugin_logic_loadQueue_mmioResponseIsForHead = (((CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_valid && LoadQueuePlugin_logic_loadQueue_slots_0_valid) && (LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForRsp || LoadQueuePlugin_logic_loadQueue_mmioCmdFired)) && LoadQueuePlugin_logic_loadQueue_slots_0_isIO);
-  assign when_LoadQueuePlugin_l344 = (((LoadQueuePlugin_hw_dCacheLoadPort_rsp_valid && LoadQueuePlugin_logic_loadQueue_slots_0_valid) && LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForRsp) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isIO));
+  assign when_LoadQueuePlugin_l363 = (((LoadQueuePlugin_hw_dCacheLoadPort_rsp_valid && LoadQueuePlugin_logic_loadQueue_slots_0_valid) && LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForRsp) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isIO));
   assign LoadQueuePlugin_logic_loadQueue_popOnFwdHit = (LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForFwdRsp && LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_hit);
   assign LoadQueuePlugin_logic_loadQueue_popOnDCacheSuccess = ((((LoadQueuePlugin_hw_dCacheLoadPort_rsp_valid && LoadQueuePlugin_logic_loadQueue_slots_0_valid) && LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForRsp) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isIO)) && (! LoadQueuePlugin_hw_dCacheLoadPort_rsp_payload_redo));
   assign LoadQueuePlugin_logic_loadQueue_popOnEarlyException = ((LoadQueuePlugin_logic_loadQueue_slots_0_valid && LoadQueuePlugin_logic_loadQueue_slots_0_hasException) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isReadyForDCache));
@@ -18268,12 +18423,12 @@ module CoreNSCSCC (
       LoadQueuePlugin_hw_wakeupPort_valid = 1'b1;
     end else begin
       if(LoadQueuePlugin_logic_loadQueue_popOnDCacheSuccess) begin
-        if(when_LoadQueuePlugin_l401) begin
+        if(when_LoadQueuePlugin_l420) begin
           LoadQueuePlugin_hw_wakeupPort_valid = 1'b1;
         end
       end else begin
         if(LoadQueuePlugin_logic_loadQueue_mmioResponseIsForHead) begin
-          if(when_LoadQueuePlugin_l418) begin
+          if(when_LoadQueuePlugin_l437) begin
             LoadQueuePlugin_hw_wakeupPort_valid = 1'b1;
           end
         end
@@ -18287,12 +18442,12 @@ module CoreNSCSCC (
       LoadQueuePlugin_hw_wakeupPort_payload_physRegIdx = LoadQueuePlugin_logic_loadQueue_slots_0_pdest;
     end else begin
       if(LoadQueuePlugin_logic_loadQueue_popOnDCacheSuccess) begin
-        if(when_LoadQueuePlugin_l401) begin
+        if(when_LoadQueuePlugin_l420) begin
           LoadQueuePlugin_hw_wakeupPort_payload_physRegIdx = LoadQueuePlugin_logic_loadQueue_slots_0_pdest;
         end
       end else begin
         if(LoadQueuePlugin_logic_loadQueue_mmioResponseIsForHead) begin
-          if(when_LoadQueuePlugin_l418) begin
+          if(when_LoadQueuePlugin_l437) begin
             LoadQueuePlugin_hw_wakeupPort_payload_physRegIdx = LoadQueuePlugin_logic_loadQueue_slots_0_pdest;
           end
         end
@@ -18300,8 +18455,28 @@ module CoreNSCSCC (
     end
   end
 
-  assign when_LoadQueuePlugin_l401 = (! LoadQueuePlugin_hw_dCacheLoadPort_rsp_payload_fault);
-  assign when_LoadQueuePlugin_l418 = (! _zz_LoadQueuePlugin_hw_prfWritePort_valid);
+  assign when_LoadQueuePlugin_l420 = (! LoadQueuePlugin_hw_dCacheLoadPort_rsp_payload_fault);
+  assign when_LoadQueuePlugin_l437 = (! _zz_LoadQueuePlugin_hw_prfWritePort_valid);
+  assign _zz_when_LoadQueuePlugin_l472 = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[3];
+  assign _zz_when_LoadQueuePlugin_l472_1 = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[2 : 0];
+  assign _zz_when_LoadQueuePlugin_l472_2 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
+  assign _zz_when_LoadQueuePlugin_l472_3 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
+  assign when_LoadQueuePlugin_l472 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_0_valid) && (((_zz_when_LoadQueuePlugin_l472 == _zz_when_LoadQueuePlugin_l472_2) && (_zz_when_LoadQueuePlugin_l472_3 <= _zz_when_LoadQueuePlugin_l472_1)) || ((_zz_when_LoadQueuePlugin_l472 != _zz_when_LoadQueuePlugin_l472_2) && (_zz_when_LoadQueuePlugin_l472_1 < _zz_when_LoadQueuePlugin_l472_3))));
+  assign _zz_when_LoadQueuePlugin_l472_4 = LoadQueuePlugin_logic_loadQueue_slots_1_robPtr[3];
+  assign _zz_when_LoadQueuePlugin_l472_5 = LoadQueuePlugin_logic_loadQueue_slots_1_robPtr[2 : 0];
+  assign _zz_when_LoadQueuePlugin_l472_6 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
+  assign _zz_when_LoadQueuePlugin_l472_7 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
+  assign when_LoadQueuePlugin_l472_1 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_1_valid) && (((_zz_when_LoadQueuePlugin_l472_4 == _zz_when_LoadQueuePlugin_l472_6) && (_zz_when_LoadQueuePlugin_l472_7 <= _zz_when_LoadQueuePlugin_l472_5)) || ((_zz_when_LoadQueuePlugin_l472_4 != _zz_when_LoadQueuePlugin_l472_6) && (_zz_when_LoadQueuePlugin_l472_5 < _zz_when_LoadQueuePlugin_l472_7))));
+  assign _zz_when_LoadQueuePlugin_l472_8 = LoadQueuePlugin_logic_loadQueue_slots_2_robPtr[3];
+  assign _zz_when_LoadQueuePlugin_l472_9 = LoadQueuePlugin_logic_loadQueue_slots_2_robPtr[2 : 0];
+  assign _zz_when_LoadQueuePlugin_l472_10 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
+  assign _zz_when_LoadQueuePlugin_l472_11 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
+  assign when_LoadQueuePlugin_l472_2 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_2_valid) && (((_zz_when_LoadQueuePlugin_l472_8 == _zz_when_LoadQueuePlugin_l472_10) && (_zz_when_LoadQueuePlugin_l472_11 <= _zz_when_LoadQueuePlugin_l472_9)) || ((_zz_when_LoadQueuePlugin_l472_8 != _zz_when_LoadQueuePlugin_l472_10) && (_zz_when_LoadQueuePlugin_l472_9 < _zz_when_LoadQueuePlugin_l472_11))));
+  assign _zz_when_LoadQueuePlugin_l472_12 = LoadQueuePlugin_logic_loadQueue_slots_3_robPtr[3];
+  assign _zz_when_LoadQueuePlugin_l472_13 = LoadQueuePlugin_logic_loadQueue_slots_3_robPtr[2 : 0];
+  assign _zz_when_LoadQueuePlugin_l472_14 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
+  assign _zz_when_LoadQueuePlugin_l472_15 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
+  assign when_LoadQueuePlugin_l472_3 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_3_valid) && (((_zz_when_LoadQueuePlugin_l472_12 == _zz_when_LoadQueuePlugin_l472_14) && (_zz_when_LoadQueuePlugin_l472_15 <= _zz_when_LoadQueuePlugin_l472_13)) || ((_zz_when_LoadQueuePlugin_l472_12 != _zz_when_LoadQueuePlugin_l472_14) && (_zz_when_LoadQueuePlugin_l472_13 < _zz_when_LoadQueuePlugin_l472_15))));
   assign when_CheckpointManagerPlugin_l118 = (CheckpointManagerPlugin_restoreCheckpointTrigger && CheckpointManagerPlugin_logic_hasValidCheckpoint);
   always @(*) begin
     if(when_CheckpointManagerPlugin_l118) begin
@@ -21093,6 +21268,13 @@ module CoreNSCSCC (
       CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_31 <= CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_31;
       CheckpointManagerPlugin_logic_storedFlCheckpoint_freeMask <= CheckpointManagerPlugin_logic_initialFlCheckpoint_freeMask;
       CheckpointManagerPlugin_logic_storedBtCheckpoint_busyBits <= CheckpointManagerPlugin_logic_initialBtCheckpoint_busyBits;
+      CommitPlugin_logic_s1_s1_commitIdleThisCycle <= 1'b0;
+      CommitPlugin_logic_s1_s1_hasCommitsThisCycle <= 1'b0;
+      CommitPlugin_logic_s1_s1_maxCommitPcThisCycle <= 32'h0;
+      CommitPlugin_logic_s1_s1_anyCommitOOB <= 1'b0;
+      CommitPlugin_logic_s1_s1_committedThisCycle_comb <= 1'b0;
+      CommitPlugin_logic_s1_s1_recycledThisCycle_comb <= 1'b0;
+      CommitPlugin_logic_s1_s1_flushedThisCycle_comb <= 1'b0;
       CommitPlugin_logic_idleJustCommitted <= 1'b0;
       DebugDisplayPlugin_logic_displayArea_dpToggle <= 1'b0;
       s1_ReadRegs_valid <= 1'b0;
@@ -21106,6 +21288,8 @@ module CoreNSCSCC (
       _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_valid <= 1'b0;
       _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_valid_2 <= 1'b0;
       LoadQueuePlugin_logic_loadQueue_sbQueryRspValid <= 1'b0;
+      LoadQueuePlugin_logic_loadQueue_registeredFlush_valid <= 1'b0;
+      LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr <= 4'b0000;
       LoadQueuePlugin_logic_loadQueue_slots_0_valid <= 1'b0;
       LoadQueuePlugin_logic_loadQueue_slots_0_address <= 32'h0;
       LoadQueuePlugin_logic_loadQueue_slots_0_size <= MemAccessSize_W;
@@ -21397,62 +21581,69 @@ module CoreNSCSCC (
           `endif
         `endif
       end
-      if(CommitPlugin_logic_commitIdleThisCycle) begin
+      CommitPlugin_logic_s1_s1_commitIdleThisCycle <= CommitPlugin_logic_s0_commitIdleThisCycle;
+      CommitPlugin_logic_s1_s1_hasCommitsThisCycle <= CommitPlugin_logic_s0_commitAckMasks_0;
+      CommitPlugin_logic_s1_s1_maxCommitPcThisCycle <= CommitPlugin_logic_s0_maxCommitPcThisCycle;
+      CommitPlugin_logic_s1_s1_anyCommitOOB <= CommitPlugin_logic_s0_anyCommitOOB;
+      CommitPlugin_logic_s1_s1_committedThisCycle_comb <= CommitPlugin_logic_s0_committedThisCycle_comb;
+      CommitPlugin_logic_s1_s1_recycledThisCycle_comb <= CommitPlugin_logic_s0_recycledThisCycle_comb;
+      CommitPlugin_logic_s1_s1_flushedThisCycle_comb <= CommitPlugin_logic_s0_flushedThisCycle_comb;
+      if(CommitPlugin_logic_s1_s1_commitIdleThisCycle) begin
         CommitPlugin_committedIdleReg <= 1'b1;
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // CommitPlugin.scala:L204
+            assert(1'b0); // CommitPlugin.scala:L314
           `else
             if(!1'b0) begin
-              $display("NOTE(CommitPlugin.scala:204):  [CommitPlugin] IDLE instruction committed at PC=0x%x, entering IDLE state", ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc); // CommitPlugin.scala:L204
+              $display("NOTE(CommitPlugin.scala:314):  [CommitPlugin] IDLE instruction committed at PC=0x%x, entering IDLE state", CommitPlugin_logic_s1_s1_headUop_decoded_pc); // CommitPlugin.scala:L314
+            end
+          `endif
+        `endif
+      end
+      if(CommitPlugin_logic_s1_s1_hasCommitsThisCycle) begin
+        if(when_CommitPlugin_l320) begin
+          CommitPlugin_maxCommitPcReg <= CommitPlugin_logic_s1_s1_maxCommitPcThisCycle;
+        end
+      end
+      if(CommitPlugin_logic_s1_s1_anyCommitOOB) begin
+        CommitPlugin_commitOOBReg <= 1'b1;
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CommitPlugin.scala:L328
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CommitPlugin.scala:328):  [CommitPlugin] CRITICAL: Out-of-bounds commit detected! PC=0x%x, maxAllowed=0x%x", CommitPlugin_logic_s1_s1_maxCommitPcThisCycle, CommitPlugin_maxCommitPcExt); // CommitPlugin.scala:L328
+            end
+          `endif
+        `endif
+      end
+      CommitPlugin_commitStatsReg_committedThisCycle <= CommitPlugin_logic_s1_s1_committedThisCycle_comb;
+      CommitPlugin_commitStatsReg_totalCommitted <= (CommitPlugin_commitStatsReg_totalCommitted + _zz_CommitPlugin_commitStatsReg_totalCommitted);
+      CommitPlugin_commitStatsReg_physRegRecycled <= (CommitPlugin_commitStatsReg_physRegRecycled + _zz_CommitPlugin_commitStatsReg_physRegRecycled);
+      CommitPlugin_commitStatsReg_robFlushCount <= (CommitPlugin_commitStatsReg_robFlushCount + _zz_CommitPlugin_commitStatsReg_robFlushCount);
+      CommitPlugin_commitStatsReg_commitOOB <= CommitPlugin_commitOOBReg;
+      CommitPlugin_commitStatsReg_maxCommitPc <= CommitPlugin_maxCommitPcReg;
+      CommitPlugin_logic_idleJustCommitted <= CommitPlugin_logic_s0_commitIdleThisCycle;
+      if(CommitPlugin_logic_idleJustCommitted) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CommitPlugin.scala:L355
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CommitPlugin.scala:355):  [CommitPlugin] Delayed ROB flush triggered by IDLE instruction"); // CommitPlugin.scala:L355
             end
           `endif
         `endif
       end
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // CommitPlugin.scala:L206
+          assert(1'b0); // CommitPlugin.scala:L371
         `else
           if(!1'b0) begin
-            $display("NOTE(CommitPlugin.scala:206):  commitIdleThisCycle=%x, commitAckMasks(0)=%x: commitEnableExt=%x, commitSlots(0).valid=%x, !committedIdleReg=%x", CommitPlugin_logic_commitIdleThisCycle, CommitPlugin_logic_commitAckMasks_0, CommitPlugin_commitEnableExt, ROBPlugin_robComponent_io_commit_0_valid, _zz_8); // CommitPlugin.scala:L206
+            $display("NOTE(CommitPlugin.scala:371):  commitIdleThisCycle=%x, commitAckMasks(0)=%x: commitEnableExt=%x, commitSlots(0).valid=%x, !committedIdleReg=%x", CommitPlugin_logic_s0_commitIdleThisCycle, CommitPlugin_logic_s0_commitAckMasks_0, CommitPlugin_commitEnableExt, ROBPlugin_robComponent_io_commit_0_valid, _zz_8); // CommitPlugin.scala:L371
           end
         `endif
       `endif
-      CommitPlugin_logic_idleJustCommitted <= CommitPlugin_logic_commitIdleThisCycle;
-      if(CommitPlugin_logic_idleJustCommitted) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // CommitPlugin.scala:L226
-          `else
-            if(!1'b0) begin
-              $display("NOTE(CommitPlugin.scala:226):  [CommitPlugin] Delayed ROB flush triggered by IDLE instruction"); // CommitPlugin.scala:L226
-            end
-          `endif
-        `endif
-      end
-      if(CommitPlugin_logic_commitAckMasks_0) begin
-        if(when_CommitPlugin_l262) begin
-          CommitPlugin_maxCommitPcReg <= CommitPlugin_logic_maxCommitPcThisCycle;
-        end
-      end
-      if(CommitPlugin_logic_anyCommitOOB) begin
-        CommitPlugin_commitOOBReg <= 1'b1;
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // CommitPlugin.scala:L270
-          `else
-            if(!1'b0) begin
-              $display("NOTE(CommitPlugin.scala:270):  [CommitPlugin] CRITICAL: Out-of-bounds commit detected! PC=0x%x, maxAllowed=0x%x", CommitPlugin_logic_maxCommitPcThisCycle, CommitPlugin_maxCommitPcExt); // CommitPlugin.scala:L270
-            end
-          `endif
-        `endif
-      end
-      CommitPlugin_commitStatsReg_committedThisCycle <= CommitPlugin_logic_committedThisCycle_comb;
-      CommitPlugin_commitStatsReg_totalCommitted <= (CommitPlugin_commitStatsReg_totalCommitted + _zz_CommitPlugin_commitStatsReg_totalCommitted);
-      CommitPlugin_commitStatsReg_physRegRecycled <= (CommitPlugin_commitStatsReg_physRegRecycled + _zz_CommitPlugin_commitStatsReg_physRegRecycled);
-      CommitPlugin_commitStatsReg_robFlushCount <= (CommitPlugin_commitStatsReg_robFlushCount + _zz_CommitPlugin_commitStatsReg_robFlushCount);
-      CommitPlugin_commitStatsReg_commitOOB <= CommitPlugin_commitOOBReg;
-      CommitPlugin_commitStatsReg_maxCommitPc <= CommitPlugin_maxCommitPcReg;
       if(oneShot_18_io_pulseOut) begin
         if(when_Debug_l71_5) begin
           _zz_when_Debug_l71 <= {3'd0, _zz_when_Debug_l71_6};
@@ -21481,10 +21672,10 @@ module CoreNSCSCC (
       end
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // CommitPlugin.scala:L348
+          assert(1'b0); // CommitPlugin.scala:L381
         `else
           if(!1'b0) begin
-            $display("NOTE(CommitPlugin.scala:348):  [COMMIT] Cycle Log: commitEnableExt=%x, commitCount=%x, committedIdleReg=%x, IDLE_AtHead=%x, IDLE_BeingCommitted=%x, committedIdlePcReg=0x%x, ROB_Head_Valid=%x, ROB_Head_Done=%x, ROB_Head_UopCode=%x, ROB_Flush_Valid=%x, ROB_Flush_Reason=%x, Restore_Checkpoint_Trigger=%x, Fetch_Disable=%x, Stats=CommitStats(committedThisCycle=%x, totalCommitted=%x, robFlushCount=%x, physRegRecycled=%x, commitOOB=%x, maxCommitPc=0x%x)\n  Slot Details: \n    Slot: (valid=%x, canCommit=%x, doCommit=%x, robPtr=%x, oldPhysDest=p%x, allocatesPhysDest=%x) commitAck=%x commitPc=0x%x", CommitPlugin_commitEnableExt, CommitPlugin_logic_commitCount, CommitPlugin_committedIdleReg, _zz_10, CommitPlugin_logic_commitIdleThisCycle, CommitPlugin_committedIdlePcReg, ROBPlugin_robComponent_io_commit_0_valid, ROBPlugin_robComponent_io_commit_0_entry_status_done, _zz_11, CommitPlugin_hw_robFlushPort_valid, _zz_12, CheckpointManagerPlugin_restoreCheckpointTrigger, CommitPlugin_hw_fetchDisable, CommitPlugin_commitStatsReg_committedThisCycle, CommitPlugin_commitStatsReg_totalCommitted, CommitPlugin_commitStatsReg_robFlushCount, CommitPlugin_commitStatsReg_physRegRecycled, CommitPlugin_commitStatsReg_commitOOB, CommitPlugin_commitStatsReg_maxCommitPc, CommitPlugin_logic_commitSlotLogs_0_valid, CommitPlugin_logic_commitSlotLogs_0_canCommit, CommitPlugin_logic_commitSlotLogs_0_doCommit, CommitPlugin_logic_commitSlotLogs_0_robPtr, CommitPlugin_logic_commitSlotLogs_0_oldPhysDest, CommitPlugin_logic_commitSlotLogs_0_allocatesPhysDest, CommitPlugin_logic_commitAckMasks_0, CommitPlugin_logic_commitPcs_0); // CommitPlugin.scala:L348
+            $display("NOTE(CommitPlugin.scala:381):  [COMMIT] Cycle Log: commitEnableExt=%x, commitCount=%x, committedIdleReg=%x, IDLE_AtHead=%x, IDLE_BeingCommitted=%x, committedIdlePcReg=0x%x, ROB_Head_Valid=%x, ROB_Head_Done=%x, ROB_Head_UopCode=%x, ROB_Flush_Valid=%x, ROB_Flush_Reason=%x, Restore_Checkpoint_Trigger=%x, Fetch_Disable=%x, Stats=CommitStats(committedThisCycle=%x, totalCommitted=%x, robFlushCount=%x, physRegRecycled=%x, commitOOB=%x, maxCommitPc=0x%x)\n  Slot Details: \n    Slot: (valid=%x, canCommit=%x, doCommit=%x, robPtr=%x, oldPhysDest=p%x, allocatesPhysDest=%x) commitAck=%x commitPc=0x%x", CommitPlugin_commitEnableExt, CommitPlugin_logic_commitCount, CommitPlugin_committedIdleReg, _zz_10, CommitPlugin_logic_s0_commitIdleThisCycle, CommitPlugin_committedIdlePcReg, ROBPlugin_robComponent_io_commit_0_valid, ROBPlugin_robComponent_io_commit_0_entry_status_done, _zz_11, CommitPlugin_hw_robFlushPort_valid, _zz_12, CheckpointManagerPlugin_restoreCheckpointTrigger, CommitPlugin_hw_fetchDisable, CommitPlugin_commitStatsReg_committedThisCycle, CommitPlugin_commitStatsReg_totalCommitted, CommitPlugin_commitStatsReg_robFlushCount, CommitPlugin_commitStatsReg_physRegRecycled, CommitPlugin_commitStatsReg_commitOOB, CommitPlugin_commitStatsReg_maxCommitPc, CommitPlugin_logic_s0_commitSlotLogs_0_valid, CommitPlugin_logic_s0_commitSlotLogs_0_canCommit, CommitPlugin_logic_s0_commitSlotLogs_0_doCommit, CommitPlugin_logic_s0_commitSlotLogs_0_robPtr, CommitPlugin_logic_s0_commitSlotLogs_0_oldPhysDest, CommitPlugin_logic_s0_commitSlotLogs_0_allocatesPhysDest, CommitPlugin_logic_s0_commitAckMasks_0, CommitPlugin_logic_s0_commitPcs_0); // CommitPlugin.scala:L381
           end
         `endif
       `endif
@@ -22014,13 +22205,15 @@ module CoreNSCSCC (
         _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_valid_2 <= (_zz_LsuEU_LsuEuPlugin_hw_aguPort_output_valid && (! LsuEU_LsuEuPlugin_hw_aguPort_flush));
       end
       LoadQueuePlugin_logic_loadQueue_sbQueryRspValid <= StoreBufferPlugin_hw_sqQueryPort_cmd_valid;
+      LoadQueuePlugin_logic_loadQueue_registeredFlush_valid <= LoadQueuePlugin_logic_loadQueue_flushInProgress;
+      LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr <= ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr;
       if(LoadQueuePlugin_logic_pushCmd_fire) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // LoadQueuePlugin.scala:L243
+            assert(1'b0); // LoadQueuePlugin.scala:L259
           `else
             if(!1'b0) begin
-              $display("NOTE(LoadQueuePlugin.scala:243):  [LQ] PUSH from LsuEu: robPtr=%x addr=%x to slotIdx=%x", LoadQueuePlugin_logic_pushCmd_payload_robPtr, LoadQueuePlugin_logic_pushCmd_payload_address, LoadQueuePlugin_logic_loadQueue_pushIdx); // LoadQueuePlugin.scala:L243
+              $display("NOTE(LoadQueuePlugin.scala:259):  [LQ] PUSH from LsuEu: robPtr=%x addr=%x to slotIdx=%x", LoadQueuePlugin_logic_pushCmd_payload_robPtr, LoadQueuePlugin_logic_pushCmd_payload_address, LoadQueuePlugin_logic_loadQueue_pushIdx); // LoadQueuePlugin.scala:L259
             end
           `endif
         `endif
@@ -22028,56 +22221,56 @@ module CoreNSCSCC (
       if(StoreBufferPlugin_hw_sqQueryPort_cmd_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // LoadQueuePlugin.scala:L262
+            assert(1'b0); // LoadQueuePlugin.scala:L281
           `else
             if(!1'b0) begin
-              $display("NOTE(LoadQueuePlugin.scala:262):  [LQ-Fwd] QUERY: robPtr=%x addr=%x", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, LoadQueuePlugin_logic_loadQueue_slots_0_address); // LoadQueuePlugin.scala:L262
+              $display("NOTE(LoadQueuePlugin.scala:281):  [LQ-Fwd] QUERY: robPtr=%x addr=%x", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, LoadQueuePlugin_logic_loadQueue_slots_0_address); // LoadQueuePlugin.scala:L281
             end
           `endif
         `endif
       end
-      if(when_LoadQueuePlugin_l265) begin
+      if(when_LoadQueuePlugin_l284) begin
         if(LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_hit) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // LoadQueuePlugin.scala:L270
+              assert(1'b0); // LoadQueuePlugin.scala:L289
             `else
               if(!1'b0) begin
-                $display("NOTE(LoadQueuePlugin.scala:270):  [LQ-Fwd] HIT: robPtr=%x, data=%x. Will complete via popOnFwdHit.", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_data); // LoadQueuePlugin.scala:L270
+                $display("NOTE(LoadQueuePlugin.scala:289):  [LQ-Fwd] HIT: robPtr=%x, data=%x. Will complete via popOnFwdHit.", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_data); // LoadQueuePlugin.scala:L289
               end
             `endif
           `endif
         end else begin
-          if(when_LoadQueuePlugin_l271) begin
+          if(when_LoadQueuePlugin_l290) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // LoadQueuePlugin.scala:L272
+                assert(1'b0); // LoadQueuePlugin.scala:L291
               `else
                 if(!1'b0) begin
-                  $display("NOTE(LoadQueuePlugin.scala:272):  [LQ-Fwd] STALL: robPtr=%x has dependency...", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr); // LoadQueuePlugin.scala:L272
+                  $display("NOTE(LoadQueuePlugin.scala:291):  [LQ-Fwd] STALL: robPtr=%x has dependency...", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr); // LoadQueuePlugin.scala:L291
                 end
               `endif
             `endif
           end else begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // LoadQueuePlugin.scala:L275
+                assert(1'b0); // LoadQueuePlugin.scala:L294
               `else
                 if(!1'b0) begin
-                  $display("NOTE(LoadQueuePlugin.scala:275):  [LQ-Fwd] MISS: robPtr=%x is clear to access D-Cache.", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr); // LoadQueuePlugin.scala:L275
+                  $display("NOTE(LoadQueuePlugin.scala:294):  [LQ-Fwd] MISS: robPtr=%x is clear to access D-Cache.", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr); // LoadQueuePlugin.scala:L294
                 end
               `endif
             `endif
           end
         end
       end
-      if(when_LoadQueuePlugin_l286) begin
+      if(when_LoadQueuePlugin_l305) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // LoadQueuePlugin.scala:L288
+            assert(1'b0); // LoadQueuePlugin.scala:L307
           `else
             if(!1'b0) begin
-              $display("NOTE(LoadQueuePlugin.scala:288):  [LQ] Early exception for robPtr=%x, marking ready for exception handling", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr); // LoadQueuePlugin.scala:L288
+              $display("NOTE(LoadQueuePlugin.scala:307):  [LQ] Early exception for robPtr=%x, marking ready for exception handling", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr); // LoadQueuePlugin.scala:L307
             end
           `endif
         `endif
@@ -22085,10 +22278,10 @@ module CoreNSCSCC (
       if(LoadQueuePlugin_hw_dCacheLoadPort_cmd_fire) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // LoadQueuePlugin.scala:L313
+            assert(1'b0); // LoadQueuePlugin.scala:L332
           `else
             if(!1'b0) begin
-              $display("NOTE(LoadQueuePlugin.scala:313):  [LQ-DCache] SEND_TO_DCACHE: robPtr=%x addr=%x", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, LoadQueuePlugin_logic_loadQueue_slots_0_address); // LoadQueuePlugin.scala:L313
+              $display("NOTE(LoadQueuePlugin.scala:332):  [LQ-DCache] SEND_TO_DCACHE: robPtr=%x addr=%x", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, LoadQueuePlugin_logic_loadQueue_slots_0_address); // LoadQueuePlugin.scala:L332
             end
           `endif
         `endif
@@ -22096,22 +22289,22 @@ module CoreNSCSCC (
       if(LoadQueuePlugin_logic_loadQueue_mmioCmdFired) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // LoadQueuePlugin.scala:L327
+            assert(1'b0); // LoadQueuePlugin.scala:L346
           `else
             if(!1'b0) begin
-              $display("NOTE(LoadQueuePlugin.scala:327):  [LQ-MMIO] SEND_TO_MMIO: robPtr=%x addr=%x", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, LoadQueuePlugin_logic_loadQueue_slots_0_address); // LoadQueuePlugin.scala:L327
+              $display("NOTE(LoadQueuePlugin.scala:346):  [LQ-MMIO] SEND_TO_MMIO: robPtr=%x addr=%x", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, LoadQueuePlugin_logic_loadQueue_slots_0_address); // LoadQueuePlugin.scala:L346
             end
           `endif
         `endif
       end
-      if(when_LoadQueuePlugin_l344) begin
+      if(when_LoadQueuePlugin_l363) begin
         if(LoadQueuePlugin_hw_dCacheLoadPort_rsp_payload_redo) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // LoadQueuePlugin.scala:L348
+              assert(1'b0); // LoadQueuePlugin.scala:L367
             `else
               if(!1'b0) begin
-                $display("NOTE(LoadQueuePlugin.scala:348):  [LQ-DCache] REDO received for robPtr=%x", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr); // LoadQueuePlugin.scala:L348
+                $display("NOTE(LoadQueuePlugin.scala:367):  [LQ-DCache] REDO received for robPtr=%x", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr); // LoadQueuePlugin.scala:L367
               end
             `endif
           `endif
@@ -22120,10 +22313,10 @@ module CoreNSCSCC (
       if(LoadQueuePlugin_logic_loadQueue_popOnFwdHit) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // LoadQueuePlugin.scala:L379
+            assert(1'b0); // LoadQueuePlugin.scala:L398
           `else
             if(!1'b0) begin
-              $display("NOTE(LoadQueuePlugin.scala:379):  [LQ-Fwd] HIT: robPtr=%x, data=%x. Completing instruction.", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_data); // LoadQueuePlugin.scala:L379
+              $display("NOTE(LoadQueuePlugin.scala:398):  [LQ-Fwd] HIT: robPtr=%x, data=%x. Completing instruction.", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_data); // LoadQueuePlugin.scala:L398
             end
           `endif
         `endif
@@ -22131,10 +22324,10 @@ module CoreNSCSCC (
         if(LoadQueuePlugin_logic_loadQueue_popOnDCacheSuccess) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // LoadQueuePlugin.scala:L391
+              assert(1'b0); // LoadQueuePlugin.scala:L410
             `else
               if(!1'b0) begin
-                $display("NOTE(LoadQueuePlugin.scala:391):  [LQ-DCache] DCACHE_RSP_OK for robPtr=%x, data=%x, fault=%x", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, LoadQueuePlugin_hw_dCacheLoadPort_rsp_payload_data, LoadQueuePlugin_hw_dCacheLoadPort_rsp_payload_fault); // LoadQueuePlugin.scala:L391
+                $display("NOTE(LoadQueuePlugin.scala:410):  [LQ-DCache] DCACHE_RSP_OK for robPtr=%x, data=%x, fault=%x", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, LoadQueuePlugin_hw_dCacheLoadPort_rsp_payload_data, LoadQueuePlugin_hw_dCacheLoadPort_rsp_payload_fault); // LoadQueuePlugin.scala:L410
               end
             `endif
           `endif
@@ -22142,10 +22335,10 @@ module CoreNSCSCC (
           if(LoadQueuePlugin_logic_loadQueue_mmioResponseIsForHead) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // LoadQueuePlugin.scala:L408
+                assert(1'b0); // LoadQueuePlugin.scala:L427
               `else
                 if(!1'b0) begin
-                  $display("NOTE(LoadQueuePlugin.scala:408):  [LQ-MMIO] MMIO_RSP_OK for robPtr=%x, data=%x, error=%x", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, _zz_LoadQueuePlugin_hw_prfWritePort_data, _zz_LoadQueuePlugin_hw_prfWritePort_valid); // LoadQueuePlugin.scala:L408
+                  $display("NOTE(LoadQueuePlugin.scala:427):  [LQ-MMIO] MMIO_RSP_OK for robPtr=%x, data=%x, error=%x", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, _zz_LoadQueuePlugin_hw_prfWritePort_data, _zz_LoadQueuePlugin_hw_prfWritePort_valid); // LoadQueuePlugin.scala:L427
                 end
               `endif
             `endif
@@ -22153,16 +22346,60 @@ module CoreNSCSCC (
             if(LoadQueuePlugin_logic_loadQueue_popOnEarlyException) begin
               `ifndef SYNTHESIS
                 `ifdef FORMAL
-                  assert(1'b0); // LoadQueuePlugin.scala:L424
+                  assert(1'b0); // LoadQueuePlugin.scala:L443
                 `else
                   if(!1'b0) begin
-                    $display("NOTE(LoadQueuePlugin.scala:424):  [LQ] Alignment exception for robPtr=%x", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr); // LoadQueuePlugin.scala:L424
+                    $display("NOTE(LoadQueuePlugin.scala:443):  [LQ] Alignment exception for robPtr=%x", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr); // LoadQueuePlugin.scala:L443
                   end
                 `endif
               `endif
             end
           end
         end
+      end
+      if(when_LoadQueuePlugin_l472) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // LoadQueuePlugin.scala:L475
+          `else
+            if(!1'b0) begin
+              $display("NOTE(LoadQueuePlugin.scala:475):  [LQ] FLUSH (Exec): Invalidating slotIdx=0 (robPtr=%x)", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr); // LoadQueuePlugin.scala:L475
+            end
+          `endif
+        `endif
+      end
+      if(when_LoadQueuePlugin_l472_1) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // LoadQueuePlugin.scala:L475
+          `else
+            if(!1'b0) begin
+              $display("NOTE(LoadQueuePlugin.scala:475):  [LQ] FLUSH (Exec): Invalidating slotIdx=1 (robPtr=%x)", LoadQueuePlugin_logic_loadQueue_slots_1_robPtr); // LoadQueuePlugin.scala:L475
+            end
+          `endif
+        `endif
+      end
+      if(when_LoadQueuePlugin_l472_2) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // LoadQueuePlugin.scala:L475
+          `else
+            if(!1'b0) begin
+              $display("NOTE(LoadQueuePlugin.scala:475):  [LQ] FLUSH (Exec): Invalidating slotIdx=2 (robPtr=%x)", LoadQueuePlugin_logic_loadQueue_slots_2_robPtr); // LoadQueuePlugin.scala:L475
+            end
+          `endif
+        `endif
+      end
+      if(when_LoadQueuePlugin_l472_3) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // LoadQueuePlugin.scala:L475
+          `else
+            if(!1'b0) begin
+              $display("NOTE(LoadQueuePlugin.scala:475):  [LQ] FLUSH (Exec): Invalidating slotIdx=3 (robPtr=%x)", LoadQueuePlugin_logic_loadQueue_slots_3_robPtr); // LoadQueuePlugin.scala:L475
+            end
+          `endif
+        `endif
       end
       LoadQueuePlugin_logic_loadQueue_slots_0_valid <= LoadQueuePlugin_logic_loadQueue_slotsNext_0_valid;
       LoadQueuePlugin_logic_loadQueue_slots_0_address <= LoadQueuePlugin_logic_loadQueue_slotsNext_0_address;
@@ -23207,8 +23444,104 @@ module CoreNSCSCC (
     BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_pc <= BpuPipelinePlugin_logic_u1_read_U_PAYLOAD_pc;
     BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_isTaken <= BpuPipelinePlugin_logic_u1_read_U_PAYLOAD_isTaken;
     BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_target <= BpuPipelinePlugin_logic_u1_read_U_PAYLOAD_target;
-    if(CommitPlugin_logic_commitIdleThisCycle) begin
-      CommitPlugin_committedIdlePcReg <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc;
+    CommitPlugin_logic_s1_s1_headUop_decoded_pc <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc;
+    CommitPlugin_logic_s1_s1_headUop_decoded_isValid <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_isValid;
+    CommitPlugin_logic_s1_s1_headUop_decoded_uopCode <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode;
+    CommitPlugin_logic_s1_s1_headUop_decoded_exeUnit <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_exeUnit;
+    CommitPlugin_logic_s1_s1_headUop_decoded_isa <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_isa;
+    CommitPlugin_logic_s1_s1_headUop_decoded_archDest_idx <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_archDest_idx;
+    CommitPlugin_logic_s1_s1_headUop_decoded_archDest_rtype <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_archDest_rtype;
+    CommitPlugin_logic_s1_s1_headUop_decoded_writeArchDestEn <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_writeArchDestEn;
+    CommitPlugin_logic_s1_s1_headUop_decoded_archSrc1_idx <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_archSrc1_idx;
+    CommitPlugin_logic_s1_s1_headUop_decoded_archSrc1_rtype <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_archSrc1_rtype;
+    CommitPlugin_logic_s1_s1_headUop_decoded_useArchSrc1 <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_useArchSrc1;
+    CommitPlugin_logic_s1_s1_headUop_decoded_archSrc2_idx <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_archSrc2_idx;
+    CommitPlugin_logic_s1_s1_headUop_decoded_archSrc2_rtype <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_archSrc2_rtype;
+    CommitPlugin_logic_s1_s1_headUop_decoded_useArchSrc2 <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_useArchSrc2;
+    CommitPlugin_logic_s1_s1_headUop_decoded_archSrc3_idx <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_archSrc3_idx;
+    CommitPlugin_logic_s1_s1_headUop_decoded_archSrc3_rtype <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_archSrc3_rtype;
+    CommitPlugin_logic_s1_s1_headUop_decoded_useArchSrc3 <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_useArchSrc3;
+    CommitPlugin_logic_s1_s1_headUop_decoded_usePcForAddr <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_usePcForAddr;
+    CommitPlugin_logic_s1_s1_headUop_decoded_imm <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_imm;
+    CommitPlugin_logic_s1_s1_headUop_decoded_immUsage <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_immUsage;
+    CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_isSub <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_aluCtrl_isSub;
+    CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_isAdd <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_aluCtrl_isAdd;
+    CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_isSigned <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_aluCtrl_isSigned;
+    CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_logicOp <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_aluCtrl_logicOp;
+    CommitPlugin_logic_s1_s1_headUop_decoded_shiftCtrl_isRight <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_shiftCtrl_isRight;
+    CommitPlugin_logic_s1_s1_headUop_decoded_shiftCtrl_isArithmetic <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_shiftCtrl_isArithmetic;
+    CommitPlugin_logic_s1_s1_headUop_decoded_shiftCtrl_isRotate <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_shiftCtrl_isRotate;
+    CommitPlugin_logic_s1_s1_headUop_decoded_shiftCtrl_isDoubleWord <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_shiftCtrl_isDoubleWord;
+    CommitPlugin_logic_s1_s1_headUop_decoded_mulDivCtrl_isDiv <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_mulDivCtrl_isDiv;
+    CommitPlugin_logic_s1_s1_headUop_decoded_mulDivCtrl_isSigned <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_mulDivCtrl_isSigned;
+    CommitPlugin_logic_s1_s1_headUop_decoded_mulDivCtrl_isWordOp <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_mulDivCtrl_isWordOp;
+    CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_size <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_memCtrl_size;
+    CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_isSignedLoad <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_memCtrl_isSignedLoad;
+    CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_isStore <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_memCtrl_isStore;
+    CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_isLoadLinked <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_memCtrl_isLoadLinked;
+    CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_isStoreCond <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_memCtrl_isStoreCond;
+    CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_atomicOp <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_memCtrl_atomicOp;
+    CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_isFence <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_memCtrl_isFence;
+    CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_fenceMode <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_memCtrl_fenceMode;
+    CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_isCacheOp <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_memCtrl_isCacheOp;
+    CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_cacheOpType <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_memCtrl_cacheOpType;
+    CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_isPrefetch <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_memCtrl_isPrefetch;
+    CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_branchCtrl_condition;
+    CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_isJump <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_branchCtrl_isJump;
+    CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_isLink <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_branchCtrl_isLink;
+    CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_linkReg_idx <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_branchCtrl_linkReg_idx;
+    CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_linkReg_rtype <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_branchCtrl_linkReg_rtype;
+    CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_isIndirect <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_branchCtrl_isIndirect;
+    CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_laCfIdx <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_branchCtrl_laCfIdx;
+    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_opType <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_opType;
+    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc1 <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc1;
+    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc2 <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc2;
+    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc3 <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3;
+    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeDest <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeDest;
+    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_roundingMode <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_roundingMode;
+    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_isIntegerDest <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_isIntegerDest;
+    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_isSignedCvt <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_isSignedCvt;
+    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fmaNegSrc1 <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fmaNegSrc1;
+    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fmaNegSrc3 <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fmaNegSrc3;
+    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fcmpCond <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fcmpCond;
+    CommitPlugin_logic_s1_s1_headUop_decoded_csrCtrl_csrAddr <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_csrCtrl_csrAddr;
+    CommitPlugin_logic_s1_s1_headUop_decoded_csrCtrl_isWrite <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_csrCtrl_isWrite;
+    CommitPlugin_logic_s1_s1_headUop_decoded_csrCtrl_isRead <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_csrCtrl_isRead;
+    CommitPlugin_logic_s1_s1_headUop_decoded_csrCtrl_isExchange <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_csrCtrl_isExchange;
+    CommitPlugin_logic_s1_s1_headUop_decoded_csrCtrl_useUimmAsSrc <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_csrCtrl_useUimmAsSrc;
+    CommitPlugin_logic_s1_s1_headUop_decoded_sysCtrl_sysCode <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_sysCtrl_sysCode;
+    CommitPlugin_logic_s1_s1_headUop_decoded_sysCtrl_isExceptionReturn <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_sysCtrl_isExceptionReturn;
+    CommitPlugin_logic_s1_s1_headUop_decoded_sysCtrl_isTlbOp <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_sysCtrl_isTlbOp;
+    CommitPlugin_logic_s1_s1_headUop_decoded_sysCtrl_tlbOpType <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_sysCtrl_tlbOpType;
+    CommitPlugin_logic_s1_s1_headUop_decoded_decodeExceptionCode <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_decodeExceptionCode;
+    CommitPlugin_logic_s1_s1_headUop_decoded_hasDecodeException <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_hasDecodeException;
+    CommitPlugin_logic_s1_s1_headUop_decoded_isMicrocode <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_isMicrocode;
+    CommitPlugin_logic_s1_s1_headUop_decoded_microcodeEntry <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_microcodeEntry;
+    CommitPlugin_logic_s1_s1_headUop_decoded_isSerializing <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_isSerializing;
+    CommitPlugin_logic_s1_s1_headUop_decoded_isBranchOrJump <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_isBranchOrJump;
+    CommitPlugin_logic_s1_s1_headUop_rename_physSrc1_idx <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physSrc1_idx;
+    CommitPlugin_logic_s1_s1_headUop_rename_physSrc1IsFpr <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physSrc1IsFpr;
+    CommitPlugin_logic_s1_s1_headUop_rename_physSrc2_idx <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physSrc2_idx;
+    CommitPlugin_logic_s1_s1_headUop_rename_physSrc2IsFpr <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physSrc2IsFpr;
+    CommitPlugin_logic_s1_s1_headUop_rename_physSrc3_idx <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physSrc3_idx;
+    CommitPlugin_logic_s1_s1_headUop_rename_physSrc3IsFpr <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physSrc3IsFpr;
+    CommitPlugin_logic_s1_s1_headUop_rename_physDest_idx <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physDest_idx;
+    CommitPlugin_logic_s1_s1_headUop_rename_physDestIsFpr <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physDestIsFpr;
+    CommitPlugin_logic_s1_s1_headUop_rename_oldPhysDest_idx <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx;
+    CommitPlugin_logic_s1_s1_headUop_rename_oldPhysDestIsFpr <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDestIsFpr;
+    CommitPlugin_logic_s1_s1_headUop_rename_allocatesPhysDest <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_allocatesPhysDest;
+    CommitPlugin_logic_s1_s1_headUop_rename_writesToPhysReg <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_writesToPhysReg;
+    CommitPlugin_logic_s1_s1_headUop_rename_branchPrediction_isTaken <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_branchPrediction_isTaken;
+    CommitPlugin_logic_s1_s1_headUop_rename_branchPrediction_target <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_branchPrediction_target;
+    CommitPlugin_logic_s1_s1_headUop_rename_branchPrediction_wasPredicted <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_branchPrediction_wasPredicted;
+    CommitPlugin_logic_s1_s1_headUop_robPtr <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr;
+    CommitPlugin_logic_s1_s1_headUop_uniqueId <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_uniqueId;
+    CommitPlugin_logic_s1_s1_headUop_dispatched <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_dispatched;
+    CommitPlugin_logic_s1_s1_headUop_executed <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_executed;
+    CommitPlugin_logic_s1_s1_headUop_hasException <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_hasException;
+    CommitPlugin_logic_s1_s1_headUop_exceptionCode <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_exceptionCode;
+    if(CommitPlugin_logic_s1_s1_commitIdleThisCycle) begin
+      CommitPlugin_committedIdlePcReg <= CommitPlugin_logic_s1_s1_headUop_decoded_pc;
     end
     _zz_AluIntEU_AluIntEuPlugin_euResult_uop_robPtr_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_robPtr;
     _zz_AluIntEU_AluIntEuPlugin_euResult_uop_physDest_idx_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_physDest_idx;
