@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 3105a33b457518a7afeed8b0527b4d8b9dab2383
 // Component : CoreNSCSCC
-// Git hash  : 6d2c9fdf0bacfb423b8ea49c4d3c70e297d64581
+// Git hash  : f1fa30897e953471e538942f41c574dac8c0b375
 
 `timescale 1ns/1ps
 
@@ -25036,7 +25036,7 @@ endmodule
 
 module SplitGmbToAxi4Bridge (
   input  wire          io_gmbIn_read_cmd_valid,
-  output wire          io_gmbIn_read_cmd_ready,
+  output reg           io_gmbIn_read_cmd_ready,
   input  wire [31:0]   io_gmbIn_read_cmd_payload_address,
   input  wire [0:0]    io_gmbIn_read_cmd_payload_id,
   output wire          io_gmbIn_read_rsp_valid,
@@ -25069,7 +25069,7 @@ module SplitGmbToAxi4Bridge (
   output wire [3:0]    io_axiOut_w_payload_strb,
   output wire          io_axiOut_w_payload_last,
   input  wire          io_axiOut_b_valid,
-  output wire          io_axiOut_b_ready,
+  output reg           io_axiOut_b_ready,
   input  wire [0:0]    io_axiOut_b_payload_id,
   input  wire [1:0]    io_axiOut_b_payload_resp,
   output wire          io_axiOut_ar_valid,
@@ -25081,7 +25081,7 @@ module SplitGmbToAxi4Bridge (
   output wire [1:0]    io_axiOut_ar_payload_burst,
   output wire [2:0]    io_axiOut_ar_payload_prot,
   input  wire          io_axiOut_r_valid,
-  output wire          io_axiOut_r_ready,
+  output reg           io_axiOut_r_ready,
   input  wire [31:0]   io_axiOut_r_payload_data,
   input  wire [0:0]    io_axiOut_r_payload_id,
   input  wire [1:0]    io_axiOut_r_payload_resp,
@@ -25090,158 +25090,347 @@ module SplitGmbToAxi4Bridge (
   input  wire          reset
 );
 
+  wire                gmbReadCmd_valid;
+  wire                gmbReadCmd_ready;
+  wire       [31:0]   gmbReadCmd_payload_address;
+  wire       [0:0]    gmbReadCmd_payload_id;
+  reg                 io_gmbIn_read_cmd_rValid;
+  reg        [31:0]   io_gmbIn_read_cmd_rData_address;
+  reg        [0:0]    io_gmbIn_read_cmd_rData_id;
+  wire                when_Stream_l477;
+  wire                axiR_valid;
+  wire                axiR_ready;
+  wire       [31:0]   axiR_payload_data;
+  wire       [0:0]    axiR_payload_id;
+  wire       [1:0]    axiR_payload_resp;
+  wire                axiR_payload_last;
+  reg                 io_axiOut_r_rValid;
+  reg        [31:0]   io_axiOut_r_rData_data;
+  reg        [0:0]    io_axiOut_r_rData_id;
+  reg        [1:0]    io_axiOut_r_rData_resp;
+  reg                 io_axiOut_r_rData_last;
+  wire                when_Stream_l477_1;
+  wire                gmbWriteCmd_valid;
+  reg                 gmbWriteCmd_ready;
+  wire       [31:0]   gmbWriteCmd_payload_address;
+  wire       [31:0]   gmbWriteCmd_payload_data;
+  wire       [3:0]    gmbWriteCmd_payload_byteEnables;
+  wire       [0:0]    gmbWriteCmd_payload_id;
+  wire                gmbWriteCmd_payload_last;
+  reg                 io_gmbIn_write_cmd_rValid;
+  reg        [31:0]   io_gmbIn_write_cmd_rData_address;
+  reg        [31:0]   io_gmbIn_write_cmd_rData_data;
+  reg        [3:0]    io_gmbIn_write_cmd_rData_byteEnables;
+  reg        [0:0]    io_gmbIn_write_cmd_rData_id;
+  reg                 io_gmbIn_write_cmd_rData_last;
+  wire                when_Stream_l477_2;
   wire                awPathInfo_valid;
-  wire                awPathInfo_ready;
+  reg                 awPathInfo_ready;
   wire       [31:0]   awPathInfo_payload_address;
   wire       [31:0]   awPathInfo_payload_data;
   wire       [3:0]    awPathInfo_payload_byteEnables;
   wire       [0:0]    awPathInfo_payload_id;
   wire                awPathInfo_payload_last;
   wire                wPathInfo_valid;
-  wire                wPathInfo_ready;
+  reg                 wPathInfo_ready;
   wire       [31:0]   wPathInfo_payload_address;
   wire       [31:0]   wPathInfo_payload_data;
   wire       [3:0]    wPathInfo_payload_byteEnables;
   wire       [0:0]    wPathInfo_payload_id;
   wire                wPathInfo_payload_last;
-  reg                 io_gmbIn_write_cmd_fork2_logic_linkEnable_0;
-  reg                 io_gmbIn_write_cmd_fork2_logic_linkEnable_1;
+  reg                 gmbWriteCmd_fork2_logic_linkEnable_0;
+  reg                 gmbWriteCmd_fork2_logic_linkEnable_1;
   wire                when_Stream_l1253;
   wire                when_Stream_l1253_1;
   wire                awPathInfo_fire;
   wire                wPathInfo_fire;
-  wire                awUnstaged_valid;
-  reg                 awUnstaged_ready;
-  wire       [31:0]   awUnstaged_payload_addr;
-  wire       [0:0]    awUnstaged_payload_id;
-  wire       [7:0]    awUnstaged_payload_len;
-  wire       [2:0]    awUnstaged_payload_size;
-  wire       [1:0]    awUnstaged_payload_burst;
-  wire       [2:0]    awUnstaged_payload_prot;
   wire                awStaged_valid;
   wire                awStaged_ready;
-  wire       [31:0]   awStaged_payload_addr;
+  wire       [31:0]   awStaged_payload_address;
+  wire       [31:0]   awStaged_payload_data;
+  wire       [3:0]    awStaged_payload_byteEnables;
   wire       [0:0]    awStaged_payload_id;
-  wire       [7:0]    awStaged_payload_len;
-  wire       [2:0]    awStaged_payload_size;
-  wire       [1:0]    awStaged_payload_burst;
-  wire       [2:0]    awStaged_payload_prot;
-  reg                 awUnstaged_rValid;
-  reg        [31:0]   awUnstaged_rData_addr;
-  reg        [0:0]    awUnstaged_rData_id;
-  reg        [7:0]    awUnstaged_rData_len;
-  reg        [2:0]    awUnstaged_rData_size;
-  reg        [1:0]    awUnstaged_rData_burst;
-  reg        [2:0]    awUnstaged_rData_prot;
-  wire                when_Stream_l477;
+  wire                awStaged_payload_last;
+  reg                 awPathInfo_rValid;
+  reg        [31:0]   awPathInfo_rData_address;
+  reg        [31:0]   awPathInfo_rData_data;
+  reg        [3:0]    awPathInfo_rData_byteEnables;
+  reg        [0:0]    awPathInfo_rData_id;
+  reg                 awPathInfo_rData_last;
+  wire                when_Stream_l477_3;
+  wire                wStaged_valid;
+  wire                wStaged_ready;
+  wire       [31:0]   wStaged_payload_address;
+  wire       [31:0]   wStaged_payload_data;
+  wire       [3:0]    wStaged_payload_byteEnables;
+  wire       [0:0]    wStaged_payload_id;
+  wire                wStaged_payload_last;
+  reg                 wPathInfo_rValid;
+  reg        [31:0]   wPathInfo_rData_address;
+  reg        [31:0]   wPathInfo_rData_data;
+  reg        [3:0]    wPathInfo_rData_byteEnables;
+  reg        [0:0]    wPathInfo_rData_id;
+  reg                 wPathInfo_rData_last;
+  wire                when_Stream_l477_4;
+  wire       [2:0]    _zz_awStaged_translated_payload_prot;
+  wire                awStaged_translated_valid;
+  wire                awStaged_translated_ready;
+  wire       [31:0]   awStaged_translated_payload_addr;
+  wire       [0:0]    awStaged_translated_payload_id;
+  wire       [7:0]    awStaged_translated_payload_len;
+  wire       [2:0]    awStaged_translated_payload_size;
+  wire       [1:0]    awStaged_translated_payload_burst;
+  wire       [2:0]    awStaged_translated_payload_prot;
+  wire                wStaged_translated_valid;
+  wire                wStaged_translated_ready;
+  wire       [31:0]   wStaged_translated_payload_data;
+  wire       [3:0]    wStaged_translated_payload_strb;
+  wire                wStaged_translated_payload_last;
+  wire                when_SplitGmbToAxi4Bridge_l126;
+  wire                axiBStaged_valid;
+  wire                axiBStaged_ready;
+  wire       [0:0]    axiBStaged_payload_id;
+  wire       [1:0]    axiBStaged_payload_resp;
+  reg                 io_axiOut_b_rValid;
+  reg        [0:0]    io_axiOut_b_rData_id;
+  reg        [1:0]    io_axiOut_b_rData_resp;
+  wire                when_Stream_l477_5;
 
-  assign io_axiOut_ar_valid = io_gmbIn_read_cmd_valid;
-  assign io_axiOut_ar_payload_addr = io_gmbIn_read_cmd_payload_address;
-  assign io_axiOut_ar_payload_id = io_gmbIn_read_cmd_payload_id;
+  always @(*) begin
+    io_gmbIn_read_cmd_ready = gmbReadCmd_ready;
+    if(when_Stream_l477) begin
+      io_gmbIn_read_cmd_ready = 1'b1;
+    end
+  end
+
+  assign when_Stream_l477 = (! gmbReadCmd_valid);
+  assign gmbReadCmd_valid = io_gmbIn_read_cmd_rValid;
+  assign gmbReadCmd_payload_address = io_gmbIn_read_cmd_rData_address;
+  assign gmbReadCmd_payload_id = io_gmbIn_read_cmd_rData_id;
+  assign io_axiOut_ar_valid = gmbReadCmd_valid;
+  assign io_axiOut_ar_payload_addr = gmbReadCmd_payload_address;
+  assign io_axiOut_ar_payload_id = gmbReadCmd_payload_id;
   assign io_axiOut_ar_payload_len = 8'h0;
   assign io_axiOut_ar_payload_size = 3'b010;
   assign io_axiOut_ar_payload_burst = 2'b01;
-  assign io_gmbIn_read_cmd_ready = io_axiOut_ar_ready;
-  assign io_gmbIn_read_rsp_valid = io_axiOut_r_valid;
-  assign io_gmbIn_read_rsp_payload_data = io_axiOut_r_payload_data;
-  assign io_gmbIn_read_rsp_payload_id = io_axiOut_r_payload_id;
-  assign io_gmbIn_read_rsp_payload_error = (! (io_axiOut_r_payload_resp == 2'b00));
-  assign io_axiOut_r_ready = io_gmbIn_read_rsp_ready;
+  assign gmbReadCmd_ready = io_axiOut_ar_ready;
   always @(*) begin
-    io_gmbIn_write_cmd_ready = 1'b1;
+    io_axiOut_r_ready = axiR_ready;
+    if(when_Stream_l477_1) begin
+      io_axiOut_r_ready = 1'b1;
+    end
+  end
+
+  assign when_Stream_l477_1 = (! axiR_valid);
+  assign axiR_valid = io_axiOut_r_rValid;
+  assign axiR_payload_data = io_axiOut_r_rData_data;
+  assign axiR_payload_id = io_axiOut_r_rData_id;
+  assign axiR_payload_resp = io_axiOut_r_rData_resp;
+  assign axiR_payload_last = io_axiOut_r_rData_last;
+  assign io_gmbIn_read_rsp_valid = axiR_valid;
+  assign io_gmbIn_read_rsp_payload_data = axiR_payload_data;
+  assign io_gmbIn_read_rsp_payload_id = axiR_payload_id;
+  assign io_gmbIn_read_rsp_payload_error = (! (axiR_payload_resp == 2'b00));
+  assign axiR_ready = io_gmbIn_read_rsp_ready;
+  always @(*) begin
+    io_gmbIn_write_cmd_ready = gmbWriteCmd_ready;
+    if(when_Stream_l477_2) begin
+      io_gmbIn_write_cmd_ready = 1'b1;
+    end
+  end
+
+  assign when_Stream_l477_2 = (! gmbWriteCmd_valid);
+  assign gmbWriteCmd_valid = io_gmbIn_write_cmd_rValid;
+  assign gmbWriteCmd_payload_address = io_gmbIn_write_cmd_rData_address;
+  assign gmbWriteCmd_payload_data = io_gmbIn_write_cmd_rData_data;
+  assign gmbWriteCmd_payload_byteEnables = io_gmbIn_write_cmd_rData_byteEnables;
+  assign gmbWriteCmd_payload_id = io_gmbIn_write_cmd_rData_id;
+  assign gmbWriteCmd_payload_last = io_gmbIn_write_cmd_rData_last;
+  always @(*) begin
+    gmbWriteCmd_ready = 1'b1;
     if(when_Stream_l1253) begin
-      io_gmbIn_write_cmd_ready = 1'b0;
+      gmbWriteCmd_ready = 1'b0;
     end
     if(when_Stream_l1253_1) begin
-      io_gmbIn_write_cmd_ready = 1'b0;
+      gmbWriteCmd_ready = 1'b0;
     end
   end
 
-  assign when_Stream_l1253 = ((! awPathInfo_ready) && io_gmbIn_write_cmd_fork2_logic_linkEnable_0);
-  assign when_Stream_l1253_1 = ((! wPathInfo_ready) && io_gmbIn_write_cmd_fork2_logic_linkEnable_1);
-  assign awPathInfo_valid = (io_gmbIn_write_cmd_valid && io_gmbIn_write_cmd_fork2_logic_linkEnable_0);
-  assign awPathInfo_payload_address = io_gmbIn_write_cmd_payload_address;
-  assign awPathInfo_payload_data = io_gmbIn_write_cmd_payload_data;
-  assign awPathInfo_payload_byteEnables = io_gmbIn_write_cmd_payload_byteEnables;
-  assign awPathInfo_payload_id = io_gmbIn_write_cmd_payload_id;
-  assign awPathInfo_payload_last = io_gmbIn_write_cmd_payload_last;
+  assign when_Stream_l1253 = ((! awPathInfo_ready) && gmbWriteCmd_fork2_logic_linkEnable_0);
+  assign when_Stream_l1253_1 = ((! wPathInfo_ready) && gmbWriteCmd_fork2_logic_linkEnable_1);
+  assign awPathInfo_valid = (gmbWriteCmd_valid && gmbWriteCmd_fork2_logic_linkEnable_0);
+  assign awPathInfo_payload_address = gmbWriteCmd_payload_address;
+  assign awPathInfo_payload_data = gmbWriteCmd_payload_data;
+  assign awPathInfo_payload_byteEnables = gmbWriteCmd_payload_byteEnables;
+  assign awPathInfo_payload_id = gmbWriteCmd_payload_id;
+  assign awPathInfo_payload_last = gmbWriteCmd_payload_last;
   assign awPathInfo_fire = (awPathInfo_valid && awPathInfo_ready);
-  assign wPathInfo_valid = (io_gmbIn_write_cmd_valid && io_gmbIn_write_cmd_fork2_logic_linkEnable_1);
-  assign wPathInfo_payload_address = io_gmbIn_write_cmd_payload_address;
-  assign wPathInfo_payload_data = io_gmbIn_write_cmd_payload_data;
-  assign wPathInfo_payload_byteEnables = io_gmbIn_write_cmd_payload_byteEnables;
-  assign wPathInfo_payload_id = io_gmbIn_write_cmd_payload_id;
-  assign wPathInfo_payload_last = io_gmbIn_write_cmd_payload_last;
+  assign wPathInfo_valid = (gmbWriteCmd_valid && gmbWriteCmd_fork2_logic_linkEnable_1);
+  assign wPathInfo_payload_address = gmbWriteCmd_payload_address;
+  assign wPathInfo_payload_data = gmbWriteCmd_payload_data;
+  assign wPathInfo_payload_byteEnables = gmbWriteCmd_payload_byteEnables;
+  assign wPathInfo_payload_id = gmbWriteCmd_payload_id;
+  assign wPathInfo_payload_last = gmbWriteCmd_payload_last;
   assign wPathInfo_fire = (wPathInfo_valid && wPathInfo_ready);
-  assign awUnstaged_valid = awPathInfo_valid;
-  assign awUnstaged_payload_addr = awPathInfo_payload_address;
-  assign awUnstaged_payload_id = awPathInfo_payload_id;
-  assign awUnstaged_payload_len = 8'h0;
-  assign awUnstaged_payload_size = 3'b010;
-  assign awUnstaged_payload_burst = 2'b01;
-  assign awPathInfo_ready = awUnstaged_ready;
   always @(*) begin
-    awUnstaged_ready = awStaged_ready;
-    if(when_Stream_l477) begin
-      awUnstaged_ready = 1'b1;
+    awPathInfo_ready = awStaged_ready;
+    if(when_Stream_l477_3) begin
+      awPathInfo_ready = 1'b1;
     end
   end
 
-  assign when_Stream_l477 = (! awStaged_valid);
-  assign awStaged_valid = awUnstaged_rValid;
-  assign awStaged_payload_addr = awUnstaged_rData_addr;
-  assign awStaged_payload_id = awUnstaged_rData_id;
-  assign awStaged_payload_len = awUnstaged_rData_len;
-  assign awStaged_payload_size = awUnstaged_rData_size;
-  assign awStaged_payload_burst = awUnstaged_rData_burst;
-  assign awStaged_payload_prot = awUnstaged_rData_prot;
-  assign io_axiOut_aw_valid = awStaged_valid;
-  assign awStaged_ready = io_axiOut_aw_ready;
-  assign io_axiOut_aw_payload_addr = awStaged_payload_addr;
-  assign io_axiOut_aw_payload_id = awStaged_payload_id;
-  assign io_axiOut_aw_payload_len = awStaged_payload_len;
-  assign io_axiOut_aw_payload_size = awStaged_payload_size;
-  assign io_axiOut_aw_payload_burst = awStaged_payload_burst;
-  assign io_axiOut_aw_payload_prot = awStaged_payload_prot;
-  assign io_axiOut_w_valid = wPathInfo_valid;
-  assign io_axiOut_w_payload_data = wPathInfo_payload_data;
-  assign io_axiOut_w_payload_strb = wPathInfo_payload_byteEnables;
-  assign io_axiOut_w_payload_last = 1'b1;
-  assign wPathInfo_ready = io_axiOut_w_ready;
-  assign io_gmbIn_write_rsp_valid = io_axiOut_b_valid;
-  assign io_gmbIn_write_rsp_payload_id = io_axiOut_b_payload_id;
-  assign io_gmbIn_write_rsp_payload_error = (! (io_axiOut_b_payload_resp == 2'b00));
-  assign io_axiOut_b_ready = io_gmbIn_write_rsp_ready;
+  assign when_Stream_l477_3 = (! awStaged_valid);
+  assign awStaged_valid = awPathInfo_rValid;
+  assign awStaged_payload_address = awPathInfo_rData_address;
+  assign awStaged_payload_data = awPathInfo_rData_data;
+  assign awStaged_payload_byteEnables = awPathInfo_rData_byteEnables;
+  assign awStaged_payload_id = awPathInfo_rData_id;
+  assign awStaged_payload_last = awPathInfo_rData_last;
+  always @(*) begin
+    wPathInfo_ready = wStaged_ready;
+    if(when_Stream_l477_4) begin
+      wPathInfo_ready = 1'b1;
+    end
+  end
+
+  assign when_Stream_l477_4 = (! wStaged_valid);
+  assign wStaged_valid = wPathInfo_rValid;
+  assign wStaged_payload_address = wPathInfo_rData_address;
+  assign wStaged_payload_data = wPathInfo_rData_data;
+  assign wStaged_payload_byteEnables = wPathInfo_rData_byteEnables;
+  assign wStaged_payload_id = wPathInfo_rData_id;
+  assign wStaged_payload_last = wPathInfo_rData_last;
+  assign awStaged_translated_valid = awStaged_valid;
+  assign awStaged_ready = awStaged_translated_ready;
+  assign awStaged_translated_payload_addr = awStaged_payload_address;
+  assign awStaged_translated_payload_id = awStaged_payload_id;
+  assign awStaged_translated_payload_len = 8'h0;
+  assign awStaged_translated_payload_size = 3'b010;
+  assign awStaged_translated_payload_burst = 2'b01;
+  assign awStaged_translated_payload_prot = _zz_awStaged_translated_payload_prot;
+  assign io_axiOut_aw_valid = awStaged_translated_valid;
+  assign awStaged_translated_ready = io_axiOut_aw_ready;
+  assign io_axiOut_aw_payload_addr = awStaged_translated_payload_addr;
+  assign io_axiOut_aw_payload_id = awStaged_translated_payload_id;
+  assign io_axiOut_aw_payload_len = awStaged_translated_payload_len;
+  assign io_axiOut_aw_payload_size = awStaged_translated_payload_size;
+  assign io_axiOut_aw_payload_burst = awStaged_translated_payload_burst;
+  assign io_axiOut_aw_payload_prot = awStaged_translated_payload_prot;
+  assign wStaged_translated_valid = wStaged_valid;
+  assign wStaged_ready = wStaged_translated_ready;
+  assign wStaged_translated_payload_data = wStaged_payload_data;
+  assign wStaged_translated_payload_strb = wStaged_payload_byteEnables;
+  assign wStaged_translated_payload_last = 1'b1;
+  assign io_axiOut_w_valid = wStaged_translated_valid;
+  assign wStaged_translated_ready = io_axiOut_w_ready;
+  assign io_axiOut_w_payload_data = wStaged_translated_payload_data;
+  assign io_axiOut_w_payload_strb = wStaged_translated_payload_strb;
+  assign io_axiOut_w_payload_last = wStaged_translated_payload_last;
+  assign when_SplitGmbToAxi4Bridge_l126 = (io_axiOut_aw_valid || io_axiOut_w_valid);
+  always @(*) begin
+    io_axiOut_b_ready = axiBStaged_ready;
+    if(when_Stream_l477_5) begin
+      io_axiOut_b_ready = 1'b1;
+    end
+  end
+
+  assign when_Stream_l477_5 = (! axiBStaged_valid);
+  assign axiBStaged_valid = io_axiOut_b_rValid;
+  assign axiBStaged_payload_id = io_axiOut_b_rData_id;
+  assign axiBStaged_payload_resp = io_axiOut_b_rData_resp;
+  assign io_gmbIn_write_rsp_valid = axiBStaged_valid;
+  assign io_gmbIn_write_rsp_payload_id = axiBStaged_payload_id;
+  assign io_gmbIn_write_rsp_payload_error = (! (axiBStaged_payload_resp == 2'b00));
+  assign axiBStaged_ready = io_gmbIn_write_rsp_ready;
   always @(posedge clk or posedge reset) begin
     if(reset) begin
-      io_gmbIn_write_cmd_fork2_logic_linkEnable_0 <= 1'b1;
-      io_gmbIn_write_cmd_fork2_logic_linkEnable_1 <= 1'b1;
-      awUnstaged_rValid <= 1'b0;
+      io_gmbIn_read_cmd_rValid <= 1'b0;
+      io_axiOut_r_rValid <= 1'b0;
+      io_gmbIn_write_cmd_rValid <= 1'b0;
+      gmbWriteCmd_fork2_logic_linkEnable_0 <= 1'b1;
+      gmbWriteCmd_fork2_logic_linkEnable_1 <= 1'b1;
+      awPathInfo_rValid <= 1'b0;
+      wPathInfo_rValid <= 1'b0;
+      io_axiOut_b_rValid <= 1'b0;
     end else begin
-      if(awPathInfo_fire) begin
-        io_gmbIn_write_cmd_fork2_logic_linkEnable_0 <= 1'b0;
+      if(io_gmbIn_read_cmd_ready) begin
+        io_gmbIn_read_cmd_rValid <= io_gmbIn_read_cmd_valid;
       end
-      if(wPathInfo_fire) begin
-        io_gmbIn_write_cmd_fork2_logic_linkEnable_1 <= 1'b0;
+      if(io_axiOut_r_ready) begin
+        io_axiOut_r_rValid <= io_axiOut_r_valid;
       end
       if(io_gmbIn_write_cmd_ready) begin
-        io_gmbIn_write_cmd_fork2_logic_linkEnable_0 <= 1'b1;
-        io_gmbIn_write_cmd_fork2_logic_linkEnable_1 <= 1'b1;
+        io_gmbIn_write_cmd_rValid <= io_gmbIn_write_cmd_valid;
       end
-      if(awUnstaged_ready) begin
-        awUnstaged_rValid <= awUnstaged_valid;
+      if(awPathInfo_fire) begin
+        gmbWriteCmd_fork2_logic_linkEnable_0 <= 1'b0;
+      end
+      if(wPathInfo_fire) begin
+        gmbWriteCmd_fork2_logic_linkEnable_1 <= 1'b0;
+      end
+      if(gmbWriteCmd_ready) begin
+        gmbWriteCmd_fork2_logic_linkEnable_0 <= 1'b1;
+        gmbWriteCmd_fork2_logic_linkEnable_1 <= 1'b1;
+      end
+      if(awPathInfo_ready) begin
+        awPathInfo_rValid <= awPathInfo_valid;
+      end
+      if(wPathInfo_ready) begin
+        wPathInfo_rValid <= wPathInfo_valid;
+      end
+      if(when_SplitGmbToAxi4Bridge_l126) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert((io_axiOut_aw_valid == io_axiOut_w_valid)); // SplitGmbToAxi4Bridge.scala:L127
+          `else
+            if(!(io_axiOut_aw_valid == io_axiOut_w_valid)) begin
+              $display("FAILURE AW and W must be synchronized"); // SplitGmbToAxi4Bridge.scala:L127
+              $finish;
+            end
+          `endif
+        `endif
+      end
+      if(io_axiOut_b_ready) begin
+        io_axiOut_b_rValid <= io_axiOut_b_valid;
       end
     end
   end
 
   always @(posedge clk) begin
-    if(awUnstaged_ready) begin
-      awUnstaged_rData_addr <= awUnstaged_payload_addr;
-      awUnstaged_rData_id <= awUnstaged_payload_id;
-      awUnstaged_rData_len <= awUnstaged_payload_len;
-      awUnstaged_rData_size <= awUnstaged_payload_size;
-      awUnstaged_rData_burst <= awUnstaged_payload_burst;
-      awUnstaged_rData_prot <= awUnstaged_payload_prot;
+    if(io_gmbIn_read_cmd_ready) begin
+      io_gmbIn_read_cmd_rData_address <= io_gmbIn_read_cmd_payload_address;
+      io_gmbIn_read_cmd_rData_id <= io_gmbIn_read_cmd_payload_id;
+    end
+    if(io_axiOut_r_ready) begin
+      io_axiOut_r_rData_data <= io_axiOut_r_payload_data;
+      io_axiOut_r_rData_id <= io_axiOut_r_payload_id;
+      io_axiOut_r_rData_resp <= io_axiOut_r_payload_resp;
+      io_axiOut_r_rData_last <= io_axiOut_r_payload_last;
+    end
+    if(io_gmbIn_write_cmd_ready) begin
+      io_gmbIn_write_cmd_rData_address <= io_gmbIn_write_cmd_payload_address;
+      io_gmbIn_write_cmd_rData_data <= io_gmbIn_write_cmd_payload_data;
+      io_gmbIn_write_cmd_rData_byteEnables <= io_gmbIn_write_cmd_payload_byteEnables;
+      io_gmbIn_write_cmd_rData_id <= io_gmbIn_write_cmd_payload_id;
+      io_gmbIn_write_cmd_rData_last <= io_gmbIn_write_cmd_payload_last;
+    end
+    if(awPathInfo_ready) begin
+      awPathInfo_rData_address <= awPathInfo_payload_address;
+      awPathInfo_rData_data <= awPathInfo_payload_data;
+      awPathInfo_rData_byteEnables <= awPathInfo_payload_byteEnables;
+      awPathInfo_rData_id <= awPathInfo_payload_id;
+      awPathInfo_rData_last <= awPathInfo_payload_last;
+    end
+    if(wPathInfo_ready) begin
+      wPathInfo_rData_address <= wPathInfo_payload_address;
+      wPathInfo_rData_data <= wPathInfo_payload_data;
+      wPathInfo_rData_byteEnables <= wPathInfo_payload_byteEnables;
+      wPathInfo_rData_id <= wPathInfo_payload_id;
+      wPathInfo_rData_last <= wPathInfo_payload_last;
+    end
+    if(io_axiOut_b_ready) begin
+      io_axiOut_b_rData_id <= io_axiOut_b_payload_id;
+      io_axiOut_b_rData_resp <= io_axiOut_b_payload_resp;
     end
   end
 

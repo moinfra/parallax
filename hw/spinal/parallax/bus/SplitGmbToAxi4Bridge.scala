@@ -7,7 +7,12 @@ import parallax.components.memory._
 
 class SplitGmbToAxi4Bridge(
   val gmbConfig: GenericMemoryBusConfig,
-  val axiConfig: Axi4Config // Use the provided axiConfig
+  val axiConfig: Axi4Config, // Use the provided axiConfig
+  // <<<<<<< 1. 参数化控制 >>>>>>>>>
+  // cmdInStage:  在GMB命令输入端增加一级流水线
+  // rspInStage:  在AXI响应输入端增加一级流水线 (即GMB响应输出的前一级)
+  val cmdInStage: Boolean = true,
+  val rspInStage: Boolean = true
 ) extends Component {
 
   val io = new Bundle {
@@ -28,8 +33,19 @@ class SplitGmbToAxi4Bridge(
   }
   if(false) report(L"[SplitGmbToAxi4Bridge] io.gmbIn.write.cmd.ready=${io.gmbIn.write.cmd.ready}")
   if(false) report(L"[SplitGmbToAxi4Bridge] io.gmbIn.read.cmd.ready=${io.gmbIn.read.cmd.ready}")
-  // --- READ CHANNEL ---
-  val gmbReadCmd = io.gmbIn.read.cmd
+  
+  // <<<<<<< 6. 调试和性能监控 >>>>>>>>>
+  if(false) {
+    report(L"[SplitGmbToAxi4Bridge] Pipeline config: cmdInStage=${cmdInStage}, rspInStage=${rspInStage}")
+    report(L"[SplitGmbToAxi4Bridge] Read path: gmbReadCmd.valid=${gmbReadCmd.valid}, axiAr.ready=${axiAr.ready}")
+    report(L"[SplitGmbToAxi4Bridge] Write path: gmbWriteCmd.valid=${gmbWriteCmd.valid}, axiAw.valid=${axiAw.valid}, axiW.valid=${axiW.valid}")
+  }
+  // ====================================================================
+  // 读通道 (Read Channel)
+  // ====================================================================
+  
+  // <<<<<<< 2. 对输入的读命令进行流水线化 >>>>>>>>>
+  val gmbReadCmd = if (cmdInStage) io.gmbIn.read.cmd.stage() else io.gmbIn.read.cmd
   val axiAr = io.axiOut.ar
 
   axiAr.valid := gmbReadCmd.valid
@@ -47,8 +63,9 @@ class SplitGmbToAxi4Bridge(
 
   gmbReadCmd.ready := axiAr.ready
 
+  // <<<<<<< 3. 对输入的读响应进行流水线化 >>>>>>>>>
   val gmbReadRsp = io.gmbIn.read.rsp
-  val axiR = io.axiOut.r
+  val axiR = if (rspInStage) io.axiOut.r.stage() else io.axiOut.r
 
   gmbReadRsp.valid := axiR.valid
   gmbReadRsp.data  := axiR.data
@@ -58,8 +75,12 @@ class SplitGmbToAxi4Bridge(
   gmbReadRsp.error := !axiR.isOKAY() // isOKAY checks if resp is OKAY (00)
   axiR.ready    := gmbReadRsp.ready // Backpressure from GMB slave for read data
 
-  // --- WRITE CHANNEL ---
-  val gmbWriteCmd = io.gmbIn.write.cmd
+  // ====================================================================
+  // 写通道 (Write Channel)
+  // ====================================================================
+  
+  // <<<<<<< 4. 对输入的写命令进行流水线化，并保证AW/W同步 >>>>>>>>>
+  val gmbWriteCmd = if (cmdInStage) io.gmbIn.write.cmd.stage() else io.gmbIn.write.cmd
   val axiAw = io.axiOut.aw
   val axiW = io.axiOut.w
   val axiB = io.axiOut.b
@@ -70,53 +91,59 @@ class SplitGmbToAxi4Bridge(
   // we effectively want to send AW and W for the *same* GMB command.
   // The GMB command is only "done" when both AW and W are accepted.
 
-  // Staging AW is a good practice to decouple AW and W acceptance on the AXI side.
-  // 1. Create an internal (unstaged) AW stream from GMB command.
-  // 2. Stage this internal AW stream.
-  // 3. Connect W channel data from GMB command.
-  // 4. Manage ready signals carefully.
-
   val (awPathInfo, wPathInfo) = StreamFork2(gmbWriteCmd) // Both forks carry the full GMBWriteCmd payload
 
-  // AW Channel Path (staged)
-  val awUnstaged = Stream(Axi4Aw(axiConfig)) // Temporary stream for AW payload
-  awUnstaged.valid      := awPathInfo.valid
-  awUnstaged.payload.addr  := awPathInfo.address.resized
-  if (gmbConfig.useId) {
-    awUnstaged.payload.id := awPathInfo.id.resized
-  } else {
-    if (axiConfig.useId) awUnstaged.payload.id := 0
-  }
-  // awUnstaged.payload.prot  := B"010"
-  awUnstaged.payload.len   := 0
-  awUnstaged.payload.size  := log2Up(gmbConfig.dataWidth.value / 8)
-  awUnstaged.payload.setBurstINCR()
-  awPathInfo.ready  := awUnstaged.ready // awPath is ready if awUnstaged is ready to accept
+  // 关键改进：在Fork后、translate前进行stage，确保AW/W同步
+  val awStaged = if (cmdInStage) awPathInfo.stage() else awPathInfo
+  val wStaged = if (cmdInStage) wPathInfo.stage() else wPathInfo
 
-  val awStaged = awUnstaged.stage() // Register the AW command
-  axiAw << awStaged                  // Connect staged AW to AXI output
+  // AW Channel Path
+  axiAw << awStaged.translateWith {
+    val aw = Axi4Aw(axiConfig)
+    aw.addr := awStaged.address.resized
+    if (gmbConfig.useId) {
+      aw.id := awStaged.id.resized
+    } else {
+      if (axiConfig.useId) aw.id := 0
+    }
+    // aw.prot := B"010"
+    aw.len := 0
+    aw.size := log2Up(gmbConfig.dataWidth.value / 8)
+    aw.setBurstINCR()
+    aw
+  }
 
   // W Channel Path
-  axiW.valid := wPathInfo.valid
-  axiW.data  := wPathInfo.data
-  axiW.strb  := wPathInfo.byteEnables // Use byteEnables from GMB
-  axiW.last  := True                  // Single beat transaction, so always last
-  wPathInfo.ready := axiW.ready      // wPath is ready if axiW is ready to accept
+  axiW << wStaged.translateWith {
+    val w = Axi4W(axiConfig)
+    w.data := wStaged.data
+    w.strb := wStaged.byteEnables
+    w.last := True
+    w
+  }
+
+  // <<<<<<< 关键: 同步验证 >>>>>>>>>
+  when(axiAw.valid || axiW.valid) {
+    assert(axiAw.valid === axiW.valid, "AW and W must be synchronized")
+  }
 
   // gmbWriteCmd.ready is implicitly (awPathInfo.ready && wPathInfo.ready)
   // due to StreamFork2. This ensures GMB command is consumed only when
   // both AW (pre-stage) and W paths are ready.
 
-  // Write Response Channel
+  // --- 写响应通道 ---
+  // <<<<<<< 5. 对输入的写响应进行流水线化 >>>>>>>>>
   val gmbWriteRsp = io.gmbIn.write.rsp
-  gmbWriteRsp.valid := axiB.valid
+  val axiBStaged = if (rspInStage) axiB.stage() else axiB
+  
+  gmbWriteRsp.valid := axiBStaged.valid
   if (gmbConfig.useId) {
-    gmbWriteRsp.id := axiB.id.resized
+    gmbWriteRsp.id := axiBStaged.id.resized
   }
-  gmbWriteRsp.error := !axiB.isOKAY()
-  axiB.ready     := gmbWriteRsp.ready // Backpressure for write response
+  gmbWriteRsp.error := !axiBStaged.isOKAY()
+  axiBStaged.ready := gmbWriteRsp.ready // Backpressure for write response
 
-  when(axiB.valid && !axiB.isOKAY()) {
-    if(false) report(L"[SplitGmbToAxi4Bridge] AXI write response error: ${axiB.resp}")
+  when(axiBStaged.valid && !axiBStaged.isOKAY()) {
+    if(false) report(L"[SplitGmbToAxi4Bridge] AXI write response error: ${axiBStaged.resp}")
   }
 }
