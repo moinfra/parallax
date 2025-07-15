@@ -213,7 +213,7 @@ CoreNSCSCC core(
     // 连接新增的数码管端口
     .io_dpy0(dpy0),
     .io_dpy1(dpy1),
-    .io_leds(leds)
+    .io_leds(leds),
     .io_switch_btn(touch_btn[0])
 );
 
