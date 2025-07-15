@@ -4,13 +4,11 @@ import spinal.lib.bus.amba4.axi._
 import spinal.core._
 import spinal.lib._
 import parallax.components.memory._
+import spinal.lib.fsm._
 
 class SplitGmbToAxi4Bridge(
   val gmbConfig: GenericMemoryBusConfig,
-  val axiConfig: Axi4Config, // Use the provided axiConfig
-  // <<<<<<< 1. 参数化控制 >>>>>>>>>
-  // cmdInStage:  在GMB命令输入端增加一级流水线
-  // rspInStage:  在AXI响应输入端增加一级流水线 (即GMB响应输出的前一级)
+  val axiConfig: Axi4Config,
   val cmdInStage: Boolean = true,
   val rspInStage: Boolean = true
 ) extends Component {
@@ -20,130 +18,81 @@ class SplitGmbToAxi4Bridge(
     val axiOut = master(Axi4(axiConfig))
   }
 
-  // --- Sanity Checks (Compile-time) ---
-  assert(axiConfig.addressWidth >= gmbConfig.addressWidth.value,
-    s"AXI addressWidth (${axiConfig.addressWidth}) must be >= GMB addressWidth (${gmbConfig.addressWidth.value})")
-  assert(axiConfig.dataWidth == gmbConfig.dataWidth.value,
-    s"AXI dataWidth (${axiConfig.dataWidth}) must be == GMB dataWidth (${gmbConfig.dataWidth.value}) for direct mapping")
-
-  if (gmbConfig.useId) {
-    assert(axiConfig.useId, "If GMB uses ID, AXI must also use ID (axiConfig.useId must be true)")
-    assert(axiConfig.idWidth >= gmbConfig.idWidth.value,
-      s"AXI idWidth (${axiConfig.idWidth}) must be >= GMB idWidth (${gmbConfig.idWidth.value})")
-  }
-  if(false) report(L"[SplitGmbToAxi4Bridge] io.gmbIn.write.cmd.ready=${io.gmbIn.write.cmd.ready}")
-  if(false) report(L"[SplitGmbToAxi4Bridge] io.gmbIn.read.cmd.ready=${io.gmbIn.read.cmd.ready}")
-  
-  // <<<<<<< 6. 调试和性能监控 >>>>>>>>>
-  if(false) {
-    report(L"[SplitGmbToAxi4Bridge] Pipeline config: cmdInStage=${cmdInStage}, rspInStage=${rspInStage}")
-    report(L"[SplitGmbToAxi4Bridge] Read path: gmbReadCmd.valid=${gmbReadCmd.valid}, axiAr.ready=${axiAr.ready}")
-    report(L"[SplitGmbToAxi4Bridge] Write path: gmbWriteCmd.valid=${gmbWriteCmd.valid}, axiAw.valid=${axiAw.valid}, axiW.valid=${axiW.valid}")
-  }
-  // ====================================================================
-  // 读通道 (Read Channel)
-  // ====================================================================
-  
-  // <<<<<<< 2. 对输入的读命令进行流水线化 >>>>>>>>>
+  // --- Read Channel ---
   val gmbReadCmd = if (cmdInStage) io.gmbIn.read.cmd.stage() else io.gmbIn.read.cmd
   val axiAr = io.axiOut.ar
-
   axiAr.valid := gmbReadCmd.valid
-  axiAr.addr  := gmbReadCmd.address.resized // Resize in case AXI addressWidth > GMB addressWidth
+  axiAr.addr := gmbReadCmd.address.resized
   if (gmbConfig.useId) {
-    axiAr.id := gmbReadCmd.id.resized // Resize in case AXI idWidth > GMB idWidth
+    axiAr.id := gmbReadCmd.id.resized
   } else {
-    if (axiConfig.useId) axiAr.id := 0 // Default ID if AXI uses IDs but GMB doesn't
+    if (axiConfig.useId) axiAr.id := 0
   }
-  // axiAr.prot  := B"010" // Normal, Non-secure, Data access
-  axiAr.len   := 0     // Assuming single beat GMB transactions
-  axiAr.size  := log2Up(gmbConfig.dataWidth.value / 8) // Size in bytes per beat
-  axiAr.setBurstINCR() // INCR burst type (FIXED would also be okay for len=0)
-  // Other AXI AR signals (lock, cache, qos, region) default to 0 or spec-defined values.
-
+  axiAr.len := 0
+  axiAr.size := log2Up(gmbConfig.dataWidth.value / 8)
+  axiAr.setBurstINCR()
   gmbReadCmd.ready := axiAr.ready
 
-  // <<<<<<< 3. 对输入的读响应进行流水线化 >>>>>>>>>
   val gmbReadRsp = io.gmbIn.read.rsp
   val axiR = if (rspInStage) io.axiOut.r.stage() else io.axiOut.r
-
   gmbReadRsp.valid := axiR.valid
-  gmbReadRsp.data  := axiR.data
+  gmbReadRsp.data := axiR.data
   if (gmbConfig.useId) {
-    gmbReadRsp.id := axiR.id.resized // Resize AXI ID back to GMB ID width
+    gmbReadRsp.id := axiR.id.resized
   }
-  gmbReadRsp.error := !axiR.isOKAY() // isOKAY checks if resp is OKAY (00)
-  axiR.ready    := gmbReadRsp.ready // Backpressure from GMB slave for read data
+  gmbReadRsp.error := !axiR.isOKAY()
+  axiR.ready := gmbReadRsp.ready
 
   // ====================================================================
-  // 写通道 (Write Channel)
+  // 写通道 (Write Channel) - 高性能并行实现
   // ====================================================================
-  
-  // <<<<<<< 4. 对输入的写命令进行流水线化，并保证AW/W同步 >>>>>>>>>
   val gmbWriteCmd = if (cmdInStage) io.gmbIn.write.cmd.stage() else io.gmbIn.write.cmd
   val axiAw = io.axiOut.aw
   val axiW = io.axiOut.w
   val axiB = io.axiOut.b
 
-  // GMB WriteCmd needs to be split into AXI AW (address/control) and AXI W (data)
-  // We can use the StreamFork2 approach from the example, but adapt it.
-  // Since each GMB write command is self-contained (address+data),
-  // we effectively want to send AW and W for the *same* GMB command.
-  // The GMB command is only "done" when both AW and W are accepted.
-
-  val (awPathInfo, wPathInfo) = StreamFork2(gmbWriteCmd) // Both forks carry the full GMBWriteCmd payload
-
-  // 关键改进：在Fork后、translate前进行stage，确保AW/W同步
-  val awStaged = if (cmdInStage) awPathInfo.stage() else awPathInfo
-  val wStaged = if (cmdInStage) wPathInfo.stage() else wPathInfo
-
-  // AW Channel Path
-  axiAw << awStaged.translateWith {
-    val aw = Axi4Aw(axiConfig)
-    aw.addr := awStaged.address.resized
-    if (gmbConfig.useId) {
-      aw.id := awStaged.id.resized
-    } else {
-      if (axiConfig.useId) aw.id := 0
-    }
-    // aw.prot := B"010"
-    aw.len := 0
-    aw.size := log2Up(gmbConfig.dataWidth.value / 8)
-    aw.setBurstINCR()
-    aw
+  // 直接连接，实现最大吞吐量
+  // AW通道直接连接
+  axiAw.valid := gmbWriteCmd.valid
+  axiAw.payload.addr := gmbWriteCmd.address.resized
+  axiAw.payload.len  := 0
+  axiAw.payload.size := log2Up(gmbConfig.dataWidth.value / 8)
+  axiAw.payload.setBurstINCR()
+  if (gmbConfig.useId) {
+    axiAw.payload.id := gmbWriteCmd.id.resized
+  } else {
+    if (axiConfig.useId) axiAw.payload.id := 0
   }
+  
+  // W通道直接连接
+  axiW.valid := gmbWriteCmd.valid
+  axiW.payload.data := gmbWriteCmd.data
+  axiW.payload.strb := gmbWriteCmd.byteEnables
+  axiW.payload.last := True
 
-  // W Channel Path
-  axiW << wStaged.translateWith {
-    val w = Axi4W(axiConfig)
-    w.data := wStaged.data
-    w.strb := wStaged.byteEnables
-    w.last := True
-    w
-  }
-
-  // <<<<<<< 关键: 同步验证 >>>>>>>>>
-  when(axiAw.valid || axiW.valid) {
-    assert(axiAw.valid === axiW.valid, "AW and W must be synchronized")
-  }
-
-  // gmbWriteCmd.ready is implicitly (awPathInfo.ready && wPathInfo.ready)
-  // due to StreamFork2. This ensures GMB command is consumed only when
-  // both AW (pre-stage) and W paths are ready.
+  // 只有当两个通道都准备好时，GMB命令才ready
+  gmbWriteCmd.ready := axiAw.ready && axiW.ready
 
   // --- 写响应通道 ---
-  // <<<<<<< 5. 对输入的写响应进行流水线化 >>>>>>>>>
   val gmbWriteRsp = io.gmbIn.write.rsp
-  val axiBStaged = if (rspInStage) axiB.stage() else axiB
-  
-  gmbWriteRsp.valid := axiBStaged.valid
-  if (gmbConfig.useId) {
-    gmbWriteRsp.id := axiBStaged.id.resized
+  val axiB_staged = if (rspInStage) axiB.stage() else axiB
+  gmbWriteRsp.valid := axiB_staged.valid
+  gmbWriteRsp.payload.error := !axiB_staged.isOKAY()
+  if(gmbConfig.useId) {
+    gmbWriteRsp.payload.id := axiB_staged.id.resized
   }
-  gmbWriteRsp.error := !axiBStaged.isOKAY()
-  axiBStaged.ready := gmbWriteRsp.ready // Backpressure for write response
-
-  when(axiBStaged.valid && !axiBStaged.isOKAY()) {
-    if(false) report(L"[SplitGmbToAxi4Bridge] AXI write response error: ${axiBStaged.resp}")
+  axiB_staged.ready := gmbWriteRsp.ready
+  // --- 调试日志 (可选) ---
+  val logEnable = false
+  if(logEnable) {
+    val cycle = Reg(UInt(32 bits)) init(0)
+    cycle := cycle + 1
+    report(
+      L"Cycle ${cycle}: Direct Bridge Mode\n" :+
+      L"  GMB Write: v=${gmbWriteCmd.valid} r=${gmbWriteCmd.ready} fire=${gmbWriteCmd.fire} addr=${gmbWriteCmd.address}\n" :+
+      L"  AXI AW: v=${axiAw.valid} r=${axiAw.ready} fire=${axiAw.fire}\n" :+
+      L"  AXI W: v=${axiW.valid} r=${axiW.ready} fire=${axiW.fire}\n" :+
+      L"  AXI B: v=${axiB.valid} r=${axiB.ready} fire=${axiB.fire}"
+    )
   }
 }
