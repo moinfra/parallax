@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 3105a33b457518a7afeed8b0527b4d8b9dab2383
 // Component : CoreNSCSCC
-// Git hash  : 92b647918d33492017bb0962567f56267cb61fce
+// Git hash  : 6d2c9fdf0bacfb423b8ea49c4d3c70e297d64581
 
 `timescale 1ns/1ps
 
@@ -2108,17 +2108,17 @@ module CoreNSCSCC (
   wire                CheckpointManagerPlugin_restoreCheckpointTrigger;
   wire                CommitPlugin_commitEnableExt;
   reg        [0:0]    CommitPlugin_commitStatsReg_committedThisCycle;
-  (* mark_debug = "true" *) reg        [31:0]   CommitPlugin_commitStatsReg_totalCommitted;
+  reg        [31:0]   CommitPlugin_commitStatsReg_totalCommitted;
   reg        [31:0]   CommitPlugin_commitStatsReg_robFlushCount;
   reg        [31:0]   CommitPlugin_commitStatsReg_physRegRecycled;
-  (* mark_debug = "true" *) reg                 CommitPlugin_commitStatsReg_commitOOB;
-  (* mark_debug = "true" *) reg        [31:0]   CommitPlugin_commitStatsReg_maxCommitPc;
+  reg                 CommitPlugin_commitStatsReg_commitOOB;
+  reg        [31:0]   CommitPlugin_commitStatsReg_maxCommitPc;
   wire       [31:0]   CommitPlugin_maxCommitPcExt;
   wire                CommitPlugin_maxCommitPcEnabledExt;
   reg                 CommitPlugin_committedIdleReg;
   reg        [31:0]   CommitPlugin_committedIdlePcReg;
-  reg        [31:0]   CommitPlugin_maxCommitPcReg;
-  reg                 CommitPlugin_commitOOBReg;
+  (* mark_debug = "true" *) reg        [31:0]   CommitPlugin_maxCommitPcReg;
+  (* mark_debug = "true" *) reg                 CommitPlugin_commitOOBReg;
   reg                 AluIntEU_AluIntEuPlugin_euResult_valid;
   reg        [3:0]    AluIntEU_AluIntEuPlugin_euResult_uop_robPtr;
   reg        [5:0]    AluIntEU_AluIntEuPlugin_euResult_uop_physDest_idx;
@@ -2601,15 +2601,15 @@ module CoreNSCSCC (
   wire       [0:0]    CommitPlugin_logic_s0_committedThisCycle_comb;
   wire       [0:0]    CommitPlugin_logic_s0_recycledThisCycle_comb;
   wire       [0:0]    CommitPlugin_logic_s0_flushedThisCycle_comb;
-  (* mark_debug = "true" *) wire       [31:0]   CommitPlugin_logic_s0_commitPcs_0;
+  wire       [31:0]   CommitPlugin_logic_s0_commitPcs_0;
   wire                CommitPlugin_logic_s0_anyCommitOOB;
   wire       [31:0]   CommitPlugin_logic_s0_maxCommitPcThisCycle;
   wire       [0:0]    CommitPlugin_logic_s0_fwd_committedThisCycle;
-  (* mark_debug = "true" *) wire       [31:0]   CommitPlugin_logic_s0_fwd_totalCommitted;
+  wire       [31:0]   CommitPlugin_logic_s0_fwd_totalCommitted;
   wire       [31:0]   CommitPlugin_logic_s0_fwd_robFlushCount;
   wire       [31:0]   CommitPlugin_logic_s0_fwd_physRegRecycled;
-  (* mark_debug = "true" *) wire                CommitPlugin_logic_s0_fwd_commitOOB;
-  (* mark_debug = "true" *) wire       [31:0]   CommitPlugin_logic_s0_fwd_maxCommitPc;
+  wire                CommitPlugin_logic_s0_fwd_commitOOB;
+  wire       [31:0]   CommitPlugin_logic_s0_fwd_maxCommitPc;
   wire                CommitPlugin_logic_s0_commitSlotLogs_0_valid;
   wire                CommitPlugin_logic_s0_commitSlotLogs_0_canCommit;
   wire                CommitPlugin_logic_s0_commitSlotLogs_0_doCommit;
@@ -3853,7 +3853,7 @@ module CoreNSCSCC (
   wire       [31:0]   SimpleFetchPipelinePlugin_logic_filteredStream_payload_bpuPrediction_payload_target;
   (* MARK_DEBUG = "TRUE" *) reg        [31:0]   SimpleFetchPipelinePlugin_logic_fetchPc;
   reg        [31:0]   SimpleFetchPipelinePlugin_logic_pcOnRequest;
-  wire                when_SimpleFetchPipelinePlugin_l171;
+  wire                when_SimpleFetchPipelinePlugin_l172;
   wire                SimpleFetchPipelinePlugin_logic_doBpuRedirect;
   wire                SimpleFetchPipelinePlugin_logic_doJumpRedirect;
   wire       [31:0]   SimpleFetchPipelinePlugin_logic_jumpTarget;
@@ -4949,7 +4949,7 @@ module CoreNSCSCC (
   reg        [2:0]    SimpleFetchPipelinePlugin_logic_fsm_stateReg;
   reg        [2:0]    SimpleFetchPipelinePlugin_logic_fsm_stateNext;
   wire       [31:0]   _zz_38;
-  wire                when_SimpleFetchPipelinePlugin_l231;
+  wire                when_SimpleFetchPipelinePlugin_l232;
   wire                SimpleFetchPipelinePlugin_logic_fsm_onExit_BOOT;
   wire                SimpleFetchPipelinePlugin_logic_fsm_onExit_IDLE;
   wire                SimpleFetchPipelinePlugin_logic_fsm_onExit_WAITING;
@@ -16945,7 +16945,7 @@ module CoreNSCSCC (
   assign BpuPipelinePlugin_queryPortIn_payload_transactionId = 3'bxxx;
   assign SimpleFetchPipelinePlugin_hw_redirectFlowInst_valid = (|BranchEU_BranchEuPlugin_hw_redirectPort_valid);
   assign SimpleFetchPipelinePlugin_hw_redirectFlowInst_payload = BranchEU_BranchEuPlugin_hw_redirectPort_payload;
-  assign when_SimpleFetchPipelinePlugin_l171 = (|BranchEU_BranchEuPlugin_hw_redirectPort_valid);
+  assign when_SimpleFetchPipelinePlugin_l172 = (|BranchEU_BranchEuPlugin_hw_redirectPort_valid);
   assign SimpleFetchPipelinePlugin_logic_doBpuRedirect = ((BpuPipelinePlugin_responseFlowOut_valid && BpuPipelinePlugin_responseFlowOut_payload_isTaken) && (! SimpleFetchPipelinePlugin_hw_redirectFlowInst_valid));
   assign SimpleFetchPipelinePlugin_logic_doJumpRedirect = ((SimpleFetchPipelinePlugin_logic_unpacker_io_output_valid && SimpleFetchPipelinePlugin_logic_unpacker_io_output_payload_predecode_isDirectJump) && (! SimpleFetchPipelinePlugin_hw_redirectFlowInst_valid));
   assign SimpleFetchPipelinePlugin_logic_jumpTarget = (SimpleFetchPipelinePlugin_logic_unpacker_io_output_payload_pc + SimpleFetchPipelinePlugin_logic_unpacker_io_output_payload_predecode_jumpOffset);
@@ -21180,7 +21180,7 @@ module CoreNSCSCC (
         end
       end
       SimpleFetchPipelinePlugin_logic_fsm_DISABLED : begin
-        if(when_SimpleFetchPipelinePlugin_l231) begin
+        if(when_SimpleFetchPipelinePlugin_l232) begin
           SimpleFetchPipelinePlugin_logic_fsm_stateNext = SimpleFetchPipelinePlugin_logic_fsm_IDLE;
         end
       end
@@ -21203,7 +21203,7 @@ module CoreNSCSCC (
   end
 
   assign _zz_38 = (SimpleFetchPipelinePlugin_logic_pcOnRequest + 32'h00000008);
-  assign when_SimpleFetchPipelinePlugin_l231 = (! SimpleFetchPipelinePlugin_logic_fetchDisable);
+  assign when_SimpleFetchPipelinePlugin_l232 = (! SimpleFetchPipelinePlugin_logic_fetchDisable);
   assign SimpleFetchPipelinePlugin_logic_fsm_onExit_BOOT = ((SimpleFetchPipelinePlugin_logic_fsm_stateNext != SimpleFetchPipelinePlugin_logic_fsm_BOOT) && (SimpleFetchPipelinePlugin_logic_fsm_stateReg == SimpleFetchPipelinePlugin_logic_fsm_BOOT));
   assign SimpleFetchPipelinePlugin_logic_fsm_onExit_IDLE = ((SimpleFetchPipelinePlugin_logic_fsm_stateNext != SimpleFetchPipelinePlugin_logic_fsm_IDLE) && (SimpleFetchPipelinePlugin_logic_fsm_stateReg == SimpleFetchPipelinePlugin_logic_fsm_IDLE));
   assign SimpleFetchPipelinePlugin_logic_fsm_onExit_WAITING = ((SimpleFetchPipelinePlugin_logic_fsm_stateNext != SimpleFetchPipelinePlugin_logic_fsm_WAITING) && (SimpleFetchPipelinePlugin_logic_fsm_stateReg == SimpleFetchPipelinePlugin_logic_fsm_WAITING));
@@ -22137,13 +22137,13 @@ module CoreNSCSCC (
       end else begin
         BusyTablePlugin_early_setup_busyTableReg <= BusyTablePlugin_logic_busyTableNext;
       end
-      if(when_SimpleFetchPipelinePlugin_l171) begin
+      if(when_SimpleFetchPipelinePlugin_l172) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // SimpleFetchPipelinePlugin.scala:L172
+            assert(1'b0); // SimpleFetchPipelinePlugin.scala:L173
           `else
             if(!1'b0) begin
-              $display("NOTE(SimpleFetchPipelinePlugin.scala:172):  [FETCH-PLUGIN] Taken hard redirect to 0x%x", SimpleFetchPipelinePlugin_hw_redirectFlowInst_payload); // SimpleFetchPipelinePlugin.scala:L172
+              $display("NOTE(SimpleFetchPipelinePlugin.scala:173):  [FETCH-PLUGIN] Taken hard redirect to 0x%x", SimpleFetchPipelinePlugin_hw_redirectFlowInst_payload); // SimpleFetchPipelinePlugin.scala:L173
             end
           `endif
         `endif
@@ -22179,10 +22179,10 @@ module CoreNSCSCC (
       SimpleFetchPipelinePlugin_logic_fsm_unpackerWasBusy <= SimpleFetchPipelinePlugin_logic_unpacker_io_isBusy;
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // SimpleFetchPipelinePlugin.scala:L291
+          assert(1'b0); // SimpleFetchPipelinePlugin.scala:L292
         `else
           if(!1'b0) begin
-            $display("NOTE(SimpleFetchPipelinePlugin.scala:291):  [[FETCH-PLUGIN]] PC(fetch=0x%x, onReq=0x%x) | REQ(fire=%x) | UNPACKED(valid=%x, fire=%x, pc=0x%x, isJmp=%x, isBranch=%x, isIdle=%x) | FILTERED(valid=%x, fire=%x) | BPU(QueryFire=%x, RspValid=%x, RspTaken=%x) | JUMP(do=%x, target=0x%x) | REDIRECT(Soft=%x, Hard=%x, Soft Target=0x%x) | Hard Target=0x%x) | FLUSH(needs=%x, outFifo=%x) | UNPACK_STATE(busy=%x, fin=%x) | FIFOS(rsp=%x, out=%x)", SimpleFetchPipelinePlugin_logic_fetchPc, SimpleFetchPipelinePlugin_logic_pcOnRequest, SimpleFetchPipelinePlugin_logic_ifuPort_cmd_fire, SimpleFetchPipelinePlugin_logic_unpacker_io_output_valid, io_output_fire, SimpleFetchPipelinePlugin_logic_unpacker_io_output_payload_pc, SimpleFetchPipelinePlugin_logic_unpacker_io_output_payload_predecode_isJump, SimpleFetchPipelinePlugin_logic_unpacker_io_output_payload_predecode_isBranch, SimpleFetchPipelinePlugin_logic_unpacker_io_output_payload_predecode_isIdle, SimpleFetchPipelinePlugin_logic_filteredStream_valid, SimpleFetchPipelinePlugin_logic_filteredStream_fire, BpuPipelinePlugin_queryPortIn_valid, BpuPipelinePlugin_responseFlowOut_valid, BpuPipelinePlugin_responseFlowOut_payload_isTaken, SimpleFetchPipelinePlugin_logic_doJumpRedirect, SimpleFetchPipelinePlugin_logic_jumpTarget, SimpleFetchPipelinePlugin_logic_doSoftRedirect, SimpleFetchPipelinePlugin_hw_redirectFlowInst_valid, SimpleFetchPipelinePlugin_logic_softRedirectTarget, SimpleFetchPipelinePlugin_hw_redirectFlowInst_payload, SimpleFetchPipelinePlugin_logic_needsFlush, SimpleFetchPipelinePlugin_hw_redirectFlowInst_valid, SimpleFetchPipelinePlugin_logic_unpacker_io_isBusy, SimpleFetchPipelinePlugin_logic_fsm_unpackerJustFinished, SimpleFetchPipelinePlugin_logic_ifuRspFifo_io_occupancy, SimpleFetchPipelinePlugin_logic_outputFifo_io_occupancy); // SimpleFetchPipelinePlugin.scala:L291
+            $display("NOTE(SimpleFetchPipelinePlugin.scala:292):  [[FETCH-PLUGIN]] PC(fetch=0x%x, onReq=0x%x) | REQ(fire=%x) | UNPACKED(valid=%x, fire=%x, pc=0x%x, isJmp=%x, isBranch=%x, isIdle=%x) | FILTERED(valid=%x, fire=%x) | BPU(QueryFire=%x, RspValid=%x, RspTaken=%x) | JUMP(do=%x, target=0x%x) | REDIRECT(Soft=%x, Hard=%x, Soft Target=0x%x) | Hard Target=0x%x) | FLUSH(needs=%x, outFifo=%x) | UNPACK_STATE(busy=%x, fin=%x) | FIFOS(rsp=%x, out=%x)", SimpleFetchPipelinePlugin_logic_fetchPc, SimpleFetchPipelinePlugin_logic_pcOnRequest, SimpleFetchPipelinePlugin_logic_ifuPort_cmd_fire, SimpleFetchPipelinePlugin_logic_unpacker_io_output_valid, io_output_fire, SimpleFetchPipelinePlugin_logic_unpacker_io_output_payload_pc, SimpleFetchPipelinePlugin_logic_unpacker_io_output_payload_predecode_isJump, SimpleFetchPipelinePlugin_logic_unpacker_io_output_payload_predecode_isBranch, SimpleFetchPipelinePlugin_logic_unpacker_io_output_payload_predecode_isIdle, SimpleFetchPipelinePlugin_logic_filteredStream_valid, SimpleFetchPipelinePlugin_logic_filteredStream_fire, BpuPipelinePlugin_queryPortIn_valid, BpuPipelinePlugin_responseFlowOut_valid, BpuPipelinePlugin_responseFlowOut_payload_isTaken, SimpleFetchPipelinePlugin_logic_doJumpRedirect, SimpleFetchPipelinePlugin_logic_jumpTarget, SimpleFetchPipelinePlugin_logic_doSoftRedirect, SimpleFetchPipelinePlugin_hw_redirectFlowInst_valid, SimpleFetchPipelinePlugin_logic_softRedirectTarget, SimpleFetchPipelinePlugin_hw_redirectFlowInst_payload, SimpleFetchPipelinePlugin_logic_needsFlush, SimpleFetchPipelinePlugin_hw_redirectFlowInst_valid, SimpleFetchPipelinePlugin_logic_unpacker_io_isBusy, SimpleFetchPipelinePlugin_logic_fsm_unpackerJustFinished, SimpleFetchPipelinePlugin_logic_ifuRspFifo_io_occupancy, SimpleFetchPipelinePlugin_logic_outputFifo_io_occupancy); // SimpleFetchPipelinePlugin.scala:L292
           end
         `endif
       `endif
@@ -23311,10 +23311,10 @@ module CoreNSCSCC (
           if(SimpleFetchPipelinePlugin_logic_fetchDisable) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // SimpleFetchPipelinePlugin.scala:L218
+                assert(1'b0); // SimpleFetchPipelinePlugin.scala:L219
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SimpleFetchPipelinePlugin.scala:218):  [Fetch-FSM] IDLE->DISABLED: Fetch disabled"); // SimpleFetchPipelinePlugin.scala:L218
+                  $display("NOTE(SimpleFetchPipelinePlugin.scala:219):  [Fetch-FSM] IDLE->DISABLED: Fetch disabled"); // SimpleFetchPipelinePlugin.scala:L219
                 end
               `endif
             `endif
@@ -23322,10 +23322,10 @@ module CoreNSCSCC (
             if(SimpleFetchPipelinePlugin_logic_ifuPort_cmd_fire) begin
               `ifndef SYNTHESIS
                 `ifdef FORMAL
-                  assert(1'b0); // SimpleFetchPipelinePlugin.scala:L224
+                  assert(1'b0); // SimpleFetchPipelinePlugin.scala:L225
                 `else
                   if(!1'b0) begin
-                    $display("NOTE(SimpleFetchPipelinePlugin.scala:224):  [Fetch-FSM] IDLE->WAITING: IFU cmd fired, pcOnRequest=0x%x", SimpleFetchPipelinePlugin_logic_fetchPc); // SimpleFetchPipelinePlugin.scala:L224
+                    $display("NOTE(SimpleFetchPipelinePlugin.scala:225):  [Fetch-FSM] IDLE->WAITING: IFU cmd fired, pcOnRequest=0x%x", SimpleFetchPipelinePlugin_logic_fetchPc); // SimpleFetchPipelinePlugin.scala:L225
                   end
                 `endif
               `endif
@@ -23336,10 +23336,10 @@ module CoreNSCSCC (
           if(SimpleFetchPipelinePlugin_logic_fetchDisable) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // SimpleFetchPipelinePlugin.scala:L242
+                assert(1'b0); // SimpleFetchPipelinePlugin.scala:L243
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SimpleFetchPipelinePlugin.scala:242):  [Fetch-FSM] WAITING->DISABLED: Fetch disabled"); // SimpleFetchPipelinePlugin.scala:L242
+                  $display("NOTE(SimpleFetchPipelinePlugin.scala:243):  [Fetch-FSM] WAITING->DISABLED: Fetch disabled"); // SimpleFetchPipelinePlugin.scala:L243
                 end
               `endif
             `endif
@@ -23348,10 +23348,10 @@ module CoreNSCSCC (
               SimpleFetchPipelinePlugin_logic_fetchPc <= SimpleFetchPipelinePlugin_logic_softRedirectTarget;
               `ifndef SYNTHESIS
                 `ifdef FORMAL
-                  assert(1'b0); // SimpleFetchPipelinePlugin.scala:L246
+                  assert(1'b0); // SimpleFetchPipelinePlugin.scala:L247
                 `else
                   if(!1'b0) begin
-                    $display("NOTE(SimpleFetchPipelinePlugin.scala:246):  [Fetch-FSM] WAITING->IDLE: Soft redirect to 0x%x", SimpleFetchPipelinePlugin_logic_softRedirectTarget); // SimpleFetchPipelinePlugin.scala:L246
+                    $display("NOTE(SimpleFetchPipelinePlugin.scala:247):  [Fetch-FSM] WAITING->IDLE: Soft redirect to 0x%x", SimpleFetchPipelinePlugin_logic_softRedirectTarget); // SimpleFetchPipelinePlugin.scala:L247
                   end
                 `endif
               `endif
@@ -23359,10 +23359,10 @@ module CoreNSCSCC (
               if(io_output_fire) begin
                 `ifndef SYNTHESIS
                   `ifdef FORMAL
-                    assert(1'b0); // SimpleFetchPipelinePlugin.scala:L249
+                    assert(1'b0); // SimpleFetchPipelinePlugin.scala:L250
                   `else
                     if(!1'b0) begin
-                      $display("NOTE(SimpleFetchPipelinePlugin.scala:249):  [Fetch-FSM] WAITING->UPDATE_PC: Unpacker finished (fire path)"); // SimpleFetchPipelinePlugin.scala:L249
+                      $display("NOTE(SimpleFetchPipelinePlugin.scala:250):  [Fetch-FSM] WAITING->UPDATE_PC: Unpacker finished (fire path)"); // SimpleFetchPipelinePlugin.scala:L250
                     end
                   `endif
                 `endif
@@ -23370,10 +23370,10 @@ module CoreNSCSCC (
                 if(SimpleFetchPipelinePlugin_logic_fsm_unpackerJustFinished) begin
                   `ifndef SYNTHESIS
                     `ifdef FORMAL
-                      assert(1'b0); // SimpleFetchPipelinePlugin.scala:L252
+                      assert(1'b0); // SimpleFetchPipelinePlugin.scala:L253
                     `else
                       if(!1'b0) begin
-                        $display("NOTE(SimpleFetchPipelinePlugin.scala:252):  [Fetch-FSM] WAITING->UPDATE_PC: Unpacker finished"); // SimpleFetchPipelinePlugin.scala:L252
+                        $display("NOTE(SimpleFetchPipelinePlugin.scala:253):  [Fetch-FSM] WAITING->UPDATE_PC: Unpacker finished"); // SimpleFetchPipelinePlugin.scala:L253
                       end
                     `endif
                   `endif
@@ -23386,20 +23386,20 @@ module CoreNSCSCC (
           if(SimpleFetchPipelinePlugin_logic_fetchDisable) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // SimpleFetchPipelinePlugin.scala:L259
+                assert(1'b0); // SimpleFetchPipelinePlugin.scala:L260
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SimpleFetchPipelinePlugin.scala:259):  [Fetch-FSM] UPDATE_PC->DISABLED: Fetch disabled"); // SimpleFetchPipelinePlugin.scala:L259
+                  $display("NOTE(SimpleFetchPipelinePlugin.scala:260):  [Fetch-FSM] UPDATE_PC->DISABLED: Fetch disabled"); // SimpleFetchPipelinePlugin.scala:L260
                 end
               `endif
             `endif
           end else begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // SimpleFetchPipelinePlugin.scala:L263
+                assert(1'b0); // SimpleFetchPipelinePlugin.scala:L264
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SimpleFetchPipelinePlugin.scala:263):  [Fetch-FSM] UPDATE_PC: Normal PC update from 0x%x to 0x%x", SimpleFetchPipelinePlugin_logic_pcOnRequest, _zz_38); // SimpleFetchPipelinePlugin.scala:L263
+                  $display("NOTE(SimpleFetchPipelinePlugin.scala:264):  [Fetch-FSM] UPDATE_PC: Normal PC update from 0x%x to 0x%x", SimpleFetchPipelinePlugin_logic_pcOnRequest, _zz_38); // SimpleFetchPipelinePlugin.scala:L264
                 end
               `endif
             `endif
@@ -23407,13 +23407,13 @@ module CoreNSCSCC (
           end
         end
         SimpleFetchPipelinePlugin_logic_fsm_DISABLED : begin
-          if(when_SimpleFetchPipelinePlugin_l231) begin
+          if(when_SimpleFetchPipelinePlugin_l232) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // SimpleFetchPipelinePlugin.scala:L232
+                assert(1'b0); // SimpleFetchPipelinePlugin.scala:L233
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SimpleFetchPipelinePlugin.scala:232):  [Fetch-FSM] DISABLED->IDLE: Fetch re-enabled"); // SimpleFetchPipelinePlugin.scala:L232
+                  $display("NOTE(SimpleFetchPipelinePlugin.scala:233):  [Fetch-FSM] DISABLED->IDLE: Fetch re-enabled"); // SimpleFetchPipelinePlugin.scala:L233
                 end
               `endif
             `endif
@@ -25393,14 +25393,14 @@ module StreamUnpacker (
   input  wire          io_output_ready,
   (* MARK_DEBUG = "TRUE" *) output wire [31:0]   io_output_payload_pc,
   (* MARK_DEBUG = "TRUE" *) output wire [31:0]   io_output_payload_instruction,
-  (* MARK_DEBUG = "TRUE" *) output wire          io_output_payload_predecode_isBranch,
-  (* MARK_DEBUG = "TRUE" *) output wire          io_output_payload_predecode_isJump,
-  (* MARK_DEBUG = "TRUE" *) output wire          io_output_payload_predecode_isDirectJump,
-  (* MARK_DEBUG = "TRUE" *) output wire [31:0]   io_output_payload_predecode_jumpOffset,
-  (* MARK_DEBUG = "TRUE" *) output wire          io_output_payload_predecode_isIdle,
-  (* MARK_DEBUG = "TRUE" *) output wire          io_output_payload_bpuPrediction_valid,
-  (* MARK_DEBUG = "TRUE" *) output wire          io_output_payload_bpuPrediction_payload_isTaken,
-  (* MARK_DEBUG = "TRUE" *) output wire [31:0]   io_output_payload_bpuPrediction_payload_target,
+  output wire          io_output_payload_predecode_isBranch,
+  output wire          io_output_payload_predecode_isJump,
+  output wire          io_output_payload_predecode_isDirectJump,
+  output wire [31:0]   io_output_payload_predecode_jumpOffset,
+  output wire          io_output_payload_predecode_isIdle,
+  output wire          io_output_payload_bpuPrediction_valid,
+  output wire          io_output_payload_bpuPrediction_payload_isTaken,
+  output wire [31:0]   io_output_payload_bpuPrediction_payload_target,
   output wire          io_isBusy,
   input  wire          io_flush,
   input  wire          clk,
@@ -25496,10 +25496,10 @@ module StreamUnpacker (
       end
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // SimpleFetchPipelinePlugin.scala:L366
+          assert(1'b0); // SimpleFetchPipelinePlugin.scala:L367
         `else
           if(!1'b0) begin
-            $display("NOTE(SimpleFetchPipelinePlugin.scala:366):    [[UNPACKER]] State(busy=%x, bufV=%x, idx=%x) | Input(fire=%x) | Output(v=%x, r=%x, fire=%x) | Payload(pc=0x%x) | Control(mask=%x, isLast=%x, canAdv=%x) | Flush(f=%x)", io_isBusy, bufferValid, unpackIndex, io_input_fire, io_output_valid, io_output_ready, io_output_fire, io_output_payload_pc, currentMaskBit, isLast, canAdvance, io_flush); // SimpleFetchPipelinePlugin.scala:L366
+            $display("NOTE(SimpleFetchPipelinePlugin.scala:367):    [[UNPACKER]] State(busy=%x, bufV=%x, idx=%x) | Input(fire=%x) | Output(v=%x, r=%x, fire=%x) | Payload(pc=0x%x) | Control(mask=%x, isLast=%x, canAdv=%x) | Flush(f=%x)", io_isBusy, bufferValid, unpackIndex, io_input_fire, io_output_valid, io_output_ready, io_output_fire, io_output_payload_pc, currentMaskBit, isLast, canAdvance, io_flush); // SimpleFetchPipelinePlugin.scala:L367
           end
         `endif
       `endif
