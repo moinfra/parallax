@@ -216,23 +216,39 @@ class LoadQueuePlugin(
             when(sbQueryPort.cmd.fire) {
                 sbQueryRspReg := sbQueryPort.rsp
             }
+            
+            // --- Flush Logic (moved here to define flushInProgress early) ---
+            // 1. 立即生效的组合逻辑信号：用于立即屏蔽交互
+            val flushInProgress = robFlushPort.valid && robFlushPort.payload.reason === FlushReason.ROLLBACK_TO_ROB_IDX
+            val flushTargetRobPtr = robFlushPort.payload.targetRobPtr // 立即生效的冲刷目标
+            
+            // 2. 延迟一拍的寄存器信号：用于实际执行槽位清理
+            case class FlushInfo() extends Bundle {
+                val valid = Bool()
+                val targetRobPtr = UInt(pipelineConfig.robPtrWidth)
+            }
+            val registeredFlush = RegNext({
+                val info = FlushInfo()
+                info.valid      := flushInProgress
+                info.targetRobPtr := flushTargetRobPtr
+                info
+            }).init({
+                val info = FlushInfo()
+                info.valid := False
+                info.targetRobPtr := 0
+                info
+            })
+            
             // 初始化和Flush逻辑几乎不变
             for(i <- 0 until lqDepth) {
                 slots(i).init(LoadQueueSlot(pipelineConfig, lsuConfig, dCacheParams).setDefault())
             }
             when(robFlushPort.valid && robFlushPort.payload.reason === FlushReason.FULL_FLUSH) {
                 for(i <- 0 until lqDepth) slotsNext(i).setDefault()
-            }.elsewhen(robFlushPort.valid && robFlushPort.payload.reason === FlushReason.ROLLBACK_TO_ROB_IDX) {
-                val targetRobPtr = robFlushPort.payload.targetRobPtr
-                for(i <- 0 until lqDepth) {
-                    when(slots(i).valid && isNewerOrSame(slots(i).robPtr, targetRobPtr)) {
-                        slotsNext(i).setDefault()
-                    }
-                }
             }
-
+            
             // --- 1. LQ Push (from LsuEu) ---
-            val canPush = !slots.map(_.valid).andR
+            val canPush = !slots.map(_.valid).andR && !flushInProgress
             pushCmd.ready := canPush
             
             val availableSlotsMask = slots.map(!_.valid).asBits
@@ -246,9 +262,12 @@ class LoadQueuePlugin(
             // --- 2-6. 队列头部的处理逻辑 (Store Forwarding, D-Cache, Completion, Pop) ---
             val head = slots(0)
             val headIsValid = head.valid
+            
+            // 使用 isSlotVisible 来控制对头部槽位的所有外部交互
+            val headIsVisible = head.valid && !(flushInProgress && isNewerOrSame(head.robPtr, flushTargetRobPtr))
 
             // --- Disambiguation ---
-            val headIsReadyForFwdQuery = headIsValid && !head.hasException &&
+            val headIsReadyForFwdQuery = headIsVisible && !head.hasException &&
                                          !head.isWaitingForFwdRsp && !head.isStalledByDependency &&
                                          !head.isWaitingForRsp && !head.isReadyForDCache
 
@@ -283,14 +302,14 @@ class LoadQueuePlugin(
             
             // --- Handle Early Exceptions ---
             // For instructions with early exceptions, skip forwarding and mark as ready for exception handling
-            when(headIsValid && head.hasException && !head.isReadyForDCache && !head.isWaitingForFwdRsp && !head.isWaitingForRsp) {
+            when(headIsVisible && head.hasException && !head.isReadyForDCache && !head.isWaitingForFwdRsp && !head.isWaitingForRsp) {
                 slotsAfterUpdates(0).isReadyForDCache := True
                 ParallaxSim.log(L"[LQ] Early exception for robPtr=${head.robPtr}, marking ready for exception handling")
             }
             
             // --- Cache/MMIO Interaction ---
             // 注意: isReadyForDCache 现在在入队时就设置好了，不再需要等待转发结果（除非转发失败）
-            val headIsReadyToExecute = headIsValid && head.isReadyForDCache && !head.isWaitingForRsp
+            val headIsReadyToExecute = headIsVisible && head.isReadyForDCache && !head.isWaitingForRsp
             
             // 如果正在等待转发响应，或者转发命中，则不应该发送到DCache/MMIO
             val shouldNotSendToMemory = head.isWaitingForFwdRsp || (head.isWaitingForFwdRsp && sbQueryPort.rsp.hit)
@@ -440,6 +459,23 @@ class LoadQueuePlugin(
                     slotsNext(i) := slotsAfterUpdates(i + 1)
                 }
                 slotsNext(lqDepth - 1).setDefault()
+            }
+            
+            // <<<<<<< 重构: 循环更新每个槽位，并确保冲刷优先 >>>>>>>
+            for(i <- 0 until lqDepth){
+                // 检查这个槽位是否在此周期被延迟的冲刷信号命中
+                val toBeFlushed = registeredFlush.valid && 
+                                  slots(i).valid && 
+                                  isNewerOrSame(slots(i).robPtr, registeredFlush.targetRobPtr)
+
+                // 优先处理冲刷
+                when(toBeFlushed) {
+                    // 如果要冲刷，则直接将槽位置为无效，忽略所有其他信号
+                    slotsNext(i).setDefault()
+                    ParallaxSim.log(L"[LQ] FLUSH (Exec): Invalidating slotIdx=${i} (robPtr=${slots(i).robPtr})")
+                }
+                // 注意：LoadQueue 不像 StoreBuffer 那样有明确的 commit 操作
+                // 所以这里不需要 .elsewhen 的特殊处理
             }
 
             // Final register update
