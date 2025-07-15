@@ -132,7 +132,8 @@ class SimpleFetchPipelinePlugin(
     ifuRspFifo.io.push << ifuPort.rsp
     unpacker.io.input << ifuRspFifo.io.pop
     val unpackedStream = unpacker.io.output
-    unpacker.io.output.payload.addAttribute("MARK_DEBUG","TRUE")
+    unpacker.io.output.payload.pc.addAttribute("MARK_DEBUG","TRUE")
+    unpacker.io.output.payload.instruction.addAttribute("MARK_DEBUG","TRUE")
     // Modified IDLE instruction handling: let IDLE instructions flow through pipeline
     // They will be handled at commit stage, not filtered at fetch stage
     val filteredStream = Stream(FetchedInstr(pCfg))

@@ -16,11 +16,11 @@ import parallax.utilities.ParallaxSim
 case class CommitStats(pCfg: PipelineConfig = null) extends Bundle with Formattable {
   private val cw = if (pCfg == null) 1 else pCfg.commitWidth
   val committedThisCycle = UInt(log2Up(cw + 1) bits)
-  val totalCommitted = UInt(32 bits) addAttribute("mark_debug", "true")
+  val totalCommitted = UInt(32 bits)
   val robFlushCount = UInt(32 bits)
   val physRegRecycled = UInt(32 bits)
-  val commitOOB = Bool() addAttribute("mark_debug", "true")  // Out-of-bounds commit detected
-  val maxCommitPc = UInt(32 bits) addAttribute("mark_debug", "true")  // Maximum PC committed so far
+  val commitOOB = Bool()  // Out-of-bounds commit detected
+  val maxCommitPc = UInt(32 bits)  // Maximum PC committed so far
 
   def format: Seq[Any] = {
     Seq(
@@ -118,8 +118,8 @@ class CommitPlugin(
   private val committedIdlePcReg = Reg(UInt(pipelineConfig.pcWidth))
   
   // PC tracking state
-  private val maxCommitPcReg = Reg(UInt(pipelineConfig.pcWidth)) init(0)
-  private val commitOOBReg = Reg(Bool()) init(False)
+  private val maxCommitPcReg = Reg(UInt(pipelineConfig.pcWidth)) init(0) addAttribute("mark_debug", "true")
+  private val commitOOBReg = Reg(Bool()) init(False) addAttribute("mark_debug", "true")
   
   override def setCommitEnable(enable: Bool): Unit = {
     commitEnableExt := enable
@@ -231,7 +231,7 @@ class CommitPlugin(
       val flushedThisCycle_comb = robFlushPort.valid.asUInt
       
       // === PC Tracking and OOB Detection ===
-      val commitPcs = Vec(UInt(pipelineConfig.pcWidth), pipelineConfig.commitWidth) addAttribute("mark_debug", "true")
+      val commitPcs = Vec(UInt(pipelineConfig.pcWidth), pipelineConfig.commitWidth)
       val anyCommitOOB = Bool()
       val maxCommitPcThisCycle = UInt(pipelineConfig.pcWidth)
       
