@@ -182,8 +182,75 @@ object LabHelper {
 }
 
 class LabSpec extends CustomSpinalSimFunSuite {
+  testOnly("Sequential Memory Write Test") {
+    val instructions = Seq(
+      // --- 初始化数据寄存器 (R12 = 0x10000000) ---
+      lu12i_w(rd = 12, imm = 0x10000000 >>> 12),
+      ori(rd = 12, rj = 12, imm = 0x10000000 & 0xfff),
 
-  testSkip("mem write test") {
+      // --- 初始化地址寄存器 (R13 = 0x80400000) ---
+      lu12i_w(rd = 13, imm = 0x80400000 >>> 12),
+      ori(rd = 13, rj = 13, imm = 0x80400000 & 0xfff),
+
+      // --- 循环写入10次 ---
+
+      // Iteration 1: Write 0x10000000 to 0x80400000
+      st_w(rd = 12, rj = 13, offset = 0),
+      addi_w(rd = 12, rj = 12, imm = 1), // Increment data: r12 = r12 + 1
+      addi_w(rd = 13, rj = 13, imm = 4), // Increment address: r13 = r13 + 4
+
+      // Iteration 2: Write 0x10000001 to 0x80400004
+      st_w(rd = 12, rj = 13, offset = 0),
+      addi_w(rd = 12, rj = 12, imm = 1),
+      addi_w(rd = 13, rj = 13, imm = 4),
+
+      // Iteration 3: Write 0x10000002 to 0x80400008
+      st_w(rd = 12, rj = 13, offset = 0),
+      addi_w(rd = 12, rj = 12, imm = 1),
+      addi_w(rd = 13, rj = 13, imm = 4),
+
+      // Iteration 4: Write 0x10000003 to 0x8040000C
+      st_w(rd = 12, rj = 13, offset = 0),
+      addi_w(rd = 12, rj = 12, imm = 1),
+      addi_w(rd = 13, rj = 13, imm = 4),
+
+      // Iteration 5: Write 0x10000004 to 0x80400010
+      st_w(rd = 12, rj = 13, offset = 0),
+      addi_w(rd = 12, rj = 12, imm = 1),
+      addi_w(rd = 13, rj = 13, imm = 4),
+
+      // Iteration 6: Write 0x10000005 to 0x80400014
+      st_w(rd = 12, rj = 13, offset = 0),
+      addi_w(rd = 12, rj = 12, imm = 1),
+      addi_w(rd = 13, rj = 13, imm = 4),
+
+      // Iteration 7: Write 0x10000006 to 0x80400018
+      st_w(rd = 12, rj = 13, offset = 0),
+      addi_w(rd = 12, rj = 12, imm = 1),
+      addi_w(rd = 13, rj = 13, imm = 4),
+
+      // Iteration 8: Write 0x10000007 to 0x8040001C
+      st_w(rd = 12, rj = 13, offset = 0),
+      addi_w(rd = 12, rj = 12, imm = 1),
+      addi_w(rd = 13, rj = 13, imm = 4),
+
+      // Iteration 9: Write 0x10000008 to 0x80400020
+      st_w(rd = 12, rj = 13, offset = 0),
+      addi_w(rd = 12, rj = 12, imm = 1),
+      addi_w(rd = 13, rj = 13, imm = 4),
+
+      // Iteration 10: Write 0x10000009 to 0x80400024
+      st_w(rd = 12, rj = 13, offset = 0),
+      // addi_w(rd = 12, rj = 12, imm = 1), // End of loop, no need to increment
+      // addi_w(rd = 13, rj = 13, imm = 4), // End of loop, no need to increment
+
+      // --- 停机 ---
+      bne(rj = 0, rd = 0, offset = 0)
+    )
+    LabHelper.dumpBinary(instructions, "bin/why_stopped.bin")
+  }
+
+  test("mem write test") {
     val instructions = Seq(
       // Load 0xdeadbeef into $t0 (R12)
       lu12i_w(rd = 12, imm = 0xdeadbeef >>> 12),
@@ -200,7 +267,7 @@ class LabSpec extends CustomSpinalSimFunSuite {
       bne(rj = 12, rd = 0, offset = 0) // bne $t0, $zero, 0 -> infinite loop since $t0 is not zero
     )
 
-    LabHelper.dumpBinary(instructions, "write_test.bin")
+    LabHelper.dumpBinary(instructions, "bin/write_test.bin")
 
     val compiled = SimConfig.withFstWave.compile(new LabTestBench(instructions))
 
@@ -270,7 +337,7 @@ test("Isolate Data Register r14") {
     // 停机
     bne(rj = 0, rd = 0, offset = 0)
   )
-    LabHelper.dumpBinary(instructions, "isolate_r14_test.bin")
+    LabHelper.dumpBinary(instructions, "bin/isolate_r14_test.bin")
 
   val compiled = SimConfig.withFstWave.compile(new LabTestBench(instructions))
   compiled.doSim { dut =>
@@ -312,7 +379,7 @@ test("Isolate Data Register r14") {
       bne(rj = 0, rd = 0, offset = 0)
     )
 
-    LabHelper.dumpBinary(instructions, "isolate_r4_test.bin")
+    LabHelper.dumpBinary(instructions, "bin/isolate_r4_test.bin")
 
     val compiled = SimConfig.withFstWave.compile(new LabTestBench(instructions))
     compiled.doSim { dut =>
@@ -365,7 +432,7 @@ test("Isolate Data Register r14") {
       bne(rj = 0, rd = 0, offset = 0) // bne $zero, $zero, . -> 无条件跳转到自身
     )
 
-    LabHelper.dumpBinary(instructions, "minimal_store_test.bin")
+    LabHelper.dumpBinary(instructions, "bin/minimal_store_test.bin")
 
     val compiled = SimConfig.withFstWave.compile(new LabTestBench(instructions))
 

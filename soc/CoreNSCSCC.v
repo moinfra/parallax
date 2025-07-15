@@ -1,12 +1,13 @@
 // Generator : SpinalHDL dev    git head : 3105a33b457518a7afeed8b0527b4d8b9dab2383
 // Component : CoreNSCSCC
-// Git hash  : 5c7e197d5650c934ee5176f26b142154f6421ae1
+// Git hash  : 75a169ebc7ce405531ed3b91d21e9a201c451e25
 
 `timescale 1ns/1ps
 
 module CoreNSCSCC (
   output wire [7:0]    io_dpy0,
   output wire [7:0]    io_dpy1,
+  output wire [15:0]   io_commit_counter,
   input  wire [31:0]   io_isram_dout,
   output wire [19:0]   io_isram_addr,
   output wire [31:0]   io_isram_din,
@@ -1320,19 +1321,19 @@ module CoreNSCSCC (
   wire                axi4WriteOnlyArbiter_5_io_output_b_ready;
   wire       [7:0]    _zz_io_triggerIn;
   wire       [0:0]    _zz_io_triggerIn_1;
-  wire       [7:0]    _zz_when_Debug_l67_13;
+  wire       [7:0]    _zz_when_Debug_l70_13;
   wire       [7:0]    _zz_io_triggerIn_2;
   wire       [4:0]    _zz_io_triggerIn_3;
-  wire       [7:0]    _zz_when_Debug_l67_1_1;
+  wire       [7:0]    _zz_when_Debug_l70_1_1;
   wire       [7:0]    _zz_io_triggerIn_4;
   wire       [4:0]    _zz_io_triggerIn_5;
-  wire       [7:0]    _zz_when_Debug_l67_2_1;
+  wire       [7:0]    _zz_when_Debug_l70_2_1;
   wire       [7:0]    _zz_io_triggerIn_6;
   wire       [4:0]    _zz_io_triggerIn_7;
-  wire       [7:0]    _zz_when_Debug_l67_3_1;
+  wire       [7:0]    _zz_when_Debug_l70_3_1;
   wire       [7:0]    _zz_io_triggerIn_8;
   wire       [4:0]    _zz_io_triggerIn_9;
-  wire       [7:0]    _zz_when_Debug_l67_4_1;
+  wire       [7:0]    _zz_when_Debug_l70_4_1;
   wire       [9:0]    _zz_BpuPipelinePlugin_logic_pht_port;
   wire       [7:0]    _zz_BpuPipelinePlugin_logic_btb_port;
   wire       [54:0]   _zz_BpuPipelinePlugin_logic_btb_port_1;
@@ -1347,7 +1348,7 @@ module CoreNSCSCC (
   wire       [31:0]   _zz_CommitPlugin_commitStatsReg_robFlushCount;
   wire       [7:0]    _zz_io_triggerIn_10;
   wire       [4:0]    _zz_io_triggerIn_11;
-  wire       [7:0]    _zz_when_Debug_l67_5_1;
+  wire       [7:0]    _zz_when_Debug_l70_5_1;
   wire       [31:0]   _zz_CommitPlugin_logic_fwd_totalCommitted;
   wire       [31:0]   _zz_CommitPlugin_logic_fwd_physRegRecycled;
   wire       [31:0]   _zz_CommitPlugin_logic_fwd_robFlushCount;
@@ -1357,7 +1358,7 @@ module CoreNSCSCC (
   wire       [0:0]    _zz_RenamePlugin_logic_branchCount_1;
   wire       [7:0]    _zz_io_triggerIn_12;
   wire       [4:0]    _zz_io_triggerIn_13;
-  wire       [7:0]    _zz_when_Debug_l67_6_1;
+  wire       [7:0]    _zz_when_Debug_l70_6_1;
   wire                _zz_DispatchPlugin_logic_dispatchOH;
   wire                _zz_DispatchPlugin_logic_dispatchOH_1;
   wire                _zz_DispatchPlugin_logic_dispatchOH_2;
@@ -1368,7 +1369,7 @@ module CoreNSCSCC (
   wire       [1:0]    _zz_AluIntEU_AluIntEuPlugin_euResult_exceptionCode;
   wire       [7:0]    _zz_io_triggerIn_14;
   wire       [4:0]    _zz_io_triggerIn_15;
-  wire       [7:0]    _zz_when_Debug_l67_7_1;
+  wire       [7:0]    _zz_when_Debug_l70_7_1;
   wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken;
   wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1;
   wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_2;
@@ -1384,16 +1385,16 @@ module CoreNSCSCC (
   wire       [31:0]   _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_4;
   wire       [7:0]    _zz_io_triggerIn_16;
   wire       [4:0]    _zz_io_triggerIn_17;
-  wire       [7:0]    _zz_when_Debug_l67_8_1;
+  wire       [7:0]    _zz_when_Debug_l70_8_1;
   wire       [7:0]    _zz_io_triggerIn_18;
   wire       [4:0]    _zz_io_triggerIn_19;
-  wire       [7:0]    _zz_when_Debug_l67_9_1;
+  wire       [7:0]    _zz_when_Debug_l70_9_1;
   wire       [7:0]    _zz_io_triggerIn_20;
   wire       [4:0]    _zz_io_triggerIn_21;
-  wire       [7:0]    _zz_when_Debug_l67_10_1;
+  wire       [7:0]    _zz_when_Debug_l70_10_1;
   wire       [7:0]    _zz_io_triggerIn_22;
   wire       [4:0]    _zz_io_triggerIn_23;
-  wire       [7:0]    _zz_when_Debug_l67_11_1;
+  wire       [7:0]    _zz_when_Debug_l70_11_1;
   wire       [31:0]   _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException_2;
   wire       [3:0]    _zz_LoadQueuePlugin_logic_loadQueue_pushOh;
   wire       [3:0]    _zz__zz_when_PhysicalRegFile_l141_3;
@@ -2105,7 +2106,7 @@ module CoreNSCSCC (
   wire                CheckpointManagerPlugin_restoreCheckpointTrigger;
   wire                CommitPlugin_commitEnableExt;
   reg        [0:0]    CommitPlugin_commitStatsReg_committedThisCycle;
-  reg        [31:0]   CommitPlugin_commitStatsReg_totalCommitted;
+  (* mark_debug = "true" *) reg        [31:0]   CommitPlugin_commitStatsReg_totalCommitted;
   reg        [31:0]   CommitPlugin_commitStatsReg_robFlushCount;
   reg        [31:0]   CommitPlugin_commitStatsReg_physRegRecycled;
   reg                 CommitPlugin_committedIdleReg;
@@ -2215,7 +2216,7 @@ module CoreNSCSCC (
   reg                 LsuEU_LsuEuPlugin_euResult_destIsFpr;
   wire       [4:0]    DispatchPlugin_logic_iqRegs_2_0_0;
   wire       [4:0]    DispatchPlugin_logic_iqRegs_2_0_1;
-  reg        [7:0]    _zz_when_Debug_l67;
+  reg        [7:0]    _zz_when_Debug_l70;
   wire                DataCachePlugin_setup_writebackBusy;
   wire       [1:0]    DataCachePlugin_setup_refillCompletions;
   wire                DataCachePlugin_setup_dcacheMaster_aw_valid;
@@ -2294,8 +2295,8 @@ module CoreNSCSCC (
   wire       [31:0]   io_mem_toAxi4_w_payload_fragment_address;
   wire       [31:0]   io_mem_toAxi4_w_payload_fragment_data;
   wire       [0:0]    io_mem_toAxi4_w_payload_fragment_id;
-  wire       [0:0]    _zz_when_Debug_l67_1;
-  wire                when_Debug_l67;
+  wire       [0:0]    _zz_when_Debug_l70_1;
+  wire                when_Debug_l70;
   wire                IFUPlugin_setup_ifuDCacheLoadPort_cmd_valid;
   wire                IFUPlugin_setup_ifuDCacheLoadPort_cmd_ready;
   wire       [31:0]   IFUPlugin_setup_ifuDCacheLoadPort_cmd_payload_virtual;
@@ -2339,17 +2340,17 @@ module CoreNSCSCC (
   reg                 _zz_s3_Dispatch_valid;
   reg                 s3_Dispatch_valid;
   wire                s0_Decode_isFiring;
-  wire       [4:0]    _zz_when_Debug_l67_2;
-  wire                when_Debug_l67_1;
+  wire       [4:0]    _zz_when_Debug_l70_2;
+  wire                when_Debug_l70_1;
   wire                s1_Rename_isFiring;
-  wire       [4:0]    _zz_when_Debug_l67_3;
-  wire                when_Debug_l67_2;
+  wire       [4:0]    _zz_when_Debug_l70_3;
+  wire                when_Debug_l70_2;
   wire                s2_RobAlloc_isFiring;
-  wire       [4:0]    _zz_when_Debug_l67_4;
-  wire                when_Debug_l67_3;
+  wire       [4:0]    _zz_when_Debug_l70_4;
+  wire                when_Debug_l70_3;
   wire                s3_Dispatch_isFiring;
-  wire       [4:0]    _zz_when_Debug_l67_5;
-  wire                when_Debug_l67_4;
+  wire       [4:0]    _zz_when_Debug_l70_5;
+  wire                when_Debug_l70_4;
   wire                CommitPlugin_hw_fetchDisable;
   reg                 CommitPlugin_hw_robFlushPort_valid;
   reg        [1:0]    CommitPlugin_hw_robFlushPort_payload_reason;
@@ -2600,10 +2601,10 @@ module CoreNSCSCC (
   wire       [0:0]    CommitPlugin_logic_committedThisCycle_comb;
   wire       [0:0]    CommitPlugin_logic_recycledThisCycle_comb;
   wire       [0:0]    CommitPlugin_logic_flushedThisCycle_comb;
-  wire       [4:0]    _zz_when_Debug_l67_6;
-  wire                when_Debug_l67_5;
+  wire       [4:0]    _zz_when_Debug_l70_6;
+  wire                when_Debug_l70_5;
   wire       [0:0]    CommitPlugin_logic_fwd_committedThisCycle;
-  wire       [31:0]   CommitPlugin_logic_fwd_totalCommitted;
+  (* mark_debug = "true" *) wire       [31:0]   CommitPlugin_logic_fwd_totalCommitted;
   wire       [31:0]   CommitPlugin_logic_fwd_robFlushCount;
   wire       [31:0]   CommitPlugin_logic_fwd_physRegRecycled;
   wire                _zz_9;
@@ -3507,8 +3508,8 @@ module CoreNSCSCC (
   wire                LsuEU_LsuEuPlugin_euInputPort_payload_usePc;
   wire       [31:0]   LsuEU_LsuEuPlugin_euInputPort_payload_pcData;
   wire                LsuEU_LsuEuPlugin_euInputPort_fire;
-  wire       [4:0]    _zz_when_Debug_l67_7;
-  wire                when_Debug_l67_6;
+  wire       [4:0]    _zz_when_Debug_l70_7;
+  wire                when_Debug_l70_6;
   wire                DispatchPlugin_logic_physSrc1ConflictS1;
   wire                DispatchPlugin_logic_physSrc1ConflictS2;
   wire                DispatchPlugin_logic_physSrc2ConflictS1;
@@ -3544,8 +3545,8 @@ module CoreNSCSCC (
   wire       [1:0]    _zz_12;
   wire       [2:0]    _zz_13;
   wire                AluIntEU_AluIntEuPlugin_logicPhase_completesSuccessfully;
-  wire       [4:0]    _zz_when_Debug_l67_8;
-  wire                when_Debug_l67_7;
+  wire       [4:0]    _zz_when_Debug_l70_8;
+  wire                when_Debug_l70_7;
   wire                AluIntEU_AluIntEuPlugin_gprWritePort_valid;
   wire       [5:0]    AluIntEU_AluIntEuPlugin_gprWritePort_address;
   wire       [31:0]   AluIntEU_AluIntEuPlugin_gprWritePort_data;
@@ -3579,8 +3580,8 @@ module CoreNSCSCC (
   wire                when_BranchEuPlugin_l234;
   wire       [3:0]    _zz_14;
   wire                BranchEU_BranchEuPlugin_logicPhase_completesSuccessfully;
-  wire       [4:0]    _zz_when_Debug_l67_9;
-  wire                when_Debug_l67_8;
+  wire       [4:0]    _zz_when_Debug_l70_9;
+  wire                when_Debug_l70_8;
   wire                BranchEU_BranchEuPlugin_gprWritePort_valid;
   wire       [5:0]    BranchEU_BranchEuPlugin_gprWritePort_address;
   wire       [31:0]   BranchEU_BranchEuPlugin_gprWritePort_data;
@@ -3672,8 +3673,8 @@ module CoreNSCSCC (
   wire                StoreBufferPlugin_hw_pushPortInst_fire;
   wire                when_LsuEuPlugin_l142;
   wire                LsuEU_LsuEuPlugin_logicPhase_completesSuccessfully;
-  wire       [4:0]    _zz_when_Debug_l67_10;
-  wire                when_Debug_l67_9;
+  wire       [4:0]    _zz_when_Debug_l70_10;
+  wire                when_Debug_l70_9;
   wire                LsuEU_LsuEuPlugin_gprWritePort_valid;
   wire       [5:0]    LsuEU_LsuEuPlugin_gprWritePort_address;
   wire       [31:0]   LsuEU_LsuEuPlugin_gprWritePort_data;
@@ -3741,11 +3742,11 @@ module CoreNSCSCC (
   wire                SimpleFetchPipelinePlugin_logic_doSoftRedirect;
   wire       [31:0]   SimpleFetchPipelinePlugin_logic_softRedirectTarget;
   wire                SimpleFetchPipelinePlugin_logic_fetchDisable;
-  wire       [4:0]    _zz_when_Debug_l67_11;
-  wire                when_Debug_l67_10;
+  wire       [4:0]    _zz_when_Debug_l70_11;
+  wire                when_Debug_l70_10;
   wire                SimpleFetchPipelinePlugin_logic_ifuPort_cmd_fire;
-  wire       [4:0]    _zz_when_Debug_l67_12;
-  wire                when_Debug_l67_11;
+  wire       [4:0]    _zz_when_Debug_l70_12;
+  wire                when_Debug_l70_11;
   wire                SimpleFetchPipelinePlugin_logic_fsm_wantExit;
   reg                 SimpleFetchPipelinePlugin_logic_fsm_wantStart;
   wire                SimpleFetchPipelinePlugin_logic_fsm_wantKill;
@@ -5155,25 +5156,25 @@ module CoreNSCSCC (
 
   assign _zz_io_triggerIn_1 = 1'b1;
   assign _zz_io_triggerIn = {7'd0, _zz_io_triggerIn_1};
-  assign _zz_when_Debug_l67_13 = {7'd0, _zz_when_Debug_l67_1};
+  assign _zz_when_Debug_l70_13 = {7'd0, _zz_when_Debug_l70_1};
   assign _zz_io_triggerIn_3 = 5'h13;
   assign _zz_io_triggerIn_2 = {3'd0, _zz_io_triggerIn_3};
-  assign _zz_when_Debug_l67_1_1 = {3'd0, _zz_when_Debug_l67_2};
+  assign _zz_when_Debug_l70_1_1 = {3'd0, _zz_when_Debug_l70_2};
   assign _zz_io_triggerIn_5 = 5'h15;
   assign _zz_io_triggerIn_4 = {3'd0, _zz_io_triggerIn_5};
-  assign _zz_when_Debug_l67_2_1 = {3'd0, _zz_when_Debug_l67_3};
+  assign _zz_when_Debug_l70_2_1 = {3'd0, _zz_when_Debug_l70_3};
   assign _zz_io_triggerIn_7 = 5'h14;
   assign _zz_io_triggerIn_6 = {3'd0, _zz_io_triggerIn_7};
-  assign _zz_when_Debug_l67_3_1 = {3'd0, _zz_when_Debug_l67_4};
+  assign _zz_when_Debug_l70_3_1 = {3'd0, _zz_when_Debug_l70_4};
   assign _zz_io_triggerIn_9 = 5'h16;
   assign _zz_io_triggerIn_8 = {3'd0, _zz_io_triggerIn_9};
-  assign _zz_when_Debug_l67_4_1 = {3'd0, _zz_when_Debug_l67_5};
+  assign _zz_when_Debug_l70_4_1 = {3'd0, _zz_when_Debug_l70_5};
   assign _zz_CommitPlugin_commitStatsReg_totalCommitted = {31'd0, CommitPlugin_logic_committedThisCycle_comb};
   assign _zz_CommitPlugin_commitStatsReg_physRegRecycled = {31'd0, CommitPlugin_logic_recycledThisCycle_comb};
   assign _zz_CommitPlugin_commitStatsReg_robFlushCount = {31'd0, CommitPlugin_logic_flushedThisCycle_comb};
   assign _zz_io_triggerIn_11 = 5'h19;
   assign _zz_io_triggerIn_10 = {3'd0, _zz_io_triggerIn_11};
-  assign _zz_when_Debug_l67_5_1 = {3'd0, _zz_when_Debug_l67_6};
+  assign _zz_when_Debug_l70_5_1 = {3'd0, _zz_when_Debug_l70_6};
   assign _zz_CommitPlugin_logic_fwd_totalCommitted = {31'd0, CommitPlugin_logic_committedThisCycle_comb};
   assign _zz_CommitPlugin_logic_fwd_physRegRecycled = {31'd0, CommitPlugin_logic_recycledThisCycle_comb};
   assign _zz_CommitPlugin_logic_fwd_robFlushCount = {31'd0, CommitPlugin_logic_flushedThisCycle_comb};
@@ -5181,11 +5182,11 @@ module CoreNSCSCC (
   assign _zz_RenamePlugin_logic_notEnoughPhysRegs = {6'd0, _zz_RenamePlugin_logic_notEnoughPhysRegs_1};
   assign _zz_io_triggerIn_13 = 5'h17;
   assign _zz_io_triggerIn_12 = {3'd0, _zz_io_triggerIn_13};
-  assign _zz_when_Debug_l67_6_1 = {3'd0, _zz_when_Debug_l67_7};
+  assign _zz_when_Debug_l70_6_1 = {3'd0, _zz_when_Debug_l70_7};
   assign _zz_AluIntEU_AluIntEuPlugin_euResult_exceptionCode = AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_exceptionCode;
   assign _zz_io_triggerIn_15 = 5'h18;
   assign _zz_io_triggerIn_14 = {3'd0, _zz_io_triggerIn_15};
-  assign _zz_when_Debug_l67_7_1 = {3'd0, _zz_when_Debug_l67_8};
+  assign _zz_when_Debug_l70_7_1 = {3'd0, _zz_when_Debug_l70_8};
   assign _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken = BranchEU_BranchEuPlugin_gprReadPorts_0_rsp;
   assign _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1 = BranchEU_BranchEuPlugin_gprReadPorts_1_rsp;
   assign _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_2 = BranchEU_BranchEuPlugin_gprReadPorts_1_rsp;
@@ -5201,16 +5202,16 @@ module CoreNSCSCC (
   assign _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_4 = _zz_BranchEU_BranchEuPlugin_euResult_uop_imm;
   assign _zz_io_triggerIn_17 = 5'h18;
   assign _zz_io_triggerIn_16 = {3'd0, _zz_io_triggerIn_17};
-  assign _zz_when_Debug_l67_8_1 = {3'd0, _zz_when_Debug_l67_9};
+  assign _zz_when_Debug_l70_8_1 = {3'd0, _zz_when_Debug_l70_9};
   assign _zz_io_triggerIn_19 = 5'h18;
   assign _zz_io_triggerIn_18 = {3'd0, _zz_io_triggerIn_19};
-  assign _zz_when_Debug_l67_9_1 = {3'd0, _zz_when_Debug_l67_10};
+  assign _zz_when_Debug_l70_9_1 = {3'd0, _zz_when_Debug_l70_10};
   assign _zz_io_triggerIn_21 = 5'h11;
   assign _zz_io_triggerIn_20 = {3'd0, _zz_io_triggerIn_21};
-  assign _zz_when_Debug_l67_10_1 = {3'd0, _zz_when_Debug_l67_11};
+  assign _zz_when_Debug_l70_10_1 = {3'd0, _zz_when_Debug_l70_11};
   assign _zz_io_triggerIn_23 = 5'h12;
   assign _zz_io_triggerIn_22 = {3'd0, _zz_io_triggerIn_23};
-  assign _zz_when_Debug_l67_11_1 = {3'd0, _zz_when_Debug_l67_12};
+  assign _zz_when_Debug_l70_11_1 = {3'd0, _zz_when_Debug_l70_12};
   assign _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException_2 = {29'd0, _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException_1};
   assign _zz_LoadQueuePlugin_logic_loadQueue_pushOh = ((~ LoadQueuePlugin_logic_loadQueue_availableSlotsMask) + 4'b0001);
   assign _zz__zz_when_PhysicalRegFile_l141_3 = (_zz_when_PhysicalRegFile_l141_2 - 4'b0001);
@@ -6063,7 +6064,7 @@ module CoreNSCSCC (
     .reset                                                    (reset                                                                                        )  //i
   );
   EightSegmentDisplayController DebugDisplayPlugin_hw_dpyController (
-    .io_value    (_zz_when_Debug_l67[7:0]                             ), //i
+    .io_value    (_zz_when_Debug_l70[7:0]                             ), //i
     .io_dp0      (DebugDisplayPlugin_hw_dpyController_io_dp0          ), //i
     .io_dp1      (DebugDisplayPlugin_logic_displayArea_dpToggle       ), //i
     .io_dpy0_out (DebugDisplayPlugin_hw_dpyController_io_dpy0_out[7:0]), //o
@@ -12500,25 +12501,25 @@ module CoreNSCSCC (
   assign io_mem_toAxi4_w_ready = DataCachePlugin_setup_dcacheMaster_w_ready;
   assign DataCachePlugin_setup_cache_io_mem_write_rsp_payload_error = (! (DataCachePlugin_setup_dcacheMaster_b_payload_resp == 2'b00));
   assign DataCachePlugin_setup_dcacheMaster_b_ready = 1'b1;
-  assign oneShot_12_io_triggerIn = (1'b1 && (_zz_when_Debug_l67 < _zz_io_triggerIn));
-  assign _zz_when_Debug_l67_1 = 1'b1;
-  assign when_Debug_l67 = (_zz_when_Debug_l67 < _zz_when_Debug_l67_13);
+  assign oneShot_12_io_triggerIn = (1'b1 && (_zz_when_Debug_l70 < _zz_io_triggerIn));
+  assign _zz_when_Debug_l70_1 = 1'b1;
+  assign when_Debug_l70 = (_zz_when_Debug_l70 < _zz_when_Debug_l70_13);
   assign s0_Decode_isFiring = (s0_Decode_valid && s0_Decode_ready);
-  assign oneShot_13_io_triggerIn = (s0_Decode_isFiring && (_zz_when_Debug_l67 < _zz_io_triggerIn_2));
-  assign _zz_when_Debug_l67_2 = 5'h13;
-  assign when_Debug_l67_1 = (_zz_when_Debug_l67 < _zz_when_Debug_l67_1_1);
+  assign oneShot_13_io_triggerIn = (s0_Decode_isFiring && (_zz_when_Debug_l70 < _zz_io_triggerIn_2));
+  assign _zz_when_Debug_l70_2 = 5'h13;
+  assign when_Debug_l70_1 = (_zz_when_Debug_l70 < _zz_when_Debug_l70_1_1);
   assign s1_Rename_isFiring = (s1_Rename_valid && s1_Rename_ready);
-  assign oneShot_14_io_triggerIn = (s1_Rename_isFiring && (_zz_when_Debug_l67 < _zz_io_triggerIn_4));
-  assign _zz_when_Debug_l67_3 = 5'h15;
-  assign when_Debug_l67_2 = (_zz_when_Debug_l67 < _zz_when_Debug_l67_2_1);
+  assign oneShot_14_io_triggerIn = (s1_Rename_isFiring && (_zz_when_Debug_l70 < _zz_io_triggerIn_4));
+  assign _zz_when_Debug_l70_3 = 5'h15;
+  assign when_Debug_l70_2 = (_zz_when_Debug_l70 < _zz_when_Debug_l70_2_1);
   assign s2_RobAlloc_isFiring = (s2_RobAlloc_valid && s2_RobAlloc_ready);
-  assign oneShot_15_io_triggerIn = (s2_RobAlloc_isFiring && (_zz_when_Debug_l67 < _zz_io_triggerIn_6));
-  assign _zz_when_Debug_l67_4 = 5'h14;
-  assign when_Debug_l67_3 = (_zz_when_Debug_l67 < _zz_when_Debug_l67_3_1);
+  assign oneShot_15_io_triggerIn = (s2_RobAlloc_isFiring && (_zz_when_Debug_l70 < _zz_io_triggerIn_6));
+  assign _zz_when_Debug_l70_4 = 5'h14;
+  assign when_Debug_l70_3 = (_zz_when_Debug_l70 < _zz_when_Debug_l70_3_1);
   assign s3_Dispatch_isFiring = (s3_Dispatch_valid && s3_Dispatch_ready);
-  assign oneShot_16_io_triggerIn = (s3_Dispatch_isFiring && (_zz_when_Debug_l67 < _zz_io_triggerIn_8));
-  assign _zz_when_Debug_l67_5 = 5'h16;
-  assign when_Debug_l67_4 = (_zz_when_Debug_l67 < _zz_when_Debug_l67_4_1);
+  assign oneShot_16_io_triggerIn = (s3_Dispatch_isFiring && (_zz_when_Debug_l70 < _zz_io_triggerIn_8));
+  assign _zz_when_Debug_l70_5 = 5'h16;
+  assign when_Debug_l70_4 = (_zz_when_Debug_l70 < _zz_when_Debug_l70_4_1);
   assign BpuPipelinePlugin_logic_s1_read_valid = BpuPipelinePlugin_queryPortIn_valid;
   assign BpuPipelinePlugin_logic_s1_read_Q_PC = BpuPipelinePlugin_queryPortIn_payload_pc;
   assign BpuPipelinePlugin_logic_s1_read_TRANSACTION_ID = BpuPipelinePlugin_queryPortIn_payload_transactionId;
@@ -12669,9 +12670,9 @@ module CoreNSCSCC (
   assign CommitPlugin_logic_committedThisCycle_comb = _zz_CommitPlugin_logic_committedThisCycle_comb;
   assign CommitPlugin_logic_recycledThisCycle_comb = _zz_CommitPlugin_logic_recycledThisCycle_comb;
   assign CommitPlugin_logic_flushedThisCycle_comb = CommitPlugin_hw_robFlushPort_valid;
-  assign oneShot_17_io_triggerIn = (CommitPlugin_logic_committedThisCycle_comb[0] && (_zz_when_Debug_l67 < _zz_io_triggerIn_10));
-  assign _zz_when_Debug_l67_6 = 5'h19;
-  assign when_Debug_l67_5 = (_zz_when_Debug_l67 < _zz_when_Debug_l67_5_1);
+  assign oneShot_17_io_triggerIn = (CommitPlugin_logic_committedThisCycle_comb[0] && (_zz_when_Debug_l70 < _zz_io_triggerIn_10));
+  assign _zz_when_Debug_l70_6 = 5'h19;
+  assign when_Debug_l70_5 = (_zz_when_Debug_l70 < _zz_when_Debug_l70_5_1);
   assign CommitPlugin_logic_fwd_committedThisCycle = CommitPlugin_logic_committedThisCycle_comb;
   assign CommitPlugin_logic_fwd_totalCommitted = (CommitPlugin_commitStatsReg_totalCommitted + _zz_CommitPlugin_logic_fwd_totalCommitted);
   assign CommitPlugin_logic_fwd_physRegRecycled = (CommitPlugin_commitStatsReg_physRegRecycled + _zz_CommitPlugin_logic_fwd_physRegRecycled);
@@ -13596,9 +13597,9 @@ module CoreNSCSCC (
   assign LsuEU_LsuEuPlugin_euInputPort_payload_usePc = issueQueueComponent_5_io_issueOut_payload_usePc;
   assign LsuEU_LsuEuPlugin_euInputPort_payload_pcData = issueQueueComponent_5_io_issueOut_payload_pcData;
   assign LsuEU_LsuEuPlugin_euInputPort_fire = (LsuEU_LsuEuPlugin_euInputPort_valid && LsuEU_LsuEuPlugin_euInputPort_ready);
-  assign oneShot_18_io_triggerIn = (AluIntEU_AluIntEuPlugin_euInputPort_fire && (_zz_when_Debug_l67 < _zz_io_triggerIn_12));
-  assign _zz_when_Debug_l67_7 = 5'h17;
-  assign when_Debug_l67_6 = (_zz_when_Debug_l67 < _zz_when_Debug_l67_6_1);
+  assign oneShot_18_io_triggerIn = (AluIntEU_AluIntEuPlugin_euInputPort_fire && (_zz_when_Debug_l70 < _zz_io_triggerIn_12));
+  assign _zz_when_Debug_l70_7 = 5'h17;
+  assign when_Debug_l70_6 = (_zz_when_Debug_l70 < _zz_when_Debug_l70_6_1);
   assign DispatchPlugin_logic_physSrc1ConflictS1 = ((s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isValid && s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_allocatesPhysDest) && (s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physDest_idx == s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc1_idx));
   assign DispatchPlugin_logic_physSrc1ConflictS2 = ((s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isValid && s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_allocatesPhysDest) && (s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physDest_idx == s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc1_idx));
   assign DispatchPlugin_logic_physSrc2ConflictS1 = ((s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isValid && s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_allocatesPhysDest) && (s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physDest_idx == s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2_idx));
@@ -16051,9 +16052,9 @@ module CoreNSCSCC (
   assign s1_ReadRegs_ready = 1'b1;
   assign s2_Execute_ready = 1'b1;
   assign AluIntEU_AluIntEuPlugin_logicPhase_completesSuccessfully = (AluIntEU_AluIntEuPlugin_euResult_valid && (! AluIntEU_AluIntEuPlugin_euResult_hasException));
-  assign oneShot_19_io_triggerIn = (AluIntEU_AluIntEuPlugin_euResult_valid && (_zz_when_Debug_l67 < _zz_io_triggerIn_14));
-  assign _zz_when_Debug_l67_8 = 5'h18;
-  assign when_Debug_l67_7 = (_zz_when_Debug_l67 < _zz_when_Debug_l67_7_1);
+  assign oneShot_19_io_triggerIn = (AluIntEU_AluIntEuPlugin_euResult_valid && (_zz_when_Debug_l70 < _zz_io_triggerIn_14));
+  assign _zz_when_Debug_l70_8 = 5'h18;
+  assign when_Debug_l70_7 = (_zz_when_Debug_l70 < _zz_when_Debug_l70_7_1);
   assign AluIntEU_AluIntEuPlugin_gprWritePort_valid = ((AluIntEU_AluIntEuPlugin_logicPhase_completesSuccessfully && AluIntEU_AluIntEuPlugin_euResult_writesToPreg) && (! AluIntEU_AluIntEuPlugin_euResult_destIsFpr));
   assign AluIntEU_AluIntEuPlugin_gprWritePort_address = AluIntEU_AluIntEuPlugin_euResult_uop_physDest_idx;
   assign AluIntEU_AluIntEuPlugin_gprWritePort_data = AluIntEU_AluIntEuPlugin_euResult_data;
@@ -16247,9 +16248,9 @@ module CoreNSCSCC (
   assign s0_Dispatch_ready = 1'b1;
   assign s1_Resolve_ready = 1'b1;
   assign BranchEU_BranchEuPlugin_logicPhase_completesSuccessfully = (BranchEU_BranchEuPlugin_euResult_valid && (! BranchEU_BranchEuPlugin_euResult_hasException));
-  assign oneShot_20_io_triggerIn = (BranchEU_BranchEuPlugin_euResult_valid && (_zz_when_Debug_l67 < _zz_io_triggerIn_16));
-  assign _zz_when_Debug_l67_9 = 5'h18;
-  assign when_Debug_l67_8 = (_zz_when_Debug_l67 < _zz_when_Debug_l67_8_1);
+  assign oneShot_20_io_triggerIn = (BranchEU_BranchEuPlugin_euResult_valid && (_zz_when_Debug_l70 < _zz_io_triggerIn_16));
+  assign _zz_when_Debug_l70_9 = 5'h18;
+  assign when_Debug_l70_8 = (_zz_when_Debug_l70 < _zz_when_Debug_l70_8_1);
   assign BranchEU_BranchEuPlugin_gprWritePort_valid = ((BranchEU_BranchEuPlugin_logicPhase_completesSuccessfully && BranchEU_BranchEuPlugin_euResult_writesToPreg) && (! BranchEU_BranchEuPlugin_euResult_destIsFpr));
   assign BranchEU_BranchEuPlugin_gprWritePort_address = BranchEU_BranchEuPlugin_euResult_uop_physDest_idx;
   assign BranchEU_BranchEuPlugin_gprWritePort_data = BranchEU_BranchEuPlugin_euResult_data;
@@ -16379,9 +16380,9 @@ module CoreNSCSCC (
   assign StoreBufferPlugin_hw_pushPortInst_fire = (StoreBufferPlugin_hw_pushPortInst_valid && StoreBufferPlugin_hw_pushPortInst_ready);
   assign when_LsuEuPlugin_l142 = (LsuEU_LsuEuPlugin_hw_lqPushPort_fire || StoreBufferPlugin_hw_pushPortInst_fire);
   assign LsuEU_LsuEuPlugin_logicPhase_completesSuccessfully = (LsuEU_LsuEuPlugin_euResult_valid && (! LsuEU_LsuEuPlugin_euResult_hasException));
-  assign oneShot_21_io_triggerIn = (LsuEU_LsuEuPlugin_euResult_valid && (_zz_when_Debug_l67 < _zz_io_triggerIn_18));
-  assign _zz_when_Debug_l67_10 = 5'h18;
-  assign when_Debug_l67_9 = (_zz_when_Debug_l67 < _zz_when_Debug_l67_9_1);
+  assign oneShot_21_io_triggerIn = (LsuEU_LsuEuPlugin_euResult_valid && (_zz_when_Debug_l70 < _zz_io_triggerIn_18));
+  assign _zz_when_Debug_l70_10 = 5'h18;
+  assign when_Debug_l70_9 = (_zz_when_Debug_l70 < _zz_when_Debug_l70_9_1);
   assign LsuEU_LsuEuPlugin_gprWritePort_valid = ((LsuEU_LsuEuPlugin_logicPhase_completesSuccessfully && LsuEU_LsuEuPlugin_euResult_writesToPreg) && (! LsuEU_LsuEuPlugin_euResult_destIsFpr));
   assign LsuEU_LsuEuPlugin_gprWritePort_address = LsuEU_LsuEuPlugin_euResult_uop_physDest_idx;
   assign LsuEU_LsuEuPlugin_gprWritePort_data = LsuEU_LsuEuPlugin_euResult_data;
@@ -16536,13 +16537,13 @@ module CoreNSCSCC (
   assign SimpleFetchPipelinePlugin_logic_doSoftRedirect = (SimpleFetchPipelinePlugin_logic_doBpuRedirect || SimpleFetchPipelinePlugin_logic_doJumpRedirect);
   assign SimpleFetchPipelinePlugin_logic_softRedirectTarget = (SimpleFetchPipelinePlugin_logic_doBpuRedirect ? BpuPipelinePlugin_responseFlowOut_payload_target : SimpleFetchPipelinePlugin_logic_jumpTarget);
   assign SimpleFetchPipelinePlugin_logic_fetchDisable = (|CommitPlugin_hw_fetchDisable);
-  assign oneShot_22_io_triggerIn = (SimpleFetchPipelinePlugin_logic_ifuPort_cmd_valid && (_zz_when_Debug_l67 < _zz_io_triggerIn_20));
-  assign _zz_when_Debug_l67_11 = 5'h11;
-  assign when_Debug_l67_10 = (_zz_when_Debug_l67 < _zz_when_Debug_l67_10_1);
+  assign oneShot_22_io_triggerIn = (SimpleFetchPipelinePlugin_logic_ifuPort_cmd_valid && (_zz_when_Debug_l70 < _zz_io_triggerIn_20));
+  assign _zz_when_Debug_l70_11 = 5'h11;
+  assign when_Debug_l70_10 = (_zz_when_Debug_l70 < _zz_when_Debug_l70_10_1);
   assign SimpleFetchPipelinePlugin_logic_ifuPort_cmd_fire = (SimpleFetchPipelinePlugin_logic_ifuPort_cmd_valid && SimpleFetchPipelinePlugin_logic_ifuPort_cmd_ready);
-  assign oneShot_23_io_triggerIn = (SimpleFetchPipelinePlugin_logic_ifuPort_cmd_fire && (_zz_when_Debug_l67 < _zz_io_triggerIn_22));
-  assign _zz_when_Debug_l67_12 = 5'h12;
-  assign when_Debug_l67_11 = (_zz_when_Debug_l67 < _zz_when_Debug_l67_11_1);
+  assign oneShot_23_io_triggerIn = (SimpleFetchPipelinePlugin_logic_ifuPort_cmd_fire && (_zz_when_Debug_l70 < _zz_io_triggerIn_22));
+  assign _zz_when_Debug_l70_12 = 5'h12;
+  assign when_Debug_l70_11 = (_zz_when_Debug_l70 < _zz_when_Debug_l70_11_1);
   assign SimpleFetchPipelinePlugin_logic_fsm_wantExit = 1'b0;
   always @(*) begin
     SimpleFetchPipelinePlugin_logic_fsm_wantStart = 1'b0;
@@ -20787,6 +20788,7 @@ module CoreNSCSCC (
   assign axi4WriteOnlyArbiter_5_io_inputs_2_aw_payload_id = {1'd0, io_outputs_2_aw_validPipe_payload_id_2};
   assign io_dpy0 = DebugDisplayPlugin_hw_dpyController_io_dpy0_out;
   assign io_dpy1 = DebugDisplayPlugin_hw_dpyController_io_dpy1_out;
+  assign io_commit_counter = CommitPlugin_logic_fwd_totalCommitted[15:0];
   always @(*) begin
     SimpleFetchPipelinePlugin_logic_fsm_stateNext = SimpleFetchPipelinePlugin_logic_fsm_stateReg;
     case(SimpleFetchPipelinePlugin_logic_fsm_stateReg)
@@ -20865,7 +20867,7 @@ module CoreNSCSCC (
       CommitPlugin_commitStatsReg_robFlushCount <= 32'h0;
       CommitPlugin_commitStatsReg_physRegRecycled <= 32'h0;
       CommitPlugin_committedIdleReg <= 1'b0;
-      _zz_when_Debug_l67 <= 8'h0;
+      _zz_when_Debug_l70 <= 8'h0;
       io_mem_write_cmd_fork2_logic_linkEnable_0 <= 1'b1;
       io_mem_write_cmd_fork2_logic_linkEnable_1 <= 1'b1;
       io_mem_toAxi4_awRaw_payload_first <= 1'b1;
@@ -21072,70 +21074,70 @@ module CoreNSCSCC (
         io_mem_toAxi4_awFiltred_rValid <= io_mem_toAxi4_awFiltred_valid;
       end
       if(oneShot_12_io_pulseOut) begin
-        if(when_Debug_l67) begin
-          _zz_when_Debug_l67 <= {7'd0, _zz_when_Debug_l67_1};
+        if(when_Debug_l70) begin
+          _zz_when_Debug_l70 <= {7'd0, _zz_when_Debug_l70_1};
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // Debug.scala:L69
+              assert(1'b0); // Debug.scala:L72
             `else
               if(!1'b0) begin
-                $display("NOTE(Debug.scala:69):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l67_1); // Debug.scala:L69
+                $display("NOTE(Debug.scala:72):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l70_1); // Debug.scala:L72
               end
             `endif
           `endif
         end
       end
       if(oneShot_13_io_pulseOut) begin
-        if(when_Debug_l67_1) begin
-          _zz_when_Debug_l67 <= {3'd0, _zz_when_Debug_l67_2};
+        if(when_Debug_l70_1) begin
+          _zz_when_Debug_l70 <= {3'd0, _zz_when_Debug_l70_2};
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // Debug.scala:L69
+              assert(1'b0); // Debug.scala:L72
             `else
               if(!1'b0) begin
-                $display("NOTE(Debug.scala:69):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l67_2); // Debug.scala:L69
+                $display("NOTE(Debug.scala:72):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l70_2); // Debug.scala:L72
               end
             `endif
           `endif
         end
       end
       if(oneShot_14_io_pulseOut) begin
-        if(when_Debug_l67_2) begin
-          _zz_when_Debug_l67 <= {3'd0, _zz_when_Debug_l67_3};
+        if(when_Debug_l70_2) begin
+          _zz_when_Debug_l70 <= {3'd0, _zz_when_Debug_l70_3};
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // Debug.scala:L69
+              assert(1'b0); // Debug.scala:L72
             `else
               if(!1'b0) begin
-                $display("NOTE(Debug.scala:69):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l67_3); // Debug.scala:L69
+                $display("NOTE(Debug.scala:72):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l70_3); // Debug.scala:L72
               end
             `endif
           `endif
         end
       end
       if(oneShot_15_io_pulseOut) begin
-        if(when_Debug_l67_3) begin
-          _zz_when_Debug_l67 <= {3'd0, _zz_when_Debug_l67_4};
+        if(when_Debug_l70_3) begin
+          _zz_when_Debug_l70 <= {3'd0, _zz_when_Debug_l70_4};
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // Debug.scala:L69
+              assert(1'b0); // Debug.scala:L72
             `else
               if(!1'b0) begin
-                $display("NOTE(Debug.scala:69):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l67_4); // Debug.scala:L69
+                $display("NOTE(Debug.scala:72):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l70_4); // Debug.scala:L72
               end
             `endif
           `endif
         end
       end
       if(oneShot_16_io_pulseOut) begin
-        if(when_Debug_l67_4) begin
-          _zz_when_Debug_l67 <= {3'd0, _zz_when_Debug_l67_5};
+        if(when_Debug_l70_4) begin
+          _zz_when_Debug_l70 <= {3'd0, _zz_when_Debug_l70_5};
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // Debug.scala:L69
+              assert(1'b0); // Debug.scala:L72
             `else
               if(!1'b0) begin
-                $display("NOTE(Debug.scala:69):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l67_5); // Debug.scala:L69
+                $display("NOTE(Debug.scala:72):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l70_5); // Debug.scala:L72
               end
             `endif
           `endif
@@ -21247,14 +21249,14 @@ module CoreNSCSCC (
       CommitPlugin_commitStatsReg_physRegRecycled <= (CommitPlugin_commitStatsReg_physRegRecycled + _zz_CommitPlugin_commitStatsReg_physRegRecycled);
       CommitPlugin_commitStatsReg_robFlushCount <= (CommitPlugin_commitStatsReg_robFlushCount + _zz_CommitPlugin_commitStatsReg_robFlushCount);
       if(oneShot_17_io_pulseOut) begin
-        if(when_Debug_l67_5) begin
-          _zz_when_Debug_l67 <= {3'd0, _zz_when_Debug_l67_6};
+        if(when_Debug_l70_5) begin
+          _zz_when_Debug_l70 <= {3'd0, _zz_when_Debug_l70_6};
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // Debug.scala:L69
+              assert(1'b0); // Debug.scala:L72
             `else
               if(!1'b0) begin
-                $display("NOTE(Debug.scala:69):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l67_6); // Debug.scala:L69
+                $display("NOTE(Debug.scala:72):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l70_6); // Debug.scala:L72
               end
             `endif
           `endif
@@ -21403,14 +21405,14 @@ module CoreNSCSCC (
         `endif
       end
       if(oneShot_18_io_pulseOut) begin
-        if(when_Debug_l67_6) begin
-          _zz_when_Debug_l67 <= {3'd0, _zz_when_Debug_l67_7};
+        if(when_Debug_l70_6) begin
+          _zz_when_Debug_l70 <= {3'd0, _zz_when_Debug_l70_7};
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // Debug.scala:L69
+              assert(1'b0); // Debug.scala:L72
             `else
               if(!1'b0) begin
-                $display("NOTE(Debug.scala:69):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l67_7); // Debug.scala:L69
+                $display("NOTE(Debug.scala:72):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l70_7); // Debug.scala:L72
               end
             `endif
           `endif
@@ -21455,14 +21457,14 @@ module CoreNSCSCC (
         `endif
       end
       if(oneShot_19_io_pulseOut) begin
-        if(when_Debug_l67_7) begin
-          _zz_when_Debug_l67 <= {3'd0, _zz_when_Debug_l67_8};
+        if(when_Debug_l70_7) begin
+          _zz_when_Debug_l70 <= {3'd0, _zz_when_Debug_l70_8};
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // Debug.scala:L69
+              assert(1'b0); // Debug.scala:L72
             `else
               if(!1'b0) begin
-                $display("NOTE(Debug.scala:69):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l67_8); // Debug.scala:L69
+                $display("NOTE(Debug.scala:72):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l70_8); // Debug.scala:L72
               end
             `endif
           `endif
@@ -21585,14 +21587,14 @@ module CoreNSCSCC (
         `endif
       end
       if(oneShot_20_io_pulseOut) begin
-        if(when_Debug_l67_8) begin
-          _zz_when_Debug_l67 <= {3'd0, _zz_when_Debug_l67_9};
+        if(when_Debug_l70_8) begin
+          _zz_when_Debug_l70 <= {3'd0, _zz_when_Debug_l70_9};
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // Debug.scala:L69
+              assert(1'b0); // Debug.scala:L72
             `else
               if(!1'b0) begin
-                $display("NOTE(Debug.scala:69):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l67_9); // Debug.scala:L69
+                $display("NOTE(Debug.scala:72):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l70_9); // Debug.scala:L72
               end
             `endif
           `endif
@@ -21669,14 +21671,14 @@ module CoreNSCSCC (
         `endif
       end
       if(oneShot_21_io_pulseOut) begin
-        if(when_Debug_l67_9) begin
-          _zz_when_Debug_l67 <= {3'd0, _zz_when_Debug_l67_10};
+        if(when_Debug_l70_9) begin
+          _zz_when_Debug_l70 <= {3'd0, _zz_when_Debug_l70_10};
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // Debug.scala:L69
+              assert(1'b0); // Debug.scala:L72
             `else
               if(!1'b0) begin
-                $display("NOTE(Debug.scala:69):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l67_10); // Debug.scala:L69
+                $display("NOTE(Debug.scala:72):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l70_10); // Debug.scala:L72
               end
             `endif
           `endif
@@ -21739,28 +21741,28 @@ module CoreNSCSCC (
         `endif
       end
       if(oneShot_22_io_pulseOut) begin
-        if(when_Debug_l67_10) begin
-          _zz_when_Debug_l67 <= {3'd0, _zz_when_Debug_l67_11};
+        if(when_Debug_l70_10) begin
+          _zz_when_Debug_l70 <= {3'd0, _zz_when_Debug_l70_11};
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // Debug.scala:L69
+              assert(1'b0); // Debug.scala:L72
             `else
               if(!1'b0) begin
-                $display("NOTE(Debug.scala:69):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l67_11); // Debug.scala:L69
+                $display("NOTE(Debug.scala:72):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l70_11); // Debug.scala:L72
               end
             `endif
           `endif
         end
       end
       if(oneShot_23_io_pulseOut) begin
-        if(when_Debug_l67_11) begin
-          _zz_when_Debug_l67 <= {3'd0, _zz_when_Debug_l67_12};
+        if(when_Debug_l70_11) begin
+          _zz_when_Debug_l70 <= {3'd0, _zz_when_Debug_l70_12};
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // Debug.scala:L69
+              assert(1'b0); // Debug.scala:L72
             `else
               if(!1'b0) begin
-                $display("NOTE(Debug.scala:69):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l67_12); // Debug.scala:L69
+                $display("NOTE(Debug.scala:72):  [DbgSvc] Set (expect incremental) value to 0x%x", _zz_when_Debug_l70_12); // Debug.scala:L72
               end
             `endif
           `endif
@@ -22082,13 +22084,13 @@ module CoreNSCSCC (
         `endif
       end
       if(when_PhysicalRegFile_l150) begin
-        _zz_when_Debug_l67 <= 8'he0;
+        _zz_when_Debug_l70 <= 8'he0;
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // Debug.scala:L73
+            assert(1'b0); // Debug.scala:L76
           `else
             if(!1'b0) begin
-              $display("NOTE(Debug.scala:73):  [DbgSvc] Set value to 0x%x", _zz_28); // Debug.scala:L73
+              $display("NOTE(Debug.scala:76):  [DbgSvc] Set value to 0x%x", _zz_28); // Debug.scala:L76
             end
           `endif
         `endif
@@ -43430,21 +43432,21 @@ module OneShot (
 );
 
   reg                 hasFired;
-  wire                when_Debug_l146;
+  wire                when_Debug_l149;
 
   always @(*) begin
     io_pulseOut = 1'b0;
-    if(when_Debug_l146) begin
+    if(when_Debug_l149) begin
       io_pulseOut = 1'b1;
     end
   end
 
-  assign when_Debug_l146 = (io_triggerIn && (! hasFired));
+  assign when_Debug_l149 = (io_triggerIn && (! hasFired));
   always @(posedge clk or posedge reset) begin
     if(reset) begin
       hasFired <= 1'b0;
     end else begin
-      if(when_Debug_l146) begin
+      if(when_Debug_l149) begin
         hasFired <= 1'b1;
       end
     end

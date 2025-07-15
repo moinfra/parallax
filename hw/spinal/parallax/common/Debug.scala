@@ -20,9 +20,12 @@ object DebugValue {
   val ISSUE_FIRE = 0x17
   val EXEC_FIRE = 0x18
   val COMMIT_FIRE = 0x19
-
+  val MEM_WRITE_FIRE = 0x20
   // Error
   val REG_WRITE_CONFLICT = 0xE0
+  val MEM_READ_ERROR = 0xE1
+  val MEM_WRITE_ERROR = 0xE2
+  val UNKNOWN_ERROR = 0xFF
 }
 
 trait DebugDisplayService extends Service {

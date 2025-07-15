@@ -16,7 +16,7 @@ import parallax.utilities.ParallaxSim
 case class CommitStats(pCfg: PipelineConfig = null) extends Bundle with Formattable {
   private val cw = if (pCfg == null) 1 else pCfg.commitWidth
   val committedThisCycle = UInt(log2Up(cw + 1) bits)
-  val totalCommitted = UInt(32 bits)
+  val totalCommitted = UInt(32 bits) addAttribute("mark_debug", "true")
   val robFlushCount = UInt(32 bits)
   val physRegRecycled = UInt(32 bits)
 

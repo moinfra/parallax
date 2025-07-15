@@ -37,6 +37,8 @@ case class CoreNSCSCCIo(simDebug: Boolean = false) extends Bundle {
   val dpy0 = onboardDebug generate { out Bits (8 bits) } // Low digit
   val dpy1 = onboardDebug generate { out Bits (8 bits) } // High digit
 
+  val commit_counter = onboardDebug generate { out UInt(16 bits) } // Commit counter
+
   // ISRAM (BaseRAM) interface
   val isram_dout = in Bits (32 bits)
   val isram_addr = out UInt (20 bits)
@@ -525,6 +527,9 @@ class CoreNSCSCC(simDebug: Boolean = false) extends Component {
     val (dpy0, dpy1) = debugInfoDisplayService.getDpyOutputs()
     io.dpy0 := dpy0
     io.dpy1 := dpy1
+
+    val commitService = framework.getService[CommitPlugin]
+    io.commit_counter := commitService.getCommitStats().totalCommitted.resized
   }
 }
 

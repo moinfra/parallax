@@ -212,7 +212,8 @@ CoreNSCSCC core(
     .io_uart_b_ready(io_uart_b_ready),
     // 连接新增的数码管端口
     .io_dpy0(dpy0),
-    .io_dpy1(dpy1)
+    .io_dpy1(dpy1),
+    .io_commit_counter(leds)
 );
 
 uart_wrapper#(
@@ -257,6 +258,6 @@ uart_wrapper#(
     .io_uart_b_ready(io_uart_b_ready)
 );
 
-assign leds = dip_sw[15:0];
+// assign leds = dip_sw[15:0];
 
 endmodule
