@@ -25,6 +25,7 @@ object DebugValue {
   val REG_WRITE_CONFLICT = 0xE0
   val MEM_READ_ERROR = 0xE1
   val MEM_WRITE_ERROR = 0xE2
+  val COMMIT_OOB_ERROR = 0xE3
   val UNKNOWN_ERROR = 0xFF
 }
 

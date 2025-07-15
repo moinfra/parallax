@@ -19,6 +19,8 @@ case class CommitStats(pCfg: PipelineConfig = null) extends Bundle with Formatta
   val totalCommitted = UInt(32 bits) addAttribute("mark_debug", "true")
   val robFlushCount = UInt(32 bits)
   val physRegRecycled = UInt(32 bits)
+  val commitOOB = Bool() addAttribute("mark_debug", "true")  // Out-of-bounds commit detected
+  val maxCommitPc = UInt(32 bits) addAttribute("mark_debug", "true")  // Maximum PC committed so far
 
   def format: Seq[Any] = {
     Seq(
@@ -26,7 +28,9 @@ case class CommitStats(pCfg: PipelineConfig = null) extends Bundle with Formatta
       L"committedThisCycle=${committedThisCycle}, ",
       L"totalCommitted=${totalCommitted}, ",
       L"robFlushCount=${robFlushCount}, ",
-      L"physRegRecycled=${physRegRecycled}",
+      L"physRegRecycled=${physRegRecycled}, ",
+      L"commitOOB=${commitOOB}, ",
+      L"maxCommitPc=0x${maxCommitPc}",
       L")"
     )
   }
@@ -59,6 +63,14 @@ trait CommitService extends Service {
    * When disabled, no instructions will be committed from ROB.
    */
   def setCommitEnable(enable: Bool): Unit
+  
+  /**
+   * Set maximum allowed PC for commit operations.
+   * When enabled, commits beyond this PC will trigger commitOOB signal.
+   */
+  def setMaxCommitPc(maxPc: UInt, enabled: Bool): Unit = {
+    throw new RuntimeException("not implemented")
+  }
   
   /**
    * Get commit progress information for debugging/monitoring.
@@ -94,12 +106,24 @@ class CommitPlugin(
   // Service interface state
   private val commitEnableExt = Bool()
   private val commitStatsReg = Reg(CommitStats(pipelineConfig)).initZero()
+  private val maxCommitPcExt = in UInt(pipelineConfig.pcWidth)
+  private val maxCommitPcEnabledExt = in Bool()
   
   // IDLE instruction state
   private val committedIdleReg = Reg(Bool()) init(False)
   private val committedIdlePcReg = Reg(UInt(pipelineConfig.pcWidth))
+  
+  // PC tracking state
+  private val maxCommitPcReg = Reg(UInt(pipelineConfig.pcWidth)) init(0)
+  private val commitOOBReg = Reg(Bool()) init(False)
+  
   override def setCommitEnable(enable: Bool): Unit = {
     commitEnableExt := enable
+  }
+  
+  override def setMaxCommitPc(maxPc: UInt, enabled: Bool): Unit = {
+    maxCommitPcExt := maxPc
+    maxCommitPcEnabledExt := enabled
   }
   
   override def isIdle(): Bool = {
@@ -205,6 +229,40 @@ class CommitPlugin(
     // 新增：收集每个槽位的详细日志信息
     val commitSlotLogs = Vec(CommitSlotLog(pipelineConfig), pipelineConfig.commitWidth)
 
+    // === PC Tracking and OOB Detection ===
+    val commitPcs = Vec(UInt(pipelineConfig.pcWidth), pipelineConfig.commitWidth)
+    val anyCommitOOB = Bool()
+    val maxCommitPcThisCycle = UInt(pipelineConfig.pcWidth)
+    
+    // Collect PCs from all committed instructions
+    for (i <- 0 until pipelineConfig.commitWidth) {
+      commitPcs(i) := commitSlots(i).entry.payload.uop.decoded.pc
+    }
+    
+    // Find maximum PC among committed instructions this cycle
+    maxCommitPcThisCycle := commitPcs.zip(commitAckMasks).map { case (pc, ack) =>
+      Mux(ack, pc, U(0, pipelineConfig.pcWidth))
+    }.reduce((a, b) => Mux(a > b, a, b))
+    
+    // Check for out-of-bounds commits
+    anyCommitOOB := maxCommitPcEnabledExt && commitAckMasks.zip(commitPcs).map { case (ack, pc) =>
+      ack && (pc > maxCommitPcExt)
+    }.reduce(_ || _)
+    
+    // Update PC tracking registers
+    val hasCommitsThisCycle = commitAckMasks.reduce(_ || _)
+    when(hasCommitsThisCycle) {
+      when(maxCommitPcThisCycle > maxCommitPcReg) {
+        maxCommitPcReg := maxCommitPcThisCycle
+      }
+    }
+    
+    // Set OOB flag if any commit is out of bounds
+    when(anyCommitOOB) {
+      commitOOBReg := True
+      ParallaxSim.log(L"[CommitPlugin] CRITICAL: Out-of-bounds commit detected! PC=0x${maxCommitPcThisCycle}, maxAllowed=0x${maxCommitPcExt}")
+    }
+
     for (i <- 0 until pipelineConfig.commitWidth) {
       val commitAck = commitAckMasks(i) // Let ROB handle flush blocking via canCommitFlags 
       val committedEntry = commitSlots(i).entry 
@@ -230,8 +288,8 @@ class CommitPlugin(
     
     commitCount := CountOne(commitAckMasks)
     
-    // === Pipeline Flush and Checkpoint Restore Logic ===
-  // --- 计算本周期的增量值 ---
+    // === 集中式周期性日志打印 ===
+    // --- 计算本周期的增量值 ---
     val committedThisCycle_comb = CountOne(commitAcks)
     val recycledThisCycle_comb = CountOne(freePorts.map(_.enable))
     val flushedThisCycle_comb = robFlushPort.valid.asUInt
@@ -241,10 +299,13 @@ class CommitPlugin(
     commitStatsReg.totalCommitted     := commitStatsReg.totalCommitted + committedThisCycle_comb
     commitStatsReg.physRegRecycled    := commitStatsReg.physRegRecycled + recycledThisCycle_comb
     commitStatsReg.robFlushCount      := commitStatsReg.robFlushCount + flushedThisCycle_comb
+    commitStatsReg.commitOOB          := commitOOBReg
+    commitStatsReg.maxCommitPc        := maxCommitPcReg
     
     // restoreCheckpointTrigger is already set above in the IDLE logic
     getServiceOption[DebugDisplayService].foreach(dbg => { 
       dbg.setDebugValueOnce(committedThisCycle_comb.asBool, DebugValue.COMMIT_FIRE, expectIncr = true)
+      dbg.setDebugValueOnce(commitOOBReg, DebugValue.COMMIT_OOB_ERROR, expectIncr = false)
     })
     // ==============================================================================
     // 核心修改 2: 创建前馈统计信号
@@ -262,6 +323,14 @@ class CommitPlugin(
     
     // robFlushCount 的实时值 = 寄存器的旧值 + 本周期的增量
     fwd.robFlushCount := commitStatsReg.robFlushCount + flushedThisCycle_comb
+    
+    // OOB detection: use current cycle's result or previous register value
+    fwd.commitOOB := commitOOBReg || anyCommitOOB
+    
+    // Maximum PC: use current cycle's maximum or previous register value
+    fwd.maxCommitPc := Mux(hasCommitsThisCycle && (maxCommitPcThisCycle > maxCommitPcReg), 
+                          maxCommitPcThisCycle, 
+                          maxCommitPcReg)
 
     // 将这个新的、带有前馈逻辑的 Bundle 赋值给插件的成员变量
     forwardedStats = fwd
@@ -278,7 +347,7 @@ class CommitPlugin(
           L"Restore_Checkpoint_Trigger=${restoreCheckpointTrigger}, " :+
           L"Fetch_Disable=${fetchDisable}, " :+
           L"Stats=${commitStatsReg.format}\n" :+
-          L"  Slot Details: ${commitSlotLogs.map(s => L"\n    Slot: ${s.format} commitAck=${commitAcks(0)}")}" // 为每个槽位格式化输出，每个槽位独占一行
+          L"  Slot Details: ${commitSlotLogs.map(s => L"\n    Slot: ${s.format} commitAck=${commitAcks(0)} commitPc=0x${commitPcs(0)}")}" // 为每个槽位格式化输出，每个槽位独占一行
         )
       }
     }

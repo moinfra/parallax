@@ -6,9 +6,9 @@ import spinal.core.sim._
 import spinal.lib.sim._
 import parallax.CoreNSCSCC
 import parallax.components.memory.{SRAMConfig, SimulatedSRAM}
+import parallax.issue.{CommitStats, CommitService}
 import scala.collection.mutable.ArrayBuffer
 import _root_.test.scala.LA32RInstrBuilder._
-import parallax.issue.CommitStats
 import java.io.BufferedOutputStream
 import java.io.FileOutputStream
 
@@ -16,7 +16,7 @@ import java.io.FileOutputStream
   * This component wraps the CoreNSCSCC DUT and connects it to two SimulatedSRAM instances,
   * one for instruction memory (iSram) and one for data memory (dSram).
   */
-class LabTestBench(val iDataWords: Seq[BigInt]) extends Component {
+class LabTestBench(val iDataWords: Seq[BigInt], val maxCommitPc: BigInt = 0, val enablePcCheck: Boolean = false) extends Component {
   val io = new Bundle {
     val commitStats = out(CommitStats())
   }
@@ -25,6 +25,12 @@ class LabTestBench(val iDataWords: Seq[BigInt]) extends Component {
   val dut = new CoreNSCSCC(simDebug = true)
   io.commitStats := dut.io.commitStats
   io.commitStats.simPublic()
+
+  // Configure PC bounds checking if enabled
+  if (enablePcCheck) {
+    val commitService = dut.framework.getService[CommitService]
+    commitService.setMaxCommitPc(U(maxCommitPc, 32 bits), True)
+  }
 
   // Configure and instantiate the Instruction SRAM (iSram)
   val iSramConfig = SRAMConfig(
@@ -182,7 +188,7 @@ object LabHelper {
 }
 
 class LabSpec extends CustomSpinalSimFunSuite {
-  testOnly("Sequential Memory Write Test") {
+  test("Sequential Memory Write Test") {
     val instructions = Seq(
       // --- 初始化数据寄存器 (R12 = 0x10000000) ---
       lu12i_w(rd = 12, imm = 0x10000000 >>> 12),
@@ -269,55 +275,70 @@ class LabSpec extends CustomSpinalSimFunSuite {
 
     LabHelper.dumpBinary(instructions, "bin/write_test.bin")
 
-    val compiled = SimConfig.withFstWave.compile(new LabTestBench(instructions))
+    // Configure PC bounds checking
+    val maxExpectedPc = BigInt("80000000", 16) + (instructions.length - 1) * 4
+    val compiled = SimConfig.withFstWave.compile(new LabTestBench(
+      iDataWords = instructions,
+      maxCommitPc = maxExpectedPc,
+      enablePcCheck = true
+    ))
 
     compiled.doSim { dut =>
-      val cd = dut.clockDomain
+      val cd = dut.clockDomain.get
       cd.forkStimulus(period = 10)
-      SimTimeout(10000) // Set a timeout
+      
+      println(s"--- Starting 'mem write test' with PC bounds check (maxPc=0x${maxExpectedPc.toString(16)}) ---")
 
-      val dSram = dut.dSram
-
-      println("--- Starting 'mem write test' Simulation ---")
-
-      // The core needs to execute 5 instructions to perform the store,
-      // then it will hit the infinite loop.
-      // Let's wait until at least 6 instructions are committed to be safe.
-      var currentCommitted = 0
-      while (currentCommitted < 6) {
+      // Run for extended time to detect OOB issues
+      val maxCycles = 10000
+      val minCommitsNeeded = 5 // 4 loads + 1 store
+      var minCommitsReached = false
+      
+      for (cycle <- 1 to maxCycles) {
         cd.waitSampling()
-        currentCommitted = dut.io.commitStats.totalCommitted.toBigInt.toInt
+        val commitStats = dut.io.commitStats
+        
+        // Check for CPU runaway (OOB)
+        if (commitStats.commitOOB.toBoolean) {
+          val maxCommitPc = commitStats.maxCommitPc.toBigInt
+          assert(false, s"CPU runaway detected! PC=0x${maxCommitPc.toString(16)}, max=0x${maxExpectedPc.toString(16)}")
+        }
+        
+        // Track minimum commits reached
+        if (commitStats.totalCommitted.toBigInt >= minCommitsNeeded) {
+          minCommitsReached = true
+        }
+        
+        // Progress logging
+        if (cycle % 1000 == 0) {
+          println(s"Cycle $cycle: Committed ${commitStats.totalCommitted.toBigInt}, maxPC=0x${commitStats.maxCommitPc.toBigInt.toString(16)}")
+        }
       }
-      cd.waitSampling(100)
-      println(s"--- Simulation Finished: Committed $currentCommitted instructions ---")
 
-      // --- Verification Phase ---
-      println("--- Verification Phase ---")
-      val verificationAddress = 0
+      println(s"--- Simulation completed after $maxCycles cycles ---")
+
+      // Verify memory content
+      dut.dSram.io.tb_readEnable #= true
+      dut.dSram.io.tb_readAddress #= 0
+      cd.waitSampling()
+      val actualValue = dut.dSram.io.tb_readData.toBigInt
+      dut.dSram.io.tb_readEnable #= false
+      
       val expectedValue = BigInt("deadbeef", 16)
-
-      // Read from dSram using testbench ports
-      dSram.io.tb_readEnable #= true
-      dSram.io.tb_readAddress #= verificationAddress
-      cd.waitSampling() // Wait one cycle for the read to propagate
-      val actual_val = dSram.io.tb_readData.toBigInt
-      dSram.io.tb_readEnable #= false
-
-      println(f"Checking dSram[0x$verificationAddress%x]: Expected=0x$expectedValue%x, Got=0x$actual_val%x")
-      assert(
-        actual_val == expectedValue,
-        f"Memory write verification failed! Expected 0x$expectedValue%x, but got 0x$actual_val%x"
-      )
-
+      
+      // Test passes if: minimum commits reached AND memory is correct
+      assert(minCommitsReached, s"Insufficient commits: need at least $minCommitsNeeded")
+      assert(actualValue == expectedValue, f"Memory mismatch: expected 0x$expectedValue%x, got 0x$actualValue%x")
+      
+      println("--- 'mem write test' Passed ---")
+      
       // Dump memory for inspection
       LabHelper.ramdump(
-        sram = dSram,
+        sram = dut.dSram,
         vaddr = BigInt("80400000", 16),
-        size = 64, // Dump 64 bytes
+        size = 64,
         filename = "dsram_dump_mem_write_test.bin"
-      )(cd.get)
-
-      println("--- 'mem write test' Passed ---")
+      )(cd)
     }
   }
 
@@ -477,7 +498,7 @@ class LabSpec extends CustomSpinalSimFunSuite {
     }
   }
 
-  testOnly("Fibonacci Test on CoreNSCSCC") {
+  test("Fibonacci Test on CoreNSCSCC") {
 
     val instructions = ArrayBuffer[BigInt]()
     // Original Assembly:
