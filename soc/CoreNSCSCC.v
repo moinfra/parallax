@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 3105a33b457518a7afeed8b0527b4d8b9dab2383
 // Component : CoreNSCSCC
-// Git hash  : 00abef03422b677a22459ec4f7684d469aced0a9
+// Git hash  : 5a1df5354951907489ee6c01301c2f9378eb0600
 
 `timescale 1ns/1ps
 
@@ -2605,10 +2605,10 @@ module CoreNSCSCC (
   wire       [3:0]    CommitPlugin_logic_commitSlotLogs_0_robPtr;
   wire       [5:0]    CommitPlugin_logic_commitSlotLogs_0_oldPhysDest;
   wire                CommitPlugin_logic_commitSlotLogs_0_allocatesPhysDest;
-  wire       [31:0]   CommitPlugin_logic_commitPcs_0;
+  (* mark_debug = "true" *) wire       [31:0]   CommitPlugin_logic_commitPcs_0;
   wire                CommitPlugin_logic_anyCommitOOB;
   wire       [31:0]   CommitPlugin_logic_maxCommitPcThisCycle;
-  wire                when_CommitPlugin_l255;
+  wire                when_CommitPlugin_l262;
   wire       [0:0]    CommitPlugin_logic_committedThisCycle_comb;
   wire       [0:0]    CommitPlugin_logic_recycledThisCycle_comb;
   wire       [0:0]    CommitPlugin_logic_flushedThisCycle_comb;
@@ -12683,7 +12683,7 @@ module CoreNSCSCC (
   assign CommitPlugin_logic_commitPcs_0 = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc;
   assign CommitPlugin_logic_maxCommitPcThisCycle = (CommitPlugin_logic_commitAckMasks_0 ? CommitPlugin_logic_commitPcs_0 : 32'h0);
   assign CommitPlugin_logic_anyCommitOOB = (CommitPlugin_maxCommitPcEnabledExt && (CommitPlugin_logic_commitAckMasks_0 && (CommitPlugin_maxCommitPcExt < CommitPlugin_logic_commitPcs_0)));
-  assign when_CommitPlugin_l255 = (CommitPlugin_maxCommitPcReg < CommitPlugin_logic_maxCommitPcThisCycle);
+  assign when_CommitPlugin_l262 = (CommitPlugin_maxCommitPcReg < CommitPlugin_logic_maxCommitPcThisCycle);
   assign SuperScalarFreeListPlugin_early_setup_freeList_io_free_0_enable = (CommitPlugin_logic_commitAckMasks_0 && ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_allocatesPhysDest);
   assign SuperScalarFreeListPlugin_early_setup_freeList_io_free_0_physReg = ((CommitPlugin_logic_commitAckMasks_0 && ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_allocatesPhysDest) ? ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx : 6'h0);
   assign CommitPlugin_logic_commitSlotLogs_0_valid = ROBPlugin_robComponent_io_commit_0_valid;
@@ -20817,7 +20817,7 @@ module CoreNSCSCC (
   assign axi4WriteOnlyArbiter_5_io_inputs_2_aw_payload_id = {1'd0, io_outputs_2_aw_validPipe_payload_id_2};
   assign io_dpy0 = DebugDisplayPlugin_hw_dpyController_io_dpy0_out;
   assign io_dpy1 = DebugDisplayPlugin_hw_dpyController_io_dpy1_out;
-  assign io_commit_counter = CommitPlugin_logic_fwd_totalCommitted[15:0];
+  assign io_commit_counter = CommitPlugin_commitStatsReg_totalCommitted[15:0];
   always @(*) begin
     SimpleFetchPipelinePlugin_logic_fsm_stateNext = SimpleFetchPipelinePlugin_logic_fsm_stateReg;
     case(SimpleFetchPipelinePlugin_logic_fsm_stateReg)
@@ -21178,10 +21178,10 @@ module CoreNSCSCC (
       end
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // CommitPlugin.scala:L152
+          assert(1'b0); // CommitPlugin.scala:L159
         `else
           if(!1'b0) begin
-            $display("NOTE(CommitPlugin.scala:152):  [CommitPlugin] Early setup - acquired services and fetch disable port"); // CommitPlugin.scala:L152
+            $display("NOTE(CommitPlugin.scala:159):  [CommitPlugin] Early setup - acquired services and fetch disable port"); // CommitPlugin.scala:L159
           end
         `endif
       `endif
@@ -21248,20 +21248,20 @@ module CoreNSCSCC (
         CommitPlugin_committedIdleReg <= 1'b1;
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // CommitPlugin.scala:L197
+            assert(1'b0); // CommitPlugin.scala:L204
           `else
             if(!1'b0) begin
-              $display("NOTE(CommitPlugin.scala:197):  [CommitPlugin] IDLE instruction committed at PC=0x%x, entering IDLE state", ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc); // CommitPlugin.scala:L197
+              $display("NOTE(CommitPlugin.scala:204):  [CommitPlugin] IDLE instruction committed at PC=0x%x, entering IDLE state", ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc); // CommitPlugin.scala:L204
             end
           `endif
         `endif
       end
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // CommitPlugin.scala:L199
+          assert(1'b0); // CommitPlugin.scala:L206
         `else
           if(!1'b0) begin
-            $display("NOTE(CommitPlugin.scala:199):  commitIdleThisCycle=%x, commitAckMasks(0)=%x: commitEnableExt=%x, commitSlots(0).valid=%x, !committedIdleReg=%x", CommitPlugin_logic_commitIdleThisCycle, CommitPlugin_logic_commitAckMasks_0, CommitPlugin_commitEnableExt, ROBPlugin_robComponent_io_commit_0_valid, _zz_8); // CommitPlugin.scala:L199
+            $display("NOTE(CommitPlugin.scala:206):  commitIdleThisCycle=%x, commitAckMasks(0)=%x: commitEnableExt=%x, commitSlots(0).valid=%x, !committedIdleReg=%x", CommitPlugin_logic_commitIdleThisCycle, CommitPlugin_logic_commitAckMasks_0, CommitPlugin_commitEnableExt, ROBPlugin_robComponent_io_commit_0_valid, _zz_8); // CommitPlugin.scala:L206
           end
         `endif
       `endif
@@ -21269,16 +21269,16 @@ module CoreNSCSCC (
       if(CommitPlugin_logic_idleJustCommitted) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // CommitPlugin.scala:L219
+            assert(1'b0); // CommitPlugin.scala:L226
           `else
             if(!1'b0) begin
-              $display("NOTE(CommitPlugin.scala:219):  [CommitPlugin] Delayed ROB flush triggered by IDLE instruction"); // CommitPlugin.scala:L219
+              $display("NOTE(CommitPlugin.scala:226):  [CommitPlugin] Delayed ROB flush triggered by IDLE instruction"); // CommitPlugin.scala:L226
             end
           `endif
         `endif
       end
       if(CommitPlugin_logic_commitAckMasks_0) begin
-        if(when_CommitPlugin_l255) begin
+        if(when_CommitPlugin_l262) begin
           CommitPlugin_maxCommitPcReg <= CommitPlugin_logic_maxCommitPcThisCycle;
         end
       end
@@ -21286,10 +21286,10 @@ module CoreNSCSCC (
         CommitPlugin_commitOOBReg <= 1'b1;
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // CommitPlugin.scala:L263
+            assert(1'b0); // CommitPlugin.scala:L270
           `else
             if(!1'b0) begin
-              $display("NOTE(CommitPlugin.scala:263):  [CommitPlugin] CRITICAL: Out-of-bounds commit detected! PC=0x%x, maxAllowed=0x%x", CommitPlugin_logic_maxCommitPcThisCycle, CommitPlugin_maxCommitPcExt); // CommitPlugin.scala:L263
+              $display("NOTE(CommitPlugin.scala:270):  [CommitPlugin] CRITICAL: Out-of-bounds commit detected! PC=0x%x, maxAllowed=0x%x", CommitPlugin_logic_maxCommitPcThisCycle, CommitPlugin_maxCommitPcExt); // CommitPlugin.scala:L270
             end
           `endif
         `endif
@@ -21328,10 +21328,10 @@ module CoreNSCSCC (
       end
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // CommitPlugin.scala:L341
+          assert(1'b0); // CommitPlugin.scala:L348
         `else
           if(!1'b0) begin
-            $display("NOTE(CommitPlugin.scala:341):  [COMMIT] Cycle Log: commitEnableExt=%x, commitCount=%x, committedIdleReg=%x, IDLE_AtHead=%x, IDLE_BeingCommitted=%x, committedIdlePcReg=0x%x, ROB_Head_Valid=%x, ROB_Head_Done=%x, ROB_Head_UopCode=%x, ROB_Flush_Valid=%x, ROB_Flush_Reason=%x, Restore_Checkpoint_Trigger=%x, Fetch_Disable=%x, Stats=CommitStats(committedThisCycle=%x, totalCommitted=%x, robFlushCount=%x, physRegRecycled=%x, commitOOB=%x, maxCommitPc=0x%x)\n  Slot Details: \n    Slot: (valid=%x, canCommit=%x, doCommit=%x, robPtr=%x, oldPhysDest=p%x, allocatesPhysDest=%x) commitAck=%x commitPc=0x%x", CommitPlugin_commitEnableExt, CommitPlugin_logic_commitCount, CommitPlugin_committedIdleReg, _zz_10, CommitPlugin_logic_commitIdleThisCycle, CommitPlugin_committedIdlePcReg, ROBPlugin_robComponent_io_commit_0_valid, ROBPlugin_robComponent_io_commit_0_entry_status_done, _zz_11, CommitPlugin_hw_robFlushPort_valid, _zz_12, CheckpointManagerPlugin_restoreCheckpointTrigger, CommitPlugin_hw_fetchDisable, CommitPlugin_commitStatsReg_committedThisCycle, CommitPlugin_commitStatsReg_totalCommitted, CommitPlugin_commitStatsReg_robFlushCount, CommitPlugin_commitStatsReg_physRegRecycled, CommitPlugin_commitStatsReg_commitOOB, CommitPlugin_commitStatsReg_maxCommitPc, CommitPlugin_logic_commitSlotLogs_0_valid, CommitPlugin_logic_commitSlotLogs_0_canCommit, CommitPlugin_logic_commitSlotLogs_0_doCommit, CommitPlugin_logic_commitSlotLogs_0_robPtr, CommitPlugin_logic_commitSlotLogs_0_oldPhysDest, CommitPlugin_logic_commitSlotLogs_0_allocatesPhysDest, CommitPlugin_logic_commitAckMasks_0, CommitPlugin_logic_commitPcs_0); // CommitPlugin.scala:L341
+            $display("NOTE(CommitPlugin.scala:348):  [COMMIT] Cycle Log: commitEnableExt=%x, commitCount=%x, committedIdleReg=%x, IDLE_AtHead=%x, IDLE_BeingCommitted=%x, committedIdlePcReg=0x%x, ROB_Head_Valid=%x, ROB_Head_Done=%x, ROB_Head_UopCode=%x, ROB_Flush_Valid=%x, ROB_Flush_Reason=%x, Restore_Checkpoint_Trigger=%x, Fetch_Disable=%x, Stats=CommitStats(committedThisCycle=%x, totalCommitted=%x, robFlushCount=%x, physRegRecycled=%x, commitOOB=%x, maxCommitPc=0x%x)\n  Slot Details: \n    Slot: (valid=%x, canCommit=%x, doCommit=%x, robPtr=%x, oldPhysDest=p%x, allocatesPhysDest=%x) commitAck=%x commitPc=0x%x", CommitPlugin_commitEnableExt, CommitPlugin_logic_commitCount, CommitPlugin_committedIdleReg, _zz_10, CommitPlugin_logic_commitIdleThisCycle, CommitPlugin_committedIdlePcReg, ROBPlugin_robComponent_io_commit_0_valid, ROBPlugin_robComponent_io_commit_0_entry_status_done, _zz_11, CommitPlugin_hw_robFlushPort_valid, _zz_12, CheckpointManagerPlugin_restoreCheckpointTrigger, CommitPlugin_hw_fetchDisable, CommitPlugin_commitStatsReg_committedThisCycle, CommitPlugin_commitStatsReg_totalCommitted, CommitPlugin_commitStatsReg_robFlushCount, CommitPlugin_commitStatsReg_physRegRecycled, CommitPlugin_commitStatsReg_commitOOB, CommitPlugin_commitStatsReg_maxCommitPc, CommitPlugin_logic_commitSlotLogs_0_valid, CommitPlugin_logic_commitSlotLogs_0_canCommit, CommitPlugin_logic_commitSlotLogs_0_doCommit, CommitPlugin_logic_commitSlotLogs_0_robPtr, CommitPlugin_logic_commitSlotLogs_0_oldPhysDest, CommitPlugin_logic_commitSlotLogs_0_allocatesPhysDest, CommitPlugin_logic_commitAckMasks_0, CommitPlugin_logic_commitPcs_0); // CommitPlugin.scala:L348
           end
         `endif
       `endif

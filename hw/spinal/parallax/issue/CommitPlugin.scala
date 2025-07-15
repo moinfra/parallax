@@ -75,8 +75,12 @@ trait CommitService extends Service {
   /**
    * Get commit progress information for debugging/monitoring.
    */
-  def getCommitStats(): CommitStats
-  
+  def getCommitStatsComb(): CommitStats = {
+    throw new RuntimeException("not implemented")
+  }
+    def getCommitStatsReg(): CommitStats = {
+    throw new RuntimeException("not implemented")
+  }
   /**
    * Check if processor is currently idle (stopped by IDLE instruction).
    */
@@ -132,11 +136,14 @@ class CommitPlugin(
   
   private var forwardedStats: CommitStats = null
 
-  override def getCommitStats(): CommitStats = {
+  override def getCommitStatsComb(): CommitStats = {
     assert(forwardedStats != null, "forwardedStats has not been initialized. getCommitStats() called too early.")
     forwardedStats
   }
   
+  override def getCommitStatsReg(): CommitStats = {
+    commitStatsReg
+  }
   
   val hw = create early new Area {
     val robService = getService[ROBService[RenamedUop]]
@@ -230,7 +237,7 @@ class CommitPlugin(
     val commitSlotLogs = Vec(CommitSlotLog(pipelineConfig), pipelineConfig.commitWidth)
 
     // === PC Tracking and OOB Detection ===
-    val commitPcs = Vec(UInt(pipelineConfig.pcWidth), pipelineConfig.commitWidth)
+    val commitPcs = Vec(UInt(pipelineConfig.pcWidth), pipelineConfig.commitWidth) addAttribute("mark_debug", "true")
     val anyCommitOOB = Bool()
     val maxCommitPcThisCycle = UInt(pipelineConfig.pcWidth)
     

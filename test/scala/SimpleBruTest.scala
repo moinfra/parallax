@@ -34,7 +34,7 @@ class MockCommitControllerBru(pCfg: PipelineConfig) extends Plugin with CommitSe
     enableCommit := enable
   }
 
-  override def getCommitStats(): CommitStats = {
+  override def getCommitStatsComb(): CommitStats = {
     val stats = CommitStats(pCfg)
     stats.committedThisCycle := 0
     stats.totalCommitted := 0

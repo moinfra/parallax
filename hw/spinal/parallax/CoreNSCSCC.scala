@@ -526,7 +526,7 @@ class CoreNSCSCC(simDebug: Boolean = false) extends Component {
 
   simDebug generate {
     val commitService = framework.getService[CommitPlugin]
-    io.commitStats := commitService.getCommitStats()
+    io.commitStats := commitService.getCommitStatsComb()
   }
 
   onboardDebug generate {
@@ -536,7 +536,7 @@ class CoreNSCSCC(simDebug: Boolean = false) extends Component {
     io.dpy1 := dpy1
 
     val commitService = framework.getService[CommitPlugin]
-    io.commit_counter := commitService.getCommitStats().totalCommitted.resized
+    io.commit_counter := commitService.getCommitStatsReg().totalCommitted.resized
   }
 }
 

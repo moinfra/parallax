@@ -140,7 +140,7 @@ class CommitPluginTestBench(
           }
 
           // Connect statistics and other observation ports
-          io.stats := commitService.getCommitStats()
+          io.stats := commitService.getCommitStatsComb()
           io.ratState := ratService.getCurrentState()
           io.checkpointRestoreTrigger := checkpointManager.getRestoreCheckpointTrigger()
 
