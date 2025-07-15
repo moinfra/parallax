@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 3105a33b457518a7afeed8b0527b4d8b9dab2383
 // Component : CoreNSCSCC
-// Git hash  : 0aea5d78c3bd742f7572d8286a0bd00bafa50abf
+// Git hash  : f23633ad9fc4c567952ab3ed25b7510345b96dcf
 
 `timescale 1ns/1ps
 
@@ -157,6 +157,7 @@ module CoreNSCSCC (
   wire       [31:0]   DataCachePlugin_setup_cache_io_load_translated_physical;
   wire                DataCachePlugin_setup_cache_io_load_translated_abord;
   wire       [2:0]    DataCachePlugin_setup_cache_io_load_cancels;
+  reg                 DataCachePlugin_setup_cache_io_mem_read_cmd_ready;
   wire                DataCachePlugin_setup_cache_io_mem_read_rsp_payload_error;
   reg                 DataCachePlugin_setup_cache_io_mem_write_cmd_ready;
   wire                DataCachePlugin_setup_cache_io_mem_write_rsp_payload_error;
@@ -2273,7 +2274,7 @@ module CoreNSCSCC (
   wire       [3:0]    DataCachePlugin_setup_dcacheMaster_w_payload_strb;
   wire                DataCachePlugin_setup_dcacheMaster_w_payload_last;
   wire                DataCachePlugin_setup_dcacheMaster_b_valid;
-  wire                DataCachePlugin_setup_dcacheMaster_b_ready;
+  reg                 DataCachePlugin_setup_dcacheMaster_b_ready;
   wire       [0:0]    DataCachePlugin_setup_dcacheMaster_b_payload_id;
   wire       [1:0]    DataCachePlugin_setup_dcacheMaster_b_payload_resp;
   wire                DataCachePlugin_setup_dcacheMaster_ar_valid;
@@ -2285,11 +2286,31 @@ module CoreNSCSCC (
   wire       [1:0]    DataCachePlugin_setup_dcacheMaster_ar_payload_burst;
   wire       [2:0]    DataCachePlugin_setup_dcacheMaster_ar_payload_prot;
   wire                DataCachePlugin_setup_dcacheMaster_r_valid;
-  wire                DataCachePlugin_setup_dcacheMaster_r_ready;
+  reg                 DataCachePlugin_setup_dcacheMaster_r_ready;
   wire       [31:0]   DataCachePlugin_setup_dcacheMaster_r_payload_data;
   wire       [0:0]    DataCachePlugin_setup_dcacheMaster_r_payload_id;
   wire       [1:0]    DataCachePlugin_setup_dcacheMaster_r_payload_resp;
   wire                DataCachePlugin_setup_dcacheMaster_r_payload_last;
+  wire                io_mem_toAxi4_arCmdStaged_valid;
+  wire                io_mem_toAxi4_arCmdStaged_ready;
+  wire       [0:0]    io_mem_toAxi4_arCmdStaged_payload_id;
+  wire       [31:0]   io_mem_toAxi4_arCmdStaged_payload_address;
+  reg                 io_mem_read_cmd_rValid;
+  reg        [0:0]    io_mem_read_cmd_rData_id;
+  reg        [31:0]   io_mem_read_cmd_rData_address;
+  wire                when_Stream_l477;
+  wire                io_mem_toAxi4_rRspStaged_valid;
+  wire                io_mem_toAxi4_rRspStaged_ready;
+  wire       [31:0]   io_mem_toAxi4_rRspStaged_payload_data;
+  wire       [0:0]    io_mem_toAxi4_rRspStaged_payload_id;
+  wire       [1:0]    io_mem_toAxi4_rRspStaged_payload_resp;
+  wire                io_mem_toAxi4_rRspStaged_payload_last;
+  reg                 DataCachePlugin_setup_dcacheMaster_r_rValid;
+  reg        [31:0]   DataCachePlugin_setup_dcacheMaster_r_rData_data;
+  reg        [0:0]    DataCachePlugin_setup_dcacheMaster_r_rData_id;
+  reg        [1:0]    DataCachePlugin_setup_dcacheMaster_r_rData_resp;
+  reg                 DataCachePlugin_setup_dcacheMaster_r_rData_last;
+  wire                when_Stream_l477_1;
   wire                io_mem_toAxi4_awRaw_valid;
   reg                 io_mem_toAxi4_awRaw_ready;
   wire                io_mem_toAxi4_awRaw_payload_last;
@@ -2327,14 +2348,34 @@ module CoreNSCSCC (
   reg        [31:0]   io_mem_toAxi4_awFiltred_rData_fragment_address;
   reg        [31:0]   io_mem_toAxi4_awFiltred_rData_fragment_data;
   reg        [0:0]    io_mem_toAxi4_awFiltred_rData_fragment_id;
-  wire                when_Stream_l477;
+  wire                when_Stream_l477_2;
   wire                _zz_io_mem_toAxi4_wRaw_ready;
   wire                io_mem_toAxi4_w_valid;
-  wire                io_mem_toAxi4_w_ready;
+  reg                 io_mem_toAxi4_w_ready;
   wire                io_mem_toAxi4_w_payload_last;
   wire       [31:0]   io_mem_toAxi4_w_payload_fragment_address;
   wire       [31:0]   io_mem_toAxi4_w_payload_fragment_data;
   wire       [0:0]    io_mem_toAxi4_w_payload_fragment_id;
+  wire                io_mem_toAxi4_wStaged_valid;
+  wire                io_mem_toAxi4_wStaged_ready;
+  wire                io_mem_toAxi4_wStaged_payload_last;
+  wire       [31:0]   io_mem_toAxi4_wStaged_payload_fragment_address;
+  wire       [31:0]   io_mem_toAxi4_wStaged_payload_fragment_data;
+  wire       [0:0]    io_mem_toAxi4_wStaged_payload_fragment_id;
+  reg                 io_mem_toAxi4_w_rValid;
+  reg                 io_mem_toAxi4_w_rData_last;
+  reg        [31:0]   io_mem_toAxi4_w_rData_fragment_address;
+  reg        [31:0]   io_mem_toAxi4_w_rData_fragment_data;
+  reg        [0:0]    io_mem_toAxi4_w_rData_fragment_id;
+  wire                when_Stream_l477_3;
+  wire                io_mem_toAxi4_bRspStaged_valid;
+  wire                io_mem_toAxi4_bRspStaged_ready;
+  wire       [0:0]    io_mem_toAxi4_bRspStaged_payload_id;
+  wire       [1:0]    io_mem_toAxi4_bRspStaged_payload_resp;
+  reg                 DataCachePlugin_setup_dcacheMaster_b_rValid;
+  reg        [0:0]    DataCachePlugin_setup_dcacheMaster_b_rData_id;
+  reg        [1:0]    DataCachePlugin_setup_dcacheMaster_b_rData_resp;
+  wire                when_Stream_l477_4;
   wire       [0:0]    _zz_when_Debug_l71_1;
   wire                when_Debug_l71;
   wire                IFUPlugin_setup_ifuDCacheLoadPort_cmd_valid;
@@ -3957,7 +3998,7 @@ module CoreNSCSCC (
   reg        [31:0]   _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeData_4;
   reg                 _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isFlush_1;
   reg                 _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isIO_1;
-  wire                when_Stream_l477_1;
+  wire                when_Stream_l477_5;
   wire                LoadQueuePlugin_logic_pushCmd_valid;
   wire                LoadQueuePlugin_logic_pushCmd_ready;
   wire       [3:0]    LoadQueuePlugin_logic_pushCmd_payload_robPtr;
@@ -5703,13 +5744,13 @@ module CoreNSCSCC (
     .io_store_rsp_payload_io                   (DataCachePlugin_setup_cache_io_store_rsp_payload_io                        ), //o
     .io_store_rsp_payload_id                   (DataCachePlugin_setup_cache_io_store_rsp_payload_id                        ), //o
     .io_mem_read_cmd_valid                     (DataCachePlugin_setup_cache_io_mem_read_cmd_valid                          ), //o
-    .io_mem_read_cmd_ready                     (DataCachePlugin_setup_dcacheMaster_ar_ready                                ), //i
+    .io_mem_read_cmd_ready                     (DataCachePlugin_setup_cache_io_mem_read_cmd_ready                          ), //i
     .io_mem_read_cmd_payload_id                (DataCachePlugin_setup_cache_io_mem_read_cmd_payload_id                     ), //o
     .io_mem_read_cmd_payload_address           (DataCachePlugin_setup_cache_io_mem_read_cmd_payload_address[31:0]          ), //o
-    .io_mem_read_rsp_valid                     (DataCachePlugin_setup_dcacheMaster_r_valid                                 ), //i
+    .io_mem_read_rsp_valid                     (io_mem_toAxi4_rRspStaged_valid                                             ), //i
     .io_mem_read_rsp_ready                     (DataCachePlugin_setup_cache_io_mem_read_rsp_ready                          ), //o
-    .io_mem_read_rsp_payload_id                (DataCachePlugin_setup_dcacheMaster_r_payload_id                            ), //i
-    .io_mem_read_rsp_payload_data              (DataCachePlugin_setup_dcacheMaster_r_payload_data[31:0]                    ), //i
+    .io_mem_read_rsp_payload_id                (io_mem_toAxi4_rRspStaged_payload_id                                        ), //i
+    .io_mem_read_rsp_payload_data              (io_mem_toAxi4_rRspStaged_payload_data[31:0]                                ), //i
     .io_mem_read_rsp_payload_error             (DataCachePlugin_setup_cache_io_mem_read_rsp_payload_error                  ), //i
     .io_mem_write_cmd_valid                    (DataCachePlugin_setup_cache_io_mem_write_cmd_valid                         ), //o
     .io_mem_write_cmd_ready                    (DataCachePlugin_setup_cache_io_mem_write_cmd_ready                         ), //i
@@ -5717,9 +5758,9 @@ module CoreNSCSCC (
     .io_mem_write_cmd_payload_fragment_address (DataCachePlugin_setup_cache_io_mem_write_cmd_payload_fragment_address[31:0]), //o
     .io_mem_write_cmd_payload_fragment_data    (DataCachePlugin_setup_cache_io_mem_write_cmd_payload_fragment_data[31:0]   ), //o
     .io_mem_write_cmd_payload_fragment_id      (DataCachePlugin_setup_cache_io_mem_write_cmd_payload_fragment_id           ), //o
-    .io_mem_write_rsp_valid                    (DataCachePlugin_setup_dcacheMaster_b_valid                                 ), //i
+    .io_mem_write_rsp_valid                    (io_mem_toAxi4_bRspStaged_valid                                             ), //i
     .io_mem_write_rsp_payload_error            (DataCachePlugin_setup_cache_io_mem_write_rsp_payload_error                 ), //i
-    .io_mem_write_rsp_payload_id               (DataCachePlugin_setup_dcacheMaster_b_payload_id                            ), //i
+    .io_mem_write_rsp_payload_id               (io_mem_toAxi4_bRspStaged_payload_id                                        ), //i
     .io_refillCompletions                      (DataCachePlugin_setup_cache_io_refillCompletions[1:0]                      ), //o
     .io_refillEvent                            (DataCachePlugin_setup_cache_io_refillEvent                                 ), //o
     .io_writebackEvent                         (DataCachePlugin_setup_cache_io_writebackEvent                              ), //o
@@ -12882,15 +12923,40 @@ module CoreNSCSCC (
   assign DispatchPlugin_logic_iqRegs_2_0_1 = BaseUopCode_STORE;
   assign DataCachePlugin_setup_writebackBusy = DataCachePlugin_setup_cache_io_writebackBusy;
   assign DataCachePlugin_setup_refillCompletions = DataCachePlugin_setup_cache_io_refillCompletions;
-  assign DataCachePlugin_setup_dcacheMaster_ar_valid = DataCachePlugin_setup_cache_io_mem_read_cmd_valid;
-  assign DataCachePlugin_setup_dcacheMaster_ar_payload_addr = DataCachePlugin_setup_cache_io_mem_read_cmd_payload_address;
-  assign DataCachePlugin_setup_dcacheMaster_ar_payload_id = DataCachePlugin_setup_cache_io_mem_read_cmd_payload_id;
+  always @(*) begin
+    DataCachePlugin_setup_cache_io_mem_read_cmd_ready = io_mem_toAxi4_arCmdStaged_ready;
+    if(when_Stream_l477) begin
+      DataCachePlugin_setup_cache_io_mem_read_cmd_ready = 1'b1;
+    end
+  end
+
+  assign when_Stream_l477 = (! io_mem_toAxi4_arCmdStaged_valid);
+  assign io_mem_toAxi4_arCmdStaged_valid = io_mem_read_cmd_rValid;
+  assign io_mem_toAxi4_arCmdStaged_payload_id = io_mem_read_cmd_rData_id;
+  assign io_mem_toAxi4_arCmdStaged_payload_address = io_mem_read_cmd_rData_address;
+  assign DataCachePlugin_setup_dcacheMaster_ar_valid = io_mem_toAxi4_arCmdStaged_valid;
+  assign DataCachePlugin_setup_dcacheMaster_ar_payload_addr = io_mem_toAxi4_arCmdStaged_payload_address;
+  assign DataCachePlugin_setup_dcacheMaster_ar_payload_id = io_mem_toAxi4_arCmdStaged_payload_id;
   assign DataCachePlugin_setup_dcacheMaster_ar_payload_prot = 3'b010;
   assign DataCachePlugin_setup_dcacheMaster_ar_payload_len = 8'h03;
   assign DataCachePlugin_setup_dcacheMaster_ar_payload_size = 3'b010;
   assign DataCachePlugin_setup_dcacheMaster_ar_payload_burst = 2'b01;
-  assign DataCachePlugin_setup_cache_io_mem_read_rsp_payload_error = (! (DataCachePlugin_setup_dcacheMaster_r_payload_resp == 2'b00));
-  assign DataCachePlugin_setup_dcacheMaster_r_ready = 1'b1;
+  assign io_mem_toAxi4_arCmdStaged_ready = DataCachePlugin_setup_dcacheMaster_ar_ready;
+  always @(*) begin
+    DataCachePlugin_setup_dcacheMaster_r_ready = io_mem_toAxi4_rRspStaged_ready;
+    if(when_Stream_l477_1) begin
+      DataCachePlugin_setup_dcacheMaster_r_ready = 1'b1;
+    end
+  end
+
+  assign when_Stream_l477_1 = (! io_mem_toAxi4_rRspStaged_valid);
+  assign io_mem_toAxi4_rRspStaged_valid = DataCachePlugin_setup_dcacheMaster_r_rValid;
+  assign io_mem_toAxi4_rRspStaged_payload_data = DataCachePlugin_setup_dcacheMaster_r_rData_data;
+  assign io_mem_toAxi4_rRspStaged_payload_id = DataCachePlugin_setup_dcacheMaster_r_rData_id;
+  assign io_mem_toAxi4_rRspStaged_payload_resp = DataCachePlugin_setup_dcacheMaster_r_rData_resp;
+  assign io_mem_toAxi4_rRspStaged_payload_last = DataCachePlugin_setup_dcacheMaster_r_rData_last;
+  assign DataCachePlugin_setup_cache_io_mem_read_rsp_payload_error = (! (io_mem_toAxi4_rRspStaged_payload_resp == 2'b00));
+  assign io_mem_toAxi4_rRspStaged_ready = 1'b1;
   always @(*) begin
     DataCachePlugin_setup_cache_io_mem_write_cmd_ready = 1'b1;
     if(when_Stream_l1253) begin
@@ -12936,12 +13002,12 @@ module CoreNSCSCC (
   assign io_mem_toAxi4_awFiltred_payload_fragment_id = io_mem_toAxi4_awRaw_payload_fragment_id;
   always @(*) begin
     io_mem_toAxi4_awFiltred_ready = io_mem_toAxi4_aw_ready;
-    if(when_Stream_l477) begin
+    if(when_Stream_l477_2) begin
       io_mem_toAxi4_awFiltred_ready = 1'b1;
     end
   end
 
-  assign when_Stream_l477 = (! io_mem_toAxi4_aw_valid);
+  assign when_Stream_l477_2 = (! io_mem_toAxi4_aw_valid);
   assign io_mem_toAxi4_aw_valid = io_mem_toAxi4_awFiltred_rValid;
   assign io_mem_toAxi4_aw_payload_last = io_mem_toAxi4_awFiltred_rData_last;
   assign io_mem_toAxi4_aw_payload_fragment_address = io_mem_toAxi4_awFiltred_rData_fragment_address;
@@ -12962,13 +13028,37 @@ module CoreNSCSCC (
   assign io_mem_toAxi4_w_payload_fragment_address = io_mem_toAxi4_wRaw_payload_fragment_address;
   assign io_mem_toAxi4_w_payload_fragment_data = io_mem_toAxi4_wRaw_payload_fragment_data;
   assign io_mem_toAxi4_w_payload_fragment_id = io_mem_toAxi4_wRaw_payload_fragment_id;
-  assign DataCachePlugin_setup_dcacheMaster_w_valid = io_mem_toAxi4_w_valid;
-  assign DataCachePlugin_setup_dcacheMaster_w_payload_data = io_mem_toAxi4_w_payload_fragment_data;
+  always @(*) begin
+    io_mem_toAxi4_w_ready = io_mem_toAxi4_wStaged_ready;
+    if(when_Stream_l477_3) begin
+      io_mem_toAxi4_w_ready = 1'b1;
+    end
+  end
+
+  assign when_Stream_l477_3 = (! io_mem_toAxi4_wStaged_valid);
+  assign io_mem_toAxi4_wStaged_valid = io_mem_toAxi4_w_rValid;
+  assign io_mem_toAxi4_wStaged_payload_last = io_mem_toAxi4_w_rData_last;
+  assign io_mem_toAxi4_wStaged_payload_fragment_address = io_mem_toAxi4_w_rData_fragment_address;
+  assign io_mem_toAxi4_wStaged_payload_fragment_data = io_mem_toAxi4_w_rData_fragment_data;
+  assign io_mem_toAxi4_wStaged_payload_fragment_id = io_mem_toAxi4_w_rData_fragment_id;
+  assign DataCachePlugin_setup_dcacheMaster_w_valid = io_mem_toAxi4_wStaged_valid;
+  assign DataCachePlugin_setup_dcacheMaster_w_payload_data = io_mem_toAxi4_wStaged_payload_fragment_data;
   assign DataCachePlugin_setup_dcacheMaster_w_payload_strb = 4'b1111;
-  assign DataCachePlugin_setup_dcacheMaster_w_payload_last = io_mem_toAxi4_w_payload_last;
-  assign io_mem_toAxi4_w_ready = DataCachePlugin_setup_dcacheMaster_w_ready;
-  assign DataCachePlugin_setup_cache_io_mem_write_rsp_payload_error = (! (DataCachePlugin_setup_dcacheMaster_b_payload_resp == 2'b00));
-  assign DataCachePlugin_setup_dcacheMaster_b_ready = 1'b1;
+  assign DataCachePlugin_setup_dcacheMaster_w_payload_last = io_mem_toAxi4_wStaged_payload_last;
+  assign io_mem_toAxi4_wStaged_ready = DataCachePlugin_setup_dcacheMaster_w_ready;
+  always @(*) begin
+    DataCachePlugin_setup_dcacheMaster_b_ready = io_mem_toAxi4_bRspStaged_ready;
+    if(when_Stream_l477_4) begin
+      DataCachePlugin_setup_dcacheMaster_b_ready = 1'b1;
+    end
+  end
+
+  assign when_Stream_l477_4 = (! io_mem_toAxi4_bRspStaged_valid);
+  assign io_mem_toAxi4_bRspStaged_valid = DataCachePlugin_setup_dcacheMaster_b_rValid;
+  assign io_mem_toAxi4_bRspStaged_payload_id = DataCachePlugin_setup_dcacheMaster_b_rData_id;
+  assign io_mem_toAxi4_bRspStaged_payload_resp = DataCachePlugin_setup_dcacheMaster_b_rData_resp;
+  assign DataCachePlugin_setup_cache_io_mem_write_rsp_payload_error = (! (io_mem_toAxi4_bRspStaged_payload_resp == 2'b00));
+  assign io_mem_toAxi4_bRspStaged_ready = 1'b1;
   assign oneShot_13_io_triggerIn = (1'b1 && (_zz_when_Debug_l71 < _zz_io_triggerIn));
   assign _zz_when_Debug_l71_1 = 1'b1;
   assign when_Debug_l71 = (_zz_when_Debug_l71 < _zz_when_Debug_l71_13);
@@ -17152,12 +17242,12 @@ module CoreNSCSCC (
   assign _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize = _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException;
   always @(*) begin
     _zz_LsuEU_LsuEuPlugin_hw_aguPort_input_ready = LsuEU_LsuEuPlugin_hw_aguPort_output_ready;
-    if(when_Stream_l477_1) begin
+    if(when_Stream_l477_5) begin
       _zz_LsuEU_LsuEuPlugin_hw_aguPort_input_ready = 1'b1;
     end
   end
 
-  assign when_Stream_l477_1 = (! _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_valid_1);
+  assign when_Stream_l477_5 = (! _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_valid_1);
   assign _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_valid_1 = _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_valid_2;
   assign _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize_1 = _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize_2;
   assign LsuEU_LsuEuPlugin_hw_aguPort_output_valid = _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_valid_1;
@@ -21285,10 +21375,14 @@ module CoreNSCSCC (
       CommitPlugin_maxCommitPcReg <= 32'h0;
       CommitPlugin_commitOOBReg <= 1'b0;
       _zz_when_Debug_l71 <= 8'h0;
+      io_mem_read_cmd_rValid <= 1'b0;
+      DataCachePlugin_setup_dcacheMaster_r_rValid <= 1'b0;
       io_mem_write_cmd_fork2_logic_linkEnable_0 <= 1'b1;
       io_mem_write_cmd_fork2_logic_linkEnable_1 <= 1'b1;
       io_mem_toAxi4_awRaw_payload_first <= 1'b1;
       io_mem_toAxi4_awFiltred_rValid <= 1'b0;
+      io_mem_toAxi4_w_rValid <= 1'b0;
+      DataCachePlugin_setup_dcacheMaster_b_rValid <= 1'b0;
       BusyTablePlugin_early_setup_busyTableReg <= 64'h0;
       BpuPipelinePlugin_logic_s2_predict_valid <= 1'b0;
       BpuPipelinePlugin_logic_u2_write_valid <= 1'b0;
@@ -21487,6 +21581,12 @@ module CoreNSCSCC (
       _zz_io_leds <= 1'b0;
       SimpleFetchPipelinePlugin_logic_fsm_stateReg <= SimpleFetchPipelinePlugin_logic_fsm_BOOT;
     end else begin
+      if(DataCachePlugin_setup_cache_io_mem_read_cmd_ready) begin
+        io_mem_read_cmd_rValid <= DataCachePlugin_setup_cache_io_mem_read_cmd_valid;
+      end
+      if(DataCachePlugin_setup_dcacheMaster_r_ready) begin
+        DataCachePlugin_setup_dcacheMaster_r_rValid <= DataCachePlugin_setup_dcacheMaster_r_valid;
+      end
       if(io_mem_toAxi4_awRaw_fire) begin
         io_mem_write_cmd_fork2_logic_linkEnable_0 <= 1'b0;
       end
@@ -21502,6 +21602,12 @@ module CoreNSCSCC (
       end
       if(io_mem_toAxi4_awFiltred_ready) begin
         io_mem_toAxi4_awFiltred_rValid <= io_mem_toAxi4_awFiltred_valid;
+      end
+      if(io_mem_toAxi4_w_ready) begin
+        io_mem_toAxi4_w_rValid <= io_mem_toAxi4_w_valid;
+      end
+      if(DataCachePlugin_setup_dcacheMaster_b_ready) begin
+        DataCachePlugin_setup_dcacheMaster_b_rValid <= DataCachePlugin_setup_dcacheMaster_b_valid;
       end
       if(oneShot_13_io_pulseOut) begin
         if(when_Debug_l71) begin
@@ -23505,11 +23611,31 @@ module CoreNSCSCC (
   end
 
   always @(posedge clk) begin
+    if(DataCachePlugin_setup_cache_io_mem_read_cmd_ready) begin
+      io_mem_read_cmd_rData_id <= DataCachePlugin_setup_cache_io_mem_read_cmd_payload_id;
+      io_mem_read_cmd_rData_address <= DataCachePlugin_setup_cache_io_mem_read_cmd_payload_address;
+    end
+    if(DataCachePlugin_setup_dcacheMaster_r_ready) begin
+      DataCachePlugin_setup_dcacheMaster_r_rData_data <= DataCachePlugin_setup_dcacheMaster_r_payload_data;
+      DataCachePlugin_setup_dcacheMaster_r_rData_id <= DataCachePlugin_setup_dcacheMaster_r_payload_id;
+      DataCachePlugin_setup_dcacheMaster_r_rData_resp <= DataCachePlugin_setup_dcacheMaster_r_payload_resp;
+      DataCachePlugin_setup_dcacheMaster_r_rData_last <= DataCachePlugin_setup_dcacheMaster_r_payload_last;
+    end
     if(io_mem_toAxi4_awFiltred_ready) begin
       io_mem_toAxi4_awFiltred_rData_last <= io_mem_toAxi4_awFiltred_payload_last;
       io_mem_toAxi4_awFiltred_rData_fragment_address <= io_mem_toAxi4_awFiltred_payload_fragment_address;
       io_mem_toAxi4_awFiltred_rData_fragment_data <= io_mem_toAxi4_awFiltred_payload_fragment_data;
       io_mem_toAxi4_awFiltred_rData_fragment_id <= io_mem_toAxi4_awFiltred_payload_fragment_id;
+    end
+    if(io_mem_toAxi4_w_ready) begin
+      io_mem_toAxi4_w_rData_last <= io_mem_toAxi4_w_payload_last;
+      io_mem_toAxi4_w_rData_fragment_address <= io_mem_toAxi4_w_payload_fragment_address;
+      io_mem_toAxi4_w_rData_fragment_data <= io_mem_toAxi4_w_payload_fragment_data;
+      io_mem_toAxi4_w_rData_fragment_id <= io_mem_toAxi4_w_payload_fragment_id;
+    end
+    if(DataCachePlugin_setup_dcacheMaster_b_ready) begin
+      DataCachePlugin_setup_dcacheMaster_b_rData_id <= DataCachePlugin_setup_dcacheMaster_b_payload_id;
+      DataCachePlugin_setup_dcacheMaster_b_rData_resp <= DataCachePlugin_setup_dcacheMaster_b_payload_resp;
     end
     BpuPipelinePlugin_logic_s2_predict_Q_PC <= BpuPipelinePlugin_logic_s1_read_Q_PC;
     BpuPipelinePlugin_logic_s2_predict_TRANSACTION_ID <= BpuPipelinePlugin_logic_s1_read_TRANSACTION_ID;
@@ -44487,9 +44613,9 @@ module DataCache (
   wire                invalidate_done;
   wire                invalidate_reservation_win;
   reg                 invalidate_reservation_take;
-  wire                when_dcache2_l675;
+  wire                when_dcache2_l693;
   reg                 invalidate_done_regNext;
-  wire                when_dcache2_l684;
+  wire                when_dcache2_l702;
   reg                 refill_slots_0_valid;
   reg        [31:0]   refill_slots_0_address;
   reg        [0:0]    refill_slots_0_way;
@@ -44519,10 +44645,10 @@ module DataCache (
   reg        [31:0]   refill_push_payload_address;
   reg        [0:0]    refill_push_payload_way;
   reg        [1:0]    refill_push_payload_victim;
-  wire                when_dcache2_l745;
+  wire                when_dcache2_l763;
   wire                _zz_19;
   wire                _zz_20;
-  wire                when_dcache2_l745_1;
+  wire                when_dcache2_l763_1;
   wire                refill_read_arbiter_slotsWithId_0_0;
   wire                refill_read_arbiter_slotsWithId_1_0;
   wire       [1:0]    refill_read_arbiter_hits;
@@ -44531,26 +44657,26 @@ module DataCache (
   wire                _zz_refill_read_arbiter_sel;
   wire       [0:0]    refill_read_arbiter_sel;
   reg        [1:0]    refill_read_arbiter_lock;
-  wire                when_dcache2_l702;
+  wire                when_dcache2_l720;
   reg        [1:0]    refill_read_writebackHazards;
   wire                refill_read_writebackHazard;
   wire                io_mem_read_cmd_fire;
-  wire                when_dcache2_l774;
+  wire                when_dcache2_l792;
   wire       [31:0]   refill_read_cmdAddress;
-  wire                when_dcache2_l786;
-  wire                when_dcache2_l786_1;
+  wire                when_dcache2_l804;
+  wire                when_dcache2_l804_1;
   wire       [31:0]   refill_read_rspAddress;
   wire       [0:0]    refill_read_way;
   (* keep , syn_keep *) reg        [1:0]    refill_read_wordIndex /* synthesis syn_keep = 1 */ ;
   wire                refill_read_rspWithData;
   reg        [1:0]    refill_read_bankWriteNotif;
   reg                 refill_read_hadError;
-  wire                when_dcache2_l816;
+  wire                when_dcache2_l834;
   reg                 refill_read_fire;
   wire                refill_read_reservation_win;
   reg                 refill_read_reservation_take;
   wire                refill_read_faulty;
-  wire                when_dcache2_l829;
+  wire                when_dcache2_l847;
   reg                 writeback_slots_0_fire;
   reg                 writeback_slots_0_valid;
   reg        [31:0]   writeback_slots_0_address;
@@ -44577,8 +44703,8 @@ module DataCache (
   reg                 writeback_push_valid;
   reg        [31:0]   writeback_push_payload_address;
   reg        [0:0]    writeback_push_payload_way;
-  wire                when_dcache2_l892;
-  wire                when_dcache2_l892_1;
+  wire                when_dcache2_l910;
+  wire                when_dcache2_l910_1;
   wire                writeback_read_arbiter_slotsWithId_0_0;
   wire                writeback_read_arbiter_slotsWithId_1_0;
   wire       [1:0]    writeback_read_arbiter_hits;
@@ -44587,7 +44713,7 @@ module DataCache (
   wire                _zz_writeback_read_arbiter_sel;
   wire       [0:0]    writeback_read_arbiter_sel;
   reg        [1:0]    writeback_read_arbiter_lock;
-  wire                when_dcache2_l702_1;
+  wire                when_dcache2_l720_1;
   wire       [31:0]   writeback_read_address;
   wire       [0:0]    writeback_read_way;
   (* keep , syn_keep *) reg        [1:0]    writeback_read_wordIndex /* synthesis syn_keep = 1 */ ;
@@ -44596,9 +44722,9 @@ module DataCache (
   wire                writeback_read_slotRead_payload_last;
   wire       [1:0]    writeback_read_slotRead_payload_wordIndex;
   wire       [0:0]    writeback_read_slotRead_payload_way;
-  wire                when_dcache2_l932;
-  wire                when_dcache2_l943;
-  wire                when_dcache2_l943_1;
+  wire                when_dcache2_l950;
+  wire                when_dcache2_l961;
+  wire                when_dcache2_l961_1;
   reg                 writeback_read_slotReadLast_valid;
   reg        [0:0]    writeback_read_slotReadLast_payload_id;
   reg                 writeback_read_slotReadLast_payload_last;
@@ -44614,7 +44740,7 @@ module DataCache (
   wire                _zz_writeback_write_arbiter_sel;
   wire       [0:0]    writeback_write_arbiter_sel;
   reg        [1:0]    writeback_write_arbiter_lock;
-  wire                when_dcache2_l702_2;
+  wire                when_dcache2_l720_2;
   (* keep , syn_keep *) reg        [1:0]    writeback_write_wordIndex /* synthesis syn_keep = 1 */ ;
   wire                writeback_write_last;
   wire                writeback_write_bufferRead_valid;
@@ -44623,7 +44749,7 @@ module DataCache (
   wire       [31:0]   writeback_write_bufferRead_payload_address;
   wire                writeback_write_bufferRead_payload_last;
   wire                writeback_write_bufferRead_fire;
-  wire                when_dcache2_l1015;
+  wire                when_dcache2_l1033;
   wire                writeback_write_cmd_valid;
   wire                writeback_write_cmd_ready;
   wire       [0:0]    writeback_write_cmd_payload_id;
@@ -44641,13 +44767,13 @@ module DataCache (
   reg                 load_pipeline_stages_1_valid;
   reg                 _zz_load_pipeline_stages_2_valid;
   reg                 load_pipeline_stages_2_valid;
-  wire                _zz_load_pipeline_stages_0_throwRequest_dcache2_l1059;
-  wire                load_pipeline_stages_0_throwRequest_dcache2_l1059;
-  wire                _zz_load_pipeline_stages_1_throwRequest_dcache2_l1059;
-  wire                load_pipeline_stages_1_throwRequest_dcache2_l1059;
-  wire                load_pipeline_stages_2_throwRequest_dcache2_l1059;
-  wire                when_dcache2_l1103;
-  wire                when_dcache2_l1103_1;
+  wire                _zz_load_pipeline_stages_0_throwRequest_dcache2_l1077;
+  wire                load_pipeline_stages_0_throwRequest_dcache2_l1077;
+  wire                _zz_load_pipeline_stages_1_throwRequest_dcache2_l1077;
+  wire                load_pipeline_stages_1_throwRequest_dcache2_l1077;
+  wire                load_pipeline_stages_2_throwRequest_dcache2_l1077;
+  wire                when_dcache2_l1121;
+  wire                when_dcache2_l1121_1;
   wire                _zz_load_pipeline_stages_2_CPU_WORD;
   wire                _zz_24;
   wire                _zz_25;
@@ -44655,8 +44781,8 @@ module DataCache (
   wire       [1:0]    _zz_27;
   reg                 _zz_load_pipeline_stages_1_STATUS_overloaded_0_dirty;
   reg                 _zz_load_pipeline_stages_1_STATUS_overloaded_1_dirty;
-  wire                when_dcache2_l654;
-  wire                when_dcache2_l657;
+  wire                when_dcache2_l672;
+  wire                when_dcache2_l675;
   wire                load_refillCheckEarly_refillPushHit;
   wire                load_ctrl_reservation_win;
   reg                 load_ctrl_reservation_take;
@@ -44691,9 +44817,9 @@ module DataCache (
   reg                 _zz_store_pipeline_stages_2_valid;
   reg                 store_pipeline_stages_2_valid;
   wire                store_pipeline_discardAll;
-  wire                store_pipeline_stages_0_throwRequest_dcache2_l1352;
-  wire                store_pipeline_stages_1_throwRequest_dcache2_l1352;
-  wire                store_pipeline_stages_2_throwRequest_dcache2_l1352;
+  wire                store_pipeline_stages_0_throwRequest_dcache2_l1370;
+  wire                store_pipeline_stages_1_throwRequest_dcache2_l1370;
+  wire                store_pipeline_stages_2_throwRequest_dcache2_l1370;
   wire       [0:0]    _zz_38;
   wire       [0:0]    _zz_39;
   wire       [0:0]    _zz_40;
@@ -44705,8 +44831,8 @@ module DataCache (
   wire       [1:0]    _zz_46;
   reg                 _zz_store_pipeline_stages_1_STATUS_overloaded_0_dirty;
   reg                 _zz_store_pipeline_stages_1_STATUS_overloaded_1_dirty;
-  wire                when_dcache2_l654_1;
-  wire                when_dcache2_l657_1;
+  wire                when_dcache2_l672_1;
+  wire                when_dcache2_l675_1;
   wire                store_refillCheckEarly_refillPushHit;
   wire                store_ctrl_generationOk;
   wire                store_ctrl_reservation_win;
@@ -44740,12 +44866,12 @@ module DataCache (
   wire                store_ctrl_startFlush;
   wire       [0:0]    _zz_47;
   wire                _zz_48;
-  wire                when_dcache2_l1537;
+  wire                when_dcache2_l1555;
   wire       [4:0]    _zz_49;
-  wire                when_dcache2_l1547;
+  wire                when_dcache2_l1565;
   wire       [4:0]    _zz_50;
-  wire                when_dcache2_l1578;
-  wire                when_dcache2_l1578_1;
+  wire                when_dcache2_l1596;
+  wire                when_dcache2_l1596_1;
   wire       [31:0]   _zz_51;
   wire       [4:0]    _zz_52;
   wire       [4:0]    _zz_53;
@@ -44780,7 +44906,7 @@ module DataCache (
   reg        [4:0]    idleWriteback_scanCmd_lineCounter_value;
   wire                idleWriteback_scanCmd_lineCounter_willOverflowIfInc;
   wire                idleWriteback_scanCmd_lineCounter_willOverflow;
-  wire                when_dcache2_l1725;
+  wire                when_dcache2_l1743;
   reg                 idleWriteback_analysisAndTrigger_valid;
   reg        [4:0]    idleWriteback_analysisAndTrigger_lineIdx;
   wire       [1:0]    idleWriteback_analysisAndTrigger_dirtyOh;
@@ -45097,7 +45223,7 @@ module DataCache (
 
   always @(*) begin
     banks_0_read_usedByWriteBack = 1'b0;
-    if(when_dcache2_l943) begin
+    if(when_dcache2_l961) begin
       banks_0_read_usedByWriteBack = 1'b1;
     end
   end
@@ -45105,27 +45231,27 @@ module DataCache (
   assign banks_0_read_rsp = banks_0_mem_spinal_port1;
   always @(*) begin
     banks_0_read_cmd_valid = 1'b0;
-    if(when_dcache2_l943) begin
+    if(when_dcache2_l961) begin
       banks_0_read_cmd_valid = 1'b1;
     end
-    if(when_dcache2_l1103) begin
+    if(when_dcache2_l1121) begin
       banks_0_read_cmd_valid = (! (load_pipeline_stages_0_valid && (! load_pipeline_stages_0_ready)));
     end
   end
 
   always @(*) begin
     banks_0_read_cmd_payload = 7'bxxxxxxx;
-    if(when_dcache2_l943) begin
+    if(when_dcache2_l961) begin
       banks_0_read_cmd_payload = {writeback_read_address[8 : 4],writeback_read_wordIndex};
     end
-    if(when_dcache2_l1103) begin
+    if(when_dcache2_l1121) begin
       banks_0_read_cmd_payload = load_pipeline_stages_0_ADDRESS_PRE_TRANSLATION[8 : 2];
     end
   end
 
   always @(*) begin
     banks_1_read_usedByWriteBack = 1'b0;
-    if(when_dcache2_l943_1) begin
+    if(when_dcache2_l961_1) begin
       banks_1_read_usedByWriteBack = 1'b1;
     end
   end
@@ -45133,31 +45259,31 @@ module DataCache (
   assign banks_1_read_rsp = banks_1_mem_spinal_port1;
   always @(*) begin
     banks_1_read_cmd_valid = 1'b0;
-    if(when_dcache2_l943_1) begin
+    if(when_dcache2_l961_1) begin
       banks_1_read_cmd_valid = 1'b1;
     end
-    if(when_dcache2_l1103_1) begin
+    if(when_dcache2_l1121_1) begin
       banks_1_read_cmd_valid = (! (load_pipeline_stages_0_valid && (! load_pipeline_stages_0_ready)));
     end
   end
 
   always @(*) begin
     banks_1_read_cmd_payload = 7'bxxxxxxx;
-    if(when_dcache2_l943_1) begin
+    if(when_dcache2_l961_1) begin
       banks_1_read_cmd_payload = {writeback_read_address[8 : 4],writeback_read_wordIndex};
     end
-    if(when_dcache2_l1103_1) begin
+    if(when_dcache2_l1121_1) begin
       banks_1_read_cmd_payload = load_pipeline_stages_0_ADDRESS_PRE_TRANSLATION[8 : 2];
     end
   end
 
   always @(*) begin
     waysWrite_mask = 2'b00;
-    if(when_dcache2_l675) begin
+    if(when_dcache2_l693) begin
       waysWrite_mask = 2'b11;
     end
     if(io_mem_read_rsp_valid) begin
-      if(when_dcache2_l829) begin
+      if(when_dcache2_l847) begin
         waysWrite_mask[refill_read_way] = 1'b1;
       end
     end
@@ -45181,11 +45307,11 @@ module DataCache (
 
   always @(*) begin
     waysWrite_address = 5'bxxxxx;
-    if(when_dcache2_l675) begin
+    if(when_dcache2_l693) begin
       waysWrite_address = invalidate_counter[4:0];
     end
     if(io_mem_read_rsp_valid) begin
-      if(when_dcache2_l829) begin
+      if(when_dcache2_l847) begin
         waysWrite_address = refill_read_rspAddress[8 : 4];
       end
     end
@@ -45204,11 +45330,11 @@ module DataCache (
 
   always @(*) begin
     waysWrite_tag_loaded = 1'bx;
-    if(when_dcache2_l675) begin
+    if(when_dcache2_l693) begin
       waysWrite_tag_loaded = 1'b0;
     end
     if(io_mem_read_rsp_valid) begin
-      if(when_dcache2_l829) begin
+      if(when_dcache2_l847) begin
         waysWrite_tag_loaded = 1'b1;
       end
     end
@@ -45228,7 +45354,7 @@ module DataCache (
   always @(*) begin
     waysWrite_tag_address = 23'bxxxxxxxxxxxxxxxxxxxxxxx;
     if(io_mem_read_rsp_valid) begin
-      if(when_dcache2_l829) begin
+      if(when_dcache2_l847) begin
         waysWrite_tag_address = refill_read_rspAddress[31 : 9];
       end
     end
@@ -45237,7 +45363,7 @@ module DataCache (
   always @(*) begin
     waysWrite_tag_fault = 1'bx;
     if(io_mem_read_rsp_valid) begin
-      if(when_dcache2_l829) begin
+      if(when_dcache2_l847) begin
         waysWrite_tag_fault = refill_read_faulty;
       end
     end
@@ -45272,7 +45398,7 @@ module DataCache (
     if(load_ctrl_startRefill) begin
       status_write_valid = 1'b1;
     end
-    if(when_dcache2_l1537) begin
+    if(when_dcache2_l1555) begin
       status_write_valid = 1'b1;
     end
     case(idleWriteback_clearDirtyFsm_stateReg)
@@ -45295,7 +45421,7 @@ module DataCache (
     if(load_ctrl_startRefill) begin
       status_write_payload_address = load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 4];
     end
-    if(when_dcache2_l1537) begin
+    if(when_dcache2_l1555) begin
       status_write_payload_address = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 4];
     end
     case(idleWriteback_clearDirtyFsm_stateReg)
@@ -45321,10 +45447,10 @@ module DataCache (
         status_write_payload_data_0_dirty = 1'b0;
       end
     end
-    if(when_dcache2_l1537) begin
+    if(when_dcache2_l1555) begin
       status_write_payload_data_0_dirty = store_pipeline_stages_2_STATUS_0_dirty;
     end
-    if(when_dcache2_l1547) begin
+    if(when_dcache2_l1565) begin
       if(store_ctrl_startFlush) begin
         case(store_ctrl_needFlushSel)
           1'b0 : begin
@@ -45372,10 +45498,10 @@ module DataCache (
         status_write_payload_data_1_dirty = 1'b0;
       end
     end
-    if(when_dcache2_l1537) begin
+    if(when_dcache2_l1555) begin
       status_write_payload_data_1_dirty = store_pipeline_stages_2_STATUS_1_dirty;
     end
-    if(when_dcache2_l1547) begin
+    if(when_dcache2_l1565) begin
       if(store_ctrl_startFlush) begin
         case(store_ctrl_needFlushSel)
           1'b0 : begin
@@ -45438,13 +45564,13 @@ module DataCache (
   assign invalidate_done = invalidate_counter[5];
   always @(*) begin
     invalidate_reservation_take = 1'b0;
-    if(when_dcache2_l675) begin
+    if(when_dcache2_l693) begin
       invalidate_reservation_take = 1'b1;
     end
   end
 
-  assign when_dcache2_l675 = ((! invalidate_done) && invalidate_reservation_win);
-  assign when_dcache2_l684 = (invalidate_done && (! invalidate_done_regNext));
+  assign when_dcache2_l693 = ((! invalidate_done) && invalidate_reservation_win);
+  assign when_dcache2_l702 = (invalidate_done && (! invalidate_done_regNext));
   assign refill_slots_0_loadedDone = (refill_slots_0_loadedCounter == 1'b1);
   assign refill_slots_0_free = (! refill_slots_0_valid);
   assign refill_slots_1_loadedDone = (refill_slots_1_loadedCounter == 1'b1);
@@ -45488,33 +45614,33 @@ module DataCache (
     end
   end
 
-  assign when_dcache2_l745 = refill_free[0];
+  assign when_dcache2_l763 = refill_free[0];
   assign _zz_19 = refill_free[0];
   assign _zz_20 = refill_free[1];
-  assign when_dcache2_l745_1 = refill_free[1];
+  assign when_dcache2_l763_1 = refill_free[1];
   assign refill_read_arbiter_slotsWithId_0_0 = (((refill_slots_0_valid && (! refill_slots_0_cmdSent)) && (refill_slots_0_victim == 2'b00)) && (refill_slots_0_writebackHazards == 2'b00));
   assign refill_read_arbiter_slotsWithId_1_0 = (((refill_slots_1_valid && (! refill_slots_1_cmdSent)) && (refill_slots_1_victim == 2'b00)) && (refill_slots_1_writebackHazards == 2'b00));
   assign refill_read_arbiter_hits = {refill_read_arbiter_slotsWithId_1_0,refill_read_arbiter_slotsWithId_0_0};
   assign refill_read_arbiter_hit = (|refill_read_arbiter_hits);
   always @(*) begin
     refill_read_arbiter_oh = (refill_read_arbiter_hits & {((refill_read_arbiter_hits[0] & refill_slots_1_priority) == 1'b0),((refill_read_arbiter_hits[1] & refill_slots_0_priority) == 1'b0)});
-    if(when_dcache2_l702) begin
+    if(when_dcache2_l720) begin
       refill_read_arbiter_oh = refill_read_arbiter_lock;
     end
   end
 
   assign _zz_refill_read_arbiter_sel = refill_read_arbiter_oh[1];
   assign refill_read_arbiter_sel = _zz_refill_read_arbiter_sel;
-  assign when_dcache2_l702 = (|refill_read_arbiter_lock);
+  assign when_dcache2_l720 = (|refill_read_arbiter_lock);
   assign refill_read_writebackHazard = (|refill_read_writebackHazards);
   assign io_mem_read_cmd_fire = (io_mem_read_cmd_valid && io_mem_read_cmd_ready);
-  assign when_dcache2_l774 = (io_mem_read_cmd_fire || refill_read_writebackHazard);
+  assign when_dcache2_l792 = (io_mem_read_cmd_fire || refill_read_writebackHazard);
   assign refill_read_cmdAddress = {_zz_refill_read_cmdAddress,4'b0000};
   assign io_mem_read_cmd_valid = (refill_read_arbiter_hit && (! refill_read_writebackHazard));
   assign io_mem_read_cmd_payload_id = refill_read_arbiter_sel;
   assign io_mem_read_cmd_payload_address = refill_read_cmdAddress;
-  assign when_dcache2_l786 = (io_mem_read_cmd_ready && (! refill_read_writebackHazard));
-  assign when_dcache2_l786_1 = (io_mem_read_cmd_ready && (! refill_read_writebackHazard));
+  assign when_dcache2_l804 = (io_mem_read_cmd_ready && (! refill_read_writebackHazard));
+  assign when_dcache2_l804_1 = (io_mem_read_cmd_ready && (! refill_read_writebackHazard));
   assign refill_read_rspAddress = _zz_refill_read_rspAddress;
   assign refill_read_way = _zz_refill_read_way;
   assign refill_read_rspWithData = 1'b1;
@@ -45527,7 +45653,7 @@ module DataCache (
   always @(*) begin
     banks_0_write_valid = refill_read_bankWriteNotif[0];
     if(store_ctrl_writeCache) begin
-      if(when_dcache2_l1578) begin
+      if(when_dcache2_l1596) begin
         banks_0_write_valid = (1'b0 == store_ctrl_wayId);
       end
     end
@@ -45536,7 +45662,7 @@ module DataCache (
   always @(*) begin
     banks_0_write_payload_address = {refill_read_rspAddress[8 : 4],refill_read_wordIndex};
     if(store_ctrl_writeCache) begin
-      if(when_dcache2_l1578) begin
+      if(when_dcache2_l1596) begin
         banks_0_write_payload_address = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 2];
       end
     end
@@ -45545,7 +45671,7 @@ module DataCache (
   always @(*) begin
     banks_0_write_payload_data = io_mem_read_rsp_payload_data;
     if(store_ctrl_writeCache) begin
-      if(when_dcache2_l1578) begin
+      if(when_dcache2_l1596) begin
         banks_0_write_payload_data[31 : 0] = store_pipeline_stages_2_CPU_WORD;
       end
     end
@@ -45554,7 +45680,7 @@ module DataCache (
   always @(*) begin
     banks_0_write_payload_mask = 4'b1111;
     if(store_ctrl_writeCache) begin
-      if(when_dcache2_l1578) begin
+      if(when_dcache2_l1596) begin
         banks_0_write_payload_mask = 4'b0000;
         if(_zz_when_1[0]) begin
           banks_0_write_payload_mask[3 : 0] = store_pipeline_stages_2_CPU_MASK;
@@ -45566,7 +45692,7 @@ module DataCache (
   always @(*) begin
     banks_1_write_valid = refill_read_bankWriteNotif[1];
     if(store_ctrl_writeCache) begin
-      if(when_dcache2_l1578_1) begin
+      if(when_dcache2_l1596_1) begin
         banks_1_write_valid = (1'b1 == store_ctrl_wayId);
       end
     end
@@ -45575,7 +45701,7 @@ module DataCache (
   always @(*) begin
     banks_1_write_payload_address = {refill_read_rspAddress[8 : 4],refill_read_wordIndex};
     if(store_ctrl_writeCache) begin
-      if(when_dcache2_l1578_1) begin
+      if(when_dcache2_l1596_1) begin
         banks_1_write_payload_address = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 2];
       end
     end
@@ -45584,7 +45710,7 @@ module DataCache (
   always @(*) begin
     banks_1_write_payload_data = io_mem_read_rsp_payload_data;
     if(store_ctrl_writeCache) begin
-      if(when_dcache2_l1578_1) begin
+      if(when_dcache2_l1596_1) begin
         banks_1_write_payload_data[31 : 0] = store_pipeline_stages_2_CPU_WORD;
       end
     end
@@ -45593,7 +45719,7 @@ module DataCache (
   always @(*) begin
     banks_1_write_payload_mask = 4'b1111;
     if(store_ctrl_writeCache) begin
-      if(when_dcache2_l1578_1) begin
+      if(when_dcache2_l1596_1) begin
         banks_1_write_payload_mask = 4'b0000;
         if(_zz_when_2[0]) begin
           banks_1_write_payload_mask[3 : 0] = store_pipeline_stages_2_CPU_MASK;
@@ -45602,11 +45728,11 @@ module DataCache (
     end
   end
 
-  assign when_dcache2_l816 = (io_mem_read_rsp_valid && io_mem_read_rsp_payload_error);
+  assign when_dcache2_l834 = (io_mem_read_rsp_valid && io_mem_read_rsp_payload_error);
   always @(*) begin
     refill_read_fire = 1'b0;
     if(io_mem_read_rsp_valid) begin
-      if(when_dcache2_l829) begin
+      if(when_dcache2_l847) begin
         refill_read_fire = 1'b1;
       end
     end
@@ -45615,7 +45741,7 @@ module DataCache (
   always @(*) begin
     refill_read_reservation_take = 1'b0;
     if(io_mem_read_rsp_valid) begin
-      if(when_dcache2_l829) begin
+      if(when_dcache2_l847) begin
         refill_read_reservation_take = 1'b1;
       end
     end
@@ -45625,14 +45751,14 @@ module DataCache (
   always @(*) begin
     io_refillCompletions = 2'b00;
     if(io_mem_read_rsp_valid) begin
-      if(when_dcache2_l829) begin
+      if(when_dcache2_l847) begin
         io_refillCompletions[io_mem_read_rsp_payload_id] = 1'b1;
       end
     end
   end
 
   assign io_mem_read_rsp_ready = 1'b1;
-  assign when_dcache2_l829 = ((refill_read_wordIndex == 2'b11) || (! refill_read_rspWithData));
+  assign when_dcache2_l847 = ((refill_read_wordIndex == 2'b11) || (! refill_read_rspWithData));
   always @(*) begin
     writeback_slots_0_fire = 1'b0;
     if(io_mem_write_rsp_valid) begin
@@ -45675,7 +45801,7 @@ module DataCache (
     if(load_ctrl_startRefill) begin
       writeback_push_valid = load_ctrl_refillWayNeedWriteback;
     end
-    if(when_dcache2_l1547) begin
+    if(when_dcache2_l1565) begin
       writeback_push_valid = ((store_ctrl_replacedWayNeedWriteback && store_ctrl_startRefill) || store_ctrl_startFlush);
     end
     if(idleWriteback_analysisAndTrigger_doWriteback) begin
@@ -45688,7 +45814,7 @@ module DataCache (
     if(load_ctrl_startRefill) begin
       writeback_push_payload_address = ({4'd0,{_zz_writeback_push_payload_address,load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 4]}} <<< 3'd4);
     end
-    if(when_dcache2_l1547) begin
+    if(when_dcache2_l1565) begin
       writeback_push_payload_address = ({4'd0,{_zz_writeback_push_payload_address_1,store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 4]}} <<< 3'd4);
     end
     if(idleWriteback_analysisAndTrigger_doWriteback) begin
@@ -45701,7 +45827,7 @@ module DataCache (
     if(load_ctrl_startRefill) begin
       writeback_push_payload_way = load_ctrl_refillWay;
     end
-    if(when_dcache2_l1547) begin
+    if(when_dcache2_l1565) begin
       writeback_push_payload_way = (store_pipeline_stages_2_FLUSH ? store_ctrl_needFlushSel : store_ctrl_refillWay);
     end
     if(idleWriteback_analysisAndTrigger_doWriteback) begin
@@ -45709,22 +45835,22 @@ module DataCache (
     end
   end
 
-  assign when_dcache2_l892 = writeback_free[0];
-  assign when_dcache2_l892_1 = writeback_free[1];
+  assign when_dcache2_l910 = writeback_free[0];
+  assign when_dcache2_l910_1 = writeback_free[1];
   assign writeback_read_arbiter_slotsWithId_0_0 = (writeback_slots_0_valid && (! writeback_slots_0_readCmdDone));
   assign writeback_read_arbiter_slotsWithId_1_0 = (writeback_slots_1_valid && (! writeback_slots_1_readCmdDone));
   assign writeback_read_arbiter_hits = {writeback_read_arbiter_slotsWithId_1_0,writeback_read_arbiter_slotsWithId_0_0};
   assign writeback_read_arbiter_hit = (|writeback_read_arbiter_hits);
   always @(*) begin
     writeback_read_arbiter_oh = (writeback_read_arbiter_hits & {((writeback_read_arbiter_hits[0] & writeback_slots_1_priority) == 1'b0),((writeback_read_arbiter_hits[1] & writeback_slots_0_priority) == 1'b0)});
-    if(when_dcache2_l702_1) begin
+    if(when_dcache2_l720_1) begin
       writeback_read_arbiter_oh = writeback_read_arbiter_lock;
     end
   end
 
   assign _zz_writeback_read_arbiter_sel = writeback_read_arbiter_oh[1];
   assign writeback_read_arbiter_sel = _zz_writeback_read_arbiter_sel;
-  assign when_dcache2_l702_1 = (|writeback_read_arbiter_lock);
+  assign when_dcache2_l720_1 = (|writeback_read_arbiter_lock);
   assign writeback_read_address = _zz_writeback_read_address;
   assign writeback_read_way = _zz_writeback_read_way;
   assign writeback_read_slotRead_valid = writeback_read_arbiter_hit;
@@ -45732,9 +45858,9 @@ module DataCache (
   assign writeback_read_slotRead_payload_wordIndex = writeback_read_wordIndex;
   assign writeback_read_slotRead_payload_way = writeback_read_way;
   assign writeback_read_slotRead_payload_last = (writeback_read_wordIndex == 2'b11);
-  assign when_dcache2_l932 = (writeback_read_slotRead_valid && writeback_read_slotRead_payload_last);
-  assign when_dcache2_l943 = (writeback_read_slotRead_valid && (writeback_read_way == 1'b0));
-  assign when_dcache2_l943_1 = (writeback_read_slotRead_valid && (writeback_read_way == 1'b1));
+  assign when_dcache2_l950 = (writeback_read_slotRead_valid && writeback_read_slotRead_payload_last);
+  assign when_dcache2_l961 = (writeback_read_slotRead_valid && (writeback_read_way == 1'b0));
+  assign when_dcache2_l961_1 = (writeback_read_slotRead_valid && (writeback_read_way == 1'b1));
   assign writeback_read_readedData = _zz_writeback_read_readedData;
   assign _zz_21 = _zz__zz_21;
   assign writeback_write_arbiter_slotsWithId_0_0 = ((writeback_slots_0_valid && writeback_slots_0_victimBufferReady) && (! writeback_slots_0_writeCmdDone));
@@ -45743,21 +45869,21 @@ module DataCache (
   assign writeback_write_arbiter_hit = (|writeback_write_arbiter_hits);
   always @(*) begin
     writeback_write_arbiter_oh = (writeback_write_arbiter_hits & {((writeback_write_arbiter_hits[0] & writeback_slots_1_priority) == 1'b0),((writeback_write_arbiter_hits[1] & writeback_slots_0_priority) == 1'b0)});
-    if(when_dcache2_l702_2) begin
+    if(when_dcache2_l720_2) begin
       writeback_write_arbiter_oh = writeback_write_arbiter_lock;
     end
   end
 
   assign _zz_writeback_write_arbiter_sel = writeback_write_arbiter_oh[1];
   assign writeback_write_arbiter_sel = _zz_writeback_write_arbiter_sel;
-  assign when_dcache2_l702_2 = (|writeback_write_arbiter_lock);
+  assign when_dcache2_l720_2 = (|writeback_write_arbiter_lock);
   assign writeback_write_last = (writeback_write_wordIndex == 2'b11);
   assign writeback_write_bufferRead_valid = writeback_write_arbiter_hit;
   assign writeback_write_bufferRead_payload_id = writeback_write_arbiter_sel;
   assign writeback_write_bufferRead_payload_last = writeback_write_last;
   assign writeback_write_bufferRead_payload_address = _zz_writeback_write_bufferRead_payload_address;
   assign writeback_write_bufferRead_fire = (writeback_write_bufferRead_valid && writeback_write_bufferRead_ready);
-  assign when_dcache2_l1015 = (writeback_write_bufferRead_fire && writeback_write_last);
+  assign when_dcache2_l1033 = (writeback_write_bufferRead_fire && writeback_write_last);
   always @(*) begin
     writeback_write_bufferRead_ready = writeback_write_cmd_ready;
     if(when_Stream_l477) begin
@@ -45778,11 +45904,11 @@ module DataCache (
   assign io_mem_write_cmd_payload_fragment_data = writeback_write_word;
   assign io_mem_write_cmd_payload_fragment_id = writeback_write_cmd_payload_id;
   assign io_mem_write_cmd_payload_last = writeback_write_cmd_payload_last;
-  assign _zz_load_pipeline_stages_0_throwRequest_dcache2_l1059 = io_load_cancels[0];
-  assign load_pipeline_stages_0_throwRequest_dcache2_l1059 = _zz_load_pipeline_stages_0_throwRequest_dcache2_l1059;
-  assign _zz_load_pipeline_stages_1_throwRequest_dcache2_l1059 = io_load_cancels[1];
-  assign load_pipeline_stages_1_throwRequest_dcache2_l1059 = _zz_load_pipeline_stages_1_throwRequest_dcache2_l1059;
-  assign load_pipeline_stages_2_throwRequest_dcache2_l1059 = io_load_cancels[2];
+  assign _zz_load_pipeline_stages_0_throwRequest_dcache2_l1077 = io_load_cancels[0];
+  assign load_pipeline_stages_0_throwRequest_dcache2_l1077 = _zz_load_pipeline_stages_0_throwRequest_dcache2_l1077;
+  assign _zz_load_pipeline_stages_1_throwRequest_dcache2_l1077 = io_load_cancels[1];
+  assign load_pipeline_stages_1_throwRequest_dcache2_l1077 = _zz_load_pipeline_stages_1_throwRequest_dcache2_l1077;
+  assign load_pipeline_stages_2_throwRequest_dcache2_l1077 = io_load_cancels[2];
   assign load_pipeline_stages_1_WAYS_HAZARD_overloaded = (load_pipeline_stages_1_WAYS_HAZARD | ((waysWrite_addressLast == load_pipeline_stages_1_ADDRESS_PRE_TRANSLATION[8 : 4]) ? waysWrite_maskLast : 2'b00));
   assign io_load_cmd_ready = 1'b1;
   assign load_pipeline_stages_0_valid = io_load_cmd_valid;
@@ -45795,7 +45921,7 @@ module DataCache (
     load_pipeline_stages_0_BANK_BUSY[1] = banks_1_read_usedByWriteBack;
   end
 
-  assign when_dcache2_l1103 = (! load_pipeline_stages_0_BANK_BUSY[0]);
+  assign when_dcache2_l1121 = (! load_pipeline_stages_0_BANK_BUSY[0]);
   always @(*) begin
     load_pipeline_stages_0_BANK_BUSY_overloaded[0] = (load_pipeline_stages_0_BANK_BUSY[0] || (banks_0_write_valid && load_pipeline_stages_0_REDO_ON_DATA_HAZARD));
     load_pipeline_stages_0_BANK_BUSY_overloaded[1] = (load_pipeline_stages_0_BANK_BUSY[1] || (banks_1_write_valid && load_pipeline_stages_0_REDO_ON_DATA_HAZARD));
@@ -45808,7 +45934,7 @@ module DataCache (
   end
 
   assign load_pipeline_stages_1_BANKS_MUXES_0 = load_pipeline_stages_1_BANKS_WORDS_0[31 : 0];
-  assign when_dcache2_l1103_1 = (! load_pipeline_stages_0_BANK_BUSY[1]);
+  assign when_dcache2_l1121_1 = (! load_pipeline_stages_0_BANK_BUSY[1]);
   assign load_pipeline_stages_1_BANKS_WORDS_1 = banks_1_read_rsp;
   assign load_pipeline_stages_1_BANKS_MUXES_1 = load_pipeline_stages_1_BANKS_WORDS_1[31 : 0];
   assign _zz_load_pipeline_stages_2_CPU_WORD = load_pipeline_stages_2_WAYS_HITS[1];
@@ -45841,26 +45967,26 @@ module DataCache (
   assign load_pipeline_stages_1_STATUS_1_dirty = status_loadRead_rsp_1_dirty;
   always @(*) begin
     _zz_load_pipeline_stages_1_STATUS_overloaded_0_dirty = load_pipeline_stages_1_STATUS_0_dirty;
-    if(when_dcache2_l654) begin
+    if(when_dcache2_l672) begin
       _zz_load_pipeline_stages_1_STATUS_overloaded_0_dirty = status_writeLast_payload_data_0_dirty;
     end
-    if(when_dcache2_l657) begin
+    if(when_dcache2_l675) begin
       _zz_load_pipeline_stages_1_STATUS_overloaded_0_dirty = status_write_payload_data_0_dirty;
     end
   end
 
   always @(*) begin
     _zz_load_pipeline_stages_1_STATUS_overloaded_1_dirty = load_pipeline_stages_1_STATUS_1_dirty;
-    if(when_dcache2_l654) begin
+    if(when_dcache2_l672) begin
       _zz_load_pipeline_stages_1_STATUS_overloaded_1_dirty = status_writeLast_payload_data_1_dirty;
     end
-    if(when_dcache2_l657) begin
+    if(when_dcache2_l675) begin
       _zz_load_pipeline_stages_1_STATUS_overloaded_1_dirty = status_write_payload_data_1_dirty;
     end
   end
 
-  assign when_dcache2_l654 = (status_writeLast_valid && (status_writeLast_payload_address == load_pipeline_stages_1_ADDRESS_POST_TRANSLATION[8 : 4]));
-  assign when_dcache2_l657 = (status_write_valid && (status_write_payload_address == load_pipeline_stages_1_ADDRESS_POST_TRANSLATION[8 : 4]));
+  assign when_dcache2_l672 = (status_writeLast_valid && (status_writeLast_payload_address == load_pipeline_stages_1_ADDRESS_POST_TRANSLATION[8 : 4]));
+  assign when_dcache2_l675 = (status_write_valid && (status_write_payload_address == load_pipeline_stages_1_ADDRESS_POST_TRANSLATION[8 : 4]));
   assign load_pipeline_stages_1_STATUS_overloaded_0_dirty = _zz_load_pipeline_stages_1_STATUS_overloaded_0_dirty;
   assign load_pipeline_stages_1_STATUS_overloaded_1_dirty = _zz_load_pipeline_stages_1_STATUS_overloaded_1_dirty;
   always @(*) begin
@@ -45931,9 +46057,9 @@ module DataCache (
   assign io_load_rsp_payload_refillSlot = load_pipeline_stages_2_REFILL_SLOT;
   assign _zz_36 = io_load_rsp_payload_fault;
   assign _zz_37 = io_load_rsp_payload_redo;
-  assign load_pipeline_stages_2_isThrown = load_pipeline_stages_2_throwRequest_dcache2_l1059;
-  assign load_pipeline_stages_1_isThrown = load_pipeline_stages_1_throwRequest_dcache2_l1059;
-  assign load_pipeline_stages_0_isThrown = load_pipeline_stages_0_throwRequest_dcache2_l1059;
+  assign load_pipeline_stages_2_isThrown = load_pipeline_stages_2_throwRequest_dcache2_l1077;
+  assign load_pipeline_stages_1_isThrown = load_pipeline_stages_1_throwRequest_dcache2_l1077;
+  assign load_pipeline_stages_0_isThrown = load_pipeline_stages_0_throwRequest_dcache2_l1077;
   always @(*) begin
     _zz_load_pipeline_stages_1_valid = load_pipeline_stages_0_valid;
     if(when_Pipeline_l276) begin
@@ -45942,7 +46068,7 @@ module DataCache (
   end
 
   assign load_pipeline_stages_0_ready = 1'b1;
-  assign when_Pipeline_l276 = (|_zz_load_pipeline_stages_0_throwRequest_dcache2_l1059);
+  assign when_Pipeline_l276 = (|_zz_load_pipeline_stages_0_throwRequest_dcache2_l1077);
   always @(*) begin
     _zz_load_pipeline_stages_2_valid = load_pipeline_stages_1_valid;
     if(when_Pipeline_l276_1) begin
@@ -45951,12 +46077,12 @@ module DataCache (
   end
 
   assign load_pipeline_stages_1_ready = 1'b1;
-  assign when_Pipeline_l276_1 = (|_zz_load_pipeline_stages_1_throwRequest_dcache2_l1059);
+  assign when_Pipeline_l276_1 = (|_zz_load_pipeline_stages_1_throwRequest_dcache2_l1077);
   assign load_pipeline_stages_2_WAYS_HAZARD_resulting = load_pipeline_stages_2_WAYS_HAZARD;
   assign store_pipeline_discardAll = 1'b0;
-  assign store_pipeline_stages_0_throwRequest_dcache2_l1352 = store_pipeline_discardAll;
-  assign store_pipeline_stages_1_throwRequest_dcache2_l1352 = store_pipeline_discardAll;
-  assign store_pipeline_stages_2_throwRequest_dcache2_l1352 = store_pipeline_discardAll;
+  assign store_pipeline_stages_0_throwRequest_dcache2_l1370 = store_pipeline_discardAll;
+  assign store_pipeline_stages_1_throwRequest_dcache2_l1370 = store_pipeline_discardAll;
+  assign store_pipeline_stages_2_throwRequest_dcache2_l1370 = store_pipeline_discardAll;
   assign store_pipeline_stages_1_WAYS_HAZARD_overloaded = (store_pipeline_stages_1_WAYS_HAZARD | ((waysWrite_addressLast == store_pipeline_stages_1_ADDRESS_POST_TRANSLATION[8 : 4]) ? waysWrite_maskLast : 2'b00));
   assign store_pipeline_stages_2_WAYS_HAZARD_overloaded = (store_pipeline_stages_2_WAYS_HAZARD | ((waysWrite_addressLast == store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 4]) ? waysWrite_maskLast : 2'b00));
   assign store_pipeline_stages_0_valid = io_store_cmd_valid;
@@ -46001,26 +46127,26 @@ module DataCache (
   assign store_pipeline_stages_1_STATUS_1_dirty = status_storeRead_rsp_1_dirty;
   always @(*) begin
     _zz_store_pipeline_stages_1_STATUS_overloaded_0_dirty = store_pipeline_stages_1_STATUS_0_dirty;
-    if(when_dcache2_l654_1) begin
+    if(when_dcache2_l672_1) begin
       _zz_store_pipeline_stages_1_STATUS_overloaded_0_dirty = status_writeLast_payload_data_0_dirty;
     end
-    if(when_dcache2_l657_1) begin
+    if(when_dcache2_l675_1) begin
       _zz_store_pipeline_stages_1_STATUS_overloaded_0_dirty = status_write_payload_data_0_dirty;
     end
   end
 
   always @(*) begin
     _zz_store_pipeline_stages_1_STATUS_overloaded_1_dirty = store_pipeline_stages_1_STATUS_1_dirty;
-    if(when_dcache2_l654_1) begin
+    if(when_dcache2_l672_1) begin
       _zz_store_pipeline_stages_1_STATUS_overloaded_1_dirty = status_writeLast_payload_data_1_dirty;
     end
-    if(when_dcache2_l657_1) begin
+    if(when_dcache2_l675_1) begin
       _zz_store_pipeline_stages_1_STATUS_overloaded_1_dirty = status_write_payload_data_1_dirty;
     end
   end
 
-  assign when_dcache2_l654_1 = (status_writeLast_valid && (status_writeLast_payload_address == store_pipeline_stages_1_ADDRESS_POST_TRANSLATION[8 : 4]));
-  assign when_dcache2_l657_1 = (status_write_valid && (status_write_payload_address == store_pipeline_stages_1_ADDRESS_POST_TRANSLATION[8 : 4]));
+  assign when_dcache2_l672_1 = (status_writeLast_valid && (status_writeLast_payload_address == store_pipeline_stages_1_ADDRESS_POST_TRANSLATION[8 : 4]));
+  assign when_dcache2_l675_1 = (status_write_valid && (status_write_payload_address == store_pipeline_stages_1_ADDRESS_POST_TRANSLATION[8 : 4]));
   assign store_pipeline_stages_1_STATUS_overloaded_0_dirty = _zz_store_pipeline_stages_1_STATUS_overloaded_0_dirty;
   assign store_pipeline_stages_1_STATUS_overloaded_1_dirty = _zz_store_pipeline_stages_1_STATUS_overloaded_1_dirty;
   always @(*) begin
@@ -46040,7 +46166,7 @@ module DataCache (
   assign store_ctrl_generationOk = 1'b1;
   always @(*) begin
     store_ctrl_reservation_take = 1'b0;
-    if(when_dcache2_l1537) begin
+    if(when_dcache2_l1555) begin
       store_ctrl_reservation_take = 1'b1;
     end
   end
@@ -46121,12 +46247,12 @@ module DataCache (
   assign store_ctrl_startFlush = ((((store_pipeline_stages_2_valid && store_pipeline_stages_2_FLUSH) && store_ctrl_generationOk) && store_ctrl_needFlush) && store_ctrl_canFlush);
   assign _zz_47 = store_pipeline_stages_2_REDO;
   assign _zz_48 = (|store_pipeline_stages_2_WAYS_HAZARD_resulting);
-  assign when_dcache2_l1537 = ((store_ctrl_startRefill || store_ctrl_setDirty) || store_ctrl_startFlush);
+  assign when_dcache2_l1555 = ((store_ctrl_startRefill || store_ctrl_setDirty) || store_ctrl_startFlush);
   assign _zz_49 = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 4];
-  assign when_dcache2_l1547 = (store_ctrl_startRefill || store_ctrl_startFlush);
+  assign when_dcache2_l1565 = (store_ctrl_startRefill || store_ctrl_startFlush);
   assign _zz_50 = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 4];
-  assign when_dcache2_l1578 = store_pipeline_stages_2_WAYS_HITS[0];
-  assign when_dcache2_l1578_1 = store_pipeline_stages_2_WAYS_HITS[1];
+  assign when_dcache2_l1596 = store_pipeline_stages_2_WAYS_HITS[0];
+  assign when_dcache2_l1596_1 = store_pipeline_stages_2_WAYS_HITS[1];
   assign _zz_52 = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 4];
   assign _zz_53 = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 4];
   assign _zz_54 = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 4];
@@ -46151,9 +46277,9 @@ module DataCache (
   assign _zz_63 = io_store_rsp_payload_flush;
   assign _zz_64 = io_store_rsp_payload_prefetch;
   assign _zz_65 = io_store_rsp_payload_io;
-  assign store_pipeline_stages_2_isThrown = store_pipeline_stages_2_throwRequest_dcache2_l1352;
-  assign store_pipeline_stages_1_isThrown = store_pipeline_stages_1_throwRequest_dcache2_l1352;
-  assign store_pipeline_stages_0_isThrown = store_pipeline_stages_0_throwRequest_dcache2_l1352;
+  assign store_pipeline_stages_2_isThrown = store_pipeline_stages_2_throwRequest_dcache2_l1370;
+  assign store_pipeline_stages_1_isThrown = store_pipeline_stages_1_throwRequest_dcache2_l1370;
+  assign store_pipeline_stages_0_isThrown = store_pipeline_stages_0_throwRequest_dcache2_l1370;
   always @(*) begin
     _zz_store_pipeline_stages_1_valid = store_pipeline_stages_0_valid;
     if(when_Pipeline_l276_2) begin
@@ -46228,7 +46354,7 @@ module DataCache (
   end
 
   always @(*) begin
-    if(when_dcache2_l1725) begin
+    if(when_dcache2_l1743) begin
       status_maintenanceRead_cmd_valid = 1'b1;
     end else begin
       if(idleWriteback_scanCmd_scanGo) begin
@@ -46240,7 +46366,7 @@ module DataCache (
   end
 
   always @(*) begin
-    if(when_dcache2_l1725) begin
+    if(when_dcache2_l1743) begin
       status_maintenanceRead_cmd_payload = idleWriteback_clearDirtyFsm_completedAddress[8 : 4];
     end else begin
       if(idleWriteback_scanCmd_scanGo) begin
@@ -46252,7 +46378,7 @@ module DataCache (
   end
 
   always @(*) begin
-    if(when_dcache2_l1725) begin
+    if(when_dcache2_l1743) begin
       ways_0_maintenanceRead_cmd_valid = 1'b1;
     end else begin
       if(idleWriteback_scanCmd_scanGo) begin
@@ -46264,7 +46390,7 @@ module DataCache (
   end
 
   always @(*) begin
-    if(when_dcache2_l1725) begin
+    if(when_dcache2_l1743) begin
       ways_0_maintenanceRead_cmd_payload = idleWriteback_clearDirtyFsm_completedAddress[8 : 4];
     end else begin
       if(idleWriteback_scanCmd_scanGo) begin
@@ -46276,7 +46402,7 @@ module DataCache (
   end
 
   always @(*) begin
-    if(when_dcache2_l1725) begin
+    if(when_dcache2_l1743) begin
       ways_1_maintenanceRead_cmd_valid = 1'b1;
     end else begin
       if(idleWriteback_scanCmd_scanGo) begin
@@ -46288,7 +46414,7 @@ module DataCache (
   end
 
   always @(*) begin
-    if(when_dcache2_l1725) begin
+    if(when_dcache2_l1743) begin
       ways_1_maintenanceRead_cmd_payload = idleWriteback_clearDirtyFsm_completedAddress[8 : 4];
     end else begin
       if(idleWriteback_scanCmd_scanGo) begin
@@ -46372,7 +46498,7 @@ module DataCache (
   assign idleWriteback_clearDirtyFsm_onEntry_sIDLE = ((idleWriteback_clearDirtyFsm_stateNext == idleWriteback_clearDirtyFsm_sIDLE) && (idleWriteback_clearDirtyFsm_stateReg != idleWriteback_clearDirtyFsm_sIDLE));
   assign idleWriteback_clearDirtyFsm_onEntry_sREAD_STATUS = ((idleWriteback_clearDirtyFsm_stateNext == idleWriteback_clearDirtyFsm_sREAD_STATUS) && (idleWriteback_clearDirtyFsm_stateReg != idleWriteback_clearDirtyFsm_sREAD_STATUS));
   assign idleWriteback_clearDirtyFsm_onEntry_sWRITE_STATUS = ((idleWriteback_clearDirtyFsm_stateNext == idleWriteback_clearDirtyFsm_sWRITE_STATUS) && (idleWriteback_clearDirtyFsm_stateReg != idleWriteback_clearDirtyFsm_sWRITE_STATUS));
-  assign when_dcache2_l1725 = (idleWriteback_clearDirtyFsm_stateReg == idleWriteback_clearDirtyFsm_sREAD_STATUS);
+  assign when_dcache2_l1743 = (idleWriteback_clearDirtyFsm_stateReg == idleWriteback_clearDirtyFsm_sREAD_STATUS);
   always @(posedge clk) begin
     waysWrite_maskLast <= waysWrite_mask;
     waysWrite_addressLast <= waysWrite_address;
@@ -46382,7 +46508,7 @@ module DataCache (
     refill_slots_0_loadedCounter <= (refill_slots_0_loadedCounter + (refill_slots_0_loaded && (! refill_slots_0_loadedDone)));
     refill_slots_1_loadedCounter <= (refill_slots_1_loadedCounter + (refill_slots_1_loaded && (! refill_slots_1_loadedDone)));
     if(refill_push_valid) begin
-      if(when_dcache2_l745) begin
+      if(when_dcache2_l763) begin
         refill_slots_0_address <= refill_push_payload_address;
         refill_slots_0_way <= refill_push_payload_way;
         refill_slots_0_cmdSent <= 1'b0;
@@ -46398,7 +46524,7 @@ module DataCache (
       end
     end
     if(refill_push_valid) begin
-      if(when_dcache2_l745_1) begin
+      if(when_dcache2_l763_1) begin
         refill_slots_1_address <= refill_push_payload_address;
         refill_slots_1_way <= refill_push_payload_way;
         refill_slots_1_cmdSent <= 1'b0;
@@ -46415,18 +46541,18 @@ module DataCache (
     end
     if(_zz_when) begin
       refill_slots_0_writebackHazards <= refill_read_writebackHazards;
-      if(when_dcache2_l786) begin
+      if(when_dcache2_l804) begin
         refill_slots_0_cmdSent <= 1'b1;
       end
     end
     if(_zz_refill_read_arbiter_sel) begin
       refill_slots_1_writebackHazards <= refill_read_writebackHazards;
-      if(when_dcache2_l786_1) begin
+      if(when_dcache2_l804_1) begin
         refill_slots_1_cmdSent <= 1'b1;
       end
     end
     if(io_mem_read_rsp_valid) begin
-      if(when_dcache2_l829) begin
+      if(when_dcache2_l847) begin
         case(io_mem_read_rsp_payload_id)
           1'b0 : begin
             refill_slots_0_loaded <= 1'b1;
@@ -46446,7 +46572,7 @@ module DataCache (
       refill_slots_1_writebackHazards[1] <= 1'b0;
     end
     if(writeback_push_valid) begin
-      if(when_dcache2_l892) begin
+      if(when_dcache2_l910) begin
         writeback_slots_0_address <= writeback_push_payload_address;
         writeback_slots_0_way <= writeback_push_payload_way;
         writeback_slots_0_writeCmdDone <= 1'b0;
@@ -46461,7 +46587,7 @@ module DataCache (
       end
     end
     if(writeback_push_valid) begin
-      if(when_dcache2_l892_1) begin
+      if(when_dcache2_l910_1) begin
         writeback_slots_1_address <= writeback_push_payload_address;
         writeback_slots_1_way <= writeback_push_payload_way;
         writeback_slots_1_writeCmdDone <= 1'b0;
@@ -46475,7 +46601,7 @@ module DataCache (
         end
       end
     end
-    if(when_dcache2_l932) begin
+    if(when_dcache2_l950) begin
       if(writeback_read_arbiter_oh[0]) begin
         writeback_slots_0_readCmdDone <= 1'b1;
       end
@@ -46511,7 +46637,7 @@ module DataCache (
         endcase
       end
     end
-    if(when_dcache2_l1015) begin
+    if(when_dcache2_l1033) begin
       if(writeback_write_arbiter_oh[0]) begin
         writeback_slots_0_writeCmdDone <= 1'b1;
       end
@@ -46630,17 +46756,17 @@ module DataCache (
     end else begin
       status_writeLast_valid <= status_write_valid;
       wayRandom_value <= wayRandom_valueNext;
-      if(when_dcache2_l675) begin
+      if(when_dcache2_l693) begin
         invalidate_counter <= (invalidate_counter + 6'h01);
       end
       invalidate_done_regNext <= invalidate_done;
-      if(when_dcache2_l684) begin
+      if(when_dcache2_l702) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L686
+            assert(1'b0); // dcache2.scala:L704
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:686):  [DCache] Initialization complete. Cache is ready. Total lines invalidated: 32."); // dcache2.scala:L686
+              $display("NOTE(dcache2.scala:704):  [DCache] Initialization complete. Cache is ready. Total lines invalidated: 32."); // dcache2.scala:L704
             end
           `endif
         `endif
@@ -46652,44 +46778,44 @@ module DataCache (
         refill_slots_1_valid <= 1'b0;
       end
       if(refill_push_valid) begin
-        if(when_dcache2_l745) begin
+        if(when_dcache2_l763) begin
           refill_slots_0_valid <= 1'b1;
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L758
+              assert(1'b0); // dcache2.scala:L776
             `else
               if(!1'b0) begin
-                $display("NOTE(dcache2.scala:758):  [DCache] Refill: slot 0 allocated for address 0x%x (way %x)", refill_push_payload_address, refill_push_payload_way); // dcache2.scala:L758
+                $display("NOTE(dcache2.scala:776):  [DCache] Refill: slot 0 allocated for address 0x%x (way %x)", refill_push_payload_address, refill_push_payload_way); // dcache2.scala:L776
               end
             `endif
           `endif
         end
       end
       if(refill_push_valid) begin
-        if(when_dcache2_l745_1) begin
+        if(when_dcache2_l763_1) begin
           refill_slots_1_valid <= 1'b1;
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L758
+              assert(1'b0); // dcache2.scala:L776
             `else
               if(!1'b0) begin
-                $display("NOTE(dcache2.scala:758):  [DCache] Refill: slot 1 allocated for address 0x%x (way %x)", refill_push_payload_address, refill_push_payload_way); // dcache2.scala:L758
+                $display("NOTE(dcache2.scala:776):  [DCache] Refill: slot 1 allocated for address 0x%x (way %x)", refill_push_payload_address, refill_push_payload_way); // dcache2.scala:L776
               end
             `endif
           `endif
         end
       end
       refill_read_arbiter_lock <= refill_read_arbiter_oh;
-      if(when_dcache2_l774) begin
+      if(when_dcache2_l792) begin
         refill_read_arbiter_lock <= 2'b00;
       end
       if(_zz_when) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L787
+            assert(1'b0); // dcache2.scala:L805
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:787):  [DCache] Refill: slot 0 command sent for address 0x%x", refill_slots_0_address); // dcache2.scala:L787
+              $display("NOTE(dcache2.scala:805):  [DCache] Refill: slot 0 command sent for address 0x%x", refill_slots_0_address); // dcache2.scala:L805
             end
           `endif
         `endif
@@ -46697,15 +46823,15 @@ module DataCache (
       if(_zz_refill_read_arbiter_sel) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L787
+            assert(1'b0); // dcache2.scala:L805
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:787):  [DCache] Refill: slot 1 command sent for address 0x%x", refill_slots_1_address); // dcache2.scala:L787
+              $display("NOTE(dcache2.scala:805):  [DCache] Refill: slot 1 command sent for address 0x%x", refill_slots_1_address); // dcache2.scala:L805
             end
           `endif
         `endif
       end
-      if(when_dcache2_l816) begin
+      if(when_dcache2_l834) begin
         refill_read_hadError <= 1'b1;
       end
       if(io_mem_read_rsp_valid) begin
@@ -46713,32 +46839,32 @@ module DataCache (
           refill_read_wordIndex <= (refill_read_wordIndex + 2'b01);
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L827
+              assert(1'b0); // dcache2.scala:L845
             `else
               if(!1'b0) begin
-                $display("NOTE(dcache2.scala:827):  [DCache] Refill: slot %x received data word %x for address 0x%x", io_mem_read_rsp_payload_id, refill_read_wordIndex, refill_read_rspAddress); // dcache2.scala:L827
+                $display("NOTE(dcache2.scala:845):  [DCache] Refill: slot %x received data word %x for address 0x%x", io_mem_read_rsp_payload_id, refill_read_wordIndex, refill_read_rspAddress); // dcache2.scala:L845
               end
             `endif
           `endif
         end
-        if(when_dcache2_l829) begin
+        if(when_dcache2_l847) begin
           refill_read_hadError <= 1'b0;
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L843
+              assert(1'b0); // dcache2.scala:L861
             `else
               if(!1'b0) begin
-                $display("NOTE(dcache2.scala:843):  [DCache] Refill: slot %x data loaded for address 0x%x, fault %x", io_mem_read_rsp_payload_id, refill_read_rspAddress, refill_read_faulty); // dcache2.scala:L843
+                $display("NOTE(dcache2.scala:861):  [DCache] Refill: slot %x data loaded for address 0x%x, fault %x", io_mem_read_rsp_payload_id, refill_read_rspAddress, refill_read_faulty); // dcache2.scala:L861
               end
             `endif
           `endif
         end else begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L846
+              assert(1'b0); // dcache2.scala:L864
             `else
               if(!1'b0) begin
-                $display("NOTE(dcache2.scala:846):  Refill 字索引: %xH 最大值: 3H rspWithData: %x", refill_read_wordIndex, refill_read_rspWithData); // dcache2.scala:L846
+                $display("NOTE(dcache2.scala:864):  Refill 字索引: %xH 最大值: 3H rspWithData: %x", refill_read_wordIndex, refill_read_rspWithData); // dcache2.scala:L864
               end
             `endif
           `endif
@@ -46751,28 +46877,28 @@ module DataCache (
         writeback_slots_1_valid <= 1'b0;
       end
       if(writeback_push_valid) begin
-        if(when_dcache2_l892) begin
+        if(when_dcache2_l910) begin
           writeback_slots_0_valid <= 1'b1;
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L903
+              assert(1'b0); // dcache2.scala:L921
             `else
               if(!1'b0) begin
-                $display("NOTE(dcache2.scala:903):  [DCache] Writeback: slot 0 allocated for address 0x%x (way %x)", writeback_push_payload_address, writeback_push_payload_way); // dcache2.scala:L903
+                $display("NOTE(dcache2.scala:921):  [DCache] Writeback: slot 0 allocated for address 0x%x (way %x)", writeback_push_payload_address, writeback_push_payload_way); // dcache2.scala:L921
               end
             `endif
           `endif
         end
       end
       if(writeback_push_valid) begin
-        if(when_dcache2_l892_1) begin
+        if(when_dcache2_l910_1) begin
           writeback_slots_1_valid <= 1'b1;
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L903
+              assert(1'b0); // dcache2.scala:L921
             `else
               if(!1'b0) begin
-                $display("NOTE(dcache2.scala:903):  [DCache] Writeback: slot 1 allocated for address 0x%x (way %x)", writeback_push_payload_address, writeback_push_payload_way); // dcache2.scala:L903
+                $display("NOTE(dcache2.scala:921):  [DCache] Writeback: slot 1 allocated for address 0x%x (way %x)", writeback_push_payload_address, writeback_push_payload_way); // dcache2.scala:L921
               end
             `endif
           `endif
@@ -46780,14 +46906,14 @@ module DataCache (
       end
       writeback_read_arbiter_lock <= writeback_read_arbiter_oh;
       writeback_read_wordIndex <= (writeback_read_wordIndex + _zz_writeback_read_wordIndex);
-      if(when_dcache2_l932) begin
+      if(when_dcache2_l950) begin
         writeback_read_arbiter_lock <= 2'b00;
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L935
+            assert(1'b0); // dcache2.scala:L953
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:935):  [DCache] Writeback: slot %x all bank reads commanded for address 0x%x", writeback_read_slotRead_payload_id, writeback_read_address); // dcache2.scala:L935
+              $display("NOTE(dcache2.scala:953):  [DCache] Writeback: slot %x all bank reads commanded for address 0x%x", writeback_read_slotRead_payload_id, writeback_read_address); // dcache2.scala:L953
             end
           `endif
         `endif
@@ -46797,10 +46923,10 @@ module DataCache (
         if(writeback_read_slotReadLast_payload_last) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L989
+              assert(1'b0); // dcache2.scala:L1007
             `else
               if(!1'b0) begin
-                $display("NOTE(dcache2.scala:989):  [DCache] Writeback: slot %x victim buffer loaded for address 0x%x", writeback_read_slotReadLast_payload_id, _zz_21); // dcache2.scala:L989
+                $display("NOTE(dcache2.scala:1007):  [DCache] Writeback: slot %x victim buffer loaded for address 0x%x", writeback_read_slotReadLast_payload_id, _zz_21); // dcache2.scala:L1007
               end
             `endif
           `endif
@@ -46808,14 +46934,14 @@ module DataCache (
       end
       writeback_write_arbiter_lock <= writeback_write_arbiter_oh;
       writeback_write_wordIndex <= (writeback_write_wordIndex + _zz_writeback_write_wordIndex);
-      if(when_dcache2_l1015) begin
+      if(when_dcache2_l1033) begin
         writeback_write_arbiter_lock <= 2'b00;
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1018
+            assert(1'b0); // dcache2.scala:L1036
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1018):  [DCache] Writeback: slot %x all mem writes commanded for address 0x%x", writeback_write_bufferRead_payload_id, writeback_write_bufferRead_payload_address); // dcache2.scala:L1018
+              $display("NOTE(dcache2.scala:1036):  [DCache] Writeback: slot %x all mem writes commanded for address 0x%x", writeback_write_bufferRead_payload_id, writeback_write_bufferRead_payload_address); // dcache2.scala:L1036
             end
           `endif
         `endif
@@ -46828,10 +46954,10 @@ module DataCache (
           1'b0 : begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // dcache2.scala:L1033
+                assert(1'b0); // dcache2.scala:L1051
               `else
                 if(!1'b0) begin
-                  $display("NOTE(dcache2.scala:1033):  [DCache] Writeback: slot %x completed for address 0x%x, error %x", io_mem_write_rsp_payload_id, writeback_slots_0_address, io_mem_write_rsp_payload_error); // dcache2.scala:L1033
+                  $display("NOTE(dcache2.scala:1051):  [DCache] Writeback: slot %x completed for address 0x%x, error %x", io_mem_write_rsp_payload_id, writeback_slots_0_address, io_mem_write_rsp_payload_error); // dcache2.scala:L1051
                 end
               `endif
             `endif
@@ -46839,10 +46965,10 @@ module DataCache (
           default : begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // dcache2.scala:L1033
+                assert(1'b0); // dcache2.scala:L1051
               `else
                 if(!1'b0) begin
-                  $display("NOTE(dcache2.scala:1033):  [DCache] Writeback: slot %x completed for address 0x%x, error %x", io_mem_write_rsp_payload_id, writeback_slots_1_address, io_mem_write_rsp_payload_error); // dcache2.scala:L1033
+                  $display("NOTE(dcache2.scala:1051):  [DCache] Writeback: slot %x completed for address 0x%x, error %x", io_mem_write_rsp_payload_id, writeback_slots_1_address, io_mem_write_rsp_payload_error); // dcache2.scala:L1051
                 end
               `endif
             `endif
@@ -46853,10 +46979,10 @@ module DataCache (
         if(load_pipeline_stages_0_valid) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L1093
+              assert(1'b0); // dcache2.scala:L1111
             `else
               if(!1'b0) begin
-                $display("NOTE(dcache2.scala:1093):  [DCache] Load: cmd received. DataLoadCmd(virtual = %x, size = %x, redoOnDataHazard = %x, id=%x)", io_load_cmd_payload_virtual, io_load_cmd_payload_size, io_load_cmd_payload_redoOnDataHazard, io_load_cmd_payload_id); // dcache2.scala:L1093
+                $display("NOTE(dcache2.scala:1111):  [DCache] Load: cmd received. DataLoadCmd(virtual = %x, size = %x, redoOnDataHazard = %x, id=%x)", io_load_cmd_payload_virtual, io_load_cmd_payload_size, io_load_cmd_payload_redoOnDataHazard, io_load_cmd_payload_id); // dcache2.scala:L1111
               end
             `endif
           `endif
@@ -46865,10 +46991,10 @@ module DataCache (
       if(load_pipeline_stages_0_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1159
+            assert(1'b0); // dcache2.scala:L1177
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1159):  [DCache] Load: Translated address 0x%x, abord %x", load_pipeline_stages_0_ADDRESS_POST_TRANSLATION, load_pipeline_stages_0_ABORD); // dcache2.scala:L1159
+              $display("NOTE(dcache2.scala:1177):  [DCache] Load: Translated address 0x%x, abord %x", load_pipeline_stages_0_ADDRESS_POST_TRANSLATION, load_pipeline_stages_0_ABORD); // dcache2.scala:L1177
             end
           `endif
         `endif
@@ -46876,10 +47002,10 @@ module DataCache (
       if(load_pipeline_stages_1_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1175
+            assert(1'b0); // dcache2.scala:L1193
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1175):  [DCache] Load: Way 0 Tag read: loaded %x, address 0x%x, hit %x", load_pipeline_stages_1_WAYS_TAGS_0_loaded, load_pipeline_stages_1_WAYS_TAGS_0_address, _zz_24); // dcache2.scala:L1175
+              $display("NOTE(dcache2.scala:1193):  [DCache] Load: Way 0 Tag read: loaded %x, address 0x%x, hit %x", load_pipeline_stages_1_WAYS_TAGS_0_loaded, load_pipeline_stages_1_WAYS_TAGS_0_address, _zz_24); // dcache2.scala:L1193
             end
           `endif
         `endif
@@ -46887,10 +47013,10 @@ module DataCache (
       if(load_pipeline_stages_1_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1175
+            assert(1'b0); // dcache2.scala:L1193
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1175):  [DCache] Load: Way 1 Tag read: loaded %x, address 0x%x, hit %x", load_pipeline_stages_1_WAYS_TAGS_1_loaded, load_pipeline_stages_1_WAYS_TAGS_1_address, _zz_25); // dcache2.scala:L1175
+              $display("NOTE(dcache2.scala:1193):  [DCache] Load: Way 1 Tag read: loaded %x, address 0x%x, hit %x", load_pipeline_stages_1_WAYS_TAGS_1_loaded, load_pipeline_stages_1_WAYS_TAGS_1_address, _zz_25); // dcache2.scala:L1193
             end
           `endif
         `endif
@@ -46898,10 +47024,10 @@ module DataCache (
       if(load_pipeline_stages_2_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1184
+            assert(1'b0); // dcache2.scala:L1202
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1184):  [DCache] Load: Final hit decision: %x, ways hits: %x", _zz_26, _zz_27); // dcache2.scala:L1184
+              $display("NOTE(dcache2.scala:1202):  [DCache] Load: Final hit decision: %x, ways hits: %x", _zz_26, _zz_27); // dcache2.scala:L1202
             end
           `endif
         `endif
@@ -46910,10 +47036,10 @@ module DataCache (
         if(load_pipeline_stages_2_valid) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L1259
+              assert(1'b0); // dcache2.scala:L1277
             `else
               if(!1'b0) begin
-                $display("NOTE(dcache2.scala:1259):  [DCache] Load: ABORD detected, no redo/miss."); // dcache2.scala:L1259
+                $display("NOTE(dcache2.scala:1277):  [DCache] Load: ABORD detected, no redo/miss."); // dcache2.scala:L1277
               end
             `endif
           `endif
@@ -46922,19 +47048,19 @@ module DataCache (
       if(load_ctrl_startRefill) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1265
+            assert(1'b0); // dcache2.scala:L1283
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1265):  [DCache] Load: reservation taken for refill for address 0x%x", load_pipeline_stages_2_ADDRESS_POST_TRANSLATION); // dcache2.scala:L1265
+              $display("NOTE(dcache2.scala:1283):  [DCache] Load: reservation taken for refill for address 0x%x", load_pipeline_stages_2_ADDRESS_POST_TRANSLATION); // dcache2.scala:L1283
             end
           `endif
         `endif
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1271
+            assert(1'b0); // dcache2.scala:L1289
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1271):  [DCache] Load: refill push valid for address 0x%x", load_pipeline_stages_2_ADDRESS_POST_TRANSLATION); // dcache2.scala:L1271
+              $display("NOTE(dcache2.scala:1289):  [DCache] Load: refill push valid for address 0x%x", load_pipeline_stages_2_ADDRESS_POST_TRANSLATION); // dcache2.scala:L1289
             end
           `endif
         `endif
@@ -46943,10 +47069,10 @@ module DataCache (
         if(load_pipeline_stages_2_valid) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L1289
+              assert(1'b0); // dcache2.scala:L1307
             `else
               if(!1'b0) begin
-                $display("NOTE(dcache2.scala:1289):  [DCache] Load: status write (clear dirty) for refill way %x at address 0x%x", load_ctrl_refillWay, _zz_29); // dcache2.scala:L1289
+                $display("NOTE(dcache2.scala:1307):  [DCache] Load: status write (clear dirty) for refill way %x at address 0x%x", load_ctrl_refillWay, _zz_29); // dcache2.scala:L1307
               end
             `endif
           `endif
@@ -46954,10 +47080,10 @@ module DataCache (
         if(load_pipeline_stages_2_valid) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L1294
+              assert(1'b0); // dcache2.scala:L1312
             `else
               if(!1'b0) begin
-                $display("NOTE(dcache2.scala:1294):  [DCache] Load: ways write (invalidate) for refill way %x at address 0x%x", load_ctrl_refillWay, _zz_30); // dcache2.scala:L1294
+                $display("NOTE(dcache2.scala:1312):  [DCache] Load: ways write (invalidate) for refill way %x at address 0x%x", load_ctrl_refillWay, _zz_30); // dcache2.scala:L1312
               end
             `endif
           `endif
@@ -46965,10 +47091,10 @@ module DataCache (
         if(writeback_push_valid) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L1300
+              assert(1'b0); // dcache2.scala:L1318
             `else
               if(!1'b0) begin
-                $display("NOTE(dcache2.scala:1300):  [DCache] Load: writeback push valid (refill way) for address 0x%x; WAYS_TAGS(refillWay).address=%x, ADDRESS_POST_TRANSLATION(lineRange)=%x lineRange.low 4", writeback_push_payload_address, _zz_writeback_push_payload_address, _zz_31); // dcache2.scala:L1300
+                $display("NOTE(dcache2.scala:1318):  [DCache] Load: writeback push valid (refill way) for address 0x%x; WAYS_TAGS(refillWay).address=%x, ADDRESS_POST_TRANSLATION(lineRange)=%x lineRange.low 4", writeback_push_payload_address, _zz_writeback_push_payload_address, _zz_31); // dcache2.scala:L1318
               end
             `endif
           `endif
@@ -46977,28 +47103,28 @@ module DataCache (
       if(load_pipeline_stages_2_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1309
+            assert(1'b0); // dcache2.scala:L1327
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1309):  [DCache] Load: Control stage - WAYS_HIT: %x, MISS: %x, REDO: %x, FAULT: %x", _zz_32, _zz_33, _zz_34, _zz_35); // dcache2.scala:L1309
+              $display("NOTE(dcache2.scala:1327):  [DCache] Load: Control stage - WAYS_HIT: %x, MISS: %x, REDO: %x, FAULT: %x", _zz_32, _zz_33, _zz_34, _zz_35); // dcache2.scala:L1327
             end
           `endif
         `endif
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1310
+            assert(1'b0); // dcache2.scala:L1328
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1310):    RefillHit: %x, LineBusy: %x, BankBusy: %x, WaysHitHazard: %x", load_ctrl_refillHit, load_ctrl_lineBusy, load_ctrl_bankBusy, load_ctrl_waysHitHazard); // dcache2.scala:L1310
+              $display("NOTE(dcache2.scala:1328):    RefillHit: %x, LineBusy: %x, BankBusy: %x, WaysHitHazard: %x", load_ctrl_refillHit, load_ctrl_lineBusy, load_ctrl_bankBusy, load_ctrl_waysHitHazard); // dcache2.scala:L1328
             end
           `endif
         `endif
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1311
+            assert(1'b0); // dcache2.scala:L1329
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1311):    CanRefill: %x, AskRefill: %x, StartRefill: %x", load_ctrl_canRefill, load_ctrl_askRefill, load_ctrl_startRefill); // dcache2.scala:L1311
+              $display("NOTE(dcache2.scala:1329):    CanRefill: %x, AskRefill: %x, StartRefill: %x", load_ctrl_canRefill, load_ctrl_askRefill, load_ctrl_startRefill); // dcache2.scala:L1329
             end
           `endif
         `endif
@@ -47007,10 +47133,10 @@ module DataCache (
         if(load_pipeline_stages_2_valid) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L1337
+              assert(1'b0); // dcache2.scala:L1355
             `else
               if(!1'b0) begin
-                $display("NOTE(dcache2.scala:1337):  [DCache] Load: rsp sent. DataLoadRsp(data = %x, fault = %x, redo = %x, refillSlot = %x, refillSlotAny = %x), id = %x", io_load_rsp_payload_data, _zz_36, _zz_37, io_load_rsp_payload_refillSlot, io_load_rsp_payload_refillSlotAny, io_load_rsp_payload_id); // dcache2.scala:L1337
+                $display("NOTE(dcache2.scala:1355):  [DCache] Load: rsp sent. DataLoadRsp(data = %x, fault = %x, redo = %x, refillSlot = %x, refillSlotAny = %x), id = %x", io_load_rsp_payload_data, _zz_36, _zz_37, io_load_rsp_payload_refillSlot, io_load_rsp_payload_refillSlotAny, io_load_rsp_payload_id); // dcache2.scala:L1355
               end
             `endif
           `endif
@@ -47022,10 +47148,10 @@ module DataCache (
         if(store_pipeline_stages_0_valid) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L1386
+              assert(1'b0); // dcache2.scala:L1404
             `else
               if(!1'b0) begin
-                $display("NOTE(dcache2.scala:1386):  [DCache] Store: cmd received. DataStoreCmd(address = %x, data = %x, mask = %x, io = %x, flush = %x, flushFree = %x, prefetch = %x)", io_store_cmd_payload_address, io_store_cmd_payload_data, io_store_cmd_payload_mask, _zz_38, _zz_39, io_store_cmd_payload_flushFree, _zz_40); // dcache2.scala:L1386
+                $display("NOTE(dcache2.scala:1404):  [DCache] Store: cmd received. DataStoreCmd(address = %x, data = %x, mask = %x, io = %x, flush = %x, flushFree = %x, prefetch = %x)", io_store_cmd_payload_address, io_store_cmd_payload_data, io_store_cmd_payload_mask, _zz_38, _zz_39, io_store_cmd_payload_flushFree, _zz_40); // dcache2.scala:L1404
               end
             `endif
           `endif
@@ -47034,10 +47160,10 @@ module DataCache (
           if(store_pipeline_stages_0_valid) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // dcache2.scala:L1388
+                assert(1'b0); // dcache2.scala:L1406
               `else
                 if(!1'b0) begin
-                  $display("NOTE(dcache2.scala:1388):  [DCache] Store: FLUSH command received for address 0x%x, flushFree: %x", _zz_41, _zz_42); // dcache2.scala:L1388
+                  $display("NOTE(dcache2.scala:1406):  [DCache] Store: FLUSH command received for address 0x%x, flushFree: %x", _zz_41, _zz_42); // dcache2.scala:L1406
                 end
               `endif
             `endif
@@ -47047,10 +47173,10 @@ module DataCache (
       if(store_pipeline_stages_1_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1409
+            assert(1'b0); // dcache2.scala:L1427
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1409):  [DCache] Store: Way 0 Tag read: loaded %x, address 0x%x, hit %x", store_pipeline_stages_1_WAYS_TAGS_0_loaded, store_pipeline_stages_1_WAYS_TAGS_0_address, _zz_43); // dcache2.scala:L1409
+              $display("NOTE(dcache2.scala:1427):  [DCache] Store: Way 0 Tag read: loaded %x, address 0x%x, hit %x", store_pipeline_stages_1_WAYS_TAGS_0_loaded, store_pipeline_stages_1_WAYS_TAGS_0_address, _zz_43); // dcache2.scala:L1427
             end
           `endif
         `endif
@@ -47058,10 +47184,10 @@ module DataCache (
       if(store_pipeline_stages_1_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1409
+            assert(1'b0); // dcache2.scala:L1427
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1409):  [DCache] Store: Way 1 Tag read: loaded %x, address 0x%x, hit %x", store_pipeline_stages_1_WAYS_TAGS_1_loaded, store_pipeline_stages_1_WAYS_TAGS_1_address, _zz_44); // dcache2.scala:L1409
+              $display("NOTE(dcache2.scala:1427):  [DCache] Store: Way 1 Tag read: loaded %x, address 0x%x, hit %x", store_pipeline_stages_1_WAYS_TAGS_1_loaded, store_pipeline_stages_1_WAYS_TAGS_1_address, _zz_44); // dcache2.scala:L1427
             end
           `endif
         `endif
@@ -47069,10 +47195,10 @@ module DataCache (
       if(store_pipeline_stages_1_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1418
+            assert(1'b0); // dcache2.scala:L1436
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1418):  [DCache] Store: Final hit decision: %x, ways hits: %x", _zz_45, _zz_46); // dcache2.scala:L1418
+              $display("NOTE(dcache2.scala:1436):  [DCache] Store: Final hit decision: %x, ways hits: %x", _zz_45, _zz_46); // dcache2.scala:L1436
             end
           `endif
         `endif
@@ -47080,10 +47206,10 @@ module DataCache (
       if(store_ctrl_setDirty) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1499
+            assert(1'b0); // dcache2.scala:L1517
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1499):  [DCache] Store: set dirty for address 0x%x", store_pipeline_stages_2_ADDRESS_POST_TRANSLATION); // dcache2.scala:L1499
+              $display("NOTE(dcache2.scala:1517):  [DCache] Store: set dirty for address 0x%x", store_pipeline_stages_2_ADDRESS_POST_TRANSLATION); // dcache2.scala:L1517
             end
           `endif
         `endif
@@ -47092,10 +47218,10 @@ module DataCache (
         if(store_pipeline_stages_2_valid) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L1526
+              assert(1'b0); // dcache2.scala:L1544
             `else
               if(!1'b0) begin
-                $display("NOTE(dcache2.scala:1526):  [DCache] Store: FLUSH command processing. REDO: %x, needFlush: %x, waysHazard: %x", _zz_47, store_ctrl_needFlush, _zz_48); // dcache2.scala:L1526
+                $display("NOTE(dcache2.scala:1544):  [DCache] Store: FLUSH command processing. REDO: %x, needFlush: %x, waysHazard: %x", _zz_47, store_ctrl_needFlush, _zz_48); // dcache2.scala:L1544
               end
             `endif
           `endif
@@ -47105,35 +47231,35 @@ module DataCache (
         if(store_pipeline_stages_2_valid) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L1534
+              assert(1'b0); // dcache2.scala:L1552
             `else
               if(!1'b0) begin
-                $display("NOTE(dcache2.scala:1534):  [DCache] Store: IO access, no cache write/refill/dirty set."); // dcache2.scala:L1534
+                $display("NOTE(dcache2.scala:1552):  [DCache] Store: IO access, no cache write/refill/dirty set."); // dcache2.scala:L1552
               end
             `endif
           `endif
         end
       end
-      if(when_dcache2_l1537) begin
+      if(when_dcache2_l1555) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1543
+            assert(1'b0); // dcache2.scala:L1561
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1543):  [DCache] Store: reservation taken for status write. Address 0x%x", _zz_49); // dcache2.scala:L1543
+              $display("NOTE(dcache2.scala:1561):  [DCache] Store: reservation taken for status write. Address 0x%x", _zz_49); // dcache2.scala:L1561
             end
           `endif
         `endif
       end
-      if(when_dcache2_l1547) begin
+      if(when_dcache2_l1565) begin
         if(store_ctrl_startFlush) begin
           if(store_pipeline_stages_2_valid) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // dcache2.scala:L1556
+                assert(1'b0); // dcache2.scala:L1574
               `else
                 if(!1'b0) begin
-                  $display("NOTE(dcache2.scala:1556):  [DCache] Store: FLUSH: Clearing dirty bit for way %x at address 0x%x", store_ctrl_needFlushSel, _zz_50); // dcache2.scala:L1556
+                  $display("NOTE(dcache2.scala:1574):  [DCache] Store: FLUSH: Clearing dirty bit for way %x at address 0x%x", store_ctrl_needFlushSel, _zz_50); // dcache2.scala:L1574
                 end
               `endif
             `endif
@@ -47142,10 +47268,10 @@ module DataCache (
         if(writeback_push_valid) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L1558
+              assert(1'b0); // dcache2.scala:L1576
             `else
               if(!1'b0) begin
-                $display("NOTE(dcache2.scala:1558):  [DCache] Store: writeback push valid. Address 0x%x, way %x", writeback_push_payload_address, writeback_push_payload_way); // dcache2.scala:L1558
+                $display("NOTE(dcache2.scala:1576):  [DCache] Store: writeback push valid. Address 0x%x, way %x", writeback_push_payload_address, writeback_push_payload_way); // dcache2.scala:L1576
               end
             `endif
           `endif
@@ -47155,37 +47281,37 @@ module DataCache (
         if(store_pipeline_stages_2_valid) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L1572
+              assert(1'b0); // dcache2.scala:L1590
             `else
               if(!1'b0) begin
-                $display("NOTE(dcache2.scala:1572):  [DCache] Store: refill push valid. Address 0x%x, way %x", refill_push_payload_address, refill_push_payload_way); // dcache2.scala:L1572
+                $display("NOTE(dcache2.scala:1590):  [DCache] Store: refill push valid. Address 0x%x, way %x", refill_push_payload_address, refill_push_payload_way); // dcache2.scala:L1590
               end
             `endif
           `endif
         end
       end
       if(store_ctrl_writeCache) begin
-        if(when_dcache2_l1578) begin
+        if(when_dcache2_l1596) begin
           if(banks_0_write_valid) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // dcache2.scala:L1589
+                assert(1'b0); // dcache2.scala:L1607
               `else
                 if(!1'b0) begin
-                  $display("NOTE(dcache2.scala:1589):  [DCache] Store: write cache for bank 0, data 0x%x, address 0x%x mask 0x%x", banks_0_write_payload_data, store_pipeline_stages_2_ADDRESS_POST_TRANSLATION, banks_0_write_payload_mask); // dcache2.scala:L1589
+                  $display("NOTE(dcache2.scala:1607):  [DCache] Store: write cache for bank 0, data 0x%x, address 0x%x mask 0x%x", banks_0_write_payload_data, store_pipeline_stages_2_ADDRESS_POST_TRANSLATION, banks_0_write_payload_mask); // dcache2.scala:L1607
                 end
               `endif
             `endif
           end
         end
-        if(when_dcache2_l1578_1) begin
+        if(when_dcache2_l1596_1) begin
           if(banks_1_write_valid) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // dcache2.scala:L1589
+                assert(1'b0); // dcache2.scala:L1607
               `else
                 if(!1'b0) begin
-                  $display("NOTE(dcache2.scala:1589):  [DCache] Store: write cache for bank 1, data 0x%x, address 0x%x mask 0x%x", banks_1_write_payload_data, store_pipeline_stages_2_ADDRESS_POST_TRANSLATION, banks_1_write_payload_mask); // dcache2.scala:L1589
+                  $display("NOTE(dcache2.scala:1607):  [DCache] Store: write cache for bank 1, data 0x%x, address 0x%x mask 0x%x", banks_1_write_payload_data, store_pipeline_stages_2_ADDRESS_POST_TRANSLATION, banks_1_write_payload_mask); // dcache2.scala:L1607
                 end
               `endif
             `endif
@@ -47194,10 +47320,10 @@ module DataCache (
         if(store_pipeline_stages_2_valid) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L1595
+              assert(1'b0); // dcache2.scala:L1613
             `else
               if(!1'b0) begin
-                $display("NOTE(dcache2.scala:1595):  [DCache] Store: write cache for address 0x%x", store_pipeline_stages_2_ADDRESS_POST_TRANSLATION); // dcache2.scala:L1595
+                $display("NOTE(dcache2.scala:1613):  [DCache] Store: write cache for address 0x%x", store_pipeline_stages_2_ADDRESS_POST_TRANSLATION); // dcache2.scala:L1613
               end
             `endif
           `endif
@@ -47206,19 +47332,19 @@ module DataCache (
       if(store_ctrl_setDirty) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1599
+            assert(1'b0); // dcache2.scala:L1617
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1599):  [DCache] STORE_SET_DIRTY: Address 0x%x, Line %x", _zz_51, _zz_52); // dcache2.scala:L1599
+              $display("NOTE(dcache2.scala:1617):  [DCache] STORE_SET_DIRTY: Address 0x%x, Line %x", _zz_51, _zz_52); // dcache2.scala:L1617
             end
           `endif
         `endif
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1600
+            assert(1'b0); // dcache2.scala:L1618
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1600):  [DCache] STORE_SET_DIRTY: (controlStage )Address 0x%x, Line %x", store_pipeline_stages_2_ADDRESS_POST_TRANSLATION, _zz_53); // dcache2.scala:L1600
+              $display("NOTE(dcache2.scala:1618):  [DCache] STORE_SET_DIRTY: (controlStage )Address 0x%x, Line %x", store_pipeline_stages_2_ADDRESS_POST_TRANSLATION, _zz_53); // dcache2.scala:L1618
             end
           `endif
         `endif
@@ -47228,10 +47354,10 @@ module DataCache (
           if(store_pipeline_stages_2_valid) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // dcache2.scala:L1613
+                assert(1'b0); // dcache2.scala:L1631
               `else
                 if(!1'b0) begin
-                  $display("NOTE(dcache2.scala:1613):  [DCache] Store: FLUSH_FREE: Invalidating line for way %x at address 0x%x", store_ctrl_needFlushSel, _zz_54); // dcache2.scala:L1613
+                  $display("NOTE(dcache2.scala:1631):  [DCache] Store: FLUSH_FREE: Invalidating line for way %x at address 0x%x", store_ctrl_needFlushSel, _zz_54); // dcache2.scala:L1631
                 end
               `endif
             `endif
@@ -47239,10 +47365,10 @@ module DataCache (
         end
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1616
+            assert(1'b0); // dcache2.scala:L1634
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1616):  [DCache] Store: FLUSH start, invalidate/release for address 0x%x, needFlush: %x, canFlush: %x", store_pipeline_stages_2_ADDRESS_POST_TRANSLATION, store_ctrl_needFlush, store_ctrl_canFlush); // dcache2.scala:L1616
+              $display("NOTE(dcache2.scala:1634):  [DCache] Store: FLUSH start, invalidate/release for address 0x%x, needFlush: %x, canFlush: %x", store_pipeline_stages_2_ADDRESS_POST_TRANSLATION, store_ctrl_needFlush, store_ctrl_canFlush); // dcache2.scala:L1634
             end
           `endif
         `endif
@@ -47250,28 +47376,28 @@ module DataCache (
       if(store_pipeline_stages_2_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1621
+            assert(1'b0); // dcache2.scala:L1639
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1621):  [DCache] Store: Control stage - WAYS_HIT: %x, MISS: %x, REDO: %x, IO: %x, FLUSH: %x, PREFETCH: %x", _zz_55, _zz_56, _zz_57, _zz_58, _zz_59, _zz_60); // dcache2.scala:L1621
+              $display("NOTE(dcache2.scala:1639):  [DCache] Store: Control stage - WAYS_HIT: %x, MISS: %x, REDO: %x, IO: %x, FLUSH: %x, PREFETCH: %x", _zz_55, _zz_56, _zz_57, _zz_58, _zz_59, _zz_60); // dcache2.scala:L1639
             end
           `endif
         `endif
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1622
+            assert(1'b0); // dcache2.scala:L1640
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1622):    RefillHit: %x, LineBusy: %x, WaysHitHazard: %x, BankBusy: %x", store_ctrl_refillHit, store_ctrl_lineBusy, store_ctrl_waysHitHazard, store_ctrl_bankBusy); // dcache2.scala:L1622
+              $display("NOTE(dcache2.scala:1640):    RefillHit: %x, LineBusy: %x, WaysHitHazard: %x, BankBusy: %x", store_ctrl_refillHit, store_ctrl_lineBusy, store_ctrl_waysHitHazard, store_ctrl_bankBusy); // dcache2.scala:L1640
             end
           `endif
         `endif
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1623
+            assert(1'b0); // dcache2.scala:L1641
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1623):    NeedFlush: %x, CanFlush: %x, StartFlush: %x", store_ctrl_needFlush, store_ctrl_canFlush, store_ctrl_startFlush); // dcache2.scala:L1623
+              $display("NOTE(dcache2.scala:1641):    NeedFlush: %x, CanFlush: %x, StartFlush: %x", store_ctrl_needFlush, store_ctrl_canFlush, store_ctrl_startFlush); // dcache2.scala:L1641
             end
           `endif
         `endif
@@ -47280,10 +47406,10 @@ module DataCache (
         if(store_pipeline_stages_2_valid) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L1644
+              assert(1'b0); // dcache2.scala:L1662
             `else
               if(!1'b0) begin
-                $display("NOTE(dcache2.scala:1644):  [DCache] Store: rsp sent. DataStoreRsp(fault = %x, redo = %x, refillSlot = %x, refillSlotAny = %x, flush = %x, prefetch = %x, address = %x, io = %x)", _zz_61, _zz_62, io_store_rsp_payload_refillSlot, io_store_rsp_payload_refillSlotAny, _zz_63, _zz_64, io_store_rsp_payload_address, _zz_65); // dcache2.scala:L1644
+                $display("NOTE(dcache2.scala:1662):  [DCache] Store: rsp sent. DataStoreRsp(fault = %x, redo = %x, refillSlot = %x, refillSlotAny = %x, flush = %x, prefetch = %x, address = %x, io = %x)", _zz_61, _zz_62, io_store_rsp_payload_refillSlot, io_store_rsp_payload_refillSlotAny, _zz_63, _zz_64, io_store_rsp_payload_address, _zz_65); // dcache2.scala:L1662
               end
             `endif
           `endif
@@ -47293,10 +47419,10 @@ module DataCache (
       store_pipeline_stages_2_valid <= _zz_store_pipeline_stages_2_valid;
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // dcache2.scala:L1656
+          assert(1'b0); // dcache2.scala:L1674
         `else
           if(!1'b0) begin
-            $display("NOTE(dcache2.scala:1656):  [DCache] IdleWriteback: isIdle: %x because invalidate.done: %x  io.load.cmd.valid: %x  io.store.cmd.valid: %x  refill.slots.map(_.valid).orR: %x  io.writebackBusy: %x", idleWriteback_isIdle, invalidate_done, io_load_cmd_valid, io_store_cmd_valid, _zz_66, io_writebackBusy); // dcache2.scala:L1656
+            $display("NOTE(dcache2.scala:1674):  [DCache] IdleWriteback: isIdle: %x because invalidate.done: %x  io.load.cmd.valid: %x  io.store.cmd.valid: %x  refill.slots.map(_.valid).orR: %x  io.writebackBusy: %x", idleWriteback_isIdle, invalidate_done, io_load_cmd_valid, io_store_cmd_valid, _zz_66, io_writebackBusy); // dcache2.scala:L1674
           end
         `endif
       `endif
@@ -47304,20 +47430,20 @@ module DataCache (
       idleWriteback_analysisAndTrigger_valid <= idleWriteback_scanCmd_scanGo;
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // dcache2.scala:L1773
+          assert(1'b0); // dcache2.scala:L1791
         `else
           if(!1'b0) begin
-            $display("NOTE(dcache2.scala:1773):  [DCache] IdleWriteback: doWriteback: %x  valid: %x  hasCandidate: %x  isAlreadyBusy: %x  writebackQueueFree: %x", idleWriteback_analysisAndTrigger_doWriteback, idleWriteback_analysisAndTrigger_valid, idleWriteback_analysisAndTrigger_hasCandidate, idleWriteback_analysisAndTrigger_isAlreadyBusy, writeback_slots_0_free); // dcache2.scala:L1773
+            $display("NOTE(dcache2.scala:1791):  [DCache] IdleWriteback: doWriteback: %x  valid: %x  hasCandidate: %x  isAlreadyBusy: %x  writebackQueueFree: %x", idleWriteback_analysisAndTrigger_doWriteback, idleWriteback_analysisAndTrigger_valid, idleWriteback_analysisAndTrigger_hasCandidate, idleWriteback_analysisAndTrigger_isAlreadyBusy, writeback_slots_0_free); // dcache2.scala:L1791
           end
         `endif
       `endif
       if(idleWriteback_analysisAndTrigger_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1787
+            assert(1'b0); // dcache2.scala:L1805
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1787):  [DCache][IW Scan] Line:%x | W0:%x%x-0x%x | W1:%x%x-0x%x | hasCandidate=%x", idleWriteback_analysisAndTrigger_lineIdx, _zz_67, _zz_68, ways_0_maintenanceRead_rsp_address, _zz_69, _zz_70, ways_1_maintenanceRead_rsp_address, idleWriteback_analysisAndTrigger_hasCandidate); // dcache2.scala:L1787
+              $display("NOTE(dcache2.scala:1805):  [DCache][IW Scan] Line:%x | W0:%x%x-0x%x | W1:%x%x-0x%x | hasCandidate=%x", idleWriteback_analysisAndTrigger_lineIdx, _zz_67, _zz_68, ways_0_maintenanceRead_rsp_address, _zz_69, _zz_70, ways_1_maintenanceRead_rsp_address, idleWriteback_analysisAndTrigger_hasCandidate); // dcache2.scala:L1805
             end
           `endif
         `endif
@@ -47325,10 +47451,10 @@ module DataCache (
       if(idleWriteback_analysisAndTrigger_doWriteback) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1797
+            assert(1'b0); // dcache2.scala:L1815
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1797):  [DCache] IdleWriteback: Pushing dirty line. Address: 0x%x, Way: %x", idleWriteback_analysisAndTrigger_victimAddress, idleWriteback_analysisAndTrigger_victimWay); // dcache2.scala:L1797
+              $display("NOTE(dcache2.scala:1815):  [DCache] IdleWriteback: Pushing dirty line. Address: 0x%x, Way: %x", idleWriteback_analysisAndTrigger_victimAddress, idleWriteback_analysisAndTrigger_victimWay); // dcache2.scala:L1815
             end
           `endif
         `endif
@@ -47343,10 +47469,10 @@ module DataCache (
           if(idleWriteback_clearDirtyFsm_reservation_win) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // dcache2.scala:L1703
+                assert(1'b0); // dcache2.scala:L1721
               `else
                 if(!1'b0) begin
-                  $display("NOTE(dcache2.scala:1703):  [DCache] IdleWriteback: Clearing dirty bit via FSM. Address: 0x%x, Way: %x", idleWriteback_clearDirtyFsm_completedAddress, idleWriteback_clearDirtyFsm_completedWay); // dcache2.scala:L1703
+                  $display("NOTE(dcache2.scala:1721):  [DCache] IdleWriteback: Clearing dirty bit via FSM. Address: 0x%x, Way: %x", idleWriteback_clearDirtyFsm_completedAddress, idleWriteback_clearDirtyFsm_completedWay); // dcache2.scala:L1721
                 end
               `endif
             `endif

@@ -342,46 +342,64 @@ case class DataMemBus(p: DataMemBusParameter) extends Bundle with IMasterSlave {
 
     val axi = Axi4(axiConfig) // 创建 AXI4 总线
 
-    // READ 读通道适配
-    axi.ar.valid := read.cmd.valid // AR 有效性
-    axi.ar.addr := read.cmd.address // AR 地址
-    axi.ar.id := read.cmd.id // AR ID
-    axi.ar.prot := B"010" // AR 保护（非特权、可缓冲）
-    axi.ar.len := p.lineSize * 8 / p.dataWidth - 1 // AR 长度（突发传输的beat数量-1）
-    axi.ar.size := log2Up(p.dataWidth / 8) // AR 大小（字节为单位的传输大小的log2）
-    axi.ar.setBurstINCR() // 设置为增量突发
-    read.cmd.ready := axi.ar.ready // 读命令就绪信号
+    // =========================================================
+    // >> 时序优化 <<
+    // 在每个总线通道的关键路径上插入一级流水线寄存器 (.stage())
+    // 这会切断从Cache内部到AXI Crossbar的长组合逻辑路径。
+    // 代价是每个被优化的通道会增加一个周期的延迟，但这对于时序收敛至关重要。
+    // =========================================================
 
-    read.rsp.valid := axi.r.valid // R 有效性
-    read.rsp.data := axi.r.data // R 数据
-    read.rsp.id := axi.r.id // R ID
-    read.rsp.error := !axi.r.isOKAY() // R 错误
-    axi.r.ready := (if (p.withReducedBandwidth) read.rsp.ready else True) // R 就绪信号
+    // --- 读通道 (Read Channel) ---
+    // 在 AR 通道（读命令）上增加一个寄存器
+    val arCmdStaged = read.cmd.stage()
+    axi.ar.valid          := arCmdStaged.valid
+    axi.ar.addr           := arCmdStaged.payload.address
+    axi.ar.id             := arCmdStaged.payload.id
+    axi.ar.prot           := B"010"
+    axi.ar.len            := p.lineSize * 8 / p.dataWidth - 1
+    axi.ar.size           := log2Up(p.dataWidth / 8)
+    axi.ar.setBurstINCR()
+    arCmdStaged.ready     := axi.ar.ready
 
-    // WRITE 写通道适配
-    val (awRaw, wRaw) = StreamFork2(write.cmd) // 将写命令流分叉成两路：一路给 AW，一路给 W
-    val awFiltred = awRaw.throwWhen(!awRaw.first) // AW 只取突发传输的第一个beat
-    val aw = awFiltred.stage() // AW 流过一个阶段
-    axi.aw.valid := aw.valid // AW 有效性
-    axi.aw.addr := aw.address // AW 地址
-    axi.aw.id := aw.id // AW ID
-    axi.aw.prot := B"010" // AW 保护
-    axi.aw.len := p.lineSize * 8 / p.dataWidth - 1 // AW 长度
-    axi.aw.size := log2Up(p.dataWidth / 8) // AW 大小
-    axi.aw.setBurstINCR() // 设置为增量突发
-    aw.ready := axi.aw.ready // AW 就绪信号
+    // 在 R 通道（读响应）上增加一个寄存器，以隔离来自AXI总线的响应逻辑
+    val rRspStaged = axi.r.stage()
+    read.rsp.valid        := rRspStaged.valid
+    read.rsp.data         := rRspStaged.payload.data
+    read.rsp.id           := rRspStaged.payload.id
+    read.rsp.error        := !rRspStaged.payload.isOKAY()
+    rRspStaged.ready      := (if (p.withReducedBandwidth) read.rsp.ready else True)
 
-    val w = wRaw.haltWhen(awFiltred.valid) // W 通道在 AW 有效时暂停
-    axi.w.valid := w.valid // W 有效性
-    axi.w.data := w.data // W 数据
-    axi.w.strb.setAll() // W 字节选通（全1）
-    axi.w.last := w.last // W 最后一个beat
-    w.ready := axi.w.ready // W 就绪信号
+    // --- 写通道 (Write Channel) ---
+    val (awRaw, wRaw) = StreamFork2(write.cmd)
+    
+    // AW 通道（写地址）已经有.stage()，保持不变
+    val awFiltred = awRaw.throwWhen(!awRaw.first)
+    val aw = awFiltred.stage() 
+    axi.aw.valid          := aw.valid
+    axi.aw.addr           := aw.payload.address
+    axi.aw.id             := aw.payload.id
+    axi.aw.prot           := B"010"
+    axi.aw.len            := p.lineSize * 8 / p.dataWidth - 1
+    axi.aw.size           := log2Up(p.dataWidth / 8)
+    axi.aw.setBurstINCR()
+    aw.ready              := axi.aw.ready
 
-    write.rsp.valid := axi.b.valid // B 有效性
-    write.rsp.id := axi.b.id // B ID
-    write.rsp.error := !axi.b.isOKAY() // B 错误
-    axi.b.ready := True // B 始终就绪
+    // 在 W 通道（写数据）上增加一个寄存器
+    val w = wRaw.haltWhen(awFiltred.valid)
+    val wStaged = w.stage()
+    axi.w.valid           := wStaged.valid
+    axi.w.data            := wStaged.payload.data
+    axi.w.strb.setAll()
+    axi.w.last            := wStaged.payload.last
+    wStaged.ready         := axi.w.ready
+
+    // 在 B 通道（写响应）上增加一个寄存器
+    val bRspStaged = axi.b.stage()
+    write.rsp.valid       := bRspStaged.valid
+    write.rsp.id          := bRspStaged.payload.id
+    write.rsp.error       := !bRspStaged.payload.isOKAY()
+    bRspStaged.ready      := True
+
   }.axi
 }
 

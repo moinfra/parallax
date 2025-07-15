@@ -1,4 +1,4 @@
-// testOnly parallax.test.scala.dcache2.DataCacheSpec
+// testOnly test.scala.dcache2.DataCacheSpec
 
 package test.scala.dcache2
 
