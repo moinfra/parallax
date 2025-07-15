@@ -1,13 +1,14 @@
 // Generator : SpinalHDL dev    git head : 3105a33b457518a7afeed8b0527b4d8b9dab2383
 // Component : CoreNSCSCC
-// Git hash  : 5a1df5354951907489ee6c01301c2f9378eb0600
+// Git hash  : caa6f278847627bac0c3e619ddac8da445ca9962
 
 `timescale 1ns/1ps
 
 module CoreNSCSCC (
   output wire [7:0]    io_dpy0,
   output wire [7:0]    io_dpy1,
-  output wire [15:0]   io_commit_counter,
+  output wire [15:0]   io_leds,
+  input  wire          io_switch_btn,
   input  wire [31:0]   io_isram_dout,
   output wire [19:0]   io_isram_addr,
   output wire [31:0]   io_isram_din,
@@ -1426,6 +1427,7 @@ module CoreNSCSCC (
   wire       [7:0]    _zz_uartAxi_r_payload_id;
   wire       [3:0]    _zz_io_uart_aw_bits_id;
   wire       [7:0]    _zz_uartAxi_b_payload_id;
+  wire       [31:0]   _zz_io_leds_1;
   wire                s3_Dispatch_isFlushingRoot;
   wire                s2_RobAlloc_isFlushingRoot;
   wire                s1_Rename_isFlushingRoot;
@@ -4773,6 +4775,7 @@ module CoreNSCSCC (
   wire       [2:0]    io_outputs_2_aw_validPipe_payload_prot_2;
   reg                 io_outputs_2_aw_rValid_2;
   wire                io_outputs_2_aw_validPipe_fire_2;
+  reg                 _zz_io_leds;
   reg        [2:0]    SimpleFetchPipelinePlugin_logic_fsm_stateReg;
   reg        [2:0]    SimpleFetchPipelinePlugin_logic_fsm_stateNext;
   wire       [31:0]   _zz_38;
@@ -5250,6 +5253,7 @@ module CoreNSCSCC (
   assign _zz_uartAxi_r_payload_id = io_uart_r_bits_id;
   assign _zz_io_uart_aw_bits_id = uartAxi_aw_payload_id;
   assign _zz_uartAxi_b_payload_id = io_uart_b_bits_id;
+  assign _zz_io_leds_1 = (_zz_io_leds ? CommitPlugin_commitStatsReg_maxCommitPc : CommitPlugin_commitStatsReg_totalCommitted);
   assign _zz_BpuPipelinePlugin_logic_pht_port = BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_pc[11 : 2];
   assign _zz_BpuPipelinePlugin_logic_btb_port = BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_pc[9 : 2];
   assign _zz_BpuPipelinePlugin_logic_btb_port_1 = {BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_target,{BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_pc[31 : 10],1'b1}};
@@ -20817,7 +20821,7 @@ module CoreNSCSCC (
   assign axi4WriteOnlyArbiter_5_io_inputs_2_aw_payload_id = {1'd0, io_outputs_2_aw_validPipe_payload_id_2};
   assign io_dpy0 = DebugDisplayPlugin_hw_dpyController_io_dpy0_out;
   assign io_dpy1 = DebugDisplayPlugin_hw_dpyController_io_dpy1_out;
-  assign io_commit_counter = CommitPlugin_commitStatsReg_totalCommitted[15:0];
+  assign io_leds = _zz_io_leds_1[15:0];
   always @(*) begin
     SimpleFetchPipelinePlugin_logic_fsm_stateNext = SimpleFetchPipelinePlugin_logic_fsm_stateReg;
     case(SimpleFetchPipelinePlugin_logic_fsm_stateReg)
@@ -21088,6 +21092,7 @@ module CoreNSCSCC (
       io_outputs_0_aw_rValid_2 <= 1'b0;
       io_outputs_1_aw_rValid_2 <= 1'b0;
       io_outputs_2_aw_rValid_2 <= 1'b0;
+      _zz_io_leds <= 1'b0;
       SimpleFetchPipelinePlugin_logic_fsm_stateReg <= SimpleFetchPipelinePlugin_logic_fsm_BOOT;
     end else begin
       if(io_mem_toAxi4_awRaw_fire) begin
@@ -22909,6 +22914,9 @@ module CoreNSCSCC (
       end
       if(io_outputs_2_aw_validPipe_fire_2) begin
         io_outputs_2_aw_rValid_2 <= 1'b0;
+      end
+      if(io_switch_btn) begin
+        _zz_io_leds <= (! _zz_io_leds);
       end
       SimpleFetchPipelinePlugin_logic_fsm_stateReg <= SimpleFetchPipelinePlugin_logic_fsm_stateNext;
       case(SimpleFetchPipelinePlugin_logic_fsm_stateReg)

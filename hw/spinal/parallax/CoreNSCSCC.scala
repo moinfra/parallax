@@ -37,7 +37,8 @@ case class CoreNSCSCCIo(simDebug: Boolean = false) extends Bundle {
   val dpy0 = onboardDebug generate { out Bits (8 bits) } // Low digit
   val dpy1 = onboardDebug generate { out Bits (8 bits) } // High digit
 
-  val commit_counter = onboardDebug generate { out UInt(16 bits) } // Commit counter
+  val leds = onboardDebug generate { out UInt (16 bits) } // Commit counter
+  val switch_btn = onboardDebug generate { in Bool () } // Commit counter
 
   // ISRAM (BaseRAM) interface
   val isram_dout = in Bits (32 bits)
@@ -454,7 +455,7 @@ class CoreNSCSCC(simDebug: Boolean = false) extends Component {
     plugins()
   )
 
-  if(onboardDebug) {
+  if (onboardDebug) {
     val commitService = framework.getService[CommitPlugin]
     // TODO: REMOVE THIS HARDCODED AFTER BUG FIXED
     commitService.setMaxCommitPc(U(BigInt("80001000", 16), 32 bits), True)
@@ -536,7 +537,13 @@ class CoreNSCSCC(simDebug: Boolean = false) extends Component {
     io.dpy1 := dpy1
 
     val commitService = framework.getService[CommitPlugin]
-    io.commit_counter := commitService.getCommitStatsReg().totalCommitted.resized
+    val switch_reg = Reg(Bool) init (False) // 用于切换显示模式, 1 表示查看最大commit pc 0 表示查看commit数量，
+    when(io.switch_btn) {
+      switch_reg := ~switch_reg
+    }
+    val commitStat = commitService.getCommitStatsReg()
+    val display = Mux(switch_reg, commitStat.maxCommitPc, commitStat.totalCommitted)
+    io.leds := display.resized
   }
 }
 
