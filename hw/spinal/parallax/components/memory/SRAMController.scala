@@ -80,6 +80,8 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
   }
 
   // --- AXI4 Slave 接口就绪信号 ---
+  // FIXED: 需要为所有状态提供默认值，避免锁存器
+  // FSM中的状态将会覆盖这些默认值
   io.axi.aw.ready := False
   io.axi.ar.ready := False
   io.axi.w.ready := False
@@ -87,6 +89,8 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
   io.axi.r.valid := False
 
   // --- AXI4 Slave 接口默认 payload ---
+  // FIXED: 为了避免锁存器，需要提供默认值，但这些值只在valid=false时生效
+  // 在FSM中，当valid=true时，这些值会被正确的事务值覆盖
   io.axi.b.payload.id := 0
   io.axi.b.payload.resp := Axi4.resp.OKAY
   io.axi.r.payload.id := 0
@@ -147,6 +151,10 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
         sram_addr_out_reg := 0 // 默认地址为0
       }
       whenIsActive {
+        // FIXED: 在非-IDLE状态中，确保不接受新的命令通道请求
+        io.axi.aw.ready := False
+        io.axi.ar.ready := False
+        
         // --- MODIFIED: 状态机活动期间，如果未被特定状态覆盖，保持默认行为 ---
         // (这些通常在onEntry设置一次就够了，但为了安全和调试，也可以在这里强制)
         // sram_ce_n_out_reg := True // 已经在onEntry中设置
@@ -159,8 +167,28 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
         transaction_error_occurred := False
         addr_prefetch_valid := False
 
-        io.axi.aw.ready := !read_priority || !io.axi.ar.valid
-        io.axi.ar.ready := read_priority || !io.axi.aw.valid
+        // FIXED: 修复循环依赖问题，使用更稳定的仲裁逻辑
+        // 原始的实现有循环依赖问题：
+        // io.axi.aw.ready := !read_priority || !io.axi.ar.valid
+        // io.axi.ar.ready := read_priority || !io.axi.aw.valid
+        // 当同时有AR和AW请求时，两个都可能不会ready
+        
+        // 新的实现：保证至少有一个通道可以ready
+        val awHasRequest = io.axi.aw.valid
+        val arHasRequest = io.axi.ar.valid
+        
+        when(awHasRequest && arHasRequest) {
+          // 当两个都有请求时，根据优先级选择一个
+          io.axi.aw.ready := !read_priority
+          io.axi.ar.ready := read_priority
+        } otherwise {
+          // 当只有一个有请求时，直接接受
+          io.axi.aw.ready := awHasRequest
+          io.axi.ar.ready := arHasRequest
+        }
+        
+        // 在IDLE状态中，W通道不应该ready
+        io.axi.w.ready := False
 
         when(io.axi.aw.fire) {
           val sizeInfo = if (axiConfig.useSize) L", Size=${(io.axi.aw).size}" else L""
@@ -284,12 +312,15 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
             sram_be_n_out_reg := sram_be_n_inactive_value
         }
         whenIsActive {
+            // FIXED: 在非-IDLE状态中，确保不接受新的命令通道请求
+            io.axi.aw.ready := False
+            io.axi.ar.ready := False
+            io.axi.w.ready := True // 准备好接收W通道数据
+            
             if (config.enableLog)
                 report(
                     L"SRAMController: WRITE_DATA_FETCH. SRAM_Target_Addr=0x${current_sram_addr}, BurstCountRem=${burst_count_remaining}"
                 )
-
-            io.axi.w.ready := True // 准备好接收W通道数据
 
             when(io.axi.w.fire) {
                 if (config.enableLog)
@@ -325,6 +356,11 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
             hasWriteWaitCycles generate { write_wait_counter := 0 }
         }
         whenIsActive {
+            // FIXED: 在非-IDLE状态中，确保不接受新的命令通道请求
+            io.axi.aw.ready := False
+            io.axi.ar.ready := False
+            io.axi.w.ready := False
+            
             if (config.enableLog)
                 report(
                     L"SRAMController: WRITE_EXECUTE. SRAM Addr=0x${sram_addr_out_reg}, WaitCounter=${hasWriteWaitCycles generate write_wait_counter}"
@@ -363,6 +399,11 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
             sram_be_n_out_reg := sram_be_n_inactive_value
         }
         whenIsActive {
+            // FIXED: 在非-IDLE状态中，确保不接受新的命令通道请求
+            io.axi.aw.ready := False
+            io.axi.ar.ready := False
+            io.axi.w.ready := False
+            
             if (config.enableLog)
                 report(
                     L"SRAMController: WRITE_DEASSERT. SRAM Addr=0x${sram_addr_out_reg}, BurstCountRem=${burst_count_remaining}"
@@ -398,8 +439,12 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
         sram_addr_out_reg := 0
       }
       whenIsActive {
-        if (config.enableLog) report(L"SRAMController: WRITE_DATA_ERROR_CONSUME. BurstCountRem=${burst_count_remaining}")
+        // FIXED: 在非-IDLE状态中，确保不接受新的命令通道请求
+        io.axi.aw.ready := False
+        io.axi.ar.ready := False
         io.axi.w.ready := True
+        
+        if (config.enableLog) report(L"SRAMController: WRITE_DATA_ERROR_CONSUME. BurstCountRem=${burst_count_remaining}")
         
         when(io.axi.w.fire) {
           burst_count_remaining := burst_count_remaining - 1
