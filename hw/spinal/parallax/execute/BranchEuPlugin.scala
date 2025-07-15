@@ -61,10 +61,23 @@ class BranchEuPlugin(
     val pipeline = new Pipeline {
       val s0_dispatch = newStage().setName("s0_Dispatch")
       val s1_resolve  = newStage().setName("s1_Resolve")
+      val s2_mispredict = newStage().setName("s2_Mispredict")
     }.setCompositeName(this, "internal_pipeline")
 
     // 添加Stageable和输入连接
     val EU_INPUT_PAYLOAD = Stageable(iqEntryType())
+    
+    // Stageable for passing misprediction information between s1 and s2
+    case class MispredictInfo() extends Bundle {
+      val mispredicted = Bool()
+      val finalTarget = UInt(pipelineConfig.pcWidth)
+      val robPtrToFlush = UInt(pipelineConfig.robPtrWidth)
+      val linkValue = Bits(pipelineConfig.dataWidth)
+      val actuallyTaken = Bool()
+      val writesToPreg = Bool()
+      val outputData = Bits(pipelineConfig.dataWidth)
+    }
+    val MISPREDICT_INFO = Stageable(MispredictInfo())
     
     // 连接输入端口到流水线入口
     pipeline.s0_dispatch.driveFrom(getEuInputPort)
@@ -76,6 +89,7 @@ class BranchEuPlugin(
     }
     
     pipeline.connect(pipeline.s0_dispatch, pipeline.s1_resolve)(Connection.M2S())
+    pipeline.connect(pipeline.s1_resolve, pipeline.s2_mispredict)(Connection.M2S())
 
     // --- Stage S1: Resolve Branch ---
     val uopAtS1 = pipeline.s1_resolve(EU_INPUT_PAYLOAD)
@@ -185,31 +199,46 @@ class BranchEuPlugin(
       report(L"[BranchEU-S1] PREDICTION: wasPredicted=${wasPredicted}, predictedTaken=${predictedTaken}, actuallyTaken=${actuallyTaken}, finalTarget=0x${finalTarget}, predictionCorrect=${predictionCorrect}")
     }
 
-    // 6. 更新euResult输出
+    // Store misprediction information in s1_resolve stage for s2_mispredict to use
+    pipeline.s1_resolve(MISPREDICT_INFO).mispredicted := !predictionCorrect
+    pipeline.s1_resolve(MISPREDICT_INFO).finalTarget := finalTarget
+    pipeline.s1_resolve(MISPREDICT_INFO).robPtrToFlush := uopAtS1.robPtr + 1
+    pipeline.s1_resolve(MISPREDICT_INFO).linkValue := linkValue
+    pipeline.s1_resolve(MISPREDICT_INFO).actuallyTaken := actuallyTaken
+    pipeline.s1_resolve(MISPREDICT_INFO).writesToPreg := uopAtS1.branchCtrl.isLink
+    pipeline.s1_resolve(MISPREDICT_INFO).outputData := Mux(uopAtS1.branchCtrl.isLink, linkValue, finalTarget.asBits.resized)
+
+    // Add debug logging for s1_resolve final results
     when(pipeline.s1_resolve.isFiring) {
+      report(L"[BranchEU-S1] RESOLVE COMPLETE: finalTarget=0x${finalTarget}, mispredicted=${!predictionCorrect}, actuallyTaken=${actuallyTaken}")
+    }
+
+    // --- Stage S2: Handle Misprediction ---
+    val mispredictInfoAtS2 = pipeline.s2_mispredict(MISPREDICT_INFO)
+    val uopAtS2 = pipeline.s2_mispredict(EU_INPUT_PAYLOAD)
+
+    // Default values for all output ports
+    hw.robFlushPort.valid := False
+    hw.robFlushPort.payload.reason := FlushReason.NONE
+    hw.robFlushPort.payload.targetRobPtr := 0
+    hw.redirectPort.valid := False
+    hw.redirectPort.payload := 0
+
+    // 6. Update euResult output (now driven from s2 stage)
+    when(pipeline.s2_mispredict.isFiring) {
       euResult.valid := True
-      euResult.uop := uopAtS1
-      
-      // 根据指令类型决定写回数据
-      when(uopAtS1.branchCtrl.isLink) {
-        // JAL/JALR 需要写回链接地址
-        euResult.data := linkValue
-        euResult.writesToPreg := True
-      } otherwise {
-        // 普通分支指令不写回寄存器
-        euResult.data := finalTarget.asBits.resized
-        euResult.writesToPreg := False
-      }
-      
+      euResult.uop := uopAtS2
+      euResult.data := mispredictInfoAtS2.outputData
+      euResult.writesToPreg := mispredictInfoAtS2.writesToPreg
       euResult.hasException := False
       euResult.exceptionCode := 0
       euResult.destIsFpr := False
       
-      // 添加执行结果日志
-      report(L"[BranchEU-S1] RESULT: euResult.valid=1, writesToPreg=${euResult.writesToPreg}, data=0x${euResult.data}")
+      // Add execution result logging
+      report(L"[BranchEU-S2] RESULT: euResult.valid=1, writesToPreg=${euResult.writesToPreg}, data=0x${euResult.data}")
     } otherwise {
       euResult.valid := False
-      euResult.uop := uopAtS1
+      euResult.uop := uopAtS2
       euResult.data := 0
       euResult.writesToPreg := False
       euResult.hasException := False
@@ -217,7 +246,7 @@ class BranchEuPlugin(
       euResult.destIsFpr := False
     }
 
-    // 7. BPU更新逻辑
+    // 7. BPU更新逻辑 (still in s1_resolve for immediate feedback)
     when(pipeline.s1_resolve.isFiring) {
       hw.bpuUpdatePort.valid := True
       hw.bpuUpdatePort.payload.pc := uopAtS1.pc
@@ -230,33 +259,24 @@ class BranchEuPlugin(
       hw.bpuUpdatePort.payload.target := 0
     }
 
-    // 8. ROB Flush逻辑 (分支预测错误时)
-    when(pipeline.s1_resolve.isFiring && !predictionCorrect) {
+    // 8. ROB Flush逻辑 (moved to s2_mispredict stage)
+    when(pipeline.s2_mispredict.isFiring && mispredictInfoAtS2.mispredicted) {
       hw.robFlushPort.valid := True
       hw.robFlushPort.payload.reason := FlushReason.ROLLBACK_TO_ROB_IDX
-      // CRITICAL FIX: Flush from the instruction AFTER the branch, not the branch itself
-      // The branch instruction should commit, but all following speculative instructions should be flushed
-      hw.robFlushPort.payload.targetRobPtr := uopAtS1.robPtr + 1
-      report(L"[BranchEU-S1] MISPREDICTION DETECTED: Flushing ROB from robPtr=${uopAtS1.robPtr + 1}, targetPC=0x${finalTarget}")
-      report(L"[BranchEU-S1] DEBUG: ROB flush valid=${hw.robFlushPort.valid}")
+      hw.robFlushPort.payload.targetRobPtr := mispredictInfoAtS2.robPtrToFlush
+      report(L"[BranchEU-S2] MISPREDICTION EXEC: Flushing ROB from robPtr=${mispredictInfoAtS2.robPtrToFlush}, targetPC=0x${mispredictInfoAtS2.finalTarget}")
+      report(L"[BranchEU-S2] DEBUG: ROB flush valid=${hw.robFlushPort.valid}")
       
-      // CRITICAL FIX: Issue fetch redirect to correct the fetch pipeline
+      // Issue fetch redirect to correct the fetch pipeline
       hw.redirectPort.valid := True
-      hw.redirectPort.payload := finalTarget
-      report(L"[BranchEU-S1] FETCH REDIRECT: Redirecting fetch to 0x${finalTarget}")
-      report(L"[BranchEU-S1] REDIRECT DEBUG: valid=${hw.redirectPort.valid}, payload=0x${hw.redirectPort.payload}")
-    } otherwise {
-      hw.robFlushPort.valid := False
-      hw.robFlushPort.payload.reason := FlushReason.NONE
-      hw.robFlushPort.payload.targetRobPtr := 0
-      
-      hw.redirectPort.valid := False
-      hw.redirectPort.payload := 0
+      hw.redirectPort.payload := mispredictInfoAtS2.finalTarget
+      report(L"[BranchEU-S2] FETCH REDIRECT: Redirecting fetch to 0x${mispredictInfoAtS2.finalTarget}")
+      report(L"[BranchEU-S2] REDIRECT DEBUG: valid=${hw.redirectPort.valid}, payload=0x${hw.redirectPort.payload}")
     }
 
     pipeline.build()
 
-    ParallaxLogger.log(s"[BranchEu ${euName}] Pipeline with branch logic built.")
+    ParallaxLogger.log(s"[BranchEu ${euName}] 3-stage pipeline with branch logic built: S0(Dispatch) -> S1(Resolve) -> S2(Mispredict).")
     hw.robServiceInst.release()
     hw.bpuServiceInst.release()
     hw.fetchPplInst.release()

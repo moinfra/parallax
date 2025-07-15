@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 3105a33b457518a7afeed8b0527b4d8b9dab2383
 // Component : CoreNSCSCC
-// Git hash  : b24b7b0055c9f91ffb71dccf16ea304596f1571b
+// Git hash  : 0aea5d78c3bd742f7572d8286a0bd00bafa50abf
 
 `timescale 1ns/1ps
 
@@ -1438,7 +1438,7 @@ module CoreNSCSCC (
   reg                 when_Connection_l66;
   reg                 _zz_s2_RobAlloc_isFlushingRoot;
   reg                 _zz_s1_Rename_isFlushingRoot;
-  wire                s1_Resolve_ready;
+  wire                s2_Mispredict_ready;
   reg        [3:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_robPtr;
   reg        [5:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_physDest_idx;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_physDestIsFpr;
@@ -1461,12 +1461,44 @@ module CoreNSCSCC (
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isIndirect;
   reg        [2:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_laCfIdx;
   reg        [31:0]   _zz_BranchEU_BranchEuPlugin_euResult_uop_imm;
-  reg        [31:0]   _zz_BpuPipelinePlugin_updatePortIn_payload_pc;
+  reg        [31:0]   _zz_BranchEU_BranchEuPlugin_euResult_uop_pc;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken;
   reg        [31:0]   _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_target;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted;
-  wire       [4:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_1;
-  wire       [1:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_1;
+  reg                 _zz_when_BranchEuPlugin_l263;
+  reg        [31:0]   _zz_BranchEU_BranchEuPlugin_hw_redirectPort_payload;
+  reg        [3:0]    _zz_BranchEU_BranchEuPlugin_hw_robFlushPort_payload_targetRobPtr;
+  reg                 _zz_BranchEU_BranchEuPlugin_euResult_writesToPreg;
+  reg        [31:0]   _zz_BranchEU_BranchEuPlugin_euResult_data;
+  wire                s1_Resolve_ready;
+  reg        [3:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_robPtr_1;
+  reg        [5:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_physDest_idx_1;
+  reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_physDestIsFpr_1;
+  reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_writesToPhysReg_1;
+  reg                 _zz_BranchEU_BranchEuPlugin_gprReadPorts_0_valid;
+  reg        [31:0]   _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Data_1;
+  reg        [5:0]    _zz_BranchEU_BranchEuPlugin_gprReadPorts_0_address;
+  reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Ready_1;
+  reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_src1IsFpr_1;
+  reg                 _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_valid;
+  reg        [31:0]   _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Data_1;
+  reg        [5:0]    _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_address;
+  reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Ready_1;
+  reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_src2IsFpr_1;
+  reg        [4:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_1;
+  reg                 _zz_switch_BranchEuPlugin_l136;
+  reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink_1;
+  reg        [4:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_idx_1;
+  reg        [1:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_1;
+  reg                 _zz_switch_BranchEuPlugin_l136_1;
+  reg        [2:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_laCfIdx_1;
+  reg        [31:0]   _zz_BranchEU_BranchEuPlugin_euResult_uop_imm_1;
+  reg        [31:0]   _zz_BpuPipelinePlugin_updatePortIn_payload_pc;
+  reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken_1;
+  reg        [31:0]   _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_target_1;
+  reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted_1;
+  wire       [4:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2;
+  wire       [1:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_2;
   wire       [31:0]   _zz_BpuPipelinePlugin_updatePortIn_payload_pc_1;
   wire                s0_Dispatch_ready;
   wire                s2_Execute_ready;
@@ -3680,6 +3712,7 @@ module CoreNSCSCC (
   wire                when_EuBasePlugin_l266;
   wire                s0_Dispatch_valid_1;
   reg                 s1_Resolve_valid;
+  reg                 s2_Mispredict_valid;
   wire                s0_Dispatch_isFiring;
   wire                s1_Resolve_isFiring;
   wire                BranchEU_BranchEuPlugin_gprReadPorts_0_valid;
@@ -3690,13 +3723,14 @@ module CoreNSCSCC (
   wire       [31:0]   BranchEU_BranchEuPlugin_gprReadPorts_1_rsp;
   reg                 _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken;
   reg        [31:0]   _zz_BpuPipelinePlugin_updatePortIn_payload_target;
-  wire       [31:0]   _zz_BranchEU_BranchEuPlugin_euResult_data;
-  wire       [1:0]    switch_BranchEuPlugin_l122;
-  reg        [31:0]   _zz_BpuPipelinePlugin_updatePortIn_payload_target_1;
+  wire       [31:0]   _zz_BpuPipelinePlugin_updatePortIn_payload_target_1;
+  wire       [1:0]    switch_BranchEuPlugin_l136;
+  reg        [31:0]   _zz_BpuPipelinePlugin_updatePortIn_payload_target_2;
   reg                 _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken;
-  reg                 _zz_when_BranchEuPlugin_l234;
-  wire                when_BranchEuPlugin_l234;
-  wire       [3:0]    _zz_15;
+  reg                 _zz_when_BranchEuPlugin_l263_1;
+  wire                _zz_15;
+  wire                s2_Mispredict_isFiring;
+  wire                when_BranchEuPlugin_l263;
   wire                BranchEU_BranchEuPlugin_logicPhase_completesSuccessfully;
   wire       [4:0]    _zz_when_Debug_l71_9;
   wire                when_Debug_l71_8;
@@ -4965,6 +4999,8 @@ module CoreNSCSCC (
   reg [39:0] _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_string;
   reg [87:0] _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_1_string;
   reg [39:0] _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_1_string;
+  reg [87:0] _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2_string;
+  reg [39:0] _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_2_string;
   reg [39:0] _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_string;
   reg [103:0] _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_string;
   reg [39:0] _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_1_string;
@@ -5399,11 +5435,11 @@ module CoreNSCSCC (
   assign _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_5 = BranchEU_BranchEuPlugin_gprReadPorts_0_rsp;
   assign _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_6 = BranchEU_BranchEuPlugin_gprReadPorts_0_rsp;
   assign _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_7 = BranchEU_BranchEuPlugin_gprReadPorts_0_rsp;
-  assign _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target = _zz_BranchEU_BranchEuPlugin_euResult_uop_imm;
+  assign _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target = _zz_BranchEU_BranchEuPlugin_euResult_uop_imm_1;
   assign _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_1 = ($signed(_zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_2) + $signed(_zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_3));
   assign _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_2 = BranchEU_BranchEuPlugin_gprReadPorts_0_rsp;
-  assign _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_3 = _zz_BranchEU_BranchEuPlugin_euResult_uop_imm;
-  assign _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_4 = _zz_BranchEU_BranchEuPlugin_euResult_uop_imm;
+  assign _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_3 = _zz_BranchEU_BranchEuPlugin_euResult_uop_imm_1;
+  assign _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_4 = _zz_BranchEU_BranchEuPlugin_euResult_uop_imm_1;
   assign _zz_io_triggerIn_17 = 5'h18;
   assign _zz_io_triggerIn_16 = {3'd0, _zz_io_triggerIn_17};
   assign _zz_when_Debug_l71_8_1 = {3'd0, _zz_when_Debug_l71_9};
@@ -8091,6 +8127,40 @@ module CoreNSCSCC (
       ArchRegType_CSR : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_1_string = "CSR  ";
       ArchRegType_LA_CF : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_1_string = "LA_CF";
       default : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_1_string = "?????";
+    endcase
+  end
+  always @(*) begin
+    case(_zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2)
+      BranchCondition_NUL : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2_string = "NUL        ";
+      BranchCondition_EQ : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2_string = "EQ         ";
+      BranchCondition_NE : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2_string = "NE         ";
+      BranchCondition_LT : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2_string = "LT         ";
+      BranchCondition_GE : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2_string = "GE         ";
+      BranchCondition_LTU : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2_string = "LTU        ";
+      BranchCondition_GEU : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2_string = "GEU        ";
+      BranchCondition_EQZ : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2_string = "EQZ        ";
+      BranchCondition_NEZ : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2_string = "NEZ        ";
+      BranchCondition_LTZ : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2_string = "LTZ        ";
+      BranchCondition_GEZ : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2_string = "GEZ        ";
+      BranchCondition_GTZ : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2_string = "GTZ        ";
+      BranchCondition_LEZ : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2_string = "LEZ        ";
+      BranchCondition_F_EQ : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2_string = "F_EQ       ";
+      BranchCondition_F_NE : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2_string = "F_NE       ";
+      BranchCondition_F_LT : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2_string = "F_LT       ";
+      BranchCondition_F_LE : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2_string = "F_LE       ";
+      BranchCondition_F_UN : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2_string = "F_UN       ";
+      BranchCondition_LA_CF_TRUE : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2_string = "LA_CF_TRUE ";
+      BranchCondition_LA_CF_FALSE : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2_string = "LA_CF_FALSE";
+      default : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2_string = "???????????";
+    endcase
+  end
+  always @(*) begin
+    case(_zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_2)
+      ArchRegType_GPR : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_2_string = "GPR  ";
+      ArchRegType_FPR : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_2_string = "FPR  ";
+      ArchRegType_CSR : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_2_string = "CSR  ";
+      ArchRegType_LA_CF : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_2_string = "LA_CF";
+      default : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_2_string = "?????";
     endcase
   end
   always @(*) begin
@@ -12421,7 +12491,7 @@ module CoreNSCSCC (
   assign DispatchPlugin_logic_iqRegs_0_0_3 = BaseUopCode_IDLE;
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_valid = 1'b0;
-    if(s1_Resolve_isFiring) begin
+    if(s2_Mispredict_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_valid = 1'b1;
     end else begin
       BranchEU_BranchEuPlugin_euResult_valid = 1'b0;
@@ -12430,7 +12500,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_robPtr = 4'b0000;
-    if(s1_Resolve_isFiring) begin
+    if(s2_Mispredict_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_robPtr = _zz_BranchEU_BranchEuPlugin_euResult_uop_robPtr;
     end else begin
       BranchEU_BranchEuPlugin_euResult_uop_robPtr = _zz_BranchEU_BranchEuPlugin_euResult_uop_robPtr;
@@ -12439,7 +12509,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_physDest_idx = 6'h0;
-    if(s1_Resolve_isFiring) begin
+    if(s2_Mispredict_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_physDest_idx = _zz_BranchEU_BranchEuPlugin_euResult_uop_physDest_idx;
     end else begin
       BranchEU_BranchEuPlugin_euResult_uop_physDest_idx = _zz_BranchEU_BranchEuPlugin_euResult_uop_physDest_idx;
@@ -12448,7 +12518,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_physDestIsFpr = 1'b0;
-    if(s1_Resolve_isFiring) begin
+    if(s2_Mispredict_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_physDestIsFpr = _zz_BranchEU_BranchEuPlugin_euResult_uop_physDestIsFpr;
     end else begin
       BranchEU_BranchEuPlugin_euResult_uop_physDestIsFpr = _zz_BranchEU_BranchEuPlugin_euResult_uop_physDestIsFpr;
@@ -12457,7 +12527,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_writesToPhysReg = 1'b0;
-    if(s1_Resolve_isFiring) begin
+    if(s2_Mispredict_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_writesToPhysReg = _zz_BranchEU_BranchEuPlugin_euResult_uop_writesToPhysReg;
     end else begin
       BranchEU_BranchEuPlugin_euResult_uop_writesToPhysReg = _zz_BranchEU_BranchEuPlugin_euResult_uop_writesToPhysReg;
@@ -12466,7 +12536,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_useSrc1 = 1'b0;
-    if(s1_Resolve_isFiring) begin
+    if(s2_Mispredict_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_useSrc1 = _zz_BranchEU_BranchEuPlugin_euResult_uop_useSrc1;
     end else begin
       BranchEU_BranchEuPlugin_euResult_uop_useSrc1 = _zz_BranchEU_BranchEuPlugin_euResult_uop_useSrc1;
@@ -12475,7 +12545,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_src1Data = 32'h0;
-    if(s1_Resolve_isFiring) begin
+    if(s2_Mispredict_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_src1Data = _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Data;
     end else begin
       BranchEU_BranchEuPlugin_euResult_uop_src1Data = _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Data;
@@ -12484,7 +12554,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_src1Tag = 6'h0;
-    if(s1_Resolve_isFiring) begin
+    if(s2_Mispredict_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_src1Tag = _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Tag;
     end else begin
       BranchEU_BranchEuPlugin_euResult_uop_src1Tag = _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Tag;
@@ -12493,7 +12563,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_src1Ready = 1'b0;
-    if(s1_Resolve_isFiring) begin
+    if(s2_Mispredict_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_src1Ready = _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Ready;
     end else begin
       BranchEU_BranchEuPlugin_euResult_uop_src1Ready = _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Ready;
@@ -12502,7 +12572,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_src1IsFpr = 1'b0;
-    if(s1_Resolve_isFiring) begin
+    if(s2_Mispredict_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_src1IsFpr = _zz_BranchEU_BranchEuPlugin_euResult_uop_src1IsFpr;
     end else begin
       BranchEU_BranchEuPlugin_euResult_uop_src1IsFpr = _zz_BranchEU_BranchEuPlugin_euResult_uop_src1IsFpr;
@@ -12511,7 +12581,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_useSrc2 = 1'b0;
-    if(s1_Resolve_isFiring) begin
+    if(s2_Mispredict_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_useSrc2 = _zz_BranchEU_BranchEuPlugin_euResult_uop_useSrc2;
     end else begin
       BranchEU_BranchEuPlugin_euResult_uop_useSrc2 = _zz_BranchEU_BranchEuPlugin_euResult_uop_useSrc2;
@@ -12520,7 +12590,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_src2Data = 32'h0;
-    if(s1_Resolve_isFiring) begin
+    if(s2_Mispredict_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_src2Data = _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Data;
     end else begin
       BranchEU_BranchEuPlugin_euResult_uop_src2Data = _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Data;
@@ -12529,7 +12599,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_src2Tag = 6'h0;
-    if(s1_Resolve_isFiring) begin
+    if(s2_Mispredict_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_src2Tag = _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Tag;
     end else begin
       BranchEU_BranchEuPlugin_euResult_uop_src2Tag = _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Tag;
@@ -12538,7 +12608,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_src2Ready = 1'b0;
-    if(s1_Resolve_isFiring) begin
+    if(s2_Mispredict_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_src2Ready = _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Ready;
     end else begin
       BranchEU_BranchEuPlugin_euResult_uop_src2Ready = _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Ready;
@@ -12547,7 +12617,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_src2IsFpr = 1'b0;
-    if(s1_Resolve_isFiring) begin
+    if(s2_Mispredict_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_src2IsFpr = _zz_BranchEU_BranchEuPlugin_euResult_uop_src2IsFpr;
     end else begin
       BranchEU_BranchEuPlugin_euResult_uop_src2IsFpr = _zz_BranchEU_BranchEuPlugin_euResult_uop_src2IsFpr;
@@ -12556,7 +12626,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition = BranchCondition_NUL;
-    if(s1_Resolve_isFiring) begin
+    if(s2_Mispredict_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition = _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition;
     end else begin
       BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition = _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition;
@@ -12565,7 +12635,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isJump = 1'b0;
-    if(s1_Resolve_isFiring) begin
+    if(s2_Mispredict_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isJump = _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isJump;
     end else begin
       BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isJump = _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isJump;
@@ -12574,7 +12644,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink = 1'b0;
-    if(s1_Resolve_isFiring) begin
+    if(s2_Mispredict_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink = _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink;
     end else begin
       BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink = _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink;
@@ -12583,7 +12653,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_idx = 5'h0;
-    if(s1_Resolve_isFiring) begin
+    if(s2_Mispredict_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_idx = _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_idx;
     end else begin
       BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_idx = _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_idx;
@@ -12592,7 +12662,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype = ArchRegType_GPR;
-    if(s1_Resolve_isFiring) begin
+    if(s2_Mispredict_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype = _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype;
     end else begin
       BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype = _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype;
@@ -12601,7 +12671,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isIndirect = 1'b0;
-    if(s1_Resolve_isFiring) begin
+    if(s2_Mispredict_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isIndirect = _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isIndirect;
     end else begin
       BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isIndirect = _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isIndirect;
@@ -12610,7 +12680,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_laCfIdx = 3'b000;
-    if(s1_Resolve_isFiring) begin
+    if(s2_Mispredict_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_laCfIdx = _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_laCfIdx;
     end else begin
       BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_laCfIdx = _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_laCfIdx;
@@ -12619,7 +12689,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_imm = 32'h0;
-    if(s1_Resolve_isFiring) begin
+    if(s2_Mispredict_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_imm = _zz_BranchEU_BranchEuPlugin_euResult_uop_imm;
     end else begin
       BranchEU_BranchEuPlugin_euResult_uop_imm = _zz_BranchEU_BranchEuPlugin_euResult_uop_imm;
@@ -12628,16 +12698,16 @@ module CoreNSCSCC (
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_pc = 32'h0;
-    if(s1_Resolve_isFiring) begin
-      BranchEU_BranchEuPlugin_euResult_uop_pc = _zz_BpuPipelinePlugin_updatePortIn_payload_pc;
+    if(s2_Mispredict_isFiring) begin
+      BranchEU_BranchEuPlugin_euResult_uop_pc = _zz_BranchEU_BranchEuPlugin_euResult_uop_pc;
     end else begin
-      BranchEU_BranchEuPlugin_euResult_uop_pc = _zz_BpuPipelinePlugin_updatePortIn_payload_pc;
+      BranchEU_BranchEuPlugin_euResult_uop_pc = _zz_BranchEU_BranchEuPlugin_euResult_uop_pc;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken = 1'b0;
-    if(s1_Resolve_isFiring) begin
+    if(s2_Mispredict_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken = _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken;
     end else begin
       BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken = _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken;
@@ -12646,7 +12716,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_target = 32'h0;
-    if(s1_Resolve_isFiring) begin
+    if(s2_Mispredict_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_target = _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_target;
     end else begin
       BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_target = _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_target;
@@ -12655,7 +12725,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted = 1'b0;
-    if(s1_Resolve_isFiring) begin
+    if(s2_Mispredict_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted = _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted;
     end else begin
       BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted = _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted;
@@ -12664,12 +12734,8 @@ module CoreNSCSCC (
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_data = 32'h0;
-    if(s1_Resolve_isFiring) begin
-      if(_zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink) begin
-        BranchEU_BranchEuPlugin_euResult_data = _zz_BranchEU_BranchEuPlugin_euResult_data;
-      end else begin
-        BranchEU_BranchEuPlugin_euResult_data = _zz_BpuPipelinePlugin_updatePortIn_payload_target_1;
-      end
+    if(s2_Mispredict_isFiring) begin
+      BranchEU_BranchEuPlugin_euResult_data = _zz_BranchEU_BranchEuPlugin_euResult_data;
     end else begin
       BranchEU_BranchEuPlugin_euResult_data = 32'h0;
     end
@@ -12677,12 +12743,8 @@ module CoreNSCSCC (
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_writesToPreg = 1'b0;
-    if(s1_Resolve_isFiring) begin
-      if(_zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink) begin
-        BranchEU_BranchEuPlugin_euResult_writesToPreg = 1'b1;
-      end else begin
-        BranchEU_BranchEuPlugin_euResult_writesToPreg = 1'b0;
-      end
+    if(s2_Mispredict_isFiring) begin
+      BranchEU_BranchEuPlugin_euResult_writesToPreg = _zz_BranchEU_BranchEuPlugin_euResult_writesToPreg;
     end else begin
       BranchEU_BranchEuPlugin_euResult_writesToPreg = 1'b0;
     end
@@ -12690,7 +12752,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_hasException = 1'b0;
-    if(s1_Resolve_isFiring) begin
+    if(s2_Mispredict_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_hasException = 1'b0;
     end else begin
       BranchEU_BranchEuPlugin_euResult_hasException = 1'b0;
@@ -12699,7 +12761,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_exceptionCode = 8'h0;
-    if(s1_Resolve_isFiring) begin
+    if(s2_Mispredict_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_exceptionCode = 8'h0;
     end else begin
       BranchEU_BranchEuPlugin_euResult_exceptionCode = 8'h0;
@@ -12708,7 +12770,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_destIsFpr = 1'b0;
-    if(s1_Resolve_isFiring) begin
+    if(s2_Mispredict_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_destIsFpr = 1'b0;
     end else begin
       BranchEU_BranchEuPlugin_euResult_destIsFpr = 1'b0;
@@ -16487,17 +16549,17 @@ module CoreNSCSCC (
   assign when_EuBasePlugin_l266 = ((AluIntEU_AluIntEuPlugin_euResult_valid && AluIntEU_AluIntEuPlugin_euResult_writesToPreg) && (AluIntEU_AluIntEuPlugin_euResult_uop_physDest_idx < 6'h06));
   assign s0_Dispatch_valid_1 = BranchEU_BranchEuPlugin_euInputPort_valid;
   assign BranchEU_BranchEuPlugin_euInputPort_ready = s0_Dispatch_ready;
-  assign _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_1 = BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_condition;
-  assign _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_1 = BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_linkReg_rtype;
+  assign _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2 = BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_condition;
+  assign _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_2 = BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_linkReg_rtype;
   assign _zz_BpuPipelinePlugin_updatePortIn_payload_pc_1 = BranchEU_BranchEuPlugin_euInputPort_payload_pc;
   assign s0_Dispatch_isFiring = (s0_Dispatch_valid_1 && s0_Dispatch_ready);
   assign s1_Resolve_isFiring = (s1_Resolve_valid && s1_Resolve_ready);
-  assign BranchEU_BranchEuPlugin_gprReadPorts_0_valid = (s1_Resolve_isFiring && _zz_BranchEU_BranchEuPlugin_euResult_uop_useSrc1);
-  assign BranchEU_BranchEuPlugin_gprReadPorts_0_address = _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Tag;
-  assign BranchEU_BranchEuPlugin_gprReadPorts_1_valid = (s1_Resolve_isFiring && _zz_BranchEU_BranchEuPlugin_euResult_uop_useSrc2);
-  assign BranchEU_BranchEuPlugin_gprReadPorts_1_address = _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Tag;
+  assign BranchEU_BranchEuPlugin_gprReadPorts_0_valid = (s1_Resolve_isFiring && _zz_BranchEU_BranchEuPlugin_gprReadPorts_0_valid);
+  assign BranchEU_BranchEuPlugin_gprReadPorts_0_address = _zz_BranchEU_BranchEuPlugin_gprReadPorts_0_address;
+  assign BranchEU_BranchEuPlugin_gprReadPorts_1_valid = (s1_Resolve_isFiring && _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_valid);
+  assign BranchEU_BranchEuPlugin_gprReadPorts_1_address = _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_address;
   always @(*) begin
-    case(_zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition)
+    case(_zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_1)
       BranchCondition_EQ : begin
         _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken = (BranchEU_BranchEuPlugin_gprReadPorts_0_rsp == BranchEU_BranchEuPlugin_gprReadPorts_1_rsp);
       end
@@ -16540,10 +16602,10 @@ module CoreNSCSCC (
     endcase
   end
 
-  assign _zz_BranchEU_BranchEuPlugin_euResult_data = (_zz_BpuPipelinePlugin_updatePortIn_payload_pc + 32'h00000004);
-  assign switch_BranchEuPlugin_l122 = {_zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isJump,_zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isIndirect};
+  assign _zz_BpuPipelinePlugin_updatePortIn_payload_target_1 = (_zz_BpuPipelinePlugin_updatePortIn_payload_pc + 32'h00000004);
+  assign switch_BranchEuPlugin_l136 = {_zz_switch_BranchEuPlugin_l136,_zz_switch_BranchEuPlugin_l136_1};
   always @(*) begin
-    case(switch_BranchEuPlugin_l122)
+    case(switch_BranchEuPlugin_l136)
       2'b00 : begin
         _zz_BpuPipelinePlugin_updatePortIn_payload_target = (_zz_BpuPipelinePlugin_updatePortIn_payload_pc + _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target);
       end
@@ -16554,13 +16616,13 @@ module CoreNSCSCC (
         _zz_BpuPipelinePlugin_updatePortIn_payload_target = (_zz_BpuPipelinePlugin_updatePortIn_payload_pc + _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_4);
       end
       default : begin
-        _zz_BpuPipelinePlugin_updatePortIn_payload_target = _zz_BranchEU_BranchEuPlugin_euResult_data;
+        _zz_BpuPipelinePlugin_updatePortIn_payload_target = _zz_BpuPipelinePlugin_updatePortIn_payload_target_1;
       end
     endcase
   end
 
   always @(*) begin
-    if(_zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isJump) begin
+    if(_zz_switch_BranchEuPlugin_l136) begin
       _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken = 1'b1;
     end else begin
       _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken = _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken;
@@ -16568,24 +16630,61 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(_zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isJump) begin
-      _zz_BpuPipelinePlugin_updatePortIn_payload_target_1 = _zz_BpuPipelinePlugin_updatePortIn_payload_target;
+    if(_zz_switch_BranchEuPlugin_l136) begin
+      _zz_BpuPipelinePlugin_updatePortIn_payload_target_2 = _zz_BpuPipelinePlugin_updatePortIn_payload_target;
     end else begin
-      _zz_BpuPipelinePlugin_updatePortIn_payload_target_1 = (_zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken ? _zz_BpuPipelinePlugin_updatePortIn_payload_target : _zz_BranchEU_BranchEuPlugin_euResult_data);
+      _zz_BpuPipelinePlugin_updatePortIn_payload_target_2 = (_zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken ? _zz_BpuPipelinePlugin_updatePortIn_payload_target : _zz_BpuPipelinePlugin_updatePortIn_payload_target_1);
     end
   end
 
   assign BranchEU_BranchEuPlugin_monitorSignals_branchTaken = _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken;
-  assign BranchEU_BranchEuPlugin_monitorSignals_targetPC = _zz_BpuPipelinePlugin_updatePortIn_payload_target_1;
+  assign BranchEU_BranchEuPlugin_monitorSignals_targetPC = _zz_BpuPipelinePlugin_updatePortIn_payload_target_2;
   assign BranchEU_BranchEuPlugin_monitorSignals_actuallyTaken = _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken;
   always @(*) begin
-    if(_zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted) begin
-      _zz_when_BranchEuPlugin_l234 = ((_zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken == _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken) && ((! _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken) || (_zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_target == _zz_BpuPipelinePlugin_updatePortIn_payload_target_1)));
+    if(_zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted_1) begin
+      _zz_when_BranchEuPlugin_l263_1 = ((_zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken_1 == _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken) && ((! _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken) || (_zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_target_1 == _zz_BpuPipelinePlugin_updatePortIn_payload_target_2)));
     end else begin
-      _zz_when_BranchEuPlugin_l234 = (! _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken);
+      _zz_when_BranchEuPlugin_l263_1 = (! _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken);
     end
   end
 
+  assign _zz_15 = (! _zz_when_BranchEuPlugin_l263_1);
+  always @(*) begin
+    BranchEU_BranchEuPlugin_hw_robFlushPort_valid = 1'b0;
+    if(when_BranchEuPlugin_l263) begin
+      BranchEU_BranchEuPlugin_hw_robFlushPort_valid = 1'b1;
+    end
+  end
+
+  always @(*) begin
+    BranchEU_BranchEuPlugin_hw_robFlushPort_payload_reason = FlushReason_NONE;
+    if(when_BranchEuPlugin_l263) begin
+      BranchEU_BranchEuPlugin_hw_robFlushPort_payload_reason = FlushReason_ROLLBACK_TO_ROB_IDX;
+    end
+  end
+
+  always @(*) begin
+    BranchEU_BranchEuPlugin_hw_robFlushPort_payload_targetRobPtr = 4'b0000;
+    if(when_BranchEuPlugin_l263) begin
+      BranchEU_BranchEuPlugin_hw_robFlushPort_payload_targetRobPtr = _zz_BranchEU_BranchEuPlugin_hw_robFlushPort_payload_targetRobPtr;
+    end
+  end
+
+  always @(*) begin
+    BranchEU_BranchEuPlugin_hw_redirectPort_valid = 1'b0;
+    if(when_BranchEuPlugin_l263) begin
+      BranchEU_BranchEuPlugin_hw_redirectPort_valid = 1'b1;
+    end
+  end
+
+  always @(*) begin
+    BranchEU_BranchEuPlugin_hw_redirectPort_payload = 32'h0;
+    if(when_BranchEuPlugin_l263) begin
+      BranchEU_BranchEuPlugin_hw_redirectPort_payload = _zz_BranchEU_BranchEuPlugin_hw_redirectPort_payload;
+    end
+  end
+
+  assign s2_Mispredict_isFiring = (s2_Mispredict_valid && s2_Mispredict_ready);
   always @(*) begin
     if(s1_Resolve_isFiring) begin
       BpuPipelinePlugin_updatePortIn_valid = 1'b1;
@@ -16612,56 +16711,16 @@ module CoreNSCSCC (
 
   always @(*) begin
     if(s1_Resolve_isFiring) begin
-      BpuPipelinePlugin_updatePortIn_payload_target = _zz_BpuPipelinePlugin_updatePortIn_payload_target_1;
+      BpuPipelinePlugin_updatePortIn_payload_target = _zz_BpuPipelinePlugin_updatePortIn_payload_target_2;
     end else begin
       BpuPipelinePlugin_updatePortIn_payload_target = 32'h0;
     end
   end
 
-  assign when_BranchEuPlugin_l234 = (s1_Resolve_isFiring && (! _zz_when_BranchEuPlugin_l234));
-  always @(*) begin
-    if(when_BranchEuPlugin_l234) begin
-      BranchEU_BranchEuPlugin_hw_robFlushPort_valid = 1'b1;
-    end else begin
-      BranchEU_BranchEuPlugin_hw_robFlushPort_valid = 1'b0;
-    end
-  end
-
-  always @(*) begin
-    if(when_BranchEuPlugin_l234) begin
-      BranchEU_BranchEuPlugin_hw_robFlushPort_payload_reason = FlushReason_ROLLBACK_TO_ROB_IDX;
-    end else begin
-      BranchEU_BranchEuPlugin_hw_robFlushPort_payload_reason = FlushReason_NONE;
-    end
-  end
-
-  always @(*) begin
-    if(when_BranchEuPlugin_l234) begin
-      BranchEU_BranchEuPlugin_hw_robFlushPort_payload_targetRobPtr = (_zz_BranchEU_BranchEuPlugin_euResult_uop_robPtr + 4'b0001);
-    end else begin
-      BranchEU_BranchEuPlugin_hw_robFlushPort_payload_targetRobPtr = 4'b0000;
-    end
-  end
-
-  assign _zz_15 = (_zz_BranchEU_BranchEuPlugin_euResult_uop_robPtr + 4'b0001);
-  always @(*) begin
-    if(when_BranchEuPlugin_l234) begin
-      BranchEU_BranchEuPlugin_hw_redirectPort_valid = 1'b1;
-    end else begin
-      BranchEU_BranchEuPlugin_hw_redirectPort_valid = 1'b0;
-    end
-  end
-
-  always @(*) begin
-    if(when_BranchEuPlugin_l234) begin
-      BranchEU_BranchEuPlugin_hw_redirectPort_payload = _zz_BpuPipelinePlugin_updatePortIn_payload_target_1;
-    end else begin
-      BranchEU_BranchEuPlugin_hw_redirectPort_payload = 32'h0;
-    end
-  end
-
+  assign when_BranchEuPlugin_l263 = (s2_Mispredict_isFiring && _zz_when_BranchEuPlugin_l263);
   assign s0_Dispatch_ready = 1'b1;
   assign s1_Resolve_ready = 1'b1;
+  assign s2_Mispredict_ready = 1'b1;
   assign BranchEU_BranchEuPlugin_logicPhase_completesSuccessfully = (BranchEU_BranchEuPlugin_euResult_valid && (! BranchEU_BranchEuPlugin_euResult_hasException));
   assign oneShot_22_io_triggerIn = (BranchEU_BranchEuPlugin_euResult_valid && (_zz_when_Debug_l71 < _zz_io_triggerIn_16));
   assign _zz_when_Debug_l71_9 = 5'h18;
@@ -21280,6 +21339,7 @@ module CoreNSCSCC (
       s1_ReadRegs_valid <= 1'b0;
       s2_Execute_valid <= 1'b0;
       s1_Resolve_valid <= 1'b0;
+      s2_Mispredict_valid <= 1'b0;
       s1_Rename_valid <= 1'b0;
       s2_RobAlloc_valid <= 1'b0;
       s3_Dispatch_valid <= 1'b0;
@@ -21892,10 +21952,10 @@ module CoreNSCSCC (
       if(s0_Dispatch_isFiring) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // BranchEuPlugin.scala:L75
+            assert(1'b0); // BranchEuPlugin.scala:L88
           `else
             if(!1'b0) begin
-              $display("NOTE(BranchEuPlugin.scala:75):  [BranchEU-S0] DISPATCH: PC=0x%x, branchCtrl.condition=%s", _zz_BpuPipelinePlugin_updatePortIn_payload_pc_1, _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_1_string); // BranchEuPlugin.scala:L75
+              $display("NOTE(BranchEuPlugin.scala:88):  [BranchEU-S0] DISPATCH: PC=0x%x, branchCtrl.condition=%s", _zz_BpuPipelinePlugin_updatePortIn_payload_pc_1, _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2_string); // BranchEuPlugin.scala:L88
             end
           `endif
         `endif
@@ -21903,10 +21963,10 @@ module CoreNSCSCC (
       if(s1_Resolve_isFiring) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // BranchEuPlugin.scala:L85
+            assert(1'b0); // BranchEuPlugin.scala:L99
           `else
             if(!1'b0) begin
-              $display("NOTE(BranchEuPlugin.scala:85):  [BranchEU-S1] RESOLVE START: PC=0x%x, useSrc1=%x, useSrc2=%x, src1Tag=%x, src2Tag=%x", _zz_BpuPipelinePlugin_updatePortIn_payload_pc, _zz_BranchEU_BranchEuPlugin_euResult_uop_useSrc1, _zz_BranchEU_BranchEuPlugin_euResult_uop_useSrc2, _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Tag, _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Tag); // BranchEuPlugin.scala:L85
+              $display("NOTE(BranchEuPlugin.scala:99):  [BranchEU-S1] RESOLVE START: PC=0x%x, useSrc1=%x, useSrc2=%x, src1Tag=%x, src2Tag=%x", _zz_BpuPipelinePlugin_updatePortIn_payload_pc, _zz_BranchEU_BranchEuPlugin_gprReadPorts_0_valid, _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_valid, _zz_BranchEU_BranchEuPlugin_gprReadPorts_0_address, _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_address); // BranchEuPlugin.scala:L99
             end
           `endif
         `endif
@@ -21914,10 +21974,10 @@ module CoreNSCSCC (
       if(s1_Resolve_isFiring) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // BranchEuPlugin.scala:L115
+            assert(1'b0); // BranchEuPlugin.scala:L129
           `else
             if(!1'b0) begin
-              $display("NOTE(BranchEuPlugin.scala:115):  [BranchEU-S1] CONDITION: src1Data=0x%x, src2Data=0x%x, condition=%s, branchTaken=%x", BranchEU_BranchEuPlugin_gprReadPorts_0_rsp, BranchEU_BranchEuPlugin_gprReadPorts_1_rsp, _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_string, _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken); // BranchEuPlugin.scala:L115
+              $display("NOTE(BranchEuPlugin.scala:129):  [BranchEU-S1] CONDITION: src1Data=0x%x, src2Data=0x%x, condition=%s, branchTaken=%x", BranchEU_BranchEuPlugin_gprReadPorts_0_rsp, BranchEU_BranchEuPlugin_gprReadPorts_1_rsp, _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_1_string, _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken); // BranchEuPlugin.scala:L129
             end
           `endif
         `endif
@@ -21925,10 +21985,10 @@ module CoreNSCSCC (
       if(s1_Resolve_isFiring) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // BranchEuPlugin.scala:L185
+            assert(1'b0); // BranchEuPlugin.scala:L199
           `else
             if(!1'b0) begin
-              $display("NOTE(BranchEuPlugin.scala:185):  [BranchEU-S1] PREDICTION: wasPredicted=%x, predictedTaken=%x, actuallyTaken=%x, finalTarget=0x%x, predictionCorrect=%x", _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted, _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken, _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken, _zz_BpuPipelinePlugin_updatePortIn_payload_target_1, _zz_when_BranchEuPlugin_l234); // BranchEuPlugin.scala:L185
+              $display("NOTE(BranchEuPlugin.scala:199):  [BranchEU-S1] PREDICTION: wasPredicted=%x, predictedTaken=%x, actuallyTaken=%x, finalTarget=0x%x, predictionCorrect=%x", _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted_1, _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken_1, _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken, _zz_BpuPipelinePlugin_updatePortIn_payload_target_2, _zz_when_BranchEuPlugin_l263_1); // BranchEuPlugin.scala:L199
             end
           `endif
         `endif
@@ -21936,53 +21996,65 @@ module CoreNSCSCC (
       if(s1_Resolve_isFiring) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // BranchEuPlugin.scala:L209
+            assert(1'b0); // BranchEuPlugin.scala:L213
           `else
             if(!1'b0) begin
-              $display("NOTE(BranchEuPlugin.scala:209):  [BranchEU-S1] RESULT: euResult.valid=1, writesToPreg=%x, data=0x%x", BranchEU_BranchEuPlugin_euResult_writesToPreg, BranchEU_BranchEuPlugin_euResult_data); // BranchEuPlugin.scala:L209
+              $display("NOTE(BranchEuPlugin.scala:213):  [BranchEU-S1] RESOLVE COMPLETE: finalTarget=0x%x, mispredicted=%x, actuallyTaken=%x", _zz_BpuPipelinePlugin_updatePortIn_payload_target_2, _zz_15, _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken); // BranchEuPlugin.scala:L213
             end
           `endif
         `endif
       end
-      if(when_BranchEuPlugin_l234) begin
+      if(s2_Mispredict_isFiring) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // BranchEuPlugin.scala:L240
+            assert(1'b0); // BranchEuPlugin.scala:L238
           `else
             if(!1'b0) begin
-              $display("NOTE(BranchEuPlugin.scala:240):  [BranchEU-S1] MISPREDICTION DETECTED: Flushing ROB from robPtr=%x, targetPC=0x%x", _zz_15, _zz_BpuPipelinePlugin_updatePortIn_payload_target_1); // BranchEuPlugin.scala:L240
+              $display("NOTE(BranchEuPlugin.scala:238):  [BranchEU-S2] RESULT: euResult.valid=1, writesToPreg=%x, data=0x%x", BranchEU_BranchEuPlugin_euResult_writesToPreg, BranchEU_BranchEuPlugin_euResult_data); // BranchEuPlugin.scala:L238
+            end
+          `endif
+        `endif
+      end
+      if(when_BranchEuPlugin_l263) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // BranchEuPlugin.scala:L267
+          `else
+            if(!1'b0) begin
+              $display("NOTE(BranchEuPlugin.scala:267):  [BranchEU-S2] MISPREDICTION EXEC: Flushing ROB from robPtr=%x, targetPC=0x%x", _zz_BranchEU_BranchEuPlugin_hw_robFlushPort_payload_targetRobPtr, _zz_BranchEU_BranchEuPlugin_hw_redirectPort_payload); // BranchEuPlugin.scala:L267
             end
           `endif
         `endif
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // BranchEuPlugin.scala:L241
+            assert(1'b0); // BranchEuPlugin.scala:L268
           `else
             if(!1'b0) begin
-              $display("NOTE(BranchEuPlugin.scala:241):  [BranchEU-S1] DEBUG: ROB flush valid=%x", BranchEU_BranchEuPlugin_hw_robFlushPort_valid); // BranchEuPlugin.scala:L241
+              $display("NOTE(BranchEuPlugin.scala:268):  [BranchEU-S2] DEBUG: ROB flush valid=%x", BranchEU_BranchEuPlugin_hw_robFlushPort_valid); // BranchEuPlugin.scala:L268
             end
           `endif
         `endif
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // BranchEuPlugin.scala:L246
+            assert(1'b0); // BranchEuPlugin.scala:L273
           `else
             if(!1'b0) begin
-              $display("NOTE(BranchEuPlugin.scala:246):  [BranchEU-S1] FETCH REDIRECT: Redirecting fetch to 0x%x", _zz_BpuPipelinePlugin_updatePortIn_payload_target_1); // BranchEuPlugin.scala:L246
+              $display("NOTE(BranchEuPlugin.scala:273):  [BranchEU-S2] FETCH REDIRECT: Redirecting fetch to 0x%x", _zz_BranchEU_BranchEuPlugin_hw_redirectPort_payload); // BranchEuPlugin.scala:L273
             end
           `endif
         `endif
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // BranchEuPlugin.scala:L247
+            assert(1'b0); // BranchEuPlugin.scala:L274
           `else
             if(!1'b0) begin
-              $display("NOTE(BranchEuPlugin.scala:247):  [BranchEU-S1] REDIRECT DEBUG: valid=%x, payload=0x%x", BranchEU_BranchEuPlugin_hw_redirectPort_valid, BranchEU_BranchEuPlugin_hw_redirectPort_payload); // BranchEuPlugin.scala:L247
+              $display("NOTE(BranchEuPlugin.scala:274):  [BranchEU-S2] REDIRECT DEBUG: valid=%x, payload=0x%x", BranchEU_BranchEuPlugin_hw_redirectPort_valid, BranchEU_BranchEuPlugin_hw_redirectPort_payload); // BranchEuPlugin.scala:L274
             end
           `endif
         `endif
       end
       s1_Resolve_valid <= s0_Dispatch_valid_1;
+      s2_Mispredict_valid <= s1_Resolve_valid;
       if(BranchEU_BranchEuPlugin_euResult_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
@@ -23593,32 +23665,63 @@ module CoreNSCSCC (
     _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage <= _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_1;
     _zz_io_iqEntryIn_payload_src1Data <= AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp;
     _zz_io_iqEntryIn_payload_src2Data <= AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_robPtr <= BranchEU_BranchEuPlugin_euInputPort_payload_robPtr;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_physDest_idx <= BranchEU_BranchEuPlugin_euInputPort_payload_physDest_idx;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_physDestIsFpr <= BranchEU_BranchEuPlugin_euInputPort_payload_physDestIsFpr;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_writesToPhysReg <= BranchEU_BranchEuPlugin_euInputPort_payload_writesToPhysReg;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_useSrc1 <= BranchEU_BranchEuPlugin_euInputPort_payload_useSrc1;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Data <= BranchEU_BranchEuPlugin_euInputPort_payload_src1Data;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Tag <= BranchEU_BranchEuPlugin_euInputPort_payload_src1Tag;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Ready <= BranchEU_BranchEuPlugin_euInputPort_payload_src1Ready;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_src1IsFpr <= BranchEU_BranchEuPlugin_euInputPort_payload_src1IsFpr;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_useSrc2 <= BranchEU_BranchEuPlugin_euInputPort_payload_useSrc2;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Data <= BranchEU_BranchEuPlugin_euInputPort_payload_src2Data;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Tag <= BranchEU_BranchEuPlugin_euInputPort_payload_src2Tag;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Ready <= BranchEU_BranchEuPlugin_euInputPort_payload_src2Ready;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_src2IsFpr <= BranchEU_BranchEuPlugin_euInputPort_payload_src2IsFpr;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_1;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isJump <= BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_isJump;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink <= BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_isLink;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_idx <= BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_linkReg_idx;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_1;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isIndirect <= BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_isIndirect;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_laCfIdx <= BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_laCfIdx;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_imm <= BranchEU_BranchEuPlugin_euInputPort_payload_imm;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_robPtr_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_robPtr;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_physDest_idx_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_physDest_idx;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_physDestIsFpr_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_physDestIsFpr;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_writesToPhysReg_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_writesToPhysReg;
+    _zz_BranchEU_BranchEuPlugin_gprReadPorts_0_valid <= BranchEU_BranchEuPlugin_euInputPort_payload_useSrc1;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Data_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_src1Data;
+    _zz_BranchEU_BranchEuPlugin_gprReadPorts_0_address <= BranchEU_BranchEuPlugin_euInputPort_payload_src1Tag;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Ready_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_src1Ready;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_src1IsFpr_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_src1IsFpr;
+    _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_valid <= BranchEU_BranchEuPlugin_euInputPort_payload_useSrc2;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Data_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_src2Data;
+    _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_address <= BranchEU_BranchEuPlugin_euInputPort_payload_src2Tag;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Ready_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_src2Ready;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_src2IsFpr_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_src2IsFpr;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2;
+    _zz_switch_BranchEuPlugin_l136 <= BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_isJump;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_isLink;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_idx_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_linkReg_idx;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_2;
+    _zz_switch_BranchEuPlugin_l136_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_isIndirect;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_laCfIdx_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_laCfIdx;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_imm_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_imm;
     _zz_BpuPipelinePlugin_updatePortIn_payload_pc <= _zz_BpuPipelinePlugin_updatePortIn_payload_pc_1;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken <= BranchEU_BranchEuPlugin_euInputPort_payload_branchPrediction_isTaken;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_target <= BranchEU_BranchEuPlugin_euInputPort_payload_branchPrediction_target;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted <= BranchEU_BranchEuPlugin_euInputPort_payload_branchPrediction_wasPredicted;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_branchPrediction_isTaken;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_target_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_branchPrediction_target;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_branchPrediction_wasPredicted;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_robPtr <= _zz_BranchEU_BranchEuPlugin_euResult_uop_robPtr_1;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_physDest_idx <= _zz_BranchEU_BranchEuPlugin_euResult_uop_physDest_idx_1;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_physDestIsFpr <= _zz_BranchEU_BranchEuPlugin_euResult_uop_physDestIsFpr_1;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_writesToPhysReg <= _zz_BranchEU_BranchEuPlugin_euResult_uop_writesToPhysReg_1;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_useSrc1 <= _zz_BranchEU_BranchEuPlugin_gprReadPorts_0_valid;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Data <= _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Data_1;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Tag <= _zz_BranchEU_BranchEuPlugin_gprReadPorts_0_address;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Ready <= _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Ready_1;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_src1IsFpr <= _zz_BranchEU_BranchEuPlugin_euResult_uop_src1IsFpr_1;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_useSrc2 <= _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_valid;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Data <= _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Data_1;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Tag <= _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_address;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Ready <= _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Ready_1;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_src2IsFpr <= _zz_BranchEU_BranchEuPlugin_euResult_uop_src2IsFpr_1;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_1;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isJump <= _zz_switch_BranchEuPlugin_l136;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink_1;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_idx <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_idx_1;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_1;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isIndirect <= _zz_switch_BranchEuPlugin_l136_1;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_laCfIdx <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_laCfIdx_1;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_imm <= _zz_BranchEU_BranchEuPlugin_euResult_uop_imm_1;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_pc <= _zz_BpuPipelinePlugin_updatePortIn_payload_pc;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken_1;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_target <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_target_1;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted_1;
+    _zz_when_BranchEuPlugin_l263 <= (! _zz_when_BranchEuPlugin_l263_1);
+    _zz_BranchEU_BranchEuPlugin_hw_redirectPort_payload <= _zz_BpuPipelinePlugin_updatePortIn_payload_target_2;
+    _zz_BranchEU_BranchEuPlugin_hw_robFlushPort_payload_targetRobPtr <= (_zz_BranchEU_BranchEuPlugin_euResult_uop_robPtr_1 + 4'b0001);
+    _zz_BranchEU_BranchEuPlugin_euResult_writesToPreg <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink_1;
+    _zz_BranchEU_BranchEuPlugin_euResult_data <= (_zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink_1 ? _zz_BpuPipelinePlugin_updatePortIn_payload_target_1 : _zz_BpuPipelinePlugin_updatePortIn_payload_target_2);
     if(s0_Decode_ready_output) begin
       s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_pc <= s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_pc;
       s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_isValid <= s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_isValid;
@@ -47315,26 +47418,26 @@ module SRAMController_1 (
 
   wire       [7:0]    _zz_fsm_burst_count_remaining;
   wire       [29:0]   _zz_fsm_current_sram_addr_2;
-  wire       [31:0]   _zz_when_SRAMController_l202_1;
-  wire       [7:0]    _zz_when_SRAMController_l202_2;
-  wire       [31:0]   _zz_when_SRAMController_l210;
-  wire       [31:0]   _zz_when_SRAMController_l210_1;
-  wire       [31:0]   _zz_when_SRAMController_l210_2;
-  wire       [31:0]   _zz_when_SRAMController_l210_3;
-  wire       [15:0]   _zz_when_SRAMController_l210_4;
-  wire       [7:0]    _zz_when_SRAMController_l210_5;
-  wire       [31:0]   _zz_when_SRAMController_l210_6;
+  wire       [31:0]   _zz_when_SRAMController_l230_1;
+  wire       [7:0]    _zz_when_SRAMController_l230_2;
+  wire       [31:0]   _zz_when_SRAMController_l238;
+  wire       [31:0]   _zz_when_SRAMController_l238_1;
+  wire       [31:0]   _zz_when_SRAMController_l238_2;
+  wire       [31:0]   _zz_when_SRAMController_l238_3;
+  wire       [15:0]   _zz_when_SRAMController_l238_4;
+  wire       [7:0]    _zz_when_SRAMController_l238_5;
+  wire       [31:0]   _zz_when_SRAMController_l238_6;
   wire       [7:0]    _zz_fsm_burst_count_remaining_1;
   wire       [29:0]   _zz_fsm_current_sram_addr_3;
-  wire       [31:0]   _zz_when_SRAMController_l256_1;
-  wire       [7:0]    _zz_when_SRAMController_l256_2;
-  wire       [31:0]   _zz_when_SRAMController_l264;
-  wire       [31:0]   _zz_when_SRAMController_l264_1;
-  wire       [31:0]   _zz_when_SRAMController_l264_2;
-  wire       [31:0]   _zz_when_SRAMController_l264_3;
-  wire       [15:0]   _zz_when_SRAMController_l264_4;
-  wire       [7:0]    _zz_when_SRAMController_l264_5;
-  wire       [31:0]   _zz_when_SRAMController_l264_6;
+  wire       [31:0]   _zz_when_SRAMController_l284_1;
+  wire       [7:0]    _zz_when_SRAMController_l284_2;
+  wire       [31:0]   _zz_when_SRAMController_l292;
+  wire       [31:0]   _zz_when_SRAMController_l292_1;
+  wire       [31:0]   _zz_when_SRAMController_l292_2;
+  wire       [31:0]   _zz_when_SRAMController_l292_3;
+  wire       [15:0]   _zz_when_SRAMController_l292_4;
+  wire       [7:0]    _zz_when_SRAMController_l292_5;
+  wire       [31:0]   _zz_when_SRAMController_l292_6;
   wire       [19:0]   _zz_fsm_current_sram_addr_4;
   wire       [7:0]    _zz_fsm_current_sram_addr_5;
   wire       [7:0]    _zz_fsm_current_sram_addr_6;
@@ -47378,29 +47481,30 @@ module SRAMController_1 (
   reg                 fsm_addr_prefetch_valid;
   (* MARK_DEBUG = "TRUE" *) reg        [3:0]    fsm_stateReg;
   reg        [3:0]    fsm_stateNext;
+  wire                when_SRAMController_l180;
   (* mark_debug = "true" *) wire                io_axi_aw_fire;
   wire       [31:0]   _zz_fsm_current_sram_addr;
-  wire       [7:0]    _zz_when_SRAMController_l202;
-  wire                when_SRAMController_l198;
-  wire                when_SRAMController_l202;
-  wire                when_SRAMController_l206;
-  wire                when_SRAMController_l210;
+  wire       [7:0]    _zz_when_SRAMController_l230;
+  wire                when_SRAMController_l226;
+  wire                when_SRAMController_l230;
+  wire                when_SRAMController_l234;
+  wire                when_SRAMController_l238;
   (* mark_debug = "true" *) wire                io_axi_ar_fire;
   wire       [31:0]   _zz_fsm_current_sram_addr_1;
-  wire       [7:0]    _zz_when_SRAMController_l256;
-  wire                when_SRAMController_l252;
-  wire                when_SRAMController_l256;
-  wire                when_SRAMController_l260;
-  wire                when_SRAMController_l264;
+  wire       [7:0]    _zz_when_SRAMController_l284;
+  wire                when_SRAMController_l280;
+  wire                when_SRAMController_l284;
+  wire                when_SRAMController_l288;
+  wire                when_SRAMController_l292;
   (* mark_debug = "true" *) wire                io_axi_w_fire;
-  wire                when_SRAMController_l340;
-  wire                when_SRAMController_l377;
-  wire                when_SRAMController_l406;
-  wire                when_SRAMController_l501;
-  wire                when_SRAMController_l510;
-  wire                when_SRAMController_l559;
+  wire                when_SRAMController_l376;
+  wire                when_SRAMController_l418;
+  wire                when_SRAMController_l451;
+  wire                when_SRAMController_l546;
+  wire                when_SRAMController_l555;
+  wire                when_SRAMController_l604;
   (* mark_debug = "true" *) wire                io_axi_r_fire;
-  wire                when_SRAMController_l611;
+  wire                when_SRAMController_l656;
   wire                fsm_onExit_BOOT;
   wire                fsm_onExit_IDLE;
   wire                fsm_onExit_WRITE_DATA_FETCH;
@@ -47432,26 +47536,26 @@ module SRAMController_1 (
 
   assign _zz_fsm_burst_count_remaining = (io_axi_aw_payload_len + 8'h01);
   assign _zz_fsm_current_sram_addr_2 = (_zz_fsm_current_sram_addr >>> 2'd2);
-  assign _zz_when_SRAMController_l202_2 = (_zz_when_SRAMController_l202 - 8'h01);
-  assign _zz_when_SRAMController_l202_1 = {24'd0, _zz_when_SRAMController_l202_2};
-  assign _zz_when_SRAMController_l210 = _zz_fsm_current_sram_addr;
-  assign _zz_when_SRAMController_l210_1 = (_zz_when_SRAMController_l210_2 - _zz_when_SRAMController_l210_6);
-  assign _zz_when_SRAMController_l210_2 = (_zz_fsm_current_sram_addr + _zz_when_SRAMController_l210_3);
-  assign _zz_when_SRAMController_l210_4 = (_zz_when_SRAMController_l210_5 * _zz_when_SRAMController_l202);
-  assign _zz_when_SRAMController_l210_3 = {16'd0, _zz_when_SRAMController_l210_4};
-  assign _zz_when_SRAMController_l210_5 = (io_axi_aw_payload_len + 8'h01);
-  assign _zz_when_SRAMController_l210_6 = {24'd0, _zz_when_SRAMController_l202};
+  assign _zz_when_SRAMController_l230_2 = (_zz_when_SRAMController_l230 - 8'h01);
+  assign _zz_when_SRAMController_l230_1 = {24'd0, _zz_when_SRAMController_l230_2};
+  assign _zz_when_SRAMController_l238 = _zz_fsm_current_sram_addr;
+  assign _zz_when_SRAMController_l238_1 = (_zz_when_SRAMController_l238_2 - _zz_when_SRAMController_l238_6);
+  assign _zz_when_SRAMController_l238_2 = (_zz_fsm_current_sram_addr + _zz_when_SRAMController_l238_3);
+  assign _zz_when_SRAMController_l238_4 = (_zz_when_SRAMController_l238_5 * _zz_when_SRAMController_l230);
+  assign _zz_when_SRAMController_l238_3 = {16'd0, _zz_when_SRAMController_l238_4};
+  assign _zz_when_SRAMController_l238_5 = (io_axi_aw_payload_len + 8'h01);
+  assign _zz_when_SRAMController_l238_6 = {24'd0, _zz_when_SRAMController_l230};
   assign _zz_fsm_burst_count_remaining_1 = (io_axi_ar_payload_len + 8'h01);
   assign _zz_fsm_current_sram_addr_3 = (_zz_fsm_current_sram_addr_1 >>> 2'd2);
-  assign _zz_when_SRAMController_l256_2 = (_zz_when_SRAMController_l256 - 8'h01);
-  assign _zz_when_SRAMController_l256_1 = {24'd0, _zz_when_SRAMController_l256_2};
-  assign _zz_when_SRAMController_l264 = _zz_fsm_current_sram_addr_1;
-  assign _zz_when_SRAMController_l264_1 = (_zz_when_SRAMController_l264_2 - _zz_when_SRAMController_l264_6);
-  assign _zz_when_SRAMController_l264_2 = (_zz_fsm_current_sram_addr_1 + _zz_when_SRAMController_l264_3);
-  assign _zz_when_SRAMController_l264_4 = (_zz_when_SRAMController_l264_5 * _zz_when_SRAMController_l256);
-  assign _zz_when_SRAMController_l264_3 = {16'd0, _zz_when_SRAMController_l264_4};
-  assign _zz_when_SRAMController_l264_5 = (io_axi_ar_payload_len + 8'h01);
-  assign _zz_when_SRAMController_l264_6 = {24'd0, _zz_when_SRAMController_l256};
+  assign _zz_when_SRAMController_l284_2 = (_zz_when_SRAMController_l284 - 8'h01);
+  assign _zz_when_SRAMController_l284_1 = {24'd0, _zz_when_SRAMController_l284_2};
+  assign _zz_when_SRAMController_l292 = _zz_fsm_current_sram_addr_1;
+  assign _zz_when_SRAMController_l292_1 = (_zz_when_SRAMController_l292_2 - _zz_when_SRAMController_l292_6);
+  assign _zz_when_SRAMController_l292_2 = (_zz_fsm_current_sram_addr_1 + _zz_when_SRAMController_l292_3);
+  assign _zz_when_SRAMController_l292_4 = (_zz_when_SRAMController_l292_5 * _zz_when_SRAMController_l284);
+  assign _zz_when_SRAMController_l292_3 = {16'd0, _zz_when_SRAMController_l292_4};
+  assign _zz_when_SRAMController_l292_5 = (io_axi_ar_payload_len + 8'h01);
+  assign _zz_when_SRAMController_l292_6 = {24'd0, _zz_when_SRAMController_l284};
   assign _zz_fsm_current_sram_addr_5 = (_zz_fsm_current_sram_addr_6 / 3'b100);
   assign _zz_fsm_current_sram_addr_4 = {12'd0, _zz_fsm_current_sram_addr_5};
   assign _zz_fsm_current_sram_addr_6 = ({7'd0,1'b1} <<< fsm_aw_cmd_reg_size);
@@ -47500,15 +47604,24 @@ module SRAMController_1 (
     io_axi_aw_ready = 1'b0;
     case(fsm_stateReg)
       fsm_IDLE : begin
-        io_axi_aw_ready = ((! fsm_read_priority) || (! io_axi_ar_valid));
+        io_axi_aw_ready = 1'b0;
+        if(when_SRAMController_l180) begin
+          io_axi_aw_ready = (! fsm_read_priority);
+        end else begin
+          io_axi_aw_ready = io_axi_aw_valid;
+        end
       end
       fsm_WRITE_DATA_FETCH : begin
+        io_axi_aw_ready = 1'b0;
       end
       fsm_WRITE_EXECUTE : begin
+        io_axi_aw_ready = 1'b0;
       end
       fsm_WRITE_DEASSERT : begin
+        io_axi_aw_ready = 1'b0;
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
+        io_axi_aw_ready = 1'b0;
       end
       fsm_WRITE_RESPONSE : begin
       end
@@ -47529,15 +47642,24 @@ module SRAMController_1 (
     io_axi_ar_ready = 1'b0;
     case(fsm_stateReg)
       fsm_IDLE : begin
-        io_axi_ar_ready = (fsm_read_priority || (! io_axi_aw_valid));
+        io_axi_ar_ready = 1'b0;
+        if(when_SRAMController_l180) begin
+          io_axi_ar_ready = fsm_read_priority;
+        end else begin
+          io_axi_ar_ready = io_axi_ar_valid;
+        end
       end
       fsm_WRITE_DATA_FETCH : begin
+        io_axi_ar_ready = 1'b0;
       end
       fsm_WRITE_EXECUTE : begin
+        io_axi_ar_ready = 1'b0;
       end
       fsm_WRITE_DEASSERT : begin
+        io_axi_ar_ready = 1'b0;
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
+        io_axi_ar_ready = 1'b0;
       end
       fsm_WRITE_RESPONSE : begin
       end
@@ -47558,13 +47680,16 @@ module SRAMController_1 (
     io_axi_w_ready = 1'b0;
     case(fsm_stateReg)
       fsm_IDLE : begin
+        io_axi_w_ready = 1'b0;
       end
       fsm_WRITE_DATA_FETCH : begin
         io_axi_w_ready = 1'b1;
       end
       fsm_WRITE_EXECUTE : begin
+        io_axi_w_ready = 1'b0;
       end
       fsm_WRITE_DEASSERT : begin
+        io_axi_w_ready = 1'b0;
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
         io_axi_w_ready = 1'b1;
@@ -47811,10 +47936,10 @@ module SRAMController_1 (
       fsm_READ_WAIT : begin
       end
       fsm_READ_RESPONSE : begin
-        io_axi_r_payload_last = when_SRAMController_l559;
+        io_axi_r_payload_last = when_SRAMController_l604;
       end
       fsm_READ_RESPONSE_ERROR : begin
-        io_axi_r_payload_last = when_SRAMController_l611;
+        io_axi_r_payload_last = when_SRAMController_l656;
       end
       default : begin
       end
@@ -47865,16 +47990,16 @@ module SRAMController_1 (
     case(fsm_stateReg)
       fsm_IDLE : begin
         if(io_axi_aw_fire) begin
-          if(when_SRAMController_l198) begin
+          if(when_SRAMController_l226) begin
             fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
           end else begin
-            if(when_SRAMController_l202) begin
+            if(when_SRAMController_l230) begin
               fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
             end else begin
-              if(when_SRAMController_l206) begin
+              if(when_SRAMController_l234) begin
                 fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
               end else begin
-                if(when_SRAMController_l210) begin
+                if(when_SRAMController_l238) begin
                   fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
                 end else begin
                   fsm_stateNext = fsm_WRITE_DATA_FETCH;
@@ -47884,16 +48009,16 @@ module SRAMController_1 (
           end
         end
         if(io_axi_ar_fire) begin
-          if(when_SRAMController_l252) begin
+          if(when_SRAMController_l280) begin
             fsm_stateNext = fsm_READ_RESPONSE_ERROR;
           end else begin
-            if(when_SRAMController_l256) begin
+            if(when_SRAMController_l284) begin
               fsm_stateNext = fsm_READ_RESPONSE_ERROR;
             end else begin
-              if(when_SRAMController_l260) begin
+              if(when_SRAMController_l288) begin
                 fsm_stateNext = fsm_READ_RESPONSE_ERROR;
               end else begin
-                if(when_SRAMController_l264) begin
+                if(when_SRAMController_l292) begin
                   fsm_stateNext = fsm_READ_RESPONSE_ERROR;
                 end else begin
                   fsm_stateNext = fsm_READ_SETUP;
@@ -47909,12 +48034,12 @@ module SRAMController_1 (
         end
       end
       fsm_WRITE_EXECUTE : begin
-        if(when_SRAMController_l340) begin
+        if(when_SRAMController_l376) begin
           fsm_stateNext = fsm_WRITE_DEASSERT;
         end
       end
       fsm_WRITE_DEASSERT : begin
-        if(when_SRAMController_l377) begin
+        if(when_SRAMController_l418) begin
           fsm_stateNext = fsm_WRITE_RESPONSE;
         end else begin
           fsm_stateNext = fsm_WRITE_DATA_FETCH;
@@ -47922,7 +48047,7 @@ module SRAMController_1 (
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
         if(io_axi_w_fire) begin
-          if(when_SRAMController_l406) begin
+          if(when_SRAMController_l451) begin
             fsm_stateNext = fsm_WRITE_RESPONSE;
           end
         end
@@ -47936,13 +48061,13 @@ module SRAMController_1 (
         fsm_stateNext = fsm_READ_WAIT;
       end
       fsm_READ_WAIT : begin
-        if(when_SRAMController_l510) begin
+        if(when_SRAMController_l555) begin
           fsm_stateNext = fsm_READ_RESPONSE;
         end
       end
       fsm_READ_RESPONSE : begin
         if(io_axi_r_fire) begin
-          if(when_SRAMController_l559) begin
+          if(when_SRAMController_l604) begin
             fsm_stateNext = fsm_IDLE;
           end else begin
             fsm_stateNext = fsm_READ_SETUP;
@@ -47951,7 +48076,7 @@ module SRAMController_1 (
       end
       fsm_READ_RESPONSE_ERROR : begin
         if(io_axi_r_fire) begin
-          if(when_SRAMController_l611) begin
+          if(when_SRAMController_l656) begin
             fsm_stateNext = fsm_IDLE;
           end
         end
@@ -47967,29 +48092,30 @@ module SRAMController_1 (
     end
   end
 
+  assign when_SRAMController_l180 = (io_axi_aw_valid && io_axi_ar_valid);
   assign io_axi_aw_fire = (io_axi_aw_valid && io_axi_aw_ready);
   assign _zz_fsm_current_sram_addr = (io_axi_aw_payload_addr - 32'h80400000);
-  assign _zz_when_SRAMController_l202 = ({7'd0,1'b1} <<< io_axi_aw_payload_size);
-  assign when_SRAMController_l198 = (io_axi_aw_payload_burst != 2'b01);
-  assign when_SRAMController_l202 = ((! ((io_axi_aw_payload_addr & _zz_when_SRAMController_l202_1) == 32'h0)) || (! ((io_axi_aw_payload_addr & 32'h00000003) == 32'h0)));
-  assign when_SRAMController_l206 = (! (io_axi_aw_payload_size == 3'b010));
-  assign when_SRAMController_l210 = (($signed(_zz_when_SRAMController_l210) < $signed(32'h0)) || (32'h00400000 <= _zz_when_SRAMController_l210_1));
+  assign _zz_when_SRAMController_l230 = ({7'd0,1'b1} <<< io_axi_aw_payload_size);
+  assign when_SRAMController_l226 = (io_axi_aw_payload_burst != 2'b01);
+  assign when_SRAMController_l230 = ((! ((io_axi_aw_payload_addr & _zz_when_SRAMController_l230_1) == 32'h0)) || (! ((io_axi_aw_payload_addr & 32'h00000003) == 32'h0)));
+  assign when_SRAMController_l234 = (! (io_axi_aw_payload_size == 3'b010));
+  assign when_SRAMController_l238 = (($signed(_zz_when_SRAMController_l238) < $signed(32'h0)) || (32'h00400000 <= _zz_when_SRAMController_l238_1));
   assign io_axi_ar_fire = (io_axi_ar_valid && io_axi_ar_ready);
   assign _zz_fsm_current_sram_addr_1 = (io_axi_ar_payload_addr - 32'h80400000);
-  assign _zz_when_SRAMController_l256 = ({7'd0,1'b1} <<< io_axi_ar_payload_size);
-  assign when_SRAMController_l252 = (io_axi_ar_payload_burst != 2'b01);
-  assign when_SRAMController_l256 = ((! ((io_axi_ar_payload_addr & _zz_when_SRAMController_l256_1) == 32'h0)) || (! ((io_axi_ar_payload_addr & 32'h00000003) == 32'h0)));
-  assign when_SRAMController_l260 = (! (io_axi_ar_payload_size == 3'b010));
-  assign when_SRAMController_l264 = (($signed(_zz_when_SRAMController_l264) < $signed(32'h0)) || (32'h00400000 <= _zz_when_SRAMController_l264_1));
+  assign _zz_when_SRAMController_l284 = ({7'd0,1'b1} <<< io_axi_ar_payload_size);
+  assign when_SRAMController_l280 = (io_axi_ar_payload_burst != 2'b01);
+  assign when_SRAMController_l284 = ((! ((io_axi_ar_payload_addr & _zz_when_SRAMController_l284_1) == 32'h0)) || (! ((io_axi_ar_payload_addr & 32'h00000003) == 32'h0)));
+  assign when_SRAMController_l288 = (! (io_axi_ar_payload_size == 3'b010));
+  assign when_SRAMController_l292 = (($signed(_zz_when_SRAMController_l292) < $signed(32'h0)) || (32'h00400000 <= _zz_when_SRAMController_l292_1));
   assign io_axi_w_fire = (io_axi_w_valid && io_axi_w_ready);
-  assign when_SRAMController_l340 = (fsm_write_wait_counter == 2'b10);
-  assign when_SRAMController_l377 = (fsm_burst_count_remaining == 9'h0);
-  assign when_SRAMController_l406 = (fsm_burst_count_remaining == 9'h001);
-  assign when_SRAMController_l501 = (((fsm_read_wait_counter == 2'b01) && (9'h001 < fsm_burst_count_remaining)) && (! fsm_addr_prefetch_valid));
-  assign when_SRAMController_l510 = (fsm_read_wait_counter == 2'b10);
-  assign when_SRAMController_l559 = (fsm_burst_count_remaining == 9'h001);
+  assign when_SRAMController_l376 = (fsm_write_wait_counter == 2'b10);
+  assign when_SRAMController_l418 = (fsm_burst_count_remaining == 9'h0);
+  assign when_SRAMController_l451 = (fsm_burst_count_remaining == 9'h001);
+  assign when_SRAMController_l546 = (((fsm_read_wait_counter == 2'b01) && (9'h001 < fsm_burst_count_remaining)) && (! fsm_addr_prefetch_valid));
+  assign when_SRAMController_l555 = (fsm_read_wait_counter == 2'b10);
+  assign when_SRAMController_l604 = (fsm_burst_count_remaining == 9'h001);
   assign io_axi_r_fire = (io_axi_r_valid && io_axi_r_ready);
-  assign when_SRAMController_l611 = (fsm_burst_count_remaining == 9'h001);
+  assign when_SRAMController_l656 = (fsm_burst_count_remaining == 9'h001);
   assign fsm_onExit_BOOT = ((fsm_stateNext != fsm_BOOT) && (fsm_stateReg == fsm_BOOT));
   assign fsm_onExit_IDLE = ((fsm_stateNext != fsm_IDLE) && (fsm_stateReg == fsm_IDLE));
   assign fsm_onExit_WRITE_DATA_FETCH = ((fsm_stateNext != fsm_WRITE_DATA_FETCH) && (fsm_stateReg == fsm_WRITE_DATA_FETCH));
@@ -48034,16 +48160,16 @@ module SRAMController_1 (
           fsm_addr_prefetch_valid <= 1'b0;
           if(io_axi_aw_fire) begin
             fsm_read_priority <= (! fsm_read_priority);
-            if(when_SRAMController_l198) begin
+            if(when_SRAMController_l226) begin
               fsm_transaction_error_occurred <= 1'b1;
             end else begin
-              if(when_SRAMController_l202) begin
+              if(when_SRAMController_l230) begin
                 fsm_transaction_error_occurred <= 1'b1;
               end else begin
-                if(when_SRAMController_l206) begin
+                if(when_SRAMController_l234) begin
                   fsm_transaction_error_occurred <= 1'b1;
                 end else begin
-                  if(when_SRAMController_l210) begin
+                  if(when_SRAMController_l238) begin
                     fsm_transaction_error_occurred <= 1'b1;
                   end
                 end
@@ -48052,16 +48178,16 @@ module SRAMController_1 (
           end
           if(io_axi_ar_fire) begin
             fsm_read_priority <= (! fsm_read_priority);
-            if(when_SRAMController_l252) begin
+            if(when_SRAMController_l280) begin
               fsm_transaction_error_occurred <= 1'b1;
             end else begin
-              if(when_SRAMController_l256) begin
+              if(when_SRAMController_l284) begin
                 fsm_transaction_error_occurred <= 1'b1;
               end else begin
-                if(when_SRAMController_l260) begin
+                if(when_SRAMController_l288) begin
                   fsm_transaction_error_occurred <= 1'b1;
                 end else begin
-                  if(when_SRAMController_l264) begin
+                  if(when_SRAMController_l292) begin
                     fsm_transaction_error_occurred <= 1'b1;
                   end
                 end
@@ -48106,7 +48232,7 @@ module SRAMController_1 (
           sram_oe_n_out_reg <= 1'b0;
           sram_we_n_out_reg <= 1'b1;
           sram_data_writeEnable_out_reg <= 1'b0;
-          if(when_SRAMController_l501) begin
+          if(when_SRAMController_l546) begin
             fsm_addr_prefetch_valid <= 1'b1;
           end
         end
@@ -48118,7 +48244,7 @@ module SRAMController_1 (
           sram_addr_out_reg <= fsm_current_sram_addr;
           sram_be_n_out_reg <= 4'b0000;
           if(io_axi_r_fire) begin
-            if(!when_SRAMController_l559) begin
+            if(!when_SRAMController_l604) begin
               if(fsm_addr_prefetch_valid) begin
                 fsm_addr_prefetch_valid <= 1'b0;
               end
@@ -48240,10 +48366,10 @@ module SRAMController_1 (
           fsm_ar_cmd_reg_prot <= io_axi_ar_payload_prot;
           fsm_burst_count_remaining <= {1'd0, _zz_fsm_burst_count_remaining_1};
           fsm_current_sram_addr <= _zz_fsm_current_sram_addr_3[19:0];
-          if(!when_SRAMController_l252) begin
-            if(!when_SRAMController_l256) begin
-              if(!when_SRAMController_l260) begin
-                if(!when_SRAMController_l264) begin
+          if(!when_SRAMController_l280) begin
+            if(!when_SRAMController_l284) begin
+              if(!when_SRAMController_l288) begin
+                if(!when_SRAMController_l292) begin
                   fsm_read_wait_counter <= 2'b00;
                 end
               end
@@ -48254,14 +48380,14 @@ module SRAMController_1 (
       fsm_WRITE_DATA_FETCH : begin
       end
       fsm_WRITE_EXECUTE : begin
-        if(when_SRAMController_l340) begin
+        if(when_SRAMController_l376) begin
           fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
         end else begin
           fsm_write_wait_counter <= (fsm_write_wait_counter + 2'b01);
         end
       end
       fsm_WRITE_DEASSERT : begin
-        if(!when_SRAMController_l377) begin
+        if(!when_SRAMController_l418) begin
           fsm_current_sram_addr <= (fsm_current_sram_addr + _zz_fsm_current_sram_addr_4);
         end
       end
@@ -48276,10 +48402,10 @@ module SRAMController_1 (
         fsm_read_wait_counter <= 2'b00;
       end
       fsm_READ_WAIT : begin
-        if(when_SRAMController_l501) begin
+        if(when_SRAMController_l546) begin
           fsm_next_sram_addr_prefetch <= (fsm_current_sram_addr + _zz_fsm_next_sram_addr_prefetch);
         end
-        if(when_SRAMController_l510) begin
+        if(when_SRAMController_l555) begin
           fsm_read_data_buffer <= io_ram_data_read;
         end else begin
           fsm_read_wait_counter <= (fsm_read_wait_counter + 2'b01);
@@ -48288,7 +48414,7 @@ module SRAMController_1 (
       fsm_READ_RESPONSE : begin
         if(io_axi_r_fire) begin
           fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
-          if(!when_SRAMController_l559) begin
+          if(!when_SRAMController_l604) begin
             if(fsm_addr_prefetch_valid) begin
               fsm_current_sram_addr <= fsm_next_sram_addr_prefetch;
             end else begin
@@ -48370,26 +48496,26 @@ module SRAMController (
 
   wire       [7:0]    _zz_fsm_burst_count_remaining;
   wire       [29:0]   _zz_fsm_current_sram_addr_2;
-  wire       [31:0]   _zz_when_SRAMController_l202_1;
-  wire       [7:0]    _zz_when_SRAMController_l202_2;
-  wire       [31:0]   _zz_when_SRAMController_l210;
-  wire       [31:0]   _zz_when_SRAMController_l210_1;
-  wire       [31:0]   _zz_when_SRAMController_l210_2;
-  wire       [31:0]   _zz_when_SRAMController_l210_3;
-  wire       [15:0]   _zz_when_SRAMController_l210_4;
-  wire       [7:0]    _zz_when_SRAMController_l210_5;
-  wire       [31:0]   _zz_when_SRAMController_l210_6;
+  wire       [31:0]   _zz_when_SRAMController_l230_1;
+  wire       [7:0]    _zz_when_SRAMController_l230_2;
+  wire       [31:0]   _zz_when_SRAMController_l238;
+  wire       [31:0]   _zz_when_SRAMController_l238_1;
+  wire       [31:0]   _zz_when_SRAMController_l238_2;
+  wire       [31:0]   _zz_when_SRAMController_l238_3;
+  wire       [15:0]   _zz_when_SRAMController_l238_4;
+  wire       [7:0]    _zz_when_SRAMController_l238_5;
+  wire       [31:0]   _zz_when_SRAMController_l238_6;
   wire       [7:0]    _zz_fsm_burst_count_remaining_1;
   wire       [29:0]   _zz_fsm_current_sram_addr_3;
-  wire       [31:0]   _zz_when_SRAMController_l256_1;
-  wire       [7:0]    _zz_when_SRAMController_l256_2;
-  wire       [31:0]   _zz_when_SRAMController_l264;
-  wire       [31:0]   _zz_when_SRAMController_l264_1;
-  wire       [31:0]   _zz_when_SRAMController_l264_2;
-  wire       [31:0]   _zz_when_SRAMController_l264_3;
-  wire       [15:0]   _zz_when_SRAMController_l264_4;
-  wire       [7:0]    _zz_when_SRAMController_l264_5;
-  wire       [31:0]   _zz_when_SRAMController_l264_6;
+  wire       [31:0]   _zz_when_SRAMController_l284_1;
+  wire       [7:0]    _zz_when_SRAMController_l284_2;
+  wire       [31:0]   _zz_when_SRAMController_l292;
+  wire       [31:0]   _zz_when_SRAMController_l292_1;
+  wire       [31:0]   _zz_when_SRAMController_l292_2;
+  wire       [31:0]   _zz_when_SRAMController_l292_3;
+  wire       [15:0]   _zz_when_SRAMController_l292_4;
+  wire       [7:0]    _zz_when_SRAMController_l292_5;
+  wire       [31:0]   _zz_when_SRAMController_l292_6;
   wire       [19:0]   _zz_fsm_current_sram_addr_4;
   wire       [7:0]    _zz_fsm_current_sram_addr_5;
   wire       [7:0]    _zz_fsm_current_sram_addr_6;
@@ -48433,29 +48559,30 @@ module SRAMController (
   reg                 fsm_addr_prefetch_valid;
   (* MARK_DEBUG = "TRUE" *) reg        [3:0]    fsm_stateReg;
   reg        [3:0]    fsm_stateNext;
+  wire                when_SRAMController_l180;
   (* mark_debug = "true" *) wire                io_axi_aw_fire;
   wire       [31:0]   _zz_fsm_current_sram_addr;
-  wire       [7:0]    _zz_when_SRAMController_l202;
-  wire                when_SRAMController_l198;
-  wire                when_SRAMController_l202;
-  wire                when_SRAMController_l206;
-  wire                when_SRAMController_l210;
+  wire       [7:0]    _zz_when_SRAMController_l230;
+  wire                when_SRAMController_l226;
+  wire                when_SRAMController_l230;
+  wire                when_SRAMController_l234;
+  wire                when_SRAMController_l238;
   (* mark_debug = "true" *) wire                io_axi_ar_fire;
   wire       [31:0]   _zz_fsm_current_sram_addr_1;
-  wire       [7:0]    _zz_when_SRAMController_l256;
-  wire                when_SRAMController_l252;
-  wire                when_SRAMController_l256;
-  wire                when_SRAMController_l260;
-  wire                when_SRAMController_l264;
+  wire       [7:0]    _zz_when_SRAMController_l284;
+  wire                when_SRAMController_l280;
+  wire                when_SRAMController_l284;
+  wire                when_SRAMController_l288;
+  wire                when_SRAMController_l292;
   (* mark_debug = "true" *) wire                io_axi_w_fire;
-  wire                when_SRAMController_l340;
-  wire                when_SRAMController_l377;
-  wire                when_SRAMController_l406;
-  wire                when_SRAMController_l501;
-  wire                when_SRAMController_l510;
-  wire                when_SRAMController_l559;
+  wire                when_SRAMController_l376;
+  wire                when_SRAMController_l418;
+  wire                when_SRAMController_l451;
+  wire                when_SRAMController_l546;
+  wire                when_SRAMController_l555;
+  wire                when_SRAMController_l604;
   (* mark_debug = "true" *) wire                io_axi_r_fire;
-  wire                when_SRAMController_l611;
+  wire                when_SRAMController_l656;
   wire                fsm_onExit_BOOT;
   wire                fsm_onExit_IDLE;
   wire                fsm_onExit_WRITE_DATA_FETCH;
@@ -48487,26 +48614,26 @@ module SRAMController (
 
   assign _zz_fsm_burst_count_remaining = (io_axi_aw_payload_len + 8'h01);
   assign _zz_fsm_current_sram_addr_2 = (_zz_fsm_current_sram_addr >>> 2'd2);
-  assign _zz_when_SRAMController_l202_2 = (_zz_when_SRAMController_l202 - 8'h01);
-  assign _zz_when_SRAMController_l202_1 = {24'd0, _zz_when_SRAMController_l202_2};
-  assign _zz_when_SRAMController_l210 = _zz_fsm_current_sram_addr;
-  assign _zz_when_SRAMController_l210_1 = (_zz_when_SRAMController_l210_2 - _zz_when_SRAMController_l210_6);
-  assign _zz_when_SRAMController_l210_2 = (_zz_fsm_current_sram_addr + _zz_when_SRAMController_l210_3);
-  assign _zz_when_SRAMController_l210_4 = (_zz_when_SRAMController_l210_5 * _zz_when_SRAMController_l202);
-  assign _zz_when_SRAMController_l210_3 = {16'd0, _zz_when_SRAMController_l210_4};
-  assign _zz_when_SRAMController_l210_5 = (io_axi_aw_payload_len + 8'h01);
-  assign _zz_when_SRAMController_l210_6 = {24'd0, _zz_when_SRAMController_l202};
+  assign _zz_when_SRAMController_l230_2 = (_zz_when_SRAMController_l230 - 8'h01);
+  assign _zz_when_SRAMController_l230_1 = {24'd0, _zz_when_SRAMController_l230_2};
+  assign _zz_when_SRAMController_l238 = _zz_fsm_current_sram_addr;
+  assign _zz_when_SRAMController_l238_1 = (_zz_when_SRAMController_l238_2 - _zz_when_SRAMController_l238_6);
+  assign _zz_when_SRAMController_l238_2 = (_zz_fsm_current_sram_addr + _zz_when_SRAMController_l238_3);
+  assign _zz_when_SRAMController_l238_4 = (_zz_when_SRAMController_l238_5 * _zz_when_SRAMController_l230);
+  assign _zz_when_SRAMController_l238_3 = {16'd0, _zz_when_SRAMController_l238_4};
+  assign _zz_when_SRAMController_l238_5 = (io_axi_aw_payload_len + 8'h01);
+  assign _zz_when_SRAMController_l238_6 = {24'd0, _zz_when_SRAMController_l230};
   assign _zz_fsm_burst_count_remaining_1 = (io_axi_ar_payload_len + 8'h01);
   assign _zz_fsm_current_sram_addr_3 = (_zz_fsm_current_sram_addr_1 >>> 2'd2);
-  assign _zz_when_SRAMController_l256_2 = (_zz_when_SRAMController_l256 - 8'h01);
-  assign _zz_when_SRAMController_l256_1 = {24'd0, _zz_when_SRAMController_l256_2};
-  assign _zz_when_SRAMController_l264 = _zz_fsm_current_sram_addr_1;
-  assign _zz_when_SRAMController_l264_1 = (_zz_when_SRAMController_l264_2 - _zz_when_SRAMController_l264_6);
-  assign _zz_when_SRAMController_l264_2 = (_zz_fsm_current_sram_addr_1 + _zz_when_SRAMController_l264_3);
-  assign _zz_when_SRAMController_l264_4 = (_zz_when_SRAMController_l264_5 * _zz_when_SRAMController_l256);
-  assign _zz_when_SRAMController_l264_3 = {16'd0, _zz_when_SRAMController_l264_4};
-  assign _zz_when_SRAMController_l264_5 = (io_axi_ar_payload_len + 8'h01);
-  assign _zz_when_SRAMController_l264_6 = {24'd0, _zz_when_SRAMController_l256};
+  assign _zz_when_SRAMController_l284_2 = (_zz_when_SRAMController_l284 - 8'h01);
+  assign _zz_when_SRAMController_l284_1 = {24'd0, _zz_when_SRAMController_l284_2};
+  assign _zz_when_SRAMController_l292 = _zz_fsm_current_sram_addr_1;
+  assign _zz_when_SRAMController_l292_1 = (_zz_when_SRAMController_l292_2 - _zz_when_SRAMController_l292_6);
+  assign _zz_when_SRAMController_l292_2 = (_zz_fsm_current_sram_addr_1 + _zz_when_SRAMController_l292_3);
+  assign _zz_when_SRAMController_l292_4 = (_zz_when_SRAMController_l292_5 * _zz_when_SRAMController_l284);
+  assign _zz_when_SRAMController_l292_3 = {16'd0, _zz_when_SRAMController_l292_4};
+  assign _zz_when_SRAMController_l292_5 = (io_axi_ar_payload_len + 8'h01);
+  assign _zz_when_SRAMController_l292_6 = {24'd0, _zz_when_SRAMController_l284};
   assign _zz_fsm_current_sram_addr_5 = (_zz_fsm_current_sram_addr_6 / 3'b100);
   assign _zz_fsm_current_sram_addr_4 = {12'd0, _zz_fsm_current_sram_addr_5};
   assign _zz_fsm_current_sram_addr_6 = ({7'd0,1'b1} <<< fsm_aw_cmd_reg_size);
@@ -48555,15 +48682,24 @@ module SRAMController (
     io_axi_aw_ready = 1'b0;
     case(fsm_stateReg)
       fsm_IDLE : begin
-        io_axi_aw_ready = ((! fsm_read_priority) || (! io_axi_ar_valid));
+        io_axi_aw_ready = 1'b0;
+        if(when_SRAMController_l180) begin
+          io_axi_aw_ready = (! fsm_read_priority);
+        end else begin
+          io_axi_aw_ready = io_axi_aw_valid;
+        end
       end
       fsm_WRITE_DATA_FETCH : begin
+        io_axi_aw_ready = 1'b0;
       end
       fsm_WRITE_EXECUTE : begin
+        io_axi_aw_ready = 1'b0;
       end
       fsm_WRITE_DEASSERT : begin
+        io_axi_aw_ready = 1'b0;
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
+        io_axi_aw_ready = 1'b0;
       end
       fsm_WRITE_RESPONSE : begin
       end
@@ -48584,15 +48720,24 @@ module SRAMController (
     io_axi_ar_ready = 1'b0;
     case(fsm_stateReg)
       fsm_IDLE : begin
-        io_axi_ar_ready = (fsm_read_priority || (! io_axi_aw_valid));
+        io_axi_ar_ready = 1'b0;
+        if(when_SRAMController_l180) begin
+          io_axi_ar_ready = fsm_read_priority;
+        end else begin
+          io_axi_ar_ready = io_axi_ar_valid;
+        end
       end
       fsm_WRITE_DATA_FETCH : begin
+        io_axi_ar_ready = 1'b0;
       end
       fsm_WRITE_EXECUTE : begin
+        io_axi_ar_ready = 1'b0;
       end
       fsm_WRITE_DEASSERT : begin
+        io_axi_ar_ready = 1'b0;
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
+        io_axi_ar_ready = 1'b0;
       end
       fsm_WRITE_RESPONSE : begin
       end
@@ -48613,13 +48758,16 @@ module SRAMController (
     io_axi_w_ready = 1'b0;
     case(fsm_stateReg)
       fsm_IDLE : begin
+        io_axi_w_ready = 1'b0;
       end
       fsm_WRITE_DATA_FETCH : begin
         io_axi_w_ready = 1'b1;
       end
       fsm_WRITE_EXECUTE : begin
+        io_axi_w_ready = 1'b0;
       end
       fsm_WRITE_DEASSERT : begin
+        io_axi_w_ready = 1'b0;
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
         io_axi_w_ready = 1'b1;
@@ -48866,10 +49014,10 @@ module SRAMController (
       fsm_READ_WAIT : begin
       end
       fsm_READ_RESPONSE : begin
-        io_axi_r_payload_last = when_SRAMController_l559;
+        io_axi_r_payload_last = when_SRAMController_l604;
       end
       fsm_READ_RESPONSE_ERROR : begin
-        io_axi_r_payload_last = when_SRAMController_l611;
+        io_axi_r_payload_last = when_SRAMController_l656;
       end
       default : begin
       end
@@ -48920,16 +49068,16 @@ module SRAMController (
     case(fsm_stateReg)
       fsm_IDLE : begin
         if(io_axi_aw_fire) begin
-          if(when_SRAMController_l198) begin
+          if(when_SRAMController_l226) begin
             fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
           end else begin
-            if(when_SRAMController_l202) begin
+            if(when_SRAMController_l230) begin
               fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
             end else begin
-              if(when_SRAMController_l206) begin
+              if(when_SRAMController_l234) begin
                 fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
               end else begin
-                if(when_SRAMController_l210) begin
+                if(when_SRAMController_l238) begin
                   fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
                 end else begin
                   fsm_stateNext = fsm_WRITE_DATA_FETCH;
@@ -48939,16 +49087,16 @@ module SRAMController (
           end
         end
         if(io_axi_ar_fire) begin
-          if(when_SRAMController_l252) begin
+          if(when_SRAMController_l280) begin
             fsm_stateNext = fsm_READ_RESPONSE_ERROR;
           end else begin
-            if(when_SRAMController_l256) begin
+            if(when_SRAMController_l284) begin
               fsm_stateNext = fsm_READ_RESPONSE_ERROR;
             end else begin
-              if(when_SRAMController_l260) begin
+              if(when_SRAMController_l288) begin
                 fsm_stateNext = fsm_READ_RESPONSE_ERROR;
               end else begin
-                if(when_SRAMController_l264) begin
+                if(when_SRAMController_l292) begin
                   fsm_stateNext = fsm_READ_RESPONSE_ERROR;
                 end else begin
                   fsm_stateNext = fsm_READ_SETUP;
@@ -48964,12 +49112,12 @@ module SRAMController (
         end
       end
       fsm_WRITE_EXECUTE : begin
-        if(when_SRAMController_l340) begin
+        if(when_SRAMController_l376) begin
           fsm_stateNext = fsm_WRITE_DEASSERT;
         end
       end
       fsm_WRITE_DEASSERT : begin
-        if(when_SRAMController_l377) begin
+        if(when_SRAMController_l418) begin
           fsm_stateNext = fsm_WRITE_RESPONSE;
         end else begin
           fsm_stateNext = fsm_WRITE_DATA_FETCH;
@@ -48977,7 +49125,7 @@ module SRAMController (
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
         if(io_axi_w_fire) begin
-          if(when_SRAMController_l406) begin
+          if(when_SRAMController_l451) begin
             fsm_stateNext = fsm_WRITE_RESPONSE;
           end
         end
@@ -48991,13 +49139,13 @@ module SRAMController (
         fsm_stateNext = fsm_READ_WAIT;
       end
       fsm_READ_WAIT : begin
-        if(when_SRAMController_l510) begin
+        if(when_SRAMController_l555) begin
           fsm_stateNext = fsm_READ_RESPONSE;
         end
       end
       fsm_READ_RESPONSE : begin
         if(io_axi_r_fire) begin
-          if(when_SRAMController_l559) begin
+          if(when_SRAMController_l604) begin
             fsm_stateNext = fsm_IDLE;
           end else begin
             fsm_stateNext = fsm_READ_SETUP;
@@ -49006,7 +49154,7 @@ module SRAMController (
       end
       fsm_READ_RESPONSE_ERROR : begin
         if(io_axi_r_fire) begin
-          if(when_SRAMController_l611) begin
+          if(when_SRAMController_l656) begin
             fsm_stateNext = fsm_IDLE;
           end
         end
@@ -49022,29 +49170,30 @@ module SRAMController (
     end
   end
 
+  assign when_SRAMController_l180 = (io_axi_aw_valid && io_axi_ar_valid);
   assign io_axi_aw_fire = (io_axi_aw_valid && io_axi_aw_ready);
   assign _zz_fsm_current_sram_addr = (io_axi_aw_payload_addr - 32'h80000000);
-  assign _zz_when_SRAMController_l202 = ({7'd0,1'b1} <<< io_axi_aw_payload_size);
-  assign when_SRAMController_l198 = (io_axi_aw_payload_burst != 2'b01);
-  assign when_SRAMController_l202 = ((! ((io_axi_aw_payload_addr & _zz_when_SRAMController_l202_1) == 32'h0)) || (! ((io_axi_aw_payload_addr & 32'h00000003) == 32'h0)));
-  assign when_SRAMController_l206 = (! (io_axi_aw_payload_size == 3'b010));
-  assign when_SRAMController_l210 = (($signed(_zz_when_SRAMController_l210) < $signed(32'h0)) || (32'h00400000 <= _zz_when_SRAMController_l210_1));
+  assign _zz_when_SRAMController_l230 = ({7'd0,1'b1} <<< io_axi_aw_payload_size);
+  assign when_SRAMController_l226 = (io_axi_aw_payload_burst != 2'b01);
+  assign when_SRAMController_l230 = ((! ((io_axi_aw_payload_addr & _zz_when_SRAMController_l230_1) == 32'h0)) || (! ((io_axi_aw_payload_addr & 32'h00000003) == 32'h0)));
+  assign when_SRAMController_l234 = (! (io_axi_aw_payload_size == 3'b010));
+  assign when_SRAMController_l238 = (($signed(_zz_when_SRAMController_l238) < $signed(32'h0)) || (32'h00400000 <= _zz_when_SRAMController_l238_1));
   assign io_axi_ar_fire = (io_axi_ar_valid && io_axi_ar_ready);
   assign _zz_fsm_current_sram_addr_1 = (io_axi_ar_payload_addr - 32'h80000000);
-  assign _zz_when_SRAMController_l256 = ({7'd0,1'b1} <<< io_axi_ar_payload_size);
-  assign when_SRAMController_l252 = (io_axi_ar_payload_burst != 2'b01);
-  assign when_SRAMController_l256 = ((! ((io_axi_ar_payload_addr & _zz_when_SRAMController_l256_1) == 32'h0)) || (! ((io_axi_ar_payload_addr & 32'h00000003) == 32'h0)));
-  assign when_SRAMController_l260 = (! (io_axi_ar_payload_size == 3'b010));
-  assign when_SRAMController_l264 = (($signed(_zz_when_SRAMController_l264) < $signed(32'h0)) || (32'h00400000 <= _zz_when_SRAMController_l264_1));
+  assign _zz_when_SRAMController_l284 = ({7'd0,1'b1} <<< io_axi_ar_payload_size);
+  assign when_SRAMController_l280 = (io_axi_ar_payload_burst != 2'b01);
+  assign when_SRAMController_l284 = ((! ((io_axi_ar_payload_addr & _zz_when_SRAMController_l284_1) == 32'h0)) || (! ((io_axi_ar_payload_addr & 32'h00000003) == 32'h0)));
+  assign when_SRAMController_l288 = (! (io_axi_ar_payload_size == 3'b010));
+  assign when_SRAMController_l292 = (($signed(_zz_when_SRAMController_l292) < $signed(32'h0)) || (32'h00400000 <= _zz_when_SRAMController_l292_1));
   assign io_axi_w_fire = (io_axi_w_valid && io_axi_w_ready);
-  assign when_SRAMController_l340 = (fsm_write_wait_counter == 2'b10);
-  assign when_SRAMController_l377 = (fsm_burst_count_remaining == 9'h0);
-  assign when_SRAMController_l406 = (fsm_burst_count_remaining == 9'h001);
-  assign when_SRAMController_l501 = (((fsm_read_wait_counter == 2'b01) && (9'h001 < fsm_burst_count_remaining)) && (! fsm_addr_prefetch_valid));
-  assign when_SRAMController_l510 = (fsm_read_wait_counter == 2'b10);
-  assign when_SRAMController_l559 = (fsm_burst_count_remaining == 9'h001);
+  assign when_SRAMController_l376 = (fsm_write_wait_counter == 2'b10);
+  assign when_SRAMController_l418 = (fsm_burst_count_remaining == 9'h0);
+  assign when_SRAMController_l451 = (fsm_burst_count_remaining == 9'h001);
+  assign when_SRAMController_l546 = (((fsm_read_wait_counter == 2'b01) && (9'h001 < fsm_burst_count_remaining)) && (! fsm_addr_prefetch_valid));
+  assign when_SRAMController_l555 = (fsm_read_wait_counter == 2'b10);
+  assign when_SRAMController_l604 = (fsm_burst_count_remaining == 9'h001);
   assign io_axi_r_fire = (io_axi_r_valid && io_axi_r_ready);
-  assign when_SRAMController_l611 = (fsm_burst_count_remaining == 9'h001);
+  assign when_SRAMController_l656 = (fsm_burst_count_remaining == 9'h001);
   assign fsm_onExit_BOOT = ((fsm_stateNext != fsm_BOOT) && (fsm_stateReg == fsm_BOOT));
   assign fsm_onExit_IDLE = ((fsm_stateNext != fsm_IDLE) && (fsm_stateReg == fsm_IDLE));
   assign fsm_onExit_WRITE_DATA_FETCH = ((fsm_stateNext != fsm_WRITE_DATA_FETCH) && (fsm_stateReg == fsm_WRITE_DATA_FETCH));
@@ -49089,16 +49238,16 @@ module SRAMController (
           fsm_addr_prefetch_valid <= 1'b0;
           if(io_axi_aw_fire) begin
             fsm_read_priority <= (! fsm_read_priority);
-            if(when_SRAMController_l198) begin
+            if(when_SRAMController_l226) begin
               fsm_transaction_error_occurred <= 1'b1;
             end else begin
-              if(when_SRAMController_l202) begin
+              if(when_SRAMController_l230) begin
                 fsm_transaction_error_occurred <= 1'b1;
               end else begin
-                if(when_SRAMController_l206) begin
+                if(when_SRAMController_l234) begin
                   fsm_transaction_error_occurred <= 1'b1;
                 end else begin
-                  if(when_SRAMController_l210) begin
+                  if(when_SRAMController_l238) begin
                     fsm_transaction_error_occurred <= 1'b1;
                   end
                 end
@@ -49107,16 +49256,16 @@ module SRAMController (
           end
           if(io_axi_ar_fire) begin
             fsm_read_priority <= (! fsm_read_priority);
-            if(when_SRAMController_l252) begin
+            if(when_SRAMController_l280) begin
               fsm_transaction_error_occurred <= 1'b1;
             end else begin
-              if(when_SRAMController_l256) begin
+              if(when_SRAMController_l284) begin
                 fsm_transaction_error_occurred <= 1'b1;
               end else begin
-                if(when_SRAMController_l260) begin
+                if(when_SRAMController_l288) begin
                   fsm_transaction_error_occurred <= 1'b1;
                 end else begin
-                  if(when_SRAMController_l264) begin
+                  if(when_SRAMController_l292) begin
                     fsm_transaction_error_occurred <= 1'b1;
                   end
                 end
@@ -49161,7 +49310,7 @@ module SRAMController (
           sram_oe_n_out_reg <= 1'b0;
           sram_we_n_out_reg <= 1'b1;
           sram_data_writeEnable_out_reg <= 1'b0;
-          if(when_SRAMController_l501) begin
+          if(when_SRAMController_l546) begin
             fsm_addr_prefetch_valid <= 1'b1;
           end
         end
@@ -49173,7 +49322,7 @@ module SRAMController (
           sram_addr_out_reg <= fsm_current_sram_addr;
           sram_be_n_out_reg <= 4'b0000;
           if(io_axi_r_fire) begin
-            if(!when_SRAMController_l559) begin
+            if(!when_SRAMController_l604) begin
               if(fsm_addr_prefetch_valid) begin
                 fsm_addr_prefetch_valid <= 1'b0;
               end
@@ -49295,10 +49444,10 @@ module SRAMController (
           fsm_ar_cmd_reg_prot <= io_axi_ar_payload_prot;
           fsm_burst_count_remaining <= {1'd0, _zz_fsm_burst_count_remaining_1};
           fsm_current_sram_addr <= _zz_fsm_current_sram_addr_3[19:0];
-          if(!when_SRAMController_l252) begin
-            if(!when_SRAMController_l256) begin
-              if(!when_SRAMController_l260) begin
-                if(!when_SRAMController_l264) begin
+          if(!when_SRAMController_l280) begin
+            if(!when_SRAMController_l284) begin
+              if(!when_SRAMController_l288) begin
+                if(!when_SRAMController_l292) begin
                   fsm_read_wait_counter <= 2'b00;
                 end
               end
@@ -49309,14 +49458,14 @@ module SRAMController (
       fsm_WRITE_DATA_FETCH : begin
       end
       fsm_WRITE_EXECUTE : begin
-        if(when_SRAMController_l340) begin
+        if(when_SRAMController_l376) begin
           fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
         end else begin
           fsm_write_wait_counter <= (fsm_write_wait_counter + 2'b01);
         end
       end
       fsm_WRITE_DEASSERT : begin
-        if(!when_SRAMController_l377) begin
+        if(!when_SRAMController_l418) begin
           fsm_current_sram_addr <= (fsm_current_sram_addr + _zz_fsm_current_sram_addr_4);
         end
       end
@@ -49331,10 +49480,10 @@ module SRAMController (
         fsm_read_wait_counter <= 2'b00;
       end
       fsm_READ_WAIT : begin
-        if(when_SRAMController_l501) begin
+        if(when_SRAMController_l546) begin
           fsm_next_sram_addr_prefetch <= (fsm_current_sram_addr + _zz_fsm_next_sram_addr_prefetch);
         end
-        if(when_SRAMController_l510) begin
+        if(when_SRAMController_l555) begin
           fsm_read_data_buffer <= io_ram_data_read;
         end else begin
           fsm_read_wait_counter <= (fsm_read_wait_counter + 2'b01);
@@ -49343,7 +49492,7 @@ module SRAMController (
       fsm_READ_RESPONSE : begin
         if(io_axi_r_fire) begin
           fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
-          if(!when_SRAMController_l559) begin
+          if(!when_SRAMController_l604) begin
             if(fsm_addr_prefetch_valid) begin
               fsm_current_sram_addr <= fsm_next_sram_addr_prefetch;
             end else begin
