@@ -92,19 +92,14 @@ case class CoreNSCSCCIo(simDebug: Boolean = false) extends Bundle {
 }
 
 // Memory System Plugin for CoreNSCSCC
-class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: Option[GenericMemoryBusConfig])
+class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: GenericMemoryBusConfig)
     extends Plugin
     with SgmbService {
   import scala.collection.mutable.ArrayBuffer
 
   private val readPorts = ArrayBuffer[SplitGmbReadChannel]()
   private val writePorts = ArrayBuffer[SplitGmbWriteChannel]()
-  private val sgmbConfig = mmioConfig.getOrElse(
-    GenericMemoryBusConfig(
-      addressWidth = 32 bits,
-      dataWidth = 32 bits
-    )
-  )
+  private val sgmbConfig = mmioConfig
 
   override def newReadPort(): SplitGmbReadChannel = {
     this.framework.requireEarly()
@@ -131,7 +126,7 @@ class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: Option[GenericMemoryBu
       readWaitCycles = 2,
       writeWaitCycles = 2,
       useWordAddressing = true,
-      enableLog = false
+      enableLog = true
     )
     val extsramCfg = SRAMConfig(
       addressWidth = 20, // 1M * 4 bytes addressing
@@ -141,7 +136,7 @@ class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: Option[GenericMemoryBu
       useWordAddressing = true,
       readWaitCycles = 2,
       writeWaitCycles = 2,
-      enableLog = false
+      enableLog = true
     )
 
     val numMasters = 6 // DCache + SGMB bridges
@@ -228,6 +223,7 @@ class CoreNSCSCC(simDebug: Boolean = false) extends Component {
     commitWidth = 1,
     resetVector = BigInt("80000000", 16), // 新的启动地址
     transactionIdWidth = 1,
+    memOpIdWidth = 4 bits,
     forceMMIO = true
   )
 
@@ -255,10 +251,10 @@ class CoreNSCSCC(simDebug: Boolean = false) extends Component {
   def createAxi4Config(pCfg: PipelineConfig): Axi4Config = Axi4Config(
     addressWidth = pCfg.xlen,
     dataWidth = pCfg.xlen,
-    idWidth = pCfg.transactionIdWidth,
+    idWidth = pCfg.memOpIdWidth.value,
     useLock = false,
     useCache = false,
-    useProt = true,
+    useProt = false,
     useQos = false,
     useRegion = false,
     useResp = true,
@@ -319,7 +315,7 @@ class CoreNSCSCC(simDebug: Boolean = false) extends Component {
       addressWidth = 32 bits,
       dataWidth = 32 bits,
       useId = true,
-      idWidth = pCfg.transactionIdWidth bits
+      idWidth = pCfg.memOpIdWidth
     )
   )
 
@@ -394,7 +390,7 @@ class CoreNSCSCC(simDebug: Boolean = false) extends Component {
     val _plugins = ArrayBuffer[Plugin]()
     val requried = Seq(
       // Memory system
-      new CoreMemSysPlugin(axiConfig, mmioConfig),
+      new CoreMemSysPlugin(axiConfig, mmioConfig.get),
       new DataCachePlugin(dCfg),
       new IFUPlugin(ifuCfg),
 
