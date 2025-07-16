@@ -79,37 +79,16 @@ class RenamePlugin(
       ratPort.physReg := ruPort.physReg
     }
 
-    // --- 2. Define HALT condition (includes FreeList AND branch throttling) ---
+    // --- 2. Define HALT condition (only FreeList stall remains) ---
     val willNeedPhysRegs = decodedUopsIn(0).isValid && decodedUopsIn(0).writeArchDestEn
     val notEnoughPhysRegs = freeList.getNumFreeRegs < Mux(willNeedPhysRegs, U(1), U(0))
     
-    // *** NEW: Branch instruction throttling logic ***
-    // Count branch instructions in current rename group
-    val branchMask = Vec(Bool(), pipelineConfig.renameWidth)
-    for(i <- 0 until pipelineConfig.renameWidth) {
-      val uopIn = decodedUopsIn(i)
-      val isControlFlowInst = uopIn.uopCode === BaseUopCode.BRANCH   ||
-                              uopIn.uopCode === BaseUopCode.JUMP_REG ||
-                              uopIn.uopCode === BaseUopCode.JUMP_IMM
-                              
-      branchMask(i) := uopIn.isValid && isControlFlowInst
-    }
-    
-    // Use PopCount to count branches without combinatorial loop
-    val branchCount = CountOne(branchMask)
-    
-    // Branch throttling: only allow 1 branch instruction at a time
-    val tooManyBranches = branchCount > U(1)
-    
-    // Combined halt condition: halt if not enough physical registers OR too many branches
-    val shouldHalt = notEnoughPhysRegs || tooManyBranches
+    // 简化暂停条件：仅当物理寄存器不足时暂停
+    val shouldHalt = notEnoughPhysRegs
     s1_rename.haltWhen(shouldHalt)
     
-    // Debug logging for branch throttling
+    // 保留物理寄存器不足的调试日志
     if(enableLog) {
-      when(s1_rename.isValid && tooManyBranches) {
-        report(L"[RENAME] BRANCH THROTTLING: ${branchCount} branches detected, halting rename stage")
-      }
       when(s1_rename.isValid && notEnoughPhysRegs) {
         report(L"[RENAME] FREELIST STALL: Not enough physical registers")
       }
@@ -121,7 +100,7 @@ class RenamePlugin(
       val needsReg = renameUnit.io.numPhysRegsRequired > i
       freeList.getAllocatePorts()(i).enable := fire && needsReg
 
-      // *** 新增逻辑: 驱动 BusyTable set 端口 ***
+      // *** 驱动 BusyTable set 端口 ***
       val uopOut = renameUnit.io.renamedUopsOut(i)
       when(fire && uopOut.decoded.isValid && uopOut.rename.allocatesPhysDest) {
           setBusyPorts(i).valid   := True
@@ -133,15 +112,13 @@ class RenamePlugin(
     }
 
     saveCheckpointTrigger := False // 默认不触发
-    when(s1_rename.isFiring && branchCount > 0) {
-      // 这里的假设是：只要有分支指令被重命名，就尝试保存检查点。
-      // CheckpointManagerPlugin 会处理是更新现有检查点还是保存新检查点。
+    // 简化后的检查点触发逻辑：当重命名阶段有有效指令时触发
+    when(s1_rename.isFiring) {
       saveCheckpointTrigger := True
       if (enableLog) {
-        report(L"[RENAME] Triggering Checkpoint SAVE due to branch instruction in current batch.")
+        report(L"[RENAME] Triggering Checkpoint SAVE during rename stage.")
       }
     }
-
 
     if(enableLog) report(L"DEBUG: s1_rename.isFiring=${s1_rename.isFiring}, decodedUopsIn(0).isValid=${decodedUopsIn(0).isValid}")
     if(enableLog) report(L"DEBUG: s1_rename.isReady=${s1_rename.isReady}, s1_rename.isValid=${s1_rename.isValid}, willNeedPhysRegs=${willNeedPhysRegs}, notEnoughPhysRegs=${notEnoughPhysRegs}")
