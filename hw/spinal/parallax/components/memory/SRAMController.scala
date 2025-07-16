@@ -60,8 +60,18 @@ case class SRAMIO(c: SRAMConfig) extends Bundle with IMasterSlave {
   }
 }
 
+object SRAMController {
+  private var _nextInstanceId = 0
+  def nextInstanceId: Int = {
+    val id = _nextInstanceId
+    _nextInstanceId += 1
+    id
+  }
+}
+
 // SRAMController 组件
 class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends Component {
+  val instanceId = SRAMController.nextInstanceId
   require(
     axiConfig.dataWidth == config.dataWidth,
     s"AXI and SRAM data width must match axiConfig.dataWidth = ${axiConfig.dataWidth} ExtSRAMConfig.dataWidth = ${config.dataWidth}"
@@ -132,7 +142,7 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
     val read_data_buffer = Reg(Bits(config.dataWidth bits))
     val read_wait_counter = hasReadWaitCycles generate Reg(UInt(log2Up(config.readWaitCycles + 1) bits))
     val write_wait_counter = hasWriteWaitCycles generate Reg(UInt(log2Up(config.writeWaitCycles + 1) bits))
-    val transaction_error_occurred = Reg(Bool()) init (False)
+    val transaction_error_occurred = Reg(Bool()) init (False) addAttribute("MARK_DEBUG","TRUE")
 
     val read_priority = Reg(Bool()) init (False) // 用于arbitration
 
@@ -190,117 +200,153 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
         // 在IDLE状态中，W通道不应该ready
         io.axi.w.ready := False
 
+        // --- Write Channel Transaction Handling ---
         when(io.axi.aw.fire) {
-          val sizeInfo = if (axiConfig.useSize) L", Size=${(io.axi.aw).size}" else L""
-          if (config.enableLog)
+          // Log the incoming request
+          val sizeInfo = if (axiConfig.useSize) L", Size=${io.axi.aw.size}" else L""
+          if (config.enableLog) {
             report(
-              L"SRAMController: AW Fire. Addr=0x${io.axi.aw.addr}, ID=${io.axi.aw.id}, Len=${io.axi.aw.len}, Burst=${io.axi.aw.burst}${sizeInfo}"
+              L"$instanceId AW Fire. Addr=0x${io.axi.aw.addr}, ID=${io.axi.aw.id}, Len=${io.axi.aw.len}, Burst=${io.axi.aw.burst}${sizeInfo}"
             )
+          }
+
+          // Store transaction details
           aw_cmd_reg := io.axi.aw.payload
           burst_count_remaining := (io.axi.aw.len + 1).resize(burst_count_remaining.getWidth)
-          
-          // --- MODIFIED ---: 地址转换和对齐检查
-          val byte_offset_addr = io.axi.aw.addr - config.virtualBaseAddress
-          val sram_addr_candidate = (byte_offset_addr >> config.addressShift).resized
-          current_sram_addr := sram_addr_candidate // 记录当前SRAM逻辑地址
-          
           read_priority := !read_priority
 
+          // --- Safe Address Calculation and Boundary Check ---
+          // 1. Extend operands to (addressWidth + 1) to safely handle subtraction and boundary comparison.
+          val virtualBaseAddressBitLength = if (config.virtualBaseAddress == 0) 1 else log2Up(config.virtualBaseAddress) + 1 // 计算virtualBaseAddress实际需要的最小位宽
+          val maxAddressBitLength = Math.max(axiConfig.addressWidth, virtualBaseAddressBitLength) // 取AXI地址和虚基地址的最大位宽
+          val extendedWidth = maxAddressBitLength + 1 // 额外加一位用于处理负数或溢出
+          val addr_extended = io.axi.aw.addr.resize(extendedWidth)
+          val vbase_extended = U(config.virtualBaseAddress, extendedWidth bits)
+
+          // 2. Perform subtraction on extended-width UInts. The result is also a UInt.
+          val byte_offset_addr = addr_extended - vbase_extended
+          
+          // 3. Calculate burst metrics using extended width to prevent overflow
           val bytesPerBeat = if (axiConfig.useSize) U(1) << io.axi.aw.size else U(config.bytesPerWord)
-          val burst_bytes_total = (io.axi.aw.len + 1) * bytesPerBeat
-          val end_byte_offset_addr = byte_offset_addr + burst_bytes_total - bytesPerBeat
+          val burst_len_extended = (io.axi.aw.len + 1).resize(extendedWidth)
+          val bytesPerBeat_extended = bytesPerBeat.resize(extendedWidth)
+          val end_byte_offset_addr = byte_offset_addr + burst_len_extended * bytesPerBeat_extended - bytesPerBeat_extended
+
+          // 4. Perform alignment and compatibility checks
           val addr_aligned = (io.axi.aw.addr & (bytesPerBeat - 1).resize(io.axi.aw.addr.getWidth)) === 0
-          // 在字地址模式下，强制要求起始地址是字对齐的
           val word_aligned_if_needed = if (config.useWordAddressing) {
-              (io.axi.aw.addr & (config.bytesPerWord - 1)) === 0
+              (io.axi.aw.addr & U(config.bytesPerWord - 1, io.axi.aw.addr.getWidth bits)) === 0
           } else {
               True
           }
-          // 在字地址模式下，检查传输大小是否与字大小兼容
           val size_compatible_if_needed = if (config.useWordAddressing && axiConfig.useSize) {
-              io.axi.aw.size === log2Up(config.bytesPerWord)
+              // 如果启用字寻址和AXI的Size字段，则需要检查传输大小是否与字大小兼容
+              io.axi.aw.size === U(log2Up(config.bytesPerWord))
           } else {
+              // 否则，该检查条件永远为True（不相关）
               True
           }
+          
+          // 5. Perform the final boundary check using correctly sized operands.
+          // The MSB of byte_offset_addr now correctly indicates if the result of subtraction was negative.
+          val is_negative = byte_offset_addr(config.addressWidth) // Check the new sign bit
+          val is_out_of_bounds = end_byte_offset_addr >= U(config.sizeBytes, extendedWidth bits)
 
           when(io.axi.aw.burst =/= Axi4.burst.INCR) {
-            if (config.enableLog) report(L"SRAMController: AW Error - Unsupported burst type: ${io.axi.aw.burst}")
+            if (config.enableLog) report(L"$instanceId AW Error - Unsupported burst type: ${io.axi.aw.burst}")
             transaction_error_occurred := True
             goto(WRITE_DATA_ERROR_CONSUME)
           } elsewhen (!addr_aligned || !word_aligned_if_needed) {
-            if (config.enableLog) report(L"SRAMController: AW Error - Address unaligned: 0x${io.axi.aw.addr} for size ${bytesPerBeat} or word boundary")
+            if (config.enableLog) report(L"$instanceId AW Error - Address unaligned: 0x${io.axi.aw.addr} for size ${bytesPerBeat} or word boundary")
             transaction_error_occurred := True
             goto(WRITE_DATA_ERROR_CONSUME)
           } elsewhen (!size_compatible_if_needed) {
-            if (config.enableLog) report(L"SRAMController: AW Error - Incompatible size: ${io.axi.aw.size} for word addressing mode")
+            if (config.enableLog) report(L"$instanceId AW Error - Incompatible size: ${io.axi.aw.size} for word addressing mode")
             transaction_error_occurred := True
             goto(WRITE_DATA_ERROR_CONSUME)
-          } elsewhen (byte_offset_addr.asSInt < 0 || end_byte_offset_addr >= config.sizeBytes) {
-            if (config.enableLog) report(L"SRAMController: AW Error - Address out of bounds. Byte Offset=0x${byte_offset_addr}, End Offset=0x${end_byte_offset_addr}, SRAM Size=0x${config.sizeBytes}")
+          } elsewhen (is_negative || is_out_of_bounds) {
+            if (config.enableLog) report(L"$instanceId AW Error - Address out of bounds. Byte Offset (calc)=0x${byte_offset_addr}, End Offset (calc)=0x${end_byte_offset_addr}, SRAM Size=${config.sizeBytes}")
             transaction_error_occurred := True
             goto(WRITE_DATA_ERROR_CONSUME)
           } otherwise {
-            goto(WRITE_DATA_FETCH) // MODIFIED: 进入新的写数据获取状态
+            // Address is valid, proceed. Convert byte offset to SRAM's physical address.
+            val sram_addr_candidate = (byte_offset_addr(config.addressWidth-1 downto 0) >> config.addressShift).resized
+            current_sram_addr := sram_addr_candidate
+            goto(WRITE_DATA_FETCH)
+            report(L"$instanceId will go to WRITE_DATA_FETCH next cycle")
           }
         }
 
+        // --- Read Channel Transaction Handling ---
         when(io.axi.ar.fire) {
-          val sizeInfo = if (axiConfig.useSize) L", Size=${(io.axi.ar).size}" else L""
-          if (config.enableLog)
+          // Log the incoming request
+          val sizeInfo = if (axiConfig.useSize) L", Size=${io.axi.ar.size}" else L""
+          if (config.enableLog) {
             report(
-              L"SRAMController: AR Fire. Addr=0x${io.axi.ar.addr}, ID=${io.axi.ar.id}, Len=${io.axi.ar.len}, Burst=${io.axi.ar.burst}${sizeInfo}"
+              L"$instanceId AR Fire. Addr=0x${io.axi.ar.addr}, ID=${io.axi.ar.id}, Len=${io.axi.ar.len}, Burst=${io.axi.ar.burst}${sizeInfo}"
             )
+          }
+          
+          // Store transaction details
           ar_cmd_reg := io.axi.ar.payload
           burst_count_remaining := (io.axi.ar.len + 1).resize(burst_count_remaining.getWidth)
-
-          // --- MODIFIED ---: 地址转换和对齐检查
-          val byte_offset_addr = io.axi.ar.addr - config.virtualBaseAddress
-          val sram_addr_candidate = (byte_offset_addr >> config.addressShift).resized
-          current_sram_addr := sram_addr_candidate
-          
           read_priority := !read_priority
 
+          // --- Safe Address Calculation and Boundary Check (Same logic as for AW) ---
+          val virtualBaseAddressBitLength = if (config.virtualBaseAddress == 0) 1 else log2Up(config.virtualBaseAddress) + 1 // 计算virtualBaseAddress实际需要的最小位宽
+          val maxAddressBitLength = Math.max(axiConfig.addressWidth, virtualBaseAddressBitLength) // 取AXI地址和虚基地址的最大位宽
+          val extendedWidth = maxAddressBitLength + 1 // 额外加一位用于处理负数或溢出
+          val addr_extended = io.axi.ar.addr.resize(extendedWidth)
+          val vbase_extended = U(config.virtualBaseAddress, extendedWidth bits)
+          val byte_offset_addr = addr_extended - vbase_extended
+
           val bytesPerBeat = if (axiConfig.useSize) U(1) << io.axi.ar.size else U(config.bytesPerWord)
-          val burst_bytes_total = (io.axi.ar.len + 1) * bytesPerBeat
-          val end_byte_offset_addr = byte_offset_addr + burst_bytes_total - bytesPerBeat
+          val burst_len_extended = (io.axi.ar.len + 1).resize(extendedWidth)
+          val bytesPerBeat_extended = bytesPerBeat.resize(extendedWidth)
+          val end_byte_offset_addr = byte_offset_addr + burst_len_extended * bytesPerBeat_extended - bytesPerBeat_extended
+
           val addr_aligned = (io.axi.ar.addr & (bytesPerBeat - 1).resize(io.axi.ar.addr.getWidth)) === 0
-          // 在字地址模式下，强制要求起始地址是字对齐的
+          // val word_aligned_if_needed = !config.useWordAddressing || (io.axi.ar.addr & (config.bytesPerWord - 1)) === 0
           val word_aligned_if_needed = if (config.useWordAddressing) {
-              (io.axi.ar.addr & (config.bytesPerWord - 1)) === 0
+              (io.axi.ar.addr & U(config.bytesPerWord - 1, io.axi.ar.addr.getWidth bits)) === 0
           } else {
               True
           }
-          // 在字地址模式下，检查传输大小是否与字大小兼容
           val size_compatible_if_needed = if (config.useWordAddressing && axiConfig.useSize) {
-              io.axi.ar.size === log2Up(config.bytesPerWord)
+              // 如果启用字寻址和AXI的Size字段，则需要检查传输大小是否与字大小兼容
+              io.axi.ar.size === U(log2Up(config.bytesPerWord))
           } else {
+              // 否则，该检查条件永远为True（不相关）
               True
           }
+          val is_negative = byte_offset_addr(config.addressWidth)
+          val is_out_of_bounds = end_byte_offset_addr >= U(config.sizeBytes, extendedWidth bits)
 
           when(io.axi.ar.burst =/= Axi4.burst.INCR) {
-            if (config.enableLog) report(L"SRAMController: AR Error - Unsupported burst type: ${io.axi.ar.burst}")
+            if (config.enableLog) report(L"$instanceId AR Error - Unsupported burst type: ${io.axi.ar.burst}")
             transaction_error_occurred := True
             goto(READ_RESPONSE_ERROR)
           } elsewhen (!addr_aligned || !word_aligned_if_needed) {
-            if (config.enableLog) report(L"SRAMController: AR Error - Address unaligned: 0x${io.axi.ar.addr} for size ${bytesPerBeat} or word boundary")
+            if (config.enableLog) report(L"$instanceId AR Error - Address unaligned: 0x${io.axi.ar.addr} for size ${bytesPerBeat} or word boundary")
             transaction_error_occurred := True
             goto(READ_RESPONSE_ERROR)
           } elsewhen (!size_compatible_if_needed) {
-            if (config.enableLog) report(L"SRAMController: AR Error - Incompatible size: ${io.axi.ar.size} for word addressing mode")
+            if (config.enableLog) report(L"$instanceId AR Error - Incompatible size: ${io.axi.ar.size} for word addressing mode")
             transaction_error_occurred := True
             goto(READ_RESPONSE_ERROR)
-          } elsewhen (byte_offset_addr.asSInt < 0 || end_byte_offset_addr >= config.sizeBytes) {
-            if (config.enableLog) report(L"SRAMController: AR Error - Address out of bounds. Byte Offset=0x${byte_offset_addr}, End Offset=0x${end_byte_offset_addr}, SRAM Size=0x${config.sizeBytes}")
+          } elsewhen (is_negative || is_out_of_bounds) {
+            if (config.enableLog) report(L"$instanceId AR Error - Address out of bounds. Byte Offset (calc)=0x${byte_offset_addr}, End Offset (calc)=0x${end_byte_offset_addr}, SRAM Size=${config.sizeBytes}")
             transaction_error_occurred := True
             goto(READ_RESPONSE_ERROR)
           } otherwise {
+            val sram_addr_candidate = (byte_offset_addr(config.addressWidth-1 downto 0) >> config.addressShift).resized
+            current_sram_addr := sram_addr_candidate
             hasReadWaitCycles generate { read_wait_counter := 0 }
             goto(READ_SETUP)
           }
         }
       }
     }
-
     // --- MODIFIED: 新增写数据获取状态 ---
     val WRITE_DATA_FETCH: State = new State {
         onEntry {
@@ -319,13 +365,13 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
             
             if (config.enableLog)
                 report(
-                    L"SRAMController: WRITE_DATA_FETCH. SRAM_Target_Addr=0x${current_sram_addr}, BurstCountRem=${burst_count_remaining}"
+                    L"$instanceId WRITE_DATA_FETCH. SRAM_Target_Addr=0x${current_sram_addr}, BurstCountRem=${burst_count_remaining}"
                 )
 
             when(io.axi.w.fire) {
                 if (config.enableLog)
                     report(
-                        L"SRAMController: W Fire. Data=0x${io.axi.w.data}, Strb=0x${io.axi.w.strb}, Last=${io.axi.w.last}"
+                        L"$instanceId W Fire. Data=0x${io.axi.w.data}, Strb=0x${io.axi.w.strb}, Last=${io.axi.w.last}"
                     )
 
                 // --- MODIFIED: 锁存要写入SRAM的数据和控制信号 ---
@@ -363,7 +409,7 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
             
             if (config.enableLog)
                 report(
-                    L"SRAMController: WRITE_EXECUTE. SRAM Addr=0x${sram_addr_out_reg}, WaitCounter=${hasWriteWaitCycles generate write_wait_counter}"
+                    L"$instanceId WRITE_EXECUTE. SRAM Addr=0x${sram_addr_out_reg}, WaitCounter=${hasWriteWaitCycles generate write_wait_counter}"
                 )
             
             // --- MODIFIED: 保持SRAM控制信号在写执行期间稳定 ---
@@ -406,7 +452,7 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
             
             if (config.enableLog)
                 report(
-                    L"SRAMController: WRITE_DEASSERT. SRAM Addr=0x${sram_addr_out_reg}, BurstCountRem=${burst_count_remaining}"
+                    L"$instanceId WRITE_DEASSERT. SRAM Addr=0x${sram_addr_out_reg}, BurstCountRem=${burst_count_remaining}"
                 )
             
             // --- MODIFIED: 确保SRAM控制信号保持非活动状态 ---
@@ -444,7 +490,7 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
         io.axi.ar.ready := False
         io.axi.w.ready := True
         
-        if (config.enableLog) report(L"SRAMController: WRITE_DATA_ERROR_CONSUME. BurstCountRem=${burst_count_remaining}")
+        if (config.enableLog) report(L"$instanceId WRITE_DATA_ERROR_CONSUME. BurstCountRem=${burst_count_remaining}")
         
         when(io.axi.w.fire) {
           burst_count_remaining := burst_count_remaining - 1
@@ -469,12 +515,13 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
       whenIsActive {
         val resp_status = transaction_error_occurred ? Axi4.resp.SLVERR | Axi4.resp.OKAY
         if (config.enableLog)
-          report(L"SRAMController: WRITE_RESPONSE. ID=${aw_cmd_reg.id}, Resp=${resp_status}")
+          report(L"$instanceId WRITE_RESPONSE. ID=${aw_cmd_reg.id}, Resp=${resp_status}, Addr=${aw_cmd_reg.addr}, Len=${aw_cmd_reg.len}, Size=${aw_cmd_reg.size}, Burst=${aw_cmd_reg.burst}, Lock=${aw_cmd_reg.lock}, Cache=${aw_cmd_reg.cache}, Prot=${aw_cmd_reg.prot}, Qos=${aw_cmd_reg.qos}, Region=${aw_cmd_reg.region}")
         
         io.axi.b.valid := True
         io.axi.b.payload.id := aw_cmd_reg.id
         io.axi.b.payload.resp := resp_status
         when(io.axi.b.ready) {
+          report(L"$instanceId B Ready. ID=${aw_cmd_reg.id}, Resp=${resp_status}")
           goto(IDLE)
         }
       }
@@ -492,7 +539,7 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
       whenIsActive {
         if (config.enableLog)
           report(
-            L"SRAMController: READ_SETUP. SRAM Addr=0x${current_sram_addr}, BurstCountRem=${burst_count_remaining}"
+            L"$instanceId READ_SETUP. SRAM Addr=0x${current_sram_addr}, BurstCountRem=${burst_count_remaining}"
           )
         addr_prefetch_valid := False
         
@@ -528,7 +575,7 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
       whenIsActive {
         if (config.enableLog)
           report(
-            L"SRAMController: READ_WAIT. SRAM Addr=0x${sram_addr_out_reg}, WaitCounter=${hasReadWaitCycles generate read_wait_counter}, AddrPrefetchValid=${addr_prefetch_valid}"
+            L"$instanceId READ_WAIT. SRAM Addr=0x${sram_addr_out_reg}, WaitCounter=${hasReadWaitCycles generate read_wait_counter}, AddrPrefetchValid=${addr_prefetch_valid}"
           )
         // --- MODIFIED: 保持SRAM控制信号 ---
         sram_ce_n_out_reg := False
@@ -548,7 +595,7 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
           addr_prefetch_valid := True
           if (config.enableLog)
             report(
-              L"SRAMController: Address prefetch at wait_cycle ${hasReadWaitCycles generate read_wait_counter} - Next sram_addr 0x${getNextSramAddr(current_sram_addr, ar_cmd_reg.size)}"
+              L"$instanceId Address prefetch at wait_cycle ${hasReadWaitCycles generate read_wait_counter} - Next sram_addr 0x${getNextSramAddr(current_sram_addr, ar_cmd_reg.size)}"
             )
         }
         val waitCond = if (hasReadWaitCycles) read_wait_counter === config.readWaitCycles else True
@@ -580,7 +627,7 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
         val is_last_beat = burst_count_remaining === 1
         if (config.enableLog)
           report(
-            L"SRAMController: READ_RESPONSE. ID=${ar_cmd_reg.id}, Data=0x${read_data_buffer}, BurstCountRem=${burst_count_remaining}, Resp=${Axi4.resp.OKAY}, Last=${is_last_beat}"
+            L"$instanceId READ_RESPONSE. ID=${ar_cmd_reg.id}, Data=0x${read_data_buffer}, BurstCountRem=${burst_count_remaining}, Resp=${Axi4.resp.OKAY}, Last=${is_last_beat}"
           )
 
         io.axi.r.valid := True
@@ -599,7 +646,7 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
 
 
         when(io.axi.r.fire) {
-          if (config.enableLog) report(L"SRAMController: R Fire. Last=${io.axi.r.last}")
+          if (config.enableLog) report(L"$instanceId R Fire. Last=${io.axi.r.last}")
           burst_count_remaining := burst_count_remaining - 1
           when(is_last_beat) {
             goto(IDLE)
@@ -640,7 +687,7 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
         val is_last_beat = burst_count_remaining === 1
         if (config.enableLog)
           report(
-            L"SRAMController: READ_RESPONSE_ERROR. ID=${ar_cmd_reg.id}, BurstCountRem=${burst_count_remaining}, Resp=${Axi4.resp.SLVERR}, Last=${is_last_beat}, r.valid=${io.axi.r.valid}, r.ready=${io.axi.r.ready}, r.fire=${io.axi.r.fire}"
+            L"$instanceId READ_RESPONSE_ERROR. ID=${ar_cmd_reg.id}, BurstCountRem=${burst_count_remaining}, Resp=${Axi4.resp.SLVERR}, Last=${is_last_beat}, r.valid=${io.axi.r.valid}, r.ready=${io.axi.r.ready}, r.fire=${io.axi.r.fire}"
           )
 
         io.axi.r.valid := True
@@ -651,11 +698,11 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
 
         when(io.axi.r.fire) {
           if (config.enableLog)
-            report(L"SRAMController: READ_RESPONSE_ERROR - r.fire detected! BurstCountRem=${burst_count_remaining}, is_last_beat=${is_last_beat}")
+            report(L"$instanceId READ_RESPONSE_ERROR - r.fire detected! BurstCountRem=${burst_count_remaining}, is_last_beat=${is_last_beat}")
           burst_count_remaining := burst_count_remaining - 1
           when(is_last_beat) {
             if (config.enableLog)
-              report(L"SRAMController: READ_RESPONSE_ERROR - Going to IDLE")
+              report(L"$instanceId READ_RESPONSE_ERROR - Going to IDLE")
             goto(IDLE)
           }
         }
@@ -668,6 +715,21 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
   Seq(io.axi.aw.fire, io.axi.ar.fire, io.axi.w.fire, io.axi.r.fire, io.axi.b.fire).foreach(
     _.addAttribute("mark_debug", "true")
   )
+
+  if (config.enableLog) {
+    val currentCycle = Reg(UInt(32 bits)) init(0)
+    currentCycle := currentCycle + 1
+    report(
+      L"SRAMController ${instanceId} - Cycle ${currentCycle}: AXI Status\n" :+
+      L"  FSM State: ${fsm.stateReg}\n" :+ // 打印当前FSM状态
+      L"  AW: v=${io.axi.aw.valid} r=${io.axi.aw.ready} fire=${io.axi.aw.fire} addr=${io.axi.aw.addr} id=${io.axi.aw.id} len=${io.axi.aw.len} size=${io.axi.aw.size} burst=${io.axi.aw.burst}\n" :+
+      L"  AR: v=${io.axi.ar.valid} r=${io.axi.ar.ready} fire=${io.axi.ar.fire} addr=${io.axi.ar.addr}\n" :+
+      L"  W: v=${io.axi.w.valid} r=${io.axi.w.ready} fire=${io.axi.w.fire} data=${io.axi.w.data} strb=${io.axi.w.strb} last=${io.axi.w.last}\n" :+
+      L"  R: v=${io.axi.r.valid} r=${io.axi.r.ready} fire=${io.axi.r.fire} data=${io.axi.r.data} last=${io.axi.r.last}\n" :+
+      L"  B: v=${io.axi.b.valid} r=${io.axi.b.ready} fire=${io.axi.b.fire}\n" :+
+      L"  Internal: BurstRemaining=${fsm.burst_count_remaining}, CurrentSRAMAddr=${fsm.current_sram_addr}, ReadPriority=${fsm.read_priority}"
+    )
+  }
 }
 
 object SRAMControllerGen extends App {
