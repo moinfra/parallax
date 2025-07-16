@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 3105a33b457518a7afeed8b0527b4d8b9dab2383
 // Component : CoreNSCSCC
-// Git hash  : 2af7af78c4ec0adfafa6c91b517bb10be8abb7d4
+// Git hash  : 8b6ac29c153f7e0ed70f0198aab427783d8cdeb9
 
 `timescale 1ns/1ps
 
@@ -220,46 +220,43 @@ module CoreNSCSCC (
   wire                oneShot_23_io_triggerIn;
   wire                oneShot_24_io_triggerIn;
   wire                oneShot_25_io_triggerIn;
-  wire       [0:0]    CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_cmd_payload_id;
   wire                CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_ready;
-  wire       [0:0]    CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_cmd_payload_id;
-  wire                CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_rsp_ready;
-  wire       [0:0]    io_axiOut_readOnly_decoder_io_outputs_0_r_payload_id;
-  wire       [0:0]    io_axiOut_readOnly_decoder_io_outputs_1_r_payload_id;
-  wire       [0:0]    io_axiOut_readOnly_decoder_io_outputs_2_r_payload_id;
-  wire       [0:0]    io_axiOut_writeOnly_decoder_io_outputs_0_b_payload_id;
-  wire       [0:0]    io_axiOut_writeOnly_decoder_io_outputs_1_b_payload_id;
-  wire       [0:0]    io_axiOut_writeOnly_decoder_io_outputs_2_b_payload_id;
-  wire       [0:0]    io_axiOut_readOnly_decoder_1_io_outputs_0_r_payload_id;
-  wire       [0:0]    io_axiOut_readOnly_decoder_1_io_outputs_1_r_payload_id;
-  wire       [0:0]    io_axiOut_readOnly_decoder_1_io_outputs_2_r_payload_id;
-  wire       [0:0]    io_axiOut_writeOnly_decoder_1_io_outputs_0_b_payload_id;
-  wire       [0:0]    io_axiOut_writeOnly_decoder_1_io_outputs_1_b_payload_id;
-  wire       [0:0]    io_axiOut_writeOnly_decoder_1_io_outputs_2_b_payload_id;
+  wire       [3:0]    io_axiOut_readOnly_decoder_io_outputs_0_r_payload_id;
+  wire       [3:0]    io_axiOut_readOnly_decoder_io_outputs_1_r_payload_id;
+  wire       [3:0]    io_axiOut_readOnly_decoder_io_outputs_2_r_payload_id;
+  wire       [3:0]    io_axiOut_writeOnly_decoder_io_outputs_0_b_payload_id;
+  wire       [3:0]    io_axiOut_writeOnly_decoder_io_outputs_1_b_payload_id;
+  wire       [3:0]    io_axiOut_writeOnly_decoder_io_outputs_2_b_payload_id;
+  wire       [3:0]    io_axiOut_readOnly_decoder_1_io_outputs_0_r_payload_id;
+  wire       [3:0]    io_axiOut_readOnly_decoder_1_io_outputs_1_r_payload_id;
+  wire       [3:0]    io_axiOut_readOnly_decoder_1_io_outputs_2_r_payload_id;
+  wire       [3:0]    io_axiOut_writeOnly_decoder_1_io_outputs_0_b_payload_id;
+  wire       [3:0]    io_axiOut_writeOnly_decoder_1_io_outputs_1_b_payload_id;
+  wire       [3:0]    io_axiOut_writeOnly_decoder_1_io_outputs_2_b_payload_id;
   wire       [0:0]    DataCachePlugin_setup_dcacheMaster_readOnly_decoder_io_outputs_0_r_payload_id;
   wire       [0:0]    DataCachePlugin_setup_dcacheMaster_readOnly_decoder_io_outputs_1_r_payload_id;
   wire       [0:0]    DataCachePlugin_setup_dcacheMaster_readOnly_decoder_io_outputs_2_r_payload_id;
   wire       [0:0]    DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_0_b_payload_id;
   wire       [0:0]    DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_1_b_payload_id;
   wire       [0:0]    DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_2_b_payload_id;
-  wire       [1:0]    axi4ReadOnlyArbiter_3_io_inputs_0_ar_payload_id;
-  wire       [1:0]    axi4ReadOnlyArbiter_3_io_inputs_1_ar_payload_id;
-  wire       [1:0]    axi4ReadOnlyArbiter_3_io_inputs_2_ar_payload_id;
-  wire       [1:0]    axi4WriteOnlyArbiter_3_io_inputs_0_aw_payload_id;
-  wire       [1:0]    axi4WriteOnlyArbiter_3_io_inputs_1_aw_payload_id;
-  wire       [1:0]    axi4WriteOnlyArbiter_3_io_inputs_2_aw_payload_id;
-  wire       [1:0]    axi4ReadOnlyArbiter_4_io_inputs_0_ar_payload_id;
-  wire       [1:0]    axi4ReadOnlyArbiter_4_io_inputs_1_ar_payload_id;
-  wire       [1:0]    axi4ReadOnlyArbiter_4_io_inputs_2_ar_payload_id;
-  wire       [1:0]    axi4WriteOnlyArbiter_4_io_inputs_0_aw_payload_id;
-  wire       [1:0]    axi4WriteOnlyArbiter_4_io_inputs_1_aw_payload_id;
-  wire       [1:0]    axi4WriteOnlyArbiter_4_io_inputs_2_aw_payload_id;
-  wire       [1:0]    axi4ReadOnlyArbiter_5_io_inputs_0_ar_payload_id;
-  wire       [1:0]    axi4ReadOnlyArbiter_5_io_inputs_1_ar_payload_id;
-  wire       [1:0]    axi4ReadOnlyArbiter_5_io_inputs_2_ar_payload_id;
-  wire       [1:0]    axi4WriteOnlyArbiter_5_io_inputs_0_aw_payload_id;
-  wire       [1:0]    axi4WriteOnlyArbiter_5_io_inputs_1_aw_payload_id;
-  wire       [1:0]    axi4WriteOnlyArbiter_5_io_inputs_2_aw_payload_id;
+  wire       [4:0]    axi4ReadOnlyArbiter_3_io_inputs_0_ar_payload_id;
+  wire       [4:0]    axi4ReadOnlyArbiter_3_io_inputs_1_ar_payload_id;
+  wire       [4:0]    axi4ReadOnlyArbiter_3_io_inputs_2_ar_payload_id;
+  wire       [4:0]    axi4WriteOnlyArbiter_3_io_inputs_0_aw_payload_id;
+  wire       [4:0]    axi4WriteOnlyArbiter_3_io_inputs_1_aw_payload_id;
+  wire       [4:0]    axi4WriteOnlyArbiter_3_io_inputs_2_aw_payload_id;
+  wire       [4:0]    axi4ReadOnlyArbiter_4_io_inputs_0_ar_payload_id;
+  wire       [4:0]    axi4ReadOnlyArbiter_4_io_inputs_1_ar_payload_id;
+  wire       [4:0]    axi4ReadOnlyArbiter_4_io_inputs_2_ar_payload_id;
+  wire       [4:0]    axi4WriteOnlyArbiter_4_io_inputs_0_aw_payload_id;
+  wire       [4:0]    axi4WriteOnlyArbiter_4_io_inputs_1_aw_payload_id;
+  wire       [4:0]    axi4WriteOnlyArbiter_4_io_inputs_2_aw_payload_id;
+  wire       [4:0]    axi4ReadOnlyArbiter_5_io_inputs_0_ar_payload_id;
+  wire       [4:0]    axi4ReadOnlyArbiter_5_io_inputs_1_ar_payload_id;
+  wire       [4:0]    axi4ReadOnlyArbiter_5_io_inputs_2_ar_payload_id;
+  wire       [4:0]    axi4WriteOnlyArbiter_5_io_inputs_0_aw_payload_id;
+  wire       [4:0]    axi4WriteOnlyArbiter_5_io_inputs_1_aw_payload_id;
+  wire       [4:0]    axi4WriteOnlyArbiter_5_io_inputs_2_aw_payload_id;
   reg        [1:0]    BpuPipelinePlugin_logic_pht_spinal_port0;
   reg        [1:0]    BpuPipelinePlugin_logic_pht_spinal_port1;
   reg        [54:0]   BpuPipelinePlugin_logic_btb_spinal_port0;
@@ -281,11 +278,11 @@ module CoreNSCSCC (
   wire                CoreMemSysPlugin_hw_baseramCtrl_io_axi_w_ready;
   wire                CoreMemSysPlugin_hw_baseramCtrl_io_axi_r_valid;
   wire       [31:0]   CoreMemSysPlugin_hw_baseramCtrl_io_axi_r_payload_data;
-  wire       [3:0]    CoreMemSysPlugin_hw_baseramCtrl_io_axi_r_payload_id;
+  wire       [6:0]    CoreMemSysPlugin_hw_baseramCtrl_io_axi_r_payload_id;
   wire       [1:0]    CoreMemSysPlugin_hw_baseramCtrl_io_axi_r_payload_resp;
   wire                CoreMemSysPlugin_hw_baseramCtrl_io_axi_r_payload_last;
   wire                CoreMemSysPlugin_hw_baseramCtrl_io_axi_b_valid;
-  wire       [3:0]    CoreMemSysPlugin_hw_baseramCtrl_io_axi_b_payload_id;
+  wire       [6:0]    CoreMemSysPlugin_hw_baseramCtrl_io_axi_b_payload_id;
   wire       [1:0]    CoreMemSysPlugin_hw_baseramCtrl_io_axi_b_payload_resp;
   wire       [31:0]   CoreMemSysPlugin_hw_baseramCtrl_io_ram_data_write;
   wire                CoreMemSysPlugin_hw_baseramCtrl_io_ram_data_writeEnable;
@@ -299,11 +296,11 @@ module CoreNSCSCC (
   wire                CoreMemSysPlugin_hw_extramCtrl_io_axi_w_ready;
   wire                CoreMemSysPlugin_hw_extramCtrl_io_axi_r_valid;
   wire       [31:0]   CoreMemSysPlugin_hw_extramCtrl_io_axi_r_payload_data;
-  wire       [3:0]    CoreMemSysPlugin_hw_extramCtrl_io_axi_r_payload_id;
+  wire       [6:0]    CoreMemSysPlugin_hw_extramCtrl_io_axi_r_payload_id;
   wire       [1:0]    CoreMemSysPlugin_hw_extramCtrl_io_axi_r_payload_resp;
   wire                CoreMemSysPlugin_hw_extramCtrl_io_axi_r_payload_last;
   wire                CoreMemSysPlugin_hw_extramCtrl_io_axi_b_valid;
-  wire       [3:0]    CoreMemSysPlugin_hw_extramCtrl_io_axi_b_payload_id;
+  wire       [6:0]    CoreMemSysPlugin_hw_extramCtrl_io_axi_b_payload_id;
   wire       [1:0]    CoreMemSysPlugin_hw_extramCtrl_io_axi_b_payload_resp;
   wire       [31:0]   CoreMemSysPlugin_hw_extramCtrl_io_ram_data_write;
   wire                CoreMemSysPlugin_hw_extramCtrl_io_ram_data_writeEnable;
@@ -896,25 +893,23 @@ module CoreNSCSCC (
   wire                CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_valid;
   wire       [31:0]   CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_payload_data;
   wire                CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_payload_error;
-  wire       [0:0]    CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_payload_id;
+  wire       [3:0]    CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_payload_id;
   wire                CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_write_cmd_ready;
   wire                CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_write_rsp_valid;
   wire                CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_write_rsp_payload_error;
-  wire       [0:0]    CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_write_rsp_payload_id;
+  wire       [3:0]    CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_write_rsp_payload_id;
   wire                CoreMemSysPlugin_logic_readBridges_0_io_axiOut_ar_valid;
   wire       [31:0]   CoreMemSysPlugin_logic_readBridges_0_io_axiOut_ar_payload_addr;
-  wire       [0:0]    CoreMemSysPlugin_logic_readBridges_0_io_axiOut_ar_payload_id;
+  wire       [3:0]    CoreMemSysPlugin_logic_readBridges_0_io_axiOut_ar_payload_id;
   wire       [7:0]    CoreMemSysPlugin_logic_readBridges_0_io_axiOut_ar_payload_len;
   wire       [2:0]    CoreMemSysPlugin_logic_readBridges_0_io_axiOut_ar_payload_size;
   wire       [1:0]    CoreMemSysPlugin_logic_readBridges_0_io_axiOut_ar_payload_burst;
-  wire       [2:0]    CoreMemSysPlugin_logic_readBridges_0_io_axiOut_ar_payload_prot;
   wire                CoreMemSysPlugin_logic_readBridges_0_io_axiOut_aw_valid;
   wire       [31:0]   CoreMemSysPlugin_logic_readBridges_0_io_axiOut_aw_payload_addr;
-  wire       [0:0]    CoreMemSysPlugin_logic_readBridges_0_io_axiOut_aw_payload_id;
+  wire       [3:0]    CoreMemSysPlugin_logic_readBridges_0_io_axiOut_aw_payload_id;
   wire       [7:0]    CoreMemSysPlugin_logic_readBridges_0_io_axiOut_aw_payload_len;
   wire       [2:0]    CoreMemSysPlugin_logic_readBridges_0_io_axiOut_aw_payload_size;
   wire       [1:0]    CoreMemSysPlugin_logic_readBridges_0_io_axiOut_aw_payload_burst;
-  wire       [2:0]    CoreMemSysPlugin_logic_readBridges_0_io_axiOut_aw_payload_prot;
   wire                CoreMemSysPlugin_logic_readBridges_0_io_axiOut_w_valid;
   wire       [31:0]   CoreMemSysPlugin_logic_readBridges_0_io_axiOut_w_payload_data;
   wire       [3:0]    CoreMemSysPlugin_logic_readBridges_0_io_axiOut_w_payload_strb;
@@ -925,25 +920,23 @@ module CoreNSCSCC (
   wire                CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_read_rsp_valid;
   wire       [31:0]   CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_read_rsp_payload_data;
   wire                CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_read_rsp_payload_error;
-  wire       [0:0]    CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_read_rsp_payload_id;
+  wire       [3:0]    CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_read_rsp_payload_id;
   wire                CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_cmd_ready;
   wire                CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_rsp_valid;
   wire                CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_rsp_payload_error;
-  wire       [0:0]    CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_rsp_payload_id;
+  wire       [3:0]    CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_rsp_payload_id;
   wire                CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_ar_valid;
   wire       [31:0]   CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_ar_payload_addr;
-  wire       [0:0]    CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_ar_payload_id;
+  wire       [3:0]    CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_ar_payload_id;
   wire       [7:0]    CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_ar_payload_len;
   wire       [2:0]    CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_ar_payload_size;
   wire       [1:0]    CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_ar_payload_burst;
-  wire       [2:0]    CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_ar_payload_prot;
   wire                CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_aw_valid;
   wire       [31:0]   CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_aw_payload_addr;
-  wire       [0:0]    CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_aw_payload_id;
+  wire       [3:0]    CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_aw_payload_id;
   wire       [7:0]    CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_aw_payload_len;
   wire       [2:0]    CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_aw_payload_size;
   wire       [1:0]    CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_aw_payload_burst;
-  wire       [2:0]    CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_aw_payload_prot;
   wire                CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_w_valid;
   wire       [31:0]   CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_w_payload_data;
   wire       [3:0]    CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_w_payload_strb;
@@ -953,45 +946,41 @@ module CoreNSCSCC (
   wire                io_axiOut_readOnly_decoder_io_input_ar_ready;
   wire                io_axiOut_readOnly_decoder_io_input_r_valid;
   wire       [31:0]   io_axiOut_readOnly_decoder_io_input_r_payload_data;
-  wire       [0:0]    io_axiOut_readOnly_decoder_io_input_r_payload_id;
+  wire       [3:0]    io_axiOut_readOnly_decoder_io_input_r_payload_id;
   wire       [1:0]    io_axiOut_readOnly_decoder_io_input_r_payload_resp;
   wire                io_axiOut_readOnly_decoder_io_input_r_payload_last;
   wire                io_axiOut_readOnly_decoder_io_outputs_0_ar_valid;
   wire       [31:0]   io_axiOut_readOnly_decoder_io_outputs_0_ar_payload_addr;
-  wire       [0:0]    io_axiOut_readOnly_decoder_io_outputs_0_ar_payload_id;
+  wire       [3:0]    io_axiOut_readOnly_decoder_io_outputs_0_ar_payload_id;
   wire       [7:0]    io_axiOut_readOnly_decoder_io_outputs_0_ar_payload_len;
   wire       [2:0]    io_axiOut_readOnly_decoder_io_outputs_0_ar_payload_size;
   wire       [1:0]    io_axiOut_readOnly_decoder_io_outputs_0_ar_payload_burst;
-  wire       [2:0]    io_axiOut_readOnly_decoder_io_outputs_0_ar_payload_prot;
   wire                io_axiOut_readOnly_decoder_io_outputs_0_r_ready;
   wire                io_axiOut_readOnly_decoder_io_outputs_1_ar_valid;
   wire       [31:0]   io_axiOut_readOnly_decoder_io_outputs_1_ar_payload_addr;
-  wire       [0:0]    io_axiOut_readOnly_decoder_io_outputs_1_ar_payload_id;
+  wire       [3:0]    io_axiOut_readOnly_decoder_io_outputs_1_ar_payload_id;
   wire       [7:0]    io_axiOut_readOnly_decoder_io_outputs_1_ar_payload_len;
   wire       [2:0]    io_axiOut_readOnly_decoder_io_outputs_1_ar_payload_size;
   wire       [1:0]    io_axiOut_readOnly_decoder_io_outputs_1_ar_payload_burst;
-  wire       [2:0]    io_axiOut_readOnly_decoder_io_outputs_1_ar_payload_prot;
   wire                io_axiOut_readOnly_decoder_io_outputs_1_r_ready;
   wire                io_axiOut_readOnly_decoder_io_outputs_2_ar_valid;
   wire       [31:0]   io_axiOut_readOnly_decoder_io_outputs_2_ar_payload_addr;
-  wire       [0:0]    io_axiOut_readOnly_decoder_io_outputs_2_ar_payload_id;
+  wire       [3:0]    io_axiOut_readOnly_decoder_io_outputs_2_ar_payload_id;
   wire       [7:0]    io_axiOut_readOnly_decoder_io_outputs_2_ar_payload_len;
   wire       [2:0]    io_axiOut_readOnly_decoder_io_outputs_2_ar_payload_size;
   wire       [1:0]    io_axiOut_readOnly_decoder_io_outputs_2_ar_payload_burst;
-  wire       [2:0]    io_axiOut_readOnly_decoder_io_outputs_2_ar_payload_prot;
   wire                io_axiOut_readOnly_decoder_io_outputs_2_r_ready;
   wire                io_axiOut_writeOnly_decoder_io_input_aw_ready;
   wire                io_axiOut_writeOnly_decoder_io_input_w_ready;
   wire                io_axiOut_writeOnly_decoder_io_input_b_valid;
-  wire       [0:0]    io_axiOut_writeOnly_decoder_io_input_b_payload_id;
+  wire       [3:0]    io_axiOut_writeOnly_decoder_io_input_b_payload_id;
   wire       [1:0]    io_axiOut_writeOnly_decoder_io_input_b_payload_resp;
   wire                io_axiOut_writeOnly_decoder_io_outputs_0_aw_valid;
   wire       [31:0]   io_axiOut_writeOnly_decoder_io_outputs_0_aw_payload_addr;
-  wire       [0:0]    io_axiOut_writeOnly_decoder_io_outputs_0_aw_payload_id;
+  wire       [3:0]    io_axiOut_writeOnly_decoder_io_outputs_0_aw_payload_id;
   wire       [7:0]    io_axiOut_writeOnly_decoder_io_outputs_0_aw_payload_len;
   wire       [2:0]    io_axiOut_writeOnly_decoder_io_outputs_0_aw_payload_size;
   wire       [1:0]    io_axiOut_writeOnly_decoder_io_outputs_0_aw_payload_burst;
-  wire       [2:0]    io_axiOut_writeOnly_decoder_io_outputs_0_aw_payload_prot;
   wire                io_axiOut_writeOnly_decoder_io_outputs_0_w_valid;
   wire       [31:0]   io_axiOut_writeOnly_decoder_io_outputs_0_w_payload_data;
   wire       [3:0]    io_axiOut_writeOnly_decoder_io_outputs_0_w_payload_strb;
@@ -999,11 +988,10 @@ module CoreNSCSCC (
   wire                io_axiOut_writeOnly_decoder_io_outputs_0_b_ready;
   wire                io_axiOut_writeOnly_decoder_io_outputs_1_aw_valid;
   wire       [31:0]   io_axiOut_writeOnly_decoder_io_outputs_1_aw_payload_addr;
-  wire       [0:0]    io_axiOut_writeOnly_decoder_io_outputs_1_aw_payload_id;
+  wire       [3:0]    io_axiOut_writeOnly_decoder_io_outputs_1_aw_payload_id;
   wire       [7:0]    io_axiOut_writeOnly_decoder_io_outputs_1_aw_payload_len;
   wire       [2:0]    io_axiOut_writeOnly_decoder_io_outputs_1_aw_payload_size;
   wire       [1:0]    io_axiOut_writeOnly_decoder_io_outputs_1_aw_payload_burst;
-  wire       [2:0]    io_axiOut_writeOnly_decoder_io_outputs_1_aw_payload_prot;
   wire                io_axiOut_writeOnly_decoder_io_outputs_1_w_valid;
   wire       [31:0]   io_axiOut_writeOnly_decoder_io_outputs_1_w_payload_data;
   wire       [3:0]    io_axiOut_writeOnly_decoder_io_outputs_1_w_payload_strb;
@@ -1011,11 +999,10 @@ module CoreNSCSCC (
   wire                io_axiOut_writeOnly_decoder_io_outputs_1_b_ready;
   wire                io_axiOut_writeOnly_decoder_io_outputs_2_aw_valid;
   wire       [31:0]   io_axiOut_writeOnly_decoder_io_outputs_2_aw_payload_addr;
-  wire       [0:0]    io_axiOut_writeOnly_decoder_io_outputs_2_aw_payload_id;
+  wire       [3:0]    io_axiOut_writeOnly_decoder_io_outputs_2_aw_payload_id;
   wire       [7:0]    io_axiOut_writeOnly_decoder_io_outputs_2_aw_payload_len;
   wire       [2:0]    io_axiOut_writeOnly_decoder_io_outputs_2_aw_payload_size;
   wire       [1:0]    io_axiOut_writeOnly_decoder_io_outputs_2_aw_payload_burst;
-  wire       [2:0]    io_axiOut_writeOnly_decoder_io_outputs_2_aw_payload_prot;
   wire                io_axiOut_writeOnly_decoder_io_outputs_2_w_valid;
   wire       [31:0]   io_axiOut_writeOnly_decoder_io_outputs_2_w_payload_data;
   wire       [3:0]    io_axiOut_writeOnly_decoder_io_outputs_2_w_payload_strb;
@@ -1024,45 +1011,41 @@ module CoreNSCSCC (
   wire                io_axiOut_readOnly_decoder_1_io_input_ar_ready;
   wire                io_axiOut_readOnly_decoder_1_io_input_r_valid;
   wire       [31:0]   io_axiOut_readOnly_decoder_1_io_input_r_payload_data;
-  wire       [0:0]    io_axiOut_readOnly_decoder_1_io_input_r_payload_id;
+  wire       [3:0]    io_axiOut_readOnly_decoder_1_io_input_r_payload_id;
   wire       [1:0]    io_axiOut_readOnly_decoder_1_io_input_r_payload_resp;
   wire                io_axiOut_readOnly_decoder_1_io_input_r_payload_last;
   wire                io_axiOut_readOnly_decoder_1_io_outputs_0_ar_valid;
   wire       [31:0]   io_axiOut_readOnly_decoder_1_io_outputs_0_ar_payload_addr;
-  wire       [0:0]    io_axiOut_readOnly_decoder_1_io_outputs_0_ar_payload_id;
+  wire       [3:0]    io_axiOut_readOnly_decoder_1_io_outputs_0_ar_payload_id;
   wire       [7:0]    io_axiOut_readOnly_decoder_1_io_outputs_0_ar_payload_len;
   wire       [2:0]    io_axiOut_readOnly_decoder_1_io_outputs_0_ar_payload_size;
   wire       [1:0]    io_axiOut_readOnly_decoder_1_io_outputs_0_ar_payload_burst;
-  wire       [2:0]    io_axiOut_readOnly_decoder_1_io_outputs_0_ar_payload_prot;
   wire                io_axiOut_readOnly_decoder_1_io_outputs_0_r_ready;
   wire                io_axiOut_readOnly_decoder_1_io_outputs_1_ar_valid;
   wire       [31:0]   io_axiOut_readOnly_decoder_1_io_outputs_1_ar_payload_addr;
-  wire       [0:0]    io_axiOut_readOnly_decoder_1_io_outputs_1_ar_payload_id;
+  wire       [3:0]    io_axiOut_readOnly_decoder_1_io_outputs_1_ar_payload_id;
   wire       [7:0]    io_axiOut_readOnly_decoder_1_io_outputs_1_ar_payload_len;
   wire       [2:0]    io_axiOut_readOnly_decoder_1_io_outputs_1_ar_payload_size;
   wire       [1:0]    io_axiOut_readOnly_decoder_1_io_outputs_1_ar_payload_burst;
-  wire       [2:0]    io_axiOut_readOnly_decoder_1_io_outputs_1_ar_payload_prot;
   wire                io_axiOut_readOnly_decoder_1_io_outputs_1_r_ready;
   wire                io_axiOut_readOnly_decoder_1_io_outputs_2_ar_valid;
   wire       [31:0]   io_axiOut_readOnly_decoder_1_io_outputs_2_ar_payload_addr;
-  wire       [0:0]    io_axiOut_readOnly_decoder_1_io_outputs_2_ar_payload_id;
+  wire       [3:0]    io_axiOut_readOnly_decoder_1_io_outputs_2_ar_payload_id;
   wire       [7:0]    io_axiOut_readOnly_decoder_1_io_outputs_2_ar_payload_len;
   wire       [2:0]    io_axiOut_readOnly_decoder_1_io_outputs_2_ar_payload_size;
   wire       [1:0]    io_axiOut_readOnly_decoder_1_io_outputs_2_ar_payload_burst;
-  wire       [2:0]    io_axiOut_readOnly_decoder_1_io_outputs_2_ar_payload_prot;
   wire                io_axiOut_readOnly_decoder_1_io_outputs_2_r_ready;
   wire                io_axiOut_writeOnly_decoder_1_io_input_aw_ready;
   wire                io_axiOut_writeOnly_decoder_1_io_input_w_ready;
   wire                io_axiOut_writeOnly_decoder_1_io_input_b_valid;
-  wire       [0:0]    io_axiOut_writeOnly_decoder_1_io_input_b_payload_id;
+  wire       [3:0]    io_axiOut_writeOnly_decoder_1_io_input_b_payload_id;
   wire       [1:0]    io_axiOut_writeOnly_decoder_1_io_input_b_payload_resp;
   wire                io_axiOut_writeOnly_decoder_1_io_outputs_0_aw_valid;
   wire       [31:0]   io_axiOut_writeOnly_decoder_1_io_outputs_0_aw_payload_addr;
-  wire       [0:0]    io_axiOut_writeOnly_decoder_1_io_outputs_0_aw_payload_id;
+  wire       [3:0]    io_axiOut_writeOnly_decoder_1_io_outputs_0_aw_payload_id;
   wire       [7:0]    io_axiOut_writeOnly_decoder_1_io_outputs_0_aw_payload_len;
   wire       [2:0]    io_axiOut_writeOnly_decoder_1_io_outputs_0_aw_payload_size;
   wire       [1:0]    io_axiOut_writeOnly_decoder_1_io_outputs_0_aw_payload_burst;
-  wire       [2:0]    io_axiOut_writeOnly_decoder_1_io_outputs_0_aw_payload_prot;
   wire                io_axiOut_writeOnly_decoder_1_io_outputs_0_w_valid;
   wire       [31:0]   io_axiOut_writeOnly_decoder_1_io_outputs_0_w_payload_data;
   wire       [3:0]    io_axiOut_writeOnly_decoder_1_io_outputs_0_w_payload_strb;
@@ -1070,11 +1053,10 @@ module CoreNSCSCC (
   wire                io_axiOut_writeOnly_decoder_1_io_outputs_0_b_ready;
   wire                io_axiOut_writeOnly_decoder_1_io_outputs_1_aw_valid;
   wire       [31:0]   io_axiOut_writeOnly_decoder_1_io_outputs_1_aw_payload_addr;
-  wire       [0:0]    io_axiOut_writeOnly_decoder_1_io_outputs_1_aw_payload_id;
+  wire       [3:0]    io_axiOut_writeOnly_decoder_1_io_outputs_1_aw_payload_id;
   wire       [7:0]    io_axiOut_writeOnly_decoder_1_io_outputs_1_aw_payload_len;
   wire       [2:0]    io_axiOut_writeOnly_decoder_1_io_outputs_1_aw_payload_size;
   wire       [1:0]    io_axiOut_writeOnly_decoder_1_io_outputs_1_aw_payload_burst;
-  wire       [2:0]    io_axiOut_writeOnly_decoder_1_io_outputs_1_aw_payload_prot;
   wire                io_axiOut_writeOnly_decoder_1_io_outputs_1_w_valid;
   wire       [31:0]   io_axiOut_writeOnly_decoder_1_io_outputs_1_w_payload_data;
   wire       [3:0]    io_axiOut_writeOnly_decoder_1_io_outputs_1_w_payload_strb;
@@ -1082,11 +1064,10 @@ module CoreNSCSCC (
   wire                io_axiOut_writeOnly_decoder_1_io_outputs_1_b_ready;
   wire                io_axiOut_writeOnly_decoder_1_io_outputs_2_aw_valid;
   wire       [31:0]   io_axiOut_writeOnly_decoder_1_io_outputs_2_aw_payload_addr;
-  wire       [0:0]    io_axiOut_writeOnly_decoder_1_io_outputs_2_aw_payload_id;
+  wire       [3:0]    io_axiOut_writeOnly_decoder_1_io_outputs_2_aw_payload_id;
   wire       [7:0]    io_axiOut_writeOnly_decoder_1_io_outputs_2_aw_payload_len;
   wire       [2:0]    io_axiOut_writeOnly_decoder_1_io_outputs_2_aw_payload_size;
   wire       [1:0]    io_axiOut_writeOnly_decoder_1_io_outputs_2_aw_payload_burst;
-  wire       [2:0]    io_axiOut_writeOnly_decoder_1_io_outputs_2_aw_payload_prot;
   wire                io_axiOut_writeOnly_decoder_1_io_outputs_2_w_valid;
   wire       [31:0]   io_axiOut_writeOnly_decoder_1_io_outputs_2_w_payload_data;
   wire       [3:0]    io_axiOut_writeOnly_decoder_1_io_outputs_2_w_payload_strb;
@@ -1166,51 +1147,49 @@ module CoreNSCSCC (
   wire                axi4ReadOnlyArbiter_3_io_inputs_0_ar_ready;
   wire                axi4ReadOnlyArbiter_3_io_inputs_0_r_valid;
   wire       [31:0]   axi4ReadOnlyArbiter_3_io_inputs_0_r_payload_data;
-  wire       [1:0]    axi4ReadOnlyArbiter_3_io_inputs_0_r_payload_id;
+  wire       [4:0]    axi4ReadOnlyArbiter_3_io_inputs_0_r_payload_id;
   wire       [1:0]    axi4ReadOnlyArbiter_3_io_inputs_0_r_payload_resp;
   wire                axi4ReadOnlyArbiter_3_io_inputs_0_r_payload_last;
   wire                axi4ReadOnlyArbiter_3_io_inputs_1_ar_ready;
   wire                axi4ReadOnlyArbiter_3_io_inputs_1_r_valid;
   wire       [31:0]   axi4ReadOnlyArbiter_3_io_inputs_1_r_payload_data;
-  wire       [1:0]    axi4ReadOnlyArbiter_3_io_inputs_1_r_payload_id;
+  wire       [4:0]    axi4ReadOnlyArbiter_3_io_inputs_1_r_payload_id;
   wire       [1:0]    axi4ReadOnlyArbiter_3_io_inputs_1_r_payload_resp;
   wire                axi4ReadOnlyArbiter_3_io_inputs_1_r_payload_last;
   wire                axi4ReadOnlyArbiter_3_io_inputs_2_ar_ready;
   wire                axi4ReadOnlyArbiter_3_io_inputs_2_r_valid;
   wire       [31:0]   axi4ReadOnlyArbiter_3_io_inputs_2_r_payload_data;
-  wire       [1:0]    axi4ReadOnlyArbiter_3_io_inputs_2_r_payload_id;
+  wire       [4:0]    axi4ReadOnlyArbiter_3_io_inputs_2_r_payload_id;
   wire       [1:0]    axi4ReadOnlyArbiter_3_io_inputs_2_r_payload_resp;
   wire                axi4ReadOnlyArbiter_3_io_inputs_2_r_payload_last;
   wire                axi4ReadOnlyArbiter_3_io_output_ar_valid;
   wire       [31:0]   axi4ReadOnlyArbiter_3_io_output_ar_payload_addr;
-  wire       [3:0]    axi4ReadOnlyArbiter_3_io_output_ar_payload_id;
+  wire       [6:0]    axi4ReadOnlyArbiter_3_io_output_ar_payload_id;
   wire       [7:0]    axi4ReadOnlyArbiter_3_io_output_ar_payload_len;
   wire       [2:0]    axi4ReadOnlyArbiter_3_io_output_ar_payload_size;
   wire       [1:0]    axi4ReadOnlyArbiter_3_io_output_ar_payload_burst;
-  wire       [2:0]    axi4ReadOnlyArbiter_3_io_output_ar_payload_prot;
   wire                axi4ReadOnlyArbiter_3_io_output_r_ready;
   wire                axi4WriteOnlyArbiter_3_io_inputs_0_aw_ready;
   wire                axi4WriteOnlyArbiter_3_io_inputs_0_w_ready;
   wire                axi4WriteOnlyArbiter_3_io_inputs_0_b_valid;
-  wire       [1:0]    axi4WriteOnlyArbiter_3_io_inputs_0_b_payload_id;
+  wire       [4:0]    axi4WriteOnlyArbiter_3_io_inputs_0_b_payload_id;
   wire       [1:0]    axi4WriteOnlyArbiter_3_io_inputs_0_b_payload_resp;
   wire                axi4WriteOnlyArbiter_3_io_inputs_1_aw_ready;
   wire                axi4WriteOnlyArbiter_3_io_inputs_1_w_ready;
   wire                axi4WriteOnlyArbiter_3_io_inputs_1_b_valid;
-  wire       [1:0]    axi4WriteOnlyArbiter_3_io_inputs_1_b_payload_id;
+  wire       [4:0]    axi4WriteOnlyArbiter_3_io_inputs_1_b_payload_id;
   wire       [1:0]    axi4WriteOnlyArbiter_3_io_inputs_1_b_payload_resp;
   wire                axi4WriteOnlyArbiter_3_io_inputs_2_aw_ready;
   wire                axi4WriteOnlyArbiter_3_io_inputs_2_w_ready;
   wire                axi4WriteOnlyArbiter_3_io_inputs_2_b_valid;
-  wire       [1:0]    axi4WriteOnlyArbiter_3_io_inputs_2_b_payload_id;
+  wire       [4:0]    axi4WriteOnlyArbiter_3_io_inputs_2_b_payload_id;
   wire       [1:0]    axi4WriteOnlyArbiter_3_io_inputs_2_b_payload_resp;
   wire                axi4WriteOnlyArbiter_3_io_output_aw_valid;
   wire       [31:0]   axi4WriteOnlyArbiter_3_io_output_aw_payload_addr;
-  wire       [3:0]    axi4WriteOnlyArbiter_3_io_output_aw_payload_id;
+  wire       [6:0]    axi4WriteOnlyArbiter_3_io_output_aw_payload_id;
   wire       [7:0]    axi4WriteOnlyArbiter_3_io_output_aw_payload_len;
   wire       [2:0]    axi4WriteOnlyArbiter_3_io_output_aw_payload_size;
   wire       [1:0]    axi4WriteOnlyArbiter_3_io_output_aw_payload_burst;
-  wire       [2:0]    axi4WriteOnlyArbiter_3_io_output_aw_payload_prot;
   wire                axi4WriteOnlyArbiter_3_io_output_w_valid;
   wire       [31:0]   axi4WriteOnlyArbiter_3_io_output_w_payload_data;
   wire       [3:0]    axi4WriteOnlyArbiter_3_io_output_w_payload_strb;
@@ -1219,51 +1198,49 @@ module CoreNSCSCC (
   wire                axi4ReadOnlyArbiter_4_io_inputs_0_ar_ready;
   wire                axi4ReadOnlyArbiter_4_io_inputs_0_r_valid;
   wire       [31:0]   axi4ReadOnlyArbiter_4_io_inputs_0_r_payload_data;
-  wire       [1:0]    axi4ReadOnlyArbiter_4_io_inputs_0_r_payload_id;
+  wire       [4:0]    axi4ReadOnlyArbiter_4_io_inputs_0_r_payload_id;
   wire       [1:0]    axi4ReadOnlyArbiter_4_io_inputs_0_r_payload_resp;
   wire                axi4ReadOnlyArbiter_4_io_inputs_0_r_payload_last;
   wire                axi4ReadOnlyArbiter_4_io_inputs_1_ar_ready;
   wire                axi4ReadOnlyArbiter_4_io_inputs_1_r_valid;
   wire       [31:0]   axi4ReadOnlyArbiter_4_io_inputs_1_r_payload_data;
-  wire       [1:0]    axi4ReadOnlyArbiter_4_io_inputs_1_r_payload_id;
+  wire       [4:0]    axi4ReadOnlyArbiter_4_io_inputs_1_r_payload_id;
   wire       [1:0]    axi4ReadOnlyArbiter_4_io_inputs_1_r_payload_resp;
   wire                axi4ReadOnlyArbiter_4_io_inputs_1_r_payload_last;
   wire                axi4ReadOnlyArbiter_4_io_inputs_2_ar_ready;
   wire                axi4ReadOnlyArbiter_4_io_inputs_2_r_valid;
   wire       [31:0]   axi4ReadOnlyArbiter_4_io_inputs_2_r_payload_data;
-  wire       [1:0]    axi4ReadOnlyArbiter_4_io_inputs_2_r_payload_id;
+  wire       [4:0]    axi4ReadOnlyArbiter_4_io_inputs_2_r_payload_id;
   wire       [1:0]    axi4ReadOnlyArbiter_4_io_inputs_2_r_payload_resp;
   wire                axi4ReadOnlyArbiter_4_io_inputs_2_r_payload_last;
   wire                axi4ReadOnlyArbiter_4_io_output_ar_valid;
   wire       [31:0]   axi4ReadOnlyArbiter_4_io_output_ar_payload_addr;
-  wire       [3:0]    axi4ReadOnlyArbiter_4_io_output_ar_payload_id;
+  wire       [6:0]    axi4ReadOnlyArbiter_4_io_output_ar_payload_id;
   wire       [7:0]    axi4ReadOnlyArbiter_4_io_output_ar_payload_len;
   wire       [2:0]    axi4ReadOnlyArbiter_4_io_output_ar_payload_size;
   wire       [1:0]    axi4ReadOnlyArbiter_4_io_output_ar_payload_burst;
-  wire       [2:0]    axi4ReadOnlyArbiter_4_io_output_ar_payload_prot;
   wire                axi4ReadOnlyArbiter_4_io_output_r_ready;
   wire                axi4WriteOnlyArbiter_4_io_inputs_0_aw_ready;
   wire                axi4WriteOnlyArbiter_4_io_inputs_0_w_ready;
   wire                axi4WriteOnlyArbiter_4_io_inputs_0_b_valid;
-  wire       [1:0]    axi4WriteOnlyArbiter_4_io_inputs_0_b_payload_id;
+  wire       [4:0]    axi4WriteOnlyArbiter_4_io_inputs_0_b_payload_id;
   wire       [1:0]    axi4WriteOnlyArbiter_4_io_inputs_0_b_payload_resp;
   wire                axi4WriteOnlyArbiter_4_io_inputs_1_aw_ready;
   wire                axi4WriteOnlyArbiter_4_io_inputs_1_w_ready;
   wire                axi4WriteOnlyArbiter_4_io_inputs_1_b_valid;
-  wire       [1:0]    axi4WriteOnlyArbiter_4_io_inputs_1_b_payload_id;
+  wire       [4:0]    axi4WriteOnlyArbiter_4_io_inputs_1_b_payload_id;
   wire       [1:0]    axi4WriteOnlyArbiter_4_io_inputs_1_b_payload_resp;
   wire                axi4WriteOnlyArbiter_4_io_inputs_2_aw_ready;
   wire                axi4WriteOnlyArbiter_4_io_inputs_2_w_ready;
   wire                axi4WriteOnlyArbiter_4_io_inputs_2_b_valid;
-  wire       [1:0]    axi4WriteOnlyArbiter_4_io_inputs_2_b_payload_id;
+  wire       [4:0]    axi4WriteOnlyArbiter_4_io_inputs_2_b_payload_id;
   wire       [1:0]    axi4WriteOnlyArbiter_4_io_inputs_2_b_payload_resp;
   wire                axi4WriteOnlyArbiter_4_io_output_aw_valid;
   wire       [31:0]   axi4WriteOnlyArbiter_4_io_output_aw_payload_addr;
-  wire       [3:0]    axi4WriteOnlyArbiter_4_io_output_aw_payload_id;
+  wire       [6:0]    axi4WriteOnlyArbiter_4_io_output_aw_payload_id;
   wire       [7:0]    axi4WriteOnlyArbiter_4_io_output_aw_payload_len;
   wire       [2:0]    axi4WriteOnlyArbiter_4_io_output_aw_payload_size;
   wire       [1:0]    axi4WriteOnlyArbiter_4_io_output_aw_payload_burst;
-  wire       [2:0]    axi4WriteOnlyArbiter_4_io_output_aw_payload_prot;
   wire                axi4WriteOnlyArbiter_4_io_output_w_valid;
   wire       [31:0]   axi4WriteOnlyArbiter_4_io_output_w_payload_data;
   wire       [3:0]    axi4WriteOnlyArbiter_4_io_output_w_payload_strb;
@@ -1272,51 +1249,49 @@ module CoreNSCSCC (
   wire                axi4ReadOnlyArbiter_5_io_inputs_0_ar_ready;
   wire                axi4ReadOnlyArbiter_5_io_inputs_0_r_valid;
   wire       [31:0]   axi4ReadOnlyArbiter_5_io_inputs_0_r_payload_data;
-  wire       [1:0]    axi4ReadOnlyArbiter_5_io_inputs_0_r_payload_id;
+  wire       [4:0]    axi4ReadOnlyArbiter_5_io_inputs_0_r_payload_id;
   wire       [1:0]    axi4ReadOnlyArbiter_5_io_inputs_0_r_payload_resp;
   wire                axi4ReadOnlyArbiter_5_io_inputs_0_r_payload_last;
   wire                axi4ReadOnlyArbiter_5_io_inputs_1_ar_ready;
   wire                axi4ReadOnlyArbiter_5_io_inputs_1_r_valid;
   wire       [31:0]   axi4ReadOnlyArbiter_5_io_inputs_1_r_payload_data;
-  wire       [1:0]    axi4ReadOnlyArbiter_5_io_inputs_1_r_payload_id;
+  wire       [4:0]    axi4ReadOnlyArbiter_5_io_inputs_1_r_payload_id;
   wire       [1:0]    axi4ReadOnlyArbiter_5_io_inputs_1_r_payload_resp;
   wire                axi4ReadOnlyArbiter_5_io_inputs_1_r_payload_last;
   wire                axi4ReadOnlyArbiter_5_io_inputs_2_ar_ready;
   wire                axi4ReadOnlyArbiter_5_io_inputs_2_r_valid;
   wire       [31:0]   axi4ReadOnlyArbiter_5_io_inputs_2_r_payload_data;
-  wire       [1:0]    axi4ReadOnlyArbiter_5_io_inputs_2_r_payload_id;
+  wire       [4:0]    axi4ReadOnlyArbiter_5_io_inputs_2_r_payload_id;
   wire       [1:0]    axi4ReadOnlyArbiter_5_io_inputs_2_r_payload_resp;
   wire                axi4ReadOnlyArbiter_5_io_inputs_2_r_payload_last;
   wire                axi4ReadOnlyArbiter_5_io_output_ar_valid;
   wire       [31:0]   axi4ReadOnlyArbiter_5_io_output_ar_payload_addr;
-  wire       [3:0]    axi4ReadOnlyArbiter_5_io_output_ar_payload_id;
+  wire       [6:0]    axi4ReadOnlyArbiter_5_io_output_ar_payload_id;
   wire       [7:0]    axi4ReadOnlyArbiter_5_io_output_ar_payload_len;
   wire       [2:0]    axi4ReadOnlyArbiter_5_io_output_ar_payload_size;
   wire       [1:0]    axi4ReadOnlyArbiter_5_io_output_ar_payload_burst;
-  wire       [2:0]    axi4ReadOnlyArbiter_5_io_output_ar_payload_prot;
   wire                axi4ReadOnlyArbiter_5_io_output_r_ready;
   wire                axi4WriteOnlyArbiter_5_io_inputs_0_aw_ready;
   wire                axi4WriteOnlyArbiter_5_io_inputs_0_w_ready;
   wire                axi4WriteOnlyArbiter_5_io_inputs_0_b_valid;
-  wire       [1:0]    axi4WriteOnlyArbiter_5_io_inputs_0_b_payload_id;
+  wire       [4:0]    axi4WriteOnlyArbiter_5_io_inputs_0_b_payload_id;
   wire       [1:0]    axi4WriteOnlyArbiter_5_io_inputs_0_b_payload_resp;
   wire                axi4WriteOnlyArbiter_5_io_inputs_1_aw_ready;
   wire                axi4WriteOnlyArbiter_5_io_inputs_1_w_ready;
   wire                axi4WriteOnlyArbiter_5_io_inputs_1_b_valid;
-  wire       [1:0]    axi4WriteOnlyArbiter_5_io_inputs_1_b_payload_id;
+  wire       [4:0]    axi4WriteOnlyArbiter_5_io_inputs_1_b_payload_id;
   wire       [1:0]    axi4WriteOnlyArbiter_5_io_inputs_1_b_payload_resp;
   wire                axi4WriteOnlyArbiter_5_io_inputs_2_aw_ready;
   wire                axi4WriteOnlyArbiter_5_io_inputs_2_w_ready;
   wire                axi4WriteOnlyArbiter_5_io_inputs_2_b_valid;
-  wire       [1:0]    axi4WriteOnlyArbiter_5_io_inputs_2_b_payload_id;
+  wire       [4:0]    axi4WriteOnlyArbiter_5_io_inputs_2_b_payload_id;
   wire       [1:0]    axi4WriteOnlyArbiter_5_io_inputs_2_b_payload_resp;
   wire                axi4WriteOnlyArbiter_5_io_output_aw_valid;
   wire       [31:0]   axi4WriteOnlyArbiter_5_io_output_aw_payload_addr;
-  wire       [3:0]    axi4WriteOnlyArbiter_5_io_output_aw_payload_id;
+  wire       [6:0]    axi4WriteOnlyArbiter_5_io_output_aw_payload_id;
   wire       [7:0]    axi4WriteOnlyArbiter_5_io_output_aw_payload_len;
   wire       [2:0]    axi4WriteOnlyArbiter_5_io_output_aw_payload_size;
   wire       [1:0]    axi4WriteOnlyArbiter_5_io_output_aw_payload_burst;
-  wire       [2:0]    axi4WriteOnlyArbiter_5_io_output_aw_payload_prot;
   wire                axi4WriteOnlyArbiter_5_io_output_w_valid;
   wire       [31:0]   axi4WriteOnlyArbiter_5_io_output_w_payload_data;
   wire       [3:0]    axi4WriteOnlyArbiter_5_io_output_w_payload_strb;
@@ -1401,7 +1376,7 @@ module CoreNSCSCC (
   wire       [3:0]    _zz_LoadQueuePlugin_logic_loadQueue_pushOh;
   wire       [3:0]    _zz__zz_when_PhysicalRegFile_l141_3;
   reg        [5:0]    _zz__zz_when_PhysicalRegFile_l141_1;
-  reg        [31:0]   _zz__zz_27;
+  reg        [31:0]   _zz__zz_28;
   wire                _zz_PhysicalRegFilePlugin_logic_regFile_port;
   wire       [2:0]    _zz_when_PhysicalRegFile_l150_8;
   reg        [2:0]    _zz_when_PhysicalRegFile_l150_9;
@@ -1409,6 +1384,7 @@ module CoreNSCSCC (
   reg        [2:0]    _zz_when_PhysicalRegFile_l150_11;
   wire       [2:0]    _zz_when_PhysicalRegFile_l150_12;
   wire       [0:0]    _zz_when_PhysicalRegFile_l150_13;
+  wire       [0:0]    _zz_StoreBufferPlugin_logic_dcacheResponseForHead;
   wire       [1:0]    _zz__zz_StoreBufferPlugin_logic_forwardingLogic_loadMask_1;
   wire       [3:0]    _zz__zz_StoreBufferPlugin_logic_forwardingLogic_loadMask;
   wire       [4:0]    _zz__zz_StoreBufferPlugin_logic_forwardingLogic_loadMask_2;
@@ -1423,9 +1399,9 @@ module CoreNSCSCC (
   wire       [1:0]    _zz__zz_StoreBufferPlugin_logic_loadQueryBe_4;
   wire       [6:0]    _zz__zz_StoreBufferPlugin_logic_loadQueryBe_5;
   wire       [6:0]    _zz__zz_StoreBufferPlugin_logic_loadQueryBe_6;
-  wire       [3:0]    _zz_io_uart_ar_bits_id;
+  wire       [6:0]    _zz_io_uart_ar_bits_id;
   wire       [7:0]    _zz_uartAxi_r_payload_id;
-  wire       [3:0]    _zz_io_uart_aw_bits_id;
+  wire       [6:0]    _zz_io_uart_aw_bits_id;
   wire       [7:0]    _zz_uartAxi_b_payload_id;
   wire       [31:0]   _zz_io_leds_1;
   wire                s3_Dispatch_isFlushingRoot;
@@ -2505,7 +2481,7 @@ module CoreNSCSCC (
   wire                StoreBufferPlugin_hw_sqQueryPort_rsp_hit;
   wire       [31:0]   StoreBufferPlugin_hw_sqQueryPort_rsp_data;
   wire                StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreHasUnknownAddress;
-  wire                StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreMatchingAddress;
+  reg                 StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreMatchingAddress;
   wire                StoreBufferPlugin_hw_dCacheStorePort_cmd_valid;
   wire                StoreBufferPlugin_hw_dCacheStorePort_cmd_ready;
   reg        [31:0]   StoreBufferPlugin_hw_dCacheStorePort_cmd_payload_address;
@@ -2526,6 +2502,15 @@ module CoreNSCSCC (
   wire       [31:0]   StoreBufferPlugin_hw_dCacheStorePort_rsp_payload_address;
   wire                StoreBufferPlugin_hw_dCacheStorePort_rsp_payload_io;
   wire       [0:0]    StoreBufferPlugin_hw_dCacheStorePort_rsp_payload_id;
+  wire                _zz_io_gmbIn_write_cmd_valid;
+  wire                _zz_StoreBufferPlugin_logic_mmioCmdFired;
+  wire       [31:0]   _zz_io_gmbIn_write_cmd_payload_address;
+  wire       [31:0]   _zz_io_gmbIn_write_cmd_payload_data;
+  wire       [3:0]    _zz_io_gmbIn_write_cmd_payload_byteEnables;
+  wire       [3:0]    _zz_io_gmbIn_write_cmd_payload_id;
+  wire                _zz_3;
+  wire                _zz_StoreBufferPlugin_logic_mmioResponseForHead;
+  wire                _zz_io_gmbIn_write_rsp_ready;
   wire                LoadQueuePlugin_hw_dCacheLoadPort_cmd_valid;
   wire                LoadQueuePlugin_hw_dCacheLoadPort_cmd_ready;
   wire       [31:0]   LoadQueuePlugin_hw_dCacheLoadPort_cmd_payload_virtual;
@@ -2794,13 +2779,13 @@ module CoreNSCSCC (
   reg        [0:0]    CommitPlugin_logic_s1_s1_flushedThisCycle_comb;
   wire                when_CommitPlugin_l320;
   reg                 CommitPlugin_logic_idleJustCommitted;
-  wire                _zz_8;
+  wire                _zz_9;
   wire       [4:0]    _zz_when_Debug_l71_6;
   wire                when_Debug_l71_5;
-  wire       [7:0]    _zz_9;
-  wire                _zz_10;
-  wire       [4:0]    _zz_11;
-  wire       [1:0]    _zz_12;
+  wire       [7:0]    _zz_10;
+  wire                _zz_11;
+  wire       [4:0]    _zz_12;
+  wire       [1:0]    _zz_13;
   wire       [31:0]   DecodePlugin_logic_decodedUopsOutputVec_0_pc;
   wire                DecodePlugin_logic_decodedUopsOutputVec_0_isValid;
   wire       [4:0]    DecodePlugin_logic_decodedUopsOutputVec_0_uopCode;
@@ -2911,8 +2896,6 @@ module CoreNSCSCC (
   wire                RenamePlugin_logic_tooManyBranches;
   wire                RenamePlugin_logic_shouldHalt;
   wire                s1_Rename_haltRequest_RenamePlugin_l107;
-  wire                when_RenamePlugin_l111;
-  wire                when_RenamePlugin_l114;
   wire                when_RenamePlugin_l127;
   wire                when_RenamePlugin_l137;
   wire                s2_RobAlloc_haltRequest_RobAllocPlugin_l40;
@@ -3733,8 +3716,8 @@ module CoreNSCSCC (
   wire       [1:0]    _zz_io_iqEntryIn_payload_aluCtrl_logicOp;
   wire       [2:0]    _zz_io_iqEntryIn_payload_immUsage;
   wire                s2_Execute_isFiring;
-  wire       [1:0]    _zz_13;
-  wire       [2:0]    _zz_14;
+  wire       [1:0]    _zz_14;
+  wire       [2:0]    _zz_15;
   wire                AluIntEU_AluIntEuPlugin_logicPhase_completesSuccessfully;
   wire       [4:0]    _zz_when_Debug_l71_8;
   wire                when_Debug_l71_7;
@@ -3769,7 +3752,7 @@ module CoreNSCSCC (
   reg        [31:0]   _zz_BpuPipelinePlugin_updatePortIn_payload_target_2;
   reg                 _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken;
   reg                 _zz_when_BranchEuPlugin_l263_1;
-  wire                _zz_15;
+  wire                _zz_16;
   wire                s2_Mispredict_isFiring;
   wire                when_BranchEuPlugin_l263;
   wire                BranchEU_BranchEuPlugin_logicPhase_completesSuccessfully;
@@ -4169,11 +4152,11 @@ module CoreNSCSCC (
   wire                _zz_LoadQueuePlugin_logic_loadQueue_pushIdx_2;
   wire       [1:0]    LoadQueuePlugin_logic_loadQueue_pushIdx;
   wire                LoadQueuePlugin_logic_pushCmd_fire;
-  wire       [3:0]    _zz_16;
-  wire                _zz_17;
+  wire       [3:0]    _zz_17;
   wire                _zz_18;
   wire                _zz_19;
   wire                _zz_20;
+  wire                _zz_21;
   wire                _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible;
   wire       [2:0]    _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_1;
   wire                _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_2;
@@ -4189,33 +4172,33 @@ module CoreNSCSCC (
   wire                LoadQueuePlugin_hw_dCacheLoadPort_cmd_fire;
   wire                LoadQueuePlugin_logic_loadQueue_mmioCmdFired;
   wire                LoadQueuePlugin_logic_loadQueue_mmioResponseIsForHead;
-  wire                when_LoadQueuePlugin_l363;
+  wire                when_LoadQueuePlugin_l364;
   wire                LoadQueuePlugin_logic_loadQueue_popOnFwdHit;
   wire                LoadQueuePlugin_logic_loadQueue_popOnDCacheSuccess;
   wire                LoadQueuePlugin_logic_loadQueue_popOnEarlyException;
   wire                LoadQueuePlugin_logic_loadQueue_popRequest;
-  wire                when_LoadQueuePlugin_l420;
-  wire                when_LoadQueuePlugin_l437;
-  wire                _zz_when_LoadQueuePlugin_l472;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l472_1;
-  wire                _zz_when_LoadQueuePlugin_l472_2;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l472_3;
-  wire                when_LoadQueuePlugin_l472;
-  wire                _zz_when_LoadQueuePlugin_l472_4;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l472_5;
-  wire                _zz_when_LoadQueuePlugin_l472_6;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l472_7;
-  wire                when_LoadQueuePlugin_l472_1;
-  wire                _zz_when_LoadQueuePlugin_l472_8;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l472_9;
-  wire                _zz_when_LoadQueuePlugin_l472_10;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l472_11;
-  wire                when_LoadQueuePlugin_l472_2;
-  wire                _zz_when_LoadQueuePlugin_l472_12;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l472_13;
-  wire                _zz_when_LoadQueuePlugin_l472_14;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l472_15;
-  wire                when_LoadQueuePlugin_l472_3;
+  wire                when_LoadQueuePlugin_l421;
+  wire                when_LoadQueuePlugin_l438;
+  wire                _zz_when_LoadQueuePlugin_l473;
+  wire       [2:0]    _zz_when_LoadQueuePlugin_l473_1;
+  wire                _zz_when_LoadQueuePlugin_l473_2;
+  wire       [2:0]    _zz_when_LoadQueuePlugin_l473_3;
+  wire                when_LoadQueuePlugin_l473;
+  wire                _zz_when_LoadQueuePlugin_l473_4;
+  wire       [2:0]    _zz_when_LoadQueuePlugin_l473_5;
+  wire                _zz_when_LoadQueuePlugin_l473_6;
+  wire       [2:0]    _zz_when_LoadQueuePlugin_l473_7;
+  wire                when_LoadQueuePlugin_l473_1;
+  wire                _zz_when_LoadQueuePlugin_l473_8;
+  wire       [2:0]    _zz_when_LoadQueuePlugin_l473_9;
+  wire                _zz_when_LoadQueuePlugin_l473_10;
+  wire       [2:0]    _zz_when_LoadQueuePlugin_l473_11;
+  wire                when_LoadQueuePlugin_l473_2;
+  wire                _zz_when_LoadQueuePlugin_l473_12;
+  wire       [2:0]    _zz_when_LoadQueuePlugin_l473_13;
+  wire                _zz_when_LoadQueuePlugin_l473_14;
+  wire       [2:0]    _zz_when_LoadQueuePlugin_l473_15;
+  wire                when_LoadQueuePlugin_l473_3;
   wire                when_CheckpointManagerPlugin_l118;
   wire       [31:0]   _zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp;
   wire       [31:0]   _zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp;
@@ -4225,7 +4208,7 @@ module CoreNSCSCC (
   wire       [31:0]   _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp;
   wire                _zz_when_PhysicalRegFile_l141;
   wire       [5:0]    _zz_when_PhysicalRegFile_l141_1;
-  wire       [31:0]   _zz_27;
+  wire       [31:0]   _zz_28;
   wire       [3:0]    _zz_when_PhysicalRegFile_l141_2;
   wire       [3:0]    _zz_when_PhysicalRegFile_l141_3;
   wire                _zz_when_PhysicalRegFile_l141_4;
@@ -4244,7 +4227,7 @@ module CoreNSCSCC (
   wire       [2:0]    _zz_when_PhysicalRegFile_l150_6;
   wire       [2:0]    _zz_when_PhysicalRegFile_l150_7;
   wire                when_PhysicalRegFile_l150;
-  wire       [7:0]    _zz_29;
+  wire       [7:0]    _zz_30;
   reg                 StoreBufferPlugin_logic_slots_0_isFlush;
   reg        [31:0]   StoreBufferPlugin_logic_slots_0_addr;
   reg        [31:0]   StoreBufferPlugin_logic_slots_0_data;
@@ -4445,9 +4428,9 @@ module CoreNSCSCC (
   wire                StoreBufferPlugin_logic_validFall_2;
   wire                StoreBufferPlugin_logic_validFall_3;
   wire                StoreBufferPlugin_logic_canPush;
-  wire                _zz_30;
   wire                _zz_31;
-  wire       [1:0]    _zz_32;
+  wire                _zz_32;
+  wire       [1:0]    _zz_33;
   wire                _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush;
   wire       [31:0]   _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr;
   wire       [31:0]   _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data;
@@ -4457,182 +4440,168 @@ module CoreNSCSCC (
   wire                _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO;
   wire                _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException;
   wire       [7:0]    _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode;
-  wire       [3:0]    _zz_33;
-  wire                _zz_34;
+  wire       [3:0]    _zz_34;
   wire                _zz_35;
   wire                _zz_36;
   wire                _zz_37;
+  wire                _zz_38;
   wire                StoreBufferPlugin_logic_sharedWriteCond;
   wire                StoreBufferPlugin_logic_canPopNormalOp;
   wire                StoreBufferPlugin_logic_canPopFlushOp;
   wire                StoreBufferPlugin_logic_canPopMMIOOp;
-  wire                when_StoreBufferPlugin_l292;
-  wire                StoreBufferPlugin_logic_canPopToDCache;
+  wire                when_StoreBufferPlugin_l311;
+  wire                StoreBufferPlugin_logic_canSendToDCache;
   wire                StoreBufferPlugin_logic_dcacheCmdFired;
   wire                StoreBufferPlugin_logic_mmioCmdFired;
-  wire                StoreBufferPlugin_logic_responseIsForHead;
-  wire                StoreBufferPlugin_logic_mmioResponseIsForHead;
-  wire                when_StoreBufferPlugin_l407;
+  wire                StoreBufferPlugin_logic_dcacheResponseForHead;
+  wire                StoreBufferPlugin_logic_mmioResponseForHead;
   wire                StoreBufferPlugin_logic_waitedRefillIsDone;
-  wire                when_StoreBufferPlugin_l429;
-  wire                _zz_when_StoreBufferPlugin_l445;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l445_1;
-  wire                _zz_when_StoreBufferPlugin_l445_2;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l445_3;
-  wire                when_StoreBufferPlugin_l445;
-  wire                when_StoreBufferPlugin_l455;
-  wire                when_StoreBufferPlugin_l449;
-  wire                _zz_when_StoreBufferPlugin_l445_4;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l445_5;
-  wire                _zz_when_StoreBufferPlugin_l445_6;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l445_7;
-  wire                when_StoreBufferPlugin_l445_1;
-  wire                when_StoreBufferPlugin_l455_1;
-  wire                when_StoreBufferPlugin_l449_1;
-  wire                _zz_when_StoreBufferPlugin_l445_8;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l445_9;
-  wire                _zz_when_StoreBufferPlugin_l445_10;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l445_11;
-  wire                when_StoreBufferPlugin_l445_2;
-  wire                when_StoreBufferPlugin_l455_2;
-  wire                when_StoreBufferPlugin_l449_2;
-  wire                _zz_when_StoreBufferPlugin_l445_12;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l445_13;
-  wire                _zz_when_StoreBufferPlugin_l445_14;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l445_15;
-  wire                when_StoreBufferPlugin_l445_3;
-  wire                when_StoreBufferPlugin_l455_3;
-  wire                when_StoreBufferPlugin_l449_3;
-  wire                when_StoreBufferPlugin_l466;
+  wire                when_StoreBufferPlugin_l465;
+  wire                _zz_when_StoreBufferPlugin_l482;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l482_1;
+  wire                _zz_when_StoreBufferPlugin_l482_2;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l482_3;
+  wire                when_StoreBufferPlugin_l482;
+  wire                when_StoreBufferPlugin_l493;
+  wire                when_StoreBufferPlugin_l486;
+  wire                _zz_when_StoreBufferPlugin_l482_4;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l482_5;
+  wire                _zz_when_StoreBufferPlugin_l482_6;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l482_7;
+  wire                when_StoreBufferPlugin_l482_1;
+  wire                when_StoreBufferPlugin_l493_1;
+  wire                when_StoreBufferPlugin_l486_1;
+  wire                _zz_when_StoreBufferPlugin_l482_8;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l482_9;
+  wire                _zz_when_StoreBufferPlugin_l482_10;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l482_11;
+  wire                when_StoreBufferPlugin_l482_2;
+  wire                when_StoreBufferPlugin_l493_2;
+  wire                when_StoreBufferPlugin_l486_2;
+  wire                _zz_when_StoreBufferPlugin_l482_12;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l482_13;
+  wire                _zz_when_StoreBufferPlugin_l482_14;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l482_15;
+  wire                when_StoreBufferPlugin_l482_3;
+  wire                when_StoreBufferPlugin_l493_3;
+  wire                when_StoreBufferPlugin_l486_3;
+  wire                when_StoreBufferPlugin_l502;
   wire                StoreBufferPlugin_logic_operationDone;
-  wire                StoreBufferPlugin_logic_flushDone;
-  wire                StoreBufferPlugin_logic_normalStoreDone;
-  wire                StoreBufferPlugin_logic_mmioStoreDone;
-  wire                StoreBufferPlugin_logic_earlyExcStoreDone;
-  wire                StoreBufferPlugin_logic_isSbEmpty;
-  wire                StoreBufferPlugin_logic_popInvalidSlot;
-  wire                StoreBufferPlugin_logic_popRequest;
+  reg                 StoreBufferPlugin_logic_popRequest;
+  wire                when_StoreBufferPlugin_l517;
+  wire                when_StoreBufferPlugin_l543;
   wire       [3:0]    StoreBufferPlugin_logic_forwardingLogic_loadMask;
   reg        [3:0]    _zz_StoreBufferPlugin_logic_forwardingLogic_loadMask;
   wire       [1:0]    _zz_StoreBufferPlugin_logic_forwardingLogic_loadMask_1;
   wire       [31:0]   StoreBufferPlugin_logic_forwardingLogic_bypassInitial_data;
   wire       [3:0]    StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask;
   reg        [31:0]   _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data;
-  reg        [3:0]    _zz_when_StoreBufferPlugin_l540;
-  wire                _zz_when_StoreBufferPlugin_l531;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l531_1;
-  wire                _zz_when_StoreBufferPlugin_l531_2;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l531_3;
-  wire                when_StoreBufferPlugin_l531;
-  wire                _zz_when_StoreBufferPlugin_l538;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l538_1;
-  wire                _zz_when_StoreBufferPlugin_l538_2;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l538_3;
-  wire                when_StoreBufferPlugin_l538;
-  wire                when_StoreBufferPlugin_l540;
-  wire                when_StoreBufferPlugin_l540_1;
-  wire                when_StoreBufferPlugin_l540_2;
-  wire                when_StoreBufferPlugin_l540_3;
+  reg        [3:0]    _zz_when_StoreBufferPlugin_l603;
+  wire                _zz_when_StoreBufferPlugin_l594;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l594_1;
+  wire                _zz_when_StoreBufferPlugin_l594_2;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l594_3;
+  wire                when_StoreBufferPlugin_l594;
+  wire                _zz_when_StoreBufferPlugin_l601;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l601_1;
+  wire                _zz_when_StoreBufferPlugin_l601_2;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l601_3;
+  wire                when_StoreBufferPlugin_l601;
+  wire                when_StoreBufferPlugin_l603;
+  wire                when_StoreBufferPlugin_l603_1;
+  wire                when_StoreBufferPlugin_l603_2;
+  wire                when_StoreBufferPlugin_l603_3;
   reg        [31:0]   _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_1;
-  reg        [3:0]    _zz_when_StoreBufferPlugin_l540_1;
-  wire                _zz_when_StoreBufferPlugin_l531_4;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l531_5;
-  wire                _zz_when_StoreBufferPlugin_l531_6;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l531_7;
-  wire                when_StoreBufferPlugin_l531_1;
-  wire                _zz_when_StoreBufferPlugin_l538_4;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l538_5;
-  wire                _zz_when_StoreBufferPlugin_l538_6;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l538_7;
-  wire                when_StoreBufferPlugin_l538_1;
-  wire                when_StoreBufferPlugin_l540_4;
-  wire                when_StoreBufferPlugin_l540_5;
-  wire                when_StoreBufferPlugin_l540_6;
-  wire                when_StoreBufferPlugin_l540_7;
+  reg        [3:0]    _zz_when_StoreBufferPlugin_l603_1;
+  wire                _zz_when_StoreBufferPlugin_l594_4;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l594_5;
+  wire                _zz_when_StoreBufferPlugin_l594_6;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l594_7;
+  wire                when_StoreBufferPlugin_l594_1;
+  wire                _zz_when_StoreBufferPlugin_l601_4;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l601_5;
+  wire                _zz_when_StoreBufferPlugin_l601_6;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l601_7;
+  wire                when_StoreBufferPlugin_l601_1;
+  wire                when_StoreBufferPlugin_l603_4;
+  wire                when_StoreBufferPlugin_l603_5;
+  wire                when_StoreBufferPlugin_l603_6;
+  wire                when_StoreBufferPlugin_l603_7;
   reg        [31:0]   _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_2;
   reg        [3:0]    _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask;
-  wire                _zz_when_StoreBufferPlugin_l531_8;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l531_9;
-  wire                _zz_when_StoreBufferPlugin_l531_10;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l531_11;
-  wire                when_StoreBufferPlugin_l531_2;
-  wire                _zz_when_StoreBufferPlugin_l538_8;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l538_9;
-  wire                _zz_when_StoreBufferPlugin_l538_10;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l538_11;
-  wire                when_StoreBufferPlugin_l538_2;
-  wire                when_StoreBufferPlugin_l540_8;
-  wire                when_StoreBufferPlugin_l540_9;
-  wire                when_StoreBufferPlugin_l540_10;
-  wire                when_StoreBufferPlugin_l540_11;
+  wire                _zz_when_StoreBufferPlugin_l594_8;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l594_9;
+  wire                _zz_when_StoreBufferPlugin_l594_10;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l594_11;
+  wire                when_StoreBufferPlugin_l594_2;
+  wire                _zz_when_StoreBufferPlugin_l601_8;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l601_9;
+  wire                _zz_when_StoreBufferPlugin_l601_10;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l601_11;
+  wire                when_StoreBufferPlugin_l601_2;
+  wire                when_StoreBufferPlugin_l603_8;
+  wire                when_StoreBufferPlugin_l603_9;
+  wire                when_StoreBufferPlugin_l603_10;
+  wire                when_StoreBufferPlugin_l603_11;
   reg        [31:0]   StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data;
   reg        [3:0]    StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask;
-  wire                _zz_when_StoreBufferPlugin_l531_12;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l531_13;
-  wire                _zz_when_StoreBufferPlugin_l531_14;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l531_15;
-  wire                when_StoreBufferPlugin_l531_3;
-  wire                _zz_when_StoreBufferPlugin_l538_12;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l538_13;
-  wire                _zz_when_StoreBufferPlugin_l538_14;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l538_15;
-  wire                when_StoreBufferPlugin_l538_3;
-  wire                when_StoreBufferPlugin_l540_12;
-  wire                when_StoreBufferPlugin_l540_13;
-  wire                when_StoreBufferPlugin_l540_14;
-  wire                when_StoreBufferPlugin_l540_15;
+  wire                _zz_when_StoreBufferPlugin_l594_12;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l594_13;
+  wire                _zz_when_StoreBufferPlugin_l594_14;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l594_15;
+  wire                when_StoreBufferPlugin_l594_3;
+  wire                _zz_when_StoreBufferPlugin_l601_12;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l601_13;
+  wire                _zz_when_StoreBufferPlugin_l601_14;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l601_15;
+  wire                when_StoreBufferPlugin_l601_3;
+  wire                when_StoreBufferPlugin_l603_12;
+  wire                when_StoreBufferPlugin_l603_13;
+  wire                when_StoreBufferPlugin_l603_14;
+  wire                when_StoreBufferPlugin_l603_15;
   wire                StoreBufferPlugin_logic_forwardingLogic_allRequiredBytesHit;
   wire                StoreBufferPlugin_logic_forwardingLogic_hasSomeOverlap;
-  reg                 StoreBufferPlugin_logic_forwardingLogic_potentialConflict;
-  wire       [29:0]   _zz_when_StoreBufferPlugin_l580;
-  wire       [29:0]   _zz_when_StoreBufferPlugin_l580_1;
-  wire                _zz_when_StoreBufferPlugin_l567;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l567_1;
-  wire                _zz_when_StoreBufferPlugin_l567_2;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l567_3;
-  wire                when_StoreBufferPlugin_l567;
-  wire                _zz_when_StoreBufferPlugin_l580_2;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l580_3;
-  wire                _zz_when_StoreBufferPlugin_l580_4;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l580_5;
-  wire                when_StoreBufferPlugin_l580;
-  wire       [29:0]   _zz_when_StoreBufferPlugin_l580_6;
-  wire       [29:0]   _zz_when_StoreBufferPlugin_l580_7;
-  wire                _zz_when_StoreBufferPlugin_l567_4;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l567_5;
-  wire                _zz_when_StoreBufferPlugin_l567_6;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l567_7;
-  wire                when_StoreBufferPlugin_l567_1;
-  wire                _zz_when_StoreBufferPlugin_l580_8;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l580_9;
-  wire                _zz_when_StoreBufferPlugin_l580_10;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l580_11;
-  wire                when_StoreBufferPlugin_l580_1;
-  wire       [29:0]   _zz_when_StoreBufferPlugin_l580_12;
-  wire       [29:0]   _zz_when_StoreBufferPlugin_l580_13;
-  wire                _zz_when_StoreBufferPlugin_l567_8;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l567_9;
-  wire                _zz_when_StoreBufferPlugin_l567_10;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l567_11;
-  wire                when_StoreBufferPlugin_l567_2;
-  wire                _zz_when_StoreBufferPlugin_l580_14;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l580_15;
-  wire                _zz_when_StoreBufferPlugin_l580_16;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l580_17;
-  wire                when_StoreBufferPlugin_l580_2;
-  wire       [29:0]   _zz_when_StoreBufferPlugin_l580_18;
-  wire       [29:0]   _zz_when_StoreBufferPlugin_l580_19;
-  wire                _zz_when_StoreBufferPlugin_l567_12;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l567_13;
-  wire                _zz_when_StoreBufferPlugin_l567_14;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l567_15;
-  wire                when_StoreBufferPlugin_l567_3;
-  wire                _zz_when_StoreBufferPlugin_l580_20;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l580_21;
-  wire                _zz_when_StoreBufferPlugin_l580_22;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l580_23;
-  wire                when_StoreBufferPlugin_l580_3;
-  wire                when_StoreBufferPlugin_l588;
+  wire                StoreBufferPlugin_logic_forwardingLogic_mustStall;
+  wire       [29:0]   _zz_when_StoreBufferPlugin_l640;
+  wire       [29:0]   _zz_when_StoreBufferPlugin_l640_1;
+  wire                when_StoreBufferPlugin_l636;
+  wire                _zz_when_StoreBufferPlugin_l640_2;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l640_3;
+  wire                _zz_when_StoreBufferPlugin_l640_4;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l640_5;
+  wire                when_StoreBufferPlugin_l640;
+  wire                when_StoreBufferPlugin_l644;
+  wire                when_StoreBufferPlugin_l650;
+  wire       [29:0]   _zz_when_StoreBufferPlugin_l640_6;
+  wire       [29:0]   _zz_when_StoreBufferPlugin_l640_7;
+  wire                when_StoreBufferPlugin_l636_1;
+  wire                _zz_when_StoreBufferPlugin_l640_8;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l640_9;
+  wire                _zz_when_StoreBufferPlugin_l640_10;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l640_11;
+  wire                when_StoreBufferPlugin_l640_1;
+  wire                when_StoreBufferPlugin_l644_1;
+  wire                when_StoreBufferPlugin_l650_1;
+  wire       [29:0]   _zz_when_StoreBufferPlugin_l640_12;
+  wire       [29:0]   _zz_when_StoreBufferPlugin_l640_13;
+  wire                when_StoreBufferPlugin_l636_2;
+  wire                _zz_when_StoreBufferPlugin_l640_14;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l640_15;
+  wire                _zz_when_StoreBufferPlugin_l640_16;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l640_17;
+  wire                when_StoreBufferPlugin_l640_2;
+  wire                when_StoreBufferPlugin_l644_2;
+  wire                when_StoreBufferPlugin_l650_2;
+  wire       [29:0]   _zz_when_StoreBufferPlugin_l640_18;
+  wire       [29:0]   _zz_when_StoreBufferPlugin_l640_19;
+  wire                when_StoreBufferPlugin_l636_3;
+  wire                _zz_when_StoreBufferPlugin_l640_20;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l640_21;
+  wire                _zz_when_StoreBufferPlugin_l640_22;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l640_23;
+  wire                when_StoreBufferPlugin_l640_3;
+  wire                when_StoreBufferPlugin_l644_3;
+  wire                when_StoreBufferPlugin_l650_3;
   wire                StoreBufferPlugin_logic_bypassResult_hit;
   wire       [31:0]   StoreBufferPlugin_logic_bypassResult_data;
   wire       [3:0]    StoreBufferPlugin_logic_bypassResult_hitMask;
@@ -4642,58 +4611,38 @@ module CoreNSCSCC (
   wire       [31:0]   StoreBufferPlugin_logic_bypassInitial_data;
   wire       [3:0]    StoreBufferPlugin_logic_bypassInitial_hitMask;
   reg        [31:0]   _zz_StoreBufferPlugin_logic_finalBypassResult_data;
-  reg        [3:0]    _zz_when_StoreBufferPlugin_l622;
-  wire                _zz_when_StoreBufferPlugin_l615;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l615_1;
-  wire                _zz_when_StoreBufferPlugin_l615_2;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l615_3;
-  wire                when_StoreBufferPlugin_l615;
-  wire                when_StoreBufferPlugin_l620;
-  wire                when_StoreBufferPlugin_l622;
-  wire                when_StoreBufferPlugin_l622_1;
-  wire                when_StoreBufferPlugin_l622_2;
-  wire                when_StoreBufferPlugin_l622_3;
+  reg        [3:0]    _zz_when_StoreBufferPlugin_l695;
+  wire                when_StoreBufferPlugin_l688;
+  wire                when_StoreBufferPlugin_l693;
+  wire                when_StoreBufferPlugin_l695;
+  wire                when_StoreBufferPlugin_l695_1;
+  wire                when_StoreBufferPlugin_l695_2;
+  wire                when_StoreBufferPlugin_l695_3;
   reg        [31:0]   _zz_StoreBufferPlugin_logic_finalBypassResult_data_1;
-  reg        [3:0]    _zz_when_StoreBufferPlugin_l622_1;
-  wire                _zz_when_StoreBufferPlugin_l615_4;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l615_5;
-  wire                _zz_when_StoreBufferPlugin_l615_6;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l615_7;
-  wire                when_StoreBufferPlugin_l615_1;
-  wire                when_StoreBufferPlugin_l620_1;
-  wire                when_StoreBufferPlugin_l622_4;
-  wire                when_StoreBufferPlugin_l622_5;
-  wire                when_StoreBufferPlugin_l622_6;
-  wire                when_StoreBufferPlugin_l622_7;
+  reg        [3:0]    _zz_when_StoreBufferPlugin_l695_1;
+  wire                when_StoreBufferPlugin_l688_1;
+  wire                when_StoreBufferPlugin_l693_1;
+  wire                when_StoreBufferPlugin_l695_4;
+  wire                when_StoreBufferPlugin_l695_5;
+  wire                when_StoreBufferPlugin_l695_6;
+  wire                when_StoreBufferPlugin_l695_7;
   reg        [31:0]   _zz_StoreBufferPlugin_logic_finalBypassResult_data_2;
   reg        [3:0]    _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask;
-  wire                _zz_when_StoreBufferPlugin_l615_8;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l615_9;
-  wire                _zz_when_StoreBufferPlugin_l615_10;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l615_11;
-  wire                when_StoreBufferPlugin_l615_2;
-  wire                when_StoreBufferPlugin_l620_2;
-  wire                when_StoreBufferPlugin_l622_8;
-  wire                when_StoreBufferPlugin_l622_9;
-  wire                when_StoreBufferPlugin_l622_10;
-  wire                when_StoreBufferPlugin_l622_11;
+  wire                when_StoreBufferPlugin_l688_2;
+  wire                when_StoreBufferPlugin_l693_2;
+  wire                when_StoreBufferPlugin_l695_8;
+  wire                when_StoreBufferPlugin_l695_9;
+  wire                when_StoreBufferPlugin_l695_10;
+  wire                when_StoreBufferPlugin_l695_11;
   reg        [31:0]   StoreBufferPlugin_logic_finalBypassResult_data;
   reg        [3:0]    StoreBufferPlugin_logic_finalBypassResult_hitMask;
-  wire                _zz_when_StoreBufferPlugin_l615_12;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l615_13;
-  wire                _zz_when_StoreBufferPlugin_l615_14;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l615_15;
-  wire                when_StoreBufferPlugin_l615_3;
-  wire                when_StoreBufferPlugin_l620_3;
-  wire                when_StoreBufferPlugin_l622_12;
-  wire                when_StoreBufferPlugin_l622_13;
-  wire                when_StoreBufferPlugin_l622_14;
-  wire                when_StoreBufferPlugin_l622_15;
+  wire                when_StoreBufferPlugin_l688_3;
+  wire                when_StoreBufferPlugin_l693_3;
+  wire                when_StoreBufferPlugin_l695_12;
+  wire                when_StoreBufferPlugin_l695_13;
+  wire                when_StoreBufferPlugin_l695_14;
+  wire                when_StoreBufferPlugin_l695_15;
   wire                StoreBufferPlugin_logic_overallBypassHit;
-  wire                when_StoreBufferPlugin_l668;
-  wire                when_StoreBufferPlugin_l668_1;
-  wire                when_StoreBufferPlugin_l668_2;
-  wire                when_StoreBufferPlugin_l668_3;
   reg        [5:0]    _zz_globalWakeupFlow_payload_physRegIdx;
   wire                when_WakeupPlugin_l67;
   wire       [1:0]    DataCachePlugin_logic_load_hits;
@@ -4716,11 +4665,10 @@ module CoreNSCSCC (
   wire                uartAxi_aw_valid;
   wire                uartAxi_aw_ready;
   wire       [31:0]   uartAxi_aw_payload_addr;
-  wire       [3:0]    uartAxi_aw_payload_id;
+  wire       [6:0]    uartAxi_aw_payload_id;
   wire       [7:0]    uartAxi_aw_payload_len;
   wire       [2:0]    uartAxi_aw_payload_size;
   wire       [1:0]    uartAxi_aw_payload_burst;
-  wire       [2:0]    uartAxi_aw_payload_prot;
   wire                uartAxi_w_valid;
   wire                uartAxi_w_ready;
   wire       [31:0]   uartAxi_w_payload_data;
@@ -4728,44 +4676,41 @@ module CoreNSCSCC (
   wire                uartAxi_w_payload_last;
   wire                uartAxi_b_valid;
   wire                uartAxi_b_ready;
-  wire       [3:0]    uartAxi_b_payload_id;
+  wire       [6:0]    uartAxi_b_payload_id;
   wire       [1:0]    uartAxi_b_payload_resp;
   wire                uartAxi_ar_valid;
   wire                uartAxi_ar_ready;
   wire       [31:0]   uartAxi_ar_payload_addr;
-  wire       [3:0]    uartAxi_ar_payload_id;
+  wire       [6:0]    uartAxi_ar_payload_id;
   wire       [7:0]    uartAxi_ar_payload_len;
   wire       [2:0]    uartAxi_ar_payload_size;
   wire       [1:0]    uartAxi_ar_payload_burst;
-  wire       [2:0]    uartAxi_ar_payload_prot;
   wire                uartAxi_r_valid;
   wire                uartAxi_r_ready;
   wire       [31:0]   uartAxi_r_payload_data;
-  wire       [3:0]    uartAxi_r_payload_id;
+  wire       [6:0]    uartAxi_r_payload_id;
   wire       [1:0]    uartAxi_r_payload_resp;
   wire                uartAxi_r_payload_last;
   wire                io_axiOut_readOnly_ar_valid;
   wire                io_axiOut_readOnly_ar_ready;
   wire       [31:0]   io_axiOut_readOnly_ar_payload_addr;
-  wire       [0:0]    io_axiOut_readOnly_ar_payload_id;
+  wire       [3:0]    io_axiOut_readOnly_ar_payload_id;
   wire       [7:0]    io_axiOut_readOnly_ar_payload_len;
   wire       [2:0]    io_axiOut_readOnly_ar_payload_size;
   wire       [1:0]    io_axiOut_readOnly_ar_payload_burst;
-  wire       [2:0]    io_axiOut_readOnly_ar_payload_prot;
   wire                io_axiOut_readOnly_r_valid;
   wire                io_axiOut_readOnly_r_ready;
   wire       [31:0]   io_axiOut_readOnly_r_payload_data;
-  wire       [0:0]    io_axiOut_readOnly_r_payload_id;
+  wire       [3:0]    io_axiOut_readOnly_r_payload_id;
   wire       [1:0]    io_axiOut_readOnly_r_payload_resp;
   wire                io_axiOut_readOnly_r_payload_last;
   wire                io_axiOut_writeOnly_aw_valid;
   wire                io_axiOut_writeOnly_aw_ready;
   wire       [31:0]   io_axiOut_writeOnly_aw_payload_addr;
-  wire       [0:0]    io_axiOut_writeOnly_aw_payload_id;
+  wire       [3:0]    io_axiOut_writeOnly_aw_payload_id;
   wire       [7:0]    io_axiOut_writeOnly_aw_payload_len;
   wire       [2:0]    io_axiOut_writeOnly_aw_payload_size;
   wire       [1:0]    io_axiOut_writeOnly_aw_payload_burst;
-  wire       [2:0]    io_axiOut_writeOnly_aw_payload_prot;
   wire                io_axiOut_writeOnly_w_valid;
   wire                io_axiOut_writeOnly_w_ready;
   wire       [31:0]   io_axiOut_writeOnly_w_payload_data;
@@ -4773,30 +4718,28 @@ module CoreNSCSCC (
   wire                io_axiOut_writeOnly_w_payload_last;
   wire                io_axiOut_writeOnly_b_valid;
   wire                io_axiOut_writeOnly_b_ready;
-  wire       [0:0]    io_axiOut_writeOnly_b_payload_id;
+  wire       [3:0]    io_axiOut_writeOnly_b_payload_id;
   wire       [1:0]    io_axiOut_writeOnly_b_payload_resp;
   wire                io_axiOut_readOnly_ar_valid_1;
   wire                io_axiOut_readOnly_ar_ready_1;
   wire       [31:0]   io_axiOut_readOnly_ar_payload_addr_1;
-  wire       [0:0]    io_axiOut_readOnly_ar_payload_id_1;
+  wire       [3:0]    io_axiOut_readOnly_ar_payload_id_1;
   wire       [7:0]    io_axiOut_readOnly_ar_payload_len_1;
   wire       [2:0]    io_axiOut_readOnly_ar_payload_size_1;
   wire       [1:0]    io_axiOut_readOnly_ar_payload_burst_1;
-  wire       [2:0]    io_axiOut_readOnly_ar_payload_prot_1;
   wire                io_axiOut_readOnly_r_valid_1;
   wire                io_axiOut_readOnly_r_ready_1;
   wire       [31:0]   io_axiOut_readOnly_r_payload_data_1;
-  wire       [0:0]    io_axiOut_readOnly_r_payload_id_1;
+  wire       [3:0]    io_axiOut_readOnly_r_payload_id_1;
   wire       [1:0]    io_axiOut_readOnly_r_payload_resp_1;
   wire                io_axiOut_readOnly_r_payload_last_1;
   wire                io_axiOut_writeOnly_aw_valid_1;
   wire                io_axiOut_writeOnly_aw_ready_1;
   wire       [31:0]   io_axiOut_writeOnly_aw_payload_addr_1;
-  wire       [0:0]    io_axiOut_writeOnly_aw_payload_id_1;
+  wire       [3:0]    io_axiOut_writeOnly_aw_payload_id_1;
   wire       [7:0]    io_axiOut_writeOnly_aw_payload_len_1;
   wire       [2:0]    io_axiOut_writeOnly_aw_payload_size_1;
   wire       [1:0]    io_axiOut_writeOnly_aw_payload_burst_1;
-  wire       [2:0]    io_axiOut_writeOnly_aw_payload_prot_1;
   wire                io_axiOut_writeOnly_w_valid_1;
   wire                io_axiOut_writeOnly_w_ready_1;
   wire       [31:0]   io_axiOut_writeOnly_w_payload_data_1;
@@ -4804,7 +4747,7 @@ module CoreNSCSCC (
   wire                io_axiOut_writeOnly_w_payload_last_1;
   wire                io_axiOut_writeOnly_b_valid_1;
   wire                io_axiOut_writeOnly_b_ready_1;
-  wire       [0:0]    io_axiOut_writeOnly_b_payload_id_1;
+  wire       [3:0]    io_axiOut_writeOnly_b_payload_id_1;
   wire       [1:0]    io_axiOut_writeOnly_b_payload_resp_1;
   wire                DataCachePlugin_setup_dcacheMaster_readOnly_ar_valid;
   wire                DataCachePlugin_setup_dcacheMaster_readOnly_ar_ready;
@@ -4840,121 +4783,109 @@ module CoreNSCSCC (
   wire                io_outputs_0_ar_validPipe_valid;
   wire                io_outputs_0_ar_validPipe_ready;
   wire       [31:0]   io_outputs_0_ar_validPipe_payload_addr;
-  wire       [0:0]    io_outputs_0_ar_validPipe_payload_id;
+  wire       [3:0]    io_outputs_0_ar_validPipe_payload_id;
   wire       [7:0]    io_outputs_0_ar_validPipe_payload_len;
   wire       [2:0]    io_outputs_0_ar_validPipe_payload_size;
   wire       [1:0]    io_outputs_0_ar_validPipe_payload_burst;
-  wire       [2:0]    io_outputs_0_ar_validPipe_payload_prot;
   reg                 io_outputs_0_ar_rValid;
   wire                io_outputs_0_ar_validPipe_fire;
   wire                io_outputs_1_ar_validPipe_valid;
   wire                io_outputs_1_ar_validPipe_ready;
   wire       [31:0]   io_outputs_1_ar_validPipe_payload_addr;
-  wire       [0:0]    io_outputs_1_ar_validPipe_payload_id;
+  wire       [3:0]    io_outputs_1_ar_validPipe_payload_id;
   wire       [7:0]    io_outputs_1_ar_validPipe_payload_len;
   wire       [2:0]    io_outputs_1_ar_validPipe_payload_size;
   wire       [1:0]    io_outputs_1_ar_validPipe_payload_burst;
-  wire       [2:0]    io_outputs_1_ar_validPipe_payload_prot;
   reg                 io_outputs_1_ar_rValid;
   wire                io_outputs_1_ar_validPipe_fire;
   wire                io_outputs_2_ar_validPipe_valid;
   wire                io_outputs_2_ar_validPipe_ready;
   wire       [31:0]   io_outputs_2_ar_validPipe_payload_addr;
-  wire       [0:0]    io_outputs_2_ar_validPipe_payload_id;
+  wire       [3:0]    io_outputs_2_ar_validPipe_payload_id;
   wire       [7:0]    io_outputs_2_ar_validPipe_payload_len;
   wire       [2:0]    io_outputs_2_ar_validPipe_payload_size;
   wire       [1:0]    io_outputs_2_ar_validPipe_payload_burst;
-  wire       [2:0]    io_outputs_2_ar_validPipe_payload_prot;
   reg                 io_outputs_2_ar_rValid;
   wire                io_outputs_2_ar_validPipe_fire;
   wire                io_outputs_0_aw_validPipe_valid;
   wire                io_outputs_0_aw_validPipe_ready;
   wire       [31:0]   io_outputs_0_aw_validPipe_payload_addr;
-  wire       [0:0]    io_outputs_0_aw_validPipe_payload_id;
+  wire       [3:0]    io_outputs_0_aw_validPipe_payload_id;
   wire       [7:0]    io_outputs_0_aw_validPipe_payload_len;
   wire       [2:0]    io_outputs_0_aw_validPipe_payload_size;
   wire       [1:0]    io_outputs_0_aw_validPipe_payload_burst;
-  wire       [2:0]    io_outputs_0_aw_validPipe_payload_prot;
   reg                 io_outputs_0_aw_rValid;
   wire                io_outputs_0_aw_validPipe_fire;
   wire                io_outputs_1_aw_validPipe_valid;
   wire                io_outputs_1_aw_validPipe_ready;
   wire       [31:0]   io_outputs_1_aw_validPipe_payload_addr;
-  wire       [0:0]    io_outputs_1_aw_validPipe_payload_id;
+  wire       [3:0]    io_outputs_1_aw_validPipe_payload_id;
   wire       [7:0]    io_outputs_1_aw_validPipe_payload_len;
   wire       [2:0]    io_outputs_1_aw_validPipe_payload_size;
   wire       [1:0]    io_outputs_1_aw_validPipe_payload_burst;
-  wire       [2:0]    io_outputs_1_aw_validPipe_payload_prot;
   reg                 io_outputs_1_aw_rValid;
   wire                io_outputs_1_aw_validPipe_fire;
   wire                io_outputs_2_aw_validPipe_valid;
   wire                io_outputs_2_aw_validPipe_ready;
   wire       [31:0]   io_outputs_2_aw_validPipe_payload_addr;
-  wire       [0:0]    io_outputs_2_aw_validPipe_payload_id;
+  wire       [3:0]    io_outputs_2_aw_validPipe_payload_id;
   wire       [7:0]    io_outputs_2_aw_validPipe_payload_len;
   wire       [2:0]    io_outputs_2_aw_validPipe_payload_size;
   wire       [1:0]    io_outputs_2_aw_validPipe_payload_burst;
-  wire       [2:0]    io_outputs_2_aw_validPipe_payload_prot;
   reg                 io_outputs_2_aw_rValid;
   wire                io_outputs_2_aw_validPipe_fire;
   wire                io_outputs_0_ar_validPipe_valid_1;
   wire                io_outputs_0_ar_validPipe_ready_1;
   wire       [31:0]   io_outputs_0_ar_validPipe_payload_addr_1;
-  wire       [0:0]    io_outputs_0_ar_validPipe_payload_id_1;
+  wire       [3:0]    io_outputs_0_ar_validPipe_payload_id_1;
   wire       [7:0]    io_outputs_0_ar_validPipe_payload_len_1;
   wire       [2:0]    io_outputs_0_ar_validPipe_payload_size_1;
   wire       [1:0]    io_outputs_0_ar_validPipe_payload_burst_1;
-  wire       [2:0]    io_outputs_0_ar_validPipe_payload_prot_1;
   reg                 io_outputs_0_ar_rValid_1;
   wire                io_outputs_0_ar_validPipe_fire_1;
   wire                io_outputs_1_ar_validPipe_valid_1;
   wire                io_outputs_1_ar_validPipe_ready_1;
   wire       [31:0]   io_outputs_1_ar_validPipe_payload_addr_1;
-  wire       [0:0]    io_outputs_1_ar_validPipe_payload_id_1;
+  wire       [3:0]    io_outputs_1_ar_validPipe_payload_id_1;
   wire       [7:0]    io_outputs_1_ar_validPipe_payload_len_1;
   wire       [2:0]    io_outputs_1_ar_validPipe_payload_size_1;
   wire       [1:0]    io_outputs_1_ar_validPipe_payload_burst_1;
-  wire       [2:0]    io_outputs_1_ar_validPipe_payload_prot_1;
   reg                 io_outputs_1_ar_rValid_1;
   wire                io_outputs_1_ar_validPipe_fire_1;
   wire                io_outputs_2_ar_validPipe_valid_1;
   wire                io_outputs_2_ar_validPipe_ready_1;
   wire       [31:0]   io_outputs_2_ar_validPipe_payload_addr_1;
-  wire       [0:0]    io_outputs_2_ar_validPipe_payload_id_1;
+  wire       [3:0]    io_outputs_2_ar_validPipe_payload_id_1;
   wire       [7:0]    io_outputs_2_ar_validPipe_payload_len_1;
   wire       [2:0]    io_outputs_2_ar_validPipe_payload_size_1;
   wire       [1:0]    io_outputs_2_ar_validPipe_payload_burst_1;
-  wire       [2:0]    io_outputs_2_ar_validPipe_payload_prot_1;
   reg                 io_outputs_2_ar_rValid_1;
   wire                io_outputs_2_ar_validPipe_fire_1;
   wire                io_outputs_0_aw_validPipe_valid_1;
   wire                io_outputs_0_aw_validPipe_ready_1;
   wire       [31:0]   io_outputs_0_aw_validPipe_payload_addr_1;
-  wire       [0:0]    io_outputs_0_aw_validPipe_payload_id_1;
+  wire       [3:0]    io_outputs_0_aw_validPipe_payload_id_1;
   wire       [7:0]    io_outputs_0_aw_validPipe_payload_len_1;
   wire       [2:0]    io_outputs_0_aw_validPipe_payload_size_1;
   wire       [1:0]    io_outputs_0_aw_validPipe_payload_burst_1;
-  wire       [2:0]    io_outputs_0_aw_validPipe_payload_prot_1;
   reg                 io_outputs_0_aw_rValid_1;
   wire                io_outputs_0_aw_validPipe_fire_1;
   wire                io_outputs_1_aw_validPipe_valid_1;
   wire                io_outputs_1_aw_validPipe_ready_1;
   wire       [31:0]   io_outputs_1_aw_validPipe_payload_addr_1;
-  wire       [0:0]    io_outputs_1_aw_validPipe_payload_id_1;
+  wire       [3:0]    io_outputs_1_aw_validPipe_payload_id_1;
   wire       [7:0]    io_outputs_1_aw_validPipe_payload_len_1;
   wire       [2:0]    io_outputs_1_aw_validPipe_payload_size_1;
   wire       [1:0]    io_outputs_1_aw_validPipe_payload_burst_1;
-  wire       [2:0]    io_outputs_1_aw_validPipe_payload_prot_1;
   reg                 io_outputs_1_aw_rValid_1;
   wire                io_outputs_1_aw_validPipe_fire_1;
   wire                io_outputs_2_aw_validPipe_valid_1;
   wire                io_outputs_2_aw_validPipe_ready_1;
   wire       [31:0]   io_outputs_2_aw_validPipe_payload_addr_1;
-  wire       [0:0]    io_outputs_2_aw_validPipe_payload_id_1;
+  wire       [3:0]    io_outputs_2_aw_validPipe_payload_id_1;
   wire       [7:0]    io_outputs_2_aw_validPipe_payload_len_1;
   wire       [2:0]    io_outputs_2_aw_validPipe_payload_size_1;
   wire       [1:0]    io_outputs_2_aw_validPipe_payload_burst_1;
-  wire       [2:0]    io_outputs_2_aw_validPipe_payload_prot_1;
   reg                 io_outputs_2_aw_rValid_1;
   wire                io_outputs_2_aw_validPipe_fire_1;
   wire                io_outputs_0_ar_validPipe_valid_2;
@@ -4964,7 +4895,7 @@ module CoreNSCSCC (
   wire       [7:0]    io_outputs_0_ar_validPipe_payload_len_2;
   wire       [2:0]    io_outputs_0_ar_validPipe_payload_size_2;
   wire       [1:0]    io_outputs_0_ar_validPipe_payload_burst_2;
-  wire       [2:0]    io_outputs_0_ar_validPipe_payload_prot_2;
+  wire       [2:0]    io_outputs_0_ar_validPipe_payload_prot;
   reg                 io_outputs_0_ar_rValid_2;
   wire                io_outputs_0_ar_validPipe_fire_2;
   wire                io_outputs_1_ar_validPipe_valid_2;
@@ -4974,7 +4905,7 @@ module CoreNSCSCC (
   wire       [7:0]    io_outputs_1_ar_validPipe_payload_len_2;
   wire       [2:0]    io_outputs_1_ar_validPipe_payload_size_2;
   wire       [1:0]    io_outputs_1_ar_validPipe_payload_burst_2;
-  wire       [2:0]    io_outputs_1_ar_validPipe_payload_prot_2;
+  wire       [2:0]    io_outputs_1_ar_validPipe_payload_prot;
   reg                 io_outputs_1_ar_rValid_2;
   wire                io_outputs_1_ar_validPipe_fire_2;
   wire                io_outputs_2_ar_validPipe_valid_2;
@@ -4984,7 +4915,7 @@ module CoreNSCSCC (
   wire       [7:0]    io_outputs_2_ar_validPipe_payload_len_2;
   wire       [2:0]    io_outputs_2_ar_validPipe_payload_size_2;
   wire       [1:0]    io_outputs_2_ar_validPipe_payload_burst_2;
-  wire       [2:0]    io_outputs_2_ar_validPipe_payload_prot_2;
+  wire       [2:0]    io_outputs_2_ar_validPipe_payload_prot;
   reg                 io_outputs_2_ar_rValid_2;
   wire                io_outputs_2_ar_validPipe_fire_2;
   wire                io_outputs_0_aw_validPipe_valid_2;
@@ -4994,7 +4925,7 @@ module CoreNSCSCC (
   wire       [7:0]    io_outputs_0_aw_validPipe_payload_len_2;
   wire       [2:0]    io_outputs_0_aw_validPipe_payload_size_2;
   wire       [1:0]    io_outputs_0_aw_validPipe_payload_burst_2;
-  wire       [2:0]    io_outputs_0_aw_validPipe_payload_prot_2;
+  wire       [2:0]    io_outputs_0_aw_validPipe_payload_prot;
   reg                 io_outputs_0_aw_rValid_2;
   wire                io_outputs_0_aw_validPipe_fire_2;
   wire                io_outputs_1_aw_validPipe_valid_2;
@@ -5004,7 +4935,7 @@ module CoreNSCSCC (
   wire       [7:0]    io_outputs_1_aw_validPipe_payload_len_2;
   wire       [2:0]    io_outputs_1_aw_validPipe_payload_size_2;
   wire       [1:0]    io_outputs_1_aw_validPipe_payload_burst_2;
-  wire       [2:0]    io_outputs_1_aw_validPipe_payload_prot_2;
+  wire       [2:0]    io_outputs_1_aw_validPipe_payload_prot;
   reg                 io_outputs_1_aw_rValid_2;
   wire                io_outputs_1_aw_validPipe_fire_2;
   wire                io_outputs_2_aw_validPipe_valid_2;
@@ -5014,16 +4945,16 @@ module CoreNSCSCC (
   wire       [7:0]    io_outputs_2_aw_validPipe_payload_len_2;
   wire       [2:0]    io_outputs_2_aw_validPipe_payload_size_2;
   wire       [1:0]    io_outputs_2_aw_validPipe_payload_burst_2;
-  wire       [2:0]    io_outputs_2_aw_validPipe_payload_prot_2;
+  wire       [2:0]    io_outputs_2_aw_validPipe_payload_prot;
   reg                 io_outputs_2_aw_rValid_2;
   wire                io_outputs_2_aw_validPipe_fire_2;
   reg                 _zz_io_leds;
-  wire                _zz_when_CoreNSCSCC_l543;
-  reg                 _zz_when_CoreNSCSCC_l543_1;
-  wire                when_CoreNSCSCC_l543;
+  wire                _zz_when_CoreNSCSCC_l539;
+  reg                 _zz_when_CoreNSCSCC_l539_1;
+  wire                when_CoreNSCSCC_l539;
   reg        [2:0]    SimpleFetchPipelinePlugin_logic_fsm_stateReg;
   reg        [2:0]    SimpleFetchPipelinePlugin_logic_fsm_stateNext;
-  wire       [31:0]   _zz_38;
+  wire       [31:0]   _zz_39;
   wire                when_SimpleFetchPipelinePlugin_l232;
   wire                SimpleFetchPipelinePlugin_logic_fsm_onExit_BOOT;
   wire                SimpleFetchPipelinePlugin_logic_fsm_onExit_IDLE;
@@ -5433,7 +5364,7 @@ module CoreNSCSCC (
       zz_CheckpointManagerPlugin_logic_initialFreeMask[63] = 1'b1;
     end
   endfunction
-  wire [63:0] _zz_39;
+  wire [63:0] _zz_40;
 
   assign _zz_io_triggerIn_1 = 1'b1;
   assign _zz_io_triggerIn = {7'd0, _zz_io_triggerIn_1};
@@ -5499,6 +5430,7 @@ module CoreNSCSCC (
   assign _zz_when_PhysicalRegFile_l150_8 = (_zz_when_PhysicalRegFile_l150_9 + _zz_when_PhysicalRegFile_l150_11);
   assign _zz_when_PhysicalRegFile_l150_13 = LsuEU_LsuEuPlugin_gprWritePort_valid;
   assign _zz_when_PhysicalRegFile_l150_12 = {2'd0, _zz_when_PhysicalRegFile_l150_13};
+  assign _zz_StoreBufferPlugin_logic_dcacheResponseForHead = StoreBufferPlugin_logic_slots_0_robPtr[0:0];
   assign _zz__zz_StoreBufferPlugin_logic_forwardingLogic_loadMask_1 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[1 : 0];
   assign _zz__zz_StoreBufferPlugin_logic_forwardingLogic_loadMask = ({3'd0,1'b1} <<< _zz_StoreBufferPlugin_logic_forwardingLogic_loadMask_1);
   assign _zz__zz_StoreBufferPlugin_logic_forwardingLogic_loadMask_2 = _zz__zz_StoreBufferPlugin_logic_forwardingLogic_loadMask_3;
@@ -5579,7 +5511,7 @@ module CoreNSCSCC (
   assign PhysicalRegFilePlugin_logic_regFile_spinal_port5 = PhysicalRegFilePlugin_logic_regFile[BranchEU_BranchEuPlugin_gprReadPorts_1_address];
   always @(posedge clk) begin
     if(_zz_PhysicalRegFilePlugin_logic_regFile_port) begin
-      PhysicalRegFilePlugin_logic_regFile[_zz_when_PhysicalRegFile_l141_1] <= _zz_27;
+      PhysicalRegFilePlugin_logic_regFile[_zz_when_PhysicalRegFile_l141_1] <= _zz_28;
     end
   end
 
@@ -5623,11 +5555,10 @@ module CoreNSCSCC (
     .io_axi_aw_valid         (axi4WriteOnlyArbiter_3_io_output_aw_valid                  ), //i
     .io_axi_aw_ready         (CoreMemSysPlugin_hw_baseramCtrl_io_axi_aw_ready            ), //o
     .io_axi_aw_payload_addr  (axi4WriteOnlyArbiter_3_io_output_aw_payload_addr[31:0]     ), //i
-    .io_axi_aw_payload_id    (axi4WriteOnlyArbiter_3_io_output_aw_payload_id[3:0]        ), //i
+    .io_axi_aw_payload_id    (axi4WriteOnlyArbiter_3_io_output_aw_payload_id[6:0]        ), //i
     .io_axi_aw_payload_len   (axi4WriteOnlyArbiter_3_io_output_aw_payload_len[7:0]       ), //i
     .io_axi_aw_payload_size  (axi4WriteOnlyArbiter_3_io_output_aw_payload_size[2:0]      ), //i
     .io_axi_aw_payload_burst (axi4WriteOnlyArbiter_3_io_output_aw_payload_burst[1:0]     ), //i
-    .io_axi_aw_payload_prot  (axi4WriteOnlyArbiter_3_io_output_aw_payload_prot[2:0]      ), //i
     .io_axi_w_valid          (axi4WriteOnlyArbiter_3_io_output_w_valid                   ), //i
     .io_axi_w_ready          (CoreMemSysPlugin_hw_baseramCtrl_io_axi_w_ready             ), //o
     .io_axi_w_payload_data   (axi4WriteOnlyArbiter_3_io_output_w_payload_data[31:0]      ), //i
@@ -5635,20 +5566,19 @@ module CoreNSCSCC (
     .io_axi_w_payload_last   (axi4WriteOnlyArbiter_3_io_output_w_payload_last            ), //i
     .io_axi_b_valid          (CoreMemSysPlugin_hw_baseramCtrl_io_axi_b_valid             ), //o
     .io_axi_b_ready          (axi4WriteOnlyArbiter_3_io_output_b_ready                   ), //i
-    .io_axi_b_payload_id     (CoreMemSysPlugin_hw_baseramCtrl_io_axi_b_payload_id[3:0]   ), //o
+    .io_axi_b_payload_id     (CoreMemSysPlugin_hw_baseramCtrl_io_axi_b_payload_id[6:0]   ), //o
     .io_axi_b_payload_resp   (CoreMemSysPlugin_hw_baseramCtrl_io_axi_b_payload_resp[1:0] ), //o
     .io_axi_ar_valid         (axi4ReadOnlyArbiter_3_io_output_ar_valid                   ), //i
     .io_axi_ar_ready         (CoreMemSysPlugin_hw_baseramCtrl_io_axi_ar_ready            ), //o
     .io_axi_ar_payload_addr  (axi4ReadOnlyArbiter_3_io_output_ar_payload_addr[31:0]      ), //i
-    .io_axi_ar_payload_id    (axi4ReadOnlyArbiter_3_io_output_ar_payload_id[3:0]         ), //i
+    .io_axi_ar_payload_id    (axi4ReadOnlyArbiter_3_io_output_ar_payload_id[6:0]         ), //i
     .io_axi_ar_payload_len   (axi4ReadOnlyArbiter_3_io_output_ar_payload_len[7:0]        ), //i
     .io_axi_ar_payload_size  (axi4ReadOnlyArbiter_3_io_output_ar_payload_size[2:0]       ), //i
     .io_axi_ar_payload_burst (axi4ReadOnlyArbiter_3_io_output_ar_payload_burst[1:0]      ), //i
-    .io_axi_ar_payload_prot  (axi4ReadOnlyArbiter_3_io_output_ar_payload_prot[2:0]       ), //i
     .io_axi_r_valid          (CoreMemSysPlugin_hw_baseramCtrl_io_axi_r_valid             ), //o
     .io_axi_r_ready          (axi4ReadOnlyArbiter_3_io_output_r_ready                    ), //i
     .io_axi_r_payload_data   (CoreMemSysPlugin_hw_baseramCtrl_io_axi_r_payload_data[31:0]), //o
-    .io_axi_r_payload_id     (CoreMemSysPlugin_hw_baseramCtrl_io_axi_r_payload_id[3:0]   ), //o
+    .io_axi_r_payload_id     (CoreMemSysPlugin_hw_baseramCtrl_io_axi_r_payload_id[6:0]   ), //o
     .io_axi_r_payload_resp   (CoreMemSysPlugin_hw_baseramCtrl_io_axi_r_payload_resp[1:0] ), //o
     .io_axi_r_payload_last   (CoreMemSysPlugin_hw_baseramCtrl_io_axi_r_payload_last      ), //o
     .io_ram_data_read        (io_isram_dout[31:0]                                        ), //i
@@ -5666,11 +5596,10 @@ module CoreNSCSCC (
     .io_axi_aw_valid         (axi4WriteOnlyArbiter_4_io_output_aw_valid                 ), //i
     .io_axi_aw_ready         (CoreMemSysPlugin_hw_extramCtrl_io_axi_aw_ready            ), //o
     .io_axi_aw_payload_addr  (axi4WriteOnlyArbiter_4_io_output_aw_payload_addr[31:0]    ), //i
-    .io_axi_aw_payload_id    (axi4WriteOnlyArbiter_4_io_output_aw_payload_id[3:0]       ), //i
+    .io_axi_aw_payload_id    (axi4WriteOnlyArbiter_4_io_output_aw_payload_id[6:0]       ), //i
     .io_axi_aw_payload_len   (axi4WriteOnlyArbiter_4_io_output_aw_payload_len[7:0]      ), //i
     .io_axi_aw_payload_size  (axi4WriteOnlyArbiter_4_io_output_aw_payload_size[2:0]     ), //i
     .io_axi_aw_payload_burst (axi4WriteOnlyArbiter_4_io_output_aw_payload_burst[1:0]    ), //i
-    .io_axi_aw_payload_prot  (axi4WriteOnlyArbiter_4_io_output_aw_payload_prot[2:0]     ), //i
     .io_axi_w_valid          (axi4WriteOnlyArbiter_4_io_output_w_valid                  ), //i
     .io_axi_w_ready          (CoreMemSysPlugin_hw_extramCtrl_io_axi_w_ready             ), //o
     .io_axi_w_payload_data   (axi4WriteOnlyArbiter_4_io_output_w_payload_data[31:0]     ), //i
@@ -5678,20 +5607,19 @@ module CoreNSCSCC (
     .io_axi_w_payload_last   (axi4WriteOnlyArbiter_4_io_output_w_payload_last           ), //i
     .io_axi_b_valid          (CoreMemSysPlugin_hw_extramCtrl_io_axi_b_valid             ), //o
     .io_axi_b_ready          (axi4WriteOnlyArbiter_4_io_output_b_ready                  ), //i
-    .io_axi_b_payload_id     (CoreMemSysPlugin_hw_extramCtrl_io_axi_b_payload_id[3:0]   ), //o
+    .io_axi_b_payload_id     (CoreMemSysPlugin_hw_extramCtrl_io_axi_b_payload_id[6:0]   ), //o
     .io_axi_b_payload_resp   (CoreMemSysPlugin_hw_extramCtrl_io_axi_b_payload_resp[1:0] ), //o
     .io_axi_ar_valid         (axi4ReadOnlyArbiter_4_io_output_ar_valid                  ), //i
     .io_axi_ar_ready         (CoreMemSysPlugin_hw_extramCtrl_io_axi_ar_ready            ), //o
     .io_axi_ar_payload_addr  (axi4ReadOnlyArbiter_4_io_output_ar_payload_addr[31:0]     ), //i
-    .io_axi_ar_payload_id    (axi4ReadOnlyArbiter_4_io_output_ar_payload_id[3:0]        ), //i
+    .io_axi_ar_payload_id    (axi4ReadOnlyArbiter_4_io_output_ar_payload_id[6:0]        ), //i
     .io_axi_ar_payload_len   (axi4ReadOnlyArbiter_4_io_output_ar_payload_len[7:0]       ), //i
     .io_axi_ar_payload_size  (axi4ReadOnlyArbiter_4_io_output_ar_payload_size[2:0]      ), //i
     .io_axi_ar_payload_burst (axi4ReadOnlyArbiter_4_io_output_ar_payload_burst[1:0]     ), //i
-    .io_axi_ar_payload_prot  (axi4ReadOnlyArbiter_4_io_output_ar_payload_prot[2:0]      ), //i
     .io_axi_r_valid          (CoreMemSysPlugin_hw_extramCtrl_io_axi_r_valid             ), //o
     .io_axi_r_ready          (axi4ReadOnlyArbiter_4_io_output_r_ready                   ), //i
     .io_axi_r_payload_data   (CoreMemSysPlugin_hw_extramCtrl_io_axi_r_payload_data[31:0]), //o
-    .io_axi_r_payload_id     (CoreMemSysPlugin_hw_extramCtrl_io_axi_r_payload_id[3:0]   ), //o
+    .io_axi_r_payload_id     (CoreMemSysPlugin_hw_extramCtrl_io_axi_r_payload_id[6:0]   ), //o
     .io_axi_r_payload_resp   (CoreMemSysPlugin_hw_extramCtrl_io_axi_r_payload_resp[1:0] ), //o
     .io_axi_r_payload_last   (CoreMemSysPlugin_hw_extramCtrl_io_axi_r_payload_last      ), //o
     .io_ram_data_read        (io_dsram_dout[31:0]                                       ), //i
@@ -7121,31 +7049,30 @@ module CoreNSCSCC (
     .io_gmbIn_read_cmd_valid                (_zz_LoadQueuePlugin_logic_loadQueue_mmioCmdFired                         ), //i
     .io_gmbIn_read_cmd_ready                (CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_cmd_ready             ), //o
     .io_gmbIn_read_cmd_payload_address      (LoadQueuePlugin_logic_loadQueue_slots_0_address[31:0]                    ), //i
-    .io_gmbIn_read_cmd_payload_id           (CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_cmd_payload_id        ), //i
+    .io_gmbIn_read_cmd_payload_id           (LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[3:0]                      ), //i
     .io_gmbIn_read_rsp_valid                (CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_valid             ), //o
     .io_gmbIn_read_rsp_ready                (CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_ready             ), //i
     .io_gmbIn_read_rsp_payload_data         (CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_payload_data[31:0]), //o
     .io_gmbIn_read_rsp_payload_error        (CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_payload_error     ), //o
-    .io_gmbIn_read_rsp_payload_id           (CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_payload_id        ), //o
+    .io_gmbIn_read_rsp_payload_id           (CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_payload_id[3:0]   ), //o
     .io_gmbIn_write_cmd_valid               (1'b0                                                                     ), //i
     .io_gmbIn_write_cmd_ready               (CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_write_cmd_ready            ), //o
     .io_gmbIn_write_cmd_payload_address     (32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx                                     ), //i
     .io_gmbIn_write_cmd_payload_data        (32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx                                     ), //i
     .io_gmbIn_write_cmd_payload_byteEnables (4'bxxxx                                                                  ), //i
-    .io_gmbIn_write_cmd_payload_id          (1'bx                                                                     ), //i
+    .io_gmbIn_write_cmd_payload_id          (4'bxxxx                                                                  ), //i
     .io_gmbIn_write_cmd_payload_last        (1'bx                                                                     ), //i
     .io_gmbIn_write_rsp_valid               (CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_write_rsp_valid            ), //o
     .io_gmbIn_write_rsp_ready               (1'b1                                                                     ), //i
     .io_gmbIn_write_rsp_payload_error       (CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_write_rsp_payload_error    ), //o
-    .io_gmbIn_write_rsp_payload_id          (CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_write_rsp_payload_id       ), //o
+    .io_gmbIn_write_rsp_payload_id          (CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_write_rsp_payload_id[3:0]  ), //o
     .io_axiOut_aw_valid                     (CoreMemSysPlugin_logic_readBridges_0_io_axiOut_aw_valid                  ), //o
     .io_axiOut_aw_ready                     (io_axiOut_writeOnly_aw_ready_1                                           ), //i
     .io_axiOut_aw_payload_addr              (CoreMemSysPlugin_logic_readBridges_0_io_axiOut_aw_payload_addr[31:0]     ), //o
-    .io_axiOut_aw_payload_id                (CoreMemSysPlugin_logic_readBridges_0_io_axiOut_aw_payload_id             ), //o
+    .io_axiOut_aw_payload_id                (CoreMemSysPlugin_logic_readBridges_0_io_axiOut_aw_payload_id[3:0]        ), //o
     .io_axiOut_aw_payload_len               (CoreMemSysPlugin_logic_readBridges_0_io_axiOut_aw_payload_len[7:0]       ), //o
     .io_axiOut_aw_payload_size              (CoreMemSysPlugin_logic_readBridges_0_io_axiOut_aw_payload_size[2:0]      ), //o
     .io_axiOut_aw_payload_burst             (CoreMemSysPlugin_logic_readBridges_0_io_axiOut_aw_payload_burst[1:0]     ), //o
-    .io_axiOut_aw_payload_prot              (CoreMemSysPlugin_logic_readBridges_0_io_axiOut_aw_payload_prot[2:0]      ), //o
     .io_axiOut_w_valid                      (CoreMemSysPlugin_logic_readBridges_0_io_axiOut_w_valid                   ), //o
     .io_axiOut_w_ready                      (io_axiOut_writeOnly_w_ready_1                                            ), //i
     .io_axiOut_w_payload_data               (CoreMemSysPlugin_logic_readBridges_0_io_axiOut_w_payload_data[31:0]      ), //o
@@ -7153,54 +7080,52 @@ module CoreNSCSCC (
     .io_axiOut_w_payload_last               (CoreMemSysPlugin_logic_readBridges_0_io_axiOut_w_payload_last            ), //o
     .io_axiOut_b_valid                      (io_axiOut_writeOnly_b_valid_1                                            ), //i
     .io_axiOut_b_ready                      (CoreMemSysPlugin_logic_readBridges_0_io_axiOut_b_ready                   ), //o
-    .io_axiOut_b_payload_id                 (io_axiOut_writeOnly_b_payload_id_1                                       ), //i
+    .io_axiOut_b_payload_id                 (io_axiOut_writeOnly_b_payload_id_1[3:0]                                  ), //i
     .io_axiOut_b_payload_resp               (io_axiOut_writeOnly_b_payload_resp_1[1:0]                                ), //i
     .io_axiOut_ar_valid                     (CoreMemSysPlugin_logic_readBridges_0_io_axiOut_ar_valid                  ), //o
     .io_axiOut_ar_ready                     (io_axiOut_readOnly_ar_ready_1                                            ), //i
     .io_axiOut_ar_payload_addr              (CoreMemSysPlugin_logic_readBridges_0_io_axiOut_ar_payload_addr[31:0]     ), //o
-    .io_axiOut_ar_payload_id                (CoreMemSysPlugin_logic_readBridges_0_io_axiOut_ar_payload_id             ), //o
+    .io_axiOut_ar_payload_id                (CoreMemSysPlugin_logic_readBridges_0_io_axiOut_ar_payload_id[3:0]        ), //o
     .io_axiOut_ar_payload_len               (CoreMemSysPlugin_logic_readBridges_0_io_axiOut_ar_payload_len[7:0]       ), //o
     .io_axiOut_ar_payload_size              (CoreMemSysPlugin_logic_readBridges_0_io_axiOut_ar_payload_size[2:0]      ), //o
     .io_axiOut_ar_payload_burst             (CoreMemSysPlugin_logic_readBridges_0_io_axiOut_ar_payload_burst[1:0]     ), //o
-    .io_axiOut_ar_payload_prot              (CoreMemSysPlugin_logic_readBridges_0_io_axiOut_ar_payload_prot[2:0]      ), //o
     .io_axiOut_r_valid                      (io_axiOut_readOnly_r_valid_1                                             ), //i
     .io_axiOut_r_ready                      (CoreMemSysPlugin_logic_readBridges_0_io_axiOut_r_ready                   ), //o
     .io_axiOut_r_payload_data               (io_axiOut_readOnly_r_payload_data_1[31:0]                                ), //i
-    .io_axiOut_r_payload_id                 (io_axiOut_readOnly_r_payload_id_1                                        ), //i
+    .io_axiOut_r_payload_id                 (io_axiOut_readOnly_r_payload_id_1[3:0]                                   ), //i
     .io_axiOut_r_payload_resp               (io_axiOut_readOnly_r_payload_resp_1[1:0]                                 ), //i
     .io_axiOut_r_payload_last               (io_axiOut_readOnly_r_payload_last_1                                      ), //i
     .clk                                    (clk                                                                      ), //i
     .reset                                  (reset                                                                    )  //i
   );
-  SplitGmbToAxi4Bridge CoreMemSysPlugin_logic_writeBridges_0 (
+  SplitGmbToAxi4Bridge_1 CoreMemSysPlugin_logic_writeBridges_0 (
     .io_gmbIn_read_cmd_valid                (1'b0                                                                      ), //i
     .io_gmbIn_read_cmd_ready                (CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_read_cmd_ready             ), //o
     .io_gmbIn_read_cmd_payload_address      (32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx                                      ), //i
-    .io_gmbIn_read_cmd_payload_id           (1'bx                                                                      ), //i
+    .io_gmbIn_read_cmd_payload_id           (4'bxxxx                                                                   ), //i
     .io_gmbIn_read_rsp_valid                (CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_read_rsp_valid             ), //o
     .io_gmbIn_read_rsp_ready                (1'b1                                                                      ), //i
     .io_gmbIn_read_rsp_payload_data         (CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_read_rsp_payload_data[31:0]), //o
     .io_gmbIn_read_rsp_payload_error        (CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_read_rsp_payload_error     ), //o
-    .io_gmbIn_read_rsp_payload_id           (CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_read_rsp_payload_id        ), //o
-    .io_gmbIn_write_cmd_valid               (StoreBufferPlugin_logic_canPopMMIOOp                                      ), //i
+    .io_gmbIn_read_rsp_payload_id           (CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_read_rsp_payload_id[3:0]   ), //o
+    .io_gmbIn_write_cmd_valid               (_zz_io_gmbIn_write_cmd_valid                                              ), //i
     .io_gmbIn_write_cmd_ready               (CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_cmd_ready            ), //o
-    .io_gmbIn_write_cmd_payload_address     (StoreBufferPlugin_logic_slots_0_addr[31:0]                                ), //i
-    .io_gmbIn_write_cmd_payload_data        (StoreBufferPlugin_logic_slots_0_data[31:0]                                ), //i
-    .io_gmbIn_write_cmd_payload_byteEnables (StoreBufferPlugin_logic_slots_0_be[3:0]                                   ), //i
-    .io_gmbIn_write_cmd_payload_id          (CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_cmd_payload_id       ), //i
+    .io_gmbIn_write_cmd_payload_address     (_zz_io_gmbIn_write_cmd_payload_address[31:0]                              ), //i
+    .io_gmbIn_write_cmd_payload_data        (_zz_io_gmbIn_write_cmd_payload_data[31:0]                                 ), //i
+    .io_gmbIn_write_cmd_payload_byteEnables (_zz_io_gmbIn_write_cmd_payload_byteEnables[3:0]                           ), //i
+    .io_gmbIn_write_cmd_payload_id          (_zz_io_gmbIn_write_cmd_payload_id[3:0]                                    ), //i
     .io_gmbIn_write_cmd_payload_last        (1'b1                                                                      ), //i
     .io_gmbIn_write_rsp_valid               (CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_rsp_valid            ), //o
-    .io_gmbIn_write_rsp_ready               (CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_rsp_ready            ), //i
+    .io_gmbIn_write_rsp_ready               (_zz_io_gmbIn_write_rsp_ready                                              ), //i
     .io_gmbIn_write_rsp_payload_error       (CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_rsp_payload_error    ), //o
-    .io_gmbIn_write_rsp_payload_id          (CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_rsp_payload_id       ), //o
+    .io_gmbIn_write_rsp_payload_id          (CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_rsp_payload_id[3:0]  ), //o
     .io_axiOut_aw_valid                     (CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_aw_valid                  ), //o
     .io_axiOut_aw_ready                     (io_axiOut_writeOnly_aw_ready                                              ), //i
     .io_axiOut_aw_payload_addr              (CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_aw_payload_addr[31:0]     ), //o
-    .io_axiOut_aw_payload_id                (CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_aw_payload_id             ), //o
+    .io_axiOut_aw_payload_id                (CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_aw_payload_id[3:0]        ), //o
     .io_axiOut_aw_payload_len               (CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_aw_payload_len[7:0]       ), //o
     .io_axiOut_aw_payload_size              (CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_aw_payload_size[2:0]      ), //o
     .io_axiOut_aw_payload_burst             (CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_aw_payload_burst[1:0]     ), //o
-    .io_axiOut_aw_payload_prot              (CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_aw_payload_prot[2:0]      ), //o
     .io_axiOut_w_valid                      (CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_w_valid                   ), //o
     .io_axiOut_w_ready                      (io_axiOut_writeOnly_w_ready                                               ), //i
     .io_axiOut_w_payload_data               (CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_w_payload_data[31:0]      ), //o
@@ -7208,20 +7133,19 @@ module CoreNSCSCC (
     .io_axiOut_w_payload_last               (CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_w_payload_last            ), //o
     .io_axiOut_b_valid                      (io_axiOut_writeOnly_b_valid                                               ), //i
     .io_axiOut_b_ready                      (CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_b_ready                   ), //o
-    .io_axiOut_b_payload_id                 (io_axiOut_writeOnly_b_payload_id                                          ), //i
+    .io_axiOut_b_payload_id                 (io_axiOut_writeOnly_b_payload_id[3:0]                                     ), //i
     .io_axiOut_b_payload_resp               (io_axiOut_writeOnly_b_payload_resp[1:0]                                   ), //i
     .io_axiOut_ar_valid                     (CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_ar_valid                  ), //o
     .io_axiOut_ar_ready                     (io_axiOut_readOnly_ar_ready                                               ), //i
     .io_axiOut_ar_payload_addr              (CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_ar_payload_addr[31:0]     ), //o
-    .io_axiOut_ar_payload_id                (CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_ar_payload_id             ), //o
+    .io_axiOut_ar_payload_id                (CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_ar_payload_id[3:0]        ), //o
     .io_axiOut_ar_payload_len               (CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_ar_payload_len[7:0]       ), //o
     .io_axiOut_ar_payload_size              (CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_ar_payload_size[2:0]      ), //o
     .io_axiOut_ar_payload_burst             (CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_ar_payload_burst[1:0]     ), //o
-    .io_axiOut_ar_payload_prot              (CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_ar_payload_prot[2:0]      ), //o
     .io_axiOut_r_valid                      (io_axiOut_readOnly_r_valid                                                ), //i
     .io_axiOut_r_ready                      (CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_r_ready                   ), //o
     .io_axiOut_r_payload_data               (io_axiOut_readOnly_r_payload_data[31:0]                                   ), //i
-    .io_axiOut_r_payload_id                 (io_axiOut_readOnly_r_payload_id                                           ), //i
+    .io_axiOut_r_payload_id                 (io_axiOut_readOnly_r_payload_id[3:0]                                      ), //i
     .io_axiOut_r_payload_resp               (io_axiOut_readOnly_r_payload_resp[1:0]                                    ), //i
     .io_axiOut_r_payload_last               (io_axiOut_readOnly_r_payload_last                                         ), //i
     .clk                                    (clk                                                                       ), //i
@@ -7231,57 +7155,53 @@ module CoreNSCSCC (
     .io_input_ar_valid             (io_axiOut_readOnly_ar_valid                                  ), //i
     .io_input_ar_ready             (io_axiOut_readOnly_decoder_io_input_ar_ready                 ), //o
     .io_input_ar_payload_addr      (io_axiOut_readOnly_ar_payload_addr[31:0]                     ), //i
-    .io_input_ar_payload_id        (io_axiOut_readOnly_ar_payload_id                             ), //i
+    .io_input_ar_payload_id        (io_axiOut_readOnly_ar_payload_id[3:0]                        ), //i
     .io_input_ar_payload_len       (io_axiOut_readOnly_ar_payload_len[7:0]                       ), //i
     .io_input_ar_payload_size      (io_axiOut_readOnly_ar_payload_size[2:0]                      ), //i
     .io_input_ar_payload_burst     (io_axiOut_readOnly_ar_payload_burst[1:0]                     ), //i
-    .io_input_ar_payload_prot      (io_axiOut_readOnly_ar_payload_prot[2:0]                      ), //i
     .io_input_r_valid              (io_axiOut_readOnly_decoder_io_input_r_valid                  ), //o
     .io_input_r_ready              (io_axiOut_readOnly_r_ready                                   ), //i
     .io_input_r_payload_data       (io_axiOut_readOnly_decoder_io_input_r_payload_data[31:0]     ), //o
-    .io_input_r_payload_id         (io_axiOut_readOnly_decoder_io_input_r_payload_id             ), //o
+    .io_input_r_payload_id         (io_axiOut_readOnly_decoder_io_input_r_payload_id[3:0]        ), //o
     .io_input_r_payload_resp       (io_axiOut_readOnly_decoder_io_input_r_payload_resp[1:0]      ), //o
     .io_input_r_payload_last       (io_axiOut_readOnly_decoder_io_input_r_payload_last           ), //o
     .io_outputs_0_ar_valid         (io_axiOut_readOnly_decoder_io_outputs_0_ar_valid             ), //o
     .io_outputs_0_ar_ready         (io_outputs_0_ar_validPipe_fire                               ), //i
     .io_outputs_0_ar_payload_addr  (io_axiOut_readOnly_decoder_io_outputs_0_ar_payload_addr[31:0]), //o
-    .io_outputs_0_ar_payload_id    (io_axiOut_readOnly_decoder_io_outputs_0_ar_payload_id        ), //o
+    .io_outputs_0_ar_payload_id    (io_axiOut_readOnly_decoder_io_outputs_0_ar_payload_id[3:0]   ), //o
     .io_outputs_0_ar_payload_len   (io_axiOut_readOnly_decoder_io_outputs_0_ar_payload_len[7:0]  ), //o
     .io_outputs_0_ar_payload_size  (io_axiOut_readOnly_decoder_io_outputs_0_ar_payload_size[2:0] ), //o
     .io_outputs_0_ar_payload_burst (io_axiOut_readOnly_decoder_io_outputs_0_ar_payload_burst[1:0]), //o
-    .io_outputs_0_ar_payload_prot  (io_axiOut_readOnly_decoder_io_outputs_0_ar_payload_prot[2:0] ), //o
     .io_outputs_0_r_valid          (axi4ReadOnlyArbiter_3_io_inputs_0_r_valid                    ), //i
     .io_outputs_0_r_ready          (io_axiOut_readOnly_decoder_io_outputs_0_r_ready              ), //o
     .io_outputs_0_r_payload_data   (axi4ReadOnlyArbiter_3_io_inputs_0_r_payload_data[31:0]       ), //i
-    .io_outputs_0_r_payload_id     (io_axiOut_readOnly_decoder_io_outputs_0_r_payload_id         ), //i
+    .io_outputs_0_r_payload_id     (io_axiOut_readOnly_decoder_io_outputs_0_r_payload_id[3:0]    ), //i
     .io_outputs_0_r_payload_resp   (axi4ReadOnlyArbiter_3_io_inputs_0_r_payload_resp[1:0]        ), //i
     .io_outputs_0_r_payload_last   (axi4ReadOnlyArbiter_3_io_inputs_0_r_payload_last             ), //i
     .io_outputs_1_ar_valid         (io_axiOut_readOnly_decoder_io_outputs_1_ar_valid             ), //o
     .io_outputs_1_ar_ready         (io_outputs_1_ar_validPipe_fire                               ), //i
     .io_outputs_1_ar_payload_addr  (io_axiOut_readOnly_decoder_io_outputs_1_ar_payload_addr[31:0]), //o
-    .io_outputs_1_ar_payload_id    (io_axiOut_readOnly_decoder_io_outputs_1_ar_payload_id        ), //o
+    .io_outputs_1_ar_payload_id    (io_axiOut_readOnly_decoder_io_outputs_1_ar_payload_id[3:0]   ), //o
     .io_outputs_1_ar_payload_len   (io_axiOut_readOnly_decoder_io_outputs_1_ar_payload_len[7:0]  ), //o
     .io_outputs_1_ar_payload_size  (io_axiOut_readOnly_decoder_io_outputs_1_ar_payload_size[2:0] ), //o
     .io_outputs_1_ar_payload_burst (io_axiOut_readOnly_decoder_io_outputs_1_ar_payload_burst[1:0]), //o
-    .io_outputs_1_ar_payload_prot  (io_axiOut_readOnly_decoder_io_outputs_1_ar_payload_prot[2:0] ), //o
     .io_outputs_1_r_valid          (axi4ReadOnlyArbiter_4_io_inputs_0_r_valid                    ), //i
     .io_outputs_1_r_ready          (io_axiOut_readOnly_decoder_io_outputs_1_r_ready              ), //o
     .io_outputs_1_r_payload_data   (axi4ReadOnlyArbiter_4_io_inputs_0_r_payload_data[31:0]       ), //i
-    .io_outputs_1_r_payload_id     (io_axiOut_readOnly_decoder_io_outputs_1_r_payload_id         ), //i
+    .io_outputs_1_r_payload_id     (io_axiOut_readOnly_decoder_io_outputs_1_r_payload_id[3:0]    ), //i
     .io_outputs_1_r_payload_resp   (axi4ReadOnlyArbiter_4_io_inputs_0_r_payload_resp[1:0]        ), //i
     .io_outputs_1_r_payload_last   (axi4ReadOnlyArbiter_4_io_inputs_0_r_payload_last             ), //i
     .io_outputs_2_ar_valid         (io_axiOut_readOnly_decoder_io_outputs_2_ar_valid             ), //o
     .io_outputs_2_ar_ready         (io_outputs_2_ar_validPipe_fire                               ), //i
     .io_outputs_2_ar_payload_addr  (io_axiOut_readOnly_decoder_io_outputs_2_ar_payload_addr[31:0]), //o
-    .io_outputs_2_ar_payload_id    (io_axiOut_readOnly_decoder_io_outputs_2_ar_payload_id        ), //o
+    .io_outputs_2_ar_payload_id    (io_axiOut_readOnly_decoder_io_outputs_2_ar_payload_id[3:0]   ), //o
     .io_outputs_2_ar_payload_len   (io_axiOut_readOnly_decoder_io_outputs_2_ar_payload_len[7:0]  ), //o
     .io_outputs_2_ar_payload_size  (io_axiOut_readOnly_decoder_io_outputs_2_ar_payload_size[2:0] ), //o
     .io_outputs_2_ar_payload_burst (io_axiOut_readOnly_decoder_io_outputs_2_ar_payload_burst[1:0]), //o
-    .io_outputs_2_ar_payload_prot  (io_axiOut_readOnly_decoder_io_outputs_2_ar_payload_prot[2:0] ), //o
     .io_outputs_2_r_valid          (axi4ReadOnlyArbiter_5_io_inputs_0_r_valid                    ), //i
     .io_outputs_2_r_ready          (io_axiOut_readOnly_decoder_io_outputs_2_r_ready              ), //o
     .io_outputs_2_r_payload_data   (axi4ReadOnlyArbiter_5_io_inputs_0_r_payload_data[31:0]       ), //i
-    .io_outputs_2_r_payload_id     (io_axiOut_readOnly_decoder_io_outputs_2_r_payload_id         ), //i
+    .io_outputs_2_r_payload_id     (io_axiOut_readOnly_decoder_io_outputs_2_r_payload_id[3:0]    ), //i
     .io_outputs_2_r_payload_resp   (axi4ReadOnlyArbiter_5_io_inputs_0_r_payload_resp[1:0]        ), //i
     .io_outputs_2_r_payload_last   (axi4ReadOnlyArbiter_5_io_inputs_0_r_payload_last             ), //i
     .clk                           (clk                                                          ), //i
@@ -7291,11 +7211,10 @@ module CoreNSCSCC (
     .io_input_aw_valid             (io_axiOut_writeOnly_aw_valid                                  ), //i
     .io_input_aw_ready             (io_axiOut_writeOnly_decoder_io_input_aw_ready                 ), //o
     .io_input_aw_payload_addr      (io_axiOut_writeOnly_aw_payload_addr[31:0]                     ), //i
-    .io_input_aw_payload_id        (io_axiOut_writeOnly_aw_payload_id                             ), //i
+    .io_input_aw_payload_id        (io_axiOut_writeOnly_aw_payload_id[3:0]                        ), //i
     .io_input_aw_payload_len       (io_axiOut_writeOnly_aw_payload_len[7:0]                       ), //i
     .io_input_aw_payload_size      (io_axiOut_writeOnly_aw_payload_size[2:0]                      ), //i
     .io_input_aw_payload_burst     (io_axiOut_writeOnly_aw_payload_burst[1:0]                     ), //i
-    .io_input_aw_payload_prot      (io_axiOut_writeOnly_aw_payload_prot[2:0]                      ), //i
     .io_input_w_valid              (io_axiOut_writeOnly_w_valid                                   ), //i
     .io_input_w_ready              (io_axiOut_writeOnly_decoder_io_input_w_ready                  ), //o
     .io_input_w_payload_data       (io_axiOut_writeOnly_w_payload_data[31:0]                      ), //i
@@ -7303,16 +7222,15 @@ module CoreNSCSCC (
     .io_input_w_payload_last       (io_axiOut_writeOnly_w_payload_last                            ), //i
     .io_input_b_valid              (io_axiOut_writeOnly_decoder_io_input_b_valid                  ), //o
     .io_input_b_ready              (io_axiOut_writeOnly_b_ready                                   ), //i
-    .io_input_b_payload_id         (io_axiOut_writeOnly_decoder_io_input_b_payload_id             ), //o
+    .io_input_b_payload_id         (io_axiOut_writeOnly_decoder_io_input_b_payload_id[3:0]        ), //o
     .io_input_b_payload_resp       (io_axiOut_writeOnly_decoder_io_input_b_payload_resp[1:0]      ), //o
     .io_outputs_0_aw_valid         (io_axiOut_writeOnly_decoder_io_outputs_0_aw_valid             ), //o
     .io_outputs_0_aw_ready         (io_outputs_0_aw_validPipe_fire                                ), //i
     .io_outputs_0_aw_payload_addr  (io_axiOut_writeOnly_decoder_io_outputs_0_aw_payload_addr[31:0]), //o
-    .io_outputs_0_aw_payload_id    (io_axiOut_writeOnly_decoder_io_outputs_0_aw_payload_id        ), //o
+    .io_outputs_0_aw_payload_id    (io_axiOut_writeOnly_decoder_io_outputs_0_aw_payload_id[3:0]   ), //o
     .io_outputs_0_aw_payload_len   (io_axiOut_writeOnly_decoder_io_outputs_0_aw_payload_len[7:0]  ), //o
     .io_outputs_0_aw_payload_size  (io_axiOut_writeOnly_decoder_io_outputs_0_aw_payload_size[2:0] ), //o
     .io_outputs_0_aw_payload_burst (io_axiOut_writeOnly_decoder_io_outputs_0_aw_payload_burst[1:0]), //o
-    .io_outputs_0_aw_payload_prot  (io_axiOut_writeOnly_decoder_io_outputs_0_aw_payload_prot[2:0] ), //o
     .io_outputs_0_w_valid          (io_axiOut_writeOnly_decoder_io_outputs_0_w_valid              ), //o
     .io_outputs_0_w_ready          (axi4WriteOnlyArbiter_3_io_inputs_0_w_ready                    ), //i
     .io_outputs_0_w_payload_data   (io_axiOut_writeOnly_decoder_io_outputs_0_w_payload_data[31:0] ), //o
@@ -7320,16 +7238,15 @@ module CoreNSCSCC (
     .io_outputs_0_w_payload_last   (io_axiOut_writeOnly_decoder_io_outputs_0_w_payload_last       ), //o
     .io_outputs_0_b_valid          (axi4WriteOnlyArbiter_3_io_inputs_0_b_valid                    ), //i
     .io_outputs_0_b_ready          (io_axiOut_writeOnly_decoder_io_outputs_0_b_ready              ), //o
-    .io_outputs_0_b_payload_id     (io_axiOut_writeOnly_decoder_io_outputs_0_b_payload_id         ), //i
+    .io_outputs_0_b_payload_id     (io_axiOut_writeOnly_decoder_io_outputs_0_b_payload_id[3:0]    ), //i
     .io_outputs_0_b_payload_resp   (axi4WriteOnlyArbiter_3_io_inputs_0_b_payload_resp[1:0]        ), //i
     .io_outputs_1_aw_valid         (io_axiOut_writeOnly_decoder_io_outputs_1_aw_valid             ), //o
     .io_outputs_1_aw_ready         (io_outputs_1_aw_validPipe_fire                                ), //i
     .io_outputs_1_aw_payload_addr  (io_axiOut_writeOnly_decoder_io_outputs_1_aw_payload_addr[31:0]), //o
-    .io_outputs_1_aw_payload_id    (io_axiOut_writeOnly_decoder_io_outputs_1_aw_payload_id        ), //o
+    .io_outputs_1_aw_payload_id    (io_axiOut_writeOnly_decoder_io_outputs_1_aw_payload_id[3:0]   ), //o
     .io_outputs_1_aw_payload_len   (io_axiOut_writeOnly_decoder_io_outputs_1_aw_payload_len[7:0]  ), //o
     .io_outputs_1_aw_payload_size  (io_axiOut_writeOnly_decoder_io_outputs_1_aw_payload_size[2:0] ), //o
     .io_outputs_1_aw_payload_burst (io_axiOut_writeOnly_decoder_io_outputs_1_aw_payload_burst[1:0]), //o
-    .io_outputs_1_aw_payload_prot  (io_axiOut_writeOnly_decoder_io_outputs_1_aw_payload_prot[2:0] ), //o
     .io_outputs_1_w_valid          (io_axiOut_writeOnly_decoder_io_outputs_1_w_valid              ), //o
     .io_outputs_1_w_ready          (axi4WriteOnlyArbiter_4_io_inputs_0_w_ready                    ), //i
     .io_outputs_1_w_payload_data   (io_axiOut_writeOnly_decoder_io_outputs_1_w_payload_data[31:0] ), //o
@@ -7337,16 +7254,15 @@ module CoreNSCSCC (
     .io_outputs_1_w_payload_last   (io_axiOut_writeOnly_decoder_io_outputs_1_w_payload_last       ), //o
     .io_outputs_1_b_valid          (axi4WriteOnlyArbiter_4_io_inputs_0_b_valid                    ), //i
     .io_outputs_1_b_ready          (io_axiOut_writeOnly_decoder_io_outputs_1_b_ready              ), //o
-    .io_outputs_1_b_payload_id     (io_axiOut_writeOnly_decoder_io_outputs_1_b_payload_id         ), //i
+    .io_outputs_1_b_payload_id     (io_axiOut_writeOnly_decoder_io_outputs_1_b_payload_id[3:0]    ), //i
     .io_outputs_1_b_payload_resp   (axi4WriteOnlyArbiter_4_io_inputs_0_b_payload_resp[1:0]        ), //i
     .io_outputs_2_aw_valid         (io_axiOut_writeOnly_decoder_io_outputs_2_aw_valid             ), //o
     .io_outputs_2_aw_ready         (io_outputs_2_aw_validPipe_fire                                ), //i
     .io_outputs_2_aw_payload_addr  (io_axiOut_writeOnly_decoder_io_outputs_2_aw_payload_addr[31:0]), //o
-    .io_outputs_2_aw_payload_id    (io_axiOut_writeOnly_decoder_io_outputs_2_aw_payload_id        ), //o
+    .io_outputs_2_aw_payload_id    (io_axiOut_writeOnly_decoder_io_outputs_2_aw_payload_id[3:0]   ), //o
     .io_outputs_2_aw_payload_len   (io_axiOut_writeOnly_decoder_io_outputs_2_aw_payload_len[7:0]  ), //o
     .io_outputs_2_aw_payload_size  (io_axiOut_writeOnly_decoder_io_outputs_2_aw_payload_size[2:0] ), //o
     .io_outputs_2_aw_payload_burst (io_axiOut_writeOnly_decoder_io_outputs_2_aw_payload_burst[1:0]), //o
-    .io_outputs_2_aw_payload_prot  (io_axiOut_writeOnly_decoder_io_outputs_2_aw_payload_prot[2:0] ), //o
     .io_outputs_2_w_valid          (io_axiOut_writeOnly_decoder_io_outputs_2_w_valid              ), //o
     .io_outputs_2_w_ready          (axi4WriteOnlyArbiter_5_io_inputs_0_w_ready                    ), //i
     .io_outputs_2_w_payload_data   (io_axiOut_writeOnly_decoder_io_outputs_2_w_payload_data[31:0] ), //o
@@ -7354,7 +7270,7 @@ module CoreNSCSCC (
     .io_outputs_2_w_payload_last   (io_axiOut_writeOnly_decoder_io_outputs_2_w_payload_last       ), //o
     .io_outputs_2_b_valid          (axi4WriteOnlyArbiter_5_io_inputs_0_b_valid                    ), //i
     .io_outputs_2_b_ready          (io_axiOut_writeOnly_decoder_io_outputs_2_b_ready              ), //o
-    .io_outputs_2_b_payload_id     (io_axiOut_writeOnly_decoder_io_outputs_2_b_payload_id         ), //i
+    .io_outputs_2_b_payload_id     (io_axiOut_writeOnly_decoder_io_outputs_2_b_payload_id[3:0]    ), //i
     .io_outputs_2_b_payload_resp   (axi4WriteOnlyArbiter_5_io_inputs_0_b_payload_resp[1:0]        ), //i
     .clk                           (clk                                                           ), //i
     .reset                         (reset                                                         )  //i
@@ -7363,57 +7279,53 @@ module CoreNSCSCC (
     .io_input_ar_valid             (io_axiOut_readOnly_ar_valid_1                                  ), //i
     .io_input_ar_ready             (io_axiOut_readOnly_decoder_1_io_input_ar_ready                 ), //o
     .io_input_ar_payload_addr      (io_axiOut_readOnly_ar_payload_addr_1[31:0]                     ), //i
-    .io_input_ar_payload_id        (io_axiOut_readOnly_ar_payload_id_1                             ), //i
+    .io_input_ar_payload_id        (io_axiOut_readOnly_ar_payload_id_1[3:0]                        ), //i
     .io_input_ar_payload_len       (io_axiOut_readOnly_ar_payload_len_1[7:0]                       ), //i
     .io_input_ar_payload_size      (io_axiOut_readOnly_ar_payload_size_1[2:0]                      ), //i
     .io_input_ar_payload_burst     (io_axiOut_readOnly_ar_payload_burst_1[1:0]                     ), //i
-    .io_input_ar_payload_prot      (io_axiOut_readOnly_ar_payload_prot_1[2:0]                      ), //i
     .io_input_r_valid              (io_axiOut_readOnly_decoder_1_io_input_r_valid                  ), //o
     .io_input_r_ready              (io_axiOut_readOnly_r_ready_1                                   ), //i
     .io_input_r_payload_data       (io_axiOut_readOnly_decoder_1_io_input_r_payload_data[31:0]     ), //o
-    .io_input_r_payload_id         (io_axiOut_readOnly_decoder_1_io_input_r_payload_id             ), //o
+    .io_input_r_payload_id         (io_axiOut_readOnly_decoder_1_io_input_r_payload_id[3:0]        ), //o
     .io_input_r_payload_resp       (io_axiOut_readOnly_decoder_1_io_input_r_payload_resp[1:0]      ), //o
     .io_input_r_payload_last       (io_axiOut_readOnly_decoder_1_io_input_r_payload_last           ), //o
     .io_outputs_0_ar_valid         (io_axiOut_readOnly_decoder_1_io_outputs_0_ar_valid             ), //o
     .io_outputs_0_ar_ready         (io_outputs_0_ar_validPipe_fire_1                               ), //i
     .io_outputs_0_ar_payload_addr  (io_axiOut_readOnly_decoder_1_io_outputs_0_ar_payload_addr[31:0]), //o
-    .io_outputs_0_ar_payload_id    (io_axiOut_readOnly_decoder_1_io_outputs_0_ar_payload_id        ), //o
+    .io_outputs_0_ar_payload_id    (io_axiOut_readOnly_decoder_1_io_outputs_0_ar_payload_id[3:0]   ), //o
     .io_outputs_0_ar_payload_len   (io_axiOut_readOnly_decoder_1_io_outputs_0_ar_payload_len[7:0]  ), //o
     .io_outputs_0_ar_payload_size  (io_axiOut_readOnly_decoder_1_io_outputs_0_ar_payload_size[2:0] ), //o
     .io_outputs_0_ar_payload_burst (io_axiOut_readOnly_decoder_1_io_outputs_0_ar_payload_burst[1:0]), //o
-    .io_outputs_0_ar_payload_prot  (io_axiOut_readOnly_decoder_1_io_outputs_0_ar_payload_prot[2:0] ), //o
     .io_outputs_0_r_valid          (axi4ReadOnlyArbiter_3_io_inputs_1_r_valid                      ), //i
     .io_outputs_0_r_ready          (io_axiOut_readOnly_decoder_1_io_outputs_0_r_ready              ), //o
     .io_outputs_0_r_payload_data   (axi4ReadOnlyArbiter_3_io_inputs_1_r_payload_data[31:0]         ), //i
-    .io_outputs_0_r_payload_id     (io_axiOut_readOnly_decoder_1_io_outputs_0_r_payload_id         ), //i
+    .io_outputs_0_r_payload_id     (io_axiOut_readOnly_decoder_1_io_outputs_0_r_payload_id[3:0]    ), //i
     .io_outputs_0_r_payload_resp   (axi4ReadOnlyArbiter_3_io_inputs_1_r_payload_resp[1:0]          ), //i
     .io_outputs_0_r_payload_last   (axi4ReadOnlyArbiter_3_io_inputs_1_r_payload_last               ), //i
     .io_outputs_1_ar_valid         (io_axiOut_readOnly_decoder_1_io_outputs_1_ar_valid             ), //o
     .io_outputs_1_ar_ready         (io_outputs_1_ar_validPipe_fire_1                               ), //i
     .io_outputs_1_ar_payload_addr  (io_axiOut_readOnly_decoder_1_io_outputs_1_ar_payload_addr[31:0]), //o
-    .io_outputs_1_ar_payload_id    (io_axiOut_readOnly_decoder_1_io_outputs_1_ar_payload_id        ), //o
+    .io_outputs_1_ar_payload_id    (io_axiOut_readOnly_decoder_1_io_outputs_1_ar_payload_id[3:0]   ), //o
     .io_outputs_1_ar_payload_len   (io_axiOut_readOnly_decoder_1_io_outputs_1_ar_payload_len[7:0]  ), //o
     .io_outputs_1_ar_payload_size  (io_axiOut_readOnly_decoder_1_io_outputs_1_ar_payload_size[2:0] ), //o
     .io_outputs_1_ar_payload_burst (io_axiOut_readOnly_decoder_1_io_outputs_1_ar_payload_burst[1:0]), //o
-    .io_outputs_1_ar_payload_prot  (io_axiOut_readOnly_decoder_1_io_outputs_1_ar_payload_prot[2:0] ), //o
     .io_outputs_1_r_valid          (axi4ReadOnlyArbiter_4_io_inputs_1_r_valid                      ), //i
     .io_outputs_1_r_ready          (io_axiOut_readOnly_decoder_1_io_outputs_1_r_ready              ), //o
     .io_outputs_1_r_payload_data   (axi4ReadOnlyArbiter_4_io_inputs_1_r_payload_data[31:0]         ), //i
-    .io_outputs_1_r_payload_id     (io_axiOut_readOnly_decoder_1_io_outputs_1_r_payload_id         ), //i
+    .io_outputs_1_r_payload_id     (io_axiOut_readOnly_decoder_1_io_outputs_1_r_payload_id[3:0]    ), //i
     .io_outputs_1_r_payload_resp   (axi4ReadOnlyArbiter_4_io_inputs_1_r_payload_resp[1:0]          ), //i
     .io_outputs_1_r_payload_last   (axi4ReadOnlyArbiter_4_io_inputs_1_r_payload_last               ), //i
     .io_outputs_2_ar_valid         (io_axiOut_readOnly_decoder_1_io_outputs_2_ar_valid             ), //o
     .io_outputs_2_ar_ready         (io_outputs_2_ar_validPipe_fire_1                               ), //i
     .io_outputs_2_ar_payload_addr  (io_axiOut_readOnly_decoder_1_io_outputs_2_ar_payload_addr[31:0]), //o
-    .io_outputs_2_ar_payload_id    (io_axiOut_readOnly_decoder_1_io_outputs_2_ar_payload_id        ), //o
+    .io_outputs_2_ar_payload_id    (io_axiOut_readOnly_decoder_1_io_outputs_2_ar_payload_id[3:0]   ), //o
     .io_outputs_2_ar_payload_len   (io_axiOut_readOnly_decoder_1_io_outputs_2_ar_payload_len[7:0]  ), //o
     .io_outputs_2_ar_payload_size  (io_axiOut_readOnly_decoder_1_io_outputs_2_ar_payload_size[2:0] ), //o
     .io_outputs_2_ar_payload_burst (io_axiOut_readOnly_decoder_1_io_outputs_2_ar_payload_burst[1:0]), //o
-    .io_outputs_2_ar_payload_prot  (io_axiOut_readOnly_decoder_1_io_outputs_2_ar_payload_prot[2:0] ), //o
     .io_outputs_2_r_valid          (axi4ReadOnlyArbiter_5_io_inputs_1_r_valid                      ), //i
     .io_outputs_2_r_ready          (io_axiOut_readOnly_decoder_1_io_outputs_2_r_ready              ), //o
     .io_outputs_2_r_payload_data   (axi4ReadOnlyArbiter_5_io_inputs_1_r_payload_data[31:0]         ), //i
-    .io_outputs_2_r_payload_id     (io_axiOut_readOnly_decoder_1_io_outputs_2_r_payload_id         ), //i
+    .io_outputs_2_r_payload_id     (io_axiOut_readOnly_decoder_1_io_outputs_2_r_payload_id[3:0]    ), //i
     .io_outputs_2_r_payload_resp   (axi4ReadOnlyArbiter_5_io_inputs_1_r_payload_resp[1:0]          ), //i
     .io_outputs_2_r_payload_last   (axi4ReadOnlyArbiter_5_io_inputs_1_r_payload_last               ), //i
     .clk                           (clk                                                            ), //i
@@ -7423,11 +7335,10 @@ module CoreNSCSCC (
     .io_input_aw_valid             (io_axiOut_writeOnly_aw_valid_1                                  ), //i
     .io_input_aw_ready             (io_axiOut_writeOnly_decoder_1_io_input_aw_ready                 ), //o
     .io_input_aw_payload_addr      (io_axiOut_writeOnly_aw_payload_addr_1[31:0]                     ), //i
-    .io_input_aw_payload_id        (io_axiOut_writeOnly_aw_payload_id_1                             ), //i
+    .io_input_aw_payload_id        (io_axiOut_writeOnly_aw_payload_id_1[3:0]                        ), //i
     .io_input_aw_payload_len       (io_axiOut_writeOnly_aw_payload_len_1[7:0]                       ), //i
     .io_input_aw_payload_size      (io_axiOut_writeOnly_aw_payload_size_1[2:0]                      ), //i
     .io_input_aw_payload_burst     (io_axiOut_writeOnly_aw_payload_burst_1[1:0]                     ), //i
-    .io_input_aw_payload_prot      (io_axiOut_writeOnly_aw_payload_prot_1[2:0]                      ), //i
     .io_input_w_valid              (io_axiOut_writeOnly_w_valid_1                                   ), //i
     .io_input_w_ready              (io_axiOut_writeOnly_decoder_1_io_input_w_ready                  ), //o
     .io_input_w_payload_data       (io_axiOut_writeOnly_w_payload_data_1[31:0]                      ), //i
@@ -7435,16 +7346,15 @@ module CoreNSCSCC (
     .io_input_w_payload_last       (io_axiOut_writeOnly_w_payload_last_1                            ), //i
     .io_input_b_valid              (io_axiOut_writeOnly_decoder_1_io_input_b_valid                  ), //o
     .io_input_b_ready              (io_axiOut_writeOnly_b_ready_1                                   ), //i
-    .io_input_b_payload_id         (io_axiOut_writeOnly_decoder_1_io_input_b_payload_id             ), //o
+    .io_input_b_payload_id         (io_axiOut_writeOnly_decoder_1_io_input_b_payload_id[3:0]        ), //o
     .io_input_b_payload_resp       (io_axiOut_writeOnly_decoder_1_io_input_b_payload_resp[1:0]      ), //o
     .io_outputs_0_aw_valid         (io_axiOut_writeOnly_decoder_1_io_outputs_0_aw_valid             ), //o
     .io_outputs_0_aw_ready         (io_outputs_0_aw_validPipe_fire_1                                ), //i
     .io_outputs_0_aw_payload_addr  (io_axiOut_writeOnly_decoder_1_io_outputs_0_aw_payload_addr[31:0]), //o
-    .io_outputs_0_aw_payload_id    (io_axiOut_writeOnly_decoder_1_io_outputs_0_aw_payload_id        ), //o
+    .io_outputs_0_aw_payload_id    (io_axiOut_writeOnly_decoder_1_io_outputs_0_aw_payload_id[3:0]   ), //o
     .io_outputs_0_aw_payload_len   (io_axiOut_writeOnly_decoder_1_io_outputs_0_aw_payload_len[7:0]  ), //o
     .io_outputs_0_aw_payload_size  (io_axiOut_writeOnly_decoder_1_io_outputs_0_aw_payload_size[2:0] ), //o
     .io_outputs_0_aw_payload_burst (io_axiOut_writeOnly_decoder_1_io_outputs_0_aw_payload_burst[1:0]), //o
-    .io_outputs_0_aw_payload_prot  (io_axiOut_writeOnly_decoder_1_io_outputs_0_aw_payload_prot[2:0] ), //o
     .io_outputs_0_w_valid          (io_axiOut_writeOnly_decoder_1_io_outputs_0_w_valid              ), //o
     .io_outputs_0_w_ready          (axi4WriteOnlyArbiter_3_io_inputs_1_w_ready                      ), //i
     .io_outputs_0_w_payload_data   (io_axiOut_writeOnly_decoder_1_io_outputs_0_w_payload_data[31:0] ), //o
@@ -7452,16 +7362,15 @@ module CoreNSCSCC (
     .io_outputs_0_w_payload_last   (io_axiOut_writeOnly_decoder_1_io_outputs_0_w_payload_last       ), //o
     .io_outputs_0_b_valid          (axi4WriteOnlyArbiter_3_io_inputs_1_b_valid                      ), //i
     .io_outputs_0_b_ready          (io_axiOut_writeOnly_decoder_1_io_outputs_0_b_ready              ), //o
-    .io_outputs_0_b_payload_id     (io_axiOut_writeOnly_decoder_1_io_outputs_0_b_payload_id         ), //i
+    .io_outputs_0_b_payload_id     (io_axiOut_writeOnly_decoder_1_io_outputs_0_b_payload_id[3:0]    ), //i
     .io_outputs_0_b_payload_resp   (axi4WriteOnlyArbiter_3_io_inputs_1_b_payload_resp[1:0]          ), //i
     .io_outputs_1_aw_valid         (io_axiOut_writeOnly_decoder_1_io_outputs_1_aw_valid             ), //o
     .io_outputs_1_aw_ready         (io_outputs_1_aw_validPipe_fire_1                                ), //i
     .io_outputs_1_aw_payload_addr  (io_axiOut_writeOnly_decoder_1_io_outputs_1_aw_payload_addr[31:0]), //o
-    .io_outputs_1_aw_payload_id    (io_axiOut_writeOnly_decoder_1_io_outputs_1_aw_payload_id        ), //o
+    .io_outputs_1_aw_payload_id    (io_axiOut_writeOnly_decoder_1_io_outputs_1_aw_payload_id[3:0]   ), //o
     .io_outputs_1_aw_payload_len   (io_axiOut_writeOnly_decoder_1_io_outputs_1_aw_payload_len[7:0]  ), //o
     .io_outputs_1_aw_payload_size  (io_axiOut_writeOnly_decoder_1_io_outputs_1_aw_payload_size[2:0] ), //o
     .io_outputs_1_aw_payload_burst (io_axiOut_writeOnly_decoder_1_io_outputs_1_aw_payload_burst[1:0]), //o
-    .io_outputs_1_aw_payload_prot  (io_axiOut_writeOnly_decoder_1_io_outputs_1_aw_payload_prot[2:0] ), //o
     .io_outputs_1_w_valid          (io_axiOut_writeOnly_decoder_1_io_outputs_1_w_valid              ), //o
     .io_outputs_1_w_ready          (axi4WriteOnlyArbiter_4_io_inputs_1_w_ready                      ), //i
     .io_outputs_1_w_payload_data   (io_axiOut_writeOnly_decoder_1_io_outputs_1_w_payload_data[31:0] ), //o
@@ -7469,16 +7378,15 @@ module CoreNSCSCC (
     .io_outputs_1_w_payload_last   (io_axiOut_writeOnly_decoder_1_io_outputs_1_w_payload_last       ), //o
     .io_outputs_1_b_valid          (axi4WriteOnlyArbiter_4_io_inputs_1_b_valid                      ), //i
     .io_outputs_1_b_ready          (io_axiOut_writeOnly_decoder_1_io_outputs_1_b_ready              ), //o
-    .io_outputs_1_b_payload_id     (io_axiOut_writeOnly_decoder_1_io_outputs_1_b_payload_id         ), //i
+    .io_outputs_1_b_payload_id     (io_axiOut_writeOnly_decoder_1_io_outputs_1_b_payload_id[3:0]    ), //i
     .io_outputs_1_b_payload_resp   (axi4WriteOnlyArbiter_4_io_inputs_1_b_payload_resp[1:0]          ), //i
     .io_outputs_2_aw_valid         (io_axiOut_writeOnly_decoder_1_io_outputs_2_aw_valid             ), //o
     .io_outputs_2_aw_ready         (io_outputs_2_aw_validPipe_fire_1                                ), //i
     .io_outputs_2_aw_payload_addr  (io_axiOut_writeOnly_decoder_1_io_outputs_2_aw_payload_addr[31:0]), //o
-    .io_outputs_2_aw_payload_id    (io_axiOut_writeOnly_decoder_1_io_outputs_2_aw_payload_id        ), //o
+    .io_outputs_2_aw_payload_id    (io_axiOut_writeOnly_decoder_1_io_outputs_2_aw_payload_id[3:0]   ), //o
     .io_outputs_2_aw_payload_len   (io_axiOut_writeOnly_decoder_1_io_outputs_2_aw_payload_len[7:0]  ), //o
     .io_outputs_2_aw_payload_size  (io_axiOut_writeOnly_decoder_1_io_outputs_2_aw_payload_size[2:0] ), //o
     .io_outputs_2_aw_payload_burst (io_axiOut_writeOnly_decoder_1_io_outputs_2_aw_payload_burst[1:0]), //o
-    .io_outputs_2_aw_payload_prot  (io_axiOut_writeOnly_decoder_1_io_outputs_2_aw_payload_prot[2:0] ), //o
     .io_outputs_2_w_valid          (io_axiOut_writeOnly_decoder_1_io_outputs_2_w_valid              ), //o
     .io_outputs_2_w_ready          (axi4WriteOnlyArbiter_5_io_inputs_1_w_ready                      ), //i
     .io_outputs_2_w_payload_data   (io_axiOut_writeOnly_decoder_1_io_outputs_2_w_payload_data[31:0] ), //o
@@ -7486,12 +7394,12 @@ module CoreNSCSCC (
     .io_outputs_2_w_payload_last   (io_axiOut_writeOnly_decoder_1_io_outputs_2_w_payload_last       ), //o
     .io_outputs_2_b_valid          (axi4WriteOnlyArbiter_5_io_inputs_1_b_valid                      ), //i
     .io_outputs_2_b_ready          (io_axiOut_writeOnly_decoder_1_io_outputs_2_b_ready              ), //o
-    .io_outputs_2_b_payload_id     (io_axiOut_writeOnly_decoder_1_io_outputs_2_b_payload_id         ), //i
+    .io_outputs_2_b_payload_id     (io_axiOut_writeOnly_decoder_1_io_outputs_2_b_payload_id[3:0]    ), //i
     .io_outputs_2_b_payload_resp   (axi4WriteOnlyArbiter_5_io_inputs_1_b_payload_resp[1:0]          ), //i
     .clk                           (clk                                                             ), //i
     .reset                         (reset                                                           )  //i
   );
-  Axi4ReadOnlyDecoder DataCachePlugin_setup_dcacheMaster_readOnly_decoder (
+  Axi4ReadOnlyDecoder_2 DataCachePlugin_setup_dcacheMaster_readOnly_decoder (
     .io_input_ar_valid             (DataCachePlugin_setup_dcacheMaster_readOnly_ar_valid                                  ), //i
     .io_input_ar_ready             (DataCachePlugin_setup_dcacheMaster_readOnly_decoder_io_input_ar_ready                 ), //o
     .io_input_ar_payload_addr      (DataCachePlugin_setup_dcacheMaster_readOnly_ar_payload_addr[31:0]                     ), //i
@@ -7551,7 +7459,7 @@ module CoreNSCSCC (
     .clk                           (clk                                                                                   ), //i
     .reset                         (reset                                                                                 )  //i
   );
-  Axi4WriteOnlyDecoder DataCachePlugin_setup_dcacheMaster_writeOnly_decoder (
+  Axi4WriteOnlyDecoder_2 DataCachePlugin_setup_dcacheMaster_writeOnly_decoder (
     .io_input_aw_valid             (DataCachePlugin_setup_dcacheMaster_writeOnly_aw_valid                                  ), //i
     .io_input_aw_ready             (DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_input_aw_ready                 ), //o
     .io_input_aw_payload_addr      (DataCachePlugin_setup_dcacheMaster_writeOnly_aw_payload_addr[31:0]                     ), //i
@@ -7627,57 +7535,53 @@ module CoreNSCSCC (
     .io_inputs_0_ar_valid         (io_outputs_0_ar_validPipe_valid                                         ), //i
     .io_inputs_0_ar_ready         (axi4ReadOnlyArbiter_3_io_inputs_0_ar_ready                              ), //o
     .io_inputs_0_ar_payload_addr  (io_outputs_0_ar_validPipe_payload_addr[31:0]                            ), //i
-    .io_inputs_0_ar_payload_id    (axi4ReadOnlyArbiter_3_io_inputs_0_ar_payload_id[1:0]                    ), //i
+    .io_inputs_0_ar_payload_id    (axi4ReadOnlyArbiter_3_io_inputs_0_ar_payload_id[4:0]                    ), //i
     .io_inputs_0_ar_payload_len   (io_outputs_0_ar_validPipe_payload_len[7:0]                              ), //i
     .io_inputs_0_ar_payload_size  (io_outputs_0_ar_validPipe_payload_size[2:0]                             ), //i
     .io_inputs_0_ar_payload_burst (io_outputs_0_ar_validPipe_payload_burst[1:0]                            ), //i
-    .io_inputs_0_ar_payload_prot  (io_outputs_0_ar_validPipe_payload_prot[2:0]                             ), //i
     .io_inputs_0_r_valid          (axi4ReadOnlyArbiter_3_io_inputs_0_r_valid                               ), //o
     .io_inputs_0_r_ready          (io_axiOut_readOnly_decoder_io_outputs_0_r_ready                         ), //i
     .io_inputs_0_r_payload_data   (axi4ReadOnlyArbiter_3_io_inputs_0_r_payload_data[31:0]                  ), //o
-    .io_inputs_0_r_payload_id     (axi4ReadOnlyArbiter_3_io_inputs_0_r_payload_id[1:0]                     ), //o
+    .io_inputs_0_r_payload_id     (axi4ReadOnlyArbiter_3_io_inputs_0_r_payload_id[4:0]                     ), //o
     .io_inputs_0_r_payload_resp   (axi4ReadOnlyArbiter_3_io_inputs_0_r_payload_resp[1:0]                   ), //o
     .io_inputs_0_r_payload_last   (axi4ReadOnlyArbiter_3_io_inputs_0_r_payload_last                        ), //o
     .io_inputs_1_ar_valid         (io_outputs_0_ar_validPipe_valid_1                                       ), //i
     .io_inputs_1_ar_ready         (axi4ReadOnlyArbiter_3_io_inputs_1_ar_ready                              ), //o
     .io_inputs_1_ar_payload_addr  (io_outputs_0_ar_validPipe_payload_addr_1[31:0]                          ), //i
-    .io_inputs_1_ar_payload_id    (axi4ReadOnlyArbiter_3_io_inputs_1_ar_payload_id[1:0]                    ), //i
+    .io_inputs_1_ar_payload_id    (axi4ReadOnlyArbiter_3_io_inputs_1_ar_payload_id[4:0]                    ), //i
     .io_inputs_1_ar_payload_len   (io_outputs_0_ar_validPipe_payload_len_1[7:0]                            ), //i
     .io_inputs_1_ar_payload_size  (io_outputs_0_ar_validPipe_payload_size_1[2:0]                           ), //i
     .io_inputs_1_ar_payload_burst (io_outputs_0_ar_validPipe_payload_burst_1[1:0]                          ), //i
-    .io_inputs_1_ar_payload_prot  (io_outputs_0_ar_validPipe_payload_prot_1[2:0]                           ), //i
     .io_inputs_1_r_valid          (axi4ReadOnlyArbiter_3_io_inputs_1_r_valid                               ), //o
     .io_inputs_1_r_ready          (io_axiOut_readOnly_decoder_1_io_outputs_0_r_ready                       ), //i
     .io_inputs_1_r_payload_data   (axi4ReadOnlyArbiter_3_io_inputs_1_r_payload_data[31:0]                  ), //o
-    .io_inputs_1_r_payload_id     (axi4ReadOnlyArbiter_3_io_inputs_1_r_payload_id[1:0]                     ), //o
+    .io_inputs_1_r_payload_id     (axi4ReadOnlyArbiter_3_io_inputs_1_r_payload_id[4:0]                     ), //o
     .io_inputs_1_r_payload_resp   (axi4ReadOnlyArbiter_3_io_inputs_1_r_payload_resp[1:0]                   ), //o
     .io_inputs_1_r_payload_last   (axi4ReadOnlyArbiter_3_io_inputs_1_r_payload_last                        ), //o
     .io_inputs_2_ar_valid         (io_outputs_0_ar_validPipe_valid_2                                       ), //i
     .io_inputs_2_ar_ready         (axi4ReadOnlyArbiter_3_io_inputs_2_ar_ready                              ), //o
     .io_inputs_2_ar_payload_addr  (io_outputs_0_ar_validPipe_payload_addr_2[31:0]                          ), //i
-    .io_inputs_2_ar_payload_id    (axi4ReadOnlyArbiter_3_io_inputs_2_ar_payload_id[1:0]                    ), //i
+    .io_inputs_2_ar_payload_id    (axi4ReadOnlyArbiter_3_io_inputs_2_ar_payload_id[4:0]                    ), //i
     .io_inputs_2_ar_payload_len   (io_outputs_0_ar_validPipe_payload_len_2[7:0]                            ), //i
     .io_inputs_2_ar_payload_size  (io_outputs_0_ar_validPipe_payload_size_2[2:0]                           ), //i
     .io_inputs_2_ar_payload_burst (io_outputs_0_ar_validPipe_payload_burst_2[1:0]                          ), //i
-    .io_inputs_2_ar_payload_prot  (io_outputs_0_ar_validPipe_payload_prot_2[2:0]                           ), //i
     .io_inputs_2_r_valid          (axi4ReadOnlyArbiter_3_io_inputs_2_r_valid                               ), //o
     .io_inputs_2_r_ready          (DataCachePlugin_setup_dcacheMaster_readOnly_decoder_io_outputs_0_r_ready), //i
     .io_inputs_2_r_payload_data   (axi4ReadOnlyArbiter_3_io_inputs_2_r_payload_data[31:0]                  ), //o
-    .io_inputs_2_r_payload_id     (axi4ReadOnlyArbiter_3_io_inputs_2_r_payload_id[1:0]                     ), //o
+    .io_inputs_2_r_payload_id     (axi4ReadOnlyArbiter_3_io_inputs_2_r_payload_id[4:0]                     ), //o
     .io_inputs_2_r_payload_resp   (axi4ReadOnlyArbiter_3_io_inputs_2_r_payload_resp[1:0]                   ), //o
     .io_inputs_2_r_payload_last   (axi4ReadOnlyArbiter_3_io_inputs_2_r_payload_last                        ), //o
     .io_output_ar_valid           (axi4ReadOnlyArbiter_3_io_output_ar_valid                                ), //o
     .io_output_ar_ready           (CoreMemSysPlugin_hw_baseramCtrl_io_axi_ar_ready                         ), //i
     .io_output_ar_payload_addr    (axi4ReadOnlyArbiter_3_io_output_ar_payload_addr[31:0]                   ), //o
-    .io_output_ar_payload_id      (axi4ReadOnlyArbiter_3_io_output_ar_payload_id[3:0]                      ), //o
+    .io_output_ar_payload_id      (axi4ReadOnlyArbiter_3_io_output_ar_payload_id[6:0]                      ), //o
     .io_output_ar_payload_len     (axi4ReadOnlyArbiter_3_io_output_ar_payload_len[7:0]                     ), //o
     .io_output_ar_payload_size    (axi4ReadOnlyArbiter_3_io_output_ar_payload_size[2:0]                    ), //o
     .io_output_ar_payload_burst   (axi4ReadOnlyArbiter_3_io_output_ar_payload_burst[1:0]                   ), //o
-    .io_output_ar_payload_prot    (axi4ReadOnlyArbiter_3_io_output_ar_payload_prot[2:0]                    ), //o
     .io_output_r_valid            (CoreMemSysPlugin_hw_baseramCtrl_io_axi_r_valid                          ), //i
     .io_output_r_ready            (axi4ReadOnlyArbiter_3_io_output_r_ready                                 ), //o
     .io_output_r_payload_data     (CoreMemSysPlugin_hw_baseramCtrl_io_axi_r_payload_data[31:0]             ), //i
-    .io_output_r_payload_id       (CoreMemSysPlugin_hw_baseramCtrl_io_axi_r_payload_id[3:0]                ), //i
+    .io_output_r_payload_id       (CoreMemSysPlugin_hw_baseramCtrl_io_axi_r_payload_id[6:0]                ), //i
     .io_output_r_payload_resp     (CoreMemSysPlugin_hw_baseramCtrl_io_axi_r_payload_resp[1:0]              ), //i
     .io_output_r_payload_last     (CoreMemSysPlugin_hw_baseramCtrl_io_axi_r_payload_last                   ), //i
     .clk                          (clk                                                                     ), //i
@@ -7687,11 +7591,10 @@ module CoreNSCSCC (
     .io_inputs_0_aw_valid         (io_outputs_0_aw_validPipe_valid                                                       ), //i
     .io_inputs_0_aw_ready         (axi4WriteOnlyArbiter_3_io_inputs_0_aw_ready                                           ), //o
     .io_inputs_0_aw_payload_addr  (io_outputs_0_aw_validPipe_payload_addr[31:0]                                          ), //i
-    .io_inputs_0_aw_payload_id    (axi4WriteOnlyArbiter_3_io_inputs_0_aw_payload_id[1:0]                                 ), //i
+    .io_inputs_0_aw_payload_id    (axi4WriteOnlyArbiter_3_io_inputs_0_aw_payload_id[4:0]                                 ), //i
     .io_inputs_0_aw_payload_len   (io_outputs_0_aw_validPipe_payload_len[7:0]                                            ), //i
     .io_inputs_0_aw_payload_size  (io_outputs_0_aw_validPipe_payload_size[2:0]                                           ), //i
     .io_inputs_0_aw_payload_burst (io_outputs_0_aw_validPipe_payload_burst[1:0]                                          ), //i
-    .io_inputs_0_aw_payload_prot  (io_outputs_0_aw_validPipe_payload_prot[2:0]                                           ), //i
     .io_inputs_0_w_valid          (io_axiOut_writeOnly_decoder_io_outputs_0_w_valid                                      ), //i
     .io_inputs_0_w_ready          (axi4WriteOnlyArbiter_3_io_inputs_0_w_ready                                            ), //o
     .io_inputs_0_w_payload_data   (io_axiOut_writeOnly_decoder_io_outputs_0_w_payload_data[31:0]                         ), //i
@@ -7699,16 +7602,15 @@ module CoreNSCSCC (
     .io_inputs_0_w_payload_last   (io_axiOut_writeOnly_decoder_io_outputs_0_w_payload_last                               ), //i
     .io_inputs_0_b_valid          (axi4WriteOnlyArbiter_3_io_inputs_0_b_valid                                            ), //o
     .io_inputs_0_b_ready          (io_axiOut_writeOnly_decoder_io_outputs_0_b_ready                                      ), //i
-    .io_inputs_0_b_payload_id     (axi4WriteOnlyArbiter_3_io_inputs_0_b_payload_id[1:0]                                  ), //o
+    .io_inputs_0_b_payload_id     (axi4WriteOnlyArbiter_3_io_inputs_0_b_payload_id[4:0]                                  ), //o
     .io_inputs_0_b_payload_resp   (axi4WriteOnlyArbiter_3_io_inputs_0_b_payload_resp[1:0]                                ), //o
     .io_inputs_1_aw_valid         (io_outputs_0_aw_validPipe_valid_1                                                     ), //i
     .io_inputs_1_aw_ready         (axi4WriteOnlyArbiter_3_io_inputs_1_aw_ready                                           ), //o
     .io_inputs_1_aw_payload_addr  (io_outputs_0_aw_validPipe_payload_addr_1[31:0]                                        ), //i
-    .io_inputs_1_aw_payload_id    (axi4WriteOnlyArbiter_3_io_inputs_1_aw_payload_id[1:0]                                 ), //i
+    .io_inputs_1_aw_payload_id    (axi4WriteOnlyArbiter_3_io_inputs_1_aw_payload_id[4:0]                                 ), //i
     .io_inputs_1_aw_payload_len   (io_outputs_0_aw_validPipe_payload_len_1[7:0]                                          ), //i
     .io_inputs_1_aw_payload_size  (io_outputs_0_aw_validPipe_payload_size_1[2:0]                                         ), //i
     .io_inputs_1_aw_payload_burst (io_outputs_0_aw_validPipe_payload_burst_1[1:0]                                        ), //i
-    .io_inputs_1_aw_payload_prot  (io_outputs_0_aw_validPipe_payload_prot_1[2:0]                                         ), //i
     .io_inputs_1_w_valid          (io_axiOut_writeOnly_decoder_1_io_outputs_0_w_valid                                    ), //i
     .io_inputs_1_w_ready          (axi4WriteOnlyArbiter_3_io_inputs_1_w_ready                                            ), //o
     .io_inputs_1_w_payload_data   (io_axiOut_writeOnly_decoder_1_io_outputs_0_w_payload_data[31:0]                       ), //i
@@ -7716,16 +7618,15 @@ module CoreNSCSCC (
     .io_inputs_1_w_payload_last   (io_axiOut_writeOnly_decoder_1_io_outputs_0_w_payload_last                             ), //i
     .io_inputs_1_b_valid          (axi4WriteOnlyArbiter_3_io_inputs_1_b_valid                                            ), //o
     .io_inputs_1_b_ready          (io_axiOut_writeOnly_decoder_1_io_outputs_0_b_ready                                    ), //i
-    .io_inputs_1_b_payload_id     (axi4WriteOnlyArbiter_3_io_inputs_1_b_payload_id[1:0]                                  ), //o
+    .io_inputs_1_b_payload_id     (axi4WriteOnlyArbiter_3_io_inputs_1_b_payload_id[4:0]                                  ), //o
     .io_inputs_1_b_payload_resp   (axi4WriteOnlyArbiter_3_io_inputs_1_b_payload_resp[1:0]                                ), //o
     .io_inputs_2_aw_valid         (io_outputs_0_aw_validPipe_valid_2                                                     ), //i
     .io_inputs_2_aw_ready         (axi4WriteOnlyArbiter_3_io_inputs_2_aw_ready                                           ), //o
     .io_inputs_2_aw_payload_addr  (io_outputs_0_aw_validPipe_payload_addr_2[31:0]                                        ), //i
-    .io_inputs_2_aw_payload_id    (axi4WriteOnlyArbiter_3_io_inputs_2_aw_payload_id[1:0]                                 ), //i
+    .io_inputs_2_aw_payload_id    (axi4WriteOnlyArbiter_3_io_inputs_2_aw_payload_id[4:0]                                 ), //i
     .io_inputs_2_aw_payload_len   (io_outputs_0_aw_validPipe_payload_len_2[7:0]                                          ), //i
     .io_inputs_2_aw_payload_size  (io_outputs_0_aw_validPipe_payload_size_2[2:0]                                         ), //i
     .io_inputs_2_aw_payload_burst (io_outputs_0_aw_validPipe_payload_burst_2[1:0]                                        ), //i
-    .io_inputs_2_aw_payload_prot  (io_outputs_0_aw_validPipe_payload_prot_2[2:0]                                         ), //i
     .io_inputs_2_w_valid          (DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_0_w_valid             ), //i
     .io_inputs_2_w_ready          (axi4WriteOnlyArbiter_3_io_inputs_2_w_ready                                            ), //o
     .io_inputs_2_w_payload_data   (DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_0_w_payload_data[31:0]), //i
@@ -7733,16 +7634,15 @@ module CoreNSCSCC (
     .io_inputs_2_w_payload_last   (DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_0_w_payload_last      ), //i
     .io_inputs_2_b_valid          (axi4WriteOnlyArbiter_3_io_inputs_2_b_valid                                            ), //o
     .io_inputs_2_b_ready          (DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_0_b_ready             ), //i
-    .io_inputs_2_b_payload_id     (axi4WriteOnlyArbiter_3_io_inputs_2_b_payload_id[1:0]                                  ), //o
+    .io_inputs_2_b_payload_id     (axi4WriteOnlyArbiter_3_io_inputs_2_b_payload_id[4:0]                                  ), //o
     .io_inputs_2_b_payload_resp   (axi4WriteOnlyArbiter_3_io_inputs_2_b_payload_resp[1:0]                                ), //o
     .io_output_aw_valid           (axi4WriteOnlyArbiter_3_io_output_aw_valid                                             ), //o
     .io_output_aw_ready           (CoreMemSysPlugin_hw_baseramCtrl_io_axi_aw_ready                                       ), //i
     .io_output_aw_payload_addr    (axi4WriteOnlyArbiter_3_io_output_aw_payload_addr[31:0]                                ), //o
-    .io_output_aw_payload_id      (axi4WriteOnlyArbiter_3_io_output_aw_payload_id[3:0]                                   ), //o
+    .io_output_aw_payload_id      (axi4WriteOnlyArbiter_3_io_output_aw_payload_id[6:0]                                   ), //o
     .io_output_aw_payload_len     (axi4WriteOnlyArbiter_3_io_output_aw_payload_len[7:0]                                  ), //o
     .io_output_aw_payload_size    (axi4WriteOnlyArbiter_3_io_output_aw_payload_size[2:0]                                 ), //o
     .io_output_aw_payload_burst   (axi4WriteOnlyArbiter_3_io_output_aw_payload_burst[1:0]                                ), //o
-    .io_output_aw_payload_prot    (axi4WriteOnlyArbiter_3_io_output_aw_payload_prot[2:0]                                 ), //o
     .io_output_w_valid            (axi4WriteOnlyArbiter_3_io_output_w_valid                                              ), //o
     .io_output_w_ready            (CoreMemSysPlugin_hw_baseramCtrl_io_axi_w_ready                                        ), //i
     .io_output_w_payload_data     (axi4WriteOnlyArbiter_3_io_output_w_payload_data[31:0]                                 ), //o
@@ -7750,7 +7650,7 @@ module CoreNSCSCC (
     .io_output_w_payload_last     (axi4WriteOnlyArbiter_3_io_output_w_payload_last                                       ), //o
     .io_output_b_valid            (CoreMemSysPlugin_hw_baseramCtrl_io_axi_b_valid                                        ), //i
     .io_output_b_ready            (axi4WriteOnlyArbiter_3_io_output_b_ready                                              ), //o
-    .io_output_b_payload_id       (CoreMemSysPlugin_hw_baseramCtrl_io_axi_b_payload_id[3:0]                              ), //i
+    .io_output_b_payload_id       (CoreMemSysPlugin_hw_baseramCtrl_io_axi_b_payload_id[6:0]                              ), //i
     .io_output_b_payload_resp     (CoreMemSysPlugin_hw_baseramCtrl_io_axi_b_payload_resp[1:0]                            ), //i
     .clk                          (clk                                                                                   ), //i
     .reset                        (reset                                                                                 )  //i
@@ -7759,57 +7659,53 @@ module CoreNSCSCC (
     .io_inputs_0_ar_valid         (io_outputs_1_ar_validPipe_valid                                         ), //i
     .io_inputs_0_ar_ready         (axi4ReadOnlyArbiter_4_io_inputs_0_ar_ready                              ), //o
     .io_inputs_0_ar_payload_addr  (io_outputs_1_ar_validPipe_payload_addr[31:0]                            ), //i
-    .io_inputs_0_ar_payload_id    (axi4ReadOnlyArbiter_4_io_inputs_0_ar_payload_id[1:0]                    ), //i
+    .io_inputs_0_ar_payload_id    (axi4ReadOnlyArbiter_4_io_inputs_0_ar_payload_id[4:0]                    ), //i
     .io_inputs_0_ar_payload_len   (io_outputs_1_ar_validPipe_payload_len[7:0]                              ), //i
     .io_inputs_0_ar_payload_size  (io_outputs_1_ar_validPipe_payload_size[2:0]                             ), //i
     .io_inputs_0_ar_payload_burst (io_outputs_1_ar_validPipe_payload_burst[1:0]                            ), //i
-    .io_inputs_0_ar_payload_prot  (io_outputs_1_ar_validPipe_payload_prot[2:0]                             ), //i
     .io_inputs_0_r_valid          (axi4ReadOnlyArbiter_4_io_inputs_0_r_valid                               ), //o
     .io_inputs_0_r_ready          (io_axiOut_readOnly_decoder_io_outputs_1_r_ready                         ), //i
     .io_inputs_0_r_payload_data   (axi4ReadOnlyArbiter_4_io_inputs_0_r_payload_data[31:0]                  ), //o
-    .io_inputs_0_r_payload_id     (axi4ReadOnlyArbiter_4_io_inputs_0_r_payload_id[1:0]                     ), //o
+    .io_inputs_0_r_payload_id     (axi4ReadOnlyArbiter_4_io_inputs_0_r_payload_id[4:0]                     ), //o
     .io_inputs_0_r_payload_resp   (axi4ReadOnlyArbiter_4_io_inputs_0_r_payload_resp[1:0]                   ), //o
     .io_inputs_0_r_payload_last   (axi4ReadOnlyArbiter_4_io_inputs_0_r_payload_last                        ), //o
     .io_inputs_1_ar_valid         (io_outputs_1_ar_validPipe_valid_1                                       ), //i
     .io_inputs_1_ar_ready         (axi4ReadOnlyArbiter_4_io_inputs_1_ar_ready                              ), //o
     .io_inputs_1_ar_payload_addr  (io_outputs_1_ar_validPipe_payload_addr_1[31:0]                          ), //i
-    .io_inputs_1_ar_payload_id    (axi4ReadOnlyArbiter_4_io_inputs_1_ar_payload_id[1:0]                    ), //i
+    .io_inputs_1_ar_payload_id    (axi4ReadOnlyArbiter_4_io_inputs_1_ar_payload_id[4:0]                    ), //i
     .io_inputs_1_ar_payload_len   (io_outputs_1_ar_validPipe_payload_len_1[7:0]                            ), //i
     .io_inputs_1_ar_payload_size  (io_outputs_1_ar_validPipe_payload_size_1[2:0]                           ), //i
     .io_inputs_1_ar_payload_burst (io_outputs_1_ar_validPipe_payload_burst_1[1:0]                          ), //i
-    .io_inputs_1_ar_payload_prot  (io_outputs_1_ar_validPipe_payload_prot_1[2:0]                           ), //i
     .io_inputs_1_r_valid          (axi4ReadOnlyArbiter_4_io_inputs_1_r_valid                               ), //o
     .io_inputs_1_r_ready          (io_axiOut_readOnly_decoder_1_io_outputs_1_r_ready                       ), //i
     .io_inputs_1_r_payload_data   (axi4ReadOnlyArbiter_4_io_inputs_1_r_payload_data[31:0]                  ), //o
-    .io_inputs_1_r_payload_id     (axi4ReadOnlyArbiter_4_io_inputs_1_r_payload_id[1:0]                     ), //o
+    .io_inputs_1_r_payload_id     (axi4ReadOnlyArbiter_4_io_inputs_1_r_payload_id[4:0]                     ), //o
     .io_inputs_1_r_payload_resp   (axi4ReadOnlyArbiter_4_io_inputs_1_r_payload_resp[1:0]                   ), //o
     .io_inputs_1_r_payload_last   (axi4ReadOnlyArbiter_4_io_inputs_1_r_payload_last                        ), //o
     .io_inputs_2_ar_valid         (io_outputs_1_ar_validPipe_valid_2                                       ), //i
     .io_inputs_2_ar_ready         (axi4ReadOnlyArbiter_4_io_inputs_2_ar_ready                              ), //o
     .io_inputs_2_ar_payload_addr  (io_outputs_1_ar_validPipe_payload_addr_2[31:0]                          ), //i
-    .io_inputs_2_ar_payload_id    (axi4ReadOnlyArbiter_4_io_inputs_2_ar_payload_id[1:0]                    ), //i
+    .io_inputs_2_ar_payload_id    (axi4ReadOnlyArbiter_4_io_inputs_2_ar_payload_id[4:0]                    ), //i
     .io_inputs_2_ar_payload_len   (io_outputs_1_ar_validPipe_payload_len_2[7:0]                            ), //i
     .io_inputs_2_ar_payload_size  (io_outputs_1_ar_validPipe_payload_size_2[2:0]                           ), //i
     .io_inputs_2_ar_payload_burst (io_outputs_1_ar_validPipe_payload_burst_2[1:0]                          ), //i
-    .io_inputs_2_ar_payload_prot  (io_outputs_1_ar_validPipe_payload_prot_2[2:0]                           ), //i
     .io_inputs_2_r_valid          (axi4ReadOnlyArbiter_4_io_inputs_2_r_valid                               ), //o
     .io_inputs_2_r_ready          (DataCachePlugin_setup_dcacheMaster_readOnly_decoder_io_outputs_1_r_ready), //i
     .io_inputs_2_r_payload_data   (axi4ReadOnlyArbiter_4_io_inputs_2_r_payload_data[31:0]                  ), //o
-    .io_inputs_2_r_payload_id     (axi4ReadOnlyArbiter_4_io_inputs_2_r_payload_id[1:0]                     ), //o
+    .io_inputs_2_r_payload_id     (axi4ReadOnlyArbiter_4_io_inputs_2_r_payload_id[4:0]                     ), //o
     .io_inputs_2_r_payload_resp   (axi4ReadOnlyArbiter_4_io_inputs_2_r_payload_resp[1:0]                   ), //o
     .io_inputs_2_r_payload_last   (axi4ReadOnlyArbiter_4_io_inputs_2_r_payload_last                        ), //o
     .io_output_ar_valid           (axi4ReadOnlyArbiter_4_io_output_ar_valid                                ), //o
     .io_output_ar_ready           (CoreMemSysPlugin_hw_extramCtrl_io_axi_ar_ready                          ), //i
     .io_output_ar_payload_addr    (axi4ReadOnlyArbiter_4_io_output_ar_payload_addr[31:0]                   ), //o
-    .io_output_ar_payload_id      (axi4ReadOnlyArbiter_4_io_output_ar_payload_id[3:0]                      ), //o
+    .io_output_ar_payload_id      (axi4ReadOnlyArbiter_4_io_output_ar_payload_id[6:0]                      ), //o
     .io_output_ar_payload_len     (axi4ReadOnlyArbiter_4_io_output_ar_payload_len[7:0]                     ), //o
     .io_output_ar_payload_size    (axi4ReadOnlyArbiter_4_io_output_ar_payload_size[2:0]                    ), //o
     .io_output_ar_payload_burst   (axi4ReadOnlyArbiter_4_io_output_ar_payload_burst[1:0]                   ), //o
-    .io_output_ar_payload_prot    (axi4ReadOnlyArbiter_4_io_output_ar_payload_prot[2:0]                    ), //o
     .io_output_r_valid            (CoreMemSysPlugin_hw_extramCtrl_io_axi_r_valid                           ), //i
     .io_output_r_ready            (axi4ReadOnlyArbiter_4_io_output_r_ready                                 ), //o
     .io_output_r_payload_data     (CoreMemSysPlugin_hw_extramCtrl_io_axi_r_payload_data[31:0]              ), //i
-    .io_output_r_payload_id       (CoreMemSysPlugin_hw_extramCtrl_io_axi_r_payload_id[3:0]                 ), //i
+    .io_output_r_payload_id       (CoreMemSysPlugin_hw_extramCtrl_io_axi_r_payload_id[6:0]                 ), //i
     .io_output_r_payload_resp     (CoreMemSysPlugin_hw_extramCtrl_io_axi_r_payload_resp[1:0]               ), //i
     .io_output_r_payload_last     (CoreMemSysPlugin_hw_extramCtrl_io_axi_r_payload_last                    ), //i
     .clk                          (clk                                                                     ), //i
@@ -7819,11 +7715,10 @@ module CoreNSCSCC (
     .io_inputs_0_aw_valid         (io_outputs_1_aw_validPipe_valid                                                       ), //i
     .io_inputs_0_aw_ready         (axi4WriteOnlyArbiter_4_io_inputs_0_aw_ready                                           ), //o
     .io_inputs_0_aw_payload_addr  (io_outputs_1_aw_validPipe_payload_addr[31:0]                                          ), //i
-    .io_inputs_0_aw_payload_id    (axi4WriteOnlyArbiter_4_io_inputs_0_aw_payload_id[1:0]                                 ), //i
+    .io_inputs_0_aw_payload_id    (axi4WriteOnlyArbiter_4_io_inputs_0_aw_payload_id[4:0]                                 ), //i
     .io_inputs_0_aw_payload_len   (io_outputs_1_aw_validPipe_payload_len[7:0]                                            ), //i
     .io_inputs_0_aw_payload_size  (io_outputs_1_aw_validPipe_payload_size[2:0]                                           ), //i
     .io_inputs_0_aw_payload_burst (io_outputs_1_aw_validPipe_payload_burst[1:0]                                          ), //i
-    .io_inputs_0_aw_payload_prot  (io_outputs_1_aw_validPipe_payload_prot[2:0]                                           ), //i
     .io_inputs_0_w_valid          (io_axiOut_writeOnly_decoder_io_outputs_1_w_valid                                      ), //i
     .io_inputs_0_w_ready          (axi4WriteOnlyArbiter_4_io_inputs_0_w_ready                                            ), //o
     .io_inputs_0_w_payload_data   (io_axiOut_writeOnly_decoder_io_outputs_1_w_payload_data[31:0]                         ), //i
@@ -7831,16 +7726,15 @@ module CoreNSCSCC (
     .io_inputs_0_w_payload_last   (io_axiOut_writeOnly_decoder_io_outputs_1_w_payload_last                               ), //i
     .io_inputs_0_b_valid          (axi4WriteOnlyArbiter_4_io_inputs_0_b_valid                                            ), //o
     .io_inputs_0_b_ready          (io_axiOut_writeOnly_decoder_io_outputs_1_b_ready                                      ), //i
-    .io_inputs_0_b_payload_id     (axi4WriteOnlyArbiter_4_io_inputs_0_b_payload_id[1:0]                                  ), //o
+    .io_inputs_0_b_payload_id     (axi4WriteOnlyArbiter_4_io_inputs_0_b_payload_id[4:0]                                  ), //o
     .io_inputs_0_b_payload_resp   (axi4WriteOnlyArbiter_4_io_inputs_0_b_payload_resp[1:0]                                ), //o
     .io_inputs_1_aw_valid         (io_outputs_1_aw_validPipe_valid_1                                                     ), //i
     .io_inputs_1_aw_ready         (axi4WriteOnlyArbiter_4_io_inputs_1_aw_ready                                           ), //o
     .io_inputs_1_aw_payload_addr  (io_outputs_1_aw_validPipe_payload_addr_1[31:0]                                        ), //i
-    .io_inputs_1_aw_payload_id    (axi4WriteOnlyArbiter_4_io_inputs_1_aw_payload_id[1:0]                                 ), //i
+    .io_inputs_1_aw_payload_id    (axi4WriteOnlyArbiter_4_io_inputs_1_aw_payload_id[4:0]                                 ), //i
     .io_inputs_1_aw_payload_len   (io_outputs_1_aw_validPipe_payload_len_1[7:0]                                          ), //i
     .io_inputs_1_aw_payload_size  (io_outputs_1_aw_validPipe_payload_size_1[2:0]                                         ), //i
     .io_inputs_1_aw_payload_burst (io_outputs_1_aw_validPipe_payload_burst_1[1:0]                                        ), //i
-    .io_inputs_1_aw_payload_prot  (io_outputs_1_aw_validPipe_payload_prot_1[2:0]                                         ), //i
     .io_inputs_1_w_valid          (io_axiOut_writeOnly_decoder_1_io_outputs_1_w_valid                                    ), //i
     .io_inputs_1_w_ready          (axi4WriteOnlyArbiter_4_io_inputs_1_w_ready                                            ), //o
     .io_inputs_1_w_payload_data   (io_axiOut_writeOnly_decoder_1_io_outputs_1_w_payload_data[31:0]                       ), //i
@@ -7848,16 +7742,15 @@ module CoreNSCSCC (
     .io_inputs_1_w_payload_last   (io_axiOut_writeOnly_decoder_1_io_outputs_1_w_payload_last                             ), //i
     .io_inputs_1_b_valid          (axi4WriteOnlyArbiter_4_io_inputs_1_b_valid                                            ), //o
     .io_inputs_1_b_ready          (io_axiOut_writeOnly_decoder_1_io_outputs_1_b_ready                                    ), //i
-    .io_inputs_1_b_payload_id     (axi4WriteOnlyArbiter_4_io_inputs_1_b_payload_id[1:0]                                  ), //o
+    .io_inputs_1_b_payload_id     (axi4WriteOnlyArbiter_4_io_inputs_1_b_payload_id[4:0]                                  ), //o
     .io_inputs_1_b_payload_resp   (axi4WriteOnlyArbiter_4_io_inputs_1_b_payload_resp[1:0]                                ), //o
     .io_inputs_2_aw_valid         (io_outputs_1_aw_validPipe_valid_2                                                     ), //i
     .io_inputs_2_aw_ready         (axi4WriteOnlyArbiter_4_io_inputs_2_aw_ready                                           ), //o
     .io_inputs_2_aw_payload_addr  (io_outputs_1_aw_validPipe_payload_addr_2[31:0]                                        ), //i
-    .io_inputs_2_aw_payload_id    (axi4WriteOnlyArbiter_4_io_inputs_2_aw_payload_id[1:0]                                 ), //i
+    .io_inputs_2_aw_payload_id    (axi4WriteOnlyArbiter_4_io_inputs_2_aw_payload_id[4:0]                                 ), //i
     .io_inputs_2_aw_payload_len   (io_outputs_1_aw_validPipe_payload_len_2[7:0]                                          ), //i
     .io_inputs_2_aw_payload_size  (io_outputs_1_aw_validPipe_payload_size_2[2:0]                                         ), //i
     .io_inputs_2_aw_payload_burst (io_outputs_1_aw_validPipe_payload_burst_2[1:0]                                        ), //i
-    .io_inputs_2_aw_payload_prot  (io_outputs_1_aw_validPipe_payload_prot_2[2:0]                                         ), //i
     .io_inputs_2_w_valid          (DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_1_w_valid             ), //i
     .io_inputs_2_w_ready          (axi4WriteOnlyArbiter_4_io_inputs_2_w_ready                                            ), //o
     .io_inputs_2_w_payload_data   (DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_1_w_payload_data[31:0]), //i
@@ -7865,16 +7758,15 @@ module CoreNSCSCC (
     .io_inputs_2_w_payload_last   (DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_1_w_payload_last      ), //i
     .io_inputs_2_b_valid          (axi4WriteOnlyArbiter_4_io_inputs_2_b_valid                                            ), //o
     .io_inputs_2_b_ready          (DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_1_b_ready             ), //i
-    .io_inputs_2_b_payload_id     (axi4WriteOnlyArbiter_4_io_inputs_2_b_payload_id[1:0]                                  ), //o
+    .io_inputs_2_b_payload_id     (axi4WriteOnlyArbiter_4_io_inputs_2_b_payload_id[4:0]                                  ), //o
     .io_inputs_2_b_payload_resp   (axi4WriteOnlyArbiter_4_io_inputs_2_b_payload_resp[1:0]                                ), //o
     .io_output_aw_valid           (axi4WriteOnlyArbiter_4_io_output_aw_valid                                             ), //o
     .io_output_aw_ready           (CoreMemSysPlugin_hw_extramCtrl_io_axi_aw_ready                                        ), //i
     .io_output_aw_payload_addr    (axi4WriteOnlyArbiter_4_io_output_aw_payload_addr[31:0]                                ), //o
-    .io_output_aw_payload_id      (axi4WriteOnlyArbiter_4_io_output_aw_payload_id[3:0]                                   ), //o
+    .io_output_aw_payload_id      (axi4WriteOnlyArbiter_4_io_output_aw_payload_id[6:0]                                   ), //o
     .io_output_aw_payload_len     (axi4WriteOnlyArbiter_4_io_output_aw_payload_len[7:0]                                  ), //o
     .io_output_aw_payload_size    (axi4WriteOnlyArbiter_4_io_output_aw_payload_size[2:0]                                 ), //o
     .io_output_aw_payload_burst   (axi4WriteOnlyArbiter_4_io_output_aw_payload_burst[1:0]                                ), //o
-    .io_output_aw_payload_prot    (axi4WriteOnlyArbiter_4_io_output_aw_payload_prot[2:0]                                 ), //o
     .io_output_w_valid            (axi4WriteOnlyArbiter_4_io_output_w_valid                                              ), //o
     .io_output_w_ready            (CoreMemSysPlugin_hw_extramCtrl_io_axi_w_ready                                         ), //i
     .io_output_w_payload_data     (axi4WriteOnlyArbiter_4_io_output_w_payload_data[31:0]                                 ), //o
@@ -7882,7 +7774,7 @@ module CoreNSCSCC (
     .io_output_w_payload_last     (axi4WriteOnlyArbiter_4_io_output_w_payload_last                                       ), //o
     .io_output_b_valid            (CoreMemSysPlugin_hw_extramCtrl_io_axi_b_valid                                         ), //i
     .io_output_b_ready            (axi4WriteOnlyArbiter_4_io_output_b_ready                                              ), //o
-    .io_output_b_payload_id       (CoreMemSysPlugin_hw_extramCtrl_io_axi_b_payload_id[3:0]                               ), //i
+    .io_output_b_payload_id       (CoreMemSysPlugin_hw_extramCtrl_io_axi_b_payload_id[6:0]                               ), //i
     .io_output_b_payload_resp     (CoreMemSysPlugin_hw_extramCtrl_io_axi_b_payload_resp[1:0]                             ), //i
     .clk                          (clk                                                                                   ), //i
     .reset                        (reset                                                                                 )  //i
@@ -7891,57 +7783,53 @@ module CoreNSCSCC (
     .io_inputs_0_ar_valid         (io_outputs_2_ar_validPipe_valid                                         ), //i
     .io_inputs_0_ar_ready         (axi4ReadOnlyArbiter_5_io_inputs_0_ar_ready                              ), //o
     .io_inputs_0_ar_payload_addr  (io_outputs_2_ar_validPipe_payload_addr[31:0]                            ), //i
-    .io_inputs_0_ar_payload_id    (axi4ReadOnlyArbiter_5_io_inputs_0_ar_payload_id[1:0]                    ), //i
+    .io_inputs_0_ar_payload_id    (axi4ReadOnlyArbiter_5_io_inputs_0_ar_payload_id[4:0]                    ), //i
     .io_inputs_0_ar_payload_len   (io_outputs_2_ar_validPipe_payload_len[7:0]                              ), //i
     .io_inputs_0_ar_payload_size  (io_outputs_2_ar_validPipe_payload_size[2:0]                             ), //i
     .io_inputs_0_ar_payload_burst (io_outputs_2_ar_validPipe_payload_burst[1:0]                            ), //i
-    .io_inputs_0_ar_payload_prot  (io_outputs_2_ar_validPipe_payload_prot[2:0]                             ), //i
     .io_inputs_0_r_valid          (axi4ReadOnlyArbiter_5_io_inputs_0_r_valid                               ), //o
     .io_inputs_0_r_ready          (io_axiOut_readOnly_decoder_io_outputs_2_r_ready                         ), //i
     .io_inputs_0_r_payload_data   (axi4ReadOnlyArbiter_5_io_inputs_0_r_payload_data[31:0]                  ), //o
-    .io_inputs_0_r_payload_id     (axi4ReadOnlyArbiter_5_io_inputs_0_r_payload_id[1:0]                     ), //o
+    .io_inputs_0_r_payload_id     (axi4ReadOnlyArbiter_5_io_inputs_0_r_payload_id[4:0]                     ), //o
     .io_inputs_0_r_payload_resp   (axi4ReadOnlyArbiter_5_io_inputs_0_r_payload_resp[1:0]                   ), //o
     .io_inputs_0_r_payload_last   (axi4ReadOnlyArbiter_5_io_inputs_0_r_payload_last                        ), //o
     .io_inputs_1_ar_valid         (io_outputs_2_ar_validPipe_valid_1                                       ), //i
     .io_inputs_1_ar_ready         (axi4ReadOnlyArbiter_5_io_inputs_1_ar_ready                              ), //o
     .io_inputs_1_ar_payload_addr  (io_outputs_2_ar_validPipe_payload_addr_1[31:0]                          ), //i
-    .io_inputs_1_ar_payload_id    (axi4ReadOnlyArbiter_5_io_inputs_1_ar_payload_id[1:0]                    ), //i
+    .io_inputs_1_ar_payload_id    (axi4ReadOnlyArbiter_5_io_inputs_1_ar_payload_id[4:0]                    ), //i
     .io_inputs_1_ar_payload_len   (io_outputs_2_ar_validPipe_payload_len_1[7:0]                            ), //i
     .io_inputs_1_ar_payload_size  (io_outputs_2_ar_validPipe_payload_size_1[2:0]                           ), //i
     .io_inputs_1_ar_payload_burst (io_outputs_2_ar_validPipe_payload_burst_1[1:0]                          ), //i
-    .io_inputs_1_ar_payload_prot  (io_outputs_2_ar_validPipe_payload_prot_1[2:0]                           ), //i
     .io_inputs_1_r_valid          (axi4ReadOnlyArbiter_5_io_inputs_1_r_valid                               ), //o
     .io_inputs_1_r_ready          (io_axiOut_readOnly_decoder_1_io_outputs_2_r_ready                       ), //i
     .io_inputs_1_r_payload_data   (axi4ReadOnlyArbiter_5_io_inputs_1_r_payload_data[31:0]                  ), //o
-    .io_inputs_1_r_payload_id     (axi4ReadOnlyArbiter_5_io_inputs_1_r_payload_id[1:0]                     ), //o
+    .io_inputs_1_r_payload_id     (axi4ReadOnlyArbiter_5_io_inputs_1_r_payload_id[4:0]                     ), //o
     .io_inputs_1_r_payload_resp   (axi4ReadOnlyArbiter_5_io_inputs_1_r_payload_resp[1:0]                   ), //o
     .io_inputs_1_r_payload_last   (axi4ReadOnlyArbiter_5_io_inputs_1_r_payload_last                        ), //o
     .io_inputs_2_ar_valid         (io_outputs_2_ar_validPipe_valid_2                                       ), //i
     .io_inputs_2_ar_ready         (axi4ReadOnlyArbiter_5_io_inputs_2_ar_ready                              ), //o
     .io_inputs_2_ar_payload_addr  (io_outputs_2_ar_validPipe_payload_addr_2[31:0]                          ), //i
-    .io_inputs_2_ar_payload_id    (axi4ReadOnlyArbiter_5_io_inputs_2_ar_payload_id[1:0]                    ), //i
+    .io_inputs_2_ar_payload_id    (axi4ReadOnlyArbiter_5_io_inputs_2_ar_payload_id[4:0]                    ), //i
     .io_inputs_2_ar_payload_len   (io_outputs_2_ar_validPipe_payload_len_2[7:0]                            ), //i
     .io_inputs_2_ar_payload_size  (io_outputs_2_ar_validPipe_payload_size_2[2:0]                           ), //i
     .io_inputs_2_ar_payload_burst (io_outputs_2_ar_validPipe_payload_burst_2[1:0]                          ), //i
-    .io_inputs_2_ar_payload_prot  (io_outputs_2_ar_validPipe_payload_prot_2[2:0]                           ), //i
     .io_inputs_2_r_valid          (axi4ReadOnlyArbiter_5_io_inputs_2_r_valid                               ), //o
     .io_inputs_2_r_ready          (DataCachePlugin_setup_dcacheMaster_readOnly_decoder_io_outputs_2_r_ready), //i
     .io_inputs_2_r_payload_data   (axi4ReadOnlyArbiter_5_io_inputs_2_r_payload_data[31:0]                  ), //o
-    .io_inputs_2_r_payload_id     (axi4ReadOnlyArbiter_5_io_inputs_2_r_payload_id[1:0]                     ), //o
+    .io_inputs_2_r_payload_id     (axi4ReadOnlyArbiter_5_io_inputs_2_r_payload_id[4:0]                     ), //o
     .io_inputs_2_r_payload_resp   (axi4ReadOnlyArbiter_5_io_inputs_2_r_payload_resp[1:0]                   ), //o
     .io_inputs_2_r_payload_last   (axi4ReadOnlyArbiter_5_io_inputs_2_r_payload_last                        ), //o
     .io_output_ar_valid           (axi4ReadOnlyArbiter_5_io_output_ar_valid                                ), //o
     .io_output_ar_ready           (uartAxi_ar_ready                                                        ), //i
     .io_output_ar_payload_addr    (axi4ReadOnlyArbiter_5_io_output_ar_payload_addr[31:0]                   ), //o
-    .io_output_ar_payload_id      (axi4ReadOnlyArbiter_5_io_output_ar_payload_id[3:0]                      ), //o
+    .io_output_ar_payload_id      (axi4ReadOnlyArbiter_5_io_output_ar_payload_id[6:0]                      ), //o
     .io_output_ar_payload_len     (axi4ReadOnlyArbiter_5_io_output_ar_payload_len[7:0]                     ), //o
     .io_output_ar_payload_size    (axi4ReadOnlyArbiter_5_io_output_ar_payload_size[2:0]                    ), //o
     .io_output_ar_payload_burst   (axi4ReadOnlyArbiter_5_io_output_ar_payload_burst[1:0]                   ), //o
-    .io_output_ar_payload_prot    (axi4ReadOnlyArbiter_5_io_output_ar_payload_prot[2:0]                    ), //o
     .io_output_r_valid            (uartAxi_r_valid                                                         ), //i
     .io_output_r_ready            (axi4ReadOnlyArbiter_5_io_output_r_ready                                 ), //o
     .io_output_r_payload_data     (uartAxi_r_payload_data[31:0]                                            ), //i
-    .io_output_r_payload_id       (uartAxi_r_payload_id[3:0]                                               ), //i
+    .io_output_r_payload_id       (uartAxi_r_payload_id[6:0]                                               ), //i
     .io_output_r_payload_resp     (uartAxi_r_payload_resp[1:0]                                             ), //i
     .io_output_r_payload_last     (uartAxi_r_payload_last                                                  ), //i
     .clk                          (clk                                                                     ), //i
@@ -7951,11 +7839,10 @@ module CoreNSCSCC (
     .io_inputs_0_aw_valid         (io_outputs_2_aw_validPipe_valid                                                       ), //i
     .io_inputs_0_aw_ready         (axi4WriteOnlyArbiter_5_io_inputs_0_aw_ready                                           ), //o
     .io_inputs_0_aw_payload_addr  (io_outputs_2_aw_validPipe_payload_addr[31:0]                                          ), //i
-    .io_inputs_0_aw_payload_id    (axi4WriteOnlyArbiter_5_io_inputs_0_aw_payload_id[1:0]                                 ), //i
+    .io_inputs_0_aw_payload_id    (axi4WriteOnlyArbiter_5_io_inputs_0_aw_payload_id[4:0]                                 ), //i
     .io_inputs_0_aw_payload_len   (io_outputs_2_aw_validPipe_payload_len[7:0]                                            ), //i
     .io_inputs_0_aw_payload_size  (io_outputs_2_aw_validPipe_payload_size[2:0]                                           ), //i
     .io_inputs_0_aw_payload_burst (io_outputs_2_aw_validPipe_payload_burst[1:0]                                          ), //i
-    .io_inputs_0_aw_payload_prot  (io_outputs_2_aw_validPipe_payload_prot[2:0]                                           ), //i
     .io_inputs_0_w_valid          (io_axiOut_writeOnly_decoder_io_outputs_2_w_valid                                      ), //i
     .io_inputs_0_w_ready          (axi4WriteOnlyArbiter_5_io_inputs_0_w_ready                                            ), //o
     .io_inputs_0_w_payload_data   (io_axiOut_writeOnly_decoder_io_outputs_2_w_payload_data[31:0]                         ), //i
@@ -7963,16 +7850,15 @@ module CoreNSCSCC (
     .io_inputs_0_w_payload_last   (io_axiOut_writeOnly_decoder_io_outputs_2_w_payload_last                               ), //i
     .io_inputs_0_b_valid          (axi4WriteOnlyArbiter_5_io_inputs_0_b_valid                                            ), //o
     .io_inputs_0_b_ready          (io_axiOut_writeOnly_decoder_io_outputs_2_b_ready                                      ), //i
-    .io_inputs_0_b_payload_id     (axi4WriteOnlyArbiter_5_io_inputs_0_b_payload_id[1:0]                                  ), //o
+    .io_inputs_0_b_payload_id     (axi4WriteOnlyArbiter_5_io_inputs_0_b_payload_id[4:0]                                  ), //o
     .io_inputs_0_b_payload_resp   (axi4WriteOnlyArbiter_5_io_inputs_0_b_payload_resp[1:0]                                ), //o
     .io_inputs_1_aw_valid         (io_outputs_2_aw_validPipe_valid_1                                                     ), //i
     .io_inputs_1_aw_ready         (axi4WriteOnlyArbiter_5_io_inputs_1_aw_ready                                           ), //o
     .io_inputs_1_aw_payload_addr  (io_outputs_2_aw_validPipe_payload_addr_1[31:0]                                        ), //i
-    .io_inputs_1_aw_payload_id    (axi4WriteOnlyArbiter_5_io_inputs_1_aw_payload_id[1:0]                                 ), //i
+    .io_inputs_1_aw_payload_id    (axi4WriteOnlyArbiter_5_io_inputs_1_aw_payload_id[4:0]                                 ), //i
     .io_inputs_1_aw_payload_len   (io_outputs_2_aw_validPipe_payload_len_1[7:0]                                          ), //i
     .io_inputs_1_aw_payload_size  (io_outputs_2_aw_validPipe_payload_size_1[2:0]                                         ), //i
     .io_inputs_1_aw_payload_burst (io_outputs_2_aw_validPipe_payload_burst_1[1:0]                                        ), //i
-    .io_inputs_1_aw_payload_prot  (io_outputs_2_aw_validPipe_payload_prot_1[2:0]                                         ), //i
     .io_inputs_1_w_valid          (io_axiOut_writeOnly_decoder_1_io_outputs_2_w_valid                                    ), //i
     .io_inputs_1_w_ready          (axi4WriteOnlyArbiter_5_io_inputs_1_w_ready                                            ), //o
     .io_inputs_1_w_payload_data   (io_axiOut_writeOnly_decoder_1_io_outputs_2_w_payload_data[31:0]                       ), //i
@@ -7980,16 +7866,15 @@ module CoreNSCSCC (
     .io_inputs_1_w_payload_last   (io_axiOut_writeOnly_decoder_1_io_outputs_2_w_payload_last                             ), //i
     .io_inputs_1_b_valid          (axi4WriteOnlyArbiter_5_io_inputs_1_b_valid                                            ), //o
     .io_inputs_1_b_ready          (io_axiOut_writeOnly_decoder_1_io_outputs_2_b_ready                                    ), //i
-    .io_inputs_1_b_payload_id     (axi4WriteOnlyArbiter_5_io_inputs_1_b_payload_id[1:0]                                  ), //o
+    .io_inputs_1_b_payload_id     (axi4WriteOnlyArbiter_5_io_inputs_1_b_payload_id[4:0]                                  ), //o
     .io_inputs_1_b_payload_resp   (axi4WriteOnlyArbiter_5_io_inputs_1_b_payload_resp[1:0]                                ), //o
     .io_inputs_2_aw_valid         (io_outputs_2_aw_validPipe_valid_2                                                     ), //i
     .io_inputs_2_aw_ready         (axi4WriteOnlyArbiter_5_io_inputs_2_aw_ready                                           ), //o
     .io_inputs_2_aw_payload_addr  (io_outputs_2_aw_validPipe_payload_addr_2[31:0]                                        ), //i
-    .io_inputs_2_aw_payload_id    (axi4WriteOnlyArbiter_5_io_inputs_2_aw_payload_id[1:0]                                 ), //i
+    .io_inputs_2_aw_payload_id    (axi4WriteOnlyArbiter_5_io_inputs_2_aw_payload_id[4:0]                                 ), //i
     .io_inputs_2_aw_payload_len   (io_outputs_2_aw_validPipe_payload_len_2[7:0]                                          ), //i
     .io_inputs_2_aw_payload_size  (io_outputs_2_aw_validPipe_payload_size_2[2:0]                                         ), //i
     .io_inputs_2_aw_payload_burst (io_outputs_2_aw_validPipe_payload_burst_2[1:0]                                        ), //i
-    .io_inputs_2_aw_payload_prot  (io_outputs_2_aw_validPipe_payload_prot_2[2:0]                                         ), //i
     .io_inputs_2_w_valid          (DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_2_w_valid             ), //i
     .io_inputs_2_w_ready          (axi4WriteOnlyArbiter_5_io_inputs_2_w_ready                                            ), //o
     .io_inputs_2_w_payload_data   (DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_2_w_payload_data[31:0]), //i
@@ -7997,16 +7882,15 @@ module CoreNSCSCC (
     .io_inputs_2_w_payload_last   (DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_2_w_payload_last      ), //i
     .io_inputs_2_b_valid          (axi4WriteOnlyArbiter_5_io_inputs_2_b_valid                                            ), //o
     .io_inputs_2_b_ready          (DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_2_b_ready             ), //i
-    .io_inputs_2_b_payload_id     (axi4WriteOnlyArbiter_5_io_inputs_2_b_payload_id[1:0]                                  ), //o
+    .io_inputs_2_b_payload_id     (axi4WriteOnlyArbiter_5_io_inputs_2_b_payload_id[4:0]                                  ), //o
     .io_inputs_2_b_payload_resp   (axi4WriteOnlyArbiter_5_io_inputs_2_b_payload_resp[1:0]                                ), //o
     .io_output_aw_valid           (axi4WriteOnlyArbiter_5_io_output_aw_valid                                             ), //o
     .io_output_aw_ready           (uartAxi_aw_ready                                                                      ), //i
     .io_output_aw_payload_addr    (axi4WriteOnlyArbiter_5_io_output_aw_payload_addr[31:0]                                ), //o
-    .io_output_aw_payload_id      (axi4WriteOnlyArbiter_5_io_output_aw_payload_id[3:0]                                   ), //o
+    .io_output_aw_payload_id      (axi4WriteOnlyArbiter_5_io_output_aw_payload_id[6:0]                                   ), //o
     .io_output_aw_payload_len     (axi4WriteOnlyArbiter_5_io_output_aw_payload_len[7:0]                                  ), //o
     .io_output_aw_payload_size    (axi4WriteOnlyArbiter_5_io_output_aw_payload_size[2:0]                                 ), //o
     .io_output_aw_payload_burst   (axi4WriteOnlyArbiter_5_io_output_aw_payload_burst[1:0]                                ), //o
-    .io_output_aw_payload_prot    (axi4WriteOnlyArbiter_5_io_output_aw_payload_prot[2:0]                                 ), //o
     .io_output_w_valid            (axi4WriteOnlyArbiter_5_io_output_w_valid                                              ), //o
     .io_output_w_ready            (uartAxi_w_ready                                                                       ), //i
     .io_output_w_payload_data     (axi4WriteOnlyArbiter_5_io_output_w_payload_data[31:0]                                 ), //o
@@ -8014,7 +7898,7 @@ module CoreNSCSCC (
     .io_output_w_payload_last     (axi4WriteOnlyArbiter_5_io_output_w_payload_last                                       ), //o
     .io_output_b_valid            (uartAxi_b_valid                                                                       ), //i
     .io_output_b_ready            (axi4WriteOnlyArbiter_5_io_output_b_ready                                              ), //o
-    .io_output_b_payload_id       (uartAxi_b_payload_id[3:0]                                                             ), //i
+    .io_output_b_payload_id       (uartAxi_b_payload_id[6:0]                                                             ), //i
     .io_output_b_payload_resp     (uartAxi_b_payload_resp[1:0]                                                           ), //i
     .clk                          (clk                                                                                   ), //i
     .reset                        (reset                                                                                 )  //i
@@ -8058,19 +7942,19 @@ module CoreNSCSCC (
     case(_zz_when_PhysicalRegFile_l141_9)
       2'b00 : begin
         _zz__zz_when_PhysicalRegFile_l141_1 = LoadQueuePlugin_hw_prfWritePort_address;
-        _zz__zz_27 = LoadQueuePlugin_hw_prfWritePort_data;
+        _zz__zz_28 = LoadQueuePlugin_hw_prfWritePort_data;
       end
       2'b01 : begin
         _zz__zz_when_PhysicalRegFile_l141_1 = AluIntEU_AluIntEuPlugin_gprWritePort_address;
-        _zz__zz_27 = AluIntEU_AluIntEuPlugin_gprWritePort_data;
+        _zz__zz_28 = AluIntEU_AluIntEuPlugin_gprWritePort_data;
       end
       2'b10 : begin
         _zz__zz_when_PhysicalRegFile_l141_1 = BranchEU_BranchEuPlugin_gprWritePort_address;
-        _zz__zz_27 = BranchEU_BranchEuPlugin_gprWritePort_data;
+        _zz__zz_28 = BranchEU_BranchEuPlugin_gprWritePort_data;
       end
       default : begin
         _zz__zz_when_PhysicalRegFile_l141_1 = LsuEU_LsuEuPlugin_gprWritePort_address;
-        _zz__zz_27 = LsuEU_LsuEuPlugin_gprWritePort_data;
+        _zz__zz_28 = LsuEU_LsuEuPlugin_gprWritePort_data;
       end
     endcase
   end
@@ -13185,8 +13069,8 @@ module CoreNSCSCC (
   assign CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_29 = 6'h1d;
   assign CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_30 = 6'h1e;
   assign CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_31 = 6'h1f;
-  assign _zz_39 = zz_CheckpointManagerPlugin_logic_initialFreeMask(1'b0);
-  always @(*) CheckpointManagerPlugin_logic_initialFreeMask = _zz_39;
+  assign _zz_40 = zz_CheckpointManagerPlugin_logic_initialFreeMask(1'b0);
+  always @(*) CheckpointManagerPlugin_logic_initialFreeMask = _zz_40;
   assign CheckpointManagerPlugin_logic_initialFlCheckpoint_freeMask = CheckpointManagerPlugin_logic_initialFreeMask;
   assign CheckpointManagerPlugin_logic_initialBtCheckpoint_busyBits = 64'h0;
   assign CommitPlugin_logic_s0_commitAckMasks_0 = ((CommitPlugin_commitEnableExt && ROBPlugin_robComponent_io_commit_0_valid) && (! CommitPlugin_committedIdleReg));
@@ -13239,14 +13123,14 @@ module CoreNSCSCC (
   end
 
   assign CheckpointManagerPlugin_restoreCheckpointTrigger = CommitPlugin_logic_s0_commitIdleThisCycle;
-  assign _zz_8 = (! CommitPlugin_committedIdleReg);
+  assign _zz_9 = (! CommitPlugin_committedIdleReg);
   assign oneShot_18_io_triggerIn = (CommitPlugin_logic_s0_committedThisCycle_comb[0] && (_zz_when_Debug_l71 < _zz_io_triggerIn_10));
   assign _zz_when_Debug_l71_6 = 5'h19;
   assign when_Debug_l71_5 = (_zz_when_Debug_l71 < _zz_when_Debug_l71_5_1);
-  assign _zz_9 = 8'he3;
-  assign _zz_10 = (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_IDLE);
-  assign _zz_11 = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode;
-  assign _zz_12 = CommitPlugin_hw_robFlushPort_payload_reason;
+  assign _zz_10 = 8'he3;
+  assign _zz_11 = (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_IDLE);
+  assign _zz_12 = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode;
+  assign _zz_13 = CommitPlugin_hw_robFlushPort_payload_reason;
   assign lA32RSimpleDecoder_1_io_pcIn = (s0_Decode_IssuePipelineSignals_GROUP_PC_IN + 32'h0);
   always @(*) begin
     _zz_DecodePlugin_logic_decodedUopsOutputVec_0_isValid = lA32RSimpleDecoder_1_io_decodedUop_isValid;
@@ -13462,8 +13346,6 @@ module CoreNSCSCC (
   assign RenamePlugin_logic_tooManyBranches = (1'b1 < RenamePlugin_logic_branchCount);
   assign RenamePlugin_logic_shouldHalt = (RenamePlugin_logic_notEnoughPhysRegs || RenamePlugin_logic_tooManyBranches);
   assign s1_Rename_haltRequest_RenamePlugin_l107 = RenamePlugin_logic_shouldHalt;
-  assign when_RenamePlugin_l111 = (s1_Rename_valid && RenamePlugin_logic_tooManyBranches);
-  assign when_RenamePlugin_l114 = (s1_Rename_valid && RenamePlugin_logic_notEnoughPhysRegs);
   assign SuperScalarFreeListPlugin_early_setup_freeList_io_allocate_0_enable = (s1_Rename_isFiring && (1'b0 < RenamePlugin_early_setup_renameUnit_io_numPhysRegsRequired));
   assign when_RenamePlugin_l127 = ((s1_Rename_isFiring && RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_isValid) && RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_allocatesPhysDest);
   always @(*) begin
@@ -16613,8 +16495,8 @@ module CoreNSCSCC (
   assign _zz_io_iqEntryIn_payload_immUsage = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage;
   assign s2_Execute_isFiring = (s2_Execute_valid && s2_Execute_ready);
   assign AluIntEU_AluIntEuPlugin_intAlu_io_iqEntryIn_payload_src2Data = ((_zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage == ImmUsageType_SRC_ALU) ? _zz_AluIntEU_AluIntEuPlugin_euResult_uop_imm : _zz_io_iqEntryIn_payload_src2Data);
-  assign _zz_13 = AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_exceptionCode;
-  assign _zz_14 = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage;
+  assign _zz_14 = AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_exceptionCode;
+  assign _zz_15 = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage;
   assign s0_Dispatch_ready_1 = 1'b1;
   assign s1_ReadRegs_ready = 1'b1;
   assign s2_Execute_ready = 1'b1;
@@ -16738,7 +16620,7 @@ module CoreNSCSCC (
     end
   end
 
-  assign _zz_15 = (! _zz_when_BranchEuPlugin_l263_1);
+  assign _zz_16 = (! _zz_when_BranchEuPlugin_l263_1);
   always @(*) begin
     BranchEU_BranchEuPlugin_hw_robFlushPort_valid = 1'b0;
     if(when_BranchEuPlugin_l263) begin
@@ -17280,7 +17162,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_valid = LoadQueuePlugin_logic_loadQueue_slots_0_valid;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_17) begin
+      if(_zz_18) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_valid = 1'b1;
       end
     end
@@ -17289,7 +17171,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_address = LoadQueuePlugin_logic_loadQueue_slots_0_address;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_17) begin
+      if(_zz_18) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_address = LoadQueuePlugin_logic_pushCmd_payload_address;
       end
     end
@@ -17298,7 +17180,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_size = LoadQueuePlugin_logic_loadQueue_slots_0_size;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_17) begin
+      if(_zz_18) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_size = LoadQueuePlugin_logic_pushCmd_payload_size;
       end
     end
@@ -17307,7 +17189,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_robPtr = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_17) begin
+      if(_zz_18) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_robPtr = LoadQueuePlugin_logic_pushCmd_payload_robPtr;
       end
     end
@@ -17316,7 +17198,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_pdest = LoadQueuePlugin_logic_loadQueue_slots_0_pdest;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_17) begin
+      if(_zz_18) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_pdest = LoadQueuePlugin_logic_pushCmd_payload_pdest;
       end
     end
@@ -17325,7 +17207,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isIO = LoadQueuePlugin_logic_loadQueue_slots_0_isIO;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_17) begin
+      if(_zz_18) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isIO = LoadQueuePlugin_logic_pushCmd_payload_isIO;
       end
     end
@@ -17334,7 +17216,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_hasException = LoadQueuePlugin_logic_loadQueue_slots_0_hasException;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_17) begin
+      if(_zz_18) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_hasException = LoadQueuePlugin_logic_pushCmd_payload_hasEarlyException;
       end
     end
@@ -17343,7 +17225,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_exceptionCode = LoadQueuePlugin_logic_loadQueue_slots_0_exceptionCode;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_17) begin
+      if(_zz_18) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_exceptionCode = LoadQueuePlugin_logic_pushCmd_payload_earlyExceptionCode;
       end
     end
@@ -17352,7 +17234,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForFwdRsp;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_17) begin
+      if(_zz_18) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isWaitingForFwdRsp = 1'b0;
       end
     end
@@ -17367,7 +17249,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slots_0_isStalledByDependency;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_17) begin
+      if(_zz_18) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isStalledByDependency = 1'b0;
       end
     end
@@ -17386,7 +17268,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slots_0_isReadyForDCache;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_17) begin
+      if(_zz_18) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isReadyForDCache = 1'b0;
       end
     end
@@ -17406,7 +17288,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_mmioCmdFired) begin
       LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isReadyForDCache = 1'b0;
     end
-    if(when_LoadQueuePlugin_l363) begin
+    if(when_LoadQueuePlugin_l364) begin
       if(LoadQueuePlugin_hw_dCacheLoadPort_rsp_payload_redo) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isReadyForDCache = 1'b1;
       end
@@ -17416,7 +17298,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForRsp;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_17) begin
+      if(_zz_18) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isWaitingForRsp = 1'b0;
       end
     end
@@ -17426,7 +17308,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_mmioCmdFired) begin
       LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isWaitingForRsp = 1'b1;
     end
-    if(when_LoadQueuePlugin_l363) begin
+    if(when_LoadQueuePlugin_l364) begin
       if(LoadQueuePlugin_hw_dCacheLoadPort_rsp_payload_redo) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isWaitingForRsp = 1'b0;
       end
@@ -17436,7 +17318,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_valid = LoadQueuePlugin_logic_loadQueue_slots_1_valid;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_18) begin
+      if(_zz_19) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_valid = 1'b1;
       end
     end
@@ -17445,7 +17327,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_address = LoadQueuePlugin_logic_loadQueue_slots_1_address;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_18) begin
+      if(_zz_19) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_address = LoadQueuePlugin_logic_pushCmd_payload_address;
       end
     end
@@ -17454,7 +17336,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_size = LoadQueuePlugin_logic_loadQueue_slots_1_size;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_18) begin
+      if(_zz_19) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_size = LoadQueuePlugin_logic_pushCmd_payload_size;
       end
     end
@@ -17463,7 +17345,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_robPtr = LoadQueuePlugin_logic_loadQueue_slots_1_robPtr;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_18) begin
+      if(_zz_19) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_robPtr = LoadQueuePlugin_logic_pushCmd_payload_robPtr;
       end
     end
@@ -17472,7 +17354,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_pdest = LoadQueuePlugin_logic_loadQueue_slots_1_pdest;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_18) begin
+      if(_zz_19) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_pdest = LoadQueuePlugin_logic_pushCmd_payload_pdest;
       end
     end
@@ -17481,7 +17363,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isIO = LoadQueuePlugin_logic_loadQueue_slots_1_isIO;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_18) begin
+      if(_zz_19) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isIO = LoadQueuePlugin_logic_pushCmd_payload_isIO;
       end
     end
@@ -17490,7 +17372,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_hasException = LoadQueuePlugin_logic_loadQueue_slots_1_hasException;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_18) begin
+      if(_zz_19) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_hasException = LoadQueuePlugin_logic_pushCmd_payload_hasEarlyException;
       end
     end
@@ -17499,7 +17381,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_exceptionCode = LoadQueuePlugin_logic_loadQueue_slots_1_exceptionCode;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_18) begin
+      if(_zz_19) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_exceptionCode = LoadQueuePlugin_logic_pushCmd_payload_earlyExceptionCode;
       end
     end
@@ -17508,7 +17390,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slots_1_isWaitingForFwdRsp;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_18) begin
+      if(_zz_19) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isWaitingForFwdRsp = 1'b0;
       end
     end
@@ -17517,7 +17399,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slots_1_isStalledByDependency;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_18) begin
+      if(_zz_19) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isStalledByDependency = 1'b0;
       end
     end
@@ -17526,7 +17408,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slots_1_isReadyForDCache;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_18) begin
+      if(_zz_19) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isReadyForDCache = 1'b0;
       end
     end
@@ -17535,7 +17417,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slots_1_isWaitingForRsp;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_18) begin
+      if(_zz_19) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isWaitingForRsp = 1'b0;
       end
     end
@@ -17544,7 +17426,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_valid = LoadQueuePlugin_logic_loadQueue_slots_2_valid;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_19) begin
+      if(_zz_20) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_valid = 1'b1;
       end
     end
@@ -17553,7 +17435,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_address = LoadQueuePlugin_logic_loadQueue_slots_2_address;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_19) begin
+      if(_zz_20) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_address = LoadQueuePlugin_logic_pushCmd_payload_address;
       end
     end
@@ -17562,7 +17444,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_size = LoadQueuePlugin_logic_loadQueue_slots_2_size;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_19) begin
+      if(_zz_20) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_size = LoadQueuePlugin_logic_pushCmd_payload_size;
       end
     end
@@ -17571,7 +17453,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_robPtr = LoadQueuePlugin_logic_loadQueue_slots_2_robPtr;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_19) begin
+      if(_zz_20) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_robPtr = LoadQueuePlugin_logic_pushCmd_payload_robPtr;
       end
     end
@@ -17580,7 +17462,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_pdest = LoadQueuePlugin_logic_loadQueue_slots_2_pdest;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_19) begin
+      if(_zz_20) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_pdest = LoadQueuePlugin_logic_pushCmd_payload_pdest;
       end
     end
@@ -17589,7 +17471,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isIO = LoadQueuePlugin_logic_loadQueue_slots_2_isIO;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_19) begin
+      if(_zz_20) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isIO = LoadQueuePlugin_logic_pushCmd_payload_isIO;
       end
     end
@@ -17598,7 +17480,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_hasException = LoadQueuePlugin_logic_loadQueue_slots_2_hasException;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_19) begin
+      if(_zz_20) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_hasException = LoadQueuePlugin_logic_pushCmd_payload_hasEarlyException;
       end
     end
@@ -17607,7 +17489,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_exceptionCode = LoadQueuePlugin_logic_loadQueue_slots_2_exceptionCode;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_19) begin
+      if(_zz_20) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_exceptionCode = LoadQueuePlugin_logic_pushCmd_payload_earlyExceptionCode;
       end
     end
@@ -17616,7 +17498,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slots_2_isWaitingForFwdRsp;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_19) begin
+      if(_zz_20) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isWaitingForFwdRsp = 1'b0;
       end
     end
@@ -17625,7 +17507,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slots_2_isStalledByDependency;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_19) begin
+      if(_zz_20) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isStalledByDependency = 1'b0;
       end
     end
@@ -17634,7 +17516,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slots_2_isReadyForDCache;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_19) begin
+      if(_zz_20) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isReadyForDCache = 1'b0;
       end
     end
@@ -17643,7 +17525,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slots_2_isWaitingForRsp;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_19) begin
+      if(_zz_20) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isWaitingForRsp = 1'b0;
       end
     end
@@ -17652,7 +17534,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_valid = LoadQueuePlugin_logic_loadQueue_slots_3_valid;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_20) begin
+      if(_zz_21) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_valid = 1'b1;
       end
     end
@@ -17661,7 +17543,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_address = LoadQueuePlugin_logic_loadQueue_slots_3_address;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_20) begin
+      if(_zz_21) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_address = LoadQueuePlugin_logic_pushCmd_payload_address;
       end
     end
@@ -17670,7 +17552,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_size = LoadQueuePlugin_logic_loadQueue_slots_3_size;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_20) begin
+      if(_zz_21) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_size = LoadQueuePlugin_logic_pushCmd_payload_size;
       end
     end
@@ -17679,7 +17561,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_robPtr = LoadQueuePlugin_logic_loadQueue_slots_3_robPtr;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_20) begin
+      if(_zz_21) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_robPtr = LoadQueuePlugin_logic_pushCmd_payload_robPtr;
       end
     end
@@ -17688,7 +17570,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_pdest = LoadQueuePlugin_logic_loadQueue_slots_3_pdest;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_20) begin
+      if(_zz_21) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_pdest = LoadQueuePlugin_logic_pushCmd_payload_pdest;
       end
     end
@@ -17697,7 +17579,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isIO = LoadQueuePlugin_logic_loadQueue_slots_3_isIO;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_20) begin
+      if(_zz_21) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isIO = LoadQueuePlugin_logic_pushCmd_payload_isIO;
       end
     end
@@ -17706,7 +17588,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_hasException = LoadQueuePlugin_logic_loadQueue_slots_3_hasException;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_20) begin
+      if(_zz_21) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_hasException = LoadQueuePlugin_logic_pushCmd_payload_hasEarlyException;
       end
     end
@@ -17715,7 +17597,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_exceptionCode = LoadQueuePlugin_logic_loadQueue_slots_3_exceptionCode;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_20) begin
+      if(_zz_21) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_exceptionCode = LoadQueuePlugin_logic_pushCmd_payload_earlyExceptionCode;
       end
     end
@@ -17724,7 +17606,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slots_3_isWaitingForFwdRsp;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_20) begin
+      if(_zz_21) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isWaitingForFwdRsp = 1'b0;
       end
     end
@@ -17733,7 +17615,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slots_3_isStalledByDependency;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_20) begin
+      if(_zz_21) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isStalledByDependency = 1'b0;
       end
     end
@@ -17742,7 +17624,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slots_3_isReadyForDCache;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_20) begin
+      if(_zz_21) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isReadyForDCache = 1'b0;
       end
     end
@@ -17751,7 +17633,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slots_3_isWaitingForRsp;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_20) begin
+      if(_zz_21) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isWaitingForRsp = 1'b0;
       end
     end
@@ -17765,7 +17647,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_valid = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_valid;
     end
-    if(when_LoadQueuePlugin_l472) begin
+    if(when_LoadQueuePlugin_l473) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_valid = 1'b0;
     end
   end
@@ -17778,7 +17660,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_address = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_address;
     end
-    if(when_LoadQueuePlugin_l472) begin
+    if(when_LoadQueuePlugin_l473) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_address = 32'h0;
     end
   end
@@ -17791,7 +17673,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_size = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_size;
     end
-    if(when_LoadQueuePlugin_l472) begin
+    if(when_LoadQueuePlugin_l473) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_size = MemAccessSize_W;
     end
   end
@@ -17804,7 +17686,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_robPtr;
     end
-    if(when_LoadQueuePlugin_l472) begin
+    if(when_LoadQueuePlugin_l473) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_robPtr = 4'b0000;
     end
   end
@@ -17817,7 +17699,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_pdest = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_pdest;
     end
-    if(when_LoadQueuePlugin_l472) begin
+    if(when_LoadQueuePlugin_l473) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_pdest = 6'h0;
     end
   end
@@ -17830,7 +17712,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isIO = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isIO;
     end
-    if(when_LoadQueuePlugin_l472) begin
+    if(when_LoadQueuePlugin_l473) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isIO = 1'b0;
     end
   end
@@ -17843,7 +17725,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_hasException = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_hasException;
     end
-    if(when_LoadQueuePlugin_l472) begin
+    if(when_LoadQueuePlugin_l473) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_hasException = 1'b0;
     end
   end
@@ -17856,7 +17738,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_exceptionCode = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_exceptionCode;
     end
-    if(when_LoadQueuePlugin_l472) begin
+    if(when_LoadQueuePlugin_l473) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_exceptionCode = 8'h0;
     end
   end
@@ -17869,7 +17751,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isWaitingForFwdRsp;
     end
-    if(when_LoadQueuePlugin_l472) begin
+    if(when_LoadQueuePlugin_l473) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isWaitingForFwdRsp = 1'b0;
     end
   end
@@ -17882,7 +17764,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isStalledByDependency;
     end
-    if(when_LoadQueuePlugin_l472) begin
+    if(when_LoadQueuePlugin_l473) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isStalledByDependency = 1'b0;
     end
   end
@@ -17895,7 +17777,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isReadyForDCache;
     end
-    if(when_LoadQueuePlugin_l472) begin
+    if(when_LoadQueuePlugin_l473) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isReadyForDCache = 1'b0;
     end
   end
@@ -17908,7 +17790,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isWaitingForRsp;
     end
-    if(when_LoadQueuePlugin_l472) begin
+    if(when_LoadQueuePlugin_l473) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isWaitingForRsp = 1'b0;
     end
   end
@@ -17921,7 +17803,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_valid = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_valid;
     end
-    if(when_LoadQueuePlugin_l472_1) begin
+    if(when_LoadQueuePlugin_l473_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_valid = 1'b0;
     end
   end
@@ -17934,7 +17816,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_address = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_address;
     end
-    if(when_LoadQueuePlugin_l472_1) begin
+    if(when_LoadQueuePlugin_l473_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_address = 32'h0;
     end
   end
@@ -17947,7 +17829,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_size = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_size;
     end
-    if(when_LoadQueuePlugin_l472_1) begin
+    if(when_LoadQueuePlugin_l473_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_size = MemAccessSize_W;
     end
   end
@@ -17960,7 +17842,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_robPtr;
     end
-    if(when_LoadQueuePlugin_l472_1) begin
+    if(when_LoadQueuePlugin_l473_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_robPtr = 4'b0000;
     end
   end
@@ -17973,7 +17855,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_pdest = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_pdest;
     end
-    if(when_LoadQueuePlugin_l472_1) begin
+    if(when_LoadQueuePlugin_l473_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_pdest = 6'h0;
     end
   end
@@ -17986,7 +17868,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isIO = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isIO;
     end
-    if(when_LoadQueuePlugin_l472_1) begin
+    if(when_LoadQueuePlugin_l473_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isIO = 1'b0;
     end
   end
@@ -17999,7 +17881,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_hasException = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_hasException;
     end
-    if(when_LoadQueuePlugin_l472_1) begin
+    if(when_LoadQueuePlugin_l473_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_hasException = 1'b0;
     end
   end
@@ -18012,7 +17894,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_exceptionCode = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_exceptionCode;
     end
-    if(when_LoadQueuePlugin_l472_1) begin
+    if(when_LoadQueuePlugin_l473_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_exceptionCode = 8'h0;
     end
   end
@@ -18025,7 +17907,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isWaitingForFwdRsp;
     end
-    if(when_LoadQueuePlugin_l472_1) begin
+    if(when_LoadQueuePlugin_l473_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isWaitingForFwdRsp = 1'b0;
     end
   end
@@ -18038,7 +17920,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isStalledByDependency;
     end
-    if(when_LoadQueuePlugin_l472_1) begin
+    if(when_LoadQueuePlugin_l473_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isStalledByDependency = 1'b0;
     end
   end
@@ -18051,7 +17933,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isReadyForDCache;
     end
-    if(when_LoadQueuePlugin_l472_1) begin
+    if(when_LoadQueuePlugin_l473_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isReadyForDCache = 1'b0;
     end
   end
@@ -18064,7 +17946,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isWaitingForRsp;
     end
-    if(when_LoadQueuePlugin_l472_1) begin
+    if(when_LoadQueuePlugin_l473_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isWaitingForRsp = 1'b0;
     end
   end
@@ -18077,7 +17959,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_valid = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_valid;
     end
-    if(when_LoadQueuePlugin_l472_2) begin
+    if(when_LoadQueuePlugin_l473_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_valid = 1'b0;
     end
   end
@@ -18090,7 +17972,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_address = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_address;
     end
-    if(when_LoadQueuePlugin_l472_2) begin
+    if(when_LoadQueuePlugin_l473_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_address = 32'h0;
     end
   end
@@ -18103,7 +17985,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_size = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_size;
     end
-    if(when_LoadQueuePlugin_l472_2) begin
+    if(when_LoadQueuePlugin_l473_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_size = MemAccessSize_W;
     end
   end
@@ -18116,7 +17998,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_robPtr;
     end
-    if(when_LoadQueuePlugin_l472_2) begin
+    if(when_LoadQueuePlugin_l473_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_robPtr = 4'b0000;
     end
   end
@@ -18129,7 +18011,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_pdest = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_pdest;
     end
-    if(when_LoadQueuePlugin_l472_2) begin
+    if(when_LoadQueuePlugin_l473_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_pdest = 6'h0;
     end
   end
@@ -18142,7 +18024,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isIO = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isIO;
     end
-    if(when_LoadQueuePlugin_l472_2) begin
+    if(when_LoadQueuePlugin_l473_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isIO = 1'b0;
     end
   end
@@ -18155,7 +18037,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_hasException = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_hasException;
     end
-    if(when_LoadQueuePlugin_l472_2) begin
+    if(when_LoadQueuePlugin_l473_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_hasException = 1'b0;
     end
   end
@@ -18168,7 +18050,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_exceptionCode = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_exceptionCode;
     end
-    if(when_LoadQueuePlugin_l472_2) begin
+    if(when_LoadQueuePlugin_l473_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_exceptionCode = 8'h0;
     end
   end
@@ -18181,7 +18063,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isWaitingForFwdRsp;
     end
-    if(when_LoadQueuePlugin_l472_2) begin
+    if(when_LoadQueuePlugin_l473_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isWaitingForFwdRsp = 1'b0;
     end
   end
@@ -18194,7 +18076,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isStalledByDependency;
     end
-    if(when_LoadQueuePlugin_l472_2) begin
+    if(when_LoadQueuePlugin_l473_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isStalledByDependency = 1'b0;
     end
   end
@@ -18207,7 +18089,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isReadyForDCache;
     end
-    if(when_LoadQueuePlugin_l472_2) begin
+    if(when_LoadQueuePlugin_l473_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isReadyForDCache = 1'b0;
     end
   end
@@ -18220,7 +18102,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isWaitingForRsp;
     end
-    if(when_LoadQueuePlugin_l472_2) begin
+    if(when_LoadQueuePlugin_l473_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isWaitingForRsp = 1'b0;
     end
   end
@@ -18233,7 +18115,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_valid = 1'b0;
     end
-    if(when_LoadQueuePlugin_l472_3) begin
+    if(when_LoadQueuePlugin_l473_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_valid = 1'b0;
     end
   end
@@ -18246,7 +18128,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_address = 32'h0;
     end
-    if(when_LoadQueuePlugin_l472_3) begin
+    if(when_LoadQueuePlugin_l473_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_address = 32'h0;
     end
   end
@@ -18259,7 +18141,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_size = MemAccessSize_W;
     end
-    if(when_LoadQueuePlugin_l472_3) begin
+    if(when_LoadQueuePlugin_l473_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_size = MemAccessSize_W;
     end
   end
@@ -18272,7 +18154,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_robPtr = 4'b0000;
     end
-    if(when_LoadQueuePlugin_l472_3) begin
+    if(when_LoadQueuePlugin_l473_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_robPtr = 4'b0000;
     end
   end
@@ -18285,7 +18167,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_pdest = 6'h0;
     end
-    if(when_LoadQueuePlugin_l472_3) begin
+    if(when_LoadQueuePlugin_l473_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_pdest = 6'h0;
     end
   end
@@ -18298,7 +18180,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isIO = 1'b0;
     end
-    if(when_LoadQueuePlugin_l472_3) begin
+    if(when_LoadQueuePlugin_l473_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isIO = 1'b0;
     end
   end
@@ -18311,7 +18193,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_hasException = 1'b0;
     end
-    if(when_LoadQueuePlugin_l472_3) begin
+    if(when_LoadQueuePlugin_l473_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_hasException = 1'b0;
     end
   end
@@ -18324,7 +18206,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_exceptionCode = 8'h0;
     end
-    if(when_LoadQueuePlugin_l472_3) begin
+    if(when_LoadQueuePlugin_l473_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_exceptionCode = 8'h0;
     end
   end
@@ -18337,7 +18219,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isWaitingForFwdRsp = 1'b0;
     end
-    if(when_LoadQueuePlugin_l472_3) begin
+    if(when_LoadQueuePlugin_l473_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isWaitingForFwdRsp = 1'b0;
     end
   end
@@ -18350,7 +18232,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isStalledByDependency = 1'b0;
     end
-    if(when_LoadQueuePlugin_l472_3) begin
+    if(when_LoadQueuePlugin_l473_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isStalledByDependency = 1'b0;
     end
   end
@@ -18363,7 +18245,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isReadyForDCache = 1'b0;
     end
-    if(when_LoadQueuePlugin_l472_3) begin
+    if(when_LoadQueuePlugin_l473_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isReadyForDCache = 1'b0;
     end
   end
@@ -18376,7 +18258,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isWaitingForRsp = 1'b0;
     end
-    if(when_LoadQueuePlugin_l472_3) begin
+    if(when_LoadQueuePlugin_l473_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isWaitingForRsp = 1'b0;
     end
   end
@@ -18392,11 +18274,11 @@ module CoreNSCSCC (
   assign _zz_LoadQueuePlugin_logic_loadQueue_pushIdx_2 = (LoadQueuePlugin_logic_loadQueue_pushOh[2] || _zz_LoadQueuePlugin_logic_loadQueue_pushIdx);
   assign LoadQueuePlugin_logic_loadQueue_pushIdx = {_zz_LoadQueuePlugin_logic_loadQueue_pushIdx_2,_zz_LoadQueuePlugin_logic_loadQueue_pushIdx_1};
   assign LoadQueuePlugin_logic_pushCmd_fire = (LoadQueuePlugin_logic_pushCmd_valid && LoadQueuePlugin_logic_pushCmd_ready);
-  assign _zz_16 = ({3'd0,1'b1} <<< LoadQueuePlugin_logic_loadQueue_pushIdx);
-  assign _zz_17 = _zz_16[0];
-  assign _zz_18 = _zz_16[1];
-  assign _zz_19 = _zz_16[2];
-  assign _zz_20 = _zz_16[3];
+  assign _zz_17 = ({3'd0,1'b1} <<< LoadQueuePlugin_logic_loadQueue_pushIdx);
+  assign _zz_18 = _zz_17[0];
+  assign _zz_19 = _zz_17[1];
+  assign _zz_20 = _zz_17[2];
+  assign _zz_21 = _zz_17[3];
   assign _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[3];
   assign _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_1 = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[2 : 0];
   assign _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_2 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
@@ -18442,7 +18324,7 @@ module CoreNSCSCC (
   assign _zz_LoadQueuePlugin_logic_loadQueue_mmioCmdFired = (((LoadQueuePlugin_logic_loadQueue_headIsReadyToExecute && (! LoadQueuePlugin_logic_loadQueue_slots_0_hasException)) && (! LoadQueuePlugin_logic_loadQueue_shouldNotSendToMemory)) && LoadQueuePlugin_logic_loadQueue_slots_0_isIO);
   assign LoadQueuePlugin_logic_loadQueue_mmioCmdFired = (_zz_LoadQueuePlugin_logic_loadQueue_mmioCmdFired && CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_cmd_ready);
   assign LoadQueuePlugin_logic_loadQueue_mmioResponseIsForHead = (((CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_valid && LoadQueuePlugin_logic_loadQueue_slots_0_valid) && (LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForRsp || LoadQueuePlugin_logic_loadQueue_mmioCmdFired)) && LoadQueuePlugin_logic_loadQueue_slots_0_isIO);
-  assign when_LoadQueuePlugin_l363 = (((LoadQueuePlugin_hw_dCacheLoadPort_rsp_valid && LoadQueuePlugin_logic_loadQueue_slots_0_valid) && LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForRsp) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isIO));
+  assign when_LoadQueuePlugin_l364 = (((LoadQueuePlugin_hw_dCacheLoadPort_rsp_valid && LoadQueuePlugin_logic_loadQueue_slots_0_valid) && LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForRsp) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isIO));
   assign LoadQueuePlugin_logic_loadQueue_popOnFwdHit = (LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForFwdRsp && LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_hit);
   assign LoadQueuePlugin_logic_loadQueue_popOnDCacheSuccess = ((((LoadQueuePlugin_hw_dCacheLoadPort_rsp_valid && LoadQueuePlugin_logic_loadQueue_slots_0_valid) && LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForRsp) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isIO)) && (! LoadQueuePlugin_hw_dCacheLoadPort_rsp_payload_redo));
   assign LoadQueuePlugin_logic_loadQueue_popOnEarlyException = ((LoadQueuePlugin_logic_loadQueue_slots_0_valid && LoadQueuePlugin_logic_loadQueue_slots_0_hasException) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isReadyForDCache));
@@ -18572,12 +18454,12 @@ module CoreNSCSCC (
       LoadQueuePlugin_hw_wakeupPort_valid = 1'b1;
     end else begin
       if(LoadQueuePlugin_logic_loadQueue_popOnDCacheSuccess) begin
-        if(when_LoadQueuePlugin_l420) begin
+        if(when_LoadQueuePlugin_l421) begin
           LoadQueuePlugin_hw_wakeupPort_valid = 1'b1;
         end
       end else begin
         if(LoadQueuePlugin_logic_loadQueue_mmioResponseIsForHead) begin
-          if(when_LoadQueuePlugin_l437) begin
+          if(when_LoadQueuePlugin_l438) begin
             LoadQueuePlugin_hw_wakeupPort_valid = 1'b1;
           end
         end
@@ -18591,12 +18473,12 @@ module CoreNSCSCC (
       LoadQueuePlugin_hw_wakeupPort_payload_physRegIdx = LoadQueuePlugin_logic_loadQueue_slots_0_pdest;
     end else begin
       if(LoadQueuePlugin_logic_loadQueue_popOnDCacheSuccess) begin
-        if(when_LoadQueuePlugin_l420) begin
+        if(when_LoadQueuePlugin_l421) begin
           LoadQueuePlugin_hw_wakeupPort_payload_physRegIdx = LoadQueuePlugin_logic_loadQueue_slots_0_pdest;
         end
       end else begin
         if(LoadQueuePlugin_logic_loadQueue_mmioResponseIsForHead) begin
-          if(when_LoadQueuePlugin_l437) begin
+          if(when_LoadQueuePlugin_l438) begin
             LoadQueuePlugin_hw_wakeupPort_payload_physRegIdx = LoadQueuePlugin_logic_loadQueue_slots_0_pdest;
           end
         end
@@ -18604,28 +18486,28 @@ module CoreNSCSCC (
     end
   end
 
-  assign when_LoadQueuePlugin_l420 = (! LoadQueuePlugin_hw_dCacheLoadPort_rsp_payload_fault);
-  assign when_LoadQueuePlugin_l437 = (! _zz_LoadQueuePlugin_hw_prfWritePort_valid);
-  assign _zz_when_LoadQueuePlugin_l472 = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[3];
-  assign _zz_when_LoadQueuePlugin_l472_1 = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[2 : 0];
-  assign _zz_when_LoadQueuePlugin_l472_2 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
-  assign _zz_when_LoadQueuePlugin_l472_3 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
-  assign when_LoadQueuePlugin_l472 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_0_valid) && (((_zz_when_LoadQueuePlugin_l472 == _zz_when_LoadQueuePlugin_l472_2) && (_zz_when_LoadQueuePlugin_l472_3 <= _zz_when_LoadQueuePlugin_l472_1)) || ((_zz_when_LoadQueuePlugin_l472 != _zz_when_LoadQueuePlugin_l472_2) && (_zz_when_LoadQueuePlugin_l472_1 < _zz_when_LoadQueuePlugin_l472_3))));
-  assign _zz_when_LoadQueuePlugin_l472_4 = LoadQueuePlugin_logic_loadQueue_slots_1_robPtr[3];
-  assign _zz_when_LoadQueuePlugin_l472_5 = LoadQueuePlugin_logic_loadQueue_slots_1_robPtr[2 : 0];
-  assign _zz_when_LoadQueuePlugin_l472_6 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
-  assign _zz_when_LoadQueuePlugin_l472_7 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
-  assign when_LoadQueuePlugin_l472_1 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_1_valid) && (((_zz_when_LoadQueuePlugin_l472_4 == _zz_when_LoadQueuePlugin_l472_6) && (_zz_when_LoadQueuePlugin_l472_7 <= _zz_when_LoadQueuePlugin_l472_5)) || ((_zz_when_LoadQueuePlugin_l472_4 != _zz_when_LoadQueuePlugin_l472_6) && (_zz_when_LoadQueuePlugin_l472_5 < _zz_when_LoadQueuePlugin_l472_7))));
-  assign _zz_when_LoadQueuePlugin_l472_8 = LoadQueuePlugin_logic_loadQueue_slots_2_robPtr[3];
-  assign _zz_when_LoadQueuePlugin_l472_9 = LoadQueuePlugin_logic_loadQueue_slots_2_robPtr[2 : 0];
-  assign _zz_when_LoadQueuePlugin_l472_10 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
-  assign _zz_when_LoadQueuePlugin_l472_11 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
-  assign when_LoadQueuePlugin_l472_2 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_2_valid) && (((_zz_when_LoadQueuePlugin_l472_8 == _zz_when_LoadQueuePlugin_l472_10) && (_zz_when_LoadQueuePlugin_l472_11 <= _zz_when_LoadQueuePlugin_l472_9)) || ((_zz_when_LoadQueuePlugin_l472_8 != _zz_when_LoadQueuePlugin_l472_10) && (_zz_when_LoadQueuePlugin_l472_9 < _zz_when_LoadQueuePlugin_l472_11))));
-  assign _zz_when_LoadQueuePlugin_l472_12 = LoadQueuePlugin_logic_loadQueue_slots_3_robPtr[3];
-  assign _zz_when_LoadQueuePlugin_l472_13 = LoadQueuePlugin_logic_loadQueue_slots_3_robPtr[2 : 0];
-  assign _zz_when_LoadQueuePlugin_l472_14 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
-  assign _zz_when_LoadQueuePlugin_l472_15 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
-  assign when_LoadQueuePlugin_l472_3 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_3_valid) && (((_zz_when_LoadQueuePlugin_l472_12 == _zz_when_LoadQueuePlugin_l472_14) && (_zz_when_LoadQueuePlugin_l472_15 <= _zz_when_LoadQueuePlugin_l472_13)) || ((_zz_when_LoadQueuePlugin_l472_12 != _zz_when_LoadQueuePlugin_l472_14) && (_zz_when_LoadQueuePlugin_l472_13 < _zz_when_LoadQueuePlugin_l472_15))));
+  assign when_LoadQueuePlugin_l421 = (! LoadQueuePlugin_hw_dCacheLoadPort_rsp_payload_fault);
+  assign when_LoadQueuePlugin_l438 = (! _zz_LoadQueuePlugin_hw_prfWritePort_valid);
+  assign _zz_when_LoadQueuePlugin_l473 = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[3];
+  assign _zz_when_LoadQueuePlugin_l473_1 = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[2 : 0];
+  assign _zz_when_LoadQueuePlugin_l473_2 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
+  assign _zz_when_LoadQueuePlugin_l473_3 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
+  assign when_LoadQueuePlugin_l473 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_0_valid) && (((_zz_when_LoadQueuePlugin_l473 == _zz_when_LoadQueuePlugin_l473_2) && (_zz_when_LoadQueuePlugin_l473_3 <= _zz_when_LoadQueuePlugin_l473_1)) || ((_zz_when_LoadQueuePlugin_l473 != _zz_when_LoadQueuePlugin_l473_2) && (_zz_when_LoadQueuePlugin_l473_1 < _zz_when_LoadQueuePlugin_l473_3))));
+  assign _zz_when_LoadQueuePlugin_l473_4 = LoadQueuePlugin_logic_loadQueue_slots_1_robPtr[3];
+  assign _zz_when_LoadQueuePlugin_l473_5 = LoadQueuePlugin_logic_loadQueue_slots_1_robPtr[2 : 0];
+  assign _zz_when_LoadQueuePlugin_l473_6 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
+  assign _zz_when_LoadQueuePlugin_l473_7 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
+  assign when_LoadQueuePlugin_l473_1 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_1_valid) && (((_zz_when_LoadQueuePlugin_l473_4 == _zz_when_LoadQueuePlugin_l473_6) && (_zz_when_LoadQueuePlugin_l473_7 <= _zz_when_LoadQueuePlugin_l473_5)) || ((_zz_when_LoadQueuePlugin_l473_4 != _zz_when_LoadQueuePlugin_l473_6) && (_zz_when_LoadQueuePlugin_l473_5 < _zz_when_LoadQueuePlugin_l473_7))));
+  assign _zz_when_LoadQueuePlugin_l473_8 = LoadQueuePlugin_logic_loadQueue_slots_2_robPtr[3];
+  assign _zz_when_LoadQueuePlugin_l473_9 = LoadQueuePlugin_logic_loadQueue_slots_2_robPtr[2 : 0];
+  assign _zz_when_LoadQueuePlugin_l473_10 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
+  assign _zz_when_LoadQueuePlugin_l473_11 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
+  assign when_LoadQueuePlugin_l473_2 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_2_valid) && (((_zz_when_LoadQueuePlugin_l473_8 == _zz_when_LoadQueuePlugin_l473_10) && (_zz_when_LoadQueuePlugin_l473_11 <= _zz_when_LoadQueuePlugin_l473_9)) || ((_zz_when_LoadQueuePlugin_l473_8 != _zz_when_LoadQueuePlugin_l473_10) && (_zz_when_LoadQueuePlugin_l473_9 < _zz_when_LoadQueuePlugin_l473_11))));
+  assign _zz_when_LoadQueuePlugin_l473_12 = LoadQueuePlugin_logic_loadQueue_slots_3_robPtr[3];
+  assign _zz_when_LoadQueuePlugin_l473_13 = LoadQueuePlugin_logic_loadQueue_slots_3_robPtr[2 : 0];
+  assign _zz_when_LoadQueuePlugin_l473_14 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
+  assign _zz_when_LoadQueuePlugin_l473_15 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
+  assign when_LoadQueuePlugin_l473_3 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_3_valid) && (((_zz_when_LoadQueuePlugin_l473_12 == _zz_when_LoadQueuePlugin_l473_14) && (_zz_when_LoadQueuePlugin_l473_15 <= _zz_when_LoadQueuePlugin_l473_13)) || ((_zz_when_LoadQueuePlugin_l473_12 != _zz_when_LoadQueuePlugin_l473_14) && (_zz_when_LoadQueuePlugin_l473_13 < _zz_when_LoadQueuePlugin_l473_15))));
   assign when_CheckpointManagerPlugin_l118 = (CheckpointManagerPlugin_restoreCheckpointTrigger && CheckpointManagerPlugin_logic_hasValidCheckpoint);
   always @(*) begin
     if(when_CheckpointManagerPlugin_l118) begin
@@ -18971,7 +18853,7 @@ module CoreNSCSCC (
   assign _zz_when_PhysicalRegFile_l141_8 = (_zz_when_PhysicalRegFile_l141_5 || _zz_when_PhysicalRegFile_l141_6);
   assign _zz_when_PhysicalRegFile_l141_9 = {_zz_when_PhysicalRegFile_l141_8,_zz_when_PhysicalRegFile_l141_7};
   assign _zz_when_PhysicalRegFile_l141_1 = _zz__zz_when_PhysicalRegFile_l141_1;
-  assign _zz_27 = _zz__zz_27;
+  assign _zz_28 = _zz__zz_28;
   assign when_PhysicalRegFile_l141 = (_zz_when_PhysicalRegFile_l141 && (_zz_when_PhysicalRegFile_l141_1 != 6'h0));
   assign _zz_when_PhysicalRegFile_l150 = 3'b000;
   assign _zz_when_PhysicalRegFile_l150_1 = 3'b001;
@@ -18982,81 +18864,102 @@ module CoreNSCSCC (
   assign _zz_when_PhysicalRegFile_l150_6 = 3'b010;
   assign _zz_when_PhysicalRegFile_l150_7 = 3'b011;
   assign when_PhysicalRegFile_l150 = (3'b001 < _zz_when_PhysicalRegFile_l150_8);
-  assign _zz_29 = 8'he0;
+  assign _zz_30 = 8'he0;
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush = StoreBufferPlugin_logic_slots_0_isFlush;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush = 1'b0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_addr = StoreBufferPlugin_logic_slots_0_addr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_addr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_0_addr = 32'h0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_data = StoreBufferPlugin_logic_slots_0_data;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_data = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_0_data = 32'h0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_be = StoreBufferPlugin_logic_slots_0_be;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_be = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_be;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_0_be = 4'b0000;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr = StoreBufferPlugin_logic_slots_0_robPtr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr = 4'b0000;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize = StoreBufferPlugin_logic_slots_0_accessSize;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize = MemAccessSize_W;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO = StoreBufferPlugin_logic_slots_0_isIO;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO = 1'b0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_valid = StoreBufferPlugin_logic_slots_0_valid;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_valid = 1'b1;
       end
     end
-    if(when_StoreBufferPlugin_l445) begin
+    if(when_StoreBufferPlugin_l482) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_0_valid = 1'b0;
     end
-    if(when_StoreBufferPlugin_l466) begin
+    if(when_StoreBufferPlugin_l502) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_0_valid = 1'b0;
     end
   end
@@ -19064,41 +18967,60 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException = StoreBufferPlugin_logic_slots_0_hasEarlyException;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException;
       end
+    end
+    if(StoreBufferPlugin_logic_mmioResponseForHead) begin
+      if(CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_rsp_payload_error) begin
+        StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException = 1'b1;
+      end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException = 1'b0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode = StoreBufferPlugin_logic_slots_0_earlyExceptionCode;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode;
       end
+    end
+    if(StoreBufferPlugin_logic_mmioResponseForHead) begin
+      if(CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_rsp_payload_error) begin
+        StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode = 8'h07;
+      end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode = 8'h0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_isCommitted = StoreBufferPlugin_logic_slots_0_isCommitted;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_isCommitted = 1'b0;
       end
     end
-    if(!when_StoreBufferPlugin_l445) begin
-      if(when_StoreBufferPlugin_l449) begin
-        if(when_StoreBufferPlugin_l455) begin
+    if(!when_StoreBufferPlugin_l482) begin
+      if(when_StoreBufferPlugin_l486) begin
+        if(when_StoreBufferPlugin_l493) begin
           StoreBufferPlugin_logic_slotsAfterUpdates_0_isCommitted = 1'b1;
         end
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_0_isCommitted = 1'b0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_sentCmd = StoreBufferPlugin_logic_slots_0_sentCmd;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_sentCmd = 1'b0;
       end
     end
@@ -19108,41 +19030,54 @@ module CoreNSCSCC (
     if(StoreBufferPlugin_logic_mmioCmdFired) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_0_sentCmd = 1'b1;
     end
-    if(StoreBufferPlugin_logic_responseIsForHead) begin
+    if(StoreBufferPlugin_logic_dcacheResponseForHead) begin
       if(StoreBufferPlugin_hw_dCacheStorePort_rsp_payload_redo) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_sentCmd = 1'b0;
       end
+    end
+    if(StoreBufferPlugin_logic_waitedRefillIsDone) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_0_sentCmd = 1'b0;
+    end
+    if(when_StoreBufferPlugin_l465) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_0_sentCmd = 1'b0;
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_0_sentCmd = 1'b0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_waitRsp = StoreBufferPlugin_logic_slots_0_waitRsp;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_waitRsp = 1'b0;
       end
     end
-    if(StoreBufferPlugin_logic_responseIsForHead) begin
+    if(StoreBufferPlugin_logic_dcacheCmdFired) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_0_waitRsp = 1'b1;
+    end
+    if(StoreBufferPlugin_logic_mmioCmdFired) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_0_waitRsp = 1'b1;
+    end
+    if(StoreBufferPlugin_logic_dcacheResponseForHead) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_0_waitRsp = 1'b0;
-    end else begin
-      if(StoreBufferPlugin_logic_mmioResponseIsForHead) begin
-        StoreBufferPlugin_logic_slotsAfterUpdates_0_waitRsp = 1'b0;
-      end else begin
-        if(when_StoreBufferPlugin_l407) begin
-          StoreBufferPlugin_logic_slotsAfterUpdates_0_waitRsp = 1'b1;
-        end
-      end
+    end
+    if(StoreBufferPlugin_logic_mmioResponseForHead) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_0_waitRsp = 1'b0;
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_0_waitRsp = 1'b0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForRefill = StoreBufferPlugin_logic_slots_0_isWaitingForRefill;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForRefill = 1'b0;
       end
     end
-    if(StoreBufferPlugin_logic_responseIsForHead) begin
+    if(StoreBufferPlugin_logic_dcacheResponseForHead) begin
       if(StoreBufferPlugin_hw_dCacheStorePort_rsp_payload_redo) begin
         if(!StoreBufferPlugin_hw_dCacheStorePort_rsp_payload_flush) begin
           StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForRefill = 1'b1;
@@ -19152,23 +19087,29 @@ module CoreNSCSCC (
     if(StoreBufferPlugin_logic_waitedRefillIsDone) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForRefill = 1'b0;
     end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForRefill = 1'b0;
+    end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForWb = StoreBufferPlugin_logic_slots_0_isWaitingForWb;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForWb = 1'b0;
       end
     end
-    if(StoreBufferPlugin_logic_responseIsForHead) begin
+    if(StoreBufferPlugin_logic_dcacheResponseForHead) begin
       if(StoreBufferPlugin_hw_dCacheStorePort_rsp_payload_redo) begin
         if(StoreBufferPlugin_hw_dCacheStorePort_rsp_payload_flush) begin
           StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForWb = 1'b1;
         end
       end
     end
-    if(when_StoreBufferPlugin_l429) begin
+    if(when_StoreBufferPlugin_l465) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForWb = 1'b0;
+    end
+    if(when_StoreBufferPlugin_l502) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForWb = 1'b0;
     end
   end
@@ -19176,93 +19117,117 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_refillSlotToWatch = StoreBufferPlugin_logic_slots_0_refillSlotToWatch;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_34) begin
+      if(_zz_35) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_refillSlotToWatch = 2'b00;
       end
     end
-    if(StoreBufferPlugin_logic_responseIsForHead) begin
+    if(StoreBufferPlugin_logic_dcacheResponseForHead) begin
       if(StoreBufferPlugin_hw_dCacheStorePort_rsp_payload_redo) begin
         if(!StoreBufferPlugin_hw_dCacheStorePort_rsp_payload_flush) begin
           StoreBufferPlugin_logic_slotsAfterUpdates_0_refillSlotToWatch = StoreBufferPlugin_hw_dCacheStorePort_rsp_payload_refillSlot;
         end
       end
     end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_0_refillSlotToWatch = 2'b00;
+    end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_isFlush = StoreBufferPlugin_logic_slots_1_isFlush;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_isFlush = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_1_isFlush = 1'b0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_addr = StoreBufferPlugin_logic_slots_1_addr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_addr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_1_addr = 32'h0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_data = StoreBufferPlugin_logic_slots_1_data;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_data = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_1_data = 32'h0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_be = StoreBufferPlugin_logic_slots_1_be;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_be = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_be;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_1_be = 4'b0000;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_robPtr = StoreBufferPlugin_logic_slots_1_robPtr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_robPtr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_1_robPtr = 4'b0000;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_accessSize = StoreBufferPlugin_logic_slots_1_accessSize;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_accessSize = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_1_accessSize = MemAccessSize_W;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_isIO = StoreBufferPlugin_logic_slots_1_isIO;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_isIO = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_1_isIO = 1'b0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_valid = StoreBufferPlugin_logic_slots_1_valid;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_valid = 1'b1;
       end
     end
-    if(when_StoreBufferPlugin_l445_1) begin
+    if(when_StoreBufferPlugin_l482_1) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_1_valid = 1'b0;
     end
-    if(when_StoreBufferPlugin_l466) begin
+    if(when_StoreBufferPlugin_l502) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_1_valid = 1'b0;
     end
   end
@@ -19270,156 +19235,201 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_hasEarlyException = StoreBufferPlugin_logic_slots_1_hasEarlyException;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_hasEarlyException = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_1_hasEarlyException = 1'b0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_earlyExceptionCode = StoreBufferPlugin_logic_slots_1_earlyExceptionCode;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_earlyExceptionCode = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_1_earlyExceptionCode = 8'h0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_isCommitted = StoreBufferPlugin_logic_slots_1_isCommitted;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_isCommitted = 1'b0;
       end
     end
-    if(!when_StoreBufferPlugin_l445_1) begin
-      if(when_StoreBufferPlugin_l449_1) begin
-        if(when_StoreBufferPlugin_l455_1) begin
+    if(!when_StoreBufferPlugin_l482_1) begin
+      if(when_StoreBufferPlugin_l486_1) begin
+        if(when_StoreBufferPlugin_l493_1) begin
           StoreBufferPlugin_logic_slotsAfterUpdates_1_isCommitted = 1'b1;
         end
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_1_isCommitted = 1'b0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_sentCmd = StoreBufferPlugin_logic_slots_1_sentCmd;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_sentCmd = 1'b0;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_1_sentCmd = 1'b0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_waitRsp = StoreBufferPlugin_logic_slots_1_waitRsp;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_waitRsp = 1'b0;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_1_waitRsp = 1'b0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_isWaitingForRefill = StoreBufferPlugin_logic_slots_1_isWaitingForRefill;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_isWaitingForRefill = 1'b0;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_1_isWaitingForRefill = 1'b0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_isWaitingForWb = StoreBufferPlugin_logic_slots_1_isWaitingForWb;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_isWaitingForWb = 1'b0;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_1_isWaitingForWb = 1'b0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_refillSlotToWatch = StoreBufferPlugin_logic_slots_1_refillSlotToWatch;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_35) begin
+      if(_zz_36) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_refillSlotToWatch = 2'b00;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_1_refillSlotToWatch = 2'b00;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_isFlush = StoreBufferPlugin_logic_slots_2_isFlush;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_36) begin
+      if(_zz_37) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_isFlush = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_2_isFlush = 1'b0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_addr = StoreBufferPlugin_logic_slots_2_addr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_36) begin
+      if(_zz_37) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_addr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_2_addr = 32'h0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_data = StoreBufferPlugin_logic_slots_2_data;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_36) begin
+      if(_zz_37) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_data = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_2_data = 32'h0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_be = StoreBufferPlugin_logic_slots_2_be;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_36) begin
+      if(_zz_37) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_be = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_be;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_2_be = 4'b0000;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_robPtr = StoreBufferPlugin_logic_slots_2_robPtr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_36) begin
+      if(_zz_37) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_robPtr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_2_robPtr = 4'b0000;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_accessSize = StoreBufferPlugin_logic_slots_2_accessSize;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_36) begin
+      if(_zz_37) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_accessSize = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_2_accessSize = MemAccessSize_W;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_isIO = StoreBufferPlugin_logic_slots_2_isIO;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_36) begin
+      if(_zz_37) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_isIO = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_2_isIO = 1'b0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_valid = StoreBufferPlugin_logic_slots_2_valid;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_36) begin
+      if(_zz_37) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_valid = 1'b1;
       end
     end
-    if(when_StoreBufferPlugin_l445_2) begin
+    if(when_StoreBufferPlugin_l482_2) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_2_valid = 1'b0;
     end
-    if(when_StoreBufferPlugin_l466) begin
+    if(when_StoreBufferPlugin_l502) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_2_valid = 1'b0;
     end
   end
@@ -19427,156 +19437,201 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_hasEarlyException = StoreBufferPlugin_logic_slots_2_hasEarlyException;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_36) begin
+      if(_zz_37) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_hasEarlyException = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_2_hasEarlyException = 1'b0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_earlyExceptionCode = StoreBufferPlugin_logic_slots_2_earlyExceptionCode;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_36) begin
+      if(_zz_37) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_earlyExceptionCode = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_2_earlyExceptionCode = 8'h0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_isCommitted = StoreBufferPlugin_logic_slots_2_isCommitted;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_36) begin
+      if(_zz_37) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_isCommitted = 1'b0;
       end
     end
-    if(!when_StoreBufferPlugin_l445_2) begin
-      if(when_StoreBufferPlugin_l449_2) begin
-        if(when_StoreBufferPlugin_l455_2) begin
+    if(!when_StoreBufferPlugin_l482_2) begin
+      if(when_StoreBufferPlugin_l486_2) begin
+        if(when_StoreBufferPlugin_l493_2) begin
           StoreBufferPlugin_logic_slotsAfterUpdates_2_isCommitted = 1'b1;
         end
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_2_isCommitted = 1'b0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_sentCmd = StoreBufferPlugin_logic_slots_2_sentCmd;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_36) begin
+      if(_zz_37) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_sentCmd = 1'b0;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_2_sentCmd = 1'b0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_waitRsp = StoreBufferPlugin_logic_slots_2_waitRsp;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_36) begin
+      if(_zz_37) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_waitRsp = 1'b0;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_2_waitRsp = 1'b0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_isWaitingForRefill = StoreBufferPlugin_logic_slots_2_isWaitingForRefill;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_36) begin
+      if(_zz_37) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_isWaitingForRefill = 1'b0;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_2_isWaitingForRefill = 1'b0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_isWaitingForWb = StoreBufferPlugin_logic_slots_2_isWaitingForWb;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_36) begin
+      if(_zz_37) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_isWaitingForWb = 1'b0;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_2_isWaitingForWb = 1'b0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_refillSlotToWatch = StoreBufferPlugin_logic_slots_2_refillSlotToWatch;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_36) begin
+      if(_zz_37) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_refillSlotToWatch = 2'b00;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_2_refillSlotToWatch = 2'b00;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_isFlush = StoreBufferPlugin_logic_slots_3_isFlush;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_37) begin
+      if(_zz_38) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_isFlush = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_3_isFlush = 1'b0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_addr = StoreBufferPlugin_logic_slots_3_addr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_37) begin
+      if(_zz_38) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_addr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_3_addr = 32'h0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_data = StoreBufferPlugin_logic_slots_3_data;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_37) begin
+      if(_zz_38) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_data = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_3_data = 32'h0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_be = StoreBufferPlugin_logic_slots_3_be;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_37) begin
+      if(_zz_38) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_be = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_be;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_3_be = 4'b0000;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_robPtr = StoreBufferPlugin_logic_slots_3_robPtr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_37) begin
+      if(_zz_38) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_robPtr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_3_robPtr = 4'b0000;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_accessSize = StoreBufferPlugin_logic_slots_3_accessSize;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_37) begin
+      if(_zz_38) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_accessSize = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_3_accessSize = MemAccessSize_W;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_isIO = StoreBufferPlugin_logic_slots_3_isIO;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_37) begin
+      if(_zz_38) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_isIO = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_3_isIO = 1'b0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_valid = StoreBufferPlugin_logic_slots_3_valid;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_37) begin
+      if(_zz_38) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_valid = 1'b1;
       end
     end
-    if(when_StoreBufferPlugin_l445_3) begin
+    if(when_StoreBufferPlugin_l482_3) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_3_valid = 1'b0;
     end
-    if(when_StoreBufferPlugin_l466) begin
+    if(when_StoreBufferPlugin_l502) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_3_valid = 1'b0;
     end
   end
@@ -19584,79 +19639,103 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_hasEarlyException = StoreBufferPlugin_logic_slots_3_hasEarlyException;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_37) begin
+      if(_zz_38) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_hasEarlyException = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_3_hasEarlyException = 1'b0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_earlyExceptionCode = StoreBufferPlugin_logic_slots_3_earlyExceptionCode;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_37) begin
+      if(_zz_38) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_earlyExceptionCode = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_3_earlyExceptionCode = 8'h0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_isCommitted = StoreBufferPlugin_logic_slots_3_isCommitted;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_37) begin
+      if(_zz_38) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_isCommitted = 1'b0;
       end
     end
-    if(!when_StoreBufferPlugin_l445_3) begin
-      if(when_StoreBufferPlugin_l449_3) begin
-        if(when_StoreBufferPlugin_l455_3) begin
+    if(!when_StoreBufferPlugin_l482_3) begin
+      if(when_StoreBufferPlugin_l486_3) begin
+        if(when_StoreBufferPlugin_l493_3) begin
           StoreBufferPlugin_logic_slotsAfterUpdates_3_isCommitted = 1'b1;
         end
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_3_isCommitted = 1'b0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_sentCmd = StoreBufferPlugin_logic_slots_3_sentCmd;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_37) begin
+      if(_zz_38) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_sentCmd = 1'b0;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_3_sentCmd = 1'b0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_waitRsp = StoreBufferPlugin_logic_slots_3_waitRsp;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_37) begin
+      if(_zz_38) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_waitRsp = 1'b0;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_3_waitRsp = 1'b0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_isWaitingForRefill = StoreBufferPlugin_logic_slots_3_isWaitingForRefill;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_37) begin
+      if(_zz_38) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_isWaitingForRefill = 1'b0;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_3_isWaitingForRefill = 1'b0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_isWaitingForWb = StoreBufferPlugin_logic_slots_3_isWaitingForWb;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_37) begin
+      if(_zz_38) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_isWaitingForWb = 1'b0;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_3_isWaitingForWb = 1'b0;
     end
   end
 
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_refillSlotToWatch = StoreBufferPlugin_logic_slots_3_refillSlotToWatch;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_37) begin
+      if(_zz_38) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_refillSlotToWatch = 2'b00;
       end
+    end
+    if(when_StoreBufferPlugin_l502) begin
+      StoreBufferPlugin_logic_slotsAfterUpdates_3_refillSlotToWatch = 2'b00;
     end
   end
 
@@ -20115,9 +20194,9 @@ module CoreNSCSCC (
   assign StoreBufferPlugin_logic_validFall_3 = (StoreBufferPlugin_logic_slots_2_valid && (! StoreBufferPlugin_logic_slots_3_valid));
   assign StoreBufferPlugin_logic_canPush = ((|{StoreBufferPlugin_logic_validFall_3,{StoreBufferPlugin_logic_validFall_2,{StoreBufferPlugin_logic_validFall_1,StoreBufferPlugin_logic_validFall_0}}}) && (! StoreBufferPlugin_logic_flushInProgress));
   assign StoreBufferPlugin_hw_pushPortInst_ready = StoreBufferPlugin_logic_canPush;
-  assign _zz_30 = (StoreBufferPlugin_logic_validFall_1 || StoreBufferPlugin_logic_validFall_3);
-  assign _zz_31 = (StoreBufferPlugin_logic_validFall_2 || StoreBufferPlugin_logic_validFall_3);
-  assign _zz_32 = {_zz_31,_zz_30};
+  assign _zz_31 = (StoreBufferPlugin_logic_validFall_1 || StoreBufferPlugin_logic_validFall_3);
+  assign _zz_32 = (StoreBufferPlugin_logic_validFall_2 || StoreBufferPlugin_logic_validFall_3);
+  assign _zz_33 = {_zz_32,_zz_31};
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush = StoreBufferPlugin_hw_pushPortInst_payload_isFlush;
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr = StoreBufferPlugin_hw_pushPortInst_payload_addr;
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data = StoreBufferPlugin_hw_pushPortInst_payload_data;
@@ -20127,21 +20206,21 @@ module CoreNSCSCC (
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO = StoreBufferPlugin_hw_pushPortInst_payload_isIO;
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException = StoreBufferPlugin_hw_pushPortInst_payload_hasEarlyException;
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode = StoreBufferPlugin_hw_pushPortInst_payload_earlyExceptionCode;
-  assign _zz_33 = ({3'd0,1'b1} <<< _zz_32);
-  assign _zz_34 = _zz_33[0];
-  assign _zz_35 = _zz_33[1];
-  assign _zz_36 = _zz_33[2];
-  assign _zz_37 = _zz_33[3];
+  assign _zz_34 = ({3'd0,1'b1} <<< _zz_33);
+  assign _zz_35 = _zz_34[0];
+  assign _zz_36 = _zz_34[1];
+  assign _zz_37 = _zz_34[2];
+  assign _zz_38 = _zz_34[3];
   assign StoreBufferPlugin_logic_sharedWriteCond = ((((((StoreBufferPlugin_logic_slots_0_valid && StoreBufferPlugin_logic_slots_0_isCommitted) && (! StoreBufferPlugin_logic_slots_0_isFlush)) && (! StoreBufferPlugin_logic_slots_0_waitRsp)) && (! StoreBufferPlugin_logic_slots_0_isWaitingForRefill)) && (! StoreBufferPlugin_logic_slots_0_isWaitingForWb)) && (! StoreBufferPlugin_logic_slots_0_hasEarlyException));
   assign StoreBufferPlugin_logic_canPopNormalOp = (StoreBufferPlugin_logic_sharedWriteCond && (! StoreBufferPlugin_logic_slots_0_isIO));
   assign StoreBufferPlugin_logic_canPopFlushOp = (((StoreBufferPlugin_logic_slots_0_valid && StoreBufferPlugin_logic_slots_0_isFlush) && (! StoreBufferPlugin_logic_slots_0_waitRsp)) && (! StoreBufferPlugin_logic_slots_0_isWaitingForWb));
   assign StoreBufferPlugin_logic_canPopMMIOOp = (StoreBufferPlugin_logic_sharedWriteCond && StoreBufferPlugin_logic_slots_0_isIO);
-  assign when_StoreBufferPlugin_l292 = (1'b0 && StoreBufferPlugin_logic_slots_0_isIO);
-  assign StoreBufferPlugin_logic_canPopToDCache = (StoreBufferPlugin_logic_canPopNormalOp || StoreBufferPlugin_logic_canPopFlushOp);
-  assign StoreBufferPlugin_hw_dCacheStorePort_cmd_valid = StoreBufferPlugin_logic_canPopToDCache;
+  assign when_StoreBufferPlugin_l311 = (1'b0 && StoreBufferPlugin_logic_slots_0_isIO);
+  assign StoreBufferPlugin_logic_canSendToDCache = (StoreBufferPlugin_logic_canPopNormalOp || StoreBufferPlugin_logic_canPopFlushOp);
+  assign StoreBufferPlugin_hw_dCacheStorePort_cmd_valid = StoreBufferPlugin_logic_canSendToDCache;
   always @(*) begin
     StoreBufferPlugin_hw_dCacheStorePort_cmd_payload_address = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-    if(StoreBufferPlugin_logic_canPopToDCache) begin
+    if(StoreBufferPlugin_logic_canSendToDCache) begin
       if(StoreBufferPlugin_logic_slots_0_isFlush) begin
         StoreBufferPlugin_hw_dCacheStorePort_cmd_payload_address = StoreBufferPlugin_logic_slots_0_addr;
       end else begin
@@ -20152,7 +20231,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     StoreBufferPlugin_hw_dCacheStorePort_cmd_payload_data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-    if(StoreBufferPlugin_logic_canPopToDCache) begin
+    if(StoreBufferPlugin_logic_canSendToDCache) begin
       if(StoreBufferPlugin_logic_slots_0_isFlush) begin
         StoreBufferPlugin_hw_dCacheStorePort_cmd_payload_data = 32'h0;
       end else begin
@@ -20163,7 +20242,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     StoreBufferPlugin_hw_dCacheStorePort_cmd_payload_mask = 4'bxxxx;
-    if(StoreBufferPlugin_logic_canPopToDCache) begin
+    if(StoreBufferPlugin_logic_canSendToDCache) begin
       if(StoreBufferPlugin_logic_slots_0_isFlush) begin
         StoreBufferPlugin_hw_dCacheStorePort_cmd_payload_mask = 4'b0000;
       end else begin
@@ -20174,7 +20253,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     StoreBufferPlugin_hw_dCacheStorePort_cmd_payload_io = 1'bx;
-    if(StoreBufferPlugin_logic_canPopToDCache) begin
+    if(StoreBufferPlugin_logic_canSendToDCache) begin
       if(StoreBufferPlugin_logic_slots_0_isFlush) begin
         StoreBufferPlugin_hw_dCacheStorePort_cmd_payload_io = 1'b0;
       end else begin
@@ -20185,7 +20264,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     StoreBufferPlugin_hw_dCacheStorePort_cmd_payload_flush = 1'bx;
-    if(StoreBufferPlugin_logic_canPopToDCache) begin
+    if(StoreBufferPlugin_logic_canSendToDCache) begin
       if(StoreBufferPlugin_logic_slots_0_isFlush) begin
         StoreBufferPlugin_hw_dCacheStorePort_cmd_payload_flush = 1'b1;
       end else begin
@@ -20196,7 +20275,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     StoreBufferPlugin_hw_dCacheStorePort_cmd_payload_flushFree = 1'bx;
-    if(StoreBufferPlugin_logic_canPopToDCache) begin
+    if(StoreBufferPlugin_logic_canSendToDCache) begin
       if(StoreBufferPlugin_logic_slots_0_isFlush) begin
         StoreBufferPlugin_hw_dCacheStorePort_cmd_payload_flushFree = 1'b0;
       end else begin
@@ -20207,7 +20286,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     StoreBufferPlugin_hw_dCacheStorePort_cmd_payload_prefetch = 1'bx;
-    if(StoreBufferPlugin_logic_canPopToDCache) begin
+    if(StoreBufferPlugin_logic_canSendToDCache) begin
       if(StoreBufferPlugin_logic_slots_0_isFlush) begin
         StoreBufferPlugin_hw_dCacheStorePort_cmd_payload_prefetch = 1'b0;
       end else begin
@@ -20218,7 +20297,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     StoreBufferPlugin_hw_dCacheStorePort_cmd_payload_id = 1'bx;
-    if(StoreBufferPlugin_logic_canPopToDCache) begin
+    if(StoreBufferPlugin_logic_canSendToDCache) begin
       if(StoreBufferPlugin_logic_slots_0_isFlush) begin
         StoreBufferPlugin_hw_dCacheStorePort_cmd_payload_id = StoreBufferPlugin_logic_slots_0_robPtr[0:0];
       end else begin
@@ -20227,50 +20306,74 @@ module CoreNSCSCC (
     end
   end
 
-  assign StoreBufferPlugin_logic_dcacheCmdFired = (StoreBufferPlugin_logic_canPopToDCache && StoreBufferPlugin_hw_dCacheStorePort_cmd_ready);
-  assign StoreBufferPlugin_logic_mmioCmdFired = (StoreBufferPlugin_logic_canPopMMIOOp && CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_cmd_ready);
-  assign StoreBufferPlugin_logic_responseIsForHead = (((StoreBufferPlugin_hw_dCacheStorePort_rsp_valid && StoreBufferPlugin_logic_slots_0_valid) && (StoreBufferPlugin_logic_slots_0_waitRsp || StoreBufferPlugin_logic_dcacheCmdFired)) && (! StoreBufferPlugin_logic_slots_0_isIO));
-  assign StoreBufferPlugin_logic_mmioResponseIsForHead = (((CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_rsp_valid && StoreBufferPlugin_logic_slots_0_valid) && (StoreBufferPlugin_logic_slots_0_waitRsp || StoreBufferPlugin_logic_mmioCmdFired)) && StoreBufferPlugin_logic_slots_0_isIO);
-  assign when_StoreBufferPlugin_l407 = (StoreBufferPlugin_logic_dcacheCmdFired || StoreBufferPlugin_logic_mmioCmdFired);
+  assign _zz_io_gmbIn_write_cmd_valid = StoreBufferPlugin_logic_canPopMMIOOp;
+  assign _zz_io_gmbIn_write_cmd_payload_address = StoreBufferPlugin_logic_slots_0_addr;
+  assign _zz_io_gmbIn_write_cmd_payload_data = StoreBufferPlugin_logic_slots_0_data;
+  assign _zz_io_gmbIn_write_cmd_payload_byteEnables = StoreBufferPlugin_logic_slots_0_be;
+  assign _zz_3 = 1'b1;
+  assign _zz_io_gmbIn_write_cmd_payload_id = StoreBufferPlugin_logic_slots_0_robPtr;
+  assign StoreBufferPlugin_logic_dcacheCmdFired = (StoreBufferPlugin_logic_canSendToDCache && StoreBufferPlugin_hw_dCacheStorePort_cmd_ready);
+  assign StoreBufferPlugin_logic_mmioCmdFired = (StoreBufferPlugin_logic_canPopMMIOOp && _zz_StoreBufferPlugin_logic_mmioCmdFired);
+  assign StoreBufferPlugin_logic_dcacheResponseForHead = ((((StoreBufferPlugin_hw_dCacheStorePort_rsp_valid && StoreBufferPlugin_logic_slots_0_valid) && (StoreBufferPlugin_logic_slots_0_waitRsp || StoreBufferPlugin_logic_dcacheCmdFired)) && (! StoreBufferPlugin_logic_slots_0_isIO)) && (_zz_StoreBufferPlugin_logic_dcacheResponseForHead == StoreBufferPlugin_hw_dCacheStorePort_rsp_payload_id));
+  assign StoreBufferPlugin_logic_mmioResponseForHead = ((((_zz_StoreBufferPlugin_logic_mmioResponseForHead && StoreBufferPlugin_logic_slots_0_valid) && StoreBufferPlugin_logic_slots_0_isIO) && (StoreBufferPlugin_logic_slots_0_waitRsp || StoreBufferPlugin_logic_mmioCmdFired)) && (StoreBufferPlugin_logic_slots_0_robPtr == CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_rsp_payload_id));
+  assign _zz_io_gmbIn_write_rsp_ready = StoreBufferPlugin_logic_mmioResponseForHead;
   assign StoreBufferPlugin_logic_waitedRefillIsDone = ((StoreBufferPlugin_logic_slots_0_valid && StoreBufferPlugin_logic_slots_0_isWaitingForRefill) && (|(StoreBufferPlugin_logic_slots_0_refillSlotToWatch & DataCachePlugin_setup_refillCompletions)));
-  assign when_StoreBufferPlugin_l429 = ((StoreBufferPlugin_logic_slots_0_valid && StoreBufferPlugin_logic_slots_0_isWaitingForWb) && (! DataCachePlugin_setup_writebackBusy));
-  assign _zz_when_StoreBufferPlugin_l445 = StoreBufferPlugin_logic_slots_0_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l445_1 = StoreBufferPlugin_logic_slots_0_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l445_2 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[3];
-  assign _zz_when_StoreBufferPlugin_l445_3 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[2 : 0];
-  assign when_StoreBufferPlugin_l445 = (((StoreBufferPlugin_logic_registeredFlush_valid && StoreBufferPlugin_logic_slots_0_valid) && (! StoreBufferPlugin_logic_slots_0_isCommitted)) && (((_zz_when_StoreBufferPlugin_l445 == _zz_when_StoreBufferPlugin_l445_2) && (_zz_when_StoreBufferPlugin_l445_3 <= _zz_when_StoreBufferPlugin_l445_1)) || ((_zz_when_StoreBufferPlugin_l445 != _zz_when_StoreBufferPlugin_l445_2) && (_zz_when_StoreBufferPlugin_l445_1 < _zz_when_StoreBufferPlugin_l445_3))));
-  assign when_StoreBufferPlugin_l455 = (((ROBPlugin_robComponent_io_commit_0_valid && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr == StoreBufferPlugin_logic_slots_0_robPtr)) && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_STORE)) && (! ROBPlugin_robComponent_io_commit_0_entry_status_hasException));
-  assign when_StoreBufferPlugin_l449 = (StoreBufferPlugin_logic_slots_0_valid && (! StoreBufferPlugin_logic_slots_0_isCommitted));
-  assign _zz_when_StoreBufferPlugin_l445_4 = StoreBufferPlugin_logic_slots_1_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l445_5 = StoreBufferPlugin_logic_slots_1_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l445_6 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[3];
-  assign _zz_when_StoreBufferPlugin_l445_7 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[2 : 0];
-  assign when_StoreBufferPlugin_l445_1 = (((StoreBufferPlugin_logic_registeredFlush_valid && StoreBufferPlugin_logic_slots_1_valid) && (! StoreBufferPlugin_logic_slots_1_isCommitted)) && (((_zz_when_StoreBufferPlugin_l445_4 == _zz_when_StoreBufferPlugin_l445_6) && (_zz_when_StoreBufferPlugin_l445_7 <= _zz_when_StoreBufferPlugin_l445_5)) || ((_zz_when_StoreBufferPlugin_l445_4 != _zz_when_StoreBufferPlugin_l445_6) && (_zz_when_StoreBufferPlugin_l445_5 < _zz_when_StoreBufferPlugin_l445_7))));
-  assign when_StoreBufferPlugin_l455_1 = (((ROBPlugin_robComponent_io_commit_0_valid && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr == StoreBufferPlugin_logic_slots_1_robPtr)) && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_STORE)) && (! ROBPlugin_robComponent_io_commit_0_entry_status_hasException));
-  assign when_StoreBufferPlugin_l449_1 = (StoreBufferPlugin_logic_slots_1_valid && (! StoreBufferPlugin_logic_slots_1_isCommitted));
-  assign _zz_when_StoreBufferPlugin_l445_8 = StoreBufferPlugin_logic_slots_2_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l445_9 = StoreBufferPlugin_logic_slots_2_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l445_10 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[3];
-  assign _zz_when_StoreBufferPlugin_l445_11 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[2 : 0];
-  assign when_StoreBufferPlugin_l445_2 = (((StoreBufferPlugin_logic_registeredFlush_valid && StoreBufferPlugin_logic_slots_2_valid) && (! StoreBufferPlugin_logic_slots_2_isCommitted)) && (((_zz_when_StoreBufferPlugin_l445_8 == _zz_when_StoreBufferPlugin_l445_10) && (_zz_when_StoreBufferPlugin_l445_11 <= _zz_when_StoreBufferPlugin_l445_9)) || ((_zz_when_StoreBufferPlugin_l445_8 != _zz_when_StoreBufferPlugin_l445_10) && (_zz_when_StoreBufferPlugin_l445_9 < _zz_when_StoreBufferPlugin_l445_11))));
-  assign when_StoreBufferPlugin_l455_2 = (((ROBPlugin_robComponent_io_commit_0_valid && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr == StoreBufferPlugin_logic_slots_2_robPtr)) && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_STORE)) && (! ROBPlugin_robComponent_io_commit_0_entry_status_hasException));
-  assign when_StoreBufferPlugin_l449_2 = (StoreBufferPlugin_logic_slots_2_valid && (! StoreBufferPlugin_logic_slots_2_isCommitted));
-  assign _zz_when_StoreBufferPlugin_l445_12 = StoreBufferPlugin_logic_slots_3_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l445_13 = StoreBufferPlugin_logic_slots_3_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l445_14 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[3];
-  assign _zz_when_StoreBufferPlugin_l445_15 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[2 : 0];
-  assign when_StoreBufferPlugin_l445_3 = (((StoreBufferPlugin_logic_registeredFlush_valid && StoreBufferPlugin_logic_slots_3_valid) && (! StoreBufferPlugin_logic_slots_3_isCommitted)) && (((_zz_when_StoreBufferPlugin_l445_12 == _zz_when_StoreBufferPlugin_l445_14) && (_zz_when_StoreBufferPlugin_l445_15 <= _zz_when_StoreBufferPlugin_l445_13)) || ((_zz_when_StoreBufferPlugin_l445_12 != _zz_when_StoreBufferPlugin_l445_14) && (_zz_when_StoreBufferPlugin_l445_13 < _zz_when_StoreBufferPlugin_l445_15))));
-  assign when_StoreBufferPlugin_l455_3 = (((ROBPlugin_robComponent_io_commit_0_valid && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr == StoreBufferPlugin_logic_slots_3_robPtr)) && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_STORE)) && (! ROBPlugin_robComponent_io_commit_0_entry_status_hasException));
-  assign when_StoreBufferPlugin_l449_3 = (StoreBufferPlugin_logic_slots_3_valid && (! StoreBufferPlugin_logic_slots_3_isCommitted));
-  assign when_StoreBufferPlugin_l466 = (ROBPlugin_aggregatedFlushSignal_valid && (ROBPlugin_aggregatedFlushSignal_payload_reason == FlushReason_FULL_FLUSH));
+  assign when_StoreBufferPlugin_l465 = ((StoreBufferPlugin_logic_slots_0_valid && StoreBufferPlugin_logic_slots_0_isWaitingForWb) && (! DataCachePlugin_setup_writebackBusy));
+  assign _zz_when_StoreBufferPlugin_l482 = StoreBufferPlugin_logic_slots_0_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l482_1 = StoreBufferPlugin_logic_slots_0_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l482_2 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[3];
+  assign _zz_when_StoreBufferPlugin_l482_3 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[2 : 0];
+  assign when_StoreBufferPlugin_l482 = (((StoreBufferPlugin_logic_registeredFlush_valid && StoreBufferPlugin_logic_slots_0_valid) && (! StoreBufferPlugin_logic_slots_0_isCommitted)) && (((_zz_when_StoreBufferPlugin_l482 == _zz_when_StoreBufferPlugin_l482_2) && (_zz_when_StoreBufferPlugin_l482_3 <= _zz_when_StoreBufferPlugin_l482_1)) || ((_zz_when_StoreBufferPlugin_l482 != _zz_when_StoreBufferPlugin_l482_2) && (_zz_when_StoreBufferPlugin_l482_1 < _zz_when_StoreBufferPlugin_l482_3))));
+  assign when_StoreBufferPlugin_l493 = (((ROBPlugin_robComponent_io_commit_0_valid && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr == StoreBufferPlugin_logic_slots_0_robPtr)) && ((ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_STORE) || 1'b0)) && (! ROBPlugin_robComponent_io_commit_0_entry_status_hasException));
+  assign when_StoreBufferPlugin_l486 = (StoreBufferPlugin_logic_slots_0_valid && (! StoreBufferPlugin_logic_slots_0_isCommitted));
+  assign _zz_when_StoreBufferPlugin_l482_4 = StoreBufferPlugin_logic_slots_1_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l482_5 = StoreBufferPlugin_logic_slots_1_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l482_6 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[3];
+  assign _zz_when_StoreBufferPlugin_l482_7 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[2 : 0];
+  assign when_StoreBufferPlugin_l482_1 = (((StoreBufferPlugin_logic_registeredFlush_valid && StoreBufferPlugin_logic_slots_1_valid) && (! StoreBufferPlugin_logic_slots_1_isCommitted)) && (((_zz_when_StoreBufferPlugin_l482_4 == _zz_when_StoreBufferPlugin_l482_6) && (_zz_when_StoreBufferPlugin_l482_7 <= _zz_when_StoreBufferPlugin_l482_5)) || ((_zz_when_StoreBufferPlugin_l482_4 != _zz_when_StoreBufferPlugin_l482_6) && (_zz_when_StoreBufferPlugin_l482_5 < _zz_when_StoreBufferPlugin_l482_7))));
+  assign when_StoreBufferPlugin_l493_1 = (((ROBPlugin_robComponent_io_commit_0_valid && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr == StoreBufferPlugin_logic_slots_1_robPtr)) && ((ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_STORE) || 1'b0)) && (! ROBPlugin_robComponent_io_commit_0_entry_status_hasException));
+  assign when_StoreBufferPlugin_l486_1 = (StoreBufferPlugin_logic_slots_1_valid && (! StoreBufferPlugin_logic_slots_1_isCommitted));
+  assign _zz_when_StoreBufferPlugin_l482_8 = StoreBufferPlugin_logic_slots_2_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l482_9 = StoreBufferPlugin_logic_slots_2_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l482_10 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[3];
+  assign _zz_when_StoreBufferPlugin_l482_11 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[2 : 0];
+  assign when_StoreBufferPlugin_l482_2 = (((StoreBufferPlugin_logic_registeredFlush_valid && StoreBufferPlugin_logic_slots_2_valid) && (! StoreBufferPlugin_logic_slots_2_isCommitted)) && (((_zz_when_StoreBufferPlugin_l482_8 == _zz_when_StoreBufferPlugin_l482_10) && (_zz_when_StoreBufferPlugin_l482_11 <= _zz_when_StoreBufferPlugin_l482_9)) || ((_zz_when_StoreBufferPlugin_l482_8 != _zz_when_StoreBufferPlugin_l482_10) && (_zz_when_StoreBufferPlugin_l482_9 < _zz_when_StoreBufferPlugin_l482_11))));
+  assign when_StoreBufferPlugin_l493_2 = (((ROBPlugin_robComponent_io_commit_0_valid && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr == StoreBufferPlugin_logic_slots_2_robPtr)) && ((ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_STORE) || 1'b0)) && (! ROBPlugin_robComponent_io_commit_0_entry_status_hasException));
+  assign when_StoreBufferPlugin_l486_2 = (StoreBufferPlugin_logic_slots_2_valid && (! StoreBufferPlugin_logic_slots_2_isCommitted));
+  assign _zz_when_StoreBufferPlugin_l482_12 = StoreBufferPlugin_logic_slots_3_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l482_13 = StoreBufferPlugin_logic_slots_3_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l482_14 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[3];
+  assign _zz_when_StoreBufferPlugin_l482_15 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[2 : 0];
+  assign when_StoreBufferPlugin_l482_3 = (((StoreBufferPlugin_logic_registeredFlush_valid && StoreBufferPlugin_logic_slots_3_valid) && (! StoreBufferPlugin_logic_slots_3_isCommitted)) && (((_zz_when_StoreBufferPlugin_l482_12 == _zz_when_StoreBufferPlugin_l482_14) && (_zz_when_StoreBufferPlugin_l482_15 <= _zz_when_StoreBufferPlugin_l482_13)) || ((_zz_when_StoreBufferPlugin_l482_12 != _zz_when_StoreBufferPlugin_l482_14) && (_zz_when_StoreBufferPlugin_l482_13 < _zz_when_StoreBufferPlugin_l482_15))));
+  assign when_StoreBufferPlugin_l493_3 = (((ROBPlugin_robComponent_io_commit_0_valid && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr == StoreBufferPlugin_logic_slots_3_robPtr)) && ((ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_STORE) || 1'b0)) && (! ROBPlugin_robComponent_io_commit_0_entry_status_hasException));
+  assign when_StoreBufferPlugin_l486_3 = (StoreBufferPlugin_logic_slots_3_valid && (! StoreBufferPlugin_logic_slots_3_isCommitted));
+  assign when_StoreBufferPlugin_l502 = (ROBPlugin_aggregatedFlushSignal_valid && (ROBPlugin_aggregatedFlushSignal_payload_reason == FlushReason_FULL_FLUSH));
   assign StoreBufferPlugin_logic_operationDone = (((StoreBufferPlugin_logic_slotsAfterUpdates_0_sentCmd && (! StoreBufferPlugin_logic_slotsAfterUpdates_0_waitRsp)) && (! StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForRefill)) && (! StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForWb));
-  assign StoreBufferPlugin_logic_flushDone = ((StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush && StoreBufferPlugin_logic_slotsAfterUpdates_0_valid) && StoreBufferPlugin_logic_operationDone);
-  assign StoreBufferPlugin_logic_normalStoreDone = ((((((! StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush) && StoreBufferPlugin_logic_slotsAfterUpdates_0_valid) && StoreBufferPlugin_logic_slotsAfterUpdates_0_isCommitted) && StoreBufferPlugin_logic_operationDone) && (! StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException)) && (! StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO));
-  assign StoreBufferPlugin_logic_mmioStoreDone = ((((StoreBufferPlugin_logic_slotsAfterUpdates_0_valid && StoreBufferPlugin_logic_slotsAfterUpdates_0_isCommitted) && StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO) && (! StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException)) && StoreBufferPlugin_logic_operationDone);
-  assign StoreBufferPlugin_logic_earlyExcStoreDone = ((StoreBufferPlugin_logic_slotsAfterUpdates_0_valid && StoreBufferPlugin_logic_slotsAfterUpdates_0_isCommitted) && StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException);
-  assign StoreBufferPlugin_logic_isSbEmpty = (! (|{StoreBufferPlugin_logic_slots_3_valid,{StoreBufferPlugin_logic_slots_2_valid,{StoreBufferPlugin_logic_slots_1_valid,StoreBufferPlugin_logic_slots_0_valid}}}));
-  assign StoreBufferPlugin_logic_popInvalidSlot = ((! StoreBufferPlugin_logic_isSbEmpty) && (! StoreBufferPlugin_logic_slotsAfterUpdates_0_valid));
-  assign StoreBufferPlugin_logic_popRequest = ((((StoreBufferPlugin_logic_normalStoreDone || StoreBufferPlugin_logic_mmioStoreDone) || StoreBufferPlugin_logic_earlyExcStoreDone) || StoreBufferPlugin_logic_flushDone) || StoreBufferPlugin_logic_popInvalidSlot);
+  always @(*) begin
+    StoreBufferPlugin_logic_popRequest = 1'b0;
+    if(when_StoreBufferPlugin_l517) begin
+      if(StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush) begin
+        if(StoreBufferPlugin_logic_operationDone) begin
+          StoreBufferPlugin_logic_popRequest = 1'b1;
+        end
+      end else begin
+        if(StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException) begin
+          StoreBufferPlugin_logic_popRequest = 1'b1;
+        end else begin
+          if(StoreBufferPlugin_logic_operationDone) begin
+            StoreBufferPlugin_logic_popRequest = 1'b1;
+          end
+        end
+      end
+    end else begin
+      if(when_StoreBufferPlugin_l543) begin
+        StoreBufferPlugin_logic_popRequest = 1'b1;
+      end
+    end
+  end
+
+  assign when_StoreBufferPlugin_l517 = (StoreBufferPlugin_logic_slotsAfterUpdates_0_valid && StoreBufferPlugin_logic_slotsAfterUpdates_0_isCommitted);
+  assign when_StoreBufferPlugin_l543 = ((! StoreBufferPlugin_logic_slotsAfterUpdates_0_valid) && (! (|{StoreBufferPlugin_logic_slots_3_valid,{StoreBufferPlugin_logic_slots_2_valid,StoreBufferPlugin_logic_slots_1_valid}})));
   always @(*) begin
     _zz_StoreBufferPlugin_logic_forwardingLogic_loadMask = 4'b0000;
     case(StoreBufferPlugin_hw_sqQueryPort_cmd_payload_size)
@@ -20295,18 +20398,18 @@ module CoreNSCSCC (
   assign StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask = 4'b0000;
   always @(*) begin
     _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data = StoreBufferPlugin_logic_forwardingLogic_bypassInitial_data;
-    if(when_StoreBufferPlugin_l531) begin
-      if(when_StoreBufferPlugin_l538) begin
-        if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l594) begin
+      if(when_StoreBufferPlugin_l601) begin
+        if(when_StoreBufferPlugin_l603) begin
           _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[7 : 0] = StoreBufferPlugin_logic_slots_3_data[7 : 0];
         end
-        if(when_StoreBufferPlugin_l540_1) begin
+        if(when_StoreBufferPlugin_l603_1) begin
           _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[15 : 8] = StoreBufferPlugin_logic_slots_3_data[15 : 8];
         end
-        if(when_StoreBufferPlugin_l540_2) begin
+        if(when_StoreBufferPlugin_l603_2) begin
           _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[23 : 16] = StoreBufferPlugin_logic_slots_3_data[23 : 16];
         end
-        if(when_StoreBufferPlugin_l540_3) begin
+        if(when_StoreBufferPlugin_l603_3) begin
           _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[31 : 24] = StoreBufferPlugin_logic_slots_3_data[31 : 24];
         end
       end
@@ -20314,53 +20417,53 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    _zz_when_StoreBufferPlugin_l540 = StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask;
-    if(when_StoreBufferPlugin_l531) begin
-      if(when_StoreBufferPlugin_l538) begin
-        if(when_StoreBufferPlugin_l540) begin
-          _zz_when_StoreBufferPlugin_l540[0] = 1'b1;
+    _zz_when_StoreBufferPlugin_l603 = StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask;
+    if(when_StoreBufferPlugin_l594) begin
+      if(when_StoreBufferPlugin_l601) begin
+        if(when_StoreBufferPlugin_l603) begin
+          _zz_when_StoreBufferPlugin_l603[0] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l540_1) begin
-          _zz_when_StoreBufferPlugin_l540[1] = 1'b1;
+        if(when_StoreBufferPlugin_l603_1) begin
+          _zz_when_StoreBufferPlugin_l603[1] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l540_2) begin
-          _zz_when_StoreBufferPlugin_l540[2] = 1'b1;
+        if(when_StoreBufferPlugin_l603_2) begin
+          _zz_when_StoreBufferPlugin_l603[2] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l540_3) begin
-          _zz_when_StoreBufferPlugin_l540[3] = 1'b1;
+        if(when_StoreBufferPlugin_l603_3) begin
+          _zz_when_StoreBufferPlugin_l603[3] = 1'b1;
         end
       end
     end
   end
 
-  assign _zz_when_StoreBufferPlugin_l531 = StoreBufferPlugin_logic_slots_3_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l531_1 = StoreBufferPlugin_logic_slots_3_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l531_2 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
-  assign _zz_when_StoreBufferPlugin_l531_3 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
-  assign when_StoreBufferPlugin_l531 = (StoreBufferPlugin_logic_slots_3_valid && (! ((StoreBufferPlugin_logic_flushInProgress && (! StoreBufferPlugin_logic_slots_3_isCommitted)) && (((_zz_when_StoreBufferPlugin_l531 == _zz_when_StoreBufferPlugin_l531_2) && (_zz_when_StoreBufferPlugin_l531_3 <= _zz_when_StoreBufferPlugin_l531_1)) || ((_zz_when_StoreBufferPlugin_l531 != _zz_when_StoreBufferPlugin_l531_2) && (_zz_when_StoreBufferPlugin_l531_1 < _zz_when_StoreBufferPlugin_l531_3))))));
-  assign _zz_when_StoreBufferPlugin_l538 = StoreBufferPlugin_logic_slots_3_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l538_1 = StoreBufferPlugin_logic_slots_3_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l538_2 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l538_3 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
-  assign when_StoreBufferPlugin_l538 = (((! StoreBufferPlugin_logic_slots_3_hasEarlyException) && (! (((_zz_when_StoreBufferPlugin_l538 == _zz_when_StoreBufferPlugin_l538_2) && (_zz_when_StoreBufferPlugin_l538_3 <= _zz_when_StoreBufferPlugin_l538_1)) || ((_zz_when_StoreBufferPlugin_l538 != _zz_when_StoreBufferPlugin_l538_2) && (_zz_when_StoreBufferPlugin_l538_1 < _zz_when_StoreBufferPlugin_l538_3))))) && (StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2] == StoreBufferPlugin_logic_slots_3_addr[31 : 2]));
-  assign when_StoreBufferPlugin_l540 = ((StoreBufferPlugin_logic_slots_3_be[0] && StoreBufferPlugin_logic_forwardingLogic_loadMask[0]) && (! StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask[0]));
-  assign when_StoreBufferPlugin_l540_1 = ((StoreBufferPlugin_logic_slots_3_be[1] && StoreBufferPlugin_logic_forwardingLogic_loadMask[1]) && (! StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask[1]));
-  assign when_StoreBufferPlugin_l540_2 = ((StoreBufferPlugin_logic_slots_3_be[2] && StoreBufferPlugin_logic_forwardingLogic_loadMask[2]) && (! StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask[2]));
-  assign when_StoreBufferPlugin_l540_3 = ((StoreBufferPlugin_logic_slots_3_be[3] && StoreBufferPlugin_logic_forwardingLogic_loadMask[3]) && (! StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask[3]));
+  assign _zz_when_StoreBufferPlugin_l594 = StoreBufferPlugin_logic_slots_3_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l594_1 = StoreBufferPlugin_logic_slots_3_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l594_2 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l594_3 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign when_StoreBufferPlugin_l594 = (((((StoreBufferPlugin_logic_slots_3_valid && (! StoreBufferPlugin_logic_slots_3_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_3_isFlush)) && (! (((_zz_when_StoreBufferPlugin_l594 == _zz_when_StoreBufferPlugin_l594_2) && (_zz_when_StoreBufferPlugin_l594_3 <= _zz_when_StoreBufferPlugin_l594_1)) || ((_zz_when_StoreBufferPlugin_l594 != _zz_when_StoreBufferPlugin_l594_2) && (_zz_when_StoreBufferPlugin_l594_1 < _zz_when_StoreBufferPlugin_l594_3))))) && (! StoreBufferPlugin_logic_slots_3_isWaitingForRefill)) && (! StoreBufferPlugin_logic_slots_3_isWaitingForWb));
+  assign _zz_when_StoreBufferPlugin_l601 = StoreBufferPlugin_logic_slots_3_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l601_1 = StoreBufferPlugin_logic_slots_3_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l601_2 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l601_3 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign when_StoreBufferPlugin_l601 = (((! StoreBufferPlugin_logic_slots_3_hasEarlyException) && (! (((_zz_when_StoreBufferPlugin_l601 == _zz_when_StoreBufferPlugin_l601_2) && (_zz_when_StoreBufferPlugin_l601_3 <= _zz_when_StoreBufferPlugin_l601_1)) || ((_zz_when_StoreBufferPlugin_l601 != _zz_when_StoreBufferPlugin_l601_2) && (_zz_when_StoreBufferPlugin_l601_1 < _zz_when_StoreBufferPlugin_l601_3))))) && (StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2] == StoreBufferPlugin_logic_slots_3_addr[31 : 2]));
+  assign when_StoreBufferPlugin_l603 = ((StoreBufferPlugin_logic_slots_3_be[0] && StoreBufferPlugin_logic_forwardingLogic_loadMask[0]) && (! StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask[0]));
+  assign when_StoreBufferPlugin_l603_1 = ((StoreBufferPlugin_logic_slots_3_be[1] && StoreBufferPlugin_logic_forwardingLogic_loadMask[1]) && (! StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask[1]));
+  assign when_StoreBufferPlugin_l603_2 = ((StoreBufferPlugin_logic_slots_3_be[2] && StoreBufferPlugin_logic_forwardingLogic_loadMask[2]) && (! StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask[2]));
+  assign when_StoreBufferPlugin_l603_3 = ((StoreBufferPlugin_logic_slots_3_be[3] && StoreBufferPlugin_logic_forwardingLogic_loadMask[3]) && (! StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask[3]));
   always @(*) begin
     _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_1 = _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data;
-    if(when_StoreBufferPlugin_l531_1) begin
-      if(when_StoreBufferPlugin_l538_1) begin
-        if(when_StoreBufferPlugin_l540_4) begin
+    if(when_StoreBufferPlugin_l594_1) begin
+      if(when_StoreBufferPlugin_l601_1) begin
+        if(when_StoreBufferPlugin_l603_4) begin
           _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_1[7 : 0] = StoreBufferPlugin_logic_slots_2_data[7 : 0];
         end
-        if(when_StoreBufferPlugin_l540_5) begin
+        if(when_StoreBufferPlugin_l603_5) begin
           _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_1[15 : 8] = StoreBufferPlugin_logic_slots_2_data[15 : 8];
         end
-        if(when_StoreBufferPlugin_l540_6) begin
+        if(when_StoreBufferPlugin_l603_6) begin
           _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_1[23 : 16] = StoreBufferPlugin_logic_slots_2_data[23 : 16];
         end
-        if(when_StoreBufferPlugin_l540_7) begin
+        if(when_StoreBufferPlugin_l603_7) begin
           _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_1[31 : 24] = StoreBufferPlugin_logic_slots_2_data[31 : 24];
         end
       end
@@ -20368,53 +20471,53 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    _zz_when_StoreBufferPlugin_l540_1 = _zz_when_StoreBufferPlugin_l540;
-    if(when_StoreBufferPlugin_l531_1) begin
-      if(when_StoreBufferPlugin_l538_1) begin
-        if(when_StoreBufferPlugin_l540_4) begin
-          _zz_when_StoreBufferPlugin_l540_1[0] = 1'b1;
+    _zz_when_StoreBufferPlugin_l603_1 = _zz_when_StoreBufferPlugin_l603;
+    if(when_StoreBufferPlugin_l594_1) begin
+      if(when_StoreBufferPlugin_l601_1) begin
+        if(when_StoreBufferPlugin_l603_4) begin
+          _zz_when_StoreBufferPlugin_l603_1[0] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l540_5) begin
-          _zz_when_StoreBufferPlugin_l540_1[1] = 1'b1;
+        if(when_StoreBufferPlugin_l603_5) begin
+          _zz_when_StoreBufferPlugin_l603_1[1] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l540_6) begin
-          _zz_when_StoreBufferPlugin_l540_1[2] = 1'b1;
+        if(when_StoreBufferPlugin_l603_6) begin
+          _zz_when_StoreBufferPlugin_l603_1[2] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l540_7) begin
-          _zz_when_StoreBufferPlugin_l540_1[3] = 1'b1;
+        if(when_StoreBufferPlugin_l603_7) begin
+          _zz_when_StoreBufferPlugin_l603_1[3] = 1'b1;
         end
       end
     end
   end
 
-  assign _zz_when_StoreBufferPlugin_l531_4 = StoreBufferPlugin_logic_slots_2_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l531_5 = StoreBufferPlugin_logic_slots_2_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l531_6 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
-  assign _zz_when_StoreBufferPlugin_l531_7 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
-  assign when_StoreBufferPlugin_l531_1 = (StoreBufferPlugin_logic_slots_2_valid && (! ((StoreBufferPlugin_logic_flushInProgress && (! StoreBufferPlugin_logic_slots_2_isCommitted)) && (((_zz_when_StoreBufferPlugin_l531_4 == _zz_when_StoreBufferPlugin_l531_6) && (_zz_when_StoreBufferPlugin_l531_7 <= _zz_when_StoreBufferPlugin_l531_5)) || ((_zz_when_StoreBufferPlugin_l531_4 != _zz_when_StoreBufferPlugin_l531_6) && (_zz_when_StoreBufferPlugin_l531_5 < _zz_when_StoreBufferPlugin_l531_7))))));
-  assign _zz_when_StoreBufferPlugin_l538_4 = StoreBufferPlugin_logic_slots_2_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l538_5 = StoreBufferPlugin_logic_slots_2_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l538_6 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l538_7 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
-  assign when_StoreBufferPlugin_l538_1 = (((! StoreBufferPlugin_logic_slots_2_hasEarlyException) && (! (((_zz_when_StoreBufferPlugin_l538_4 == _zz_when_StoreBufferPlugin_l538_6) && (_zz_when_StoreBufferPlugin_l538_7 <= _zz_when_StoreBufferPlugin_l538_5)) || ((_zz_when_StoreBufferPlugin_l538_4 != _zz_when_StoreBufferPlugin_l538_6) && (_zz_when_StoreBufferPlugin_l538_5 < _zz_when_StoreBufferPlugin_l538_7))))) && (StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2] == StoreBufferPlugin_logic_slots_2_addr[31 : 2]));
-  assign when_StoreBufferPlugin_l540_4 = ((StoreBufferPlugin_logic_slots_2_be[0] && StoreBufferPlugin_logic_forwardingLogic_loadMask[0]) && (! _zz_when_StoreBufferPlugin_l540[0]));
-  assign when_StoreBufferPlugin_l540_5 = ((StoreBufferPlugin_logic_slots_2_be[1] && StoreBufferPlugin_logic_forwardingLogic_loadMask[1]) && (! _zz_when_StoreBufferPlugin_l540[1]));
-  assign when_StoreBufferPlugin_l540_6 = ((StoreBufferPlugin_logic_slots_2_be[2] && StoreBufferPlugin_logic_forwardingLogic_loadMask[2]) && (! _zz_when_StoreBufferPlugin_l540[2]));
-  assign when_StoreBufferPlugin_l540_7 = ((StoreBufferPlugin_logic_slots_2_be[3] && StoreBufferPlugin_logic_forwardingLogic_loadMask[3]) && (! _zz_when_StoreBufferPlugin_l540[3]));
+  assign _zz_when_StoreBufferPlugin_l594_4 = StoreBufferPlugin_logic_slots_2_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l594_5 = StoreBufferPlugin_logic_slots_2_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l594_6 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l594_7 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign when_StoreBufferPlugin_l594_1 = (((((StoreBufferPlugin_logic_slots_2_valid && (! StoreBufferPlugin_logic_slots_2_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_2_isFlush)) && (! (((_zz_when_StoreBufferPlugin_l594_4 == _zz_when_StoreBufferPlugin_l594_6) && (_zz_when_StoreBufferPlugin_l594_7 <= _zz_when_StoreBufferPlugin_l594_5)) || ((_zz_when_StoreBufferPlugin_l594_4 != _zz_when_StoreBufferPlugin_l594_6) && (_zz_when_StoreBufferPlugin_l594_5 < _zz_when_StoreBufferPlugin_l594_7))))) && (! StoreBufferPlugin_logic_slots_2_isWaitingForRefill)) && (! StoreBufferPlugin_logic_slots_2_isWaitingForWb));
+  assign _zz_when_StoreBufferPlugin_l601_4 = StoreBufferPlugin_logic_slots_2_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l601_5 = StoreBufferPlugin_logic_slots_2_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l601_6 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l601_7 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign when_StoreBufferPlugin_l601_1 = (((! StoreBufferPlugin_logic_slots_2_hasEarlyException) && (! (((_zz_when_StoreBufferPlugin_l601_4 == _zz_when_StoreBufferPlugin_l601_6) && (_zz_when_StoreBufferPlugin_l601_7 <= _zz_when_StoreBufferPlugin_l601_5)) || ((_zz_when_StoreBufferPlugin_l601_4 != _zz_when_StoreBufferPlugin_l601_6) && (_zz_when_StoreBufferPlugin_l601_5 < _zz_when_StoreBufferPlugin_l601_7))))) && (StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2] == StoreBufferPlugin_logic_slots_2_addr[31 : 2]));
+  assign when_StoreBufferPlugin_l603_4 = ((StoreBufferPlugin_logic_slots_2_be[0] && StoreBufferPlugin_logic_forwardingLogic_loadMask[0]) && (! _zz_when_StoreBufferPlugin_l603[0]));
+  assign when_StoreBufferPlugin_l603_5 = ((StoreBufferPlugin_logic_slots_2_be[1] && StoreBufferPlugin_logic_forwardingLogic_loadMask[1]) && (! _zz_when_StoreBufferPlugin_l603[1]));
+  assign when_StoreBufferPlugin_l603_6 = ((StoreBufferPlugin_logic_slots_2_be[2] && StoreBufferPlugin_logic_forwardingLogic_loadMask[2]) && (! _zz_when_StoreBufferPlugin_l603[2]));
+  assign when_StoreBufferPlugin_l603_7 = ((StoreBufferPlugin_logic_slots_2_be[3] && StoreBufferPlugin_logic_forwardingLogic_loadMask[3]) && (! _zz_when_StoreBufferPlugin_l603[3]));
   always @(*) begin
     _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_2 = _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_1;
-    if(when_StoreBufferPlugin_l531_2) begin
-      if(when_StoreBufferPlugin_l538_2) begin
-        if(when_StoreBufferPlugin_l540_8) begin
+    if(when_StoreBufferPlugin_l594_2) begin
+      if(when_StoreBufferPlugin_l601_2) begin
+        if(when_StoreBufferPlugin_l603_8) begin
           _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_2[7 : 0] = StoreBufferPlugin_logic_slots_1_data[7 : 0];
         end
-        if(when_StoreBufferPlugin_l540_9) begin
+        if(when_StoreBufferPlugin_l603_9) begin
           _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_2[15 : 8] = StoreBufferPlugin_logic_slots_1_data[15 : 8];
         end
-        if(when_StoreBufferPlugin_l540_10) begin
+        if(when_StoreBufferPlugin_l603_10) begin
           _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_2[23 : 16] = StoreBufferPlugin_logic_slots_1_data[23 : 16];
         end
-        if(when_StoreBufferPlugin_l540_11) begin
+        if(when_StoreBufferPlugin_l603_11) begin
           _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_2[31 : 24] = StoreBufferPlugin_logic_slots_1_data[31 : 24];
         end
       end
@@ -20422,53 +20525,53 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask = _zz_when_StoreBufferPlugin_l540_1;
-    if(when_StoreBufferPlugin_l531_2) begin
-      if(when_StoreBufferPlugin_l538_2) begin
-        if(when_StoreBufferPlugin_l540_8) begin
+    _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask = _zz_when_StoreBufferPlugin_l603_1;
+    if(when_StoreBufferPlugin_l594_2) begin
+      if(when_StoreBufferPlugin_l601_2) begin
+        if(when_StoreBufferPlugin_l603_8) begin
           _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[0] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l540_9) begin
+        if(when_StoreBufferPlugin_l603_9) begin
           _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[1] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l540_10) begin
+        if(when_StoreBufferPlugin_l603_10) begin
           _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[2] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l540_11) begin
+        if(when_StoreBufferPlugin_l603_11) begin
           _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[3] = 1'b1;
         end
       end
     end
   end
 
-  assign _zz_when_StoreBufferPlugin_l531_8 = StoreBufferPlugin_logic_slots_1_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l531_9 = StoreBufferPlugin_logic_slots_1_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l531_10 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
-  assign _zz_when_StoreBufferPlugin_l531_11 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
-  assign when_StoreBufferPlugin_l531_2 = (StoreBufferPlugin_logic_slots_1_valid && (! ((StoreBufferPlugin_logic_flushInProgress && (! StoreBufferPlugin_logic_slots_1_isCommitted)) && (((_zz_when_StoreBufferPlugin_l531_8 == _zz_when_StoreBufferPlugin_l531_10) && (_zz_when_StoreBufferPlugin_l531_11 <= _zz_when_StoreBufferPlugin_l531_9)) || ((_zz_when_StoreBufferPlugin_l531_8 != _zz_when_StoreBufferPlugin_l531_10) && (_zz_when_StoreBufferPlugin_l531_9 < _zz_when_StoreBufferPlugin_l531_11))))));
-  assign _zz_when_StoreBufferPlugin_l538_8 = StoreBufferPlugin_logic_slots_1_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l538_9 = StoreBufferPlugin_logic_slots_1_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l538_10 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l538_11 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
-  assign when_StoreBufferPlugin_l538_2 = (((! StoreBufferPlugin_logic_slots_1_hasEarlyException) && (! (((_zz_when_StoreBufferPlugin_l538_8 == _zz_when_StoreBufferPlugin_l538_10) && (_zz_when_StoreBufferPlugin_l538_11 <= _zz_when_StoreBufferPlugin_l538_9)) || ((_zz_when_StoreBufferPlugin_l538_8 != _zz_when_StoreBufferPlugin_l538_10) && (_zz_when_StoreBufferPlugin_l538_9 < _zz_when_StoreBufferPlugin_l538_11))))) && (StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2] == StoreBufferPlugin_logic_slots_1_addr[31 : 2]));
-  assign when_StoreBufferPlugin_l540_8 = ((StoreBufferPlugin_logic_slots_1_be[0] && StoreBufferPlugin_logic_forwardingLogic_loadMask[0]) && (! _zz_when_StoreBufferPlugin_l540_1[0]));
-  assign when_StoreBufferPlugin_l540_9 = ((StoreBufferPlugin_logic_slots_1_be[1] && StoreBufferPlugin_logic_forwardingLogic_loadMask[1]) && (! _zz_when_StoreBufferPlugin_l540_1[1]));
-  assign when_StoreBufferPlugin_l540_10 = ((StoreBufferPlugin_logic_slots_1_be[2] && StoreBufferPlugin_logic_forwardingLogic_loadMask[2]) && (! _zz_when_StoreBufferPlugin_l540_1[2]));
-  assign when_StoreBufferPlugin_l540_11 = ((StoreBufferPlugin_logic_slots_1_be[3] && StoreBufferPlugin_logic_forwardingLogic_loadMask[3]) && (! _zz_when_StoreBufferPlugin_l540_1[3]));
+  assign _zz_when_StoreBufferPlugin_l594_8 = StoreBufferPlugin_logic_slots_1_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l594_9 = StoreBufferPlugin_logic_slots_1_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l594_10 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l594_11 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign when_StoreBufferPlugin_l594_2 = (((((StoreBufferPlugin_logic_slots_1_valid && (! StoreBufferPlugin_logic_slots_1_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_1_isFlush)) && (! (((_zz_when_StoreBufferPlugin_l594_8 == _zz_when_StoreBufferPlugin_l594_10) && (_zz_when_StoreBufferPlugin_l594_11 <= _zz_when_StoreBufferPlugin_l594_9)) || ((_zz_when_StoreBufferPlugin_l594_8 != _zz_when_StoreBufferPlugin_l594_10) && (_zz_when_StoreBufferPlugin_l594_9 < _zz_when_StoreBufferPlugin_l594_11))))) && (! StoreBufferPlugin_logic_slots_1_isWaitingForRefill)) && (! StoreBufferPlugin_logic_slots_1_isWaitingForWb));
+  assign _zz_when_StoreBufferPlugin_l601_8 = StoreBufferPlugin_logic_slots_1_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l601_9 = StoreBufferPlugin_logic_slots_1_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l601_10 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l601_11 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign when_StoreBufferPlugin_l601_2 = (((! StoreBufferPlugin_logic_slots_1_hasEarlyException) && (! (((_zz_when_StoreBufferPlugin_l601_8 == _zz_when_StoreBufferPlugin_l601_10) && (_zz_when_StoreBufferPlugin_l601_11 <= _zz_when_StoreBufferPlugin_l601_9)) || ((_zz_when_StoreBufferPlugin_l601_8 != _zz_when_StoreBufferPlugin_l601_10) && (_zz_when_StoreBufferPlugin_l601_9 < _zz_when_StoreBufferPlugin_l601_11))))) && (StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2] == StoreBufferPlugin_logic_slots_1_addr[31 : 2]));
+  assign when_StoreBufferPlugin_l603_8 = ((StoreBufferPlugin_logic_slots_1_be[0] && StoreBufferPlugin_logic_forwardingLogic_loadMask[0]) && (! _zz_when_StoreBufferPlugin_l603_1[0]));
+  assign when_StoreBufferPlugin_l603_9 = ((StoreBufferPlugin_logic_slots_1_be[1] && StoreBufferPlugin_logic_forwardingLogic_loadMask[1]) && (! _zz_when_StoreBufferPlugin_l603_1[1]));
+  assign when_StoreBufferPlugin_l603_10 = ((StoreBufferPlugin_logic_slots_1_be[2] && StoreBufferPlugin_logic_forwardingLogic_loadMask[2]) && (! _zz_when_StoreBufferPlugin_l603_1[2]));
+  assign when_StoreBufferPlugin_l603_11 = ((StoreBufferPlugin_logic_slots_1_be[3] && StoreBufferPlugin_logic_forwardingLogic_loadMask[3]) && (! _zz_when_StoreBufferPlugin_l603_1[3]));
   always @(*) begin
     StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data = _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_2;
-    if(when_StoreBufferPlugin_l531_3) begin
-      if(when_StoreBufferPlugin_l538_3) begin
-        if(when_StoreBufferPlugin_l540_12) begin
+    if(when_StoreBufferPlugin_l594_3) begin
+      if(when_StoreBufferPlugin_l601_3) begin
+        if(when_StoreBufferPlugin_l603_12) begin
           StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[7 : 0] = StoreBufferPlugin_logic_slots_0_data[7 : 0];
         end
-        if(when_StoreBufferPlugin_l540_13) begin
+        if(when_StoreBufferPlugin_l603_13) begin
           StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[15 : 8] = StoreBufferPlugin_logic_slots_0_data[15 : 8];
         end
-        if(when_StoreBufferPlugin_l540_14) begin
+        if(when_StoreBufferPlugin_l603_14) begin
           StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[23 : 16] = StoreBufferPlugin_logic_slots_0_data[23 : 16];
         end
-        if(when_StoreBufferPlugin_l540_15) begin
+        if(when_StoreBufferPlugin_l603_15) begin
           StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[31 : 24] = StoreBufferPlugin_logic_slots_0_data[31 : 24];
         end
       end
@@ -20477,117 +20580,128 @@ module CoreNSCSCC (
 
   always @(*) begin
     StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask = _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask;
-    if(when_StoreBufferPlugin_l531_3) begin
-      if(when_StoreBufferPlugin_l538_3) begin
-        if(when_StoreBufferPlugin_l540_12) begin
+    if(when_StoreBufferPlugin_l594_3) begin
+      if(when_StoreBufferPlugin_l601_3) begin
+        if(when_StoreBufferPlugin_l603_12) begin
           StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[0] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l540_13) begin
+        if(when_StoreBufferPlugin_l603_13) begin
           StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[1] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l540_14) begin
+        if(when_StoreBufferPlugin_l603_14) begin
           StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[2] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l540_15) begin
+        if(when_StoreBufferPlugin_l603_15) begin
           StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[3] = 1'b1;
         end
       end
     end
   end
 
-  assign _zz_when_StoreBufferPlugin_l531_12 = StoreBufferPlugin_logic_slots_0_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l531_13 = StoreBufferPlugin_logic_slots_0_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l531_14 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
-  assign _zz_when_StoreBufferPlugin_l531_15 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
-  assign when_StoreBufferPlugin_l531_3 = (StoreBufferPlugin_logic_slots_0_valid && (! ((StoreBufferPlugin_logic_flushInProgress && (! StoreBufferPlugin_logic_slots_0_isCommitted)) && (((_zz_when_StoreBufferPlugin_l531_12 == _zz_when_StoreBufferPlugin_l531_14) && (_zz_when_StoreBufferPlugin_l531_15 <= _zz_when_StoreBufferPlugin_l531_13)) || ((_zz_when_StoreBufferPlugin_l531_12 != _zz_when_StoreBufferPlugin_l531_14) && (_zz_when_StoreBufferPlugin_l531_13 < _zz_when_StoreBufferPlugin_l531_15))))));
-  assign _zz_when_StoreBufferPlugin_l538_12 = StoreBufferPlugin_logic_slots_0_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l538_13 = StoreBufferPlugin_logic_slots_0_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l538_14 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l538_15 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
-  assign when_StoreBufferPlugin_l538_3 = (((! StoreBufferPlugin_logic_slots_0_hasEarlyException) && (! (((_zz_when_StoreBufferPlugin_l538_12 == _zz_when_StoreBufferPlugin_l538_14) && (_zz_when_StoreBufferPlugin_l538_15 <= _zz_when_StoreBufferPlugin_l538_13)) || ((_zz_when_StoreBufferPlugin_l538_12 != _zz_when_StoreBufferPlugin_l538_14) && (_zz_when_StoreBufferPlugin_l538_13 < _zz_when_StoreBufferPlugin_l538_15))))) && (StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2] == StoreBufferPlugin_logic_slots_0_addr[31 : 2]));
-  assign when_StoreBufferPlugin_l540_12 = ((StoreBufferPlugin_logic_slots_0_be[0] && StoreBufferPlugin_logic_forwardingLogic_loadMask[0]) && (! _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[0]));
-  assign when_StoreBufferPlugin_l540_13 = ((StoreBufferPlugin_logic_slots_0_be[1] && StoreBufferPlugin_logic_forwardingLogic_loadMask[1]) && (! _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[1]));
-  assign when_StoreBufferPlugin_l540_14 = ((StoreBufferPlugin_logic_slots_0_be[2] && StoreBufferPlugin_logic_forwardingLogic_loadMask[2]) && (! _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[2]));
-  assign when_StoreBufferPlugin_l540_15 = ((StoreBufferPlugin_logic_slots_0_be[3] && StoreBufferPlugin_logic_forwardingLogic_loadMask[3]) && (! _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[3]));
+  assign _zz_when_StoreBufferPlugin_l594_12 = StoreBufferPlugin_logic_slots_0_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l594_13 = StoreBufferPlugin_logic_slots_0_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l594_14 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l594_15 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign when_StoreBufferPlugin_l594_3 = (((((StoreBufferPlugin_logic_slots_0_valid && (! StoreBufferPlugin_logic_slots_0_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_0_isFlush)) && (! (((_zz_when_StoreBufferPlugin_l594_12 == _zz_when_StoreBufferPlugin_l594_14) && (_zz_when_StoreBufferPlugin_l594_15 <= _zz_when_StoreBufferPlugin_l594_13)) || ((_zz_when_StoreBufferPlugin_l594_12 != _zz_when_StoreBufferPlugin_l594_14) && (_zz_when_StoreBufferPlugin_l594_13 < _zz_when_StoreBufferPlugin_l594_15))))) && (! StoreBufferPlugin_logic_slots_0_isWaitingForRefill)) && (! StoreBufferPlugin_logic_slots_0_isWaitingForWb));
+  assign _zz_when_StoreBufferPlugin_l601_12 = StoreBufferPlugin_logic_slots_0_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l601_13 = StoreBufferPlugin_logic_slots_0_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l601_14 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l601_15 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign when_StoreBufferPlugin_l601_3 = (((! StoreBufferPlugin_logic_slots_0_hasEarlyException) && (! (((_zz_when_StoreBufferPlugin_l601_12 == _zz_when_StoreBufferPlugin_l601_14) && (_zz_when_StoreBufferPlugin_l601_15 <= _zz_when_StoreBufferPlugin_l601_13)) || ((_zz_when_StoreBufferPlugin_l601_12 != _zz_when_StoreBufferPlugin_l601_14) && (_zz_when_StoreBufferPlugin_l601_13 < _zz_when_StoreBufferPlugin_l601_15))))) && (StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2] == StoreBufferPlugin_logic_slots_0_addr[31 : 2]));
+  assign when_StoreBufferPlugin_l603_12 = ((StoreBufferPlugin_logic_slots_0_be[0] && StoreBufferPlugin_logic_forwardingLogic_loadMask[0]) && (! _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[0]));
+  assign when_StoreBufferPlugin_l603_13 = ((StoreBufferPlugin_logic_slots_0_be[1] && StoreBufferPlugin_logic_forwardingLogic_loadMask[1]) && (! _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[1]));
+  assign when_StoreBufferPlugin_l603_14 = ((StoreBufferPlugin_logic_slots_0_be[2] && StoreBufferPlugin_logic_forwardingLogic_loadMask[2]) && (! _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[2]));
+  assign when_StoreBufferPlugin_l603_15 = ((StoreBufferPlugin_logic_slots_0_be[3] && StoreBufferPlugin_logic_forwardingLogic_loadMask[3]) && (! _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[3]));
   assign StoreBufferPlugin_logic_forwardingLogic_allRequiredBytesHit = ((StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask & StoreBufferPlugin_logic_forwardingLogic_loadMask) == StoreBufferPlugin_logic_forwardingLogic_loadMask);
   assign StoreBufferPlugin_hw_sqQueryPort_rsp_data = StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data;
   assign StoreBufferPlugin_logic_forwardingLogic_hasSomeOverlap = (|(StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask & StoreBufferPlugin_logic_forwardingLogic_loadMask));
   assign StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreHasUnknownAddress = 1'b0;
-  assign StoreBufferPlugin_hw_sqQueryPort_rsp_hit = (StoreBufferPlugin_hw_sqQueryPort_cmd_valid && StoreBufferPlugin_logic_forwardingLogic_allRequiredBytesHit);
   always @(*) begin
-    StoreBufferPlugin_logic_forwardingLogic_potentialConflict = 1'b0;
-    if(when_StoreBufferPlugin_l567) begin
-      if(when_StoreBufferPlugin_l580) begin
-        StoreBufferPlugin_logic_forwardingLogic_potentialConflict = 1'b1;
+    StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreMatchingAddress = 1'b0;
+    if(when_StoreBufferPlugin_l636) begin
+      if(when_StoreBufferPlugin_l640) begin
+        if(when_StoreBufferPlugin_l644) begin
+          StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreMatchingAddress = 1'b1;
+        end
+        if(when_StoreBufferPlugin_l650) begin
+          StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreMatchingAddress = 1'b1;
+        end
       end
     end
-    if(when_StoreBufferPlugin_l567_1) begin
-      if(when_StoreBufferPlugin_l580_1) begin
-        StoreBufferPlugin_logic_forwardingLogic_potentialConflict = 1'b1;
+    if(when_StoreBufferPlugin_l636_1) begin
+      if(when_StoreBufferPlugin_l640_1) begin
+        if(when_StoreBufferPlugin_l644_1) begin
+          StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreMatchingAddress = 1'b1;
+        end
+        if(when_StoreBufferPlugin_l650_1) begin
+          StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreMatchingAddress = 1'b1;
+        end
       end
     end
-    if(when_StoreBufferPlugin_l567_2) begin
-      if(when_StoreBufferPlugin_l580_2) begin
-        StoreBufferPlugin_logic_forwardingLogic_potentialConflict = 1'b1;
+    if(when_StoreBufferPlugin_l636_2) begin
+      if(when_StoreBufferPlugin_l640_2) begin
+        if(when_StoreBufferPlugin_l644_2) begin
+          StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreMatchingAddress = 1'b1;
+        end
+        if(when_StoreBufferPlugin_l650_2) begin
+          StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreMatchingAddress = 1'b1;
+        end
       end
     end
-    if(when_StoreBufferPlugin_l567_3) begin
-      if(when_StoreBufferPlugin_l580_3) begin
-        StoreBufferPlugin_logic_forwardingLogic_potentialConflict = 1'b1;
+    if(when_StoreBufferPlugin_l636_3) begin
+      if(when_StoreBufferPlugin_l640_3) begin
+        if(when_StoreBufferPlugin_l644_3) begin
+          StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreMatchingAddress = 1'b1;
+        end
+        if(when_StoreBufferPlugin_l650_3) begin
+          StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreMatchingAddress = 1'b1;
+        end
       end
     end
   end
 
-  assign _zz_when_StoreBufferPlugin_l580 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2];
-  assign _zz_when_StoreBufferPlugin_l580_1 = StoreBufferPlugin_logic_slots_0_addr[31 : 2];
-  assign _zz_when_StoreBufferPlugin_l567 = StoreBufferPlugin_logic_slots_0_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l567_1 = StoreBufferPlugin_logic_slots_0_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l567_2 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
-  assign _zz_when_StoreBufferPlugin_l567_3 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
-  assign when_StoreBufferPlugin_l567 = (StoreBufferPlugin_logic_slots_0_valid && (! ((StoreBufferPlugin_logic_flushInProgress && (! StoreBufferPlugin_logic_slots_0_isCommitted)) && (((_zz_when_StoreBufferPlugin_l567 == _zz_when_StoreBufferPlugin_l567_2) && (_zz_when_StoreBufferPlugin_l567_3 <= _zz_when_StoreBufferPlugin_l567_1)) || ((_zz_when_StoreBufferPlugin_l567 != _zz_when_StoreBufferPlugin_l567_2) && (_zz_when_StoreBufferPlugin_l567_1 < _zz_when_StoreBufferPlugin_l567_3))))));
-  assign _zz_when_StoreBufferPlugin_l580_2 = StoreBufferPlugin_logic_slots_0_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l580_3 = StoreBufferPlugin_logic_slots_0_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l580_4 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l580_5 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
-  assign when_StoreBufferPlugin_l580 = ((((! StoreBufferPlugin_logic_slots_0_hasEarlyException) && (! (((_zz_when_StoreBufferPlugin_l580_2 == _zz_when_StoreBufferPlugin_l580_4) && (_zz_when_StoreBufferPlugin_l580_5 <= _zz_when_StoreBufferPlugin_l580_3)) || ((_zz_when_StoreBufferPlugin_l580_2 != _zz_when_StoreBufferPlugin_l580_4) && (_zz_when_StoreBufferPlugin_l580_3 < _zz_when_StoreBufferPlugin_l580_5))))) && (_zz_when_StoreBufferPlugin_l580 == _zz_when_StoreBufferPlugin_l580_1)) && ((|(StoreBufferPlugin_logic_slots_0_be & StoreBufferPlugin_logic_forwardingLogic_loadMask)) && (! ((StoreBufferPlugin_logic_slots_0_be & StoreBufferPlugin_logic_forwardingLogic_loadMask) == StoreBufferPlugin_logic_forwardingLogic_loadMask))));
-  assign _zz_when_StoreBufferPlugin_l580_6 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2];
-  assign _zz_when_StoreBufferPlugin_l580_7 = StoreBufferPlugin_logic_slots_1_addr[31 : 2];
-  assign _zz_when_StoreBufferPlugin_l567_4 = StoreBufferPlugin_logic_slots_1_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l567_5 = StoreBufferPlugin_logic_slots_1_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l567_6 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
-  assign _zz_when_StoreBufferPlugin_l567_7 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
-  assign when_StoreBufferPlugin_l567_1 = (StoreBufferPlugin_logic_slots_1_valid && (! ((StoreBufferPlugin_logic_flushInProgress && (! StoreBufferPlugin_logic_slots_1_isCommitted)) && (((_zz_when_StoreBufferPlugin_l567_4 == _zz_when_StoreBufferPlugin_l567_6) && (_zz_when_StoreBufferPlugin_l567_7 <= _zz_when_StoreBufferPlugin_l567_5)) || ((_zz_when_StoreBufferPlugin_l567_4 != _zz_when_StoreBufferPlugin_l567_6) && (_zz_when_StoreBufferPlugin_l567_5 < _zz_when_StoreBufferPlugin_l567_7))))));
-  assign _zz_when_StoreBufferPlugin_l580_8 = StoreBufferPlugin_logic_slots_1_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l580_9 = StoreBufferPlugin_logic_slots_1_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l580_10 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l580_11 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
-  assign when_StoreBufferPlugin_l580_1 = ((((! StoreBufferPlugin_logic_slots_1_hasEarlyException) && (! (((_zz_when_StoreBufferPlugin_l580_8 == _zz_when_StoreBufferPlugin_l580_10) && (_zz_when_StoreBufferPlugin_l580_11 <= _zz_when_StoreBufferPlugin_l580_9)) || ((_zz_when_StoreBufferPlugin_l580_8 != _zz_when_StoreBufferPlugin_l580_10) && (_zz_when_StoreBufferPlugin_l580_9 < _zz_when_StoreBufferPlugin_l580_11))))) && (_zz_when_StoreBufferPlugin_l580_6 == _zz_when_StoreBufferPlugin_l580_7)) && ((|(StoreBufferPlugin_logic_slots_1_be & StoreBufferPlugin_logic_forwardingLogic_loadMask)) && (! ((StoreBufferPlugin_logic_slots_1_be & StoreBufferPlugin_logic_forwardingLogic_loadMask) == StoreBufferPlugin_logic_forwardingLogic_loadMask))));
-  assign _zz_when_StoreBufferPlugin_l580_12 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2];
-  assign _zz_when_StoreBufferPlugin_l580_13 = StoreBufferPlugin_logic_slots_2_addr[31 : 2];
-  assign _zz_when_StoreBufferPlugin_l567_8 = StoreBufferPlugin_logic_slots_2_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l567_9 = StoreBufferPlugin_logic_slots_2_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l567_10 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
-  assign _zz_when_StoreBufferPlugin_l567_11 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
-  assign when_StoreBufferPlugin_l567_2 = (StoreBufferPlugin_logic_slots_2_valid && (! ((StoreBufferPlugin_logic_flushInProgress && (! StoreBufferPlugin_logic_slots_2_isCommitted)) && (((_zz_when_StoreBufferPlugin_l567_8 == _zz_when_StoreBufferPlugin_l567_10) && (_zz_when_StoreBufferPlugin_l567_11 <= _zz_when_StoreBufferPlugin_l567_9)) || ((_zz_when_StoreBufferPlugin_l567_8 != _zz_when_StoreBufferPlugin_l567_10) && (_zz_when_StoreBufferPlugin_l567_9 < _zz_when_StoreBufferPlugin_l567_11))))));
-  assign _zz_when_StoreBufferPlugin_l580_14 = StoreBufferPlugin_logic_slots_2_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l580_15 = StoreBufferPlugin_logic_slots_2_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l580_16 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l580_17 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
-  assign when_StoreBufferPlugin_l580_2 = ((((! StoreBufferPlugin_logic_slots_2_hasEarlyException) && (! (((_zz_when_StoreBufferPlugin_l580_14 == _zz_when_StoreBufferPlugin_l580_16) && (_zz_when_StoreBufferPlugin_l580_17 <= _zz_when_StoreBufferPlugin_l580_15)) || ((_zz_when_StoreBufferPlugin_l580_14 != _zz_when_StoreBufferPlugin_l580_16) && (_zz_when_StoreBufferPlugin_l580_15 < _zz_when_StoreBufferPlugin_l580_17))))) && (_zz_when_StoreBufferPlugin_l580_12 == _zz_when_StoreBufferPlugin_l580_13)) && ((|(StoreBufferPlugin_logic_slots_2_be & StoreBufferPlugin_logic_forwardingLogic_loadMask)) && (! ((StoreBufferPlugin_logic_slots_2_be & StoreBufferPlugin_logic_forwardingLogic_loadMask) == StoreBufferPlugin_logic_forwardingLogic_loadMask))));
-  assign _zz_when_StoreBufferPlugin_l580_18 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2];
-  assign _zz_when_StoreBufferPlugin_l580_19 = StoreBufferPlugin_logic_slots_3_addr[31 : 2];
-  assign _zz_when_StoreBufferPlugin_l567_12 = StoreBufferPlugin_logic_slots_3_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l567_13 = StoreBufferPlugin_logic_slots_3_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l567_14 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
-  assign _zz_when_StoreBufferPlugin_l567_15 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
-  assign when_StoreBufferPlugin_l567_3 = (StoreBufferPlugin_logic_slots_3_valid && (! ((StoreBufferPlugin_logic_flushInProgress && (! StoreBufferPlugin_logic_slots_3_isCommitted)) && (((_zz_when_StoreBufferPlugin_l567_12 == _zz_when_StoreBufferPlugin_l567_14) && (_zz_when_StoreBufferPlugin_l567_15 <= _zz_when_StoreBufferPlugin_l567_13)) || ((_zz_when_StoreBufferPlugin_l567_12 != _zz_when_StoreBufferPlugin_l567_14) && (_zz_when_StoreBufferPlugin_l567_13 < _zz_when_StoreBufferPlugin_l567_15))))));
-  assign _zz_when_StoreBufferPlugin_l580_20 = StoreBufferPlugin_logic_slots_3_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l580_21 = StoreBufferPlugin_logic_slots_3_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l580_22 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l580_23 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
-  assign when_StoreBufferPlugin_l580_3 = ((((! StoreBufferPlugin_logic_slots_3_hasEarlyException) && (! (((_zz_when_StoreBufferPlugin_l580_20 == _zz_when_StoreBufferPlugin_l580_22) && (_zz_when_StoreBufferPlugin_l580_23 <= _zz_when_StoreBufferPlugin_l580_21)) || ((_zz_when_StoreBufferPlugin_l580_20 != _zz_when_StoreBufferPlugin_l580_22) && (_zz_when_StoreBufferPlugin_l580_21 < _zz_when_StoreBufferPlugin_l580_23))))) && (_zz_when_StoreBufferPlugin_l580_18 == _zz_when_StoreBufferPlugin_l580_19)) && ((|(StoreBufferPlugin_logic_slots_3_be & StoreBufferPlugin_logic_forwardingLogic_loadMask)) && (! ((StoreBufferPlugin_logic_slots_3_be & StoreBufferPlugin_logic_forwardingLogic_loadMask) == StoreBufferPlugin_logic_forwardingLogic_loadMask))));
-  assign StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreMatchingAddress = ((StoreBufferPlugin_hw_sqQueryPort_cmd_valid && (! StoreBufferPlugin_logic_forwardingLogic_allRequiredBytesHit)) && StoreBufferPlugin_logic_forwardingLogic_hasSomeOverlap);
-  assign when_StoreBufferPlugin_l588 = (StoreBufferPlugin_hw_sqQueryPort_cmd_valid && StoreBufferPlugin_hw_sqQueryPort_rsp_hit);
+  assign StoreBufferPlugin_logic_forwardingLogic_mustStall = (StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreHasUnknownAddress || StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreMatchingAddress);
+  assign StoreBufferPlugin_hw_sqQueryPort_rsp_hit = ((StoreBufferPlugin_hw_sqQueryPort_cmd_valid && StoreBufferPlugin_logic_forwardingLogic_allRequiredBytesHit) && (! StoreBufferPlugin_logic_forwardingLogic_mustStall));
+  assign _zz_when_StoreBufferPlugin_l640 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2];
+  assign _zz_when_StoreBufferPlugin_l640_1 = StoreBufferPlugin_logic_slots_0_addr[31 : 2];
+  assign when_StoreBufferPlugin_l636 = ((StoreBufferPlugin_logic_slots_0_valid && (! StoreBufferPlugin_logic_slots_0_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_0_isFlush));
+  assign _zz_when_StoreBufferPlugin_l640_2 = StoreBufferPlugin_logic_slots_0_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l640_3 = StoreBufferPlugin_logic_slots_0_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l640_4 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l640_5 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign when_StoreBufferPlugin_l640 = ((! (((_zz_when_StoreBufferPlugin_l640_2 == _zz_when_StoreBufferPlugin_l640_4) && (_zz_when_StoreBufferPlugin_l640_5 <= _zz_when_StoreBufferPlugin_l640_3)) || ((_zz_when_StoreBufferPlugin_l640_2 != _zz_when_StoreBufferPlugin_l640_4) && (_zz_when_StoreBufferPlugin_l640_3 < _zz_when_StoreBufferPlugin_l640_5)))) && (_zz_when_StoreBufferPlugin_l640 == _zz_when_StoreBufferPlugin_l640_1));
+  assign when_StoreBufferPlugin_l644 = ((! ((StoreBufferPlugin_logic_slots_0_be & StoreBufferPlugin_logic_forwardingLogic_loadMask) == StoreBufferPlugin_logic_forwardingLogic_loadMask)) && (|(StoreBufferPlugin_logic_slots_0_be & StoreBufferPlugin_logic_forwardingLogic_loadMask)));
+  assign when_StoreBufferPlugin_l650 = ((StoreBufferPlugin_logic_slots_0_waitRsp || StoreBufferPlugin_logic_slots_0_isWaitingForRefill) || StoreBufferPlugin_logic_slots_0_isWaitingForWb);
+  assign _zz_when_StoreBufferPlugin_l640_6 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2];
+  assign _zz_when_StoreBufferPlugin_l640_7 = StoreBufferPlugin_logic_slots_1_addr[31 : 2];
+  assign when_StoreBufferPlugin_l636_1 = ((StoreBufferPlugin_logic_slots_1_valid && (! StoreBufferPlugin_logic_slots_1_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_1_isFlush));
+  assign _zz_when_StoreBufferPlugin_l640_8 = StoreBufferPlugin_logic_slots_1_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l640_9 = StoreBufferPlugin_logic_slots_1_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l640_10 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l640_11 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign when_StoreBufferPlugin_l640_1 = ((! (((_zz_when_StoreBufferPlugin_l640_8 == _zz_when_StoreBufferPlugin_l640_10) && (_zz_when_StoreBufferPlugin_l640_11 <= _zz_when_StoreBufferPlugin_l640_9)) || ((_zz_when_StoreBufferPlugin_l640_8 != _zz_when_StoreBufferPlugin_l640_10) && (_zz_when_StoreBufferPlugin_l640_9 < _zz_when_StoreBufferPlugin_l640_11)))) && (_zz_when_StoreBufferPlugin_l640_6 == _zz_when_StoreBufferPlugin_l640_7));
+  assign when_StoreBufferPlugin_l644_1 = ((! ((StoreBufferPlugin_logic_slots_1_be & StoreBufferPlugin_logic_forwardingLogic_loadMask) == StoreBufferPlugin_logic_forwardingLogic_loadMask)) && (|(StoreBufferPlugin_logic_slots_1_be & StoreBufferPlugin_logic_forwardingLogic_loadMask)));
+  assign when_StoreBufferPlugin_l650_1 = ((StoreBufferPlugin_logic_slots_1_waitRsp || StoreBufferPlugin_logic_slots_1_isWaitingForRefill) || StoreBufferPlugin_logic_slots_1_isWaitingForWb);
+  assign _zz_when_StoreBufferPlugin_l640_12 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2];
+  assign _zz_when_StoreBufferPlugin_l640_13 = StoreBufferPlugin_logic_slots_2_addr[31 : 2];
+  assign when_StoreBufferPlugin_l636_2 = ((StoreBufferPlugin_logic_slots_2_valid && (! StoreBufferPlugin_logic_slots_2_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_2_isFlush));
+  assign _zz_when_StoreBufferPlugin_l640_14 = StoreBufferPlugin_logic_slots_2_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l640_15 = StoreBufferPlugin_logic_slots_2_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l640_16 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l640_17 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign when_StoreBufferPlugin_l640_2 = ((! (((_zz_when_StoreBufferPlugin_l640_14 == _zz_when_StoreBufferPlugin_l640_16) && (_zz_when_StoreBufferPlugin_l640_17 <= _zz_when_StoreBufferPlugin_l640_15)) || ((_zz_when_StoreBufferPlugin_l640_14 != _zz_when_StoreBufferPlugin_l640_16) && (_zz_when_StoreBufferPlugin_l640_15 < _zz_when_StoreBufferPlugin_l640_17)))) && (_zz_when_StoreBufferPlugin_l640_12 == _zz_when_StoreBufferPlugin_l640_13));
+  assign when_StoreBufferPlugin_l644_2 = ((! ((StoreBufferPlugin_logic_slots_2_be & StoreBufferPlugin_logic_forwardingLogic_loadMask) == StoreBufferPlugin_logic_forwardingLogic_loadMask)) && (|(StoreBufferPlugin_logic_slots_2_be & StoreBufferPlugin_logic_forwardingLogic_loadMask)));
+  assign when_StoreBufferPlugin_l650_2 = ((StoreBufferPlugin_logic_slots_2_waitRsp || StoreBufferPlugin_logic_slots_2_isWaitingForRefill) || StoreBufferPlugin_logic_slots_2_isWaitingForWb);
+  assign _zz_when_StoreBufferPlugin_l640_18 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2];
+  assign _zz_when_StoreBufferPlugin_l640_19 = StoreBufferPlugin_logic_slots_3_addr[31 : 2];
+  assign when_StoreBufferPlugin_l636_3 = ((StoreBufferPlugin_logic_slots_3_valid && (! StoreBufferPlugin_logic_slots_3_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_3_isFlush));
+  assign _zz_when_StoreBufferPlugin_l640_20 = StoreBufferPlugin_logic_slots_3_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l640_21 = StoreBufferPlugin_logic_slots_3_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l640_22 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l640_23 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign when_StoreBufferPlugin_l640_3 = ((! (((_zz_when_StoreBufferPlugin_l640_20 == _zz_when_StoreBufferPlugin_l640_22) && (_zz_when_StoreBufferPlugin_l640_23 <= _zz_when_StoreBufferPlugin_l640_21)) || ((_zz_when_StoreBufferPlugin_l640_20 != _zz_when_StoreBufferPlugin_l640_22) && (_zz_when_StoreBufferPlugin_l640_21 < _zz_when_StoreBufferPlugin_l640_23)))) && (_zz_when_StoreBufferPlugin_l640_18 == _zz_when_StoreBufferPlugin_l640_19));
+  assign when_StoreBufferPlugin_l644_3 = ((! ((StoreBufferPlugin_logic_slots_3_be & StoreBufferPlugin_logic_forwardingLogic_loadMask) == StoreBufferPlugin_logic_forwardingLogic_loadMask)) && (|(StoreBufferPlugin_logic_slots_3_be & StoreBufferPlugin_logic_forwardingLogic_loadMask)));
+  assign when_StoreBufferPlugin_l650_3 = ((StoreBufferPlugin_logic_slots_3_waitRsp || StoreBufferPlugin_logic_slots_3_isWaitingForRefill) || StoreBufferPlugin_logic_slots_3_isWaitingForWb);
   always @(*) begin
     _zz_StoreBufferPlugin_logic_loadQueryBe = 4'b0000;
     case(StoreBufferPlugin_hw_bypassQuerySizeIn)
@@ -20612,18 +20726,18 @@ module CoreNSCSCC (
   assign StoreBufferPlugin_logic_bypassInitial_hitMask = 4'b0000;
   always @(*) begin
     _zz_StoreBufferPlugin_logic_finalBypassResult_data = StoreBufferPlugin_logic_bypassInitial_data;
-    if(when_StoreBufferPlugin_l615) begin
-      if(when_StoreBufferPlugin_l620) begin
-        if(when_StoreBufferPlugin_l622) begin
+    if(when_StoreBufferPlugin_l688) begin
+      if(when_StoreBufferPlugin_l693) begin
+        if(when_StoreBufferPlugin_l695) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data[7 : 0] = StoreBufferPlugin_logic_slots_3_data[7 : 0];
         end
-        if(when_StoreBufferPlugin_l622_1) begin
+        if(when_StoreBufferPlugin_l695_1) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data[15 : 8] = StoreBufferPlugin_logic_slots_3_data[15 : 8];
         end
-        if(when_StoreBufferPlugin_l622_2) begin
+        if(when_StoreBufferPlugin_l695_2) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data[23 : 16] = StoreBufferPlugin_logic_slots_3_data[23 : 16];
         end
-        if(when_StoreBufferPlugin_l622_3) begin
+        if(when_StoreBufferPlugin_l695_3) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data[31 : 24] = StoreBufferPlugin_logic_slots_3_data[31 : 24];
         end
       end
@@ -20631,49 +20745,45 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    _zz_when_StoreBufferPlugin_l622 = StoreBufferPlugin_logic_bypassInitial_hitMask;
-    if(when_StoreBufferPlugin_l615) begin
-      if(when_StoreBufferPlugin_l620) begin
-        if(when_StoreBufferPlugin_l622) begin
-          _zz_when_StoreBufferPlugin_l622[0] = 1'b1;
+    _zz_when_StoreBufferPlugin_l695 = StoreBufferPlugin_logic_bypassInitial_hitMask;
+    if(when_StoreBufferPlugin_l688) begin
+      if(when_StoreBufferPlugin_l693) begin
+        if(when_StoreBufferPlugin_l695) begin
+          _zz_when_StoreBufferPlugin_l695[0] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l622_1) begin
-          _zz_when_StoreBufferPlugin_l622[1] = 1'b1;
+        if(when_StoreBufferPlugin_l695_1) begin
+          _zz_when_StoreBufferPlugin_l695[1] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l622_2) begin
-          _zz_when_StoreBufferPlugin_l622[2] = 1'b1;
+        if(when_StoreBufferPlugin_l695_2) begin
+          _zz_when_StoreBufferPlugin_l695[2] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l622_3) begin
-          _zz_when_StoreBufferPlugin_l622[3] = 1'b1;
+        if(when_StoreBufferPlugin_l695_3) begin
+          _zz_when_StoreBufferPlugin_l695[3] = 1'b1;
         end
       end
     end
   end
 
-  assign _zz_when_StoreBufferPlugin_l615 = StoreBufferPlugin_logic_slots_3_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l615_1 = StoreBufferPlugin_logic_slots_3_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l615_2 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
-  assign _zz_when_StoreBufferPlugin_l615_3 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
-  assign when_StoreBufferPlugin_l615 = ((StoreBufferPlugin_logic_slots_3_valid && (! ((StoreBufferPlugin_logic_flushInProgress && (! StoreBufferPlugin_logic_slots_3_isCommitted)) && (((_zz_when_StoreBufferPlugin_l615 == _zz_when_StoreBufferPlugin_l615_2) && (_zz_when_StoreBufferPlugin_l615_3 <= _zz_when_StoreBufferPlugin_l615_1)) || ((_zz_when_StoreBufferPlugin_l615 != _zz_when_StoreBufferPlugin_l615_2) && (_zz_when_StoreBufferPlugin_l615_1 < _zz_when_StoreBufferPlugin_l615_3)))))) && (! StoreBufferPlugin_logic_slots_3_hasEarlyException));
-  assign when_StoreBufferPlugin_l620 = (StoreBufferPlugin_hw_bypassQueryAddrIn[31 : 2] == StoreBufferPlugin_logic_slots_3_addr[31 : 2]);
-  assign when_StoreBufferPlugin_l622 = ((StoreBufferPlugin_logic_slots_3_be[0] && StoreBufferPlugin_logic_loadQueryBe[0]) && (! StoreBufferPlugin_logic_bypassInitial_hitMask[0]));
-  assign when_StoreBufferPlugin_l622_1 = ((StoreBufferPlugin_logic_slots_3_be[1] && StoreBufferPlugin_logic_loadQueryBe[1]) && (! StoreBufferPlugin_logic_bypassInitial_hitMask[1]));
-  assign when_StoreBufferPlugin_l622_2 = ((StoreBufferPlugin_logic_slots_3_be[2] && StoreBufferPlugin_logic_loadQueryBe[2]) && (! StoreBufferPlugin_logic_bypassInitial_hitMask[2]));
-  assign when_StoreBufferPlugin_l622_3 = ((StoreBufferPlugin_logic_slots_3_be[3] && StoreBufferPlugin_logic_loadQueryBe[3]) && (! StoreBufferPlugin_logic_bypassInitial_hitMask[3]));
+  assign when_StoreBufferPlugin_l688 = ((StoreBufferPlugin_logic_slots_3_valid && (! StoreBufferPlugin_logic_slots_3_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_3_isFlush));
+  assign when_StoreBufferPlugin_l693 = (StoreBufferPlugin_hw_bypassQueryAddrIn[31 : 2] == StoreBufferPlugin_logic_slots_3_addr[31 : 2]);
+  assign when_StoreBufferPlugin_l695 = ((StoreBufferPlugin_logic_slots_3_be[0] && StoreBufferPlugin_logic_loadQueryBe[0]) && (! StoreBufferPlugin_logic_bypassInitial_hitMask[0]));
+  assign when_StoreBufferPlugin_l695_1 = ((StoreBufferPlugin_logic_slots_3_be[1] && StoreBufferPlugin_logic_loadQueryBe[1]) && (! StoreBufferPlugin_logic_bypassInitial_hitMask[1]));
+  assign when_StoreBufferPlugin_l695_2 = ((StoreBufferPlugin_logic_slots_3_be[2] && StoreBufferPlugin_logic_loadQueryBe[2]) && (! StoreBufferPlugin_logic_bypassInitial_hitMask[2]));
+  assign when_StoreBufferPlugin_l695_3 = ((StoreBufferPlugin_logic_slots_3_be[3] && StoreBufferPlugin_logic_loadQueryBe[3]) && (! StoreBufferPlugin_logic_bypassInitial_hitMask[3]));
   always @(*) begin
     _zz_StoreBufferPlugin_logic_finalBypassResult_data_1 = _zz_StoreBufferPlugin_logic_finalBypassResult_data;
-    if(when_StoreBufferPlugin_l615_1) begin
-      if(when_StoreBufferPlugin_l620_1) begin
-        if(when_StoreBufferPlugin_l622_4) begin
+    if(when_StoreBufferPlugin_l688_1) begin
+      if(when_StoreBufferPlugin_l693_1) begin
+        if(when_StoreBufferPlugin_l695_4) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data_1[7 : 0] = StoreBufferPlugin_logic_slots_2_data[7 : 0];
         end
-        if(when_StoreBufferPlugin_l622_5) begin
+        if(when_StoreBufferPlugin_l695_5) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data_1[15 : 8] = StoreBufferPlugin_logic_slots_2_data[15 : 8];
         end
-        if(when_StoreBufferPlugin_l622_6) begin
+        if(when_StoreBufferPlugin_l695_6) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data_1[23 : 16] = StoreBufferPlugin_logic_slots_2_data[23 : 16];
         end
-        if(when_StoreBufferPlugin_l622_7) begin
+        if(when_StoreBufferPlugin_l695_7) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data_1[31 : 24] = StoreBufferPlugin_logic_slots_2_data[31 : 24];
         end
       end
@@ -20681,49 +20791,45 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    _zz_when_StoreBufferPlugin_l622_1 = _zz_when_StoreBufferPlugin_l622;
-    if(when_StoreBufferPlugin_l615_1) begin
-      if(when_StoreBufferPlugin_l620_1) begin
-        if(when_StoreBufferPlugin_l622_4) begin
-          _zz_when_StoreBufferPlugin_l622_1[0] = 1'b1;
+    _zz_when_StoreBufferPlugin_l695_1 = _zz_when_StoreBufferPlugin_l695;
+    if(when_StoreBufferPlugin_l688_1) begin
+      if(when_StoreBufferPlugin_l693_1) begin
+        if(when_StoreBufferPlugin_l695_4) begin
+          _zz_when_StoreBufferPlugin_l695_1[0] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l622_5) begin
-          _zz_when_StoreBufferPlugin_l622_1[1] = 1'b1;
+        if(when_StoreBufferPlugin_l695_5) begin
+          _zz_when_StoreBufferPlugin_l695_1[1] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l622_6) begin
-          _zz_when_StoreBufferPlugin_l622_1[2] = 1'b1;
+        if(when_StoreBufferPlugin_l695_6) begin
+          _zz_when_StoreBufferPlugin_l695_1[2] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l622_7) begin
-          _zz_when_StoreBufferPlugin_l622_1[3] = 1'b1;
+        if(when_StoreBufferPlugin_l695_7) begin
+          _zz_when_StoreBufferPlugin_l695_1[3] = 1'b1;
         end
       end
     end
   end
 
-  assign _zz_when_StoreBufferPlugin_l615_4 = StoreBufferPlugin_logic_slots_2_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l615_5 = StoreBufferPlugin_logic_slots_2_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l615_6 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
-  assign _zz_when_StoreBufferPlugin_l615_7 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
-  assign when_StoreBufferPlugin_l615_1 = ((StoreBufferPlugin_logic_slots_2_valid && (! ((StoreBufferPlugin_logic_flushInProgress && (! StoreBufferPlugin_logic_slots_2_isCommitted)) && (((_zz_when_StoreBufferPlugin_l615_4 == _zz_when_StoreBufferPlugin_l615_6) && (_zz_when_StoreBufferPlugin_l615_7 <= _zz_when_StoreBufferPlugin_l615_5)) || ((_zz_when_StoreBufferPlugin_l615_4 != _zz_when_StoreBufferPlugin_l615_6) && (_zz_when_StoreBufferPlugin_l615_5 < _zz_when_StoreBufferPlugin_l615_7)))))) && (! StoreBufferPlugin_logic_slots_2_hasEarlyException));
-  assign when_StoreBufferPlugin_l620_1 = (StoreBufferPlugin_hw_bypassQueryAddrIn[31 : 2] == StoreBufferPlugin_logic_slots_2_addr[31 : 2]);
-  assign when_StoreBufferPlugin_l622_4 = ((StoreBufferPlugin_logic_slots_2_be[0] && StoreBufferPlugin_logic_loadQueryBe[0]) && (! _zz_when_StoreBufferPlugin_l622[0]));
-  assign when_StoreBufferPlugin_l622_5 = ((StoreBufferPlugin_logic_slots_2_be[1] && StoreBufferPlugin_logic_loadQueryBe[1]) && (! _zz_when_StoreBufferPlugin_l622[1]));
-  assign when_StoreBufferPlugin_l622_6 = ((StoreBufferPlugin_logic_slots_2_be[2] && StoreBufferPlugin_logic_loadQueryBe[2]) && (! _zz_when_StoreBufferPlugin_l622[2]));
-  assign when_StoreBufferPlugin_l622_7 = ((StoreBufferPlugin_logic_slots_2_be[3] && StoreBufferPlugin_logic_loadQueryBe[3]) && (! _zz_when_StoreBufferPlugin_l622[3]));
+  assign when_StoreBufferPlugin_l688_1 = ((StoreBufferPlugin_logic_slots_2_valid && (! StoreBufferPlugin_logic_slots_2_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_2_isFlush));
+  assign when_StoreBufferPlugin_l693_1 = (StoreBufferPlugin_hw_bypassQueryAddrIn[31 : 2] == StoreBufferPlugin_logic_slots_2_addr[31 : 2]);
+  assign when_StoreBufferPlugin_l695_4 = ((StoreBufferPlugin_logic_slots_2_be[0] && StoreBufferPlugin_logic_loadQueryBe[0]) && (! _zz_when_StoreBufferPlugin_l695[0]));
+  assign when_StoreBufferPlugin_l695_5 = ((StoreBufferPlugin_logic_slots_2_be[1] && StoreBufferPlugin_logic_loadQueryBe[1]) && (! _zz_when_StoreBufferPlugin_l695[1]));
+  assign when_StoreBufferPlugin_l695_6 = ((StoreBufferPlugin_logic_slots_2_be[2] && StoreBufferPlugin_logic_loadQueryBe[2]) && (! _zz_when_StoreBufferPlugin_l695[2]));
+  assign when_StoreBufferPlugin_l695_7 = ((StoreBufferPlugin_logic_slots_2_be[3] && StoreBufferPlugin_logic_loadQueryBe[3]) && (! _zz_when_StoreBufferPlugin_l695[3]));
   always @(*) begin
     _zz_StoreBufferPlugin_logic_finalBypassResult_data_2 = _zz_StoreBufferPlugin_logic_finalBypassResult_data_1;
-    if(when_StoreBufferPlugin_l615_2) begin
-      if(when_StoreBufferPlugin_l620_2) begin
-        if(when_StoreBufferPlugin_l622_8) begin
+    if(when_StoreBufferPlugin_l688_2) begin
+      if(when_StoreBufferPlugin_l693_2) begin
+        if(when_StoreBufferPlugin_l695_8) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data_2[7 : 0] = StoreBufferPlugin_logic_slots_1_data[7 : 0];
         end
-        if(when_StoreBufferPlugin_l622_9) begin
+        if(when_StoreBufferPlugin_l695_9) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data_2[15 : 8] = StoreBufferPlugin_logic_slots_1_data[15 : 8];
         end
-        if(when_StoreBufferPlugin_l622_10) begin
+        if(when_StoreBufferPlugin_l695_10) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data_2[23 : 16] = StoreBufferPlugin_logic_slots_1_data[23 : 16];
         end
-        if(when_StoreBufferPlugin_l622_11) begin
+        if(when_StoreBufferPlugin_l695_11) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data_2[31 : 24] = StoreBufferPlugin_logic_slots_1_data[31 : 24];
         end
       end
@@ -20731,49 +20837,45 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask = _zz_when_StoreBufferPlugin_l622_1;
-    if(when_StoreBufferPlugin_l615_2) begin
-      if(when_StoreBufferPlugin_l620_2) begin
-        if(when_StoreBufferPlugin_l622_8) begin
+    _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask = _zz_when_StoreBufferPlugin_l695_1;
+    if(when_StoreBufferPlugin_l688_2) begin
+      if(when_StoreBufferPlugin_l693_2) begin
+        if(when_StoreBufferPlugin_l695_8) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[0] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l622_9) begin
+        if(when_StoreBufferPlugin_l695_9) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[1] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l622_10) begin
+        if(when_StoreBufferPlugin_l695_10) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[2] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l622_11) begin
+        if(when_StoreBufferPlugin_l695_11) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[3] = 1'b1;
         end
       end
     end
   end
 
-  assign _zz_when_StoreBufferPlugin_l615_8 = StoreBufferPlugin_logic_slots_1_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l615_9 = StoreBufferPlugin_logic_slots_1_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l615_10 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
-  assign _zz_when_StoreBufferPlugin_l615_11 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
-  assign when_StoreBufferPlugin_l615_2 = ((StoreBufferPlugin_logic_slots_1_valid && (! ((StoreBufferPlugin_logic_flushInProgress && (! StoreBufferPlugin_logic_slots_1_isCommitted)) && (((_zz_when_StoreBufferPlugin_l615_8 == _zz_when_StoreBufferPlugin_l615_10) && (_zz_when_StoreBufferPlugin_l615_11 <= _zz_when_StoreBufferPlugin_l615_9)) || ((_zz_when_StoreBufferPlugin_l615_8 != _zz_when_StoreBufferPlugin_l615_10) && (_zz_when_StoreBufferPlugin_l615_9 < _zz_when_StoreBufferPlugin_l615_11)))))) && (! StoreBufferPlugin_logic_slots_1_hasEarlyException));
-  assign when_StoreBufferPlugin_l620_2 = (StoreBufferPlugin_hw_bypassQueryAddrIn[31 : 2] == StoreBufferPlugin_logic_slots_1_addr[31 : 2]);
-  assign when_StoreBufferPlugin_l622_8 = ((StoreBufferPlugin_logic_slots_1_be[0] && StoreBufferPlugin_logic_loadQueryBe[0]) && (! _zz_when_StoreBufferPlugin_l622_1[0]));
-  assign when_StoreBufferPlugin_l622_9 = ((StoreBufferPlugin_logic_slots_1_be[1] && StoreBufferPlugin_logic_loadQueryBe[1]) && (! _zz_when_StoreBufferPlugin_l622_1[1]));
-  assign when_StoreBufferPlugin_l622_10 = ((StoreBufferPlugin_logic_slots_1_be[2] && StoreBufferPlugin_logic_loadQueryBe[2]) && (! _zz_when_StoreBufferPlugin_l622_1[2]));
-  assign when_StoreBufferPlugin_l622_11 = ((StoreBufferPlugin_logic_slots_1_be[3] && StoreBufferPlugin_logic_loadQueryBe[3]) && (! _zz_when_StoreBufferPlugin_l622_1[3]));
+  assign when_StoreBufferPlugin_l688_2 = ((StoreBufferPlugin_logic_slots_1_valid && (! StoreBufferPlugin_logic_slots_1_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_1_isFlush));
+  assign when_StoreBufferPlugin_l693_2 = (StoreBufferPlugin_hw_bypassQueryAddrIn[31 : 2] == StoreBufferPlugin_logic_slots_1_addr[31 : 2]);
+  assign when_StoreBufferPlugin_l695_8 = ((StoreBufferPlugin_logic_slots_1_be[0] && StoreBufferPlugin_logic_loadQueryBe[0]) && (! _zz_when_StoreBufferPlugin_l695_1[0]));
+  assign when_StoreBufferPlugin_l695_9 = ((StoreBufferPlugin_logic_slots_1_be[1] && StoreBufferPlugin_logic_loadQueryBe[1]) && (! _zz_when_StoreBufferPlugin_l695_1[1]));
+  assign when_StoreBufferPlugin_l695_10 = ((StoreBufferPlugin_logic_slots_1_be[2] && StoreBufferPlugin_logic_loadQueryBe[2]) && (! _zz_when_StoreBufferPlugin_l695_1[2]));
+  assign when_StoreBufferPlugin_l695_11 = ((StoreBufferPlugin_logic_slots_1_be[3] && StoreBufferPlugin_logic_loadQueryBe[3]) && (! _zz_when_StoreBufferPlugin_l695_1[3]));
   always @(*) begin
     StoreBufferPlugin_logic_finalBypassResult_data = _zz_StoreBufferPlugin_logic_finalBypassResult_data_2;
-    if(when_StoreBufferPlugin_l615_3) begin
-      if(when_StoreBufferPlugin_l620_3) begin
-        if(when_StoreBufferPlugin_l622_12) begin
+    if(when_StoreBufferPlugin_l688_3) begin
+      if(when_StoreBufferPlugin_l693_3) begin
+        if(when_StoreBufferPlugin_l695_12) begin
           StoreBufferPlugin_logic_finalBypassResult_data[7 : 0] = StoreBufferPlugin_logic_slots_0_data[7 : 0];
         end
-        if(when_StoreBufferPlugin_l622_13) begin
+        if(when_StoreBufferPlugin_l695_13) begin
           StoreBufferPlugin_logic_finalBypassResult_data[15 : 8] = StoreBufferPlugin_logic_slots_0_data[15 : 8];
         end
-        if(when_StoreBufferPlugin_l622_14) begin
+        if(when_StoreBufferPlugin_l695_14) begin
           StoreBufferPlugin_logic_finalBypassResult_data[23 : 16] = StoreBufferPlugin_logic_slots_0_data[23 : 16];
         end
-        if(when_StoreBufferPlugin_l622_15) begin
+        if(when_StoreBufferPlugin_l695_15) begin
           StoreBufferPlugin_logic_finalBypassResult_data[31 : 24] = StoreBufferPlugin_logic_slots_0_data[31 : 24];
         end
       end
@@ -20782,43 +20884,35 @@ module CoreNSCSCC (
 
   always @(*) begin
     StoreBufferPlugin_logic_finalBypassResult_hitMask = _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask;
-    if(when_StoreBufferPlugin_l615_3) begin
-      if(when_StoreBufferPlugin_l620_3) begin
-        if(when_StoreBufferPlugin_l622_12) begin
+    if(when_StoreBufferPlugin_l688_3) begin
+      if(when_StoreBufferPlugin_l693_3) begin
+        if(when_StoreBufferPlugin_l695_12) begin
           StoreBufferPlugin_logic_finalBypassResult_hitMask[0] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l622_13) begin
+        if(when_StoreBufferPlugin_l695_13) begin
           StoreBufferPlugin_logic_finalBypassResult_hitMask[1] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l622_14) begin
+        if(when_StoreBufferPlugin_l695_14) begin
           StoreBufferPlugin_logic_finalBypassResult_hitMask[2] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l622_15) begin
+        if(when_StoreBufferPlugin_l695_15) begin
           StoreBufferPlugin_logic_finalBypassResult_hitMask[3] = 1'b1;
         end
       end
     end
   end
 
-  assign _zz_when_StoreBufferPlugin_l615_12 = StoreBufferPlugin_logic_slots_0_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l615_13 = StoreBufferPlugin_logic_slots_0_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l615_14 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
-  assign _zz_when_StoreBufferPlugin_l615_15 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
-  assign when_StoreBufferPlugin_l615_3 = ((StoreBufferPlugin_logic_slots_0_valid && (! ((StoreBufferPlugin_logic_flushInProgress && (! StoreBufferPlugin_logic_slots_0_isCommitted)) && (((_zz_when_StoreBufferPlugin_l615_12 == _zz_when_StoreBufferPlugin_l615_14) && (_zz_when_StoreBufferPlugin_l615_15 <= _zz_when_StoreBufferPlugin_l615_13)) || ((_zz_when_StoreBufferPlugin_l615_12 != _zz_when_StoreBufferPlugin_l615_14) && (_zz_when_StoreBufferPlugin_l615_13 < _zz_when_StoreBufferPlugin_l615_15)))))) && (! StoreBufferPlugin_logic_slots_0_hasEarlyException));
-  assign when_StoreBufferPlugin_l620_3 = (StoreBufferPlugin_hw_bypassQueryAddrIn[31 : 2] == StoreBufferPlugin_logic_slots_0_addr[31 : 2]);
-  assign when_StoreBufferPlugin_l622_12 = ((StoreBufferPlugin_logic_slots_0_be[0] && StoreBufferPlugin_logic_loadQueryBe[0]) && (! _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[0]));
-  assign when_StoreBufferPlugin_l622_13 = ((StoreBufferPlugin_logic_slots_0_be[1] && StoreBufferPlugin_logic_loadQueryBe[1]) && (! _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[1]));
-  assign when_StoreBufferPlugin_l622_14 = ((StoreBufferPlugin_logic_slots_0_be[2] && StoreBufferPlugin_logic_loadQueryBe[2]) && (! _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[2]));
-  assign when_StoreBufferPlugin_l622_15 = ((StoreBufferPlugin_logic_slots_0_be[3] && StoreBufferPlugin_logic_loadQueryBe[3]) && (! _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[3]));
+  assign when_StoreBufferPlugin_l688_3 = ((StoreBufferPlugin_logic_slots_0_valid && (! StoreBufferPlugin_logic_slots_0_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_0_isFlush));
+  assign when_StoreBufferPlugin_l693_3 = (StoreBufferPlugin_hw_bypassQueryAddrIn[31 : 2] == StoreBufferPlugin_logic_slots_0_addr[31 : 2]);
+  assign when_StoreBufferPlugin_l695_12 = ((StoreBufferPlugin_logic_slots_0_be[0] && StoreBufferPlugin_logic_loadQueryBe[0]) && (! _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[0]));
+  assign when_StoreBufferPlugin_l695_13 = ((StoreBufferPlugin_logic_slots_0_be[1] && StoreBufferPlugin_logic_loadQueryBe[1]) && (! _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[1]));
+  assign when_StoreBufferPlugin_l695_14 = ((StoreBufferPlugin_logic_slots_0_be[2] && StoreBufferPlugin_logic_loadQueryBe[2]) && (! _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[2]));
+  assign when_StoreBufferPlugin_l695_15 = ((StoreBufferPlugin_logic_slots_0_be[3] && StoreBufferPlugin_logic_loadQueryBe[3]) && (! _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[3]));
   assign StoreBufferPlugin_logic_overallBypassHit = (|StoreBufferPlugin_logic_finalBypassResult_hitMask);
   assign StoreBufferPlugin_hw_bypassDataOutInst_valid = StoreBufferPlugin_logic_overallBypassHit;
   assign StoreBufferPlugin_hw_bypassDataOutInst_payload_data = StoreBufferPlugin_logic_finalBypassResult_data;
   assign StoreBufferPlugin_hw_bypassDataOutInst_payload_hitMask = StoreBufferPlugin_logic_finalBypassResult_hitMask;
   assign StoreBufferPlugin_hw_bypassDataOutInst_payload_hit = (StoreBufferPlugin_logic_overallBypassHit && (StoreBufferPlugin_logic_finalBypassResult_hitMask == StoreBufferPlugin_logic_loadQueryBe));
-  assign when_StoreBufferPlugin_l668 = (StoreBufferPlugin_logic_slots_0_valid && (! StoreBufferPlugin_logic_slots_0_isCommitted));
-  assign when_StoreBufferPlugin_l668_1 = (StoreBufferPlugin_logic_slots_1_valid && (! StoreBufferPlugin_logic_slots_1_isCommitted));
-  assign when_StoreBufferPlugin_l668_2 = (StoreBufferPlugin_logic_slots_2_valid && (! StoreBufferPlugin_logic_slots_2_isCommitted));
-  assign when_StoreBufferPlugin_l668_3 = (StoreBufferPlugin_logic_slots_3_valid && (! StoreBufferPlugin_logic_slots_3_isCommitted));
   always @(*) begin
     _zz_globalWakeupFlow_payload_physRegIdx = 6'bxxxxxx;
     if(!when_WakeupPlugin_l67) begin
@@ -20918,12 +21012,11 @@ module CoreNSCSCC (
 
   assign ROBPlugin_aggregatedFlushSignal_payload_reason = _zz_ROBPlugin_aggregatedFlushSignal_payload_reason;
   assign ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr = _zz_ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr;
-  assign CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_cmd_payload_id = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[0:0];
   assign CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_ready = ((LoadQueuePlugin_logic_loadQueue_slots_0_valid && LoadQueuePlugin_logic_loadQueue_slots_0_isIO) && LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForRsp);
   assign _zz_LoadQueuePlugin_hw_prfWritePort_data = CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_payload_data;
   assign _zz_LoadQueuePlugin_hw_prfWritePort_valid = CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_payload_error;
-  assign CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_cmd_payload_id = StoreBufferPlugin_logic_slots_0_robPtr[0:0];
-  assign CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_rsp_ready = ((StoreBufferPlugin_logic_slots_0_valid && StoreBufferPlugin_logic_slots_0_isIO) && StoreBufferPlugin_logic_slots_0_waitRsp);
+  assign _zz_StoreBufferPlugin_logic_mmioCmdFired = CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_cmd_ready;
+  assign _zz_StoreBufferPlugin_logic_mmioResponseForHead = CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_rsp_valid;
   assign io_isram_addr = CoreMemSysPlugin_hw_baseramCtrl_io_ram_addr;
   assign io_isram_din = CoreMemSysPlugin_hw_baseramCtrl_io_ram_data_write;
   assign io_isram_en = (! CoreMemSysPlugin_hw_baseramCtrl_io_ram_ce_n);
@@ -20936,20 +21029,20 @@ module CoreNSCSCC (
   assign io_dsram_re = (! CoreMemSysPlugin_hw_extramCtrl_io_ram_oe_n);
   assign io_dsram_we = (! CoreMemSysPlugin_hw_extramCtrl_io_ram_we_n);
   assign io_dsram_wmask = (~ CoreMemSysPlugin_hw_extramCtrl_io_ram_be_n);
-  assign io_uart_ar_bits_id = {4'd0, _zz_io_uart_ar_bits_id};
+  assign io_uart_ar_bits_id = {1'd0, _zz_io_uart_ar_bits_id};
   assign io_uart_ar_bits_addr = uartAxi_ar_payload_addr;
   assign io_uart_ar_bits_len = uartAxi_ar_payload_len;
   assign io_uart_ar_bits_size = uartAxi_ar_payload_size;
   assign io_uart_ar_bits_burst = uartAxi_ar_payload_burst;
   assign io_uart_ar_valid = uartAxi_ar_valid;
   assign uartAxi_ar_ready = io_uart_ar_ready;
-  assign uartAxi_r_payload_id = _zz_uartAxi_r_payload_id[3:0];
+  assign uartAxi_r_payload_id = _zz_uartAxi_r_payload_id[6:0];
   assign uartAxi_r_payload_resp = io_uart_r_bits_resp;
   assign uartAxi_r_payload_data = io_uart_r_bits_data;
   assign uartAxi_r_payload_last = io_uart_r_bits_last;
   assign uartAxi_r_valid = io_uart_r_valid;
   assign io_uart_r_ready = uartAxi_r_ready;
-  assign io_uart_aw_bits_id = {4'd0, _zz_io_uart_aw_bits_id};
+  assign io_uart_aw_bits_id = {1'd0, _zz_io_uart_aw_bits_id};
   assign io_uart_aw_bits_addr = uartAxi_aw_payload_addr;
   assign io_uart_aw_bits_len = uartAxi_aw_payload_len;
   assign io_uart_aw_bits_size = uartAxi_aw_payload_size;
@@ -20961,7 +21054,7 @@ module CoreNSCSCC (
   assign io_uart_w_bits_last = uartAxi_w_payload_last;
   assign io_uart_w_valid = uartAxi_w_valid;
   assign uartAxi_w_ready = io_uart_w_ready;
-  assign uartAxi_b_payload_id = _zz_uartAxi_b_payload_id[3:0];
+  assign uartAxi_b_payload_id = _zz_uartAxi_b_payload_id[6:0];
   assign uartAxi_b_payload_resp = io_uart_b_bits_resp;
   assign uartAxi_b_valid = io_uart_b_valid;
   assign io_uart_b_ready = uartAxi_b_ready;
@@ -20971,7 +21064,6 @@ module CoreNSCSCC (
   assign uartAxi_ar_payload_len = axi4ReadOnlyArbiter_5_io_output_ar_payload_len;
   assign uartAxi_ar_payload_size = axi4ReadOnlyArbiter_5_io_output_ar_payload_size;
   assign uartAxi_ar_payload_burst = axi4ReadOnlyArbiter_5_io_output_ar_payload_burst;
-  assign uartAxi_ar_payload_prot = axi4ReadOnlyArbiter_5_io_output_ar_payload_prot;
   assign uartAxi_r_ready = axi4ReadOnlyArbiter_5_io_output_r_ready;
   assign uartAxi_aw_valid = axi4WriteOnlyArbiter_5_io_output_aw_valid;
   assign uartAxi_aw_payload_addr = axi4WriteOnlyArbiter_5_io_output_aw_payload_addr;
@@ -20979,7 +21071,6 @@ module CoreNSCSCC (
   assign uartAxi_aw_payload_len = axi4WriteOnlyArbiter_5_io_output_aw_payload_len;
   assign uartAxi_aw_payload_size = axi4WriteOnlyArbiter_5_io_output_aw_payload_size;
   assign uartAxi_aw_payload_burst = axi4WriteOnlyArbiter_5_io_output_aw_payload_burst;
-  assign uartAxi_aw_payload_prot = axi4WriteOnlyArbiter_5_io_output_aw_payload_prot;
   assign uartAxi_w_valid = axi4WriteOnlyArbiter_5_io_output_w_valid;
   assign uartAxi_w_payload_data = axi4WriteOnlyArbiter_5_io_output_w_payload_data;
   assign uartAxi_w_payload_strb = axi4WriteOnlyArbiter_5_io_output_w_payload_strb;
@@ -20991,7 +21082,6 @@ module CoreNSCSCC (
   assign io_axiOut_readOnly_ar_payload_len = CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_ar_payload_len;
   assign io_axiOut_readOnly_ar_payload_size = CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_ar_payload_size;
   assign io_axiOut_readOnly_ar_payload_burst = CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_ar_payload_burst;
-  assign io_axiOut_readOnly_ar_payload_prot = CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_ar_payload_prot;
   assign io_axiOut_readOnly_r_ready = CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_r_ready;
   assign io_axiOut_writeOnly_aw_valid = CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_aw_valid;
   assign io_axiOut_writeOnly_aw_payload_addr = CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_aw_payload_addr;
@@ -20999,7 +21089,6 @@ module CoreNSCSCC (
   assign io_axiOut_writeOnly_aw_payload_len = CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_aw_payload_len;
   assign io_axiOut_writeOnly_aw_payload_size = CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_aw_payload_size;
   assign io_axiOut_writeOnly_aw_payload_burst = CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_aw_payload_burst;
-  assign io_axiOut_writeOnly_aw_payload_prot = CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_aw_payload_prot;
   assign io_axiOut_writeOnly_w_valid = CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_w_valid;
   assign io_axiOut_writeOnly_w_payload_data = CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_w_payload_data;
   assign io_axiOut_writeOnly_w_payload_strb = CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_w_payload_strb;
@@ -21011,7 +21100,6 @@ module CoreNSCSCC (
   assign io_axiOut_readOnly_ar_payload_len_1 = CoreMemSysPlugin_logic_readBridges_0_io_axiOut_ar_payload_len;
   assign io_axiOut_readOnly_ar_payload_size_1 = CoreMemSysPlugin_logic_readBridges_0_io_axiOut_ar_payload_size;
   assign io_axiOut_readOnly_ar_payload_burst_1 = CoreMemSysPlugin_logic_readBridges_0_io_axiOut_ar_payload_burst;
-  assign io_axiOut_readOnly_ar_payload_prot_1 = CoreMemSysPlugin_logic_readBridges_0_io_axiOut_ar_payload_prot;
   assign io_axiOut_readOnly_r_ready_1 = CoreMemSysPlugin_logic_readBridges_0_io_axiOut_r_ready;
   assign io_axiOut_writeOnly_aw_valid_1 = CoreMemSysPlugin_logic_readBridges_0_io_axiOut_aw_valid;
   assign io_axiOut_writeOnly_aw_payload_addr_1 = CoreMemSysPlugin_logic_readBridges_0_io_axiOut_aw_payload_addr;
@@ -21019,7 +21107,6 @@ module CoreNSCSCC (
   assign io_axiOut_writeOnly_aw_payload_len_1 = CoreMemSysPlugin_logic_readBridges_0_io_axiOut_aw_payload_len;
   assign io_axiOut_writeOnly_aw_payload_size_1 = CoreMemSysPlugin_logic_readBridges_0_io_axiOut_aw_payload_size;
   assign io_axiOut_writeOnly_aw_payload_burst_1 = CoreMemSysPlugin_logic_readBridges_0_io_axiOut_aw_payload_burst;
-  assign io_axiOut_writeOnly_aw_payload_prot_1 = CoreMemSysPlugin_logic_readBridges_0_io_axiOut_aw_payload_prot;
   assign io_axiOut_writeOnly_w_valid_1 = CoreMemSysPlugin_logic_readBridges_0_io_axiOut_w_valid;
   assign io_axiOut_writeOnly_w_payload_data_1 = CoreMemSysPlugin_logic_readBridges_0_io_axiOut_w_payload_data;
   assign io_axiOut_writeOnly_w_payload_strb_1 = CoreMemSysPlugin_logic_readBridges_0_io_axiOut_w_payload_strb;
@@ -21063,9 +21150,8 @@ module CoreNSCSCC (
   assign io_outputs_0_ar_validPipe_payload_len = io_axiOut_readOnly_decoder_io_outputs_0_ar_payload_len;
   assign io_outputs_0_ar_validPipe_payload_size = io_axiOut_readOnly_decoder_io_outputs_0_ar_payload_size;
   assign io_outputs_0_ar_validPipe_payload_burst = io_axiOut_readOnly_decoder_io_outputs_0_ar_payload_burst;
-  assign io_outputs_0_ar_validPipe_payload_prot = io_axiOut_readOnly_decoder_io_outputs_0_ar_payload_prot;
   assign io_outputs_0_ar_validPipe_ready = axi4ReadOnlyArbiter_3_io_inputs_0_ar_ready;
-  assign io_axiOut_readOnly_decoder_io_outputs_0_r_payload_id = axi4ReadOnlyArbiter_3_io_inputs_0_r_payload_id[0:0];
+  assign io_axiOut_readOnly_decoder_io_outputs_0_r_payload_id = axi4ReadOnlyArbiter_3_io_inputs_0_r_payload_id[3:0];
   assign io_outputs_1_ar_validPipe_fire = (io_outputs_1_ar_validPipe_valid && io_outputs_1_ar_validPipe_ready);
   assign io_outputs_1_ar_validPipe_valid = io_outputs_1_ar_rValid;
   assign io_outputs_1_ar_validPipe_payload_addr = io_axiOut_readOnly_decoder_io_outputs_1_ar_payload_addr;
@@ -21073,9 +21159,8 @@ module CoreNSCSCC (
   assign io_outputs_1_ar_validPipe_payload_len = io_axiOut_readOnly_decoder_io_outputs_1_ar_payload_len;
   assign io_outputs_1_ar_validPipe_payload_size = io_axiOut_readOnly_decoder_io_outputs_1_ar_payload_size;
   assign io_outputs_1_ar_validPipe_payload_burst = io_axiOut_readOnly_decoder_io_outputs_1_ar_payload_burst;
-  assign io_outputs_1_ar_validPipe_payload_prot = io_axiOut_readOnly_decoder_io_outputs_1_ar_payload_prot;
   assign io_outputs_1_ar_validPipe_ready = axi4ReadOnlyArbiter_4_io_inputs_0_ar_ready;
-  assign io_axiOut_readOnly_decoder_io_outputs_1_r_payload_id = axi4ReadOnlyArbiter_4_io_inputs_0_r_payload_id[0:0];
+  assign io_axiOut_readOnly_decoder_io_outputs_1_r_payload_id = axi4ReadOnlyArbiter_4_io_inputs_0_r_payload_id[3:0];
   assign io_outputs_2_ar_validPipe_fire = (io_outputs_2_ar_validPipe_valid && io_outputs_2_ar_validPipe_ready);
   assign io_outputs_2_ar_validPipe_valid = io_outputs_2_ar_rValid;
   assign io_outputs_2_ar_validPipe_payload_addr = io_axiOut_readOnly_decoder_io_outputs_2_ar_payload_addr;
@@ -21083,9 +21168,8 @@ module CoreNSCSCC (
   assign io_outputs_2_ar_validPipe_payload_len = io_axiOut_readOnly_decoder_io_outputs_2_ar_payload_len;
   assign io_outputs_2_ar_validPipe_payload_size = io_axiOut_readOnly_decoder_io_outputs_2_ar_payload_size;
   assign io_outputs_2_ar_validPipe_payload_burst = io_axiOut_readOnly_decoder_io_outputs_2_ar_payload_burst;
-  assign io_outputs_2_ar_validPipe_payload_prot = io_axiOut_readOnly_decoder_io_outputs_2_ar_payload_prot;
   assign io_outputs_2_ar_validPipe_ready = axi4ReadOnlyArbiter_5_io_inputs_0_ar_ready;
-  assign io_axiOut_readOnly_decoder_io_outputs_2_r_payload_id = axi4ReadOnlyArbiter_5_io_inputs_0_r_payload_id[0:0];
+  assign io_axiOut_readOnly_decoder_io_outputs_2_r_payload_id = axi4ReadOnlyArbiter_5_io_inputs_0_r_payload_id[3:0];
   assign io_axiOut_readOnly_ar_ready = io_axiOut_readOnly_decoder_io_input_ar_ready;
   assign io_axiOut_readOnly_r_valid = io_axiOut_readOnly_decoder_io_input_r_valid;
   assign io_axiOut_readOnly_r_payload_data = io_axiOut_readOnly_decoder_io_input_r_payload_data;
@@ -21099,9 +21183,8 @@ module CoreNSCSCC (
   assign io_outputs_0_aw_validPipe_payload_len = io_axiOut_writeOnly_decoder_io_outputs_0_aw_payload_len;
   assign io_outputs_0_aw_validPipe_payload_size = io_axiOut_writeOnly_decoder_io_outputs_0_aw_payload_size;
   assign io_outputs_0_aw_validPipe_payload_burst = io_axiOut_writeOnly_decoder_io_outputs_0_aw_payload_burst;
-  assign io_outputs_0_aw_validPipe_payload_prot = io_axiOut_writeOnly_decoder_io_outputs_0_aw_payload_prot;
   assign io_outputs_0_aw_validPipe_ready = axi4WriteOnlyArbiter_3_io_inputs_0_aw_ready;
-  assign io_axiOut_writeOnly_decoder_io_outputs_0_b_payload_id = axi4WriteOnlyArbiter_3_io_inputs_0_b_payload_id[0:0];
+  assign io_axiOut_writeOnly_decoder_io_outputs_0_b_payload_id = axi4WriteOnlyArbiter_3_io_inputs_0_b_payload_id[3:0];
   assign io_outputs_1_aw_validPipe_fire = (io_outputs_1_aw_validPipe_valid && io_outputs_1_aw_validPipe_ready);
   assign io_outputs_1_aw_validPipe_valid = io_outputs_1_aw_rValid;
   assign io_outputs_1_aw_validPipe_payload_addr = io_axiOut_writeOnly_decoder_io_outputs_1_aw_payload_addr;
@@ -21109,9 +21192,8 @@ module CoreNSCSCC (
   assign io_outputs_1_aw_validPipe_payload_len = io_axiOut_writeOnly_decoder_io_outputs_1_aw_payload_len;
   assign io_outputs_1_aw_validPipe_payload_size = io_axiOut_writeOnly_decoder_io_outputs_1_aw_payload_size;
   assign io_outputs_1_aw_validPipe_payload_burst = io_axiOut_writeOnly_decoder_io_outputs_1_aw_payload_burst;
-  assign io_outputs_1_aw_validPipe_payload_prot = io_axiOut_writeOnly_decoder_io_outputs_1_aw_payload_prot;
   assign io_outputs_1_aw_validPipe_ready = axi4WriteOnlyArbiter_4_io_inputs_0_aw_ready;
-  assign io_axiOut_writeOnly_decoder_io_outputs_1_b_payload_id = axi4WriteOnlyArbiter_4_io_inputs_0_b_payload_id[0:0];
+  assign io_axiOut_writeOnly_decoder_io_outputs_1_b_payload_id = axi4WriteOnlyArbiter_4_io_inputs_0_b_payload_id[3:0];
   assign io_outputs_2_aw_validPipe_fire = (io_outputs_2_aw_validPipe_valid && io_outputs_2_aw_validPipe_ready);
   assign io_outputs_2_aw_validPipe_valid = io_outputs_2_aw_rValid;
   assign io_outputs_2_aw_validPipe_payload_addr = io_axiOut_writeOnly_decoder_io_outputs_2_aw_payload_addr;
@@ -21119,9 +21201,8 @@ module CoreNSCSCC (
   assign io_outputs_2_aw_validPipe_payload_len = io_axiOut_writeOnly_decoder_io_outputs_2_aw_payload_len;
   assign io_outputs_2_aw_validPipe_payload_size = io_axiOut_writeOnly_decoder_io_outputs_2_aw_payload_size;
   assign io_outputs_2_aw_validPipe_payload_burst = io_axiOut_writeOnly_decoder_io_outputs_2_aw_payload_burst;
-  assign io_outputs_2_aw_validPipe_payload_prot = io_axiOut_writeOnly_decoder_io_outputs_2_aw_payload_prot;
   assign io_outputs_2_aw_validPipe_ready = axi4WriteOnlyArbiter_5_io_inputs_0_aw_ready;
-  assign io_axiOut_writeOnly_decoder_io_outputs_2_b_payload_id = axi4WriteOnlyArbiter_5_io_inputs_0_b_payload_id[0:0];
+  assign io_axiOut_writeOnly_decoder_io_outputs_2_b_payload_id = axi4WriteOnlyArbiter_5_io_inputs_0_b_payload_id[3:0];
   assign io_axiOut_writeOnly_aw_ready = io_axiOut_writeOnly_decoder_io_input_aw_ready;
   assign io_axiOut_writeOnly_w_ready = io_axiOut_writeOnly_decoder_io_input_w_ready;
   assign io_axiOut_writeOnly_b_valid = io_axiOut_writeOnly_decoder_io_input_b_valid;
@@ -21134,9 +21215,8 @@ module CoreNSCSCC (
   assign io_outputs_0_ar_validPipe_payload_len_1 = io_axiOut_readOnly_decoder_1_io_outputs_0_ar_payload_len;
   assign io_outputs_0_ar_validPipe_payload_size_1 = io_axiOut_readOnly_decoder_1_io_outputs_0_ar_payload_size;
   assign io_outputs_0_ar_validPipe_payload_burst_1 = io_axiOut_readOnly_decoder_1_io_outputs_0_ar_payload_burst;
-  assign io_outputs_0_ar_validPipe_payload_prot_1 = io_axiOut_readOnly_decoder_1_io_outputs_0_ar_payload_prot;
   assign io_outputs_0_ar_validPipe_ready_1 = axi4ReadOnlyArbiter_3_io_inputs_1_ar_ready;
-  assign io_axiOut_readOnly_decoder_1_io_outputs_0_r_payload_id = axi4ReadOnlyArbiter_3_io_inputs_1_r_payload_id[0:0];
+  assign io_axiOut_readOnly_decoder_1_io_outputs_0_r_payload_id = axi4ReadOnlyArbiter_3_io_inputs_1_r_payload_id[3:0];
   assign io_outputs_1_ar_validPipe_fire_1 = (io_outputs_1_ar_validPipe_valid_1 && io_outputs_1_ar_validPipe_ready_1);
   assign io_outputs_1_ar_validPipe_valid_1 = io_outputs_1_ar_rValid_1;
   assign io_outputs_1_ar_validPipe_payload_addr_1 = io_axiOut_readOnly_decoder_1_io_outputs_1_ar_payload_addr;
@@ -21144,9 +21224,8 @@ module CoreNSCSCC (
   assign io_outputs_1_ar_validPipe_payload_len_1 = io_axiOut_readOnly_decoder_1_io_outputs_1_ar_payload_len;
   assign io_outputs_1_ar_validPipe_payload_size_1 = io_axiOut_readOnly_decoder_1_io_outputs_1_ar_payload_size;
   assign io_outputs_1_ar_validPipe_payload_burst_1 = io_axiOut_readOnly_decoder_1_io_outputs_1_ar_payload_burst;
-  assign io_outputs_1_ar_validPipe_payload_prot_1 = io_axiOut_readOnly_decoder_1_io_outputs_1_ar_payload_prot;
   assign io_outputs_1_ar_validPipe_ready_1 = axi4ReadOnlyArbiter_4_io_inputs_1_ar_ready;
-  assign io_axiOut_readOnly_decoder_1_io_outputs_1_r_payload_id = axi4ReadOnlyArbiter_4_io_inputs_1_r_payload_id[0:0];
+  assign io_axiOut_readOnly_decoder_1_io_outputs_1_r_payload_id = axi4ReadOnlyArbiter_4_io_inputs_1_r_payload_id[3:0];
   assign io_outputs_2_ar_validPipe_fire_1 = (io_outputs_2_ar_validPipe_valid_1 && io_outputs_2_ar_validPipe_ready_1);
   assign io_outputs_2_ar_validPipe_valid_1 = io_outputs_2_ar_rValid_1;
   assign io_outputs_2_ar_validPipe_payload_addr_1 = io_axiOut_readOnly_decoder_1_io_outputs_2_ar_payload_addr;
@@ -21154,9 +21233,8 @@ module CoreNSCSCC (
   assign io_outputs_2_ar_validPipe_payload_len_1 = io_axiOut_readOnly_decoder_1_io_outputs_2_ar_payload_len;
   assign io_outputs_2_ar_validPipe_payload_size_1 = io_axiOut_readOnly_decoder_1_io_outputs_2_ar_payload_size;
   assign io_outputs_2_ar_validPipe_payload_burst_1 = io_axiOut_readOnly_decoder_1_io_outputs_2_ar_payload_burst;
-  assign io_outputs_2_ar_validPipe_payload_prot_1 = io_axiOut_readOnly_decoder_1_io_outputs_2_ar_payload_prot;
   assign io_outputs_2_ar_validPipe_ready_1 = axi4ReadOnlyArbiter_5_io_inputs_1_ar_ready;
-  assign io_axiOut_readOnly_decoder_1_io_outputs_2_r_payload_id = axi4ReadOnlyArbiter_5_io_inputs_1_r_payload_id[0:0];
+  assign io_axiOut_readOnly_decoder_1_io_outputs_2_r_payload_id = axi4ReadOnlyArbiter_5_io_inputs_1_r_payload_id[3:0];
   assign io_axiOut_readOnly_ar_ready_1 = io_axiOut_readOnly_decoder_1_io_input_ar_ready;
   assign io_axiOut_readOnly_r_valid_1 = io_axiOut_readOnly_decoder_1_io_input_r_valid;
   assign io_axiOut_readOnly_r_payload_data_1 = io_axiOut_readOnly_decoder_1_io_input_r_payload_data;
@@ -21170,9 +21248,8 @@ module CoreNSCSCC (
   assign io_outputs_0_aw_validPipe_payload_len_1 = io_axiOut_writeOnly_decoder_1_io_outputs_0_aw_payload_len;
   assign io_outputs_0_aw_validPipe_payload_size_1 = io_axiOut_writeOnly_decoder_1_io_outputs_0_aw_payload_size;
   assign io_outputs_0_aw_validPipe_payload_burst_1 = io_axiOut_writeOnly_decoder_1_io_outputs_0_aw_payload_burst;
-  assign io_outputs_0_aw_validPipe_payload_prot_1 = io_axiOut_writeOnly_decoder_1_io_outputs_0_aw_payload_prot;
   assign io_outputs_0_aw_validPipe_ready_1 = axi4WriteOnlyArbiter_3_io_inputs_1_aw_ready;
-  assign io_axiOut_writeOnly_decoder_1_io_outputs_0_b_payload_id = axi4WriteOnlyArbiter_3_io_inputs_1_b_payload_id[0:0];
+  assign io_axiOut_writeOnly_decoder_1_io_outputs_0_b_payload_id = axi4WriteOnlyArbiter_3_io_inputs_1_b_payload_id[3:0];
   assign io_outputs_1_aw_validPipe_fire_1 = (io_outputs_1_aw_validPipe_valid_1 && io_outputs_1_aw_validPipe_ready_1);
   assign io_outputs_1_aw_validPipe_valid_1 = io_outputs_1_aw_rValid_1;
   assign io_outputs_1_aw_validPipe_payload_addr_1 = io_axiOut_writeOnly_decoder_1_io_outputs_1_aw_payload_addr;
@@ -21180,9 +21257,8 @@ module CoreNSCSCC (
   assign io_outputs_1_aw_validPipe_payload_len_1 = io_axiOut_writeOnly_decoder_1_io_outputs_1_aw_payload_len;
   assign io_outputs_1_aw_validPipe_payload_size_1 = io_axiOut_writeOnly_decoder_1_io_outputs_1_aw_payload_size;
   assign io_outputs_1_aw_validPipe_payload_burst_1 = io_axiOut_writeOnly_decoder_1_io_outputs_1_aw_payload_burst;
-  assign io_outputs_1_aw_validPipe_payload_prot_1 = io_axiOut_writeOnly_decoder_1_io_outputs_1_aw_payload_prot;
   assign io_outputs_1_aw_validPipe_ready_1 = axi4WriteOnlyArbiter_4_io_inputs_1_aw_ready;
-  assign io_axiOut_writeOnly_decoder_1_io_outputs_1_b_payload_id = axi4WriteOnlyArbiter_4_io_inputs_1_b_payload_id[0:0];
+  assign io_axiOut_writeOnly_decoder_1_io_outputs_1_b_payload_id = axi4WriteOnlyArbiter_4_io_inputs_1_b_payload_id[3:0];
   assign io_outputs_2_aw_validPipe_fire_1 = (io_outputs_2_aw_validPipe_valid_1 && io_outputs_2_aw_validPipe_ready_1);
   assign io_outputs_2_aw_validPipe_valid_1 = io_outputs_2_aw_rValid_1;
   assign io_outputs_2_aw_validPipe_payload_addr_1 = io_axiOut_writeOnly_decoder_1_io_outputs_2_aw_payload_addr;
@@ -21190,9 +21266,8 @@ module CoreNSCSCC (
   assign io_outputs_2_aw_validPipe_payload_len_1 = io_axiOut_writeOnly_decoder_1_io_outputs_2_aw_payload_len;
   assign io_outputs_2_aw_validPipe_payload_size_1 = io_axiOut_writeOnly_decoder_1_io_outputs_2_aw_payload_size;
   assign io_outputs_2_aw_validPipe_payload_burst_1 = io_axiOut_writeOnly_decoder_1_io_outputs_2_aw_payload_burst;
-  assign io_outputs_2_aw_validPipe_payload_prot_1 = io_axiOut_writeOnly_decoder_1_io_outputs_2_aw_payload_prot;
   assign io_outputs_2_aw_validPipe_ready_1 = axi4WriteOnlyArbiter_5_io_inputs_1_aw_ready;
-  assign io_axiOut_writeOnly_decoder_1_io_outputs_2_b_payload_id = axi4WriteOnlyArbiter_5_io_inputs_1_b_payload_id[0:0];
+  assign io_axiOut_writeOnly_decoder_1_io_outputs_2_b_payload_id = axi4WriteOnlyArbiter_5_io_inputs_1_b_payload_id[3:0];
   assign io_axiOut_writeOnly_aw_ready_1 = io_axiOut_writeOnly_decoder_1_io_input_aw_ready;
   assign io_axiOut_writeOnly_w_ready_1 = io_axiOut_writeOnly_decoder_1_io_input_w_ready;
   assign io_axiOut_writeOnly_b_valid_1 = io_axiOut_writeOnly_decoder_1_io_input_b_valid;
@@ -21205,7 +21280,7 @@ module CoreNSCSCC (
   assign io_outputs_0_ar_validPipe_payload_len_2 = DataCachePlugin_setup_dcacheMaster_readOnly_decoder_io_outputs_0_ar_payload_len;
   assign io_outputs_0_ar_validPipe_payload_size_2 = DataCachePlugin_setup_dcacheMaster_readOnly_decoder_io_outputs_0_ar_payload_size;
   assign io_outputs_0_ar_validPipe_payload_burst_2 = DataCachePlugin_setup_dcacheMaster_readOnly_decoder_io_outputs_0_ar_payload_burst;
-  assign io_outputs_0_ar_validPipe_payload_prot_2 = DataCachePlugin_setup_dcacheMaster_readOnly_decoder_io_outputs_0_ar_payload_prot;
+  assign io_outputs_0_ar_validPipe_payload_prot = DataCachePlugin_setup_dcacheMaster_readOnly_decoder_io_outputs_0_ar_payload_prot;
   assign io_outputs_0_ar_validPipe_ready_2 = axi4ReadOnlyArbiter_3_io_inputs_2_ar_ready;
   assign DataCachePlugin_setup_dcacheMaster_readOnly_decoder_io_outputs_0_r_payload_id = axi4ReadOnlyArbiter_3_io_inputs_2_r_payload_id[0:0];
   assign io_outputs_1_ar_validPipe_fire_2 = (io_outputs_1_ar_validPipe_valid_2 && io_outputs_1_ar_validPipe_ready_2);
@@ -21215,7 +21290,7 @@ module CoreNSCSCC (
   assign io_outputs_1_ar_validPipe_payload_len_2 = DataCachePlugin_setup_dcacheMaster_readOnly_decoder_io_outputs_1_ar_payload_len;
   assign io_outputs_1_ar_validPipe_payload_size_2 = DataCachePlugin_setup_dcacheMaster_readOnly_decoder_io_outputs_1_ar_payload_size;
   assign io_outputs_1_ar_validPipe_payload_burst_2 = DataCachePlugin_setup_dcacheMaster_readOnly_decoder_io_outputs_1_ar_payload_burst;
-  assign io_outputs_1_ar_validPipe_payload_prot_2 = DataCachePlugin_setup_dcacheMaster_readOnly_decoder_io_outputs_1_ar_payload_prot;
+  assign io_outputs_1_ar_validPipe_payload_prot = DataCachePlugin_setup_dcacheMaster_readOnly_decoder_io_outputs_1_ar_payload_prot;
   assign io_outputs_1_ar_validPipe_ready_2 = axi4ReadOnlyArbiter_4_io_inputs_2_ar_ready;
   assign DataCachePlugin_setup_dcacheMaster_readOnly_decoder_io_outputs_1_r_payload_id = axi4ReadOnlyArbiter_4_io_inputs_2_r_payload_id[0:0];
   assign io_outputs_2_ar_validPipe_fire_2 = (io_outputs_2_ar_validPipe_valid_2 && io_outputs_2_ar_validPipe_ready_2);
@@ -21225,7 +21300,7 @@ module CoreNSCSCC (
   assign io_outputs_2_ar_validPipe_payload_len_2 = DataCachePlugin_setup_dcacheMaster_readOnly_decoder_io_outputs_2_ar_payload_len;
   assign io_outputs_2_ar_validPipe_payload_size_2 = DataCachePlugin_setup_dcacheMaster_readOnly_decoder_io_outputs_2_ar_payload_size;
   assign io_outputs_2_ar_validPipe_payload_burst_2 = DataCachePlugin_setup_dcacheMaster_readOnly_decoder_io_outputs_2_ar_payload_burst;
-  assign io_outputs_2_ar_validPipe_payload_prot_2 = DataCachePlugin_setup_dcacheMaster_readOnly_decoder_io_outputs_2_ar_payload_prot;
+  assign io_outputs_2_ar_validPipe_payload_prot = DataCachePlugin_setup_dcacheMaster_readOnly_decoder_io_outputs_2_ar_payload_prot;
   assign io_outputs_2_ar_validPipe_ready_2 = axi4ReadOnlyArbiter_5_io_inputs_2_ar_ready;
   assign DataCachePlugin_setup_dcacheMaster_readOnly_decoder_io_outputs_2_r_payload_id = axi4ReadOnlyArbiter_5_io_inputs_2_r_payload_id[0:0];
   assign DataCachePlugin_setup_dcacheMaster_readOnly_ar_ready = DataCachePlugin_setup_dcacheMaster_readOnly_decoder_io_input_ar_ready;
@@ -21241,7 +21316,7 @@ module CoreNSCSCC (
   assign io_outputs_0_aw_validPipe_payload_len_2 = DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_0_aw_payload_len;
   assign io_outputs_0_aw_validPipe_payload_size_2 = DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_0_aw_payload_size;
   assign io_outputs_0_aw_validPipe_payload_burst_2 = DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_0_aw_payload_burst;
-  assign io_outputs_0_aw_validPipe_payload_prot_2 = DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_0_aw_payload_prot;
+  assign io_outputs_0_aw_validPipe_payload_prot = DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_0_aw_payload_prot;
   assign io_outputs_0_aw_validPipe_ready_2 = axi4WriteOnlyArbiter_3_io_inputs_2_aw_ready;
   assign DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_0_b_payload_id = axi4WriteOnlyArbiter_3_io_inputs_2_b_payload_id[0:0];
   assign io_outputs_1_aw_validPipe_fire_2 = (io_outputs_1_aw_validPipe_valid_2 && io_outputs_1_aw_validPipe_ready_2);
@@ -21251,7 +21326,7 @@ module CoreNSCSCC (
   assign io_outputs_1_aw_validPipe_payload_len_2 = DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_1_aw_payload_len;
   assign io_outputs_1_aw_validPipe_payload_size_2 = DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_1_aw_payload_size;
   assign io_outputs_1_aw_validPipe_payload_burst_2 = DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_1_aw_payload_burst;
-  assign io_outputs_1_aw_validPipe_payload_prot_2 = DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_1_aw_payload_prot;
+  assign io_outputs_1_aw_validPipe_payload_prot = DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_1_aw_payload_prot;
   assign io_outputs_1_aw_validPipe_ready_2 = axi4WriteOnlyArbiter_4_io_inputs_2_aw_ready;
   assign DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_1_b_payload_id = axi4WriteOnlyArbiter_4_io_inputs_2_b_payload_id[0:0];
   assign io_outputs_2_aw_validPipe_fire_2 = (io_outputs_2_aw_validPipe_valid_2 && io_outputs_2_aw_validPipe_ready_2);
@@ -21261,7 +21336,7 @@ module CoreNSCSCC (
   assign io_outputs_2_aw_validPipe_payload_len_2 = DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_2_aw_payload_len;
   assign io_outputs_2_aw_validPipe_payload_size_2 = DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_2_aw_payload_size;
   assign io_outputs_2_aw_validPipe_payload_burst_2 = DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_2_aw_payload_burst;
-  assign io_outputs_2_aw_validPipe_payload_prot_2 = DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_2_aw_payload_prot;
+  assign io_outputs_2_aw_validPipe_payload_prot = DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_2_aw_payload_prot;
   assign io_outputs_2_aw_validPipe_ready_2 = axi4WriteOnlyArbiter_5_io_inputs_2_aw_ready;
   assign DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_outputs_2_b_payload_id = axi4WriteOnlyArbiter_5_io_inputs_2_b_payload_id[0:0];
   assign DataCachePlugin_setup_dcacheMaster_writeOnly_aw_ready = DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_input_aw_ready;
@@ -21271,26 +21346,26 @@ module CoreNSCSCC (
   assign DataCachePlugin_setup_dcacheMaster_writeOnly_b_payload_resp = DataCachePlugin_setup_dcacheMaster_writeOnly_decoder_io_input_b_payload_resp;
   assign axi4ReadOnlyArbiter_3_io_inputs_0_ar_payload_id = {1'd0, io_outputs_0_ar_validPipe_payload_id};
   assign axi4ReadOnlyArbiter_3_io_inputs_1_ar_payload_id = {1'd0, io_outputs_0_ar_validPipe_payload_id_1};
-  assign axi4ReadOnlyArbiter_3_io_inputs_2_ar_payload_id = {1'd0, io_outputs_0_ar_validPipe_payload_id_2};
+  assign axi4ReadOnlyArbiter_3_io_inputs_2_ar_payload_id = {4'd0, io_outputs_0_ar_validPipe_payload_id_2};
   assign axi4WriteOnlyArbiter_3_io_inputs_0_aw_payload_id = {1'd0, io_outputs_0_aw_validPipe_payload_id};
   assign axi4WriteOnlyArbiter_3_io_inputs_1_aw_payload_id = {1'd0, io_outputs_0_aw_validPipe_payload_id_1};
-  assign axi4WriteOnlyArbiter_3_io_inputs_2_aw_payload_id = {1'd0, io_outputs_0_aw_validPipe_payload_id_2};
+  assign axi4WriteOnlyArbiter_3_io_inputs_2_aw_payload_id = {4'd0, io_outputs_0_aw_validPipe_payload_id_2};
   assign axi4ReadOnlyArbiter_4_io_inputs_0_ar_payload_id = {1'd0, io_outputs_1_ar_validPipe_payload_id};
   assign axi4ReadOnlyArbiter_4_io_inputs_1_ar_payload_id = {1'd0, io_outputs_1_ar_validPipe_payload_id_1};
-  assign axi4ReadOnlyArbiter_4_io_inputs_2_ar_payload_id = {1'd0, io_outputs_1_ar_validPipe_payload_id_2};
+  assign axi4ReadOnlyArbiter_4_io_inputs_2_ar_payload_id = {4'd0, io_outputs_1_ar_validPipe_payload_id_2};
   assign axi4WriteOnlyArbiter_4_io_inputs_0_aw_payload_id = {1'd0, io_outputs_1_aw_validPipe_payload_id};
   assign axi4WriteOnlyArbiter_4_io_inputs_1_aw_payload_id = {1'd0, io_outputs_1_aw_validPipe_payload_id_1};
-  assign axi4WriteOnlyArbiter_4_io_inputs_2_aw_payload_id = {1'd0, io_outputs_1_aw_validPipe_payload_id_2};
+  assign axi4WriteOnlyArbiter_4_io_inputs_2_aw_payload_id = {4'd0, io_outputs_1_aw_validPipe_payload_id_2};
   assign axi4ReadOnlyArbiter_5_io_inputs_0_ar_payload_id = {1'd0, io_outputs_2_ar_validPipe_payload_id};
   assign axi4ReadOnlyArbiter_5_io_inputs_1_ar_payload_id = {1'd0, io_outputs_2_ar_validPipe_payload_id_1};
-  assign axi4ReadOnlyArbiter_5_io_inputs_2_ar_payload_id = {1'd0, io_outputs_2_ar_validPipe_payload_id_2};
+  assign axi4ReadOnlyArbiter_5_io_inputs_2_ar_payload_id = {4'd0, io_outputs_2_ar_validPipe_payload_id_2};
   assign axi4WriteOnlyArbiter_5_io_inputs_0_aw_payload_id = {1'd0, io_outputs_2_aw_validPipe_payload_id};
   assign axi4WriteOnlyArbiter_5_io_inputs_1_aw_payload_id = {1'd0, io_outputs_2_aw_validPipe_payload_id_1};
-  assign axi4WriteOnlyArbiter_5_io_inputs_2_aw_payload_id = {1'd0, io_outputs_2_aw_validPipe_payload_id_2};
+  assign axi4WriteOnlyArbiter_5_io_inputs_2_aw_payload_id = {4'd0, io_outputs_2_aw_validPipe_payload_id_2};
   assign io_dpy0 = DebugDisplayPlugin_hw_dpyController_io_dpy0_out;
   assign io_dpy1 = DebugDisplayPlugin_hw_dpyController_io_dpy1_out;
-  assign _zz_when_CoreNSCSCC_l543 = io_switch_btn_buffercc_io_dataOut;
-  assign when_CoreNSCSCC_l543 = (_zz_when_CoreNSCSCC_l543 && (! _zz_when_CoreNSCSCC_l543_1));
+  assign _zz_when_CoreNSCSCC_l539 = io_switch_btn_buffercc_io_dataOut;
+  assign when_CoreNSCSCC_l539 = (_zz_when_CoreNSCSCC_l539 && (! _zz_when_CoreNSCSCC_l539_1));
   assign io_leds = _zz_io_leds_1[15:0];
   always @(*) begin
     SimpleFetchPipelinePlugin_logic_fsm_stateNext = SimpleFetchPipelinePlugin_logic_fsm_stateReg;
@@ -21351,7 +21426,7 @@ module CoreNSCSCC (
     end
   end
 
-  assign _zz_38 = (SimpleFetchPipelinePlugin_logic_pcOnRequest + 32'h00000008);
+  assign _zz_39 = (SimpleFetchPipelinePlugin_logic_pcOnRequest + 32'h00000008);
   assign when_SimpleFetchPipelinePlugin_l232 = (! SimpleFetchPipelinePlugin_logic_fetchDisable);
   assign SimpleFetchPipelinePlugin_logic_fsm_onExit_BOOT = ((SimpleFetchPipelinePlugin_logic_fsm_stateNext != SimpleFetchPipelinePlugin_logic_fsm_BOOT) && (SimpleFetchPipelinePlugin_logic_fsm_stateReg == SimpleFetchPipelinePlugin_logic_fsm_BOOT));
   assign SimpleFetchPipelinePlugin_logic_fsm_onExit_IDLE = ((SimpleFetchPipelinePlugin_logic_fsm_stateNext != SimpleFetchPipelinePlugin_logic_fsm_IDLE) && (SimpleFetchPipelinePlugin_logic_fsm_stateReg == SimpleFetchPipelinePlugin_logic_fsm_IDLE));
@@ -21806,7 +21881,7 @@ module CoreNSCSCC (
           assert(1'b0); // CommitPlugin.scala:L371
         `else
           if(!1'b0) begin
-            $display("NOTE(CommitPlugin.scala:371):  commitIdleThisCycle=%x, commitAckMasks(0)=%x: commitEnableExt=%x, commitSlots(0).valid=%x, !committedIdleReg=%x", CommitPlugin_logic_s0_commitIdleThisCycle, CommitPlugin_logic_s0_commitAckMasks_0, CommitPlugin_commitEnableExt, ROBPlugin_robComponent_io_commit_0_valid, _zz_8); // CommitPlugin.scala:L371
+            $display("NOTE(CommitPlugin.scala:371):  commitIdleThisCycle=%x, commitAckMasks(0)=%x: commitEnableExt=%x, commitSlots(0).valid=%x, !committedIdleReg=%x", CommitPlugin_logic_s0_commitIdleThisCycle, CommitPlugin_logic_s0_commitAckMasks_0, CommitPlugin_commitEnableExt, ROBPlugin_robComponent_io_commit_0_valid, _zz_9); // CommitPlugin.scala:L371
           end
         `endif
       `endif
@@ -21831,7 +21906,7 @@ module CoreNSCSCC (
             assert(1'b0); // Debug.scala:L77
           `else
             if(!1'b0) begin
-              $display("NOTE(Debug.scala:77):  [DbgSvc] Set value to 0x%x", _zz_9); // Debug.scala:L77
+              $display("NOTE(Debug.scala:77):  [DbgSvc] Set value to 0x%x", _zz_10); // Debug.scala:L77
             end
           `endif
         `endif
@@ -21841,58 +21916,7 @@ module CoreNSCSCC (
           assert(1'b0); // CommitPlugin.scala:L381
         `else
           if(!1'b0) begin
-            $display("NOTE(CommitPlugin.scala:381):  [COMMIT] Cycle Log: commitEnableExt=%x, commitCount=%x, committedIdleReg=%x, IDLE_AtHead=%x, IDLE_BeingCommitted=%x, committedIdlePcReg=0x%x, ROB_Head_Valid=%x, ROB_Head_Done=%x, ROB_Head_UopCode=%x, ROB_Flush_Valid=%x, ROB_Flush_Reason=%x, Restore_Checkpoint_Trigger=%x, Fetch_Disable=%x, Stats=CommitStats(committedThisCycle=%x, totalCommitted=%x, robFlushCount=%x, physRegRecycled=%x, commitOOB=%x, maxCommitPc=0x%x)\n  Slot Details: \n    Slot: (valid=%x, canCommit=%x, doCommit=%x, robPtr=%x, oldPhysDest=p%x, allocatesPhysDest=%x) commitAck=%x commitPc=0x%x", CommitPlugin_commitEnableExt, CommitPlugin_logic_commitCount, CommitPlugin_committedIdleReg, _zz_10, CommitPlugin_logic_s0_commitIdleThisCycle, CommitPlugin_committedIdlePcReg, ROBPlugin_robComponent_io_commit_0_valid, ROBPlugin_robComponent_io_commit_0_entry_status_done, _zz_11, CommitPlugin_hw_robFlushPort_valid, _zz_12, CheckpointManagerPlugin_restoreCheckpointTrigger, CommitPlugin_hw_fetchDisable, CommitPlugin_commitStatsReg_committedThisCycle, CommitPlugin_commitStatsReg_totalCommitted, CommitPlugin_commitStatsReg_robFlushCount, CommitPlugin_commitStatsReg_physRegRecycled, CommitPlugin_commitStatsReg_commitOOB, CommitPlugin_commitStatsReg_maxCommitPc, CommitPlugin_logic_s0_commitSlotLogs_0_valid, CommitPlugin_logic_s0_commitSlotLogs_0_canCommit, CommitPlugin_logic_s0_commitSlotLogs_0_doCommit, CommitPlugin_logic_s0_commitSlotLogs_0_robPtr, CommitPlugin_logic_s0_commitSlotLogs_0_oldPhysDest, CommitPlugin_logic_s0_commitSlotLogs_0_allocatesPhysDest, CommitPlugin_logic_s0_commitAckMasks_0, CommitPlugin_logic_s0_commitPcs_0); // CommitPlugin.scala:L381
-          end
-        `endif
-      `endif
-      if(when_RenamePlugin_l111) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // RenamePlugin.scala:L112
-          `else
-            if(!1'b0) begin
-              $display("NOTE(RenamePlugin.scala:112):  [RENAME] BRANCH THROTTLING: %x branches detected, halting rename stage", RenamePlugin_logic_branchCount); // RenamePlugin.scala:L112
-            end
-          `endif
-        `endif
-      end
-      if(when_RenamePlugin_l114) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // RenamePlugin.scala:L115
-          `else
-            if(!1'b0) begin
-              $display("NOTE(RenamePlugin.scala:115):  [RENAME] FREELIST STALL: Not enough physical registers"); // RenamePlugin.scala:L115
-            end
-          `endif
-        `endif
-      end
-      if(when_RenamePlugin_l137) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // RenamePlugin.scala:L142
-          `else
-            if(!1'b0) begin
-              $display("NOTE(RenamePlugin.scala:142):  [RENAME] Triggering Checkpoint SAVE due to branch instruction in current batch."); // RenamePlugin.scala:L142
-            end
-          `endif
-        `endif
-      end
-      `ifndef SYNTHESIS
-        `ifdef FORMAL
-          assert(1'b0); // RenamePlugin.scala:L147
-        `else
-          if(!1'b0) begin
-            $display("NOTE(RenamePlugin.scala:147):  DEBUG: s1_rename.isFiring=%x, decodedUopsIn(0).isValid=%x", s1_Rename_isFiring, s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_isValid); // RenamePlugin.scala:L147
-          end
-        `endif
-      `endif
-      `ifndef SYNTHESIS
-        `ifdef FORMAL
-          assert(1'b0); // RenamePlugin.scala:L148
-        `else
-          if(!1'b0) begin
-            $display("NOTE(RenamePlugin.scala:148):  DEBUG: s1_rename.isReady=%x, s1_rename.isValid=%x, willNeedPhysRegs=%x, notEnoughPhysRegs=%x", s1_Rename_ready, s1_Rename_valid, RenamePlugin_logic_willNeedPhysRegs, RenamePlugin_logic_notEnoughPhysRegs); // RenamePlugin.scala:L148
+            $display("NOTE(CommitPlugin.scala:381):  [COMMIT] Cycle Log: commitEnableExt=%x, commitCount=%x, committedIdleReg=%x, IDLE_AtHead=%x, IDLE_BeingCommitted=%x, committedIdlePcReg=0x%x, ROB_Head_Valid=%x, ROB_Head_Done=%x, ROB_Head_UopCode=%x, ROB_Flush_Valid=%x, ROB_Flush_Reason=%x, Restore_Checkpoint_Trigger=%x, Fetch_Disable=%x, Stats=CommitStats(committedThisCycle=%x, totalCommitted=%x, robFlushCount=%x, physRegRecycled=%x, commitOOB=%x, maxCommitPc=0x%x)\n  Slot Details: \n    Slot: (valid=%x, canCommit=%x, doCommit=%x, robPtr=%x, oldPhysDest=p%x, allocatesPhysDest=%x) commitAck=%x commitPc=0x%x", CommitPlugin_commitEnableExt, CommitPlugin_logic_commitCount, CommitPlugin_committedIdleReg, _zz_11, CommitPlugin_logic_s0_commitIdleThisCycle, CommitPlugin_committedIdlePcReg, ROBPlugin_robComponent_io_commit_0_valid, ROBPlugin_robComponent_io_commit_0_entry_status_done, _zz_12, CommitPlugin_hw_robFlushPort_valid, _zz_13, CheckpointManagerPlugin_restoreCheckpointTrigger, CommitPlugin_hw_fetchDisable, CommitPlugin_commitStatsReg_committedThisCycle, CommitPlugin_commitStatsReg_totalCommitted, CommitPlugin_commitStatsReg_robFlushCount, CommitPlugin_commitStatsReg_physRegRecycled, CommitPlugin_commitStatsReg_commitOOB, CommitPlugin_commitStatsReg_maxCommitPc, CommitPlugin_logic_s0_commitSlotLogs_0_valid, CommitPlugin_logic_s0_commitSlotLogs_0_canCommit, CommitPlugin_logic_s0_commitSlotLogs_0_doCommit, CommitPlugin_logic_s0_commitSlotLogs_0_robPtr, CommitPlugin_logic_s0_commitSlotLogs_0_oldPhysDest, CommitPlugin_logic_s0_commitSlotLogs_0_allocatesPhysDest, CommitPlugin_logic_s0_commitAckMasks_0, CommitPlugin_logic_s0_commitPcs_0); // CommitPlugin.scala:L381
           end
         `endif
       `endif
@@ -22012,7 +22036,7 @@ module CoreNSCSCC (
             assert(1'b0); // AluIntEuPlugin.scala:L130
           `else
             if(!1'b0) begin
-              $display("NOTE(AluIntEuPlugin.scala:130):  [34mAluIntEu (AluIntEU) S2 Firing: RobPtr=%x, ResultData=%x, WritesPreg=%x, HasExc=%x, ExcCode=%x, ImmUsage=%x, UseSrc2=%x[0m", _zz_AluIntEU_AluIntEuPlugin_euResult_uop_robPtr, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_data, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_writesToPhysReg, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_hasException, _zz_13, _zz_14, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_useSrc2); // AluIntEuPlugin.scala:L130
+              $display("NOTE(AluIntEuPlugin.scala:130):  [34mAluIntEu (AluIntEU) S2 Firing: RobPtr=%x, ResultData=%x, WritesPreg=%x, HasExc=%x, ExcCode=%x, ImmUsage=%x, UseSrc2=%x[0m", _zz_AluIntEU_AluIntEuPlugin_euResult_uop_robPtr, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_data, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_writesToPhysReg, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_hasException, _zz_14, _zz_15, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_useSrc2); // AluIntEuPlugin.scala:L130
             end
           `endif
         `endif
@@ -22105,7 +22129,7 @@ module CoreNSCSCC (
             assert(1'b0); // BranchEuPlugin.scala:L213
           `else
             if(!1'b0) begin
-              $display("NOTE(BranchEuPlugin.scala:213):  [BranchEU-S1] RESOLVE COMPLETE: finalTarget=0x%x, mispredicted=%x, actuallyTaken=%x", _zz_BpuPipelinePlugin_updatePortIn_payload_target_2, _zz_15, _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken); // BranchEuPlugin.scala:L213
+              $display("NOTE(BranchEuPlugin.scala:213):  [BranchEU-S1] RESOLVE COMPLETE: finalTarget=0x%x, mispredicted=%x, actuallyTaken=%x", _zz_BpuPipelinePlugin_updatePortIn_payload_target_2, _zz_16, _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken); // BranchEuPlugin.scala:L213
             end
           `endif
         `endif
@@ -22467,22 +22491,22 @@ module CoreNSCSCC (
       if(LoadQueuePlugin_logic_loadQueue_mmioCmdFired) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // LoadQueuePlugin.scala:L346
+            assert(1'b0); // LoadQueuePlugin.scala:L347
           `else
             if(!1'b0) begin
-              $display("NOTE(LoadQueuePlugin.scala:346):  [LQ-MMIO] SEND_TO_MMIO: robPtr=%x addr=%x", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, LoadQueuePlugin_logic_loadQueue_slots_0_address); // LoadQueuePlugin.scala:L346
+              $display("NOTE(LoadQueuePlugin.scala:347):  [LQ-MMIO] SEND_TO_MMIO: robPtr=%x addr=%x", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, LoadQueuePlugin_logic_loadQueue_slots_0_address); // LoadQueuePlugin.scala:L347
             end
           `endif
         `endif
       end
-      if(when_LoadQueuePlugin_l363) begin
+      if(when_LoadQueuePlugin_l364) begin
         if(LoadQueuePlugin_hw_dCacheLoadPort_rsp_payload_redo) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // LoadQueuePlugin.scala:L367
+              assert(1'b0); // LoadQueuePlugin.scala:L368
             `else
               if(!1'b0) begin
-                $display("NOTE(LoadQueuePlugin.scala:367):  [LQ-DCache] REDO received for robPtr=%x", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr); // LoadQueuePlugin.scala:L367
+                $display("NOTE(LoadQueuePlugin.scala:368):  [LQ-DCache] REDO received for robPtr=%x", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr); // LoadQueuePlugin.scala:L368
               end
             `endif
           `endif
@@ -22491,10 +22515,10 @@ module CoreNSCSCC (
       if(LoadQueuePlugin_logic_loadQueue_popOnFwdHit) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // LoadQueuePlugin.scala:L398
+            assert(1'b0); // LoadQueuePlugin.scala:L399
           `else
             if(!1'b0) begin
-              $display("NOTE(LoadQueuePlugin.scala:398):  [LQ-Fwd] HIT: robPtr=%x, data=%x. Completing instruction.", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_data); // LoadQueuePlugin.scala:L398
+              $display("NOTE(LoadQueuePlugin.scala:399):  [LQ-Fwd] HIT: robPtr=%x, data=%x. Completing instruction.", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_data); // LoadQueuePlugin.scala:L399
             end
           `endif
         `endif
@@ -22502,10 +22526,10 @@ module CoreNSCSCC (
         if(LoadQueuePlugin_logic_loadQueue_popOnDCacheSuccess) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // LoadQueuePlugin.scala:L410
+              assert(1'b0); // LoadQueuePlugin.scala:L411
             `else
               if(!1'b0) begin
-                $display("NOTE(LoadQueuePlugin.scala:410):  [LQ-DCache] DCACHE_RSP_OK for robPtr=%x, data=%x, fault=%x", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, LoadQueuePlugin_hw_dCacheLoadPort_rsp_payload_data, LoadQueuePlugin_hw_dCacheLoadPort_rsp_payload_fault); // LoadQueuePlugin.scala:L410
+                $display("NOTE(LoadQueuePlugin.scala:411):  [LQ-DCache] DCACHE_RSP_OK for robPtr=%x, data=%x, fault=%x", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, LoadQueuePlugin_hw_dCacheLoadPort_rsp_payload_data, LoadQueuePlugin_hw_dCacheLoadPort_rsp_payload_fault); // LoadQueuePlugin.scala:L411
               end
             `endif
           `endif
@@ -22513,10 +22537,10 @@ module CoreNSCSCC (
           if(LoadQueuePlugin_logic_loadQueue_mmioResponseIsForHead) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // LoadQueuePlugin.scala:L427
+                assert(1'b0); // LoadQueuePlugin.scala:L428
               `else
                 if(!1'b0) begin
-                  $display("NOTE(LoadQueuePlugin.scala:427):  [LQ-MMIO] MMIO_RSP_OK for robPtr=%x, data=%x, error=%x", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, _zz_LoadQueuePlugin_hw_prfWritePort_data, _zz_LoadQueuePlugin_hw_prfWritePort_valid); // LoadQueuePlugin.scala:L427
+                  $display("NOTE(LoadQueuePlugin.scala:428):  [LQ-MMIO] MMIO_RSP_OK for robPtr=%x, data=%x, error=%x", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, _zz_LoadQueuePlugin_hw_prfWritePort_data, _zz_LoadQueuePlugin_hw_prfWritePort_valid); // LoadQueuePlugin.scala:L428
                 end
               `endif
             `endif
@@ -22524,10 +22548,10 @@ module CoreNSCSCC (
             if(LoadQueuePlugin_logic_loadQueue_popOnEarlyException) begin
               `ifndef SYNTHESIS
                 `ifdef FORMAL
-                  assert(1'b0); // LoadQueuePlugin.scala:L443
+                  assert(1'b0); // LoadQueuePlugin.scala:L444
                 `else
                   if(!1'b0) begin
-                    $display("NOTE(LoadQueuePlugin.scala:443):  [LQ] Alignment exception for robPtr=%x", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr); // LoadQueuePlugin.scala:L443
+                    $display("NOTE(LoadQueuePlugin.scala:444):  [LQ] Alignment exception for robPtr=%x", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr); // LoadQueuePlugin.scala:L444
                   end
                 `endif
               `endif
@@ -22535,46 +22559,46 @@ module CoreNSCSCC (
           end
         end
       end
-      if(when_LoadQueuePlugin_l472) begin
+      if(when_LoadQueuePlugin_l473) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // LoadQueuePlugin.scala:L475
+            assert(1'b0); // LoadQueuePlugin.scala:L476
           `else
             if(!1'b0) begin
-              $display("NOTE(LoadQueuePlugin.scala:475):  [LQ] FLUSH (Exec): Invalidating slotIdx=0 (robPtr=%x)", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr); // LoadQueuePlugin.scala:L475
+              $display("NOTE(LoadQueuePlugin.scala:476):  [LQ] FLUSH (Exec): Invalidating slotIdx=0 (robPtr=%x)", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr); // LoadQueuePlugin.scala:L476
             end
           `endif
         `endif
       end
-      if(when_LoadQueuePlugin_l472_1) begin
+      if(when_LoadQueuePlugin_l473_1) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // LoadQueuePlugin.scala:L475
+            assert(1'b0); // LoadQueuePlugin.scala:L476
           `else
             if(!1'b0) begin
-              $display("NOTE(LoadQueuePlugin.scala:475):  [LQ] FLUSH (Exec): Invalidating slotIdx=1 (robPtr=%x)", LoadQueuePlugin_logic_loadQueue_slots_1_robPtr); // LoadQueuePlugin.scala:L475
+              $display("NOTE(LoadQueuePlugin.scala:476):  [LQ] FLUSH (Exec): Invalidating slotIdx=1 (robPtr=%x)", LoadQueuePlugin_logic_loadQueue_slots_1_robPtr); // LoadQueuePlugin.scala:L476
             end
           `endif
         `endif
       end
-      if(when_LoadQueuePlugin_l472_2) begin
+      if(when_LoadQueuePlugin_l473_2) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // LoadQueuePlugin.scala:L475
+            assert(1'b0); // LoadQueuePlugin.scala:L476
           `else
             if(!1'b0) begin
-              $display("NOTE(LoadQueuePlugin.scala:475):  [LQ] FLUSH (Exec): Invalidating slotIdx=2 (robPtr=%x)", LoadQueuePlugin_logic_loadQueue_slots_2_robPtr); // LoadQueuePlugin.scala:L475
+              $display("NOTE(LoadQueuePlugin.scala:476):  [LQ] FLUSH (Exec): Invalidating slotIdx=2 (robPtr=%x)", LoadQueuePlugin_logic_loadQueue_slots_2_robPtr); // LoadQueuePlugin.scala:L476
             end
           `endif
         `endif
       end
-      if(when_LoadQueuePlugin_l472_3) begin
+      if(when_LoadQueuePlugin_l473_3) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // LoadQueuePlugin.scala:L475
+            assert(1'b0); // LoadQueuePlugin.scala:L476
           `else
             if(!1'b0) begin
-              $display("NOTE(LoadQueuePlugin.scala:475):  [LQ] FLUSH (Exec): Invalidating slotIdx=3 (robPtr=%x)", LoadQueuePlugin_logic_loadQueue_slots_3_robPtr); // LoadQueuePlugin.scala:L475
+              $display("NOTE(LoadQueuePlugin.scala:476):  [LQ] FLUSH (Exec): Invalidating slotIdx=3 (robPtr=%x)", LoadQueuePlugin_logic_loadQueue_slots_3_robPtr); // LoadQueuePlugin.scala:L476
             end
           `endif
         `endif
@@ -22710,7 +22734,7 @@ module CoreNSCSCC (
             assert(1'b0); // PhysicalRegFile.scala:L142
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:142):  [PRegPlugin] PRF Port %x write %x (Arbitrated)", _zz_when_PhysicalRegFile_l141_1, _zz_27); // PhysicalRegFile.scala:L142
+              $display("NOTE(PhysicalRegFile.scala:142):  [PRegPlugin] PRF Port %x write %x (Arbitrated)", _zz_when_PhysicalRegFile_l141_1, _zz_28); // PhysicalRegFile.scala:L142
             end
           `endif
         `endif
@@ -22722,7 +22746,7 @@ module CoreNSCSCC (
             assert(1'b0); // Debug.scala:L77
           `else
             if(!1'b0) begin
-              $display("NOTE(Debug.scala:77):  [DbgSvc] Set value to 0x%x", _zz_29); // Debug.scala:L77
+              $display("NOTE(Debug.scala:77):  [DbgSvc] Set value to 0x%x", _zz_30); // Debug.scala:L77
             end
           `endif
         `endif
@@ -22732,33 +22756,94 @@ module CoreNSCSCC (
       if(StoreBufferPlugin_hw_pushPortInst_fire) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L275
+            assert(1'b0); // StoreBufferPlugin.scala:L293
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:275):  [SQ] PUSH: robPtr=%x to slotIdx=%x", StoreBufferPlugin_hw_pushPortInst_payload_robPtr, _zz_32); // StoreBufferPlugin.scala:L275
+              $display("NOTE(StoreBufferPlugin.scala:293):  [SQ] PUSH: robPtr=%x to slotIdx=%x", StoreBufferPlugin_hw_pushPortInst_payload_robPtr, _zz_33); // StoreBufferPlugin.scala:L293
             end
           `endif
         `endif
       end
-      if(when_StoreBufferPlugin_l292) begin
+      if(when_StoreBufferPlugin_l311) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L293
+            assert(1'b0); // StoreBufferPlugin.scala:L312
           `else
             if(!1'b0) begin
-              $display("FAILURE Got isIO but no MMIO service."); // StoreBufferPlugin.scala:L293
+              $display("FAILURE Got isIO but no MMIO service."); // StoreBufferPlugin.scala:L312
               $finish;
             end
           `endif
         `endif
       end
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // StoreBufferPlugin.scala:L319
+        `else
+          if(!1'b0) begin
+            $display("NOTE(StoreBufferPlugin.scala:319):  [SQ] sharedWriteCond = %x of headslot: StoreBufferSlot(valid=%x,isFlush=%x,addr=%x,data=%x,be=%x,robPtr=%x,accessSize=%s,isIO=%x,hasEarlyException=%x,earlyExceptionCode=%x,isCommitted=%x,sentCmd=%x,waitRsp=%x,isWaitingForRefill=%x,isWaitingForWb=%x,refillSlotToWatch=%x)canSendToDCache = %x. canSendToMMIO = %x. ", StoreBufferPlugin_logic_sharedWriteCond, StoreBufferPlugin_logic_slots_0_valid, StoreBufferPlugin_logic_slots_0_isFlush, StoreBufferPlugin_logic_slots_0_addr, StoreBufferPlugin_logic_slots_0_data, StoreBufferPlugin_logic_slots_0_be, StoreBufferPlugin_logic_slots_0_robPtr, StoreBufferPlugin_logic_slots_0_accessSize_string, StoreBufferPlugin_logic_slots_0_isIO, StoreBufferPlugin_logic_slots_0_hasEarlyException, StoreBufferPlugin_logic_slots_0_earlyExceptionCode, StoreBufferPlugin_logic_slots_0_isCommitted, StoreBufferPlugin_logic_slots_0_sentCmd, StoreBufferPlugin_logic_slots_0_waitRsp, StoreBufferPlugin_logic_slots_0_isWaitingForRefill, StoreBufferPlugin_logic_slots_0_isWaitingForWb, StoreBufferPlugin_logic_slots_0_refillSlotToWatch, StoreBufferPlugin_logic_canSendToDCache, StoreBufferPlugin_logic_canPopMMIOOp); // StoreBufferPlugin.scala:L319
+          end
+        `endif
+      `endif
+      if(StoreBufferPlugin_logic_canSendToDCache) begin
+        if(StoreBufferPlugin_logic_slots_0_isFlush) begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // StoreBufferPlugin.scala:L340
+            `else
+              if(!1'b0) begin
+                $display("NOTE(StoreBufferPlugin.scala:340):  [SQ] Sending FLUSH to D-Cache: addr=%x, robPtr=%x", StoreBufferPlugin_logic_slots_0_addr, StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L340
+              end
+            `endif
+          `endif
+        end else begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // StoreBufferPlugin.scala:L352
+            `else
+              if(!1'b0) begin
+                $display("NOTE(StoreBufferPlugin.scala:352):  [SQ] Sending STORE to D-Cache: addr=%x, data=%x, be=%x, robPtr=%x", StoreBufferPlugin_logic_slots_0_addr, StoreBufferPlugin_logic_slots_0_data, StoreBufferPlugin_logic_slots_0_be, StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L352
+              end
+            `endif
+          `endif
+        end
+      end
+      if(_zz_io_gmbIn_write_cmd_valid) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // StoreBufferPlugin.scala:L369
+          `else
+            if(!1'b0) begin
+              $display("NOTE(StoreBufferPlugin.scala:369):  [SQ-MMIO] Sending MMIO STORE: payload=SplitGmbWriteCmd(address=%x,data=%x,byteEnables=%x,id=%x,last=%x) headslot=StoreBufferSlot(valid=%x,isFlush=%x,addr=%x,data=%x,be=%x,robPtr=%x,accessSize=%s,isIO=%x,hasEarlyException=%x,earlyExceptionCode=%x,isCommitted=%x,sentCmd=%x,waitRsp=%x,isWaitingForRefill=%x,isWaitingForWb=%x,refillSlotToWatch=%x) valid=%x ready=%x", _zz_io_gmbIn_write_cmd_payload_address, _zz_io_gmbIn_write_cmd_payload_data, _zz_io_gmbIn_write_cmd_payload_byteEnables, _zz_io_gmbIn_write_cmd_payload_id, _zz_3, StoreBufferPlugin_logic_slots_0_valid, StoreBufferPlugin_logic_slots_0_isFlush, StoreBufferPlugin_logic_slots_0_addr, StoreBufferPlugin_logic_slots_0_data, StoreBufferPlugin_logic_slots_0_be, StoreBufferPlugin_logic_slots_0_robPtr, StoreBufferPlugin_logic_slots_0_accessSize_string, StoreBufferPlugin_logic_slots_0_isIO, StoreBufferPlugin_logic_slots_0_hasEarlyException, StoreBufferPlugin_logic_slots_0_earlyExceptionCode, StoreBufferPlugin_logic_slots_0_isCommitted, StoreBufferPlugin_logic_slots_0_sentCmd, StoreBufferPlugin_logic_slots_0_waitRsp, StoreBufferPlugin_logic_slots_0_isWaitingForRefill, StoreBufferPlugin_logic_slots_0_isWaitingForWb, StoreBufferPlugin_logic_slots_0_refillSlotToWatch, _zz_io_gmbIn_write_cmd_valid, _zz_StoreBufferPlugin_logic_mmioCmdFired); // StoreBufferPlugin.scala:L369
+            end
+          `endif
+        `endif
+      end
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // StoreBufferPlugin.scala:L379
+        `else
+          if(!1'b0) begin
+            $display("NOTE(StoreBufferPlugin.scala:379):  [SQ] mmioCmdFired=%x because canSendToMMIO=%x, channel.cmd.ready=%x", StoreBufferPlugin_logic_mmioCmdFired, StoreBufferPlugin_logic_canPopMMIOOp, _zz_StoreBufferPlugin_logic_mmioCmdFired); // StoreBufferPlugin.scala:L379
+          end
+        `endif
+      `endif
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // StoreBufferPlugin.scala:L392
+        `else
+          if(!1'b0) begin
+            $display("NOTE(StoreBufferPlugin.scala:392):  [SQ] dcacheResponseForHead=%x, mmioResponseForHead=%x", StoreBufferPlugin_logic_dcacheResponseForHead, StoreBufferPlugin_logic_mmioResponseForHead); // StoreBufferPlugin.scala:L392
+          end
+        `endif
+      `endif
       if(StoreBufferPlugin_logic_dcacheCmdFired) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L367
+            assert(1'b0); // StoreBufferPlugin.scala:L398
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:367):  [SQ] SEND_TO_DCACHE: robPtr=%x (slotIdx=0), addr=%x, data=%x, be=%x", StoreBufferPlugin_logic_slots_0_robPtr, StoreBufferPlugin_logic_slots_0_addr, StoreBufferPlugin_logic_slots_0_data, StoreBufferPlugin_logic_slots_0_be); // StoreBufferPlugin.scala:L367
+              $display("NOTE(StoreBufferPlugin.scala:398):  [SQ] CMD_FIRED_DCACHE: robPtr=%x (slotIdx=0), addr=%x", StoreBufferPlugin_logic_slots_0_robPtr, StoreBufferPlugin_logic_slots_0_addr); // StoreBufferPlugin.scala:L398
             end
           `endif
         `endif
@@ -22766,33 +22851,33 @@ module CoreNSCSCC (
       if(StoreBufferPlugin_logic_mmioCmdFired) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L372
+            assert(1'b0); // StoreBufferPlugin.scala:L403
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:372):  [SQ] SEND_TO_MMIO: robPtr=%x (slotIdx=0), addr=%x, data=%x, be=%x", StoreBufferPlugin_logic_slots_0_robPtr, StoreBufferPlugin_logic_slots_0_addr, StoreBufferPlugin_logic_slots_0_data, StoreBufferPlugin_logic_slots_0_be); // StoreBufferPlugin.scala:L372
+              $display("NOTE(StoreBufferPlugin.scala:403):  [SQ] CMD_FIRED_MMIO: robPtr=%x (slotIdx=0), addr=%x", StoreBufferPlugin_logic_slots_0_robPtr, StoreBufferPlugin_logic_slots_0_addr); // StoreBufferPlugin.scala:L403
             end
           `endif
         `endif
       end
-      if(StoreBufferPlugin_logic_responseIsForHead) begin
+      if(StoreBufferPlugin_logic_dcacheResponseForHead) begin
         if(StoreBufferPlugin_hw_dCacheStorePort_rsp_payload_redo) begin
           if(StoreBufferPlugin_hw_dCacheStorePort_rsp_payload_flush) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // StoreBufferPlugin.scala:L386
+                assert(1'b0); // StoreBufferPlugin.scala:L417
               `else
                 if(!1'b0) begin
-                  $display("NOTE(StoreBufferPlugin.scala:386):  [SQ] REDO_FOR_FLUSH received for robPtr=%x. Entering WAIT_FOR_WB.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L386
+                  $display("NOTE(StoreBufferPlugin.scala:417):  [SQ] REDO_FOR_FLUSH received for robPtr=%x. Entering WAIT_FOR_WB.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L417
                 end
               `endif
             `endif
           end else begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // StoreBufferPlugin.scala:L390
+                assert(1'b0); // StoreBufferPlugin.scala:L421
               `else
                 if(!1'b0) begin
-                  $display("NOTE(StoreBufferPlugin.scala:390):  [SQ] REDO_FOR_REFILL received for robPtr=%x. Entering WAIT_FOR_REFILL.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L390
+                  $display("NOTE(StoreBufferPlugin.scala:421):  [SQ] REDO_FOR_REFILL received for robPtr=%x. Entering WAIT_FOR_REFILL.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L421
                 end
               `endif
             `endif
@@ -22800,308 +22885,415 @@ module CoreNSCSCC (
         end else begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // StoreBufferPlugin.scala:L394
+              assert(1'b0); // StoreBufferPlugin.scala:L425
             `else
               if(!1'b0) begin
-                $display("NOTE(StoreBufferPlugin.scala:394):  [SQ] RSP_SUCCESS received for robPtr=%x.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L394
+                $display("NOTE(StoreBufferPlugin.scala:425):  [SQ] DCACHE_RSP_SUCCESS received for robPtr=%x.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L425
               end
             `endif
           `endif
         end
-      end else begin
-        if(StoreBufferPlugin_logic_mmioResponseIsForHead) begin
-          if(CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_rsp_payload_error) begin
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(1'b0); // StoreBufferPlugin.scala:L402
-              `else
-                if(!1'b0) begin
-                  $display("NOTE(StoreBufferPlugin.scala:402):  [SQ] MMIO RSP_ERROR received for robPtr=%x.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L402
-                end
-              `endif
+      end
+      if(StoreBufferPlugin_logic_mmioResponseForHead) begin
+        if(CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_rsp_payload_error) begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // StoreBufferPlugin.scala:L435
+            `else
+              if(!1'b0) begin
+                $display("NOTE(StoreBufferPlugin.scala:435):  [SQ-MMIO] MMIO RSP_ERROR received for robPtr=%x.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L435
+              end
             `endif
-          end else begin
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(1'b0); // StoreBufferPlugin.scala:L404
-              `else
-                if(!1'b0) begin
-                  $display("NOTE(StoreBufferPlugin.scala:404):  [SQ] MMIO RSP_SUCCESS received for robPtr=%x.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L404
-                end
-              `endif
+          `endif
+        end else begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // StoreBufferPlugin.scala:L440
+            `else
+              if(!1'b0) begin
+                $display("NOTE(StoreBufferPlugin.scala:440):  [SQ-MMIO] MMIO RSP_SUCCESS received for robPtr=%x.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L440
+              end
             `endif
-          end
+          `endif
         end
       end
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // StoreBufferPlugin.scala:L419
+          assert(1'b0); // StoreBufferPlugin.scala:L452
         `else
           if(!1'b0) begin
-            $display("NOTE(StoreBufferPlugin.scala:419):  [SQ] Watching... refillCompletionsFromDCache=%x", DataCachePlugin_setup_refillCompletions); // StoreBufferPlugin.scala:L419
+            $display("NOTE(StoreBufferPlugin.scala:452):  [SQ] Watching... refillCompletionsFromDCache=%x", DataCachePlugin_setup_refillCompletions); // StoreBufferPlugin.scala:L452
+          end
+        `endif
+      `endif
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // StoreBufferPlugin.scala:L455
+        `else
+          if(!1'b0) begin
+            $display("NOTE(StoreBufferPlugin.scala:455):  [SQ] waitedRefillIsDone=%x because: valid=%x isWaitingForRefill=%x refillSlotToWatch=%x refillCompletionsFromDCache=%x", StoreBufferPlugin_logic_waitedRefillIsDone, StoreBufferPlugin_logic_slots_0_valid, StoreBufferPlugin_logic_slots_0_isWaitingForRefill, StoreBufferPlugin_logic_slots_0_refillSlotToWatch, DataCachePlugin_setup_refillCompletions); // StoreBufferPlugin.scala:L455
           end
         `endif
       `endif
       if(StoreBufferPlugin_logic_waitedRefillIsDone) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L425
+            assert(1'b0); // StoreBufferPlugin.scala:L459
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:425):  [SQ] REFILL_DONE observed for robPtr=%x. Ready to retry.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L425
-            end
-          `endif
-        `endif
-      end
-      if(when_StoreBufferPlugin_l429) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L431
-          `else
-            if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:431):  [SQ] DCACHE_READY observed for robPtr=%x. Exiting WAIT_FOR_WB.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L431
-            end
-          `endif
-        `endif
-      end
-      if(when_StoreBufferPlugin_l445) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L448
-          `else
-            if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:448):  [SQ] FLUSH (Exec): Invalidating slotIdx=0 (robPtr=%x)", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L448
-            end
-          `endif
-        `endif
-      end else begin
-        if(when_StoreBufferPlugin_l449) begin
-          if(when_StoreBufferPlugin_l455) begin
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(1'b0); // StoreBufferPlugin.scala:L458
-              `else
-                if(!1'b0) begin
-                  $display("NOTE(StoreBufferPlugin.scala:458):  [SQ] COMMIT_SIGNAL: robPtr=%x (slotIdx=0) marked as committed.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L458
-                end
-              `endif
-            `endif
-          end
-        end
-      end
-      if(when_StoreBufferPlugin_l445_1) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L448
-          `else
-            if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:448):  [SQ] FLUSH (Exec): Invalidating slotIdx=1 (robPtr=%x)", StoreBufferPlugin_logic_slots_1_robPtr); // StoreBufferPlugin.scala:L448
-            end
-          `endif
-        `endif
-      end else begin
-        if(when_StoreBufferPlugin_l449_1) begin
-          if(when_StoreBufferPlugin_l455_1) begin
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(1'b0); // StoreBufferPlugin.scala:L458
-              `else
-                if(!1'b0) begin
-                  $display("NOTE(StoreBufferPlugin.scala:458):  [SQ] COMMIT_SIGNAL: robPtr=%x (slotIdx=1) marked as committed.", StoreBufferPlugin_logic_slots_1_robPtr); // StoreBufferPlugin.scala:L458
-                end
-              `endif
-            `endif
-          end
-        end
-      end
-      if(when_StoreBufferPlugin_l445_2) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L448
-          `else
-            if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:448):  [SQ] FLUSH (Exec): Invalidating slotIdx=2 (robPtr=%x)", StoreBufferPlugin_logic_slots_2_robPtr); // StoreBufferPlugin.scala:L448
-            end
-          `endif
-        `endif
-      end else begin
-        if(when_StoreBufferPlugin_l449_2) begin
-          if(when_StoreBufferPlugin_l455_2) begin
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(1'b0); // StoreBufferPlugin.scala:L458
-              `else
-                if(!1'b0) begin
-                  $display("NOTE(StoreBufferPlugin.scala:458):  [SQ] COMMIT_SIGNAL: robPtr=%x (slotIdx=2) marked as committed.", StoreBufferPlugin_logic_slots_2_robPtr); // StoreBufferPlugin.scala:L458
-                end
-              `endif
-            `endif
-          end
-        end
-      end
-      if(when_StoreBufferPlugin_l445_3) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L448
-          `else
-            if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:448):  [SQ] FLUSH (Exec): Invalidating slotIdx=3 (robPtr=%x)", StoreBufferPlugin_logic_slots_3_robPtr); // StoreBufferPlugin.scala:L448
-            end
-          `endif
-        `endif
-      end else begin
-        if(when_StoreBufferPlugin_l449_3) begin
-          if(when_StoreBufferPlugin_l455_3) begin
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(1'b0); // StoreBufferPlugin.scala:L458
-              `else
-                if(!1'b0) begin
-                  $display("NOTE(StoreBufferPlugin.scala:458):  [SQ] COMMIT_SIGNAL: robPtr=%x (slotIdx=3) marked as committed.", StoreBufferPlugin_logic_slots_3_robPtr); // StoreBufferPlugin.scala:L458
-                end
-              `endif
-            `endif
-          end
-        end
-      end
-      if(when_StoreBufferPlugin_l466) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L467
-          `else
-            if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:467):  [SQ] FULL_FLUSH received. Clearing all slots."); // StoreBufferPlugin.scala:L467
-            end
-          `endif
-        `endif
-      end
-      if(StoreBufferPlugin_logic_popRequest) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L495
-          `else
-            if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:495):  [SQ] POP: Popping slot 0 (robPtr=%x, isFlush=%x)", StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr, StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush); // StoreBufferPlugin.scala:L495
+              $display("NOTE(StoreBufferPlugin.scala:459):  [SQ] REFILL_DONE observed for robPtr=%x. Ready to retry.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L459
             end
           `endif
         `endif
       end
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // StoreBufferPlugin.scala:L522
+          assert(1'b0); // StoreBufferPlugin.scala:L464
         `else
           if(!1'b0) begin
-            $display("NOTE(StoreBufferPlugin.scala:522):  [34m[SQ-Fwd] Query: valid=%x robPtr=%x addr=%x size=%s[0m", StoreBufferPlugin_hw_sqQueryPort_cmd_valid, StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr, StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address, StoreBufferPlugin_hw_sqQueryPort_cmd_payload_size_string); // StoreBufferPlugin.scala:L522
+            $display("NOTE(StoreBufferPlugin.scala:464):  [SQ] dCacheIsWbBusy=%x", DataCachePlugin_setup_writebackBusy); // StoreBufferPlugin.scala:L464
+          end
+        `endif
+      `endif
+      if(when_StoreBufferPlugin_l465) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // StoreBufferPlugin.scala:L468
+          `else
+            if(!1'b0) begin
+              $display("NOTE(StoreBufferPlugin.scala:468):  [SQ] DCACHE_READY observed for robPtr=%x. Exiting WAIT_FOR_WB.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L468
+            end
+          `endif
+        `endif
+      end
+      if(when_StoreBufferPlugin_l482) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // StoreBufferPlugin.scala:L485
+          `else
+            if(!1'b0) begin
+              $display("NOTE(StoreBufferPlugin.scala:485):  [SQ] FLUSH (Exec): Invalidating slotIdx=0 (robPtr=%x) by ROB flush.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L485
+            end
+          `endif
+        `endif
+      end else begin
+        if(when_StoreBufferPlugin_l486) begin
+          if(when_StoreBufferPlugin_l493) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // StoreBufferPlugin.scala:L496
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(StoreBufferPlugin.scala:496):  [SQ] COMMIT_SIGNAL: robPtr=%x (slotIdx=0) marked as committed.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L496
+                end
+              `endif
+            `endif
+          end
+        end
+      end
+      if(when_StoreBufferPlugin_l482_1) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // StoreBufferPlugin.scala:L485
+          `else
+            if(!1'b0) begin
+              $display("NOTE(StoreBufferPlugin.scala:485):  [SQ] FLUSH (Exec): Invalidating slotIdx=1 (robPtr=%x) by ROB flush.", StoreBufferPlugin_logic_slots_1_robPtr); // StoreBufferPlugin.scala:L485
+            end
+          `endif
+        `endif
+      end else begin
+        if(when_StoreBufferPlugin_l486_1) begin
+          if(when_StoreBufferPlugin_l493_1) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // StoreBufferPlugin.scala:L496
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(StoreBufferPlugin.scala:496):  [SQ] COMMIT_SIGNAL: robPtr=%x (slotIdx=1) marked as committed.", StoreBufferPlugin_logic_slots_1_robPtr); // StoreBufferPlugin.scala:L496
+                end
+              `endif
+            `endif
+          end
+        end
+      end
+      if(when_StoreBufferPlugin_l482_2) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // StoreBufferPlugin.scala:L485
+          `else
+            if(!1'b0) begin
+              $display("NOTE(StoreBufferPlugin.scala:485):  [SQ] FLUSH (Exec): Invalidating slotIdx=2 (robPtr=%x) by ROB flush.", StoreBufferPlugin_logic_slots_2_robPtr); // StoreBufferPlugin.scala:L485
+            end
+          `endif
+        `endif
+      end else begin
+        if(when_StoreBufferPlugin_l486_2) begin
+          if(when_StoreBufferPlugin_l493_2) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // StoreBufferPlugin.scala:L496
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(StoreBufferPlugin.scala:496):  [SQ] COMMIT_SIGNAL: robPtr=%x (slotIdx=2) marked as committed.", StoreBufferPlugin_logic_slots_2_robPtr); // StoreBufferPlugin.scala:L496
+                end
+              `endif
+            `endif
+          end
+        end
+      end
+      if(when_StoreBufferPlugin_l482_3) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // StoreBufferPlugin.scala:L485
+          `else
+            if(!1'b0) begin
+              $display("NOTE(StoreBufferPlugin.scala:485):  [SQ] FLUSH (Exec): Invalidating slotIdx=3 (robPtr=%x) by ROB flush.", StoreBufferPlugin_logic_slots_3_robPtr); // StoreBufferPlugin.scala:L485
+            end
+          `endif
+        `endif
+      end else begin
+        if(when_StoreBufferPlugin_l486_3) begin
+          if(when_StoreBufferPlugin_l493_3) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // StoreBufferPlugin.scala:L496
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(StoreBufferPlugin.scala:496):  [SQ] COMMIT_SIGNAL: robPtr=%x (slotIdx=3) marked as committed.", StoreBufferPlugin_logic_slots_3_robPtr); // StoreBufferPlugin.scala:L496
+                end
+              `endif
+            `endif
+          end
+        end
+      end
+      if(when_StoreBufferPlugin_l502) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // StoreBufferPlugin.scala:L503
+          `else
+            if(!1'b0) begin
+              $display("NOTE(StoreBufferPlugin.scala:503):  [SQ] FULL_FLUSH received. Clearing all slots."); // StoreBufferPlugin.scala:L503
+            end
+          `endif
+        `endif
+      end
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // StoreBufferPlugin.scala:L511
+        `else
+          if(!1'b0) begin
+            $display("NOTE(StoreBufferPlugin.scala:511):  slotsAfterUpdates(0): StoreBufferSlot(valid=%x,isFlush=%x,addr=%x,data=%x,be=%x,robPtr=%x,accessSize=%s,isIO=%x,hasEarlyException=%x,earlyExceptionCode=%x,isCommitted=%x,sentCmd=%x,waitRsp=%x,isWaitingForRefill=%x,isWaitingForWb=%x,refillSlotToWatch=%x)", StoreBufferPlugin_logic_slotsAfterUpdates_0_valid, StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush, StoreBufferPlugin_logic_slotsAfterUpdates_0_addr, StoreBufferPlugin_logic_slotsAfterUpdates_0_data, StoreBufferPlugin_logic_slotsAfterUpdates_0_be, StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr, StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize_string, StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO, StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException, StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode, StoreBufferPlugin_logic_slotsAfterUpdates_0_isCommitted, StoreBufferPlugin_logic_slotsAfterUpdates_0_sentCmd, StoreBufferPlugin_logic_slotsAfterUpdates_0_waitRsp, StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForRefill, StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForWb, StoreBufferPlugin_logic_slotsAfterUpdates_0_refillSlotToWatch); // StoreBufferPlugin.scala:L511
+          end
+        `endif
+      `endif
+      if(when_StoreBufferPlugin_l517) begin
+        if(StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush) begin
+          if(StoreBufferPlugin_logic_operationDone) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // StoreBufferPlugin.scala:L522
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(StoreBufferPlugin.scala:522):  [SQ] POP_FLUSH: robPtr=%x", StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr); // StoreBufferPlugin.scala:L522
+                end
+              `endif
+            `endif
+          end
+        end else begin
+          if(StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // StoreBufferPlugin.scala:L529
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(StoreBufferPlugin.scala:529):  [SQ] POP_EARLY_EXCEPTION: robPtr=%x", StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr); // StoreBufferPlugin.scala:L529
+                end
+              `endif
+            `endif
+          end else begin
+            if(StoreBufferPlugin_logic_operationDone) begin
+              `ifndef SYNTHESIS
+                `ifdef FORMAL
+                  assert(1'b0); // StoreBufferPlugin.scala:L534
+                `else
+                  if(!1'b0) begin
+                    $display("NOTE(StoreBufferPlugin.scala:534):  [SQ] POP_NORMAL_STORE/MMIO: robPtr=%x, isIO=%x", StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr, StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO); // StoreBufferPlugin.scala:L534
+                  end
+                `endif
+              `endif
+            end
+          end
+        end
+      end else begin
+        if(when_StoreBufferPlugin_l543) begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // StoreBufferPlugin.scala:L547
+            `else
+              if(!1'b0) begin
+                $display("NOTE(StoreBufferPlugin.scala:547):  [SQ] POP_INVALID_SLOT: Clearing invalid head slot."); // StoreBufferPlugin.scala:L547
+              end
+            `endif
+          `endif
+        end
+      end
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // StoreBufferPlugin.scala:L578
+        `else
+          if(!1'b0) begin
+            $display("NOTE(StoreBufferPlugin.scala:578):  [SQ-Fwd] Query: valid=%x robPtr=%x addr=%x size=%s", StoreBufferPlugin_hw_sqQueryPort_cmd_valid, StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr, StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address, StoreBufferPlugin_hw_sqQueryPort_cmd_payload_size_string); // StoreBufferPlugin.scala:L578
           end
         `endif
       `endif
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // StoreBufferPlugin.scala:L558
+          assert(1'b0); // StoreBufferPlugin.scala:L624
         `else
           if(!1'b0) begin
-            $display("NOTE(StoreBufferPlugin.scala:558):  [34m[SQ-Fwd] Forwarding? hit=%x, because query.valid=%x, allRequiredBytesHit=%x[0m", StoreBufferPlugin_hw_sqQueryPort_rsp_hit, StoreBufferPlugin_hw_sqQueryPort_cmd_valid, StoreBufferPlugin_logic_forwardingLogic_allRequiredBytesHit); // StoreBufferPlugin.scala:L558
+            $display("NOTE(StoreBufferPlugin.scala:624):  [SQ-Fwd] Forwarding? hit=%x, because query.valid=%x, allRequiredBytesHit=%x", StoreBufferPlugin_hw_sqQueryPort_rsp_hit, StoreBufferPlugin_hw_sqQueryPort_cmd_valid, StoreBufferPlugin_logic_forwardingLogic_allRequiredBytesHit); // StoreBufferPlugin.scala:L624
           end
         `endif
       `endif
-      if(when_StoreBufferPlugin_l567) begin
-        if(when_StoreBufferPlugin_l580) begin
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // StoreBufferPlugin.scala:L581
-            `else
-              if(!1'b0) begin
-                $display("NOTE(StoreBufferPlugin.scala:581):  [34m[SQ-Fwd] Conflict detected: slot=%x (load=%x, store=%x)[0m", StoreBufferPlugin_logic_slots_0_robPtr, _zz_when_StoreBufferPlugin_l580, _zz_when_StoreBufferPlugin_l580_1); // StoreBufferPlugin.scala:L581
-              end
+      if(when_StoreBufferPlugin_l636) begin
+        if(when_StoreBufferPlugin_l640) begin
+          if(when_StoreBufferPlugin_l644) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // StoreBufferPlugin.scala:L646
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(StoreBufferPlugin.scala:646):  [SQ-Fwd] STALL_PARTIAL_OVERLAP: slot=%x (LoadAddr=%x, StoreAddr=%x)", StoreBufferPlugin_logic_slots_0_robPtr, _zz_when_StoreBufferPlugin_l640, _zz_when_StoreBufferPlugin_l640_1); // StoreBufferPlugin.scala:L646
+                end
+              `endif
             `endif
-          `endif
+          end
+          if(when_StoreBufferPlugin_l650) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // StoreBufferPlugin.scala:L652
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(StoreBufferPlugin.scala:652):  [SQ-Fwd] STALL_DATA_NOT_READY: slot=%x (LoadAddr=%x, StoreAddr=%x)", StoreBufferPlugin_logic_slots_0_robPtr, _zz_when_StoreBufferPlugin_l640, _zz_when_StoreBufferPlugin_l640_1); // StoreBufferPlugin.scala:L652
+                end
+              `endif
+            `endif
+          end
         end
       end
-      if(when_StoreBufferPlugin_l567_1) begin
-        if(when_StoreBufferPlugin_l580_1) begin
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // StoreBufferPlugin.scala:L581
-            `else
-              if(!1'b0) begin
-                $display("NOTE(StoreBufferPlugin.scala:581):  [34m[SQ-Fwd] Conflict detected: slot=%x (load=%x, store=%x)[0m", StoreBufferPlugin_logic_slots_1_robPtr, _zz_when_StoreBufferPlugin_l580_6, _zz_when_StoreBufferPlugin_l580_7); // StoreBufferPlugin.scala:L581
-              end
+      if(when_StoreBufferPlugin_l636_1) begin
+        if(when_StoreBufferPlugin_l640_1) begin
+          if(when_StoreBufferPlugin_l644_1) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // StoreBufferPlugin.scala:L646
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(StoreBufferPlugin.scala:646):  [SQ-Fwd] STALL_PARTIAL_OVERLAP: slot=%x (LoadAddr=%x, StoreAddr=%x)", StoreBufferPlugin_logic_slots_1_robPtr, _zz_when_StoreBufferPlugin_l640_6, _zz_when_StoreBufferPlugin_l640_7); // StoreBufferPlugin.scala:L646
+                end
+              `endif
             `endif
-          `endif
+          end
+          if(when_StoreBufferPlugin_l650_1) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // StoreBufferPlugin.scala:L652
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(StoreBufferPlugin.scala:652):  [SQ-Fwd] STALL_DATA_NOT_READY: slot=%x (LoadAddr=%x, StoreAddr=%x)", StoreBufferPlugin_logic_slots_1_robPtr, _zz_when_StoreBufferPlugin_l640_6, _zz_when_StoreBufferPlugin_l640_7); // StoreBufferPlugin.scala:L652
+                end
+              `endif
+            `endif
+          end
         end
       end
-      if(when_StoreBufferPlugin_l567_2) begin
-        if(when_StoreBufferPlugin_l580_2) begin
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // StoreBufferPlugin.scala:L581
-            `else
-              if(!1'b0) begin
-                $display("NOTE(StoreBufferPlugin.scala:581):  [34m[SQ-Fwd] Conflict detected: slot=%x (load=%x, store=%x)[0m", StoreBufferPlugin_logic_slots_2_robPtr, _zz_when_StoreBufferPlugin_l580_12, _zz_when_StoreBufferPlugin_l580_13); // StoreBufferPlugin.scala:L581
-              end
+      if(when_StoreBufferPlugin_l636_2) begin
+        if(when_StoreBufferPlugin_l640_2) begin
+          if(when_StoreBufferPlugin_l644_2) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // StoreBufferPlugin.scala:L646
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(StoreBufferPlugin.scala:646):  [SQ-Fwd] STALL_PARTIAL_OVERLAP: slot=%x (LoadAddr=%x, StoreAddr=%x)", StoreBufferPlugin_logic_slots_2_robPtr, _zz_when_StoreBufferPlugin_l640_12, _zz_when_StoreBufferPlugin_l640_13); // StoreBufferPlugin.scala:L646
+                end
+              `endif
             `endif
-          `endif
+          end
+          if(when_StoreBufferPlugin_l650_2) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // StoreBufferPlugin.scala:L652
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(StoreBufferPlugin.scala:652):  [SQ-Fwd] STALL_DATA_NOT_READY: slot=%x (LoadAddr=%x, StoreAddr=%x)", StoreBufferPlugin_logic_slots_2_robPtr, _zz_when_StoreBufferPlugin_l640_12, _zz_when_StoreBufferPlugin_l640_13); // StoreBufferPlugin.scala:L652
+                end
+              `endif
+            `endif
+          end
         end
       end
-      if(when_StoreBufferPlugin_l567_3) begin
-        if(when_StoreBufferPlugin_l580_3) begin
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // StoreBufferPlugin.scala:L581
-            `else
-              if(!1'b0) begin
-                $display("NOTE(StoreBufferPlugin.scala:581):  [34m[SQ-Fwd] Conflict detected: slot=%x (load=%x, store=%x)[0m", StoreBufferPlugin_logic_slots_3_robPtr, _zz_when_StoreBufferPlugin_l580_18, _zz_when_StoreBufferPlugin_l580_19); // StoreBufferPlugin.scala:L581
-              end
+      if(when_StoreBufferPlugin_l636_3) begin
+        if(when_StoreBufferPlugin_l640_3) begin
+          if(when_StoreBufferPlugin_l644_3) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // StoreBufferPlugin.scala:L646
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(StoreBufferPlugin.scala:646):  [SQ-Fwd] STALL_PARTIAL_OVERLAP: slot=%x (LoadAddr=%x, StoreAddr=%x)", StoreBufferPlugin_logic_slots_3_robPtr, _zz_when_StoreBufferPlugin_l640_18, _zz_when_StoreBufferPlugin_l640_19); // StoreBufferPlugin.scala:L646
+                end
+              `endif
             `endif
-          `endif
+          end
+          if(when_StoreBufferPlugin_l650_3) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // StoreBufferPlugin.scala:L652
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(StoreBufferPlugin.scala:652):  [SQ-Fwd] STALL_DATA_NOT_READY: slot=%x (LoadAddr=%x, StoreAddr=%x)", StoreBufferPlugin_logic_slots_3_robPtr, _zz_when_StoreBufferPlugin_l640_18, _zz_when_StoreBufferPlugin_l640_19); // StoreBufferPlugin.scala:L652
+                end
+              `endif
+            `endif
+          end
         end
-      end
-      if(when_StoreBufferPlugin_l588) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L589
-          `else
-            if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:589):  [34m[SQ-Fwd] HIT: Forwarding to Load(rob=%x) data=%x from SB.[0m", StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr, StoreBufferPlugin_hw_sqQueryPort_rsp_data); // StoreBufferPlugin.scala:L589
-            end
-          `endif
-        `endif
       end
       if(StoreBufferPlugin_hw_sqQueryPort_cmd_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L594
+            assert(1'b0); // StoreBufferPlugin.scala:L664
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:594):  [34m[SQ-Fwd] Query: SqQuery(robPtr=%x,address=%x,size=%s)[0m", StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr, StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address, StoreBufferPlugin_hw_sqQueryPort_cmd_payload_size_string); // StoreBufferPlugin.scala:L594
+              $display("NOTE(StoreBufferPlugin.scala:664):  [SQ-Fwd] Query: SqQuery(robPtr=%x,address=%x,size=%s)", StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr, StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address, StoreBufferPlugin_hw_sqQueryPort_cmd_payload_size_string); // StoreBufferPlugin.scala:L664
             end
           `endif
         `endif
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L595
+            assert(1'b0); // StoreBufferPlugin.scala:L665
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:595):  [34m[SQ-Fwd] Rsp: SqQueryRsp(hit=%x,data=%x,olderStoreHasUnknownAddress=%x,olderStoreMatchingAddress=%x)[0m", StoreBufferPlugin_hw_sqQueryPort_rsp_hit, StoreBufferPlugin_hw_sqQueryPort_rsp_data, StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreHasUnknownAddress, StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreMatchingAddress); // StoreBufferPlugin.scala:L595
+              $display("NOTE(StoreBufferPlugin.scala:665):  [SQ-Fwd] Rsp: SqQueryRsp(hit=%x,data=%x,olderStoreHasUnknownAddress=%x,olderStoreMatchingAddress=%x)", StoreBufferPlugin_hw_sqQueryPort_rsp_hit, StoreBufferPlugin_hw_sqQueryPort_rsp_data, StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreHasUnknownAddress, StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreMatchingAddress); // StoreBufferPlugin.scala:L665
             end
           `endif
         `endif
       end
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // StoreBufferPlugin.scala:L597
+          assert(1'b0); // StoreBufferPlugin.scala:L667
         `else
           if(!1'b0) begin
-            $display("NOTE(StoreBufferPlugin.scala:597):  [34m[SQ-Fwd] Result: hitMask=%x (loadMask=%x), allHit=%x, finalRsp.hit=%x[0m", StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask, StoreBufferPlugin_logic_forwardingLogic_loadMask, StoreBufferPlugin_logic_forwardingLogic_allRequiredBytesHit, StoreBufferPlugin_hw_sqQueryPort_rsp_hit); // StoreBufferPlugin.scala:L597
+            $display("NOTE(StoreBufferPlugin.scala:667):  [SQ-Fwd] Result: hitMask=%x (loadMask=%x), allHit=%x, finalRsp.hit=%x", StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask, StoreBufferPlugin_logic_forwardingLogic_loadMask, StoreBufferPlugin_logic_forwardingLogic_allRequiredBytesHit, StoreBufferPlugin_hw_sqQueryPort_rsp_hit); // StoreBufferPlugin.scala:L667
           end
         `endif
       `endif
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // StoreBufferPlugin.scala:L640
+          assert(1'b0); // StoreBufferPlugin.scala:L713
         `else
           if(!1'b0) begin
-            $display("NOTE(StoreBufferPlugin.scala:640):  [SQ] bypassDataOut: valid=%x, data=%x, hit=%x, hitMask=%x", StoreBufferPlugin_hw_bypassDataOutInst_valid, StoreBufferPlugin_hw_bypassDataOutInst_payload_data, StoreBufferPlugin_hw_bypassDataOutInst_payload_hit, StoreBufferPlugin_hw_bypassDataOutInst_payload_hitMask); // StoreBufferPlugin.scala:L640
+            $display("NOTE(StoreBufferPlugin.scala:713):  [SQ] bypassDataOut: valid=%x, data=%x, hit=%x, hitMask=%x", StoreBufferPlugin_hw_bypassDataOutInst_valid, StoreBufferPlugin_hw_bypassDataOutInst_payload_data, StoreBufferPlugin_hw_bypassDataOutInst_payload_hit, StoreBufferPlugin_hw_bypassDataOutInst_payload_hitMask); // StoreBufferPlugin.scala:L713
           end
         `endif
       `endif
@@ -23172,10 +23364,10 @@ module CoreNSCSCC (
       if(StoreBufferPlugin_logic_slots_0_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L647
+            assert(1'b0); // StoreBufferPlugin.scala:L720
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:647):  [SQ-Debug] HeadSlot State: valid=%x, isCommitted=%x, isSentToDCache=%x, dcacheOpPending=%x, isWaitingForRefill=%x, isWaitingForWb=%x, hasEarlyException=%x, isIO=%x, isFlush=%x", StoreBufferPlugin_logic_slots_0_valid, StoreBufferPlugin_logic_slots_0_isCommitted, StoreBufferPlugin_logic_slots_0_sentCmd, StoreBufferPlugin_logic_slots_0_waitRsp, StoreBufferPlugin_logic_slots_0_isWaitingForRefill, StoreBufferPlugin_logic_slots_0_isWaitingForWb, StoreBufferPlugin_logic_slots_0_hasEarlyException, StoreBufferPlugin_logic_slots_0_isIO, StoreBufferPlugin_logic_slots_0_isFlush); // StoreBufferPlugin.scala:L647
+              $display("NOTE(StoreBufferPlugin.scala:720):  [SQ-Debug] SlotState[0]: robPtr=%x, valid=%x, isCommitted=%x, sentCmd=%x, waitRsp=%x, isWaitingForRefill=%x, isWaitingForWb=%x, hasEarlyException=%x, isIO=%x, isFlush=%x", StoreBufferPlugin_logic_slots_0_robPtr, StoreBufferPlugin_logic_slots_0_valid, StoreBufferPlugin_logic_slots_0_isCommitted, StoreBufferPlugin_logic_slots_0_sentCmd, StoreBufferPlugin_logic_slots_0_waitRsp, StoreBufferPlugin_logic_slots_0_isWaitingForRefill, StoreBufferPlugin_logic_slots_0_isWaitingForWb, StoreBufferPlugin_logic_slots_0_hasEarlyException, StoreBufferPlugin_logic_slots_0_isIO, StoreBufferPlugin_logic_slots_0_isFlush); // StoreBufferPlugin.scala:L720
             end
           `endif
         `endif
@@ -23183,10 +23375,10 @@ module CoreNSCSCC (
       if(StoreBufferPlugin_logic_slots_1_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L647
+            assert(1'b0); // StoreBufferPlugin.scala:L720
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:647):  [SQ-Debug] HeadSlot State: valid=%x, isCommitted=%x, isSentToDCache=%x, dcacheOpPending=%x, isWaitingForRefill=%x, isWaitingForWb=%x, hasEarlyException=%x, isIO=%x, isFlush=%x", StoreBufferPlugin_logic_slots_1_valid, StoreBufferPlugin_logic_slots_1_isCommitted, StoreBufferPlugin_logic_slots_1_sentCmd, StoreBufferPlugin_logic_slots_1_waitRsp, StoreBufferPlugin_logic_slots_1_isWaitingForRefill, StoreBufferPlugin_logic_slots_1_isWaitingForWb, StoreBufferPlugin_logic_slots_1_hasEarlyException, StoreBufferPlugin_logic_slots_1_isIO, StoreBufferPlugin_logic_slots_1_isFlush); // StoreBufferPlugin.scala:L647
+              $display("NOTE(StoreBufferPlugin.scala:720):  [SQ-Debug] SlotState[1]: robPtr=%x, valid=%x, isCommitted=%x, sentCmd=%x, waitRsp=%x, isWaitingForRefill=%x, isWaitingForWb=%x, hasEarlyException=%x, isIO=%x, isFlush=%x", StoreBufferPlugin_logic_slots_1_robPtr, StoreBufferPlugin_logic_slots_1_valid, StoreBufferPlugin_logic_slots_1_isCommitted, StoreBufferPlugin_logic_slots_1_sentCmd, StoreBufferPlugin_logic_slots_1_waitRsp, StoreBufferPlugin_logic_slots_1_isWaitingForRefill, StoreBufferPlugin_logic_slots_1_isWaitingForWb, StoreBufferPlugin_logic_slots_1_hasEarlyException, StoreBufferPlugin_logic_slots_1_isIO, StoreBufferPlugin_logic_slots_1_isFlush); // StoreBufferPlugin.scala:L720
             end
           `endif
         `endif
@@ -23194,10 +23386,10 @@ module CoreNSCSCC (
       if(StoreBufferPlugin_logic_slots_2_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L647
+            assert(1'b0); // StoreBufferPlugin.scala:L720
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:647):  [SQ-Debug] HeadSlot State: valid=%x, isCommitted=%x, isSentToDCache=%x, dcacheOpPending=%x, isWaitingForRefill=%x, isWaitingForWb=%x, hasEarlyException=%x, isIO=%x, isFlush=%x", StoreBufferPlugin_logic_slots_2_valid, StoreBufferPlugin_logic_slots_2_isCommitted, StoreBufferPlugin_logic_slots_2_sentCmd, StoreBufferPlugin_logic_slots_2_waitRsp, StoreBufferPlugin_logic_slots_2_isWaitingForRefill, StoreBufferPlugin_logic_slots_2_isWaitingForWb, StoreBufferPlugin_logic_slots_2_hasEarlyException, StoreBufferPlugin_logic_slots_2_isIO, StoreBufferPlugin_logic_slots_2_isFlush); // StoreBufferPlugin.scala:L647
+              $display("NOTE(StoreBufferPlugin.scala:720):  [SQ-Debug] SlotState[2]: robPtr=%x, valid=%x, isCommitted=%x, sentCmd=%x, waitRsp=%x, isWaitingForRefill=%x, isWaitingForWb=%x, hasEarlyException=%x, isIO=%x, isFlush=%x", StoreBufferPlugin_logic_slots_2_robPtr, StoreBufferPlugin_logic_slots_2_valid, StoreBufferPlugin_logic_slots_2_isCommitted, StoreBufferPlugin_logic_slots_2_sentCmd, StoreBufferPlugin_logic_slots_2_waitRsp, StoreBufferPlugin_logic_slots_2_isWaitingForRefill, StoreBufferPlugin_logic_slots_2_isWaitingForWb, StoreBufferPlugin_logic_slots_2_hasEarlyException, StoreBufferPlugin_logic_slots_2_isIO, StoreBufferPlugin_logic_slots_2_isFlush); // StoreBufferPlugin.scala:L720
             end
           `endif
         `endif
@@ -23205,67 +23397,32 @@ module CoreNSCSCC (
       if(StoreBufferPlugin_logic_slots_3_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L647
+            assert(1'b0); // StoreBufferPlugin.scala:L720
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:647):  [SQ-Debug] HeadSlot State: valid=%x, isCommitted=%x, isSentToDCache=%x, dcacheOpPending=%x, isWaitingForRefill=%x, isWaitingForWb=%x, hasEarlyException=%x, isIO=%x, isFlush=%x", StoreBufferPlugin_logic_slots_3_valid, StoreBufferPlugin_logic_slots_3_isCommitted, StoreBufferPlugin_logic_slots_3_sentCmd, StoreBufferPlugin_logic_slots_3_waitRsp, StoreBufferPlugin_logic_slots_3_isWaitingForRefill, StoreBufferPlugin_logic_slots_3_isWaitingForWb, StoreBufferPlugin_logic_slots_3_hasEarlyException, StoreBufferPlugin_logic_slots_3_isIO, StoreBufferPlugin_logic_slots_3_isFlush); // StoreBufferPlugin.scala:L647
+              $display("NOTE(StoreBufferPlugin.scala:720):  [SQ-Debug] SlotState[3]: robPtr=%x, valid=%x, isCommitted=%x, sentCmd=%x, waitRsp=%x, isWaitingForRefill=%x, isWaitingForWb=%x, hasEarlyException=%x, isIO=%x, isFlush=%x", StoreBufferPlugin_logic_slots_3_robPtr, StoreBufferPlugin_logic_slots_3_valid, StoreBufferPlugin_logic_slots_3_isCommitted, StoreBufferPlugin_logic_slots_3_sentCmd, StoreBufferPlugin_logic_slots_3_waitRsp, StoreBufferPlugin_logic_slots_3_isWaitingForRefill, StoreBufferPlugin_logic_slots_3_isWaitingForWb, StoreBufferPlugin_logic_slots_3_hasEarlyException, StoreBufferPlugin_logic_slots_3_isIO, StoreBufferPlugin_logic_slots_3_isFlush); // StoreBufferPlugin.scala:L720
             end
           `endif
         `endif
       end
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // StoreBufferPlugin.scala:L660
+          assert(1'b0); // StoreBufferPlugin.scala:L735
         `else
           if(!1'b0) begin
-            $display("NOTE(StoreBufferPlugin.scala:660):  [SQ-Debug] DCache Interface: cmd.valid=%x, cmd.ready=%x, rsp.valid=%x, canPopToDCache=%x", StoreBufferPlugin_hw_dCacheStorePort_cmd_valid, StoreBufferPlugin_hw_dCacheStorePort_cmd_ready, StoreBufferPlugin_hw_dCacheStorePort_rsp_valid, StoreBufferPlugin_logic_canPopToDCache); // StoreBufferPlugin.scala:L660
+            $display("NOTE(StoreBufferPlugin.scala:735):  [SQ-Debug] DCache Interface: cmd.valid=%x, cmd.ready=%x, rsp.valid=%x, canSendToDCache=%x", StoreBufferPlugin_hw_dCacheStorePort_cmd_valid, StoreBufferPlugin_hw_dCacheStorePort_cmd_ready, StoreBufferPlugin_hw_dCacheStorePort_rsp_valid, StoreBufferPlugin_logic_canSendToDCache); // StoreBufferPlugin.scala:L735
           end
         `endif
       `endif
-      if(when_StoreBufferPlugin_l668) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L669
-          `else
-            if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:669):  [SQ-Debug] Slot 0: waiting for commit, robPtr=%x", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L669
-            end
-          `endif
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // StoreBufferPlugin.scala:L744
+        `else
+          if(!1'b0) begin
+            $display("NOTE(StoreBufferPlugin.scala:744):  [SQ-Debug] MMIO Interface: cmd.valid=%x, cmd.ready=%x, rsp.valid=%x, rsp.ready=%x, canSendToMMIO=%x", _zz_io_gmbIn_write_cmd_valid, _zz_StoreBufferPlugin_logic_mmioCmdFired, _zz_StoreBufferPlugin_logic_mmioResponseForHead, _zz_io_gmbIn_write_rsp_ready, StoreBufferPlugin_logic_canPopMMIOOp); // StoreBufferPlugin.scala:L744
+          end
         `endif
-      end
-      if(when_StoreBufferPlugin_l668_1) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L669
-          `else
-            if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:669):  [SQ-Debug] Slot 1: waiting for commit, robPtr=%x", StoreBufferPlugin_logic_slots_1_robPtr); // StoreBufferPlugin.scala:L669
-            end
-          `endif
-        `endif
-      end
-      if(when_StoreBufferPlugin_l668_2) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L669
-          `else
-            if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:669):  [SQ-Debug] Slot 2: waiting for commit, robPtr=%x", StoreBufferPlugin_logic_slots_2_robPtr); // StoreBufferPlugin.scala:L669
-            end
-          `endif
-        `endif
-      end
-      if(when_StoreBufferPlugin_l668_3) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L669
-          `else
-            if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:669):  [SQ-Debug] Slot 3: waiting for commit, robPtr=%x", StoreBufferPlugin_logic_slots_3_robPtr); // StoreBufferPlugin.scala:L669
-            end
-          `endif
-        `endif
-      end
+      `endif
       if(!when_WakeupPlugin_l67) begin
         if(AluIntEU_AluIntEuPlugin_wakeupSourcePort_valid) begin
           `ifndef SYNTHESIS
@@ -23480,7 +23637,7 @@ module CoreNSCSCC (
       if(io_outputs_2_aw_validPipe_fire_2) begin
         io_outputs_2_aw_rValid_2 <= 1'b0;
       end
-      if(when_CoreNSCSCC_l543) begin
+      if(when_CoreNSCSCC_l539) begin
         _zz_io_leds <= (! _zz_io_leds);
       end
       SimpleFetchPipelinePlugin_logic_fsm_stateReg <= SimpleFetchPipelinePlugin_logic_fsm_stateNext;
@@ -23577,7 +23734,7 @@ module CoreNSCSCC (
                 assert(1'b0); // SimpleFetchPipelinePlugin.scala:L264
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SimpleFetchPipelinePlugin.scala:264):  [Fetch-FSM] UPDATE_PC: Normal PC update from 0x%x to 0x%x", SimpleFetchPipelinePlugin_logic_pcOnRequest, _zz_38); // SimpleFetchPipelinePlugin.scala:L264
+                  $display("NOTE(SimpleFetchPipelinePlugin.scala:264):  [Fetch-FSM] UPDATE_PC: Normal PC update from 0x%x to 0x%x", SimpleFetchPipelinePlugin_logic_pcOnRequest, _zz_39); // SimpleFetchPipelinePlugin.scala:L264
                 end
               `endif
             `endif
@@ -24165,7 +24322,7 @@ module CoreNSCSCC (
       LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_olderStoreHasUnknownAddress <= StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreHasUnknownAddress;
       LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_olderStoreMatchingAddress <= StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreMatchingAddress;
     end
-    _zz_when_CoreNSCSCC_l543_1 <= _zz_when_CoreNSCSCC_l543;
+    _zz_when_CoreNSCSCC_l539_1 <= _zz_when_CoreNSCSCC_l539;
     case(SimpleFetchPipelinePlugin_logic_fsm_stateReg)
       SimpleFetchPipelinePlugin_logic_fsm_IDLE : begin
         if(!SimpleFetchPipelinePlugin_logic_fetchDisable) begin
@@ -24219,11 +24376,10 @@ module Axi4WriteOnlyArbiter (
   input  wire          io_inputs_0_aw_valid,
   output wire          io_inputs_0_aw_ready,
   input  wire [31:0]   io_inputs_0_aw_payload_addr,
-  input  wire [1:0]    io_inputs_0_aw_payload_id,
+  input  wire [4:0]    io_inputs_0_aw_payload_id,
   input  wire [7:0]    io_inputs_0_aw_payload_len,
   input  wire [2:0]    io_inputs_0_aw_payload_size,
   input  wire [1:0]    io_inputs_0_aw_payload_burst,
-  input  wire [2:0]    io_inputs_0_aw_payload_prot,
   input  wire          io_inputs_0_w_valid,
   output wire          io_inputs_0_w_ready,
   input  wire [31:0]   io_inputs_0_w_payload_data,
@@ -24231,16 +24387,15 @@ module Axi4WriteOnlyArbiter (
   input  wire          io_inputs_0_w_payload_last,
   output wire          io_inputs_0_b_valid,
   input  wire          io_inputs_0_b_ready,
-  output wire [1:0]    io_inputs_0_b_payload_id,
+  output wire [4:0]    io_inputs_0_b_payload_id,
   output wire [1:0]    io_inputs_0_b_payload_resp,
   input  wire          io_inputs_1_aw_valid,
   output wire          io_inputs_1_aw_ready,
   input  wire [31:0]   io_inputs_1_aw_payload_addr,
-  input  wire [1:0]    io_inputs_1_aw_payload_id,
+  input  wire [4:0]    io_inputs_1_aw_payload_id,
   input  wire [7:0]    io_inputs_1_aw_payload_len,
   input  wire [2:0]    io_inputs_1_aw_payload_size,
   input  wire [1:0]    io_inputs_1_aw_payload_burst,
-  input  wire [2:0]    io_inputs_1_aw_payload_prot,
   input  wire          io_inputs_1_w_valid,
   output wire          io_inputs_1_w_ready,
   input  wire [31:0]   io_inputs_1_w_payload_data,
@@ -24248,16 +24403,15 @@ module Axi4WriteOnlyArbiter (
   input  wire          io_inputs_1_w_payload_last,
   output wire          io_inputs_1_b_valid,
   input  wire          io_inputs_1_b_ready,
-  output wire [1:0]    io_inputs_1_b_payload_id,
+  output wire [4:0]    io_inputs_1_b_payload_id,
   output wire [1:0]    io_inputs_1_b_payload_resp,
   input  wire          io_inputs_2_aw_valid,
   output wire          io_inputs_2_aw_ready,
   input  wire [31:0]   io_inputs_2_aw_payload_addr,
-  input  wire [1:0]    io_inputs_2_aw_payload_id,
+  input  wire [4:0]    io_inputs_2_aw_payload_id,
   input  wire [7:0]    io_inputs_2_aw_payload_len,
   input  wire [2:0]    io_inputs_2_aw_payload_size,
   input  wire [1:0]    io_inputs_2_aw_payload_burst,
-  input  wire [2:0]    io_inputs_2_aw_payload_prot,
   input  wire          io_inputs_2_w_valid,
   output wire          io_inputs_2_w_ready,
   input  wire [31:0]   io_inputs_2_w_payload_data,
@@ -24265,16 +24419,15 @@ module Axi4WriteOnlyArbiter (
   input  wire          io_inputs_2_w_payload_last,
   output wire          io_inputs_2_b_valid,
   input  wire          io_inputs_2_b_ready,
-  output wire [1:0]    io_inputs_2_b_payload_id,
+  output wire [4:0]    io_inputs_2_b_payload_id,
   output wire [1:0]    io_inputs_2_b_payload_resp,
   output wire          io_output_aw_valid,
   input  wire          io_output_aw_ready,
   output wire [31:0]   io_output_aw_payload_addr,
-  output wire [3:0]    io_output_aw_payload_id,
+  output wire [6:0]    io_output_aw_payload_id,
   output wire [7:0]    io_output_aw_payload_len,
   output wire [2:0]    io_output_aw_payload_size,
   output wire [1:0]    io_output_aw_payload_burst,
-  output wire [2:0]    io_output_aw_payload_prot,
   output wire          io_output_w_valid,
   input  wire          io_output_w_ready,
   output wire [31:0]   io_output_w_payload_data,
@@ -24282,7 +24435,7 @@ module Axi4WriteOnlyArbiter (
   output wire          io_output_w_payload_last,
   input  wire          io_output_b_valid,
   output wire          io_output_b_ready,
-  input  wire [3:0]    io_output_b_payload_id,
+  input  wire [6:0]    io_output_b_payload_id,
   input  wire [1:0]    io_output_b_payload_resp,
   input  wire          clk,
   input  wire          reset
@@ -24295,11 +24448,10 @@ module Axi4WriteOnlyArbiter (
   wire                cmdArbiter_io_inputs_2_ready;
   wire                cmdArbiter_io_output_valid;
   wire       [31:0]   cmdArbiter_io_output_payload_addr;
-  wire       [1:0]    cmdArbiter_io_output_payload_id;
+  wire       [4:0]    cmdArbiter_io_output_payload_id;
   wire       [7:0]    cmdArbiter_io_output_payload_len;
   wire       [2:0]    cmdArbiter_io_output_payload_size;
   wire       [1:0]    cmdArbiter_io_output_payload_burst;
-  wire       [2:0]    cmdArbiter_io_output_payload_prot;
   wire       [1:0]    cmdArbiter_io_chosen;
   wire       [2:0]    cmdArbiter_io_chosenOH;
   wire                cmdRouteFork_translated_fifo_io_push_ready;
@@ -24315,19 +24467,17 @@ module Axi4WriteOnlyArbiter (
   wire                cmdOutputFork_valid;
   wire                cmdOutputFork_ready;
   wire       [31:0]   cmdOutputFork_payload_addr;
-  wire       [1:0]    cmdOutputFork_payload_id;
+  wire       [4:0]    cmdOutputFork_payload_id;
   wire       [7:0]    cmdOutputFork_payload_len;
   wire       [2:0]    cmdOutputFork_payload_size;
   wire       [1:0]    cmdOutputFork_payload_burst;
-  wire       [2:0]    cmdOutputFork_payload_prot;
   wire                cmdRouteFork_valid;
   wire                cmdRouteFork_ready;
   wire       [31:0]   cmdRouteFork_payload_addr;
-  wire       [1:0]    cmdRouteFork_payload_id;
+  wire       [4:0]    cmdRouteFork_payload_id;
   wire       [7:0]    cmdRouteFork_payload_len;
   wire       [2:0]    cmdRouteFork_payload_size;
   wire       [1:0]    cmdRouteFork_payload_burst;
-  wire       [2:0]    cmdRouteFork_payload_prot;
   reg                 cmdArbiter_io_output_fork2_logic_linkEnable_0;
   reg                 cmdArbiter_io_output_fork2_logic_linkEnable_1;
   wire                when_Stream_l1253;
@@ -24347,35 +24497,31 @@ module Axi4WriteOnlyArbiter (
     .io_inputs_0_valid         (io_inputs_0_aw_valid                   ), //i
     .io_inputs_0_ready         (cmdArbiter_io_inputs_0_ready           ), //o
     .io_inputs_0_payload_addr  (io_inputs_0_aw_payload_addr[31:0]      ), //i
-    .io_inputs_0_payload_id    (io_inputs_0_aw_payload_id[1:0]         ), //i
+    .io_inputs_0_payload_id    (io_inputs_0_aw_payload_id[4:0]         ), //i
     .io_inputs_0_payload_len   (io_inputs_0_aw_payload_len[7:0]        ), //i
     .io_inputs_0_payload_size  (io_inputs_0_aw_payload_size[2:0]       ), //i
     .io_inputs_0_payload_burst (io_inputs_0_aw_payload_burst[1:0]      ), //i
-    .io_inputs_0_payload_prot  (io_inputs_0_aw_payload_prot[2:0]       ), //i
     .io_inputs_1_valid         (io_inputs_1_aw_valid                   ), //i
     .io_inputs_1_ready         (cmdArbiter_io_inputs_1_ready           ), //o
     .io_inputs_1_payload_addr  (io_inputs_1_aw_payload_addr[31:0]      ), //i
-    .io_inputs_1_payload_id    (io_inputs_1_aw_payload_id[1:0]         ), //i
+    .io_inputs_1_payload_id    (io_inputs_1_aw_payload_id[4:0]         ), //i
     .io_inputs_1_payload_len   (io_inputs_1_aw_payload_len[7:0]        ), //i
     .io_inputs_1_payload_size  (io_inputs_1_aw_payload_size[2:0]       ), //i
     .io_inputs_1_payload_burst (io_inputs_1_aw_payload_burst[1:0]      ), //i
-    .io_inputs_1_payload_prot  (io_inputs_1_aw_payload_prot[2:0]       ), //i
     .io_inputs_2_valid         (io_inputs_2_aw_valid                   ), //i
     .io_inputs_2_ready         (cmdArbiter_io_inputs_2_ready           ), //o
     .io_inputs_2_payload_addr  (io_inputs_2_aw_payload_addr[31:0]      ), //i
-    .io_inputs_2_payload_id    (io_inputs_2_aw_payload_id[1:0]         ), //i
+    .io_inputs_2_payload_id    (io_inputs_2_aw_payload_id[4:0]         ), //i
     .io_inputs_2_payload_len   (io_inputs_2_aw_payload_len[7:0]        ), //i
     .io_inputs_2_payload_size  (io_inputs_2_aw_payload_size[2:0]       ), //i
     .io_inputs_2_payload_burst (io_inputs_2_aw_payload_burst[1:0]      ), //i
-    .io_inputs_2_payload_prot  (io_inputs_2_aw_payload_prot[2:0]       ), //i
     .io_output_valid           (cmdArbiter_io_output_valid             ), //o
     .io_output_ready           (cmdArbiter_io_output_ready             ), //i
     .io_output_payload_addr    (cmdArbiter_io_output_payload_addr[31:0]), //o
-    .io_output_payload_id      (cmdArbiter_io_output_payload_id[1:0]   ), //o
+    .io_output_payload_id      (cmdArbiter_io_output_payload_id[4:0]   ), //o
     .io_output_payload_len     (cmdArbiter_io_output_payload_len[7:0]  ), //o
     .io_output_payload_size    (cmdArbiter_io_output_payload_size[2:0] ), //o
     .io_output_payload_burst   (cmdArbiter_io_output_payload_burst[1:0]), //o
-    .io_output_payload_prot    (cmdArbiter_io_output_payload_prot[2:0] ), //o
     .io_chosen                 (cmdArbiter_io_chosen[1:0]              ), //o
     .io_chosenOH               (cmdArbiter_io_chosenOH[2:0]            ), //o
     .clk                       (clk                                    ), //i
@@ -24446,7 +24592,6 @@ module Axi4WriteOnlyArbiter (
   assign cmdOutputFork_payload_len = cmdArbiter_io_output_payload_len;
   assign cmdOutputFork_payload_size = cmdArbiter_io_output_payload_size;
   assign cmdOutputFork_payload_burst = cmdArbiter_io_output_payload_burst;
-  assign cmdOutputFork_payload_prot = cmdArbiter_io_output_payload_prot;
   assign cmdOutputFork_fire = (cmdOutputFork_valid && cmdOutputFork_ready);
   assign cmdRouteFork_valid = (cmdArbiter_io_output_valid && cmdArbiter_io_output_fork2_logic_linkEnable_1);
   assign cmdRouteFork_payload_addr = cmdArbiter_io_output_payload_addr;
@@ -24454,7 +24599,6 @@ module Axi4WriteOnlyArbiter (
   assign cmdRouteFork_payload_len = cmdArbiter_io_output_payload_len;
   assign cmdRouteFork_payload_size = cmdArbiter_io_output_payload_size;
   assign cmdRouteFork_payload_burst = cmdArbiter_io_output_payload_burst;
-  assign cmdRouteFork_payload_prot = cmdArbiter_io_output_payload_prot;
   assign cmdRouteFork_fire = (cmdRouteFork_valid && cmdRouteFork_ready);
   assign io_output_aw_valid = cmdOutputFork_valid;
   assign cmdOutputFork_ready = io_output_aw_ready;
@@ -24462,7 +24606,6 @@ module Axi4WriteOnlyArbiter (
   assign io_output_aw_payload_len = cmdOutputFork_payload_len;
   assign io_output_aw_payload_size = cmdOutputFork_payload_size;
   assign io_output_aw_payload_burst = cmdOutputFork_payload_burst;
-  assign io_output_aw_payload_prot = cmdOutputFork_payload_prot;
   assign io_output_aw_payload_id = {cmdArbiter_io_chosen,cmdArbiter_io_output_payload_id};
   assign cmdRouteFork_translated_valid = cmdRouteFork_valid;
   assign cmdRouteFork_ready = cmdRouteFork_translated_ready;
@@ -24477,19 +24620,19 @@ module Axi4WriteOnlyArbiter (
   assign io_inputs_2_w_ready = ((cmdRouteFork_translated_fifo_io_pop_valid && io_output_w_ready) && (cmdRouteFork_translated_fifo_io_pop_payload == 2'b10));
   assign io_output_w_fire = (io_output_w_valid && io_output_w_ready);
   assign cmdRouteFork_translated_fifo_io_pop_ready = (io_output_w_fire && io_output_w_payload_last);
-  assign writeRspIndex = io_output_b_payload_id[3 : 2];
+  assign writeRspIndex = io_output_b_payload_id[6 : 5];
   assign writeRspSels_0 = (writeRspIndex == 2'b00);
   assign writeRspSels_1 = (writeRspIndex == 2'b01);
   assign writeRspSels_2 = (writeRspIndex == 2'b10);
   assign io_inputs_0_b_valid = (io_output_b_valid && writeRspSels_0);
   assign io_inputs_0_b_payload_resp = io_output_b_payload_resp;
-  assign io_inputs_0_b_payload_id = io_output_b_payload_id[1 : 0];
+  assign io_inputs_0_b_payload_id = io_output_b_payload_id[4 : 0];
   assign io_inputs_1_b_valid = (io_output_b_valid && writeRspSels_1);
   assign io_inputs_1_b_payload_resp = io_output_b_payload_resp;
-  assign io_inputs_1_b_payload_id = io_output_b_payload_id[1 : 0];
+  assign io_inputs_1_b_payload_id = io_output_b_payload_id[4 : 0];
   assign io_inputs_2_b_valid = (io_output_b_valid && writeRspSels_2);
   assign io_inputs_2_b_payload_resp = io_output_b_payload_resp;
-  assign io_inputs_2_b_payload_id = io_output_b_payload_id[1 : 0];
+  assign io_inputs_2_b_payload_id = io_output_b_payload_id[4 : 0];
   assign io_output_b_ready = _zz_io_output_b_ready;
   always @(posedge clk or posedge reset) begin
     if(reset) begin
@@ -24516,57 +24659,53 @@ module Axi4ReadOnlyArbiter (
   input  wire          io_inputs_0_ar_valid,
   output wire          io_inputs_0_ar_ready,
   input  wire [31:0]   io_inputs_0_ar_payload_addr,
-  input  wire [1:0]    io_inputs_0_ar_payload_id,
+  input  wire [4:0]    io_inputs_0_ar_payload_id,
   input  wire [7:0]    io_inputs_0_ar_payload_len,
   input  wire [2:0]    io_inputs_0_ar_payload_size,
   input  wire [1:0]    io_inputs_0_ar_payload_burst,
-  input  wire [2:0]    io_inputs_0_ar_payload_prot,
   output wire          io_inputs_0_r_valid,
   input  wire          io_inputs_0_r_ready,
   output wire [31:0]   io_inputs_0_r_payload_data,
-  output wire [1:0]    io_inputs_0_r_payload_id,
+  output wire [4:0]    io_inputs_0_r_payload_id,
   output wire [1:0]    io_inputs_0_r_payload_resp,
   output wire          io_inputs_0_r_payload_last,
   input  wire          io_inputs_1_ar_valid,
   output wire          io_inputs_1_ar_ready,
   input  wire [31:0]   io_inputs_1_ar_payload_addr,
-  input  wire [1:0]    io_inputs_1_ar_payload_id,
+  input  wire [4:0]    io_inputs_1_ar_payload_id,
   input  wire [7:0]    io_inputs_1_ar_payload_len,
   input  wire [2:0]    io_inputs_1_ar_payload_size,
   input  wire [1:0]    io_inputs_1_ar_payload_burst,
-  input  wire [2:0]    io_inputs_1_ar_payload_prot,
   output wire          io_inputs_1_r_valid,
   input  wire          io_inputs_1_r_ready,
   output wire [31:0]   io_inputs_1_r_payload_data,
-  output wire [1:0]    io_inputs_1_r_payload_id,
+  output wire [4:0]    io_inputs_1_r_payload_id,
   output wire [1:0]    io_inputs_1_r_payload_resp,
   output wire          io_inputs_1_r_payload_last,
   input  wire          io_inputs_2_ar_valid,
   output wire          io_inputs_2_ar_ready,
   input  wire [31:0]   io_inputs_2_ar_payload_addr,
-  input  wire [1:0]    io_inputs_2_ar_payload_id,
+  input  wire [4:0]    io_inputs_2_ar_payload_id,
   input  wire [7:0]    io_inputs_2_ar_payload_len,
   input  wire [2:0]    io_inputs_2_ar_payload_size,
   input  wire [1:0]    io_inputs_2_ar_payload_burst,
-  input  wire [2:0]    io_inputs_2_ar_payload_prot,
   output wire          io_inputs_2_r_valid,
   input  wire          io_inputs_2_r_ready,
   output wire [31:0]   io_inputs_2_r_payload_data,
-  output wire [1:0]    io_inputs_2_r_payload_id,
+  output wire [4:0]    io_inputs_2_r_payload_id,
   output wire [1:0]    io_inputs_2_r_payload_resp,
   output wire          io_inputs_2_r_payload_last,
   output wire          io_output_ar_valid,
   input  wire          io_output_ar_ready,
   output wire [31:0]   io_output_ar_payload_addr,
-  output wire [3:0]    io_output_ar_payload_id,
+  output wire [6:0]    io_output_ar_payload_id,
   output wire [7:0]    io_output_ar_payload_len,
   output wire [2:0]    io_output_ar_payload_size,
   output wire [1:0]    io_output_ar_payload_burst,
-  output wire [2:0]    io_output_ar_payload_prot,
   input  wire          io_output_r_valid,
   output wire          io_output_r_ready,
   input  wire [31:0]   io_output_r_payload_data,
-  input  wire [3:0]    io_output_r_payload_id,
+  input  wire [6:0]    io_output_r_payload_id,
   input  wire [1:0]    io_output_r_payload_resp,
   input  wire          io_output_r_payload_last,
   input  wire          clk,
@@ -24578,11 +24717,10 @@ module Axi4ReadOnlyArbiter (
   wire                cmdArbiter_io_inputs_2_ready;
   wire                cmdArbiter_io_output_valid;
   wire       [31:0]   cmdArbiter_io_output_payload_addr;
-  wire       [1:0]    cmdArbiter_io_output_payload_id;
+  wire       [4:0]    cmdArbiter_io_output_payload_id;
   wire       [7:0]    cmdArbiter_io_output_payload_len;
   wire       [2:0]    cmdArbiter_io_output_payload_size;
   wire       [1:0]    cmdArbiter_io_output_payload_burst;
-  wire       [2:0]    cmdArbiter_io_output_payload_prot;
   wire       [1:0]    cmdArbiter_io_chosen;
   wire       [2:0]    cmdArbiter_io_chosenOH;
   reg                 _zz_io_output_r_ready;
@@ -24595,35 +24733,31 @@ module Axi4ReadOnlyArbiter (
     .io_inputs_0_valid         (io_inputs_0_ar_valid                   ), //i
     .io_inputs_0_ready         (cmdArbiter_io_inputs_0_ready           ), //o
     .io_inputs_0_payload_addr  (io_inputs_0_ar_payload_addr[31:0]      ), //i
-    .io_inputs_0_payload_id    (io_inputs_0_ar_payload_id[1:0]         ), //i
+    .io_inputs_0_payload_id    (io_inputs_0_ar_payload_id[4:0]         ), //i
     .io_inputs_0_payload_len   (io_inputs_0_ar_payload_len[7:0]        ), //i
     .io_inputs_0_payload_size  (io_inputs_0_ar_payload_size[2:0]       ), //i
     .io_inputs_0_payload_burst (io_inputs_0_ar_payload_burst[1:0]      ), //i
-    .io_inputs_0_payload_prot  (io_inputs_0_ar_payload_prot[2:0]       ), //i
     .io_inputs_1_valid         (io_inputs_1_ar_valid                   ), //i
     .io_inputs_1_ready         (cmdArbiter_io_inputs_1_ready           ), //o
     .io_inputs_1_payload_addr  (io_inputs_1_ar_payload_addr[31:0]      ), //i
-    .io_inputs_1_payload_id    (io_inputs_1_ar_payload_id[1:0]         ), //i
+    .io_inputs_1_payload_id    (io_inputs_1_ar_payload_id[4:0]         ), //i
     .io_inputs_1_payload_len   (io_inputs_1_ar_payload_len[7:0]        ), //i
     .io_inputs_1_payload_size  (io_inputs_1_ar_payload_size[2:0]       ), //i
     .io_inputs_1_payload_burst (io_inputs_1_ar_payload_burst[1:0]      ), //i
-    .io_inputs_1_payload_prot  (io_inputs_1_ar_payload_prot[2:0]       ), //i
     .io_inputs_2_valid         (io_inputs_2_ar_valid                   ), //i
     .io_inputs_2_ready         (cmdArbiter_io_inputs_2_ready           ), //o
     .io_inputs_2_payload_addr  (io_inputs_2_ar_payload_addr[31:0]      ), //i
-    .io_inputs_2_payload_id    (io_inputs_2_ar_payload_id[1:0]         ), //i
+    .io_inputs_2_payload_id    (io_inputs_2_ar_payload_id[4:0]         ), //i
     .io_inputs_2_payload_len   (io_inputs_2_ar_payload_len[7:0]        ), //i
     .io_inputs_2_payload_size  (io_inputs_2_ar_payload_size[2:0]       ), //i
     .io_inputs_2_payload_burst (io_inputs_2_ar_payload_burst[1:0]      ), //i
-    .io_inputs_2_payload_prot  (io_inputs_2_ar_payload_prot[2:0]       ), //i
     .io_output_valid           (cmdArbiter_io_output_valid             ), //o
     .io_output_ready           (io_output_ar_ready                     ), //i
     .io_output_payload_addr    (cmdArbiter_io_output_payload_addr[31:0]), //o
-    .io_output_payload_id      (cmdArbiter_io_output_payload_id[1:0]   ), //o
+    .io_output_payload_id      (cmdArbiter_io_output_payload_id[4:0]   ), //o
     .io_output_payload_len     (cmdArbiter_io_output_payload_len[7:0]  ), //o
     .io_output_payload_size    (cmdArbiter_io_output_payload_size[2:0] ), //o
     .io_output_payload_burst   (cmdArbiter_io_output_payload_burst[1:0]), //o
-    .io_output_payload_prot    (cmdArbiter_io_output_payload_prot[2:0] ), //o
     .io_chosen                 (cmdArbiter_io_chosen[1:0]              ), //o
     .io_chosenOH               (cmdArbiter_io_chosenOH[2:0]            ), //o
     .clk                       (clk                                    ), //i
@@ -24645,9 +24779,8 @@ module Axi4ReadOnlyArbiter (
   assign io_output_ar_payload_len = cmdArbiter_io_output_payload_len;
   assign io_output_ar_payload_size = cmdArbiter_io_output_payload_size;
   assign io_output_ar_payload_burst = cmdArbiter_io_output_payload_burst;
-  assign io_output_ar_payload_prot = cmdArbiter_io_output_payload_prot;
   assign io_output_ar_payload_id = {cmdArbiter_io_chosen,cmdArbiter_io_output_payload_id};
-  assign readRspIndex = io_output_r_payload_id[3 : 2];
+  assign readRspIndex = io_output_r_payload_id[6 : 5];
   assign readRspSels_0 = (readRspIndex == 2'b00);
   assign readRspSels_1 = (readRspIndex == 2'b01);
   assign readRspSels_2 = (readRspIndex == 2'b10);
@@ -24655,30 +24788,22 @@ module Axi4ReadOnlyArbiter (
   assign io_inputs_0_r_payload_data = io_output_r_payload_data;
   assign io_inputs_0_r_payload_resp = io_output_r_payload_resp;
   assign io_inputs_0_r_payload_last = io_output_r_payload_last;
-  assign io_inputs_0_r_payload_id = io_output_r_payload_id[1 : 0];
+  assign io_inputs_0_r_payload_id = io_output_r_payload_id[4 : 0];
   assign io_inputs_1_r_valid = (io_output_r_valid && readRspSels_1);
   assign io_inputs_1_r_payload_data = io_output_r_payload_data;
   assign io_inputs_1_r_payload_resp = io_output_r_payload_resp;
   assign io_inputs_1_r_payload_last = io_output_r_payload_last;
-  assign io_inputs_1_r_payload_id = io_output_r_payload_id[1 : 0];
+  assign io_inputs_1_r_payload_id = io_output_r_payload_id[4 : 0];
   assign io_inputs_2_r_valid = (io_output_r_valid && readRspSels_2);
   assign io_inputs_2_r_payload_data = io_output_r_payload_data;
   assign io_inputs_2_r_payload_resp = io_output_r_payload_resp;
   assign io_inputs_2_r_payload_last = io_output_r_payload_last;
-  assign io_inputs_2_r_payload_id = io_output_r_payload_id[1 : 0];
+  assign io_inputs_2_r_payload_id = io_output_r_payload_id[4 : 0];
   assign io_output_r_ready = _zz_io_output_r_ready;
 
 endmodule
 
-//Axi4WriteOnlyDecoder_2 replaced by Axi4WriteOnlyDecoder
-
-//Axi4ReadOnlyDecoder_2 replaced by Axi4ReadOnlyDecoder
-
-//Axi4WriteOnlyDecoder_1 replaced by Axi4WriteOnlyDecoder
-
-//Axi4ReadOnlyDecoder_1 replaced by Axi4ReadOnlyDecoder
-
-module Axi4WriteOnlyDecoder (
+module Axi4WriteOnlyDecoder_2 (
   input  wire          io_input_aw_valid,
   output wire          io_input_aw_ready,
   input  wire [31:0]   io_input_aw_payload_addr,
@@ -24802,7 +24927,7 @@ module Axi4WriteOnlyDecoder (
   wire                _zz_io_outputs_2_w_valid;
   wire       [1:0]    writeRspIndex;
 
-  Axi4WriteOnlyErrorSlave errorSlave (
+  Axi4WriteOnlyErrorSlave_2 errorSlave (
     .io_axi_aw_valid         (errorSlave_io_axi_aw_valid           ), //i
     .io_axi_aw_ready         (errorSlave_io_axi_aw_ready           ), //o
     .io_axi_aw_payload_addr  (io_input_aw_payload_addr[31:0]       ), //i
@@ -25005,7 +25130,7 @@ module Axi4WriteOnlyDecoder (
 
 endmodule
 
-module Axi4ReadOnlyDecoder (
+module Axi4ReadOnlyDecoder_2 (
   input  wire          io_input_ar_valid,
   output wire          io_input_ar_ready,
   input  wire [31:0]   io_input_ar_payload_addr,
@@ -25102,7 +25227,7 @@ module Axi4ReadOnlyDecoder (
   wire                _zz_readRspIndex_1;
   wire       [1:0]    readRspIndex;
 
-  Axi4ReadOnlyErrorSlave errorSlave (
+  Axi4ReadOnlyErrorSlave_2 errorSlave (
     .io_axi_ar_valid         (errorSlave_io_axi_ar_valid            ), //i
     .io_axi_ar_ready         (errorSlave_io_axi_ar_ready            ), //o
     .io_axi_ar_payload_addr  (io_input_ar_payload_addr[31:0]        ), //i
@@ -25261,37 +25386,605 @@ module Axi4ReadOnlyDecoder (
 
 endmodule
 
-//SplitGmbToAxi4Bridge_1 replaced by SplitGmbToAxi4Bridge
+//Axi4WriteOnlyDecoder_1 replaced by Axi4WriteOnlyDecoder
 
-module SplitGmbToAxi4Bridge (
+//Axi4ReadOnlyDecoder_1 replaced by Axi4ReadOnlyDecoder
+
+module Axi4WriteOnlyDecoder (
+  input  wire          io_input_aw_valid,
+  output wire          io_input_aw_ready,
+  input  wire [31:0]   io_input_aw_payload_addr,
+  input  wire [3:0]    io_input_aw_payload_id,
+  input  wire [7:0]    io_input_aw_payload_len,
+  input  wire [2:0]    io_input_aw_payload_size,
+  input  wire [1:0]    io_input_aw_payload_burst,
+  input  wire          io_input_w_valid,
+  output wire          io_input_w_ready,
+  input  wire [31:0]   io_input_w_payload_data,
+  input  wire [3:0]    io_input_w_payload_strb,
+  input  wire          io_input_w_payload_last,
+  output wire          io_input_b_valid,
+  input  wire          io_input_b_ready,
+  output reg  [3:0]    io_input_b_payload_id,
+  output reg  [1:0]    io_input_b_payload_resp,
+  output wire          io_outputs_0_aw_valid,
+  input  wire          io_outputs_0_aw_ready,
+  output wire [31:0]   io_outputs_0_aw_payload_addr,
+  output wire [3:0]    io_outputs_0_aw_payload_id,
+  output wire [7:0]    io_outputs_0_aw_payload_len,
+  output wire [2:0]    io_outputs_0_aw_payload_size,
+  output wire [1:0]    io_outputs_0_aw_payload_burst,
+  output wire          io_outputs_0_w_valid,
+  input  wire          io_outputs_0_w_ready,
+  output wire [31:0]   io_outputs_0_w_payload_data,
+  output wire [3:0]    io_outputs_0_w_payload_strb,
+  output wire          io_outputs_0_w_payload_last,
+  input  wire          io_outputs_0_b_valid,
+  output wire          io_outputs_0_b_ready,
+  input  wire [3:0]    io_outputs_0_b_payload_id,
+  input  wire [1:0]    io_outputs_0_b_payload_resp,
+  output wire          io_outputs_1_aw_valid,
+  input  wire          io_outputs_1_aw_ready,
+  output wire [31:0]   io_outputs_1_aw_payload_addr,
+  output wire [3:0]    io_outputs_1_aw_payload_id,
+  output wire [7:0]    io_outputs_1_aw_payload_len,
+  output wire [2:0]    io_outputs_1_aw_payload_size,
+  output wire [1:0]    io_outputs_1_aw_payload_burst,
+  output wire          io_outputs_1_w_valid,
+  input  wire          io_outputs_1_w_ready,
+  output wire [31:0]   io_outputs_1_w_payload_data,
+  output wire [3:0]    io_outputs_1_w_payload_strb,
+  output wire          io_outputs_1_w_payload_last,
+  input  wire          io_outputs_1_b_valid,
+  output wire          io_outputs_1_b_ready,
+  input  wire [3:0]    io_outputs_1_b_payload_id,
+  input  wire [1:0]    io_outputs_1_b_payload_resp,
+  output wire          io_outputs_2_aw_valid,
+  input  wire          io_outputs_2_aw_ready,
+  output wire [31:0]   io_outputs_2_aw_payload_addr,
+  output wire [3:0]    io_outputs_2_aw_payload_id,
+  output wire [7:0]    io_outputs_2_aw_payload_len,
+  output wire [2:0]    io_outputs_2_aw_payload_size,
+  output wire [1:0]    io_outputs_2_aw_payload_burst,
+  output wire          io_outputs_2_w_valid,
+  input  wire          io_outputs_2_w_ready,
+  output wire [31:0]   io_outputs_2_w_payload_data,
+  output wire [3:0]    io_outputs_2_w_payload_strb,
+  output wire          io_outputs_2_w_payload_last,
+  input  wire          io_outputs_2_b_valid,
+  output wire          io_outputs_2_b_ready,
+  input  wire [3:0]    io_outputs_2_b_payload_id,
+  input  wire [1:0]    io_outputs_2_b_payload_resp,
+  input  wire          clk,
+  input  wire          reset
+);
+
+  wire                errorSlave_io_axi_aw_valid;
+  wire                errorSlave_io_axi_w_valid;
+  wire                errorSlave_io_axi_aw_ready;
+  wire                errorSlave_io_axi_w_ready;
+  wire                errorSlave_io_axi_b_valid;
+  wire       [3:0]    errorSlave_io_axi_b_payload_id;
+  wire       [1:0]    errorSlave_io_axi_b_payload_resp;
+  reg        [3:0]    _zz_io_input_b_payload_id;
+  reg        [1:0]    _zz_io_input_b_payload_resp;
+  wire                cmdAllowedStart;
+  wire                io_input_aw_fire;
+  wire                io_input_b_fire;
+  reg                 pendingCmdCounter_incrementIt;
+  reg                 pendingCmdCounter_decrementIt;
+  wire       [2:0]    pendingCmdCounter_valueNext;
+  reg        [2:0]    pendingCmdCounter_value;
+  wire                pendingCmdCounter_mayOverflow;
+  wire                pendingCmdCounter_mayUnderflow;
+  wire                pendingCmdCounter_willOverflowIfInc;
+  wire                pendingCmdCounter_willOverflow;
+  wire                pendingCmdCounter_willUnderflowIfDec;
+  wire                pendingCmdCounter_willUnderflow;
+  reg        [2:0]    pendingCmdCounter_finalIncrement;
+  wire                when_Utils_l767;
+  wire                when_Utils_l769;
+  wire                io_input_w_fire;
+  wire                when_Utils_l735;
+  reg                 pendingDataCounter_incrementIt;
+  reg                 pendingDataCounter_decrementIt;
+  wire       [2:0]    pendingDataCounter_valueNext;
+  reg        [2:0]    pendingDataCounter_value;
+  wire                pendingDataCounter_mayOverflow;
+  wire                pendingDataCounter_mayUnderflow;
+  wire                pendingDataCounter_willOverflowIfInc;
+  wire                pendingDataCounter_willOverflow;
+  wire                pendingDataCounter_willUnderflowIfDec;
+  wire                pendingDataCounter_willUnderflow;
+  reg        [2:0]    pendingDataCounter_finalIncrement;
+  wire                when_Utils_l767_1;
+  wire                when_Utils_l769_1;
+  wire       [2:0]    decodedCmdSels;
+  wire                decodedCmdError;
+  reg        [2:0]    pendingSels;
+  reg                 pendingError;
+  wire                allowCmd;
+  wire                allowData;
+  reg                 _zz_cmdAllowedStart;
+  wire                _zz_io_outputs_1_w_valid;
+  wire                _zz_io_outputs_2_w_valid;
+  wire       [1:0]    writeRspIndex;
+
+  Axi4WriteOnlyErrorSlave errorSlave (
+    .io_axi_aw_valid         (errorSlave_io_axi_aw_valid           ), //i
+    .io_axi_aw_ready         (errorSlave_io_axi_aw_ready           ), //o
+    .io_axi_aw_payload_addr  (io_input_aw_payload_addr[31:0]       ), //i
+    .io_axi_aw_payload_id    (io_input_aw_payload_id[3:0]          ), //i
+    .io_axi_aw_payload_len   (io_input_aw_payload_len[7:0]         ), //i
+    .io_axi_aw_payload_size  (io_input_aw_payload_size[2:0]        ), //i
+    .io_axi_aw_payload_burst (io_input_aw_payload_burst[1:0]       ), //i
+    .io_axi_w_valid          (errorSlave_io_axi_w_valid            ), //i
+    .io_axi_w_ready          (errorSlave_io_axi_w_ready            ), //o
+    .io_axi_w_payload_data   (io_input_w_payload_data[31:0]        ), //i
+    .io_axi_w_payload_strb   (io_input_w_payload_strb[3:0]         ), //i
+    .io_axi_w_payload_last   (io_input_w_payload_last              ), //i
+    .io_axi_b_valid          (errorSlave_io_axi_b_valid            ), //o
+    .io_axi_b_ready          (io_input_b_ready                     ), //i
+    .io_axi_b_payload_id     (errorSlave_io_axi_b_payload_id[3:0]  ), //o
+    .io_axi_b_payload_resp   (errorSlave_io_axi_b_payload_resp[1:0]), //o
+    .clk                     (clk                                  ), //i
+    .reset                   (reset                                )  //i
+  );
+  always @(*) begin
+    case(writeRspIndex)
+      2'b00 : begin
+        _zz_io_input_b_payload_id = io_outputs_0_b_payload_id;
+        _zz_io_input_b_payload_resp = io_outputs_0_b_payload_resp;
+      end
+      2'b01 : begin
+        _zz_io_input_b_payload_id = io_outputs_1_b_payload_id;
+        _zz_io_input_b_payload_resp = io_outputs_1_b_payload_resp;
+      end
+      default : begin
+        _zz_io_input_b_payload_id = io_outputs_2_b_payload_id;
+        _zz_io_input_b_payload_resp = io_outputs_2_b_payload_resp;
+      end
+    endcase
+  end
+
+  assign io_input_aw_fire = (io_input_aw_valid && io_input_aw_ready);
+  assign io_input_b_fire = (io_input_b_valid && io_input_b_ready);
+  always @(*) begin
+    pendingCmdCounter_incrementIt = 1'b0;
+    if(io_input_aw_fire) begin
+      pendingCmdCounter_incrementIt = 1'b1;
+    end
+  end
+
+  always @(*) begin
+    pendingCmdCounter_decrementIt = 1'b0;
+    if(io_input_b_fire) begin
+      pendingCmdCounter_decrementIt = 1'b1;
+    end
+  end
+
+  assign pendingCmdCounter_mayOverflow = (pendingCmdCounter_value == 3'b111);
+  assign pendingCmdCounter_mayUnderflow = (pendingCmdCounter_value == 3'b000);
+  assign pendingCmdCounter_willOverflowIfInc = (pendingCmdCounter_mayOverflow && (! pendingCmdCounter_decrementIt));
+  assign pendingCmdCounter_willOverflow = (pendingCmdCounter_willOverflowIfInc && pendingCmdCounter_incrementIt);
+  assign pendingCmdCounter_willUnderflowIfDec = (pendingCmdCounter_mayUnderflow && (! pendingCmdCounter_incrementIt));
+  assign pendingCmdCounter_willUnderflow = (pendingCmdCounter_willUnderflowIfDec && pendingCmdCounter_decrementIt);
+  assign when_Utils_l767 = (pendingCmdCounter_incrementIt && (! pendingCmdCounter_decrementIt));
+  always @(*) begin
+    if(when_Utils_l767) begin
+      pendingCmdCounter_finalIncrement = 3'b001;
+    end else begin
+      if(when_Utils_l769) begin
+        pendingCmdCounter_finalIncrement = 3'b111;
+      end else begin
+        pendingCmdCounter_finalIncrement = 3'b000;
+      end
+    end
+  end
+
+  assign when_Utils_l769 = ((! pendingCmdCounter_incrementIt) && pendingCmdCounter_decrementIt);
+  assign pendingCmdCounter_valueNext = (pendingCmdCounter_value + pendingCmdCounter_finalIncrement);
+  assign io_input_w_fire = (io_input_w_valid && io_input_w_ready);
+  assign when_Utils_l735 = (io_input_w_fire && io_input_w_payload_last);
+  always @(*) begin
+    pendingDataCounter_incrementIt = 1'b0;
+    if(cmdAllowedStart) begin
+      pendingDataCounter_incrementIt = 1'b1;
+    end
+  end
+
+  always @(*) begin
+    pendingDataCounter_decrementIt = 1'b0;
+    if(when_Utils_l735) begin
+      pendingDataCounter_decrementIt = 1'b1;
+    end
+  end
+
+  assign pendingDataCounter_mayOverflow = (pendingDataCounter_value == 3'b111);
+  assign pendingDataCounter_mayUnderflow = (pendingDataCounter_value == 3'b000);
+  assign pendingDataCounter_willOverflowIfInc = (pendingDataCounter_mayOverflow && (! pendingDataCounter_decrementIt));
+  assign pendingDataCounter_willOverflow = (pendingDataCounter_willOverflowIfInc && pendingDataCounter_incrementIt);
+  assign pendingDataCounter_willUnderflowIfDec = (pendingDataCounter_mayUnderflow && (! pendingDataCounter_incrementIt));
+  assign pendingDataCounter_willUnderflow = (pendingDataCounter_willUnderflowIfDec && pendingDataCounter_decrementIt);
+  assign when_Utils_l767_1 = (pendingDataCounter_incrementIt && (! pendingDataCounter_decrementIt));
+  always @(*) begin
+    if(when_Utils_l767_1) begin
+      pendingDataCounter_finalIncrement = 3'b001;
+    end else begin
+      if(when_Utils_l769_1) begin
+        pendingDataCounter_finalIncrement = 3'b111;
+      end else begin
+        pendingDataCounter_finalIncrement = 3'b000;
+      end
+    end
+  end
+
+  assign when_Utils_l769_1 = ((! pendingDataCounter_incrementIt) && pendingDataCounter_decrementIt);
+  assign pendingDataCounter_valueNext = (pendingDataCounter_value + pendingDataCounter_finalIncrement);
+  assign decodedCmdSels = {(((io_input_aw_payload_addr & (~ 32'h000003ff)) == 32'hbfd00000) && io_input_aw_valid),{(((io_input_aw_payload_addr & (~ 32'h003fffff)) == 32'h80400000) && io_input_aw_valid),(((io_input_aw_payload_addr & (~ 32'h003fffff)) == 32'h80000000) && io_input_aw_valid)}};
+  assign decodedCmdError = (decodedCmdSels == 3'b000);
+  assign allowCmd = ((pendingCmdCounter_value == 3'b000) || ((pendingCmdCounter_value != 3'b111) && (pendingSels == decodedCmdSels)));
+  assign allowData = (pendingDataCounter_value != 3'b000);
+  assign cmdAllowedStart = ((io_input_aw_valid && allowCmd) && _zz_cmdAllowedStart);
+  assign io_input_aw_ready = (((|(decodedCmdSels & {io_outputs_2_aw_ready,{io_outputs_1_aw_ready,io_outputs_0_aw_ready}})) || (decodedCmdError && errorSlave_io_axi_aw_ready)) && allowCmd);
+  assign errorSlave_io_axi_aw_valid = ((io_input_aw_valid && decodedCmdError) && allowCmd);
+  assign io_outputs_0_aw_valid = ((io_input_aw_valid && decodedCmdSels[0]) && allowCmd);
+  assign io_outputs_0_aw_payload_addr = io_input_aw_payload_addr;
+  assign io_outputs_0_aw_payload_id = io_input_aw_payload_id;
+  assign io_outputs_0_aw_payload_len = io_input_aw_payload_len;
+  assign io_outputs_0_aw_payload_size = io_input_aw_payload_size;
+  assign io_outputs_0_aw_payload_burst = io_input_aw_payload_burst;
+  assign io_outputs_1_aw_valid = ((io_input_aw_valid && decodedCmdSels[1]) && allowCmd);
+  assign io_outputs_1_aw_payload_addr = io_input_aw_payload_addr;
+  assign io_outputs_1_aw_payload_id = io_input_aw_payload_id;
+  assign io_outputs_1_aw_payload_len = io_input_aw_payload_len;
+  assign io_outputs_1_aw_payload_size = io_input_aw_payload_size;
+  assign io_outputs_1_aw_payload_burst = io_input_aw_payload_burst;
+  assign io_outputs_2_aw_valid = ((io_input_aw_valid && decodedCmdSels[2]) && allowCmd);
+  assign io_outputs_2_aw_payload_addr = io_input_aw_payload_addr;
+  assign io_outputs_2_aw_payload_id = io_input_aw_payload_id;
+  assign io_outputs_2_aw_payload_len = io_input_aw_payload_len;
+  assign io_outputs_2_aw_payload_size = io_input_aw_payload_size;
+  assign io_outputs_2_aw_payload_burst = io_input_aw_payload_burst;
+  assign io_input_w_ready = (((|(pendingSels & {io_outputs_2_w_ready,{io_outputs_1_w_ready,io_outputs_0_w_ready}})) || (pendingError && errorSlave_io_axi_w_ready)) && allowData);
+  assign errorSlave_io_axi_w_valid = ((io_input_w_valid && pendingError) && allowData);
+  assign _zz_io_outputs_1_w_valid = pendingSels[1];
+  assign _zz_io_outputs_2_w_valid = pendingSels[2];
+  assign io_outputs_0_w_valid = ((io_input_w_valid && pendingSels[0]) && allowData);
+  assign io_outputs_0_w_payload_data = io_input_w_payload_data;
+  assign io_outputs_0_w_payload_strb = io_input_w_payload_strb;
+  assign io_outputs_0_w_payload_last = io_input_w_payload_last;
+  assign io_outputs_1_w_valid = ((io_input_w_valid && _zz_io_outputs_1_w_valid) && allowData);
+  assign io_outputs_1_w_payload_data = io_input_w_payload_data;
+  assign io_outputs_1_w_payload_strb = io_input_w_payload_strb;
+  assign io_outputs_1_w_payload_last = io_input_w_payload_last;
+  assign io_outputs_2_w_valid = ((io_input_w_valid && _zz_io_outputs_2_w_valid) && allowData);
+  assign io_outputs_2_w_payload_data = io_input_w_payload_data;
+  assign io_outputs_2_w_payload_strb = io_input_w_payload_strb;
+  assign io_outputs_2_w_payload_last = io_input_w_payload_last;
+  assign writeRspIndex = {_zz_io_outputs_2_w_valid,_zz_io_outputs_1_w_valid};
+  assign io_input_b_valid = ((|{io_outputs_2_b_valid,{io_outputs_1_b_valid,io_outputs_0_b_valid}}) || errorSlave_io_axi_b_valid);
+  always @(*) begin
+    io_input_b_payload_id = _zz_io_input_b_payload_id;
+    if(pendingError) begin
+      io_input_b_payload_id = errorSlave_io_axi_b_payload_id;
+    end
+  end
+
+  always @(*) begin
+    io_input_b_payload_resp = _zz_io_input_b_payload_resp;
+    if(pendingError) begin
+      io_input_b_payload_resp = errorSlave_io_axi_b_payload_resp;
+    end
+  end
+
+  assign io_outputs_0_b_ready = io_input_b_ready;
+  assign io_outputs_1_b_ready = io_input_b_ready;
+  assign io_outputs_2_b_ready = io_input_b_ready;
+  always @(posedge clk or posedge reset) begin
+    if(reset) begin
+      pendingCmdCounter_value <= 3'b000;
+      pendingDataCounter_value <= 3'b000;
+      pendingSels <= 3'b000;
+      pendingError <= 1'b0;
+      _zz_cmdAllowedStart <= 1'b1;
+    end else begin
+      pendingCmdCounter_value <= pendingCmdCounter_valueNext;
+      pendingDataCounter_value <= pendingDataCounter_valueNext;
+      if(cmdAllowedStart) begin
+        pendingSels <= decodedCmdSels;
+      end
+      if(cmdAllowedStart) begin
+        pendingError <= decodedCmdError;
+      end
+      if(cmdAllowedStart) begin
+        _zz_cmdAllowedStart <= 1'b0;
+      end
+      if(io_input_aw_ready) begin
+        _zz_cmdAllowedStart <= 1'b1;
+      end
+    end
+  end
+
+
+endmodule
+
+module Axi4ReadOnlyDecoder (
+  input  wire          io_input_ar_valid,
+  output wire          io_input_ar_ready,
+  input  wire [31:0]   io_input_ar_payload_addr,
+  input  wire [3:0]    io_input_ar_payload_id,
+  input  wire [7:0]    io_input_ar_payload_len,
+  input  wire [2:0]    io_input_ar_payload_size,
+  input  wire [1:0]    io_input_ar_payload_burst,
+  output reg           io_input_r_valid,
+  input  wire          io_input_r_ready,
+  output wire [31:0]   io_input_r_payload_data,
+  output reg  [3:0]    io_input_r_payload_id,
+  output reg  [1:0]    io_input_r_payload_resp,
+  output reg           io_input_r_payload_last,
+  output wire          io_outputs_0_ar_valid,
+  input  wire          io_outputs_0_ar_ready,
+  output wire [31:0]   io_outputs_0_ar_payload_addr,
+  output wire [3:0]    io_outputs_0_ar_payload_id,
+  output wire [7:0]    io_outputs_0_ar_payload_len,
+  output wire [2:0]    io_outputs_0_ar_payload_size,
+  output wire [1:0]    io_outputs_0_ar_payload_burst,
+  input  wire          io_outputs_0_r_valid,
+  output wire          io_outputs_0_r_ready,
+  input  wire [31:0]   io_outputs_0_r_payload_data,
+  input  wire [3:0]    io_outputs_0_r_payload_id,
+  input  wire [1:0]    io_outputs_0_r_payload_resp,
+  input  wire          io_outputs_0_r_payload_last,
+  output wire          io_outputs_1_ar_valid,
+  input  wire          io_outputs_1_ar_ready,
+  output wire [31:0]   io_outputs_1_ar_payload_addr,
+  output wire [3:0]    io_outputs_1_ar_payload_id,
+  output wire [7:0]    io_outputs_1_ar_payload_len,
+  output wire [2:0]    io_outputs_1_ar_payload_size,
+  output wire [1:0]    io_outputs_1_ar_payload_burst,
+  input  wire          io_outputs_1_r_valid,
+  output wire          io_outputs_1_r_ready,
+  input  wire [31:0]   io_outputs_1_r_payload_data,
+  input  wire [3:0]    io_outputs_1_r_payload_id,
+  input  wire [1:0]    io_outputs_1_r_payload_resp,
+  input  wire          io_outputs_1_r_payload_last,
+  output wire          io_outputs_2_ar_valid,
+  input  wire          io_outputs_2_ar_ready,
+  output wire [31:0]   io_outputs_2_ar_payload_addr,
+  output wire [3:0]    io_outputs_2_ar_payload_id,
+  output wire [7:0]    io_outputs_2_ar_payload_len,
+  output wire [2:0]    io_outputs_2_ar_payload_size,
+  output wire [1:0]    io_outputs_2_ar_payload_burst,
+  input  wire          io_outputs_2_r_valid,
+  output wire          io_outputs_2_r_ready,
+  input  wire [31:0]   io_outputs_2_r_payload_data,
+  input  wire [3:0]    io_outputs_2_r_payload_id,
+  input  wire [1:0]    io_outputs_2_r_payload_resp,
+  input  wire          io_outputs_2_r_payload_last,
+  input  wire          clk,
+  input  wire          reset
+);
+
+  wire                errorSlave_io_axi_ar_valid;
+  wire                errorSlave_io_axi_ar_ready;
+  wire                errorSlave_io_axi_r_valid;
+  wire       [31:0]   errorSlave_io_axi_r_payload_data;
+  wire       [3:0]    errorSlave_io_axi_r_payload_id;
+  wire       [1:0]    errorSlave_io_axi_r_payload_resp;
+  wire                errorSlave_io_axi_r_payload_last;
+  reg        [31:0]   _zz_io_input_r_payload_data;
+  reg        [3:0]    _zz_io_input_r_payload_id;
+  reg        [1:0]    _zz_io_input_r_payload_resp;
+  reg                 _zz_io_input_r_payload_last;
+  wire                io_input_ar_fire;
+  wire                io_input_r_fire;
+  wire                when_Utils_l735;
+  reg                 pendingCmdCounter_incrementIt;
+  reg                 pendingCmdCounter_decrementIt;
+  wire       [2:0]    pendingCmdCounter_valueNext;
+  reg        [2:0]    pendingCmdCounter_value;
+  wire                pendingCmdCounter_mayOverflow;
+  wire                pendingCmdCounter_mayUnderflow;
+  wire                pendingCmdCounter_willOverflowIfInc;
+  wire                pendingCmdCounter_willOverflow;
+  wire                pendingCmdCounter_willUnderflowIfDec;
+  wire                pendingCmdCounter_willUnderflow;
+  reg        [2:0]    pendingCmdCounter_finalIncrement;
+  wire                when_Utils_l767;
+  wire                when_Utils_l769;
+  wire       [2:0]    decodedCmdSels;
+  wire                decodedCmdError;
+  reg        [2:0]    pendingSels;
+  reg                 pendingError;
+  wire                allowCmd;
+  wire                _zz_readRspIndex;
+  wire                _zz_readRspIndex_1;
+  wire       [1:0]    readRspIndex;
+
+  Axi4ReadOnlyErrorSlave errorSlave (
+    .io_axi_ar_valid         (errorSlave_io_axi_ar_valid            ), //i
+    .io_axi_ar_ready         (errorSlave_io_axi_ar_ready            ), //o
+    .io_axi_ar_payload_addr  (io_input_ar_payload_addr[31:0]        ), //i
+    .io_axi_ar_payload_id    (io_input_ar_payload_id[3:0]           ), //i
+    .io_axi_ar_payload_len   (io_input_ar_payload_len[7:0]          ), //i
+    .io_axi_ar_payload_size  (io_input_ar_payload_size[2:0]         ), //i
+    .io_axi_ar_payload_burst (io_input_ar_payload_burst[1:0]        ), //i
+    .io_axi_r_valid          (errorSlave_io_axi_r_valid             ), //o
+    .io_axi_r_ready          (io_input_r_ready                      ), //i
+    .io_axi_r_payload_data   (errorSlave_io_axi_r_payload_data[31:0]), //o
+    .io_axi_r_payload_id     (errorSlave_io_axi_r_payload_id[3:0]   ), //o
+    .io_axi_r_payload_resp   (errorSlave_io_axi_r_payload_resp[1:0] ), //o
+    .io_axi_r_payload_last   (errorSlave_io_axi_r_payload_last      ), //o
+    .clk                     (clk                                   ), //i
+    .reset                   (reset                                 )  //i
+  );
+  always @(*) begin
+    case(readRspIndex)
+      2'b00 : begin
+        _zz_io_input_r_payload_data = io_outputs_0_r_payload_data;
+        _zz_io_input_r_payload_id = io_outputs_0_r_payload_id;
+        _zz_io_input_r_payload_resp = io_outputs_0_r_payload_resp;
+        _zz_io_input_r_payload_last = io_outputs_0_r_payload_last;
+      end
+      2'b01 : begin
+        _zz_io_input_r_payload_data = io_outputs_1_r_payload_data;
+        _zz_io_input_r_payload_id = io_outputs_1_r_payload_id;
+        _zz_io_input_r_payload_resp = io_outputs_1_r_payload_resp;
+        _zz_io_input_r_payload_last = io_outputs_1_r_payload_last;
+      end
+      default : begin
+        _zz_io_input_r_payload_data = io_outputs_2_r_payload_data;
+        _zz_io_input_r_payload_id = io_outputs_2_r_payload_id;
+        _zz_io_input_r_payload_resp = io_outputs_2_r_payload_resp;
+        _zz_io_input_r_payload_last = io_outputs_2_r_payload_last;
+      end
+    endcase
+  end
+
+  assign io_input_ar_fire = (io_input_ar_valid && io_input_ar_ready);
+  assign io_input_r_fire = (io_input_r_valid && io_input_r_ready);
+  assign when_Utils_l735 = (io_input_r_fire && io_input_r_payload_last);
+  always @(*) begin
+    pendingCmdCounter_incrementIt = 1'b0;
+    if(io_input_ar_fire) begin
+      pendingCmdCounter_incrementIt = 1'b1;
+    end
+  end
+
+  always @(*) begin
+    pendingCmdCounter_decrementIt = 1'b0;
+    if(when_Utils_l735) begin
+      pendingCmdCounter_decrementIt = 1'b1;
+    end
+  end
+
+  assign pendingCmdCounter_mayOverflow = (pendingCmdCounter_value == 3'b111);
+  assign pendingCmdCounter_mayUnderflow = (pendingCmdCounter_value == 3'b000);
+  assign pendingCmdCounter_willOverflowIfInc = (pendingCmdCounter_mayOverflow && (! pendingCmdCounter_decrementIt));
+  assign pendingCmdCounter_willOverflow = (pendingCmdCounter_willOverflowIfInc && pendingCmdCounter_incrementIt);
+  assign pendingCmdCounter_willUnderflowIfDec = (pendingCmdCounter_mayUnderflow && (! pendingCmdCounter_incrementIt));
+  assign pendingCmdCounter_willUnderflow = (pendingCmdCounter_willUnderflowIfDec && pendingCmdCounter_decrementIt);
+  assign when_Utils_l767 = (pendingCmdCounter_incrementIt && (! pendingCmdCounter_decrementIt));
+  always @(*) begin
+    if(when_Utils_l767) begin
+      pendingCmdCounter_finalIncrement = 3'b001;
+    end else begin
+      if(when_Utils_l769) begin
+        pendingCmdCounter_finalIncrement = 3'b111;
+      end else begin
+        pendingCmdCounter_finalIncrement = 3'b000;
+      end
+    end
+  end
+
+  assign when_Utils_l769 = ((! pendingCmdCounter_incrementIt) && pendingCmdCounter_decrementIt);
+  assign pendingCmdCounter_valueNext = (pendingCmdCounter_value + pendingCmdCounter_finalIncrement);
+  assign decodedCmdSels = {(((io_input_ar_payload_addr & (~ 32'h000003ff)) == 32'hbfd00000) && io_input_ar_valid),{(((io_input_ar_payload_addr & (~ 32'h003fffff)) == 32'h80400000) && io_input_ar_valid),(((io_input_ar_payload_addr & (~ 32'h003fffff)) == 32'h80000000) && io_input_ar_valid)}};
+  assign decodedCmdError = (decodedCmdSels == 3'b000);
+  assign allowCmd = ((pendingCmdCounter_value == 3'b000) || ((pendingCmdCounter_value != 3'b111) && (pendingSels == decodedCmdSels)));
+  assign io_input_ar_ready = (((|(decodedCmdSels & {io_outputs_2_ar_ready,{io_outputs_1_ar_ready,io_outputs_0_ar_ready}})) || (decodedCmdError && errorSlave_io_axi_ar_ready)) && allowCmd);
+  assign errorSlave_io_axi_ar_valid = ((io_input_ar_valid && decodedCmdError) && allowCmd);
+  assign io_outputs_0_ar_valid = ((io_input_ar_valid && decodedCmdSels[0]) && allowCmd);
+  assign io_outputs_0_ar_payload_addr = io_input_ar_payload_addr;
+  assign io_outputs_0_ar_payload_id = io_input_ar_payload_id;
+  assign io_outputs_0_ar_payload_len = io_input_ar_payload_len;
+  assign io_outputs_0_ar_payload_size = io_input_ar_payload_size;
+  assign io_outputs_0_ar_payload_burst = io_input_ar_payload_burst;
+  assign io_outputs_1_ar_valid = ((io_input_ar_valid && decodedCmdSels[1]) && allowCmd);
+  assign io_outputs_1_ar_payload_addr = io_input_ar_payload_addr;
+  assign io_outputs_1_ar_payload_id = io_input_ar_payload_id;
+  assign io_outputs_1_ar_payload_len = io_input_ar_payload_len;
+  assign io_outputs_1_ar_payload_size = io_input_ar_payload_size;
+  assign io_outputs_1_ar_payload_burst = io_input_ar_payload_burst;
+  assign io_outputs_2_ar_valid = ((io_input_ar_valid && decodedCmdSels[2]) && allowCmd);
+  assign io_outputs_2_ar_payload_addr = io_input_ar_payload_addr;
+  assign io_outputs_2_ar_payload_id = io_input_ar_payload_id;
+  assign io_outputs_2_ar_payload_len = io_input_ar_payload_len;
+  assign io_outputs_2_ar_payload_size = io_input_ar_payload_size;
+  assign io_outputs_2_ar_payload_burst = io_input_ar_payload_burst;
+  assign _zz_readRspIndex = pendingSels[1];
+  assign _zz_readRspIndex_1 = pendingSels[2];
+  assign readRspIndex = {_zz_readRspIndex_1,_zz_readRspIndex};
+  always @(*) begin
+    io_input_r_valid = (|{io_outputs_2_r_valid,{io_outputs_1_r_valid,io_outputs_0_r_valid}});
+    if(errorSlave_io_axi_r_valid) begin
+      io_input_r_valid = 1'b1;
+    end
+  end
+
+  assign io_input_r_payload_data = _zz_io_input_r_payload_data;
+  always @(*) begin
+    io_input_r_payload_id = _zz_io_input_r_payload_id;
+    if(pendingError) begin
+      io_input_r_payload_id = errorSlave_io_axi_r_payload_id;
+    end
+  end
+
+  always @(*) begin
+    io_input_r_payload_resp = _zz_io_input_r_payload_resp;
+    if(pendingError) begin
+      io_input_r_payload_resp = errorSlave_io_axi_r_payload_resp;
+    end
+  end
+
+  always @(*) begin
+    io_input_r_payload_last = _zz_io_input_r_payload_last;
+    if(pendingError) begin
+      io_input_r_payload_last = errorSlave_io_axi_r_payload_last;
+    end
+  end
+
+  assign io_outputs_0_r_ready = io_input_r_ready;
+  assign io_outputs_1_r_ready = io_input_r_ready;
+  assign io_outputs_2_r_ready = io_input_r_ready;
+  always @(posedge clk or posedge reset) begin
+    if(reset) begin
+      pendingCmdCounter_value <= 3'b000;
+      pendingSels <= 3'b000;
+      pendingError <= 1'b0;
+    end else begin
+      pendingCmdCounter_value <= pendingCmdCounter_valueNext;
+      if(io_input_ar_ready) begin
+        pendingSels <= decodedCmdSels;
+      end
+      if(io_input_ar_ready) begin
+        pendingError <= decodedCmdError;
+      end
+    end
+  end
+
+
+endmodule
+
+module SplitGmbToAxi4Bridge_1 (
   input  wire          io_gmbIn_read_cmd_valid,
   output reg           io_gmbIn_read_cmd_ready,
   input  wire [31:0]   io_gmbIn_read_cmd_payload_address,
-  input  wire [0:0]    io_gmbIn_read_cmd_payload_id,
+  input  wire [3:0]    io_gmbIn_read_cmd_payload_id,
   output wire          io_gmbIn_read_rsp_valid,
   input  wire          io_gmbIn_read_rsp_ready,
   output wire [31:0]   io_gmbIn_read_rsp_payload_data,
   output wire          io_gmbIn_read_rsp_payload_error,
-  output wire [0:0]    io_gmbIn_read_rsp_payload_id,
+  output wire [3:0]    io_gmbIn_read_rsp_payload_id,
   input  wire          io_gmbIn_write_cmd_valid,
   output reg           io_gmbIn_write_cmd_ready,
   input  wire [31:0]   io_gmbIn_write_cmd_payload_address,
   input  wire [31:0]   io_gmbIn_write_cmd_payload_data,
   input  wire [3:0]    io_gmbIn_write_cmd_payload_byteEnables,
-  input  wire [0:0]    io_gmbIn_write_cmd_payload_id,
+  input  wire [3:0]    io_gmbIn_write_cmd_payload_id,
   input  wire          io_gmbIn_write_cmd_payload_last,
   output wire          io_gmbIn_write_rsp_valid,
   input  wire          io_gmbIn_write_rsp_ready,
   output wire          io_gmbIn_write_rsp_payload_error,
-  output wire [0:0]    io_gmbIn_write_rsp_payload_id,
+  output wire [3:0]    io_gmbIn_write_rsp_payload_id,
   output wire          io_axiOut_aw_valid,
   input  wire          io_axiOut_aw_ready,
   output wire [31:0]   io_axiOut_aw_payload_addr,
-  output wire [0:0]    io_axiOut_aw_payload_id,
+  output wire [3:0]    io_axiOut_aw_payload_id,
   output wire [7:0]    io_axiOut_aw_payload_len,
   output wire [2:0]    io_axiOut_aw_payload_size,
   output wire [1:0]    io_axiOut_aw_payload_burst,
-  output wire [2:0]    io_axiOut_aw_payload_prot,
   output wire          io_axiOut_w_valid,
   input  wire          io_axiOut_w_ready,
   output wire [31:0]   io_axiOut_w_payload_data,
@@ -25299,69 +25992,116 @@ module SplitGmbToAxi4Bridge (
   output wire          io_axiOut_w_payload_last,
   input  wire          io_axiOut_b_valid,
   output reg           io_axiOut_b_ready,
-  input  wire [0:0]    io_axiOut_b_payload_id,
+  input  wire [3:0]    io_axiOut_b_payload_id,
   input  wire [1:0]    io_axiOut_b_payload_resp,
   output wire          io_axiOut_ar_valid,
   input  wire          io_axiOut_ar_ready,
   output wire [31:0]   io_axiOut_ar_payload_addr,
-  output wire [0:0]    io_axiOut_ar_payload_id,
+  output wire [3:0]    io_axiOut_ar_payload_id,
   output wire [7:0]    io_axiOut_ar_payload_len,
   output wire [2:0]    io_axiOut_ar_payload_size,
   output wire [1:0]    io_axiOut_ar_payload_burst,
-  output wire [2:0]    io_axiOut_ar_payload_prot,
   input  wire          io_axiOut_r_valid,
   output reg           io_axiOut_r_ready,
   input  wire [31:0]   io_axiOut_r_payload_data,
-  input  wire [0:0]    io_axiOut_r_payload_id,
+  input  wire [3:0]    io_axiOut_r_payload_id,
   input  wire [1:0]    io_axiOut_r_payload_resp,
   input  wire          io_axiOut_r_payload_last,
   input  wire          clk,
   input  wire          reset
 );
 
+  wire                cmdStage_fork_io_input_ready;
+  wire                cmdStage_fork_io_outputs_0_valid;
+  wire       [31:0]   cmdStage_fork_io_outputs_0_payload_address;
+  wire       [31:0]   cmdStage_fork_io_outputs_0_payload_data;
+  wire       [3:0]    cmdStage_fork_io_outputs_0_payload_byteEnables;
+  wire       [3:0]    cmdStage_fork_io_outputs_0_payload_id;
+  wire                cmdStage_fork_io_outputs_0_payload_last;
+  wire                cmdStage_fork_io_outputs_1_valid;
+  wire       [31:0]   cmdStage_fork_io_outputs_1_payload_address;
+  wire       [31:0]   cmdStage_fork_io_outputs_1_payload_data;
+  wire       [3:0]    cmdStage_fork_io_outputs_1_payload_byteEnables;
+  wire       [3:0]    cmdStage_fork_io_outputs_1_payload_id;
+  wire                cmdStage_fork_io_outputs_1_payload_last;
   wire                gmbReadCmd_valid;
   wire                gmbReadCmd_ready;
   wire       [31:0]   gmbReadCmd_payload_address;
-  wire       [0:0]    gmbReadCmd_payload_id;
+  wire       [3:0]    gmbReadCmd_payload_id;
   reg                 io_gmbIn_read_cmd_rValid;
   reg        [31:0]   io_gmbIn_read_cmd_rData_address;
-  reg        [0:0]    io_gmbIn_read_cmd_rData_id;
+  reg        [3:0]    io_gmbIn_read_cmd_rData_id;
   wire                when_Stream_l477;
   wire                axiR_valid;
   wire                axiR_ready;
   wire       [31:0]   axiR_payload_data;
-  wire       [0:0]    axiR_payload_id;
+  wire       [3:0]    axiR_payload_id;
   wire       [1:0]    axiR_payload_resp;
   wire                axiR_payload_last;
   reg                 io_axiOut_r_rValid;
   reg        [31:0]   io_axiOut_r_rData_data;
-  reg        [0:0]    io_axiOut_r_rData_id;
+  reg        [3:0]    io_axiOut_r_rData_id;
   reg        [1:0]    io_axiOut_r_rData_resp;
   reg                 io_axiOut_r_rData_last;
   wire                when_Stream_l477_1;
-  wire                gmbWriteCmd_valid;
-  wire                gmbWriteCmd_ready;
-  wire       [31:0]   gmbWriteCmd_payload_address;
-  wire       [31:0]   gmbWriteCmd_payload_data;
-  wire       [3:0]    gmbWriteCmd_payload_byteEnables;
-  wire       [0:0]    gmbWriteCmd_payload_id;
-  wire                gmbWriteCmd_payload_last;
+  reg        [31:0]   _zz_1;
+  wire                gmbReadCmd_fire;
+  wire                io_axiOut_ar_fire;
+  wire                axiR_fire;
+  wire                cmdStage_valid;
+  wire                cmdStage_ready;
+  wire       [31:0]   cmdStage_payload_address;
+  wire       [31:0]   cmdStage_payload_data;
+  wire       [3:0]    cmdStage_payload_byteEnables;
+  wire       [3:0]    cmdStage_payload_id;
+  wire                cmdStage_payload_last;
   reg                 io_gmbIn_write_cmd_rValid;
   reg        [31:0]   io_gmbIn_write_cmd_rData_address;
   reg        [31:0]   io_gmbIn_write_cmd_rData_data;
   reg        [3:0]    io_gmbIn_write_cmd_rData_byteEnables;
-  reg        [0:0]    io_gmbIn_write_cmd_rData_id;
+  reg        [3:0]    io_gmbIn_write_cmd_rData_id;
   reg                 io_gmbIn_write_cmd_rData_last;
   wire                when_Stream_l477_2;
   wire                axiB_staged_valid;
   wire                axiB_staged_ready;
-  wire       [0:0]    axiB_staged_payload_id;
+  wire       [3:0]    axiB_staged_payload_id;
   wire       [1:0]    axiB_staged_payload_resp;
   reg                 io_axiOut_b_rValid;
-  reg        [0:0]    io_axiOut_b_rData_id;
+  reg        [3:0]    io_axiOut_b_rData_id;
   reg        [1:0]    io_axiOut_b_rData_resp;
   wire                when_Stream_l477_3;
+  reg        [31:0]   _zz_2;
+  wire                io_gmbIn_write_cmd_fire;
+  wire                io_axiOut_aw_fire;
+  wire                io_axiOut_w_fire;
+  wire                io_axiOut_b_fire;
+  wire                _zz_3;
 
+  StreamFork cmdStage_fork (
+    .io_input_valid                   (cmdStage_valid                                     ), //i
+    .io_input_ready                   (cmdStage_fork_io_input_ready                       ), //o
+    .io_input_payload_address         (cmdStage_payload_address[31:0]                     ), //i
+    .io_input_payload_data            (cmdStage_payload_data[31:0]                        ), //i
+    .io_input_payload_byteEnables     (cmdStage_payload_byteEnables[3:0]                  ), //i
+    .io_input_payload_id              (cmdStage_payload_id[3:0]                           ), //i
+    .io_input_payload_last            (cmdStage_payload_last                              ), //i
+    .io_outputs_0_valid               (cmdStage_fork_io_outputs_0_valid                   ), //o
+    .io_outputs_0_ready               (io_axiOut_aw_ready                                 ), //i
+    .io_outputs_0_payload_address     (cmdStage_fork_io_outputs_0_payload_address[31:0]   ), //o
+    .io_outputs_0_payload_data        (cmdStage_fork_io_outputs_0_payload_data[31:0]      ), //o
+    .io_outputs_0_payload_byteEnables (cmdStage_fork_io_outputs_0_payload_byteEnables[3:0]), //o
+    .io_outputs_0_payload_id          (cmdStage_fork_io_outputs_0_payload_id[3:0]         ), //o
+    .io_outputs_0_payload_last        (cmdStage_fork_io_outputs_0_payload_last            ), //o
+    .io_outputs_1_valid               (cmdStage_fork_io_outputs_1_valid                   ), //o
+    .io_outputs_1_ready               (io_axiOut_w_ready                                  ), //i
+    .io_outputs_1_payload_address     (cmdStage_fork_io_outputs_1_payload_address[31:0]   ), //o
+    .io_outputs_1_payload_data        (cmdStage_fork_io_outputs_1_payload_data[31:0]      ), //o
+    .io_outputs_1_payload_byteEnables (cmdStage_fork_io_outputs_1_payload_byteEnables[3:0]), //o
+    .io_outputs_1_payload_id          (cmdStage_fork_io_outputs_1_payload_id[3:0]         ), //o
+    .io_outputs_1_payload_last        (cmdStage_fork_io_outputs_1_payload_last            ), //o
+    .clk                              (clk                                                ), //i
+    .reset                            (reset                                              )  //i
+  );
   always @(*) begin
     io_gmbIn_read_cmd_ready = gmbReadCmd_ready;
     if(when_Stream_l477) begin
@@ -25398,31 +26138,34 @@ module SplitGmbToAxi4Bridge (
   assign io_gmbIn_read_rsp_payload_id = axiR_payload_id;
   assign io_gmbIn_read_rsp_payload_error = (! (axiR_payload_resp == 2'b00));
   assign axiR_ready = io_gmbIn_read_rsp_ready;
+  assign gmbReadCmd_fire = (gmbReadCmd_valid && gmbReadCmd_ready);
+  assign io_axiOut_ar_fire = (io_axiOut_ar_valid && io_axiOut_ar_ready);
+  assign axiR_fire = (axiR_valid && axiR_ready);
   always @(*) begin
-    io_gmbIn_write_cmd_ready = gmbWriteCmd_ready;
+    io_gmbIn_write_cmd_ready = cmdStage_ready;
     if(when_Stream_l477_2) begin
       io_gmbIn_write_cmd_ready = 1'b1;
     end
   end
 
-  assign when_Stream_l477_2 = (! gmbWriteCmd_valid);
-  assign gmbWriteCmd_valid = io_gmbIn_write_cmd_rValid;
-  assign gmbWriteCmd_payload_address = io_gmbIn_write_cmd_rData_address;
-  assign gmbWriteCmd_payload_data = io_gmbIn_write_cmd_rData_data;
-  assign gmbWriteCmd_payload_byteEnables = io_gmbIn_write_cmd_rData_byteEnables;
-  assign gmbWriteCmd_payload_id = io_gmbIn_write_cmd_rData_id;
-  assign gmbWriteCmd_payload_last = io_gmbIn_write_cmd_rData_last;
-  assign io_axiOut_aw_valid = gmbWriteCmd_valid;
-  assign io_axiOut_aw_payload_addr = gmbWriteCmd_payload_address;
+  assign when_Stream_l477_2 = (! cmdStage_valid);
+  assign cmdStage_valid = io_gmbIn_write_cmd_rValid;
+  assign cmdStage_payload_address = io_gmbIn_write_cmd_rData_address;
+  assign cmdStage_payload_data = io_gmbIn_write_cmd_rData_data;
+  assign cmdStage_payload_byteEnables = io_gmbIn_write_cmd_rData_byteEnables;
+  assign cmdStage_payload_id = io_gmbIn_write_cmd_rData_id;
+  assign cmdStage_payload_last = io_gmbIn_write_cmd_rData_last;
+  assign cmdStage_ready = cmdStage_fork_io_input_ready;
+  assign io_axiOut_aw_valid = cmdStage_fork_io_outputs_0_valid;
+  assign io_axiOut_aw_payload_addr = cmdStage_fork_io_outputs_0_payload_address;
   assign io_axiOut_aw_payload_len = 8'h0;
   assign io_axiOut_aw_payload_size = 3'b010;
   assign io_axiOut_aw_payload_burst = 2'b01;
-  assign io_axiOut_aw_payload_id = gmbWriteCmd_payload_id;
-  assign io_axiOut_w_valid = gmbWriteCmd_valid;
-  assign io_axiOut_w_payload_data = gmbWriteCmd_payload_data;
-  assign io_axiOut_w_payload_strb = gmbWriteCmd_payload_byteEnables;
+  assign io_axiOut_aw_payload_id = cmdStage_fork_io_outputs_0_payload_id;
+  assign io_axiOut_w_valid = cmdStage_fork_io_outputs_1_valid;
+  assign io_axiOut_w_payload_data = cmdStage_fork_io_outputs_1_payload_data;
+  assign io_axiOut_w_payload_strb = cmdStage_fork_io_outputs_1_payload_byteEnables;
   assign io_axiOut_w_payload_last = 1'b1;
-  assign gmbWriteCmd_ready = (io_axiOut_aw_ready && io_axiOut_w_ready);
   always @(*) begin
     io_axiOut_b_ready = axiB_staged_ready;
     if(when_Stream_l477_3) begin
@@ -25438,12 +26181,19 @@ module SplitGmbToAxi4Bridge (
   assign io_gmbIn_write_rsp_payload_error = (! (axiB_staged_payload_resp == 2'b00));
   assign io_gmbIn_write_rsp_payload_id = axiB_staged_payload_id;
   assign axiB_staged_ready = io_gmbIn_write_rsp_ready;
+  assign io_gmbIn_write_cmd_fire = (io_gmbIn_write_cmd_valid && io_gmbIn_write_cmd_ready);
+  assign io_axiOut_aw_fire = (io_axiOut_aw_valid && io_axiOut_aw_ready);
+  assign io_axiOut_w_fire = (io_axiOut_w_valid && io_axiOut_w_ready);
+  assign io_axiOut_b_fire = (io_axiOut_b_valid && io_axiOut_b_ready);
+  assign _zz_3 = (io_axiOut_b_payload_resp == 2'b10);
   always @(posedge clk or posedge reset) begin
     if(reset) begin
       io_gmbIn_read_cmd_rValid <= 1'b0;
       io_axiOut_r_rValid <= 1'b0;
+      _zz_1 <= 32'h0;
       io_gmbIn_write_cmd_rValid <= 1'b0;
       io_axiOut_b_rValid <= 1'b0;
+      _zz_2 <= 32'h0;
     end else begin
       if(io_gmbIn_read_cmd_ready) begin
         io_gmbIn_read_cmd_rValid <= io_gmbIn_read_cmd_valid;
@@ -25451,12 +26201,332 @@ module SplitGmbToAxi4Bridge (
       if(io_axiOut_r_ready) begin
         io_axiOut_r_rValid <= io_axiOut_r_valid;
       end
+      _zz_1 <= (_zz_1 + 32'h00000001);
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // SplitGmbToAxi4Bridge.scala:L64
+        `else
+          if(!1'b0) begin
+            $display("NOTE(SplitGmbToAxi4Bridge.scala:64):  Bridge 1 Cycle %x: Read Channel\n  GMB Read: v=%x r=%x fire=%x addr=%x\n  AXI AR: v=%x r=%x fire=%x\n  AXI R: v=%x r=%x fire=%x", _zz_1, gmbReadCmd_valid, gmbReadCmd_ready, gmbReadCmd_fire, gmbReadCmd_payload_address, io_axiOut_ar_valid, io_axiOut_ar_ready, io_axiOut_ar_fire, axiR_valid, axiR_ready, axiR_fire); // SplitGmbToAxi4Bridge.scala:L64
+          end
+        `endif
+      `endif
       if(io_gmbIn_write_cmd_ready) begin
         io_gmbIn_write_cmd_rValid <= io_gmbIn_write_cmd_valid;
       end
       if(io_axiOut_b_ready) begin
         io_axiOut_b_rValid <= io_axiOut_b_valid;
       end
+      _zz_2 <= (_zz_2 + 32'h00000001);
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // SplitGmbToAxi4Bridge.scala:L123
+        `else
+          if(!1'b0) begin
+            $display("NOTE(SplitGmbToAxi4Bridge.scala:123):  Bridge 1 Cycle %x: Write Channel\n  GMB Write: v=%x r=%x fire=%x addr=%x\n  AXI AW: v=%x r=%x fire=%x id=%x\n  AXI W: v=%x r=%x fire=%x data=%x strb=%x\n  AXI B: v=%x r=%x fire=%x id=%x error=%x", _zz_2, io_gmbIn_write_cmd_valid, io_gmbIn_write_cmd_ready, io_gmbIn_write_cmd_fire, io_gmbIn_write_cmd_payload_address, io_axiOut_aw_valid, io_axiOut_aw_ready, io_axiOut_aw_fire, io_axiOut_aw_payload_id, io_axiOut_w_valid, io_axiOut_w_ready, io_axiOut_w_fire, io_axiOut_w_payload_data, io_axiOut_w_payload_strb, io_axiOut_b_valid, io_axiOut_b_ready, io_axiOut_b_fire, io_axiOut_b_payload_id, _zz_3); // SplitGmbToAxi4Bridge.scala:L123
+          end
+        `endif
+      `endif
+    end
+  end
+
+  always @(posedge clk) begin
+    if(io_gmbIn_read_cmd_ready) begin
+      io_gmbIn_read_cmd_rData_address <= io_gmbIn_read_cmd_payload_address;
+      io_gmbIn_read_cmd_rData_id <= io_gmbIn_read_cmd_payload_id;
+    end
+    if(io_axiOut_r_ready) begin
+      io_axiOut_r_rData_data <= io_axiOut_r_payload_data;
+      io_axiOut_r_rData_id <= io_axiOut_r_payload_id;
+      io_axiOut_r_rData_resp <= io_axiOut_r_payload_resp;
+      io_axiOut_r_rData_last <= io_axiOut_r_payload_last;
+    end
+    if(io_gmbIn_write_cmd_ready) begin
+      io_gmbIn_write_cmd_rData_address <= io_gmbIn_write_cmd_payload_address;
+      io_gmbIn_write_cmd_rData_data <= io_gmbIn_write_cmd_payload_data;
+      io_gmbIn_write_cmd_rData_byteEnables <= io_gmbIn_write_cmd_payload_byteEnables;
+      io_gmbIn_write_cmd_rData_id <= io_gmbIn_write_cmd_payload_id;
+      io_gmbIn_write_cmd_rData_last <= io_gmbIn_write_cmd_payload_last;
+    end
+    if(io_axiOut_b_ready) begin
+      io_axiOut_b_rData_id <= io_axiOut_b_payload_id;
+      io_axiOut_b_rData_resp <= io_axiOut_b_payload_resp;
+    end
+  end
+
+
+endmodule
+
+module SplitGmbToAxi4Bridge (
+  input  wire          io_gmbIn_read_cmd_valid,
+  output reg           io_gmbIn_read_cmd_ready,
+  input  wire [31:0]   io_gmbIn_read_cmd_payload_address,
+  input  wire [3:0]    io_gmbIn_read_cmd_payload_id,
+  output wire          io_gmbIn_read_rsp_valid,
+  input  wire          io_gmbIn_read_rsp_ready,
+  output wire [31:0]   io_gmbIn_read_rsp_payload_data,
+  output wire          io_gmbIn_read_rsp_payload_error,
+  output wire [3:0]    io_gmbIn_read_rsp_payload_id,
+  input  wire          io_gmbIn_write_cmd_valid,
+  output reg           io_gmbIn_write_cmd_ready,
+  input  wire [31:0]   io_gmbIn_write_cmd_payload_address,
+  input  wire [31:0]   io_gmbIn_write_cmd_payload_data,
+  input  wire [3:0]    io_gmbIn_write_cmd_payload_byteEnables,
+  input  wire [3:0]    io_gmbIn_write_cmd_payload_id,
+  input  wire          io_gmbIn_write_cmd_payload_last,
+  output wire          io_gmbIn_write_rsp_valid,
+  input  wire          io_gmbIn_write_rsp_ready,
+  output wire          io_gmbIn_write_rsp_payload_error,
+  output wire [3:0]    io_gmbIn_write_rsp_payload_id,
+  output wire          io_axiOut_aw_valid,
+  input  wire          io_axiOut_aw_ready,
+  output wire [31:0]   io_axiOut_aw_payload_addr,
+  output wire [3:0]    io_axiOut_aw_payload_id,
+  output wire [7:0]    io_axiOut_aw_payload_len,
+  output wire [2:0]    io_axiOut_aw_payload_size,
+  output wire [1:0]    io_axiOut_aw_payload_burst,
+  output wire          io_axiOut_w_valid,
+  input  wire          io_axiOut_w_ready,
+  output wire [31:0]   io_axiOut_w_payload_data,
+  output wire [3:0]    io_axiOut_w_payload_strb,
+  output wire          io_axiOut_w_payload_last,
+  input  wire          io_axiOut_b_valid,
+  output reg           io_axiOut_b_ready,
+  input  wire [3:0]    io_axiOut_b_payload_id,
+  input  wire [1:0]    io_axiOut_b_payload_resp,
+  output wire          io_axiOut_ar_valid,
+  input  wire          io_axiOut_ar_ready,
+  output wire [31:0]   io_axiOut_ar_payload_addr,
+  output wire [3:0]    io_axiOut_ar_payload_id,
+  output wire [7:0]    io_axiOut_ar_payload_len,
+  output wire [2:0]    io_axiOut_ar_payload_size,
+  output wire [1:0]    io_axiOut_ar_payload_burst,
+  input  wire          io_axiOut_r_valid,
+  output reg           io_axiOut_r_ready,
+  input  wire [31:0]   io_axiOut_r_payload_data,
+  input  wire [3:0]    io_axiOut_r_payload_id,
+  input  wire [1:0]    io_axiOut_r_payload_resp,
+  input  wire          io_axiOut_r_payload_last,
+  input  wire          clk,
+  input  wire          reset
+);
+
+  wire                cmdStage_fork_io_input_ready;
+  wire                cmdStage_fork_io_outputs_0_valid;
+  wire       [31:0]   cmdStage_fork_io_outputs_0_payload_address;
+  wire       [31:0]   cmdStage_fork_io_outputs_0_payload_data;
+  wire       [3:0]    cmdStage_fork_io_outputs_0_payload_byteEnables;
+  wire       [3:0]    cmdStage_fork_io_outputs_0_payload_id;
+  wire                cmdStage_fork_io_outputs_0_payload_last;
+  wire                cmdStage_fork_io_outputs_1_valid;
+  wire       [31:0]   cmdStage_fork_io_outputs_1_payload_address;
+  wire       [31:0]   cmdStage_fork_io_outputs_1_payload_data;
+  wire       [3:0]    cmdStage_fork_io_outputs_1_payload_byteEnables;
+  wire       [3:0]    cmdStage_fork_io_outputs_1_payload_id;
+  wire                cmdStage_fork_io_outputs_1_payload_last;
+  wire                gmbReadCmd_valid;
+  wire                gmbReadCmd_ready;
+  wire       [31:0]   gmbReadCmd_payload_address;
+  wire       [3:0]    gmbReadCmd_payload_id;
+  reg                 io_gmbIn_read_cmd_rValid;
+  reg        [31:0]   io_gmbIn_read_cmd_rData_address;
+  reg        [3:0]    io_gmbIn_read_cmd_rData_id;
+  wire                when_Stream_l477;
+  wire                axiR_valid;
+  wire                axiR_ready;
+  wire       [31:0]   axiR_payload_data;
+  wire       [3:0]    axiR_payload_id;
+  wire       [1:0]    axiR_payload_resp;
+  wire                axiR_payload_last;
+  reg                 io_axiOut_r_rValid;
+  reg        [31:0]   io_axiOut_r_rData_data;
+  reg        [3:0]    io_axiOut_r_rData_id;
+  reg        [1:0]    io_axiOut_r_rData_resp;
+  reg                 io_axiOut_r_rData_last;
+  wire                when_Stream_l477_1;
+  reg        [31:0]   _zz_1;
+  wire                gmbReadCmd_fire;
+  wire                io_axiOut_ar_fire;
+  wire                axiR_fire;
+  wire                cmdStage_valid;
+  wire                cmdStage_ready;
+  wire       [31:0]   cmdStage_payload_address;
+  wire       [31:0]   cmdStage_payload_data;
+  wire       [3:0]    cmdStage_payload_byteEnables;
+  wire       [3:0]    cmdStage_payload_id;
+  wire                cmdStage_payload_last;
+  reg                 io_gmbIn_write_cmd_rValid;
+  reg        [31:0]   io_gmbIn_write_cmd_rData_address;
+  reg        [31:0]   io_gmbIn_write_cmd_rData_data;
+  reg        [3:0]    io_gmbIn_write_cmd_rData_byteEnables;
+  reg        [3:0]    io_gmbIn_write_cmd_rData_id;
+  reg                 io_gmbIn_write_cmd_rData_last;
+  wire                when_Stream_l477_2;
+  wire                axiB_staged_valid;
+  wire                axiB_staged_ready;
+  wire       [3:0]    axiB_staged_payload_id;
+  wire       [1:0]    axiB_staged_payload_resp;
+  reg                 io_axiOut_b_rValid;
+  reg        [3:0]    io_axiOut_b_rData_id;
+  reg        [1:0]    io_axiOut_b_rData_resp;
+  wire                when_Stream_l477_3;
+  reg        [31:0]   _zz_2;
+  wire                io_gmbIn_write_cmd_fire;
+  wire                io_axiOut_aw_fire;
+  wire                io_axiOut_w_fire;
+  wire                io_axiOut_b_fire;
+  wire                _zz_3;
+
+  StreamFork cmdStage_fork (
+    .io_input_valid                   (cmdStage_valid                                     ), //i
+    .io_input_ready                   (cmdStage_fork_io_input_ready                       ), //o
+    .io_input_payload_address         (cmdStage_payload_address[31:0]                     ), //i
+    .io_input_payload_data            (cmdStage_payload_data[31:0]                        ), //i
+    .io_input_payload_byteEnables     (cmdStage_payload_byteEnables[3:0]                  ), //i
+    .io_input_payload_id              (cmdStage_payload_id[3:0]                           ), //i
+    .io_input_payload_last            (cmdStage_payload_last                              ), //i
+    .io_outputs_0_valid               (cmdStage_fork_io_outputs_0_valid                   ), //o
+    .io_outputs_0_ready               (io_axiOut_aw_ready                                 ), //i
+    .io_outputs_0_payload_address     (cmdStage_fork_io_outputs_0_payload_address[31:0]   ), //o
+    .io_outputs_0_payload_data        (cmdStage_fork_io_outputs_0_payload_data[31:0]      ), //o
+    .io_outputs_0_payload_byteEnables (cmdStage_fork_io_outputs_0_payload_byteEnables[3:0]), //o
+    .io_outputs_0_payload_id          (cmdStage_fork_io_outputs_0_payload_id[3:0]         ), //o
+    .io_outputs_0_payload_last        (cmdStage_fork_io_outputs_0_payload_last            ), //o
+    .io_outputs_1_valid               (cmdStage_fork_io_outputs_1_valid                   ), //o
+    .io_outputs_1_ready               (io_axiOut_w_ready                                  ), //i
+    .io_outputs_1_payload_address     (cmdStage_fork_io_outputs_1_payload_address[31:0]   ), //o
+    .io_outputs_1_payload_data        (cmdStage_fork_io_outputs_1_payload_data[31:0]      ), //o
+    .io_outputs_1_payload_byteEnables (cmdStage_fork_io_outputs_1_payload_byteEnables[3:0]), //o
+    .io_outputs_1_payload_id          (cmdStage_fork_io_outputs_1_payload_id[3:0]         ), //o
+    .io_outputs_1_payload_last        (cmdStage_fork_io_outputs_1_payload_last            ), //o
+    .clk                              (clk                                                ), //i
+    .reset                            (reset                                              )  //i
+  );
+  always @(*) begin
+    io_gmbIn_read_cmd_ready = gmbReadCmd_ready;
+    if(when_Stream_l477) begin
+      io_gmbIn_read_cmd_ready = 1'b1;
+    end
+  end
+
+  assign when_Stream_l477 = (! gmbReadCmd_valid);
+  assign gmbReadCmd_valid = io_gmbIn_read_cmd_rValid;
+  assign gmbReadCmd_payload_address = io_gmbIn_read_cmd_rData_address;
+  assign gmbReadCmd_payload_id = io_gmbIn_read_cmd_rData_id;
+  assign io_axiOut_ar_valid = gmbReadCmd_valid;
+  assign io_axiOut_ar_payload_addr = gmbReadCmd_payload_address;
+  assign io_axiOut_ar_payload_id = gmbReadCmd_payload_id;
+  assign io_axiOut_ar_payload_len = 8'h0;
+  assign io_axiOut_ar_payload_size = 3'b010;
+  assign io_axiOut_ar_payload_burst = 2'b01;
+  assign gmbReadCmd_ready = io_axiOut_ar_ready;
+  always @(*) begin
+    io_axiOut_r_ready = axiR_ready;
+    if(when_Stream_l477_1) begin
+      io_axiOut_r_ready = 1'b1;
+    end
+  end
+
+  assign when_Stream_l477_1 = (! axiR_valid);
+  assign axiR_valid = io_axiOut_r_rValid;
+  assign axiR_payload_data = io_axiOut_r_rData_data;
+  assign axiR_payload_id = io_axiOut_r_rData_id;
+  assign axiR_payload_resp = io_axiOut_r_rData_resp;
+  assign axiR_payload_last = io_axiOut_r_rData_last;
+  assign io_gmbIn_read_rsp_valid = axiR_valid;
+  assign io_gmbIn_read_rsp_payload_data = axiR_payload_data;
+  assign io_gmbIn_read_rsp_payload_id = axiR_payload_id;
+  assign io_gmbIn_read_rsp_payload_error = (! (axiR_payload_resp == 2'b00));
+  assign axiR_ready = io_gmbIn_read_rsp_ready;
+  assign gmbReadCmd_fire = (gmbReadCmd_valid && gmbReadCmd_ready);
+  assign io_axiOut_ar_fire = (io_axiOut_ar_valid && io_axiOut_ar_ready);
+  assign axiR_fire = (axiR_valid && axiR_ready);
+  always @(*) begin
+    io_gmbIn_write_cmd_ready = cmdStage_ready;
+    if(when_Stream_l477_2) begin
+      io_gmbIn_write_cmd_ready = 1'b1;
+    end
+  end
+
+  assign when_Stream_l477_2 = (! cmdStage_valid);
+  assign cmdStage_valid = io_gmbIn_write_cmd_rValid;
+  assign cmdStage_payload_address = io_gmbIn_write_cmd_rData_address;
+  assign cmdStage_payload_data = io_gmbIn_write_cmd_rData_data;
+  assign cmdStage_payload_byteEnables = io_gmbIn_write_cmd_rData_byteEnables;
+  assign cmdStage_payload_id = io_gmbIn_write_cmd_rData_id;
+  assign cmdStage_payload_last = io_gmbIn_write_cmd_rData_last;
+  assign cmdStage_ready = cmdStage_fork_io_input_ready;
+  assign io_axiOut_aw_valid = cmdStage_fork_io_outputs_0_valid;
+  assign io_axiOut_aw_payload_addr = cmdStage_fork_io_outputs_0_payload_address;
+  assign io_axiOut_aw_payload_len = 8'h0;
+  assign io_axiOut_aw_payload_size = 3'b010;
+  assign io_axiOut_aw_payload_burst = 2'b01;
+  assign io_axiOut_aw_payload_id = cmdStage_fork_io_outputs_0_payload_id;
+  assign io_axiOut_w_valid = cmdStage_fork_io_outputs_1_valid;
+  assign io_axiOut_w_payload_data = cmdStage_fork_io_outputs_1_payload_data;
+  assign io_axiOut_w_payload_strb = cmdStage_fork_io_outputs_1_payload_byteEnables;
+  assign io_axiOut_w_payload_last = 1'b1;
+  always @(*) begin
+    io_axiOut_b_ready = axiB_staged_ready;
+    if(when_Stream_l477_3) begin
+      io_axiOut_b_ready = 1'b1;
+    end
+  end
+
+  assign when_Stream_l477_3 = (! axiB_staged_valid);
+  assign axiB_staged_valid = io_axiOut_b_rValid;
+  assign axiB_staged_payload_id = io_axiOut_b_rData_id;
+  assign axiB_staged_payload_resp = io_axiOut_b_rData_resp;
+  assign io_gmbIn_write_rsp_valid = axiB_staged_valid;
+  assign io_gmbIn_write_rsp_payload_error = (! (axiB_staged_payload_resp == 2'b00));
+  assign io_gmbIn_write_rsp_payload_id = axiB_staged_payload_id;
+  assign axiB_staged_ready = io_gmbIn_write_rsp_ready;
+  assign io_gmbIn_write_cmd_fire = (io_gmbIn_write_cmd_valid && io_gmbIn_write_cmd_ready);
+  assign io_axiOut_aw_fire = (io_axiOut_aw_valid && io_axiOut_aw_ready);
+  assign io_axiOut_w_fire = (io_axiOut_w_valid && io_axiOut_w_ready);
+  assign io_axiOut_b_fire = (io_axiOut_b_valid && io_axiOut_b_ready);
+  assign _zz_3 = (io_axiOut_b_payload_resp == 2'b10);
+  always @(posedge clk or posedge reset) begin
+    if(reset) begin
+      io_gmbIn_read_cmd_rValid <= 1'b0;
+      io_axiOut_r_rValid <= 1'b0;
+      _zz_1 <= 32'h0;
+      io_gmbIn_write_cmd_rValid <= 1'b0;
+      io_axiOut_b_rValid <= 1'b0;
+      _zz_2 <= 32'h0;
+    end else begin
+      if(io_gmbIn_read_cmd_ready) begin
+        io_gmbIn_read_cmd_rValid <= io_gmbIn_read_cmd_valid;
+      end
+      if(io_axiOut_r_ready) begin
+        io_axiOut_r_rValid <= io_axiOut_r_valid;
+      end
+      _zz_1 <= (_zz_1 + 32'h00000001);
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // SplitGmbToAxi4Bridge.scala:L64
+        `else
+          if(!1'b0) begin
+            $display("NOTE(SplitGmbToAxi4Bridge.scala:64):  Bridge 0 Cycle %x: Read Channel\n  GMB Read: v=%x r=%x fire=%x addr=%x\n  AXI AR: v=%x r=%x fire=%x\n  AXI R: v=%x r=%x fire=%x", _zz_1, gmbReadCmd_valid, gmbReadCmd_ready, gmbReadCmd_fire, gmbReadCmd_payload_address, io_axiOut_ar_valid, io_axiOut_ar_ready, io_axiOut_ar_fire, axiR_valid, axiR_ready, axiR_fire); // SplitGmbToAxi4Bridge.scala:L64
+          end
+        `endif
+      `endif
+      if(io_gmbIn_write_cmd_ready) begin
+        io_gmbIn_write_cmd_rValid <= io_gmbIn_write_cmd_valid;
+      end
+      if(io_axiOut_b_ready) begin
+        io_axiOut_b_rValid <= io_axiOut_b_valid;
+      end
+      _zz_2 <= (_zz_2 + 32'h00000001);
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // SplitGmbToAxi4Bridge.scala:L123
+        `else
+          if(!1'b0) begin
+            $display("NOTE(SplitGmbToAxi4Bridge.scala:123):  Bridge 0 Cycle %x: Write Channel\n  GMB Write: v=%x r=%x fire=%x addr=%x\n  AXI AW: v=%x r=%x fire=%x id=%x\n  AXI W: v=%x r=%x fire=%x data=%x strb=%x\n  AXI B: v=%x r=%x fire=%x id=%x error=%x", _zz_2, io_gmbIn_write_cmd_valid, io_gmbIn_write_cmd_ready, io_gmbIn_write_cmd_fire, io_gmbIn_write_cmd_payload_address, io_axiOut_aw_valid, io_axiOut_aw_ready, io_axiOut_aw_fire, io_axiOut_aw_payload_id, io_axiOut_w_valid, io_axiOut_w_ready, io_axiOut_w_fire, io_axiOut_w_payload_data, io_axiOut_w_payload_strb, io_axiOut_b_valid, io_axiOut_b_ready, io_axiOut_b_fire, io_axiOut_b_payload_id, _zz_3); // SplitGmbToAxi4Bridge.scala:L123
+          end
+        `endif
+      `endif
     end
   end
 
@@ -44368,7 +45438,6 @@ module DataCache (
   wire       [1:0]    _zz_refill_free_1;
   wire       [1:0]    _zz_refill_free_2;
   reg        [27:0]   _zz_refill_read_cmdAddress;
-  wire                _zz_when;
   reg        [31:0]   _zz_refill_read_rspAddress;
   reg        [0:0]    _zz_refill_read_way;
   wire       [1:0]    _zz_writeback_free_1;
@@ -44378,20 +45447,19 @@ module DataCache (
   wire       [1:0]    _zz_writeback_read_wordIndex;
   wire       [0:0]    _zz_writeback_read_wordIndex_1;
   reg        [31:0]   _zz_writeback_read_readedData;
-  reg        [31:0]   _zz__zz_21;
   wire       [2:0]    _zz_writeback_victimBuffer_port;
   reg        [31:0]   _zz_writeback_write_bufferRead_payload_address;
   wire       [1:0]    _zz_writeback_write_wordIndex;
   wire       [0:0]    _zz_writeback_write_wordIndex_1;
-  reg        [22:0]   _zz__zz_writeback_push_payload_address;
   reg                 _zz__zz_refill_push_payload_victim;
   reg                 _zz_load_ctrl_refillWayNeedWriteback;
+  reg        [22:0]   _zz_writeback_push_payload_address;
   reg                 _zz_store_ctrl_replacedWayNeedWriteback;
   reg                 _zz_store_ctrl_replacedWayNeedWriteback_1;
   reg        [22:0]   _zz_writeback_push_payload_address_1;
   reg                 _zz_refill_push_payload_victim_1;
+  wire       [0:0]    _zz_when;
   wire       [0:0]    _zz_when_1;
-  wire       [0:0]    _zz_when_2;
   wire       [4:0]    _zz_idleWriteback_scanCmd_lineCounter_valueNext;
   wire       [0:0]    _zz_idleWriteback_scanCmd_lineCounter_valueNext_1;
   wire       [1:0]    _zz_idleWriteback_analysisAndTrigger_candidates_ohFirst_masked;
@@ -44618,7 +45686,6 @@ module DataCache (
   reg                 invalidate_reservation_take;
   wire                when_dcache2_l693;
   reg                 invalidate_done_regNext;
-  wire                when_dcache2_l702;
   reg                 refill_slots_0_valid;
   reg        [31:0]   refill_slots_0_address;
   reg        [0:0]    refill_slots_0_way;
@@ -44734,7 +45801,6 @@ module DataCache (
   reg        [1:0]    writeback_read_slotReadLast_payload_wordIndex;
   reg        [0:0]    writeback_read_slotReadLast_payload_way;
   wire       [31:0]   writeback_read_readedData;
-  wire       [31:0]   _zz_21;
   wire                writeback_write_arbiter_slotsWithId_0_0;
   wire                writeback_write_arbiter_slotsWithId_1_0;
   wire       [1:0]    writeback_write_arbiter_hits;
@@ -44778,10 +45844,6 @@ module DataCache (
   wire                when_dcache2_l1121;
   wire                when_dcache2_l1121_1;
   wire                _zz_load_pipeline_stages_2_CPU_WORD;
-  wire                _zz_24;
-  wire                _zz_25;
-  wire       [0:0]    _zz_26;
-  wire       [1:0]    _zz_27;
   reg                 _zz_load_pipeline_stages_1_STATUS_overloaded_0_dirty;
   reg                 _zz_load_pipeline_stages_1_STATUS_overloaded_1_dirty;
   wire                when_dcache2_l672;
@@ -44790,7 +45852,6 @@ module DataCache (
   wire                load_ctrl_reservation_win;
   reg                 load_ctrl_reservation_take;
   wire       [0:0]    load_ctrl_refillWay;
-  wire       [22:0]   _zz_writeback_push_payload_address;
   wire                _zz_refill_push_payload_victim;
   wire                load_ctrl_refillWayNeedWriteback;
   wire                load_ctrl_refillHit;
@@ -44802,16 +45863,7 @@ module DataCache (
   wire                load_ctrl_askRefill;
   wire                load_ctrl_startRefill;
   wire       [0:0]    load_ctrl_wayId;
-  wire       [1:0]    _zz_28;
-  wire       [4:0]    _zz_29;
-  wire       [4:0]    _zz_30;
-  wire       [4:0]    _zz_31;
-  wire       [0:0]    _zz_32;
-  wire       [0:0]    _zz_33;
-  wire       [0:0]    _zz_34;
-  wire       [0:0]    _zz_35;
-  wire       [0:0]    _zz_36;
-  wire       [0:0]    _zz_37;
+  wire       [1:0]    _zz_23;
   wire                when_Pipeline_l276;
   wire                when_Pipeline_l276_1;
   wire                store_pipeline_stages_0_valid;
@@ -44823,15 +45875,10 @@ module DataCache (
   wire                store_pipeline_stages_0_throwRequest_dcache2_l1370;
   wire                store_pipeline_stages_1_throwRequest_dcache2_l1370;
   wire                store_pipeline_stages_2_throwRequest_dcache2_l1370;
-  wire       [0:0]    _zz_38;
-  wire       [0:0]    _zz_39;
-  wire       [0:0]    _zz_40;
-  wire       [31:0]   _zz_41;
-  wire       [0:0]    _zz_42;
-  wire                _zz_43;
-  wire                _zz_44;
-  wire       [0:0]    _zz_45;
-  wire       [1:0]    _zz_46;
+  wire                _zz_24;
+  wire                _zz_25;
+  wire       [0:0]    _zz_26;
+  wire       [1:0]    _zz_27;
   reg                 _zz_store_pipeline_stages_1_STATUS_overloaded_0_dirty;
   reg                 _zz_store_pipeline_stages_1_STATUS_overloaded_1_dirty;
   wire                when_dcache2_l672_1;
@@ -44867,33 +45914,22 @@ module DataCache (
   wire                store_ctrl_needFlush;
   wire                store_ctrl_canFlush;
   wire                store_ctrl_startFlush;
-  wire       [0:0]    _zz_47;
-  wire                _zz_48;
   wire                when_dcache2_l1555;
-  wire       [4:0]    _zz_49;
   wire                when_dcache2_l1565;
-  wire       [4:0]    _zz_50;
   wire                when_dcache2_l1596;
   wire                when_dcache2_l1596_1;
-  wire       [31:0]   _zz_51;
-  wire       [4:0]    _zz_52;
-  wire       [4:0]    _zz_53;
-  wire       [4:0]    _zz_54;
-  wire       [0:0]    _zz_55;
-  wire       [0:0]    _zz_56;
-  wire       [0:0]    _zz_57;
-  wire       [0:0]    _zz_58;
-  wire       [0:0]    _zz_59;
-  wire       [0:0]    _zz_60;
-  wire       [0:0]    _zz_61;
-  wire       [0:0]    _zz_62;
-  wire       [0:0]    _zz_63;
-  wire       [0:0]    _zz_64;
-  wire       [0:0]    _zz_65;
+  wire       [31:0]   _zz_28;
+  wire       [4:0]    _zz_29;
+  wire       [4:0]    _zz_30;
+  wire       [0:0]    _zz_31;
+  wire       [0:0]    _zz_32;
+  wire       [0:0]    _zz_33;
+  wire       [0:0]    _zz_34;
+  wire       [0:0]    _zz_35;
+  wire       [0:0]    _zz_36;
   wire                when_Pipeline_l276_2;
   wire                when_Pipeline_l276_3;
   wire                idleWriteback_isIdle;
-  wire                _zz_66;
   wire                idleWriteback_clearDirtyFsm_wantExit;
   reg                 idleWriteback_clearDirtyFsm_wantStart;
   wire                idleWriteback_clearDirtyFsm_wantKill;
@@ -44924,15 +45960,11 @@ module DataCache (
   wire       [31:0]   idleWriteback_analysisAndTrigger_victimAddress;
   wire                idleWriteback_analysisAndTrigger_isAlreadyBusy;
   wire                idleWriteback_analysisAndTrigger_doWriteback;
-  wire       [0:0]    _zz_67;
-  wire       [0:0]    _zz_68;
-  wire       [0:0]    _zz_69;
-  wire       [0:0]    _zz_70;
   reg        [1:0]    idleWriteback_clearDirtyFsm_stateReg;
   reg        [1:0]    idleWriteback_clearDirtyFsm_stateNext;
   reg                 _zz_status_write_payload_data_0_dirty;
   reg                 _zz_status_write_payload_data_1_dirty;
-  wire       [1:0]    _zz_71;
+  wire       [1:0]    _zz_37;
   wire                idleWriteback_clearDirtyFsm_onExit_BOOT;
   wire                idleWriteback_clearDirtyFsm_onExit_sIDLE;
   wire                idleWriteback_clearDirtyFsm_onExit_sREAD_STATUS;
@@ -44967,7 +45999,6 @@ module DataCache (
   (* ram_style = "distributed" *) reg [1:0] status_mem [0:31];
   reg [31:0] writeback_victimBuffer [0:7];
 
-  assign _zz_when = refill_read_arbiter_oh[0];
   assign _zz_status_loadRead_rsp_0_dirty_1 = _zz_status_loadRead_rsp_0_dirty[0 : 0];
   assign _zz_status_loadRead_rsp_1_dirty = _zz_status_loadRead_rsp_0_dirty[1 : 1];
   assign _zz_status_storeRead_rsp_0_dirty_1 = _zz_status_storeRead_rsp_0_dirty[0 : 0];
@@ -44982,8 +46013,8 @@ module DataCache (
   assign _zz_writeback_read_wordIndex = {1'd0, _zz_writeback_read_wordIndex_1};
   assign _zz_writeback_write_wordIndex_1 = writeback_write_bufferRead_fire;
   assign _zz_writeback_write_wordIndex = {1'd0, _zz_writeback_write_wordIndex_1};
+  assign _zz_when = 1'b1;
   assign _zz_when_1 = 1'b1;
-  assign _zz_when_2 = 1'b1;
   assign _zz_idleWriteback_scanCmd_lineCounter_valueNext_1 = idleWriteback_scanCmd_lineCounter_willIncrement;
   assign _zz_idleWriteback_scanCmd_lineCounter_valueNext = {4'd0, _zz_idleWriteback_scanCmd_lineCounter_valueNext_1};
   assign _zz_idleWriteback_analysisAndTrigger_candidates_ohFirst_masked = (idleWriteback_analysisAndTrigger_candidates_ohFirst_input - 2'b01);
@@ -45127,13 +46158,6 @@ module DataCache (
   end
 
   always @(*) begin
-    case(writeback_read_slotReadLast_payload_id)
-      1'b0 : _zz__zz_21 = writeback_slots_0_address;
-      default : _zz__zz_21 = writeback_slots_1_address;
-    endcase
-  end
-
-  always @(*) begin
     case(writeback_write_arbiter_sel)
       1'b0 : _zz_writeback_write_bufferRead_payload_address = writeback_slots_0_address;
       default : _zz_writeback_write_bufferRead_payload_address = writeback_slots_1_address;
@@ -45143,14 +46167,14 @@ module DataCache (
   always @(*) begin
     case(load_ctrl_refillWay)
       1'b0 : begin
-        _zz__zz_writeback_push_payload_address = load_pipeline_stages_2_WAYS_TAGS_0_address;
         _zz__zz_refill_push_payload_victim = load_pipeline_stages_2_STATUS_0_dirty;
         _zz_load_ctrl_refillWayNeedWriteback = load_pipeline_stages_2_WAYS_TAGS_0_loaded;
+        _zz_writeback_push_payload_address = load_pipeline_stages_2_WAYS_TAGS_0_address;
       end
       default : begin
-        _zz__zz_writeback_push_payload_address = load_pipeline_stages_2_WAYS_TAGS_1_address;
         _zz__zz_refill_push_payload_victim = load_pipeline_stages_2_STATUS_1_dirty;
         _zz_load_ctrl_refillWayNeedWriteback = load_pipeline_stages_2_WAYS_TAGS_1_loaded;
+        _zz_writeback_push_payload_address = load_pipeline_stages_2_WAYS_TAGS_1_address;
       end
     endcase
   end
@@ -45446,7 +46470,7 @@ module DataCache (
     status_write_payload_data_0_dirty = 1'bx;
     if(load_ctrl_startRefill) begin
       status_write_payload_data_0_dirty = load_pipeline_stages_2_STATUS_0_dirty;
-      if(_zz_28[0]) begin
+      if(_zz_23[0]) begin
         status_write_payload_data_0_dirty = 1'b0;
       end
     end
@@ -45497,7 +46521,7 @@ module DataCache (
     status_write_payload_data_1_dirty = 1'bx;
     if(load_ctrl_startRefill) begin
       status_write_payload_data_1_dirty = load_pipeline_stages_2_STATUS_1_dirty;
-      if(_zz_28[1]) begin
+      if(_zz_23[1]) begin
         status_write_payload_data_1_dirty = 1'b0;
       end
     end
@@ -45573,7 +46597,6 @@ module DataCache (
   end
 
   assign when_dcache2_l693 = ((! invalidate_done) && invalidate_reservation_win);
-  assign when_dcache2_l702 = (invalidate_done && (! invalidate_done_regNext));
   assign refill_slots_0_loadedDone = (refill_slots_0_loadedCounter == 1'b1);
   assign refill_slots_0_free = (! refill_slots_0_valid);
   assign refill_slots_1_loadedDone = (refill_slots_1_loadedCounter == 1'b1);
@@ -45685,7 +46708,7 @@ module DataCache (
     if(store_ctrl_writeCache) begin
       if(when_dcache2_l1596) begin
         banks_0_write_payload_mask = 4'b0000;
-        if(_zz_when_1[0]) begin
+        if(_zz_when[0]) begin
           banks_0_write_payload_mask[3 : 0] = store_pipeline_stages_2_CPU_MASK;
         end
       end
@@ -45724,7 +46747,7 @@ module DataCache (
     if(store_ctrl_writeCache) begin
       if(when_dcache2_l1596_1) begin
         banks_1_write_payload_mask = 4'b0000;
-        if(_zz_when_2[0]) begin
+        if(_zz_when_1[0]) begin
           banks_1_write_payload_mask[3 : 0] = store_pipeline_stages_2_CPU_MASK;
         end
       end
@@ -45865,7 +46888,6 @@ module DataCache (
   assign when_dcache2_l961 = (writeback_read_slotRead_valid && (writeback_read_way == 1'b0));
   assign when_dcache2_l961_1 = (writeback_read_slotRead_valid && (writeback_read_way == 1'b1));
   assign writeback_read_readedData = _zz_writeback_read_readedData;
-  assign _zz_21 = _zz__zz_21;
   assign writeback_write_arbiter_slotsWithId_0_0 = ((writeback_slots_0_valid && writeback_slots_0_victimBufferReady) && (! writeback_slots_0_writeCmdDone));
   assign writeback_write_arbiter_slotsWithId_1_0 = ((writeback_slots_1_valid && writeback_slots_1_victimBufferReady) && (! writeback_slots_1_writeCmdDone));
   assign writeback_write_arbiter_hits = {writeback_write_arbiter_slotsWithId_1_0,writeback_write_arbiter_slotsWithId_0_0};
@@ -45954,16 +46976,12 @@ module DataCache (
     load_pipeline_stages_1_WAYS_HITS[1] = (load_pipeline_stages_1_WAYS_TAGS_1_loaded && (load_pipeline_stages_1_WAYS_TAGS_1_address == load_pipeline_stages_1_ADDRESS_POST_TRANSLATION[31 : 9]));
   end
 
-  assign _zz_24 = load_pipeline_stages_1_WAYS_HITS[0];
   assign ways_1_loadRead_cmd_valid = (! (load_pipeline_stages_1_valid && (! load_pipeline_stages_1_ready)));
   assign ways_1_loadRead_cmd_payload = load_pipeline_stages_1_ADDRESS_PRE_TRANSLATION[8 : 4];
   assign load_pipeline_stages_1_WAYS_TAGS_1_loaded = ways_1_loadRead_rsp_loaded;
   assign load_pipeline_stages_1_WAYS_TAGS_1_address = ways_1_loadRead_rsp_address;
   assign load_pipeline_stages_1_WAYS_TAGS_1_fault = ways_1_loadRead_rsp_fault;
-  assign _zz_25 = load_pipeline_stages_1_WAYS_HITS[1];
   assign load_pipeline_stages_2_WAYS_HIT = (|load_pipeline_stages_2_WAYS_HITS);
-  assign _zz_26 = load_pipeline_stages_2_WAYS_HIT;
-  assign _zz_27 = load_pipeline_stages_2_WAYS_HITS;
   assign status_loadRead_cmd_valid = (! (load_pipeline_stages_1_valid && (! load_pipeline_stages_1_ready)));
   assign status_loadRead_cmd_payload = load_pipeline_stages_1_ADDRESS_PRE_TRANSLATION[8 : 4];
   assign load_pipeline_stages_1_STATUS_0_dirty = status_loadRead_rsp_0_dirty;
@@ -46014,7 +47032,6 @@ module DataCache (
   end
 
   assign load_ctrl_refillWay = wayRandom_value;
-  assign _zz_writeback_push_payload_address = _zz__zz_writeback_push_payload_address;
   assign _zz_refill_push_payload_victim = _zz__zz_refill_push_payload_victim;
   assign load_ctrl_refillWayNeedWriteback = (_zz_load_ctrl_refillWayNeedWriteback && _zz_refill_push_payload_victim);
   assign load_ctrl_refillHit = (|load_pipeline_stages_2_REFILL_HITS);
@@ -46041,16 +47058,9 @@ module DataCache (
   assign load_ctrl_askRefill = ((load_pipeline_stages_2_MISS && load_ctrl_canRefill) && (! load_ctrl_refillHit));
   assign load_ctrl_startRefill = (load_pipeline_stages_2_valid && load_ctrl_askRefill);
   assign load_ctrl_wayId = _zz_load_pipeline_stages_2_CPU_WORD;
-  assign _zz_28 = ({1'd0,1'b1} <<< load_ctrl_refillWay);
-  assign _zz_29 = load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 4];
-  assign _zz_30 = load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 4];
-  assign _zz_31 = load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 4];
+  assign _zz_23 = ({1'd0,1'b1} <<< load_ctrl_refillWay);
   assign load_pipeline_stages_2_REFILL_SLOT_FULL = ((load_pipeline_stages_2_MISS && (! load_ctrl_refillHit)) && refill_full);
   assign load_pipeline_stages_2_REFILL_SLOT = (((! load_ctrl_refillLoaded) ? load_pipeline_stages_2_REFILL_HITS : 2'b00) | (load_ctrl_askRefill ? refill_free : 2'b00));
-  assign _zz_32 = load_pipeline_stages_2_WAYS_HIT;
-  assign _zz_33 = load_pipeline_stages_2_MISS;
-  assign _zz_34 = load_pipeline_stages_2_REDO;
-  assign _zz_35 = load_pipeline_stages_2_FAULT;
   assign io_load_rsp_valid = load_pipeline_stages_2_valid;
   assign io_load_rsp_payload_data = load_pipeline_stages_2_CPU_WORD;
   assign io_load_rsp_payload_fault = load_pipeline_stages_2_FAULT;
@@ -46058,8 +47068,6 @@ module DataCache (
   assign io_load_rsp_payload_id = load_pipeline_stages_2_TRANSACTION_ID;
   assign io_load_rsp_payload_refillSlotAny = load_pipeline_stages_2_REFILL_SLOT_FULL;
   assign io_load_rsp_payload_refillSlot = load_pipeline_stages_2_REFILL_SLOT;
-  assign _zz_36 = io_load_rsp_payload_fault;
-  assign _zz_37 = io_load_rsp_payload_redo;
   assign load_pipeline_stages_2_isThrown = load_pipeline_stages_2_throwRequest_dcache2_l1077;
   assign load_pipeline_stages_1_isThrown = load_pipeline_stages_1_throwRequest_dcache2_l1077;
   assign load_pipeline_stages_0_isThrown = load_pipeline_stages_0_throwRequest_dcache2_l1077;
@@ -46099,11 +47107,6 @@ module DataCache (
   assign store_pipeline_stages_0_TRANSACTION_ID = io_store_cmd_payload_id;
   assign store_pipeline_stages_0_WAYS_HAZARD = 2'b00;
   assign io_store_cmd_ready = 1'b1;
-  assign _zz_38 = io_store_cmd_payload_io;
-  assign _zz_39 = io_store_cmd_payload_flush;
-  assign _zz_40 = io_store_cmd_payload_prefetch;
-  assign _zz_41 = store_pipeline_stages_0_ADDRESS_POST_TRANSLATION;
-  assign _zz_42 = store_pipeline_stages_0_FLUSH_FREE;
   assign ways_0_storeRead_cmd_valid = (! (store_pipeline_stages_1_valid && (! store_pipeline_stages_1_ready)));
   assign ways_0_storeRead_cmd_payload = store_pipeline_stages_1_ADDRESS_POST_TRANSLATION[8 : 4];
   assign store_pipeline_stages_1_WAYS_TAGS_0_loaded = ways_0_storeRead_rsp_loaded;
@@ -46114,16 +47117,16 @@ module DataCache (
     store_pipeline_stages_1_WAYS_HITS[1] = (store_pipeline_stages_1_WAYS_TAGS_1_loaded && (store_pipeline_stages_1_WAYS_TAGS_1_address == store_pipeline_stages_1_ADDRESS_POST_TRANSLATION[31 : 9]));
   end
 
-  assign _zz_43 = store_pipeline_stages_1_WAYS_HITS[0];
+  assign _zz_24 = store_pipeline_stages_1_WAYS_HITS[0];
   assign ways_1_storeRead_cmd_valid = (! (store_pipeline_stages_1_valid && (! store_pipeline_stages_1_ready)));
   assign ways_1_storeRead_cmd_payload = store_pipeline_stages_1_ADDRESS_POST_TRANSLATION[8 : 4];
   assign store_pipeline_stages_1_WAYS_TAGS_1_loaded = ways_1_storeRead_rsp_loaded;
   assign store_pipeline_stages_1_WAYS_TAGS_1_address = ways_1_storeRead_rsp_address;
   assign store_pipeline_stages_1_WAYS_TAGS_1_fault = ways_1_storeRead_rsp_fault;
-  assign _zz_44 = store_pipeline_stages_1_WAYS_HITS[1];
+  assign _zz_25 = store_pipeline_stages_1_WAYS_HITS[1];
   assign store_pipeline_stages_1_WAYS_HIT = (|store_pipeline_stages_1_WAYS_HITS);
-  assign _zz_45 = store_pipeline_stages_1_WAYS_HIT;
-  assign _zz_46 = store_pipeline_stages_1_WAYS_HITS;
+  assign _zz_26 = store_pipeline_stages_1_WAYS_HIT;
+  assign _zz_27 = store_pipeline_stages_1_WAYS_HITS;
   assign status_storeRead_cmd_valid = (! (store_pipeline_stages_1_valid && (! store_pipeline_stages_1_ready)));
   assign status_storeRead_cmd_payload = store_pipeline_stages_1_ADDRESS_POST_TRANSLATION[8 : 4];
   assign store_pipeline_stages_1_STATUS_0_dirty = status_storeRead_rsp_0_dirty;
@@ -46248,23 +47251,18 @@ module DataCache (
   assign store_ctrl_needFlush = (|store_ctrl_needFlushs);
   assign store_ctrl_canFlush = (((store_ctrl_reservation_win && (! writeback_full)) && (! (|{refill_slots_1_valid,refill_slots_0_valid}))) && (! (|store_pipeline_stages_2_WAYS_HAZARD_resulting)));
   assign store_ctrl_startFlush = ((((store_pipeline_stages_2_valid && store_pipeline_stages_2_FLUSH) && store_ctrl_generationOk) && store_ctrl_needFlush) && store_ctrl_canFlush);
-  assign _zz_47 = store_pipeline_stages_2_REDO;
-  assign _zz_48 = (|store_pipeline_stages_2_WAYS_HAZARD_resulting);
   assign when_dcache2_l1555 = ((store_ctrl_startRefill || store_ctrl_setDirty) || store_ctrl_startFlush);
-  assign _zz_49 = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 4];
   assign when_dcache2_l1565 = (store_ctrl_startRefill || store_ctrl_startFlush);
-  assign _zz_50 = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 4];
   assign when_dcache2_l1596 = store_pipeline_stages_2_WAYS_HITS[0];
   assign when_dcache2_l1596_1 = store_pipeline_stages_2_WAYS_HITS[1];
-  assign _zz_52 = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 4];
-  assign _zz_53 = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 4];
-  assign _zz_54 = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 4];
-  assign _zz_55 = store_pipeline_stages_2_WAYS_HIT;
-  assign _zz_56 = store_pipeline_stages_2_MISS;
-  assign _zz_57 = store_pipeline_stages_2_REDO;
-  assign _zz_58 = store_pipeline_stages_2_IO;
-  assign _zz_59 = store_pipeline_stages_2_FLUSH;
-  assign _zz_60 = store_pipeline_stages_2_PREFETCH;
+  assign _zz_29 = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 4];
+  assign _zz_30 = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 4];
+  assign _zz_31 = store_pipeline_stages_2_WAYS_HIT;
+  assign _zz_32 = store_pipeline_stages_2_MISS;
+  assign _zz_33 = store_pipeline_stages_2_REDO;
+  assign _zz_34 = store_pipeline_stages_2_IO;
+  assign _zz_35 = store_pipeline_stages_2_FLUSH;
+  assign _zz_36 = store_pipeline_stages_2_PREFETCH;
   assign io_store_rsp_valid = store_pipeline_stages_2_valid;
   assign io_store_rsp_payload_fault = 1'b0;
   assign io_store_rsp_payload_redo = store_pipeline_stages_2_REDO;
@@ -46275,11 +47273,6 @@ module DataCache (
   assign io_store_rsp_payload_prefetch = store_pipeline_stages_2_PREFETCH;
   assign io_store_rsp_payload_address = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION;
   assign io_store_rsp_payload_io = store_pipeline_stages_2_IO;
-  assign _zz_61 = io_store_rsp_payload_fault;
-  assign _zz_62 = io_store_rsp_payload_redo;
-  assign _zz_63 = io_store_rsp_payload_flush;
-  assign _zz_64 = io_store_rsp_payload_prefetch;
-  assign _zz_65 = io_store_rsp_payload_io;
   assign store_pipeline_stages_2_isThrown = store_pipeline_stages_2_throwRequest_dcache2_l1370;
   assign store_pipeline_stages_1_isThrown = store_pipeline_stages_1_throwRequest_dcache2_l1370;
   assign store_pipeline_stages_0_isThrown = store_pipeline_stages_0_throwRequest_dcache2_l1370;
@@ -46302,7 +47295,6 @@ module DataCache (
   assign when_Pipeline_l276_3 = (|store_pipeline_discardAll);
   assign store_pipeline_stages_2_WAYS_HAZARD_resulting = store_pipeline_stages_2_WAYS_HAZARD_overloaded;
   assign idleWriteback_isIdle = 1'b0;
-  assign _zz_66 = (|{refill_slots_1_valid,refill_slots_0_valid});
   assign idleWriteback_clearDirtyFsm_wantExit = 1'b0;
   always @(*) begin
     idleWriteback_clearDirtyFsm_wantStart = 1'b0;
@@ -46440,10 +47432,6 @@ module DataCache (
   assign idleWriteback_analysisAndTrigger_victimAddress = ({4'd0,{_zz_idleWriteback_analysisAndTrigger_victimAddress,idleWriteback_analysisAndTrigger_lineIdx}} <<< 3'd4);
   assign idleWriteback_analysisAndTrigger_isAlreadyBusy = (|{(writeback_slots_1_valid && (writeback_slots_1_address[8 : 4] == idleWriteback_analysisAndTrigger_victimAddress[8 : 4])),(writeback_slots_0_valid && (writeback_slots_0_address[8 : 4] == idleWriteback_analysisAndTrigger_victimAddress[8 : 4]))});
   assign idleWriteback_analysisAndTrigger_doWriteback = (((idleWriteback_analysisAndTrigger_valid && idleWriteback_analysisAndTrigger_hasCandidate) && (! idleWriteback_analysisAndTrigger_isAlreadyBusy)) && writeback_slots_0_free);
-  assign _zz_67 = ways_0_maintenanceRead_rsp_loaded;
-  assign _zz_68 = status_maintenanceRead_rsp_0_dirty;
-  assign _zz_69 = ways_1_maintenanceRead_rsp_loaded;
-  assign _zz_70 = status_maintenanceRead_rsp_1_dirty;
   assign io_refillEvent = refill_push_valid;
   assign io_writebackEvent = writeback_push_valid;
   assign invalidate_reservation_win = (! 1'b0);
@@ -46480,19 +47468,19 @@ module DataCache (
 
   always @(*) begin
     _zz_status_write_payload_data_0_dirty = status_maintenanceRead_rsp_0_dirty;
-    if(_zz_71[0]) begin
+    if(_zz_37[0]) begin
       _zz_status_write_payload_data_0_dirty = 1'b0;
     end
   end
 
   always @(*) begin
     _zz_status_write_payload_data_1_dirty = status_maintenanceRead_rsp_1_dirty;
-    if(_zz_71[1]) begin
+    if(_zz_37[1]) begin
       _zz_status_write_payload_data_1_dirty = 1'b0;
     end
   end
 
-  assign _zz_71 = ({1'd0,1'b1} <<< idleWriteback_clearDirtyFsm_completedWay);
+  assign _zz_37 = ({1'd0,1'b1} <<< idleWriteback_clearDirtyFsm_completedWay);
   assign idleWriteback_clearDirtyFsm_onExit_BOOT = ((idleWriteback_clearDirtyFsm_stateNext != idleWriteback_clearDirtyFsm_BOOT) && (idleWriteback_clearDirtyFsm_stateReg == idleWriteback_clearDirtyFsm_BOOT));
   assign idleWriteback_clearDirtyFsm_onExit_sIDLE = ((idleWriteback_clearDirtyFsm_stateNext != idleWriteback_clearDirtyFsm_sIDLE) && (idleWriteback_clearDirtyFsm_stateReg == idleWriteback_clearDirtyFsm_sIDLE));
   assign idleWriteback_clearDirtyFsm_onExit_sREAD_STATUS = ((idleWriteback_clearDirtyFsm_stateNext != idleWriteback_clearDirtyFsm_sREAD_STATUS) && (idleWriteback_clearDirtyFsm_stateReg == idleWriteback_clearDirtyFsm_sREAD_STATUS));
@@ -46542,7 +47530,7 @@ module DataCache (
         end
       end
     end
-    if(_zz_when) begin
+    if(refill_read_arbiter_oh[0]) begin
       refill_slots_0_writebackHazards <= refill_read_writebackHazards;
       if(when_dcache2_l804) begin
         refill_slots_0_cmdSent <= 1'b1;
@@ -46763,17 +47751,6 @@ module DataCache (
         invalidate_counter <= (invalidate_counter + 6'h01);
       end
       invalidate_done_regNext <= invalidate_done;
-      if(when_dcache2_l702) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L704
-          `else
-            if(!1'b0) begin
-              $display("NOTE(dcache2.scala:704):  [DCache] Initialization complete. Cache is ready. Total lines invalidated: 32."); // dcache2.scala:L704
-            end
-          `endif
-        `endif
-      end
       if(refill_slots_0_loadedDone) begin
         refill_slots_0_valid <= 1'b0;
       end
@@ -46783,56 +47760,16 @@ module DataCache (
       if(refill_push_valid) begin
         if(when_dcache2_l763) begin
           refill_slots_0_valid <= 1'b1;
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L776
-            `else
-              if(!1'b0) begin
-                $display("NOTE(dcache2.scala:776):  [DCache] Refill: slot 0 allocated for address 0x%x (way %x)", refill_push_payload_address, refill_push_payload_way); // dcache2.scala:L776
-              end
-            `endif
-          `endif
         end
       end
       if(refill_push_valid) begin
         if(when_dcache2_l763_1) begin
           refill_slots_1_valid <= 1'b1;
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L776
-            `else
-              if(!1'b0) begin
-                $display("NOTE(dcache2.scala:776):  [DCache] Refill: slot 1 allocated for address 0x%x (way %x)", refill_push_payload_address, refill_push_payload_way); // dcache2.scala:L776
-              end
-            `endif
-          `endif
         end
       end
       refill_read_arbiter_lock <= refill_read_arbiter_oh;
       if(when_dcache2_l792) begin
         refill_read_arbiter_lock <= 2'b00;
-      end
-      if(_zz_when) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L805
-          `else
-            if(!1'b0) begin
-              $display("NOTE(dcache2.scala:805):  [DCache] Refill: slot 0 command sent for address 0x%x", refill_slots_0_address); // dcache2.scala:L805
-            end
-          `endif
-        `endif
-      end
-      if(_zz_refill_read_arbiter_sel) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L805
-          `else
-            if(!1'b0) begin
-              $display("NOTE(dcache2.scala:805):  [DCache] Refill: slot 1 command sent for address 0x%x", refill_slots_1_address); // dcache2.scala:L805
-            end
-          `endif
-        `endif
       end
       if(when_dcache2_l834) begin
         refill_read_hadError <= 1'b1;
@@ -46840,27 +47777,9 @@ module DataCache (
       if(io_mem_read_rsp_valid) begin
         if(refill_read_rspWithData) begin
           refill_read_wordIndex <= (refill_read_wordIndex + 2'b01);
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L845
-            `else
-              if(!1'b0) begin
-                $display("NOTE(dcache2.scala:845):  [DCache] Refill: slot %x received data word %x for address 0x%x", io_mem_read_rsp_payload_id, refill_read_wordIndex, refill_read_rspAddress); // dcache2.scala:L845
-              end
-            `endif
-          `endif
         end
         if(when_dcache2_l847) begin
           refill_read_hadError <= 1'b0;
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L861
-            `else
-              if(!1'b0) begin
-                $display("NOTE(dcache2.scala:861):  [DCache] Refill: slot %x data loaded for address 0x%x, fault %x", io_mem_read_rsp_payload_id, refill_read_rspAddress, refill_read_faulty); // dcache2.scala:L861
-              end
-            `endif
-          `endif
         end else begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
@@ -46882,304 +47801,36 @@ module DataCache (
       if(writeback_push_valid) begin
         if(when_dcache2_l910) begin
           writeback_slots_0_valid <= 1'b1;
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L921
-            `else
-              if(!1'b0) begin
-                $display("NOTE(dcache2.scala:921):  [DCache] Writeback: slot 0 allocated for address 0x%x (way %x)", writeback_push_payload_address, writeback_push_payload_way); // dcache2.scala:L921
-              end
-            `endif
-          `endif
         end
       end
       if(writeback_push_valid) begin
         if(when_dcache2_l910_1) begin
           writeback_slots_1_valid <= 1'b1;
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L921
-            `else
-              if(!1'b0) begin
-                $display("NOTE(dcache2.scala:921):  [DCache] Writeback: slot 1 allocated for address 0x%x (way %x)", writeback_push_payload_address, writeback_push_payload_way); // dcache2.scala:L921
-              end
-            `endif
-          `endif
         end
       end
       writeback_read_arbiter_lock <= writeback_read_arbiter_oh;
       writeback_read_wordIndex <= (writeback_read_wordIndex + _zz_writeback_read_wordIndex);
       if(when_dcache2_l950) begin
         writeback_read_arbiter_lock <= 2'b00;
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L953
-          `else
-            if(!1'b0) begin
-              $display("NOTE(dcache2.scala:953):  [DCache] Writeback: slot %x all bank reads commanded for address 0x%x", writeback_read_slotRead_payload_id, writeback_read_address); // dcache2.scala:L953
-            end
-          `endif
-        `endif
       end
       writeback_read_slotReadLast_valid <= writeback_read_slotRead_valid;
-      if(writeback_read_slotReadLast_valid) begin
-        if(writeback_read_slotReadLast_payload_last) begin
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L1007
-            `else
-              if(!1'b0) begin
-                $display("NOTE(dcache2.scala:1007):  [DCache] Writeback: slot %x victim buffer loaded for address 0x%x", writeback_read_slotReadLast_payload_id, _zz_21); // dcache2.scala:L1007
-              end
-            `endif
-          `endif
-        end
-      end
       writeback_write_arbiter_lock <= writeback_write_arbiter_oh;
       writeback_write_wordIndex <= (writeback_write_wordIndex + _zz_writeback_write_wordIndex);
       if(when_dcache2_l1033) begin
         writeback_write_arbiter_lock <= 2'b00;
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1036
-          `else
-            if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1036):  [DCache] Writeback: slot %x all mem writes commanded for address 0x%x", writeback_write_bufferRead_payload_id, writeback_write_bufferRead_payload_address); // dcache2.scala:L1036
-            end
-          `endif
-        `endif
       end
       if(writeback_write_bufferRead_ready) begin
         writeback_write_bufferRead_rValid <= writeback_write_bufferRead_valid;
       end
-      if(io_mem_write_rsp_valid) begin
-        case(io_mem_write_rsp_payload_id)
-          1'b0 : begin
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(1'b0); // dcache2.scala:L1051
-              `else
-                if(!1'b0) begin
-                  $display("NOTE(dcache2.scala:1051):  [DCache] Writeback: slot %x completed for address 0x%x, error %x", io_mem_write_rsp_payload_id, writeback_slots_0_address, io_mem_write_rsp_payload_error); // dcache2.scala:L1051
-                end
-              `endif
-            `endif
-          end
-          default : begin
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(1'b0); // dcache2.scala:L1051
-              `else
-                if(!1'b0) begin
-                  $display("NOTE(dcache2.scala:1051):  [DCache] Writeback: slot %x completed for address 0x%x, error %x", io_mem_write_rsp_payload_id, writeback_slots_1_address, io_mem_write_rsp_payload_error); // dcache2.scala:L1051
-                end
-              `endif
-            `endif
-          end
-        endcase
-      end
-      if(load_pipeline_stages_0_valid) begin
-        if(load_pipeline_stages_0_valid) begin
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L1111
-            `else
-              if(!1'b0) begin
-                $display("NOTE(dcache2.scala:1111):  [DCache] Load: cmd received. DataLoadCmd(virtual = %x, size = %x, redoOnDataHazard = %x, id=%x)", io_load_cmd_payload_virtual, io_load_cmd_payload_size, io_load_cmd_payload_redoOnDataHazard, io_load_cmd_payload_id); // dcache2.scala:L1111
-              end
-            `endif
-          `endif
-        end
-      end
-      if(load_pipeline_stages_0_valid) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1177
-          `else
-            if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1177):  [DCache] Load: Translated address 0x%x, abord %x", load_pipeline_stages_0_ADDRESS_POST_TRANSLATION, load_pipeline_stages_0_ABORD); // dcache2.scala:L1177
-            end
-          `endif
-        `endif
-      end
-      if(load_pipeline_stages_1_valid) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1193
-          `else
-            if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1193):  [DCache] Load: Way 0 Tag read: loaded %x, address 0x%x, hit %x", load_pipeline_stages_1_WAYS_TAGS_0_loaded, load_pipeline_stages_1_WAYS_TAGS_0_address, _zz_24); // dcache2.scala:L1193
-            end
-          `endif
-        `endif
-      end
-      if(load_pipeline_stages_1_valid) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1193
-          `else
-            if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1193):  [DCache] Load: Way 1 Tag read: loaded %x, address 0x%x, hit %x", load_pipeline_stages_1_WAYS_TAGS_1_loaded, load_pipeline_stages_1_WAYS_TAGS_1_address, _zz_25); // dcache2.scala:L1193
-            end
-          `endif
-        `endif
-      end
-      if(load_pipeline_stages_2_valid) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1202
-          `else
-            if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1202):  [DCache] Load: Final hit decision: %x, ways hits: %x", _zz_26, _zz_27); // dcache2.scala:L1202
-            end
-          `endif
-        `endif
-      end
-      if(load_pipeline_stages_2_ABORD) begin
-        if(load_pipeline_stages_2_valid) begin
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L1277
-            `else
-              if(!1'b0) begin
-                $display("NOTE(dcache2.scala:1277):  [DCache] Load: ABORD detected, no redo/miss."); // dcache2.scala:L1277
-              end
-            `endif
-          `endif
-        end
-      end
-      if(load_ctrl_startRefill) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1283
-          `else
-            if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1283):  [DCache] Load: reservation taken for refill for address 0x%x", load_pipeline_stages_2_ADDRESS_POST_TRANSLATION); // dcache2.scala:L1283
-            end
-          `endif
-        `endif
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1289
-          `else
-            if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1289):  [DCache] Load: refill push valid for address 0x%x", load_pipeline_stages_2_ADDRESS_POST_TRANSLATION); // dcache2.scala:L1289
-            end
-          `endif
-        `endif
-      end
-      if(load_ctrl_startRefill) begin
-        if(load_pipeline_stages_2_valid) begin
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L1307
-            `else
-              if(!1'b0) begin
-                $display("NOTE(dcache2.scala:1307):  [DCache] Load: status write (clear dirty) for refill way %x at address 0x%x", load_ctrl_refillWay, _zz_29); // dcache2.scala:L1307
-              end
-            `endif
-          `endif
-        end
-        if(load_pipeline_stages_2_valid) begin
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L1312
-            `else
-              if(!1'b0) begin
-                $display("NOTE(dcache2.scala:1312):  [DCache] Load: ways write (invalidate) for refill way %x at address 0x%x", load_ctrl_refillWay, _zz_30); // dcache2.scala:L1312
-              end
-            `endif
-          `endif
-        end
-        if(writeback_push_valid) begin
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L1318
-            `else
-              if(!1'b0) begin
-                $display("NOTE(dcache2.scala:1318):  [DCache] Load: writeback push valid (refill way) for address 0x%x; WAYS_TAGS(refillWay).address=%x, ADDRESS_POST_TRANSLATION(lineRange)=%x lineRange.low 4", writeback_push_payload_address, _zz_writeback_push_payload_address, _zz_31); // dcache2.scala:L1318
-              end
-            `endif
-          `endif
-        end
-      end
-      if(load_pipeline_stages_2_valid) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1327
-          `else
-            if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1327):  [DCache] Load: Control stage - WAYS_HIT: %x, MISS: %x, REDO: %x, FAULT: %x", _zz_32, _zz_33, _zz_34, _zz_35); // dcache2.scala:L1327
-            end
-          `endif
-        `endif
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1328
-          `else
-            if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1328):    RefillHit: %x, LineBusy: %x, BankBusy: %x, WaysHitHazard: %x", load_ctrl_refillHit, load_ctrl_lineBusy, load_ctrl_bankBusy, load_ctrl_waysHitHazard); // dcache2.scala:L1328
-            end
-          `endif
-        `endif
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1329
-          `else
-            if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1329):    CanRefill: %x, AskRefill: %x, StartRefill: %x", load_ctrl_canRefill, load_ctrl_askRefill, load_ctrl_startRefill); // dcache2.scala:L1329
-            end
-          `endif
-        `endif
-      end
-      if(load_pipeline_stages_2_valid) begin
-        if(load_pipeline_stages_2_valid) begin
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L1355
-            `else
-              if(!1'b0) begin
-                $display("NOTE(dcache2.scala:1355):  [DCache] Load: rsp sent. DataLoadRsp(data = %x, fault = %x, redo = %x, refillSlot = %x, refillSlotAny = %x), id = %x", io_load_rsp_payload_data, _zz_36, _zz_37, io_load_rsp_payload_refillSlot, io_load_rsp_payload_refillSlotAny, io_load_rsp_payload_id); // dcache2.scala:L1355
-              end
-            `endif
-          `endif
-        end
-      end
       load_pipeline_stages_1_valid <= _zz_load_pipeline_stages_1_valid;
       load_pipeline_stages_2_valid <= _zz_load_pipeline_stages_2_valid;
-      if(store_pipeline_stages_0_valid) begin
-        if(store_pipeline_stages_0_valid) begin
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L1404
-            `else
-              if(!1'b0) begin
-                $display("NOTE(dcache2.scala:1404):  [DCache] Store: cmd received. DataStoreCmd(address = %x, data = %x, mask = %x, io = %x, flush = %x, flushFree = %x, prefetch = %x)", io_store_cmd_payload_address, io_store_cmd_payload_data, io_store_cmd_payload_mask, _zz_38, _zz_39, io_store_cmd_payload_flushFree, _zz_40); // dcache2.scala:L1404
-              end
-            `endif
-          `endif
-        end
-        if(store_pipeline_stages_0_FLUSH) begin
-          if(store_pipeline_stages_0_valid) begin
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(1'b0); // dcache2.scala:L1406
-              `else
-                if(!1'b0) begin
-                  $display("NOTE(dcache2.scala:1406):  [DCache] Store: FLUSH command received for address 0x%x, flushFree: %x", _zz_41, _zz_42); // dcache2.scala:L1406
-                end
-              `endif
-            `endif
-          end
-        end
-      end
       if(store_pipeline_stages_1_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
             assert(1'b0); // dcache2.scala:L1427
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1427):  [DCache] Store: Way 0 Tag read: loaded %x, address 0x%x, hit %x", store_pipeline_stages_1_WAYS_TAGS_0_loaded, store_pipeline_stages_1_WAYS_TAGS_0_address, _zz_43); // dcache2.scala:L1427
+              $display("NOTE(dcache2.scala:1427):  [DCache] Store: Way 0 Tag read: loaded %x, address 0x%x, hit %x", store_pipeline_stages_1_WAYS_TAGS_0_loaded, store_pipeline_stages_1_WAYS_TAGS_0_address, _zz_24); // dcache2.scala:L1427
             end
           `endif
         `endif
@@ -47190,7 +47841,7 @@ module DataCache (
             assert(1'b0); // dcache2.scala:L1427
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1427):  [DCache] Store: Way 1 Tag read: loaded %x, address 0x%x, hit %x", store_pipeline_stages_1_WAYS_TAGS_1_loaded, store_pipeline_stages_1_WAYS_TAGS_1_address, _zz_44); // dcache2.scala:L1427
+              $display("NOTE(dcache2.scala:1427):  [DCache] Store: Way 1 Tag read: loaded %x, address 0x%x, hit %x", store_pipeline_stages_1_WAYS_TAGS_1_loaded, store_pipeline_stages_1_WAYS_TAGS_1_address, _zz_25); // dcache2.scala:L1427
             end
           `endif
         `endif
@@ -47201,136 +47852,10 @@ module DataCache (
             assert(1'b0); // dcache2.scala:L1436
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1436):  [DCache] Store: Final hit decision: %x, ways hits: %x", _zz_45, _zz_46); // dcache2.scala:L1436
+              $display("NOTE(dcache2.scala:1436):  [DCache] Store: Final hit decision: %x, ways hits: %x", _zz_26, _zz_27); // dcache2.scala:L1436
             end
           `endif
         `endif
-      end
-      if(store_ctrl_setDirty) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1517
-          `else
-            if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1517):  [DCache] Store: set dirty for address 0x%x", store_pipeline_stages_2_ADDRESS_POST_TRANSLATION); // dcache2.scala:L1517
-            end
-          `endif
-        `endif
-      end
-      if(store_pipeline_stages_2_FLUSH) begin
-        if(store_pipeline_stages_2_valid) begin
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L1544
-            `else
-              if(!1'b0) begin
-                $display("NOTE(dcache2.scala:1544):  [DCache] Store: FLUSH command processing. REDO: %x, needFlush: %x, waysHazard: %x", _zz_47, store_ctrl_needFlush, _zz_48); // dcache2.scala:L1544
-              end
-            `endif
-          `endif
-        end
-      end
-      if(store_pipeline_stages_2_IO) begin
-        if(store_pipeline_stages_2_valid) begin
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L1552
-            `else
-              if(!1'b0) begin
-                $display("NOTE(dcache2.scala:1552):  [DCache] Store: IO access, no cache write/refill/dirty set."); // dcache2.scala:L1552
-              end
-            `endif
-          `endif
-        end
-      end
-      if(when_dcache2_l1555) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1561
-          `else
-            if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1561):  [DCache] Store: reservation taken for status write. Address 0x%x", _zz_49); // dcache2.scala:L1561
-            end
-          `endif
-        `endif
-      end
-      if(when_dcache2_l1565) begin
-        if(store_ctrl_startFlush) begin
-          if(store_pipeline_stages_2_valid) begin
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(1'b0); // dcache2.scala:L1574
-              `else
-                if(!1'b0) begin
-                  $display("NOTE(dcache2.scala:1574):  [DCache] Store: FLUSH: Clearing dirty bit for way %x at address 0x%x", store_ctrl_needFlushSel, _zz_50); // dcache2.scala:L1574
-                end
-              `endif
-            `endif
-          end
-        end
-        if(writeback_push_valid) begin
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L1576
-            `else
-              if(!1'b0) begin
-                $display("NOTE(dcache2.scala:1576):  [DCache] Store: writeback push valid. Address 0x%x, way %x", writeback_push_payload_address, writeback_push_payload_way); // dcache2.scala:L1576
-              end
-            `endif
-          `endif
-        end
-      end
-      if(store_ctrl_startRefill) begin
-        if(store_pipeline_stages_2_valid) begin
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L1590
-            `else
-              if(!1'b0) begin
-                $display("NOTE(dcache2.scala:1590):  [DCache] Store: refill push valid. Address 0x%x, way %x", refill_push_payload_address, refill_push_payload_way); // dcache2.scala:L1590
-              end
-            `endif
-          `endif
-        end
-      end
-      if(store_ctrl_writeCache) begin
-        if(when_dcache2_l1596) begin
-          if(banks_0_write_valid) begin
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(1'b0); // dcache2.scala:L1607
-              `else
-                if(!1'b0) begin
-                  $display("NOTE(dcache2.scala:1607):  [DCache] Store: write cache for bank 0, data 0x%x, address 0x%x mask 0x%x", banks_0_write_payload_data, store_pipeline_stages_2_ADDRESS_POST_TRANSLATION, banks_0_write_payload_mask); // dcache2.scala:L1607
-                end
-              `endif
-            `endif
-          end
-        end
-        if(when_dcache2_l1596_1) begin
-          if(banks_1_write_valid) begin
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(1'b0); // dcache2.scala:L1607
-              `else
-                if(!1'b0) begin
-                  $display("NOTE(dcache2.scala:1607):  [DCache] Store: write cache for bank 1, data 0x%x, address 0x%x mask 0x%x", banks_1_write_payload_data, store_pipeline_stages_2_ADDRESS_POST_TRANSLATION, banks_1_write_payload_mask); // dcache2.scala:L1607
-                end
-              `endif
-            `endif
-          end
-        end
-        if(store_pipeline_stages_2_valid) begin
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L1613
-            `else
-              if(!1'b0) begin
-                $display("NOTE(dcache2.scala:1613):  [DCache] Store: write cache for address 0x%x", store_pipeline_stages_2_ADDRESS_POST_TRANSLATION); // dcache2.scala:L1613
-              end
-            `endif
-          `endif
-        end
       end
       if(store_ctrl_setDirty) begin
         `ifndef SYNTHESIS
@@ -47338,7 +47863,7 @@ module DataCache (
             assert(1'b0); // dcache2.scala:L1617
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1617):  [DCache] STORE_SET_DIRTY: Address 0x%x, Line %x", _zz_51, _zz_52); // dcache2.scala:L1617
+              $display("NOTE(dcache2.scala:1617):  [DCache] STORE_SET_DIRTY: Address 0x%x, Line %x", _zz_28, _zz_29); // dcache2.scala:L1617
             end
           `endif
         `endif
@@ -47347,31 +47872,7 @@ module DataCache (
             assert(1'b0); // dcache2.scala:L1618
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1618):  [DCache] STORE_SET_DIRTY: (controlStage )Address 0x%x, Line %x", store_pipeline_stages_2_ADDRESS_POST_TRANSLATION, _zz_53); // dcache2.scala:L1618
-            end
-          `endif
-        `endif
-      end
-      if(store_ctrl_startFlush) begin
-        if(store_pipeline_stages_2_FLUSH_FREE) begin
-          if(store_pipeline_stages_2_valid) begin
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(1'b0); // dcache2.scala:L1631
-              `else
-                if(!1'b0) begin
-                  $display("NOTE(dcache2.scala:1631):  [DCache] Store: FLUSH_FREE: Invalidating line for way %x at address 0x%x", store_ctrl_needFlushSel, _zz_54); // dcache2.scala:L1631
-                end
-              `endif
-            `endif
-          end
-        end
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1634
-          `else
-            if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1634):  [DCache] Store: FLUSH start, invalidate/release for address 0x%x, needFlush: %x, canFlush: %x", store_pipeline_stages_2_ADDRESS_POST_TRANSLATION, store_ctrl_needFlush, store_ctrl_canFlush); // dcache2.scala:L1634
+              $display("NOTE(dcache2.scala:1618):  [DCache] STORE_SET_DIRTY: (controlStage )Address 0x%x, Line %x", store_pipeline_stages_2_ADDRESS_POST_TRANSLATION, _zz_30); // dcache2.scala:L1618
             end
           `endif
         `endif
@@ -47382,7 +47883,7 @@ module DataCache (
             assert(1'b0); // dcache2.scala:L1639
           `else
             if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1639):  [DCache] Store: Control stage - WAYS_HIT: %x, MISS: %x, REDO: %x, IO: %x, FLUSH: %x, PREFETCH: %x", _zz_55, _zz_56, _zz_57, _zz_58, _zz_59, _zz_60); // dcache2.scala:L1639
+              $display("NOTE(dcache2.scala:1639):  [DCache] Store: Control stage - WAYS_HIT: %x, MISS: %x, REDO: %x, IO: %x, FLUSH: %x, PREFETCH: %x", _zz_31, _zz_32, _zz_33, _zz_34, _zz_35, _zz_36); // dcache2.scala:L1639
             end
           `endif
         `endif
@@ -47405,85 +47906,11 @@ module DataCache (
           `endif
         `endif
       end
-      if(store_pipeline_stages_2_valid) begin
-        if(store_pipeline_stages_2_valid) begin
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // dcache2.scala:L1662
-            `else
-              if(!1'b0) begin
-                $display("NOTE(dcache2.scala:1662):  [DCache] Store: rsp sent. DataStoreRsp(fault = %x, redo = %x, refillSlot = %x, refillSlotAny = %x, flush = %x, prefetch = %x, address = %x, io = %x)", _zz_61, _zz_62, io_store_rsp_payload_refillSlot, io_store_rsp_payload_refillSlotAny, _zz_63, _zz_64, io_store_rsp_payload_address, _zz_65); // dcache2.scala:L1662
-              end
-            `endif
-          `endif
-        end
-      end
       store_pipeline_stages_1_valid <= _zz_store_pipeline_stages_1_valid;
       store_pipeline_stages_2_valid <= _zz_store_pipeline_stages_2_valid;
-      `ifndef SYNTHESIS
-        `ifdef FORMAL
-          assert(1'b0); // dcache2.scala:L1674
-        `else
-          if(!1'b0) begin
-            $display("NOTE(dcache2.scala:1674):  [DCache] IdleWriteback: isIdle: %x because invalidate.done: %x  io.load.cmd.valid: %x  io.store.cmd.valid: %x  refill.slots.map(_.valid).orR: %x  io.writebackBusy: %x", idleWriteback_isIdle, invalidate_done, io_load_cmd_valid, io_store_cmd_valid, _zz_66, io_writebackBusy); // dcache2.scala:L1674
-          end
-        `endif
-      `endif
       idleWriteback_scanCmd_lineCounter_value <= idleWriteback_scanCmd_lineCounter_valueNext;
       idleWriteback_analysisAndTrigger_valid <= idleWriteback_scanCmd_scanGo;
-      `ifndef SYNTHESIS
-        `ifdef FORMAL
-          assert(1'b0); // dcache2.scala:L1791
-        `else
-          if(!1'b0) begin
-            $display("NOTE(dcache2.scala:1791):  [DCache] IdleWriteback: doWriteback: %x  valid: %x  hasCandidate: %x  isAlreadyBusy: %x  writebackQueueFree: %x", idleWriteback_analysisAndTrigger_doWriteback, idleWriteback_analysisAndTrigger_valid, idleWriteback_analysisAndTrigger_hasCandidate, idleWriteback_analysisAndTrigger_isAlreadyBusy, writeback_slots_0_free); // dcache2.scala:L1791
-          end
-        `endif
-      `endif
-      if(idleWriteback_analysisAndTrigger_valid) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1805
-          `else
-            if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1805):  [DCache][IW Scan] Line:%x | W0:%x%x-0x%x | W1:%x%x-0x%x | hasCandidate=%x", idleWriteback_analysisAndTrigger_lineIdx, _zz_67, _zz_68, ways_0_maintenanceRead_rsp_address, _zz_69, _zz_70, ways_1_maintenanceRead_rsp_address, idleWriteback_analysisAndTrigger_hasCandidate); // dcache2.scala:L1805
-            end
-          `endif
-        `endif
-      end
-      if(idleWriteback_analysisAndTrigger_doWriteback) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // dcache2.scala:L1815
-          `else
-            if(!1'b0) begin
-              $display("NOTE(dcache2.scala:1815):  [DCache] IdleWriteback: Pushing dirty line. Address: 0x%x, Way: %x", idleWriteback_analysisAndTrigger_victimAddress, idleWriteback_analysisAndTrigger_victimWay); // dcache2.scala:L1815
-            end
-          `endif
-        `endif
-      end
       idleWriteback_clearDirtyFsm_stateReg <= idleWriteback_clearDirtyFsm_stateNext;
-      case(idleWriteback_clearDirtyFsm_stateReg)
-        idleWriteback_clearDirtyFsm_sIDLE : begin
-        end
-        idleWriteback_clearDirtyFsm_sREAD_STATUS : begin
-        end
-        idleWriteback_clearDirtyFsm_sWRITE_STATUS : begin
-          if(idleWriteback_clearDirtyFsm_reservation_win) begin
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(1'b0); // dcache2.scala:L1721
-              `else
-                if(!1'b0) begin
-                  $display("NOTE(dcache2.scala:1721):  [DCache] IdleWriteback: Clearing dirty bit via FSM. Address: 0x%x, Way: %x", idleWriteback_clearDirtyFsm_completedAddress, idleWriteback_clearDirtyFsm_completedWay); // dcache2.scala:L1721
-                end
-              `endif
-            `endif
-          end
-        end
-        default : begin
-        end
-      endcase
     end
   end
 
@@ -47494,11 +47921,10 @@ module SRAMController_1 (
   input  wire          io_axi_aw_valid,
   output reg           io_axi_aw_ready,
   input  wire [31:0]   io_axi_aw_payload_addr,
-  input  wire [3:0]    io_axi_aw_payload_id,
+  input  wire [6:0]    io_axi_aw_payload_id,
   input  wire [7:0]    io_axi_aw_payload_len,
   input  wire [2:0]    io_axi_aw_payload_size,
   input  wire [1:0]    io_axi_aw_payload_burst,
-  input  wire [2:0]    io_axi_aw_payload_prot,
   input  wire          io_axi_w_valid,
   output reg           io_axi_w_ready,
   input  wire [31:0]   io_axi_w_payload_data,
@@ -47506,20 +47932,19 @@ module SRAMController_1 (
   input  wire          io_axi_w_payload_last,
   output reg           io_axi_b_valid,
   input  wire          io_axi_b_ready,
-  output reg  [3:0]    io_axi_b_payload_id,
+  output reg  [6:0]    io_axi_b_payload_id,
   output reg  [1:0]    io_axi_b_payload_resp,
   input  wire          io_axi_ar_valid,
   output reg           io_axi_ar_ready,
   input  wire [31:0]   io_axi_ar_payload_addr,
-  input  wire [3:0]    io_axi_ar_payload_id,
+  input  wire [6:0]    io_axi_ar_payload_id,
   input  wire [7:0]    io_axi_ar_payload_len,
   input  wire [2:0]    io_axi_ar_payload_size,
   input  wire [1:0]    io_axi_ar_payload_burst,
-  input  wire [2:0]    io_axi_ar_payload_prot,
   output reg           io_axi_r_valid,
   input  wire          io_axi_r_ready,
   output reg  [31:0]   io_axi_r_payload_data,
-  output reg  [3:0]    io_axi_r_payload_id,
+  output reg  [6:0]    io_axi_r_payload_id,
   output reg  [1:0]    io_axi_r_payload_resp,
   output reg           io_axi_r_payload_last,
   input  wire [31:0]   io_ram_data_read,
@@ -47546,33 +47971,40 @@ module SRAMController_1 (
   localparam fsm_READ_RESPONSE_ERROR = 4'd10;
 
   wire       [7:0]    _zz_fsm_burst_count_remaining;
-  wire       [29:0]   _zz_fsm_current_sram_addr_2;
-  wire       [31:0]   _zz_when_SRAMController_l230_1;
-  wire       [7:0]    _zz_when_SRAMController_l230_2;
-  wire       [31:0]   _zz_when_SRAMController_l238;
-  wire       [31:0]   _zz_when_SRAMController_l238_1;
-  wire       [31:0]   _zz_when_SRAMController_l238_2;
-  wire       [31:0]   _zz_when_SRAMController_l238_3;
-  wire       [15:0]   _zz_when_SRAMController_l238_4;
-  wire       [7:0]    _zz_when_SRAMController_l238_5;
-  wire       [31:0]   _zz_when_SRAMController_l238_6;
+  wire       [33:0]   _zz__zz_fsm_current_sram_addr;
+  wire       [67:0]   _zz__zz_when_SRAMController_l267_1;
+  wire       [67:0]   _zz__zz_when_SRAMController_l267_1_1;
+  wire       [67:0]   _zz__zz_when_SRAMController_l267_1_2;
+  wire       [33:0]   _zz__zz_when_SRAMController_l267_1_3;
+  wire       [7:0]    _zz__zz_when_SRAMController_l267_1_4;
+  wire       [67:0]   _zz__zz_when_SRAMController_l267_1_5;
+  wire       [17:0]   _zz_fsm_current_sram_addr_2;
+  wire       [31:0]   _zz_when_SRAMController_l259_1;
+  wire       [7:0]    _zz_when_SRAMController_l259_2;
+  wire       [67:0]   _zz_when_SRAMController_l267_2;
+  wire       [33:0]   _zz_when_SRAMController_l267_3;
   wire       [7:0]    _zz_fsm_burst_count_remaining_1;
-  wire       [29:0]   _zz_fsm_current_sram_addr_3;
-  wire       [31:0]   _zz_when_SRAMController_l284_1;
-  wire       [7:0]    _zz_when_SRAMController_l284_2;
-  wire       [31:0]   _zz_when_SRAMController_l292;
-  wire       [31:0]   _zz_when_SRAMController_l292_1;
-  wire       [31:0]   _zz_when_SRAMController_l292_2;
-  wire       [31:0]   _zz_when_SRAMController_l292_3;
-  wire       [15:0]   _zz_when_SRAMController_l292_4;
-  wire       [7:0]    _zz_when_SRAMController_l292_5;
-  wire       [31:0]   _zz_when_SRAMController_l292_6;
+  wire       [33:0]   _zz__zz_fsm_current_sram_addr_1;
+  wire       [67:0]   _zz__zz_when_SRAMController_l337_1;
+  wire       [67:0]   _zz__zz_when_SRAMController_l337_1_1;
+  wire       [67:0]   _zz__zz_when_SRAMController_l337_1_2;
+  wire       [33:0]   _zz__zz_when_SRAMController_l337_1_3;
+  wire       [7:0]    _zz__zz_when_SRAMController_l337_1_4;
+  wire       [67:0]   _zz__zz_when_SRAMController_l337_1_5;
+  wire       [17:0]   _zz_fsm_current_sram_addr_3;
+  wire       [31:0]   _zz_when_SRAMController_l329_1;
+  wire       [7:0]    _zz_when_SRAMController_l329_2;
+  wire       [67:0]   _zz_when_SRAMController_l337_2;
+  wire       [33:0]   _zz_when_SRAMController_l337_3;
   wire       [19:0]   _zz_fsm_current_sram_addr_4;
   wire       [7:0]    _zz_fsm_current_sram_addr_5;
   wire       [7:0]    _zz_fsm_current_sram_addr_6;
   wire       [19:0]   _zz_fsm_next_sram_addr_prefetch;
   wire       [7:0]    _zz_fsm_next_sram_addr_prefetch_1;
   wire       [7:0]    _zz_fsm_next_sram_addr_prefetch_2;
+  wire       [19:0]   _zz__zz_1;
+  wire       [7:0]    _zz__zz_1_1;
+  wire       [7:0]    _zz__zz_1_2;
   wire       [19:0]   _zz_fsm_current_sram_addr_7;
   wire       [7:0]    _zz_fsm_current_sram_addr_8;
   wire       [7:0]    _zz_fsm_current_sram_addr_9;
@@ -47588,52 +48020,58 @@ module SRAMController_1 (
   reg                 fsm_wantStart;
   wire                fsm_wantKill;
   reg        [31:0]   fsm_ar_cmd_reg_addr;
-  reg        [3:0]    fsm_ar_cmd_reg_id;
+  reg        [6:0]    fsm_ar_cmd_reg_id;
   reg        [7:0]    fsm_ar_cmd_reg_len;
   reg        [2:0]    fsm_ar_cmd_reg_size;
   reg        [1:0]    fsm_ar_cmd_reg_burst;
-  reg        [2:0]    fsm_ar_cmd_reg_prot;
   reg        [31:0]   fsm_aw_cmd_reg_addr;
-  reg        [3:0]    fsm_aw_cmd_reg_id;
+  reg        [6:0]    fsm_aw_cmd_reg_id;
   reg        [7:0]    fsm_aw_cmd_reg_len;
   reg        [2:0]    fsm_aw_cmd_reg_size;
   reg        [1:0]    fsm_aw_cmd_reg_burst;
-  reg        [2:0]    fsm_aw_cmd_reg_prot;
   reg        [8:0]    fsm_burst_count_remaining;
   reg        [19:0]   fsm_current_sram_addr;
   reg        [31:0]   fsm_read_data_buffer;
   reg        [1:0]    fsm_read_wait_counter;
   reg        [1:0]    fsm_write_wait_counter;
-  reg                 fsm_transaction_error_occurred;
+  (* MARK_DEBUG = "TRUE" *) reg                 fsm_transaction_error_occurred;
   reg                 fsm_read_priority;
   reg        [19:0]   fsm_next_sram_addr_prefetch;
   reg                 fsm_addr_prefetch_valid;
   (* MARK_DEBUG = "TRUE" *) reg        [3:0]    fsm_stateReg;
   reg        [3:0]    fsm_stateNext;
-  wire                when_SRAMController_l180;
+  wire                when_SRAMController_l190;
   (* mark_debug = "true" *) wire                io_axi_aw_fire;
-  wire       [31:0]   _zz_fsm_current_sram_addr;
-  wire       [7:0]    _zz_when_SRAMController_l230;
-  wire                when_SRAMController_l226;
-  wire                when_SRAMController_l230;
-  wire                when_SRAMController_l234;
-  wire                when_SRAMController_l238;
+  wire       [33:0]   _zz_fsm_current_sram_addr;
+  wire       [7:0]    _zz_when_SRAMController_l259;
+  wire       [33:0]   _zz_when_SRAMController_l267;
+  wire       [67:0]   _zz_when_SRAMController_l267_1;
+  wire                when_SRAMController_l255;
+  wire                when_SRAMController_l259;
+  wire                when_SRAMController_l263;
+  wire                when_SRAMController_l267;
   (* mark_debug = "true" *) wire                io_axi_ar_fire;
-  wire       [31:0]   _zz_fsm_current_sram_addr_1;
-  wire       [7:0]    _zz_when_SRAMController_l284;
-  wire                when_SRAMController_l280;
-  wire                when_SRAMController_l284;
-  wire                when_SRAMController_l288;
-  wire                when_SRAMController_l292;
+  wire       [33:0]   _zz_fsm_current_sram_addr_1;
+  wire       [7:0]    _zz_when_SRAMController_l329;
+  wire       [33:0]   _zz_when_SRAMController_l337;
+  wire       [67:0]   _zz_when_SRAMController_l337_1;
+  wire                when_SRAMController_l325;
+  wire                when_SRAMController_l329;
+  wire                when_SRAMController_l333;
+  wire                when_SRAMController_l337;
   (* mark_debug = "true" *) wire                io_axi_w_fire;
-  wire                when_SRAMController_l376;
-  wire                when_SRAMController_l418;
-  wire                when_SRAMController_l451;
-  wire                when_SRAMController_l546;
-  wire                when_SRAMController_l555;
-  wire                when_SRAMController_l604;
+  wire                when_SRAMController_l422;
+  wire                when_SRAMController_l464;
+  wire                when_SRAMController_l497;
+  wire       [1:0]    _zz_io_axi_b_payload_resp;
+  wire                when_SRAMController_l593;
+  wire       [19:0]   _zz_1;
+  wire                when_SRAMController_l602;
+  wire                when_SRAMController_l651;
+  wire       [1:0]    _zz_2;
   (* mark_debug = "true" *) wire                io_axi_r_fire;
-  wire                when_SRAMController_l656;
+  wire                when_SRAMController_l703;
+  wire       [1:0]    _zz_3;
   wire                fsm_onExit_BOOT;
   wire                fsm_onExit_IDLE;
   wire                fsm_onExit_WRITE_DATA_FETCH;
@@ -47657,6 +48095,7 @@ module SRAMController_1 (
   wire                fsm_onEntry_READ_RESPONSE;
   wire                fsm_onEntry_READ_RESPONSE_ERROR;
   (* mark_debug = "true" *) wire                io_axi_b_fire;
+  reg        [31:0]   _zz_4;
   `ifndef SYNTHESIS
   reg [191:0] fsm_stateReg_string;
   reg [191:0] fsm_stateNext_string;
@@ -47664,33 +48103,40 @@ module SRAMController_1 (
 
 
   assign _zz_fsm_burst_count_remaining = (io_axi_aw_payload_len + 8'h01);
-  assign _zz_fsm_current_sram_addr_2 = (_zz_fsm_current_sram_addr >>> 2'd2);
-  assign _zz_when_SRAMController_l230_2 = (_zz_when_SRAMController_l230 - 8'h01);
-  assign _zz_when_SRAMController_l230_1 = {24'd0, _zz_when_SRAMController_l230_2};
-  assign _zz_when_SRAMController_l238 = _zz_fsm_current_sram_addr;
-  assign _zz_when_SRAMController_l238_1 = (_zz_when_SRAMController_l238_2 - _zz_when_SRAMController_l238_6);
-  assign _zz_when_SRAMController_l238_2 = (_zz_fsm_current_sram_addr + _zz_when_SRAMController_l238_3);
-  assign _zz_when_SRAMController_l238_4 = (_zz_when_SRAMController_l238_5 * _zz_when_SRAMController_l230);
-  assign _zz_when_SRAMController_l238_3 = {16'd0, _zz_when_SRAMController_l238_4};
-  assign _zz_when_SRAMController_l238_5 = (io_axi_aw_payload_len + 8'h01);
-  assign _zz_when_SRAMController_l238_6 = {24'd0, _zz_when_SRAMController_l230};
+  assign _zz__zz_fsm_current_sram_addr = {2'd0, io_axi_aw_payload_addr};
+  assign _zz__zz_when_SRAMController_l267_1 = (_zz__zz_when_SRAMController_l267_1_1 + _zz__zz_when_SRAMController_l267_1_2);
+  assign _zz__zz_when_SRAMController_l267_1_1 = {34'd0, _zz_fsm_current_sram_addr};
+  assign _zz__zz_when_SRAMController_l267_1_2 = (_zz__zz_when_SRAMController_l267_1_3 * _zz_when_SRAMController_l267);
+  assign _zz__zz_when_SRAMController_l267_1_4 = (io_axi_aw_payload_len + 8'h01);
+  assign _zz__zz_when_SRAMController_l267_1_3 = {26'd0, _zz__zz_when_SRAMController_l267_1_4};
+  assign _zz__zz_when_SRAMController_l267_1_5 = {34'd0, _zz_when_SRAMController_l267};
+  assign _zz_fsm_current_sram_addr_2 = (_zz_fsm_current_sram_addr[19 : 0] >>> 2'd2);
+  assign _zz_when_SRAMController_l259_2 = (_zz_when_SRAMController_l259 - 8'h01);
+  assign _zz_when_SRAMController_l259_1 = {24'd0, _zz_when_SRAMController_l259_2};
+  assign _zz_when_SRAMController_l267_3 = 34'h000400000;
+  assign _zz_when_SRAMController_l267_2 = {34'd0, _zz_when_SRAMController_l267_3};
   assign _zz_fsm_burst_count_remaining_1 = (io_axi_ar_payload_len + 8'h01);
-  assign _zz_fsm_current_sram_addr_3 = (_zz_fsm_current_sram_addr_1 >>> 2'd2);
-  assign _zz_when_SRAMController_l284_2 = (_zz_when_SRAMController_l284 - 8'h01);
-  assign _zz_when_SRAMController_l284_1 = {24'd0, _zz_when_SRAMController_l284_2};
-  assign _zz_when_SRAMController_l292 = _zz_fsm_current_sram_addr_1;
-  assign _zz_when_SRAMController_l292_1 = (_zz_when_SRAMController_l292_2 - _zz_when_SRAMController_l292_6);
-  assign _zz_when_SRAMController_l292_2 = (_zz_fsm_current_sram_addr_1 + _zz_when_SRAMController_l292_3);
-  assign _zz_when_SRAMController_l292_4 = (_zz_when_SRAMController_l292_5 * _zz_when_SRAMController_l284);
-  assign _zz_when_SRAMController_l292_3 = {16'd0, _zz_when_SRAMController_l292_4};
-  assign _zz_when_SRAMController_l292_5 = (io_axi_ar_payload_len + 8'h01);
-  assign _zz_when_SRAMController_l292_6 = {24'd0, _zz_when_SRAMController_l284};
+  assign _zz__zz_fsm_current_sram_addr_1 = {2'd0, io_axi_ar_payload_addr};
+  assign _zz__zz_when_SRAMController_l337_1 = (_zz__zz_when_SRAMController_l337_1_1 + _zz__zz_when_SRAMController_l337_1_2);
+  assign _zz__zz_when_SRAMController_l337_1_1 = {34'd0, _zz_fsm_current_sram_addr_1};
+  assign _zz__zz_when_SRAMController_l337_1_2 = (_zz__zz_when_SRAMController_l337_1_3 * _zz_when_SRAMController_l337);
+  assign _zz__zz_when_SRAMController_l337_1_4 = (io_axi_ar_payload_len + 8'h01);
+  assign _zz__zz_when_SRAMController_l337_1_3 = {26'd0, _zz__zz_when_SRAMController_l337_1_4};
+  assign _zz__zz_when_SRAMController_l337_1_5 = {34'd0, _zz_when_SRAMController_l337};
+  assign _zz_fsm_current_sram_addr_3 = (_zz_fsm_current_sram_addr_1[19 : 0] >>> 2'd2);
+  assign _zz_when_SRAMController_l329_2 = (_zz_when_SRAMController_l329 - 8'h01);
+  assign _zz_when_SRAMController_l329_1 = {24'd0, _zz_when_SRAMController_l329_2};
+  assign _zz_when_SRAMController_l337_3 = 34'h000400000;
+  assign _zz_when_SRAMController_l337_2 = {34'd0, _zz_when_SRAMController_l337_3};
   assign _zz_fsm_current_sram_addr_5 = (_zz_fsm_current_sram_addr_6 / 3'b100);
   assign _zz_fsm_current_sram_addr_4 = {12'd0, _zz_fsm_current_sram_addr_5};
   assign _zz_fsm_current_sram_addr_6 = ({7'd0,1'b1} <<< fsm_aw_cmd_reg_size);
   assign _zz_fsm_next_sram_addr_prefetch_1 = (_zz_fsm_next_sram_addr_prefetch_2 / 3'b100);
   assign _zz_fsm_next_sram_addr_prefetch = {12'd0, _zz_fsm_next_sram_addr_prefetch_1};
   assign _zz_fsm_next_sram_addr_prefetch_2 = ({7'd0,1'b1} <<< fsm_ar_cmd_reg_size);
+  assign _zz__zz_1_1 = (_zz__zz_1_2 / 3'b100);
+  assign _zz__zz_1 = {12'd0, _zz__zz_1_1};
+  assign _zz__zz_1_2 = ({7'd0,1'b1} <<< fsm_ar_cmd_reg_size);
   assign _zz_fsm_current_sram_addr_8 = (_zz_fsm_current_sram_addr_9 / 3'b100);
   assign _zz_fsm_current_sram_addr_7 = {12'd0, _zz_fsm_current_sram_addr_8};
   assign _zz_fsm_current_sram_addr_9 = ({7'd0,1'b1} <<< fsm_ar_cmd_reg_size);
@@ -47734,7 +48180,7 @@ module SRAMController_1 (
     case(fsm_stateReg)
       fsm_IDLE : begin
         io_axi_aw_ready = 1'b0;
-        if(when_SRAMController_l180) begin
+        if(when_SRAMController_l190) begin
           io_axi_aw_ready = (! fsm_read_priority);
         end else begin
           io_axi_aw_ready = io_axi_aw_valid;
@@ -47772,7 +48218,7 @@ module SRAMController_1 (
     case(fsm_stateReg)
       fsm_IDLE : begin
         io_axi_ar_ready = 1'b0;
-        if(when_SRAMController_l180) begin
+        if(when_SRAMController_l190) begin
           io_axi_ar_ready = fsm_read_priority;
         end else begin
           io_axi_ar_ready = io_axi_ar_valid;
@@ -47898,7 +48344,7 @@ module SRAMController_1 (
   end
 
   always @(*) begin
-    io_axi_b_payload_id = 4'b0000;
+    io_axi_b_payload_id = 7'h0;
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
@@ -47940,7 +48386,7 @@ module SRAMController_1 (
       fsm_WRITE_DATA_ERROR_CONSUME : begin
       end
       fsm_WRITE_RESPONSE : begin
-        io_axi_b_payload_resp = (fsm_transaction_error_occurred ? 2'b10 : 2'b00);
+        io_axi_b_payload_resp = _zz_io_axi_b_payload_resp;
       end
       fsm_READ_SETUP : begin
       end
@@ -47956,7 +48402,7 @@ module SRAMController_1 (
   end
 
   always @(*) begin
-    io_axi_r_payload_id = 4'b0000;
+    io_axi_r_payload_id = 7'h0;
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
@@ -48065,10 +48511,10 @@ module SRAMController_1 (
       fsm_READ_WAIT : begin
       end
       fsm_READ_RESPONSE : begin
-        io_axi_r_payload_last = when_SRAMController_l604;
+        io_axi_r_payload_last = when_SRAMController_l651;
       end
       fsm_READ_RESPONSE_ERROR : begin
-        io_axi_r_payload_last = when_SRAMController_l656;
+        io_axi_r_payload_last = when_SRAMController_l703;
       end
       default : begin
       end
@@ -48119,16 +48565,16 @@ module SRAMController_1 (
     case(fsm_stateReg)
       fsm_IDLE : begin
         if(io_axi_aw_fire) begin
-          if(when_SRAMController_l226) begin
+          if(when_SRAMController_l255) begin
             fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
           end else begin
-            if(when_SRAMController_l230) begin
+            if(when_SRAMController_l259) begin
               fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
             end else begin
-              if(when_SRAMController_l234) begin
+              if(when_SRAMController_l263) begin
                 fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
               end else begin
-                if(when_SRAMController_l238) begin
+                if(when_SRAMController_l267) begin
                   fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
                 end else begin
                   fsm_stateNext = fsm_WRITE_DATA_FETCH;
@@ -48138,16 +48584,16 @@ module SRAMController_1 (
           end
         end
         if(io_axi_ar_fire) begin
-          if(when_SRAMController_l280) begin
+          if(when_SRAMController_l325) begin
             fsm_stateNext = fsm_READ_RESPONSE_ERROR;
           end else begin
-            if(when_SRAMController_l284) begin
+            if(when_SRAMController_l329) begin
               fsm_stateNext = fsm_READ_RESPONSE_ERROR;
             end else begin
-              if(when_SRAMController_l288) begin
+              if(when_SRAMController_l333) begin
                 fsm_stateNext = fsm_READ_RESPONSE_ERROR;
               end else begin
-                if(when_SRAMController_l292) begin
+                if(when_SRAMController_l337) begin
                   fsm_stateNext = fsm_READ_RESPONSE_ERROR;
                 end else begin
                   fsm_stateNext = fsm_READ_SETUP;
@@ -48163,12 +48609,12 @@ module SRAMController_1 (
         end
       end
       fsm_WRITE_EXECUTE : begin
-        if(when_SRAMController_l376) begin
+        if(when_SRAMController_l422) begin
           fsm_stateNext = fsm_WRITE_DEASSERT;
         end
       end
       fsm_WRITE_DEASSERT : begin
-        if(when_SRAMController_l418) begin
+        if(when_SRAMController_l464) begin
           fsm_stateNext = fsm_WRITE_RESPONSE;
         end else begin
           fsm_stateNext = fsm_WRITE_DATA_FETCH;
@@ -48176,7 +48622,7 @@ module SRAMController_1 (
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
         if(io_axi_w_fire) begin
-          if(when_SRAMController_l451) begin
+          if(when_SRAMController_l497) begin
             fsm_stateNext = fsm_WRITE_RESPONSE;
           end
         end
@@ -48190,13 +48636,13 @@ module SRAMController_1 (
         fsm_stateNext = fsm_READ_WAIT;
       end
       fsm_READ_WAIT : begin
-        if(when_SRAMController_l555) begin
+        if(when_SRAMController_l602) begin
           fsm_stateNext = fsm_READ_RESPONSE;
         end
       end
       fsm_READ_RESPONSE : begin
         if(io_axi_r_fire) begin
-          if(when_SRAMController_l604) begin
+          if(when_SRAMController_l651) begin
             fsm_stateNext = fsm_IDLE;
           end else begin
             fsm_stateNext = fsm_READ_SETUP;
@@ -48205,7 +48651,7 @@ module SRAMController_1 (
       end
       fsm_READ_RESPONSE_ERROR : begin
         if(io_axi_r_fire) begin
-          if(when_SRAMController_l656) begin
+          if(when_SRAMController_l703) begin
             fsm_stateNext = fsm_IDLE;
           end
         end
@@ -48221,30 +48667,38 @@ module SRAMController_1 (
     end
   end
 
-  assign when_SRAMController_l180 = (io_axi_aw_valid && io_axi_ar_valid);
+  assign when_SRAMController_l190 = (io_axi_aw_valid && io_axi_ar_valid);
   assign io_axi_aw_fire = (io_axi_aw_valid && io_axi_aw_ready);
-  assign _zz_fsm_current_sram_addr = (io_axi_aw_payload_addr - 32'h80400000);
-  assign _zz_when_SRAMController_l230 = ({7'd0,1'b1} <<< io_axi_aw_payload_size);
-  assign when_SRAMController_l226 = (io_axi_aw_payload_burst != 2'b01);
-  assign when_SRAMController_l230 = ((! ((io_axi_aw_payload_addr & _zz_when_SRAMController_l230_1) == 32'h0)) || (! ((io_axi_aw_payload_addr & 32'h00000003) == 32'h0)));
-  assign when_SRAMController_l234 = (! (io_axi_aw_payload_size == 3'b010));
-  assign when_SRAMController_l238 = (($signed(_zz_when_SRAMController_l238) < $signed(32'h0)) || (32'h00400000 <= _zz_when_SRAMController_l238_1));
+  assign _zz_fsm_current_sram_addr = (_zz__zz_fsm_current_sram_addr - 34'h080400000);
+  assign _zz_when_SRAMController_l259 = ({7'd0,1'b1} <<< io_axi_aw_payload_size);
+  assign _zz_when_SRAMController_l267 = {26'd0, _zz_when_SRAMController_l259};
+  assign _zz_when_SRAMController_l267_1 = (_zz__zz_when_SRAMController_l267_1 - _zz__zz_when_SRAMController_l267_1_5);
+  assign when_SRAMController_l255 = (io_axi_aw_payload_burst != 2'b01);
+  assign when_SRAMController_l259 = ((! ((io_axi_aw_payload_addr & _zz_when_SRAMController_l259_1) == 32'h0)) || (! ((io_axi_aw_payload_addr & 32'h00000003) == 32'h0)));
+  assign when_SRAMController_l263 = (! (io_axi_aw_payload_size == 3'b010));
+  assign when_SRAMController_l267 = (_zz_fsm_current_sram_addr[20] || (_zz_when_SRAMController_l267_2 <= _zz_when_SRAMController_l267_1));
   assign io_axi_ar_fire = (io_axi_ar_valid && io_axi_ar_ready);
-  assign _zz_fsm_current_sram_addr_1 = (io_axi_ar_payload_addr - 32'h80400000);
-  assign _zz_when_SRAMController_l284 = ({7'd0,1'b1} <<< io_axi_ar_payload_size);
-  assign when_SRAMController_l280 = (io_axi_ar_payload_burst != 2'b01);
-  assign when_SRAMController_l284 = ((! ((io_axi_ar_payload_addr & _zz_when_SRAMController_l284_1) == 32'h0)) || (! ((io_axi_ar_payload_addr & 32'h00000003) == 32'h0)));
-  assign when_SRAMController_l288 = (! (io_axi_ar_payload_size == 3'b010));
-  assign when_SRAMController_l292 = (($signed(_zz_when_SRAMController_l292) < $signed(32'h0)) || (32'h00400000 <= _zz_when_SRAMController_l292_1));
+  assign _zz_fsm_current_sram_addr_1 = (_zz__zz_fsm_current_sram_addr_1 - 34'h080400000);
+  assign _zz_when_SRAMController_l329 = ({7'd0,1'b1} <<< io_axi_ar_payload_size);
+  assign _zz_when_SRAMController_l337 = {26'd0, _zz_when_SRAMController_l329};
+  assign _zz_when_SRAMController_l337_1 = (_zz__zz_when_SRAMController_l337_1 - _zz__zz_when_SRAMController_l337_1_5);
+  assign when_SRAMController_l325 = (io_axi_ar_payload_burst != 2'b01);
+  assign when_SRAMController_l329 = ((! ((io_axi_ar_payload_addr & _zz_when_SRAMController_l329_1) == 32'h0)) || (! ((io_axi_ar_payload_addr & 32'h00000003) == 32'h0)));
+  assign when_SRAMController_l333 = (! (io_axi_ar_payload_size == 3'b010));
+  assign when_SRAMController_l337 = (_zz_fsm_current_sram_addr_1[20] || (_zz_when_SRAMController_l337_2 <= _zz_when_SRAMController_l337_1));
   assign io_axi_w_fire = (io_axi_w_valid && io_axi_w_ready);
-  assign when_SRAMController_l376 = (fsm_write_wait_counter == 2'b10);
-  assign when_SRAMController_l418 = (fsm_burst_count_remaining == 9'h0);
-  assign when_SRAMController_l451 = (fsm_burst_count_remaining == 9'h001);
-  assign when_SRAMController_l546 = (((fsm_read_wait_counter == 2'b01) && (9'h001 < fsm_burst_count_remaining)) && (! fsm_addr_prefetch_valid));
-  assign when_SRAMController_l555 = (fsm_read_wait_counter == 2'b10);
-  assign when_SRAMController_l604 = (fsm_burst_count_remaining == 9'h001);
+  assign when_SRAMController_l422 = (fsm_write_wait_counter == 2'b10);
+  assign when_SRAMController_l464 = (fsm_burst_count_remaining == 9'h0);
+  assign when_SRAMController_l497 = (fsm_burst_count_remaining == 9'h001);
+  assign _zz_io_axi_b_payload_resp = (fsm_transaction_error_occurred ? 2'b10 : 2'b00);
+  assign when_SRAMController_l593 = (((fsm_read_wait_counter == 2'b01) && (9'h001 < fsm_burst_count_remaining)) && (! fsm_addr_prefetch_valid));
+  assign _zz_1 = (fsm_current_sram_addr + _zz__zz_1);
+  assign when_SRAMController_l602 = (fsm_read_wait_counter == 2'b10);
+  assign when_SRAMController_l651 = (fsm_burst_count_remaining == 9'h001);
+  assign _zz_2 = 2'b00;
   assign io_axi_r_fire = (io_axi_r_valid && io_axi_r_ready);
-  assign when_SRAMController_l656 = (fsm_burst_count_remaining == 9'h001);
+  assign when_SRAMController_l703 = (fsm_burst_count_remaining == 9'h001);
+  assign _zz_3 = 2'b10;
   assign fsm_onExit_BOOT = ((fsm_stateNext != fsm_BOOT) && (fsm_stateReg == fsm_BOOT));
   assign fsm_onExit_IDLE = ((fsm_stateNext != fsm_IDLE) && (fsm_stateReg == fsm_IDLE));
   assign fsm_onExit_WRITE_DATA_FETCH = ((fsm_stateNext != fsm_WRITE_DATA_FETCH) && (fsm_stateReg == fsm_WRITE_DATA_FETCH));
@@ -48281,6 +48735,7 @@ module SRAMController_1 (
       fsm_read_priority <= 1'b0;
       fsm_addr_prefetch_valid <= 1'b0;
       fsm_stateReg <= fsm_BOOT;
+      _zz_4 <= 32'h0;
     end else begin
       fsm_stateReg <= fsm_stateNext;
       case(fsm_stateReg)
@@ -48288,35 +48743,135 @@ module SRAMController_1 (
           fsm_transaction_error_occurred <= 1'b0;
           fsm_addr_prefetch_valid <= 1'b0;
           if(io_axi_aw_fire) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // SRAMController.scala:L208
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(SRAMController.scala:208):  1 AW Fire. Addr=0x%x, ID=%x, Len=%x, Burst=%x, Size=%x", io_axi_aw_payload_addr, io_axi_aw_payload_id, io_axi_aw_payload_len, io_axi_aw_payload_burst, io_axi_aw_payload_size); // SRAMController.scala:L208
+                end
+              `endif
+            `endif
             fsm_read_priority <= (! fsm_read_priority);
-            if(when_SRAMController_l226) begin
+            if(when_SRAMController_l255) begin
+              `ifndef SYNTHESIS
+                `ifdef FORMAL
+                  assert(1'b0); // SRAMController.scala:L256
+                `else
+                  if(!1'b0) begin
+                    $display("NOTE(SRAMController.scala:256):  1 AW Error - Unsupported burst type: %x", io_axi_aw_payload_burst); // SRAMController.scala:L256
+                  end
+                `endif
+              `endif
               fsm_transaction_error_occurred <= 1'b1;
             end else begin
-              if(when_SRAMController_l230) begin
+              if(when_SRAMController_l259) begin
+                `ifndef SYNTHESIS
+                  `ifdef FORMAL
+                    assert(1'b0); // SRAMController.scala:L260
+                  `else
+                    if(!1'b0) begin
+                      $display("NOTE(SRAMController.scala:260):  1 AW Error - Address unaligned: 0x%x for size %x or word boundary", io_axi_aw_payload_addr, _zz_when_SRAMController_l259); // SRAMController.scala:L260
+                    end
+                  `endif
+                `endif
                 fsm_transaction_error_occurred <= 1'b1;
               end else begin
-                if(when_SRAMController_l234) begin
+                if(when_SRAMController_l263) begin
+                  `ifndef SYNTHESIS
+                    `ifdef FORMAL
+                      assert(1'b0); // SRAMController.scala:L264
+                    `else
+                      if(!1'b0) begin
+                        $display("NOTE(SRAMController.scala:264):  1 AW Error - Incompatible size: %x for word addressing mode", io_axi_aw_payload_size); // SRAMController.scala:L264
+                      end
+                    `endif
+                  `endif
                   fsm_transaction_error_occurred <= 1'b1;
                 end else begin
-                  if(when_SRAMController_l238) begin
+                  if(when_SRAMController_l267) begin
+                    `ifndef SYNTHESIS
+                      `ifdef FORMAL
+                        assert(1'b0); // SRAMController.scala:L268
+                      `else
+                        if(!1'b0) begin
+                          $display("NOTE(SRAMController.scala:268):  1 AW Error - Address out of bounds. Byte Offset (calc)=0x%x, End Offset (calc)=0x%x, SRAM Size=4194304", _zz_fsm_current_sram_addr, _zz_when_SRAMController_l267_1); // SRAMController.scala:L268
+                        end
+                      `endif
+                    `endif
                     fsm_transaction_error_occurred <= 1'b1;
+                  end else begin
+                    `ifndef SYNTHESIS
+                      `ifdef FORMAL
+                        assert(1'b0); // SRAMController.scala:L276
+                      `else
+                        if(!1'b0) begin
+                          $display("NOTE(SRAMController.scala:276):  1 will go to WRITE_DATA_FETCH next cycle"); // SRAMController.scala:L276
+                        end
+                      `endif
+                    `endif
                   end
                 end
               end
             end
           end
           if(io_axi_ar_fire) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // SRAMController.scala:L285
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(SRAMController.scala:285):  1 AR Fire. Addr=0x%x, ID=%x, Len=%x, Burst=%x, Size=%x", io_axi_ar_payload_addr, io_axi_ar_payload_id, io_axi_ar_payload_len, io_axi_ar_payload_burst, io_axi_ar_payload_size); // SRAMController.scala:L285
+                end
+              `endif
+            `endif
             fsm_read_priority <= (! fsm_read_priority);
-            if(when_SRAMController_l280) begin
+            if(when_SRAMController_l325) begin
+              `ifndef SYNTHESIS
+                `ifdef FORMAL
+                  assert(1'b0); // SRAMController.scala:L326
+                `else
+                  if(!1'b0) begin
+                    $display("NOTE(SRAMController.scala:326):  1 AR Error - Unsupported burst type: %x", io_axi_ar_payload_burst); // SRAMController.scala:L326
+                  end
+                `endif
+              `endif
               fsm_transaction_error_occurred <= 1'b1;
             end else begin
-              if(when_SRAMController_l284) begin
+              if(when_SRAMController_l329) begin
+                `ifndef SYNTHESIS
+                  `ifdef FORMAL
+                    assert(1'b0); // SRAMController.scala:L330
+                  `else
+                    if(!1'b0) begin
+                      $display("NOTE(SRAMController.scala:330):  1 AR Error - Address unaligned: 0x%x for size %x or word boundary", io_axi_ar_payload_addr, _zz_when_SRAMController_l329); // SRAMController.scala:L330
+                    end
+                  `endif
+                `endif
                 fsm_transaction_error_occurred <= 1'b1;
               end else begin
-                if(when_SRAMController_l288) begin
+                if(when_SRAMController_l333) begin
+                  `ifndef SYNTHESIS
+                    `ifdef FORMAL
+                      assert(1'b0); // SRAMController.scala:L334
+                    `else
+                      if(!1'b0) begin
+                        $display("NOTE(SRAMController.scala:334):  1 AR Error - Incompatible size: %x for word addressing mode", io_axi_ar_payload_size); // SRAMController.scala:L334
+                      end
+                    `endif
+                  `endif
                   fsm_transaction_error_occurred <= 1'b1;
                 end else begin
-                  if(when_SRAMController_l292) begin
+                  if(when_SRAMController_l337) begin
+                    `ifndef SYNTHESIS
+                      `ifdef FORMAL
+                        assert(1'b0); // SRAMController.scala:L338
+                      `else
+                        if(!1'b0) begin
+                          $display("NOTE(SRAMController.scala:338):  1 AR Error - Address out of bounds. Byte Offset (calc)=0x%x, End Offset (calc)=0x%x, SRAM Size=4194304", _zz_fsm_current_sram_addr_1, _zz_when_SRAMController_l337_1); // SRAMController.scala:L338
+                        end
+                      `endif
+                    `endif
                     fsm_transaction_error_occurred <= 1'b1;
                   end
                 end
@@ -48325,29 +48880,103 @@ module SRAMController_1 (
           end
         end
         fsm_WRITE_DATA_FETCH : begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // SRAMController.scala:L367
+            `else
+              if(!1'b0) begin
+                $display("NOTE(SRAMController.scala:367):  1 WRITE_DATA_FETCH. SRAM_Target_Addr=0x%x, BurstCountRem=%x", fsm_current_sram_addr, fsm_burst_count_remaining); // SRAMController.scala:L367
+              end
+            `endif
+          `endif
           if(io_axi_w_fire) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // SRAMController.scala:L373
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(SRAMController.scala:373):  1 W Fire. Data=0x%x, Strb=0x%x, Last=%x", io_axi_w_payload_data, io_axi_w_payload_strb, io_axi_w_payload_last); // SRAMController.scala:L373
+                end
+              `endif
+            `endif
             sram_addr_out_reg <= fsm_current_sram_addr;
             sram_data_out_reg <= io_axi_w_payload_data;
             sram_be_n_out_reg <= (~ io_axi_w_payload_strb);
           end
         end
         fsm_WRITE_EXECUTE : begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // SRAMController.scala:L411
+            `else
+              if(!1'b0) begin
+                $display("NOTE(SRAMController.scala:411):  1 WRITE_EXECUTE. SRAM Addr=0x%x, WaitCounter=%x", sram_addr_out_reg, fsm_write_wait_counter); // SRAMController.scala:L411
+              end
+            `endif
+          `endif
           sram_ce_n_out_reg <= 1'b0;
           sram_oe_n_out_reg <= 1'b1;
           sram_we_n_out_reg <= 1'b0;
           sram_data_writeEnable_out_reg <= 1'b1;
         end
         fsm_WRITE_DEASSERT : begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // SRAMController.scala:L454
+            `else
+              if(!1'b0) begin
+                $display("NOTE(SRAMController.scala:454):  1 WRITE_DEASSERT. SRAM Addr=0x%x, BurstCountRem=%x", sram_addr_out_reg, fsm_burst_count_remaining); // SRAMController.scala:L454
+              end
+            `endif
+          `endif
           sram_ce_n_out_reg <= 1'b1;
           sram_we_n_out_reg <= 1'b1;
           sram_oe_n_out_reg <= 1'b1;
           sram_data_writeEnable_out_reg <= 1'b0;
         end
         fsm_WRITE_DATA_ERROR_CONSUME : begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // SRAMController.scala:L493
+            `else
+              if(!1'b0) begin
+                $display("NOTE(SRAMController.scala:493):  1 WRITE_DATA_ERROR_CONSUME. BurstCountRem=%x", fsm_burst_count_remaining); // SRAMController.scala:L493
+              end
+            `endif
+          `endif
         end
         fsm_WRITE_RESPONSE : begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // SRAMController.scala:L518
+            `else
+              if(!1'b0) begin
+                $display("NOTE(SRAMController.scala:518):  1 WRITE_RESPONSE. ID=%x, Resp=%x, Addr=%x, Len=%x, Size=%x, Burst=%x, Lock=<null>, Cache=<null>, Prot=<null>, Qos=<null>, Region=<null>", fsm_aw_cmd_reg_id, _zz_io_axi_b_payload_resp, fsm_aw_cmd_reg_addr, fsm_aw_cmd_reg_len, fsm_aw_cmd_reg_size, fsm_aw_cmd_reg_burst); // SRAMController.scala:L518
+              end
+            `endif
+          `endif
+          if(io_axi_b_ready) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // SRAMController.scala:L524
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(SRAMController.scala:524):  1 B Ready. ID=%x, Resp=%x", fsm_aw_cmd_reg_id, _zz_io_axi_b_payload_resp); // SRAMController.scala:L524
+                end
+              `endif
+            `endif
+          end
         end
         fsm_READ_SETUP : begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // SRAMController.scala:L541
+            `else
+              if(!1'b0) begin
+                $display("NOTE(SRAMController.scala:541):  1 READ_SETUP. SRAM Addr=0x%x, BurstCountRem=%x", fsm_current_sram_addr, fsm_burst_count_remaining); // SRAMController.scala:L541
+              end
+            `endif
+          `endif
           fsm_addr_prefetch_valid <= 1'b0;
           sram_ce_n_out_reg <= 1'b0;
           sram_oe_n_out_reg <= 1'b0;
@@ -48357,15 +48986,42 @@ module SRAMController_1 (
           sram_be_n_out_reg <= 4'b0000;
         end
         fsm_READ_WAIT : begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // SRAMController.scala:L577
+            `else
+              if(!1'b0) begin
+                $display("NOTE(SRAMController.scala:577):  1 READ_WAIT. SRAM Addr=0x%x, WaitCounter=%x, AddrPrefetchValid=%x", sram_addr_out_reg, fsm_read_wait_counter, fsm_addr_prefetch_valid); // SRAMController.scala:L577
+              end
+            `endif
+          `endif
           sram_ce_n_out_reg <= 1'b0;
           sram_oe_n_out_reg <= 1'b0;
           sram_we_n_out_reg <= 1'b1;
           sram_data_writeEnable_out_reg <= 1'b0;
-          if(when_SRAMController_l546) begin
+          if(when_SRAMController_l593) begin
             fsm_addr_prefetch_valid <= 1'b1;
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // SRAMController.scala:L597
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(SRAMController.scala:597):  1 Address prefetch at wait_cycle %x - Next sram_addr 0x%x", fsm_read_wait_counter, _zz_1); // SRAMController.scala:L597
+                end
+              `endif
+            `endif
           end
         end
         fsm_READ_RESPONSE : begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // SRAMController.scala:L629
+            `else
+              if(!1'b0) begin
+                $display("NOTE(SRAMController.scala:629):  1 READ_RESPONSE. ID=%x, Data=0x%x, BurstCountRem=%x, Resp=%x, Last=%x", fsm_ar_cmd_reg_id, fsm_read_data_buffer, fsm_burst_count_remaining, _zz_2, when_SRAMController_l651); // SRAMController.scala:L629
+              end
+            `endif
+          `endif
           sram_ce_n_out_reg <= 1'b0;
           sram_oe_n_out_reg <= 1'b0;
           sram_we_n_out_reg <= 1'b1;
@@ -48373,14 +49029,64 @@ module SRAMController_1 (
           sram_addr_out_reg <= fsm_current_sram_addr;
           sram_be_n_out_reg <= 4'b0000;
           if(io_axi_r_fire) begin
-            if(!when_SRAMController_l604) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // SRAMController.scala:L649
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(SRAMController.scala:649):  1 R Fire. Last=%x", io_axi_r_payload_last); // SRAMController.scala:L649
+                end
+              `endif
+            `endif
+            if(!when_SRAMController_l651) begin
               if(fsm_addr_prefetch_valid) begin
                 fsm_addr_prefetch_valid <= 1'b0;
               end
             end
+          end else begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // SRAMController.scala:L663
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(SRAMController.scala:663):  io.axi.r.valid = %x, io.axi.r.ready = %x", io_axi_r_valid, io_axi_r_ready); // SRAMController.scala:L663
+                end
+              `endif
+            `endif
           end
         end
         fsm_READ_RESPONSE_ERROR : begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // SRAMController.scala:L689
+            `else
+              if(!1'b0) begin
+                $display("NOTE(SRAMController.scala:689):  1 READ_RESPONSE_ERROR. ID=%x, BurstCountRem=%x, Resp=%x, Last=%x, r.valid=%x, r.ready=%x, r.fire=%x", fsm_ar_cmd_reg_id, fsm_burst_count_remaining, _zz_3, when_SRAMController_l703, io_axi_r_valid, io_axi_r_ready, io_axi_r_fire); // SRAMController.scala:L689
+              end
+            `endif
+          `endif
+          if(io_axi_r_fire) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // SRAMController.scala:L701
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(SRAMController.scala:701):  1 READ_RESPONSE_ERROR - r.fire detected! BurstCountRem=%x, is_last_beat=%x", fsm_burst_count_remaining, when_SRAMController_l703); // SRAMController.scala:L701
+                end
+              `endif
+            `endif
+            if(when_SRAMController_l703) begin
+              `ifndef SYNTHESIS
+                `ifdef FORMAL
+                  assert(1'b0); // SRAMController.scala:L705
+                `else
+                  if(!1'b0) begin
+                    $display("NOTE(SRAMController.scala:705):  1 READ_RESPONSE_ERROR - Going to IDLE"); // SRAMController.scala:L705
+                  end
+                `endif
+              `endif
+            end
+          end
         end
         default : begin
         end
@@ -48470,6 +49176,16 @@ module SRAMController_1 (
         sram_be_n_out_reg <= sram_be_n_inactive_value;
         sram_addr_out_reg <= 20'h0;
       end
+      _zz_4 <= (_zz_4 + 32'h00000001);
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // SRAMController.scala:L722
+        `else
+          if(!1'b0) begin
+            $display("NOTE(SRAMController.scala:722):  SRAMController 1 - Cycle %x: AXI Status\n  FSM State: %s\n  AW: v=%x r=%x fire=%x addr=%x id=%x len=%x size=%x burst=%x\n  AR: v=%x r=%x fire=%x addr=%x\n  W: v=%x r=%x fire=%x data=%x strb=%x last=%x\n  R: v=%x r=%x fire=%x data=%x last=%x\n  B: v=%x r=%x fire=%x\n  Internal: BurstRemaining=%x, CurrentSRAMAddr=%x, ReadPriority=%x", _zz_4, fsm_stateReg_string, io_axi_aw_valid, io_axi_aw_ready, io_axi_aw_fire, io_axi_aw_payload_addr, io_axi_aw_payload_id, io_axi_aw_payload_len, io_axi_aw_payload_size, io_axi_aw_payload_burst, io_axi_ar_valid, io_axi_ar_ready, io_axi_ar_fire, io_axi_ar_payload_addr, io_axi_w_valid, io_axi_w_ready, io_axi_w_fire, io_axi_w_payload_data, io_axi_w_payload_strb, io_axi_w_payload_last, io_axi_r_valid, io_axi_r_ready, io_axi_r_fire, io_axi_r_payload_data, io_axi_r_payload_last, io_axi_b_valid, io_axi_b_ready, io_axi_b_fire, fsm_burst_count_remaining, fsm_current_sram_addr, fsm_read_priority); // SRAMController.scala:L722
+          end
+        `endif
+      `endif
     end
   end
 
@@ -48482,9 +49198,16 @@ module SRAMController_1 (
           fsm_aw_cmd_reg_len <= io_axi_aw_payload_len;
           fsm_aw_cmd_reg_size <= io_axi_aw_payload_size;
           fsm_aw_cmd_reg_burst <= io_axi_aw_payload_burst;
-          fsm_aw_cmd_reg_prot <= io_axi_aw_payload_prot;
           fsm_burst_count_remaining <= {1'd0, _zz_fsm_burst_count_remaining};
-          fsm_current_sram_addr <= _zz_fsm_current_sram_addr_2[19:0];
+          if(!when_SRAMController_l255) begin
+            if(!when_SRAMController_l259) begin
+              if(!when_SRAMController_l263) begin
+                if(!when_SRAMController_l267) begin
+                  fsm_current_sram_addr <= {2'd0, _zz_fsm_current_sram_addr_2};
+                end
+              end
+            end
+          end
         end
         if(io_axi_ar_fire) begin
           fsm_ar_cmd_reg_addr <= io_axi_ar_payload_addr;
@@ -48492,13 +49215,12 @@ module SRAMController_1 (
           fsm_ar_cmd_reg_len <= io_axi_ar_payload_len;
           fsm_ar_cmd_reg_size <= io_axi_ar_payload_size;
           fsm_ar_cmd_reg_burst <= io_axi_ar_payload_burst;
-          fsm_ar_cmd_reg_prot <= io_axi_ar_payload_prot;
           fsm_burst_count_remaining <= {1'd0, _zz_fsm_burst_count_remaining_1};
-          fsm_current_sram_addr <= _zz_fsm_current_sram_addr_3[19:0];
-          if(!when_SRAMController_l280) begin
-            if(!when_SRAMController_l284) begin
-              if(!when_SRAMController_l288) begin
-                if(!when_SRAMController_l292) begin
+          if(!when_SRAMController_l325) begin
+            if(!when_SRAMController_l329) begin
+              if(!when_SRAMController_l333) begin
+                if(!when_SRAMController_l337) begin
+                  fsm_current_sram_addr <= {2'd0, _zz_fsm_current_sram_addr_3};
                   fsm_read_wait_counter <= 2'b00;
                 end
               end
@@ -48509,14 +49231,14 @@ module SRAMController_1 (
       fsm_WRITE_DATA_FETCH : begin
       end
       fsm_WRITE_EXECUTE : begin
-        if(when_SRAMController_l376) begin
+        if(when_SRAMController_l422) begin
           fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
         end else begin
           fsm_write_wait_counter <= (fsm_write_wait_counter + 2'b01);
         end
       end
       fsm_WRITE_DEASSERT : begin
-        if(!when_SRAMController_l418) begin
+        if(!when_SRAMController_l464) begin
           fsm_current_sram_addr <= (fsm_current_sram_addr + _zz_fsm_current_sram_addr_4);
         end
       end
@@ -48531,10 +49253,10 @@ module SRAMController_1 (
         fsm_read_wait_counter <= 2'b00;
       end
       fsm_READ_WAIT : begin
-        if(when_SRAMController_l546) begin
+        if(when_SRAMController_l593) begin
           fsm_next_sram_addr_prefetch <= (fsm_current_sram_addr + _zz_fsm_next_sram_addr_prefetch);
         end
-        if(when_SRAMController_l555) begin
+        if(when_SRAMController_l602) begin
           fsm_read_data_buffer <= io_ram_data_read;
         end else begin
           fsm_read_wait_counter <= (fsm_read_wait_counter + 2'b01);
@@ -48543,7 +49265,7 @@ module SRAMController_1 (
       fsm_READ_RESPONSE : begin
         if(io_axi_r_fire) begin
           fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
-          if(!when_SRAMController_l604) begin
+          if(!when_SRAMController_l651) begin
             if(fsm_addr_prefetch_valid) begin
               fsm_current_sram_addr <= fsm_next_sram_addr_prefetch;
             end else begin
@@ -48572,11 +49294,10 @@ module SRAMController (
   input  wire          io_axi_aw_valid,
   output reg           io_axi_aw_ready,
   input  wire [31:0]   io_axi_aw_payload_addr,
-  input  wire [3:0]    io_axi_aw_payload_id,
+  input  wire [6:0]    io_axi_aw_payload_id,
   input  wire [7:0]    io_axi_aw_payload_len,
   input  wire [2:0]    io_axi_aw_payload_size,
   input  wire [1:0]    io_axi_aw_payload_burst,
-  input  wire [2:0]    io_axi_aw_payload_prot,
   input  wire          io_axi_w_valid,
   output reg           io_axi_w_ready,
   input  wire [31:0]   io_axi_w_payload_data,
@@ -48584,20 +49305,19 @@ module SRAMController (
   input  wire          io_axi_w_payload_last,
   output reg           io_axi_b_valid,
   input  wire          io_axi_b_ready,
-  output reg  [3:0]    io_axi_b_payload_id,
+  output reg  [6:0]    io_axi_b_payload_id,
   output reg  [1:0]    io_axi_b_payload_resp,
   input  wire          io_axi_ar_valid,
   output reg           io_axi_ar_ready,
   input  wire [31:0]   io_axi_ar_payload_addr,
-  input  wire [3:0]    io_axi_ar_payload_id,
+  input  wire [6:0]    io_axi_ar_payload_id,
   input  wire [7:0]    io_axi_ar_payload_len,
   input  wire [2:0]    io_axi_ar_payload_size,
   input  wire [1:0]    io_axi_ar_payload_burst,
-  input  wire [2:0]    io_axi_ar_payload_prot,
   output reg           io_axi_r_valid,
   input  wire          io_axi_r_ready,
   output reg  [31:0]   io_axi_r_payload_data,
-  output reg  [3:0]    io_axi_r_payload_id,
+  output reg  [6:0]    io_axi_r_payload_id,
   output reg  [1:0]    io_axi_r_payload_resp,
   output reg           io_axi_r_payload_last,
   input  wire [31:0]   io_ram_data_read,
@@ -48624,33 +49344,40 @@ module SRAMController (
   localparam fsm_READ_RESPONSE_ERROR = 4'd10;
 
   wire       [7:0]    _zz_fsm_burst_count_remaining;
-  wire       [29:0]   _zz_fsm_current_sram_addr_2;
-  wire       [31:0]   _zz_when_SRAMController_l230_1;
-  wire       [7:0]    _zz_when_SRAMController_l230_2;
-  wire       [31:0]   _zz_when_SRAMController_l238;
-  wire       [31:0]   _zz_when_SRAMController_l238_1;
-  wire       [31:0]   _zz_when_SRAMController_l238_2;
-  wire       [31:0]   _zz_when_SRAMController_l238_3;
-  wire       [15:0]   _zz_when_SRAMController_l238_4;
-  wire       [7:0]    _zz_when_SRAMController_l238_5;
-  wire       [31:0]   _zz_when_SRAMController_l238_6;
+  wire       [32:0]   _zz__zz_fsm_current_sram_addr;
+  wire       [65:0]   _zz__zz_when_SRAMController_l267_1;
+  wire       [65:0]   _zz__zz_when_SRAMController_l267_1_1;
+  wire       [65:0]   _zz__zz_when_SRAMController_l267_1_2;
+  wire       [32:0]   _zz__zz_when_SRAMController_l267_1_3;
+  wire       [7:0]    _zz__zz_when_SRAMController_l267_1_4;
+  wire       [65:0]   _zz__zz_when_SRAMController_l267_1_5;
+  wire       [17:0]   _zz_fsm_current_sram_addr_2;
+  wire       [31:0]   _zz_when_SRAMController_l259_1;
+  wire       [7:0]    _zz_when_SRAMController_l259_2;
+  wire       [65:0]   _zz_when_SRAMController_l267_2;
+  wire       [32:0]   _zz_when_SRAMController_l267_3;
   wire       [7:0]    _zz_fsm_burst_count_remaining_1;
-  wire       [29:0]   _zz_fsm_current_sram_addr_3;
-  wire       [31:0]   _zz_when_SRAMController_l284_1;
-  wire       [7:0]    _zz_when_SRAMController_l284_2;
-  wire       [31:0]   _zz_when_SRAMController_l292;
-  wire       [31:0]   _zz_when_SRAMController_l292_1;
-  wire       [31:0]   _zz_when_SRAMController_l292_2;
-  wire       [31:0]   _zz_when_SRAMController_l292_3;
-  wire       [15:0]   _zz_when_SRAMController_l292_4;
-  wire       [7:0]    _zz_when_SRAMController_l292_5;
-  wire       [31:0]   _zz_when_SRAMController_l292_6;
+  wire       [32:0]   _zz__zz_fsm_current_sram_addr_1;
+  wire       [65:0]   _zz__zz_when_SRAMController_l337_1;
+  wire       [65:0]   _zz__zz_when_SRAMController_l337_1_1;
+  wire       [65:0]   _zz__zz_when_SRAMController_l337_1_2;
+  wire       [32:0]   _zz__zz_when_SRAMController_l337_1_3;
+  wire       [7:0]    _zz__zz_when_SRAMController_l337_1_4;
+  wire       [65:0]   _zz__zz_when_SRAMController_l337_1_5;
+  wire       [17:0]   _zz_fsm_current_sram_addr_3;
+  wire       [31:0]   _zz_when_SRAMController_l329_1;
+  wire       [7:0]    _zz_when_SRAMController_l329_2;
+  wire       [65:0]   _zz_when_SRAMController_l337_2;
+  wire       [32:0]   _zz_when_SRAMController_l337_3;
   wire       [19:0]   _zz_fsm_current_sram_addr_4;
   wire       [7:0]    _zz_fsm_current_sram_addr_5;
   wire       [7:0]    _zz_fsm_current_sram_addr_6;
   wire       [19:0]   _zz_fsm_next_sram_addr_prefetch;
   wire       [7:0]    _zz_fsm_next_sram_addr_prefetch_1;
   wire       [7:0]    _zz_fsm_next_sram_addr_prefetch_2;
+  wire       [19:0]   _zz__zz_1;
+  wire       [7:0]    _zz__zz_1_1;
+  wire       [7:0]    _zz__zz_1_2;
   wire       [19:0]   _zz_fsm_current_sram_addr_7;
   wire       [7:0]    _zz_fsm_current_sram_addr_8;
   wire       [7:0]    _zz_fsm_current_sram_addr_9;
@@ -48666,52 +49393,58 @@ module SRAMController (
   reg                 fsm_wantStart;
   wire                fsm_wantKill;
   reg        [31:0]   fsm_ar_cmd_reg_addr;
-  reg        [3:0]    fsm_ar_cmd_reg_id;
+  reg        [6:0]    fsm_ar_cmd_reg_id;
   reg        [7:0]    fsm_ar_cmd_reg_len;
   reg        [2:0]    fsm_ar_cmd_reg_size;
   reg        [1:0]    fsm_ar_cmd_reg_burst;
-  reg        [2:0]    fsm_ar_cmd_reg_prot;
   reg        [31:0]   fsm_aw_cmd_reg_addr;
-  reg        [3:0]    fsm_aw_cmd_reg_id;
+  reg        [6:0]    fsm_aw_cmd_reg_id;
   reg        [7:0]    fsm_aw_cmd_reg_len;
   reg        [2:0]    fsm_aw_cmd_reg_size;
   reg        [1:0]    fsm_aw_cmd_reg_burst;
-  reg        [2:0]    fsm_aw_cmd_reg_prot;
   reg        [8:0]    fsm_burst_count_remaining;
   reg        [19:0]   fsm_current_sram_addr;
   reg        [31:0]   fsm_read_data_buffer;
   reg        [1:0]    fsm_read_wait_counter;
   reg        [1:0]    fsm_write_wait_counter;
-  reg                 fsm_transaction_error_occurred;
+  (* MARK_DEBUG = "TRUE" *) reg                 fsm_transaction_error_occurred;
   reg                 fsm_read_priority;
   reg        [19:0]   fsm_next_sram_addr_prefetch;
   reg                 fsm_addr_prefetch_valid;
   (* MARK_DEBUG = "TRUE" *) reg        [3:0]    fsm_stateReg;
   reg        [3:0]    fsm_stateNext;
-  wire                when_SRAMController_l180;
+  wire                when_SRAMController_l190;
   (* mark_debug = "true" *) wire                io_axi_aw_fire;
-  wire       [31:0]   _zz_fsm_current_sram_addr;
-  wire       [7:0]    _zz_when_SRAMController_l230;
-  wire                when_SRAMController_l226;
-  wire                when_SRAMController_l230;
-  wire                when_SRAMController_l234;
-  wire                when_SRAMController_l238;
+  wire       [32:0]   _zz_fsm_current_sram_addr;
+  wire       [7:0]    _zz_when_SRAMController_l259;
+  wire       [32:0]   _zz_when_SRAMController_l267;
+  wire       [65:0]   _zz_when_SRAMController_l267_1;
+  wire                when_SRAMController_l255;
+  wire                when_SRAMController_l259;
+  wire                when_SRAMController_l263;
+  wire                when_SRAMController_l267;
   (* mark_debug = "true" *) wire                io_axi_ar_fire;
-  wire       [31:0]   _zz_fsm_current_sram_addr_1;
-  wire       [7:0]    _zz_when_SRAMController_l284;
-  wire                when_SRAMController_l280;
-  wire                when_SRAMController_l284;
-  wire                when_SRAMController_l288;
-  wire                when_SRAMController_l292;
+  wire       [32:0]   _zz_fsm_current_sram_addr_1;
+  wire       [7:0]    _zz_when_SRAMController_l329;
+  wire       [32:0]   _zz_when_SRAMController_l337;
+  wire       [65:0]   _zz_when_SRAMController_l337_1;
+  wire                when_SRAMController_l325;
+  wire                when_SRAMController_l329;
+  wire                when_SRAMController_l333;
+  wire                when_SRAMController_l337;
   (* mark_debug = "true" *) wire                io_axi_w_fire;
-  wire                when_SRAMController_l376;
-  wire                when_SRAMController_l418;
-  wire                when_SRAMController_l451;
-  wire                when_SRAMController_l546;
-  wire                when_SRAMController_l555;
-  wire                when_SRAMController_l604;
+  wire                when_SRAMController_l422;
+  wire                when_SRAMController_l464;
+  wire                when_SRAMController_l497;
+  wire       [1:0]    _zz_io_axi_b_payload_resp;
+  wire                when_SRAMController_l593;
+  wire       [19:0]   _zz_1;
+  wire                when_SRAMController_l602;
+  wire                when_SRAMController_l651;
+  wire       [1:0]    _zz_2;
   (* mark_debug = "true" *) wire                io_axi_r_fire;
-  wire                when_SRAMController_l656;
+  wire                when_SRAMController_l703;
+  wire       [1:0]    _zz_3;
   wire                fsm_onExit_BOOT;
   wire                fsm_onExit_IDLE;
   wire                fsm_onExit_WRITE_DATA_FETCH;
@@ -48735,6 +49468,7 @@ module SRAMController (
   wire                fsm_onEntry_READ_RESPONSE;
   wire                fsm_onEntry_READ_RESPONSE_ERROR;
   (* mark_debug = "true" *) wire                io_axi_b_fire;
+  reg        [31:0]   _zz_4;
   `ifndef SYNTHESIS
   reg [191:0] fsm_stateReg_string;
   reg [191:0] fsm_stateNext_string;
@@ -48742,33 +49476,40 @@ module SRAMController (
 
 
   assign _zz_fsm_burst_count_remaining = (io_axi_aw_payload_len + 8'h01);
-  assign _zz_fsm_current_sram_addr_2 = (_zz_fsm_current_sram_addr >>> 2'd2);
-  assign _zz_when_SRAMController_l230_2 = (_zz_when_SRAMController_l230 - 8'h01);
-  assign _zz_when_SRAMController_l230_1 = {24'd0, _zz_when_SRAMController_l230_2};
-  assign _zz_when_SRAMController_l238 = _zz_fsm_current_sram_addr;
-  assign _zz_when_SRAMController_l238_1 = (_zz_when_SRAMController_l238_2 - _zz_when_SRAMController_l238_6);
-  assign _zz_when_SRAMController_l238_2 = (_zz_fsm_current_sram_addr + _zz_when_SRAMController_l238_3);
-  assign _zz_when_SRAMController_l238_4 = (_zz_when_SRAMController_l238_5 * _zz_when_SRAMController_l230);
-  assign _zz_when_SRAMController_l238_3 = {16'd0, _zz_when_SRAMController_l238_4};
-  assign _zz_when_SRAMController_l238_5 = (io_axi_aw_payload_len + 8'h01);
-  assign _zz_when_SRAMController_l238_6 = {24'd0, _zz_when_SRAMController_l230};
+  assign _zz__zz_fsm_current_sram_addr = {1'd0, io_axi_aw_payload_addr};
+  assign _zz__zz_when_SRAMController_l267_1 = (_zz__zz_when_SRAMController_l267_1_1 + _zz__zz_when_SRAMController_l267_1_2);
+  assign _zz__zz_when_SRAMController_l267_1_1 = {33'd0, _zz_fsm_current_sram_addr};
+  assign _zz__zz_when_SRAMController_l267_1_2 = (_zz__zz_when_SRAMController_l267_1_3 * _zz_when_SRAMController_l267);
+  assign _zz__zz_when_SRAMController_l267_1_4 = (io_axi_aw_payload_len + 8'h01);
+  assign _zz__zz_when_SRAMController_l267_1_3 = {25'd0, _zz__zz_when_SRAMController_l267_1_4};
+  assign _zz__zz_when_SRAMController_l267_1_5 = {33'd0, _zz_when_SRAMController_l267};
+  assign _zz_fsm_current_sram_addr_2 = (_zz_fsm_current_sram_addr[19 : 0] >>> 2'd2);
+  assign _zz_when_SRAMController_l259_2 = (_zz_when_SRAMController_l259 - 8'h01);
+  assign _zz_when_SRAMController_l259_1 = {24'd0, _zz_when_SRAMController_l259_2};
+  assign _zz_when_SRAMController_l267_3 = 33'h000400000;
+  assign _zz_when_SRAMController_l267_2 = {33'd0, _zz_when_SRAMController_l267_3};
   assign _zz_fsm_burst_count_remaining_1 = (io_axi_ar_payload_len + 8'h01);
-  assign _zz_fsm_current_sram_addr_3 = (_zz_fsm_current_sram_addr_1 >>> 2'd2);
-  assign _zz_when_SRAMController_l284_2 = (_zz_when_SRAMController_l284 - 8'h01);
-  assign _zz_when_SRAMController_l284_1 = {24'd0, _zz_when_SRAMController_l284_2};
-  assign _zz_when_SRAMController_l292 = _zz_fsm_current_sram_addr_1;
-  assign _zz_when_SRAMController_l292_1 = (_zz_when_SRAMController_l292_2 - _zz_when_SRAMController_l292_6);
-  assign _zz_when_SRAMController_l292_2 = (_zz_fsm_current_sram_addr_1 + _zz_when_SRAMController_l292_3);
-  assign _zz_when_SRAMController_l292_4 = (_zz_when_SRAMController_l292_5 * _zz_when_SRAMController_l284);
-  assign _zz_when_SRAMController_l292_3 = {16'd0, _zz_when_SRAMController_l292_4};
-  assign _zz_when_SRAMController_l292_5 = (io_axi_ar_payload_len + 8'h01);
-  assign _zz_when_SRAMController_l292_6 = {24'd0, _zz_when_SRAMController_l284};
+  assign _zz__zz_fsm_current_sram_addr_1 = {1'd0, io_axi_ar_payload_addr};
+  assign _zz__zz_when_SRAMController_l337_1 = (_zz__zz_when_SRAMController_l337_1_1 + _zz__zz_when_SRAMController_l337_1_2);
+  assign _zz__zz_when_SRAMController_l337_1_1 = {33'd0, _zz_fsm_current_sram_addr_1};
+  assign _zz__zz_when_SRAMController_l337_1_2 = (_zz__zz_when_SRAMController_l337_1_3 * _zz_when_SRAMController_l337);
+  assign _zz__zz_when_SRAMController_l337_1_4 = (io_axi_ar_payload_len + 8'h01);
+  assign _zz__zz_when_SRAMController_l337_1_3 = {25'd0, _zz__zz_when_SRAMController_l337_1_4};
+  assign _zz__zz_when_SRAMController_l337_1_5 = {33'd0, _zz_when_SRAMController_l337};
+  assign _zz_fsm_current_sram_addr_3 = (_zz_fsm_current_sram_addr_1[19 : 0] >>> 2'd2);
+  assign _zz_when_SRAMController_l329_2 = (_zz_when_SRAMController_l329 - 8'h01);
+  assign _zz_when_SRAMController_l329_1 = {24'd0, _zz_when_SRAMController_l329_2};
+  assign _zz_when_SRAMController_l337_3 = 33'h000400000;
+  assign _zz_when_SRAMController_l337_2 = {33'd0, _zz_when_SRAMController_l337_3};
   assign _zz_fsm_current_sram_addr_5 = (_zz_fsm_current_sram_addr_6 / 3'b100);
   assign _zz_fsm_current_sram_addr_4 = {12'd0, _zz_fsm_current_sram_addr_5};
   assign _zz_fsm_current_sram_addr_6 = ({7'd0,1'b1} <<< fsm_aw_cmd_reg_size);
   assign _zz_fsm_next_sram_addr_prefetch_1 = (_zz_fsm_next_sram_addr_prefetch_2 / 3'b100);
   assign _zz_fsm_next_sram_addr_prefetch = {12'd0, _zz_fsm_next_sram_addr_prefetch_1};
   assign _zz_fsm_next_sram_addr_prefetch_2 = ({7'd0,1'b1} <<< fsm_ar_cmd_reg_size);
+  assign _zz__zz_1_1 = (_zz__zz_1_2 / 3'b100);
+  assign _zz__zz_1 = {12'd0, _zz__zz_1_1};
+  assign _zz__zz_1_2 = ({7'd0,1'b1} <<< fsm_ar_cmd_reg_size);
   assign _zz_fsm_current_sram_addr_8 = (_zz_fsm_current_sram_addr_9 / 3'b100);
   assign _zz_fsm_current_sram_addr_7 = {12'd0, _zz_fsm_current_sram_addr_8};
   assign _zz_fsm_current_sram_addr_9 = ({7'd0,1'b1} <<< fsm_ar_cmd_reg_size);
@@ -48812,7 +49553,7 @@ module SRAMController (
     case(fsm_stateReg)
       fsm_IDLE : begin
         io_axi_aw_ready = 1'b0;
-        if(when_SRAMController_l180) begin
+        if(when_SRAMController_l190) begin
           io_axi_aw_ready = (! fsm_read_priority);
         end else begin
           io_axi_aw_ready = io_axi_aw_valid;
@@ -48850,7 +49591,7 @@ module SRAMController (
     case(fsm_stateReg)
       fsm_IDLE : begin
         io_axi_ar_ready = 1'b0;
-        if(when_SRAMController_l180) begin
+        if(when_SRAMController_l190) begin
           io_axi_ar_ready = fsm_read_priority;
         end else begin
           io_axi_ar_ready = io_axi_ar_valid;
@@ -48976,7 +49717,7 @@ module SRAMController (
   end
 
   always @(*) begin
-    io_axi_b_payload_id = 4'b0000;
+    io_axi_b_payload_id = 7'h0;
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
@@ -49018,7 +49759,7 @@ module SRAMController (
       fsm_WRITE_DATA_ERROR_CONSUME : begin
       end
       fsm_WRITE_RESPONSE : begin
-        io_axi_b_payload_resp = (fsm_transaction_error_occurred ? 2'b10 : 2'b00);
+        io_axi_b_payload_resp = _zz_io_axi_b_payload_resp;
       end
       fsm_READ_SETUP : begin
       end
@@ -49034,7 +49775,7 @@ module SRAMController (
   end
 
   always @(*) begin
-    io_axi_r_payload_id = 4'b0000;
+    io_axi_r_payload_id = 7'h0;
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
@@ -49143,10 +49884,10 @@ module SRAMController (
       fsm_READ_WAIT : begin
       end
       fsm_READ_RESPONSE : begin
-        io_axi_r_payload_last = when_SRAMController_l604;
+        io_axi_r_payload_last = when_SRAMController_l651;
       end
       fsm_READ_RESPONSE_ERROR : begin
-        io_axi_r_payload_last = when_SRAMController_l656;
+        io_axi_r_payload_last = when_SRAMController_l703;
       end
       default : begin
       end
@@ -49197,16 +49938,16 @@ module SRAMController (
     case(fsm_stateReg)
       fsm_IDLE : begin
         if(io_axi_aw_fire) begin
-          if(when_SRAMController_l226) begin
+          if(when_SRAMController_l255) begin
             fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
           end else begin
-            if(when_SRAMController_l230) begin
+            if(when_SRAMController_l259) begin
               fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
             end else begin
-              if(when_SRAMController_l234) begin
+              if(when_SRAMController_l263) begin
                 fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
               end else begin
-                if(when_SRAMController_l238) begin
+                if(when_SRAMController_l267) begin
                   fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
                 end else begin
                   fsm_stateNext = fsm_WRITE_DATA_FETCH;
@@ -49216,16 +49957,16 @@ module SRAMController (
           end
         end
         if(io_axi_ar_fire) begin
-          if(when_SRAMController_l280) begin
+          if(when_SRAMController_l325) begin
             fsm_stateNext = fsm_READ_RESPONSE_ERROR;
           end else begin
-            if(when_SRAMController_l284) begin
+            if(when_SRAMController_l329) begin
               fsm_stateNext = fsm_READ_RESPONSE_ERROR;
             end else begin
-              if(when_SRAMController_l288) begin
+              if(when_SRAMController_l333) begin
                 fsm_stateNext = fsm_READ_RESPONSE_ERROR;
               end else begin
-                if(when_SRAMController_l292) begin
+                if(when_SRAMController_l337) begin
                   fsm_stateNext = fsm_READ_RESPONSE_ERROR;
                 end else begin
                   fsm_stateNext = fsm_READ_SETUP;
@@ -49241,12 +49982,12 @@ module SRAMController (
         end
       end
       fsm_WRITE_EXECUTE : begin
-        if(when_SRAMController_l376) begin
+        if(when_SRAMController_l422) begin
           fsm_stateNext = fsm_WRITE_DEASSERT;
         end
       end
       fsm_WRITE_DEASSERT : begin
-        if(when_SRAMController_l418) begin
+        if(when_SRAMController_l464) begin
           fsm_stateNext = fsm_WRITE_RESPONSE;
         end else begin
           fsm_stateNext = fsm_WRITE_DATA_FETCH;
@@ -49254,7 +49995,7 @@ module SRAMController (
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
         if(io_axi_w_fire) begin
-          if(when_SRAMController_l451) begin
+          if(when_SRAMController_l497) begin
             fsm_stateNext = fsm_WRITE_RESPONSE;
           end
         end
@@ -49268,13 +50009,13 @@ module SRAMController (
         fsm_stateNext = fsm_READ_WAIT;
       end
       fsm_READ_WAIT : begin
-        if(when_SRAMController_l555) begin
+        if(when_SRAMController_l602) begin
           fsm_stateNext = fsm_READ_RESPONSE;
         end
       end
       fsm_READ_RESPONSE : begin
         if(io_axi_r_fire) begin
-          if(when_SRAMController_l604) begin
+          if(when_SRAMController_l651) begin
             fsm_stateNext = fsm_IDLE;
           end else begin
             fsm_stateNext = fsm_READ_SETUP;
@@ -49283,7 +50024,7 @@ module SRAMController (
       end
       fsm_READ_RESPONSE_ERROR : begin
         if(io_axi_r_fire) begin
-          if(when_SRAMController_l656) begin
+          if(when_SRAMController_l703) begin
             fsm_stateNext = fsm_IDLE;
           end
         end
@@ -49299,30 +50040,38 @@ module SRAMController (
     end
   end
 
-  assign when_SRAMController_l180 = (io_axi_aw_valid && io_axi_ar_valid);
+  assign when_SRAMController_l190 = (io_axi_aw_valid && io_axi_ar_valid);
   assign io_axi_aw_fire = (io_axi_aw_valid && io_axi_aw_ready);
-  assign _zz_fsm_current_sram_addr = (io_axi_aw_payload_addr - 32'h80000000);
-  assign _zz_when_SRAMController_l230 = ({7'd0,1'b1} <<< io_axi_aw_payload_size);
-  assign when_SRAMController_l226 = (io_axi_aw_payload_burst != 2'b01);
-  assign when_SRAMController_l230 = ((! ((io_axi_aw_payload_addr & _zz_when_SRAMController_l230_1) == 32'h0)) || (! ((io_axi_aw_payload_addr & 32'h00000003) == 32'h0)));
-  assign when_SRAMController_l234 = (! (io_axi_aw_payload_size == 3'b010));
-  assign when_SRAMController_l238 = (($signed(_zz_when_SRAMController_l238) < $signed(32'h0)) || (32'h00400000 <= _zz_when_SRAMController_l238_1));
+  assign _zz_fsm_current_sram_addr = (_zz__zz_fsm_current_sram_addr - 33'h080000000);
+  assign _zz_when_SRAMController_l259 = ({7'd0,1'b1} <<< io_axi_aw_payload_size);
+  assign _zz_when_SRAMController_l267 = {25'd0, _zz_when_SRAMController_l259};
+  assign _zz_when_SRAMController_l267_1 = (_zz__zz_when_SRAMController_l267_1 - _zz__zz_when_SRAMController_l267_1_5);
+  assign when_SRAMController_l255 = (io_axi_aw_payload_burst != 2'b01);
+  assign when_SRAMController_l259 = ((! ((io_axi_aw_payload_addr & _zz_when_SRAMController_l259_1) == 32'h0)) || (! ((io_axi_aw_payload_addr & 32'h00000003) == 32'h0)));
+  assign when_SRAMController_l263 = (! (io_axi_aw_payload_size == 3'b010));
+  assign when_SRAMController_l267 = (_zz_fsm_current_sram_addr[20] || (_zz_when_SRAMController_l267_2 <= _zz_when_SRAMController_l267_1));
   assign io_axi_ar_fire = (io_axi_ar_valid && io_axi_ar_ready);
-  assign _zz_fsm_current_sram_addr_1 = (io_axi_ar_payload_addr - 32'h80000000);
-  assign _zz_when_SRAMController_l284 = ({7'd0,1'b1} <<< io_axi_ar_payload_size);
-  assign when_SRAMController_l280 = (io_axi_ar_payload_burst != 2'b01);
-  assign when_SRAMController_l284 = ((! ((io_axi_ar_payload_addr & _zz_when_SRAMController_l284_1) == 32'h0)) || (! ((io_axi_ar_payload_addr & 32'h00000003) == 32'h0)));
-  assign when_SRAMController_l288 = (! (io_axi_ar_payload_size == 3'b010));
-  assign when_SRAMController_l292 = (($signed(_zz_when_SRAMController_l292) < $signed(32'h0)) || (32'h00400000 <= _zz_when_SRAMController_l292_1));
+  assign _zz_fsm_current_sram_addr_1 = (_zz__zz_fsm_current_sram_addr_1 - 33'h080000000);
+  assign _zz_when_SRAMController_l329 = ({7'd0,1'b1} <<< io_axi_ar_payload_size);
+  assign _zz_when_SRAMController_l337 = {25'd0, _zz_when_SRAMController_l329};
+  assign _zz_when_SRAMController_l337_1 = (_zz__zz_when_SRAMController_l337_1 - _zz__zz_when_SRAMController_l337_1_5);
+  assign when_SRAMController_l325 = (io_axi_ar_payload_burst != 2'b01);
+  assign when_SRAMController_l329 = ((! ((io_axi_ar_payload_addr & _zz_when_SRAMController_l329_1) == 32'h0)) || (! ((io_axi_ar_payload_addr & 32'h00000003) == 32'h0)));
+  assign when_SRAMController_l333 = (! (io_axi_ar_payload_size == 3'b010));
+  assign when_SRAMController_l337 = (_zz_fsm_current_sram_addr_1[20] || (_zz_when_SRAMController_l337_2 <= _zz_when_SRAMController_l337_1));
   assign io_axi_w_fire = (io_axi_w_valid && io_axi_w_ready);
-  assign when_SRAMController_l376 = (fsm_write_wait_counter == 2'b10);
-  assign when_SRAMController_l418 = (fsm_burst_count_remaining == 9'h0);
-  assign when_SRAMController_l451 = (fsm_burst_count_remaining == 9'h001);
-  assign when_SRAMController_l546 = (((fsm_read_wait_counter == 2'b01) && (9'h001 < fsm_burst_count_remaining)) && (! fsm_addr_prefetch_valid));
-  assign when_SRAMController_l555 = (fsm_read_wait_counter == 2'b10);
-  assign when_SRAMController_l604 = (fsm_burst_count_remaining == 9'h001);
+  assign when_SRAMController_l422 = (fsm_write_wait_counter == 2'b10);
+  assign when_SRAMController_l464 = (fsm_burst_count_remaining == 9'h0);
+  assign when_SRAMController_l497 = (fsm_burst_count_remaining == 9'h001);
+  assign _zz_io_axi_b_payload_resp = (fsm_transaction_error_occurred ? 2'b10 : 2'b00);
+  assign when_SRAMController_l593 = (((fsm_read_wait_counter == 2'b01) && (9'h001 < fsm_burst_count_remaining)) && (! fsm_addr_prefetch_valid));
+  assign _zz_1 = (fsm_current_sram_addr + _zz__zz_1);
+  assign when_SRAMController_l602 = (fsm_read_wait_counter == 2'b10);
+  assign when_SRAMController_l651 = (fsm_burst_count_remaining == 9'h001);
+  assign _zz_2 = 2'b00;
   assign io_axi_r_fire = (io_axi_r_valid && io_axi_r_ready);
-  assign when_SRAMController_l656 = (fsm_burst_count_remaining == 9'h001);
+  assign when_SRAMController_l703 = (fsm_burst_count_remaining == 9'h001);
+  assign _zz_3 = 2'b10;
   assign fsm_onExit_BOOT = ((fsm_stateNext != fsm_BOOT) && (fsm_stateReg == fsm_BOOT));
   assign fsm_onExit_IDLE = ((fsm_stateNext != fsm_IDLE) && (fsm_stateReg == fsm_IDLE));
   assign fsm_onExit_WRITE_DATA_FETCH = ((fsm_stateNext != fsm_WRITE_DATA_FETCH) && (fsm_stateReg == fsm_WRITE_DATA_FETCH));
@@ -49359,6 +50108,7 @@ module SRAMController (
       fsm_read_priority <= 1'b0;
       fsm_addr_prefetch_valid <= 1'b0;
       fsm_stateReg <= fsm_BOOT;
+      _zz_4 <= 32'h0;
     end else begin
       fsm_stateReg <= fsm_stateNext;
       case(fsm_stateReg)
@@ -49366,35 +50116,135 @@ module SRAMController (
           fsm_transaction_error_occurred <= 1'b0;
           fsm_addr_prefetch_valid <= 1'b0;
           if(io_axi_aw_fire) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // SRAMController.scala:L208
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(SRAMController.scala:208):  0 AW Fire. Addr=0x%x, ID=%x, Len=%x, Burst=%x, Size=%x", io_axi_aw_payload_addr, io_axi_aw_payload_id, io_axi_aw_payload_len, io_axi_aw_payload_burst, io_axi_aw_payload_size); // SRAMController.scala:L208
+                end
+              `endif
+            `endif
             fsm_read_priority <= (! fsm_read_priority);
-            if(when_SRAMController_l226) begin
+            if(when_SRAMController_l255) begin
+              `ifndef SYNTHESIS
+                `ifdef FORMAL
+                  assert(1'b0); // SRAMController.scala:L256
+                `else
+                  if(!1'b0) begin
+                    $display("NOTE(SRAMController.scala:256):  0 AW Error - Unsupported burst type: %x", io_axi_aw_payload_burst); // SRAMController.scala:L256
+                  end
+                `endif
+              `endif
               fsm_transaction_error_occurred <= 1'b1;
             end else begin
-              if(when_SRAMController_l230) begin
+              if(when_SRAMController_l259) begin
+                `ifndef SYNTHESIS
+                  `ifdef FORMAL
+                    assert(1'b0); // SRAMController.scala:L260
+                  `else
+                    if(!1'b0) begin
+                      $display("NOTE(SRAMController.scala:260):  0 AW Error - Address unaligned: 0x%x for size %x or word boundary", io_axi_aw_payload_addr, _zz_when_SRAMController_l259); // SRAMController.scala:L260
+                    end
+                  `endif
+                `endif
                 fsm_transaction_error_occurred <= 1'b1;
               end else begin
-                if(when_SRAMController_l234) begin
+                if(when_SRAMController_l263) begin
+                  `ifndef SYNTHESIS
+                    `ifdef FORMAL
+                      assert(1'b0); // SRAMController.scala:L264
+                    `else
+                      if(!1'b0) begin
+                        $display("NOTE(SRAMController.scala:264):  0 AW Error - Incompatible size: %x for word addressing mode", io_axi_aw_payload_size); // SRAMController.scala:L264
+                      end
+                    `endif
+                  `endif
                   fsm_transaction_error_occurred <= 1'b1;
                 end else begin
-                  if(when_SRAMController_l238) begin
+                  if(when_SRAMController_l267) begin
+                    `ifndef SYNTHESIS
+                      `ifdef FORMAL
+                        assert(1'b0); // SRAMController.scala:L268
+                      `else
+                        if(!1'b0) begin
+                          $display("NOTE(SRAMController.scala:268):  0 AW Error - Address out of bounds. Byte Offset (calc)=0x%x, End Offset (calc)=0x%x, SRAM Size=4194304", _zz_fsm_current_sram_addr, _zz_when_SRAMController_l267_1); // SRAMController.scala:L268
+                        end
+                      `endif
+                    `endif
                     fsm_transaction_error_occurred <= 1'b1;
+                  end else begin
+                    `ifndef SYNTHESIS
+                      `ifdef FORMAL
+                        assert(1'b0); // SRAMController.scala:L276
+                      `else
+                        if(!1'b0) begin
+                          $display("NOTE(SRAMController.scala:276):  0 will go to WRITE_DATA_FETCH next cycle"); // SRAMController.scala:L276
+                        end
+                      `endif
+                    `endif
                   end
                 end
               end
             end
           end
           if(io_axi_ar_fire) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // SRAMController.scala:L285
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(SRAMController.scala:285):  0 AR Fire. Addr=0x%x, ID=%x, Len=%x, Burst=%x, Size=%x", io_axi_ar_payload_addr, io_axi_ar_payload_id, io_axi_ar_payload_len, io_axi_ar_payload_burst, io_axi_ar_payload_size); // SRAMController.scala:L285
+                end
+              `endif
+            `endif
             fsm_read_priority <= (! fsm_read_priority);
-            if(when_SRAMController_l280) begin
+            if(when_SRAMController_l325) begin
+              `ifndef SYNTHESIS
+                `ifdef FORMAL
+                  assert(1'b0); // SRAMController.scala:L326
+                `else
+                  if(!1'b0) begin
+                    $display("NOTE(SRAMController.scala:326):  0 AR Error - Unsupported burst type: %x", io_axi_ar_payload_burst); // SRAMController.scala:L326
+                  end
+                `endif
+              `endif
               fsm_transaction_error_occurred <= 1'b1;
             end else begin
-              if(when_SRAMController_l284) begin
+              if(when_SRAMController_l329) begin
+                `ifndef SYNTHESIS
+                  `ifdef FORMAL
+                    assert(1'b0); // SRAMController.scala:L330
+                  `else
+                    if(!1'b0) begin
+                      $display("NOTE(SRAMController.scala:330):  0 AR Error - Address unaligned: 0x%x for size %x or word boundary", io_axi_ar_payload_addr, _zz_when_SRAMController_l329); // SRAMController.scala:L330
+                    end
+                  `endif
+                `endif
                 fsm_transaction_error_occurred <= 1'b1;
               end else begin
-                if(when_SRAMController_l288) begin
+                if(when_SRAMController_l333) begin
+                  `ifndef SYNTHESIS
+                    `ifdef FORMAL
+                      assert(1'b0); // SRAMController.scala:L334
+                    `else
+                      if(!1'b0) begin
+                        $display("NOTE(SRAMController.scala:334):  0 AR Error - Incompatible size: %x for word addressing mode", io_axi_ar_payload_size); // SRAMController.scala:L334
+                      end
+                    `endif
+                  `endif
                   fsm_transaction_error_occurred <= 1'b1;
                 end else begin
-                  if(when_SRAMController_l292) begin
+                  if(when_SRAMController_l337) begin
+                    `ifndef SYNTHESIS
+                      `ifdef FORMAL
+                        assert(1'b0); // SRAMController.scala:L338
+                      `else
+                        if(!1'b0) begin
+                          $display("NOTE(SRAMController.scala:338):  0 AR Error - Address out of bounds. Byte Offset (calc)=0x%x, End Offset (calc)=0x%x, SRAM Size=4194304", _zz_fsm_current_sram_addr_1, _zz_when_SRAMController_l337_1); // SRAMController.scala:L338
+                        end
+                      `endif
+                    `endif
                     fsm_transaction_error_occurred <= 1'b1;
                   end
                 end
@@ -49403,29 +50253,103 @@ module SRAMController (
           end
         end
         fsm_WRITE_DATA_FETCH : begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // SRAMController.scala:L367
+            `else
+              if(!1'b0) begin
+                $display("NOTE(SRAMController.scala:367):  0 WRITE_DATA_FETCH. SRAM_Target_Addr=0x%x, BurstCountRem=%x", fsm_current_sram_addr, fsm_burst_count_remaining); // SRAMController.scala:L367
+              end
+            `endif
+          `endif
           if(io_axi_w_fire) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // SRAMController.scala:L373
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(SRAMController.scala:373):  0 W Fire. Data=0x%x, Strb=0x%x, Last=%x", io_axi_w_payload_data, io_axi_w_payload_strb, io_axi_w_payload_last); // SRAMController.scala:L373
+                end
+              `endif
+            `endif
             sram_addr_out_reg <= fsm_current_sram_addr;
             sram_data_out_reg <= io_axi_w_payload_data;
             sram_be_n_out_reg <= (~ io_axi_w_payload_strb);
           end
         end
         fsm_WRITE_EXECUTE : begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // SRAMController.scala:L411
+            `else
+              if(!1'b0) begin
+                $display("NOTE(SRAMController.scala:411):  0 WRITE_EXECUTE. SRAM Addr=0x%x, WaitCounter=%x", sram_addr_out_reg, fsm_write_wait_counter); // SRAMController.scala:L411
+              end
+            `endif
+          `endif
           sram_ce_n_out_reg <= 1'b0;
           sram_oe_n_out_reg <= 1'b1;
           sram_we_n_out_reg <= 1'b0;
           sram_data_writeEnable_out_reg <= 1'b1;
         end
         fsm_WRITE_DEASSERT : begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // SRAMController.scala:L454
+            `else
+              if(!1'b0) begin
+                $display("NOTE(SRAMController.scala:454):  0 WRITE_DEASSERT. SRAM Addr=0x%x, BurstCountRem=%x", sram_addr_out_reg, fsm_burst_count_remaining); // SRAMController.scala:L454
+              end
+            `endif
+          `endif
           sram_ce_n_out_reg <= 1'b1;
           sram_we_n_out_reg <= 1'b1;
           sram_oe_n_out_reg <= 1'b1;
           sram_data_writeEnable_out_reg <= 1'b0;
         end
         fsm_WRITE_DATA_ERROR_CONSUME : begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // SRAMController.scala:L493
+            `else
+              if(!1'b0) begin
+                $display("NOTE(SRAMController.scala:493):  0 WRITE_DATA_ERROR_CONSUME. BurstCountRem=%x", fsm_burst_count_remaining); // SRAMController.scala:L493
+              end
+            `endif
+          `endif
         end
         fsm_WRITE_RESPONSE : begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // SRAMController.scala:L518
+            `else
+              if(!1'b0) begin
+                $display("NOTE(SRAMController.scala:518):  0 WRITE_RESPONSE. ID=%x, Resp=%x, Addr=%x, Len=%x, Size=%x, Burst=%x, Lock=<null>, Cache=<null>, Prot=<null>, Qos=<null>, Region=<null>", fsm_aw_cmd_reg_id, _zz_io_axi_b_payload_resp, fsm_aw_cmd_reg_addr, fsm_aw_cmd_reg_len, fsm_aw_cmd_reg_size, fsm_aw_cmd_reg_burst); // SRAMController.scala:L518
+              end
+            `endif
+          `endif
+          if(io_axi_b_ready) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // SRAMController.scala:L524
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(SRAMController.scala:524):  0 B Ready. ID=%x, Resp=%x", fsm_aw_cmd_reg_id, _zz_io_axi_b_payload_resp); // SRAMController.scala:L524
+                end
+              `endif
+            `endif
+          end
         end
         fsm_READ_SETUP : begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // SRAMController.scala:L541
+            `else
+              if(!1'b0) begin
+                $display("NOTE(SRAMController.scala:541):  0 READ_SETUP. SRAM Addr=0x%x, BurstCountRem=%x", fsm_current_sram_addr, fsm_burst_count_remaining); // SRAMController.scala:L541
+              end
+            `endif
+          `endif
           fsm_addr_prefetch_valid <= 1'b0;
           sram_ce_n_out_reg <= 1'b0;
           sram_oe_n_out_reg <= 1'b0;
@@ -49435,15 +50359,42 @@ module SRAMController (
           sram_be_n_out_reg <= 4'b0000;
         end
         fsm_READ_WAIT : begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // SRAMController.scala:L577
+            `else
+              if(!1'b0) begin
+                $display("NOTE(SRAMController.scala:577):  0 READ_WAIT. SRAM Addr=0x%x, WaitCounter=%x, AddrPrefetchValid=%x", sram_addr_out_reg, fsm_read_wait_counter, fsm_addr_prefetch_valid); // SRAMController.scala:L577
+              end
+            `endif
+          `endif
           sram_ce_n_out_reg <= 1'b0;
           sram_oe_n_out_reg <= 1'b0;
           sram_we_n_out_reg <= 1'b1;
           sram_data_writeEnable_out_reg <= 1'b0;
-          if(when_SRAMController_l546) begin
+          if(when_SRAMController_l593) begin
             fsm_addr_prefetch_valid <= 1'b1;
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // SRAMController.scala:L597
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(SRAMController.scala:597):  0 Address prefetch at wait_cycle %x - Next sram_addr 0x%x", fsm_read_wait_counter, _zz_1); // SRAMController.scala:L597
+                end
+              `endif
+            `endif
           end
         end
         fsm_READ_RESPONSE : begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // SRAMController.scala:L629
+            `else
+              if(!1'b0) begin
+                $display("NOTE(SRAMController.scala:629):  0 READ_RESPONSE. ID=%x, Data=0x%x, BurstCountRem=%x, Resp=%x, Last=%x", fsm_ar_cmd_reg_id, fsm_read_data_buffer, fsm_burst_count_remaining, _zz_2, when_SRAMController_l651); // SRAMController.scala:L629
+              end
+            `endif
+          `endif
           sram_ce_n_out_reg <= 1'b0;
           sram_oe_n_out_reg <= 1'b0;
           sram_we_n_out_reg <= 1'b1;
@@ -49451,14 +50402,64 @@ module SRAMController (
           sram_addr_out_reg <= fsm_current_sram_addr;
           sram_be_n_out_reg <= 4'b0000;
           if(io_axi_r_fire) begin
-            if(!when_SRAMController_l604) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // SRAMController.scala:L649
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(SRAMController.scala:649):  0 R Fire. Last=%x", io_axi_r_payload_last); // SRAMController.scala:L649
+                end
+              `endif
+            `endif
+            if(!when_SRAMController_l651) begin
               if(fsm_addr_prefetch_valid) begin
                 fsm_addr_prefetch_valid <= 1'b0;
               end
             end
+          end else begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // SRAMController.scala:L663
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(SRAMController.scala:663):  io.axi.r.valid = %x, io.axi.r.ready = %x", io_axi_r_valid, io_axi_r_ready); // SRAMController.scala:L663
+                end
+              `endif
+            `endif
           end
         end
         fsm_READ_RESPONSE_ERROR : begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // SRAMController.scala:L689
+            `else
+              if(!1'b0) begin
+                $display("NOTE(SRAMController.scala:689):  0 READ_RESPONSE_ERROR. ID=%x, BurstCountRem=%x, Resp=%x, Last=%x, r.valid=%x, r.ready=%x, r.fire=%x", fsm_ar_cmd_reg_id, fsm_burst_count_remaining, _zz_3, when_SRAMController_l703, io_axi_r_valid, io_axi_r_ready, io_axi_r_fire); // SRAMController.scala:L689
+              end
+            `endif
+          `endif
+          if(io_axi_r_fire) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // SRAMController.scala:L701
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(SRAMController.scala:701):  0 READ_RESPONSE_ERROR - r.fire detected! BurstCountRem=%x, is_last_beat=%x", fsm_burst_count_remaining, when_SRAMController_l703); // SRAMController.scala:L701
+                end
+              `endif
+            `endif
+            if(when_SRAMController_l703) begin
+              `ifndef SYNTHESIS
+                `ifdef FORMAL
+                  assert(1'b0); // SRAMController.scala:L705
+                `else
+                  if(!1'b0) begin
+                    $display("NOTE(SRAMController.scala:705):  0 READ_RESPONSE_ERROR - Going to IDLE"); // SRAMController.scala:L705
+                  end
+                `endif
+              `endif
+            end
+          end
         end
         default : begin
         end
@@ -49548,6 +50549,16 @@ module SRAMController (
         sram_be_n_out_reg <= sram_be_n_inactive_value;
         sram_addr_out_reg <= 20'h0;
       end
+      _zz_4 <= (_zz_4 + 32'h00000001);
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // SRAMController.scala:L722
+        `else
+          if(!1'b0) begin
+            $display("NOTE(SRAMController.scala:722):  SRAMController 0 - Cycle %x: AXI Status\n  FSM State: %s\n  AW: v=%x r=%x fire=%x addr=%x id=%x len=%x size=%x burst=%x\n  AR: v=%x r=%x fire=%x addr=%x\n  W: v=%x r=%x fire=%x data=%x strb=%x last=%x\n  R: v=%x r=%x fire=%x data=%x last=%x\n  B: v=%x r=%x fire=%x\n  Internal: BurstRemaining=%x, CurrentSRAMAddr=%x, ReadPriority=%x", _zz_4, fsm_stateReg_string, io_axi_aw_valid, io_axi_aw_ready, io_axi_aw_fire, io_axi_aw_payload_addr, io_axi_aw_payload_id, io_axi_aw_payload_len, io_axi_aw_payload_size, io_axi_aw_payload_burst, io_axi_ar_valid, io_axi_ar_ready, io_axi_ar_fire, io_axi_ar_payload_addr, io_axi_w_valid, io_axi_w_ready, io_axi_w_fire, io_axi_w_payload_data, io_axi_w_payload_strb, io_axi_w_payload_last, io_axi_r_valid, io_axi_r_ready, io_axi_r_fire, io_axi_r_payload_data, io_axi_r_payload_last, io_axi_b_valid, io_axi_b_ready, io_axi_b_fire, fsm_burst_count_remaining, fsm_current_sram_addr, fsm_read_priority); // SRAMController.scala:L722
+          end
+        `endif
+      `endif
     end
   end
 
@@ -49560,9 +50571,16 @@ module SRAMController (
           fsm_aw_cmd_reg_len <= io_axi_aw_payload_len;
           fsm_aw_cmd_reg_size <= io_axi_aw_payload_size;
           fsm_aw_cmd_reg_burst <= io_axi_aw_payload_burst;
-          fsm_aw_cmd_reg_prot <= io_axi_aw_payload_prot;
           fsm_burst_count_remaining <= {1'd0, _zz_fsm_burst_count_remaining};
-          fsm_current_sram_addr <= _zz_fsm_current_sram_addr_2[19:0];
+          if(!when_SRAMController_l255) begin
+            if(!when_SRAMController_l259) begin
+              if(!when_SRAMController_l263) begin
+                if(!when_SRAMController_l267) begin
+                  fsm_current_sram_addr <= {2'd0, _zz_fsm_current_sram_addr_2};
+                end
+              end
+            end
+          end
         end
         if(io_axi_ar_fire) begin
           fsm_ar_cmd_reg_addr <= io_axi_ar_payload_addr;
@@ -49570,13 +50588,12 @@ module SRAMController (
           fsm_ar_cmd_reg_len <= io_axi_ar_payload_len;
           fsm_ar_cmd_reg_size <= io_axi_ar_payload_size;
           fsm_ar_cmd_reg_burst <= io_axi_ar_payload_burst;
-          fsm_ar_cmd_reg_prot <= io_axi_ar_payload_prot;
           fsm_burst_count_remaining <= {1'd0, _zz_fsm_burst_count_remaining_1};
-          fsm_current_sram_addr <= _zz_fsm_current_sram_addr_3[19:0];
-          if(!when_SRAMController_l280) begin
-            if(!when_SRAMController_l284) begin
-              if(!when_SRAMController_l288) begin
-                if(!when_SRAMController_l292) begin
+          if(!when_SRAMController_l325) begin
+            if(!when_SRAMController_l329) begin
+              if(!when_SRAMController_l333) begin
+                if(!when_SRAMController_l337) begin
+                  fsm_current_sram_addr <= {2'd0, _zz_fsm_current_sram_addr_3};
                   fsm_read_wait_counter <= 2'b00;
                 end
               end
@@ -49587,14 +50604,14 @@ module SRAMController (
       fsm_WRITE_DATA_FETCH : begin
       end
       fsm_WRITE_EXECUTE : begin
-        if(when_SRAMController_l376) begin
+        if(when_SRAMController_l422) begin
           fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
         end else begin
           fsm_write_wait_counter <= (fsm_write_wait_counter + 2'b01);
         end
       end
       fsm_WRITE_DEASSERT : begin
-        if(!when_SRAMController_l418) begin
+        if(!when_SRAMController_l464) begin
           fsm_current_sram_addr <= (fsm_current_sram_addr + _zz_fsm_current_sram_addr_4);
         end
       end
@@ -49609,10 +50626,10 @@ module SRAMController (
         fsm_read_wait_counter <= 2'b00;
       end
       fsm_READ_WAIT : begin
-        if(when_SRAMController_l546) begin
+        if(when_SRAMController_l593) begin
           fsm_next_sram_addr_prefetch <= (fsm_current_sram_addr + _zz_fsm_next_sram_addr_prefetch);
         end
-        if(when_SRAMController_l555) begin
+        if(when_SRAMController_l602) begin
           fsm_read_data_buffer <= io_ram_data_read;
         end else begin
           fsm_read_wait_counter <= (fsm_read_wait_counter + 2'b01);
@@ -49621,7 +50638,7 @@ module SRAMController (
       fsm_READ_RESPONSE : begin
         if(io_axi_r_fire) begin
           fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
-          if(!when_SRAMController_l604) begin
+          if(!when_SRAMController_l651) begin
             if(fsm_addr_prefetch_valid) begin
               fsm_current_sram_addr <= fsm_next_sram_addr_prefetch;
             end else begin
@@ -50002,35 +51019,31 @@ module StreamArbiter (
   input  wire          io_inputs_0_valid,
   output wire          io_inputs_0_ready,
   input  wire [31:0]   io_inputs_0_payload_addr,
-  input  wire [1:0]    io_inputs_0_payload_id,
+  input  wire [4:0]    io_inputs_0_payload_id,
   input  wire [7:0]    io_inputs_0_payload_len,
   input  wire [2:0]    io_inputs_0_payload_size,
   input  wire [1:0]    io_inputs_0_payload_burst,
-  input  wire [2:0]    io_inputs_0_payload_prot,
   input  wire          io_inputs_1_valid,
   output wire          io_inputs_1_ready,
   input  wire [31:0]   io_inputs_1_payload_addr,
-  input  wire [1:0]    io_inputs_1_payload_id,
+  input  wire [4:0]    io_inputs_1_payload_id,
   input  wire [7:0]    io_inputs_1_payload_len,
   input  wire [2:0]    io_inputs_1_payload_size,
   input  wire [1:0]    io_inputs_1_payload_burst,
-  input  wire [2:0]    io_inputs_1_payload_prot,
   input  wire          io_inputs_2_valid,
   output wire          io_inputs_2_ready,
   input  wire [31:0]   io_inputs_2_payload_addr,
-  input  wire [1:0]    io_inputs_2_payload_id,
+  input  wire [4:0]    io_inputs_2_payload_id,
   input  wire [7:0]    io_inputs_2_payload_len,
   input  wire [2:0]    io_inputs_2_payload_size,
   input  wire [1:0]    io_inputs_2_payload_burst,
-  input  wire [2:0]    io_inputs_2_payload_prot,
   output wire          io_output_valid,
   input  wire          io_output_ready,
   output wire [31:0]   io_output_payload_addr,
-  output wire [1:0]    io_output_payload_id,
+  output wire [4:0]    io_output_payload_id,
   output wire [7:0]    io_output_payload_len,
   output wire [2:0]    io_output_payload_size,
   output wire [1:0]    io_output_payload_burst,
-  output wire [2:0]    io_output_payload_prot,
   output wire [1:0]    io_chosen,
   output wire [2:0]    io_chosenOH,
   input  wire          clk,
@@ -50041,11 +51054,10 @@ module StreamArbiter (
   wire       [5:0]    _zz__zz_maskProposal_0_2_1;
   wire       [2:0]    _zz__zz_maskProposal_0_2_2;
   reg        [31:0]   _zz_io_output_payload_addr_1;
-  reg        [1:0]    _zz_io_output_payload_id;
+  reg        [4:0]    _zz_io_output_payload_id;
   reg        [7:0]    _zz_io_output_payload_len;
   reg        [2:0]    _zz_io_output_payload_size;
   reg        [1:0]    _zz_io_output_payload_burst;
-  reg        [2:0]    _zz_io_output_payload_prot;
   reg                 locked;
   wire                maskProposal_0;
   wire                maskProposal_1;
@@ -50076,7 +51088,6 @@ module StreamArbiter (
         _zz_io_output_payload_len = io_inputs_0_payload_len;
         _zz_io_output_payload_size = io_inputs_0_payload_size;
         _zz_io_output_payload_burst = io_inputs_0_payload_burst;
-        _zz_io_output_payload_prot = io_inputs_0_payload_prot;
       end
       2'b01 : begin
         _zz_io_output_payload_addr_1 = io_inputs_1_payload_addr;
@@ -50084,7 +51095,6 @@ module StreamArbiter (
         _zz_io_output_payload_len = io_inputs_1_payload_len;
         _zz_io_output_payload_size = io_inputs_1_payload_size;
         _zz_io_output_payload_burst = io_inputs_1_payload_burst;
-        _zz_io_output_payload_prot = io_inputs_1_payload_prot;
       end
       default : begin
         _zz_io_output_payload_addr_1 = io_inputs_2_payload_addr;
@@ -50092,7 +51102,6 @@ module StreamArbiter (
         _zz_io_output_payload_len = io_inputs_2_payload_len;
         _zz_io_output_payload_size = io_inputs_2_payload_size;
         _zz_io_output_payload_burst = io_inputs_2_payload_burst;
-        _zz_io_output_payload_prot = io_inputs_2_payload_prot;
       end
     endcase
   end
@@ -50115,7 +51124,6 @@ module StreamArbiter (
   assign io_output_payload_len = _zz_io_output_payload_len;
   assign io_output_payload_size = _zz_io_output_payload_size;
   assign io_output_payload_burst = _zz_io_output_payload_burst;
-  assign io_output_payload_prot = _zz_io_output_payload_prot;
   assign io_inputs_0_ready = ((1'b0 || maskRouted_0) && io_output_ready);
   assign io_inputs_1_ready = ((1'b0 || maskRouted_1) && io_output_ready);
   assign io_inputs_2_ready = ((1'b0 || maskRouted_2) && io_output_ready);
@@ -50147,15 +51155,7 @@ module StreamArbiter (
 
 endmodule
 
-//Axi4WriteOnlyErrorSlave_2 replaced by Axi4WriteOnlyErrorSlave
-
-//Axi4ReadOnlyErrorSlave_2 replaced by Axi4ReadOnlyErrorSlave
-
-//Axi4WriteOnlyErrorSlave_1 replaced by Axi4WriteOnlyErrorSlave
-
-//Axi4ReadOnlyErrorSlave_1 replaced by Axi4ReadOnlyErrorSlave
-
-module Axi4WriteOnlyErrorSlave (
+module Axi4WriteOnlyErrorSlave_2 (
   input  wire          io_axi_aw_valid,
   output wire          io_axi_aw_ready,
   input  wire [31:0]   io_axi_aw_payload_addr,
@@ -50221,7 +51221,7 @@ module Axi4WriteOnlyErrorSlave (
 
 endmodule
 
-module Axi4ReadOnlyErrorSlave (
+module Axi4ReadOnlyErrorSlave_2 (
   input  wire          io_axi_ar_valid,
   output wire          io_axi_ar_ready,
   input  wire [31:0]   io_axi_ar_payload_addr,
@@ -50278,6 +51278,220 @@ module Axi4ReadOnlyErrorSlave (
     if(sendRsp) begin
       if(io_axi_r_ready) begin
         remaining <= (remaining - 8'h01);
+      end
+    end
+  end
+
+
+endmodule
+
+//Axi4WriteOnlyErrorSlave_1 replaced by Axi4WriteOnlyErrorSlave
+
+//Axi4ReadOnlyErrorSlave_1 replaced by Axi4ReadOnlyErrorSlave
+
+module Axi4WriteOnlyErrorSlave (
+  input  wire          io_axi_aw_valid,
+  output wire          io_axi_aw_ready,
+  input  wire [31:0]   io_axi_aw_payload_addr,
+  input  wire [3:0]    io_axi_aw_payload_id,
+  input  wire [7:0]    io_axi_aw_payload_len,
+  input  wire [2:0]    io_axi_aw_payload_size,
+  input  wire [1:0]    io_axi_aw_payload_burst,
+  input  wire          io_axi_w_valid,
+  output wire          io_axi_w_ready,
+  input  wire [31:0]   io_axi_w_payload_data,
+  input  wire [3:0]    io_axi_w_payload_strb,
+  input  wire          io_axi_w_payload_last,
+  output wire          io_axi_b_valid,
+  input  wire          io_axi_b_ready,
+  output wire [3:0]    io_axi_b_payload_id,
+  output wire [1:0]    io_axi_b_payload_resp,
+  input  wire          clk,
+  input  wire          reset
+);
+
+  reg                 consumeData;
+  reg                 sendRsp;
+  reg        [3:0]    id;
+  wire                io_axi_aw_fire;
+  wire                io_axi_w_fire;
+  wire                when_Axi4ErrorSlave_l24;
+  wire                io_axi_b_fire;
+
+  assign io_axi_aw_ready = (! (consumeData || sendRsp));
+  assign io_axi_aw_fire = (io_axi_aw_valid && io_axi_aw_ready);
+  assign io_axi_w_ready = consumeData;
+  assign io_axi_w_fire = (io_axi_w_valid && io_axi_w_ready);
+  assign when_Axi4ErrorSlave_l24 = (io_axi_w_fire && io_axi_w_payload_last);
+  assign io_axi_b_valid = sendRsp;
+  assign io_axi_b_payload_resp = 2'b11;
+  assign io_axi_b_payload_id = id;
+  assign io_axi_b_fire = (io_axi_b_valid && io_axi_b_ready);
+  always @(posedge clk or posedge reset) begin
+    if(reset) begin
+      consumeData <= 1'b0;
+      sendRsp <= 1'b0;
+    end else begin
+      if(io_axi_aw_fire) begin
+        consumeData <= 1'b1;
+      end
+      if(when_Axi4ErrorSlave_l24) begin
+        consumeData <= 1'b0;
+        sendRsp <= 1'b1;
+      end
+      if(io_axi_b_fire) begin
+        sendRsp <= 1'b0;
+      end
+    end
+  end
+
+  always @(posedge clk) begin
+    if(io_axi_aw_fire) begin
+      id <= io_axi_aw_payload_id;
+    end
+  end
+
+
+endmodule
+
+module Axi4ReadOnlyErrorSlave (
+  input  wire          io_axi_ar_valid,
+  output wire          io_axi_ar_ready,
+  input  wire [31:0]   io_axi_ar_payload_addr,
+  input  wire [3:0]    io_axi_ar_payload_id,
+  input  wire [7:0]    io_axi_ar_payload_len,
+  input  wire [2:0]    io_axi_ar_payload_size,
+  input  wire [1:0]    io_axi_ar_payload_burst,
+  output wire          io_axi_r_valid,
+  input  wire          io_axi_r_ready,
+  output wire [31:0]   io_axi_r_payload_data,
+  output wire [3:0]    io_axi_r_payload_id,
+  output wire [1:0]    io_axi_r_payload_resp,
+  output wire          io_axi_r_payload_last,
+  input  wire          clk,
+  input  wire          reset
+);
+
+  reg                 sendRsp;
+  reg        [3:0]    id;
+  reg        [7:0]    remaining;
+  wire                remainingZero;
+  wire                io_axi_ar_fire;
+
+  assign remainingZero = (remaining == 8'h0);
+  assign io_axi_ar_ready = (! sendRsp);
+  assign io_axi_ar_fire = (io_axi_ar_valid && io_axi_ar_ready);
+  assign io_axi_r_valid = sendRsp;
+  assign io_axi_r_payload_id = id;
+  assign io_axi_r_payload_resp = 2'b11;
+  assign io_axi_r_payload_last = remainingZero;
+  always @(posedge clk or posedge reset) begin
+    if(reset) begin
+      sendRsp <= 1'b0;
+    end else begin
+      if(io_axi_ar_fire) begin
+        sendRsp <= 1'b1;
+      end
+      if(sendRsp) begin
+        if(io_axi_r_ready) begin
+          if(remainingZero) begin
+            sendRsp <= 1'b0;
+          end
+        end
+      end
+    end
+  end
+
+  always @(posedge clk) begin
+    if(io_axi_ar_fire) begin
+      remaining <= io_axi_ar_payload_len;
+      id <= io_axi_ar_payload_id;
+    end
+    if(sendRsp) begin
+      if(io_axi_r_ready) begin
+        remaining <= (remaining - 8'h01);
+      end
+    end
+  end
+
+
+endmodule
+
+//StreamFork_1 replaced by StreamFork
+
+module StreamFork (
+  input  wire          io_input_valid,
+  output reg           io_input_ready,
+  input  wire [31:0]   io_input_payload_address,
+  input  wire [31:0]   io_input_payload_data,
+  input  wire [3:0]    io_input_payload_byteEnables,
+  input  wire [3:0]    io_input_payload_id,
+  input  wire          io_input_payload_last,
+  output wire          io_outputs_0_valid,
+  input  wire          io_outputs_0_ready,
+  output wire [31:0]   io_outputs_0_payload_address,
+  output wire [31:0]   io_outputs_0_payload_data,
+  output wire [3:0]    io_outputs_0_payload_byteEnables,
+  output wire [3:0]    io_outputs_0_payload_id,
+  output wire          io_outputs_0_payload_last,
+  output wire          io_outputs_1_valid,
+  input  wire          io_outputs_1_ready,
+  output wire [31:0]   io_outputs_1_payload_address,
+  output wire [31:0]   io_outputs_1_payload_data,
+  output wire [3:0]    io_outputs_1_payload_byteEnables,
+  output wire [3:0]    io_outputs_1_payload_id,
+  output wire          io_outputs_1_payload_last,
+  input  wire          clk,
+  input  wire          reset
+);
+
+  reg                 logic_linkEnable_0;
+  reg                 logic_linkEnable_1;
+  wire                when_Stream_l1253;
+  wire                when_Stream_l1253_1;
+  wire                io_outputs_0_fire;
+  wire                io_outputs_1_fire;
+
+  always @(*) begin
+    io_input_ready = 1'b1;
+    if(when_Stream_l1253) begin
+      io_input_ready = 1'b0;
+    end
+    if(when_Stream_l1253_1) begin
+      io_input_ready = 1'b0;
+    end
+  end
+
+  assign when_Stream_l1253 = ((! io_outputs_0_ready) && logic_linkEnable_0);
+  assign when_Stream_l1253_1 = ((! io_outputs_1_ready) && logic_linkEnable_1);
+  assign io_outputs_0_valid = (io_input_valid && logic_linkEnable_0);
+  assign io_outputs_0_payload_address = io_input_payload_address;
+  assign io_outputs_0_payload_data = io_input_payload_data;
+  assign io_outputs_0_payload_byteEnables = io_input_payload_byteEnables;
+  assign io_outputs_0_payload_id = io_input_payload_id;
+  assign io_outputs_0_payload_last = io_input_payload_last;
+  assign io_outputs_0_fire = (io_outputs_0_valid && io_outputs_0_ready);
+  assign io_outputs_1_valid = (io_input_valid && logic_linkEnable_1);
+  assign io_outputs_1_payload_address = io_input_payload_address;
+  assign io_outputs_1_payload_data = io_input_payload_data;
+  assign io_outputs_1_payload_byteEnables = io_input_payload_byteEnables;
+  assign io_outputs_1_payload_id = io_input_payload_id;
+  assign io_outputs_1_payload_last = io_input_payload_last;
+  assign io_outputs_1_fire = (io_outputs_1_valid && io_outputs_1_ready);
+  always @(posedge clk or posedge reset) begin
+    if(reset) begin
+      logic_linkEnable_0 <= 1'b1;
+      logic_linkEnable_1 <= 1'b1;
+    end else begin
+      if(io_outputs_0_fire) begin
+        logic_linkEnable_0 <= 1'b0;
+      end
+      if(io_outputs_1_fire) begin
+        logic_linkEnable_1 <= 1'b0;
+      end
+      if(io_input_ready) begin
+        logic_linkEnable_0 <= 1'b1;
+        logic_linkEnable_1 <= 1'b1;
       end
     end
   end
