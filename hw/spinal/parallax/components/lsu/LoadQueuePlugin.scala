@@ -337,6 +337,7 @@ class LoadQueuePlugin(
                 mmioChannel.cmd.valid := headIsReadyToExecute && !head.hasException && !shouldNotSendToMemory && head.isIO
                 mmioChannel.cmd.address := head.address
                 if (mmioConfig.get.useId) {
+                    require(mmioChannel.cmd.id.getWidth >= head.robPtr.getWidth, "MMIO ID width must be at least as wide as ROB pointer width")
                     mmioChannel.cmd.id := head.robPtr.resized
                 }
                 
