@@ -107,13 +107,13 @@ class SimulatedSRAM(
       // The max check for TB should be against byte address size
       when(addr <= config.internalMaxByteAddr) {
         if (enableLog) {
-          report(L"$prefix TB_WRITE: Addr=${addr}, Data=${io.tb_writeData}")
+          report(L"TB_WRITE: Addr=${addr}, Data=${io.tb_writeData}")
         }
         val wordAddrForTb = (addr >> log2Up(config.bytesPerWord)).resize(config.internalWordAddrWidth)
         mem.write(address = wordAddrForTb, data = io.tb_writeData)
       } otherwise {
         report(
-          L"$prefix TB_WRITE: ILLEGAL ADDRESS Addr=${addr} (max addr ${config.internalMaxByteAddr} for ${config.sizeBytes} bytes of memory)"
+          L"TB_WRITE: ILLEGAL ADDRESS Addr=${addr} (max addr ${config.internalMaxByteAddr} for ${config.sizeBytes} bytes of memory)"
         )
       }
     }
@@ -126,13 +126,13 @@ class SimulatedSRAM(
       // The max check for TB should be against byte address size
       when(addr <= config.internalMaxByteAddr) {
         if (enableLog) {
-          report(L"$prefix TB_READ: Addr=${addr}")
+          report(L"TB_READ: Addr=${addr}")
         }
         val wordAddrForTb = (addr >> log2Up(config.bytesPerWord)).resize(config.internalWordAddrWidth)
         io.tb_readData := mem.readAsync(address = wordAddrForTb)
       } otherwise {
         report(
-          L"$prefix TB_READ: ILLEGAL ADDRESS Addr=${addr} (max addr ${config.internalMaxByteAddr} for ${config.sizeBytes} bytes of memory)"
+          L"TB_READ: ILLEGAL ADDRESS Addr=${addr} (max addr ${config.internalMaxByteAddr} for ${config.sizeBytes} bytes of memory)"
         )
       }
     }
@@ -163,7 +163,7 @@ class SimulatedSRAM(
       )
       if (enableLog) {
         report(
-          L"$prefix written ${io.ram.data.write} to ${io.ram.addr} (word addr ${wordAddr}) with mask ${byteEnableMask}"
+          L"written ${io.ram.data.write} to ${io.ram.addr} (word addr ${wordAddr}) with mask ${byteEnableMask}"
         )
       }
     }

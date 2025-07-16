@@ -23,7 +23,7 @@ case class TagRamIo(p: DataCacheParameters) extends Bundle {
 
 class TagRamComponent(p: DataCacheParameters) extends Component {
   val io = TagRamIo(p)
-  val enableLog = true
+  val enableLog = false
 
   val ways_logic = Range(0, p.wayCount).map { wayIdx =>
     new Area {

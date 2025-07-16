@@ -434,7 +434,7 @@ case class DataCacheParameters(
     tagsReadAsync: Boolean = true, // Tag是否异步读取
     reducedBankWidth: Boolean = false, // 数据bank是否使用缩减宽度
     transactionIdWidth: Int = 0,        // 事务ID的位宽
-    val enableLog: Boolean = true // 是否启用日志
+    val enableLog: Boolean = false
 ) {
   // memParameter：生成 DataMemBusParameter，用于创建主存总线接口。
   def memParameter = DataMemBusParameter(

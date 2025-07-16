@@ -16,7 +16,7 @@ class RenamePlugin(
     val flConfig: SuperScalarFreeListConfig
 ) extends Plugin 
     with LockedImpl {
-  val enableLog = true // FORCE enable for RAW hazard debugging
+  val enableLog = false
   val early_setup = create early new Area {
     val issuePpl = getService[IssuePipeline]
     val busyTableService = getService[BusyTableService] // 获取服务

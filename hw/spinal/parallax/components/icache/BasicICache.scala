@@ -137,7 +137,7 @@ case class CacheLineEntry(implicit val cacheConfig: BasicICacheConfig) extends B
 class BasicICache(implicit
     val cacheConfig: BasicICacheConfig,
     val memBusConfig: GenericMemoryBusConfig,
-    val enableLog: Boolean = true
+    val enableLog: Boolean = false
 ) extends Component {
   require(
     cacheConfig.dataWidth == memBusConfig.dataWidth,

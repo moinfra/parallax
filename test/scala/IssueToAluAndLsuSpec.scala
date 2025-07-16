@@ -1,5 +1,5 @@
 // filename: test/scala/IssueToAluAndLsuSpec.scala
-// test test.scala.IssueToAluAndLsuSpec
+// testOnly test.scala.IssueToAluAndLsuSpec
 package test.scala
 
 import org.scalatest.funsuite.AnyFunSuite

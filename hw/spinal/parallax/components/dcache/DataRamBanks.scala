@@ -45,7 +45,7 @@ case class WriteStreamPayload(p: DataCacheParameters) extends Bundle {
 
 class DataRamBanksComponent(p: DataCacheParameters) extends Component {
   val io = DataRamBanksIO(p)
-  val enableLog = true
+  val enableLog = false
   val ways_logic = Range(0, p.wayCount).map { wayIdx =>
     new Area {
       val mem = Mem(Bits(p.lineSize * 8 bits), p.linePerWay)

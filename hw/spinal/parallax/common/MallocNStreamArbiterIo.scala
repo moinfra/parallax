@@ -25,7 +25,7 @@ class MallocNStreamArbiter[T_REQ <: Data, T_RSP <: Data](
   val io = MallocNStreamArbiterIo(reqType, rspType, numRequesters, numGrantSlots)
 
   val arbiterId = "MallocNArbiter" 
-  val enableLog = true 
+  val enableLog = false 
 
   if (numRequesters == 0 || numGrantSlots == 0) {
     // ... (no change)
