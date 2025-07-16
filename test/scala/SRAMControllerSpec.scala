@@ -13,7 +13,7 @@ import parallax.components.memory._
 import _root_.parallax.utilities.ParallaxLogger
 
 // 测试台 - 连接SRAMController和SRAM模拟器
-class ExtSRAMTestBench(axiConfig: Axi4Config, ramConfig: SRAMConfig) extends Component {
+class ExtSRAMTestBench(axiConfig: Axi4Config, ramConfig: SRAMConfig, useBlackbox: Boolean = false) extends Component {
   val io = new Bundle {
     val axi = slave(Axi4(axiConfig))
     val sramStats = out(new Bundle {
@@ -22,15 +22,76 @@ class ExtSRAMTestBench(axiConfig: Axi4Config, ramConfig: SRAMConfig) extends Com
     })
   }
 
-  // 实例化被测组件
+  // 实例化被测组件 (DUT)
   val dut = new SRAMController(axiConfig, ramConfig)
-  val sram = new SimulatedSRAM(ramConfig)
 
   // 连接AXI接口
   io.axi <> dut.io.axi
 
-  // 连接SRAM接口
-  dut.io.ram <> sram.io.ram
+  // 根据 useBlackbox 参数条件性地例化和连接 SRAM
+  if (useBlackbox) {
+    // --- BlackBox 硬件模型模式 ---
+    println("SRAM TestBench is using the Verilog BlackBox model.")
+  // 1. 实例化两个 SRAM BlackBox 模型
+  val sramModelHi = new SRAMModelBlackbox()
+  val sramModelLo = new SRAMModelBlackbox()
+
+  // 2. 为每个 BlackBox 创建一个独立的 16 位 Analog 信号
+  val sramDataBusHi = Analog(Bits(16 bits))
+  val sramDataBusLo = Analog(Bits(16 bits))
+
+  // 3. 将每个 BlackBox 的 inout 端口连接到其对应的 Analog 信号
+  sramModelHi.io.DataIO <> sramDataBusHi
+  sramModelLo.io.DataIO <> sramDataBusLo
+
+  // 4. 实现 TriState[Bits(32 bits)] 和两个 Analog 信号之间的三态逻辑
+
+  // a. 读取路径：将两个 16 位的 Analog 总线拼接成 32 位，送给 dut
+  //    使用 .asBits 将 Analog 转换为可读的 Bits 类型
+  dut.io.ram.data.read := sramDataBusHi.asBits ## sramDataBusLo.asBits
+
+  // b. 写入路径：当 dut 的单个 writeEnable 信号有效时，
+  //    将 dut 的 32 位写数据分别驱动到两个 16 位的 Analog 总线上。
+  when(dut.io.ram.data.writeEnable) {
+    sramDataBusHi := dut.io.ram.data.write(31 downto 16)
+    sramDataBusLo := dut.io.ram.data.write(15 downto 0)
+  }
+
+  // --- 将 BlackBox 的其他控制信号连接到 dut ---
+  val sram_addr = dut.io.ram.addr
+  val sram_ce_n = dut.io.ram.ce_n
+  val sram_oe_n = dut.io.ram.oe_n
+  val sram_we_n = dut.io.ram.we_n
+  
+  // 两个SRAM模型共享大部分控制信号
+  sramModelHi.io.Address := sram_addr
+  sramModelLo.io.Address := sram_addr
+  
+  sramModelHi.io.CE_n := sram_ce_n
+  sramModelLo.io.CE_n := sram_ce_n
+
+  sramModelHi.io.OE_n := sram_oe_n
+  sramModelLo.io.OE_n := sram_oe_n
+
+  sramModelHi.io.WE_n := sram_we_n
+  sramModelLo.io.WE_n := sram_we_n
+
+  // 字节使能信号
+  sramModelHi.io.UB_n := dut.io.ram.be_n(3)
+  sramModelHi.io.LB_n := dut.io.ram.be_n(2)
+  sramModelLo.io.UB_n := dut.io.ram.be_n(1)
+  sramModelLo.io.LB_n := dut.io.ram.be_n(0)
+  report(L"[DEBUG] sramModelHi.io.UB_n=${sramModelHi.io.UB_n}, sramModelHi.io.LB_n=${sramModelHi.io.LB_n}, sramModelLo.io.UB_n=${sramModelLo.io.UB_n}, sramModelLo.io.LB_n=${sramModelLo.io.LB_n}")
+  report(L"[DEBUG] dut.io.ram.be_n=${dut.io.ram.be_n}")
+  } else {
+    // --- 纯软件模拟模型模式 ---
+    println("SRAM TestBench is using the pure software SimulatedSRAM model.")
+    // SimulatedSRAM需要与控制器配置匹配，特别是数据宽度
+    val sram = new SimulatedSRAM(ramConfig)
+
+    // 可以直接批量连接，因为接口是匹配的
+    dut.io.ram <> sram.io.ram
+  }
 
   // 统计信息（用于性能分析）
   val readCounter = Counter(32 bits)
@@ -262,7 +323,7 @@ class AxiMasterHelper(axi: Axi4, clockDomain: ClockDomain) {
       cycles += 1
     }
 
-    throw new RuntimeException(s"Read response timeout for transaction ${transaction.id}")
+    throw new RuntimeException(s"Read response timeout for transaction ${transaction.id} (${timeout} cycles)")
   }
 
   // 检查事务是否完成 - 新增方法
@@ -629,7 +690,6 @@ class SRAMControllerSpec extends CustomSpinalSimFunSuite {
       println(s"Stress test completed: $operations operations, ${writtenData.size} unique addresses written")
     }
   }
-
 
   thatsAll
 }

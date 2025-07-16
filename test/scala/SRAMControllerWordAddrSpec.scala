@@ -34,7 +34,7 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
    * Helper to create a SRAMConfig for word-addressing mode.
    * Example: 4MB SRAM, 32-bit data => 1M words => 20 address lines.
    */
-  def createWordAddrRamConfig(readWaitCycles: Int = 1, sramSize: BigInt = 4 * 1024 * 1024, enableLog: Boolean = false): SRAMConfig = {
+  def createWordAddrRamConfig(readWaitCycles: Int = 0,writeWaitCycles:Int = 0,  sramSize: BigInt = 4 * 1024 * 1024, enableLog: Boolean = false): SRAMConfig = {
     val bytesPerWord = axiConfig.dataWidth / 8
     val wordCount = sramSize / bytesPerWord
     val addressWidth = log2Up(wordCount)
@@ -45,6 +45,7 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
       virtualBaseAddress = 0x80000000L,
       sizeBytes = sramSize,
       readWaitCycles = readWaitCycles,
+      writeWaitCycles = writeWaitCycles,
       useWordAddressing = true, // Enable the mode under test
       enableLog = enableLog // Keep logs clean unless debugging
     )
@@ -52,10 +53,14 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
 
   // The withTestBench helper is identical to the one in the other spec file
   def withTestBench[T](ramConfig: SRAMConfig)(testCode: (ExtSRAMTestBench, AxiMasterHelper, ClockDomain) => T) = {
-    val compiled = SimConfig.withWave.compile(new ExtSRAMTestBench(axiConfig, ramConfig))
+    val compiled = SimConfig.withConfig(SpinalConfig(
+          defaultConfigForClockDomains = ClockDomainConfig(resetKind = SYNC),
+    defaultClockDomainFrequency = FixedFrequency(162 MHz),
+    ))
+.withIVerilog  .withWave.compile(new ExtSRAMTestBench(axiConfig, ramConfig, useBlackbox = true))
     compiled.doSim { dut =>
       val clockDomain = dut.clockDomain
-      clockDomain.forkStimulus(period = 10)
+      clockDomain.forkStimulus(period = 10 * 1000)
 
       val axiMaster = new AxiMasterHelper(dut.io.axi, clockDomain)
       axiMaster.initialize()
@@ -71,7 +76,7 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
   }
 
   test("WordAddr - Basic write and read with address translation") {
-    withTestBench(createWordAddrRamConfig()) { (dut, axiMaster, _) =>
+    withTestBench(createWordAddrRamConfig(enableLog = true)) { (dut, axiMaster, _) =>
       // AXI address 0x80000100 -> offset 0x100 -> word address 0x40
       val testAddr = 0x80000100L
       val testData = 0xdeadbeefL
