@@ -3,6 +3,7 @@ package parallax.components.memory
 import spinal.core._
 import spinal.lib._
 import spinal.lib.bus.amba4.axi._
+import parallax.utilities.Formattable
 
 // Configuration for the generic memory bus
 case class GenericMemoryBusConfig(
@@ -77,14 +78,33 @@ case class SimpleMemoryBus(config: GenericMemoryBusConfig) extends Bundle with I
 }
 
 // --- Read Channel ---
-case class SplitGmbReadCmd(config: GenericMemoryBusConfig) extends Bundle {
+case class SplitGmbReadCmd(config: GenericMemoryBusConfig) extends Bundle  with Formattable {
   val address = UInt(config.addressWidth)
   val id = if (config.useId) UInt(config.idWidth) else null
+
+  override def format: Seq[Any] = {
+    Seq(
+      L"SplitGmbReadCmd(",
+      L"address=${address},",
+      L"id=${if (config.useId) id else "None"}",
+      L")"
+    )
+  }
 }
-case class SplitGmbReadRsp(config: GenericMemoryBusConfig) extends Bundle {
+case class SplitGmbReadRsp(config: GenericMemoryBusConfig) extends Bundle  with Formattable {
   val data = Bits(config.dataWidth)
   val error = Bool()
   val id = if (config.useId) UInt(config.idWidth) else null
+
+  override def format: Seq[Any] = {
+    Seq(
+      L"SplitGmbReadRsp(",
+      L"data=${data},",
+      L"error=${error},",
+      L"id=${if (config.useId) id else "None"}",
+      L")"
+    )
+  }
 }
 case class SplitGmbReadChannel(config: GenericMemoryBusConfig) extends Bundle with IMasterSlave {
   val cmd = Stream(SplitGmbReadCmd(config))
@@ -93,16 +113,37 @@ case class SplitGmbReadChannel(config: GenericMemoryBusConfig) extends Bundle wi
 }
 
 // --- Write Channel ---
-case class SplitGmbWriteCmd(config: GenericMemoryBusConfig) extends Bundle {
+case class SplitGmbWriteCmd(config: GenericMemoryBusConfig) extends Bundle with Formattable {
   val address = UInt(config.addressWidth)
   val data = Bits(config.dataWidth)
   val byteEnables = Bits(config.dataWidth.value / 8 bits)
   val id = if (config.useId) UInt(config.idWidth) else null
   val last = Bool()
+
+  override def format: Seq[Any] = {
+    Seq(
+      L"SplitGmbWriteCmd(",
+      L"address=${address},",
+      L"data=${data},",
+      L"byteEnables=${byteEnables},",
+      L"id=${if (config.useId) id else "None"},",
+      L"last=${last}",
+      L")"
+    )
+  }
 }
-case class SplitGmbWriteRsp(config: GenericMemoryBusConfig) extends Bundle {
+case class SplitGmbWriteRsp(config: GenericMemoryBusConfig) extends Bundle  with Formattable {
   val error = Bool()
   val id = if (config.useId) UInt(config.idWidth) else null
+
+  override def format: Seq[Any] = {
+    Seq(
+      L"SplitGmbWriteRsp(",
+      L"error=${error},",
+      L"id=${if (config.useId) id else "None"}",
+      L")"
+    )
+  }
 }
 case class SplitGmbWriteChannel(config: GenericMemoryBusConfig) extends Bundle with IMasterSlave {
   val cmd = Stream(SplitGmbWriteCmd(config)) // This stream now contains both address and data for write
