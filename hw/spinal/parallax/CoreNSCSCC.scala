@@ -548,6 +548,7 @@ class CoreNSCSCC(simDebug: Boolean = false) extends Component {
 // Verilog生成器
 object CoreNSCSCCGen extends App {
   val spinalConfig = SpinalConfig(
+    defaultConfigForClockDomains = ClockDomainConfig(resetKind = SYNC),
     defaultClockDomainFrequency = FixedFrequency(162 MHz),
     targetDirectory = "soc"
   )

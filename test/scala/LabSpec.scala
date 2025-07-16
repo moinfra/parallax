@@ -498,7 +498,7 @@ class LabSpec extends CustomSpinalSimFunSuite {
     }
   }
 
-  test("Fibonacci Test on CoreNSCSCC") {
+  testOnly("Fibonacci Test on CoreNSCSCC") {
 
     val instructions = ArrayBuffer[BigInt]()
     // Original Assembly:
@@ -558,12 +558,16 @@ class LabSpec extends CustomSpinalSimFunSuite {
 
     LabHelper.dumpBinary(instructions, "bin/LabSpec.bin")
 
-    val compiled = SimConfig.withFstWave.compile(new LabTestBench(instructions))
+    val compiled = SimConfig.withConfig(
+        SpinalConfig().copy(
+          defaultConfigForClockDomains = ClockDomainConfig(resetKind = SYNC),
+        )
+      ).withFstWave.compile(new LabTestBench(instructions))
 
     compiled.doSim { dut =>
       val cd = dut.clockDomain
       cd.forkStimulus(period = 10)
-      SimTimeout(600000)
+      SimTimeout(300000)
 
       // 1. Get handles to the SRAM instances
       val iSram = dut.iSram

@@ -123,6 +123,7 @@ object GmbAxiConverterUtils {
               io.gmbIn.rsp.payload.readData := io.axiOut.readRsp.payload.data.asBits
               io.gmbIn.rsp.payload.error := io.axiOut.readRsp.payload.resp =/= Axi4.resp.OKAY
               if (gmbConfig.useId && effectiveAxiConfig.useId && io.gmbIn.rsp.payload.id != null) {
+                require(io.gmbIn.rsp.payload.id.getWidth >= io.axiOut.readRsp.payload.id.getWidth, "GMB ID width must be at least as wide as AXI ID width")
                 io.gmbIn.rsp.payload.id := io.axiOut.readRsp.payload.id.resized
               }
             } otherwise { report(L"[BridgeFSM] sWaitingAxiReadRsp: ID MISMATCH!") }
@@ -152,6 +153,7 @@ object GmbAxiConverterUtils {
               io.gmbIn.rsp.valid := True
               io.gmbIn.rsp.payload.error := io.axiOut.writeRsp.payload.resp =/= Axi4.resp.OKAY
               if (gmbConfig.useId && effectiveAxiConfig.useId && io.gmbIn.rsp.payload.id != null) {
+                require(io.gmbIn.rsp.payload.id.getWidth >= io.axiOut.writeRsp.payload.id.getWidth, "GMB ID width must be at least as wide as AXI ID width")
                 io.gmbIn.rsp.payload.id := io.axiOut.writeRsp.payload.id.resized
               }
             } otherwise { report(L"[BridgeFSM] sWaitingAxiWriteRsp: ID MISMATCH!") }

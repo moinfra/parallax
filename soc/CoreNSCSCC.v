@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 3105a33b457518a7afeed8b0527b4d8b9dab2383
 // Component : CoreNSCSCC
-// Git hash  : 8b6ac29c153f7e0ed70f0198aab427783d8cdeb9
+// Git hash  : c7a778634fd52fa3413773595d33e2b2ee9c9937
 
 `timescale 1ns/1ps
 
@@ -21438,7 +21438,7 @@ module CoreNSCSCC (
   assign SimpleFetchPipelinePlugin_logic_fsm_onEntry_WAITING = ((SimpleFetchPipelinePlugin_logic_fsm_stateNext == SimpleFetchPipelinePlugin_logic_fsm_WAITING) && (SimpleFetchPipelinePlugin_logic_fsm_stateReg != SimpleFetchPipelinePlugin_logic_fsm_WAITING));
   assign SimpleFetchPipelinePlugin_logic_fsm_onEntry_UPDATE_PC = ((SimpleFetchPipelinePlugin_logic_fsm_stateNext == SimpleFetchPipelinePlugin_logic_fsm_UPDATE_PC) && (SimpleFetchPipelinePlugin_logic_fsm_stateReg != SimpleFetchPipelinePlugin_logic_fsm_UPDATE_PC));
   assign SimpleFetchPipelinePlugin_logic_fsm_onEntry_DISABLED = ((SimpleFetchPipelinePlugin_logic_fsm_stateNext == SimpleFetchPipelinePlugin_logic_fsm_DISABLED) && (SimpleFetchPipelinePlugin_logic_fsm_stateReg != SimpleFetchPipelinePlugin_logic_fsm_DISABLED));
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
       CommitPlugin_commitStatsReg_committedThisCycle <= 1'b0;
       CommitPlugin_commitStatsReg_totalCommitted <= 32'h0;
@@ -24634,7 +24634,7 @@ module Axi4WriteOnlyArbiter (
   assign io_inputs_2_b_payload_resp = io_output_b_payload_resp;
   assign io_inputs_2_b_payload_id = io_output_b_payload_id[4 : 0];
   assign io_output_b_ready = _zz_io_output_b_ready;
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
       cmdArbiter_io_output_fork2_logic_linkEnable_0 <= 1'b1;
       cmdArbiter_io_output_fork2_logic_linkEnable_1 <= 1'b1;
@@ -25102,7 +25102,7 @@ module Axi4WriteOnlyDecoder_2 (
   assign io_outputs_0_b_ready = io_input_b_ready;
   assign io_outputs_1_b_ready = io_input_b_ready;
   assign io_outputs_2_b_ready = io_input_b_ready;
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
       pendingCmdCounter_value <= 3'b000;
       pendingDataCounter_value <= 3'b000;
@@ -25367,7 +25367,7 @@ module Axi4ReadOnlyDecoder_2 (
   assign io_outputs_0_r_ready = io_input_r_ready;
   assign io_outputs_1_r_ready = io_input_r_ready;
   assign io_outputs_2_r_ready = io_input_r_ready;
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
       pendingCmdCounter_value <= 3'b000;
       pendingSels <= 3'b000;
@@ -25681,7 +25681,7 @@ module Axi4WriteOnlyDecoder (
   assign io_outputs_0_b_ready = io_input_b_ready;
   assign io_outputs_1_b_ready = io_input_b_ready;
   assign io_outputs_2_b_ready = io_input_b_ready;
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
       pendingCmdCounter_value <= 3'b000;
       pendingDataCounter_value <= 3'b000;
@@ -25938,7 +25938,7 @@ module Axi4ReadOnlyDecoder (
   assign io_outputs_0_r_ready = io_input_r_ready;
   assign io_outputs_1_r_ready = io_input_r_ready;
   assign io_outputs_2_r_ready = io_input_r_ready;
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
       pendingCmdCounter_value <= 3'b000;
       pendingSels <= 3'b000;
@@ -26186,7 +26186,7 @@ module SplitGmbToAxi4Bridge_1 (
   assign io_axiOut_w_fire = (io_axiOut_w_valid && io_axiOut_w_ready);
   assign io_axiOut_b_fire = (io_axiOut_b_valid && io_axiOut_b_ready);
   assign _zz_3 = (io_axiOut_b_payload_resp == 2'b10);
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
       io_gmbIn_read_cmd_rValid <= 1'b0;
       io_axiOut_r_rValid <= 1'b0;
@@ -26486,7 +26486,7 @@ module SplitGmbToAxi4Bridge (
   assign io_axiOut_w_fire = (io_axiOut_w_valid && io_axiOut_w_ready);
   assign io_axiOut_b_fire = (io_axiOut_b_valid && io_axiOut_b_ready);
   assign _zz_3 = (io_axiOut_b_payload_resp == 2'b10);
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
       io_gmbIn_read_cmd_rValid <= 1'b0;
       io_axiOut_r_rValid <= 1'b0;
@@ -26656,7 +26656,7 @@ module StreamArbiter_6 (
   assign io_output_payload_earlyExceptionCode = io_inputs_0_payload_earlyExceptionCode;
   assign io_inputs_0_ready = ((1'b0 || maskRouted_0) && io_output_ready);
   assign io_chosenOH = maskRouted_0;
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
       locked <= 1'b0;
       maskLocked_0 <= 1'b1;
@@ -26788,7 +26788,7 @@ module StreamUnpacker (
   assign isLast = unpackIndex[0];
   assign io_output_fire = (io_output_valid && io_output_ready);
   assign canAdvance = (io_output_fire || (bufferValid && (! currentMaskBit)));
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
       bufferValid <= 1'b0;
     end else begin
@@ -27050,7 +27050,7 @@ module StreamFifo_4 (
   assign logic_ptr_popOnIo = logic_pop_sync_popReg;
   assign io_occupancy = logic_ptr_occupancy;
   assign io_availability = (4'b1000 - logic_ptr_occupancy);
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
       logic_ptr_push <= 4'b0000;
       logic_ptr_pop <= 4'b0000;
@@ -27346,7 +27346,7 @@ module StreamFifo_3 (
   assign logic_ptr_popOnIo = logic_pop_sync_popReg;
   assign io_occupancy = logic_ptr_occupancy;
   assign io_availability = (2'b10 - logic_ptr_occupancy);
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
       logic_ptr_push <= 2'b00;
       logic_ptr_pop <= 2'b00;
@@ -27573,7 +27573,7 @@ module FrequencyDivider (
   reg        [26:0]   counter;
 
   assign io_tick = (counter == 27'h5f5e0ff);
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
       counter <= 27'h0;
     end else begin
@@ -29910,7 +29910,7 @@ module IssueQueueComponent_2 (
   assign currentValidCount = (_zz_currentValidCount_8 + _zz_currentValidCount_10);
   assign when_IssueQueueComponent_l189 = ((3'b000 < currentValidCount) && ((|issueRequestOh) || io_allocateIn_valid));
   assign _zz_8 = (|issueRequestOh);
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
       entryValids_0 <= 1'b0;
       entryValids_1 <= 1'b0;
@@ -32777,7 +32777,7 @@ module IssueQueueComponent_1 (
   assign currentValidCount = (_zz_currentValidCount_8 + _zz_currentValidCount_10);
   assign when_IssueQueueComponent_l189 = ((3'b000 < currentValidCount) && ((|issueRequestOh) || io_allocateIn_valid));
   assign _zz_8 = (|issueRequestOh);
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
       entryValids_0 <= 1'b0;
       entryValids_1 <= 1'b0;
@@ -35404,7 +35404,7 @@ module IssueQueueComponent (
   assign currentValidCount = (_zz_currentValidCount_8 + _zz_currentValidCount_10);
   assign when_IssueQueueComponent_l189 = ((3'b000 < currentValidCount) && ((|issueRequestOh) || io_allocateIn_valid));
   assign _zz_8 = (|issueRequestOh);
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
       entryValids_0 <= 1'b0;
       entryValids_1 <= 1'b0;
@@ -38574,7 +38574,7 @@ module InstructionFetchUnit (
   assign fsm_onEntry_IDLE = ((fsm_stateNext == fsm_1_IDLE) && (fsm_stateReg != fsm_1_IDLE));
   assign fsm_onEntry_FETCHING = ((fsm_stateNext == fsm_1_FETCHING) && (fsm_stateReg != fsm_1_FETCHING));
   assign fsm_onEntry_RESPONDING = ((fsm_stateNext == fsm_1_RESPONDING) && (fsm_stateReg != fsm_1_RESPONDING));
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
       dcacheTransIdCounter_value <= 1'b0;
       inflight_valid <= 1'b0;
@@ -39651,7 +39651,7 @@ module RenameUnit (
   assign _zz_2 = (io_decodedUopsIn_0_archSrc1_rtype == ArchRegType_FPR);
   assign _zz_3 = (io_decodedUopsIn_0_archSrc2_rtype == ArchRegType_FPR);
   assign _zz_4 = (io_decodedUopsIn_0_archDest_rtype == ArchRegType_FPR);
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
     end else begin
       if(uopNeedsNewPhysDest) begin
@@ -40473,7 +40473,7 @@ module SuperScalarFreeList (
   assign io_currentState_freeMask = freeRegsMask_reg;
   assign io_numFreeRegs = numFreeRegs_reg;
   assign finalRegValueForNextCycle = (io_restoreState_valid ? io_restoreState_payload_freeMask : nextFreeRegsMask_final_comb);
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
       freeRegsMask_reg <= initMask;
       numFreeRegs_reg <= 7'h20;
@@ -41267,7 +41267,7 @@ module RenameMapTable (
   assign io_currentState_mapping_29 = mapReg_mapping_29;
   assign io_currentState_mapping_30 = mapReg_mapping_30;
   assign io_currentState_mapping_31 = mapReg_mapping_31;
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
       mapReg_mapping_0 <= 6'h0;
       mapReg_mapping_1 <= 6'h01;
@@ -44124,7 +44124,7 @@ module ReorderBuffer (
   assign io_headPtrOut = headPtr_reg;
   assign io_tailPtrOut = tailPtr_reg;
   assign io_countOut = count_reg;
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
       statuses_0_busy <= 1'b0;
       statuses_0_done <= 1'b0;
@@ -45331,7 +45331,7 @@ module OneShot (
   end
 
   assign when_Debug_l150 = (io_triggerIn && (! hasFired));
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
       hasFired <= 1'b0;
     end else begin
@@ -47718,7 +47718,7 @@ module DataCache (
     endcase
   end
 
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
       status_writeLast_valid <= 1'b0;
       wayRandom_value <= 1'b0;
@@ -48722,7 +48722,7 @@ module SRAMController_1 (
   assign fsm_onEntry_READ_RESPONSE = ((fsm_stateNext == fsm_READ_RESPONSE) && (fsm_stateReg != fsm_READ_RESPONSE));
   assign fsm_onEntry_READ_RESPONSE_ERROR = ((fsm_stateNext == fsm_READ_RESPONSE_ERROR) && (fsm_stateReg != fsm_READ_RESPONSE_ERROR));
   assign io_axi_b_fire = (io_axi_b_valid && io_axi_b_ready);
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
       sram_addr_out_reg <= 20'h0;
       sram_data_out_reg <= 32'h0;
@@ -50095,7 +50095,7 @@ module SRAMController (
   assign fsm_onEntry_READ_RESPONSE = ((fsm_stateNext == fsm_READ_RESPONSE) && (fsm_stateReg != fsm_READ_RESPONSE));
   assign fsm_onEntry_READ_RESPONSE_ERROR = ((fsm_stateNext == fsm_READ_RESPONSE_ERROR) && (fsm_stateReg != fsm_READ_RESPONSE_ERROR));
   assign io_axi_b_fire = (io_axi_b_valid && io_axi_b_ready);
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
       sram_addr_out_reg <= 20'h0;
       sram_data_out_reg <= 32'h0;
@@ -50940,7 +50940,7 @@ module IntAlu (
   assign _zz_io_resultOut_payload_data_1 = ((io_iqEntryIn_payload_immUsage == ImmUsageType_SRC_SHIFT_AMT) ? io_iqEntryIn_payload_imm[4 : 0] : io_iqEntryIn_payload_src2Data[4 : 0]);
   assign when_IntAlu_l85 = (io_iqEntryIn_payload_aluCtrl_logicOp != LogicOp_NONE);
   assign when_IntAlu_l105 = (((! io_iqEntryIn_payload_aluCtrl_isSub) && (io_iqEntryIn_payload_aluCtrl_logicOp == LogicOp_NONE)) && (! io_iqEntryIn_payload_aluCtrl_isAdd));
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
     end else begin
       if(!io_iqEntryIn_valid) begin
@@ -51131,7 +51131,7 @@ module StreamArbiter (
   assign _zz_io_chosen = io_chosenOH[1];
   assign _zz_io_chosen_1 = io_chosenOH[2];
   assign io_chosen = {_zz_io_chosen_1,_zz_io_chosen};
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
       locked <= 1'b0;
       maskLocked_0 <= 1'b0;
@@ -51194,7 +51194,7 @@ module Axi4WriteOnlyErrorSlave_2 (
   assign io_axi_b_payload_resp = 2'b11;
   assign io_axi_b_payload_id = id;
   assign io_axi_b_fire = (io_axi_b_valid && io_axi_b_ready);
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
       consumeData <= 1'b0;
       sendRsp <= 1'b0;
@@ -51253,7 +51253,7 @@ module Axi4ReadOnlyErrorSlave_2 (
   assign io_axi_r_payload_id = id;
   assign io_axi_r_payload_resp = 2'b11;
   assign io_axi_r_payload_last = remainingZero;
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
       sendRsp <= 1'b0;
     end else begin
@@ -51327,7 +51327,7 @@ module Axi4WriteOnlyErrorSlave (
   assign io_axi_b_payload_resp = 2'b11;
   assign io_axi_b_payload_id = id;
   assign io_axi_b_fire = (io_axi_b_valid && io_axi_b_ready);
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
       consumeData <= 1'b0;
       sendRsp <= 1'b0;
@@ -51385,7 +51385,7 @@ module Axi4ReadOnlyErrorSlave (
   assign io_axi_r_payload_id = id;
   assign io_axi_r_payload_resp = 2'b11;
   assign io_axi_r_payload_last = remainingZero;
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
       sendRsp <= 1'b0;
     end else begin
@@ -51478,7 +51478,7 @@ module StreamFork (
   assign io_outputs_1_payload_id = io_input_payload_id;
   assign io_outputs_1_payload_last = io_input_payload_last;
   assign io_outputs_1_fire = (io_outputs_1_valid && io_outputs_1_ready);
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
       logic_linkEnable_0 <= 1'b1;
       logic_linkEnable_1 <= 1'b1;
@@ -51588,7 +51588,7 @@ module InstructionPredecoder (
   assign offset = {{4{_zz_offset[27]}}, _zz_offset};
   assign when_InstructionPredecoder_l65 = ((opcode_7b == 7'h03) && (idle_fixed_bits == 10'h091));
   assign _zz_1 = io_instruction;
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
     end else begin
       if(when_InstructionPredecoder_l65) begin
@@ -51712,7 +51712,7 @@ module StreamFifo (
   assign logic_ptr_popOnIo = logic_ptr_pop;
   assign io_occupancy = logic_ptr_occupancy;
   assign io_availability = (3'b100 - logic_ptr_occupancy);
-  always @(posedge clk or posedge reset) begin
+  always @(posedge clk) begin
     if(reset) begin
       logic_ptr_push <= 3'b000;
       logic_ptr_pop <= 3'b000;
