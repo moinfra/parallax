@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 3105a33b457518a7afeed8b0527b4d8b9dab2383
 // Component : CoreNSCSCC
-// Git hash  : efa25a6ce4af0acaa03b42b63deb71930e414390
+// Git hash  : 6a81a7e92eb9606b97afa9899bdf783d62bca38d
 
 `timescale 1ns/1ps
 
@@ -47960,55 +47960,45 @@ module SRAMController_1 (
 );
   localparam fsm_BOOT = 4'd0;
   localparam fsm_IDLE = 4'd1;
-  localparam fsm_WRITE_DATA_FETCH = 4'd2;
-  localparam fsm_WRITE_EXECUTE = 4'd3;
-  localparam fsm_WRITE_DEASSERT = 4'd4;
-  localparam fsm_WRITE_FINALIZE = 4'd5;
-  localparam fsm_WRITE_DATA_ERROR_CONSUME = 4'd6;
-  localparam fsm_WRITE_RESPONSE = 4'd7;
-  localparam fsm_READ_SETUP = 4'd8;
-  localparam fsm_READ_WAIT = 4'd9;
-  localparam fsm_READ_RESPONSE = 4'd10;
-  localparam fsm_READ_RESPONSE_ERROR = 4'd11;
+  localparam fsm_VALIDATE = 4'd2;
+  localparam fsm_WRITE_DATA_FETCH = 4'd3;
+  localparam fsm_WRITE_EXECUTE = 4'd4;
+  localparam fsm_WRITE_DEASSERT = 4'd5;
+  localparam fsm_WRITE_FINALIZE = 4'd6;
+  localparam fsm_WRITE_DATA_ERROR_CONSUME = 4'd7;
+  localparam fsm_WRITE_RESPONSE = 4'd8;
+  localparam fsm_READ_SETUP = 4'd9;
+  localparam fsm_READ_WAIT = 4'd10;
+  localparam fsm_READ_RESPONSE = 4'd11;
+  localparam fsm_READ_RESPONSE_ERROR = 4'd12;
 
   wire       [7:0]    _zz_fsm_burst_count_remaining;
-  wire       [33:0]   _zz__zz_fsm_current_sram_addr;
-  wire       [67:0]   _zz__zz_when_SRAMController_l296_1;
-  wire       [67:0]   _zz__zz_when_SRAMController_l296_1_1;
-  wire       [67:0]   _zz__zz_when_SRAMController_l296_1_2;
-  wire       [33:0]   _zz__zz_when_SRAMController_l296_1_3;
-  wire       [7:0]    _zz__zz_when_SRAMController_l296_1_4;
-  wire       [67:0]   _zz__zz_when_SRAMController_l296_1_5;
-  wire       [17:0]   _zz_fsm_current_sram_addr_2;
-  wire       [31:0]   _zz_when_SRAMController_l288_1;
-  wire       [7:0]    _zz_when_SRAMController_l288_2;
-  wire       [67:0]   _zz_when_SRAMController_l296_2;
-  wire       [33:0]   _zz_when_SRAMController_l296_3;
   wire       [7:0]    _zz_fsm_burst_count_remaining_1;
-  wire       [33:0]   _zz__zz_fsm_current_sram_addr_1;
-  wire       [67:0]   _zz__zz_when_SRAMController_l366_1;
-  wire       [67:0]   _zz__zz_when_SRAMController_l366_1_1;
-  wire       [67:0]   _zz__zz_when_SRAMController_l366_1_2;
-  wire       [33:0]   _zz__zz_when_SRAMController_l366_1_3;
-  wire       [7:0]    _zz__zz_when_SRAMController_l366_1_4;
-  wire       [67:0]   _zz__zz_when_SRAMController_l366_1_5;
-  wire       [17:0]   _zz_fsm_current_sram_addr_3;
-  wire       [31:0]   _zz_when_SRAMController_l358_1;
-  wire       [7:0]    _zz_when_SRAMController_l358_2;
-  wire       [67:0]   _zz_when_SRAMController_l366_2;
-  wire       [33:0]   _zz_when_SRAMController_l366_3;
-  wire       [19:0]   _zz_fsm_current_sram_addr_4;
-  wire       [7:0]    _zz_fsm_current_sram_addr_5;
-  wire       [7:0]    _zz_fsm_current_sram_addr_6;
+  wire       [33:0]   _zz__zz_fsm_current_sram_addr;
+  wire       [31:0]   _zz_when_SRAMController_l350_4;
+  wire       [7:0]    _zz_when_SRAMController_l350_5;
+  wire       [67:0]   _zz_when_SRAMController_l350_6;
+  wire       [33:0]   _zz_when_SRAMController_l350_7;
+  wire       [67:0]   _zz_when_SRAMController_l350_8;
+  wire       [67:0]   _zz_when_SRAMController_l350_9;
+  wire       [67:0]   _zz_when_SRAMController_l350_10;
+  wire       [67:0]   _zz_when_SRAMController_l350_11;
+  wire       [33:0]   _zz_when_SRAMController_l350_12;
+  wire       [7:0]    _zz_when_SRAMController_l350_13;
+  wire       [67:0]   _zz_when_SRAMController_l350_14;
+  wire       [17:0]   _zz_fsm_current_sram_addr_1;
+  wire       [19:0]   _zz_fsm_current_sram_addr_2;
+  wire       [7:0]    _zz_fsm_current_sram_addr_3;
+  wire       [7:0]    _zz_fsm_current_sram_addr_4;
   wire       [19:0]   _zz_fsm_next_sram_addr_prefetch;
   wire       [7:0]    _zz_fsm_next_sram_addr_prefetch_1;
   wire       [7:0]    _zz_fsm_next_sram_addr_prefetch_2;
   wire       [19:0]   _zz__zz_1;
   wire       [7:0]    _zz__zz_1_1;
   wire       [7:0]    _zz__zz_1_2;
-  wire       [19:0]   _zz_fsm_current_sram_addr_7;
-  wire       [7:0]    _zz_fsm_current_sram_addr_8;
-  wire       [7:0]    _zz_fsm_current_sram_addr_9;
+  wire       [19:0]   _zz_fsm_current_sram_addr_5;
+  wire       [7:0]    _zz_fsm_current_sram_addr_6;
+  wire       [7:0]    _zz_fsm_current_sram_addr_7;
   wire       [3:0]    sram_be_n_inactive_value;
   reg        [19:0]   sram_addr_out_reg;
   reg        [31:0]   sram_data_out_reg;
@@ -48039,43 +48029,35 @@ module SRAMController_1 (
   reg                 fsm_read_priority;
   reg        [19:0]   fsm_next_sram_addr_prefetch;
   reg                 fsm_addr_prefetch_valid;
+  reg                 fsm_is_write_transaction;
   (* MARK_DEBUG = "TRUE" *) reg        [3:0]    fsm_stateReg;
   reg        [3:0]    fsm_stateNext;
-  wire                when_SRAMController_l219;
+  wire                when_SRAMController_l275;
   (* mark_debug = "true" *) wire                io_axi_aw_fire;
-  wire       [33:0]   _zz_fsm_current_sram_addr;
-  wire       [7:0]    _zz_when_SRAMController_l288;
-  wire       [33:0]   _zz_when_SRAMController_l296;
-  wire       [67:0]   _zz_when_SRAMController_l296_1;
-  wire                when_SRAMController_l284;
-  wire                when_SRAMController_l288;
-  wire                when_SRAMController_l292;
-  wire                when_SRAMController_l296;
   (* mark_debug = "true" *) wire                io_axi_ar_fire;
-  wire       [33:0]   _zz_fsm_current_sram_addr_1;
-  wire       [7:0]    _zz_when_SRAMController_l358;
-  wire       [33:0]   _zz_when_SRAMController_l366;
-  wire       [67:0]   _zz_when_SRAMController_l366_1;
-  wire                when_SRAMController_l354;
-  wire                when_SRAMController_l358;
-  wire                when_SRAMController_l362;
-  wire                when_SRAMController_l366;
+  wire       [31:0]   _zz_when_SRAMController_l350;
+  wire       [2:0]    _zz_when_SRAMController_l350_1;
+  wire       [33:0]   _zz_fsm_current_sram_addr;
+  wire       [7:0]    _zz_when_SRAMController_l350_2;
+  wire       [33:0]   _zz_when_SRAMController_l350_3;
+  wire                when_SRAMController_l350;
   (* mark_debug = "true" *) wire                io_axi_w_fire;
-  wire                when_SRAMController_l440;
-  wire                when_SRAMController_l475;
-  wire                when_SRAMController_l500;
-  wire                when_SRAMController_l533;
+  wire                when_SRAMController_l433;
+  wire                when_SRAMController_l468;
+  wire                when_SRAMController_l493;
+  wire                when_SRAMController_l526;
   wire       [1:0]    _zz_io_axi_b_payload_resp;
-  wire                when_SRAMController_l629;
+  wire                when_SRAMController_l622;
   wire       [19:0]   _zz_1;
-  wire                when_SRAMController_l638;
-  wire                when_SRAMController_l687;
+  wire                when_SRAMController_l631;
+  wire                when_SRAMController_l680;
   wire       [1:0]    _zz_2;
   (* mark_debug = "true" *) wire                io_axi_r_fire;
-  wire                when_SRAMController_l739;
+  wire                when_SRAMController_l732;
   wire       [1:0]    _zz_3;
   wire                fsm_onExit_BOOT;
   wire                fsm_onExit_IDLE;
+  wire                fsm_onExit_VALIDATE;
   wire                fsm_onExit_WRITE_DATA_FETCH;
   wire                fsm_onExit_WRITE_EXECUTE;
   wire                fsm_onExit_WRITE_DEASSERT;
@@ -48088,6 +48070,7 @@ module SRAMController_1 (
   wire                fsm_onExit_READ_RESPONSE_ERROR;
   wire                fsm_onEntry_BOOT;
   wire                fsm_onEntry_IDLE;
+  wire                fsm_onEntry_VALIDATE;
   wire                fsm_onEntry_WRITE_DATA_FETCH;
   wire                fsm_onEntry_WRITE_EXECUTE;
   wire                fsm_onEntry_WRITE_DEASSERT;
@@ -48107,48 +48090,38 @@ module SRAMController_1 (
 
 
   assign _zz_fsm_burst_count_remaining = (io_axi_aw_payload_len + 8'h01);
-  assign _zz__zz_fsm_current_sram_addr = {2'd0, io_axi_aw_payload_addr};
-  assign _zz__zz_when_SRAMController_l296_1 = (_zz__zz_when_SRAMController_l296_1_1 + _zz__zz_when_SRAMController_l296_1_2);
-  assign _zz__zz_when_SRAMController_l296_1_1 = {34'd0, _zz_fsm_current_sram_addr};
-  assign _zz__zz_when_SRAMController_l296_1_2 = (_zz__zz_when_SRAMController_l296_1_3 * _zz_when_SRAMController_l296);
-  assign _zz__zz_when_SRAMController_l296_1_4 = (io_axi_aw_payload_len + 8'h01);
-  assign _zz__zz_when_SRAMController_l296_1_3 = {26'd0, _zz__zz_when_SRAMController_l296_1_4};
-  assign _zz__zz_when_SRAMController_l296_1_5 = {34'd0, _zz_when_SRAMController_l296};
-  assign _zz_fsm_current_sram_addr_2 = (_zz_fsm_current_sram_addr[19 : 0] >>> 2'd2);
-  assign _zz_when_SRAMController_l288_2 = (_zz_when_SRAMController_l288 - 8'h01);
-  assign _zz_when_SRAMController_l288_1 = {24'd0, _zz_when_SRAMController_l288_2};
-  assign _zz_when_SRAMController_l296_3 = 34'h000400000;
-  assign _zz_when_SRAMController_l296_2 = {34'd0, _zz_when_SRAMController_l296_3};
   assign _zz_fsm_burst_count_remaining_1 = (io_axi_ar_payload_len + 8'h01);
-  assign _zz__zz_fsm_current_sram_addr_1 = {2'd0, io_axi_ar_payload_addr};
-  assign _zz__zz_when_SRAMController_l366_1 = (_zz__zz_when_SRAMController_l366_1_1 + _zz__zz_when_SRAMController_l366_1_2);
-  assign _zz__zz_when_SRAMController_l366_1_1 = {34'd0, _zz_fsm_current_sram_addr_1};
-  assign _zz__zz_when_SRAMController_l366_1_2 = (_zz__zz_when_SRAMController_l366_1_3 * _zz_when_SRAMController_l366);
-  assign _zz__zz_when_SRAMController_l366_1_4 = (io_axi_ar_payload_len + 8'h01);
-  assign _zz__zz_when_SRAMController_l366_1_3 = {26'd0, _zz__zz_when_SRAMController_l366_1_4};
-  assign _zz__zz_when_SRAMController_l366_1_5 = {34'd0, _zz_when_SRAMController_l366};
-  assign _zz_fsm_current_sram_addr_3 = (_zz_fsm_current_sram_addr_1[19 : 0] >>> 2'd2);
-  assign _zz_when_SRAMController_l358_2 = (_zz_when_SRAMController_l358 - 8'h01);
-  assign _zz_when_SRAMController_l358_1 = {24'd0, _zz_when_SRAMController_l358_2};
-  assign _zz_when_SRAMController_l366_3 = 34'h000400000;
-  assign _zz_when_SRAMController_l366_2 = {34'd0, _zz_when_SRAMController_l366_3};
-  assign _zz_fsm_current_sram_addr_5 = (_zz_fsm_current_sram_addr_6 / 3'b100);
-  assign _zz_fsm_current_sram_addr_4 = {12'd0, _zz_fsm_current_sram_addr_5};
-  assign _zz_fsm_current_sram_addr_6 = ({7'd0,1'b1} <<< fsm_aw_cmd_reg_size);
+  assign _zz__zz_fsm_current_sram_addr = {2'd0, _zz_when_SRAMController_l350};
+  assign _zz_when_SRAMController_l350_5 = (_zz_when_SRAMController_l350_2 - 8'h01);
+  assign _zz_when_SRAMController_l350_4 = {24'd0, _zz_when_SRAMController_l350_5};
+  assign _zz_when_SRAMController_l350_7 = 34'h000400000;
+  assign _zz_when_SRAMController_l350_6 = {34'd0, _zz_when_SRAMController_l350_7};
+  assign _zz_when_SRAMController_l350_8 = (_zz_when_SRAMController_l350_9 - _zz_when_SRAMController_l350_14);
+  assign _zz_when_SRAMController_l350_9 = (_zz_when_SRAMController_l350_10 + _zz_when_SRAMController_l350_11);
+  assign _zz_when_SRAMController_l350_10 = {34'd0, _zz_fsm_current_sram_addr};
+  assign _zz_when_SRAMController_l350_11 = (_zz_when_SRAMController_l350_12 * _zz_when_SRAMController_l350_3);
+  assign _zz_when_SRAMController_l350_13 = ((fsm_is_write_transaction ? fsm_aw_cmd_reg_len : fsm_ar_cmd_reg_len) + 8'h01);
+  assign _zz_when_SRAMController_l350_12 = {26'd0, _zz_when_SRAMController_l350_13};
+  assign _zz_when_SRAMController_l350_14 = {34'd0, _zz_when_SRAMController_l350_3};
+  assign _zz_fsm_current_sram_addr_1 = (_zz_fsm_current_sram_addr[19 : 0] >>> 2'd2);
+  assign _zz_fsm_current_sram_addr_3 = (_zz_fsm_current_sram_addr_4 / 3'b100);
+  assign _zz_fsm_current_sram_addr_2 = {12'd0, _zz_fsm_current_sram_addr_3};
+  assign _zz_fsm_current_sram_addr_4 = ({7'd0,1'b1} <<< fsm_aw_cmd_reg_size);
   assign _zz_fsm_next_sram_addr_prefetch_1 = (_zz_fsm_next_sram_addr_prefetch_2 / 3'b100);
   assign _zz_fsm_next_sram_addr_prefetch = {12'd0, _zz_fsm_next_sram_addr_prefetch_1};
   assign _zz_fsm_next_sram_addr_prefetch_2 = ({7'd0,1'b1} <<< fsm_ar_cmd_reg_size);
   assign _zz__zz_1_1 = (_zz__zz_1_2 / 3'b100);
   assign _zz__zz_1 = {12'd0, _zz__zz_1_1};
   assign _zz__zz_1_2 = ({7'd0,1'b1} <<< fsm_ar_cmd_reg_size);
-  assign _zz_fsm_current_sram_addr_8 = (_zz_fsm_current_sram_addr_9 / 3'b100);
-  assign _zz_fsm_current_sram_addr_7 = {12'd0, _zz_fsm_current_sram_addr_8};
-  assign _zz_fsm_current_sram_addr_9 = ({7'd0,1'b1} <<< fsm_ar_cmd_reg_size);
+  assign _zz_fsm_current_sram_addr_6 = (_zz_fsm_current_sram_addr_7 / 3'b100);
+  assign _zz_fsm_current_sram_addr_5 = {12'd0, _zz_fsm_current_sram_addr_6};
+  assign _zz_fsm_current_sram_addr_7 = ({7'd0,1'b1} <<< fsm_ar_cmd_reg_size);
   `ifndef SYNTHESIS
   always @(*) begin
     case(fsm_stateReg)
       fsm_BOOT : fsm_stateReg_string = "BOOT                    ";
       fsm_IDLE : fsm_stateReg_string = "IDLE                    ";
+      fsm_VALIDATE : fsm_stateReg_string = "VALIDATE                ";
       fsm_WRITE_DATA_FETCH : fsm_stateReg_string = "WRITE_DATA_FETCH        ";
       fsm_WRITE_EXECUTE : fsm_stateReg_string = "WRITE_EXECUTE           ";
       fsm_WRITE_DEASSERT : fsm_stateReg_string = "WRITE_DEASSERT          ";
@@ -48166,6 +48139,7 @@ module SRAMController_1 (
     case(fsm_stateNext)
       fsm_BOOT : fsm_stateNext_string = "BOOT                    ";
       fsm_IDLE : fsm_stateNext_string = "IDLE                    ";
+      fsm_VALIDATE : fsm_stateNext_string = "VALIDATE                ";
       fsm_WRITE_DATA_FETCH : fsm_stateNext_string = "WRITE_DATA_FETCH        ";
       fsm_WRITE_EXECUTE : fsm_stateNext_string = "WRITE_EXECUTE           ";
       fsm_WRITE_DEASSERT : fsm_stateNext_string = "WRITE_DEASSERT          ";
@@ -48186,11 +48160,13 @@ module SRAMController_1 (
     case(fsm_stateReg)
       fsm_IDLE : begin
         io_axi_aw_ready = 1'b0;
-        if(when_SRAMController_l219) begin
+        if(when_SRAMController_l275) begin
           io_axi_aw_ready = (! fsm_read_priority);
         end else begin
           io_axi_aw_ready = io_axi_aw_valid;
         end
+      end
+      fsm_VALIDATE : begin
       end
       fsm_WRITE_DATA_FETCH : begin
         io_axi_aw_ready = 1'b0;
@@ -48225,11 +48201,13 @@ module SRAMController_1 (
     case(fsm_stateReg)
       fsm_IDLE : begin
         io_axi_ar_ready = 1'b0;
-        if(when_SRAMController_l219) begin
+        if(when_SRAMController_l275) begin
           io_axi_ar_ready = fsm_read_priority;
         end else begin
           io_axi_ar_ready = io_axi_ar_valid;
         end
+      end
+      fsm_VALIDATE : begin
       end
       fsm_WRITE_DATA_FETCH : begin
         io_axi_ar_ready = 1'b0;
@@ -48265,6 +48243,8 @@ module SRAMController_1 (
       fsm_IDLE : begin
         io_axi_w_ready = 1'b0;
       end
+      fsm_VALIDATE : begin
+      end
       fsm_WRITE_DATA_FETCH : begin
         io_axi_w_ready = 1'b1;
       end
@@ -48298,6 +48278,8 @@ module SRAMController_1 (
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
+      fsm_VALIDATE : begin
+      end
       fsm_WRITE_DATA_FETCH : begin
       end
       fsm_WRITE_EXECUTE : begin
@@ -48328,6 +48310,8 @@ module SRAMController_1 (
     io_axi_r_valid = 1'b0;
     case(fsm_stateReg)
       fsm_IDLE : begin
+      end
+      fsm_VALIDATE : begin
       end
       fsm_WRITE_DATA_FETCH : begin
       end
@@ -48361,6 +48345,8 @@ module SRAMController_1 (
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
+      fsm_VALIDATE : begin
+      end
       fsm_WRITE_DATA_FETCH : begin
       end
       fsm_WRITE_EXECUTE : begin
@@ -48392,6 +48378,8 @@ module SRAMController_1 (
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
+      fsm_VALIDATE : begin
+      end
       fsm_WRITE_DATA_FETCH : begin
       end
       fsm_WRITE_EXECUTE : begin
@@ -48422,6 +48410,8 @@ module SRAMController_1 (
     io_axi_r_payload_id = 7'h0;
     case(fsm_stateReg)
       fsm_IDLE : begin
+      end
+      fsm_VALIDATE : begin
       end
       fsm_WRITE_DATA_FETCH : begin
       end
@@ -48455,6 +48445,8 @@ module SRAMController_1 (
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
+      fsm_VALIDATE : begin
+      end
       fsm_WRITE_DATA_FETCH : begin
       end
       fsm_WRITE_EXECUTE : begin
@@ -48486,6 +48478,8 @@ module SRAMController_1 (
     io_axi_r_payload_resp = 2'b00;
     case(fsm_stateReg)
       fsm_IDLE : begin
+      end
+      fsm_VALIDATE : begin
       end
       fsm_WRITE_DATA_FETCH : begin
       end
@@ -48519,6 +48513,8 @@ module SRAMController_1 (
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
+      fsm_VALIDATE : begin
+      end
       fsm_WRITE_DATA_FETCH : begin
       end
       fsm_WRITE_EXECUTE : begin
@@ -48536,10 +48532,10 @@ module SRAMController_1 (
       fsm_READ_WAIT : begin
       end
       fsm_READ_RESPONSE : begin
-        io_axi_r_payload_last = when_SRAMController_l687;
+        io_axi_r_payload_last = when_SRAMController_l680;
       end
       fsm_READ_RESPONSE_ERROR : begin
-        io_axi_r_payload_last = when_SRAMController_l739;
+        io_axi_r_payload_last = when_SRAMController_l732;
       end
       default : begin
       end
@@ -48559,6 +48555,8 @@ module SRAMController_1 (
     fsm_wantStart = 1'b0;
     case(fsm_stateReg)
       fsm_IDLE : begin
+      end
+      fsm_VALIDATE : begin
       end
       fsm_WRITE_DATA_FETCH : begin
       end
@@ -48592,41 +48590,24 @@ module SRAMController_1 (
     case(fsm_stateReg)
       fsm_IDLE : begin
         if(io_axi_aw_fire) begin
-          if(when_SRAMController_l284) begin
-            fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
-          end else begin
-            if(when_SRAMController_l288) begin
-              fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
-            end else begin
-              if(when_SRAMController_l292) begin
-                fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
-              end else begin
-                if(when_SRAMController_l296) begin
-                  fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
-                end else begin
-                  fsm_stateNext = fsm_WRITE_DATA_FETCH;
-                end
-              end
-            end
-          end
+          fsm_stateNext = fsm_VALIDATE;
         end
         if(io_axi_ar_fire) begin
-          if(when_SRAMController_l354) begin
-            fsm_stateNext = fsm_READ_RESPONSE_ERROR;
+          fsm_stateNext = fsm_VALIDATE;
+        end
+      end
+      fsm_VALIDATE : begin
+        if(when_SRAMController_l350) begin
+          if(fsm_is_write_transaction) begin
+            fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
           end else begin
-            if(when_SRAMController_l358) begin
-              fsm_stateNext = fsm_READ_RESPONSE_ERROR;
-            end else begin
-              if(when_SRAMController_l362) begin
-                fsm_stateNext = fsm_READ_RESPONSE_ERROR;
-              end else begin
-                if(when_SRAMController_l366) begin
-                  fsm_stateNext = fsm_READ_RESPONSE_ERROR;
-                end else begin
-                  fsm_stateNext = fsm_READ_SETUP;
-                end
-              end
-            end
+            fsm_stateNext = fsm_READ_RESPONSE_ERROR;
+          end
+        end else begin
+          if(fsm_is_write_transaction) begin
+            fsm_stateNext = fsm_WRITE_DATA_FETCH;
+          end else begin
+            fsm_stateNext = fsm_READ_SETUP;
           end
         end
       end
@@ -48636,17 +48617,17 @@ module SRAMController_1 (
         end
       end
       fsm_WRITE_EXECUTE : begin
-        if(when_SRAMController_l440) begin
+        if(when_SRAMController_l433) begin
           fsm_stateNext = fsm_WRITE_DEASSERT;
         end
       end
       fsm_WRITE_DEASSERT : begin
-        if(when_SRAMController_l475) begin
+        if(when_SRAMController_l468) begin
           fsm_stateNext = fsm_WRITE_FINALIZE;
         end
       end
       fsm_WRITE_FINALIZE : begin
-        if(when_SRAMController_l500) begin
+        if(when_SRAMController_l493) begin
           fsm_stateNext = fsm_WRITE_RESPONSE;
         end else begin
           fsm_stateNext = fsm_WRITE_DATA_FETCH;
@@ -48654,7 +48635,7 @@ module SRAMController_1 (
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
         if(io_axi_w_fire) begin
-          if(when_SRAMController_l533) begin
+          if(when_SRAMController_l526) begin
             fsm_stateNext = fsm_WRITE_RESPONSE;
           end
         end
@@ -48668,13 +48649,13 @@ module SRAMController_1 (
         fsm_stateNext = fsm_READ_WAIT;
       end
       fsm_READ_WAIT : begin
-        if(when_SRAMController_l638) begin
+        if(when_SRAMController_l631) begin
           fsm_stateNext = fsm_READ_RESPONSE;
         end
       end
       fsm_READ_RESPONSE : begin
         if(io_axi_r_fire) begin
-          if(when_SRAMController_l687) begin
+          if(when_SRAMController_l680) begin
             fsm_stateNext = fsm_IDLE;
           end else begin
             fsm_stateNext = fsm_READ_SETUP;
@@ -48683,7 +48664,7 @@ module SRAMController_1 (
       end
       fsm_READ_RESPONSE_ERROR : begin
         if(io_axi_r_fire) begin
-          if(when_SRAMController_l739) begin
+          if(when_SRAMController_l732) begin
             fsm_stateNext = fsm_IDLE;
           end
         end
@@ -48699,41 +48680,32 @@ module SRAMController_1 (
     end
   end
 
-  assign when_SRAMController_l219 = (io_axi_aw_valid && io_axi_ar_valid);
+  assign when_SRAMController_l275 = (io_axi_aw_valid && io_axi_ar_valid);
   assign io_axi_aw_fire = (io_axi_aw_valid && io_axi_aw_ready);
-  assign _zz_fsm_current_sram_addr = (_zz__zz_fsm_current_sram_addr - 34'h080400000);
-  assign _zz_when_SRAMController_l288 = ({7'd0,1'b1} <<< io_axi_aw_payload_size);
-  assign _zz_when_SRAMController_l296 = {26'd0, _zz_when_SRAMController_l288};
-  assign _zz_when_SRAMController_l296_1 = (_zz__zz_when_SRAMController_l296_1 - _zz__zz_when_SRAMController_l296_1_5);
-  assign when_SRAMController_l284 = (io_axi_aw_payload_burst != 2'b01);
-  assign when_SRAMController_l288 = ((! ((io_axi_aw_payload_addr & _zz_when_SRAMController_l288_1) == 32'h0)) || (! ((io_axi_aw_payload_addr & 32'h00000003) == 32'h0)));
-  assign when_SRAMController_l292 = (! (io_axi_aw_payload_size == 3'b010));
-  assign when_SRAMController_l296 = (_zz_fsm_current_sram_addr[20] || (_zz_when_SRAMController_l296_2 <= _zz_when_SRAMController_l296_1));
   assign io_axi_ar_fire = (io_axi_ar_valid && io_axi_ar_ready);
-  assign _zz_fsm_current_sram_addr_1 = (_zz__zz_fsm_current_sram_addr_1 - 34'h080400000);
-  assign _zz_when_SRAMController_l358 = ({7'd0,1'b1} <<< io_axi_ar_payload_size);
-  assign _zz_when_SRAMController_l366 = {26'd0, _zz_when_SRAMController_l358};
-  assign _zz_when_SRAMController_l366_1 = (_zz__zz_when_SRAMController_l366_1 - _zz__zz_when_SRAMController_l366_1_5);
-  assign when_SRAMController_l354 = (io_axi_ar_payload_burst != 2'b01);
-  assign when_SRAMController_l358 = ((! ((io_axi_ar_payload_addr & _zz_when_SRAMController_l358_1) == 32'h0)) || (! ((io_axi_ar_payload_addr & 32'h00000003) == 32'h0)));
-  assign when_SRAMController_l362 = (! (io_axi_ar_payload_size == 3'b010));
-  assign when_SRAMController_l366 = (_zz_fsm_current_sram_addr_1[20] || (_zz_when_SRAMController_l366_2 <= _zz_when_SRAMController_l366_1));
+  assign _zz_when_SRAMController_l350 = (fsm_is_write_transaction ? fsm_aw_cmd_reg_addr : fsm_ar_cmd_reg_addr);
+  assign _zz_when_SRAMController_l350_1 = (fsm_is_write_transaction ? fsm_aw_cmd_reg_size : fsm_ar_cmd_reg_size);
+  assign _zz_fsm_current_sram_addr = (_zz__zz_fsm_current_sram_addr - 34'h080400000);
+  assign _zz_when_SRAMController_l350_2 = ({7'd0,1'b1} <<< _zz_when_SRAMController_l350_1);
+  assign _zz_when_SRAMController_l350_3 = {26'd0, _zz_when_SRAMController_l350_2};
+  assign when_SRAMController_l350 = (((((((fsm_is_write_transaction ? fsm_aw_cmd_reg_burst : fsm_ar_cmd_reg_burst) != 2'b01) || (! ((_zz_when_SRAMController_l350 & _zz_when_SRAMController_l350_4) == 32'h0))) || (! ((_zz_when_SRAMController_l350 & 32'h00000003) == 32'h0))) || (! (_zz_when_SRAMController_l350_1 == 3'b010))) || _zz_fsm_current_sram_addr[20]) || (_zz_when_SRAMController_l350_6 <= _zz_when_SRAMController_l350_8));
   assign io_axi_w_fire = (io_axi_w_valid && io_axi_w_ready);
-  assign when_SRAMController_l440 = (fsm_write_wait_counter == 2'b10);
-  assign when_SRAMController_l475 = 1'b1;
-  assign when_SRAMController_l500 = (fsm_burst_count_remaining == 9'h0);
-  assign when_SRAMController_l533 = (fsm_burst_count_remaining == 9'h001);
+  assign when_SRAMController_l433 = (fsm_write_wait_counter == 2'b10);
+  assign when_SRAMController_l468 = 1'b1;
+  assign when_SRAMController_l493 = (fsm_burst_count_remaining == 9'h0);
+  assign when_SRAMController_l526 = (fsm_burst_count_remaining == 9'h001);
   assign _zz_io_axi_b_payload_resp = (fsm_transaction_error_occurred ? 2'b10 : 2'b00);
-  assign when_SRAMController_l629 = (((fsm_read_wait_counter == 2'b01) && (9'h001 < fsm_burst_count_remaining)) && (! fsm_addr_prefetch_valid));
+  assign when_SRAMController_l622 = (((fsm_read_wait_counter == 2'b01) && (9'h001 < fsm_burst_count_remaining)) && (! fsm_addr_prefetch_valid));
   assign _zz_1 = (fsm_current_sram_addr + _zz__zz_1);
-  assign when_SRAMController_l638 = (fsm_read_wait_counter == 2'b10);
-  assign when_SRAMController_l687 = (fsm_burst_count_remaining == 9'h001);
+  assign when_SRAMController_l631 = (fsm_read_wait_counter == 2'b10);
+  assign when_SRAMController_l680 = (fsm_burst_count_remaining == 9'h001);
   assign _zz_2 = 2'b00;
   assign io_axi_r_fire = (io_axi_r_valid && io_axi_r_ready);
-  assign when_SRAMController_l739 = (fsm_burst_count_remaining == 9'h001);
+  assign when_SRAMController_l732 = (fsm_burst_count_remaining == 9'h001);
   assign _zz_3 = 2'b10;
   assign fsm_onExit_BOOT = ((fsm_stateNext != fsm_BOOT) && (fsm_stateReg == fsm_BOOT));
   assign fsm_onExit_IDLE = ((fsm_stateNext != fsm_IDLE) && (fsm_stateReg == fsm_IDLE));
+  assign fsm_onExit_VALIDATE = ((fsm_stateNext != fsm_VALIDATE) && (fsm_stateReg == fsm_VALIDATE));
   assign fsm_onExit_WRITE_DATA_FETCH = ((fsm_stateNext != fsm_WRITE_DATA_FETCH) && (fsm_stateReg == fsm_WRITE_DATA_FETCH));
   assign fsm_onExit_WRITE_EXECUTE = ((fsm_stateNext != fsm_WRITE_EXECUTE) && (fsm_stateReg == fsm_WRITE_EXECUTE));
   assign fsm_onExit_WRITE_DEASSERT = ((fsm_stateNext != fsm_WRITE_DEASSERT) && (fsm_stateReg == fsm_WRITE_DEASSERT));
@@ -48746,6 +48718,7 @@ module SRAMController_1 (
   assign fsm_onExit_READ_RESPONSE_ERROR = ((fsm_stateNext != fsm_READ_RESPONSE_ERROR) && (fsm_stateReg == fsm_READ_RESPONSE_ERROR));
   assign fsm_onEntry_BOOT = ((fsm_stateNext == fsm_BOOT) && (fsm_stateReg != fsm_BOOT));
   assign fsm_onEntry_IDLE = ((fsm_stateNext == fsm_IDLE) && (fsm_stateReg != fsm_IDLE));
+  assign fsm_onEntry_VALIDATE = ((fsm_stateNext == fsm_VALIDATE) && (fsm_stateReg != fsm_VALIDATE));
   assign fsm_onEntry_WRITE_DATA_FETCH = ((fsm_stateNext == fsm_WRITE_DATA_FETCH) && (fsm_stateReg != fsm_WRITE_DATA_FETCH));
   assign fsm_onEntry_WRITE_EXECUTE = ((fsm_stateNext == fsm_WRITE_EXECUTE) && (fsm_stateReg != fsm_WRITE_EXECUTE));
   assign fsm_onEntry_WRITE_DEASSERT = ((fsm_stateNext == fsm_WRITE_DEASSERT) && (fsm_stateReg != fsm_WRITE_DEASSERT));
@@ -48774,10 +48747,10 @@ module SRAMController_1 (
     end else begin
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // SRAMController.scala:L158
+          assert(1'b0); // SRAMController.scala:L213
         `else
           if(!1'b0) begin
-            $display("NOTE(SRAMController.scala:158):  [DEBUG] io.ram: SRAMIO(ce_n=%x, oe_n=%x, we_n=%x, addr=%x, data=TriState(writeEnable=%x, read=%x, write=%x), be_n=%x)", io_ram_ce_n, io_ram_oe_n, io_ram_we_n, io_ram_addr, io_ram_data_writeEnable, io_ram_data_read, io_ram_data_write, io_ram_be_n); // SRAMController.scala:L158
+            $display("NOTE(SRAMController.scala:213):  [DEBUG] io.ram: SRAMIO(ce_n=%x, oe_n=%x, we_n=%x, addr=%x, data=TriState(writeEnable=%x, read=%x, write=%x), be_n=%x)", io_ram_ce_n, io_ram_oe_n, io_ram_we_n, io_ram_addr, io_ram_data_writeEnable, io_ram_data_read, io_ram_data_write, io_ram_be_n); // SRAMController.scala:L213
           end
         `endif
       `endif
@@ -48789,157 +48762,52 @@ module SRAMController_1 (
           if(io_axi_aw_fire) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // SRAMController.scala:L237
+                assert(1'b0); // SRAMController.scala:L293
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SRAMController.scala:237):  1 AW Fire. Addr=0x%x, ID=%x, Len=%x, Burst=%x, Size=%x", io_axi_aw_payload_addr, io_axi_aw_payload_id, io_axi_aw_payload_len, io_axi_aw_payload_burst, io_axi_aw_payload_size); // SRAMController.scala:L237
+                  $display("NOTE(SRAMController.scala:293):  1 AW Fire. Addr=0x%x, ID=%x, Len=%x, Burst=%x, Size=%x", io_axi_aw_payload_addr, io_axi_aw_payload_id, io_axi_aw_payload_len, io_axi_aw_payload_burst, io_axi_aw_payload_size); // SRAMController.scala:L293
                 end
               `endif
             `endif
             fsm_read_priority <= (! fsm_read_priority);
-            if(when_SRAMController_l284) begin
-              `ifndef SYNTHESIS
-                `ifdef FORMAL
-                  assert(1'b0); // SRAMController.scala:L285
-                `else
-                  if(!1'b0) begin
-                    $display("NOTE(SRAMController.scala:285):  1 AW Error - Unsupported burst type: %x", io_axi_aw_payload_burst); // SRAMController.scala:L285
-                  end
-                `endif
-              `endif
-              fsm_transaction_error_occurred <= 1'b1;
-            end else begin
-              if(when_SRAMController_l288) begin
-                `ifndef SYNTHESIS
-                  `ifdef FORMAL
-                    assert(1'b0); // SRAMController.scala:L289
-                  `else
-                    if(!1'b0) begin
-                      $display("NOTE(SRAMController.scala:289):  1 AW Error - Address unaligned: 0x%x for size %x or word boundary", io_axi_aw_payload_addr, _zz_when_SRAMController_l288); // SRAMController.scala:L289
-                    end
-                  `endif
-                `endif
-                fsm_transaction_error_occurred <= 1'b1;
-              end else begin
-                if(when_SRAMController_l292) begin
-                  `ifndef SYNTHESIS
-                    `ifdef FORMAL
-                      assert(1'b0); // SRAMController.scala:L293
-                    `else
-                      if(!1'b0) begin
-                        $display("NOTE(SRAMController.scala:293):  1 AW Error - Incompatible size: %x for word addressing mode", io_axi_aw_payload_size); // SRAMController.scala:L293
-                      end
-                    `endif
-                  `endif
-                  fsm_transaction_error_occurred <= 1'b1;
-                end else begin
-                  if(when_SRAMController_l296) begin
-                    `ifndef SYNTHESIS
-                      `ifdef FORMAL
-                        assert(1'b0); // SRAMController.scala:L297
-                      `else
-                        if(!1'b0) begin
-                          $display("NOTE(SRAMController.scala:297):  1 AW Error - Address out of bounds. Byte Offset (calc)=0x%x, End Offset (calc)=0x%x, SRAM Size=4194304", _zz_fsm_current_sram_addr, _zz_when_SRAMController_l296_1); // SRAMController.scala:L297
-                        end
-                      `endif
-                    `endif
-                    fsm_transaction_error_occurred <= 1'b1;
-                  end else begin
-                    `ifndef SYNTHESIS
-                      `ifdef FORMAL
-                        assert(1'b0); // SRAMController.scala:L305
-                      `else
-                        if(!1'b0) begin
-                          $display("NOTE(SRAMController.scala:305):  1 will go to WRITE_DATA_FETCH next cycle"); // SRAMController.scala:L305
-                        end
-                      `endif
-                    `endif
-                  end
-                end
-              end
-            end
           end
           if(io_axi_ar_fire) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // SRAMController.scala:L314
+                assert(1'b0); // SRAMController.scala:L313
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SRAMController.scala:314):  1 AR Fire. Addr=0x%x, ID=%x, Len=%x, Burst=%x, Size=%x", io_axi_ar_payload_addr, io_axi_ar_payload_id, io_axi_ar_payload_len, io_axi_ar_payload_burst, io_axi_ar_payload_size); // SRAMController.scala:L314
+                  $display("NOTE(SRAMController.scala:313):  1 AR Fire. Addr=0x%x, ID=%x, Len=%x, Burst=%x, Size=%x", io_axi_ar_payload_addr, io_axi_ar_payload_id, io_axi_ar_payload_len, io_axi_ar_payload_burst, io_axi_ar_payload_size); // SRAMController.scala:L313
                 end
               `endif
             `endif
             fsm_read_priority <= (! fsm_read_priority);
-            if(when_SRAMController_l354) begin
-              `ifndef SYNTHESIS
-                `ifdef FORMAL
-                  assert(1'b0); // SRAMController.scala:L355
-                `else
-                  if(!1'b0) begin
-                    $display("NOTE(SRAMController.scala:355):  1 AR Error - Unsupported burst type: %x", io_axi_ar_payload_burst); // SRAMController.scala:L355
-                  end
-                `endif
-              `endif
-              fsm_transaction_error_occurred <= 1'b1;
-            end else begin
-              if(when_SRAMController_l358) begin
-                `ifndef SYNTHESIS
-                  `ifdef FORMAL
-                    assert(1'b0); // SRAMController.scala:L359
-                  `else
-                    if(!1'b0) begin
-                      $display("NOTE(SRAMController.scala:359):  1 AR Error - Address unaligned: 0x%x for size %x or word boundary", io_axi_ar_payload_addr, _zz_when_SRAMController_l358); // SRAMController.scala:L359
-                    end
-                  `endif
-                `endif
-                fsm_transaction_error_occurred <= 1'b1;
-              end else begin
-                if(when_SRAMController_l362) begin
-                  `ifndef SYNTHESIS
-                    `ifdef FORMAL
-                      assert(1'b0); // SRAMController.scala:L363
-                    `else
-                      if(!1'b0) begin
-                        $display("NOTE(SRAMController.scala:363):  1 AR Error - Incompatible size: %x for word addressing mode", io_axi_ar_payload_size); // SRAMController.scala:L363
-                      end
-                    `endif
-                  `endif
-                  fsm_transaction_error_occurred <= 1'b1;
-                end else begin
-                  if(when_SRAMController_l366) begin
-                    `ifndef SYNTHESIS
-                      `ifdef FORMAL
-                        assert(1'b0); // SRAMController.scala:L367
-                      `else
-                        if(!1'b0) begin
-                          $display("NOTE(SRAMController.scala:367):  1 AR Error - Address out of bounds. Byte Offset (calc)=0x%x, End Offset (calc)=0x%x, SRAM Size=4194304", _zz_fsm_current_sram_addr_1, _zz_when_SRAMController_l366_1); // SRAMController.scala:L367
-                        end
-                      `endif
-                    `endif
-                    fsm_transaction_error_occurred <= 1'b1;
-                  end
-                end
-              end
-            end
+          end
+        end
+        fsm_VALIDATE : begin
+          if(when_SRAMController_l350) begin
+            fsm_transaction_error_occurred <= 1'b1;
+          end else begin
+            fsm_transaction_error_occurred <= 1'b0;
           end
         end
         fsm_WRITE_DATA_FETCH : begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // SRAMController.scala:L396
+              assert(1'b0); // SRAMController.scala:L389
             `else
               if(!1'b0) begin
-                $display("NOTE(SRAMController.scala:396):  1 WRITE_DATA_FETCH. SRAM_Target_Addr=0x%x, BurstCountRem=%x", fsm_current_sram_addr, fsm_burst_count_remaining); // SRAMController.scala:L396
+                $display("NOTE(SRAMController.scala:389):  1 WRITE_DATA_FETCH. SRAM_Target_Addr=0x%x, BurstCountRem=%x", fsm_current_sram_addr, fsm_burst_count_remaining); // SRAMController.scala:L389
               end
             `endif
           `endif
           if(io_axi_w_fire) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // SRAMController.scala:L402
+                assert(1'b0); // SRAMController.scala:L395
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SRAMController.scala:402):  1 W Fire. Data=0x%x, Strb=0x%x, Last=%x", io_axi_w_payload_data, io_axi_w_payload_strb, io_axi_w_payload_last); // SRAMController.scala:L402
+                  $display("NOTE(SRAMController.scala:395):  1 W Fire. Data=0x%x, Strb=0x%x, Last=%x", io_axi_w_payload_data, io_axi_w_payload_strb, io_axi_w_payload_last); // SRAMController.scala:L395
                 end
               `endif
             `endif
@@ -48963,10 +48831,10 @@ module SRAMController_1 (
         fsm_WRITE_DATA_ERROR_CONSUME : begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // SRAMController.scala:L529
+              assert(1'b0); // SRAMController.scala:L522
             `else
               if(!1'b0) begin
-                $display("NOTE(SRAMController.scala:529):  1 WRITE_DATA_ERROR_CONSUME. BurstCountRem=%x", fsm_burst_count_remaining); // SRAMController.scala:L529
+                $display("NOTE(SRAMController.scala:522):  1 WRITE_DATA_ERROR_CONSUME. BurstCountRem=%x", fsm_burst_count_remaining); // SRAMController.scala:L522
               end
             `endif
           `endif
@@ -48974,20 +48842,20 @@ module SRAMController_1 (
         fsm_WRITE_RESPONSE : begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // SRAMController.scala:L554
+              assert(1'b0); // SRAMController.scala:L547
             `else
               if(!1'b0) begin
-                $display("NOTE(SRAMController.scala:554):  1 WRITE_RESPONSE. ID=%x, Resp=%x, Addr=%x, Len=%x, Size=%x, Burst=%x, Lock=<null>, Cache=<null>, Prot=<null>, Qos=<null>, Region=<null>", fsm_aw_cmd_reg_id, _zz_io_axi_b_payload_resp, fsm_aw_cmd_reg_addr, fsm_aw_cmd_reg_len, fsm_aw_cmd_reg_size, fsm_aw_cmd_reg_burst); // SRAMController.scala:L554
+                $display("NOTE(SRAMController.scala:547):  1 WRITE_RESPONSE. ID=%x, Resp=%x, Addr=%x, Len=%x, Size=%x, Burst=%x, Lock=<null>, Cache=<null>, Prot=<null>, Qos=<null>, Region=<null>", fsm_aw_cmd_reg_id, _zz_io_axi_b_payload_resp, fsm_aw_cmd_reg_addr, fsm_aw_cmd_reg_len, fsm_aw_cmd_reg_size, fsm_aw_cmd_reg_burst); // SRAMController.scala:L547
               end
             `endif
           `endif
           if(io_axi_b_ready) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // SRAMController.scala:L560
+                assert(1'b0); // SRAMController.scala:L553
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SRAMController.scala:560):  1 B Ready. ID=%x, Resp=%x", fsm_aw_cmd_reg_id, _zz_io_axi_b_payload_resp); // SRAMController.scala:L560
+                  $display("NOTE(SRAMController.scala:553):  1 B Ready. ID=%x, Resp=%x", fsm_aw_cmd_reg_id, _zz_io_axi_b_payload_resp); // SRAMController.scala:L553
                 end
               `endif
             `endif
@@ -48996,10 +48864,10 @@ module SRAMController_1 (
         fsm_READ_SETUP : begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // SRAMController.scala:L577
+              assert(1'b0); // SRAMController.scala:L570
             `else
               if(!1'b0) begin
-                $display("NOTE(SRAMController.scala:577):  1 READ_SETUP. SRAM Addr=0x%x, BurstCountRem=%x", fsm_current_sram_addr, fsm_burst_count_remaining); // SRAMController.scala:L577
+                $display("NOTE(SRAMController.scala:570):  1 READ_SETUP. SRAM Addr=0x%x, BurstCountRem=%x", fsm_current_sram_addr, fsm_burst_count_remaining); // SRAMController.scala:L570
               end
             `endif
           `endif
@@ -49014,10 +48882,10 @@ module SRAMController_1 (
         fsm_READ_WAIT : begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // SRAMController.scala:L613
+              assert(1'b0); // SRAMController.scala:L606
             `else
               if(!1'b0) begin
-                $display("NOTE(SRAMController.scala:613):  1 READ_WAIT. SRAM Addr=0x%x, WaitCounter=%x, AddrPrefetchValid=%x", sram_addr_out_reg, fsm_read_wait_counter, fsm_addr_prefetch_valid); // SRAMController.scala:L613
+                $display("NOTE(SRAMController.scala:606):  1 READ_WAIT. SRAM Addr=0x%x, WaitCounter=%x, AddrPrefetchValid=%x", sram_addr_out_reg, fsm_read_wait_counter, fsm_addr_prefetch_valid); // SRAMController.scala:L606
               end
             `endif
           `endif
@@ -49025,14 +48893,14 @@ module SRAMController_1 (
           sram_oe_n_out_reg <= 1'b0;
           sram_we_n_out_reg <= 1'b1;
           sram_data_writeEnable_out_reg <= 1'b0;
-          if(when_SRAMController_l629) begin
+          if(when_SRAMController_l622) begin
             fsm_addr_prefetch_valid <= 1'b1;
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // SRAMController.scala:L633
+                assert(1'b0); // SRAMController.scala:L626
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SRAMController.scala:633):  1 Address prefetch at wait_cycle %x - Next sram_addr 0x%x", fsm_read_wait_counter, _zz_1); // SRAMController.scala:L633
+                  $display("NOTE(SRAMController.scala:626):  1 Address prefetch at wait_cycle %x - Next sram_addr 0x%x", fsm_read_wait_counter, _zz_1); // SRAMController.scala:L626
                 end
               `endif
             `endif
@@ -49041,10 +48909,10 @@ module SRAMController_1 (
         fsm_READ_RESPONSE : begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // SRAMController.scala:L665
+              assert(1'b0); // SRAMController.scala:L658
             `else
               if(!1'b0) begin
-                $display("NOTE(SRAMController.scala:665):  1 READ_RESPONSE. ID=%x, Data=0x%x, BurstCountRem=%x, Resp=%x, Last=%x", fsm_ar_cmd_reg_id, fsm_read_data_buffer, fsm_burst_count_remaining, _zz_2, when_SRAMController_l687); // SRAMController.scala:L665
+                $display("NOTE(SRAMController.scala:658):  1 READ_RESPONSE. ID=%x, Data=0x%x, BurstCountRem=%x, Resp=%x, Last=%x", fsm_ar_cmd_reg_id, fsm_read_data_buffer, fsm_burst_count_remaining, _zz_2, when_SRAMController_l680); // SRAMController.scala:L658
               end
             `endif
           `endif
@@ -49057,14 +48925,14 @@ module SRAMController_1 (
           if(io_axi_r_fire) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // SRAMController.scala:L685
+                assert(1'b0); // SRAMController.scala:L678
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SRAMController.scala:685):  1 R Fire. Last=%x", io_axi_r_payload_last); // SRAMController.scala:L685
+                  $display("NOTE(SRAMController.scala:678):  1 R Fire. Last=%x", io_axi_r_payload_last); // SRAMController.scala:L678
                 end
               `endif
             `endif
-            if(!when_SRAMController_l687) begin
+            if(!when_SRAMController_l680) begin
               if(fsm_addr_prefetch_valid) begin
                 fsm_addr_prefetch_valid <= 1'b0;
               end
@@ -49072,10 +48940,10 @@ module SRAMController_1 (
           end else begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // SRAMController.scala:L699
+                assert(1'b0); // SRAMController.scala:L692
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SRAMController.scala:699):  io.axi.r.valid = %x, io.axi.r.ready = %x", io_axi_r_valid, io_axi_r_ready); // SRAMController.scala:L699
+                  $display("NOTE(SRAMController.scala:692):  io.axi.r.valid = %x, io.axi.r.ready = %x", io_axi_r_valid, io_axi_r_ready); // SRAMController.scala:L692
                 end
               `endif
             `endif
@@ -49084,30 +48952,30 @@ module SRAMController_1 (
         fsm_READ_RESPONSE_ERROR : begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // SRAMController.scala:L725
+              assert(1'b0); // SRAMController.scala:L718
             `else
               if(!1'b0) begin
-                $display("NOTE(SRAMController.scala:725):  1 READ_RESPONSE_ERROR. ID=%x, BurstCountRem=%x, Resp=%x, Last=%x, r.valid=%x, r.ready=%x, r.fire=%x", fsm_ar_cmd_reg_id, fsm_burst_count_remaining, _zz_3, when_SRAMController_l739, io_axi_r_valid, io_axi_r_ready, io_axi_r_fire); // SRAMController.scala:L725
+                $display("NOTE(SRAMController.scala:718):  1 READ_RESPONSE_ERROR. ID=%x, BurstCountRem=%x, Resp=%x, Last=%x, r.valid=%x, r.ready=%x, r.fire=%x", fsm_ar_cmd_reg_id, fsm_burst_count_remaining, _zz_3, when_SRAMController_l732, io_axi_r_valid, io_axi_r_ready, io_axi_r_fire); // SRAMController.scala:L718
               end
             `endif
           `endif
           if(io_axi_r_fire) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // SRAMController.scala:L737
+                assert(1'b0); // SRAMController.scala:L730
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SRAMController.scala:737):  1 READ_RESPONSE_ERROR - r.fire detected! BurstCountRem=%x, is_last_beat=%x", fsm_burst_count_remaining, when_SRAMController_l739); // SRAMController.scala:L737
+                  $display("NOTE(SRAMController.scala:730):  1 READ_RESPONSE_ERROR - r.fire detected! BurstCountRem=%x, is_last_beat=%x", fsm_burst_count_remaining, when_SRAMController_l732); // SRAMController.scala:L730
                 end
               `endif
             `endif
-            if(when_SRAMController_l739) begin
+            if(when_SRAMController_l732) begin
               `ifndef SYNTHESIS
                 `ifdef FORMAL
-                  assert(1'b0); // SRAMController.scala:L741
+                  assert(1'b0); // SRAMController.scala:L734
                 `else
                   if(!1'b0) begin
-                    $display("NOTE(SRAMController.scala:741):  1 READ_RESPONSE_ERROR - Going to IDLE"); // SRAMController.scala:L741
+                    $display("NOTE(SRAMController.scala:734):  1 READ_RESPONSE_ERROR - Going to IDLE"); // SRAMController.scala:L734
                   end
                 `endif
               `endif
@@ -49209,10 +49077,10 @@ module SRAMController_1 (
       _zz_4 <= (_zz_4 + 32'h00000001);
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // SRAMController.scala:L758
+          assert(1'b0); // SRAMController.scala:L751
         `else
           if(!1'b0) begin
-            $display("NOTE(SRAMController.scala:758):  SRAMController 1 - Cycle %x: AXI Status\n  FSM State: %s\n  AW: v=%x r=%x fire=%x addr=%x id=%x len=%x size=%x burst=%x\n  AR: v=%x r=%x fire=%x addr=%x\n  W: v=%x r=%x fire=%x data=%x strb=%x last=%x\n  R: v=%x r=%x fire=%x data=%x last=%x\n  B: v=%x r=%x fire=%x\n  Internal: BurstRemaining=%x, CurrentSRAMAddr=%x, ReadPriority=%x", _zz_4, fsm_stateReg_string, io_axi_aw_valid, io_axi_aw_ready, io_axi_aw_fire, io_axi_aw_payload_addr, io_axi_aw_payload_id, io_axi_aw_payload_len, io_axi_aw_payload_size, io_axi_aw_payload_burst, io_axi_ar_valid, io_axi_ar_ready, io_axi_ar_fire, io_axi_ar_payload_addr, io_axi_w_valid, io_axi_w_ready, io_axi_w_fire, io_axi_w_payload_data, io_axi_w_payload_strb, io_axi_w_payload_last, io_axi_r_valid, io_axi_r_ready, io_axi_r_fire, io_axi_r_payload_data, io_axi_r_payload_last, io_axi_b_valid, io_axi_b_ready, io_axi_b_fire, fsm_burst_count_remaining, fsm_current_sram_addr, fsm_read_priority); // SRAMController.scala:L758
+            $display("NOTE(SRAMController.scala:751):  SRAMController 1 - Cycle %x: AXI Status\n  FSM State: %s\n  AW: v=%x r=%x fire=%x addr=%x id=%x len=%x size=%x burst=%x\n  AR: v=%x r=%x fire=%x addr=%x\n  W: v=%x r=%x fire=%x data=%x strb=%x last=%x\n  R: v=%x r=%x fire=%x data=%x last=%x\n  B: v=%x r=%x fire=%x\n  Internal: BurstRemaining=%x, CurrentSRAMAddr=%x, ReadPriority=%x", _zz_4, fsm_stateReg_string, io_axi_aw_valid, io_axi_aw_ready, io_axi_aw_fire, io_axi_aw_payload_addr, io_axi_aw_payload_id, io_axi_aw_payload_len, io_axi_aw_payload_size, io_axi_aw_payload_burst, io_axi_ar_valid, io_axi_ar_ready, io_axi_ar_fire, io_axi_ar_payload_addr, io_axi_w_valid, io_axi_w_ready, io_axi_w_fire, io_axi_w_payload_data, io_axi_w_payload_strb, io_axi_w_payload_last, io_axi_r_valid, io_axi_r_ready, io_axi_r_fire, io_axi_r_payload_data, io_axi_r_payload_last, io_axi_b_valid, io_axi_b_ready, io_axi_b_fire, fsm_burst_count_remaining, fsm_current_sram_addr, fsm_read_priority); // SRAMController.scala:L751
           end
         `endif
       `endif
@@ -49229,15 +49097,7 @@ module SRAMController_1 (
           fsm_aw_cmd_reg_size <= io_axi_aw_payload_size;
           fsm_aw_cmd_reg_burst <= io_axi_aw_payload_burst;
           fsm_burst_count_remaining <= {1'd0, _zz_fsm_burst_count_remaining};
-          if(!when_SRAMController_l284) begin
-            if(!when_SRAMController_l288) begin
-              if(!when_SRAMController_l292) begin
-                if(!when_SRAMController_l296) begin
-                  fsm_current_sram_addr <= {2'd0, _zz_fsm_current_sram_addr_2};
-                end
-              end
-            end
-          end
+          fsm_is_write_transaction <= 1'b1;
         end
         if(io_axi_ar_fire) begin
           fsm_ar_cmd_reg_addr <= io_axi_ar_payload_addr;
@@ -49246,22 +49106,21 @@ module SRAMController_1 (
           fsm_ar_cmd_reg_size <= io_axi_ar_payload_size;
           fsm_ar_cmd_reg_burst <= io_axi_ar_payload_burst;
           fsm_burst_count_remaining <= {1'd0, _zz_fsm_burst_count_remaining_1};
-          if(!when_SRAMController_l354) begin
-            if(!when_SRAMController_l358) begin
-              if(!when_SRAMController_l362) begin
-                if(!when_SRAMController_l366) begin
-                  fsm_current_sram_addr <= {2'd0, _zz_fsm_current_sram_addr_3};
-                  fsm_read_wait_counter <= 2'b00;
-                end
-              end
-            end
+          fsm_is_write_transaction <= 1'b0;
+        end
+      end
+      fsm_VALIDATE : begin
+        if(!when_SRAMController_l350) begin
+          fsm_current_sram_addr <= {2'd0, _zz_fsm_current_sram_addr_1};
+          if(!fsm_is_write_transaction) begin
+            fsm_read_wait_counter <= 2'b00;
           end
         end
       end
       fsm_WRITE_DATA_FETCH : begin
       end
       fsm_WRITE_EXECUTE : begin
-        if(when_SRAMController_l440) begin
+        if(when_SRAMController_l433) begin
           fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
         end else begin
           fsm_write_wait_counter <= (fsm_write_wait_counter + 2'b01);
@@ -49270,8 +49129,8 @@ module SRAMController_1 (
       fsm_WRITE_DEASSERT : begin
       end
       fsm_WRITE_FINALIZE : begin
-        if(!when_SRAMController_l500) begin
-          fsm_current_sram_addr <= (fsm_current_sram_addr + _zz_fsm_current_sram_addr_4);
+        if(!when_SRAMController_l493) begin
+          fsm_current_sram_addr <= (fsm_current_sram_addr + _zz_fsm_current_sram_addr_2);
         end
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
@@ -49285,10 +49144,10 @@ module SRAMController_1 (
         fsm_read_wait_counter <= 2'b00;
       end
       fsm_READ_WAIT : begin
-        if(when_SRAMController_l629) begin
+        if(when_SRAMController_l622) begin
           fsm_next_sram_addr_prefetch <= (fsm_current_sram_addr + _zz_fsm_next_sram_addr_prefetch);
         end
-        if(when_SRAMController_l638) begin
+        if(when_SRAMController_l631) begin
           fsm_read_data_buffer <= io_ram_data_read;
         end else begin
           fsm_read_wait_counter <= (fsm_read_wait_counter + 2'b01);
@@ -49297,11 +49156,11 @@ module SRAMController_1 (
       fsm_READ_RESPONSE : begin
         if(io_axi_r_fire) begin
           fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
-          if(!when_SRAMController_l687) begin
+          if(!when_SRAMController_l680) begin
             if(fsm_addr_prefetch_valid) begin
               fsm_current_sram_addr <= fsm_next_sram_addr_prefetch;
             end else begin
-              fsm_current_sram_addr <= (fsm_current_sram_addr + _zz_fsm_current_sram_addr_7);
+              fsm_current_sram_addr <= (fsm_current_sram_addr + _zz_fsm_current_sram_addr_5);
             end
           end
         end
@@ -49365,55 +49224,45 @@ module SRAMController (
 );
   localparam fsm_BOOT = 4'd0;
   localparam fsm_IDLE = 4'd1;
-  localparam fsm_WRITE_DATA_FETCH = 4'd2;
-  localparam fsm_WRITE_EXECUTE = 4'd3;
-  localparam fsm_WRITE_DEASSERT = 4'd4;
-  localparam fsm_WRITE_FINALIZE = 4'd5;
-  localparam fsm_WRITE_DATA_ERROR_CONSUME = 4'd6;
-  localparam fsm_WRITE_RESPONSE = 4'd7;
-  localparam fsm_READ_SETUP = 4'd8;
-  localparam fsm_READ_WAIT = 4'd9;
-  localparam fsm_READ_RESPONSE = 4'd10;
-  localparam fsm_READ_RESPONSE_ERROR = 4'd11;
+  localparam fsm_VALIDATE = 4'd2;
+  localparam fsm_WRITE_DATA_FETCH = 4'd3;
+  localparam fsm_WRITE_EXECUTE = 4'd4;
+  localparam fsm_WRITE_DEASSERT = 4'd5;
+  localparam fsm_WRITE_FINALIZE = 4'd6;
+  localparam fsm_WRITE_DATA_ERROR_CONSUME = 4'd7;
+  localparam fsm_WRITE_RESPONSE = 4'd8;
+  localparam fsm_READ_SETUP = 4'd9;
+  localparam fsm_READ_WAIT = 4'd10;
+  localparam fsm_READ_RESPONSE = 4'd11;
+  localparam fsm_READ_RESPONSE_ERROR = 4'd12;
 
   wire       [7:0]    _zz_fsm_burst_count_remaining;
-  wire       [32:0]   _zz__zz_fsm_current_sram_addr;
-  wire       [65:0]   _zz__zz_when_SRAMController_l296_1;
-  wire       [65:0]   _zz__zz_when_SRAMController_l296_1_1;
-  wire       [65:0]   _zz__zz_when_SRAMController_l296_1_2;
-  wire       [32:0]   _zz__zz_when_SRAMController_l296_1_3;
-  wire       [7:0]    _zz__zz_when_SRAMController_l296_1_4;
-  wire       [65:0]   _zz__zz_when_SRAMController_l296_1_5;
-  wire       [17:0]   _zz_fsm_current_sram_addr_2;
-  wire       [31:0]   _zz_when_SRAMController_l288_1;
-  wire       [7:0]    _zz_when_SRAMController_l288_2;
-  wire       [65:0]   _zz_when_SRAMController_l296_2;
-  wire       [32:0]   _zz_when_SRAMController_l296_3;
   wire       [7:0]    _zz_fsm_burst_count_remaining_1;
-  wire       [32:0]   _zz__zz_fsm_current_sram_addr_1;
-  wire       [65:0]   _zz__zz_when_SRAMController_l366_1;
-  wire       [65:0]   _zz__zz_when_SRAMController_l366_1_1;
-  wire       [65:0]   _zz__zz_when_SRAMController_l366_1_2;
-  wire       [32:0]   _zz__zz_when_SRAMController_l366_1_3;
-  wire       [7:0]    _zz__zz_when_SRAMController_l366_1_4;
-  wire       [65:0]   _zz__zz_when_SRAMController_l366_1_5;
-  wire       [17:0]   _zz_fsm_current_sram_addr_3;
-  wire       [31:0]   _zz_when_SRAMController_l358_1;
-  wire       [7:0]    _zz_when_SRAMController_l358_2;
-  wire       [65:0]   _zz_when_SRAMController_l366_2;
-  wire       [32:0]   _zz_when_SRAMController_l366_3;
-  wire       [19:0]   _zz_fsm_current_sram_addr_4;
-  wire       [7:0]    _zz_fsm_current_sram_addr_5;
-  wire       [7:0]    _zz_fsm_current_sram_addr_6;
+  wire       [32:0]   _zz__zz_fsm_current_sram_addr;
+  wire       [31:0]   _zz_when_SRAMController_l350_4;
+  wire       [7:0]    _zz_when_SRAMController_l350_5;
+  wire       [65:0]   _zz_when_SRAMController_l350_6;
+  wire       [32:0]   _zz_when_SRAMController_l350_7;
+  wire       [65:0]   _zz_when_SRAMController_l350_8;
+  wire       [65:0]   _zz_when_SRAMController_l350_9;
+  wire       [65:0]   _zz_when_SRAMController_l350_10;
+  wire       [65:0]   _zz_when_SRAMController_l350_11;
+  wire       [32:0]   _zz_when_SRAMController_l350_12;
+  wire       [7:0]    _zz_when_SRAMController_l350_13;
+  wire       [65:0]   _zz_when_SRAMController_l350_14;
+  wire       [17:0]   _zz_fsm_current_sram_addr_1;
+  wire       [19:0]   _zz_fsm_current_sram_addr_2;
+  wire       [7:0]    _zz_fsm_current_sram_addr_3;
+  wire       [7:0]    _zz_fsm_current_sram_addr_4;
   wire       [19:0]   _zz_fsm_next_sram_addr_prefetch;
   wire       [7:0]    _zz_fsm_next_sram_addr_prefetch_1;
   wire       [7:0]    _zz_fsm_next_sram_addr_prefetch_2;
   wire       [19:0]   _zz__zz_1;
   wire       [7:0]    _zz__zz_1_1;
   wire       [7:0]    _zz__zz_1_2;
-  wire       [19:0]   _zz_fsm_current_sram_addr_7;
-  wire       [7:0]    _zz_fsm_current_sram_addr_8;
-  wire       [7:0]    _zz_fsm_current_sram_addr_9;
+  wire       [19:0]   _zz_fsm_current_sram_addr_5;
+  wire       [7:0]    _zz_fsm_current_sram_addr_6;
+  wire       [7:0]    _zz_fsm_current_sram_addr_7;
   wire       [3:0]    sram_be_n_inactive_value;
   reg        [19:0]   sram_addr_out_reg;
   reg        [31:0]   sram_data_out_reg;
@@ -49444,43 +49293,35 @@ module SRAMController (
   reg                 fsm_read_priority;
   reg        [19:0]   fsm_next_sram_addr_prefetch;
   reg                 fsm_addr_prefetch_valid;
+  reg                 fsm_is_write_transaction;
   (* MARK_DEBUG = "TRUE" *) reg        [3:0]    fsm_stateReg;
   reg        [3:0]    fsm_stateNext;
-  wire                when_SRAMController_l219;
+  wire                when_SRAMController_l275;
   (* mark_debug = "true" *) wire                io_axi_aw_fire;
-  wire       [32:0]   _zz_fsm_current_sram_addr;
-  wire       [7:0]    _zz_when_SRAMController_l288;
-  wire       [32:0]   _zz_when_SRAMController_l296;
-  wire       [65:0]   _zz_when_SRAMController_l296_1;
-  wire                when_SRAMController_l284;
-  wire                when_SRAMController_l288;
-  wire                when_SRAMController_l292;
-  wire                when_SRAMController_l296;
   (* mark_debug = "true" *) wire                io_axi_ar_fire;
-  wire       [32:0]   _zz_fsm_current_sram_addr_1;
-  wire       [7:0]    _zz_when_SRAMController_l358;
-  wire       [32:0]   _zz_when_SRAMController_l366;
-  wire       [65:0]   _zz_when_SRAMController_l366_1;
-  wire                when_SRAMController_l354;
-  wire                when_SRAMController_l358;
-  wire                when_SRAMController_l362;
-  wire                when_SRAMController_l366;
+  wire       [31:0]   _zz_when_SRAMController_l350;
+  wire       [2:0]    _zz_when_SRAMController_l350_1;
+  wire       [32:0]   _zz_fsm_current_sram_addr;
+  wire       [7:0]    _zz_when_SRAMController_l350_2;
+  wire       [32:0]   _zz_when_SRAMController_l350_3;
+  wire                when_SRAMController_l350;
   (* mark_debug = "true" *) wire                io_axi_w_fire;
-  wire                when_SRAMController_l440;
-  wire                when_SRAMController_l475;
-  wire                when_SRAMController_l500;
-  wire                when_SRAMController_l533;
+  wire                when_SRAMController_l433;
+  wire                when_SRAMController_l468;
+  wire                when_SRAMController_l493;
+  wire                when_SRAMController_l526;
   wire       [1:0]    _zz_io_axi_b_payload_resp;
-  wire                when_SRAMController_l629;
+  wire                when_SRAMController_l622;
   wire       [19:0]   _zz_1;
-  wire                when_SRAMController_l638;
-  wire                when_SRAMController_l687;
+  wire                when_SRAMController_l631;
+  wire                when_SRAMController_l680;
   wire       [1:0]    _zz_2;
   (* mark_debug = "true" *) wire                io_axi_r_fire;
-  wire                when_SRAMController_l739;
+  wire                when_SRAMController_l732;
   wire       [1:0]    _zz_3;
   wire                fsm_onExit_BOOT;
   wire                fsm_onExit_IDLE;
+  wire                fsm_onExit_VALIDATE;
   wire                fsm_onExit_WRITE_DATA_FETCH;
   wire                fsm_onExit_WRITE_EXECUTE;
   wire                fsm_onExit_WRITE_DEASSERT;
@@ -49493,6 +49334,7 @@ module SRAMController (
   wire                fsm_onExit_READ_RESPONSE_ERROR;
   wire                fsm_onEntry_BOOT;
   wire                fsm_onEntry_IDLE;
+  wire                fsm_onEntry_VALIDATE;
   wire                fsm_onEntry_WRITE_DATA_FETCH;
   wire                fsm_onEntry_WRITE_EXECUTE;
   wire                fsm_onEntry_WRITE_DEASSERT;
@@ -49512,48 +49354,38 @@ module SRAMController (
 
 
   assign _zz_fsm_burst_count_remaining = (io_axi_aw_payload_len + 8'h01);
-  assign _zz__zz_fsm_current_sram_addr = {1'd0, io_axi_aw_payload_addr};
-  assign _zz__zz_when_SRAMController_l296_1 = (_zz__zz_when_SRAMController_l296_1_1 + _zz__zz_when_SRAMController_l296_1_2);
-  assign _zz__zz_when_SRAMController_l296_1_1 = {33'd0, _zz_fsm_current_sram_addr};
-  assign _zz__zz_when_SRAMController_l296_1_2 = (_zz__zz_when_SRAMController_l296_1_3 * _zz_when_SRAMController_l296);
-  assign _zz__zz_when_SRAMController_l296_1_4 = (io_axi_aw_payload_len + 8'h01);
-  assign _zz__zz_when_SRAMController_l296_1_3 = {25'd0, _zz__zz_when_SRAMController_l296_1_4};
-  assign _zz__zz_when_SRAMController_l296_1_5 = {33'd0, _zz_when_SRAMController_l296};
-  assign _zz_fsm_current_sram_addr_2 = (_zz_fsm_current_sram_addr[19 : 0] >>> 2'd2);
-  assign _zz_when_SRAMController_l288_2 = (_zz_when_SRAMController_l288 - 8'h01);
-  assign _zz_when_SRAMController_l288_1 = {24'd0, _zz_when_SRAMController_l288_2};
-  assign _zz_when_SRAMController_l296_3 = 33'h000400000;
-  assign _zz_when_SRAMController_l296_2 = {33'd0, _zz_when_SRAMController_l296_3};
   assign _zz_fsm_burst_count_remaining_1 = (io_axi_ar_payload_len + 8'h01);
-  assign _zz__zz_fsm_current_sram_addr_1 = {1'd0, io_axi_ar_payload_addr};
-  assign _zz__zz_when_SRAMController_l366_1 = (_zz__zz_when_SRAMController_l366_1_1 + _zz__zz_when_SRAMController_l366_1_2);
-  assign _zz__zz_when_SRAMController_l366_1_1 = {33'd0, _zz_fsm_current_sram_addr_1};
-  assign _zz__zz_when_SRAMController_l366_1_2 = (_zz__zz_when_SRAMController_l366_1_3 * _zz_when_SRAMController_l366);
-  assign _zz__zz_when_SRAMController_l366_1_4 = (io_axi_ar_payload_len + 8'h01);
-  assign _zz__zz_when_SRAMController_l366_1_3 = {25'd0, _zz__zz_when_SRAMController_l366_1_4};
-  assign _zz__zz_when_SRAMController_l366_1_5 = {33'd0, _zz_when_SRAMController_l366};
-  assign _zz_fsm_current_sram_addr_3 = (_zz_fsm_current_sram_addr_1[19 : 0] >>> 2'd2);
-  assign _zz_when_SRAMController_l358_2 = (_zz_when_SRAMController_l358 - 8'h01);
-  assign _zz_when_SRAMController_l358_1 = {24'd0, _zz_when_SRAMController_l358_2};
-  assign _zz_when_SRAMController_l366_3 = 33'h000400000;
-  assign _zz_when_SRAMController_l366_2 = {33'd0, _zz_when_SRAMController_l366_3};
-  assign _zz_fsm_current_sram_addr_5 = (_zz_fsm_current_sram_addr_6 / 3'b100);
-  assign _zz_fsm_current_sram_addr_4 = {12'd0, _zz_fsm_current_sram_addr_5};
-  assign _zz_fsm_current_sram_addr_6 = ({7'd0,1'b1} <<< fsm_aw_cmd_reg_size);
+  assign _zz__zz_fsm_current_sram_addr = {1'd0, _zz_when_SRAMController_l350};
+  assign _zz_when_SRAMController_l350_5 = (_zz_when_SRAMController_l350_2 - 8'h01);
+  assign _zz_when_SRAMController_l350_4 = {24'd0, _zz_when_SRAMController_l350_5};
+  assign _zz_when_SRAMController_l350_7 = 33'h000400000;
+  assign _zz_when_SRAMController_l350_6 = {33'd0, _zz_when_SRAMController_l350_7};
+  assign _zz_when_SRAMController_l350_8 = (_zz_when_SRAMController_l350_9 - _zz_when_SRAMController_l350_14);
+  assign _zz_when_SRAMController_l350_9 = (_zz_when_SRAMController_l350_10 + _zz_when_SRAMController_l350_11);
+  assign _zz_when_SRAMController_l350_10 = {33'd0, _zz_fsm_current_sram_addr};
+  assign _zz_when_SRAMController_l350_11 = (_zz_when_SRAMController_l350_12 * _zz_when_SRAMController_l350_3);
+  assign _zz_when_SRAMController_l350_13 = ((fsm_is_write_transaction ? fsm_aw_cmd_reg_len : fsm_ar_cmd_reg_len) + 8'h01);
+  assign _zz_when_SRAMController_l350_12 = {25'd0, _zz_when_SRAMController_l350_13};
+  assign _zz_when_SRAMController_l350_14 = {33'd0, _zz_when_SRAMController_l350_3};
+  assign _zz_fsm_current_sram_addr_1 = (_zz_fsm_current_sram_addr[19 : 0] >>> 2'd2);
+  assign _zz_fsm_current_sram_addr_3 = (_zz_fsm_current_sram_addr_4 / 3'b100);
+  assign _zz_fsm_current_sram_addr_2 = {12'd0, _zz_fsm_current_sram_addr_3};
+  assign _zz_fsm_current_sram_addr_4 = ({7'd0,1'b1} <<< fsm_aw_cmd_reg_size);
   assign _zz_fsm_next_sram_addr_prefetch_1 = (_zz_fsm_next_sram_addr_prefetch_2 / 3'b100);
   assign _zz_fsm_next_sram_addr_prefetch = {12'd0, _zz_fsm_next_sram_addr_prefetch_1};
   assign _zz_fsm_next_sram_addr_prefetch_2 = ({7'd0,1'b1} <<< fsm_ar_cmd_reg_size);
   assign _zz__zz_1_1 = (_zz__zz_1_2 / 3'b100);
   assign _zz__zz_1 = {12'd0, _zz__zz_1_1};
   assign _zz__zz_1_2 = ({7'd0,1'b1} <<< fsm_ar_cmd_reg_size);
-  assign _zz_fsm_current_sram_addr_8 = (_zz_fsm_current_sram_addr_9 / 3'b100);
-  assign _zz_fsm_current_sram_addr_7 = {12'd0, _zz_fsm_current_sram_addr_8};
-  assign _zz_fsm_current_sram_addr_9 = ({7'd0,1'b1} <<< fsm_ar_cmd_reg_size);
+  assign _zz_fsm_current_sram_addr_6 = (_zz_fsm_current_sram_addr_7 / 3'b100);
+  assign _zz_fsm_current_sram_addr_5 = {12'd0, _zz_fsm_current_sram_addr_6};
+  assign _zz_fsm_current_sram_addr_7 = ({7'd0,1'b1} <<< fsm_ar_cmd_reg_size);
   `ifndef SYNTHESIS
   always @(*) begin
     case(fsm_stateReg)
       fsm_BOOT : fsm_stateReg_string = "BOOT                    ";
       fsm_IDLE : fsm_stateReg_string = "IDLE                    ";
+      fsm_VALIDATE : fsm_stateReg_string = "VALIDATE                ";
       fsm_WRITE_DATA_FETCH : fsm_stateReg_string = "WRITE_DATA_FETCH        ";
       fsm_WRITE_EXECUTE : fsm_stateReg_string = "WRITE_EXECUTE           ";
       fsm_WRITE_DEASSERT : fsm_stateReg_string = "WRITE_DEASSERT          ";
@@ -49571,6 +49403,7 @@ module SRAMController (
     case(fsm_stateNext)
       fsm_BOOT : fsm_stateNext_string = "BOOT                    ";
       fsm_IDLE : fsm_stateNext_string = "IDLE                    ";
+      fsm_VALIDATE : fsm_stateNext_string = "VALIDATE                ";
       fsm_WRITE_DATA_FETCH : fsm_stateNext_string = "WRITE_DATA_FETCH        ";
       fsm_WRITE_EXECUTE : fsm_stateNext_string = "WRITE_EXECUTE           ";
       fsm_WRITE_DEASSERT : fsm_stateNext_string = "WRITE_DEASSERT          ";
@@ -49591,11 +49424,13 @@ module SRAMController (
     case(fsm_stateReg)
       fsm_IDLE : begin
         io_axi_aw_ready = 1'b0;
-        if(when_SRAMController_l219) begin
+        if(when_SRAMController_l275) begin
           io_axi_aw_ready = (! fsm_read_priority);
         end else begin
           io_axi_aw_ready = io_axi_aw_valid;
         end
+      end
+      fsm_VALIDATE : begin
       end
       fsm_WRITE_DATA_FETCH : begin
         io_axi_aw_ready = 1'b0;
@@ -49630,11 +49465,13 @@ module SRAMController (
     case(fsm_stateReg)
       fsm_IDLE : begin
         io_axi_ar_ready = 1'b0;
-        if(when_SRAMController_l219) begin
+        if(when_SRAMController_l275) begin
           io_axi_ar_ready = fsm_read_priority;
         end else begin
           io_axi_ar_ready = io_axi_ar_valid;
         end
+      end
+      fsm_VALIDATE : begin
       end
       fsm_WRITE_DATA_FETCH : begin
         io_axi_ar_ready = 1'b0;
@@ -49670,6 +49507,8 @@ module SRAMController (
       fsm_IDLE : begin
         io_axi_w_ready = 1'b0;
       end
+      fsm_VALIDATE : begin
+      end
       fsm_WRITE_DATA_FETCH : begin
         io_axi_w_ready = 1'b1;
       end
@@ -49703,6 +49542,8 @@ module SRAMController (
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
+      fsm_VALIDATE : begin
+      end
       fsm_WRITE_DATA_FETCH : begin
       end
       fsm_WRITE_EXECUTE : begin
@@ -49733,6 +49574,8 @@ module SRAMController (
     io_axi_r_valid = 1'b0;
     case(fsm_stateReg)
       fsm_IDLE : begin
+      end
+      fsm_VALIDATE : begin
       end
       fsm_WRITE_DATA_FETCH : begin
       end
@@ -49766,6 +49609,8 @@ module SRAMController (
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
+      fsm_VALIDATE : begin
+      end
       fsm_WRITE_DATA_FETCH : begin
       end
       fsm_WRITE_EXECUTE : begin
@@ -49797,6 +49642,8 @@ module SRAMController (
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
+      fsm_VALIDATE : begin
+      end
       fsm_WRITE_DATA_FETCH : begin
       end
       fsm_WRITE_EXECUTE : begin
@@ -49827,6 +49674,8 @@ module SRAMController (
     io_axi_r_payload_id = 7'h0;
     case(fsm_stateReg)
       fsm_IDLE : begin
+      end
+      fsm_VALIDATE : begin
       end
       fsm_WRITE_DATA_FETCH : begin
       end
@@ -49860,6 +49709,8 @@ module SRAMController (
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
+      fsm_VALIDATE : begin
+      end
       fsm_WRITE_DATA_FETCH : begin
       end
       fsm_WRITE_EXECUTE : begin
@@ -49891,6 +49742,8 @@ module SRAMController (
     io_axi_r_payload_resp = 2'b00;
     case(fsm_stateReg)
       fsm_IDLE : begin
+      end
+      fsm_VALIDATE : begin
       end
       fsm_WRITE_DATA_FETCH : begin
       end
@@ -49924,6 +49777,8 @@ module SRAMController (
     case(fsm_stateReg)
       fsm_IDLE : begin
       end
+      fsm_VALIDATE : begin
+      end
       fsm_WRITE_DATA_FETCH : begin
       end
       fsm_WRITE_EXECUTE : begin
@@ -49941,10 +49796,10 @@ module SRAMController (
       fsm_READ_WAIT : begin
       end
       fsm_READ_RESPONSE : begin
-        io_axi_r_payload_last = when_SRAMController_l687;
+        io_axi_r_payload_last = when_SRAMController_l680;
       end
       fsm_READ_RESPONSE_ERROR : begin
-        io_axi_r_payload_last = when_SRAMController_l739;
+        io_axi_r_payload_last = when_SRAMController_l732;
       end
       default : begin
       end
@@ -49964,6 +49819,8 @@ module SRAMController (
     fsm_wantStart = 1'b0;
     case(fsm_stateReg)
       fsm_IDLE : begin
+      end
+      fsm_VALIDATE : begin
       end
       fsm_WRITE_DATA_FETCH : begin
       end
@@ -49997,41 +49854,24 @@ module SRAMController (
     case(fsm_stateReg)
       fsm_IDLE : begin
         if(io_axi_aw_fire) begin
-          if(when_SRAMController_l284) begin
-            fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
-          end else begin
-            if(when_SRAMController_l288) begin
-              fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
-            end else begin
-              if(when_SRAMController_l292) begin
-                fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
-              end else begin
-                if(when_SRAMController_l296) begin
-                  fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
-                end else begin
-                  fsm_stateNext = fsm_WRITE_DATA_FETCH;
-                end
-              end
-            end
-          end
+          fsm_stateNext = fsm_VALIDATE;
         end
         if(io_axi_ar_fire) begin
-          if(when_SRAMController_l354) begin
-            fsm_stateNext = fsm_READ_RESPONSE_ERROR;
+          fsm_stateNext = fsm_VALIDATE;
+        end
+      end
+      fsm_VALIDATE : begin
+        if(when_SRAMController_l350) begin
+          if(fsm_is_write_transaction) begin
+            fsm_stateNext = fsm_WRITE_DATA_ERROR_CONSUME;
           end else begin
-            if(when_SRAMController_l358) begin
-              fsm_stateNext = fsm_READ_RESPONSE_ERROR;
-            end else begin
-              if(when_SRAMController_l362) begin
-                fsm_stateNext = fsm_READ_RESPONSE_ERROR;
-              end else begin
-                if(when_SRAMController_l366) begin
-                  fsm_stateNext = fsm_READ_RESPONSE_ERROR;
-                end else begin
-                  fsm_stateNext = fsm_READ_SETUP;
-                end
-              end
-            end
+            fsm_stateNext = fsm_READ_RESPONSE_ERROR;
+          end
+        end else begin
+          if(fsm_is_write_transaction) begin
+            fsm_stateNext = fsm_WRITE_DATA_FETCH;
+          end else begin
+            fsm_stateNext = fsm_READ_SETUP;
           end
         end
       end
@@ -50041,17 +49881,17 @@ module SRAMController (
         end
       end
       fsm_WRITE_EXECUTE : begin
-        if(when_SRAMController_l440) begin
+        if(when_SRAMController_l433) begin
           fsm_stateNext = fsm_WRITE_DEASSERT;
         end
       end
       fsm_WRITE_DEASSERT : begin
-        if(when_SRAMController_l475) begin
+        if(when_SRAMController_l468) begin
           fsm_stateNext = fsm_WRITE_FINALIZE;
         end
       end
       fsm_WRITE_FINALIZE : begin
-        if(when_SRAMController_l500) begin
+        if(when_SRAMController_l493) begin
           fsm_stateNext = fsm_WRITE_RESPONSE;
         end else begin
           fsm_stateNext = fsm_WRITE_DATA_FETCH;
@@ -50059,7 +49899,7 @@ module SRAMController (
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
         if(io_axi_w_fire) begin
-          if(when_SRAMController_l533) begin
+          if(when_SRAMController_l526) begin
             fsm_stateNext = fsm_WRITE_RESPONSE;
           end
         end
@@ -50073,13 +49913,13 @@ module SRAMController (
         fsm_stateNext = fsm_READ_WAIT;
       end
       fsm_READ_WAIT : begin
-        if(when_SRAMController_l638) begin
+        if(when_SRAMController_l631) begin
           fsm_stateNext = fsm_READ_RESPONSE;
         end
       end
       fsm_READ_RESPONSE : begin
         if(io_axi_r_fire) begin
-          if(when_SRAMController_l687) begin
+          if(when_SRAMController_l680) begin
             fsm_stateNext = fsm_IDLE;
           end else begin
             fsm_stateNext = fsm_READ_SETUP;
@@ -50088,7 +49928,7 @@ module SRAMController (
       end
       fsm_READ_RESPONSE_ERROR : begin
         if(io_axi_r_fire) begin
-          if(when_SRAMController_l739) begin
+          if(when_SRAMController_l732) begin
             fsm_stateNext = fsm_IDLE;
           end
         end
@@ -50104,41 +49944,32 @@ module SRAMController (
     end
   end
 
-  assign when_SRAMController_l219 = (io_axi_aw_valid && io_axi_ar_valid);
+  assign when_SRAMController_l275 = (io_axi_aw_valid && io_axi_ar_valid);
   assign io_axi_aw_fire = (io_axi_aw_valid && io_axi_aw_ready);
-  assign _zz_fsm_current_sram_addr = (_zz__zz_fsm_current_sram_addr - 33'h080000000);
-  assign _zz_when_SRAMController_l288 = ({7'd0,1'b1} <<< io_axi_aw_payload_size);
-  assign _zz_when_SRAMController_l296 = {25'd0, _zz_when_SRAMController_l288};
-  assign _zz_when_SRAMController_l296_1 = (_zz__zz_when_SRAMController_l296_1 - _zz__zz_when_SRAMController_l296_1_5);
-  assign when_SRAMController_l284 = (io_axi_aw_payload_burst != 2'b01);
-  assign when_SRAMController_l288 = ((! ((io_axi_aw_payload_addr & _zz_when_SRAMController_l288_1) == 32'h0)) || (! ((io_axi_aw_payload_addr & 32'h00000003) == 32'h0)));
-  assign when_SRAMController_l292 = (! (io_axi_aw_payload_size == 3'b010));
-  assign when_SRAMController_l296 = (_zz_fsm_current_sram_addr[20] || (_zz_when_SRAMController_l296_2 <= _zz_when_SRAMController_l296_1));
   assign io_axi_ar_fire = (io_axi_ar_valid && io_axi_ar_ready);
-  assign _zz_fsm_current_sram_addr_1 = (_zz__zz_fsm_current_sram_addr_1 - 33'h080000000);
-  assign _zz_when_SRAMController_l358 = ({7'd0,1'b1} <<< io_axi_ar_payload_size);
-  assign _zz_when_SRAMController_l366 = {25'd0, _zz_when_SRAMController_l358};
-  assign _zz_when_SRAMController_l366_1 = (_zz__zz_when_SRAMController_l366_1 - _zz__zz_when_SRAMController_l366_1_5);
-  assign when_SRAMController_l354 = (io_axi_ar_payload_burst != 2'b01);
-  assign when_SRAMController_l358 = ((! ((io_axi_ar_payload_addr & _zz_when_SRAMController_l358_1) == 32'h0)) || (! ((io_axi_ar_payload_addr & 32'h00000003) == 32'h0)));
-  assign when_SRAMController_l362 = (! (io_axi_ar_payload_size == 3'b010));
-  assign when_SRAMController_l366 = (_zz_fsm_current_sram_addr_1[20] || (_zz_when_SRAMController_l366_2 <= _zz_when_SRAMController_l366_1));
+  assign _zz_when_SRAMController_l350 = (fsm_is_write_transaction ? fsm_aw_cmd_reg_addr : fsm_ar_cmd_reg_addr);
+  assign _zz_when_SRAMController_l350_1 = (fsm_is_write_transaction ? fsm_aw_cmd_reg_size : fsm_ar_cmd_reg_size);
+  assign _zz_fsm_current_sram_addr = (_zz__zz_fsm_current_sram_addr - 33'h080000000);
+  assign _zz_when_SRAMController_l350_2 = ({7'd0,1'b1} <<< _zz_when_SRAMController_l350_1);
+  assign _zz_when_SRAMController_l350_3 = {25'd0, _zz_when_SRAMController_l350_2};
+  assign when_SRAMController_l350 = (((((((fsm_is_write_transaction ? fsm_aw_cmd_reg_burst : fsm_ar_cmd_reg_burst) != 2'b01) || (! ((_zz_when_SRAMController_l350 & _zz_when_SRAMController_l350_4) == 32'h0))) || (! ((_zz_when_SRAMController_l350 & 32'h00000003) == 32'h0))) || (! (_zz_when_SRAMController_l350_1 == 3'b010))) || _zz_fsm_current_sram_addr[20]) || (_zz_when_SRAMController_l350_6 <= _zz_when_SRAMController_l350_8));
   assign io_axi_w_fire = (io_axi_w_valid && io_axi_w_ready);
-  assign when_SRAMController_l440 = (fsm_write_wait_counter == 2'b10);
-  assign when_SRAMController_l475 = 1'b1;
-  assign when_SRAMController_l500 = (fsm_burst_count_remaining == 9'h0);
-  assign when_SRAMController_l533 = (fsm_burst_count_remaining == 9'h001);
+  assign when_SRAMController_l433 = (fsm_write_wait_counter == 2'b10);
+  assign when_SRAMController_l468 = 1'b1;
+  assign when_SRAMController_l493 = (fsm_burst_count_remaining == 9'h0);
+  assign when_SRAMController_l526 = (fsm_burst_count_remaining == 9'h001);
   assign _zz_io_axi_b_payload_resp = (fsm_transaction_error_occurred ? 2'b10 : 2'b00);
-  assign when_SRAMController_l629 = (((fsm_read_wait_counter == 2'b01) && (9'h001 < fsm_burst_count_remaining)) && (! fsm_addr_prefetch_valid));
+  assign when_SRAMController_l622 = (((fsm_read_wait_counter == 2'b01) && (9'h001 < fsm_burst_count_remaining)) && (! fsm_addr_prefetch_valid));
   assign _zz_1 = (fsm_current_sram_addr + _zz__zz_1);
-  assign when_SRAMController_l638 = (fsm_read_wait_counter == 2'b10);
-  assign when_SRAMController_l687 = (fsm_burst_count_remaining == 9'h001);
+  assign when_SRAMController_l631 = (fsm_read_wait_counter == 2'b10);
+  assign when_SRAMController_l680 = (fsm_burst_count_remaining == 9'h001);
   assign _zz_2 = 2'b00;
   assign io_axi_r_fire = (io_axi_r_valid && io_axi_r_ready);
-  assign when_SRAMController_l739 = (fsm_burst_count_remaining == 9'h001);
+  assign when_SRAMController_l732 = (fsm_burst_count_remaining == 9'h001);
   assign _zz_3 = 2'b10;
   assign fsm_onExit_BOOT = ((fsm_stateNext != fsm_BOOT) && (fsm_stateReg == fsm_BOOT));
   assign fsm_onExit_IDLE = ((fsm_stateNext != fsm_IDLE) && (fsm_stateReg == fsm_IDLE));
+  assign fsm_onExit_VALIDATE = ((fsm_stateNext != fsm_VALIDATE) && (fsm_stateReg == fsm_VALIDATE));
   assign fsm_onExit_WRITE_DATA_FETCH = ((fsm_stateNext != fsm_WRITE_DATA_FETCH) && (fsm_stateReg == fsm_WRITE_DATA_FETCH));
   assign fsm_onExit_WRITE_EXECUTE = ((fsm_stateNext != fsm_WRITE_EXECUTE) && (fsm_stateReg == fsm_WRITE_EXECUTE));
   assign fsm_onExit_WRITE_DEASSERT = ((fsm_stateNext != fsm_WRITE_DEASSERT) && (fsm_stateReg == fsm_WRITE_DEASSERT));
@@ -50151,6 +49982,7 @@ module SRAMController (
   assign fsm_onExit_READ_RESPONSE_ERROR = ((fsm_stateNext != fsm_READ_RESPONSE_ERROR) && (fsm_stateReg == fsm_READ_RESPONSE_ERROR));
   assign fsm_onEntry_BOOT = ((fsm_stateNext == fsm_BOOT) && (fsm_stateReg != fsm_BOOT));
   assign fsm_onEntry_IDLE = ((fsm_stateNext == fsm_IDLE) && (fsm_stateReg != fsm_IDLE));
+  assign fsm_onEntry_VALIDATE = ((fsm_stateNext == fsm_VALIDATE) && (fsm_stateReg != fsm_VALIDATE));
   assign fsm_onEntry_WRITE_DATA_FETCH = ((fsm_stateNext == fsm_WRITE_DATA_FETCH) && (fsm_stateReg != fsm_WRITE_DATA_FETCH));
   assign fsm_onEntry_WRITE_EXECUTE = ((fsm_stateNext == fsm_WRITE_EXECUTE) && (fsm_stateReg != fsm_WRITE_EXECUTE));
   assign fsm_onEntry_WRITE_DEASSERT = ((fsm_stateNext == fsm_WRITE_DEASSERT) && (fsm_stateReg != fsm_WRITE_DEASSERT));
@@ -50179,10 +50011,10 @@ module SRAMController (
     end else begin
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // SRAMController.scala:L158
+          assert(1'b0); // SRAMController.scala:L213
         `else
           if(!1'b0) begin
-            $display("NOTE(SRAMController.scala:158):  [DEBUG] io.ram: SRAMIO(ce_n=%x, oe_n=%x, we_n=%x, addr=%x, data=TriState(writeEnable=%x, read=%x, write=%x), be_n=%x)", io_ram_ce_n, io_ram_oe_n, io_ram_we_n, io_ram_addr, io_ram_data_writeEnable, io_ram_data_read, io_ram_data_write, io_ram_be_n); // SRAMController.scala:L158
+            $display("NOTE(SRAMController.scala:213):  [DEBUG] io.ram: SRAMIO(ce_n=%x, oe_n=%x, we_n=%x, addr=%x, data=TriState(writeEnable=%x, read=%x, write=%x), be_n=%x)", io_ram_ce_n, io_ram_oe_n, io_ram_we_n, io_ram_addr, io_ram_data_writeEnable, io_ram_data_read, io_ram_data_write, io_ram_be_n); // SRAMController.scala:L213
           end
         `endif
       `endif
@@ -50194,157 +50026,52 @@ module SRAMController (
           if(io_axi_aw_fire) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // SRAMController.scala:L237
+                assert(1'b0); // SRAMController.scala:L293
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SRAMController.scala:237):  0 AW Fire. Addr=0x%x, ID=%x, Len=%x, Burst=%x, Size=%x", io_axi_aw_payload_addr, io_axi_aw_payload_id, io_axi_aw_payload_len, io_axi_aw_payload_burst, io_axi_aw_payload_size); // SRAMController.scala:L237
+                  $display("NOTE(SRAMController.scala:293):  0 AW Fire. Addr=0x%x, ID=%x, Len=%x, Burst=%x, Size=%x", io_axi_aw_payload_addr, io_axi_aw_payload_id, io_axi_aw_payload_len, io_axi_aw_payload_burst, io_axi_aw_payload_size); // SRAMController.scala:L293
                 end
               `endif
             `endif
             fsm_read_priority <= (! fsm_read_priority);
-            if(when_SRAMController_l284) begin
-              `ifndef SYNTHESIS
-                `ifdef FORMAL
-                  assert(1'b0); // SRAMController.scala:L285
-                `else
-                  if(!1'b0) begin
-                    $display("NOTE(SRAMController.scala:285):  0 AW Error - Unsupported burst type: %x", io_axi_aw_payload_burst); // SRAMController.scala:L285
-                  end
-                `endif
-              `endif
-              fsm_transaction_error_occurred <= 1'b1;
-            end else begin
-              if(when_SRAMController_l288) begin
-                `ifndef SYNTHESIS
-                  `ifdef FORMAL
-                    assert(1'b0); // SRAMController.scala:L289
-                  `else
-                    if(!1'b0) begin
-                      $display("NOTE(SRAMController.scala:289):  0 AW Error - Address unaligned: 0x%x for size %x or word boundary", io_axi_aw_payload_addr, _zz_when_SRAMController_l288); // SRAMController.scala:L289
-                    end
-                  `endif
-                `endif
-                fsm_transaction_error_occurred <= 1'b1;
-              end else begin
-                if(when_SRAMController_l292) begin
-                  `ifndef SYNTHESIS
-                    `ifdef FORMAL
-                      assert(1'b0); // SRAMController.scala:L293
-                    `else
-                      if(!1'b0) begin
-                        $display("NOTE(SRAMController.scala:293):  0 AW Error - Incompatible size: %x for word addressing mode", io_axi_aw_payload_size); // SRAMController.scala:L293
-                      end
-                    `endif
-                  `endif
-                  fsm_transaction_error_occurred <= 1'b1;
-                end else begin
-                  if(when_SRAMController_l296) begin
-                    `ifndef SYNTHESIS
-                      `ifdef FORMAL
-                        assert(1'b0); // SRAMController.scala:L297
-                      `else
-                        if(!1'b0) begin
-                          $display("NOTE(SRAMController.scala:297):  0 AW Error - Address out of bounds. Byte Offset (calc)=0x%x, End Offset (calc)=0x%x, SRAM Size=4194304", _zz_fsm_current_sram_addr, _zz_when_SRAMController_l296_1); // SRAMController.scala:L297
-                        end
-                      `endif
-                    `endif
-                    fsm_transaction_error_occurred <= 1'b1;
-                  end else begin
-                    `ifndef SYNTHESIS
-                      `ifdef FORMAL
-                        assert(1'b0); // SRAMController.scala:L305
-                      `else
-                        if(!1'b0) begin
-                          $display("NOTE(SRAMController.scala:305):  0 will go to WRITE_DATA_FETCH next cycle"); // SRAMController.scala:L305
-                        end
-                      `endif
-                    `endif
-                  end
-                end
-              end
-            end
           end
           if(io_axi_ar_fire) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // SRAMController.scala:L314
+                assert(1'b0); // SRAMController.scala:L313
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SRAMController.scala:314):  0 AR Fire. Addr=0x%x, ID=%x, Len=%x, Burst=%x, Size=%x", io_axi_ar_payload_addr, io_axi_ar_payload_id, io_axi_ar_payload_len, io_axi_ar_payload_burst, io_axi_ar_payload_size); // SRAMController.scala:L314
+                  $display("NOTE(SRAMController.scala:313):  0 AR Fire. Addr=0x%x, ID=%x, Len=%x, Burst=%x, Size=%x", io_axi_ar_payload_addr, io_axi_ar_payload_id, io_axi_ar_payload_len, io_axi_ar_payload_burst, io_axi_ar_payload_size); // SRAMController.scala:L313
                 end
               `endif
             `endif
             fsm_read_priority <= (! fsm_read_priority);
-            if(when_SRAMController_l354) begin
-              `ifndef SYNTHESIS
-                `ifdef FORMAL
-                  assert(1'b0); // SRAMController.scala:L355
-                `else
-                  if(!1'b0) begin
-                    $display("NOTE(SRAMController.scala:355):  0 AR Error - Unsupported burst type: %x", io_axi_ar_payload_burst); // SRAMController.scala:L355
-                  end
-                `endif
-              `endif
-              fsm_transaction_error_occurred <= 1'b1;
-            end else begin
-              if(when_SRAMController_l358) begin
-                `ifndef SYNTHESIS
-                  `ifdef FORMAL
-                    assert(1'b0); // SRAMController.scala:L359
-                  `else
-                    if(!1'b0) begin
-                      $display("NOTE(SRAMController.scala:359):  0 AR Error - Address unaligned: 0x%x for size %x or word boundary", io_axi_ar_payload_addr, _zz_when_SRAMController_l358); // SRAMController.scala:L359
-                    end
-                  `endif
-                `endif
-                fsm_transaction_error_occurred <= 1'b1;
-              end else begin
-                if(when_SRAMController_l362) begin
-                  `ifndef SYNTHESIS
-                    `ifdef FORMAL
-                      assert(1'b0); // SRAMController.scala:L363
-                    `else
-                      if(!1'b0) begin
-                        $display("NOTE(SRAMController.scala:363):  0 AR Error - Incompatible size: %x for word addressing mode", io_axi_ar_payload_size); // SRAMController.scala:L363
-                      end
-                    `endif
-                  `endif
-                  fsm_transaction_error_occurred <= 1'b1;
-                end else begin
-                  if(when_SRAMController_l366) begin
-                    `ifndef SYNTHESIS
-                      `ifdef FORMAL
-                        assert(1'b0); // SRAMController.scala:L367
-                      `else
-                        if(!1'b0) begin
-                          $display("NOTE(SRAMController.scala:367):  0 AR Error - Address out of bounds. Byte Offset (calc)=0x%x, End Offset (calc)=0x%x, SRAM Size=4194304", _zz_fsm_current_sram_addr_1, _zz_when_SRAMController_l366_1); // SRAMController.scala:L367
-                        end
-                      `endif
-                    `endif
-                    fsm_transaction_error_occurred <= 1'b1;
-                  end
-                end
-              end
-            end
+          end
+        end
+        fsm_VALIDATE : begin
+          if(when_SRAMController_l350) begin
+            fsm_transaction_error_occurred <= 1'b1;
+          end else begin
+            fsm_transaction_error_occurred <= 1'b0;
           end
         end
         fsm_WRITE_DATA_FETCH : begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // SRAMController.scala:L396
+              assert(1'b0); // SRAMController.scala:L389
             `else
               if(!1'b0) begin
-                $display("NOTE(SRAMController.scala:396):  0 WRITE_DATA_FETCH. SRAM_Target_Addr=0x%x, BurstCountRem=%x", fsm_current_sram_addr, fsm_burst_count_remaining); // SRAMController.scala:L396
+                $display("NOTE(SRAMController.scala:389):  0 WRITE_DATA_FETCH. SRAM_Target_Addr=0x%x, BurstCountRem=%x", fsm_current_sram_addr, fsm_burst_count_remaining); // SRAMController.scala:L389
               end
             `endif
           `endif
           if(io_axi_w_fire) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // SRAMController.scala:L402
+                assert(1'b0); // SRAMController.scala:L395
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SRAMController.scala:402):  0 W Fire. Data=0x%x, Strb=0x%x, Last=%x", io_axi_w_payload_data, io_axi_w_payload_strb, io_axi_w_payload_last); // SRAMController.scala:L402
+                  $display("NOTE(SRAMController.scala:395):  0 W Fire. Data=0x%x, Strb=0x%x, Last=%x", io_axi_w_payload_data, io_axi_w_payload_strb, io_axi_w_payload_last); // SRAMController.scala:L395
                 end
               `endif
             `endif
@@ -50368,10 +50095,10 @@ module SRAMController (
         fsm_WRITE_DATA_ERROR_CONSUME : begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // SRAMController.scala:L529
+              assert(1'b0); // SRAMController.scala:L522
             `else
               if(!1'b0) begin
-                $display("NOTE(SRAMController.scala:529):  0 WRITE_DATA_ERROR_CONSUME. BurstCountRem=%x", fsm_burst_count_remaining); // SRAMController.scala:L529
+                $display("NOTE(SRAMController.scala:522):  0 WRITE_DATA_ERROR_CONSUME. BurstCountRem=%x", fsm_burst_count_remaining); // SRAMController.scala:L522
               end
             `endif
           `endif
@@ -50379,20 +50106,20 @@ module SRAMController (
         fsm_WRITE_RESPONSE : begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // SRAMController.scala:L554
+              assert(1'b0); // SRAMController.scala:L547
             `else
               if(!1'b0) begin
-                $display("NOTE(SRAMController.scala:554):  0 WRITE_RESPONSE. ID=%x, Resp=%x, Addr=%x, Len=%x, Size=%x, Burst=%x, Lock=<null>, Cache=<null>, Prot=<null>, Qos=<null>, Region=<null>", fsm_aw_cmd_reg_id, _zz_io_axi_b_payload_resp, fsm_aw_cmd_reg_addr, fsm_aw_cmd_reg_len, fsm_aw_cmd_reg_size, fsm_aw_cmd_reg_burst); // SRAMController.scala:L554
+                $display("NOTE(SRAMController.scala:547):  0 WRITE_RESPONSE. ID=%x, Resp=%x, Addr=%x, Len=%x, Size=%x, Burst=%x, Lock=<null>, Cache=<null>, Prot=<null>, Qos=<null>, Region=<null>", fsm_aw_cmd_reg_id, _zz_io_axi_b_payload_resp, fsm_aw_cmd_reg_addr, fsm_aw_cmd_reg_len, fsm_aw_cmd_reg_size, fsm_aw_cmd_reg_burst); // SRAMController.scala:L547
               end
             `endif
           `endif
           if(io_axi_b_ready) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // SRAMController.scala:L560
+                assert(1'b0); // SRAMController.scala:L553
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SRAMController.scala:560):  0 B Ready. ID=%x, Resp=%x", fsm_aw_cmd_reg_id, _zz_io_axi_b_payload_resp); // SRAMController.scala:L560
+                  $display("NOTE(SRAMController.scala:553):  0 B Ready. ID=%x, Resp=%x", fsm_aw_cmd_reg_id, _zz_io_axi_b_payload_resp); // SRAMController.scala:L553
                 end
               `endif
             `endif
@@ -50401,10 +50128,10 @@ module SRAMController (
         fsm_READ_SETUP : begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // SRAMController.scala:L577
+              assert(1'b0); // SRAMController.scala:L570
             `else
               if(!1'b0) begin
-                $display("NOTE(SRAMController.scala:577):  0 READ_SETUP. SRAM Addr=0x%x, BurstCountRem=%x", fsm_current_sram_addr, fsm_burst_count_remaining); // SRAMController.scala:L577
+                $display("NOTE(SRAMController.scala:570):  0 READ_SETUP. SRAM Addr=0x%x, BurstCountRem=%x", fsm_current_sram_addr, fsm_burst_count_remaining); // SRAMController.scala:L570
               end
             `endif
           `endif
@@ -50419,10 +50146,10 @@ module SRAMController (
         fsm_READ_WAIT : begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // SRAMController.scala:L613
+              assert(1'b0); // SRAMController.scala:L606
             `else
               if(!1'b0) begin
-                $display("NOTE(SRAMController.scala:613):  0 READ_WAIT. SRAM Addr=0x%x, WaitCounter=%x, AddrPrefetchValid=%x", sram_addr_out_reg, fsm_read_wait_counter, fsm_addr_prefetch_valid); // SRAMController.scala:L613
+                $display("NOTE(SRAMController.scala:606):  0 READ_WAIT. SRAM Addr=0x%x, WaitCounter=%x, AddrPrefetchValid=%x", sram_addr_out_reg, fsm_read_wait_counter, fsm_addr_prefetch_valid); // SRAMController.scala:L606
               end
             `endif
           `endif
@@ -50430,14 +50157,14 @@ module SRAMController (
           sram_oe_n_out_reg <= 1'b0;
           sram_we_n_out_reg <= 1'b1;
           sram_data_writeEnable_out_reg <= 1'b0;
-          if(when_SRAMController_l629) begin
+          if(when_SRAMController_l622) begin
             fsm_addr_prefetch_valid <= 1'b1;
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // SRAMController.scala:L633
+                assert(1'b0); // SRAMController.scala:L626
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SRAMController.scala:633):  0 Address prefetch at wait_cycle %x - Next sram_addr 0x%x", fsm_read_wait_counter, _zz_1); // SRAMController.scala:L633
+                  $display("NOTE(SRAMController.scala:626):  0 Address prefetch at wait_cycle %x - Next sram_addr 0x%x", fsm_read_wait_counter, _zz_1); // SRAMController.scala:L626
                 end
               `endif
             `endif
@@ -50446,10 +50173,10 @@ module SRAMController (
         fsm_READ_RESPONSE : begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // SRAMController.scala:L665
+              assert(1'b0); // SRAMController.scala:L658
             `else
               if(!1'b0) begin
-                $display("NOTE(SRAMController.scala:665):  0 READ_RESPONSE. ID=%x, Data=0x%x, BurstCountRem=%x, Resp=%x, Last=%x", fsm_ar_cmd_reg_id, fsm_read_data_buffer, fsm_burst_count_remaining, _zz_2, when_SRAMController_l687); // SRAMController.scala:L665
+                $display("NOTE(SRAMController.scala:658):  0 READ_RESPONSE. ID=%x, Data=0x%x, BurstCountRem=%x, Resp=%x, Last=%x", fsm_ar_cmd_reg_id, fsm_read_data_buffer, fsm_burst_count_remaining, _zz_2, when_SRAMController_l680); // SRAMController.scala:L658
               end
             `endif
           `endif
@@ -50462,14 +50189,14 @@ module SRAMController (
           if(io_axi_r_fire) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // SRAMController.scala:L685
+                assert(1'b0); // SRAMController.scala:L678
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SRAMController.scala:685):  0 R Fire. Last=%x", io_axi_r_payload_last); // SRAMController.scala:L685
+                  $display("NOTE(SRAMController.scala:678):  0 R Fire. Last=%x", io_axi_r_payload_last); // SRAMController.scala:L678
                 end
               `endif
             `endif
-            if(!when_SRAMController_l687) begin
+            if(!when_SRAMController_l680) begin
               if(fsm_addr_prefetch_valid) begin
                 fsm_addr_prefetch_valid <= 1'b0;
               end
@@ -50477,10 +50204,10 @@ module SRAMController (
           end else begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // SRAMController.scala:L699
+                assert(1'b0); // SRAMController.scala:L692
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SRAMController.scala:699):  io.axi.r.valid = %x, io.axi.r.ready = %x", io_axi_r_valid, io_axi_r_ready); // SRAMController.scala:L699
+                  $display("NOTE(SRAMController.scala:692):  io.axi.r.valid = %x, io.axi.r.ready = %x", io_axi_r_valid, io_axi_r_ready); // SRAMController.scala:L692
                 end
               `endif
             `endif
@@ -50489,30 +50216,30 @@ module SRAMController (
         fsm_READ_RESPONSE_ERROR : begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // SRAMController.scala:L725
+              assert(1'b0); // SRAMController.scala:L718
             `else
               if(!1'b0) begin
-                $display("NOTE(SRAMController.scala:725):  0 READ_RESPONSE_ERROR. ID=%x, BurstCountRem=%x, Resp=%x, Last=%x, r.valid=%x, r.ready=%x, r.fire=%x", fsm_ar_cmd_reg_id, fsm_burst_count_remaining, _zz_3, when_SRAMController_l739, io_axi_r_valid, io_axi_r_ready, io_axi_r_fire); // SRAMController.scala:L725
+                $display("NOTE(SRAMController.scala:718):  0 READ_RESPONSE_ERROR. ID=%x, BurstCountRem=%x, Resp=%x, Last=%x, r.valid=%x, r.ready=%x, r.fire=%x", fsm_ar_cmd_reg_id, fsm_burst_count_remaining, _zz_3, when_SRAMController_l732, io_axi_r_valid, io_axi_r_ready, io_axi_r_fire); // SRAMController.scala:L718
               end
             `endif
           `endif
           if(io_axi_r_fire) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // SRAMController.scala:L737
+                assert(1'b0); // SRAMController.scala:L730
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SRAMController.scala:737):  0 READ_RESPONSE_ERROR - r.fire detected! BurstCountRem=%x, is_last_beat=%x", fsm_burst_count_remaining, when_SRAMController_l739); // SRAMController.scala:L737
+                  $display("NOTE(SRAMController.scala:730):  0 READ_RESPONSE_ERROR - r.fire detected! BurstCountRem=%x, is_last_beat=%x", fsm_burst_count_remaining, when_SRAMController_l732); // SRAMController.scala:L730
                 end
               `endif
             `endif
-            if(when_SRAMController_l739) begin
+            if(when_SRAMController_l732) begin
               `ifndef SYNTHESIS
                 `ifdef FORMAL
-                  assert(1'b0); // SRAMController.scala:L741
+                  assert(1'b0); // SRAMController.scala:L734
                 `else
                   if(!1'b0) begin
-                    $display("NOTE(SRAMController.scala:741):  0 READ_RESPONSE_ERROR - Going to IDLE"); // SRAMController.scala:L741
+                    $display("NOTE(SRAMController.scala:734):  0 READ_RESPONSE_ERROR - Going to IDLE"); // SRAMController.scala:L734
                   end
                 `endif
               `endif
@@ -50614,10 +50341,10 @@ module SRAMController (
       _zz_4 <= (_zz_4 + 32'h00000001);
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // SRAMController.scala:L758
+          assert(1'b0); // SRAMController.scala:L751
         `else
           if(!1'b0) begin
-            $display("NOTE(SRAMController.scala:758):  SRAMController 0 - Cycle %x: AXI Status\n  FSM State: %s\n  AW: v=%x r=%x fire=%x addr=%x id=%x len=%x size=%x burst=%x\n  AR: v=%x r=%x fire=%x addr=%x\n  W: v=%x r=%x fire=%x data=%x strb=%x last=%x\n  R: v=%x r=%x fire=%x data=%x last=%x\n  B: v=%x r=%x fire=%x\n  Internal: BurstRemaining=%x, CurrentSRAMAddr=%x, ReadPriority=%x", _zz_4, fsm_stateReg_string, io_axi_aw_valid, io_axi_aw_ready, io_axi_aw_fire, io_axi_aw_payload_addr, io_axi_aw_payload_id, io_axi_aw_payload_len, io_axi_aw_payload_size, io_axi_aw_payload_burst, io_axi_ar_valid, io_axi_ar_ready, io_axi_ar_fire, io_axi_ar_payload_addr, io_axi_w_valid, io_axi_w_ready, io_axi_w_fire, io_axi_w_payload_data, io_axi_w_payload_strb, io_axi_w_payload_last, io_axi_r_valid, io_axi_r_ready, io_axi_r_fire, io_axi_r_payload_data, io_axi_r_payload_last, io_axi_b_valid, io_axi_b_ready, io_axi_b_fire, fsm_burst_count_remaining, fsm_current_sram_addr, fsm_read_priority); // SRAMController.scala:L758
+            $display("NOTE(SRAMController.scala:751):  SRAMController 0 - Cycle %x: AXI Status\n  FSM State: %s\n  AW: v=%x r=%x fire=%x addr=%x id=%x len=%x size=%x burst=%x\n  AR: v=%x r=%x fire=%x addr=%x\n  W: v=%x r=%x fire=%x data=%x strb=%x last=%x\n  R: v=%x r=%x fire=%x data=%x last=%x\n  B: v=%x r=%x fire=%x\n  Internal: BurstRemaining=%x, CurrentSRAMAddr=%x, ReadPriority=%x", _zz_4, fsm_stateReg_string, io_axi_aw_valid, io_axi_aw_ready, io_axi_aw_fire, io_axi_aw_payload_addr, io_axi_aw_payload_id, io_axi_aw_payload_len, io_axi_aw_payload_size, io_axi_aw_payload_burst, io_axi_ar_valid, io_axi_ar_ready, io_axi_ar_fire, io_axi_ar_payload_addr, io_axi_w_valid, io_axi_w_ready, io_axi_w_fire, io_axi_w_payload_data, io_axi_w_payload_strb, io_axi_w_payload_last, io_axi_r_valid, io_axi_r_ready, io_axi_r_fire, io_axi_r_payload_data, io_axi_r_payload_last, io_axi_b_valid, io_axi_b_ready, io_axi_b_fire, fsm_burst_count_remaining, fsm_current_sram_addr, fsm_read_priority); // SRAMController.scala:L751
           end
         `endif
       `endif
@@ -50634,15 +50361,7 @@ module SRAMController (
           fsm_aw_cmd_reg_size <= io_axi_aw_payload_size;
           fsm_aw_cmd_reg_burst <= io_axi_aw_payload_burst;
           fsm_burst_count_remaining <= {1'd0, _zz_fsm_burst_count_remaining};
-          if(!when_SRAMController_l284) begin
-            if(!when_SRAMController_l288) begin
-              if(!when_SRAMController_l292) begin
-                if(!when_SRAMController_l296) begin
-                  fsm_current_sram_addr <= {2'd0, _zz_fsm_current_sram_addr_2};
-                end
-              end
-            end
-          end
+          fsm_is_write_transaction <= 1'b1;
         end
         if(io_axi_ar_fire) begin
           fsm_ar_cmd_reg_addr <= io_axi_ar_payload_addr;
@@ -50651,22 +50370,21 @@ module SRAMController (
           fsm_ar_cmd_reg_size <= io_axi_ar_payload_size;
           fsm_ar_cmd_reg_burst <= io_axi_ar_payload_burst;
           fsm_burst_count_remaining <= {1'd0, _zz_fsm_burst_count_remaining_1};
-          if(!when_SRAMController_l354) begin
-            if(!when_SRAMController_l358) begin
-              if(!when_SRAMController_l362) begin
-                if(!when_SRAMController_l366) begin
-                  fsm_current_sram_addr <= {2'd0, _zz_fsm_current_sram_addr_3};
-                  fsm_read_wait_counter <= 2'b00;
-                end
-              end
-            end
+          fsm_is_write_transaction <= 1'b0;
+        end
+      end
+      fsm_VALIDATE : begin
+        if(!when_SRAMController_l350) begin
+          fsm_current_sram_addr <= {2'd0, _zz_fsm_current_sram_addr_1};
+          if(!fsm_is_write_transaction) begin
+            fsm_read_wait_counter <= 2'b00;
           end
         end
       end
       fsm_WRITE_DATA_FETCH : begin
       end
       fsm_WRITE_EXECUTE : begin
-        if(when_SRAMController_l440) begin
+        if(when_SRAMController_l433) begin
           fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
         end else begin
           fsm_write_wait_counter <= (fsm_write_wait_counter + 2'b01);
@@ -50675,8 +50393,8 @@ module SRAMController (
       fsm_WRITE_DEASSERT : begin
       end
       fsm_WRITE_FINALIZE : begin
-        if(!when_SRAMController_l500) begin
-          fsm_current_sram_addr <= (fsm_current_sram_addr + _zz_fsm_current_sram_addr_4);
+        if(!when_SRAMController_l493) begin
+          fsm_current_sram_addr <= (fsm_current_sram_addr + _zz_fsm_current_sram_addr_2);
         end
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
@@ -50690,10 +50408,10 @@ module SRAMController (
         fsm_read_wait_counter <= 2'b00;
       end
       fsm_READ_WAIT : begin
-        if(when_SRAMController_l629) begin
+        if(when_SRAMController_l622) begin
           fsm_next_sram_addr_prefetch <= (fsm_current_sram_addr + _zz_fsm_next_sram_addr_prefetch);
         end
-        if(when_SRAMController_l638) begin
+        if(when_SRAMController_l631) begin
           fsm_read_data_buffer <= io_ram_data_read;
         end else begin
           fsm_read_wait_counter <= (fsm_read_wait_counter + 2'b01);
@@ -50702,11 +50420,11 @@ module SRAMController (
       fsm_READ_RESPONSE : begin
         if(io_axi_r_fire) begin
           fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
-          if(!when_SRAMController_l687) begin
+          if(!when_SRAMController_l680) begin
             if(fsm_addr_prefetch_valid) begin
               fsm_current_sram_addr <= fsm_next_sram_addr_prefetch;
             end else begin
-              fsm_current_sram_addr <= (fsm_current_sram_addr + _zz_fsm_current_sram_addr_7);
+              fsm_current_sram_addr <= (fsm_current_sram_addr + _zz_fsm_current_sram_addr_5);
             end
           end
         end

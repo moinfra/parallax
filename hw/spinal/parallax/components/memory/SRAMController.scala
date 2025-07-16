@@ -94,6 +94,61 @@ object SRAMController {
 
 // SRAMController 组件
 class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends Component {
+
+  private case class ValidationInput(
+      addr: UInt,
+      len: UInt,
+      size: UInt,
+      burst: Bits
+  ) extends Bundle {
+    // 我们可以根据需要添加更多字段
+  }
+
+  // --- NEW: 将所有重复的验证逻辑提取到一个私有函数中 ---
+  private def performValidation(cmd: ValidationInput): (Bool, UInt) = {
+    // 这个函数包含所有之前重复的计算逻辑
+    // 它返回一个元组: (is_error: Bool, sram_addr: UInt)
+
+    // 1. 扩展操作数
+    val virtualBaseAddressBitLength = if (config.virtualBaseAddress == 0) 1 else log2Up(config.virtualBaseAddress) + 1
+    val maxAddressBitLength = Math.max(axiConfig.addressWidth, virtualBaseAddressBitLength)
+    val extendedWidth = maxAddressBitLength + 1
+    val addr_extended = cmd.addr.resize(extendedWidth)
+    val vbase_extended = U(config.virtualBaseAddress, extendedWidth bits)
+
+    // 2. 执行减法
+    val byte_offset_addr = addr_extended - vbase_extended
+
+    // 3. 计算突发指标
+    val bytesPerBeat = if (axiConfig.useSize) U(1) << cmd.size else U(config.bytesPerWord)
+    val burst_len_extended = (cmd.len + 1).resize(extendedWidth)
+    val bytesPerBeat_extended = bytesPerBeat.resize(extendedWidth)
+    val end_byte_offset_addr = byte_offset_addr + burst_len_extended * bytesPerBeat_extended - bytesPerBeat_extended
+
+    // 4. 执行对齐和兼容性检查
+    val addr_aligned = (cmd.addr & (bytesPerBeat - 1).resize(cmd.addr.getWidth)) === 0
+    val word_aligned_if_needed = if (config.useWordAddressing) {
+        (cmd.addr & U(config.bytesPerWord - 1, cmd.addr.getWidth bits)) === 0
+    } else { True }
+    val size_compatible_if_needed = if (config.useWordAddressing && axiConfig.useSize) {
+        cmd.size === U(log2Up(config.bytesPerWord))
+    } else { True }
+    
+    // 5. 执行最终的边界检查
+    val is_negative = byte_offset_addr(config.addressWidth)
+    val is_out_of_bounds = end_byte_offset_addr >= U(config.sizeBytes, extendedWidth bits)
+
+    // 6. 计算SRAM地址
+    val sram_addr_candidate = (byte_offset_addr(config.addressWidth-1 downto 0) >> config.addressShift).resized
+
+    // 7. 组合所有错误条件
+    val is_error = (cmd.burst =/= Axi4.burst.INCR) || !addr_aligned || !word_aligned_if_needed || !size_compatible_if_needed || is_negative || is_out_of_bounds
+    
+    // 8. 返回结果
+    (is_error, sram_addr_candidate)
+  }
+
+
   val instanceId = SRAMController.nextInstanceId
   require(
     axiConfig.dataWidth == config.dataWidth,
@@ -178,6 +233,7 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
     val next_sram_addr_prefetch = Reg(UInt(config.addressWidth bits))
     val addr_prefetch_valid = Reg(Bool()) init (False)
 
+    val is_write_transaction = Reg(Bool())
 
     val IDLE: State = new State with EntryPoint {
       onEntry {
@@ -244,66 +300,9 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
           burst_count_remaining := (io.axi.aw.len + 1).resize(burst_count_remaining.getWidth)
           read_priority := !read_priority
 
-          // --- Safe Address Calculation and Boundary Check ---
-          // 1. Extend operands to (addressWidth + 1) to safely handle subtraction and boundary comparison.
-          val virtualBaseAddressBitLength = if (config.virtualBaseAddress == 0) 1 else log2Up(config.virtualBaseAddress) + 1 // 计算virtualBaseAddress实际需要的最小位宽
-          val maxAddressBitLength = Math.max(axiConfig.addressWidth, virtualBaseAddressBitLength) // 取AXI地址和虚基地址的最大位宽
-          val extendedWidth = maxAddressBitLength + 1 // 额外加一位用于处理负数或溢出
-          val addr_extended = io.axi.aw.addr.resize(extendedWidth)
-          val vbase_extended = U(config.virtualBaseAddress, extendedWidth bits)
-
-          // 2. Perform subtraction on extended-width UInts. The result is also a UInt.
-          val byte_offset_addr = addr_extended - vbase_extended
-          
-          // 3. Calculate burst metrics using extended width to prevent overflow
-          val bytesPerBeat = if (axiConfig.useSize) U(1) << io.axi.aw.size else U(config.bytesPerWord)
-          val burst_len_extended = (io.axi.aw.len + 1).resize(extendedWidth)
-          val bytesPerBeat_extended = bytesPerBeat.resize(extendedWidth)
-          val end_byte_offset_addr = byte_offset_addr + burst_len_extended * bytesPerBeat_extended - bytesPerBeat_extended
-
-          // 4. Perform alignment and compatibility checks
-          val addr_aligned = (io.axi.aw.addr & (bytesPerBeat - 1).resize(io.axi.aw.addr.getWidth)) === 0
-          val word_aligned_if_needed = if (config.useWordAddressing) {
-              (io.axi.aw.addr & U(config.bytesPerWord - 1, io.axi.aw.addr.getWidth bits)) === 0
-          } else {
-              True
-          }
-          val size_compatible_if_needed = if (config.useWordAddressing && axiConfig.useSize) {
-              // 如果启用字寻址和AXI的Size字段，则需要检查传输大小是否与字大小兼容
-              io.axi.aw.size === U(log2Up(config.bytesPerWord))
-          } else {
-              // 否则，该检查条件永远为True（不相关）
-              True
-          }
-          
-          // 5. Perform the final boundary check using correctly sized operands.
-          // The MSB of byte_offset_addr now correctly indicates if the result of subtraction was negative.
-          val is_negative = byte_offset_addr(config.addressWidth) // Check the new sign bit
-          val is_out_of_bounds = end_byte_offset_addr >= U(config.sizeBytes, extendedWidth bits)
-
-          when(io.axi.aw.burst =/= Axi4.burst.INCR) {
-            if (config.enableLog) report(L"$instanceId AW Error - Unsupported burst type: ${io.axi.aw.burst}")
-            transaction_error_occurred := True
-            goto(WRITE_DATA_ERROR_CONSUME)
-          } elsewhen (!addr_aligned || !word_aligned_if_needed) {
-            if (config.enableLog) report(L"$instanceId AW Error - Address unaligned: 0x${io.axi.aw.addr} for size ${bytesPerBeat} or word boundary")
-            transaction_error_occurred := True
-            goto(WRITE_DATA_ERROR_CONSUME)
-          } elsewhen (!size_compatible_if_needed) {
-            if (config.enableLog) report(L"$instanceId AW Error - Incompatible size: ${io.axi.aw.size} for word addressing mode")
-            transaction_error_occurred := True
-            goto(WRITE_DATA_ERROR_CONSUME)
-          } elsewhen (is_negative || is_out_of_bounds) {
-            if (config.enableLog) report(L"$instanceId AW Error - Address out of bounds. Byte Offset (calc)=0x${byte_offset_addr}, End Offset (calc)=0x${end_byte_offset_addr}, SRAM Size=${config.sizeBytes}")
-            transaction_error_occurred := True
-            goto(WRITE_DATA_ERROR_CONSUME)
-          } otherwise {
-            // Address is valid, proceed. Convert byte offset to SRAM's physical address.
-            val sram_addr_candidate = (byte_offset_addr(config.addressWidth-1 downto 0) >> config.addressShift).resized
-            current_sram_addr := sram_addr_candidate
-            goto(WRITE_DATA_FETCH)
-            report(L"$instanceId will go to WRITE_DATA_FETCH next cycle")
-          }
+                // 不再直接计算和跳转，而是进入验证状态
+            is_write_transaction:=True
+          goto(VALIDATE)
         }
 
         // --- Read Channel Transaction Handling ---
@@ -320,62 +319,56 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
           ar_cmd_reg := io.axi.ar.payload
           burst_count_remaining := (io.axi.ar.len + 1).resize(burst_count_remaining.getWidth)
           read_priority := !read_priority
+            is_write_transaction:=False
+          goto(VALIDATE)
+        }
+      }
+    }
 
-          // --- Safe Address Calculation and Boundary Check (Same logic as for AW) ---
-          val virtualBaseAddressBitLength = if (config.virtualBaseAddress == 0) 1 else log2Up(config.virtualBaseAddress) + 1 // 计算virtualBaseAddress实际需要的最小位宽
-          val maxAddressBitLength = Math.max(axiConfig.addressWidth, virtualBaseAddressBitLength) // 取AXI地址和虚基地址的最大位宽
-          val extendedWidth = maxAddressBitLength + 1 // 额外加一位用于处理负数或溢出
-          val addr_extended = io.axi.ar.addr.resize(extendedWidth)
-          val vbase_extended = U(config.virtualBaseAddress, extendedWidth bits)
-          val byte_offset_addr = addr_extended - vbase_extended
+        val VALIDATE: State = new State {
+      whenIsActive {
+        // 1. 使用 Mux 根据事务类型直接选择命令源
+        // 这种方式比创建一个空的Bundle再填充它要高效和简洁得多
+        val cmd_addr  = Mux(is_write_transaction, aw_cmd_reg.addr,  ar_cmd_reg.addr)
+        val cmd_len   = Mux(is_write_transaction, aw_cmd_reg.len,   ar_cmd_reg.len)
+        val cmd_size  = Mux(is_write_transaction, aw_cmd_reg.size,  ar_cmd_reg.size)
+        val cmd_burst = Mux(is_write_transaction, aw_cmd_reg.burst, ar_cmd_reg.burst)
 
-          val bytesPerBeat = if (axiConfig.useSize) U(1) << io.axi.ar.size else U(config.bytesPerWord)
-          val burst_len_extended = (io.axi.ar.len + 1).resize(extendedWidth)
-          val bytesPerBeat_extended = bytesPerBeat.resize(extendedWidth)
-          val end_byte_offset_addr = byte_offset_addr + burst_len_extended * bytesPerBeat_extended - bytesPerBeat_extended
+        // 2. 将选择出的信号打包成 ValidationInput 传递给函数
+        // 这里只是为了匹配函数签名，在硬件中不会创建真正的复杂结构
+        val validationCmd = ValidationInput(
+          addr = cmd_addr,
+          len = cmd_len,
+          size = cmd_size,
+          burst = cmd_burst
+        )
+        
+        // 3. 调用通用验证函数
+        val (is_error, sram_addr) = performValidation(validationCmd)
 
-          val addr_aligned = (io.axi.ar.addr & (bytesPerBeat - 1).resize(io.axi.ar.addr.getWidth)) === 0
-          // val word_aligned_if_needed = !config.useWordAddressing || (io.axi.ar.addr & (config.bytesPerWord - 1)) === 0
-          val word_aligned_if_needed = if (config.useWordAddressing) {
-              (io.axi.ar.addr & U(config.bytesPerWord - 1, io.axi.ar.addr.getWidth bits)) === 0
-          } else {
-              True
-          }
-          val size_compatible_if_needed = if (config.useWordAddressing && axiConfig.useSize) {
-              // 如果启用字寻址和AXI的Size字段，则需要检查传输大小是否与字大小兼容
-              io.axi.ar.size === U(log2Up(config.bytesPerWord))
-          } else {
-              // 否则，该检查条件永远为True（不相关）
-              True
-          }
-          val is_negative = byte_offset_addr(config.addressWidth)
-          val is_out_of_bounds = end_byte_offset_addr >= U(config.sizeBytes, extendedWidth bits)
-
-          when(io.axi.ar.burst =/= Axi4.burst.INCR) {
-            if (config.enableLog) report(L"$instanceId AR Error - Unsupported burst type: ${io.axi.ar.burst}")
-            transaction_error_occurred := True
-            goto(READ_RESPONSE_ERROR)
-          } elsewhen (!addr_aligned || !word_aligned_if_needed) {
-            if (config.enableLog) report(L"$instanceId AR Error - Address unaligned: 0x${io.axi.ar.addr} for size ${bytesPerBeat} or word boundary")
-            transaction_error_occurred := True
-            goto(READ_RESPONSE_ERROR)
-          } elsewhen (!size_compatible_if_needed) {
-            if (config.enableLog) report(L"$instanceId AR Error - Incompatible size: ${io.axi.ar.size} for word addressing mode")
-            transaction_error_occurred := True
-            goto(READ_RESPONSE_ERROR)
-          } elsewhen (is_negative || is_out_of_bounds) {
-            if (config.enableLog) report(L"$instanceId AR Error - Address out of bounds. Byte Offset (calc)=0x${byte_offset_addr}, End Offset (calc)=0x${end_byte_offset_addr}, SRAM Size=${config.sizeBytes}")
-            transaction_error_occurred := True
-            goto(READ_RESPONSE_ERROR)
+        // 4. 根据验证结果和事务类型，决定下一个状态 (这部分逻辑不变)
+        when(is_error) {
+          transaction_error_occurred := True
+          when(is_write_transaction) {
+            goto(WRITE_DATA_ERROR_CONSUME)
           } otherwise {
-            val sram_addr_candidate = (byte_offset_addr(config.addressWidth-1 downto 0) >> config.addressShift).resized
-            current_sram_addr := sram_addr_candidate
+            goto(READ_RESPONSE_ERROR)
+          }
+        } otherwise {
+          transaction_error_occurred := False
+          current_sram_addr := sram_addr
+          when(is_write_transaction) {
+            goto(WRITE_DATA_FETCH)
+          } otherwise {
             hasReadWaitCycles generate { read_wait_counter := 0 }
             goto(READ_SETUP)
           }
         }
       }
     }
+
+
+
     // --- MODIFIED: 新增写数据获取状态 ---
     val WRITE_DATA_FETCH: State = new State {
         onEntry {
