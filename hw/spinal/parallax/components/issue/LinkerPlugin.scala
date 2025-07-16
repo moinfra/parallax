@@ -102,15 +102,21 @@ class LinkerPlugin(pCfg: PipelineConfig) extends Plugin with LockedImpl {
 
     // --- 2. Connect Global Signals (Wakeup & Flush) to all IQs ---
     val globalWakeupFlow = setup.wakeupService.getWakeupFlow()
-    val globalFlushSignal = setup.issuePpl.pipeline.s3_dispatch(setup.issuePpl.signals.FLUSH_PIPELINE)
 
     for (conn <- connections) {
       conn.issueQueue.io.wakeupIn << globalWakeupFlow
-      conn.issueQueue.io.flush := globalFlushSignal
     }
     ParallaxLogger.log("LinkerPlugin: Connected global wakeup and flush signals to all IQs.")
-    ParallaxSim.logWhen(globalFlushSignal, L"LinkerPlugin: Global FLUSH_PIPELINE signal is asserted!")
 
+    val flush = new Area {
+      getServiceOption[HardRedirectService].foreach(hr => {
+        val doHardRedirect = hr.getFlushListeningPort()
+        for (conn <- connections) {
+          conn.issueQueue.io.flush := doHardRedirect
+        }
+        ParallaxSim.logWhen(doHardRedirect, L"LinkerPlugin: Global doHardRedirect signal is asserted!")
+      })
+    }
 
     // --- 3. Connect each IQ's output to its corresponding EU's input ---
     for (conn <- connections) {

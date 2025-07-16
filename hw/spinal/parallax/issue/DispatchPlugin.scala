@@ -107,6 +107,16 @@ class DispatchPlugin(pCfg: PipelineConfig) extends Plugin with LockedImpl {
         L"s1_ready=${src1InitialReady}, s2_ready=${src2InitialReady}"
       )
     }
+
+    val flush = new Area {
+      getServiceOption[HardRedirectService].foreach(hr => {
+        val doHardRedirect = hr.getFlushListeningPort()
+        when(doHardRedirect) {
+          s3_dispatch.flushIt()
+          report(L"DispatchPlugin: (s3): Flushing pipeline due to hard redirect")
+        }
+      })
+    }
     
     setup.issuePpl.release()
     setup.iqService.release()

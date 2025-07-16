@@ -33,7 +33,6 @@ class RenamePlugin(
     val s1_rename = issuePpl.pipeline.s1_rename
     s1_rename(issuePpl.signals.DECODED_UOPS)
     s1_rename(issuePpl.signals.RENAMED_UOPS)
-    s1_rename(issuePpl.signals.FLUSH_PIPELINE)
   }
 
   // --- MODIFICATION START: Simplified logic for Rename-only stage ---
@@ -151,6 +150,19 @@ class RenamePlugin(
     // The output RenamedUop will have a garbage robPtr, which is fine.
     // It will be overwritten in the next stage.
     s1_rename(issueSignals.RENAMED_UOPS) := renameUnit.io.renamedUopsOut
+
+    // +++ FLUSH LOGIC INSERTION START +++
+    val flush = new Area {
+      // 硬重定向需要还原到 checkpoint，交给 checkpointManagerService 处理
+      getServiceOption[HardRedirectService].foreach(hr => {
+        val doHardRedirect = hr.getFlushListeningPort()
+        when(doHardRedirect) {
+          s1_rename.flushIt()
+          report(L"DecodePlugin (s0_decode): Flushing pipeline due to hard redirect")
+        }
+      })
+    }
+    // +++ FLUSH LOGIC INSERTION END +++
 
     issuePpl.release()
     early_setup.busyTableService.release() // 释放服务

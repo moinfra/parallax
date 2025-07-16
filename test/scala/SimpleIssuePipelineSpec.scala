@@ -259,7 +259,6 @@ class SimpleIssuePipelineTestBench(
     issueEntryStage(issueSignals.RAW_INSTRUCTIONS_IN) := instructionVec
     issueEntryStage(issueSignals.VALID_MASK) := B"1"
     issueEntryStage(issueSignals.IS_FAULT_IN) := False
-    issueEntryStage(issueSignals.FLUSH_PIPELINE) := False
     issueEntryStage(issueSignals.FLUSH_TARGET_PC) := 0
 
     robService.newFlushPort().setIdle()

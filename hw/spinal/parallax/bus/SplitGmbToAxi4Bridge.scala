@@ -22,7 +22,7 @@ class SplitGmbToAxi4Bridge(
   val rspInStage: Boolean = true
 ) extends Component {
   val instanceId = SplitGmbToAxi4Bridge.nextInstanceId
-  val enableLog = true
+  val enableLog = false
   val enableReadLog = enableLog && true
   val enableWriteLog = enableLog && true
 

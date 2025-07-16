@@ -75,9 +75,6 @@ trait CommitService extends Service {
   /**
    * Get commit progress information for debugging/monitoring.
    */
-  def getCommitStatsComb(): CommitStats = {
-    throw new RuntimeException("not implemented")
-  }
     def getCommitStatsReg(): CommitStats = {
     throw new RuntimeException("not implemented")
   }
@@ -135,11 +132,6 @@ class CommitPlugin(
   }
   
   private var forwardedStats: CommitStats = null
-
-  override def getCommitStatsComb(): CommitStats = {
-    assert(forwardedStats != null, "forwardedStats has not been initialized. getCommitStats() called too early.")
-    forwardedStats
-  }
   
   override def getCommitStatsReg(): CommitStats = {
     commitStatsReg
@@ -156,7 +148,7 @@ class CommitPlugin(
     val fetchDisable = fetchService.newFetchDisablePort()
     val robFlushPort = robService.newFlushPort()
     
-    ParallaxSim.log(L"[CommitPlugin] Early setup - acquired services and fetch disable port")
+    println(L"[CommitPlugin] Early setup - acquired services and fetch disable port")
   }
 
   val logic = create late new Area {
@@ -362,7 +354,7 @@ class CommitPlugin(
     // 修复: 检查点恢复应该与指令提交在同一周期触发
     // 如果需要精确同步，使用立即信号；如果可以延迟，使用延迟信号
     // 这里假设需要精确同步，使用立即信号
-    restoreCheckpointTrigger := s0.commitIdleThisCycle
+    // restoreCheckpointTrigger := s0.commitIdleThisCycle 暂时不启用IDLE逻辑。让分支预测恢复接管这个连线。
     
     // 注意：如果系统允许检查点恢复延迟一拍，可以使用：
     // restoreCheckpointTrigger := idleJustCommitted

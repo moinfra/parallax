@@ -92,6 +92,17 @@ class DecodePlugin(val issueConfig: PipelineConfig) extends Plugin with LockedIm
         )
       }
     }
+
+    val flush = new Area {
+      getServiceOption[HardRedirectService].foreach(hr => {
+        val doHardRedirect = hr.getFlushListeningPort()
+        when(doHardRedirect) {
+          s0_decode.flushIt()
+          if(enableLog) report(L"DecodePlugin (s0_decode): Flushing pipeline due to hard redirect")
+        }
+      })
+    }
+
     if(enableLog) report(L"DEBUG: s0_decode.isFiring=${s0_decode.isFiring}, groupValidMask=${groupValidMask}, isGroupFaultIn=${isGroupFaultIn}")
     if(enableLog) report(L"DEBUG: decodedUopsOutputVec(0).isValid=${decodedUopsOutputVec(0).isValid}, decodedUopsOutputVec(0).uopCode=${decodedUopsOutputVec(0).uopCode}")
 

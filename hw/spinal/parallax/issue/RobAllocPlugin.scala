@@ -73,6 +73,16 @@ class RobAllocPlugin(val pCfg: PipelineConfig) extends Plugin with LockedImpl {
         report(L"  OUT: Driving uopOut.robPtr with ${newUopsArray(0).robPtr}")
     }
     
+    val flush = new Area {
+      getServiceOption[HardRedirectService].foreach(hr => {
+        val doHardRedirect = hr.getFlushListeningPort()
+        when(doHardRedirect) {
+          s2_rob_alloc.flushIt()
+          report(L"RobAllocPlugin (s2): Flushing pipeline due to hard redirect")
+        }
+      })
+    }
+
     issuePpl.release()
     robService.release()
   }

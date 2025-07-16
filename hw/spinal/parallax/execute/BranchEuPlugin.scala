@@ -9,11 +9,16 @@ import parallax.components.rob.{FlushReason, ROBService}
 import parallax.bpu.{BpuService, BpuUpdate}
 import parallax.utilities.{ParallaxLogger, ParallaxSim}
 import parallax.components.issue.IQEntryBru
+import parallax.issue.CheckpointManagerService
 
 class BranchEuPlugin(
     override val euName: String,
     override val pipelineConfig: PipelineConfig
-) extends EuBasePlugin(euName, pipelineConfig) {
+) extends EuBasePlugin(euName, pipelineConfig) with HardRedirectService {
+
+  val doHardRedirect = Bool()
+  override def getFlushListeningPort(): Bool = doHardRedirect
+
 
   // 需要2个GPR读端口（比较两个源操作数），不需要FPR端口
   override def numGprReadPortsPerEu: Int = 2
@@ -35,6 +40,7 @@ class BranchEuPlugin(
     val robServiceInst = getService[ROBService[RenamedUop]]
     val bpuServiceInst = getService[BpuService]
     val fetchPplInst = getService[parallax.fetch.SimpleFetchPipelineService]
+    val checkpointManagerService = getService[CheckpointManagerService] 
 
     val robFlushPort     = robServiceInst.newFlushPort()
     val bpuUpdatePort    = bpuServiceInst.newBpuUpdatePort()
@@ -43,6 +49,7 @@ class BranchEuPlugin(
     robServiceInst.retain()
     bpuServiceInst.retain()
     fetchPplInst.retain()
+    checkpointManagerService.retain()
   }
 
   // --- 监控信号暴露 (用于测试) ---
@@ -260,10 +267,12 @@ class BranchEuPlugin(
     }
 
     // 8. ROB Flush逻辑 (moved to s2_mispredict stage)
+    doHardRedirect := False
     when(pipeline.s2_mispredict.isFiring && mispredictInfoAtS2.mispredicted) {
       hw.robFlushPort.valid := True
       hw.robFlushPort.payload.reason := FlushReason.ROLLBACK_TO_ROB_IDX
       hw.robFlushPort.payload.targetRobPtr := mispredictInfoAtS2.robPtrToFlush
+      doHardRedirect := True
       report(L"[BranchEU-S2] MISPREDICTION EXEC: Flushing ROB from robPtr=${mispredictInfoAtS2.robPtrToFlush}, targetPC=0x${mispredictInfoAtS2.finalTarget}")
       report(L"[BranchEU-S2] DEBUG: ROB flush valid=${hw.robFlushPort.valid}")
       
@@ -274,11 +283,24 @@ class BranchEuPlugin(
       report(L"[BranchEU-S2] REDIRECT DEBUG: valid=${hw.redirectPort.valid}, payload=0x${hw.redirectPort.payload}")
     }
 
+    val checkpointLogic = new Area {
+        val checkpointManagerService = hw.checkpointManagerService 
+
+        val restoreCheckpointTrigger = checkpointManagerService.getRestoreCheckpointTrigger()
+        restoreCheckpointTrigger := False
+        when(pipeline.s2_mispredict.isFiring && mispredictInfoAtS2.mispredicted) {
+          restoreCheckpointTrigger := True
+          report(L"[BranchEU-S2] CHECKPOINT: Restoring from checkpoint")
+        }
+
+    }
+
     pipeline.build()
 
     ParallaxLogger.log(s"[BranchEu ${euName}] 3-stage pipeline with branch logic built: S0(Dispatch) -> S1(Resolve) -> S2(Mispredict).")
     hw.robServiceInst.release()
     hw.bpuServiceInst.release()
     hw.fetchPplInst.release()
+    hw.checkpointManagerService.release()
   }
 }

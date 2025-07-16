@@ -1565,14 +1565,12 @@ class CpuFullTestBench(val pCfg: PipelineConfig, val dCfg: DataCachePluginConfig
     issueEntryStage(issueSignals.RAW_INSTRUCTIONS_IN) := instructionVec
     issueEntryStage(issueSignals.VALID_MASK) := B"01"  // Mark only first instruction as valid
     issueEntryStage(issueSignals.IS_FAULT_IN) := False
-    issueEntryStage(issueSignals.FLUSH_PIPELINE) := False
     issueEntryStage(issueSignals.FLUSH_TARGET_PC) := 0
   } otherwise {
     issueEntryStage(issueSignals.GROUP_PC_IN) := 0
     issueEntryStage(issueSignals.RAW_INSTRUCTIONS_IN).assignDontCare()
     issueEntryStage(issueSignals.VALID_MASK) := B"00"  // No valid instructions
     issueEntryStage(issueSignals.IS_FAULT_IN) := False
-    issueEntryStage(issueSignals.FLUSH_PIPELINE) := False
     issueEntryStage(issueSignals.FLUSH_TARGET_PC) := 0
   }
   

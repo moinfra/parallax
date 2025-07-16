@@ -137,7 +137,7 @@ class SimpleFetchPipelinePlugin(
     // Modified IDLE instruction handling: let IDLE instructions flow through pipeline
     // They will be handled at commit stage, not filtered at fetch stage
     val filteredStream = Stream(FetchedInstr(pCfg))
-    filteredStream.valid := unpackedStream.valid  // Don't filter IDLE instructions
+    filteredStream.valid := unpackedStream.valid && !hw.redirectFlowInst.valid  // Don't filter IDLE instructions
     filteredStream.payload := unpackedStream.payload
     unpackedStream.ready := filteredStream.ready  // Normal backpressure
     

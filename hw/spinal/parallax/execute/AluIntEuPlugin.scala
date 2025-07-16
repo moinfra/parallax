@@ -133,7 +133,8 @@ class AluIntEuPlugin(
           L"RobPtr=${uopAtS2.robPtr}, ResultData=${aluResultPayload.data}, ",
           L"WritesPreg=${aluResultPayload.writesToPhysReg}, ",
           L"HasExc=${aluResultPayload.hasException}, ExcCode=${aluResultPayload.exceptionCode.asBits}, ",
-          L"ImmUsage=${uopAtS2.immUsage.asBits}, UseSrc2=${uopAtS2.useSrc2}"
+          L"ImmUsage=${uopAtS2.immUsage.asBits}, UseSrc2=${uopAtS2.useSrc2}", 
+          L" op: ${uopAtS2.aluCtrl.format}, lhs=${aluSrc1Data}, rhs=${effectiveSrc2Data}"
         )
       )
     }

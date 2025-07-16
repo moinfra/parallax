@@ -126,7 +126,7 @@ class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: GenericMemoryBusConfig
       readWaitCycles = 2,
       writeWaitCycles = 2,
       useWordAddressing = true,
-      enableLog = true
+      enableLog = false
     )
     val extsramCfg = SRAMConfig(
       addressWidth = 20, // 1M * 4 bytes addressing
@@ -136,7 +136,7 @@ class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: GenericMemoryBusConfig
       useWordAddressing = true,
       readWaitCycles = 2,
       writeWaitCycles = 2,
-      enableLog = true
+      enableLog = false
     )
 
     val numMasters = 6 // DCache + SGMB bridges
@@ -372,14 +372,12 @@ class CoreNSCSCC(simDebug: Boolean = false) extends Component {
         issueEntryStage(signals.RAW_INSTRUCTIONS_IN) := instructionVec
         issueEntryStage(signals.VALID_MASK) := B"01" // 只有第一条指令有效
         issueEntryStage(signals.IS_FAULT_IN) := False // 简化：假设无故障
-        issueEntryStage(signals.FLUSH_PIPELINE) := False
         issueEntryStage(signals.FLUSH_TARGET_PC) := 0
       } otherwise {
         issueEntryStage(signals.GROUP_PC_IN) := 0
         issueEntryStage(signals.RAW_INSTRUCTIONS_IN).assignDontCare()
         issueEntryStage(signals.VALID_MASK) := B"00" // 无有效指令
         issueEntryStage(signals.IS_FAULT_IN) := False
-        issueEntryStage(signals.FLUSH_PIPELINE) := False
         issueEntryStage(signals.FLUSH_TARGET_PC) := 0
       }
       fetchOutput.ready := issueEntryStage.isReady
@@ -454,7 +452,7 @@ class CoreNSCSCC(simDebug: Boolean = false) extends Component {
   // if (onboardDebug) {
     val commitService = framework.getService[CommitPlugin]
     // TODO: REMOVE THIS HARDCODED AFTER BUG FIXED
-    commitService.setMaxCommitPc(U(BigInt("80000100", 16), 32 bits), True)
+    commitService.setMaxCommitPc(U(BigInt("80001000", 16), 32 bits), True)
   // }
 
   val memSysPlugin = framework.getService[CoreMemSysPlugin]
@@ -523,7 +521,7 @@ class CoreNSCSCC(simDebug: Boolean = false) extends Component {
 
   simDebug generate {
     val commitService = framework.getService[CommitPlugin]
-    io.commitStats := commitService.getCommitStatsComb()
+    io.commitStats := commitService.getCommitStatsReg()
   }
 
   onboardDebug generate {

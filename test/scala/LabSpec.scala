@@ -20,7 +20,6 @@ class LabTestBench(val iDataWords: Seq[BigInt], val maxCommitPc: BigInt = 0, val
   val io = new Bundle {
     val commitStats = out(CommitStats())
   }
-
   // Instantiate the DUT
   val dut = new CoreNSCSCC(simDebug = true)
   io.commitStats := dut.io.commitStats
@@ -188,8 +187,285 @@ object LabHelper {
 }
 
 class LabSpec extends CustomSpinalSimFunSuite {
+    testOnly("Minimal Failing Case for SUB.W rd, rj, rd") {
+    // === 目标 ===
+    // 这个测试旨在用最少的指令复现一个特定的硬件 Bug。
+    // Bug 假设: 当 sub_w rd, rj, rk 指令中的 rd 和 rk 是同一个寄存器时，
+    // 运算结果出错。
+
+    // === 寄存器定义 ===
+    val RJ_REG = 1      // r1, 作为减数 rj
+    val RKD_REG = 2     // r2, 同时作为被减数 rk 和目标寄存器 rd
+    val EXPECT_REG = 3  // r3, 用于存放期望的结果
+
+    // === 测试值 ===
+    val VAL_RJ = 100
+    val VAL_RKD_INITIAL = 33
+    val EXPECTED_RESULT = VAL_RJ - VAL_RKD_INITIAL // 100 - 33 = 67
+
+    val insts = collection.mutable.ArrayBuffer[BigInt]()
+
+    // === 1. 设置阶段 ===
+    // 将已知值载入源寄存器
+    insts += addi_w(rd = RJ_REG, rj = 0, imm = VAL_RJ)         // r1 = 100
+    insts += addi_w(rd = RKD_REG, rj = 0, imm = VAL_RKD_INITIAL) // r2 = 33
+
+    // === 2. 触发阶段 ===
+    // 执行疑似有 Bug 的指令
+    // 预期行为: r2 = r1 - r2  =>  r2 = 100 - 33 = 67
+    // Buggy 行为 (根据之前的日志推断): 减法未执行或执行错误
+    insts += sub_w(rd = RKD_REG, rj = RJ_REG, rk = RKD_REG)
+
+    // === 3. 验证阶段 ===
+    // 将期望的正确结果载入 r3
+    insts += addi_w(rd = EXPECT_REG, rj = 0, imm = EXPECTED_RESULT) // r3 = 67
+    
+    // 比较 r2 (实际结果) 和 r3 (期望结果)。
+    // 如果相等，则 Bug 未复现，跳转到成功循环。
+    // 如果不等，则 Bug 成功复现，顺序执行到失败循环。
+    insts += beq(rj = RKD_REG, rd = EXPECT_REG, offset = 8) // 若 r2 == r3, PC += 8 (跳过失败循环)
+    
+    // 失败循环 (PC_FAIL)
+    // 如果程序停在这里，说明 r2 != 67，Bug 已被成功复现。
+    insts += beq(rj = 0, rd = 0, offset = 0) // beq r0, r0, 0 => 无限循环
+    
+    // 成功循环 (PC_SUCCESS)
+    // 如果程序停在这里，说明 r2 == 67，Bug 未复现或已被修复。
+    insts += beq(rj = 0, rd = 0, offset = 0) // beq r0, r0, 0 => 无限循环
+
+    
+    // --- 执行测试 ---
+    val finalInstructions = insts.toSeq
+    val baseAddr = BigInt("80000000", 16)
+    val failPC = baseAddr + (finalInstructions.length - 2) * 4
+    val successPC = baseAddr + (finalInstructions.length - 1) * 4
+
+    LabHelper.dumpBinary(finalInstructions, "bin/sub_minimal_fail_case.bin")
+
+    val compiled = SimConfig.withFstWave.compile(new LabTestBench(
+      iDataWords = finalInstructions
+    ))
+
+    compiled.doSim { dut =>
+      val cd = dut.clockDomain.get
+      cd.forkStimulus(period = 10)
+      
+      println(s"--- Starting 'Minimal Failing Case for SUB.W rd, rj, rd' ---")
+      println(s"Expecting failure at PC=0x${failPC.toString(16)}")
+      println(s"Success would be at PC=0x${successPC.toString(16)}")
+
+      // 运行足够长的时间以确保能进入无限循环
+      cd.waitSampling(500)
+      
+      val finalPC = dut.io.commitStats.maxCommitPc.toBigInt
+      println(s"Simulation finished. Final PC: 0x${finalPC.toString(16)}")
+
+      // 断言：我们期望这个测试失败，即最终 PC 停在 failPC
+      assert(finalPC == failPC, s"Bug not reproduced! Expected PC to be 0x${failPC.toString(16)} but got 0x${finalPC.toString(16)}. It seems the bug is fixed or the trigger is different.")
+
+      println(s"--- Bug successfully reproduced! Core halted at failure address as expected. ---")
+    }
+  }
+// testOnly("GPR R1-R31 Correct Read/Write and Verify Test") {
+//     // 寄存器定义
+//     val BASE_REG = 30      // 主要的基址寄存器 (r30)
+//     val ERR_COUNT_REG = 29 // 错误计数器 (r29)
+//     val SCRATCH_REG = 28   // 临时寄存器 (r28)，用于保存基地址和期望值
+
+//     val MEM_BASE_ADDR = 0x80400000 // 内存测试区域的起始地址
+//     val insts = collection.mutable.ArrayBuffer[BigInt]()
+
+//     // === 阶段 1: 初始化 ===
+//     // 1. 设置 r30 为内存基地址
+//     insts += lu12i_w(rd = BASE_REG, imm = MEM_BASE_ADDR >>> 12)
+//     insts += ori(rd = BASE_REG, rj = BASE_REG, imm = MEM_BASE_ADDR & 0xfff)
+//     // 2. 初始化错误计数器 r29 为 0
+//     insts += addi_w(rd = ERR_COUNT_REG, rj = 0, imm = 0)
+
+//     // === 阶段 2: 写入内存 ===
+//     // 按顺序测试寄存器 r1 到 r31
+//     for (i <- 1 to 31) {
+//       // 当要测试主基址寄存器 r30 时，它的地址值马上要被覆盖。
+//       // 因此，我们必须先将它的地址保存到另一个临时寄存器（r28）中。
+//       if (i == BASE_REG) {
+//         // r28 = r30 (保存基地址)
+//         insts += add_w(rd = SCRATCH_REG, rj = BASE_REG, rk = 0)
+//       }
+
+//       // 2a. 将寄存器ID `i` 写入寄存器 r[i]
+//       insts += addi_w(rd = i, rj = 0, imm = i)
+
+//       // 2b. 选择正确的基址寄存器来执行存储操作
+//       val baseForStore = if (i == BASE_REG) {
+//         // 当测试 r30 时，使用刚刚保存了地址的 r28 作为基址
+//         SCRATCH_REG
+//       } else {
+//         // 其他情况，正常使用 r30 作为基址
+//         BASE_REG
+//       }
+      
+//       // 2c. 将 r[i] 的值存入内存 mem[base + i*4]
+//       // (使用 i*4 作为偏移量，使得每个寄存器的内存槽位分开)
+//       insts += st_w(rd = i, rj = baseForStore, offset = i * 4)
+//     }
+
+//     // === 阶段 3: 读回内存 ===
+//     // 3a. 恢复主基址寄存器 r30
+//     // 此时，原始基地址仍然保存在 r28 中，我们从那里恢复它。
+//     insts += add_w(rd = BASE_REG, rj = SCRATCH_REG, rk = 0)
+
+//     // 3b. 将内存中的值读回到对应的寄存器
+//     for (i <- 1 to 31) {
+//       insts += ld_w(rd = i, rj = BASE_REG, offset = i * 4)
+//     }
+
+//     // === 阶段 4: 校验 ===
+//     // 遍历 r1-r31, 检查 r[i] 的值是否等于 i
+//     for (i <- 1 to 31) {
+//       // 4a. 将期望值 `i` 加载到临时寄存器 r28
+//       insts += addi_w(rd = SCRATCH_REG, rj = 0, imm = i)
+      
+//       // 4b. 比较 r[i] 和 r28 (期望值)。如果它们不相等，则它们的差不为零。
+//       insts += sub_w(rd = SCRATCH_REG, rj = i, rk = SCRATCH_REG)
+      
+//       // 4c. 如果差值不为零 (bne)，则跳转过一条指令；否则，执行下一条指令，使错误计数器+1
+//       insts += bne(rj = SCRATCH_REG, rd = 0, offset = 8) // offset=8 表示跳转到两条指令之后
+//       insts += addi_w(rd = ERR_COUNT_REG, rj = ERR_COUNT_REG, imm = 1)
+//     }
+
+//     // === 阶段 5: 结束程序 ===
+//     // 检查错误计数器 r29。如果为 0，跳转到成功循环，否则进入失败循环。
+//     insts += beq(rj = ERR_COUNT_REG, rd = 0, offset = 8) // 如果 r29 == 0, 跳转到8字节后的成功循环
+    
+//     // 失败循环 (如果 r29 != 0)
+//     insts += beq(rj = 0, rd = 0, offset = 0) // beq r0, r0, 0 ==> 无限循环
+    
+//     // 成功循环 (如果 r29 == 0)
+//     insts += beq(rj = 0, rd = 0, offset = 0) // beq r0, r0, 0 ==> 无限循环
+
+
+//     // --- 以下是执行测试的模板代码 ---
+//     val finalInstructions = insts.toSeq
+//     LabHelper.dumpBinary(finalInstructions, "bin/gpr_read_write_test.bin")
+
+//     val maxExpectedPc = BigInt("80000000", 16) + (finalInstructions.length - 1) * 4
+//     val compiled = SimConfig.withFstWave.compile(new LabTestBench(
+//       iDataWords = finalInstructions,
+//       maxCommitPc = maxExpectedPc,
+//       enablePcCheck = true
+//     ))
+
+//     compiled.doSim { dut =>
+//       val cd = dut.clockDomain.get
+//       cd.forkStimulus(period = 10)
+      
+//       println(s"--- Starting 'GPR R1-R31 Correct Read/Write and Verify Test' (maxPc=0x${maxExpectedPc.toString(16)}) ---")
+
+//       val maxCycles = 15000 // 根据指令数量和处理器设计调整
+//       var simTime = 0
+//       while(dut.io.commitStats.maxCommitPc.toBigInt < maxExpectedPc && simTime < maxCycles) {
+//         cd.waitSampling()
+//         simTime += 1
+//       }
+      
+//       println(s"Simulation finished at cycle $simTime. Final PC: 0x${dut.io.commitStats.maxCommitPc.toBigInt.toString(16)}")
+
+//       // 验证最终PC是否停在成功循环处
+//       val finalPC = dut.io.commitStats.maxCommitPc.toBigInt
+//       val successPC = BigInt("80000000", 16) + (finalInstructions.length - 1) * 4
+//       assert(finalPC == successPC, s"Test failed! CPU ended at wrong PC. Expected 0x${successPC.toString(16)}, got 0x${finalPC.toString(16)}")
+
+//       println("--- 'GPR R1-R31 Correct Read/Write and Verify Test' Passed ---")
+//     }
+//   }
+    test("GPR R1-R31 Correct Read/Write and Verify Test (Bug Fixed)") {
+    // 寄存器定义
+    val BASE_REG = 30      // 主要的基址寄存器 (r30)
+    val ERR_COUNT_REG = 29 // 错误计数器 (r29)
+    val SCRATCH_REG = 28   // 临时寄存器 (r28)，用于保存基地址和期望值
+    
+    // *** BUG FIX: 使用一个在当前迭代中未被用作源或目标的寄存器作为临时结果寄存器 ***
+    val TEMP_RESULT_REG = 31 // 将 r31 用作减法结果的临时存放处
+
+    val MEM_BASE_ADDR = 0x80400000 // 内存测试区域的起始地址
+    val insts = collection.mutable.ArrayBuffer[BigInt]()
+
+    // === 阶段 1: 初始化 ===
+    insts += lu12i_w(rd = BASE_REG, imm = MEM_BASE_ADDR >>> 12)
+    insts += ori(rd = BASE_REG, rj = BASE_REG, imm = MEM_BASE_ADDR & 0xfff)
+    insts += addi_w(rd = ERR_COUNT_REG, rj = 0, imm = 0)
+
+    // === 阶段 2: 写入内存 ===
+    for (i <- 1 to 31) {
+      if (i == BASE_REG) {
+        insts += add_w(rd = SCRATCH_REG, rj = BASE_REG, rk = 0)
+      }
+      insts += addi_w(rd = i, rj = 0, imm = i)
+      val baseForStore = if (i == BASE_REG) SCRATCH_REG else BASE_REG
+      insts += st_w(rd = i, rj = baseForStore, offset = i * 4)
+    }
+
+    // === 阶段 3: 读回内存 ===
+    insts += add_w(rd = BASE_REG, rj = SCRATCH_REG, rk = 0)
+    for (i <- 1 to 31) {
+      insts += ld_w(rd = i, rj = BASE_REG, offset = i * 4)
+    }
+
+    // === 阶段 4: 校验 (已修复) ===
+    for (i <- 1 to 31) {
+      // 4a. 将期望值 `i` 加载到临时寄存器 r28
+      insts += addi_w(rd = SCRATCH_REG, rj = 0, imm = i)
+      
+      // 4b. 【修复点】计算 r[i] - r28, 结果存入 r31, 避免了 sub r28, r_i, r28 的模式
+      insts += sub_w(rd = TEMP_RESULT_REG, rj = i, rk = SCRATCH_REG)
+      
+      // 4c. 【修复点】现在比较 r31 和 r0
+      insts += bne(rj = TEMP_RESULT_REG, rd = 0, offset = 8) // offset=8 表示跳转到两条指令之后
+      insts += addi_w(rd = ERR_COUNT_REG, rj = ERR_COUNT_REG, imm = 1)
+    }
+
+    // === 阶段 5: 结束程序 ===
+    insts += beq(rj = ERR_COUNT_REG, rd = 0, offset = 8) 
+    insts += beq(rj = 0, rd = 0, offset = 0) // 失败循环
+    insts += beq(rj = 0, rd = 0, offset = 0) // 成功循环
+
+
+    // --- 以下是执行测试的模板代码 ---
+    val finalInstructions = insts.toSeq
+    LabHelper.dumpBinary(finalInstructions, "bin/gpr_read_write_test_fixed.bin")
+
+    val maxExpectedPc = BigInt("80000000", 16) + (finalInstructions.length - 1) * 4
+    val compiled = SimConfig.withFstWave.compile(new LabTestBench(
+      iDataWords = finalInstructions,
+      maxCommitPc = maxExpectedPc,
+      enablePcCheck = true
+    ))
+
+    compiled.doSim { dut =>
+      val cd = dut.clockDomain.get
+      cd.forkStimulus(period = 10)
+      
+      println(s"--- Starting 'GPR R/W Test (Fixed)' (maxPc=0x${maxExpectedPc.toString(16)}) ---")
+
+      val maxCycles = 15000 
+      var simTime = 0
+      cd.waitSampling()
+      while(dut.io.commitStats.maxCommitPc.toBigInt < maxExpectedPc && simTime < maxCycles) {
+        cd.waitSampling()
+        simTime += 1
+      }
+      
+      println(s"Simulation finished at cycle $simTime. Final PC: 0x${dut.io.commitStats.maxCommitPc.toBigInt.toString(16)}")
+      
+      val finalPC = dut.io.commitStats.maxCommitPc.toBigInt
+      val successPC = BigInt("80000000", 16) + (finalInstructions.length - 1) * 4
+      assert(finalPC == successPC, s"Test failed! CPU ended at wrong PC. Expected 0x${successPC.toString(16)}, got 0x${finalPC.toString(16)}")
+
+      println("--- 'GPR R/W Test (Fixed)' Passed ---")
+    }
+  }
   test("Sequential Memory Write Test") {
-    val instructions = Seq(
+    val rawInstructions = Seq(
       // --- 初始化数据寄存器 (R12 = 0x10000000) ---
       lu12i_w(rd = 12, imm = 0x10000000 >>> 12),
       ori(rd = 12, rj = 12, imm = 0x10000000 & 0xfff),
@@ -251,9 +527,62 @@ class LabSpec extends CustomSpinalSimFunSuite {
       // addi_w(rd = 13, rj = 13, imm = 4), // End of loop, no need to increment
 
       // --- 停机 ---
-      bne(rj = 0, rd = 0, offset = 0)
+      beq(rj = 0, rd = 0, offset = 0), // 0x80000080
     )
+    val extraInstsCount = 1000
+    val extraInsts = Seq.fill(extraInstsCount)(addi_w(rd = 31, rj = 0, imm = 1))
+    val instructions = rawInstructions ++ extraInsts
+
     LabHelper.dumpBinary(instructions, "bin/why_stopped.bin")
+
+    
+    // Configure PC bounds checking
+    val maxExpectedPc = BigInt("80000000", 16) + (rawInstructions.length - 1) * 4
+    val compiled = SimConfig.withFstWave.compile(new LabTestBench(
+      iDataWords = instructions,
+      maxCommitPc = maxExpectedPc,
+      enablePcCheck = true
+    ))
+
+    compiled.doSim { dut =>
+      val cd = dut.clockDomain.get
+      cd.forkStimulus(period = 10)
+      
+      println(s"--- Starting 'mem write test' with PC bounds check (maxPc=0x${maxExpectedPc.toString(16)}) ---")
+
+      // Run for extended time to detect OOB issues
+      val maxCycles = 10000
+      val minCommitsNeeded = 5 // 4 loads + 1 store
+      var minCommitsReached = false
+
+      for (cycle <- 1 to maxCycles) {
+        cd.waitSampling()
+        val commitStats = dut.io.commitStats
+
+        // Check for CPU runaway (OOB)
+        if (commitStats.commitOOB.toBoolean) {
+          val maxCommitPc = commitStats.maxCommitPc.toBigInt
+          assert(false, s"CPU runaway detected! PC=0x${maxCommitPc.toString(16)}, max=0x${maxExpectedPc.toString(16)}")
+        }
+        
+        // Track minimum commits reached
+        if (commitStats.totalCommitted.toBigInt >= minCommitsNeeded) {
+          minCommitsReached = true
+        }
+        
+        // Progress logging
+        if (cycle % 1000 == 0) {
+          println(s"Cycle $cycle: Committed ${commitStats.totalCommitted.toBigInt}, maxPC=0x${commitStats.maxCommitPc.toBigInt.toString(16)}")
+        }
+      }
+
+      println(s"--- Simulation completed after $maxCycles cycles ---")
+
+      assert(minCommitsReached, s"Insufficient commits: need at least $minCommitsNeeded")
+      assert(dut.io.commitStats.maxCommitPc.toBigInt <= maxExpectedPc, s"Max PC exceeded: max=0x${dut.io.commitStats.maxCommitPc.toBigInt.toString(16)}, expected=0x${maxExpectedPc.toString(16)}")
+
+      println("--- 'Sequential Memory Write Test' Passed ---")
+    }
   }
 
   test("mem write test") {
@@ -498,7 +827,7 @@ class LabSpec extends CustomSpinalSimFunSuite {
     }
   }
 
-  testOnly("Fibonacci Test on CoreNSCSCC") {
+  test("Fibonacci Test on CoreNSCSCC") {
 
     val instructions = ArrayBuffer[BigInt]()
     // Original Assembly:

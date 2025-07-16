@@ -69,7 +69,7 @@ class CommitPluginSimpleSpec extends CustomSpinalSimFunSuite {
             commitService.setCommitEnable(io.commitEnable)
             
             // Connect stats output
-            io.commitStats := commitService.getCommitStatsComb()
+            io.commitStats := commitService.getCommitStatsReg()
             
             // Initialize unused services
             val ratService = getService[RatControlService]

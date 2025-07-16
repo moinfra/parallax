@@ -34,15 +34,6 @@ class MockCommitControllerBru(pCfg: PipelineConfig) extends Plugin with CommitSe
     enableCommit := enable
   }
 
-  override def getCommitStatsComb(): CommitStats = {
-    val stats = CommitStats(pCfg)
-    stats.committedThisCycle := 0
-    stats.totalCommitted := 0
-    stats.robFlushCount := 0
-    stats.physRegRecycled := 0
-    stats
-  }
-
   override def isIdle(): Bool = False
 
   val setup = create early new Area {
@@ -165,7 +156,6 @@ new RenamePlugin(pCfg, renameMapConfig, flConfig),
   issueEntryStage(issueSignals.RAW_INSTRUCTIONS_IN) := instructionVec
   issueEntryStage(issueSignals.VALID_MASK) := B"1"
   issueEntryStage(issueSignals.IS_FAULT_IN) := False
-  issueEntryStage(issueSignals.FLUSH_PIPELINE) := False
   issueEntryStage(issueSignals.FLUSH_TARGET_PC) := 0
 
   // 连接提交逻辑

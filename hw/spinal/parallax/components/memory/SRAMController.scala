@@ -210,7 +210,7 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
   io.ram.data.write := sram_data_out_reg
   io.ram.data.writeEnable := sram_data_writeEnable_out_reg
 
-  report(L"[DEBUG] io.ram: ${io.ram.format}")
+  report(L"#$instanceId [DEBUG] io.ram: ${io.ram.format}")
 
   // --- 状态机定义 ---
   val fsm = new StateMachine {

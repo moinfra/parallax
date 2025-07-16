@@ -20,8 +20,7 @@ case class IssuePipelineSignals(val config: PipelineConfig) extends AreaObject {
   // 注册新的 Stageable 信号用于插入分配后的 Uops
   val ALLOCATED_UOPS = Stageable(Vec(RenamedUop(config), config.renameWidth))
 
-  val FLUSH_PIPELINE = Stageable(Bool())
-  val FLUSH_TARGET_PC = Stageable(UInt(config.pcWidth))
+  val FLUSH_TARGET_PC = Stageable(UInt(config.pcWidth)) // 暂时用不到，考虑啥时候删了
 }
 // -- MODIFICATION END --
 
@@ -55,13 +54,6 @@ class IssuePipeline(val issueConfig: PipelineConfig) extends Plugin with LockedI
     val s1_rename = pipeline.s1_rename
     val s2_rob_alloc = pipeline.s2_rob_alloc
     val s3_dispatch = pipeline.s3_dispatch
-    when(entry_s0_decode(signals.FLUSH_PIPELINE)) {
-      report(
-        L"IssuePipeline: FLUSHING all stages...")
-      pipeline.s1_rename.flushIt()
-      pipeline.s2_rob_alloc.flushIt() // Flush new stage
-      pipeline.s3_dispatch.flushIt()
-    }
     // 加日志，排查每个阶段的 isFiring 和 isReady
     // report(L"DEBUG: s0_decode.isFiring=${entry_s0_decode.isFiring}, isReady=${entry_s0_decode.isReady}")
     // report(L"DEBUG: s1_rename.isFiring=${s1_rename.isFiring}, isReady=${s1_rename.isReady}")
