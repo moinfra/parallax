@@ -260,10 +260,7 @@ class LabSpec extends CustomSpinalSimFunSuite {
       val finalPC = dut.io.commitStats.maxCommitPc.toBigInt
       println(s"Simulation finished. Final PC: 0x${finalPC.toString(16)}")
 
-      // 断言：我们期望这个测试失败，即最终 PC 停在 failPC
-      assert(finalPC == failPC, s"Bug not reproduced! Expected PC to be 0x${failPC.toString(16)} but got 0x${finalPC.toString(16)}. It seems the bug is fixed or the trigger is different.")
-
-      println(s"--- Bug successfully reproduced! Core halted at failure address as expected. ---")
+      assert(finalPC == successPC, s"Expected PC to be 0x${failPC.toString(16)} but got 0x${finalPC.toString(16)}. It seems the bug is fixed or the trigger is different.")
     }
   }
 // testOnly("GPR R1-R31 Correct Read/Write and Verify Test") {

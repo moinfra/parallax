@@ -258,11 +258,13 @@ class Framework(val plugins: Seq[Plugin]) extends Area {
     */
   def getServices = services
 
-  /**
-    * 断言当前出于early阶段
+  /** 断言当前出于early阶段
     */
   def requireEarly() = {
-    require(earlyLock.numRetains == 0 && lateLock.numRetains > 0, "当前不处于early阶段" + s" earlyLock.numRetains=${earlyLock.numRetains}")
+    require(
+      earlyLock.numRetains == 0 && lateLock.numRetains > 0,
+      "当前不处于early阶段" + s" earlyLock.numRetains=${earlyLock.numRetains}"
+    )
   }
 
   def requireLate() = {
@@ -282,7 +284,11 @@ trait LockedImpl extends LockedService {
 }
 
 object ConsoleColor {
-  var enabled = true
+  def isOutputTerminal: Boolean = {
+    val term = System.getenv("TERM")
+    term != null && term != "dumb"
+  }
+  var enabled = isOutputTerminal
 
   def ANSI_GREEN = if (enabled) "\u001B[32m" else "";
   def ANSI_BLUE = if (enabled) "\u001B[34m" else "";
@@ -297,32 +303,46 @@ object ParallaxLogger {
   import ConsoleColor._
   var enabled = true
   def log(foo: String)(implicit line: sourcecode.Line, file: sourcecode.File) = {
-    if(enabled) println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_RESET$foo$ANSI_RESET")
+    if (enabled) println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_RESET$foo$ANSI_RESET")
   }
   def info(foo: String)(implicit line: sourcecode.Line, file: sourcecode.File) = {
-    if(enabled) println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_RESET$foo$ANSI_RESET")
+    if (enabled) println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_RESET$foo$ANSI_RESET")
   }
   def debug(foo: String)(implicit line: sourcecode.Line, file: sourcecode.File) = {
-    if(enabled) println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_BLUE$foo$ANSI_RESET")
+    if (enabled) println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_BLUE$foo$ANSI_RESET")
   }
 
   def warning(foo: String)(implicit line: sourcecode.Line, file: sourcecode.File) = {
-    if(enabled) println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_YELLOW$foo$ANSI_RESET")
+    if (enabled) println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_YELLOW$foo$ANSI_RESET")
   }
 
   def error(foo: String)(implicit line: sourcecode.Line, file: sourcecode.File) = {
-    if(enabled) println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_RED$foo$ANSI_RESET")
+    if (enabled) println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_RED$foo$ANSI_RESET")
   }
 
   def panic(foo: String)(implicit line: sourcecode.Line, file: sourcecode.File) = {
-    if(enabled) println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_RED$foo$ANSI_RESET")
+    if (enabled) println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_RED$foo$ANSI_RESET")
     sys.exit(1)
   }
 
   def success(foo: String)(implicit line: sourcecode.Line, file: sourcecode.File) = {
-    if(enabled) println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_GREEN$foo$ANSI_RESET")
+    if (enabled) println(s"$ANSI_DIM${file.value}:${line.value}$ANSI_RESET\n\t$ANSI_GREEN$foo$ANSI_RESET")
   }
 
+}
+
+object formatStage {
+  def apply(stage: Stage): Seq[Any] = {
+    def formatNullable(x: Any): Seq[Any] = if (x == null) Seq("null") else Seq(x)
+    Seq(
+      L"${stage.name}: ",
+      L"fire=${stage.isFiring}, ",
+      L"in.v=${stage.isValid}, ",
+      L"in.r=${stage.isReady}, ",
+      L"out.v=${formatNullable(stage.internals.output.valid)}, ",
+      L"out.r=${formatNullable(stage.internals.output.ready)}\n"
+    )
+  }
 }
 
 // sim 时打印（最终编译为 verilog $display stmt）
@@ -337,21 +357,13 @@ object ParallaxSim {
     report(flattenRecursively(message))(loc)
   }
 
-  def debugStage(stage: Stage) {
-    // stage.internals.input.ready...
-    debug(
-      Seq(
-        L"Stage status of ${stage.name}: ",
-        L"Inputs: ready=${stage.internals.input.ready}, valid=${stage.internals.input.valid}; ",
-        L"Outputs: ready=${stage.internals.output.ready}, valid=${stage.internals.output.valid}"
-      )
-    )
-  }
-
   def log(message: Seq[Any])(implicit loc: Location) {
     report(
       flattenRecursively(
-        message
+        Seq(
+          "[normal] ",
+          message
+        )
       )
     )(loc)
   }
@@ -360,7 +372,10 @@ object ParallaxSim {
     when(cond) {
       report(
         flattenRecursively(
-          message
+          Seq(
+            "[normal] ",
+            message
+          )
         )
       )(loc)
     }
@@ -372,6 +387,20 @@ object ParallaxSim {
     report(
       flattenRecursively(
         Seq(
+          "[debug] ",
+          ANSI_BLUE,
+          message,
+          ANSI_RESET
+        )
+      )
+    )(loc)
+  }
+
+  def notice(message: Seq[Any])(implicit loc: Location) {
+    report(
+      flattenRecursively(
+        Seq(
+          "[notice] ",
           ANSI_BLUE,
           message,
           ANSI_RESET
@@ -384,6 +413,7 @@ object ParallaxSim {
     report(
       flattenRecursively(
         Seq(
+          "[success] ",
           ANSI_GREEN,
           message,
           ANSI_RESET
@@ -396,6 +426,7 @@ object ParallaxSim {
     report(
       flattenRecursively(
         Seq(
+          "[error] ",
           ANSI_RED,
           message,
           ANSI_RESET
@@ -408,6 +439,7 @@ object ParallaxSim {
     report(
       flattenRecursively(
         Seq(
+          "[fatal] ",
           ANSI_RED,
           message,
           ANSI_RESET
@@ -420,6 +452,7 @@ object ParallaxSim {
     report(
       flattenRecursively(
         Seq(
+          "[warning] ",
           ANSI_YELLOW,
           message,
           ANSI_RESET

@@ -20,11 +20,9 @@ class RenamePlugin(
   val early_setup = create early new Area {
     val issuePpl = getService[IssuePipeline]
     val busyTableService = getService[BusyTableService] // 获取服务
-    val checkpointManagerService = getService[CheckpointManagerService]
 
     issuePpl.retain()
     busyTableService.retain() // 保持服务
-    checkpointManagerService.retain()
 
     val renameUnit = new RenameUnit(pipelineConfig, ratConfig, flConfig)
     val rat = getService[RatControlService]
@@ -46,7 +44,6 @@ class RenamePlugin(
     val rat = early_setup.rat
     val freeList = early_setup.freeList
     val setBusyPorts = early_setup.busyTableService.newSetPort() // 获取set端口
-    val saveCheckpointTrigger = early_setup.checkpointManagerService.getSaveCheckpointTrigger() // 新增：获取 saveCheckpointTrigger
 
     // --- 1. Connect data paths ---
     val decodedUopsIn = s1_rename(issueSignals.DECODED_UOPS)
@@ -83,15 +80,12 @@ class RenamePlugin(
     val willNeedPhysRegs = decodedUopsIn(0).isValid && decodedUopsIn(0).writeArchDestEn
     val notEnoughPhysRegs = freeList.getNumFreeRegs < Mux(willNeedPhysRegs, U(1), U(0))
     
-    // 简化暂停条件：仅当物理寄存器不足时暂停
     val shouldHalt = notEnoughPhysRegs
     s1_rename.haltWhen(shouldHalt)
     
     // 保留物理寄存器不足的调试日志
-    if(enableLog) {
-      when(s1_rename.isValid && notEnoughPhysRegs) {
-        report(L"[RENAME] FREELIST STALL: Not enough physical registers")
-      }
+    when(s1_rename.isValid && notEnoughPhysRegs) {
+      report(L"[RENAME] FREELIST STALL: Not enough physical registers")
     }
 
     // --- 3. Drive state-changing requests only when firing ---
@@ -111,15 +105,6 @@ class RenamePlugin(
       }
     }
 
-    saveCheckpointTrigger := False // 默认不触发
-    // 简化后的检查点触发逻辑：当重命名阶段有有效指令时触发
-    when(s1_rename.isFiring) {
-      saveCheckpointTrigger := True
-      if (enableLog) {
-        report(L"[RENAME] Triggering Checkpoint SAVE during rename stage.")
-      }
-    }
-
     if(enableLog) report(L"DEBUG: s1_rename.isFiring=${s1_rename.isFiring}, decodedUopsIn(0).isValid=${decodedUopsIn(0).isValid}")
     if(enableLog) report(L"DEBUG: s1_rename.isReady=${s1_rename.isReady}, s1_rename.isValid=${s1_rename.isValid}, willNeedPhysRegs=${willNeedPhysRegs}, notEnoughPhysRegs=${notEnoughPhysRegs}")
 
@@ -130,7 +115,6 @@ class RenamePlugin(
 
     // +++ FLUSH LOGIC INSERTION START +++
     val flush = new Area {
-      // 硬重定向需要还原到 checkpoint，交给 checkpointManagerService 处理
       getServiceOption[HardRedirectService].foreach(hr => {
         val doHardRedirect = hr.getFlushListeningPort()
         when(doHardRedirect) {
@@ -141,9 +125,23 @@ class RenamePlugin(
     }
     // +++ FLUSH LOGIC INSERTION END +++
 
+    val branchLimit = new Area {
+      getServiceOption[BranchTrackerService].foreach(bt => {
+        report(L"s1_rename.isFiring = ${s1_rename.isFiring}, decodedUopsIn(0).isValid = ${decodedUopsIn(0).isValid}, decodedUopsIn(0).isBranchOrJump = ${decodedUopsIn(0).isBranchOrJump}")
+        when(s1_rename.isFiring && decodedUopsIn(0).isValid && decodedUopsIn(0).isBranchOrJump) {
+          bt.doIncrement() // Rename 时分配了资源，因此+1，Commit 时释放资源，因此-1
+        } otherwise {
+          report(L"Not a branch or jump instruction")
+        }
+        s1_rename.haltWhen(bt.isExceedLimit(Mux(decodedUopsIn(0).isValid && decodedUopsIn(0).isBranchOrJump, U(1), U(0)))) // 超出分支限制时暂停重命名阶段
+      })
+      if(getServiceOption[BranchTrackerService].isEmpty) {
+        println("WARNING: BranchTrackerService is not available")
+      }
+    }
+
     issuePpl.release()
     early_setup.busyTableService.release() // 释放服务
-    early_setup.checkpointManagerService.release()
   }
   // --- MODIFICATION END --
 }

@@ -197,6 +197,15 @@ class CommitPlugin(
       // === IDLE Instruction State Management ===
       // IDLE instruction should be committed when detected, then set IDLE state
       val commitIdleThisCycle = headUop.decoded.uopCode === BaseUopCode.IDLE && commitAckMasks(0)
+      val commitBranchThisCycle = headUop.decoded.isBranchOrJump && commitAckMasks(0) // 不用考虑数量，因为被限制住了，只会有一个
+      val branchLimit = new Area {
+        getServiceOption[BranchTrackerService].foreach(bt => {
+          when(commitBranchThisCycle) {
+            bt.doDecrement() // Rename 时分配了资源，因此+1，Commit 时释放资源，因此-1
+          }
+        })
+      }
+
       
       // --- 计算出需要立即响应的信号 ---
       
@@ -361,7 +370,7 @@ class CommitPlugin(
     
     // 调试报告
     report(L"commitIdleThisCycle=${s0.commitIdleThisCycle}, commitAckMasks(0)=${s0.commitAckMasks(0)}: commitEnableExt=${commitEnableExt}, commitSlots(0).valid=${commitSlots(0).valid}, !committedIdleReg=${!committedIdleReg}")
-    
+
     // restoreCheckpointTrigger is already set above in the IDLE logic
     getServiceOption[DebugDisplayService].foreach(dbg => { 
       dbg.setDebugValueOnce(s0.committedThisCycle_comb.asBool, DebugValue.COMMIT_FIRE, expectIncr = true)

@@ -10,6 +10,7 @@ import parallax.utilities._
 import parallax.components.memory.{IFetchRsp, InstructionFetchUnitConfig}
 import parallax.components.ifu.IFUService
 import scala.collection.mutable
+import parallax.issue.CheckpointManagerService
 
 
 case class FetchedInstr(pCfg: PipelineConfig) extends Bundle with Formattable {
@@ -129,6 +130,7 @@ class SimpleFetchPipelinePlugin(
     )
     
     // --- Data Path ---
+    // IFU -> IFU RSP FIFO -> Unpacker -> Filtered Stream -> Output FIFO -> Final Output
     ifuRspFifo.io.push << ifuPort.rsp
     unpacker.io.input << ifuRspFifo.io.pop
     val unpackedStream = unpacker.io.output
@@ -193,6 +195,20 @@ class SimpleFetchPipelinePlugin(
     // Combine all soft redirect sources
     val doSoftRedirect = doBpuRedirect || doJumpRedirect
     val softRedirectTarget = Mux(doBpuRedirect, bpuResponse.target, jumpTarget)
+
+    val saveCheckpoint = new Area {
+        val ckptService = getService[CheckpointManagerService]
+        val shouldCreateCheckpoint = bpuResponse.valid && 
+                                bpuResponse.isTaken && 
+                                !doHardRedirect
+        val trigger = ckptService.getSaveCheckpointTrigger()
+        trigger.addAttribute("MARK_DEBUG","TRUE")
+        trigger := False
+        when(shouldCreateCheckpoint) {
+            trigger := True
+            report(L"[Fetch] CHECKPOINT: Saving checkpoint of predict target 0x${bpuResponse.target}")
+        }
+    }
     
     // Hard Redirect (from backend)
     

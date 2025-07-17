@@ -395,6 +395,7 @@ class CoreNSCSCC(simDebug: Boolean = false) extends Component {
       // BPU and fetch
       new BpuPipelinePlugin(pCfg),
       new SimpleFetchPipelinePlugin(pCfg, ifuCfg, fifoDepth),
+      new BranchTrackerPlugin(),
 
       // Infrastructure plugins
       new PhysicalRegFilePlugin(pCfg.physGprCount, pCfg.dataWidth),
