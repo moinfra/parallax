@@ -36,7 +36,7 @@ case class PipelineConfig(
     // val lsuIqDepth: Int = 16
     // val mulIqDepth: Int = 4
     val forceMMIO: Boolean = false, // Force LS requests to bypass the DCache
-    val memOpIdWidth: BitCount = 8 bits,
+    val memOpIdWidth: BitCount = 4 bits,
 ) {
   def mulEuCount: Int = 0
   def divEuCount: Int = 0

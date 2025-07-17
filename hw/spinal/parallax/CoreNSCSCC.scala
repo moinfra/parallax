@@ -28,8 +28,38 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// 1. 定义新的 Service 和 Connector Plugin
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+/**
+ * 一个服务，允许外部模块（如仿真连接器）在 early 阶段
+ * 注册一个 AXI Master 到内存系统中。
+ */
+trait ExternalMasterService extends Service {
+  def addAxiMaster(master: Axi4): Unit
+}
+
+/**
+ * 一个仅用于仿真的插件，负责将顶层的仿真专用IO连接到内部插件服务。
+ * @param fetchDisableSignal 来自顶层IO的 fetchDisable 信号。
+ * @param axiInjectorMaster 来自顶层IO的 AXI 注入器端口。
+ */
+class SimulationConnectorPlugin(fetchDisableSignal: Bool, axiInjectorMaster: Axi4) extends Plugin {
+  val setup = create early new Area {
+    // 1. 连接 fetchDisable 信号
+    val fetchService = getService[SimpleFetchPipelineService]
+    val disablePort = fetchService.newFetchDisablePort()
+    disablePort := fetchDisableSignal
+
+    // 2. 将 AXI 注入器注册为内存系统的一个 Master
+    val memService = getService[ExternalMasterService]
+    memService.addAxiMaster(axiInjectorMaster)
+  }
+}
+
 // CoreNSCSCC IO Bundle - matches thinpad_top.v interface exactly
-case class CoreNSCSCCIo(simDebug: Boolean = false) extends Bundle {
+case class CoreNSCSCCIo(simDebug: Boolean) extends Bundle {
   val onboardDebug = !simDebug
   val commitStats = simDebug generate out(CommitStats())
 
@@ -89,13 +119,24 @@ case class CoreNSCSCCIo(simDebug: Boolean = false) extends Bundle {
   val uart_w_bits_last = out Bool ()
   val uart_w_valid = out Bool ()
   val uart_b_ready = out Bool ()
+
+  // --- 新增的仿真专用端口 ---
+  val fetchDisable = simDebug generate in(Bool())
 }
 
 // Memory System Plugin for CoreNSCSCC
 class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: GenericMemoryBusConfig)
     extends Plugin
-    with SgmbService {
+    with SgmbService
+    with ExternalMasterService { // +++ 实现新的服务
   import scala.collection.mutable.ArrayBuffer
+
+  // +++ 用于存储外部 Master 的 Buffer +++
+  private val externalMasters = ArrayBuffer[Axi4]()
+  override def addAxiMaster(master: Axi4): Unit = {
+    framework.requireEarly() // 确保在 early 阶段调用
+    externalMasters += master
+  }
 
   private val readPorts = ArrayBuffer[SplitGmbReadChannel]()
   private val writePorts = ArrayBuffer[SplitGmbWriteChannel]()
@@ -139,7 +180,7 @@ class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: GenericMemoryBusConfig
       enableLog = false
     )
 
-    val numMasters = 6 // DCache + SGMB bridges
+    val numMasters = 7 // DCache + SGMB bridges + Injector
     val sramAxi4Cfg = axiConfig.copy(idWidth = axiConfig.idWidth + log2Up(numMasters))
 
     // BaseRAM和ExtRAM使用相同的控制器
@@ -172,7 +213,8 @@ class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: GenericMemoryBusConfig
     }
 
     // 收集所有AXI master
-    val sramMasters = writeBridges.map(_.io.axiOut) ++ readBridges.map(_.io.axiOut) ++ Seq(dcacheMaster)
+    val internalSramMasters = writeBridges.map(_.io.axiOut) ++ readBridges.map(_.io.axiOut) ++ Seq(dcacheMaster)
+    val sramMasters = internalSramMasters ++ externalMasters // +++ 合并内部和外部 Masters
     require(sramMasters.size <= hw.numMasters, "Too many masters for SRAM controller")
 
     // 创建Crossbar，实现新的内存映射
@@ -203,10 +245,12 @@ class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: GenericMemoryBusConfig
   }
 }
 
-class CoreNSCSCC(simDebug: Boolean = false) extends Component {
+class CoreNSCSCC(simDebug: Boolean = false, 
+  axiInjectorMaster: Axi4 = null,
+) extends Component {
   val onboardDebug = !simDebug
   println(s"Creating CoreNSCSCC with simDebug=${simDebug}")
-  val io = CoreNSCSCCIo(simDebug)
+  lazy val io = CoreNSCSCCIo(simDebug)
 
   // 基本配置
   val pCfg = PipelineConfig(
@@ -226,6 +270,25 @@ class CoreNSCSCC(simDebug: Boolean = false) extends Component {
     memOpIdWidth = 4 bits,
     forceMMIO = true
   )
+
+
+  def createAxi4Config(pCfg: PipelineConfig): Axi4Config = Axi4Config(
+    addressWidth = pCfg.xlen,
+    dataWidth = pCfg.xlen,
+    idWidth = pCfg.memOpIdWidth.value,
+    useLock = false,
+    useCache = false,
+    useProt = false,
+    useQos = false,
+    useRegion = false,
+    useResp = true,
+    useStrb = true,
+    useBurst = true,
+    useLen = true,
+    useSize = true
+  )
+
+  val axiConfig = createAxi4Config(pCfg)
 
   val dCfg = DataCachePluginConfig(
     pipelineConfig = pCfg,
@@ -247,24 +310,6 @@ class CoreNSCSCC(simDebug: Boolean = false) extends Component {
     fetchGroupDataWidth = (pCfg.dataWidth.value * pCfg.fetchWidth) bits,
     enableLog = false
   )
-
-  def createAxi4Config(pCfg: PipelineConfig): Axi4Config = Axi4Config(
-    addressWidth = pCfg.xlen,
-    dataWidth = pCfg.xlen,
-    idWidth = pCfg.memOpIdWidth.value,
-    useLock = false,
-    useCache = false,
-    useProt = false,
-    useQos = false,
-    useRegion = false,
-    useResp = true,
-    useStrb = true,
-    useBurst = true,
-    useLen = true,
-    useSize = true
-  )
-
-  val axiConfig = createAxi4Config(pCfg)
   val fifoDepth = 8
 
   val UOP_HT = HardType(RenamedUop(pCfg))
@@ -439,7 +484,13 @@ class CoreNSCSCC(simDebug: Boolean = false) extends Component {
 
     if (onboardDebug) {
       _plugins += new DebugDisplayPlugin()
-    } else {
+    } 
+    
+    if (simDebug) {
+      _plugins += new SimulationConnectorPlugin(
+        fetchDisableSignal = io.fetchDisable,
+        axiInjectorMaster = axiInjectorMaster
+      )
       _plugins += new SimDebugDisplayPlugin()
     }
 
