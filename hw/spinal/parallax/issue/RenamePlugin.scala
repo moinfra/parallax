@@ -117,6 +117,7 @@ class RenamePlugin(
     // The output RenamedUop will have a garbage robPtr, which is fine.
     // It will be overwritten in the next stage.
     s1_rename(issueSignals.RENAMED_UOPS) := renameUnit.io.renamedUopsOut
+    s1_rename(issueSignals.RENAMED_UOPS)(0).rename.physSrc2.idx. addAttribute("mark_debug","TRUE")
 
     // +++ FLUSH LOGIC INSERTION START +++
     val flush = new Area {

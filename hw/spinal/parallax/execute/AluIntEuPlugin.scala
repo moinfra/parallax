@@ -52,13 +52,14 @@ class AluIntEuPlugin(
     // 2. 连接输入端口到流水线入口，并初始化 EU_INPUT_PAYLOAD
     pipeline.s0_dispatch.driveFrom(getEuInputPort)
     pipeline.s0_dispatch(EU_INPUT_PAYLOAD) := getEuInputPort.payload // 初始化 EU_INPUT_PAYLOAD
-
+    getEuInputPort.payload.src2Tag.addAttribute("mark_debug","TRUE")
     // 连接阶段
     pipeline.connect(pipeline.s0_dispatch, pipeline.s1_readRegs)(Connection.M2S())
     pipeline.connect(pipeline.s1_readRegs, pipeline.s2_execute)(Connection.M2S())
     
     // --- Stage S1: Read Registers ---
     val iqEntry_s1 = pipeline.s1_readRegs(EU_INPUT_PAYLOAD) // 使用共享的 Stageable
+    iqEntry_s1.src2Tag. addAttribute("mark_debug","TRUE")
     val data_rs1 = connectGprRead(pipeline.s1_readRegs, 0, iqEntry_s1.src1Tag, iqEntry_s1.useSrc1)
     val data_rs2 = connectGprRead(pipeline.s1_readRegs, 1, iqEntry_s1.src2Tag, iqEntry_s1.useSrc2)
     pipeline.s1_readRegs(S1_RS1_DATA) := data_rs1
@@ -121,6 +122,9 @@ class AluIntEuPlugin(
     val debugAluLHS = RegNextWhen(aluSrc1Data, pipeline.s2_execute.isFiring) addAttribute("mark_debug","TRUE")
     val debugAluRHS = RegNextWhen(effectiveSrc2Data, pipeline.s2_execute.isFiring) addAttribute("mark_debug","TRUE")
     val debugAluResult = RegNextWhen(aluResultPayload.data, pipeline.s2_execute.isFiring) addAttribute("mark_debug","TRUE")
+    KeepAttribute(debugAluLHS)
+    KeepAttribute(debugAluRHS)
+    KeepAttribute(debugAluResult)
     // Logging
     when(pipeline.s2_execute.isFiring) {
       ParallaxSim.debug(

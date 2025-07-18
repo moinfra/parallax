@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 3105a33b457518a7afeed8b0527b4d8b9dab2383
 // Component : CoreNSCSCC
-// Git hash  : ee74a1a583193811125bcd571822fdfc5de0f078
+// Git hash  : c4f2bdfb3a362d0ea2e9b1ae242672d8679b0355
 
 `timescale 1ns/1ps
 
@@ -1552,7 +1552,7 @@ module CoreNSCSCC (
   reg                 _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src1IsFpr_1;
   reg                 _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_valid;
   reg        [31:0]   _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src2Data_1;
-  reg        [5:0]    _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_address;
+  (* mark_debug = "TRUE" *) reg        [5:0]    _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_address;
   reg                 _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src2Ready_1;
   reg                 _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src2IsFpr_1;
   reg                 _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSub_1;
@@ -1959,7 +1959,7 @@ module CoreNSCSCC (
   wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchPrediction_wasPredicted;
   wire       [5:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc1_idx;
   wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc1IsFpr;
-  wire       [5:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc2_idx;
+  (* mark_debug = "TRUE" *) wire       [5:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc2_idx;
   wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc2IsFpr;
   wire       [5:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc3_idx;
   wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc3IsFpr;
@@ -3788,7 +3788,7 @@ module CoreNSCSCC (
   wire                AluIntEU_AluIntEuPlugin_euInputPort_payload_src1IsFpr;
   wire                AluIntEU_AluIntEuPlugin_euInputPort_payload_useSrc2;
   wire       [31:0]   AluIntEU_AluIntEuPlugin_euInputPort_payload_src2Data;
-  wire       [5:0]    AluIntEU_AluIntEuPlugin_euInputPort_payload_src2Tag;
+  (* mark_debug = "TRUE" *) wire       [5:0]    AluIntEU_AluIntEuPlugin_euInputPort_payload_src2Tag;
   wire                AluIntEU_AluIntEuPlugin_euInputPort_payload_src2Ready;
   wire                AluIntEU_AluIntEuPlugin_euInputPort_payload_src2IsFpr;
   wire                AluIntEU_AluIntEuPlugin_euInputPort_payload_aluCtrl_isSub;
@@ -3891,7 +3891,7 @@ module CoreNSCSCC (
   wire       [1:0]    _zz_io_iqEntryIn_payload_aluCtrl_logicOp;
   wire       [2:0]    _zz_io_iqEntryIn_payload_immUsage;
   wire                s2_Execute_isFiring;
-  (* mark_debug = "TRUE" *) reg        [31:0]   io_resultOut_payload_data_regNextWhen;
+  (* mark_debug = "TRUE" , keep , syn_keep *) reg        [31:0]   io_resultOut_payload_data_regNextWhen /* synthesis syn_keep = 1 */ ;
   wire       [2:0]    _zz_36;
   wire                _zz_AluIntEU_AluIntEuPlugin_logicPhase_isFlushed;
   wire       [2:0]    _zz_AluIntEU_AluIntEuPlugin_logicPhase_isFlushed_1;
@@ -23025,10 +23025,10 @@ module CoreNSCSCC (
       if(SimpleFetchPipelinePlugin_doHardRedirect_) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // RenamePlugin.scala:L127
+            assert(1'b0); // RenamePlugin.scala:L128
           `else
             if(!1'b0) begin
-              $display("NOTE(RenamePlugin.scala:127):  DecodePlugin (s0_decode): Flushing pipeline due to hard redirect"); // RenamePlugin.scala:L127
+              $display("NOTE(RenamePlugin.scala:128):  DecodePlugin (s0_decode): Flushing pipeline due to hard redirect"); // RenamePlugin.scala:L128
             end
           `endif
         `endif
@@ -23168,10 +23168,10 @@ module CoreNSCSCC (
       if(s2_Execute_isFiring) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // AluIntEuPlugin.scala:L126
+            assert(1'b0); // AluIntEuPlugin.scala:L130
           `else
             if(!1'b0) begin
-              $display("NOTE(AluIntEuPlugin.scala:126):  [debug] [34mAluIntEu (AluIntEU) S2 Firing: RobPtr=%x, ResultData=%x, WritesPreg=%x, ImmUsage=%x, UseSrc2=%x op: AluCtrlFlags: isSub=%x isAdd=%x isSigned=%x logicOp=%s, lhs=%x, rhs=%x[0m", _zz_AluIntEU_AluIntEuPlugin_euResult_uop_robPtr, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_data, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_writesToPhysReg, _zz_36, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_useSrc2, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSub, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isAdd, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSigned, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_string, _zz_io_iqEntryIn_payload_src1Data, _zz_io_iqEntryIn_payload_src2Data_1); // AluIntEuPlugin.scala:L126
+              $display("NOTE(AluIntEuPlugin.scala:130):  [debug] [34mAluIntEu (AluIntEU) S2 Firing: RobPtr=%x, ResultData=%x, WritesPreg=%x, ImmUsage=%x, UseSrc2=%x op: AluCtrlFlags: isSub=%x isAdd=%x isSigned=%x logicOp=%s, lhs=%x, rhs=%x[0m", _zz_AluIntEU_AluIntEuPlugin_euResult_uop_robPtr, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_data, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_writesToPhysReg, _zz_36, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_useSrc2, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSub, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isAdd, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSigned, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_string, _zz_io_iqEntryIn_payload_src1Data, _zz_io_iqEntryIn_payload_src2Data_1); // AluIntEuPlugin.scala:L130
             end
           `endif
         `endif
