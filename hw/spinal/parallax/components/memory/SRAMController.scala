@@ -213,13 +213,13 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
 
   // --- 状态机定义 ---
   val fsm = new StateMachine {
-    val ar_cmd_reg = Reg(cloneOf(io.axi.ar.payload))
-    val aw_cmd_reg = Reg(cloneOf(io.axi.aw.payload))
-    val burst_count_remaining = Reg(UInt(axiConfig.lenWidth + 1 bits))
-    val current_sram_addr = Reg(UInt(config.addressWidth bits)) // 用于记录本次burst的当前SRAM逻辑地址
-    val read_data_buffer = Reg(Bits(config.dataWidth bits))
-    val read_wait_counter = hasReadWaitCycles generate Reg(UInt(log2Up(config.readWaitCycles + 1) bits))
-    val write_wait_counter = hasWriteWaitCycles generate Reg(UInt(log2Up(config.writeWaitCycles + 1) bits))
+    val ar_cmd_reg             = Reg(cloneOf(io.axi.ar.payload))         addAttribute("mark_debug","TRUE")
+    val aw_cmd_reg             = Reg(cloneOf(io.axi.aw.payload))         addAttribute("mark_debug","TRUE")
+    val burst_count_remaining  = Reg(UInt(axiConfig.lenWidth + 1 bits))  addAttribute("mark_debug","TRUE")
+    val current_sram_addr      = Reg(UInt(config.addressWidth bits))     addAttribute("mark_debug","TRUE") // 用于记录本次burst的当前SRAM逻辑地址
+    val read_data_buffer       = Reg(Bits(config.dataWidth bits))        addAttribute("mark_debug","TRUE")
+    val read_wait_counter      = hasReadWaitCycles   generate Reg(UInt(log2Up(config.readWaitCycles + 1) bits))
+    val write_wait_counter     = hasWriteWaitCycles  generate Reg(UInt(log2Up(config.writeWaitCycles + 1) bits))
 
     // --- NEW: 为新的 DEASSERT 状态添加计数器 ---
     // 仅当周期数大于1时才需要生成物理计数器

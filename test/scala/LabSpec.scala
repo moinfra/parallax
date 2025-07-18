@@ -682,7 +682,7 @@ class LabSpec extends CustomSpinalSimFunSuite {
       st_w(rd = 14, rj = 13, offset = 0),
 
       // 停机
-      bne(rj = 0, rd = 0, offset = 0)
+      bne(rj = 12, rd = 0, offset = 0)
     )
     LabHelper.dumpBinary(instructions, "bin/isolate_r14_test.bin")
 
@@ -709,7 +709,7 @@ class LabSpec extends CustomSpinalSimFunSuite {
       println("--- Test for r14 PASSED ---")
     }
   }
-  test("Isolate Address Register r4") {
+  testOnly("Isolate Address Register r4") {
     val instructions = Seq(
       // 使用 r12 (来自成功的测试) 作为数据寄存器
       lu12i_w(rd = 12, imm = 0xbeef0000 >>> 12),
@@ -723,7 +723,7 @@ class LabSpec extends CustomSpinalSimFunSuite {
       st_w(rd = 12, rj = 4, offset = 0),
 
       // 停机
-      bne(rj = 0, rd = 0, offset = 0)
+      bne(rj = 12, rd = 0, offset = 0)
     )
 
     LabHelper.dumpBinary(instructions, "bin/isolate_r4_test.bin")
@@ -824,7 +824,7 @@ class LabSpec extends CustomSpinalSimFunSuite {
     }
   }
 
-  testOnly("Fibonacci Test on CoreNSCSCC") {
+  test("Fibonacci Test on CoreNSCSCC") {
 
     val instructions = ArrayBuffer[BigInt]()
     // Original Assembly:
@@ -849,17 +849,17 @@ class LabSpec extends CustomSpinalSimFunSuite {
     // $t0 = r12, $t1 = r13, $t2 = r14, $t3 = r15
     // $a0 = r4, $a1 = r5
 
-    instructions += addi_w(rd = 12, rj = 0, imm = 1) // $t0 ($r12) = 1
-    instructions += addi_w(rd = 13, rj = 0, imm = 1) // $t1 ($r13) = 1
-    instructions += lu12i_w(rd = 4, imm = 0x80400) // $a0 ($r4) = 0x80400000 (imm -0x7fc00 for lu12i.w)
-    instructions += addi_w(rd = 5, rj = 4, imm = 0x100) // $a1 ($r5) = $a0 + 0x100 (0x80400100)
+    /*00*/ instructions += addi_w(rd = 12, rj = 0, imm = 1) // $t0 ($r12) = 1
+    /*  */ instructions += addi_w(rd = 13, rj = 0, imm = 1) // $t1 ($r13) = 1
+    /*  */ instructions += lu12i_w(rd = 4, imm = 0x80400) // $a0 ($r4) = 0x80400000 (imm -0x7fc00 for lu12i.w)
+    /*  */ instructions += addi_w(rd = 5, rj = 4, imm = 0x100) // $a1 ($r5) = $a0 + 0x100 (0x80400100)
 
     // loop: (PC = 0x10, relative to start)
-    instructions += add_w(rd = 14, rj = 12, rk = 13) // $t2 ($r14) = $t0 + $t1
-    instructions += addi_w(rd = 12, rj = 13, imm = 0) // $t0 = $t1
-    instructions += addi_w(rd = 13, rj = 14, imm = 0) // $t1 = $t2
-    instructions += st_w(rd = 14, rj = 4, offset = 0) // mem[$a0] = $t2
-    instructions += ld_w(rd = 15, rj = 4, offset = 0) // $t3 ($r15) = mem[$a0]
+    /*10*/ instructions += add_w(rd = 14, rj = 12, rk = 13) // $t2 ($r14) = $t0 + $t1
+    /*  */ instructions += addi_w(rd = 12, rj = 13, imm = 0) // $t0 = $t1
+    /*  */ instructions += addi_w(rd = 13, rj = 14, imm = 0) // $t1 = $t2
+    /*  */ instructions += st_w(rd = 14, rj = 4, offset = 0) // mem[$a0] = $t2
+    /*20*/ instructions += ld_w(rd = 15, rj = 4, offset = 0) // $t3 ($r15) = mem[$a0]
 
     // bne $t2,$t3,end
     // Current PC for this instruction is 0x20 (relative to start)

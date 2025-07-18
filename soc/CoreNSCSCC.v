@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 3105a33b457518a7afeed8b0527b4d8b9dab2383
 // Component : CoreNSCSCC
-// Git hash  : 17d6114ea2f15ece50d9cac8fc63d4d245c59cef
+// Git hash  : d6b0fe85ff2e31be91e518f2a6b530f197606af3
 
 `timescale 1ns/1ps
 
@@ -48671,19 +48671,19 @@ module SRAMController_1 (
   wire                fsm_wantExit;
   reg                 fsm_wantStart;
   wire                fsm_wantKill;
-  reg        [31:0]   fsm_ar_cmd_reg_addr;
-  reg        [6:0]    fsm_ar_cmd_reg_id;
-  reg        [7:0]    fsm_ar_cmd_reg_len;
-  reg        [2:0]    fsm_ar_cmd_reg_size;
-  reg        [1:0]    fsm_ar_cmd_reg_burst;
-  reg        [31:0]   fsm_aw_cmd_reg_addr;
-  reg        [6:0]    fsm_aw_cmd_reg_id;
-  reg        [7:0]    fsm_aw_cmd_reg_len;
-  reg        [2:0]    fsm_aw_cmd_reg_size;
-  reg        [1:0]    fsm_aw_cmd_reg_burst;
-  reg        [8:0]    fsm_burst_count_remaining;
-  reg        [19:0]   fsm_current_sram_addr;
-  reg        [31:0]   fsm_read_data_buffer;
+  (* mark_debug = "TRUE" *) reg        [31:0]   fsm_ar_cmd_reg_addr;
+  (* mark_debug = "TRUE" *) reg        [6:0]    fsm_ar_cmd_reg_id;
+  (* mark_debug = "TRUE" *) reg        [7:0]    fsm_ar_cmd_reg_len;
+  (* mark_debug = "TRUE" *) reg        [2:0]    fsm_ar_cmd_reg_size;
+  (* mark_debug = "TRUE" *) reg        [1:0]    fsm_ar_cmd_reg_burst;
+  (* mark_debug = "TRUE" *) reg        [31:0]   fsm_aw_cmd_reg_addr;
+  (* mark_debug = "TRUE" *) reg        [6:0]    fsm_aw_cmd_reg_id;
+  (* mark_debug = "TRUE" *) reg        [7:0]    fsm_aw_cmd_reg_len;
+  (* mark_debug = "TRUE" *) reg        [2:0]    fsm_aw_cmd_reg_size;
+  (* mark_debug = "TRUE" *) reg        [1:0]    fsm_aw_cmd_reg_burst;
+  (* mark_debug = "TRUE" *) reg        [8:0]    fsm_burst_count_remaining;
+  (* mark_debug = "TRUE" *) reg        [19:0]   fsm_current_sram_addr;
+  (* mark_debug = "TRUE" *) reg        [31:0]   fsm_read_data_buffer;
   reg        [0:0]    fsm_read_wait_counter;
   reg        [0:0]    fsm_write_wait_counter;
   (* MARK_DEBUG = "TRUE" *) reg                 fsm_transaction_error_occurred;
@@ -49741,19 +49741,19 @@ module SRAMController (
   wire                fsm_wantExit;
   reg                 fsm_wantStart;
   wire                fsm_wantKill;
-  reg        [31:0]   fsm_ar_cmd_reg_addr;
-  reg        [6:0]    fsm_ar_cmd_reg_id;
-  reg        [7:0]    fsm_ar_cmd_reg_len;
-  reg        [2:0]    fsm_ar_cmd_reg_size;
-  reg        [1:0]    fsm_ar_cmd_reg_burst;
-  reg        [31:0]   fsm_aw_cmd_reg_addr;
-  reg        [6:0]    fsm_aw_cmd_reg_id;
-  reg        [7:0]    fsm_aw_cmd_reg_len;
-  reg        [2:0]    fsm_aw_cmd_reg_size;
-  reg        [1:0]    fsm_aw_cmd_reg_burst;
-  reg        [8:0]    fsm_burst_count_remaining;
-  reg        [19:0]   fsm_current_sram_addr;
-  reg        [31:0]   fsm_read_data_buffer;
+  (* mark_debug = "TRUE" *) reg        [31:0]   fsm_ar_cmd_reg_addr;
+  (* mark_debug = "TRUE" *) reg        [6:0]    fsm_ar_cmd_reg_id;
+  (* mark_debug = "TRUE" *) reg        [7:0]    fsm_ar_cmd_reg_len;
+  (* mark_debug = "TRUE" *) reg        [2:0]    fsm_ar_cmd_reg_size;
+  (* mark_debug = "TRUE" *) reg        [1:0]    fsm_ar_cmd_reg_burst;
+  (* mark_debug = "TRUE" *) reg        [31:0]   fsm_aw_cmd_reg_addr;
+  (* mark_debug = "TRUE" *) reg        [6:0]    fsm_aw_cmd_reg_id;
+  (* mark_debug = "TRUE" *) reg        [7:0]    fsm_aw_cmd_reg_len;
+  (* mark_debug = "TRUE" *) reg        [2:0]    fsm_aw_cmd_reg_size;
+  (* mark_debug = "TRUE" *) reg        [1:0]    fsm_aw_cmd_reg_burst;
+  (* mark_debug = "TRUE" *) reg        [8:0]    fsm_burst_count_remaining;
+  (* mark_debug = "TRUE" *) reg        [19:0]   fsm_current_sram_addr;
+  (* mark_debug = "TRUE" *) reg        [31:0]   fsm_read_data_buffer;
   reg        [0:0]    fsm_read_wait_counter;
   reg        [0:0]    fsm_write_wait_counter;
   (* MARK_DEBUG = "TRUE" *) reg                 fsm_transaction_error_occurred;
