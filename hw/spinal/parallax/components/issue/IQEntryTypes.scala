@@ -387,7 +387,7 @@ case class IQEntryBru(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
     this.branchCtrl := decoded.branchCtrl
     this.imm := decoded.imm
     this.pc := decoded.pc
-    this.branchPrediction := renamedUop.rename.branchPrediction // 复制分支预测信息
+    this.branchPrediction := renamedUop.decoded.branchPrediction // 复制分支预测信息
     this
   }
 }

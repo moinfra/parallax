@@ -36,7 +36,7 @@ class CommitPluginTestBench(
       exceptionCodeWidth = pCfg.exceptionCodeWidth
     )
     val robSlotsInput = Vec(in(ROBCommitSlot[RenamedUop](robConfig)), pCfg.commitWidth)
-    report(L"robSlotsInput(0).valid: ${robSlotsInput(0).valid}\n")
+    report(L"robSlotsInput(0).valid: ${robSlotsInput(0).canCommit}\n")
     val robAcksObserve = Vec(out Bool (), pCfg.commitWidth)
 
     // FreeList monitoring
@@ -199,7 +199,7 @@ class CommitPluginSpec extends CustomSpinalSimFunSuite {
       oldPhysDest: BigInt,
       done: Boolean
   ): Unit = {
-    slot.valid #= true
+    slot.canCommit #= true
     slot.entry.payload.uop.robPtr #= robPtr
     slot.entry.payload.uop.rename.allocatesPhysDest #= allocatesPhysDest
     slot.entry.payload.uop.rename.physDest.idx #= physDest
@@ -212,7 +212,7 @@ class CommitPluginSpec extends CustomSpinalSimFunSuite {
   }
 
   def clearRobSlot(slot: ROBCommitSlot[RenamedUop]): Unit = {
-    slot.valid #= false
+    slot.canCommit #= false
     slot.entry.assignDontCare()
   }
 

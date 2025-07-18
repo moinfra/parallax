@@ -332,13 +332,13 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       for (i <- 0 until numOps) {
         dut.clockDomain.waitSampling(0) 
         assert(
-          dut.io.commit(0).valid.toBoolean,
+          dut.io.commit(0).canCommit.toBoolean,
           s"Commit $i: commit(0).valid should be true. Head: ${dut.rob.headPtr_reg.toBigInt}, Count: ${dut.rob.count_reg.toInt}"
         )
         val committedEntry = dut.io.commit(0).entry
         val committedFullRobPtr = dut.rob.headPtr_reg.toBigInt
         println(
-          s"[TB] Commit $i: Full ROB Idx ${committedFullRobPtr}, Valid=${dut.io.commit(0).valid.toBoolean}, " +
+          s"[TB] Commit $i: Full ROB Idx ${committedFullRobPtr}, Valid=${dut.io.commit(0).canCommit.toBoolean}, " +
             s"PC=${committedEntry.payload.pc.toBigInt}, Done=${committedEntry.status.done.toBoolean}, GenBitInStatus=${dut.rob.statuses(getPhysIdx(committedFullRobPtr, robPhysIdxWidth)).genBit.toBoolean}"
         )
         assert(committedEntry.status.done.toBoolean, s"Commit $i: Entry should be done.")
@@ -422,7 +422,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
 
         for (k_commit <- 0 until numSlots) {
           assert(
-            dut.io.commit(k_commit).valid.toBoolean,
+            dut.io.commit(k_commit).canCommit.toBoolean,
             s"Commit cycle $i, slot $k_commit: Expected commit valid. Head=${dut.rob.headPtr_reg.toBigInt}, Count=${dut.rob.count_reg.toInt}"
           )
           val entry = dut.io.commit(k_commit).entry
@@ -530,7 +530,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       println("[TB] Attempting to commit Op1 (robPtr=0)")
       dut.clockDomain.waitSampling(0); 
       sleep(1) 
-      assert(dut.io.commit(0).valid.toBoolean, "Op1 should be valid for commit")
+      assert(dut.io.commit(0).canCommit.toBoolean, "Op1 should be valid for commit")
       assert(!dut.io.commit(0).entry.status.hasException.toBoolean, "Op1 should not have exception")
       driveCommitFire(dut.io, Seq(true));
       dut.clockDomain.waitSampling(); sleep(1)
@@ -538,7 +538,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       // Commit Op2 (exception op)
       println("[TB] Attempting to commit Op2 (robPtr=1, the exception op)")
       dut.clockDomain.waitSampling(0); sleep(1)
-      assert(dut.io.commit(0).valid.toBoolean, "Op2 (exception) should be valid for commit check")
+      assert(dut.io.commit(0).canCommit.toBoolean, "Op2 (exception) should be valid for commit check")
       assert(dut.io.commit(0).entry.status.done.toBoolean, "Op2 (exception) should be done")
       assert(dut.io.commit(0).entry.status.hasException.toBoolean, "Op2 should have exception flag set")
       assert(dut.io.commit(0).entry.status.exceptionCode.toInt == testExceptionCode, "Op2 exception code mismatch")
@@ -555,7 +555,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       if (c_after_exc > 0 && h_after_exc == robPtrOp3) { 
         println("[TB] Attempting to commit Op3 (robPtr=2)")
         dut.clockDomain.waitSampling(0); sleep(1)
-        assert(dut.io.commit(0).valid.toBoolean, "Op3 should be valid for commit if not flushed")
+        assert(dut.io.commit(0).canCommit.toBoolean, "Op3 should be valid for commit if not flushed")
         assert(!dut.io.commit(0).entry.status.hasException.toBoolean, "Op3 should not have exception")
         driveCommitFire(dut.io, Seq(true));
         dut.clockDomain.waitSampling(); sleep(1)
@@ -639,7 +639,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       var initialTailAfterFill = t1
       for (i <- 0 until testConfig.robDepth) {
         dut.clockDomain.waitSampling(0); sleep(1)
-        assert(dut.io.commit(0).valid.toBoolean, s"Commit iter $i: Expected valid. Head ${dut.rob.headPtr_reg.toBigInt}")
+        assert(dut.io.commit(0).canCommit.toBoolean, s"Commit iter $i: Expected valid. Head ${dut.rob.headPtr_reg.toBigInt}")
         driveCommitFire(dut.io, Seq(true))
         dut.clockDomain.waitSampling(); sleep(1)
         val (h, t, c) = getInternalRobPointers(dut)
@@ -774,7 +774,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       // Check commit.valid based on the state *before* this cycle's clock edge
       // The first commitW ops (0 and 1) should be valid for commit
       for (i <- 0 until commitW) {
-        assert(dut.io.commit(i).valid.toBoolean, s"Concurrent: commit($i).valid should be true (for pre-filled op ${allocatedOpsFull(i)._1})")
+        assert(dut.io.commit(i).canCommit.toBoolean, s"Concurrent: commit($i).valid should be true (for pre-filled op ${allocatedOpsFull(i)._1})")
         val committedEntry = dut.io.commit(i).entry
         val expectedFullRobPtrAtCommitSlot = h_before_concurrent + i
         val physIdx = getPhysIdx(expectedFullRobPtrAtCommitSlot, robPhysIdxWidth)
@@ -1104,7 +1104,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       }
       initRobInputs(dut.io); dut.clockDomain.waitSampling()
       for (i <- 0 until 4) {
-        assert(dut.io.commit(0).valid.toBoolean)
+        assert(dut.io.commit(0).canCommit.toBoolean)
         driveCommitFire(dut.io, Seq(true))
         dut.clockDomain.waitSampling()
       }
@@ -1196,7 +1196,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       var (h_pre, t_pre, c_pre) = getInternalRobPointers(dut)
       ParallaxLogger.log(s"Pre-concurrent: H=$h_pre, T=$t_pre, C=$c_pre")
       assert(c_pre == 4)
-      assert(dut.io.commit(0).valid.toBoolean, "Op 0 should be committable")
+      assert(dut.io.commit(0).canCommit.toBoolean, "Op 0 should be committable")
 
       // 2. Concurrent operations in one cycle:
       //    - Drive FULL_FLUSH
@@ -1277,7 +1277,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       // 在同一个周期，我们检查ROB的输出。
       // 根据我们的猜想，ROB会在这里错误地发出提交信号。
       println("[TB] Checking for erroneous commit signal in the same cycle as flush...")
-      assert(dut.io.commit(0).valid.toBoolean, "BUG! ROB should NOT try to commit a flushed instruction, but it does.")
+      assert(dut.io.commit(0).canCommit.toBoolean, "BUG! ROB should NOT try to commit a flushed instruction, but it does.")
       assert(dut.io.commit(0).entry.payload.uop.robPtr.toBigInt == robPtrA, s"BUG! Erroneous commit is for robPtr=${dut.io.commit(0).entry.payload.uop.robPtr.toBigInt}, expected $robPtrA.")
       println(s"[TB] BUG CONFIRMED: ROB is trying to commit the flushed instruction robPtr=$robPtrA.")
       
@@ -1307,7 +1307,7 @@ class ReorderBufferSpec extends CustomSpinalSimFunSuite {
       var timeout = 50
       var b_was_committed = false
       while(timeout > 0 && !b_was_committed) {
-          if (dut.io.commit(0).valid.toBoolean) {
+          if (dut.io.commit(0).canCommit.toBoolean) {
               val committedPtr = dut.io.commit(0).entry.payload.uop.robPtr.toBigInt
               println(s"[TB] ROB is trying to commit robPtr=$committedPtr. Head is stuck.")
               if (committedPtr == robPtrB) {

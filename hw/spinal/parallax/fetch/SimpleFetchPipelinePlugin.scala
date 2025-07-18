@@ -17,30 +17,36 @@ case class FetchedInstr(pCfg: PipelineConfig) extends Bundle with Formattable {
   val pc = UInt(pCfg.pcWidth)
   val instruction = Bits(pCfg.dataWidth)
   val predecode = PredecodeInfo()
-  val bpuPrediction = Flow(new Bundle {
-    val isTaken = Bool()
-    val target = UInt(pCfg.pcWidth)
-  })
+  val bpuPrediction = BranchPredictionInfo(pCfg)
 
   override def format: Seq[Any] = Seq(
-    L"FetchedInstr(pc=0x${pc}, inst=0x${instruction}, bpuTaken=${bpuPrediction.valid && bpuPrediction.isTaken})"
+    L"FetchedInstr(pc=0x${pc}, inst=0x${instruction}, valid=${bpuPrediction.wasPredicted}, bpuTaken=${bpuPrediction.isTaken})"
   )
 }
+
+// +++ NEW +++
+// An intermediate data structure for unpacked instructions before BPU prediction is available.
+case class UnpackedInstr(pCfg: PipelineConfig) extends Bundle {
+    val pc = UInt(pCfg.pcWidth)
+    val instruction = Bits(pCfg.dataWidth)
+    val predecode = PredecodeInfo()
+}
+
 
 case class FetchedInstrCapture(pc: BigInt, instruction: BigInt, isBranch: Boolean, isJump: Boolean, isDirectJump: Boolean, jumpOffset: BigInt, isIdle: Boolean, bpuPredictionValid: Boolean, bpuPredictedTaken: Boolean, bpuPredictedTarget: BigInt)
 object FetchedInstrCapture {
   def apply(payload: FetchedInstr): FetchedInstrCapture = {
     import spinal.core.sim._
     new FetchedInstrCapture(
-        pc = payload.pc.toBigInt, 
-        instruction = payload.instruction.toBigInt, 
-        isBranch = payload.predecode.isBranch.toBoolean, 
+        pc = payload.pc.toBigInt,
+        instruction = payload.instruction.toBigInt,
+        isBranch = payload.predecode.isBranch.toBoolean,
         isJump = payload.predecode.isJump.toBoolean,
         isDirectJump = payload.predecode.isDirectJump.toBoolean,
         jumpOffset = payload.predecode.jumpOffset.toBigInt,
         isIdle = payload.predecode.isIdle.toBoolean,
-        bpuPredictionValid = payload.bpuPrediction.valid.toBoolean, 
-        bpuPredictedTaken = payload.bpuPrediction.isTaken.toBoolean, 
+        bpuPredictionValid = payload.bpuPrediction.wasPredicted.toBoolean,
+        bpuPredictedTaken = payload.bpuPrediction.isTaken.toBoolean,
         bpuPredictedTarget = payload.bpuPrediction.target.toBigInt
     )
   }
@@ -48,38 +54,72 @@ object FetchedInstrCapture {
 
 trait SimpleFetchPipelineService extends Service with LockedImpl {
   def fetchOutput(): Stream[FetchedInstr]
- /**
-    * Requests a new port for a hard redirect.
-    * Multiple ports can be requested. The one with the highest priority integer
-    * that is valid in a given cycle will win arbitration.
-    * @param priority The priority of this redirect source. A higher number means higher priority.
-    * @return A Flow port to be driven by the requesting module.
-    */
   def newHardRedirectPort(priority: Int): Flow[UInt]
-  
-  /**
-    * Requests a new port for external fetch control (e.g., IDLE state).
-    * When any connected port is high, fetch operations will be suspended.
-    * @return A Bool signal to be driven by the requesting module.
-    */
   def newFetchDisablePort(): Bool
 }
 
-// ========================================================================
-//  Final Plugin Implementation
-// ========================================================================
 class SimpleFetchPipelinePlugin(
     pCfg: PipelineConfig,
     ifuCfg: InstructionFetchUnitConfig,
     fifoDepth: Int = 16
 ) extends Plugin with SimpleFetchPipelineService with HardRedirectService{
+
+    /*
+     * =======================================================================================
+     *                        取指流水线 (Fetch Pipeline) 拓扑图
+     * =======================================================================================
+     *
+     *  指令数据流 (从上到下):
+     *
+     *  +-------------------------+
+     *  |   Instruction Fetch     |  <-- IFU (外部)
+     *  |   Unit (IFU)            |
+     *  +-------------------------+
+     *             |
+     *             | ifuPort.rsp (Stream[IFetchRsp])
+     *             v
+     *  +-------------------------+
+     *  |      ifuRspFifo         |  (FIFO, depth=2)
+     *  +-------------------------+
+     *             |
+     *             | Stream[IFetchRsp]
+     *             v
+     *  +-------------------------+
+     *  |        unpacker         |  (将指令块解包成单条指令流)
+     *  +-------------------------+
+     *             |
+     *             | unpackedStream (Stream[UnpackedInstr])
+     *             v
+     *  +-------------------------+
+     *  |        s0_query         |  (mergePipe 阶段0: 发起BPU查询) -------> BPU Query Port
+     *  +-------------------------+
+     *             |
+     *             | (流水线寄存器)
+     *             v
+     *  +-------------------------+
+     *  |        s1_join          |  (mergePipe 阶段2: 合并BPU响应) <------- BPU Response
+     *  +-------------------------+
+     *             |
+     *             | Stream[FetchedInstr]
+     *             v
+     *  +-------------------------+
+     *  |       outputFifo        |  (FIFO, depth=16, 插件最终输出缓冲区)
+     *  +-------------------------+
+     *             |
+     *             | fetchOutput (Stream[FetchedInstr])
+     *             v
+     *  +-------------------------+
+     *  |   Decode Stage (后端)   |
+     *  +-------------------------+
+     *
+     * =======================================================================================
+     */
+
     val enableLog = true
 
-
-    // --- Service Implementation: Collect redirect requests ---
     private val hardRedirectPorts = mutable.ArrayBuffer[(Int, Flow[UInt])]()
     private val fetchDisablePorts = mutable.ArrayBuffer[Bool]()
-    private val _doHardRedirect = Bool()
+    private val doHardRedirect_ = Bool()
 
     override def newHardRedirectPort(priority: Int): Flow[UInt] = {
         framework.requireEarly()
@@ -87,7 +127,7 @@ class SimpleFetchPipelinePlugin(
         hardRedirectPorts += (priority -> port)
         port
     }
-    
+
     override def newFetchDisablePort(): Bool = {
         framework.requireEarly()
         val port = Bool()
@@ -96,7 +136,7 @@ class SimpleFetchPipelinePlugin(
     }
 
     override def doHardRedirect(): Bool = {
-        _doHardRedirect
+        doHardRedirect_
     }
 
   override def fetchOutput(): Stream[FetchedInstr] = hw.finalOutputInst
@@ -105,10 +145,10 @@ class SimpleFetchPipelinePlugin(
     val bpuService = getService[BpuService]
     val ifuService = getService[IFUService]
     bpuService.retain(); ifuService.retain()
-    
+
     val redirectFlowInst = Flow(UInt(pCfg.pcWidth))
     val finalOutputInst = Stream(FetchedInstr(pCfg))
-    
+
     val ifuPort         = ifuService.newFetchPort()
     val bpuQueryPort    = bpuService.newBpuQueryPort()
   }
@@ -120,93 +160,149 @@ class SimpleFetchPipelinePlugin(
     val ifuPort = hw.ifuPort
     val bpuQueryPort = hw.bpuQueryPort
 
+
     // Components
     val bpuResponse = bpu.getBpuResponse()
     val ifuRspFifo = StreamFifo(IFetchRsp(ifuCfg), depth = 2)
     val outputFifo = StreamFifo(FetchedInstr(pCfg), depth = fifoDepth)
+
+    // --- MODIFIED: StreamUnpacker now outputs the intermediate UnpackedInstr type ---
     val unpacker = new StreamUnpacker(
       input_type  = IFetchRsp(ifuCfg),
-      output_type = FetchedInstr(pCfg),
+      output_type = UnpackedInstr(pCfg), // <-- Changed from FetchedInstr
       unpack_func = (rsp: IFetchRsp, instr_idx: UInt) => {
-        val packet = FetchedInstr(pCfg)
+        val packet = UnpackedInstr(pCfg) // <-- Changed from FetchedInstr
         packet.pc          := rsp.pc + (instr_idx << log2Up(ifuCfg.bytesPerInstruction))
         packet.instruction := rsp.instructions(instr_idx)
         packet.predecode   := rsp.predecodeInfo(instr_idx)
-        packet.bpuPrediction.valid := False
-        packet.bpuPrediction.payload.assignDontCare()
+        // BPU prediction is NOT handled here anymore
         packet
       },
       valid_mask_getter = (rsp: IFetchRsp) => rsp.validMask
     )
-    
+
     // --- Data Path ---
-    // IFU -> IFU RSP FIFO -> Unpacker -> Filtered Stream -> Output FIFO -> Final Output
     ifuRspFifo.io.push << ifuPort.rsp
     unpacker.io.input << ifuRspFifo.io.pop
     val unpackedStream = unpacker.io.output
-    unpacker.io.output.payload.pc.addAttribute("MARK_DEBUG","TRUE")
-    unpacker.io.output.payload.instruction.addAttribute("MARK_DEBUG","TRUE")
-    // Modified IDLE instruction handling: let IDLE instructions flow through pipeline
-    // They will be handled at commit stage, not filtered at fetch stage
-    val filteredStream = Stream(FetchedInstr(pCfg))
-    filteredStream.valid := unpackedStream.valid && !hw.redirectFlowInst.valid  // Don't filter IDLE instructions
-    filteredStream.payload := unpackedStream.payload
-    unpackedStream.ready := filteredStream.ready  // Normal backpressure
+    unpackedStream.payload.pc.addAttribute("MARK_DEBUG","TRUE")
+    unpackedStream.payload.instruction.addAttribute("MARK_DEBUG","TRUE")
 
-    outputFifo.io.push << filteredStream
+
+    // ========================================================================
+    // +++ NEW: Synchronous Pipeline for BPU Prediction Merging +++
+    // This pipeline synchronizes the instruction stream with the BPU response stream.
+    // s0: Receives unpacked instruction, sends BPU query.
+    // s2: Instruction and BPU response arrive together and are merged.
+    // ========================================================================
+    val mergePipe = new Pipeline()
+    val s0_query = mergePipe.newStage() 
+    val s1_join = mergePipe.newStage()
+    mergePipe.connect(s0_query, s1_join)(Connection.M2S())
+    
+    // --- Stage 0: Query BPU ---
+    s0_query.driveFrom(unpackedStream) // Input from the unpacker
+
+    val S0_UNPACKED_INSTR = Stageable(UnpackedInstr(pCfg))
+    s0_query(S0_UNPACKED_INSTR) := unpackedStream.payload
+
+    // BPU Query for Conditional Branches, triggered from this stage
+    bpuQueryPort.valid := s0_query.isFiring && s0_query(S0_UNPACKED_INSTR).predecode.isBranch
+    bpuQueryPort.payload.pc := s0_query(S0_UNPACKED_INSTR).pc
+    // Transaction ID is not needed in a synchronous pipeline, but the port expects it.
+    bpuQueryPort.payload.transactionId.assignDontCare()
+
+    // --- Stage 1: Wait ---
+    // This stage simply holds the data for one cycle, acting as a delay slot
+    // to match the BPU's internal read latency.
+
+    // --- Stage 2: Join Instruction and Prediction ---
+    val s2_unpacked = s1_join(S0_UNPACKED_INSTR)
+
+    // Create the final FetchedInstr by merging the instruction and the BPU response
+    val mergedInstr = FetchedInstr(pCfg)
+    mergedInstr.pc          := s2_unpacked.pc
+    mergedInstr.instruction := s2_unpacked.instruction
+    mergedInstr.predecode   := s2_unpacked.predecode
+
+    // BPU prediction is now valid and corresponds to the instruction in this stage
+    mergedInstr.bpuPrediction.wasPredicted   := bpuResponse.valid && s2_unpacked.predecode.isBranch
+    mergedInstr.bpuPrediction.isTaken := bpuResponse.payload.isTaken
+    mergedInstr.bpuPrediction.target  := bpuResponse.payload.target
+    when(bpuResponse.valid) {
+        assert(bpuResponse.payload.qPc === s2_unpacked.pc, L"BPU response PC does not match instruction PC, qPc=0x${bpuResponse.payload.qPc}, pc=0x${s2_unpacked.pc}")
+        report(L"[FETCH] BPU predicted that 0x${s2_unpacked.pc} to 0x${bpuResponse.payload.target} is_taken=${bpuResponse.payload.isTaken}")
+    }
+
+    // Connect the output of the merge pipeline to the final output FIFO
+    outputFifo.io.push.valid := s1_join.isFiring
+    s1_join.haltWhen(!outputFifo.io.push.ready)
+    outputFifo.io.push.payload := mergedInstr
+
     hw.finalOutputInst << outputFifo.io.pop
+    mergePipe.build()
 
     // --- PC & Redirect Logic ---
     val fetchPc = Reg(UInt(pCfg.pcWidth)) init(pCfg.resetVector)
     fetchPc.addAttribute("MARK_DEBUG","TRUE")
 
-    val pcOnRequest = Reg(UInt(pCfg.pcWidth)) 
+    val pcOnRequest = Reg(UInt(pCfg.pcWidth))
 
-    val unpackedInstr = unpackedStream.payload
-    val predecode = unpackedInstr.predecode
+    // --- MODIFIED: Redirect logic now based on s0_query and bpuResponse ---
+    val predecode_s0 = s0_query(S0_UNPACKED_INSTR).predecode
     
-    // BPU Query for Conditional Branches
-    bpuQueryPort.valid := unpackedStream.valid && predecode.isBranch
-    bpuQueryPort.payload.pc := unpackedInstr.pc
-    bpuQueryPort.payload.transactionId.assignDontCare()
-    // ====================== Priority Arbitrator for Hard Redirects ======================
-    // Sort ports by priority, descending. Highest priority first.
+    // Priority Arbitrator for Hard Redirects (Unchanged)
     val sortedHardRedirects = hardRedirectPorts.sortBy(-_._1).map(_._2)
-
     if (sortedHardRedirects.nonEmpty) {
         val valids = sortedHardRedirects.map(_.valid)
         val payloads = sortedHardRedirects.map(_.payload)
-
-        // The winning hard redirect is the first valid one in the prioritized list.
         hw.redirectFlowInst.valid   := valids.orR
         hw.redirectFlowInst.payload := MuxOH(OHMasking.first(valids), payloads)
-
         when(valids.orR) {
             if(enableLog) report(L"[FETCH-PLUGIN] Taken hard redirect to 0x${hw.redirectFlowInst.payload}")
         }
     } else {
-        // If no hard redirect ports were ever requested, it can never be valid.
         hw.redirectFlowInst.setIdle()
     }
-    // =======================================================================================
-    
-    // THIS LOGIC IS NOW UNCHANGED. It consumes the result of the new arbitrator.
-    _doHardRedirect := hw.redirectFlowInst.valid
+    doHardRedirect_ := hw.redirectFlowInst.valid
 
+    // BPU Redirect (from prediction) - now directly from bpuResponse
+    val doBpuRedirect = bpuResponse.valid && bpuResponse.isTaken && !doHardRedirect_
 
-    // BPU Redirect (from prediction)
-    val doBpuRedirect = bpuResponse.valid && bpuResponse.isTaken && !_doHardRedirect
-    
-    // Unconditional Direct Jump Redirect (from predecode)
-    val doJumpRedirect = unpackedStream.valid && unpackedInstr.predecode.isDirectJump && !_doHardRedirect
-    val jumpTarget = unpackedInstr.pc + predecode.jumpOffset.asUInt
+    // Unconditional Direct Jump Redirect (from predecode) - now from s0
+    val doJumpRedirect = s0_query.isValid && s0_query.isFiring && predecode_s0.isDirectJump && !doHardRedirect_
+    val jumpTarget = s0_query(S0_UNPACKED_INSTR).pc + predecode_s0.jumpOffset.asUInt
 
     // Combine all soft redirect sources
     val doSoftRedirect = doBpuRedirect || doJumpRedirect
     val softRedirectTarget = Mux(doBpuRedirect, bpuResponse.target, jumpTarget)
-    
-    // Hard Redirect (from backend)
-    
+
+    ifuPort.flush := False
+    ifuRspFifo.io.flush := False
+    unpacker.io.flush := False
+    outputFifo.io.flush := False
+
+    // 硬重定向必须全部清空。
+    when(doHardRedirect_) {
+        ifuPort.flush := True
+        ifuRspFifo.io.flush := True
+        unpacker.io.flush := True
+        s0_query.flushIt()
+        s1_join.flushIt()
+        outputFifo.io.flush := True
+        report(L"[FETCH-PLUGIN] Flushing entire fetch pipeline because hardRedirect=${doHardRedirect_}")
+    } elsewhen (doBpuRedirect) {
+        // BPU 重定向的决策点是 s1_join 阶段，所有在 s1_join 之前的指令都必须被清空。
+        ifuPort.flush := True
+        ifuRspFifo.io.flush := True
+        unpacker.io.flush := True
+        s0_query.flushIt()
+    } elsewhen (doJumpRedirect) {
+        ifuPort.flush := True
+        ifuRspFifo.io.flush := True
+        unpacker.io.flush := True
+    }
+
     // --- Control FSM with Fetch Disable Support ---
     val fetchDisable = if (fetchDisablePorts.nonEmpty) fetchDisablePorts.orR else False
     val debugService = getServiceOption[DebugDisplayService]
@@ -216,11 +312,12 @@ class SimpleFetchPipelinePlugin(
         dbg.setDebugValueOnce(ifuPort.cmd.fire, DebugValue.FETCH_FIRE, expectIncr = true)
     })
 
+    // FSM logic is largely the same, but the condition to advance is now based on s0_query firing
     val fsm = new StateMachine {
         val IDLE = new State with EntryPoint
         val WAITING = new State
         val UPDATE_PC = new State
-        val DISABLED = new State  // New state for when fetch is disabled
+        val DISABLED = new State
 
         ifuPort.cmd.valid := False
         ifuPort.cmd.pc := fetchPc
@@ -238,7 +335,7 @@ class SimpleFetchPipelinePlugin(
                 }
             }
         }
-        
+
         DISABLED.whenIsActive {
             when(!fetchDisable) {
                 if(enableLog) report(L"[Fetch-FSM] DISABLED->IDLE: Fetch re-enabled")
@@ -254,6 +351,7 @@ class SimpleFetchPipelinePlugin(
                 if(enableLog) report(L"[Fetch-FSM] WAITING->DISABLED: Fetch disabled")
                 goto(DISABLED)
             } .elsewhen(doSoftRedirect) {
+                // 软重定向具有高优先级，可以打断等待
                 fetchPc := softRedirectTarget
                 if(enableLog) report(L"[Fetch-FSM] WAITING->IDLE: Soft redirect to 0x${softRedirectTarget}")
                 goto(IDLE)
@@ -264,14 +362,14 @@ class SimpleFetchPipelinePlugin(
                 if(enableLog) report(L"[Fetch-FSM] WAITING->UPDATE_PC: Unpacker finished")
                 goto(UPDATE_PC)
             }
+            // 当处于 WAITING 状态时，即使 unpacker.output.fire 为高，也不做任何事，耐心等待 unpackerJustFinished
         }
-        
+
         UPDATE_PC.whenIsActive {
             when(fetchDisable) {
                 if(enableLog) report(L"[Fetch-FSM] UPDATE_PC->DISABLED: Fetch disabled")
                 goto(DISABLED)
             } .otherwise {
-                // Normal PC increment by fetch group size (8 bytes for fetchWidth=2)
                 if(enableLog) report(L"[Fetch-FSM] UPDATE_PC: Normal PC update from 0x${pcOnRequest} to 0x${pcOnRequest + ifuCfg.bytesPerFetchGroup}")
                 fetchPc := pcOnRequest + ifuCfg.bytesPerFetchGroup
                 goto(IDLE)
@@ -279,40 +377,29 @@ class SimpleFetchPipelinePlugin(
         }
 
         always {
-            when(_doHardRedirect) {
+            // 硬重定向优先级最高，可以覆盖任何状态
+            when(doHardRedirect_) {
                 fetchPc := hw.redirectFlowInst.payload
                 goto(IDLE)
             } .elsewhen(doSoftRedirect) {
+                // 软重定向也需要能打断 UPDATE_PC，以处理背靠背的跳转
                 fetchPc := softRedirectTarget
                 goto(IDLE)
             }
         }
     }
-    
-    // --- Flush Logic ---
-    val needsFlush = _doHardRedirect || doSoftRedirect
-    ifuPort.flush := needsFlush
-    ifuRspFifo.io.flush := needsFlush
-    outputFifo.io.flush := _doHardRedirect // Critical: Only hard flush clears the output FIFO
-    unpacker.io.flush := needsFlush
 
-    // ========================================================================
-    //  Detailed Logs
-    // ========================================================================
-    val logger = new Area {
-        if(enableLog) report(Seq(
-            L"[[FETCH-PLUGIN]] ",
-            L"PC(fetch=0x${fetchPc}, onReq=0x${pcOnRequest}) | ",
-            L"REQ(fire=${ifuPort.cmd.fire}) | ",
-            L"UNPACKED(valid=${unpackedStream.valid}, fire=${unpackedStream.fire}, pc=0x${unpackedInstr.pc}, isJmp=${predecode.isJump}, isBranch=${predecode.isBranch}, isIdle=${predecode.isIdle}) | ",
-            L"FILTERED(valid=${filteredStream.valid}, fire=${filteredStream.fire}) | ",
-            L"BPU(QueryFire=${bpuQueryPort.fire}, RspValid=${bpuResponse.valid}, RspTaken=${bpuResponse.isTaken}) | ",
-            L"JUMP(do=${doJumpRedirect}, target=0x${jumpTarget}) | ",
-            L"REDIRECT(Soft=${doSoftRedirect}, Hard=${_doHardRedirect}, Soft Target=0x${softRedirectTarget}) | Hard Target=0x${hw.redirectFlowInst.payload}) | ",
-            L"FLUSH(needs=${needsFlush}, outFifo=${outputFifo.io.flush}) | ",
-            L"UNPACK_STATE(busy=${unpacker.io.isBusy}, fin=${fsm.unpackerJustFinished}) | ",
-            L"FIFOS(rsp=${ifuRspFifo.io.occupancy}, out=${outputFifo.io.occupancy})"
-        ))
+
+
+    when(hw.bpuQueryPort.valid) {
+        assert(
+             hw.bpuQueryPort.payload.pc === s0_query(S0_UNPACKED_INSTR).pc,
+            "BPU query PC mismatch with fetch pipeline stage 0 PC!",
+        )
+    }
+
+    when(hw.finalOutputInst.fire) {
+        ParallaxSim.notice(L"[FETCH] OUTPUT PC 0x${hw.finalOutputInst.payload.pc} (INSTR 0x${hw.finalOutputInst.payload.instruction})")
     }
 
     hw.bpuService.release()
@@ -321,7 +408,8 @@ class SimpleFetchPipelinePlugin(
 }
 
 // ==========================================================================
-//  Final Corrected StreamUnpacker (with Logs)
+// --- MODIFIED: StreamUnpacker now outputs UnpackedInstr ---
+// The core logic is the same, only the output type and unpack function are adapted.
 // ==========================================================================
 class StreamUnpacker[T_IN <: Bundle, T_OUT <: Data](
     input_type: HardType[T_IN],
@@ -331,7 +419,7 @@ class StreamUnpacker[T_IN <: Bundle, T_OUT <: Data](
 ) extends Component {
     val enableLog = true
     val instructionsPerGroup = widthOf(valid_mask_getter(input_type()))
-    
+
     val io = new Bundle {
         val input = slave Stream(input_type)
         val output = master Stream(output_type)
@@ -362,7 +450,7 @@ class StreamUnpacker[T_IN <: Bundle, T_OUT <: Data](
     when(canAdvance) {
         when(isLast) {
             bufferValid := False
-            unpackIndex := 0 
+            unpackIndex := 0
         } .otherwise {
             unpackIndex := unpackIndex + 1
         }
@@ -373,16 +461,17 @@ class StreamUnpacker[T_IN <: Bundle, T_OUT <: Data](
         unpackIndex := 0
     }
 
+    // Logger for this component. Note the type cast for logging.
     val logger = new Area {
-        val outPayload = io.output.payload.asInstanceOf[FetchedInstr]
-        if(enableLog) report(Seq(
-            L"  [[UNPACKER]] ",
-            L"State(busy=${io.isBusy}, bufV=${bufferValid}, idx=${unpackIndex}) | ",
-            L"Input(fire=${io.input.fire}) | ",
-            L"Output(v=${io.output.valid}, r=${io.output.ready}, fire=${io.output.fire}) | ",
-            L"Payload(pc=0x${outPayload.pc}) | ",
-            L"Control(mask=${currentMaskBit}, isLast=${isLast}, canAdv=${canAdvance}) | ",
-            L"Flush(f=${io.flush})"
-        ))
+            val outPayload = io.output.payload.asInstanceOf[UnpackedInstr]
+            if(enableLog) report(Seq(
+                L"  [[UNPACKER]] ",
+                L"State(busy=${io.isBusy}, bufV=${bufferValid}, idx=${unpackIndex}) | ",
+                L"Input(fire=${io.input.fire}) | ",
+                L"Output(v=${io.output.valid}, r=${io.output.ready}, fire=${io.output.fire}) | ",
+                L"Payload(pc=0x${outPayload.pc}) | ",
+                L"Control(mask=${currentMaskBit}, isLast=${isLast}, canAdv=${canAdvance}) | ",
+                L"Flush(f=${io.flush})"
+            ))
     }
 }

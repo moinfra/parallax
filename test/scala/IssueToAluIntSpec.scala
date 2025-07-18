@@ -118,7 +118,7 @@ new RenamePlugin(pCfg, renameMapConfig, flConfig),
 
   val robService = framework.getService[ROBService[RenamedUop]]
   val commitSlot = robService.getCommitSlots(pCfg.commitWidth).head
-  io.commitValid := commitSlot.valid
+  io.commitValid := commitSlot.canCommit
   io.commitEntry := commitSlot.entry
 
   // Connect fetch service to issue pipeline
@@ -183,7 +183,7 @@ class IssueToAluIntSpec extends CustomSpinalSimFunSuite {
         dut.io.fetchStreamIn.payload.pc #= pc
         dut.io.fetchStreamIn.payload.instruction #= insn
         dut.io.fetchStreamIn.payload.predecode.setDefaultForSim()
-        dut.io.fetchStreamIn.payload.bpuPrediction.valid #= false
+        dut.io.fetchStreamIn.payload.bpuPrediction.wasPredicted #= false
         cd.waitSamplingWhere(dut.io.fetchStreamIn.ready.toBoolean)
         println(s"DEBUG: [ISSUE] Instruction accepted at PC=0x${pc.toString(16)}")
         dut.io.fetchStreamIn.valid #= false
@@ -294,7 +294,7 @@ class IssueToAluIntSpec extends CustomSpinalSimFunSuite {
         dut.io.fetchStreamIn.payload.pc #= pc
         dut.io.fetchStreamIn.payload.instruction #= insn
         dut.io.fetchStreamIn.payload.predecode.setDefaultForSim()
-        dut.io.fetchStreamIn.payload.bpuPrediction.valid #= false
+        dut.io.fetchStreamIn.payload.bpuPrediction.wasPredicted #= false
         cd.waitSamplingWhere(dut.io.fetchStreamIn.ready.toBoolean)
         println(s"DEBUG: [SHIFT] Instruction accepted at PC=0x${pc.toString(16)}")
         dut.io.fetchStreamIn.valid #= false

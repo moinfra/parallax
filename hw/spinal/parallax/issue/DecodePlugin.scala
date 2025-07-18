@@ -20,6 +20,7 @@ class DecodePlugin(val issueConfig: PipelineConfig) extends Plugin with LockedIm
     s0_decode(issuePpl.signals.IS_FAULT_IN)
     s0_decode(issuePpl.signals.VALID_MASK) // Consumes VALID_MASK
     s0_decode(issuePpl.signals.DECODED_UOPS)
+    s0_decode(issuePpl.signals.BRANCH_PREDICTION)
   }
 
   val logic = create late new Area {
@@ -34,6 +35,7 @@ class DecodePlugin(val issueConfig: PipelineConfig) extends Plugin with LockedIm
     val rawInstructionsIn = s0_decode(signals.RAW_INSTRUCTIONS_IN)
     val isGroupFaultIn = s0_decode(signals.IS_FAULT_IN)
     val groupValidMask = s0_decode(signals.VALID_MASK)
+    val branchPrediction = s0_decode(signals.BRANCH_PREDICTION)
 
     val decodedUopsOutputVec = Vec(HardType(DecodedUop(issueConfig)), issueConfig.renameWidth)
 
@@ -76,6 +78,9 @@ class DecodePlugin(val issueConfig: PipelineConfig) extends Plugin with LockedIm
         currentDecodedUop.isValid := False
       }
       
+      currentDecodedUop.branchPrediction.assignDontCare()
+      when(!isNop)
+      {currentDecodedUop.branchPrediction := branchPrediction(i)}
       decodedUopsOutputVec(i) := currentDecodedUop
     }
 

@@ -193,7 +193,7 @@ class BranchEuPlugin(
 
     // 添加分支预测验证日志
     when(pipeline.s1_resolve.isFiring) {
-      report(L"[BranchEU-S1] PREDICTION: wasPredicted=${wasPredicted}, predictedTaken=${predictedTaken}, actuallyTaken=${actuallyTaken}, finalTarget=0x${finalTarget}, predictionCorrect=${predictionCorrect}")
+      report(L"[BranchEU-S1] PREDICTION: wasPredicted=${wasPredicted}, predictedTaken=${predictedTaken}, actuallyTaken=${actuallyTaken}, (actuall)finalTarget=0x${finalTarget}, predictionCorrect=${predictionCorrect}")
     }
 
     // Store misprediction information in s1_resolve stage for s2_mispredict to use
@@ -235,7 +235,9 @@ class BranchEuPlugin(
     hw.bpuUpdatePort.payload.pc := uopAtS1.pc
     hw.bpuUpdatePort.payload.isTaken := actuallyTaken
     hw.bpuUpdatePort.payload.target := finalTarget
-
+    when(hw.bpuUpdatePort.fire) {
+      report(L"[BranchEU-BPU] BPU UPDATE: pc=0x${hw.bpuUpdatePort.payload.pc}, isTaken=${hw.bpuUpdatePort.payload.isTaken}, target=0x${hw.bpuUpdatePort.payload.target}")
+    }
     pipeline.build()
 
     ParallaxLogger.log(s"[BranchEu ${euName}] 3-stage pipeline with branch logic built: S0(Dispatch) -> S1(Resolve) -> S2(Mispredict).")

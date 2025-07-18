@@ -31,7 +31,7 @@ class StoreQueuePlugin(
     with StoreQueueService
     with LockedImpl {
 
-  val enableLog = false
+  val enableLog = true
 
   private val setup = create early new Area {
     // 1. Get dependent services

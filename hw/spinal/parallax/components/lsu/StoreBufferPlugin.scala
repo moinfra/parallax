@@ -184,7 +184,7 @@ class StoreBufferPlugin(
     val mmioConfig: Option[GenericMemoryBusConfig] = None
 ) extends Plugin with StoreBufferService with LockedImpl {
     ParallaxLogger.debug("Creating Store Buffer Plugin, mmioConfig = " + mmioConfig.toString())
-    val enableLog = false // KEEP THIS TRUE FOR DEBUGGING
+    val enableLog = true
     val hw = create early new Area {
         val pushPortInst      = Stream(StoreBufferPushCmd(pipelineConfig, lsuConfig))
         val bypassQueryAddrIn = UInt(pipelineConfig.pcWidth)
@@ -491,7 +491,7 @@ class StoreBufferPlugin(
             } .elsewhen(slots(i).valid && !slots(i).isCommitted) {
                 // 只有在不被冲刷的前提下，才检查提交信号
                 for(j <- 0 until pipelineConfig.commitWidth){
-                    when(commitInfoFromRob(j).valid &&
+                    when(commitInfoFromRob(j).canCommit &&
                          commitInfoFromRob(j).entry.payload.uop.robPtr === slots(i).robPtr &&
                          (commitInfoFromRob(j).entry.payload.uop.decoded.uopCode === BaseUopCode.STORE ||
                           /*commitInfoFromRob(j).entry.payload.uop.isFlush*/ False) && // 提交也可以是Flush指令

@@ -1533,7 +1533,7 @@ class CpuFullTestBench(val pCfg: PipelineConfig, val dCfg: DataCachePluginConfig
   commitController.setCommitEnable(io.enableCommit)
   
   // Connect commit output
-  io.commitValid := commitSlots.head.valid // Assuming commitWidth=1 for simplicity in testbench IO
+  io.commitValid := commitSlots.head.canCommit // Assuming commitWidth=1 for simplicity in testbench IO
   io.commitEntry := commitSlots.head.entry
   
   // Connect fetch service to issue pipeline

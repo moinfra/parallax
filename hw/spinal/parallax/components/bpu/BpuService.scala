@@ -38,13 +38,15 @@ case class BpuResponse(pCfg: PipelineConfig) extends Bundle with Formattable {
     val isTaken = Bool()
     val target  = UInt(pCfg.pcWidth)
     val transactionId = UInt(pCfg.bpuTransactionIdWidth)
+    val qPc = UInt(pCfg.pcWidth)
 
     override def format: Seq[Any] = {
       Seq(
         L"BpuResponse(",
         L"isTaken=${isTaken}, ",
         L"target=${target}, ",
-        L"transactionId=${transactionId})"
+        L"transactionId=${transactionId})",
+        L"qPc=${qPc})"
       )
     }
 }

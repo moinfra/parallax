@@ -54,7 +54,7 @@ class MockCommitControllerBru(pCfg: PipelineConfig) extends Plugin with CommitSe
     val commitAcks = setup.robService.getCommitAcks(pCfg.commitWidth)
 
     for (i <- 0 until pCfg.commitWidth) {
-      val canCommit = commitSlots(i).valid
+      val canCommit = commitSlots(i).canCommit
       val doCommit = enableCommit && canCommit
       commitAcks(i) := doCommit
 
@@ -160,7 +160,7 @@ new RenamePlugin(pCfg, renameMapConfig, flConfig),
 
   // 连接提交逻辑
   val commitSlot = robService.getCommitSlots(pCfg.commitWidth).head
-  io.commitValid := commitSlot.valid
+  io.commitValid := commitSlot.canCommit
   io.commitEntry := commitSlot.entry
 }
 

@@ -193,15 +193,15 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
       B((1 << (config.dataWidth / 8)) - 1, config.dataWidth / 8 bits)
     else B(0, config.dataWidth / 8 bits)
       
-  val sram_addr_out_reg        = Reg(UInt(config.addressWidth bits)) init(0)
-  val sram_data_out_reg        = Reg(Bits(config.dataWidth bits)) init(0)
-  val sram_be_n_out_reg        = Reg(Bits(config.dataWidth / 8 bits)) init(sram_be_n_inactive_value)
-  val sram_ce_n_out_reg        = Reg(Bool()) init(True)
-  val sram_oe_n_out_reg        = Reg(Bool()) init(True)
-  val sram_we_n_out_reg        = Reg(Bool()) init(True)
-  val sram_data_writeEnable_out_reg = Reg(Bool()) init(False) // 用于控制TriState数据总线方向
-  val write_data_buffer = Reg(Bits(config.dataWidth bits))
-  val write_strb_buffer = Reg(Bits(config.dataWidth / 8 bits))
+  val sram_addr_out_reg        = Reg(UInt(config.addressWidth bits))        addAttribute("mark_debug","TRUE") init(0) 
+  val sram_data_out_reg        = Reg(Bits(config.dataWidth bits)) init(0)   addAttribute("mark_debug","TRUE")
+  val sram_be_n_out_reg        = Reg(Bits(config.dataWidth / 8 bits))       addAttribute("mark_debug","TRUE") init(sram_be_n_inactive_value)                   
+  val sram_ce_n_out_reg        = Reg(Bool()) init(True)                     addAttribute("mark_debug","TRUE")
+  val sram_oe_n_out_reg        = Reg(Bool()) init(True)                     addAttribute("mark_debug","TRUE")
+  val sram_we_n_out_reg        = Reg(Bool()) init(True)                     addAttribute("mark_debug","TRUE")
+  val sram_data_writeEnable_out_reg = Reg(Bool())                           addAttribute("mark_debug","TRUE") init(False) // 用于控制TriState数据总线方向                     
+  val write_data_buffer = Reg(Bits(config.dataWidth bits))                  addAttribute("mark_debug","TRUE")
+  val write_strb_buffer = Reg(Bits(config.dataWidth / 8 bits))              addAttribute("mark_debug","TRUE")
   // --- 连接这些寄存器到SRAM物理引脚 ---
   io.ram.addr := sram_addr_out_reg
   io.ram.ce_n := sram_ce_n_out_reg

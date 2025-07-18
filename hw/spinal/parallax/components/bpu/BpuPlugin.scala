@@ -7,11 +7,12 @@ import parallax.common.PipelineConfig
 import parallax.bpu._
 import parallax.utilities.Plugin
 import parallax.utilities.ParallaxSim
+import parallax.utilities.ParallaxLogger.log
 
 case class BpuPluginConfig(
     phtDepth: Int = 1024,
     btbDepth: Int = 256,
-    enableLog: Boolean = false
+    enableLog: Boolean = true
 ) {
   require(isPow2(phtDepth), "PHT depth must be a power of 2")
   require(isPow2(btbDepth), "BTB depth must be a power of 2")
@@ -214,11 +215,13 @@ class BpuPipelinePlugin(
     responseFlowOut.payload.isTaken := s2_predict(IS_TAKEN)
     responseFlowOut.payload.target := s2_predict(TARGET_PC)
     responseFlowOut.payload.transactionId := s2_predict(TRANSACTION_ID)
+    responseFlowOut.payload.qPc := s2_predict(Q_PC)
     when(s2_predict.isValid) {
       report(
         L"[BPU] Query PC=0x${(queryPortIn.payload.pc)}, TID=${queryPortIn.payload.transactionId} -> Predict: isTaken=${responseFlowOut.payload.isTaken} target=0x${(responseFlowOut.payload.target)}"
       )
     }
+
     queryPipe.build()
     updatePipe.build()
 

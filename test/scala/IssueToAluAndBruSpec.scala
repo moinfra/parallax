@@ -106,7 +106,7 @@ class IssueToAluAndBruTestBench(val pCfg: PipelineConfig) extends Component {
 
   val robService = framework.getService[ROBService[RenamedUop]]
   val commitSlot = robService.getCommitSlots(pCfg.commitWidth).head
-  io.commitValid := commitSlot.valid
+  io.commitValid := commitSlot.canCommit
   io.commitEntry := commitSlot.entry
 
   // Connect branch redirect port
@@ -193,7 +193,7 @@ class IssueToAluAndBruSpec extends CustomSpinalSimFunSuite {
         dut.io.fetchStreamIn.payload.pc #= pc
         dut.io.fetchStreamIn.payload.instruction #= insn
         dut.io.fetchStreamIn.payload.predecode.setDefaultForSim()
-        dut.io.fetchStreamIn.payload.bpuPrediction.valid #= false
+        dut.io.fetchStreamIn.payload.bpuPrediction.wasPredicted #= false
         cd.waitSamplingWhere(dut.io.fetchStreamIn.ready.toBoolean)
         dut.io.fetchStreamIn.valid #= false
         cd.waitSampling(1)

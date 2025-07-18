@@ -188,16 +188,16 @@ class CommitPlugin(
       val headSlot = rawCommitSlots(0)
       val headUop = headSlot.entry.payload.uop
       val headIsBranch = headUop.decoded.isBranchOrJump
-      val isMispredictedBranch = enable && headSlot.valid && headIsBranch && headSlot.entry.status.isMispredictedBranch
+      val isMispredictedBranch = enable && headSlot.canCommit && headIsBranch && headSlot.entry.status.isMispredictedBranch
       val isMispredictedBranchPrev = RegNext(isMispredictedBranch) init(False)
-      val actualTargetOfBranch = RegNext(headSlot.entry.status.result)
+      val actualTargetOfBranchPrev = RegNext(headSlot.entry.status.result)
       // val isSafeToCommit = !hasInflightUnResolvedBranches || headIsBranch
 
       val commitAckMasks = Vec(Bool(), pipelineConfig.commitWidth)
       commitAckMasks(0) := False
       val commitIdleThisCycle = headUop.decoded.uopCode === BaseUopCode.IDLE && commitAckMasks(0)
 
-      when(enable && headSlot.valid) {
+      when(enable && headSlot.canCommit) {
         val commitAckMask = True
         commitAckMasks(0) := commitAckMask
         // 只要提交了指令就立刻一键备份Rat/FreeList/BusyTable
@@ -230,13 +230,13 @@ class CommitPlugin(
         val redirect = new Area {
           val redirectPort = hw.redirectPort
           redirectPort.valid := True
-          redirectPort.payload := actualTargetOfBranch.asUInt
+          redirectPort.payload := actualTargetOfBranchPrev.asUInt
         }
         // 4. 发射流水线清空 这个 ROB 监听者自己会搞定
         // 5. 发射队列清空 这个 ROB 监听者自己会搞定
         // 6. 执行单元无效化 这个 ROB 监听者自己会搞定
         // 7. LSQ 无效化 这个 ROB 监听者自己会搞定
-        report(L"CHECKPOINT: Resotre checkpoint triggered, redirecting to ${actualTargetOfBranch}")
+        report(L"CHECKPOINT: Restore checkpoint triggered due to misprediction last cycle, redirecting to ${actualTargetOfBranchPrev}")
       } 
 
       // 1. 物理寄存器回收 (立即响应)
@@ -311,7 +311,7 @@ class CommitPlugin(
       val commitSlotLogs = Vec(CommitSlotLog(pipelineConfig), pipelineConfig.commitWidth)
       for (i <- 0 until pipelineConfig.commitWidth) {
         commitSlotLogs(i).valid := rawCommitSlots(i).valid
-        commitSlotLogs(i).canCommit := rawCommitSlots(i).valid
+        commitSlotLogs(i).canCommit := rawCommitSlots(i).canCommit
         commitSlotLogs(i).doCommit := commitAckMasks(i)
         commitSlotLogs(i).robPtr := rawCommitSlots(i).entry.payload.uop.robPtr
         commitSlotLogs(i).oldPhysDest := rawCommitSlots(i).entry.payload.uop.rename.oldPhysDest.idx
@@ -397,7 +397,7 @@ class CommitPlugin(
     // restoreCheckpointTrigger := idleJustCommitted
     
     // 调试报告
-    report(L"commitIdleThisCycle=${s0.commitIdleThisCycle}, commitAckMasks(0)=${s0.commitAckMasks(0)}: commitEnableExt=${commitEnableExt}, commitSlots(0).valid=${commitSlots(0).valid}, !committedIdleReg=${!committedIdleReg}")
+    report(L"commitIdleThisCycle=${s0.commitIdleThisCycle}, commitAckMasks(0)=${s0.commitAckMasks(0)}: commitEnableExt=${commitEnableExt}, commitSlots(0).valid=${commitSlots(0).canCommit}, !committedIdleReg=${!committedIdleReg}")
 
     // restoreCheckpointTrigger is already set above in the IDLE logic
     getServiceOption[DebugDisplayService].foreach(dbg => { 

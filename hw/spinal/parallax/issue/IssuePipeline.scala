@@ -10,6 +10,7 @@ import parallax.utilities._
 case class IssuePipelineSignals(val config: PipelineConfig) extends AreaObject {
   val GROUP_PC_IN = Stageable(UInt(config.pcWidth))
   val RAW_INSTRUCTIONS_IN = Stageable(Vec(Bits(config.dataWidth), config.fetchWidth))
+  val BRANCH_PREDICTION = Stageable(Vec(BranchPredictionInfo(config), config.fetchWidth))
   val IS_FAULT_IN = Stageable(Bool())
   val VALID_MASK = Stageable(Bits(config.fetchWidth bits))
 

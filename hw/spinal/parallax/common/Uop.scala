@@ -614,6 +614,8 @@ case class DecodedUop(val config: PipelineConfig) extends Bundle {
   val isSerializing = Bool() // Instruction that must serialize execution (e.g. FENCE, ERET)
   val isBranchOrJump = Bool() // Hint for frontend/predictor
 
+  val branchPrediction = BranchPredictionInfo(config)
+
   def setDefault(
       pc: UInt = 0,
       isa: SpinalEnumCraft[IsaType.type] = IsaType.UNKNOWN
@@ -653,6 +655,8 @@ case class DecodedUop(val config: PipelineConfig) extends Bundle {
     microcodeEntry := 0
     isSerializing := False
     isBranchOrJump := False
+
+    branchPrediction.setDefault()
 
     this
   }
@@ -695,6 +699,8 @@ case class DecodedUop(val config: PipelineConfig) extends Bundle {
     microcodeEntry #= 0
     isSerializing #= false
     isBranchOrJump #= false
+    branchPrediction.setDefaultForSim()
+
   }
 
   def format(): Seq[Any] = {
@@ -777,7 +783,10 @@ case class DecodedUop(val config: PipelineConfig) extends Bundle {
       "    isSerializing=",
       isSerializing,
       " isBranchOrJump=",
-      isBranchOrJump
+      isBranchOrJump,
+      " branchPrediction=",
+      branchPrediction.format()
+
     )
   }
 
@@ -835,7 +844,6 @@ case class RenameInfo(val config: PipelineConfig) extends Bundle {
   val writesToPhysReg = Bool() // Does this uop's execution result go to physDest?
   // (False for ST data, some branches)
 
-  val branchPrediction = BranchPredictionInfo(config)
 
   def setDefault(): this.type = {
     physSrc1.setDefault(); physSrc1IsFpr := False
@@ -845,7 +853,6 @@ case class RenameInfo(val config: PipelineConfig) extends Bundle {
     oldPhysDest.setDefault(); oldPhysDestIsFpr := False
     allocatesPhysDest := False
     writesToPhysReg := False
-    branchPrediction.setDefault()
     this
   }
 
@@ -858,7 +865,6 @@ case class RenameInfo(val config: PipelineConfig) extends Bundle {
     oldPhysDest.setDefaultForSim(); oldPhysDestIsFpr #= false
     allocatesPhysDest #= false
     writesToPhysReg #= false
-    branchPrediction.setDefaultForSim()
     this
   }
 
@@ -888,8 +894,6 @@ case class RenameInfo(val config: PipelineConfig) extends Bundle {
       allocatesPhysDest,
       " writesToPhysReg=",
       writesToPhysReg,
-      " branchPrediction=",
-      branchPrediction.format()
     )
   }
 }

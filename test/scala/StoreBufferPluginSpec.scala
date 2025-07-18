@@ -63,7 +63,7 @@ class StoreBufferTestConnectionPlugin(
     // Monitor and Acknowledge ROB commit
     val commitSlots = robService.getCommitSlots(pCfg.commitWidth)
     val commitAcks = robService.getCommitAcks(pCfg.commitWidth)
-    tbIo.committedStores.valid := commitSlots(0).valid && commitSlots(
+    tbIo.committedStores.valid := commitSlots(0).canCommit && commitSlots(
       0
     ).entry.payload.uop.decoded.uopCode === BaseUopCode.STORE
     tbIo.committedStores.payload := commitSlots(0).entry

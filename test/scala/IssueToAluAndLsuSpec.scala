@@ -303,7 +303,7 @@ class IssueToAluAndLsuTestBench(val pCfg: PipelineConfig, val isIO: Boolean = fa
 
   val robService = framework.getService[ROBService[RenamedUop]]
   val commitSlot = robService.getCommitSlots(pCfg.commitWidth).head
-  io.commitValid := commitSlot.valid
+  io.commitValid := commitSlot.canCommit
   io.commitEntry := commitSlot.entry
 
   // Expose memory system for verification
@@ -432,7 +432,7 @@ class IssueToAluAndLsuSpec extends CustomSpinalSimFunSuite {
         dut.io.fetchStreamIn.payload.pc #= pc
         dut.io.fetchStreamIn.payload.instruction #= insn
         dut.io.fetchStreamIn.payload.predecode.setDefaultForSim()
-        dut.io.fetchStreamIn.payload.bpuPrediction.valid #= false
+        dut.io.fetchStreamIn.payload.bpuPrediction.wasPredicted #= false
         cd.waitSamplingWhere(dut.io.fetchStreamIn.ready.toBoolean)
         dut.io.fetchStreamIn.valid #= false
         cd.waitSampling(1)
@@ -578,7 +578,7 @@ class IssueToAluAndLsuSpec extends CustomSpinalSimFunSuite {
         dut.io.fetchStreamIn.payload.pc #= pc
         dut.io.fetchStreamIn.payload.instruction #= insn
         dut.io.fetchStreamIn.payload.predecode.setDefaultForSim()
-        dut.io.fetchStreamIn.payload.bpuPrediction.valid #= false
+        dut.io.fetchStreamIn.payload.bpuPrediction.wasPredicted #= false
         cd.waitSamplingWhere(dut.io.fetchStreamIn.ready.toBoolean)
         dut.io.fetchStreamIn.valid #= false
         cd.waitSampling(1)
@@ -739,7 +739,7 @@ class IssueToAluAndLsuSpec extends CustomSpinalSimFunSuite {
         dut.io.fetchStreamIn.payload.pc #= pc
         dut.io.fetchStreamIn.payload.instruction #= insn
         dut.io.fetchStreamIn.payload.predecode.setDefaultForSim()
-        dut.io.fetchStreamIn.payload.bpuPrediction.valid #= false
+        dut.io.fetchStreamIn.payload.bpuPrediction.wasPredicted #= false
         cd.waitSamplingWhere(dut.io.fetchStreamIn.ready.toBoolean)
         dut.io.fetchStreamIn.valid #= false
         cd.waitSampling(1)
@@ -865,7 +865,7 @@ class IssueToAluAndLsuSpec extends CustomSpinalSimFunSuite {
         dut.io.fetchStreamIn.payload.pc #= pc
         dut.io.fetchStreamIn.payload.instruction #= insn
         dut.io.fetchStreamIn.payload.predecode.setDefaultForSim()
-        dut.io.fetchStreamIn.payload.bpuPrediction.valid #= false
+        dut.io.fetchStreamIn.payload.bpuPrediction.wasPredicted #= false
         cd.waitSamplingWhere(dut.io.fetchStreamIn.ready.toBoolean)
         dut.io.fetchStreamIn.valid #= false
         cd.waitSampling(1)
@@ -996,7 +996,7 @@ class IssueToAluAndLsuSpec extends CustomSpinalSimFunSuite {
         dut.io.fetchStreamIn.payload.pc #= pc
         dut.io.fetchStreamIn.payload.instruction #= insn
         dut.io.fetchStreamIn.payload.predecode.setDefaultForSim()
-        dut.io.fetchStreamIn.payload.bpuPrediction.valid #= false
+        dut.io.fetchStreamIn.payload.bpuPrediction.wasPredicted #= false
         cd.waitSamplingWhere(dut.io.fetchStreamIn.ready.toBoolean)
         dut.io.fetchStreamIn.valid #= false
         cd.waitSampling(1)
@@ -1098,7 +1098,7 @@ class IssueToAluAndLsuSpec extends CustomSpinalSimFunSuite {
         dut.io.fetchStreamIn.payload.pc #= pc
         dut.io.fetchStreamIn.payload.instruction #= insn
         dut.io.fetchStreamIn.payload.predecode.setDefaultForSim()
-        dut.io.fetchStreamIn.payload.bpuPrediction.valid #= false
+        dut.io.fetchStreamIn.payload.bpuPrediction.wasPredicted #= false
         cd.waitSamplingWhere(dut.io.fetchStreamIn.ready.toBoolean)
         dut.io.fetchStreamIn.valid #= false
         cd.waitSampling(1)
@@ -1255,7 +1255,7 @@ class IssueToAluAndLsuSpec extends CustomSpinalSimFunSuite {
         dut.io.fetchStreamIn.payload.pc #= pc
         dut.io.fetchStreamIn.payload.instruction #= insn
         dut.io.fetchStreamIn.payload.predecode.setDefaultForSim()
-        dut.io.fetchStreamIn.payload.bpuPrediction.valid #= false
+        dut.io.fetchStreamIn.payload.bpuPrediction.wasPredicted #= false
         cd.waitSamplingWhere(dut.io.fetchStreamIn.ready.toBoolean)
         dut.io.fetchStreamIn.valid #= false
         cd.waitSampling(1)
@@ -1412,7 +1412,7 @@ class IssueToAluAndLsuSpec extends CustomSpinalSimFunSuite {
         dut.io.fetchStreamIn.payload.pc #= pc
         dut.io.fetchStreamIn.payload.instruction #= insn
         dut.io.fetchStreamIn.payload.predecode.setDefaultForSim()
-        dut.io.fetchStreamIn.payload.bpuPrediction.valid #= false
+        dut.io.fetchStreamIn.payload.bpuPrediction.wasPredicted #= false
         cd.waitSamplingWhere(dut.io.fetchStreamIn.ready.toBoolean)
         dut.io.fetchStreamIn.valid #= false
         cd.waitSampling(1)
@@ -1577,7 +1577,7 @@ class IssueToAluAndLsuSpec extends CustomSpinalSimFunSuite {
         dut.io.fetchStreamIn.payload.pc #= pc
         dut.io.fetchStreamIn.payload.instruction #= insn
         dut.io.fetchStreamIn.payload.predecode.setDefaultForSim()
-        dut.io.fetchStreamIn.payload.bpuPrediction.valid #= false
+        dut.io.fetchStreamIn.payload.bpuPrediction.wasPredicted #= false
         cd.waitSamplingWhere(dut.io.fetchStreamIn.ready.toBoolean)
         dut.io.fetchStreamIn.valid #= false
         cd.waitSampling(1)

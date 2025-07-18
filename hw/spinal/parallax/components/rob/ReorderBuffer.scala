@@ -133,15 +133,16 @@ case class ROBCommitSlot[RU <: Data with Formattable with HasRobPtr](config: ROB
     extends Bundle
     with IMasterSlave {
   val valid = Bool() // ok to commit
+  val canCommit = Bool() // ok to commit
   val entry = ROBFullEntry(config)
 
   override def asMaster(): Unit = {
-    out(valid, entry)
+    out(valid, canCommit, entry)
   }
 
   def asFlow: Flow[ROBFullEntry[RU]] = {
     val ret = Flow(ROBFullEntry(config))
-    ret.valid := this.valid
+    ret.valid := this.canCommit
     ret.payload := this.entry
     ret
   }
@@ -262,7 +263,8 @@ class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfi
     canCommitFlags(i) := !flushBlocking && 
                         (count_reg > U(i)) && currentStatus.done && (currentCommitGenBit === currentStatus.genBit)
     
-    io.commit(i).valid := canCommitFlags(i)
+    io.commit(i).valid := count_reg > U(i)
+    io.commit(i).canCommit := canCommitFlags(i)
     io.commit(i).entry.payload := payloads.readAsync(address = currentCommitPhysIdx)
     io.commit(i).entry.status := currentStatus
 

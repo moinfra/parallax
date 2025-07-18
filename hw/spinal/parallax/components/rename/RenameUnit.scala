@@ -75,7 +75,6 @@ class RenameUnit(
   // 其他字段
   renameInfo.physSrc3.setDefault()
   renameInfo.physSrc3IsFpr := False
-  renameInfo.branchPrediction.setDefault()
 
   // 目的寄存器相关信息
   when(uopNeedsNewPhysDest) {

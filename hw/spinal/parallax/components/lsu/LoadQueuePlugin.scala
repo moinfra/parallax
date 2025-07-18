@@ -444,7 +444,7 @@ class LoadQueuePlugin(
             } elsewhen (popOnMMIOSuccess) { // Uses current response
                 hw.mmioReadChannel.foreach { mmioChannel =>
                     val mmioRsp = mmioChannel.rsp.payload
-                    ParallaxSim.log(L"[LQ-MMIO] MMIO_RSP_OK for robPtr=${head.robPtr}, data=${mmioRsp.data}, error=${mmioRsp.error}")
+                    ParallaxSim.log(L"[LQ-MMIO] MMIO_RSP_OK for robPtr=${head.robPtr}, addr=${head.address} data=${mmioRsp.data}, error=${mmioRsp.error}")
                     prfWritePort.valid   := !mmioRsp.error
                     prfWritePort.address := head.pdest
                     prfWritePort.data    := mmioRsp.data

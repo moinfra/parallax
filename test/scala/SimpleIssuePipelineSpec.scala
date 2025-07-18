@@ -124,7 +124,7 @@ class MockControllerPlugin(pCfg: PipelineConfig) extends Plugin {
     // 循环处理每个提交槽
     for (i <- 0 until pCfg.commitWidth) {
       // 1. 驱动提交应答信号
-      val doCommit = enableCommit && commitAcksPort(i) && commitSlots(i).valid
+      val doCommit = enableCommit && commitAcksPort(i) && commitSlots(i).canCommit
       commitAcks(i) := doCommit
       when(doCommit) {
         val committedUop = commitSlots(i).entry.payload.uop
@@ -154,7 +154,7 @@ class MockControllerPlugin(pCfg: PipelineConfig) extends Plugin {
       report(
         L"MockController[${i}]: Trying to commit! " :+
           L"enableCommit=${enableCommit}, commitAcksPort=${commitAcksPort(i)}, " :+
-          L"rob.commitSlot.valid=${commitSlots(i).valid} " :+
+          L"rob.commitSlot.valid=${commitSlots(i).canCommit} " :+
           L"-> doCommit=${doCommit}. " :+
           L"uop.allocatesPhysDest=${uopAllocates} " :+
           L"-> freePort.enable=${freeEnable}"
@@ -316,7 +316,7 @@ class SimpleIssuePipelineSpec extends CustomSpinalSimFunSuite {
     dut.io.fetchStreamIn.payload.pc #= pc
     dut.io.fetchStreamIn.payload.instruction #= inst
     dut.io.fetchStreamIn.payload.predecode.setDefaultForSim()
-    dut.io.fetchStreamIn.payload.bpuPrediction.valid #= false
+    dut.io.fetchStreamIn.payload.bpuPrediction.wasPredicted #= false
     val err = dut.clockDomain.waitSamplingWhere(timeout = 10)(
       dut.io.fetchStreamIn.ready.toBoolean && dut.io.fetchStreamIn.valid.toBoolean
     )

@@ -96,7 +96,7 @@ class LsuFullIntegrationTestBench(
 
           flushPort <> io.robFlushIn
 
-          io.committedOps.valid := commitSlot.valid
+          io.committedOps.valid := commitSlot.canCommit
           io.committedOps.payload := commitSlot.entry
           commitAck := io.robCommitAck
         },
