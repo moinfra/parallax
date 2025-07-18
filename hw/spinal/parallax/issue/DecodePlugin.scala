@@ -95,7 +95,7 @@ class DecodePlugin(val issueConfig: PipelineConfig) extends Plugin with LockedIm
 
     val flush = new Area {
       getServiceOption[HardRedirectService].foreach(hr => {
-        val doHardRedirect = hr.getFlushListeningPort()
+        val doHardRedirect = hr.doHardRedirect()
         when(doHardRedirect) {
           s0_decode.flushIt()
           if(enableLog) report(L"DecodePlugin (s0_decode): Flushing pipeline due to hard redirect")

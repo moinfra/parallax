@@ -34,8 +34,8 @@ class CheckpointManagerPlugin(
   val enableLog = true
   
   // Service interface signals
-  val saveCheckpointTrigger = Bool()
-  val restoreCheckpointTrigger = Bool() 
+  val saveCheckpointTrigger = False
+  val restoreCheckpointTrigger = False
   
   override def getSaveCheckpointTrigger(): Bool = saveCheckpointTrigger
   override def getRestoreCheckpointTrigger(): Bool = restoreCheckpointTrigger
@@ -114,7 +114,10 @@ class CheckpointManagerPlugin(
       }
     }
     
-    // REAL RESTORE OPERATION: Send saved state to RAT and FreeList
+    when(restoreCheckpointTrigger && !hasValidCheckpoint) {
+      assert(False, "Checkpoint restore requested but no valid checkpoint available")
+    }
+
     when(restoreCheckpointTrigger && hasValidCheckpoint) {
       // Drive RAT restore with REAL saved state
       ratRestorePort.valid := True

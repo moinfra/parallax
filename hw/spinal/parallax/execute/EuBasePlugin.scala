@@ -10,7 +10,6 @@ import parallax.components.rob._
 import parallax.utilities._ // 包含 Plugin, Service, ParallaxLogger, findService, getService 等
 import scala.collection.mutable.ArrayBuffer
 import parallax.common.{PhysicalRegFileService, PrfReadPort, PrfWritePort}
-import parallax.execute.{WakeupService, WakeupPayload}
 
 // 引入 BusyTableService
 import parallax.components.rename.BusyTableService
@@ -125,6 +124,9 @@ abstract class EuBasePlugin(
   // EU 从 ROBService 获取一个 ROBWritebackPort[RU_TYPE_FOR_ROB] 的 SLAVE 接口。
   // EU 将驱动此 Bundle 的字段。
   lazy val robWritebackPortBundle: ROBWritebackPort[RU_TYPE_FOR_ROB] = robService.newWritebackPort(euName)
+  
+  // --- 新增：获取ROB冲刷端口 ---
+  lazy val robFlushPort = robService.doRobFlush()
 
   // --- 旁路输出端口 (基于 Flow) ---
   lazy val bypassOutputPort: Flow[BypassMessage] = bypassService.newBypassSource(euName)
@@ -142,6 +144,7 @@ abstract class EuBasePlugin(
     val uop = iqEntryType() // 产生该结果的微指令
     val data = Bits(pipelineConfig.dataWidth) // 计算结果
     val writesToPreg = Bool() // 是否写物理寄存器
+    val isMispredictedBranch = Bool()
     val hasException = Bool()
     val exceptionCode = UInt(pipelineConfig.exceptionCodeWidth)
     val destIsFpr = Bool() // 目标是否为 FPR
@@ -149,11 +152,12 @@ abstract class EuBasePlugin(
     // 必须在 buildEuLogic 之外为它们设置默认值，以防子类未驱动时产生锁存器
     valid := False
     uop.setDefault() // 使用 setDefault() 而不是 assignDontCare()
-    data := B(0)
-    writesToPreg := False
-    hasException := False
-    exceptionCode := U(0)
-    destIsFpr := False
+    data.assignDontCare()
+    writesToPreg.assignDontCare()
+    isMispredictedBranch.assignDontCare()
+    hasException.assignDontCare()
+    exceptionCode.assignDontCare()
+    destIsFpr.assignDontCare()
   }
 
   // Setup 阶段：获取服务，创建端口
@@ -197,32 +201,57 @@ abstract class EuBasePlugin(
     // 1. 调用子类来构建它们自己的内部逻辑
     buildEuLogic()
     ParallaxLogger.log(s"EUBase ($euName): 子类 EU 特定逻辑已构建。")
+    
+    // --- 新增：ROB 指针比较辅助函数 ---
+    private def isNewerOrSame(robPtrA: UInt, robPtrB: UInt): Bool = {
+        val width = robPtrA.getWidth
+        require(width == robPtrB.getWidth, "ROB pointer widths must match")
+
+        if (width <= 1) { // 处理没有generation bit的情况
+            return robPtrA >= robPtrB
+        }
+
+        val genA = robPtrA.msb
+        val idxA = robPtrA(width - 2 downto 0)
+        val genB = robPtrB.msb
+        val idxB = robPtrB(width - 2 downto 0)
+
+        (genA === genB && idxA >= idxB) || (genA =/= genB && idxA < idxB)
+    }
 
     // 2. 将 "结果契约" (euResult) 连接到所有输出服务
     val uopAtWb = euResult.uop
+    
+    // --- 新增：检查当前指令是否需要被冲刷 ---
+    val isFlushed = robFlushPort.valid && isNewerOrSame(uopAtWb.robPtr, robFlushPort.payload.targetRobPtr)
+    
+    when(isFlushed && euResult.valid) {
+      report(L"EUBase ($euName): Killing in-flight uop. robPtr=${uopAtWb.robPtr}, flushTarget=${robFlushPort.payload.targetRobPtr}")
+    }
+
+    // --- 修改：指令完成的定义现在必须考虑冲刷信号 ---
+    // 仅当指令有效且未被冲刷时，才认为其执行完成
+    val executionCompletes = euResult.valid && !isFlushed
+    val completesSuccessfully = executionCompletes && !euResult.hasException
     val finalDestIsFpr = euResult.destIsFpr
 
-    // CRITICAL FIX: Instructions complete when valid, regardless of whether they write to registers
-    // Branch instructions like BNE don't write registers but still need to complete for ROB commit
-    val executionCompletes = euResult.valid
-    val completesSuccessfully = executionCompletes && !euResult.hasException
 
     // 用于调试的日志
     when(euResult.valid) {
-      report(L"EUBase ($euName): Result valid, writesToPreg=${euResult.writesToPreg}, hasException=${euResult.hasException}, executionCompletes=${executionCompletes}, completesSuccessfully=${completesSuccessfully}")
+      report(L"EUBase ($euName): Result valid, writesToPreg=${euResult.writesToPreg}, hasException=${euResult.hasException}, executionCompletes=${executionCompletes}, completesSuccessfully=${completesSuccessfully}, isFlushed=${isFlushed}")
     }
     getServiceOption[DebugDisplayService].foreach(dbg => { 
-      dbg.setDebugValueOnce(euResult.valid, DebugValue.EXEC_FIRE, expectIncr = true)
+      dbg.setDebugValueOnce(executionCompletes, DebugValue.EXEC_FIRE, expectIncr = true)
     })
 
     // 1. 物理寄存器文件写
-    if (gprWritePort != null) { // 仅当 gprWritePort 有效时连接 (即 gprFileService 存在且 EU 类型匹配)
+    if (gprWritePort != null) {
       gprWritePort.valid := completesSuccessfully && euResult.writesToPreg && !finalDestIsFpr
       gprWritePort.address := uopAtWb.physDest.idx
       gprWritePort.data := euResult.data
     }
 
-    if (fprWritePort != null) { // 仅当 fprWritePort 有效时连接
+    if (fprWritePort != null) {
       fprWritePort.valid := completesSuccessfully && euResult.writesToPreg && finalDestIsFpr
       fprWritePort.address := uopAtWb.physDest.idx
       fprWritePort.data := euResult.data
@@ -230,29 +259,26 @@ abstract class EuBasePlugin(
     ParallaxLogger.log(s"EUBase ($euName): PRF 写逻辑已连接。")
 
     // 2. ROB 完成
-    // 总是向ROB报告完成状态，无论有无异常。ROB需要记录异常信息。
-    robWritebackPortBundle.fire := euResult.valid
-    robWritebackPortBundle.robPtr := uopAtWb.robPtr
-    robWritebackPortBundle.exceptionOccurred := euResult.hasException
-    robWritebackPortBundle.exceptionCodeIn := euResult.exceptionCode
+    robWritebackPortBundle.fire                 := executionCompletes
+    robWritebackPortBundle.robPtr               := uopAtWb.robPtr
+    robWritebackPortBundle.isMispredictedBranch := euResult.isMispredictedBranch
+    robWritebackPortBundle.result               := euResult.data
+    robWritebackPortBundle.exceptionOccurred    := euResult.hasException
+    robWritebackPortBundle.exceptionCodeIn      := euResult.exceptionCode
     ParallaxLogger.log(s"EUBase ($euName): ROB 完成逻辑已连接。")
 
     // 3. 旁路网络输出 (基于 Flow)
-    // Bypass网络也需要广播结果，但会携带异常标志。
-    // 消费者可以选择如何处理带有异常标志的旁路数据。
-    bypassOutputPort.valid := executionCompletes // 即使有异常也要广播，让消费者知道这个tag已完成
-    bypassOutputPort.payload.physRegIdx := uopAtWb.physDest.idx
-    bypassOutputPort.payload.physRegData := euResult.data // 数据可以是任意值，因为hasException会为true
-    bypassOutputPort.payload.robPtr := uopAtWb.robPtr
-    bypassOutputPort.payload.isFPR := finalDestIsFpr
-    bypassOutputPort.payload.hasException := euResult.hasException
-    bypassOutputPort.payload.exceptionCode := euResult.exceptionCode
+    bypassOutputPort.valid                      := executionCompletes // 即使有异常也要广播，让消费者知道这个tag已完成
+    bypassOutputPort.payload.physRegIdx         := uopAtWb.physDest.idx
+    bypassOutputPort.payload.physRegData        := euResult.data // 数据可以是任意值，因为hasException会为true
+    bypassOutputPort.payload.robPtr             := uopAtWb.robPtr
+    bypassOutputPort.payload.isFPR              := finalDestIsFpr
+    bypassOutputPort.payload.hasException       := euResult.hasException
+    bypassOutputPort.payload.exceptionCode      := euResult.exceptionCode
     // Flow 没有 .ready 信号
     ParallaxLogger.log(s"EUBase ($euName): 旁路输出 Flow 逻辑已连接。")
 
     // *** 4. 唤醒总线输出 (核心修正) ***
-    // 只要指令执行完成且写寄存器（无论有无异常），就必须广播其tag以唤醒等待者。
-    // 对于不写寄存器的指令（如分支），无需发送wakeup信号
     wakeupSourcePort.valid := executionCompletes && euResult.writesToPreg
     wakeupSourcePort.payload.physRegIdx := uopAtWb.physDest.idx
     ParallaxLogger.log(s"EUBase ($euName): 唤醒总线逻辑已连接。")
@@ -342,7 +368,7 @@ abstract class EuBasePlugin(
       ParallaxLogger.error(s"$euName: 请求的 FPR 读端口索引 $prfReadPortIdx 超出范围 (${fprReadPorts.length} 可用)。")
       stage(prfDataTarget).assignDontCare()
       when(stage.isFiring && useThisSrcSignal) {
-        report(L"SIM_ERROR: $euName: FPR 读端口索引 ${prfReadPortIdx.toString} 超出范围。物理寄存器: ${physRegIdx}")
+        report(L"SIM_ERROR: $euName: FPR 读端口索引 ${prfReadPortIdx.toString} 超出范围。物理寄存ator: ${physRegIdx}")
         stage.haltIt()
       }
     }

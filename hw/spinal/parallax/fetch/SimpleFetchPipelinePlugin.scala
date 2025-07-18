@@ -55,7 +55,7 @@ trait SimpleFetchPipelineService extends Service with LockedImpl {
     * @param priority The priority of this redirect source. A higher number means higher priority.
     * @return A Flow port to be driven by the requesting module.
     */
-  def newRedirectPort(priority: Int): Flow[UInt]
+  def newHardRedirectPort(priority: Int): Flow[UInt]
   
   /**
     * Requests a new port for external fetch control (e.g., IDLE state).
@@ -72,8 +72,35 @@ class SimpleFetchPipelinePlugin(
     pCfg: PipelineConfig,
     ifuCfg: InstructionFetchUnitConfig,
     fifoDepth: Int = 16
-) extends Plugin with SimpleFetchPipelineService {
+) extends Plugin with SimpleFetchPipelineService with HardRedirectService{
     val enableLog = true
+
+
+    // --- Service Implementation: Collect redirect requests ---
+    private val hardRedirectPorts = mutable.ArrayBuffer[(Int, Flow[UInt])]()
+    private val fetchDisablePorts = mutable.ArrayBuffer[Bool]()
+    private val _doHardRedirect = Bool()
+
+    override def newHardRedirectPort(priority: Int): Flow[UInt] = {
+        framework.requireEarly()
+        val port = Flow(UInt(pCfg.pcWidth))
+        hardRedirectPorts += (priority -> port)
+        port
+    }
+    
+    override def newFetchDisablePort(): Bool = {
+        framework.requireEarly()
+        val port = Bool()
+        fetchDisablePorts += port
+        port
+    }
+
+    override def doHardRedirect(): Bool = {
+        _doHardRedirect
+    }
+
+  override def fetchOutput(): Stream[FetchedInstr] = hw.finalOutputInst
+
   val hw = create early new Area {
     val bpuService = getService[BpuService]
     val ifuService = getService[IFUService]
@@ -81,36 +108,19 @@ class SimpleFetchPipelinePlugin(
     
     val redirectFlowInst = Flow(UInt(pCfg.pcWidth))
     val finalOutputInst = Stream(FetchedInstr(pCfg))
+    
+    val ifuPort         = ifuService.newFetchPort()
+    val bpuQueryPort    = bpuService.newBpuQueryPort()
   }
-
-  // --- Service Implementation: Collect redirect requests ---
-  private val hardRedirectPorts = mutable.ArrayBuffer[(Int, Flow[UInt])]()
-  private val fetchDisablePorts = mutable.ArrayBuffer[Bool]()
-  
-  override def newRedirectPort(priority: Int): Flow[UInt] = {
-    framework.requireEarly()
-    val port = Flow(UInt(pCfg.pcWidth))
-    hardRedirectPorts += (priority -> port)
-    port
-  }
-  
-  override def newFetchDisablePort(): Bool = {
-    framework.requireEarly()
-    val port = Bool()
-    fetchDisablePorts += port
-    port
-  }
-
-  override def fetchOutput(): Stream[FetchedInstr] = hw.finalOutputInst
 
   val logic = create late new Area {
     lock.await()
     val bpu = hw.bpuService
     val ifu = hw.ifuService
+    val ifuPort = hw.ifuPort
+    val bpuQueryPort = hw.bpuQueryPort
 
     // Components
-    val ifuPort = ifu.newFetchPort()
-    val bpuQueryPort = bpu.newBpuQueryPort()
     val bpuResponse = bpu.getBpuResponse()
     val ifuRspFifo = StreamFifo(IFetchRsp(ifuCfg), depth = 2)
     val outputFifo = StreamFifo(FetchedInstr(pCfg), depth = fifoDepth)
@@ -142,7 +152,7 @@ class SimpleFetchPipelinePlugin(
     filteredStream.valid := unpackedStream.valid && !hw.redirectFlowInst.valid  // Don't filter IDLE instructions
     filteredStream.payload := unpackedStream.payload
     unpackedStream.ready := filteredStream.ready  // Normal backpressure
-    
+
     outputFifo.io.push << filteredStream
     hw.finalOutputInst << outputFifo.io.pop
 
@@ -159,7 +169,7 @@ class SimpleFetchPipelinePlugin(
     bpuQueryPort.valid := unpackedStream.valid && predecode.isBranch
     bpuQueryPort.payload.pc := unpackedInstr.pc
     bpuQueryPort.payload.transactionId.assignDontCare()
-        // ====================== NEW: Priority Arbitrator for Hard Redirects ======================
+    // ====================== Priority Arbitrator for Hard Redirects ======================
     // Sort ports by priority, descending. Highest priority first.
     val sortedHardRedirects = hardRedirectPorts.sortBy(-_._1).map(_._2)
 
@@ -176,39 +186,24 @@ class SimpleFetchPipelinePlugin(
         }
     } else {
         // If no hard redirect ports were ever requested, it can never be valid.
-        hw.redirectFlowInst.valid := False
-        hw.redirectFlowInst.payload.assignDontCare()
+        hw.redirectFlowInst.setIdle()
     }
     // =======================================================================================
     
     // THIS LOGIC IS NOW UNCHANGED. It consumes the result of the new arbitrator.
-    val doHardRedirect = hw.redirectFlowInst.valid
+    _doHardRedirect := hw.redirectFlowInst.valid
 
 
     // BPU Redirect (from prediction)
-    val doBpuRedirect = bpuResponse.valid && bpuResponse.isTaken && !doHardRedirect
+    val doBpuRedirect = bpuResponse.valid && bpuResponse.isTaken && !_doHardRedirect
     
     // Unconditional Direct Jump Redirect (from predecode)
-    val doJumpRedirect = unpackedStream.valid && unpackedInstr.predecode.isDirectJump && !doHardRedirect
+    val doJumpRedirect = unpackedStream.valid && unpackedInstr.predecode.isDirectJump && !_doHardRedirect
     val jumpTarget = unpackedInstr.pc + predecode.jumpOffset.asUInt
 
     // Combine all soft redirect sources
     val doSoftRedirect = doBpuRedirect || doJumpRedirect
     val softRedirectTarget = Mux(doBpuRedirect, bpuResponse.target, jumpTarget)
-
-    val saveCheckpoint = new Area {
-        val ckptService = getService[CheckpointManagerService]
-        val shouldCreateCheckpoint = bpuResponse.valid && 
-                                bpuResponse.isTaken && 
-                                !doHardRedirect
-        val trigger = ckptService.getSaveCheckpointTrigger()
-        trigger.addAttribute("MARK_DEBUG","TRUE")
-        trigger := False
-        when(shouldCreateCheckpoint) {
-            trigger := True
-            report(L"[Fetch] CHECKPOINT: Saving checkpoint of predict target 0x${bpuResponse.target}")
-        }
-    }
     
     // Hard Redirect (from backend)
     
@@ -284,7 +279,7 @@ class SimpleFetchPipelinePlugin(
         }
 
         always {
-            when(doHardRedirect) {
+            when(_doHardRedirect) {
                 fetchPc := hw.redirectFlowInst.payload
                 goto(IDLE)
             } .elsewhen(doSoftRedirect) {
@@ -295,10 +290,10 @@ class SimpleFetchPipelinePlugin(
     }
     
     // --- Flush Logic ---
-    val needsFlush = doHardRedirect || doSoftRedirect
+    val needsFlush = _doHardRedirect || doSoftRedirect
     ifuPort.flush := needsFlush
     ifuRspFifo.io.flush := needsFlush
-    outputFifo.io.flush := doHardRedirect // Critical: Only hard flush clears the output FIFO
+    outputFifo.io.flush := _doHardRedirect // Critical: Only hard flush clears the output FIFO
     unpacker.io.flush := needsFlush
 
     // ========================================================================
@@ -313,7 +308,7 @@ class SimpleFetchPipelinePlugin(
             L"FILTERED(valid=${filteredStream.valid}, fire=${filteredStream.fire}) | ",
             L"BPU(QueryFire=${bpuQueryPort.fire}, RspValid=${bpuResponse.valid}, RspTaken=${bpuResponse.isTaken}) | ",
             L"JUMP(do=${doJumpRedirect}, target=0x${jumpTarget}) | ",
-            L"REDIRECT(Soft=${doSoftRedirect}, Hard=${doHardRedirect}, Soft Target=0x${softRedirectTarget}) | Hard Target=0x${hw.redirectFlowInst.payload}) | ",
+            L"REDIRECT(Soft=${doSoftRedirect}, Hard=${_doHardRedirect}, Soft Target=0x${softRedirectTarget}) | Hard Target=0x${hw.redirectFlowInst.payload}) | ",
             L"FLUSH(needs=${needsFlush}, outFifo=${outputFifo.io.flush}) | ",
             L"UNPACK_STATE(busy=${unpacker.io.isBusy}, fin=${fsm.unpackerJustFinished}) | ",
             L"FIFOS(rsp=${ifuRspFifo.io.occupancy}, out=${outputFifo.io.occupancy})"

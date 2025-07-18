@@ -22,7 +22,7 @@ import scala.util.Random
 class MockFetchServiceBru(pCfg: PipelineConfig) extends Plugin with SimpleFetchPipelineService {
   val fetchStreamIn = Stream(FetchedInstr(pCfg))
   override def fetchOutput(): Stream[FetchedInstr] = fetchStreamIn
-  override def newRedirectPort(priority: Int): Flow[UInt] = Flow(UInt(pCfg.pcWidth))
+  override def newHardRedirectPort(priority: Int): Flow[UInt] = Flow(UInt(pCfg.pcWidth))
   override def newFetchDisablePort(): Bool = Bool()
 }
 
@@ -46,7 +46,7 @@ class MockCommitControllerBru(pCfg: PipelineConfig) extends Plugin with CommitSe
     setup.ratControl.newCheckpointSavePort().setIdle()
     setup.ratControl.newCheckpointRestorePort().setIdle()
     setup.flControl.newRestorePort().setIdle()
-    val robFlushPort = setup.robService.newFlushPort()
+    val robFlushPort = setup.robService.newRobFlushPort()
     robFlushPort.setIdle()
 
     val freePorts = setup.flControl.getFreePorts()

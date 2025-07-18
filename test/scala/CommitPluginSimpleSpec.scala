@@ -89,7 +89,7 @@ class CommitPluginSimpleSpec extends CustomSpinalSimFunSuite {
             // Initialize ROB writeback ports
             for (i <- 0 until pCfg.totalEuCount) {
               val wbPort = robService.newWritebackPort(s"test_dummy_$i")
-              wbPort.setIdle()
+              wbPort.setDefault()
             }
             
             // Initialize ROB allocate ports

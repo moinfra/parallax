@@ -72,6 +72,8 @@ case class ROBFlushPayload(robPtrWidth: BitCount) extends Bundle {
 case class ROBStatus[RU <: Data with Formattable with HasRobPtr](config: ROBConfig[RU]) extends Bundle {
   val busy = Bool()
   val done = Bool()
+  val isMispredictedBranch = Bool()
+  val result = Bits(config.pcWidth)
   val hasException = Bool()
   val exceptionCode = UInt(config.exceptionCodeWidth)
   val genBit = Bool()
@@ -108,16 +110,20 @@ case class ROBWritebackPort[RU <: Data with Formattable with HasRobPtr](config: 
     with IMasterSlave {
   val fire = Bool()
   val robPtr = UInt(config.robPtrWidth) 
+  val isMispredictedBranch = Bool()
+  val result = Bits(config.pcWidth)
   val exceptionOccurred = Bool()
   val exceptionCodeIn = UInt(config.exceptionCodeWidth)
 
   override def asMaster(): Unit = {
-    in(fire, robPtr, exceptionOccurred, exceptionCodeIn)
+    in(fire, robPtr, isMispredictedBranch, result, exceptionOccurred, exceptionCodeIn)
   }
 
-    def setIdle(): Unit = {
+  def setDefault(): Unit = {
     this.fire := False
     this.robPtr.assignDontCare()
+    this.isMispredictedBranch.assignDontCare()
+    this.result.assignDontCare()
     this.exceptionOccurred.assignDontCare()
     this.exceptionCodeIn.assignDontCare()
   }
@@ -361,6 +367,8 @@ class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfi
     when(wbPort.fire && wbGenBit === statusBeforeWb.genBit) {
       statuses(wbPhysIdx).busy := False
       statuses(wbPhysIdx).done := True
+      statuses(wbPhysIdx).isMispredictedBranch := wbPort.isMispredictedBranch
+      statuses(wbPhysIdx).result := wbPort.result
       statuses(wbPhysIdx).hasException := wbPort.exceptionOccurred
       statuses(wbPhysIdx).exceptionCode := Mux(wbPort.exceptionOccurred, wbPort.exceptionCodeIn, statusBeforeWb.exceptionCode)
       if (enableLog) report(L"[ROB] WB_WRITE: ptr=${wbPort.robPtr} -> status.done=T")

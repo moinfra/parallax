@@ -51,7 +51,7 @@ class LsuEuPlugin(
     // 获取到后端队列的推送端口
     val sbPushPort = storeBufferServiceInst.getPushPort()
     val lqPushPort = loadQueueServiceInst.newPushPort()
-    val robFlushPort = robServiceInst.getFlushListeningPort()
+    val robFlushPort = robServiceInst.doRobFlush()
 
     // 保留服务
     robServiceInst.retain() // 保留服务
@@ -152,22 +152,24 @@ class LsuEuPlugin(
     //
     // 对于Load指令，进入Load Queue仅仅是开始。它必须等待数据返回。
     // 因此，LsuEu绝对不能在此处为Load指令报告完成。这个责任完全在LoadQueuePlugin。
-    when(isStoreDispatch) {
-        euResult.valid := True
-        
-        // 填充ROB需要的信息
-        euResult.uop.robPtr          := aguOutPayload.robPtr
-        euResult.uop.physDest.idx    := 0 // Store没有物理目标寄存器
-        euResult.uop.writesToPhysReg := False
+    // FIXME: 对于 LOAD 指令，其结果本应该写入 euResult
+    // 这里没有写入，这会导致一系列严重问题：缺失 ROB 完成、旁路网络输出、唤醒的逻辑
+      when(isStoreDispatch) {
+          euResult.valid := True
+          
+          // 填充ROB需要的信息
+          euResult.uop.robPtr          := aguOutPayload.robPtr
+          euResult.uop.physDest.idx    := 0 // Store没有物理目标寄存器
+          euResult.uop.writesToPhysReg := False
 
-        euResult.writesToPreg  := False
-        euResult.hasException  := aguOutPayload.alignException
-        euResult.exceptionCode := ExceptionCode.STORE_ADDRESS_MISALIGNED
-        euResult.destIsFpr     := False
+          euResult.writesToPreg  := False
+          euResult.hasException  := aguOutPayload.alignException
+          euResult.exceptionCode := ExceptionCode.STORE_ADDRESS_MISALIGNED
+          euResult.destIsFpr     := False
 
-        ParallaxSim.logWhen(aguOutPayload.isLoad, L"[LsuEu] Dispatched LOAD to LQ: robPtr=${aguOutPayload.robPtr}")
-        ParallaxSim.logWhen(aguOutPayload.isStore, L"[LsuEu] Dispatched STORE to SB: robPtr=${aguOutPayload.robPtr}")
-    }
+          ParallaxSim.logWhen(aguOutPayload.isLoad, L"[LsuEu] Dispatched LOAD to LQ: robPtr=${aguOutPayload.robPtr}")
+          ParallaxSim.logWhen(aguOutPayload.isStore, L"[LsuEu] Dispatched STORE to SB: robPtr=${aguOutPayload.robPtr}")
+      }
     }
 
     // 释放服务

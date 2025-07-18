@@ -110,7 +110,7 @@ class DispatchPlugin(pCfg: PipelineConfig) extends Plugin with LockedImpl {
 
     val flush = new Area {
       getServiceOption[HardRedirectService].foreach(hr => {
-        val doHardRedirect = hr.getFlushListeningPort()
+        val doHardRedirect = hr.doHardRedirect()
         when(doHardRedirect) {
           s3_dispatch.flushIt()
           report(L"DispatchPlugin: (s3): Flushing pipeline due to hard redirect")

@@ -110,7 +110,7 @@ class LinkerPlugin(pCfg: PipelineConfig) extends Plugin with LockedImpl {
 
     val flush = new Area {
       getServiceOption[HardRedirectService].foreach(hr => {
-        val doHardRedirect = hr.getFlushListeningPort()
+        val doHardRedirect = hr.doHardRedirect()
         for (conn <- connections) {
           conn.issueQueue.io.flush := doHardRedirect
         }

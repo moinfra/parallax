@@ -256,7 +256,7 @@ class StoreBufferPlugin(
         private def isOlder(robPtrA: UInt, robPtrB: UInt): Bool = !isNewerOrSame(robPtrA, robPtrB)
 
         // --- Flush Logic (moved here to define flushInProgress early) ---
-        val robFlushPort = robService.getFlushListeningPort()
+        val robFlushPort = robService.doRobFlush()
         
         // 1. 立即生效的组合逻辑信号：用于立即屏蔽交互
         val flushInProgress = robFlushPort.valid && robFlushPort.payload.reason === FlushReason.ROLLBACK_TO_ROB_IDX

@@ -203,7 +203,7 @@ class LsuPlugin(
 
         // FIXME 这里有问题，robFlushPort 应该被控制而非监听
         val robService = hw.robServiceInst
-        val robFlushPort = robService.getFlushListeningPort()
+        val robFlushPort = robService.doRobFlush()
         lqAguPort.flush := robFlushPort.valid
         sqAguPort.flush := robFlushPort.valid
 
@@ -275,10 +275,7 @@ class LsuPlugin(
             )
             // >>> END DIAGNOSTIC LOGS <<<
             // 默认情况下，store写回端口不触发
-            robStoreWritebackPort.fire := False
-            robStoreWritebackPort.robPtr.assignDontCare()
-            robStoreWritebackPort.exceptionOccurred.assignDontCare()
-            robStoreWritebackPort.exceptionCodeIn.assignDontCare()
+            robStoreWritebackPort.setDefault()
 
             sbPushPort << aguRsp.translateWith {
                 val sbCmd = StoreBufferPushCmd(pipelineConfig, lsuConfig)
@@ -434,10 +431,7 @@ class LsuPlugin(
 
             // >>> FIX: 使用 if/elsewhen 结构避免赋值冲突
             // Default assignments to prevent latches
-            robLoadWritebackPort.fire := False
-            robLoadWritebackPort.robPtr.assignDontCare()
-            robLoadWritebackPort.exceptionOccurred.assignDontCare()
-            robLoadWritebackPort.exceptionCodeIn.assignDontCare()
+            robLoadWritebackPort.setDefault()
             
             prfWritePort.valid   := False
             prfWritePort.address.assignDontCare()
@@ -453,6 +447,7 @@ class LsuPlugin(
                 robLoadWritebackPort.fire := True
                 robLoadWritebackPort.robPtr := head.robPtr
                 robLoadWritebackPort.exceptionOccurred := False
+                robLoadWritebackPort.result            := sbQueryPort.rsp.data
             } elsewhen (popOnDCacheSuccess) {
                 ParallaxSim.log(L"[LQ-DCache] DCACHE_RSP_OK for robPtr=${head.robPtr}, data=${dCacheLoadPort.rsp.payload.data}, fault=${dCacheLoadPort.rsp.payload.fault}")
                 prfWritePort.valid   := !dCacheLoadPort.rsp.payload.fault
@@ -463,6 +458,7 @@ class LsuPlugin(
                 robLoadWritebackPort.robPtr := head.robPtr
                 robLoadWritebackPort.exceptionOccurred := dCacheLoadPort.rsp.payload.fault
                 robLoadWritebackPort.exceptionCodeIn   := ExceptionCode.LOAD_ACCESS_FAULT
+                robLoadWritebackPort.result            := dCacheLoadPort.rsp.payload.data
             } elsewhen (popOnEarlyException) {
                 ParallaxSim.log(L"[LQ] Alignment exception for robPtr=${head.robPtr}")
                 robLoadWritebackPort.fire := True

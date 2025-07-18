@@ -24,7 +24,7 @@ import scala.util.Random
 class MockFetchServiceForBru(pCfg: PipelineConfig) extends Plugin with SimpleFetchPipelineService {
   val fetchStreamIn = Stream(FetchedInstr(pCfg))
   override def fetchOutput(): Stream[FetchedInstr] = fetchStreamIn
-  override def newRedirectPort(priority: Int): Flow[UInt] = Flow(UInt(pCfg.pcWidth))
+  override def newHardRedirectPort(priority: Int): Flow[UInt] = Flow(UInt(pCfg.pcWidth))
   override def newFetchDisablePort(): Bool = Bool()
 }
 
@@ -110,7 +110,7 @@ class IssueToAluAndBruTestBench(val pCfg: PipelineConfig) extends Component {
   io.commitEntry := commitSlot.entry
 
   // Connect branch redirect port
-  val branchRedirectPort = fetchService.newRedirectPort(0)
+  val branchRedirectPort = fetchService.newHardRedirectPort(0)
   io.branchRedirectValid <> branchRedirectPort.valid
   io.branchRedirectPC <> branchRedirectPort.payload
 

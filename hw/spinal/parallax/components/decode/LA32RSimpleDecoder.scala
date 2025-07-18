@@ -342,7 +342,8 @@ class LA32RSimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends 
         is(LoongArchOpcodes.OP_JIRL) {
           io.decodedUop.isValid := True; io.decodedUop.uopCode := BaseUopCode.JUMP_REG;
           io.decodedUop.exeUnit := ExeUnitType.BRU
-          io.decodedUop.isBranchOrJump := True; io.decodedUop.archDest.idx := fields.rd;
+          io.decodedUop.isBranchOrJump := True;
+          io.decodedUop.archDest.idx := fields.rd;
           io.decodedUop.archDest.rtype := ArchRegType.GPR
           io.decodedUop.writeArchDestEn := fields.rd =/= r0_idx; io.decodedUop.archSrc1.idx := fields.rj
           io.decodedUop.archSrc1.rtype := ArchRegType.GPR; io.decodedUop.useArchSrc1 := True
@@ -353,14 +354,16 @@ class LA32RSimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends 
         is(LoongArchOpcodes.Minor_B) {
           io.decodedUop.isValid := True; io.decodedUop.uopCode := BaseUopCode.JUMP_IMM;
           io.decodedUop.exeUnit := ExeUnitType.BRU
-          io.decodedUop.isBranchOrJump := True; io.decodedUop.writeArchDestEn := False;
+          io.decodedUop.isBranchOrJump := True;
+          io.decodedUop.writeArchDestEn := False;
           io.decodedUop.imm := imm_branch_26.asBits
           io.decodedUop.immUsage := ImmUsageType.JUMP_OFFSET; io.decodedUop.branchCtrl.isJump := True
         }
         is(LoongArchOpcodes.Minor_BL) {
           io.decodedUop.isValid := True; io.decodedUop.uopCode := BaseUopCode.JUMP_IMM;
           io.decodedUop.exeUnit := ExeUnitType.BRU
-          io.decodedUop.isBranchOrJump := True; io.decodedUop.archDest.idx := r1_idx
+          io.decodedUop.isBranchOrJump := True;
+          io.decodedUop.archDest.idx := r1_idx
           io.decodedUop.archDest.rtype := ArchRegType.GPR; io.decodedUop.writeArchDestEn := True
           io.decodedUop.imm := imm_branch_26.asBits; io.decodedUop.immUsage := ImmUsageType.JUMP_OFFSET
           io.decodedUop.branchCtrl.isJump := True; io.decodedUop.branchCtrl.isLink := True;
@@ -369,7 +372,8 @@ class LA32RSimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends 
         is(LoongArchOpcodes.Minor_BEQ, LoongArchOpcodes.Minor_BNE, LoongArchOpcodes.Minor_BLTU) {
           io.decodedUop.isValid := True; io.decodedUop.uopCode := BaseUopCode.BRANCH;
           io.decodedUop.exeUnit := ExeUnitType.BRU
-          io.decodedUop.isBranchOrJump := True; io.decodedUop.writeArchDestEn := False
+          io.decodedUop.isBranchOrJump := True;
+          io.decodedUop.writeArchDestEn := False
           // Correct format for these branches: rj is at [9:5], rd is at [4:0]
           io.decodedUop.archSrc1.idx := fields.rj; io.decodedUop.archSrc1.rtype := ArchRegType.GPR
           io.decodedUop.useArchSrc1 := True; io.decodedUop.archSrc2.idx := fields.rd

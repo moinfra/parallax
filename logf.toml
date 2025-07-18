@@ -1,0 +1,21 @@
+[[blacklist.rules]]
+pattern = "text"
+text = "Plugin.scala"
+[[blacklist.rules]]
+pattern = "text"
+text = "Slot"
+[[blacklist.rules]]
+pattern = "text"
+text = "out.r=null"
+[[blacklist.rules]]
+pattern = "text"
+text = "loading"
+[[blacklist.rules]]
+pattern = "text"
+text = "InstructionFetchUnit"
+[[blacklist.rules]]
+pattern = "text"
+text = "Issue"
+[[blacklist.rules]]
+pattern = "text"
+text = "Service.scala"

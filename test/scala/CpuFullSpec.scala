@@ -1401,7 +1401,7 @@ class CpuFullTestBench(val pCfg: PipelineConfig, val dCfg: DataCachePluginConfig
       // No need for external input stream
       
       // Connect redirect port - CRITICAL: Use this to control CPU startup
-      val redirectPort = fetchService.newRedirectPort(0)
+      val redirectPort = fetchService.newHardRedirectPort(0)
       redirectPort.valid := testIo.initMemEnable  // Keep redirecting while writing memory
       redirectPort.payload := 0  // Keep PC at reset vector
       

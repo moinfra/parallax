@@ -101,6 +101,7 @@ trait CommitService extends Service {
 class CommitPlugin(
     val pipelineConfig: PipelineConfig
 ) extends Plugin with CommitService {
+  assert(pipelineConfig.commitWidth == 1)
   
   val enableLog = true // 控制是否启用周期性详细日志
   
@@ -138,16 +139,19 @@ class CommitPlugin(
   }
   
   val hw = create early new Area {
-    val robService = getService[ROBService[RenamedUop]]
-    val ratControlService = getService[RatControlService]
-    val flControlService = getService[FreeListControlService]
+    val robService               = getService[ROBService[RenamedUop]]
+    val ratControlService        = getService[RatControlService]
+    val flControlService         = getService[FreeListControlService]
     val checkpointManagerService = getService[CheckpointManagerService] 
-    val fetchService = getService[SimpleFetchPipelineService]
+    val fetchService             = getService[SimpleFetchPipelineService]
     
     // === Fetch Pipeline Control for IDLE ===
-    val fetchDisable = fetchService.newFetchDisablePort()
-    val robFlushPort = robService.newFlushPort()
+    val fetchDisable             = fetchService.newFetchDisablePort()
+    val robFlushPort             = robService.newRobFlushPort()
+    val redirectPort             = fetchService.newHardRedirectPort(priority = 10)  // High priority for branch misprediction
     
+    redirectPort.setIdle()
+
     println(L"[CommitPlugin] Early setup - acquired services and fetch disable port")
   }
 
@@ -180,48 +184,72 @@ class CommitPlugin(
     val s0 = new Area {
       // --- 从ROB获取原始、实时的提交槽位信息 ---
       val rawCommitSlots = commitSlots // 这就是当前的commitSlots
-      
-      // === IDLE Instruction Detection ===
-      // Only check the HEAD of ROB (first commit slot) to prevent repeated detection
+      val enable = commitEnableExt && !committedIdleReg
       val headSlot = rawCommitSlots(0)
       val headUop = headSlot.entry.payload.uop
-      
-      // --- 计算出本周期"将要"提交的掩码 (实时) ---
-      val commitAckMasks = Vec(Bool(), pipelineConfig.commitWidth)
-      assert(pipelineConfig.commitWidth > 0)
-      commitAckMasks(0) := commitEnableExt && rawCommitSlots(0).valid && !committedIdleReg
-      for (i <- 1 until pipelineConfig.commitWidth) {
-          commitAckMasks(i) := rawCommitSlots(i).valid && commitAckMasks(i-1)
-      }
-      
-      // === IDLE Instruction State Management ===
-      // IDLE instruction should be committed when detected, then set IDLE state
-      val commitIdleThisCycle = headUop.decoded.uopCode === BaseUopCode.IDLE && commitAckMasks(0)
-      val commitBranchThisCycle = headUop.decoded.isBranchOrJump && commitAckMasks(0) // 不用考虑数量，因为被限制住了，只会有一个
-      val branchLimit = new Area {
-        getServiceOption[BranchTrackerService].foreach(bt => {
-          when(commitBranchThisCycle) {
-            bt.doDecrement() // Rename 时分配了资源，因此+1，Commit 时释放资源，因此-1
-          }
-        })
-      }
+      val headIsBranch = headUop.decoded.isBranchOrJump
+      val isMispredictedBranch = enable && headSlot.valid && headIsBranch && headSlot.entry.status.isMispredictedBranch
+      val isMispredictedBranchPrev = RegNext(isMispredictedBranch) init(False)
+      val actualTargetOfBranch = RegNext(headSlot.entry.status.result)
+      // val isSafeToCommit = !hasInflightUnResolvedBranches || headIsBranch
 
+      val commitAckMasks = Vec(Bool(), pipelineConfig.commitWidth)
+      commitAckMasks(0) := False
+      val commitIdleThisCycle = headUop.decoded.uopCode === BaseUopCode.IDLE && commitAckMasks(0)
+
+      when(enable && headSlot.valid) {
+        val commitAckMask = True
+        commitAckMasks(0) := commitAckMask
+        // 只要提交了指令就立刻一键备份Rat/FreeList/BusyTable
+        val ckptSave = new Area {
+            val ckptService = getService[CheckpointManagerService]
+            val trigger = ckptService.getSaveCheckpointTrigger()
+            trigger.addAttribute("MARK_DEBUG","TRUE")
+            trigger := True
+            report(L"CHECKPOINT: Save checkpoint triggered")
+        }
       
-      // --- 计算出需要立即响应的信号 ---
-      
+      }
+      // 在分支指令提交之后回滚
+      when(isMispredictedBranchPrev) {
+        // 1. 让 ROB 回滚到当前分支指令的 robPtr 位置
+        // （当前分支指令以及其后所有指令需要清除，实际上相当于全部清空）
+        var robRestore = new Area {
+          val robFlushPort = hw.robFlushPort
+          robFlushPort.valid := True
+          robFlushPort.payload.reason := FlushReason.FULL_FLUSH
+          hw.robFlushPort.payload.targetRobPtr.assignDontCare()
+        }
+        // 2. 触发 CheckpointManager 状态恢复，触发 HardRedirect 事件
+        val ckptRestore = new Area {
+            val checkpointManagerService = hw.checkpointManagerService 
+            val restoreCheckpointTrigger = checkpointManagerService.getRestoreCheckpointTrigger()
+            restoreCheckpointTrigger := True
+        }
+        // 3. 前端 IF 全部清空并从正确地址取指
+        val redirect = new Area {
+          val redirectPort = hw.redirectPort
+          redirectPort.valid := True
+          redirectPort.payload := actualTargetOfBranch.asUInt
+        }
+        // 4. 发射流水线清空 这个 ROB 监听者自己会搞定
+        // 5. 发射队列清空 这个 ROB 监听者自己会搞定
+        // 6. 执行单元无效化 这个 ROB 监听者自己会搞定
+        // 7. LSQ 无效化 这个 ROB 监听者自己会搞定
+        report(L"CHECKPOINT: Resotre checkpoint triggered, redirecting to ${actualTargetOfBranch}")
+      } 
+
       // 1. 物理寄存器回收 (立即响应)
+      // FIXME: 这里理论上也是对的，但也许应该根据 RenameTable 直接的差量来精确恢复
       for (i <- 0 until pipelineConfig.commitWidth) {
         val commitAck = commitAckMasks(i)
         val committedEntry = rawCommitSlots(i).entry 
         val committedUop = committedEntry.payload.uop 
         
         freePorts(i).enable := commitAck && committedUop.rename.allocatesPhysDest 
-        freePorts(i).physReg := Mux(commitAck && committedUop.rename.allocatesPhysDest, 
-                                   committedUop.rename.oldPhysDest.idx, 
-                                   U(0, pipelineConfig.physGprIdxWidth)) 
+        freePorts(i).physReg := committedUop.rename.oldPhysDest.idx
       }
-      
-      // 2. ROB提交确认 (立即响应)
+
       for (i <- 0 until pipelineConfig.commitWidth) {
         commitAcks(i) := commitAckMasks(i)
       }
@@ -376,17 +404,20 @@ class CommitPlugin(
       dbg.setDebugValueOnce(s0.committedThisCycle_comb.asBool, DebugValue.COMMIT_FIRE, expectIncr = true)
       dbg.setDebugValueOnce(commitOOBReg, DebugValue.COMMIT_OOB_ERROR, expectIncr = false)
     })
+    val counter = Reg(UInt(32 bits)) init(0)
+    counter := counter + 1
     // === 集中式周期性日志打印 ===
       if(enableLog) {
         
         report(
-          L"[COMMIT] Cycle Log: commitEnableExt=${commitEnableExt}, commitCount=${commitCount}, " :+
-          L"committedIdleReg=${committedIdleReg}, IDLE_AtHead=${s0.headUop.decoded.uopCode === BaseUopCode.IDLE}, IDLE_BeingCommitted=${s0.commitIdleThisCycle}, " :+
-          L"committedIdlePcReg=0x${committedIdlePcReg}, " :+
-          L"ROB_Head_Valid=${s0.headSlot.valid}, ROB_Head_Done=${s0.headSlot.entry.status.done}, ROB_Head_UopCode=${s0.headUop.decoded.uopCode.asBits}, " :+
-          L"ROB_Flush_Valid=${robFlushPort.valid}, ROB_Flush_Reason=${robFlushPort.payload.reason.asBits}, " :+
-          L"Restore_Checkpoint_Trigger=${restoreCheckpointTrigger}, " :+
-          L"Fetch_Disable=${fetchDisable}, " :+
+          L"[COMMIT] Cycle ${counter} Log: " :+
+          // L"commitEnableExt=${commitEnableExt}, commitCount=${commitCount}, " :+
+          // L"committedIdleReg=${committedIdleReg}, IDLE_AtHead=${s0.headUop.decoded.uopCode === BaseUopCode.IDLE}, IDLE_BeingCommitted=${s0.commitIdleThisCycle}, " :+
+          // L"committedIdlePcReg=0x${committedIdlePcReg}, " :+
+          // L"ROB_Head_Valid=${s0.headSlot.valid}, ROB_Head_Done=${s0.headSlot.entry.status.done}, ROB_Head_UopCode=${s0.headUop.decoded.uopCode.asBits}, " :+
+          // L"ROB_Flush_Valid=${robFlushPort.valid}, ROB_Flush_Reason=${robFlushPort.payload.reason.asBits}, " :+
+          // L"Restore_Checkpoint_Trigger=${restoreCheckpointTrigger}, " :+
+          // L"Fetch_Disable=${fetchDisable}, " :+
           L"Stats=${commitStatsReg.format}\n" :+
           L"  Slot Details: ${s0.commitSlotLogs.map(s => L"\n    Slot: ${s.format} commitAck=${commitAcks(0)} commitPc=0x${s0.commitPcs(0)}")}" // 为每个槽位格式化输出，每个槽位独占一行
         )

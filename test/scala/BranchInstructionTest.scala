@@ -65,8 +65,6 @@ class BranchInstructionTestBench(val pCfg: PipelineConfig) extends Component {
     val bpuUpdateTarget = out(UInt(pCfg.pcWidth))
     
     // ROB Flush监控  
-    val robFlushValid = out(Bool())
-    val robFlushReason = out(FlushReason())
     
     // 提交控制
     val enableCommit = in Bool()
@@ -129,10 +127,6 @@ class BranchInstructionTestBench(val pCfg: PipelineConfig) extends Component {
   io.bpuUpdateTaken := branchEuPlugin.hw.bpuUpdatePort.payload.isTaken
   io.bpuUpdateTarget := branchEuPlugin.hw.bpuUpdatePort.payload.target
   
-  // ROB Flush监控
-  io.robFlushValid := branchEuPlugin.hw.robFlushPort.valid
-  io.robFlushReason := branchEuPlugin.hw.robFlushPort.payload.reason
-
   // 提交控制连接
   commitController.setCommitEnable(io.enableCommit)
   

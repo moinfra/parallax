@@ -14,11 +14,7 @@ import parallax.issue.CheckpointManagerService
 class BranchEuPlugin(
     override val euName: String,
     override val pipelineConfig: PipelineConfig
-) extends EuBasePlugin(euName, pipelineConfig) with HardRedirectService {
-
-  val doHardRedirect = Bool()
-  override def getFlushListeningPort(): Bool = doHardRedirect
-
+) extends EuBasePlugin(euName, pipelineConfig) {
 
   // 需要2个GPR读端口（比较两个源操作数），不需要FPR端口
   override def numGprReadPortsPerEu: Int = 2
@@ -37,18 +33,12 @@ class BranchEuPlugin(
 
   // --- 硬件服务与端口 ---
   val hw = create early new Area {
-    val robServiceInst = getService[ROBService[RenamedUop]]
     val bpuServiceInst = getService[BpuService]
-    val fetchPplInst = getService[parallax.fetch.SimpleFetchPipelineService]
     val checkpointManagerService = getService[CheckpointManagerService] 
 
-    val robFlushPort     = robServiceInst.newFlushPort()
     val bpuUpdatePort    = bpuServiceInst.newBpuUpdatePort()
-    val redirectPort     = fetchPplInst.newRedirectPort(priority = 10)  // High priority for branch misprediction
 
-    robServiceInst.retain()
     bpuServiceInst.retain()
-    fetchPplInst.retain()
     checkpointManagerService.retain()
   }
 
@@ -209,6 +199,7 @@ class BranchEuPlugin(
     // Store misprediction information in s1_resolve stage for s2_mispredict to use
     pipeline.s1_resolve(MISPREDICT_INFO).mispredicted := !predictionCorrect
     pipeline.s1_resolve(MISPREDICT_INFO).finalTarget := finalTarget
+
     pipeline.s1_resolve(MISPREDICT_INFO).robPtrToFlush := uopAtS1.robPtr + 1
     pipeline.s1_resolve(MISPREDICT_INFO).linkValue := linkValue
     pipeline.s1_resolve(MISPREDICT_INFO).actuallyTaken := actuallyTaken
@@ -224,83 +215,31 @@ class BranchEuPlugin(
     val mispredictInfoAtS2 = pipeline.s2_mispredict(MISPREDICT_INFO)
     val uopAtS2 = pipeline.s2_mispredict(EU_INPUT_PAYLOAD)
 
-    // Default values for all output ports
-    hw.robFlushPort.valid := False
-    hw.robFlushPort.payload.reason := FlushReason.NONE
-    hw.robFlushPort.payload.targetRobPtr := 0
-    hw.redirectPort.valid := False
-    hw.redirectPort.payload := 0
-
     // 6. Update euResult output (now driven from s2 stage)
+    
+    // Add execution result logging
     when(pipeline.s2_mispredict.isFiring) {
       euResult.valid := True
       euResult.uop := uopAtS2
-      euResult.data := mispredictInfoAtS2.outputData
+      euResult.data := mispredictInfoAtS2.outputData // linkValue or finalTarget
       euResult.writesToPreg := mispredictInfoAtS2.writesToPreg
+      euResult.isMispredictedBranch := mispredictInfoAtS2.mispredicted
       euResult.hasException := False
       euResult.exceptionCode := 0
       euResult.destIsFpr := False
-      
-      // Add execution result logging
       report(L"[BranchEU-S2] RESULT: euResult.valid=1, writesToPreg=${euResult.writesToPreg}, data=0x${euResult.data}")
-    } otherwise {
-      euResult.valid := False
-      euResult.uop := uopAtS2
-      euResult.data := 0
-      euResult.writesToPreg := False
-      euResult.hasException := False
-      euResult.exceptionCode := 0
-      euResult.destIsFpr := False
     }
 
     // 7. BPU更新逻辑 (still in s1_resolve for immediate feedback)
-    when(pipeline.s1_resolve.isFiring) {
-      hw.bpuUpdatePort.valid := True
-      hw.bpuUpdatePort.payload.pc := uopAtS1.pc
-      hw.bpuUpdatePort.payload.isTaken := actuallyTaken
-      hw.bpuUpdatePort.payload.target := finalTarget
-    } otherwise {
-      hw.bpuUpdatePort.valid := False
-      hw.bpuUpdatePort.payload.pc := 0
-      hw.bpuUpdatePort.payload.isTaken := False
-      hw.bpuUpdatePort.payload.target := 0
-    }
-
-    // 8. ROB Flush逻辑 (moved to s2_mispredict stage)
-    doHardRedirect := False
-    when(pipeline.s2_mispredict.isFiring && mispredictInfoAtS2.mispredicted) {
-      hw.robFlushPort.valid := True
-      hw.robFlushPort.payload.reason := FlushReason.ROLLBACK_TO_ROB_IDX
-      hw.robFlushPort.payload.targetRobPtr := mispredictInfoAtS2.robPtrToFlush
-      doHardRedirect := True
-      report(L"[BranchEU-S2] MISPREDICTION EXEC: Flushing ROB from robPtr=${mispredictInfoAtS2.robPtrToFlush}, targetPC=0x${mispredictInfoAtS2.finalTarget}")
-      report(L"[BranchEU-S2] DEBUG: ROB flush valid=${hw.robFlushPort.valid}")
-      
-      // Issue fetch redirect to correct the fetch pipeline
-      hw.redirectPort.valid := True
-      hw.redirectPort.payload := mispredictInfoAtS2.finalTarget
-      report(L"[BranchEU-S2] FETCH REDIRECT: Redirecting fetch to 0x${mispredictInfoAtS2.finalTarget}")
-      report(L"[BranchEU-S2] REDIRECT DEBUG: valid=${hw.redirectPort.valid}, payload=0x${hw.redirectPort.payload}")
-    }
-
-    val checkpointLogic = new Area {
-        val checkpointManagerService = hw.checkpointManagerService 
-
-        val restoreCheckpointTrigger = checkpointManagerService.getRestoreCheckpointTrigger()
-        restoreCheckpointTrigger := False
-        when(pipeline.s2_mispredict.isFiring && mispredictInfoAtS2.mispredicted) {
-          restoreCheckpointTrigger := True
-          report(L"[BranchEU-S2] CHECKPOINT: Restoring from checkpoint")
-        }
-
-    }
+    hw.bpuUpdatePort.valid := pipeline.s1_resolve.isFiring
+    hw.bpuUpdatePort.payload.pc := uopAtS1.pc
+    hw.bpuUpdatePort.payload.isTaken := actuallyTaken
+    hw.bpuUpdatePort.payload.target := finalTarget
 
     pipeline.build()
 
     ParallaxLogger.log(s"[BranchEu ${euName}] 3-stage pipeline with branch logic built: S0(Dispatch) -> S1(Resolve) -> S2(Mispredict).")
-    hw.robServiceInst.release()
     hw.bpuServiceInst.release()
-    hw.fetchPplInst.release()
     hw.checkpointManagerService.release()
   }
 }

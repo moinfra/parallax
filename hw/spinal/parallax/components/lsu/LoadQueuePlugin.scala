@@ -150,6 +150,7 @@ class LoadQueuePlugin(
         val prfServiceInst    = getService[PhysicalRegFileService]
         val storeBufferServiceInst = getService[StoreBufferService]
         val busyTableServiceInst = getService[BusyTableService] // 获取服务
+        val hardRedirectService   = getService[HardRedirectService]
 
         val busyTableClearPort = busyTableServiceInst.newClearPort() // 创建清除端口
         val dCacheLoadPort   = dcacheServiceInst.newLoadPort(priority = 1)
@@ -158,6 +159,8 @@ class LoadQueuePlugin(
         val sbQueryPort      = storeBufferServiceInst.getStoreQueueQueryPort()
         val wakeupServiceInst = getService[WakeupService]
         val wakeupPort = wakeupServiceInst.newWakeupSource()
+        // TODO: ROB 刷新端口应该也会在硬重定向时触发，所以处理 doHardRedirect 应该是多余的
+        val doHardRedirect = hardRedirectService.doHardRedirect()
 
         // MMIO支持：如果配置了MMIO，则创建SGMB读通道
         var sgmbServiceOpt: Option[SgmbService] = None
@@ -176,6 +179,7 @@ class LoadQueuePlugin(
         prfServiceInst.retain()
         storeBufferServiceInst.retain()
         wakeupServiceInst.retain()
+        hardRedirectService.retain()
     }
 
     val logic = create late new Area {
@@ -188,7 +192,7 @@ class LoadQueuePlugin(
         val dCacheLoadPort      = hw.dCacheLoadPort
         val robLoadWritebackPort = hw.robLoadWritebackPort
         val prfWritePort        = hw.prfWritePort
-        val robFlushPort        = hw.robServiceInst.getFlushListeningPort()
+        val robFlushPort        = hw.robServiceInst.doRobFlush()
         val wakeupPort          = hw.wakeupPort
         val busyTableClearPort  = hw.busyTableClearPort
         // Store Path Area is completely removed.
@@ -388,10 +392,7 @@ class LoadQueuePlugin(
             val popOnEarlyException = head.valid && head.hasException && !head.isReadyForDCache // Exception was known at dispatch
             val popRequest = popOnFwdHit || popOnDCacheSuccess || popOnMMIOSuccess || popOnEarlyException
             
-            robLoadWritebackPort.fire := False
-            robLoadWritebackPort.robPtr.assignDontCare()
-            robLoadWritebackPort.exceptionOccurred.assignDontCare()
-            robLoadWritebackPort.exceptionCodeIn.assignDontCare()
+            robLoadWritebackPort.setDefault()
             
             prfWritePort.valid   := False
             prfWritePort.address.assignDontCare()
@@ -431,6 +432,7 @@ class LoadQueuePlugin(
                 robLoadWritebackPort.robPtr := head.robPtr
                 robLoadWritebackPort.exceptionOccurred := dCacheLoadPort.rsp.payload.fault
                 robLoadWritebackPort.exceptionCodeIn   := ExceptionCode.LOAD_ACCESS_FAULT
+                robLoadWritebackPort.result            := dCacheLoadPort.rsp.payload.data
 
                 when(!dCacheLoadPort.rsp.payload.fault) {
                     wakeupPort.valid := True
@@ -451,6 +453,7 @@ class LoadQueuePlugin(
                     robLoadWritebackPort.robPtr := head.robPtr
                     robLoadWritebackPort.exceptionOccurred := mmioRsp.error
                     robLoadWritebackPort.exceptionCodeIn   := ExceptionCode.LOAD_ACCESS_FAULT
+                    robLoadWritebackPort.result            := mmioRsp.data
 
                     when(!mmioRsp.error) {
                         wakeupPort.valid := True
@@ -519,5 +522,6 @@ class LoadQueuePlugin(
         hw.sgmbServiceOpt.foreach(_.release())
         hw.wakeupServiceInst.release()
         hw.busyTableServiceInst.release()
+        hw.hardRedirectService.release()
     }
 }

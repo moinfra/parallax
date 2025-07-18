@@ -82,17 +82,9 @@ class ROBPlugin[RU <: Data with Formattable with HasRobPtr](
   override def newWritebackPort(euName: String = ""): (ROBWritebackPort[RU]) = {
     this.framework.requireEarly()
     if (nextWbPortIdx >= robConfig.numWritebackPorts) {
-      SpinalError(
-        s"ROBPlugin: All ${robConfig.numWritebackPorts} physical ROB writeback ports have been allocated. Cannot provide more for EU '$euName'. Increase ROBConfig.numWritebackPorts or use an arbiter."
-      )
-      // 在错误情况下，返回一个无效的或者默认驱动的端口，以避免后续连接错误
-      // 但更好的方式是让系统在配置检查时就失败。
+      assert(false, "ROBPlugin: No more physical writeback ports available. Increase numWritebackPorts in ROBConfig or request fewer EUs.")
       val dummyPort = slave(ROBWritebackPort(robConfig))
-      // 尝试驱动默认值或使其无效，但这可能不是最佳做法，错误应更早捕获。
-      dummyPort.fire := False
-      dummyPort.robPtr.assignDontCare()
-      dummyPort.exceptionOccurred.assignDontCare()
-      dummyPort.exceptionCodeIn.assignDontCare()
+      dummyPort.setDefault()
       dummyPort
     } else {
       // robComponent.io.writeback 是 Vec[slave(ROBWritebackPort)]，
@@ -130,7 +122,7 @@ class ROBPlugin[RU <: Data with Formattable with HasRobPtr](
   }
 
   // 清空/恢复阶段
-  override def newFlushPort(): (Flow[ROBFlushPayload]) = {
+  override def newRobFlushPort(): (Flow[ROBFlushPayload]) = {
     this.framework.requireEarly()
     // 创建一个新的 flush 端口
     val flushPort = Flow(ROBFlushPayload(robConfig.robPtrWidth))
@@ -144,7 +136,7 @@ class ROBPlugin[RU <: Data with Formattable with HasRobPtr](
     flushPort
   }
 
-  override def getFlushListeningPort(): (Flow[ROBFlushPayload]) = {
+  override def doRobFlush(): (Flow[ROBFlushPayload]) = {
     // 返回聚合信号而不是直接返回 robComponent.io.flush
     // 这样其他服务可以监听聚合后的flush信号
     aggregatedFlushSignal

@@ -70,12 +70,12 @@ class CommitPluginTestBench(
       println("CALL getCommitAcks")
       commitAcks
     }
-    override def newFlushPort(): Flow[ROBFlushPayload] = {
+    override def newRobFlushPort(): Flow[ROBFlushPayload] = {
       println("CALL getFlushPort")
       flushPort
     }
     
-    override def getFlushListeningPort(): Flow[ROBFlushPayload] = {
+    override def doRobFlush(): Flow[ROBFlushPayload] = {
       println("CALL getFlushListeningPort")
       flushPort
     }

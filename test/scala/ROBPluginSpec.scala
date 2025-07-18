@@ -79,7 +79,7 @@ class TestFlusherLogicHolder(id: String, val pCfg: PipelineConfig) extends Plugi
 
   val setup = create early new Area {
     val robService = getService[ROBService[DummyUop2]]
-    flushPortToService = robService.newFlushPort()
+    flushPortToService = robService.newRobFlushPort()
   }
 }
 
@@ -529,10 +529,10 @@ class ROBPluginSpec extends CustomSpinalSimFunSuite {
       
       // 获取ROB服务并创建多个flush端口
       val robService = framework.getService[ROBService[DummyUop2]]
-      val flushPort1 = robService.newFlushPort()
-      val flushPort2 = robService.newFlushPort() 
-      val flushPort3 = robService.newFlushPort()
-      val listeningPort = robService.getFlushListeningPort()
+      val flushPort1 = robService.newRobFlushPort()
+      val flushPort2 = robService.newRobFlushPort() 
+      val flushPort3 = robService.newRobFlushPort()
+      val listeningPort = robService.doRobFlush()
       
       // 测试IO
       val flush1Valid = in Bool()
@@ -645,13 +645,13 @@ class ROBPluginSpec extends CustomSpinalSimFunSuite {
       val robService = framework.getService[ROBService[DummyUop2]]
       
       // 创建多个flush端口（发送者）
-      val flushPort1 = robService.newFlushPort()
-      val flushPort2 = robService.newFlushPort()
+      val flushPort1 = robService.newRobFlushPort()
+      val flushPort2 = robService.newRobFlushPort()
       
       // 创建多个监听端口（接收者）
-      val listener1 = robService.getFlushListeningPort()
-      val listener2 = robService.getFlushListeningPort()
-      val listener3 = robService.getFlushListeningPort()
+      val listener1 = robService.doRobFlush()
+      val listener2 = robService.doRobFlush()
+      val listener3 = robService.doRobFlush()
       
       // 测试IO - 发送者控制
       val flush1Valid = in Bool()

@@ -17,7 +17,6 @@ import parallax.execute._
 import parallax.fetch._
 import parallax.issue._
 import parallax.components.bpu._
-import parallax.bpu.BpuService
 import parallax.components.ifu._
 import parallax.components.memory._
 import parallax.components.dcache2._
@@ -373,17 +372,6 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
   class CoreNSCSCCSetupPlugin(pCfg: PipelineConfig) extends Plugin {
     val setup = create early new Area {
       val fetchService = getService[SimpleFetchPipelineService]
-      val bpuService = getService[BpuService]
-
-      // 连接重定向端口 - 在正常运行时保持空闲
-      // val redirectPort = fetchService.newRedirectPort(0)
-      // redirectPort.valid := False
-      // redirectPort.payload := 0
-
-      // // BPU更新端口 - 设置为空闲状态
-      // val bpuUpdatePort = bpuService.newBpuUpdatePort()
-      // bpuUpdatePort.valid := False
-      // bpuUpdatePort.payload.assignDontCare()
     }
 
     val logic = create late new Area {
@@ -439,7 +427,8 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
       // BPU and fetch
       new BpuPipelinePlugin(pCfg),
       new SimpleFetchPipelinePlugin(pCfg, ifuCfg, fifoDepth),
-      new BranchTrackerPlugin(),
+      // new BranchCommitTrackerPlugin(),
+      // new BranchResolveTrackerPlugin(),
 
       // Infrastructure plugins
       new PhysicalRegFilePlugin(pCfg.physGprCount, pCfg.dataWidth),
