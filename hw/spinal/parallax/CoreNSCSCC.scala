@@ -120,8 +120,10 @@ case class CoreNSCSCCIo(simDebug: Boolean, injectAxi: Boolean, axiConfig: Axi4Co
   val uart_b_ready = out Bool ()
 
   // --- 新增的仿真专用端口 ---
-  val fetchDisable = simDebug generate in(Bool()) default(False)
-  val axiInjectorMaster = simDebug && injectAxi generate slave(Axi4(axiConfig))
+  val fetchDisable = (simDebug && injectAxi) generate {
+    in(Bool()) default(False)
+  }
+  val axiInjectorMaster = (simDebug && injectAxi) generate slave(Axi4(axiConfig))
 }
 
 // Memory System Plugin for CoreNSCSCC
@@ -247,7 +249,6 @@ class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: GenericMemoryBusConfig
 
 class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends Component {
   val onboardDebug = !simDebug
-  println(s"Creating CoreNSCSCC with simDebug=${simDebug}")
   lazy val io = CoreNSCSCCIo(simDebug,injectAxi, axiConfig)
 
   // 基本配置
