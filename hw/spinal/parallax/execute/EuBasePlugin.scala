@@ -177,11 +177,16 @@ abstract class EuBasePlugin(
     
     // CRITICAL FIX: Force initialization of wakeupSourcePort in setup phase
     // This ensures that wakeup sources are registered before WakeupPlugin's late phase
-    val _ = wakeupSourcePort  // Force lazy val evaluation
+    val _1 = wakeupSourcePort  // Force lazy val evaluation
     val _2 = robWritebackPortBundle
+    val _3 = gprReadPorts
+    val _4 = gprWritePort
+    val _5 = bypassOutputPort
     ParallaxLogger.log(s"EUBase ($euName): Wakeup source registered")
 
     ParallaxLogger.log(s"EUBase ($euName): Setup 阶段完成。")
+
+    val clearBusyPort = busyTableService.newClearPort()
   }
 
   // Logic 阶段：连接 EU 特定逻辑，然后是通用的写回/旁路/ROB 逻辑
@@ -257,10 +262,10 @@ abstract class EuBasePlugin(
     // 注意：无论有无异常，只要指令写寄存器，就必须清除BusyTable位
     // - 有异常：指令不写入PRF，但BusyTable位需要清除（寄存器不再"in flight"）
     // - 无异常：指令成功写入PRF，BusyTable位需要清除（寄存器现在有有效数据）
-    // 对于不写寄存器的指令（如分支），无需清除BusyTable位
-    val clearBusyPort = busyTableService.newClearPort()
-    clearBusyPort.valid := executionCompletes && euResult.writesToPreg
-    clearBusyPort.payload := uopAtWb.physDest.idx
+    // 对于不写寄存器的指令（如分支、Store），无需清除BusyTable位
+
+    setup.clearBusyPort.valid := executionCompletes && euResult.writesToPreg
+    setup.clearBusyPort.payload := uopAtWb.physDest.idx
     
     // RAW HAZARD DEBUG: Track when each EU clears busy bits (only for registers 1-5 and only when actually writing)
     when(executionCompletes && euResult.writesToPreg && uopAtWb.physDest.idx < 6) {

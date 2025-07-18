@@ -180,6 +180,7 @@ class LsuPlugin(
 
     private val lsuPorts = ArrayBuffer[LsuPort]()
     override def newLsuPort(): LsuPort = {
+        this.framework.requireEarly()
         assert(lsuPorts.length == 0, "Only one LSU port is allowed")
         val port = LsuPort(pipelineConfig).setCompositeName(this, "lsuPort_" + lsuPorts.size)
         lsuPorts += port

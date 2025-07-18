@@ -131,7 +131,7 @@ class RenamePlugin(
         when(s1_rename.isFiring && decodedUopsIn(0).isValid && decodedUopsIn(0).isBranchOrJump) {
           bt.doIncrement() // Rename 时分配了资源，因此+1，Commit 时释放资源，因此-1
         } otherwise {
-          report(L"Not a branch or jump instruction")
+          // report(L"Not a branch or jump instruction")
         }
         s1_rename.haltWhen(bt.isExceedLimit(Mux(decodedUopsIn(0).isValid && decodedUopsIn(0).isBranchOrJump, U(1), U(0)))) // 超出分支限制时暂停重命名阶段
       })

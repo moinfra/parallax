@@ -34,6 +34,7 @@ class WakeupPlugin(pCfg: PipelineConfig) extends Plugin with WakeupService {
     }
 
     override def newWakeupSource(): Flow[WakeupPayload] = {
+        this.framework.requireEarly()
         val source = Flow(WakeupPayload(pCfg))
         wakeupSources += source
         source

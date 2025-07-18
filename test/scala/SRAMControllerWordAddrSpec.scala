@@ -977,6 +977,42 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
       dut.io.axi.aw.valid #= false
     }
   }
+  test("WordAddr - Back-to-back burst write to expose timing hazard") {
+      // 这个测试专门用于复现连续写操作之间的数据/地址保持问题。
+      // 它写入一个序列，然后立即读回并检查。
+      // 如果存在时序竞争，读回的数据会出错。
+      withTestBench(createWordAddrRamConfig(readWaitCycles = 1, writeWaitCycles = 1, enableLog=true)) { (dut, axiMaster, clockDomain) =>
+          val baseAddr = 0x80004000L
+          val testData = Seq(
+              "AAAAAAAA", "BBBBBBBB", "CCCCCCCC", "DDDDDDDD",
+              "11111111", "22222222", "33333333", "44444444"
+          ).map(BigInt(_, 16)) 
+        val strbData = Seq.fill(testData.length)(0xF)
 
+          println("--- Starting back-to-back burst write test ---")
+          val writeTx = axiMaster.writeBurst(baseAddr, testData, strbData)
+          assert(axiMaster.waitWriteResponse(writeTx) == 0, "Burst write should succeed")
+          println("--- Burst write transaction complete ---")
+
+          clockDomain.waitSampling(10) // 在读之前稍微等待一下，确保总线空闲
+
+          println("--- Reading back written data ---")
+          val readTx = axiMaster.readBurst(baseAddr, testData.length)
+          val (readData, readResp) = axiMaster.waitReadResponse(readTx)
+          
+          assert(readResp == 0, "Burst read should succeed")
+          
+          var mismatch = false
+          for(i <- testData.indices) {
+              if(readData(i) != testData(i)) {
+                  println(f"MISMATCH at index $i (addr 0x${(baseAddr + i*4).toHexString}): Expected=0x${testData(i)}%X, Got=0x${readData(i)}%X")
+                  mismatch = true
+              }
+          }
+          
+          assert(!mismatch, "All data read back must match the written data.")
+          println("--- Back-to-back burst write test PASSED ---")
+      }
+  }
   thatsAll
 }

@@ -143,7 +143,56 @@ initial
     
     end
   
- 
+ // ++++++++++++++++ 增强日志的监控块 ++++++++++++++++
+
+// 监控所有输入信号的变化
+always @(Address or CE_n or WE_n or OE_n or LB_n or UB_n) begin
+    $strobe("[%0t] SRAM_INPUT: Addr=%h CE_n=%b WE_n=%b OE_n=%b LB_n=%b UB_n=%b",
+            $time, Address, CE_n, WE_n, OE_n, LB_n, UB_n);
+end
+
+// 监控关键内部计时器的更新
+always @(negedge CE_n) begin
+    write_CE_n_start_time <= $time;
+    $display("[%0t] SRAM_EVENT: negedge CE_n detected. write_CE_n_start_time set to %0t.", $time, $time);
+end
+
+always @(negedge WE_n) begin
+    write_WE_n_start_time <= $time;
+    $display("[%0t] SRAM_EVENT: negedge WE_n detected. write_WE_n_start_time set to %0t.", $time, $time);
+end
+
+always @(negedge UB_n) begin
+    UB_n_start_time <= $time;
+    $display("[%0t] SRAM_EVENT: negedge UB_n detected. UB_n_start_time set to %0t.", $time, $time);
+end
+
+always @(negedge LB_n) begin
+    LB_n_start_time <= $time;
+    $display("[%0t] SRAM_EVENT: negedge LB_n detected. LB_n_start_time set to %0t.", $time, $time);
+end
+
+// 监控内部dummy_array的写入
+always @(CE_n or WE_n or OE_n or Address or DataIO) begin
+    if ((CE_n==1'b0) && (WE_n ==1'b0)) begin
+        Address_write1 <= Address;
+        dataIO1  <= DataIO;
+        dummy_array0[Address] <= DataIO[7:0] ;
+        dummy_array1[Address] <= DataIO[15:8] ;
+        $strobe("[%0t] SRAM_LATCH: Addr=%h, Data=%h latched into dummy_array.", $time, Address, DataIO);
+    end
+end
+
+// 监控最终写入触发器 initiate_write1 的变化
+always @(posedge WE_n or posedge CE_n) begin
+    if (WE_n == 1'b1 && CE_n == 1'b0 && (($time - write_WE_n_start_time) >= twp1)) begin
+        $display("[%0t] SRAM_TRIG_CHECK: posedge WE_n meets twp1. activate_webar will be set.", $time);
+    end
+    if (CE_n == 1'b1 && WE_n == 1'b0 && (($time - write_CE_n_start_time) >= tcw)) begin
+        $display("[%0t] SRAM_TRIG_CHECK: posedge CE_n meets tcw. activate_cebar will be set.", $time);
+    end
+end
+// ++++++++++++++++ 日志增强结束 ++++++++++++++++
  
 //********* start Accessing  by CE_n low*******
 
@@ -335,83 +384,50 @@ end
 // =========================================================================
 always@( initiate_write1 )   
   begin
-    // --- Start of Diagnostic Logging ---
-    // This section prints diagnostic information whenever the 'initiate_write1' event occurs.
-    // It does not alter the functional behavior of the model.
     if (initiate_write1) begin
         $display("----------------------------------------------------------------------");
-        $display("[%t] SRAM WRITE DIAGNOSTIC: 'initiate_write1' event triggered!", $time);
-        $display("  -> Current Time: %t ps", $time);
+        $display("[%0t] SRAM FINAL WRITE CHECK: 'initiate_write1' event triggered!", $time);
+        $display("  -> Checking write to address: %h (latched from %h)", Address_write2, Address_write1);
         $display("--------------------------[Timing Checks]---------------------------");
 
-        // Check 1: WE_n pulse width
+        // +++ 修正: 移除 `time` 声明，直接在 $display 中计算 +++
         $display("  [1] WE_n Pulse Width Check (twp1)");
-        $display("      - Time since WE_n went low: %f ns", ($time - write_WE_n_start_time)/1000.0);
-        $display("      - Required (twp1)         : %f ns", twp1/1000.0);
+        $display("      - Time since WE_n low: %0t ps. Required: %0t ps.", $time - write_WE_n_start_time, twp1);
         if (($time - write_WE_n_start_time) >= twp1) $display("      - Status: PASSED"); else $display("      - Status: FAILED");
         
-        // Check 2: CE_n to write end time
         $display("  [2] CE_n Setup to Write End Check (tcw)");
-        $display("      - Time since CE_n went low: %f ns", ($time - write_CE_n_start_time)/1000.0);
-        $display("      - Required (tcw)          : %f ns", tcw/1000.0);
+        $display("      - Time since CE_n low: %0t ps. Required: %0t ps.", $time - write_CE_n_start_time, tcw);
         if (($time - write_CE_n_start_time) >= tcw) $display("      - Status: PASSED"); else $display("      - Status: FAILED");
 
-        // Overall verdict for the main timing gate
-        if ( ( ($time - write_WE_n_start_time) >= twp1) && ( ($time - write_CE_n_start_time) >= tcw) ) begin
+        if ( (($time - write_WE_n_start_time) >= twp1) && (($time - write_CE_n_start_time) >= tcw) ) begin
             $display("  >> Main Timing Gate: PASSED. Proceeding to check Byte Enables.");
             $display("------------------------[Byte Enable Checks]------------------------");
             
-            // Check 3a: Upper Byte (UB_n)
-            if (UB_n == 1'b0) begin
-                $display("  [3a] Upper Byte (UB_n) Check");
-                $display("       - UB_n is LOW (active).");
-                $display("       - Time since UB_n went low: %f ns", ($time - UB_n_start_time)/1000.0);
-                $display("       - Required (tbw)          : %f ns", tbw/1000.0);
-                if (($time - UB_n_start_time) >= tbw) $display("       - Status: PASSED -> Upper byte will be written."); else $display("       - Status: FAILED -> Upper byte write will be skipped.");
-            end else begin
-                $display("  [3a] Upper Byte (UB_n) is HIGH (inactive). Write will be skipped.");
-            end
+            $display("  [3a] Upper Byte (UB_n=%b) Check", UB_n);
+            $display("       - Time since UB_n low: %0t ps. Required (tbw): %0t ps.", $time - UB_n_start_time, tbw);
+            if (UB_n == 1'b0 && ($time - UB_n_start_time) >= tbw) $display("       - Status: PASSED -> Upper byte will be written."); else $display("       - Status: FAILED -> Upper byte write will be skipped.");
 
-            // Check 3b: Lower Byte (LB_n)
-            if (LB_n == 1'b0) begin
-                $display("  [3b] Lower Byte (LB_n) Check");
-                $display("       - LB_n is LOW (active).");
-                $display("       - Time since LB_n went low: %f ns", ($time - LB_n_start_time)/1000.0);
-                $display("       - Required (tbw)          : %f ns", tbw/1000.0);
-                if (($time - LB_n_start_time) >= tbw) $display("       - Status: PASSED -> Lower byte will be written."); else $display("       - Status: FAILED -> Lower byte write will be skipped.");
-            end else begin
-                $display("  [3b] Lower Byte (LB_n) is HIGH (inactive). Write will be skipped.");
-            end
+            $display("  [3b] Lower Byte (LB_n=%b) Check", LB_n);
+            $display("       - Time since LB_n low: %0t ps. Required (tbw): %0t ps.", $time - LB_n_start_time, tbw);
+            if (LB_n == 1'b0 && ($time - LB_n_start_time) >= tbw) $display("       - Status: PASSED -> Lower byte will be written."); else $display("       - Status: FAILED -> Lower byte write will be skipped.");
             
         end else begin
             $display("  >> Main Timing Gate: FAILED. Write to mem_array is SKIPPED entirely.");
         end
+
+        // --- 实际写入 mem_array 的逻辑 ---
+        if ( (($time - write_WE_n_start_time) >= twp1) && (($time - write_CE_n_start_time) >= tcw) ) begin
+            if (UB_n == 1'b0 && ($time - UB_n_start_time) >= tbw) begin
+                mem_array1[Address_write2] <= dummy_array1[Address_write2];
+                $display("[%0t] SRAM_COMMIT: FINAL WRITE to mem_array1[%h] with data %h", $time, Address_write2, dummy_array1[Address_write2]);
+            end
+            if (LB_n == 1'b0 && ($time - LB_n_start_time) >= tbw) begin
+                mem_array0[Address_write2] <= dummy_array0[Address_write2];
+                $display("[%0t] SRAM_COMMIT: FINAL WRITE to mem_array0[%h] with data %h", $time, Address_write2, dummy_array0[Address_write2]);
+            end   
+        end
         $display("----------------------------------------------------------------------");
     end
-    // --- End of Diagnostic Logging ---
-
-
-    // --- Original Functional Code (Unchanged) ---
-    // This is the original logic of the model. It is kept intact to ensure
-    // that the logging does not interfere with the intended behavior.
-    if ( ( ($time - write_WE_n_start_time) >= twp1) && ( ($time - write_CE_n_start_time) >= tcw) )   
-    begin
-        if (UB_n == 1'b0 && (($time - UB_n_start_time) >= tbw))
-        begin
-            mem_array1[Address_write2] <= dummy_array1[Address_write2];
-            // The display statement below will only execute if the write actually happens.
-            $display("[%t] SRAM MODEL: FINAL WRITE to mem_array1[%h] with data %h", $time, Address_write2, dummy_array1[Address_write2]);
-        end
-
-        if (LB_n == 1'b0 && (($time - LB_n_start_time) >= tbw))
-        begin
-            mem_array0[Address_write2] <= dummy_array0[Address_write2];
-            // The display statement below will only execute if the write actually happens.
-            $display("[%t] SRAM MODEL: FINAL WRITE to mem_array0[%h] with data %h", $time, Address_write2, dummy_array0[Address_write2]);
-        end   
-    end 
-    
-    // Reset the trigger signal, as in the original code.
     initiate_write1 <= 1'b0;
   end
 // =========================================================================

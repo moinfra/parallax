@@ -12,6 +12,8 @@ import _root_.test.scala.LA32RInstrBuilder._
 import scala.collection.mutable.ArrayBuffer
 import spinal.lib._
 import spinal.lib.bus.amba4.axi.Axi4Config
+import java.io.BufferedOutputStream
+import java.io.FileOutputStream
 
 /**
  * Testbench for LabSpec using SRAMModelBlackbox for realistic timing.
@@ -24,25 +26,25 @@ class LabTestBenchWithSRAMModel extends Component {
     val commitStats = out(CommitStats())
     // +++ 1. 定义仿真专用IO，以便在测试中驱动 +++
     val fetchDisable = in(Bool())
+    val axiInjector = slave (Axi4(Axi4Config(
+        addressWidth = 32,
+        dataWidth = 32,
+        idWidth = 4,
+        useLock = false,
+        useCache = false,
+        useProt = false,
+        useQos = false,
+        useRegion = false,
+        useResp = true,
+        useStrb = true,
+        useBurst = true,
+        useLen = true,
+        useSize = true
+      )))
   }
-val axiInjector = Axi4(Axi4Config(
-    addressWidth = 32,
-    dataWidth = 32,
-    idWidth = 4,
-    useLock = false,
-    useCache = false,
-    useProt = false,
-    useQos = false,
-    useRegion = false,
-    useResp = true,
-    useStrb = true,
-    useBurst = true,
-    useLen = true,
-    useSize = true
-  ))
-  axiInjector.simPublic()
-  val dut = new CoreNSCSCC(simDebug = true, axiInjector)
-
+  val dut = new CoreNSCSCC(simDebug = true, injectAxi = true)
+  io.axiInjector.simPublic()
+  dut.io.axiInjectorMaster <> io.axiInjector
   // Instantiate the DUT in simulation mode
   io.commitStats := dut.io.commitStats
   io.commitStats.simPublic()
@@ -58,10 +60,16 @@ val axiInjector = Axi4(Axi4Config(
   val isramDataBusLo = Analog(Bits(16 bits))
   isram_hi.io.DataIO <> isramDataBusHi
   isram_lo.io.DataIO <> isramDataBusLo
-  dut.io.isram_dout := isramDataBusHi.asBits ## isramDataBusLo.asBits
-  when(!dut.io.isram_we) {
+  // write: sram <- dut
+  when(dut.io.isram_we) {
     isramDataBusHi := dut.io.isram_din(31 downto 16)
     isramDataBusLo := dut.io.isram_din(15 downto 0)
+  }
+  // read: dut <- sram
+  dut.io.isram_dout.assignDontCare()
+  when(!dut.io.isram_we) {
+    dut.io.isram_dout(31 downto 16) := isramDataBusHi
+    dut.io.isram_dout(15 downto 0) := isramDataBusLo
   }
   isram_hi.io.Address := dut.io.isram_addr
   isram_lo.io.Address := dut.io.isram_addr
@@ -69,8 +77,8 @@ val axiInjector = Axi4(Axi4Config(
   isram_lo.io.CE_n := !dut.io.isram_en
   isram_hi.io.OE_n := !dut.io.isram_re
   isram_lo.io.OE_n := !dut.io.isram_re
-  isram_hi.io.WE_n := dut.io.isram_we
-  isram_lo.io.WE_n := dut.io.isram_we
+  isram_hi.io.WE_n := !dut.io.isram_we
+  isram_lo.io.WE_n := !dut.io.isram_we
   isram_hi.io.UB_n := isram_be_n(3)
   isram_hi.io.LB_n := isram_be_n(2)
   isram_lo.io.UB_n := isram_be_n(1)
@@ -80,14 +88,22 @@ val axiInjector = Axi4(Axi4Config(
   val dsram_hi = new SRAMModelBlackbox()
   val dsram_lo = new SRAMModelBlackbox()
   val dsram_be_n = ~dut.io.dsram_wmask
+
   val dsramDataBusHi = Analog(Bits(16 bits))
   val dsramDataBusLo = Analog(Bits(16 bits))
   dsram_hi.io.DataIO <> dsramDataBusHi
   dsram_lo.io.DataIO <> dsramDataBusLo
-  dut.io.dsram_dout := dsramDataBusHi.asBits ## dsramDataBusLo.asBits
-  when(!dut.io.dsram_we) {
+  
+  // write: sram <- dut
+  when(dut.io.dsram_we) {
     dsramDataBusHi := dut.io.dsram_din(31 downto 16)
     dsramDataBusLo := dut.io.dsram_din(15 downto 0)
+  }
+  // read: dut <- sram
+  dut.io.dsram_dout.assignDontCare()
+  when(!dut.io.dsram_we) {
+    dut.io.dsram_dout(31 downto 16) := dsramDataBusHi
+    dut.io.dsram_dout(15 downto 0) := dsramDataBusLo
   }
   dsram_hi.io.Address := dut.io.dsram_addr
   dsram_lo.io.Address := dut.io.dsram_addr
@@ -95,8 +111,8 @@ val axiInjector = Axi4(Axi4Config(
   dsram_lo.io.CE_n := !dut.io.dsram_en
   dsram_hi.io.OE_n := !dut.io.dsram_re
   dsram_lo.io.OE_n := !dut.io.dsram_re
-  dsram_hi.io.WE_n := dut.io.dsram_we
-  dsram_lo.io.WE_n := dut.io.dsram_we
+  dsram_hi.io.WE_n := !dut.io.dsram_we
+  dsram_lo.io.WE_n := !dut.io.dsram_we
   dsram_hi.io.UB_n := dsram_be_n(3)
   dsram_hi.io.LB_n := dsram_be_n(2)
   dsram_lo.io.UB_n := dsram_be_n(1)
@@ -114,6 +130,8 @@ val axiInjector = Axi4(Axi4Config(
   dut.io.uart_r_bits_last.assignDontCare()
   dut.io.uart_b_bits_id.assignDontCare()
   dut.io.uart_b_bits_resp.assignDontCare()
+
+  // report(L"dut.io.isram_we=${dut.io.isram_we}, dut.io.isram_en=${dut.io.isram_en}\n")
 }
 
 class LabSpecWithSRAMModel extends CustomSpinalSimFunSuite {
@@ -137,7 +155,16 @@ class LabSpecWithSRAMModel extends CustomSpinalSimFunSuite {
       axi.b.ready #= true
       cd.waitSamplingWhere(axi.b.valid.toBoolean)
       axi.b.ready #= false
+      cd.waitSampling()
   }
+
+    def axiWriteAndVerify(axi: Axi4, address: BigInt, data: BigInt, strb: BigInt = 0xF)(implicit cd: ClockDomain): Unit = {
+      axiWrite(axi, address, data, strb)
+      cd.waitSampling()
+      val readData = axiRead(axi, address)
+      assert(readData == data, f"AXI4 write/read mismatch at address 0x$address%x! Expected 0x$data%x, but got 0x$readData%x")
+      println(s"AXI4 write/read verification passed, got ${readData.toString(16)} at ${address.toString(16)}}")
+    }
 
   // Helper function to manually drive an AXI4 read transaction
   def axiRead(axi: Axi4, address: BigInt)(implicit cd: ClockDomain): BigInt = {
@@ -154,6 +181,31 @@ class LabSpecWithSRAMModel extends CustomSpinalSimFunSuite {
       val readData = axi.r.data.toBigInt
       axi.r.ready #= false
       readData
+  }
+  /**
+   * Dumps a region of memory to a file and prints it to the console via AXI.
+   */
+  def ramdump(axi: Axi4, vaddr: BigInt, size: Int, filename: String)(implicit cd: ClockDomain): Unit = {
+      println(f"--- Starting RAM dump: vaddr=0x$vaddr%x, size=$size bytes, file='$filename' ---")
+      val byteBuffer = new ArrayBuffer[Byte]()
+      for (i <- 0 until size by 4) {
+          val addr = vaddr + i
+          val word = axiRead(axi, addr)
+          byteBuffer += ((word >> 0) & 0xff).toByte; byteBuffer += ((word >> 8) & 0xff).toByte
+          byteBuffer += ((word >> 16) & 0xff).toByte; byteBuffer += ((word >> 24) & 0xff).toByte
+      }
+      val data = byteBuffer.take(size).toArray
+      val fos = new BufferedOutputStream(new FileOutputStream(filename)); try { fos.write(data) } finally { fos.close() }
+      println(s"Wrote $size bytes to $filename")
+      println("--- Hexdump ---")
+      for (i <- data.indices by 16) {
+          val chunk = data.slice(i, i + 16)
+          val addressPart = f"${vaddr + i}%08x:"
+          val hexPart = chunk.map(b => f"${b & 0xff}%02x").padTo(16, "  ").mkString(" ")
+          val asciiPart = chunk.map { b => val c = b.toChar; if (c.isControl || c > 126) '.' else c }.mkString
+          println(s"$addressPart $hexPart |$asciiPart|")
+      }
+      println("--- RAM dump finished ---")
   }
 
   test("Fibonacci Test with SRAMModel") {
@@ -175,13 +227,16 @@ class LabSpecWithSRAMModel extends CustomSpinalSimFunSuite {
 
     LabHelper.dumpBinary(instructions, "bin/LabSpec_SRAMModel.bin")
 
-    val compiled = SimConfig.withFstWave.compile(new LabTestBenchWithSRAMModel)
+    val compiled = SimConfig.withConfig(SpinalConfig(
+          defaultConfigForClockDomains = ClockDomainConfig(resetKind = SYNC),
+          defaultClockDomainFrequency = FixedFrequency(162 MHz),
+    )).withIVerilog.withFstWave.compile(new LabTestBenchWithSRAMModel)
 
     compiled.doSim { dut =>
       implicit val cd = dut.clockDomain.get
-      cd.forkStimulus(period = 10)
-      SimTimeout(300000)
-      
+      cd.forkStimulus(period = 10 * 1000)
+      SimTimeout(300000 * 1000)
+
       // --- Phase 1: Inject Instructions ---
       println("--- Phase 1: Starting instruction injection ---")
       dut.io.fetchDisable #= true // Drive the TB's IO
@@ -189,18 +244,22 @@ class LabSpecWithSRAMModel extends CustomSpinalSimFunSuite {
       cd.waitSampling(10)
 
       // Initialize AXI signals to default values
-      dut.axiInjector.aw.valid #= false
-      dut.axiInjector.w.valid #= false
-      dut.axiInjector.ar.valid #= false
-      dut.axiInjector.r.ready #= false
-      dut.axiInjector.b.ready #= false
+      dut.io.axiInjector.aw.valid #= false
+      dut.io.axiInjector.w.valid #= false
+      dut.io.axiInjector.ar.valid #= false
+      dut.io.axiInjector.r.ready #= false
+      dut.io.axiInjector.b.ready #= false
       
       for ((instr, i) <- instructions.zipWithIndex) {
         val address = BigInt("80000000", 16) + i * 4
-        axiWrite(dut.axiInjector, address, instr) // Drive the TB's IO
+        println(f"Injecting instruction 0x$instr%x at address 0x$address%x")
+        axiWriteAndVerify(dut.io.axiInjector, address, instr) // Drive the TB's IO
+        ramdump(dut.io.axiInjector, BigInt("80000000", 16), instructions.length * 4, s"bin/LabSpec_SRAMModel_Fibonacci.instr.${i}.bin")
       }
+      cd.waitSampling(10)
+      ramdump(dut.io.axiInjector, BigInt("80000000", 16), instructions.length * 4, "bin/LabSpec_SRAMModel_Fibonacci.instr.bin")
       println("--- Phase 1: Instruction injection complete ---")
-      
+
       // --- Phase 2: Reset CPU and Start Execution ---
       println("--- Phase 2: Resetting CPU and starting execution ---")
       dut.io.fetchDisable #= false // Drive the TB's IO
@@ -221,7 +280,8 @@ class LabSpecWithSRAMModel extends CustomSpinalSimFunSuite {
       }
       cd.waitSampling(100)
       println(s"--- Execution finished: Committed $currentCommitted instructions ---")
-      
+      ramdump(dut.io.axiInjector, BigInt("80400000", 16), instructions.length * 4, "bin/LabSpec_SRAMModel_Fibonacci.data.bin")
+
       // --- Phase 3: Verify Results ---
       println("--- Phase 3: Starting verification ---")
       var fib_prev = BigInt(1)
@@ -233,7 +293,7 @@ class LabSpecWithSRAMModel extends CustomSpinalSimFunSuite {
         val next_fib_untruncated = fib_prev + fib_curr
         val expected_fib = next_fib_untruncated & MASK_32_BITS
 
-        val actual_val = axiRead(dut.axiInjector, byteAddr) // Drive the TB's IO
+        val actual_val = axiRead(dut.io.axiInjector, byteAddr) // Drive the TB's IO
         
         println(f"Checking dSram[0x${(byteAddr - 0x80400000L)}]: Expected=0x$expected_fib%x, Got=0x$actual_val%x")
         assert(

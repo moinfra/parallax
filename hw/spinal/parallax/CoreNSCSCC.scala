@@ -59,7 +59,7 @@ class SimulationConnectorPlugin(fetchDisableSignal: Bool, axiInjectorMaster: Axi
 }
 
 // CoreNSCSCC IO Bundle - matches thinpad_top.v interface exactly
-case class CoreNSCSCCIo(simDebug: Boolean) extends Bundle {
+case class CoreNSCSCCIo(simDebug: Boolean, injectAxi: Boolean, axiConfig: Axi4Config) extends Bundle {
   val onboardDebug = !simDebug
   val commitStats = simDebug generate out(CommitStats())
 
@@ -71,7 +71,7 @@ case class CoreNSCSCCIo(simDebug: Boolean) extends Bundle {
   val switch_btn = onboardDebug generate { in Bool () } // Commit counter
 
   // ISRAM (BaseRAM) interface
-  val isram_dout = in Bits (32 bits)
+  val isram_dout = in Bits (32 bits) // 数据从 SRAM 流出，然后流入 CPU
   val isram_addr = out UInt (20 bits)
   val isram_din = out Bits (32 bits)
   val isram_en = out Bool ()
@@ -121,7 +121,8 @@ case class CoreNSCSCCIo(simDebug: Boolean) extends Bundle {
   val uart_b_ready = out Bool ()
 
   // --- 新增的仿真专用端口 ---
-  val fetchDisable = simDebug generate in(Bool())
+  val fetchDisable = simDebug generate in(Bool()) default(False)
+  val axiInjectorMaster = simDebug && injectAxi generate slave(Axi4(axiConfig))
 }
 
 // Memory System Plugin for CoreNSCSCC
@@ -164,8 +165,8 @@ class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: GenericMemoryBusConfig
       dataWidth = 32,
       virtualBaseAddress = BigInt("80000000", 16),
       sizeBytes = sramSize,
-      readWaitCycles = 2,
-      writeWaitCycles = 2,
+      readWaitCycles = 1,
+      writeWaitCycles = 1,
       useWordAddressing = true,
       enableLog = false
     )
@@ -175,8 +176,8 @@ class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: GenericMemoryBusConfig
       virtualBaseAddress = BigInt("80400000", 16),
       sizeBytes = sramSize,
       useWordAddressing = true,
-      readWaitCycles = 2,
-      writeWaitCycles = 2,
+      readWaitCycles = 1,
+      writeWaitCycles = 1,
       enableLog = false
     )
 
@@ -245,12 +246,10 @@ class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: GenericMemoryBusConfig
   }
 }
 
-class CoreNSCSCC(simDebug: Boolean = false, 
-  axiInjectorMaster: Axi4 = null,
-) extends Component {
+class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends Component {
   val onboardDebug = !simDebug
   println(s"Creating CoreNSCSCC with simDebug=${simDebug}")
-  lazy val io = CoreNSCSCCIo(simDebug)
+  lazy val io = CoreNSCSCCIo(simDebug,injectAxi, axiConfig)
 
   // 基本配置
   val pCfg = PipelineConfig(
@@ -486,10 +485,10 @@ class CoreNSCSCC(simDebug: Boolean = false,
       _plugins += new DebugDisplayPlugin()
     } 
     
-    if (simDebug) {
+    if (simDebug && injectAxi) {
       _plugins += new SimulationConnectorPlugin(
         fetchDisableSignal = io.fetchDisable,
-        axiInjectorMaster = axiInjectorMaster
+        axiInjectorMaster = io.axiInjectorMaster
       )
       _plugins += new SimDebugDisplayPlugin()
     }
@@ -529,6 +528,8 @@ class CoreNSCSCC(simDebug: Boolean = false,
   io.dsram_we := !extRamIo.we_n
   io.dsram_wmask := ~extRamIo.be_n // 转换为高有效
   extRamIo.data.read := io.dsram_dout
+
+  report(L"io.dsram_addr=${io.dsram_addr}")
 
   // 创建UART AXI接口 - 使用与SRAM控制器相同的ID宽度配置
   val uartAxi = Axi4(axiConfig.copy(idWidth = axiConfig.idWidth + log2Up(6)))
@@ -599,7 +600,7 @@ class CoreNSCSCC(simDebug: Boolean = false,
 object CoreNSCSCCGen extends App {
   val spinalConfig = SpinalConfig(
     defaultConfigForClockDomains = ClockDomainConfig(resetKind = SYNC),
-    defaultClockDomainFrequency = FixedFrequency(162 MHz),
+    defaultClockDomainFrequency = FixedFrequency(50 MHz),
     targetDirectory = "soc"
   )
 

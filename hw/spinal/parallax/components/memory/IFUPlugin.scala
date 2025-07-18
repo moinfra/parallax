@@ -38,6 +38,7 @@ class IFUPlugin(
   private val ifPorts = ArrayBuffer[IFetchPort]()
 
   override def newFetchPort(): IFetchPort = {
+    this.framework.requireEarly()
     assert(ifPorts.length == 0, "Only one IFetchPort is allowed per IFUPlugin")
     val port = IFetchPort(ifuConfigExternal)
     ifPorts += port

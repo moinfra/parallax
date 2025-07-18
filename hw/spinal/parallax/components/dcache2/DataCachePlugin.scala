@@ -112,6 +112,7 @@ class DataCachePlugin(config: DataCachePluginConfig) extends Plugin with LockedI
   case class LoadPortSpec(port: DataLoadPort, priority: Int)
   val loadPorts = ArrayBuffer[LoadPortSpec]()
   override def newLoadPort(priority: Int): DataLoadPort = {
+    this.framework.requireEarly()
     loadPorts
       .addRet(
         LoadPortSpec(
@@ -133,6 +134,7 @@ class DataCachePlugin(config: DataCachePluginConfig) extends Plugin with LockedI
   case class StorePortSpec(port: DataStorePort)
   val storePorts = ArrayBuffer[StorePortSpec]()
   override def newStorePort(): DataStorePort = {
+    this.framework.requireEarly()
     storePorts
       .addRet(
         StorePortSpec(

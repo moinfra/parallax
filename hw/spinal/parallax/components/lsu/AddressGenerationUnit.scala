@@ -133,6 +133,7 @@ class AguPlugin(
 
   // newAguPort 现在不仅创建 AguPort，还立即创建它所依赖的 PRF 端口
   override def newAguPort(): AguPort = {
+    this.framework.requireEarly()
     // 因为 newAguPort() 是在用户的 `early` 区域被调用的，所以这里的 `newReadPort()` 调用也是在 `early` 阶段
     val aguPort = AguPort(lsuConfig)
     val prfReadBase = setup.prfService.newPrfReadPort().setCompositeName(aguPort, "prfReadBase")

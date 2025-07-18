@@ -187,7 +187,7 @@ object LabHelper {
 }
 
 class LabSpec extends CustomSpinalSimFunSuite {
-    testOnly("Minimal Failing Case for SUB.W rd, rj, rd") {
+    test("Minimal Failing Case for SUB.W rd, rj, rd") {
     // === 目标 ===
     // 这个测试旨在用最少的指令复现一个特定的硬件 Bug。
     // Bug 假设: 当 sub_w rd, rj, rk 指令中的 rd 和 rk 是同一个寄存器时，
@@ -824,7 +824,7 @@ class LabSpec extends CustomSpinalSimFunSuite {
     }
   }
 
-  test("Fibonacci Test on CoreNSCSCC") {
+  testOnly("Fibonacci Test on CoreNSCSCC") {
 
     val instructions = ArrayBuffer[BigInt]()
     // Original Assembly:

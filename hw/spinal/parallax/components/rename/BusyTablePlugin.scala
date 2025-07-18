@@ -113,6 +113,7 @@ class BusyTablePlugin(pCfg: PipelineConfig)
   val combinationalBusyBits = Bits(pCfg.physGprCount bits)
 
   override def newSetPort(): Vec[Flow[UInt]] = {
+    this.framework.requireEarly()
     val ports = Vec.fill(pCfg.renameWidth)(Flow(UInt(pCfg.physGprIdxWidth)))
     setPorts ++= ports
     ports
@@ -120,6 +121,7 @@ class BusyTablePlugin(pCfg: PipelineConfig)
 
   // 【修正】: 每次调用都创建一个新的、唯一的端口
   override def newClearPort(): Flow[UInt] = {
+    this.framework.requireEarly()
     val port = Flow(UInt(pCfg.physGprIdxWidth))
     clearPortsBuffer += port // 将新端口加入Buffer
     port
@@ -131,9 +133,12 @@ class BusyTablePlugin(pCfg: PipelineConfig)
     combinationalBusyBits
   }
 
+  // 用于决策
   override def getBusyBitsReg(): Bits = {
     early_setup.busyTableReg
   }
+
+  // 用于备份检查点
   override def getBusyTableState(): BusyTableCheckpoint = {
     val state = BusyTableCheckpoint(pCfg)
     state.busyBits := logic.busyTableReg
@@ -141,6 +146,7 @@ class BusyTablePlugin(pCfg: PipelineConfig)
   }
 
   override def newRestorePort(): Flow[BusyTableCheckpoint] = {
+    this.framework.requireEarly()
     val port = Flow(BusyTableCheckpoint(pCfg))
     restorePorts += port
     port

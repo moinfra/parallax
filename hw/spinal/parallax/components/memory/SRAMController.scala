@@ -74,8 +74,8 @@ case class SRAMIO(c: SRAMConfig) extends Bundle with IMasterSlave with Formattab
     Seq(
       L"SRAMIO(",
       L"ce_n=${ce_n}, ",
-      L"oe_n=${oe_n}, ",
       L"we_n=${we_n}, ",
+      L"oe_n=${oe_n}, ",
       L"addr=${addr}, ",
       L"data=${formatTriState(data)}, ",
       L"be_n=${be_n})"
@@ -211,8 +211,6 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
   io.ram.data.write := sram_data_out_reg
   io.ram.data.writeEnable := sram_data_writeEnable_out_reg
 
-  report(L"#$instanceId [DEBUG] io.ram: ${io.ram.format}")
-
   // --- 状态机定义 ---
   val fsm = new StateMachine {
     val ar_cmd_reg = Reg(cloneOf(io.axi.ar.payload))
@@ -236,12 +234,21 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
 
     val is_write_transaction = Reg(Bool())
 
+    // --- NEW: 辅助函数用于报告寄存器赋值 ---
+    def reportRegAssignment(regName: String, oldVal: Data, newVal: Data, state: String, assignType: String): Unit = {
+      if (config.enableLog) {
+        report(L"Assignment: State=${state}, Type=${assignType}, Reg=${regName}, OldValue=${oldVal}, NewValue=${newVal}")
+      }
+    }
+
     val IDLE: State = new State with EntryPoint {
       onEntry {
         // --- MODIFIED: 初始化SRAM输出寄存器到安全状态 ---
+        reportRegAssignment("sram_ce_n_out_reg", sram_ce_n_out_reg, True, "IDLE", "onEntry")
         sram_ce_n_out_reg := True
-        sram_oe_n_out_reg := True
+        reportRegAssignment("sram_we_n_out_reg", sram_we_n_out_reg, True, "IDLE", "onEntry")
         sram_we_n_out_reg := True
+        sram_oe_n_out_reg := True
         sram_data_writeEnable_out_reg := False // 确保数据总线处于高阻
         sram_be_n_out_reg := sram_be_n_inactive_value // 默认字节使能无效
         sram_addr_out_reg := 0 // 默认地址为0
@@ -251,34 +258,16 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
         io.axi.aw.ready := False
         io.axi.ar.ready := False
         
-        // --- MODIFIED: 状态机活动期间，如果未被特定状态覆盖，保持默认行为 ---
-        // (这些通常在onEntry设置一次就够了，但为了安全和调试，也可以在这里强制)
-        // sram_ce_n_out_reg := True // 已经在onEntry中设置
-        // sram_oe_n_out_reg := True // 已经在onEntry中设置
-        // sram_we_n_out_reg := True // 已经在onEntry中设置
-        // sram_data_writeEnable_out_reg := False // 已经在onEntry中设置
-        // sram_be_n_out_reg := sram_be_n_inactive_value // 已经在onEntry中设置
-        // sram_addr_out_reg := 0 // 已经在onEntry中设置
-
         transaction_error_occurred := False
         addr_prefetch_valid := False
 
-        // FIXED: 修复循环依赖问题，使用更稳定的仲裁逻辑
-        // 原始的实现有循环依赖问题：
-        // io.axi.aw.ready := !read_priority || !io.axi.ar.valid
-        // io.axi.ar.ready := read_priority || !io.axi.aw.valid
-        // 当同时有AR和AW请求时，两个都可能不会ready
-        
-        // 新的实现：保证至少有一个通道可以ready
         val awHasRequest = io.axi.aw.valid
         val arHasRequest = io.axi.ar.valid
         
         when(awHasRequest && arHasRequest) {
-          // 当两个都有请求时，根据优先级选择一个
           io.axi.aw.ready := !read_priority
           io.axi.ar.ready := read_priority
         } otherwise {
-          // 当只有一个有请求时，直接接受
           io.axi.aw.ready := awHasRequest
           io.axi.ar.ready := arHasRequest
         }
@@ -327,6 +316,9 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
     }
 
         val VALIDATE: State = new State {
+      onEntry {
+        // No sram_ce_n_out_reg/sram_we_n_out_reg assignments in onEntry
+      }
       whenIsActive {
         // 1. 使用 Mux 根据事务类型直接选择命令源
         // 这种方式比创建一个空的Bundle再填充它要高效和简洁得多
@@ -368,14 +360,14 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
       }
     }
 
-
-
     // --- MODIFIED: 新增写数据获取状态 ---
         val WRITE_DATA_FETCH: State = new State {
       onEntry {
         // 总线在等待W数据时必须高阻
         sram_data_writeEnable_out_reg := False
+        reportRegAssignment("sram_ce_n_out_reg", sram_ce_n_out_reg, True, "WRITE_DATA_FETCH", "onEntry")
         sram_ce_n_out_reg := True
+        reportRegAssignment("sram_we_n_out_reg", sram_we_n_out_reg, True, "WRITE_DATA_FETCH", "onEntry")
         sram_we_n_out_reg := True
       }
       whenIsActive {
@@ -399,8 +391,10 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
         } else {
             sram_be_n_out_reg := io.axi.w.strb
         }
+        reportRegAssignment("sram_ce_n_out_reg", sram_ce_n_out_reg, False, "WRITE_EXECUTE", "onEntry")
         sram_ce_n_out_reg := False
         sram_oe_n_out_reg := True
+        reportRegAssignment("sram_we_n_out_reg", sram_we_n_out_reg, False, "WRITE_EXECUTE", "onEntry")
         sram_we_n_out_reg := False
         
         hasWriteWaitCycles generate { write_wait_counter := 0 }
@@ -423,18 +417,11 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
     val WRITE_DEASSERT: State = new State {
       onEntry {
         // 只拉高 WE_n
+        reportRegAssignment("sram_we_n_out_reg", sram_we_n_out_reg, True, "WRITE_DEASSERT", "onEntry")
         sram_we_n_out_reg := True
         hasWriteDeassertCycles generate { write_deassert_counter := 0 }
       }
       whenIsActive {
-        // 保持其他信号满足Hold Time
-        sram_addr_out_reg             := sram_addr_out_reg
-        sram_data_out_reg             := sram_data_out_reg
-        sram_data_writeEnable_out_reg := True
-        sram_be_n_out_reg             := sram_be_n_out_reg
-        sram_ce_n_out_reg             := False
-        sram_we_n_out_reg             := True
-
         val waitCond = if (hasWriteDeassertCycles) write_deassert_counter === (config.writeDeassertCycles - 1) else True
         when(waitCond) {
             goto(WRITE_FINALIZE)
@@ -448,6 +435,7 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
     val WRITE_FINALIZE: State = new State {
         onEntry {
             // 释放总线
+            reportRegAssignment("sram_ce_n_out_reg", sram_ce_n_out_reg, True, "WRITE_FINALIZE", "onEntry")
             sram_ce_n_out_reg := True
             sram_data_writeEnable_out_reg := False
         }
@@ -466,7 +454,9 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
     val WRITE_DATA_ERROR_CONSUME: State = new State {
       onEntry {
         // --- MODIFIED: 确保错误状态下SRAM控制信号安全 ---
+        reportRegAssignment("sram_ce_n_out_reg", sram_ce_n_out_reg, True, "WRITE_DATA_ERROR_CONSUME", "onEntry")
         sram_ce_n_out_reg := True
+        reportRegAssignment("sram_we_n_out_reg", sram_we_n_out_reg, True, "WRITE_DATA_ERROR_CONSUME", "onEntry")
         sram_we_n_out_reg := True
         sram_oe_n_out_reg := True
         sram_data_writeEnable_out_reg := False
@@ -494,7 +484,9 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
       onEntry {
         // sram_perform_write := False // MODIFIED: 此信号已废弃，其逻辑已融入FSM状态转换
         // --- MODIFIED: 确保SRAM控制信号在响应AXI时保持非活动状态 ---
+        reportRegAssignment("sram_ce_n_out_reg", sram_ce_n_out_reg, True, "WRITE_RESPONSE", "onEntry")
         sram_ce_n_out_reg := True
+        reportRegAssignment("sram_we_n_out_reg", sram_we_n_out_reg, True, "WRITE_RESPONSE", "onEntry")
         sram_we_n_out_reg := True
         sram_oe_n_out_reg := True
         sram_data_writeEnable_out_reg := False
@@ -518,8 +510,10 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
 
     val READ_SETUP: State = new State {
       onEntry { // MODIFIED: 将SRAM信号设置移动到onEntry，确保它们在状态转换后立即生效并稳定
+        reportRegAssignment("sram_ce_n_out_reg", sram_ce_n_out_reg, False, "READ_SETUP", "onEntry")
         sram_ce_n_out_reg := False
         sram_oe_n_out_reg := False
+        reportRegAssignment("sram_we_n_out_reg", sram_we_n_out_reg, True, "READ_SETUP", "onEntry")
         sram_we_n_out_reg := True
         sram_data_writeEnable_out_reg := False // 读操作不能驱动数据
         sram_addr_out_reg := current_sram_addr
@@ -554,8 +548,10 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
 
     val READ_WAIT: State = new State {
       onEntry { // MODIFIED: 确保进入此状态时SRAM信号状态正确
+        reportRegAssignment("sram_ce_n_out_reg", sram_ce_n_out_reg, False, "READ_WAIT", "onEntry")
         sram_ce_n_out_reg := False
         sram_oe_n_out_reg := False
+        reportRegAssignment("sram_we_n_out_reg", sram_we_n_out_reg, True, "READ_WAIT", "onEntry")
         sram_we_n_out_reg := True
         sram_data_writeEnable_out_reg := False
         // sram_addr_out_reg 保持不变，由上一个状态设置
@@ -567,10 +563,10 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
             L"$instanceId READ_WAIT. SRAM Addr=0x${sram_addr_out_reg}, WaitCounter=${hasReadWaitCycles generate read_wait_counter}, AddrPrefetchValid=${addr_prefetch_valid}"
           )
         // --- MODIFIED: 保持SRAM控制信号 ---
-        sram_ce_n_out_reg := False
-        sram_oe_n_out_reg := False
-        sram_we_n_out_reg := True
-        sram_data_writeEnable_out_reg := False // 读操作数据总线不能被控制器驱动
+        // reportRegAssignment("sram_ce_n_out_reg", sram_ce_n_out_reg, False, "READ_WAIT", "whenIsActive")
+        // sram_ce_n_out_reg := False
+        // reportRegAssignment("sram_we_n_out_reg", sram_we_n_out_reg, True, "READ_WAIT", "whenIsActive")
+        // sram_we_n_out_reg := True
 
         val prefetch_trigger_cycle =
           if (config.readWaitCycles == 0) U(0) else U(config.readWaitCycles - 1)
@@ -590,12 +586,7 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
         val waitCond = if (hasReadWaitCycles) read_wait_counter === config.readWaitCycles else True
         when(waitCond) {
           read_data_buffer := io.ram.data.read // 在等待周期结束后，锁存SRAM数据
-          // if (config.readWaitCycles == 0) { // MODIFIED: 这段逻辑现在不需要额外判断，因为read_wait_counter会立即满足条件
-          //   when(burst_count_remaining > 1 && !addr_prefetch_valid) {
-          //     next_sram_addr_prefetch := getNextSramAddr(current_sram_addr, ar_cmd_reg.size)
-          //     addr_prefetch_valid := True
-          //   }
-          // }
+
           goto(READ_RESPONSE)
         } otherwise {
           hasReadWaitCycles generate { read_wait_counter := read_wait_counter + 1 }
@@ -604,13 +595,8 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
     }
 
     val READ_RESPONSE: State = new State {
-      onEntry { // MODIFIED: 确保进入此状态时SRAM信号状态正确
-        sram_ce_n_out_reg := False // 保持片选和输出使能有效，直到AXI传输完成
-        sram_oe_n_out_reg := False
-        sram_we_n_out_reg := True
-        sram_data_writeEnable_out_reg := False
-        sram_addr_out_reg := current_sram_addr // 保持地址
-        sram_be_n_out_reg := B(0, config.dataWidth / 8 bits)
+      onEntry {
+        // No sram_ce_n_out_reg/sram_we_n_out_reg assignments in onEntry
       }
       whenIsActive {
         val is_last_beat = burst_count_remaining === 1
@@ -624,15 +610,6 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
         io.axi.r.payload.data := read_data_buffer
         io.axi.r.payload.resp := Axi4.resp.OKAY
         io.axi.r.payload.last := is_last_beat
-        
-        // --- MODIFIED: 保持SRAM控制信号，避免组合逻辑变化 ---
-        sram_ce_n_out_reg := False
-        sram_oe_n_out_reg := False
-        sram_we_n_out_reg := True
-        sram_data_writeEnable_out_reg := False
-        sram_addr_out_reg := current_sram_addr
-        sram_be_n_out_reg := B(0, config.dataWidth / 8 bits)
-
 
         when(io.axi.r.fire) {
           if (config.enableLog) report(L"$instanceId R Fire. Last=${io.axi.r.last}")
@@ -655,7 +632,9 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
       onExit {
         // --- MODIFIED: 确保退出读响应状态时，SRAM信号恢复非活动状态 ---
         sram_oe_n_out_reg := True
+        reportRegAssignment("sram_ce_n_out_reg", sram_ce_n_out_reg, True, "READ_RESPONSE", "onExit")
         sram_ce_n_out_reg := True
+        reportRegAssignment("sram_we_n_out_reg", sram_we_n_out_reg, True, "READ_RESPONSE", "onExit")
         sram_we_n_out_reg := True
         sram_data_writeEnable_out_reg := False
         sram_be_n_out_reg := sram_be_n_inactive_value
@@ -664,13 +643,8 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
     }
 
     val READ_RESPONSE_ERROR: State = new State {
-      onEntry { // MODIFIED: 确保错误状态下SRAM控制信号安全
-        sram_ce_n_out_reg := True
-        sram_oe_n_out_reg := True
-        sram_we_n_out_reg := True
-        sram_data_writeEnable_out_reg := False
-        sram_be_n_out_reg := sram_be_n_inactive_value
-        sram_addr_out_reg := 0
+      onEntry {
+        // No sram_ce_n_out_reg/sram_we_n_out_reg assignments in onEntry
       }
       whenIsActive {
         val is_last_beat = burst_count_remaining === 1
@@ -710,7 +684,7 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
     currentCycle := currentCycle + 1
     report(
       L"SRAMController ${instanceId} - Cycle ${currentCycle}: AXI Status\n" :+
-      L"  FSM State: ${fsm.stateReg}\n" :+ // 打印当前FSM状态
+      L"  FSM State: ${fsm.stateReg}\n" :+ // 这里仍然使用fsm.stateReg来打印当前状态的名称，因为它是SpinalHDL内置的，在仿真和综合时会被正确处理。
       L"  AW: v=${io.axi.aw.valid} r=${io.axi.aw.ready} fire=${io.axi.aw.fire} addr=${io.axi.aw.addr} id=${io.axi.aw.id} len=${io.axi.aw.len} size=${io.axi.aw.size} burst=${io.axi.aw.burst}\n" :+
       L"  AR: v=${io.axi.ar.valid} r=${io.axi.ar.ready} fire=${io.axi.ar.fire} addr=${io.axi.ar.addr}\n" :+
       L"  W: v=${io.axi.w.valid} r=${io.axi.w.ready} fire=${io.axi.w.fire} data=${io.axi.w.data} strb=${io.axi.w.strb} last=${io.axi.w.last}\n" :+
@@ -719,65 +693,15 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
       L"  Internal: BurstRemaining=${fsm.burst_count_remaining}, CurrentSRAMAddr=${fsm.current_sram_addr}, ReadPriority=${fsm.read_priority}"
     )
   }
-}
 
-object SRAMControllerGen extends App {
-  val axiConfig = Axi4Config(
-    addressWidth = 32,
-    dataWidth = 32,
-    idWidth = 4,
-    useLock = false,
-    useCache = false,
-    useProt = false,
-    useQos = false,
-    useRegion = false,
-    useResp = true,
-    useStrb = true,
-    useBurst = true,
-    useLen = true,
-    useSize = true
-  )
-
-  // 示例1：原始的字节寻址模式 (1MB SRAM)
-  val ramConfigByteAddr = SRAMConfig(
-    addressWidth = 20, // 2^20 = 1M, 匹配字节数
-    dataWidth = 32,
-    virtualBaseAddress = 0x80000000L,
-    sizeBytes = 1 << 20, // 1MB
-    useWordAddressing = false, // 明确禁用字地址模式
-    readWaitCycles = 0,
-    writeWaitCycles = 0,
-    sramByteEnableIsActiveLow = true,
-    enableLog = true
-  )
   
-  println("--- Generating SRAMController with Byte Addressing ---")
-  SpinalConfig(
-    defaultConfigForClockDomains = ClockDomainConfig(resetKind = ASYNC)
-  ).generateVerilog(new SRAMController(axiConfig, ramConfigByteAddr).setDefinitionName("SRAMControllerByteAddr"))
-
-
-  // --- NEW ---
-  // 示例2：新的字寻址模式 (4MB SRAM)
-  // 您的示例：4MB = 4 * 1024 * 1024 = 2^22 bytes
-  // 数据宽度 32-bit (4 bytes/word)
-  // 字的数量 = (2^22 bytes) / (4 bytes/word) = 2^20 words
-  // 因此，SRAM 物理地址线只需要 20 位 (addressWidth = 20)
-  val ramConfigWordAddr = SRAMConfig(
-    addressWidth = 20, // 2^20 = 1M words, 匹配字数
-    dataWidth = 32,
-    virtualBaseAddress = 0x80000000L,
-    sizeBytes = 4 * 1024 * 1024, // 4MB
-    useWordAddressing = true,    // 启用字地址模式
-    readWaitCycles = 1, // 对于字寻址，这里保留等待周期
-    writeWaitCycles = 1, // 对于字寻址，这里保留等待周期
-    sramByteEnableIsActiveLow = true,
-    enableLog = true
-  )
-  
-  println("\n--- Generating SRAMController with Word Addressing ---")
-  SpinalConfig(
-    defaultConfigForClockDomains = ClockDomainConfig(resetKind = ASYNC)
-  ).generateVerilog(new SRAMController(axiConfig, ramConfigWordAddr).setDefinitionName("SRAMControllerWordAddr"))
-
+  val sram_ce_n_out_reg_prev = RegNext(sram_ce_n_out_reg, True)
+  val sram_we_n_out_reg_prev = RegNext(sram_we_n_out_reg, True)
+  // report(L"sram_ce_n_out_reg=${sram_ce_n_out_reg}, sram_we_n_out_reg=${sram_we_n_out_reg}, sram_ce_n_out_reg_prev=${sram_ce_n_out_reg_prev}, sram_we_n_out_reg_prev=${sram_we_n_out_reg_prev}")
+  // 当两者同时拉低，说明bug了
+  when(sram_ce_n_out_reg_prev === False && sram_we_n_out_reg_prev === False) {
+    when(sram_ce_n_out_reg === True && sram_we_n_out_reg === True) {
+      assert(False, "This is a bug.")
+    }
+  }
 }

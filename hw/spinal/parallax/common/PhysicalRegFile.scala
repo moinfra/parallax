@@ -68,14 +68,14 @@ class PhysicalRegFilePlugin(
   private var logicExecuted = false
 
   override def newPrfReadPort(): PrfReadPort = {
-    assert(!logicExecuted, "Cannot create read port after logic has been executed")
+    this.framework.requireEarly()
     val port = PrfReadPort(regIdxWidth, dataWidth)
     readPortRequests += port
     port
   }
 
   override def newPrfWritePort(): PrfWritePort = {
-    assert(!logicExecuted, "Cannot create write port after logic has been executed")
+    this.framework.requireEarly()
     val port = PrfWritePort(regIdxWidth, dataWidth)
     writePortRequests += port
     port

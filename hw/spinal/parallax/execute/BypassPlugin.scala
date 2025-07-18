@@ -38,6 +38,7 @@ class BypassPlugin[P <: Data](
   override def newBypassSource( // Returns Flow[P]
       euName: String
   ): Flow[P] = {
+    this.framework.requireEarly()
     val sourceFlow = Flow(payloadType) // Create a Flow endpoint
     bypassSourceFlows += sourceFlow
     bypassSourceNames += euName
@@ -80,7 +81,7 @@ class BypassPlugin[P <: Data](
 
         // 3. Ensure the arbitrated stream is always ready to accept data from the arbiter's output.
         //    This prevents the arbiter from blocking its inputs if the final consumer (of the Flow) isn't "consuming".
-        arbitratedStream.ready := True
+        // arbitratedStream.ready := True
 
         // 4. Convert the always-ready arbitrated stream to a Flow for the consumer.
         mergedBypassFlow = arbitratedStream.toFlow

@@ -237,6 +237,7 @@ class StoreBufferPlugin(
             slots(i).init(StoreBufferSlot(pipelineConfig, lsuConfig, dCacheParams).setDefault())
         }
 
+        // is robPtrA newer or same than robPtrB?
         private def isNewerOrSame(robPtrA: UInt, robPtrB: UInt): Bool = {
             val width = robPtrA.getWidth
             require(width == robPtrB.getWidth, "ROB pointer widths must match")
@@ -437,7 +438,7 @@ class StoreBufferPlugin(
                     slotsAfterUpdates(0).hasEarlyException := True
                     slotsAfterUpdates(0).earlyExceptionCode := ExceptionCode.STORE_ACCESS_FAULT 
                 } otherwise {
-                     report(L"[SQ-MMIO] MMIO RSP_SUCCESS received for robPtr=${headSlot.robPtr}.")
+                     if(enableLog) report(L"[SQ-MMIO] MMIO RSP_SUCCESS received for robPtr=${headSlot.robPtr}.")
                 }
             }
         }
@@ -512,7 +513,7 @@ class StoreBufferPlugin(
 
         // --- Pop Logic (FIFO Enforcement) ---
         val popHeadSlot = slotsAfterUpdates(0)
-        report("slotsAfterUpdates(0): " :+ popHeadSlot.format)
+        if(enableLog) report("slotsAfterUpdates(0): " :+ popHeadSlot.format)
         // 操作完成的通用条件：命令已发出，且不再等待任何响应/重试信号
         val operationDone = popHeadSlot.sentCmd && !popHeadSlot.waitRsp && !popHeadSlot.isWaitingForRefill && !popHeadSlot.isWaitingForWb
 
@@ -714,7 +715,7 @@ class StoreBufferPlugin(
         bypassDataOut.payload.hitMask  := finalHitMask
         bypassDataOut.payload.hit      := overallBypassHit && (finalHitMask === loadQueryBe)
         // --- End of Bypass Logic ---
-        report(L"[SQ] bypassDataOut: valid=${bypassDataOut.valid}, data=${bypassDataOut.payload.data}, hit=${bypassDataOut.payload.hit}, hitMask=${bypassDataOut.payload.hitMask}")
+        if(enableLog) report(L"[SQ] bypassDataOut: valid=${bypassDataOut.valid}, data=${bypassDataOut.payload.data}, hit=${bypassDataOut.payload.hit}, hitMask=${bypassDataOut.payload.hitMask}")
 
         slots := slotsNext
 
@@ -736,7 +737,7 @@ class StoreBufferPlugin(
             }
         }
         // 监控DCache接口状态
-        report(L"[SQ-Debug] DCache Interface: " :+
+        if(enableLog) report(L"[SQ-Debug] DCache Interface: " :+
             L"cmd.valid=${storePortDCache.cmd.valid}, " :+
             L"cmd.ready=${storePortDCache.cmd.ready}, " :+
             L"rsp.valid=${storePortDCache.rsp.valid}, " :+

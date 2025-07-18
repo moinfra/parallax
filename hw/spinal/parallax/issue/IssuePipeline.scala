@@ -41,13 +41,13 @@ class IssuePipeline(val issueConfig: PipelineConfig) extends Plugin with LockedI
       dbg.setDebugValueOnce(s2_rob_alloc.isFiring, DebugValue.ROBALLOC_FIRE, expectIncr = true)
       dbg.setDebugValueOnce(s3_dispatch.isFiring, DebugValue.DISPATCH_FIRE, expectIncr = true)
     })
-    ParallaxSim.log(Seq(
-      L"IssuePipeline status: \n",
-      formatStage(s0_decode),
-      formatStage(s1_rename),
-      formatStage(s2_rob_alloc),
-      formatStage(s3_dispatch)
-    ))
+    // ParallaxSim.log(Seq(
+    //   L"IssuePipeline status: \n",
+    //   formatStage(s0_decode),
+    //   formatStage(s1_rename),
+    //   formatStage(s2_rob_alloc),
+    //   formatStage(s3_dispatch)
+    // ))
 
     connect(s0_decode, s1_rename)(Connection.M2S())
     connect(s1_rename, s2_rob_alloc)(Connection.M2S()) // Connect new stage

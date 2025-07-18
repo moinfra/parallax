@@ -11,6 +11,7 @@ import parallax.utilities._
 import scala.collection.mutable.ArrayBuffer
 import parallax.utils.Encoders.PriorityEncoderOH
 import parallax.execute.WakeupService
+import parallax.components.rename.BusyTableService
 
 // --- 输入到Load Queue的命令 ---
 // 这个命令由LsuEu在地址计算后发出
@@ -137,6 +138,7 @@ class LoadQueuePlugin(
 
     private val pushPorts = ArrayBuffer[Stream[LoadQueuePushCmd]]()
     override def newPushPort(): Stream[LoadQueuePushCmd] = {
+        this.framework.requireEarly()
         val port = Stream(LoadQueuePushCmd(pipelineConfig, lsuConfig))
         pushPorts += port
         port
@@ -147,7 +149,9 @@ class LoadQueuePlugin(
         val dcacheServiceInst = getService[DataCacheService]
         val prfServiceInst    = getService[PhysicalRegFileService]
         val storeBufferServiceInst = getService[StoreBufferService]
+        val busyTableServiceInst = getService[BusyTableService] // 获取服务
 
+        val busyTableClearPort = busyTableServiceInst.newClearPort() // 创建清除端口
         val dCacheLoadPort   = dcacheServiceInst.newLoadPort(priority = 1)
         val robLoadWritebackPort = robServiceInst.newWritebackPort("LQ_Load")
         val prfWritePort     = prfServiceInst.newPrfWritePort()
@@ -164,6 +168,8 @@ class LoadQueuePlugin(
             sgmbServiceOpt = Some(sgmbService)
             mmioReadChannel = Some(sgmbService.newReadPort())
         }
+
+        busyTableServiceInst.retain()
         sgmbServiceOpt.foreach(_.retain())
         robServiceInst.retain()
         dcacheServiceInst.retain()
@@ -178,13 +184,13 @@ class LoadQueuePlugin(
         val pushCmd = StreamArbiterFactory.roundRobin.on(pushPorts)
 
         // 从hw区域获取端口
-        val sbQueryPort      = hw.sbQueryPort
-        val dCacheLoadPort   = hw.dCacheLoadPort
+        val sbQueryPort         = hw.sbQueryPort
+        val dCacheLoadPort      = hw.dCacheLoadPort
         val robLoadWritebackPort = hw.robLoadWritebackPort
-        val prfWritePort     = hw.prfWritePort
-        val robFlushPort = hw.robServiceInst.getFlushListeningPort()
-        val wakeupPort       = hw.wakeupPort
-
+        val prfWritePort        = hw.prfWritePort
+        val robFlushPort        = hw.robServiceInst.getFlushListeningPort()
+        val wakeupPort          = hw.wakeupPort
+        val busyTableClearPort  = hw.busyTableClearPort
         // Store Path Area is completely removed.
 
         private def isNewerOrSame(robPtrA: UInt, robPtrB: UInt): Bool = {
@@ -394,6 +400,9 @@ class LoadQueuePlugin(
             wakeupPort.valid := False
             wakeupPort.payload.physRegIdx.assignDontCare()
 
+            busyTableClearPort.valid := False
+            busyTableClearPort.payload.assignDontCare()
+
             // Completion paths
             when(popOnFwdHit) {
                 ParallaxSim.log(L"[LQ-Fwd] HIT: robPtr=${head.robPtr}, data=${sbQueryRspReg.data}. Completing instruction.")
@@ -407,6 +416,11 @@ class LoadQueuePlugin(
 
                 wakeupPort.valid := True
                 wakeupPort.payload.physRegIdx := head.pdest
+
+                // 释放寄存器资源
+                busyTableClearPort.valid := True
+                busyTableClearPort.payload := head.pdest
+
             } elsewhen (popOnDCacheSuccess) {
                 ParallaxSim.log(L"[LQ-DCache] DCACHE_RSP_OK for robPtr=${head.robPtr}, data=${dCacheLoadPort.rsp.payload.data}, fault=${dCacheLoadPort.rsp.payload.fault}")
                 prfWritePort.valid   := !dCacheLoadPort.rsp.payload.fault
@@ -421,6 +435,9 @@ class LoadQueuePlugin(
                 when(!dCacheLoadPort.rsp.payload.fault) {
                     wakeupPort.valid := True
                     wakeupPort.payload.physRegIdx := head.pdest
+
+                    busyTableClearPort.valid := True
+                    busyTableClearPort.payload := head.pdest
                 }
             } elsewhen (popOnMMIOSuccess) { // Uses current response
                 hw.mmioReadChannel.foreach { mmioChannel =>
@@ -438,6 +455,9 @@ class LoadQueuePlugin(
                     when(!mmioRsp.error) {
                         wakeupPort.valid := True
                         wakeupPort.payload.physRegIdx := head.pdest
+
+                        busyTableClearPort.valid := True
+                        busyTableClearPort.payload := head.pdest
                     }
                 }
             } elsewhen (popOnEarlyException) {
@@ -452,6 +472,13 @@ class LoadQueuePlugin(
                 // NOTE: This behavior might be debatable. A simpler model is to only wakeup on success.
                 // Let's stick to waking up only on successful write to PRF to match the log behavior.
                 // So, no wakeup here. This is correct as no data is produced.
+
+                // 对于有异常的指令，它虽然“完成”了，但没有成功写入寄存器，
+                // 可是它占用的物理寄存器资源必须被释放。
+                // BusyTable的清除逻辑应该在“指令完成其对物理寄存器的占用”时触发，
+                // 无论写回是否成功。这与 EuBasePlugin 的行为一致。
+                busyTableClearPort.valid := True
+                busyTableClearPort.payload := head.pdest
             }
 
             // --- LQ Pop Execution ---
@@ -491,5 +518,6 @@ class LoadQueuePlugin(
         hw.storeBufferServiceInst.release()
         hw.sgmbServiceOpt.foreach(_.release())
         hw.wakeupServiceInst.release()
+        hw.busyTableServiceInst.release()
     }
 }

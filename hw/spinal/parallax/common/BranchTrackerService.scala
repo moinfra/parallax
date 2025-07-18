@@ -33,6 +33,6 @@ class BranchTrackerPlugin extends Plugin with BranchTrackerService {
       countReg := countReg - 1
       report(L"Decremented count to $countReg")
     }
-    report(L"Count $countReg")
+    // report(L"Count $countReg")
 
 }
