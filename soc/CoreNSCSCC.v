@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 3105a33b457518a7afeed8b0527b4d8b9dab2383
 // Component : CoreNSCSCC
-// Git hash  : d6b0fe85ff2e31be91e518f2a6b530f197606af3
+// Git hash  : fe27a90edbedcafe7d49d77dce970e82507be93b
 
 `timescale 1ns/1ps
 
@@ -3886,6 +3886,7 @@ module CoreNSCSCC (
   wire       [1:0]    _zz_io_iqEntryIn_payload_aluCtrl_logicOp;
   wire       [2:0]    _zz_io_iqEntryIn_payload_immUsage;
   wire                s2_Execute_isFiring;
+  (* mark_debug = "TRUE" *) reg        [31:0]   io_resultOut_payload_data_regNextWhen;
   wire       [2:0]    _zz_36;
   wire                _zz_AluIntEU_AluIntEuPlugin_logicPhase_isFlushed;
   wire       [2:0]    _zz_AluIntEU_AluIntEuPlugin_logicPhase_isFlushed_1;
@@ -22587,10 +22588,10 @@ module CoreNSCSCC (
       if(s2_Execute_isFiring) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // AluIntEuPlugin.scala:L130
+            assert(1'b0); // AluIntEuPlugin.scala:L126
           `else
             if(!1'b0) begin
-              $display("NOTE(AluIntEuPlugin.scala:130):  [debug] [34mAluIntEu (AluIntEU) S2 Firing: RobPtr=%x, ResultData=%x, WritesPreg=%x, ImmUsage=%x, UseSrc2=%x op: AluCtrlFlags: isSub=%x isAdd=%x isSigned=%x logicOp=%s, lhs=%x, rhs=%x[0m", _zz_AluIntEU_AluIntEuPlugin_euResult_uop_robPtr, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_data, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_writesToPhysReg, _zz_36, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_useSrc2, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSub, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isAdd, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSigned, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_string, _zz_io_iqEntryIn_payload_src1Data, _zz_io_iqEntryIn_payload_src2Data_1); // AluIntEuPlugin.scala:L130
+              $display("NOTE(AluIntEuPlugin.scala:126):  [debug] [34mAluIntEu (AluIntEU) S2 Firing: RobPtr=%x, ResultData=%x, WritesPreg=%x, ImmUsage=%x, UseSrc2=%x op: AluCtrlFlags: isSub=%x isAdd=%x isSigned=%x logicOp=%s, lhs=%x, rhs=%x[0m", _zz_AluIntEU_AluIntEuPlugin_euResult_uop_robPtr, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_data, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_writesToPhysReg, _zz_36, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_useSrc2, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSub, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isAdd, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSigned, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_string, _zz_io_iqEntryIn_payload_src1Data, _zz_io_iqEntryIn_payload_src2Data_1); // AluIntEuPlugin.scala:L126
             end
           `endif
         `endif
@@ -24511,6 +24512,9 @@ module CoreNSCSCC (
     CommitPlugin_logic_s1_s1_headUop_exceptionCode <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_exceptionCode;
     if(CommitPlugin_logic_s1_s1_commitIdleThisCycle) begin
       CommitPlugin_committedIdlePcReg <= CommitPlugin_logic_s1_s1_headUop_decoded_pc;
+    end
+    if(s2_Execute_isFiring) begin
+      io_resultOut_payload_data_regNextWhen <= AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_data;
     end
     _zz_AluIntEU_AluIntEuPlugin_euResult_uop_robPtr_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_robPtr;
     _zz_AluIntEU_AluIntEuPlugin_euResult_uop_physDest_idx_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_physDest_idx;
