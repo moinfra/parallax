@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 3105a33b457518a7afeed8b0527b4d8b9dab2383
 // Component : CoreNSCSCC
-// Git hash  : fe27a90edbedcafe7d49d77dce970e82507be93b
+// Git hash  : ee74a1a583193811125bcd571822fdfc5de0f078
 
 `timescale 1ns/1ps
 
@@ -263,12 +263,6 @@ module CoreNSCSCC (
   reg        [1:0]    BpuPipelinePlugin_logic_pht_spinal_port0;
   reg        [1:0]    BpuPipelinePlugin_logic_pht_spinal_port1;
   reg        [54:0]   BpuPipelinePlugin_logic_btb_spinal_port0;
-  wire       [31:0]   PhysicalRegFilePlugin_logic_regFile_spinal_port0;
-  wire       [31:0]   PhysicalRegFilePlugin_logic_regFile_spinal_port1;
-  wire       [31:0]   PhysicalRegFilePlugin_logic_regFile_spinal_port2;
-  wire       [31:0]   PhysicalRegFilePlugin_logic_regFile_spinal_port3;
-  wire       [31:0]   PhysicalRegFilePlugin_logic_regFile_spinal_port4;
-  wire       [31:0]   PhysicalRegFilePlugin_logic_regFile_spinal_port5;
   wire                AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_valid;
   wire       [31:0]   AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_data;
   wire       [5:0]    AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_physDest_idx;
@@ -1384,10 +1378,21 @@ module CoreNSCSCC (
   wire       [7:0]    _zz_when_Debug_l71_9_1;
   wire       [31:0]   _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException_2;
   wire       [3:0]    _zz_LoadQueuePlugin_logic_loadQueue_pushOh;
-  wire       [3:0]    _zz__zz_when_PhysicalRegFile_l141_3;
-  reg        [5:0]    _zz__zz_when_PhysicalRegFile_l141_1;
-  reg        [31:0]   _zz__zz_49;
-  wire                _zz_PhysicalRegFilePlugin_logic_regFile_port;
+  reg        [31:0]   _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp;
+  reg        [31:0]   _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp;
+  reg        [31:0]   _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp;
+  reg        [31:0]   _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp;
+  reg        [31:0]   _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp;
+  reg        [31:0]   _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp;
+  wire       [2:0]    _zz_62;
+  reg        [2:0]    _zz_63;
+  wire       [2:0]    _zz_64;
+  reg        [2:0]    _zz_65;
+  wire       [2:0]    _zz_66;
+  wire       [0:0]    _zz_67;
+  wire       [3:0]    _zz__zz_when_PhysicalRegFile_l136_3;
+  reg        [5:0]    _zz__zz_when_PhysicalRegFile_l136_1;
+  reg        [31:0]   _zz__zz_PhysicalRegFilePlugin_logic_regFile_0;
   wire       [2:0]    _zz_when_PhysicalRegFile_l150_8;
   reg        [2:0]    _zz_when_PhysicalRegFile_l150_9;
   wire       [2:0]    _zz_when_PhysicalRegFile_l150_10;
@@ -4292,23 +4297,97 @@ module CoreNSCSCC (
   wire                _zz_when_LoadQueuePlugin_l503_14;
   wire       [2:0]    _zz_when_LoadQueuePlugin_l503_15;
   wire                when_LoadQueuePlugin_l503_3;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_0;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_1;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_2;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_3;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_4;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_5;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_6;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_7;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_8;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_9;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_10;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_11;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_12;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_13;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_14;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_15;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_16;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_17;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_18;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_19;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_20;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_21;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_22;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_23;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_24;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_25;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_26;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_27;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_28;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_29;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_30;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_31;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_32;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_33;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_34;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_35;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_36;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_37;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_38;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_39;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_40;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_41;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_42;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_43;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_44;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_45;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_46;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_47;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_48;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_49;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_50;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_51;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_52;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_53;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_54;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_55;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_56;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_57;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_58;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_59;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_60;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_61;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_62;
+  reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_63;
   wire       [31:0]   _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp;
   wire       [31:0]   _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp;
   wire       [31:0]   _zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp;
   wire       [31:0]   _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp;
   wire       [31:0]   _zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp;
   wire       [31:0]   _zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp;
-  wire                _zz_when_PhysicalRegFile_l141;
-  wire       [5:0]    _zz_when_PhysicalRegFile_l141_1;
-  wire       [31:0]   _zz_49;
-  wire       [3:0]    _zz_when_PhysicalRegFile_l141_2;
-  wire       [3:0]    _zz_when_PhysicalRegFile_l141_3;
-  wire                _zz_when_PhysicalRegFile_l141_4;
-  wire                _zz_when_PhysicalRegFile_l141_5;
-  wire                _zz_when_PhysicalRegFile_l141_6;
-  wire                _zz_when_PhysicalRegFile_l141_7;
-  wire                _zz_when_PhysicalRegFile_l141_8;
-  wire       [1:0]    _zz_when_PhysicalRegFile_l141_9;
+  wire                _zz_when_PhysicalRegFile_l136;
+  wire       [5:0]    _zz_when_PhysicalRegFile_l136_1;
+  wire       [31:0]   _zz_PhysicalRegFilePlugin_logic_regFile_0;
+  wire       [2:0]    _zz_43;
+  wire       [2:0]    _zz_44;
+  wire       [2:0]    _zz_45;
+  wire       [2:0]    _zz_46;
+  wire       [2:0]    _zz_47;
+  wire       [2:0]    _zz_48;
+  wire       [2:0]    _zz_49;
+  wire       [2:0]    _zz_50;
+  wire       [3:0]    _zz_when_PhysicalRegFile_l136_2;
+  wire       [3:0]    _zz_when_PhysicalRegFile_l136_3;
+  wire                _zz_when_PhysicalRegFile_l136_4;
+  wire                _zz_when_PhysicalRegFile_l136_5;
+  wire                _zz_when_PhysicalRegFile_l136_6;
+  wire                _zz_PhysicalRegFilePlugin_logic_regFile_0_1;
+  wire                _zz_PhysicalRegFilePlugin_logic_regFile_0_2;
+  wire       [1:0]    _zz_PhysicalRegFilePlugin_logic_regFile_0_3;
+  wire                when_PhysicalRegFile_l136;
+  wire       [63:0]   _zz_51;
   wire                when_PhysicalRegFile_l141;
   wire       [2:0]    _zz_when_PhysicalRegFile_l150;
   wire       [2:0]    _zz_when_PhysicalRegFile_l150_1;
@@ -4319,7 +4398,7 @@ module CoreNSCSCC (
   wire       [2:0]    _zz_when_PhysicalRegFile_l150_6;
   wire       [2:0]    _zz_when_PhysicalRegFile_l150_7;
   wire                when_PhysicalRegFile_l150;
-  wire       [7:0]    _zz_51;
+  wire       [7:0]    _zz_52;
   reg                 StoreBufferPlugin_logic_slots_0_isFlush;
   reg        [31:0]   StoreBufferPlugin_logic_slots_0_addr;
   reg        [31:0]   StoreBufferPlugin_logic_slots_0_data;
@@ -4520,9 +4599,9 @@ module CoreNSCSCC (
   wire                StoreBufferPlugin_logic_validFall_2;
   wire                StoreBufferPlugin_logic_validFall_3;
   wire                StoreBufferPlugin_logic_canPush;
-  wire                _zz_52;
   wire                _zz_53;
-  wire       [1:0]    _zz_54;
+  wire                _zz_54;
+  wire       [1:0]    _zz_55;
   wire                _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush;
   wire       [31:0]   _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr;
   wire       [31:0]   _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data;
@@ -4532,11 +4611,11 @@ module CoreNSCSCC (
   wire                _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO;
   wire                _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException;
   wire       [7:0]    _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode;
-  wire       [3:0]    _zz_55;
-  wire                _zz_56;
+  wire       [3:0]    _zz_56;
   wire                _zz_57;
   wire                _zz_58;
   wire                _zz_59;
+  wire                _zz_60;
   wire                StoreBufferPlugin_logic_sharedWriteCond;
   wire                StoreBufferPlugin_logic_canPopNormalOp;
   wire                StoreBufferPlugin_logic_canPopFlushOp;
@@ -5075,7 +5154,7 @@ module CoreNSCSCC (
   reg        [2:0]    SimpleFetchPipelinePlugin_logic_fsm_stateReg;
   reg        [2:0]    SimpleFetchPipelinePlugin_logic_fsm_stateNext;
   wire                io_output_fire;
-  wire       [31:0]   _zz_60;
+  wire       [31:0]   _zz_61;
   wire                when_SimpleFetchPipelinePlugin_l340;
   wire                SimpleFetchPipelinePlugin_logic_fsm_onExit_BOOT;
   wire                SimpleFetchPipelinePlugin_logic_fsm_onExit_IDLE;
@@ -5461,7 +5540,6 @@ module CoreNSCSCC (
 
   reg [1:0] BpuPipelinePlugin_logic_pht [0:1023];
   reg [54:0] BpuPipelinePlugin_logic_btb [0:255];
-  (* ram_style = "distributed" *) reg [31:0] PhysicalRegFilePlugin_logic_regFile [0:63];
   function [63:0] zz_CheckpointManagerPlugin_logic_initialFreeMask(input dummy);
     begin
       zz_CheckpointManagerPlugin_logic_initialFreeMask = 64'h0;
@@ -5499,7 +5577,7 @@ module CoreNSCSCC (
       zz_CheckpointManagerPlugin_logic_initialFreeMask[63] = 1'b1;
     end
   endfunction
-  wire [63:0] _zz_61;
+  wire [63:0] _zz_68;
 
   assign _zz_io_triggerIn_1 = 1'b1;
   assign _zz_io_triggerIn = {7'd0, _zz_io_triggerIn_1};
@@ -5555,7 +5633,10 @@ module CoreNSCSCC (
   assign _zz_when_Debug_l71_9_1 = {3'd0, _zz_when_Debug_l71_10};
   assign _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException_2 = {29'd0, _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException_1};
   assign _zz_LoadQueuePlugin_logic_loadQueue_pushOh = ((~ LoadQueuePlugin_logic_loadQueue_availableSlotsMask) + 4'b0001);
-  assign _zz__zz_when_PhysicalRegFile_l141_3 = (_zz_when_PhysicalRegFile_l141_2 - 4'b0001);
+  assign _zz_62 = (_zz_63 + _zz_65);
+  assign _zz_67 = LoadQueuePlugin_hw_prfWritePort_valid;
+  assign _zz_66 = {2'd0, _zz_67};
+  assign _zz__zz_when_PhysicalRegFile_l136_3 = (_zz_when_PhysicalRegFile_l136_2 - 4'b0001);
   assign _zz_when_PhysicalRegFile_l150_8 = (_zz_when_PhysicalRegFile_l150_9 + _zz_when_PhysicalRegFile_l150_11);
   assign _zz_when_PhysicalRegFile_l150_13 = LoadQueuePlugin_hw_prfWritePort_valid;
   assign _zz_when_PhysicalRegFile_l150_12 = {2'd0, _zz_when_PhysicalRegFile_l150_13};
@@ -5591,10 +5672,10 @@ module CoreNSCSCC (
   assign _zz_BpuPipelinePlugin_logic_pht_port = BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_pc[11 : 2];
   assign _zz_BpuPipelinePlugin_logic_btb_port = BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_pc[9 : 2];
   assign _zz_BpuPipelinePlugin_logic_btb_port_1 = {BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_target,{BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_pc[31 : 10],1'b1}};
-  assign _zz_PhysicalRegFilePlugin_logic_regFile_port = (_zz_when_PhysicalRegFile_l141 && (_zz_when_PhysicalRegFile_l141_1 != 6'h0));
   assign _zz_CommitPlugin_logic_s0_committedThisCycle_comb_1 = CommitPlugin_logic_s0_commitAckMasks_0;
   assign _zz_CommitPlugin_logic_s0_recycledThisCycle_comb_1 = SuperScalarFreeListPlugin_early_setup_freeList_io_free_0_enable;
   assign _zz_DispatchPlugin_logic_destinationIqReady_3 = {_zz_DispatchPlugin_logic_destinationIqReady_1,_zz_DispatchPlugin_logic_destinationIqReady};
+  assign _zz_64 = {LsuEU_LsuEuPlugin_gprWritePort_valid,{BranchEU_BranchEuPlugin_gprWritePort_valid,AluIntEU_AluIntEuPlugin_gprWritePort_valid}};
   assign _zz_when_PhysicalRegFile_l150_10 = {LsuEU_LsuEuPlugin_gprWritePort_valid,{BranchEU_BranchEuPlugin_gprWritePort_valid,AluIntEU_AluIntEuPlugin_gprWritePort_valid}};
   assign _zz_DispatchPlugin_logic_dispatchOH = (s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode == DispatchPlugin_logic_iqRegs_1_0_1);
   assign _zz_DispatchPlugin_logic_dispatchOH_1 = (s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode == DispatchPlugin_logic_iqRegs_1_0_0);
@@ -5634,21 +5715,6 @@ module CoreNSCSCC (
   always @(posedge clk) begin
     if(_zz_1) begin
       BpuPipelinePlugin_logic_btb[_zz_BpuPipelinePlugin_logic_btb_port] <= _zz_BpuPipelinePlugin_logic_btb_port_1;
-    end
-  end
-
-  initial begin
-    $readmemb("CoreNSCSCC.v_toplevel_PhysicalRegFilePlugin_logic_regFile.bin",PhysicalRegFilePlugin_logic_regFile);
-  end
-  assign PhysicalRegFilePlugin_logic_regFile_spinal_port0 = PhysicalRegFilePlugin_logic_regFile[AluIntEU_AluIntEuPlugin_gprReadPorts_0_address];
-  assign PhysicalRegFilePlugin_logic_regFile_spinal_port1 = PhysicalRegFilePlugin_logic_regFile[AluIntEU_AluIntEuPlugin_gprReadPorts_1_address];
-  assign PhysicalRegFilePlugin_logic_regFile_spinal_port2 = PhysicalRegFilePlugin_logic_regFile[BranchEU_BranchEuPlugin_gprReadPorts_0_address];
-  assign PhysicalRegFilePlugin_logic_regFile_spinal_port3 = PhysicalRegFilePlugin_logic_regFile[BranchEU_BranchEuPlugin_gprReadPorts_1_address];
-  assign PhysicalRegFilePlugin_logic_regFile_spinal_port4 = PhysicalRegFilePlugin_logic_regFile[LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_address];
-  assign PhysicalRegFilePlugin_logic_regFile_spinal_port5 = PhysicalRegFilePlugin_logic_regFile[LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_address];
-  always @(posedge clk) begin
-    if(_zz_PhysicalRegFilePlugin_logic_regFile_port) begin
-      PhysicalRegFilePlugin_logic_regFile[_zz_when_PhysicalRegFile_l141_1] <= _zz_49;
     end
   end
 
@@ -8117,22 +8183,462 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    case(_zz_when_PhysicalRegFile_l141_9)
+    case(AluIntEU_AluIntEuPlugin_gprReadPorts_0_address)
+      6'b000000 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_0;
+      6'b000001 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_1;
+      6'b000010 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_2;
+      6'b000011 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_3;
+      6'b000100 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_4;
+      6'b000101 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_5;
+      6'b000110 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_6;
+      6'b000111 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_7;
+      6'b001000 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_8;
+      6'b001001 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_9;
+      6'b001010 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_10;
+      6'b001011 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_11;
+      6'b001100 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_12;
+      6'b001101 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_13;
+      6'b001110 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_14;
+      6'b001111 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_15;
+      6'b010000 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_16;
+      6'b010001 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_17;
+      6'b010010 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_18;
+      6'b010011 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_19;
+      6'b010100 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_20;
+      6'b010101 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_21;
+      6'b010110 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_22;
+      6'b010111 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_23;
+      6'b011000 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_24;
+      6'b011001 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_25;
+      6'b011010 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_26;
+      6'b011011 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_27;
+      6'b011100 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_28;
+      6'b011101 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_29;
+      6'b011110 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_30;
+      6'b011111 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_31;
+      6'b100000 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_32;
+      6'b100001 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_33;
+      6'b100010 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_34;
+      6'b100011 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_35;
+      6'b100100 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_36;
+      6'b100101 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_37;
+      6'b100110 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_38;
+      6'b100111 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_39;
+      6'b101000 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_40;
+      6'b101001 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_41;
+      6'b101010 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_42;
+      6'b101011 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_43;
+      6'b101100 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_44;
+      6'b101101 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_45;
+      6'b101110 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_46;
+      6'b101111 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_47;
+      6'b110000 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_48;
+      6'b110001 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_49;
+      6'b110010 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_50;
+      6'b110011 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_51;
+      6'b110100 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_52;
+      6'b110101 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_53;
+      6'b110110 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_54;
+      6'b110111 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_55;
+      6'b111000 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_56;
+      6'b111001 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_57;
+      6'b111010 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_58;
+      6'b111011 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_59;
+      6'b111100 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_60;
+      6'b111101 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_61;
+      6'b111110 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_62;
+      default : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_63;
+    endcase
+  end
+
+  always @(*) begin
+    case(AluIntEU_AluIntEuPlugin_gprReadPorts_1_address)
+      6'b000000 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_0;
+      6'b000001 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_1;
+      6'b000010 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_2;
+      6'b000011 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_3;
+      6'b000100 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_4;
+      6'b000101 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_5;
+      6'b000110 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_6;
+      6'b000111 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_7;
+      6'b001000 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_8;
+      6'b001001 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_9;
+      6'b001010 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_10;
+      6'b001011 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_11;
+      6'b001100 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_12;
+      6'b001101 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_13;
+      6'b001110 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_14;
+      6'b001111 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_15;
+      6'b010000 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_16;
+      6'b010001 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_17;
+      6'b010010 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_18;
+      6'b010011 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_19;
+      6'b010100 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_20;
+      6'b010101 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_21;
+      6'b010110 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_22;
+      6'b010111 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_23;
+      6'b011000 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_24;
+      6'b011001 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_25;
+      6'b011010 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_26;
+      6'b011011 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_27;
+      6'b011100 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_28;
+      6'b011101 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_29;
+      6'b011110 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_30;
+      6'b011111 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_31;
+      6'b100000 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_32;
+      6'b100001 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_33;
+      6'b100010 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_34;
+      6'b100011 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_35;
+      6'b100100 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_36;
+      6'b100101 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_37;
+      6'b100110 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_38;
+      6'b100111 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_39;
+      6'b101000 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_40;
+      6'b101001 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_41;
+      6'b101010 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_42;
+      6'b101011 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_43;
+      6'b101100 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_44;
+      6'b101101 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_45;
+      6'b101110 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_46;
+      6'b101111 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_47;
+      6'b110000 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_48;
+      6'b110001 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_49;
+      6'b110010 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_50;
+      6'b110011 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_51;
+      6'b110100 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_52;
+      6'b110101 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_53;
+      6'b110110 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_54;
+      6'b110111 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_55;
+      6'b111000 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_56;
+      6'b111001 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_57;
+      6'b111010 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_58;
+      6'b111011 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_59;
+      6'b111100 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_60;
+      6'b111101 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_61;
+      6'b111110 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_62;
+      default : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_63;
+    endcase
+  end
+
+  always @(*) begin
+    case(BranchEU_BranchEuPlugin_gprReadPorts_0_address)
+      6'b000000 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_0;
+      6'b000001 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_1;
+      6'b000010 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_2;
+      6'b000011 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_3;
+      6'b000100 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_4;
+      6'b000101 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_5;
+      6'b000110 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_6;
+      6'b000111 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_7;
+      6'b001000 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_8;
+      6'b001001 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_9;
+      6'b001010 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_10;
+      6'b001011 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_11;
+      6'b001100 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_12;
+      6'b001101 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_13;
+      6'b001110 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_14;
+      6'b001111 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_15;
+      6'b010000 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_16;
+      6'b010001 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_17;
+      6'b010010 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_18;
+      6'b010011 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_19;
+      6'b010100 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_20;
+      6'b010101 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_21;
+      6'b010110 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_22;
+      6'b010111 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_23;
+      6'b011000 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_24;
+      6'b011001 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_25;
+      6'b011010 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_26;
+      6'b011011 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_27;
+      6'b011100 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_28;
+      6'b011101 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_29;
+      6'b011110 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_30;
+      6'b011111 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_31;
+      6'b100000 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_32;
+      6'b100001 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_33;
+      6'b100010 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_34;
+      6'b100011 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_35;
+      6'b100100 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_36;
+      6'b100101 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_37;
+      6'b100110 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_38;
+      6'b100111 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_39;
+      6'b101000 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_40;
+      6'b101001 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_41;
+      6'b101010 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_42;
+      6'b101011 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_43;
+      6'b101100 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_44;
+      6'b101101 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_45;
+      6'b101110 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_46;
+      6'b101111 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_47;
+      6'b110000 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_48;
+      6'b110001 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_49;
+      6'b110010 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_50;
+      6'b110011 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_51;
+      6'b110100 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_52;
+      6'b110101 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_53;
+      6'b110110 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_54;
+      6'b110111 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_55;
+      6'b111000 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_56;
+      6'b111001 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_57;
+      6'b111010 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_58;
+      6'b111011 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_59;
+      6'b111100 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_60;
+      6'b111101 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_61;
+      6'b111110 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_62;
+      default : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = PhysicalRegFilePlugin_logic_regFile_63;
+    endcase
+  end
+
+  always @(*) begin
+    case(BranchEU_BranchEuPlugin_gprReadPorts_1_address)
+      6'b000000 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_0;
+      6'b000001 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_1;
+      6'b000010 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_2;
+      6'b000011 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_3;
+      6'b000100 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_4;
+      6'b000101 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_5;
+      6'b000110 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_6;
+      6'b000111 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_7;
+      6'b001000 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_8;
+      6'b001001 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_9;
+      6'b001010 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_10;
+      6'b001011 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_11;
+      6'b001100 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_12;
+      6'b001101 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_13;
+      6'b001110 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_14;
+      6'b001111 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_15;
+      6'b010000 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_16;
+      6'b010001 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_17;
+      6'b010010 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_18;
+      6'b010011 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_19;
+      6'b010100 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_20;
+      6'b010101 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_21;
+      6'b010110 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_22;
+      6'b010111 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_23;
+      6'b011000 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_24;
+      6'b011001 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_25;
+      6'b011010 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_26;
+      6'b011011 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_27;
+      6'b011100 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_28;
+      6'b011101 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_29;
+      6'b011110 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_30;
+      6'b011111 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_31;
+      6'b100000 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_32;
+      6'b100001 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_33;
+      6'b100010 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_34;
+      6'b100011 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_35;
+      6'b100100 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_36;
+      6'b100101 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_37;
+      6'b100110 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_38;
+      6'b100111 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_39;
+      6'b101000 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_40;
+      6'b101001 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_41;
+      6'b101010 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_42;
+      6'b101011 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_43;
+      6'b101100 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_44;
+      6'b101101 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_45;
+      6'b101110 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_46;
+      6'b101111 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_47;
+      6'b110000 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_48;
+      6'b110001 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_49;
+      6'b110010 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_50;
+      6'b110011 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_51;
+      6'b110100 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_52;
+      6'b110101 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_53;
+      6'b110110 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_54;
+      6'b110111 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_55;
+      6'b111000 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_56;
+      6'b111001 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_57;
+      6'b111010 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_58;
+      6'b111011 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_59;
+      6'b111100 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_60;
+      6'b111101 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_61;
+      6'b111110 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_62;
+      default : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = PhysicalRegFilePlugin_logic_regFile_63;
+    endcase
+  end
+
+  always @(*) begin
+    case(LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_address)
+      6'b000000 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_0;
+      6'b000001 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_1;
+      6'b000010 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_2;
+      6'b000011 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_3;
+      6'b000100 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_4;
+      6'b000101 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_5;
+      6'b000110 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_6;
+      6'b000111 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_7;
+      6'b001000 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_8;
+      6'b001001 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_9;
+      6'b001010 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_10;
+      6'b001011 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_11;
+      6'b001100 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_12;
+      6'b001101 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_13;
+      6'b001110 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_14;
+      6'b001111 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_15;
+      6'b010000 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_16;
+      6'b010001 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_17;
+      6'b010010 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_18;
+      6'b010011 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_19;
+      6'b010100 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_20;
+      6'b010101 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_21;
+      6'b010110 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_22;
+      6'b010111 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_23;
+      6'b011000 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_24;
+      6'b011001 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_25;
+      6'b011010 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_26;
+      6'b011011 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_27;
+      6'b011100 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_28;
+      6'b011101 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_29;
+      6'b011110 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_30;
+      6'b011111 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_31;
+      6'b100000 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_32;
+      6'b100001 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_33;
+      6'b100010 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_34;
+      6'b100011 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_35;
+      6'b100100 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_36;
+      6'b100101 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_37;
+      6'b100110 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_38;
+      6'b100111 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_39;
+      6'b101000 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_40;
+      6'b101001 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_41;
+      6'b101010 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_42;
+      6'b101011 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_43;
+      6'b101100 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_44;
+      6'b101101 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_45;
+      6'b101110 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_46;
+      6'b101111 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_47;
+      6'b110000 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_48;
+      6'b110001 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_49;
+      6'b110010 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_50;
+      6'b110011 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_51;
+      6'b110100 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_52;
+      6'b110101 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_53;
+      6'b110110 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_54;
+      6'b110111 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_55;
+      6'b111000 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_56;
+      6'b111001 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_57;
+      6'b111010 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_58;
+      6'b111011 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_59;
+      6'b111100 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_60;
+      6'b111101 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_61;
+      6'b111110 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_62;
+      default : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = PhysicalRegFilePlugin_logic_regFile_63;
+    endcase
+  end
+
+  always @(*) begin
+    case(LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_address)
+      6'b000000 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_0;
+      6'b000001 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_1;
+      6'b000010 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_2;
+      6'b000011 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_3;
+      6'b000100 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_4;
+      6'b000101 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_5;
+      6'b000110 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_6;
+      6'b000111 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_7;
+      6'b001000 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_8;
+      6'b001001 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_9;
+      6'b001010 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_10;
+      6'b001011 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_11;
+      6'b001100 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_12;
+      6'b001101 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_13;
+      6'b001110 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_14;
+      6'b001111 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_15;
+      6'b010000 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_16;
+      6'b010001 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_17;
+      6'b010010 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_18;
+      6'b010011 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_19;
+      6'b010100 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_20;
+      6'b010101 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_21;
+      6'b010110 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_22;
+      6'b010111 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_23;
+      6'b011000 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_24;
+      6'b011001 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_25;
+      6'b011010 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_26;
+      6'b011011 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_27;
+      6'b011100 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_28;
+      6'b011101 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_29;
+      6'b011110 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_30;
+      6'b011111 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_31;
+      6'b100000 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_32;
+      6'b100001 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_33;
+      6'b100010 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_34;
+      6'b100011 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_35;
+      6'b100100 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_36;
+      6'b100101 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_37;
+      6'b100110 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_38;
+      6'b100111 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_39;
+      6'b101000 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_40;
+      6'b101001 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_41;
+      6'b101010 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_42;
+      6'b101011 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_43;
+      6'b101100 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_44;
+      6'b101101 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_45;
+      6'b101110 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_46;
+      6'b101111 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_47;
+      6'b110000 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_48;
+      6'b110001 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_49;
+      6'b110010 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_50;
+      6'b110011 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_51;
+      6'b110100 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_52;
+      6'b110101 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_53;
+      6'b110110 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_54;
+      6'b110111 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_55;
+      6'b111000 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_56;
+      6'b111001 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_57;
+      6'b111010 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_58;
+      6'b111011 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_59;
+      6'b111100 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_60;
+      6'b111101 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_61;
+      6'b111110 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_62;
+      default : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = PhysicalRegFilePlugin_logic_regFile_63;
+    endcase
+  end
+
+  always @(*) begin
+    case(_zz_64)
+      3'b000 : _zz_63 = _zz_43;
+      3'b001 : _zz_63 = _zz_44;
+      3'b010 : _zz_63 = _zz_45;
+      3'b011 : _zz_63 = _zz_46;
+      3'b100 : _zz_63 = _zz_47;
+      3'b101 : _zz_63 = _zz_48;
+      3'b110 : _zz_63 = _zz_49;
+      default : _zz_63 = _zz_50;
+    endcase
+  end
+
+  always @(*) begin
+    case(_zz_66)
+      3'b000 : _zz_65 = _zz_43;
+      3'b001 : _zz_65 = _zz_44;
+      3'b010 : _zz_65 = _zz_45;
+      3'b011 : _zz_65 = _zz_46;
+      3'b100 : _zz_65 = _zz_47;
+      3'b101 : _zz_65 = _zz_48;
+      3'b110 : _zz_65 = _zz_49;
+      default : _zz_65 = _zz_50;
+    endcase
+  end
+
+  always @(*) begin
+    case(_zz_PhysicalRegFilePlugin_logic_regFile_0_3)
       2'b00 : begin
-        _zz__zz_when_PhysicalRegFile_l141_1 = AluIntEU_AluIntEuPlugin_gprWritePort_address;
-        _zz__zz_49 = AluIntEU_AluIntEuPlugin_gprWritePort_data;
+        _zz__zz_when_PhysicalRegFile_l136_1 = AluIntEU_AluIntEuPlugin_gprWritePort_address;
+        _zz__zz_PhysicalRegFilePlugin_logic_regFile_0 = AluIntEU_AluIntEuPlugin_gprWritePort_data;
       end
       2'b01 : begin
-        _zz__zz_when_PhysicalRegFile_l141_1 = BranchEU_BranchEuPlugin_gprWritePort_address;
-        _zz__zz_49 = BranchEU_BranchEuPlugin_gprWritePort_data;
+        _zz__zz_when_PhysicalRegFile_l136_1 = BranchEU_BranchEuPlugin_gprWritePort_address;
+        _zz__zz_PhysicalRegFilePlugin_logic_regFile_0 = BranchEU_BranchEuPlugin_gprWritePort_data;
       end
       2'b10 : begin
-        _zz__zz_when_PhysicalRegFile_l141_1 = LsuEU_LsuEuPlugin_gprWritePort_address;
-        _zz__zz_49 = LsuEU_LsuEuPlugin_gprWritePort_data;
+        _zz__zz_when_PhysicalRegFile_l136_1 = LsuEU_LsuEuPlugin_gprWritePort_address;
+        _zz__zz_PhysicalRegFilePlugin_logic_regFile_0 = LsuEU_LsuEuPlugin_gprWritePort_data;
       end
       default : begin
-        _zz__zz_when_PhysicalRegFile_l141_1 = LoadQueuePlugin_hw_prfWritePort_address;
-        _zz__zz_49 = LoadQueuePlugin_hw_prfWritePort_data;
+        _zz__zz_when_PhysicalRegFile_l136_1 = LoadQueuePlugin_hw_prfWritePort_address;
+        _zz__zz_PhysicalRegFilePlugin_logic_regFile_0 = LoadQueuePlugin_hw_prfWritePort_data;
       end
     endcase
   end
@@ -13255,8 +13761,8 @@ module CoreNSCSCC (
   assign CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_29 = 6'h1d;
   assign CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_30 = 6'h1e;
   assign CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_31 = 6'h1f;
-  assign _zz_61 = zz_CheckpointManagerPlugin_logic_initialFreeMask(1'b0);
-  always @(*) CheckpointManagerPlugin_logic_initialFreeMask = _zz_61;
+  assign _zz_68 = zz_CheckpointManagerPlugin_logic_initialFreeMask(1'b0);
+  always @(*) CheckpointManagerPlugin_logic_initialFreeMask = _zz_68;
   assign CheckpointManagerPlugin_logic_initialFlCheckpoint_freeMask = CheckpointManagerPlugin_logic_initialFreeMask;
   assign CheckpointManagerPlugin_logic_initialBtCheckpoint_busyBits = 64'h0;
   assign CommitPlugin_logic_s0_enable = (CommitPlugin_commitEnableExt && (! CommitPlugin_committedIdleReg));
@@ -18705,30 +19211,40 @@ module CoreNSCSCC (
   assign _zz_when_LoadQueuePlugin_l503_14 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
   assign _zz_when_LoadQueuePlugin_l503_15 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
   assign when_LoadQueuePlugin_l503_3 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_3_valid) && (((_zz_when_LoadQueuePlugin_l503_12 == _zz_when_LoadQueuePlugin_l503_14) && (_zz_when_LoadQueuePlugin_l503_15 <= _zz_when_LoadQueuePlugin_l503_13)) || ((_zz_when_LoadQueuePlugin_l503_12 != _zz_when_LoadQueuePlugin_l503_14) && (_zz_when_LoadQueuePlugin_l503_13 < _zz_when_LoadQueuePlugin_l503_15))));
-  assign _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = ((AluIntEU_AluIntEuPlugin_gprReadPorts_0_address == 6'h0) ? 32'h0 : PhysicalRegFilePlugin_logic_regFile_spinal_port0);
+  assign _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = ((AluIntEU_AluIntEuPlugin_gprReadPorts_0_address == 6'h0) ? 32'h0 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp);
   assign AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp;
-  assign _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = ((AluIntEU_AluIntEuPlugin_gprReadPorts_1_address == 6'h0) ? 32'h0 : PhysicalRegFilePlugin_logic_regFile_spinal_port1);
+  assign _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = ((AluIntEU_AluIntEuPlugin_gprReadPorts_1_address == 6'h0) ? 32'h0 : _zz__zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp);
   assign AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp;
-  assign _zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = ((BranchEU_BranchEuPlugin_gprReadPorts_0_address == 6'h0) ? 32'h0 : PhysicalRegFilePlugin_logic_regFile_spinal_port2);
+  assign _zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = ((BranchEU_BranchEuPlugin_gprReadPorts_0_address == 6'h0) ? 32'h0 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp);
   assign BranchEU_BranchEuPlugin_gprReadPorts_0_rsp = _zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp;
-  assign _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = ((BranchEU_BranchEuPlugin_gprReadPorts_1_address == 6'h0) ? 32'h0 : PhysicalRegFilePlugin_logic_regFile_spinal_port3);
+  assign _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = ((BranchEU_BranchEuPlugin_gprReadPorts_1_address == 6'h0) ? 32'h0 : _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp);
   assign BranchEU_BranchEuPlugin_gprReadPorts_1_rsp = _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp;
-  assign _zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = ((LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_address == 6'h0) ? 32'h0 : PhysicalRegFilePlugin_logic_regFile_spinal_port4);
+  assign _zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = ((LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_address == 6'h0) ? 32'h0 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp);
   assign LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = _zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp;
-  assign _zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = ((LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_address == 6'h0) ? 32'h0 : PhysicalRegFilePlugin_logic_regFile_spinal_port5);
+  assign _zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = ((LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_address == 6'h0) ? 32'h0 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp);
   assign LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = _zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp;
-  assign _zz_when_PhysicalRegFile_l141_2 = {LoadQueuePlugin_hw_prfWritePort_valid,{LsuEU_LsuEuPlugin_gprWritePort_valid,{BranchEU_BranchEuPlugin_gprWritePort_valid,AluIntEU_AluIntEuPlugin_gprWritePort_valid}}};
-  assign _zz_when_PhysicalRegFile_l141_3 = (_zz_when_PhysicalRegFile_l141_2 & (~ _zz__zz_when_PhysicalRegFile_l141_3));
-  assign _zz_when_PhysicalRegFile_l141_4 = _zz_when_PhysicalRegFile_l141_3[1];
-  assign _zz_when_PhysicalRegFile_l141_5 = _zz_when_PhysicalRegFile_l141_3[2];
-  assign _zz_when_PhysicalRegFile_l141_6 = _zz_when_PhysicalRegFile_l141_3[3];
-  assign _zz_when_PhysicalRegFile_l141 = (|{_zz_when_PhysicalRegFile_l141_6,{_zz_when_PhysicalRegFile_l141_5,{_zz_when_PhysicalRegFile_l141_4,AluIntEU_AluIntEuPlugin_gprWritePort_valid}}});
-  assign _zz_when_PhysicalRegFile_l141_7 = (_zz_when_PhysicalRegFile_l141_4 || _zz_when_PhysicalRegFile_l141_6);
-  assign _zz_when_PhysicalRegFile_l141_8 = (_zz_when_PhysicalRegFile_l141_5 || _zz_when_PhysicalRegFile_l141_6);
-  assign _zz_when_PhysicalRegFile_l141_9 = {_zz_when_PhysicalRegFile_l141_8,_zz_when_PhysicalRegFile_l141_7};
-  assign _zz_when_PhysicalRegFile_l141_1 = _zz__zz_when_PhysicalRegFile_l141_1;
-  assign _zz_49 = _zz__zz_49;
-  assign when_PhysicalRegFile_l141 = (_zz_when_PhysicalRegFile_l141 && (_zz_when_PhysicalRegFile_l141_1 != 6'h0));
+  assign _zz_43 = 3'b000;
+  assign _zz_44 = 3'b001;
+  assign _zz_45 = 3'b001;
+  assign _zz_46 = 3'b010;
+  assign _zz_47 = 3'b001;
+  assign _zz_48 = 3'b010;
+  assign _zz_49 = 3'b010;
+  assign _zz_50 = 3'b011;
+  assign _zz_when_PhysicalRegFile_l136_2 = {LoadQueuePlugin_hw_prfWritePort_valid,{LsuEU_LsuEuPlugin_gprWritePort_valid,{BranchEU_BranchEuPlugin_gprWritePort_valid,AluIntEU_AluIntEuPlugin_gprWritePort_valid}}};
+  assign _zz_when_PhysicalRegFile_l136_3 = (_zz_when_PhysicalRegFile_l136_2 & (~ _zz__zz_when_PhysicalRegFile_l136_3));
+  assign _zz_when_PhysicalRegFile_l136_4 = _zz_when_PhysicalRegFile_l136_3[1];
+  assign _zz_when_PhysicalRegFile_l136_5 = _zz_when_PhysicalRegFile_l136_3[2];
+  assign _zz_when_PhysicalRegFile_l136_6 = _zz_when_PhysicalRegFile_l136_3[3];
+  assign _zz_when_PhysicalRegFile_l136 = (|{_zz_when_PhysicalRegFile_l136_6,{_zz_when_PhysicalRegFile_l136_5,{_zz_when_PhysicalRegFile_l136_4,AluIntEU_AluIntEuPlugin_gprWritePort_valid}}});
+  assign _zz_PhysicalRegFilePlugin_logic_regFile_0_1 = (_zz_when_PhysicalRegFile_l136_4 || _zz_when_PhysicalRegFile_l136_6);
+  assign _zz_PhysicalRegFilePlugin_logic_regFile_0_2 = (_zz_when_PhysicalRegFile_l136_5 || _zz_when_PhysicalRegFile_l136_6);
+  assign _zz_PhysicalRegFilePlugin_logic_regFile_0_3 = {_zz_PhysicalRegFilePlugin_logic_regFile_0_2,_zz_PhysicalRegFilePlugin_logic_regFile_0_1};
+  assign _zz_when_PhysicalRegFile_l136_1 = _zz__zz_when_PhysicalRegFile_l136_1;
+  assign _zz_PhysicalRegFilePlugin_logic_regFile_0 = _zz__zz_PhysicalRegFilePlugin_logic_regFile_0;
+  assign when_PhysicalRegFile_l136 = (_zz_when_PhysicalRegFile_l136 && (_zz_when_PhysicalRegFile_l136_1 != 6'h0));
+  assign _zz_51 = ({63'd0,1'b1} <<< _zz_when_PhysicalRegFile_l136_1);
+  assign when_PhysicalRegFile_l141 = (_zz_when_PhysicalRegFile_l136 && (_zz_when_PhysicalRegFile_l136_1 != 6'h0));
   assign _zz_when_PhysicalRegFile_l150 = 3'b000;
   assign _zz_when_PhysicalRegFile_l150_1 = 3'b001;
   assign _zz_when_PhysicalRegFile_l150_2 = 3'b001;
@@ -18738,11 +19254,11 @@ module CoreNSCSCC (
   assign _zz_when_PhysicalRegFile_l150_6 = 3'b010;
   assign _zz_when_PhysicalRegFile_l150_7 = 3'b011;
   assign when_PhysicalRegFile_l150 = (3'b001 < _zz_when_PhysicalRegFile_l150_8);
-  assign _zz_51 = 8'he0;
+  assign _zz_52 = 8'he0;
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush = StoreBufferPlugin_logic_slots_0_isFlush;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_56) begin
+      if(_zz_57) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush;
       end
     end
@@ -18754,7 +19270,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_addr = StoreBufferPlugin_logic_slots_0_addr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_56) begin
+      if(_zz_57) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_addr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr;
       end
     end
@@ -18766,7 +19282,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_data = StoreBufferPlugin_logic_slots_0_data;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_56) begin
+      if(_zz_57) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_data = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data;
       end
     end
@@ -18778,7 +19294,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_be = StoreBufferPlugin_logic_slots_0_be;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_56) begin
+      if(_zz_57) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_be = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_be;
       end
     end
@@ -18790,7 +19306,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr = StoreBufferPlugin_logic_slots_0_robPtr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_56) begin
+      if(_zz_57) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr;
       end
     end
@@ -18802,7 +19318,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize = StoreBufferPlugin_logic_slots_0_accessSize;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_56) begin
+      if(_zz_57) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize;
       end
     end
@@ -18814,7 +19330,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO = StoreBufferPlugin_logic_slots_0_isIO;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_56) begin
+      if(_zz_57) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO;
       end
     end
@@ -18826,7 +19342,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_valid = StoreBufferPlugin_logic_slots_0_valid;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_56) begin
+      if(_zz_57) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_valid = 1'b1;
       end
     end
@@ -18841,7 +19357,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException = StoreBufferPlugin_logic_slots_0_hasEarlyException;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_56) begin
+      if(_zz_57) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException;
       end
     end
@@ -18858,7 +19374,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode = StoreBufferPlugin_logic_slots_0_earlyExceptionCode;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_56) begin
+      if(_zz_57) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode;
       end
     end
@@ -18875,7 +19391,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_isCommitted = StoreBufferPlugin_logic_slots_0_isCommitted;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_56) begin
+      if(_zz_57) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_isCommitted = 1'b0;
       end
     end
@@ -18894,7 +19410,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_sentCmd = StoreBufferPlugin_logic_slots_0_sentCmd;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_56) begin
+      if(_zz_57) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_sentCmd = 1'b0;
       end
     end
@@ -18923,7 +19439,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_waitRsp = StoreBufferPlugin_logic_slots_0_waitRsp;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_56) begin
+      if(_zz_57) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_waitRsp = 1'b0;
       end
     end
@@ -18947,7 +19463,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForRefill = StoreBufferPlugin_logic_slots_0_isWaitingForRefill;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_56) begin
+      if(_zz_57) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForRefill = 1'b0;
       end
     end
@@ -18969,7 +19485,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForWb = StoreBufferPlugin_logic_slots_0_isWaitingForWb;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_56) begin
+      if(_zz_57) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForWb = 1'b0;
       end
     end
@@ -18991,7 +19507,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_refillSlotToWatch = StoreBufferPlugin_logic_slots_0_refillSlotToWatch;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_56) begin
+      if(_zz_57) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_refillSlotToWatch = 2'b00;
       end
     end
@@ -19010,7 +19526,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_isFlush = StoreBufferPlugin_logic_slots_1_isFlush;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_57) begin
+      if(_zz_58) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_isFlush = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush;
       end
     end
@@ -19022,7 +19538,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_addr = StoreBufferPlugin_logic_slots_1_addr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_57) begin
+      if(_zz_58) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_addr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr;
       end
     end
@@ -19034,7 +19550,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_data = StoreBufferPlugin_logic_slots_1_data;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_57) begin
+      if(_zz_58) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_data = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data;
       end
     end
@@ -19046,7 +19562,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_be = StoreBufferPlugin_logic_slots_1_be;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_57) begin
+      if(_zz_58) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_be = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_be;
       end
     end
@@ -19058,7 +19574,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_robPtr = StoreBufferPlugin_logic_slots_1_robPtr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_57) begin
+      if(_zz_58) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_robPtr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr;
       end
     end
@@ -19070,7 +19586,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_accessSize = StoreBufferPlugin_logic_slots_1_accessSize;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_57) begin
+      if(_zz_58) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_accessSize = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize;
       end
     end
@@ -19082,7 +19598,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_isIO = StoreBufferPlugin_logic_slots_1_isIO;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_57) begin
+      if(_zz_58) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_isIO = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO;
       end
     end
@@ -19094,7 +19610,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_valid = StoreBufferPlugin_logic_slots_1_valid;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_57) begin
+      if(_zz_58) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_valid = 1'b1;
       end
     end
@@ -19109,7 +19625,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_hasEarlyException = StoreBufferPlugin_logic_slots_1_hasEarlyException;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_57) begin
+      if(_zz_58) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_hasEarlyException = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException;
       end
     end
@@ -19121,7 +19637,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_earlyExceptionCode = StoreBufferPlugin_logic_slots_1_earlyExceptionCode;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_57) begin
+      if(_zz_58) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_earlyExceptionCode = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode;
       end
     end
@@ -19133,7 +19649,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_isCommitted = StoreBufferPlugin_logic_slots_1_isCommitted;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_57) begin
+      if(_zz_58) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_isCommitted = 1'b0;
       end
     end
@@ -19152,7 +19668,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_sentCmd = StoreBufferPlugin_logic_slots_1_sentCmd;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_57) begin
+      if(_zz_58) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_sentCmd = 1'b0;
       end
     end
@@ -19164,7 +19680,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_waitRsp = StoreBufferPlugin_logic_slots_1_waitRsp;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_57) begin
+      if(_zz_58) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_waitRsp = 1'b0;
       end
     end
@@ -19176,7 +19692,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_isWaitingForRefill = StoreBufferPlugin_logic_slots_1_isWaitingForRefill;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_57) begin
+      if(_zz_58) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_isWaitingForRefill = 1'b0;
       end
     end
@@ -19188,7 +19704,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_isWaitingForWb = StoreBufferPlugin_logic_slots_1_isWaitingForWb;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_57) begin
+      if(_zz_58) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_isWaitingForWb = 1'b0;
       end
     end
@@ -19200,7 +19716,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_refillSlotToWatch = StoreBufferPlugin_logic_slots_1_refillSlotToWatch;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_57) begin
+      if(_zz_58) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_refillSlotToWatch = 2'b00;
       end
     end
@@ -19212,7 +19728,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_isFlush = StoreBufferPlugin_logic_slots_2_isFlush;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_58) begin
+      if(_zz_59) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_isFlush = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush;
       end
     end
@@ -19224,7 +19740,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_addr = StoreBufferPlugin_logic_slots_2_addr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_58) begin
+      if(_zz_59) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_addr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr;
       end
     end
@@ -19236,7 +19752,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_data = StoreBufferPlugin_logic_slots_2_data;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_58) begin
+      if(_zz_59) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_data = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data;
       end
     end
@@ -19248,7 +19764,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_be = StoreBufferPlugin_logic_slots_2_be;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_58) begin
+      if(_zz_59) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_be = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_be;
       end
     end
@@ -19260,7 +19776,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_robPtr = StoreBufferPlugin_logic_slots_2_robPtr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_58) begin
+      if(_zz_59) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_robPtr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr;
       end
     end
@@ -19272,7 +19788,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_accessSize = StoreBufferPlugin_logic_slots_2_accessSize;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_58) begin
+      if(_zz_59) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_accessSize = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize;
       end
     end
@@ -19284,7 +19800,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_isIO = StoreBufferPlugin_logic_slots_2_isIO;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_58) begin
+      if(_zz_59) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_isIO = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO;
       end
     end
@@ -19296,7 +19812,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_valid = StoreBufferPlugin_logic_slots_2_valid;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_58) begin
+      if(_zz_59) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_valid = 1'b1;
       end
     end
@@ -19311,7 +19827,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_hasEarlyException = StoreBufferPlugin_logic_slots_2_hasEarlyException;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_58) begin
+      if(_zz_59) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_hasEarlyException = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException;
       end
     end
@@ -19323,7 +19839,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_earlyExceptionCode = StoreBufferPlugin_logic_slots_2_earlyExceptionCode;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_58) begin
+      if(_zz_59) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_earlyExceptionCode = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode;
       end
     end
@@ -19335,7 +19851,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_isCommitted = StoreBufferPlugin_logic_slots_2_isCommitted;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_58) begin
+      if(_zz_59) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_isCommitted = 1'b0;
       end
     end
@@ -19354,7 +19870,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_sentCmd = StoreBufferPlugin_logic_slots_2_sentCmd;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_58) begin
+      if(_zz_59) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_sentCmd = 1'b0;
       end
     end
@@ -19366,7 +19882,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_waitRsp = StoreBufferPlugin_logic_slots_2_waitRsp;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_58) begin
+      if(_zz_59) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_waitRsp = 1'b0;
       end
     end
@@ -19378,7 +19894,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_isWaitingForRefill = StoreBufferPlugin_logic_slots_2_isWaitingForRefill;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_58) begin
+      if(_zz_59) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_isWaitingForRefill = 1'b0;
       end
     end
@@ -19390,7 +19906,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_isWaitingForWb = StoreBufferPlugin_logic_slots_2_isWaitingForWb;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_58) begin
+      if(_zz_59) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_isWaitingForWb = 1'b0;
       end
     end
@@ -19402,7 +19918,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_refillSlotToWatch = StoreBufferPlugin_logic_slots_2_refillSlotToWatch;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_58) begin
+      if(_zz_59) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_refillSlotToWatch = 2'b00;
       end
     end
@@ -19414,7 +19930,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_isFlush = StoreBufferPlugin_logic_slots_3_isFlush;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_59) begin
+      if(_zz_60) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_isFlush = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush;
       end
     end
@@ -19426,7 +19942,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_addr = StoreBufferPlugin_logic_slots_3_addr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_59) begin
+      if(_zz_60) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_addr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr;
       end
     end
@@ -19438,7 +19954,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_data = StoreBufferPlugin_logic_slots_3_data;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_59) begin
+      if(_zz_60) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_data = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data;
       end
     end
@@ -19450,7 +19966,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_be = StoreBufferPlugin_logic_slots_3_be;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_59) begin
+      if(_zz_60) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_be = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_be;
       end
     end
@@ -19462,7 +19978,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_robPtr = StoreBufferPlugin_logic_slots_3_robPtr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_59) begin
+      if(_zz_60) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_robPtr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr;
       end
     end
@@ -19474,7 +19990,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_accessSize = StoreBufferPlugin_logic_slots_3_accessSize;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_59) begin
+      if(_zz_60) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_accessSize = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize;
       end
     end
@@ -19486,7 +20002,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_isIO = StoreBufferPlugin_logic_slots_3_isIO;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_59) begin
+      if(_zz_60) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_isIO = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO;
       end
     end
@@ -19498,7 +20014,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_valid = StoreBufferPlugin_logic_slots_3_valid;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_59) begin
+      if(_zz_60) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_valid = 1'b1;
       end
     end
@@ -19513,7 +20029,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_hasEarlyException = StoreBufferPlugin_logic_slots_3_hasEarlyException;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_59) begin
+      if(_zz_60) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_hasEarlyException = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException;
       end
     end
@@ -19525,7 +20041,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_earlyExceptionCode = StoreBufferPlugin_logic_slots_3_earlyExceptionCode;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_59) begin
+      if(_zz_60) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_earlyExceptionCode = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode;
       end
     end
@@ -19537,7 +20053,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_isCommitted = StoreBufferPlugin_logic_slots_3_isCommitted;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_59) begin
+      if(_zz_60) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_isCommitted = 1'b0;
       end
     end
@@ -19556,7 +20072,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_sentCmd = StoreBufferPlugin_logic_slots_3_sentCmd;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_59) begin
+      if(_zz_60) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_sentCmd = 1'b0;
       end
     end
@@ -19568,7 +20084,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_waitRsp = StoreBufferPlugin_logic_slots_3_waitRsp;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_59) begin
+      if(_zz_60) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_waitRsp = 1'b0;
       end
     end
@@ -19580,7 +20096,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_isWaitingForRefill = StoreBufferPlugin_logic_slots_3_isWaitingForRefill;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_59) begin
+      if(_zz_60) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_isWaitingForRefill = 1'b0;
       end
     end
@@ -19592,7 +20108,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_isWaitingForWb = StoreBufferPlugin_logic_slots_3_isWaitingForWb;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_59) begin
+      if(_zz_60) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_isWaitingForWb = 1'b0;
       end
     end
@@ -19604,7 +20120,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_refillSlotToWatch = StoreBufferPlugin_logic_slots_3_refillSlotToWatch;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_59) begin
+      if(_zz_60) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_refillSlotToWatch = 2'b00;
       end
     end
@@ -20068,9 +20584,9 @@ module CoreNSCSCC (
   assign StoreBufferPlugin_logic_validFall_3 = (StoreBufferPlugin_logic_slots_2_valid && (! StoreBufferPlugin_logic_slots_3_valid));
   assign StoreBufferPlugin_logic_canPush = ((|{StoreBufferPlugin_logic_validFall_3,{StoreBufferPlugin_logic_validFall_2,{StoreBufferPlugin_logic_validFall_1,StoreBufferPlugin_logic_validFall_0}}}) && (! StoreBufferPlugin_logic_flushInProgress));
   assign StoreBufferPlugin_hw_pushPortInst_ready = StoreBufferPlugin_logic_canPush;
-  assign _zz_52 = (StoreBufferPlugin_logic_validFall_1 || StoreBufferPlugin_logic_validFall_3);
-  assign _zz_53 = (StoreBufferPlugin_logic_validFall_2 || StoreBufferPlugin_logic_validFall_3);
-  assign _zz_54 = {_zz_53,_zz_52};
+  assign _zz_53 = (StoreBufferPlugin_logic_validFall_1 || StoreBufferPlugin_logic_validFall_3);
+  assign _zz_54 = (StoreBufferPlugin_logic_validFall_2 || StoreBufferPlugin_logic_validFall_3);
+  assign _zz_55 = {_zz_54,_zz_53};
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush = StoreBufferPlugin_hw_pushPortInst_payload_isFlush;
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr = StoreBufferPlugin_hw_pushPortInst_payload_addr;
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data = StoreBufferPlugin_hw_pushPortInst_payload_data;
@@ -20080,11 +20596,11 @@ module CoreNSCSCC (
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO = StoreBufferPlugin_hw_pushPortInst_payload_isIO;
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException = StoreBufferPlugin_hw_pushPortInst_payload_hasEarlyException;
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode = StoreBufferPlugin_hw_pushPortInst_payload_earlyExceptionCode;
-  assign _zz_55 = ({3'd0,1'b1} <<< _zz_54);
-  assign _zz_56 = _zz_55[0];
-  assign _zz_57 = _zz_55[1];
-  assign _zz_58 = _zz_55[2];
-  assign _zz_59 = _zz_55[3];
+  assign _zz_56 = ({3'd0,1'b1} <<< _zz_55);
+  assign _zz_57 = _zz_56[0];
+  assign _zz_58 = _zz_56[1];
+  assign _zz_59 = _zz_56[2];
+  assign _zz_60 = _zz_56[3];
   assign StoreBufferPlugin_logic_sharedWriteCond = ((((((StoreBufferPlugin_logic_slots_0_valid && StoreBufferPlugin_logic_slots_0_isCommitted) && (! StoreBufferPlugin_logic_slots_0_isFlush)) && (! StoreBufferPlugin_logic_slots_0_waitRsp)) && (! StoreBufferPlugin_logic_slots_0_isWaitingForRefill)) && (! StoreBufferPlugin_logic_slots_0_isWaitingForWb)) && (! StoreBufferPlugin_logic_slots_0_hasEarlyException));
   assign StoreBufferPlugin_logic_canPopNormalOp = (StoreBufferPlugin_logic_sharedWriteCond && (! StoreBufferPlugin_logic_slots_0_isIO));
   assign StoreBufferPlugin_logic_canPopFlushOp = (((StoreBufferPlugin_logic_slots_0_valid && StoreBufferPlugin_logic_slots_0_isFlush) && (! StoreBufferPlugin_logic_slots_0_waitRsp)) && (! StoreBufferPlugin_logic_slots_0_isWaitingForWb));
@@ -21761,7 +22277,7 @@ module CoreNSCSCC (
   end
 
   assign io_output_fire = (SimpleFetchPipelinePlugin_logic_unpacker_io_output_valid && SimpleFetchPipelinePlugin_logic_s0_query_ready);
-  assign _zz_60 = (SimpleFetchPipelinePlugin_logic_pcOnRequest + 32'h00000008);
+  assign _zz_61 = (SimpleFetchPipelinePlugin_logic_pcOnRequest + 32'h00000008);
   assign when_SimpleFetchPipelinePlugin_l340 = (! SimpleFetchPipelinePlugin_logic_fetchDisable);
   assign SimpleFetchPipelinePlugin_logic_fsm_onExit_BOOT = ((SimpleFetchPipelinePlugin_logic_fsm_stateNext != SimpleFetchPipelinePlugin_logic_fsm_BOOT) && (SimpleFetchPipelinePlugin_logic_fsm_stateReg == SimpleFetchPipelinePlugin_logic_fsm_BOOT));
   assign SimpleFetchPipelinePlugin_logic_fsm_onExit_IDLE = ((SimpleFetchPipelinePlugin_logic_fsm_stateNext != SimpleFetchPipelinePlugin_logic_fsm_IDLE) && (SimpleFetchPipelinePlugin_logic_fsm_stateReg == SimpleFetchPipelinePlugin_logic_fsm_IDLE));
@@ -21954,6 +22470,70 @@ module CoreNSCSCC (
       LoadQueuePlugin_logic_loadQueue_slots_3_isStalledByDependency <= 1'b0;
       LoadQueuePlugin_logic_loadQueue_slots_3_isReadyForDCache <= 1'b0;
       LoadQueuePlugin_logic_loadQueue_slots_3_isWaitingForRsp <= 1'b0;
+      PhysicalRegFilePlugin_logic_regFile_0 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_1 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_2 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_3 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_4 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_5 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_6 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_7 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_8 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_9 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_10 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_11 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_12 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_13 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_14 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_15 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_16 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_17 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_18 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_19 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_20 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_21 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_22 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_23 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_24 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_25 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_26 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_27 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_28 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_29 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_30 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_31 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_32 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_33 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_34 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_35 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_36 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_37 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_38 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_39 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_40 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_41 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_42 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_43 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_44 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_45 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_46 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_47 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_48 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_49 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_50 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_51 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_52 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_53 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_54 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_55 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_56 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_57 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_58 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_59 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_60 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_61 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_62 <= 32'h0;
+      PhysicalRegFilePlugin_logic_regFile_63 <= 32'h0;
       StoreBufferPlugin_logic_slots_0_isFlush <= 1'b0;
       StoreBufferPlugin_logic_slots_0_addr <= 32'h0;
       StoreBufferPlugin_logic_slots_0_data <= 32'h0;
@@ -23150,10 +23730,10 @@ module CoreNSCSCC (
       if(AluIntEU_AluIntEuPlugin_gprReadPorts_0_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // PhysicalRegFile.scala:L109
+            assert(1'b0); // PhysicalRegFile.scala:L107
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:109):  [normal] [PRegPlugin] PRF Port %x read %x", AluIntEU_AluIntEuPlugin_gprReadPorts_0_address, _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp); // PhysicalRegFile.scala:L109
+              $display("NOTE(PhysicalRegFile.scala:107):  [normal] [PRegPlugin] PRF Port %x read %x", AluIntEU_AluIntEuPlugin_gprReadPorts_0_address, _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp); // PhysicalRegFile.scala:L107
             end
           `endif
         `endif
@@ -23161,10 +23741,10 @@ module CoreNSCSCC (
       if(AluIntEU_AluIntEuPlugin_gprReadPorts_1_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // PhysicalRegFile.scala:L109
+            assert(1'b0); // PhysicalRegFile.scala:L107
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:109):  [normal] [PRegPlugin] PRF Port %x read %x", AluIntEU_AluIntEuPlugin_gprReadPorts_1_address, _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp); // PhysicalRegFile.scala:L109
+              $display("NOTE(PhysicalRegFile.scala:107):  [normal] [PRegPlugin] PRF Port %x read %x", AluIntEU_AluIntEuPlugin_gprReadPorts_1_address, _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp); // PhysicalRegFile.scala:L107
             end
           `endif
         `endif
@@ -23172,10 +23752,10 @@ module CoreNSCSCC (
       if(BranchEU_BranchEuPlugin_gprReadPorts_0_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // PhysicalRegFile.scala:L109
+            assert(1'b0); // PhysicalRegFile.scala:L107
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:109):  [normal] [PRegPlugin] PRF Port %x read %x", BranchEU_BranchEuPlugin_gprReadPorts_0_address, _zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp); // PhysicalRegFile.scala:L109
+              $display("NOTE(PhysicalRegFile.scala:107):  [normal] [PRegPlugin] PRF Port %x read %x", BranchEU_BranchEuPlugin_gprReadPorts_0_address, _zz_BranchEU_BranchEuPlugin_gprReadPorts_0_rsp); // PhysicalRegFile.scala:L107
             end
           `endif
         `endif
@@ -23183,10 +23763,10 @@ module CoreNSCSCC (
       if(BranchEU_BranchEuPlugin_gprReadPorts_1_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // PhysicalRegFile.scala:L109
+            assert(1'b0); // PhysicalRegFile.scala:L107
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:109):  [normal] [PRegPlugin] PRF Port %x read %x", BranchEU_BranchEuPlugin_gprReadPorts_1_address, _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp); // PhysicalRegFile.scala:L109
+              $display("NOTE(PhysicalRegFile.scala:107):  [normal] [PRegPlugin] PRF Port %x read %x", BranchEU_BranchEuPlugin_gprReadPorts_1_address, _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp); // PhysicalRegFile.scala:L107
             end
           `endif
         `endif
@@ -23194,10 +23774,10 @@ module CoreNSCSCC (
       if(LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // PhysicalRegFile.scala:L109
+            assert(1'b0); // PhysicalRegFile.scala:L107
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:109):  [normal] [PRegPlugin] PRF Port %x read %x", LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_address, _zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp); // PhysicalRegFile.scala:L109
+              $display("NOTE(PhysicalRegFile.scala:107):  [normal] [PRegPlugin] PRF Port %x read %x", LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_address, _zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp); // PhysicalRegFile.scala:L107
             end
           `endif
         `endif
@@ -23205,13 +23785,217 @@ module CoreNSCSCC (
       if(LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // PhysicalRegFile.scala:L109
+            assert(1'b0); // PhysicalRegFile.scala:L107
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:109):  [normal] [PRegPlugin] PRF Port %x read %x", LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_address, _zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp); // PhysicalRegFile.scala:L109
+              $display("NOTE(PhysicalRegFile.scala:107):  [normal] [PRegPlugin] PRF Port %x read %x", LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_address, _zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp); // PhysicalRegFile.scala:L107
             end
           `endif
         `endif
+      end
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert((_zz_62 <= 3'b001)); // PhysicalRegFile.scala:L120
+        `else
+          if(!(_zz_62 <= 3'b001)) begin
+            $display("FAILURE PhysicalRegFilePlugin: Multiple write requests detected"); // PhysicalRegFile.scala:L120
+            $finish;
+          end
+        `endif
+      `endif
+      if(when_PhysicalRegFile_l136) begin
+        if(_zz_51[0]) begin
+          PhysicalRegFilePlugin_logic_regFile_0 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[1]) begin
+          PhysicalRegFilePlugin_logic_regFile_1 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[2]) begin
+          PhysicalRegFilePlugin_logic_regFile_2 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[3]) begin
+          PhysicalRegFilePlugin_logic_regFile_3 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[4]) begin
+          PhysicalRegFilePlugin_logic_regFile_4 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[5]) begin
+          PhysicalRegFilePlugin_logic_regFile_5 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[6]) begin
+          PhysicalRegFilePlugin_logic_regFile_6 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[7]) begin
+          PhysicalRegFilePlugin_logic_regFile_7 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[8]) begin
+          PhysicalRegFilePlugin_logic_regFile_8 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[9]) begin
+          PhysicalRegFilePlugin_logic_regFile_9 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[10]) begin
+          PhysicalRegFilePlugin_logic_regFile_10 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[11]) begin
+          PhysicalRegFilePlugin_logic_regFile_11 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[12]) begin
+          PhysicalRegFilePlugin_logic_regFile_12 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[13]) begin
+          PhysicalRegFilePlugin_logic_regFile_13 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[14]) begin
+          PhysicalRegFilePlugin_logic_regFile_14 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[15]) begin
+          PhysicalRegFilePlugin_logic_regFile_15 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[16]) begin
+          PhysicalRegFilePlugin_logic_regFile_16 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[17]) begin
+          PhysicalRegFilePlugin_logic_regFile_17 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[18]) begin
+          PhysicalRegFilePlugin_logic_regFile_18 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[19]) begin
+          PhysicalRegFilePlugin_logic_regFile_19 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[20]) begin
+          PhysicalRegFilePlugin_logic_regFile_20 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[21]) begin
+          PhysicalRegFilePlugin_logic_regFile_21 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[22]) begin
+          PhysicalRegFilePlugin_logic_regFile_22 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[23]) begin
+          PhysicalRegFilePlugin_logic_regFile_23 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[24]) begin
+          PhysicalRegFilePlugin_logic_regFile_24 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[25]) begin
+          PhysicalRegFilePlugin_logic_regFile_25 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[26]) begin
+          PhysicalRegFilePlugin_logic_regFile_26 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[27]) begin
+          PhysicalRegFilePlugin_logic_regFile_27 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[28]) begin
+          PhysicalRegFilePlugin_logic_regFile_28 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[29]) begin
+          PhysicalRegFilePlugin_logic_regFile_29 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[30]) begin
+          PhysicalRegFilePlugin_logic_regFile_30 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[31]) begin
+          PhysicalRegFilePlugin_logic_regFile_31 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[32]) begin
+          PhysicalRegFilePlugin_logic_regFile_32 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[33]) begin
+          PhysicalRegFilePlugin_logic_regFile_33 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[34]) begin
+          PhysicalRegFilePlugin_logic_regFile_34 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[35]) begin
+          PhysicalRegFilePlugin_logic_regFile_35 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[36]) begin
+          PhysicalRegFilePlugin_logic_regFile_36 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[37]) begin
+          PhysicalRegFilePlugin_logic_regFile_37 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[38]) begin
+          PhysicalRegFilePlugin_logic_regFile_38 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[39]) begin
+          PhysicalRegFilePlugin_logic_regFile_39 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[40]) begin
+          PhysicalRegFilePlugin_logic_regFile_40 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[41]) begin
+          PhysicalRegFilePlugin_logic_regFile_41 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[42]) begin
+          PhysicalRegFilePlugin_logic_regFile_42 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[43]) begin
+          PhysicalRegFilePlugin_logic_regFile_43 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[44]) begin
+          PhysicalRegFilePlugin_logic_regFile_44 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[45]) begin
+          PhysicalRegFilePlugin_logic_regFile_45 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[46]) begin
+          PhysicalRegFilePlugin_logic_regFile_46 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[47]) begin
+          PhysicalRegFilePlugin_logic_regFile_47 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[48]) begin
+          PhysicalRegFilePlugin_logic_regFile_48 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[49]) begin
+          PhysicalRegFilePlugin_logic_regFile_49 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[50]) begin
+          PhysicalRegFilePlugin_logic_regFile_50 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[51]) begin
+          PhysicalRegFilePlugin_logic_regFile_51 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[52]) begin
+          PhysicalRegFilePlugin_logic_regFile_52 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[53]) begin
+          PhysicalRegFilePlugin_logic_regFile_53 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[54]) begin
+          PhysicalRegFilePlugin_logic_regFile_54 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[55]) begin
+          PhysicalRegFilePlugin_logic_regFile_55 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[56]) begin
+          PhysicalRegFilePlugin_logic_regFile_56 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[57]) begin
+          PhysicalRegFilePlugin_logic_regFile_57 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[58]) begin
+          PhysicalRegFilePlugin_logic_regFile_58 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[59]) begin
+          PhysicalRegFilePlugin_logic_regFile_59 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[60]) begin
+          PhysicalRegFilePlugin_logic_regFile_60 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[61]) begin
+          PhysicalRegFilePlugin_logic_regFile_61 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[62]) begin
+          PhysicalRegFilePlugin_logic_regFile_62 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
+        if(_zz_51[63]) begin
+          PhysicalRegFilePlugin_logic_regFile_63 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
+        end
       end
       if(when_PhysicalRegFile_l141) begin
         `ifndef SYNTHESIS
@@ -23219,7 +24003,7 @@ module CoreNSCSCC (
             assert(1'b0); // PhysicalRegFile.scala:L142
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:142):  [normal] [PRegPlugin] PRF Port %x write %x (Arbitrated)", _zz_when_PhysicalRegFile_l141_1, _zz_49); // PhysicalRegFile.scala:L142
+              $display("NOTE(PhysicalRegFile.scala:142):  [normal] [PRegPlugin] PRF Port %x write %x (Arbitrated)", _zz_when_PhysicalRegFile_l136_1, _zz_PhysicalRegFilePlugin_logic_regFile_0); // PhysicalRegFile.scala:L142
             end
           `endif
         `endif
@@ -23231,7 +24015,7 @@ module CoreNSCSCC (
             assert(1'b0); // Debug.scala:L77
           `else
             if(!1'b0) begin
-              $display("NOTE(Debug.scala:77):  [DbgSvc] Set value to 0x%x", _zz_51); // Debug.scala:L77
+              $display("NOTE(Debug.scala:77):  [DbgSvc] Set value to 0x%x", _zz_52); // Debug.scala:L77
             end
           `endif
         `endif
@@ -23244,7 +24028,7 @@ module CoreNSCSCC (
             assert(1'b0); // StoreBufferPlugin.scala:L294
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:294):  [SQ] PUSH: robPtr=%x to slotIdx=%x", StoreBufferPlugin_hw_pushPortInst_payload_robPtr, _zz_54); // StoreBufferPlugin.scala:L294
+              $display("NOTE(StoreBufferPlugin.scala:294):  [SQ] PUSH: robPtr=%x to slotIdx=%x", StoreBufferPlugin_hw_pushPortInst_payload_robPtr, _zz_55); // StoreBufferPlugin.scala:L294
             end
           `endif
         `endif
@@ -24346,7 +25130,7 @@ module CoreNSCSCC (
                 assert(1'b0); // SimpleFetchPipelinePlugin.scala:L373
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SimpleFetchPipelinePlugin.scala:373):  [Fetch-FSM] UPDATE_PC: Normal PC update from 0x%x to 0x%x", SimpleFetchPipelinePlugin_logic_pcOnRequest, _zz_60); // SimpleFetchPipelinePlugin.scala:L373
+                  $display("NOTE(SimpleFetchPipelinePlugin.scala:373):  [Fetch-FSM] UPDATE_PC: Normal PC update from 0x%x to 0x%x", SimpleFetchPipelinePlugin_logic_pcOnRequest, _zz_61); // SimpleFetchPipelinePlugin.scala:L373
                 end
               `endif
             `endif

@@ -10,11 +10,6 @@ import parallax.components.execute.IntAlu
 import parallax.utilities.ParallaxSim
 import parallax.components.issue.IQEntryAluInt
 
-case class AluIntEuSignals(val pipelineConfig: PipelineConfig) {
-  val S1_RS1_DATA = Stageable(Bits(pipelineConfig.dataWidth))
-  val S1_RS2_DATA = Stageable(Bits(pipelineConfig.dataWidth))
-}
-
 class AluIntEuPlugin(
     override val euName: String,
     override val pipelineConfig: PipelineConfig
@@ -38,8 +33,6 @@ class AluIntEuPlugin(
   // 将 IntAlu 实例化移到插件的主体中
   val intAlu = new IntAlu(pipelineConfig)
   
-  lazy val signals = AluIntEuSignals(pipelineConfig)
-
   // 实现新的抽象方法
   override def buildEuLogic(): Unit = {
     ParallaxLogger.log(s"[AluInt ${euName}] Logic start definition.")

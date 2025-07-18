@@ -97,12 +97,10 @@ class PhysicalRegFilePlugin(
     // 标记逻辑开始执行
     logicExecuted = true
 
-    val regFile = Mem.fill(numPhysRegs)(Bits(dataWidth))
-    // Initialize all physical registers to 0, especially physical register 0
-    regFile.init(Seq.fill(numPhysRegs)(B(0, dataWidth)))
+    val regFile = Vec(RegInit(B(0, dataWidth)), numPhysRegs)
 
     readPortRequests.zipWithIndex.foreach { case (externalPort, i) =>
-      val data = Mux(externalPort.address === 0, B(0, dataWidth), regFile.readAsync(address = externalPort.address))
+      val data = Mux(externalPort.address === 0, B(0, dataWidth), regFile(externalPort.address))
       externalPort.rsp := data
       ParallaxLogger.log(s"[PRegPlugin] PRF Port $i 已连接")
       when(externalPort.valid) {
@@ -118,6 +116,9 @@ class PhysicalRegFilePlugin(
       // 1. 获取所有写请求的有效信号
       val writeValids = Vec(writePortRequests.map(_.valid))
 
+      // 实际上不应该产生并发写，如果有一定是bug
+      assert(CountOne(writeValids) <= 1, "PhysicalRegFilePlugin: Multiple write requests detected")
+
       // 2. 生成一个one-hot的授权信号 (grant)，只有第一个有效的请求对应的位为1
       // OHMasking.first 正是用于固定优先级仲裁
       val writeGrants = OHMasking.first(writeValids)
@@ -131,11 +132,10 @@ class PhysicalRegFilePlugin(
       arbitratedWrite.data := MuxOH(writeGrants, writePortRequests.map(_.data))
 
       // 4. 使用仲裁后胜出的端口执行唯一的物理写操作
-      regFile.write(
-        address = arbitratedWrite.address,
-        data = arbitratedWrite.data,
-        enable = arbitratedWrite.valid && (arbitratedWrite.address =/= 0)
-      )
+      when(arbitratedWrite.valid && (arbitratedWrite.address =/= 0))
+      {
+        regFile(arbitratedWrite.address) := arbitratedWrite.data
+      }
 
       // 仿真和编译日志
       when(arbitratedWrite.valid && (arbitratedWrite.address =/= 0)) {

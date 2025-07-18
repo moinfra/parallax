@@ -668,6 +668,35 @@ class LabSpec extends CustomSpinalSimFunSuite {
     }
   }
 
+  test("a+b") {
+      val instructions_add_test = Seq(
+        addi_w(rd = 10, rj = 0, imm = 7),
+        addi_w(rd = 15, rj = 0, imm = 8),
+        add_w(rd = 12, rj = 15, rk = 10),
+        lu12i_w(rd = 13, imm = 0x80400000 >>> 12),
+        ori(rd = 13, rj = 13, imm = 0x80400000 & 0xfff),
+        st_w(rd = 12, rj = 13, offset = 0),
+        bne(rj = 12, rd = 0, offset = 0)
+      )
+
+      LabHelper.dumpBinary(instructions_add_test, "bin/plus_a_b_test.bin")
+  }
+
+
+  testOnly("1xor2") {
+      val instructions_add_test = Seq(
+        addi_w(rd = 10, rj = 0, imm = 4),
+        addi_w(rd = 15, rj = 0, imm = 1),
+        xor(rd = 12, rj = 15, rk = 10),
+        lu12i_w(rd = 13, imm = 0x80400000 >>> 12),
+        ori(rd = 13, rj = 13, imm = 0x80400000 & 0xfff),
+        st_w(rd = 12, rj = 13, offset = 0),
+        bne(rj = 12, rd = 0, offset = 0)
+      )
+
+      LabHelper.dumpBinary(instructions_add_test, "bin/xor_a_b_test.bin")
+  }
+
   test("Isolate Data Register r14") {
     val instructions = Seq(
       // 使用 r14 (来自失败的测试) 作为数据寄存器
@@ -681,8 +710,8 @@ class LabSpec extends CustomSpinalSimFunSuite {
       // 存储指令 st.w $t2, 0($t1)  (st.w r14, 0(r13))
       st_w(rd = 14, rj = 13, offset = 0),
 
-      // 停机
-      bne(rj = 12, rd = 0, offset = 0)
+      // 原地跳转
+      bne(rj = 14, rd = 0, offset = 0)
     )
     LabHelper.dumpBinary(instructions, "bin/isolate_r14_test.bin")
 
@@ -709,7 +738,7 @@ class LabSpec extends CustomSpinalSimFunSuite {
       println("--- Test for r14 PASSED ---")
     }
   }
-  testOnly("Isolate Address Register r4") {
+  test("Isolate Address Register r4") {
     val instructions = Seq(
       // 使用 r12 (来自成功的测试) 作为数据寄存器
       lu12i_w(rd = 12, imm = 0xbeef0000 >>> 12),
