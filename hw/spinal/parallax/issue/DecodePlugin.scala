@@ -48,6 +48,8 @@ class DecodePlugin(val issueConfig: PipelineConfig) extends Plugin with LockedIm
 
       val currentDecodedUop = DecodedUop(issueConfig)
       currentDecodedUop := decoder.io.decodedUop
+      val debugLA32RDecodedPhysSrc2 = RegNext(currentDecodedUop.archSrc2) addAttribute("MARK_DEBUG", "TRUE") addAttribute("DONT_TOUCH", "TRUE") setCompositeName(this, "debugLA32RDecodedPhysSrc2")
+      val debugLA32RRawInstruction = RegNext(rawInstructionsIn(i)) addAttribute("MARK_DEBUG", "TRUE") addAttribute("DONT_TOUCH", "TRUE") setCompositeName(this, "debugLA32RRawInstruction")
 
       // -- MODIFICATION START: Early NOP discard logic --
       
@@ -80,7 +82,9 @@ class DecodePlugin(val issueConfig: PipelineConfig) extends Plugin with LockedIm
       
       currentDecodedUop.branchPrediction.assignDontCare()
       when(!isNop)
-      {currentDecodedUop.branchPrediction := branchPrediction(i)}
+      {
+        currentDecodedUop.branchPrediction := branchPrediction(i)
+      }
       decodedUopsOutputVec(i) := currentDecodedUop
     }
 

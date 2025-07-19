@@ -4,15 +4,15 @@ import spinal.core._
 import spinal.lib._
 import parallax.common._
 import parallax.utilities.{Plugin, Service}
-import parallax.issue.FreeListControlService
+import parallax.issue._
 
 /**
  * SuperScalarFreeListPlugin wraps SuperScalarFreeList as a service provider.
  * This plugin provides FreeListControlService interface for other components.
  */
 class SuperScalarFreeListPlugin(
-    val flConfig: SuperScalarFreeListConfig
-) extends Plugin with FreeListControlService {
+    val flConfig: SimpleFreeListConfig
+) extends Plugin with SSFreeListControlService {
   
   val early_setup = create early new Area {
     val freeList = new SuperScalarFreeList(flConfig)

@@ -30,9 +30,9 @@ case class RatReadPort(config: RenameMapTableConfig) extends Bundle with IMaster
 
 // Bundle for a single write port
 case class RatWritePort(config: RenameMapTableConfig) extends Bundle with IMasterSlave {
-  val wen = Bool() // Input to RAT
-  val archReg = UInt(config.archRegIdxWidth) // Input to RAT
-  val physReg = UInt(config.physRegIdxWidth) // Input to RAT
+  val wen = Bool() default(False) // Input to RAT
+  val archReg = UInt(config.archRegIdxWidth) default(U(0, config.archRegIdxWidth)) // Input to RAT
+  val physReg = UInt(config.physRegIdxWidth) default(U(0, config.physRegIdxWidth)) // Input to RAT
 
   override def asMaster(): Unit = {
     // When this Bundle is used as a master port (e.g., on the component initiating a write)

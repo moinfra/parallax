@@ -106,9 +106,6 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
 
   // --- NEW: 将所有重复的验证逻辑提取到一个私有函数中 ---
   private def performValidation(cmd: ValidationInput): (Bool, UInt) = {
-    // 这个函数包含所有之前重复的计算逻辑
-    // 它返回一个元组: (is_error: Bool, sram_addr: UInt)
-
     // 1. 扩展操作数
     val virtualBaseAddressBitLength = if (config.virtualBaseAddress == 0) 1 else log2Up(config.virtualBaseAddress) + 1
     val maxAddressBitLength = Math.max(axiConfig.addressWidth, virtualBaseAddressBitLength)
@@ -120,10 +117,26 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
     val byte_offset_addr = addr_extended - vbase_extended
 
     // 3. 计算突发指标
+    // bytesPerBeat 本身就是2的幂
     val bytesPerBeat = if (axiConfig.useSize) U(1) << cmd.size else U(config.bytesPerWord)
+
+    // 关键改变：提取出位移量
+    // 如果 useSize 为真，位移量就是 cmd.size
+    // 如果 useSize 为假，位移量是 log2Up(config.bytesPerWord)
+    val shiftAmount = if (axiConfig.useSize) cmd.size else U(log2Up(config.bytesPerWord))
+    // 确保 shiftAmount 的位宽足够，以覆盖 cmd.size 的最大值和 log2Up 结果的最大值
+    // 通常 cmd.size 的位宽就足够了 (例如 3 或 4 位，可以表示 0-7 或 0-15 的位移)
+    val actualShiftAmount = shiftAmount.resize(log2Up(extendedWidth) + 1) // 确保位移量不会被截断，并且能够覆盖最大可能的位移
+
     val burst_len_extended = (cmd.len + 1).resize(extendedWidth)
-    val bytesPerBeat_extended = bytesPerBeat.resize(extendedWidth)
-    val end_byte_offset_addr = byte_offset_addr + burst_len_extended * bytesPerBeat_extended - bytesPerBeat_extended
+    // 根据代数优化后的表达式： (burst_len_extended - 1) * bytesPerBeat_extended
+    val actual_burst_beats = burst_len_extended - 1
+
+    // 将乘法替换为左移操作
+    // (burst_len_extended - 1) * (2^shiftAmount) 等价于 (burst_len_extended - 1) << shiftAmount
+    // 结果需要被resize到 extendedWidth，因为这是地址的位宽
+    val burst_bytes_offset_for_last_beat = (actual_burst_beats << actualShiftAmount).resize(extendedWidth)
+    val end_byte_offset_addr = byte_offset_addr + burst_bytes_offset_for_last_beat
 
     // 4. 执行对齐和兼容性检查
     val addr_aligned = (cmd.addr & (bytesPerBeat - 1).resize(cmd.addr.getWidth)) === 0

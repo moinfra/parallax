@@ -5,48 +5,18 @@ import spinal.lib._
 import parallax.utils.Encoders.PriorityEncoderOH
 import parallax.utilities.ParallaxLogger
 
-case class SuperScalarFreeListConfig(
-    numPhysRegs: Int,
-    // If true, phys regs NOT in numInitialArchMappings are initially free.
-    // If false, phys regs NOT in numInitialArchMappings are initially used.
-    resetToFull: Boolean = true,
-    // Number of phys regs (P0 to P(N-1)) initially mapped/reserved.
-    // These are NEVER free at reset. Default 1 to keep p0 reserved.
-    numInitialArchMappings: Int = 1,
-    numAllocatePorts: Int = 1,
-    numFreePorts: Int = 1
-) {
-  val physRegIdxWidth: BitCount = BitCount(log2Up(numPhysRegs))
-  require(numPhysRegs > 0)
-  require(
-    numInitialArchMappings >= 0 && numInitialArchMappings <= numPhysRegs,
-    "numInitialArchMappings must be between 0 and numPhysRegs"
-  )
-  require(numAllocatePorts > 0)
-  require(numFreePorts > 0)
-  
-  ParallaxLogger.log(
-    s"[SuperScalarFreeListConfig] numPhysRegs = ${numPhysRegs}, resetToFull = ${resetToFull}, " +
-    s"numInitialArchMappings = ${numInitialArchMappings}, numAllocatePorts = ${numAllocatePorts}, numFreePorts = ${numFreePorts}"
-  )
-
-  if(numInitialArchMappings == 1) {
-    println("WARNING: numInitialArchMappings is set to 1 which is very small. This may be a bug unless you surely only have one physical register.")
-  }
-}
-
-case class SuperScalarFreeListCheckpoint(config: SuperScalarFreeListConfig) extends Bundle {
+case class SuperScalarFreeListCheckpoint(config: SimpleFreeListConfig) extends Bundle {
   val freeMask = Bits(config.numPhysRegs bits)
 }
 
-case class SuperScalarFreeListAllocatePort(config: SuperScalarFreeListConfig) extends Bundle with IMasterSlave {
+case class SuperScalarFreeListAllocatePort(config: SimpleFreeListConfig) extends Bundle with IMasterSlave {
   val enable = Bool()
   val physReg = UInt(config.physRegIdxWidth)
   val success = Bool()
   override def asMaster(): Unit = { out(enable); in(physReg); in(success) }
 }
 
-case class SuperScalarFreeListFreePort(config: SuperScalarFreeListConfig) extends Bundle with IMasterSlave {
+case class SuperScalarFreeListFreePort(config: SimpleFreeListConfig) extends Bundle with IMasterSlave {
   val enable = Bool()
   val physReg = UInt(config.physRegIdxWidth)
   override def asMaster(): Unit = { out(enable); out(physReg) }
@@ -57,7 +27,7 @@ case class SuperScalarFreeListFreePort(config: SuperScalarFreeListConfig) extend
   }
 }
 
-case class SuperScalarFreeListIO(config: SuperScalarFreeListConfig) extends Bundle with IMasterSlave {
+case class SuperScalarFreeListIO(config: SimpleFreeListConfig) extends Bundle with IMasterSlave {
   // Allocate ports: requests N free physical registers
   val allocate = Vec(
     new SuperScalarFreeListAllocatePort(config),
@@ -93,7 +63,7 @@ case class SuperScalarFreeListIO(config: SuperScalarFreeListConfig) extends Bund
   }
 }
 
-class SuperScalarFreeList(val config: SuperScalarFreeListConfig) extends Component {
+class SuperScalarFreeList(val config: SimpleFreeListConfig) extends Component {
   val io = slave(SuperScalarFreeListIO(config))
   val enableLog = false
   val freeRegsMask = Reg(Bits(config.numPhysRegs bits)) setName ("freeRegsMask_reg")
@@ -104,13 +74,11 @@ class SuperScalarFreeList(val config: SuperScalarFreeListConfig) extends Compone
   // The 'resetToFull' flag determines the state of the remaining physical registers.
   initMask.clearAll() // Start with all physical registers marked as 'used' (False)
 
-  if (config.resetToFull) {
     // If resetToFull is true, mark physical registers from numInitialArchMappings
     // up to numPhysRegs-1 as 'free' (True).
     for (i <- config.numInitialArchMappings until config.numPhysRegs) {
       initMask(i) := True
     }
-  }
   // If resetToFull is false, initMask remains all False, meaning the free list is empty.
   // In both cases (resetToFull true or false), the first 'numInitialArchMappings' registers
   // (indices 0 to numInitialArchMappings-1) remain False (used) as per initMask.clearAll().

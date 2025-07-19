@@ -418,26 +418,22 @@ case class FpuCtrlFlags() extends Bundle {
   val opType = Bits(4 bits) // INVALID, ADD,SUB,MUL,DIV,FMA,SQRT,CVT,CMP,MINMAX,CLASS,MOV,SEL
   val fpSizeSrc1 = MemAccessSize() // S, D
   val fpSizeSrc2 = MemAccessSize()
-  val fpSizeSrc3 = MemAccessSize() // For FMA
   val fpSizeDest = MemAccessSize()
   val roundingMode = Bits(3 bits) // From instruction or CSR
   val isIntegerDest = Bool() // For FCVT.x.y
   val isSignedCvt = Bool() // For FCVT.x.y
   val fmaNegSrc1 = Bool()
-  val fmaNegSrc3 = Bool()
   val fcmpCond = Bits(5 bits)
 
   def setDefault(): this.type = {
     opType := 0
     fpSizeSrc1 := MemAccessSize.W // Default to Single Precision (Word)
     fpSizeSrc2 := MemAccessSize.W
-    fpSizeSrc3 := MemAccessSize.W
     fpSizeDest := MemAccessSize.W
     roundingMode := 0
     isIntegerDest := False
     isSignedCvt := False
     fmaNegSrc1 := False
-    fmaNegSrc3 := False
     fcmpCond := 0
     this
   }
@@ -448,13 +444,11 @@ case class FpuCtrlFlags() extends Bundle {
     opType #= 0
     fpSizeSrc1 #= MemAccessSize.W
     fpSizeSrc2 #= MemAccessSize.W
-    fpSizeSrc3 #= MemAccessSize.W
     fpSizeDest #= MemAccessSize.W
     roundingMode #= 0
     isIntegerDest #= false
     isSignedCvt #= false
     fmaNegSrc1 #= false
-    fmaNegSrc3 #= false
     fcmpCond #= 0
     this
   }
@@ -467,8 +461,6 @@ case class FpuCtrlFlags() extends Bundle {
       fpSizeSrc1,
       " fpSizeSrc2=",
       fpSizeSrc2,
-      " fpSizeSrc3=",
-      fpSizeSrc3,
       " fpSizeDest=",
       fpSizeDest,
       " roundingMode=",
@@ -479,8 +471,6 @@ case class FpuCtrlFlags() extends Bundle {
       isSignedCvt,
       " fmaNegSrc1=",
       fmaNegSrc1,
-      " fmaNegSrc3=",
-      fmaNegSrc3,
       " fcmpCond=",
       fcmpCond
     )
@@ -587,8 +577,6 @@ case class DecodedUop(val config: PipelineConfig) extends Bundle {
   val useArchSrc1 = Bool()
   val archSrc2 = ArchRegOperand(config)
   val useArchSrc2 = Bool()
-  val archSrc3 = ArchRegOperand(config) // For FMA, some LA ops and future ops
-  val useArchSrc3 = Bool()
   val usePcForAddr = Bool() // 是否使用pc寻址
   // Immediate Value (Sign/Zero extended as needed by the operation by decoder)
   val imm = Bits(config.dataWidth)
@@ -632,8 +620,6 @@ case class DecodedUop(val config: PipelineConfig) extends Bundle {
     useArchSrc1 := False
     archSrc2.setDefault()
     useArchSrc2 := False
-    archSrc3.setDefault()
-    useArchSrc3 := False
     
     usePcForAddr := False
 
@@ -676,8 +662,6 @@ case class DecodedUop(val config: PipelineConfig) extends Bundle {
     useArchSrc1 #= false
     archSrc2.setDefaultForSim()
     useArchSrc2 #= false
-    archSrc3.setDefaultForSim()
-    useArchSrc3 #= false
 
     usePcForAddr #= false
 
@@ -734,10 +718,7 @@ case class DecodedUop(val config: PipelineConfig) extends Bundle {
       " use=",
       useArchSrc2,
       "\n",
-      "    src3=",
-      archSrc3.format(),
       " use=",
-      useArchSrc3,
       "\n",
       "    imm=",
       imm,
@@ -830,8 +811,6 @@ case class RenameInfo(val config: PipelineConfig) extends Bundle {
   val physSrc2 = PhysicalRegOperand(config.physGprIdxWidth)
   val physSrc2IsFpr = Bool()
 
-  val physSrc3 = PhysicalRegOperand(config.physGprIdxWidth)
-  val physSrc3IsFpr = Bool()
 
   // Physical destination register
   val physDest = PhysicalRegOperand(config.physGprIdxWidth)
@@ -848,7 +827,6 @@ case class RenameInfo(val config: PipelineConfig) extends Bundle {
   def setDefault(): this.type = {
     physSrc1.setDefault(); physSrc1IsFpr := False
     physSrc2.setDefault(); physSrc2IsFpr := False
-    physSrc3.setDefault(); physSrc3IsFpr := False
     physDest.setDefault(); physDestIsFpr := False
     oldPhysDest.setDefault(); oldPhysDestIsFpr := False
     allocatesPhysDest := False
@@ -860,7 +838,6 @@ case class RenameInfo(val config: PipelineConfig) extends Bundle {
     import spinal.core.sim._
     physSrc1.setDefaultForSim(); physSrc1IsFpr #= false
     physSrc2.setDefaultForSim(); physSrc2IsFpr #= false
-    physSrc3.setDefaultForSim(); physSrc3IsFpr #= false
     physDest.setDefaultForSim(); physDestIsFpr #= false
     oldPhysDest.setDefaultForSim(); oldPhysDestIsFpr #= false
     allocatesPhysDest #= false
@@ -878,10 +855,6 @@ case class RenameInfo(val config: PipelineConfig) extends Bundle {
       physSrc2.format(),
       " physSrc2IsFpr=",
       physSrc2IsFpr,
-      " physSrc3=",
-      physSrc3.format(),
-      " physSrc3IsFpr=",
-      physSrc3IsFpr,
       " physDest=",
       physDest.format(),
       " physDestIsFpr=",

@@ -112,7 +112,6 @@ class MockControllerPlugin(pCfg: PipelineConfig) extends Plugin {
     // 设置不用的端口为空闲状态
     setup.ratControl.newCheckpointSavePort().setIdle()
     setup.ratControl.newCheckpointRestorePort().setIdle()
-    setup.flControl.newRestorePort().setIdle()
 
     // 获取 FreeList 的回收端口
     val freePorts = setup.flControl.getFreePorts()
@@ -167,7 +166,7 @@ class MockControllerPlugin(pCfg: PipelineConfig) extends Plugin {
 class SimpleIssuePipelineTestBench(
     val pCfg: PipelineConfig,
     val ratCfg: RenameMapTableConfig,
-    val flCfg: SuperScalarFreeListConfig
+    val flCfg: SimpleFreeListConfig
 ) extends Component {
 
   val io = new Bundle {
@@ -259,7 +258,6 @@ class SimpleIssuePipelineTestBench(
     issueEntryStage(issueSignals.RAW_INSTRUCTIONS_IN) := instructionVec
     issueEntryStage(issueSignals.VALID_MASK) := B"1"
     issueEntryStage(issueSignals.IS_FAULT_IN) := False
-    issueEntryStage(issueSignals.FLUSH_TARGET_PC) := 0
 
     robService.newRobFlushPort().setIdle()
 
@@ -296,9 +294,9 @@ class SimpleIssuePipelineSpec extends CustomSpinalSimFunSuite {
     numReadPorts = pCfg.renameWidth * 3,
     numWritePorts = pCfg.renameWidth
   )
-  val flCfg = SuperScalarFreeListConfig(
+  val flCfg = SimpleFreeListConfig(
     numPhysRegs = pCfg.physGprCount,
-    resetToFull = true,
+    
     numInitialArchMappings = pCfg.archGprCount,
     numAllocatePorts = pCfg.renameWidth,
     numFreePorts = pCfg.commitWidth

@@ -17,7 +17,7 @@ import parallax.utilities._ // 导入 Plugin, Service, ParallaxLogger, CustomSpi
 class CommitPluginTestBench(
     val pCfg: PipelineConfig,
     val ratConfig: RenameMapTableConfig,
-    val flConfig: SuperScalarFreeListConfig
+    val flConfig: SimpleFreeListConfig
 ) extends Component {
   val io = new Bundle {
     // Control interfaces
@@ -164,7 +164,7 @@ class CommitPluginTestBench(
 
 class CommitPluginSpec extends CustomSpinalSimFunSuite {
 
-  def createTestBenchConfig(): (PipelineConfig, RenameMapTableConfig, SuperScalarFreeListConfig) = {
+  def createTestBenchConfig(): (PipelineConfig, RenameMapTableConfig, SimpleFreeListConfig) = {
     val pCfg = PipelineConfig(
       commitWidth = 2,
       robDepth = 16,
@@ -179,9 +179,9 @@ class CommitPluginSpec extends CustomSpinalSimFunSuite {
       numReadPorts = 2,
       numWritePorts = 2
     )
-    val flConfig = SuperScalarFreeListConfig(
+    val flConfig = SimpleFreeListConfig(
       numPhysRegs = 16,
-      resetToFull = true,
+      
       numInitialArchMappings = 8,
       numAllocatePorts = 2,
       numFreePorts = 2

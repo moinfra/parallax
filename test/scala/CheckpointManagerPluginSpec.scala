@@ -15,7 +15,7 @@ import parallax.utilities._
 class CheckpointManagerRealTestBench(
     val pCfg: PipelineConfig,
     val ratConfig: RenameMapTableConfig,
-    val flConfig: SuperScalarFreeListConfig
+    val flConfig: SimpleFreeListConfig
 ) extends Component {
   val io = new Bundle {
     // Checkpoint controls
@@ -86,9 +86,9 @@ class CheckpointManagerPluginSpec extends CustomSpinalSimFunSuite {
       numReadPorts = 1,
       numWritePorts = 1
     )
-    val flConfig = SuperScalarFreeListConfig(
+    val flConfig = SimpleFreeListConfig(
       numPhysRegs = 8,
-      resetToFull = true,
+      
       numInitialArchMappings = 4,
       numAllocatePorts = 1,
       numFreePorts = 1
@@ -178,9 +178,9 @@ class CheckpointManagerPluginSpec extends CustomSpinalSimFunSuite {
       numReadPorts = 1,
       numWritePorts = 1
     )
-    val flConfig = SuperScalarFreeListConfig(
+    val flConfig = SimpleFreeListConfig(
       numPhysRegs = 8,
-      resetToFull = true,
+      
       numInitialArchMappings = 4,
       numAllocatePorts = 1,
       numFreePorts = 1
@@ -259,9 +259,9 @@ class CheckpointManagerPluginSpec extends CustomSpinalSimFunSuite {
       numReadPorts = 1,
       numWritePorts = 1
     )
-    val flConfig = SuperScalarFreeListConfig(
+    val flConfig = SimpleFreeListConfig(
       numPhysRegs = 8,
-      resetToFull = true,
+      
       numInitialArchMappings = 4,
       numAllocatePorts = 1,
       numFreePorts = 1
@@ -320,9 +320,9 @@ class CheckpointManagerPluginSpec extends CustomSpinalSimFunSuite {
       numReadPorts = 1,
       numWritePorts = 1
     )
-    val flConfig = SuperScalarFreeListConfig(
+    val flConfig = SimpleFreeListConfig(
       numPhysRegs = 8,
-      resetToFull = true,
+      
       numInitialArchMappings = 4,
       numAllocatePorts = 1,
       numFreePorts = 1
@@ -387,9 +387,9 @@ class CheckpointManagerPluginSpec extends CustomSpinalSimFunSuite {
       numReadPorts = 1,
       numWritePorts = 1
     )
-    val flConfig = SuperScalarFreeListConfig(
+    val flConfig = SimpleFreeListConfig(
       numPhysRegs = 8,
-      resetToFull = true,
+      
       numInitialArchMappings = 4,
       numAllocatePorts = 1,
       numFreePorts = 1
@@ -462,9 +462,9 @@ class CheckpointManagerPluginSpec extends CustomSpinalSimFunSuite {
       numReadPorts = 1,
       numWritePorts = 1
     )
-    val flConfig = SuperScalarFreeListConfig(
+    val flConfig = SimpleFreeListConfig(
       numPhysRegs = 8,
-      resetToFull = true,
+      
       numInitialArchMappings = 4,
       numAllocatePorts = 1,
       numFreePorts = 1
@@ -551,9 +551,9 @@ class CheckpointManagerPluginSpec extends CustomSpinalSimFunSuite {
       numReadPorts = 1,
       numWritePorts = 1
     )
-    val flConfig = SuperScalarFreeListConfig(
+    val flConfig = SimpleFreeListConfig(
       numPhysRegs = 8,
-      resetToFull = true,
+      
       numInitialArchMappings = 4,
       numAllocatePorts = 1,
       numFreePorts = 1

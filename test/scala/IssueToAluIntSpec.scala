@@ -70,9 +70,9 @@ class IssueToAluIntTestBench(val pCfg: PipelineConfig) extends Component {
   )
 
   
-  val flConfig = SuperScalarFreeListConfig(
+  val flConfig = SimpleFreeListConfig(
     numPhysRegs = pCfg.physGprCount,
-    resetToFull = true,
+    
     numInitialArchMappings = pCfg.archGprCount,
     numAllocatePorts = pCfg.renameWidth,
     numFreePorts = pCfg.commitWidth
@@ -141,7 +141,6 @@ new RenamePlugin(pCfg, renameMapConfig, flConfig),
   issueEntryStage(issueSignals.RAW_INSTRUCTIONS_IN) := instructionVec
   issueEntryStage(issueSignals.VALID_MASK) := B"1"
   issueEntryStage(issueSignals.IS_FAULT_IN) := False
-  issueEntryStage(issueSignals.FLUSH_TARGET_PC) := 0
 
   val prfService = framework.getService[PhysicalRegFileService]
   val prfReadPort = prfService.newPrfReadPort()

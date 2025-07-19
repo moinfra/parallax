@@ -8,82 +8,57 @@ import parallax.components.rob.ROBService
 import parallax.utilities.{Plugin, LockedImpl, ParallaxLogger}
 
 class RobAllocPlugin(val pCfg: PipelineConfig) extends Plugin with LockedImpl {
+
   val setup = create early new Area {
     val issuePpl = getService[IssuePipeline]
     val robService = getService[ROBService[RenamedUop]]
-    issuePpl.retain()
-    robService.retain()
+    issuePpl.retain(); robService.retain()
 
     val s2_rob_alloc = issuePpl.pipeline.s2_rob_alloc
-    s2_rob_alloc(issuePpl.signals.RENAMED_UOPS)
-    s2_rob_alloc(issuePpl.signals.ALLOCATED_UOPS) // 确保Stageable被注册
+    val signals = issuePpl.signals
   }
 
   val logic = create late new Area {
     lock.await()
-    val issuePpl = setup.issuePpl
     val s2_rob_alloc = setup.s2_rob_alloc
-    val issueSignals = issuePpl.signals
     val robService = setup.robService
+    val signals = setup.signals
 
-    // 【关键修正】: 从 s2_rob_alloc 的输入寄存器获取数据
-    // 这是从 s1_rename 阶段传递过来的 RenamedUop 数组
-    val renamedUopsInFromS1 = s2_rob_alloc(issueSignals.RENAMED_UOPS)
-    // 依然使用 renamedUopIn 这个名字，但它的数据源现在是正确的了
-    val renamedUopIn = renamedUopsInFromS1(0)
-    val decodedUop = renamedUopIn.decoded
-
-    // 接下来完全遵照你最初的实现结构
-    val robAllocPort = robService.getAllocatePorts(pCfg.renameWidth)(0)
-    
-    // 停顿逻辑
-    s2_rob_alloc.haltWhen(!robAllocPort.ready)
-
-    // 驱动ROB分配端口 - 这是避免LATCH的关键
-    // 无论 valid 是真是假，payload 都必须被驱动
-    robAllocPort.valid := s2_rob_alloc.isFiring && decodedUop.isValid
-    robAllocPort.pcIn  := decodedUop.pc
-    robAllocPort.uopIn := renamedUopIn
-
-    // 构造输出到 s3 的数据
-    // 再次使用你最初的、安全的、逐字段赋值的构造方式
     val robAllocPorts = robService.getAllocatePorts(pCfg.renameWidth)
-    val newUopsArray = Vec(RenamedUop(pCfg), pCfg.renameWidth)
-    for (i <- 0 until pCfg.renameWidth) {
-      // 数据源来自正确的流水线输入
-      val currentUopIn = renamedUopsInFromS1(i) 
-      
-      newUopsArray(i).decoded      := currentUopIn.decoded
-      newUopsArray(i).rename       := currentUopIn.rename
-      newUopsArray(i).uniqueId     := currentUopIn.uniqueId
-      newUopsArray(i).dispatched   := currentUopIn.dispatched
-      newUopsArray(i).executed     := currentUopIn.executed
-      newUopsArray(i).hasException := currentUopIn.hasException
-      newUopsArray(i).exceptionCode:= currentUopIn.exceptionCode
-      // 用从ROB获取的新指针覆盖旧的
-      newUopsArray(i).robPtr       := robAllocPorts(i).robPtr
-    }
-    s2_rob_alloc(issueSignals.ALLOCATED_UOPS) := newUopsArray
 
-    // 你最初的日志，也保留
-    when(s2_rob_alloc.isValid) {
-        report(L"RobAllocPlugin(s2): STAGE_VALID. isFiring=${s2_rob_alloc.isFiring}, uopValid=${decodedUop.isValid}, uopPC=${decodedUop.pc}")
-        report(L"  IN:  renamedUopIn.robPtr = ${renamedUopIn.robPtr}")
-        report(L"  ROB: robAllocPort.robPtr = ${robAllocPorts(0).robPtr}")
-        report(L"  OUT: Driving uopOut.robPtr with ${newUopsArray(0).robPtr}")
+    // 1. 停顿决策：只关心 ROB 是否已满
+    s2_rob_alloc.haltWhen(!robAllocPorts(0).ready)
+    
+    // 2. 驱动 ROB 分配端口
+    // 【关键】: 数据源是 RENAMED_UOPS
+    val finalRenamedUops = s2_rob_alloc(signals.RENAMED_UOPS)
+    
+    for (i <- 0 until pCfg.renameWidth) {
+        robAllocPorts(i).valid := s2_rob_alloc.isFiring && finalRenamedUops(i).decoded.isValid
+        robAllocPorts(i).pcIn  := finalRenamedUops(i).decoded.pc
+        robAllocPorts(i).uopIn := finalRenamedUops(i) // uopIn 现在是完整的 RenamedUop
+    }
+
+    // 3. 聚合信息，构造最终输出到 s3
+    val allocatedUops = Vec(RenamedUop(pCfg), pCfg.renameWidth)
+    for(i <- 0 until pCfg.renameWidth) {
+        val inUop = finalRenamedUops(i)
+        val outUop = allocatedUops(i)
+        
+        // --- 逐个字段赋值，现在 inUop.rename 是正确的了 ---
+        outUop.decoded      := inUop.decoded
+        outUop.rename       := inUop.rename // 现在这个赋值是正确的！
+        outUop.uniqueId     := inUop.uniqueId
+        outUop.dispatched   := inUop.dispatched
+        outUop.executed     := inUop.executed
+        outUop.hasException := inUop.hasException
+        outUop.exceptionCode:= inUop.exceptionCode
+        
+        outUop.robPtr       := robAllocPorts(i).robPtr
     }
     
-    val flush = new Area {
-      getServiceOption[HardRedirectService].foreach(hr => {
-        val doHardRedirect = hr.doHardRedirect()
-        when(doHardRedirect) {
-          s2_rob_alloc.flushIt()
-          report(L"RobAllocPlugin (s2): Flushing pipeline due to hard redirect")
-        }
-      })
-    }
-
-    issuePpl.release()
-    robService.release()
+    s2_rob_alloc(signals.ALLOCATED_UOPS) := allocatedUops
+    
+    setup.issuePpl.release(); setup.robService.release()
   }
 }

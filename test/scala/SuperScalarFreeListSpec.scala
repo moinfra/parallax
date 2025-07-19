@@ -7,7 +7,7 @@ import spinal.lib._
 import parallax.components.rename._ // Import your SuperScalarFreeList components
 
 // TestBench for SuperScalarFreeList
-class SuperScalarFreeListTestBench(val flConfig: SuperScalarFreeListConfig) extends Component {
+class SuperScalarFreeListTestBench(val flConfig: SimpleFreeListConfig) extends Component {
   val io = slave(SuperScalarFreeListIO(flConfig)) // Use SuperScalarFreeListIO
 
   val freeList = new SuperScalarFreeList(flConfig) // Instantiate SuperScalarFreeList
@@ -121,9 +121,9 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
   // --- Test Cases for SuperScalarFreeList ---
 
   test("SuperScalarFreeList - Initialization") {
-    val testConfig = SuperScalarFreeListConfig(
+    val testConfig = SimpleFreeListConfig(
       numPhysRegs = numTotalPhysRegs,
-      resetToFull = true,
+      
       numAllocatePorts = 2,
       numFreePorts = 1
     )
@@ -181,9 +181,9 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
 
   test("SuperScalarFreeList - Basic 2-wide Allocation") {
     val numAllocPorts = 2
-    val testConfig = SuperScalarFreeListConfig(
+    val testConfig = SimpleFreeListConfig(
       numPhysRegs = numTotalPhysRegs,
-      resetToFull = true,
+      
       numAllocatePorts = numAllocPorts,
       numFreePorts = 1
     )
@@ -264,9 +264,9 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
 
   test("SuperScalarFreeList - 2-wide Free") {
     val numFreePorts = 2
-    val testConfig = SuperScalarFreeListConfig(
+    val testConfig = SimpleFreeListConfig(
       numPhysRegs = numTotalPhysRegs,
-      resetToFull = true,
+      
       numAllocatePorts = 1,
       numFreePorts = numFreePorts
     )
@@ -324,9 +324,9 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
   }
 
   test("SuperScalarFreeList - Concurrent 2-Alloc, 1-Free (different regs)") {
-    val testConfig = SuperScalarFreeListConfig(
+    val testConfig = SimpleFreeListConfig(
       numPhysRegs = numTotalPhysRegs,
-      resetToFull = true,
+      
       numAllocatePorts = 2,
       numFreePorts = 1
     )
@@ -380,9 +380,9 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
   }
 
   test("SuperScalarFreeList - Checkpoint Save and Restore (2-wide alloc)") {
-    val testConfig = SuperScalarFreeListConfig(
+    val testConfig = SimpleFreeListConfig(
       numPhysRegs = numTotalPhysRegs,
-      resetToFull = true,
+      
       numAllocatePorts = 2,
       numFreePorts = 1
     )
@@ -441,53 +441,11 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
     }
   }
 
-  test("SuperScalarFreeList - Allocate with Limited Availability (e.g., 1 free, 2 alloc ports)") {
-    val numAllocPorts = 2
-    val testConfig = SuperScalarFreeListConfig(
-      numPhysRegs = numTotalPhysRegs,
-      resetToFull = false,
-      numAllocatePorts = numAllocPorts,
-      numFreePorts = 1
-    )
-    simConfig.compile(new SuperScalarFreeListTestBench(testConfig)).doSim(seed = 205) { dut =>
-      dut.clockDomain.forkStimulus(10)
-      initSimSuper(dut.io)
-      dut.clockDomain.waitSampling(); sleep(1)
-      assert(dut.io.numFreeRegs.toInt == 0, "Should be 0 free regs initially")
-
-      println("[TB Limited Avail] Manually freeing p1")
-      driveFreePorts(dut.io, Seq((true, 1)))
-      dut.clockDomain.waitSampling(); sleep(1)
-      driveFreePorts(dut.io, Seq((false, 0)))
-      dut.clockDomain.waitSampling(); sleep(1)
-      assert(dut.io.numFreeRegs.toInt == 1, "Should have 1 free reg (p1)")
-      assert((getInternalMask(dut) & (BigInt(1) << 1)) != 0, "p1 should be free in mask")
-
-      println("[TB Limited Avail] Try to allocate with 2 ports, only p1 is free")
-      driveAllocatePorts(dut.io, Seq(true, true)) // driveAllocatePorts has sleep(1)
-      checkAllocResults(
-        dut.io.allocate,
-        expectedSuccess = Seq(true, false), // Port 0 gets p1, Port 1 fails
-        expectedPhysRegs = Seq(Some(1), None)
-      )
-      val p1_alloc_port0 = dut.io.allocate(0).physReg.toInt
-
-      dut.clockDomain.waitSampling(); sleep(1) // Allocation takes effect
-
-      assert(p1_alloc_port0 == 1, "Port 0 should have allocated p1")
-      assert(dut.io.numFreeRegs.toInt == 0, "NumFreeRegs should be 0 after p1 is allocated")
-      assert((getInternalMask(dut) & (BigInt(1) << 1)) == 0, "p1 should be allocated in mask")
-
-      driveAllocatePorts(dut.io, Seq(false, false))
-      dut.clockDomain.waitSampling()
-    }
-  }
-
   test("SuperScalarFreeList - Freeing the Same Register on Multiple Ports Simultaneously") {
     val numFreePorts = 2
-    val testConfig = SuperScalarFreeListConfig(
+    val testConfig = SimpleFreeListConfig(
       numPhysRegs = numTotalPhysRegs,
-      resetToFull = true,
+      
       numAllocatePorts = 1,
       numFreePorts = numFreePorts
     )
@@ -518,9 +476,9 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
   }
 
   test("SuperScalarFreeList - Concurrent Allocate and Free Targeting the Same Register") {
-    val testConfig = SuperScalarFreeListConfig(
+    val testConfig = SimpleFreeListConfig(
       numPhysRegs = numTotalPhysRegs,
-      resetToFull = true,
+      
       numAllocatePorts = 1,
       numFreePorts = 1
     )
@@ -558,9 +516,9 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
 
   test("SuperScalarFreeList - Allocation Exhaustion and Recovery (2-alloc, 2-free)") {
     val numPorts = 2
-    val testConfig = SuperScalarFreeListConfig(
+    val testConfig = SimpleFreeListConfig(
       numPhysRegs = numTotalPhysRegs,
-      resetToFull = true,
+      
       numAllocatePorts = numPorts,
       numFreePorts = numPorts
     )
@@ -625,9 +583,9 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
   }
 
   test("SuperScalarFreeList - Restore to Partially Full then Allocate/Free") {
-    val testConfig = SuperScalarFreeListConfig(
+    val testConfig = SimpleFreeListConfig(
       numPhysRegs = numTotalPhysRegs,
-      resetToFull = true,
+      
       numAllocatePorts = 2,
       numFreePorts = 2
     )
@@ -682,9 +640,9 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
 
   test("SuperScalarFreeList - Freeing and Re-allocating an Initially Mapped Register") {
     val numArchRegsMapped = 4 // P0, P1, P2, P3 are initially "mapped" (not in free list)
-    val testConfig = SuperScalarFreeListConfig(
+    val testConfig = SimpleFreeListConfig(
       numPhysRegs = numTotalPhysRegs, // e.g., 16
-      resetToFull = true, // Other regs (P4 onwards) are free
+       // Other regs (P4 onwards) are free
       numInitialArchMappings = numArchRegsMapped,
       numAllocatePorts = 1,
       numFreePorts = 1
@@ -705,7 +663,7 @@ class SuperScalarFreeListSpec extends CustomSpinalSimFunSuite { // Or your custo
       )
 
       var initialMask = BigInt(0)
-      if (testConfig.resetToFull) {
+      if (true) {
         for (i <- numArchRegsMapped until numTotalPhysRegs) {
           initialMask |= (BigInt(1) << i)
         }

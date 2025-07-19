@@ -5,12 +5,7 @@ import spinal.core._
 import spinal.lib._
 import parallax.common.PipelineConfig
 import parallax.utilities.Service
-import parallax.components.rename.RatCheckpoint
-import parallax.components.rename.RatReadPort
-import parallax.components.rename.RatWritePort
-import parallax.components.rename.SuperScalarFreeListCheckpoint
-import parallax.components.rename.SuperScalarFreeListFreePort
-import parallax.components.rename.SuperScalarFreeListAllocatePort
+import parallax.components.rename._
 
 // RatCheckpoint 定义已经由您提供，这里不再重复
 
@@ -59,17 +54,31 @@ trait RatControlService extends Service {
  */
 trait FreeListControlService extends Service {
   /** 
-   * Get the current FreeList state for external checkpoint management.
-   * External components can read this to capture current free register state.
+   * Get ports for recycling physical registers.
+   * The Commit stage will drive these ports.
    */
-  def getCurrentFreeListState(): SuperScalarFreeListCheckpoint
-  
+  def getFreePorts(): Vec[SimpleFreeListFreePort]
+  def getAllocatePorts(): Vec[SimpleFreeListAllocatePort]
+  /** 
+   * Get a master port to command the FreeList to restore its state.
+   * The controller drives this stream.
+   */
+  def newRestorePort(): Bool
+  def getNumFreeRegs(): UInt
+}
+
+/**
+ * Service to expose control ports of the Free List.
+ */
+trait SSFreeListControlService extends Service {
   /** 
    * Get ports for recycling physical registers.
    * The Commit stage will drive these ports.
    */
   def getFreePorts(): Vec[SuperScalarFreeListFreePort]
   def getAllocatePorts(): Vec[SuperScalarFreeListAllocatePort]
+  def getCurrentFreeListState(): SuperScalarFreeListCheckpoint
+  
   /** 
    * Get a master port to command the FreeList to restore its state.
    * The controller drives this stream.

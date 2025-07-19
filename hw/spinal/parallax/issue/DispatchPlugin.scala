@@ -36,12 +36,8 @@ class DispatchPlugin(pCfg: PipelineConfig) extends Plugin with LockedImpl {
     val physSrc2 = uopIn.rename.physSrc2.idx
 
     // --- 检查与 physSrc1 的冲突 ---
-    val uopInS1 = setup.issuePpl.pipeline.s1_rename(setup.issuePpl.signals.RENAMED_UOPS)(0)
     val uopInS2 = setup.issuePpl.pipeline.s2_rob_alloc(setup.issuePpl.signals.ALLOCATED_UOPS)(0)
-    val physSrc1ConflictS1 = 
-        uopInS1.decoded.isValid && 
-        uopInS1.rename.allocatesPhysDest && 
-        uopInS1.rename.physDest.idx === physSrc1
+    val physSrc1ConflictS1 = False
     
     // 检查指令 X 的源，是否与指令 Z 的目标冲突
     val physSrc1ConflictS2 = 
@@ -50,10 +46,7 @@ class DispatchPlugin(pCfg: PipelineConfig) extends Plugin with LockedImpl {
         uopInS2.rename.physDest.idx === physSrc1
     
     // --- 检查与 physSrc2 的冲突 (逻辑同上) ---
-    val physSrc2ConflictS1 = 
-        uopInS1.decoded.isValid && 
-        uopInS1.rename.allocatesPhysDest && 
-        uopInS1.rename.physDest.idx === physSrc2
+    val physSrc2ConflictS1 = False
     
     val physSrc2ConflictS2 = 
         uopInS2.decoded.isValid &&
@@ -98,6 +91,9 @@ class DispatchPlugin(pCfg: PipelineConfig) extends Plugin with LockedImpl {
       } otherwise {
           port.payload.assignDontCare() // 在不驱动时，明确表示不关心payload的值
       }
+
+      val debugDispatchedUopSrc2 = RegNext(uopIn.rename.physSrc2.idx) addAttribute("MARK_DEBUG", "TRUE") addAttribute("DONT_TOUCH", "TRUE") setCompositeName(this, "debugDispatchedUopSrc2_iq" + i.toString())
+      val debugDispatchedUopSrc1 = RegNext(uopIn.rename.physSrc1.idx) addAttribute("MARK_DEBUG", "TRUE") addAttribute("DONT_TOUCH", "TRUE") setCompositeName(this, "debugDispatchedUopSrc1_iq" + i.toString())
     }
     
     // --- 日志和收尾 ---

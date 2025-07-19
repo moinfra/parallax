@@ -263,7 +263,7 @@ class LabSpec extends CustomSpinalSimFunSuite {
       assert(finalPC == successPC, s"Expected PC to be 0x${failPC.toString(16)} but got 0x${finalPC.toString(16)}. It seems the bug is fixed or the trigger is different.")
     }
   }
-// testOnly("GPR R1-R31 Correct Read/Write and Verify Test") {
+// test("GPR R1-R31 Correct Read/Write and Verify Test") {
 //     // 寄存器定义
 //     val BASE_REG = 30      // 主要的基址寄存器 (r30)
 //     val ERR_COUNT_REG = 29 // 错误计数器 (r29)
@@ -685,13 +685,13 @@ class LabSpec extends CustomSpinalSimFunSuite {
 
   testOnly("1xor2") {
       val instructions_add_test = Seq(
-        addi_w(rd = 10, rj = 0, imm = 4),
-        addi_w(rd = 15, rj = 0, imm = 1),
-        xor(rd = 12, rj = 15, rk = 10),
-        lu12i_w(rd = 13, imm = 0x80400000 >>> 12),
-        ori(rd = 13, rj = 13, imm = 0x80400000 & 0xfff),
-        st_w(rd = 12, rj = 13, offset = 0),
-        bne(rj = 12, rd = 0, offset = 0)
+        /*00*/addi_w(rd = 10, rj = 0, imm = 4),
+        /*04 */addi_w(rd = 0, rj = 0, imm = 0),
+        /*08*/xor(rd = 12, rj = 15, rk = 10),
+        /*0c*/lu12i_w(rd = 13, imm = 0x80400000 >>> 12),
+        /*10*/ori(rd = 13, rj = 13, imm = 0x80400000 & 0xfff),
+        /* */st_w(rd = 12, rj = 13, offset = 0),
+        /* */bne(rj = 12, rd = 0, offset = 0)
       )
 
       LabHelper.dumpBinary(instructions_add_test, "bin/xor_a_b_test.bin")

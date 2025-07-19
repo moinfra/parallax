@@ -45,7 +45,6 @@ class MockCommitControllerBru(pCfg: PipelineConfig) extends Plugin with CommitSe
   val logic = create late new Area {
     setup.ratControl.newCheckpointSavePort().setIdle()
     setup.ratControl.newCheckpointRestorePort().setIdle()
-    setup.flControl.newRestorePort().setIdle()
     val robFlushPort = setup.robService.newRobFlushPort()
     robFlushPort.setIdle()
 
@@ -91,9 +90,9 @@ class SimpleBruTestBench(val pCfg: PipelineConfig) extends Component {
   )
 
   
-  val flConfig = SuperScalarFreeListConfig(
+  val flConfig = SimpleFreeListConfig(
     numPhysRegs = pCfg.physGprCount,
-    resetToFull = true,
+    
     numInitialArchMappings = pCfg.archGprCount,
     numAllocatePorts = pCfg.renameWidth,
     numFreePorts = pCfg.commitWidth
@@ -156,7 +155,6 @@ new RenamePlugin(pCfg, renameMapConfig, flConfig),
   issueEntryStage(issueSignals.RAW_INSTRUCTIONS_IN) := instructionVec
   issueEntryStage(issueSignals.VALID_MASK) := B"1"
   issueEntryStage(issueSignals.IS_FAULT_IN) := False
-  issueEntryStage(issueSignals.FLUSH_TARGET_PC) := 0
 
   // 连接提交逻辑
   val commitSlot = robService.getCommitSlots(pCfg.commitWidth).head

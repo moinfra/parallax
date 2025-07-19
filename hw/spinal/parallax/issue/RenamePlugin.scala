@@ -13,152 +13,115 @@ import parallax.components.rename.BusyTableService
 class RenamePlugin(
     val pipelineConfig: PipelineConfig,
     val ratConfig: RenameMapTableConfig,
-    val flConfig: SuperScalarFreeListConfig
+    val flConfig: SimpleFreeListConfig
 ) extends Plugin
     with LockedImpl {
-  val enableLog = false
-  val early_setup = create early new Area {
+
+  val enableLog = true
+
+  // --- 服务和流水线阶段的早期设置 ---
+  val setup = create early new Area {
     val issuePpl = getService[IssuePipeline]
-    val busyTableService = getService[BusyTableService] // 获取服务
-
-    issuePpl.retain()
-    busyTableService.retain() // 保持服务
-
-    val renameUnit = new RenameUnit(pipelineConfig, ratConfig, flConfig)
+    val busyTableService = getService[BusyTableService]
     val rat = getService[RatControlService]
     val freeList = getService[FreeListControlService]
-    val setBusyPorts = busyTableService.newSetPort() // 获取set端口
+    val renameUnit = new RenameUnit(pipelineConfig, ratConfig, flConfig)
+    val btSetBusyPorts = busyTableService.newSetPort()
+
+    issuePpl.retain(); busyTableService.retain();
 
     val s1_rename = issuePpl.pipeline.s1_rename
-    s1_rename(issuePpl.signals.DECODED_UOPS)
-    s1_rename(issuePpl.signals.RENAMED_UOPS)
+    val s2_rob_alloc = issuePpl.pipeline.s2_rob_alloc
+    val signals = issuePpl.signals
   }
 
-  // --- MODIFICATION START: Simplified logic for Rename-only stage ---
+  // --- 核心逻辑实现 ---
   val logic = create late new Area {
     lock.await()
-    val issuePpl = early_setup.issuePpl
-    val s1_rename = early_setup.s1_rename
-    val issueSignals = issuePpl.signals
+    val issuePpl = setup.issuePpl
+    val s1_rename = setup.s1_rename
+    val s2_rob_alloc = setup.s2_rob_alloc
+    val signals = setup.signals
 
-    val renameUnit = early_setup.renameUnit
-    val rat = early_setup.rat
-    val freeList = early_setup.freeList
-    val setBusyPorts = early_setup.setBusyPorts
+    val rat = setup.rat
+    val freeList = setup.freeList
+    val busyTableService = setup.busyTableService
+    // 获取在 setup 中创建的 renameUnit 实例
+    val renameUnit = setup.renameUnit
 
-    // --- 1. Connect data paths ---
-    val decodedUopsIn = s1_rename(issueSignals.DECODED_UOPS)
-    renameUnit.io.decodedUopsIn := decodedUopsIn
+    // ================================================================
+    // ==           S1: 乐观请求与数据缓冲阶段                      ==
+    // ================================================================
+    val s1_logic = new Area {
+      val decodedUops = s1_rename(signals.DECODED_UOPS)
+      val needsPhysRegVec = Vec(decodedUops.map(_.writeArchDestEn))
 
-    for (i <- 0 until pipelineConfig.renameWidth) {
-      renameUnit.io.physRegsIn(i) := freeList.getAllocatePorts()(i).physReg
+      // 乐观地发出 FreeList 分配请求
+      for (i <- 0 until pipelineConfig.renameWidth) {
+        freeList.getAllocatePorts()(i).enable := s1_rename.isValid && needsPhysRegVec(i)
+      }
+
+      // 将请求掩码传递到 S2
+      s1_rename(signals.NEEDS_PHYS_REG) := needsPhysRegVec
     }
 
-    rat.getReadPorts() <> renameUnit.io.ratReadPorts
+    // ================================================================
+    // ==           S2: 验证、重命名与写回阶段                     ==
+    // ================================================================
+    val s2_logic = new Area {
+      val decodedUopsInS2 = s2_rob_alloc(signals.DECODED_UOPS)
+      val lastCycleNeedsPhysReg = s2_rob_alloc(signals.NEEDS_PHYS_REG)
+      val freeListPorts = freeList.getAllocatePorts()
 
-    // === RAT Write Port Arbitration ===
-    // Rename requests RAT write port (lower priority than commit)
-    val renameWriteReqs = Vec(Bool(), pipelineConfig.renameWidth)
-    val renameWriteData = Vec(RatWritePort(ratConfig), pipelineConfig.renameWidth)
+      // 1. 验证 FreeList 结果
+      val allocationOk = (0 until pipelineConfig.renameWidth).map { i =>
+        !lastCycleNeedsPhysReg(i) || freeListPorts(i).success
+      }.andR
 
-    for (i <- 0 until pipelineConfig.renameWidth) {
-      val ruPort = renameUnit.io.ratWritePorts(i)
-      renameWriteReqs(i) := ruPort.wen && s1_rename.isFiring
-      renameWriteData(i).wen := ruPort.wen && s1_rename.isFiring
-      renameWriteData(i).archReg := ruPort.archReg
-      renameWriteData(i).physReg := ruPort.physReg
-    }
+      // 2. 如果分配失败，暂停流水线 (RobAllocPlugin 会处理 ROB 满的暂停)
+      when(s2_rob_alloc.isValid && !allocationOk) {
+        s2_rob_alloc.haltIt()
+      }
 
-    // Note: Actual RAT write port assignment will be handled by arbitration logic
-    // For now, directly connect (will be overridden by CommitPlugin arbitration)
-    rat.getWritePorts.zip(renameUnit.io.ratWritePorts).foreach { case (ratPort, ruPort) =>
-      ratPort.wen := ruPort.wen && s1_rename.isFiring
-      ratPort.archReg := ruPort.archReg
-      ratPort.physReg := ruPort.physReg
-    }
+      // --- 核心修改：在 S2 中连接 renameUnit 的所有输入 ---
+      renameUnit.io.decodedUopsIn := decodedUopsInS2
+      rat.getReadPorts() <> renameUnit.io.ratReadPorts
+      for (i <- 0 until pipelineConfig.renameWidth) {
+        renameUnit.io.physRegsIn(i) := freeListPorts(i).physReg
+      }
 
-    // --- 2. Define HALT condition (only FreeList stall remains) ---
-    val willNeedPhysRegs = decodedUopsIn(0).isValid && decodedUopsIn(0).writeArchDestEn
-    val notEnoughPhysRegs = freeList.getNumFreeRegs < Mux(willNeedPhysRegs, U(1), U(0))
+      // renameUnit 是纯组合逻辑，其输出在 S2 立即有效
+      val finalRenamedUops = renameUnit.io.renamedUopsOut
 
-    val shouldHalt = notEnoughPhysRegs
-    s1_rename.haltWhen(shouldHalt)
+      // 3. 将结果放入 Stageable 供 RobAllocPlugin 使用
+      s2_rob_alloc(signals.RENAMED_UOPS)(0) := finalRenamedUops(0)
+      assert(!s2_rob_alloc.isFiring || allocationOk, "ASSERTION FAILED: Firing S2 stage with failed FreeList allocation!")
+      // 4. 写回状态表 (当流水线发射时)
+      rat.getWritePorts().zip(finalRenamedUops).foreach { case (ratPort, uop) =>
+        ratPort.wen := s2_rob_alloc.isFiring && uop.rename.allocatesPhysDest
+        ratPort.archReg := uop.decoded.archDest.idx
+        ratPort.physReg := uop.rename.physDest.idx
+      }
 
-    // 保留物理寄存器不足的调试日志
-    when(s1_rename.isValid && notEnoughPhysRegs) {
-      report(L"[RENAME] FREELIST STALL: Not enough physical registers")
-    }
-
-    // --- 3. Drive state-changing requests only when firing ---
-    val fire = s1_rename.isFiring
-    for (i <- 0 until pipelineConfig.renameWidth) {
-      val needsReg = renameUnit.io.numPhysRegsRequired > i
-      freeList.getAllocatePorts()(i).enable := fire && needsReg
-
-      // *** 驱动 BusyTable set 端口 ***
-      val uopOut = renameUnit.io.renamedUopsOut(i)
-      when(fire && uopOut.decoded.isValid && uopOut.rename.allocatesPhysDest) {
-        setBusyPorts(i).valid := True
-        setBusyPorts(i).payload := uopOut.rename.physDest.idx
-      } otherwise {
-        setBusyPorts(i).valid := False
-        setBusyPorts(i).payload.assignDontCare()
+      for (i <- 0 until pipelineConfig.renameWidth) {
+        val uopOut = finalRenamedUops(i)
+        setup.btSetBusyPorts(i).valid := s2_rob_alloc.isFiring && uopOut.rename.allocatesPhysDest
+        setup.btSetBusyPorts(i).payload := uopOut.rename.physDest.idx
       }
     }
 
-    if (enableLog)
-      report(L"DEBUG: s1_rename.isFiring=${s1_rename.isFiring}, decodedUopsIn(0).isValid=${decodedUopsIn(0).isValid}")
-    if (enableLog)
-      report(
-        L"DEBUG: s1_rename.isReady=${s1_rename.isReady}, s1_rename.isValid=${s1_rename.isValid}, willNeedPhysRegs=${willNeedPhysRegs}, notEnoughPhysRegs=${notEnoughPhysRegs}"
-      )
-
-    // --- 4. Connect outputs ---
-    // The output RenamedUop will have a garbage robPtr, which is fine.
-    // It will be overwritten in the next stage.
-    s1_rename(issueSignals.RENAMED_UOPS) := renameUnit.io.renamedUopsOut
-    s1_rename(issueSignals.RENAMED_UOPS)(0).rename.physSrc2.idx. addAttribute("mark_debug","TRUE")
-
-    // +++ FLUSH LOGIC INSERTION START +++
+    // Flush 逻辑，与您原来的一致
     val flush = new Area {
       getServiceOption[HardRedirectService].foreach(hr => {
         val doHardRedirect = hr.doHardRedirect()
         when(doHardRedirect) {
           s1_rename.flushIt()
-          report(L"DecodePlugin (s0_decode): Flushing pipeline due to hard redirect")
         }
       })
     }
-    // +++ FLUSH LOGIC INSERTION END +++
 
-    // val branchLimit = new Area {
-    //   getServiceOption[BranchCommitTrackerService].foreach(bct => {
-    //     getServiceOption[BranchResolveTrackerService].foreach(brt => {
-    //       report(
-    //         L"s1_rename.isFiring = ${s1_rename.isFiring}, decodedUopsIn(0).isValid = ${decodedUopsIn(0).isValid}, decodedUopsIn(0).isBranchOrJump = ${decodedUopsIn(0).isBranchOrJump}"
-    //       )
-    //       val handlingBranch = s1_rename.isFiring && decodedUopsIn(0).isValid && decodedUopsIn(0).isBranchOrJump
-    //       when(handlingBranch) {
-    //          // Rename 时分配了资源，因此+1，Commit 时释放资源，因此-1
-    //         bct.requestIncrement() := True
-    //         brt.requestIncrement() := True
-    //       }
-    //       val isFull = bct.isFull()
-    //       val willOverflow = isFull && decodedUopsIn(0).isValid && decodedUopsIn(0).isBranchOrJump
-    //       // 已经满了，但是又来一个分支指令，说明分支指令太多，需要暂停重命名阶段
-    //       when(willOverflow) {
-    //         report(L"BranchCommitTrackerService: isFull!!! RENAME STALL")
-    //       }
-    //       s1_rename.haltWhen(willOverflow) // 超出分支限制时暂停重命名阶段
-    //     })
-    //   })
-    //   if (getServiceOption[BranchCommitTrackerService].isEmpty) {
-    //     println("WARNING: BranchCommitTrackerService is not available")
-    //   }
-    // }
-
-    issuePpl.release()
-    early_setup.busyTableService.release() // 释放服务
+    // --- 资源释放 ---
+    setup.issuePpl.release();
+    setup.busyTableService.release();
   }
-  // --- MODIFICATION END --
 }

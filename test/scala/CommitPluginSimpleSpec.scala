@@ -15,7 +15,7 @@ import parallax.utilities._
  */
 class CommitPluginSimpleSpec extends CustomSpinalSimFunSuite {
 
-  def createTestConfig(): (PipelineConfig, RenameMapTableConfig, SuperScalarFreeListConfig) = {
+  def createTestConfig(): (PipelineConfig, RenameMapTableConfig, SimpleFreeListConfig) = {
     val pCfg = PipelineConfig(
       commitWidth = 2,
       robDepth = 8,
@@ -33,9 +33,9 @@ class CommitPluginSimpleSpec extends CustomSpinalSimFunSuite {
       numWritePorts = 4
     )
     
-    val flConfig = SuperScalarFreeListConfig(
+    val flConfig = SimpleFreeListConfig(
       numPhysRegs = 16,
-      resetToFull = true,
+      
       numInitialArchMappings = 8,
       numAllocatePorts = 2,
       numFreePorts = 2

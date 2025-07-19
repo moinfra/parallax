@@ -331,9 +331,8 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
     numWritePorts = pCfg.renameWidth
   )
 
-  val flConfig = SuperScalarFreeListConfig(
+  val flConfig = SimpleFreeListConfig(
     numPhysRegs = pCfg.physGprCount,
-    resetToFull = true,
     numInitialArchMappings = pCfg.archGprCount,
     numAllocatePorts = pCfg.renameWidth,
     numFreePorts = pCfg.commitWidth
@@ -407,14 +406,12 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
         issueEntryStage(signals.BRANCH_PREDICTION)(1).assignDontCare()
         issueEntryStage(signals.VALID_MASK) := B"01" // 只有第一条指令有效
         issueEntryStage(signals.IS_FAULT_IN) := False // 简化：假设无故障
-        issueEntryStage(signals.FLUSH_TARGET_PC) := 0
       } otherwise {
         issueEntryStage(signals.GROUP_PC_IN) := 0
         issueEntryStage(signals.RAW_INSTRUCTIONS_IN).assignDontCare()
         issueEntryStage(signals.BRANCH_PREDICTION).assignDontCare()
         issueEntryStage(signals.VALID_MASK) := B"00" // 无有效指令
         issueEntryStage(signals.IS_FAULT_IN) := False
-        issueEntryStage(signals.FLUSH_TARGET_PC) := 0
       }
       fetchOutput.ready := issueEntryStage.isReady
     }
@@ -444,7 +441,8 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
       // CheckpointManagerPlugin for proper branch prediction recovery
       new CheckpointManagerPlugin(pCfg, renameMapConfig, flConfig),
       new RenameMapTablePlugin(ratConfig = renameMapConfig),
-      new SuperScalarFreeListPlugin(flConfig),
+      // new SuperScalarFreeListPlugin(flConfig),
+      new SimpleFreeListPlugin(flConfig),
 
       // Core pipeline
       new IssuePipeline(pCfg),
@@ -596,7 +594,6 @@ object CoreNSCSCCGen extends App {
     defaultClockDomainFrequency = FixedFrequency(50 MHz),
     targetDirectory = "soc"
   )
-
   spinalConfig.generateVerilog(new CoreNSCSCC)
   println("CoreNSCSCC Verilog Generation DONE")
 

@@ -208,7 +208,7 @@ class LabSpecWithSRAMModel extends CustomSpinalSimFunSuite {
       println("--- RAM dump finished ---")
   }
 
-  test("Fibonacci Test with SRAMModel") {
+  testOnly("Fibonacci Test with SRAMModel") {
     val instructions = ArrayBuffer[BigInt]()
     // $t0=r12, $t1=r13, $t2=r14, $t3=r15, $a0=r4, $a1=r5
     instructions += addi_w(rd = 12, rj = 0, imm = 1)

@@ -90,7 +90,7 @@ class BranchInstructionTestBench(val pCfg: PipelineConfig) extends Component {
           numReadPorts = pCfg.renameWidth * 3,
           numWritePorts = pCfg.renameWidth
         ),
-        SuperScalarFreeListConfig(
+        SimpleFreeListConfig(
           numPhysRegs = pCfg.physGprCount,
           numAllocatePorts = pCfg.renameWidth,
           numFreePorts = pCfg.commitWidth

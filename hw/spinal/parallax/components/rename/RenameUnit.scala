@@ -28,7 +28,7 @@ case class RenameUnitIo(
 class RenameUnit(
     val pipelineConfig: PipelineConfig,
     val ratConfig: RenameMapTableConfig,
-    val freeListConfig: SuperScalarFreeListConfig
+    val freeListConfig: SimpleFreeListConfig
 ) extends Component {
 
   val io = slave(RenameUnitIo(pipelineConfig, ratConfig))
@@ -45,7 +45,6 @@ class RenameUnit(
   val physSrc1Port    = io.ratReadPorts(0)
   val physSrc2Port    = io.ratReadPorts(1)
   val oldDestReadPort = io.ratReadPorts(2)
-
   physSrc1Port.archReg    := Mux(decodedUop.useArchSrc1, decodedUop.archSrc1.idx, U(0))
   physSrc2Port.archReg    := Mux(decodedUop.useArchSrc2, decodedUop.archSrc2.idx, U(0))
   oldDestReadPort.archReg := Mux(uopNeedsNewPhysDest, decodedUop.archDest.idx, U(0))
@@ -71,10 +70,6 @@ class RenameUnit(
   // 对 physSrc2 进行赋值 - 同样不需要bypassing
   renameInfo.physSrc2.idx := physSrc2Port.physReg
   renameInfo.physSrc2IsFpr := decodedUop.archSrc2.isFPR
-
-  // 其他字段
-  renameInfo.physSrc3.setDefault()
-  renameInfo.physSrc3IsFpr := False
 
   // 目的寄存器相关信息
   when(uopNeedsNewPhysDest) {
@@ -112,4 +107,10 @@ class RenameUnit(
         )
     }
   }
+
+  // ILA
+  val debugDecodedArchSrc2 = RegNext(decodedUop.archSrc2.idx) addAttribute("MARK_DEBUG", "TRUE") addAttribute("DONT_TOUCH", "TRUE") setCompositeName(this, "debugDecodedArchSrc2")
+  val debugDecodedUseArchSrc2 = RegNext(decodedUop.useArchSrc2) addAttribute("MARK_DEBUG", "TRUE") addAttribute("DONT_TOUCH", "TRUE") setCompositeName(this, "debugDecodedUseArchSrc2")
+  val debugRenamedPhysSrc2 = RegNext(renameInfo.physSrc2.idx) addAttribute("MARK_DEBUG", "TRUE") addAttribute("DONT_TOUCH", "TRUE") setCompositeName(this, "debugRenamedPhysSrc2")
+
 }
