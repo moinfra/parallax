@@ -125,12 +125,14 @@ object LogicOp extends SpinalEnum {
 
 // --- Control Flags Sub-Bundles ---
 case class AluCtrlFlags() extends Bundle {
+  val valid = Bool()
   val isSub = Bool()
   val isAdd = Bool()
   val isSigned = Bool()
   val logicOp = LogicOp()
 
   def setDefault(): this.type = {
+    valid := False
     isSub := False
     isAdd := False
     isSigned := False
@@ -141,6 +143,7 @@ case class AluCtrlFlags() extends Bundle {
   def setDefaultForSim(): this.type = {
     import spinal.core.sim._
 
+    valid #= false
     isSub #= false
     isAdd #= false
     isSigned #= false
@@ -153,12 +156,14 @@ case class AluCtrlFlags() extends Bundle {
   }
 }
 case class ShiftCtrlFlags() extends Bundle {
+  val valid = Bool()
   val isRight = Bool()
   val isArithmetic = Bool()
   val isRotate = Bool()
   val isDoubleWord = Bool() // For RV64 shiftd, LA dsll/dsrl/dsra
 
   def setDefault(): this.type = {
+    valid := False
     isRight := False
     isArithmetic := False
     isRotate := False
@@ -169,6 +174,7 @@ case class ShiftCtrlFlags() extends Bundle {
   def setDefaultForSim(): this.type = {
     import spinal.core.sim._
 
+    valid := False
     isRight #= false
     isArithmetic #= false
     isRotate #= false
@@ -190,11 +196,13 @@ case class ShiftCtrlFlags() extends Bundle {
   }
 }
 case class MulDivCtrlFlags() extends Bundle {
+  val valid = Bool()
   val isDiv = Bool()
   val isSigned = Bool()
   val isWordOp = Bool() // For 32-bit ops in 64-bit mode (e.g., MULW, DIVW)
 
   def setDefault(): this.type = {
+    valid := False
     isDiv := False
     isSigned := False
     isWordOp := False
@@ -204,6 +212,7 @@ case class MulDivCtrlFlags() extends Bundle {
   def setDefaultForSim(): this.type = {
     import spinal.core.sim._
 
+    valid #= false
     isDiv #= false
     isSigned #= false
     isWordOp #= false

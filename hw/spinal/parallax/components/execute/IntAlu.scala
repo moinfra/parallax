@@ -7,23 +7,20 @@ import parallax.common._ // Assuming PipelineConfig, IQEntryAluInt, LogicOp etc.
 import parallax.utilities.ParallaxSim
 import parallax.components.issue.IQEntryAluInt
 
-// Define the SpinalEnum for ALU Exception Codes
 object IntAluExceptionCode extends SpinalEnum(binarySequential) {
-  // NONE should ideally be the first element if its value is intended to be 0
-  val NONE, UNDEFINED_ALU_OP, DISPATCH_TO_WRONG_EU, DECODE_EXCEPTION = newElement()
+  val NONE, UNDEFINED_ALU_OP = newElement()
 }
 
-// Define the payload for ALU output
 case class IntAluOutputPayload(config: PipelineConfig) extends Bundle with IMasterSlave {
   val data = Bits(config.dataWidth)
   val physDest = PhysicalRegOperand(config.physGprIdxWidth)
   val writesToPhysReg = Bool()
   val robPtr = UInt(config.robPtrWidth)
   val hasException = Bool()
-  val exceptionCode = IntAluExceptionCode() // Use the SpinalEnum type
+  val exceptionCode = IntAluExceptionCode()
 
   override def asMaster(): Unit = {
-    in(data, physDest, writesToPhysReg, robPtr, hasException, exceptionCode)
+    out(data, physDest, writesToPhysReg, robPtr, hasException, exceptionCode)
   }
 }
 
@@ -38,102 +35,79 @@ case class IntAluIO(config: PipelineConfig) extends Bundle with IMasterSlave {
 }
 
 class IntAlu(val config: PipelineConfig) extends Component {
-  // Use the new IntAluIO Bundle
   val io = slave(IntAluIO(config))
 
-  // --- Default outputs ---
-  // Output is valid if input is valid (combinational path)
+  // --- 默认输出 ---
   io.resultOut.valid := io.iqEntryIn.valid
-
-  // Default assignments for the payload. These are overridden when io.iqEntryIn.valid is true.
-  io.resultOut.payload.data := B(0)
-  io.resultOut.payload.physDest.idx := U(0) // Or use config.physGprIdxWidth for width if U(0) is ambiguous
+  io.resultOut.payload.data := 0
+  io.resultOut.payload.physDest.idx := 0
   io.resultOut.payload.writesToPhysReg := False
-  io.resultOut.payload.robPtr := U(0) // Or use config.robPtrWidth
+  io.resultOut.payload.robPtr := 0
   io.resultOut.payload.hasException := False
-  io.resultOut.payload.exceptionCode := IntAluExceptionCode.NONE // Default to NONE
+  io.resultOut.payload.exceptionCode := IntAluExceptionCode.NONE
 
-  // --- ALU Operation Logic ---
+  // --- 主要ALU逻辑 ---
   when(io.iqEntryIn.valid) {
     val iqEntry = io.iqEntryIn.payload
-
     val src1 = iqEntry.src1Data
     val src2 = iqEntry.src2Data
 
-    // Intermediate variables for results
-    val resultData = Bits(config.dataWidth)
-    var exceptionOccurred = False
-    var exceptionCodeVal = IntAluExceptionCode() // Use the SpinalEnum type
-
-    // Initialize with default/safe values for this valid transaction
-    resultData.assignDontCare() // Or B(0) if a specific default is safer before assignment
-    exceptionCodeVal := IntAluExceptionCode.NONE // Default to no exception for this transaction
-
-    // Pass through ROB index and destination info
+    // --- 1. 并行计算所有可能的结果 ---
+    val addResult = (src1.asUInt + src2.asUInt).asBits
+    val subResult = (src1.asUInt - src2.asUInt).asBits
+    val sltResult = Mux(src1.asSInt < src2.asSInt, U(1, config.dataWidth), U(0, config.dataWidth)).asBits
+    val andResult = src1 & src2
+    val orResult  = src1 | src2
+    val xorResult = src1 ^ src2
+    
+    val shiftAmount = Mux(
+      iqEntry.immUsage === ImmUsageType.SRC_SHIFT_AMT,
+      iqEntry.imm(log2Up(config.dataWidth.value)-1 downto 0).asUInt,
+      src2(log2Up(config.dataWidth.value)-1 downto 0).asUInt
+    )
+    val sllResult = (src1 << shiftAmount).resize(config.dataWidth)
+    val srlResult = (src1 >> shiftAmount).resize(config.dataWidth)
+    val sraResult = (src1.asSInt >> shiftAmount).resize(config.dataWidth).asBits
+    
+    // --- 2. 并行生成精确且互斥的选择条件 (现在基于 .valid 标志) ---
+    val isAddOp = iqEntry.aluCtrl.valid && iqEntry.aluCtrl.isAdd
+    val isSubOp = iqEntry.aluCtrl.valid && iqEntry.aluCtrl.isSub && !iqEntry.aluCtrl.isSigned
+    val isSltOp = iqEntry.aluCtrl.valid && iqEntry.aluCtrl.isSub &&  iqEntry.aluCtrl.isSigned
+    val isAndOp = iqEntry.aluCtrl.valid && iqEntry.aluCtrl.logicOp === LogicOp.AND
+    val isOrOp  = iqEntry.aluCtrl.valid && iqEntry.aluCtrl.logicOp === LogicOp.OR
+    val isXorOp = iqEntry.aluCtrl.valid && iqEntry.aluCtrl.logicOp === LogicOp.XOR
+    
+    val isSllOp = iqEntry.shiftCtrl.valid && !iqEntry.shiftCtrl.isRight
+    val isSrlOp = iqEntry.shiftCtrl.valid &&  iqEntry.shiftCtrl.isRight && !iqEntry.shiftCtrl.isArithmetic
+    val isSraOp = iqEntry.shiftCtrl.valid &&  iqEntry.shiftCtrl.isRight &&  iqEntry.shiftCtrl.isArithmetic
+    
+    // --- 3. 手动构建真正的扁平化MUX (Sum of Products) ---
+    val zero = B(0, config.dataWidth)
+    val resultData = 
+      Mux(isAddOp, addResult, zero) |
+      Mux(isSubOp, subResult, zero) |
+      Mux(isSltOp, sltResult, zero) |
+      Mux(isAndOp, andResult, zero) |
+      Mux(isOrOp,  orResult,  zero) |
+      Mux(isXorOp, xorResult, zero) |
+      Mux(isSllOp, sllResult, zero) |
+      Mux(isSrlOp, srlResult, zero) |
+      Mux(isSraOp, sraResult, zero)
+    
+    // --- 4. 并行处理异常 ---
+    // 一个操作是已知的，当且仅当ALU或Shift控制有效。解码器应确保它们互斥。
+    val isKnownOp = iqEntry.aluCtrl.valid || iqEntry.shiftCtrl.valid
+    
+    io.resultOut.payload.hasException := !isKnownOp
+    io.resultOut.payload.exceptionCode := Mux(!isKnownOp, IntAluExceptionCode.UNDEFINED_ALU_OP, IntAluExceptionCode.NONE)
+    
+    // --- 5. 最终输出选择 (若有异常则覆盖为0) ---
+    io.resultOut.payload.data := Mux(!isKnownOp, zero, resultData)
+    
+    // --- 6. 透传其他控制信号 ---
     io.resultOut.payload.robPtr := iqEntry.robPtr
     io.resultOut.payload.physDest := iqEntry.physDest
     io.resultOut.payload.writesToPhysReg := iqEntry.writesToPhysReg
-
-    // ALU Operation Logic based on aluCtrl flags
-    when(iqEntry.aluCtrl.isSub) { // SUB, NEG, CMP (EQ, SGT)
-      // Handle signed vs unsigned operations
-      when(iqEntry.aluCtrl.isSigned) {
-        resultData := (src1.asSInt - src2.asSInt).asBits
-      } otherwise {
-        resultData := (src1.asUInt - src2.asUInt).asBits
-      }
-    } elsewhen (iqEntry.aluCtrl.logicOp =/= LogicOp.NONE) { // Check against a defined "NONE" or "0" for LogicOp
-      when(iqEntry.aluCtrl.logicOp === LogicOp.AND) {
-        resultData := src1 & src2
-      } elsewhen (iqEntry.aluCtrl.logicOp === LogicOp.OR) {
-        resultData := src1 | src2
-      } elsewhen (iqEntry.aluCtrl.logicOp === LogicOp.XOR) {
-        resultData := src1 ^ src2
-      } otherwise {
-        // Unrecognized logicOp for an ALU type instruction
-        exceptionOccurred := True
-        exceptionCodeVal := IntAluExceptionCode.UNDEFINED_ALU_OP
-        resultData := B(0) // Define result on exception
-      }
-    } elsewhen (iqEntry.aluCtrl.isAdd) { // Explicitly check for ADD (assuming isAdd flag exists)
-      // Handle signed vs unsigned operations
-      when(iqEntry.aluCtrl.isSigned) {
-        resultData := (src1.asSInt + src2.asSInt).asBits
-      } otherwise {
-        resultData := (src1.asUInt + src2.asUInt).asBits
-      }
-    } elsewhen (!iqEntry.aluCtrl.isSub && iqEntry.aluCtrl.logicOp === LogicOp.NONE && !iqEntry.aluCtrl.isAdd) { // SHIFT operations - detect when no ALU flags are set
-      // Determine shift amount source: immediate or register
-      val shiftAmount = Mux(
-        iqEntry.immUsage === ImmUsageType.SRC_SHIFT_AMT,
-        iqEntry.imm(4 downto 0).asUInt, // 5-bit immediate
-        src2(4 downto 0).asUInt         // 5-bit from register src2
-      )
-      
-      when(iqEntry.shiftCtrl.isRight) {
-        when(iqEntry.shiftCtrl.isArithmetic) {
-          // Arithmetic right shift
-          resultData := (src1.asSInt >> shiftAmount).asBits.resize(config.dataWidth)
-        } otherwise {
-          // Logical right shift
-          resultData := (src1.asUInt >> shiftAmount).asBits.resize(config.dataWidth)
-        }
-      } otherwise {
-        // Left shift (always logical) - explicitly resize to target width
-        resultData := (src1.asUInt << shiftAmount).asBits.resize(config.dataWidth)
-      }
-    } otherwise {
-      // This case implies it's an ALU uopCode, but control flags (isSub, logicOp, isAdd) don't specify a known operation.
-      exceptionOccurred := True
-      exceptionCodeVal := IntAluExceptionCode.UNDEFINED_ALU_OP
-      resultData := B(0) // Define result on exception
-    }
-
-    // Assign final results to output payload
-    io.resultOut.payload.data := resultData
-    io.resultOut.payload.hasException := exceptionOccurred
-    io.resultOut.payload.exceptionCode := exceptionCodeVal
-  } otherwise {
-    // When io.iqEntryIn is not valid, default assignments at the beginning of the class apply.
   }
 }
+

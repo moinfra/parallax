@@ -239,13 +239,20 @@ class LA32RSimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends 
   when(is_and | is_andi) { io.decodedUop.aluCtrl.logicOp := LogicOp.AND }
   when(is_or | is_ori)   { io.decodedUop.aluCtrl.logicOp := LogicOp.OR }
   when(is_xor)           { io.decodedUop.aluCtrl.logicOp := LogicOp.XOR }
+  io.decodedUop.aluCtrl.valid := (is_add_w | is_addi_w | is_lu12i | is_pcaddu12i) | 
+                                (is_sub_w | is_slti) |
+                                (is_and | is_andi) |
+                                (is_or | is_ori) |
+                                (is_xor)
 
   // SHIFT Control
   when(is_srl_w | is_srli_w | is_sra_w | is_srai_w) { io.decodedUop.shiftCtrl.isRight := True }
   when(is_sra_w | is_srai_w) { io.decodedUop.shiftCtrl.isArithmetic := True }
+  io.decodedUop.shiftCtrl.valid := (is_srl_w | is_srli_w | is_sra_w | is_srai_w)
   
   // MUL/DIV Control
   when(is_mul_w) { io.decodedUop.mulDivCtrl.isSigned := True }
+  io.decodedUop.mulDivCtrl.valid := is_mul_w
 
   // MEM Control
   when(is_store) { io.decodedUop.memCtrl.isStore := True }

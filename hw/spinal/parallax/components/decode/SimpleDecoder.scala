@@ -136,6 +136,7 @@ class SimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends Compo
       io.decodedUop.archSrc2.rtype := ArchRegType.GPR
       io.decodedUop.useArchSrc2 := True
 
+      io.decodedUop.aluCtrl.valid := True
       io.decodedUop.aluCtrl.isSub := False
       io.decodedUop.aluCtrl.isAdd := True
     }
@@ -155,6 +156,7 @@ class SimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends Compo
       io.decodedUop.imm := imm_sext_16_to_dataWidth.asBits.resized
       io.decodedUop.immUsage := ImmUsageType.SRC_ALU
 
+      io.decodedUop.aluCtrl.valid := True
       io.decodedUop.aluCtrl.isSub := False
       io.decodedUop.aluCtrl.isAdd := True
     }
@@ -175,6 +177,7 @@ class SimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends Compo
       io.decodedUop.imm := B(0, config.dataWidth)
       io.decodedUop.immUsage := ImmUsageType.SRC_ALU
 
+      io.decodedUop.aluCtrl.valid := True
       io.decodedUop.aluCtrl.isSub := True
       io.decodedUop.aluCtrl.isAdd := False
     }
@@ -250,6 +253,7 @@ class SimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends Compo
       io.decodedUop.archSrc2.idx := fields.rt; io.decodedUop.archSrc2.rtype := ArchRegType.GPR
       io.decodedUop.useArchSrc2 := True
 
+      io.decodedUop.mulDivCtrl.valid := True
       io.decodedUop.mulDivCtrl.isDiv := False
       // Assuming signed multiply for this demo op. Add to ISA spec if it can be unsigned.
       io.decodedUop.mulDivCtrl.isSigned := True
@@ -266,6 +270,7 @@ class SimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends Compo
       io.decodedUop.archSrc2.idx := fields.rt; io.decodedUop.archSrc2.rtype := ArchRegType.GPR
       io.decodedUop.useArchSrc2 := True
 
+      io.decodedUop.mulDivCtrl.valid := True
       io.decodedUop.mulDivCtrl.isDiv := True
       io.decodedUop.mulDivCtrl.isSigned := True // Assuming signed
     }
@@ -285,6 +290,7 @@ class SimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends Compo
       io.decodedUop.imm := imm_sext_16_to_dataWidth.asBits.resized
       io.decodedUop.immUsage := ImmUsageType.SRC_ALU
 
+      io.decodedUop.aluCtrl.valid := True // For 0 + imm
       io.decodedUop.aluCtrl.isSub := False // For 0 + imm
       io.decodedUop.aluCtrl.isAdd := True
     }
@@ -301,6 +307,7 @@ class SimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends Compo
       io.decodedUop.useArchSrc2 := True
 
       // To implement Rd = (Rs == Rt): ALU computes Rs - Rt. If zero, Rd = 1, else Rd = 0.
+      io.decodedUop.aluCtrl.valid := True
       io.decodedUop.aluCtrl.isSub := True
       io.decodedUop.aluCtrl.isAdd := False
       // The ALU execution unit would need a mode to output 1 if (src1-src2)==0, else 0.
@@ -323,6 +330,7 @@ class SimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends Compo
       // If result is positive AND non-zero (for signed >), Rd = 1. More complex.
       // Typically (Rs > Rt) is equivalent to (Rt < Rs).
       // (Rs - Rt) -> check sign bit and zero bit.
+      io.decodedUop.aluCtrl.valid := True
       io.decodedUop.aluCtrl.isSub := True
       io.decodedUop.aluCtrl.isAdd := False
       io.decodedUop.aluCtrl.isSigned := True // Comparison is signed
