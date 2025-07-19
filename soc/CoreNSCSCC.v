@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 49a99dae7b6ed938ae50042417514f24dcaeaaa8
 // Component : CoreNSCSCC
-// Git hash  : d2b3453dfe6c0a1e6762a8604adf55058b19a172
+// Git hash  : 57665482651714c5fe25e0952534cc042ccdd34f
 
 `timescale 1ns/1ps
 
@@ -36036,14 +36036,20 @@ module LA32RSimpleDecoder (
   localparam DecodeExCode_DECODE_ERROR = 2'd2;
   localparam DecodeExCode_OK = 2'd3;
 
-  wire       [11:0]   _zz_imm_sext_12;
-  wire       [11:0]   _zz_imm_zext_12;
-  wire       [19:0]   _zz_imm_pcadd_u12i;
-  wire       [17:0]   _zz_imm_branch_16;
-  wire       [15:0]   _zz_imm_branch_16_1;
-  wire       [27:0]   _zz_imm_branch_26;
-  wire       [25:0]   _zz_imm_branch_26_1;
-  wire       [4:0]    _zz_imm_shift_5;
+  wire       [31:0]   _zz_imm_sext_12;
+  wire       [11:0]   _zz_imm_sext_12_1;
+  wire       [31:0]   _zz_imm_zext_12;
+  wire       [11:0]   _zz_imm_zext_12_1;
+  wire       [31:0]   _zz_imm_pcadd_u12i;
+  wire       [19:0]   _zz_imm_pcadd_u12i_1;
+  wire       [31:0]   _zz_imm_branch_16;
+  wire       [17:0]   _zz_imm_branch_16_1;
+  wire       [15:0]   _zz_imm_branch_16_2;
+  wire       [31:0]   _zz_imm_branch_26;
+  wire       [27:0]   _zz_imm_branch_26_1;
+  wire       [25:0]   _zz_imm_branch_26_2;
+  wire       [31:0]   _zz_imm_shift_5;
+  wire       [4:0]    _zz_imm_shift_5_1;
   wire       [31:0]   fields_inst;
   wire       [4:0]    r0_idx;
   wire       [4:0]    r1_idx;
@@ -36054,19 +36060,70 @@ module LA32RSimpleDecoder (
   wire       [31:0]   imm_branch_16;
   wire       [31:0]   imm_branch_26;
   wire       [31:0]   imm_shift_5;
-  wire       [6:0]    switch_LA32RSimpleDecoder_l131;
-  wire                when_LA32RSimpleDecoder_l135;
-  wire                when_LA32RSimpleDecoder_l159;
-  wire       [9:0]    switch_LA32RSimpleDecoder_l197;
-  wire                when_LA32RSimpleDecoder_l168;
-  wire                when_LA32RSimpleDecoder_l178;
-  wire       [2:0]    switch_LA32RSimpleDecoder_l257;
-  wire       [2:0]    switch_LA32RSimpleDecoder_l310;
-  wire       [5:0]    switch_LA32RSimpleDecoder_l341;
-  wire                when_LA32RSimpleDecoder_l382;
-  wire                when_LA32RSimpleDecoder_l385;
-  wire                when_LA32RSimpleDecoder_l388;
-  wire                when_LA32RSimpleDecoder_l399;
+  wire                is_add_w;
+  wire                is_sub_w;
+  wire                is_and;
+  wire                is_or;
+  wire                is_xor;
+  wire                is_mul_w;
+  wire                is_sll_w;
+  wire                is_srl_w;
+  wire                is_sra_w;
+  wire                is_slli_w;
+  wire                is_srli_w;
+  wire                is_srai_w;
+  wire                is_addi_w;
+  wire                is_slti;
+  wire                is_andi;
+  wire                is_ori;
+  wire                is_ld_b;
+  wire                is_ld_w;
+  wire                is_st_b;
+  wire                is_st_w;
+  wire                is_lu12i;
+  wire                is_pcaddu12i;
+  wire                is_jirl;
+  wire                is_b;
+  wire                is_bl;
+  wire                is_beq;
+  wire                is_bne;
+  wire                is_bltu;
+  wire                is_idle;
+  wire                is_r_type_alu;
+  wire                is_r_type_shift;
+  wire                is_r_type;
+  wire                is_shift_imm;
+  wire                is_i_type;
+  wire                is_load;
+  wire                is_store;
+  wire                is_mem_op;
+  wire                is_branch;
+  wire                is_jump;
+  wire                is_branch_or_jump;
+  wire                isValid;
+  wire                when_LA32RSimpleDecoder_l174;
+  wire                when_LA32RSimpleDecoder_l175;
+  wire                when_LA32RSimpleDecoder_l179;
+  wire                when_LA32RSimpleDecoder_l185;
+  wire                when_LA32RSimpleDecoder_l199;
+  wire                when_LA32RSimpleDecoder_l202;
+  wire                when_LA32RSimpleDecoder_l206;
+  wire                when_LA32RSimpleDecoder_l216;
+  wire                when_LA32RSimpleDecoder_l217;
+  wire                when_LA32RSimpleDecoder_l220;
+  wire                when_LA32RSimpleDecoder_l221;
+  wire                when_LA32RSimpleDecoder_l225;
+  wire                when_LA32RSimpleDecoder_l229;
+  wire                when_LA32RSimpleDecoder_l236;
+  wire                when_LA32RSimpleDecoder_l237;
+  wire                when_LA32RSimpleDecoder_l239;
+  wire                when_LA32RSimpleDecoder_l240;
+  wire                when_LA32RSimpleDecoder_l244;
+  wire                when_LA32RSimpleDecoder_l245;
+  wire                when_LA32RSimpleDecoder_l253;
+  wire                when_LA32RSimpleDecoder_l254;
+  wire                when_LA32RSimpleDecoder_l259;
+  wire                when_LA32RSimpleDecoder_l268;
   `ifndef SYNTHESIS
   reg [87:0] io_decodedUop_uopCode_string;
   reg [151:0] io_decodedUop_exeUnit_string;
@@ -36086,14 +36143,20 @@ module LA32RSimpleDecoder (
   `endif
 
 
-  assign _zz_imm_sext_12 = fields_inst[21 : 10];
-  assign _zz_imm_zext_12 = fields_inst[21 : 10];
-  assign _zz_imm_pcadd_u12i = fields_inst[24 : 5];
-  assign _zz_imm_branch_16 = ({2'd0,_zz_imm_branch_16_1} <<< 2'd2);
-  assign _zz_imm_branch_16_1 = fields_inst[25 : 10];
-  assign _zz_imm_branch_26 = ({2'd0,_zz_imm_branch_26_1} <<< 2'd2);
-  assign _zz_imm_branch_26_1 = {fields_inst[25 : 16],fields_inst[15 : 0]};
-  assign _zz_imm_shift_5 = fields_inst[14 : 10];
+  assign _zz_imm_sext_12_1 = fields_inst[21 : 10];
+  assign _zz_imm_sext_12 = {{20{_zz_imm_sext_12_1[11]}}, _zz_imm_sext_12_1};
+  assign _zz_imm_zext_12_1 = fields_inst[21 : 10];
+  assign _zz_imm_zext_12 = {20'd0, _zz_imm_zext_12_1};
+  assign _zz_imm_pcadd_u12i = ({12'd0,_zz_imm_pcadd_u12i_1} <<< 4'd12);
+  assign _zz_imm_pcadd_u12i_1 = fields_inst[24 : 5];
+  assign _zz_imm_branch_16_1 = ({2'd0,_zz_imm_branch_16_2} <<< 2'd2);
+  assign _zz_imm_branch_16 = {{14{_zz_imm_branch_16_1[17]}}, _zz_imm_branch_16_1};
+  assign _zz_imm_branch_16_2 = fields_inst[25 : 10];
+  assign _zz_imm_branch_26_1 = ({2'd0,_zz_imm_branch_26_2} <<< 2'd2);
+  assign _zz_imm_branch_26 = {{4{_zz_imm_branch_26_1[27]}}, _zz_imm_branch_26_1};
+  assign _zz_imm_branch_26_2 = {fields_inst[25 : 16],fields_inst[15 : 0]};
+  assign _zz_imm_shift_5_1 = fields_inst[14 : 10];
+  assign _zz_imm_shift_5 = {27'd0, _zz_imm_shift_5_1};
   `ifndef SYNTHESIS
   always @(*) begin
     case(io_decodedUop_uopCode)
@@ -36277,1250 +36340,282 @@ module LA32RSimpleDecoder (
   `endif
 
   assign fields_inst = io_instruction;
+  assign r0_idx = 5'h0;
+  assign r1_idx = 5'h01;
+  assign imm_sext_12 = _zz_imm_sext_12;
+  assign imm_zext_12 = _zz_imm_zext_12;
+  assign imm_lu12i = {fields_inst[24 : 5],12'h0};
+  assign imm_pcadd_u12i = _zz_imm_pcadd_u12i;
+  assign imm_branch_16 = _zz_imm_branch_16;
+  assign imm_branch_26 = _zz_imm_branch_26;
+  assign imm_shift_5 = _zz_imm_shift_5;
+  assign is_add_w = ((fields_inst[31 : 25] == 7'h0) && (fields_inst[24 : 15] == 10'h020));
+  assign is_sub_w = ((fields_inst[31 : 25] == 7'h0) && (fields_inst[24 : 15] == 10'h022));
+  assign is_and = ((fields_inst[31 : 25] == 7'h0) && (fields_inst[24 : 15] == 10'h029));
+  assign is_or = ((fields_inst[31 : 25] == 7'h0) && (fields_inst[24 : 15] == 10'h02a));
+  assign is_xor = ((fields_inst[31 : 25] == 7'h0) && (fields_inst[24 : 15] == 10'h02b));
+  assign is_mul_w = ((fields_inst[31 : 25] == 7'h0) && (fields_inst[24 : 15] == 10'h038));
+  assign is_sll_w = ((fields_inst[31 : 25] == 7'h0) && (fields_inst[24 : 15] == 10'h02e));
+  assign is_srl_w = ((fields_inst[31 : 25] == 7'h0) && (fields_inst[24 : 15] == 10'h02f));
+  assign is_sra_w = ((fields_inst[31 : 25] == 7'h0) && (fields_inst[24 : 15] == 10'h030));
+  assign is_slli_w = ((fields_inst[31 : 25] == 7'h0) && (fields_inst[24 : 15] == 10'h081));
+  assign is_srli_w = ((fields_inst[31 : 25] == 7'h0) && (fields_inst[24 : 15] == 10'h089));
+  assign is_srai_w = ((fields_inst[31 : 25] == 7'h0) && (fields_inst[24 : 15] == 10'h091));
+  assign is_addi_w = ((fields_inst[31 : 25] == 7'h01) && (fields_inst[24 : 22] == 3'b010));
+  assign is_slti = ((fields_inst[31 : 25] == 7'h01) && (fields_inst[24 : 22] == 3'b000));
+  assign is_andi = ((fields_inst[31 : 25] == 7'h01) && (fields_inst[24 : 22] == 3'b101));
+  assign is_ori = ((fields_inst[31 : 25] == 7'h01) && (fields_inst[24 : 22] == 3'b110));
+  assign is_ld_b = ((fields_inst[31 : 25] == 7'h14) && (fields_inst[24 : 22] == 3'b000));
+  assign is_ld_w = ((fields_inst[31 : 25] == 7'h14) && (fields_inst[24 : 22] == 3'b010));
+  assign is_st_b = ((fields_inst[31 : 25] == 7'h14) && (fields_inst[24 : 22] == 3'b100));
+  assign is_st_w = ((fields_inst[31 : 25] == 7'h14) && (fields_inst[24 : 22] == 3'b110));
+  assign is_lu12i = (fields_inst[31 : 25] == 7'h0a);
+  assign is_pcaddu12i = (fields_inst[31 : 25] == 7'h0e);
+  assign is_jirl = (fields_inst[31 : 26] == 6'h13);
+  assign is_b = (fields_inst[31 : 26] == 6'h14);
+  assign is_bl = (fields_inst[31 : 26] == 6'h15);
+  assign is_beq = (fields_inst[31 : 26] == 6'h16);
+  assign is_bne = (fields_inst[31 : 26] == 6'h17);
+  assign is_bltu = (fields_inst[31 : 26] == 6'h1a);
+  assign is_idle = ((fields_inst[31 : 25] == 7'h03) && (fields_inst[24 : 15] == 10'h091));
+  assign is_r_type_alu = ((((is_add_w || is_sub_w) || is_and) || is_or) || is_xor);
+  assign is_r_type_shift = ((is_sll_w || is_srl_w) || is_sra_w);
+  assign is_r_type = ((is_r_type_alu || is_r_type_shift) || is_mul_w);
+  assign is_shift_imm = ((is_slli_w || is_srli_w) || is_srai_w);
+  assign is_i_type = (((is_addi_w || is_slti) || is_andi) || is_ori);
+  assign is_load = (is_ld_b || is_ld_w);
+  assign is_store = (is_st_b || is_st_w);
+  assign is_mem_op = (is_load || is_store);
+  assign is_branch = ((is_beq || is_bne) || is_bltu);
+  assign is_jump = ((is_b || is_bl) || is_jirl);
+  assign is_branch_or_jump = (is_branch || is_jump);
   assign io_decodedUop_pc = io_pcIn;
   always @(*) begin
     io_decodedUop_isValid = 1'b0;
-    case(switch_LA32RSimpleDecoder_l131)
-      7'h03 : begin
-        if(when_LA32RSimpleDecoder_l135) begin
-          io_decodedUop_isValid = 1'b1;
-        end else begin
-          io_decodedUop_isValid = 1'b0;
-        end
-      end
-      7'h0 : begin
-        io_decodedUop_isValid = 1'b1;
-        if(!when_LA32RSimpleDecoder_l159) begin
-          if(!when_LA32RSimpleDecoder_l168) begin
-            if(!when_LA32RSimpleDecoder_l178) begin
-              case(switch_LA32RSimpleDecoder_l197)
-                10'h020 : begin
-                end
-                10'h022 : begin
-                end
-                10'h029 : begin
-                end
-                10'h02a : begin
-                end
-                10'h02b : begin
-                end
-                10'h038 : begin
-                end
-                10'h02e : begin
-                end
-                10'h02f : begin
-                end
-                10'h030 : begin
-                end
-                default : begin
-                  io_decodedUop_isValid = 1'b0;
-                end
-              endcase
-            end
-          end
-        end
-      end
-      7'h01 : begin
-        io_decodedUop_isValid = 1'b1;
-        case(switch_LA32RSimpleDecoder_l257)
-          3'b010 : begin
-          end
-          3'b000 : begin
-          end
-          3'b101 : begin
-          end
-          3'b110 : begin
-          end
-          default : begin
-            io_decodedUop_isValid = 1'b0;
-          end
-        endcase
-      end
-      7'h0a : begin
-        io_decodedUop_isValid = 1'b1;
-      end
-      7'h0e : begin
-        io_decodedUop_isValid = 1'b1;
-      end
-      7'h14 : begin
-        io_decodedUop_isValid = 1'b1;
-        case(switch_LA32RSimpleDecoder_l310)
-          3'b000 : begin
-          end
-          3'b010 : begin
-          end
-          3'b100 : begin
-          end
-          3'b110 : begin
-          end
-          default : begin
-            io_decodedUop_isValid = 1'b0;
-          end
-        endcase
-      end
-      default : begin
-        case(switch_LA32RSimpleDecoder_l341)
-          6'h13 : begin
-            io_decodedUop_isValid = 1'b1;
-          end
-          6'h14 : begin
-            io_decodedUop_isValid = 1'b1;
-          end
-          6'h15 : begin
-            io_decodedUop_isValid = 1'b1;
-          end
-          6'h16, 6'h17, 6'h1a : begin
-            io_decodedUop_isValid = 1'b1;
-          end
-          default : begin
-            io_decodedUop_isValid = 1'b0;
-          end
-        endcase
-      end
-    endcase
+    io_decodedUop_isValid = isValid;
   end
 
   always @(*) begin
     io_decodedUop_uopCode = BaseUopCode_NOP;
-    case(switch_LA32RSimpleDecoder_l131)
-      7'h03 : begin
-        if(when_LA32RSimpleDecoder_l135) begin
-          io_decodedUop_uopCode = BaseUopCode_IDLE;
-        end
-      end
-      7'h0 : begin
-        if(when_LA32RSimpleDecoder_l159) begin
-          io_decodedUop_uopCode = BaseUopCode_SHIFT;
-        end else begin
-          if(when_LA32RSimpleDecoder_l168) begin
-            io_decodedUop_uopCode = BaseUopCode_SHIFT;
-          end else begin
-            if(when_LA32RSimpleDecoder_l178) begin
-              io_decodedUop_uopCode = BaseUopCode_SHIFT;
-            end else begin
-              case(switch_LA32RSimpleDecoder_l197)
-                10'h020 : begin
-                  io_decodedUop_uopCode = BaseUopCode_ALU;
-                end
-                10'h022 : begin
-                  io_decodedUop_uopCode = BaseUopCode_ALU;
-                end
-                10'h029 : begin
-                  io_decodedUop_uopCode = BaseUopCode_ALU;
-                end
-                10'h02a : begin
-                  io_decodedUop_uopCode = BaseUopCode_ALU;
-                end
-                10'h02b : begin
-                  io_decodedUop_uopCode = BaseUopCode_ALU;
-                end
-                10'h038 : begin
-                  io_decodedUop_uopCode = BaseUopCode_MUL;
-                end
-                10'h02e : begin
-                  io_decodedUop_uopCode = BaseUopCode_SHIFT;
-                end
-                10'h02f : begin
-                  io_decodedUop_uopCode = BaseUopCode_SHIFT;
-                end
-                10'h030 : begin
-                  io_decodedUop_uopCode = BaseUopCode_SHIFT;
-                end
-                default : begin
-                end
-              endcase
-            end
-          end
-        end
-      end
-      7'h01 : begin
-        io_decodedUop_uopCode = BaseUopCode_ALU;
-      end
-      7'h0a : begin
-        io_decodedUop_uopCode = BaseUopCode_ALU;
-      end
-      7'h0e : begin
-        io_decodedUop_uopCode = BaseUopCode_ALU;
-      end
-      7'h14 : begin
-        case(switch_LA32RSimpleDecoder_l310)
-          3'b000 : begin
-            io_decodedUop_uopCode = BaseUopCode_LOAD;
-          end
-          3'b010 : begin
-            io_decodedUop_uopCode = BaseUopCode_LOAD;
-          end
-          3'b100 : begin
-            io_decodedUop_uopCode = BaseUopCode_STORE;
-          end
-          3'b110 : begin
-            io_decodedUop_uopCode = BaseUopCode_STORE;
-          end
-          default : begin
-          end
-        endcase
-      end
-      default : begin
-        case(switch_LA32RSimpleDecoder_l341)
-          6'h13 : begin
-            io_decodedUop_uopCode = BaseUopCode_JUMP_REG;
-          end
-          6'h14 : begin
-            io_decodedUop_uopCode = BaseUopCode_JUMP_IMM;
-          end
-          6'h15 : begin
-            io_decodedUop_uopCode = BaseUopCode_JUMP_IMM;
-          end
-          6'h16, 6'h17, 6'h1a : begin
-            io_decodedUop_uopCode = BaseUopCode_BRANCH;
-          end
-          default : begin
-          end
-        endcase
-      end
-    endcase
-    if(when_LA32RSimpleDecoder_l399) begin
+    io_decodedUop_uopCode = BaseUopCode_ILLEGAL;
+    if(when_LA32RSimpleDecoder_l174) begin
+      io_decodedUop_uopCode = BaseUopCode_ALU;
+    end
+    if(when_LA32RSimpleDecoder_l175) begin
+      io_decodedUop_uopCode = BaseUopCode_SHIFT;
+    end
+    if(is_mul_w) begin
+      io_decodedUop_uopCode = BaseUopCode_MUL;
+    end
+    if(is_load) begin
+      io_decodedUop_uopCode = BaseUopCode_LOAD;
+    end
+    if(is_store) begin
+      io_decodedUop_uopCode = BaseUopCode_STORE;
+    end
+    if(when_LA32RSimpleDecoder_l179) begin
+      io_decodedUop_uopCode = BaseUopCode_JUMP_IMM;
+    end
+    if(is_jirl) begin
+      io_decodedUop_uopCode = BaseUopCode_JUMP_REG;
+    end
+    if(is_branch) begin
+      io_decodedUop_uopCode = BaseUopCode_BRANCH;
+    end
+    if(is_idle) begin
+      io_decodedUop_uopCode = BaseUopCode_IDLE;
+    end
+    if(when_LA32RSimpleDecoder_l268) begin
       io_decodedUop_uopCode = BaseUopCode_ILLEGAL;
     end
   end
 
   always @(*) begin
     io_decodedUop_exeUnit = ExeUnitType_NONE;
-    case(switch_LA32RSimpleDecoder_l131)
-      7'h03 : begin
-        if(when_LA32RSimpleDecoder_l135) begin
-          io_decodedUop_exeUnit = ExeUnitType_ALU_INT;
-        end
-      end
-      7'h0 : begin
-        if(when_LA32RSimpleDecoder_l159) begin
-          io_decodedUop_exeUnit = ExeUnitType_ALU_INT;
-        end else begin
-          if(when_LA32RSimpleDecoder_l168) begin
-            io_decodedUop_exeUnit = ExeUnitType_ALU_INT;
-          end else begin
-            if(when_LA32RSimpleDecoder_l178) begin
-              io_decodedUop_exeUnit = ExeUnitType_ALU_INT;
-            end else begin
-              case(switch_LA32RSimpleDecoder_l197)
-                10'h020 : begin
-                  io_decodedUop_exeUnit = ExeUnitType_ALU_INT;
-                end
-                10'h022 : begin
-                  io_decodedUop_exeUnit = ExeUnitType_ALU_INT;
-                end
-                10'h029 : begin
-                  io_decodedUop_exeUnit = ExeUnitType_ALU_INT;
-                end
-                10'h02a : begin
-                  io_decodedUop_exeUnit = ExeUnitType_ALU_INT;
-                end
-                10'h02b : begin
-                  io_decodedUop_exeUnit = ExeUnitType_ALU_INT;
-                end
-                10'h038 : begin
-                  io_decodedUop_exeUnit = ExeUnitType_MUL_INT;
-                end
-                10'h02e : begin
-                  io_decodedUop_exeUnit = ExeUnitType_ALU_INT;
-                end
-                10'h02f : begin
-                  io_decodedUop_exeUnit = ExeUnitType_ALU_INT;
-                end
-                10'h030 : begin
-                  io_decodedUop_exeUnit = ExeUnitType_ALU_INT;
-                end
-                default : begin
-                end
-              endcase
-            end
-          end
-        end
-      end
-      7'h01 : begin
-        io_decodedUop_exeUnit = ExeUnitType_ALU_INT;
-      end
-      7'h0a : begin
-        io_decodedUop_exeUnit = ExeUnitType_ALU_INT;
-      end
-      7'h0e : begin
-        io_decodedUop_exeUnit = ExeUnitType_ALU_INT;
-      end
-      7'h14 : begin
-        io_decodedUop_exeUnit = ExeUnitType_MEM;
-      end
-      default : begin
-        case(switch_LA32RSimpleDecoder_l341)
-          6'h13 : begin
-            io_decodedUop_exeUnit = ExeUnitType_BRU;
-          end
-          6'h14 : begin
-            io_decodedUop_exeUnit = ExeUnitType_BRU;
-          end
-          6'h15 : begin
-            io_decodedUop_exeUnit = ExeUnitType_BRU;
-          end
-          6'h16, 6'h17, 6'h1a : begin
-            io_decodedUop_exeUnit = ExeUnitType_BRU;
-          end
-          default : begin
-          end
-        endcase
-      end
-    endcase
+    io_decodedUop_exeUnit = ExeUnitType_NONE;
+    if(when_LA32RSimpleDecoder_l185) begin
+      io_decodedUop_exeUnit = ExeUnitType_ALU_INT;
+    end
+    if(is_mul_w) begin
+      io_decodedUop_exeUnit = ExeUnitType_MUL_INT;
+    end
+    if(is_mem_op) begin
+      io_decodedUop_exeUnit = ExeUnitType_MEM;
+    end
+    if(is_branch_or_jump) begin
+      io_decodedUop_exeUnit = ExeUnitType_BRU;
+    end
   end
 
   assign io_decodedUop_isa = IsaType_LOONGARCH;
   always @(*) begin
     io_decodedUop_archDest_idx = 5'h0;
-    case(switch_LA32RSimpleDecoder_l131)
-      7'h03 : begin
-      end
-      7'h0 : begin
-        io_decodedUop_archDest_idx = fields_inst[4 : 0];
-      end
-      7'h01 : begin
-        io_decodedUop_archDest_idx = fields_inst[4 : 0];
-      end
-      7'h0a : begin
-        io_decodedUop_archDest_idx = fields_inst[4 : 0];
-      end
-      7'h0e : begin
-        io_decodedUop_archDest_idx = fields_inst[4 : 0];
-      end
-      7'h14 : begin
-        case(switch_LA32RSimpleDecoder_l310)
-          3'b000 : begin
-            io_decodedUop_archDest_idx = fields_inst[4 : 0];
-          end
-          3'b010 : begin
-            io_decodedUop_archDest_idx = fields_inst[4 : 0];
-          end
-          3'b100 : begin
-          end
-          3'b110 : begin
-          end
-          default : begin
-          end
-        endcase
-      end
-      default : begin
-        case(switch_LA32RSimpleDecoder_l341)
-          6'h13 : begin
-            io_decodedUop_archDest_idx = fields_inst[4 : 0];
-          end
-          6'h14 : begin
-          end
-          6'h15 : begin
-            io_decodedUop_archDest_idx = r1_idx;
-          end
-          6'h16, 6'h17, 6'h1a : begin
-          end
-          default : begin
-          end
-        endcase
-      end
-    endcase
+    io_decodedUop_archDest_idx = 5'h0;
+    if(when_LA32RSimpleDecoder_l202) begin
+      io_decodedUop_archDest_idx = fields_inst[4 : 0];
+    end
+    if(is_bl) begin
+      io_decodedUop_archDest_idx = r1_idx;
+    end
   end
 
   always @(*) begin
     io_decodedUop_archDest_rtype = ArchRegType_GPR;
-    case(switch_LA32RSimpleDecoder_l131)
-      7'h03 : begin
-      end
-      7'h0 : begin
-        io_decodedUop_archDest_rtype = ArchRegType_GPR;
-      end
-      7'h01 : begin
-        io_decodedUop_archDest_rtype = ArchRegType_GPR;
-      end
-      7'h0a : begin
-        io_decodedUop_archDest_rtype = ArchRegType_GPR;
-      end
-      7'h0e : begin
-        io_decodedUop_archDest_rtype = ArchRegType_GPR;
-      end
-      7'h14 : begin
-        case(switch_LA32RSimpleDecoder_l310)
-          3'b000 : begin
-            io_decodedUop_archDest_rtype = ArchRegType_GPR;
-          end
-          3'b010 : begin
-            io_decodedUop_archDest_rtype = ArchRegType_GPR;
-          end
-          3'b100 : begin
-          end
-          3'b110 : begin
-          end
-          default : begin
-          end
-        endcase
-      end
-      default : begin
-        case(switch_LA32RSimpleDecoder_l341)
-          6'h13 : begin
-            io_decodedUop_archDest_rtype = ArchRegType_GPR;
-          end
-          6'h14 : begin
-          end
-          6'h15 : begin
-            io_decodedUop_archDest_rtype = ArchRegType_GPR;
-          end
-          6'h16, 6'h17, 6'h1a : begin
-          end
-          default : begin
-          end
-        endcase
-      end
-    endcase
+    if(io_decodedUop_writeArchDestEn) begin
+      io_decodedUop_archDest_rtype = ArchRegType_GPR;
+    end
   end
 
   always @(*) begin
     io_decodedUop_writeArchDestEn = 1'b0;
-    case(switch_LA32RSimpleDecoder_l131)
-      7'h03 : begin
-        if(when_LA32RSimpleDecoder_l135) begin
-          io_decodedUop_writeArchDestEn = 1'b0;
-        end
-      end
-      7'h0 : begin
-        io_decodedUop_writeArchDestEn = (fields_inst[4 : 0] != r0_idx);
-      end
-      7'h01 : begin
-        io_decodedUop_writeArchDestEn = (fields_inst[4 : 0] != r0_idx);
-      end
-      7'h0a : begin
-        io_decodedUop_writeArchDestEn = (fields_inst[4 : 0] != r0_idx);
-      end
-      7'h0e : begin
-        io_decodedUop_writeArchDestEn = (fields_inst[4 : 0] != r0_idx);
-      end
-      7'h14 : begin
-        case(switch_LA32RSimpleDecoder_l310)
-          3'b000 : begin
-            io_decodedUop_writeArchDestEn = (fields_inst[4 : 0] != r0_idx);
-          end
-          3'b010 : begin
-            io_decodedUop_writeArchDestEn = (fields_inst[4 : 0] != r0_idx);
-          end
-          3'b100 : begin
-            io_decodedUop_writeArchDestEn = 1'b0;
-          end
-          3'b110 : begin
-            io_decodedUop_writeArchDestEn = 1'b0;
-          end
-          default : begin
-          end
-        endcase
-      end
-      default : begin
-        case(switch_LA32RSimpleDecoder_l341)
-          6'h13 : begin
-            io_decodedUop_writeArchDestEn = (fields_inst[4 : 0] != r0_idx);
-          end
-          6'h14 : begin
-            io_decodedUop_writeArchDestEn = 1'b0;
-          end
-          6'h15 : begin
-            io_decodedUop_writeArchDestEn = 1'b1;
-          end
-          6'h16, 6'h17, 6'h1a : begin
-            io_decodedUop_writeArchDestEn = 1'b0;
-          end
-          default : begin
-          end
-        endcase
-      end
-    endcase
+    io_decodedUop_writeArchDestEn = 1'b0;
+    if(when_LA32RSimpleDecoder_l206) begin
+      io_decodedUop_writeArchDestEn = 1'b1;
+    end
+    if(is_bl) begin
+      io_decodedUop_writeArchDestEn = 1'b1;
+    end
   end
 
   always @(*) begin
     io_decodedUop_archSrc1_idx = 5'h0;
-    case(switch_LA32RSimpleDecoder_l131)
-      7'h03 : begin
-      end
-      7'h0 : begin
-        if(when_LA32RSimpleDecoder_l159) begin
-          io_decodedUop_archSrc1_idx = fields_inst[9 : 5];
-        end else begin
-          if(when_LA32RSimpleDecoder_l168) begin
-            io_decodedUop_archSrc1_idx = fields_inst[9 : 5];
-          end else begin
-            if(when_LA32RSimpleDecoder_l178) begin
-              io_decodedUop_archSrc1_idx = fields_inst[9 : 5];
-            end else begin
-              io_decodedUop_archSrc1_idx = fields_inst[9 : 5];
-            end
-          end
-        end
-      end
-      7'h01 : begin
-        io_decodedUop_archSrc1_idx = fields_inst[9 : 5];
-      end
-      7'h0a : begin
-      end
-      7'h0e : begin
-      end
-      7'h14 : begin
-        io_decodedUop_archSrc1_idx = fields_inst[9 : 5];
-      end
-      default : begin
-        case(switch_LA32RSimpleDecoder_l341)
-          6'h13 : begin
-            io_decodedUop_archSrc1_idx = fields_inst[9 : 5];
-          end
-          6'h14 : begin
-          end
-          6'h15 : begin
-          end
-          6'h16, 6'h17, 6'h1a : begin
-            io_decodedUop_archSrc1_idx = fields_inst[9 : 5];
-          end
-          default : begin
-          end
-        endcase
-      end
-    endcase
+    io_decodedUop_archSrc1_idx = 5'h0;
+    if(io_decodedUop_useArchSrc1) begin
+      io_decodedUop_archSrc1_idx = fields_inst[9 : 5];
+    end
   end
 
   always @(*) begin
     io_decodedUop_archSrc1_rtype = ArchRegType_GPR;
-    case(switch_LA32RSimpleDecoder_l131)
-      7'h03 : begin
-      end
-      7'h0 : begin
-        if(when_LA32RSimpleDecoder_l159) begin
-          io_decodedUop_archSrc1_rtype = ArchRegType_GPR;
-        end else begin
-          if(when_LA32RSimpleDecoder_l168) begin
-            io_decodedUop_archSrc1_rtype = ArchRegType_GPR;
-          end else begin
-            if(when_LA32RSimpleDecoder_l178) begin
-              io_decodedUop_archSrc1_rtype = ArchRegType_GPR;
-            end else begin
-              io_decodedUop_archSrc1_rtype = ArchRegType_GPR;
-            end
-          end
-        end
-      end
-      7'h01 : begin
-        io_decodedUop_archSrc1_rtype = ArchRegType_GPR;
-      end
-      7'h0a : begin
-      end
-      7'h0e : begin
-      end
-      7'h14 : begin
-        io_decodedUop_archSrc1_rtype = ArchRegType_GPR;
-      end
-      default : begin
-        case(switch_LA32RSimpleDecoder_l341)
-          6'h13 : begin
-            io_decodedUop_archSrc1_rtype = ArchRegType_GPR;
-          end
-          6'h14 : begin
-          end
-          6'h15 : begin
-          end
-          6'h16, 6'h17, 6'h1a : begin
-            io_decodedUop_archSrc1_rtype = ArchRegType_GPR;
-          end
-          default : begin
-          end
-        endcase
-      end
-    endcase
+    if(io_decodedUop_useArchSrc1) begin
+      io_decodedUop_archSrc1_rtype = ArchRegType_GPR;
+    end
   end
 
   always @(*) begin
     io_decodedUop_useArchSrc1 = 1'b0;
-    case(switch_LA32RSimpleDecoder_l131)
-      7'h03 : begin
-      end
-      7'h0 : begin
-        if(when_LA32RSimpleDecoder_l159) begin
-          io_decodedUop_useArchSrc1 = 1'b1;
-        end else begin
-          if(when_LA32RSimpleDecoder_l168) begin
-            io_decodedUop_useArchSrc1 = 1'b1;
-          end else begin
-            if(when_LA32RSimpleDecoder_l178) begin
-              io_decodedUop_useArchSrc1 = 1'b1;
-            end else begin
-              io_decodedUop_useArchSrc1 = 1'b1;
-            end
-          end
-        end
-      end
-      7'h01 : begin
-        io_decodedUop_useArchSrc1 = 1'b1;
-      end
-      7'h0a : begin
-      end
-      7'h0e : begin
-        io_decodedUop_useArchSrc1 = 1'b0;
-      end
-      7'h14 : begin
-        io_decodedUop_useArchSrc1 = 1'b1;
-      end
-      default : begin
-        case(switch_LA32RSimpleDecoder_l341)
-          6'h13 : begin
-            io_decodedUop_useArchSrc1 = 1'b1;
-          end
-          6'h14 : begin
-          end
-          6'h15 : begin
-          end
-          6'h16, 6'h17, 6'h1a : begin
-            io_decodedUop_useArchSrc1 = 1'b1;
-          end
-          default : begin
-          end
-        endcase
-      end
-    endcase
+    io_decodedUop_useArchSrc1 = (((((is_r_type || is_shift_imm) || is_i_type) || is_mem_op) || is_jirl) || is_branch);
   end
 
   always @(*) begin
     io_decodedUop_archSrc2_idx = 5'h0;
-    case(switch_LA32RSimpleDecoder_l131)
-      7'h03 : begin
-      end
-      7'h0 : begin
-        if(!when_LA32RSimpleDecoder_l159) begin
-          if(!when_LA32RSimpleDecoder_l168) begin
-            if(!when_LA32RSimpleDecoder_l178) begin
-              io_decodedUop_archSrc2_idx = fields_inst[14 : 10];
-            end
-          end
-        end
-      end
-      7'h01 : begin
-      end
-      7'h0a : begin
-      end
-      7'h0e : begin
-      end
-      7'h14 : begin
-        case(switch_LA32RSimpleDecoder_l310)
-          3'b000 : begin
-          end
-          3'b010 : begin
-          end
-          3'b100 : begin
-            io_decodedUop_archSrc2_idx = fields_inst[4 : 0];
-          end
-          3'b110 : begin
-            io_decodedUop_archSrc2_idx = fields_inst[4 : 0];
-          end
-          default : begin
-          end
-        endcase
-      end
-      default : begin
-        case(switch_LA32RSimpleDecoder_l341)
-          6'h13 : begin
-          end
-          6'h14 : begin
-          end
-          6'h15 : begin
-          end
-          6'h16, 6'h17, 6'h1a : begin
-            io_decodedUop_archSrc2_idx = fields_inst[4 : 0];
-          end
-          default : begin
-          end
-        endcase
-      end
-    endcase
+    io_decodedUop_archSrc2_idx = 5'h0;
+    if(is_r_type) begin
+      io_decodedUop_archSrc2_idx = fields_inst[14 : 10];
+    end
+    if(when_LA32RSimpleDecoder_l199) begin
+      io_decodedUop_archSrc2_idx = fields_inst[4 : 0];
+    end
   end
 
   always @(*) begin
     io_decodedUop_archSrc2_rtype = ArchRegType_GPR;
-    case(switch_LA32RSimpleDecoder_l131)
-      7'h03 : begin
-      end
-      7'h0 : begin
-        if(!when_LA32RSimpleDecoder_l159) begin
-          if(!when_LA32RSimpleDecoder_l168) begin
-            if(!when_LA32RSimpleDecoder_l178) begin
-              io_decodedUop_archSrc2_rtype = ArchRegType_GPR;
-            end
-          end
-        end
-      end
-      7'h01 : begin
-      end
-      7'h0a : begin
-      end
-      7'h0e : begin
-      end
-      7'h14 : begin
-        case(switch_LA32RSimpleDecoder_l310)
-          3'b000 : begin
-          end
-          3'b010 : begin
-          end
-          3'b100 : begin
-            io_decodedUop_archSrc2_rtype = ArchRegType_GPR;
-          end
-          3'b110 : begin
-            io_decodedUop_archSrc2_rtype = ArchRegType_GPR;
-          end
-          default : begin
-          end
-        endcase
-      end
-      default : begin
-        case(switch_LA32RSimpleDecoder_l341)
-          6'h13 : begin
-          end
-          6'h14 : begin
-          end
-          6'h15 : begin
-          end
-          6'h16, 6'h17, 6'h1a : begin
-            io_decodedUop_archSrc2_rtype = ArchRegType_GPR;
-          end
-          default : begin
-          end
-        endcase
-      end
-    endcase
+    if(io_decodedUop_useArchSrc2) begin
+      io_decodedUop_archSrc2_rtype = ArchRegType_GPR;
+    end
   end
 
   always @(*) begin
     io_decodedUop_useArchSrc2 = 1'b0;
-    case(switch_LA32RSimpleDecoder_l131)
-      7'h03 : begin
-      end
-      7'h0 : begin
-        if(!when_LA32RSimpleDecoder_l159) begin
-          if(!when_LA32RSimpleDecoder_l168) begin
-            if(!when_LA32RSimpleDecoder_l178) begin
-              io_decodedUop_useArchSrc2 = 1'b1;
-            end
-          end
-        end
-      end
-      7'h01 : begin
-      end
-      7'h0a : begin
-      end
-      7'h0e : begin
-      end
-      7'h14 : begin
-        case(switch_LA32RSimpleDecoder_l310)
-          3'b000 : begin
-          end
-          3'b010 : begin
-          end
-          3'b100 : begin
-            io_decodedUop_useArchSrc2 = 1'b1;
-          end
-          3'b110 : begin
-            io_decodedUop_useArchSrc2 = 1'b1;
-          end
-          default : begin
-          end
-        endcase
-      end
-      default : begin
-        case(switch_LA32RSimpleDecoder_l341)
-          6'h13 : begin
-          end
-          6'h14 : begin
-          end
-          6'h15 : begin
-          end
-          6'h16, 6'h17, 6'h1a : begin
-            io_decodedUop_useArchSrc2 = 1'b1;
-          end
-          default : begin
-          end
-        endcase
-      end
-    endcase
+    io_decodedUop_useArchSrc2 = ((is_r_type || is_store) || is_branch);
   end
 
   assign io_decodedUop_usePcForAddr = 1'b0;
   always @(*) begin
     io_decodedUop_imm = 32'h0;
-    case(switch_LA32RSimpleDecoder_l131)
-      7'h03 : begin
-      end
-      7'h0 : begin
-        if(when_LA32RSimpleDecoder_l159) begin
-          io_decodedUop_imm = imm_shift_5;
-        end else begin
-          if(when_LA32RSimpleDecoder_l168) begin
-            io_decodedUop_imm = imm_shift_5;
-          end else begin
-            if(when_LA32RSimpleDecoder_l178) begin
-              io_decodedUop_imm = imm_shift_5;
-            end
-          end
-        end
-      end
-      7'h01 : begin
-        case(switch_LA32RSimpleDecoder_l257)
-          3'b010 : begin
-            io_decodedUop_imm = imm_sext_12;
-          end
-          3'b000 : begin
-            io_decodedUop_imm = imm_sext_12;
-          end
-          3'b101 : begin
-            io_decodedUop_imm = imm_zext_12;
-          end
-          3'b110 : begin
-            io_decodedUop_imm = imm_zext_12;
-          end
-          default : begin
-          end
-        endcase
-      end
-      7'h0a : begin
-        io_decodedUop_imm = imm_lu12i;
-      end
-      7'h0e : begin
-        io_decodedUop_imm = imm_pcadd_u12i;
-      end
-      7'h14 : begin
-        io_decodedUop_imm = imm_sext_12;
-      end
-      default : begin
-        case(switch_LA32RSimpleDecoder_l341)
-          6'h13 : begin
-            io_decodedUop_imm = imm_branch_16;
-          end
-          6'h14 : begin
-            io_decodedUop_imm = imm_branch_26;
-          end
-          6'h15 : begin
-            io_decodedUop_imm = imm_branch_26;
-          end
-          6'h16, 6'h17, 6'h1a : begin
-            io_decodedUop_imm = imm_branch_16;
-          end
-          default : begin
-          end
-        endcase
-      end
-    endcase
+    io_decodedUop_imm = 32'h0;
+    if(when_LA32RSimpleDecoder_l216) begin
+      io_decodedUop_imm = imm_sext_12;
+    end
+    if(when_LA32RSimpleDecoder_l217) begin
+      io_decodedUop_imm = imm_zext_12;
+    end
+    if(is_lu12i) begin
+      io_decodedUop_imm = imm_lu12i;
+    end
+    if(is_pcaddu12i) begin
+      io_decodedUop_imm = imm_pcadd_u12i;
+    end
+    if(when_LA32RSimpleDecoder_l220) begin
+      io_decodedUop_imm = imm_branch_16;
+    end
+    if(when_LA32RSimpleDecoder_l221) begin
+      io_decodedUop_imm = imm_branch_26;
+    end
+    if(is_shift_imm) begin
+      io_decodedUop_imm = imm_shift_5;
+    end
   end
 
   always @(*) begin
     io_decodedUop_immUsage = ImmUsageType_NONE;
-    case(switch_LA32RSimpleDecoder_l131)
-      7'h03 : begin
-      end
-      7'h0 : begin
-        if(when_LA32RSimpleDecoder_l159) begin
-          io_decodedUop_immUsage = ImmUsageType_SRC_SHIFT_AMT;
-        end else begin
-          if(when_LA32RSimpleDecoder_l168) begin
-            io_decodedUop_immUsage = ImmUsageType_SRC_SHIFT_AMT;
-          end else begin
-            if(when_LA32RSimpleDecoder_l178) begin
-              io_decodedUop_immUsage = ImmUsageType_SRC_SHIFT_AMT;
-            end else begin
-              case(switch_LA32RSimpleDecoder_l197)
-                10'h020 : begin
-                end
-                10'h022 : begin
-                end
-                10'h029 : begin
-                end
-                10'h02a : begin
-                end
-                10'h02b : begin
-                end
-                10'h038 : begin
-                end
-                10'h02e : begin
-                  io_decodedUop_immUsage = ImmUsageType_NONE;
-                end
-                10'h02f : begin
-                  io_decodedUop_immUsage = ImmUsageType_NONE;
-                end
-                10'h030 : begin
-                  io_decodedUop_immUsage = ImmUsageType_NONE;
-                end
-                default : begin
-                end
-              endcase
-            end
-          end
-        end
-      end
-      7'h01 : begin
-        io_decodedUop_immUsage = ImmUsageType_SRC_ALU;
-      end
-      7'h0a : begin
-        io_decodedUop_immUsage = ImmUsageType_SRC_ALU;
-      end
-      7'h0e : begin
-        io_decodedUop_immUsage = ImmUsageType_SRC_ALU;
-      end
-      7'h14 : begin
-        io_decodedUop_immUsage = ImmUsageType_MEM_OFFSET;
-      end
-      default : begin
-        case(switch_LA32RSimpleDecoder_l341)
-          6'h13 : begin
-            io_decodedUop_immUsage = ImmUsageType_BRANCH_OFFSET;
-          end
-          6'h14 : begin
-            io_decodedUop_immUsage = ImmUsageType_JUMP_OFFSET;
-          end
-          6'h15 : begin
-            io_decodedUop_immUsage = ImmUsageType_JUMP_OFFSET;
-          end
-          6'h16, 6'h17, 6'h1a : begin
-            io_decodedUop_immUsage = ImmUsageType_BRANCH_OFFSET;
-          end
-          default : begin
-          end
-        endcase
-      end
-    endcase
+    io_decodedUop_immUsage = ImmUsageType_NONE;
+    if(when_LA32RSimpleDecoder_l225) begin
+      io_decodedUop_immUsage = ImmUsageType_SRC_ALU;
+    end
+    if(is_shift_imm) begin
+      io_decodedUop_immUsage = ImmUsageType_SRC_SHIFT_AMT;
+    end
+    if(is_mem_op) begin
+      io_decodedUop_immUsage = ImmUsageType_MEM_OFFSET;
+    end
+    if(is_branch) begin
+      io_decodedUop_immUsage = ImmUsageType_BRANCH_OFFSET;
+    end
+    if(when_LA32RSimpleDecoder_l229) begin
+      io_decodedUop_immUsage = ImmUsageType_JUMP_OFFSET;
+    end
+    if(is_jirl) begin
+      io_decodedUop_immUsage = ImmUsageType_BRANCH_OFFSET;
+    end
   end
 
   always @(*) begin
     io_decodedUop_aluCtrl_isSub = 1'b0;
-    case(switch_LA32RSimpleDecoder_l131)
-      7'h03 : begin
-      end
-      7'h0 : begin
-        if(!when_LA32RSimpleDecoder_l159) begin
-          if(!when_LA32RSimpleDecoder_l168) begin
-            if(!when_LA32RSimpleDecoder_l178) begin
-              case(switch_LA32RSimpleDecoder_l197)
-                10'h020 : begin
-                end
-                10'h022 : begin
-                  io_decodedUop_aluCtrl_isSub = 1'b1;
-                end
-                10'h029 : begin
-                end
-                10'h02a : begin
-                end
-                10'h02b : begin
-                end
-                10'h038 : begin
-                end
-                10'h02e : begin
-                end
-                10'h02f : begin
-                end
-                10'h030 : begin
-                end
-                default : begin
-                end
-              endcase
-            end
-          end
-        end
-      end
-      7'h01 : begin
-        case(switch_LA32RSimpleDecoder_l257)
-          3'b010 : begin
-          end
-          3'b000 : begin
-            io_decodedUop_aluCtrl_isSub = 1'b1;
-          end
-          3'b101 : begin
-          end
-          3'b110 : begin
-          end
-          default : begin
-          end
-        endcase
-      end
-      7'h0a : begin
-      end
-      7'h0e : begin
-      end
-      7'h14 : begin
-      end
-      default : begin
-      end
-    endcase
+    if(when_LA32RSimpleDecoder_l237) begin
+      io_decodedUop_aluCtrl_isSub = 1'b1;
+    end
   end
 
   always @(*) begin
     io_decodedUop_aluCtrl_isAdd = 1'b0;
-    case(switch_LA32RSimpleDecoder_l131)
-      7'h03 : begin
-      end
-      7'h0 : begin
-        if(!when_LA32RSimpleDecoder_l159) begin
-          if(!when_LA32RSimpleDecoder_l168) begin
-            if(!when_LA32RSimpleDecoder_l178) begin
-              case(switch_LA32RSimpleDecoder_l197)
-                10'h020 : begin
-                  io_decodedUop_aluCtrl_isAdd = 1'b1;
-                end
-                10'h022 : begin
-                end
-                10'h029 : begin
-                end
-                10'h02a : begin
-                end
-                10'h02b : begin
-                end
-                10'h038 : begin
-                end
-                10'h02e : begin
-                end
-                10'h02f : begin
-                end
-                10'h030 : begin
-                end
-                default : begin
-                end
-              endcase
-            end
-          end
-        end
-      end
-      7'h01 : begin
-        case(switch_LA32RSimpleDecoder_l257)
-          3'b010 : begin
-            io_decodedUop_aluCtrl_isAdd = 1'b1;
-          end
-          3'b000 : begin
-          end
-          3'b101 : begin
-          end
-          3'b110 : begin
-          end
-          default : begin
-          end
-        endcase
-      end
-      7'h0a : begin
-        io_decodedUop_aluCtrl_isAdd = 1'b1;
-      end
-      7'h0e : begin
-        io_decodedUop_aluCtrl_isAdd = 1'b1;
-      end
-      7'h14 : begin
-      end
-      default : begin
-      end
-    endcase
+    if(when_LA32RSimpleDecoder_l236) begin
+      io_decodedUop_aluCtrl_isAdd = 1'b1;
+    end
   end
 
   always @(*) begin
     io_decodedUop_aluCtrl_isSigned = 1'b0;
-    case(switch_LA32RSimpleDecoder_l131)
-      7'h03 : begin
-      end
-      7'h0 : begin
-      end
-      7'h01 : begin
-        case(switch_LA32RSimpleDecoder_l257)
-          3'b010 : begin
-          end
-          3'b000 : begin
-            io_decodedUop_aluCtrl_isSigned = 1'b1;
-          end
-          3'b101 : begin
-          end
-          3'b110 : begin
-          end
-          default : begin
-          end
-        endcase
-      end
-      7'h0a : begin
-      end
-      7'h0e : begin
-      end
-      7'h14 : begin
-      end
-      default : begin
-      end
-    endcase
+    if(is_slti) begin
+      io_decodedUop_aluCtrl_isSigned = 1'b1;
+    end
   end
 
   always @(*) begin
     io_decodedUop_aluCtrl_logicOp = LogicOp_NONE;
-    case(switch_LA32RSimpleDecoder_l131)
-      7'h03 : begin
-      end
-      7'h0 : begin
-        if(!when_LA32RSimpleDecoder_l159) begin
-          if(!when_LA32RSimpleDecoder_l168) begin
-            if(!when_LA32RSimpleDecoder_l178) begin
-              case(switch_LA32RSimpleDecoder_l197)
-                10'h020 : begin
-                end
-                10'h022 : begin
-                end
-                10'h029 : begin
-                  io_decodedUop_aluCtrl_logicOp = LogicOp_AND_1;
-                end
-                10'h02a : begin
-                  io_decodedUop_aluCtrl_logicOp = LogicOp_OR_1;
-                end
-                10'h02b : begin
-                  io_decodedUop_aluCtrl_logicOp = LogicOp_XOR_1;
-                end
-                10'h038 : begin
-                end
-                10'h02e : begin
-                end
-                10'h02f : begin
-                end
-                10'h030 : begin
-                end
-                default : begin
-                end
-              endcase
-            end
-          end
-        end
-      end
-      7'h01 : begin
-        case(switch_LA32RSimpleDecoder_l257)
-          3'b010 : begin
-          end
-          3'b000 : begin
-          end
-          3'b101 : begin
-            io_decodedUop_aluCtrl_logicOp = LogicOp_AND_1;
-          end
-          3'b110 : begin
-            io_decodedUop_aluCtrl_logicOp = LogicOp_OR_1;
-          end
-          default : begin
-          end
-        endcase
-      end
-      7'h0a : begin
-      end
-      7'h0e : begin
-      end
-      7'h14 : begin
-      end
-      default : begin
-      end
-    endcase
+    if(when_LA32RSimpleDecoder_l239) begin
+      io_decodedUop_aluCtrl_logicOp = LogicOp_AND_1;
+    end
+    if(when_LA32RSimpleDecoder_l240) begin
+      io_decodedUop_aluCtrl_logicOp = LogicOp_OR_1;
+    end
+    if(is_xor) begin
+      io_decodedUop_aluCtrl_logicOp = LogicOp_XOR_1;
+    end
   end
 
   always @(*) begin
     io_decodedUop_shiftCtrl_isRight = 1'b0;
-    case(switch_LA32RSimpleDecoder_l131)
-      7'h03 : begin
-      end
-      7'h0 : begin
-        if(when_LA32RSimpleDecoder_l159) begin
-          io_decodedUop_shiftCtrl_isRight = 1'b0;
-        end else begin
-          if(when_LA32RSimpleDecoder_l168) begin
-            io_decodedUop_shiftCtrl_isRight = 1'b1;
-          end else begin
-            if(when_LA32RSimpleDecoder_l178) begin
-              io_decodedUop_shiftCtrl_isRight = 1'b1;
-            end else begin
-              case(switch_LA32RSimpleDecoder_l197)
-                10'h020 : begin
-                end
-                10'h022 : begin
-                end
-                10'h029 : begin
-                end
-                10'h02a : begin
-                end
-                10'h02b : begin
-                end
-                10'h038 : begin
-                end
-                10'h02e : begin
-                  io_decodedUop_shiftCtrl_isRight = 1'b0;
-                end
-                10'h02f : begin
-                  io_decodedUop_shiftCtrl_isRight = 1'b1;
-                end
-                10'h030 : begin
-                  io_decodedUop_shiftCtrl_isRight = 1'b1;
-                end
-                default : begin
-                end
-              endcase
-            end
-          end
-        end
-      end
-      7'h01 : begin
-      end
-      7'h0a : begin
-      end
-      7'h0e : begin
-      end
-      7'h14 : begin
-      end
-      default : begin
-      end
-    endcase
+    if(when_LA32RSimpleDecoder_l244) begin
+      io_decodedUop_shiftCtrl_isRight = 1'b1;
+    end
   end
 
   always @(*) begin
     io_decodedUop_shiftCtrl_isArithmetic = 1'b0;
-    case(switch_LA32RSimpleDecoder_l131)
-      7'h03 : begin
-      end
-      7'h0 : begin
-        if(!when_LA32RSimpleDecoder_l159) begin
-          if(when_LA32RSimpleDecoder_l168) begin
-            io_decodedUop_shiftCtrl_isArithmetic = 1'b0;
-          end else begin
-            if(when_LA32RSimpleDecoder_l178) begin
-              io_decodedUop_shiftCtrl_isArithmetic = 1'b1;
-            end else begin
-              case(switch_LA32RSimpleDecoder_l197)
-                10'h020 : begin
-                end
-                10'h022 : begin
-                end
-                10'h029 : begin
-                end
-                10'h02a : begin
-                end
-                10'h02b : begin
-                end
-                10'h038 : begin
-                end
-                10'h02e : begin
-                end
-                10'h02f : begin
-                  io_decodedUop_shiftCtrl_isArithmetic = 1'b0;
-                end
-                10'h030 : begin
-                  io_decodedUop_shiftCtrl_isArithmetic = 1'b1;
-                end
-                default : begin
-                end
-              endcase
-            end
-          end
-        end
-      end
-      7'h01 : begin
-      end
-      7'h0a : begin
-      end
-      7'h0e : begin
-      end
-      7'h14 : begin
-      end
-      default : begin
-      end
-    endcase
+    if(when_LA32RSimpleDecoder_l245) begin
+      io_decodedUop_shiftCtrl_isArithmetic = 1'b1;
+    end
   end
 
   assign io_decodedUop_shiftCtrl_isRotate = 1'b0;
@@ -37528,158 +36623,34 @@ module LA32RSimpleDecoder (
   assign io_decodedUop_mulDivCtrl_isDiv = 1'b0;
   always @(*) begin
     io_decodedUop_mulDivCtrl_isSigned = 1'b0;
-    case(switch_LA32RSimpleDecoder_l131)
-      7'h03 : begin
-      end
-      7'h0 : begin
-        if(!when_LA32RSimpleDecoder_l159) begin
-          if(!when_LA32RSimpleDecoder_l168) begin
-            if(!when_LA32RSimpleDecoder_l178) begin
-              case(switch_LA32RSimpleDecoder_l197)
-                10'h020 : begin
-                end
-                10'h022 : begin
-                end
-                10'h029 : begin
-                end
-                10'h02a : begin
-                end
-                10'h02b : begin
-                end
-                10'h038 : begin
-                  io_decodedUop_mulDivCtrl_isSigned = 1'b1;
-                end
-                10'h02e : begin
-                end
-                10'h02f : begin
-                end
-                10'h030 : begin
-                end
-                default : begin
-                end
-              endcase
-            end
-          end
-        end
-      end
-      7'h01 : begin
-      end
-      7'h0a : begin
-      end
-      7'h0e : begin
-      end
-      7'h14 : begin
-      end
-      default : begin
-      end
-    endcase
+    if(is_mul_w) begin
+      io_decodedUop_mulDivCtrl_isSigned = 1'b1;
+    end
   end
 
   assign io_decodedUop_mulDivCtrl_isWordOp = 1'b0;
   always @(*) begin
     io_decodedUop_memCtrl_size = MemAccessSize_W;
-    case(switch_LA32RSimpleDecoder_l131)
-      7'h03 : begin
-      end
-      7'h0 : begin
-      end
-      7'h01 : begin
-      end
-      7'h0a : begin
-      end
-      7'h0e : begin
-      end
-      7'h14 : begin
-        case(switch_LA32RSimpleDecoder_l310)
-          3'b000 : begin
-            io_decodedUop_memCtrl_size = MemAccessSize_B;
-          end
-          3'b010 : begin
-            io_decodedUop_memCtrl_size = MemAccessSize_W;
-          end
-          3'b100 : begin
-            io_decodedUop_memCtrl_size = MemAccessSize_B;
-          end
-          3'b110 : begin
-            io_decodedUop_memCtrl_size = MemAccessSize_W;
-          end
-          default : begin
-          end
-        endcase
-      end
-      default : begin
-      end
-    endcase
+    if(when_LA32RSimpleDecoder_l253) begin
+      io_decodedUop_memCtrl_size = MemAccessSize_B;
+    end
+    if(when_LA32RSimpleDecoder_l254) begin
+      io_decodedUop_memCtrl_size = MemAccessSize_W;
+    end
   end
 
   always @(*) begin
     io_decodedUop_memCtrl_isSignedLoad = 1'b0;
-    case(switch_LA32RSimpleDecoder_l131)
-      7'h03 : begin
-      end
-      7'h0 : begin
-      end
-      7'h01 : begin
-      end
-      7'h0a : begin
-      end
-      7'h0e : begin
-      end
-      7'h14 : begin
-        case(switch_LA32RSimpleDecoder_l310)
-          3'b000 : begin
-            io_decodedUop_memCtrl_isSignedLoad = 1'b1;
-          end
-          3'b010 : begin
-            io_decodedUop_memCtrl_isSignedLoad = 1'b1;
-          end
-          3'b100 : begin
-          end
-          3'b110 : begin
-          end
-          default : begin
-          end
-        endcase
-      end
-      default : begin
-      end
-    endcase
+    if(is_load) begin
+      io_decodedUop_memCtrl_isSignedLoad = 1'b1;
+    end
   end
 
   always @(*) begin
     io_decodedUop_memCtrl_isStore = 1'b0;
-    case(switch_LA32RSimpleDecoder_l131)
-      7'h03 : begin
-      end
-      7'h0 : begin
-      end
-      7'h01 : begin
-      end
-      7'h0a : begin
-      end
-      7'h0e : begin
-      end
-      7'h14 : begin
-        case(switch_LA32RSimpleDecoder_l310)
-          3'b000 : begin
-            io_decodedUop_memCtrl_isStore = 1'b0;
-          end
-          3'b010 : begin
-            io_decodedUop_memCtrl_isStore = 1'b0;
-          end
-          3'b100 : begin
-            io_decodedUop_memCtrl_isStore = 1'b1;
-          end
-          3'b110 : begin
-            io_decodedUop_memCtrl_isStore = 1'b1;
-          end
-          default : begin
-          end
-        endcase
-      end
-      default : begin
-      end
-    endcase
+    if(is_store) begin
+      io_decodedUop_memCtrl_isStore = 1'b1;
+    end
   end
 
   assign io_decodedUop_memCtrl_isLoadLinked = 1'b0;
@@ -37692,182 +36663,47 @@ module LA32RSimpleDecoder (
   assign io_decodedUop_memCtrl_isPrefetch = 1'b0;
   always @(*) begin
     io_decodedUop_branchCtrl_condition = BranchCondition_NUL;
-    case(switch_LA32RSimpleDecoder_l131)
-      7'h03 : begin
-      end
-      7'h0 : begin
-      end
-      7'h01 : begin
-      end
-      7'h0a : begin
-      end
-      7'h0e : begin
-      end
-      7'h14 : begin
-      end
-      default : begin
-        case(switch_LA32RSimpleDecoder_l341)
-          6'h13 : begin
-          end
-          6'h14 : begin
-          end
-          6'h15 : begin
-          end
-          6'h16, 6'h17, 6'h1a : begin
-            if(when_LA32RSimpleDecoder_l382) begin
-              io_decodedUop_branchCtrl_condition = BranchCondition_EQ;
-            end else begin
-              if(when_LA32RSimpleDecoder_l385) begin
-                io_decodedUop_branchCtrl_condition = BranchCondition_NE;
-              end else begin
-                if(when_LA32RSimpleDecoder_l388) begin
-                  io_decodedUop_branchCtrl_condition = BranchCondition_LTU;
-                end
-              end
-            end
-          end
-          default : begin
-          end
-        endcase
-      end
-    endcase
+    if(is_beq) begin
+      io_decodedUop_branchCtrl_condition = BranchCondition_EQ;
+    end
+    if(is_bne) begin
+      io_decodedUop_branchCtrl_condition = BranchCondition_NE;
+    end
+    if(is_bltu) begin
+      io_decodedUop_branchCtrl_condition = BranchCondition_LTU;
+    end
   end
 
   always @(*) begin
     io_decodedUop_branchCtrl_isJump = 1'b0;
-    case(switch_LA32RSimpleDecoder_l131)
-      7'h03 : begin
-      end
-      7'h0 : begin
-      end
-      7'h01 : begin
-      end
-      7'h0a : begin
-      end
-      7'h0e : begin
-      end
-      7'h14 : begin
-      end
-      default : begin
-        case(switch_LA32RSimpleDecoder_l341)
-          6'h13 : begin
-            io_decodedUop_branchCtrl_isJump = 1'b1;
-          end
-          6'h14 : begin
-            io_decodedUop_branchCtrl_isJump = 1'b1;
-          end
-          6'h15 : begin
-            io_decodedUop_branchCtrl_isJump = 1'b1;
-          end
-          6'h16, 6'h17, 6'h1a : begin
-          end
-          default : begin
-          end
-        endcase
-      end
-    endcase
+    if(is_jump) begin
+      io_decodedUop_branchCtrl_isJump = 1'b1;
+    end
   end
 
   always @(*) begin
     io_decodedUop_branchCtrl_isLink = 1'b0;
-    case(switch_LA32RSimpleDecoder_l131)
-      7'h03 : begin
-      end
-      7'h0 : begin
-      end
-      7'h01 : begin
-      end
-      7'h0a : begin
-      end
-      7'h0e : begin
-      end
-      7'h14 : begin
-      end
-      default : begin
-        case(switch_LA32RSimpleDecoder_l341)
-          6'h13 : begin
-            io_decodedUop_branchCtrl_isLink = 1'b1;
-          end
-          6'h14 : begin
-          end
-          6'h15 : begin
-            io_decodedUop_branchCtrl_isLink = 1'b1;
-          end
-          6'h16, 6'h17, 6'h1a : begin
-          end
-          default : begin
-          end
-        endcase
-      end
-    endcase
+    if(when_LA32RSimpleDecoder_l259) begin
+      io_decodedUop_branchCtrl_isLink = 1'b1;
+    end
   end
 
   always @(*) begin
     io_decodedUop_branchCtrl_linkReg_idx = 5'h0;
-    case(switch_LA32RSimpleDecoder_l131)
-      7'h03 : begin
-      end
-      7'h0 : begin
-      end
-      7'h01 : begin
-      end
-      7'h0a : begin
-      end
-      7'h0e : begin
-      end
-      7'h14 : begin
-      end
-      default : begin
-        case(switch_LA32RSimpleDecoder_l341)
-          6'h13 : begin
-            io_decodedUop_branchCtrl_linkReg_idx = fields_inst[4 : 0];
-          end
-          6'h14 : begin
-          end
-          6'h15 : begin
-            io_decodedUop_branchCtrl_linkReg_idx = r1_idx;
-          end
-          6'h16, 6'h17, 6'h1a : begin
-          end
-          default : begin
-          end
-        endcase
-      end
-    endcase
+    if(is_bl) begin
+      io_decodedUop_branchCtrl_linkReg_idx = r1_idx;
+    end
+    if(is_jirl) begin
+      io_decodedUop_branchCtrl_linkReg_idx = fields_inst[4 : 0];
+    end
   end
 
   assign io_decodedUop_branchCtrl_linkReg_rtype = ArchRegType_GPR;
   always @(*) begin
     io_decodedUop_branchCtrl_isIndirect = 1'b0;
-    case(switch_LA32RSimpleDecoder_l131)
-      7'h03 : begin
-      end
-      7'h0 : begin
-      end
-      7'h01 : begin
-      end
-      7'h0a : begin
-      end
-      7'h0e : begin
-      end
-      7'h14 : begin
-      end
-      default : begin
-        case(switch_LA32RSimpleDecoder_l341)
-          6'h13 : begin
-            io_decodedUop_branchCtrl_isIndirect = 1'b1;
-          end
-          6'h14 : begin
-          end
-          6'h15 : begin
-          end
-          6'h16, 6'h17, 6'h1a : begin
-          end
-          default : begin
-          end
-        endcase
-      end
-    endcase
+    if(is_jirl) begin
+      io_decodedUop_branchCtrl_isIndirect = 1'b1;
+    end
   end
 
   assign io_decodedUop_branchCtrl_laCfIdx = 3'b000;
@@ -37891,14 +36727,14 @@ module LA32RSimpleDecoder (
   assign io_decodedUop_sysCtrl_tlbOpType = 4'b0000;
   always @(*) begin
     io_decodedUop_decodeExceptionCode = DecodeExCode_OK;
-    if(when_LA32RSimpleDecoder_l399) begin
+    if(when_LA32RSimpleDecoder_l268) begin
       io_decodedUop_decodeExceptionCode = DecodeExCode_DECODE_ERROR;
     end
   end
 
   always @(*) begin
     io_decodedUop_hasDecodeException = 1'b0;
-    if(when_LA32RSimpleDecoder_l399) begin
+    if(when_LA32RSimpleDecoder_l268) begin
       io_decodedUop_hasDecodeException = 1'b1;
     end
   end
@@ -37908,65 +36744,36 @@ module LA32RSimpleDecoder (
   assign io_decodedUop_isSerializing = 1'b0;
   always @(*) begin
     io_decodedUop_isBranchOrJump = 1'b0;
-    case(switch_LA32RSimpleDecoder_l131)
-      7'h03 : begin
-      end
-      7'h0 : begin
-      end
-      7'h01 : begin
-      end
-      7'h0a : begin
-      end
-      7'h0e : begin
-      end
-      7'h14 : begin
-      end
-      default : begin
-        case(switch_LA32RSimpleDecoder_l341)
-          6'h13 : begin
-            io_decodedUop_isBranchOrJump = 1'b1;
-          end
-          6'h14 : begin
-            io_decodedUop_isBranchOrJump = 1'b1;
-          end
-          6'h15 : begin
-            io_decodedUop_isBranchOrJump = 1'b1;
-          end
-          6'h16, 6'h17, 6'h1a : begin
-            io_decodedUop_isBranchOrJump = 1'b1;
-          end
-          default : begin
-          end
-        endcase
-      end
-    endcase
+    io_decodedUop_isBranchOrJump = is_branch_or_jump;
   end
 
   assign io_decodedUop_branchPrediction_isTaken = 1'b0;
   assign io_decodedUop_branchPrediction_target = 32'h0;
   assign io_decodedUop_branchPrediction_wasPredicted = 1'b0;
-  assign r0_idx = 5'h0;
-  assign r1_idx = 5'h01;
-  assign imm_sext_12 = {{20{_zz_imm_sext_12[11]}}, _zz_imm_sext_12};
-  assign imm_zext_12 = {20'd0, _zz_imm_zext_12};
-  assign imm_lu12i = {fields_inst[24 : 5],12'h0};
-  assign imm_pcadd_u12i = ({12'd0,_zz_imm_pcadd_u12i} <<< 4'd12);
-  assign imm_branch_16 = {{14{_zz_imm_branch_16[17]}}, _zz_imm_branch_16};
-  assign imm_branch_26 = {{4{_zz_imm_branch_26[27]}}, _zz_imm_branch_26};
-  assign imm_shift_5 = {27'd0, _zz_imm_shift_5};
-  assign switch_LA32RSimpleDecoder_l131 = fields_inst[31 : 25];
-  assign when_LA32RSimpleDecoder_l135 = (fields_inst[24 : 15] == 10'h091);
-  assign when_LA32RSimpleDecoder_l159 = (fields_inst[24 : 15] == 10'h081);
-  assign switch_LA32RSimpleDecoder_l197 = fields_inst[24 : 15];
-  assign when_LA32RSimpleDecoder_l168 = (fields_inst[24 : 15] == 10'h089);
-  assign when_LA32RSimpleDecoder_l178 = (fields_inst[24 : 15] == 10'h091);
-  assign switch_LA32RSimpleDecoder_l257 = fields_inst[24 : 22];
-  assign switch_LA32RSimpleDecoder_l310 = fields_inst[24 : 22];
-  assign switch_LA32RSimpleDecoder_l341 = fields_inst[31 : 26];
-  assign when_LA32RSimpleDecoder_l382 = (fields_inst[31 : 26] == 6'h16);
-  assign when_LA32RSimpleDecoder_l385 = (fields_inst[31 : 26] == 6'h17);
-  assign when_LA32RSimpleDecoder_l388 = (fields_inst[31 : 26] == 6'h1a);
-  assign when_LA32RSimpleDecoder_l399 = (! io_decodedUop_isValid);
+  assign isValid = (((((((is_r_type || is_shift_imm) || is_i_type) || is_mem_op) || is_lu12i) || is_pcaddu12i) || is_branch_or_jump) || is_idle);
+  assign when_LA32RSimpleDecoder_l174 = (((is_r_type_alu || is_i_type) || is_lu12i) || is_pcaddu12i);
+  assign when_LA32RSimpleDecoder_l175 = (is_r_type_shift || is_shift_imm);
+  assign when_LA32RSimpleDecoder_l179 = (is_b || is_bl);
+  assign when_LA32RSimpleDecoder_l185 = (((((is_r_type || is_shift_imm) || is_i_type) || is_lu12i) || is_pcaddu12i) || is_idle);
+  assign when_LA32RSimpleDecoder_l199 = (is_store || is_branch);
+  assign when_LA32RSimpleDecoder_l202 = ((((((is_r_type || is_shift_imm) || is_i_type) || is_load) || is_lu12i) || is_pcaddu12i) || is_jirl);
+  assign when_LA32RSimpleDecoder_l206 = (((((((is_r_type || is_shift_imm) || is_i_type) || is_load) || is_lu12i) || is_pcaddu12i) || is_jirl) && (fields_inst[4 : 0] != r0_idx));
+  assign when_LA32RSimpleDecoder_l216 = ((is_addi_w || is_slti) || is_mem_op);
+  assign when_LA32RSimpleDecoder_l217 = (is_andi || is_ori);
+  assign when_LA32RSimpleDecoder_l220 = (is_branch || is_jirl);
+  assign when_LA32RSimpleDecoder_l221 = (is_b || is_bl);
+  assign when_LA32RSimpleDecoder_l225 = ((is_i_type || is_lu12i) || is_pcaddu12i);
+  assign when_LA32RSimpleDecoder_l229 = (is_b || is_bl);
+  assign when_LA32RSimpleDecoder_l236 = (((is_add_w || is_addi_w) || is_lu12i) || is_pcaddu12i);
+  assign when_LA32RSimpleDecoder_l237 = (is_sub_w || is_slti);
+  assign when_LA32RSimpleDecoder_l239 = (is_and || is_andi);
+  assign when_LA32RSimpleDecoder_l240 = (is_or || is_ori);
+  assign when_LA32RSimpleDecoder_l244 = (((is_srl_w || is_srli_w) || is_sra_w) || is_srai_w);
+  assign when_LA32RSimpleDecoder_l245 = (is_sra_w || is_srai_w);
+  assign when_LA32RSimpleDecoder_l253 = (is_ld_b || is_st_b);
+  assign when_LA32RSimpleDecoder_l254 = (is_ld_w || is_st_w);
+  assign when_LA32RSimpleDecoder_l259 = (is_bl || is_jirl);
+  assign when_LA32RSimpleDecoder_l268 = (! isValid);
 
 endmodule
 
