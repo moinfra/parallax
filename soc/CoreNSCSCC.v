@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 49a99dae7b6ed938ae50042417514f24dcaeaaa8
 // Component : CoreNSCSCC
-// Git hash  : 8a0a88f9098e0ad0a950a02ac240a0f04b981b23
+// Git hash  : c615a113e848743683494b198c28b159cfa61b3c
 
 `timescale 1ns/1ps
 
@@ -3848,7 +3848,13 @@ module CoreNSCSCC (
   wire                _zz_DispatchPlugin_logic_destinationIqReady_1;
   wire                DispatchPlugin_logic_destinationIqReady;
   wire                s3_Dispatch_haltRequest_DispatchPlugin_l78;
-  wire                when_DispatchPlugin_l97;
+  (* MARK_DEBUG = "TRUE" , DONT_TOUCH = "TRUE" *) reg        [5:0]    DispatchPlugin_logic_debugDispatchedUopSrc2_iq0;
+  (* MARK_DEBUG = "TRUE" , DONT_TOUCH = "TRUE" *) reg        [5:0]    DispatchPlugin_logic_debugDispatchedUopSrc1_iq0;
+  (* MARK_DEBUG = "TRUE" , DONT_TOUCH = "TRUE" *) reg        [5:0]    DispatchPlugin_logic_debugDispatchedUopSrc2_iq1;
+  (* MARK_DEBUG = "TRUE" , DONT_TOUCH = "TRUE" *) reg        [5:0]    DispatchPlugin_logic_debugDispatchedUopSrc1_iq1;
+  (* MARK_DEBUG = "TRUE" , DONT_TOUCH = "TRUE" *) reg        [5:0]    DispatchPlugin_logic_debugDispatchedUopSrc2_iq2;
+  (* MARK_DEBUG = "TRUE" , DONT_TOUCH = "TRUE" *) reg        [5:0]    DispatchPlugin_logic_debugDispatchedUopSrc1_iq2;
+  wire                when_DispatchPlugin_l100;
   wire       [31:0]   CoreNSCSCCSetupPlugin_logic_instructionVec_0;
   wire       [31:0]   CoreNSCSCCSetupPlugin_logic_instructionVec_1;
   reg                 DebugDisplayPlugin_logic_displayArea_dpToggle;
@@ -17102,7 +17108,7 @@ module CoreNSCSCC (
     end
   end
 
-  assign when_DispatchPlugin_l97 = (s3_Dispatch_isFiring && s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isValid);
+  assign when_DispatchPlugin_l100 = (s3_Dispatch_isFiring && s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isValid);
   assign CommitPlugin_commitEnableExt = 1'b1;
   assign CoreNSCSCCSetupPlugin_logic_instructionVec_0 = SimpleFetchPipelinePlugin_hw_finalOutputInst_payload_instruction;
   assign CoreNSCSCCSetupPlugin_logic_instructionVec_1 = 32'h0;
@@ -22920,6 +22926,16 @@ module CoreNSCSCC (
           `endif
         `endif
       end
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(((! s2_RobAlloc_isFiring) || RenamePlugin_logic_s2_logic_allocationOk)); // RenamePlugin.scala:L98
+        `else
+          if(!((! s2_RobAlloc_isFiring) || RenamePlugin_logic_s2_logic_allocationOk)) begin
+            $display("FAILURE ASSERTION FAILED: Firing S2 stage with failed FreeList allocation!"); // RenamePlugin.scala:L98
+            $finish;
+          end
+        `endif
+      `endif
       if(SimpleFetchPipelinePlugin_doHardRedirect_) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
@@ -22978,13 +22994,13 @@ module CoreNSCSCC (
           `endif
         end
       end
-      if(when_DispatchPlugin_l97) begin
+      if(when_DispatchPlugin_l100) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // DispatchPlugin.scala:L98
+            assert(1'b0); // DispatchPlugin.scala:L101
           `else
             if(!1'b0) begin
-              $display("NOTE(DispatchPlugin.scala:98):  [normal] DispatchPlugin: Firing robPtr=%x (UopCode=%s), s1_ready=%x, s2_ready=%x", s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_robPtr, s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string, DispatchPlugin_logic_src1InitialReady, DispatchPlugin_logic_src2InitialReady); // DispatchPlugin.scala:L98
+              $display("NOTE(DispatchPlugin.scala:101):  [normal] DispatchPlugin: Firing robPtr=%x (UopCode=%s), s1_ready=%x, s2_ready=%x", s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_robPtr, s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string, DispatchPlugin_logic_src1InitialReady, DispatchPlugin_logic_src2InitialReady); // DispatchPlugin.scala:L101
             end
           `endif
         `endif
@@ -22992,10 +23008,10 @@ module CoreNSCSCC (
       if(SimpleFetchPipelinePlugin_doHardRedirect_) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // DispatchPlugin.scala:L109
+            assert(1'b0); // DispatchPlugin.scala:L112
           `else
             if(!1'b0) begin
-              $display("NOTE(DispatchPlugin.scala:109):  DispatchPlugin: (s3): Flushing pipeline due to hard redirect"); // DispatchPlugin.scala:L109
+              $display("NOTE(DispatchPlugin.scala:112):  DispatchPlugin: (s3): Flushing pipeline due to hard redirect"); // DispatchPlugin.scala:L112
             end
           `endif
         `endif
@@ -25135,6 +25151,12 @@ module CoreNSCSCC (
     if(CommitPlugin_logic_s1_s1_commitIdleThisCycle) begin
       CommitPlugin_committedIdlePcReg <= CommitPlugin_logic_s1_s1_headUop_decoded_pc;
     end
+    DispatchPlugin_logic_debugDispatchedUopSrc2_iq0 <= s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2_idx;
+    DispatchPlugin_logic_debugDispatchedUopSrc1_iq0 <= s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc1_idx;
+    DispatchPlugin_logic_debugDispatchedUopSrc2_iq1 <= s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2_idx;
+    DispatchPlugin_logic_debugDispatchedUopSrc1_iq1 <= s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc1_idx;
+    DispatchPlugin_logic_debugDispatchedUopSrc2_iq2 <= s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2_idx;
+    DispatchPlugin_logic_debugDispatchedUopSrc1_iq2 <= s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc1_idx;
     if(s2_Execute_isFiring) begin
       io_resultOut_payload_data_regNextWhen <= AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_data;
     end
@@ -40086,6 +40108,9 @@ module RenameUnit (
   wire                _zz_2;
   wire                _zz_3;
   wire                _zz_4;
+  (* MARK_DEBUG = "TRUE" , DONT_TOUCH = "TRUE" *) reg        [4:0]    toplevel_RenamePlugin_setup_renameUnit_debugDecodedArchSrc2;
+  (* MARK_DEBUG = "TRUE" , DONT_TOUCH = "TRUE" *) reg                 toplevel_RenamePlugin_setup_renameUnit_debugDecodedUseArchSrc2;
+  (* MARK_DEBUG = "TRUE" , DONT_TOUCH = "TRUE" *) reg        [5:0]    toplevel_RenamePlugin_setup_renameUnit_debugRenamedPhysSrc2;
   `ifndef SYNTHESIS
   reg [87:0] io_decodedUopsIn_0_uopCode_string;
   reg [151:0] io_decodedUopsIn_0_exeUnit_string;
@@ -40677,15 +40702,21 @@ module RenameUnit (
       if(uopNeedsNewPhysDest) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // RenameUnit.scala:L105
+            assert(1'b0); // RenameUnit.scala:L104
           `else
             if(!1'b0) begin
-              $display("NOTE(RenameUnit.scala:105):  [RenameUnit] Rename for uop@%x: archDest=%x -> physReg=%x (isFPR=%x)Src1: archSrc1=%x -> physReg=%x (isFPR=%x, bypassed=0)Src2: archSrc2=%x -> physReg=%x (isFPR=%x, bypassed=0)oldPhysDest: archDest=%x -> oldPhysReg=%x (isFPR=%x)", io_decodedUopsIn_0_pc, io_decodedUopsIn_0_archDest_idx, io_physRegsIn_0, _zz_1, io_decodedUopsIn_0_archSrc1_idx, io_renamedUopsOut_0_rename_physSrc1_idx, _zz_2, io_decodedUopsIn_0_archSrc2_idx, io_renamedUopsOut_0_rename_physSrc2_idx, _zz_3, io_decodedUopsIn_0_archDest_idx, io_renamedUopsOut_0_rename_oldPhysDest_idx, _zz_4); // RenameUnit.scala:L105
+              $display("NOTE(RenameUnit.scala:104):  [RenameUnit] Rename for uop@%x: archDest=%x -> physReg=%x (isFPR=%x)Src1: archSrc1=%x -> physReg=%x (isFPR=%x, bypassed=0)Src2: archSrc2=%x -> physReg=%x (isFPR=%x, bypassed=0)oldPhysDest: archDest=%x -> oldPhysReg=%x (isFPR=%x)", io_decodedUopsIn_0_pc, io_decodedUopsIn_0_archDest_idx, io_physRegsIn_0, _zz_1, io_decodedUopsIn_0_archSrc1_idx, io_renamedUopsOut_0_rename_physSrc1_idx, _zz_2, io_decodedUopsIn_0_archSrc2_idx, io_renamedUopsOut_0_rename_physSrc2_idx, _zz_3, io_decodedUopsIn_0_archDest_idx, io_renamedUopsOut_0_rename_oldPhysDest_idx, _zz_4); // RenameUnit.scala:L104
             end
           `endif
         `endif
       end
     end
+  end
+
+  always @(posedge clk) begin
+    toplevel_RenamePlugin_setup_renameUnit_debugDecodedArchSrc2 <= io_decodedUopsIn_0_archSrc2_idx;
+    toplevel_RenamePlugin_setup_renameUnit_debugDecodedUseArchSrc2 <= io_decodedUopsIn_0_useArchSrc2;
+    toplevel_RenamePlugin_setup_renameUnit_debugRenamedPhysSrc2 <= io_renamedUopsOut_0_rename_physSrc2_idx;
   end
 
 
