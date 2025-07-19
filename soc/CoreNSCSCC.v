@@ -1,6 +1,6 @@
-// Generator : SpinalHDL dev    git head : 3105a33b457518a7afeed8b0527b4d8b9dab2383
+// Generator : SpinalHDL dev    git head : 49a99dae7b6ed938ae50042417514f24dcaeaaa8
 // Component : CoreNSCSCC
-// Git hash  : c4f2bdfb3a362d0ea2e9b1ae242672d8679b0355
+// Git hash  : 8a0a88f9098e0ad0a950a02ac240a0f04b981b23
 
 `timescale 1ns/1ps
 
@@ -201,10 +201,9 @@ module CoreNSCSCC (
   reg        [5:0]    RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_29;
   reg        [5:0]    RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_30;
   reg        [5:0]    RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_31;
-  wire                SuperScalarFreeListPlugin_early_setup_freeList_io_allocate_0_enable;
-  wire                SuperScalarFreeListPlugin_early_setup_freeList_io_free_0_enable;
-  reg                 SuperScalarFreeListPlugin_early_setup_freeList_io_restoreState_valid;
-  reg        [63:0]   SuperScalarFreeListPlugin_early_setup_freeList_io_restoreState_payload_freeMask;
+  wire                SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_enable;
+  wire                SimpleFreeListPlugin_early_setup_freeList_io_free_0_enable;
+  reg                 SimpleFreeListPlugin_early_setup_freeList_io_recover;
   wire                oneShot_15_io_triggerIn;
   wire                oneShot_16_io_triggerIn;
   wire                oneShot_17_io_triggerIn;
@@ -490,118 +489,116 @@ module CoreNSCSCC (
   wire       [5:0]    RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_29;
   wire       [5:0]    RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_30;
   wire       [5:0]    RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_31;
-  wire       [5:0]    SuperScalarFreeListPlugin_early_setup_freeList_io_allocate_0_physReg;
-  wire                SuperScalarFreeListPlugin_early_setup_freeList_io_allocate_0_success;
-  wire       [63:0]   SuperScalarFreeListPlugin_early_setup_freeList_io_currentState_freeMask;
-  wire       [6:0]    SuperScalarFreeListPlugin_early_setup_freeList_io_numFreeRegs;
-  wire                SuperScalarFreeListPlugin_early_setup_freeList_io_restoreState_ready;
+  wire       [5:0]    SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_physReg;
+  wire                SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_success;
+  wire       [5:0]    SimpleFreeListPlugin_early_setup_freeList_io_numFreeRegs;
   wire                oneShot_15_io_pulseOut;
   wire                oneShot_16_io_pulseOut;
   wire                oneShot_17_io_pulseOut;
   wire                oneShot_18_io_pulseOut;
-  wire       [31:0]   RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_pc;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_isValid;
-  wire       [4:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_uopCode;
-  wire       [3:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_exeUnit;
-  wire       [1:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_isa;
-  wire       [4:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_archDest_idx;
-  wire       [1:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_archDest_rtype;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_writeArchDestEn;
-  wire       [4:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc1_idx;
-  wire       [1:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc1_rtype;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_useArchSrc1;
-  wire       [4:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc2_idx;
-  wire       [1:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc2_rtype;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_useArchSrc2;
-  wire       [4:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc3_idx;
-  wire       [1:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc3_rtype;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_useArchSrc3;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_usePcForAddr;
-  wire       [31:0]   RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_imm;
-  wire       [2:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_immUsage;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_aluCtrl_isSub;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_aluCtrl_isAdd;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_aluCtrl_isSigned;
-  wire       [1:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_aluCtrl_logicOp;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_shiftCtrl_isRight;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_shiftCtrl_isArithmetic;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_shiftCtrl_isRotate;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_shiftCtrl_isDoubleWord;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_mulDivCtrl_isDiv;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_mulDivCtrl_isSigned;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_mulDivCtrl_isWordOp;
-  wire       [1:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_size;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isSignedLoad;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isStore;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isLoadLinked;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isStoreCond;
-  wire       [4:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_atomicOp;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isFence;
-  wire       [7:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_fenceMode;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isCacheOp;
-  wire       [4:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_cacheOpType;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isPrefetch;
-  wire       [4:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_condition;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_isJump;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_isLink;
-  wire       [4:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_linkReg_idx;
-  wire       [1:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_linkReg_rtype;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_isIndirect;
-  wire       [2:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_laCfIdx;
-  wire       [3:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_opType;
-  wire       [1:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc1;
-  wire       [1:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc2;
-  wire       [1:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc3;
-  wire       [1:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeDest;
-  wire       [2:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_roundingMode;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_isIntegerDest;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_isSignedCvt;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fmaNegSrc1;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fmaNegSrc3;
-  wire       [4:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fcmpCond;
-  wire       [13:0]   RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_csrAddr;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_isWrite;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_isRead;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_isExchange;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_useUimmAsSrc;
-  wire       [19:0]   RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_sysCtrl_sysCode;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_sysCtrl_isExceptionReturn;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_sysCtrl_isTlbOp;
-  wire       [3:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_sysCtrl_tlbOpType;
-  wire       [1:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_decodeExceptionCode;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_hasDecodeException;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_isMicrocode;
-  wire       [7:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_microcodeEntry;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_isSerializing;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_isBranchOrJump;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_branchPrediction_isTaken;
-  wire       [31:0]   RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_branchPrediction_target;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_branchPrediction_wasPredicted;
-  wire       [5:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc1_idx;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc1IsFpr;
-  wire       [5:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc2_idx;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc2IsFpr;
-  wire       [5:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc3_idx;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc3IsFpr;
-  wire       [5:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_physDest_idx;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_physDestIsFpr;
-  wire       [5:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_oldPhysDest_idx;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_oldPhysDestIsFpr;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_allocatesPhysDest;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_writesToPhysReg;
-  wire       [3:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_robPtr;
-  wire       [15:0]   RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_uniqueId;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_dispatched;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_executed;
-  wire                RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_hasException;
-  wire       [7:0]    RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_exceptionCode;
-  wire       [0:0]    RenamePlugin_early_setup_renameUnit_io_numPhysRegsRequired;
-  wire       [4:0]    RenamePlugin_early_setup_renameUnit_io_ratReadPorts_0_archReg;
-  wire       [4:0]    RenamePlugin_early_setup_renameUnit_io_ratReadPorts_1_archReg;
-  wire       [4:0]    RenamePlugin_early_setup_renameUnit_io_ratReadPorts_2_archReg;
-  wire                RenamePlugin_early_setup_renameUnit_io_ratWritePorts_0_wen;
-  wire       [4:0]    RenamePlugin_early_setup_renameUnit_io_ratWritePorts_0_archReg;
-  wire       [5:0]    RenamePlugin_early_setup_renameUnit_io_ratWritePorts_0_physReg;
+  wire       [31:0]   RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_pc;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_isValid;
+  wire       [4:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_uopCode;
+  wire       [3:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_exeUnit;
+  wire       [1:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_isa;
+  wire       [4:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archDest_idx;
+  wire       [1:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archDest_rtype;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_writeArchDestEn;
+  wire       [4:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc1_idx;
+  wire       [1:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc1_rtype;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_useArchSrc1;
+  wire       [4:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc2_idx;
+  wire       [1:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc2_rtype;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_useArchSrc2;
+  wire       [4:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc3_idx;
+  wire       [1:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc3_rtype;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_useArchSrc3;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_usePcForAddr;
+  wire       [31:0]   RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_imm;
+  wire       [2:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_immUsage;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_aluCtrl_isSub;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_aluCtrl_isAdd;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_aluCtrl_isSigned;
+  wire       [1:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_aluCtrl_logicOp;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_shiftCtrl_isRight;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_shiftCtrl_isArithmetic;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_shiftCtrl_isRotate;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_shiftCtrl_isDoubleWord;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_mulDivCtrl_isDiv;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_mulDivCtrl_isSigned;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_mulDivCtrl_isWordOp;
+  wire       [1:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_size;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isSignedLoad;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isStore;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isLoadLinked;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isStoreCond;
+  wire       [4:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_atomicOp;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isFence;
+  wire       [7:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_fenceMode;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isCacheOp;
+  wire       [4:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_cacheOpType;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isPrefetch;
+  wire       [4:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_condition;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_isJump;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_isLink;
+  wire       [4:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_linkReg_idx;
+  wire       [1:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_linkReg_rtype;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_isIndirect;
+  wire       [2:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_laCfIdx;
+  wire       [3:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_opType;
+  wire       [1:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc1;
+  wire       [1:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc2;
+  wire       [1:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc3;
+  wire       [1:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeDest;
+  wire       [2:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_roundingMode;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_isIntegerDest;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_isSignedCvt;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fmaNegSrc1;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fmaNegSrc3;
+  wire       [4:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fcmpCond;
+  wire       [13:0]   RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_csrAddr;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_isWrite;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_isRead;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_isExchange;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_useUimmAsSrc;
+  wire       [19:0]   RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_sysCtrl_sysCode;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_sysCtrl_isExceptionReturn;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_sysCtrl_isTlbOp;
+  wire       [3:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_sysCtrl_tlbOpType;
+  wire       [1:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_decodeExceptionCode;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_hasDecodeException;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_isMicrocode;
+  wire       [7:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_microcodeEntry;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_isSerializing;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_isBranchOrJump;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_branchPrediction_isTaken;
+  wire       [31:0]   RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_branchPrediction_target;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_branchPrediction_wasPredicted;
+  wire       [5:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc1_idx;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc1IsFpr;
+  wire       [5:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc2_idx;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc2IsFpr;
+  wire       [5:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc3_idx;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc3IsFpr;
+  wire       [5:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physDest_idx;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physDestIsFpr;
+  wire       [5:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_oldPhysDest_idx;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_oldPhysDestIsFpr;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_allocatesPhysDest;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_writesToPhysReg;
+  wire       [3:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_robPtr;
+  wire       [15:0]   RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_uniqueId;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_dispatched;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_executed;
+  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_hasException;
+  wire       [7:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_exceptionCode;
+  wire       [0:0]    RenamePlugin_setup_renameUnit_io_numPhysRegsRequired;
+  wire       [4:0]    RenamePlugin_setup_renameUnit_io_ratReadPorts_0_archReg;
+  wire       [4:0]    RenamePlugin_setup_renameUnit_io_ratReadPorts_1_archReg;
+  wire       [4:0]    RenamePlugin_setup_renameUnit_io_ratReadPorts_2_archReg;
+  wire                RenamePlugin_setup_renameUnit_io_ratWritePorts_0_wen;
+  wire       [4:0]    RenamePlugin_setup_renameUnit_io_ratWritePorts_0_archReg;
+  wire       [5:0]    RenamePlugin_setup_renameUnit_io_ratWritePorts_0_physReg;
   wire       [7:0]    DebugDisplayPlugin_hw_dpyController_io_dpy0_out;
   wire       [7:0]    DebugDisplayPlugin_hw_dpyController_io_dpy1_out;
   wire                IFUPlugin_logic_ifu_io_cpuPort_cmd_ready;
@@ -1341,8 +1338,6 @@ module CoreNSCSCC (
   wire       [7:0]    _zz_io_triggerIn_10;
   wire       [4:0]    _zz_io_triggerIn_11;
   wire       [7:0]    _zz_when_Debug_l71_5_1;
-  wire       [6:0]    _zz_RenamePlugin_logic_notEnoughPhysRegs;
-  wire       [0:0]    _zz_RenamePlugin_logic_notEnoughPhysRegs_1;
   wire       [7:0]    _zz_io_triggerIn_12;
   wire       [4:0]    _zz_io_triggerIn_13;
   wire       [7:0]    _zz_when_Debug_l71_6_1;
@@ -1445,7 +1440,6 @@ module CoreNSCSCC (
   wire                SimpleFetchPipelinePlugin_logic_s0_query_S0_UNPACKED_INSTR_predecode_isIdle;
   wire                SimpleFetchPipelinePlugin_logic_s0_query_ready;
   wire                s3_Dispatch_isFlushingRoot;
-  wire                s2_RobAlloc_isFlushingRoot;
   wire                s1_Rename_isFlushingRoot;
   wire                s0_Decode_isFlushingRoot;
   wire                s0_Decode_isFlushed;
@@ -1568,10 +1562,359 @@ module CoreNSCSCC (
   wire       [1:0]    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_2;
   wire       [2:0]    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_2;
   wire                s0_Dispatch_ready_1;
-  reg        [31:0]   s0_Decode_IssuePipelineSignals_FLUSH_TARGET_PC;
   reg                 when_Connection_l66;
-  reg                 _zz_s2_RobAlloc_isFlushingRoot;
+  wire       [31:0]   s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_pc;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isValid;
+  wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode;
+  wire       [3:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_exeUnit;
+  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isa;
+  wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archDest_idx;
+  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archDest_rtype;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_writeArchDestEn;
+  wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc1_idx;
+  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc1_rtype;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc1;
+  wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_idx;
+  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_rtype;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc2;
+  wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_idx;
+  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc3;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_usePcForAddr;
+  wire       [31:0]   s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_imm;
+  wire       [2:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_aluCtrl_isSub;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_aluCtrl_isAdd;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_aluCtrl_isSigned;
+  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_aluCtrl_logicOp;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_shiftCtrl_isRight;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_shiftCtrl_isArithmetic;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_shiftCtrl_isRotate;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_shiftCtrl_isDoubleWord;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_mulDivCtrl_isDiv;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_mulDivCtrl_isSigned;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_mulDivCtrl_isWordOp;
+  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_size;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_isSignedLoad;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_isStore;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_isLoadLinked;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_isStoreCond;
+  wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_atomicOp;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_isFence;
+  wire       [7:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_fenceMode;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_isCacheOp;
+  wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_cacheOpType;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_isPrefetch;
+  wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_isJump;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_isLink;
+  wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_linkReg_idx;
+  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_linkReg_rtype;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_isIndirect;
+  wire       [2:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_laCfIdx;
+  wire       [3:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_opType;
+  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1;
+  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2;
+  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3;
+  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeDest;
+  wire       [2:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_roundingMode;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_isIntegerDest;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_isSignedCvt;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fmaNegSrc1;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fmaNegSrc3;
+  wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fcmpCond;
+  wire       [13:0]   s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_csrCtrl_csrAddr;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_csrCtrl_isWrite;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_csrCtrl_isRead;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_csrCtrl_isExchange;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_csrCtrl_useUimmAsSrc;
+  wire       [19:0]   s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_sysCtrl_sysCode;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_sysCtrl_isExceptionReturn;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_sysCtrl_isTlbOp;
+  wire       [3:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_sysCtrl_tlbOpType;
+  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_decodeExceptionCode;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_hasDecodeException;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isMicrocode;
+  wire       [7:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_microcodeEntry;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isSerializing;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isBranchOrJump;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchPrediction_isTaken;
+  wire       [31:0]   s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchPrediction_target;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchPrediction_wasPredicted;
+  wire       [5:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc1_idx;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc1IsFpr;
+  wire       [5:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2_idx;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2IsFpr;
+  wire       [5:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc3_idx;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc3IsFpr;
+  wire       [5:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physDest_idx;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physDestIsFpr;
+  wire       [5:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_oldPhysDest_idx;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_oldPhysDestIsFpr;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_allocatesPhysDest;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_writesToPhysReg;
+  wire       [3:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_robPtr;
+  wire       [15:0]   s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_uniqueId;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_dispatched;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_executed;
+  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_hasException;
+  wire       [7:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_exceptionCode;
   reg                 _zz_s1_Rename_isFlushingRoot;
+  wire       [31:0]   s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_pc;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isValid;
+  wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode;
+  wire       [3:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_exeUnit;
+  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isa;
+  wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archDest_idx;
+  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archDest_rtype;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_writeArchDestEn;
+  wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc1_idx;
+  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc1_rtype;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc1;
+  wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_idx;
+  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_rtype;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc2;
+  wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_idx;
+  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_rtype;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc3;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_usePcForAddr;
+  wire       [31:0]   s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_imm;
+  wire       [2:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_immUsage;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_isSub;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_isAdd;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_isSigned;
+  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_logicOp;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isRight;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isArithmetic;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isRotate;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isDoubleWord;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_mulDivCtrl_isDiv;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_mulDivCtrl_isSigned;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_mulDivCtrl_isWordOp;
+  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_size;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isSignedLoad;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isStore;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isLoadLinked;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isStoreCond;
+  wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_atomicOp;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isFence;
+  wire       [7:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_fenceMode;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isCacheOp;
+  wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_cacheOpType;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isPrefetch;
+  wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_condition;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_isJump;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_isLink;
+  wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_linkReg_idx;
+  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_linkReg_rtype;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_isIndirect;
+  wire       [2:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_laCfIdx;
+  wire       [3:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_opType;
+  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1;
+  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2;
+  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3;
+  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeDest;
+  wire       [2:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_roundingMode;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_isIntegerDest;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_isSignedCvt;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fmaNegSrc1;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fmaNegSrc3;
+  wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fcmpCond;
+  wire       [13:0]   s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_csrAddr;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_isWrite;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_isRead;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_isExchange;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_useUimmAsSrc;
+  wire       [19:0]   s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_sysCode;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_isExceptionReturn;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_isTlbOp;
+  wire       [3:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_tlbOpType;
+  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_decodeExceptionCode;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_hasDecodeException;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isMicrocode;
+  wire       [7:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_microcodeEntry;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isSerializing;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isBranchOrJump;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchPrediction_isTaken;
+  wire       [31:0]   s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchPrediction_target;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchPrediction_wasPredicted;
+  wire       [5:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc1_idx;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc1IsFpr;
+  wire       [5:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc2_idx;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc2IsFpr;
+  wire       [5:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc3_idx;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc3IsFpr;
+  wire       [5:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physDest_idx;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physDestIsFpr;
+  wire       [5:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_oldPhysDest_idx;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_oldPhysDestIsFpr;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_allocatesPhysDest;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_writesToPhysReg;
+  wire       [3:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_robPtr;
+  wire       [15:0]   s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_uniqueId;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_dispatched;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_executed;
+  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_hasException;
+  wire       [7:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_exceptionCode;
+  reg                 _zz_s2_RobAlloc_haltRequest_RenamePlugin_l83;
+  reg                 s2_RobAlloc_IssuePipelineSignals_NEEDS_PHYS_REG_0;
+  reg        [31:0]   s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_pc;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_isValid;
+  reg        [4:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_uopCode;
+  reg        [3:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_exeUnit;
+  reg        [1:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_isa;
+  reg        [4:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archDest_idx;
+  reg        [1:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archDest_rtype;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_writeArchDestEn;
+  reg        [4:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc1_idx;
+  reg        [1:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc1_rtype;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc1;
+  reg        [4:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_idx;
+  reg        [1:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_rtype;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc2;
+  reg        [4:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_idx;
+  reg        [1:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc3;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_usePcForAddr;
+  reg        [31:0]   s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_imm;
+  reg        [2:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_immUsage;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_isSub;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_isAdd;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_isSigned;
+  reg        [1:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_logicOp;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_shiftCtrl_isRight;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_shiftCtrl_isArithmetic;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_shiftCtrl_isRotate;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_shiftCtrl_isDoubleWord;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_mulDivCtrl_isDiv;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_mulDivCtrl_isSigned;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_mulDivCtrl_isWordOp;
+  reg        [1:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_size;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isSignedLoad;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isStore;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isLoadLinked;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isStoreCond;
+  reg        [4:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_atomicOp;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isFence;
+  reg        [7:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_fenceMode;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isCacheOp;
+  reg        [4:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_cacheOpType;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isPrefetch;
+  reg        [4:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_condition;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_isJump;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_isLink;
+  reg        [4:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_linkReg_idx;
+  reg        [1:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_linkReg_rtype;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_isIndirect;
+  reg        [2:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_laCfIdx;
+  reg        [3:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_opType;
+  reg        [1:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc1;
+  reg        [1:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2;
+  reg        [1:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3;
+  reg        [1:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeDest;
+  reg        [2:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_roundingMode;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_isIntegerDest;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_isSignedCvt;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fmaNegSrc1;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fmaNegSrc3;
+  reg        [4:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fcmpCond;
+  reg        [13:0]   s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_csrAddr;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_isWrite;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_isRead;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_isExchange;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_useUimmAsSrc;
+  reg        [19:0]   s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_sysCtrl_sysCode;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_sysCtrl_isExceptionReturn;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_sysCtrl_isTlbOp;
+  reg        [3:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_sysCtrl_tlbOpType;
+  reg        [1:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_decodeExceptionCode;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_hasDecodeException;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_isMicrocode;
+  reg        [7:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_microcodeEntry;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_isSerializing;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_isBranchOrJump;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchPrediction_isTaken;
+  reg        [31:0]   s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchPrediction_target;
+  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchPrediction_wasPredicted;
+  wire                s1_Rename_IssuePipelineSignals_NEEDS_PHYS_REG_0;
+  reg        [31:0]   s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_pc;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_isValid;
+  reg        [4:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_uopCode;
+  reg        [3:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_exeUnit;
+  reg        [1:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_isa;
+  reg        [4:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archDest_idx;
+  reg        [1:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archDest_rtype;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_writeArchDestEn;
+  reg        [4:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc1_idx;
+  reg        [1:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc1_rtype;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc1;
+  reg        [4:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_idx;
+  reg        [1:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_rtype;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc2;
+  reg        [4:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_idx;
+  reg        [1:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc3;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_usePcForAddr;
+  reg        [31:0]   s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_imm;
+  reg        [2:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_immUsage;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_isSub;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_isAdd;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_isSigned;
+  reg        [1:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_logicOp;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_shiftCtrl_isRight;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_shiftCtrl_isArithmetic;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_shiftCtrl_isRotate;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_shiftCtrl_isDoubleWord;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_mulDivCtrl_isDiv;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_mulDivCtrl_isSigned;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_mulDivCtrl_isWordOp;
+  reg        [1:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_size;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isSignedLoad;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isStore;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isLoadLinked;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isStoreCond;
+  reg        [4:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_atomicOp;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isFence;
+  reg        [7:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_fenceMode;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isCacheOp;
+  reg        [4:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_cacheOpType;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isPrefetch;
+  reg        [4:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_condition;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_isJump;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_isLink;
+  reg        [4:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_linkReg_idx;
+  reg        [1:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_linkReg_rtype;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_isIndirect;
+  reg        [2:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_laCfIdx;
+  reg        [3:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_opType;
+  reg        [1:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc1;
+  reg        [1:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2;
+  reg        [1:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3;
+  reg        [1:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeDest;
+  reg        [2:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_roundingMode;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_isIntegerDest;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_isSignedCvt;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fmaNegSrc1;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fmaNegSrc3;
+  reg        [4:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fcmpCond;
+  reg        [13:0]   s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_csrAddr;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_isWrite;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_isRead;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_isExchange;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_useUimmAsSrc;
+  reg        [19:0]   s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_sysCtrl_sysCode;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_sysCtrl_isExceptionReturn;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_sysCtrl_isTlbOp;
+  reg        [3:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_sysCtrl_tlbOpType;
+  reg        [1:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_decodeExceptionCode;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_hasDecodeException;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_isMicrocode;
+  reg        [7:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_microcodeEntry;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_isSerializing;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_isBranchOrJump;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchPrediction_isTaken;
+  reg        [31:0]   s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchPrediction_target;
+  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchPrediction_wasPredicted;
   reg                 _zz_s0_Decode_isFlushingRoot;
   reg                 _zz_1;
   reg                 _zz_2;
@@ -1687,372 +2030,6 @@ module CoreNSCSCC (
   reg                 s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_executed;
   reg                 s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_hasException;
   reg        [7:0]    s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_exceptionCode;
-  wire       [31:0]   s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_pc;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isValid;
-  wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode;
-  wire       [3:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_exeUnit;
-  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isa;
-  wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archDest_idx;
-  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archDest_rtype;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_writeArchDestEn;
-  wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc1_idx;
-  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc1_rtype;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc1;
-  wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_idx;
-  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_rtype;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc2;
-  wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_idx;
-  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc3;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_usePcForAddr;
-  wire       [31:0]   s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_imm;
-  wire       [2:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_aluCtrl_isSub;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_aluCtrl_isAdd;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_aluCtrl_isSigned;
-  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_aluCtrl_logicOp;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_shiftCtrl_isRight;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_shiftCtrl_isArithmetic;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_shiftCtrl_isRotate;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_shiftCtrl_isDoubleWord;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_mulDivCtrl_isDiv;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_mulDivCtrl_isSigned;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_mulDivCtrl_isWordOp;
-  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_size;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_isSignedLoad;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_isStore;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_isLoadLinked;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_isStoreCond;
-  wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_atomicOp;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_isFence;
-  wire       [7:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_fenceMode;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_isCacheOp;
-  wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_cacheOpType;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_isPrefetch;
-  wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_isJump;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_isLink;
-  wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_linkReg_idx;
-  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_linkReg_rtype;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_isIndirect;
-  wire       [2:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_laCfIdx;
-  wire       [3:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_opType;
-  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1;
-  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2;
-  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3;
-  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeDest;
-  wire       [2:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_roundingMode;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_isIntegerDest;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_isSignedCvt;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fmaNegSrc1;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fmaNegSrc3;
-  wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fcmpCond;
-  wire       [13:0]   s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_csrCtrl_csrAddr;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_csrCtrl_isWrite;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_csrCtrl_isRead;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_csrCtrl_isExchange;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_csrCtrl_useUimmAsSrc;
-  wire       [19:0]   s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_sysCtrl_sysCode;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_sysCtrl_isExceptionReturn;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_sysCtrl_isTlbOp;
-  wire       [3:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_sysCtrl_tlbOpType;
-  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_decodeExceptionCode;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_hasDecodeException;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isMicrocode;
-  wire       [7:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_microcodeEntry;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isSerializing;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isBranchOrJump;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchPrediction_isTaken;
-  wire       [31:0]   s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchPrediction_target;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchPrediction_wasPredicted;
-  wire       [5:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc1_idx;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc1IsFpr;
-  wire       [5:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2_idx;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2IsFpr;
-  wire       [5:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc3_idx;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc3IsFpr;
-  wire       [5:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physDest_idx;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physDestIsFpr;
-  wire       [5:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_oldPhysDest_idx;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_oldPhysDestIsFpr;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_allocatesPhysDest;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_writesToPhysReg;
-  wire       [3:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_robPtr;
-  wire       [15:0]   s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_uniqueId;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_dispatched;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_executed;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_hasException;
-  wire       [7:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_exceptionCode;
-  reg        [31:0]   s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_pc;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isValid;
-  reg        [4:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode;
-  reg        [3:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_exeUnit;
-  reg        [1:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isa;
-  reg        [4:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archDest_idx;
-  reg        [1:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archDest_rtype;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_writeArchDestEn;
-  reg        [4:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc1_idx;
-  reg        [1:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc1_rtype;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc1;
-  reg        [4:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_idx;
-  reg        [1:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_rtype;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc2;
-  reg        [4:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_idx;
-  reg        [1:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_rtype;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc3;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_usePcForAddr;
-  reg        [31:0]   s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_imm;
-  reg        [2:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_immUsage;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_isSub;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_isAdd;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_isSigned;
-  reg        [1:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_logicOp;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isRight;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isArithmetic;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isRotate;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isDoubleWord;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_mulDivCtrl_isDiv;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_mulDivCtrl_isSigned;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_mulDivCtrl_isWordOp;
-  reg        [1:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_size;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isSignedLoad;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isStore;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isLoadLinked;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isStoreCond;
-  reg        [4:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_atomicOp;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isFence;
-  reg        [7:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_fenceMode;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isCacheOp;
-  reg        [4:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_cacheOpType;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isPrefetch;
-  reg        [4:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_condition;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_isJump;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_isLink;
-  reg        [4:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_linkReg_idx;
-  reg        [1:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_linkReg_rtype;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_isIndirect;
-  reg        [2:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_laCfIdx;
-  reg        [3:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_opType;
-  reg        [1:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1;
-  reg        [1:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2;
-  reg        [1:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3;
-  reg        [1:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeDest;
-  reg        [2:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_roundingMode;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_isIntegerDest;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_isSignedCvt;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fmaNegSrc1;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fmaNegSrc3;
-  reg        [4:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fcmpCond;
-  reg        [13:0]   s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_csrAddr;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_isWrite;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_isRead;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_isExchange;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_useUimmAsSrc;
-  reg        [19:0]   s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_sysCode;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_isExceptionReturn;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_isTlbOp;
-  reg        [3:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_tlbOpType;
-  reg        [1:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_decodeExceptionCode;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_hasDecodeException;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isMicrocode;
-  reg        [7:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_microcodeEntry;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isSerializing;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isBranchOrJump;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchPrediction_isTaken;
-  reg        [31:0]   s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchPrediction_target;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchPrediction_wasPredicted;
-  reg        [5:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc1_idx;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc1IsFpr;
-  reg        [5:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc2_idx;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc2IsFpr;
-  reg        [5:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc3_idx;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc3IsFpr;
-  reg        [5:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physDest_idx;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physDestIsFpr;
-  reg        [5:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_oldPhysDest_idx;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_oldPhysDestIsFpr;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_allocatesPhysDest;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_writesToPhysReg;
-  reg        [3:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_robPtr;
-  reg        [15:0]   s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_uniqueId;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_dispatched;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_executed;
-  reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_hasException;
-  reg        [7:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_exceptionCode;
-  wire       [31:0]   s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_pc;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isValid;
-  wire       [4:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode;
-  wire       [3:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_exeUnit;
-  wire       [1:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isa;
-  wire       [4:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archDest_idx;
-  wire       [1:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archDest_rtype;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_writeArchDestEn;
-  wire       [4:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc1_idx;
-  wire       [1:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc1_rtype;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc1;
-  wire       [4:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_idx;
-  wire       [1:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_rtype;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc2;
-  wire       [4:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_idx;
-  wire       [1:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_rtype;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc3;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_usePcForAddr;
-  wire       [31:0]   s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_imm;
-  wire       [2:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_immUsage;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_isSub;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_isAdd;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_isSigned;
-  wire       [1:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_logicOp;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isRight;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isArithmetic;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isRotate;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isDoubleWord;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_mulDivCtrl_isDiv;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_mulDivCtrl_isSigned;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_mulDivCtrl_isWordOp;
-  wire       [1:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_size;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isSignedLoad;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isStore;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isLoadLinked;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isStoreCond;
-  wire       [4:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_atomicOp;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isFence;
-  wire       [7:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_fenceMode;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isCacheOp;
-  wire       [4:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_cacheOpType;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isPrefetch;
-  wire       [4:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_condition;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_isJump;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_isLink;
-  wire       [4:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_linkReg_idx;
-  wire       [1:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_linkReg_rtype;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_isIndirect;
-  wire       [2:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_laCfIdx;
-  wire       [3:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_opType;
-  wire       [1:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1;
-  wire       [1:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2;
-  wire       [1:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3;
-  wire       [1:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeDest;
-  wire       [2:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_roundingMode;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_isIntegerDest;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_isSignedCvt;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fmaNegSrc1;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fmaNegSrc3;
-  wire       [4:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fcmpCond;
-  wire       [13:0]   s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_csrAddr;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_isWrite;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_isRead;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_isExchange;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_useUimmAsSrc;
-  wire       [19:0]   s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_sysCode;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_isExceptionReturn;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_isTlbOp;
-  wire       [3:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_tlbOpType;
-  wire       [1:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_decodeExceptionCode;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_hasDecodeException;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isMicrocode;
-  wire       [7:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_microcodeEntry;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isSerializing;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isBranchOrJump;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchPrediction_isTaken;
-  wire       [31:0]   s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchPrediction_target;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchPrediction_wasPredicted;
-  wire       [5:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc1_idx;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc1IsFpr;
-  (* mark_debug = "TRUE" *) wire       [5:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc2_idx;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc2IsFpr;
-  wire       [5:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc3_idx;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc3IsFpr;
-  wire       [5:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physDest_idx;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physDestIsFpr;
-  wire       [5:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_oldPhysDest_idx;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_oldPhysDestIsFpr;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_allocatesPhysDest;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_writesToPhysReg;
-  wire       [3:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_robPtr;
-  wire       [15:0]   s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_uniqueId;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_dispatched;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_executed;
-  wire                s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_hasException;
-  wire       [7:0]    s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_exceptionCode;
-  reg        [31:0]   s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_pc;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_isValid;
-  reg        [4:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_uopCode;
-  reg        [3:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_exeUnit;
-  reg        [1:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_isa;
-  reg        [4:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archDest_idx;
-  reg        [1:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archDest_rtype;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_writeArchDestEn;
-  reg        [4:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc1_idx;
-  reg        [1:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc1_rtype;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc1;
-  reg        [4:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_idx;
-  reg        [1:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_rtype;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc2;
-  reg        [4:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_idx;
-  reg        [1:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc3;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_usePcForAddr;
-  reg        [31:0]   s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_imm;
-  reg        [2:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_immUsage;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_isSub;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_isAdd;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_isSigned;
-  reg        [1:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_logicOp;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_shiftCtrl_isRight;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_shiftCtrl_isArithmetic;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_shiftCtrl_isRotate;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_shiftCtrl_isDoubleWord;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_mulDivCtrl_isDiv;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_mulDivCtrl_isSigned;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_mulDivCtrl_isWordOp;
-  reg        [1:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_size;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isSignedLoad;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isStore;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isLoadLinked;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isStoreCond;
-  reg        [4:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_atomicOp;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isFence;
-  reg        [7:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_fenceMode;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isCacheOp;
-  reg        [4:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_cacheOpType;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isPrefetch;
-  reg        [4:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_condition;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_isJump;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_isLink;
-  reg        [4:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_linkReg_idx;
-  reg        [1:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_linkReg_rtype;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_isIndirect;
-  reg        [2:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_laCfIdx;
-  reg        [3:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_opType;
-  reg        [1:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc1;
-  reg        [1:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2;
-  reg        [1:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3;
-  reg        [1:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeDest;
-  reg        [2:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_roundingMode;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_isIntegerDest;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_isSignedCvt;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fmaNegSrc1;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fmaNegSrc3;
-  reg        [4:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fcmpCond;
-  reg        [13:0]   s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_csrAddr;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_isWrite;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_isRead;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_isExchange;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_useUimmAsSrc;
-  reg        [19:0]   s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_sysCtrl_sysCode;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_sysCtrl_isExceptionReturn;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_sysCtrl_isTlbOp;
-  reg        [3:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_sysCtrl_tlbOpType;
-  reg        [1:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_decodeExceptionCode;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_hasDecodeException;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_isMicrocode;
-  reg        [7:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_microcodeEntry;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_isSerializing;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_isBranchOrJump;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchPrediction_isTaken;
-  reg        [31:0]   s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchPrediction_target;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchPrediction_wasPredicted;
   reg                 s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_0_isTaken;
   reg        [31:0]   s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_0_target;
   reg                 s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_0_wasPredicted;
@@ -2144,7 +2121,7 @@ module CoreNSCSCC (
   reg        [31:0]   s0_Decode_IssuePipelineSignals_GROUP_PC_IN;
   reg                 s3_Dispatch_ready;
   reg                 s2_RobAlloc_ready;
-  reg                 s1_Rename_ready;
+  wire                s1_Rename_ready;
   wire                s0_Decode_ready;
   wire                BpuPipelinePlugin_queryPortIn_valid;
   wire       [31:0]   BpuPipelinePlugin_queryPortIn_payload_pc;
@@ -2491,8 +2468,8 @@ module CoreNSCSCC (
   reg        [3:0]    CommitPlugin_hw_robFlushPort_payload_targetRobPtr;
   reg                 CommitPlugin_hw_redirectPort_valid;
   reg        [31:0]   CommitPlugin_hw_redirectPort_payload;
-  reg                 RenamePlugin_early_setup_setBusyPorts_0_valid;
-  reg        [5:0]    RenamePlugin_early_setup_setBusyPorts_0_payload;
+  wire                RenamePlugin_setup_btSetBusyPorts_0_valid;
+  wire       [5:0]    RenamePlugin_setup_btSetBusyPorts_0_payload;
   wire                AluIntEU_AluIntEuPlugin_wakeupSourcePort_valid;
   wire       [5:0]    AluIntEU_AluIntEuPlugin_wakeupSourcePort_payload_physRegIdx;
   wire                AluIntEU_AluIntEuPlugin_gprReadPorts_0_valid;
@@ -2775,7 +2752,6 @@ module CoreNSCSCC (
   reg        [5:0]    CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_29;
   reg        [5:0]    CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_30;
   reg        [5:0]    CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_31;
-  reg        [63:0]   CheckpointManagerPlugin_logic_storedFlCheckpoint_freeMask;
   reg        [63:0]   CheckpointManagerPlugin_logic_storedBtCheckpoint_busyBits;
   reg                 CheckpointManagerPlugin_logic_hasValidCheckpoint;
   wire       [5:0]    CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_0;
@@ -2810,7 +2786,6 @@ module CoreNSCSCC (
   wire       [5:0]    CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_29;
   wire       [5:0]    CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_30;
   wire       [5:0]    CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_31;
-  wire       [63:0]   CheckpointManagerPlugin_logic_initialFlCheckpoint_freeMask;
   reg        [63:0]   CheckpointManagerPlugin_logic_initialFreeMask;
   wire       [63:0]   CheckpointManagerPlugin_logic_initialBtCheckpoint_busyBits;
   wire       [0:0]    CommitPlugin_logic_commitCount;
@@ -3069,112 +3044,106 @@ module CoreNSCSCC (
   wire                _zz_33;
   wire                _zz_34;
   wire                _zz_35;
-  wire                RenamePlugin_logic_renameWriteReqs_0;
-  wire                RenamePlugin_logic_renameWriteData_0_wen;
-  wire       [4:0]    RenamePlugin_logic_renameWriteData_0_archReg;
-  wire       [5:0]    RenamePlugin_logic_renameWriteData_0_physReg;
-  wire                RenamePlugin_logic_willNeedPhysRegs;
-  wire                RenamePlugin_logic_notEnoughPhysRegs;
-  wire                s1_Rename_haltRequest_RenamePlugin_l85;
-  wire                when_RenamePlugin_l88;
-  wire                when_RenamePlugin_l100;
-  wire                s2_RobAlloc_haltRequest_RobAllocPlugin_l40;
-  wire       [31:0]   RobAllocPlugin_logic_newUopsArray_0_decoded_pc;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_isValid;
-  wire       [4:0]    RobAllocPlugin_logic_newUopsArray_0_decoded_uopCode;
-  wire       [3:0]    RobAllocPlugin_logic_newUopsArray_0_decoded_exeUnit;
-  wire       [1:0]    RobAllocPlugin_logic_newUopsArray_0_decoded_isa;
-  wire       [4:0]    RobAllocPlugin_logic_newUopsArray_0_decoded_archDest_idx;
-  wire       [1:0]    RobAllocPlugin_logic_newUopsArray_0_decoded_archDest_rtype;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_writeArchDestEn;
-  wire       [4:0]    RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc1_idx;
-  wire       [1:0]    RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc1_rtype;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_useArchSrc1;
-  wire       [4:0]    RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc2_idx;
-  wire       [1:0]    RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc2_rtype;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_useArchSrc2;
-  wire       [4:0]    RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc3_idx;
-  wire       [1:0]    RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc3_rtype;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_useArchSrc3;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_usePcForAddr;
-  wire       [31:0]   RobAllocPlugin_logic_newUopsArray_0_decoded_imm;
-  wire       [2:0]    RobAllocPlugin_logic_newUopsArray_0_decoded_immUsage;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_aluCtrl_isSub;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_aluCtrl_isAdd;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_aluCtrl_isSigned;
-  wire       [1:0]    RobAllocPlugin_logic_newUopsArray_0_decoded_aluCtrl_logicOp;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_shiftCtrl_isRight;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_shiftCtrl_isArithmetic;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_shiftCtrl_isRotate;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_shiftCtrl_isDoubleWord;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_mulDivCtrl_isDiv;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_mulDivCtrl_isSigned;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_mulDivCtrl_isWordOp;
-  wire       [1:0]    RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_size;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_isSignedLoad;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_isStore;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_isLoadLinked;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_isStoreCond;
-  wire       [4:0]    RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_atomicOp;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_isFence;
-  wire       [7:0]    RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_fenceMode;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_isCacheOp;
-  wire       [4:0]    RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_cacheOpType;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_isPrefetch;
-  wire       [4:0]    RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_condition;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_isJump;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_isLink;
-  wire       [4:0]    RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_linkReg_idx;
-  wire       [1:0]    RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_linkReg_rtype;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_isIndirect;
-  wire       [2:0]    RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_laCfIdx;
-  wire       [3:0]    RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_opType;
-  wire       [1:0]    RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeSrc1;
-  wire       [1:0]    RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeSrc2;
-  wire       [1:0]    RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeSrc3;
-  wire       [1:0]    RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeDest;
-  wire       [2:0]    RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_roundingMode;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_isIntegerDest;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_isSignedCvt;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fmaNegSrc1;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fmaNegSrc3;
-  wire       [4:0]    RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fcmpCond;
-  wire       [13:0]   RobAllocPlugin_logic_newUopsArray_0_decoded_csrCtrl_csrAddr;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_csrCtrl_isWrite;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_csrCtrl_isRead;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_csrCtrl_isExchange;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_csrCtrl_useUimmAsSrc;
-  wire       [19:0]   RobAllocPlugin_logic_newUopsArray_0_decoded_sysCtrl_sysCode;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_sysCtrl_isExceptionReturn;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_sysCtrl_isTlbOp;
-  wire       [3:0]    RobAllocPlugin_logic_newUopsArray_0_decoded_sysCtrl_tlbOpType;
-  wire       [1:0]    RobAllocPlugin_logic_newUopsArray_0_decoded_decodeExceptionCode;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_hasDecodeException;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_isMicrocode;
-  wire       [7:0]    RobAllocPlugin_logic_newUopsArray_0_decoded_microcodeEntry;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_isSerializing;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_isBranchOrJump;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_branchPrediction_isTaken;
-  wire       [31:0]   RobAllocPlugin_logic_newUopsArray_0_decoded_branchPrediction_target;
-  wire                RobAllocPlugin_logic_newUopsArray_0_decoded_branchPrediction_wasPredicted;
-  wire       [5:0]    RobAllocPlugin_logic_newUopsArray_0_rename_physSrc1_idx;
-  wire                RobAllocPlugin_logic_newUopsArray_0_rename_physSrc1IsFpr;
-  wire       [5:0]    RobAllocPlugin_logic_newUopsArray_0_rename_physSrc2_idx;
-  wire                RobAllocPlugin_logic_newUopsArray_0_rename_physSrc2IsFpr;
-  wire       [5:0]    RobAllocPlugin_logic_newUopsArray_0_rename_physSrc3_idx;
-  wire                RobAllocPlugin_logic_newUopsArray_0_rename_physSrc3IsFpr;
-  wire       [5:0]    RobAllocPlugin_logic_newUopsArray_0_rename_physDest_idx;
-  wire                RobAllocPlugin_logic_newUopsArray_0_rename_physDestIsFpr;
-  wire       [5:0]    RobAllocPlugin_logic_newUopsArray_0_rename_oldPhysDest_idx;
-  wire                RobAllocPlugin_logic_newUopsArray_0_rename_oldPhysDestIsFpr;
-  wire                RobAllocPlugin_logic_newUopsArray_0_rename_allocatesPhysDest;
-  wire                RobAllocPlugin_logic_newUopsArray_0_rename_writesToPhysReg;
-  wire       [3:0]    RobAllocPlugin_logic_newUopsArray_0_robPtr;
-  wire       [15:0]   RobAllocPlugin_logic_newUopsArray_0_uniqueId;
-  wire                RobAllocPlugin_logic_newUopsArray_0_dispatched;
-  wire                RobAllocPlugin_logic_newUopsArray_0_executed;
-  wire                RobAllocPlugin_logic_newUopsArray_0_hasException;
-  wire       [7:0]    RobAllocPlugin_logic_newUopsArray_0_exceptionCode;
+  wire                RenamePlugin_logic_s2_logic_allocationOk;
+  wire                when_RenamePlugin_l82;
+  wire                s2_RobAlloc_haltRequest_RenamePlugin_l83;
+  wire                s2_RobAlloc_haltRequest_RobAllocPlugin_l30;
+  wire       [31:0]   RobAllocPlugin_logic_allocatedUops_0_decoded_pc;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_isValid;
+  wire       [4:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_uopCode;
+  wire       [3:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_exeUnit;
+  wire       [1:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_isa;
+  wire       [4:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_archDest_idx;
+  wire       [1:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_archDest_rtype;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_writeArchDestEn;
+  wire       [4:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc1_idx;
+  wire       [1:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc1_rtype;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_useArchSrc1;
+  wire       [4:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc2_idx;
+  wire       [1:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc2_rtype;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_useArchSrc2;
+  wire       [4:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc3_idx;
+  wire       [1:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc3_rtype;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_useArchSrc3;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_usePcForAddr;
+  wire       [31:0]   RobAllocPlugin_logic_allocatedUops_0_decoded_imm;
+  wire       [2:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_immUsage;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_aluCtrl_isSub;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_aluCtrl_isAdd;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_aluCtrl_isSigned;
+  wire       [1:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_aluCtrl_logicOp;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_shiftCtrl_isRight;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_shiftCtrl_isArithmetic;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_shiftCtrl_isRotate;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_shiftCtrl_isDoubleWord;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_mulDivCtrl_isDiv;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_mulDivCtrl_isSigned;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_mulDivCtrl_isWordOp;
+  wire       [1:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_size;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_isSignedLoad;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_isStore;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_isLoadLinked;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_isStoreCond;
+  wire       [4:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_atomicOp;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_isFence;
+  wire       [7:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_fenceMode;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_isCacheOp;
+  wire       [4:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_cacheOpType;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_isPrefetch;
+  wire       [4:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_condition;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_isJump;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_isLink;
+  wire       [4:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_linkReg_idx;
+  wire       [1:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_linkReg_rtype;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_isIndirect;
+  wire       [2:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_laCfIdx;
+  wire       [3:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_opType;
+  wire       [1:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc1;
+  wire       [1:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc2;
+  wire       [1:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc3;
+  wire       [1:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeDest;
+  wire       [2:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_roundingMode;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_isIntegerDest;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_isSignedCvt;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fmaNegSrc1;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fmaNegSrc3;
+  wire       [4:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fcmpCond;
+  wire       [13:0]   RobAllocPlugin_logic_allocatedUops_0_decoded_csrCtrl_csrAddr;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_csrCtrl_isWrite;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_csrCtrl_isRead;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_csrCtrl_isExchange;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_csrCtrl_useUimmAsSrc;
+  wire       [19:0]   RobAllocPlugin_logic_allocatedUops_0_decoded_sysCtrl_sysCode;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_sysCtrl_isExceptionReturn;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_sysCtrl_isTlbOp;
+  wire       [3:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_sysCtrl_tlbOpType;
+  wire       [1:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_decodeExceptionCode;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_hasDecodeException;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_isMicrocode;
+  wire       [7:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_microcodeEntry;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_isSerializing;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_isBranchOrJump;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_branchPrediction_isTaken;
+  wire       [31:0]   RobAllocPlugin_logic_allocatedUops_0_decoded_branchPrediction_target;
+  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_branchPrediction_wasPredicted;
+  wire       [5:0]    RobAllocPlugin_logic_allocatedUops_0_rename_physSrc1_idx;
+  wire                RobAllocPlugin_logic_allocatedUops_0_rename_physSrc1IsFpr;
+  wire       [5:0]    RobAllocPlugin_logic_allocatedUops_0_rename_physSrc2_idx;
+  wire                RobAllocPlugin_logic_allocatedUops_0_rename_physSrc2IsFpr;
+  wire       [5:0]    RobAllocPlugin_logic_allocatedUops_0_rename_physSrc3_idx;
+  wire                RobAllocPlugin_logic_allocatedUops_0_rename_physSrc3IsFpr;
+  wire       [5:0]    RobAllocPlugin_logic_allocatedUops_0_rename_physDest_idx;
+  wire                RobAllocPlugin_logic_allocatedUops_0_rename_physDestIsFpr;
+  wire       [5:0]    RobAllocPlugin_logic_allocatedUops_0_rename_oldPhysDest_idx;
+  wire                RobAllocPlugin_logic_allocatedUops_0_rename_oldPhysDestIsFpr;
+  wire                RobAllocPlugin_logic_allocatedUops_0_rename_allocatesPhysDest;
+  wire                RobAllocPlugin_logic_allocatedUops_0_rename_writesToPhysReg;
+  wire       [3:0]    RobAllocPlugin_logic_allocatedUops_0_robPtr;
+  wire       [15:0]   RobAllocPlugin_logic_allocatedUops_0_uniqueId;
+  wire                RobAllocPlugin_logic_allocatedUops_0_dispatched;
+  wire                RobAllocPlugin_logic_allocatedUops_0_executed;
+  wire                RobAllocPlugin_logic_allocatedUops_0_hasException;
+  wire       [7:0]    RobAllocPlugin_logic_allocatedUops_0_exceptionCode;
   wire                BranchEU_BranchEuPlugin_monitorSignals_branchTaken;
   wire       [31:0]   BranchEU_BranchEuPlugin_monitorSignals_targetPC;
   wire                BranchEU_BranchEuPlugin_monitorSignals_actuallyTaken;
@@ -3878,8 +3847,8 @@ module CoreNSCSCC (
   wire                _zz_DispatchPlugin_logic_destinationIqReady;
   wire                _zz_DispatchPlugin_logic_destinationIqReady_1;
   wire                DispatchPlugin_logic_destinationIqReady;
-  wire                s3_Dispatch_haltRequest_DispatchPlugin_l85;
-  wire                when_DispatchPlugin_l104;
+  wire                s3_Dispatch_haltRequest_DispatchPlugin_l78;
+  wire                when_DispatchPlugin_l97;
   wire       [31:0]   CoreNSCSCCSetupPlugin_logic_instructionVec_0;
   wire       [31:0]   CoreNSCSCCSetupPlugin_logic_instructionVec_1;
   reg                 DebugDisplayPlugin_logic_displayArea_dpToggle;
@@ -4019,13 +3988,11 @@ module CoreNSCSCC (
   wire                when_Debug_l71_9;
   wire                when_EuBasePlugin_l297_2;
   reg                 s2_RobAlloc_ready_output;
-  wire                when_Connection_l66_1;
   reg                 s1_Rename_ready_output;
-  wire                when_Connection_l66_2;
+  wire                when_Connection_l66_1;
   reg                 s0_Decode_ready_output;
   wire                when_Pipeline_l282;
   wire                when_Pipeline_l282_1;
-  wire                when_Pipeline_l282_2;
   wire                when_Connection_l74;
   wire                when_Connection_l74_1;
   wire                when_Connection_l74_2;
@@ -4835,7 +4802,7 @@ module CoreNSCSCC (
   wire                SimpleFetchPipelinePlugin_logic_s1_join_isFiring;
   wire                SimpleFetchPipelinePlugin_logic_s1_join_haltRequest_SimpleFetchPipelinePlugin_l239;
   reg                 SimpleFetchPipelinePlugin_logic_s0_query_ready_output;
-  wire                when_Pipeline_l282_3;
+  wire                when_Pipeline_l282_2;
   wire                when_Connection_l74_3;
   (* MARK_DEBUG = "TRUE" *) reg        [31:0]   SimpleFetchPipelinePlugin_logic_fetchPc;
   reg        [31:0]   SimpleFetchPipelinePlugin_logic_pcOnRequest;
@@ -5148,9 +5115,9 @@ module CoreNSCSCC (
   reg                 io_outputs_2_aw_rValid_2;
   wire                io_outputs_2_aw_validPipe_fire_2;
   reg                 _zz_io_leds;
-  wire                _zz_when_CoreNSCSCC_l583;
-  reg                 _zz_when_CoreNSCSCC_l583_1;
-  wire                when_CoreNSCSCC_l583;
+  wire                _zz_when_CoreNSCSCC_l581;
+  reg                 _zz_when_CoreNSCSCC_l581_1;
+  wire                when_CoreNSCSCC_l581;
   reg        [2:0]    SimpleFetchPipelinePlugin_logic_fsm_stateReg;
   reg        [2:0]    SimpleFetchPipelinePlugin_logic_fsm_stateNext;
   wire                io_output_fire;
@@ -5194,23 +5161,6 @@ module CoreNSCSCC (
   reg [103:0] _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_1_string;
   reg [39:0] _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_2_string;
   reg [103:0] _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_2_string;
-  reg [87:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string;
-  reg [151:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_exeUnit_string;
-  reg [71:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isa_string;
-  reg [39:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archDest_rtype_string;
-  reg [39:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc1_rtype_string;
-  reg [39:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_rtype_string;
-  reg [39:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype_string;
-  reg [103:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage_string;
-  reg [39:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_aluCtrl_logicOp_string;
-  reg [7:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_size_string;
-  reg [87:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string;
-  reg [39:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_linkReg_rtype_string;
-  reg [7:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1_string;
-  reg [7:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string;
-  reg [7:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeDest_string;
-  reg [95:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_decodeExceptionCode_string;
   reg [87:0] s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string;
   reg [151:0] s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_exeUnit_string;
   reg [71:0] s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isa_string;
@@ -5245,23 +5195,23 @@ module CoreNSCSCC (
   reg [7:0] s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string;
   reg [7:0] s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeDest_string;
   reg [95:0] s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_decodeExceptionCode_string;
-  reg [87:0] s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode_string;
-  reg [151:0] s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_exeUnit_string;
-  reg [71:0] s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isa_string;
-  reg [39:0] s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archDest_rtype_string;
-  reg [39:0] s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc1_rtype_string;
-  reg [39:0] s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_rtype_string;
-  reg [39:0] s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_rtype_string;
-  reg [103:0] s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_immUsage_string;
-  reg [39:0] s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_logicOp_string;
-  reg [7:0] s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_size_string;
-  reg [87:0] s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_condition_string;
-  reg [39:0] s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_linkReg_rtype_string;
-  reg [7:0] s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1_string;
-  reg [7:0] s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string;
-  reg [7:0] s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeDest_string;
-  reg [95:0] s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_decodeExceptionCode_string;
+  reg [87:0] s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_uopCode_string;
+  reg [151:0] s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_exeUnit_string;
+  reg [71:0] s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_isa_string;
+  reg [39:0] s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archDest_rtype_string;
+  reg [39:0] s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc1_rtype_string;
+  reg [39:0] s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_rtype_string;
+  reg [39:0] s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype_string;
+  reg [103:0] s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_immUsage_string;
+  reg [39:0] s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_logicOp_string;
+  reg [7:0] s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_size_string;
+  reg [87:0] s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_condition_string;
+  reg [39:0] s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_linkReg_rtype_string;
+  reg [7:0] s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc1_string;
+  reg [7:0] s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2_string;
+  reg [7:0] s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3_string;
+  reg [7:0] s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeDest_string;
+  reg [95:0] s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_decodeExceptionCode_string;
   reg [87:0] s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_uopCode_string;
   reg [151:0] s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_exeUnit_string;
   reg [71:0] s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_isa_string;
@@ -5279,6 +5229,23 @@ module CoreNSCSCC (
   reg [7:0] s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3_string;
   reg [7:0] s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeDest_string;
   reg [95:0] s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_decodeExceptionCode_string;
+  reg [87:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string;
+  reg [151:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_exeUnit_string;
+  reg [71:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isa_string;
+  reg [39:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archDest_rtype_string;
+  reg [39:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc1_rtype_string;
+  reg [39:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_rtype_string;
+  reg [39:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype_string;
+  reg [103:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage_string;
+  reg [39:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_aluCtrl_logicOp_string;
+  reg [7:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_size_string;
+  reg [87:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string;
+  reg [39:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_linkReg_rtype_string;
+  reg [7:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1_string;
+  reg [7:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2_string;
+  reg [7:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string;
+  reg [7:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeDest_string;
+  reg [95:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_decodeExceptionCode_string;
   reg [87:0] s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_uopCode_string;
   reg [151:0] s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_exeUnit_string;
   reg [71:0] s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_isa_string;
@@ -5369,23 +5336,23 @@ module CoreNSCSCC (
   reg [7:0] _zz_DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc3_string;
   reg [7:0] _zz_DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeDest_string;
   reg [95:0] _zz_DecodePlugin_logic_decodedUopsOutputVec_0_decodeExceptionCode_string;
-  reg [87:0] RobAllocPlugin_logic_newUopsArray_0_decoded_uopCode_string;
-  reg [151:0] RobAllocPlugin_logic_newUopsArray_0_decoded_exeUnit_string;
-  reg [71:0] RobAllocPlugin_logic_newUopsArray_0_decoded_isa_string;
-  reg [39:0] RobAllocPlugin_logic_newUopsArray_0_decoded_archDest_rtype_string;
-  reg [39:0] RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc1_rtype_string;
-  reg [39:0] RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc2_rtype_string;
-  reg [39:0] RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc3_rtype_string;
-  reg [103:0] RobAllocPlugin_logic_newUopsArray_0_decoded_immUsage_string;
-  reg [39:0] RobAllocPlugin_logic_newUopsArray_0_decoded_aluCtrl_logicOp_string;
-  reg [7:0] RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_size_string;
-  reg [87:0] RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_condition_string;
-  reg [39:0] RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_linkReg_rtype_string;
-  reg [7:0] RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeSrc1_string;
-  reg [7:0] RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeSrc3_string;
-  reg [7:0] RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeDest_string;
-  reg [95:0] RobAllocPlugin_logic_newUopsArray_0_decoded_decodeExceptionCode_string;
+  reg [87:0] RobAllocPlugin_logic_allocatedUops_0_decoded_uopCode_string;
+  reg [151:0] RobAllocPlugin_logic_allocatedUops_0_decoded_exeUnit_string;
+  reg [71:0] RobAllocPlugin_logic_allocatedUops_0_decoded_isa_string;
+  reg [39:0] RobAllocPlugin_logic_allocatedUops_0_decoded_archDest_rtype_string;
+  reg [39:0] RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc1_rtype_string;
+  reg [39:0] RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc2_rtype_string;
+  reg [39:0] RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc3_rtype_string;
+  reg [103:0] RobAllocPlugin_logic_allocatedUops_0_decoded_immUsage_string;
+  reg [39:0] RobAllocPlugin_logic_allocatedUops_0_decoded_aluCtrl_logicOp_string;
+  reg [7:0] RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_size_string;
+  reg [87:0] RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_condition_string;
+  reg [39:0] RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_linkReg_rtype_string;
+  reg [7:0] RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc1_string;
+  reg [7:0] RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc2_string;
+  reg [7:0] RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc3_string;
+  reg [7:0] RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeDest_string;
+  reg [95:0] RobAllocPlugin_logic_allocatedUops_0_decoded_decodeExceptionCode_string;
   reg [87:0] DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_uopCode_string;
   reg [151:0] DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_exeUnit_string;
   reg [71:0] DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_isa_string;
@@ -5603,8 +5570,6 @@ module CoreNSCSCC (
   assign _zz_io_triggerIn_11 = 5'h19;
   assign _zz_io_triggerIn_10 = {3'd0, _zz_io_triggerIn_11};
   assign _zz_when_Debug_l71_5_1 = {3'd0, _zz_when_Debug_l71_6};
-  assign _zz_RenamePlugin_logic_notEnoughPhysRegs_1 = (RenamePlugin_logic_willNeedPhysRegs ? 1'b1 : 1'b0);
-  assign _zz_RenamePlugin_logic_notEnoughPhysRegs = {6'd0, _zz_RenamePlugin_logic_notEnoughPhysRegs_1};
   assign _zz_io_triggerIn_13 = 5'h17;
   assign _zz_io_triggerIn_12 = {3'd0, _zz_io_triggerIn_13};
   assign _zz_when_Debug_l71_6_1 = {3'd0, _zz_when_Debug_l71_7};
@@ -5673,7 +5638,7 @@ module CoreNSCSCC (
   assign _zz_BpuPipelinePlugin_logic_btb_port = BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_pc[9 : 2];
   assign _zz_BpuPipelinePlugin_logic_btb_port_1 = {BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_target,{BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_pc[31 : 10],1'b1}};
   assign _zz_CommitPlugin_logic_s0_committedThisCycle_comb_1 = CommitPlugin_logic_s0_commitAckMasks_0;
-  assign _zz_CommitPlugin_logic_s0_recycledThisCycle_comb_1 = SuperScalarFreeListPlugin_early_setup_freeList_io_free_0_enable;
+  assign _zz_CommitPlugin_logic_s0_recycledThisCycle_comb_1 = SimpleFreeListPlugin_early_setup_freeList_io_free_0_enable;
   assign _zz_DispatchPlugin_logic_destinationIqReady_3 = {_zz_DispatchPlugin_logic_destinationIqReady_1,_zz_DispatchPlugin_logic_destinationIqReady};
   assign _zz_64 = {LsuEU_LsuEuPlugin_gprWritePort_valid,{BranchEU_BranchEuPlugin_gprWritePort_valid,AluIntEU_AluIntEuPlugin_gprWritePort_valid}};
   assign _zz_when_PhysicalRegFile_l150_10 = {LsuEU_LsuEuPlugin_gprWritePort_valid,{BranchEU_BranchEuPlugin_gprWritePort_valid,AluIntEU_AluIntEuPlugin_gprWritePort_valid}};
@@ -6148,15 +6113,15 @@ module CoreNSCSCC (
     .reset                                                               (reset                                                                                     )  //i
   );
   RenameMapTable RenameMapTablePlugin_early_setup_rat (
-    .io_readPorts_0_archReg                  (RenamePlugin_early_setup_renameUnit_io_ratReadPorts_0_archReg[4:0]               ), //i
+    .io_readPorts_0_archReg                  (RenamePlugin_setup_renameUnit_io_ratReadPorts_0_archReg[4:0]                     ), //i
     .io_readPorts_0_physReg                  (RenameMapTablePlugin_early_setup_rat_io_readPorts_0_physReg[5:0]                 ), //o
-    .io_readPorts_1_archReg                  (RenamePlugin_early_setup_renameUnit_io_ratReadPorts_1_archReg[4:0]               ), //i
+    .io_readPorts_1_archReg                  (RenamePlugin_setup_renameUnit_io_ratReadPorts_1_archReg[4:0]                     ), //i
     .io_readPorts_1_physReg                  (RenameMapTablePlugin_early_setup_rat_io_readPorts_1_physReg[5:0]                 ), //o
-    .io_readPorts_2_archReg                  (RenamePlugin_early_setup_renameUnit_io_ratReadPorts_2_archReg[4:0]               ), //i
+    .io_readPorts_2_archReg                  (RenamePlugin_setup_renameUnit_io_ratReadPorts_2_archReg[4:0]                     ), //i
     .io_readPorts_2_physReg                  (RenameMapTablePlugin_early_setup_rat_io_readPorts_2_physReg[5:0]                 ), //o
     .io_writePorts_0_wen                     (RenameMapTablePlugin_early_setup_rat_io_writePorts_0_wen                         ), //i
-    .io_writePorts_0_archReg                 (RenamePlugin_early_setup_renameUnit_io_ratWritePorts_0_archReg[4:0]              ), //i
-    .io_writePorts_0_physReg                 (RenamePlugin_early_setup_renameUnit_io_ratWritePorts_0_physReg[5:0]              ), //i
+    .io_writePorts_0_archReg                 (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archDest_idx[4:0]      ), //i
+    .io_writePorts_0_physReg                 (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physDest_idx[5:0]       ), //i
     .io_currentState_mapping_0               (RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_0[5:0]              ), //o
     .io_currentState_mapping_1               (RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_1[5:0]              ), //o
     .io_currentState_mapping_2               (RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_2[5:0]              ), //o
@@ -6260,19 +6225,16 @@ module CoreNSCSCC (
     .clk                                     (clk                                                                              ), //i
     .reset                                   (reset                                                                            )  //i
   );
-  SuperScalarFreeList SuperScalarFreeListPlugin_early_setup_freeList (
-    .io_allocate_0_enable             (SuperScalarFreeListPlugin_early_setup_freeList_io_allocate_0_enable                  ), //i
-    .io_allocate_0_physReg            (SuperScalarFreeListPlugin_early_setup_freeList_io_allocate_0_physReg[5:0]            ), //o
-    .io_allocate_0_success            (SuperScalarFreeListPlugin_early_setup_freeList_io_allocate_0_success                 ), //o
-    .io_free_0_enable                 (SuperScalarFreeListPlugin_early_setup_freeList_io_free_0_enable                      ), //i
-    .io_free_0_physReg                (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx[5:0]     ), //i
-    .io_currentState_freeMask         (SuperScalarFreeListPlugin_early_setup_freeList_io_currentState_freeMask[63:0]        ), //o
-    .io_restoreState_valid            (SuperScalarFreeListPlugin_early_setup_freeList_io_restoreState_valid                 ), //i
-    .io_restoreState_ready            (SuperScalarFreeListPlugin_early_setup_freeList_io_restoreState_ready                 ), //o
-    .io_restoreState_payload_freeMask (SuperScalarFreeListPlugin_early_setup_freeList_io_restoreState_payload_freeMask[63:0]), //i
-    .io_numFreeRegs                   (SuperScalarFreeListPlugin_early_setup_freeList_io_numFreeRegs[6:0]                   ), //o
-    .clk                              (clk                                                                                  ), //i
-    .reset                            (reset                                                                                )  //i
+  SimpleFreeList SimpleFreeListPlugin_early_setup_freeList (
+    .io_allocate_0_enable  (SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_enable                  ), //i
+    .io_allocate_0_physReg (SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_physReg[5:0]            ), //o
+    .io_allocate_0_success (SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_success                 ), //o
+    .io_free_0_enable      (SimpleFreeListPlugin_early_setup_freeList_io_free_0_enable                      ), //i
+    .io_free_0_physReg     (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx[5:0]), //i
+    .io_recover            (SimpleFreeListPlugin_early_setup_freeList_io_recover                            ), //i
+    .io_numFreeRegs        (SimpleFreeListPlugin_early_setup_freeList_io_numFreeRegs[5:0]                   ), //o
+    .clk                   (clk                                                                             ), //i
+    .reset                 (reset                                                                           )  //i
   );
   OneShot oneShot_15 (
     .io_triggerIn (oneShot_15_io_triggerIn), //i
@@ -6298,194 +6260,194 @@ module CoreNSCSCC (
     .clk          (clk                    ), //i
     .reset        (reset                  )  //i
   );
-  RenameUnit RenamePlugin_early_setup_renameUnit (
-    .io_decodedUopsIn_0_pc                                     (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_pc[31:0]                                       ), //i
-    .io_decodedUopsIn_0_isValid                                (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_isValid                                        ), //i
-    .io_decodedUopsIn_0_uopCode                                (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_uopCode[4:0]                                   ), //i
-    .io_decodedUopsIn_0_exeUnit                                (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_exeUnit[3:0]                                   ), //i
-    .io_decodedUopsIn_0_isa                                    (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_isa[1:0]                                       ), //i
-    .io_decodedUopsIn_0_archDest_idx                           (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archDest_idx[4:0]                              ), //i
-    .io_decodedUopsIn_0_archDest_rtype                         (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archDest_rtype[1:0]                            ), //i
-    .io_decodedUopsIn_0_writeArchDestEn                        (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_writeArchDestEn                                ), //i
-    .io_decodedUopsIn_0_archSrc1_idx                           (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc1_idx[4:0]                              ), //i
-    .io_decodedUopsIn_0_archSrc1_rtype                         (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc1_rtype[1:0]                            ), //i
-    .io_decodedUopsIn_0_useArchSrc1                            (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc1                                    ), //i
-    .io_decodedUopsIn_0_archSrc2_idx                           (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_idx[4:0]                              ), //i
-    .io_decodedUopsIn_0_archSrc2_rtype                         (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_rtype[1:0]                            ), //i
-    .io_decodedUopsIn_0_useArchSrc2                            (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc2                                    ), //i
-    .io_decodedUopsIn_0_archSrc3_idx                           (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_idx[4:0]                              ), //i
-    .io_decodedUopsIn_0_archSrc3_rtype                         (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype[1:0]                            ), //i
-    .io_decodedUopsIn_0_useArchSrc3                            (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc3                                    ), //i
-    .io_decodedUopsIn_0_usePcForAddr                           (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_usePcForAddr                                   ), //i
-    .io_decodedUopsIn_0_imm                                    (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_imm[31:0]                                      ), //i
-    .io_decodedUopsIn_0_immUsage                               (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_immUsage[2:0]                                  ), //i
-    .io_decodedUopsIn_0_aluCtrl_isSub                          (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_isSub                                  ), //i
-    .io_decodedUopsIn_0_aluCtrl_isAdd                          (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_isAdd                                  ), //i
-    .io_decodedUopsIn_0_aluCtrl_isSigned                       (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_isSigned                               ), //i
-    .io_decodedUopsIn_0_aluCtrl_logicOp                        (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_logicOp[1:0]                           ), //i
-    .io_decodedUopsIn_0_shiftCtrl_isRight                      (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_shiftCtrl_isRight                              ), //i
-    .io_decodedUopsIn_0_shiftCtrl_isArithmetic                 (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_shiftCtrl_isArithmetic                         ), //i
-    .io_decodedUopsIn_0_shiftCtrl_isRotate                     (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_shiftCtrl_isRotate                             ), //i
-    .io_decodedUopsIn_0_shiftCtrl_isDoubleWord                 (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_shiftCtrl_isDoubleWord                         ), //i
-    .io_decodedUopsIn_0_mulDivCtrl_isDiv                       (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_mulDivCtrl_isDiv                               ), //i
-    .io_decodedUopsIn_0_mulDivCtrl_isSigned                    (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_mulDivCtrl_isSigned                            ), //i
-    .io_decodedUopsIn_0_mulDivCtrl_isWordOp                    (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_mulDivCtrl_isWordOp                            ), //i
-    .io_decodedUopsIn_0_memCtrl_size                           (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_size[1:0]                              ), //i
-    .io_decodedUopsIn_0_memCtrl_isSignedLoad                   (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isSignedLoad                           ), //i
-    .io_decodedUopsIn_0_memCtrl_isStore                        (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isStore                                ), //i
-    .io_decodedUopsIn_0_memCtrl_isLoadLinked                   (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isLoadLinked                           ), //i
-    .io_decodedUopsIn_0_memCtrl_isStoreCond                    (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isStoreCond                            ), //i
-    .io_decodedUopsIn_0_memCtrl_atomicOp                       (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_atomicOp[4:0]                          ), //i
-    .io_decodedUopsIn_0_memCtrl_isFence                        (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isFence                                ), //i
-    .io_decodedUopsIn_0_memCtrl_fenceMode                      (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_fenceMode[7:0]                         ), //i
-    .io_decodedUopsIn_0_memCtrl_isCacheOp                      (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isCacheOp                              ), //i
-    .io_decodedUopsIn_0_memCtrl_cacheOpType                    (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_cacheOpType[4:0]                       ), //i
-    .io_decodedUopsIn_0_memCtrl_isPrefetch                     (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isPrefetch                             ), //i
-    .io_decodedUopsIn_0_branchCtrl_condition                   (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_condition[4:0]                      ), //i
-    .io_decodedUopsIn_0_branchCtrl_isJump                      (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_isJump                              ), //i
-    .io_decodedUopsIn_0_branchCtrl_isLink                      (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_isLink                              ), //i
-    .io_decodedUopsIn_0_branchCtrl_linkReg_idx                 (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_linkReg_idx[4:0]                    ), //i
-    .io_decodedUopsIn_0_branchCtrl_linkReg_rtype               (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_linkReg_rtype[1:0]                  ), //i
-    .io_decodedUopsIn_0_branchCtrl_isIndirect                  (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_isIndirect                          ), //i
-    .io_decodedUopsIn_0_branchCtrl_laCfIdx                     (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_laCfIdx[2:0]                        ), //i
-    .io_decodedUopsIn_0_fpuCtrl_opType                         (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_opType[3:0]                            ), //i
-    .io_decodedUopsIn_0_fpuCtrl_fpSizeSrc1                     (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc1[1:0]                        ), //i
-    .io_decodedUopsIn_0_fpuCtrl_fpSizeSrc2                     (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2[1:0]                        ), //i
-    .io_decodedUopsIn_0_fpuCtrl_fpSizeSrc3                     (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3[1:0]                        ), //i
-    .io_decodedUopsIn_0_fpuCtrl_fpSizeDest                     (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeDest[1:0]                        ), //i
-    .io_decodedUopsIn_0_fpuCtrl_roundingMode                   (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_roundingMode[2:0]                      ), //i
-    .io_decodedUopsIn_0_fpuCtrl_isIntegerDest                  (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_isIntegerDest                          ), //i
-    .io_decodedUopsIn_0_fpuCtrl_isSignedCvt                    (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_isSignedCvt                            ), //i
-    .io_decodedUopsIn_0_fpuCtrl_fmaNegSrc1                     (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fmaNegSrc1                             ), //i
-    .io_decodedUopsIn_0_fpuCtrl_fmaNegSrc3                     (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fmaNegSrc3                             ), //i
-    .io_decodedUopsIn_0_fpuCtrl_fcmpCond                       (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fcmpCond[4:0]                          ), //i
-    .io_decodedUopsIn_0_csrCtrl_csrAddr                        (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_csrAddr[13:0]                          ), //i
-    .io_decodedUopsIn_0_csrCtrl_isWrite                        (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_isWrite                                ), //i
-    .io_decodedUopsIn_0_csrCtrl_isRead                         (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_isRead                                 ), //i
-    .io_decodedUopsIn_0_csrCtrl_isExchange                     (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_isExchange                             ), //i
-    .io_decodedUopsIn_0_csrCtrl_useUimmAsSrc                   (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_useUimmAsSrc                           ), //i
-    .io_decodedUopsIn_0_sysCtrl_sysCode                        (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_sysCtrl_sysCode[19:0]                          ), //i
-    .io_decodedUopsIn_0_sysCtrl_isExceptionReturn              (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_sysCtrl_isExceptionReturn                      ), //i
-    .io_decodedUopsIn_0_sysCtrl_isTlbOp                        (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_sysCtrl_isTlbOp                                ), //i
-    .io_decodedUopsIn_0_sysCtrl_tlbOpType                      (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_sysCtrl_tlbOpType[3:0]                         ), //i
-    .io_decodedUopsIn_0_decodeExceptionCode                    (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_decodeExceptionCode[1:0]                       ), //i
-    .io_decodedUopsIn_0_hasDecodeException                     (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_hasDecodeException                             ), //i
-    .io_decodedUopsIn_0_isMicrocode                            (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_isMicrocode                                    ), //i
-    .io_decodedUopsIn_0_microcodeEntry                         (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_microcodeEntry[7:0]                            ), //i
-    .io_decodedUopsIn_0_isSerializing                          (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_isSerializing                                  ), //i
-    .io_decodedUopsIn_0_isBranchOrJump                         (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_isBranchOrJump                                 ), //i
-    .io_decodedUopsIn_0_branchPrediction_isTaken               (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchPrediction_isTaken                       ), //i
-    .io_decodedUopsIn_0_branchPrediction_target                (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchPrediction_target[31:0]                  ), //i
-    .io_decodedUopsIn_0_branchPrediction_wasPredicted          (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchPrediction_wasPredicted                  ), //i
-    .io_physRegsIn_0                                           (SuperScalarFreeListPlugin_early_setup_freeList_io_allocate_0_physReg[5:0]                    ), //i
-    .io_renamedUopsOut_0_decoded_pc                            (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_pc[31:0]                     ), //o
-    .io_renamedUopsOut_0_decoded_isValid                       (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_isValid                      ), //o
-    .io_renamedUopsOut_0_decoded_uopCode                       (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_uopCode[4:0]                 ), //o
-    .io_renamedUopsOut_0_decoded_exeUnit                       (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_exeUnit[3:0]                 ), //o
-    .io_renamedUopsOut_0_decoded_isa                           (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_isa[1:0]                     ), //o
-    .io_renamedUopsOut_0_decoded_archDest_idx                  (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_archDest_idx[4:0]            ), //o
-    .io_renamedUopsOut_0_decoded_archDest_rtype                (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_archDest_rtype[1:0]          ), //o
-    .io_renamedUopsOut_0_decoded_writeArchDestEn               (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_writeArchDestEn              ), //o
-    .io_renamedUopsOut_0_decoded_archSrc1_idx                  (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc1_idx[4:0]            ), //o
-    .io_renamedUopsOut_0_decoded_archSrc1_rtype                (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc1_rtype[1:0]          ), //o
-    .io_renamedUopsOut_0_decoded_useArchSrc1                   (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_useArchSrc1                  ), //o
-    .io_renamedUopsOut_0_decoded_archSrc2_idx                  (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc2_idx[4:0]            ), //o
-    .io_renamedUopsOut_0_decoded_archSrc2_rtype                (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc2_rtype[1:0]          ), //o
-    .io_renamedUopsOut_0_decoded_useArchSrc2                   (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_useArchSrc2                  ), //o
-    .io_renamedUopsOut_0_decoded_archSrc3_idx                  (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc3_idx[4:0]            ), //o
-    .io_renamedUopsOut_0_decoded_archSrc3_rtype                (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc3_rtype[1:0]          ), //o
-    .io_renamedUopsOut_0_decoded_useArchSrc3                   (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_useArchSrc3                  ), //o
-    .io_renamedUopsOut_0_decoded_usePcForAddr                  (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_usePcForAddr                 ), //o
-    .io_renamedUopsOut_0_decoded_imm                           (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_imm[31:0]                    ), //o
-    .io_renamedUopsOut_0_decoded_immUsage                      (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_immUsage[2:0]                ), //o
-    .io_renamedUopsOut_0_decoded_aluCtrl_isSub                 (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_aluCtrl_isSub                ), //o
-    .io_renamedUopsOut_0_decoded_aluCtrl_isAdd                 (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_aluCtrl_isAdd                ), //o
-    .io_renamedUopsOut_0_decoded_aluCtrl_isSigned              (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_aluCtrl_isSigned             ), //o
-    .io_renamedUopsOut_0_decoded_aluCtrl_logicOp               (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_aluCtrl_logicOp[1:0]         ), //o
-    .io_renamedUopsOut_0_decoded_shiftCtrl_isRight             (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_shiftCtrl_isRight            ), //o
-    .io_renamedUopsOut_0_decoded_shiftCtrl_isArithmetic        (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_shiftCtrl_isArithmetic       ), //o
-    .io_renamedUopsOut_0_decoded_shiftCtrl_isRotate            (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_shiftCtrl_isRotate           ), //o
-    .io_renamedUopsOut_0_decoded_shiftCtrl_isDoubleWord        (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_shiftCtrl_isDoubleWord       ), //o
-    .io_renamedUopsOut_0_decoded_mulDivCtrl_isDiv              (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_mulDivCtrl_isDiv             ), //o
-    .io_renamedUopsOut_0_decoded_mulDivCtrl_isSigned           (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_mulDivCtrl_isSigned          ), //o
-    .io_renamedUopsOut_0_decoded_mulDivCtrl_isWordOp           (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_mulDivCtrl_isWordOp          ), //o
-    .io_renamedUopsOut_0_decoded_memCtrl_size                  (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_size[1:0]            ), //o
-    .io_renamedUopsOut_0_decoded_memCtrl_isSignedLoad          (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isSignedLoad         ), //o
-    .io_renamedUopsOut_0_decoded_memCtrl_isStore               (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isStore              ), //o
-    .io_renamedUopsOut_0_decoded_memCtrl_isLoadLinked          (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isLoadLinked         ), //o
-    .io_renamedUopsOut_0_decoded_memCtrl_isStoreCond           (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isStoreCond          ), //o
-    .io_renamedUopsOut_0_decoded_memCtrl_atomicOp              (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_atomicOp[4:0]        ), //o
-    .io_renamedUopsOut_0_decoded_memCtrl_isFence               (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isFence              ), //o
-    .io_renamedUopsOut_0_decoded_memCtrl_fenceMode             (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_fenceMode[7:0]       ), //o
-    .io_renamedUopsOut_0_decoded_memCtrl_isCacheOp             (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isCacheOp            ), //o
-    .io_renamedUopsOut_0_decoded_memCtrl_cacheOpType           (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_cacheOpType[4:0]     ), //o
-    .io_renamedUopsOut_0_decoded_memCtrl_isPrefetch            (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isPrefetch           ), //o
-    .io_renamedUopsOut_0_decoded_branchCtrl_condition          (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_condition[4:0]    ), //o
-    .io_renamedUopsOut_0_decoded_branchCtrl_isJump             (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_isJump            ), //o
-    .io_renamedUopsOut_0_decoded_branchCtrl_isLink             (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_isLink            ), //o
-    .io_renamedUopsOut_0_decoded_branchCtrl_linkReg_idx        (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_linkReg_idx[4:0]  ), //o
-    .io_renamedUopsOut_0_decoded_branchCtrl_linkReg_rtype      (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_linkReg_rtype[1:0]), //o
-    .io_renamedUopsOut_0_decoded_branchCtrl_isIndirect         (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_isIndirect        ), //o
-    .io_renamedUopsOut_0_decoded_branchCtrl_laCfIdx            (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_laCfIdx[2:0]      ), //o
-    .io_renamedUopsOut_0_decoded_fpuCtrl_opType                (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_opType[3:0]          ), //o
-    .io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc1            (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc1[1:0]      ), //o
-    .io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc2            (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc2[1:0]      ), //o
-    .io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc3            (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc3[1:0]      ), //o
-    .io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeDest            (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeDest[1:0]      ), //o
-    .io_renamedUopsOut_0_decoded_fpuCtrl_roundingMode          (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_roundingMode[2:0]    ), //o
-    .io_renamedUopsOut_0_decoded_fpuCtrl_isIntegerDest         (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_isIntegerDest        ), //o
-    .io_renamedUopsOut_0_decoded_fpuCtrl_isSignedCvt           (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_isSignedCvt          ), //o
-    .io_renamedUopsOut_0_decoded_fpuCtrl_fmaNegSrc1            (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fmaNegSrc1           ), //o
-    .io_renamedUopsOut_0_decoded_fpuCtrl_fmaNegSrc3            (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fmaNegSrc3           ), //o
-    .io_renamedUopsOut_0_decoded_fpuCtrl_fcmpCond              (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fcmpCond[4:0]        ), //o
-    .io_renamedUopsOut_0_decoded_csrCtrl_csrAddr               (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_csrAddr[13:0]        ), //o
-    .io_renamedUopsOut_0_decoded_csrCtrl_isWrite               (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_isWrite              ), //o
-    .io_renamedUopsOut_0_decoded_csrCtrl_isRead                (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_isRead               ), //o
-    .io_renamedUopsOut_0_decoded_csrCtrl_isExchange            (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_isExchange           ), //o
-    .io_renamedUopsOut_0_decoded_csrCtrl_useUimmAsSrc          (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_useUimmAsSrc         ), //o
-    .io_renamedUopsOut_0_decoded_sysCtrl_sysCode               (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_sysCtrl_sysCode[19:0]        ), //o
-    .io_renamedUopsOut_0_decoded_sysCtrl_isExceptionReturn     (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_sysCtrl_isExceptionReturn    ), //o
-    .io_renamedUopsOut_0_decoded_sysCtrl_isTlbOp               (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_sysCtrl_isTlbOp              ), //o
-    .io_renamedUopsOut_0_decoded_sysCtrl_tlbOpType             (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_sysCtrl_tlbOpType[3:0]       ), //o
-    .io_renamedUopsOut_0_decoded_decodeExceptionCode           (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_decodeExceptionCode[1:0]     ), //o
-    .io_renamedUopsOut_0_decoded_hasDecodeException            (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_hasDecodeException           ), //o
-    .io_renamedUopsOut_0_decoded_isMicrocode                   (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_isMicrocode                  ), //o
-    .io_renamedUopsOut_0_decoded_microcodeEntry                (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_microcodeEntry[7:0]          ), //o
-    .io_renamedUopsOut_0_decoded_isSerializing                 (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_isSerializing                ), //o
-    .io_renamedUopsOut_0_decoded_isBranchOrJump                (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_isBranchOrJump               ), //o
-    .io_renamedUopsOut_0_decoded_branchPrediction_isTaken      (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_branchPrediction_isTaken     ), //o
-    .io_renamedUopsOut_0_decoded_branchPrediction_target       (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_branchPrediction_target[31:0]), //o
-    .io_renamedUopsOut_0_decoded_branchPrediction_wasPredicted (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_branchPrediction_wasPredicted), //o
-    .io_renamedUopsOut_0_rename_physSrc1_idx                   (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc1_idx[5:0]             ), //o
-    .io_renamedUopsOut_0_rename_physSrc1IsFpr                  (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc1IsFpr                 ), //o
-    .io_renamedUopsOut_0_rename_physSrc2_idx                   (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc2_idx[5:0]             ), //o
-    .io_renamedUopsOut_0_rename_physSrc2IsFpr                  (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc2IsFpr                 ), //o
-    .io_renamedUopsOut_0_rename_physSrc3_idx                   (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc3_idx[5:0]             ), //o
-    .io_renamedUopsOut_0_rename_physSrc3IsFpr                  (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc3IsFpr                 ), //o
-    .io_renamedUopsOut_0_rename_physDest_idx                   (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_physDest_idx[5:0]             ), //o
-    .io_renamedUopsOut_0_rename_physDestIsFpr                  (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_physDestIsFpr                 ), //o
-    .io_renamedUopsOut_0_rename_oldPhysDest_idx                (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_oldPhysDest_idx[5:0]          ), //o
-    .io_renamedUopsOut_0_rename_oldPhysDestIsFpr               (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_oldPhysDestIsFpr              ), //o
-    .io_renamedUopsOut_0_rename_allocatesPhysDest              (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_allocatesPhysDest             ), //o
-    .io_renamedUopsOut_0_rename_writesToPhysReg                (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_writesToPhysReg               ), //o
-    .io_renamedUopsOut_0_robPtr                                (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_robPtr[3:0]                          ), //o
-    .io_renamedUopsOut_0_uniqueId                              (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_uniqueId[15:0]                       ), //o
-    .io_renamedUopsOut_0_dispatched                            (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_dispatched                           ), //o
-    .io_renamedUopsOut_0_executed                              (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_executed                             ), //o
-    .io_renamedUopsOut_0_hasException                          (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_hasException                         ), //o
-    .io_renamedUopsOut_0_exceptionCode                         (RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_exceptionCode[7:0]                   ), //o
-    .io_numPhysRegsRequired                                    (RenamePlugin_early_setup_renameUnit_io_numPhysRegsRequired                                   ), //o
-    .io_ratReadPorts_0_archReg                                 (RenamePlugin_early_setup_renameUnit_io_ratReadPorts_0_archReg[4:0]                           ), //o
-    .io_ratReadPorts_0_physReg                                 (RenameMapTablePlugin_early_setup_rat_io_readPorts_0_physReg[5:0]                             ), //i
-    .io_ratReadPorts_1_archReg                                 (RenamePlugin_early_setup_renameUnit_io_ratReadPorts_1_archReg[4:0]                           ), //o
-    .io_ratReadPorts_1_physReg                                 (RenameMapTablePlugin_early_setup_rat_io_readPorts_1_physReg[5:0]                             ), //i
-    .io_ratReadPorts_2_archReg                                 (RenamePlugin_early_setup_renameUnit_io_ratReadPorts_2_archReg[4:0]                           ), //o
-    .io_ratReadPorts_2_physReg                                 (RenameMapTablePlugin_early_setup_rat_io_readPorts_2_physReg[5:0]                             ), //i
-    .io_ratWritePorts_0_wen                                    (RenamePlugin_early_setup_renameUnit_io_ratWritePorts_0_wen                                   ), //o
-    .io_ratWritePorts_0_archReg                                (RenamePlugin_early_setup_renameUnit_io_ratWritePorts_0_archReg[4:0]                          ), //o
-    .io_ratWritePorts_0_physReg                                (RenamePlugin_early_setup_renameUnit_io_ratWritePorts_0_physReg[5:0]                          ), //o
-    .clk                                                       (clk                                                                                          ), //i
-    .reset                                                     (reset                                                                                        )  //i
+  RenameUnit RenamePlugin_setup_renameUnit (
+    .io_decodedUopsIn_0_pc                                     (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_pc[31:0]                               ), //i
+    .io_decodedUopsIn_0_isValid                                (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_isValid                                ), //i
+    .io_decodedUopsIn_0_uopCode                                (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_uopCode[4:0]                           ), //i
+    .io_decodedUopsIn_0_exeUnit                                (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_exeUnit[3:0]                           ), //i
+    .io_decodedUopsIn_0_isa                                    (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_isa[1:0]                               ), //i
+    .io_decodedUopsIn_0_archDest_idx                           (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archDest_idx[4:0]                      ), //i
+    .io_decodedUopsIn_0_archDest_rtype                         (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archDest_rtype[1:0]                    ), //i
+    .io_decodedUopsIn_0_writeArchDestEn                        (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_writeArchDestEn                        ), //i
+    .io_decodedUopsIn_0_archSrc1_idx                           (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc1_idx[4:0]                      ), //i
+    .io_decodedUopsIn_0_archSrc1_rtype                         (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc1_rtype[1:0]                    ), //i
+    .io_decodedUopsIn_0_useArchSrc1                            (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc1                            ), //i
+    .io_decodedUopsIn_0_archSrc2_idx                           (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_idx[4:0]                      ), //i
+    .io_decodedUopsIn_0_archSrc2_rtype                         (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_rtype[1:0]                    ), //i
+    .io_decodedUopsIn_0_useArchSrc2                            (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc2                            ), //i
+    .io_decodedUopsIn_0_archSrc3_idx                           (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_idx[4:0]                      ), //i
+    .io_decodedUopsIn_0_archSrc3_rtype                         (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype[1:0]                    ), //i
+    .io_decodedUopsIn_0_useArchSrc3                            (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc3                            ), //i
+    .io_decodedUopsIn_0_usePcForAddr                           (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_usePcForAddr                           ), //i
+    .io_decodedUopsIn_0_imm                                    (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_imm[31:0]                              ), //i
+    .io_decodedUopsIn_0_immUsage                               (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_immUsage[2:0]                          ), //i
+    .io_decodedUopsIn_0_aluCtrl_isSub                          (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_isSub                          ), //i
+    .io_decodedUopsIn_0_aluCtrl_isAdd                          (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_isAdd                          ), //i
+    .io_decodedUopsIn_0_aluCtrl_isSigned                       (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_isSigned                       ), //i
+    .io_decodedUopsIn_0_aluCtrl_logicOp                        (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_logicOp[1:0]                   ), //i
+    .io_decodedUopsIn_0_shiftCtrl_isRight                      (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_shiftCtrl_isRight                      ), //i
+    .io_decodedUopsIn_0_shiftCtrl_isArithmetic                 (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_shiftCtrl_isArithmetic                 ), //i
+    .io_decodedUopsIn_0_shiftCtrl_isRotate                     (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_shiftCtrl_isRotate                     ), //i
+    .io_decodedUopsIn_0_shiftCtrl_isDoubleWord                 (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_shiftCtrl_isDoubleWord                 ), //i
+    .io_decodedUopsIn_0_mulDivCtrl_isDiv                       (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_mulDivCtrl_isDiv                       ), //i
+    .io_decodedUopsIn_0_mulDivCtrl_isSigned                    (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_mulDivCtrl_isSigned                    ), //i
+    .io_decodedUopsIn_0_mulDivCtrl_isWordOp                    (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_mulDivCtrl_isWordOp                    ), //i
+    .io_decodedUopsIn_0_memCtrl_size                           (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_size[1:0]                      ), //i
+    .io_decodedUopsIn_0_memCtrl_isSignedLoad                   (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isSignedLoad                   ), //i
+    .io_decodedUopsIn_0_memCtrl_isStore                        (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isStore                        ), //i
+    .io_decodedUopsIn_0_memCtrl_isLoadLinked                   (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isLoadLinked                   ), //i
+    .io_decodedUopsIn_0_memCtrl_isStoreCond                    (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isStoreCond                    ), //i
+    .io_decodedUopsIn_0_memCtrl_atomicOp                       (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_atomicOp[4:0]                  ), //i
+    .io_decodedUopsIn_0_memCtrl_isFence                        (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isFence                        ), //i
+    .io_decodedUopsIn_0_memCtrl_fenceMode                      (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_fenceMode[7:0]                 ), //i
+    .io_decodedUopsIn_0_memCtrl_isCacheOp                      (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isCacheOp                      ), //i
+    .io_decodedUopsIn_0_memCtrl_cacheOpType                    (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_cacheOpType[4:0]               ), //i
+    .io_decodedUopsIn_0_memCtrl_isPrefetch                     (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isPrefetch                     ), //i
+    .io_decodedUopsIn_0_branchCtrl_condition                   (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_condition[4:0]              ), //i
+    .io_decodedUopsIn_0_branchCtrl_isJump                      (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_isJump                      ), //i
+    .io_decodedUopsIn_0_branchCtrl_isLink                      (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_isLink                      ), //i
+    .io_decodedUopsIn_0_branchCtrl_linkReg_idx                 (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_linkReg_idx[4:0]            ), //i
+    .io_decodedUopsIn_0_branchCtrl_linkReg_rtype               (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_linkReg_rtype[1:0]          ), //i
+    .io_decodedUopsIn_0_branchCtrl_isIndirect                  (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_isIndirect                  ), //i
+    .io_decodedUopsIn_0_branchCtrl_laCfIdx                     (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_laCfIdx[2:0]                ), //i
+    .io_decodedUopsIn_0_fpuCtrl_opType                         (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_opType[3:0]                    ), //i
+    .io_decodedUopsIn_0_fpuCtrl_fpSizeSrc1                     (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc1[1:0]                ), //i
+    .io_decodedUopsIn_0_fpuCtrl_fpSizeSrc2                     (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2[1:0]                ), //i
+    .io_decodedUopsIn_0_fpuCtrl_fpSizeSrc3                     (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3[1:0]                ), //i
+    .io_decodedUopsIn_0_fpuCtrl_fpSizeDest                     (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeDest[1:0]                ), //i
+    .io_decodedUopsIn_0_fpuCtrl_roundingMode                   (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_roundingMode[2:0]              ), //i
+    .io_decodedUopsIn_0_fpuCtrl_isIntegerDest                  (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_isIntegerDest                  ), //i
+    .io_decodedUopsIn_0_fpuCtrl_isSignedCvt                    (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_isSignedCvt                    ), //i
+    .io_decodedUopsIn_0_fpuCtrl_fmaNegSrc1                     (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fmaNegSrc1                     ), //i
+    .io_decodedUopsIn_0_fpuCtrl_fmaNegSrc3                     (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fmaNegSrc3                     ), //i
+    .io_decodedUopsIn_0_fpuCtrl_fcmpCond                       (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fcmpCond[4:0]                  ), //i
+    .io_decodedUopsIn_0_csrCtrl_csrAddr                        (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_csrAddr[13:0]                  ), //i
+    .io_decodedUopsIn_0_csrCtrl_isWrite                        (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_isWrite                        ), //i
+    .io_decodedUopsIn_0_csrCtrl_isRead                         (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_isRead                         ), //i
+    .io_decodedUopsIn_0_csrCtrl_isExchange                     (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_isExchange                     ), //i
+    .io_decodedUopsIn_0_csrCtrl_useUimmAsSrc                   (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_useUimmAsSrc                   ), //i
+    .io_decodedUopsIn_0_sysCtrl_sysCode                        (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_sysCtrl_sysCode[19:0]                  ), //i
+    .io_decodedUopsIn_0_sysCtrl_isExceptionReturn              (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_sysCtrl_isExceptionReturn              ), //i
+    .io_decodedUopsIn_0_sysCtrl_isTlbOp                        (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_sysCtrl_isTlbOp                        ), //i
+    .io_decodedUopsIn_0_sysCtrl_tlbOpType                      (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_sysCtrl_tlbOpType[3:0]                 ), //i
+    .io_decodedUopsIn_0_decodeExceptionCode                    (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_decodeExceptionCode[1:0]               ), //i
+    .io_decodedUopsIn_0_hasDecodeException                     (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_hasDecodeException                     ), //i
+    .io_decodedUopsIn_0_isMicrocode                            (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_isMicrocode                            ), //i
+    .io_decodedUopsIn_0_microcodeEntry                         (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_microcodeEntry[7:0]                    ), //i
+    .io_decodedUopsIn_0_isSerializing                          (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_isSerializing                          ), //i
+    .io_decodedUopsIn_0_isBranchOrJump                         (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_isBranchOrJump                         ), //i
+    .io_decodedUopsIn_0_branchPrediction_isTaken               (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchPrediction_isTaken               ), //i
+    .io_decodedUopsIn_0_branchPrediction_target                (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchPrediction_target[31:0]          ), //i
+    .io_decodedUopsIn_0_branchPrediction_wasPredicted          (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchPrediction_wasPredicted          ), //i
+    .io_physRegsIn_0                                           (SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_physReg[5:0]                   ), //i
+    .io_renamedUopsOut_0_decoded_pc                            (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_pc[31:0]                     ), //o
+    .io_renamedUopsOut_0_decoded_isValid                       (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_isValid                      ), //o
+    .io_renamedUopsOut_0_decoded_uopCode                       (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_uopCode[4:0]                 ), //o
+    .io_renamedUopsOut_0_decoded_exeUnit                       (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_exeUnit[3:0]                 ), //o
+    .io_renamedUopsOut_0_decoded_isa                           (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_isa[1:0]                     ), //o
+    .io_renamedUopsOut_0_decoded_archDest_idx                  (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archDest_idx[4:0]            ), //o
+    .io_renamedUopsOut_0_decoded_archDest_rtype                (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archDest_rtype[1:0]          ), //o
+    .io_renamedUopsOut_0_decoded_writeArchDestEn               (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_writeArchDestEn              ), //o
+    .io_renamedUopsOut_0_decoded_archSrc1_idx                  (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc1_idx[4:0]            ), //o
+    .io_renamedUopsOut_0_decoded_archSrc1_rtype                (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc1_rtype[1:0]          ), //o
+    .io_renamedUopsOut_0_decoded_useArchSrc1                   (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_useArchSrc1                  ), //o
+    .io_renamedUopsOut_0_decoded_archSrc2_idx                  (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc2_idx[4:0]            ), //o
+    .io_renamedUopsOut_0_decoded_archSrc2_rtype                (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc2_rtype[1:0]          ), //o
+    .io_renamedUopsOut_0_decoded_useArchSrc2                   (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_useArchSrc2                  ), //o
+    .io_renamedUopsOut_0_decoded_archSrc3_idx                  (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc3_idx[4:0]            ), //o
+    .io_renamedUopsOut_0_decoded_archSrc3_rtype                (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc3_rtype[1:0]          ), //o
+    .io_renamedUopsOut_0_decoded_useArchSrc3                   (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_useArchSrc3                  ), //o
+    .io_renamedUopsOut_0_decoded_usePcForAddr                  (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_usePcForAddr                 ), //o
+    .io_renamedUopsOut_0_decoded_imm                           (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_imm[31:0]                    ), //o
+    .io_renamedUopsOut_0_decoded_immUsage                      (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_immUsage[2:0]                ), //o
+    .io_renamedUopsOut_0_decoded_aluCtrl_isSub                 (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_aluCtrl_isSub                ), //o
+    .io_renamedUopsOut_0_decoded_aluCtrl_isAdd                 (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_aluCtrl_isAdd                ), //o
+    .io_renamedUopsOut_0_decoded_aluCtrl_isSigned              (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_aluCtrl_isSigned             ), //o
+    .io_renamedUopsOut_0_decoded_aluCtrl_logicOp               (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_aluCtrl_logicOp[1:0]         ), //o
+    .io_renamedUopsOut_0_decoded_shiftCtrl_isRight             (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_shiftCtrl_isRight            ), //o
+    .io_renamedUopsOut_0_decoded_shiftCtrl_isArithmetic        (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_shiftCtrl_isArithmetic       ), //o
+    .io_renamedUopsOut_0_decoded_shiftCtrl_isRotate            (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_shiftCtrl_isRotate           ), //o
+    .io_renamedUopsOut_0_decoded_shiftCtrl_isDoubleWord        (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_shiftCtrl_isDoubleWord       ), //o
+    .io_renamedUopsOut_0_decoded_mulDivCtrl_isDiv              (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_mulDivCtrl_isDiv             ), //o
+    .io_renamedUopsOut_0_decoded_mulDivCtrl_isSigned           (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_mulDivCtrl_isSigned          ), //o
+    .io_renamedUopsOut_0_decoded_mulDivCtrl_isWordOp           (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_mulDivCtrl_isWordOp          ), //o
+    .io_renamedUopsOut_0_decoded_memCtrl_size                  (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_size[1:0]            ), //o
+    .io_renamedUopsOut_0_decoded_memCtrl_isSignedLoad          (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isSignedLoad         ), //o
+    .io_renamedUopsOut_0_decoded_memCtrl_isStore               (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isStore              ), //o
+    .io_renamedUopsOut_0_decoded_memCtrl_isLoadLinked          (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isLoadLinked         ), //o
+    .io_renamedUopsOut_0_decoded_memCtrl_isStoreCond           (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isStoreCond          ), //o
+    .io_renamedUopsOut_0_decoded_memCtrl_atomicOp              (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_atomicOp[4:0]        ), //o
+    .io_renamedUopsOut_0_decoded_memCtrl_isFence               (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isFence              ), //o
+    .io_renamedUopsOut_0_decoded_memCtrl_fenceMode             (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_fenceMode[7:0]       ), //o
+    .io_renamedUopsOut_0_decoded_memCtrl_isCacheOp             (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isCacheOp            ), //o
+    .io_renamedUopsOut_0_decoded_memCtrl_cacheOpType           (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_cacheOpType[4:0]     ), //o
+    .io_renamedUopsOut_0_decoded_memCtrl_isPrefetch            (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isPrefetch           ), //o
+    .io_renamedUopsOut_0_decoded_branchCtrl_condition          (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_condition[4:0]    ), //o
+    .io_renamedUopsOut_0_decoded_branchCtrl_isJump             (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_isJump            ), //o
+    .io_renamedUopsOut_0_decoded_branchCtrl_isLink             (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_isLink            ), //o
+    .io_renamedUopsOut_0_decoded_branchCtrl_linkReg_idx        (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_linkReg_idx[4:0]  ), //o
+    .io_renamedUopsOut_0_decoded_branchCtrl_linkReg_rtype      (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_linkReg_rtype[1:0]), //o
+    .io_renamedUopsOut_0_decoded_branchCtrl_isIndirect         (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_isIndirect        ), //o
+    .io_renamedUopsOut_0_decoded_branchCtrl_laCfIdx            (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_laCfIdx[2:0]      ), //o
+    .io_renamedUopsOut_0_decoded_fpuCtrl_opType                (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_opType[3:0]          ), //o
+    .io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc1            (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc1[1:0]      ), //o
+    .io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc2            (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc2[1:0]      ), //o
+    .io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc3            (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc3[1:0]      ), //o
+    .io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeDest            (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeDest[1:0]      ), //o
+    .io_renamedUopsOut_0_decoded_fpuCtrl_roundingMode          (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_roundingMode[2:0]    ), //o
+    .io_renamedUopsOut_0_decoded_fpuCtrl_isIntegerDest         (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_isIntegerDest        ), //o
+    .io_renamedUopsOut_0_decoded_fpuCtrl_isSignedCvt           (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_isSignedCvt          ), //o
+    .io_renamedUopsOut_0_decoded_fpuCtrl_fmaNegSrc1            (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fmaNegSrc1           ), //o
+    .io_renamedUopsOut_0_decoded_fpuCtrl_fmaNegSrc3            (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fmaNegSrc3           ), //o
+    .io_renamedUopsOut_0_decoded_fpuCtrl_fcmpCond              (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fcmpCond[4:0]        ), //o
+    .io_renamedUopsOut_0_decoded_csrCtrl_csrAddr               (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_csrAddr[13:0]        ), //o
+    .io_renamedUopsOut_0_decoded_csrCtrl_isWrite               (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_isWrite              ), //o
+    .io_renamedUopsOut_0_decoded_csrCtrl_isRead                (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_isRead               ), //o
+    .io_renamedUopsOut_0_decoded_csrCtrl_isExchange            (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_isExchange           ), //o
+    .io_renamedUopsOut_0_decoded_csrCtrl_useUimmAsSrc          (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_useUimmAsSrc         ), //o
+    .io_renamedUopsOut_0_decoded_sysCtrl_sysCode               (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_sysCtrl_sysCode[19:0]        ), //o
+    .io_renamedUopsOut_0_decoded_sysCtrl_isExceptionReturn     (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_sysCtrl_isExceptionReturn    ), //o
+    .io_renamedUopsOut_0_decoded_sysCtrl_isTlbOp               (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_sysCtrl_isTlbOp              ), //o
+    .io_renamedUopsOut_0_decoded_sysCtrl_tlbOpType             (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_sysCtrl_tlbOpType[3:0]       ), //o
+    .io_renamedUopsOut_0_decoded_decodeExceptionCode           (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_decodeExceptionCode[1:0]     ), //o
+    .io_renamedUopsOut_0_decoded_hasDecodeException            (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_hasDecodeException           ), //o
+    .io_renamedUopsOut_0_decoded_isMicrocode                   (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_isMicrocode                  ), //o
+    .io_renamedUopsOut_0_decoded_microcodeEntry                (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_microcodeEntry[7:0]          ), //o
+    .io_renamedUopsOut_0_decoded_isSerializing                 (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_isSerializing                ), //o
+    .io_renamedUopsOut_0_decoded_isBranchOrJump                (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_isBranchOrJump               ), //o
+    .io_renamedUopsOut_0_decoded_branchPrediction_isTaken      (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_branchPrediction_isTaken     ), //o
+    .io_renamedUopsOut_0_decoded_branchPrediction_target       (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_branchPrediction_target[31:0]), //o
+    .io_renamedUopsOut_0_decoded_branchPrediction_wasPredicted (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_branchPrediction_wasPredicted), //o
+    .io_renamedUopsOut_0_rename_physSrc1_idx                   (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc1_idx[5:0]             ), //o
+    .io_renamedUopsOut_0_rename_physSrc1IsFpr                  (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc1IsFpr                 ), //o
+    .io_renamedUopsOut_0_rename_physSrc2_idx                   (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc2_idx[5:0]             ), //o
+    .io_renamedUopsOut_0_rename_physSrc2IsFpr                  (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc2IsFpr                 ), //o
+    .io_renamedUopsOut_0_rename_physSrc3_idx                   (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc3_idx[5:0]             ), //o
+    .io_renamedUopsOut_0_rename_physSrc3IsFpr                  (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc3IsFpr                 ), //o
+    .io_renamedUopsOut_0_rename_physDest_idx                   (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physDest_idx[5:0]             ), //o
+    .io_renamedUopsOut_0_rename_physDestIsFpr                  (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physDestIsFpr                 ), //o
+    .io_renamedUopsOut_0_rename_oldPhysDest_idx                (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_oldPhysDest_idx[5:0]          ), //o
+    .io_renamedUopsOut_0_rename_oldPhysDestIsFpr               (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_oldPhysDestIsFpr              ), //o
+    .io_renamedUopsOut_0_rename_allocatesPhysDest              (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_allocatesPhysDest             ), //o
+    .io_renamedUopsOut_0_rename_writesToPhysReg                (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_writesToPhysReg               ), //o
+    .io_renamedUopsOut_0_robPtr                                (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_robPtr[3:0]                          ), //o
+    .io_renamedUopsOut_0_uniqueId                              (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_uniqueId[15:0]                       ), //o
+    .io_renamedUopsOut_0_dispatched                            (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_dispatched                           ), //o
+    .io_renamedUopsOut_0_executed                              (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_executed                             ), //o
+    .io_renamedUopsOut_0_hasException                          (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_hasException                         ), //o
+    .io_renamedUopsOut_0_exceptionCode                         (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_exceptionCode[7:0]                   ), //o
+    .io_numPhysRegsRequired                                    (RenamePlugin_setup_renameUnit_io_numPhysRegsRequired                                   ), //o
+    .io_ratReadPorts_0_archReg                                 (RenamePlugin_setup_renameUnit_io_ratReadPorts_0_archReg[4:0]                           ), //o
+    .io_ratReadPorts_0_physReg                                 (RenameMapTablePlugin_early_setup_rat_io_readPorts_0_physReg[5:0]                       ), //i
+    .io_ratReadPorts_1_archReg                                 (RenamePlugin_setup_renameUnit_io_ratReadPorts_1_archReg[4:0]                           ), //o
+    .io_ratReadPorts_1_physReg                                 (RenameMapTablePlugin_early_setup_rat_io_readPorts_1_physReg[5:0]                       ), //i
+    .io_ratReadPorts_2_archReg                                 (RenamePlugin_setup_renameUnit_io_ratReadPorts_2_archReg[4:0]                           ), //o
+    .io_ratReadPorts_2_physReg                                 (RenameMapTablePlugin_early_setup_rat_io_readPorts_2_physReg[5:0]                       ), //i
+    .io_ratWritePorts_0_wen                                    (RenamePlugin_setup_renameUnit_io_ratWritePorts_0_wen                                   ), //o
+    .io_ratWritePorts_0_archReg                                (RenamePlugin_setup_renameUnit_io_ratWritePorts_0_archReg[4:0]                          ), //o
+    .io_ratWritePorts_0_physReg                                (RenamePlugin_setup_renameUnit_io_ratWritePorts_0_physReg[5:0]                          ), //o
+    .clk                                                       (clk                                                                                    ), //i
+    .reset                                                     (reset                                                                                  )  //i
   );
   EightSegmentDisplayController DebugDisplayPlugin_hw_dpyController (
     .io_value    (_zz_when_Debug_l71[7:0]                             ), //i
@@ -8836,203 +8798,6 @@ module CoreNSCSCC (
     endcase
   end
   always @(*) begin
-    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode)
-      BaseUopCode_NOP : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "NOP        ";
-      BaseUopCode_ILLEGAL : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "ILLEGAL    ";
-      BaseUopCode_ALU : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "ALU        ";
-      BaseUopCode_SHIFT : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "SHIFT      ";
-      BaseUopCode_MUL : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "MUL        ";
-      BaseUopCode_DIV : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "DIV        ";
-      BaseUopCode_LOAD : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "LOAD       ";
-      BaseUopCode_STORE : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "STORE      ";
-      BaseUopCode_ATOMIC : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "ATOMIC     ";
-      BaseUopCode_MEM_BARRIER : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "MEM_BARRIER";
-      BaseUopCode_PREFETCH : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "PREFETCH   ";
-      BaseUopCode_BRANCH : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "BRANCH     ";
-      BaseUopCode_JUMP_REG : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "JUMP_REG   ";
-      BaseUopCode_JUMP_IMM : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "JUMP_IMM   ";
-      BaseUopCode_SYSTEM_OP : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "SYSTEM_OP  ";
-      BaseUopCode_CSR_ACCESS : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "CSR_ACCESS ";
-      BaseUopCode_FPU_ALU : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "FPU_ALU    ";
-      BaseUopCode_FPU_CVT : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "FPU_CVT    ";
-      BaseUopCode_FPU_CMP : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "FPU_CMP    ";
-      BaseUopCode_FPU_SEL : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "FPU_SEL    ";
-      BaseUopCode_LA_BITMANIP : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "LA_BITMANIP";
-      BaseUopCode_LA_CACOP : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "LA_CACOP   ";
-      BaseUopCode_LA_TLB : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "LA_TLB     ";
-      BaseUopCode_IDLE : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "IDLE       ";
-      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "???????????";
-    endcase
-  end
-  always @(*) begin
-    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_exeUnit)
-      ExeUnitType_NONE : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_exeUnit_string = "NONE               ";
-      ExeUnitType_ALU_INT : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_exeUnit_string = "ALU_INT            ";
-      ExeUnitType_MUL_INT : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_exeUnit_string = "MUL_INT            ";
-      ExeUnitType_DIV_INT : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_exeUnit_string = "DIV_INT            ";
-      ExeUnitType_MEM : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_exeUnit_string = "MEM                ";
-      ExeUnitType_BRU : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_exeUnit_string = "BRU                ";
-      ExeUnitType_CSR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_exeUnit_string = "CSR                ";
-      ExeUnitType_FPU_ADD_MUL_CVT_CMP : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_exeUnit_string = "FPU_ADD_MUL_CVT_CMP";
-      ExeUnitType_FPU_DIV_SQRT : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_exeUnit_string = "FPU_DIV_SQRT       ";
-      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_exeUnit_string = "???????????????????";
-    endcase
-  end
-  always @(*) begin
-    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isa)
-      IsaType_UNKNOWN : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isa_string = "UNKNOWN  ";
-      IsaType_DEMO : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isa_string = "DEMO     ";
-      IsaType_RISCV : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isa_string = "RISCV    ";
-      IsaType_LOONGARCH : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isa_string = "LOONGARCH";
-      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isa_string = "?????????";
-    endcase
-  end
-  always @(*) begin
-    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archDest_rtype)
-      ArchRegType_GPR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archDest_rtype_string = "GPR  ";
-      ArchRegType_FPR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archDest_rtype_string = "FPR  ";
-      ArchRegType_CSR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archDest_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archDest_rtype_string = "LA_CF";
-      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archDest_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
-    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc1_rtype)
-      ArchRegType_GPR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc1_rtype_string = "GPR  ";
-      ArchRegType_FPR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc1_rtype_string = "FPR  ";
-      ArchRegType_CSR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc1_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc1_rtype_string = "LA_CF";
-      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc1_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
-    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_rtype)
-      ArchRegType_GPR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_rtype_string = "GPR  ";
-      ArchRegType_FPR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_rtype_string = "FPR  ";
-      ArchRegType_CSR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_rtype_string = "LA_CF";
-      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
-    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype)
-      ArchRegType_GPR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype_string = "GPR  ";
-      ArchRegType_FPR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype_string = "FPR  ";
-      ArchRegType_CSR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype_string = "LA_CF";
-      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
-    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage)
-      ImmUsageType_NONE : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage_string = "NONE         ";
-      ImmUsageType_SRC_ALU : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage_string = "SRC_ALU      ";
-      ImmUsageType_SRC_SHIFT_AMT : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage_string = "SRC_SHIFT_AMT";
-      ImmUsageType_SRC_CSR_UIMM : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage_string = "SRC_CSR_UIMM ";
-      ImmUsageType_MEM_OFFSET : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage_string = "MEM_OFFSET   ";
-      ImmUsageType_BRANCH_OFFSET : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage_string = "BRANCH_OFFSET";
-      ImmUsageType_JUMP_OFFSET : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage_string = "JUMP_OFFSET  ";
-      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage_string = "?????????????";
-    endcase
-  end
-  always @(*) begin
-    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_aluCtrl_logicOp)
-      LogicOp_NONE : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_aluCtrl_logicOp_string = "NONE ";
-      LogicOp_AND_1 : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_aluCtrl_logicOp_string = "AND_1";
-      LogicOp_OR_1 : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_aluCtrl_logicOp_string = "OR_1 ";
-      LogicOp_XOR_1 : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_aluCtrl_logicOp_string = "XOR_1";
-      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_aluCtrl_logicOp_string = "?????";
-    endcase
-  end
-  always @(*) begin
-    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_size)
-      MemAccessSize_B : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_size_string = "B";
-      MemAccessSize_H : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_size_string = "H";
-      MemAccessSize_W : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_size_string = "W";
-      MemAccessSize_D : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_size_string = "D";
-      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_size_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition)
-      BranchCondition_NUL : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "NUL        ";
-      BranchCondition_EQ : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "EQ         ";
-      BranchCondition_NE : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "NE         ";
-      BranchCondition_LT : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "LT         ";
-      BranchCondition_GE : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "GE         ";
-      BranchCondition_LTU : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "LTU        ";
-      BranchCondition_GEU : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "GEU        ";
-      BranchCondition_EQZ : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "EQZ        ";
-      BranchCondition_NEZ : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "NEZ        ";
-      BranchCondition_LTZ : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "LTZ        ";
-      BranchCondition_GEZ : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "GEZ        ";
-      BranchCondition_GTZ : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "GTZ        ";
-      BranchCondition_LEZ : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "LEZ        ";
-      BranchCondition_F_EQ : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "F_EQ       ";
-      BranchCondition_F_NE : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "F_NE       ";
-      BranchCondition_F_LT : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "F_LT       ";
-      BranchCondition_F_LE : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "F_LE       ";
-      BranchCondition_F_UN : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "F_UN       ";
-      BranchCondition_LA_CF_TRUE : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "LA_CF_TRUE ";
-      BranchCondition_LA_CF_FALSE : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "LA_CF_FALSE";
-      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "???????????";
-    endcase
-  end
-  always @(*) begin
-    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_linkReg_rtype)
-      ArchRegType_GPR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_linkReg_rtype_string = "GPR  ";
-      ArchRegType_FPR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_linkReg_rtype_string = "FPR  ";
-      ArchRegType_CSR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_linkReg_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_linkReg_rtype_string = "LA_CF";
-      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_linkReg_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
-    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1)
-      MemAccessSize_B : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1_string = "B";
-      MemAccessSize_H : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1_string = "H";
-      MemAccessSize_W : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1_string = "W";
-      MemAccessSize_D : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1_string = "D";
-      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2)
-      MemAccessSize_B : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2_string = "B";
-      MemAccessSize_H : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2_string = "H";
-      MemAccessSize_W : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2_string = "W";
-      MemAccessSize_D : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2_string = "D";
-      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3)
-      MemAccessSize_B : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string = "B";
-      MemAccessSize_H : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string = "H";
-      MemAccessSize_W : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string = "W";
-      MemAccessSize_D : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string = "D";
-      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeDest)
-      MemAccessSize_B : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeDest_string = "B";
-      MemAccessSize_H : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeDest_string = "H";
-      MemAccessSize_W : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeDest_string = "W";
-      MemAccessSize_D : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeDest_string = "D";
-      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeDest_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_decodeExceptionCode)
-      DecodeExCode_INVALID : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_decodeExceptionCode_string = "INVALID     ";
-      DecodeExCode_FETCH_ERROR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_decodeExceptionCode_string = "FETCH_ERROR ";
-      DecodeExCode_DECODE_ERROR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_decodeExceptionCode_string = "DECODE_ERROR";
-      DecodeExCode_OK : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_decodeExceptionCode_string = "OK          ";
-      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_decodeExceptionCode_string = "????????????";
-    endcase
-  end
-  always @(*) begin
     case(s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode)
       BaseUopCode_NOP : s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "NOP        ";
       BaseUopCode_ILLEGAL : s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "ILLEGAL    ";
@@ -9427,200 +9192,200 @@ module CoreNSCSCC (
     endcase
   end
   always @(*) begin
-    case(s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode)
-      BaseUopCode_NOP : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode_string = "NOP        ";
-      BaseUopCode_ILLEGAL : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode_string = "ILLEGAL    ";
-      BaseUopCode_ALU : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode_string = "ALU        ";
-      BaseUopCode_SHIFT : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode_string = "SHIFT      ";
-      BaseUopCode_MUL : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode_string = "MUL        ";
-      BaseUopCode_DIV : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode_string = "DIV        ";
-      BaseUopCode_LOAD : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode_string = "LOAD       ";
-      BaseUopCode_STORE : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode_string = "STORE      ";
-      BaseUopCode_ATOMIC : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode_string = "ATOMIC     ";
-      BaseUopCode_MEM_BARRIER : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode_string = "MEM_BARRIER";
-      BaseUopCode_PREFETCH : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode_string = "PREFETCH   ";
-      BaseUopCode_BRANCH : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode_string = "BRANCH     ";
-      BaseUopCode_JUMP_REG : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode_string = "JUMP_REG   ";
-      BaseUopCode_JUMP_IMM : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode_string = "JUMP_IMM   ";
-      BaseUopCode_SYSTEM_OP : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode_string = "SYSTEM_OP  ";
-      BaseUopCode_CSR_ACCESS : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode_string = "CSR_ACCESS ";
-      BaseUopCode_FPU_ALU : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode_string = "FPU_ALU    ";
-      BaseUopCode_FPU_CVT : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode_string = "FPU_CVT    ";
-      BaseUopCode_FPU_CMP : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode_string = "FPU_CMP    ";
-      BaseUopCode_FPU_SEL : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode_string = "FPU_SEL    ";
-      BaseUopCode_LA_BITMANIP : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode_string = "LA_BITMANIP";
-      BaseUopCode_LA_CACOP : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode_string = "LA_CACOP   ";
-      BaseUopCode_LA_TLB : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode_string = "LA_TLB     ";
-      BaseUopCode_IDLE : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode_string = "IDLE       ";
-      default : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode_string = "???????????";
+    case(s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_uopCode)
+      BaseUopCode_NOP : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_uopCode_string = "NOP        ";
+      BaseUopCode_ILLEGAL : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_uopCode_string = "ILLEGAL    ";
+      BaseUopCode_ALU : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_uopCode_string = "ALU        ";
+      BaseUopCode_SHIFT : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_uopCode_string = "SHIFT      ";
+      BaseUopCode_MUL : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_uopCode_string = "MUL        ";
+      BaseUopCode_DIV : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_uopCode_string = "DIV        ";
+      BaseUopCode_LOAD : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_uopCode_string = "LOAD       ";
+      BaseUopCode_STORE : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_uopCode_string = "STORE      ";
+      BaseUopCode_ATOMIC : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_uopCode_string = "ATOMIC     ";
+      BaseUopCode_MEM_BARRIER : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_uopCode_string = "MEM_BARRIER";
+      BaseUopCode_PREFETCH : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_uopCode_string = "PREFETCH   ";
+      BaseUopCode_BRANCH : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_uopCode_string = "BRANCH     ";
+      BaseUopCode_JUMP_REG : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_uopCode_string = "JUMP_REG   ";
+      BaseUopCode_JUMP_IMM : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_uopCode_string = "JUMP_IMM   ";
+      BaseUopCode_SYSTEM_OP : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_uopCode_string = "SYSTEM_OP  ";
+      BaseUopCode_CSR_ACCESS : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_uopCode_string = "CSR_ACCESS ";
+      BaseUopCode_FPU_ALU : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_uopCode_string = "FPU_ALU    ";
+      BaseUopCode_FPU_CVT : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_uopCode_string = "FPU_CVT    ";
+      BaseUopCode_FPU_CMP : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_uopCode_string = "FPU_CMP    ";
+      BaseUopCode_FPU_SEL : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_uopCode_string = "FPU_SEL    ";
+      BaseUopCode_LA_BITMANIP : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_uopCode_string = "LA_BITMANIP";
+      BaseUopCode_LA_CACOP : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_uopCode_string = "LA_CACOP   ";
+      BaseUopCode_LA_TLB : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_uopCode_string = "LA_TLB     ";
+      BaseUopCode_IDLE : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_uopCode_string = "IDLE       ";
+      default : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_uopCode_string = "???????????";
     endcase
   end
   always @(*) begin
-    case(s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_exeUnit)
-      ExeUnitType_NONE : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_exeUnit_string = "NONE               ";
-      ExeUnitType_ALU_INT : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_exeUnit_string = "ALU_INT            ";
-      ExeUnitType_MUL_INT : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_exeUnit_string = "MUL_INT            ";
-      ExeUnitType_DIV_INT : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_exeUnit_string = "DIV_INT            ";
-      ExeUnitType_MEM : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_exeUnit_string = "MEM                ";
-      ExeUnitType_BRU : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_exeUnit_string = "BRU                ";
-      ExeUnitType_CSR : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_exeUnit_string = "CSR                ";
-      ExeUnitType_FPU_ADD_MUL_CVT_CMP : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_exeUnit_string = "FPU_ADD_MUL_CVT_CMP";
-      ExeUnitType_FPU_DIV_SQRT : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_exeUnit_string = "FPU_DIV_SQRT       ";
-      default : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_exeUnit_string = "???????????????????";
+    case(s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_exeUnit)
+      ExeUnitType_NONE : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_exeUnit_string = "NONE               ";
+      ExeUnitType_ALU_INT : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_exeUnit_string = "ALU_INT            ";
+      ExeUnitType_MUL_INT : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_exeUnit_string = "MUL_INT            ";
+      ExeUnitType_DIV_INT : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_exeUnit_string = "DIV_INT            ";
+      ExeUnitType_MEM : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_exeUnit_string = "MEM                ";
+      ExeUnitType_BRU : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_exeUnit_string = "BRU                ";
+      ExeUnitType_CSR : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_exeUnit_string = "CSR                ";
+      ExeUnitType_FPU_ADD_MUL_CVT_CMP : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_exeUnit_string = "FPU_ADD_MUL_CVT_CMP";
+      ExeUnitType_FPU_DIV_SQRT : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_exeUnit_string = "FPU_DIV_SQRT       ";
+      default : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_exeUnit_string = "???????????????????";
     endcase
   end
   always @(*) begin
-    case(s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isa)
-      IsaType_UNKNOWN : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isa_string = "UNKNOWN  ";
-      IsaType_DEMO : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isa_string = "DEMO     ";
-      IsaType_RISCV : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isa_string = "RISCV    ";
-      IsaType_LOONGARCH : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isa_string = "LOONGARCH";
-      default : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isa_string = "?????????";
+    case(s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_isa)
+      IsaType_UNKNOWN : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_isa_string = "UNKNOWN  ";
+      IsaType_DEMO : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_isa_string = "DEMO     ";
+      IsaType_RISCV : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_isa_string = "RISCV    ";
+      IsaType_LOONGARCH : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_isa_string = "LOONGARCH";
+      default : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_isa_string = "?????????";
     endcase
   end
   always @(*) begin
-    case(s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archDest_rtype)
-      ArchRegType_GPR : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archDest_rtype_string = "GPR  ";
-      ArchRegType_FPR : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archDest_rtype_string = "FPR  ";
-      ArchRegType_CSR : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archDest_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archDest_rtype_string = "LA_CF";
-      default : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archDest_rtype_string = "?????";
+    case(s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archDest_rtype)
+      ArchRegType_GPR : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archDest_rtype_string = "GPR  ";
+      ArchRegType_FPR : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archDest_rtype_string = "FPR  ";
+      ArchRegType_CSR : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archDest_rtype_string = "CSR  ";
+      ArchRegType_LA_CF : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archDest_rtype_string = "LA_CF";
+      default : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archDest_rtype_string = "?????";
     endcase
   end
   always @(*) begin
-    case(s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc1_rtype)
-      ArchRegType_GPR : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc1_rtype_string = "GPR  ";
-      ArchRegType_FPR : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc1_rtype_string = "FPR  ";
-      ArchRegType_CSR : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc1_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc1_rtype_string = "LA_CF";
-      default : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc1_rtype_string = "?????";
+    case(s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc1_rtype)
+      ArchRegType_GPR : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc1_rtype_string = "GPR  ";
+      ArchRegType_FPR : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc1_rtype_string = "FPR  ";
+      ArchRegType_CSR : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc1_rtype_string = "CSR  ";
+      ArchRegType_LA_CF : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc1_rtype_string = "LA_CF";
+      default : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc1_rtype_string = "?????";
     endcase
   end
   always @(*) begin
-    case(s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_rtype)
-      ArchRegType_GPR : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_rtype_string = "GPR  ";
-      ArchRegType_FPR : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_rtype_string = "FPR  ";
-      ArchRegType_CSR : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_rtype_string = "LA_CF";
-      default : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_rtype_string = "?????";
+    case(s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_rtype)
+      ArchRegType_GPR : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_rtype_string = "GPR  ";
+      ArchRegType_FPR : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_rtype_string = "FPR  ";
+      ArchRegType_CSR : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_rtype_string = "CSR  ";
+      ArchRegType_LA_CF : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_rtype_string = "LA_CF";
+      default : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_rtype_string = "?????";
     endcase
   end
   always @(*) begin
-    case(s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_rtype)
-      ArchRegType_GPR : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_rtype_string = "GPR  ";
-      ArchRegType_FPR : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_rtype_string = "FPR  ";
-      ArchRegType_CSR : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_rtype_string = "LA_CF";
-      default : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_rtype_string = "?????";
+    case(s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype)
+      ArchRegType_GPR : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype_string = "GPR  ";
+      ArchRegType_FPR : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype_string = "FPR  ";
+      ArchRegType_CSR : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype_string = "CSR  ";
+      ArchRegType_LA_CF : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype_string = "LA_CF";
+      default : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype_string = "?????";
     endcase
   end
   always @(*) begin
-    case(s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_immUsage)
-      ImmUsageType_NONE : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_immUsage_string = "NONE         ";
-      ImmUsageType_SRC_ALU : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_immUsage_string = "SRC_ALU      ";
-      ImmUsageType_SRC_SHIFT_AMT : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_immUsage_string = "SRC_SHIFT_AMT";
-      ImmUsageType_SRC_CSR_UIMM : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_immUsage_string = "SRC_CSR_UIMM ";
-      ImmUsageType_MEM_OFFSET : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_immUsage_string = "MEM_OFFSET   ";
-      ImmUsageType_BRANCH_OFFSET : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_immUsage_string = "BRANCH_OFFSET";
-      ImmUsageType_JUMP_OFFSET : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_immUsage_string = "JUMP_OFFSET  ";
-      default : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_immUsage_string = "?????????????";
+    case(s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_immUsage)
+      ImmUsageType_NONE : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_immUsage_string = "NONE         ";
+      ImmUsageType_SRC_ALU : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_immUsage_string = "SRC_ALU      ";
+      ImmUsageType_SRC_SHIFT_AMT : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_immUsage_string = "SRC_SHIFT_AMT";
+      ImmUsageType_SRC_CSR_UIMM : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_immUsage_string = "SRC_CSR_UIMM ";
+      ImmUsageType_MEM_OFFSET : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_immUsage_string = "MEM_OFFSET   ";
+      ImmUsageType_BRANCH_OFFSET : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_immUsage_string = "BRANCH_OFFSET";
+      ImmUsageType_JUMP_OFFSET : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_immUsage_string = "JUMP_OFFSET  ";
+      default : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_immUsage_string = "?????????????";
     endcase
   end
   always @(*) begin
-    case(s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_logicOp)
-      LogicOp_NONE : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_logicOp_string = "NONE ";
-      LogicOp_AND_1 : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_logicOp_string = "AND_1";
-      LogicOp_OR_1 : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_logicOp_string = "OR_1 ";
-      LogicOp_XOR_1 : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_logicOp_string = "XOR_1";
-      default : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_logicOp_string = "?????";
+    case(s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_logicOp)
+      LogicOp_NONE : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_logicOp_string = "NONE ";
+      LogicOp_AND_1 : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_logicOp_string = "AND_1";
+      LogicOp_OR_1 : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_logicOp_string = "OR_1 ";
+      LogicOp_XOR_1 : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_logicOp_string = "XOR_1";
+      default : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_logicOp_string = "?????";
     endcase
   end
   always @(*) begin
-    case(s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_size)
-      MemAccessSize_B : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_size_string = "B";
-      MemAccessSize_H : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_size_string = "H";
-      MemAccessSize_W : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_size_string = "W";
-      MemAccessSize_D : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_size_string = "D";
-      default : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_size_string = "?";
+    case(s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_size)
+      MemAccessSize_B : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_size_string = "B";
+      MemAccessSize_H : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_size_string = "H";
+      MemAccessSize_W : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_size_string = "W";
+      MemAccessSize_D : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_size_string = "D";
+      default : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_size_string = "?";
     endcase
   end
   always @(*) begin
-    case(s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_condition)
-      BranchCondition_NUL : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_condition_string = "NUL        ";
-      BranchCondition_EQ : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_condition_string = "EQ         ";
-      BranchCondition_NE : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_condition_string = "NE         ";
-      BranchCondition_LT : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_condition_string = "LT         ";
-      BranchCondition_GE : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_condition_string = "GE         ";
-      BranchCondition_LTU : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_condition_string = "LTU        ";
-      BranchCondition_GEU : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_condition_string = "GEU        ";
-      BranchCondition_EQZ : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_condition_string = "EQZ        ";
-      BranchCondition_NEZ : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_condition_string = "NEZ        ";
-      BranchCondition_LTZ : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_condition_string = "LTZ        ";
-      BranchCondition_GEZ : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_condition_string = "GEZ        ";
-      BranchCondition_GTZ : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_condition_string = "GTZ        ";
-      BranchCondition_LEZ : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_condition_string = "LEZ        ";
-      BranchCondition_F_EQ : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_condition_string = "F_EQ       ";
-      BranchCondition_F_NE : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_condition_string = "F_NE       ";
-      BranchCondition_F_LT : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_condition_string = "F_LT       ";
-      BranchCondition_F_LE : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_condition_string = "F_LE       ";
-      BranchCondition_F_UN : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_condition_string = "F_UN       ";
-      BranchCondition_LA_CF_TRUE : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_condition_string = "LA_CF_TRUE ";
-      BranchCondition_LA_CF_FALSE : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_condition_string = "LA_CF_FALSE";
-      default : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_condition_string = "???????????";
+    case(s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_condition)
+      BranchCondition_NUL : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_condition_string = "NUL        ";
+      BranchCondition_EQ : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_condition_string = "EQ         ";
+      BranchCondition_NE : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_condition_string = "NE         ";
+      BranchCondition_LT : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_condition_string = "LT         ";
+      BranchCondition_GE : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_condition_string = "GE         ";
+      BranchCondition_LTU : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_condition_string = "LTU        ";
+      BranchCondition_GEU : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_condition_string = "GEU        ";
+      BranchCondition_EQZ : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_condition_string = "EQZ        ";
+      BranchCondition_NEZ : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_condition_string = "NEZ        ";
+      BranchCondition_LTZ : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_condition_string = "LTZ        ";
+      BranchCondition_GEZ : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_condition_string = "GEZ        ";
+      BranchCondition_GTZ : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_condition_string = "GTZ        ";
+      BranchCondition_LEZ : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_condition_string = "LEZ        ";
+      BranchCondition_F_EQ : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_condition_string = "F_EQ       ";
+      BranchCondition_F_NE : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_condition_string = "F_NE       ";
+      BranchCondition_F_LT : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_condition_string = "F_LT       ";
+      BranchCondition_F_LE : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_condition_string = "F_LE       ";
+      BranchCondition_F_UN : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_condition_string = "F_UN       ";
+      BranchCondition_LA_CF_TRUE : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_condition_string = "LA_CF_TRUE ";
+      BranchCondition_LA_CF_FALSE : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_condition_string = "LA_CF_FALSE";
+      default : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_condition_string = "???????????";
     endcase
   end
   always @(*) begin
-    case(s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_linkReg_rtype)
-      ArchRegType_GPR : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_linkReg_rtype_string = "GPR  ";
-      ArchRegType_FPR : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_linkReg_rtype_string = "FPR  ";
-      ArchRegType_CSR : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_linkReg_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_linkReg_rtype_string = "LA_CF";
-      default : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_linkReg_rtype_string = "?????";
+    case(s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_linkReg_rtype)
+      ArchRegType_GPR : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_linkReg_rtype_string = "GPR  ";
+      ArchRegType_FPR : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_linkReg_rtype_string = "FPR  ";
+      ArchRegType_CSR : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_linkReg_rtype_string = "CSR  ";
+      ArchRegType_LA_CF : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_linkReg_rtype_string = "LA_CF";
+      default : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_linkReg_rtype_string = "?????";
     endcase
   end
   always @(*) begin
-    case(s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1)
-      MemAccessSize_B : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1_string = "B";
-      MemAccessSize_H : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1_string = "H";
-      MemAccessSize_W : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1_string = "W";
-      MemAccessSize_D : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1_string = "D";
-      default : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1_string = "?";
+    case(s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc1)
+      MemAccessSize_B : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc1_string = "B";
+      MemAccessSize_H : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc1_string = "H";
+      MemAccessSize_W : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc1_string = "W";
+      MemAccessSize_D : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc1_string = "D";
+      default : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc1_string = "?";
     endcase
   end
   always @(*) begin
-    case(s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2)
-      MemAccessSize_B : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2_string = "B";
-      MemAccessSize_H : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2_string = "H";
-      MemAccessSize_W : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2_string = "W";
-      MemAccessSize_D : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2_string = "D";
-      default : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2_string = "?";
+    case(s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2)
+      MemAccessSize_B : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2_string = "B";
+      MemAccessSize_H : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2_string = "H";
+      MemAccessSize_W : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2_string = "W";
+      MemAccessSize_D : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2_string = "D";
+      default : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2_string = "?";
     endcase
   end
   always @(*) begin
-    case(s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3)
-      MemAccessSize_B : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string = "B";
-      MemAccessSize_H : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string = "H";
-      MemAccessSize_W : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string = "W";
-      MemAccessSize_D : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string = "D";
-      default : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string = "?";
+    case(s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3)
+      MemAccessSize_B : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3_string = "B";
+      MemAccessSize_H : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3_string = "H";
+      MemAccessSize_W : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3_string = "W";
+      MemAccessSize_D : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3_string = "D";
+      default : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3_string = "?";
     endcase
   end
   always @(*) begin
-    case(s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeDest)
-      MemAccessSize_B : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeDest_string = "B";
-      MemAccessSize_H : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeDest_string = "H";
-      MemAccessSize_W : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeDest_string = "W";
-      MemAccessSize_D : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeDest_string = "D";
-      default : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeDest_string = "?";
+    case(s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeDest)
+      MemAccessSize_B : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeDest_string = "B";
+      MemAccessSize_H : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeDest_string = "H";
+      MemAccessSize_W : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeDest_string = "W";
+      MemAccessSize_D : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeDest_string = "D";
+      default : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeDest_string = "?";
     endcase
   end
   always @(*) begin
-    case(s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_decodeExceptionCode)
-      DecodeExCode_INVALID : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_decodeExceptionCode_string = "INVALID     ";
-      DecodeExCode_FETCH_ERROR : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_decodeExceptionCode_string = "FETCH_ERROR ";
-      DecodeExCode_DECODE_ERROR : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_decodeExceptionCode_string = "DECODE_ERROR";
-      DecodeExCode_OK : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_decodeExceptionCode_string = "OK          ";
-      default : s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_decodeExceptionCode_string = "????????????";
+    case(s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_decodeExceptionCode)
+      DecodeExCode_INVALID : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_decodeExceptionCode_string = "INVALID     ";
+      DecodeExCode_FETCH_ERROR : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_decodeExceptionCode_string = "FETCH_ERROR ";
+      DecodeExCode_DECODE_ERROR : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_decodeExceptionCode_string = "DECODE_ERROR";
+      DecodeExCode_OK : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_decodeExceptionCode_string = "OK          ";
+      default : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_decodeExceptionCode_string = "????????????";
     endcase
   end
   always @(*) begin
@@ -9818,6 +9583,203 @@ module CoreNSCSCC (
       DecodeExCode_DECODE_ERROR : s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_decodeExceptionCode_string = "DECODE_ERROR";
       DecodeExCode_OK : s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_decodeExceptionCode_string = "OK          ";
       default : s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_decodeExceptionCode_string = "????????????";
+    endcase
+  end
+  always @(*) begin
+    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode)
+      BaseUopCode_NOP : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "NOP        ";
+      BaseUopCode_ILLEGAL : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "ILLEGAL    ";
+      BaseUopCode_ALU : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "ALU        ";
+      BaseUopCode_SHIFT : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "SHIFT      ";
+      BaseUopCode_MUL : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "MUL        ";
+      BaseUopCode_DIV : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "DIV        ";
+      BaseUopCode_LOAD : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "LOAD       ";
+      BaseUopCode_STORE : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "STORE      ";
+      BaseUopCode_ATOMIC : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "ATOMIC     ";
+      BaseUopCode_MEM_BARRIER : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "MEM_BARRIER";
+      BaseUopCode_PREFETCH : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "PREFETCH   ";
+      BaseUopCode_BRANCH : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "BRANCH     ";
+      BaseUopCode_JUMP_REG : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "JUMP_REG   ";
+      BaseUopCode_JUMP_IMM : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "JUMP_IMM   ";
+      BaseUopCode_SYSTEM_OP : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "SYSTEM_OP  ";
+      BaseUopCode_CSR_ACCESS : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "CSR_ACCESS ";
+      BaseUopCode_FPU_ALU : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "FPU_ALU    ";
+      BaseUopCode_FPU_CVT : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "FPU_CVT    ";
+      BaseUopCode_FPU_CMP : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "FPU_CMP    ";
+      BaseUopCode_FPU_SEL : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "FPU_SEL    ";
+      BaseUopCode_LA_BITMANIP : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "LA_BITMANIP";
+      BaseUopCode_LA_CACOP : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "LA_CACOP   ";
+      BaseUopCode_LA_TLB : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "LA_TLB     ";
+      BaseUopCode_IDLE : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "IDLE       ";
+      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string = "???????????";
+    endcase
+  end
+  always @(*) begin
+    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_exeUnit)
+      ExeUnitType_NONE : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_exeUnit_string = "NONE               ";
+      ExeUnitType_ALU_INT : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_exeUnit_string = "ALU_INT            ";
+      ExeUnitType_MUL_INT : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_exeUnit_string = "MUL_INT            ";
+      ExeUnitType_DIV_INT : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_exeUnit_string = "DIV_INT            ";
+      ExeUnitType_MEM : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_exeUnit_string = "MEM                ";
+      ExeUnitType_BRU : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_exeUnit_string = "BRU                ";
+      ExeUnitType_CSR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_exeUnit_string = "CSR                ";
+      ExeUnitType_FPU_ADD_MUL_CVT_CMP : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_exeUnit_string = "FPU_ADD_MUL_CVT_CMP";
+      ExeUnitType_FPU_DIV_SQRT : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_exeUnit_string = "FPU_DIV_SQRT       ";
+      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_exeUnit_string = "???????????????????";
+    endcase
+  end
+  always @(*) begin
+    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isa)
+      IsaType_UNKNOWN : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isa_string = "UNKNOWN  ";
+      IsaType_DEMO : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isa_string = "DEMO     ";
+      IsaType_RISCV : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isa_string = "RISCV    ";
+      IsaType_LOONGARCH : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isa_string = "LOONGARCH";
+      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isa_string = "?????????";
+    endcase
+  end
+  always @(*) begin
+    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archDest_rtype)
+      ArchRegType_GPR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archDest_rtype_string = "GPR  ";
+      ArchRegType_FPR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archDest_rtype_string = "FPR  ";
+      ArchRegType_CSR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archDest_rtype_string = "CSR  ";
+      ArchRegType_LA_CF : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archDest_rtype_string = "LA_CF";
+      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archDest_rtype_string = "?????";
+    endcase
+  end
+  always @(*) begin
+    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc1_rtype)
+      ArchRegType_GPR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc1_rtype_string = "GPR  ";
+      ArchRegType_FPR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc1_rtype_string = "FPR  ";
+      ArchRegType_CSR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc1_rtype_string = "CSR  ";
+      ArchRegType_LA_CF : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc1_rtype_string = "LA_CF";
+      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc1_rtype_string = "?????";
+    endcase
+  end
+  always @(*) begin
+    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_rtype)
+      ArchRegType_GPR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_rtype_string = "GPR  ";
+      ArchRegType_FPR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_rtype_string = "FPR  ";
+      ArchRegType_CSR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_rtype_string = "CSR  ";
+      ArchRegType_LA_CF : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_rtype_string = "LA_CF";
+      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_rtype_string = "?????";
+    endcase
+  end
+  always @(*) begin
+    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype)
+      ArchRegType_GPR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype_string = "GPR  ";
+      ArchRegType_FPR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype_string = "FPR  ";
+      ArchRegType_CSR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype_string = "CSR  ";
+      ArchRegType_LA_CF : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype_string = "LA_CF";
+      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype_string = "?????";
+    endcase
+  end
+  always @(*) begin
+    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage)
+      ImmUsageType_NONE : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage_string = "NONE         ";
+      ImmUsageType_SRC_ALU : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage_string = "SRC_ALU      ";
+      ImmUsageType_SRC_SHIFT_AMT : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage_string = "SRC_SHIFT_AMT";
+      ImmUsageType_SRC_CSR_UIMM : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage_string = "SRC_CSR_UIMM ";
+      ImmUsageType_MEM_OFFSET : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage_string = "MEM_OFFSET   ";
+      ImmUsageType_BRANCH_OFFSET : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage_string = "BRANCH_OFFSET";
+      ImmUsageType_JUMP_OFFSET : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage_string = "JUMP_OFFSET  ";
+      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage_string = "?????????????";
+    endcase
+  end
+  always @(*) begin
+    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_aluCtrl_logicOp)
+      LogicOp_NONE : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_aluCtrl_logicOp_string = "NONE ";
+      LogicOp_AND_1 : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_aluCtrl_logicOp_string = "AND_1";
+      LogicOp_OR_1 : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_aluCtrl_logicOp_string = "OR_1 ";
+      LogicOp_XOR_1 : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_aluCtrl_logicOp_string = "XOR_1";
+      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_aluCtrl_logicOp_string = "?????";
+    endcase
+  end
+  always @(*) begin
+    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_size)
+      MemAccessSize_B : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_size_string = "B";
+      MemAccessSize_H : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_size_string = "H";
+      MemAccessSize_W : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_size_string = "W";
+      MemAccessSize_D : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_size_string = "D";
+      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_size_string = "?";
+    endcase
+  end
+  always @(*) begin
+    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition)
+      BranchCondition_NUL : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "NUL        ";
+      BranchCondition_EQ : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "EQ         ";
+      BranchCondition_NE : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "NE         ";
+      BranchCondition_LT : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "LT         ";
+      BranchCondition_GE : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "GE         ";
+      BranchCondition_LTU : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "LTU        ";
+      BranchCondition_GEU : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "GEU        ";
+      BranchCondition_EQZ : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "EQZ        ";
+      BranchCondition_NEZ : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "NEZ        ";
+      BranchCondition_LTZ : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "LTZ        ";
+      BranchCondition_GEZ : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "GEZ        ";
+      BranchCondition_GTZ : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "GTZ        ";
+      BranchCondition_LEZ : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "LEZ        ";
+      BranchCondition_F_EQ : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "F_EQ       ";
+      BranchCondition_F_NE : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "F_NE       ";
+      BranchCondition_F_LT : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "F_LT       ";
+      BranchCondition_F_LE : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "F_LE       ";
+      BranchCondition_F_UN : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "F_UN       ";
+      BranchCondition_LA_CF_TRUE : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "LA_CF_TRUE ";
+      BranchCondition_LA_CF_FALSE : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "LA_CF_FALSE";
+      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition_string = "???????????";
+    endcase
+  end
+  always @(*) begin
+    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_linkReg_rtype)
+      ArchRegType_GPR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_linkReg_rtype_string = "GPR  ";
+      ArchRegType_FPR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_linkReg_rtype_string = "FPR  ";
+      ArchRegType_CSR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_linkReg_rtype_string = "CSR  ";
+      ArchRegType_LA_CF : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_linkReg_rtype_string = "LA_CF";
+      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_linkReg_rtype_string = "?????";
+    endcase
+  end
+  always @(*) begin
+    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1)
+      MemAccessSize_B : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1_string = "B";
+      MemAccessSize_H : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1_string = "H";
+      MemAccessSize_W : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1_string = "W";
+      MemAccessSize_D : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1_string = "D";
+      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1_string = "?";
+    endcase
+  end
+  always @(*) begin
+    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2)
+      MemAccessSize_B : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2_string = "B";
+      MemAccessSize_H : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2_string = "H";
+      MemAccessSize_W : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2_string = "W";
+      MemAccessSize_D : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2_string = "D";
+      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2_string = "?";
+    endcase
+  end
+  always @(*) begin
+    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3)
+      MemAccessSize_B : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string = "B";
+      MemAccessSize_H : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string = "H";
+      MemAccessSize_W : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string = "W";
+      MemAccessSize_D : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string = "D";
+      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string = "?";
+    endcase
+  end
+  always @(*) begin
+    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeDest)
+      MemAccessSize_B : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeDest_string = "B";
+      MemAccessSize_H : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeDest_string = "H";
+      MemAccessSize_W : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeDest_string = "W";
+      MemAccessSize_D : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeDest_string = "D";
+      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeDest_string = "?";
+    endcase
+  end
+  always @(*) begin
+    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_decodeExceptionCode)
+      DecodeExCode_INVALID : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_decodeExceptionCode_string = "INVALID     ";
+      DecodeExCode_FETCH_ERROR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_decodeExceptionCode_string = "FETCH_ERROR ";
+      DecodeExCode_DECODE_ERROR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_decodeExceptionCode_string = "DECODE_ERROR";
+      DecodeExCode_OK : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_decodeExceptionCode_string = "OK          ";
+      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_decodeExceptionCode_string = "????????????";
     endcase
   end
   always @(*) begin
@@ -11004,200 +10966,200 @@ module CoreNSCSCC (
     endcase
   end
   always @(*) begin
-    case(RobAllocPlugin_logic_newUopsArray_0_decoded_uopCode)
-      BaseUopCode_NOP : RobAllocPlugin_logic_newUopsArray_0_decoded_uopCode_string = "NOP        ";
-      BaseUopCode_ILLEGAL : RobAllocPlugin_logic_newUopsArray_0_decoded_uopCode_string = "ILLEGAL    ";
-      BaseUopCode_ALU : RobAllocPlugin_logic_newUopsArray_0_decoded_uopCode_string = "ALU        ";
-      BaseUopCode_SHIFT : RobAllocPlugin_logic_newUopsArray_0_decoded_uopCode_string = "SHIFT      ";
-      BaseUopCode_MUL : RobAllocPlugin_logic_newUopsArray_0_decoded_uopCode_string = "MUL        ";
-      BaseUopCode_DIV : RobAllocPlugin_logic_newUopsArray_0_decoded_uopCode_string = "DIV        ";
-      BaseUopCode_LOAD : RobAllocPlugin_logic_newUopsArray_0_decoded_uopCode_string = "LOAD       ";
-      BaseUopCode_STORE : RobAllocPlugin_logic_newUopsArray_0_decoded_uopCode_string = "STORE      ";
-      BaseUopCode_ATOMIC : RobAllocPlugin_logic_newUopsArray_0_decoded_uopCode_string = "ATOMIC     ";
-      BaseUopCode_MEM_BARRIER : RobAllocPlugin_logic_newUopsArray_0_decoded_uopCode_string = "MEM_BARRIER";
-      BaseUopCode_PREFETCH : RobAllocPlugin_logic_newUopsArray_0_decoded_uopCode_string = "PREFETCH   ";
-      BaseUopCode_BRANCH : RobAllocPlugin_logic_newUopsArray_0_decoded_uopCode_string = "BRANCH     ";
-      BaseUopCode_JUMP_REG : RobAllocPlugin_logic_newUopsArray_0_decoded_uopCode_string = "JUMP_REG   ";
-      BaseUopCode_JUMP_IMM : RobAllocPlugin_logic_newUopsArray_0_decoded_uopCode_string = "JUMP_IMM   ";
-      BaseUopCode_SYSTEM_OP : RobAllocPlugin_logic_newUopsArray_0_decoded_uopCode_string = "SYSTEM_OP  ";
-      BaseUopCode_CSR_ACCESS : RobAllocPlugin_logic_newUopsArray_0_decoded_uopCode_string = "CSR_ACCESS ";
-      BaseUopCode_FPU_ALU : RobAllocPlugin_logic_newUopsArray_0_decoded_uopCode_string = "FPU_ALU    ";
-      BaseUopCode_FPU_CVT : RobAllocPlugin_logic_newUopsArray_0_decoded_uopCode_string = "FPU_CVT    ";
-      BaseUopCode_FPU_CMP : RobAllocPlugin_logic_newUopsArray_0_decoded_uopCode_string = "FPU_CMP    ";
-      BaseUopCode_FPU_SEL : RobAllocPlugin_logic_newUopsArray_0_decoded_uopCode_string = "FPU_SEL    ";
-      BaseUopCode_LA_BITMANIP : RobAllocPlugin_logic_newUopsArray_0_decoded_uopCode_string = "LA_BITMANIP";
-      BaseUopCode_LA_CACOP : RobAllocPlugin_logic_newUopsArray_0_decoded_uopCode_string = "LA_CACOP   ";
-      BaseUopCode_LA_TLB : RobAllocPlugin_logic_newUopsArray_0_decoded_uopCode_string = "LA_TLB     ";
-      BaseUopCode_IDLE : RobAllocPlugin_logic_newUopsArray_0_decoded_uopCode_string = "IDLE       ";
-      default : RobAllocPlugin_logic_newUopsArray_0_decoded_uopCode_string = "???????????";
+    case(RobAllocPlugin_logic_allocatedUops_0_decoded_uopCode)
+      BaseUopCode_NOP : RobAllocPlugin_logic_allocatedUops_0_decoded_uopCode_string = "NOP        ";
+      BaseUopCode_ILLEGAL : RobAllocPlugin_logic_allocatedUops_0_decoded_uopCode_string = "ILLEGAL    ";
+      BaseUopCode_ALU : RobAllocPlugin_logic_allocatedUops_0_decoded_uopCode_string = "ALU        ";
+      BaseUopCode_SHIFT : RobAllocPlugin_logic_allocatedUops_0_decoded_uopCode_string = "SHIFT      ";
+      BaseUopCode_MUL : RobAllocPlugin_logic_allocatedUops_0_decoded_uopCode_string = "MUL        ";
+      BaseUopCode_DIV : RobAllocPlugin_logic_allocatedUops_0_decoded_uopCode_string = "DIV        ";
+      BaseUopCode_LOAD : RobAllocPlugin_logic_allocatedUops_0_decoded_uopCode_string = "LOAD       ";
+      BaseUopCode_STORE : RobAllocPlugin_logic_allocatedUops_0_decoded_uopCode_string = "STORE      ";
+      BaseUopCode_ATOMIC : RobAllocPlugin_logic_allocatedUops_0_decoded_uopCode_string = "ATOMIC     ";
+      BaseUopCode_MEM_BARRIER : RobAllocPlugin_logic_allocatedUops_0_decoded_uopCode_string = "MEM_BARRIER";
+      BaseUopCode_PREFETCH : RobAllocPlugin_logic_allocatedUops_0_decoded_uopCode_string = "PREFETCH   ";
+      BaseUopCode_BRANCH : RobAllocPlugin_logic_allocatedUops_0_decoded_uopCode_string = "BRANCH     ";
+      BaseUopCode_JUMP_REG : RobAllocPlugin_logic_allocatedUops_0_decoded_uopCode_string = "JUMP_REG   ";
+      BaseUopCode_JUMP_IMM : RobAllocPlugin_logic_allocatedUops_0_decoded_uopCode_string = "JUMP_IMM   ";
+      BaseUopCode_SYSTEM_OP : RobAllocPlugin_logic_allocatedUops_0_decoded_uopCode_string = "SYSTEM_OP  ";
+      BaseUopCode_CSR_ACCESS : RobAllocPlugin_logic_allocatedUops_0_decoded_uopCode_string = "CSR_ACCESS ";
+      BaseUopCode_FPU_ALU : RobAllocPlugin_logic_allocatedUops_0_decoded_uopCode_string = "FPU_ALU    ";
+      BaseUopCode_FPU_CVT : RobAllocPlugin_logic_allocatedUops_0_decoded_uopCode_string = "FPU_CVT    ";
+      BaseUopCode_FPU_CMP : RobAllocPlugin_logic_allocatedUops_0_decoded_uopCode_string = "FPU_CMP    ";
+      BaseUopCode_FPU_SEL : RobAllocPlugin_logic_allocatedUops_0_decoded_uopCode_string = "FPU_SEL    ";
+      BaseUopCode_LA_BITMANIP : RobAllocPlugin_logic_allocatedUops_0_decoded_uopCode_string = "LA_BITMANIP";
+      BaseUopCode_LA_CACOP : RobAllocPlugin_logic_allocatedUops_0_decoded_uopCode_string = "LA_CACOP   ";
+      BaseUopCode_LA_TLB : RobAllocPlugin_logic_allocatedUops_0_decoded_uopCode_string = "LA_TLB     ";
+      BaseUopCode_IDLE : RobAllocPlugin_logic_allocatedUops_0_decoded_uopCode_string = "IDLE       ";
+      default : RobAllocPlugin_logic_allocatedUops_0_decoded_uopCode_string = "???????????";
     endcase
   end
   always @(*) begin
-    case(RobAllocPlugin_logic_newUopsArray_0_decoded_exeUnit)
-      ExeUnitType_NONE : RobAllocPlugin_logic_newUopsArray_0_decoded_exeUnit_string = "NONE               ";
-      ExeUnitType_ALU_INT : RobAllocPlugin_logic_newUopsArray_0_decoded_exeUnit_string = "ALU_INT            ";
-      ExeUnitType_MUL_INT : RobAllocPlugin_logic_newUopsArray_0_decoded_exeUnit_string = "MUL_INT            ";
-      ExeUnitType_DIV_INT : RobAllocPlugin_logic_newUopsArray_0_decoded_exeUnit_string = "DIV_INT            ";
-      ExeUnitType_MEM : RobAllocPlugin_logic_newUopsArray_0_decoded_exeUnit_string = "MEM                ";
-      ExeUnitType_BRU : RobAllocPlugin_logic_newUopsArray_0_decoded_exeUnit_string = "BRU                ";
-      ExeUnitType_CSR : RobAllocPlugin_logic_newUopsArray_0_decoded_exeUnit_string = "CSR                ";
-      ExeUnitType_FPU_ADD_MUL_CVT_CMP : RobAllocPlugin_logic_newUopsArray_0_decoded_exeUnit_string = "FPU_ADD_MUL_CVT_CMP";
-      ExeUnitType_FPU_DIV_SQRT : RobAllocPlugin_logic_newUopsArray_0_decoded_exeUnit_string = "FPU_DIV_SQRT       ";
-      default : RobAllocPlugin_logic_newUopsArray_0_decoded_exeUnit_string = "???????????????????";
+    case(RobAllocPlugin_logic_allocatedUops_0_decoded_exeUnit)
+      ExeUnitType_NONE : RobAllocPlugin_logic_allocatedUops_0_decoded_exeUnit_string = "NONE               ";
+      ExeUnitType_ALU_INT : RobAllocPlugin_logic_allocatedUops_0_decoded_exeUnit_string = "ALU_INT            ";
+      ExeUnitType_MUL_INT : RobAllocPlugin_logic_allocatedUops_0_decoded_exeUnit_string = "MUL_INT            ";
+      ExeUnitType_DIV_INT : RobAllocPlugin_logic_allocatedUops_0_decoded_exeUnit_string = "DIV_INT            ";
+      ExeUnitType_MEM : RobAllocPlugin_logic_allocatedUops_0_decoded_exeUnit_string = "MEM                ";
+      ExeUnitType_BRU : RobAllocPlugin_logic_allocatedUops_0_decoded_exeUnit_string = "BRU                ";
+      ExeUnitType_CSR : RobAllocPlugin_logic_allocatedUops_0_decoded_exeUnit_string = "CSR                ";
+      ExeUnitType_FPU_ADD_MUL_CVT_CMP : RobAllocPlugin_logic_allocatedUops_0_decoded_exeUnit_string = "FPU_ADD_MUL_CVT_CMP";
+      ExeUnitType_FPU_DIV_SQRT : RobAllocPlugin_logic_allocatedUops_0_decoded_exeUnit_string = "FPU_DIV_SQRT       ";
+      default : RobAllocPlugin_logic_allocatedUops_0_decoded_exeUnit_string = "???????????????????";
     endcase
   end
   always @(*) begin
-    case(RobAllocPlugin_logic_newUopsArray_0_decoded_isa)
-      IsaType_UNKNOWN : RobAllocPlugin_logic_newUopsArray_0_decoded_isa_string = "UNKNOWN  ";
-      IsaType_DEMO : RobAllocPlugin_logic_newUopsArray_0_decoded_isa_string = "DEMO     ";
-      IsaType_RISCV : RobAllocPlugin_logic_newUopsArray_0_decoded_isa_string = "RISCV    ";
-      IsaType_LOONGARCH : RobAllocPlugin_logic_newUopsArray_0_decoded_isa_string = "LOONGARCH";
-      default : RobAllocPlugin_logic_newUopsArray_0_decoded_isa_string = "?????????";
+    case(RobAllocPlugin_logic_allocatedUops_0_decoded_isa)
+      IsaType_UNKNOWN : RobAllocPlugin_logic_allocatedUops_0_decoded_isa_string = "UNKNOWN  ";
+      IsaType_DEMO : RobAllocPlugin_logic_allocatedUops_0_decoded_isa_string = "DEMO     ";
+      IsaType_RISCV : RobAllocPlugin_logic_allocatedUops_0_decoded_isa_string = "RISCV    ";
+      IsaType_LOONGARCH : RobAllocPlugin_logic_allocatedUops_0_decoded_isa_string = "LOONGARCH";
+      default : RobAllocPlugin_logic_allocatedUops_0_decoded_isa_string = "?????????";
     endcase
   end
   always @(*) begin
-    case(RobAllocPlugin_logic_newUopsArray_0_decoded_archDest_rtype)
-      ArchRegType_GPR : RobAllocPlugin_logic_newUopsArray_0_decoded_archDest_rtype_string = "GPR  ";
-      ArchRegType_FPR : RobAllocPlugin_logic_newUopsArray_0_decoded_archDest_rtype_string = "FPR  ";
-      ArchRegType_CSR : RobAllocPlugin_logic_newUopsArray_0_decoded_archDest_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : RobAllocPlugin_logic_newUopsArray_0_decoded_archDest_rtype_string = "LA_CF";
-      default : RobAllocPlugin_logic_newUopsArray_0_decoded_archDest_rtype_string = "?????";
+    case(RobAllocPlugin_logic_allocatedUops_0_decoded_archDest_rtype)
+      ArchRegType_GPR : RobAllocPlugin_logic_allocatedUops_0_decoded_archDest_rtype_string = "GPR  ";
+      ArchRegType_FPR : RobAllocPlugin_logic_allocatedUops_0_decoded_archDest_rtype_string = "FPR  ";
+      ArchRegType_CSR : RobAllocPlugin_logic_allocatedUops_0_decoded_archDest_rtype_string = "CSR  ";
+      ArchRegType_LA_CF : RobAllocPlugin_logic_allocatedUops_0_decoded_archDest_rtype_string = "LA_CF";
+      default : RobAllocPlugin_logic_allocatedUops_0_decoded_archDest_rtype_string = "?????";
     endcase
   end
   always @(*) begin
-    case(RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc1_rtype)
-      ArchRegType_GPR : RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc1_rtype_string = "GPR  ";
-      ArchRegType_FPR : RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc1_rtype_string = "FPR  ";
-      ArchRegType_CSR : RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc1_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc1_rtype_string = "LA_CF";
-      default : RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc1_rtype_string = "?????";
+    case(RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc1_rtype)
+      ArchRegType_GPR : RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc1_rtype_string = "GPR  ";
+      ArchRegType_FPR : RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc1_rtype_string = "FPR  ";
+      ArchRegType_CSR : RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc1_rtype_string = "CSR  ";
+      ArchRegType_LA_CF : RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc1_rtype_string = "LA_CF";
+      default : RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc1_rtype_string = "?????";
     endcase
   end
   always @(*) begin
-    case(RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc2_rtype)
-      ArchRegType_GPR : RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc2_rtype_string = "GPR  ";
-      ArchRegType_FPR : RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc2_rtype_string = "FPR  ";
-      ArchRegType_CSR : RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc2_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc2_rtype_string = "LA_CF";
-      default : RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc2_rtype_string = "?????";
+    case(RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc2_rtype)
+      ArchRegType_GPR : RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc2_rtype_string = "GPR  ";
+      ArchRegType_FPR : RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc2_rtype_string = "FPR  ";
+      ArchRegType_CSR : RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc2_rtype_string = "CSR  ";
+      ArchRegType_LA_CF : RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc2_rtype_string = "LA_CF";
+      default : RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc2_rtype_string = "?????";
     endcase
   end
   always @(*) begin
-    case(RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc3_rtype)
-      ArchRegType_GPR : RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc3_rtype_string = "GPR  ";
-      ArchRegType_FPR : RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc3_rtype_string = "FPR  ";
-      ArchRegType_CSR : RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc3_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc3_rtype_string = "LA_CF";
-      default : RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc3_rtype_string = "?????";
+    case(RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc3_rtype)
+      ArchRegType_GPR : RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc3_rtype_string = "GPR  ";
+      ArchRegType_FPR : RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc3_rtype_string = "FPR  ";
+      ArchRegType_CSR : RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc3_rtype_string = "CSR  ";
+      ArchRegType_LA_CF : RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc3_rtype_string = "LA_CF";
+      default : RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc3_rtype_string = "?????";
     endcase
   end
   always @(*) begin
-    case(RobAllocPlugin_logic_newUopsArray_0_decoded_immUsage)
-      ImmUsageType_NONE : RobAllocPlugin_logic_newUopsArray_0_decoded_immUsage_string = "NONE         ";
-      ImmUsageType_SRC_ALU : RobAllocPlugin_logic_newUopsArray_0_decoded_immUsage_string = "SRC_ALU      ";
-      ImmUsageType_SRC_SHIFT_AMT : RobAllocPlugin_logic_newUopsArray_0_decoded_immUsage_string = "SRC_SHIFT_AMT";
-      ImmUsageType_SRC_CSR_UIMM : RobAllocPlugin_logic_newUopsArray_0_decoded_immUsage_string = "SRC_CSR_UIMM ";
-      ImmUsageType_MEM_OFFSET : RobAllocPlugin_logic_newUopsArray_0_decoded_immUsage_string = "MEM_OFFSET   ";
-      ImmUsageType_BRANCH_OFFSET : RobAllocPlugin_logic_newUopsArray_0_decoded_immUsage_string = "BRANCH_OFFSET";
-      ImmUsageType_JUMP_OFFSET : RobAllocPlugin_logic_newUopsArray_0_decoded_immUsage_string = "JUMP_OFFSET  ";
-      default : RobAllocPlugin_logic_newUopsArray_0_decoded_immUsage_string = "?????????????";
+    case(RobAllocPlugin_logic_allocatedUops_0_decoded_immUsage)
+      ImmUsageType_NONE : RobAllocPlugin_logic_allocatedUops_0_decoded_immUsage_string = "NONE         ";
+      ImmUsageType_SRC_ALU : RobAllocPlugin_logic_allocatedUops_0_decoded_immUsage_string = "SRC_ALU      ";
+      ImmUsageType_SRC_SHIFT_AMT : RobAllocPlugin_logic_allocatedUops_0_decoded_immUsage_string = "SRC_SHIFT_AMT";
+      ImmUsageType_SRC_CSR_UIMM : RobAllocPlugin_logic_allocatedUops_0_decoded_immUsage_string = "SRC_CSR_UIMM ";
+      ImmUsageType_MEM_OFFSET : RobAllocPlugin_logic_allocatedUops_0_decoded_immUsage_string = "MEM_OFFSET   ";
+      ImmUsageType_BRANCH_OFFSET : RobAllocPlugin_logic_allocatedUops_0_decoded_immUsage_string = "BRANCH_OFFSET";
+      ImmUsageType_JUMP_OFFSET : RobAllocPlugin_logic_allocatedUops_0_decoded_immUsage_string = "JUMP_OFFSET  ";
+      default : RobAllocPlugin_logic_allocatedUops_0_decoded_immUsage_string = "?????????????";
     endcase
   end
   always @(*) begin
-    case(RobAllocPlugin_logic_newUopsArray_0_decoded_aluCtrl_logicOp)
-      LogicOp_NONE : RobAllocPlugin_logic_newUopsArray_0_decoded_aluCtrl_logicOp_string = "NONE ";
-      LogicOp_AND_1 : RobAllocPlugin_logic_newUopsArray_0_decoded_aluCtrl_logicOp_string = "AND_1";
-      LogicOp_OR_1 : RobAllocPlugin_logic_newUopsArray_0_decoded_aluCtrl_logicOp_string = "OR_1 ";
-      LogicOp_XOR_1 : RobAllocPlugin_logic_newUopsArray_0_decoded_aluCtrl_logicOp_string = "XOR_1";
-      default : RobAllocPlugin_logic_newUopsArray_0_decoded_aluCtrl_logicOp_string = "?????";
+    case(RobAllocPlugin_logic_allocatedUops_0_decoded_aluCtrl_logicOp)
+      LogicOp_NONE : RobAllocPlugin_logic_allocatedUops_0_decoded_aluCtrl_logicOp_string = "NONE ";
+      LogicOp_AND_1 : RobAllocPlugin_logic_allocatedUops_0_decoded_aluCtrl_logicOp_string = "AND_1";
+      LogicOp_OR_1 : RobAllocPlugin_logic_allocatedUops_0_decoded_aluCtrl_logicOp_string = "OR_1 ";
+      LogicOp_XOR_1 : RobAllocPlugin_logic_allocatedUops_0_decoded_aluCtrl_logicOp_string = "XOR_1";
+      default : RobAllocPlugin_logic_allocatedUops_0_decoded_aluCtrl_logicOp_string = "?????";
     endcase
   end
   always @(*) begin
-    case(RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_size)
-      MemAccessSize_B : RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_size_string = "B";
-      MemAccessSize_H : RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_size_string = "H";
-      MemAccessSize_W : RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_size_string = "W";
-      MemAccessSize_D : RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_size_string = "D";
-      default : RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_size_string = "?";
+    case(RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_size)
+      MemAccessSize_B : RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_size_string = "B";
+      MemAccessSize_H : RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_size_string = "H";
+      MemAccessSize_W : RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_size_string = "W";
+      MemAccessSize_D : RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_size_string = "D";
+      default : RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_size_string = "?";
     endcase
   end
   always @(*) begin
-    case(RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_condition)
-      BranchCondition_NUL : RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_condition_string = "NUL        ";
-      BranchCondition_EQ : RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_condition_string = "EQ         ";
-      BranchCondition_NE : RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_condition_string = "NE         ";
-      BranchCondition_LT : RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_condition_string = "LT         ";
-      BranchCondition_GE : RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_condition_string = "GE         ";
-      BranchCondition_LTU : RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_condition_string = "LTU        ";
-      BranchCondition_GEU : RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_condition_string = "GEU        ";
-      BranchCondition_EQZ : RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_condition_string = "EQZ        ";
-      BranchCondition_NEZ : RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_condition_string = "NEZ        ";
-      BranchCondition_LTZ : RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_condition_string = "LTZ        ";
-      BranchCondition_GEZ : RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_condition_string = "GEZ        ";
-      BranchCondition_GTZ : RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_condition_string = "GTZ        ";
-      BranchCondition_LEZ : RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_condition_string = "LEZ        ";
-      BranchCondition_F_EQ : RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_condition_string = "F_EQ       ";
-      BranchCondition_F_NE : RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_condition_string = "F_NE       ";
-      BranchCondition_F_LT : RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_condition_string = "F_LT       ";
-      BranchCondition_F_LE : RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_condition_string = "F_LE       ";
-      BranchCondition_F_UN : RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_condition_string = "F_UN       ";
-      BranchCondition_LA_CF_TRUE : RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_condition_string = "LA_CF_TRUE ";
-      BranchCondition_LA_CF_FALSE : RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_condition_string = "LA_CF_FALSE";
-      default : RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_condition_string = "???????????";
+    case(RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_condition)
+      BranchCondition_NUL : RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_condition_string = "NUL        ";
+      BranchCondition_EQ : RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_condition_string = "EQ         ";
+      BranchCondition_NE : RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_condition_string = "NE         ";
+      BranchCondition_LT : RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_condition_string = "LT         ";
+      BranchCondition_GE : RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_condition_string = "GE         ";
+      BranchCondition_LTU : RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_condition_string = "LTU        ";
+      BranchCondition_GEU : RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_condition_string = "GEU        ";
+      BranchCondition_EQZ : RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_condition_string = "EQZ        ";
+      BranchCondition_NEZ : RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_condition_string = "NEZ        ";
+      BranchCondition_LTZ : RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_condition_string = "LTZ        ";
+      BranchCondition_GEZ : RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_condition_string = "GEZ        ";
+      BranchCondition_GTZ : RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_condition_string = "GTZ        ";
+      BranchCondition_LEZ : RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_condition_string = "LEZ        ";
+      BranchCondition_F_EQ : RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_condition_string = "F_EQ       ";
+      BranchCondition_F_NE : RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_condition_string = "F_NE       ";
+      BranchCondition_F_LT : RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_condition_string = "F_LT       ";
+      BranchCondition_F_LE : RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_condition_string = "F_LE       ";
+      BranchCondition_F_UN : RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_condition_string = "F_UN       ";
+      BranchCondition_LA_CF_TRUE : RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_condition_string = "LA_CF_TRUE ";
+      BranchCondition_LA_CF_FALSE : RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_condition_string = "LA_CF_FALSE";
+      default : RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_condition_string = "???????????";
     endcase
   end
   always @(*) begin
-    case(RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_linkReg_rtype)
-      ArchRegType_GPR : RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_linkReg_rtype_string = "GPR  ";
-      ArchRegType_FPR : RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_linkReg_rtype_string = "FPR  ";
-      ArchRegType_CSR : RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_linkReg_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_linkReg_rtype_string = "LA_CF";
-      default : RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_linkReg_rtype_string = "?????";
+    case(RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_linkReg_rtype)
+      ArchRegType_GPR : RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_linkReg_rtype_string = "GPR  ";
+      ArchRegType_FPR : RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_linkReg_rtype_string = "FPR  ";
+      ArchRegType_CSR : RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_linkReg_rtype_string = "CSR  ";
+      ArchRegType_LA_CF : RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_linkReg_rtype_string = "LA_CF";
+      default : RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_linkReg_rtype_string = "?????";
     endcase
   end
   always @(*) begin
-    case(RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeSrc1)
-      MemAccessSize_B : RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeSrc1_string = "B";
-      MemAccessSize_H : RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeSrc1_string = "H";
-      MemAccessSize_W : RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeSrc1_string = "W";
-      MemAccessSize_D : RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeSrc1_string = "D";
-      default : RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeSrc1_string = "?";
+    case(RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc1)
+      MemAccessSize_B : RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc1_string = "B";
+      MemAccessSize_H : RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc1_string = "H";
+      MemAccessSize_W : RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc1_string = "W";
+      MemAccessSize_D : RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc1_string = "D";
+      default : RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc1_string = "?";
     endcase
   end
   always @(*) begin
-    case(RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeSrc2)
-      MemAccessSize_B : RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeSrc2_string = "B";
-      MemAccessSize_H : RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeSrc2_string = "H";
-      MemAccessSize_W : RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeSrc2_string = "W";
-      MemAccessSize_D : RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeSrc2_string = "D";
-      default : RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeSrc2_string = "?";
+    case(RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc2)
+      MemAccessSize_B : RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc2_string = "B";
+      MemAccessSize_H : RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc2_string = "H";
+      MemAccessSize_W : RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc2_string = "W";
+      MemAccessSize_D : RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc2_string = "D";
+      default : RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc2_string = "?";
     endcase
   end
   always @(*) begin
-    case(RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeSrc3)
-      MemAccessSize_B : RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeSrc3_string = "B";
-      MemAccessSize_H : RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeSrc3_string = "H";
-      MemAccessSize_W : RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeSrc3_string = "W";
-      MemAccessSize_D : RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeSrc3_string = "D";
-      default : RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeSrc3_string = "?";
+    case(RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc3)
+      MemAccessSize_B : RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc3_string = "B";
+      MemAccessSize_H : RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc3_string = "H";
+      MemAccessSize_W : RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc3_string = "W";
+      MemAccessSize_D : RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc3_string = "D";
+      default : RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc3_string = "?";
     endcase
   end
   always @(*) begin
-    case(RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeDest)
-      MemAccessSize_B : RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeDest_string = "B";
-      MemAccessSize_H : RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeDest_string = "H";
-      MemAccessSize_W : RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeDest_string = "W";
-      MemAccessSize_D : RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeDest_string = "D";
-      default : RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeDest_string = "?";
+    case(RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeDest)
+      MemAccessSize_B : RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeDest_string = "B";
+      MemAccessSize_H : RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeDest_string = "H";
+      MemAccessSize_W : RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeDest_string = "W";
+      MemAccessSize_D : RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeDest_string = "D";
+      default : RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeDest_string = "?";
     endcase
   end
   always @(*) begin
-    case(RobAllocPlugin_logic_newUopsArray_0_decoded_decodeExceptionCode)
-      DecodeExCode_INVALID : RobAllocPlugin_logic_newUopsArray_0_decoded_decodeExceptionCode_string = "INVALID     ";
-      DecodeExCode_FETCH_ERROR : RobAllocPlugin_logic_newUopsArray_0_decoded_decodeExceptionCode_string = "FETCH_ERROR ";
-      DecodeExCode_DECODE_ERROR : RobAllocPlugin_logic_newUopsArray_0_decoded_decodeExceptionCode_string = "DECODE_ERROR";
-      DecodeExCode_OK : RobAllocPlugin_logic_newUopsArray_0_decoded_decodeExceptionCode_string = "OK          ";
-      default : RobAllocPlugin_logic_newUopsArray_0_decoded_decodeExceptionCode_string = "????????????";
+    case(RobAllocPlugin_logic_allocatedUops_0_decoded_decodeExceptionCode)
+      DecodeExCode_INVALID : RobAllocPlugin_logic_allocatedUops_0_decoded_decodeExceptionCode_string = "INVALID     ";
+      DecodeExCode_FETCH_ERROR : RobAllocPlugin_logic_allocatedUops_0_decoded_decodeExceptionCode_string = "FETCH_ERROR ";
+      DecodeExCode_DECODE_ERROR : RobAllocPlugin_logic_allocatedUops_0_decoded_decodeExceptionCode_string = "DECODE_ERROR";
+      DecodeExCode_OK : RobAllocPlugin_logic_allocatedUops_0_decoded_decodeExceptionCode_string = "OK          ";
+      default : RobAllocPlugin_logic_allocatedUops_0_decoded_decodeExceptionCode_string = "????????????";
     endcase
   end
   always @(*) begin
@@ -12847,16 +12809,16 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    _zz_s2_RobAlloc_isFlushingRoot = 1'b0;
+    _zz_s1_Rename_isFlushingRoot = 1'b0;
     if(SimpleFetchPipelinePlugin_doHardRedirect_) begin
-      _zz_s2_RobAlloc_isFlushingRoot = 1'b1;
+      _zz_s1_Rename_isFlushingRoot = 1'b1;
     end
   end
 
   always @(*) begin
-    _zz_s1_Rename_isFlushingRoot = 1'b0;
-    if(SimpleFetchPipelinePlugin_doHardRedirect_) begin
-      _zz_s1_Rename_isFlushingRoot = 1'b1;
+    _zz_s2_RobAlloc_haltRequest_RenamePlugin_l83 = 1'b0;
+    if(when_RenamePlugin_l82) begin
+      _zz_s2_RobAlloc_haltRequest_RenamePlugin_l83 = 1'b1;
     end
   end
 
@@ -13763,7 +13725,6 @@ module CoreNSCSCC (
   assign CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_31 = 6'h1f;
   assign _zz_68 = zz_CheckpointManagerPlugin_logic_initialFreeMask(1'b0);
   always @(*) CheckpointManagerPlugin_logic_initialFreeMask = _zz_68;
-  assign CheckpointManagerPlugin_logic_initialFlCheckpoint_freeMask = CheckpointManagerPlugin_logic_initialFreeMask;
   assign CheckpointManagerPlugin_logic_initialBtCheckpoint_busyBits = 64'h0;
   assign CommitPlugin_logic_s0_enable = (CommitPlugin_commitEnableExt && (! CommitPlugin_committedIdleReg));
   assign CommitPlugin_logic_s0_isMispredictedBranch = (((CommitPlugin_logic_s0_enable && ROBPlugin_robComponent_io_commit_0_canCommit) && ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_isBranchOrJump) && ROBPlugin_robComponent_io_commit_0_entry_status_isMispredictedBranch);
@@ -13809,7 +13770,7 @@ module CoreNSCSCC (
     end
   end
 
-  assign SuperScalarFreeListPlugin_early_setup_freeList_io_free_0_enable = (CommitPlugin_logic_s0_commitAckMasks_0 && ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_allocatesPhysDest);
+  assign SimpleFreeListPlugin_early_setup_freeList_io_free_0_enable = (CommitPlugin_logic_s0_commitAckMasks_0 && ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_allocatesPhysDest);
   assign CommitPlugin_logic_s0_committedThisCycle_comb = _zz_CommitPlugin_logic_s0_committedThisCycle_comb;
   assign CommitPlugin_logic_s0_recycledThisCycle_comb = _zz_CommitPlugin_logic_s0_recycledThisCycle_comb;
   assign CommitPlugin_logic_s0_flushedThisCycle_comb = CommitPlugin_hw_robFlushPort_valid;
@@ -14086,323 +14047,304 @@ module CoreNSCSCC (
   assign _zz_33 = (DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype == ArchRegType_GPR);
   assign _zz_34 = (DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype == ArchRegType_FPR);
   assign _zz_35 = (DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype == ArchRegType_CSR);
-  assign RenamePlugin_logic_renameWriteReqs_0 = (RenamePlugin_early_setup_renameUnit_io_ratWritePorts_0_wen && s1_Rename_isFiring);
-  assign RenamePlugin_logic_renameWriteData_0_wen = (RenamePlugin_early_setup_renameUnit_io_ratWritePorts_0_wen && s1_Rename_isFiring);
-  assign RenamePlugin_logic_renameWriteData_0_archReg = RenamePlugin_early_setup_renameUnit_io_ratWritePorts_0_archReg;
-  assign RenamePlugin_logic_renameWriteData_0_physReg = RenamePlugin_early_setup_renameUnit_io_ratWritePorts_0_physReg;
-  assign RenameMapTablePlugin_early_setup_rat_io_writePorts_0_wen = (RenamePlugin_early_setup_renameUnit_io_ratWritePorts_0_wen && s1_Rename_isFiring);
-  assign RenamePlugin_logic_willNeedPhysRegs = (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_isValid && s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_writeArchDestEn);
-  assign RenamePlugin_logic_notEnoughPhysRegs = (SuperScalarFreeListPlugin_early_setup_freeList_io_numFreeRegs < _zz_RenamePlugin_logic_notEnoughPhysRegs);
-  assign s1_Rename_haltRequest_RenamePlugin_l85 = RenamePlugin_logic_notEnoughPhysRegs;
-  assign when_RenamePlugin_l88 = (s1_Rename_valid && RenamePlugin_logic_notEnoughPhysRegs);
-  assign SuperScalarFreeListPlugin_early_setup_freeList_io_allocate_0_enable = (s1_Rename_isFiring && (1'b0 < RenamePlugin_early_setup_renameUnit_io_numPhysRegsRequired));
-  assign when_RenamePlugin_l100 = ((s1_Rename_isFiring && RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_isValid) && RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_allocatesPhysDest);
-  always @(*) begin
-    if(when_RenamePlugin_l100) begin
-      RenamePlugin_early_setup_setBusyPorts_0_valid = 1'b1;
-    end else begin
-      RenamePlugin_early_setup_setBusyPorts_0_valid = 1'b0;
-    end
-  end
-
-  always @(*) begin
-    if(when_RenamePlugin_l100) begin
-      RenamePlugin_early_setup_setBusyPorts_0_payload = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_physDest_idx;
-    end else begin
-      RenamePlugin_early_setup_setBusyPorts_0_payload = 6'bxxxxxx;
-    end
-  end
-
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_pc = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_pc;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isValid = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_isValid;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_uopCode;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_exeUnit = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_exeUnit;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isa = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_isa;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archDest_idx = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_archDest_idx;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archDest_rtype = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_archDest_rtype;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_writeArchDestEn = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_writeArchDestEn;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc1_idx = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc1_idx;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc1_rtype = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc1_rtype;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc1 = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_useArchSrc1;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_idx = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc2_idx;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_rtype = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc2_rtype;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc2 = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_useArchSrc2;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_idx = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc3_idx;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_rtype = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc3_rtype;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc3 = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_useArchSrc3;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_usePcForAddr = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_usePcForAddr;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_imm = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_imm;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_immUsage = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_immUsage;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_isSub = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_aluCtrl_isSub;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_isAdd = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_aluCtrl_isAdd;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_isSigned = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_aluCtrl_isSigned;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_logicOp = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_aluCtrl_logicOp;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isRight = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_shiftCtrl_isRight;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isArithmetic = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_shiftCtrl_isArithmetic;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isRotate = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_shiftCtrl_isRotate;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isDoubleWord = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_shiftCtrl_isDoubleWord;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_mulDivCtrl_isDiv = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_mulDivCtrl_isDiv;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_mulDivCtrl_isSigned = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_mulDivCtrl_isSigned;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_mulDivCtrl_isWordOp = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_mulDivCtrl_isWordOp;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_size = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_size;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isSignedLoad = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isSignedLoad;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isStore = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isStore;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isLoadLinked = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isLoadLinked;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isStoreCond = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isStoreCond;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_atomicOp = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_atomicOp;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isFence = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isFence;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_fenceMode = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_fenceMode;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isCacheOp = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isCacheOp;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_cacheOpType = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_cacheOpType;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isPrefetch = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isPrefetch;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_condition = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_condition;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_isJump = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_isJump;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_isLink = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_isLink;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_linkReg_idx = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_linkReg_idx;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_linkReg_rtype = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_linkReg_rtype;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_isIndirect = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_isIndirect;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_laCfIdx = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_laCfIdx;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_opType = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_opType;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1 = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc1;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2 = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc2;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3 = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc3;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeDest = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeDest;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_roundingMode = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_roundingMode;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_isIntegerDest = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_isIntegerDest;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_isSignedCvt = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_isSignedCvt;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fmaNegSrc1 = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fmaNegSrc1;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fmaNegSrc3 = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fmaNegSrc3;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fcmpCond = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fcmpCond;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_csrAddr = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_csrAddr;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_isWrite = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_isWrite;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_isRead = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_isRead;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_isExchange = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_isExchange;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_useUimmAsSrc = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_useUimmAsSrc;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_sysCode = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_sysCtrl_sysCode;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_isExceptionReturn = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_sysCtrl_isExceptionReturn;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_isTlbOp = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_sysCtrl_isTlbOp;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_tlbOpType = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_sysCtrl_tlbOpType;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_decodeExceptionCode = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_decodeExceptionCode;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_hasDecodeException = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_hasDecodeException;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isMicrocode = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_isMicrocode;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_microcodeEntry = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_microcodeEntry;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isSerializing = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_isSerializing;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isBranchOrJump = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_isBranchOrJump;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchPrediction_isTaken = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_branchPrediction_isTaken;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchPrediction_target = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_branchPrediction_target;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchPrediction_wasPredicted = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_decoded_branchPrediction_wasPredicted;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc1_idx = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc1_idx;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc1IsFpr = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc1IsFpr;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc2_idx = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc2_idx;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc2IsFpr = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc2IsFpr;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc3_idx = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc3_idx;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc3IsFpr = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc3IsFpr;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physDest_idx = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_physDest_idx;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physDestIsFpr = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_physDestIsFpr;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_oldPhysDest_idx = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_oldPhysDest_idx;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_oldPhysDestIsFpr = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_oldPhysDestIsFpr;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_allocatesPhysDest = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_allocatesPhysDest;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_writesToPhysReg = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_rename_writesToPhysReg;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_robPtr = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_robPtr;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_uniqueId = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_uniqueId;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_dispatched = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_dispatched;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_executed = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_executed;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_hasException = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_hasException;
-  assign s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_exceptionCode = RenamePlugin_early_setup_renameUnit_io_renamedUopsOut_0_exceptionCode;
-  assign s2_RobAlloc_haltRequest_RobAllocPlugin_l40 = (! ROBPlugin_robComponent_io_allocate_0_ready);
+  assign SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_enable = (s1_Rename_valid && s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_writeArchDestEn);
+  assign s1_Rename_IssuePipelineSignals_NEEDS_PHYS_REG_0 = s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_writeArchDestEn;
+  assign RenamePlugin_logic_s2_logic_allocationOk = (&((! s2_RobAlloc_IssuePipelineSignals_NEEDS_PHYS_REG_0) || SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_success));
+  assign when_RenamePlugin_l82 = (s2_RobAlloc_valid && (! RenamePlugin_logic_s2_logic_allocationOk));
+  assign s2_RobAlloc_haltRequest_RenamePlugin_l83 = _zz_s2_RobAlloc_haltRequest_RenamePlugin_l83;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_pc = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_pc;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isValid = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_isValid;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_uopCode;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_exeUnit = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_exeUnit;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isa = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_isa;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archDest_idx = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archDest_idx;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archDest_rtype = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archDest_rtype;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_writeArchDestEn = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_writeArchDestEn;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc1_idx = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc1_idx;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc1_rtype = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc1_rtype;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc1 = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_useArchSrc1;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_idx = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc2_idx;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_rtype = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc2_rtype;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc2 = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_useArchSrc2;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_idx = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc3_idx;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_rtype = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc3_rtype;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc3 = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_useArchSrc3;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_usePcForAddr = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_usePcForAddr;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_imm = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_imm;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_immUsage = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_immUsage;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_isSub = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_aluCtrl_isSub;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_isAdd = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_aluCtrl_isAdd;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_isSigned = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_aluCtrl_isSigned;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_logicOp = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_aluCtrl_logicOp;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isRight = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_shiftCtrl_isRight;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isArithmetic = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_shiftCtrl_isArithmetic;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isRotate = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_shiftCtrl_isRotate;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isDoubleWord = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_shiftCtrl_isDoubleWord;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_mulDivCtrl_isDiv = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_mulDivCtrl_isDiv;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_mulDivCtrl_isSigned = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_mulDivCtrl_isSigned;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_mulDivCtrl_isWordOp = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_mulDivCtrl_isWordOp;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_size = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_size;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isSignedLoad = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isSignedLoad;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isStore = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isStore;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isLoadLinked = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isLoadLinked;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isStoreCond = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isStoreCond;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_atomicOp = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_atomicOp;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isFence = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isFence;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_fenceMode = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_fenceMode;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isCacheOp = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isCacheOp;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_cacheOpType = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_cacheOpType;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isPrefetch = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_memCtrl_isPrefetch;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_condition = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_condition;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_isJump = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_isJump;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_isLink = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_isLink;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_linkReg_idx = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_linkReg_idx;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_linkReg_rtype = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_linkReg_rtype;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_isIndirect = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_isIndirect;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_laCfIdx = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_branchCtrl_laCfIdx;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_opType = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_opType;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1 = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc1;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2 = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc2;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3 = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc3;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeDest = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeDest;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_roundingMode = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_roundingMode;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_isIntegerDest = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_isIntegerDest;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_isSignedCvt = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_isSignedCvt;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fmaNegSrc1 = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fmaNegSrc1;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fmaNegSrc3 = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fmaNegSrc3;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fcmpCond = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fcmpCond;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_csrAddr = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_csrAddr;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_isWrite = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_isWrite;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_isRead = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_isRead;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_isExchange = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_isExchange;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_useUimmAsSrc = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_useUimmAsSrc;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_sysCode = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_sysCtrl_sysCode;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_isExceptionReturn = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_sysCtrl_isExceptionReturn;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_isTlbOp = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_sysCtrl_isTlbOp;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_tlbOpType = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_sysCtrl_tlbOpType;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_decodeExceptionCode = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_decodeExceptionCode;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_hasDecodeException = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_hasDecodeException;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isMicrocode = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_isMicrocode;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_microcodeEntry = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_microcodeEntry;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isSerializing = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_isSerializing;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isBranchOrJump = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_isBranchOrJump;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchPrediction_isTaken = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_branchPrediction_isTaken;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchPrediction_target = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_branchPrediction_target;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchPrediction_wasPredicted = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_branchPrediction_wasPredicted;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc1_idx = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc1_idx;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc1IsFpr = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc1IsFpr;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc2_idx = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc2_idx;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc2IsFpr = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc2IsFpr;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc3_idx = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc3_idx;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc3IsFpr = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc3IsFpr;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physDest_idx = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physDest_idx;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physDestIsFpr = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physDestIsFpr;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_oldPhysDest_idx = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_oldPhysDest_idx;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_oldPhysDestIsFpr = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_oldPhysDestIsFpr;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_allocatesPhysDest = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_allocatesPhysDest;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_writesToPhysReg = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_writesToPhysReg;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_robPtr = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_robPtr;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_uniqueId = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_uniqueId;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_dispatched = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_dispatched;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_executed = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_executed;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_hasException = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_hasException;
+  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_exceptionCode = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_exceptionCode;
+  assign RenameMapTablePlugin_early_setup_rat_io_writePorts_0_wen = (s2_RobAlloc_isFiring && RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_allocatesPhysDest);
+  assign RenamePlugin_setup_btSetBusyPorts_0_valid = (s2_RobAlloc_isFiring && RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_allocatesPhysDest);
+  assign RenamePlugin_setup_btSetBusyPorts_0_payload = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physDest_idx;
+  assign s2_RobAlloc_haltRequest_RobAllocPlugin_l30 = (! ROBPlugin_robComponent_io_allocate_0_ready);
   assign ROBPlugin_robComponent_io_allocate_0_valid = (s2_RobAlloc_isFiring && s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isValid);
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_pc = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_pc;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_isValid = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isValid;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_uopCode = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_exeUnit = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_exeUnit;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_isa = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isa;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_archDest_idx = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archDest_idx;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_archDest_rtype = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archDest_rtype;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_writeArchDestEn = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_writeArchDestEn;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc1_idx = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc1_idx;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc1_rtype = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc1_rtype;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_useArchSrc1 = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc1;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc2_idx = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_idx;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc2_rtype = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_rtype;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_useArchSrc2 = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc2;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc3_idx = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_idx;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc3_rtype = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_rtype;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_useArchSrc3 = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc3;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_usePcForAddr = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_usePcForAddr;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_imm = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_imm;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_immUsage = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_immUsage;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_aluCtrl_isSub = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_isSub;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_aluCtrl_isAdd = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_isAdd;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_aluCtrl_isSigned = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_isSigned;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_aluCtrl_logicOp = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_logicOp;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_shiftCtrl_isRight = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isRight;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_shiftCtrl_isArithmetic = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isArithmetic;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_shiftCtrl_isRotate = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isRotate;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_shiftCtrl_isDoubleWord = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isDoubleWord;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_mulDivCtrl_isDiv = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_mulDivCtrl_isDiv;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_mulDivCtrl_isSigned = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_mulDivCtrl_isSigned;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_mulDivCtrl_isWordOp = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_mulDivCtrl_isWordOp;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_size = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_size;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_isSignedLoad = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isSignedLoad;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_isStore = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isStore;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_isLoadLinked = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isLoadLinked;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_isStoreCond = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isStoreCond;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_atomicOp = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_atomicOp;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_isFence = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isFence;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_fenceMode = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_fenceMode;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_isCacheOp = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isCacheOp;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_cacheOpType = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_cacheOpType;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_isPrefetch = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isPrefetch;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_condition = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_condition;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_isJump = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_isJump;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_isLink = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_isLink;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_linkReg_idx = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_linkReg_idx;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_linkReg_rtype = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_linkReg_rtype;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_isIndirect = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_isIndirect;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_laCfIdx = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_laCfIdx;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_opType = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_opType;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeSrc1 = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeSrc2 = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeSrc3 = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeDest = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeDest;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_roundingMode = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_roundingMode;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_isIntegerDest = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_isIntegerDest;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_isSignedCvt = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_isSignedCvt;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fmaNegSrc1 = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fmaNegSrc1;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fmaNegSrc3 = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fmaNegSrc3;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fcmpCond = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fcmpCond;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_csrCtrl_csrAddr = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_csrAddr;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_csrCtrl_isWrite = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_isWrite;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_csrCtrl_isRead = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_isRead;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_csrCtrl_isExchange = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_isExchange;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_csrCtrl_useUimmAsSrc = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_useUimmAsSrc;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_sysCtrl_sysCode = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_sysCode;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_sysCtrl_isExceptionReturn = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_isExceptionReturn;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_sysCtrl_isTlbOp = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_isTlbOp;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_sysCtrl_tlbOpType = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_tlbOpType;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_decodeExceptionCode = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_decodeExceptionCode;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_hasDecodeException = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_hasDecodeException;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_isMicrocode = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isMicrocode;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_microcodeEntry = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_microcodeEntry;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_isSerializing = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isSerializing;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_isBranchOrJump = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isBranchOrJump;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_branchPrediction_isTaken = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchPrediction_isTaken;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_branchPrediction_target = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchPrediction_target;
-  assign RobAllocPlugin_logic_newUopsArray_0_decoded_branchPrediction_wasPredicted = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchPrediction_wasPredicted;
-  assign RobAllocPlugin_logic_newUopsArray_0_rename_physSrc1_idx = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc1_idx;
-  assign RobAllocPlugin_logic_newUopsArray_0_rename_physSrc1IsFpr = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc1IsFpr;
-  assign RobAllocPlugin_logic_newUopsArray_0_rename_physSrc2_idx = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc2_idx;
-  assign RobAllocPlugin_logic_newUopsArray_0_rename_physSrc2IsFpr = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc2IsFpr;
-  assign RobAllocPlugin_logic_newUopsArray_0_rename_physSrc3_idx = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc3_idx;
-  assign RobAllocPlugin_logic_newUopsArray_0_rename_physSrc3IsFpr = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc3IsFpr;
-  assign RobAllocPlugin_logic_newUopsArray_0_rename_physDest_idx = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physDest_idx;
-  assign RobAllocPlugin_logic_newUopsArray_0_rename_physDestIsFpr = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physDestIsFpr;
-  assign RobAllocPlugin_logic_newUopsArray_0_rename_oldPhysDest_idx = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_oldPhysDest_idx;
-  assign RobAllocPlugin_logic_newUopsArray_0_rename_oldPhysDestIsFpr = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_oldPhysDestIsFpr;
-  assign RobAllocPlugin_logic_newUopsArray_0_rename_allocatesPhysDest = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_allocatesPhysDest;
-  assign RobAllocPlugin_logic_newUopsArray_0_rename_writesToPhysReg = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_writesToPhysReg;
-  assign RobAllocPlugin_logic_newUopsArray_0_uniqueId = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_uniqueId;
-  assign RobAllocPlugin_logic_newUopsArray_0_dispatched = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_dispatched;
-  assign RobAllocPlugin_logic_newUopsArray_0_executed = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_executed;
-  assign RobAllocPlugin_logic_newUopsArray_0_hasException = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_hasException;
-  assign RobAllocPlugin_logic_newUopsArray_0_exceptionCode = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_exceptionCode;
-  assign RobAllocPlugin_logic_newUopsArray_0_robPtr = ROBPlugin_robComponent_io_allocate_0_robPtr;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_pc = RobAllocPlugin_logic_newUopsArray_0_decoded_pc;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isValid = RobAllocPlugin_logic_newUopsArray_0_decoded_isValid;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode = RobAllocPlugin_logic_newUopsArray_0_decoded_uopCode;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_exeUnit = RobAllocPlugin_logic_newUopsArray_0_decoded_exeUnit;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isa = RobAllocPlugin_logic_newUopsArray_0_decoded_isa;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archDest_idx = RobAllocPlugin_logic_newUopsArray_0_decoded_archDest_idx;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archDest_rtype = RobAllocPlugin_logic_newUopsArray_0_decoded_archDest_rtype;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_writeArchDestEn = RobAllocPlugin_logic_newUopsArray_0_decoded_writeArchDestEn;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc1_idx = RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc1_idx;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc1_rtype = RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc1_rtype;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc1 = RobAllocPlugin_logic_newUopsArray_0_decoded_useArchSrc1;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_idx = RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc2_idx;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_rtype = RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc2_rtype;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc2 = RobAllocPlugin_logic_newUopsArray_0_decoded_useArchSrc2;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_idx = RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc3_idx;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype = RobAllocPlugin_logic_newUopsArray_0_decoded_archSrc3_rtype;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc3 = RobAllocPlugin_logic_newUopsArray_0_decoded_useArchSrc3;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_usePcForAddr = RobAllocPlugin_logic_newUopsArray_0_decoded_usePcForAddr;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_imm = RobAllocPlugin_logic_newUopsArray_0_decoded_imm;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage = RobAllocPlugin_logic_newUopsArray_0_decoded_immUsage;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_aluCtrl_isSub = RobAllocPlugin_logic_newUopsArray_0_decoded_aluCtrl_isSub;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_aluCtrl_isAdd = RobAllocPlugin_logic_newUopsArray_0_decoded_aluCtrl_isAdd;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_aluCtrl_isSigned = RobAllocPlugin_logic_newUopsArray_0_decoded_aluCtrl_isSigned;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_aluCtrl_logicOp = RobAllocPlugin_logic_newUopsArray_0_decoded_aluCtrl_logicOp;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_shiftCtrl_isRight = RobAllocPlugin_logic_newUopsArray_0_decoded_shiftCtrl_isRight;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_shiftCtrl_isArithmetic = RobAllocPlugin_logic_newUopsArray_0_decoded_shiftCtrl_isArithmetic;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_shiftCtrl_isRotate = RobAllocPlugin_logic_newUopsArray_0_decoded_shiftCtrl_isRotate;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_shiftCtrl_isDoubleWord = RobAllocPlugin_logic_newUopsArray_0_decoded_shiftCtrl_isDoubleWord;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_mulDivCtrl_isDiv = RobAllocPlugin_logic_newUopsArray_0_decoded_mulDivCtrl_isDiv;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_mulDivCtrl_isSigned = RobAllocPlugin_logic_newUopsArray_0_decoded_mulDivCtrl_isSigned;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_mulDivCtrl_isWordOp = RobAllocPlugin_logic_newUopsArray_0_decoded_mulDivCtrl_isWordOp;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_size = RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_size;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_isSignedLoad = RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_isSignedLoad;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_isStore = RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_isStore;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_isLoadLinked = RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_isLoadLinked;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_isStoreCond = RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_isStoreCond;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_atomicOp = RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_atomicOp;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_isFence = RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_isFence;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_fenceMode = RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_fenceMode;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_isCacheOp = RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_isCacheOp;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_cacheOpType = RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_cacheOpType;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_isPrefetch = RobAllocPlugin_logic_newUopsArray_0_decoded_memCtrl_isPrefetch;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition = RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_condition;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_isJump = RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_isJump;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_isLink = RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_isLink;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_linkReg_idx = RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_linkReg_idx;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_linkReg_rtype = RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_linkReg_rtype;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_isIndirect = RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_isIndirect;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_laCfIdx = RobAllocPlugin_logic_newUopsArray_0_decoded_branchCtrl_laCfIdx;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_opType = RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_opType;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1 = RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeSrc1;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2 = RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeSrc2;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3 = RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeSrc3;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeDest = RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fpSizeDest;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_roundingMode = RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_roundingMode;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_isIntegerDest = RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_isIntegerDest;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_isSignedCvt = RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_isSignedCvt;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fmaNegSrc1 = RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fmaNegSrc1;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fmaNegSrc3 = RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fmaNegSrc3;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fcmpCond = RobAllocPlugin_logic_newUopsArray_0_decoded_fpuCtrl_fcmpCond;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_csrCtrl_csrAddr = RobAllocPlugin_logic_newUopsArray_0_decoded_csrCtrl_csrAddr;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_csrCtrl_isWrite = RobAllocPlugin_logic_newUopsArray_0_decoded_csrCtrl_isWrite;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_csrCtrl_isRead = RobAllocPlugin_logic_newUopsArray_0_decoded_csrCtrl_isRead;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_csrCtrl_isExchange = RobAllocPlugin_logic_newUopsArray_0_decoded_csrCtrl_isExchange;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_csrCtrl_useUimmAsSrc = RobAllocPlugin_logic_newUopsArray_0_decoded_csrCtrl_useUimmAsSrc;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_sysCtrl_sysCode = RobAllocPlugin_logic_newUopsArray_0_decoded_sysCtrl_sysCode;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_sysCtrl_isExceptionReturn = RobAllocPlugin_logic_newUopsArray_0_decoded_sysCtrl_isExceptionReturn;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_sysCtrl_isTlbOp = RobAllocPlugin_logic_newUopsArray_0_decoded_sysCtrl_isTlbOp;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_sysCtrl_tlbOpType = RobAllocPlugin_logic_newUopsArray_0_decoded_sysCtrl_tlbOpType;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_decodeExceptionCode = RobAllocPlugin_logic_newUopsArray_0_decoded_decodeExceptionCode;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_hasDecodeException = RobAllocPlugin_logic_newUopsArray_0_decoded_hasDecodeException;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isMicrocode = RobAllocPlugin_logic_newUopsArray_0_decoded_isMicrocode;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_microcodeEntry = RobAllocPlugin_logic_newUopsArray_0_decoded_microcodeEntry;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isSerializing = RobAllocPlugin_logic_newUopsArray_0_decoded_isSerializing;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isBranchOrJump = RobAllocPlugin_logic_newUopsArray_0_decoded_isBranchOrJump;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchPrediction_isTaken = RobAllocPlugin_logic_newUopsArray_0_decoded_branchPrediction_isTaken;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchPrediction_target = RobAllocPlugin_logic_newUopsArray_0_decoded_branchPrediction_target;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchPrediction_wasPredicted = RobAllocPlugin_logic_newUopsArray_0_decoded_branchPrediction_wasPredicted;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc1_idx = RobAllocPlugin_logic_newUopsArray_0_rename_physSrc1_idx;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc1IsFpr = RobAllocPlugin_logic_newUopsArray_0_rename_physSrc1IsFpr;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2_idx = RobAllocPlugin_logic_newUopsArray_0_rename_physSrc2_idx;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2IsFpr = RobAllocPlugin_logic_newUopsArray_0_rename_physSrc2IsFpr;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc3_idx = RobAllocPlugin_logic_newUopsArray_0_rename_physSrc3_idx;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc3IsFpr = RobAllocPlugin_logic_newUopsArray_0_rename_physSrc3IsFpr;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physDest_idx = RobAllocPlugin_logic_newUopsArray_0_rename_physDest_idx;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physDestIsFpr = RobAllocPlugin_logic_newUopsArray_0_rename_physDestIsFpr;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_oldPhysDest_idx = RobAllocPlugin_logic_newUopsArray_0_rename_oldPhysDest_idx;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_oldPhysDestIsFpr = RobAllocPlugin_logic_newUopsArray_0_rename_oldPhysDestIsFpr;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_allocatesPhysDest = RobAllocPlugin_logic_newUopsArray_0_rename_allocatesPhysDest;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_writesToPhysReg = RobAllocPlugin_logic_newUopsArray_0_rename_writesToPhysReg;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_robPtr = RobAllocPlugin_logic_newUopsArray_0_robPtr;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_uniqueId = RobAllocPlugin_logic_newUopsArray_0_uniqueId;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_dispatched = RobAllocPlugin_logic_newUopsArray_0_dispatched;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_executed = RobAllocPlugin_logic_newUopsArray_0_executed;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_hasException = RobAllocPlugin_logic_newUopsArray_0_hasException;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_exceptionCode = RobAllocPlugin_logic_newUopsArray_0_exceptionCode;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_pc = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_pc;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_isValid = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isValid;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_uopCode = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_exeUnit = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_exeUnit;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_isa = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isa;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_archDest_idx = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archDest_idx;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_archDest_rtype = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archDest_rtype;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_writeArchDestEn = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_writeArchDestEn;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc1_idx = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc1_idx;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc1_rtype = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc1_rtype;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_useArchSrc1 = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc1;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc2_idx = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_idx;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc2_rtype = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_rtype;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_useArchSrc2 = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc2;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc3_idx = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_idx;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc3_rtype = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_rtype;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_useArchSrc3 = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc3;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_usePcForAddr = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_usePcForAddr;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_imm = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_imm;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_immUsage = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_immUsage;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_aluCtrl_isSub = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_isSub;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_aluCtrl_isAdd = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_isAdd;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_aluCtrl_isSigned = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_isSigned;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_aluCtrl_logicOp = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_logicOp;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_shiftCtrl_isRight = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isRight;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_shiftCtrl_isArithmetic = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isArithmetic;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_shiftCtrl_isRotate = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isRotate;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_shiftCtrl_isDoubleWord = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isDoubleWord;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_mulDivCtrl_isDiv = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_mulDivCtrl_isDiv;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_mulDivCtrl_isSigned = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_mulDivCtrl_isSigned;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_mulDivCtrl_isWordOp = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_mulDivCtrl_isWordOp;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_size = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_size;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_isSignedLoad = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isSignedLoad;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_isStore = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isStore;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_isLoadLinked = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isLoadLinked;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_isStoreCond = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isStoreCond;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_atomicOp = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_atomicOp;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_isFence = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isFence;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_fenceMode = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_fenceMode;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_isCacheOp = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isCacheOp;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_cacheOpType = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_cacheOpType;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_isPrefetch = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isPrefetch;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_condition = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_condition;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_isJump = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_isJump;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_isLink = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_isLink;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_linkReg_idx = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_linkReg_idx;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_linkReg_rtype = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_linkReg_rtype;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_isIndirect = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_isIndirect;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_laCfIdx = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_laCfIdx;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_opType = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_opType;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc1 = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc2 = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc3 = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeDest = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeDest;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_roundingMode = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_roundingMode;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_isIntegerDest = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_isIntegerDest;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_isSignedCvt = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_isSignedCvt;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fmaNegSrc1 = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fmaNegSrc1;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fmaNegSrc3 = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fmaNegSrc3;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fcmpCond = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fcmpCond;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_csrCtrl_csrAddr = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_csrAddr;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_csrCtrl_isWrite = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_isWrite;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_csrCtrl_isRead = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_isRead;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_csrCtrl_isExchange = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_isExchange;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_csrCtrl_useUimmAsSrc = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_useUimmAsSrc;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_sysCtrl_sysCode = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_sysCode;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_sysCtrl_isExceptionReturn = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_isExceptionReturn;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_sysCtrl_isTlbOp = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_isTlbOp;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_sysCtrl_tlbOpType = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_tlbOpType;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_decodeExceptionCode = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_decodeExceptionCode;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_hasDecodeException = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_hasDecodeException;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_isMicrocode = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isMicrocode;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_microcodeEntry = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_microcodeEntry;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_isSerializing = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isSerializing;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_isBranchOrJump = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isBranchOrJump;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_branchPrediction_isTaken = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchPrediction_isTaken;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_branchPrediction_target = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchPrediction_target;
+  assign RobAllocPlugin_logic_allocatedUops_0_decoded_branchPrediction_wasPredicted = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchPrediction_wasPredicted;
+  assign RobAllocPlugin_logic_allocatedUops_0_rename_physSrc1_idx = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc1_idx;
+  assign RobAllocPlugin_logic_allocatedUops_0_rename_physSrc1IsFpr = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc1IsFpr;
+  assign RobAllocPlugin_logic_allocatedUops_0_rename_physSrc2_idx = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc2_idx;
+  assign RobAllocPlugin_logic_allocatedUops_0_rename_physSrc2IsFpr = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc2IsFpr;
+  assign RobAllocPlugin_logic_allocatedUops_0_rename_physSrc3_idx = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc3_idx;
+  assign RobAllocPlugin_logic_allocatedUops_0_rename_physSrc3IsFpr = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc3IsFpr;
+  assign RobAllocPlugin_logic_allocatedUops_0_rename_physDest_idx = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physDest_idx;
+  assign RobAllocPlugin_logic_allocatedUops_0_rename_physDestIsFpr = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physDestIsFpr;
+  assign RobAllocPlugin_logic_allocatedUops_0_rename_oldPhysDest_idx = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_oldPhysDest_idx;
+  assign RobAllocPlugin_logic_allocatedUops_0_rename_oldPhysDestIsFpr = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_oldPhysDestIsFpr;
+  assign RobAllocPlugin_logic_allocatedUops_0_rename_allocatesPhysDest = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_allocatesPhysDest;
+  assign RobAllocPlugin_logic_allocatedUops_0_rename_writesToPhysReg = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_writesToPhysReg;
+  assign RobAllocPlugin_logic_allocatedUops_0_uniqueId = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_uniqueId;
+  assign RobAllocPlugin_logic_allocatedUops_0_dispatched = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_dispatched;
+  assign RobAllocPlugin_logic_allocatedUops_0_executed = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_executed;
+  assign RobAllocPlugin_logic_allocatedUops_0_hasException = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_hasException;
+  assign RobAllocPlugin_logic_allocatedUops_0_exceptionCode = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_exceptionCode;
+  assign RobAllocPlugin_logic_allocatedUops_0_robPtr = ROBPlugin_robComponent_io_allocate_0_robPtr;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_pc = RobAllocPlugin_logic_allocatedUops_0_decoded_pc;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isValid = RobAllocPlugin_logic_allocatedUops_0_decoded_isValid;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode = RobAllocPlugin_logic_allocatedUops_0_decoded_uopCode;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_exeUnit = RobAllocPlugin_logic_allocatedUops_0_decoded_exeUnit;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isa = RobAllocPlugin_logic_allocatedUops_0_decoded_isa;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archDest_idx = RobAllocPlugin_logic_allocatedUops_0_decoded_archDest_idx;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archDest_rtype = RobAllocPlugin_logic_allocatedUops_0_decoded_archDest_rtype;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_writeArchDestEn = RobAllocPlugin_logic_allocatedUops_0_decoded_writeArchDestEn;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc1_idx = RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc1_idx;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc1_rtype = RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc1_rtype;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc1 = RobAllocPlugin_logic_allocatedUops_0_decoded_useArchSrc1;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_idx = RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc2_idx;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_rtype = RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc2_rtype;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc2 = RobAllocPlugin_logic_allocatedUops_0_decoded_useArchSrc2;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_idx = RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc3_idx;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype = RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc3_rtype;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc3 = RobAllocPlugin_logic_allocatedUops_0_decoded_useArchSrc3;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_usePcForAddr = RobAllocPlugin_logic_allocatedUops_0_decoded_usePcForAddr;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_imm = RobAllocPlugin_logic_allocatedUops_0_decoded_imm;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage = RobAllocPlugin_logic_allocatedUops_0_decoded_immUsage;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_aluCtrl_isSub = RobAllocPlugin_logic_allocatedUops_0_decoded_aluCtrl_isSub;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_aluCtrl_isAdd = RobAllocPlugin_logic_allocatedUops_0_decoded_aluCtrl_isAdd;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_aluCtrl_isSigned = RobAllocPlugin_logic_allocatedUops_0_decoded_aluCtrl_isSigned;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_aluCtrl_logicOp = RobAllocPlugin_logic_allocatedUops_0_decoded_aluCtrl_logicOp;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_shiftCtrl_isRight = RobAllocPlugin_logic_allocatedUops_0_decoded_shiftCtrl_isRight;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_shiftCtrl_isArithmetic = RobAllocPlugin_logic_allocatedUops_0_decoded_shiftCtrl_isArithmetic;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_shiftCtrl_isRotate = RobAllocPlugin_logic_allocatedUops_0_decoded_shiftCtrl_isRotate;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_shiftCtrl_isDoubleWord = RobAllocPlugin_logic_allocatedUops_0_decoded_shiftCtrl_isDoubleWord;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_mulDivCtrl_isDiv = RobAllocPlugin_logic_allocatedUops_0_decoded_mulDivCtrl_isDiv;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_mulDivCtrl_isSigned = RobAllocPlugin_logic_allocatedUops_0_decoded_mulDivCtrl_isSigned;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_mulDivCtrl_isWordOp = RobAllocPlugin_logic_allocatedUops_0_decoded_mulDivCtrl_isWordOp;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_size = RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_size;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_isSignedLoad = RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_isSignedLoad;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_isStore = RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_isStore;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_isLoadLinked = RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_isLoadLinked;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_isStoreCond = RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_isStoreCond;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_atomicOp = RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_atomicOp;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_isFence = RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_isFence;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_fenceMode = RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_fenceMode;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_isCacheOp = RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_isCacheOp;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_cacheOpType = RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_cacheOpType;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_isPrefetch = RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_isPrefetch;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_condition = RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_condition;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_isJump = RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_isJump;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_isLink = RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_isLink;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_linkReg_idx = RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_linkReg_idx;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_linkReg_rtype = RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_linkReg_rtype;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_isIndirect = RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_isIndirect;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_laCfIdx = RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_laCfIdx;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_opType = RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_opType;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1 = RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc1;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2 = RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc2;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3 = RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc3;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeDest = RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeDest;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_roundingMode = RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_roundingMode;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_isIntegerDest = RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_isIntegerDest;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_isSignedCvt = RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_isSignedCvt;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fmaNegSrc1 = RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fmaNegSrc1;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fmaNegSrc3 = RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fmaNegSrc3;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fcmpCond = RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fcmpCond;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_csrCtrl_csrAddr = RobAllocPlugin_logic_allocatedUops_0_decoded_csrCtrl_csrAddr;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_csrCtrl_isWrite = RobAllocPlugin_logic_allocatedUops_0_decoded_csrCtrl_isWrite;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_csrCtrl_isRead = RobAllocPlugin_logic_allocatedUops_0_decoded_csrCtrl_isRead;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_csrCtrl_isExchange = RobAllocPlugin_logic_allocatedUops_0_decoded_csrCtrl_isExchange;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_csrCtrl_useUimmAsSrc = RobAllocPlugin_logic_allocatedUops_0_decoded_csrCtrl_useUimmAsSrc;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_sysCtrl_sysCode = RobAllocPlugin_logic_allocatedUops_0_decoded_sysCtrl_sysCode;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_sysCtrl_isExceptionReturn = RobAllocPlugin_logic_allocatedUops_0_decoded_sysCtrl_isExceptionReturn;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_sysCtrl_isTlbOp = RobAllocPlugin_logic_allocatedUops_0_decoded_sysCtrl_isTlbOp;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_sysCtrl_tlbOpType = RobAllocPlugin_logic_allocatedUops_0_decoded_sysCtrl_tlbOpType;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_decodeExceptionCode = RobAllocPlugin_logic_allocatedUops_0_decoded_decodeExceptionCode;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_hasDecodeException = RobAllocPlugin_logic_allocatedUops_0_decoded_hasDecodeException;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isMicrocode = RobAllocPlugin_logic_allocatedUops_0_decoded_isMicrocode;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_microcodeEntry = RobAllocPlugin_logic_allocatedUops_0_decoded_microcodeEntry;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isSerializing = RobAllocPlugin_logic_allocatedUops_0_decoded_isSerializing;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isBranchOrJump = RobAllocPlugin_logic_allocatedUops_0_decoded_isBranchOrJump;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchPrediction_isTaken = RobAllocPlugin_logic_allocatedUops_0_decoded_branchPrediction_isTaken;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchPrediction_target = RobAllocPlugin_logic_allocatedUops_0_decoded_branchPrediction_target;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchPrediction_wasPredicted = RobAllocPlugin_logic_allocatedUops_0_decoded_branchPrediction_wasPredicted;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc1_idx = RobAllocPlugin_logic_allocatedUops_0_rename_physSrc1_idx;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc1IsFpr = RobAllocPlugin_logic_allocatedUops_0_rename_physSrc1IsFpr;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2_idx = RobAllocPlugin_logic_allocatedUops_0_rename_physSrc2_idx;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2IsFpr = RobAllocPlugin_logic_allocatedUops_0_rename_physSrc2IsFpr;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc3_idx = RobAllocPlugin_logic_allocatedUops_0_rename_physSrc3_idx;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc3IsFpr = RobAllocPlugin_logic_allocatedUops_0_rename_physSrc3IsFpr;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physDest_idx = RobAllocPlugin_logic_allocatedUops_0_rename_physDest_idx;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physDestIsFpr = RobAllocPlugin_logic_allocatedUops_0_rename_physDestIsFpr;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_oldPhysDest_idx = RobAllocPlugin_logic_allocatedUops_0_rename_oldPhysDest_idx;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_oldPhysDestIsFpr = RobAllocPlugin_logic_allocatedUops_0_rename_oldPhysDestIsFpr;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_allocatesPhysDest = RobAllocPlugin_logic_allocatedUops_0_rename_allocatesPhysDest;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_writesToPhysReg = RobAllocPlugin_logic_allocatedUops_0_rename_writesToPhysReg;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_robPtr = RobAllocPlugin_logic_allocatedUops_0_robPtr;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_uniqueId = RobAllocPlugin_logic_allocatedUops_0_uniqueId;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_dispatched = RobAllocPlugin_logic_allocatedUops_0_dispatched;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_executed = RobAllocPlugin_logic_allocatedUops_0_executed;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_hasException = RobAllocPlugin_logic_allocatedUops_0_hasException;
+  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_exceptionCode = RobAllocPlugin_logic_allocatedUops_0_exceptionCode;
   assign DispatchPlugin_logic_iqRegs_0_1_ready = 1'b1;
   assign DispatchPlugin_logic_iqRegs_0_1_toFlow_valid = DispatchPlugin_logic_iqRegs_0_1_valid;
   assign DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_pc = DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_pc;
@@ -14790,9 +14732,9 @@ module CoreNSCSCC (
   assign oneShot_21_io_triggerIn = (AluIntEU_AluIntEuPlugin_euInputPort_fire && (_zz_when_Debug_l71 < _zz_io_triggerIn_12));
   assign _zz_when_Debug_l71_7 = 5'h17;
   assign when_Debug_l71_6 = (_zz_when_Debug_l71 < _zz_when_Debug_l71_6_1);
-  assign DispatchPlugin_logic_physSrc1ConflictS1 = ((s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isValid && s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_allocatesPhysDest) && (s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physDest_idx == s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc1_idx));
+  assign DispatchPlugin_logic_physSrc1ConflictS1 = 1'b0;
   assign DispatchPlugin_logic_physSrc1ConflictS2 = ((s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isValid && s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_allocatesPhysDest) && (s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physDest_idx == s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc1_idx));
-  assign DispatchPlugin_logic_physSrc2ConflictS1 = ((s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isValid && s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_allocatesPhysDest) && (s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physDest_idx == s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2_idx));
+  assign DispatchPlugin_logic_physSrc2ConflictS1 = 1'b0;
   assign DispatchPlugin_logic_physSrc2ConflictS2 = ((s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isValid && s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_allocatesPhysDest) && (s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physDest_idx == s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2_idx));
   assign DispatchPlugin_logic_src1SetBypass = (DispatchPlugin_logic_physSrc1ConflictS1 || DispatchPlugin_logic_physSrc1ConflictS2);
   assign DispatchPlugin_logic_src2SetBypass = (DispatchPlugin_logic_physSrc2ConflictS1 || DispatchPlugin_logic_physSrc2ConflictS2);
@@ -14804,7 +14746,7 @@ module CoreNSCSCC (
   assign _zz_DispatchPlugin_logic_destinationIqReady = DispatchPlugin_logic_dispatchOH[1];
   assign _zz_DispatchPlugin_logic_destinationIqReady_1 = DispatchPlugin_logic_dispatchOH[2];
   assign DispatchPlugin_logic_destinationIqReady = _zz_DispatchPlugin_logic_destinationIqReady_2;
-  assign s3_Dispatch_haltRequest_DispatchPlugin_l85 = ((s3_Dispatch_valid && s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isValid) && (! DispatchPlugin_logic_destinationIqReady));
+  assign s3_Dispatch_haltRequest_DispatchPlugin_l78 = ((s3_Dispatch_valid && s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isValid) && (! DispatchPlugin_logic_destinationIqReady));
   assign DispatchPlugin_logic_iqRegs_0_1_valid = ((s3_Dispatch_isFiring && s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isValid) && DispatchPlugin_logic_dispatchOH[0]);
   always @(*) begin
     if(DispatchPlugin_logic_iqRegs_0_1_valid) begin
@@ -17160,7 +17102,7 @@ module CoreNSCSCC (
     end
   end
 
-  assign when_DispatchPlugin_l104 = (s3_Dispatch_isFiring && s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isValid);
+  assign when_DispatchPlugin_l97 = (s3_Dispatch_isFiring && s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isValid);
   assign CommitPlugin_commitEnableExt = 1'b1;
   assign CoreNSCSCCSetupPlugin_logic_instructionVec_0 = SimpleFetchPipelinePlugin_hw_finalOutputInst_payload_instruction;
   assign CoreNSCSCCSetupPlugin_logic_instructionVec_1 = 32'h0;
@@ -17250,14 +17192,6 @@ module CoreNSCSCC (
       s0_Decode_IssuePipelineSignals_IS_FAULT_IN = 1'b0;
     end else begin
       s0_Decode_IssuePipelineSignals_IS_FAULT_IN = 1'b0;
-    end
-  end
-
-  always @(*) begin
-    if(SimpleFetchPipelinePlugin_hw_finalOutputInst_valid) begin
-      s0_Decode_IssuePipelineSignals_FLUSH_TARGET_PC = 32'h0;
-    end else begin
-      s0_Decode_IssuePipelineSignals_FLUSH_TARGET_PC = 32'h0;
     end
   end
 
@@ -17583,14 +17517,12 @@ module CoreNSCSCC (
   assign LsuEU_LsuEuPlugin_setup_clearBusyPort_payload = LsuEU_LsuEuPlugin_euResult_uop_physDest_idx;
   assign when_EuBasePlugin_l297_2 = ((LsuEU_LsuEuPlugin_logicPhase_executionCompletes && LsuEU_LsuEuPlugin_euResult_writesToPreg) && (LsuEU_LsuEuPlugin_euResult_uop_physDest_idx < 6'h06));
   assign s3_Dispatch_isFlushed = when_Connection_l66;
-  assign when_Connection_l66_1 = (|{when_Connection_l66,_zz_s2_RobAlloc_isFlushingRoot});
-  assign s2_RobAlloc_isFlushed = when_Connection_l66_1;
-  assign when_Connection_l66_2 = (|{when_Connection_l66_1,_zz_s1_Rename_isFlushingRoot});
-  assign s1_Rename_isFlushed = when_Connection_l66_2;
-  assign s0_Decode_isFlushed = (|{when_Connection_l66_2,_zz_s0_Decode_isFlushingRoot});
+  assign s2_RobAlloc_isFlushed = when_Connection_l66;
+  assign when_Connection_l66_1 = (|{when_Connection_l66,_zz_s1_Rename_isFlushingRoot});
+  assign s1_Rename_isFlushed = when_Connection_l66_1;
+  assign s0_Decode_isFlushed = (|{when_Connection_l66_1,_zz_s0_Decode_isFlushingRoot});
   assign s0_Decode_isFlushingRoot = (|_zz_s0_Decode_isFlushingRoot);
   assign s1_Rename_isFlushingRoot = (|_zz_s1_Rename_isFlushingRoot);
-  assign s2_RobAlloc_isFlushingRoot = (|_zz_s2_RobAlloc_isFlushingRoot);
   assign s3_Dispatch_isFlushingRoot = (|when_Connection_l66);
   always @(*) begin
     _zz_s1_Rename_valid = s0_Decode_valid;
@@ -17605,55 +17537,42 @@ module CoreNSCSCC (
     if(s1_Rename_isFlushingRoot) begin
       _zz_s2_RobAlloc_valid = 1'b0;
     end
-    if(when_Pipeline_l282) begin
-      _zz_s2_RobAlloc_valid = 1'b0;
-    end
   end
 
-  always @(*) begin
-    s1_Rename_ready = s1_Rename_ready_output;
-    if(when_Pipeline_l282) begin
-      s1_Rename_ready = 1'b0;
-    end
-  end
-
-  assign when_Pipeline_l282 = (|s1_Rename_haltRequest_RenamePlugin_l85);
+  assign s1_Rename_ready = s1_Rename_ready_output;
   always @(*) begin
     _zz_s3_Dispatch_valid = s2_RobAlloc_valid;
-    if(s2_RobAlloc_isFlushingRoot) begin
-      _zz_s3_Dispatch_valid = 1'b0;
-    end
-    if(when_Pipeline_l282_1) begin
+    if(when_Pipeline_l282) begin
       _zz_s3_Dispatch_valid = 1'b0;
     end
   end
 
   always @(*) begin
     s2_RobAlloc_ready = s2_RobAlloc_ready_output;
-    if(when_Pipeline_l282_1) begin
+    if(when_Pipeline_l282) begin
       s2_RobAlloc_ready = 1'b0;
     end
   end
 
-  assign when_Pipeline_l282_1 = (|s2_RobAlloc_haltRequest_RobAllocPlugin_l40);
+  assign when_Pipeline_l282 = (|{s2_RobAlloc_haltRequest_RobAllocPlugin_l30,s2_RobAlloc_haltRequest_RenamePlugin_l83});
   always @(*) begin
     _zz_3 = s3_Dispatch_valid;
     if(s3_Dispatch_isFlushingRoot) begin
       _zz_3 = 1'b0;
     end
-    if(when_Pipeline_l282_2) begin
+    if(when_Pipeline_l282_1) begin
       _zz_3 = 1'b0;
     end
   end
 
   always @(*) begin
     s3_Dispatch_ready = 1'b1;
-    if(when_Pipeline_l282_2) begin
+    if(when_Pipeline_l282_1) begin
       s3_Dispatch_ready = 1'b0;
     end
   end
 
-  assign when_Pipeline_l282_2 = (|s3_Dispatch_haltRequest_DispatchPlugin_l85);
+  assign when_Pipeline_l282_1 = (|s3_Dispatch_haltRequest_DispatchPlugin_l78);
   always @(*) begin
     s0_Decode_ready_output = s1_Rename_ready;
     if(when_Connection_l74) begin
@@ -21351,8 +21270,8 @@ module CoreNSCSCC (
 
   always @(*) begin
     BusyTablePlugin_early_setup_setMask = 64'h0;
-    if(RenamePlugin_early_setup_setBusyPorts_0_valid) begin
-      BusyTablePlugin_early_setup_setMask[RenamePlugin_early_setup_setBusyPorts_0_payload] = 1'b1;
+    if(RenamePlugin_setup_btSetBusyPorts_0_valid) begin
+      BusyTablePlugin_early_setup_setMask[RenamePlugin_setup_btSetBusyPorts_0_payload] = 1'b1;
     end
   end
 
@@ -21397,12 +21316,12 @@ module CoreNSCSCC (
   assign SimpleFetchPipelinePlugin_logic_s0_query_ready = SimpleFetchPipelinePlugin_logic_s0_query_ready_output;
   always @(*) begin
     SimpleFetchPipelinePlugin_logic_s1_join_ready = 1'b1;
-    if(when_Pipeline_l282_3) begin
+    if(when_Pipeline_l282_2) begin
       SimpleFetchPipelinePlugin_logic_s1_join_ready = 1'b0;
     end
   end
 
-  assign when_Pipeline_l282_3 = (|SimpleFetchPipelinePlugin_logic_s1_join_haltRequest_SimpleFetchPipelinePlugin_l239);
+  assign when_Pipeline_l282_2 = (|SimpleFetchPipelinePlugin_logic_s1_join_haltRequest_SimpleFetchPipelinePlugin_l239);
   always @(*) begin
     SimpleFetchPipelinePlugin_logic_s0_query_ready_output = SimpleFetchPipelinePlugin_logic_s1_join_ready;
     if(when_Connection_l74_3) begin
@@ -21811,17 +21730,9 @@ module CoreNSCSCC (
 
   always @(*) begin
     if(when_CheckpointManagerPlugin_l121) begin
-      SuperScalarFreeListPlugin_early_setup_freeList_io_restoreState_valid = 1'b1;
+      SimpleFreeListPlugin_early_setup_freeList_io_recover = 1'b1;
     end else begin
-      SuperScalarFreeListPlugin_early_setup_freeList_io_restoreState_valid = 1'b0;
-    end
-  end
-
-  always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
-      SuperScalarFreeListPlugin_early_setup_freeList_io_restoreState_payload_freeMask = CheckpointManagerPlugin_logic_storedFlCheckpoint_freeMask;
-    end else begin
-      SuperScalarFreeListPlugin_early_setup_freeList_io_restoreState_payload_freeMask = 64'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      SimpleFreeListPlugin_early_setup_freeList_io_recover = 1'b0;
     end
   end
 
@@ -22214,8 +22125,8 @@ module CoreNSCSCC (
   assign axi4WriteOnlyArbiter_5_io_inputs_2_aw_payload_id = {4'd0, io_outputs_2_aw_validPipe_payload_id_2};
   assign io_dpy0 = DebugDisplayPlugin_hw_dpyController_io_dpy0_out;
   assign io_dpy1 = DebugDisplayPlugin_hw_dpyController_io_dpy1_out;
-  assign _zz_when_CoreNSCSCC_l583 = io_switch_btn_buffercc_io_dataOut;
-  assign when_CoreNSCSCC_l583 = (_zz_when_CoreNSCSCC_l583 && (! _zz_when_CoreNSCSCC_l583_1));
+  assign _zz_when_CoreNSCSCC_l581 = io_switch_btn_buffercc_io_dataOut;
+  assign when_CoreNSCSCC_l581 = (_zz_when_CoreNSCSCC_l581 && (! _zz_when_CoreNSCSCC_l581_1));
   assign io_leds = _zz_io_leds_1[15:0];
   always @(*) begin
     SimpleFetchPipelinePlugin_logic_fsm_stateNext = SimpleFetchPipelinePlugin_logic_fsm_stateReg;
@@ -22397,7 +22308,6 @@ module CoreNSCSCC (
       CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_29 <= CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_29;
       CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_30 <= CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_30;
       CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_31 <= CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_31;
-      CheckpointManagerPlugin_logic_storedFlCheckpoint_freeMask <= CheckpointManagerPlugin_logic_initialFlCheckpoint_freeMask;
       CheckpointManagerPlugin_logic_storedBtCheckpoint_busyBits <= CheckpointManagerPlugin_logic_initialBtCheckpoint_busyBits;
       CommitPlugin_logic_s0_isMispredictedBranchPrev <= 1'b0;
       CommitPlugin_logic_s1_s1_commitIdleThisCycle <= 1'b0;
@@ -22726,10 +22636,10 @@ module CoreNSCSCC (
       end
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // IssuePipeline.scala:L45
+          assert(1'b0); // IssuePipeline.scala:L39
         `else
           if(!1'b0) begin
-            $display("NOTE(IssuePipeline.scala:45):  IssuePipeline status: \ns0_Decode: fire=%x, in.v=%x, in.r=%x, out.v=%x, out.r=null\ns1_Rename: fire=%x, in.v=%x, in.r=%x, out.v=%x, out.r=null\ns2_RobAlloc: fire=%x, in.v=%x, in.r=%x, out.v=%x, out.r=null\ns3_Dispatch: fire=%x, in.v=%x, in.r=%x, out.v=%x, out.r=null\n", s0_Decode_isFiring, s0_Decode_valid, s0_Decode_ready, _zz_s1_Rename_valid, s1_Rename_isFiring, s1_Rename_valid, s1_Rename_ready, _zz_s2_RobAlloc_valid, s2_RobAlloc_isFiring, s2_RobAlloc_valid, s2_RobAlloc_ready, _zz_s3_Dispatch_valid, s3_Dispatch_isFiring, s3_Dispatch_valid, s3_Dispatch_ready, _zz_3); // IssuePipeline.scala:L45
+            $display("NOTE(IssuePipeline.scala:39):  IssuePipeline status: \ns0_Decode: fire=%x, in.v=%x, in.r=%x, out.v=%x, out.r=null\ns1_Rename: fire=%x, in.v=%x, in.r=%x, out.v=%x, out.r=null\ns2_RobAlloc: fire=%x, in.v=%x, in.r=%x, out.v=%x, out.r=null\ns3_Dispatch: fire=%x, in.v=%x, in.r=%x, out.v=%x, out.r=null\n", s0_Decode_isFiring, s0_Decode_valid, s0_Decode_ready, _zz_s1_Rename_valid, s1_Rename_isFiring, s1_Rename_valid, s1_Rename_ready, _zz_s2_RobAlloc_valid, s2_RobAlloc_isFiring, s2_RobAlloc_valid, s2_RobAlloc_ready, _zz_s3_Dispatch_valid, s3_Dispatch_isFiring, s3_Dispatch_valid, s3_Dispatch_ready, _zz_3); // IssuePipeline.scala:L39
           end
         `endif
       `endif
@@ -22865,7 +22775,6 @@ module CoreNSCSCC (
         CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_29 <= RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_29;
         CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_30 <= RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_30;
         CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_31 <= RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_31;
-        CheckpointManagerPlugin_logic_storedFlCheckpoint_freeMask <= SuperScalarFreeListPlugin_early_setup_freeList_io_currentState_freeMask;
         CheckpointManagerPlugin_logic_storedBtCheckpoint_busyBits <= BusyTablePlugin_early_setup_busyTableReg;
         CheckpointManagerPlugin_logic_hasValidCheckpoint <= 1'b1;
         `ifndef SYNTHESIS
@@ -23011,77 +22920,6 @@ module CoreNSCSCC (
           `endif
         `endif
       end
-      if(when_RenamePlugin_l88) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // RenamePlugin.scala:L89
-          `else
-            if(!1'b0) begin
-              $display("NOTE(RenamePlugin.scala:89):  [RENAME] FREELIST STALL: Not enough physical registers"); // RenamePlugin.scala:L89
-            end
-          `endif
-        `endif
-      end
-      if(SimpleFetchPipelinePlugin_doHardRedirect_) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // RenamePlugin.scala:L128
-          `else
-            if(!1'b0) begin
-              $display("NOTE(RenamePlugin.scala:128):  DecodePlugin (s0_decode): Flushing pipeline due to hard redirect"); // RenamePlugin.scala:L128
-            end
-          `endif
-        `endif
-      end
-      if(s2_RobAlloc_valid) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // RobAllocPlugin.scala:L70
-          `else
-            if(!1'b0) begin
-              $display("NOTE(RobAllocPlugin.scala:70):  RobAllocPlugin(s2): STAGE_VALID. isFiring=%x, uopValid=%x, uopPC=%x", s2_RobAlloc_isFiring, s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isValid, s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_pc); // RobAllocPlugin.scala:L70
-            end
-          `endif
-        `endif
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // RobAllocPlugin.scala:L71
-          `else
-            if(!1'b0) begin
-              $display("NOTE(RobAllocPlugin.scala:71):    IN:  renamedUopIn.robPtr = %x", s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_robPtr); // RobAllocPlugin.scala:L71
-            end
-          `endif
-        `endif
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // RobAllocPlugin.scala:L72
-          `else
-            if(!1'b0) begin
-              $display("NOTE(RobAllocPlugin.scala:72):    ROB: robAllocPort.robPtr = %x", ROBPlugin_robComponent_io_allocate_0_robPtr); // RobAllocPlugin.scala:L72
-            end
-          `endif
-        `endif
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // RobAllocPlugin.scala:L73
-          `else
-            if(!1'b0) begin
-              $display("NOTE(RobAllocPlugin.scala:73):    OUT: Driving uopOut.robPtr with %x", RobAllocPlugin_logic_newUopsArray_0_robPtr); // RobAllocPlugin.scala:L73
-            end
-          `endif
-        `endif
-      end
-      if(SimpleFetchPipelinePlugin_doHardRedirect_) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // RobAllocPlugin.scala:L81
-          `else
-            if(!1'b0) begin
-              $display("NOTE(RobAllocPlugin.scala:81):  RobAllocPlugin (s2): Flushing pipeline due to hard redirect"); // RobAllocPlugin.scala:L81
-            end
-          `endif
-        `endif
-      end
       if(SimpleFetchPipelinePlugin_doHardRedirect_) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
@@ -23140,13 +22978,13 @@ module CoreNSCSCC (
           `endif
         end
       end
-      if(when_DispatchPlugin_l104) begin
+      if(when_DispatchPlugin_l97) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // DispatchPlugin.scala:L105
+            assert(1'b0); // DispatchPlugin.scala:L98
           `else
             if(!1'b0) begin
-              $display("NOTE(DispatchPlugin.scala:105):  [normal] DispatchPlugin: Firing robPtr=%x (UopCode=%s), s1_ready=%x, s2_ready=%x", s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_robPtr, s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string, DispatchPlugin_logic_src1InitialReady, DispatchPlugin_logic_src2InitialReady); // DispatchPlugin.scala:L105
+              $display("NOTE(DispatchPlugin.scala:98):  [normal] DispatchPlugin: Firing robPtr=%x (UopCode=%s), s1_ready=%x, s2_ready=%x", s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_robPtr, s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string, DispatchPlugin_logic_src1InitialReady, DispatchPlugin_logic_src2InitialReady); // DispatchPlugin.scala:L98
             end
           `endif
         `endif
@@ -23154,10 +22992,10 @@ module CoreNSCSCC (
       if(SimpleFetchPipelinePlugin_doHardRedirect_) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // DispatchPlugin.scala:L116
+            assert(1'b0); // DispatchPlugin.scala:L109
           `else
             if(!1'b0) begin
-              $display("NOTE(DispatchPlugin.scala:116):  DispatchPlugin: (s3): Flushing pipeline due to hard redirect"); // DispatchPlugin.scala:L116
+              $display("NOTE(DispatchPlugin.scala:109):  DispatchPlugin: (s3): Flushing pipeline due to hard redirect"); // DispatchPlugin.scala:L109
             end
           `endif
         `endif
@@ -23449,13 +23287,13 @@ module CoreNSCSCC (
       if(s0_Decode_ready_output) begin
         s1_Rename_valid <= _zz_s1_Rename_valid;
       end
-      if(when_Connection_l66_2) begin
+      if(when_Connection_l66_1) begin
         s1_Rename_valid <= 1'b0;
       end
       if(s1_Rename_ready_output) begin
         s2_RobAlloc_valid <= _zz_s2_RobAlloc_valid;
       end
-      if(when_Connection_l66_1) begin
+      if(when_Connection_l66) begin
         s2_RobAlloc_valid <= 1'b0;
       end
       if(s2_RobAlloc_ready_output) begin
@@ -24908,20 +24746,20 @@ module CoreNSCSCC (
       if(when_CheckpointManagerPlugin_l121) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // CheckpointManagerPlugin.scala:L135
+            assert(1'b0); // CheckpointManagerPlugin.scala:L134
           `else
             if(!1'b0) begin
-              $display("NOTE(CheckpointManagerPlugin.scala:135):  [CheckpointManager] Checkpoint restored - restored REAL state (single-cycle)"); // CheckpointManagerPlugin.scala:L135
+              $display("NOTE(CheckpointManagerPlugin.scala:134):  [CheckpointManager] Checkpoint restored - restored REAL state (single-cycle)"); // CheckpointManagerPlugin.scala:L134
             end
           `endif
         `endif
       end
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // CoreNSCSCC.scala:L525
+          assert(1'b0); // CoreNSCSCC.scala:L523
         `else
           if(!1'b0) begin
-            $display("NOTE(CoreNSCSCC.scala:525):  io.dsram_addr=%x", io_dsram_addr); // CoreNSCSCC.scala:L525
+            $display("NOTE(CoreNSCSCC.scala:523):  io.dsram_addr=%x", io_dsram_addr); // CoreNSCSCC.scala:L523
           end
         `endif
       `endif
@@ -25033,7 +24871,7 @@ module CoreNSCSCC (
       if(io_outputs_2_aw_validPipe_fire_2) begin
         io_outputs_2_aw_rValid_2 <= 1'b0;
       end
-      if(when_CoreNSCSCC_l583) begin
+      if(when_CoreNSCSCC_l581) begin
         _zz_io_leds <= (! _zz_io_leds);
       end
       SimpleFetchPipelinePlugin_logic_fsm_stateReg <= SimpleFetchPipelinePlugin_logic_fsm_stateNext;
@@ -25486,102 +25324,85 @@ module CoreNSCSCC (
       s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchPrediction_wasPredicted <= s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_branchPrediction_wasPredicted;
     end
     if(s1_Rename_ready_output) begin
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_pc <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_pc;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isValid <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isValid;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_exeUnit <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_exeUnit;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isa <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isa;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archDest_idx <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archDest_idx;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archDest_rtype <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archDest_rtype;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_writeArchDestEn <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_writeArchDestEn;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc1_idx <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc1_idx;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc1_rtype <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc1_rtype;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc1 <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc1;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_idx <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_idx;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_rtype <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_rtype;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc2 <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc2;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_idx <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_idx;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_rtype <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_rtype;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc3 <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc3;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_usePcForAddr <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_usePcForAddr;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_imm <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_imm;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_immUsage <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_immUsage;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_isSub <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_isSub;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_isAdd <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_isAdd;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_isSigned <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_isSigned;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_logicOp <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_logicOp;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isRight <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isRight;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isArithmetic <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isArithmetic;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isRotate <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isRotate;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isDoubleWord <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_shiftCtrl_isDoubleWord;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_mulDivCtrl_isDiv <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_mulDivCtrl_isDiv;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_mulDivCtrl_isSigned <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_mulDivCtrl_isSigned;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_mulDivCtrl_isWordOp <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_mulDivCtrl_isWordOp;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_size <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_size;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isSignedLoad <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isSignedLoad;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isStore <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isStore;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isLoadLinked <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isLoadLinked;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isStoreCond <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isStoreCond;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_atomicOp <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_atomicOp;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isFence <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isFence;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_fenceMode <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_fenceMode;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isCacheOp <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isCacheOp;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_cacheOpType <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_cacheOpType;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isPrefetch <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_isPrefetch;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_condition <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_condition;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_isJump <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_isJump;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_isLink <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_isLink;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_linkReg_idx <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_linkReg_idx;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_linkReg_rtype <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_linkReg_rtype;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_isIndirect <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_isIndirect;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_laCfIdx <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_laCfIdx;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_opType <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_opType;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1 <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2 <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3 <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeDest <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeDest;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_roundingMode <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_roundingMode;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_isIntegerDest <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_isIntegerDest;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_isSignedCvt <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_isSignedCvt;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fmaNegSrc1 <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fmaNegSrc1;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fmaNegSrc3 <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fmaNegSrc3;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fcmpCond <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fcmpCond;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_csrAddr <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_csrAddr;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_isWrite <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_isWrite;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_isRead <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_isRead;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_isExchange <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_isExchange;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_useUimmAsSrc <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_useUimmAsSrc;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_sysCode <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_sysCode;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_isExceptionReturn <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_isExceptionReturn;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_isTlbOp <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_isTlbOp;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_tlbOpType <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_sysCtrl_tlbOpType;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_decodeExceptionCode <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_decodeExceptionCode;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_hasDecodeException <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_hasDecodeException;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isMicrocode <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isMicrocode;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_microcodeEntry <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_microcodeEntry;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isSerializing <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isSerializing;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isBranchOrJump <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isBranchOrJump;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchPrediction_isTaken <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchPrediction_isTaken;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchPrediction_target <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchPrediction_target;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchPrediction_wasPredicted <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchPrediction_wasPredicted;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc1_idx <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc1_idx;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc1IsFpr <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc1IsFpr;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc2_idx <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc2_idx;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc2IsFpr <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc2IsFpr;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc3_idx <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc3_idx;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc3IsFpr <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc3IsFpr;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physDest_idx <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physDest_idx;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physDestIsFpr <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_physDestIsFpr;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_oldPhysDest_idx <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_oldPhysDest_idx;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_oldPhysDestIsFpr <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_oldPhysDestIsFpr;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_allocatesPhysDest <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_allocatesPhysDest;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_writesToPhysReg <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_rename_writesToPhysReg;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_robPtr <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_robPtr;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_uniqueId <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_uniqueId;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_dispatched <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_dispatched;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_executed <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_executed;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_hasException <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_hasException;
-      s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_exceptionCode <= s1_Rename_IssuePipelineSignals_RENAMED_UOPS_0_exceptionCode;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_pc <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_pc;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_isValid <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_isValid;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_uopCode <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_uopCode;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_exeUnit <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_exeUnit;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_isa <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_isa;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archDest_idx <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archDest_idx;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archDest_rtype <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archDest_rtype;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_writeArchDestEn <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_writeArchDestEn;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc1_idx <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc1_idx;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc1_rtype <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc1_rtype;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc1 <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc1;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_idx <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_idx;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_rtype <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_rtype;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc2 <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc2;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_idx <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_idx;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc3 <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc3;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_usePcForAddr <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_usePcForAddr;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_imm <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_imm;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_immUsage <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_immUsage;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_isSub <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_isSub;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_isAdd <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_isAdd;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_isSigned <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_isSigned;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_logicOp <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_logicOp;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_shiftCtrl_isRight <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_shiftCtrl_isRight;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_shiftCtrl_isArithmetic <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_shiftCtrl_isArithmetic;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_shiftCtrl_isRotate <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_shiftCtrl_isRotate;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_shiftCtrl_isDoubleWord <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_shiftCtrl_isDoubleWord;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_mulDivCtrl_isDiv <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_mulDivCtrl_isDiv;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_mulDivCtrl_isSigned <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_mulDivCtrl_isSigned;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_mulDivCtrl_isWordOp <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_mulDivCtrl_isWordOp;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_size <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_size;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isSignedLoad <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isSignedLoad;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isStore <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isStore;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isLoadLinked <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isLoadLinked;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isStoreCond <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isStoreCond;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_atomicOp <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_atomicOp;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isFence <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isFence;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_fenceMode <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_fenceMode;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isCacheOp <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isCacheOp;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_cacheOpType <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_cacheOpType;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isPrefetch <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_isPrefetch;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_condition <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_condition;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_isJump <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_isJump;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_isLink <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_isLink;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_linkReg_idx <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_linkReg_idx;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_linkReg_rtype <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_linkReg_rtype;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_isIndirect <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_isIndirect;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_laCfIdx <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_laCfIdx;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_opType <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_opType;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc1 <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc1;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2 <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3 <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeDest <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeDest;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_roundingMode <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_roundingMode;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_isIntegerDest <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_isIntegerDest;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_isSignedCvt <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_isSignedCvt;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fmaNegSrc1 <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fmaNegSrc1;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fmaNegSrc3 <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fmaNegSrc3;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fcmpCond <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fcmpCond;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_csrAddr <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_csrAddr;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_isWrite <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_isWrite;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_isRead <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_isRead;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_isExchange <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_isExchange;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_useUimmAsSrc <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_useUimmAsSrc;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_sysCtrl_sysCode <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_sysCtrl_sysCode;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_sysCtrl_isExceptionReturn <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_sysCtrl_isExceptionReturn;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_sysCtrl_isTlbOp <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_sysCtrl_isTlbOp;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_sysCtrl_tlbOpType <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_sysCtrl_tlbOpType;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_decodeExceptionCode <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_decodeExceptionCode;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_hasDecodeException <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_hasDecodeException;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_isMicrocode <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_isMicrocode;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_microcodeEntry <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_microcodeEntry;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_isSerializing <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_isSerializing;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_isBranchOrJump <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_isBranchOrJump;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchPrediction_isTaken <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchPrediction_isTaken;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchPrediction_target <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchPrediction_target;
+      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchPrediction_wasPredicted <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchPrediction_wasPredicted;
+      s2_RobAlloc_IssuePipelineSignals_NEEDS_PHYS_REG_0 <= s1_Rename_IssuePipelineSignals_NEEDS_PHYS_REG_0;
     end
     if(s2_RobAlloc_ready_output) begin
       s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_pc <= s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_pc;
@@ -25731,7 +25552,7 @@ module CoreNSCSCC (
       SimpleFetchPipelinePlugin_logic_s1_join_S0_UNPACKED_INSTR_predecode_jumpOffset <= SimpleFetchPipelinePlugin_logic_s0_query_S0_UNPACKED_INSTR_predecode_jumpOffset;
       SimpleFetchPipelinePlugin_logic_s1_join_S0_UNPACKED_INSTR_predecode_isIdle <= SimpleFetchPipelinePlugin_logic_s0_query_S0_UNPACKED_INSTR_predecode_isIdle;
     end
-    _zz_when_CoreNSCSCC_l583_1 <= _zz_when_CoreNSCSCC_l583;
+    _zz_when_CoreNSCSCC_l581_1 <= _zz_when_CoreNSCSCC_l581;
     case(SimpleFetchPipelinePlugin_logic_fsm_stateReg)
       SimpleFetchPipelinePlugin_logic_fsm_IDLE : begin
         if(!SimpleFetchPipelinePlugin_logic_fetchDisable) begin
@@ -40878,811 +40699,311 @@ endmodule
 
 //OneShot_1 replaced by OneShot
 
-module SuperScalarFreeList (
+module SimpleFreeList (
   input  wire          io_allocate_0_enable,
   output wire [5:0]    io_allocate_0_physReg,
   output wire          io_allocate_0_success,
   input  wire          io_free_0_enable,
   input  wire [5:0]    io_free_0_physReg,
-  output wire [63:0]   io_currentState_freeMask,
-  input  wire          io_restoreState_valid,
-  output wire          io_restoreState_ready,
-  input  wire [63:0]   io_restoreState_payload_freeMask,
-  output wire [6:0]    io_numFreeRegs,
+  input  wire          io_recover,
+  output wire [5:0]    io_numFreeRegs,
   input  wire          clk,
   input  wire          reset
 );
 
-  wire       [0:0]    _zz_freeRegsOh_64;
-  wire       [52:0]   _zz_freeRegsOh_65;
-  wire       [0:0]    _zz_freeRegsOh_66;
-  wire       [41:0]   _zz_freeRegsOh_67;
-  wire       [0:0]    _zz_freeRegsOh_68;
-  wire       [30:0]   _zz_freeRegsOh_69;
-  wire       [0:0]    _zz_freeRegsOh_70;
-  wire       [19:0]   _zz_freeRegsOh_71;
-  wire       [0:0]    _zz_freeRegsOh_72;
-  wire       [8:0]    _zz_freeRegsOh_73;
-  wire       [6:0]    _zz_availableRegs_8;
-  wire       [6:0]    _zz_availableRegs_9;
-  wire       [6:0]    _zz_availableRegs_10;
-  wire       [6:0]    _zz_availableRegs_11;
-  reg        [6:0]    _zz_availableRegs_12;
-  wire       [2:0]    _zz_availableRegs_13;
-  reg        [6:0]    _zz_availableRegs_14;
-  wire       [2:0]    _zz_availableRegs_15;
-  wire       [6:0]    _zz_availableRegs_16;
-  reg        [6:0]    _zz_availableRegs_17;
-  wire       [2:0]    _zz_availableRegs_18;
-  reg        [6:0]    _zz_availableRegs_19;
-  wire       [2:0]    _zz_availableRegs_20;
-  wire       [6:0]    _zz_availableRegs_21;
-  wire       [6:0]    _zz_availableRegs_22;
-  reg        [6:0]    _zz_availableRegs_23;
-  wire       [2:0]    _zz_availableRegs_24;
-  reg        [6:0]    _zz_availableRegs_25;
-  wire       [2:0]    _zz_availableRegs_26;
-  wire       [6:0]    _zz_availableRegs_27;
-  reg        [6:0]    _zz_availableRegs_28;
-  wire       [2:0]    _zz_availableRegs_29;
-  reg        [6:0]    _zz_availableRegs_30;
-  wire       [2:0]    _zz_availableRegs_31;
-  wire       [6:0]    _zz_availableRegs_32;
-  wire       [6:0]    _zz_availableRegs_33;
-  wire       [6:0]    _zz_availableRegs_34;
-  reg        [6:0]    _zz_availableRegs_35;
-  wire       [2:0]    _zz_availableRegs_36;
-  reg        [6:0]    _zz_availableRegs_37;
-  wire       [2:0]    _zz_availableRegs_38;
-  wire       [6:0]    _zz_availableRegs_39;
-  reg        [6:0]    _zz_availableRegs_40;
-  wire       [2:0]    _zz_availableRegs_41;
-  reg        [6:0]    _zz_availableRegs_42;
-  wire       [2:0]    _zz_availableRegs_43;
-  wire       [6:0]    _zz_availableRegs_44;
-  wire       [6:0]    _zz_availableRegs_45;
-  reg        [6:0]    _zz_availableRegs_46;
-  wire       [2:0]    _zz_availableRegs_47;
-  reg        [6:0]    _zz_availableRegs_48;
-  wire       [2:0]    _zz_availableRegs_49;
-  wire       [6:0]    _zz_availableRegs_50;
-  reg        [6:0]    _zz_availableRegs_51;
-  wire       [2:0]    _zz_availableRegs_52;
-  reg        [6:0]    _zz_availableRegs_53;
-  wire       [2:0]    _zz_availableRegs_54;
-  wire       [6:0]    _zz_availableRegs_55;
-  wire       [6:0]    _zz_availableRegs_56;
-  wire       [6:0]    _zz_availableRegs_57;
-  reg        [6:0]    _zz_availableRegs_58;
-  wire       [2:0]    _zz_availableRegs_59;
-  reg        [6:0]    _zz_availableRegs_60;
-  wire       [2:0]    _zz_availableRegs_61;
-  wire       [6:0]    _zz_availableRegs_62;
-  reg        [6:0]    _zz_availableRegs_63;
-  wire       [2:0]    _zz_availableRegs_64;
-  reg        [6:0]    _zz_availableRegs_65;
-  wire       [2:0]    _zz_availableRegs_66;
-  wire       [6:0]    _zz_availableRegs_67;
-  reg        [6:0]    _zz_availableRegs_68;
-  wire       [2:0]    _zz_availableRegs_69;
-  reg        [6:0]    _zz_availableRegs_70;
-  wire       [2:0]    _zz_availableRegs_71;
-  wire       [0:0]    _zz_availableRegs_72;
-  wire       [63:0]   _zz_freeRegsOh_ohFirst_masked;
-  wire                _zz__zz_allocatedRegsIdx_0_57;
-  wire                _zz__zz_allocatedRegsIdx_0_58;
-  wire                _zz__zz_allocatedRegsIdx_0_59;
-  wire                _zz__zz_allocatedRegsIdx_0_60;
-  wire                _zz__zz_allocatedRegsIdx_0_61;
-  wire                _zz__zz_allocatedRegsIdx_0_62;
-  reg        [63:0]   freeRegsMask_reg;
-  reg        [63:0]   initMask;
-  wire                _zz_freeRegsOh;
-  wire                _zz_freeRegsOh_1;
-  wire                _zz_freeRegsOh_2;
-  wire                _zz_freeRegsOh_3;
-  wire                _zz_freeRegsOh_4;
-  wire                _zz_freeRegsOh_5;
-  wire                _zz_freeRegsOh_6;
-  wire                _zz_freeRegsOh_7;
-  wire                _zz_freeRegsOh_8;
-  wire                _zz_freeRegsOh_9;
-  wire                _zz_freeRegsOh_10;
-  wire                _zz_freeRegsOh_11;
-  wire                _zz_freeRegsOh_12;
-  wire                _zz_freeRegsOh_13;
-  wire                _zz_freeRegsOh_14;
-  wire                _zz_freeRegsOh_15;
-  wire                _zz_freeRegsOh_16;
-  wire                _zz_freeRegsOh_17;
-  wire                _zz_freeRegsOh_18;
-  wire                _zz_freeRegsOh_19;
-  wire                _zz_freeRegsOh_20;
-  wire                _zz_freeRegsOh_21;
-  wire                _zz_freeRegsOh_22;
-  wire                _zz_freeRegsOh_23;
-  wire                _zz_freeRegsOh_24;
-  wire                _zz_freeRegsOh_25;
-  wire                _zz_freeRegsOh_26;
-  wire                _zz_freeRegsOh_27;
-  wire                _zz_freeRegsOh_28;
-  wire                _zz_freeRegsOh_29;
-  wire                _zz_freeRegsOh_30;
-  wire                _zz_freeRegsOh_31;
-  wire                _zz_freeRegsOh_32;
-  wire                _zz_freeRegsOh_33;
-  wire                _zz_freeRegsOh_34;
-  wire                _zz_freeRegsOh_35;
-  wire                _zz_freeRegsOh_36;
-  wire                _zz_freeRegsOh_37;
-  wire                _zz_freeRegsOh_38;
-  wire                _zz_freeRegsOh_39;
-  wire                _zz_freeRegsOh_40;
-  wire                _zz_freeRegsOh_41;
-  wire                _zz_freeRegsOh_42;
-  wire                _zz_freeRegsOh_43;
-  wire                _zz_freeRegsOh_44;
-  wire                _zz_freeRegsOh_45;
-  wire                _zz_freeRegsOh_46;
-  wire                _zz_freeRegsOh_47;
-  wire                _zz_freeRegsOh_48;
-  wire                _zz_freeRegsOh_49;
-  wire                _zz_freeRegsOh_50;
-  wire                _zz_freeRegsOh_51;
-  wire                _zz_freeRegsOh_52;
-  wire                _zz_freeRegsOh_53;
-  wire                _zz_freeRegsOh_54;
-  wire                _zz_freeRegsOh_55;
-  wire                _zz_freeRegsOh_56;
-  wire                _zz_freeRegsOh_57;
-  wire                _zz_freeRegsOh_58;
-  wire                _zz_freeRegsOh_59;
-  wire                _zz_freeRegsOh_60;
-  wire                _zz_freeRegsOh_61;
-  wire                _zz_freeRegsOh_62;
-  wire                _zz_freeRegsOh_63;
-  wire       [63:0]   freeRegsOh;
-  wire       [6:0]    _zz_availableRegs;
-  wire       [6:0]    _zz_availableRegs_1;
-  wire       [6:0]    _zz_availableRegs_2;
-  wire       [6:0]    _zz_availableRegs_3;
-  wire       [6:0]    _zz_availableRegs_4;
-  wire       [6:0]    _zz_availableRegs_5;
-  wire       [6:0]    _zz_availableRegs_6;
-  wire       [6:0]    _zz_availableRegs_7;
-  wire       [6:0]    availableRegs;
-  reg        [6:0]    numFreeRegs_reg;
-  wire       [63:0]   allocatedRegsOh_0;
-  wire       [5:0]    allocatedRegsIdx_0;
-  wire       [63:0]   freeRegsOh_ohFirst_input;
-  wire       [63:0]   freeRegsOh_ohFirst_masked;
-  wire       [63:0]   freeRegsOh_ohFirst_value;
-  wire                _zz_allocatedRegsIdx_0;
-  wire                _zz_allocatedRegsIdx_0_1;
-  wire                _zz_allocatedRegsIdx_0_2;
-  wire                _zz_allocatedRegsIdx_0_3;
-  wire                _zz_allocatedRegsIdx_0_4;
-  wire                _zz_allocatedRegsIdx_0_5;
-  wire                _zz_allocatedRegsIdx_0_6;
-  wire                _zz_allocatedRegsIdx_0_7;
-  wire                _zz_allocatedRegsIdx_0_8;
-  wire                _zz_allocatedRegsIdx_0_9;
-  wire                _zz_allocatedRegsIdx_0_10;
-  wire                _zz_allocatedRegsIdx_0_11;
-  wire                _zz_allocatedRegsIdx_0_12;
-  wire                _zz_allocatedRegsIdx_0_13;
-  wire                _zz_allocatedRegsIdx_0_14;
-  wire                _zz_allocatedRegsIdx_0_15;
-  wire                _zz_allocatedRegsIdx_0_16;
-  wire                _zz_allocatedRegsIdx_0_17;
-  wire                _zz_allocatedRegsIdx_0_18;
-  wire                _zz_allocatedRegsIdx_0_19;
-  wire                _zz_allocatedRegsIdx_0_20;
-  wire                _zz_allocatedRegsIdx_0_21;
-  wire                _zz_allocatedRegsIdx_0_22;
-  wire                _zz_allocatedRegsIdx_0_23;
-  wire                _zz_allocatedRegsIdx_0_24;
-  wire                _zz_allocatedRegsIdx_0_25;
-  wire                _zz_allocatedRegsIdx_0_26;
-  wire                _zz_allocatedRegsIdx_0_27;
-  wire                _zz_allocatedRegsIdx_0_28;
-  wire                _zz_allocatedRegsIdx_0_29;
-  wire                _zz_allocatedRegsIdx_0_30;
-  wire                _zz_allocatedRegsIdx_0_31;
-  wire                _zz_allocatedRegsIdx_0_32;
-  wire                _zz_allocatedRegsIdx_0_33;
-  wire                _zz_allocatedRegsIdx_0_34;
-  wire                _zz_allocatedRegsIdx_0_35;
-  wire                _zz_allocatedRegsIdx_0_36;
-  wire                _zz_allocatedRegsIdx_0_37;
-  wire                _zz_allocatedRegsIdx_0_38;
-  wire                _zz_allocatedRegsIdx_0_39;
-  wire                _zz_allocatedRegsIdx_0_40;
-  wire                _zz_allocatedRegsIdx_0_41;
-  wire                _zz_allocatedRegsIdx_0_42;
-  wire                _zz_allocatedRegsIdx_0_43;
-  wire                _zz_allocatedRegsIdx_0_44;
-  wire                _zz_allocatedRegsIdx_0_45;
-  wire                _zz_allocatedRegsIdx_0_46;
-  wire                _zz_allocatedRegsIdx_0_47;
-  wire                _zz_allocatedRegsIdx_0_48;
-  wire                _zz_allocatedRegsIdx_0_49;
-  wire                _zz_allocatedRegsIdx_0_50;
-  wire                _zz_allocatedRegsIdx_0_51;
-  wire                _zz_allocatedRegsIdx_0_52;
-  wire                _zz_allocatedRegsIdx_0_53;
-  wire                _zz_allocatedRegsIdx_0_54;
-  wire                _zz_allocatedRegsIdx_0_55;
-  wire                _zz_allocatedRegsIdx_0_56;
-  wire                _zz_allocatedRegsIdx_0_57;
-  wire                _zz_allocatedRegsIdx_0_58;
-  wire                _zz_allocatedRegsIdx_0_59;
-  wire                _zz_allocatedRegsIdx_0_60;
-  wire                _zz_allocatedRegsIdx_0_61;
-  wire                _zz_allocatedRegsIdx_0_62;
-  wire       [63:0]   allocatedMask;
-  wire       [63:0]   nextFreeRegsMask_after_alloc;
-  reg        [63:0]   nextFreeRegsMask_final_comb;
-  wire                when_SuperScalarFreeList_l185;
-  wire       [63:0]   finalRegValueForNextCycle;
-  function [63:0] zz_initMask(input dummy);
-    begin
-      zz_initMask = 64'h0;
-      zz_initMask[32] = 1'b1;
-      zz_initMask[33] = 1'b1;
-      zz_initMask[34] = 1'b1;
-      zz_initMask[35] = 1'b1;
-      zz_initMask[36] = 1'b1;
-      zz_initMask[37] = 1'b1;
-      zz_initMask[38] = 1'b1;
-      zz_initMask[39] = 1'b1;
-      zz_initMask[40] = 1'b1;
-      zz_initMask[41] = 1'b1;
-      zz_initMask[42] = 1'b1;
-      zz_initMask[43] = 1'b1;
-      zz_initMask[44] = 1'b1;
-      zz_initMask[45] = 1'b1;
-      zz_initMask[46] = 1'b1;
-      zz_initMask[47] = 1'b1;
-      zz_initMask[48] = 1'b1;
-      zz_initMask[49] = 1'b1;
-      zz_initMask[50] = 1'b1;
-      zz_initMask[51] = 1'b1;
-      zz_initMask[52] = 1'b1;
-      zz_initMask[53] = 1'b1;
-      zz_initMask[54] = 1'b1;
-      zz_initMask[55] = 1'b1;
-      zz_initMask[56] = 1'b1;
-      zz_initMask[57] = 1'b1;
-      zz_initMask[58] = 1'b1;
-      zz_initMask[59] = 1'b1;
-      zz_initMask[60] = 1'b1;
-      zz_initMask[61] = 1'b1;
-      zz_initMask[62] = 1'b1;
-      zz_initMask[63] = 1'b1;
-    end
-  endfunction
-  wire [63:0] _zz_1;
+  reg        [0:0]    _zz_freeCount;
+  wire       [0:0]    _zz_freeCount_1;
+  wire       [5:0]    _zz_availableToAlloc;
+  reg        [0:0]    _zz_allocCount;
+  wire       [0:0]    _zz_allocCount_1;
+  wire       [4:0]    _zz__zz_1;
+  wire       [4:0]    _zz__zz_io_allocate_0_physReg;
+  wire       [4:0]    _zz__zz_io_allocate_0_physReg_1;
+  reg        [5:0]    _zz__zz_io_allocate_0_physReg_2;
+  wire       [4:0]    _zz__zz_io_allocate_0_physReg_3;
+  wire       [4:0]    _zz_allocPtr;
+  wire       [4:0]    _zz_freePtr;
+  wire       [5:0]    _zz_occupancyCounter;
+  wire       [5:0]    _zz_occupancyCounter_1;
+  wire       [5:0]    _zz_occupancyCounter_2;
+  reg        [5:0]    dataVec_0;
+  reg        [5:0]    dataVec_1;
+  reg        [5:0]    dataVec_2;
+  reg        [5:0]    dataVec_3;
+  reg        [5:0]    dataVec_4;
+  reg        [5:0]    dataVec_5;
+  reg        [5:0]    dataVec_6;
+  reg        [5:0]    dataVec_7;
+  reg        [5:0]    dataVec_8;
+  reg        [5:0]    dataVec_9;
+  reg        [5:0]    dataVec_10;
+  reg        [5:0]    dataVec_11;
+  reg        [5:0]    dataVec_12;
+  reg        [5:0]    dataVec_13;
+  reg        [5:0]    dataVec_14;
+  reg        [5:0]    dataVec_15;
+  reg        [5:0]    dataVec_16;
+  reg        [5:0]    dataVec_17;
+  reg        [5:0]    dataVec_18;
+  reg        [5:0]    dataVec_19;
+  reg        [5:0]    dataVec_20;
+  reg        [5:0]    dataVec_21;
+  reg        [5:0]    dataVec_22;
+  reg        [5:0]    dataVec_23;
+  reg        [5:0]    dataVec_24;
+  reg        [5:0]    dataVec_25;
+  reg        [5:0]    dataVec_26;
+  reg        [5:0]    dataVec_27;
+  reg        [5:0]    dataVec_28;
+  reg        [5:0]    dataVec_29;
+  reg        [5:0]    dataVec_30;
+  reg        [5:0]    dataVec_31;
+  reg        [4:0]    allocPtr;
+  reg        [4:0]    freePtr;
+  wire                isFull;
+  reg        [5:0]    occupancyCounter;
+  wire       [5:0]    availableToFree;
+  wire                freeGrants_0;
+  wire       [0:0]    freeCount;
+  wire       [5:0]    availableToAlloc;
+  wire                allocateGrants_0;
+  wire       [0:0]    allocCount;
+  wire       [31:0]   _zz_1;
+  reg                 allocateGrants_0_regNext;
+  reg        [5:0]    _zz_io_allocate_0_physReg;
+  reg                 freeGrantsReg_0;
 
-  assign _zz_availableRegs_8 = (_zz_availableRegs_9 + _zz_availableRegs_32);
-  assign _zz_availableRegs_9 = (_zz_availableRegs_10 + _zz_availableRegs_21);
-  assign _zz_availableRegs_10 = (_zz_availableRegs_11 + _zz_availableRegs_16);
-  assign _zz_availableRegs_11 = (_zz_availableRegs_12 + _zz_availableRegs_14);
-  assign _zz_availableRegs_16 = (_zz_availableRegs_17 + _zz_availableRegs_19);
-  assign _zz_availableRegs_21 = (_zz_availableRegs_22 + _zz_availableRegs_27);
-  assign _zz_availableRegs_22 = (_zz_availableRegs_23 + _zz_availableRegs_25);
-  assign _zz_availableRegs_27 = (_zz_availableRegs_28 + _zz_availableRegs_30);
-  assign _zz_availableRegs_32 = (_zz_availableRegs_33 + _zz_availableRegs_44);
-  assign _zz_availableRegs_33 = (_zz_availableRegs_34 + _zz_availableRegs_39);
-  assign _zz_availableRegs_34 = (_zz_availableRegs_35 + _zz_availableRegs_37);
-  assign _zz_availableRegs_39 = (_zz_availableRegs_40 + _zz_availableRegs_42);
-  assign _zz_availableRegs_44 = (_zz_availableRegs_45 + _zz_availableRegs_50);
-  assign _zz_availableRegs_45 = (_zz_availableRegs_46 + _zz_availableRegs_48);
-  assign _zz_availableRegs_50 = (_zz_availableRegs_51 + _zz_availableRegs_53);
-  assign _zz_availableRegs_55 = (_zz_availableRegs_56 + _zz_availableRegs_67);
-  assign _zz_availableRegs_56 = (_zz_availableRegs_57 + _zz_availableRegs_62);
-  assign _zz_availableRegs_57 = (_zz_availableRegs_58 + _zz_availableRegs_60);
-  assign _zz_availableRegs_62 = (_zz_availableRegs_63 + _zz_availableRegs_65);
-  assign _zz_availableRegs_67 = (_zz_availableRegs_68 + _zz_availableRegs_70);
-  assign _zz_availableRegs_72 = _zz_freeRegsOh_63;
-  assign _zz_availableRegs_71 = {2'd0, _zz_availableRegs_72};
-  assign _zz_freeRegsOh_ohFirst_masked = (freeRegsOh_ohFirst_input - 64'h0000000000000001);
-  assign _zz_availableRegs_13 = {_zz_freeRegsOh_2,{_zz_freeRegsOh_1,_zz_freeRegsOh}};
-  assign _zz_availableRegs_15 = {_zz_freeRegsOh_5,{_zz_freeRegsOh_4,_zz_freeRegsOh_3}};
-  assign _zz_availableRegs_18 = {_zz_freeRegsOh_8,{_zz_freeRegsOh_7,_zz_freeRegsOh_6}};
-  assign _zz_availableRegs_20 = {_zz_freeRegsOh_11,{_zz_freeRegsOh_10,_zz_freeRegsOh_9}};
-  assign _zz_availableRegs_24 = {_zz_freeRegsOh_14,{_zz_freeRegsOh_13,_zz_freeRegsOh_12}};
-  assign _zz_availableRegs_26 = {_zz_freeRegsOh_17,{_zz_freeRegsOh_16,_zz_freeRegsOh_15}};
-  assign _zz_availableRegs_29 = {_zz_freeRegsOh_20,{_zz_freeRegsOh_19,_zz_freeRegsOh_18}};
-  assign _zz_availableRegs_31 = {_zz_freeRegsOh_23,{_zz_freeRegsOh_22,_zz_freeRegsOh_21}};
-  assign _zz_availableRegs_36 = {_zz_freeRegsOh_26,{_zz_freeRegsOh_25,_zz_freeRegsOh_24}};
-  assign _zz_availableRegs_38 = {_zz_freeRegsOh_29,{_zz_freeRegsOh_28,_zz_freeRegsOh_27}};
-  assign _zz_availableRegs_41 = {_zz_freeRegsOh_32,{_zz_freeRegsOh_31,_zz_freeRegsOh_30}};
-  assign _zz_availableRegs_43 = {_zz_freeRegsOh_35,{_zz_freeRegsOh_34,_zz_freeRegsOh_33}};
-  assign _zz_availableRegs_47 = {_zz_freeRegsOh_38,{_zz_freeRegsOh_37,_zz_freeRegsOh_36}};
-  assign _zz_availableRegs_49 = {_zz_freeRegsOh_41,{_zz_freeRegsOh_40,_zz_freeRegsOh_39}};
-  assign _zz_availableRegs_52 = {_zz_freeRegsOh_44,{_zz_freeRegsOh_43,_zz_freeRegsOh_42}};
-  assign _zz_availableRegs_54 = {_zz_freeRegsOh_47,{_zz_freeRegsOh_46,_zz_freeRegsOh_45}};
-  assign _zz_availableRegs_59 = {_zz_freeRegsOh_50,{_zz_freeRegsOh_49,_zz_freeRegsOh_48}};
-  assign _zz_availableRegs_61 = {_zz_freeRegsOh_53,{_zz_freeRegsOh_52,_zz_freeRegsOh_51}};
-  assign _zz_availableRegs_64 = {_zz_freeRegsOh_56,{_zz_freeRegsOh_55,_zz_freeRegsOh_54}};
-  assign _zz_availableRegs_66 = {_zz_freeRegsOh_59,{_zz_freeRegsOh_58,_zz_freeRegsOh_57}};
-  assign _zz_availableRegs_69 = {_zz_freeRegsOh_62,{_zz_freeRegsOh_61,_zz_freeRegsOh_60}};
-  assign _zz_freeRegsOh_64 = _zz_freeRegsOh_53;
-  assign _zz_freeRegsOh_65 = {_zz_freeRegsOh_52,{_zz_freeRegsOh_51,{_zz_freeRegsOh_50,{_zz_freeRegsOh_49,{_zz_freeRegsOh_48,{_zz_freeRegsOh_47,{_zz_freeRegsOh_46,{_zz_freeRegsOh_45,{_zz_freeRegsOh_44,{_zz_freeRegsOh_43,{_zz_freeRegsOh_66,_zz_freeRegsOh_67}}}}}}}}}}};
-  assign _zz_freeRegsOh_66 = _zz_freeRegsOh_42;
-  assign _zz_freeRegsOh_67 = {_zz_freeRegsOh_41,{_zz_freeRegsOh_40,{_zz_freeRegsOh_39,{_zz_freeRegsOh_38,{_zz_freeRegsOh_37,{_zz_freeRegsOh_36,{_zz_freeRegsOh_35,{_zz_freeRegsOh_34,{_zz_freeRegsOh_33,{_zz_freeRegsOh_32,{_zz_freeRegsOh_68,_zz_freeRegsOh_69}}}}}}}}}}};
-  assign _zz_freeRegsOh_68 = _zz_freeRegsOh_31;
-  assign _zz_freeRegsOh_69 = {_zz_freeRegsOh_30,{_zz_freeRegsOh_29,{_zz_freeRegsOh_28,{_zz_freeRegsOh_27,{_zz_freeRegsOh_26,{_zz_freeRegsOh_25,{_zz_freeRegsOh_24,{_zz_freeRegsOh_23,{_zz_freeRegsOh_22,{_zz_freeRegsOh_21,{_zz_freeRegsOh_70,_zz_freeRegsOh_71}}}}}}}}}}};
-  assign _zz_freeRegsOh_70 = _zz_freeRegsOh_20;
-  assign _zz_freeRegsOh_71 = {_zz_freeRegsOh_19,{_zz_freeRegsOh_18,{_zz_freeRegsOh_17,{_zz_freeRegsOh_16,{_zz_freeRegsOh_15,{_zz_freeRegsOh_14,{_zz_freeRegsOh_13,{_zz_freeRegsOh_12,{_zz_freeRegsOh_11,{_zz_freeRegsOh_10,{_zz_freeRegsOh_72,_zz_freeRegsOh_73}}}}}}}}}}};
-  assign _zz_freeRegsOh_72 = _zz_freeRegsOh_9;
-  assign _zz_freeRegsOh_73 = {_zz_freeRegsOh_8,{_zz_freeRegsOh_7,{_zz_freeRegsOh_6,{_zz_freeRegsOh_5,{_zz_freeRegsOh_4,{_zz_freeRegsOh_3,{_zz_freeRegsOh_2,{_zz_freeRegsOh_1,_zz_freeRegsOh}}}}}}}};
-  assign _zz__zz_allocatedRegsIdx_0_57 = (((((((((((((((freeRegsOh_ohFirst_value[1] || _zz_allocatedRegsIdx_0) || _zz_allocatedRegsIdx_0_1) || _zz_allocatedRegsIdx_0_3) || _zz_allocatedRegsIdx_0_4) || _zz_allocatedRegsIdx_0_6) || _zz_allocatedRegsIdx_0_8) || _zz_allocatedRegsIdx_0_10) || _zz_allocatedRegsIdx_0_11) || _zz_allocatedRegsIdx_0_13) || _zz_allocatedRegsIdx_0_15) || _zz_allocatedRegsIdx_0_17) || _zz_allocatedRegsIdx_0_19) || _zz_allocatedRegsIdx_0_21) || _zz_allocatedRegsIdx_0_23) || _zz_allocatedRegsIdx_0_25);
-  assign _zz__zz_allocatedRegsIdx_0_58 = (((((((((((((((freeRegsOh_ohFirst_value[2] || _zz_allocatedRegsIdx_0) || _zz_allocatedRegsIdx_0_2) || _zz_allocatedRegsIdx_0_3) || _zz_allocatedRegsIdx_0_5) || _zz_allocatedRegsIdx_0_6) || _zz_allocatedRegsIdx_0_9) || _zz_allocatedRegsIdx_0_10) || _zz_allocatedRegsIdx_0_12) || _zz_allocatedRegsIdx_0_13) || _zz_allocatedRegsIdx_0_16) || _zz_allocatedRegsIdx_0_17) || _zz_allocatedRegsIdx_0_20) || _zz_allocatedRegsIdx_0_21) || _zz_allocatedRegsIdx_0_24) || _zz_allocatedRegsIdx_0_25);
-  assign _zz__zz_allocatedRegsIdx_0_59 = (((((((((((((((freeRegsOh_ohFirst_value[4] || _zz_allocatedRegsIdx_0_1) || _zz_allocatedRegsIdx_0_2) || _zz_allocatedRegsIdx_0_3) || _zz_allocatedRegsIdx_0_7) || _zz_allocatedRegsIdx_0_8) || _zz_allocatedRegsIdx_0_9) || _zz_allocatedRegsIdx_0_10) || _zz_allocatedRegsIdx_0_14) || _zz_allocatedRegsIdx_0_15) || _zz_allocatedRegsIdx_0_16) || _zz_allocatedRegsIdx_0_17) || _zz_allocatedRegsIdx_0_22) || _zz_allocatedRegsIdx_0_23) || _zz_allocatedRegsIdx_0_24) || _zz_allocatedRegsIdx_0_25);
-  assign _zz__zz_allocatedRegsIdx_0_60 = (((((((((((((((freeRegsOh_ohFirst_value[8] || _zz_allocatedRegsIdx_0_4) || _zz_allocatedRegsIdx_0_5) || _zz_allocatedRegsIdx_0_6) || _zz_allocatedRegsIdx_0_7) || _zz_allocatedRegsIdx_0_8) || _zz_allocatedRegsIdx_0_9) || _zz_allocatedRegsIdx_0_10) || _zz_allocatedRegsIdx_0_18) || _zz_allocatedRegsIdx_0_19) || _zz_allocatedRegsIdx_0_20) || _zz_allocatedRegsIdx_0_21) || _zz_allocatedRegsIdx_0_22) || _zz_allocatedRegsIdx_0_23) || _zz_allocatedRegsIdx_0_24) || _zz_allocatedRegsIdx_0_25);
-  assign _zz__zz_allocatedRegsIdx_0_61 = (((((((((((((((freeRegsOh_ohFirst_value[16] || _zz_allocatedRegsIdx_0_11) || _zz_allocatedRegsIdx_0_12) || _zz_allocatedRegsIdx_0_13) || _zz_allocatedRegsIdx_0_14) || _zz_allocatedRegsIdx_0_15) || _zz_allocatedRegsIdx_0_16) || _zz_allocatedRegsIdx_0_17) || _zz_allocatedRegsIdx_0_18) || _zz_allocatedRegsIdx_0_19) || _zz_allocatedRegsIdx_0_20) || _zz_allocatedRegsIdx_0_21) || _zz_allocatedRegsIdx_0_22) || _zz_allocatedRegsIdx_0_23) || _zz_allocatedRegsIdx_0_24) || _zz_allocatedRegsIdx_0_25);
-  assign _zz__zz_allocatedRegsIdx_0_62 = (((((((((((((((freeRegsOh_ohFirst_value[32] || _zz_allocatedRegsIdx_0_26) || _zz_allocatedRegsIdx_0_27) || _zz_allocatedRegsIdx_0_28) || _zz_allocatedRegsIdx_0_29) || _zz_allocatedRegsIdx_0_30) || _zz_allocatedRegsIdx_0_31) || _zz_allocatedRegsIdx_0_32) || _zz_allocatedRegsIdx_0_33) || _zz_allocatedRegsIdx_0_34) || _zz_allocatedRegsIdx_0_35) || _zz_allocatedRegsIdx_0_36) || _zz_allocatedRegsIdx_0_37) || _zz_allocatedRegsIdx_0_38) || _zz_allocatedRegsIdx_0_39) || _zz_allocatedRegsIdx_0_40);
+  assign _zz_availableToAlloc = {5'd0, freeCount};
+  assign _zz__zz_1 = (freePtr + 5'h0);
+  assign _zz__zz_io_allocate_0_physReg = (freePtr + 5'h0);
+  assign _zz__zz_io_allocate_0_physReg_1 = (allocPtr + 5'h0);
+  assign _zz__zz_io_allocate_0_physReg_3 = (allocPtr + 5'h0);
+  assign _zz_allocPtr = {4'd0, allocCount};
+  assign _zz_freePtr = {4'd0, freeCount};
+  assign _zz_occupancyCounter = (occupancyCounter + _zz_occupancyCounter_1);
+  assign _zz_occupancyCounter_1 = {5'd0, freeCount};
+  assign _zz_occupancyCounter_2 = {5'd0, allocCount};
+  assign _zz_freeCount_1 = freeGrants_0;
+  assign _zz_allocCount_1 = allocateGrants_0;
   always @(*) begin
-    case(_zz_availableRegs_13)
-      3'b000 : _zz_availableRegs_12 = _zz_availableRegs;
-      3'b001 : _zz_availableRegs_12 = _zz_availableRegs_1;
-      3'b010 : _zz_availableRegs_12 = _zz_availableRegs_2;
-      3'b011 : _zz_availableRegs_12 = _zz_availableRegs_3;
-      3'b100 : _zz_availableRegs_12 = _zz_availableRegs_4;
-      3'b101 : _zz_availableRegs_12 = _zz_availableRegs_5;
-      3'b110 : _zz_availableRegs_12 = _zz_availableRegs_6;
-      default : _zz_availableRegs_12 = _zz_availableRegs_7;
+    case(_zz_freeCount_1)
+      1'b0 : _zz_freeCount = 1'b0;
+      default : _zz_freeCount = 1'b1;
     endcase
   end
 
   always @(*) begin
-    case(_zz_availableRegs_15)
-      3'b000 : _zz_availableRegs_14 = _zz_availableRegs;
-      3'b001 : _zz_availableRegs_14 = _zz_availableRegs_1;
-      3'b010 : _zz_availableRegs_14 = _zz_availableRegs_2;
-      3'b011 : _zz_availableRegs_14 = _zz_availableRegs_3;
-      3'b100 : _zz_availableRegs_14 = _zz_availableRegs_4;
-      3'b101 : _zz_availableRegs_14 = _zz_availableRegs_5;
-      3'b110 : _zz_availableRegs_14 = _zz_availableRegs_6;
-      default : _zz_availableRegs_14 = _zz_availableRegs_7;
+    case(_zz_allocCount_1)
+      1'b0 : _zz_allocCount = 1'b0;
+      default : _zz_allocCount = 1'b1;
     endcase
   end
 
   always @(*) begin
-    case(_zz_availableRegs_18)
-      3'b000 : _zz_availableRegs_17 = _zz_availableRegs;
-      3'b001 : _zz_availableRegs_17 = _zz_availableRegs_1;
-      3'b010 : _zz_availableRegs_17 = _zz_availableRegs_2;
-      3'b011 : _zz_availableRegs_17 = _zz_availableRegs_3;
-      3'b100 : _zz_availableRegs_17 = _zz_availableRegs_4;
-      3'b101 : _zz_availableRegs_17 = _zz_availableRegs_5;
-      3'b110 : _zz_availableRegs_17 = _zz_availableRegs_6;
-      default : _zz_availableRegs_17 = _zz_availableRegs_7;
+    case(_zz__zz_io_allocate_0_physReg_3)
+      5'b00000 : _zz__zz_io_allocate_0_physReg_2 = dataVec_0;
+      5'b00001 : _zz__zz_io_allocate_0_physReg_2 = dataVec_1;
+      5'b00010 : _zz__zz_io_allocate_0_physReg_2 = dataVec_2;
+      5'b00011 : _zz__zz_io_allocate_0_physReg_2 = dataVec_3;
+      5'b00100 : _zz__zz_io_allocate_0_physReg_2 = dataVec_4;
+      5'b00101 : _zz__zz_io_allocate_0_physReg_2 = dataVec_5;
+      5'b00110 : _zz__zz_io_allocate_0_physReg_2 = dataVec_6;
+      5'b00111 : _zz__zz_io_allocate_0_physReg_2 = dataVec_7;
+      5'b01000 : _zz__zz_io_allocate_0_physReg_2 = dataVec_8;
+      5'b01001 : _zz__zz_io_allocate_0_physReg_2 = dataVec_9;
+      5'b01010 : _zz__zz_io_allocate_0_physReg_2 = dataVec_10;
+      5'b01011 : _zz__zz_io_allocate_0_physReg_2 = dataVec_11;
+      5'b01100 : _zz__zz_io_allocate_0_physReg_2 = dataVec_12;
+      5'b01101 : _zz__zz_io_allocate_0_physReg_2 = dataVec_13;
+      5'b01110 : _zz__zz_io_allocate_0_physReg_2 = dataVec_14;
+      5'b01111 : _zz__zz_io_allocate_0_physReg_2 = dataVec_15;
+      5'b10000 : _zz__zz_io_allocate_0_physReg_2 = dataVec_16;
+      5'b10001 : _zz__zz_io_allocate_0_physReg_2 = dataVec_17;
+      5'b10010 : _zz__zz_io_allocate_0_physReg_2 = dataVec_18;
+      5'b10011 : _zz__zz_io_allocate_0_physReg_2 = dataVec_19;
+      5'b10100 : _zz__zz_io_allocate_0_physReg_2 = dataVec_20;
+      5'b10101 : _zz__zz_io_allocate_0_physReg_2 = dataVec_21;
+      5'b10110 : _zz__zz_io_allocate_0_physReg_2 = dataVec_22;
+      5'b10111 : _zz__zz_io_allocate_0_physReg_2 = dataVec_23;
+      5'b11000 : _zz__zz_io_allocate_0_physReg_2 = dataVec_24;
+      5'b11001 : _zz__zz_io_allocate_0_physReg_2 = dataVec_25;
+      5'b11010 : _zz__zz_io_allocate_0_physReg_2 = dataVec_26;
+      5'b11011 : _zz__zz_io_allocate_0_physReg_2 = dataVec_27;
+      5'b11100 : _zz__zz_io_allocate_0_physReg_2 = dataVec_28;
+      5'b11101 : _zz__zz_io_allocate_0_physReg_2 = dataVec_29;
+      5'b11110 : _zz__zz_io_allocate_0_physReg_2 = dataVec_30;
+      default : _zz__zz_io_allocate_0_physReg_2 = dataVec_31;
     endcase
   end
 
-  always @(*) begin
-    case(_zz_availableRegs_20)
-      3'b000 : _zz_availableRegs_19 = _zz_availableRegs;
-      3'b001 : _zz_availableRegs_19 = _zz_availableRegs_1;
-      3'b010 : _zz_availableRegs_19 = _zz_availableRegs_2;
-      3'b011 : _zz_availableRegs_19 = _zz_availableRegs_3;
-      3'b100 : _zz_availableRegs_19 = _zz_availableRegs_4;
-      3'b101 : _zz_availableRegs_19 = _zz_availableRegs_5;
-      3'b110 : _zz_availableRegs_19 = _zz_availableRegs_6;
-      default : _zz_availableRegs_19 = _zz_availableRegs_7;
-    endcase
-  end
-
-  always @(*) begin
-    case(_zz_availableRegs_24)
-      3'b000 : _zz_availableRegs_23 = _zz_availableRegs;
-      3'b001 : _zz_availableRegs_23 = _zz_availableRegs_1;
-      3'b010 : _zz_availableRegs_23 = _zz_availableRegs_2;
-      3'b011 : _zz_availableRegs_23 = _zz_availableRegs_3;
-      3'b100 : _zz_availableRegs_23 = _zz_availableRegs_4;
-      3'b101 : _zz_availableRegs_23 = _zz_availableRegs_5;
-      3'b110 : _zz_availableRegs_23 = _zz_availableRegs_6;
-      default : _zz_availableRegs_23 = _zz_availableRegs_7;
-    endcase
-  end
-
-  always @(*) begin
-    case(_zz_availableRegs_26)
-      3'b000 : _zz_availableRegs_25 = _zz_availableRegs;
-      3'b001 : _zz_availableRegs_25 = _zz_availableRegs_1;
-      3'b010 : _zz_availableRegs_25 = _zz_availableRegs_2;
-      3'b011 : _zz_availableRegs_25 = _zz_availableRegs_3;
-      3'b100 : _zz_availableRegs_25 = _zz_availableRegs_4;
-      3'b101 : _zz_availableRegs_25 = _zz_availableRegs_5;
-      3'b110 : _zz_availableRegs_25 = _zz_availableRegs_6;
-      default : _zz_availableRegs_25 = _zz_availableRegs_7;
-    endcase
-  end
-
-  always @(*) begin
-    case(_zz_availableRegs_29)
-      3'b000 : _zz_availableRegs_28 = _zz_availableRegs;
-      3'b001 : _zz_availableRegs_28 = _zz_availableRegs_1;
-      3'b010 : _zz_availableRegs_28 = _zz_availableRegs_2;
-      3'b011 : _zz_availableRegs_28 = _zz_availableRegs_3;
-      3'b100 : _zz_availableRegs_28 = _zz_availableRegs_4;
-      3'b101 : _zz_availableRegs_28 = _zz_availableRegs_5;
-      3'b110 : _zz_availableRegs_28 = _zz_availableRegs_6;
-      default : _zz_availableRegs_28 = _zz_availableRegs_7;
-    endcase
-  end
-
-  always @(*) begin
-    case(_zz_availableRegs_31)
-      3'b000 : _zz_availableRegs_30 = _zz_availableRegs;
-      3'b001 : _zz_availableRegs_30 = _zz_availableRegs_1;
-      3'b010 : _zz_availableRegs_30 = _zz_availableRegs_2;
-      3'b011 : _zz_availableRegs_30 = _zz_availableRegs_3;
-      3'b100 : _zz_availableRegs_30 = _zz_availableRegs_4;
-      3'b101 : _zz_availableRegs_30 = _zz_availableRegs_5;
-      3'b110 : _zz_availableRegs_30 = _zz_availableRegs_6;
-      default : _zz_availableRegs_30 = _zz_availableRegs_7;
-    endcase
-  end
-
-  always @(*) begin
-    case(_zz_availableRegs_36)
-      3'b000 : _zz_availableRegs_35 = _zz_availableRegs;
-      3'b001 : _zz_availableRegs_35 = _zz_availableRegs_1;
-      3'b010 : _zz_availableRegs_35 = _zz_availableRegs_2;
-      3'b011 : _zz_availableRegs_35 = _zz_availableRegs_3;
-      3'b100 : _zz_availableRegs_35 = _zz_availableRegs_4;
-      3'b101 : _zz_availableRegs_35 = _zz_availableRegs_5;
-      3'b110 : _zz_availableRegs_35 = _zz_availableRegs_6;
-      default : _zz_availableRegs_35 = _zz_availableRegs_7;
-    endcase
-  end
-
-  always @(*) begin
-    case(_zz_availableRegs_38)
-      3'b000 : _zz_availableRegs_37 = _zz_availableRegs;
-      3'b001 : _zz_availableRegs_37 = _zz_availableRegs_1;
-      3'b010 : _zz_availableRegs_37 = _zz_availableRegs_2;
-      3'b011 : _zz_availableRegs_37 = _zz_availableRegs_3;
-      3'b100 : _zz_availableRegs_37 = _zz_availableRegs_4;
-      3'b101 : _zz_availableRegs_37 = _zz_availableRegs_5;
-      3'b110 : _zz_availableRegs_37 = _zz_availableRegs_6;
-      default : _zz_availableRegs_37 = _zz_availableRegs_7;
-    endcase
-  end
-
-  always @(*) begin
-    case(_zz_availableRegs_41)
-      3'b000 : _zz_availableRegs_40 = _zz_availableRegs;
-      3'b001 : _zz_availableRegs_40 = _zz_availableRegs_1;
-      3'b010 : _zz_availableRegs_40 = _zz_availableRegs_2;
-      3'b011 : _zz_availableRegs_40 = _zz_availableRegs_3;
-      3'b100 : _zz_availableRegs_40 = _zz_availableRegs_4;
-      3'b101 : _zz_availableRegs_40 = _zz_availableRegs_5;
-      3'b110 : _zz_availableRegs_40 = _zz_availableRegs_6;
-      default : _zz_availableRegs_40 = _zz_availableRegs_7;
-    endcase
-  end
-
-  always @(*) begin
-    case(_zz_availableRegs_43)
-      3'b000 : _zz_availableRegs_42 = _zz_availableRegs;
-      3'b001 : _zz_availableRegs_42 = _zz_availableRegs_1;
-      3'b010 : _zz_availableRegs_42 = _zz_availableRegs_2;
-      3'b011 : _zz_availableRegs_42 = _zz_availableRegs_3;
-      3'b100 : _zz_availableRegs_42 = _zz_availableRegs_4;
-      3'b101 : _zz_availableRegs_42 = _zz_availableRegs_5;
-      3'b110 : _zz_availableRegs_42 = _zz_availableRegs_6;
-      default : _zz_availableRegs_42 = _zz_availableRegs_7;
-    endcase
-  end
-
-  always @(*) begin
-    case(_zz_availableRegs_47)
-      3'b000 : _zz_availableRegs_46 = _zz_availableRegs;
-      3'b001 : _zz_availableRegs_46 = _zz_availableRegs_1;
-      3'b010 : _zz_availableRegs_46 = _zz_availableRegs_2;
-      3'b011 : _zz_availableRegs_46 = _zz_availableRegs_3;
-      3'b100 : _zz_availableRegs_46 = _zz_availableRegs_4;
-      3'b101 : _zz_availableRegs_46 = _zz_availableRegs_5;
-      3'b110 : _zz_availableRegs_46 = _zz_availableRegs_6;
-      default : _zz_availableRegs_46 = _zz_availableRegs_7;
-    endcase
-  end
-
-  always @(*) begin
-    case(_zz_availableRegs_49)
-      3'b000 : _zz_availableRegs_48 = _zz_availableRegs;
-      3'b001 : _zz_availableRegs_48 = _zz_availableRegs_1;
-      3'b010 : _zz_availableRegs_48 = _zz_availableRegs_2;
-      3'b011 : _zz_availableRegs_48 = _zz_availableRegs_3;
-      3'b100 : _zz_availableRegs_48 = _zz_availableRegs_4;
-      3'b101 : _zz_availableRegs_48 = _zz_availableRegs_5;
-      3'b110 : _zz_availableRegs_48 = _zz_availableRegs_6;
-      default : _zz_availableRegs_48 = _zz_availableRegs_7;
-    endcase
-  end
-
-  always @(*) begin
-    case(_zz_availableRegs_52)
-      3'b000 : _zz_availableRegs_51 = _zz_availableRegs;
-      3'b001 : _zz_availableRegs_51 = _zz_availableRegs_1;
-      3'b010 : _zz_availableRegs_51 = _zz_availableRegs_2;
-      3'b011 : _zz_availableRegs_51 = _zz_availableRegs_3;
-      3'b100 : _zz_availableRegs_51 = _zz_availableRegs_4;
-      3'b101 : _zz_availableRegs_51 = _zz_availableRegs_5;
-      3'b110 : _zz_availableRegs_51 = _zz_availableRegs_6;
-      default : _zz_availableRegs_51 = _zz_availableRegs_7;
-    endcase
-  end
-
-  always @(*) begin
-    case(_zz_availableRegs_54)
-      3'b000 : _zz_availableRegs_53 = _zz_availableRegs;
-      3'b001 : _zz_availableRegs_53 = _zz_availableRegs_1;
-      3'b010 : _zz_availableRegs_53 = _zz_availableRegs_2;
-      3'b011 : _zz_availableRegs_53 = _zz_availableRegs_3;
-      3'b100 : _zz_availableRegs_53 = _zz_availableRegs_4;
-      3'b101 : _zz_availableRegs_53 = _zz_availableRegs_5;
-      3'b110 : _zz_availableRegs_53 = _zz_availableRegs_6;
-      default : _zz_availableRegs_53 = _zz_availableRegs_7;
-    endcase
-  end
-
-  always @(*) begin
-    case(_zz_availableRegs_59)
-      3'b000 : _zz_availableRegs_58 = _zz_availableRegs;
-      3'b001 : _zz_availableRegs_58 = _zz_availableRegs_1;
-      3'b010 : _zz_availableRegs_58 = _zz_availableRegs_2;
-      3'b011 : _zz_availableRegs_58 = _zz_availableRegs_3;
-      3'b100 : _zz_availableRegs_58 = _zz_availableRegs_4;
-      3'b101 : _zz_availableRegs_58 = _zz_availableRegs_5;
-      3'b110 : _zz_availableRegs_58 = _zz_availableRegs_6;
-      default : _zz_availableRegs_58 = _zz_availableRegs_7;
-    endcase
-  end
-
-  always @(*) begin
-    case(_zz_availableRegs_61)
-      3'b000 : _zz_availableRegs_60 = _zz_availableRegs;
-      3'b001 : _zz_availableRegs_60 = _zz_availableRegs_1;
-      3'b010 : _zz_availableRegs_60 = _zz_availableRegs_2;
-      3'b011 : _zz_availableRegs_60 = _zz_availableRegs_3;
-      3'b100 : _zz_availableRegs_60 = _zz_availableRegs_4;
-      3'b101 : _zz_availableRegs_60 = _zz_availableRegs_5;
-      3'b110 : _zz_availableRegs_60 = _zz_availableRegs_6;
-      default : _zz_availableRegs_60 = _zz_availableRegs_7;
-    endcase
-  end
-
-  always @(*) begin
-    case(_zz_availableRegs_64)
-      3'b000 : _zz_availableRegs_63 = _zz_availableRegs;
-      3'b001 : _zz_availableRegs_63 = _zz_availableRegs_1;
-      3'b010 : _zz_availableRegs_63 = _zz_availableRegs_2;
-      3'b011 : _zz_availableRegs_63 = _zz_availableRegs_3;
-      3'b100 : _zz_availableRegs_63 = _zz_availableRegs_4;
-      3'b101 : _zz_availableRegs_63 = _zz_availableRegs_5;
-      3'b110 : _zz_availableRegs_63 = _zz_availableRegs_6;
-      default : _zz_availableRegs_63 = _zz_availableRegs_7;
-    endcase
-  end
-
-  always @(*) begin
-    case(_zz_availableRegs_66)
-      3'b000 : _zz_availableRegs_65 = _zz_availableRegs;
-      3'b001 : _zz_availableRegs_65 = _zz_availableRegs_1;
-      3'b010 : _zz_availableRegs_65 = _zz_availableRegs_2;
-      3'b011 : _zz_availableRegs_65 = _zz_availableRegs_3;
-      3'b100 : _zz_availableRegs_65 = _zz_availableRegs_4;
-      3'b101 : _zz_availableRegs_65 = _zz_availableRegs_5;
-      3'b110 : _zz_availableRegs_65 = _zz_availableRegs_6;
-      default : _zz_availableRegs_65 = _zz_availableRegs_7;
-    endcase
-  end
-
-  always @(*) begin
-    case(_zz_availableRegs_69)
-      3'b000 : _zz_availableRegs_68 = _zz_availableRegs;
-      3'b001 : _zz_availableRegs_68 = _zz_availableRegs_1;
-      3'b010 : _zz_availableRegs_68 = _zz_availableRegs_2;
-      3'b011 : _zz_availableRegs_68 = _zz_availableRegs_3;
-      3'b100 : _zz_availableRegs_68 = _zz_availableRegs_4;
-      3'b101 : _zz_availableRegs_68 = _zz_availableRegs_5;
-      3'b110 : _zz_availableRegs_68 = _zz_availableRegs_6;
-      default : _zz_availableRegs_68 = _zz_availableRegs_7;
-    endcase
-  end
-
-  always @(*) begin
-    case(_zz_availableRegs_71)
-      3'b000 : _zz_availableRegs_70 = _zz_availableRegs;
-      3'b001 : _zz_availableRegs_70 = _zz_availableRegs_1;
-      3'b010 : _zz_availableRegs_70 = _zz_availableRegs_2;
-      3'b011 : _zz_availableRegs_70 = _zz_availableRegs_3;
-      3'b100 : _zz_availableRegs_70 = _zz_availableRegs_4;
-      3'b101 : _zz_availableRegs_70 = _zz_availableRegs_5;
-      3'b110 : _zz_availableRegs_70 = _zz_availableRegs_6;
-      default : _zz_availableRegs_70 = _zz_availableRegs_7;
-    endcase
-  end
-
-  assign _zz_1 = zz_initMask(1'b0);
-  always @(*) initMask = _zz_1;
-  assign _zz_freeRegsOh = freeRegsMask_reg[0];
-  assign _zz_freeRegsOh_1 = freeRegsMask_reg[1];
-  assign _zz_freeRegsOh_2 = freeRegsMask_reg[2];
-  assign _zz_freeRegsOh_3 = freeRegsMask_reg[3];
-  assign _zz_freeRegsOh_4 = freeRegsMask_reg[4];
-  assign _zz_freeRegsOh_5 = freeRegsMask_reg[5];
-  assign _zz_freeRegsOh_6 = freeRegsMask_reg[6];
-  assign _zz_freeRegsOh_7 = freeRegsMask_reg[7];
-  assign _zz_freeRegsOh_8 = freeRegsMask_reg[8];
-  assign _zz_freeRegsOh_9 = freeRegsMask_reg[9];
-  assign _zz_freeRegsOh_10 = freeRegsMask_reg[10];
-  assign _zz_freeRegsOh_11 = freeRegsMask_reg[11];
-  assign _zz_freeRegsOh_12 = freeRegsMask_reg[12];
-  assign _zz_freeRegsOh_13 = freeRegsMask_reg[13];
-  assign _zz_freeRegsOh_14 = freeRegsMask_reg[14];
-  assign _zz_freeRegsOh_15 = freeRegsMask_reg[15];
-  assign _zz_freeRegsOh_16 = freeRegsMask_reg[16];
-  assign _zz_freeRegsOh_17 = freeRegsMask_reg[17];
-  assign _zz_freeRegsOh_18 = freeRegsMask_reg[18];
-  assign _zz_freeRegsOh_19 = freeRegsMask_reg[19];
-  assign _zz_freeRegsOh_20 = freeRegsMask_reg[20];
-  assign _zz_freeRegsOh_21 = freeRegsMask_reg[21];
-  assign _zz_freeRegsOh_22 = freeRegsMask_reg[22];
-  assign _zz_freeRegsOh_23 = freeRegsMask_reg[23];
-  assign _zz_freeRegsOh_24 = freeRegsMask_reg[24];
-  assign _zz_freeRegsOh_25 = freeRegsMask_reg[25];
-  assign _zz_freeRegsOh_26 = freeRegsMask_reg[26];
-  assign _zz_freeRegsOh_27 = freeRegsMask_reg[27];
-  assign _zz_freeRegsOh_28 = freeRegsMask_reg[28];
-  assign _zz_freeRegsOh_29 = freeRegsMask_reg[29];
-  assign _zz_freeRegsOh_30 = freeRegsMask_reg[30];
-  assign _zz_freeRegsOh_31 = freeRegsMask_reg[31];
-  assign _zz_freeRegsOh_32 = freeRegsMask_reg[32];
-  assign _zz_freeRegsOh_33 = freeRegsMask_reg[33];
-  assign _zz_freeRegsOh_34 = freeRegsMask_reg[34];
-  assign _zz_freeRegsOh_35 = freeRegsMask_reg[35];
-  assign _zz_freeRegsOh_36 = freeRegsMask_reg[36];
-  assign _zz_freeRegsOh_37 = freeRegsMask_reg[37];
-  assign _zz_freeRegsOh_38 = freeRegsMask_reg[38];
-  assign _zz_freeRegsOh_39 = freeRegsMask_reg[39];
-  assign _zz_freeRegsOh_40 = freeRegsMask_reg[40];
-  assign _zz_freeRegsOh_41 = freeRegsMask_reg[41];
-  assign _zz_freeRegsOh_42 = freeRegsMask_reg[42];
-  assign _zz_freeRegsOh_43 = freeRegsMask_reg[43];
-  assign _zz_freeRegsOh_44 = freeRegsMask_reg[44];
-  assign _zz_freeRegsOh_45 = freeRegsMask_reg[45];
-  assign _zz_freeRegsOh_46 = freeRegsMask_reg[46];
-  assign _zz_freeRegsOh_47 = freeRegsMask_reg[47];
-  assign _zz_freeRegsOh_48 = freeRegsMask_reg[48];
-  assign _zz_freeRegsOh_49 = freeRegsMask_reg[49];
-  assign _zz_freeRegsOh_50 = freeRegsMask_reg[50];
-  assign _zz_freeRegsOh_51 = freeRegsMask_reg[51];
-  assign _zz_freeRegsOh_52 = freeRegsMask_reg[52];
-  assign _zz_freeRegsOh_53 = freeRegsMask_reg[53];
-  assign _zz_freeRegsOh_54 = freeRegsMask_reg[54];
-  assign _zz_freeRegsOh_55 = freeRegsMask_reg[55];
-  assign _zz_freeRegsOh_56 = freeRegsMask_reg[56];
-  assign _zz_freeRegsOh_57 = freeRegsMask_reg[57];
-  assign _zz_freeRegsOh_58 = freeRegsMask_reg[58];
-  assign _zz_freeRegsOh_59 = freeRegsMask_reg[59];
-  assign _zz_freeRegsOh_60 = freeRegsMask_reg[60];
-  assign _zz_freeRegsOh_61 = freeRegsMask_reg[61];
-  assign _zz_freeRegsOh_62 = freeRegsMask_reg[62];
-  assign _zz_freeRegsOh_63 = freeRegsMask_reg[63];
-  assign freeRegsOh = {_zz_freeRegsOh_63,{_zz_freeRegsOh_62,{_zz_freeRegsOh_61,{_zz_freeRegsOh_60,{_zz_freeRegsOh_59,{_zz_freeRegsOh_58,{_zz_freeRegsOh_57,{_zz_freeRegsOh_56,{_zz_freeRegsOh_55,{_zz_freeRegsOh_54,{_zz_freeRegsOh_64,_zz_freeRegsOh_65}}}}}}}}}}};
-  assign _zz_availableRegs = 7'h0;
-  assign _zz_availableRegs_1 = 7'h01;
-  assign _zz_availableRegs_2 = 7'h01;
-  assign _zz_availableRegs_3 = 7'h02;
-  assign _zz_availableRegs_4 = 7'h01;
-  assign _zz_availableRegs_5 = 7'h02;
-  assign _zz_availableRegs_6 = 7'h02;
-  assign _zz_availableRegs_7 = 7'h03;
-  assign availableRegs = (_zz_availableRegs_8 + _zz_availableRegs_55);
-  assign freeRegsOh_ohFirst_input = freeRegsOh;
-  assign freeRegsOh_ohFirst_masked = (freeRegsOh_ohFirst_input & (~ _zz_freeRegsOh_ohFirst_masked));
-  assign freeRegsOh_ohFirst_value = freeRegsOh_ohFirst_masked;
-  assign allocatedRegsOh_0 = freeRegsOh_ohFirst_value;
-  assign _zz_allocatedRegsIdx_0 = freeRegsOh_ohFirst_value[3];
-  assign _zz_allocatedRegsIdx_0_1 = freeRegsOh_ohFirst_value[5];
-  assign _zz_allocatedRegsIdx_0_2 = freeRegsOh_ohFirst_value[6];
-  assign _zz_allocatedRegsIdx_0_3 = freeRegsOh_ohFirst_value[7];
-  assign _zz_allocatedRegsIdx_0_4 = freeRegsOh_ohFirst_value[9];
-  assign _zz_allocatedRegsIdx_0_5 = freeRegsOh_ohFirst_value[10];
-  assign _zz_allocatedRegsIdx_0_6 = freeRegsOh_ohFirst_value[11];
-  assign _zz_allocatedRegsIdx_0_7 = freeRegsOh_ohFirst_value[12];
-  assign _zz_allocatedRegsIdx_0_8 = freeRegsOh_ohFirst_value[13];
-  assign _zz_allocatedRegsIdx_0_9 = freeRegsOh_ohFirst_value[14];
-  assign _zz_allocatedRegsIdx_0_10 = freeRegsOh_ohFirst_value[15];
-  assign _zz_allocatedRegsIdx_0_11 = freeRegsOh_ohFirst_value[17];
-  assign _zz_allocatedRegsIdx_0_12 = freeRegsOh_ohFirst_value[18];
-  assign _zz_allocatedRegsIdx_0_13 = freeRegsOh_ohFirst_value[19];
-  assign _zz_allocatedRegsIdx_0_14 = freeRegsOh_ohFirst_value[20];
-  assign _zz_allocatedRegsIdx_0_15 = freeRegsOh_ohFirst_value[21];
-  assign _zz_allocatedRegsIdx_0_16 = freeRegsOh_ohFirst_value[22];
-  assign _zz_allocatedRegsIdx_0_17 = freeRegsOh_ohFirst_value[23];
-  assign _zz_allocatedRegsIdx_0_18 = freeRegsOh_ohFirst_value[24];
-  assign _zz_allocatedRegsIdx_0_19 = freeRegsOh_ohFirst_value[25];
-  assign _zz_allocatedRegsIdx_0_20 = freeRegsOh_ohFirst_value[26];
-  assign _zz_allocatedRegsIdx_0_21 = freeRegsOh_ohFirst_value[27];
-  assign _zz_allocatedRegsIdx_0_22 = freeRegsOh_ohFirst_value[28];
-  assign _zz_allocatedRegsIdx_0_23 = freeRegsOh_ohFirst_value[29];
-  assign _zz_allocatedRegsIdx_0_24 = freeRegsOh_ohFirst_value[30];
-  assign _zz_allocatedRegsIdx_0_25 = freeRegsOh_ohFirst_value[31];
-  assign _zz_allocatedRegsIdx_0_26 = freeRegsOh_ohFirst_value[33];
-  assign _zz_allocatedRegsIdx_0_27 = freeRegsOh_ohFirst_value[34];
-  assign _zz_allocatedRegsIdx_0_28 = freeRegsOh_ohFirst_value[35];
-  assign _zz_allocatedRegsIdx_0_29 = freeRegsOh_ohFirst_value[36];
-  assign _zz_allocatedRegsIdx_0_30 = freeRegsOh_ohFirst_value[37];
-  assign _zz_allocatedRegsIdx_0_31 = freeRegsOh_ohFirst_value[38];
-  assign _zz_allocatedRegsIdx_0_32 = freeRegsOh_ohFirst_value[39];
-  assign _zz_allocatedRegsIdx_0_33 = freeRegsOh_ohFirst_value[40];
-  assign _zz_allocatedRegsIdx_0_34 = freeRegsOh_ohFirst_value[41];
-  assign _zz_allocatedRegsIdx_0_35 = freeRegsOh_ohFirst_value[42];
-  assign _zz_allocatedRegsIdx_0_36 = freeRegsOh_ohFirst_value[43];
-  assign _zz_allocatedRegsIdx_0_37 = freeRegsOh_ohFirst_value[44];
-  assign _zz_allocatedRegsIdx_0_38 = freeRegsOh_ohFirst_value[45];
-  assign _zz_allocatedRegsIdx_0_39 = freeRegsOh_ohFirst_value[46];
-  assign _zz_allocatedRegsIdx_0_40 = freeRegsOh_ohFirst_value[47];
-  assign _zz_allocatedRegsIdx_0_41 = freeRegsOh_ohFirst_value[48];
-  assign _zz_allocatedRegsIdx_0_42 = freeRegsOh_ohFirst_value[49];
-  assign _zz_allocatedRegsIdx_0_43 = freeRegsOh_ohFirst_value[50];
-  assign _zz_allocatedRegsIdx_0_44 = freeRegsOh_ohFirst_value[51];
-  assign _zz_allocatedRegsIdx_0_45 = freeRegsOh_ohFirst_value[52];
-  assign _zz_allocatedRegsIdx_0_46 = freeRegsOh_ohFirst_value[53];
-  assign _zz_allocatedRegsIdx_0_47 = freeRegsOh_ohFirst_value[54];
-  assign _zz_allocatedRegsIdx_0_48 = freeRegsOh_ohFirst_value[55];
-  assign _zz_allocatedRegsIdx_0_49 = freeRegsOh_ohFirst_value[56];
-  assign _zz_allocatedRegsIdx_0_50 = freeRegsOh_ohFirst_value[57];
-  assign _zz_allocatedRegsIdx_0_51 = freeRegsOh_ohFirst_value[58];
-  assign _zz_allocatedRegsIdx_0_52 = freeRegsOh_ohFirst_value[59];
-  assign _zz_allocatedRegsIdx_0_53 = freeRegsOh_ohFirst_value[60];
-  assign _zz_allocatedRegsIdx_0_54 = freeRegsOh_ohFirst_value[61];
-  assign _zz_allocatedRegsIdx_0_55 = freeRegsOh_ohFirst_value[62];
-  assign _zz_allocatedRegsIdx_0_56 = freeRegsOh_ohFirst_value[63];
-  assign _zz_allocatedRegsIdx_0_57 = ((((((((((((((((_zz__zz_allocatedRegsIdx_0_57 || _zz_allocatedRegsIdx_0_26) || _zz_allocatedRegsIdx_0_28) || _zz_allocatedRegsIdx_0_30) || _zz_allocatedRegsIdx_0_32) || _zz_allocatedRegsIdx_0_34) || _zz_allocatedRegsIdx_0_36) || _zz_allocatedRegsIdx_0_38) || _zz_allocatedRegsIdx_0_40) || _zz_allocatedRegsIdx_0_42) || _zz_allocatedRegsIdx_0_44) || _zz_allocatedRegsIdx_0_46) || _zz_allocatedRegsIdx_0_48) || _zz_allocatedRegsIdx_0_50) || _zz_allocatedRegsIdx_0_52) || _zz_allocatedRegsIdx_0_54) || _zz_allocatedRegsIdx_0_56);
-  assign _zz_allocatedRegsIdx_0_58 = ((((((((((((((((_zz__zz_allocatedRegsIdx_0_58 || _zz_allocatedRegsIdx_0_27) || _zz_allocatedRegsIdx_0_28) || _zz_allocatedRegsIdx_0_31) || _zz_allocatedRegsIdx_0_32) || _zz_allocatedRegsIdx_0_35) || _zz_allocatedRegsIdx_0_36) || _zz_allocatedRegsIdx_0_39) || _zz_allocatedRegsIdx_0_40) || _zz_allocatedRegsIdx_0_43) || _zz_allocatedRegsIdx_0_44) || _zz_allocatedRegsIdx_0_47) || _zz_allocatedRegsIdx_0_48) || _zz_allocatedRegsIdx_0_51) || _zz_allocatedRegsIdx_0_52) || _zz_allocatedRegsIdx_0_55) || _zz_allocatedRegsIdx_0_56);
-  assign _zz_allocatedRegsIdx_0_59 = ((((((((((((((((_zz__zz_allocatedRegsIdx_0_59 || _zz_allocatedRegsIdx_0_29) || _zz_allocatedRegsIdx_0_30) || _zz_allocatedRegsIdx_0_31) || _zz_allocatedRegsIdx_0_32) || _zz_allocatedRegsIdx_0_37) || _zz_allocatedRegsIdx_0_38) || _zz_allocatedRegsIdx_0_39) || _zz_allocatedRegsIdx_0_40) || _zz_allocatedRegsIdx_0_45) || _zz_allocatedRegsIdx_0_46) || _zz_allocatedRegsIdx_0_47) || _zz_allocatedRegsIdx_0_48) || _zz_allocatedRegsIdx_0_53) || _zz_allocatedRegsIdx_0_54) || _zz_allocatedRegsIdx_0_55) || _zz_allocatedRegsIdx_0_56);
-  assign _zz_allocatedRegsIdx_0_60 = ((((((((((((((((_zz__zz_allocatedRegsIdx_0_60 || _zz_allocatedRegsIdx_0_33) || _zz_allocatedRegsIdx_0_34) || _zz_allocatedRegsIdx_0_35) || _zz_allocatedRegsIdx_0_36) || _zz_allocatedRegsIdx_0_37) || _zz_allocatedRegsIdx_0_38) || _zz_allocatedRegsIdx_0_39) || _zz_allocatedRegsIdx_0_40) || _zz_allocatedRegsIdx_0_49) || _zz_allocatedRegsIdx_0_50) || _zz_allocatedRegsIdx_0_51) || _zz_allocatedRegsIdx_0_52) || _zz_allocatedRegsIdx_0_53) || _zz_allocatedRegsIdx_0_54) || _zz_allocatedRegsIdx_0_55) || _zz_allocatedRegsIdx_0_56);
-  assign _zz_allocatedRegsIdx_0_61 = ((((((((((((((((_zz__zz_allocatedRegsIdx_0_61 || _zz_allocatedRegsIdx_0_41) || _zz_allocatedRegsIdx_0_42) || _zz_allocatedRegsIdx_0_43) || _zz_allocatedRegsIdx_0_44) || _zz_allocatedRegsIdx_0_45) || _zz_allocatedRegsIdx_0_46) || _zz_allocatedRegsIdx_0_47) || _zz_allocatedRegsIdx_0_48) || _zz_allocatedRegsIdx_0_49) || _zz_allocatedRegsIdx_0_50) || _zz_allocatedRegsIdx_0_51) || _zz_allocatedRegsIdx_0_52) || _zz_allocatedRegsIdx_0_53) || _zz_allocatedRegsIdx_0_54) || _zz_allocatedRegsIdx_0_55) || _zz_allocatedRegsIdx_0_56);
-  assign _zz_allocatedRegsIdx_0_62 = ((((((((((((((((_zz__zz_allocatedRegsIdx_0_62 || _zz_allocatedRegsIdx_0_41) || _zz_allocatedRegsIdx_0_42) || _zz_allocatedRegsIdx_0_43) || _zz_allocatedRegsIdx_0_44) || _zz_allocatedRegsIdx_0_45) || _zz_allocatedRegsIdx_0_46) || _zz_allocatedRegsIdx_0_47) || _zz_allocatedRegsIdx_0_48) || _zz_allocatedRegsIdx_0_49) || _zz_allocatedRegsIdx_0_50) || _zz_allocatedRegsIdx_0_51) || _zz_allocatedRegsIdx_0_52) || _zz_allocatedRegsIdx_0_53) || _zz_allocatedRegsIdx_0_54) || _zz_allocatedRegsIdx_0_55) || _zz_allocatedRegsIdx_0_56);
-  assign allocatedRegsIdx_0 = {_zz_allocatedRegsIdx_0_62,{_zz_allocatedRegsIdx_0_61,{_zz_allocatedRegsIdx_0_60,{_zz_allocatedRegsIdx_0_59,{_zz_allocatedRegsIdx_0_58,_zz_allocatedRegsIdx_0_57}}}}};
-  assign io_allocate_0_success = (io_allocate_0_enable && (7'h0 < availableRegs));
-  assign io_allocate_0_physReg = allocatedRegsIdx_0;
-  assign allocatedMask = (io_allocate_0_success ? allocatedRegsOh_0 : 64'h0);
-  assign nextFreeRegsMask_after_alloc = (freeRegsMask_reg & (~ allocatedMask));
-  always @(*) begin
-    nextFreeRegsMask_final_comb = nextFreeRegsMask_after_alloc;
-    if(io_free_0_enable) begin
-      if(when_SuperScalarFreeList_l185) begin
-        nextFreeRegsMask_final_comb[io_free_0_physReg] = 1'b1;
-      end
-    end
-  end
-
-  assign when_SuperScalarFreeList_l185 = ((io_free_0_physReg != 6'h0) || 1'b0);
-  assign io_restoreState_ready = 1'b1;
-  assign io_currentState_freeMask = freeRegsMask_reg;
-  assign io_numFreeRegs = numFreeRegs_reg;
-  assign finalRegValueForNextCycle = (io_restoreState_valid ? io_restoreState_payload_freeMask : nextFreeRegsMask_final_comb);
+  assign isFull = 1'b1;
+  assign availableToFree = (6'h20 - occupancyCounter);
+  assign freeGrants_0 = (((! io_recover) && io_free_0_enable) && (6'h0 < availableToFree));
+  assign freeCount = _zz_freeCount;
+  assign availableToAlloc = (occupancyCounter + _zz_availableToAlloc);
+  assign allocateGrants_0 = (((! io_recover) && io_allocate_0_enable) && (6'h0 < availableToAlloc));
+  assign allocCount = _zz_allocCount;
+  assign _zz_1 = ({31'd0,1'b1} <<< _zz__zz_1);
+  assign io_allocate_0_success = allocateGrants_0_regNext;
+  assign io_allocate_0_physReg = _zz_io_allocate_0_physReg;
+  assign io_numFreeRegs = occupancyCounter;
   always @(posedge clk) begin
     if(reset) begin
-      freeRegsMask_reg <= initMask;
-      numFreeRegs_reg <= 7'h20;
+      dataVec_0 <= 6'h20;
+      dataVec_1 <= 6'h21;
+      dataVec_2 <= 6'h22;
+      dataVec_3 <= 6'h23;
+      dataVec_4 <= 6'h24;
+      dataVec_5 <= 6'h25;
+      dataVec_6 <= 6'h26;
+      dataVec_7 <= 6'h27;
+      dataVec_8 <= 6'h28;
+      dataVec_9 <= 6'h29;
+      dataVec_10 <= 6'h2a;
+      dataVec_11 <= 6'h2b;
+      dataVec_12 <= 6'h2c;
+      dataVec_13 <= 6'h2d;
+      dataVec_14 <= 6'h2e;
+      dataVec_15 <= 6'h2f;
+      dataVec_16 <= 6'h30;
+      dataVec_17 <= 6'h31;
+      dataVec_18 <= 6'h32;
+      dataVec_19 <= 6'h33;
+      dataVec_20 <= 6'h34;
+      dataVec_21 <= 6'h35;
+      dataVec_22 <= 6'h36;
+      dataVec_23 <= 6'h37;
+      dataVec_24 <= 6'h38;
+      dataVec_25 <= 6'h39;
+      dataVec_26 <= 6'h3a;
+      dataVec_27 <= 6'h3b;
+      dataVec_28 <= 6'h3c;
+      dataVec_29 <= 6'h3d;
+      dataVec_30 <= 6'h3e;
+      dataVec_31 <= 6'h3f;
+      allocPtr <= 5'h0;
+      freePtr <= 5'h0;
+      occupancyCounter <= 6'h20;
+      allocateGrants_0_regNext <= 1'b0;
+      freeGrantsReg_0 <= 1'b0;
     end else begin
-      numFreeRegs_reg <= availableRegs;
-      if(io_restoreState_valid) begin
-        freeRegsMask_reg <= io_restoreState_payload_freeMask;
-      end else begin
-        freeRegsMask_reg <= nextFreeRegsMask_final_comb;
+      if(freeGrants_0) begin
+        if(_zz_1[0]) begin
+          dataVec_0 <= io_free_0_physReg;
+        end
+        if(_zz_1[1]) begin
+          dataVec_1 <= io_free_0_physReg;
+        end
+        if(_zz_1[2]) begin
+          dataVec_2 <= io_free_0_physReg;
+        end
+        if(_zz_1[3]) begin
+          dataVec_3 <= io_free_0_physReg;
+        end
+        if(_zz_1[4]) begin
+          dataVec_4 <= io_free_0_physReg;
+        end
+        if(_zz_1[5]) begin
+          dataVec_5 <= io_free_0_physReg;
+        end
+        if(_zz_1[6]) begin
+          dataVec_6 <= io_free_0_physReg;
+        end
+        if(_zz_1[7]) begin
+          dataVec_7 <= io_free_0_physReg;
+        end
+        if(_zz_1[8]) begin
+          dataVec_8 <= io_free_0_physReg;
+        end
+        if(_zz_1[9]) begin
+          dataVec_9 <= io_free_0_physReg;
+        end
+        if(_zz_1[10]) begin
+          dataVec_10 <= io_free_0_physReg;
+        end
+        if(_zz_1[11]) begin
+          dataVec_11 <= io_free_0_physReg;
+        end
+        if(_zz_1[12]) begin
+          dataVec_12 <= io_free_0_physReg;
+        end
+        if(_zz_1[13]) begin
+          dataVec_13 <= io_free_0_physReg;
+        end
+        if(_zz_1[14]) begin
+          dataVec_14 <= io_free_0_physReg;
+        end
+        if(_zz_1[15]) begin
+          dataVec_15 <= io_free_0_physReg;
+        end
+        if(_zz_1[16]) begin
+          dataVec_16 <= io_free_0_physReg;
+        end
+        if(_zz_1[17]) begin
+          dataVec_17 <= io_free_0_physReg;
+        end
+        if(_zz_1[18]) begin
+          dataVec_18 <= io_free_0_physReg;
+        end
+        if(_zz_1[19]) begin
+          dataVec_19 <= io_free_0_physReg;
+        end
+        if(_zz_1[20]) begin
+          dataVec_20 <= io_free_0_physReg;
+        end
+        if(_zz_1[21]) begin
+          dataVec_21 <= io_free_0_physReg;
+        end
+        if(_zz_1[22]) begin
+          dataVec_22 <= io_free_0_physReg;
+        end
+        if(_zz_1[23]) begin
+          dataVec_23 <= io_free_0_physReg;
+        end
+        if(_zz_1[24]) begin
+          dataVec_24 <= io_free_0_physReg;
+        end
+        if(_zz_1[25]) begin
+          dataVec_25 <= io_free_0_physReg;
+        end
+        if(_zz_1[26]) begin
+          dataVec_26 <= io_free_0_physReg;
+        end
+        if(_zz_1[27]) begin
+          dataVec_27 <= io_free_0_physReg;
+        end
+        if(_zz_1[28]) begin
+          dataVec_28 <= io_free_0_physReg;
+        end
+        if(_zz_1[29]) begin
+          dataVec_29 <= io_free_0_physReg;
+        end
+        if(_zz_1[30]) begin
+          dataVec_30 <= io_free_0_physReg;
+        end
+        if(_zz_1[31]) begin
+          dataVec_31 <= io_free_0_physReg;
+        end
       end
+      allocateGrants_0_regNext <= allocateGrants_0;
+      if(io_recover) begin
+        allocPtr <= 5'h0;
+        freePtr <= 5'h0;
+        occupancyCounter <= 6'h20;
+      end else begin
+        allocPtr <= (allocPtr + _zz_allocPtr);
+        freePtr <= (freePtr + _zz_freePtr);
+        occupancyCounter <= (_zz_occupancyCounter - _zz_occupancyCounter_2);
+      end
+      freeGrantsReg_0 <= freeGrants_0;
+    end
+  end
+
+  always @(posedge clk) begin
+    if(allocateGrants_0) begin
+      _zz_io_allocate_0_physReg <= ((freeGrants_0 && (_zz__zz_io_allocate_0_physReg == _zz__zz_io_allocate_0_physReg_1)) ? io_free_0_physReg : _zz__zz_io_allocate_0_physReg_2);
+    end else begin
+      _zz_io_allocate_0_physReg <= 6'h0;
     end
   end
 
