@@ -21,7 +21,8 @@ case class SRAMConfig(
     sramByteEnableIsActiveLow: Boolean = true,
     // --- NEW ---: 添加字地址模式配置
     useWordAddressing: Boolean = false,
-    enableLog: Boolean = true
+    enableLog: Boolean = true,
+    enableValidation: Boolean = false,
 ) {
   require(isPow2(dataWidth / 8), "dataWidth must be a power of 2 bytes")
   require(sizeBytes > 0 && sizeBytes % (dataWidth / 8) == 0, "sramSize must be a multiple of data bus width")
@@ -161,6 +162,18 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
     (is_error, sram_addr_candidate)
   }
 
+    private def calculateSramAddress(axiAddr: UInt): UInt = {
+    // 仅执行地址转换，不进行任何检查
+    val vBaseBitLength = if (config.virtualBaseAddress == 0) 1 else log2Up(config.virtualBaseAddress) + 1
+    val extendedWidth = Math.max(axiConfig.addressWidth, vBaseBitLength) + 1
+    val addr_extended = axiAddr.resize(extendedWidth)
+    val vbase_extended = U(config.virtualBaseAddress, extendedWidth bits)
+    val byte_offset_addr = addr_extended - vbase_extended
+    val sram_addr = (byte_offset_addr(config.addressWidth - 1 downto 0) >> config.addressShift).resized
+    sram_addr
+  }
+  
+
 
   val instanceId = SRAMController.nextInstanceId
   require(
@@ -245,7 +258,7 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
     val next_sram_addr_prefetch = Reg(UInt(config.addressWidth bits))
     val addr_prefetch_valid = Reg(Bool()) init (False)
 
-    val is_write_transaction = Reg(Bool())
+    val is_write_transaction = config.enableValidation generate Reg(Bool())
 
     // --- NEW: 辅助函数用于报告寄存器赋值 ---
     def reportRegAssignment(regName: String, oldVal: Data, newVal: Data, state: String, assignType: String): Unit = {
@@ -304,8 +317,17 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
           read_priority := !read_priority
 
                 // 不再直接计算和跳转，而是进入验证状态
-            is_write_transaction:=True
-          goto(VALIDATE)
+          if (config.enableValidation) {
+            // **验证路径**: 进入 VALIDATE 状态进行检查
+            is_write_transaction := True
+            goto(VALIDATE)
+          } else {
+            // **快速路径**: 跳过 VALIDATE 状态，直接计算地址并转换
+            transaction_error_occurred := False // 假设无错误
+            // 直接在 IDLE 状态的组合逻辑中计算初始地址
+            current_sram_addr := calculateSramAddress(io.axi.aw.addr) 
+            goto(WRITE_DATA_FETCH)
+          }
         }
 
         // --- Read Channel Transaction Handling ---
@@ -322,52 +344,64 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
           ar_cmd_reg := io.axi.ar.payload
           burst_count_remaining := (io.axi.ar.len + 1).resize(burst_count_remaining.getWidth)
           read_priority := !read_priority
-            is_write_transaction:=False
-          goto(VALIDATE)
+          if (config.enableValidation) {
+            // **验证路径**: 进入 VALIDATE 状态进行检查
+            is_write_transaction := False
+            goto(VALIDATE)
+          } else {
+            // **快速路径**: 跳过 VALIDATE 状态，直接计算地址并转换
+            transaction_error_occurred := False // 假设无错误
+            current_sram_addr := calculateSramAddress(io.axi.ar.addr)
+            // 这是原先在 VALIDATE 状态中为读操作准备的，现在需要移到这里
+            hasReadWaitCycles generate { read_wait_counter := 0 }
+            goto(READ_SETUP)
+          }
         }
       }
     }
 
-        val VALIDATE: State = new State {
-      onEntry {
-        // No sram_ce_n_out_reg/sram_we_n_out_reg assignments in onEntry
-      }
-      whenIsActive {
-        // 1. 使用 Mux 根据事务类型直接选择命令源
-        // 这种方式比创建一个空的Bundle再填充它要高效和简洁得多
-        val cmd_addr  = Mux(is_write_transaction, aw_cmd_reg.addr,  ar_cmd_reg.addr)
-        val cmd_len   = Mux(is_write_transaction, aw_cmd_reg.len,   ar_cmd_reg.len)
-        val cmd_size  = Mux(is_write_transaction, aw_cmd_reg.size,  ar_cmd_reg.size)
-        val cmd_burst = Mux(is_write_transaction, aw_cmd_reg.burst, ar_cmd_reg.burst)
+    val VALIDATE: State = new State {
+      if (config.enableValidation) {
+          onEntry {
+          // No sram_ce_n_out_reg/sram_we_n_out_reg assignments in onEntry
+        }
+        whenIsActive {
+          // 1. 使用 Mux 根据事务类型直接选择命令源
+          // 这种方式比创建一个空的Bundle再填充它要高效和简洁得多
+          val cmd_addr  = Mux(is_write_transaction, aw_cmd_reg.addr,  ar_cmd_reg.addr)
+          val cmd_len   = Mux(is_write_transaction, aw_cmd_reg.len,   ar_cmd_reg.len)
+          val cmd_size  = Mux(is_write_transaction, aw_cmd_reg.size,  ar_cmd_reg.size)
+          val cmd_burst = Mux(is_write_transaction, aw_cmd_reg.burst, ar_cmd_reg.burst)
 
-        // 2. 将选择出的信号打包成 ValidationInput 传递给函数
-        // 这里只是为了匹配函数签名，在硬件中不会创建真正的复杂结构
-        val validationCmd = ValidationInput(
-          addr = cmd_addr,
-          len = cmd_len,
-          size = cmd_size,
-          burst = cmd_burst
-        )
-        
-        // 3. 调用通用验证函数
-        val (is_error, sram_addr) = performValidation(validationCmd)
+          // 2. 将选择出的信号打包成 ValidationInput 传递给函数
+          // 这里只是为了匹配函数签名，在硬件中不会创建真正的复杂结构
+          val validationCmd = ValidationInput(
+            addr = cmd_addr,
+            len = cmd_len,
+            size = cmd_size,
+            burst = cmd_burst
+          )
+          
+          // 3. 调用通用验证函数
+          val (is_error, sram_addr) = performValidation(validationCmd)
 
-        // 4. 根据验证结果和事务类型，决定下一个状态 (这部分逻辑不变)
-        when(is_error) {
-          transaction_error_occurred := True
-          when(is_write_transaction) {
-            goto(WRITE_DATA_ERROR_CONSUME)
+          // 4. 根据验证结果和事务类型，决定下一个状态 (这部分逻辑不变)
+          when(is_error) {
+            transaction_error_occurred := True
+            when(is_write_transaction) {
+              goto(WRITE_DATA_ERROR_CONSUME)
+            } otherwise {
+              goto(READ_RESPONSE_ERROR)
+            }
           } otherwise {
-            goto(READ_RESPONSE_ERROR)
-          }
-        } otherwise {
-          transaction_error_occurred := False
-          current_sram_addr := sram_addr
-          when(is_write_transaction) {
-            goto(WRITE_DATA_FETCH)
-          } otherwise {
-            hasReadWaitCycles generate { read_wait_counter := 0 }
-            goto(READ_SETUP)
+            transaction_error_occurred := False
+            current_sram_addr := sram_addr
+            when(is_write_transaction) {
+              goto(WRITE_DATA_FETCH)
+            } otherwise {
+              hasReadWaitCycles generate { read_wait_counter := 0 }
+              goto(READ_SETUP)
+            }
           }
         }
       }

@@ -46,6 +46,7 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
       sizeBytes = sramSize,
       readWaitCycles = readWaitCycles,
       writeWaitCycles = writeWaitCycles,
+      enableValidation = true,
       useWordAddressing = true, // Enable the mode under test
       enableLog = enableLog // Keep logs clean unless debugging
     )
