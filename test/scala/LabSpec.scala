@@ -683,7 +683,7 @@ class LabSpec extends CustomSpinalSimFunSuite {
   }
 
 
-  testOnly("1xor2") {
+  test("1xor2") {
       val instructions_add_test = Seq(
         /*00*/addi_w(rd = 10, rj = 0, imm = 4),
         /*04 */addi_w(rd = 0, rj = 0, imm = 0),
@@ -986,6 +986,62 @@ class LabSpec extends CustomSpinalSimFunSuite {
       dSram.io.tb_readEnable #= false
 
       println("--- LabSpec Test Passed ---")
+    }
+  }
+
+  testOnly("Multiplier Test") {
+    val instructions = Seq(
+      // Load multiplicand A (e.g., 5) into R10
+      addi_w(rd = 10, rj = 0, imm = 5),
+      // Load multiplier B (e.g., 7) into R11
+      addi_w(rd = 11, rj = 0, imm = 7),
+      // Perform multiplication: R12 = R10 * R11 (5 * 7 = 35)
+      mul_w(rd = 12, rj = 10, rk = 11),
+      // Load memory address (e.g., 0x80400000) into R13
+      lu12i_w(rd = 13, imm = 0x80400000 >>> 12),
+      ori(rd = 13, rj = 13, imm = 0x80400000 & 0xfff),
+      // Store the result (R12) to memory at address in R13
+      st_w(rd = 12, rj = 13, offset = 0),
+      // Infinite loop to halt simulation
+      beq(rj = 0, rd = 0, offset = 0)
+    )
+
+    LabHelper.dumpBinary(instructions, "bin/multiplier_test.bin")
+
+    val compiled = SimConfig.withFstWave.compile(new LabTestBench(instructions))
+
+    compiled.doSim { dut =>
+      val cd = dut.clockDomain.get
+      cd.forkStimulus(period = 10)
+      SimTimeout(10000) // Set a timeout for the simulation
+
+      println("--- Starting Multiplier Test ---")
+
+      // Wait for enough cycles for the multiplication and store to complete
+      // (approx. 4 for loads, 6 for mul, 1 for store, plus pipeline delays)
+      cd.waitSampling(200) 
+
+      // Verify memory content
+      val verificationAddress = 0 // Offset from dSram base address
+      val expectedValue = BigInt(35) // 5 * 7 = 35
+
+      dut.dSram.io.tb_readEnable #= true
+      dut.dSram.io.tb_readAddress #= verificationAddress
+      cd.waitSampling() // Wait one cycle for the read to complete
+      val actualValue = dut.dSram.io.tb_readData.toBigInt
+      dut.dSram.io.tb_readEnable #= false
+
+      println(s"Memory check at 0x80400000: Expected=0x${expectedValue.toString(16)}, Got=0x${actualValue.toString(16)}")
+      assert(actualValue == expectedValue, s"Multiplier test FAILED! Expected 0x${expectedValue.toString(16)}, but got 0x${actualValue.toString(16)}")
+      println("--- Multiplier Test PASSED ---")
+
+      // Optional: Dump memory for inspection
+      LabHelper.ramdump(
+        sram = dut.dSram,
+        vaddr = BigInt("80400000", 16),
+        size = 64,
+        filename = "bin/dsram_dump_multiplier_test.bin"
+      )(cd)
     }
   }
 

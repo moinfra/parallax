@@ -120,6 +120,7 @@ case class IQEntryAluInt(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
 //  Integer Multiplier IQ Entry (现在只处理 MUL)
 // =========================================================================
 case class IQEntryMul(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
+  val uop = RenamedUop(pCfg) // Add the uop field
 
   override def getEuType(): ExeUnitType.E = ExeUnitType.MUL_INT
 
@@ -143,6 +144,7 @@ case class IQEntryMul(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
   val mulDivCtrl      = MulDivCtrlFlags()
 
   override def setDefault(): this.type = {
+    uop.setDefault() // Initialize the uop field
     robPtr := 0; physDest.setDefault(); physDestIsFpr := False; writesToPhysReg := False
     useSrc1 := False; src1Data := B(0); src1Tag := 0; src1Ready := False; src1IsFpr := False
     useSrc2 := False; src2Data := B(0); src2Tag := 0; src2Ready := False; src2IsFpr := False
@@ -152,6 +154,7 @@ case class IQEntryMul(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
 
   def setDefaultForSim(): this.type = {
     import spinal.core.sim._
+    uop.setDefaultForSim() // Initialize the uop field for simulation
     robPtr #= 0; physDest.setDefaultForSim(); physDestIsFpr #= false; writesToPhysReg #= false
     useSrc1 #= false; src1Data #= 0; src1Tag #= 0; src1Ready #= false; src1IsFpr #= false
     useSrc2 #= false; src2Data #= 0; src2Tag #= 0; src2Ready #= false; src2IsFpr #= false
@@ -160,6 +163,7 @@ case class IQEntryMul(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
   }
   
   override def initFrom(renamedUop: RenamedUop, allocatedRobPtr: UInt): this.type = {
+    this.uop := renamedUop // Assign the entire renamedUop
     val decoded = renamedUop.decoded
     val renameInfo = renamedUop.rename
     this.robPtr := allocatedRobPtr

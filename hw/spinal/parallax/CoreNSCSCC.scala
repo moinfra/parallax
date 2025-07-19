@@ -255,6 +255,7 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
   val pCfg = PipelineConfig(
     aluEuCount = 1,
     lsuEuCount = 1,
+    mulEuCount = 1,
     dispatchWidth = 1,
     bruEuCount = 1,
     renameWidth = 1,
@@ -454,6 +455,7 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
 
       // Execution units
       new AluIntEuPlugin("AluIntEU", pCfg),
+      new MulEuPlugin("MulEU", pCfg, simDebug = simDebug),
       new BranchEuPlugin("BranchEU", pCfg),
       new LsuEuPlugin("LsuEU", pCfg, lsuConfig = lsuConfig, dParams, pCfg.forceMMIO),
       new AguPlugin(lsuConfig, supportPcRel = true, mmioRanges = Seq(uartMmioRange)),
