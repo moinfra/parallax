@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 49a99dae7b6ed938ae50042417514f24dcaeaaa8
 // Component : CoreNSCSCC
-// Git hash  : 89dc764e325f3859465b64823f61ec56f4ce525a
+// Git hash  : d2b3453dfe6c0a1e6762a8604adf55058b19a172
 
 `timescale 1ns/1ps
 
@@ -357,9 +357,6 @@ module CoreNSCSCC (
   wire       [4:0]    ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_archSrc2_idx;
   wire       [1:0]    ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_archSrc2_rtype;
   wire                ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_useArchSrc2;
-  wire       [4:0]    ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_archSrc3_idx;
-  wire       [1:0]    ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_archSrc3_rtype;
-  wire                ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_useArchSrc3;
   wire                ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_usePcForAddr;
   wire       [31:0]   ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_imm;
   wire       [2:0]    ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_immUsage;
@@ -395,13 +392,11 @@ module CoreNSCSCC (
   wire       [3:0]    ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_opType;
   wire       [1:0]    ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc1;
   wire       [1:0]    ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc2;
-  wire       [1:0]    ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3;
   wire       [1:0]    ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeDest;
   wire       [2:0]    ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_roundingMode;
   wire                ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_isIntegerDest;
   wire                ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_isSignedCvt;
   wire                ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fmaNegSrc1;
-  wire                ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fmaNegSrc3;
   wire       [4:0]    ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fcmpCond;
   wire       [13:0]   ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_csrCtrl_csrAddr;
   wire                ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_csrCtrl_isWrite;
@@ -425,8 +420,6 @@ module CoreNSCSCC (
   wire                ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physSrc1IsFpr;
   wire       [5:0]    ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physSrc2_idx;
   wire                ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physSrc2IsFpr;
-  wire       [5:0]    ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physSrc3_idx;
-  wire                ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physSrc3IsFpr;
   wire       [5:0]    ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physDest_idx;
   wire                ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physDestIsFpr;
   wire       [5:0]    ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx;
@@ -510,9 +503,6 @@ module CoreNSCSCC (
   wire       [4:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc2_idx;
   wire       [1:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc2_rtype;
   wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_useArchSrc2;
-  wire       [4:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc3_idx;
-  wire       [1:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc3_rtype;
-  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_useArchSrc3;
   wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_usePcForAddr;
   wire       [31:0]   RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_imm;
   wire       [2:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_immUsage;
@@ -548,13 +538,11 @@ module CoreNSCSCC (
   wire       [3:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_opType;
   wire       [1:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc1;
   wire       [1:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc2;
-  wire       [1:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc3;
   wire       [1:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeDest;
   wire       [2:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_roundingMode;
   wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_isIntegerDest;
   wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_isSignedCvt;
   wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fmaNegSrc1;
-  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fmaNegSrc3;
   wire       [4:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fcmpCond;
   wire       [13:0]   RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_csrAddr;
   wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_isWrite;
@@ -578,8 +566,6 @@ module CoreNSCSCC (
   wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc1IsFpr;
   wire       [5:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc2_idx;
   wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc2IsFpr;
-  wire       [5:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc3_idx;
-  wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc3IsFpr;
   wire       [5:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physDest_idx;
   wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physDestIsFpr;
   wire       [5:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_oldPhysDest_idx;
@@ -654,9 +640,6 @@ module CoreNSCSCC (
   wire       [4:0]    lA32RSimpleDecoder_1_io_decodedUop_archSrc2_idx;
   wire       [1:0]    lA32RSimpleDecoder_1_io_decodedUop_archSrc2_rtype;
   wire                lA32RSimpleDecoder_1_io_decodedUop_useArchSrc2;
-  wire       [4:0]    lA32RSimpleDecoder_1_io_decodedUop_archSrc3_idx;
-  wire       [1:0]    lA32RSimpleDecoder_1_io_decodedUop_archSrc3_rtype;
-  wire                lA32RSimpleDecoder_1_io_decodedUop_useArchSrc3;
   wire                lA32RSimpleDecoder_1_io_decodedUop_usePcForAddr;
   wire       [31:0]   lA32RSimpleDecoder_1_io_decodedUop_imm;
   wire       [2:0]    lA32RSimpleDecoder_1_io_decodedUop_immUsage;
@@ -692,13 +675,11 @@ module CoreNSCSCC (
   wire       [3:0]    lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_opType;
   wire       [1:0]    lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_fpSizeSrc1;
   wire       [1:0]    lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_fpSizeSrc2;
-  wire       [1:0]    lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_fpSizeSrc3;
   wire       [1:0]    lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_fpSizeDest;
   wire       [2:0]    lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_roundingMode;
   wire                lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_isIntegerDest;
   wire                lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_isSignedCvt;
   wire                lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_fmaNegSrc1;
-  wire                lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_fmaNegSrc3;
   wire       [4:0]    lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_fcmpCond;
   wire       [13:0]   lA32RSimpleDecoder_1_io_decodedUop_csrCtrl_csrAddr;
   wire                lA32RSimpleDecoder_1_io_decodedUop_csrCtrl_isWrite;
@@ -1379,12 +1360,12 @@ module CoreNSCSCC (
   reg        [31:0]   _zz__zz_BranchEU_BranchEuPlugin_gprReadPorts_1_rsp;
   reg        [31:0]   _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp;
   reg        [31:0]   _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp;
-  wire       [2:0]    _zz_62;
-  reg        [2:0]    _zz_63;
-  wire       [2:0]    _zz_64;
-  reg        [2:0]    _zz_65;
-  wire       [2:0]    _zz_66;
-  wire       [0:0]    _zz_67;
+  wire       [2:0]    _zz_59;
+  reg        [2:0]    _zz_60;
+  wire       [2:0]    _zz_61;
+  reg        [2:0]    _zz_62;
+  wire       [2:0]    _zz_63;
+  wire       [0:0]    _zz_64;
   wire       [3:0]    _zz__zz_when_PhysicalRegFile_l136_3;
   reg        [5:0]    _zz__zz_when_PhysicalRegFile_l136_1;
   reg        [31:0]   _zz__zz_PhysicalRegFilePlugin_logic_regFile_0;
@@ -1577,9 +1558,6 @@ module CoreNSCSCC (
   wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_idx;
   wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_rtype;
   wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc2;
-  wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_idx;
-  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc3;
   wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_usePcForAddr;
   wire       [31:0]   s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_imm;
   wire       [2:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage;
@@ -1615,13 +1593,11 @@ module CoreNSCSCC (
   wire       [3:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_opType;
   wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1;
   wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2;
-  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3;
   wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeDest;
   wire       [2:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_roundingMode;
   wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_isIntegerDest;
   wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_isSignedCvt;
   wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fmaNegSrc1;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fmaNegSrc3;
   wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fcmpCond;
   wire       [13:0]   s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_csrCtrl_csrAddr;
   wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_csrCtrl_isWrite;
@@ -1645,8 +1621,6 @@ module CoreNSCSCC (
   wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc1IsFpr;
   wire       [5:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2_idx;
   wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2IsFpr;
-  wire       [5:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc3_idx;
-  wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc3IsFpr;
   wire       [5:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physDest_idx;
   wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physDestIsFpr;
   wire       [5:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_oldPhysDest_idx;
@@ -1674,9 +1648,6 @@ module CoreNSCSCC (
   wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_idx;
   wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_rtype;
   wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc2;
-  wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_idx;
-  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_rtype;
-  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc3;
   wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_usePcForAddr;
   wire       [31:0]   s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_imm;
   wire       [2:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_immUsage;
@@ -1712,13 +1683,11 @@ module CoreNSCSCC (
   wire       [3:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_opType;
   wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1;
   wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2;
-  wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3;
   wire       [1:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeDest;
   wire       [2:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_roundingMode;
   wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_isIntegerDest;
   wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_isSignedCvt;
   wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fmaNegSrc1;
-  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fmaNegSrc3;
   wire       [4:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fcmpCond;
   wire       [13:0]   s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_csrAddr;
   wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_isWrite;
@@ -1742,8 +1711,6 @@ module CoreNSCSCC (
   wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc1IsFpr;
   wire       [5:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc2_idx;
   wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc2IsFpr;
-  wire       [5:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc3_idx;
-  wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc3IsFpr;
   wire       [5:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physDest_idx;
   wire                s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physDestIsFpr;
   wire       [5:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_oldPhysDest_idx;
@@ -1772,9 +1739,6 @@ module CoreNSCSCC (
   reg        [4:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_idx;
   reg        [1:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_rtype;
   reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc2;
-  reg        [4:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_idx;
-  reg        [1:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype;
-  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc3;
   reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_usePcForAddr;
   reg        [31:0]   s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_imm;
   reg        [2:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_immUsage;
@@ -1810,13 +1774,11 @@ module CoreNSCSCC (
   reg        [3:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_opType;
   reg        [1:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc1;
   reg        [1:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2;
-  reg        [1:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3;
   reg        [1:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeDest;
   reg        [2:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_roundingMode;
   reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_isIntegerDest;
   reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_isSignedCvt;
   reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fmaNegSrc1;
-  reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fmaNegSrc3;
   reg        [4:0]    s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fcmpCond;
   reg        [13:0]   s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_csrAddr;
   reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_isWrite;
@@ -1851,9 +1813,6 @@ module CoreNSCSCC (
   reg        [4:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_idx;
   reg        [1:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_rtype;
   reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc2;
-  reg        [4:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_idx;
-  reg        [1:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc3;
   reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_usePcForAddr;
   reg        [31:0]   s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_imm;
   reg        [2:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_immUsage;
@@ -1889,13 +1848,11 @@ module CoreNSCSCC (
   reg        [3:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_opType;
   reg        [1:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc1;
   reg        [1:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2;
-  reg        [1:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3;
   reg        [1:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeDest;
   reg        [2:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_roundingMode;
   reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_isIntegerDest;
   reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_isSignedCvt;
   reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fmaNegSrc1;
-  reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fmaNegSrc3;
   reg        [4:0]    s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fcmpCond;
   reg        [13:0]   s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_csrAddr;
   reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_isWrite;
@@ -1948,9 +1905,6 @@ module CoreNSCSCC (
   reg        [4:0]    s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_idx;
   reg        [1:0]    s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_rtype;
   reg                 s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc2;
-  reg        [4:0]    s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_idx;
-  reg        [1:0]    s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype;
-  reg                 s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc3;
   reg                 s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_usePcForAddr;
   reg        [31:0]   s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_imm;
   reg        [2:0]    s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage;
@@ -1986,13 +1940,11 @@ module CoreNSCSCC (
   reg        [3:0]    s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_opType;
   reg        [1:0]    s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1;
   reg        [1:0]    s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2;
-  reg        [1:0]    s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3;
   reg        [1:0]    s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeDest;
   reg        [2:0]    s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_roundingMode;
   reg                 s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_isIntegerDest;
   reg                 s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_isSignedCvt;
   reg                 s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fmaNegSrc1;
-  reg                 s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fmaNegSrc3;
   reg        [4:0]    s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fcmpCond;
   reg        [13:0]   s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_csrCtrl_csrAddr;
   reg                 s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_csrCtrl_isWrite;
@@ -2016,8 +1968,6 @@ module CoreNSCSCC (
   reg                 s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc1IsFpr;
   reg        [5:0]    s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2_idx;
   reg                 s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2IsFpr;
-  reg        [5:0]    s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc3_idx;
-  reg                 s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc3IsFpr;
   reg        [5:0]    s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physDest_idx;
   reg                 s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physDestIsFpr;
   reg        [5:0]    s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_oldPhysDest_idx;
@@ -2050,9 +2000,6 @@ module CoreNSCSCC (
   wire       [4:0]    s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_idx;
   wire       [1:0]    s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_rtype;
   wire                s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc2;
-  wire       [4:0]    s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_idx;
-  wire       [1:0]    s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype;
-  wire                s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc3;
   wire                s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_usePcForAddr;
   wire       [31:0]   s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_imm;
   wire       [2:0]    s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_immUsage;
@@ -2088,13 +2035,11 @@ module CoreNSCSCC (
   wire       [3:0]    s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_opType;
   wire       [1:0]    s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc1;
   wire       [1:0]    s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2;
-  wire       [1:0]    s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3;
   wire       [1:0]    s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeDest;
   wire       [2:0]    s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_roundingMode;
   wire                s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_isIntegerDest;
   wire                s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_isSignedCvt;
   wire                s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fmaNegSrc1;
-  wire                s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fmaNegSrc3;
   wire       [4:0]    s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fcmpCond;
   wire       [13:0]   s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_csrAddr;
   wire                s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_isWrite;
@@ -2829,9 +2774,6 @@ module CoreNSCSCC (
   reg        [4:0]    CommitPlugin_logic_s1_s1_headUop_decoded_archSrc2_idx;
   reg        [1:0]    CommitPlugin_logic_s1_s1_headUop_decoded_archSrc2_rtype;
   reg                 CommitPlugin_logic_s1_s1_headUop_decoded_useArchSrc2;
-  reg        [4:0]    CommitPlugin_logic_s1_s1_headUop_decoded_archSrc3_idx;
-  reg        [1:0]    CommitPlugin_logic_s1_s1_headUop_decoded_archSrc3_rtype;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_useArchSrc3;
   reg                 CommitPlugin_logic_s1_s1_headUop_decoded_usePcForAddr;
   reg        [31:0]   CommitPlugin_logic_s1_s1_headUop_decoded_imm;
   reg        [2:0]    CommitPlugin_logic_s1_s1_headUop_decoded_immUsage;
@@ -2867,13 +2809,11 @@ module CoreNSCSCC (
   reg        [3:0]    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_opType;
   reg        [1:0]    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc1;
   reg        [1:0]    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc2;
-  reg        [1:0]    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc3;
   reg        [1:0]    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeDest;
   reg        [2:0]    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_roundingMode;
   reg                 CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_isIntegerDest;
   reg                 CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_isSignedCvt;
   reg                 CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fmaNegSrc1;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fmaNegSrc3;
   reg        [4:0]    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fcmpCond;
   reg        [13:0]   CommitPlugin_logic_s1_s1_headUop_decoded_csrCtrl_csrAddr;
   reg                 CommitPlugin_logic_s1_s1_headUop_decoded_csrCtrl_isWrite;
@@ -2897,8 +2837,6 @@ module CoreNSCSCC (
   reg                 CommitPlugin_logic_s1_s1_headUop_rename_physSrc1IsFpr;
   reg        [5:0]    CommitPlugin_logic_s1_s1_headUop_rename_physSrc2_idx;
   reg                 CommitPlugin_logic_s1_s1_headUop_rename_physSrc2IsFpr;
-  reg        [5:0]    CommitPlugin_logic_s1_s1_headUop_rename_physSrc3_idx;
-  reg                 CommitPlugin_logic_s1_s1_headUop_rename_physSrc3IsFpr;
   reg        [5:0]    CommitPlugin_logic_s1_s1_headUop_rename_physDest_idx;
   reg                 CommitPlugin_logic_s1_s1_headUop_rename_physDestIsFpr;
   reg        [5:0]    CommitPlugin_logic_s1_s1_headUop_rename_oldPhysDest_idx;
@@ -2938,9 +2876,6 @@ module CoreNSCSCC (
   wire       [4:0]    DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_idx;
   wire       [1:0]    DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype;
   wire                DecodePlugin_logic_decodedUopsOutputVec_0_useArchSrc2;
-  wire       [4:0]    DecodePlugin_logic_decodedUopsOutputVec_0_archSrc3_idx;
-  wire       [1:0]    DecodePlugin_logic_decodedUopsOutputVec_0_archSrc3_rtype;
-  wire                DecodePlugin_logic_decodedUopsOutputVec_0_useArchSrc3;
   wire                DecodePlugin_logic_decodedUopsOutputVec_0_usePcForAddr;
   wire       [31:0]   DecodePlugin_logic_decodedUopsOutputVec_0_imm;
   wire       [2:0]    DecodePlugin_logic_decodedUopsOutputVec_0_immUsage;
@@ -2976,13 +2911,11 @@ module CoreNSCSCC (
   wire       [3:0]    DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_opType;
   wire       [1:0]    DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc1;
   wire       [1:0]    DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc2;
-  wire       [1:0]    DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc3;
   wire       [1:0]    DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeDest;
   wire       [2:0]    DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_roundingMode;
   wire                DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_isIntegerDest;
   wire                DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_isSignedCvt;
   wire                DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fmaNegSrc1;
-  wire                DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fmaNegSrc3;
   wire       [4:0]    DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fcmpCond;
   wire       [13:0]   DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_csrAddr;
   wire                DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_isWrite;
@@ -3009,8 +2942,8 @@ module CoreNSCSCC (
   wire       [1:0]    _zz_DecodePlugin_logic_decodedUopsOutputVec_0_archDest_rtype;
   wire                _zz_DecodePlugin_logic_decodedUopsOutputVec_0_writeArchDestEn;
   wire       [1:0]    _zz_DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_rtype;
+  wire       [4:0]    _zz_DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_idx;
   wire       [1:0]    _zz_DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype;
-  wire       [1:0]    _zz_DecodePlugin_logic_decodedUopsOutputVec_0_archSrc3_rtype;
   wire       [2:0]    _zz_DecodePlugin_logic_decodedUopsOutputVec_0_immUsage;
   wire       [1:0]    _zz_DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_logicOp;
   wire       [1:0]    _zz_DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_size;
@@ -3018,17 +2951,19 @@ module CoreNSCSCC (
   wire       [1:0]    _zz_DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype;
   wire       [1:0]    _zz_DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc1;
   wire       [1:0]    _zz_DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc2;
-  wire       [1:0]    _zz_DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc3;
   wire       [1:0]    _zz_DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeDest;
   reg        [1:0]    _zz_DecodePlugin_logic_decodedUopsOutputVec_0_decodeExceptionCode;
   reg                 _zz_DecodePlugin_logic_decodedUopsOutputVec_0_hasDecodeException;
   reg                 _zz_DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_isTaken;
   reg        [31:0]   _zz_DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_target;
   reg                 _zz_DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_wasPredicted;
-  wire                when_DecodePlugin_l64;
-  wire                when_DecodePlugin_l77;
-  wire                when_DecodePlugin_l83;
-  wire                when_DecodePlugin_l115;
+  (* MARK_DEBUG = "TRUE" , DONT_TOUCH = "TRUE" *) reg        [4:0]    DecodePlugin_logic_debugLA32RDecodedPhysSrc2_idx;
+  (* MARK_DEBUG = "TRUE" , DONT_TOUCH = "TRUE" *) reg        [1:0]    DecodePlugin_logic_debugLA32RDecodedPhysSrc2_rtype;
+  (* MARK_DEBUG = "TRUE" , DONT_TOUCH = "TRUE" *) reg        [31:0]   DecodePlugin_logic_debugLA32RRawInstruction;
+  wire                when_DecodePlugin_l66;
+  wire                when_DecodePlugin_l79;
+  wire                when_DecodePlugin_l85;
+  wire                when_DecodePlugin_l117;
   wire                _zz_21;
   wire                _zz_22;
   wire                _zz_23;
@@ -3041,9 +2976,6 @@ module CoreNSCSCC (
   wire                _zz_30;
   wire                _zz_31;
   wire                _zz_32;
-  wire                _zz_33;
-  wire                _zz_34;
-  wire                _zz_35;
   wire                RenamePlugin_logic_s2_logic_allocationOk;
   wire                when_RenamePlugin_l82;
   wire                s2_RobAlloc_haltRequest_RenamePlugin_l83;
@@ -3062,9 +2994,6 @@ module CoreNSCSCC (
   wire       [4:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc2_idx;
   wire       [1:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc2_rtype;
   wire                RobAllocPlugin_logic_allocatedUops_0_decoded_useArchSrc2;
-  wire       [4:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc3_idx;
-  wire       [1:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc3_rtype;
-  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_useArchSrc3;
   wire                RobAllocPlugin_logic_allocatedUops_0_decoded_usePcForAddr;
   wire       [31:0]   RobAllocPlugin_logic_allocatedUops_0_decoded_imm;
   wire       [2:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_immUsage;
@@ -3100,13 +3029,11 @@ module CoreNSCSCC (
   wire       [3:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_opType;
   wire       [1:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc1;
   wire       [1:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc2;
-  wire       [1:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc3;
   wire       [1:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeDest;
   wire       [2:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_roundingMode;
   wire                RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_isIntegerDest;
   wire                RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_isSignedCvt;
   wire                RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fmaNegSrc1;
-  wire                RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fmaNegSrc3;
   wire       [4:0]    RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fcmpCond;
   wire       [13:0]   RobAllocPlugin_logic_allocatedUops_0_decoded_csrCtrl_csrAddr;
   wire                RobAllocPlugin_logic_allocatedUops_0_decoded_csrCtrl_isWrite;
@@ -3130,8 +3057,6 @@ module CoreNSCSCC (
   wire                RobAllocPlugin_logic_allocatedUops_0_rename_physSrc1IsFpr;
   wire       [5:0]    RobAllocPlugin_logic_allocatedUops_0_rename_physSrc2_idx;
   wire                RobAllocPlugin_logic_allocatedUops_0_rename_physSrc2IsFpr;
-  wire       [5:0]    RobAllocPlugin_logic_allocatedUops_0_rename_physSrc3_idx;
-  wire                RobAllocPlugin_logic_allocatedUops_0_rename_physSrc3IsFpr;
   wire       [5:0]    RobAllocPlugin_logic_allocatedUops_0_rename_physDest_idx;
   wire                RobAllocPlugin_logic_allocatedUops_0_rename_physDestIsFpr;
   wire       [5:0]    RobAllocPlugin_logic_allocatedUops_0_rename_oldPhysDest_idx;
@@ -3163,9 +3088,6 @@ module CoreNSCSCC (
   reg        [4:0]    DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_archSrc2_idx;
   reg        [1:0]    DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_archSrc2_rtype;
   reg                 DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_useArchSrc2;
-  reg        [4:0]    DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_archSrc3_idx;
-  reg        [1:0]    DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_archSrc3_rtype;
-  reg                 DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_useArchSrc3;
   reg                 DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_usePcForAddr;
   reg        [31:0]   DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_imm;
   reg        [2:0]    DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_immUsage;
@@ -3201,13 +3123,11 @@ module CoreNSCSCC (
   reg        [3:0]    DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_opType;
   reg        [1:0]    DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fpSizeSrc1;
   reg        [1:0]    DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fpSizeSrc2;
-  reg        [1:0]    DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3;
   reg        [1:0]    DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fpSizeDest;
   reg        [2:0]    DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_roundingMode;
   reg                 DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_isIntegerDest;
   reg                 DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_isSignedCvt;
   reg                 DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fmaNegSrc1;
-  reg                 DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fmaNegSrc3;
   reg        [4:0]    DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fcmpCond;
   reg        [13:0]   DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_csrCtrl_csrAddr;
   reg                 DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_csrCtrl_isWrite;
@@ -3231,8 +3151,6 @@ module CoreNSCSCC (
   reg                 DispatchPlugin_logic_iqRegs_0_1_payload_uop_rename_physSrc1IsFpr;
   reg        [5:0]    DispatchPlugin_logic_iqRegs_0_1_payload_uop_rename_physSrc2_idx;
   reg                 DispatchPlugin_logic_iqRegs_0_1_payload_uop_rename_physSrc2IsFpr;
-  reg        [5:0]    DispatchPlugin_logic_iqRegs_0_1_payload_uop_rename_physSrc3_idx;
-  reg                 DispatchPlugin_logic_iqRegs_0_1_payload_uop_rename_physSrc3IsFpr;
   reg        [5:0]    DispatchPlugin_logic_iqRegs_0_1_payload_uop_rename_physDest_idx;
   reg                 DispatchPlugin_logic_iqRegs_0_1_payload_uop_rename_physDestIsFpr;
   reg        [5:0]    DispatchPlugin_logic_iqRegs_0_1_payload_uop_rename_oldPhysDest_idx;
@@ -3262,9 +3180,6 @@ module CoreNSCSCC (
   wire       [4:0]    DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_archSrc2_idx;
   wire       [1:0]    DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_archSrc2_rtype;
   wire                DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_useArchSrc2;
-  wire       [4:0]    DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_archSrc3_idx;
-  wire       [1:0]    DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_archSrc3_rtype;
-  wire                DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_useArchSrc3;
   wire                DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_usePcForAddr;
   wire       [31:0]   DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_imm;
   wire       [2:0]    DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_immUsage;
@@ -3300,13 +3215,11 @@ module CoreNSCSCC (
   wire       [3:0]    DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_opType;
   wire       [1:0]    DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc1;
   wire       [1:0]    DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc2;
-  wire       [1:0]    DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc3;
   wire       [1:0]    DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeDest;
   wire       [2:0]    DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_roundingMode;
   wire                DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_isIntegerDest;
   wire                DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_isSignedCvt;
   wire                DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fmaNegSrc1;
-  wire                DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fmaNegSrc3;
   wire       [4:0]    DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fcmpCond;
   wire       [13:0]   DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_csrCtrl_csrAddr;
   wire                DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_csrCtrl_isWrite;
@@ -3330,8 +3243,6 @@ module CoreNSCSCC (
   wire                DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_rename_physSrc1IsFpr;
   wire       [5:0]    DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_rename_physSrc2_idx;
   wire                DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_rename_physSrc2IsFpr;
-  wire       [5:0]    DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_rename_physSrc3_idx;
-  wire                DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_rename_physSrc3IsFpr;
   wire       [5:0]    DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_rename_physDest_idx;
   wire                DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_rename_physDestIsFpr;
   wire       [5:0]    DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_rename_oldPhysDest_idx;
@@ -3362,9 +3273,6 @@ module CoreNSCSCC (
   reg        [4:0]    DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_archSrc2_idx;
   reg        [1:0]    DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_archSrc2_rtype;
   reg                 DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_useArchSrc2;
-  reg        [4:0]    DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_archSrc3_idx;
-  reg        [1:0]    DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_archSrc3_rtype;
-  reg                 DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_useArchSrc3;
   reg                 DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_usePcForAddr;
   reg        [31:0]   DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_imm;
   reg        [2:0]    DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_immUsage;
@@ -3400,13 +3308,11 @@ module CoreNSCSCC (
   reg        [3:0]    DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_opType;
   reg        [1:0]    DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fpSizeSrc1;
   reg        [1:0]    DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fpSizeSrc2;
-  reg        [1:0]    DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3;
   reg        [1:0]    DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fpSizeDest;
   reg        [2:0]    DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_roundingMode;
   reg                 DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_isIntegerDest;
   reg                 DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_isSignedCvt;
   reg                 DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fmaNegSrc1;
-  reg                 DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fmaNegSrc3;
   reg        [4:0]    DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fcmpCond;
   reg        [13:0]   DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_csrCtrl_csrAddr;
   reg                 DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_csrCtrl_isWrite;
@@ -3430,8 +3336,6 @@ module CoreNSCSCC (
   reg                 DispatchPlugin_logic_iqRegs_1_1_payload_uop_rename_physSrc1IsFpr;
   reg        [5:0]    DispatchPlugin_logic_iqRegs_1_1_payload_uop_rename_physSrc2_idx;
   reg                 DispatchPlugin_logic_iqRegs_1_1_payload_uop_rename_physSrc2IsFpr;
-  reg        [5:0]    DispatchPlugin_logic_iqRegs_1_1_payload_uop_rename_physSrc3_idx;
-  reg                 DispatchPlugin_logic_iqRegs_1_1_payload_uop_rename_physSrc3IsFpr;
   reg        [5:0]    DispatchPlugin_logic_iqRegs_1_1_payload_uop_rename_physDest_idx;
   reg                 DispatchPlugin_logic_iqRegs_1_1_payload_uop_rename_physDestIsFpr;
   reg        [5:0]    DispatchPlugin_logic_iqRegs_1_1_payload_uop_rename_oldPhysDest_idx;
@@ -3461,9 +3365,6 @@ module CoreNSCSCC (
   wire       [4:0]    DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_archSrc2_idx;
   wire       [1:0]    DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_archSrc2_rtype;
   wire                DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_useArchSrc2;
-  wire       [4:0]    DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_archSrc3_idx;
-  wire       [1:0]    DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_archSrc3_rtype;
-  wire                DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_useArchSrc3;
   wire                DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_usePcForAddr;
   wire       [31:0]   DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_imm;
   wire       [2:0]    DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_immUsage;
@@ -3499,13 +3400,11 @@ module CoreNSCSCC (
   wire       [3:0]    DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_opType;
   wire       [1:0]    DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc1;
   wire       [1:0]    DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc2;
-  wire       [1:0]    DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc3;
   wire       [1:0]    DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeDest;
   wire       [2:0]    DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_roundingMode;
   wire                DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_isIntegerDest;
   wire                DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_isSignedCvt;
   wire                DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fmaNegSrc1;
-  wire                DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fmaNegSrc3;
   wire       [4:0]    DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fcmpCond;
   wire       [13:0]   DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_csrCtrl_csrAddr;
   wire                DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_csrCtrl_isWrite;
@@ -3529,8 +3428,6 @@ module CoreNSCSCC (
   wire                DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_rename_physSrc1IsFpr;
   wire       [5:0]    DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_rename_physSrc2_idx;
   wire                DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_rename_physSrc2IsFpr;
-  wire       [5:0]    DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_rename_physSrc3_idx;
-  wire                DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_rename_physSrc3IsFpr;
   wire       [5:0]    DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_rename_physDest_idx;
   wire                DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_rename_physDestIsFpr;
   wire       [5:0]    DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_rename_oldPhysDest_idx;
@@ -3561,9 +3458,6 @@ module CoreNSCSCC (
   reg        [4:0]    DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_archSrc2_idx;
   reg        [1:0]    DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_archSrc2_rtype;
   reg                 DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_useArchSrc2;
-  reg        [4:0]    DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_archSrc3_idx;
-  reg        [1:0]    DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_archSrc3_rtype;
-  reg                 DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_useArchSrc3;
   reg                 DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_usePcForAddr;
   reg        [31:0]   DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_imm;
   reg        [2:0]    DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_immUsage;
@@ -3599,13 +3493,11 @@ module CoreNSCSCC (
   reg        [3:0]    DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_opType;
   reg        [1:0]    DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fpSizeSrc1;
   reg        [1:0]    DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fpSizeSrc2;
-  reg        [1:0]    DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3;
   reg        [1:0]    DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fpSizeDest;
   reg        [2:0]    DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_roundingMode;
   reg                 DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_isIntegerDest;
   reg                 DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_isSignedCvt;
   reg                 DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fmaNegSrc1;
-  reg                 DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fmaNegSrc3;
   reg        [4:0]    DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fcmpCond;
   reg        [13:0]   DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_csrCtrl_csrAddr;
   reg                 DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_csrCtrl_isWrite;
@@ -3629,8 +3521,6 @@ module CoreNSCSCC (
   reg                 DispatchPlugin_logic_iqRegs_2_1_payload_uop_rename_physSrc1IsFpr;
   reg        [5:0]    DispatchPlugin_logic_iqRegs_2_1_payload_uop_rename_physSrc2_idx;
   reg                 DispatchPlugin_logic_iqRegs_2_1_payload_uop_rename_physSrc2IsFpr;
-  reg        [5:0]    DispatchPlugin_logic_iqRegs_2_1_payload_uop_rename_physSrc3_idx;
-  reg                 DispatchPlugin_logic_iqRegs_2_1_payload_uop_rename_physSrc3IsFpr;
   reg        [5:0]    DispatchPlugin_logic_iqRegs_2_1_payload_uop_rename_physDest_idx;
   reg                 DispatchPlugin_logic_iqRegs_2_1_payload_uop_rename_physDestIsFpr;
   reg        [5:0]    DispatchPlugin_logic_iqRegs_2_1_payload_uop_rename_oldPhysDest_idx;
@@ -3660,9 +3550,6 @@ module CoreNSCSCC (
   wire       [4:0]    DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_archSrc2_idx;
   wire       [1:0]    DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_archSrc2_rtype;
   wire                DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_useArchSrc2;
-  wire       [4:0]    DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_archSrc3_idx;
-  wire       [1:0]    DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_archSrc3_rtype;
-  wire                DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_useArchSrc3;
   wire                DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_usePcForAddr;
   wire       [31:0]   DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_imm;
   wire       [2:0]    DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_immUsage;
@@ -3698,13 +3585,11 @@ module CoreNSCSCC (
   wire       [3:0]    DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_opType;
   wire       [1:0]    DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc1;
   wire       [1:0]    DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc2;
-  wire       [1:0]    DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc3;
   wire       [1:0]    DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeDest;
   wire       [2:0]    DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_roundingMode;
   wire                DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_isIntegerDest;
   wire                DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_isSignedCvt;
   wire                DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fmaNegSrc1;
-  wire                DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fmaNegSrc3;
   wire       [4:0]    DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fcmpCond;
   wire       [13:0]   DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_csrCtrl_csrAddr;
   wire                DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_csrCtrl_isWrite;
@@ -3728,8 +3613,6 @@ module CoreNSCSCC (
   wire                DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_rename_physSrc1IsFpr;
   wire       [5:0]    DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_rename_physSrc2_idx;
   wire                DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_rename_physSrc2IsFpr;
-  wire       [5:0]    DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_rename_physSrc3_idx;
-  wire                DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_rename_physSrc3IsFpr;
   wire       [5:0]    DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_rename_physDest_idx;
   wire                DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_rename_physDestIsFpr;
   wire       [5:0]    DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_rename_oldPhysDest_idx;
@@ -3867,7 +3750,7 @@ module CoreNSCSCC (
   wire       [2:0]    _zz_io_iqEntryIn_payload_immUsage;
   wire                s2_Execute_isFiring;
   (* mark_debug = "TRUE" , keep , syn_keep *) reg        [31:0]   io_resultOut_payload_data_regNextWhen /* synthesis syn_keep = 1 */ ;
-  wire       [2:0]    _zz_36;
+  wire       [2:0]    _zz_33;
   wire                _zz_AluIntEU_AluIntEuPlugin_logicPhase_isFlushed;
   wire       [2:0]    _zz_AluIntEU_AluIntEuPlugin_logicPhase_isFlushed_1;
   wire                _zz_AluIntEU_AluIntEuPlugin_logicPhase_isFlushed_2;
@@ -3891,7 +3774,7 @@ module CoreNSCSCC (
   reg        [31:0]   _zz_BpuPipelinePlugin_updatePortIn_payload_target_2;
   reg                 _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_isMispredictedBranch_1;
-  wire                _zz_37;
+  wire                _zz_34;
   wire                s2_Mispredict_isFiring;
   wire                BpuPipelinePlugin_updatePortIn_fire;
   wire                _zz_BranchEU_BranchEuPlugin_logicPhase_isFlushed;
@@ -4223,11 +4106,11 @@ module CoreNSCSCC (
   wire                _zz_LoadQueuePlugin_logic_loadQueue_pushIdx_2;
   wire       [1:0]    LoadQueuePlugin_logic_loadQueue_pushIdx;
   wire                LoadQueuePlugin_logic_pushCmd_fire;
-  wire       [3:0]    _zz_38;
+  wire       [3:0]    _zz_35;
+  wire                _zz_36;
+  wire                _zz_37;
+  wire                _zz_38;
   wire                _zz_39;
-  wire                _zz_40;
-  wire                _zz_41;
-  wire                _zz_42;
   wire                _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible;
   wire       [2:0]    _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_1;
   wire                _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_2;
@@ -4343,14 +4226,14 @@ module CoreNSCSCC (
   wire                _zz_when_PhysicalRegFile_l136;
   wire       [5:0]    _zz_when_PhysicalRegFile_l136_1;
   wire       [31:0]   _zz_PhysicalRegFilePlugin_logic_regFile_0;
+  wire       [2:0]    _zz_40;
+  wire       [2:0]    _zz_41;
+  wire       [2:0]    _zz_42;
   wire       [2:0]    _zz_43;
   wire       [2:0]    _zz_44;
   wire       [2:0]    _zz_45;
   wire       [2:0]    _zz_46;
   wire       [2:0]    _zz_47;
-  wire       [2:0]    _zz_48;
-  wire       [2:0]    _zz_49;
-  wire       [2:0]    _zz_50;
   wire       [3:0]    _zz_when_PhysicalRegFile_l136_2;
   wire       [3:0]    _zz_when_PhysicalRegFile_l136_3;
   wire                _zz_when_PhysicalRegFile_l136_4;
@@ -4360,7 +4243,7 @@ module CoreNSCSCC (
   wire                _zz_PhysicalRegFilePlugin_logic_regFile_0_2;
   wire       [1:0]    _zz_PhysicalRegFilePlugin_logic_regFile_0_3;
   wire                when_PhysicalRegFile_l136;
-  wire       [63:0]   _zz_51;
+  wire       [63:0]   _zz_48;
   wire                when_PhysicalRegFile_l141;
   wire       [2:0]    _zz_when_PhysicalRegFile_l150;
   wire       [2:0]    _zz_when_PhysicalRegFile_l150_1;
@@ -4371,7 +4254,7 @@ module CoreNSCSCC (
   wire       [2:0]    _zz_when_PhysicalRegFile_l150_6;
   wire       [2:0]    _zz_when_PhysicalRegFile_l150_7;
   wire                when_PhysicalRegFile_l150;
-  wire       [7:0]    _zz_52;
+  wire       [7:0]    _zz_49;
   reg                 StoreBufferPlugin_logic_slots_0_isFlush;
   reg        [31:0]   StoreBufferPlugin_logic_slots_0_addr;
   reg        [31:0]   StoreBufferPlugin_logic_slots_0_data;
@@ -4572,9 +4455,9 @@ module CoreNSCSCC (
   wire                StoreBufferPlugin_logic_validFall_2;
   wire                StoreBufferPlugin_logic_validFall_3;
   wire                StoreBufferPlugin_logic_canPush;
-  wire                _zz_53;
-  wire                _zz_54;
-  wire       [1:0]    _zz_55;
+  wire                _zz_50;
+  wire                _zz_51;
+  wire       [1:0]    _zz_52;
   wire                _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush;
   wire       [31:0]   _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr;
   wire       [31:0]   _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data;
@@ -4584,11 +4467,11 @@ module CoreNSCSCC (
   wire                _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO;
   wire                _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException;
   wire       [7:0]    _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode;
-  wire       [3:0]    _zz_56;
+  wire       [3:0]    _zz_53;
+  wire                _zz_54;
+  wire                _zz_55;
+  wire                _zz_56;
   wire                _zz_57;
-  wire                _zz_58;
-  wire                _zz_59;
-  wire                _zz_60;
   wire                StoreBufferPlugin_logic_sharedWriteCond;
   wire                StoreBufferPlugin_logic_canPopNormalOp;
   wire                StoreBufferPlugin_logic_canPopFlushOp;
@@ -5127,7 +5010,7 @@ module CoreNSCSCC (
   reg        [2:0]    SimpleFetchPipelinePlugin_logic_fsm_stateReg;
   reg        [2:0]    SimpleFetchPipelinePlugin_logic_fsm_stateNext;
   wire                io_output_fire;
-  wire       [31:0]   _zz_61;
+  wire       [31:0]   _zz_58;
   wire                when_SimpleFetchPipelinePlugin_l340;
   wire                SimpleFetchPipelinePlugin_logic_fsm_onExit_BOOT;
   wire                SimpleFetchPipelinePlugin_logic_fsm_onExit_IDLE;
@@ -5173,7 +5056,6 @@ module CoreNSCSCC (
   reg [39:0] s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archDest_rtype_string;
   reg [39:0] s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc1_rtype_string;
   reg [39:0] s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_rtype_string;
-  reg [39:0] s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype_string;
   reg [103:0] s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage_string;
   reg [39:0] s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_aluCtrl_logicOp_string;
   reg [7:0] s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_size_string;
@@ -5181,7 +5063,6 @@ module CoreNSCSCC (
   reg [39:0] s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_linkReg_rtype_string;
   reg [7:0] s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1_string;
   reg [7:0] s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string;
   reg [7:0] s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeDest_string;
   reg [95:0] s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_decodeExceptionCode_string;
   reg [87:0] s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode_string;
@@ -5190,7 +5071,6 @@ module CoreNSCSCC (
   reg [39:0] s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archDest_rtype_string;
   reg [39:0] s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc1_rtype_string;
   reg [39:0] s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_rtype_string;
-  reg [39:0] s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_rtype_string;
   reg [103:0] s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_immUsage_string;
   reg [39:0] s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_aluCtrl_logicOp_string;
   reg [7:0] s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_memCtrl_size_string;
@@ -5198,7 +5078,6 @@ module CoreNSCSCC (
   reg [39:0] s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_branchCtrl_linkReg_rtype_string;
   reg [7:0] s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1_string;
   reg [7:0] s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string;
   reg [7:0] s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeDest_string;
   reg [95:0] s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_decodeExceptionCode_string;
   reg [87:0] s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_uopCode_string;
@@ -5207,7 +5086,6 @@ module CoreNSCSCC (
   reg [39:0] s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archDest_rtype_string;
   reg [39:0] s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc1_rtype_string;
   reg [39:0] s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_rtype_string;
-  reg [39:0] s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype_string;
   reg [103:0] s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_immUsage_string;
   reg [39:0] s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_logicOp_string;
   reg [7:0] s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_size_string;
@@ -5215,7 +5093,6 @@ module CoreNSCSCC (
   reg [39:0] s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_linkReg_rtype_string;
   reg [7:0] s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc1_string;
   reg [7:0] s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3_string;
   reg [7:0] s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeDest_string;
   reg [95:0] s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_decodeExceptionCode_string;
   reg [87:0] s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_uopCode_string;
@@ -5224,7 +5101,6 @@ module CoreNSCSCC (
   reg [39:0] s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archDest_rtype_string;
   reg [39:0] s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc1_rtype_string;
   reg [39:0] s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_rtype_string;
-  reg [39:0] s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype_string;
   reg [103:0] s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_immUsage_string;
   reg [39:0] s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_logicOp_string;
   reg [7:0] s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_size_string;
@@ -5232,7 +5108,6 @@ module CoreNSCSCC (
   reg [39:0] s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_linkReg_rtype_string;
   reg [7:0] s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc1_string;
   reg [7:0] s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3_string;
   reg [7:0] s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeDest_string;
   reg [95:0] s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_decodeExceptionCode_string;
   reg [87:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string;
@@ -5241,7 +5116,6 @@ module CoreNSCSCC (
   reg [39:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archDest_rtype_string;
   reg [39:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc1_rtype_string;
   reg [39:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_rtype_string;
-  reg [39:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype_string;
   reg [103:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage_string;
   reg [39:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_aluCtrl_logicOp_string;
   reg [7:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_memCtrl_size_string;
@@ -5249,7 +5123,6 @@ module CoreNSCSCC (
   reg [39:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_branchCtrl_linkReg_rtype_string;
   reg [7:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1_string;
   reg [7:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string;
   reg [7:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeDest_string;
   reg [95:0] s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_decodeExceptionCode_string;
   reg [87:0] s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_uopCode_string;
@@ -5258,7 +5131,6 @@ module CoreNSCSCC (
   reg [39:0] s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_archDest_rtype_string;
   reg [39:0] s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_archSrc1_rtype_string;
   reg [39:0] s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_rtype_string;
-  reg [39:0] s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype_string;
   reg [103:0] s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_immUsage_string;
   reg [39:0] s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_aluCtrl_logicOp_string;
   reg [7:0] s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_memCtrl_size_string;
@@ -5266,7 +5138,6 @@ module CoreNSCSCC (
   reg [39:0] s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_branchCtrl_linkReg_rtype_string;
   reg [7:0] s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc1_string;
   reg [7:0] s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3_string;
   reg [7:0] s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeDest_string;
   reg [95:0] s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_decodeExceptionCode_string;
   reg [151:0] ROBPlugin_aggregatedFlushSignal_payload_reason_string;
@@ -5297,7 +5168,6 @@ module CoreNSCSCC (
   reg [39:0] CommitPlugin_logic_s1_s1_headUop_decoded_archDest_rtype_string;
   reg [39:0] CommitPlugin_logic_s1_s1_headUop_decoded_archSrc1_rtype_string;
   reg [39:0] CommitPlugin_logic_s1_s1_headUop_decoded_archSrc2_rtype_string;
-  reg [39:0] CommitPlugin_logic_s1_s1_headUop_decoded_archSrc3_rtype_string;
   reg [103:0] CommitPlugin_logic_s1_s1_headUop_decoded_immUsage_string;
   reg [39:0] CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_logicOp_string;
   reg [7:0] CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_size_string;
@@ -5305,7 +5175,6 @@ module CoreNSCSCC (
   reg [39:0] CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_linkReg_rtype_string;
   reg [7:0] CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc1_string;
   reg [7:0] CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc3_string;
   reg [7:0] CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeDest_string;
   reg [95:0] CommitPlugin_logic_s1_s1_headUop_decoded_decodeExceptionCode_string;
   reg [87:0] DecodePlugin_logic_decodedUopsOutputVec_0_uopCode_string;
@@ -5314,7 +5183,6 @@ module CoreNSCSCC (
   reg [39:0] DecodePlugin_logic_decodedUopsOutputVec_0_archDest_rtype_string;
   reg [39:0] DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_rtype_string;
   reg [39:0] DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype_string;
-  reg [39:0] DecodePlugin_logic_decodedUopsOutputVec_0_archSrc3_rtype_string;
   reg [103:0] DecodePlugin_logic_decodedUopsOutputVec_0_immUsage_string;
   reg [39:0] DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_logicOp_string;
   reg [7:0] DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_size_string;
@@ -5322,7 +5190,6 @@ module CoreNSCSCC (
   reg [39:0] DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype_string;
   reg [7:0] DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc1_string;
   reg [7:0] DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc3_string;
   reg [7:0] DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeDest_string;
   reg [95:0] DecodePlugin_logic_decodedUopsOutputVec_0_decodeExceptionCode_string;
   reg [87:0] _zz_DecodePlugin_logic_decodedUopsOutputVec_0_uopCode_string;
@@ -5331,7 +5198,6 @@ module CoreNSCSCC (
   reg [39:0] _zz_DecodePlugin_logic_decodedUopsOutputVec_0_archDest_rtype_string;
   reg [39:0] _zz_DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_rtype_string;
   reg [39:0] _zz_DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype_string;
-  reg [39:0] _zz_DecodePlugin_logic_decodedUopsOutputVec_0_archSrc3_rtype_string;
   reg [103:0] _zz_DecodePlugin_logic_decodedUopsOutputVec_0_immUsage_string;
   reg [39:0] _zz_DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_logicOp_string;
   reg [7:0] _zz_DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_size_string;
@@ -5339,16 +5205,15 @@ module CoreNSCSCC (
   reg [39:0] _zz_DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype_string;
   reg [7:0] _zz_DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc1_string;
   reg [7:0] _zz_DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] _zz_DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc3_string;
   reg [7:0] _zz_DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeDest_string;
   reg [95:0] _zz_DecodePlugin_logic_decodedUopsOutputVec_0_decodeExceptionCode_string;
+  reg [39:0] DecodePlugin_logic_debugLA32RDecodedPhysSrc2_rtype_string;
   reg [87:0] RobAllocPlugin_logic_allocatedUops_0_decoded_uopCode_string;
   reg [151:0] RobAllocPlugin_logic_allocatedUops_0_decoded_exeUnit_string;
   reg [71:0] RobAllocPlugin_logic_allocatedUops_0_decoded_isa_string;
   reg [39:0] RobAllocPlugin_logic_allocatedUops_0_decoded_archDest_rtype_string;
   reg [39:0] RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc1_rtype_string;
   reg [39:0] RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc2_rtype_string;
-  reg [39:0] RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc3_rtype_string;
   reg [103:0] RobAllocPlugin_logic_allocatedUops_0_decoded_immUsage_string;
   reg [39:0] RobAllocPlugin_logic_allocatedUops_0_decoded_aluCtrl_logicOp_string;
   reg [7:0] RobAllocPlugin_logic_allocatedUops_0_decoded_memCtrl_size_string;
@@ -5356,7 +5221,6 @@ module CoreNSCSCC (
   reg [39:0] RobAllocPlugin_logic_allocatedUops_0_decoded_branchCtrl_linkReg_rtype_string;
   reg [7:0] RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc1_string;
   reg [7:0] RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc3_string;
   reg [7:0] RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeDest_string;
   reg [95:0] RobAllocPlugin_logic_allocatedUops_0_decoded_decodeExceptionCode_string;
   reg [87:0] DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_uopCode_string;
@@ -5365,7 +5229,6 @@ module CoreNSCSCC (
   reg [39:0] DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_archDest_rtype_string;
   reg [39:0] DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_archSrc1_rtype_string;
   reg [39:0] DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_archSrc2_rtype_string;
-  reg [39:0] DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_archSrc3_rtype_string;
   reg [103:0] DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_immUsage_string;
   reg [39:0] DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_aluCtrl_logicOp_string;
   reg [7:0] DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_memCtrl_size_string;
@@ -5373,7 +5236,6 @@ module CoreNSCSCC (
   reg [39:0] DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_branchCtrl_linkReg_rtype_string;
   reg [7:0] DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fpSizeSrc1_string;
   reg [7:0] DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string;
   reg [7:0] DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fpSizeDest_string;
   reg [95:0] DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_decodeExceptionCode_string;
   reg [87:0] DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_uopCode_string;
@@ -5382,7 +5244,6 @@ module CoreNSCSCC (
   reg [39:0] DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_archDest_rtype_string;
   reg [39:0] DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_archSrc1_rtype_string;
   reg [39:0] DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_archSrc2_rtype_string;
-  reg [39:0] DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_archSrc3_rtype_string;
   reg [103:0] DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_immUsage_string;
   reg [39:0] DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_aluCtrl_logicOp_string;
   reg [7:0] DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_memCtrl_size_string;
@@ -5390,7 +5251,6 @@ module CoreNSCSCC (
   reg [39:0] DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_branchCtrl_linkReg_rtype_string;
   reg [7:0] DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc1_string;
   reg [7:0] DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string;
   reg [7:0] DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeDest_string;
   reg [95:0] DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_decodeExceptionCode_string;
   reg [87:0] DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_uopCode_string;
@@ -5399,7 +5259,6 @@ module CoreNSCSCC (
   reg [39:0] DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_archDest_rtype_string;
   reg [39:0] DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_archSrc1_rtype_string;
   reg [39:0] DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_archSrc2_rtype_string;
-  reg [39:0] DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_archSrc3_rtype_string;
   reg [103:0] DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_immUsage_string;
   reg [39:0] DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_aluCtrl_logicOp_string;
   reg [7:0] DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_memCtrl_size_string;
@@ -5407,7 +5266,6 @@ module CoreNSCSCC (
   reg [39:0] DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_branchCtrl_linkReg_rtype_string;
   reg [7:0] DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fpSizeSrc1_string;
   reg [7:0] DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string;
   reg [7:0] DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fpSizeDest_string;
   reg [95:0] DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_decodeExceptionCode_string;
   reg [87:0] DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_uopCode_string;
@@ -5416,7 +5274,6 @@ module CoreNSCSCC (
   reg [39:0] DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_archDest_rtype_string;
   reg [39:0] DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_archSrc1_rtype_string;
   reg [39:0] DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_archSrc2_rtype_string;
-  reg [39:0] DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_archSrc3_rtype_string;
   reg [103:0] DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_immUsage_string;
   reg [39:0] DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_aluCtrl_logicOp_string;
   reg [7:0] DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_memCtrl_size_string;
@@ -5424,7 +5281,6 @@ module CoreNSCSCC (
   reg [39:0] DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_branchCtrl_linkReg_rtype_string;
   reg [7:0] DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc1_string;
   reg [7:0] DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string;
   reg [7:0] DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeDest_string;
   reg [95:0] DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_decodeExceptionCode_string;
   reg [87:0] DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_uopCode_string;
@@ -5433,7 +5289,6 @@ module CoreNSCSCC (
   reg [39:0] DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_archDest_rtype_string;
   reg [39:0] DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_archSrc1_rtype_string;
   reg [39:0] DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_archSrc2_rtype_string;
-  reg [39:0] DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_archSrc3_rtype_string;
   reg [103:0] DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_immUsage_string;
   reg [39:0] DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_aluCtrl_logicOp_string;
   reg [7:0] DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_memCtrl_size_string;
@@ -5441,7 +5296,6 @@ module CoreNSCSCC (
   reg [39:0] DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_branchCtrl_linkReg_rtype_string;
   reg [7:0] DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fpSizeSrc1_string;
   reg [7:0] DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string;
   reg [7:0] DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fpSizeDest_string;
   reg [95:0] DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_decodeExceptionCode_string;
   reg [87:0] DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_uopCode_string;
@@ -5450,7 +5304,6 @@ module CoreNSCSCC (
   reg [39:0] DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_archDest_rtype_string;
   reg [39:0] DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_archSrc1_rtype_string;
   reg [39:0] DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_archSrc2_rtype_string;
-  reg [39:0] DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_archSrc3_rtype_string;
   reg [103:0] DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_immUsage_string;
   reg [39:0] DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_aluCtrl_logicOp_string;
   reg [7:0] DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_memCtrl_size_string;
@@ -5458,7 +5311,6 @@ module CoreNSCSCC (
   reg [39:0] DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_branchCtrl_linkReg_rtype_string;
   reg [7:0] DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc1_string;
   reg [7:0] DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string;
   reg [7:0] DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeDest_string;
   reg [95:0] DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_decodeExceptionCode_string;
   reg [39:0] AluIntEU_AluIntEuPlugin_euInputPort_payload_aluCtrl_logicOp_string;
@@ -5550,7 +5402,7 @@ module CoreNSCSCC (
       zz_CheckpointManagerPlugin_logic_initialFreeMask[63] = 1'b1;
     end
   endfunction
-  wire [63:0] _zz_68;
+  wire [63:0] _zz_65;
 
   assign _zz_io_triggerIn_1 = 1'b1;
   assign _zz_io_triggerIn = {7'd0, _zz_io_triggerIn_1};
@@ -5604,9 +5456,9 @@ module CoreNSCSCC (
   assign _zz_when_Debug_l71_9_1 = {3'd0, _zz_when_Debug_l71_10};
   assign _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException_2 = {29'd0, _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException_1};
   assign _zz_LoadQueuePlugin_logic_loadQueue_pushOh = ((~ LoadQueuePlugin_logic_loadQueue_availableSlotsMask) + 4'b0001);
-  assign _zz_62 = (_zz_63 + _zz_65);
-  assign _zz_67 = LoadQueuePlugin_hw_prfWritePort_valid;
-  assign _zz_66 = {2'd0, _zz_67};
+  assign _zz_59 = (_zz_60 + _zz_62);
+  assign _zz_64 = LoadQueuePlugin_hw_prfWritePort_valid;
+  assign _zz_63 = {2'd0, _zz_64};
   assign _zz__zz_when_PhysicalRegFile_l136_3 = (_zz_when_PhysicalRegFile_l136_2 - 4'b0001);
   assign _zz_when_PhysicalRegFile_l150_8 = (_zz_when_PhysicalRegFile_l150_9 + _zz_when_PhysicalRegFile_l150_11);
   assign _zz_when_PhysicalRegFile_l150_13 = LoadQueuePlugin_hw_prfWritePort_valid;
@@ -5646,7 +5498,7 @@ module CoreNSCSCC (
   assign _zz_CommitPlugin_logic_s0_committedThisCycle_comb_1 = CommitPlugin_logic_s0_commitAckMasks_0;
   assign _zz_CommitPlugin_logic_s0_recycledThisCycle_comb_1 = SimpleFreeListPlugin_early_setup_freeList_io_free_0_enable;
   assign _zz_DispatchPlugin_logic_destinationIqReady_3 = {_zz_DispatchPlugin_logic_destinationIqReady_1,_zz_DispatchPlugin_logic_destinationIqReady};
-  assign _zz_64 = {LsuEU_LsuEuPlugin_gprWritePort_valid,{BranchEU_BranchEuPlugin_gprWritePort_valid,AluIntEU_AluIntEuPlugin_gprWritePort_valid}};
+  assign _zz_61 = {LsuEU_LsuEuPlugin_gprWritePort_valid,{BranchEU_BranchEuPlugin_gprWritePort_valid,AluIntEU_AluIntEuPlugin_gprWritePort_valid}};
   assign _zz_when_PhysicalRegFile_l150_10 = {LsuEU_LsuEuPlugin_gprWritePort_valid,{BranchEU_BranchEuPlugin_gprWritePort_valid,AluIntEU_AluIntEuPlugin_gprWritePort_valid}};
   assign _zz_DispatchPlugin_logic_dispatchOH = (s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode == DispatchPlugin_logic_iqRegs_1_0_1);
   assign _zz_DispatchPlugin_logic_dispatchOH_1 = (s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode == DispatchPlugin_logic_iqRegs_1_0_0);
@@ -5890,9 +5742,6 @@ module CoreNSCSCC (
     .io_allocate_0_uopIn_decoded_archSrc2_idx                            (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_idx[4:0]                 ), //i
     .io_allocate_0_uopIn_decoded_archSrc2_rtype                          (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_rtype[1:0]               ), //i
     .io_allocate_0_uopIn_decoded_useArchSrc2                             (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc2                       ), //i
-    .io_allocate_0_uopIn_decoded_archSrc3_idx                            (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_idx[4:0]                 ), //i
-    .io_allocate_0_uopIn_decoded_archSrc3_rtype                          (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_rtype[1:0]               ), //i
-    .io_allocate_0_uopIn_decoded_useArchSrc3                             (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc3                       ), //i
     .io_allocate_0_uopIn_decoded_usePcForAddr                            (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_usePcForAddr                      ), //i
     .io_allocate_0_uopIn_decoded_imm                                     (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_imm[31:0]                         ), //i
     .io_allocate_0_uopIn_decoded_immUsage                                (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_immUsage[2:0]                     ), //i
@@ -5928,13 +5777,11 @@ module CoreNSCSCC (
     .io_allocate_0_uopIn_decoded_fpuCtrl_opType                          (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_opType[3:0]               ), //i
     .io_allocate_0_uopIn_decoded_fpuCtrl_fpSizeSrc1                      (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1[1:0]           ), //i
     .io_allocate_0_uopIn_decoded_fpuCtrl_fpSizeSrc2                      (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2[1:0]           ), //i
-    .io_allocate_0_uopIn_decoded_fpuCtrl_fpSizeSrc3                      (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3[1:0]           ), //i
     .io_allocate_0_uopIn_decoded_fpuCtrl_fpSizeDest                      (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeDest[1:0]           ), //i
     .io_allocate_0_uopIn_decoded_fpuCtrl_roundingMode                    (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_roundingMode[2:0]         ), //i
     .io_allocate_0_uopIn_decoded_fpuCtrl_isIntegerDest                   (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_isIntegerDest             ), //i
     .io_allocate_0_uopIn_decoded_fpuCtrl_isSignedCvt                     (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_isSignedCvt               ), //i
     .io_allocate_0_uopIn_decoded_fpuCtrl_fmaNegSrc1                      (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fmaNegSrc1                ), //i
-    .io_allocate_0_uopIn_decoded_fpuCtrl_fmaNegSrc3                      (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fmaNegSrc3                ), //i
     .io_allocate_0_uopIn_decoded_fpuCtrl_fcmpCond                        (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fcmpCond[4:0]             ), //i
     .io_allocate_0_uopIn_decoded_csrCtrl_csrAddr                         (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_csrAddr[13:0]             ), //i
     .io_allocate_0_uopIn_decoded_csrCtrl_isWrite                         (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_isWrite                   ), //i
@@ -5958,8 +5805,6 @@ module CoreNSCSCC (
     .io_allocate_0_uopIn_rename_physSrc1IsFpr                            (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc1IsFpr                      ), //i
     .io_allocate_0_uopIn_rename_physSrc2_idx                             (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc2_idx[5:0]                  ), //i
     .io_allocate_0_uopIn_rename_physSrc2IsFpr                            (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc2IsFpr                      ), //i
-    .io_allocate_0_uopIn_rename_physSrc3_idx                             (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc3_idx[5:0]                  ), //i
-    .io_allocate_0_uopIn_rename_physSrc3IsFpr                            (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc3IsFpr                      ), //i
     .io_allocate_0_uopIn_rename_physDest_idx                             (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physDest_idx[5:0]                  ), //i
     .io_allocate_0_uopIn_rename_physDestIsFpr                            (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physDestIsFpr                      ), //i
     .io_allocate_0_uopIn_rename_oldPhysDest_idx                          (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_oldPhysDest_idx[5:0]               ), //i
@@ -6016,9 +5861,6 @@ module CoreNSCSCC (
     .io_commit_0_entry_payload_uop_decoded_archSrc2_idx                  (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_archSrc2_idx[4:0]            ), //o
     .io_commit_0_entry_payload_uop_decoded_archSrc2_rtype                (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_archSrc2_rtype[1:0]          ), //o
     .io_commit_0_entry_payload_uop_decoded_useArchSrc2                   (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_useArchSrc2                  ), //o
-    .io_commit_0_entry_payload_uop_decoded_archSrc3_idx                  (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_archSrc3_idx[4:0]            ), //o
-    .io_commit_0_entry_payload_uop_decoded_archSrc3_rtype                (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_archSrc3_rtype[1:0]          ), //o
-    .io_commit_0_entry_payload_uop_decoded_useArchSrc3                   (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_useArchSrc3                  ), //o
     .io_commit_0_entry_payload_uop_decoded_usePcForAddr                  (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_usePcForAddr                 ), //o
     .io_commit_0_entry_payload_uop_decoded_imm                           (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_imm[31:0]                    ), //o
     .io_commit_0_entry_payload_uop_decoded_immUsage                      (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_immUsage[2:0]                ), //o
@@ -6054,13 +5896,11 @@ module CoreNSCSCC (
     .io_commit_0_entry_payload_uop_decoded_fpuCtrl_opType                (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_opType[3:0]          ), //o
     .io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc1            (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc1[1:0]      ), //o
     .io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc2            (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc2[1:0]      ), //o
-    .io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3            (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3[1:0]      ), //o
     .io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeDest            (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeDest[1:0]      ), //o
     .io_commit_0_entry_payload_uop_decoded_fpuCtrl_roundingMode          (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_roundingMode[2:0]    ), //o
     .io_commit_0_entry_payload_uop_decoded_fpuCtrl_isIntegerDest         (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_isIntegerDest        ), //o
     .io_commit_0_entry_payload_uop_decoded_fpuCtrl_isSignedCvt           (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_isSignedCvt          ), //o
     .io_commit_0_entry_payload_uop_decoded_fpuCtrl_fmaNegSrc1            (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fmaNegSrc1           ), //o
-    .io_commit_0_entry_payload_uop_decoded_fpuCtrl_fmaNegSrc3            (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fmaNegSrc3           ), //o
     .io_commit_0_entry_payload_uop_decoded_fpuCtrl_fcmpCond              (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fcmpCond[4:0]        ), //o
     .io_commit_0_entry_payload_uop_decoded_csrCtrl_csrAddr               (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_csrCtrl_csrAddr[13:0]        ), //o
     .io_commit_0_entry_payload_uop_decoded_csrCtrl_isWrite               (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_csrCtrl_isWrite              ), //o
@@ -6084,8 +5924,6 @@ module CoreNSCSCC (
     .io_commit_0_entry_payload_uop_rename_physSrc1IsFpr                  (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physSrc1IsFpr                 ), //o
     .io_commit_0_entry_payload_uop_rename_physSrc2_idx                   (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physSrc2_idx[5:0]             ), //o
     .io_commit_0_entry_payload_uop_rename_physSrc2IsFpr                  (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physSrc2IsFpr                 ), //o
-    .io_commit_0_entry_payload_uop_rename_physSrc3_idx                   (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physSrc3_idx[5:0]             ), //o
-    .io_commit_0_entry_payload_uop_rename_physSrc3IsFpr                  (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physSrc3IsFpr                 ), //o
     .io_commit_0_entry_payload_uop_rename_physDest_idx                   (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physDest_idx[5:0]             ), //o
     .io_commit_0_entry_payload_uop_rename_physDestIsFpr                  (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physDestIsFpr                 ), //o
     .io_commit_0_entry_payload_uop_rename_oldPhysDest_idx                (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx[5:0]          ), //o
@@ -6281,9 +6119,6 @@ module CoreNSCSCC (
     .io_decodedUopsIn_0_archSrc2_idx                           (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_idx[4:0]                      ), //i
     .io_decodedUopsIn_0_archSrc2_rtype                         (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_rtype[1:0]                    ), //i
     .io_decodedUopsIn_0_useArchSrc2                            (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc2                            ), //i
-    .io_decodedUopsIn_0_archSrc3_idx                           (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_idx[4:0]                      ), //i
-    .io_decodedUopsIn_0_archSrc3_rtype                         (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype[1:0]                    ), //i
-    .io_decodedUopsIn_0_useArchSrc3                            (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc3                            ), //i
     .io_decodedUopsIn_0_usePcForAddr                           (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_usePcForAddr                           ), //i
     .io_decodedUopsIn_0_imm                                    (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_imm[31:0]                              ), //i
     .io_decodedUopsIn_0_immUsage                               (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_immUsage[2:0]                          ), //i
@@ -6319,13 +6154,11 @@ module CoreNSCSCC (
     .io_decodedUopsIn_0_fpuCtrl_opType                         (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_opType[3:0]                    ), //i
     .io_decodedUopsIn_0_fpuCtrl_fpSizeSrc1                     (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc1[1:0]                ), //i
     .io_decodedUopsIn_0_fpuCtrl_fpSizeSrc2                     (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2[1:0]                ), //i
-    .io_decodedUopsIn_0_fpuCtrl_fpSizeSrc3                     (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3[1:0]                ), //i
     .io_decodedUopsIn_0_fpuCtrl_fpSizeDest                     (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeDest[1:0]                ), //i
     .io_decodedUopsIn_0_fpuCtrl_roundingMode                   (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_roundingMode[2:0]              ), //i
     .io_decodedUopsIn_0_fpuCtrl_isIntegerDest                  (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_isIntegerDest                  ), //i
     .io_decodedUopsIn_0_fpuCtrl_isSignedCvt                    (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_isSignedCvt                    ), //i
     .io_decodedUopsIn_0_fpuCtrl_fmaNegSrc1                     (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fmaNegSrc1                     ), //i
-    .io_decodedUopsIn_0_fpuCtrl_fmaNegSrc3                     (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fmaNegSrc3                     ), //i
     .io_decodedUopsIn_0_fpuCtrl_fcmpCond                       (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fcmpCond[4:0]                  ), //i
     .io_decodedUopsIn_0_csrCtrl_csrAddr                        (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_csrAddr[13:0]                  ), //i
     .io_decodedUopsIn_0_csrCtrl_isWrite                        (s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_isWrite                        ), //i
@@ -6360,9 +6193,6 @@ module CoreNSCSCC (
     .io_renamedUopsOut_0_decoded_archSrc2_idx                  (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc2_idx[4:0]            ), //o
     .io_renamedUopsOut_0_decoded_archSrc2_rtype                (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc2_rtype[1:0]          ), //o
     .io_renamedUopsOut_0_decoded_useArchSrc2                   (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_useArchSrc2                  ), //o
-    .io_renamedUopsOut_0_decoded_archSrc3_idx                  (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc3_idx[4:0]            ), //o
-    .io_renamedUopsOut_0_decoded_archSrc3_rtype                (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc3_rtype[1:0]          ), //o
-    .io_renamedUopsOut_0_decoded_useArchSrc3                   (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_useArchSrc3                  ), //o
     .io_renamedUopsOut_0_decoded_usePcForAddr                  (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_usePcForAddr                 ), //o
     .io_renamedUopsOut_0_decoded_imm                           (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_imm[31:0]                    ), //o
     .io_renamedUopsOut_0_decoded_immUsage                      (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_immUsage[2:0]                ), //o
@@ -6398,13 +6228,11 @@ module CoreNSCSCC (
     .io_renamedUopsOut_0_decoded_fpuCtrl_opType                (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_opType[3:0]          ), //o
     .io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc1            (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc1[1:0]      ), //o
     .io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc2            (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc2[1:0]      ), //o
-    .io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc3            (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc3[1:0]      ), //o
     .io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeDest            (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeDest[1:0]      ), //o
     .io_renamedUopsOut_0_decoded_fpuCtrl_roundingMode          (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_roundingMode[2:0]    ), //o
     .io_renamedUopsOut_0_decoded_fpuCtrl_isIntegerDest         (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_isIntegerDest        ), //o
     .io_renamedUopsOut_0_decoded_fpuCtrl_isSignedCvt           (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_isSignedCvt          ), //o
     .io_renamedUopsOut_0_decoded_fpuCtrl_fmaNegSrc1            (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fmaNegSrc1           ), //o
-    .io_renamedUopsOut_0_decoded_fpuCtrl_fmaNegSrc3            (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fmaNegSrc3           ), //o
     .io_renamedUopsOut_0_decoded_fpuCtrl_fcmpCond              (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fcmpCond[4:0]        ), //o
     .io_renamedUopsOut_0_decoded_csrCtrl_csrAddr               (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_csrAddr[13:0]        ), //o
     .io_renamedUopsOut_0_decoded_csrCtrl_isWrite               (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_isWrite              ), //o
@@ -6428,8 +6256,6 @@ module CoreNSCSCC (
     .io_renamedUopsOut_0_rename_physSrc1IsFpr                  (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc1IsFpr                 ), //o
     .io_renamedUopsOut_0_rename_physSrc2_idx                   (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc2_idx[5:0]             ), //o
     .io_renamedUopsOut_0_rename_physSrc2IsFpr                  (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc2IsFpr                 ), //o
-    .io_renamedUopsOut_0_rename_physSrc3_idx                   (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc3_idx[5:0]             ), //o
-    .io_renamedUopsOut_0_rename_physSrc3IsFpr                  (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc3IsFpr                 ), //o
     .io_renamedUopsOut_0_rename_physDest_idx                   (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physDest_idx[5:0]             ), //o
     .io_renamedUopsOut_0_rename_physDestIsFpr                  (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physDestIsFpr                 ), //o
     .io_renamedUopsOut_0_rename_oldPhysDest_idx                (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_oldPhysDest_idx[5:0]          ), //o
@@ -6563,9 +6389,6 @@ module CoreNSCSCC (
     .io_decodedUop_archSrc2_idx                  (lA32RSimpleDecoder_1_io_decodedUop_archSrc2_idx[4:0]            ), //o
     .io_decodedUop_archSrc2_rtype                (lA32RSimpleDecoder_1_io_decodedUop_archSrc2_rtype[1:0]          ), //o
     .io_decodedUop_useArchSrc2                   (lA32RSimpleDecoder_1_io_decodedUop_useArchSrc2                  ), //o
-    .io_decodedUop_archSrc3_idx                  (lA32RSimpleDecoder_1_io_decodedUop_archSrc3_idx[4:0]            ), //o
-    .io_decodedUop_archSrc3_rtype                (lA32RSimpleDecoder_1_io_decodedUop_archSrc3_rtype[1:0]          ), //o
-    .io_decodedUop_useArchSrc3                   (lA32RSimpleDecoder_1_io_decodedUop_useArchSrc3                  ), //o
     .io_decodedUop_usePcForAddr                  (lA32RSimpleDecoder_1_io_decodedUop_usePcForAddr                 ), //o
     .io_decodedUop_imm                           (lA32RSimpleDecoder_1_io_decodedUop_imm[31:0]                    ), //o
     .io_decodedUop_immUsage                      (lA32RSimpleDecoder_1_io_decodedUop_immUsage[2:0]                ), //o
@@ -6601,13 +6424,11 @@ module CoreNSCSCC (
     .io_decodedUop_fpuCtrl_opType                (lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_opType[3:0]          ), //o
     .io_decodedUop_fpuCtrl_fpSizeSrc1            (lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_fpSizeSrc1[1:0]      ), //o
     .io_decodedUop_fpuCtrl_fpSizeSrc2            (lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_fpSizeSrc2[1:0]      ), //o
-    .io_decodedUop_fpuCtrl_fpSizeSrc3            (lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_fpSizeSrc3[1:0]      ), //o
     .io_decodedUop_fpuCtrl_fpSizeDest            (lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_fpSizeDest[1:0]      ), //o
     .io_decodedUop_fpuCtrl_roundingMode          (lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_roundingMode[2:0]    ), //o
     .io_decodedUop_fpuCtrl_isIntegerDest         (lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_isIntegerDest        ), //o
     .io_decodedUop_fpuCtrl_isSignedCvt           (lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_isSignedCvt          ), //o
     .io_decodedUop_fpuCtrl_fmaNegSrc1            (lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_fmaNegSrc1           ), //o
-    .io_decodedUop_fpuCtrl_fmaNegSrc3            (lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_fmaNegSrc3           ), //o
     .io_decodedUop_fpuCtrl_fcmpCond              (lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_fcmpCond[4:0]        ), //o
     .io_decodedUop_csrCtrl_csrAddr               (lA32RSimpleDecoder_1_io_decodedUop_csrCtrl_csrAddr[13:0]        ), //o
     .io_decodedUop_csrCtrl_isWrite               (lA32RSimpleDecoder_1_io_decodedUop_csrCtrl_isWrite              ), //o
@@ -6644,9 +6465,6 @@ module CoreNSCSCC (
     .io_allocateIn_payload_uop_decoded_archSrc2_idx                  (DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_archSrc2_idx[4:0]            ), //i
     .io_allocateIn_payload_uop_decoded_archSrc2_rtype                (DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_archSrc2_rtype[1:0]          ), //i
     .io_allocateIn_payload_uop_decoded_useArchSrc2                   (DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_useArchSrc2                  ), //i
-    .io_allocateIn_payload_uop_decoded_archSrc3_idx                  (DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_archSrc3_idx[4:0]            ), //i
-    .io_allocateIn_payload_uop_decoded_archSrc3_rtype                (DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_archSrc3_rtype[1:0]          ), //i
-    .io_allocateIn_payload_uop_decoded_useArchSrc3                   (DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_useArchSrc3                  ), //i
     .io_allocateIn_payload_uop_decoded_usePcForAddr                  (DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_usePcForAddr                 ), //i
     .io_allocateIn_payload_uop_decoded_imm                           (DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_imm[31:0]                    ), //i
     .io_allocateIn_payload_uop_decoded_immUsage                      (DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_immUsage[2:0]                ), //i
@@ -6682,13 +6500,11 @@ module CoreNSCSCC (
     .io_allocateIn_payload_uop_decoded_fpuCtrl_opType                (DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_opType[3:0]          ), //i
     .io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc1            (DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc1[1:0]      ), //i
     .io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc2            (DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc2[1:0]      ), //i
-    .io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc3            (DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc3[1:0]      ), //i
     .io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeDest            (DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeDest[1:0]      ), //i
     .io_allocateIn_payload_uop_decoded_fpuCtrl_roundingMode          (DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_roundingMode[2:0]    ), //i
     .io_allocateIn_payload_uop_decoded_fpuCtrl_isIntegerDest         (DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_isIntegerDest        ), //i
     .io_allocateIn_payload_uop_decoded_fpuCtrl_isSignedCvt           (DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_isSignedCvt          ), //i
     .io_allocateIn_payload_uop_decoded_fpuCtrl_fmaNegSrc1            (DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fmaNegSrc1           ), //i
-    .io_allocateIn_payload_uop_decoded_fpuCtrl_fmaNegSrc3            (DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fmaNegSrc3           ), //i
     .io_allocateIn_payload_uop_decoded_fpuCtrl_fcmpCond              (DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fcmpCond[4:0]        ), //i
     .io_allocateIn_payload_uop_decoded_csrCtrl_csrAddr               (DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_csrCtrl_csrAddr[13:0]        ), //i
     .io_allocateIn_payload_uop_decoded_csrCtrl_isWrite               (DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_csrCtrl_isWrite              ), //i
@@ -6712,8 +6528,6 @@ module CoreNSCSCC (
     .io_allocateIn_payload_uop_rename_physSrc1IsFpr                  (DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_rename_physSrc1IsFpr                 ), //i
     .io_allocateIn_payload_uop_rename_physSrc2_idx                   (DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_rename_physSrc2_idx[5:0]             ), //i
     .io_allocateIn_payload_uop_rename_physSrc2IsFpr                  (DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_rename_physSrc2IsFpr                 ), //i
-    .io_allocateIn_payload_uop_rename_physSrc3_idx                   (DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_rename_physSrc3_idx[5:0]             ), //i
-    .io_allocateIn_payload_uop_rename_physSrc3IsFpr                  (DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_rename_physSrc3IsFpr                 ), //i
     .io_allocateIn_payload_uop_rename_physDest_idx                   (DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_rename_physDest_idx[5:0]             ), //i
     .io_allocateIn_payload_uop_rename_physDestIsFpr                  (DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_rename_physDestIsFpr                 ), //i
     .io_allocateIn_payload_uop_rename_oldPhysDest_idx                (DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_rename_oldPhysDest_idx[5:0]          ), //i
@@ -6777,9 +6591,6 @@ module CoreNSCSCC (
     .io_allocateIn_payload_uop_decoded_archSrc2_idx                  (DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_archSrc2_idx[4:0]            ), //i
     .io_allocateIn_payload_uop_decoded_archSrc2_rtype                (DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_archSrc2_rtype[1:0]          ), //i
     .io_allocateIn_payload_uop_decoded_useArchSrc2                   (DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_useArchSrc2                  ), //i
-    .io_allocateIn_payload_uop_decoded_archSrc3_idx                  (DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_archSrc3_idx[4:0]            ), //i
-    .io_allocateIn_payload_uop_decoded_archSrc3_rtype                (DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_archSrc3_rtype[1:0]          ), //i
-    .io_allocateIn_payload_uop_decoded_useArchSrc3                   (DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_useArchSrc3                  ), //i
     .io_allocateIn_payload_uop_decoded_usePcForAddr                  (DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_usePcForAddr                 ), //i
     .io_allocateIn_payload_uop_decoded_imm                           (DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_imm[31:0]                    ), //i
     .io_allocateIn_payload_uop_decoded_immUsage                      (DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_immUsage[2:0]                ), //i
@@ -6815,13 +6626,11 @@ module CoreNSCSCC (
     .io_allocateIn_payload_uop_decoded_fpuCtrl_opType                (DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_opType[3:0]          ), //i
     .io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc1            (DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc1[1:0]      ), //i
     .io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc2            (DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc2[1:0]      ), //i
-    .io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc3            (DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc3[1:0]      ), //i
     .io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeDest            (DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeDest[1:0]      ), //i
     .io_allocateIn_payload_uop_decoded_fpuCtrl_roundingMode          (DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_roundingMode[2:0]    ), //i
     .io_allocateIn_payload_uop_decoded_fpuCtrl_isIntegerDest         (DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_isIntegerDest        ), //i
     .io_allocateIn_payload_uop_decoded_fpuCtrl_isSignedCvt           (DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_isSignedCvt          ), //i
     .io_allocateIn_payload_uop_decoded_fpuCtrl_fmaNegSrc1            (DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fmaNegSrc1           ), //i
-    .io_allocateIn_payload_uop_decoded_fpuCtrl_fmaNegSrc3            (DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fmaNegSrc3           ), //i
     .io_allocateIn_payload_uop_decoded_fpuCtrl_fcmpCond              (DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fcmpCond[4:0]        ), //i
     .io_allocateIn_payload_uop_decoded_csrCtrl_csrAddr               (DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_csrCtrl_csrAddr[13:0]        ), //i
     .io_allocateIn_payload_uop_decoded_csrCtrl_isWrite               (DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_csrCtrl_isWrite              ), //i
@@ -6845,8 +6654,6 @@ module CoreNSCSCC (
     .io_allocateIn_payload_uop_rename_physSrc1IsFpr                  (DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_rename_physSrc1IsFpr                 ), //i
     .io_allocateIn_payload_uop_rename_physSrc2_idx                   (DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_rename_physSrc2_idx[5:0]             ), //i
     .io_allocateIn_payload_uop_rename_physSrc2IsFpr                  (DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_rename_physSrc2IsFpr                 ), //i
-    .io_allocateIn_payload_uop_rename_physSrc3_idx                   (DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_rename_physSrc3_idx[5:0]             ), //i
-    .io_allocateIn_payload_uop_rename_physSrc3IsFpr                  (DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_rename_physSrc3IsFpr                 ), //i
     .io_allocateIn_payload_uop_rename_physDest_idx                   (DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_rename_physDest_idx[5:0]             ), //i
     .io_allocateIn_payload_uop_rename_physDestIsFpr                  (DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_rename_physDestIsFpr                 ), //i
     .io_allocateIn_payload_uop_rename_oldPhysDest_idx                (DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_rename_oldPhysDest_idx[5:0]          ), //i
@@ -6912,9 +6719,6 @@ module CoreNSCSCC (
     .io_allocateIn_payload_uop_decoded_archSrc2_idx                  (DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_archSrc2_idx[4:0]            ), //i
     .io_allocateIn_payload_uop_decoded_archSrc2_rtype                (DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_archSrc2_rtype[1:0]          ), //i
     .io_allocateIn_payload_uop_decoded_useArchSrc2                   (DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_useArchSrc2                  ), //i
-    .io_allocateIn_payload_uop_decoded_archSrc3_idx                  (DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_archSrc3_idx[4:0]            ), //i
-    .io_allocateIn_payload_uop_decoded_archSrc3_rtype                (DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_archSrc3_rtype[1:0]          ), //i
-    .io_allocateIn_payload_uop_decoded_useArchSrc3                   (DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_useArchSrc3                  ), //i
     .io_allocateIn_payload_uop_decoded_usePcForAddr                  (DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_usePcForAddr                 ), //i
     .io_allocateIn_payload_uop_decoded_imm                           (DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_imm[31:0]                    ), //i
     .io_allocateIn_payload_uop_decoded_immUsage                      (DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_immUsage[2:0]                ), //i
@@ -6950,13 +6754,11 @@ module CoreNSCSCC (
     .io_allocateIn_payload_uop_decoded_fpuCtrl_opType                (DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_opType[3:0]          ), //i
     .io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc1            (DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc1[1:0]      ), //i
     .io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc2            (DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc2[1:0]      ), //i
-    .io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc3            (DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc3[1:0]      ), //i
     .io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeDest            (DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeDest[1:0]      ), //i
     .io_allocateIn_payload_uop_decoded_fpuCtrl_roundingMode          (DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_roundingMode[2:0]    ), //i
     .io_allocateIn_payload_uop_decoded_fpuCtrl_isIntegerDest         (DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_isIntegerDest        ), //i
     .io_allocateIn_payload_uop_decoded_fpuCtrl_isSignedCvt           (DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_isSignedCvt          ), //i
     .io_allocateIn_payload_uop_decoded_fpuCtrl_fmaNegSrc1            (DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fmaNegSrc1           ), //i
-    .io_allocateIn_payload_uop_decoded_fpuCtrl_fmaNegSrc3            (DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fmaNegSrc3           ), //i
     .io_allocateIn_payload_uop_decoded_fpuCtrl_fcmpCond              (DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fcmpCond[4:0]        ), //i
     .io_allocateIn_payload_uop_decoded_csrCtrl_csrAddr               (DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_csrCtrl_csrAddr[13:0]        ), //i
     .io_allocateIn_payload_uop_decoded_csrCtrl_isWrite               (DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_csrCtrl_isWrite              ), //i
@@ -6980,8 +6782,6 @@ module CoreNSCSCC (
     .io_allocateIn_payload_uop_rename_physSrc1IsFpr                  (DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_rename_physSrc1IsFpr                 ), //i
     .io_allocateIn_payload_uop_rename_physSrc2_idx                   (DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_rename_physSrc2_idx[5:0]             ), //i
     .io_allocateIn_payload_uop_rename_physSrc2IsFpr                  (DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_rename_physSrc2IsFpr                 ), //i
-    .io_allocateIn_payload_uop_rename_physSrc3_idx                   (DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_rename_physSrc3_idx[5:0]             ), //i
-    .io_allocateIn_payload_uop_rename_physSrc3IsFpr                  (DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_rename_physSrc3IsFpr                 ), //i
     .io_allocateIn_payload_uop_rename_physDest_idx                   (DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_rename_physDest_idx[5:0]             ), //i
     .io_allocateIn_payload_uop_rename_physDestIsFpr                  (DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_rename_physDestIsFpr                 ), //i
     .io_allocateIn_payload_uop_rename_oldPhysDest_idx                (DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_rename_oldPhysDest_idx[5:0]          ), //i
@@ -8565,28 +8365,28 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    case(_zz_64)
-      3'b000 : _zz_63 = _zz_43;
-      3'b001 : _zz_63 = _zz_44;
-      3'b010 : _zz_63 = _zz_45;
-      3'b011 : _zz_63 = _zz_46;
-      3'b100 : _zz_63 = _zz_47;
-      3'b101 : _zz_63 = _zz_48;
-      3'b110 : _zz_63 = _zz_49;
-      default : _zz_63 = _zz_50;
+    case(_zz_61)
+      3'b000 : _zz_60 = _zz_40;
+      3'b001 : _zz_60 = _zz_41;
+      3'b010 : _zz_60 = _zz_42;
+      3'b011 : _zz_60 = _zz_43;
+      3'b100 : _zz_60 = _zz_44;
+      3'b101 : _zz_60 = _zz_45;
+      3'b110 : _zz_60 = _zz_46;
+      default : _zz_60 = _zz_47;
     endcase
   end
 
   always @(*) begin
-    case(_zz_66)
-      3'b000 : _zz_65 = _zz_43;
-      3'b001 : _zz_65 = _zz_44;
-      3'b010 : _zz_65 = _zz_45;
-      3'b011 : _zz_65 = _zz_46;
-      3'b100 : _zz_65 = _zz_47;
-      3'b101 : _zz_65 = _zz_48;
-      3'b110 : _zz_65 = _zz_49;
-      default : _zz_65 = _zz_50;
+    case(_zz_63)
+      3'b000 : _zz_62 = _zz_40;
+      3'b001 : _zz_62 = _zz_41;
+      3'b010 : _zz_62 = _zz_42;
+      3'b011 : _zz_62 = _zz_43;
+      3'b100 : _zz_62 = _zz_44;
+      3'b101 : _zz_62 = _zz_45;
+      3'b110 : _zz_62 = _zz_46;
+      default : _zz_62 = _zz_47;
     endcase
   end
 
@@ -8883,15 +8683,6 @@ module CoreNSCSCC (
     endcase
   end
   always @(*) begin
-    case(s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype)
-      ArchRegType_GPR : s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype_string = "GPR  ";
-      ArchRegType_FPR : s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype_string = "FPR  ";
-      ArchRegType_CSR : s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype_string = "LA_CF";
-      default : s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
     case(s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage)
       ImmUsageType_NONE : s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage_string = "NONE         ";
       ImmUsageType_SRC_ALU : s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage_string = "SRC_ALU      ";
@@ -8971,15 +8762,6 @@ module CoreNSCSCC (
       MemAccessSize_W : s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2_string = "W";
       MemAccessSize_D : s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2_string = "D";
       default : s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3)
-      MemAccessSize_B : s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string = "B";
-      MemAccessSize_H : s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string = "H";
-      MemAccessSize_W : s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string = "W";
-      MemAccessSize_D : s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string = "D";
-      default : s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string = "?";
     endcase
   end
   always @(*) begin
@@ -9080,15 +8862,6 @@ module CoreNSCSCC (
     endcase
   end
   always @(*) begin
-    case(s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_rtype)
-      ArchRegType_GPR : s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_rtype_string = "GPR  ";
-      ArchRegType_FPR : s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_rtype_string = "FPR  ";
-      ArchRegType_CSR : s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_rtype_string = "LA_CF";
-      default : s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
     case(s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_immUsage)
       ImmUsageType_NONE : s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_immUsage_string = "NONE         ";
       ImmUsageType_SRC_ALU : s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_immUsage_string = "SRC_ALU      ";
@@ -9168,15 +8941,6 @@ module CoreNSCSCC (
       MemAccessSize_W : s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2_string = "W";
       MemAccessSize_D : s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2_string = "D";
       default : s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3)
-      MemAccessSize_B : s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string = "B";
-      MemAccessSize_H : s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string = "H";
-      MemAccessSize_W : s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string = "W";
-      MemAccessSize_D : s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string = "D";
-      default : s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string = "?";
     endcase
   end
   always @(*) begin
@@ -9277,15 +9041,6 @@ module CoreNSCSCC (
     endcase
   end
   always @(*) begin
-    case(s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype)
-      ArchRegType_GPR : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype_string = "GPR  ";
-      ArchRegType_FPR : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype_string = "FPR  ";
-      ArchRegType_CSR : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype_string = "LA_CF";
-      default : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
     case(s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_immUsage)
       ImmUsageType_NONE : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_immUsage_string = "NONE         ";
       ImmUsageType_SRC_ALU : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_immUsage_string = "SRC_ALU      ";
@@ -9365,15 +9120,6 @@ module CoreNSCSCC (
       MemAccessSize_W : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2_string = "W";
       MemAccessSize_D : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2_string = "D";
       default : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3)
-      MemAccessSize_B : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3_string = "B";
-      MemAccessSize_H : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3_string = "H";
-      MemAccessSize_W : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3_string = "W";
-      MemAccessSize_D : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3_string = "D";
-      default : s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3_string = "?";
     endcase
   end
   always @(*) begin
@@ -9474,15 +9220,6 @@ module CoreNSCSCC (
     endcase
   end
   always @(*) begin
-    case(s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype)
-      ArchRegType_GPR : s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype_string = "GPR  ";
-      ArchRegType_FPR : s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype_string = "FPR  ";
-      ArchRegType_CSR : s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype_string = "LA_CF";
-      default : s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
     case(s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_immUsage)
       ImmUsageType_NONE : s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_immUsage_string = "NONE         ";
       ImmUsageType_SRC_ALU : s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_immUsage_string = "SRC_ALU      ";
@@ -9562,15 +9299,6 @@ module CoreNSCSCC (
       MemAccessSize_W : s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2_string = "W";
       MemAccessSize_D : s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2_string = "D";
       default : s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3)
-      MemAccessSize_B : s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3_string = "B";
-      MemAccessSize_H : s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3_string = "H";
-      MemAccessSize_W : s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3_string = "W";
-      MemAccessSize_D : s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3_string = "D";
-      default : s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3_string = "?";
     endcase
   end
   always @(*) begin
@@ -9671,15 +9399,6 @@ module CoreNSCSCC (
     endcase
   end
   always @(*) begin
-    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype)
-      ArchRegType_GPR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype_string = "GPR  ";
-      ArchRegType_FPR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype_string = "FPR  ";
-      ArchRegType_CSR : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype_string = "LA_CF";
-      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
     case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage)
       ImmUsageType_NONE : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage_string = "NONE         ";
       ImmUsageType_SRC_ALU : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage_string = "SRC_ALU      ";
@@ -9759,15 +9478,6 @@ module CoreNSCSCC (
       MemAccessSize_W : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2_string = "W";
       MemAccessSize_D : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2_string = "D";
       default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3)
-      MemAccessSize_B : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string = "B";
-      MemAccessSize_H : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string = "H";
-      MemAccessSize_W : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string = "W";
-      MemAccessSize_D : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string = "D";
-      default : s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3_string = "?";
     endcase
   end
   always @(*) begin
@@ -9868,15 +9578,6 @@ module CoreNSCSCC (
     endcase
   end
   always @(*) begin
-    case(s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype)
-      ArchRegType_GPR : s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype_string = "GPR  ";
-      ArchRegType_FPR : s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype_string = "FPR  ";
-      ArchRegType_CSR : s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype_string = "LA_CF";
-      default : s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
     case(s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_immUsage)
       ImmUsageType_NONE : s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_immUsage_string = "NONE         ";
       ImmUsageType_SRC_ALU : s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_immUsage_string = "SRC_ALU      ";
@@ -9956,15 +9657,6 @@ module CoreNSCSCC (
       MemAccessSize_W : s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2_string = "W";
       MemAccessSize_D : s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2_string = "D";
       default : s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3)
-      MemAccessSize_B : s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3_string = "B";
-      MemAccessSize_H : s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3_string = "H";
-      MemAccessSize_W : s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3_string = "W";
-      MemAccessSize_D : s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3_string = "D";
-      default : s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3_string = "?";
     endcase
   end
   always @(*) begin
@@ -10460,15 +10152,6 @@ module CoreNSCSCC (
     endcase
   end
   always @(*) begin
-    case(CommitPlugin_logic_s1_s1_headUop_decoded_archSrc3_rtype)
-      ArchRegType_GPR : CommitPlugin_logic_s1_s1_headUop_decoded_archSrc3_rtype_string = "GPR  ";
-      ArchRegType_FPR : CommitPlugin_logic_s1_s1_headUop_decoded_archSrc3_rtype_string = "FPR  ";
-      ArchRegType_CSR : CommitPlugin_logic_s1_s1_headUop_decoded_archSrc3_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : CommitPlugin_logic_s1_s1_headUop_decoded_archSrc3_rtype_string = "LA_CF";
-      default : CommitPlugin_logic_s1_s1_headUop_decoded_archSrc3_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
     case(CommitPlugin_logic_s1_s1_headUop_decoded_immUsage)
       ImmUsageType_NONE : CommitPlugin_logic_s1_s1_headUop_decoded_immUsage_string = "NONE         ";
       ImmUsageType_SRC_ALU : CommitPlugin_logic_s1_s1_headUop_decoded_immUsage_string = "SRC_ALU      ";
@@ -10548,15 +10231,6 @@ module CoreNSCSCC (
       MemAccessSize_W : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc2_string = "W";
       MemAccessSize_D : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc2_string = "D";
       default : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc2_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc3)
-      MemAccessSize_B : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc3_string = "B";
-      MemAccessSize_H : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc3_string = "H";
-      MemAccessSize_W : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc3_string = "W";
-      MemAccessSize_D : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc3_string = "D";
-      default : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc3_string = "?";
     endcase
   end
   always @(*) begin
@@ -10657,15 +10331,6 @@ module CoreNSCSCC (
     endcase
   end
   always @(*) begin
-    case(DecodePlugin_logic_decodedUopsOutputVec_0_archSrc3_rtype)
-      ArchRegType_GPR : DecodePlugin_logic_decodedUopsOutputVec_0_archSrc3_rtype_string = "GPR  ";
-      ArchRegType_FPR : DecodePlugin_logic_decodedUopsOutputVec_0_archSrc3_rtype_string = "FPR  ";
-      ArchRegType_CSR : DecodePlugin_logic_decodedUopsOutputVec_0_archSrc3_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : DecodePlugin_logic_decodedUopsOutputVec_0_archSrc3_rtype_string = "LA_CF";
-      default : DecodePlugin_logic_decodedUopsOutputVec_0_archSrc3_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
     case(DecodePlugin_logic_decodedUopsOutputVec_0_immUsage)
       ImmUsageType_NONE : DecodePlugin_logic_decodedUopsOutputVec_0_immUsage_string = "NONE         ";
       ImmUsageType_SRC_ALU : DecodePlugin_logic_decodedUopsOutputVec_0_immUsage_string = "SRC_ALU      ";
@@ -10745,15 +10410,6 @@ module CoreNSCSCC (
       MemAccessSize_W : DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc2_string = "W";
       MemAccessSize_D : DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc2_string = "D";
       default : DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc2_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc3)
-      MemAccessSize_B : DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc3_string = "B";
-      MemAccessSize_H : DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc3_string = "H";
-      MemAccessSize_W : DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc3_string = "W";
-      MemAccessSize_D : DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc3_string = "D";
-      default : DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc3_string = "?";
     endcase
   end
   always @(*) begin
@@ -10854,15 +10510,6 @@ module CoreNSCSCC (
     endcase
   end
   always @(*) begin
-    case(_zz_DecodePlugin_logic_decodedUopsOutputVec_0_archSrc3_rtype)
-      ArchRegType_GPR : _zz_DecodePlugin_logic_decodedUopsOutputVec_0_archSrc3_rtype_string = "GPR  ";
-      ArchRegType_FPR : _zz_DecodePlugin_logic_decodedUopsOutputVec_0_archSrc3_rtype_string = "FPR  ";
-      ArchRegType_CSR : _zz_DecodePlugin_logic_decodedUopsOutputVec_0_archSrc3_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : _zz_DecodePlugin_logic_decodedUopsOutputVec_0_archSrc3_rtype_string = "LA_CF";
-      default : _zz_DecodePlugin_logic_decodedUopsOutputVec_0_archSrc3_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
     case(_zz_DecodePlugin_logic_decodedUopsOutputVec_0_immUsage)
       ImmUsageType_NONE : _zz_DecodePlugin_logic_decodedUopsOutputVec_0_immUsage_string = "NONE         ";
       ImmUsageType_SRC_ALU : _zz_DecodePlugin_logic_decodedUopsOutputVec_0_immUsage_string = "SRC_ALU      ";
@@ -10945,15 +10592,6 @@ module CoreNSCSCC (
     endcase
   end
   always @(*) begin
-    case(_zz_DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc3)
-      MemAccessSize_B : _zz_DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc3_string = "B";
-      MemAccessSize_H : _zz_DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc3_string = "H";
-      MemAccessSize_W : _zz_DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc3_string = "W";
-      MemAccessSize_D : _zz_DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc3_string = "D";
-      default : _zz_DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc3_string = "?";
-    endcase
-  end
-  always @(*) begin
     case(_zz_DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeDest)
       MemAccessSize_B : _zz_DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeDest_string = "B";
       MemAccessSize_H : _zz_DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeDest_string = "H";
@@ -10969,6 +10607,15 @@ module CoreNSCSCC (
       DecodeExCode_DECODE_ERROR : _zz_DecodePlugin_logic_decodedUopsOutputVec_0_decodeExceptionCode_string = "DECODE_ERROR";
       DecodeExCode_OK : _zz_DecodePlugin_logic_decodedUopsOutputVec_0_decodeExceptionCode_string = "OK          ";
       default : _zz_DecodePlugin_logic_decodedUopsOutputVec_0_decodeExceptionCode_string = "????????????";
+    endcase
+  end
+  always @(*) begin
+    case(DecodePlugin_logic_debugLA32RDecodedPhysSrc2_rtype)
+      ArchRegType_GPR : DecodePlugin_logic_debugLA32RDecodedPhysSrc2_rtype_string = "GPR  ";
+      ArchRegType_FPR : DecodePlugin_logic_debugLA32RDecodedPhysSrc2_rtype_string = "FPR  ";
+      ArchRegType_CSR : DecodePlugin_logic_debugLA32RDecodedPhysSrc2_rtype_string = "CSR  ";
+      ArchRegType_LA_CF : DecodePlugin_logic_debugLA32RDecodedPhysSrc2_rtype_string = "LA_CF";
+      default : DecodePlugin_logic_debugLA32RDecodedPhysSrc2_rtype_string = "?????";
     endcase
   end
   always @(*) begin
@@ -11051,15 +10698,6 @@ module CoreNSCSCC (
     endcase
   end
   always @(*) begin
-    case(RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc3_rtype)
-      ArchRegType_GPR : RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc3_rtype_string = "GPR  ";
-      ArchRegType_FPR : RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc3_rtype_string = "FPR  ";
-      ArchRegType_CSR : RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc3_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc3_rtype_string = "LA_CF";
-      default : RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc3_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
     case(RobAllocPlugin_logic_allocatedUops_0_decoded_immUsage)
       ImmUsageType_NONE : RobAllocPlugin_logic_allocatedUops_0_decoded_immUsage_string = "NONE         ";
       ImmUsageType_SRC_ALU : RobAllocPlugin_logic_allocatedUops_0_decoded_immUsage_string = "SRC_ALU      ";
@@ -11139,15 +10777,6 @@ module CoreNSCSCC (
       MemAccessSize_W : RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc2_string = "W";
       MemAccessSize_D : RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc2_string = "D";
       default : RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc2_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc3)
-      MemAccessSize_B : RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc3_string = "B";
-      MemAccessSize_H : RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc3_string = "H";
-      MemAccessSize_W : RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc3_string = "W";
-      MemAccessSize_D : RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc3_string = "D";
-      default : RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc3_string = "?";
     endcase
   end
   always @(*) begin
@@ -11248,15 +10877,6 @@ module CoreNSCSCC (
     endcase
   end
   always @(*) begin
-    case(DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_archSrc3_rtype)
-      ArchRegType_GPR : DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_archSrc3_rtype_string = "GPR  ";
-      ArchRegType_FPR : DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_archSrc3_rtype_string = "FPR  ";
-      ArchRegType_CSR : DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_archSrc3_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_archSrc3_rtype_string = "LA_CF";
-      default : DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_archSrc3_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
     case(DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_immUsage)
       ImmUsageType_NONE : DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_immUsage_string = "NONE         ";
       ImmUsageType_SRC_ALU : DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_immUsage_string = "SRC_ALU      ";
@@ -11336,15 +10956,6 @@ module CoreNSCSCC (
       MemAccessSize_W : DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "W";
       MemAccessSize_D : DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "D";
       default : DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3)
-      MemAccessSize_B : DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "B";
-      MemAccessSize_H : DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "H";
-      MemAccessSize_W : DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "W";
-      MemAccessSize_D : DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "D";
-      default : DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "?";
     endcase
   end
   always @(*) begin
@@ -11445,15 +11056,6 @@ module CoreNSCSCC (
     endcase
   end
   always @(*) begin
-    case(DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_archSrc3_rtype)
-      ArchRegType_GPR : DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_archSrc3_rtype_string = "GPR  ";
-      ArchRegType_FPR : DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_archSrc3_rtype_string = "FPR  ";
-      ArchRegType_CSR : DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_archSrc3_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_archSrc3_rtype_string = "LA_CF";
-      default : DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_archSrc3_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
     case(DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_immUsage)
       ImmUsageType_NONE : DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_immUsage_string = "NONE         ";
       ImmUsageType_SRC_ALU : DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_immUsage_string = "SRC_ALU      ";
@@ -11533,15 +11135,6 @@ module CoreNSCSCC (
       MemAccessSize_W : DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "W";
       MemAccessSize_D : DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "D";
       default : DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc3)
-      MemAccessSize_B : DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "B";
-      MemAccessSize_H : DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "H";
-      MemAccessSize_W : DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "W";
-      MemAccessSize_D : DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "D";
-      default : DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "?";
     endcase
   end
   always @(*) begin
@@ -11642,15 +11235,6 @@ module CoreNSCSCC (
     endcase
   end
   always @(*) begin
-    case(DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_archSrc3_rtype)
-      ArchRegType_GPR : DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_archSrc3_rtype_string = "GPR  ";
-      ArchRegType_FPR : DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_archSrc3_rtype_string = "FPR  ";
-      ArchRegType_CSR : DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_archSrc3_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_archSrc3_rtype_string = "LA_CF";
-      default : DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_archSrc3_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
     case(DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_immUsage)
       ImmUsageType_NONE : DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_immUsage_string = "NONE         ";
       ImmUsageType_SRC_ALU : DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_immUsage_string = "SRC_ALU      ";
@@ -11730,15 +11314,6 @@ module CoreNSCSCC (
       MemAccessSize_W : DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "W";
       MemAccessSize_D : DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "D";
       default : DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3)
-      MemAccessSize_B : DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "B";
-      MemAccessSize_H : DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "H";
-      MemAccessSize_W : DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "W";
-      MemAccessSize_D : DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "D";
-      default : DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "?";
     endcase
   end
   always @(*) begin
@@ -11839,15 +11414,6 @@ module CoreNSCSCC (
     endcase
   end
   always @(*) begin
-    case(DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_archSrc3_rtype)
-      ArchRegType_GPR : DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_archSrc3_rtype_string = "GPR  ";
-      ArchRegType_FPR : DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_archSrc3_rtype_string = "FPR  ";
-      ArchRegType_CSR : DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_archSrc3_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_archSrc3_rtype_string = "LA_CF";
-      default : DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_archSrc3_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
     case(DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_immUsage)
       ImmUsageType_NONE : DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_immUsage_string = "NONE         ";
       ImmUsageType_SRC_ALU : DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_immUsage_string = "SRC_ALU      ";
@@ -11927,15 +11493,6 @@ module CoreNSCSCC (
       MemAccessSize_W : DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "W";
       MemAccessSize_D : DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "D";
       default : DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc3)
-      MemAccessSize_B : DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "B";
-      MemAccessSize_H : DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "H";
-      MemAccessSize_W : DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "W";
-      MemAccessSize_D : DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "D";
-      default : DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "?";
     endcase
   end
   always @(*) begin
@@ -12036,15 +11593,6 @@ module CoreNSCSCC (
     endcase
   end
   always @(*) begin
-    case(DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_archSrc3_rtype)
-      ArchRegType_GPR : DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_archSrc3_rtype_string = "GPR  ";
-      ArchRegType_FPR : DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_archSrc3_rtype_string = "FPR  ";
-      ArchRegType_CSR : DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_archSrc3_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_archSrc3_rtype_string = "LA_CF";
-      default : DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_archSrc3_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
     case(DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_immUsage)
       ImmUsageType_NONE : DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_immUsage_string = "NONE         ";
       ImmUsageType_SRC_ALU : DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_immUsage_string = "SRC_ALU      ";
@@ -12124,15 +11672,6 @@ module CoreNSCSCC (
       MemAccessSize_W : DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "W";
       MemAccessSize_D : DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "D";
       default : DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3)
-      MemAccessSize_B : DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "B";
-      MemAccessSize_H : DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "H";
-      MemAccessSize_W : DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "W";
-      MemAccessSize_D : DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "D";
-      default : DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "?";
     endcase
   end
   always @(*) begin
@@ -12233,15 +11772,6 @@ module CoreNSCSCC (
     endcase
   end
   always @(*) begin
-    case(DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_archSrc3_rtype)
-      ArchRegType_GPR : DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_archSrc3_rtype_string = "GPR  ";
-      ArchRegType_FPR : DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_archSrc3_rtype_string = "FPR  ";
-      ArchRegType_CSR : DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_archSrc3_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_archSrc3_rtype_string = "LA_CF";
-      default : DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_archSrc3_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
     case(DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_immUsage)
       ImmUsageType_NONE : DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_immUsage_string = "NONE         ";
       ImmUsageType_SRC_ALU : DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_immUsage_string = "SRC_ALU      ";
@@ -12321,15 +11851,6 @@ module CoreNSCSCC (
       MemAccessSize_W : DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "W";
       MemAccessSize_D : DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "D";
       default : DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc3)
-      MemAccessSize_B : DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "B";
-      MemAccessSize_H : DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "H";
-      MemAccessSize_W : DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "W";
-      MemAccessSize_D : DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "D";
-      default : DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "?";
     endcase
   end
   always @(*) begin
@@ -13729,8 +13250,8 @@ module CoreNSCSCC (
   assign CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_29 = 6'h1d;
   assign CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_30 = 6'h1e;
   assign CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_31 = 6'h1f;
-  assign _zz_68 = zz_CheckpointManagerPlugin_logic_initialFreeMask(1'b0);
-  always @(*) CheckpointManagerPlugin_logic_initialFreeMask = _zz_68;
+  assign _zz_65 = zz_CheckpointManagerPlugin_logic_initialFreeMask(1'b0);
+  always @(*) CheckpointManagerPlugin_logic_initialFreeMask = _zz_65;
   assign CheckpointManagerPlugin_logic_initialBtCheckpoint_busyBits = 64'h0;
   assign CommitPlugin_logic_s0_enable = (CommitPlugin_commitEnableExt && (! CommitPlugin_committedIdleReg));
   assign CommitPlugin_logic_s0_isMispredictedBranch = (((CommitPlugin_logic_s0_enable && ROBPlugin_robComponent_io_commit_0_canCommit) && ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_isBranchOrJump) && ROBPlugin_robComponent_io_commit_0_entry_status_isMispredictedBranch);
@@ -13806,13 +13327,13 @@ module CoreNSCSCC (
   assign lA32RSimpleDecoder_1_io_pcIn = (s0_Decode_IssuePipelineSignals_GROUP_PC_IN + 32'h0);
   always @(*) begin
     _zz_DecodePlugin_logic_decodedUopsOutputVec_0_isValid = lA32RSimpleDecoder_1_io_decodedUop_isValid;
-    if(when_DecodePlugin_l64) begin
+    if(when_DecodePlugin_l66) begin
       _zz_DecodePlugin_logic_decodedUopsOutputVec_0_isValid = 1'b0;
     end
     if(s0_Decode_IssuePipelineSignals_IS_FAULT_IN) begin
       _zz_DecodePlugin_logic_decodedUopsOutputVec_0_isValid = 1'b0;
     end
-    if(when_DecodePlugin_l77) begin
+    if(when_DecodePlugin_l79) begin
       _zz_DecodePlugin_logic_decodedUopsOutputVec_0_isValid = 1'b0;
     end
   end
@@ -13829,8 +13350,8 @@ module CoreNSCSCC (
   assign _zz_DecodePlugin_logic_decodedUopsOutputVec_0_archDest_rtype = lA32RSimpleDecoder_1_io_decodedUop_archDest_rtype;
   assign _zz_DecodePlugin_logic_decodedUopsOutputVec_0_writeArchDestEn = lA32RSimpleDecoder_1_io_decodedUop_writeArchDestEn;
   assign _zz_DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_rtype = lA32RSimpleDecoder_1_io_decodedUop_archSrc1_rtype;
+  assign _zz_DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_idx = lA32RSimpleDecoder_1_io_decodedUop_archSrc2_idx;
   assign _zz_DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype = lA32RSimpleDecoder_1_io_decodedUop_archSrc2_rtype;
-  assign _zz_DecodePlugin_logic_decodedUopsOutputVec_0_archSrc3_rtype = lA32RSimpleDecoder_1_io_decodedUop_archSrc3_rtype;
   assign _zz_DecodePlugin_logic_decodedUopsOutputVec_0_immUsage = lA32RSimpleDecoder_1_io_decodedUop_immUsage;
   assign _zz_DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_logicOp = lA32RSimpleDecoder_1_io_decodedUop_aluCtrl_logicOp;
   assign _zz_DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_size = lA32RSimpleDecoder_1_io_decodedUop_memCtrl_size;
@@ -13838,7 +13359,6 @@ module CoreNSCSCC (
   assign _zz_DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype = lA32RSimpleDecoder_1_io_decodedUop_branchCtrl_linkReg_rtype;
   assign _zz_DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc1 = lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_fpSizeSrc1;
   assign _zz_DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc2 = lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_fpSizeSrc2;
-  assign _zz_DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc3 = lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_fpSizeSrc3;
   assign _zz_DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeDest = lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_fpSizeDest;
   always @(*) begin
     _zz_DecodePlugin_logic_decodedUopsOutputVec_0_decodeExceptionCode = lA32RSimpleDecoder_1_io_decodedUop_decodeExceptionCode;
@@ -13857,7 +13377,7 @@ module CoreNSCSCC (
   always @(*) begin
     _zz_DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_isTaken = lA32RSimpleDecoder_1_io_decodedUop_branchPrediction_isTaken;
     _zz_DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_isTaken = 1'bx;
-    if(when_DecodePlugin_l83) begin
+    if(when_DecodePlugin_l85) begin
       _zz_DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_isTaken = s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_0_isTaken;
     end
   end
@@ -13865,7 +13385,7 @@ module CoreNSCSCC (
   always @(*) begin
     _zz_DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_target = lA32RSimpleDecoder_1_io_decodedUop_branchPrediction_target;
     _zz_DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_target = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-    if(when_DecodePlugin_l83) begin
+    if(when_DecodePlugin_l85) begin
       _zz_DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_target = s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_0_target;
     end
   end
@@ -13873,14 +13393,14 @@ module CoreNSCSCC (
   always @(*) begin
     _zz_DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_wasPredicted = lA32RSimpleDecoder_1_io_decodedUop_branchPrediction_wasPredicted;
     _zz_DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_wasPredicted = 1'bx;
-    if(when_DecodePlugin_l83) begin
+    if(when_DecodePlugin_l85) begin
       _zz_DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_wasPredicted = s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_0_wasPredicted;
     end
   end
 
-  assign when_DecodePlugin_l64 = ((((_zz_DecodePlugin_logic_decodedUopsOutputVec_0_uopCode == BaseUopCode_ALU) || (_zz_DecodePlugin_logic_decodedUopsOutputVec_0_uopCode == BaseUopCode_SHIFT)) && (! _zz_DecodePlugin_logic_decodedUopsOutputVec_0_writeArchDestEn)) || (_zz_DecodePlugin_logic_decodedUopsOutputVec_0_uopCode == BaseUopCode_NOP));
-  assign when_DecodePlugin_l77 = (! s0_Decode_IssuePipelineSignals_VALID_MASK[0]);
-  assign when_DecodePlugin_l83 = (! when_DecodePlugin_l64);
+  assign when_DecodePlugin_l66 = ((((_zz_DecodePlugin_logic_decodedUopsOutputVec_0_uopCode == BaseUopCode_ALU) || (_zz_DecodePlugin_logic_decodedUopsOutputVec_0_uopCode == BaseUopCode_SHIFT)) && (! _zz_DecodePlugin_logic_decodedUopsOutputVec_0_writeArchDestEn)) || (_zz_DecodePlugin_logic_decodedUopsOutputVec_0_uopCode == BaseUopCode_NOP));
+  assign when_DecodePlugin_l79 = (! s0_Decode_IssuePipelineSignals_VALID_MASK[0]);
+  assign when_DecodePlugin_l85 = (! when_DecodePlugin_l66);
   assign DecodePlugin_logic_decodedUopsOutputVec_0_pc = lA32RSimpleDecoder_1_io_decodedUop_pc;
   assign DecodePlugin_logic_decodedUopsOutputVec_0_isValid = _zz_DecodePlugin_logic_decodedUopsOutputVec_0_isValid;
   assign DecodePlugin_logic_decodedUopsOutputVec_0_uopCode = _zz_DecodePlugin_logic_decodedUopsOutputVec_0_uopCode;
@@ -13892,12 +13412,9 @@ module CoreNSCSCC (
   assign DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_idx = lA32RSimpleDecoder_1_io_decodedUop_archSrc1_idx;
   assign DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_rtype = _zz_DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_rtype;
   assign DecodePlugin_logic_decodedUopsOutputVec_0_useArchSrc1 = lA32RSimpleDecoder_1_io_decodedUop_useArchSrc1;
-  assign DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_idx = lA32RSimpleDecoder_1_io_decodedUop_archSrc2_idx;
+  assign DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_idx = _zz_DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_idx;
   assign DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype = _zz_DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype;
   assign DecodePlugin_logic_decodedUopsOutputVec_0_useArchSrc2 = lA32RSimpleDecoder_1_io_decodedUop_useArchSrc2;
-  assign DecodePlugin_logic_decodedUopsOutputVec_0_archSrc3_idx = lA32RSimpleDecoder_1_io_decodedUop_archSrc3_idx;
-  assign DecodePlugin_logic_decodedUopsOutputVec_0_archSrc3_rtype = _zz_DecodePlugin_logic_decodedUopsOutputVec_0_archSrc3_rtype;
-  assign DecodePlugin_logic_decodedUopsOutputVec_0_useArchSrc3 = lA32RSimpleDecoder_1_io_decodedUop_useArchSrc3;
   assign DecodePlugin_logic_decodedUopsOutputVec_0_usePcForAddr = lA32RSimpleDecoder_1_io_decodedUop_usePcForAddr;
   assign DecodePlugin_logic_decodedUopsOutputVec_0_imm = lA32RSimpleDecoder_1_io_decodedUop_imm;
   assign DecodePlugin_logic_decodedUopsOutputVec_0_immUsage = _zz_DecodePlugin_logic_decodedUopsOutputVec_0_immUsage;
@@ -13933,13 +13450,11 @@ module CoreNSCSCC (
   assign DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_opType = lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_opType;
   assign DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc1 = _zz_DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc1;
   assign DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc2 = _zz_DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc2;
-  assign DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc3 = _zz_DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc3;
   assign DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeDest = _zz_DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeDest;
   assign DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_roundingMode = lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_roundingMode;
   assign DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_isIntegerDest = lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_isIntegerDest;
   assign DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_isSignedCvt = lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_isSignedCvt;
   assign DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fmaNegSrc1 = lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_fmaNegSrc1;
-  assign DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fmaNegSrc3 = lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_fmaNegSrc3;
   assign DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fcmpCond = lA32RSimpleDecoder_1_io_decodedUop_fpuCtrl_fcmpCond;
   assign DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_csrAddr = lA32RSimpleDecoder_1_io_decodedUop_csrCtrl_csrAddr;
   assign DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_isWrite = lA32RSimpleDecoder_1_io_decodedUop_csrCtrl_isWrite;
@@ -13973,9 +13488,6 @@ module CoreNSCSCC (
   assign s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_idx = DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_idx;
   assign s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_rtype = DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype;
   assign s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc2 = DecodePlugin_logic_decodedUopsOutputVec_0_useArchSrc2;
-  assign s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_idx = DecodePlugin_logic_decodedUopsOutputVec_0_archSrc3_idx;
-  assign s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype = DecodePlugin_logic_decodedUopsOutputVec_0_archSrc3_rtype;
-  assign s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc3 = DecodePlugin_logic_decodedUopsOutputVec_0_useArchSrc3;
   assign s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_usePcForAddr = DecodePlugin_logic_decodedUopsOutputVec_0_usePcForAddr;
   assign s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_imm = DecodePlugin_logic_decodedUopsOutputVec_0_imm;
   assign s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_immUsage = DecodePlugin_logic_decodedUopsOutputVec_0_immUsage;
@@ -14011,13 +13523,11 @@ module CoreNSCSCC (
   assign s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_opType = DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_opType;
   assign s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc1 = DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc1;
   assign s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2 = DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc2;
-  assign s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3 = DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc3;
   assign s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeDest = DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeDest;
   assign s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_roundingMode = DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_roundingMode;
   assign s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_isIntegerDest = DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_isIntegerDest;
   assign s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_isSignedCvt = DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_isSignedCvt;
   assign s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fmaNegSrc1 = DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fmaNegSrc1;
-  assign s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fmaNegSrc3 = DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fmaNegSrc3;
   assign s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fcmpCond = DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fcmpCond;
   assign s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_csrAddr = DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_csrAddr;
   assign s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_isWrite = DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_isWrite;
@@ -14037,7 +13547,7 @@ module CoreNSCSCC (
   assign s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_branchPrediction_isTaken = DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_isTaken;
   assign s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_branchPrediction_target = DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_target;
   assign s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_branchPrediction_wasPredicted = DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_wasPredicted;
-  assign when_DecodePlugin_l115 = (s0_Decode_isFiring && DecodePlugin_logic_decodedUopsOutputVec_0_isValid);
+  assign when_DecodePlugin_l117 = (s0_Decode_isFiring && DecodePlugin_logic_decodedUopsOutputVec_0_isValid);
   assign _zz_21 = (DecodePlugin_logic_decodedUopsOutputVec_0_archDest_rtype == ArchRegType_GPR);
   assign _zz_22 = (DecodePlugin_logic_decodedUopsOutputVec_0_archDest_rtype == ArchRegType_FPR);
   assign _zz_23 = (DecodePlugin_logic_decodedUopsOutputVec_0_archDest_rtype == ArchRegType_CSR);
@@ -14047,12 +13557,9 @@ module CoreNSCSCC (
   assign _zz_27 = (DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype == ArchRegType_GPR);
   assign _zz_28 = (DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype == ArchRegType_FPR);
   assign _zz_29 = (DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype == ArchRegType_CSR);
-  assign _zz_30 = (DecodePlugin_logic_decodedUopsOutputVec_0_archSrc3_rtype == ArchRegType_GPR);
-  assign _zz_31 = (DecodePlugin_logic_decodedUopsOutputVec_0_archSrc3_rtype == ArchRegType_FPR);
-  assign _zz_32 = (DecodePlugin_logic_decodedUopsOutputVec_0_archSrc3_rtype == ArchRegType_CSR);
-  assign _zz_33 = (DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype == ArchRegType_GPR);
-  assign _zz_34 = (DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype == ArchRegType_FPR);
-  assign _zz_35 = (DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype == ArchRegType_CSR);
+  assign _zz_30 = (DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype == ArchRegType_GPR);
+  assign _zz_31 = (DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype == ArchRegType_FPR);
+  assign _zz_32 = (DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype == ArchRegType_CSR);
   assign SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_enable = (s1_Rename_valid && s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_writeArchDestEn);
   assign s1_Rename_IssuePipelineSignals_NEEDS_PHYS_REG_0 = s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_writeArchDestEn;
   assign RenamePlugin_logic_s2_logic_allocationOk = (&((! s2_RobAlloc_IssuePipelineSignals_NEEDS_PHYS_REG_0) || SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_success));
@@ -14072,9 +13579,6 @@ module CoreNSCSCC (
   assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_idx = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc2_idx;
   assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_rtype = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc2_rtype;
   assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc2 = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_useArchSrc2;
-  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_idx = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc3_idx;
-  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_rtype = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archSrc3_rtype;
-  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc3 = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_useArchSrc3;
   assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_usePcForAddr = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_usePcForAddr;
   assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_imm = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_imm;
   assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_immUsage = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_immUsage;
@@ -14110,13 +13614,11 @@ module CoreNSCSCC (
   assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_opType = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_opType;
   assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1 = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc1;
   assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2 = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc2;
-  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3 = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc3;
   assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeDest = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeDest;
   assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_roundingMode = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_roundingMode;
   assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_isIntegerDest = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_isIntegerDest;
   assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_isSignedCvt = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_isSignedCvt;
   assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fmaNegSrc1 = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fmaNegSrc1;
-  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fmaNegSrc3 = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fmaNegSrc3;
   assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fcmpCond = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_fpuCtrl_fcmpCond;
   assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_csrAddr = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_csrAddr;
   assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_isWrite = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_csrCtrl_isWrite;
@@ -14140,8 +13642,6 @@ module CoreNSCSCC (
   assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc1IsFpr = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc1IsFpr;
   assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc2_idx = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc2_idx;
   assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc2IsFpr = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc2IsFpr;
-  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc3_idx = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc3_idx;
-  assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc3IsFpr = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physSrc3IsFpr;
   assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physDest_idx = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physDest_idx;
   assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physDestIsFpr = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physDestIsFpr;
   assign s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_oldPhysDest_idx = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_oldPhysDest_idx;
@@ -14173,9 +13673,6 @@ module CoreNSCSCC (
   assign RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc2_idx = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_idx;
   assign RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc2_rtype = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc2_rtype;
   assign RobAllocPlugin_logic_allocatedUops_0_decoded_useArchSrc2 = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc2;
-  assign RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc3_idx = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_idx;
-  assign RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc3_rtype = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_archSrc3_rtype;
-  assign RobAllocPlugin_logic_allocatedUops_0_decoded_useArchSrc3 = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_useArchSrc3;
   assign RobAllocPlugin_logic_allocatedUops_0_decoded_usePcForAddr = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_usePcForAddr;
   assign RobAllocPlugin_logic_allocatedUops_0_decoded_imm = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_imm;
   assign RobAllocPlugin_logic_allocatedUops_0_decoded_immUsage = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_immUsage;
@@ -14211,13 +13708,11 @@ module CoreNSCSCC (
   assign RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_opType = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_opType;
   assign RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc1 = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1;
   assign RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc2 = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2;
-  assign RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc3 = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3;
   assign RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeDest = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fpSizeDest;
   assign RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_roundingMode = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_roundingMode;
   assign RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_isIntegerDest = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_isIntegerDest;
   assign RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_isSignedCvt = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_isSignedCvt;
   assign RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fmaNegSrc1 = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fmaNegSrc1;
-  assign RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fmaNegSrc3 = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fmaNegSrc3;
   assign RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fcmpCond = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_fpuCtrl_fcmpCond;
   assign RobAllocPlugin_logic_allocatedUops_0_decoded_csrCtrl_csrAddr = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_csrAddr;
   assign RobAllocPlugin_logic_allocatedUops_0_decoded_csrCtrl_isWrite = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_csrCtrl_isWrite;
@@ -14241,8 +13736,6 @@ module CoreNSCSCC (
   assign RobAllocPlugin_logic_allocatedUops_0_rename_physSrc1IsFpr = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc1IsFpr;
   assign RobAllocPlugin_logic_allocatedUops_0_rename_physSrc2_idx = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc2_idx;
   assign RobAllocPlugin_logic_allocatedUops_0_rename_physSrc2IsFpr = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc2IsFpr;
-  assign RobAllocPlugin_logic_allocatedUops_0_rename_physSrc3_idx = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc3_idx;
-  assign RobAllocPlugin_logic_allocatedUops_0_rename_physSrc3IsFpr = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physSrc3IsFpr;
   assign RobAllocPlugin_logic_allocatedUops_0_rename_physDest_idx = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physDest_idx;
   assign RobAllocPlugin_logic_allocatedUops_0_rename_physDestIsFpr = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_physDestIsFpr;
   assign RobAllocPlugin_logic_allocatedUops_0_rename_oldPhysDest_idx = s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_oldPhysDest_idx;
@@ -14269,9 +13762,6 @@ module CoreNSCSCC (
   assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_idx = RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc2_idx;
   assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_rtype = RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc2_rtype;
   assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc2 = RobAllocPlugin_logic_allocatedUops_0_decoded_useArchSrc2;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_idx = RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc3_idx;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype = RobAllocPlugin_logic_allocatedUops_0_decoded_archSrc3_rtype;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc3 = RobAllocPlugin_logic_allocatedUops_0_decoded_useArchSrc3;
   assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_usePcForAddr = RobAllocPlugin_logic_allocatedUops_0_decoded_usePcForAddr;
   assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_imm = RobAllocPlugin_logic_allocatedUops_0_decoded_imm;
   assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage = RobAllocPlugin_logic_allocatedUops_0_decoded_immUsage;
@@ -14307,13 +13797,11 @@ module CoreNSCSCC (
   assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_opType = RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_opType;
   assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1 = RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc1;
   assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2 = RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc2;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3 = RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeSrc3;
   assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeDest = RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fpSizeDest;
   assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_roundingMode = RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_roundingMode;
   assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_isIntegerDest = RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_isIntegerDest;
   assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_isSignedCvt = RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_isSignedCvt;
   assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fmaNegSrc1 = RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fmaNegSrc1;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fmaNegSrc3 = RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fmaNegSrc3;
   assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fcmpCond = RobAllocPlugin_logic_allocatedUops_0_decoded_fpuCtrl_fcmpCond;
   assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_csrCtrl_csrAddr = RobAllocPlugin_logic_allocatedUops_0_decoded_csrCtrl_csrAddr;
   assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_csrCtrl_isWrite = RobAllocPlugin_logic_allocatedUops_0_decoded_csrCtrl_isWrite;
@@ -14337,8 +13825,6 @@ module CoreNSCSCC (
   assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc1IsFpr = RobAllocPlugin_logic_allocatedUops_0_rename_physSrc1IsFpr;
   assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2_idx = RobAllocPlugin_logic_allocatedUops_0_rename_physSrc2_idx;
   assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2IsFpr = RobAllocPlugin_logic_allocatedUops_0_rename_physSrc2IsFpr;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc3_idx = RobAllocPlugin_logic_allocatedUops_0_rename_physSrc3_idx;
-  assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc3IsFpr = RobAllocPlugin_logic_allocatedUops_0_rename_physSrc3IsFpr;
   assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physDest_idx = RobAllocPlugin_logic_allocatedUops_0_rename_physDest_idx;
   assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physDestIsFpr = RobAllocPlugin_logic_allocatedUops_0_rename_physDestIsFpr;
   assign s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_oldPhysDest_idx = RobAllocPlugin_logic_allocatedUops_0_rename_oldPhysDest_idx;
@@ -14367,9 +13853,6 @@ module CoreNSCSCC (
   assign DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_archSrc2_idx = DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_archSrc2_idx;
   assign DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_archSrc2_rtype = DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_archSrc2_rtype;
   assign DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_useArchSrc2 = DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_useArchSrc2;
-  assign DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_archSrc3_idx = DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_archSrc3_idx;
-  assign DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_archSrc3_rtype = DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_archSrc3_rtype;
-  assign DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_useArchSrc3 = DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_useArchSrc3;
   assign DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_usePcForAddr = DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_usePcForAddr;
   assign DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_imm = DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_imm;
   assign DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_immUsage = DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_immUsage;
@@ -14405,13 +13888,11 @@ module CoreNSCSCC (
   assign DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_opType = DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_opType;
   assign DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc1 = DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fpSizeSrc1;
   assign DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc2 = DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fpSizeSrc2;
-  assign DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc3 = DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3;
   assign DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeDest = DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fpSizeDest;
   assign DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_roundingMode = DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_roundingMode;
   assign DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_isIntegerDest = DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_isIntegerDest;
   assign DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_isSignedCvt = DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_isSignedCvt;
   assign DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fmaNegSrc1 = DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fmaNegSrc1;
-  assign DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fmaNegSrc3 = DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fmaNegSrc3;
   assign DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_fpuCtrl_fcmpCond = DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fcmpCond;
   assign DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_csrCtrl_csrAddr = DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_csrCtrl_csrAddr;
   assign DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_decoded_csrCtrl_isWrite = DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_csrCtrl_isWrite;
@@ -14435,8 +13916,6 @@ module CoreNSCSCC (
   assign DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_rename_physSrc1IsFpr = DispatchPlugin_logic_iqRegs_0_1_payload_uop_rename_physSrc1IsFpr;
   assign DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_rename_physSrc2_idx = DispatchPlugin_logic_iqRegs_0_1_payload_uop_rename_physSrc2_idx;
   assign DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_rename_physSrc2IsFpr = DispatchPlugin_logic_iqRegs_0_1_payload_uop_rename_physSrc2IsFpr;
-  assign DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_rename_physSrc3_idx = DispatchPlugin_logic_iqRegs_0_1_payload_uop_rename_physSrc3_idx;
-  assign DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_rename_physSrc3IsFpr = DispatchPlugin_logic_iqRegs_0_1_payload_uop_rename_physSrc3IsFpr;
   assign DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_rename_physDest_idx = DispatchPlugin_logic_iqRegs_0_1_payload_uop_rename_physDest_idx;
   assign DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_rename_physDestIsFpr = DispatchPlugin_logic_iqRegs_0_1_payload_uop_rename_physDestIsFpr;
   assign DispatchPlugin_logic_iqRegs_0_1_toFlow_payload_uop_rename_oldPhysDest_idx = DispatchPlugin_logic_iqRegs_0_1_payload_uop_rename_oldPhysDest_idx;
@@ -14467,9 +13946,6 @@ module CoreNSCSCC (
   assign DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_archSrc2_idx = DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_archSrc2_idx;
   assign DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_archSrc2_rtype = DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_archSrc2_rtype;
   assign DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_useArchSrc2 = DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_useArchSrc2;
-  assign DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_archSrc3_idx = DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_archSrc3_idx;
-  assign DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_archSrc3_rtype = DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_archSrc3_rtype;
-  assign DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_useArchSrc3 = DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_useArchSrc3;
   assign DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_usePcForAddr = DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_usePcForAddr;
   assign DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_imm = DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_imm;
   assign DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_immUsage = DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_immUsage;
@@ -14505,13 +13981,11 @@ module CoreNSCSCC (
   assign DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_opType = DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_opType;
   assign DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc1 = DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fpSizeSrc1;
   assign DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc2 = DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fpSizeSrc2;
-  assign DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc3 = DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3;
   assign DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeDest = DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fpSizeDest;
   assign DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_roundingMode = DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_roundingMode;
   assign DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_isIntegerDest = DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_isIntegerDest;
   assign DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_isSignedCvt = DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_isSignedCvt;
   assign DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fmaNegSrc1 = DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fmaNegSrc1;
-  assign DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fmaNegSrc3 = DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fmaNegSrc3;
   assign DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_fpuCtrl_fcmpCond = DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fcmpCond;
   assign DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_csrCtrl_csrAddr = DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_csrCtrl_csrAddr;
   assign DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_decoded_csrCtrl_isWrite = DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_csrCtrl_isWrite;
@@ -14535,8 +14009,6 @@ module CoreNSCSCC (
   assign DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_rename_physSrc1IsFpr = DispatchPlugin_logic_iqRegs_1_1_payload_uop_rename_physSrc1IsFpr;
   assign DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_rename_physSrc2_idx = DispatchPlugin_logic_iqRegs_1_1_payload_uop_rename_physSrc2_idx;
   assign DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_rename_physSrc2IsFpr = DispatchPlugin_logic_iqRegs_1_1_payload_uop_rename_physSrc2IsFpr;
-  assign DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_rename_physSrc3_idx = DispatchPlugin_logic_iqRegs_1_1_payload_uop_rename_physSrc3_idx;
-  assign DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_rename_physSrc3IsFpr = DispatchPlugin_logic_iqRegs_1_1_payload_uop_rename_physSrc3IsFpr;
   assign DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_rename_physDest_idx = DispatchPlugin_logic_iqRegs_1_1_payload_uop_rename_physDest_idx;
   assign DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_rename_physDestIsFpr = DispatchPlugin_logic_iqRegs_1_1_payload_uop_rename_physDestIsFpr;
   assign DispatchPlugin_logic_iqRegs_1_1_toFlow_payload_uop_rename_oldPhysDest_idx = DispatchPlugin_logic_iqRegs_1_1_payload_uop_rename_oldPhysDest_idx;
@@ -14567,9 +14039,6 @@ module CoreNSCSCC (
   assign DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_archSrc2_idx = DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_archSrc2_idx;
   assign DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_archSrc2_rtype = DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_archSrc2_rtype;
   assign DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_useArchSrc2 = DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_useArchSrc2;
-  assign DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_archSrc3_idx = DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_archSrc3_idx;
-  assign DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_archSrc3_rtype = DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_archSrc3_rtype;
-  assign DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_useArchSrc3 = DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_useArchSrc3;
   assign DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_usePcForAddr = DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_usePcForAddr;
   assign DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_imm = DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_imm;
   assign DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_immUsage = DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_immUsage;
@@ -14605,13 +14074,11 @@ module CoreNSCSCC (
   assign DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_opType = DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_opType;
   assign DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc1 = DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fpSizeSrc1;
   assign DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc2 = DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fpSizeSrc2;
-  assign DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeSrc3 = DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3;
   assign DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fpSizeDest = DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fpSizeDest;
   assign DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_roundingMode = DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_roundingMode;
   assign DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_isIntegerDest = DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_isIntegerDest;
   assign DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_isSignedCvt = DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_isSignedCvt;
   assign DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fmaNegSrc1 = DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fmaNegSrc1;
-  assign DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fmaNegSrc3 = DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fmaNegSrc3;
   assign DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_fpuCtrl_fcmpCond = DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fcmpCond;
   assign DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_csrCtrl_csrAddr = DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_csrCtrl_csrAddr;
   assign DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_decoded_csrCtrl_isWrite = DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_csrCtrl_isWrite;
@@ -14635,8 +14102,6 @@ module CoreNSCSCC (
   assign DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_rename_physSrc1IsFpr = DispatchPlugin_logic_iqRegs_2_1_payload_uop_rename_physSrc1IsFpr;
   assign DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_rename_physSrc2_idx = DispatchPlugin_logic_iqRegs_2_1_payload_uop_rename_physSrc2_idx;
   assign DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_rename_physSrc2IsFpr = DispatchPlugin_logic_iqRegs_2_1_payload_uop_rename_physSrc2IsFpr;
-  assign DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_rename_physSrc3_idx = DispatchPlugin_logic_iqRegs_2_1_payload_uop_rename_physSrc3_idx;
-  assign DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_rename_physSrc3IsFpr = DispatchPlugin_logic_iqRegs_2_1_payload_uop_rename_physSrc3IsFpr;
   assign DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_rename_physDest_idx = DispatchPlugin_logic_iqRegs_2_1_payload_uop_rename_physDest_idx;
   assign DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_rename_physDestIsFpr = DispatchPlugin_logic_iqRegs_2_1_payload_uop_rename_physDestIsFpr;
   assign DispatchPlugin_logic_iqRegs_2_1_toFlow_payload_uop_rename_oldPhysDest_idx = DispatchPlugin_logic_iqRegs_2_1_payload_uop_rename_oldPhysDest_idx;
@@ -14863,30 +14328,6 @@ module CoreNSCSCC (
       DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_useArchSrc2 = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc2;
     end else begin
       DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_useArchSrc2 = 1'bx;
-    end
-  end
-
-  always @(*) begin
-    if(DispatchPlugin_logic_iqRegs_0_1_valid) begin
-      DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_archSrc3_idx = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_idx;
-    end else begin
-      DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_archSrc3_idx = 5'bxxxxx;
-    end
-  end
-
-  always @(*) begin
-    if(DispatchPlugin_logic_iqRegs_0_1_valid) begin
-      DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_archSrc3_rtype = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype;
-    end else begin
-      DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_archSrc3_rtype = (2'bxx);
-    end
-  end
-
-  always @(*) begin
-    if(DispatchPlugin_logic_iqRegs_0_1_valid) begin
-      DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_useArchSrc3 = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc3;
-    end else begin
-      DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_useArchSrc3 = 1'bx;
     end
   end
 
@@ -15172,14 +14613,6 @@ module CoreNSCSCC (
 
   always @(*) begin
     if(DispatchPlugin_logic_iqRegs_0_1_valid) begin
-      DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3 = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3;
-    end else begin
-      DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3 = (2'bxx);
-    end
-  end
-
-  always @(*) begin
-    if(DispatchPlugin_logic_iqRegs_0_1_valid) begin
       DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fpSizeDest = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeDest;
     end else begin
       DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fpSizeDest = (2'bxx);
@@ -15215,14 +14648,6 @@ module CoreNSCSCC (
       DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fmaNegSrc1 = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fmaNegSrc1;
     end else begin
       DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fmaNegSrc1 = 1'bx;
-    end
-  end
-
-  always @(*) begin
-    if(DispatchPlugin_logic_iqRegs_0_1_valid) begin
-      DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fmaNegSrc3 = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fmaNegSrc3;
-    end else begin
-      DispatchPlugin_logic_iqRegs_0_1_payload_uop_decoded_fpuCtrl_fmaNegSrc3 = 1'bx;
     end
   end
 
@@ -15407,22 +14832,6 @@ module CoreNSCSCC (
       DispatchPlugin_logic_iqRegs_0_1_payload_uop_rename_physSrc2IsFpr = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2IsFpr;
     end else begin
       DispatchPlugin_logic_iqRegs_0_1_payload_uop_rename_physSrc2IsFpr = 1'bx;
-    end
-  end
-
-  always @(*) begin
-    if(DispatchPlugin_logic_iqRegs_0_1_valid) begin
-      DispatchPlugin_logic_iqRegs_0_1_payload_uop_rename_physSrc3_idx = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc3_idx;
-    end else begin
-      DispatchPlugin_logic_iqRegs_0_1_payload_uop_rename_physSrc3_idx = 6'bxxxxxx;
-    end
-  end
-
-  always @(*) begin
-    if(DispatchPlugin_logic_iqRegs_0_1_valid) begin
-      DispatchPlugin_logic_iqRegs_0_1_payload_uop_rename_physSrc3IsFpr = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc3IsFpr;
-    end else begin
-      DispatchPlugin_logic_iqRegs_0_1_payload_uop_rename_physSrc3IsFpr = 1'bx;
     end
   end
 
@@ -15648,30 +15057,6 @@ module CoreNSCSCC (
       DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_useArchSrc2 = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc2;
     end else begin
       DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_useArchSrc2 = 1'bx;
-    end
-  end
-
-  always @(*) begin
-    if(DispatchPlugin_logic_iqRegs_1_1_valid) begin
-      DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_archSrc3_idx = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_idx;
-    end else begin
-      DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_archSrc3_idx = 5'bxxxxx;
-    end
-  end
-
-  always @(*) begin
-    if(DispatchPlugin_logic_iqRegs_1_1_valid) begin
-      DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_archSrc3_rtype = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype;
-    end else begin
-      DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_archSrc3_rtype = (2'bxx);
-    end
-  end
-
-  always @(*) begin
-    if(DispatchPlugin_logic_iqRegs_1_1_valid) begin
-      DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_useArchSrc3 = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc3;
-    end else begin
-      DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_useArchSrc3 = 1'bx;
     end
   end
 
@@ -15957,14 +15342,6 @@ module CoreNSCSCC (
 
   always @(*) begin
     if(DispatchPlugin_logic_iqRegs_1_1_valid) begin
-      DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3 = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3;
-    end else begin
-      DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3 = (2'bxx);
-    end
-  end
-
-  always @(*) begin
-    if(DispatchPlugin_logic_iqRegs_1_1_valid) begin
       DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fpSizeDest = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeDest;
     end else begin
       DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fpSizeDest = (2'bxx);
@@ -16000,14 +15377,6 @@ module CoreNSCSCC (
       DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fmaNegSrc1 = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fmaNegSrc1;
     end else begin
       DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fmaNegSrc1 = 1'bx;
-    end
-  end
-
-  always @(*) begin
-    if(DispatchPlugin_logic_iqRegs_1_1_valid) begin
-      DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fmaNegSrc3 = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fmaNegSrc3;
-    end else begin
-      DispatchPlugin_logic_iqRegs_1_1_payload_uop_decoded_fpuCtrl_fmaNegSrc3 = 1'bx;
     end
   end
 
@@ -16192,22 +15561,6 @@ module CoreNSCSCC (
       DispatchPlugin_logic_iqRegs_1_1_payload_uop_rename_physSrc2IsFpr = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2IsFpr;
     end else begin
       DispatchPlugin_logic_iqRegs_1_1_payload_uop_rename_physSrc2IsFpr = 1'bx;
-    end
-  end
-
-  always @(*) begin
-    if(DispatchPlugin_logic_iqRegs_1_1_valid) begin
-      DispatchPlugin_logic_iqRegs_1_1_payload_uop_rename_physSrc3_idx = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc3_idx;
-    end else begin
-      DispatchPlugin_logic_iqRegs_1_1_payload_uop_rename_physSrc3_idx = 6'bxxxxxx;
-    end
-  end
-
-  always @(*) begin
-    if(DispatchPlugin_logic_iqRegs_1_1_valid) begin
-      DispatchPlugin_logic_iqRegs_1_1_payload_uop_rename_physSrc3IsFpr = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc3IsFpr;
-    end else begin
-      DispatchPlugin_logic_iqRegs_1_1_payload_uop_rename_physSrc3IsFpr = 1'bx;
     end
   end
 
@@ -16433,30 +15786,6 @@ module CoreNSCSCC (
       DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_useArchSrc2 = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc2;
     end else begin
       DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_useArchSrc2 = 1'bx;
-    end
-  end
-
-  always @(*) begin
-    if(DispatchPlugin_logic_iqRegs_2_1_valid) begin
-      DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_archSrc3_idx = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_idx;
-    end else begin
-      DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_archSrc3_idx = 5'bxxxxx;
-    end
-  end
-
-  always @(*) begin
-    if(DispatchPlugin_logic_iqRegs_2_1_valid) begin
-      DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_archSrc3_rtype = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype;
-    end else begin
-      DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_archSrc3_rtype = (2'bxx);
-    end
-  end
-
-  always @(*) begin
-    if(DispatchPlugin_logic_iqRegs_2_1_valid) begin
-      DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_useArchSrc3 = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc3;
-    end else begin
-      DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_useArchSrc3 = 1'bx;
     end
   end
 
@@ -16742,14 +16071,6 @@ module CoreNSCSCC (
 
   always @(*) begin
     if(DispatchPlugin_logic_iqRegs_2_1_valid) begin
-      DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3 = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3;
-    end else begin
-      DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fpSizeSrc3 = (2'bxx);
-    end
-  end
-
-  always @(*) begin
-    if(DispatchPlugin_logic_iqRegs_2_1_valid) begin
       DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fpSizeDest = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeDest;
     end else begin
       DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fpSizeDest = (2'bxx);
@@ -16785,14 +16106,6 @@ module CoreNSCSCC (
       DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fmaNegSrc1 = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fmaNegSrc1;
     end else begin
       DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fmaNegSrc1 = 1'bx;
-    end
-  end
-
-  always @(*) begin
-    if(DispatchPlugin_logic_iqRegs_2_1_valid) begin
-      DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fmaNegSrc3 = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fmaNegSrc3;
-    end else begin
-      DispatchPlugin_logic_iqRegs_2_1_payload_uop_decoded_fpuCtrl_fmaNegSrc3 = 1'bx;
     end
   end
 
@@ -16977,22 +16290,6 @@ module CoreNSCSCC (
       DispatchPlugin_logic_iqRegs_2_1_payload_uop_rename_physSrc2IsFpr = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2IsFpr;
     end else begin
       DispatchPlugin_logic_iqRegs_2_1_payload_uop_rename_physSrc2IsFpr = 1'bx;
-    end
-  end
-
-  always @(*) begin
-    if(DispatchPlugin_logic_iqRegs_2_1_valid) begin
-      DispatchPlugin_logic_iqRegs_2_1_payload_uop_rename_physSrc3_idx = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc3_idx;
-    end else begin
-      DispatchPlugin_logic_iqRegs_2_1_payload_uop_rename_physSrc3_idx = 6'bxxxxxx;
-    end
-  end
-
-  always @(*) begin
-    if(DispatchPlugin_logic_iqRegs_2_1_valid) begin
-      DispatchPlugin_logic_iqRegs_2_1_payload_uop_rename_physSrc3IsFpr = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc3IsFpr;
-    end else begin
-      DispatchPlugin_logic_iqRegs_2_1_payload_uop_rename_physSrc3IsFpr = 1'bx;
     end
   end
 
@@ -17216,7 +16513,7 @@ module CoreNSCSCC (
   assign _zz_io_iqEntryIn_payload_aluCtrl_logicOp = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp;
   assign _zz_io_iqEntryIn_payload_immUsage = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage;
   assign s2_Execute_isFiring = (s2_Execute_valid && s2_Execute_ready);
-  assign _zz_36 = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage;
+  assign _zz_33 = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage;
   assign s0_Dispatch_ready_1 = 1'b1;
   assign s1_ReadRegs_ready = 1'b1;
   assign s2_Execute_ready = 1'b1;
@@ -17347,7 +16644,7 @@ module CoreNSCSCC (
     end
   end
 
-  assign _zz_37 = (! _zz_BranchEU_BranchEuPlugin_euResult_isMispredictedBranch_1);
+  assign _zz_34 = (! _zz_BranchEU_BranchEuPlugin_euResult_isMispredictedBranch_1);
   assign s2_Mispredict_isFiring = (s2_Mispredict_valid && s2_Mispredict_ready);
   assign BpuPipelinePlugin_updatePortIn_valid = s1_Resolve_isFiring;
   assign BpuPipelinePlugin_updatePortIn_payload_pc = _zz_BpuPipelinePlugin_updatePortIn_payload_pc;
@@ -17731,7 +17028,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_valid = LoadQueuePlugin_logic_loadQueue_slots_0_valid;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_39) begin
+      if(_zz_36) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_valid = 1'b1;
       end
     end
@@ -17740,7 +17037,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_address = LoadQueuePlugin_logic_loadQueue_slots_0_address;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_39) begin
+      if(_zz_36) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_address = LoadQueuePlugin_logic_pushCmd_payload_address;
       end
     end
@@ -17749,7 +17046,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_size = LoadQueuePlugin_logic_loadQueue_slots_0_size;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_39) begin
+      if(_zz_36) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_size = LoadQueuePlugin_logic_pushCmd_payload_size;
       end
     end
@@ -17758,7 +17055,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_robPtr = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_39) begin
+      if(_zz_36) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_robPtr = LoadQueuePlugin_logic_pushCmd_payload_robPtr;
       end
     end
@@ -17767,7 +17064,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_pdest = LoadQueuePlugin_logic_loadQueue_slots_0_pdest;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_39) begin
+      if(_zz_36) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_pdest = LoadQueuePlugin_logic_pushCmd_payload_pdest;
       end
     end
@@ -17776,7 +17073,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isIO = LoadQueuePlugin_logic_loadQueue_slots_0_isIO;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_39) begin
+      if(_zz_36) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isIO = LoadQueuePlugin_logic_pushCmd_payload_isIO;
       end
     end
@@ -17785,7 +17082,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_hasException = LoadQueuePlugin_logic_loadQueue_slots_0_hasException;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_39) begin
+      if(_zz_36) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_hasException = LoadQueuePlugin_logic_pushCmd_payload_hasEarlyException;
       end
     end
@@ -17794,7 +17091,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_exceptionCode = LoadQueuePlugin_logic_loadQueue_slots_0_exceptionCode;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_39) begin
+      if(_zz_36) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_exceptionCode = LoadQueuePlugin_logic_pushCmd_payload_earlyExceptionCode;
       end
     end
@@ -17803,7 +17100,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForFwdRsp;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_39) begin
+      if(_zz_36) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isWaitingForFwdRsp = 1'b0;
       end
     end
@@ -17818,7 +17115,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slots_0_isStalledByDependency;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_39) begin
+      if(_zz_36) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isStalledByDependency = 1'b0;
       end
     end
@@ -17837,7 +17134,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slots_0_isReadyForDCache;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_39) begin
+      if(_zz_36) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isReadyForDCache = 1'b0;
       end
     end
@@ -17867,7 +17164,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForRsp;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_39) begin
+      if(_zz_36) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isWaitingForRsp = 1'b0;
       end
     end
@@ -17887,7 +17184,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_valid = LoadQueuePlugin_logic_loadQueue_slots_1_valid;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_40) begin
+      if(_zz_37) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_valid = 1'b1;
       end
     end
@@ -17896,7 +17193,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_address = LoadQueuePlugin_logic_loadQueue_slots_1_address;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_40) begin
+      if(_zz_37) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_address = LoadQueuePlugin_logic_pushCmd_payload_address;
       end
     end
@@ -17905,7 +17202,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_size = LoadQueuePlugin_logic_loadQueue_slots_1_size;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_40) begin
+      if(_zz_37) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_size = LoadQueuePlugin_logic_pushCmd_payload_size;
       end
     end
@@ -17914,7 +17211,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_robPtr = LoadQueuePlugin_logic_loadQueue_slots_1_robPtr;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_40) begin
+      if(_zz_37) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_robPtr = LoadQueuePlugin_logic_pushCmd_payload_robPtr;
       end
     end
@@ -17923,7 +17220,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_pdest = LoadQueuePlugin_logic_loadQueue_slots_1_pdest;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_40) begin
+      if(_zz_37) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_pdest = LoadQueuePlugin_logic_pushCmd_payload_pdest;
       end
     end
@@ -17932,7 +17229,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isIO = LoadQueuePlugin_logic_loadQueue_slots_1_isIO;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_40) begin
+      if(_zz_37) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isIO = LoadQueuePlugin_logic_pushCmd_payload_isIO;
       end
     end
@@ -17941,7 +17238,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_hasException = LoadQueuePlugin_logic_loadQueue_slots_1_hasException;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_40) begin
+      if(_zz_37) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_hasException = LoadQueuePlugin_logic_pushCmd_payload_hasEarlyException;
       end
     end
@@ -17950,7 +17247,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_exceptionCode = LoadQueuePlugin_logic_loadQueue_slots_1_exceptionCode;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_40) begin
+      if(_zz_37) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_exceptionCode = LoadQueuePlugin_logic_pushCmd_payload_earlyExceptionCode;
       end
     end
@@ -17959,7 +17256,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slots_1_isWaitingForFwdRsp;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_40) begin
+      if(_zz_37) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isWaitingForFwdRsp = 1'b0;
       end
     end
@@ -17968,7 +17265,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slots_1_isStalledByDependency;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_40) begin
+      if(_zz_37) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isStalledByDependency = 1'b0;
       end
     end
@@ -17977,7 +17274,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slots_1_isReadyForDCache;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_40) begin
+      if(_zz_37) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isReadyForDCache = 1'b0;
       end
     end
@@ -17986,7 +17283,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slots_1_isWaitingForRsp;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_40) begin
+      if(_zz_37) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isWaitingForRsp = 1'b0;
       end
     end
@@ -17995,7 +17292,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_valid = LoadQueuePlugin_logic_loadQueue_slots_2_valid;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_41) begin
+      if(_zz_38) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_valid = 1'b1;
       end
     end
@@ -18004,7 +17301,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_address = LoadQueuePlugin_logic_loadQueue_slots_2_address;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_41) begin
+      if(_zz_38) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_address = LoadQueuePlugin_logic_pushCmd_payload_address;
       end
     end
@@ -18013,7 +17310,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_size = LoadQueuePlugin_logic_loadQueue_slots_2_size;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_41) begin
+      if(_zz_38) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_size = LoadQueuePlugin_logic_pushCmd_payload_size;
       end
     end
@@ -18022,7 +17319,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_robPtr = LoadQueuePlugin_logic_loadQueue_slots_2_robPtr;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_41) begin
+      if(_zz_38) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_robPtr = LoadQueuePlugin_logic_pushCmd_payload_robPtr;
       end
     end
@@ -18031,7 +17328,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_pdest = LoadQueuePlugin_logic_loadQueue_slots_2_pdest;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_41) begin
+      if(_zz_38) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_pdest = LoadQueuePlugin_logic_pushCmd_payload_pdest;
       end
     end
@@ -18040,7 +17337,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isIO = LoadQueuePlugin_logic_loadQueue_slots_2_isIO;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_41) begin
+      if(_zz_38) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isIO = LoadQueuePlugin_logic_pushCmd_payload_isIO;
       end
     end
@@ -18049,7 +17346,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_hasException = LoadQueuePlugin_logic_loadQueue_slots_2_hasException;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_41) begin
+      if(_zz_38) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_hasException = LoadQueuePlugin_logic_pushCmd_payload_hasEarlyException;
       end
     end
@@ -18058,7 +17355,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_exceptionCode = LoadQueuePlugin_logic_loadQueue_slots_2_exceptionCode;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_41) begin
+      if(_zz_38) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_exceptionCode = LoadQueuePlugin_logic_pushCmd_payload_earlyExceptionCode;
       end
     end
@@ -18067,7 +17364,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slots_2_isWaitingForFwdRsp;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_41) begin
+      if(_zz_38) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isWaitingForFwdRsp = 1'b0;
       end
     end
@@ -18076,7 +17373,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slots_2_isStalledByDependency;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_41) begin
+      if(_zz_38) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isStalledByDependency = 1'b0;
       end
     end
@@ -18085,7 +17382,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slots_2_isReadyForDCache;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_41) begin
+      if(_zz_38) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isReadyForDCache = 1'b0;
       end
     end
@@ -18094,7 +17391,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slots_2_isWaitingForRsp;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_41) begin
+      if(_zz_38) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isWaitingForRsp = 1'b0;
       end
     end
@@ -18103,7 +17400,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_valid = LoadQueuePlugin_logic_loadQueue_slots_3_valid;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_42) begin
+      if(_zz_39) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_valid = 1'b1;
       end
     end
@@ -18112,7 +17409,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_address = LoadQueuePlugin_logic_loadQueue_slots_3_address;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_42) begin
+      if(_zz_39) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_address = LoadQueuePlugin_logic_pushCmd_payload_address;
       end
     end
@@ -18121,7 +17418,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_size = LoadQueuePlugin_logic_loadQueue_slots_3_size;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_42) begin
+      if(_zz_39) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_size = LoadQueuePlugin_logic_pushCmd_payload_size;
       end
     end
@@ -18130,7 +17427,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_robPtr = LoadQueuePlugin_logic_loadQueue_slots_3_robPtr;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_42) begin
+      if(_zz_39) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_robPtr = LoadQueuePlugin_logic_pushCmd_payload_robPtr;
       end
     end
@@ -18139,7 +17436,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_pdest = LoadQueuePlugin_logic_loadQueue_slots_3_pdest;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_42) begin
+      if(_zz_39) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_pdest = LoadQueuePlugin_logic_pushCmd_payload_pdest;
       end
     end
@@ -18148,7 +17445,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isIO = LoadQueuePlugin_logic_loadQueue_slots_3_isIO;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_42) begin
+      if(_zz_39) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isIO = LoadQueuePlugin_logic_pushCmd_payload_isIO;
       end
     end
@@ -18157,7 +17454,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_hasException = LoadQueuePlugin_logic_loadQueue_slots_3_hasException;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_42) begin
+      if(_zz_39) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_hasException = LoadQueuePlugin_logic_pushCmd_payload_hasEarlyException;
       end
     end
@@ -18166,7 +17463,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_exceptionCode = LoadQueuePlugin_logic_loadQueue_slots_3_exceptionCode;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_42) begin
+      if(_zz_39) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_exceptionCode = LoadQueuePlugin_logic_pushCmd_payload_earlyExceptionCode;
       end
     end
@@ -18175,7 +17472,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slots_3_isWaitingForFwdRsp;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_42) begin
+      if(_zz_39) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isWaitingForFwdRsp = 1'b0;
       end
     end
@@ -18184,7 +17481,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slots_3_isStalledByDependency;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_42) begin
+      if(_zz_39) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isStalledByDependency = 1'b0;
       end
     end
@@ -18193,7 +17490,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slots_3_isReadyForDCache;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_42) begin
+      if(_zz_39) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isReadyForDCache = 1'b0;
       end
     end
@@ -18202,7 +17499,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slots_3_isWaitingForRsp;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_42) begin
+      if(_zz_39) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isWaitingForRsp = 1'b0;
       end
     end
@@ -18843,11 +18140,11 @@ module CoreNSCSCC (
   assign _zz_LoadQueuePlugin_logic_loadQueue_pushIdx_2 = (LoadQueuePlugin_logic_loadQueue_pushOh[2] || _zz_LoadQueuePlugin_logic_loadQueue_pushIdx);
   assign LoadQueuePlugin_logic_loadQueue_pushIdx = {_zz_LoadQueuePlugin_logic_loadQueue_pushIdx_2,_zz_LoadQueuePlugin_logic_loadQueue_pushIdx_1};
   assign LoadQueuePlugin_logic_pushCmd_fire = (LoadQueuePlugin_logic_pushCmd_valid && LoadQueuePlugin_logic_pushCmd_ready);
-  assign _zz_38 = ({3'd0,1'b1} <<< LoadQueuePlugin_logic_loadQueue_pushIdx);
-  assign _zz_39 = _zz_38[0];
-  assign _zz_40 = _zz_38[1];
-  assign _zz_41 = _zz_38[2];
-  assign _zz_42 = _zz_38[3];
+  assign _zz_35 = ({3'd0,1'b1} <<< LoadQueuePlugin_logic_loadQueue_pushIdx);
+  assign _zz_36 = _zz_35[0];
+  assign _zz_37 = _zz_35[1];
+  assign _zz_38 = _zz_35[2];
+  assign _zz_39 = _zz_35[3];
   assign _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[3];
   assign _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_1 = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[2 : 0];
   assign _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_2 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
@@ -19148,14 +18445,14 @@ module CoreNSCSCC (
   assign LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = _zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp;
   assign _zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = ((LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_address == 6'h0) ? 32'h0 : _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp);
   assign LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = _zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp;
-  assign _zz_43 = 3'b000;
+  assign _zz_40 = 3'b000;
+  assign _zz_41 = 3'b001;
+  assign _zz_42 = 3'b001;
+  assign _zz_43 = 3'b010;
   assign _zz_44 = 3'b001;
-  assign _zz_45 = 3'b001;
+  assign _zz_45 = 3'b010;
   assign _zz_46 = 3'b010;
-  assign _zz_47 = 3'b001;
-  assign _zz_48 = 3'b010;
-  assign _zz_49 = 3'b010;
-  assign _zz_50 = 3'b011;
+  assign _zz_47 = 3'b011;
   assign _zz_when_PhysicalRegFile_l136_2 = {LoadQueuePlugin_hw_prfWritePort_valid,{LsuEU_LsuEuPlugin_gprWritePort_valid,{BranchEU_BranchEuPlugin_gprWritePort_valid,AluIntEU_AluIntEuPlugin_gprWritePort_valid}}};
   assign _zz_when_PhysicalRegFile_l136_3 = (_zz_when_PhysicalRegFile_l136_2 & (~ _zz__zz_when_PhysicalRegFile_l136_3));
   assign _zz_when_PhysicalRegFile_l136_4 = _zz_when_PhysicalRegFile_l136_3[1];
@@ -19168,7 +18465,7 @@ module CoreNSCSCC (
   assign _zz_when_PhysicalRegFile_l136_1 = _zz__zz_when_PhysicalRegFile_l136_1;
   assign _zz_PhysicalRegFilePlugin_logic_regFile_0 = _zz__zz_PhysicalRegFilePlugin_logic_regFile_0;
   assign when_PhysicalRegFile_l136 = (_zz_when_PhysicalRegFile_l136 && (_zz_when_PhysicalRegFile_l136_1 != 6'h0));
-  assign _zz_51 = ({63'd0,1'b1} <<< _zz_when_PhysicalRegFile_l136_1);
+  assign _zz_48 = ({63'd0,1'b1} <<< _zz_when_PhysicalRegFile_l136_1);
   assign when_PhysicalRegFile_l141 = (_zz_when_PhysicalRegFile_l136 && (_zz_when_PhysicalRegFile_l136_1 != 6'h0));
   assign _zz_when_PhysicalRegFile_l150 = 3'b000;
   assign _zz_when_PhysicalRegFile_l150_1 = 3'b001;
@@ -19179,11 +18476,11 @@ module CoreNSCSCC (
   assign _zz_when_PhysicalRegFile_l150_6 = 3'b010;
   assign _zz_when_PhysicalRegFile_l150_7 = 3'b011;
   assign when_PhysicalRegFile_l150 = (3'b001 < _zz_when_PhysicalRegFile_l150_8);
-  assign _zz_52 = 8'he0;
+  assign _zz_49 = 8'he0;
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush = StoreBufferPlugin_logic_slots_0_isFlush;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_57) begin
+      if(_zz_54) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush;
       end
     end
@@ -19195,7 +18492,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_addr = StoreBufferPlugin_logic_slots_0_addr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_57) begin
+      if(_zz_54) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_addr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr;
       end
     end
@@ -19207,7 +18504,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_data = StoreBufferPlugin_logic_slots_0_data;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_57) begin
+      if(_zz_54) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_data = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data;
       end
     end
@@ -19219,7 +18516,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_be = StoreBufferPlugin_logic_slots_0_be;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_57) begin
+      if(_zz_54) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_be = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_be;
       end
     end
@@ -19231,7 +18528,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr = StoreBufferPlugin_logic_slots_0_robPtr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_57) begin
+      if(_zz_54) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr;
       end
     end
@@ -19243,7 +18540,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize = StoreBufferPlugin_logic_slots_0_accessSize;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_57) begin
+      if(_zz_54) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize;
       end
     end
@@ -19255,7 +18552,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO = StoreBufferPlugin_logic_slots_0_isIO;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_57) begin
+      if(_zz_54) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO;
       end
     end
@@ -19267,7 +18564,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_valid = StoreBufferPlugin_logic_slots_0_valid;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_57) begin
+      if(_zz_54) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_valid = 1'b1;
       end
     end
@@ -19282,7 +18579,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException = StoreBufferPlugin_logic_slots_0_hasEarlyException;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_57) begin
+      if(_zz_54) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException;
       end
     end
@@ -19299,7 +18596,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode = StoreBufferPlugin_logic_slots_0_earlyExceptionCode;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_57) begin
+      if(_zz_54) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode;
       end
     end
@@ -19316,7 +18613,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_isCommitted = StoreBufferPlugin_logic_slots_0_isCommitted;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_57) begin
+      if(_zz_54) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_isCommitted = 1'b0;
       end
     end
@@ -19335,7 +18632,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_sentCmd = StoreBufferPlugin_logic_slots_0_sentCmd;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_57) begin
+      if(_zz_54) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_sentCmd = 1'b0;
       end
     end
@@ -19364,7 +18661,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_waitRsp = StoreBufferPlugin_logic_slots_0_waitRsp;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_57) begin
+      if(_zz_54) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_waitRsp = 1'b0;
       end
     end
@@ -19388,7 +18685,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForRefill = StoreBufferPlugin_logic_slots_0_isWaitingForRefill;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_57) begin
+      if(_zz_54) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForRefill = 1'b0;
       end
     end
@@ -19410,7 +18707,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForWb = StoreBufferPlugin_logic_slots_0_isWaitingForWb;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_57) begin
+      if(_zz_54) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForWb = 1'b0;
       end
     end
@@ -19432,7 +18729,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_refillSlotToWatch = StoreBufferPlugin_logic_slots_0_refillSlotToWatch;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_57) begin
+      if(_zz_54) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_refillSlotToWatch = 2'b00;
       end
     end
@@ -19451,7 +18748,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_isFlush = StoreBufferPlugin_logic_slots_1_isFlush;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_58) begin
+      if(_zz_55) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_isFlush = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush;
       end
     end
@@ -19463,7 +18760,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_addr = StoreBufferPlugin_logic_slots_1_addr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_58) begin
+      if(_zz_55) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_addr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr;
       end
     end
@@ -19475,7 +18772,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_data = StoreBufferPlugin_logic_slots_1_data;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_58) begin
+      if(_zz_55) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_data = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data;
       end
     end
@@ -19487,7 +18784,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_be = StoreBufferPlugin_logic_slots_1_be;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_58) begin
+      if(_zz_55) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_be = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_be;
       end
     end
@@ -19499,7 +18796,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_robPtr = StoreBufferPlugin_logic_slots_1_robPtr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_58) begin
+      if(_zz_55) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_robPtr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr;
       end
     end
@@ -19511,7 +18808,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_accessSize = StoreBufferPlugin_logic_slots_1_accessSize;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_58) begin
+      if(_zz_55) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_accessSize = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize;
       end
     end
@@ -19523,7 +18820,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_isIO = StoreBufferPlugin_logic_slots_1_isIO;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_58) begin
+      if(_zz_55) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_isIO = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO;
       end
     end
@@ -19535,7 +18832,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_valid = StoreBufferPlugin_logic_slots_1_valid;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_58) begin
+      if(_zz_55) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_valid = 1'b1;
       end
     end
@@ -19550,7 +18847,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_hasEarlyException = StoreBufferPlugin_logic_slots_1_hasEarlyException;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_58) begin
+      if(_zz_55) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_hasEarlyException = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException;
       end
     end
@@ -19562,7 +18859,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_earlyExceptionCode = StoreBufferPlugin_logic_slots_1_earlyExceptionCode;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_58) begin
+      if(_zz_55) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_earlyExceptionCode = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode;
       end
     end
@@ -19574,7 +18871,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_isCommitted = StoreBufferPlugin_logic_slots_1_isCommitted;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_58) begin
+      if(_zz_55) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_isCommitted = 1'b0;
       end
     end
@@ -19593,7 +18890,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_sentCmd = StoreBufferPlugin_logic_slots_1_sentCmd;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_58) begin
+      if(_zz_55) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_sentCmd = 1'b0;
       end
     end
@@ -19605,7 +18902,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_waitRsp = StoreBufferPlugin_logic_slots_1_waitRsp;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_58) begin
+      if(_zz_55) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_waitRsp = 1'b0;
       end
     end
@@ -19617,7 +18914,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_isWaitingForRefill = StoreBufferPlugin_logic_slots_1_isWaitingForRefill;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_58) begin
+      if(_zz_55) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_isWaitingForRefill = 1'b0;
       end
     end
@@ -19629,7 +18926,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_isWaitingForWb = StoreBufferPlugin_logic_slots_1_isWaitingForWb;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_58) begin
+      if(_zz_55) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_isWaitingForWb = 1'b0;
       end
     end
@@ -19641,7 +18938,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_refillSlotToWatch = StoreBufferPlugin_logic_slots_1_refillSlotToWatch;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_58) begin
+      if(_zz_55) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_refillSlotToWatch = 2'b00;
       end
     end
@@ -19653,7 +18950,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_isFlush = StoreBufferPlugin_logic_slots_2_isFlush;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_59) begin
+      if(_zz_56) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_isFlush = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush;
       end
     end
@@ -19665,7 +18962,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_addr = StoreBufferPlugin_logic_slots_2_addr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_59) begin
+      if(_zz_56) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_addr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr;
       end
     end
@@ -19677,7 +18974,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_data = StoreBufferPlugin_logic_slots_2_data;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_59) begin
+      if(_zz_56) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_data = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data;
       end
     end
@@ -19689,7 +18986,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_be = StoreBufferPlugin_logic_slots_2_be;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_59) begin
+      if(_zz_56) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_be = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_be;
       end
     end
@@ -19701,7 +18998,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_robPtr = StoreBufferPlugin_logic_slots_2_robPtr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_59) begin
+      if(_zz_56) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_robPtr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr;
       end
     end
@@ -19713,7 +19010,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_accessSize = StoreBufferPlugin_logic_slots_2_accessSize;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_59) begin
+      if(_zz_56) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_accessSize = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize;
       end
     end
@@ -19725,7 +19022,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_isIO = StoreBufferPlugin_logic_slots_2_isIO;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_59) begin
+      if(_zz_56) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_isIO = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO;
       end
     end
@@ -19737,7 +19034,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_valid = StoreBufferPlugin_logic_slots_2_valid;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_59) begin
+      if(_zz_56) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_valid = 1'b1;
       end
     end
@@ -19752,7 +19049,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_hasEarlyException = StoreBufferPlugin_logic_slots_2_hasEarlyException;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_59) begin
+      if(_zz_56) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_hasEarlyException = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException;
       end
     end
@@ -19764,7 +19061,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_earlyExceptionCode = StoreBufferPlugin_logic_slots_2_earlyExceptionCode;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_59) begin
+      if(_zz_56) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_earlyExceptionCode = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode;
       end
     end
@@ -19776,7 +19073,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_isCommitted = StoreBufferPlugin_logic_slots_2_isCommitted;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_59) begin
+      if(_zz_56) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_isCommitted = 1'b0;
       end
     end
@@ -19795,7 +19092,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_sentCmd = StoreBufferPlugin_logic_slots_2_sentCmd;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_59) begin
+      if(_zz_56) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_sentCmd = 1'b0;
       end
     end
@@ -19807,7 +19104,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_waitRsp = StoreBufferPlugin_logic_slots_2_waitRsp;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_59) begin
+      if(_zz_56) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_waitRsp = 1'b0;
       end
     end
@@ -19819,7 +19116,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_isWaitingForRefill = StoreBufferPlugin_logic_slots_2_isWaitingForRefill;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_59) begin
+      if(_zz_56) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_isWaitingForRefill = 1'b0;
       end
     end
@@ -19831,7 +19128,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_isWaitingForWb = StoreBufferPlugin_logic_slots_2_isWaitingForWb;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_59) begin
+      if(_zz_56) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_isWaitingForWb = 1'b0;
       end
     end
@@ -19843,7 +19140,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_refillSlotToWatch = StoreBufferPlugin_logic_slots_2_refillSlotToWatch;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_59) begin
+      if(_zz_56) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_refillSlotToWatch = 2'b00;
       end
     end
@@ -19855,7 +19152,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_isFlush = StoreBufferPlugin_logic_slots_3_isFlush;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_60) begin
+      if(_zz_57) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_isFlush = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush;
       end
     end
@@ -19867,7 +19164,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_addr = StoreBufferPlugin_logic_slots_3_addr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_60) begin
+      if(_zz_57) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_addr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr;
       end
     end
@@ -19879,7 +19176,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_data = StoreBufferPlugin_logic_slots_3_data;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_60) begin
+      if(_zz_57) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_data = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data;
       end
     end
@@ -19891,7 +19188,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_be = StoreBufferPlugin_logic_slots_3_be;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_60) begin
+      if(_zz_57) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_be = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_be;
       end
     end
@@ -19903,7 +19200,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_robPtr = StoreBufferPlugin_logic_slots_3_robPtr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_60) begin
+      if(_zz_57) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_robPtr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr;
       end
     end
@@ -19915,7 +19212,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_accessSize = StoreBufferPlugin_logic_slots_3_accessSize;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_60) begin
+      if(_zz_57) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_accessSize = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize;
       end
     end
@@ -19927,7 +19224,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_isIO = StoreBufferPlugin_logic_slots_3_isIO;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_60) begin
+      if(_zz_57) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_isIO = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO;
       end
     end
@@ -19939,7 +19236,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_valid = StoreBufferPlugin_logic_slots_3_valid;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_60) begin
+      if(_zz_57) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_valid = 1'b1;
       end
     end
@@ -19954,7 +19251,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_hasEarlyException = StoreBufferPlugin_logic_slots_3_hasEarlyException;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_60) begin
+      if(_zz_57) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_hasEarlyException = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException;
       end
     end
@@ -19966,7 +19263,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_earlyExceptionCode = StoreBufferPlugin_logic_slots_3_earlyExceptionCode;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_60) begin
+      if(_zz_57) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_earlyExceptionCode = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode;
       end
     end
@@ -19978,7 +19275,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_isCommitted = StoreBufferPlugin_logic_slots_3_isCommitted;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_60) begin
+      if(_zz_57) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_isCommitted = 1'b0;
       end
     end
@@ -19997,7 +19294,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_sentCmd = StoreBufferPlugin_logic_slots_3_sentCmd;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_60) begin
+      if(_zz_57) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_sentCmd = 1'b0;
       end
     end
@@ -20009,7 +19306,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_waitRsp = StoreBufferPlugin_logic_slots_3_waitRsp;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_60) begin
+      if(_zz_57) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_waitRsp = 1'b0;
       end
     end
@@ -20021,7 +19318,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_isWaitingForRefill = StoreBufferPlugin_logic_slots_3_isWaitingForRefill;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_60) begin
+      if(_zz_57) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_isWaitingForRefill = 1'b0;
       end
     end
@@ -20033,7 +19330,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_isWaitingForWb = StoreBufferPlugin_logic_slots_3_isWaitingForWb;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_60) begin
+      if(_zz_57) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_isWaitingForWb = 1'b0;
       end
     end
@@ -20045,7 +19342,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_refillSlotToWatch = StoreBufferPlugin_logic_slots_3_refillSlotToWatch;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_60) begin
+      if(_zz_57) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_refillSlotToWatch = 2'b00;
       end
     end
@@ -20509,9 +19806,9 @@ module CoreNSCSCC (
   assign StoreBufferPlugin_logic_validFall_3 = (StoreBufferPlugin_logic_slots_2_valid && (! StoreBufferPlugin_logic_slots_3_valid));
   assign StoreBufferPlugin_logic_canPush = ((|{StoreBufferPlugin_logic_validFall_3,{StoreBufferPlugin_logic_validFall_2,{StoreBufferPlugin_logic_validFall_1,StoreBufferPlugin_logic_validFall_0}}}) && (! StoreBufferPlugin_logic_flushInProgress));
   assign StoreBufferPlugin_hw_pushPortInst_ready = StoreBufferPlugin_logic_canPush;
-  assign _zz_53 = (StoreBufferPlugin_logic_validFall_1 || StoreBufferPlugin_logic_validFall_3);
-  assign _zz_54 = (StoreBufferPlugin_logic_validFall_2 || StoreBufferPlugin_logic_validFall_3);
-  assign _zz_55 = {_zz_54,_zz_53};
+  assign _zz_50 = (StoreBufferPlugin_logic_validFall_1 || StoreBufferPlugin_logic_validFall_3);
+  assign _zz_51 = (StoreBufferPlugin_logic_validFall_2 || StoreBufferPlugin_logic_validFall_3);
+  assign _zz_52 = {_zz_51,_zz_50};
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush = StoreBufferPlugin_hw_pushPortInst_payload_isFlush;
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr = StoreBufferPlugin_hw_pushPortInst_payload_addr;
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data = StoreBufferPlugin_hw_pushPortInst_payload_data;
@@ -20521,11 +19818,11 @@ module CoreNSCSCC (
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO = StoreBufferPlugin_hw_pushPortInst_payload_isIO;
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException = StoreBufferPlugin_hw_pushPortInst_payload_hasEarlyException;
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode = StoreBufferPlugin_hw_pushPortInst_payload_earlyExceptionCode;
-  assign _zz_56 = ({3'd0,1'b1} <<< _zz_55);
-  assign _zz_57 = _zz_56[0];
-  assign _zz_58 = _zz_56[1];
-  assign _zz_59 = _zz_56[2];
-  assign _zz_60 = _zz_56[3];
+  assign _zz_53 = ({3'd0,1'b1} <<< _zz_52);
+  assign _zz_54 = _zz_53[0];
+  assign _zz_55 = _zz_53[1];
+  assign _zz_56 = _zz_53[2];
+  assign _zz_57 = _zz_53[3];
   assign StoreBufferPlugin_logic_sharedWriteCond = ((((((StoreBufferPlugin_logic_slots_0_valid && StoreBufferPlugin_logic_slots_0_isCommitted) && (! StoreBufferPlugin_logic_slots_0_isFlush)) && (! StoreBufferPlugin_logic_slots_0_waitRsp)) && (! StoreBufferPlugin_logic_slots_0_isWaitingForRefill)) && (! StoreBufferPlugin_logic_slots_0_isWaitingForWb)) && (! StoreBufferPlugin_logic_slots_0_hasEarlyException));
   assign StoreBufferPlugin_logic_canPopNormalOp = (StoreBufferPlugin_logic_sharedWriteCond && (! StoreBufferPlugin_logic_slots_0_isIO));
   assign StoreBufferPlugin_logic_canPopFlushOp = (((StoreBufferPlugin_logic_slots_0_valid && StoreBufferPlugin_logic_slots_0_isFlush) && (! StoreBufferPlugin_logic_slots_0_waitRsp)) && (! StoreBufferPlugin_logic_slots_0_isWaitingForWb));
@@ -22194,7 +21491,7 @@ module CoreNSCSCC (
   end
 
   assign io_output_fire = (SimpleFetchPipelinePlugin_logic_unpacker_io_output_valid && SimpleFetchPipelinePlugin_logic_s0_query_ready);
-  assign _zz_61 = (SimpleFetchPipelinePlugin_logic_pcOnRequest + 32'h00000008);
+  assign _zz_58 = (SimpleFetchPipelinePlugin_logic_pcOnRequest + 32'h00000008);
   assign when_SimpleFetchPipelinePlugin_l340 = (! SimpleFetchPipelinePlugin_logic_fetchDisable);
   assign SimpleFetchPipelinePlugin_logic_fsm_onExit_BOOT = ((SimpleFetchPipelinePlugin_logic_fsm_stateNext != SimpleFetchPipelinePlugin_logic_fsm_BOOT) && (SimpleFetchPipelinePlugin_logic_fsm_stateReg == SimpleFetchPipelinePlugin_logic_fsm_BOOT));
   assign SimpleFetchPipelinePlugin_logic_fsm_onExit_IDLE = ((SimpleFetchPipelinePlugin_logic_fsm_stateNext != SimpleFetchPipelinePlugin_logic_fsm_IDLE) && (SimpleFetchPipelinePlugin_logic_fsm_stateReg == SimpleFetchPipelinePlugin_logic_fsm_IDLE));
@@ -22915,13 +22212,13 @@ module CoreNSCSCC (
           end
         `endif
       `endif
-      if(when_DecodePlugin_l115) begin
+      if(when_DecodePlugin_l117) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // DecodePlugin.scala:L116
+            assert(1'b0); // DecodePlugin.scala:L118
           `else
             if(!1'b0) begin
-              $display("NOTE(DecodePlugin.scala:116):  DecodePlugin (s0_decode): Firing. Output DecodedUops=DecodedUop @ pc=%x (%x)\n  Core Info:   uopCode=%s  exeUnit=%s  isa=%s\n  Operands:\n    dest=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x writeEn=%x\n    src1=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x use=%x\n    src2=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x use=%x\n    src3=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x use=%x\n    imm=%x (usage=%s)\n  Control Flags:\n    ALU: AluCtrlFlags: isSub=%x isAdd=%x isSigned=%x logicOp=%s\n    Shift: ShiftCtrlFlags: isRight=%x isArithmetic=%x isRotate=%x isDoubleWord=%x\n    MulDiv: MulDivCtrlFlags: isDiv=%x isSigned=%x isWordOp=%x\n    Mem: MemCtrlFlags: size=%s isSignedLoad=%x isStore=%x isLoadLinked=%x isStoreCond=%x atomicOp=%x isFence=%x fenceMode=%x isCacheOp=%x cacheOpType=%x isPrefetch=%x\n    Branch: BranchCtrlFlags: condition=%s isJump=%x isLink=%x linkReg=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x isIndirect=%x laCfIdx=%x\n    FPU: FpuCtrlFlags: opType=%x fpSizeSrc1=%s fpSizeSrc2=%s fpSizeSrc3=%s fpSizeDest=%s roundingMode=%x isIntegerDest=%x isSignedCvt=%x fmaNegSrc1=%x fmaNegSrc3=%x fcmpCond=%x\n    CSR: CsrCtrlFlags: csrAddr=%x isWrite=%x isRead=%x isExchange=%x useUimmAsSrc=%x\n    System: SystemCtrlFlags: sysCode=%x isExceptionReturn=%x isTlbOp=%x tlbOpType=%x\n  Status:\n    decodeEx=%s hasEx=%x\n    isMicrocode=%x entry=%x\n    isSerializing=%x isBranchOrJump=%x branchPrediction=BranchPredictionInfo: isTaken=%x target=%x wasPredicted=%x", DecodePlugin_logic_decodedUopsOutputVec_0_pc, DecodePlugin_logic_decodedUopsOutputVec_0_isValid, DecodePlugin_logic_decodedUopsOutputVec_0_uopCode_string, DecodePlugin_logic_decodedUopsOutputVec_0_exeUnit_string, DecodePlugin_logic_decodedUopsOutputVec_0_isa_string, DecodePlugin_logic_decodedUopsOutputVec_0_archDest_idx, DecodePlugin_logic_decodedUopsOutputVec_0_archDest_rtype_string, _zz_21, _zz_22, _zz_23, DecodePlugin_logic_decodedUopsOutputVec_0_writeArchDestEn, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_idx, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_rtype_string, _zz_24, _zz_25, _zz_26, DecodePlugin_logic_decodedUopsOutputVec_0_useArchSrc1, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_idx, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype_string, _zz_27, _zz_28, _zz_29, DecodePlugin_logic_decodedUopsOutputVec_0_useArchSrc2, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc3_idx, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc3_rtype_string, _zz_30, _zz_31, _zz_32, DecodePlugin_logic_decodedUopsOutputVec_0_useArchSrc3, DecodePlugin_logic_decodedUopsOutputVec_0_imm, DecodePlugin_logic_decodedUopsOutputVec_0_immUsage_string, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_isSub, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_isAdd, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_isSigned, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_logicOp_string, DecodePlugin_logic_decodedUopsOutputVec_0_shiftCtrl_isRight, DecodePlugin_logic_decodedUopsOutputVec_0_shiftCtrl_isArithmetic, DecodePlugin_logic_decodedUopsOutputVec_0_shiftCtrl_isRotate, DecodePlugin_logic_decodedUopsOutputVec_0_shiftCtrl_isDoubleWord, DecodePlugin_logic_decodedUopsOutputVec_0_mulDivCtrl_isDiv, DecodePlugin_logic_decodedUopsOutputVec_0_mulDivCtrl_isSigned, DecodePlugin_logic_decodedUopsOutputVec_0_mulDivCtrl_isWordOp, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_size_string, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isSignedLoad, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isStore, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isLoadLinked, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isStoreCond, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_atomicOp, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isFence, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_fenceMode, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isCacheOp, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_cacheOpType, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isPrefetch, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_condition_string, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_isJump, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_isLink, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_idx, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype_string, _zz_33, _zz_34, _zz_35, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_isIndirect, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_laCfIdx, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_opType, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc1_string, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc2_string, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc3_string, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeDest_string, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_roundingMode, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_isIntegerDest, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_isSignedCvt, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fmaNegSrc1, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fmaNegSrc3, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fcmpCond, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_csrAddr, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_isWrite, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_isRead, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_isExchange, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_useUimmAsSrc, DecodePlugin_logic_decodedUopsOutputVec_0_sysCtrl_sysCode, DecodePlugin_logic_decodedUopsOutputVec_0_sysCtrl_isExceptionReturn, DecodePlugin_logic_decodedUopsOutputVec_0_sysCtrl_isTlbOp, DecodePlugin_logic_decodedUopsOutputVec_0_sysCtrl_tlbOpType, DecodePlugin_logic_decodedUopsOutputVec_0_decodeExceptionCode_string, DecodePlugin_logic_decodedUopsOutputVec_0_hasDecodeException, DecodePlugin_logic_decodedUopsOutputVec_0_isMicrocode, DecodePlugin_logic_decodedUopsOutputVec_0_microcodeEntry, DecodePlugin_logic_decodedUopsOutputVec_0_isSerializing, DecodePlugin_logic_decodedUopsOutputVec_0_isBranchOrJump, DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_isTaken, DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_target, DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_wasPredicted); // DecodePlugin.scala:L116
+              $display("NOTE(DecodePlugin.scala:118):  DecodePlugin (s0_decode): Firing. Output DecodedUops=DecodedUop @ pc=%x (%x)\n  Core Info:   uopCode=%s  exeUnit=%s  isa=%s\n  Operands:\n    dest=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x writeEn=%x\n    src1=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x use=%x\n    src2=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x use=%x\n use=\n    imm=%x (usage=%s)\n  Control Flags:\n    ALU: AluCtrlFlags: isSub=%x isAdd=%x isSigned=%x logicOp=%s\n    Shift: ShiftCtrlFlags: isRight=%x isArithmetic=%x isRotate=%x isDoubleWord=%x\n    MulDiv: MulDivCtrlFlags: isDiv=%x isSigned=%x isWordOp=%x\n    Mem: MemCtrlFlags: size=%s isSignedLoad=%x isStore=%x isLoadLinked=%x isStoreCond=%x atomicOp=%x isFence=%x fenceMode=%x isCacheOp=%x cacheOpType=%x isPrefetch=%x\n    Branch: BranchCtrlFlags: condition=%s isJump=%x isLink=%x linkReg=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x isIndirect=%x laCfIdx=%x\n    FPU: FpuCtrlFlags: opType=%x fpSizeSrc1=%s fpSizeSrc2=%s fpSizeDest=%s roundingMode=%x isIntegerDest=%x isSignedCvt=%x fmaNegSrc1=%x fcmpCond=%x\n    CSR: CsrCtrlFlags: csrAddr=%x isWrite=%x isRead=%x isExchange=%x useUimmAsSrc=%x\n    System: SystemCtrlFlags: sysCode=%x isExceptionReturn=%x isTlbOp=%x tlbOpType=%x\n  Status:\n    decodeEx=%s hasEx=%x\n    isMicrocode=%x entry=%x\n    isSerializing=%x isBranchOrJump=%x branchPrediction=BranchPredictionInfo: isTaken=%x target=%x wasPredicted=%x", DecodePlugin_logic_decodedUopsOutputVec_0_pc, DecodePlugin_logic_decodedUopsOutputVec_0_isValid, DecodePlugin_logic_decodedUopsOutputVec_0_uopCode_string, DecodePlugin_logic_decodedUopsOutputVec_0_exeUnit_string, DecodePlugin_logic_decodedUopsOutputVec_0_isa_string, DecodePlugin_logic_decodedUopsOutputVec_0_archDest_idx, DecodePlugin_logic_decodedUopsOutputVec_0_archDest_rtype_string, _zz_21, _zz_22, _zz_23, DecodePlugin_logic_decodedUopsOutputVec_0_writeArchDestEn, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_idx, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_rtype_string, _zz_24, _zz_25, _zz_26, DecodePlugin_logic_decodedUopsOutputVec_0_useArchSrc1, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_idx, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype_string, _zz_27, _zz_28, _zz_29, DecodePlugin_logic_decodedUopsOutputVec_0_useArchSrc2, DecodePlugin_logic_decodedUopsOutputVec_0_imm, DecodePlugin_logic_decodedUopsOutputVec_0_immUsage_string, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_isSub, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_isAdd, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_isSigned, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_logicOp_string, DecodePlugin_logic_decodedUopsOutputVec_0_shiftCtrl_isRight, DecodePlugin_logic_decodedUopsOutputVec_0_shiftCtrl_isArithmetic, DecodePlugin_logic_decodedUopsOutputVec_0_shiftCtrl_isRotate, DecodePlugin_logic_decodedUopsOutputVec_0_shiftCtrl_isDoubleWord, DecodePlugin_logic_decodedUopsOutputVec_0_mulDivCtrl_isDiv, DecodePlugin_logic_decodedUopsOutputVec_0_mulDivCtrl_isSigned, DecodePlugin_logic_decodedUopsOutputVec_0_mulDivCtrl_isWordOp, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_size_string, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isSignedLoad, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isStore, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isLoadLinked, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isStoreCond, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_atomicOp, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isFence, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_fenceMode, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isCacheOp, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_cacheOpType, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isPrefetch, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_condition_string, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_isJump, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_isLink, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_idx, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype_string, _zz_30, _zz_31, _zz_32, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_isIndirect, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_laCfIdx, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_opType, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc1_string, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc2_string, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeDest_string, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_roundingMode, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_isIntegerDest, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_isSignedCvt, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fmaNegSrc1, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fcmpCond, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_csrAddr, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_isWrite, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_isRead, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_isExchange, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_useUimmAsSrc, DecodePlugin_logic_decodedUopsOutputVec_0_sysCtrl_sysCode, DecodePlugin_logic_decodedUopsOutputVec_0_sysCtrl_isExceptionReturn, DecodePlugin_logic_decodedUopsOutputVec_0_sysCtrl_isTlbOp, DecodePlugin_logic_decodedUopsOutputVec_0_sysCtrl_tlbOpType, DecodePlugin_logic_decodedUopsOutputVec_0_decodeExceptionCode_string, DecodePlugin_logic_decodedUopsOutputVec_0_hasDecodeException, DecodePlugin_logic_decodedUopsOutputVec_0_isMicrocode, DecodePlugin_logic_decodedUopsOutputVec_0_microcodeEntry, DecodePlugin_logic_decodedUopsOutputVec_0_isSerializing, DecodePlugin_logic_decodedUopsOutputVec_0_isBranchOrJump, DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_isTaken, DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_target, DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_wasPredicted); // DecodePlugin.scala:L118
             end
           `endif
         `endif
@@ -23025,7 +22322,7 @@ module CoreNSCSCC (
             assert(1'b0); // AluIntEuPlugin.scala:L130
           `else
             if(!1'b0) begin
-              $display("NOTE(AluIntEuPlugin.scala:130):  [debug] [34mAluIntEu (AluIntEU) S2 Firing: RobPtr=%x, ResultData=%x, WritesPreg=%x, ImmUsage=%x, UseSrc2=%x op: AluCtrlFlags: isSub=%x isAdd=%x isSigned=%x logicOp=%s, lhs=%x, rhs=%x[0m", _zz_AluIntEU_AluIntEuPlugin_euResult_uop_robPtr, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_data, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_writesToPhysReg, _zz_36, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_useSrc2, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSub, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isAdd, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSigned, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_string, _zz_io_iqEntryIn_payload_src1Data, _zz_io_iqEntryIn_payload_src2Data_1); // AluIntEuPlugin.scala:L130
+              $display("NOTE(AluIntEuPlugin.scala:130):  [debug] [34mAluIntEu (AluIntEU) S2 Firing: RobPtr=%x, ResultData=%x, WritesPreg=%x, ImmUsage=%x, UseSrc2=%x op: AluCtrlFlags: isSub=%x isAdd=%x isSigned=%x logicOp=%s, lhs=%x, rhs=%x[0m", _zz_AluIntEU_AluIntEuPlugin_euResult_uop_robPtr, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_data, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_writesToPhysReg, _zz_33, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_useSrc2, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSub, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isAdd, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSigned, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_string, _zz_io_iqEntryIn_payload_src1Data, _zz_io_iqEntryIn_payload_src2Data_1); // AluIntEuPlugin.scala:L130
             end
           `endif
         `endif
@@ -23129,7 +22426,7 @@ module CoreNSCSCC (
             assert(1'b0); // BranchEuPlugin.scala:L211
           `else
             if(!1'b0) begin
-              $display("NOTE(BranchEuPlugin.scala:211):  [BranchEU-S1] RESOLVE COMPLETE: finalTarget=0x%x, mispredicted=%x, actuallyTaken=%x", _zz_BpuPipelinePlugin_updatePortIn_payload_target_2, _zz_37, _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken); // BranchEuPlugin.scala:L211
+              $display("NOTE(BranchEuPlugin.scala:211):  [BranchEU-S1] RESOLVE COMPLETE: finalTarget=0x%x, mispredicted=%x, actuallyTaken=%x", _zz_BpuPipelinePlugin_updatePortIn_payload_target_2, _zz_34, _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken); // BranchEuPlugin.scala:L211
             end
           `endif
         `endif
@@ -23649,205 +22946,205 @@ module CoreNSCSCC (
       end
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert((_zz_62 <= 3'b001)); // PhysicalRegFile.scala:L120
+          assert((_zz_59 <= 3'b001)); // PhysicalRegFile.scala:L120
         `else
-          if(!(_zz_62 <= 3'b001)) begin
+          if(!(_zz_59 <= 3'b001)) begin
             $display("FAILURE PhysicalRegFilePlugin: Multiple write requests detected"); // PhysicalRegFile.scala:L120
             $finish;
           end
         `endif
       `endif
       if(when_PhysicalRegFile_l136) begin
-        if(_zz_51[0]) begin
+        if(_zz_48[0]) begin
           PhysicalRegFilePlugin_logic_regFile_0 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[1]) begin
+        if(_zz_48[1]) begin
           PhysicalRegFilePlugin_logic_regFile_1 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[2]) begin
+        if(_zz_48[2]) begin
           PhysicalRegFilePlugin_logic_regFile_2 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[3]) begin
+        if(_zz_48[3]) begin
           PhysicalRegFilePlugin_logic_regFile_3 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[4]) begin
+        if(_zz_48[4]) begin
           PhysicalRegFilePlugin_logic_regFile_4 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[5]) begin
+        if(_zz_48[5]) begin
           PhysicalRegFilePlugin_logic_regFile_5 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[6]) begin
+        if(_zz_48[6]) begin
           PhysicalRegFilePlugin_logic_regFile_6 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[7]) begin
+        if(_zz_48[7]) begin
           PhysicalRegFilePlugin_logic_regFile_7 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[8]) begin
+        if(_zz_48[8]) begin
           PhysicalRegFilePlugin_logic_regFile_8 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[9]) begin
+        if(_zz_48[9]) begin
           PhysicalRegFilePlugin_logic_regFile_9 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[10]) begin
+        if(_zz_48[10]) begin
           PhysicalRegFilePlugin_logic_regFile_10 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[11]) begin
+        if(_zz_48[11]) begin
           PhysicalRegFilePlugin_logic_regFile_11 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[12]) begin
+        if(_zz_48[12]) begin
           PhysicalRegFilePlugin_logic_regFile_12 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[13]) begin
+        if(_zz_48[13]) begin
           PhysicalRegFilePlugin_logic_regFile_13 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[14]) begin
+        if(_zz_48[14]) begin
           PhysicalRegFilePlugin_logic_regFile_14 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[15]) begin
+        if(_zz_48[15]) begin
           PhysicalRegFilePlugin_logic_regFile_15 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[16]) begin
+        if(_zz_48[16]) begin
           PhysicalRegFilePlugin_logic_regFile_16 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[17]) begin
+        if(_zz_48[17]) begin
           PhysicalRegFilePlugin_logic_regFile_17 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[18]) begin
+        if(_zz_48[18]) begin
           PhysicalRegFilePlugin_logic_regFile_18 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[19]) begin
+        if(_zz_48[19]) begin
           PhysicalRegFilePlugin_logic_regFile_19 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[20]) begin
+        if(_zz_48[20]) begin
           PhysicalRegFilePlugin_logic_regFile_20 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[21]) begin
+        if(_zz_48[21]) begin
           PhysicalRegFilePlugin_logic_regFile_21 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[22]) begin
+        if(_zz_48[22]) begin
           PhysicalRegFilePlugin_logic_regFile_22 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[23]) begin
+        if(_zz_48[23]) begin
           PhysicalRegFilePlugin_logic_regFile_23 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[24]) begin
+        if(_zz_48[24]) begin
           PhysicalRegFilePlugin_logic_regFile_24 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[25]) begin
+        if(_zz_48[25]) begin
           PhysicalRegFilePlugin_logic_regFile_25 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[26]) begin
+        if(_zz_48[26]) begin
           PhysicalRegFilePlugin_logic_regFile_26 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[27]) begin
+        if(_zz_48[27]) begin
           PhysicalRegFilePlugin_logic_regFile_27 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[28]) begin
+        if(_zz_48[28]) begin
           PhysicalRegFilePlugin_logic_regFile_28 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[29]) begin
+        if(_zz_48[29]) begin
           PhysicalRegFilePlugin_logic_regFile_29 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[30]) begin
+        if(_zz_48[30]) begin
           PhysicalRegFilePlugin_logic_regFile_30 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[31]) begin
+        if(_zz_48[31]) begin
           PhysicalRegFilePlugin_logic_regFile_31 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[32]) begin
+        if(_zz_48[32]) begin
           PhysicalRegFilePlugin_logic_regFile_32 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[33]) begin
+        if(_zz_48[33]) begin
           PhysicalRegFilePlugin_logic_regFile_33 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[34]) begin
+        if(_zz_48[34]) begin
           PhysicalRegFilePlugin_logic_regFile_34 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[35]) begin
+        if(_zz_48[35]) begin
           PhysicalRegFilePlugin_logic_regFile_35 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[36]) begin
+        if(_zz_48[36]) begin
           PhysicalRegFilePlugin_logic_regFile_36 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[37]) begin
+        if(_zz_48[37]) begin
           PhysicalRegFilePlugin_logic_regFile_37 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[38]) begin
+        if(_zz_48[38]) begin
           PhysicalRegFilePlugin_logic_regFile_38 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[39]) begin
+        if(_zz_48[39]) begin
           PhysicalRegFilePlugin_logic_regFile_39 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[40]) begin
+        if(_zz_48[40]) begin
           PhysicalRegFilePlugin_logic_regFile_40 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[41]) begin
+        if(_zz_48[41]) begin
           PhysicalRegFilePlugin_logic_regFile_41 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[42]) begin
+        if(_zz_48[42]) begin
           PhysicalRegFilePlugin_logic_regFile_42 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[43]) begin
+        if(_zz_48[43]) begin
           PhysicalRegFilePlugin_logic_regFile_43 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[44]) begin
+        if(_zz_48[44]) begin
           PhysicalRegFilePlugin_logic_regFile_44 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[45]) begin
+        if(_zz_48[45]) begin
           PhysicalRegFilePlugin_logic_regFile_45 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[46]) begin
+        if(_zz_48[46]) begin
           PhysicalRegFilePlugin_logic_regFile_46 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[47]) begin
+        if(_zz_48[47]) begin
           PhysicalRegFilePlugin_logic_regFile_47 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[48]) begin
+        if(_zz_48[48]) begin
           PhysicalRegFilePlugin_logic_regFile_48 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[49]) begin
+        if(_zz_48[49]) begin
           PhysicalRegFilePlugin_logic_regFile_49 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[50]) begin
+        if(_zz_48[50]) begin
           PhysicalRegFilePlugin_logic_regFile_50 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[51]) begin
+        if(_zz_48[51]) begin
           PhysicalRegFilePlugin_logic_regFile_51 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[52]) begin
+        if(_zz_48[52]) begin
           PhysicalRegFilePlugin_logic_regFile_52 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[53]) begin
+        if(_zz_48[53]) begin
           PhysicalRegFilePlugin_logic_regFile_53 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[54]) begin
+        if(_zz_48[54]) begin
           PhysicalRegFilePlugin_logic_regFile_54 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[55]) begin
+        if(_zz_48[55]) begin
           PhysicalRegFilePlugin_logic_regFile_55 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[56]) begin
+        if(_zz_48[56]) begin
           PhysicalRegFilePlugin_logic_regFile_56 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[57]) begin
+        if(_zz_48[57]) begin
           PhysicalRegFilePlugin_logic_regFile_57 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[58]) begin
+        if(_zz_48[58]) begin
           PhysicalRegFilePlugin_logic_regFile_58 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[59]) begin
+        if(_zz_48[59]) begin
           PhysicalRegFilePlugin_logic_regFile_59 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[60]) begin
+        if(_zz_48[60]) begin
           PhysicalRegFilePlugin_logic_regFile_60 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[61]) begin
+        if(_zz_48[61]) begin
           PhysicalRegFilePlugin_logic_regFile_61 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[62]) begin
+        if(_zz_48[62]) begin
           PhysicalRegFilePlugin_logic_regFile_62 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
-        if(_zz_51[63]) begin
+        if(_zz_48[63]) begin
           PhysicalRegFilePlugin_logic_regFile_63 <= _zz_PhysicalRegFilePlugin_logic_regFile_0;
         end
       end
@@ -23869,7 +23166,7 @@ module CoreNSCSCC (
             assert(1'b0); // Debug.scala:L77
           `else
             if(!1'b0) begin
-              $display("NOTE(Debug.scala:77):  [DbgSvc] Set value to 0x%x", _zz_52); // Debug.scala:L77
+              $display("NOTE(Debug.scala:77):  [DbgSvc] Set value to 0x%x", _zz_49); // Debug.scala:L77
             end
           `endif
         `endif
@@ -23882,7 +23179,7 @@ module CoreNSCSCC (
             assert(1'b0); // StoreBufferPlugin.scala:L294
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:294):  [SQ] PUSH: robPtr=%x to slotIdx=%x", StoreBufferPlugin_hw_pushPortInst_payload_robPtr, _zz_55); // StoreBufferPlugin.scala:L294
+              $display("NOTE(StoreBufferPlugin.scala:294):  [SQ] PUSH: robPtr=%x to slotIdx=%x", StoreBufferPlugin_hw_pushPortInst_payload_robPtr, _zz_52); // StoreBufferPlugin.scala:L294
             end
           `endif
         `endif
@@ -24984,7 +24281,7 @@ module CoreNSCSCC (
                 assert(1'b0); // SimpleFetchPipelinePlugin.scala:L373
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SimpleFetchPipelinePlugin.scala:373):  [Fetch-FSM] UPDATE_PC: Normal PC update from 0x%x to 0x%x", SimpleFetchPipelinePlugin_logic_pcOnRequest, _zz_61); // SimpleFetchPipelinePlugin.scala:L373
+                  $display("NOTE(SimpleFetchPipelinePlugin.scala:373):  [Fetch-FSM] UPDATE_PC: Normal PC update from 0x%x to 0x%x", SimpleFetchPipelinePlugin_logic_pcOnRequest, _zz_58); // SimpleFetchPipelinePlugin.scala:L373
                 end
               `endif
             `endif
@@ -25066,9 +24363,6 @@ module CoreNSCSCC (
     CommitPlugin_logic_s1_s1_headUop_decoded_archSrc2_idx <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_archSrc2_idx;
     CommitPlugin_logic_s1_s1_headUop_decoded_archSrc2_rtype <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_archSrc2_rtype;
     CommitPlugin_logic_s1_s1_headUop_decoded_useArchSrc2 <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_useArchSrc2;
-    CommitPlugin_logic_s1_s1_headUop_decoded_archSrc3_idx <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_archSrc3_idx;
-    CommitPlugin_logic_s1_s1_headUop_decoded_archSrc3_rtype <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_archSrc3_rtype;
-    CommitPlugin_logic_s1_s1_headUop_decoded_useArchSrc3 <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_useArchSrc3;
     CommitPlugin_logic_s1_s1_headUop_decoded_usePcForAddr <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_usePcForAddr;
     CommitPlugin_logic_s1_s1_headUop_decoded_imm <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_imm;
     CommitPlugin_logic_s1_s1_headUop_decoded_immUsage <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_immUsage;
@@ -25104,13 +24398,11 @@ module CoreNSCSCC (
     CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_opType <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_opType;
     CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc1 <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc1;
     CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc2 <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc2;
-    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc3 <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3;
     CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeDest <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeDest;
     CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_roundingMode <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_roundingMode;
     CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_isIntegerDest <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_isIntegerDest;
     CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_isSignedCvt <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_isSignedCvt;
     CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fmaNegSrc1 <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fmaNegSrc1;
-    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fmaNegSrc3 <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fmaNegSrc3;
     CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fcmpCond <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fcmpCond;
     CommitPlugin_logic_s1_s1_headUop_decoded_csrCtrl_csrAddr <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_csrCtrl_csrAddr;
     CommitPlugin_logic_s1_s1_headUop_decoded_csrCtrl_isWrite <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_csrCtrl_isWrite;
@@ -25134,8 +24426,6 @@ module CoreNSCSCC (
     CommitPlugin_logic_s1_s1_headUop_rename_physSrc1IsFpr <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physSrc1IsFpr;
     CommitPlugin_logic_s1_s1_headUop_rename_physSrc2_idx <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physSrc2_idx;
     CommitPlugin_logic_s1_s1_headUop_rename_physSrc2IsFpr <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physSrc2IsFpr;
-    CommitPlugin_logic_s1_s1_headUop_rename_physSrc3_idx <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physSrc3_idx;
-    CommitPlugin_logic_s1_s1_headUop_rename_physSrc3IsFpr <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physSrc3IsFpr;
     CommitPlugin_logic_s1_s1_headUop_rename_physDest_idx <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physDest_idx;
     CommitPlugin_logic_s1_s1_headUop_rename_physDestIsFpr <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physDestIsFpr;
     CommitPlugin_logic_s1_s1_headUop_rename_oldPhysDest_idx <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx;
@@ -25151,6 +24441,9 @@ module CoreNSCSCC (
     if(CommitPlugin_logic_s1_s1_commitIdleThisCycle) begin
       CommitPlugin_committedIdlePcReg <= CommitPlugin_logic_s1_s1_headUop_decoded_pc;
     end
+    DecodePlugin_logic_debugLA32RDecodedPhysSrc2_idx <= _zz_DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_idx;
+    DecodePlugin_logic_debugLA32RDecodedPhysSrc2_rtype <= _zz_DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype;
+    DecodePlugin_logic_debugLA32RRawInstruction <= s0_Decode_IssuePipelineSignals_RAW_INSTRUCTIONS_IN_0;
     DispatchPlugin_logic_debugDispatchedUopSrc2_iq0 <= s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2_idx;
     DispatchPlugin_logic_debugDispatchedUopSrc1_iq0 <= s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc1_idx;
     DispatchPlugin_logic_debugDispatchedUopSrc2_iq1 <= s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2_idx;
@@ -25280,9 +24573,6 @@ module CoreNSCSCC (
       s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_idx <= s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_idx;
       s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_rtype <= s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_rtype;
       s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc2 <= s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc2;
-      s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_idx <= s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_idx;
-      s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype <= s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype;
-      s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc3 <= s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc3;
       s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_usePcForAddr <= s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_usePcForAddr;
       s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_imm <= s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_imm;
       s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_immUsage <= s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_immUsage;
@@ -25318,13 +24608,11 @@ module CoreNSCSCC (
       s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_opType <= s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_opType;
       s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc1 <= s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc1;
       s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2 <= s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2;
-      s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3 <= s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3;
       s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeDest <= s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeDest;
       s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_roundingMode <= s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_roundingMode;
       s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_isIntegerDest <= s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_isIntegerDest;
       s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_isSignedCvt <= s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_isSignedCvt;
       s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fmaNegSrc1 <= s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fmaNegSrc1;
-      s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fmaNegSrc3 <= s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fmaNegSrc3;
       s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fcmpCond <= s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fcmpCond;
       s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_csrAddr <= s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_csrAddr;
       s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_isWrite <= s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_isWrite;
@@ -25360,9 +24648,6 @@ module CoreNSCSCC (
       s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_idx <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_idx;
       s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_rtype <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc2_rtype;
       s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc2 <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc2;
-      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_idx <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_idx;
-      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_archSrc3_rtype;
-      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc3 <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_useArchSrc3;
       s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_usePcForAddr <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_usePcForAddr;
       s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_imm <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_imm;
       s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_immUsage <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_immUsage;
@@ -25398,13 +24683,11 @@ module CoreNSCSCC (
       s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_opType <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_opType;
       s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc1 <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc1;
       s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2 <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc2;
-      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3 <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeSrc3;
       s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeDest <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fpSizeDest;
       s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_roundingMode <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_roundingMode;
       s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_isIntegerDest <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_isIntegerDest;
       s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_isSignedCvt <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_isSignedCvt;
       s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fmaNegSrc1 <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fmaNegSrc1;
-      s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fmaNegSrc3 <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fmaNegSrc3;
       s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fcmpCond <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_fpuCtrl_fcmpCond;
       s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_csrAddr <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_csrAddr;
       s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_isWrite <= s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_csrCtrl_isWrite;
@@ -25441,9 +24724,6 @@ module CoreNSCSCC (
       s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_idx <= s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_idx;
       s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_rtype <= s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc2_rtype;
       s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc2 <= s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc2;
-      s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_idx <= s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_idx;
-      s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype <= s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_archSrc3_rtype;
-      s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc3 <= s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_useArchSrc3;
       s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_usePcForAddr <= s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_usePcForAddr;
       s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_imm <= s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_imm;
       s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage <= s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_immUsage;
@@ -25479,13 +24759,11 @@ module CoreNSCSCC (
       s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_opType <= s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_opType;
       s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1 <= s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc1;
       s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2 <= s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc2;
-      s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3 <= s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeSrc3;
       s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeDest <= s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fpSizeDest;
       s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_roundingMode <= s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_roundingMode;
       s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_isIntegerDest <= s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_isIntegerDest;
       s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_isSignedCvt <= s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_isSignedCvt;
       s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fmaNegSrc1 <= s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fmaNegSrc1;
-      s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fmaNegSrc3 <= s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fmaNegSrc3;
       s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fcmpCond <= s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_fpuCtrl_fcmpCond;
       s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_csrCtrl_csrAddr <= s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_csrCtrl_csrAddr;
       s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_csrCtrl_isWrite <= s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_csrCtrl_isWrite;
@@ -25509,8 +24787,6 @@ module CoreNSCSCC (
       s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc1IsFpr <= s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc1IsFpr;
       s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2_idx <= s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2_idx;
       s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2IsFpr <= s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2IsFpr;
-      s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc3_idx <= s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc3_idx;
-      s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc3IsFpr <= s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc3IsFpr;
       s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physDest_idx <= s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physDest_idx;
       s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physDestIsFpr <= s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physDestIsFpr;
       s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_oldPhysDest_idx <= s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_oldPhysDest_idx;
@@ -28514,9 +27790,6 @@ module IssueQueueComponent_2 (
   input  wire [4:0]    io_allocateIn_payload_uop_decoded_archSrc2_idx,
   input  wire [1:0]    io_allocateIn_payload_uop_decoded_archSrc2_rtype,
   input  wire          io_allocateIn_payload_uop_decoded_useArchSrc2,
-  input  wire [4:0]    io_allocateIn_payload_uop_decoded_archSrc3_idx,
-  input  wire [1:0]    io_allocateIn_payload_uop_decoded_archSrc3_rtype,
-  input  wire          io_allocateIn_payload_uop_decoded_useArchSrc3,
   input  wire          io_allocateIn_payload_uop_decoded_usePcForAddr,
   input  wire [31:0]   io_allocateIn_payload_uop_decoded_imm,
   input  wire [2:0]    io_allocateIn_payload_uop_decoded_immUsage,
@@ -28552,13 +27825,11 @@ module IssueQueueComponent_2 (
   input  wire [3:0]    io_allocateIn_payload_uop_decoded_fpuCtrl_opType,
   input  wire [1:0]    io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc1,
   input  wire [1:0]    io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc2,
-  input  wire [1:0]    io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc3,
   input  wire [1:0]    io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeDest,
   input  wire [2:0]    io_allocateIn_payload_uop_decoded_fpuCtrl_roundingMode,
   input  wire          io_allocateIn_payload_uop_decoded_fpuCtrl_isIntegerDest,
   input  wire          io_allocateIn_payload_uop_decoded_fpuCtrl_isSignedCvt,
   input  wire          io_allocateIn_payload_uop_decoded_fpuCtrl_fmaNegSrc1,
-  input  wire          io_allocateIn_payload_uop_decoded_fpuCtrl_fmaNegSrc3,
   input  wire [4:0]    io_allocateIn_payload_uop_decoded_fpuCtrl_fcmpCond,
   input  wire [13:0]   io_allocateIn_payload_uop_decoded_csrCtrl_csrAddr,
   input  wire          io_allocateIn_payload_uop_decoded_csrCtrl_isWrite,
@@ -28582,8 +27853,6 @@ module IssueQueueComponent_2 (
   input  wire          io_allocateIn_payload_uop_rename_physSrc1IsFpr,
   input  wire [5:0]    io_allocateIn_payload_uop_rename_physSrc2_idx,
   input  wire          io_allocateIn_payload_uop_rename_physSrc2IsFpr,
-  input  wire [5:0]    io_allocateIn_payload_uop_rename_physSrc3_idx,
-  input  wire          io_allocateIn_payload_uop_rename_physSrc3IsFpr,
   input  wire [5:0]    io_allocateIn_payload_uop_rename_physDest_idx,
   input  wire          io_allocateIn_payload_uop_rename_physDestIsFpr,
   input  wire [5:0]    io_allocateIn_payload_uop_rename_oldPhysDest_idx,
@@ -29076,7 +28345,6 @@ module IssueQueueComponent_2 (
   reg [39:0] io_allocateIn_payload_uop_decoded_archDest_rtype_string;
   reg [39:0] io_allocateIn_payload_uop_decoded_archSrc1_rtype_string;
   reg [39:0] io_allocateIn_payload_uop_decoded_archSrc2_rtype_string;
-  reg [39:0] io_allocateIn_payload_uop_decoded_archSrc3_rtype_string;
   reg [103:0] io_allocateIn_payload_uop_decoded_immUsage_string;
   reg [39:0] io_allocateIn_payload_uop_decoded_aluCtrl_logicOp_string;
   reg [7:0] io_allocateIn_payload_uop_decoded_memCtrl_size_string;
@@ -29084,7 +28352,6 @@ module IssueQueueComponent_2 (
   reg [39:0] io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_rtype_string;
   reg [7:0] io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc1_string;
   reg [7:0] io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string;
   reg [7:0] io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeDest_string;
   reg [95:0] io_allocateIn_payload_uop_decoded_decodeExceptionCode_string;
   reg [7:0] io_issueOut_payload_memCtrl_size_string;
@@ -29337,15 +28604,6 @@ module IssueQueueComponent_2 (
     endcase
   end
   always @(*) begin
-    case(io_allocateIn_payload_uop_decoded_archSrc3_rtype)
-      ArchRegType_GPR : io_allocateIn_payload_uop_decoded_archSrc3_rtype_string = "GPR  ";
-      ArchRegType_FPR : io_allocateIn_payload_uop_decoded_archSrc3_rtype_string = "FPR  ";
-      ArchRegType_CSR : io_allocateIn_payload_uop_decoded_archSrc3_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : io_allocateIn_payload_uop_decoded_archSrc3_rtype_string = "LA_CF";
-      default : io_allocateIn_payload_uop_decoded_archSrc3_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
     case(io_allocateIn_payload_uop_decoded_immUsage)
       ImmUsageType_NONE : io_allocateIn_payload_uop_decoded_immUsage_string = "NONE         ";
       ImmUsageType_SRC_ALU : io_allocateIn_payload_uop_decoded_immUsage_string = "SRC_ALU      ";
@@ -29425,15 +28683,6 @@ module IssueQueueComponent_2 (
       MemAccessSize_W : io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "W";
       MemAccessSize_D : io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "D";
       default : io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc3)
-      MemAccessSize_B : io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "B";
-      MemAccessSize_H : io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "H";
-      MemAccessSize_W : io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "W";
-      MemAccessSize_D : io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "D";
-      default : io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "?";
     endcase
   end
   always @(*) begin
@@ -31221,9 +30470,6 @@ module IssueQueueComponent_1 (
   input  wire [4:0]    io_allocateIn_payload_uop_decoded_archSrc2_idx,
   input  wire [1:0]    io_allocateIn_payload_uop_decoded_archSrc2_rtype,
   input  wire          io_allocateIn_payload_uop_decoded_useArchSrc2,
-  input  wire [4:0]    io_allocateIn_payload_uop_decoded_archSrc3_idx,
-  input  wire [1:0]    io_allocateIn_payload_uop_decoded_archSrc3_rtype,
-  input  wire          io_allocateIn_payload_uop_decoded_useArchSrc3,
   input  wire          io_allocateIn_payload_uop_decoded_usePcForAddr,
   input  wire [31:0]   io_allocateIn_payload_uop_decoded_imm,
   input  wire [2:0]    io_allocateIn_payload_uop_decoded_immUsage,
@@ -31259,13 +30505,11 @@ module IssueQueueComponent_1 (
   input  wire [3:0]    io_allocateIn_payload_uop_decoded_fpuCtrl_opType,
   input  wire [1:0]    io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc1,
   input  wire [1:0]    io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc2,
-  input  wire [1:0]    io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc3,
   input  wire [1:0]    io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeDest,
   input  wire [2:0]    io_allocateIn_payload_uop_decoded_fpuCtrl_roundingMode,
   input  wire          io_allocateIn_payload_uop_decoded_fpuCtrl_isIntegerDest,
   input  wire          io_allocateIn_payload_uop_decoded_fpuCtrl_isSignedCvt,
   input  wire          io_allocateIn_payload_uop_decoded_fpuCtrl_fmaNegSrc1,
-  input  wire          io_allocateIn_payload_uop_decoded_fpuCtrl_fmaNegSrc3,
   input  wire [4:0]    io_allocateIn_payload_uop_decoded_fpuCtrl_fcmpCond,
   input  wire [13:0]   io_allocateIn_payload_uop_decoded_csrCtrl_csrAddr,
   input  wire          io_allocateIn_payload_uop_decoded_csrCtrl_isWrite,
@@ -31289,8 +30533,6 @@ module IssueQueueComponent_1 (
   input  wire          io_allocateIn_payload_uop_rename_physSrc1IsFpr,
   input  wire [5:0]    io_allocateIn_payload_uop_rename_physSrc2_idx,
   input  wire          io_allocateIn_payload_uop_rename_physSrc2IsFpr,
-  input  wire [5:0]    io_allocateIn_payload_uop_rename_physSrc3_idx,
-  input  wire          io_allocateIn_payload_uop_rename_physSrc3IsFpr,
   input  wire [5:0]    io_allocateIn_payload_uop_rename_physDest_idx,
   input  wire          io_allocateIn_payload_uop_rename_physDestIsFpr,
   input  wire [5:0]    io_allocateIn_payload_uop_rename_oldPhysDest_idx,
@@ -31764,7 +31006,6 @@ module IssueQueueComponent_1 (
   reg [39:0] io_allocateIn_payload_uop_decoded_archDest_rtype_string;
   reg [39:0] io_allocateIn_payload_uop_decoded_archSrc1_rtype_string;
   reg [39:0] io_allocateIn_payload_uop_decoded_archSrc2_rtype_string;
-  reg [39:0] io_allocateIn_payload_uop_decoded_archSrc3_rtype_string;
   reg [103:0] io_allocateIn_payload_uop_decoded_immUsage_string;
   reg [39:0] io_allocateIn_payload_uop_decoded_aluCtrl_logicOp_string;
   reg [7:0] io_allocateIn_payload_uop_decoded_memCtrl_size_string;
@@ -31772,7 +31013,6 @@ module IssueQueueComponent_1 (
   reg [39:0] io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_rtype_string;
   reg [7:0] io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc1_string;
   reg [7:0] io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string;
   reg [7:0] io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeDest_string;
   reg [95:0] io_allocateIn_payload_uop_decoded_decodeExceptionCode_string;
   reg [87:0] io_issueOut_payload_branchCtrl_condition_string;
@@ -32027,15 +31267,6 @@ module IssueQueueComponent_1 (
     endcase
   end
   always @(*) begin
-    case(io_allocateIn_payload_uop_decoded_archSrc3_rtype)
-      ArchRegType_GPR : io_allocateIn_payload_uop_decoded_archSrc3_rtype_string = "GPR  ";
-      ArchRegType_FPR : io_allocateIn_payload_uop_decoded_archSrc3_rtype_string = "FPR  ";
-      ArchRegType_CSR : io_allocateIn_payload_uop_decoded_archSrc3_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : io_allocateIn_payload_uop_decoded_archSrc3_rtype_string = "LA_CF";
-      default : io_allocateIn_payload_uop_decoded_archSrc3_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
     case(io_allocateIn_payload_uop_decoded_immUsage)
       ImmUsageType_NONE : io_allocateIn_payload_uop_decoded_immUsage_string = "NONE         ";
       ImmUsageType_SRC_ALU : io_allocateIn_payload_uop_decoded_immUsage_string = "SRC_ALU      ";
@@ -32115,15 +31346,6 @@ module IssueQueueComponent_1 (
       MemAccessSize_W : io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "W";
       MemAccessSize_D : io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "D";
       default : io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc3)
-      MemAccessSize_B : io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "B";
-      MemAccessSize_H : io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "H";
-      MemAccessSize_W : io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "W";
-      MemAccessSize_D : io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "D";
-      default : io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "?";
     endcase
   end
   always @(*) begin
@@ -34080,9 +33302,6 @@ module IssueQueueComponent (
   input  wire [4:0]    io_allocateIn_payload_uop_decoded_archSrc2_idx,
   input  wire [1:0]    io_allocateIn_payload_uop_decoded_archSrc2_rtype,
   input  wire          io_allocateIn_payload_uop_decoded_useArchSrc2,
-  input  wire [4:0]    io_allocateIn_payload_uop_decoded_archSrc3_idx,
-  input  wire [1:0]    io_allocateIn_payload_uop_decoded_archSrc3_rtype,
-  input  wire          io_allocateIn_payload_uop_decoded_useArchSrc3,
   input  wire          io_allocateIn_payload_uop_decoded_usePcForAddr,
   input  wire [31:0]   io_allocateIn_payload_uop_decoded_imm,
   input  wire [2:0]    io_allocateIn_payload_uop_decoded_immUsage,
@@ -34118,13 +33337,11 @@ module IssueQueueComponent (
   input  wire [3:0]    io_allocateIn_payload_uop_decoded_fpuCtrl_opType,
   input  wire [1:0]    io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc1,
   input  wire [1:0]    io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc2,
-  input  wire [1:0]    io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc3,
   input  wire [1:0]    io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeDest,
   input  wire [2:0]    io_allocateIn_payload_uop_decoded_fpuCtrl_roundingMode,
   input  wire          io_allocateIn_payload_uop_decoded_fpuCtrl_isIntegerDest,
   input  wire          io_allocateIn_payload_uop_decoded_fpuCtrl_isSignedCvt,
   input  wire          io_allocateIn_payload_uop_decoded_fpuCtrl_fmaNegSrc1,
-  input  wire          io_allocateIn_payload_uop_decoded_fpuCtrl_fmaNegSrc3,
   input  wire [4:0]    io_allocateIn_payload_uop_decoded_fpuCtrl_fcmpCond,
   input  wire [13:0]   io_allocateIn_payload_uop_decoded_csrCtrl_csrAddr,
   input  wire          io_allocateIn_payload_uop_decoded_csrCtrl_isWrite,
@@ -34148,8 +33365,6 @@ module IssueQueueComponent (
   input  wire          io_allocateIn_payload_uop_rename_physSrc1IsFpr,
   input  wire [5:0]    io_allocateIn_payload_uop_rename_physSrc2_idx,
   input  wire          io_allocateIn_payload_uop_rename_physSrc2IsFpr,
-  input  wire [5:0]    io_allocateIn_payload_uop_rename_physSrc3_idx,
-  input  wire          io_allocateIn_payload_uop_rename_physSrc3IsFpr,
   input  wire [5:0]    io_allocateIn_payload_uop_rename_physDest_idx,
   input  wire          io_allocateIn_payload_uop_rename_physDestIsFpr,
   input  wire [5:0]    io_allocateIn_payload_uop_rename_oldPhysDest_idx,
@@ -34603,7 +33818,6 @@ module IssueQueueComponent (
   reg [39:0] io_allocateIn_payload_uop_decoded_archDest_rtype_string;
   reg [39:0] io_allocateIn_payload_uop_decoded_archSrc1_rtype_string;
   reg [39:0] io_allocateIn_payload_uop_decoded_archSrc2_rtype_string;
-  reg [39:0] io_allocateIn_payload_uop_decoded_archSrc3_rtype_string;
   reg [103:0] io_allocateIn_payload_uop_decoded_immUsage_string;
   reg [39:0] io_allocateIn_payload_uop_decoded_aluCtrl_logicOp_string;
   reg [7:0] io_allocateIn_payload_uop_decoded_memCtrl_size_string;
@@ -34611,7 +33825,6 @@ module IssueQueueComponent (
   reg [39:0] io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_rtype_string;
   reg [7:0] io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc1_string;
   reg [7:0] io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string;
   reg [7:0] io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeDest_string;
   reg [95:0] io_allocateIn_payload_uop_decoded_decodeExceptionCode_string;
   reg [39:0] io_issueOut_payload_aluCtrl_logicOp_string;
@@ -34858,15 +34071,6 @@ module IssueQueueComponent (
     endcase
   end
   always @(*) begin
-    case(io_allocateIn_payload_uop_decoded_archSrc3_rtype)
-      ArchRegType_GPR : io_allocateIn_payload_uop_decoded_archSrc3_rtype_string = "GPR  ";
-      ArchRegType_FPR : io_allocateIn_payload_uop_decoded_archSrc3_rtype_string = "FPR  ";
-      ArchRegType_CSR : io_allocateIn_payload_uop_decoded_archSrc3_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : io_allocateIn_payload_uop_decoded_archSrc3_rtype_string = "LA_CF";
-      default : io_allocateIn_payload_uop_decoded_archSrc3_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
     case(io_allocateIn_payload_uop_decoded_immUsage)
       ImmUsageType_NONE : io_allocateIn_payload_uop_decoded_immUsage_string = "NONE         ";
       ImmUsageType_SRC_ALU : io_allocateIn_payload_uop_decoded_immUsage_string = "SRC_ALU      ";
@@ -34946,15 +34150,6 @@ module IssueQueueComponent (
       MemAccessSize_W : io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "W";
       MemAccessSize_D : io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "D";
       default : io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc3)
-      MemAccessSize_B : io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "B";
-      MemAccessSize_H : io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "H";
-      MemAccessSize_W : io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "W";
-      MemAccessSize_D : io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "D";
-      default : io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "?";
     endcase
   end
   always @(*) begin
@@ -36700,9 +35895,6 @@ module LA32RSimpleDecoder (
   output reg  [4:0]    io_decodedUop_archSrc2_idx,
   output reg  [1:0]    io_decodedUop_archSrc2_rtype,
   output reg           io_decodedUop_useArchSrc2,
-  output wire [4:0]    io_decodedUop_archSrc3_idx,
-  output wire [1:0]    io_decodedUop_archSrc3_rtype,
-  output wire          io_decodedUop_useArchSrc3,
   output wire          io_decodedUop_usePcForAddr,
   output reg  [31:0]   io_decodedUop_imm,
   output reg  [2:0]    io_decodedUop_immUsage,
@@ -36738,13 +35930,11 @@ module LA32RSimpleDecoder (
   output wire [3:0]    io_decodedUop_fpuCtrl_opType,
   output wire [1:0]    io_decodedUop_fpuCtrl_fpSizeSrc1,
   output wire [1:0]    io_decodedUop_fpuCtrl_fpSizeSrc2,
-  output wire [1:0]    io_decodedUop_fpuCtrl_fpSizeSrc3,
   output wire [1:0]    io_decodedUop_fpuCtrl_fpSizeDest,
   output wire [2:0]    io_decodedUop_fpuCtrl_roundingMode,
   output wire          io_decodedUop_fpuCtrl_isIntegerDest,
   output wire          io_decodedUop_fpuCtrl_isSignedCvt,
   output wire          io_decodedUop_fpuCtrl_fmaNegSrc1,
-  output wire          io_decodedUop_fpuCtrl_fmaNegSrc3,
   output wire [4:0]    io_decodedUop_fpuCtrl_fcmpCond,
   output wire [13:0]   io_decodedUop_csrCtrl_csrAddr,
   output wire          io_decodedUop_csrCtrl_isWrite,
@@ -36884,7 +36074,6 @@ module LA32RSimpleDecoder (
   reg [39:0] io_decodedUop_archDest_rtype_string;
   reg [39:0] io_decodedUop_archSrc1_rtype_string;
   reg [39:0] io_decodedUop_archSrc2_rtype_string;
-  reg [39:0] io_decodedUop_archSrc3_rtype_string;
   reg [103:0] io_decodedUop_immUsage_string;
   reg [39:0] io_decodedUop_aluCtrl_logicOp_string;
   reg [7:0] io_decodedUop_memCtrl_size_string;
@@ -36892,7 +36081,6 @@ module LA32RSimpleDecoder (
   reg [39:0] io_decodedUop_branchCtrl_linkReg_rtype_string;
   reg [7:0] io_decodedUop_fpuCtrl_fpSizeSrc1_string;
   reg [7:0] io_decodedUop_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] io_decodedUop_fpuCtrl_fpSizeSrc3_string;
   reg [7:0] io_decodedUop_fpuCtrl_fpSizeDest_string;
   reg [95:0] io_decodedUop_decodeExceptionCode_string;
   `endif
@@ -36987,15 +36175,6 @@ module LA32RSimpleDecoder (
     endcase
   end
   always @(*) begin
-    case(io_decodedUop_archSrc3_rtype)
-      ArchRegType_GPR : io_decodedUop_archSrc3_rtype_string = "GPR  ";
-      ArchRegType_FPR : io_decodedUop_archSrc3_rtype_string = "FPR  ";
-      ArchRegType_CSR : io_decodedUop_archSrc3_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : io_decodedUop_archSrc3_rtype_string = "LA_CF";
-      default : io_decodedUop_archSrc3_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
     case(io_decodedUop_immUsage)
       ImmUsageType_NONE : io_decodedUop_immUsage_string = "NONE         ";
       ImmUsageType_SRC_ALU : io_decodedUop_immUsage_string = "SRC_ALU      ";
@@ -37075,15 +36254,6 @@ module LA32RSimpleDecoder (
       MemAccessSize_W : io_decodedUop_fpuCtrl_fpSizeSrc2_string = "W";
       MemAccessSize_D : io_decodedUop_fpuCtrl_fpSizeSrc2_string = "D";
       default : io_decodedUop_fpuCtrl_fpSizeSrc2_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(io_decodedUop_fpuCtrl_fpSizeSrc3)
-      MemAccessSize_B : io_decodedUop_fpuCtrl_fpSizeSrc3_string = "B";
-      MemAccessSize_H : io_decodedUop_fpuCtrl_fpSizeSrc3_string = "H";
-      MemAccessSize_W : io_decodedUop_fpuCtrl_fpSizeSrc3_string = "W";
-      MemAccessSize_D : io_decodedUop_fpuCtrl_fpSizeSrc3_string = "D";
-      default : io_decodedUop_fpuCtrl_fpSizeSrc3_string = "?";
     endcase
   end
   always @(*) begin
@@ -37874,9 +37044,6 @@ module LA32RSimpleDecoder (
     endcase
   end
 
-  assign io_decodedUop_archSrc3_idx = 5'h0;
-  assign io_decodedUop_archSrc3_rtype = ArchRegType_GPR;
-  assign io_decodedUop_useArchSrc3 = 1'b0;
   assign io_decodedUop_usePcForAddr = 1'b0;
   always @(*) begin
     io_decodedUop_imm = 32'h0;
@@ -38707,13 +37874,11 @@ module LA32RSimpleDecoder (
   assign io_decodedUop_fpuCtrl_opType = 4'b0000;
   assign io_decodedUop_fpuCtrl_fpSizeSrc1 = MemAccessSize_W;
   assign io_decodedUop_fpuCtrl_fpSizeSrc2 = MemAccessSize_W;
-  assign io_decodedUop_fpuCtrl_fpSizeSrc3 = MemAccessSize_W;
   assign io_decodedUop_fpuCtrl_fpSizeDest = MemAccessSize_W;
   assign io_decodedUop_fpuCtrl_roundingMode = 3'b000;
   assign io_decodedUop_fpuCtrl_isIntegerDest = 1'b0;
   assign io_decodedUop_fpuCtrl_isSignedCvt = 1'b0;
   assign io_decodedUop_fpuCtrl_fmaNegSrc1 = 1'b0;
-  assign io_decodedUop_fpuCtrl_fmaNegSrc3 = 1'b0;
   assign io_decodedUop_fpuCtrl_fcmpCond = 5'h0;
   assign io_decodedUop_csrCtrl_csrAddr = 14'h0;
   assign io_decodedUop_csrCtrl_isWrite = 1'b0;
@@ -39848,9 +39013,6 @@ module RenameUnit (
   input  wire [4:0]    io_decodedUopsIn_0_archSrc2_idx,
   input  wire [1:0]    io_decodedUopsIn_0_archSrc2_rtype,
   input  wire          io_decodedUopsIn_0_useArchSrc2,
-  input  wire [4:0]    io_decodedUopsIn_0_archSrc3_idx,
-  input  wire [1:0]    io_decodedUopsIn_0_archSrc3_rtype,
-  input  wire          io_decodedUopsIn_0_useArchSrc3,
   input  wire          io_decodedUopsIn_0_usePcForAddr,
   input  wire [31:0]   io_decodedUopsIn_0_imm,
   input  wire [2:0]    io_decodedUopsIn_0_immUsage,
@@ -39886,13 +39048,11 @@ module RenameUnit (
   input  wire [3:0]    io_decodedUopsIn_0_fpuCtrl_opType,
   input  wire [1:0]    io_decodedUopsIn_0_fpuCtrl_fpSizeSrc1,
   input  wire [1:0]    io_decodedUopsIn_0_fpuCtrl_fpSizeSrc2,
-  input  wire [1:0]    io_decodedUopsIn_0_fpuCtrl_fpSizeSrc3,
   input  wire [1:0]    io_decodedUopsIn_0_fpuCtrl_fpSizeDest,
   input  wire [2:0]    io_decodedUopsIn_0_fpuCtrl_roundingMode,
   input  wire          io_decodedUopsIn_0_fpuCtrl_isIntegerDest,
   input  wire          io_decodedUopsIn_0_fpuCtrl_isSignedCvt,
   input  wire          io_decodedUopsIn_0_fpuCtrl_fmaNegSrc1,
-  input  wire          io_decodedUopsIn_0_fpuCtrl_fmaNegSrc3,
   input  wire [4:0]    io_decodedUopsIn_0_fpuCtrl_fcmpCond,
   input  wire [13:0]   io_decodedUopsIn_0_csrCtrl_csrAddr,
   input  wire          io_decodedUopsIn_0_csrCtrl_isWrite,
@@ -39927,9 +39087,6 @@ module RenameUnit (
   output wire [4:0]    io_renamedUopsOut_0_decoded_archSrc2_idx,
   output wire [1:0]    io_renamedUopsOut_0_decoded_archSrc2_rtype,
   output wire          io_renamedUopsOut_0_decoded_useArchSrc2,
-  output wire [4:0]    io_renamedUopsOut_0_decoded_archSrc3_idx,
-  output wire [1:0]    io_renamedUopsOut_0_decoded_archSrc3_rtype,
-  output wire          io_renamedUopsOut_0_decoded_useArchSrc3,
   output wire          io_renamedUopsOut_0_decoded_usePcForAddr,
   output wire [31:0]   io_renamedUopsOut_0_decoded_imm,
   output wire [2:0]    io_renamedUopsOut_0_decoded_immUsage,
@@ -39965,13 +39122,11 @@ module RenameUnit (
   output wire [3:0]    io_renamedUopsOut_0_decoded_fpuCtrl_opType,
   output wire [1:0]    io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc1,
   output wire [1:0]    io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc2,
-  output wire [1:0]    io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc3,
   output wire [1:0]    io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeDest,
   output wire [2:0]    io_renamedUopsOut_0_decoded_fpuCtrl_roundingMode,
   output wire          io_renamedUopsOut_0_decoded_fpuCtrl_isIntegerDest,
   output wire          io_renamedUopsOut_0_decoded_fpuCtrl_isSignedCvt,
   output wire          io_renamedUopsOut_0_decoded_fpuCtrl_fmaNegSrc1,
-  output wire          io_renamedUopsOut_0_decoded_fpuCtrl_fmaNegSrc3,
   output wire [4:0]    io_renamedUopsOut_0_decoded_fpuCtrl_fcmpCond,
   output wire [13:0]   io_renamedUopsOut_0_decoded_csrCtrl_csrAddr,
   output wire          io_renamedUopsOut_0_decoded_csrCtrl_isWrite,
@@ -39995,8 +39150,6 @@ module RenameUnit (
   output wire          io_renamedUopsOut_0_rename_physSrc1IsFpr,
   output wire [5:0]    io_renamedUopsOut_0_rename_physSrc2_idx,
   output wire          io_renamedUopsOut_0_rename_physSrc2IsFpr,
-  output wire [5:0]    io_renamedUopsOut_0_rename_physSrc3_idx,
-  output wire          io_renamedUopsOut_0_rename_physSrc3IsFpr,
   output reg  [5:0]    io_renamedUopsOut_0_rename_physDest_idx,
   output reg           io_renamedUopsOut_0_rename_physDestIsFpr,
   output reg  [5:0]    io_renamedUopsOut_0_rename_oldPhysDest_idx,
@@ -40118,7 +39271,6 @@ module RenameUnit (
   reg [39:0] io_decodedUopsIn_0_archDest_rtype_string;
   reg [39:0] io_decodedUopsIn_0_archSrc1_rtype_string;
   reg [39:0] io_decodedUopsIn_0_archSrc2_rtype_string;
-  reg [39:0] io_decodedUopsIn_0_archSrc3_rtype_string;
   reg [103:0] io_decodedUopsIn_0_immUsage_string;
   reg [39:0] io_decodedUopsIn_0_aluCtrl_logicOp_string;
   reg [7:0] io_decodedUopsIn_0_memCtrl_size_string;
@@ -40126,7 +39278,6 @@ module RenameUnit (
   reg [39:0] io_decodedUopsIn_0_branchCtrl_linkReg_rtype_string;
   reg [7:0] io_decodedUopsIn_0_fpuCtrl_fpSizeSrc1_string;
   reg [7:0] io_decodedUopsIn_0_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] io_decodedUopsIn_0_fpuCtrl_fpSizeSrc3_string;
   reg [7:0] io_decodedUopsIn_0_fpuCtrl_fpSizeDest_string;
   reg [95:0] io_decodedUopsIn_0_decodeExceptionCode_string;
   reg [87:0] io_renamedUopsOut_0_decoded_uopCode_string;
@@ -40135,7 +39286,6 @@ module RenameUnit (
   reg [39:0] io_renamedUopsOut_0_decoded_archDest_rtype_string;
   reg [39:0] io_renamedUopsOut_0_decoded_archSrc1_rtype_string;
   reg [39:0] io_renamedUopsOut_0_decoded_archSrc2_rtype_string;
-  reg [39:0] io_renamedUopsOut_0_decoded_archSrc3_rtype_string;
   reg [103:0] io_renamedUopsOut_0_decoded_immUsage_string;
   reg [39:0] io_renamedUopsOut_0_decoded_aluCtrl_logicOp_string;
   reg [7:0] io_renamedUopsOut_0_decoded_memCtrl_size_string;
@@ -40143,7 +39293,6 @@ module RenameUnit (
   reg [39:0] io_renamedUopsOut_0_decoded_branchCtrl_linkReg_rtype_string;
   reg [7:0] io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc1_string;
   reg [7:0] io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc3_string;
   reg [7:0] io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeDest_string;
   reg [95:0] io_renamedUopsOut_0_decoded_decodeExceptionCode_string;
   `endif
@@ -40230,15 +39379,6 @@ module RenameUnit (
     endcase
   end
   always @(*) begin
-    case(io_decodedUopsIn_0_archSrc3_rtype)
-      ArchRegType_GPR : io_decodedUopsIn_0_archSrc3_rtype_string = "GPR  ";
-      ArchRegType_FPR : io_decodedUopsIn_0_archSrc3_rtype_string = "FPR  ";
-      ArchRegType_CSR : io_decodedUopsIn_0_archSrc3_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : io_decodedUopsIn_0_archSrc3_rtype_string = "LA_CF";
-      default : io_decodedUopsIn_0_archSrc3_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
     case(io_decodedUopsIn_0_immUsage)
       ImmUsageType_NONE : io_decodedUopsIn_0_immUsage_string = "NONE         ";
       ImmUsageType_SRC_ALU : io_decodedUopsIn_0_immUsage_string = "SRC_ALU      ";
@@ -40318,15 +39458,6 @@ module RenameUnit (
       MemAccessSize_W : io_decodedUopsIn_0_fpuCtrl_fpSizeSrc2_string = "W";
       MemAccessSize_D : io_decodedUopsIn_0_fpuCtrl_fpSizeSrc2_string = "D";
       default : io_decodedUopsIn_0_fpuCtrl_fpSizeSrc2_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(io_decodedUopsIn_0_fpuCtrl_fpSizeSrc3)
-      MemAccessSize_B : io_decodedUopsIn_0_fpuCtrl_fpSizeSrc3_string = "B";
-      MemAccessSize_H : io_decodedUopsIn_0_fpuCtrl_fpSizeSrc3_string = "H";
-      MemAccessSize_W : io_decodedUopsIn_0_fpuCtrl_fpSizeSrc3_string = "W";
-      MemAccessSize_D : io_decodedUopsIn_0_fpuCtrl_fpSizeSrc3_string = "D";
-      default : io_decodedUopsIn_0_fpuCtrl_fpSizeSrc3_string = "?";
     endcase
   end
   always @(*) begin
@@ -40427,15 +39558,6 @@ module RenameUnit (
     endcase
   end
   always @(*) begin
-    case(io_renamedUopsOut_0_decoded_archSrc3_rtype)
-      ArchRegType_GPR : io_renamedUopsOut_0_decoded_archSrc3_rtype_string = "GPR  ";
-      ArchRegType_FPR : io_renamedUopsOut_0_decoded_archSrc3_rtype_string = "FPR  ";
-      ArchRegType_CSR : io_renamedUopsOut_0_decoded_archSrc3_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : io_renamedUopsOut_0_decoded_archSrc3_rtype_string = "LA_CF";
-      default : io_renamedUopsOut_0_decoded_archSrc3_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
     case(io_renamedUopsOut_0_decoded_immUsage)
       ImmUsageType_NONE : io_renamedUopsOut_0_decoded_immUsage_string = "NONE         ";
       ImmUsageType_SRC_ALU : io_renamedUopsOut_0_decoded_immUsage_string = "SRC_ALU      ";
@@ -40518,15 +39640,6 @@ module RenameUnit (
     endcase
   end
   always @(*) begin
-    case(io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc3)
-      MemAccessSize_B : io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc3_string = "B";
-      MemAccessSize_H : io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc3_string = "H";
-      MemAccessSize_W : io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc3_string = "W";
-      MemAccessSize_D : io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc3_string = "D";
-      default : io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc3_string = "?";
-    endcase
-  end
-  always @(*) begin
     case(io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeDest)
       MemAccessSize_B : io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeDest_string = "B";
       MemAccessSize_H : io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeDest_string = "H";
@@ -40565,9 +39678,6 @@ module RenameUnit (
   assign io_renamedUopsOut_0_decoded_archSrc2_idx = io_decodedUopsIn_0_archSrc2_idx;
   assign io_renamedUopsOut_0_decoded_archSrc2_rtype = io_decodedUopsIn_0_archSrc2_rtype;
   assign io_renamedUopsOut_0_decoded_useArchSrc2 = io_decodedUopsIn_0_useArchSrc2;
-  assign io_renamedUopsOut_0_decoded_archSrc3_idx = io_decodedUopsIn_0_archSrc3_idx;
-  assign io_renamedUopsOut_0_decoded_archSrc3_rtype = io_decodedUopsIn_0_archSrc3_rtype;
-  assign io_renamedUopsOut_0_decoded_useArchSrc3 = io_decodedUopsIn_0_useArchSrc3;
   assign io_renamedUopsOut_0_decoded_usePcForAddr = io_decodedUopsIn_0_usePcForAddr;
   assign io_renamedUopsOut_0_decoded_imm = io_decodedUopsIn_0_imm;
   assign io_renamedUopsOut_0_decoded_immUsage = io_decodedUopsIn_0_immUsage;
@@ -40603,13 +39713,11 @@ module RenameUnit (
   assign io_renamedUopsOut_0_decoded_fpuCtrl_opType = io_decodedUopsIn_0_fpuCtrl_opType;
   assign io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc1 = io_decodedUopsIn_0_fpuCtrl_fpSizeSrc1;
   assign io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc2 = io_decodedUopsIn_0_fpuCtrl_fpSizeSrc2;
-  assign io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeSrc3 = io_decodedUopsIn_0_fpuCtrl_fpSizeSrc3;
   assign io_renamedUopsOut_0_decoded_fpuCtrl_fpSizeDest = io_decodedUopsIn_0_fpuCtrl_fpSizeDest;
   assign io_renamedUopsOut_0_decoded_fpuCtrl_roundingMode = io_decodedUopsIn_0_fpuCtrl_roundingMode;
   assign io_renamedUopsOut_0_decoded_fpuCtrl_isIntegerDest = io_decodedUopsIn_0_fpuCtrl_isIntegerDest;
   assign io_renamedUopsOut_0_decoded_fpuCtrl_isSignedCvt = io_decodedUopsIn_0_fpuCtrl_isSignedCvt;
   assign io_renamedUopsOut_0_decoded_fpuCtrl_fmaNegSrc1 = io_decodedUopsIn_0_fpuCtrl_fmaNegSrc1;
-  assign io_renamedUopsOut_0_decoded_fpuCtrl_fmaNegSrc3 = io_decodedUopsIn_0_fpuCtrl_fmaNegSrc3;
   assign io_renamedUopsOut_0_decoded_fpuCtrl_fcmpCond = io_decodedUopsIn_0_fpuCtrl_fcmpCond;
   assign io_renamedUopsOut_0_decoded_csrCtrl_csrAddr = io_decodedUopsIn_0_csrCtrl_csrAddr;
   assign io_renamedUopsOut_0_decoded_csrCtrl_isWrite = io_decodedUopsIn_0_csrCtrl_isWrite;
@@ -40639,8 +39747,6 @@ module RenameUnit (
   assign io_renamedUopsOut_0_rename_physSrc1IsFpr = (io_decodedUopsIn_0_archSrc1_rtype == ArchRegType_FPR);
   assign io_renamedUopsOut_0_rename_physSrc2_idx = io_ratReadPorts_1_physReg;
   assign io_renamedUopsOut_0_rename_physSrc2IsFpr = (io_decodedUopsIn_0_archSrc2_rtype == ArchRegType_FPR);
-  assign io_renamedUopsOut_0_rename_physSrc3_idx = 6'h0;
-  assign io_renamedUopsOut_0_rename_physSrc3IsFpr = 1'b0;
   always @(*) begin
     if(uopNeedsNewPhysDest) begin
       io_renamedUopsOut_0_rename_writesToPhysReg = 1'b1;
@@ -40702,10 +39808,10 @@ module RenameUnit (
       if(uopNeedsNewPhysDest) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // RenameUnit.scala:L104
+            assert(1'b0); // RenameUnit.scala:L100
           `else
             if(!1'b0) begin
-              $display("NOTE(RenameUnit.scala:104):  [RenameUnit] Rename for uop@%x: archDest=%x -> physReg=%x (isFPR=%x)Src1: archSrc1=%x -> physReg=%x (isFPR=%x, bypassed=0)Src2: archSrc2=%x -> physReg=%x (isFPR=%x, bypassed=0)oldPhysDest: archDest=%x -> oldPhysReg=%x (isFPR=%x)", io_decodedUopsIn_0_pc, io_decodedUopsIn_0_archDest_idx, io_physRegsIn_0, _zz_1, io_decodedUopsIn_0_archSrc1_idx, io_renamedUopsOut_0_rename_physSrc1_idx, _zz_2, io_decodedUopsIn_0_archSrc2_idx, io_renamedUopsOut_0_rename_physSrc2_idx, _zz_3, io_decodedUopsIn_0_archDest_idx, io_renamedUopsOut_0_rename_oldPhysDest_idx, _zz_4); // RenameUnit.scala:L104
+              $display("NOTE(RenameUnit.scala:100):  [RenameUnit] Rename for uop@%x: archDest=%x -> physReg=%x (isFPR=%x)Src1: archSrc1=%x -> physReg=%x (isFPR=%x, bypassed=0)Src2: archSrc2=%x -> physReg=%x (isFPR=%x, bypassed=0)oldPhysDest: archDest=%x -> oldPhysReg=%x (isFPR=%x)", io_decodedUopsIn_0_pc, io_decodedUopsIn_0_archDest_idx, io_physRegsIn_0, _zz_1, io_decodedUopsIn_0_archSrc1_idx, io_renamedUopsOut_0_rename_physSrc1_idx, _zz_2, io_decodedUopsIn_0_archSrc2_idx, io_renamedUopsOut_0_rename_physSrc2_idx, _zz_3, io_decodedUopsIn_0_archDest_idx, io_renamedUopsOut_0_rename_oldPhysDest_idx, _zz_4); // RenameUnit.scala:L100
             end
           `endif
         `endif
@@ -41907,9 +41013,6 @@ module ReorderBuffer (
   input  wire [4:0]    io_allocate_0_uopIn_decoded_archSrc2_idx,
   input  wire [1:0]    io_allocate_0_uopIn_decoded_archSrc2_rtype,
   input  wire          io_allocate_0_uopIn_decoded_useArchSrc2,
-  input  wire [4:0]    io_allocate_0_uopIn_decoded_archSrc3_idx,
-  input  wire [1:0]    io_allocate_0_uopIn_decoded_archSrc3_rtype,
-  input  wire          io_allocate_0_uopIn_decoded_useArchSrc3,
   input  wire          io_allocate_0_uopIn_decoded_usePcForAddr,
   input  wire [31:0]   io_allocate_0_uopIn_decoded_imm,
   input  wire [2:0]    io_allocate_0_uopIn_decoded_immUsage,
@@ -41945,13 +41048,11 @@ module ReorderBuffer (
   input  wire [3:0]    io_allocate_0_uopIn_decoded_fpuCtrl_opType,
   input  wire [1:0]    io_allocate_0_uopIn_decoded_fpuCtrl_fpSizeSrc1,
   input  wire [1:0]    io_allocate_0_uopIn_decoded_fpuCtrl_fpSizeSrc2,
-  input  wire [1:0]    io_allocate_0_uopIn_decoded_fpuCtrl_fpSizeSrc3,
   input  wire [1:0]    io_allocate_0_uopIn_decoded_fpuCtrl_fpSizeDest,
   input  wire [2:0]    io_allocate_0_uopIn_decoded_fpuCtrl_roundingMode,
   input  wire          io_allocate_0_uopIn_decoded_fpuCtrl_isIntegerDest,
   input  wire          io_allocate_0_uopIn_decoded_fpuCtrl_isSignedCvt,
   input  wire          io_allocate_0_uopIn_decoded_fpuCtrl_fmaNegSrc1,
-  input  wire          io_allocate_0_uopIn_decoded_fpuCtrl_fmaNegSrc3,
   input  wire [4:0]    io_allocate_0_uopIn_decoded_fpuCtrl_fcmpCond,
   input  wire [13:0]   io_allocate_0_uopIn_decoded_csrCtrl_csrAddr,
   input  wire          io_allocate_0_uopIn_decoded_csrCtrl_isWrite,
@@ -41975,8 +41076,6 @@ module ReorderBuffer (
   input  wire          io_allocate_0_uopIn_rename_physSrc1IsFpr,
   input  wire [5:0]    io_allocate_0_uopIn_rename_physSrc2_idx,
   input  wire          io_allocate_0_uopIn_rename_physSrc2IsFpr,
-  input  wire [5:0]    io_allocate_0_uopIn_rename_physSrc3_idx,
-  input  wire          io_allocate_0_uopIn_rename_physSrc3IsFpr,
   input  wire [5:0]    io_allocate_0_uopIn_rename_physDest_idx,
   input  wire          io_allocate_0_uopIn_rename_physDestIsFpr,
   input  wire [5:0]    io_allocate_0_uopIn_rename_oldPhysDest_idx,
@@ -42033,9 +41132,6 @@ module ReorderBuffer (
   output wire [4:0]    io_commit_0_entry_payload_uop_decoded_archSrc2_idx,
   output wire [1:0]    io_commit_0_entry_payload_uop_decoded_archSrc2_rtype,
   output wire          io_commit_0_entry_payload_uop_decoded_useArchSrc2,
-  output wire [4:0]    io_commit_0_entry_payload_uop_decoded_archSrc3_idx,
-  output wire [1:0]    io_commit_0_entry_payload_uop_decoded_archSrc3_rtype,
-  output wire          io_commit_0_entry_payload_uop_decoded_useArchSrc3,
   output wire          io_commit_0_entry_payload_uop_decoded_usePcForAddr,
   output wire [31:0]   io_commit_0_entry_payload_uop_decoded_imm,
   output wire [2:0]    io_commit_0_entry_payload_uop_decoded_immUsage,
@@ -42071,13 +41167,11 @@ module ReorderBuffer (
   output wire [3:0]    io_commit_0_entry_payload_uop_decoded_fpuCtrl_opType,
   output wire [1:0]    io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc1,
   output wire [1:0]    io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc2,
-  output wire [1:0]    io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3,
   output wire [1:0]    io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeDest,
   output wire [2:0]    io_commit_0_entry_payload_uop_decoded_fpuCtrl_roundingMode,
   output wire          io_commit_0_entry_payload_uop_decoded_fpuCtrl_isIntegerDest,
   output wire          io_commit_0_entry_payload_uop_decoded_fpuCtrl_isSignedCvt,
   output wire          io_commit_0_entry_payload_uop_decoded_fpuCtrl_fmaNegSrc1,
-  output wire          io_commit_0_entry_payload_uop_decoded_fpuCtrl_fmaNegSrc3,
   output wire [4:0]    io_commit_0_entry_payload_uop_decoded_fpuCtrl_fcmpCond,
   output wire [13:0]   io_commit_0_entry_payload_uop_decoded_csrCtrl_csrAddr,
   output wire          io_commit_0_entry_payload_uop_decoded_csrCtrl_isWrite,
@@ -42101,8 +41195,6 @@ module ReorderBuffer (
   output wire          io_commit_0_entry_payload_uop_rename_physSrc1IsFpr,
   output wire [5:0]    io_commit_0_entry_payload_uop_rename_physSrc2_idx,
   output wire          io_commit_0_entry_payload_uop_rename_physSrc2IsFpr,
-  output wire [5:0]    io_commit_0_entry_payload_uop_rename_physSrc3_idx,
-  output wire          io_commit_0_entry_payload_uop_rename_physSrc3IsFpr,
   output wire [5:0]    io_commit_0_entry_payload_uop_rename_physDest_idx,
   output wire          io_commit_0_entry_payload_uop_rename_physDestIsFpr,
   output wire [5:0]    io_commit_0_entry_payload_uop_rename_oldPhysDest_idx,
@@ -42219,7 +41311,7 @@ module ReorderBuffer (
   localparam FlushReason_FULL_FLUSH = 2'd1;
   localparam FlushReason_ROLLBACK_TO_ROB_IDX = 2'd2;
 
-  wire       [384:0]  payloads_spinal_port0;
+  wire       [366:0]  payloads_spinal_port0;
   wire       [3:0]    _zz__zz_io_allocate_0_ready;
   reg        [0:0]    _zz_numActuallyAllocatedThisCycle;
   wire       [0:0]    _zz_numActuallyAllocatedThisCycle_1;
@@ -42227,7 +41319,6 @@ module ReorderBuffer (
   reg                 _zz__zz_io_commit_0_entry_status_genBit;
   wire       [5:0]    _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx_1;
   wire       [5:0]    _zz_io_commit_0_entry_payload_uop_rename_physSrc2_idx;
-  wire       [5:0]    _zz_io_commit_0_entry_payload_uop_rename_physSrc3_idx;
   wire       [5:0]    _zz_io_commit_0_entry_payload_uop_rename_physDest_idx;
   wire       [5:0]    _zz_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx;
   reg                 _zz_io_commit_0_entry_status_busy_1;
@@ -42244,7 +41335,7 @@ module ReorderBuffer (
   wire       [3:0]    _zz_nextCount_3;
   wire       [4:0]    _zz__zz_nextCount;
   wire       [4:0]    _zz__zz_nextCount_1;
-  wire       [384:0]  _zz_payloads_port;
+  wire       [366:0]  _zz_payloads_port;
   reg                 _zz_when_ReorderBuffer_l369_4;
   reg        [7:0]    _zz__zz_statuses_0_exceptionCode;
   reg                 _zz_when_ReorderBuffer_l369_1_1;
@@ -42346,7 +41437,6 @@ module ReorderBuffer (
   wire       [1:0]    _zz_io_commit_0_entry_payload_uop_decoded_archDest_rtype;
   wire       [1:0]    _zz_io_commit_0_entry_payload_uop_decoded_archSrc1_rtype;
   wire       [1:0]    _zz_io_commit_0_entry_payload_uop_decoded_archSrc2_rtype;
-  wire       [1:0]    _zz_io_commit_0_entry_payload_uop_decoded_archSrc3_rtype;
   wire       [2:0]    _zz_io_commit_0_entry_payload_uop_decoded_immUsage;
   wire       [1:0]    _zz_io_commit_0_entry_payload_uop_decoded_aluCtrl_logicOp;
   wire       [1:0]    _zz_io_commit_0_entry_payload_uop_decoded_memCtrl_size;
@@ -42354,12 +41444,11 @@ module ReorderBuffer (
   wire       [1:0]    _zz_io_commit_0_entry_payload_uop_decoded_branchCtrl_linkReg_rtype;
   wire       [1:0]    _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc1;
   wire       [1:0]    _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc2;
-  wire       [1:0]    _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3;
   wire       [1:0]    _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeDest;
   wire       [1:0]    _zz_io_commit_0_entry_payload_uop_decoded_decodeExceptionCode;
-  wire       [384:0]  _zz_io_commit_0_entry_payload_pc;
-  wire       [352:0]  _zz_io_commit_0_entry_payload_uop_robPtr;
-  wire       [284:0]  _zz_io_commit_0_entry_payload_uop_decoded_pc;
+  wire       [366:0]  _zz_io_commit_0_entry_payload_pc;
+  wire       [334:0]  _zz_io_commit_0_entry_payload_uop_robPtr;
+  wire       [273:0]  _zz_io_commit_0_entry_payload_uop_decoded_pc;
   wire       [4:0]    _zz_io_commit_0_entry_payload_uop_decoded_uopCode_1;
   wire       [3:0]    _zz_io_commit_0_entry_payload_uop_decoded_exeUnit_1;
   wire       [1:0]    _zz_io_commit_0_entry_payload_uop_decoded_isa_1;
@@ -42369,8 +41458,6 @@ module ReorderBuffer (
   wire       [1:0]    _zz_io_commit_0_entry_payload_uop_decoded_archSrc1_rtype_1;
   wire       [6:0]    _zz_io_commit_0_entry_payload_uop_decoded_archSrc2_idx;
   wire       [1:0]    _zz_io_commit_0_entry_payload_uop_decoded_archSrc2_rtype_1;
-  wire       [6:0]    _zz_io_commit_0_entry_payload_uop_decoded_archSrc3_idx;
-  wire       [1:0]    _zz_io_commit_0_entry_payload_uop_decoded_archSrc3_rtype_1;
   wire       [2:0]    _zz_io_commit_0_entry_payload_uop_decoded_immUsage_1;
   wire       [4:0]    _zz_io_commit_0_entry_payload_uop_decoded_aluCtrl_isSub;
   wire       [1:0]    _zz_io_commit_0_entry_payload_uop_decoded_aluCtrl_logicOp_1;
@@ -42382,16 +41469,15 @@ module ReorderBuffer (
   wire       [4:0]    _zz_io_commit_0_entry_payload_uop_decoded_branchCtrl_condition_1;
   wire       [6:0]    _zz_io_commit_0_entry_payload_uop_decoded_branchCtrl_linkReg_idx;
   wire       [1:0]    _zz_io_commit_0_entry_payload_uop_decoded_branchCtrl_linkReg_rtype_1;
-  wire       [23:0]   _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_opType;
+  wire       [20:0]   _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_opType;
   wire       [1:0]    _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc1_1;
   wire       [1:0]    _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc2_1;
-  wire       [1:0]    _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3_1;
   wire       [1:0]    _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeDest_1;
   wire       [17:0]   _zz_io_commit_0_entry_payload_uop_decoded_csrCtrl_csrAddr;
   wire       [25:0]   _zz_io_commit_0_entry_payload_uop_decoded_sysCtrl_sysCode;
   wire       [1:0]    _zz_io_commit_0_entry_payload_uop_decoded_decodeExceptionCode_1;
   wire       [33:0]   _zz_io_commit_0_entry_payload_uop_decoded_branchPrediction_isTaken;
-  wire       [36:0]   _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx;
+  wire       [29:0]   _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx;
   wire       [0:0]    numToCommit;
   reg        [3:0]    nextHead;
   reg        [3:0]    nextTail;
@@ -42417,261 +41503,254 @@ module ReorderBuffer (
   wire       [4:0]    _zz_15;
   wire       [1:0]    _zz_16;
   wire                _zz_17;
-  wire       [4:0]    _zz_18;
-  wire       [1:0]    _zz_19;
-  wire                _zz_20;
+  wire                _zz_18;
+  wire       [31:0]   _zz_19;
+  wire       [2:0]    _zz_20;
   wire                _zz_21;
-  wire       [31:0]   _zz_22;
-  wire       [2:0]    _zz_23;
-  wire                _zz_24;
+  wire                _zz_22;
+  wire                _zz_23;
+  wire       [1:0]    _zz_24;
   wire                _zz_25;
   wire                _zz_26;
-  wire       [1:0]    _zz_27;
+  wire                _zz_27;
   wire                _zz_28;
   wire                _zz_29;
   wire                _zz_30;
   wire                _zz_31;
-  wire                _zz_32;
+  wire       [1:0]    _zz_32;
   wire                _zz_33;
   wire                _zz_34;
-  wire       [1:0]    _zz_35;
+  wire                _zz_35;
   wire                _zz_36;
-  wire                _zz_37;
+  wire       [4:0]    _zz_37;
   wire                _zz_38;
-  wire                _zz_39;
-  wire       [4:0]    _zz_40;
-  wire                _zz_41;
-  wire       [7:0]    _zz_42;
-  wire                _zz_43;
-  wire       [4:0]    _zz_44;
+  wire       [7:0]    _zz_39;
+  wire                _zz_40;
+  wire       [4:0]    _zz_41;
+  wire                _zz_42;
+  wire       [4:0]    _zz_43;
+  wire                _zz_44;
   wire                _zz_45;
   wire       [4:0]    _zz_46;
-  wire                _zz_47;
+  wire       [1:0]    _zz_47;
   wire                _zz_48;
-  wire       [4:0]    _zz_49;
-  wire       [1:0]    _zz_50;
-  wire                _zz_51;
-  wire       [2:0]    _zz_52;
-  wire       [3:0]    _zz_53;
-  wire       [1:0]    _zz_54;
-  wire       [1:0]    _zz_55;
-  wire       [1:0]    _zz_56;
-  wire       [1:0]    _zz_57;
-  wire       [2:0]    _zz_58;
-  wire                _zz_59;
+  wire       [2:0]    _zz_49;
+  wire       [3:0]    _zz_50;
+  wire       [1:0]    _zz_51;
+  wire       [1:0]    _zz_52;
+  wire       [1:0]    _zz_53;
+  wire       [2:0]    _zz_54;
+  wire                _zz_55;
+  wire                _zz_56;
+  wire                _zz_57;
+  wire       [4:0]    _zz_58;
+  wire       [13:0]   _zz_59;
   wire                _zz_60;
   wire                _zz_61;
   wire                _zz_62;
-  wire       [4:0]    _zz_63;
-  wire       [13:0]   _zz_64;
+  wire                _zz_63;
+  wire       [19:0]   _zz_64;
   wire                _zz_65;
   wire                _zz_66;
-  wire                _zz_67;
-  wire                _zz_68;
-  wire       [19:0]   _zz_69;
+  wire       [3:0]    _zz_67;
+  wire       [1:0]    _zz_68;
+  wire                _zz_69;
   wire                _zz_70;
-  wire                _zz_71;
-  wire       [3:0]    _zz_72;
-  wire       [1:0]    _zz_73;
+  wire       [7:0]    _zz_71;
+  wire                _zz_72;
+  wire                _zz_73;
   wire                _zz_74;
-  wire                _zz_75;
-  wire       [7:0]    _zz_76;
-  wire                _zz_77;
+  wire       [31:0]   _zz_75;
+  wire                _zz_76;
+  wire       [5:0]    _zz_77;
   wire                _zz_78;
-  wire                _zz_79;
-  wire       [31:0]   _zz_80;
-  wire                _zz_81;
-  wire       [5:0]    _zz_82;
-  wire                _zz_83;
-  wire       [5:0]    _zz_84;
+  wire       [5:0]    _zz_79;
+  wire                _zz_80;
+  wire       [5:0]    _zz_81;
+  wire                _zz_82;
+  wire       [5:0]    _zz_83;
+  wire                _zz_84;
   wire                _zz_85;
-  wire       [5:0]    _zz_86;
-  wire                _zz_87;
-  wire       [5:0]    _zz_88;
+  wire                _zz_86;
+  reg        [3:0]    _zz_87;
+  wire       [15:0]   _zz_88;
   wire                _zz_89;
-  wire       [5:0]    _zz_90;
+  wire                _zz_90;
   wire                _zz_91;
-  wire                _zz_92;
-  wire                _zz_93;
-  reg        [3:0]    _zz_94;
-  wire       [15:0]   _zz_95;
+  wire       [7:0]    _zz_92;
+  wire       [31:0]   _zz_93;
+  wire       [7:0]    _zz_94;
+  wire                _zz_95;
   wire                _zz_96;
   wire                _zz_97;
   wire                _zz_98;
-  wire       [7:0]    _zz_99;
-  wire       [31:0]   _zz_100;
-  wire       [7:0]    _zz_101;
+  wire                _zz_99;
+  wire                _zz_100;
+  wire                _zz_101;
   wire                _zz_102;
-  wire                _zz_103;
-  wire                _zz_104;
+  wire       [2:0]    _zz_when_ReorderBuffer_l369;
+  wire       [7:0]    _zz_104;
   wire                _zz_105;
   wire                _zz_106;
   wire                _zz_107;
   wire                _zz_108;
   wire                _zz_109;
-  wire       [2:0]    _zz_when_ReorderBuffer_l369;
-  wire       [7:0]    _zz_111;
+  wire                _zz_110;
+  wire                _zz_111;
   wire                _zz_112;
-  wire                _zz_113;
+  wire                when_ReorderBuffer_l369;
+  wire       [7:0]    _zz_statuses_0_exceptionCode;
+  wire       [2:0]    _zz_when_ReorderBuffer_l369_1;
+  wire       [7:0]    _zz_113;
   wire                _zz_114;
   wire                _zz_115;
   wire                _zz_116;
   wire                _zz_117;
   wire                _zz_118;
   wire                _zz_119;
-  wire                when_ReorderBuffer_l369;
-  wire       [7:0]    _zz_statuses_0_exceptionCode;
-  wire       [2:0]    _zz_when_ReorderBuffer_l369_1;
-  wire       [7:0]    _zz_120;
+  wire                _zz_120;
   wire                _zz_121;
-  wire                _zz_122;
+  wire                when_ReorderBuffer_l369_1;
+  wire       [7:0]    _zz_statuses_0_exceptionCode_1;
+  wire       [2:0]    _zz_when_ReorderBuffer_l369_2;
+  wire       [7:0]    _zz_122;
   wire                _zz_123;
   wire                _zz_124;
   wire                _zz_125;
   wire                _zz_126;
   wire                _zz_127;
   wire                _zz_128;
-  wire                when_ReorderBuffer_l369_1;
-  wire       [7:0]    _zz_statuses_0_exceptionCode_1;
-  wire       [2:0]    _zz_when_ReorderBuffer_l369_2;
-  wire       [7:0]    _zz_129;
+  wire                _zz_129;
   wire                _zz_130;
-  wire                _zz_131;
+  wire                when_ReorderBuffer_l369_2;
+  wire       [7:0]    _zz_statuses_0_exceptionCode_2;
+  wire       [2:0]    _zz_when_ReorderBuffer_l369_3;
+  wire       [7:0]    _zz_131;
   wire                _zz_132;
   wire                _zz_133;
   wire                _zz_134;
   wire                _zz_135;
   wire                _zz_136;
   wire                _zz_137;
-  wire                when_ReorderBuffer_l369_2;
-  wire       [7:0]    _zz_statuses_0_exceptionCode_2;
-  wire       [2:0]    _zz_when_ReorderBuffer_l369_3;
-  wire       [7:0]    _zz_138;
+  wire                _zz_138;
   wire                _zz_139;
-  wire                _zz_140;
+  wire                when_ReorderBuffer_l369_3;
+  wire       [7:0]    _zz_statuses_0_exceptionCode_3;
+  wire       [2:0]    _zz_when_ReorderBuffer_l411;
+  wire       [7:0]    _zz_140;
   wire                _zz_141;
   wire                _zz_142;
   wire                _zz_143;
   wire                _zz_144;
   wire                _zz_145;
   wire                _zz_146;
-  wire                when_ReorderBuffer_l369_3;
-  wire       [7:0]    _zz_statuses_0_exceptionCode_3;
-  wire       [2:0]    _zz_when_ReorderBuffer_l411;
-  wire       [7:0]    _zz_147;
+  wire                _zz_147;
   wire                _zz_148;
-  wire                _zz_149;
-  wire                _zz_150;
-  wire                _zz_151;
-  wire                _zz_152;
-  wire                _zz_153;
-  wire                _zz_154;
-  wire                _zz_155;
   wire       [4:0]    _zz_when_ReorderBuffer_l411_1;
   wire       [4:0]    _zz_when_ReorderBuffer_l411_2;
   wire       [4:0]    _zz_when_ReorderBuffer_l411_3;
   reg                 when_ReorderBuffer_l411;
   wire                when_ReorderBuffer_l405;
   wire       [2:0]    _zz_when_ReorderBuffer_l411_4;
-  wire       [7:0]    _zz_156;
+  wire       [7:0]    _zz_149;
+  wire                _zz_150;
+  wire                _zz_151;
+  wire                _zz_152;
+  wire                _zz_153;
+  wire                _zz_154;
+  wire                _zz_155;
+  wire                _zz_156;
   wire                _zz_157;
-  wire                _zz_158;
-  wire                _zz_159;
-  wire                _zz_160;
-  wire                _zz_161;
-  wire                _zz_162;
-  wire                _zz_163;
-  wire                _zz_164;
   wire       [4:0]    _zz_when_ReorderBuffer_l411_5;
   wire       [4:0]    _zz_when_ReorderBuffer_l411_6;
   wire       [4:0]    _zz_when_ReorderBuffer_l411_7;
   reg                 when_ReorderBuffer_l411_1;
   wire                when_ReorderBuffer_l405_1;
   wire       [2:0]    _zz_when_ReorderBuffer_l411_8;
-  wire       [7:0]    _zz_165;
+  wire       [7:0]    _zz_158;
+  wire                _zz_159;
+  wire                _zz_160;
+  wire                _zz_161;
+  wire                _zz_162;
+  wire                _zz_163;
+  wire                _zz_164;
+  wire                _zz_165;
   wire                _zz_166;
-  wire                _zz_167;
-  wire                _zz_168;
-  wire                _zz_169;
-  wire                _zz_170;
-  wire                _zz_171;
-  wire                _zz_172;
-  wire                _zz_173;
   wire       [4:0]    _zz_when_ReorderBuffer_l411_9;
   wire       [4:0]    _zz_when_ReorderBuffer_l411_10;
   wire       [4:0]    _zz_when_ReorderBuffer_l411_11;
   reg                 when_ReorderBuffer_l411_2;
   wire                when_ReorderBuffer_l405_2;
   wire       [2:0]    _zz_when_ReorderBuffer_l411_12;
-  wire       [7:0]    _zz_174;
+  wire       [7:0]    _zz_167;
+  wire                _zz_168;
+  wire                _zz_169;
+  wire                _zz_170;
+  wire                _zz_171;
+  wire                _zz_172;
+  wire                _zz_173;
+  wire                _zz_174;
   wire                _zz_175;
-  wire                _zz_176;
-  wire                _zz_177;
-  wire                _zz_178;
-  wire                _zz_179;
-  wire                _zz_180;
-  wire                _zz_181;
-  wire                _zz_182;
   wire       [4:0]    _zz_when_ReorderBuffer_l411_13;
   wire       [4:0]    _zz_when_ReorderBuffer_l411_14;
   wire       [4:0]    _zz_when_ReorderBuffer_l411_15;
   reg                 when_ReorderBuffer_l411_3;
   wire                when_ReorderBuffer_l405_3;
   wire       [2:0]    _zz_when_ReorderBuffer_l411_16;
-  wire       [7:0]    _zz_183;
+  wire       [7:0]    _zz_176;
+  wire                _zz_177;
+  wire                _zz_178;
+  wire                _zz_179;
+  wire                _zz_180;
+  wire                _zz_181;
+  wire                _zz_182;
+  wire                _zz_183;
   wire                _zz_184;
-  wire                _zz_185;
-  wire                _zz_186;
-  wire                _zz_187;
-  wire                _zz_188;
-  wire                _zz_189;
-  wire                _zz_190;
-  wire                _zz_191;
   wire       [4:0]    _zz_when_ReorderBuffer_l411_17;
   wire       [4:0]    _zz_when_ReorderBuffer_l411_18;
   wire       [4:0]    _zz_when_ReorderBuffer_l411_19;
   reg                 when_ReorderBuffer_l411_4;
   wire                when_ReorderBuffer_l405_4;
   wire       [2:0]    _zz_when_ReorderBuffer_l411_20;
-  wire       [7:0]    _zz_192;
+  wire       [7:0]    _zz_185;
+  wire                _zz_186;
+  wire                _zz_187;
+  wire                _zz_188;
+  wire                _zz_189;
+  wire                _zz_190;
+  wire                _zz_191;
+  wire                _zz_192;
   wire                _zz_193;
-  wire                _zz_194;
-  wire                _zz_195;
-  wire                _zz_196;
-  wire                _zz_197;
-  wire                _zz_198;
-  wire                _zz_199;
-  wire                _zz_200;
   wire       [4:0]    _zz_when_ReorderBuffer_l411_21;
   wire       [4:0]    _zz_when_ReorderBuffer_l411_22;
   wire       [4:0]    _zz_when_ReorderBuffer_l411_23;
   reg                 when_ReorderBuffer_l411_5;
   wire                when_ReorderBuffer_l405_5;
   wire       [2:0]    _zz_when_ReorderBuffer_l411_24;
-  wire       [7:0]    _zz_201;
+  wire       [7:0]    _zz_194;
+  wire                _zz_195;
+  wire                _zz_196;
+  wire                _zz_197;
+  wire                _zz_198;
+  wire                _zz_199;
+  wire                _zz_200;
+  wire                _zz_201;
   wire                _zz_202;
-  wire                _zz_203;
-  wire                _zz_204;
-  wire                _zz_205;
-  wire                _zz_206;
-  wire                _zz_207;
-  wire                _zz_208;
-  wire                _zz_209;
   wire       [4:0]    _zz_when_ReorderBuffer_l411_25;
   wire       [4:0]    _zz_when_ReorderBuffer_l411_26;
   wire       [4:0]    _zz_when_ReorderBuffer_l411_27;
   reg                 when_ReorderBuffer_l411_6;
   wire                when_ReorderBuffer_l405_6;
   wire       [2:0]    _zz_when_ReorderBuffer_l411_28;
-  wire       [7:0]    _zz_210;
+  wire       [7:0]    _zz_203;
+  wire                _zz_204;
+  wire                _zz_205;
+  wire                _zz_206;
+  wire                _zz_207;
+  wire                _zz_208;
+  wire                _zz_209;
+  wire                _zz_210;
   wire                _zz_211;
-  wire                _zz_212;
-  wire                _zz_213;
-  wire                _zz_214;
-  wire                _zz_215;
-  wire                _zz_216;
-  wire                _zz_217;
-  wire                _zz_218;
   wire       [4:0]    _zz_when_ReorderBuffer_l411_29;
   wire       [4:0]    _zz_when_ReorderBuffer_l411_30;
   wire       [4:0]    _zz_when_ReorderBuffer_l411_31;
@@ -42684,7 +41763,6 @@ module ReorderBuffer (
   reg [39:0] io_allocate_0_uopIn_decoded_archDest_rtype_string;
   reg [39:0] io_allocate_0_uopIn_decoded_archSrc1_rtype_string;
   reg [39:0] io_allocate_0_uopIn_decoded_archSrc2_rtype_string;
-  reg [39:0] io_allocate_0_uopIn_decoded_archSrc3_rtype_string;
   reg [103:0] io_allocate_0_uopIn_decoded_immUsage_string;
   reg [39:0] io_allocate_0_uopIn_decoded_aluCtrl_logicOp_string;
   reg [7:0] io_allocate_0_uopIn_decoded_memCtrl_size_string;
@@ -42692,7 +41770,6 @@ module ReorderBuffer (
   reg [39:0] io_allocate_0_uopIn_decoded_branchCtrl_linkReg_rtype_string;
   reg [7:0] io_allocate_0_uopIn_decoded_fpuCtrl_fpSizeSrc1_string;
   reg [7:0] io_allocate_0_uopIn_decoded_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] io_allocate_0_uopIn_decoded_fpuCtrl_fpSizeSrc3_string;
   reg [7:0] io_allocate_0_uopIn_decoded_fpuCtrl_fpSizeDest_string;
   reg [95:0] io_allocate_0_uopIn_decoded_decodeExceptionCode_string;
   reg [87:0] io_commit_0_entry_payload_uop_decoded_uopCode_string;
@@ -42701,7 +41778,6 @@ module ReorderBuffer (
   reg [39:0] io_commit_0_entry_payload_uop_decoded_archDest_rtype_string;
   reg [39:0] io_commit_0_entry_payload_uop_decoded_archSrc1_rtype_string;
   reg [39:0] io_commit_0_entry_payload_uop_decoded_archSrc2_rtype_string;
-  reg [39:0] io_commit_0_entry_payload_uop_decoded_archSrc3_rtype_string;
   reg [103:0] io_commit_0_entry_payload_uop_decoded_immUsage_string;
   reg [39:0] io_commit_0_entry_payload_uop_decoded_aluCtrl_logicOp_string;
   reg [7:0] io_commit_0_entry_payload_uop_decoded_memCtrl_size_string;
@@ -42709,7 +41785,6 @@ module ReorderBuffer (
   reg [39:0] io_commit_0_entry_payload_uop_decoded_branchCtrl_linkReg_rtype_string;
   reg [7:0] io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc1_string;
   reg [7:0] io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string;
   reg [7:0] io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeDest_string;
   reg [95:0] io_commit_0_entry_payload_uop_decoded_decodeExceptionCode_string;
   reg [151:0] io_flush_payload_reason_string;
@@ -42719,7 +41794,6 @@ module ReorderBuffer (
   reg [39:0] _zz_io_commit_0_entry_payload_uop_decoded_archDest_rtype_string;
   reg [39:0] _zz_io_commit_0_entry_payload_uop_decoded_archSrc1_rtype_string;
   reg [39:0] _zz_io_commit_0_entry_payload_uop_decoded_archSrc2_rtype_string;
-  reg [39:0] _zz_io_commit_0_entry_payload_uop_decoded_archSrc3_rtype_string;
   reg [103:0] _zz_io_commit_0_entry_payload_uop_decoded_immUsage_string;
   reg [39:0] _zz_io_commit_0_entry_payload_uop_decoded_aluCtrl_logicOp_string;
   reg [7:0] _zz_io_commit_0_entry_payload_uop_decoded_memCtrl_size_string;
@@ -42727,7 +41801,6 @@ module ReorderBuffer (
   reg [39:0] _zz_io_commit_0_entry_payload_uop_decoded_branchCtrl_linkReg_rtype_string;
   reg [7:0] _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc1_string;
   reg [7:0] _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string;
   reg [7:0] _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeDest_string;
   reg [95:0] _zz_io_commit_0_entry_payload_uop_decoded_decodeExceptionCode_string;
   reg [87:0] _zz_io_commit_0_entry_payload_uop_decoded_uopCode_1_string;
@@ -42736,7 +41809,6 @@ module ReorderBuffer (
   reg [39:0] _zz_io_commit_0_entry_payload_uop_decoded_archDest_rtype_1_string;
   reg [39:0] _zz_io_commit_0_entry_payload_uop_decoded_archSrc1_rtype_1_string;
   reg [39:0] _zz_io_commit_0_entry_payload_uop_decoded_archSrc2_rtype_1_string;
-  reg [39:0] _zz_io_commit_0_entry_payload_uop_decoded_archSrc3_rtype_1_string;
   reg [103:0] _zz_io_commit_0_entry_payload_uop_decoded_immUsage_1_string;
   reg [39:0] _zz_io_commit_0_entry_payload_uop_decoded_aluCtrl_logicOp_1_string;
   reg [7:0] _zz_io_commit_0_entry_payload_uop_decoded_memCtrl_size_1_string;
@@ -42744,7 +41816,6 @@ module ReorderBuffer (
   reg [39:0] _zz_io_commit_0_entry_payload_uop_decoded_branchCtrl_linkReg_rtype_1_string;
   reg [7:0] _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc1_1_string;
   reg [7:0] _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc2_1_string;
-  reg [7:0] _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3_1_string;
   reg [7:0] _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeDest_1_string;
   reg [95:0] _zz_io_commit_0_entry_payload_uop_decoded_decodeExceptionCode_1_string;
   reg [87:0] _zz_6_string;
@@ -42753,27 +41824,24 @@ module ReorderBuffer (
   reg [39:0] _zz_10_string;
   reg [39:0] _zz_13_string;
   reg [39:0] _zz_16_string;
-  reg [39:0] _zz_19_string;
-  reg [103:0] _zz_23_string;
-  reg [39:0] _zz_27_string;
-  reg [7:0] _zz_35_string;
-  reg [87:0] _zz_46_string;
-  reg [39:0] _zz_50_string;
-  reg [7:0] _zz_54_string;
-  reg [7:0] _zz_55_string;
-  reg [7:0] _zz_56_string;
-  reg [7:0] _zz_57_string;
-  reg [95:0] _zz_73_string;
+  reg [103:0] _zz_20_string;
+  reg [39:0] _zz_24_string;
+  reg [7:0] _zz_32_string;
+  reg [87:0] _zz_43_string;
+  reg [39:0] _zz_47_string;
+  reg [7:0] _zz_51_string;
+  reg [7:0] _zz_52_string;
+  reg [7:0] _zz_53_string;
+  reg [95:0] _zz_68_string;
   `endif
 
-  (* ram_style = "distributed" *) reg [384:0] payloads [0:7];
+  (* ram_style = "distributed" *) reg [366:0] payloads [0:7];
 
   assign _zz__zz_io_allocate_0_ready = (count_reg + 4'b0000);
   assign _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx_1 = _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx[5 : 0];
   assign _zz_io_commit_0_entry_payload_uop_rename_physSrc2_idx = _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx[12 : 7];
-  assign _zz_io_commit_0_entry_payload_uop_rename_physSrc3_idx = _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx[19 : 14];
-  assign _zz_io_commit_0_entry_payload_uop_rename_physDest_idx = _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx[26 : 21];
-  assign _zz_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx = _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx[33 : 28];
+  assign _zz_io_commit_0_entry_payload_uop_rename_physDest_idx = _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx[19 : 14];
+  assign _zz_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx = _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx[26 : 21];
   assign _zz_nextHead = {3'd0, numToCommit};
   assign _zz_nextTail = {3'd0, numActuallyAllocatedThisCycle};
   assign _zz_nextCount_1 = (count_reg + _zz_nextCount_2);
@@ -42789,7 +41857,7 @@ module ReorderBuffer (
   assign _zz__zz_when_ReorderBuffer_l411_23 = {_zz__zz_when_ReorderBuffer_l411_23_1,_zz_when_ReorderBuffer_l411_20};
   assign _zz__zz_when_ReorderBuffer_l411_27 = {_zz__zz_when_ReorderBuffer_l411_27_1,_zz_when_ReorderBuffer_l411_24};
   assign _zz__zz_when_ReorderBuffer_l411_31 = {_zz__zz_when_ReorderBuffer_l411_31_1,_zz_when_ReorderBuffer_l411_28};
-  assign _zz_payloads_port = {_zz_100,{_zz_99,{_zz_98,{_zz_97,{_zz_96,{_zz_95,{_zz_94,{{_zz_93,{_zz_92,{_zz_91,{_zz_90,{_zz_89,{_zz_88,{_zz_87,{_zz_86,{_zz_85,{_zz_84,{_zz_83,_zz_82}}}}}}}}}}},{{_zz_81,{_zz_80,_zz_79}},{_zz_78,{_zz_77,{_zz_76,{_zz_75,{_zz_74,{_zz_73,{{_zz_72,{_zz_71,{_zz_70,_zz_69}}},{{_zz_68,{_zz_67,{_zz_66,{_zz_65,_zz_64}}}},{{_zz_63,{_zz_62,{_zz_61,{_zz_60,{_zz_59,{_zz_58,{_zz_57,{_zz_56,{_zz_55,{_zz_54,_zz_53}}}}}}}}}},{{_zz_52,{_zz_51,{{_zz_50,_zz_49},{_zz_48,{_zz_47,_zz_46}}}}},{{_zz_45,{_zz_44,{_zz_43,{_zz_42,{_zz_41,{_zz_40,{_zz_39,{_zz_38,{_zz_37,{_zz_36,_zz_35}}}}}}}}}},{{_zz_34,{_zz_33,_zz_32}},{{_zz_31,{_zz_30,{_zz_29,_zz_28}}},{{_zz_27,{_zz_26,{_zz_25,_zz_24}}},{_zz_23,{_zz_22,{_zz_21,{_zz_20,{{_zz_19,_zz_18},{_zz_17,{{_zz_16,_zz_15},{_zz_14,{{_zz_13,_zz_12},{_zz_11,{{_zz_10,_zz_9},{_zz_8,{_zz_7,{_zz_6,{_zz_5,_zz_4}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}};
+  assign _zz_payloads_port = {_zz_93,{_zz_92,{_zz_91,{_zz_90,{_zz_89,{_zz_88,{_zz_87,{{_zz_86,{_zz_85,{_zz_84,{_zz_83,{_zz_82,{_zz_81,{_zz_80,{_zz_79,{_zz_78,_zz_77}}}}}}}}},{{_zz_76,{_zz_75,_zz_74}},{_zz_73,{_zz_72,{_zz_71,{_zz_70,{_zz_69,{_zz_68,{{_zz_67,{_zz_66,{_zz_65,_zz_64}}},{{_zz_63,{_zz_62,{_zz_61,{_zz_60,_zz_59}}}},{{_zz_58,{_zz_57,{_zz_56,{_zz_55,{_zz_54,{_zz_53,{_zz_52,{_zz_51,_zz_50}}}}}}}},{{_zz_49,{_zz_48,{{_zz_47,_zz_46},{_zz_45,{_zz_44,_zz_43}}}}},{{_zz_42,{_zz_41,{_zz_40,{_zz_39,{_zz_38,{_zz_37,{_zz_36,{_zz_35,{_zz_34,{_zz_33,_zz_32}}}}}}}}}},{{_zz_31,{_zz_30,_zz_29}},{{_zz_28,{_zz_27,{_zz_26,_zz_25}}},{{_zz_24,{_zz_23,{_zz_22,_zz_21}}},{_zz_20,{_zz_19,{_zz_18,{_zz_17,{{_zz_16,_zz_15},{_zz_14,{{_zz_13,_zz_12},{_zz_11,{{_zz_10,_zz_9},{_zz_8,{_zz_7,{_zz_6,{_zz_5,_zz_4}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}};
   assign _zz_numActuallyAllocatedThisCycle_1 = slotWillAllocate_0;
   assign _zz_numToCommit_1 = actualCommittedMask_0;
   assign payloads_spinal_port0 = payloads[_zz_io_commit_0_entry_status_busy];
@@ -43223,15 +42291,6 @@ module ReorderBuffer (
     endcase
   end
   always @(*) begin
-    case(io_allocate_0_uopIn_decoded_archSrc3_rtype)
-      ArchRegType_GPR : io_allocate_0_uopIn_decoded_archSrc3_rtype_string = "GPR  ";
-      ArchRegType_FPR : io_allocate_0_uopIn_decoded_archSrc3_rtype_string = "FPR  ";
-      ArchRegType_CSR : io_allocate_0_uopIn_decoded_archSrc3_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : io_allocate_0_uopIn_decoded_archSrc3_rtype_string = "LA_CF";
-      default : io_allocate_0_uopIn_decoded_archSrc3_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
     case(io_allocate_0_uopIn_decoded_immUsage)
       ImmUsageType_NONE : io_allocate_0_uopIn_decoded_immUsage_string = "NONE         ";
       ImmUsageType_SRC_ALU : io_allocate_0_uopIn_decoded_immUsage_string = "SRC_ALU      ";
@@ -43311,15 +42370,6 @@ module ReorderBuffer (
       MemAccessSize_W : io_allocate_0_uopIn_decoded_fpuCtrl_fpSizeSrc2_string = "W";
       MemAccessSize_D : io_allocate_0_uopIn_decoded_fpuCtrl_fpSizeSrc2_string = "D";
       default : io_allocate_0_uopIn_decoded_fpuCtrl_fpSizeSrc2_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(io_allocate_0_uopIn_decoded_fpuCtrl_fpSizeSrc3)
-      MemAccessSize_B : io_allocate_0_uopIn_decoded_fpuCtrl_fpSizeSrc3_string = "B";
-      MemAccessSize_H : io_allocate_0_uopIn_decoded_fpuCtrl_fpSizeSrc3_string = "H";
-      MemAccessSize_W : io_allocate_0_uopIn_decoded_fpuCtrl_fpSizeSrc3_string = "W";
-      MemAccessSize_D : io_allocate_0_uopIn_decoded_fpuCtrl_fpSizeSrc3_string = "D";
-      default : io_allocate_0_uopIn_decoded_fpuCtrl_fpSizeSrc3_string = "?";
     endcase
   end
   always @(*) begin
@@ -43420,15 +42470,6 @@ module ReorderBuffer (
     endcase
   end
   always @(*) begin
-    case(io_commit_0_entry_payload_uop_decoded_archSrc3_rtype)
-      ArchRegType_GPR : io_commit_0_entry_payload_uop_decoded_archSrc3_rtype_string = "GPR  ";
-      ArchRegType_FPR : io_commit_0_entry_payload_uop_decoded_archSrc3_rtype_string = "FPR  ";
-      ArchRegType_CSR : io_commit_0_entry_payload_uop_decoded_archSrc3_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : io_commit_0_entry_payload_uop_decoded_archSrc3_rtype_string = "LA_CF";
-      default : io_commit_0_entry_payload_uop_decoded_archSrc3_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
     case(io_commit_0_entry_payload_uop_decoded_immUsage)
       ImmUsageType_NONE : io_commit_0_entry_payload_uop_decoded_immUsage_string = "NONE         ";
       ImmUsageType_SRC_ALU : io_commit_0_entry_payload_uop_decoded_immUsage_string = "SRC_ALU      ";
@@ -43508,15 +42549,6 @@ module ReorderBuffer (
       MemAccessSize_W : io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "W";
       MemAccessSize_D : io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "D";
       default : io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3)
-      MemAccessSize_B : io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "B";
-      MemAccessSize_H : io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "H";
-      MemAccessSize_W : io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "W";
-      MemAccessSize_D : io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "D";
-      default : io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "?";
     endcase
   end
   always @(*) begin
@@ -43625,15 +42657,6 @@ module ReorderBuffer (
     endcase
   end
   always @(*) begin
-    case(_zz_io_commit_0_entry_payload_uop_decoded_archSrc3_rtype)
-      ArchRegType_GPR : _zz_io_commit_0_entry_payload_uop_decoded_archSrc3_rtype_string = "GPR  ";
-      ArchRegType_FPR : _zz_io_commit_0_entry_payload_uop_decoded_archSrc3_rtype_string = "FPR  ";
-      ArchRegType_CSR : _zz_io_commit_0_entry_payload_uop_decoded_archSrc3_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : _zz_io_commit_0_entry_payload_uop_decoded_archSrc3_rtype_string = "LA_CF";
-      default : _zz_io_commit_0_entry_payload_uop_decoded_archSrc3_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
     case(_zz_io_commit_0_entry_payload_uop_decoded_immUsage)
       ImmUsageType_NONE : _zz_io_commit_0_entry_payload_uop_decoded_immUsage_string = "NONE         ";
       ImmUsageType_SRC_ALU : _zz_io_commit_0_entry_payload_uop_decoded_immUsage_string = "SRC_ALU      ";
@@ -43713,15 +42736,6 @@ module ReorderBuffer (
       MemAccessSize_W : _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "W";
       MemAccessSize_D : _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "D";
       default : _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(_zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3)
-      MemAccessSize_B : _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "B";
-      MemAccessSize_H : _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "H";
-      MemAccessSize_W : _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "W";
-      MemAccessSize_D : _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "D";
-      default : _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3_string = "?";
     endcase
   end
   always @(*) begin
@@ -43822,15 +42836,6 @@ module ReorderBuffer (
     endcase
   end
   always @(*) begin
-    case(_zz_io_commit_0_entry_payload_uop_decoded_archSrc3_rtype_1)
-      ArchRegType_GPR : _zz_io_commit_0_entry_payload_uop_decoded_archSrc3_rtype_1_string = "GPR  ";
-      ArchRegType_FPR : _zz_io_commit_0_entry_payload_uop_decoded_archSrc3_rtype_1_string = "FPR  ";
-      ArchRegType_CSR : _zz_io_commit_0_entry_payload_uop_decoded_archSrc3_rtype_1_string = "CSR  ";
-      ArchRegType_LA_CF : _zz_io_commit_0_entry_payload_uop_decoded_archSrc3_rtype_1_string = "LA_CF";
-      default : _zz_io_commit_0_entry_payload_uop_decoded_archSrc3_rtype_1_string = "?????";
-    endcase
-  end
-  always @(*) begin
     case(_zz_io_commit_0_entry_payload_uop_decoded_immUsage_1)
       ImmUsageType_NONE : _zz_io_commit_0_entry_payload_uop_decoded_immUsage_1_string = "NONE         ";
       ImmUsageType_SRC_ALU : _zz_io_commit_0_entry_payload_uop_decoded_immUsage_1_string = "SRC_ALU      ";
@@ -43910,15 +42915,6 @@ module ReorderBuffer (
       MemAccessSize_W : _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc2_1_string = "W";
       MemAccessSize_D : _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc2_1_string = "D";
       default : _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc2_1_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(_zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3_1)
-      MemAccessSize_B : _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3_1_string = "B";
-      MemAccessSize_H : _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3_1_string = "H";
-      MemAccessSize_W : _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3_1_string = "W";
-      MemAccessSize_D : _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3_1_string = "D";
-      default : _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3_1_string = "?";
     endcase
   end
   always @(*) begin
@@ -44019,121 +43015,103 @@ module ReorderBuffer (
     endcase
   end
   always @(*) begin
-    case(_zz_19)
-      ArchRegType_GPR : _zz_19_string = "GPR  ";
-      ArchRegType_FPR : _zz_19_string = "FPR  ";
-      ArchRegType_CSR : _zz_19_string = "CSR  ";
-      ArchRegType_LA_CF : _zz_19_string = "LA_CF";
-      default : _zz_19_string = "?????";
+    case(_zz_20)
+      ImmUsageType_NONE : _zz_20_string = "NONE         ";
+      ImmUsageType_SRC_ALU : _zz_20_string = "SRC_ALU      ";
+      ImmUsageType_SRC_SHIFT_AMT : _zz_20_string = "SRC_SHIFT_AMT";
+      ImmUsageType_SRC_CSR_UIMM : _zz_20_string = "SRC_CSR_UIMM ";
+      ImmUsageType_MEM_OFFSET : _zz_20_string = "MEM_OFFSET   ";
+      ImmUsageType_BRANCH_OFFSET : _zz_20_string = "BRANCH_OFFSET";
+      ImmUsageType_JUMP_OFFSET : _zz_20_string = "JUMP_OFFSET  ";
+      default : _zz_20_string = "?????????????";
     endcase
   end
   always @(*) begin
-    case(_zz_23)
-      ImmUsageType_NONE : _zz_23_string = "NONE         ";
-      ImmUsageType_SRC_ALU : _zz_23_string = "SRC_ALU      ";
-      ImmUsageType_SRC_SHIFT_AMT : _zz_23_string = "SRC_SHIFT_AMT";
-      ImmUsageType_SRC_CSR_UIMM : _zz_23_string = "SRC_CSR_UIMM ";
-      ImmUsageType_MEM_OFFSET : _zz_23_string = "MEM_OFFSET   ";
-      ImmUsageType_BRANCH_OFFSET : _zz_23_string = "BRANCH_OFFSET";
-      ImmUsageType_JUMP_OFFSET : _zz_23_string = "JUMP_OFFSET  ";
-      default : _zz_23_string = "?????????????";
+    case(_zz_24)
+      LogicOp_NONE : _zz_24_string = "NONE ";
+      LogicOp_AND_1 : _zz_24_string = "AND_1";
+      LogicOp_OR_1 : _zz_24_string = "OR_1 ";
+      LogicOp_XOR_1 : _zz_24_string = "XOR_1";
+      default : _zz_24_string = "?????";
     endcase
   end
   always @(*) begin
-    case(_zz_27)
-      LogicOp_NONE : _zz_27_string = "NONE ";
-      LogicOp_AND_1 : _zz_27_string = "AND_1";
-      LogicOp_OR_1 : _zz_27_string = "OR_1 ";
-      LogicOp_XOR_1 : _zz_27_string = "XOR_1";
-      default : _zz_27_string = "?????";
+    case(_zz_32)
+      MemAccessSize_B : _zz_32_string = "B";
+      MemAccessSize_H : _zz_32_string = "H";
+      MemAccessSize_W : _zz_32_string = "W";
+      MemAccessSize_D : _zz_32_string = "D";
+      default : _zz_32_string = "?";
     endcase
   end
   always @(*) begin
-    case(_zz_35)
-      MemAccessSize_B : _zz_35_string = "B";
-      MemAccessSize_H : _zz_35_string = "H";
-      MemAccessSize_W : _zz_35_string = "W";
-      MemAccessSize_D : _zz_35_string = "D";
-      default : _zz_35_string = "?";
+    case(_zz_43)
+      BranchCondition_NUL : _zz_43_string = "NUL        ";
+      BranchCondition_EQ : _zz_43_string = "EQ         ";
+      BranchCondition_NE : _zz_43_string = "NE         ";
+      BranchCondition_LT : _zz_43_string = "LT         ";
+      BranchCondition_GE : _zz_43_string = "GE         ";
+      BranchCondition_LTU : _zz_43_string = "LTU        ";
+      BranchCondition_GEU : _zz_43_string = "GEU        ";
+      BranchCondition_EQZ : _zz_43_string = "EQZ        ";
+      BranchCondition_NEZ : _zz_43_string = "NEZ        ";
+      BranchCondition_LTZ : _zz_43_string = "LTZ        ";
+      BranchCondition_GEZ : _zz_43_string = "GEZ        ";
+      BranchCondition_GTZ : _zz_43_string = "GTZ        ";
+      BranchCondition_LEZ : _zz_43_string = "LEZ        ";
+      BranchCondition_F_EQ : _zz_43_string = "F_EQ       ";
+      BranchCondition_F_NE : _zz_43_string = "F_NE       ";
+      BranchCondition_F_LT : _zz_43_string = "F_LT       ";
+      BranchCondition_F_LE : _zz_43_string = "F_LE       ";
+      BranchCondition_F_UN : _zz_43_string = "F_UN       ";
+      BranchCondition_LA_CF_TRUE : _zz_43_string = "LA_CF_TRUE ";
+      BranchCondition_LA_CF_FALSE : _zz_43_string = "LA_CF_FALSE";
+      default : _zz_43_string = "???????????";
     endcase
   end
   always @(*) begin
-    case(_zz_46)
-      BranchCondition_NUL : _zz_46_string = "NUL        ";
-      BranchCondition_EQ : _zz_46_string = "EQ         ";
-      BranchCondition_NE : _zz_46_string = "NE         ";
-      BranchCondition_LT : _zz_46_string = "LT         ";
-      BranchCondition_GE : _zz_46_string = "GE         ";
-      BranchCondition_LTU : _zz_46_string = "LTU        ";
-      BranchCondition_GEU : _zz_46_string = "GEU        ";
-      BranchCondition_EQZ : _zz_46_string = "EQZ        ";
-      BranchCondition_NEZ : _zz_46_string = "NEZ        ";
-      BranchCondition_LTZ : _zz_46_string = "LTZ        ";
-      BranchCondition_GEZ : _zz_46_string = "GEZ        ";
-      BranchCondition_GTZ : _zz_46_string = "GTZ        ";
-      BranchCondition_LEZ : _zz_46_string = "LEZ        ";
-      BranchCondition_F_EQ : _zz_46_string = "F_EQ       ";
-      BranchCondition_F_NE : _zz_46_string = "F_NE       ";
-      BranchCondition_F_LT : _zz_46_string = "F_LT       ";
-      BranchCondition_F_LE : _zz_46_string = "F_LE       ";
-      BranchCondition_F_UN : _zz_46_string = "F_UN       ";
-      BranchCondition_LA_CF_TRUE : _zz_46_string = "LA_CF_TRUE ";
-      BranchCondition_LA_CF_FALSE : _zz_46_string = "LA_CF_FALSE";
-      default : _zz_46_string = "???????????";
+    case(_zz_47)
+      ArchRegType_GPR : _zz_47_string = "GPR  ";
+      ArchRegType_FPR : _zz_47_string = "FPR  ";
+      ArchRegType_CSR : _zz_47_string = "CSR  ";
+      ArchRegType_LA_CF : _zz_47_string = "LA_CF";
+      default : _zz_47_string = "?????";
     endcase
   end
   always @(*) begin
-    case(_zz_50)
-      ArchRegType_GPR : _zz_50_string = "GPR  ";
-      ArchRegType_FPR : _zz_50_string = "FPR  ";
-      ArchRegType_CSR : _zz_50_string = "CSR  ";
-      ArchRegType_LA_CF : _zz_50_string = "LA_CF";
-      default : _zz_50_string = "?????";
+    case(_zz_51)
+      MemAccessSize_B : _zz_51_string = "B";
+      MemAccessSize_H : _zz_51_string = "H";
+      MemAccessSize_W : _zz_51_string = "W";
+      MemAccessSize_D : _zz_51_string = "D";
+      default : _zz_51_string = "?";
     endcase
   end
   always @(*) begin
-    case(_zz_54)
-      MemAccessSize_B : _zz_54_string = "B";
-      MemAccessSize_H : _zz_54_string = "H";
-      MemAccessSize_W : _zz_54_string = "W";
-      MemAccessSize_D : _zz_54_string = "D";
-      default : _zz_54_string = "?";
+    case(_zz_52)
+      MemAccessSize_B : _zz_52_string = "B";
+      MemAccessSize_H : _zz_52_string = "H";
+      MemAccessSize_W : _zz_52_string = "W";
+      MemAccessSize_D : _zz_52_string = "D";
+      default : _zz_52_string = "?";
     endcase
   end
   always @(*) begin
-    case(_zz_55)
-      MemAccessSize_B : _zz_55_string = "B";
-      MemAccessSize_H : _zz_55_string = "H";
-      MemAccessSize_W : _zz_55_string = "W";
-      MemAccessSize_D : _zz_55_string = "D";
-      default : _zz_55_string = "?";
+    case(_zz_53)
+      MemAccessSize_B : _zz_53_string = "B";
+      MemAccessSize_H : _zz_53_string = "H";
+      MemAccessSize_W : _zz_53_string = "W";
+      MemAccessSize_D : _zz_53_string = "D";
+      default : _zz_53_string = "?";
     endcase
   end
   always @(*) begin
-    case(_zz_56)
-      MemAccessSize_B : _zz_56_string = "B";
-      MemAccessSize_H : _zz_56_string = "H";
-      MemAccessSize_W : _zz_56_string = "W";
-      MemAccessSize_D : _zz_56_string = "D";
-      default : _zz_56_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(_zz_57)
-      MemAccessSize_B : _zz_57_string = "B";
-      MemAccessSize_H : _zz_57_string = "H";
-      MemAccessSize_W : _zz_57_string = "W";
-      MemAccessSize_D : _zz_57_string = "D";
-      default : _zz_57_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(_zz_73)
-      DecodeExCode_INVALID : _zz_73_string = "INVALID     ";
-      DecodeExCode_FETCH_ERROR : _zz_73_string = "FETCH_ERROR ";
-      DecodeExCode_DECODE_ERROR : _zz_73_string = "DECODE_ERROR";
-      DecodeExCode_OK : _zz_73_string = "OK          ";
-      default : _zz_73_string = "????????????";
+    case(_zz_68)
+      DecodeExCode_INVALID : _zz_68_string = "INVALID     ";
+      DecodeExCode_FETCH_ERROR : _zz_68_string = "FETCH_ERROR ";
+      DecodeExCode_DECODE_ERROR : _zz_68_string = "DECODE_ERROR";
+      DecodeExCode_OK : _zz_68_string = "OK          ";
+      default : _zz_68_string = "????????????";
     endcase
   end
   `endif
@@ -44159,8 +43137,8 @@ module ReorderBuffer (
   assign io_commit_0_valid = (4'b0000 < count_reg);
   assign io_commit_0_canCommit = canCommitFlags_0;
   assign _zz_io_commit_0_entry_payload_pc = payloads_spinal_port0;
-  assign _zz_io_commit_0_entry_payload_uop_robPtr = _zz_io_commit_0_entry_payload_pc[352 : 0];
-  assign _zz_io_commit_0_entry_payload_uop_decoded_pc = _zz_io_commit_0_entry_payload_uop_robPtr[284 : 0];
+  assign _zz_io_commit_0_entry_payload_uop_robPtr = _zz_io_commit_0_entry_payload_pc[334 : 0];
+  assign _zz_io_commit_0_entry_payload_uop_decoded_pc = _zz_io_commit_0_entry_payload_uop_robPtr[273 : 0];
   assign _zz_io_commit_0_entry_payload_uop_decoded_uopCode_1 = _zz_io_commit_0_entry_payload_uop_decoded_pc[37 : 33];
   assign _zz_io_commit_0_entry_payload_uop_decoded_uopCode = _zz_io_commit_0_entry_payload_uop_decoded_uopCode_1;
   assign _zz_io_commit_0_entry_payload_uop_decoded_exeUnit_1 = _zz_io_commit_0_entry_payload_uop_decoded_pc[41 : 38];
@@ -44176,40 +43154,35 @@ module ReorderBuffer (
   assign _zz_io_commit_0_entry_payload_uop_decoded_archSrc2_idx = _zz_io_commit_0_entry_payload_uop_decoded_pc[66 : 60];
   assign _zz_io_commit_0_entry_payload_uop_decoded_archSrc2_rtype_1 = _zz_io_commit_0_entry_payload_uop_decoded_archSrc2_idx[6 : 5];
   assign _zz_io_commit_0_entry_payload_uop_decoded_archSrc2_rtype = _zz_io_commit_0_entry_payload_uop_decoded_archSrc2_rtype_1;
-  assign _zz_io_commit_0_entry_payload_uop_decoded_archSrc3_idx = _zz_io_commit_0_entry_payload_uop_decoded_pc[74 : 68];
-  assign _zz_io_commit_0_entry_payload_uop_decoded_archSrc3_rtype_1 = _zz_io_commit_0_entry_payload_uop_decoded_archSrc3_idx[6 : 5];
-  assign _zz_io_commit_0_entry_payload_uop_decoded_archSrc3_rtype = _zz_io_commit_0_entry_payload_uop_decoded_archSrc3_rtype_1;
-  assign _zz_io_commit_0_entry_payload_uop_decoded_immUsage_1 = _zz_io_commit_0_entry_payload_uop_decoded_pc[111 : 109];
+  assign _zz_io_commit_0_entry_payload_uop_decoded_immUsage_1 = _zz_io_commit_0_entry_payload_uop_decoded_pc[103 : 101];
   assign _zz_io_commit_0_entry_payload_uop_decoded_immUsage = _zz_io_commit_0_entry_payload_uop_decoded_immUsage_1;
-  assign _zz_io_commit_0_entry_payload_uop_decoded_aluCtrl_isSub = _zz_io_commit_0_entry_payload_uop_decoded_pc[116 : 112];
+  assign _zz_io_commit_0_entry_payload_uop_decoded_aluCtrl_isSub = _zz_io_commit_0_entry_payload_uop_decoded_pc[108 : 104];
   assign _zz_io_commit_0_entry_payload_uop_decoded_aluCtrl_logicOp_1 = _zz_io_commit_0_entry_payload_uop_decoded_aluCtrl_isSub[4 : 3];
   assign _zz_io_commit_0_entry_payload_uop_decoded_aluCtrl_logicOp = _zz_io_commit_0_entry_payload_uop_decoded_aluCtrl_logicOp_1;
-  assign _zz_io_commit_0_entry_payload_uop_decoded_shiftCtrl_isRight = _zz_io_commit_0_entry_payload_uop_decoded_pc[120 : 117];
-  assign _zz_io_commit_0_entry_payload_uop_decoded_mulDivCtrl_isDiv = _zz_io_commit_0_entry_payload_uop_decoded_pc[123 : 121];
-  assign _zz_io_commit_0_entry_payload_uop_decoded_memCtrl_isSignedLoad = _zz_io_commit_0_entry_payload_uop_decoded_pc[150 : 124];
+  assign _zz_io_commit_0_entry_payload_uop_decoded_shiftCtrl_isRight = _zz_io_commit_0_entry_payload_uop_decoded_pc[112 : 109];
+  assign _zz_io_commit_0_entry_payload_uop_decoded_mulDivCtrl_isDiv = _zz_io_commit_0_entry_payload_uop_decoded_pc[115 : 113];
+  assign _zz_io_commit_0_entry_payload_uop_decoded_memCtrl_isSignedLoad = _zz_io_commit_0_entry_payload_uop_decoded_pc[142 : 116];
   assign _zz_io_commit_0_entry_payload_uop_decoded_memCtrl_size_1 = _zz_io_commit_0_entry_payload_uop_decoded_memCtrl_isSignedLoad[1 : 0];
   assign _zz_io_commit_0_entry_payload_uop_decoded_memCtrl_size = _zz_io_commit_0_entry_payload_uop_decoded_memCtrl_size_1;
-  assign _zz_io_commit_0_entry_payload_uop_decoded_branchCtrl_isJump = _zz_io_commit_0_entry_payload_uop_decoded_pc[168 : 151];
+  assign _zz_io_commit_0_entry_payload_uop_decoded_branchCtrl_isJump = _zz_io_commit_0_entry_payload_uop_decoded_pc[160 : 143];
   assign _zz_io_commit_0_entry_payload_uop_decoded_branchCtrl_condition_1 = _zz_io_commit_0_entry_payload_uop_decoded_branchCtrl_isJump[4 : 0];
   assign _zz_io_commit_0_entry_payload_uop_decoded_branchCtrl_condition = _zz_io_commit_0_entry_payload_uop_decoded_branchCtrl_condition_1;
   assign _zz_io_commit_0_entry_payload_uop_decoded_branchCtrl_linkReg_idx = _zz_io_commit_0_entry_payload_uop_decoded_branchCtrl_isJump[13 : 7];
   assign _zz_io_commit_0_entry_payload_uop_decoded_branchCtrl_linkReg_rtype_1 = _zz_io_commit_0_entry_payload_uop_decoded_branchCtrl_linkReg_idx[6 : 5];
   assign _zz_io_commit_0_entry_payload_uop_decoded_branchCtrl_linkReg_rtype = _zz_io_commit_0_entry_payload_uop_decoded_branchCtrl_linkReg_rtype_1;
-  assign _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_opType = _zz_io_commit_0_entry_payload_uop_decoded_pc[192 : 169];
+  assign _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_opType = _zz_io_commit_0_entry_payload_uop_decoded_pc[181 : 161];
   assign _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc1_1 = _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_opType[5 : 4];
   assign _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc1 = _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc1_1;
   assign _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc2_1 = _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_opType[7 : 6];
   assign _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc2 = _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc2_1;
-  assign _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3_1 = _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_opType[9 : 8];
-  assign _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3 = _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3_1;
-  assign _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeDest_1 = _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_opType[11 : 10];
+  assign _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeDest_1 = _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_opType[9 : 8];
   assign _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeDest = _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeDest_1;
-  assign _zz_io_commit_0_entry_payload_uop_decoded_csrCtrl_csrAddr = _zz_io_commit_0_entry_payload_uop_decoded_pc[210 : 193];
-  assign _zz_io_commit_0_entry_payload_uop_decoded_sysCtrl_sysCode = _zz_io_commit_0_entry_payload_uop_decoded_pc[236 : 211];
-  assign _zz_io_commit_0_entry_payload_uop_decoded_decodeExceptionCode_1 = _zz_io_commit_0_entry_payload_uop_decoded_pc[238 : 237];
+  assign _zz_io_commit_0_entry_payload_uop_decoded_csrCtrl_csrAddr = _zz_io_commit_0_entry_payload_uop_decoded_pc[199 : 182];
+  assign _zz_io_commit_0_entry_payload_uop_decoded_sysCtrl_sysCode = _zz_io_commit_0_entry_payload_uop_decoded_pc[225 : 200];
+  assign _zz_io_commit_0_entry_payload_uop_decoded_decodeExceptionCode_1 = _zz_io_commit_0_entry_payload_uop_decoded_pc[227 : 226];
   assign _zz_io_commit_0_entry_payload_uop_decoded_decodeExceptionCode = _zz_io_commit_0_entry_payload_uop_decoded_decodeExceptionCode_1;
-  assign _zz_io_commit_0_entry_payload_uop_decoded_branchPrediction_isTaken = _zz_io_commit_0_entry_payload_uop_decoded_pc[284 : 251];
-  assign _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx = _zz_io_commit_0_entry_payload_uop_robPtr[321 : 285];
+  assign _zz_io_commit_0_entry_payload_uop_decoded_branchPrediction_isTaken = _zz_io_commit_0_entry_payload_uop_decoded_pc[273 : 240];
+  assign _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx = _zz_io_commit_0_entry_payload_uop_robPtr[303 : 274];
   assign io_commit_0_entry_payload_uop_decoded_pc = _zz_io_commit_0_entry_payload_uop_decoded_pc[31 : 0];
   assign io_commit_0_entry_payload_uop_decoded_isValid = _zz_io_commit_0_entry_payload_uop_decoded_pc[32];
   assign io_commit_0_entry_payload_uop_decoded_uopCode = _zz_io_commit_0_entry_payload_uop_decoded_uopCode;
@@ -44224,11 +43197,8 @@ module ReorderBuffer (
   assign io_commit_0_entry_payload_uop_decoded_archSrc2_idx = _zz_io_commit_0_entry_payload_uop_decoded_archSrc2_idx[4 : 0];
   assign io_commit_0_entry_payload_uop_decoded_archSrc2_rtype = _zz_io_commit_0_entry_payload_uop_decoded_archSrc2_rtype;
   assign io_commit_0_entry_payload_uop_decoded_useArchSrc2 = _zz_io_commit_0_entry_payload_uop_decoded_pc[67];
-  assign io_commit_0_entry_payload_uop_decoded_archSrc3_idx = _zz_io_commit_0_entry_payload_uop_decoded_archSrc3_idx[4 : 0];
-  assign io_commit_0_entry_payload_uop_decoded_archSrc3_rtype = _zz_io_commit_0_entry_payload_uop_decoded_archSrc3_rtype;
-  assign io_commit_0_entry_payload_uop_decoded_useArchSrc3 = _zz_io_commit_0_entry_payload_uop_decoded_pc[75];
-  assign io_commit_0_entry_payload_uop_decoded_usePcForAddr = _zz_io_commit_0_entry_payload_uop_decoded_pc[76];
-  assign io_commit_0_entry_payload_uop_decoded_imm = _zz_io_commit_0_entry_payload_uop_decoded_pc[108 : 77];
+  assign io_commit_0_entry_payload_uop_decoded_usePcForAddr = _zz_io_commit_0_entry_payload_uop_decoded_pc[68];
+  assign io_commit_0_entry_payload_uop_decoded_imm = _zz_io_commit_0_entry_payload_uop_decoded_pc[100 : 69];
   assign io_commit_0_entry_payload_uop_decoded_immUsage = _zz_io_commit_0_entry_payload_uop_decoded_immUsage;
   assign io_commit_0_entry_payload_uop_decoded_aluCtrl_isSub = _zz_io_commit_0_entry_payload_uop_decoded_aluCtrl_isSub[0];
   assign io_commit_0_entry_payload_uop_decoded_aluCtrl_isAdd = _zz_io_commit_0_entry_payload_uop_decoded_aluCtrl_isSub[1];
@@ -44262,14 +43232,12 @@ module ReorderBuffer (
   assign io_commit_0_entry_payload_uop_decoded_fpuCtrl_opType = _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_opType[3 : 0];
   assign io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc1 = _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc1;
   assign io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc2 = _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc2;
-  assign io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3 = _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc3;
   assign io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeDest = _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeDest;
-  assign io_commit_0_entry_payload_uop_decoded_fpuCtrl_roundingMode = _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_opType[14 : 12];
-  assign io_commit_0_entry_payload_uop_decoded_fpuCtrl_isIntegerDest = _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_opType[15];
-  assign io_commit_0_entry_payload_uop_decoded_fpuCtrl_isSignedCvt = _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_opType[16];
-  assign io_commit_0_entry_payload_uop_decoded_fpuCtrl_fmaNegSrc1 = _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_opType[17];
-  assign io_commit_0_entry_payload_uop_decoded_fpuCtrl_fmaNegSrc3 = _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_opType[18];
-  assign io_commit_0_entry_payload_uop_decoded_fpuCtrl_fcmpCond = _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_opType[23 : 19];
+  assign io_commit_0_entry_payload_uop_decoded_fpuCtrl_roundingMode = _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_opType[12 : 10];
+  assign io_commit_0_entry_payload_uop_decoded_fpuCtrl_isIntegerDest = _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_opType[13];
+  assign io_commit_0_entry_payload_uop_decoded_fpuCtrl_isSignedCvt = _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_opType[14];
+  assign io_commit_0_entry_payload_uop_decoded_fpuCtrl_fmaNegSrc1 = _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_opType[15];
+  assign io_commit_0_entry_payload_uop_decoded_fpuCtrl_fcmpCond = _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_opType[20 : 16];
   assign io_commit_0_entry_payload_uop_decoded_csrCtrl_csrAddr = _zz_io_commit_0_entry_payload_uop_decoded_csrCtrl_csrAddr[13 : 0];
   assign io_commit_0_entry_payload_uop_decoded_csrCtrl_isWrite = _zz_io_commit_0_entry_payload_uop_decoded_csrCtrl_csrAddr[14];
   assign io_commit_0_entry_payload_uop_decoded_csrCtrl_isRead = _zz_io_commit_0_entry_payload_uop_decoded_csrCtrl_csrAddr[15];
@@ -44280,11 +43248,11 @@ module ReorderBuffer (
   assign io_commit_0_entry_payload_uop_decoded_sysCtrl_isTlbOp = _zz_io_commit_0_entry_payload_uop_decoded_sysCtrl_sysCode[21];
   assign io_commit_0_entry_payload_uop_decoded_sysCtrl_tlbOpType = _zz_io_commit_0_entry_payload_uop_decoded_sysCtrl_sysCode[25 : 22];
   assign io_commit_0_entry_payload_uop_decoded_decodeExceptionCode = _zz_io_commit_0_entry_payload_uop_decoded_decodeExceptionCode;
-  assign io_commit_0_entry_payload_uop_decoded_hasDecodeException = _zz_io_commit_0_entry_payload_uop_decoded_pc[239];
-  assign io_commit_0_entry_payload_uop_decoded_isMicrocode = _zz_io_commit_0_entry_payload_uop_decoded_pc[240];
-  assign io_commit_0_entry_payload_uop_decoded_microcodeEntry = _zz_io_commit_0_entry_payload_uop_decoded_pc[248 : 241];
-  assign io_commit_0_entry_payload_uop_decoded_isSerializing = _zz_io_commit_0_entry_payload_uop_decoded_pc[249];
-  assign io_commit_0_entry_payload_uop_decoded_isBranchOrJump = _zz_io_commit_0_entry_payload_uop_decoded_pc[250];
+  assign io_commit_0_entry_payload_uop_decoded_hasDecodeException = _zz_io_commit_0_entry_payload_uop_decoded_pc[228];
+  assign io_commit_0_entry_payload_uop_decoded_isMicrocode = _zz_io_commit_0_entry_payload_uop_decoded_pc[229];
+  assign io_commit_0_entry_payload_uop_decoded_microcodeEntry = _zz_io_commit_0_entry_payload_uop_decoded_pc[237 : 230];
+  assign io_commit_0_entry_payload_uop_decoded_isSerializing = _zz_io_commit_0_entry_payload_uop_decoded_pc[238];
+  assign io_commit_0_entry_payload_uop_decoded_isBranchOrJump = _zz_io_commit_0_entry_payload_uop_decoded_pc[239];
   assign io_commit_0_entry_payload_uop_decoded_branchPrediction_isTaken = _zz_io_commit_0_entry_payload_uop_decoded_branchPrediction_isTaken[0];
   assign io_commit_0_entry_payload_uop_decoded_branchPrediction_target = _zz_io_commit_0_entry_payload_uop_decoded_branchPrediction_isTaken[32 : 1];
   assign io_commit_0_entry_payload_uop_decoded_branchPrediction_wasPredicted = _zz_io_commit_0_entry_payload_uop_decoded_branchPrediction_isTaken[33];
@@ -44292,21 +43260,19 @@ module ReorderBuffer (
   assign io_commit_0_entry_payload_uop_rename_physSrc1IsFpr = _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx[6];
   assign io_commit_0_entry_payload_uop_rename_physSrc2_idx = _zz_io_commit_0_entry_payload_uop_rename_physSrc2_idx[5 : 0];
   assign io_commit_0_entry_payload_uop_rename_physSrc2IsFpr = _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx[13];
-  assign io_commit_0_entry_payload_uop_rename_physSrc3_idx = _zz_io_commit_0_entry_payload_uop_rename_physSrc3_idx[5 : 0];
-  assign io_commit_0_entry_payload_uop_rename_physSrc3IsFpr = _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx[20];
   assign io_commit_0_entry_payload_uop_rename_physDest_idx = _zz_io_commit_0_entry_payload_uop_rename_physDest_idx[5 : 0];
-  assign io_commit_0_entry_payload_uop_rename_physDestIsFpr = _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx[27];
+  assign io_commit_0_entry_payload_uop_rename_physDestIsFpr = _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx[20];
   assign io_commit_0_entry_payload_uop_rename_oldPhysDest_idx = _zz_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx[5 : 0];
-  assign io_commit_0_entry_payload_uop_rename_oldPhysDestIsFpr = _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx[34];
-  assign io_commit_0_entry_payload_uop_rename_allocatesPhysDest = _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx[35];
-  assign io_commit_0_entry_payload_uop_rename_writesToPhysReg = _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx[36];
-  assign io_commit_0_entry_payload_uop_robPtr = _zz_io_commit_0_entry_payload_uop_robPtr[325 : 322];
-  assign io_commit_0_entry_payload_uop_uniqueId = _zz_io_commit_0_entry_payload_uop_robPtr[341 : 326];
-  assign io_commit_0_entry_payload_uop_dispatched = _zz_io_commit_0_entry_payload_uop_robPtr[342];
-  assign io_commit_0_entry_payload_uop_executed = _zz_io_commit_0_entry_payload_uop_robPtr[343];
-  assign io_commit_0_entry_payload_uop_hasException = _zz_io_commit_0_entry_payload_uop_robPtr[344];
-  assign io_commit_0_entry_payload_uop_exceptionCode = _zz_io_commit_0_entry_payload_uop_robPtr[352 : 345];
-  assign io_commit_0_entry_payload_pc = _zz_io_commit_0_entry_payload_pc[384 : 353];
+  assign io_commit_0_entry_payload_uop_rename_oldPhysDestIsFpr = _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx[27];
+  assign io_commit_0_entry_payload_uop_rename_allocatesPhysDest = _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx[28];
+  assign io_commit_0_entry_payload_uop_rename_writesToPhysReg = _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx[29];
+  assign io_commit_0_entry_payload_uop_robPtr = _zz_io_commit_0_entry_payload_uop_robPtr[307 : 304];
+  assign io_commit_0_entry_payload_uop_uniqueId = _zz_io_commit_0_entry_payload_uop_robPtr[323 : 308];
+  assign io_commit_0_entry_payload_uop_dispatched = _zz_io_commit_0_entry_payload_uop_robPtr[324];
+  assign io_commit_0_entry_payload_uop_executed = _zz_io_commit_0_entry_payload_uop_robPtr[325];
+  assign io_commit_0_entry_payload_uop_hasException = _zz_io_commit_0_entry_payload_uop_robPtr[326];
+  assign io_commit_0_entry_payload_uop_exceptionCode = _zz_io_commit_0_entry_payload_uop_robPtr[334 : 327];
+  assign io_commit_0_entry_payload_pc = _zz_io_commit_0_entry_payload_pc[366 : 335];
   assign io_commit_0_entry_status_busy = _zz_io_commit_0_entry_status_busy_1;
   assign io_commit_0_entry_status_done = _zz_io_commit_0_entry_status_done;
   assign io_commit_0_entry_status_isMispredictedBranch = _zz_io_commit_0_entry_status_isMispredictedBranch;
@@ -44399,160 +43365,153 @@ module ReorderBuffer (
   assign _zz_15 = io_allocate_0_uopIn_decoded_archSrc2_idx;
   assign _zz_16 = io_allocate_0_uopIn_decoded_archSrc2_rtype;
   assign _zz_17 = io_allocate_0_uopIn_decoded_useArchSrc2;
-  assign _zz_18 = io_allocate_0_uopIn_decoded_archSrc3_idx;
-  assign _zz_19 = io_allocate_0_uopIn_decoded_archSrc3_rtype;
-  assign _zz_20 = io_allocate_0_uopIn_decoded_useArchSrc3;
-  assign _zz_21 = io_allocate_0_uopIn_decoded_usePcForAddr;
-  assign _zz_22 = io_allocate_0_uopIn_decoded_imm;
-  assign _zz_23 = io_allocate_0_uopIn_decoded_immUsage;
-  assign _zz_24 = io_allocate_0_uopIn_decoded_aluCtrl_isSub;
-  assign _zz_25 = io_allocate_0_uopIn_decoded_aluCtrl_isAdd;
-  assign _zz_26 = io_allocate_0_uopIn_decoded_aluCtrl_isSigned;
-  assign _zz_27 = io_allocate_0_uopIn_decoded_aluCtrl_logicOp;
-  assign _zz_28 = io_allocate_0_uopIn_decoded_shiftCtrl_isRight;
-  assign _zz_29 = io_allocate_0_uopIn_decoded_shiftCtrl_isArithmetic;
-  assign _zz_30 = io_allocate_0_uopIn_decoded_shiftCtrl_isRotate;
-  assign _zz_31 = io_allocate_0_uopIn_decoded_shiftCtrl_isDoubleWord;
-  assign _zz_32 = io_allocate_0_uopIn_decoded_mulDivCtrl_isDiv;
-  assign _zz_33 = io_allocate_0_uopIn_decoded_mulDivCtrl_isSigned;
-  assign _zz_34 = io_allocate_0_uopIn_decoded_mulDivCtrl_isWordOp;
-  assign _zz_35 = io_allocate_0_uopIn_decoded_memCtrl_size;
-  assign _zz_36 = io_allocate_0_uopIn_decoded_memCtrl_isSignedLoad;
-  assign _zz_37 = io_allocate_0_uopIn_decoded_memCtrl_isStore;
-  assign _zz_38 = io_allocate_0_uopIn_decoded_memCtrl_isLoadLinked;
-  assign _zz_39 = io_allocate_0_uopIn_decoded_memCtrl_isStoreCond;
-  assign _zz_40 = io_allocate_0_uopIn_decoded_memCtrl_atomicOp;
-  assign _zz_41 = io_allocate_0_uopIn_decoded_memCtrl_isFence;
-  assign _zz_42 = io_allocate_0_uopIn_decoded_memCtrl_fenceMode;
-  assign _zz_43 = io_allocate_0_uopIn_decoded_memCtrl_isCacheOp;
-  assign _zz_44 = io_allocate_0_uopIn_decoded_memCtrl_cacheOpType;
-  assign _zz_45 = io_allocate_0_uopIn_decoded_memCtrl_isPrefetch;
-  assign _zz_46 = io_allocate_0_uopIn_decoded_branchCtrl_condition;
-  assign _zz_47 = io_allocate_0_uopIn_decoded_branchCtrl_isJump;
-  assign _zz_48 = io_allocate_0_uopIn_decoded_branchCtrl_isLink;
-  assign _zz_49 = io_allocate_0_uopIn_decoded_branchCtrl_linkReg_idx;
-  assign _zz_50 = io_allocate_0_uopIn_decoded_branchCtrl_linkReg_rtype;
-  assign _zz_51 = io_allocate_0_uopIn_decoded_branchCtrl_isIndirect;
-  assign _zz_52 = io_allocate_0_uopIn_decoded_branchCtrl_laCfIdx;
-  assign _zz_53 = io_allocate_0_uopIn_decoded_fpuCtrl_opType;
-  assign _zz_54 = io_allocate_0_uopIn_decoded_fpuCtrl_fpSizeSrc1;
-  assign _zz_55 = io_allocate_0_uopIn_decoded_fpuCtrl_fpSizeSrc2;
-  assign _zz_56 = io_allocate_0_uopIn_decoded_fpuCtrl_fpSizeSrc3;
-  assign _zz_57 = io_allocate_0_uopIn_decoded_fpuCtrl_fpSizeDest;
-  assign _zz_58 = io_allocate_0_uopIn_decoded_fpuCtrl_roundingMode;
-  assign _zz_59 = io_allocate_0_uopIn_decoded_fpuCtrl_isIntegerDest;
-  assign _zz_60 = io_allocate_0_uopIn_decoded_fpuCtrl_isSignedCvt;
-  assign _zz_61 = io_allocate_0_uopIn_decoded_fpuCtrl_fmaNegSrc1;
-  assign _zz_62 = io_allocate_0_uopIn_decoded_fpuCtrl_fmaNegSrc3;
-  assign _zz_63 = io_allocate_0_uopIn_decoded_fpuCtrl_fcmpCond;
-  assign _zz_64 = io_allocate_0_uopIn_decoded_csrCtrl_csrAddr;
-  assign _zz_65 = io_allocate_0_uopIn_decoded_csrCtrl_isWrite;
-  assign _zz_66 = io_allocate_0_uopIn_decoded_csrCtrl_isRead;
-  assign _zz_67 = io_allocate_0_uopIn_decoded_csrCtrl_isExchange;
-  assign _zz_68 = io_allocate_0_uopIn_decoded_csrCtrl_useUimmAsSrc;
-  assign _zz_69 = io_allocate_0_uopIn_decoded_sysCtrl_sysCode;
-  assign _zz_70 = io_allocate_0_uopIn_decoded_sysCtrl_isExceptionReturn;
-  assign _zz_71 = io_allocate_0_uopIn_decoded_sysCtrl_isTlbOp;
-  assign _zz_72 = io_allocate_0_uopIn_decoded_sysCtrl_tlbOpType;
-  assign _zz_73 = io_allocate_0_uopIn_decoded_decodeExceptionCode;
-  assign _zz_74 = io_allocate_0_uopIn_decoded_hasDecodeException;
-  assign _zz_75 = io_allocate_0_uopIn_decoded_isMicrocode;
-  assign _zz_76 = io_allocate_0_uopIn_decoded_microcodeEntry;
-  assign _zz_77 = io_allocate_0_uopIn_decoded_isSerializing;
-  assign _zz_78 = io_allocate_0_uopIn_decoded_isBranchOrJump;
-  assign _zz_79 = io_allocate_0_uopIn_decoded_branchPrediction_isTaken;
-  assign _zz_80 = io_allocate_0_uopIn_decoded_branchPrediction_target;
-  assign _zz_81 = io_allocate_0_uopIn_decoded_branchPrediction_wasPredicted;
-  assign _zz_82 = io_allocate_0_uopIn_rename_physSrc1_idx;
-  assign _zz_83 = io_allocate_0_uopIn_rename_physSrc1IsFpr;
-  assign _zz_84 = io_allocate_0_uopIn_rename_physSrc2_idx;
-  assign _zz_85 = io_allocate_0_uopIn_rename_physSrc2IsFpr;
-  assign _zz_86 = io_allocate_0_uopIn_rename_physSrc3_idx;
-  assign _zz_87 = io_allocate_0_uopIn_rename_physSrc3IsFpr;
-  assign _zz_88 = io_allocate_0_uopIn_rename_physDest_idx;
-  assign _zz_89 = io_allocate_0_uopIn_rename_physDestIsFpr;
-  assign _zz_90 = io_allocate_0_uopIn_rename_oldPhysDest_idx;
-  assign _zz_91 = io_allocate_0_uopIn_rename_oldPhysDestIsFpr;
-  assign _zz_92 = io_allocate_0_uopIn_rename_allocatesPhysDest;
-  assign _zz_93 = io_allocate_0_uopIn_rename_writesToPhysReg;
+  assign _zz_18 = io_allocate_0_uopIn_decoded_usePcForAddr;
+  assign _zz_19 = io_allocate_0_uopIn_decoded_imm;
+  assign _zz_20 = io_allocate_0_uopIn_decoded_immUsage;
+  assign _zz_21 = io_allocate_0_uopIn_decoded_aluCtrl_isSub;
+  assign _zz_22 = io_allocate_0_uopIn_decoded_aluCtrl_isAdd;
+  assign _zz_23 = io_allocate_0_uopIn_decoded_aluCtrl_isSigned;
+  assign _zz_24 = io_allocate_0_uopIn_decoded_aluCtrl_logicOp;
+  assign _zz_25 = io_allocate_0_uopIn_decoded_shiftCtrl_isRight;
+  assign _zz_26 = io_allocate_0_uopIn_decoded_shiftCtrl_isArithmetic;
+  assign _zz_27 = io_allocate_0_uopIn_decoded_shiftCtrl_isRotate;
+  assign _zz_28 = io_allocate_0_uopIn_decoded_shiftCtrl_isDoubleWord;
+  assign _zz_29 = io_allocate_0_uopIn_decoded_mulDivCtrl_isDiv;
+  assign _zz_30 = io_allocate_0_uopIn_decoded_mulDivCtrl_isSigned;
+  assign _zz_31 = io_allocate_0_uopIn_decoded_mulDivCtrl_isWordOp;
+  assign _zz_32 = io_allocate_0_uopIn_decoded_memCtrl_size;
+  assign _zz_33 = io_allocate_0_uopIn_decoded_memCtrl_isSignedLoad;
+  assign _zz_34 = io_allocate_0_uopIn_decoded_memCtrl_isStore;
+  assign _zz_35 = io_allocate_0_uopIn_decoded_memCtrl_isLoadLinked;
+  assign _zz_36 = io_allocate_0_uopIn_decoded_memCtrl_isStoreCond;
+  assign _zz_37 = io_allocate_0_uopIn_decoded_memCtrl_atomicOp;
+  assign _zz_38 = io_allocate_0_uopIn_decoded_memCtrl_isFence;
+  assign _zz_39 = io_allocate_0_uopIn_decoded_memCtrl_fenceMode;
+  assign _zz_40 = io_allocate_0_uopIn_decoded_memCtrl_isCacheOp;
+  assign _zz_41 = io_allocate_0_uopIn_decoded_memCtrl_cacheOpType;
+  assign _zz_42 = io_allocate_0_uopIn_decoded_memCtrl_isPrefetch;
+  assign _zz_43 = io_allocate_0_uopIn_decoded_branchCtrl_condition;
+  assign _zz_44 = io_allocate_0_uopIn_decoded_branchCtrl_isJump;
+  assign _zz_45 = io_allocate_0_uopIn_decoded_branchCtrl_isLink;
+  assign _zz_46 = io_allocate_0_uopIn_decoded_branchCtrl_linkReg_idx;
+  assign _zz_47 = io_allocate_0_uopIn_decoded_branchCtrl_linkReg_rtype;
+  assign _zz_48 = io_allocate_0_uopIn_decoded_branchCtrl_isIndirect;
+  assign _zz_49 = io_allocate_0_uopIn_decoded_branchCtrl_laCfIdx;
+  assign _zz_50 = io_allocate_0_uopIn_decoded_fpuCtrl_opType;
+  assign _zz_51 = io_allocate_0_uopIn_decoded_fpuCtrl_fpSizeSrc1;
+  assign _zz_52 = io_allocate_0_uopIn_decoded_fpuCtrl_fpSizeSrc2;
+  assign _zz_53 = io_allocate_0_uopIn_decoded_fpuCtrl_fpSizeDest;
+  assign _zz_54 = io_allocate_0_uopIn_decoded_fpuCtrl_roundingMode;
+  assign _zz_55 = io_allocate_0_uopIn_decoded_fpuCtrl_isIntegerDest;
+  assign _zz_56 = io_allocate_0_uopIn_decoded_fpuCtrl_isSignedCvt;
+  assign _zz_57 = io_allocate_0_uopIn_decoded_fpuCtrl_fmaNegSrc1;
+  assign _zz_58 = io_allocate_0_uopIn_decoded_fpuCtrl_fcmpCond;
+  assign _zz_59 = io_allocate_0_uopIn_decoded_csrCtrl_csrAddr;
+  assign _zz_60 = io_allocate_0_uopIn_decoded_csrCtrl_isWrite;
+  assign _zz_61 = io_allocate_0_uopIn_decoded_csrCtrl_isRead;
+  assign _zz_62 = io_allocate_0_uopIn_decoded_csrCtrl_isExchange;
+  assign _zz_63 = io_allocate_0_uopIn_decoded_csrCtrl_useUimmAsSrc;
+  assign _zz_64 = io_allocate_0_uopIn_decoded_sysCtrl_sysCode;
+  assign _zz_65 = io_allocate_0_uopIn_decoded_sysCtrl_isExceptionReturn;
+  assign _zz_66 = io_allocate_0_uopIn_decoded_sysCtrl_isTlbOp;
+  assign _zz_67 = io_allocate_0_uopIn_decoded_sysCtrl_tlbOpType;
+  assign _zz_68 = io_allocate_0_uopIn_decoded_decodeExceptionCode;
+  assign _zz_69 = io_allocate_0_uopIn_decoded_hasDecodeException;
+  assign _zz_70 = io_allocate_0_uopIn_decoded_isMicrocode;
+  assign _zz_71 = io_allocate_0_uopIn_decoded_microcodeEntry;
+  assign _zz_72 = io_allocate_0_uopIn_decoded_isSerializing;
+  assign _zz_73 = io_allocate_0_uopIn_decoded_isBranchOrJump;
+  assign _zz_74 = io_allocate_0_uopIn_decoded_branchPrediction_isTaken;
+  assign _zz_75 = io_allocate_0_uopIn_decoded_branchPrediction_target;
+  assign _zz_76 = io_allocate_0_uopIn_decoded_branchPrediction_wasPredicted;
+  assign _zz_77 = io_allocate_0_uopIn_rename_physSrc1_idx;
+  assign _zz_78 = io_allocate_0_uopIn_rename_physSrc1IsFpr;
+  assign _zz_79 = io_allocate_0_uopIn_rename_physSrc2_idx;
+  assign _zz_80 = io_allocate_0_uopIn_rename_physSrc2IsFpr;
+  assign _zz_81 = io_allocate_0_uopIn_rename_physDest_idx;
+  assign _zz_82 = io_allocate_0_uopIn_rename_physDestIsFpr;
+  assign _zz_83 = io_allocate_0_uopIn_rename_oldPhysDest_idx;
+  assign _zz_84 = io_allocate_0_uopIn_rename_oldPhysDestIsFpr;
+  assign _zz_85 = io_allocate_0_uopIn_rename_allocatesPhysDest;
+  assign _zz_86 = io_allocate_0_uopIn_rename_writesToPhysReg;
   always @(*) begin
-    _zz_94 = io_allocate_0_uopIn_robPtr;
-    _zz_94 = _zz_statuses_0_genBit;
+    _zz_87 = io_allocate_0_uopIn_robPtr;
+    _zz_87 = _zz_statuses_0_genBit;
   end
 
-  assign _zz_95 = io_allocate_0_uopIn_uniqueId;
-  assign _zz_96 = io_allocate_0_uopIn_dispatched;
-  assign _zz_97 = io_allocate_0_uopIn_executed;
-  assign _zz_98 = io_allocate_0_uopIn_hasException;
-  assign _zz_99 = io_allocate_0_uopIn_exceptionCode;
-  assign _zz_100 = io_allocate_0_pcIn;
-  assign _zz_101 = ({7'd0,1'b1} <<< _zz_3);
-  assign _zz_102 = _zz_101[0];
-  assign _zz_103 = _zz_101[1];
-  assign _zz_104 = _zz_101[2];
-  assign _zz_105 = _zz_101[3];
-  assign _zz_106 = _zz_101[4];
-  assign _zz_107 = _zz_101[5];
-  assign _zz_108 = _zz_101[6];
-  assign _zz_109 = _zz_101[7];
+  assign _zz_88 = io_allocate_0_uopIn_uniqueId;
+  assign _zz_89 = io_allocate_0_uopIn_dispatched;
+  assign _zz_90 = io_allocate_0_uopIn_executed;
+  assign _zz_91 = io_allocate_0_uopIn_hasException;
+  assign _zz_92 = io_allocate_0_uopIn_exceptionCode;
+  assign _zz_93 = io_allocate_0_pcIn;
+  assign _zz_94 = ({7'd0,1'b1} <<< _zz_3);
+  assign _zz_95 = _zz_94[0];
+  assign _zz_96 = _zz_94[1];
+  assign _zz_97 = _zz_94[2];
+  assign _zz_98 = _zz_94[3];
+  assign _zz_99 = _zz_94[4];
+  assign _zz_100 = _zz_94[5];
+  assign _zz_101 = _zz_94[6];
+  assign _zz_102 = _zz_94[7];
   assign _zz_when_ReorderBuffer_l369 = io_writeback_0_robPtr[2:0];
-  assign _zz_111 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l369);
-  assign _zz_112 = _zz_111[0];
-  assign _zz_113 = _zz_111[1];
-  assign _zz_114 = _zz_111[2];
-  assign _zz_115 = _zz_111[3];
-  assign _zz_116 = _zz_111[4];
-  assign _zz_117 = _zz_111[5];
-  assign _zz_118 = _zz_111[6];
-  assign _zz_119 = _zz_111[7];
+  assign _zz_104 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l369);
+  assign _zz_105 = _zz_104[0];
+  assign _zz_106 = _zz_104[1];
+  assign _zz_107 = _zz_104[2];
+  assign _zz_108 = _zz_104[3];
+  assign _zz_109 = _zz_104[4];
+  assign _zz_110 = _zz_104[5];
+  assign _zz_111 = _zz_104[6];
+  assign _zz_112 = _zz_104[7];
   assign when_ReorderBuffer_l369 = (io_writeback_0_fire && (io_writeback_0_robPtr[3] == _zz_when_ReorderBuffer_l369_4));
   assign _zz_statuses_0_exceptionCode = (io_writeback_0_exceptionOccurred ? io_writeback_0_exceptionCodeIn : _zz__zz_statuses_0_exceptionCode);
   assign _zz_when_ReorderBuffer_l369_1 = io_writeback_1_robPtr[2:0];
-  assign _zz_120 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l369_1);
-  assign _zz_121 = _zz_120[0];
-  assign _zz_122 = _zz_120[1];
-  assign _zz_123 = _zz_120[2];
-  assign _zz_124 = _zz_120[3];
-  assign _zz_125 = _zz_120[4];
-  assign _zz_126 = _zz_120[5];
-  assign _zz_127 = _zz_120[6];
-  assign _zz_128 = _zz_120[7];
+  assign _zz_113 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l369_1);
+  assign _zz_114 = _zz_113[0];
+  assign _zz_115 = _zz_113[1];
+  assign _zz_116 = _zz_113[2];
+  assign _zz_117 = _zz_113[3];
+  assign _zz_118 = _zz_113[4];
+  assign _zz_119 = _zz_113[5];
+  assign _zz_120 = _zz_113[6];
+  assign _zz_121 = _zz_113[7];
   assign when_ReorderBuffer_l369_1 = (io_writeback_1_fire && (io_writeback_1_robPtr[3] == _zz_when_ReorderBuffer_l369_1_1));
   assign _zz_statuses_0_exceptionCode_1 = (io_writeback_1_exceptionOccurred ? io_writeback_1_exceptionCodeIn : _zz__zz_statuses_0_exceptionCode_1);
   assign _zz_when_ReorderBuffer_l369_2 = io_writeback_2_robPtr[2:0];
-  assign _zz_129 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l369_2);
-  assign _zz_130 = _zz_129[0];
-  assign _zz_131 = _zz_129[1];
-  assign _zz_132 = _zz_129[2];
-  assign _zz_133 = _zz_129[3];
-  assign _zz_134 = _zz_129[4];
-  assign _zz_135 = _zz_129[5];
-  assign _zz_136 = _zz_129[6];
-  assign _zz_137 = _zz_129[7];
+  assign _zz_122 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l369_2);
+  assign _zz_123 = _zz_122[0];
+  assign _zz_124 = _zz_122[1];
+  assign _zz_125 = _zz_122[2];
+  assign _zz_126 = _zz_122[3];
+  assign _zz_127 = _zz_122[4];
+  assign _zz_128 = _zz_122[5];
+  assign _zz_129 = _zz_122[6];
+  assign _zz_130 = _zz_122[7];
   assign when_ReorderBuffer_l369_2 = (io_writeback_2_fire && (io_writeback_2_robPtr[3] == _zz_when_ReorderBuffer_l369_2_1));
   assign _zz_statuses_0_exceptionCode_2 = (io_writeback_2_exceptionOccurred ? io_writeback_2_exceptionCodeIn : _zz__zz_statuses_0_exceptionCode_2);
   assign _zz_when_ReorderBuffer_l369_3 = io_writeback_3_robPtr[2:0];
-  assign _zz_138 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l369_3);
-  assign _zz_139 = _zz_138[0];
-  assign _zz_140 = _zz_138[1];
-  assign _zz_141 = _zz_138[2];
-  assign _zz_142 = _zz_138[3];
-  assign _zz_143 = _zz_138[4];
-  assign _zz_144 = _zz_138[5];
-  assign _zz_145 = _zz_138[6];
-  assign _zz_146 = _zz_138[7];
+  assign _zz_131 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l369_3);
+  assign _zz_132 = _zz_131[0];
+  assign _zz_133 = _zz_131[1];
+  assign _zz_134 = _zz_131[2];
+  assign _zz_135 = _zz_131[3];
+  assign _zz_136 = _zz_131[4];
+  assign _zz_137 = _zz_131[5];
+  assign _zz_138 = _zz_131[6];
+  assign _zz_139 = _zz_131[7];
   assign when_ReorderBuffer_l369_3 = (io_writeback_3_fire && (io_writeback_3_robPtr[3] == _zz_when_ReorderBuffer_l369_3_1));
   assign _zz_statuses_0_exceptionCode_3 = (io_writeback_3_exceptionOccurred ? io_writeback_3_exceptionCodeIn : _zz__zz_statuses_0_exceptionCode_3);
   assign _zz_when_ReorderBuffer_l411 = 3'b000;
-  assign _zz_147 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l411);
-  assign _zz_148 = _zz_147[0];
-  assign _zz_149 = _zz_147[1];
-  assign _zz_150 = _zz_147[2];
-  assign _zz_151 = _zz_147[3];
-  assign _zz_152 = _zz_147[4];
-  assign _zz_153 = _zz_147[5];
-  assign _zz_154 = _zz_147[6];
-  assign _zz_155 = _zz_147[7];
+  assign _zz_140 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l411);
+  assign _zz_141 = _zz_140[0];
+  assign _zz_142 = _zz_140[1];
+  assign _zz_143 = _zz_140[2];
+  assign _zz_144 = _zz_140[3];
+  assign _zz_145 = _zz_140[4];
+  assign _zz_146 = _zz_140[5];
+  assign _zz_147 = _zz_140[6];
+  assign _zz_148 = _zz_140[7];
   assign _zz_when_ReorderBuffer_l411_1 = {1'd0, io_flush_payload_targetRobPtr};
   assign _zz_when_ReorderBuffer_l411_2 = {1'd0, tailPtr_reg};
   assign _zz_when_ReorderBuffer_l411_3 = {1'd0, _zz__zz_when_ReorderBuffer_l411_3};
@@ -44566,15 +43525,15 @@ module ReorderBuffer (
   end
 
   assign _zz_when_ReorderBuffer_l411_4 = 3'b001;
-  assign _zz_156 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l411_4);
-  assign _zz_157 = _zz_156[0];
-  assign _zz_158 = _zz_156[1];
-  assign _zz_159 = _zz_156[2];
-  assign _zz_160 = _zz_156[3];
-  assign _zz_161 = _zz_156[4];
-  assign _zz_162 = _zz_156[5];
-  assign _zz_163 = _zz_156[6];
-  assign _zz_164 = _zz_156[7];
+  assign _zz_149 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l411_4);
+  assign _zz_150 = _zz_149[0];
+  assign _zz_151 = _zz_149[1];
+  assign _zz_152 = _zz_149[2];
+  assign _zz_153 = _zz_149[3];
+  assign _zz_154 = _zz_149[4];
+  assign _zz_155 = _zz_149[5];
+  assign _zz_156 = _zz_149[6];
+  assign _zz_157 = _zz_149[7];
   assign _zz_when_ReorderBuffer_l411_5 = {1'd0, io_flush_payload_targetRobPtr};
   assign _zz_when_ReorderBuffer_l411_6 = {1'd0, tailPtr_reg};
   assign _zz_when_ReorderBuffer_l411_7 = {1'd0, _zz__zz_when_ReorderBuffer_l411_7};
@@ -44588,15 +43547,15 @@ module ReorderBuffer (
   end
 
   assign _zz_when_ReorderBuffer_l411_8 = 3'b010;
-  assign _zz_165 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l411_8);
-  assign _zz_166 = _zz_165[0];
-  assign _zz_167 = _zz_165[1];
-  assign _zz_168 = _zz_165[2];
-  assign _zz_169 = _zz_165[3];
-  assign _zz_170 = _zz_165[4];
-  assign _zz_171 = _zz_165[5];
-  assign _zz_172 = _zz_165[6];
-  assign _zz_173 = _zz_165[7];
+  assign _zz_158 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l411_8);
+  assign _zz_159 = _zz_158[0];
+  assign _zz_160 = _zz_158[1];
+  assign _zz_161 = _zz_158[2];
+  assign _zz_162 = _zz_158[3];
+  assign _zz_163 = _zz_158[4];
+  assign _zz_164 = _zz_158[5];
+  assign _zz_165 = _zz_158[6];
+  assign _zz_166 = _zz_158[7];
   assign _zz_when_ReorderBuffer_l411_9 = {1'd0, io_flush_payload_targetRobPtr};
   assign _zz_when_ReorderBuffer_l411_10 = {1'd0, tailPtr_reg};
   assign _zz_when_ReorderBuffer_l411_11 = {1'd0, _zz__zz_when_ReorderBuffer_l411_11};
@@ -44610,15 +43569,15 @@ module ReorderBuffer (
   end
 
   assign _zz_when_ReorderBuffer_l411_12 = 3'b011;
-  assign _zz_174 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l411_12);
-  assign _zz_175 = _zz_174[0];
-  assign _zz_176 = _zz_174[1];
-  assign _zz_177 = _zz_174[2];
-  assign _zz_178 = _zz_174[3];
-  assign _zz_179 = _zz_174[4];
-  assign _zz_180 = _zz_174[5];
-  assign _zz_181 = _zz_174[6];
-  assign _zz_182 = _zz_174[7];
+  assign _zz_167 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l411_12);
+  assign _zz_168 = _zz_167[0];
+  assign _zz_169 = _zz_167[1];
+  assign _zz_170 = _zz_167[2];
+  assign _zz_171 = _zz_167[3];
+  assign _zz_172 = _zz_167[4];
+  assign _zz_173 = _zz_167[5];
+  assign _zz_174 = _zz_167[6];
+  assign _zz_175 = _zz_167[7];
   assign _zz_when_ReorderBuffer_l411_13 = {1'd0, io_flush_payload_targetRobPtr};
   assign _zz_when_ReorderBuffer_l411_14 = {1'd0, tailPtr_reg};
   assign _zz_when_ReorderBuffer_l411_15 = {1'd0, _zz__zz_when_ReorderBuffer_l411_15};
@@ -44632,15 +43591,15 @@ module ReorderBuffer (
   end
 
   assign _zz_when_ReorderBuffer_l411_16 = 3'b100;
-  assign _zz_183 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l411_16);
-  assign _zz_184 = _zz_183[0];
-  assign _zz_185 = _zz_183[1];
-  assign _zz_186 = _zz_183[2];
-  assign _zz_187 = _zz_183[3];
-  assign _zz_188 = _zz_183[4];
-  assign _zz_189 = _zz_183[5];
-  assign _zz_190 = _zz_183[6];
-  assign _zz_191 = _zz_183[7];
+  assign _zz_176 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l411_16);
+  assign _zz_177 = _zz_176[0];
+  assign _zz_178 = _zz_176[1];
+  assign _zz_179 = _zz_176[2];
+  assign _zz_180 = _zz_176[3];
+  assign _zz_181 = _zz_176[4];
+  assign _zz_182 = _zz_176[5];
+  assign _zz_183 = _zz_176[6];
+  assign _zz_184 = _zz_176[7];
   assign _zz_when_ReorderBuffer_l411_17 = {1'd0, io_flush_payload_targetRobPtr};
   assign _zz_when_ReorderBuffer_l411_18 = {1'd0, tailPtr_reg};
   assign _zz_when_ReorderBuffer_l411_19 = {1'd0, _zz__zz_when_ReorderBuffer_l411_19};
@@ -44654,15 +43613,15 @@ module ReorderBuffer (
   end
 
   assign _zz_when_ReorderBuffer_l411_20 = 3'b101;
-  assign _zz_192 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l411_20);
-  assign _zz_193 = _zz_192[0];
-  assign _zz_194 = _zz_192[1];
-  assign _zz_195 = _zz_192[2];
-  assign _zz_196 = _zz_192[3];
-  assign _zz_197 = _zz_192[4];
-  assign _zz_198 = _zz_192[5];
-  assign _zz_199 = _zz_192[6];
-  assign _zz_200 = _zz_192[7];
+  assign _zz_185 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l411_20);
+  assign _zz_186 = _zz_185[0];
+  assign _zz_187 = _zz_185[1];
+  assign _zz_188 = _zz_185[2];
+  assign _zz_189 = _zz_185[3];
+  assign _zz_190 = _zz_185[4];
+  assign _zz_191 = _zz_185[5];
+  assign _zz_192 = _zz_185[6];
+  assign _zz_193 = _zz_185[7];
   assign _zz_when_ReorderBuffer_l411_21 = {1'd0, io_flush_payload_targetRobPtr};
   assign _zz_when_ReorderBuffer_l411_22 = {1'd0, tailPtr_reg};
   assign _zz_when_ReorderBuffer_l411_23 = {1'd0, _zz__zz_when_ReorderBuffer_l411_23};
@@ -44676,15 +43635,15 @@ module ReorderBuffer (
   end
 
   assign _zz_when_ReorderBuffer_l411_24 = 3'b110;
-  assign _zz_201 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l411_24);
-  assign _zz_202 = _zz_201[0];
-  assign _zz_203 = _zz_201[1];
-  assign _zz_204 = _zz_201[2];
-  assign _zz_205 = _zz_201[3];
-  assign _zz_206 = _zz_201[4];
-  assign _zz_207 = _zz_201[5];
-  assign _zz_208 = _zz_201[6];
-  assign _zz_209 = _zz_201[7];
+  assign _zz_194 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l411_24);
+  assign _zz_195 = _zz_194[0];
+  assign _zz_196 = _zz_194[1];
+  assign _zz_197 = _zz_194[2];
+  assign _zz_198 = _zz_194[3];
+  assign _zz_199 = _zz_194[4];
+  assign _zz_200 = _zz_194[5];
+  assign _zz_201 = _zz_194[6];
+  assign _zz_202 = _zz_194[7];
   assign _zz_when_ReorderBuffer_l411_25 = {1'd0, io_flush_payload_targetRobPtr};
   assign _zz_when_ReorderBuffer_l411_26 = {1'd0, tailPtr_reg};
   assign _zz_when_ReorderBuffer_l411_27 = {1'd0, _zz__zz_when_ReorderBuffer_l411_27};
@@ -44698,15 +43657,15 @@ module ReorderBuffer (
   end
 
   assign _zz_when_ReorderBuffer_l411_28 = 3'b111;
-  assign _zz_210 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l411_28);
-  assign _zz_211 = _zz_210[0];
-  assign _zz_212 = _zz_210[1];
-  assign _zz_213 = _zz_210[2];
-  assign _zz_214 = _zz_210[3];
-  assign _zz_215 = _zz_210[4];
-  assign _zz_216 = _zz_210[5];
-  assign _zz_217 = _zz_210[6];
-  assign _zz_218 = _zz_210[7];
+  assign _zz_203 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l411_28);
+  assign _zz_204 = _zz_203[0];
+  assign _zz_205 = _zz_203[1];
+  assign _zz_206 = _zz_203[2];
+  assign _zz_207 = _zz_203[3];
+  assign _zz_208 = _zz_203[4];
+  assign _zz_209 = _zz_203[5];
+  assign _zz_210 = _zz_203[6];
+  assign _zz_211 = _zz_203[7];
   assign _zz_when_ReorderBuffer_l411_29 = {1'd0, io_flush_payload_targetRobPtr};
   assign _zz_when_ReorderBuffer_l411_30 = {1'd0, tailPtr_reg};
   assign _zz_when_ReorderBuffer_l411_31 = {1'd0, _zz__zz_when_ReorderBuffer_l411_31};
@@ -44783,492 +43742,492 @@ module ReorderBuffer (
       tailPtr_reg <= nextTail;
       count_reg <= nextCount;
       if(slotWillAllocate_0) begin
-        if(_zz_102) begin
+        if(_zz_95) begin
           statuses_0_busy <= 1'b1;
         end
-        if(_zz_103) begin
+        if(_zz_96) begin
           statuses_1_busy <= 1'b1;
         end
-        if(_zz_104) begin
+        if(_zz_97) begin
           statuses_2_busy <= 1'b1;
         end
-        if(_zz_105) begin
+        if(_zz_98) begin
           statuses_3_busy <= 1'b1;
         end
-        if(_zz_106) begin
+        if(_zz_99) begin
           statuses_4_busy <= 1'b1;
         end
-        if(_zz_107) begin
+        if(_zz_100) begin
           statuses_5_busy <= 1'b1;
         end
-        if(_zz_108) begin
+        if(_zz_101) begin
           statuses_6_busy <= 1'b1;
         end
-        if(_zz_109) begin
+        if(_zz_102) begin
           statuses_7_busy <= 1'b1;
         end
-        if(_zz_102) begin
+        if(_zz_95) begin
           statuses_0_done <= 1'b0;
         end
-        if(_zz_103) begin
+        if(_zz_96) begin
           statuses_1_done <= 1'b0;
         end
-        if(_zz_104) begin
+        if(_zz_97) begin
           statuses_2_done <= 1'b0;
         end
-        if(_zz_105) begin
+        if(_zz_98) begin
           statuses_3_done <= 1'b0;
         end
-        if(_zz_106) begin
+        if(_zz_99) begin
           statuses_4_done <= 1'b0;
         end
-        if(_zz_107) begin
+        if(_zz_100) begin
           statuses_5_done <= 1'b0;
         end
-        if(_zz_108) begin
+        if(_zz_101) begin
           statuses_6_done <= 1'b0;
         end
-        if(_zz_109) begin
+        if(_zz_102) begin
           statuses_7_done <= 1'b0;
         end
-        if(_zz_102) begin
+        if(_zz_95) begin
           statuses_0_hasException <= 1'b0;
         end
-        if(_zz_103) begin
+        if(_zz_96) begin
           statuses_1_hasException <= 1'b0;
         end
-        if(_zz_104) begin
+        if(_zz_97) begin
           statuses_2_hasException <= 1'b0;
         end
-        if(_zz_105) begin
+        if(_zz_98) begin
           statuses_3_hasException <= 1'b0;
         end
-        if(_zz_106) begin
+        if(_zz_99) begin
           statuses_4_hasException <= 1'b0;
         end
-        if(_zz_107) begin
+        if(_zz_100) begin
           statuses_5_hasException <= 1'b0;
         end
-        if(_zz_108) begin
+        if(_zz_101) begin
           statuses_6_hasException <= 1'b0;
         end
-        if(_zz_109) begin
+        if(_zz_102) begin
           statuses_7_hasException <= 1'b0;
         end
-        if(_zz_102) begin
+        if(_zz_95) begin
           statuses_0_genBit <= _zz_statuses_0_genBit_1;
         end
-        if(_zz_103) begin
+        if(_zz_96) begin
           statuses_1_genBit <= _zz_statuses_0_genBit_1;
         end
-        if(_zz_104) begin
+        if(_zz_97) begin
           statuses_2_genBit <= _zz_statuses_0_genBit_1;
         end
-        if(_zz_105) begin
+        if(_zz_98) begin
           statuses_3_genBit <= _zz_statuses_0_genBit_1;
         end
-        if(_zz_106) begin
+        if(_zz_99) begin
           statuses_4_genBit <= _zz_statuses_0_genBit_1;
         end
-        if(_zz_107) begin
+        if(_zz_100) begin
           statuses_5_genBit <= _zz_statuses_0_genBit_1;
         end
-        if(_zz_108) begin
+        if(_zz_101) begin
           statuses_6_genBit <= _zz_statuses_0_genBit_1;
         end
-        if(_zz_109) begin
+        if(_zz_102) begin
           statuses_7_genBit <= _zz_statuses_0_genBit_1;
         end
       end
       if(when_ReorderBuffer_l369) begin
-        if(_zz_112) begin
+        if(_zz_105) begin
           statuses_0_busy <= 1'b0;
         end
-        if(_zz_113) begin
+        if(_zz_106) begin
           statuses_1_busy <= 1'b0;
         end
-        if(_zz_114) begin
+        if(_zz_107) begin
           statuses_2_busy <= 1'b0;
         end
-        if(_zz_115) begin
+        if(_zz_108) begin
           statuses_3_busy <= 1'b0;
         end
-        if(_zz_116) begin
+        if(_zz_109) begin
           statuses_4_busy <= 1'b0;
         end
-        if(_zz_117) begin
+        if(_zz_110) begin
           statuses_5_busy <= 1'b0;
         end
-        if(_zz_118) begin
+        if(_zz_111) begin
           statuses_6_busy <= 1'b0;
         end
-        if(_zz_119) begin
+        if(_zz_112) begin
           statuses_7_busy <= 1'b0;
         end
-        if(_zz_112) begin
+        if(_zz_105) begin
           statuses_0_done <= 1'b1;
         end
-        if(_zz_113) begin
+        if(_zz_106) begin
           statuses_1_done <= 1'b1;
         end
-        if(_zz_114) begin
+        if(_zz_107) begin
           statuses_2_done <= 1'b1;
         end
-        if(_zz_115) begin
+        if(_zz_108) begin
           statuses_3_done <= 1'b1;
         end
-        if(_zz_116) begin
+        if(_zz_109) begin
           statuses_4_done <= 1'b1;
         end
-        if(_zz_117) begin
+        if(_zz_110) begin
           statuses_5_done <= 1'b1;
         end
-        if(_zz_118) begin
+        if(_zz_111) begin
           statuses_6_done <= 1'b1;
         end
-        if(_zz_119) begin
+        if(_zz_112) begin
           statuses_7_done <= 1'b1;
         end
-        if(_zz_112) begin
+        if(_zz_105) begin
           statuses_0_hasException <= io_writeback_0_exceptionOccurred;
         end
-        if(_zz_113) begin
+        if(_zz_106) begin
           statuses_1_hasException <= io_writeback_0_exceptionOccurred;
         end
-        if(_zz_114) begin
+        if(_zz_107) begin
           statuses_2_hasException <= io_writeback_0_exceptionOccurred;
         end
-        if(_zz_115) begin
+        if(_zz_108) begin
           statuses_3_hasException <= io_writeback_0_exceptionOccurred;
         end
-        if(_zz_116) begin
+        if(_zz_109) begin
           statuses_4_hasException <= io_writeback_0_exceptionOccurred;
         end
-        if(_zz_117) begin
+        if(_zz_110) begin
           statuses_5_hasException <= io_writeback_0_exceptionOccurred;
         end
-        if(_zz_118) begin
+        if(_zz_111) begin
           statuses_6_hasException <= io_writeback_0_exceptionOccurred;
         end
-        if(_zz_119) begin
+        if(_zz_112) begin
           statuses_7_hasException <= io_writeback_0_exceptionOccurred;
         end
-        if(_zz_112) begin
+        if(_zz_105) begin
           statuses_0_exceptionCode <= _zz_statuses_0_exceptionCode;
         end
-        if(_zz_113) begin
+        if(_zz_106) begin
           statuses_1_exceptionCode <= _zz_statuses_0_exceptionCode;
         end
-        if(_zz_114) begin
+        if(_zz_107) begin
           statuses_2_exceptionCode <= _zz_statuses_0_exceptionCode;
         end
-        if(_zz_115) begin
+        if(_zz_108) begin
           statuses_3_exceptionCode <= _zz_statuses_0_exceptionCode;
         end
-        if(_zz_116) begin
+        if(_zz_109) begin
           statuses_4_exceptionCode <= _zz_statuses_0_exceptionCode;
         end
-        if(_zz_117) begin
+        if(_zz_110) begin
           statuses_5_exceptionCode <= _zz_statuses_0_exceptionCode;
         end
-        if(_zz_118) begin
+        if(_zz_111) begin
           statuses_6_exceptionCode <= _zz_statuses_0_exceptionCode;
         end
-        if(_zz_119) begin
+        if(_zz_112) begin
           statuses_7_exceptionCode <= _zz_statuses_0_exceptionCode;
         end
       end
       if(when_ReorderBuffer_l369_1) begin
-        if(_zz_121) begin
+        if(_zz_114) begin
           statuses_0_busy <= 1'b0;
         end
-        if(_zz_122) begin
+        if(_zz_115) begin
           statuses_1_busy <= 1'b0;
         end
-        if(_zz_123) begin
+        if(_zz_116) begin
           statuses_2_busy <= 1'b0;
         end
-        if(_zz_124) begin
+        if(_zz_117) begin
           statuses_3_busy <= 1'b0;
         end
-        if(_zz_125) begin
+        if(_zz_118) begin
           statuses_4_busy <= 1'b0;
         end
-        if(_zz_126) begin
+        if(_zz_119) begin
           statuses_5_busy <= 1'b0;
         end
-        if(_zz_127) begin
+        if(_zz_120) begin
           statuses_6_busy <= 1'b0;
         end
-        if(_zz_128) begin
+        if(_zz_121) begin
           statuses_7_busy <= 1'b0;
         end
-        if(_zz_121) begin
+        if(_zz_114) begin
           statuses_0_done <= 1'b1;
         end
-        if(_zz_122) begin
+        if(_zz_115) begin
           statuses_1_done <= 1'b1;
         end
-        if(_zz_123) begin
+        if(_zz_116) begin
           statuses_2_done <= 1'b1;
         end
-        if(_zz_124) begin
+        if(_zz_117) begin
           statuses_3_done <= 1'b1;
         end
-        if(_zz_125) begin
+        if(_zz_118) begin
           statuses_4_done <= 1'b1;
         end
-        if(_zz_126) begin
+        if(_zz_119) begin
           statuses_5_done <= 1'b1;
         end
-        if(_zz_127) begin
+        if(_zz_120) begin
           statuses_6_done <= 1'b1;
         end
-        if(_zz_128) begin
+        if(_zz_121) begin
           statuses_7_done <= 1'b1;
         end
-        if(_zz_121) begin
+        if(_zz_114) begin
           statuses_0_hasException <= io_writeback_1_exceptionOccurred;
         end
-        if(_zz_122) begin
+        if(_zz_115) begin
           statuses_1_hasException <= io_writeback_1_exceptionOccurred;
         end
-        if(_zz_123) begin
+        if(_zz_116) begin
           statuses_2_hasException <= io_writeback_1_exceptionOccurred;
         end
-        if(_zz_124) begin
+        if(_zz_117) begin
           statuses_3_hasException <= io_writeback_1_exceptionOccurred;
         end
-        if(_zz_125) begin
+        if(_zz_118) begin
           statuses_4_hasException <= io_writeback_1_exceptionOccurred;
         end
-        if(_zz_126) begin
+        if(_zz_119) begin
           statuses_5_hasException <= io_writeback_1_exceptionOccurred;
         end
-        if(_zz_127) begin
+        if(_zz_120) begin
           statuses_6_hasException <= io_writeback_1_exceptionOccurred;
         end
-        if(_zz_128) begin
+        if(_zz_121) begin
           statuses_7_hasException <= io_writeback_1_exceptionOccurred;
         end
-        if(_zz_121) begin
+        if(_zz_114) begin
           statuses_0_exceptionCode <= _zz_statuses_0_exceptionCode_1;
         end
-        if(_zz_122) begin
+        if(_zz_115) begin
           statuses_1_exceptionCode <= _zz_statuses_0_exceptionCode_1;
         end
-        if(_zz_123) begin
+        if(_zz_116) begin
           statuses_2_exceptionCode <= _zz_statuses_0_exceptionCode_1;
         end
-        if(_zz_124) begin
+        if(_zz_117) begin
           statuses_3_exceptionCode <= _zz_statuses_0_exceptionCode_1;
         end
-        if(_zz_125) begin
+        if(_zz_118) begin
           statuses_4_exceptionCode <= _zz_statuses_0_exceptionCode_1;
         end
-        if(_zz_126) begin
+        if(_zz_119) begin
           statuses_5_exceptionCode <= _zz_statuses_0_exceptionCode_1;
         end
-        if(_zz_127) begin
+        if(_zz_120) begin
           statuses_6_exceptionCode <= _zz_statuses_0_exceptionCode_1;
         end
-        if(_zz_128) begin
+        if(_zz_121) begin
           statuses_7_exceptionCode <= _zz_statuses_0_exceptionCode_1;
         end
       end
       if(when_ReorderBuffer_l369_2) begin
-        if(_zz_130) begin
+        if(_zz_123) begin
           statuses_0_busy <= 1'b0;
         end
-        if(_zz_131) begin
+        if(_zz_124) begin
           statuses_1_busy <= 1'b0;
         end
-        if(_zz_132) begin
+        if(_zz_125) begin
           statuses_2_busy <= 1'b0;
         end
-        if(_zz_133) begin
+        if(_zz_126) begin
           statuses_3_busy <= 1'b0;
         end
-        if(_zz_134) begin
+        if(_zz_127) begin
           statuses_4_busy <= 1'b0;
         end
-        if(_zz_135) begin
+        if(_zz_128) begin
           statuses_5_busy <= 1'b0;
         end
-        if(_zz_136) begin
+        if(_zz_129) begin
           statuses_6_busy <= 1'b0;
         end
-        if(_zz_137) begin
+        if(_zz_130) begin
           statuses_7_busy <= 1'b0;
         end
-        if(_zz_130) begin
+        if(_zz_123) begin
           statuses_0_done <= 1'b1;
         end
-        if(_zz_131) begin
+        if(_zz_124) begin
           statuses_1_done <= 1'b1;
         end
-        if(_zz_132) begin
+        if(_zz_125) begin
           statuses_2_done <= 1'b1;
         end
-        if(_zz_133) begin
+        if(_zz_126) begin
           statuses_3_done <= 1'b1;
         end
-        if(_zz_134) begin
+        if(_zz_127) begin
           statuses_4_done <= 1'b1;
         end
-        if(_zz_135) begin
+        if(_zz_128) begin
           statuses_5_done <= 1'b1;
         end
-        if(_zz_136) begin
+        if(_zz_129) begin
           statuses_6_done <= 1'b1;
         end
-        if(_zz_137) begin
+        if(_zz_130) begin
           statuses_7_done <= 1'b1;
         end
-        if(_zz_130) begin
+        if(_zz_123) begin
           statuses_0_hasException <= io_writeback_2_exceptionOccurred;
         end
-        if(_zz_131) begin
+        if(_zz_124) begin
           statuses_1_hasException <= io_writeback_2_exceptionOccurred;
         end
-        if(_zz_132) begin
+        if(_zz_125) begin
           statuses_2_hasException <= io_writeback_2_exceptionOccurred;
         end
-        if(_zz_133) begin
+        if(_zz_126) begin
           statuses_3_hasException <= io_writeback_2_exceptionOccurred;
         end
-        if(_zz_134) begin
+        if(_zz_127) begin
           statuses_4_hasException <= io_writeback_2_exceptionOccurred;
         end
-        if(_zz_135) begin
+        if(_zz_128) begin
           statuses_5_hasException <= io_writeback_2_exceptionOccurred;
         end
-        if(_zz_136) begin
+        if(_zz_129) begin
           statuses_6_hasException <= io_writeback_2_exceptionOccurred;
         end
-        if(_zz_137) begin
+        if(_zz_130) begin
           statuses_7_hasException <= io_writeback_2_exceptionOccurred;
         end
-        if(_zz_130) begin
+        if(_zz_123) begin
           statuses_0_exceptionCode <= _zz_statuses_0_exceptionCode_2;
         end
-        if(_zz_131) begin
+        if(_zz_124) begin
           statuses_1_exceptionCode <= _zz_statuses_0_exceptionCode_2;
         end
-        if(_zz_132) begin
+        if(_zz_125) begin
           statuses_2_exceptionCode <= _zz_statuses_0_exceptionCode_2;
         end
-        if(_zz_133) begin
+        if(_zz_126) begin
           statuses_3_exceptionCode <= _zz_statuses_0_exceptionCode_2;
         end
-        if(_zz_134) begin
+        if(_zz_127) begin
           statuses_4_exceptionCode <= _zz_statuses_0_exceptionCode_2;
         end
-        if(_zz_135) begin
+        if(_zz_128) begin
           statuses_5_exceptionCode <= _zz_statuses_0_exceptionCode_2;
         end
-        if(_zz_136) begin
+        if(_zz_129) begin
           statuses_6_exceptionCode <= _zz_statuses_0_exceptionCode_2;
         end
-        if(_zz_137) begin
+        if(_zz_130) begin
           statuses_7_exceptionCode <= _zz_statuses_0_exceptionCode_2;
         end
       end
       if(when_ReorderBuffer_l369_3) begin
-        if(_zz_139) begin
+        if(_zz_132) begin
           statuses_0_busy <= 1'b0;
         end
-        if(_zz_140) begin
+        if(_zz_133) begin
           statuses_1_busy <= 1'b0;
         end
-        if(_zz_141) begin
+        if(_zz_134) begin
           statuses_2_busy <= 1'b0;
         end
-        if(_zz_142) begin
+        if(_zz_135) begin
           statuses_3_busy <= 1'b0;
         end
-        if(_zz_143) begin
+        if(_zz_136) begin
           statuses_4_busy <= 1'b0;
         end
-        if(_zz_144) begin
+        if(_zz_137) begin
           statuses_5_busy <= 1'b0;
         end
-        if(_zz_145) begin
+        if(_zz_138) begin
           statuses_6_busy <= 1'b0;
         end
-        if(_zz_146) begin
+        if(_zz_139) begin
           statuses_7_busy <= 1'b0;
         end
-        if(_zz_139) begin
+        if(_zz_132) begin
           statuses_0_done <= 1'b1;
         end
-        if(_zz_140) begin
+        if(_zz_133) begin
           statuses_1_done <= 1'b1;
         end
-        if(_zz_141) begin
+        if(_zz_134) begin
           statuses_2_done <= 1'b1;
         end
-        if(_zz_142) begin
+        if(_zz_135) begin
           statuses_3_done <= 1'b1;
         end
-        if(_zz_143) begin
+        if(_zz_136) begin
           statuses_4_done <= 1'b1;
         end
-        if(_zz_144) begin
+        if(_zz_137) begin
           statuses_5_done <= 1'b1;
         end
-        if(_zz_145) begin
+        if(_zz_138) begin
           statuses_6_done <= 1'b1;
         end
-        if(_zz_146) begin
+        if(_zz_139) begin
           statuses_7_done <= 1'b1;
         end
-        if(_zz_139) begin
+        if(_zz_132) begin
           statuses_0_hasException <= io_writeback_3_exceptionOccurred;
         end
-        if(_zz_140) begin
+        if(_zz_133) begin
           statuses_1_hasException <= io_writeback_3_exceptionOccurred;
         end
-        if(_zz_141) begin
+        if(_zz_134) begin
           statuses_2_hasException <= io_writeback_3_exceptionOccurred;
         end
-        if(_zz_142) begin
+        if(_zz_135) begin
           statuses_3_hasException <= io_writeback_3_exceptionOccurred;
         end
-        if(_zz_143) begin
+        if(_zz_136) begin
           statuses_4_hasException <= io_writeback_3_exceptionOccurred;
         end
-        if(_zz_144) begin
+        if(_zz_137) begin
           statuses_5_hasException <= io_writeback_3_exceptionOccurred;
         end
-        if(_zz_145) begin
+        if(_zz_138) begin
           statuses_6_hasException <= io_writeback_3_exceptionOccurred;
         end
-        if(_zz_146) begin
+        if(_zz_139) begin
           statuses_7_hasException <= io_writeback_3_exceptionOccurred;
         end
-        if(_zz_139) begin
+        if(_zz_132) begin
           statuses_0_exceptionCode <= _zz_statuses_0_exceptionCode_3;
         end
-        if(_zz_140) begin
+        if(_zz_133) begin
           statuses_1_exceptionCode <= _zz_statuses_0_exceptionCode_3;
         end
-        if(_zz_141) begin
+        if(_zz_134) begin
           statuses_2_exceptionCode <= _zz_statuses_0_exceptionCode_3;
         end
-        if(_zz_142) begin
+        if(_zz_135) begin
           statuses_3_exceptionCode <= _zz_statuses_0_exceptionCode_3;
         end
-        if(_zz_143) begin
+        if(_zz_136) begin
           statuses_4_exceptionCode <= _zz_statuses_0_exceptionCode_3;
         end
-        if(_zz_144) begin
+        if(_zz_137) begin
           statuses_5_exceptionCode <= _zz_statuses_0_exceptionCode_3;
         end
-        if(_zz_145) begin
+        if(_zz_138) begin
           statuses_6_exceptionCode <= _zz_statuses_0_exceptionCode_3;
         end
-        if(_zz_146) begin
+        if(_zz_139) begin
           statuses_7_exceptionCode <= _zz_statuses_0_exceptionCode_3;
         end
       end
@@ -45310,594 +44269,594 @@ module ReorderBuffer (
           end
           FlushReason_ROLLBACK_TO_ROB_IDX : begin
             if(when_ReorderBuffer_l411) begin
-              if(_zz_148) begin
+              if(_zz_141) begin
                 statuses_0_busy <= 1'b0;
               end
-              if(_zz_149) begin
+              if(_zz_142) begin
                 statuses_1_busy <= 1'b0;
               end
-              if(_zz_150) begin
+              if(_zz_143) begin
                 statuses_2_busy <= 1'b0;
               end
-              if(_zz_151) begin
+              if(_zz_144) begin
                 statuses_3_busy <= 1'b0;
               end
-              if(_zz_152) begin
+              if(_zz_145) begin
                 statuses_4_busy <= 1'b0;
               end
-              if(_zz_153) begin
+              if(_zz_146) begin
                 statuses_5_busy <= 1'b0;
               end
-              if(_zz_154) begin
+              if(_zz_147) begin
                 statuses_6_busy <= 1'b0;
               end
-              if(_zz_155) begin
+              if(_zz_148) begin
                 statuses_7_busy <= 1'b0;
               end
-              if(_zz_148) begin
+              if(_zz_141) begin
                 statuses_0_done <= 1'b0;
               end
-              if(_zz_149) begin
+              if(_zz_142) begin
                 statuses_1_done <= 1'b0;
               end
-              if(_zz_150) begin
+              if(_zz_143) begin
                 statuses_2_done <= 1'b0;
               end
-              if(_zz_151) begin
+              if(_zz_144) begin
                 statuses_3_done <= 1'b0;
               end
-              if(_zz_152) begin
+              if(_zz_145) begin
                 statuses_4_done <= 1'b0;
               end
-              if(_zz_153) begin
+              if(_zz_146) begin
                 statuses_5_done <= 1'b0;
               end
-              if(_zz_154) begin
+              if(_zz_147) begin
                 statuses_6_done <= 1'b0;
               end
-              if(_zz_155) begin
+              if(_zz_148) begin
                 statuses_7_done <= 1'b0;
               end
-              if(_zz_148) begin
+              if(_zz_141) begin
                 statuses_0_hasException <= 1'b0;
               end
-              if(_zz_149) begin
+              if(_zz_142) begin
                 statuses_1_hasException <= 1'b0;
               end
-              if(_zz_150) begin
+              if(_zz_143) begin
                 statuses_2_hasException <= 1'b0;
               end
-              if(_zz_151) begin
+              if(_zz_144) begin
                 statuses_3_hasException <= 1'b0;
               end
-              if(_zz_152) begin
+              if(_zz_145) begin
                 statuses_4_hasException <= 1'b0;
               end
-              if(_zz_153) begin
+              if(_zz_146) begin
                 statuses_5_hasException <= 1'b0;
               end
-              if(_zz_154) begin
+              if(_zz_147) begin
                 statuses_6_hasException <= 1'b0;
               end
-              if(_zz_155) begin
+              if(_zz_148) begin
                 statuses_7_hasException <= 1'b0;
               end
             end
             if(when_ReorderBuffer_l411_1) begin
-              if(_zz_157) begin
+              if(_zz_150) begin
                 statuses_0_busy <= 1'b0;
               end
-              if(_zz_158) begin
+              if(_zz_151) begin
                 statuses_1_busy <= 1'b0;
               end
-              if(_zz_159) begin
+              if(_zz_152) begin
                 statuses_2_busy <= 1'b0;
               end
-              if(_zz_160) begin
+              if(_zz_153) begin
                 statuses_3_busy <= 1'b0;
               end
-              if(_zz_161) begin
+              if(_zz_154) begin
                 statuses_4_busy <= 1'b0;
               end
-              if(_zz_162) begin
+              if(_zz_155) begin
                 statuses_5_busy <= 1'b0;
               end
-              if(_zz_163) begin
+              if(_zz_156) begin
                 statuses_6_busy <= 1'b0;
               end
-              if(_zz_164) begin
+              if(_zz_157) begin
                 statuses_7_busy <= 1'b0;
               end
-              if(_zz_157) begin
+              if(_zz_150) begin
                 statuses_0_done <= 1'b0;
               end
-              if(_zz_158) begin
+              if(_zz_151) begin
                 statuses_1_done <= 1'b0;
               end
-              if(_zz_159) begin
+              if(_zz_152) begin
                 statuses_2_done <= 1'b0;
               end
-              if(_zz_160) begin
+              if(_zz_153) begin
                 statuses_3_done <= 1'b0;
               end
-              if(_zz_161) begin
+              if(_zz_154) begin
                 statuses_4_done <= 1'b0;
               end
-              if(_zz_162) begin
+              if(_zz_155) begin
                 statuses_5_done <= 1'b0;
               end
-              if(_zz_163) begin
+              if(_zz_156) begin
                 statuses_6_done <= 1'b0;
               end
-              if(_zz_164) begin
+              if(_zz_157) begin
                 statuses_7_done <= 1'b0;
               end
-              if(_zz_157) begin
+              if(_zz_150) begin
                 statuses_0_hasException <= 1'b0;
               end
-              if(_zz_158) begin
+              if(_zz_151) begin
                 statuses_1_hasException <= 1'b0;
               end
-              if(_zz_159) begin
+              if(_zz_152) begin
                 statuses_2_hasException <= 1'b0;
               end
-              if(_zz_160) begin
+              if(_zz_153) begin
                 statuses_3_hasException <= 1'b0;
               end
-              if(_zz_161) begin
+              if(_zz_154) begin
                 statuses_4_hasException <= 1'b0;
               end
-              if(_zz_162) begin
+              if(_zz_155) begin
                 statuses_5_hasException <= 1'b0;
               end
-              if(_zz_163) begin
+              if(_zz_156) begin
                 statuses_6_hasException <= 1'b0;
               end
-              if(_zz_164) begin
+              if(_zz_157) begin
                 statuses_7_hasException <= 1'b0;
               end
             end
             if(when_ReorderBuffer_l411_2) begin
-              if(_zz_166) begin
+              if(_zz_159) begin
                 statuses_0_busy <= 1'b0;
               end
-              if(_zz_167) begin
+              if(_zz_160) begin
                 statuses_1_busy <= 1'b0;
               end
-              if(_zz_168) begin
+              if(_zz_161) begin
                 statuses_2_busy <= 1'b0;
               end
-              if(_zz_169) begin
+              if(_zz_162) begin
                 statuses_3_busy <= 1'b0;
               end
-              if(_zz_170) begin
+              if(_zz_163) begin
                 statuses_4_busy <= 1'b0;
               end
-              if(_zz_171) begin
+              if(_zz_164) begin
                 statuses_5_busy <= 1'b0;
               end
-              if(_zz_172) begin
+              if(_zz_165) begin
                 statuses_6_busy <= 1'b0;
               end
-              if(_zz_173) begin
+              if(_zz_166) begin
                 statuses_7_busy <= 1'b0;
               end
-              if(_zz_166) begin
+              if(_zz_159) begin
                 statuses_0_done <= 1'b0;
               end
-              if(_zz_167) begin
+              if(_zz_160) begin
                 statuses_1_done <= 1'b0;
               end
-              if(_zz_168) begin
+              if(_zz_161) begin
                 statuses_2_done <= 1'b0;
               end
-              if(_zz_169) begin
+              if(_zz_162) begin
                 statuses_3_done <= 1'b0;
               end
-              if(_zz_170) begin
+              if(_zz_163) begin
                 statuses_4_done <= 1'b0;
               end
-              if(_zz_171) begin
+              if(_zz_164) begin
                 statuses_5_done <= 1'b0;
               end
-              if(_zz_172) begin
+              if(_zz_165) begin
                 statuses_6_done <= 1'b0;
               end
-              if(_zz_173) begin
+              if(_zz_166) begin
                 statuses_7_done <= 1'b0;
               end
-              if(_zz_166) begin
+              if(_zz_159) begin
                 statuses_0_hasException <= 1'b0;
               end
-              if(_zz_167) begin
+              if(_zz_160) begin
                 statuses_1_hasException <= 1'b0;
               end
-              if(_zz_168) begin
+              if(_zz_161) begin
                 statuses_2_hasException <= 1'b0;
               end
-              if(_zz_169) begin
+              if(_zz_162) begin
                 statuses_3_hasException <= 1'b0;
               end
-              if(_zz_170) begin
+              if(_zz_163) begin
                 statuses_4_hasException <= 1'b0;
               end
-              if(_zz_171) begin
+              if(_zz_164) begin
                 statuses_5_hasException <= 1'b0;
               end
-              if(_zz_172) begin
+              if(_zz_165) begin
                 statuses_6_hasException <= 1'b0;
               end
-              if(_zz_173) begin
+              if(_zz_166) begin
                 statuses_7_hasException <= 1'b0;
               end
             end
             if(when_ReorderBuffer_l411_3) begin
-              if(_zz_175) begin
+              if(_zz_168) begin
                 statuses_0_busy <= 1'b0;
               end
-              if(_zz_176) begin
+              if(_zz_169) begin
                 statuses_1_busy <= 1'b0;
               end
-              if(_zz_177) begin
+              if(_zz_170) begin
                 statuses_2_busy <= 1'b0;
               end
-              if(_zz_178) begin
+              if(_zz_171) begin
                 statuses_3_busy <= 1'b0;
               end
-              if(_zz_179) begin
+              if(_zz_172) begin
                 statuses_4_busy <= 1'b0;
               end
-              if(_zz_180) begin
+              if(_zz_173) begin
                 statuses_5_busy <= 1'b0;
               end
-              if(_zz_181) begin
+              if(_zz_174) begin
                 statuses_6_busy <= 1'b0;
               end
-              if(_zz_182) begin
+              if(_zz_175) begin
                 statuses_7_busy <= 1'b0;
               end
-              if(_zz_175) begin
+              if(_zz_168) begin
                 statuses_0_done <= 1'b0;
               end
-              if(_zz_176) begin
+              if(_zz_169) begin
                 statuses_1_done <= 1'b0;
               end
-              if(_zz_177) begin
+              if(_zz_170) begin
                 statuses_2_done <= 1'b0;
               end
-              if(_zz_178) begin
+              if(_zz_171) begin
                 statuses_3_done <= 1'b0;
               end
-              if(_zz_179) begin
+              if(_zz_172) begin
                 statuses_4_done <= 1'b0;
               end
-              if(_zz_180) begin
+              if(_zz_173) begin
                 statuses_5_done <= 1'b0;
               end
-              if(_zz_181) begin
+              if(_zz_174) begin
                 statuses_6_done <= 1'b0;
               end
-              if(_zz_182) begin
+              if(_zz_175) begin
                 statuses_7_done <= 1'b0;
               end
-              if(_zz_175) begin
+              if(_zz_168) begin
                 statuses_0_hasException <= 1'b0;
               end
-              if(_zz_176) begin
+              if(_zz_169) begin
                 statuses_1_hasException <= 1'b0;
               end
-              if(_zz_177) begin
+              if(_zz_170) begin
                 statuses_2_hasException <= 1'b0;
               end
-              if(_zz_178) begin
+              if(_zz_171) begin
                 statuses_3_hasException <= 1'b0;
               end
-              if(_zz_179) begin
+              if(_zz_172) begin
                 statuses_4_hasException <= 1'b0;
               end
-              if(_zz_180) begin
+              if(_zz_173) begin
                 statuses_5_hasException <= 1'b0;
               end
-              if(_zz_181) begin
+              if(_zz_174) begin
                 statuses_6_hasException <= 1'b0;
               end
-              if(_zz_182) begin
+              if(_zz_175) begin
                 statuses_7_hasException <= 1'b0;
               end
             end
             if(when_ReorderBuffer_l411_4) begin
-              if(_zz_184) begin
+              if(_zz_177) begin
                 statuses_0_busy <= 1'b0;
               end
-              if(_zz_185) begin
+              if(_zz_178) begin
                 statuses_1_busy <= 1'b0;
               end
-              if(_zz_186) begin
+              if(_zz_179) begin
                 statuses_2_busy <= 1'b0;
               end
-              if(_zz_187) begin
+              if(_zz_180) begin
                 statuses_3_busy <= 1'b0;
               end
-              if(_zz_188) begin
+              if(_zz_181) begin
                 statuses_4_busy <= 1'b0;
               end
-              if(_zz_189) begin
+              if(_zz_182) begin
                 statuses_5_busy <= 1'b0;
               end
-              if(_zz_190) begin
+              if(_zz_183) begin
                 statuses_6_busy <= 1'b0;
               end
-              if(_zz_191) begin
+              if(_zz_184) begin
                 statuses_7_busy <= 1'b0;
               end
-              if(_zz_184) begin
+              if(_zz_177) begin
                 statuses_0_done <= 1'b0;
               end
-              if(_zz_185) begin
+              if(_zz_178) begin
                 statuses_1_done <= 1'b0;
               end
-              if(_zz_186) begin
+              if(_zz_179) begin
                 statuses_2_done <= 1'b0;
               end
-              if(_zz_187) begin
+              if(_zz_180) begin
                 statuses_3_done <= 1'b0;
               end
-              if(_zz_188) begin
+              if(_zz_181) begin
                 statuses_4_done <= 1'b0;
               end
-              if(_zz_189) begin
+              if(_zz_182) begin
                 statuses_5_done <= 1'b0;
               end
-              if(_zz_190) begin
+              if(_zz_183) begin
                 statuses_6_done <= 1'b0;
               end
-              if(_zz_191) begin
+              if(_zz_184) begin
                 statuses_7_done <= 1'b0;
               end
-              if(_zz_184) begin
+              if(_zz_177) begin
                 statuses_0_hasException <= 1'b0;
               end
-              if(_zz_185) begin
+              if(_zz_178) begin
                 statuses_1_hasException <= 1'b0;
               end
-              if(_zz_186) begin
+              if(_zz_179) begin
                 statuses_2_hasException <= 1'b0;
               end
-              if(_zz_187) begin
+              if(_zz_180) begin
                 statuses_3_hasException <= 1'b0;
               end
-              if(_zz_188) begin
+              if(_zz_181) begin
                 statuses_4_hasException <= 1'b0;
               end
-              if(_zz_189) begin
+              if(_zz_182) begin
                 statuses_5_hasException <= 1'b0;
               end
-              if(_zz_190) begin
+              if(_zz_183) begin
                 statuses_6_hasException <= 1'b0;
               end
-              if(_zz_191) begin
+              if(_zz_184) begin
                 statuses_7_hasException <= 1'b0;
               end
             end
             if(when_ReorderBuffer_l411_5) begin
-              if(_zz_193) begin
+              if(_zz_186) begin
                 statuses_0_busy <= 1'b0;
               end
-              if(_zz_194) begin
+              if(_zz_187) begin
                 statuses_1_busy <= 1'b0;
               end
-              if(_zz_195) begin
+              if(_zz_188) begin
                 statuses_2_busy <= 1'b0;
               end
-              if(_zz_196) begin
+              if(_zz_189) begin
                 statuses_3_busy <= 1'b0;
               end
-              if(_zz_197) begin
+              if(_zz_190) begin
                 statuses_4_busy <= 1'b0;
               end
-              if(_zz_198) begin
+              if(_zz_191) begin
                 statuses_5_busy <= 1'b0;
               end
-              if(_zz_199) begin
+              if(_zz_192) begin
                 statuses_6_busy <= 1'b0;
               end
-              if(_zz_200) begin
+              if(_zz_193) begin
                 statuses_7_busy <= 1'b0;
               end
-              if(_zz_193) begin
+              if(_zz_186) begin
                 statuses_0_done <= 1'b0;
               end
-              if(_zz_194) begin
+              if(_zz_187) begin
                 statuses_1_done <= 1'b0;
               end
-              if(_zz_195) begin
+              if(_zz_188) begin
                 statuses_2_done <= 1'b0;
               end
-              if(_zz_196) begin
+              if(_zz_189) begin
                 statuses_3_done <= 1'b0;
               end
-              if(_zz_197) begin
+              if(_zz_190) begin
                 statuses_4_done <= 1'b0;
               end
-              if(_zz_198) begin
+              if(_zz_191) begin
                 statuses_5_done <= 1'b0;
               end
-              if(_zz_199) begin
+              if(_zz_192) begin
                 statuses_6_done <= 1'b0;
               end
-              if(_zz_200) begin
+              if(_zz_193) begin
                 statuses_7_done <= 1'b0;
               end
-              if(_zz_193) begin
+              if(_zz_186) begin
                 statuses_0_hasException <= 1'b0;
               end
-              if(_zz_194) begin
+              if(_zz_187) begin
                 statuses_1_hasException <= 1'b0;
               end
-              if(_zz_195) begin
+              if(_zz_188) begin
                 statuses_2_hasException <= 1'b0;
               end
-              if(_zz_196) begin
+              if(_zz_189) begin
                 statuses_3_hasException <= 1'b0;
               end
-              if(_zz_197) begin
+              if(_zz_190) begin
                 statuses_4_hasException <= 1'b0;
               end
-              if(_zz_198) begin
+              if(_zz_191) begin
                 statuses_5_hasException <= 1'b0;
               end
-              if(_zz_199) begin
+              if(_zz_192) begin
                 statuses_6_hasException <= 1'b0;
               end
-              if(_zz_200) begin
+              if(_zz_193) begin
                 statuses_7_hasException <= 1'b0;
               end
             end
             if(when_ReorderBuffer_l411_6) begin
-              if(_zz_202) begin
+              if(_zz_195) begin
                 statuses_0_busy <= 1'b0;
               end
-              if(_zz_203) begin
+              if(_zz_196) begin
                 statuses_1_busy <= 1'b0;
               end
-              if(_zz_204) begin
+              if(_zz_197) begin
                 statuses_2_busy <= 1'b0;
               end
-              if(_zz_205) begin
+              if(_zz_198) begin
                 statuses_3_busy <= 1'b0;
               end
-              if(_zz_206) begin
+              if(_zz_199) begin
                 statuses_4_busy <= 1'b0;
               end
-              if(_zz_207) begin
+              if(_zz_200) begin
                 statuses_5_busy <= 1'b0;
               end
-              if(_zz_208) begin
+              if(_zz_201) begin
                 statuses_6_busy <= 1'b0;
               end
-              if(_zz_209) begin
+              if(_zz_202) begin
                 statuses_7_busy <= 1'b0;
               end
-              if(_zz_202) begin
+              if(_zz_195) begin
                 statuses_0_done <= 1'b0;
               end
-              if(_zz_203) begin
+              if(_zz_196) begin
                 statuses_1_done <= 1'b0;
               end
-              if(_zz_204) begin
+              if(_zz_197) begin
                 statuses_2_done <= 1'b0;
               end
-              if(_zz_205) begin
+              if(_zz_198) begin
                 statuses_3_done <= 1'b0;
               end
-              if(_zz_206) begin
+              if(_zz_199) begin
                 statuses_4_done <= 1'b0;
               end
-              if(_zz_207) begin
+              if(_zz_200) begin
                 statuses_5_done <= 1'b0;
               end
-              if(_zz_208) begin
+              if(_zz_201) begin
                 statuses_6_done <= 1'b0;
               end
-              if(_zz_209) begin
+              if(_zz_202) begin
                 statuses_7_done <= 1'b0;
               end
-              if(_zz_202) begin
+              if(_zz_195) begin
                 statuses_0_hasException <= 1'b0;
               end
-              if(_zz_203) begin
+              if(_zz_196) begin
                 statuses_1_hasException <= 1'b0;
               end
-              if(_zz_204) begin
+              if(_zz_197) begin
                 statuses_2_hasException <= 1'b0;
               end
-              if(_zz_205) begin
+              if(_zz_198) begin
                 statuses_3_hasException <= 1'b0;
               end
-              if(_zz_206) begin
+              if(_zz_199) begin
                 statuses_4_hasException <= 1'b0;
               end
-              if(_zz_207) begin
+              if(_zz_200) begin
                 statuses_5_hasException <= 1'b0;
               end
-              if(_zz_208) begin
+              if(_zz_201) begin
                 statuses_6_hasException <= 1'b0;
               end
-              if(_zz_209) begin
+              if(_zz_202) begin
                 statuses_7_hasException <= 1'b0;
               end
             end
             if(when_ReorderBuffer_l411_7) begin
-              if(_zz_211) begin
+              if(_zz_204) begin
                 statuses_0_busy <= 1'b0;
               end
-              if(_zz_212) begin
+              if(_zz_205) begin
                 statuses_1_busy <= 1'b0;
               end
-              if(_zz_213) begin
+              if(_zz_206) begin
                 statuses_2_busy <= 1'b0;
               end
-              if(_zz_214) begin
+              if(_zz_207) begin
                 statuses_3_busy <= 1'b0;
               end
-              if(_zz_215) begin
+              if(_zz_208) begin
                 statuses_4_busy <= 1'b0;
               end
-              if(_zz_216) begin
+              if(_zz_209) begin
                 statuses_5_busy <= 1'b0;
               end
-              if(_zz_217) begin
+              if(_zz_210) begin
                 statuses_6_busy <= 1'b0;
               end
-              if(_zz_218) begin
+              if(_zz_211) begin
                 statuses_7_busy <= 1'b0;
               end
-              if(_zz_211) begin
+              if(_zz_204) begin
                 statuses_0_done <= 1'b0;
               end
-              if(_zz_212) begin
+              if(_zz_205) begin
                 statuses_1_done <= 1'b0;
               end
-              if(_zz_213) begin
+              if(_zz_206) begin
                 statuses_2_done <= 1'b0;
               end
-              if(_zz_214) begin
+              if(_zz_207) begin
                 statuses_3_done <= 1'b0;
               end
-              if(_zz_215) begin
+              if(_zz_208) begin
                 statuses_4_done <= 1'b0;
               end
-              if(_zz_216) begin
+              if(_zz_209) begin
                 statuses_5_done <= 1'b0;
               end
-              if(_zz_217) begin
+              if(_zz_210) begin
                 statuses_6_done <= 1'b0;
               end
-              if(_zz_218) begin
+              if(_zz_211) begin
                 statuses_7_done <= 1'b0;
               end
-              if(_zz_211) begin
+              if(_zz_204) begin
                 statuses_0_hasException <= 1'b0;
               end
-              if(_zz_212) begin
+              if(_zz_205) begin
                 statuses_1_hasException <= 1'b0;
               end
-              if(_zz_213) begin
+              if(_zz_206) begin
                 statuses_2_hasException <= 1'b0;
               end
-              if(_zz_214) begin
+              if(_zz_207) begin
                 statuses_3_hasException <= 1'b0;
               end
-              if(_zz_215) begin
+              if(_zz_208) begin
                 statuses_4_hasException <= 1'b0;
               end
-              if(_zz_216) begin
+              if(_zz_209) begin
                 statuses_5_hasException <= 1'b0;
               end
-              if(_zz_217) begin
+              if(_zz_210) begin
                 statuses_6_hasException <= 1'b0;
               end
-              if(_zz_218) begin
+              if(_zz_211) begin
                 statuses_7_hasException <= 1'b0;
               end
             end
@@ -45911,202 +44870,202 @@ module ReorderBuffer (
 
   always @(posedge clk) begin
     if(when_ReorderBuffer_l369) begin
-      if(_zz_112) begin
+      if(_zz_105) begin
         statuses_0_isMispredictedBranch <= io_writeback_0_isMispredictedBranch;
       end
-      if(_zz_113) begin
+      if(_zz_106) begin
         statuses_1_isMispredictedBranch <= io_writeback_0_isMispredictedBranch;
       end
-      if(_zz_114) begin
+      if(_zz_107) begin
         statuses_2_isMispredictedBranch <= io_writeback_0_isMispredictedBranch;
       end
-      if(_zz_115) begin
+      if(_zz_108) begin
         statuses_3_isMispredictedBranch <= io_writeback_0_isMispredictedBranch;
       end
-      if(_zz_116) begin
+      if(_zz_109) begin
         statuses_4_isMispredictedBranch <= io_writeback_0_isMispredictedBranch;
       end
-      if(_zz_117) begin
+      if(_zz_110) begin
         statuses_5_isMispredictedBranch <= io_writeback_0_isMispredictedBranch;
       end
-      if(_zz_118) begin
+      if(_zz_111) begin
         statuses_6_isMispredictedBranch <= io_writeback_0_isMispredictedBranch;
       end
-      if(_zz_119) begin
+      if(_zz_112) begin
         statuses_7_isMispredictedBranch <= io_writeback_0_isMispredictedBranch;
       end
-      if(_zz_112) begin
+      if(_zz_105) begin
         statuses_0_result <= io_writeback_0_result;
       end
-      if(_zz_113) begin
+      if(_zz_106) begin
         statuses_1_result <= io_writeback_0_result;
       end
-      if(_zz_114) begin
+      if(_zz_107) begin
         statuses_2_result <= io_writeback_0_result;
       end
-      if(_zz_115) begin
+      if(_zz_108) begin
         statuses_3_result <= io_writeback_0_result;
       end
-      if(_zz_116) begin
+      if(_zz_109) begin
         statuses_4_result <= io_writeback_0_result;
       end
-      if(_zz_117) begin
+      if(_zz_110) begin
         statuses_5_result <= io_writeback_0_result;
       end
-      if(_zz_118) begin
+      if(_zz_111) begin
         statuses_6_result <= io_writeback_0_result;
       end
-      if(_zz_119) begin
+      if(_zz_112) begin
         statuses_7_result <= io_writeback_0_result;
       end
     end
     if(when_ReorderBuffer_l369_1) begin
-      if(_zz_121) begin
+      if(_zz_114) begin
         statuses_0_isMispredictedBranch <= io_writeback_1_isMispredictedBranch;
       end
-      if(_zz_122) begin
+      if(_zz_115) begin
         statuses_1_isMispredictedBranch <= io_writeback_1_isMispredictedBranch;
       end
-      if(_zz_123) begin
+      if(_zz_116) begin
         statuses_2_isMispredictedBranch <= io_writeback_1_isMispredictedBranch;
       end
-      if(_zz_124) begin
+      if(_zz_117) begin
         statuses_3_isMispredictedBranch <= io_writeback_1_isMispredictedBranch;
       end
-      if(_zz_125) begin
+      if(_zz_118) begin
         statuses_4_isMispredictedBranch <= io_writeback_1_isMispredictedBranch;
       end
-      if(_zz_126) begin
+      if(_zz_119) begin
         statuses_5_isMispredictedBranch <= io_writeback_1_isMispredictedBranch;
       end
-      if(_zz_127) begin
+      if(_zz_120) begin
         statuses_6_isMispredictedBranch <= io_writeback_1_isMispredictedBranch;
       end
-      if(_zz_128) begin
+      if(_zz_121) begin
         statuses_7_isMispredictedBranch <= io_writeback_1_isMispredictedBranch;
       end
-      if(_zz_121) begin
+      if(_zz_114) begin
         statuses_0_result <= io_writeback_1_result;
       end
-      if(_zz_122) begin
+      if(_zz_115) begin
         statuses_1_result <= io_writeback_1_result;
       end
-      if(_zz_123) begin
+      if(_zz_116) begin
         statuses_2_result <= io_writeback_1_result;
       end
-      if(_zz_124) begin
+      if(_zz_117) begin
         statuses_3_result <= io_writeback_1_result;
       end
-      if(_zz_125) begin
+      if(_zz_118) begin
         statuses_4_result <= io_writeback_1_result;
       end
-      if(_zz_126) begin
+      if(_zz_119) begin
         statuses_5_result <= io_writeback_1_result;
       end
-      if(_zz_127) begin
+      if(_zz_120) begin
         statuses_6_result <= io_writeback_1_result;
       end
-      if(_zz_128) begin
+      if(_zz_121) begin
         statuses_7_result <= io_writeback_1_result;
       end
     end
     if(when_ReorderBuffer_l369_2) begin
-      if(_zz_130) begin
+      if(_zz_123) begin
         statuses_0_isMispredictedBranch <= io_writeback_2_isMispredictedBranch;
       end
-      if(_zz_131) begin
+      if(_zz_124) begin
         statuses_1_isMispredictedBranch <= io_writeback_2_isMispredictedBranch;
       end
-      if(_zz_132) begin
+      if(_zz_125) begin
         statuses_2_isMispredictedBranch <= io_writeback_2_isMispredictedBranch;
       end
-      if(_zz_133) begin
+      if(_zz_126) begin
         statuses_3_isMispredictedBranch <= io_writeback_2_isMispredictedBranch;
       end
-      if(_zz_134) begin
+      if(_zz_127) begin
         statuses_4_isMispredictedBranch <= io_writeback_2_isMispredictedBranch;
       end
-      if(_zz_135) begin
+      if(_zz_128) begin
         statuses_5_isMispredictedBranch <= io_writeback_2_isMispredictedBranch;
       end
-      if(_zz_136) begin
+      if(_zz_129) begin
         statuses_6_isMispredictedBranch <= io_writeback_2_isMispredictedBranch;
       end
-      if(_zz_137) begin
+      if(_zz_130) begin
         statuses_7_isMispredictedBranch <= io_writeback_2_isMispredictedBranch;
       end
-      if(_zz_130) begin
+      if(_zz_123) begin
         statuses_0_result <= io_writeback_2_result;
       end
-      if(_zz_131) begin
+      if(_zz_124) begin
         statuses_1_result <= io_writeback_2_result;
       end
-      if(_zz_132) begin
+      if(_zz_125) begin
         statuses_2_result <= io_writeback_2_result;
       end
-      if(_zz_133) begin
+      if(_zz_126) begin
         statuses_3_result <= io_writeback_2_result;
       end
-      if(_zz_134) begin
+      if(_zz_127) begin
         statuses_4_result <= io_writeback_2_result;
       end
-      if(_zz_135) begin
+      if(_zz_128) begin
         statuses_5_result <= io_writeback_2_result;
       end
-      if(_zz_136) begin
+      if(_zz_129) begin
         statuses_6_result <= io_writeback_2_result;
       end
-      if(_zz_137) begin
+      if(_zz_130) begin
         statuses_7_result <= io_writeback_2_result;
       end
     end
     if(when_ReorderBuffer_l369_3) begin
-      if(_zz_139) begin
+      if(_zz_132) begin
         statuses_0_isMispredictedBranch <= io_writeback_3_isMispredictedBranch;
       end
-      if(_zz_140) begin
+      if(_zz_133) begin
         statuses_1_isMispredictedBranch <= io_writeback_3_isMispredictedBranch;
       end
-      if(_zz_141) begin
+      if(_zz_134) begin
         statuses_2_isMispredictedBranch <= io_writeback_3_isMispredictedBranch;
       end
-      if(_zz_142) begin
+      if(_zz_135) begin
         statuses_3_isMispredictedBranch <= io_writeback_3_isMispredictedBranch;
       end
-      if(_zz_143) begin
+      if(_zz_136) begin
         statuses_4_isMispredictedBranch <= io_writeback_3_isMispredictedBranch;
       end
-      if(_zz_144) begin
+      if(_zz_137) begin
         statuses_5_isMispredictedBranch <= io_writeback_3_isMispredictedBranch;
       end
-      if(_zz_145) begin
+      if(_zz_138) begin
         statuses_6_isMispredictedBranch <= io_writeback_3_isMispredictedBranch;
       end
-      if(_zz_146) begin
+      if(_zz_139) begin
         statuses_7_isMispredictedBranch <= io_writeback_3_isMispredictedBranch;
       end
-      if(_zz_139) begin
+      if(_zz_132) begin
         statuses_0_result <= io_writeback_3_result;
       end
-      if(_zz_140) begin
+      if(_zz_133) begin
         statuses_1_result <= io_writeback_3_result;
       end
-      if(_zz_141) begin
+      if(_zz_134) begin
         statuses_2_result <= io_writeback_3_result;
       end
-      if(_zz_142) begin
+      if(_zz_135) begin
         statuses_3_result <= io_writeback_3_result;
       end
-      if(_zz_143) begin
+      if(_zz_136) begin
         statuses_4_result <= io_writeback_3_result;
       end
-      if(_zz_144) begin
+      if(_zz_137) begin
         statuses_5_result <= io_writeback_3_result;
       end
-      if(_zz_145) begin
+      if(_zz_138) begin
         statuses_6_result <= io_writeback_3_result;
       end
-      if(_zz_146) begin
+      if(_zz_139) begin
         statuses_7_result <= io_writeback_3_result;
       end
     end
