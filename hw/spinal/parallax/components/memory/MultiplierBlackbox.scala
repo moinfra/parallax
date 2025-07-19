@@ -10,7 +10,7 @@ case class MultiplierBlackbox(
   pipelineStages: Int = 6
 ) extends BlackBox {
 
-  setBlackBoxName("my_multiplier")
+  setBlackBoxName("mult_gen_0")
 
   val io = new Bundle {
     val CLK = if(pipelineStages > 0) in(Bool()) else null
