@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 49a99dae7b6ed938ae50042417514f24dcaeaaa8
 // Component : CoreNSCSCC
-// Git hash  : 9ea9e1c28dcc1bc1bb7ab26bf70b80e634c5e872
+// Git hash  : f2f4b5234a4f5b5a45b3ceda644fa791cc848ddd
 
 `timescale 1ns/1ps
 
@@ -1464,19 +1464,19 @@ module CoreNSCSCC (
   wire       [7:0]    _zz_io_triggerIn_16;
   wire       [4:0]    _zz_io_triggerIn_17;
   wire       [7:0]    _zz_when_Debug_l71_8_1;
-  wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken;
   wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1;
-  wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_2;
-  wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_3;
-  wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_4;
-  wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_5;
-  wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_6;
-  wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_7;
-  wire       [31:0]   _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target;
+  wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1_1;
+  wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1_2;
+  wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1_3;
+  wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1_4;
+  wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1_5;
+  wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1_6;
+  wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1_7;
   wire       [31:0]   _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_1;
-  wire       [31:0]   _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_2;
-  wire       [31:0]   _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_3;
-  wire       [31:0]   _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_4;
+  wire       [31:0]   _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_1_1;
+  wire       [31:0]   _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_1_2;
+  wire       [31:0]   _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_1_3;
+  wire       [31:0]   _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_1_4;
   wire       [7:0]    _zz_io_triggerIn_18;
   wire       [4:0]    _zz_io_triggerIn_19;
   wire       [7:0]    _zz_when_Debug_l71_9_1;
@@ -1560,7 +1560,7 @@ module CoreNSCSCC (
   wire                s1_Rename_isFlushed;
   wire                s2_RobAlloc_isFlushed;
   wire                s3_Dispatch_isFlushed;
-  wire                s2_Mispredict_ready;
+  wire                s3_Result_ready;
   reg        [3:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_robPtr;
   reg        [5:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_physDest_idx;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_physDestIsFpr;
@@ -1590,36 +1590,65 @@ module CoreNSCSCC (
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_isMispredictedBranch;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_writesToPreg;
   reg        [31:0]   _zz_BranchEU_BranchEuPlugin_euResult_data;
-  wire                s1_Resolve_ready;
+  wire                s2_Select_ready;
+  reg        [31:0]   _zz_BpuPipelinePlugin_updatePortIn_payload_target;
+  reg                 _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken;
   reg        [3:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_robPtr_1;
   reg        [5:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_physDest_idx_1;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_physDestIsFpr_1;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_writesToPhysReg_1;
-  reg                 _zz_BranchEU_BranchEuPlugin_gprReadPorts_0_valid;
+  reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_useSrc1_1;
   reg        [31:0]   _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Data_1;
-  reg        [5:0]    _zz_BranchEU_BranchEuPlugin_gprReadPorts_0_address;
+  reg        [5:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Tag_1;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Ready_1;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_src1IsFpr_1;
-  reg                 _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_valid;
+  reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_useSrc2_1;
   reg        [31:0]   _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Data_1;
-  reg        [5:0]    _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_address;
+  reg        [5:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Tag_1;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Ready_1;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_src2IsFpr_1;
   reg        [4:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_1;
-  reg                 _zz_switch_BranchEuPlugin_l133;
+  reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isJump_1;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink_1;
   reg        [4:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_idx_1;
   reg        [1:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_1;
-  reg                 _zz_switch_BranchEuPlugin_l133_1;
+  reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isIndirect_1;
   reg        [2:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_laCfIdx_1;
   reg        [31:0]   _zz_BranchEU_BranchEuPlugin_euResult_uop_imm_1;
   reg        [31:0]   _zz_BpuPipelinePlugin_updatePortIn_payload_pc;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken_1;
   reg        [31:0]   _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_target_1;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted_1;
-  wire       [4:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2;
-  wire       [1:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_2;
-  wire       [31:0]   _zz_BpuPipelinePlugin_updatePortIn_payload_pc_1;
+  wire                s1_Calc_ready;
+  reg        [3:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_robPtr_2;
+  reg        [5:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_physDest_idx_2;
+  reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_physDestIsFpr_2;
+  reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_writesToPhysReg_2;
+  reg                 _zz_BranchEU_BranchEuPlugin_gprReadPorts_0_valid;
+  reg        [31:0]   _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Data_2;
+  reg        [5:0]    _zz_BranchEU_BranchEuPlugin_gprReadPorts_0_address;
+  reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Ready_2;
+  reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_src1IsFpr_2;
+  reg                 _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_valid;
+  reg        [31:0]   _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Data_2;
+  reg        [5:0]    _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_address;
+  reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Ready_2;
+  reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_src2IsFpr_2;
+  reg        [4:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2;
+  reg                 _zz_switch_BranchEuPlugin_l128;
+  reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink_2;
+  reg        [4:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_idx_2;
+  reg        [1:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_2;
+  reg                 _zz_switch_BranchEuPlugin_l128_1;
+  reg        [2:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_laCfIdx_2;
+  reg        [31:0]   _zz_BranchEU_BranchEuPlugin_euResult_uop_imm_2;
+  reg        [31:0]   _zz_BpuPipelinePlugin_updatePortIn_payload_pc_1;
+  reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken_2;
+  reg        [31:0]   _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_target_2;
+  reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted_2;
+  wire       [4:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_3;
+  wire       [1:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_3;
+  wire       [31:0]   _zz_BpuPipelinePlugin_updatePortIn_payload_pc_2;
   wire                s0_Dispatch_ready;
   reg        [3:0]    _zz_MulEU_MulEuPlugin_euResult_uop_robPtr;
   reg        [5:0]    _zz_MulEU_MulEuPlugin_euResult_uop_physDest_idx;
@@ -4455,20 +4484,22 @@ module CoreNSCSCC (
   wire                when_Debug_l71_8;
   wire                when_EuBasePlugin_l297_1;
   wire                s0_Dispatch_valid_1;
-  reg                 s1_Resolve_valid;
-  reg                 s2_Mispredict_valid;
+  reg                 s1_Calc_valid;
+  reg                 s2_Select_valid;
+  reg                 s3_Result_valid;
   wire                s0_Dispatch_isFiring;
-  wire                s1_Resolve_isFiring;
-  reg                 _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken;
-  reg        [31:0]   _zz_BpuPipelinePlugin_updatePortIn_payload_target;
-  wire       [31:0]   _zz_BpuPipelinePlugin_updatePortIn_payload_target_1;
-  wire       [1:0]    switch_BranchEuPlugin_l133;
-  reg        [31:0]   _zz_BpuPipelinePlugin_updatePortIn_payload_target_2;
+  wire                s1_Calc_isFiring;
+  reg                 _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1;
+  reg        [31:0]   _zz_BpuPipelinePlugin_updatePortIn_payload_target_1;
+  wire       [1:0]    switch_BranchEuPlugin_l128;
+  wire                s2_Select_isFiring;
+  wire       [31:0]   _zz_BpuPipelinePlugin_updatePortIn_payload_target_2;
+  reg        [31:0]   _zz_BpuPipelinePlugin_updatePortIn_payload_target_3;
   reg                 _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_isMispredictedBranch_1;
   wire                _zz_46;
-  wire                s2_Mispredict_isFiring;
   wire                BpuPipelinePlugin_updatePortIn_fire;
+  wire                s3_Result_isFiring;
   wire                _zz_BranchEU_BranchEuPlugin_logicPhase_isFlushed;
   wire       [2:0]    _zz_BranchEU_BranchEuPlugin_logicPhase_isFlushed_1;
   wire                _zz_BranchEU_BranchEuPlugin_logicPhase_isFlushed_2;
@@ -5728,6 +5759,8 @@ module CoreNSCSCC (
   reg [39:0] _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_1_string;
   reg [87:0] _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2_string;
   reg [39:0] _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_2_string;
+  reg [87:0] _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_3_string;
+  reg [39:0] _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_3_string;
   reg [39:0] _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_string;
   reg [103:0] _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_string;
   reg [39:0] _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_1_string;
@@ -6184,19 +6217,19 @@ module CoreNSCSCC (
   assign _zz_io_triggerIn_17 = 5'h18;
   assign _zz_io_triggerIn_16 = {3'd0, _zz_io_triggerIn_17};
   assign _zz_when_Debug_l71_8_1 = {3'd0, _zz_when_Debug_l71_9};
-  assign _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken = BranchEU_BranchEuPlugin_gprReadPorts_0_rsp;
-  assign _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1 = BranchEU_BranchEuPlugin_gprReadPorts_1_rsp;
-  assign _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_2 = BranchEU_BranchEuPlugin_gprReadPorts_1_rsp;
-  assign _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_3 = BranchEU_BranchEuPlugin_gprReadPorts_0_rsp;
-  assign _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_4 = BranchEU_BranchEuPlugin_gprReadPorts_0_rsp;
-  assign _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_5 = BranchEU_BranchEuPlugin_gprReadPorts_0_rsp;
-  assign _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_6 = BranchEU_BranchEuPlugin_gprReadPorts_0_rsp;
-  assign _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_7 = BranchEU_BranchEuPlugin_gprReadPorts_0_rsp;
-  assign _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target = _zz_BranchEU_BranchEuPlugin_euResult_uop_imm_1;
-  assign _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_1 = ($signed(_zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_2) + $signed(_zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_3));
-  assign _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_2 = BranchEU_BranchEuPlugin_gprReadPorts_0_rsp;
-  assign _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_3 = _zz_BranchEU_BranchEuPlugin_euResult_uop_imm_1;
-  assign _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_4 = _zz_BranchEU_BranchEuPlugin_euResult_uop_imm_1;
+  assign _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1 = BranchEU_BranchEuPlugin_gprReadPorts_0_rsp;
+  assign _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1_1 = BranchEU_BranchEuPlugin_gprReadPorts_1_rsp;
+  assign _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1_2 = BranchEU_BranchEuPlugin_gprReadPorts_1_rsp;
+  assign _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1_3 = BranchEU_BranchEuPlugin_gprReadPorts_0_rsp;
+  assign _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1_4 = BranchEU_BranchEuPlugin_gprReadPorts_0_rsp;
+  assign _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1_5 = BranchEU_BranchEuPlugin_gprReadPorts_0_rsp;
+  assign _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1_6 = BranchEU_BranchEuPlugin_gprReadPorts_0_rsp;
+  assign _zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1_7 = BranchEU_BranchEuPlugin_gprReadPorts_0_rsp;
+  assign _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_1 = _zz_BranchEU_BranchEuPlugin_euResult_uop_imm_2;
+  assign _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_1_1 = ($signed(_zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_1_2) + $signed(_zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_1_3));
+  assign _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_1_2 = BranchEU_BranchEuPlugin_gprReadPorts_0_rsp;
+  assign _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_1_3 = _zz_BranchEU_BranchEuPlugin_euResult_uop_imm_2;
+  assign _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_1_4 = _zz_BranchEU_BranchEuPlugin_euResult_uop_imm_2;
   assign _zz_io_triggerIn_19 = 5'h18;
   assign _zz_io_triggerIn_18 = {3'd0, _zz_io_triggerIn_19};
   assign _zz_when_Debug_l71_9_1 = {3'd0, _zz_when_Debug_l71_10};
@@ -9699,6 +9732,40 @@ module CoreNSCSCC (
       ArchRegType_CSR : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_2_string = "CSR  ";
       ArchRegType_LA_CF : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_2_string = "LA_CF";
       default : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_2_string = "?????";
+    endcase
+  end
+  always @(*) begin
+    case(_zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_3)
+      BranchCondition_NUL : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_3_string = "NUL        ";
+      BranchCondition_EQ : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_3_string = "EQ         ";
+      BranchCondition_NE : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_3_string = "NE         ";
+      BranchCondition_LT : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_3_string = "LT         ";
+      BranchCondition_GE : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_3_string = "GE         ";
+      BranchCondition_LTU : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_3_string = "LTU        ";
+      BranchCondition_GEU : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_3_string = "GEU        ";
+      BranchCondition_EQZ : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_3_string = "EQZ        ";
+      BranchCondition_NEZ : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_3_string = "NEZ        ";
+      BranchCondition_LTZ : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_3_string = "LTZ        ";
+      BranchCondition_GEZ : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_3_string = "GEZ        ";
+      BranchCondition_GTZ : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_3_string = "GTZ        ";
+      BranchCondition_LEZ : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_3_string = "LEZ        ";
+      BranchCondition_F_EQ : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_3_string = "F_EQ       ";
+      BranchCondition_F_NE : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_3_string = "F_NE       ";
+      BranchCondition_F_LT : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_3_string = "F_LT       ";
+      BranchCondition_F_LE : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_3_string = "F_LE       ";
+      BranchCondition_F_UN : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_3_string = "F_UN       ";
+      BranchCondition_LA_CF_TRUE : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_3_string = "LA_CF_TRUE ";
+      BranchCondition_LA_CF_FALSE : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_3_string = "LA_CF_FALSE";
+      default : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_3_string = "???????????";
+    endcase
+  end
+  always @(*) begin
+    case(_zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_3)
+      ArchRegType_GPR : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_3_string = "GPR  ";
+      ArchRegType_FPR : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_3_string = "FPR  ";
+      ArchRegType_CSR : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_3_string = "CSR  ";
+      ArchRegType_LA_CF : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_3_string = "LA_CF";
+      default : _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_3_string = "?????";
     endcase
   end
   always @(*) begin
@@ -14689,231 +14756,231 @@ module CoreNSCSCC (
   assign DispatchPlugin_logic_iqRegs_1_0_0 = BaseUopCode_MUL;
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_valid = 1'b0;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_valid = 1'b1;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_robPtr = 4'b0000;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_robPtr = _zz_BranchEU_BranchEuPlugin_euResult_uop_robPtr;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_physDest_idx = 6'h0;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_physDest_idx = _zz_BranchEU_BranchEuPlugin_euResult_uop_physDest_idx;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_physDestIsFpr = 1'b0;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_physDestIsFpr = _zz_BranchEU_BranchEuPlugin_euResult_uop_physDestIsFpr;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_writesToPhysReg = 1'b0;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_writesToPhysReg = _zz_BranchEU_BranchEuPlugin_euResult_uop_writesToPhysReg;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_useSrc1 = 1'b0;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_useSrc1 = _zz_BranchEU_BranchEuPlugin_euResult_uop_useSrc1;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_src1Data = 32'h0;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_src1Data = _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Data;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_src1Tag = 6'h0;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_src1Tag = _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Tag;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_src1Ready = 1'b0;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_src1Ready = _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Ready;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_src1IsFpr = 1'b0;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_src1IsFpr = _zz_BranchEU_BranchEuPlugin_euResult_uop_src1IsFpr;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_useSrc2 = 1'b0;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_useSrc2 = _zz_BranchEU_BranchEuPlugin_euResult_uop_useSrc2;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_src2Data = 32'h0;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_src2Data = _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Data;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_src2Tag = 6'h0;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_src2Tag = _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Tag;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_src2Ready = 1'b0;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_src2Ready = _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Ready;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_src2IsFpr = 1'b0;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_src2IsFpr = _zz_BranchEU_BranchEuPlugin_euResult_uop_src2IsFpr;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition = BranchCondition_NUL;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition = _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isJump = 1'b0;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isJump = _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isJump;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink = 1'b0;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink = _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_idx = 5'h0;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_idx = _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_idx;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype = ArchRegType_GPR;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype = _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isIndirect = 1'b0;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isIndirect = _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isIndirect;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_laCfIdx = 3'b000;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_laCfIdx = _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_laCfIdx;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_imm = 32'h0;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_imm = _zz_BranchEU_BranchEuPlugin_euResult_uop_imm;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_pc = 32'h0;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_pc = _zz_BranchEU_BranchEuPlugin_euResult_uop_pc;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken = 1'b0;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken = _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_target = 32'h0;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_target = _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_target;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted = 1'b0;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted = _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_data = _zz_BranchEU_BranchEuPlugin_euResult_data;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_writesToPreg = 1'bx;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_writesToPreg = _zz_BranchEU_BranchEuPlugin_euResult_writesToPreg;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_isMispredictedBranch = 1'bx;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_isMispredictedBranch = _zz_BranchEU_BranchEuPlugin_euResult_isMispredictedBranch;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_hasException = 1'bx;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_hasException = 1'b0;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_exceptionCode = 8'bxxxxxxxx;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_exceptionCode = 8'h0;
     end
   end
 
   always @(*) begin
     BranchEU_BranchEuPlugin_euResult_destIsFpr = 1'bx;
-    if(s2_Mispredict_isFiring) begin
+    if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_destIsFpr = 1'b0;
     end
   end
@@ -19718,80 +19785,81 @@ module CoreNSCSCC (
   assign when_EuBasePlugin_l297_1 = ((MulEU_MulEuPlugin_logicPhase_executionCompletes && MulEU_MulEuPlugin_euResult_writesToPreg) && (MulEU_MulEuPlugin_euResult_uop_physDest_idx < 6'h06));
   assign s0_Dispatch_valid_1 = BranchEU_BranchEuPlugin_euInputPort_valid;
   assign BranchEU_BranchEuPlugin_euInputPort_ready = s0_Dispatch_ready;
-  assign _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2 = BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_condition;
-  assign _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_2 = BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_linkReg_rtype;
-  assign _zz_BpuPipelinePlugin_updatePortIn_payload_pc_1 = BranchEU_BranchEuPlugin_euInputPort_payload_pc;
+  assign _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_3 = BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_condition;
+  assign _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_3 = BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_linkReg_rtype;
+  assign _zz_BpuPipelinePlugin_updatePortIn_payload_pc_2 = BranchEU_BranchEuPlugin_euInputPort_payload_pc;
   assign s0_Dispatch_isFiring = (s0_Dispatch_valid_1 && s0_Dispatch_ready);
-  assign s1_Resolve_isFiring = (s1_Resolve_valid && s1_Resolve_ready);
-  assign BranchEU_BranchEuPlugin_gprReadPorts_0_valid = (s1_Resolve_isFiring && _zz_BranchEU_BranchEuPlugin_gprReadPorts_0_valid);
+  assign s1_Calc_isFiring = (s1_Calc_valid && s1_Calc_ready);
+  assign BranchEU_BranchEuPlugin_gprReadPorts_0_valid = (s1_Calc_isFiring && _zz_BranchEU_BranchEuPlugin_gprReadPorts_0_valid);
   assign BranchEU_BranchEuPlugin_gprReadPorts_0_address = _zz_BranchEU_BranchEuPlugin_gprReadPorts_0_address;
-  assign BranchEU_BranchEuPlugin_gprReadPorts_1_valid = (s1_Resolve_isFiring && _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_valid);
+  assign BranchEU_BranchEuPlugin_gprReadPorts_1_valid = (s1_Calc_isFiring && _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_valid);
   assign BranchEU_BranchEuPlugin_gprReadPorts_1_address = _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_address;
   always @(*) begin
-    case(_zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_1)
+    case(_zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2)
       BranchCondition_EQ : begin
-        _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken = (BranchEU_BranchEuPlugin_gprReadPorts_0_rsp == BranchEU_BranchEuPlugin_gprReadPorts_1_rsp);
+        _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1 = (BranchEU_BranchEuPlugin_gprReadPorts_0_rsp == BranchEU_BranchEuPlugin_gprReadPorts_1_rsp);
       end
       BranchCondition_NE : begin
-        _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken = (BranchEU_BranchEuPlugin_gprReadPorts_0_rsp != BranchEU_BranchEuPlugin_gprReadPorts_1_rsp);
+        _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1 = (BranchEU_BranchEuPlugin_gprReadPorts_0_rsp != BranchEU_BranchEuPlugin_gprReadPorts_1_rsp);
       end
       BranchCondition_LT : begin
-        _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken = ($signed(_zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken) < $signed(_zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1));
+        _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1 = ($signed(_zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1) < $signed(_zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1_1));
       end
       BranchCondition_GE : begin
-        _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken = ($signed(_zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_2) <= $signed(_zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_3));
+        _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1 = ($signed(_zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1_2) <= $signed(_zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1_3));
       end
       BranchCondition_LTU : begin
-        _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken = (BranchEU_BranchEuPlugin_gprReadPorts_0_rsp < BranchEU_BranchEuPlugin_gprReadPorts_1_rsp);
+        _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1 = (BranchEU_BranchEuPlugin_gprReadPorts_0_rsp < BranchEU_BranchEuPlugin_gprReadPorts_1_rsp);
       end
       BranchCondition_GEU : begin
-        _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken = (BranchEU_BranchEuPlugin_gprReadPorts_1_rsp <= BranchEU_BranchEuPlugin_gprReadPorts_0_rsp);
+        _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1 = (BranchEU_BranchEuPlugin_gprReadPorts_1_rsp <= BranchEU_BranchEuPlugin_gprReadPorts_0_rsp);
       end
       BranchCondition_EQZ : begin
-        _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken = (BranchEU_BranchEuPlugin_gprReadPorts_0_rsp == 32'h0);
+        _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1 = (BranchEU_BranchEuPlugin_gprReadPorts_0_rsp == 32'h0);
       end
       BranchCondition_NEZ : begin
-        _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken = (BranchEU_BranchEuPlugin_gprReadPorts_0_rsp != 32'h0);
+        _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1 = (BranchEU_BranchEuPlugin_gprReadPorts_0_rsp != 32'h0);
       end
       BranchCondition_LTZ : begin
-        _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken = ($signed(_zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_4) < $signed(32'h0));
+        _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1 = ($signed(_zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1_4) < $signed(32'h0));
       end
       BranchCondition_GEZ : begin
-        _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken = ($signed(32'h0) <= $signed(_zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_5));
+        _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1 = ($signed(32'h0) <= $signed(_zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1_5));
       end
       BranchCondition_GTZ : begin
-        _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken = ($signed(32'h0) < $signed(_zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_6));
+        _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1 = ($signed(32'h0) < $signed(_zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1_6));
       end
       BranchCondition_LEZ : begin
-        _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken = ($signed(_zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_7) <= $signed(32'h0));
+        _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1 = ($signed(_zz__zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1_7) <= $signed(32'h0));
       end
       default : begin
-        _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken = 1'b1;
+        _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1 = 1'b1;
       end
     endcase
   end
 
-  assign _zz_BpuPipelinePlugin_updatePortIn_payload_target_1 = (_zz_BpuPipelinePlugin_updatePortIn_payload_pc + 32'h00000004);
-  assign switch_BranchEuPlugin_l133 = {_zz_switch_BranchEuPlugin_l133,_zz_switch_BranchEuPlugin_l133_1};
+  assign switch_BranchEuPlugin_l128 = {_zz_switch_BranchEuPlugin_l128,_zz_switch_BranchEuPlugin_l128_1};
   always @(*) begin
-    case(switch_BranchEuPlugin_l133)
+    case(switch_BranchEuPlugin_l128)
       2'b00 : begin
-        _zz_BpuPipelinePlugin_updatePortIn_payload_target = (_zz_BpuPipelinePlugin_updatePortIn_payload_pc + _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target);
+        _zz_BpuPipelinePlugin_updatePortIn_payload_target_1 = (_zz_BpuPipelinePlugin_updatePortIn_payload_pc_1 + _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_1);
       end
       2'b01 : begin
-        _zz_BpuPipelinePlugin_updatePortIn_payload_target = _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_1;
+        _zz_BpuPipelinePlugin_updatePortIn_payload_target_1 = _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_1_1;
       end
       2'b10 : begin
-        _zz_BpuPipelinePlugin_updatePortIn_payload_target = (_zz_BpuPipelinePlugin_updatePortIn_payload_pc + _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_4);
+        _zz_BpuPipelinePlugin_updatePortIn_payload_target_1 = (_zz_BpuPipelinePlugin_updatePortIn_payload_pc_1 + _zz__zz_BpuPipelinePlugin_updatePortIn_payload_target_1_4);
       end
       default : begin
-        _zz_BpuPipelinePlugin_updatePortIn_payload_target = _zz_BpuPipelinePlugin_updatePortIn_payload_target_1;
+        _zz_BpuPipelinePlugin_updatePortIn_payload_target_1 = (_zz_BpuPipelinePlugin_updatePortIn_payload_pc_1 + 32'h00000004);
       end
     endcase
   end
 
+  assign s2_Select_isFiring = (s2_Select_valid && s2_Select_ready);
+  assign _zz_BpuPipelinePlugin_updatePortIn_payload_target_2 = (_zz_BpuPipelinePlugin_updatePortIn_payload_pc + 32'h00000004);
   always @(*) begin
-    if(_zz_switch_BranchEuPlugin_l133) begin
+    if(_zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isJump_1) begin
       _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken = 1'b1;
     end else begin
       _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken = _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken;
@@ -19799,34 +19867,35 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(_zz_switch_BranchEuPlugin_l133) begin
-      _zz_BpuPipelinePlugin_updatePortIn_payload_target_2 = _zz_BpuPipelinePlugin_updatePortIn_payload_target;
+    if(_zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isJump_1) begin
+      _zz_BpuPipelinePlugin_updatePortIn_payload_target_3 = _zz_BpuPipelinePlugin_updatePortIn_payload_target;
     end else begin
-      _zz_BpuPipelinePlugin_updatePortIn_payload_target_2 = (_zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken ? _zz_BpuPipelinePlugin_updatePortIn_payload_target : _zz_BpuPipelinePlugin_updatePortIn_payload_target_1);
+      _zz_BpuPipelinePlugin_updatePortIn_payload_target_3 = (_zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken ? _zz_BpuPipelinePlugin_updatePortIn_payload_target : _zz_BpuPipelinePlugin_updatePortIn_payload_target_2);
     end
   end
 
   assign BranchEU_BranchEuPlugin_monitorSignals_branchTaken = _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken;
-  assign BranchEU_BranchEuPlugin_monitorSignals_targetPC = _zz_BpuPipelinePlugin_updatePortIn_payload_target_2;
+  assign BranchEU_BranchEuPlugin_monitorSignals_targetPC = _zz_BpuPipelinePlugin_updatePortIn_payload_target_3;
   assign BranchEU_BranchEuPlugin_monitorSignals_actuallyTaken = _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken;
   always @(*) begin
     if(_zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted_1) begin
-      _zz_BranchEU_BranchEuPlugin_euResult_isMispredictedBranch_1 = ((_zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken_1 == _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken) && ((! _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken) || (_zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_target_1 == _zz_BpuPipelinePlugin_updatePortIn_payload_target_2)));
+      _zz_BranchEU_BranchEuPlugin_euResult_isMispredictedBranch_1 = ((_zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken_1 == _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken) && ((! _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken) || (_zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_target_1 == _zz_BpuPipelinePlugin_updatePortIn_payload_target_3)));
     end else begin
       _zz_BranchEU_BranchEuPlugin_euResult_isMispredictedBranch_1 = (! _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken);
     end
   end
 
   assign _zz_46 = (! _zz_BranchEU_BranchEuPlugin_euResult_isMispredictedBranch_1);
-  assign s2_Mispredict_isFiring = (s2_Mispredict_valid && s2_Mispredict_ready);
-  assign BpuPipelinePlugin_updatePortIn_valid = s1_Resolve_isFiring;
+  assign BpuPipelinePlugin_updatePortIn_valid = s2_Select_isFiring;
   assign BpuPipelinePlugin_updatePortIn_payload_pc = _zz_BpuPipelinePlugin_updatePortIn_payload_pc;
   assign BpuPipelinePlugin_updatePortIn_payload_isTaken = _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken;
-  assign BpuPipelinePlugin_updatePortIn_payload_target = _zz_BpuPipelinePlugin_updatePortIn_payload_target_2;
+  assign BpuPipelinePlugin_updatePortIn_payload_target = _zz_BpuPipelinePlugin_updatePortIn_payload_target_3;
   assign BpuPipelinePlugin_updatePortIn_fire = (BpuPipelinePlugin_updatePortIn_valid && BpuPipelinePlugin_updatePortIn_ready);
+  assign s3_Result_isFiring = (s3_Result_valid && s3_Result_ready);
   assign s0_Dispatch_ready = 1'b1;
-  assign s1_Resolve_ready = 1'b1;
-  assign s2_Mispredict_ready = 1'b1;
+  assign s1_Calc_ready = 1'b1;
+  assign s2_Select_ready = 1'b1;
+  assign s3_Result_ready = 1'b1;
   assign _zz_BranchEU_BranchEuPlugin_logicPhase_isFlushed = BranchEU_BranchEuPlugin_euResult_uop_robPtr[3];
   assign _zz_BranchEU_BranchEuPlugin_logicPhase_isFlushed_1 = BranchEU_BranchEuPlugin_euResult_uop_robPtr[2 : 0];
   assign _zz_BranchEU_BranchEuPlugin_logicPhase_isFlushed_2 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
@@ -24787,8 +24856,9 @@ module CoreNSCSCC (
       mul_s5_Execute_valid <= 1'b0;
       mul_s6_Execute_valid <= 1'b0;
       mul_s7_Writeback_valid <= 1'b0;
-      s1_Resolve_valid <= 1'b0;
-      s2_Mispredict_valid <= 1'b0;
+      s1_Calc_valid <= 1'b0;
+      s2_Select_valid <= 1'b0;
+      s3_Result_valid <= 1'b0;
       s1_Rename_valid <= 1'b0;
       s2_RobAlloc_valid <= 1'b0;
       s3_Dispatch_valid <= 1'b0;
@@ -25550,65 +25620,43 @@ module CoreNSCSCC (
       if(s0_Dispatch_isFiring) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // BranchEuPlugin.scala:L85
+            assert(1'b0); // BranchEuPlugin.scala:L93
           `else
             if(!1'b0) begin
-              $display("NOTE(BranchEuPlugin.scala:85):  [BranchEU-S0] DISPATCH: PC=0x%x, branchCtrl.condition=%s", _zz_BpuPipelinePlugin_updatePortIn_payload_pc_1, _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2_string); // BranchEuPlugin.scala:L85
+              $display("NOTE(BranchEuPlugin.scala:93):  [BranchEU-S0] DISPATCH: PC=0x%x", _zz_BpuPipelinePlugin_updatePortIn_payload_pc_2); // BranchEuPlugin.scala:L93
             end
           `endif
         `endif
       end
-      if(s1_Resolve_isFiring) begin
+      if(s1_Calc_isFiring) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // BranchEuPlugin.scala:L96
+            assert(1'b0); // BranchEuPlugin.scala:L99
           `else
             if(!1'b0) begin
-              $display("NOTE(BranchEuPlugin.scala:96):  [BranchEU-S1] RESOLVE START: PC=0x%x, useSrc1=%x, useSrc2=%x, src1Tag=%x, src2Tag=%x", _zz_BpuPipelinePlugin_updatePortIn_payload_pc, _zz_BranchEU_BranchEuPlugin_gprReadPorts_0_valid, _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_valid, _zz_BranchEU_BranchEuPlugin_gprReadPorts_0_address, _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_address); // BranchEuPlugin.scala:L96
+              $display("NOTE(BranchEuPlugin.scala:99):  [BranchEU-S1-Calc] CALC START: PC=0x%x", _zz_BpuPipelinePlugin_updatePortIn_payload_pc_1); // BranchEuPlugin.scala:L99
             end
           `endif
         `endif
       end
-      if(s1_Resolve_isFiring) begin
+      if(s2_Select_isFiring) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // BranchEuPlugin.scala:L126
+            assert(1'b0); // BranchEuPlugin.scala:L146
           `else
             if(!1'b0) begin
-              $display("NOTE(BranchEuPlugin.scala:126):  [BranchEU-S1] CONDITION: src1Data=0x%x, src2Data=0x%x, condition=%s, branchTaken=%x", BranchEU_BranchEuPlugin_gprReadPorts_0_rsp, BranchEU_BranchEuPlugin_gprReadPorts_1_rsp, _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_1_string, _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken); // BranchEuPlugin.scala:L126
+              $display("NOTE(BranchEuPlugin.scala:146):  [BranchEU-S2-Select] SELECT START: PC=0x%x, branchTaken(from S1)=%x", _zz_BpuPipelinePlugin_updatePortIn_payload_pc, _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken); // BranchEuPlugin.scala:L146
             end
           `endif
         `endif
       end
-      if(s1_Resolve_isFiring) begin
+      if(s2_Select_isFiring) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // BranchEuPlugin.scala:L196
+            assert(1'b0); // BranchEuPlugin.scala:L184
           `else
             if(!1'b0) begin
-              $display("NOTE(BranchEuPlugin.scala:196):  [BranchEU-S1] PREDICTION: wasPredicted=%x, predictedTaken=%x, actuallyTaken=%x, (actuall)finalTarget=0x%x, predictionCorrect=%x", _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted_1, _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken_1, _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken, _zz_BpuPipelinePlugin_updatePortIn_payload_target_2, _zz_BranchEU_BranchEuPlugin_euResult_isMispredictedBranch_1); // BranchEuPlugin.scala:L196
-            end
-          `endif
-        `endif
-      end
-      if(s1_Resolve_isFiring) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // BranchEuPlugin.scala:L211
-          `else
-            if(!1'b0) begin
-              $display("NOTE(BranchEuPlugin.scala:211):  [BranchEU-S1] RESOLVE COMPLETE: finalTarget=0x%x, mispredicted=%x, actuallyTaken=%x", _zz_BpuPipelinePlugin_updatePortIn_payload_target_2, _zz_46, _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken); // BranchEuPlugin.scala:L211
-            end
-          `endif
-        `endif
-      end
-      if(s2_Mispredict_isFiring) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // BranchEuPlugin.scala:L230
-          `else
-            if(!1'b0) begin
-              $display("NOTE(BranchEuPlugin.scala:230):  [BranchEU-S2] RESULT: euResult.valid=1, writesToPreg=%x, data=0x%x", BranchEU_BranchEuPlugin_euResult_writesToPreg, BranchEU_BranchEuPlugin_euResult_data); // BranchEuPlugin.scala:L230
+              $display("NOTE(BranchEuPlugin.scala:184):  [BranchEU-S2-Select] PREDICTION: wasPredicted=%x, actuallyTaken=%x, finalTarget=0x%x, mispredicted=%x", _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted_1, _zz_BpuPipelinePlugin_updatePortIn_payload_isTaken, _zz_BpuPipelinePlugin_updatePortIn_payload_target_3, _zz_46); // BranchEuPlugin.scala:L184
             end
           `endif
         `endif
@@ -25616,16 +25664,28 @@ module CoreNSCSCC (
       if(BpuPipelinePlugin_updatePortIn_fire) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // BranchEuPlugin.scala:L239
+            assert(1'b0); // BranchEuPlugin.scala:L202
           `else
             if(!1'b0) begin
-              $display("NOTE(BranchEuPlugin.scala:239):  [BranchEU-BPU] BPU UPDATE: pc=0x%x, isTaken=%x, target=0x%x", BpuPipelinePlugin_updatePortIn_payload_pc, BpuPipelinePlugin_updatePortIn_payload_isTaken, BpuPipelinePlugin_updatePortIn_payload_target); // BranchEuPlugin.scala:L239
+              $display("NOTE(BranchEuPlugin.scala:202):  [BranchEU-BPU] BPU UPDATE (from S2): pc=0x%x, isTaken=%x, target=0x%x", BpuPipelinePlugin_updatePortIn_payload_pc, BpuPipelinePlugin_updatePortIn_payload_isTaken, BpuPipelinePlugin_updatePortIn_payload_target); // BranchEuPlugin.scala:L202
             end
           `endif
         `endif
       end
-      s1_Resolve_valid <= s0_Dispatch_valid_1;
-      s2_Mispredict_valid <= s1_Resolve_valid;
+      if(s3_Result_isFiring) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // BranchEuPlugin.scala:L218
+          `else
+            if(!1'b0) begin
+              $display("NOTE(BranchEuPlugin.scala:218):  [BranchEU-S3-Result] RESULT: euResult.valid=1, writesToPreg=%x, data=0x%x, mispredicted=%x", BranchEU_BranchEuPlugin_euResult_writesToPreg, BranchEU_BranchEuPlugin_euResult_data, BranchEU_BranchEuPlugin_euResult_isMispredictedBranch); // BranchEuPlugin.scala:L218
+            end
+          `endif
+        `endif
+      end
+      s1_Calc_valid <= s0_Dispatch_valid_1;
+      s2_Select_valid <= s1_Calc_valid;
+      s3_Result_valid <= s2_Select_valid;
       if(when_EuBasePlugin_l228_2) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
@@ -27071,52 +27131,80 @@ module CoreNSCSCC (
     _zz_16 <= _zz_1;
     _zz_17 <= _zz_2;
     _zz_18 <= _zz_3;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_robPtr_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_robPtr;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_physDest_idx_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_physDest_idx;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_physDestIsFpr_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_physDestIsFpr;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_writesToPhysReg_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_writesToPhysReg;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_robPtr_2 <= BranchEU_BranchEuPlugin_euInputPort_payload_robPtr;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_physDest_idx_2 <= BranchEU_BranchEuPlugin_euInputPort_payload_physDest_idx;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_physDestIsFpr_2 <= BranchEU_BranchEuPlugin_euInputPort_payload_physDestIsFpr;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_writesToPhysReg_2 <= BranchEU_BranchEuPlugin_euInputPort_payload_writesToPhysReg;
     _zz_BranchEU_BranchEuPlugin_gprReadPorts_0_valid <= BranchEU_BranchEuPlugin_euInputPort_payload_useSrc1;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Data_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_src1Data;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Data_2 <= BranchEU_BranchEuPlugin_euInputPort_payload_src1Data;
     _zz_BranchEU_BranchEuPlugin_gprReadPorts_0_address <= BranchEU_BranchEuPlugin_euInputPort_payload_src1Tag;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Ready_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_src1Ready;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_src1IsFpr_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_src1IsFpr;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Ready_2 <= BranchEU_BranchEuPlugin_euInputPort_payload_src1Ready;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_src1IsFpr_2 <= BranchEU_BranchEuPlugin_euInputPort_payload_src1IsFpr;
     _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_valid <= BranchEU_BranchEuPlugin_euInputPort_payload_useSrc2;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Data_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_src2Data;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Data_2 <= BranchEU_BranchEuPlugin_euInputPort_payload_src2Data;
     _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_address <= BranchEU_BranchEuPlugin_euInputPort_payload_src2Tag;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Ready_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_src2Ready;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_src2IsFpr_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_src2IsFpr;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Ready_2 <= BranchEU_BranchEuPlugin_euInputPort_payload_src2Ready;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_src2IsFpr_2 <= BranchEU_BranchEuPlugin_euInputPort_payload_src2IsFpr;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_3;
+    _zz_switch_BranchEuPlugin_l128 <= BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_isJump;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink_2 <= BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_isLink;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_idx_2 <= BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_linkReg_idx;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_2 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_3;
+    _zz_switch_BranchEuPlugin_l128_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_isIndirect;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_laCfIdx_2 <= BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_laCfIdx;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_imm_2 <= BranchEU_BranchEuPlugin_euInputPort_payload_imm;
+    _zz_BpuPipelinePlugin_updatePortIn_payload_pc_1 <= _zz_BpuPipelinePlugin_updatePortIn_payload_pc_2;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken_2 <= BranchEU_BranchEuPlugin_euInputPort_payload_branchPrediction_isTaken;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_target_2 <= BranchEU_BranchEuPlugin_euInputPort_payload_branchPrediction_target;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted_2 <= BranchEU_BranchEuPlugin_euInputPort_payload_branchPrediction_wasPredicted;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_robPtr_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_robPtr_2;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_physDest_idx_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_physDest_idx_2;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_physDestIsFpr_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_physDestIsFpr_2;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_writesToPhysReg_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_writesToPhysReg_2;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_useSrc1_1 <= _zz_BranchEU_BranchEuPlugin_gprReadPorts_0_valid;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Data_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Data_2;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Tag_1 <= _zz_BranchEU_BranchEuPlugin_gprReadPorts_0_address;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Ready_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Ready_2;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_src1IsFpr_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_src1IsFpr_2;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_useSrc2_1 <= _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_valid;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Data_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Data_2;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Tag_1 <= _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_address;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Ready_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Ready_2;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_src2IsFpr_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_src2IsFpr_2;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2;
-    _zz_switch_BranchEuPlugin_l133 <= BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_isJump;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_isLink;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_idx_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_linkReg_idx;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isJump_1 <= _zz_switch_BranchEuPlugin_l128;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink_2;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_idx_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_idx_2;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_2;
-    _zz_switch_BranchEuPlugin_l133_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_isIndirect;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_laCfIdx_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_laCfIdx;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_imm_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_imm;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isIndirect_1 <= _zz_switch_BranchEuPlugin_l128_1;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_laCfIdx_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_laCfIdx_2;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_imm_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_imm_2;
     _zz_BpuPipelinePlugin_updatePortIn_payload_pc <= _zz_BpuPipelinePlugin_updatePortIn_payload_pc_1;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_branchPrediction_isTaken;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_target_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_branchPrediction_target;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_branchPrediction_wasPredicted;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken_2;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_target_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_target_2;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted_2;
+    _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken <= _zz_BranchEU_BranchEuPlugin_monitorSignals_branchTaken_1;
+    _zz_BpuPipelinePlugin_updatePortIn_payload_target <= _zz_BpuPipelinePlugin_updatePortIn_payload_target_1;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_robPtr <= _zz_BranchEU_BranchEuPlugin_euResult_uop_robPtr_1;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_physDest_idx <= _zz_BranchEU_BranchEuPlugin_euResult_uop_physDest_idx_1;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_physDestIsFpr <= _zz_BranchEU_BranchEuPlugin_euResult_uop_physDestIsFpr_1;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_writesToPhysReg <= _zz_BranchEU_BranchEuPlugin_euResult_uop_writesToPhysReg_1;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_useSrc1 <= _zz_BranchEU_BranchEuPlugin_gprReadPorts_0_valid;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_useSrc1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_useSrc1_1;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Data <= _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Data_1;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Tag <= _zz_BranchEU_BranchEuPlugin_gprReadPorts_0_address;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Tag <= _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Tag_1;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Ready <= _zz_BranchEU_BranchEuPlugin_euResult_uop_src1Ready_1;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_src1IsFpr <= _zz_BranchEU_BranchEuPlugin_euResult_uop_src1IsFpr_1;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_useSrc2 <= _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_valid;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_useSrc2 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_useSrc2_1;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Data <= _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Data_1;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Tag <= _zz_BranchEU_BranchEuPlugin_gprReadPorts_1_address;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Tag <= _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Tag_1;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Ready <= _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Ready_1;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_src2IsFpr <= _zz_BranchEU_BranchEuPlugin_euResult_uop_src2IsFpr_1;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_1;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isJump <= _zz_switch_BranchEuPlugin_l133;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isJump <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isJump_1;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink_1;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_idx <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_idx_1;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_1;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isIndirect <= _zz_switch_BranchEuPlugin_l133_1;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isIndirect <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isIndirect_1;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_laCfIdx <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_laCfIdx_1;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_imm <= _zz_BranchEU_BranchEuPlugin_euResult_uop_imm_1;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_pc <= _zz_BpuPipelinePlugin_updatePortIn_payload_pc;
@@ -27125,7 +27213,7 @@ module CoreNSCSCC (
     _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted_1;
     _zz_BranchEU_BranchEuPlugin_euResult_isMispredictedBranch <= (! _zz_BranchEU_BranchEuPlugin_euResult_isMispredictedBranch_1);
     _zz_BranchEU_BranchEuPlugin_euResult_writesToPreg <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink_1;
-    _zz_BranchEU_BranchEuPlugin_euResult_data <= (_zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink_1 ? _zz_BpuPipelinePlugin_updatePortIn_payload_target_1 : _zz_BpuPipelinePlugin_updatePortIn_payload_target_2);
+    _zz_BranchEU_BranchEuPlugin_euResult_data <= (_zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink_1 ? _zz_BpuPipelinePlugin_updatePortIn_payload_target_2 : _zz_BpuPipelinePlugin_updatePortIn_payload_target_3);
     if(s0_Decode_ready_output) begin
       s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_pc <= s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_pc;
       s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_isValid <= s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_isValid;
