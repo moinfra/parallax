@@ -15,15 +15,24 @@ import java.io.FileOutputStream
 /** Testbench for LabSpec.
   * This component wraps the CoreNSCSCC DUT and connects it to two SimulatedSRAM instances,
   * one for instruction memory (iSram) and one for data memory (dSram).
+  *
+  * This version also instantiates a simulated UART (LabUartSim) and connects it
+  * to the CoreNSCSCC's AXI UART interface, mimicking the thinpad_top structure.
   */
 class LabTestBench(val iDataWords: Seq[BigInt], val maxCommitPc: BigInt = 0, val enablePcCheck: Boolean = false) extends Component {
   val io = new Bundle {
     val commitStats = out(CommitStats())
+    val simRxData = in Bits(8 bits) default(B(0, 8 bits))
+    val simRxDataValid = in Bool() default(False)
+    val rxd = in Bool () default(False)
+    val txd = out Bool ()
   }
-  // Instantiate the DUT
+
+  // --- Instantiate the CPU DUT ---
+  // simDebug = true to enable simulation-specific features like commitStats
   val dut = new CoreNSCSCC(simDebug = true)
-  io.commitStats := dut.io.commitStats
-  io.commitStats.simPublic()
+  io.commitStats := dut.io.commitStats // Expose commit stats to the outside of LabTestBench
+  io.commitStats.simPublic() // Make it public for simulation observation
 
   // Configure PC bounds checking if enabled
   // if (enablePcCheck) {
@@ -31,7 +40,7 @@ class LabTestBench(val iDataWords: Seq[BigInt], val maxCommitPc: BigInt = 0, val
   //   commitService.setMaxCommitPc(U(maxCommitPc, 32 bits), True)
   // }
 
-  // Configure and instantiate the Instruction SRAM (iSram)
+  // --- Instruction SRAM (iSram) ---
   val iSramConfig = SRAMConfig(
     addressWidth = 20,
     dataWidth = 32,
@@ -42,17 +51,16 @@ class LabTestBench(val iDataWords: Seq[BigInt], val maxCommitPc: BigInt = 0, val
     enableLog = false
   )
   val iSram = new SimulatedSRAM(iSramConfig, initialContent = iDataWords)
-  iSram.io.simPublic()
+  iSram.io.simPublic() // Make SRAM public for direct inspection in test cases
   iSram.io.ram.addr := dut.io.isram_addr
   iSram.io.ram.data.write := dut.io.isram_din
   dut.io.isram_dout := iSram.io.ram.data.read
   iSram.io.ram.ce_n := !dut.io.isram_en
   iSram.io.ram.oe_n := !dut.io.isram_re
   iSram.io.ram.we_n := !dut.io.isram_we
-  // Convert active-high wmask from DUT to active-low be_n for SRAM
   iSram.io.ram.be_n := ~dut.io.isram_wmask
 
-  // Configure and instantiate the Data SRAM (dSram)
+  // --- Data SRAM (dSram) ---
   val dSramConfig = SRAMConfig(
     addressWidth = 20,
     dataWidth = 32,
@@ -63,28 +71,98 @@ class LabTestBench(val iDataWords: Seq[BigInt], val maxCommitPc: BigInt = 0, val
     enableLog = false
   )
   val dSram = new SimulatedSRAM(dSramConfig)
-  dSram.io.simPublic()
+  dSram.io.simPublic() // Make SRAM public for direct inspection in test cases
   dSram.io.ram.addr := dut.io.dsram_addr
   dSram.io.ram.data.write := dut.io.dsram_din
   dut.io.dsram_dout := dSram.io.ram.data.read
   dSram.io.ram.ce_n := !dut.io.dsram_en
   dSram.io.ram.oe_n := !dut.io.dsram_re
   dSram.io.ram.we_n := !dut.io.dsram_we
-  // Convert active-high wmask from DUT to active-low be_n for SRAM
   dSram.io.ram.be_n := ~dut.io.dsram_wmask
 
-  // Tie off UART signals to prevent stalls
-  dut.io.uart_ar_ready := True
-  dut.io.uart_r_valid := False
-  dut.io.uart_aw_ready := True
-  dut.io.uart_w_ready := True
-  dut.io.uart_b_valid := False
-  dut.io.uart_r_bits_id.assignDontCare()
-  dut.io.uart_r_bits_resp.assignDontCare()
-  dut.io.uart_r_bits_data.assignDontCare()
-  dut.io.uart_r_bits_last.assignDontCare()
-  dut.io.uart_b_bits_id.assignDontCare()
-  dut.io.uart_b_bits_resp.assignDontCare()
+  // --- Simulated UART (LabUartSim) ---
+  // UART AXI config must match what CoreNSCSCC generates for its UART AXI master.
+  // CoreNSCSCC's axiConfig has idWidth `pCfg.memOpIdWidth.value`
+  // The uartAxi in CoreNSCSCC (which connects to memSysPlugin) has idWidth `axiConfig.idWidth + log2Up(6)`
+  val uartAxiConfig = dut.axiConfig.copy(idWidth = dut.axiConfig.idWidth + log2Up(6))
+  
+  // Instantiate the LabUartSim (our simulated UART device)
+  val labUartSim = new LabUartSim(
+    axiConfig = uartAxiConfig,
+    baseAddress = 0xbfd00000L, // Matches CoreMemSysPlugin mapping
+    dataRegOffset = 0x3F8,     // Matches uart_wrapper
+    statusRegOffset = 0x3FC,   // Matches uart_wrapper
+    baudRate = 9600,           // Matches uart_wrapper
+    clockHz = 100000000L       // Matches clk_cpu frequency
+  )
+  // --- Connect CoreNSCSCC's UART AXI Master to LabUartSim's AXI Slave ---
+  // This is the crucial part that directly maps your CoreNSCSCCIo's individual signals
+  // to LabUartSim's Axi4 bundle signals.
+  labUartSim.io.simRxData := io.simRxData
+  labUartSim.io.simRxDataValid := io.simRxDataValid
+  labUartSim.io.rxd := io.rxd
+  io.txd := labUartSim.io.txd 
+  labUartSim.io.simPublic()
+
+  // AR channel (Read Address)
+  labUartSim.io.axi.ar.valid := dut.io.uart_ar_valid
+  labUartSim.io.axi.ar.payload.id    := dut.io.uart_ar_bits_id.asUInt.resized
+  labUartSim.io.axi.ar.payload.addr  := dut.io.uart_ar_bits_addr.asUInt.resized
+  labUartSim.io.axi.ar.payload.len   := dut.io.uart_ar_bits_len.asUInt.resized
+  labUartSim.io.axi.ar.payload.size  := dut.io.uart_ar_bits_size.asUInt.resized
+  labUartSim.io.axi.ar.payload.burst := dut.io.uart_ar_bits_burst.asBits // burst is Bits in SpinalHDL AXI
+  dut.io.uart_ar_ready := labUartSim.io.axi.ar.ready
+
+  // R channel (Read Data)
+  dut.io.uart_r_bits_id   := labUartSim.io.axi.r.payload.id.asBits.resized
+  dut.io.uart_r_bits_resp := labUartSim.io.axi.r.payload.resp.asBits
+  dut.io.uart_r_bits_data := labUartSim.io.axi.r.payload.data.asBits
+  dut.io.uart_r_bits_last := labUartSim.io.axi.r.payload.last
+  dut.io.uart_r_valid     := labUartSim.io.axi.r.valid
+  labUartSim.io.axi.r.ready := dut.io.uart_r_ready
+
+  // AW channel (Write Address)
+  labUartSim.io.axi.aw.valid := dut.io.uart_aw_valid
+  labUartSim.io.axi.aw.payload.id    := dut.io.uart_aw_bits_id.asUInt.resized
+  labUartSim.io.axi.aw.payload.addr  := dut.io.uart_aw_bits_addr.asUInt.resized
+  labUartSim.io.axi.aw.payload.len   := dut.io.uart_aw_bits_len.asUInt.resized
+  labUartSim.io.axi.aw.payload.size  := dut.io.uart_aw_bits_size.asUInt.resized
+  labUartSim.io.axi.aw.payload.burst := dut.io.uart_aw_bits_burst.asBits
+  dut.io.uart_aw_ready := labUartSim.io.axi.aw.ready
+
+  // W channel (Write Data)
+  labUartSim.io.axi.w.valid := dut.io.uart_w_valid
+  labUartSim.io.axi.w.payload.data := dut.io.uart_w_bits_data
+  labUartSim.io.axi.w.payload.strb := dut.io.uart_w_bits_strb
+  labUartSim.io.axi.w.payload.last := dut.io.uart_w_bits_last
+  dut.io.uart_w_ready := labUartSim.io.axi.w.ready
+
+  // B channel (Write Response)
+  dut.io.uart_b_bits_id   := labUartSim.io.axi.b.payload.id.asBits.resized
+  dut.io.uart_b_bits_resp := labUartSim.io.axi.b.payload.resp.asBits
+  dut.io.uart_b_valid     := labUartSim.io.axi.b.valid
+  labUartSim.io.axi.b.ready := dut.io.uart_b_ready
+
+  // --- Connect Physical Serial Lines (txd/rxd) ---
+  // CoreNSCSCC's txd/rxd are not part of its `io` bundle directly,
+  // but are top-level `thinpad_top` ports that uart_wrapper connects to.
+  // Here, we simulate that connection by making them internal to LabTestBench.
+  // If CoreNSCSCC had these as its own `io` ports, then `dut.io.txd` and `dut.io.rxd` would be used.
+  // Based on thinpad_top.v, CoreNSCSCC uses AXI, and uart_wrapper has txd/rxd.
+  // So we connect labUartSim's txd/rxd to the dummy CoreNSCSCC's txd/rxd.
+  // In `thinpad_top.v`, CoreNSCSCC does NOT have txd/rxd ports.
+  // So we need to connect `LabUartSim`'s `txd` to where `uart_wrapper`'s `txd` would be,
+  // and `LabUartSim`'s `rxd` from where `uart_wrapper`'s `rxd` would be.
+  // Given that `dut` is `CoreNSCSCC`, it doesn't have `txd` or `rxd` directly.
+  // The original `thinpad_top` connects `CoreNSCSCC`'s AXI to `uart_wrapper`,
+  // and `uart_wrapper` has the `txd`/`rxd` ports.
+  // Here, `labUartSim` is taking the place of `uart_wrapper`.
+  // So, `labUartSim.io.txd` is the output from `LabUartSim` to the external world,
+  // and `labUartSim.io.rxd` is the input to `LabUartSim` from the external world.
+  // If you want to view these signals in waves, you can `simPublic()` them.
+  labUartSim.io.txd.simPublic()
+  labUartSim.io.rxd.simPublic()
+
 }
 
 object LabHelper {
