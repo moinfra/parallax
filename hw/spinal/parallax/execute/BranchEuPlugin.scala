@@ -48,23 +48,28 @@ class BranchEuPlugin(
     val targetPC = UInt(pipelineConfig.pcWidth)
     val actuallyTaken = Bool()
     
-    // 这些信号将在buildEuLogic中被连接，不在这里设置默认值
+    // 这些信号将在buildEuLogic中被连接
   }
 
   // 实现新的抽象方法
   override def buildEuLogic(): Unit = {
     ParallaxLogger.log(s"[BranchEu ${euName}] Logic start definition.")
     
+    // +++ CHANGED: Pipeline expanded from 3 to 4 stages to break critical path +++
     val pipeline = new Pipeline {
       val s0_dispatch = newStage().setName("s0_Dispatch")
-      val s1_resolve  = newStage().setName("s1_Resolve")
-      val s2_mispredict = newStage().setName("s2_Mispredict")
+      val s1_calc     = newStage().setName("s1_Calc")
+      val s2_select   = newStage().setName("s2_Select")
+      val s3_result   = newStage().setName("s3_Result")
     }.setCompositeName(this, "internal_pipeline")
 
-    // 添加Stageable和输入连接
+    // --- Stageables ---
     val EU_INPUT_PAYLOAD = Stageable(iqEntryType())
     
-    // Stageable for passing misprediction information between s1 and s2
+    // +++ NEW: Stageables to pass calculation results from S1 to S2 +++
+    val BRANCH_TAKEN = Stageable(Bool())
+    val BRANCH_TARGET = Stageable(UInt(pipelineConfig.pcWidth))
+
     case class MispredictInfo() extends Bundle {
       val mispredicted = Bool()
       val finalTarget = UInt(pipelineConfig.pcWidth)
@@ -76,171 +81,146 @@ class BranchEuPlugin(
     }
     val MISPREDICT_INFO = Stageable(MispredictInfo())
     
-    // 连接输入端口到流水线入口
+    // --- Pipeline Connections ---
+    pipeline.connect(pipeline.s0_dispatch, pipeline.s1_calc)(Connection.M2S())
+    pipeline.connect(pipeline.s1_calc, pipeline.s2_select)(Connection.M2S())
+    pipeline.connect(pipeline.s2_select, pipeline.s3_result)(Connection.M2S())
+
+    // --- Stage S0: Dispatch (No change) ---
     pipeline.s0_dispatch.driveFrom(getEuInputPort)
     pipeline.s0_dispatch(EU_INPUT_PAYLOAD) := getEuInputPort.payload
-    
-    // 添加调试日志 - S0阶段
     when(pipeline.s0_dispatch.isFiring) {
-      report(L"[BranchEU-S0] DISPATCH: PC=0x${pipeline.s0_dispatch(EU_INPUT_PAYLOAD).pc}, branchCtrl.condition=${pipeline.s0_dispatch(EU_INPUT_PAYLOAD).branchCtrl.condition}")
+      report(L"[BranchEU-S0] DISPATCH: PC=0x${pipeline.s0_dispatch(EU_INPUT_PAYLOAD).pc}")
     }
     
-    pipeline.connect(pipeline.s0_dispatch, pipeline.s1_resolve)(Connection.M2S())
-    pipeline.connect(pipeline.s1_resolve, pipeline.s2_mispredict)(Connection.M2S())
-
-    // --- Stage S1: Resolve Branch ---
-    val uopAtS1 = pipeline.s1_resolve(EU_INPUT_PAYLOAD)
-
-    // 添加调试日志 - S1开始阶段
-    when(pipeline.s1_resolve.isFiring) {
-      report(L"[BranchEU-S1] RESOLVE START: PC=0x${uopAtS1.pc}, useSrc1=${uopAtS1.useSrc1}, useSrc2=${uopAtS1.useSrc2}, src1Tag=${uopAtS1.src1Tag}, src2Tag=${uopAtS1.src2Tag}")
+    // +++ NEW: Stage S1: Calculate Branch Condition and Potential Target +++
+    val uopAtS1 = pipeline.s1_calc(EU_INPUT_PAYLOAD)
+    when(pipeline.s1_calc.isFiring) {
+      report(L"[BranchEU-S1-Calc] CALC START: PC=0x${uopAtS1.pc}")
     }
-
-    // 1. 获取操作数数据 - 从PRF读取
-    val data_rs1 = connectGprRead(pipeline.s1_resolve, 0, uopAtS1.src1Tag, uopAtS1.useSrc1)
-    val data_rs2 = connectGprRead(pipeline.s1_resolve, 1, uopAtS1.src2Tag, uopAtS1.useSrc2)
+    
+    // 1. 获取操作数数据
+    val data_rs1 = connectGprRead(pipeline.s1_calc, 0, uopAtS1.src1Tag, uopAtS1.useSrc1)
+    val data_rs2 = connectGprRead(pipeline.s1_calc, 1, uopAtS1.src2Tag, uopAtS1.useSrc2)
     val src1Data = data_rs1
     val src2Data = data_rs2
 
-    // 2. 执行分支条件判断
-    val branchTaken = Bool()
+    // 2. 执行分支条件判断 (Heavy logic)
+    val branchTaken_s1 = Bool()
     switch(uopAtS1.branchCtrl.condition) {
-      is(BranchCondition.EQ)  { branchTaken := (src1Data === src2Data) }
-      is(BranchCondition.NE)  { branchTaken := (src1Data =/= src2Data) }
-      is(BranchCondition.LT)  { branchTaken := (src1Data.asSInt < src2Data.asSInt) }
-      is(BranchCondition.GE)  { branchTaken := (src1Data.asSInt >= src2Data.asSInt) }
-      is(BranchCondition.LTU) { branchTaken := (src1Data.asUInt < src2Data.asUInt) }
-      is(BranchCondition.GEU) { branchTaken := (src1Data.asUInt >= src2Data.asUInt) }
-      // 零比较分支
-      is(BranchCondition.EQZ) { branchTaken := (src1Data === 0) }
-      is(BranchCondition.NEZ) { branchTaken := (src1Data =/= 0) }
-      is(BranchCondition.LTZ) { branchTaken := (src1Data.asSInt < 0) }
-      is(BranchCondition.GEZ) { branchTaken := (src1Data.asSInt >= 0) }
-      is(BranchCondition.GTZ) { branchTaken := (src1Data.asSInt > 0) }
-      is(BranchCondition.LEZ) { branchTaken := (src1Data.asSInt <= 0) }
-      default { branchTaken := True } // 无条件跳转(JAL等)
+      is(BranchCondition.EQ)  { branchTaken_s1 := (src1Data === src2Data) }
+      is(BranchCondition.NE)  { branchTaken_s1 := (src1Data =/= src2Data) }
+      is(BranchCondition.LT)  { branchTaken_s1 := (src1Data.asSInt < src2Data.asSInt) }
+      is(BranchCondition.GE)  { branchTaken_s1 := (src1Data.asSInt >= src2Data.asSInt) }
+      is(BranchCondition.LTU) { branchTaken_s1 := (src1Data.asUInt < src2Data.asUInt) }
+      is(BranchCondition.GEU) { branchTaken_s1 := (src1Data.asUInt >= src2Data.asUInt) }
+      is(BranchCondition.EQZ) { branchTaken_s1 := (src1Data === 0) }
+      is(BranchCondition.NEZ) { branchTaken_s1 := (src1Data =/= 0) }
+      is(BranchCondition.LTZ) { branchTaken_s1 := (src1Data.asSInt < 0) }
+      is(BranchCondition.GEZ) { branchTaken_s1 := (src1Data.asSInt >= 0) }
+      is(BranchCondition.GTZ) { branchTaken_s1 := (src1Data.asSInt > 0) }
+      is(BranchCondition.LEZ) { branchTaken_s1 := (src1Data.asSInt <= 0) }
+      default { branchTaken_s1 := True } // 无条件跳转
     }
 
-    // 添加分支条件判断日志
-    when(pipeline.s1_resolve.isFiring) {
-      report(L"[BranchEU-S1] CONDITION: src1Data=0x${src1Data}, src2Data=0x${src2Data}, condition=${uopAtS1.branchCtrl.condition}, branchTaken=${branchTaken}")
-    }
-
-    // 3. 计算分支目标地址
-    val branchTarget = UInt(pipelineConfig.pcWidth)
-    val nextPc = uopAtS1.pc + 4 // 默认下一条指令地址
-    
+    // 3. 计算分支目标地址 (Heavy logic)
+    val branchTarget_s1 = UInt(pipelineConfig.pcWidth)
     switch(uopAtS1.branchCtrl.isJump ## uopAtS1.branchCtrl.isIndirect) {
-      // 00: 条件分支 (BEQ, BNE 等) - LoongArch uses PC + offset for branch target calculation
-      is(B"00") {
-        branchTarget := uopAtS1.pc + uopAtS1.imm.asSInt.resize(pipelineConfig.pcWidth).asUInt
-      }
-      // 01: 间接跳转 (JALR)
-      is(B"01") {
-        branchTarget := (src1Data.asSInt + uopAtS1.imm.asSInt).asUInt.resized
-      }
-      // 10: 直接跳转 (JAL)
-      is(B"10") {
-        branchTarget := uopAtS1.pc + uopAtS1.imm.asSInt.resize(pipelineConfig.pcWidth).asUInt
-      }
-      // 11: 保留
-      default {
-        branchTarget := nextPc
-      }
+      is(B"00") { branchTarget_s1 := uopAtS1.pc + uopAtS1.imm.asSInt.resize(pipelineConfig.pcWidth).asUInt }
+      is(B"01") { branchTarget_s1 := (src1Data.asSInt + uopAtS1.imm.asSInt).asUInt.resized }
+      is(B"10") { branchTarget_s1 := uopAtS1.pc + uopAtS1.imm.asSInt.resize(pipelineConfig.pcWidth).asUInt }
+      default   { branchTarget_s1 := uopAtS1.pc + 4 }
+    }
+    
+    // 将计算结果存入Stageable，传递给下一级
+    pipeline.s1_calc(BRANCH_TAKEN) := branchTaken_s1
+    pipeline.s1_calc(BRANCH_TARGET) := branchTarget_s1
+
+    // +++ NEW: Stage S2: Select Final Target and Verify Prediction +++
+    val uopAtS2 = pipeline.s2_select(EU_INPUT_PAYLOAD)
+    // 从上一级寄存器获取计算结果
+    val branchTaken_s2 = pipeline.s2_select(BRANCH_TAKEN)
+    val branchTarget_s2 = pipeline.s2_select(BRANCH_TARGET)
+    
+    when(pipeline.s2_select.isFiring) {
+      report(L"[BranchEU-S2-Select] SELECT START: PC=0x${uopAtS2.pc}, branchTaken(from S1)=${branchTaken_s2}")
     }
 
-    // 4. 决定最终跳转地址和链接寄存器值
+    // 4. 决定最终跳转地址和链接寄存器值 (Lighter logic)
+    val nextPc = uopAtS2.pc + 4
     val finalTarget = UInt(pipelineConfig.pcWidth)
     val linkValue = Bits(pipelineConfig.dataWidth)
     val actuallyTaken = Bool()
     
-    when(uopAtS1.branchCtrl.isJump) {
-      // 无条件跳转 (JAL/JALR) - 总是跳转
+    when(uopAtS2.branchCtrl.isJump) {
       actuallyTaken := True
-      finalTarget := branchTarget
+      finalTarget := branchTarget_s2
     } otherwise {
-      // 条件分支 - 根据条件决定
-      actuallyTaken := branchTaken
-      finalTarget := Mux(branchTaken, branchTarget, nextPc)
+      actuallyTaken := branchTaken_s2
+      finalTarget := Mux(branchTaken_s2, branchTarget_s2, nextPc)
     }
-    
-    // 链接寄存器值 (用于JAL/JALR)
     linkValue := nextPc.asBits.resized
 
-    // 5. 更新监控信号
-    monitorSignals.branchTaken := branchTaken
+    // 更新监控信号
+    monitorSignals.branchTaken := branchTaken_s2
     monitorSignals.targetPC := finalTarget
     monitorSignals.actuallyTaken := actuallyTaken
 
-    // 5. 分支预测验证
+    // 5. 分支预测验证 (Lighter logic)
     val predictionCorrect = Bool()
-    val predictedTaken = uopAtS1.branchPrediction.isTaken
-    val predictedTarget = uopAtS1.branchPrediction.target
-    val wasPredicted = uopAtS1.branchPrediction.wasPredicted
+    val predictedTaken = uopAtS2.branchPrediction.isTaken
+    val predictedTarget = uopAtS2.branchPrediction.target
+    val wasPredicted = uopAtS2.branchPrediction.wasPredicted
     
-    // 验证预测结果：
-    // 1. 检查预测的跳转方向是否正确
-    // 2. 如果预测跳转，检查目标地址是否正确
     when(wasPredicted) {
       val directionCorrect = (predictedTaken === actuallyTaken)
       val targetCorrect = (!actuallyTaken) || (predictedTarget === finalTarget)
       predictionCorrect := directionCorrect && targetCorrect
     } otherwise {
-      // CRITICAL FIX: When no prediction is available, default assumption is "not taken"
-      // If branch is actually taken, this is a misprediction
       predictionCorrect := !actuallyTaken
     }
-
-    // 添加分支预测验证日志
-    when(pipeline.s1_resolve.isFiring) {
-      report(L"[BranchEU-S1] PREDICTION: wasPredicted=${wasPredicted}, predictedTaken=${predictedTaken}, actuallyTaken=${actuallyTaken}, (actuall)finalTarget=0x${finalTarget}, predictionCorrect=${predictionCorrect}")
-    }
-
-    // Store misprediction information in s1_resolve stage for s2_mispredict to use
-    pipeline.s1_resolve(MISPREDICT_INFO).mispredicted := !predictionCorrect
-    pipeline.s1_resolve(MISPREDICT_INFO).finalTarget := finalTarget
-
-    pipeline.s1_resolve(MISPREDICT_INFO).robPtrToFlush := uopAtS1.robPtr + 1
-    pipeline.s1_resolve(MISPREDICT_INFO).linkValue := linkValue
-    pipeline.s1_resolve(MISPREDICT_INFO).actuallyTaken := actuallyTaken
-    pipeline.s1_resolve(MISPREDICT_INFO).writesToPreg := uopAtS1.branchCtrl.isLink
-    pipeline.s1_resolve(MISPREDICT_INFO).outputData := Mux(uopAtS1.branchCtrl.isLink, linkValue, finalTarget.asBits.resized)
-
-    // Add debug logging for s1_resolve final results
-    when(pipeline.s1_resolve.isFiring) {
-      report(L"[BranchEU-S1] RESOLVE COMPLETE: finalTarget=0x${finalTarget}, mispredicted=${!predictionCorrect}, actuallyTaken=${actuallyTaken}")
-    }
-
-    // --- Stage S2: Handle Misprediction ---
-    val mispredictInfoAtS2 = pipeline.s2_mispredict(MISPREDICT_INFO)
-    val uopAtS2 = pipeline.s2_mispredict(EU_INPUT_PAYLOAD)
-
-    // 6. Update euResult output (now driven from s2 stage)
     
-    // Add execution result logging
-    when(pipeline.s2_mispredict.isFiring) {
-      euResult.valid := True
-      euResult.uop := uopAtS2
-      euResult.data := mispredictInfoAtS2.outputData // linkValue or finalTarget
-      euResult.writesToPreg := mispredictInfoAtS2.writesToPreg
-      euResult.isMispredictedBranch := mispredictInfoAtS2.mispredicted
-      euResult.hasException := False
-      euResult.exceptionCode := 0
-      euResult.destIsFpr := False
-      report(L"[BranchEU-S2] RESULT: euResult.valid=1, writesToPreg=${euResult.writesToPreg}, data=0x${euResult.data}")
+    when(pipeline.s2_select.isFiring) {
+      report(L"[BranchEU-S2-Select] PREDICTION: wasPredicted=${wasPredicted}, actuallyTaken=${actuallyTaken}, finalTarget=0x${finalTarget}, mispredicted=${!predictionCorrect}")
     }
 
-    // 7. BPU更新逻辑 (still in s1_resolve for immediate feedback)
-    hw.bpuUpdatePort.valid := pipeline.s1_resolve.isFiring
-    hw.bpuUpdatePort.payload.pc := uopAtS1.pc
+    // 将最终信息存入Stageable，供S3使用
+    pipeline.s2_select(MISPREDICT_INFO).mispredicted := !predictionCorrect
+    pipeline.s2_select(MISPREDICT_INFO).finalTarget := finalTarget
+    pipeline.s2_select(MISPREDICT_INFO).robPtrToFlush := uopAtS2.robPtr + 1
+    pipeline.s2_select(MISPREDICT_INFO).linkValue := linkValue
+    pipeline.s2_select(MISPREDICT_INFO).actuallyTaken := actuallyTaken
+    pipeline.s2_select(MISPREDICT_INFO).writesToPreg := uopAtS2.branchCtrl.isLink
+    pipeline.s2_select(MISPREDICT_INFO).outputData := Mux(uopAtS2.branchCtrl.isLink, linkValue, finalTarget.asBits.resized)
+
+    // +++ MOVED: BPU更新逻辑移至S2，这是能获取到完整信息的最早阶段 +++
+    hw.bpuUpdatePort.valid := pipeline.s2_select.isFiring
+    hw.bpuUpdatePort.payload.pc := uopAtS2.pc
     hw.bpuUpdatePort.payload.isTaken := actuallyTaken
     hw.bpuUpdatePort.payload.target := finalTarget
     when(hw.bpuUpdatePort.fire) {
-      report(L"[BranchEU-BPU] BPU UPDATE: pc=0x${hw.bpuUpdatePort.payload.pc}, isTaken=${hw.bpuUpdatePort.payload.isTaken}, target=0x${hw.bpuUpdatePort.payload.target}")
+      report(L"[BranchEU-BPU] BPU UPDATE (from S2): pc=0x${hw.bpuUpdatePort.payload.pc}, isTaken=${hw.bpuUpdatePort.payload.isTaken}, target=0x${hw.bpuUpdatePort.payload.target}")
     }
+    
+    // +++ NEW: Stage S3: Handle Misprediction and Drive Result +++
+    val mispredictInfoAtS3 = pipeline.s3_result(MISPREDICT_INFO)
+    val uopAtS3 = pipeline.s3_result(EU_INPUT_PAYLOAD)
+
+    when(pipeline.s3_result.isFiring) {
+      euResult.valid := True
+      euResult.uop := uopAtS3
+      euResult.data := mispredictInfoAtS3.outputData
+      euResult.writesToPreg := mispredictInfoAtS3.writesToPreg
+      euResult.isMispredictedBranch := mispredictInfoAtS3.mispredicted // This is the signal from your screenshot
+      euResult.hasException := False
+      euResult.exceptionCode := 0
+      euResult.destIsFpr := False
+      report(L"[BranchEU-S3-Result] RESULT: euResult.valid=1, writesToPreg=${euResult.writesToPreg}, data=0x${euResult.data}, mispredicted=${euResult.isMispredictedBranch}")
+    }
+
     pipeline.build()
 
-    ParallaxLogger.log(s"[BranchEu ${euName}] 3-stage pipeline with branch logic built: S0(Dispatch) -> S1(Resolve) -> S2(Mispredict).")
+    ParallaxLogger.log(s"[BranchEu ${euName}] 4-stage pipeline with branch logic built: S0(Dispatch) -> S1(Calc) -> S2(Select) -> S3(Result).")
     hw.bpuServiceInst.release()
     hw.checkpointManagerService.release()
   }
