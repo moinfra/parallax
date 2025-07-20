@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 49a99dae7b6ed938ae50042417514f24dcaeaaa8
 // Component : CoreNSCSCC
-// Git hash  : b97ed26057125a5844a229d873b0b2dcfbae5a0e
+// Git hash  : fa08b90e1de0c9a3d7b4777b1e2cb85c6ecbee63
 
 `timescale 1ns/1ps
 
@@ -29123,8 +29123,6 @@ module SplitGmbToAxi4Bridge (
   input  wire          reset
 );
 
-  reg                 cmdStage_fork_io_outputs_0_ready;
-  reg                 cmdStage_fork_io_outputs_1_ready;
   wire                cmdStage_fork_io_input_ready;
   wire                cmdStage_fork_io_outputs_0_valid;
   wire       [31:0]   cmdStage_fork_io_outputs_0_payload_address;
@@ -29172,34 +29170,6 @@ module SplitGmbToAxi4Bridge (
   reg        [3:0]    io_gmbIn_write_cmd_rData_id;
   reg                 io_gmbIn_write_cmd_rData_last;
   wire                when_Stream_l477_2;
-  wire                awStream_valid;
-  wire                awStream_ready;
-  wire       [31:0]   awStream_payload_address;
-  wire       [31:0]   awStream_payload_data;
-  wire       [3:0]    awStream_payload_byteEnables;
-  wire       [3:0]    awStream_payload_id;
-  wire                awStream_payload_last;
-  reg                 cmdStage_fork_io_outputs_0_rValid;
-  reg        [31:0]   cmdStage_fork_io_outputs_0_rData_address;
-  reg        [31:0]   cmdStage_fork_io_outputs_0_rData_data;
-  reg        [3:0]    cmdStage_fork_io_outputs_0_rData_byteEnables;
-  reg        [3:0]    cmdStage_fork_io_outputs_0_rData_id;
-  reg                 cmdStage_fork_io_outputs_0_rData_last;
-  wire                when_Stream_l477_3;
-  wire                wStream_valid;
-  wire                wStream_ready;
-  wire       [31:0]   wStream_payload_address;
-  wire       [31:0]   wStream_payload_data;
-  wire       [3:0]    wStream_payload_byteEnables;
-  wire       [3:0]    wStream_payload_id;
-  wire                wStream_payload_last;
-  reg                 cmdStage_fork_io_outputs_1_rValid;
-  reg        [31:0]   cmdStage_fork_io_outputs_1_rData_address;
-  reg        [31:0]   cmdStage_fork_io_outputs_1_rData_data;
-  reg        [3:0]    cmdStage_fork_io_outputs_1_rData_byteEnables;
-  reg        [3:0]    cmdStage_fork_io_outputs_1_rData_id;
-  reg                 cmdStage_fork_io_outputs_1_rData_last;
-  wire                when_Stream_l477_4;
   wire                axiB_staged_valid;
   wire                axiB_staged_ready;
   wire       [3:0]    axiB_staged_payload_id;
@@ -29207,7 +29177,7 @@ module SplitGmbToAxi4Bridge (
   reg                 io_axiOut_b_rValid;
   reg        [3:0]    io_axiOut_b_rData_id;
   reg        [1:0]    io_axiOut_b_rData_resp;
-  wire                when_Stream_l477_5;
+  wire                when_Stream_l477_3;
 
   StreamFork cmdStage_fork (
     .io_input_valid                   (cmdStage_valid                                     ), //i
@@ -29218,14 +29188,14 @@ module SplitGmbToAxi4Bridge (
     .io_input_payload_id              (cmdStage_payload_id[3:0]                           ), //i
     .io_input_payload_last            (cmdStage_payload_last                              ), //i
     .io_outputs_0_valid               (cmdStage_fork_io_outputs_0_valid                   ), //o
-    .io_outputs_0_ready               (cmdStage_fork_io_outputs_0_ready                   ), //i
+    .io_outputs_0_ready               (io_axiOut_aw_ready                                 ), //i
     .io_outputs_0_payload_address     (cmdStage_fork_io_outputs_0_payload_address[31:0]   ), //o
     .io_outputs_0_payload_data        (cmdStage_fork_io_outputs_0_payload_data[31:0]      ), //o
     .io_outputs_0_payload_byteEnables (cmdStage_fork_io_outputs_0_payload_byteEnables[3:0]), //o
     .io_outputs_0_payload_id          (cmdStage_fork_io_outputs_0_payload_id[3:0]         ), //o
     .io_outputs_0_payload_last        (cmdStage_fork_io_outputs_0_payload_last            ), //o
     .io_outputs_1_valid               (cmdStage_fork_io_outputs_1_valid                   ), //o
-    .io_outputs_1_ready               (cmdStage_fork_io_outputs_1_ready                   ), //i
+    .io_outputs_1_ready               (io_axiOut_w_ready                                  ), //i
     .io_outputs_1_payload_address     (cmdStage_fork_io_outputs_1_payload_address[31:0]   ), //o
     .io_outputs_1_payload_data        (cmdStage_fork_io_outputs_1_payload_data[31:0]      ), //o
     .io_outputs_1_payload_byteEnables (cmdStage_fork_io_outputs_1_payload_byteEnables[3:0]), //o
@@ -29285,54 +29255,24 @@ module SplitGmbToAxi4Bridge (
   assign cmdStage_payload_id = io_gmbIn_write_cmd_rData_id;
   assign cmdStage_payload_last = io_gmbIn_write_cmd_rData_last;
   assign cmdStage_ready = cmdStage_fork_io_input_ready;
-  always @(*) begin
-    cmdStage_fork_io_outputs_0_ready = awStream_ready;
-    if(when_Stream_l477_3) begin
-      cmdStage_fork_io_outputs_0_ready = 1'b1;
-    end
-  end
-
-  assign when_Stream_l477_3 = (! awStream_valid);
-  assign awStream_valid = cmdStage_fork_io_outputs_0_rValid;
-  assign awStream_payload_address = cmdStage_fork_io_outputs_0_rData_address;
-  assign awStream_payload_data = cmdStage_fork_io_outputs_0_rData_data;
-  assign awStream_payload_byteEnables = cmdStage_fork_io_outputs_0_rData_byteEnables;
-  assign awStream_payload_id = cmdStage_fork_io_outputs_0_rData_id;
-  assign awStream_payload_last = cmdStage_fork_io_outputs_0_rData_last;
-  always @(*) begin
-    cmdStage_fork_io_outputs_1_ready = wStream_ready;
-    if(when_Stream_l477_4) begin
-      cmdStage_fork_io_outputs_1_ready = 1'b1;
-    end
-  end
-
-  assign when_Stream_l477_4 = (! wStream_valid);
-  assign wStream_valid = cmdStage_fork_io_outputs_1_rValid;
-  assign wStream_payload_address = cmdStage_fork_io_outputs_1_rData_address;
-  assign wStream_payload_data = cmdStage_fork_io_outputs_1_rData_data;
-  assign wStream_payload_byteEnables = cmdStage_fork_io_outputs_1_rData_byteEnables;
-  assign wStream_payload_id = cmdStage_fork_io_outputs_1_rData_id;
-  assign wStream_payload_last = cmdStage_fork_io_outputs_1_rData_last;
-  assign io_axiOut_aw_valid = awStream_valid;
-  assign awStream_ready = io_axiOut_aw_ready;
-  assign io_axiOut_aw_payload_addr = awStream_payload_address;
+  assign io_axiOut_aw_valid = cmdStage_fork_io_outputs_0_valid;
+  assign io_axiOut_aw_payload_addr = cmdStage_fork_io_outputs_0_payload_address;
   assign io_axiOut_aw_payload_len = 8'h0;
   assign io_axiOut_aw_payload_size = 3'b010;
   assign io_axiOut_aw_payload_burst = 2'b01;
-  assign io_axiOut_aw_payload_id = awStream_payload_id;
-  assign io_axiOut_w_valid = wStream_valid;
-  assign wStream_ready = io_axiOut_w_ready;
-  assign io_axiOut_w_payload_data = wStream_payload_data;
-  assign io_axiOut_w_payload_strb = wStream_payload_byteEnables;
+  assign io_axiOut_aw_payload_id = cmdStage_fork_io_outputs_0_payload_id;
+  assign io_axiOut_w_valid = cmdStage_fork_io_outputs_1_valid;
+  assign io_axiOut_w_payload_data = cmdStage_fork_io_outputs_1_payload_data;
+  assign io_axiOut_w_payload_strb = cmdStage_fork_io_outputs_1_payload_byteEnables;
   assign io_axiOut_w_payload_last = 1'b1;
   always @(*) begin
     io_axiOut_b_ready = axiB_staged_ready;
-    if(when_Stream_l477_5) begin
+    if(when_Stream_l477_3) begin
       io_axiOut_b_ready = 1'b1;
     end
   end
 
-  assign when_Stream_l477_5 = (! axiB_staged_valid);
+  assign when_Stream_l477_3 = (! axiB_staged_valid);
   assign axiB_staged_valid = io_axiOut_b_rValid;
   assign axiB_staged_payload_id = io_axiOut_b_rData_id;
   assign axiB_staged_payload_resp = io_axiOut_b_rData_resp;
@@ -29345,8 +29285,6 @@ module SplitGmbToAxi4Bridge (
       io_gmbIn_read_cmd_rValid <= 1'b0;
       io_axiOut_r_rValid <= 1'b0;
       io_gmbIn_write_cmd_rValid <= 1'b0;
-      cmdStage_fork_io_outputs_0_rValid <= 1'b0;
-      cmdStage_fork_io_outputs_1_rValid <= 1'b0;
       io_axiOut_b_rValid <= 1'b0;
     end else begin
       if(io_gmbIn_read_cmd_ready) begin
@@ -29357,12 +29295,6 @@ module SplitGmbToAxi4Bridge (
       end
       if(io_gmbIn_write_cmd_ready) begin
         io_gmbIn_write_cmd_rValid <= io_gmbIn_write_cmd_valid;
-      end
-      if(cmdStage_fork_io_outputs_0_ready) begin
-        cmdStage_fork_io_outputs_0_rValid <= cmdStage_fork_io_outputs_0_valid;
-      end
-      if(cmdStage_fork_io_outputs_1_ready) begin
-        cmdStage_fork_io_outputs_1_rValid <= cmdStage_fork_io_outputs_1_valid;
       end
       if(io_axiOut_b_ready) begin
         io_axiOut_b_rValid <= io_axiOut_b_valid;
@@ -29387,20 +29319,6 @@ module SplitGmbToAxi4Bridge (
       io_gmbIn_write_cmd_rData_byteEnables <= io_gmbIn_write_cmd_payload_byteEnables;
       io_gmbIn_write_cmd_rData_id <= io_gmbIn_write_cmd_payload_id;
       io_gmbIn_write_cmd_rData_last <= io_gmbIn_write_cmd_payload_last;
-    end
-    if(cmdStage_fork_io_outputs_0_ready) begin
-      cmdStage_fork_io_outputs_0_rData_address <= cmdStage_fork_io_outputs_0_payload_address;
-      cmdStage_fork_io_outputs_0_rData_data <= cmdStage_fork_io_outputs_0_payload_data;
-      cmdStage_fork_io_outputs_0_rData_byteEnables <= cmdStage_fork_io_outputs_0_payload_byteEnables;
-      cmdStage_fork_io_outputs_0_rData_id <= cmdStage_fork_io_outputs_0_payload_id;
-      cmdStage_fork_io_outputs_0_rData_last <= cmdStage_fork_io_outputs_0_payload_last;
-    end
-    if(cmdStage_fork_io_outputs_1_ready) begin
-      cmdStage_fork_io_outputs_1_rData_address <= cmdStage_fork_io_outputs_1_payload_address;
-      cmdStage_fork_io_outputs_1_rData_data <= cmdStage_fork_io_outputs_1_payload_data;
-      cmdStage_fork_io_outputs_1_rData_byteEnables <= cmdStage_fork_io_outputs_1_payload_byteEnables;
-      cmdStage_fork_io_outputs_1_rData_id <= cmdStage_fork_io_outputs_1_payload_id;
-      cmdStage_fork_io_outputs_1_rData_last <= cmdStage_fork_io_outputs_1_payload_last;
     end
     if(io_axiOut_b_ready) begin
       io_axiOut_b_rData_id <= io_axiOut_b_payload_id;
