@@ -32,114 +32,121 @@ class SplitGmbToAxi4Bridge(
     val axiOut = master(Axi4(axiConfig))
   }
 
-  // --- Read Channel ---
-  val gmbReadCmd = if (cmdInStage) io.gmbIn.read.cmd.stage() else io.gmbIn.read.cmd
-  val axiAr = io.axiOut.ar
-  val arCmd = Stream(Axi4Ar(axiConfig))
+  // ====================================================================
+  // 读通道 (Read Channel)
+  // ====================================================================
+  val gmbReadCmdIn = io.gmbIn.read.cmd
+  val axiArOut = io.axiOut.ar
+  val gmbReadRspOut = io.gmbIn.read.rsp
+  val axiRIn = io.axiOut.r
 
-  arCmd.valid := gmbReadCmd.valid
-  gmbReadCmd.ready := arCmd.ready
+  // --- 读请求 ---
+  val gmbReadCmdBuffered = gmbReadCmdIn.queue(2)
   
-  arCmd.payload.addr := gmbReadCmd.address.resized
-  if (gmbConfig.useId) {
-    require(axiAr.id.getWidth >= gmbReadCmd.id.getWidth, "AXI4 ID width is smaller than GMB ID width")
-    arCmd.payload.id := gmbReadCmd.id.resized
-  } else {
-    if (axiConfig.useId) arCmd.payload.id := 0
+  // +++ CORRECTED: 使用不带参数的 translateWith lambda 语法 +++
+  axiArOut << gmbReadCmdBuffered.translateWith {
+    val ar = Axi4Ar(axiConfig)
+    // 直接引用 gmbReadCmdBuffered.payload
+    ar.addr := gmbReadCmdBuffered.payload.address.resized
+    ar.len := 0
+    ar.size := log2Up(gmbConfig.dataWidth.value / 8)
+    ar.setBurstINCR()
+    if (gmbConfig.useId) {
+      require(axiArOut.id.getWidth >= gmbReadCmdBuffered.payload.id.getWidth, "AXI4 ID width is smaller than GMB ID width")
+      ar.id := gmbReadCmdBuffered.payload.id.resized
+    } else if (axiConfig.useId) { ar.id := 0 }
+    ar
   }
-  arCmd.payload.len := 0
-  arCmd.payload.size := log2Up(gmbConfig.dataWidth.value / 8)
-  arCmd.payload.setBurstINCR()
 
-  axiAr << arCmd.stage()
-
-  val gmbReadRsp = io.gmbIn.read.rsp
-  val axiR = if (rspInStage) io.axiOut.r.stage() else io.axiOut.r
+  // --- 读响应 ---
+  val axiR_buffered = axiRIn.queue(2)
   
-  // +++ CHANGED: Create an intermediate, registered stream for the response +++
-  // This ensures the logic driving gmbReadRsp is contained within the bridge.
-  val gmbReadRspInternal = Stream(SplitGmbReadRsp(gmbConfig))
-  gmbReadRspInternal.valid := axiR.valid
-  gmbReadRspInternal.payload.data := axiR.data
-  if (gmbConfig.useId) {
-    require(gmbReadRsp.id.getWidth >= axiR.id.getWidth, "GMB ID width is smaller than AXI4 ID width")
-    gmbReadRspInternal.payload.id := axiR.id.resized
+  // +++ CORRECTED: 使用不带参数的 translateWith lambda 语法 +++
+  gmbReadRspOut << axiR_buffered.translateWith {
+    val rsp = SplitGmbReadRsp(gmbConfig)
+    // 直接引用 axiR_buffered.payload
+    rsp.data := axiR_buffered.payload.data
+    if (gmbConfig.useId) {
+      require(gmbReadRspOut.id.getWidth >= axiR_buffered.payload.id.getWidth, "GMB ID width is smaller than AXI4 ID width")
+      rsp.id := axiR_buffered.payload.id.resized
+    }
+    rsp.error := !axiR_buffered.payload.isOKAY()
+    rsp
   }
-  gmbReadRspInternal.payload.error := !axiR.isOKAY()
-  axiR.ready := gmbReadRspInternal.ready
-  
-  // Connect the registered internal stream to the final output
-  gmbReadRsp << gmbReadRspInternal.stage()
-
 
   if(enableReadLog) {
     val cycle = Reg(UInt(32 bits)) init(0)
     cycle := cycle + 1
     report(
       L"Bridge $instanceId Cycle ${cycle}: Read Channel\n" :+
-      L"  GMB Read: v=${gmbReadCmd.valid} r=${gmbReadCmd.ready} fire=${gmbReadCmd.fire} addr=${gmbReadCmd.address}\n" :+
-      L"  AXI AR: v=${axiAr.valid} r=${axiAr.ready} fire=${axiAr.fire}\n" :+
-      L"  AXI R: v=${axiR.valid} r=${axiR.ready} fire=${axiR.fire}"
+      L"  GMB Read In:  v=${gmbReadCmdIn.valid} r=${gmbReadCmdIn.ready} fire=${gmbReadCmdIn.fire} addr=${gmbReadCmdIn.address}\n" :+
+      L"  AXI AR Out:   v=${axiArOut.valid} r=${axiArOut.ready} fire=${axiArOut.fire}\n" :+
+      L"  AXI R In:     v=${axiRIn.valid} r=${axiRIn.ready} fire=${axiRIn.fire}"
     )
   }
 
   // ====================================================================
   // 写通道 (Write Channel)
   // ====================================================================
-  val gmbWriteCmd = io.gmbIn.write.cmd
-  val axiAw = io.axiOut.aw
-  val axiW = io.axiOut.w
-  val axiB = io.axiOut.b
+  val gmbWriteCmdIn = io.gmbIn.write.cmd
+  val gmbWriteRspOut = io.gmbIn.write.rsp
+  val axiAwOut = io.axiOut.aw
+  val axiWOut = io.axiOut.w
+  val axiBIn = io.axiOut.b
 
-  val cmdStage = gmbWriteCmd.stage()
-  val fork = StreamFork(cmdStage, 2)
-
+  // --- 写请求 ---
+  val gmbWriteCmdBuffered = gmbWriteCmdIn.queue(2)
+  val fork = StreamFork(gmbWriteCmdBuffered, 2)
   val awStream = fork(0)
   val wStream = fork(1)
 
-  axiAw.valid := awStream.valid
-  awStream.ready := axiAw.ready
-  axiAw.payload.addr := awStream.address.resized
-  axiAw.payload.len  := 0
-  axiAw.payload.size := log2Up(gmbConfig.dataWidth.value / 8)
-  axiAw.payload.setBurstINCR()
-  if (gmbConfig.useId) {
-    axiAw.payload.id := awStream.id.resized
-  } else if (axiConfig.useId) {
-    axiAw.payload.id := 0
+  // +++ CORRECTED: 使用不带参数的 translateWith lambda 语法 +++
+  axiAwOut << awStream.translateWith {
+    val aw = Axi4Aw(axiConfig)
+    // 直接引用 awStream.payload
+    aw.addr := awStream.payload.address.resized
+    aw.len := 0
+    aw.size := log2Up(gmbConfig.dataWidth.value / 8)
+    aw.setBurstINCR()
+    if (gmbConfig.useId) { aw.id := awStream.payload.id.resized } 
+    else if (axiConfig.useId) { aw.id := 0 }
+    aw
   }
 
-  axiW.valid := wStream.valid
-  wStream.ready := axiW.ready
-  axiW.payload.data := wStream.data
-  axiW.payload.strb := wStream.byteEnables
-  axiW.payload.last := True
-
-  // --- 写响应通道 (Write Response Channel) ---
-  val gmbWriteRsp = io.gmbIn.write.rsp
-  val axiB_staged = if (rspInStage) axiB.stage() else axiB
-  
-  // +++ CHANGED: Apply the same robust staging pattern as the read channel +++
-val gmbWriteRspInternal = Stream(SplitGmbWriteRsp(gmbConfig))
-  gmbWriteRspInternal.valid := axiB_staged.valid
-  gmbWriteRspInternal.payload.error := !axiB_staged.isOKAY()
-  if(gmbConfig.useId) {
-    require(gmbWriteRsp.payload.id.getWidth >= axiB_staged.id.getWidth, "GMB ID width is smaller than AXI4 ID width")
-    gmbWriteRspInternal.payload.id := axiB_staged.id.resized
+  // +++ CORRECTED: 使用不带参数的 translateWith lambda 语法 +++
+  axiWOut << wStream.translateWith {
+    val w = Axi4W(axiConfig)
+    // 直接引用 wStream.payload
+    w.data := wStream.payload.data
+    w.strb := wStream.payload.byteEnables
+    w.last := True
+    w
   }
-  axiB_staged.ready := gmbWriteRspInternal.ready
-  
-  gmbWriteRsp << gmbWriteRspInternal.stage()
 
+  // --- 写响应 ---
+  val axiB_buffered = axiBIn.queue(2)
+  
+  // +++ CORRECTED: 使用不带参数的 translateWith lambda 语法 +++
+  gmbWriteRspOut << axiB_buffered.translateWith {
+    val rsp = SplitGmbWriteRsp(gmbConfig)
+    // 直接引用 axiB_buffered.payload
+    rsp.error := !axiB_buffered.payload.isOKAY()
+    if(gmbConfig.useId) {
+      require(gmbWriteRspOut.payload.id.getWidth >= axiB_buffered.payload.id.getWidth, "GMB ID width is smaller than AXI4 ID width")
+      rsp.id := axiB_buffered.payload.id.resized
+    }
+    rsp
+  }
+  
   if(enableWriteLog) {
     val cycle = Reg(UInt(32 bits)) init(0)
     cycle := cycle + 1
     report(
       L"Bridge $instanceId Cycle ${cycle}: Write Channel\n" :+
-      L"  GMB Write: v=${gmbWriteCmd.valid} r=${gmbWriteCmd.ready} fire=${gmbWriteCmd.fire} addr=${gmbWriteCmd.address}\n" :+
-      L"  AXI AW: v=${axiAw.valid} r=${axiAw.ready} fire=${axiAw.fire} id=${axiAw.payload.id}\n" :+
-      L"  AXI W: v=${axiW.valid} r=${axiW.ready} fire=${axiW.fire} data=${axiW.payload.data} strb=${axiW.payload.strb}\n" :+
-      L"  AXI B: v=${axiB.valid} r=${axiB.ready} fire=${axiB.fire} id=${axiB.id} error=${axiB.isSLVERR()}"
+      L"  GMB Write In: v=${gmbWriteCmdIn.valid} r=${gmbWriteCmdIn.ready} fire=${gmbWriteCmdIn.fire} addr=${gmbWriteCmdIn.address}\n" :+
+      L"  AXI AW Out:   v=${axiAwOut.valid} r=${axiAwOut.ready} fire=${axiAwOut.fire} id=${axiAwOut.payload.id}\n" :+
+      L"  AXI W Out:    v=${axiWOut.valid} r=${axiWOut.ready} fire=${axiWOut.fire} data=${axiWOut.payload.data} strb=${axiWOut.payload.strb}\n" :+
+      L"  AXI B In:     v=${axiBIn.valid} r=${axiBIn.ready} fire=${axiBIn.fire} id=${axiBIn.id} error=${axiBIn.isSLVERR()}"
     )
   }
 }
