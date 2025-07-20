@@ -1,12 +1,11 @@
 // Generator : SpinalHDL dev    git head : 49a99dae7b6ed938ae50042417514f24dcaeaaa8
 // Component : CoreNSCSCC
-// Git hash  : fa08b90e1de0c9a3d7b4777b1e2cb85c6ecbee63
+// Git hash  : dd537c4d35cb30825c433ade7592a36407c62154
 
 `timescale 1ns/1ps
 
 module CoreNSCSCC (
   input  wire          clk,
-  input  wire          reset,
   output wire [7:0]    io_dpy0,
   output wire [7:0]    io_dpy1,
   output wire [15:0]   io_leds,
@@ -53,7 +52,8 @@ module CoreNSCSCC (
   output wire [3:0]    io_uart_w_bits_strb,
   output wire          io_uart_w_bits_last,
   output wire          io_uart_w_valid,
-  output wire          io_uart_b_ready
+  output wire          io_uart_b_ready,
+  input  wire          reset
 );
   localparam BranchCondition_NUL = 5'd0;
   localparam BranchCondition_EQ = 5'd1;
@@ -7859,7 +7859,6 @@ module CoreNSCSCC (
   );
   mult_gen_0 multiplierBlackbox (
     .CLK (clk                       ), //i
-    .RST (reset                     ), //i
     .A   (multiplierBlackbox_A[31:0]), //i
     .B   (multiplierBlackbox_B[31:0]), //i
     .P   (multiplierBlackbox_P[63:0])  //o
@@ -25476,10 +25475,10 @@ module CoreNSCSCC (
       if(mul_s2_Execute_isFiring) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // MulEuPlugin.scala:L88
+            assert(1'b0); // MulEuPlugin.scala:L87
           `else
             if(!1'b0) begin
-              $display("NOTE(MulEuPlugin.scala:88):  [normal] MulEuPlugin (MulEU) S2 Firing: RobPtr=%x, src1=%x, src2=%xmulDivCtrl=MulDivCtrlFlags: isDiv=%x isSigned=%x isWordOp=%x", _zz_MulEU_MulEuPlugin_euResult_uop_robPtr_6, _zz_A, _zz_B, _zz_19, _zz_20, _zz_21); // MulEuPlugin.scala:L88
+              $display("NOTE(MulEuPlugin.scala:87):  [normal] MulEuPlugin (MulEU) S2 Firing: RobPtr=%x, src1=%x, src2=%xmulDivCtrl=MulDivCtrlFlags: isDiv=%x isSigned=%x isWordOp=%x", _zz_MulEU_MulEuPlugin_euResult_uop_robPtr_6, _zz_A, _zz_B, _zz_19, _zz_20, _zz_21); // MulEuPlugin.scala:L87
             end
           `endif
         `endif
@@ -25487,10 +25486,10 @@ module CoreNSCSCC (
       if(mul_s7_Writeback_isFiring) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // MulEuPlugin.scala:L106
+            assert(1'b0); // MulEuPlugin.scala:L105
           `else
             if(!1'b0) begin
-              $display("NOTE(MulEuPlugin.scala:106):  [normal] MulEuPlugin (MulEU) S7 Firing: RobPtr=%x, Result=%xmulDivCtrl=MulDivCtrlFlags: isDiv=%x isSigned=%x isWordOp=%x", _zz_MulEU_MulEuPlugin_euResult_uop_robPtr_5, _zz_MulEU_MulEuPlugin_euResult_data, _zz_16, _zz_17, _zz_18); // MulEuPlugin.scala:L106
+              $display("NOTE(MulEuPlugin.scala:105):  [normal] MulEuPlugin (MulEU) S7 Firing: RobPtr=%x, Result=%xmulDivCtrl=MulDivCtrlFlags: isDiv=%x isSigned=%x isWordOp=%x", _zz_MulEU_MulEuPlugin_euResult_uop_robPtr_5, _zz_MulEU_MulEuPlugin_euResult_data, _zz_16, _zz_17, _zz_18); // MulEuPlugin.scala:L105
             end
           `endif
         `endif
