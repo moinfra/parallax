@@ -37,7 +37,9 @@ case class SqQueryRsp(lsuCfg: LsuConfig) extends Bundle with Formattable {
 
     // 依赖相关 (Disambiguation)
     val olderStoreHasUnknownAddress = Bool() // 是否存在一个更早的、地址未知的store
-    val olderStoreMatchingAddress = Bool() // 是否存在一个更早的、地址匹配但数据未就绪的store
+    // *** 修改开始 ***
+    val olderStoreDataNotReady = Bool() // 是否存在一个更早的、地址匹配但数据未就绪的store
+    // *** 修改结束 ***
 
     def format: Seq[Any] = {
         Seq(
@@ -45,7 +47,9 @@ case class SqQueryRsp(lsuCfg: LsuConfig) extends Bundle with Formattable {
             L"hit=${hit},",
             L"data=${data},",
             L"olderStoreHasUnknownAddress=${olderStoreHasUnknownAddress},",
-            L"olderStoreMatchingAddress=${olderStoreMatchingAddress}",
+            // *** 修改开始 ***
+            L"olderStoreDataNotReady=${olderStoreDataNotReady}", // Changed name
+            // *** 修改结束 ***
             L")"
         )
     }
@@ -476,6 +480,40 @@ class StoreBufferPlugin(
         // --- Commit and Flush Logic ---
         val commitInfoFromRob = robService.getCommitSlots(pipelineConfig.commitWidth)
         
+        // 创建一个Bundle来存储一个周期的所有提交信息
+        case class CommitUpdateInfo() extends Bundle {
+            val validMask = Bits(sbDepth bits) // 每个bit对应一个SB槽位是否被提交
+            def setDefault(initValue: Int = 0): this.type = {
+                validMask := initValue
+                this
+            }
+        }
+
+        val commitUpdateInfo = CommitUpdateInfo()
+        commitUpdateInfo.validMask.clearAll() // 默认无提交
+
+        // 组合逻辑：计算本周期的提交事件，填充commitUpdateInfo
+        for(i <- 0 until sbDepth) {
+            val slotIsCommittedThisCycle = False
+            when(slots(i).valid && !slots(i).isCommitted) {
+                for(j <- 0 until pipelineConfig.commitWidth){
+                    when(commitInfoFromRob(j).canCommit &&
+                         commitInfoFromRob(j).entry.payload.uop.robPtr === slots(i).robPtr &&
+                         (commitInfoFromRob(j).entry.payload.uop.decoded.uopCode === BaseUopCode.STORE ||
+                          /*commitInfoFromRob(j).entry.payload.uop.isFlush*/ False) && // 提交也可以是Flush指令
+                         !commitInfoFromRob(j).entry.status.hasException) {
+                        
+                        slotIsCommittedThisCycle := True
+                        if(enableLog) report(L"[SQ] COMMIT_DETECT: robPtr=${slots(i).robPtr} (slotIdx=${i}) will be marked as committed next cycle.")
+                    }
+                }
+            }
+            commitUpdateInfo.validMask(i) := slotIsCommittedThisCycle
+        }
+
+        // 时序逻辑：锁存本周期的提交信息，供下一周期使用
+        val registeredCommitUpdate = RegNext(commitUpdateInfo).init(CommitUpdateInfo().setDefault())
+        
         for(i <- 0 until sbDepth){
             // 检查这个槽位是否在此周期被延迟的冲刷信号命中
             val toBeFlushedByRob = registeredFlush.valid && 
@@ -490,16 +528,11 @@ class StoreBufferPlugin(
                 if(enableLog) report(L"[SQ] FLUSH (Exec): Invalidating slotIdx=${i} (robPtr=${slots(i).robPtr}) by ROB flush.")
             } .elsewhen(slots(i).valid && !slots(i).isCommitted) {
                 // 只有在不被冲刷的前提下，才检查提交信号
-                for(j <- 0 until pipelineConfig.commitWidth){
-                    when(commitInfoFromRob(j).canCommit &&
-                         commitInfoFromRob(j).entry.payload.uop.robPtr === slots(i).robPtr &&
-                         (commitInfoFromRob(j).entry.payload.uop.decoded.uopCode === BaseUopCode.STORE ||
-                          /*commitInfoFromRob(j).entry.payload.uop.isFlush*/ False) && // 提交也可以是Flush指令
-                         !commitInfoFromRob(j).entry.status.hasException) {
-                        
-                        slotsAfterUpdates(i).isCommitted := True
-                        if(enableLog) report(L"[SQ] COMMIT_SIGNAL: robPtr=${slots(i).robPtr} (slotIdx=${i}) marked as committed.")
-                    }
+
+                // 使用上一周期锁存的提交信息来更新 isCommitted
+                when(registeredCommitUpdate.validMask(i)) {
+                    slotsAfterUpdates(i).isCommitted := True
+                    if(enableLog) report(L"[SQ] COMMIT_EXEC: robPtr=${slots(i).robPtr} (slotIdx=${i}) marked as committed based on registered info.")
                 }
             }
         }
@@ -540,11 +573,6 @@ class StoreBufferPlugin(
                 }
             }
         } 
-         // FIXME: 这个 popInvalidSlot 条件过于激进！ 
-            // 如果 slots(0) 因为某种外部原因而 valid=0，但它实际上是一个需要被响应机制清除其 waitRsp 标志的事务，
-            // 那么 POP_INVALID_SLOT 可能会在 mmioResponseForHead 有机会将其 waitRsp 清除之前就将其弹出，导致响应无法被消费。
-            // 这样内存控制器会一直试图发送这个响应，导致卡死
-            // 不对，如果 waitRsp 是真的，那么 popHeadSlot.valid 肯定是真的。因为冲刷也必须等待 waitRsp  响应之后。而一个等待 等待 waitRsp  的条目一定是 有效条目。
         .elsewhen(!popHeadSlot.valid && !slots.tail.map(_.valid).orR) { // 如果头部无效，且其余槽位都无效，则清空队列 (避免死锁)
             // This condition is for when the head slot becomes invalid (e.g. by full flush)
             // and we need to shift the queue. This is a cleanup pop.
@@ -589,19 +617,21 @@ class StoreBufferPlugin(
                 // 一个槽位只有在它本身有效，并且它不是一个正在被冲刷的推测性条目时，才是可见的。
                 // 此外，只有已提交或在转发时可用的Store（如在Commit后的Forwarding阶段）才可用于转发。
                 // 但在SB，未Commit的Store也可以转发给Load，只要其地址已知且不等待Disambiguation。
+                // *** 修改开始 ***
                 val isSlotVisibleAndForwardable = slot.valid && 
                                                   !slot.hasEarlyException && // 早期异常的Store不提供数据
                                                   !slot.isFlush && // Flush指令不提供数据
                                                   isOlder(slot.robPtr, query.payload.robPtr) && // Store必须比Load旧
-                                                  // NOTE: isWaitingForRefill / isWaitingForWb 的 Store 在内存中数据不确定，不能转发
-                                                  !slot.isWaitingForRefill && !slot.isWaitingForWb
+                                                  // NOTE: isWaitingForRefill / isWaitingForWb / waitRsp 的 Store 在内存中数据不确定，不能转发
+                                                  !slot.waitRsp && !slot.isWaitingForRefill && !slot.isWaitingForWb // 只有数据稳定的才能转发
+                // *** 修改结束 ***
 
                 when(isSlotVisibleAndForwardable) {
                     val loadWordAddr = query.payload.address(pcAddrWidth-1 downto wordAddrBits)
                     val storeWordAddr = slot.addr(pcAddrWidth-1 downto wordAddrBits)
                     val canForward = !slot.hasEarlyException &&
-                                     isOlder(slot.robPtr, query.payload.robPtr) &&
-                                     (loadWordAddr === storeWordAddr)
+                                     isOlder(slot.robPtr, query.payload.robPtr) && // 再次确认旧于Load
+                                     (loadWordAddr === storeWordAddr) // 地址匹配，字粒度
                     
                     when(canForward) {
                         for (k <- 0 until dataWidthBytes) {
@@ -617,53 +647,64 @@ class StoreBufferPlugin(
 
             val allRequiredBytesHit = (forwardingResult.hitMask & loadMask) === loadMask
             rsp.data := forwardingResult.data
-            val hasSomeOverlap = (forwardingResult.hitMask & loadMask).orR
+            // val hasSomeOverlap = (forwardingResult.hitMask & loadMask).orR // Not used directly in final hit logic.
 
             // --- 依赖关系检查 (Disambiguation) ---
             rsp.olderStoreHasUnknownAddress := False // 简化：假设Store地址在写入SB时已是已知
-            rsp.olderStoreMatchingAddress := False
-            val mustStall = rsp.olderStoreHasUnknownAddress || rsp.olderStoreMatchingAddress
 
-            // 初始化rsp.hit
-            rsp.hit  := query.valid && allRequiredBytesHit && !mustStall
-            if(enableLog) report(L"[SQ-Fwd] Forwarding? hit=${rsp.hit}, because query.valid=${query.valid}, allRequiredBytesHit=${allRequiredBytesHit}")
-            
-            // 检查是否存在与当前Load冲突的、比Load旧的Store
+            // *** 修改开始 ***
+
+            // 1. 计算 "数据未就绪" (Data Not Ready) 的 Stall 条件 (和之前一样，没有改动)
+            val dataNotReadyStall = Bool()
+            dataNotReadyStall := False
+
+            // This signal checks if *any* older, overlapping store exists, regardless of its data readiness.
+            val hasOlderOverlappingStore = Bool()
+            hasOlderOverlappingStore := False
+
             for(slot <- slots) {
-                val loadWordAddr = query.payload.address(pcAddrWidth-1 downto wordAddrBits)
-                val storeWordAddr = slot.addr(pcAddrWidth-1 downto wordAddrBits)
-                
-                // 一个槽位只有在它本身有效，并且它没有被冲刷时，才可能导致冲突
-                val isSlotActiveForDisambiguation = slot.valid && 
-                                                    !slot.hasEarlyException && // 异常Store不参与普通Disambiguation
-                                                    !slot.isFlush // Flush指令不参与普通Disambiguation
+                val isSlotActiveForDisambiguation = slot.valid &&
+                                                    !slot.hasEarlyException &&
+                                                    !slot.isFlush
 
                 when(isSlotActiveForDisambiguation) {
-                    val isOlderAndPotentiallyConflicting = isOlder(slot.robPtr, query.payload.robPtr) // Store必须比Load旧
-                    val isAddressOverlap = (loadWordAddr === storeWordAddr) // 地址匹配（字粒度）
+                    val isOlderAndPotentiallyConflicting = isOlder(slot.robPtr, query.payload.robPtr)
+                    val loadWordAddr = query.payload.address(pcAddrWidth-1 downto wordAddrBits)
+                    val storeWordAddr = slot.addr(pcAddrWidth-1 downto wordAddrBits)
+                    val isAddressOverlap = (loadWordAddr === storeWordAddr)
 
                     when(isOlderAndPotentiallyConflicting && isAddressOverlap) {
-                        val fullySatisfiedByThisStore = (slot.be & loadMask) === loadMask // 这个Store是否完全覆盖了Load所需的所有字节
-                        val partialSatisfiedByThisStore = (slot.be & loadMask).orR // 这个Store是否部分覆盖了Load所需字节
-                        
-                        when(!fullySatisfiedByThisStore && partialSatisfiedByThisStore) {
-                            // 存在部分重叠但未完全覆盖的旧Store，需要stall
-                            if(enableLog) report(L"[SQ-Fwd] STALL_PARTIAL_OVERLAP: slot=${slot.robPtr} (LoadAddr=${loadWordAddr}, StoreAddr=${storeWordAddr})")
-                            rsp.olderStoreMatchingAddress := True
-                        }
-                        
+                        hasOlderOverlappingStore := True // 标记存在旧的、地址重叠的Store
+
                         when(slot.waitRsp || slot.isWaitingForRefill || slot.isWaitingForWb) {
-                            // 如果旧Store地址已知，但其数据仍未写入缓存/MMIO，且与当前Load地址匹配，则需要等待
-                            if(enableLog) report(L"[SQ-Fwd] STALL_DATA_NOT_READY: slot=${slot.robPtr} (LoadAddr=${loadWordAddr}, StoreAddr=${storeWordAddr})")
-                            rsp.olderStoreMatchingAddress := True
+                            if(enableLog) report(L"[SQ-Fwd] STALL_DATA_NOT_READY (Slot Status): slot=${slot.robPtr} (LoadAddr=${loadWordAddr}, StoreAddr=${storeWordAddr})")
+                            dataNotReadyStall := True
                         }
                     }
                 }
             }
 
-            // AXI ID is critical for checking if the response is actually for the head.
-            // If it's a strict FIFO, any response that comes back MUST be for the head.
-            // If it's not for the head, it's a fundamental AXI infrastructure problem or ID collision.
+            // 2. 计算 "数据覆盖不足" (Insufficient Coverage) 的 Stall 条件
+            //    只有在 `query.valid` 且 `hasOlderOverlappingStore` 为 `true`
+            //    且 `allRequiredBytesHit` 为 `false` 时才触发。
+            val insufficientCoverageStall = Bool()
+            insufficientCoverageStall := query.valid && hasOlderOverlappingStore && !allRequiredBytesHit
+
+            // 最终的 olderStoreDataNotReady 是这两种 Stall 条件的逻辑或
+            rsp.olderStoreDataNotReady := dataNotReadyStall || insufficientCoverageStall
+            // *** 修改结束 ***
+
+            // A load hits if:
+            // 1. It's a valid query.
+            // 2. All required bytes are covered by forwarding from older, available stores.
+            // 3. There are no older stores with unknown addresses (simplified to false).
+            // 4. There are no older, overlapping stores whose data is still undetermined/not ready,
+            //    OR if the available older stores do not fully cover the load.
+            rsp.hit  := query.valid && allRequiredBytesHit && !rsp.olderStoreHasUnknownAddress && !rsp.olderStoreDataNotReady
+
+            // *** 修改结束 ***
+            if(enableLog) report(L"[SQ-Fwd] Forwarding? hit=${rsp.hit}, because query.valid=${query.valid}, allRequiredBytesHit=${allRequiredBytesHit}, olderStoreHasUnknownAddress=${rsp.olderStoreHasUnknownAddress}, olderStoreDataNotReady=${rsp.olderStoreDataNotReady}") // Adjusted log message
+            
             when(query.valid) {
                 // debug print
                 if(enableLog) report(L"[SQ-Fwd] Query: ${query.payload.format}")

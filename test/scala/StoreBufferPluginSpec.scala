@@ -59,6 +59,8 @@ class StoreBufferTestConnectionPlugin(
     robWbPort.robPtr := tbIo.robWritebackIn.payload.robPtr
     robWbPort.exceptionOccurred := tbIo.robWritebackIn.payload.hasException
     robWbPort.exceptionCodeIn := tbIo.robWritebackIn.payload.exceptionCode
+    robWbPort.isMispredictedBranch.assignDontCare()
+    robWbPort.result.assignDontCare()
 
     // Monitor and Acknowledge ROB commit
     val commitSlots = robService.getCommitSlots(pCfg.commitWidth)
@@ -109,7 +111,7 @@ class StoreBufferFullIntegrationTestBench(
       new ROBPlugin[RenamedUop](pCfg, HardType(RenamedUop(pCfg)), () => RenamedUop(pCfg).setDefault()),
       new DataCachePlugin(dCacheCfg),
       new StoreBufferPlugin(pCfg, lsuCfg, dCacheParams, sbDepth, Some(mmioConfig)),
-      new TestOnlyMemSystemPlugin(axiConfig),
+      new TestOnlyMemSystemPlugin(axiConfig, Some(mmioConfig)),
       new StoreBufferTestConnectionPlugin(io, pCfg, dCacheCfg)
     )
   )
@@ -321,12 +323,12 @@ class TestHelper(dut: StoreBufferFullIntegrationTestBench)(implicit cd: ClockDom
     sq_cmd.payload.robPtr #= loadRobPtr
     sq_cmd.payload.address #= loadAddr
     sq_cmd.payload.size #= loadSize
-
+    sleep(100)
     // In the SAME cycle, check the response.
     // waitSampling(0) or just proceeding is fine, as sim steps are discrete.
     val rsp = dut.io.sqQueryPort.rsp
     val checkComment = if (comment.nonEmpty) s" ($comment)" else ""
-    sleep(1)
+
     // Perform assertions immediately
     assert(
       rsp.hit.toBoolean == shouldHit,
@@ -339,8 +341,8 @@ class TestHelper(dut: StoreBufferFullIntegrationTestBench)(implicit cd: ClockDom
       )
     }
     assert(
-      rsp.olderStoreMatchingAddress.toBoolean == shouldHaveDep,
-      s"RSP.olderStoreMatchingAddress mismatch$checkComment. Got ${rsp.olderStoreMatchingAddress.toBoolean}, expected $shouldHaveDep"
+      rsp.olderStoreDataNotReady.toBoolean == shouldHaveDep,
+      s"RSP.olderStoreDataNotReady mismatch$checkComment. Got ${rsp.olderStoreDataNotReady.toBoolean}, expected $shouldHaveDep"
     )
 
     // Wait one cycle with the command de-asserted to clean up for the next test
@@ -451,7 +453,7 @@ class StoreBufferPluginSpec extends CustomSpinalSimFunSuite {
   def createAxi4Config(pCfg: PipelineConfig): Axi4Config = Axi4Config(
     addressWidth = pCfg.xlen,
     dataWidth = pCfg.xlen,
-    idWidth = 1,
+    idWidth = 8,
     useLock = false,
     useCache = false,
     useProt = true,
@@ -474,7 +476,7 @@ class StoreBufferPluginSpec extends CustomSpinalSimFunSuite {
       .compile(new StoreBufferFullIntegrationTestBench(pCfg, lsuCfg, DEFAULT_SB_DEPTH, dCacheCfg, axiConfig))
       .doSim { dut =>
         implicit val cd = dut.clockDomain.get
-        dut.clockDomain.forkStimulus(10)
+        dut.clockDomain.forkStimulus(300 MHz)
 
         val helper = new TestHelper(dut)
         helper.init()
@@ -898,6 +900,7 @@ class StoreBufferPluginSpec extends CustomSpinalSimFunSuite {
             )
             helper.euSignalCompletion(robPtr)
             helper.waitForCommitAndAck(robPtr)
+
             // This log is less noisy and more informative
             if ((i + 1) % 5 == 0) {
               println(s"[Main] Processed instruction ${i + 1}/${storesToIssue}")
