@@ -257,7 +257,7 @@ class InstructionFetchUnitSpec extends CustomSpinalSimFunSuite {
       pcWidth = pCfg.xlen bits,
       instructionWidth = instrWidthBits bits,
       fetchGroupDataWidth = fetchGroupWidthBits bits,
-      enableLog = true
+      enableLog = false
     )
   }
 

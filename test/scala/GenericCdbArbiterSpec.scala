@@ -100,8 +100,8 @@ class GenericCdbArbiterSpec extends CustomSpinalSimFunSuite {
 
   case class ArbiterTestParams(numInputs: Int, numOutputs: Int, enableLog: Boolean = false)
   val testParams1_1 = ArbiterTestParams(numInputs = 1, numOutputs = 1, enableLog = false) // Less log for passing tests
-  val testParams4_2 = ArbiterTestParams(numInputs = 4, numOutputs = 2, enableLog = true)
-  val testParams2_4 = ArbiterTestParams(numInputs = 2, numOutputs = 4, enableLog = true)
+  val testParams4_2 = ArbiterTestParams(numInputs = 4, numOutputs = 2, enableLog = false)
+  val testParams2_4 = ArbiterTestParams(numInputs = 2, numOutputs = 4, enableLog = false)
   val testParams0_1 = ArbiterTestParams(numInputs = 0, numOutputs = 1, enableLog = false)
 
   val defaultTimeout = 200 
@@ -176,7 +176,7 @@ class GenericCdbArbiterSpec extends CustomSpinalSimFunSuite {
   }
 
   test("GenericCdbArbiter - 4 Inputs, 2 Outputs - Arbitration and Load Balancing (Revised Driver)") {
-    val p = testParams4_2.copy(enableLog = true) 
+    val p = testParams4_2.copy(enableLog = false) 
     val payloadHT = HardType(DummyMsg())
     simConfig
       .compile(new GenericCdbArbiterTestBench[UInt, DummyMsg](payloadHT, p.numInputs, p.numOutputs, p.enableLog))
@@ -236,7 +236,7 @@ class GenericCdbArbiterSpec extends CustomSpinalSimFunSuite {
   }
 
   test("GenericCdbArbiter - 2 Inputs, 4 Outputs - Some outputs unused (Revised Driver)") {
-    val p = testParams2_4.copy(enableLog = true)
+    val p = testParams2_4.copy(enableLog = false)
     val payloadHT = HardType(DummyMsg())
     simConfig
       .compile(new GenericCdbArbiterTestBench[UInt, DummyMsg](payloadHT, p.numInputs, p.numOutputs, p.enableLog))
@@ -283,7 +283,7 @@ class GenericCdbArbiterSpec extends CustomSpinalSimFunSuite {
     val numTestInputs = 8
     val numTestOutputs = 2
     // Enable detailed DUT logging for this new complex test initially
-    val p = ArbiterTestParams(numInputs = numTestInputs, numOutputs = numTestOutputs, enableLog = true) 
+    val p = ArbiterTestParams(numInputs = numTestInputs, numOutputs = numTestOutputs, enableLog = false) 
     val payloadHT = HardType(DummyMsg())
     simConfig
       .compile(new GenericCdbArbiterTestBench[UInt, DummyMsg](payloadHT, p.numInputs, p.numOutputs, p.enableLog))
@@ -357,7 +357,7 @@ class GenericCdbArbiterSpec extends CustomSpinalSimFunSuite {
 
   // --- NEW TEST CASE 2: Output Backpressure with M:N (4 Inputs, 2 Outputs) ---
   test("GenericCdbArbiter - 4 Inputs, 2 Outputs - Output Backpressure") {
-    val p = testParams4_2.copy(enableLog = true)
+    val p = testParams4_2.copy(enableLog = false)
     val payloadHT = HardType(DummyMsg())
     simConfig
       .compile(new GenericCdbArbiterTestBench[UInt, DummyMsg](payloadHT, p.numInputs, p.numOutputs, p.enableLog))

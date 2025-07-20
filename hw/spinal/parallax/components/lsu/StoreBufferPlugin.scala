@@ -184,7 +184,7 @@ class StoreBufferPlugin(
     val mmioConfig: Option[GenericMemoryBusConfig] = None
 ) extends Plugin with StoreBufferService with LockedImpl {
     ParallaxLogger.debug("Creating Store Buffer Plugin, mmioConfig = " + mmioConfig.toString())
-    val enableLog = true
+    val enableLog = false
     val hw = create early new Area {
         val pushPortInst      = Stream(StoreBufferPushCmd(pipelineConfig, lsuConfig))
         val bypassQueryAddrIn = UInt(pipelineConfig.pcWidth)
@@ -401,7 +401,7 @@ class StoreBufferPlugin(
         when(mmioCmdFired) {
             slotsAfterUpdates(0).sentCmd := True
             slotsAfterUpdates(0).waitRsp := True
-            if(enableLog) report(L"[SQ] CMD_FIRED_MMIO: robPtr=${slots(0).robPtr} (slotIdx=0), addr=${slots(0).addr}")
+            report(L"[SQ] CMD_FIRED_MMIO: robPtr=${slots(0).robPtr} (slotIdx=0), addr=${slots(0).addr}")
         }
 
         // 处理 D-Cache 响应
@@ -433,12 +433,12 @@ class StoreBufferPlugin(
                 slotsAfterUpdates(0).waitRsp := False
                 val mmioError = mmioChannel.rsp.payload.error
                 when(mmioError) {
-                    if(enableLog) report(L"[SQ-MMIO] MMIO RSP_ERROR received for robPtr=${headSlot.robPtr}.")
+                    report(L"[SQ-MMIO] MMIO RSP_ERROR received for robPtr=${headSlot.robPtr}.")
                     // 标记为有异常以便处理和弹出
                     slotsAfterUpdates(0).hasEarlyException := True
                     slotsAfterUpdates(0).earlyExceptionCode := ExceptionCode.STORE_ACCESS_FAULT 
                 } otherwise {
-                     if(enableLog) report(L"[SQ-MMIO] MMIO RSP_SUCCESS received for robPtr=${headSlot.robPtr}.")
+                     report(L"[SQ-MMIO] MMIO RSP_SUCCESS received for robPtr=${headSlot.robPtr}.")
                 }
             }
         }

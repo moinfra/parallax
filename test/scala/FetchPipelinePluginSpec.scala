@@ -179,7 +179,7 @@ class FetchPipelinePluginSpec extends CustomSpinalSimFunSuite {
     pcWidth = pCfg.pcWidth,
     instructionWidth = pCfg.dataWidth,
     fetchGroupDataWidth = (pCfg.dataWidth.value * pCfg.fetchWidth) bits,
-    enableLog = true
+    enableLog = false
   )
 
   def createAxi4Config(pCfg: PipelineConfig): Axi4Config = Axi4Config(

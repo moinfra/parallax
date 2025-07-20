@@ -861,7 +861,7 @@ class DataCache(val p: DataCacheParameters) extends Component {
             ParallaxSim.log(L"[DCache] Refill: slot ${io.mem.read.rsp.id} data loaded for address 0x${rspAddress}, fault ${faulty}")
           }
         } otherwise {
-          ParallaxSim.log(L"Refill 字索引: ${wordIndex}H 最大值: ${wordIndex.maxValue.toString(16)}H rspWithData: ${rspWithData}") // Too verbose
+          if(enableLog) ParallaxSim.log(L"Refill 字索引: ${wordIndex}H 最大值: ${wordIndex.maxValue.toString(16)}H rspWithData: ${rspWithData}") // Too verbose
         } // wordIndex === wordIndex.maxValue || !rspWithData
       } // when(io.mem.read.rsp.valid
     }

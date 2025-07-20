@@ -17,7 +17,7 @@ class RenamePlugin(
 ) extends Plugin
     with LockedImpl {
 
-  val enableLog = true
+  val enableLog = false
 
   // --- 服务和流水线阶段的早期设置 ---
   val setup = create early new Area {

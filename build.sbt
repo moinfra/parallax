@@ -27,6 +27,11 @@ lazy val parallax = (project in file("."))
       // "-Ymacro-annotations"  // 适用于Scala 2.13
     ),
     fork := true,
+    Compile / run / fork := true,
+    Compile / run / connectInput := true,
+
+    Test / run / fork := true,
+    Test / run / connectInput := true,
     
     libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.17" % Test
   )

@@ -1,3 +1,4 @@
+// filename: parallax/bus/SplitGmbToAxi4Bridge.scala
 package parallax.bus
 
 import spinal.lib.bus.amba4.axi._
@@ -31,13 +32,11 @@ class SplitGmbToAxi4Bridge(
     val axiOut = master(Axi4(axiConfig))
   }
 
-  // --- Read Channel (保持不变) ---
+  // --- Read Channel ---
   val gmbReadCmd = if (cmdInStage) io.gmbIn.read.cmd.stage() else io.gmbIn.read.cmd
   val axiAr = io.axiOut.ar
-  // 1. 创建一个临时的 Stream 来承载 AXI AR 的 payload
   val arCmd = Stream(Axi4Ar(axiConfig))
 
-  // 2. 将 GMB 命令转换为 AXI AR 命令，驱动这个临时 Stream
   arCmd.valid := gmbReadCmd.valid
   gmbReadCmd.ready := arCmd.ready
   
@@ -52,20 +51,26 @@ class SplitGmbToAxi4Bridge(
   arCmd.payload.size := log2Up(gmbConfig.dataWidth.value / 8)
   arCmd.payload.setBurstINCR()
 
-  // 3. 对转换后的命令进行 stage，然后连接到最终的 AXI 输出
-  //    这有效地在 gmbReadCmd 和 axiAr 之间插入了一级寄存器
   axiAr << arCmd.stage()
 
   val gmbReadRsp = io.gmbIn.read.rsp
   val axiR = if (rspInStage) io.axiOut.r.stage() else io.axiOut.r
-  gmbReadRsp.valid := axiR.valid
-  gmbReadRsp.data := axiR.data
+  
+  // +++ CHANGED: Create an intermediate, registered stream for the response +++
+  // This ensures the logic driving gmbReadRsp is contained within the bridge.
+  val gmbReadRspInternal = Stream(SplitGmbReadRsp(gmbConfig))
+  gmbReadRspInternal.valid := axiR.valid
+  gmbReadRspInternal.payload.data := axiR.data
   if (gmbConfig.useId) {
     require(gmbReadRsp.id.getWidth >= axiR.id.getWidth, "GMB ID width is smaller than AXI4 ID width")
-    gmbReadRsp.id := axiR.id.resized
+    gmbReadRspInternal.payload.id := axiR.id.resized
   }
-  gmbReadRsp.error := !axiR.isOKAY()
-  axiR.ready := gmbReadRsp.ready
+  gmbReadRspInternal.payload.error := !axiR.isOKAY()
+  axiR.ready := gmbReadRspInternal.ready
+  
+  // Connect the registered internal stream to the final output
+  gmbReadRsp << gmbReadRspInternal.stage()
+
 
   if(enableReadLog) {
     val cycle = Reg(UInt(32 bits)) init(0)
@@ -78,54 +83,54 @@ class SplitGmbToAxi4Bridge(
     )
   }
 
-// ====================================================================
-// 写通道 (Write Channel)
-// ====================================================================
-val gmbWriteCmd = io.gmbIn.write.cmd
-val axiAw = io.axiOut.aw
-val axiW = io.axiOut.w
-val axiB = io.axiOut.b
+  // ====================================================================
+  // 写通道 (Write Channel)
+  // ====================================================================
+  val gmbWriteCmd = io.gmbIn.write.cmd
+  val axiAw = io.axiOut.aw
+  val axiW = io.axiOut.w
+  val axiB = io.axiOut.b
 
-// 1. 缓存输入的GMB命令，这样我们就可以立即响应ready
-val cmdStage = gmbWriteCmd.stage()
+  val cmdStage = gmbWriteCmd.stage()
+  val fork = StreamFork(cmdStage, 2)
 
-// 2. 使用StreamFork将一个命令分发给两个下游（AW和W）
-//    StreamFork确保只有当两个下游都接受了数据，它才会从上游(cmdStage)消耗数据
-val fork = StreamFork(cmdStage, 2)
-val awStream = fork(0)
-val wStream = fork(1) 
+  val awStream = fork(0)
+  val wStream = fork(1)
 
-// 3. 将分发后的流连接到AXI通道
-axiAw.valid := awStream.valid
-awStream.ready := axiAw.ready
-axiAw.payload.addr := awStream.address.resized
-axiAw.payload.len  := 0
-axiAw.payload.size := log2Up(gmbConfig.dataWidth.value / 8)
-axiAw.payload.setBurstINCR()
-if (gmbConfig.useId) {
-  axiAw.payload.id := awStream.id.resized
-} else if (axiConfig.useId) {
-  axiAw.payload.id := 0
-}
+  axiAw.valid := awStream.valid
+  awStream.ready := axiAw.ready
+  axiAw.payload.addr := awStream.address.resized
+  axiAw.payload.len  := 0
+  axiAw.payload.size := log2Up(gmbConfig.dataWidth.value / 8)
+  axiAw.payload.setBurstINCR()
+  if (gmbConfig.useId) {
+    axiAw.payload.id := awStream.id.resized
+  } else if (axiConfig.useId) {
+    axiAw.payload.id := 0
+  }
 
-axiW.valid := wStream.valid
-wStream.ready := axiW.ready
-axiW.payload.data := wStream.data
-axiW.payload.strb := wStream.byteEnables
-axiW.payload.last := True
+  axiW.valid := wStream.valid
+  wStream.ready := axiW.ready
+  axiW.payload.data := wStream.data
+  axiW.payload.strb := wStream.byteEnables
+  axiW.payload.last := True
 
-  // --- 写响应通道 (保持不变) ---
+  // --- 写响应通道 (Write Response Channel) ---
   val gmbWriteRsp = io.gmbIn.write.rsp
   val axiB_staged = if (rspInStage) axiB.stage() else axiB
-  gmbWriteRsp.valid := axiB_staged.valid
-  gmbWriteRsp.payload.error := !axiB_staged.isOKAY()
+  
+  // +++ CHANGED: Apply the same robust staging pattern as the read channel +++
+val gmbWriteRspInternal = Stream(SplitGmbWriteRsp(gmbConfig))
+  gmbWriteRspInternal.valid := axiB_staged.valid
+  gmbWriteRspInternal.payload.error := !axiB_staged.isOKAY()
   if(gmbConfig.useId) {
     require(gmbWriteRsp.payload.id.getWidth >= axiB_staged.id.getWidth, "GMB ID width is smaller than AXI4 ID width")
-    gmbWriteRsp.payload.id := axiB_staged.id.resized
+    gmbWriteRspInternal.payload.id := axiB_staged.id.resized
   }
-  axiB_staged.ready := gmbWriteRsp.ready
+  axiB_staged.ready := gmbWriteRspInternal.ready
   
-  // --- 调试日志 (可选) ---
+  gmbWriteRsp << gmbWriteRspInternal.stage()
+
   if(enableWriteLog) {
     val cycle = Reg(UInt(32 bits)) init(0)
     cycle := cycle + 1

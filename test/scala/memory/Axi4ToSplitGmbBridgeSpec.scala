@@ -30,7 +30,7 @@ class Axi4ToSplitGmbBridgeTestBench(
   val gmbSlaveMem = new SimulatedSplitGeneralMemory(
     memConfig = simMemInternalConfig,
     busConfig = gmbConfig,
-    enableLog = true,
+    enableLog = false,
   )
   gmbSlaveMem.io.bus <> bridge.io.gmbOut // DUT的master连接到模拟的GMB slave
 

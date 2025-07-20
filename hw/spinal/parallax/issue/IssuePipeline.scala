@@ -22,7 +22,7 @@ case class IssuePipelineSignals(val config: PipelineConfig) extends AreaObject {
 
 class IssuePipeline(val issueConfig: PipelineConfig) extends Plugin with LockedImpl {
   lazy val signals = IssuePipelineSignals(issueConfig)
-
+  val enableLog = false
   val pipeline = create early new Pipeline {
     val s0_decode    = newStage().setName("s0_Decode")
     val s1_rename    = newStage().setName("s1_Rename")
@@ -36,7 +36,7 @@ class IssuePipeline(val issueConfig: PipelineConfig) extends Plugin with LockedI
       dbg.setDebugValueOnce(s2_rob_alloc.isFiring, DebugValue.ROBALLOC_FIRE, expectIncr = true)
       dbg.setDebugValueOnce(s3_dispatch.isFiring, DebugValue.DISPATCH_FIRE, expectIncr = true)
     })
-    report(Seq(
+    if(enableLog) report(Seq(
       L"IssuePipeline status: \n",
       formatStage(s0_decode),
       formatStage(s1_rename),

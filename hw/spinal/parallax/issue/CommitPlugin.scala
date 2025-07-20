@@ -103,7 +103,7 @@ class CommitPlugin(
 ) extends Plugin with CommitService {
   assert(pipelineConfig.commitWidth == 1)
   
-  val enableLog = true // 控制是否启用周期性详细日志
+  val enableLog = false // 控制是否启用周期性详细日志
   
   // Service interface state
   private val commitEnableExt = Bool()
@@ -397,7 +397,7 @@ class CommitPlugin(
     // restoreCheckpointTrigger := idleJustCommitted
     
     // 调试报告
-    report(L"commitIdleThisCycle=${s0.commitIdleThisCycle}, commitAckMasks(0)=${s0.commitAckMasks(0)}: commitEnableExt=${commitEnableExt}, commitSlots(0).valid=${commitSlots(0).canCommit}, !committedIdleReg=${!committedIdleReg}")
+    if(enableLog) report(L"commitIdleThisCycle=${s0.commitIdleThisCycle}, commitAckMasks(0)=${s0.commitAckMasks(0)}: commitEnableExt=${commitEnableExt}, commitSlots(0).valid=${commitSlots(0).canCommit}, !committedIdleReg=${!committedIdleReg}")
 
     // restoreCheckpointTrigger is already set above in the IDLE logic
     getServiceOption[DebugDisplayService].foreach(dbg => { 

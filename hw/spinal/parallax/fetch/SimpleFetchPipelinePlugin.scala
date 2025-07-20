@@ -115,7 +115,7 @@ class SimpleFetchPipelinePlugin(
      * =======================================================================================
      */
 
-    val enableLog = true
+    val enableLog = false
 
     private val hardRedirectPorts = mutable.ArrayBuffer[(Int, Flow[UInt])]()
     private val fetchDisablePorts = mutable.ArrayBuffer[Bool]()
@@ -399,7 +399,7 @@ class SimpleFetchPipelinePlugin(
     }
 
     when(hw.finalOutputInst.fire) {
-        ParallaxSim.notice(L"[FETCH] OUTPUT PC 0x${hw.finalOutputInst.payload.pc} (INSTR 0x${hw.finalOutputInst.payload.instruction})")
+        if(enableLog) ParallaxSim.notice(L"[FETCH] OUTPUT PC 0x${hw.finalOutputInst.payload.pc} (INSTR 0x${hw.finalOutputInst.payload.instruction})")
     }
 
     hw.bpuService.release()
@@ -417,7 +417,7 @@ class StreamUnpacker[T_IN <: Bundle, T_OUT <: Data](
     unpack_func: (T_IN, UInt) => T_OUT,
     valid_mask_getter: T_IN => Bits
 ) extends Component {
-    val enableLog = true
+    val enableLog = false
     val instructionsPerGroup = widthOf(valid_mask_getter(input_type()))
 
     val io = new Bundle {

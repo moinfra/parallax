@@ -345,7 +345,7 @@ class SimulatedSRAMSpec extends CustomSpinalSimFunSuite {
       sizeBytes = 4 * 1024,
       useWordAddressing = true,
       readWaitCycles = 0,
-      enableLog = true
+      enableLog = false
     )
 
     SimConfig.withFstWave.compile(new SRAMController(axiConfig, wordAddrConfig)).doSim { dut =>
@@ -562,7 +562,7 @@ class SimulatedSRAMSpec extends CustomSpinalSimFunSuite {
       sizeBytes = 4 * 1024,
       useWordAddressing = true,
       readWaitCycles = 1, // 启用预取逻辑
-      enableLog = true
+      enableLog = false
     )
 
     SimConfig.withFstWave.compile(new SRAMController(axiConfig, wordAddrConfig)).doSim { dut =>
@@ -645,7 +645,7 @@ class SimulatedSRAMSpec extends CustomSpinalSimFunSuite {
       sizeBytes = 4 * 1024,
       useWordAddressing = true,
       readWaitCycles = 0,
-      enableLog = true
+      enableLog = false
     )
 
     SimConfig.withFstWave.compile(new SRAMController(axiConfig, wordAddrConfig)).doSim { dut =>

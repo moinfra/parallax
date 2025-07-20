@@ -51,7 +51,7 @@ class MemSysPlugin(axiConfig: Axi4Config, sgmbConfig: GenericMemoryBusConfig, sr
       virtualBaseAddress = BigInt("00000000", 16),
       sizeBytes = sramSize,
       readWaitCycles = 0,
-      enableLog = true
+      enableLog = false
     )
     val numMasters = 1 /*cache*/ + 5 /*先这样吧*/;
     val sram1Cfg = axiConfig.copy(idWidth = axiConfig.idWidth + log2Up(numMasters))

@@ -30,7 +30,7 @@ class MallocNStreamArbiterTestBench[T_REQ <: Data, T_RSP <: Data](
     // Otherwise, ensure the DUT's constructor or internal logic handles logging based on a passed param if needed.
     // For this example, we'll assume the DUT's `enableLog` is managed by its primary constructor
     // or is a `var` that could be set if explicitly exposed.
-    // The provided DUT code has `val enableLog = true` hardcoded, so the param here is for testbench structure.
+    // The provided DUT code has `val enableLog = false` hardcoded, so the param here is for testbench structure.
   }
 
   io_tb.requester_req <> dut.io.requester_req

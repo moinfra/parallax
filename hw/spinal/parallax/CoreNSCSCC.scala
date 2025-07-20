@@ -522,8 +522,6 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
   io.dsram_wmask := ~extRamIo.be_n // 转换为高有效
   extRamIo.data.read := io.dsram_dout
 
-  report(L"io.dsram_addr=${io.dsram_addr}")
-
   // 创建UART AXI接口 - 使用与SRAM控制器相同的ID宽度配置
   val uartAxi = Axi4(axiConfig.copy(idWidth = axiConfig.idWidth + log2Up(6)))
 

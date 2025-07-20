@@ -85,7 +85,7 @@ class TestOnlyMemSystemPlugin(axiConfig: Axi4Config, sgmbConfig: Option[GenericM
       virtualBaseAddress = BigInt("00000000", 16),
       sizeBytes = sramSize,
       readWaitCycles = 0,
-      enableLog = true
+      enableLog = false
     )
     val sram = new SimulatedSRAM(extSramCfg)
     val numMasters = 1 /*cache*/ + 5 /*先这样吧*/;

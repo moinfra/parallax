@@ -30,6 +30,7 @@ class IssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
     val iqConfig: IssueQueueConfig[T_IQEntry],
     val id: Int = 0
 ) extends Component {
+  val enableLog = false
   val io = slave(IssueQueueComponentIo(iqConfig))
   val idStr = s"${iqConfig.name}-${id.toString()}"
 
@@ -64,7 +65,7 @@ class IssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
 
   // Add logging for issue events
   when(io.issueOut.fire) {
-    ParallaxSim.log(
+    if(enableLog) ParallaxSim.log(
       L"${idStr}: ISSUED entry at index ${issueIdx}, " :+
       L"RobPtr=${entries(issueIdx).robPtr}, " :+
       L"PhysDest=${entries(issueIdx).physDest.idx}, " :+

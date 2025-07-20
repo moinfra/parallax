@@ -59,7 +59,7 @@ case class IFUIO(val config: InstructionFetchUnitConfig) extends Bundle {
 class InstructionFetchUnit(val config: InstructionFetchUnitConfig) extends Component {
 
   val io = new IFUIO(config)
-
+  val enableLog = false
   val currentPc = Reg(UInt(config.pcWidth))
   val receivedChunksBuffer = Reg(Vec(Bits(config.xlen bits), config.chunksPerFetchGroup))
   val chunksReceivedMask = Reg(Bits(config.chunksPerFetchGroup bits))
@@ -192,18 +192,18 @@ class InstructionFetchUnit(val config: InstructionFetchUnitConfig) extends Compo
         receivedChunksBuffer(chunkReceivedIdx) := io.dcacheLoadPort.rsp.data
         chunksReceivedMask(chunkReceivedIdx) := True
         faultOccurred := faultOccurred | io.dcacheLoadPort.rsp.fault
-        report(L"[IFU] DCache response processed: chunkIdx=${chunkReceivedIdx}, data=0x${io.dcacheLoadPort.rsp.data}, mask=${chunksReceivedMask}")
+        if(enableLog) report(L"[IFU] DCache response processed: chunkIdx=${chunkReceivedIdx}, data=0x${io.dcacheLoadPort.rsp.data}, mask=${chunksReceivedMask}")
       } otherwise {
-        report(L"[IFU] DCache response REDO: data=0x${io.dcacheLoadPort.rsp.data} - will retry (with pc ${currentPc})")
+        if(enableLog) report(L"[IFU] DCache response REDO: data=0x${io.dcacheLoadPort.rsp.data} - will retry (with pc ${currentPc})")
       }
     } otherwise {
-      report(L"[IFU] DCache response IGNORED: inflightValid=${inflight_valid}, rspId=${io.dcacheLoadPort.rsp.id}, inflightId=${inflight_transId}")
+      if(enableLog) report(L"[IFU] DCache response IGNORED: inflightValid=${inflight_valid}, rspId=${io.dcacheLoadPort.rsp.id}, inflightId=${inflight_transId}")
     }
   }
 
   // Debug logging
   val logger = new Area {
-    report(Seq(
+    if(enableLog) report(Seq(
       L"[[IFU]] PC=0x${currentPc} | CMD(v=${io.cpuPort.cmd.valid}, r=${io.cpuPort.cmd.ready}, fire=${io.cpuPort.cmd.fire}, pc=0x${io.cpuPort.cmd.pc}) | ",
       L"RSP(v=${io.cpuPort.rsp.valid}, r=${io.cpuPort.rsp.ready}, fire=${io.cpuPort.rsp.fire}, pc=0x${io.cpuPort.rsp.pc}) | ",
       L"DCACHE_CMD(v=${io.dcacheLoadPort.cmd.valid}, r=${io.dcacheLoadPort.cmd.ready}, fire=${io.dcacheLoadPort.cmd.fire}, addr=0x${io.dcacheLoadPort.cmd.virtual}) | ",

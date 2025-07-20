@@ -77,7 +77,7 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
   }
 
   test("WordAddr - Basic write and read with address translation") {
-    withTestBench(createWordAddrRamConfig(enableLog = true)) { (dut, axiMaster, _) =>
+    withTestBench(createWordAddrRamConfig(enableLog = false)) { (dut, axiMaster, _) =>
       // AXI address 0x80000100 -> offset 0x100 -> word address 0x40
       val testAddr = 0x80000100L
       val testData = 0xdeadbeefL
@@ -209,7 +209,7 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
   // =============================================================================
 
   test("AXI_VIOLATION_1 - Valid signal instability during handshake") {
-    withTestBench(createWordAddrRamConfig(enableLog = true)) { (dut, axiMaster, clockDomain) =>
+    withTestBench(createWordAddrRamConfig(enableLog = false)) { (dut, axiMaster, clockDomain) =>
       // 这个测试会暴露valid信号在握手期间不稳定的问题
       val testAddr = 0x80000000L
       
@@ -275,7 +275,7 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
   }
 
   test("AXI_VIOLATION_2 - Write Response protocol violation") {
-    withTestBench(createWordAddrRamConfig(enableLog = true)) { (dut, axiMaster, clockDomain) =>
+    withTestBench(createWordAddrRamConfig(enableLog = false)) { (dut, axiMaster, clockDomain) =>
       // 这个测试会暴露写响应协议违规问题 - 更严格的检查
       val testAddr = 0x80000000L
       val testData = 0x12345678L
@@ -372,7 +372,7 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
   }
 
   test("AXI_VIOLATION_3 - Read Response protocol violation") {
-    withTestBench(createWordAddrRamConfig(enableLog = true)) { (dut, axiMaster, clockDomain) =>
+    withTestBench(createWordAddrRamConfig(enableLog = false)) { (dut, axiMaster, clockDomain) =>
       // 这个测试会暴露读响应协议违规问题
       val testAddr = 0x80000000L
 
@@ -444,7 +444,7 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
   }
 
   test("AXI_VIOLATION_4 - Ready signal circular dependency") {
-    withTestBench(createWordAddrRamConfig(enableLog = true)) { (dut, axiMaster, clockDomain) =>
+    withTestBench(createWordAddrRamConfig(enableLog = false)) { (dut, axiMaster, clockDomain) =>
       // 这个测试会检查ready信号的仲裁逻辑是否正确
       val testAddr1 = 0x80000000L
       val testAddr2 = 0x80000004L
@@ -563,7 +563,7 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
   }
 
   test("AXI_VIOLATION_5 - Burst last signal error") {
-    withTestBench(createWordAddrRamConfig(enableLog = true)) { (dut, axiMaster, clockDomain) =>
+    withTestBench(createWordAddrRamConfig(enableLog = false)) { (dut, axiMaster, clockDomain) =>
       // 这个测试会暴露突发传输中last信号的问题
       val baseAddr = 0x80000000L
       val burstLen = 3 // 4个beat
@@ -642,7 +642,7 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
   }
 
   test("AXI_VIOLATION_6 - FSM state and signal consistency") {
-    withTestBench(createWordAddrRamConfig(enableLog = true)) { (dut, axiMaster, clockDomain) =>
+    withTestBench(createWordAddrRamConfig(enableLog = false)) { (dut, axiMaster, clockDomain) =>
       // 这个测试会暴露FSM状态和信号一致性问题 - 检查默认值问题
       val testAddr = 0x80000000L
       
@@ -772,7 +772,7 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
   }
 
   test("AXI_VIOLATION_7 - Default value hardcoding issue") {
-    withTestBench(createWordAddrRamConfig(enableLog = true)) { (dut, axiMaster, clockDomain) =>
+    withTestBench(createWordAddrRamConfig(enableLog = false)) { (dut, axiMaster, clockDomain) =>
       // 这个测试会暴露默认值硬编码的问题（lines 90-95）
       val testAddr = 0x80000000L
       val testData = 0x12345678L
@@ -856,7 +856,7 @@ class SRAMControllerWordAddrSpec extends CustomSpinalSimFunSuite {
 
   // 增加一个特定的测试来检查实际的代码行为
   test("AXI_VIOLATION_8 - Expose hardcoded payload assignments") {
-    withTestBench(createWordAddrRamConfig(enableLog = true)) { (dut, axiMaster, clockDomain) =>
+    withTestBench(createWordAddrRamConfig(enableLog = false)) { (dut, axiMaster, clockDomain) =>
       // 这个测试会暴露lines 90-95中硬编码的默认值问题
       
       // 初始化等待

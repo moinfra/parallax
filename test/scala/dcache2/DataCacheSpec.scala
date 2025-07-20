@@ -86,7 +86,7 @@ class DataCacheTestbench(val p: DataCacheParameters, val useSimulatedSRAM: Boole
       virtualBaseAddress = 0x00000000L,
       sizeBytes = sramSize,
       readWaitCycles = 0,
-      enableLog = true
+      enableLog = false
     )
     sram = new SimulatedSRAM(extSramCfg)
     val ctrl = new SRAMController(axiMasterNode.config, extSramCfg)

@@ -185,7 +185,7 @@
 //       virtualBaseAddress = BigInt("00000000", 16),
 //       sizeBytes = sramSize,
 //       readWaitCycles = 0,
-//       enableLog = true
+//       enableLog = false
 //     )
 //     val sram = new SimulatedSRAM(extSramCfg)
 //     val ctrl = new SRAMController(axiConfig, extSramCfg)

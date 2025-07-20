@@ -194,6 +194,10 @@ class LabUartSim(
     val tx_bit_counter = Reg(UInt(log2Up(cyclesPerBit) bits)) init(0)
     val tx_bit_index = Reg(UInt(3 bits)) init(0) // 0 to 7 for 8 data bits
     val tx_shift_reg = Reg(Bits(8 bits)) init(0)
+    val tx_shift_reg_prev = RegNext(tx_shift_reg) // For detecting changes in tx_shift_reg
+    when(tx_shift_reg_prev =/= tx_shift_reg) {
+      report(L"TX_SHIFT_REG_CHANGED: tx_shift_reg=${(tx_shift_reg)}")
+    }
 
     // Default txd signal (idle high)
     io.txd := True // Default is high
@@ -319,12 +323,19 @@ object InteractiveUartSimApp extends App {
   val UART_BAUD_RATE = 9600
   val CPU_CLOCK_HZ = 100000000L // Matches clk_cpu frequency from LabTestBench
 
-  SimConfig.withFstWave.compile(new LabTestBench(instructions)).doSim { dut =>
+  SimConfig.withConfig(SpinalConfig(
+          defaultConfigForClockDomains = ClockDomainConfig(resetKind = SYNC),
+          defaultClockDomainFrequency = FixedFrequency(100 MHz),
+    )).withFstWave.compile(new LabTestBench(instructions)).doSim { dut =>
     val cd = dut.clockDomain.get
-    cd.forkStimulus(period = 10)
+    cd.forkStimulus(period = 10 * 1000)
 
     val bitPeriodNs = 1000000000L / UART_BAUD_RATE
-    val cyclesPerBit = CPU_CLOCK_HZ / UART_BAUD_RATE
+    val cyclesPerBit = (CPU_CLOCK_HZ / UART_BAUD_RATE).toInt
+
+    dut.io.rxd #= true
+    dut.io.simRxData #= 0
+    dut.io.simRxDataValid #= false
 
     cd.waitSampling(600)
     // =====================================================================
@@ -348,11 +359,11 @@ object InteractiveUartSimApp extends App {
           bitCount = 0
           rxDataBits.clear()
           println(s"[DBG-APP-TX] Detected start bit (txd low).")
-          sleep(cyclesPerBit / 2) 
+          cd.waitSampling(cyclesPerBit / 2) 
         }
 
         if (inProgress) {
-          sleep(cyclesPerBit)
+          cd.waitSampling(cyclesPerBit)
           if (bitCount < 8) {
             rxDataBits += dut.io.txd.toBoolean
             bitCount += 1
@@ -412,29 +423,29 @@ object InteractiveUartSimApp extends App {
 
     // 主要的仿真驱动线程：从 rxQueue 取数据并驱动 DUT 接口
     val mainRxDriverProcess = fork {
-      dut.io.rxd #= true
-      dut.io.simRxData #= 0
-      dut.io.simRxDataValid #= false
       cd.waitSampling(100) 
 
       // CRITICAL: Keep this sim process alive indefinitely
       while (true) {
         cd.waitSampling() // Synchronize with clock
 
-      if (!rxQueue.isEmpty() && !dut.labUartSim.uartRxDataValid.toBoolean) { 
+      if (!rxQueue.isEmpty()) { 
+          println(s"[DBG-APP-RX] Queue has data. wait uartRxDataValid==false...")
+          cd.waitSamplingWhere(!dut.labUartSim.uartRxDataValid.toBoolean)
+          println(s"[DBG-APP-RX] Queue has data. uartRxDataValid is false. Send data to DUT...")
           val byteToSend = rxQueue.poll()
           println(s"[DBG-APP-RX] Processing char to send to DUT: '${byteToSend.toChar}' (0x${byteToSend.toHexString}).")
 
           // --- 物理层模拟 (bit-banging on rxd) ---
-          sleep(cyclesPerBit)
+          cd.waitSampling(cyclesPerBit)
           dut.io.rxd #= false
-          sleep(cyclesPerBit)
+          cd.waitSampling(cyclesPerBit)
           for (i <- 0 until 8) {
             dut.io.rxd #= ((byteToSend >> i) & 1) != 0
-            sleep(cyclesPerBit)
+            cd.waitSampling(cyclesPerBit)
           }
           dut.io.rxd #= true
-          sleep(cyclesPerBit)
+          cd.waitSampling(cyclesPerBit)
           println(s"[DBG-APP-RX] Bit-banging finished on rxd for char: '${byteToSend.toChar}'.")
 
           // --- 注入数据到 LabUartSim 的 IO 端口 ---

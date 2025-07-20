@@ -457,7 +457,7 @@ class Axi4CrossbarDemoSpec extends SpinalSimFunSuite {
     val simMem = new parallax.components.memory.SimulatedGeneralMemory( // Explicitly use package
       memConfig = simMemConfig,
       busConfig = genericBusConfig,
-      enableLog = true
+      enableLog = false
     )
     simMem.io.writeEnable := io.tb_writeEnable
     simMem.io.writeAddress := io.tb_writeAddress

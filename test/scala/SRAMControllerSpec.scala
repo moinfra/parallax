@@ -409,7 +409,7 @@ class SRAMControllerSpec extends CustomSpinalSimFunSuite {
       virtualBaseAddress = 0x80000000L,
       sizeBytes = sramSize,
       readWaitCycles = readWaitCycles,
-      enableLog = true
+      enableLog = false
     )
   }
 

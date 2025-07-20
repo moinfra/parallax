@@ -81,7 +81,7 @@ class FibonacciLFSRSpec extends AnyFunSuite {
   }
 }
 
-// Add this object if you want to run tests directly (e.g., from an IDE)
-object RunFibonacciLFSRSpec extends App {
-  (new FibonacciLFSRSpec).execute() // Discovers and runs tests
-}
+// // Add this object if you want to run tests directly (e.g., from an IDE)
+// object RunFibonacciLFSRSpec extends App {
+//   (new FibonacciLFSRSpec).execute() // Discovers and runs tests
+// }

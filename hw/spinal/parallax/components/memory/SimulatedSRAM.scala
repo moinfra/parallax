@@ -36,7 +36,7 @@ class SimulatedSRAM(
     val initialContent: Seq[BigInt] = Seq()
 ) extends Component {
   val prefix = this.getClass.getName.replace("$", "")
-  val enableLog = true // Temporarily enable for debugging
+  val enableLog = false // Temporarily enable for debugging
 
   val io = new Bundle {
     val ram = slave(SRAMIO(config))

@@ -38,7 +38,7 @@ class SplitGmbToAxi4BridgeSpec extends CustomSpinalSimFunSuite {
     readWaitCycles = 1,  // 引入1个周期的读延迟，可以更好地测试时序
     writeWaitCycles = 2, // 引入2个周期的写延迟，给写通道施加自然背压
     useWordAddressing = false, // 使用字节寻址，与GMB/AXI的地址语义匹配
-    enableLog = true
+    enableLog = false
   )
 
   def createTB = new Component {
@@ -397,7 +397,7 @@ class SplitGmbToAxi4BridgeSpec extends CustomSpinalSimFunSuite {
   // }
 
   // 恢复并修复 AXI_Write_Channel_Decoupled_Fix 测试用例
-  testOnly("AXI_Write_Channel_Decoupled_Fix_Corrected") { // 更名为 Corrected 版本
+  test("AXI_Write_Channel_Decoupled_Fix_Corrected") { // 更名为 Corrected 版本
     SimConfig.withWave.compile(createTB).doSim { dut =>
       SimTimeout(500) // 增加超时时间，因为有故意延迟
       implicit val cd: ClockDomain = dut.clockDomain
