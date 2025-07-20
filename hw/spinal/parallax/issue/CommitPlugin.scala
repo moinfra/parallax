@@ -15,12 +15,12 @@ import parallax.utilities.ParallaxSim
  */
 case class CommitStats(pCfg: PipelineConfig = null) extends Bundle with Formattable {
   private val cw = if (pCfg == null) 1 else pCfg.commitWidth
-  val committedThisCycle = UInt(log2Up(cw + 1) bits)
-  val totalCommitted = UInt(32 bits)
-  val robFlushCount = UInt(32 bits)
-  val physRegRecycled = UInt(32 bits)
-  val commitOOB = Bool()  // Out-of-bounds commit detected
-  val maxCommitPc = UInt(32 bits)  // Maximum PC committed so far
+  val committedThisCycle  = UInt(log2Up(cw + 1) bits)
+  val totalCommitted      = UInt(32 bits)
+  val robFlushCount       = UInt(32 bits)
+  val physRegRecycled     = UInt(32 bits)
+  val commitOOB           = Bool()  // Out-of-bounds commit detected
+  val maxCommitPc         = UInt(32 bits)  // Maximum PC committed so far
 
   def format: Seq[Any] = {
     Seq(
@@ -81,7 +81,7 @@ trait CommitService extends Service {
   /**
    * Check if processor is currently idle (stopped by IDLE instruction).
    */
-  def isIdle(): Bool
+  // def isIdle(): Bool
 }
 /**
  * CommitPlugin implements the commit stage of the out-of-order processor.
@@ -111,10 +111,6 @@ class CommitPlugin(
   private val maxCommitPcExt = UInt(pipelineConfig.pcWidth)
   private val maxCommitPcEnabledExt = Bool()
   
-  // IDLE instruction state
-  private val committedIdleReg = Reg(Bool()) init(False)
-  private val committedIdlePcReg = Reg(UInt(pipelineConfig.pcWidth))
-  
   // PC tracking state
   private val maxCommitPcReg = Reg(UInt(pipelineConfig.pcWidth)) init(0) addAttribute("mark_debug", "true")
   private val commitOOBReg = Reg(Bool()) init(False) addAttribute("mark_debug", "true")
@@ -126,10 +122,6 @@ class CommitPlugin(
   override def setMaxCommitPc(maxPc: UInt, enabled: Bool): Unit = {
     maxCommitPcExt := maxPc
     maxCommitPcEnabledExt := enabled
-  }
-  
-  override def isIdle(): Bool = {
-    committedIdleReg
   }
   
   private var forwardedStats: CommitStats = null
@@ -146,7 +138,6 @@ class CommitPlugin(
     val fetchService             = getService[SimpleFetchPipelineService]
     
     // === Fetch Pipeline Control for IDLE ===
-    val fetchDisable             = fetchService.newFetchDisablePort()
     val robFlushPort             = robService.newRobFlushPort()
     val redirectPort             = fetchService.newHardRedirectPort(priority = 10)  // High priority for branch misprediction
     
@@ -160,12 +151,13 @@ class CommitPlugin(
     val ratControlService = hw.ratControlService
     val flControlService = hw.flControlService
     val checkpointManagerService = hw.checkpointManagerService 
-    val fetchDisable = hw.fetchDisable
 
     // === ROB Interface ===
     val commitSlots = robService.getCommitSlots(pipelineConfig.commitWidth)
     val commitAcks = robService.getCommitAcks(pipelineConfig.commitWidth) // 本插件会发送 commit 用于真正触发提交
     val robFlushPort = hw.robFlushPort
+    robFlushPort.valid := False
+    robFlushPort.payload.assignDontCare()
 
     // === Physical Register Recycling ===
     val freePorts = flControlService.getFreePorts()
@@ -184,7 +176,7 @@ class CommitPlugin(
     val s0 = new Area {
       // --- 从ROB获取原始、实时的提交槽位信息 ---
       val rawCommitSlots = commitSlots // 这就是当前的commitSlots
-      val enable = commitEnableExt && !committedIdleReg
+      val enable = commitEnableExt
       val headSlot = rawCommitSlots(0)
       val headUop = headSlot.entry.payload.uop
       val headIsBranch = headUop.decoded.isBranchOrJump
@@ -283,20 +275,10 @@ class CommitPlugin(
       
       // 4. 前馈统计信号 (立即响应)
       val fwd = CommitStats(pipelineConfig)
-      
-      // committedThisCycle 本身就是组合逻辑，直接赋值
       fwd.committedThisCycle := committedThisCycle_comb
-      
-      // totalCommitted 的实时值 = 寄存器的旧值 + 本周期的增量
       fwd.totalCommitted := commitStatsReg.totalCommitted + committedThisCycle_comb
-      
-      // physRegRecycled 的实时值 = 寄存器的旧值 + 本周期的增量
       fwd.physRegRecycled := commitStatsReg.physRegRecycled + recycledThisCycle_comb
-      
-      // robFlushCount 的实时值 = 寄存器的旧值 + 本周期的增量
       fwd.robFlushCount := commitStatsReg.robFlushCount + flushedThisCycle_comb
-      
-      // OOB detection: use current cycle's result or previous register value
       fwd.commitOOB := commitOOBReg || anyCommitOOB
       
       // Maximum PC: use current cycle's maximum or previous register value
@@ -304,10 +286,8 @@ class CommitPlugin(
                             maxCommitPcThisCycle, 
                             maxCommitPcReg)
       
-      // 将这个新的、带有前馈逻辑的 Bundle 赋值给插件的成员变量
       forwardedStats = fwd
       
-      // 填充日志信息 (立即响应)
       val commitSlotLogs = Vec(CommitSlotLog(pipelineConfig), pipelineConfig.commitWidth)
       for (i <- 0 until pipelineConfig.commitWidth) {
         commitSlotLogs(i).valid := rawCommitSlots(i).valid
@@ -335,19 +315,9 @@ class CommitPlugin(
       val s1_recycledThisCycle_comb = RegNext(s0.recycledThisCycle_comb, init = U(0, log2Up(pipelineConfig.commitWidth + 1) bits))
       val s1_flushedThisCycle_comb = RegNext(s0.flushedThisCycle_comb, init = U(0, 1 bits))
       
-      // === IDLE Instruction State Management (延迟更新) ===
-      // Set IDLE state when IDLE instruction at head is being committed
-      when(s1_commitIdleThisCycle) {
-        committedIdleReg := True // 下个周期起效
-        committedIdlePcReg := s1_headUop.decoded.pc
-        ParallaxSim.log(L"[CommitPlugin] IDLE instruction committed at PC=0x${s1_headUop.decoded.pc}, entering IDLE state")
-      }
-      
-      // === PC Tracking and OOB Detection (延迟更新) ===
-      // 这就是我们最初要修复的时序路径！
       when(s1_hasCommitsThisCycle) {
         when(s1_maxCommitPcThisCycle > maxCommitPcReg) {
-          maxCommitPcReg := s1_maxCommitPcThisCycle // 这里不再有长组合逻辑路径
+          maxCommitPcReg := s1_maxCommitPcThisCycle
         }
       }
       
@@ -366,38 +336,8 @@ class CommitPlugin(
       commitStatsReg.maxCommitPc        := maxCommitPcReg
     }
     
-    // === Fetch Pipeline Control Logic ===
-    // Use the IDLE state register to control fetch, avoiding combinatorial loops
-    // Once in IDLE state, keep fetch disabled until reset
-    fetchDisable := committedIdleReg // 下个周期起效
-
-    // === Pipeline Flush Logic ===
-    // Use a delayed register to break combinatorial loops
-    // IDLE instruction detection and flush happen in different cycles
-    val idleJustCommitted = RegNext(s0.commitIdleThisCycle, init = False)
-    
-    // Directly control ROB flush port for IDLE instructions (delayed by one cycle)
-    when(idleJustCommitted) {
-      robFlushPort.valid := True
-      robFlushPort.payload.reason := FlushReason.ROLLBACK_TO_ROB_IDX
-      robFlushPort.payload.targetRobPtr := U(0, pipelineConfig.robPtrWidth)  // Flush everything after IDLE
-      ParallaxSim.log(L"[CommitPlugin] Delayed ROB flush triggered by IDLE instruction")
-    } otherwise {
-      robFlushPort.valid := False
-      robFlushPort.payload.reason := FlushReason.NONE
-      robFlushPort.payload.targetRobPtr := 0
-    }
-    
-    // 修复: 检查点恢复应该与指令提交在同一周期触发
-    // 如果需要精确同步，使用立即信号；如果可以延迟，使用延迟信号
-    // 这里假设需要精确同步，使用立即信号
-    // restoreCheckpointTrigger := s0.commitIdleThisCycle 暂时不启用IDLE逻辑。让分支预测恢复接管这个连线。
-    
-    // 注意：如果系统允许检查点恢复延迟一拍，可以使用：
-    // restoreCheckpointTrigger := idleJustCommitted
-    
     // 调试报告
-    if(enableLog) report(L"commitIdleThisCycle=${s0.commitIdleThisCycle}, commitAckMasks(0)=${s0.commitAckMasks(0)}: commitEnableExt=${commitEnableExt}, commitSlots(0).valid=${commitSlots(0).canCommit}, !committedIdleReg=${!committedIdleReg}")
+    if(enableLog) report(L"commitAckMasks(0)=${s0.commitAckMasks(0)}: commitEnableExt=${commitEnableExt}, commitSlots(0).valid=${commitSlots(0).canCommit}")
 
     // restoreCheckpointTrigger is already set above in the IDLE logic
     getServiceOption[DebugDisplayService].foreach(dbg => { 
@@ -411,13 +351,6 @@ class CommitPlugin(
         
         report(
           L"[COMMIT] Cycle ${counter} Log: " :+
-          // L"commitEnableExt=${commitEnableExt}, commitCount=${commitCount}, " :+
-          // L"committedIdleReg=${committedIdleReg}, IDLE_AtHead=${s0.headUop.decoded.uopCode === BaseUopCode.IDLE}, IDLE_BeingCommitted=${s0.commitIdleThisCycle}, " :+
-          // L"committedIdlePcReg=0x${committedIdlePcReg}, " :+
-          // L"ROB_Head_Valid=${s0.headSlot.valid}, ROB_Head_Done=${s0.headSlot.entry.status.done}, ROB_Head_UopCode=${s0.headUop.decoded.uopCode.asBits}, " :+
-          // L"ROB_Flush_Valid=${robFlushPort.valid}, ROB_Flush_Reason=${robFlushPort.payload.reason.asBits}, " :+
-          // L"Restore_Checkpoint_Trigger=${restoreCheckpointTrigger}, " :+
-          // L"Fetch_Disable=${fetchDisable}, " :+
           L"Stats=${commitStatsReg.format}\n" :+
           L"  Slot Details: ${s0.commitSlotLogs.map(s => L"\n    Slot: ${s.format} commitAck=${commitAcks(0)} commitPc=0x${s0.commitPcs(0)}")}" // 为每个槽位格式化输出，每个槽位独占一行
         )
