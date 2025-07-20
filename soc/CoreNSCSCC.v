@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 49a99dae7b6ed938ae50042417514f24dcaeaaa8
 // Component : CoreNSCSCC
-// Git hash  : f2f4b5234a4f5b5a45b3ceda644fa791cc848ddd
+// Git hash  : 34d4b56b1273d4290eff6c5fccd698a6b4de1fcc
 
 `timescale 1ns/1ps
 
@@ -79,6 +79,8 @@ module CoreNSCSCC (
   localparam ArchRegType_FPR = 2'd1;
   localparam ArchRegType_CSR = 2'd2;
   localparam ArchRegType_LA_CF = 2'd3;
+  localparam IntAluExceptionCode_NONE = 1'd0;
+  localparam IntAluExceptionCode_UNDEFINED_ALU_OP = 1'd1;
   localparam LogicOp_NONE = 2'd0;
   localparam LogicOp_AND_1 = 2'd1;
   localparam LogicOp_OR_1 = 2'd2;
@@ -143,8 +145,6 @@ module CoreNSCSCC (
   localparam SimpleFetchPipelinePlugin_logic_fsm_WAITING = 3'd2;
   localparam SimpleFetchPipelinePlugin_logic_fsm_UPDATE_PC = 3'd3;
   localparam SimpleFetchPipelinePlugin_logic_fsm_DISABLED = 3'd4;
-  localparam IntAluExceptionCode_NONE = 1'd0;
-  localparam IntAluExceptionCode_UNDEFINED_ALU_OP = 1'd1;
 
   wire       [31:0]   DataCachePlugin_setup_cache_io_load_cmd_payload_virtual;
   wire       [1:0]    DataCachePlugin_setup_cache_io_load_cmd_payload_size;
@@ -1456,7 +1456,7 @@ module CoreNSCSCC (
   wire       [1:0]    _zz_DispatchPlugin_logic_dispatchOH_4;
   reg                 _zz_DispatchPlugin_logic_destinationIqReady_3;
   wire       [1:0]    _zz_DispatchPlugin_logic_destinationIqReady_4;
-  wire       [0:0]    _zz_AluIntEU_AluIntEuPlugin_euResult_exceptionCode;
+  wire       [0:0]    _zz_AluIntEU_AluIntEuPlugin_euResult_exceptionCode_2;
   wire       [7:0]    _zz_io_triggerIn_14;
   wire       [4:0]    _zz_io_triggerIn_15;
   wire       [7:0]    _zz_when_Debug_l71_7_1;
@@ -1703,9 +1703,11 @@ module CoreNSCSCC (
   reg                 _zz_20;
   reg                 _zz_21;
   wire                mul_s0_Dispatch_ready;
-  wire                s2_Execute_ready;
-  reg        [31:0]   _zz_io_iqEntryIn_payload_src2Data;
-  reg        [31:0]   _zz_io_iqEntryIn_payload_src1Data;
+  wire                s3_Writeback_ready;
+  reg        [31:0]   _zz_AluIntEU_AluIntEuPlugin_euResult_data;
+  reg                 _zz_AluIntEU_AluIntEuPlugin_euResult_writesToPreg;
+  reg                 _zz_AluIntEU_AluIntEuPlugin_euResult_hasException;
+  reg        [0:0]    _zz_AluIntEU_AluIntEuPlugin_euResult_exceptionCode;
   reg        [3:0]    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_robPtr;
   reg        [5:0]    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_physDest_idx;
   reg                 _zz_AluIntEU_AluIntEuPlugin_euResult_uop_physDestIsFpr;
@@ -1732,35 +1734,65 @@ module CoreNSCSCC (
   reg                 _zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isDoubleWord;
   reg        [31:0]   _zz_AluIntEU_AluIntEuPlugin_euResult_uop_imm;
   reg        [2:0]    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage;
-  wire                s1_ReadRegs_ready;
-  reg        [3:0]    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_robPtr_1;
-  reg        [5:0]    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_physDest_idx_1;
-  reg                 _zz_AluIntEU_AluIntEuPlugin_euResult_uop_physDestIsFpr_1;
-  reg                 _zz_AluIntEU_AluIntEuPlugin_euResult_uop_writesToPhysReg_1;
-  reg                 _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_valid;
+  wire                s2_Execute_ready;
+  wire       [0:0]    _zz_AluIntEU_AluIntEuPlugin_euResult_exceptionCode_1;
+  reg        [31:0]   _zz_io_iqEntryIn_payload_src2Data;
+  reg        [31:0]   _zz_io_iqEntryIn_payload_src1Data;
+  reg        [3:0]    _zz_io_iqEntryIn_payload_robPtr;
+  reg        [5:0]    _zz_io_iqEntryIn_payload_physDest_idx;
+  reg                 _zz_io_iqEntryIn_payload_physDestIsFpr;
+  reg                 _zz_io_iqEntryIn_payload_writesToPhysReg;
+  reg                 _zz_io_iqEntryIn_payload_useSrc1;
   reg        [31:0]   _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src1Data_1;
-  reg        [5:0]    _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_address;
-  reg                 _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src1Ready_1;
-  reg                 _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src1IsFpr_1;
-  reg                 _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_valid;
+  reg        [5:0]    _zz_io_iqEntryIn_payload_src1Tag;
+  reg                 _zz_io_iqEntryIn_payload_src1Ready;
+  reg                 _zz_io_iqEntryIn_payload_src1IsFpr;
+  reg                 _zz_io_iqEntryIn_payload_useSrc2;
   reg        [31:0]   _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src2Data_1;
-  (* mark_debug = "TRUE" *) reg        [5:0]    _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_address;
-  reg                 _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src2Ready_1;
-  reg                 _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src2IsFpr_1;
-  reg                 _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_valid_1;
-  reg                 _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSub_1;
-  reg                 _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isAdd_1;
-  reg                 _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSigned_1;
-  reg        [1:0]    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_1;
-  reg                 _zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_valid_1;
-  reg                 _zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isRight_1;
-  reg                 _zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isArithmetic_1;
-  reg                 _zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isRotate_1;
-  reg                 _zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isDoubleWord_1;
-  reg        [31:0]   _zz_AluIntEU_AluIntEuPlugin_euResult_uop_imm_1;
-  reg        [2:0]    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_1;
-  wire       [1:0]    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_2;
-  wire       [2:0]    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_2;
+  reg        [5:0]    _zz_io_iqEntryIn_payload_src2Tag;
+  reg                 _zz_io_iqEntryIn_payload_src2Ready;
+  reg                 _zz_io_iqEntryIn_payload_src2IsFpr;
+  reg                 _zz_io_iqEntryIn_payload_aluCtrl_valid;
+  reg                 _zz_io_iqEntryIn_payload_aluCtrl_isSub;
+  reg                 _zz_io_iqEntryIn_payload_aluCtrl_isAdd;
+  reg                 _zz_io_iqEntryIn_payload_aluCtrl_isSigned;
+  reg        [1:0]    _zz_io_iqEntryIn_payload_aluCtrl_logicOp;
+  reg                 _zz_io_iqEntryIn_payload_shiftCtrl_valid;
+  reg                 _zz_io_iqEntryIn_payload_shiftCtrl_isRight;
+  reg                 _zz_io_iqEntryIn_payload_shiftCtrl_isArithmetic;
+  reg                 _zz_io_iqEntryIn_payload_shiftCtrl_isRotate;
+  reg                 _zz_io_iqEntryIn_payload_shiftCtrl_isDoubleWord;
+  reg        [31:0]   _zz_io_iqEntryIn_payload_imm;
+  reg        [2:0]    _zz_io_iqEntryIn_payload_immUsage;
+  wire                s1_ReadRegs_ready;
+  reg        [3:0]    _zz_io_iqEntryIn_payload_robPtr_1;
+  reg        [5:0]    _zz_io_iqEntryIn_payload_physDest_idx_1;
+  reg                 _zz_io_iqEntryIn_payload_physDestIsFpr_1;
+  reg                 _zz_io_iqEntryIn_payload_writesToPhysReg_1;
+  reg                 _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_valid;
+  reg        [31:0]   _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src1Data_2;
+  reg        [5:0]    _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_address;
+  reg                 _zz_io_iqEntryIn_payload_src1Ready_1;
+  reg                 _zz_io_iqEntryIn_payload_src1IsFpr_1;
+  reg                 _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_valid;
+  reg        [31:0]   _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src2Data_2;
+  reg        [5:0]    _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_address;
+  reg                 _zz_io_iqEntryIn_payload_src2Ready_1;
+  reg                 _zz_io_iqEntryIn_payload_src2IsFpr_1;
+  reg                 _zz_io_iqEntryIn_payload_aluCtrl_valid_1;
+  reg                 _zz_io_iqEntryIn_payload_aluCtrl_isSub_1;
+  reg                 _zz_io_iqEntryIn_payload_aluCtrl_isAdd_1;
+  reg                 _zz_io_iqEntryIn_payload_aluCtrl_isSigned_1;
+  reg        [1:0]    _zz_io_iqEntryIn_payload_aluCtrl_logicOp_1;
+  reg                 _zz_io_iqEntryIn_payload_shiftCtrl_valid_1;
+  reg                 _zz_io_iqEntryIn_payload_shiftCtrl_isRight_1;
+  reg                 _zz_io_iqEntryIn_payload_shiftCtrl_isArithmetic_1;
+  reg                 _zz_io_iqEntryIn_payload_shiftCtrl_isRotate_1;
+  reg                 _zz_io_iqEntryIn_payload_shiftCtrl_isDoubleWord_1;
+  reg        [31:0]   _zz_io_iqEntryIn_payload_imm_1;
+  reg        [2:0]    _zz_io_iqEntryIn_payload_immUsage_1;
+  wire       [1:0]    _zz_io_iqEntryIn_payload_aluCtrl_logicOp_2;
+  wire       [2:0]    _zz_io_iqEntryIn_payload_immUsage_2;
   wire                s0_Dispatch_ready_1;
   reg                 when_Connection_l66;
   wire       [31:0]   s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_pc;
@@ -4222,7 +4254,7 @@ module CoreNSCSCC (
   wire                AluIntEU_AluIntEuPlugin_euInputPort_payload_src1IsFpr;
   wire                AluIntEU_AluIntEuPlugin_euInputPort_payload_useSrc2;
   wire       [31:0]   AluIntEU_AluIntEuPlugin_euInputPort_payload_src2Data;
-  (* mark_debug = "TRUE" *) wire       [5:0]    AluIntEU_AluIntEuPlugin_euInputPort_payload_src2Tag;
+  wire       [5:0]    AluIntEU_AluIntEuPlugin_euInputPort_payload_src2Tag;
   wire                AluIntEU_AluIntEuPlugin_euInputPort_payload_src2Ready;
   wire                AluIntEU_AluIntEuPlugin_euInputPort_payload_src2IsFpr;
   wire                AluIntEU_AluIntEuPlugin_euInputPort_payload_aluCtrl_valid;
@@ -4444,12 +4476,12 @@ module CoreNSCSCC (
   wire                s0_Dispatch_valid;
   reg                 s1_ReadRegs_valid;
   reg                 s2_Execute_valid;
+  reg                 s3_Writeback_valid;
   wire                s1_ReadRegs_isFiring;
   wire       [31:0]   _zz_io_iqEntryIn_payload_src2Data_1;
-  wire       [1:0]    _zz_io_iqEntryIn_payload_aluCtrl_logicOp;
-  wire       [2:0]    _zz_io_iqEntryIn_payload_immUsage;
   wire                s2_Execute_isFiring;
   wire       [2:0]    _zz_45;
+  wire                s3_Writeback_isFiring;
   wire                _zz_AluIntEU_AluIntEuPlugin_logicPhase_isFlushed;
   wire       [2:0]    _zz_AluIntEU_AluIntEuPlugin_logicPhase_isFlushed_1;
   wire                _zz_AluIntEU_AluIntEuPlugin_logicPhase_isFlushed_2;
@@ -5761,12 +5793,16 @@ module CoreNSCSCC (
   reg [39:0] _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_2_string;
   reg [87:0] _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_3_string;
   reg [39:0] _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_3_string;
+  reg [127:0] _zz_AluIntEU_AluIntEuPlugin_euResult_exceptionCode_string;
   reg [39:0] _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_string;
   reg [103:0] _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_string;
-  reg [39:0] _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_1_string;
-  reg [103:0] _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_1_string;
-  reg [39:0] _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_2_string;
-  reg [103:0] _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_2_string;
+  reg [127:0] _zz_AluIntEU_AluIntEuPlugin_euResult_exceptionCode_1_string;
+  reg [39:0] _zz_io_iqEntryIn_payload_aluCtrl_logicOp_string;
+  reg [103:0] _zz_io_iqEntryIn_payload_immUsage_string;
+  reg [39:0] _zz_io_iqEntryIn_payload_aluCtrl_logicOp_1_string;
+  reg [103:0] _zz_io_iqEntryIn_payload_immUsage_1_string;
+  reg [39:0] _zz_io_iqEntryIn_payload_aluCtrl_logicOp_2_string;
+  reg [103:0] _zz_io_iqEntryIn_payload_immUsage_2_string;
   reg [87:0] s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string;
   reg [151:0] s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_exeUnit_string;
   reg [71:0] s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isa_string;
@@ -6096,8 +6132,6 @@ module CoreNSCSCC (
   reg [87:0] BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_condition_string;
   reg [39:0] BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_linkReg_rtype_string;
   reg [7:0] LsuEU_LsuEuPlugin_euInputPort_payload_memCtrl_size_string;
-  reg [39:0] _zz_io_iqEntryIn_payload_aluCtrl_logicOp_string;
-  reg [103:0] _zz_io_iqEntryIn_payload_immUsage_string;
   reg [7:0] _zz_LsuEU_LsuEuPlugin_euInputPort_translated_payload_accessSize_string;
   reg [7:0] LsuEU_LsuEuPlugin_euInputPort_translated_payload_accessSize_string;
   reg [7:0] io_outputs_0_combStage_payload_accessSize_string;
@@ -6209,7 +6243,7 @@ module CoreNSCSCC (
   assign _zz_io_triggerIn_13 = 5'h17;
   assign _zz_io_triggerIn_12 = {3'd0, _zz_io_triggerIn_13};
   assign _zz_when_Debug_l71_6_1 = {3'd0, _zz_when_Debug_l71_7};
-  assign _zz_AluIntEU_AluIntEuPlugin_euResult_exceptionCode = AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_exceptionCode;
+  assign _zz_AluIntEU_AluIntEuPlugin_euResult_exceptionCode_2 = _zz_AluIntEU_AluIntEuPlugin_euResult_exceptionCode;
   assign _zz_io_triggerIn_15 = 5'h18;
   assign _zz_io_triggerIn_14 = {3'd0, _zz_io_triggerIn_15};
   assign _zz_when_Debug_l71_7_1 = {3'd0, _zz_when_Debug_l71_8};
@@ -6325,31 +6359,31 @@ module CoreNSCSCC (
 
   IntAlu AluIntEU_AluIntEuPlugin_intAlu (
     .io_iqEntryIn_valid                          (s2_Execute_isFiring                                                  ), //i
-    .io_iqEntryIn_payload_robPtr                 (_zz_AluIntEU_AluIntEuPlugin_euResult_uop_robPtr[3:0]                 ), //i
-    .io_iqEntryIn_payload_physDest_idx           (_zz_AluIntEU_AluIntEuPlugin_euResult_uop_physDest_idx[5:0]           ), //i
-    .io_iqEntryIn_payload_physDestIsFpr          (_zz_AluIntEU_AluIntEuPlugin_euResult_uop_physDestIsFpr               ), //i
-    .io_iqEntryIn_payload_writesToPhysReg        (_zz_AluIntEU_AluIntEuPlugin_euResult_uop_writesToPhysReg             ), //i
-    .io_iqEntryIn_payload_useSrc1                (_zz_AluIntEU_AluIntEuPlugin_euResult_uop_useSrc1                     ), //i
+    .io_iqEntryIn_payload_robPtr                 (_zz_io_iqEntryIn_payload_robPtr[3:0]                                 ), //i
+    .io_iqEntryIn_payload_physDest_idx           (_zz_io_iqEntryIn_payload_physDest_idx[5:0]                           ), //i
+    .io_iqEntryIn_payload_physDestIsFpr          (_zz_io_iqEntryIn_payload_physDestIsFpr                               ), //i
+    .io_iqEntryIn_payload_writesToPhysReg        (_zz_io_iqEntryIn_payload_writesToPhysReg                             ), //i
+    .io_iqEntryIn_payload_useSrc1                (_zz_io_iqEntryIn_payload_useSrc1                                     ), //i
     .io_iqEntryIn_payload_src1Data               (_zz_io_iqEntryIn_payload_src1Data[31:0]                              ), //i
-    .io_iqEntryIn_payload_src1Tag                (_zz_AluIntEU_AluIntEuPlugin_euResult_uop_src1Tag[5:0]                ), //i
-    .io_iqEntryIn_payload_src1Ready              (_zz_AluIntEU_AluIntEuPlugin_euResult_uop_src1Ready                   ), //i
-    .io_iqEntryIn_payload_src1IsFpr              (_zz_AluIntEU_AluIntEuPlugin_euResult_uop_src1IsFpr                   ), //i
-    .io_iqEntryIn_payload_useSrc2                (_zz_AluIntEU_AluIntEuPlugin_euResult_uop_useSrc2                     ), //i
+    .io_iqEntryIn_payload_src1Tag                (_zz_io_iqEntryIn_payload_src1Tag[5:0]                                ), //i
+    .io_iqEntryIn_payload_src1Ready              (_zz_io_iqEntryIn_payload_src1Ready                                   ), //i
+    .io_iqEntryIn_payload_src1IsFpr              (_zz_io_iqEntryIn_payload_src1IsFpr                                   ), //i
+    .io_iqEntryIn_payload_useSrc2                (_zz_io_iqEntryIn_payload_useSrc2                                     ), //i
     .io_iqEntryIn_payload_src2Data               (_zz_io_iqEntryIn_payload_src2Data_1[31:0]                            ), //i
-    .io_iqEntryIn_payload_src2Tag                (_zz_AluIntEU_AluIntEuPlugin_euResult_uop_src2Tag[5:0]                ), //i
-    .io_iqEntryIn_payload_src2Ready              (_zz_AluIntEU_AluIntEuPlugin_euResult_uop_src2Ready                   ), //i
-    .io_iqEntryIn_payload_src2IsFpr              (_zz_AluIntEU_AluIntEuPlugin_euResult_uop_src2IsFpr                   ), //i
-    .io_iqEntryIn_payload_aluCtrl_valid          (_zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_valid               ), //i
-    .io_iqEntryIn_payload_aluCtrl_isSub          (_zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSub               ), //i
-    .io_iqEntryIn_payload_aluCtrl_isAdd          (_zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isAdd               ), //i
-    .io_iqEntryIn_payload_aluCtrl_isSigned       (_zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSigned            ), //i
+    .io_iqEntryIn_payload_src2Tag                (_zz_io_iqEntryIn_payload_src2Tag[5:0]                                ), //i
+    .io_iqEntryIn_payload_src2Ready              (_zz_io_iqEntryIn_payload_src2Ready                                   ), //i
+    .io_iqEntryIn_payload_src2IsFpr              (_zz_io_iqEntryIn_payload_src2IsFpr                                   ), //i
+    .io_iqEntryIn_payload_aluCtrl_valid          (_zz_io_iqEntryIn_payload_aluCtrl_valid                               ), //i
+    .io_iqEntryIn_payload_aluCtrl_isSub          (_zz_io_iqEntryIn_payload_aluCtrl_isSub                               ), //i
+    .io_iqEntryIn_payload_aluCtrl_isAdd          (_zz_io_iqEntryIn_payload_aluCtrl_isAdd                               ), //i
+    .io_iqEntryIn_payload_aluCtrl_isSigned       (_zz_io_iqEntryIn_payload_aluCtrl_isSigned                            ), //i
     .io_iqEntryIn_payload_aluCtrl_logicOp        (_zz_io_iqEntryIn_payload_aluCtrl_logicOp[1:0]                        ), //i
-    .io_iqEntryIn_payload_shiftCtrl_valid        (_zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_valid             ), //i
-    .io_iqEntryIn_payload_shiftCtrl_isRight      (_zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isRight           ), //i
-    .io_iqEntryIn_payload_shiftCtrl_isArithmetic (_zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isArithmetic      ), //i
-    .io_iqEntryIn_payload_shiftCtrl_isRotate     (_zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isRotate          ), //i
-    .io_iqEntryIn_payload_shiftCtrl_isDoubleWord (_zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isDoubleWord      ), //i
-    .io_iqEntryIn_payload_imm                    (_zz_AluIntEU_AluIntEuPlugin_euResult_uop_imm[31:0]                   ), //i
+    .io_iqEntryIn_payload_shiftCtrl_valid        (_zz_io_iqEntryIn_payload_shiftCtrl_valid                             ), //i
+    .io_iqEntryIn_payload_shiftCtrl_isRight      (_zz_io_iqEntryIn_payload_shiftCtrl_isRight                           ), //i
+    .io_iqEntryIn_payload_shiftCtrl_isArithmetic (_zz_io_iqEntryIn_payload_shiftCtrl_isArithmetic                      ), //i
+    .io_iqEntryIn_payload_shiftCtrl_isRotate     (_zz_io_iqEntryIn_payload_shiftCtrl_isRotate                          ), //i
+    .io_iqEntryIn_payload_shiftCtrl_isDoubleWord (_zz_io_iqEntryIn_payload_shiftCtrl_isDoubleWord                      ), //i
+    .io_iqEntryIn_payload_imm                    (_zz_io_iqEntryIn_payload_imm[31:0]                                   ), //i
     .io_iqEntryIn_payload_immUsage               (_zz_io_iqEntryIn_payload_immUsage[2:0]                               ), //i
     .io_resultOut_valid                          (AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_valid                    ), //o
     .io_resultOut_payload_data                   (AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_data[31:0]       ), //o
@@ -9769,6 +9803,13 @@ module CoreNSCSCC (
     endcase
   end
   always @(*) begin
+    case(_zz_AluIntEU_AluIntEuPlugin_euResult_exceptionCode)
+      IntAluExceptionCode_NONE : _zz_AluIntEU_AluIntEuPlugin_euResult_exceptionCode_string = "NONE            ";
+      IntAluExceptionCode_UNDEFINED_ALU_OP : _zz_AluIntEU_AluIntEuPlugin_euResult_exceptionCode_string = "UNDEFINED_ALU_OP";
+      default : _zz_AluIntEU_AluIntEuPlugin_euResult_exceptionCode_string = "????????????????";
+    endcase
+  end
+  always @(*) begin
     case(_zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp)
       LogicOp_NONE : _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_string = "NONE ";
       LogicOp_AND_1 : _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_string = "AND_1";
@@ -9790,45 +9831,73 @@ module CoreNSCSCC (
     endcase
   end
   always @(*) begin
-    case(_zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_1)
-      LogicOp_NONE : _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_1_string = "NONE ";
-      LogicOp_AND_1 : _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_1_string = "AND_1";
-      LogicOp_OR_1 : _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_1_string = "OR_1 ";
-      LogicOp_XOR_1 : _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_1_string = "XOR_1";
-      default : _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_1_string = "?????";
+    case(_zz_AluIntEU_AluIntEuPlugin_euResult_exceptionCode_1)
+      IntAluExceptionCode_NONE : _zz_AluIntEU_AluIntEuPlugin_euResult_exceptionCode_1_string = "NONE            ";
+      IntAluExceptionCode_UNDEFINED_ALU_OP : _zz_AluIntEU_AluIntEuPlugin_euResult_exceptionCode_1_string = "UNDEFINED_ALU_OP";
+      default : _zz_AluIntEU_AluIntEuPlugin_euResult_exceptionCode_1_string = "????????????????";
     endcase
   end
   always @(*) begin
-    case(_zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_1)
-      ImmUsageType_NONE : _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_1_string = "NONE         ";
-      ImmUsageType_SRC_ALU : _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_1_string = "SRC_ALU      ";
-      ImmUsageType_SRC_SHIFT_AMT : _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_1_string = "SRC_SHIFT_AMT";
-      ImmUsageType_SRC_CSR_UIMM : _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_1_string = "SRC_CSR_UIMM ";
-      ImmUsageType_MEM_OFFSET : _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_1_string = "MEM_OFFSET   ";
-      ImmUsageType_BRANCH_OFFSET : _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_1_string = "BRANCH_OFFSET";
-      ImmUsageType_JUMP_OFFSET : _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_1_string = "JUMP_OFFSET  ";
-      default : _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_1_string = "?????????????";
+    case(_zz_io_iqEntryIn_payload_aluCtrl_logicOp)
+      LogicOp_NONE : _zz_io_iqEntryIn_payload_aluCtrl_logicOp_string = "NONE ";
+      LogicOp_AND_1 : _zz_io_iqEntryIn_payload_aluCtrl_logicOp_string = "AND_1";
+      LogicOp_OR_1 : _zz_io_iqEntryIn_payload_aluCtrl_logicOp_string = "OR_1 ";
+      LogicOp_XOR_1 : _zz_io_iqEntryIn_payload_aluCtrl_logicOp_string = "XOR_1";
+      default : _zz_io_iqEntryIn_payload_aluCtrl_logicOp_string = "?????";
     endcase
   end
   always @(*) begin
-    case(_zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_2)
-      LogicOp_NONE : _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_2_string = "NONE ";
-      LogicOp_AND_1 : _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_2_string = "AND_1";
-      LogicOp_OR_1 : _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_2_string = "OR_1 ";
-      LogicOp_XOR_1 : _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_2_string = "XOR_1";
-      default : _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_2_string = "?????";
+    case(_zz_io_iqEntryIn_payload_immUsage)
+      ImmUsageType_NONE : _zz_io_iqEntryIn_payload_immUsage_string = "NONE         ";
+      ImmUsageType_SRC_ALU : _zz_io_iqEntryIn_payload_immUsage_string = "SRC_ALU      ";
+      ImmUsageType_SRC_SHIFT_AMT : _zz_io_iqEntryIn_payload_immUsage_string = "SRC_SHIFT_AMT";
+      ImmUsageType_SRC_CSR_UIMM : _zz_io_iqEntryIn_payload_immUsage_string = "SRC_CSR_UIMM ";
+      ImmUsageType_MEM_OFFSET : _zz_io_iqEntryIn_payload_immUsage_string = "MEM_OFFSET   ";
+      ImmUsageType_BRANCH_OFFSET : _zz_io_iqEntryIn_payload_immUsage_string = "BRANCH_OFFSET";
+      ImmUsageType_JUMP_OFFSET : _zz_io_iqEntryIn_payload_immUsage_string = "JUMP_OFFSET  ";
+      default : _zz_io_iqEntryIn_payload_immUsage_string = "?????????????";
     endcase
   end
   always @(*) begin
-    case(_zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_2)
-      ImmUsageType_NONE : _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_2_string = "NONE         ";
-      ImmUsageType_SRC_ALU : _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_2_string = "SRC_ALU      ";
-      ImmUsageType_SRC_SHIFT_AMT : _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_2_string = "SRC_SHIFT_AMT";
-      ImmUsageType_SRC_CSR_UIMM : _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_2_string = "SRC_CSR_UIMM ";
-      ImmUsageType_MEM_OFFSET : _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_2_string = "MEM_OFFSET   ";
-      ImmUsageType_BRANCH_OFFSET : _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_2_string = "BRANCH_OFFSET";
-      ImmUsageType_JUMP_OFFSET : _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_2_string = "JUMP_OFFSET  ";
-      default : _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_2_string = "?????????????";
+    case(_zz_io_iqEntryIn_payload_aluCtrl_logicOp_1)
+      LogicOp_NONE : _zz_io_iqEntryIn_payload_aluCtrl_logicOp_1_string = "NONE ";
+      LogicOp_AND_1 : _zz_io_iqEntryIn_payload_aluCtrl_logicOp_1_string = "AND_1";
+      LogicOp_OR_1 : _zz_io_iqEntryIn_payload_aluCtrl_logicOp_1_string = "OR_1 ";
+      LogicOp_XOR_1 : _zz_io_iqEntryIn_payload_aluCtrl_logicOp_1_string = "XOR_1";
+      default : _zz_io_iqEntryIn_payload_aluCtrl_logicOp_1_string = "?????";
+    endcase
+  end
+  always @(*) begin
+    case(_zz_io_iqEntryIn_payload_immUsage_1)
+      ImmUsageType_NONE : _zz_io_iqEntryIn_payload_immUsage_1_string = "NONE         ";
+      ImmUsageType_SRC_ALU : _zz_io_iqEntryIn_payload_immUsage_1_string = "SRC_ALU      ";
+      ImmUsageType_SRC_SHIFT_AMT : _zz_io_iqEntryIn_payload_immUsage_1_string = "SRC_SHIFT_AMT";
+      ImmUsageType_SRC_CSR_UIMM : _zz_io_iqEntryIn_payload_immUsage_1_string = "SRC_CSR_UIMM ";
+      ImmUsageType_MEM_OFFSET : _zz_io_iqEntryIn_payload_immUsage_1_string = "MEM_OFFSET   ";
+      ImmUsageType_BRANCH_OFFSET : _zz_io_iqEntryIn_payload_immUsage_1_string = "BRANCH_OFFSET";
+      ImmUsageType_JUMP_OFFSET : _zz_io_iqEntryIn_payload_immUsage_1_string = "JUMP_OFFSET  ";
+      default : _zz_io_iqEntryIn_payload_immUsage_1_string = "?????????????";
+    endcase
+  end
+  always @(*) begin
+    case(_zz_io_iqEntryIn_payload_aluCtrl_logicOp_2)
+      LogicOp_NONE : _zz_io_iqEntryIn_payload_aluCtrl_logicOp_2_string = "NONE ";
+      LogicOp_AND_1 : _zz_io_iqEntryIn_payload_aluCtrl_logicOp_2_string = "AND_1";
+      LogicOp_OR_1 : _zz_io_iqEntryIn_payload_aluCtrl_logicOp_2_string = "OR_1 ";
+      LogicOp_XOR_1 : _zz_io_iqEntryIn_payload_aluCtrl_logicOp_2_string = "XOR_1";
+      default : _zz_io_iqEntryIn_payload_aluCtrl_logicOp_2_string = "?????";
+    endcase
+  end
+  always @(*) begin
+    case(_zz_io_iqEntryIn_payload_immUsage_2)
+      ImmUsageType_NONE : _zz_io_iqEntryIn_payload_immUsage_2_string = "NONE         ";
+      ImmUsageType_SRC_ALU : _zz_io_iqEntryIn_payload_immUsage_2_string = "SRC_ALU      ";
+      ImmUsageType_SRC_SHIFT_AMT : _zz_io_iqEntryIn_payload_immUsage_2_string = "SRC_SHIFT_AMT";
+      ImmUsageType_SRC_CSR_UIMM : _zz_io_iqEntryIn_payload_immUsage_2_string = "SRC_CSR_UIMM ";
+      ImmUsageType_MEM_OFFSET : _zz_io_iqEntryIn_payload_immUsage_2_string = "MEM_OFFSET   ";
+      ImmUsageType_BRANCH_OFFSET : _zz_io_iqEntryIn_payload_immUsage_2_string = "BRANCH_OFFSET";
+      ImmUsageType_JUMP_OFFSET : _zz_io_iqEntryIn_payload_immUsage_2_string = "JUMP_OFFSET  ";
+      default : _zz_io_iqEntryIn_payload_immUsage_2_string = "?????????????";
     endcase
   end
   always @(*) begin
@@ -13909,27 +13978,6 @@ module CoreNSCSCC (
     endcase
   end
   always @(*) begin
-    case(_zz_io_iqEntryIn_payload_aluCtrl_logicOp)
-      LogicOp_NONE : _zz_io_iqEntryIn_payload_aluCtrl_logicOp_string = "NONE ";
-      LogicOp_AND_1 : _zz_io_iqEntryIn_payload_aluCtrl_logicOp_string = "AND_1";
-      LogicOp_OR_1 : _zz_io_iqEntryIn_payload_aluCtrl_logicOp_string = "OR_1 ";
-      LogicOp_XOR_1 : _zz_io_iqEntryIn_payload_aluCtrl_logicOp_string = "XOR_1";
-      default : _zz_io_iqEntryIn_payload_aluCtrl_logicOp_string = "?????";
-    endcase
-  end
-  always @(*) begin
-    case(_zz_io_iqEntryIn_payload_immUsage)
-      ImmUsageType_NONE : _zz_io_iqEntryIn_payload_immUsage_string = "NONE         ";
-      ImmUsageType_SRC_ALU : _zz_io_iqEntryIn_payload_immUsage_string = "SRC_ALU      ";
-      ImmUsageType_SRC_SHIFT_AMT : _zz_io_iqEntryIn_payload_immUsage_string = "SRC_SHIFT_AMT";
-      ImmUsageType_SRC_CSR_UIMM : _zz_io_iqEntryIn_payload_immUsage_string = "SRC_CSR_UIMM ";
-      ImmUsageType_MEM_OFFSET : _zz_io_iqEntryIn_payload_immUsage_string = "MEM_OFFSET   ";
-      ImmUsageType_BRANCH_OFFSET : _zz_io_iqEntryIn_payload_immUsage_string = "BRANCH_OFFSET";
-      ImmUsageType_JUMP_OFFSET : _zz_io_iqEntryIn_payload_immUsage_string = "JUMP_OFFSET  ";
-      default : _zz_io_iqEntryIn_payload_immUsage_string = "?????????????";
-    endcase
-  end
-  always @(*) begin
     case(_zz_LsuEU_LsuEuPlugin_euInputPort_translated_payload_accessSize)
       MemAccessSize_B : _zz_LsuEU_LsuEuPlugin_euInputPort_translated_payload_accessSize_string = "B";
       MemAccessSize_H : _zz_LsuEU_LsuEuPlugin_euInputPort_translated_payload_accessSize_string = "H";
@@ -14361,225 +14409,225 @@ module CoreNSCSCC (
 
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_valid = 1'b0;
-    if(s2_Execute_isFiring) begin
+    if(s3_Writeback_isFiring) begin
       AluIntEU_AluIntEuPlugin_euResult_valid = 1'b1;
     end
   end
 
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_uop_robPtr = 4'b0000;
-    if(s2_Execute_isFiring) begin
+    if(s3_Writeback_isFiring) begin
       AluIntEU_AluIntEuPlugin_euResult_uop_robPtr = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_robPtr;
     end
   end
 
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_uop_physDest_idx = 6'h0;
-    if(s2_Execute_isFiring) begin
+    if(s3_Writeback_isFiring) begin
       AluIntEU_AluIntEuPlugin_euResult_uop_physDest_idx = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_physDest_idx;
     end
   end
 
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_uop_physDestIsFpr = 1'b0;
-    if(s2_Execute_isFiring) begin
+    if(s3_Writeback_isFiring) begin
       AluIntEU_AluIntEuPlugin_euResult_uop_physDestIsFpr = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_physDestIsFpr;
     end
   end
 
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_uop_writesToPhysReg = 1'b0;
-    if(s2_Execute_isFiring) begin
+    if(s3_Writeback_isFiring) begin
       AluIntEU_AluIntEuPlugin_euResult_uop_writesToPhysReg = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_writesToPhysReg;
     end
   end
 
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_uop_useSrc1 = 1'b0;
-    if(s2_Execute_isFiring) begin
+    if(s3_Writeback_isFiring) begin
       AluIntEU_AluIntEuPlugin_euResult_uop_useSrc1 = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_useSrc1;
     end
   end
 
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_uop_src1Data = 32'h0;
-    if(s2_Execute_isFiring) begin
+    if(s3_Writeback_isFiring) begin
       AluIntEU_AluIntEuPlugin_euResult_uop_src1Data = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src1Data;
     end
   end
 
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_uop_src1Tag = 6'h0;
-    if(s2_Execute_isFiring) begin
+    if(s3_Writeback_isFiring) begin
       AluIntEU_AluIntEuPlugin_euResult_uop_src1Tag = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src1Tag;
     end
   end
 
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_uop_src1Ready = 1'b0;
-    if(s2_Execute_isFiring) begin
+    if(s3_Writeback_isFiring) begin
       AluIntEU_AluIntEuPlugin_euResult_uop_src1Ready = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src1Ready;
     end
   end
 
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_uop_src1IsFpr = 1'b0;
-    if(s2_Execute_isFiring) begin
+    if(s3_Writeback_isFiring) begin
       AluIntEU_AluIntEuPlugin_euResult_uop_src1IsFpr = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src1IsFpr;
     end
   end
 
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_uop_useSrc2 = 1'b0;
-    if(s2_Execute_isFiring) begin
+    if(s3_Writeback_isFiring) begin
       AluIntEU_AluIntEuPlugin_euResult_uop_useSrc2 = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_useSrc2;
     end
   end
 
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_uop_src2Data = 32'h0;
-    if(s2_Execute_isFiring) begin
+    if(s3_Writeback_isFiring) begin
       AluIntEU_AluIntEuPlugin_euResult_uop_src2Data = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src2Data;
     end
   end
 
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_uop_src2Tag = 6'h0;
-    if(s2_Execute_isFiring) begin
+    if(s3_Writeback_isFiring) begin
       AluIntEU_AluIntEuPlugin_euResult_uop_src2Tag = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src2Tag;
     end
   end
 
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_uop_src2Ready = 1'b0;
-    if(s2_Execute_isFiring) begin
+    if(s3_Writeback_isFiring) begin
       AluIntEU_AluIntEuPlugin_euResult_uop_src2Ready = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src2Ready;
     end
   end
 
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_uop_src2IsFpr = 1'b0;
-    if(s2_Execute_isFiring) begin
+    if(s3_Writeback_isFiring) begin
       AluIntEU_AluIntEuPlugin_euResult_uop_src2IsFpr = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src2IsFpr;
     end
   end
 
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_valid = 1'b0;
-    if(s2_Execute_isFiring) begin
+    if(s3_Writeback_isFiring) begin
       AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_valid = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_valid;
     end
   end
 
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSub = 1'b0;
-    if(s2_Execute_isFiring) begin
+    if(s3_Writeback_isFiring) begin
       AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSub = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSub;
     end
   end
 
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isAdd = 1'b0;
-    if(s2_Execute_isFiring) begin
+    if(s3_Writeback_isFiring) begin
       AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isAdd = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isAdd;
     end
   end
 
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSigned = 1'b0;
-    if(s2_Execute_isFiring) begin
+    if(s3_Writeback_isFiring) begin
       AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSigned = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSigned;
     end
   end
 
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp = LogicOp_NONE;
-    if(s2_Execute_isFiring) begin
+    if(s3_Writeback_isFiring) begin
       AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp;
     end
   end
 
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_valid = 1'b0;
-    if(s2_Execute_isFiring) begin
+    if(s3_Writeback_isFiring) begin
       AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_valid = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_valid;
     end
   end
 
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isRight = 1'b0;
-    if(s2_Execute_isFiring) begin
+    if(s3_Writeback_isFiring) begin
       AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isRight = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isRight;
     end
   end
 
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isArithmetic = 1'b0;
-    if(s2_Execute_isFiring) begin
+    if(s3_Writeback_isFiring) begin
       AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isArithmetic = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isArithmetic;
     end
   end
 
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isRotate = 1'b0;
-    if(s2_Execute_isFiring) begin
+    if(s3_Writeback_isFiring) begin
       AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isRotate = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isRotate;
     end
   end
 
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isDoubleWord = 1'b0;
-    if(s2_Execute_isFiring) begin
+    if(s3_Writeback_isFiring) begin
       AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isDoubleWord = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isDoubleWord;
     end
   end
 
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_uop_imm = 32'h0;
-    if(s2_Execute_isFiring) begin
+    if(s3_Writeback_isFiring) begin
       AluIntEU_AluIntEuPlugin_euResult_uop_imm = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_imm;
     end
   end
 
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_uop_immUsage = ImmUsageType_NONE;
-    if(s2_Execute_isFiring) begin
+    if(s3_Writeback_isFiring) begin
       AluIntEU_AluIntEuPlugin_euResult_uop_immUsage = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage;
     end
   end
 
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-    if(s2_Execute_isFiring) begin
-      AluIntEU_AluIntEuPlugin_euResult_data = AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_data;
+    if(s3_Writeback_isFiring) begin
+      AluIntEU_AluIntEuPlugin_euResult_data = _zz_AluIntEU_AluIntEuPlugin_euResult_data;
     end
   end
 
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_writesToPreg = 1'bx;
-    if(s2_Execute_isFiring) begin
-      AluIntEU_AluIntEuPlugin_euResult_writesToPreg = AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_writesToPhysReg;
+    if(s3_Writeback_isFiring) begin
+      AluIntEU_AluIntEuPlugin_euResult_writesToPreg = _zz_AluIntEU_AluIntEuPlugin_euResult_writesToPreg;
     end
   end
 
   assign AluIntEU_AluIntEuPlugin_euResult_isMispredictedBranch = 1'bx;
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_hasException = 1'bx;
-    if(s2_Execute_isFiring) begin
-      AluIntEU_AluIntEuPlugin_euResult_hasException = AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_hasException;
+    if(s3_Writeback_isFiring) begin
+      AluIntEU_AluIntEuPlugin_euResult_hasException = _zz_AluIntEU_AluIntEuPlugin_euResult_hasException;
     end
   end
 
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_exceptionCode = 8'bxxxxxxxx;
-    if(s2_Execute_isFiring) begin
-      AluIntEU_AluIntEuPlugin_euResult_exceptionCode = {7'd0, _zz_AluIntEU_AluIntEuPlugin_euResult_exceptionCode};
+    if(s3_Writeback_isFiring) begin
+      AluIntEU_AluIntEuPlugin_euResult_exceptionCode = {7'd0, _zz_AluIntEU_AluIntEuPlugin_euResult_exceptionCode_2};
     end
   end
 
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_destIsFpr = 1'bx;
-    if(s2_Execute_isFiring) begin
+    if(s3_Writeback_isFiring) begin
       AluIntEU_AluIntEuPlugin_euResult_destIsFpr = 1'b0;
     end
   end
@@ -19698,21 +19746,22 @@ module CoreNSCSCC (
   assign DebugDisplayPlugin_hw_dpyController_io_dp0 = (! DebugDisplayPlugin_logic_displayArea_dpToggle);
   assign s0_Dispatch_valid = AluIntEU_AluIntEuPlugin_euInputPort_valid;
   assign AluIntEU_AluIntEuPlugin_euInputPort_ready = s0_Dispatch_ready_1;
-  assign _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_2 = AluIntEU_AluIntEuPlugin_euInputPort_payload_aluCtrl_logicOp;
-  assign _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_2 = AluIntEU_AluIntEuPlugin_euInputPort_payload_immUsage;
+  assign _zz_io_iqEntryIn_payload_aluCtrl_logicOp_2 = AluIntEU_AluIntEuPlugin_euInputPort_payload_aluCtrl_logicOp;
+  assign _zz_io_iqEntryIn_payload_immUsage_2 = AluIntEU_AluIntEuPlugin_euInputPort_payload_immUsage;
   assign s1_ReadRegs_isFiring = (s1_ReadRegs_valid && s1_ReadRegs_ready);
   assign AluIntEU_AluIntEuPlugin_gprReadPorts_0_valid = (s1_ReadRegs_isFiring && _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_valid);
   assign AluIntEU_AluIntEuPlugin_gprReadPorts_0_address = _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_address;
   assign AluIntEU_AluIntEuPlugin_gprReadPorts_1_valid = (s1_ReadRegs_isFiring && _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_valid);
   assign AluIntEU_AluIntEuPlugin_gprReadPorts_1_address = _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_address;
-  assign _zz_io_iqEntryIn_payload_src2Data_1 = ((_zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage == ImmUsageType_SRC_ALU) ? _zz_AluIntEU_AluIntEuPlugin_euResult_uop_imm : _zz_io_iqEntryIn_payload_src2Data);
-  assign _zz_io_iqEntryIn_payload_aluCtrl_logicOp = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp;
-  assign _zz_io_iqEntryIn_payload_immUsage = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage;
+  assign _zz_io_iqEntryIn_payload_src2Data_1 = ((_zz_io_iqEntryIn_payload_immUsage == ImmUsageType_SRC_ALU) ? _zz_io_iqEntryIn_payload_imm : _zz_io_iqEntryIn_payload_src2Data);
+  assign _zz_AluIntEU_AluIntEuPlugin_euResult_exceptionCode_1 = AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_exceptionCode;
   assign s2_Execute_isFiring = (s2_Execute_valid && s2_Execute_ready);
-  assign _zz_45 = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage;
+  assign _zz_45 = _zz_io_iqEntryIn_payload_immUsage;
+  assign s3_Writeback_isFiring = (s3_Writeback_valid && s3_Writeback_ready);
   assign s0_Dispatch_ready_1 = 1'b1;
   assign s1_ReadRegs_ready = 1'b1;
   assign s2_Execute_ready = 1'b1;
+  assign s3_Writeback_ready = 1'b1;
   assign _zz_AluIntEU_AluIntEuPlugin_logicPhase_isFlushed = AluIntEU_AluIntEuPlugin_euResult_uop_robPtr[3];
   assign _zz_AluIntEU_AluIntEuPlugin_logicPhase_isFlushed_1 = AluIntEU_AluIntEuPlugin_euResult_uop_robPtr[2 : 0];
   assign _zz_AluIntEU_AluIntEuPlugin_logicPhase_isFlushed_2 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
@@ -24849,6 +24898,7 @@ module CoreNSCSCC (
       DebugDisplayPlugin_logic_displayArea_dpToggle <= 1'b0;
       s1_ReadRegs_valid <= 1'b0;
       s2_Execute_valid <= 1'b0;
+      s3_Writeback_valid <= 1'b0;
       mul_s1_ReadRegs_valid <= 1'b0;
       mul_s2_Execute_valid <= 1'b0;
       mul_s3_Execute_valid <= 1'b0;
@@ -25484,16 +25534,17 @@ module CoreNSCSCC (
       if(s2_Execute_isFiring) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // AluIntEuPlugin.scala:L130
+            assert(1'b0); // AluIntEuPlugin.scala:L102
           `else
             if(!1'b0) begin
-              $display("NOTE(AluIntEuPlugin.scala:130):  [debug] [34mAluIntEu (AluIntEU) S2 Firing: RobPtr=%x, ResultData=%x, WritesPreg=%x, ImmUsage=%x, UseSrc2=%x op: AluCtrlFlags: isSub=%x isAdd=%x isSigned=%x logicOp=%s, lhs=%x, rhs=%x[0m", _zz_AluIntEU_AluIntEuPlugin_euResult_uop_robPtr, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_data, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_writesToPhysReg, _zz_45, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_useSrc2, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSub, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isAdd, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSigned, _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_string, _zz_io_iqEntryIn_payload_src1Data, _zz_io_iqEntryIn_payload_src2Data_1); // AluIntEuPlugin.scala:L130
+              $display("NOTE(AluIntEuPlugin.scala:102):  [debug] [34mAluIntEu (AluIntEU) S2 Firing: RobPtr=%x, ResultData=%x, WritesPreg=%x, ImmUsage=%x, UseSrc2=%x op: AluCtrlFlags: isSub=%x isAdd=%x isSigned=%x logicOp=%s, lhs=%x, rhs=%x[0m", _zz_io_iqEntryIn_payload_robPtr, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_data, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_writesToPhysReg, _zz_45, _zz_io_iqEntryIn_payload_useSrc2, _zz_io_iqEntryIn_payload_aluCtrl_isSub, _zz_io_iqEntryIn_payload_aluCtrl_isAdd, _zz_io_iqEntryIn_payload_aluCtrl_isSigned, _zz_io_iqEntryIn_payload_aluCtrl_logicOp_string, _zz_io_iqEntryIn_payload_src1Data, _zz_io_iqEntryIn_payload_src2Data_1); // AluIntEuPlugin.scala:L102
             end
           `endif
         `endif
       end
       s1_ReadRegs_valid <= s0_Dispatch_valid;
       s2_Execute_valid <= s1_ReadRegs_valid;
+      s3_Writeback_valid <= s2_Execute_valid;
       if(when_EuBasePlugin_l228) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
@@ -27031,60 +27082,90 @@ module CoreNSCSCC (
     DispatchPlugin_logic_debugDispatchedUopSrc1_iq2 <= s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc1_idx;
     DispatchPlugin_logic_debugDispatchedUopSrc2_iq3 <= s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2_idx;
     DispatchPlugin_logic_debugDispatchedUopSrc1_iq3 <= s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc1_idx;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_robPtr_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_robPtr;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_physDest_idx_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_physDest_idx;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_physDestIsFpr_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_physDestIsFpr;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_writesToPhysReg_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_writesToPhysReg;
+    _zz_io_iqEntryIn_payload_robPtr_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_robPtr;
+    _zz_io_iqEntryIn_payload_physDest_idx_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_physDest_idx;
+    _zz_io_iqEntryIn_payload_physDestIsFpr_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_physDestIsFpr;
+    _zz_io_iqEntryIn_payload_writesToPhysReg_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_writesToPhysReg;
     _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_valid <= AluIntEU_AluIntEuPlugin_euInputPort_payload_useSrc1;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src1Data_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_src1Data;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src1Data_2 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_src1Data;
     _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_address <= AluIntEU_AluIntEuPlugin_euInputPort_payload_src1Tag;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src1Ready_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_src1Ready;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src1IsFpr_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_src1IsFpr;
+    _zz_io_iqEntryIn_payload_src1Ready_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_src1Ready;
+    _zz_io_iqEntryIn_payload_src1IsFpr_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_src1IsFpr;
     _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_valid <= AluIntEU_AluIntEuPlugin_euInputPort_payload_useSrc2;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src2Data_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_src2Data;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src2Data_2 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_src2Data;
     _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_address <= AluIntEU_AluIntEuPlugin_euInputPort_payload_src2Tag;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src2Ready_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_src2Ready;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src2IsFpr_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_src2IsFpr;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_valid_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_aluCtrl_valid;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSub_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_aluCtrl_isSub;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isAdd_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_aluCtrl_isAdd;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSigned_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_aluCtrl_isSigned;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_1 <= _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_2;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_valid_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_shiftCtrl_valid;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isRight_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_shiftCtrl_isRight;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isArithmetic_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_shiftCtrl_isArithmetic;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isRotate_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_shiftCtrl_isRotate;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isDoubleWord_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_shiftCtrl_isDoubleWord;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_imm_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_imm;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_1 <= _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_2;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_robPtr <= _zz_AluIntEU_AluIntEuPlugin_euResult_uop_robPtr_1;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_physDest_idx <= _zz_AluIntEU_AluIntEuPlugin_euResult_uop_physDest_idx_1;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_physDestIsFpr <= _zz_AluIntEU_AluIntEuPlugin_euResult_uop_physDestIsFpr_1;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_writesToPhysReg <= _zz_AluIntEU_AluIntEuPlugin_euResult_uop_writesToPhysReg_1;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_useSrc1 <= _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_valid;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src1Data <= _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src1Data_1;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src1Tag <= _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_address;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src1Ready <= _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src1Ready_1;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src1IsFpr <= _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src1IsFpr_1;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_useSrc2 <= _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_valid;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src2Data <= _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src2Data_1;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src2Tag <= _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_address;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src2Ready <= _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src2Ready_1;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src2IsFpr <= _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src2IsFpr_1;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_valid <= _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_valid_1;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSub <= _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSub_1;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isAdd <= _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isAdd_1;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSigned <= _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSigned_1;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp <= _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp_1;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_valid <= _zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_valid_1;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isRight <= _zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isRight_1;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isArithmetic <= _zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isArithmetic_1;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isRotate <= _zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isRotate_1;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isDoubleWord <= _zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isDoubleWord_1;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_imm <= _zz_AluIntEU_AluIntEuPlugin_euResult_uop_imm_1;
-    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage <= _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage_1;
+    _zz_io_iqEntryIn_payload_src2Ready_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_src2Ready;
+    _zz_io_iqEntryIn_payload_src2IsFpr_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_src2IsFpr;
+    _zz_io_iqEntryIn_payload_aluCtrl_valid_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_aluCtrl_valid;
+    _zz_io_iqEntryIn_payload_aluCtrl_isSub_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_aluCtrl_isSub;
+    _zz_io_iqEntryIn_payload_aluCtrl_isAdd_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_aluCtrl_isAdd;
+    _zz_io_iqEntryIn_payload_aluCtrl_isSigned_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_aluCtrl_isSigned;
+    _zz_io_iqEntryIn_payload_aluCtrl_logicOp_1 <= _zz_io_iqEntryIn_payload_aluCtrl_logicOp_2;
+    _zz_io_iqEntryIn_payload_shiftCtrl_valid_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_shiftCtrl_valid;
+    _zz_io_iqEntryIn_payload_shiftCtrl_isRight_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_shiftCtrl_isRight;
+    _zz_io_iqEntryIn_payload_shiftCtrl_isArithmetic_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_shiftCtrl_isArithmetic;
+    _zz_io_iqEntryIn_payload_shiftCtrl_isRotate_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_shiftCtrl_isRotate;
+    _zz_io_iqEntryIn_payload_shiftCtrl_isDoubleWord_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_shiftCtrl_isDoubleWord;
+    _zz_io_iqEntryIn_payload_imm_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_imm;
+    _zz_io_iqEntryIn_payload_immUsage_1 <= _zz_io_iqEntryIn_payload_immUsage_2;
+    _zz_io_iqEntryIn_payload_robPtr <= _zz_io_iqEntryIn_payload_robPtr_1;
+    _zz_io_iqEntryIn_payload_physDest_idx <= _zz_io_iqEntryIn_payload_physDest_idx_1;
+    _zz_io_iqEntryIn_payload_physDestIsFpr <= _zz_io_iqEntryIn_payload_physDestIsFpr_1;
+    _zz_io_iqEntryIn_payload_writesToPhysReg <= _zz_io_iqEntryIn_payload_writesToPhysReg_1;
+    _zz_io_iqEntryIn_payload_useSrc1 <= _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_valid;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src1Data_1 <= _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src1Data_2;
+    _zz_io_iqEntryIn_payload_src1Tag <= _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_address;
+    _zz_io_iqEntryIn_payload_src1Ready <= _zz_io_iqEntryIn_payload_src1Ready_1;
+    _zz_io_iqEntryIn_payload_src1IsFpr <= _zz_io_iqEntryIn_payload_src1IsFpr_1;
+    _zz_io_iqEntryIn_payload_useSrc2 <= _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_valid;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src2Data_1 <= _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src2Data_2;
+    _zz_io_iqEntryIn_payload_src2Tag <= _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_address;
+    _zz_io_iqEntryIn_payload_src2Ready <= _zz_io_iqEntryIn_payload_src2Ready_1;
+    _zz_io_iqEntryIn_payload_src2IsFpr <= _zz_io_iqEntryIn_payload_src2IsFpr_1;
+    _zz_io_iqEntryIn_payload_aluCtrl_valid <= _zz_io_iqEntryIn_payload_aluCtrl_valid_1;
+    _zz_io_iqEntryIn_payload_aluCtrl_isSub <= _zz_io_iqEntryIn_payload_aluCtrl_isSub_1;
+    _zz_io_iqEntryIn_payload_aluCtrl_isAdd <= _zz_io_iqEntryIn_payload_aluCtrl_isAdd_1;
+    _zz_io_iqEntryIn_payload_aluCtrl_isSigned <= _zz_io_iqEntryIn_payload_aluCtrl_isSigned_1;
+    _zz_io_iqEntryIn_payload_aluCtrl_logicOp <= _zz_io_iqEntryIn_payload_aluCtrl_logicOp_1;
+    _zz_io_iqEntryIn_payload_shiftCtrl_valid <= _zz_io_iqEntryIn_payload_shiftCtrl_valid_1;
+    _zz_io_iqEntryIn_payload_shiftCtrl_isRight <= _zz_io_iqEntryIn_payload_shiftCtrl_isRight_1;
+    _zz_io_iqEntryIn_payload_shiftCtrl_isArithmetic <= _zz_io_iqEntryIn_payload_shiftCtrl_isArithmetic_1;
+    _zz_io_iqEntryIn_payload_shiftCtrl_isRotate <= _zz_io_iqEntryIn_payload_shiftCtrl_isRotate_1;
+    _zz_io_iqEntryIn_payload_shiftCtrl_isDoubleWord <= _zz_io_iqEntryIn_payload_shiftCtrl_isDoubleWord_1;
+    _zz_io_iqEntryIn_payload_imm <= _zz_io_iqEntryIn_payload_imm_1;
+    _zz_io_iqEntryIn_payload_immUsage <= _zz_io_iqEntryIn_payload_immUsage_1;
     _zz_io_iqEntryIn_payload_src1Data <= AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp;
     _zz_io_iqEntryIn_payload_src2Data <= AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_robPtr <= _zz_io_iqEntryIn_payload_robPtr;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_physDest_idx <= _zz_io_iqEntryIn_payload_physDest_idx;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_physDestIsFpr <= _zz_io_iqEntryIn_payload_physDestIsFpr;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_writesToPhysReg <= _zz_io_iqEntryIn_payload_writesToPhysReg;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_useSrc1 <= _zz_io_iqEntryIn_payload_useSrc1;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src1Data <= _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src1Data_1;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src1Tag <= _zz_io_iqEntryIn_payload_src1Tag;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src1Ready <= _zz_io_iqEntryIn_payload_src1Ready;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src1IsFpr <= _zz_io_iqEntryIn_payload_src1IsFpr;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_useSrc2 <= _zz_io_iqEntryIn_payload_useSrc2;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src2Data <= _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src2Data_1;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src2Tag <= _zz_io_iqEntryIn_payload_src2Tag;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src2Ready <= _zz_io_iqEntryIn_payload_src2Ready;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_src2IsFpr <= _zz_io_iqEntryIn_payload_src2IsFpr;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_valid <= _zz_io_iqEntryIn_payload_aluCtrl_valid;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSub <= _zz_io_iqEntryIn_payload_aluCtrl_isSub;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isAdd <= _zz_io_iqEntryIn_payload_aluCtrl_isAdd;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_isSigned <= _zz_io_iqEntryIn_payload_aluCtrl_isSigned;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_aluCtrl_logicOp <= _zz_io_iqEntryIn_payload_aluCtrl_logicOp;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_valid <= _zz_io_iqEntryIn_payload_shiftCtrl_valid;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isRight <= _zz_io_iqEntryIn_payload_shiftCtrl_isRight;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isArithmetic <= _zz_io_iqEntryIn_payload_shiftCtrl_isArithmetic;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isRotate <= _zz_io_iqEntryIn_payload_shiftCtrl_isRotate;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_shiftCtrl_isDoubleWord <= _zz_io_iqEntryIn_payload_shiftCtrl_isDoubleWord;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_imm <= _zz_io_iqEntryIn_payload_imm;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_immUsage <= _zz_io_iqEntryIn_payload_immUsage;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_data <= AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_data;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_writesToPreg <= AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_writesToPhysReg;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_hasException <= AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_hasException;
+    _zz_AluIntEU_AluIntEuPlugin_euResult_exceptionCode <= _zz_AluIntEU_AluIntEuPlugin_euResult_exceptionCode_1;
     _zz_MulEU_MulEuPlugin_euResult_uop_robPtr_6 <= MulEU_MulEuPlugin_euInputPort_payload_robPtr;
     _zz_MulEU_MulEuPlugin_euResult_uop_physDest_idx_6 <= MulEU_MulEuPlugin_euInputPort_payload_physDest_idx;
     _zz_MulEU_MulEuPlugin_euResult_writesToPreg_6 <= MulEU_MulEuPlugin_euInputPort_payload_writesToPhysReg;
@@ -29260,6 +29341,21 @@ module SplitGmbToAxi4Bridge (
   reg        [1:0]    io_axiOut_r_rData_resp;
   reg                 io_axiOut_r_rData_last;
   wire                when_Stream_l477_2;
+  wire                gmbReadRspInternal_valid;
+  reg                 gmbReadRspInternal_ready;
+  wire       [31:0]   gmbReadRspInternal_payload_data;
+  wire                gmbReadRspInternal_payload_error;
+  wire       [3:0]    gmbReadRspInternal_payload_id;
+  wire                gmbReadRspInternal_stage_valid;
+  wire                gmbReadRspInternal_stage_ready;
+  wire       [31:0]   gmbReadRspInternal_stage_payload_data;
+  wire                gmbReadRspInternal_stage_payload_error;
+  wire       [3:0]    gmbReadRspInternal_stage_payload_id;
+  reg                 gmbReadRspInternal_rValid;
+  reg        [31:0]   gmbReadRspInternal_rData_data;
+  reg                 gmbReadRspInternal_rData_error;
+  reg        [3:0]    gmbReadRspInternal_rData_id;
+  wire                when_Stream_l477_3;
   wire                cmdStage_valid;
   wire                cmdStage_ready;
   wire       [31:0]   cmdStage_payload_address;
@@ -29273,7 +29369,7 @@ module SplitGmbToAxi4Bridge (
   reg        [3:0]    io_gmbIn_write_cmd_rData_byteEnables;
   reg        [3:0]    io_gmbIn_write_cmd_rData_id;
   reg                 io_gmbIn_write_cmd_rData_last;
-  wire                when_Stream_l477_3;
+  wire                when_Stream_l477_4;
   wire                axiB_staged_valid;
   wire                axiB_staged_ready;
   wire       [3:0]    axiB_staged_payload_id;
@@ -29281,7 +29377,19 @@ module SplitGmbToAxi4Bridge (
   reg                 io_axiOut_b_rValid;
   reg        [3:0]    io_axiOut_b_rData_id;
   reg        [1:0]    io_axiOut_b_rData_resp;
-  wire                when_Stream_l477_4;
+  wire                when_Stream_l477_5;
+  wire                gmbWriteRspInternal_valid;
+  reg                 gmbWriteRspInternal_ready;
+  wire                gmbWriteRspInternal_payload_error;
+  wire       [3:0]    gmbWriteRspInternal_payload_id;
+  wire                gmbWriteRspInternal_stage_valid;
+  wire                gmbWriteRspInternal_stage_ready;
+  wire                gmbWriteRspInternal_stage_payload_error;
+  wire       [3:0]    gmbWriteRspInternal_stage_payload_id;
+  reg                 gmbWriteRspInternal_rValid;
+  reg                 gmbWriteRspInternal_rData_error;
+  reg        [3:0]    gmbWriteRspInternal_rData_id;
+  wire                when_Stream_l477_6;
 
   StreamFork cmdStage_fork (
     .io_input_valid                   (cmdStage_valid                                     ), //i
@@ -29360,19 +29468,36 @@ module SplitGmbToAxi4Bridge (
   assign axiR_payload_id = io_axiOut_r_rData_id;
   assign axiR_payload_resp = io_axiOut_r_rData_resp;
   assign axiR_payload_last = io_axiOut_r_rData_last;
-  assign io_gmbIn_read_rsp_valid = axiR_valid;
-  assign io_gmbIn_read_rsp_payload_data = axiR_payload_data;
-  assign io_gmbIn_read_rsp_payload_id = axiR_payload_id;
-  assign io_gmbIn_read_rsp_payload_error = (! (axiR_payload_resp == 2'b00));
-  assign axiR_ready = io_gmbIn_read_rsp_ready;
+  assign gmbReadRspInternal_valid = axiR_valid;
+  assign gmbReadRspInternal_payload_data = axiR_payload_data;
+  assign gmbReadRspInternal_payload_id = axiR_payload_id;
+  assign gmbReadRspInternal_payload_error = (! (axiR_payload_resp == 2'b00));
+  assign axiR_ready = gmbReadRspInternal_ready;
+  always @(*) begin
+    gmbReadRspInternal_ready = gmbReadRspInternal_stage_ready;
+    if(when_Stream_l477_3) begin
+      gmbReadRspInternal_ready = 1'b1;
+    end
+  end
+
+  assign when_Stream_l477_3 = (! gmbReadRspInternal_stage_valid);
+  assign gmbReadRspInternal_stage_valid = gmbReadRspInternal_rValid;
+  assign gmbReadRspInternal_stage_payload_data = gmbReadRspInternal_rData_data;
+  assign gmbReadRspInternal_stage_payload_error = gmbReadRspInternal_rData_error;
+  assign gmbReadRspInternal_stage_payload_id = gmbReadRspInternal_rData_id;
+  assign io_gmbIn_read_rsp_valid = gmbReadRspInternal_stage_valid;
+  assign gmbReadRspInternal_stage_ready = io_gmbIn_read_rsp_ready;
+  assign io_gmbIn_read_rsp_payload_data = gmbReadRspInternal_stage_payload_data;
+  assign io_gmbIn_read_rsp_payload_error = gmbReadRspInternal_stage_payload_error;
+  assign io_gmbIn_read_rsp_payload_id = gmbReadRspInternal_stage_payload_id;
   always @(*) begin
     io_gmbIn_write_cmd_ready = cmdStage_ready;
-    if(when_Stream_l477_3) begin
+    if(when_Stream_l477_4) begin
       io_gmbIn_write_cmd_ready = 1'b1;
     end
   end
 
-  assign when_Stream_l477_3 = (! cmdStage_valid);
+  assign when_Stream_l477_4 = (! cmdStage_valid);
   assign cmdStage_valid = io_gmbIn_write_cmd_rValid;
   assign cmdStage_payload_address = io_gmbIn_write_cmd_rData_address;
   assign cmdStage_payload_data = io_gmbIn_write_cmd_rData_data;
@@ -29392,26 +29517,43 @@ module SplitGmbToAxi4Bridge (
   assign io_axiOut_w_payload_last = 1'b1;
   always @(*) begin
     io_axiOut_b_ready = axiB_staged_ready;
-    if(when_Stream_l477_4) begin
+    if(when_Stream_l477_5) begin
       io_axiOut_b_ready = 1'b1;
     end
   end
 
-  assign when_Stream_l477_4 = (! axiB_staged_valid);
+  assign when_Stream_l477_5 = (! axiB_staged_valid);
   assign axiB_staged_valid = io_axiOut_b_rValid;
   assign axiB_staged_payload_id = io_axiOut_b_rData_id;
   assign axiB_staged_payload_resp = io_axiOut_b_rData_resp;
-  assign io_gmbIn_write_rsp_valid = axiB_staged_valid;
-  assign io_gmbIn_write_rsp_payload_error = (! (axiB_staged_payload_resp == 2'b00));
-  assign io_gmbIn_write_rsp_payload_id = axiB_staged_payload_id;
-  assign axiB_staged_ready = io_gmbIn_write_rsp_ready;
+  assign gmbWriteRspInternal_valid = axiB_staged_valid;
+  assign gmbWriteRspInternal_payload_error = (! (axiB_staged_payload_resp == 2'b00));
+  assign gmbWriteRspInternal_payload_id = axiB_staged_payload_id;
+  assign axiB_staged_ready = gmbWriteRspInternal_ready;
+  always @(*) begin
+    gmbWriteRspInternal_ready = gmbWriteRspInternal_stage_ready;
+    if(when_Stream_l477_6) begin
+      gmbWriteRspInternal_ready = 1'b1;
+    end
+  end
+
+  assign when_Stream_l477_6 = (! gmbWriteRspInternal_stage_valid);
+  assign gmbWriteRspInternal_stage_valid = gmbWriteRspInternal_rValid;
+  assign gmbWriteRspInternal_stage_payload_error = gmbWriteRspInternal_rData_error;
+  assign gmbWriteRspInternal_stage_payload_id = gmbWriteRspInternal_rData_id;
+  assign io_gmbIn_write_rsp_valid = gmbWriteRspInternal_stage_valid;
+  assign gmbWriteRspInternal_stage_ready = io_gmbIn_write_rsp_ready;
+  assign io_gmbIn_write_rsp_payload_error = gmbWriteRspInternal_stage_payload_error;
+  assign io_gmbIn_write_rsp_payload_id = gmbWriteRspInternal_stage_payload_id;
   always @(posedge clk) begin
     if(reset) begin
       io_gmbIn_read_cmd_rValid <= 1'b0;
       arCmd_rValid <= 1'b0;
       io_axiOut_r_rValid <= 1'b0;
+      gmbReadRspInternal_rValid <= 1'b0;
       io_gmbIn_write_cmd_rValid <= 1'b0;
       io_axiOut_b_rValid <= 1'b0;
+      gmbWriteRspInternal_rValid <= 1'b0;
     end else begin
       if(io_gmbIn_read_cmd_ready) begin
         io_gmbIn_read_cmd_rValid <= io_gmbIn_read_cmd_valid;
@@ -29422,11 +29564,17 @@ module SplitGmbToAxi4Bridge (
       if(io_axiOut_r_ready) begin
         io_axiOut_r_rValid <= io_axiOut_r_valid;
       end
+      if(gmbReadRspInternal_ready) begin
+        gmbReadRspInternal_rValid <= gmbReadRspInternal_valid;
+      end
       if(io_gmbIn_write_cmd_ready) begin
         io_gmbIn_write_cmd_rValid <= io_gmbIn_write_cmd_valid;
       end
       if(io_axiOut_b_ready) begin
         io_axiOut_b_rValid <= io_axiOut_b_valid;
+      end
+      if(gmbWriteRspInternal_ready) begin
+        gmbWriteRspInternal_rValid <= gmbWriteRspInternal_valid;
       end
     end
   end
@@ -29449,6 +29597,11 @@ module SplitGmbToAxi4Bridge (
       io_axiOut_r_rData_resp <= io_axiOut_r_payload_resp;
       io_axiOut_r_rData_last <= io_axiOut_r_payload_last;
     end
+    if(gmbReadRspInternal_ready) begin
+      gmbReadRspInternal_rData_data <= gmbReadRspInternal_payload_data;
+      gmbReadRspInternal_rData_error <= gmbReadRspInternal_payload_error;
+      gmbReadRspInternal_rData_id <= gmbReadRspInternal_payload_id;
+    end
     if(io_gmbIn_write_cmd_ready) begin
       io_gmbIn_write_cmd_rData_address <= io_gmbIn_write_cmd_payload_address;
       io_gmbIn_write_cmd_rData_data <= io_gmbIn_write_cmd_payload_data;
@@ -29459,6 +29612,10 @@ module SplitGmbToAxi4Bridge (
     if(io_axiOut_b_ready) begin
       io_axiOut_b_rData_id <= io_axiOut_b_payload_id;
       io_axiOut_b_rData_resp <= io_axiOut_b_payload_resp;
+    end
+    if(gmbWriteRspInternal_ready) begin
+      gmbWriteRspInternal_rData_error <= gmbWriteRspInternal_payload_error;
+      gmbWriteRspInternal_rData_id <= gmbWriteRspInternal_payload_id;
     end
   end
 

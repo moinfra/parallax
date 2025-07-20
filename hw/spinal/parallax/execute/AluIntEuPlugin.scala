@@ -119,12 +119,12 @@ class AluIntEuPlugin(
       euResult.destIsFpr     := False // Integer ALU never writes to FPR
     }
 
-    val debugAluLHS = RegNextWhen(aluSrc1Data, pipeline.s2_execute.isFiring) addAttribute("mark_debug","TRUE")
-    val debugAluRHS = RegNextWhen(effectiveSrc2Data, pipeline.s2_execute.isFiring) addAttribute("mark_debug","TRUE")
-    val debugAluResult = RegNextWhen(aluResultPayload.data, pipeline.s2_execute.isFiring) addAttribute("mark_debug","TRUE")
-    KeepAttribute(debugAluLHS)
-    KeepAttribute(debugAluRHS)
-    KeepAttribute(debugAluResult)
+    // val debugAluLHS = RegNextWhen(aluSrc1Data, pipeline.s2_execute.isFiring) addAttribute("mark_debug","TRUE")
+    // val debugAluRHS = RegNextWhen(effectiveSrc2Data, pipeline.s2_execute.isFiring) addAttribute("mark_debug","TRUE")
+    // val debugAluResult = RegNextWhen(aluResultPayload.data, pipeline.s2_execute.isFiring) addAttribute("mark_debug","TRUE")
+    // KeepAttribute(debugAluLHS)
+    // KeepAttribute(debugAluRHS)
+    // KeepAttribute(debugAluResult)
     // Logging
     when(pipeline.s2_execute.isFiring) {
       ParallaxSim.debug(

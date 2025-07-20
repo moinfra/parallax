@@ -34,18 +34,27 @@ class SplitGmbToAxi4Bridge(
   // --- Read Channel (保持不变) ---
   val gmbReadCmd = if (cmdInStage) io.gmbIn.read.cmd.stage() else io.gmbIn.read.cmd
   val axiAr = io.axiOut.ar
-  axiAr.valid := gmbReadCmd.valid
-  axiAr.addr := gmbReadCmd.address.resized
+  // 1. 创建一个临时的 Stream 来承载 AXI AR 的 payload
+  val arCmd = Stream(Axi4Ar(axiConfig))
+
+  // 2. 将 GMB 命令转换为 AXI AR 命令，驱动这个临时 Stream
+  arCmd.valid := gmbReadCmd.valid
+  gmbReadCmd.ready := arCmd.ready
+  
+  arCmd.payload.addr := gmbReadCmd.address.resized
   if (gmbConfig.useId) {
     require(axiAr.id.getWidth >= gmbReadCmd.id.getWidth, "AXI4 ID width is smaller than GMB ID width")
-    axiAr.id := gmbReadCmd.id.resized
+    arCmd.payload.id := gmbReadCmd.id.resized
   } else {
-    if (axiConfig.useId) axiAr.id := 0
+    if (axiConfig.useId) arCmd.payload.id := 0
   }
-  axiAr.len := 0
-  axiAr.size := log2Up(gmbConfig.dataWidth.value / 8)
-  axiAr.setBurstINCR()
-  gmbReadCmd.ready := axiAr.ready
+  arCmd.payload.len := 0
+  arCmd.payload.size := log2Up(gmbConfig.dataWidth.value / 8)
+  arCmd.payload.setBurstINCR()
+
+  // 3. 对转换后的命令进行 stage，然后连接到最终的 AXI 输出
+  //    这有效地在 gmbReadCmd 和 axiAr 之间插入了一级寄存器
+  axiAr << arCmd.stage()
 
   val gmbReadRsp = io.gmbIn.read.rsp
   val axiR = if (rspInStage) io.axiOut.r.stage() else io.axiOut.r
@@ -84,7 +93,7 @@ val cmdStage = gmbWriteCmd.stage()
 //    StreamFork确保只有当两个下游都接受了数据，它才会从上游(cmdStage)消耗数据
 val fork = StreamFork(cmdStage, 2)
 val awStream = fork(0)
-val wStream = fork(1)
+val wStream = fork(1) 
 
 // 3. 将分发后的流连接到AXI通道
 axiAw.valid := awStream.valid
