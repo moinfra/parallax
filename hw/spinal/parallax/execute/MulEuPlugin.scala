@@ -72,7 +72,6 @@ class MulEuPlugin(
     } else {
       val multiplier = MultiplierBlackbox(aWidth = 32, bWidth = 32, pWidth = 64, pipelineStages = 6)
       multiplier.io.CLK := ClockDomain.current.readClockWire
-      multiplier.io.RST := ClockDomain.current.readResetWire
       multiplier.io.A := src1Data.asSInt
       multiplier.io.B := src2Data.asSInt
       mulResult := multiplier.io.P

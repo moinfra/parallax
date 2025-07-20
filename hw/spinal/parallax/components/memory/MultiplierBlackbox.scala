@@ -14,7 +14,6 @@ case class MultiplierBlackbox(
 
   val io = new Bundle {
     val CLK = if(pipelineStages > 0) in(Bool()) else null
-    val RST = if(pipelineStages > 0) in(Bool()) else null
 
     val A = in(SInt(aWidth bits)) // Multiplicand A
     val B = in(SInt(bWidth bits)) // Multiplier B

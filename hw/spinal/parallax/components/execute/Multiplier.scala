@@ -24,10 +24,4 @@ case class Multiplier(
   val pipelinedProduct = Delay(product, cycleCount = pipelineStages)
 
   io.P := pipelinedProduct
-
-  when(True) {
-    ParallaxSim.debug(Seq(
-      L"Multiplier: A=${io.A}, B=${io.B}, product=${product}, P=${io.P}"
-    ))
-  }
 }
