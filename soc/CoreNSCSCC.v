@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 49a99dae7b6ed938ae50042417514f24dcaeaaa8
 // Component : CoreNSCSCC
-// Git hash  : 34d4b56b1273d4290eff6c5fccd698a6b4de1fcc
+// Git hash  : 90595e4a1f050c954eabdc3a493d3f7b12aa0291
 
 `timescale 1ns/1ps
 
@@ -8033,7 +8033,7 @@ module CoreNSCSCC (
     .clk          (clk                    ), //i
     .reset        (reset                  )  //i
   );
-  StreamFifo_3 SimpleFetchPipelinePlugin_logic_ifuRspFifo (
+  StreamFifo_11 SimpleFetchPipelinePlugin_logic_ifuRspFifo (
     .io_push_valid                                (SimpleFetchPipelinePlugin_hw_ifuPort_rsp_valid                                            ), //i
     .io_push_ready                                (SimpleFetchPipelinePlugin_logic_ifuRspFifo_io_push_ready                                  ), //o
     .io_push_payload_pc                           (SimpleFetchPipelinePlugin_hw_ifuPort_rsp_payload_pc[31:0]                                 ), //i
@@ -8074,7 +8074,7 @@ module CoreNSCSCC (
     .clk                                          (clk                                                                                       ), //i
     .reset                                        (reset                                                                                     )  //i
   );
-  StreamFifo_4 SimpleFetchPipelinePlugin_logic_outputFifo (
+  StreamFifo_12 SimpleFetchPipelinePlugin_logic_outputFifo (
     .io_push_valid                              (SimpleFetchPipelinePlugin_logic_s1_join_isFiring                                    ), //i
     .io_push_ready                              (SimpleFetchPipelinePlugin_logic_outputFifo_io_push_ready                            ), //o
     .io_push_payload_pc                         (SimpleFetchPipelinePlugin_logic_mergedInstr_pc[31:0]                                ), //i
@@ -29235,7 +29235,7 @@ endmodule
 
 module SplitGmbToAxi4Bridge (
   input  wire          io_gmbIn_read_cmd_valid,
-  output reg           io_gmbIn_read_cmd_ready,
+  output wire          io_gmbIn_read_cmd_ready,
   input  wire [31:0]   io_gmbIn_read_cmd_payload_address,
   input  wire [3:0]    io_gmbIn_read_cmd_payload_id,
   output wire          io_gmbIn_read_rsp_valid,
@@ -29244,7 +29244,7 @@ module SplitGmbToAxi4Bridge (
   output wire          io_gmbIn_read_rsp_payload_error,
   output wire [3:0]    io_gmbIn_read_rsp_payload_id,
   input  wire          io_gmbIn_write_cmd_valid,
-  output reg           io_gmbIn_write_cmd_ready,
+  output wire          io_gmbIn_write_cmd_ready,
   input  wire [31:0]   io_gmbIn_write_cmd_payload_address,
   input  wire [31:0]   io_gmbIn_write_cmd_payload_data,
   input  wire [3:0]    io_gmbIn_write_cmd_payload_byteEnables,
@@ -29267,7 +29267,7 @@ module SplitGmbToAxi4Bridge (
   output wire [3:0]    io_axiOut_w_payload_strb,
   output wire          io_axiOut_w_payload_last,
   input  wire          io_axiOut_b_valid,
-  output reg           io_axiOut_b_ready,
+  output wire          io_axiOut_b_ready,
   input  wire [3:0]    io_axiOut_b_payload_id,
   input  wire [1:0]    io_axiOut_b_payload_resp,
   output wire          io_axiOut_ar_valid,
@@ -29278,7 +29278,7 @@ module SplitGmbToAxi4Bridge (
   output wire [2:0]    io_axiOut_ar_payload_size,
   output wire [1:0]    io_axiOut_ar_payload_burst,
   input  wire          io_axiOut_r_valid,
-  output reg           io_axiOut_r_ready,
+  output wire          io_axiOut_r_ready,
   input  wire [31:0]   io_axiOut_r_payload_data,
   input  wire [3:0]    io_axiOut_r_payload_id,
   input  wire [1:0]    io_axiOut_r_payload_resp,
@@ -29287,338 +29287,227 @@ module SplitGmbToAxi4Bridge (
   input  wire          reset
 );
 
-  wire                cmdStage_fork_io_input_ready;
-  wire                cmdStage_fork_io_outputs_0_valid;
-  wire       [31:0]   cmdStage_fork_io_outputs_0_payload_address;
-  wire       [31:0]   cmdStage_fork_io_outputs_0_payload_data;
-  wire       [3:0]    cmdStage_fork_io_outputs_0_payload_byteEnables;
-  wire       [3:0]    cmdStage_fork_io_outputs_0_payload_id;
-  wire                cmdStage_fork_io_outputs_0_payload_last;
-  wire                cmdStage_fork_io_outputs_1_valid;
-  wire       [31:0]   cmdStage_fork_io_outputs_1_payload_address;
-  wire       [31:0]   cmdStage_fork_io_outputs_1_payload_data;
-  wire       [3:0]    cmdStage_fork_io_outputs_1_payload_byteEnables;
-  wire       [3:0]    cmdStage_fork_io_outputs_1_payload_id;
-  wire                cmdStage_fork_io_outputs_1_payload_last;
-  wire                gmbReadCmd_valid;
-  wire                gmbReadCmd_ready;
-  wire       [31:0]   gmbReadCmd_payload_address;
-  wire       [3:0]    gmbReadCmd_payload_id;
-  reg                 io_gmbIn_read_cmd_rValid;
-  reg        [31:0]   io_gmbIn_read_cmd_rData_address;
-  reg        [3:0]    io_gmbIn_read_cmd_rData_id;
-  wire                when_Stream_l477;
-  wire                arCmd_valid;
-  reg                 arCmd_ready;
-  wire       [31:0]   arCmd_payload_addr;
-  wire       [3:0]    arCmd_payload_id;
-  wire       [7:0]    arCmd_payload_len;
-  wire       [2:0]    arCmd_payload_size;
-  wire       [1:0]    arCmd_payload_burst;
-  wire                arCmd_stage_valid;
-  wire                arCmd_stage_ready;
-  wire       [31:0]   arCmd_stage_payload_addr;
-  wire       [3:0]    arCmd_stage_payload_id;
-  wire       [7:0]    arCmd_stage_payload_len;
-  wire       [2:0]    arCmd_stage_payload_size;
-  wire       [1:0]    arCmd_stage_payload_burst;
-  reg                 arCmd_rValid;
-  reg        [31:0]   arCmd_rData_addr;
-  reg        [3:0]    arCmd_rData_id;
-  reg        [7:0]    arCmd_rData_len;
-  reg        [2:0]    arCmd_rData_size;
-  reg        [1:0]    arCmd_rData_burst;
-  wire                when_Stream_l477_1;
-  wire                axiR_valid;
-  wire                axiR_ready;
-  wire       [31:0]   axiR_payload_data;
-  wire       [3:0]    axiR_payload_id;
-  wire       [1:0]    axiR_payload_resp;
-  wire                axiR_payload_last;
-  reg                 io_axiOut_r_rValid;
-  reg        [31:0]   io_axiOut_r_rData_data;
-  reg        [3:0]    io_axiOut_r_rData_id;
-  reg        [1:0]    io_axiOut_r_rData_resp;
-  reg                 io_axiOut_r_rData_last;
-  wire                when_Stream_l477_2;
-  wire                gmbReadRspInternal_valid;
-  reg                 gmbReadRspInternal_ready;
-  wire       [31:0]   gmbReadRspInternal_payload_data;
-  wire                gmbReadRspInternal_payload_error;
-  wire       [3:0]    gmbReadRspInternal_payload_id;
-  wire                gmbReadRspInternal_stage_valid;
-  wire                gmbReadRspInternal_stage_ready;
-  wire       [31:0]   gmbReadRspInternal_stage_payload_data;
-  wire                gmbReadRspInternal_stage_payload_error;
-  wire       [3:0]    gmbReadRspInternal_stage_payload_id;
-  reg                 gmbReadRspInternal_rValid;
-  reg        [31:0]   gmbReadRspInternal_rData_data;
-  reg                 gmbReadRspInternal_rData_error;
-  reg        [3:0]    gmbReadRspInternal_rData_id;
-  wire                when_Stream_l477_3;
-  wire                cmdStage_valid;
-  wire                cmdStage_ready;
-  wire       [31:0]   cmdStage_payload_address;
-  wire       [31:0]   cmdStage_payload_data;
-  wire       [3:0]    cmdStage_payload_byteEnables;
-  wire       [3:0]    cmdStage_payload_id;
-  wire                cmdStage_payload_last;
-  reg                 io_gmbIn_write_cmd_rValid;
-  reg        [31:0]   io_gmbIn_write_cmd_rData_address;
-  reg        [31:0]   io_gmbIn_write_cmd_rData_data;
-  reg        [3:0]    io_gmbIn_write_cmd_rData_byteEnables;
-  reg        [3:0]    io_gmbIn_write_cmd_rData_id;
-  reg                 io_gmbIn_write_cmd_rData_last;
-  wire                when_Stream_l477_4;
-  wire                axiB_staged_valid;
-  wire                axiB_staged_ready;
-  wire       [3:0]    axiB_staged_payload_id;
-  wire       [1:0]    axiB_staged_payload_resp;
-  reg                 io_axiOut_b_rValid;
-  reg        [3:0]    io_axiOut_b_rData_id;
-  reg        [1:0]    io_axiOut_b_rData_resp;
-  wire                when_Stream_l477_5;
-  wire                gmbWriteRspInternal_valid;
-  reg                 gmbWriteRspInternal_ready;
-  wire                gmbWriteRspInternal_payload_error;
-  wire       [3:0]    gmbWriteRspInternal_payload_id;
-  wire                gmbWriteRspInternal_stage_valid;
-  wire                gmbWriteRspInternal_stage_ready;
-  wire                gmbWriteRspInternal_stage_payload_error;
-  wire       [3:0]    gmbWriteRspInternal_stage_payload_id;
-  reg                 gmbWriteRspInternal_rValid;
-  reg                 gmbWriteRspInternal_rData_error;
-  reg        [3:0]    gmbWriteRspInternal_rData_id;
-  wire                when_Stream_l477_6;
+  wire                io_gmbIn_read_cmd_fifo_io_push_ready;
+  wire                io_gmbIn_read_cmd_fifo_io_pop_valid;
+  wire       [31:0]   io_gmbIn_read_cmd_fifo_io_pop_payload_address;
+  wire       [3:0]    io_gmbIn_read_cmd_fifo_io_pop_payload_id;
+  wire       [1:0]    io_gmbIn_read_cmd_fifo_io_occupancy;
+  wire       [1:0]    io_gmbIn_read_cmd_fifo_io_availability;
+  wire                io_axiOut_r_fifo_io_push_ready;
+  wire                io_axiOut_r_fifo_io_pop_valid;
+  wire       [31:0]   io_axiOut_r_fifo_io_pop_payload_data;
+  wire       [3:0]    io_axiOut_r_fifo_io_pop_payload_id;
+  wire       [1:0]    io_axiOut_r_fifo_io_pop_payload_resp;
+  wire                io_axiOut_r_fifo_io_pop_payload_last;
+  wire       [1:0]    io_axiOut_r_fifo_io_occupancy;
+  wire       [1:0]    io_axiOut_r_fifo_io_availability;
+  wire                io_gmbIn_write_cmd_fifo_io_push_ready;
+  wire                io_gmbIn_write_cmd_fifo_io_pop_valid;
+  wire       [31:0]   io_gmbIn_write_cmd_fifo_io_pop_payload_address;
+  wire       [31:0]   io_gmbIn_write_cmd_fifo_io_pop_payload_data;
+  wire       [3:0]    io_gmbIn_write_cmd_fifo_io_pop_payload_byteEnables;
+  wire       [3:0]    io_gmbIn_write_cmd_fifo_io_pop_payload_id;
+  wire                io_gmbIn_write_cmd_fifo_io_pop_payload_last;
+  wire       [1:0]    io_gmbIn_write_cmd_fifo_io_occupancy;
+  wire       [1:0]    io_gmbIn_write_cmd_fifo_io_availability;
+  wire                io_gmbIn_write_cmd_fifo_io_pop_fork_io_input_ready;
+  wire                io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_valid;
+  wire       [31:0]   io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_payload_address;
+  wire       [31:0]   io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_payload_data;
+  wire       [3:0]    io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_payload_byteEnables;
+  wire       [3:0]    io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_payload_id;
+  wire                io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_payload_last;
+  wire                io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_1_valid;
+  wire       [31:0]   io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_1_payload_address;
+  wire       [31:0]   io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_1_payload_data;
+  wire       [3:0]    io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_1_payload_byteEnables;
+  wire       [3:0]    io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_1_payload_id;
+  wire                io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_1_payload_last;
+  wire                io_axiOut_b_fifo_io_push_ready;
+  wire                io_axiOut_b_fifo_io_pop_valid;
+  wire       [3:0]    io_axiOut_b_fifo_io_pop_payload_id;
+  wire       [1:0]    io_axiOut_b_fifo_io_pop_payload_resp;
+  wire       [1:0]    io_axiOut_b_fifo_io_occupancy;
+  wire       [1:0]    io_axiOut_b_fifo_io_availability;
+  wire                io_gmbIn_read_cmd_fifo_io_pop_translated_valid;
+  wire                io_gmbIn_read_cmd_fifo_io_pop_translated_ready;
+  wire       [31:0]   io_gmbIn_read_cmd_fifo_io_pop_translated_payload_addr;
+  wire       [3:0]    io_gmbIn_read_cmd_fifo_io_pop_translated_payload_id;
+  wire       [7:0]    io_gmbIn_read_cmd_fifo_io_pop_translated_payload_len;
+  wire       [2:0]    io_gmbIn_read_cmd_fifo_io_pop_translated_payload_size;
+  wire       [1:0]    io_gmbIn_read_cmd_fifo_io_pop_translated_payload_burst;
+  wire                io_axiOut_r_fifo_io_pop_translated_valid;
+  wire                io_axiOut_r_fifo_io_pop_translated_ready;
+  wire       [31:0]   io_axiOut_r_fifo_io_pop_translated_payload_data;
+  wire                io_axiOut_r_fifo_io_pop_translated_payload_error;
+  wire       [3:0]    io_axiOut_r_fifo_io_pop_translated_payload_id;
+  wire                io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_translated_valid;
+  wire                io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_translated_ready;
+  wire       [31:0]   io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_translated_payload_addr;
+  wire       [3:0]    io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_translated_payload_id;
+  wire       [7:0]    io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_translated_payload_len;
+  wire       [2:0]    io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_translated_payload_size;
+  wire       [1:0]    io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_translated_payload_burst;
+  wire                io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_1_translated_valid;
+  wire                io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_1_translated_ready;
+  wire       [31:0]   io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_1_translated_payload_data;
+  wire       [3:0]    io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_1_translated_payload_strb;
+  wire                io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_1_translated_payload_last;
+  wire                io_axiOut_b_fifo_io_pop_translated_valid;
+  wire                io_axiOut_b_fifo_io_pop_translated_ready;
+  wire                io_axiOut_b_fifo_io_pop_translated_payload_error;
+  wire       [3:0]    io_axiOut_b_fifo_io_pop_translated_payload_id;
 
-  StreamFork cmdStage_fork (
-    .io_input_valid                   (cmdStage_valid                                     ), //i
-    .io_input_ready                   (cmdStage_fork_io_input_ready                       ), //o
-    .io_input_payload_address         (cmdStage_payload_address[31:0]                     ), //i
-    .io_input_payload_data            (cmdStage_payload_data[31:0]                        ), //i
-    .io_input_payload_byteEnables     (cmdStage_payload_byteEnables[3:0]                  ), //i
-    .io_input_payload_id              (cmdStage_payload_id[3:0]                           ), //i
-    .io_input_payload_last            (cmdStage_payload_last                              ), //i
-    .io_outputs_0_valid               (cmdStage_fork_io_outputs_0_valid                   ), //o
-    .io_outputs_0_ready               (io_axiOut_aw_ready                                 ), //i
-    .io_outputs_0_payload_address     (cmdStage_fork_io_outputs_0_payload_address[31:0]   ), //o
-    .io_outputs_0_payload_data        (cmdStage_fork_io_outputs_0_payload_data[31:0]      ), //o
-    .io_outputs_0_payload_byteEnables (cmdStage_fork_io_outputs_0_payload_byteEnables[3:0]), //o
-    .io_outputs_0_payload_id          (cmdStage_fork_io_outputs_0_payload_id[3:0]         ), //o
-    .io_outputs_0_payload_last        (cmdStage_fork_io_outputs_0_payload_last            ), //o
-    .io_outputs_1_valid               (cmdStage_fork_io_outputs_1_valid                   ), //o
-    .io_outputs_1_ready               (io_axiOut_w_ready                                  ), //i
-    .io_outputs_1_payload_address     (cmdStage_fork_io_outputs_1_payload_address[31:0]   ), //o
-    .io_outputs_1_payload_data        (cmdStage_fork_io_outputs_1_payload_data[31:0]      ), //o
-    .io_outputs_1_payload_byteEnables (cmdStage_fork_io_outputs_1_payload_byteEnables[3:0]), //o
-    .io_outputs_1_payload_id          (cmdStage_fork_io_outputs_1_payload_id[3:0]         ), //o
-    .io_outputs_1_payload_last        (cmdStage_fork_io_outputs_1_payload_last            ), //o
-    .clk                              (clk                                                ), //i
-    .reset                            (reset                                              )  //i
+  StreamFifo io_gmbIn_read_cmd_fifo (
+    .io_push_valid           (io_gmbIn_read_cmd_valid                            ), //i
+    .io_push_ready           (io_gmbIn_read_cmd_fifo_io_push_ready               ), //o
+    .io_push_payload_address (io_gmbIn_read_cmd_payload_address[31:0]            ), //i
+    .io_push_payload_id      (io_gmbIn_read_cmd_payload_id[3:0]                  ), //i
+    .io_pop_valid            (io_gmbIn_read_cmd_fifo_io_pop_valid                ), //o
+    .io_pop_ready            (io_gmbIn_read_cmd_fifo_io_pop_translated_ready     ), //i
+    .io_pop_payload_address  (io_gmbIn_read_cmd_fifo_io_pop_payload_address[31:0]), //o
+    .io_pop_payload_id       (io_gmbIn_read_cmd_fifo_io_pop_payload_id[3:0]      ), //o
+    .io_flush                (1'b0                                               ), //i
+    .io_occupancy            (io_gmbIn_read_cmd_fifo_io_occupancy[1:0]           ), //o
+    .io_availability         (io_gmbIn_read_cmd_fifo_io_availability[1:0]        ), //o
+    .clk                     (clk                                                ), //i
+    .reset                   (reset                                              )  //i
   );
-  always @(*) begin
-    io_gmbIn_read_cmd_ready = gmbReadCmd_ready;
-    if(when_Stream_l477) begin
-      io_gmbIn_read_cmd_ready = 1'b1;
-    end
-  end
-
-  assign when_Stream_l477 = (! gmbReadCmd_valid);
-  assign gmbReadCmd_valid = io_gmbIn_read_cmd_rValid;
-  assign gmbReadCmd_payload_address = io_gmbIn_read_cmd_rData_address;
-  assign gmbReadCmd_payload_id = io_gmbIn_read_cmd_rData_id;
-  assign arCmd_valid = gmbReadCmd_valid;
-  assign gmbReadCmd_ready = arCmd_ready;
-  assign arCmd_payload_addr = gmbReadCmd_payload_address;
-  assign arCmd_payload_id = gmbReadCmd_payload_id;
-  assign arCmd_payload_len = 8'h0;
-  assign arCmd_payload_size = 3'b010;
-  assign arCmd_payload_burst = 2'b01;
-  always @(*) begin
-    arCmd_ready = arCmd_stage_ready;
-    if(when_Stream_l477_1) begin
-      arCmd_ready = 1'b1;
-    end
-  end
-
-  assign when_Stream_l477_1 = (! arCmd_stage_valid);
-  assign arCmd_stage_valid = arCmd_rValid;
-  assign arCmd_stage_payload_addr = arCmd_rData_addr;
-  assign arCmd_stage_payload_id = arCmd_rData_id;
-  assign arCmd_stage_payload_len = arCmd_rData_len;
-  assign arCmd_stage_payload_size = arCmd_rData_size;
-  assign arCmd_stage_payload_burst = arCmd_rData_burst;
-  assign io_axiOut_ar_valid = arCmd_stage_valid;
-  assign arCmd_stage_ready = io_axiOut_ar_ready;
-  assign io_axiOut_ar_payload_addr = arCmd_stage_payload_addr;
-  assign io_axiOut_ar_payload_id = arCmd_stage_payload_id;
-  assign io_axiOut_ar_payload_len = arCmd_stage_payload_len;
-  assign io_axiOut_ar_payload_size = arCmd_stage_payload_size;
-  assign io_axiOut_ar_payload_burst = arCmd_stage_payload_burst;
-  always @(*) begin
-    io_axiOut_r_ready = axiR_ready;
-    if(when_Stream_l477_2) begin
-      io_axiOut_r_ready = 1'b1;
-    end
-  end
-
-  assign when_Stream_l477_2 = (! axiR_valid);
-  assign axiR_valid = io_axiOut_r_rValid;
-  assign axiR_payload_data = io_axiOut_r_rData_data;
-  assign axiR_payload_id = io_axiOut_r_rData_id;
-  assign axiR_payload_resp = io_axiOut_r_rData_resp;
-  assign axiR_payload_last = io_axiOut_r_rData_last;
-  assign gmbReadRspInternal_valid = axiR_valid;
-  assign gmbReadRspInternal_payload_data = axiR_payload_data;
-  assign gmbReadRspInternal_payload_id = axiR_payload_id;
-  assign gmbReadRspInternal_payload_error = (! (axiR_payload_resp == 2'b00));
-  assign axiR_ready = gmbReadRspInternal_ready;
-  always @(*) begin
-    gmbReadRspInternal_ready = gmbReadRspInternal_stage_ready;
-    if(when_Stream_l477_3) begin
-      gmbReadRspInternal_ready = 1'b1;
-    end
-  end
-
-  assign when_Stream_l477_3 = (! gmbReadRspInternal_stage_valid);
-  assign gmbReadRspInternal_stage_valid = gmbReadRspInternal_rValid;
-  assign gmbReadRspInternal_stage_payload_data = gmbReadRspInternal_rData_data;
-  assign gmbReadRspInternal_stage_payload_error = gmbReadRspInternal_rData_error;
-  assign gmbReadRspInternal_stage_payload_id = gmbReadRspInternal_rData_id;
-  assign io_gmbIn_read_rsp_valid = gmbReadRspInternal_stage_valid;
-  assign gmbReadRspInternal_stage_ready = io_gmbIn_read_rsp_ready;
-  assign io_gmbIn_read_rsp_payload_data = gmbReadRspInternal_stage_payload_data;
-  assign io_gmbIn_read_rsp_payload_error = gmbReadRspInternal_stage_payload_error;
-  assign io_gmbIn_read_rsp_payload_id = gmbReadRspInternal_stage_payload_id;
-  always @(*) begin
-    io_gmbIn_write_cmd_ready = cmdStage_ready;
-    if(when_Stream_l477_4) begin
-      io_gmbIn_write_cmd_ready = 1'b1;
-    end
-  end
-
-  assign when_Stream_l477_4 = (! cmdStage_valid);
-  assign cmdStage_valid = io_gmbIn_write_cmd_rValid;
-  assign cmdStage_payload_address = io_gmbIn_write_cmd_rData_address;
-  assign cmdStage_payload_data = io_gmbIn_write_cmd_rData_data;
-  assign cmdStage_payload_byteEnables = io_gmbIn_write_cmd_rData_byteEnables;
-  assign cmdStage_payload_id = io_gmbIn_write_cmd_rData_id;
-  assign cmdStage_payload_last = io_gmbIn_write_cmd_rData_last;
-  assign cmdStage_ready = cmdStage_fork_io_input_ready;
-  assign io_axiOut_aw_valid = cmdStage_fork_io_outputs_0_valid;
-  assign io_axiOut_aw_payload_addr = cmdStage_fork_io_outputs_0_payload_address;
-  assign io_axiOut_aw_payload_len = 8'h0;
-  assign io_axiOut_aw_payload_size = 3'b010;
-  assign io_axiOut_aw_payload_burst = 2'b01;
-  assign io_axiOut_aw_payload_id = cmdStage_fork_io_outputs_0_payload_id;
-  assign io_axiOut_w_valid = cmdStage_fork_io_outputs_1_valid;
-  assign io_axiOut_w_payload_data = cmdStage_fork_io_outputs_1_payload_data;
-  assign io_axiOut_w_payload_strb = cmdStage_fork_io_outputs_1_payload_byteEnables;
-  assign io_axiOut_w_payload_last = 1'b1;
-  always @(*) begin
-    io_axiOut_b_ready = axiB_staged_ready;
-    if(when_Stream_l477_5) begin
-      io_axiOut_b_ready = 1'b1;
-    end
-  end
-
-  assign when_Stream_l477_5 = (! axiB_staged_valid);
-  assign axiB_staged_valid = io_axiOut_b_rValid;
-  assign axiB_staged_payload_id = io_axiOut_b_rData_id;
-  assign axiB_staged_payload_resp = io_axiOut_b_rData_resp;
-  assign gmbWriteRspInternal_valid = axiB_staged_valid;
-  assign gmbWriteRspInternal_payload_error = (! (axiB_staged_payload_resp == 2'b00));
-  assign gmbWriteRspInternal_payload_id = axiB_staged_payload_id;
-  assign axiB_staged_ready = gmbWriteRspInternal_ready;
-  always @(*) begin
-    gmbWriteRspInternal_ready = gmbWriteRspInternal_stage_ready;
-    if(when_Stream_l477_6) begin
-      gmbWriteRspInternal_ready = 1'b1;
-    end
-  end
-
-  assign when_Stream_l477_6 = (! gmbWriteRspInternal_stage_valid);
-  assign gmbWriteRspInternal_stage_valid = gmbWriteRspInternal_rValid;
-  assign gmbWriteRspInternal_stage_payload_error = gmbWriteRspInternal_rData_error;
-  assign gmbWriteRspInternal_stage_payload_id = gmbWriteRspInternal_rData_id;
-  assign io_gmbIn_write_rsp_valid = gmbWriteRspInternal_stage_valid;
-  assign gmbWriteRspInternal_stage_ready = io_gmbIn_write_rsp_ready;
-  assign io_gmbIn_write_rsp_payload_error = gmbWriteRspInternal_stage_payload_error;
-  assign io_gmbIn_write_rsp_payload_id = gmbWriteRspInternal_stage_payload_id;
-  always @(posedge clk) begin
-    if(reset) begin
-      io_gmbIn_read_cmd_rValid <= 1'b0;
-      arCmd_rValid <= 1'b0;
-      io_axiOut_r_rValid <= 1'b0;
-      gmbReadRspInternal_rValid <= 1'b0;
-      io_gmbIn_write_cmd_rValid <= 1'b0;
-      io_axiOut_b_rValid <= 1'b0;
-      gmbWriteRspInternal_rValid <= 1'b0;
-    end else begin
-      if(io_gmbIn_read_cmd_ready) begin
-        io_gmbIn_read_cmd_rValid <= io_gmbIn_read_cmd_valid;
-      end
-      if(arCmd_ready) begin
-        arCmd_rValid <= arCmd_valid;
-      end
-      if(io_axiOut_r_ready) begin
-        io_axiOut_r_rValid <= io_axiOut_r_valid;
-      end
-      if(gmbReadRspInternal_ready) begin
-        gmbReadRspInternal_rValid <= gmbReadRspInternal_valid;
-      end
-      if(io_gmbIn_write_cmd_ready) begin
-        io_gmbIn_write_cmd_rValid <= io_gmbIn_write_cmd_valid;
-      end
-      if(io_axiOut_b_ready) begin
-        io_axiOut_b_rValid <= io_axiOut_b_valid;
-      end
-      if(gmbWriteRspInternal_ready) begin
-        gmbWriteRspInternal_rValid <= gmbWriteRspInternal_valid;
-      end
-    end
-  end
-
-  always @(posedge clk) begin
-    if(io_gmbIn_read_cmd_ready) begin
-      io_gmbIn_read_cmd_rData_address <= io_gmbIn_read_cmd_payload_address;
-      io_gmbIn_read_cmd_rData_id <= io_gmbIn_read_cmd_payload_id;
-    end
-    if(arCmd_ready) begin
-      arCmd_rData_addr <= arCmd_payload_addr;
-      arCmd_rData_id <= arCmd_payload_id;
-      arCmd_rData_len <= arCmd_payload_len;
-      arCmd_rData_size <= arCmd_payload_size;
-      arCmd_rData_burst <= arCmd_payload_burst;
-    end
-    if(io_axiOut_r_ready) begin
-      io_axiOut_r_rData_data <= io_axiOut_r_payload_data;
-      io_axiOut_r_rData_id <= io_axiOut_r_payload_id;
-      io_axiOut_r_rData_resp <= io_axiOut_r_payload_resp;
-      io_axiOut_r_rData_last <= io_axiOut_r_payload_last;
-    end
-    if(gmbReadRspInternal_ready) begin
-      gmbReadRspInternal_rData_data <= gmbReadRspInternal_payload_data;
-      gmbReadRspInternal_rData_error <= gmbReadRspInternal_payload_error;
-      gmbReadRspInternal_rData_id <= gmbReadRspInternal_payload_id;
-    end
-    if(io_gmbIn_write_cmd_ready) begin
-      io_gmbIn_write_cmd_rData_address <= io_gmbIn_write_cmd_payload_address;
-      io_gmbIn_write_cmd_rData_data <= io_gmbIn_write_cmd_payload_data;
-      io_gmbIn_write_cmd_rData_byteEnables <= io_gmbIn_write_cmd_payload_byteEnables;
-      io_gmbIn_write_cmd_rData_id <= io_gmbIn_write_cmd_payload_id;
-      io_gmbIn_write_cmd_rData_last <= io_gmbIn_write_cmd_payload_last;
-    end
-    if(io_axiOut_b_ready) begin
-      io_axiOut_b_rData_id <= io_axiOut_b_payload_id;
-      io_axiOut_b_rData_resp <= io_axiOut_b_payload_resp;
-    end
-    if(gmbWriteRspInternal_ready) begin
-      gmbWriteRspInternal_rData_error <= gmbWriteRspInternal_payload_error;
-      gmbWriteRspInternal_rData_id <= gmbWriteRspInternal_payload_id;
-    end
-  end
-
+  StreamFifo_1 io_axiOut_r_fifo (
+    .io_push_valid        (io_axiOut_r_valid                         ), //i
+    .io_push_ready        (io_axiOut_r_fifo_io_push_ready            ), //o
+    .io_push_payload_data (io_axiOut_r_payload_data[31:0]            ), //i
+    .io_push_payload_id   (io_axiOut_r_payload_id[3:0]               ), //i
+    .io_push_payload_resp (io_axiOut_r_payload_resp[1:0]             ), //i
+    .io_push_payload_last (io_axiOut_r_payload_last                  ), //i
+    .io_pop_valid         (io_axiOut_r_fifo_io_pop_valid             ), //o
+    .io_pop_ready         (io_axiOut_r_fifo_io_pop_translated_ready  ), //i
+    .io_pop_payload_data  (io_axiOut_r_fifo_io_pop_payload_data[31:0]), //o
+    .io_pop_payload_id    (io_axiOut_r_fifo_io_pop_payload_id[3:0]   ), //o
+    .io_pop_payload_resp  (io_axiOut_r_fifo_io_pop_payload_resp[1:0] ), //o
+    .io_pop_payload_last  (io_axiOut_r_fifo_io_pop_payload_last      ), //o
+    .io_flush             (1'b0                                      ), //i
+    .io_occupancy         (io_axiOut_r_fifo_io_occupancy[1:0]        ), //o
+    .io_availability      (io_axiOut_r_fifo_io_availability[1:0]     ), //o
+    .clk                  (clk                                       ), //i
+    .reset                (reset                                     )  //i
+  );
+  StreamFifo_2 io_gmbIn_write_cmd_fifo (
+    .io_push_valid               (io_gmbIn_write_cmd_valid                               ), //i
+    .io_push_ready               (io_gmbIn_write_cmd_fifo_io_push_ready                  ), //o
+    .io_push_payload_address     (io_gmbIn_write_cmd_payload_address[31:0]               ), //i
+    .io_push_payload_data        (io_gmbIn_write_cmd_payload_data[31:0]                  ), //i
+    .io_push_payload_byteEnables (io_gmbIn_write_cmd_payload_byteEnables[3:0]            ), //i
+    .io_push_payload_id          (io_gmbIn_write_cmd_payload_id[3:0]                     ), //i
+    .io_push_payload_last        (io_gmbIn_write_cmd_payload_last                        ), //i
+    .io_pop_valid                (io_gmbIn_write_cmd_fifo_io_pop_valid                   ), //o
+    .io_pop_ready                (io_gmbIn_write_cmd_fifo_io_pop_fork_io_input_ready     ), //i
+    .io_pop_payload_address      (io_gmbIn_write_cmd_fifo_io_pop_payload_address[31:0]   ), //o
+    .io_pop_payload_data         (io_gmbIn_write_cmd_fifo_io_pop_payload_data[31:0]      ), //o
+    .io_pop_payload_byteEnables  (io_gmbIn_write_cmd_fifo_io_pop_payload_byteEnables[3:0]), //o
+    .io_pop_payload_id           (io_gmbIn_write_cmd_fifo_io_pop_payload_id[3:0]         ), //o
+    .io_pop_payload_last         (io_gmbIn_write_cmd_fifo_io_pop_payload_last            ), //o
+    .io_flush                    (1'b0                                                   ), //i
+    .io_occupancy                (io_gmbIn_write_cmd_fifo_io_occupancy[1:0]              ), //o
+    .io_availability             (io_gmbIn_write_cmd_fifo_io_availability[1:0]           ), //o
+    .clk                         (clk                                                    ), //i
+    .reset                       (reset                                                  )  //i
+  );
+  StreamFork io_gmbIn_write_cmd_fifo_io_pop_fork (
+    .io_input_valid                   (io_gmbIn_write_cmd_fifo_io_pop_valid                                     ), //i
+    .io_input_ready                   (io_gmbIn_write_cmd_fifo_io_pop_fork_io_input_ready                       ), //o
+    .io_input_payload_address         (io_gmbIn_write_cmd_fifo_io_pop_payload_address[31:0]                     ), //i
+    .io_input_payload_data            (io_gmbIn_write_cmd_fifo_io_pop_payload_data[31:0]                        ), //i
+    .io_input_payload_byteEnables     (io_gmbIn_write_cmd_fifo_io_pop_payload_byteEnables[3:0]                  ), //i
+    .io_input_payload_id              (io_gmbIn_write_cmd_fifo_io_pop_payload_id[3:0]                           ), //i
+    .io_input_payload_last            (io_gmbIn_write_cmd_fifo_io_pop_payload_last                              ), //i
+    .io_outputs_0_valid               (io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_valid                   ), //o
+    .io_outputs_0_ready               (io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_translated_ready        ), //i
+    .io_outputs_0_payload_address     (io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_payload_address[31:0]   ), //o
+    .io_outputs_0_payload_data        (io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_payload_data[31:0]      ), //o
+    .io_outputs_0_payload_byteEnables (io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_payload_byteEnables[3:0]), //o
+    .io_outputs_0_payload_id          (io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_payload_id[3:0]         ), //o
+    .io_outputs_0_payload_last        (io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_payload_last            ), //o
+    .io_outputs_1_valid               (io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_1_valid                   ), //o
+    .io_outputs_1_ready               (io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_1_translated_ready        ), //i
+    .io_outputs_1_payload_address     (io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_1_payload_address[31:0]   ), //o
+    .io_outputs_1_payload_data        (io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_1_payload_data[31:0]      ), //o
+    .io_outputs_1_payload_byteEnables (io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_1_payload_byteEnables[3:0]), //o
+    .io_outputs_1_payload_id          (io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_1_payload_id[3:0]         ), //o
+    .io_outputs_1_payload_last        (io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_1_payload_last            ), //o
+    .clk                              (clk                                                                      ), //i
+    .reset                            (reset                                                                    )  //i
+  );
+  StreamFifo_3 io_axiOut_b_fifo (
+    .io_push_valid        (io_axiOut_b_valid                        ), //i
+    .io_push_ready        (io_axiOut_b_fifo_io_push_ready           ), //o
+    .io_push_payload_id   (io_axiOut_b_payload_id[3:0]              ), //i
+    .io_push_payload_resp (io_axiOut_b_payload_resp[1:0]            ), //i
+    .io_pop_valid         (io_axiOut_b_fifo_io_pop_valid            ), //o
+    .io_pop_ready         (io_axiOut_b_fifo_io_pop_translated_ready ), //i
+    .io_pop_payload_id    (io_axiOut_b_fifo_io_pop_payload_id[3:0]  ), //o
+    .io_pop_payload_resp  (io_axiOut_b_fifo_io_pop_payload_resp[1:0]), //o
+    .io_flush             (1'b0                                     ), //i
+    .io_occupancy         (io_axiOut_b_fifo_io_occupancy[1:0]       ), //o
+    .io_availability      (io_axiOut_b_fifo_io_availability[1:0]    ), //o
+    .clk                  (clk                                      ), //i
+    .reset                (reset                                    )  //i
+  );
+  assign io_gmbIn_read_cmd_ready = io_gmbIn_read_cmd_fifo_io_push_ready;
+  assign io_gmbIn_read_cmd_fifo_io_pop_translated_valid = io_gmbIn_read_cmd_fifo_io_pop_valid;
+  assign io_gmbIn_read_cmd_fifo_io_pop_translated_payload_addr = io_gmbIn_read_cmd_fifo_io_pop_payload_address;
+  assign io_gmbIn_read_cmd_fifo_io_pop_translated_payload_id = io_gmbIn_read_cmd_fifo_io_pop_payload_id;
+  assign io_gmbIn_read_cmd_fifo_io_pop_translated_payload_len = 8'h0;
+  assign io_gmbIn_read_cmd_fifo_io_pop_translated_payload_size = 3'b010;
+  assign io_gmbIn_read_cmd_fifo_io_pop_translated_payload_burst = 2'b01;
+  assign io_axiOut_ar_valid = io_gmbIn_read_cmd_fifo_io_pop_translated_valid;
+  assign io_gmbIn_read_cmd_fifo_io_pop_translated_ready = io_axiOut_ar_ready;
+  assign io_axiOut_ar_payload_addr = io_gmbIn_read_cmd_fifo_io_pop_translated_payload_addr;
+  assign io_axiOut_ar_payload_id = io_gmbIn_read_cmd_fifo_io_pop_translated_payload_id;
+  assign io_axiOut_ar_payload_len = io_gmbIn_read_cmd_fifo_io_pop_translated_payload_len;
+  assign io_axiOut_ar_payload_size = io_gmbIn_read_cmd_fifo_io_pop_translated_payload_size;
+  assign io_axiOut_ar_payload_burst = io_gmbIn_read_cmd_fifo_io_pop_translated_payload_burst;
+  assign io_axiOut_r_ready = io_axiOut_r_fifo_io_push_ready;
+  assign io_axiOut_r_fifo_io_pop_translated_valid = io_axiOut_r_fifo_io_pop_valid;
+  assign io_axiOut_r_fifo_io_pop_translated_payload_data = io_axiOut_r_fifo_io_pop_payload_data;
+  assign io_axiOut_r_fifo_io_pop_translated_payload_error = (! (io_axiOut_r_fifo_io_pop_payload_resp == 2'b00));
+  assign io_axiOut_r_fifo_io_pop_translated_payload_id = io_axiOut_r_fifo_io_pop_payload_id;
+  assign io_gmbIn_read_rsp_valid = io_axiOut_r_fifo_io_pop_translated_valid;
+  assign io_axiOut_r_fifo_io_pop_translated_ready = io_gmbIn_read_rsp_ready;
+  assign io_gmbIn_read_rsp_payload_data = io_axiOut_r_fifo_io_pop_translated_payload_data;
+  assign io_gmbIn_read_rsp_payload_error = io_axiOut_r_fifo_io_pop_translated_payload_error;
+  assign io_gmbIn_read_rsp_payload_id = io_axiOut_r_fifo_io_pop_translated_payload_id;
+  assign io_gmbIn_write_cmd_ready = io_gmbIn_write_cmd_fifo_io_push_ready;
+  assign io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_translated_valid = io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_valid;
+  assign io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_translated_payload_addr = io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_payload_address;
+  assign io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_translated_payload_id = io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_payload_id;
+  assign io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_translated_payload_len = 8'h0;
+  assign io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_translated_payload_size = 3'b010;
+  assign io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_translated_payload_burst = 2'b01;
+  assign io_axiOut_aw_valid = io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_translated_valid;
+  assign io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_translated_ready = io_axiOut_aw_ready;
+  assign io_axiOut_aw_payload_addr = io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_translated_payload_addr;
+  assign io_axiOut_aw_payload_id = io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_translated_payload_id;
+  assign io_axiOut_aw_payload_len = io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_translated_payload_len;
+  assign io_axiOut_aw_payload_size = io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_translated_payload_size;
+  assign io_axiOut_aw_payload_burst = io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_0_translated_payload_burst;
+  assign io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_1_translated_valid = io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_1_valid;
+  assign io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_1_translated_payload_data = io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_1_payload_data;
+  assign io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_1_translated_payload_strb = io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_1_payload_byteEnables;
+  assign io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_1_translated_payload_last = 1'b1;
+  assign io_axiOut_w_valid = io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_1_translated_valid;
+  assign io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_1_translated_ready = io_axiOut_w_ready;
+  assign io_axiOut_w_payload_data = io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_1_translated_payload_data;
+  assign io_axiOut_w_payload_strb = io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_1_translated_payload_strb;
+  assign io_axiOut_w_payload_last = io_gmbIn_write_cmd_fifo_io_pop_fork_io_outputs_1_translated_payload_last;
+  assign io_axiOut_b_ready = io_axiOut_b_fifo_io_push_ready;
+  assign io_axiOut_b_fifo_io_pop_translated_valid = io_axiOut_b_fifo_io_pop_valid;
+  assign io_axiOut_b_fifo_io_pop_translated_payload_error = (! (io_axiOut_b_fifo_io_pop_payload_resp == 2'b00));
+  assign io_axiOut_b_fifo_io_pop_translated_payload_id = io_axiOut_b_fifo_io_pop_payload_id;
+  assign io_gmbIn_write_rsp_valid = io_axiOut_b_fifo_io_pop_translated_valid;
+  assign io_axiOut_b_fifo_io_pop_translated_ready = io_gmbIn_write_rsp_ready;
+  assign io_gmbIn_write_rsp_payload_error = io_axiOut_b_fifo_io_pop_translated_payload_error;
+  assign io_gmbIn_write_rsp_payload_id = io_axiOut_b_fifo_io_pop_translated_payload_id;
 
 endmodule
 
@@ -29780,7 +29669,7 @@ module StreamUnpacker (
 
 endmodule
 
-module StreamFifo_4 (
+module StreamFifo_12 (
   input  wire          io_push_valid,
   output wire          io_push_ready,
   input  wire [31:0]   io_push_payload_pc,
@@ -30027,7 +29916,7 @@ module StreamFifo_4 (
 
 endmodule
 
-module StreamFifo_3 (
+module StreamFifo_11 (
   input  wire          io_push_valid,
   output wire          io_push_ready,
   input  wire [31:0]   io_push_payload_pc,
@@ -60979,7 +60868,7 @@ module StreamFifoLowLatency (
   wire       [2:0]    fifo_io_occupancy;
   wire       [2:0]    fifo_io_availability;
 
-  StreamFifo fifo (
+  StreamFifo_8 fifo (
     .io_push_valid   (io_push_valid            ), //i
     .io_push_ready   (fifo_io_push_ready       ), //o
     .io_push_payload (io_push_payload[1:0]     ), //i
@@ -61404,7 +61293,186 @@ module Axi4ReadOnlyErrorSlave (
 
 endmodule
 
+//StreamFifo_7 replaced by StreamFifo_3
+
 //StreamFork_1 replaced by StreamFork
+
+//StreamFifo_6 replaced by StreamFifo_2
+
+//StreamFifo_5 replaced by StreamFifo_1
+
+//StreamFifo_4 replaced by StreamFifo
+
+module StreamFifo_3 (
+  input  wire          io_push_valid,
+  output wire          io_push_ready,
+  input  wire [3:0]    io_push_payload_id,
+  input  wire [1:0]    io_push_payload_resp,
+  output wire          io_pop_valid,
+  input  wire          io_pop_ready,
+  output wire [3:0]    io_pop_payload_id,
+  output wire [1:0]    io_pop_payload_resp,
+  input  wire          io_flush,
+  output wire [1:0]    io_occupancy,
+  output wire [1:0]    io_availability,
+  input  wire          clk,
+  input  wire          reset
+);
+
+  reg        [5:0]    logic_ram_spinal_port1;
+  wire       [5:0]    _zz_logic_ram_port;
+  reg                 _zz_1;
+  wire                logic_ptr_doPush;
+  wire                logic_ptr_doPop;
+  wire                logic_ptr_full;
+  wire                logic_ptr_empty;
+  reg        [1:0]    logic_ptr_push;
+  reg        [1:0]    logic_ptr_pop;
+  wire       [1:0]    logic_ptr_occupancy;
+  wire       [1:0]    logic_ptr_popOnIo;
+  wire                when_Stream_l1455;
+  reg                 logic_ptr_wentUp;
+  wire                io_push_fire;
+  wire                logic_push_onRam_write_valid;
+  wire       [0:0]    logic_push_onRam_write_payload_address;
+  wire       [3:0]    logic_push_onRam_write_payload_data_id;
+  wire       [1:0]    logic_push_onRam_write_payload_data_resp;
+  wire                logic_pop_addressGen_valid;
+  reg                 logic_pop_addressGen_ready;
+  wire       [0:0]    logic_pop_addressGen_payload;
+  wire                logic_pop_addressGen_fire;
+  wire                logic_pop_sync_readArbitation_valid;
+  wire                logic_pop_sync_readArbitation_ready;
+  wire       [0:0]    logic_pop_sync_readArbitation_payload;
+  reg                 logic_pop_addressGen_rValid;
+  reg        [0:0]    logic_pop_addressGen_rData;
+  wire                when_Stream_l477;
+  wire                logic_pop_sync_readPort_cmd_valid;
+  wire       [0:0]    logic_pop_sync_readPort_cmd_payload;
+  wire       [3:0]    logic_pop_sync_readPort_rsp_id;
+  wire       [1:0]    logic_pop_sync_readPort_rsp_resp;
+  wire       [5:0]    _zz_logic_pop_sync_readPort_rsp_id;
+  wire                logic_pop_addressGen_toFlowFire_valid;
+  wire       [0:0]    logic_pop_addressGen_toFlowFire_payload;
+  wire                logic_pop_sync_readArbitation_translated_valid;
+  wire                logic_pop_sync_readArbitation_translated_ready;
+  wire       [3:0]    logic_pop_sync_readArbitation_translated_payload_id;
+  wire       [1:0]    logic_pop_sync_readArbitation_translated_payload_resp;
+  wire                logic_pop_sync_readArbitation_fire;
+  reg        [1:0]    logic_pop_sync_popReg;
+  reg [5:0] logic_ram [0:1];
+
+  assign _zz_logic_ram_port = {logic_push_onRam_write_payload_data_resp,logic_push_onRam_write_payload_data_id};
+  always @(posedge clk) begin
+    if(_zz_1) begin
+      logic_ram[logic_push_onRam_write_payload_address] <= _zz_logic_ram_port;
+    end
+  end
+
+  always @(posedge clk) begin
+    if(logic_pop_sync_readPort_cmd_valid) begin
+      logic_ram_spinal_port1 <= logic_ram[logic_pop_sync_readPort_cmd_payload];
+    end
+  end
+
+  always @(*) begin
+    _zz_1 = 1'b0;
+    if(logic_push_onRam_write_valid) begin
+      _zz_1 = 1'b1;
+    end
+  end
+
+  assign when_Stream_l1455 = (logic_ptr_doPush != logic_ptr_doPop);
+  assign logic_ptr_full = (((logic_ptr_push ^ logic_ptr_popOnIo) ^ 2'b10) == 2'b00);
+  assign logic_ptr_empty = (logic_ptr_push == logic_ptr_pop);
+  assign logic_ptr_occupancy = (logic_ptr_push - logic_ptr_popOnIo);
+  assign io_push_ready = (! logic_ptr_full);
+  assign io_push_fire = (io_push_valid && io_push_ready);
+  assign logic_ptr_doPush = io_push_fire;
+  assign logic_push_onRam_write_valid = io_push_fire;
+  assign logic_push_onRam_write_payload_address = logic_ptr_push[0:0];
+  assign logic_push_onRam_write_payload_data_id = io_push_payload_id;
+  assign logic_push_onRam_write_payload_data_resp = io_push_payload_resp;
+  assign logic_pop_addressGen_valid = (! logic_ptr_empty);
+  assign logic_pop_addressGen_payload = logic_ptr_pop[0:0];
+  assign logic_pop_addressGen_fire = (logic_pop_addressGen_valid && logic_pop_addressGen_ready);
+  assign logic_ptr_doPop = logic_pop_addressGen_fire;
+  always @(*) begin
+    logic_pop_addressGen_ready = logic_pop_sync_readArbitation_ready;
+    if(when_Stream_l477) begin
+      logic_pop_addressGen_ready = 1'b1;
+    end
+  end
+
+  assign when_Stream_l477 = (! logic_pop_sync_readArbitation_valid);
+  assign logic_pop_sync_readArbitation_valid = logic_pop_addressGen_rValid;
+  assign logic_pop_sync_readArbitation_payload = logic_pop_addressGen_rData;
+  assign _zz_logic_pop_sync_readPort_rsp_id = logic_ram_spinal_port1;
+  assign logic_pop_sync_readPort_rsp_id = _zz_logic_pop_sync_readPort_rsp_id[3 : 0];
+  assign logic_pop_sync_readPort_rsp_resp = _zz_logic_pop_sync_readPort_rsp_id[5 : 4];
+  assign logic_pop_addressGen_toFlowFire_valid = logic_pop_addressGen_fire;
+  assign logic_pop_addressGen_toFlowFire_payload = logic_pop_addressGen_payload;
+  assign logic_pop_sync_readPort_cmd_valid = logic_pop_addressGen_toFlowFire_valid;
+  assign logic_pop_sync_readPort_cmd_payload = logic_pop_addressGen_toFlowFire_payload;
+  assign logic_pop_sync_readArbitation_translated_valid = logic_pop_sync_readArbitation_valid;
+  assign logic_pop_sync_readArbitation_ready = logic_pop_sync_readArbitation_translated_ready;
+  assign logic_pop_sync_readArbitation_translated_payload_id = logic_pop_sync_readPort_rsp_id;
+  assign logic_pop_sync_readArbitation_translated_payload_resp = logic_pop_sync_readPort_rsp_resp;
+  assign io_pop_valid = logic_pop_sync_readArbitation_translated_valid;
+  assign logic_pop_sync_readArbitation_translated_ready = io_pop_ready;
+  assign io_pop_payload_id = logic_pop_sync_readArbitation_translated_payload_id;
+  assign io_pop_payload_resp = logic_pop_sync_readArbitation_translated_payload_resp;
+  assign logic_pop_sync_readArbitation_fire = (logic_pop_sync_readArbitation_valid && logic_pop_sync_readArbitation_ready);
+  assign logic_ptr_popOnIo = logic_pop_sync_popReg;
+  assign io_occupancy = logic_ptr_occupancy;
+  assign io_availability = (2'b10 - logic_ptr_occupancy);
+  always @(posedge clk) begin
+    if(reset) begin
+      logic_ptr_push <= 2'b00;
+      logic_ptr_pop <= 2'b00;
+      logic_ptr_wentUp <= 1'b0;
+      logic_pop_addressGen_rValid <= 1'b0;
+      logic_pop_sync_popReg <= 2'b00;
+    end else begin
+      if(when_Stream_l1455) begin
+        logic_ptr_wentUp <= logic_ptr_doPush;
+      end
+      if(io_flush) begin
+        logic_ptr_wentUp <= 1'b0;
+      end
+      if(logic_ptr_doPush) begin
+        logic_ptr_push <= (logic_ptr_push + 2'b01);
+      end
+      if(logic_ptr_doPop) begin
+        logic_ptr_pop <= (logic_ptr_pop + 2'b01);
+      end
+      if(io_flush) begin
+        logic_ptr_push <= 2'b00;
+        logic_ptr_pop <= 2'b00;
+      end
+      if(logic_pop_addressGen_ready) begin
+        logic_pop_addressGen_rValid <= logic_pop_addressGen_valid;
+      end
+      if(io_flush) begin
+        logic_pop_addressGen_rValid <= 1'b0;
+      end
+      if(logic_pop_sync_readArbitation_fire) begin
+        logic_pop_sync_popReg <= logic_ptr_pop;
+      end
+      if(io_flush) begin
+        logic_pop_sync_popReg <= 2'b00;
+      end
+    end
+  end
+
+  always @(posedge clk) begin
+    if(logic_pop_addressGen_ready) begin
+      logic_pop_addressGen_rData <= logic_pop_addressGen_payload;
+    end
+  end
+
+
+endmodule
 
 module StreamFork (
   input  wire          io_input_valid,
@@ -61480,6 +61548,564 @@ module StreamFork (
         logic_linkEnable_0 <= 1'b1;
         logic_linkEnable_1 <= 1'b1;
       end
+    end
+  end
+
+
+endmodule
+
+module StreamFifo_2 (
+  input  wire          io_push_valid,
+  output wire          io_push_ready,
+  input  wire [31:0]   io_push_payload_address,
+  input  wire [31:0]   io_push_payload_data,
+  input  wire [3:0]    io_push_payload_byteEnables,
+  input  wire [3:0]    io_push_payload_id,
+  input  wire          io_push_payload_last,
+  output wire          io_pop_valid,
+  input  wire          io_pop_ready,
+  output wire [31:0]   io_pop_payload_address,
+  output wire [31:0]   io_pop_payload_data,
+  output wire [3:0]    io_pop_payload_byteEnables,
+  output wire [3:0]    io_pop_payload_id,
+  output wire          io_pop_payload_last,
+  input  wire          io_flush,
+  output wire [1:0]    io_occupancy,
+  output wire [1:0]    io_availability,
+  input  wire          clk,
+  input  wire          reset
+);
+
+  reg        [72:0]   logic_ram_spinal_port1;
+  wire       [72:0]   _zz_logic_ram_port;
+  reg                 _zz_1;
+  wire                logic_ptr_doPush;
+  wire                logic_ptr_doPop;
+  wire                logic_ptr_full;
+  wire                logic_ptr_empty;
+  reg        [1:0]    logic_ptr_push;
+  reg        [1:0]    logic_ptr_pop;
+  wire       [1:0]    logic_ptr_occupancy;
+  wire       [1:0]    logic_ptr_popOnIo;
+  wire                when_Stream_l1455;
+  reg                 logic_ptr_wentUp;
+  wire                io_push_fire;
+  wire                logic_push_onRam_write_valid;
+  wire       [0:0]    logic_push_onRam_write_payload_address;
+  wire       [31:0]   logic_push_onRam_write_payload_data_address;
+  wire       [31:0]   logic_push_onRam_write_payload_data_data;
+  wire       [3:0]    logic_push_onRam_write_payload_data_byteEnables;
+  wire       [3:0]    logic_push_onRam_write_payload_data_id;
+  wire                logic_push_onRam_write_payload_data_last;
+  wire                logic_pop_addressGen_valid;
+  reg                 logic_pop_addressGen_ready;
+  wire       [0:0]    logic_pop_addressGen_payload;
+  wire                logic_pop_addressGen_fire;
+  wire                logic_pop_sync_readArbitation_valid;
+  wire                logic_pop_sync_readArbitation_ready;
+  wire       [0:0]    logic_pop_sync_readArbitation_payload;
+  reg                 logic_pop_addressGen_rValid;
+  reg        [0:0]    logic_pop_addressGen_rData;
+  wire                when_Stream_l477;
+  wire                logic_pop_sync_readPort_cmd_valid;
+  wire       [0:0]    logic_pop_sync_readPort_cmd_payload;
+  wire       [31:0]   logic_pop_sync_readPort_rsp_address;
+  wire       [31:0]   logic_pop_sync_readPort_rsp_data;
+  wire       [3:0]    logic_pop_sync_readPort_rsp_byteEnables;
+  wire       [3:0]    logic_pop_sync_readPort_rsp_id;
+  wire                logic_pop_sync_readPort_rsp_last;
+  wire       [72:0]   _zz_logic_pop_sync_readPort_rsp_address;
+  wire                logic_pop_addressGen_toFlowFire_valid;
+  wire       [0:0]    logic_pop_addressGen_toFlowFire_payload;
+  wire                logic_pop_sync_readArbitation_translated_valid;
+  wire                logic_pop_sync_readArbitation_translated_ready;
+  wire       [31:0]   logic_pop_sync_readArbitation_translated_payload_address;
+  wire       [31:0]   logic_pop_sync_readArbitation_translated_payload_data;
+  wire       [3:0]    logic_pop_sync_readArbitation_translated_payload_byteEnables;
+  wire       [3:0]    logic_pop_sync_readArbitation_translated_payload_id;
+  wire                logic_pop_sync_readArbitation_translated_payload_last;
+  wire                logic_pop_sync_readArbitation_fire;
+  reg        [1:0]    logic_pop_sync_popReg;
+  reg [72:0] logic_ram [0:1];
+
+  assign _zz_logic_ram_port = {logic_push_onRam_write_payload_data_last,{logic_push_onRam_write_payload_data_id,{logic_push_onRam_write_payload_data_byteEnables,{logic_push_onRam_write_payload_data_data,logic_push_onRam_write_payload_data_address}}}};
+  always @(posedge clk) begin
+    if(_zz_1) begin
+      logic_ram[logic_push_onRam_write_payload_address] <= _zz_logic_ram_port;
+    end
+  end
+
+  always @(posedge clk) begin
+    if(logic_pop_sync_readPort_cmd_valid) begin
+      logic_ram_spinal_port1 <= logic_ram[logic_pop_sync_readPort_cmd_payload];
+    end
+  end
+
+  always @(*) begin
+    _zz_1 = 1'b0;
+    if(logic_push_onRam_write_valid) begin
+      _zz_1 = 1'b1;
+    end
+  end
+
+  assign when_Stream_l1455 = (logic_ptr_doPush != logic_ptr_doPop);
+  assign logic_ptr_full = (((logic_ptr_push ^ logic_ptr_popOnIo) ^ 2'b10) == 2'b00);
+  assign logic_ptr_empty = (logic_ptr_push == logic_ptr_pop);
+  assign logic_ptr_occupancy = (logic_ptr_push - logic_ptr_popOnIo);
+  assign io_push_ready = (! logic_ptr_full);
+  assign io_push_fire = (io_push_valid && io_push_ready);
+  assign logic_ptr_doPush = io_push_fire;
+  assign logic_push_onRam_write_valid = io_push_fire;
+  assign logic_push_onRam_write_payload_address = logic_ptr_push[0:0];
+  assign logic_push_onRam_write_payload_data_address = io_push_payload_address;
+  assign logic_push_onRam_write_payload_data_data = io_push_payload_data;
+  assign logic_push_onRam_write_payload_data_byteEnables = io_push_payload_byteEnables;
+  assign logic_push_onRam_write_payload_data_id = io_push_payload_id;
+  assign logic_push_onRam_write_payload_data_last = io_push_payload_last;
+  assign logic_pop_addressGen_valid = (! logic_ptr_empty);
+  assign logic_pop_addressGen_payload = logic_ptr_pop[0:0];
+  assign logic_pop_addressGen_fire = (logic_pop_addressGen_valid && logic_pop_addressGen_ready);
+  assign logic_ptr_doPop = logic_pop_addressGen_fire;
+  always @(*) begin
+    logic_pop_addressGen_ready = logic_pop_sync_readArbitation_ready;
+    if(when_Stream_l477) begin
+      logic_pop_addressGen_ready = 1'b1;
+    end
+  end
+
+  assign when_Stream_l477 = (! logic_pop_sync_readArbitation_valid);
+  assign logic_pop_sync_readArbitation_valid = logic_pop_addressGen_rValid;
+  assign logic_pop_sync_readArbitation_payload = logic_pop_addressGen_rData;
+  assign _zz_logic_pop_sync_readPort_rsp_address = logic_ram_spinal_port1;
+  assign logic_pop_sync_readPort_rsp_address = _zz_logic_pop_sync_readPort_rsp_address[31 : 0];
+  assign logic_pop_sync_readPort_rsp_data = _zz_logic_pop_sync_readPort_rsp_address[63 : 32];
+  assign logic_pop_sync_readPort_rsp_byteEnables = _zz_logic_pop_sync_readPort_rsp_address[67 : 64];
+  assign logic_pop_sync_readPort_rsp_id = _zz_logic_pop_sync_readPort_rsp_address[71 : 68];
+  assign logic_pop_sync_readPort_rsp_last = _zz_logic_pop_sync_readPort_rsp_address[72];
+  assign logic_pop_addressGen_toFlowFire_valid = logic_pop_addressGen_fire;
+  assign logic_pop_addressGen_toFlowFire_payload = logic_pop_addressGen_payload;
+  assign logic_pop_sync_readPort_cmd_valid = logic_pop_addressGen_toFlowFire_valid;
+  assign logic_pop_sync_readPort_cmd_payload = logic_pop_addressGen_toFlowFire_payload;
+  assign logic_pop_sync_readArbitation_translated_valid = logic_pop_sync_readArbitation_valid;
+  assign logic_pop_sync_readArbitation_ready = logic_pop_sync_readArbitation_translated_ready;
+  assign logic_pop_sync_readArbitation_translated_payload_address = logic_pop_sync_readPort_rsp_address;
+  assign logic_pop_sync_readArbitation_translated_payload_data = logic_pop_sync_readPort_rsp_data;
+  assign logic_pop_sync_readArbitation_translated_payload_byteEnables = logic_pop_sync_readPort_rsp_byteEnables;
+  assign logic_pop_sync_readArbitation_translated_payload_id = logic_pop_sync_readPort_rsp_id;
+  assign logic_pop_sync_readArbitation_translated_payload_last = logic_pop_sync_readPort_rsp_last;
+  assign io_pop_valid = logic_pop_sync_readArbitation_translated_valid;
+  assign logic_pop_sync_readArbitation_translated_ready = io_pop_ready;
+  assign io_pop_payload_address = logic_pop_sync_readArbitation_translated_payload_address;
+  assign io_pop_payload_data = logic_pop_sync_readArbitation_translated_payload_data;
+  assign io_pop_payload_byteEnables = logic_pop_sync_readArbitation_translated_payload_byteEnables;
+  assign io_pop_payload_id = logic_pop_sync_readArbitation_translated_payload_id;
+  assign io_pop_payload_last = logic_pop_sync_readArbitation_translated_payload_last;
+  assign logic_pop_sync_readArbitation_fire = (logic_pop_sync_readArbitation_valid && logic_pop_sync_readArbitation_ready);
+  assign logic_ptr_popOnIo = logic_pop_sync_popReg;
+  assign io_occupancy = logic_ptr_occupancy;
+  assign io_availability = (2'b10 - logic_ptr_occupancy);
+  always @(posedge clk) begin
+    if(reset) begin
+      logic_ptr_push <= 2'b00;
+      logic_ptr_pop <= 2'b00;
+      logic_ptr_wentUp <= 1'b0;
+      logic_pop_addressGen_rValid <= 1'b0;
+      logic_pop_sync_popReg <= 2'b00;
+    end else begin
+      if(when_Stream_l1455) begin
+        logic_ptr_wentUp <= logic_ptr_doPush;
+      end
+      if(io_flush) begin
+        logic_ptr_wentUp <= 1'b0;
+      end
+      if(logic_ptr_doPush) begin
+        logic_ptr_push <= (logic_ptr_push + 2'b01);
+      end
+      if(logic_ptr_doPop) begin
+        logic_ptr_pop <= (logic_ptr_pop + 2'b01);
+      end
+      if(io_flush) begin
+        logic_ptr_push <= 2'b00;
+        logic_ptr_pop <= 2'b00;
+      end
+      if(logic_pop_addressGen_ready) begin
+        logic_pop_addressGen_rValid <= logic_pop_addressGen_valid;
+      end
+      if(io_flush) begin
+        logic_pop_addressGen_rValid <= 1'b0;
+      end
+      if(logic_pop_sync_readArbitation_fire) begin
+        logic_pop_sync_popReg <= logic_ptr_pop;
+      end
+      if(io_flush) begin
+        logic_pop_sync_popReg <= 2'b00;
+      end
+    end
+  end
+
+  always @(posedge clk) begin
+    if(logic_pop_addressGen_ready) begin
+      logic_pop_addressGen_rData <= logic_pop_addressGen_payload;
+    end
+  end
+
+
+endmodule
+
+module StreamFifo_1 (
+  input  wire          io_push_valid,
+  output wire          io_push_ready,
+  input  wire [31:0]   io_push_payload_data,
+  input  wire [3:0]    io_push_payload_id,
+  input  wire [1:0]    io_push_payload_resp,
+  input  wire          io_push_payload_last,
+  output wire          io_pop_valid,
+  input  wire          io_pop_ready,
+  output wire [31:0]   io_pop_payload_data,
+  output wire [3:0]    io_pop_payload_id,
+  output wire [1:0]    io_pop_payload_resp,
+  output wire          io_pop_payload_last,
+  input  wire          io_flush,
+  output wire [1:0]    io_occupancy,
+  output wire [1:0]    io_availability,
+  input  wire          clk,
+  input  wire          reset
+);
+
+  reg        [38:0]   logic_ram_spinal_port1;
+  wire       [38:0]   _zz_logic_ram_port;
+  reg                 _zz_1;
+  wire                logic_ptr_doPush;
+  wire                logic_ptr_doPop;
+  wire                logic_ptr_full;
+  wire                logic_ptr_empty;
+  reg        [1:0]    logic_ptr_push;
+  reg        [1:0]    logic_ptr_pop;
+  wire       [1:0]    logic_ptr_occupancy;
+  wire       [1:0]    logic_ptr_popOnIo;
+  wire                when_Stream_l1455;
+  reg                 logic_ptr_wentUp;
+  wire                io_push_fire;
+  wire                logic_push_onRam_write_valid;
+  wire       [0:0]    logic_push_onRam_write_payload_address;
+  wire       [31:0]   logic_push_onRam_write_payload_data_data;
+  wire       [3:0]    logic_push_onRam_write_payload_data_id;
+  wire       [1:0]    logic_push_onRam_write_payload_data_resp;
+  wire                logic_push_onRam_write_payload_data_last;
+  wire                logic_pop_addressGen_valid;
+  reg                 logic_pop_addressGen_ready;
+  wire       [0:0]    logic_pop_addressGen_payload;
+  wire                logic_pop_addressGen_fire;
+  wire                logic_pop_sync_readArbitation_valid;
+  wire                logic_pop_sync_readArbitation_ready;
+  wire       [0:0]    logic_pop_sync_readArbitation_payload;
+  reg                 logic_pop_addressGen_rValid;
+  reg        [0:0]    logic_pop_addressGen_rData;
+  wire                when_Stream_l477;
+  wire                logic_pop_sync_readPort_cmd_valid;
+  wire       [0:0]    logic_pop_sync_readPort_cmd_payload;
+  wire       [31:0]   logic_pop_sync_readPort_rsp_data;
+  wire       [3:0]    logic_pop_sync_readPort_rsp_id;
+  wire       [1:0]    logic_pop_sync_readPort_rsp_resp;
+  wire                logic_pop_sync_readPort_rsp_last;
+  wire       [38:0]   _zz_logic_pop_sync_readPort_rsp_data;
+  wire                logic_pop_addressGen_toFlowFire_valid;
+  wire       [0:0]    logic_pop_addressGen_toFlowFire_payload;
+  wire                logic_pop_sync_readArbitation_translated_valid;
+  wire                logic_pop_sync_readArbitation_translated_ready;
+  wire       [31:0]   logic_pop_sync_readArbitation_translated_payload_data;
+  wire       [3:0]    logic_pop_sync_readArbitation_translated_payload_id;
+  wire       [1:0]    logic_pop_sync_readArbitation_translated_payload_resp;
+  wire                logic_pop_sync_readArbitation_translated_payload_last;
+  wire                logic_pop_sync_readArbitation_fire;
+  reg        [1:0]    logic_pop_sync_popReg;
+  reg [38:0] logic_ram [0:1];
+
+  assign _zz_logic_ram_port = {logic_push_onRam_write_payload_data_last,{logic_push_onRam_write_payload_data_resp,{logic_push_onRam_write_payload_data_id,logic_push_onRam_write_payload_data_data}}};
+  always @(posedge clk) begin
+    if(_zz_1) begin
+      logic_ram[logic_push_onRam_write_payload_address] <= _zz_logic_ram_port;
+    end
+  end
+
+  always @(posedge clk) begin
+    if(logic_pop_sync_readPort_cmd_valid) begin
+      logic_ram_spinal_port1 <= logic_ram[logic_pop_sync_readPort_cmd_payload];
+    end
+  end
+
+  always @(*) begin
+    _zz_1 = 1'b0;
+    if(logic_push_onRam_write_valid) begin
+      _zz_1 = 1'b1;
+    end
+  end
+
+  assign when_Stream_l1455 = (logic_ptr_doPush != logic_ptr_doPop);
+  assign logic_ptr_full = (((logic_ptr_push ^ logic_ptr_popOnIo) ^ 2'b10) == 2'b00);
+  assign logic_ptr_empty = (logic_ptr_push == logic_ptr_pop);
+  assign logic_ptr_occupancy = (logic_ptr_push - logic_ptr_popOnIo);
+  assign io_push_ready = (! logic_ptr_full);
+  assign io_push_fire = (io_push_valid && io_push_ready);
+  assign logic_ptr_doPush = io_push_fire;
+  assign logic_push_onRam_write_valid = io_push_fire;
+  assign logic_push_onRam_write_payload_address = logic_ptr_push[0:0];
+  assign logic_push_onRam_write_payload_data_data = io_push_payload_data;
+  assign logic_push_onRam_write_payload_data_id = io_push_payload_id;
+  assign logic_push_onRam_write_payload_data_resp = io_push_payload_resp;
+  assign logic_push_onRam_write_payload_data_last = io_push_payload_last;
+  assign logic_pop_addressGen_valid = (! logic_ptr_empty);
+  assign logic_pop_addressGen_payload = logic_ptr_pop[0:0];
+  assign logic_pop_addressGen_fire = (logic_pop_addressGen_valid && logic_pop_addressGen_ready);
+  assign logic_ptr_doPop = logic_pop_addressGen_fire;
+  always @(*) begin
+    logic_pop_addressGen_ready = logic_pop_sync_readArbitation_ready;
+    if(when_Stream_l477) begin
+      logic_pop_addressGen_ready = 1'b1;
+    end
+  end
+
+  assign when_Stream_l477 = (! logic_pop_sync_readArbitation_valid);
+  assign logic_pop_sync_readArbitation_valid = logic_pop_addressGen_rValid;
+  assign logic_pop_sync_readArbitation_payload = logic_pop_addressGen_rData;
+  assign _zz_logic_pop_sync_readPort_rsp_data = logic_ram_spinal_port1;
+  assign logic_pop_sync_readPort_rsp_data = _zz_logic_pop_sync_readPort_rsp_data[31 : 0];
+  assign logic_pop_sync_readPort_rsp_id = _zz_logic_pop_sync_readPort_rsp_data[35 : 32];
+  assign logic_pop_sync_readPort_rsp_resp = _zz_logic_pop_sync_readPort_rsp_data[37 : 36];
+  assign logic_pop_sync_readPort_rsp_last = _zz_logic_pop_sync_readPort_rsp_data[38];
+  assign logic_pop_addressGen_toFlowFire_valid = logic_pop_addressGen_fire;
+  assign logic_pop_addressGen_toFlowFire_payload = logic_pop_addressGen_payload;
+  assign logic_pop_sync_readPort_cmd_valid = logic_pop_addressGen_toFlowFire_valid;
+  assign logic_pop_sync_readPort_cmd_payload = logic_pop_addressGen_toFlowFire_payload;
+  assign logic_pop_sync_readArbitation_translated_valid = logic_pop_sync_readArbitation_valid;
+  assign logic_pop_sync_readArbitation_ready = logic_pop_sync_readArbitation_translated_ready;
+  assign logic_pop_sync_readArbitation_translated_payload_data = logic_pop_sync_readPort_rsp_data;
+  assign logic_pop_sync_readArbitation_translated_payload_id = logic_pop_sync_readPort_rsp_id;
+  assign logic_pop_sync_readArbitation_translated_payload_resp = logic_pop_sync_readPort_rsp_resp;
+  assign logic_pop_sync_readArbitation_translated_payload_last = logic_pop_sync_readPort_rsp_last;
+  assign io_pop_valid = logic_pop_sync_readArbitation_translated_valid;
+  assign logic_pop_sync_readArbitation_translated_ready = io_pop_ready;
+  assign io_pop_payload_data = logic_pop_sync_readArbitation_translated_payload_data;
+  assign io_pop_payload_id = logic_pop_sync_readArbitation_translated_payload_id;
+  assign io_pop_payload_resp = logic_pop_sync_readArbitation_translated_payload_resp;
+  assign io_pop_payload_last = logic_pop_sync_readArbitation_translated_payload_last;
+  assign logic_pop_sync_readArbitation_fire = (logic_pop_sync_readArbitation_valid && logic_pop_sync_readArbitation_ready);
+  assign logic_ptr_popOnIo = logic_pop_sync_popReg;
+  assign io_occupancy = logic_ptr_occupancy;
+  assign io_availability = (2'b10 - logic_ptr_occupancy);
+  always @(posedge clk) begin
+    if(reset) begin
+      logic_ptr_push <= 2'b00;
+      logic_ptr_pop <= 2'b00;
+      logic_ptr_wentUp <= 1'b0;
+      logic_pop_addressGen_rValid <= 1'b0;
+      logic_pop_sync_popReg <= 2'b00;
+    end else begin
+      if(when_Stream_l1455) begin
+        logic_ptr_wentUp <= logic_ptr_doPush;
+      end
+      if(io_flush) begin
+        logic_ptr_wentUp <= 1'b0;
+      end
+      if(logic_ptr_doPush) begin
+        logic_ptr_push <= (logic_ptr_push + 2'b01);
+      end
+      if(logic_ptr_doPop) begin
+        logic_ptr_pop <= (logic_ptr_pop + 2'b01);
+      end
+      if(io_flush) begin
+        logic_ptr_push <= 2'b00;
+        logic_ptr_pop <= 2'b00;
+      end
+      if(logic_pop_addressGen_ready) begin
+        logic_pop_addressGen_rValid <= logic_pop_addressGen_valid;
+      end
+      if(io_flush) begin
+        logic_pop_addressGen_rValid <= 1'b0;
+      end
+      if(logic_pop_sync_readArbitation_fire) begin
+        logic_pop_sync_popReg <= logic_ptr_pop;
+      end
+      if(io_flush) begin
+        logic_pop_sync_popReg <= 2'b00;
+      end
+    end
+  end
+
+  always @(posedge clk) begin
+    if(logic_pop_addressGen_ready) begin
+      logic_pop_addressGen_rData <= logic_pop_addressGen_payload;
+    end
+  end
+
+
+endmodule
+
+module StreamFifo (
+  input  wire          io_push_valid,
+  output wire          io_push_ready,
+  input  wire [31:0]   io_push_payload_address,
+  input  wire [3:0]    io_push_payload_id,
+  output wire          io_pop_valid,
+  input  wire          io_pop_ready,
+  output wire [31:0]   io_pop_payload_address,
+  output wire [3:0]    io_pop_payload_id,
+  input  wire          io_flush,
+  output wire [1:0]    io_occupancy,
+  output wire [1:0]    io_availability,
+  input  wire          clk,
+  input  wire          reset
+);
+
+  reg        [35:0]   logic_ram_spinal_port1;
+  wire       [35:0]   _zz_logic_ram_port;
+  reg                 _zz_1;
+  wire                logic_ptr_doPush;
+  wire                logic_ptr_doPop;
+  wire                logic_ptr_full;
+  wire                logic_ptr_empty;
+  reg        [1:0]    logic_ptr_push;
+  reg        [1:0]    logic_ptr_pop;
+  wire       [1:0]    logic_ptr_occupancy;
+  wire       [1:0]    logic_ptr_popOnIo;
+  wire                when_Stream_l1455;
+  reg                 logic_ptr_wentUp;
+  wire                io_push_fire;
+  wire                logic_push_onRam_write_valid;
+  wire       [0:0]    logic_push_onRam_write_payload_address;
+  wire       [31:0]   logic_push_onRam_write_payload_data_address;
+  wire       [3:0]    logic_push_onRam_write_payload_data_id;
+  wire                logic_pop_addressGen_valid;
+  reg                 logic_pop_addressGen_ready;
+  wire       [0:0]    logic_pop_addressGen_payload;
+  wire                logic_pop_addressGen_fire;
+  wire                logic_pop_sync_readArbitation_valid;
+  wire                logic_pop_sync_readArbitation_ready;
+  wire       [0:0]    logic_pop_sync_readArbitation_payload;
+  reg                 logic_pop_addressGen_rValid;
+  reg        [0:0]    logic_pop_addressGen_rData;
+  wire                when_Stream_l477;
+  wire                logic_pop_sync_readPort_cmd_valid;
+  wire       [0:0]    logic_pop_sync_readPort_cmd_payload;
+  wire       [31:0]   logic_pop_sync_readPort_rsp_address;
+  wire       [3:0]    logic_pop_sync_readPort_rsp_id;
+  wire       [35:0]   _zz_logic_pop_sync_readPort_rsp_address;
+  wire                logic_pop_addressGen_toFlowFire_valid;
+  wire       [0:0]    logic_pop_addressGen_toFlowFire_payload;
+  wire                logic_pop_sync_readArbitation_translated_valid;
+  wire                logic_pop_sync_readArbitation_translated_ready;
+  wire       [31:0]   logic_pop_sync_readArbitation_translated_payload_address;
+  wire       [3:0]    logic_pop_sync_readArbitation_translated_payload_id;
+  wire                logic_pop_sync_readArbitation_fire;
+  reg        [1:0]    logic_pop_sync_popReg;
+  reg [35:0] logic_ram [0:1];
+
+  assign _zz_logic_ram_port = {logic_push_onRam_write_payload_data_id,logic_push_onRam_write_payload_data_address};
+  always @(posedge clk) begin
+    if(_zz_1) begin
+      logic_ram[logic_push_onRam_write_payload_address] <= _zz_logic_ram_port;
+    end
+  end
+
+  always @(posedge clk) begin
+    if(logic_pop_sync_readPort_cmd_valid) begin
+      logic_ram_spinal_port1 <= logic_ram[logic_pop_sync_readPort_cmd_payload];
+    end
+  end
+
+  always @(*) begin
+    _zz_1 = 1'b0;
+    if(logic_push_onRam_write_valid) begin
+      _zz_1 = 1'b1;
+    end
+  end
+
+  assign when_Stream_l1455 = (logic_ptr_doPush != logic_ptr_doPop);
+  assign logic_ptr_full = (((logic_ptr_push ^ logic_ptr_popOnIo) ^ 2'b10) == 2'b00);
+  assign logic_ptr_empty = (logic_ptr_push == logic_ptr_pop);
+  assign logic_ptr_occupancy = (logic_ptr_push - logic_ptr_popOnIo);
+  assign io_push_ready = (! logic_ptr_full);
+  assign io_push_fire = (io_push_valid && io_push_ready);
+  assign logic_ptr_doPush = io_push_fire;
+  assign logic_push_onRam_write_valid = io_push_fire;
+  assign logic_push_onRam_write_payload_address = logic_ptr_push[0:0];
+  assign logic_push_onRam_write_payload_data_address = io_push_payload_address;
+  assign logic_push_onRam_write_payload_data_id = io_push_payload_id;
+  assign logic_pop_addressGen_valid = (! logic_ptr_empty);
+  assign logic_pop_addressGen_payload = logic_ptr_pop[0:0];
+  assign logic_pop_addressGen_fire = (logic_pop_addressGen_valid && logic_pop_addressGen_ready);
+  assign logic_ptr_doPop = logic_pop_addressGen_fire;
+  always @(*) begin
+    logic_pop_addressGen_ready = logic_pop_sync_readArbitation_ready;
+    if(when_Stream_l477) begin
+      logic_pop_addressGen_ready = 1'b1;
+    end
+  end
+
+  assign when_Stream_l477 = (! logic_pop_sync_readArbitation_valid);
+  assign logic_pop_sync_readArbitation_valid = logic_pop_addressGen_rValid;
+  assign logic_pop_sync_readArbitation_payload = logic_pop_addressGen_rData;
+  assign _zz_logic_pop_sync_readPort_rsp_address = logic_ram_spinal_port1;
+  assign logic_pop_sync_readPort_rsp_address = _zz_logic_pop_sync_readPort_rsp_address[31 : 0];
+  assign logic_pop_sync_readPort_rsp_id = _zz_logic_pop_sync_readPort_rsp_address[35 : 32];
+  assign logic_pop_addressGen_toFlowFire_valid = logic_pop_addressGen_fire;
+  assign logic_pop_addressGen_toFlowFire_payload = logic_pop_addressGen_payload;
+  assign logic_pop_sync_readPort_cmd_valid = logic_pop_addressGen_toFlowFire_valid;
+  assign logic_pop_sync_readPort_cmd_payload = logic_pop_addressGen_toFlowFire_payload;
+  assign logic_pop_sync_readArbitation_translated_valid = logic_pop_sync_readArbitation_valid;
+  assign logic_pop_sync_readArbitation_ready = logic_pop_sync_readArbitation_translated_ready;
+  assign logic_pop_sync_readArbitation_translated_payload_address = logic_pop_sync_readPort_rsp_address;
+  assign logic_pop_sync_readArbitation_translated_payload_id = logic_pop_sync_readPort_rsp_id;
+  assign io_pop_valid = logic_pop_sync_readArbitation_translated_valid;
+  assign logic_pop_sync_readArbitation_translated_ready = io_pop_ready;
+  assign io_pop_payload_address = logic_pop_sync_readArbitation_translated_payload_address;
+  assign io_pop_payload_id = logic_pop_sync_readArbitation_translated_payload_id;
+  assign logic_pop_sync_readArbitation_fire = (logic_pop_sync_readArbitation_valid && logic_pop_sync_readArbitation_ready);
+  assign logic_ptr_popOnIo = logic_pop_sync_popReg;
+  assign io_occupancy = logic_ptr_occupancy;
+  assign io_availability = (2'b10 - logic_ptr_occupancy);
+  always @(posedge clk) begin
+    if(reset) begin
+      logic_ptr_push <= 2'b00;
+      logic_ptr_pop <= 2'b00;
+      logic_ptr_wentUp <= 1'b0;
+      logic_pop_addressGen_rValid <= 1'b0;
+      logic_pop_sync_popReg <= 2'b00;
+    end else begin
+      if(when_Stream_l1455) begin
+        logic_ptr_wentUp <= logic_ptr_doPush;
+      end
+      if(io_flush) begin
+        logic_ptr_wentUp <= 1'b0;
+      end
+      if(logic_ptr_doPush) begin
+        logic_ptr_push <= (logic_ptr_push + 2'b01);
+      end
+      if(logic_ptr_doPop) begin
+        logic_ptr_pop <= (logic_ptr_pop + 2'b01);
+      end
+      if(io_flush) begin
+        logic_ptr_push <= 2'b00;
+        logic_ptr_pop <= 2'b00;
+      end
+      if(logic_pop_addressGen_ready) begin
+        logic_pop_addressGen_rValid <= logic_pop_addressGen_valid;
+      end
+      if(io_flush) begin
+        logic_pop_addressGen_rValid <= 1'b0;
+      end
+      if(logic_pop_sync_readArbitation_fire) begin
+        logic_pop_sync_popReg <= logic_ptr_pop;
+      end
+      if(io_flush) begin
+        logic_pop_sync_popReg <= 2'b00;
+      end
+    end
+  end
+
+  always @(posedge clk) begin
+    if(logic_pop_addressGen_ready) begin
+      logic_pop_addressGen_rData <= logic_pop_addressGen_payload;
     end
   end
 
@@ -61595,11 +62221,11 @@ module InstructionPredecoder (
 
 endmodule
 
-//StreamFifo_2 replaced by StreamFifo
+//StreamFifo_10 replaced by StreamFifo_8
 
-//StreamFifo_1 replaced by StreamFifo
+//StreamFifo_9 replaced by StreamFifo_8
 
-module StreamFifo (
+module StreamFifo_8 (
   input  wire          io_push_valid,
   output wire          io_push_ready,
   input  wire [1:0]    io_push_payload,
