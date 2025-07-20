@@ -34,7 +34,7 @@ class MockCommitControllerBru(pCfg: PipelineConfig) extends Plugin with CommitSe
     enableCommit := enable
   }
 
-  override def isIdle(): Bool = False
+  // override def isIdle(): Bool = False
 
   val setup = create early new Area {
     val ratControl = getService[RatControlService]

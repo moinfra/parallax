@@ -218,6 +218,41 @@ class LoadQueuePlugin(
         // =========================================================
         val loadQueue = new Area {
             val slots = Vec.fill(lqDepth)(Reg(LoadQueueSlot(pipelineConfig, lsuConfig, dCacheParams)))
+
+            // +++ START: 新增代码 +++
+            // 为不同来源的完成事件创建专用的锁存器
+            case class CompletionInfo() extends Bundle {
+                val valid = Bool()
+                val fromFwd = Bool() // 来自Store转发
+                val fromDCache = Bool() // 来自DCache
+                val fromMMIO = Bool() // 来自MMIO
+                val fromEarlyExc = Bool() // 来自早期异常
+                
+                // 携带需要的数据
+                val data = Bits(pipelineConfig.dataWidth)
+                val hasFault = Bool()
+                val exceptionCode = UInt(8 bits)
+
+                def setDefault(): this.type = {
+                    valid := False
+                    fromFwd := False
+                    fromDCache := False
+                    fromMMIO := False
+                    fromEarlyExc := False
+                    data.assignDontCare()
+                    hasFault := False
+                    exceptionCode.assignDontCare()
+                    this
+                }
+            }
+
+            val completionInfo = CompletionInfo()
+            completionInfo.setDefault() // 设置默认值
+
+            // 这个寄存器将锁存本周期发生的完成事件
+            val completionInfoReg = RegNext(completionInfo).init(CompletionInfo().setDefault())
+            // +++ END: 新增代码 +++
+
             val slotsAfterUpdates = CombInit(slots)
             val slotsNext   = CombInit(slotsAfterUpdates)
             
@@ -385,106 +420,76 @@ class LoadQueuePlugin(
             }
 
             // --- Completion & Pop Logic ---
-            // 修复时序问题：使用当前状态而不是更新后的状态来判断forwarding hit
+
+            // 1. (组合逻辑) 检测本周期是否有完成事件，并准备好要锁存的信息
             val popOnFwdHit = head.isWaitingForFwdRsp && sbQueryRspReg.hit
             val popOnDCacheSuccess = dCacheLoadPort.rsp.valid && head.valid && head.isWaitingForRsp && !head.isIO && !dCacheLoadPort.rsp.payload.redo
             val popOnMMIOSuccess = mmioResponseIsForHead
-            val popOnEarlyException = head.valid && head.hasException && !head.isReadyForDCache // Exception was known at dispatch
+            val popOnEarlyException = head.valid && head.hasException && !head.isReadyForDCache
             val popRequest = popOnFwdHit || popOnDCacheSuccess || popOnMMIOSuccess || popOnEarlyException
-            
+
+            // 设置本周期要锁存的完成信息
+            when(popOnFwdHit) {
+                completionInfo.valid := True
+                completionInfo.fromFwd := True
+                completionInfo.data := sbQueryRspReg.data
+                completionInfo.hasFault := False
+            } .elsewhen(popOnDCacheSuccess) {
+                completionInfo.valid := True
+                completionInfo.fromDCache := True
+                completionInfo.data := dCacheLoadPort.rsp.payload.data
+                completionInfo.hasFault := dCacheLoadPort.rsp.payload.fault
+                completionInfo.exceptionCode := ExceptionCode.LOAD_ACCESS_FAULT
+            } .elsewhen(popOnMMIOSuccess) {
+                hw.mmioReadChannel.foreach { mmioChannel =>
+                    completionInfo.valid := True
+                    completionInfo.fromMMIO := True
+                    completionInfo.data := mmioChannel.rsp.payload.data
+                    completionInfo.hasFault := mmioChannel.rsp.payload.error
+                    completionInfo.exceptionCode := ExceptionCode.LOAD_ACCESS_FAULT
+                }
+            } .elsewhen(popOnEarlyException) {
+                completionInfo.valid := True
+                completionInfo.fromEarlyExc := True
+                completionInfo.hasFault := True
+                completionInfo.exceptionCode := head.exceptionCode
+            }
+
+            // 2. (时序逻辑) 在下一周期，根据锁存的完成信息执行写回操作
             robLoadWritebackPort.setDefault()
-            
             prfWritePort.valid   := False
             prfWritePort.address.assignDontCare()
             prfWritePort.data.assignDontCare()
-
             wakeupPort.valid := False
             wakeupPort.payload.physRegIdx.assignDontCare()
-
             busyTableClearPort.valid := False
             busyTableClearPort.payload.assignDontCare()
 
-            // Completion paths
-            when(popOnFwdHit) {
-                ParallaxSim.log(L"[LQ-Fwd] HIT: robPtr=${head.robPtr}, data=${sbQueryRspReg.data}. Completing instruction.")
-                prfWritePort.valid   := True
-                prfWritePort.address := head.pdest
-                prfWritePort.data    := sbQueryRspReg.data
+            // 从寄存器中读取上一周期的完成事件
+            val completingHead = RegNext(head) // 同时锁存需要写回的head信息
+            when(completionInfoReg.valid) {
+                robLoadWritebackPort.fire := True
+                robLoadWritebackPort.robPtr := completingHead.robPtr
+                robLoadWritebackPort.exceptionOccurred := completionInfoReg.hasFault
+                robLoadWritebackPort.exceptionCodeIn := completionInfoReg.exceptionCode
+                robLoadWritebackPort.result := completionInfoReg.data
                 
-                robLoadWritebackPort.fire := True
-                robLoadWritebackPort.robPtr := head.robPtr
-                robLoadWritebackPort.exceptionOccurred := False
-
-                wakeupPort.valid := True
-                wakeupPort.payload.physRegIdx := head.pdest
-
-                // 释放寄存器资源
-                busyTableClearPort.valid := True
-                busyTableClearPort.payload := head.pdest
-
-            } elsewhen (popOnDCacheSuccess) {
-                ParallaxSim.log(L"[LQ-DCache] DCACHE_RSP_OK for robPtr=${head.robPtr}, data=${dCacheLoadPort.rsp.payload.data}, fault=${dCacheLoadPort.rsp.payload.fault}")
-                prfWritePort.valid   := !dCacheLoadPort.rsp.payload.fault
-                prfWritePort.address := head.pdest
-                prfWritePort.data    := dCacheLoadPort.rsp.payload.data
-
-                robLoadWritebackPort.fire := True
-                robLoadWritebackPort.robPtr := head.robPtr
-                robLoadWritebackPort.exceptionOccurred := dCacheLoadPort.rsp.payload.fault
-                robLoadWritebackPort.exceptionCodeIn   := ExceptionCode.LOAD_ACCESS_FAULT
-                robLoadWritebackPort.result            := dCacheLoadPort.rsp.payload.data
-
-                when(!dCacheLoadPort.rsp.payload.fault) {
+                // 只有在没有故障/异常时才写回PRF并唤醒
+                when(!completionInfoReg.hasFault) {
+                    prfWritePort.valid   := True
+                    prfWritePort.address := completingHead.pdest
+                    prfWritePort.data    := completionInfoReg.data
+                    
                     wakeupPort.valid := True
-                    wakeupPort.payload.physRegIdx := head.pdest
-
-                    busyTableClearPort.valid := True
-                    busyTableClearPort.payload := head.pdest
+                    wakeupPort.payload.physRegIdx := completingHead.pdest
                 }
-            } elsewhen (popOnMMIOSuccess) { // Uses current response
-                hw.mmioReadChannel.foreach { mmioChannel =>
-                    val mmioRsp = mmioChannel.rsp.payload
-                    ParallaxSim.log(L"[LQ-MMIO] MMIO_RSP_OK for robPtr=${head.robPtr}, addr=${head.address} data=${mmioRsp.data}, error=${mmioRsp.error}")
-                    prfWritePort.valid   := !mmioRsp.error
-                    prfWritePort.address := head.pdest
-                    prfWritePort.data    := mmioRsp.data
-
-                    robLoadWritebackPort.fire := True
-                    robLoadWritebackPort.robPtr := head.robPtr
-                    robLoadWritebackPort.exceptionOccurred := mmioRsp.error
-                    robLoadWritebackPort.exceptionCodeIn   := ExceptionCode.LOAD_ACCESS_FAULT
-                    robLoadWritebackPort.result            := mmioRsp.data
-
-                    when(!mmioRsp.error) {
-                        wakeupPort.valid := True
-                        wakeupPort.payload.physRegIdx := head.pdest
-
-                        busyTableClearPort.valid := True
-                        busyTableClearPort.payload := head.pdest
-                    }
-                }
-            } elsewhen (popOnEarlyException) {
-                ParallaxSim.log(L"[LQ] Alignment exception for robPtr=${head.robPtr}")
-                robLoadWritebackPort.fire := True
-                robLoadWritebackPort.robPtr := head.robPtr
-                robLoadWritebackPort.exceptionOccurred := True
-                robLoadWritebackPort.exceptionCodeIn := head.exceptionCode
                 
-                // An instruction with an exception still "completes" its reservation on a physical register.
-                // The register won't be written, but it's no longer in flight. Wakeup listeners need to know.
-                // NOTE: This behavior might be debatable. A simpler model is to only wakeup on success.
-                // Let's stick to waking up only on successful write to PRF to match the log behavior.
-                // So, no wakeup here. This is correct as no data is produced.
-
-                // 对于有异常的指令，它虽然“完成”了，但没有成功写入寄存器，
-                // 可是它占用的物理寄存器资源必须被释放。
-                // BusyTable的清除逻辑应该在“指令完成其对物理寄存器的占用”时触发，
-                // 无论写回是否成功。这与 EuBasePlugin 的行为一致。
+                // 无论成功与否，只要指令完成，就要释放物理寄存器
                 busyTableClearPort.valid := True
-                busyTableClearPort.payload := head.pdest
+                busyTableClearPort.payload := completingHead.pdest
             }
 
-            // --- LQ Pop Execution ---
+            // 3. (组合逻辑) LQ Pop的请求仍然是组合的，但执行被推迟
             when(popRequest) {
                 for (i <- 0 until lqDepth - 1) {
                     slotsNext(i) := slotsAfterUpdates(i + 1)
