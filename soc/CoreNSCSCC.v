@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 49a99dae7b6ed938ae50042417514f24dcaeaaa8
 // Component : CoreNSCSCC
-// Git hash  : dd537c4d35cb30825c433ade7592a36407c62154
+// Git hash  : 9ea9e1c28dcc1bc1bb7ab26bf70b80e634c5e872
 
 `timescale 1ns/1ps
 
@@ -4420,7 +4420,6 @@ module CoreNSCSCC (
   wire       [1:0]    _zz_io_iqEntryIn_payload_aluCtrl_logicOp;
   wire       [2:0]    _zz_io_iqEntryIn_payload_immUsage;
   wire                s2_Execute_isFiring;
-  (* mark_debug = "TRUE" , keep , syn_keep *) reg        [31:0]   io_resultOut_payload_data_regNextWhen /* synthesis syn_keep = 1 */ ;
   wire       [2:0]    _zz_45;
   wire                _zz_AluIntEU_AluIntEuPlugin_logicPhase_isFlushed;
   wire       [2:0]    _zz_AluIntEU_AluIntEuPlugin_logicPhase_isFlushed_1;
@@ -26972,9 +26971,6 @@ module CoreNSCSCC (
     DispatchPlugin_logic_debugDispatchedUopSrc1_iq2 <= s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc1_idx;
     DispatchPlugin_logic_debugDispatchedUopSrc2_iq3 <= s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2_idx;
     DispatchPlugin_logic_debugDispatchedUopSrc1_iq3 <= s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc1_idx;
-    if(s2_Execute_isFiring) begin
-      io_resultOut_payload_data_regNextWhen <= AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_data;
-    end
     _zz_AluIntEU_AluIntEuPlugin_euResult_uop_robPtr_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_robPtr;
     _zz_AluIntEU_AluIntEuPlugin_euResult_uop_physDest_idx_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_physDest_idx;
     _zz_AluIntEU_AluIntEuPlugin_euResult_uop_physDestIsFpr_1 <= AluIntEU_AluIntEuPlugin_euInputPort_payload_physDestIsFpr;
@@ -29143,6 +29139,27 @@ module SplitGmbToAxi4Bridge (
   reg        [31:0]   io_gmbIn_read_cmd_rData_address;
   reg        [3:0]    io_gmbIn_read_cmd_rData_id;
   wire                when_Stream_l477;
+  wire                arCmd_valid;
+  reg                 arCmd_ready;
+  wire       [31:0]   arCmd_payload_addr;
+  wire       [3:0]    arCmd_payload_id;
+  wire       [7:0]    arCmd_payload_len;
+  wire       [2:0]    arCmd_payload_size;
+  wire       [1:0]    arCmd_payload_burst;
+  wire                arCmd_stage_valid;
+  wire                arCmd_stage_ready;
+  wire       [31:0]   arCmd_stage_payload_addr;
+  wire       [3:0]    arCmd_stage_payload_id;
+  wire       [7:0]    arCmd_stage_payload_len;
+  wire       [2:0]    arCmd_stage_payload_size;
+  wire       [1:0]    arCmd_stage_payload_burst;
+  reg                 arCmd_rValid;
+  reg        [31:0]   arCmd_rData_addr;
+  reg        [3:0]    arCmd_rData_id;
+  reg        [7:0]    arCmd_rData_len;
+  reg        [2:0]    arCmd_rData_size;
+  reg        [1:0]    arCmd_rData_burst;
+  wire                when_Stream_l477_1;
   wire                axiR_valid;
   wire                axiR_ready;
   wire       [31:0]   axiR_payload_data;
@@ -29154,7 +29171,7 @@ module SplitGmbToAxi4Bridge (
   reg        [3:0]    io_axiOut_r_rData_id;
   reg        [1:0]    io_axiOut_r_rData_resp;
   reg                 io_axiOut_r_rData_last;
-  wire                when_Stream_l477_1;
+  wire                when_Stream_l477_2;
   wire                cmdStage_valid;
   wire                cmdStage_ready;
   wire       [31:0]   cmdStage_payload_address;
@@ -29168,7 +29185,7 @@ module SplitGmbToAxi4Bridge (
   reg        [3:0]    io_gmbIn_write_cmd_rData_byteEnables;
   reg        [3:0]    io_gmbIn_write_cmd_rData_id;
   reg                 io_gmbIn_write_cmd_rData_last;
-  wire                when_Stream_l477_2;
+  wire                when_Stream_l477_3;
   wire                axiB_staged_valid;
   wire                axiB_staged_ready;
   wire       [3:0]    axiB_staged_payload_id;
@@ -29176,7 +29193,7 @@ module SplitGmbToAxi4Bridge (
   reg                 io_axiOut_b_rValid;
   reg        [3:0]    io_axiOut_b_rData_id;
   reg        [1:0]    io_axiOut_b_rData_resp;
-  wire                when_Stream_l477_3;
+  wire                when_Stream_l477_4;
 
   StreamFork cmdStage_fork (
     .io_input_valid                   (cmdStage_valid                                     ), //i
@@ -29214,21 +29231,42 @@ module SplitGmbToAxi4Bridge (
   assign gmbReadCmd_valid = io_gmbIn_read_cmd_rValid;
   assign gmbReadCmd_payload_address = io_gmbIn_read_cmd_rData_address;
   assign gmbReadCmd_payload_id = io_gmbIn_read_cmd_rData_id;
-  assign io_axiOut_ar_valid = gmbReadCmd_valid;
-  assign io_axiOut_ar_payload_addr = gmbReadCmd_payload_address;
-  assign io_axiOut_ar_payload_id = gmbReadCmd_payload_id;
-  assign io_axiOut_ar_payload_len = 8'h0;
-  assign io_axiOut_ar_payload_size = 3'b010;
-  assign io_axiOut_ar_payload_burst = 2'b01;
-  assign gmbReadCmd_ready = io_axiOut_ar_ready;
+  assign arCmd_valid = gmbReadCmd_valid;
+  assign gmbReadCmd_ready = arCmd_ready;
+  assign arCmd_payload_addr = gmbReadCmd_payload_address;
+  assign arCmd_payload_id = gmbReadCmd_payload_id;
+  assign arCmd_payload_len = 8'h0;
+  assign arCmd_payload_size = 3'b010;
+  assign arCmd_payload_burst = 2'b01;
+  always @(*) begin
+    arCmd_ready = arCmd_stage_ready;
+    if(when_Stream_l477_1) begin
+      arCmd_ready = 1'b1;
+    end
+  end
+
+  assign when_Stream_l477_1 = (! arCmd_stage_valid);
+  assign arCmd_stage_valid = arCmd_rValid;
+  assign arCmd_stage_payload_addr = arCmd_rData_addr;
+  assign arCmd_stage_payload_id = arCmd_rData_id;
+  assign arCmd_stage_payload_len = arCmd_rData_len;
+  assign arCmd_stage_payload_size = arCmd_rData_size;
+  assign arCmd_stage_payload_burst = arCmd_rData_burst;
+  assign io_axiOut_ar_valid = arCmd_stage_valid;
+  assign arCmd_stage_ready = io_axiOut_ar_ready;
+  assign io_axiOut_ar_payload_addr = arCmd_stage_payload_addr;
+  assign io_axiOut_ar_payload_id = arCmd_stage_payload_id;
+  assign io_axiOut_ar_payload_len = arCmd_stage_payload_len;
+  assign io_axiOut_ar_payload_size = arCmd_stage_payload_size;
+  assign io_axiOut_ar_payload_burst = arCmd_stage_payload_burst;
   always @(*) begin
     io_axiOut_r_ready = axiR_ready;
-    if(when_Stream_l477_1) begin
+    if(when_Stream_l477_2) begin
       io_axiOut_r_ready = 1'b1;
     end
   end
 
-  assign when_Stream_l477_1 = (! axiR_valid);
+  assign when_Stream_l477_2 = (! axiR_valid);
   assign axiR_valid = io_axiOut_r_rValid;
   assign axiR_payload_data = io_axiOut_r_rData_data;
   assign axiR_payload_id = io_axiOut_r_rData_id;
@@ -29241,12 +29279,12 @@ module SplitGmbToAxi4Bridge (
   assign axiR_ready = io_gmbIn_read_rsp_ready;
   always @(*) begin
     io_gmbIn_write_cmd_ready = cmdStage_ready;
-    if(when_Stream_l477_2) begin
+    if(when_Stream_l477_3) begin
       io_gmbIn_write_cmd_ready = 1'b1;
     end
   end
 
-  assign when_Stream_l477_2 = (! cmdStage_valid);
+  assign when_Stream_l477_3 = (! cmdStage_valid);
   assign cmdStage_valid = io_gmbIn_write_cmd_rValid;
   assign cmdStage_payload_address = io_gmbIn_write_cmd_rData_address;
   assign cmdStage_payload_data = io_gmbIn_write_cmd_rData_data;
@@ -29266,12 +29304,12 @@ module SplitGmbToAxi4Bridge (
   assign io_axiOut_w_payload_last = 1'b1;
   always @(*) begin
     io_axiOut_b_ready = axiB_staged_ready;
-    if(when_Stream_l477_3) begin
+    if(when_Stream_l477_4) begin
       io_axiOut_b_ready = 1'b1;
     end
   end
 
-  assign when_Stream_l477_3 = (! axiB_staged_valid);
+  assign when_Stream_l477_4 = (! axiB_staged_valid);
   assign axiB_staged_valid = io_axiOut_b_rValid;
   assign axiB_staged_payload_id = io_axiOut_b_rData_id;
   assign axiB_staged_payload_resp = io_axiOut_b_rData_resp;
@@ -29282,12 +29320,16 @@ module SplitGmbToAxi4Bridge (
   always @(posedge clk) begin
     if(reset) begin
       io_gmbIn_read_cmd_rValid <= 1'b0;
+      arCmd_rValid <= 1'b0;
       io_axiOut_r_rValid <= 1'b0;
       io_gmbIn_write_cmd_rValid <= 1'b0;
       io_axiOut_b_rValid <= 1'b0;
     end else begin
       if(io_gmbIn_read_cmd_ready) begin
         io_gmbIn_read_cmd_rValid <= io_gmbIn_read_cmd_valid;
+      end
+      if(arCmd_ready) begin
+        arCmd_rValid <= arCmd_valid;
       end
       if(io_axiOut_r_ready) begin
         io_axiOut_r_rValid <= io_axiOut_r_valid;
@@ -29305,6 +29347,13 @@ module SplitGmbToAxi4Bridge (
     if(io_gmbIn_read_cmd_ready) begin
       io_gmbIn_read_cmd_rData_address <= io_gmbIn_read_cmd_payload_address;
       io_gmbIn_read_cmd_rData_id <= io_gmbIn_read_cmd_payload_id;
+    end
+    if(arCmd_ready) begin
+      arCmd_rData_addr <= arCmd_payload_addr;
+      arCmd_rData_id <= arCmd_payload_id;
+      arCmd_rData_len <= arCmd_payload_len;
+      arCmd_rData_size <= arCmd_payload_size;
+      arCmd_rData_burst <= arCmd_payload_burst;
     end
     if(io_axiOut_r_ready) begin
       io_axiOut_r_rData_data <= io_axiOut_r_payload_data;
