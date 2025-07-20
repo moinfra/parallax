@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 49a99dae7b6ed938ae50042417514f24dcaeaaa8
 // Component : CoreNSCSCC
-// Git hash  : 99978fec83b9e8b7fdb1cfcd477a4d5647f2419c
+// Git hash  : 53b11f8106e79607519a4c1d070e5f36a355d19e
 
 `timescale 1ns/1ps
 
@@ -4223,6 +4223,14 @@ module CoreNSCSCC (
   wire       [7:0]    DispatchPlugin_logic_iqRegs_3_1_toFlow_payload_uop_exceptionCode;
   wire                DispatchPlugin_logic_iqRegs_3_1_toFlow_payload_src1InitialReady;
   wire                DispatchPlugin_logic_iqRegs_3_1_toFlow_payload_src2InitialReady;
+  reg                 globalWakeupFlow_regNext_valid;
+  reg        [5:0]    globalWakeupFlow_regNext_payload_physRegIdx;
+  reg                 globalWakeupFlow_regNext_valid_1;
+  reg        [5:0]    globalWakeupFlow_regNext_payload_physRegIdx_1;
+  reg                 globalWakeupFlow_regNext_valid_2;
+  reg        [5:0]    globalWakeupFlow_regNext_payload_physRegIdx_2;
+  reg                 globalWakeupFlow_regNext_valid_3;
+  reg        [5:0]    globalWakeupFlow_regNext_payload_physRegIdx_3;
   wire                AluIntEU_AluIntEuPlugin_euInputPort_valid;
   wire                AluIntEU_AluIntEuPlugin_euInputPort_ready;
   wire       [3:0]    AluIntEU_AluIntEuPlugin_euInputPort_payload_robPtr;
@@ -7431,8 +7439,8 @@ module CoreNSCSCC (
     .io_issueOut_payload_shiftCtrl_isDoubleWord                      (issueQueueComponent_4_io_issueOut_payload_shiftCtrl_isDoubleWord                        ), //o
     .io_issueOut_payload_imm                                         (issueQueueComponent_4_io_issueOut_payload_imm[31:0]                                     ), //o
     .io_issueOut_payload_immUsage                                    (issueQueueComponent_4_io_issueOut_payload_immUsage[2:0]                                 ), //o
-    .io_wakeupIn_valid                                               (globalWakeupFlow_valid                                                                  ), //i
-    .io_wakeupIn_payload_physRegIdx                                  (globalWakeupFlow_payload_physRegIdx[5:0]                                                ), //i
+    .io_wakeupIn_valid                                               (globalWakeupFlow_regNext_valid                                                          ), //i
+    .io_wakeupIn_payload_physRegIdx                                  (globalWakeupFlow_regNext_payload_physRegIdx[5:0]                                        ), //i
     .io_flush                                                        (SimpleFetchPipelinePlugin_doHardRedirect_                                               ), //i
     .clk                                                             (clk                                                                                     ), //i
     .reset                                                           (reset                                                                                   )  //i
@@ -7646,8 +7654,8 @@ module CoreNSCSCC (
     .io_issueOut_payload_mulDivCtrl_isDiv                            (issueQueueComponent_5_io_issueOut_payload_mulDivCtrl_isDiv                              ), //o
     .io_issueOut_payload_mulDivCtrl_isSigned                         (issueQueueComponent_5_io_issueOut_payload_mulDivCtrl_isSigned                           ), //o
     .io_issueOut_payload_mulDivCtrl_isWordOp                         (issueQueueComponent_5_io_issueOut_payload_mulDivCtrl_isWordOp                           ), //o
-    .io_wakeupIn_valid                                               (globalWakeupFlow_valid                                                                  ), //i
-    .io_wakeupIn_payload_physRegIdx                                  (globalWakeupFlow_payload_physRegIdx[5:0]                                                ), //i
+    .io_wakeupIn_valid                                               (globalWakeupFlow_regNext_valid_1                                                        ), //i
+    .io_wakeupIn_payload_physRegIdx                                  (globalWakeupFlow_regNext_payload_physRegIdx_1[5:0]                                      ), //i
     .io_flush                                                        (SimpleFetchPipelinePlugin_doHardRedirect_                                               ), //i
     .clk                                                             (clk                                                                                     ), //i
     .reset                                                           (reset                                                                                   )  //i
@@ -7777,8 +7785,8 @@ module CoreNSCSCC (
     .io_issueOut_payload_branchPrediction_isTaken                    (issueQueueComponent_6_io_issueOut_payload_branchPrediction_isTaken                      ), //o
     .io_issueOut_payload_branchPrediction_target                     (issueQueueComponent_6_io_issueOut_payload_branchPrediction_target[31:0]                 ), //o
     .io_issueOut_payload_branchPrediction_wasPredicted               (issueQueueComponent_6_io_issueOut_payload_branchPrediction_wasPredicted                 ), //o
-    .io_wakeupIn_valid                                               (globalWakeupFlow_valid                                                                  ), //i
-    .io_wakeupIn_payload_physRegIdx                                  (globalWakeupFlow_payload_physRegIdx[5:0]                                                ), //i
+    .io_wakeupIn_valid                                               (globalWakeupFlow_regNext_valid_2                                                        ), //i
+    .io_wakeupIn_payload_physRegIdx                                  (globalWakeupFlow_regNext_payload_physRegIdx_2[5:0]                                      ), //i
     .io_flush                                                        (SimpleFetchPipelinePlugin_doHardRedirect_                                               ), //i
     .clk                                                             (clk                                                                                     ), //i
     .reset                                                           (reset                                                                                   )  //i
@@ -7910,8 +7918,8 @@ module CoreNSCSCC (
     .io_issueOut_payload_imm                                         (issueQueueComponent_7_io_issueOut_payload_imm[31:0]                                     ), //o
     .io_issueOut_payload_usePc                                       (issueQueueComponent_7_io_issueOut_payload_usePc                                         ), //o
     .io_issueOut_payload_pcData                                      (issueQueueComponent_7_io_issueOut_payload_pcData[31:0]                                  ), //o
-    .io_wakeupIn_valid                                               (globalWakeupFlow_valid                                                                  ), //i
-    .io_wakeupIn_payload_physRegIdx                                  (globalWakeupFlow_payload_physRegIdx[5:0]                                                ), //i
+    .io_wakeupIn_valid                                               (globalWakeupFlow_regNext_valid_3                                                        ), //i
+    .io_wakeupIn_payload_physRegIdx                                  (globalWakeupFlow_regNext_payload_physRegIdx_3[5:0]                                      ), //i
     .io_flush                                                        (SimpleFetchPipelinePlugin_doHardRedirect_                                               ), //i
     .clk                                                             (clk                                                                                     ), //i
     .reset                                                           (reset                                                                                   )  //i
@@ -24872,6 +24880,10 @@ module CoreNSCSCC (
       CommitPlugin_logic_s1_s1_flushedThisCycle_comb <= 1'b0;
       CommitPlugin_logic_counter <= 32'h0;
       io_commit_0_valid_regNext <= 1'b0;
+      globalWakeupFlow_regNext_valid <= 1'b0;
+      globalWakeupFlow_regNext_valid_1 <= 1'b0;
+      globalWakeupFlow_regNext_valid_2 <= 1'b0;
+      globalWakeupFlow_regNext_valid_3 <= 1'b0;
       DebugDisplayPlugin_logic_displayArea_dpToggle <= 1'b0;
       s1_ReadRegs_valid <= 1'b0;
       s2_Execute_valid <= 1'b0;
@@ -25411,6 +25423,10 @@ module CoreNSCSCC (
           end
         `endif
       `endif
+      globalWakeupFlow_regNext_valid <= globalWakeupFlow_valid;
+      globalWakeupFlow_regNext_valid_1 <= globalWakeupFlow_valid;
+      globalWakeupFlow_regNext_valid_2 <= globalWakeupFlow_valid;
+      globalWakeupFlow_regNext_valid_3 <= globalWakeupFlow_valid;
       if(SimpleFetchPipelinePlugin_doHardRedirect_) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
@@ -27006,6 +27022,10 @@ module CoreNSCSCC (
     DecodePlugin_logic_debugLA32RDecodedPhysSrc2_idx <= _zz_DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_idx;
     DecodePlugin_logic_debugLA32RDecodedPhysSrc2_rtype <= _zz_DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype;
     DecodePlugin_logic_debugLA32RRawInstruction <= s0_Decode_IssuePipelineSignals_RAW_INSTRUCTIONS_IN_0;
+    globalWakeupFlow_regNext_payload_physRegIdx <= globalWakeupFlow_payload_physRegIdx;
+    globalWakeupFlow_regNext_payload_physRegIdx_1 <= globalWakeupFlow_payload_physRegIdx;
+    globalWakeupFlow_regNext_payload_physRegIdx_2 <= globalWakeupFlow_payload_physRegIdx;
+    globalWakeupFlow_regNext_payload_physRegIdx_3 <= globalWakeupFlow_payload_physRegIdx;
     DispatchPlugin_logic_debugDispatchedUopSrc2_iq0 <= s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2_idx;
     DispatchPlugin_logic_debugDispatchedUopSrc1_iq0 <= s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc1_idx;
     DispatchPlugin_logic_debugDispatchedUopSrc2_iq1 <= s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_physSrc2_idx;
