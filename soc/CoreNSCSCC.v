@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 49a99dae7b6ed938ae50042417514f24dcaeaaa8
 // Component : CoreNSCSCC
-// Git hash  : 53b11f8106e79607519a4c1d070e5f36a355d19e
+// Git hash  : d15dd550d74cdbbb169f5dba0e61189f3ec2a63e
 
 `timescale 1ns/1ps
 
@@ -58122,8 +58122,8 @@ module SRAMController_1 (
   (* mark_debug = "TRUE" *) reg        [8:0]    fsm_burst_count_remaining;
   (* mark_debug = "TRUE" *) reg        [19:0]   fsm_current_sram_addr;
   (* mark_debug = "TRUE" *) reg        [31:0]   fsm_read_data_buffer;
-  reg        [0:0]    fsm_read_wait_counter;
-  reg        [0:0]    fsm_write_wait_counter;
+  reg        [1:0]    fsm_read_wait_counter;
+  reg        [1:0]    fsm_write_wait_counter;
   (* MARK_DEBUG = "TRUE" *) reg                 fsm_transaction_error_occurred;
   reg                 fsm_read_priority;
   reg        [19:0]   fsm_next_sram_addr_prefetch;
@@ -58748,13 +58748,13 @@ module SRAMController_1 (
   assign io_axi_aw_fire = (io_axi_aw_valid && io_axi_aw_ready);
   assign io_axi_ar_fire = (io_axi_ar_valid && io_axi_ar_ready);
   assign io_axi_w_fire = (io_axi_w_valid && io_axi_w_ready);
-  assign when_SRAMController_l454 = (fsm_write_wait_counter == 1'b1);
+  assign when_SRAMController_l454 = (fsm_write_wait_counter == 2'b11);
   assign when_SRAMController_l473 = 1'b1;
   assign when_SRAMController_l490 = (fsm_burst_count_remaining == 9'h0);
   assign when_SRAMController_l523 = (fsm_burst_count_remaining == 9'h001);
   assign _zz_io_axi_b_payload_resp = (fsm_transaction_error_occurred ? 2'b10 : 2'b00);
-  assign when_SRAMController_l625 = (((fsm_read_wait_counter == 1'b0) && (9'h001 < fsm_burst_count_remaining)) && (! fsm_addr_prefetch_valid));
-  assign when_SRAMController_l634 = (fsm_read_wait_counter == 1'b1);
+  assign when_SRAMController_l625 = (((fsm_read_wait_counter == 2'b10) && (9'h001 < fsm_burst_count_remaining)) && (! fsm_addr_prefetch_valid));
+  assign when_SRAMController_l634 = (fsm_read_wait_counter == 2'b11);
   assign when_SRAMController_l664 = (fsm_burst_count_remaining == 9'h001);
   assign io_axi_r_fire = (io_axi_r_valid && io_axi_r_ready);
   assign when_SRAMController_l713 = (fsm_burst_count_remaining == 9'h001);
@@ -58977,7 +58977,7 @@ module SRAMController_1 (
           fsm_ar_cmd_reg_burst <= io_axi_ar_payload_burst;
           fsm_burst_count_remaining <= {1'd0, _zz_fsm_burst_count_remaining_1};
           fsm_current_sram_addr <= {2'd0, _zz_fsm_current_sram_addr_3};
-          fsm_read_wait_counter <= 1'b0;
+          fsm_read_wait_counter <= 2'b00;
         end
       end
       fsm_VALIDATE : begin
@@ -58988,7 +58988,7 @@ module SRAMController_1 (
         if(when_SRAMController_l454) begin
           fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
         end else begin
-          fsm_write_wait_counter <= (fsm_write_wait_counter + 1'b1);
+          fsm_write_wait_counter <= (fsm_write_wait_counter + 2'b01);
         end
       end
       fsm_WRITE_DEASSERT : begin
@@ -59006,7 +59006,7 @@ module SRAMController_1 (
       fsm_WRITE_RESPONSE : begin
       end
       fsm_READ_SETUP : begin
-        fsm_read_wait_counter <= 1'b0;
+        fsm_read_wait_counter <= 2'b00;
       end
       fsm_READ_WAIT : begin
         if(when_SRAMController_l625) begin
@@ -59015,7 +59015,7 @@ module SRAMController_1 (
         if(when_SRAMController_l634) begin
           fsm_read_data_buffer <= io_ram_data_read;
         end else begin
-          fsm_read_wait_counter <= (fsm_read_wait_counter + 1'b1);
+          fsm_read_wait_counter <= (fsm_read_wait_counter + 2'b01);
         end
       end
       fsm_READ_RESPONSE : begin
@@ -59039,7 +59039,7 @@ module SRAMController_1 (
       end
     endcase
     if(fsm_onEntry_WRITE_EXECUTE) begin
-      fsm_write_wait_counter <= 1'b0;
+      fsm_write_wait_counter <= 2'b00;
     end
   end
 
@@ -59144,8 +59144,8 @@ module SRAMController (
   (* mark_debug = "TRUE" *) reg        [8:0]    fsm_burst_count_remaining;
   (* mark_debug = "TRUE" *) reg        [19:0]   fsm_current_sram_addr;
   (* mark_debug = "TRUE" *) reg        [31:0]   fsm_read_data_buffer;
-  reg        [0:0]    fsm_read_wait_counter;
-  reg        [0:0]    fsm_write_wait_counter;
+  reg        [1:0]    fsm_read_wait_counter;
+  reg        [1:0]    fsm_write_wait_counter;
   (* MARK_DEBUG = "TRUE" *) reg                 fsm_transaction_error_occurred;
   reg                 fsm_read_priority;
   reg        [19:0]   fsm_next_sram_addr_prefetch;
@@ -59770,13 +59770,13 @@ module SRAMController (
   assign io_axi_aw_fire = (io_axi_aw_valid && io_axi_aw_ready);
   assign io_axi_ar_fire = (io_axi_ar_valid && io_axi_ar_ready);
   assign io_axi_w_fire = (io_axi_w_valid && io_axi_w_ready);
-  assign when_SRAMController_l454 = (fsm_write_wait_counter == 1'b1);
+  assign when_SRAMController_l454 = (fsm_write_wait_counter == 2'b11);
   assign when_SRAMController_l473 = 1'b1;
   assign when_SRAMController_l490 = (fsm_burst_count_remaining == 9'h0);
   assign when_SRAMController_l523 = (fsm_burst_count_remaining == 9'h001);
   assign _zz_io_axi_b_payload_resp = (fsm_transaction_error_occurred ? 2'b10 : 2'b00);
-  assign when_SRAMController_l625 = (((fsm_read_wait_counter == 1'b0) && (9'h001 < fsm_burst_count_remaining)) && (! fsm_addr_prefetch_valid));
-  assign when_SRAMController_l634 = (fsm_read_wait_counter == 1'b1);
+  assign when_SRAMController_l625 = (((fsm_read_wait_counter == 2'b10) && (9'h001 < fsm_burst_count_remaining)) && (! fsm_addr_prefetch_valid));
+  assign when_SRAMController_l634 = (fsm_read_wait_counter == 2'b11);
   assign when_SRAMController_l664 = (fsm_burst_count_remaining == 9'h001);
   assign io_axi_r_fire = (io_axi_r_valid && io_axi_r_ready);
   assign when_SRAMController_l713 = (fsm_burst_count_remaining == 9'h001);
@@ -59999,7 +59999,7 @@ module SRAMController (
           fsm_ar_cmd_reg_burst <= io_axi_ar_payload_burst;
           fsm_burst_count_remaining <= {1'd0, _zz_fsm_burst_count_remaining_1};
           fsm_current_sram_addr <= {2'd0, _zz_fsm_current_sram_addr_3};
-          fsm_read_wait_counter <= 1'b0;
+          fsm_read_wait_counter <= 2'b00;
         end
       end
       fsm_VALIDATE : begin
@@ -60010,7 +60010,7 @@ module SRAMController (
         if(when_SRAMController_l454) begin
           fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
         end else begin
-          fsm_write_wait_counter <= (fsm_write_wait_counter + 1'b1);
+          fsm_write_wait_counter <= (fsm_write_wait_counter + 2'b01);
         end
       end
       fsm_WRITE_DEASSERT : begin
@@ -60028,7 +60028,7 @@ module SRAMController (
       fsm_WRITE_RESPONSE : begin
       end
       fsm_READ_SETUP : begin
-        fsm_read_wait_counter <= 1'b0;
+        fsm_read_wait_counter <= 2'b00;
       end
       fsm_READ_WAIT : begin
         if(when_SRAMController_l625) begin
@@ -60037,7 +60037,7 @@ module SRAMController (
         if(when_SRAMController_l634) begin
           fsm_read_data_buffer <= io_ram_data_read;
         end else begin
-          fsm_read_wait_counter <= (fsm_read_wait_counter + 1'b1);
+          fsm_read_wait_counter <= (fsm_read_wait_counter + 2'b01);
         end
       end
       fsm_READ_RESPONSE : begin
@@ -60061,7 +60061,7 @@ module SRAMController (
       end
     endcase
     if(fsm_onEntry_WRITE_EXECUTE) begin
-      fsm_write_wait_counter <= 1'b0;
+      fsm_write_wait_counter <= 2'b00;
     end
   end
 
