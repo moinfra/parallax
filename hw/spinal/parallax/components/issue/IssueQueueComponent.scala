@@ -5,7 +5,7 @@ import spinal.lib._
 import spinal.lib.pipeline._
 import parallax.common._
 import parallax.execute.{WakeupPayload, WakeupService}
-import parallax.utilities._
+import parallax.utilities.{ParallaxLogger, ParallaxSim}
 import parallax.issue.IqDispatchCmd
 
 case class IssueQueueComponentIo[T_IQEntry <: Data with IQEntryLike](
@@ -36,36 +36,41 @@ class IssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
   val idStr = s"${iqConfig.name}-${id.toString()}"
 
   // ====================================================================
-  //  State Area
+  //  State Area: Contains all state-holding registers.
   // ====================================================================
   val stateArea = new Area {
     val entries = Vec.fill(iqConfig.depth)(Reg(iqConfig.getIQEntry()))
     val entryValids = Vec.fill(iqConfig.depth)(Reg(Bool()) init (False))
-
-    // +++ NEW: Register for pipelining the local wakeup signal +++
-    val issuedEntryPayload = Reg(iqConfig.getIQEntry())
-    val issuedEntryValid = Reg(Bool()) init(False)
   }
 
   // ====================================================================
-  //  Pipeline Area
+  //  Pipeline Area: Defines the 2-stage structure for state updates.
   // ====================================================================
   val pipelineArea = new Area {
     val pipeline = new Pipeline()
-    val s0_match = pipeline.newStage().setName("s0_Match")
-    val s1_update = pipeline.newStage().setName("s1_Update")
-    pipeline.connect(s0_match, s1_update)(Connection.M2S())
+    val s0_matchAndDecision = pipeline.newStage().setName("s0_MatchAndDecision")
+    val s1_stateUpdate = pipeline.newStage().setName("s1_StateUpdate")
+    pipeline.connect(s0_matchAndDecision, s1_stateUpdate)(Connection.M2S())
 
-    val WAKEUP_SRC1_MATCH = Stageable(Vec(Bool(), iqConfig.depth))
-    val WAKEUP_SRC2_MATCH = Stageable(Vec(Bool(), iqConfig.depth))
-    
+    // Stageables to pass all decisions and match results from S0 to S1
+    val S0_ISSUE_OH = Stageable(Bits(iqConfig.depth bits))
+    val S0_DO_ALLOCATE = Stageable(Bool())
+    val S0_ALLOCATE_OH = Stageable(Bits(iqConfig.depth bits))
+    val S0_ALLOCATE_CMD = Stageable(IqDispatchCmd(iqConfig.pipelineConfig))
+    val S0_WAKEUP_SRC1_MATCH = Stageable(Vec(Bool(), iqConfig.depth))
+    val S0_WAKEUP_SRC2_MATCH = Stageable(Vec(Bool(), iqConfig.depth))
+
   }
 
   // ====================================================================
-  //  Combinational & S0 Logic Area
+  //  S0: Match and Decision Logic (Combinational)
   // ====================================================================
-  val combinationalArea = new Area {
-    // --- 1. Issue Logic (based on registered state) ---
+  val s0_logicArea = new Area {
+    import pipelineArea._
+    
+    s0_matchAndDecision.valid := True // This pipeline runs every cycle
+
+    // --- 1. Issue/Selection Logic (based on registered state) ---
     val entriesReadyToIssue = Vec.tabulate(iqConfig.depth) { i =>
       stateArea.entryValids(i) &&
       (!stateArea.entries(i).useSrc1 || stateArea.entries(i).src1Ready) &&
@@ -75,26 +80,21 @@ class IssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
     val issueRequestOh = OHMasking.first(issueRequestMask)
     val issueIdx = OHToUInt(issueRequestOh)
 
-    io.issueOut.valid := issueRequestOh.orR && !io.flush
+    io.issueOut.valid := issueRequestMask.orR && !io.flush
     io.issueOut.payload := stateArea.entries(issueIdx)
-
+    
     // --- 2. Allocation Logic ---
     val freeSlotsMask = stateArea.entryValids.map(!_).asBits
     val canAccept = freeSlotsMask.orR
-    val allocateIdx = OHToUInt(OHMasking.first(freeSlotsMask))
+    val allocateOh = OHMasking.first(freeSlotsMask)
     io.canAccept := canAccept && !io.flush
-
-    // --- 3. Pipelined Local Wakeup Logic ---
-    // At the end of the cycle, latch the issued instruction's info.
-    stateArea.issuedEntryValid := io.issueOut.fire && io.issueOut.payload.writesToPhysReg
-    stateArea.issuedEntryPayload := io.issueOut.payload
-
-    // --- 4. Tag Matching (Wakeup Stage 1) ---
-    // *** CRITICAL CHANGE: Use the *registered* local wakeup info from the PREVIOUS cycle ***
-    val localWakeupValid = stateArea.issuedEntryValid
-    val localWakeupTag = stateArea.issuedEntryPayload.physDest.idx
+    val doAllocate = io.allocateIn.valid && canAccept && !io.flush
     
-    val globalWakeupValid = io.wakeupIn.valid
+    // --- 3. Tag Matching Logic (uses S0 signals) ---
+    val localWakeupValid = io.issueOut.fire && io.issueOut.payload.writesToPhysReg
+    val localWakeupTag = io.issueOut.payload.physDest.idx
+    
+    val globalWakeupValid = io.wakeupIn.valid // Sample external IO in S0
     val globalWakeupTag = io.wakeupIn.payload.physRegIdx
 
     val src1WakeupMatch = Vec(Bool(), iqConfig.depth)
@@ -111,59 +111,75 @@ class IssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
       val s2GlobalWakeup = globalWakeupValid && isValid && entry.useSrc2 && !entry.src2Ready && (entry.src2Tag === globalWakeupTag)
       src2WakeupMatch(i) := s2LocalWakeup || s2GlobalWakeup
     }
-
-    // --- 5. Drive S0 of the pipeline ---
-    pipelineArea.s0_match.valid := True
-    pipelineArea.s0_match(pipelineArea.WAKEUP_SRC1_MATCH) := src1WakeupMatch
-    pipelineArea.s0_match(pipelineArea.WAKEUP_SRC2_MATCH) := src2WakeupMatch
+    
+    // --- 4. Pass all results to S1 via Stageables ---
+    s0_matchAndDecision(S0_ISSUE_OH) := issueRequestOh
+    s0_matchAndDecision(S0_DO_ALLOCATE) := doAllocate
+    s0_matchAndDecision(S0_ALLOCATE_OH) := allocateOh
+    s0_matchAndDecision(S0_ALLOCATE_CMD) := io.allocateIn.payload // Latch the payload
+    s0_matchAndDecision(S0_WAKEUP_SRC1_MATCH) := src1WakeupMatch
+    s0_matchAndDecision(S0_WAKEUP_SRC2_MATCH) := src2WakeupMatch
   }
 
   // ====================================================================
-  //  Sequential Logic Area (Driven by S1)
+  //  S1: State Update Logic (Sequential)
   // ====================================================================
-  val sequentialArea = new Area {
+  val s1_updateArea = new Area {
+    import pipelineArea._
+
+    // --- 1. Use CombInit to ensure safe default assignment ---
     val entriesNext = CombInit(stateArea.entries)
     val entryValidsNext = CombInit(stateArea.entryValids)
+    
+    // --- 2. Get all decisions and match results from S1's input Stageables ---
+    val issueOh     = s1_stateUpdate(S0_ISSUE_OH)
+    val doAllocate  = s1_stateUpdate(S0_DO_ALLOCATE)
+    val allocateOh  = s1_stateUpdate(S0_ALLOCATE_OH)
+    val allocateCmd = s1_stateUpdate(S0_ALLOCATE_CMD)
+    val wakeupSrc1  = s1_stateUpdate(S0_WAKEUP_SRC1_MATCH)
+    val wakeupSrc2  = s1_stateUpdate(S0_WAKEUP_SRC2_MATCH)
 
-    val s1_wakeupSrc1 = pipelineArea.s1_update(pipelineArea.WAKEUP_SRC1_MATCH)
-    val s1_wakeupSrc2 = pipelineArea.s1_update(pipelineArea.WAKEUP_SRC2_MATCH)
-
+    // --- 3. Apply updates in a defined priority order ---
+    
+    // Wakeup logic has the lowest priority, modifying ready bits
     for(i <- 0 until iqConfig.depth) {
-      when(s1_wakeupSrc1(i)) { entriesNext(i).src1Ready := True }
-      when(s1_wakeupSrc2(i)) { entriesNext(i).src2Ready := True }
+      when(wakeupSrc1(i)) { entriesNext(i).src1Ready := True }
+      when(wakeupSrc2(i)) { entriesNext(i).src2Ready := True }
     }
 
-    when(io.issueOut.fire) {
-      entryValidsNext(combinationalArea.issueIdx) := False
+    // Issue logic can clear a valid bit
+    when(issueOh.orR) {
+      val issueIdx = OHToUInt(issueOh)
+      entryValidsNext(issueIdx) := False
     }
 
-    when(io.allocateIn.fire) {
-      entriesNext(combinationalArea.allocateIdx).initFrom(io.allocateIn.payload.uop, io.allocateIn.payload.uop.robPtr)
-      entriesNext(combinationalArea.allocateIdx).src1Ready := io.allocateIn.payload.src1InitialReady
-      entriesNext(combinationalArea.allocateIdx).src2Ready := io.allocateIn.payload.src2InitialReady
-      entryValidsNext(combinationalArea.allocateIdx) := True
+    // Allocation logic can override a full entry
+    when(doAllocate) {
+      val allocateIdx = OHToUInt(allocateOh)
+      entriesNext(allocateIdx).initFrom(allocateCmd.uop, allocateCmd.uop.robPtr)
+      entriesNext(allocateIdx).src1Ready := allocateCmd.src1InitialReady
+      entriesNext(allocateIdx).src2Ready := allocateCmd.src2InitialReady
+      entryValidsNext(allocateIdx) := True
     }
 
+    // Flush has the highest priority
     when(io.flush) {
       entryValidsNext.foreach(_ := False)
-      stateArea.issuedEntryValid := False // Also flush the pipelined wakeup register
     }
-
-    when(pipelineArea.s1_update.isFiring) {
+    
+    // --- 4. Final Register Update ---
+    when(s1_stateUpdate.isFiring) {
       stateArea.entries := entriesNext
       stateArea.entryValids := entryValidsNext
     }
   }
 
-  // Finalize the pipeline construction
   pipelineArea.pipeline.build()
-
   // ====================================================================
   //  Logging and Debugging Area
   // ====================================================================
   val debugArea = new Area {
-    // We can reference combinational signals for logging as they reflect the current cycle's decisions
-    import combinationalArea._
+    import s0_logicArea._
 
     when(io.issueOut.fire) {
       if(enableLog) ParallaxSim.log(
@@ -173,7 +189,7 @@ class IssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
     }
     when(io.allocateIn.fire) {
       ParallaxSim.log(
-        L"${idStr}: ALLOCATED entry at index ${allocateIdx}, " :+
+        L"${idStr}: ALLOCATED entry at index ${OHToUInt(allocateOh)}, " :+
         L"RobPtr=${io.allocateIn.payload.uop.robPtr}, PhysDest=${io.allocateIn.payload.uop.rename.physDest.idx}"
       )
     }
@@ -206,7 +222,7 @@ class IssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
       }
     }
 
-    if (GenerationFlags.simulation.isEnabled) {
+    if (spinal.core.GenerationFlags.simulation.isEnabled) {
       val simCycleCount = Reg(UInt(32 bits)) init (0)
       simCycleCount := simCycleCount + 1
     }
