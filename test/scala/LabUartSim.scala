@@ -328,10 +328,11 @@ object InteractiveUartSimApp extends App {
           defaultClockDomainFrequency = FixedFrequency(100 MHz),
     )).withFstWave.compile(new LabTestBench(instructions)).doSim { dut =>
     val cd = dut.clockDomain.get
-    cd.forkStimulus(period = 10 * 1000)
+    cd.forkStimulus(200 MHz)
 
     val bitPeriodNs = 1000000000L / UART_BAUD_RATE
     val cyclesPerBit = (CPU_CLOCK_HZ / UART_BAUD_RATE).toInt
+    println(s"UART bit period: ${bitPeriodNs}ns (${cyclesPerBit} cycles per bit)")
 
     dut.io.rxd #= true
     dut.io.simRxData #= 0
@@ -442,6 +443,7 @@ object InteractiveUartSimApp extends App {
           cd.waitSampling(cyclesPerBit)
           for (i <- 0 until 8) {
             dut.io.rxd #= ((byteToSend >> i) & 1) != 0
+            println(s"[DBG-APP-RX] Bit-banging on rxd for bit ${i}: ${((byteToSend >> i) & 1) != 0}.")
             cd.waitSampling(cyclesPerBit)
           }
           dut.io.rxd #= true
