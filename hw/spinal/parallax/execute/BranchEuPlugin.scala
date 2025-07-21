@@ -13,7 +13,8 @@ import parallax.issue.CheckpointManagerService
 
 class BranchEuPlugin(
     override val euName: String,
-    override val pipelineConfig: PipelineConfig
+    override val pipelineConfig: PipelineConfig,
+    val genMonitorSignals: Boolean = false
 ) extends EuBasePlugin(euName, pipelineConfig) {
 
   // 需要2个GPR读端口（比较两个源操作数），不需要FPR端口
@@ -44,10 +45,9 @@ class BranchEuPlugin(
 
   // --- 监控信号暴露 (用于测试) ---
   val monitorSignals = create late new Area {
-    val branchTaken = Bool()
-    val targetPC = UInt(pipelineConfig.pcWidth)
-    val actuallyTaken = Bool()
-    
+      val branchTaken   = genMonitorSignals generate Bool()
+      val targetPC      = genMonitorSignals generate UInt(pipelineConfig.pcWidth)
+      val actuallyTaken = genMonitorSignals generate Bool()
     // 这些信号将在buildEuLogic中被连接
   }
 
@@ -162,9 +162,11 @@ class BranchEuPlugin(
     linkValue := nextPc.asBits.resized
 
     // 更新监控信号
-    monitorSignals.branchTaken := branchTaken_s2
-    monitorSignals.targetPC := finalTarget
-    monitorSignals.actuallyTaken := actuallyTaken
+    if (genMonitorSignals)    {
+      monitorSignals.branchTaken := branchTaken_s2
+      monitorSignals.targetPC := finalTarget
+      monitorSignals.actuallyTaken := actuallyTaken
+    }
 
     // 5. 分支预测验证 (Lighter logic)
     val predictionCorrect = Bool()
