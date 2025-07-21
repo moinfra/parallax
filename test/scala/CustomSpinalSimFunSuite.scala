@@ -33,6 +33,7 @@ class CustomSpinalSimFunSuite extends SpinalSimFunSuite {
   }
 
   def testOnly(testName: String)(testFun: => Unit): Unit = {
+    println(s"add only test $testName")
     testsOnly += ((testName, () => testFun))
   }
 
