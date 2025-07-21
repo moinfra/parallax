@@ -104,7 +104,7 @@ class LinkerPlugin(pCfg: PipelineConfig) extends Plugin with LockedImpl {
     val globalWakeupFlow = setup.wakeupService.getWakeupFlow()
 
     for (conn <- connections) {
-      conn.issueQueue.io.wakeupIn << globalWakeupFlow
+      conn.issueQueue.io.wakeupIn <-< globalWakeupFlow
     }
     ParallaxLogger.log("LinkerPlugin: Connected global wakeup and flush signals to all IQs.")
 
