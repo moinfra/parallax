@@ -279,6 +279,9 @@ class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfi
     }
   }
   val numToCommit = CountOne(actualCommittedMask)
+  when(numToCommit > 0) {
+    report(L"[ROB] COMMIT_SUMMARY: Committing ${numToCommit} entries, total entries=${count_reg}, capacity=${config.robDepth}")
+  }
   if(enableLog) when(numToCommit > 0) { report(L"[ROB] COMMIT_SUMMARY: Committing ${numToCommit} entries.") }
 
 
