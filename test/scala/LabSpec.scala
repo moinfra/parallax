@@ -167,6 +167,36 @@ class LabTestBench(val iDataWords: Seq[BigInt], val maxCommitPc: BigInt = 0, val
 
 object LabHelper {
 
+  def readBinary(filename: String): Seq[BigInt] = {
+    import java.io.{File, FileInputStream, BufferedInputStream}
+    import scala.collection.mutable.ArrayBuffer
+
+    val file = new File(filename)
+    if (!file.exists()) {
+      println(s"Error: Binary file not found at $filename")
+      return Seq.empty[BigInt]
+    }
+
+    val fis = new BufferedInputStream(new FileInputStream(file))
+    val instructions = new ArrayBuffer[BigInt]()
+    try {
+      val bytes = new Array[Byte](4)
+      while (fis.read(bytes) != -1) {
+        val word = (BigInt(bytes(3) & 0xff) << 24) |
+                   (BigInt(bytes(2) & 0xff) << 16) |
+                   (BigInt(bytes(1) & 0xff) << 8)  |
+                   (BigInt(bytes(0) & 0xff))
+        instructions += word
+      }
+    } catch {
+      case e: Exception => e.printStackTrace()
+    } finally {
+      fis.close()
+    }
+    println(s"Read ${instructions.length} words from $filename")
+    instructions.toSeq
+  }
+
   def dumpBinary(data: Seq[BigInt], filename: String): Unit = {
     import java.io.{FileOutputStream, BufferedOutputStream}
     val fos = new BufferedOutputStream(new FileOutputStream(filename))
@@ -352,7 +382,7 @@ class LabSpec extends CustomSpinalSimFunSuite {
 
 //     // === 阶段 1: 初始化 ===
 //     // 1. 设置 r30 为内存基地址
-//     insts += lu12i_w(rd = BASE_REG, imm = MEM_BASE_ADDR >>> 12)
+//     insts += lu12i_w(rd = BASE_REG, imm = MEM_BASE_ADDR >> 12)
 //     insts += ori(rd = BASE_REG, rj = BASE_REG, imm = MEM_BASE_ADDR & 0xfff)
 //     // 2. 初始化错误计数器 r29 为 0
 //     insts += addi_w(rd = ERR_COUNT_REG, rj = 0, imm = 0)
@@ -931,7 +961,7 @@ class LabSpec extends CustomSpinalSimFunSuite {
     }
   }
 
-  test("Fibonacci Test on CoreNSCSCC") {
+  testOnly("Fibonacci Test on CoreNSCSCC") {
 
     val instructions = ArrayBuffer[BigInt]()
     // Original Assembly:
@@ -1067,7 +1097,7 @@ class LabSpec extends CustomSpinalSimFunSuite {
     }
   }
 
-  testOnly("Multiplier Test") {
+  test("Multiplier Test") {
     val instructions = Seq(
       // Load multiplicand A (e.g., 5) into R10
       addi_w(rd = 10, rj = 0, imm = 5),
@@ -1120,6 +1150,266 @@ class LabSpec extends CustomSpinalSimFunSuite {
         size = 64,
         filename = "bin/dsram_dump_multiplier_test.bin"
       )(cd)
+    }
+  }
+
+  test("Run kernel from file") {
+    val kernelPath = "supervisor_la/kernel/kernel.bin"
+    val instructions = LabHelper.readBinary(kernelPath)
+
+    // Ensure instructions were actually read before proceeding
+    assert(instructions.nonEmpty, s"No instructions read from $kernelPath. Test cannot proceed.")
+
+    val compiled = SimConfig.withFstWave.compile(new LabTestBench(
+      iDataWords = instructions
+    ))
+
+    compiled.doSim { dut =>
+      val cd = dut.clockDomain.get
+      cd.forkStimulus(period = 10)
+      
+      println(s"--- Starting CPU with kernel from $kernelPath ---")
+
+      // Run for a significant amount of time. The user can check the waveform.
+      // The kernel might not have a natural end point for simulation.
+      cd.waitSampling(500000) 
+      
+      println(s"Simulation finished. Final PC: 0x${dut.io.commitStats.maxCommitPc.toBigInt.toString(16)}")
+      // No specific assertion, as requested, just running the kernel.
+    }
+  }
+
+  test("Comprehensive Instruction and Memory Test") {
+    val insts = new ArrayBuffer[BigInt]()
+
+    // --- 1. Register and Constant Definitions ---
+    val R_BASE_MEM = 4      // r4, base address for results
+    val R_ERR_COUNT = 5     // r5, counts mismatches
+    val R_SRC1 = 10         // r10, first source operand
+    val R_SRC2 = 11         // r11, second source operand
+    val R_RESULT = 12       // r12, holds result of an operation
+    val R_EXPECT = 13       // r13, holds expected result for verification
+    val R_ACTUAL = 14       // r14, holds actual result from memory for verification
+    val R_LINK = 1          // r1, used for jirl
+    val R_TEMP = 15         // r15, temporary register for branch tests
+
+    val MEM_BASE_ADDR = BigInt("80400000", 16)
+    val MASK32 = (BigInt(1) << 32) - 1
+    
+    // Use values that test edge cases (positive, negative)
+    val VAL_POS = BigInt("01ABCDEF", 16)
+    val VAL_NEG = BigInt("FEDCBA98", 16) // A negative number in signed 32-bit
+    val VAL_SHIFT = BigInt(5)
+
+    def toSigned32(n: BigInt): BigInt = {
+        val masked = n & MASK32
+        if ((masked >> 31) == 1) masked - (BigInt(1) << 32) else masked
+    }
+
+    // --- 2. Data Processing Test Case Structure ---
+    case class TestCase(name: String, instructions: Seq[BigInt], expected: BigInt)
+
+    // --- FIX for Circular Reference ---
+    // First, define all test cases *except* the one that needs to know the list's length.
+    val baseDataProcessingTests = Seq(
+      TestCase("add.w",  Seq(add_w(R_RESULT, R_SRC1, R_SRC2)), (VAL_POS + VAL_NEG) & MASK32),
+      TestCase("sub.w",  Seq(sub_w(R_RESULT, R_SRC1, R_SRC2)), (VAL_POS - VAL_NEG) & MASK32),
+      TestCase("mul.w",  Seq(mul_w(R_RESULT, R_SRC1, R_SRC2)), (toSigned32(VAL_POS) * toSigned32(VAL_NEG)) & MASK32),
+      TestCase("or",     Seq(or(R_RESULT, R_SRC1, R_SRC2)), VAL_POS | VAL_NEG),
+      TestCase("and",    Seq(and(R_RESULT, R_SRC1, R_SRC2)), VAL_POS & VAL_NEG),
+      TestCase("xor",    Seq(xor(R_RESULT, R_SRC1, R_SRC2)), VAL_POS ^ VAL_NEG),
+      // Use lower 5 bits of rk as shift amount for srl.w
+      TestCase("srl.w",  Seq(add_w(R_TEMP, R_SRC2, 0), srl_w(R_RESULT, R_SRC1, R_TEMP)), (VAL_POS >> (VAL_NEG.toInt & 0x1F)) & MASK32),
+      TestCase("addi.w", Seq(addi_w(R_RESULT, R_SRC1, -256)), (VAL_POS + BigInt(-256)) & MASK32),
+      TestCase("slti (true)",  Seq(slti(R_RESULT, R_SRC2, 0)), 1), // VAL_NEG < 0 (signed)
+      TestCase("slti (false)", Seq(slti(R_RESULT, R_SRC1, 0)), 0), // VAL_POS < 0 (signed)
+      TestCase("ori",    Seq(ori(R_RESULT, R_SRC1, 0xDEF)), VAL_POS | 0xDEF),
+      TestCase("andi",   Seq(andi(R_RESULT, R_SRC1, 0xDEF)), VAL_POS & 0xDEF),
+      TestCase("slli.w", Seq(slli_w(R_RESULT, R_SRC1, VAL_SHIFT.toInt)), (VAL_POS << VAL_SHIFT.toInt) & MASK32),
+      TestCase("srli.w", Seq(srli_w(R_RESULT, R_SRC1, VAL_SHIFT.toInt)), (VAL_POS >> VAL_SHIFT.toInt) & MASK32),
+      TestCase("lu12i.w",Seq(lu12i_w(R_RESULT, 0xABCDE)), BigInt("ABCDE000", 16))
+    )
+
+    // Now, we can safely get the length of the base list. This will be the index for our next test case.
+    val stbLdbTestIndex = baseDataProcessingTests.length
+    
+    // Create the st.b/ld.b test case using the correct index/offset.
+    val stbLdbTestCase = TestCase(
+      "st.b/ld.b",
+      Seq(
+        st_b(rd = R_SRC1, rj = R_BASE_MEM, offset = stbLdbTestIndex * 4),
+        ld_b(rd = R_RESULT, rj = R_BASE_MEM, offset = stbLdbTestIndex * 4)
+      ),
+      VAL_POS & 0xFF // Expected result is the LSB of VAL_POS
+    )
+
+    // Finally, create the complete list of test cases by appending the special one.
+    val dataProcessingTestCases = baseDataProcessingTests :+ stbLdbTestCase
+
+    // --- 3. Generate Assembly Code ---
+    
+    // --- PART I: PROLOGUE ---
+    insts += lu12i_w(rd = R_BASE_MEM, imm = (MEM_BASE_ADDR >> 12).toInt)
+    insts += ori(rd = R_BASE_MEM, rj = R_BASE_MEM, imm = (MEM_BASE_ADDR & 0xFFF).toInt)
+    insts += addi_w(rd = R_ERR_COUNT, rj = 0, imm = 0)
+    insts += lu12i_w(rd = R_SRC1, imm = (VAL_POS >> 12).toInt)
+    insts += ori(rd = R_SRC1, rj = R_SRC1, imm = (VAL_POS & 0xFFF).toInt)
+    insts += lu12i_w(rd = R_SRC2, imm = (VAL_NEG >> 12).toInt)
+    insts += ori(rd = R_SRC2, rj = R_SRC2, imm = (VAL_NEG & 0xFFF).toInt)
+
+    // --- PART II: EXECUTE AND STORE RESULTS ---
+    for ((tc, i) <- dataProcessingTestCases.zipWithIndex) {
+      insts ++= tc.instructions
+      insts += st_w(rd = R_RESULT, rj = R_BASE_MEM, offset = i * 4)
+    }
+
+    // --- PART III: READ AND VERIFY RESULTS ---
+    for ((tc, i) <- dataProcessingTestCases.zipWithIndex) {
+      val expected = tc.expected
+      insts += lu12i_w(rd = R_EXPECT, imm = (expected >> 12).toInt)
+      insts += ori(rd = R_EXPECT, rj = R_EXPECT, imm = (expected & 0xFFF).toInt)
+      insts += ld_w(rd = R_ACTUAL, rj = R_BASE_MEM, offset = i * 4)
+      insts += beq(rj = R_EXPECT, rd = R_ACTUAL, offset = 8) // If equal, skip error increment
+      insts += addi_w(rd = R_ERR_COUNT, rj = R_ERR_COUNT, imm = 1) // Executed if not equal
+    }
+    
+    // --- PART IV: BRANCHING TESTS ---
+    // At this point, R_ERR_COUNT should be 0. We will now intentionally cause it to increment.
+    var expectedErrorCount = 0
+
+    // Test BEQ (true case): should jump, error count unchanged
+    insts += beq(rj = 0, rd = 0, offset = 8)
+    insts += addi_w(rd = R_ERR_COUNT, rj = R_ERR_COUNT, imm = 1) 
+
+    // Test BEQ (false case): should not jump, error count increments
+    insts += beq(rj = R_SRC1, rd = 0, offset = 8)
+    insts += addi_w(rd = R_ERR_COUNT, rj = R_ERR_COUNT, imm = 1)
+    expectedErrorCount += 1
+
+    // Test BNE (true case): should jump, error count unchanged
+    insts += bne(rj = R_SRC1, rd = 0, offset = 8)
+    insts += addi_w(rd = R_ERR_COUNT, rj = R_ERR_COUNT, imm = 1)
+
+    // Test BNE (false case): should not jump, error count increments
+    insts += bne(rj = 0, rd = 0, offset = 8)
+    insts += addi_w(rd = R_ERR_COUNT, rj = R_ERR_COUNT, imm = 1)
+    expectedErrorCount += 1
+
+    // Test BLTU (true case, unsigned less than): should jump, error count unchanged
+    insts += bltu(rj = R_SRC1, rd = R_SRC2, offset = 8) // VAL_POS (0x01...) < VAL_NEG (0xFE...) is true
+    insts += addi_w(rd = R_ERR_COUNT, rj = R_ERR_COUNT, imm = 1)
+
+    // Test BLTU (false case, unsigned less than): should not jump, error count increments
+    insts += bltu(rj = R_SRC2, rd = R_SRC1, offset = 8) // VAL_NEG (0xFE...) < VAL_POS (0x01...) is false
+    insts += addi_w(rd = R_ERR_COUNT, rj = R_ERR_COUNT, imm = 1)
+    expectedErrorCount += 1
+
+    // Test JIRL: Jump over the error increment instruction.
+    val jirl_pc = BigInt("80000000", 16) + insts.length * 4
+    val target_pc = jirl_pc + 8 // Target is the instruction after the error increment
+    insts += lu12i_w(R_TEMP, (target_pc >> 12).toInt)
+    insts += ori(R_TEMP, R_TEMP, (target_pc & 0xfff).toInt)
+    insts += jirl(rd = R_LINK, rj = R_TEMP, offset = 0)
+    insts += addi_w(rd = R_ERR_COUNT, rj = R_ERR_COUNT, imm = 1) // This should be skipped
+
+    // --- PART V: CONCLUSION ---
+    insts += addi_w(R_TEMP, 0, expectedErrorCount)
+    insts += beq(rj = R_ERR_COUNT, rd = R_TEMP, offset = 8) // If R_ERR_COUNT == expected, jump to success
+    
+    // Fail loop (fallthrough)
+    insts += beq(rj = 0, rd = 0, offset = 0)
+    // Success loop
+    insts += beq(rj = 0, rd = 0, offset = 0)
+
+    // --- 4. Simulation Execution ---
+    val finalInstructions = insts.toSeq
+    LabHelper.dumpBinary(finalInstructions, "bin/comprehensive_test.bin")
+
+    val successPC = BigInt("80000000", 16) + (finalInstructions.length - 1) * 4
+    val failPC = BigInt("80000000", 16) + (finalInstructions.length - 2) * 4
+
+    val compiled = SimConfig.withFstWave.compile(new LabTestBench(
+      iDataWords = finalInstructions
+    ))
+
+    compiled.doSim { dut =>
+      val cd = dut.clockDomain.get
+      cd.forkStimulus(period = 10)
+      
+      println(s"--- Starting 'Comprehensive Instruction and Memory Test' ---")
+      println(s"Total instructions: ${finalInstructions.length}")
+      println(f"Data processing tests: ${dataProcessingTestCases.length}")
+      println(f"Expected error count from branch tests: $expectedErrorCount")
+      
+      // --- STAGE 1: Execute data processing tests and store results ---
+      // We expect one commit per instruction in the "execute and store" phase.
+      val dataProcessingCommits = dataProcessingTestCases.flatMap(_.instructions).length + dataProcessingTestCases.length // Instructions + st.w for each
+      val prologueCommits = 7 // 7 instructions in the prologue
+      val verificationCommitsStart = prologueCommits + dataProcessingCommits
+
+      println(s"--- Running Stage 1: Data Processing and Storing (expecting ~${verificationCommitsStart} commits) ---")
+
+      // Run simulation until all data processing and store operations should have committed.
+      val timeout = cd.waitSamplingWhere(timeout=60*1000)(dut.io.commitStats.totalCommitted.toBigInt >= verificationCommitsStart)
+      
+      if(timeout) {
+        s"Timeout waiting for data processing stage to complete. Committed: ${dut.io.commitStats.totalCommitted.toBigInt}"
+      }
+      cd.waitSampling(100) // Allow pipeline to settle
+
+      // --- STAGE 2: IMMEDIATE VERIFICATION of memory content ---
+      // This is a powerful, early check.
+      println(s"--- Stage 2: Verifying memory content directly via SRAM testbench interface ---")
+      for ((tc, i) <- dataProcessingTestCases.zipWithIndex) {
+        val physicalAddr = i * 4
+        val expectedValue = tc.expected
+        
+        // Use the testbench interface to read dSram without CPU intervention
+        dut.dSram.io.tb_readEnable #= true
+        dut.dSram.io.tb_readAddress #= physicalAddr
+        cd.waitSampling() // Wait one cycle for the read to complete
+        val actualValue = dut.dSram.io.tb_readData.toBigInt
+        
+        // Assert immediately if there is a mismatch
+        assert(actualValue == expectedValue, 
+          f"Memory verification FAILED for test '${tc.name}' at index $i.\n" +
+          f"  - Address: 0x${(MEM_BASE_ADDR + physicalAddr).toString(16)}\n" +
+          f"  - Expected: 0x${expectedValue.toString(16)}\n" +
+          f"  - Got: 0x${actualValue.toString(16)}"
+        )
+      }
+      dut.dSram.io.tb_readEnable #= false
+      println("--- Stage 2: Memory verification PASSED ---")
+
+      // --- STAGE 3: Let the CPU run its own verification and branch tests ---
+      val finalPC = BigInt("80000000", 16) + (finalInstructions.length - 1) * 4
+      val successPC = finalPC
+      val failPC = successPC - 4
+
+      println(s"--- Running Stage 3: CPU self-verification and branching ---")
+      println(f"Success PC: 0x${successPC.toString(16)}")
+      println(f"Failure PC: 0x${failPC.toString(16)}")
+
+      // Run simulation until the CPU halts in either the success or fail loop.
+      SimTimeout(finalInstructions.length * 50)
+      var simTime = 0
+      cd.waitSampling() // Let reset propagate
+      while(dut.io.commitStats.maxCommitPc.toBigInt < failPC && simTime < finalInstructions.length * 45) {
+        cd.waitSampling()
+        simTime += 1
+      }
+      
+      val finalPCObserved = dut.io.commitStats.maxCommitPc.toBigInt
+      println(s"Simulation finished at cycle $simTime. Final PC: 0x${finalPCObserved.toString(16)}")
+
+      // --- STAGE 4: Final Assertion on PC ---
+      // This final check confirms the CPU's own logic (comparisons and branches) worked correctly.
+      assert(finalPCObserved == successPC, 
+        s"Test FAILED. CPU's self-verification failed.\n" +
+        s"  - Final PC was 0x${finalPCObserved.toString(16)}, but expected success PC 0x${successPC.toString(16)}.\n" +
+        s"  - This implies the CPU's BEQ/BNE/BLTU/JIRL or its internal error counting logic is flawed."
+      )
+      println("--- 'Comprehensive Instruction and Memory Test' PASSED ---")
     }
   }
 
