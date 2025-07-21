@@ -98,7 +98,7 @@ class BranchInstructionTestBench(val pCfg: PipelineConfig) extends Component {
       ),
       new RobAllocPlugin(pCfg),
       new IssueQueuePlugin(pCfg),
-      new BranchEuPlugin("BranchEU", pCfg),
+      new BranchEuPlugin("BranchEU", pCfg, genMonitorSignals = true),
       new LinkerPlugin(pCfg),
       new DispatchPlugin(pCfg)
     )
