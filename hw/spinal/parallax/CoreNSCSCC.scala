@@ -166,8 +166,8 @@ class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: GenericMemoryBusConfig
       dataWidth = 32,
       virtualBaseAddress = BigInt("80000000", 16),
       sizeBytes = sramSize,
-      readWaitCycles = 1,
-      writeWaitCycles = 1,
+      readWaitCycles = 3,
+      writeWaitCycles = 3,
       useWordAddressing = true,
       enableLog = false
     )
@@ -177,8 +177,8 @@ class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: GenericMemoryBusConfig
       virtualBaseAddress = BigInt("80400000", 16),
       sizeBytes = sramSize,
       useWordAddressing = true,
-      readWaitCycles = 1,
-      writeWaitCycles = 1,
+      readWaitCycles = 3,
+      writeWaitCycles = 3,
       enableLog = false
     )
 
@@ -259,14 +259,14 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
     dispatchWidth = 1,
     bruEuCount = 1,
     renameWidth = 1,
-    fetchWidth = 2,
+    fetchWidth = 8,
     xlen = 32,
     physGprCount = 64,
     archGprCount = 32,
     robDepth = 8,
     commitWidth = 1,
     resetVector = BigInt("80000000", 16), // 新的启动地址
-    transactionIdWidth = 1,
+    transactionIdWidth = 3,
     memOpIdWidth = 4 bits,
     forceMMIO = true
   )
@@ -293,11 +293,11 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
   val dCfg = DataCachePluginConfig(
     pipelineConfig = pCfg,
     memDataWidth = 32,
-    cacheSize = 1024,
+    cacheSize = 4096,
     wayCount = 2,
-    refillCount = 2,
-    writebackCount = 2,
-    lineSize = 16,
+    refillCount = 8,
+    writebackCount = 8,
+    lineSize = 32,
     transactionIdWidth = pCfg.transactionIdWidth
   )
 
@@ -405,13 +405,19 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
         issueEntryStage(signals.RAW_INSTRUCTIONS_IN) := instructionVec
         issueEntryStage(signals.BRANCH_PREDICTION)(0) := fetchOutput.payload.bpuPrediction
         issueEntryStage(signals.BRANCH_PREDICTION)(1).assignDontCare()
-        issueEntryStage(signals.VALID_MASK) := B"01" // 只有第一条指令有效
+        issueEntryStage(signals.BRANCH_PREDICTION)(2).assignDontCare()
+        issueEntryStage(signals.BRANCH_PREDICTION)(3).assignDontCare()
+        issueEntryStage(signals.BRANCH_PREDICTION)(4).assignDontCare()
+        issueEntryStage(signals.BRANCH_PREDICTION)(5).assignDontCare()
+        issueEntryStage(signals.BRANCH_PREDICTION)(6).assignDontCare()
+        issueEntryStage(signals.BRANCH_PREDICTION)(7).assignDontCare()
+        issueEntryStage(signals.VALID_MASK) := B"00000001" // 只有第一条指令有效
         issueEntryStage(signals.IS_FAULT_IN) := False // 简化：假设无故障
       } otherwise {
         issueEntryStage(signals.GROUP_PC_IN) := 0
         issueEntryStage(signals.RAW_INSTRUCTIONS_IN).assignDontCare()
         issueEntryStage(signals.BRANCH_PREDICTION).assignDontCare()
-        issueEntryStage(signals.VALID_MASK) := B"00" // 无有效指令
+        issueEntryStage(signals.VALID_MASK) := B"00000000" // 无有效指令
         issueEntryStage(signals.IS_FAULT_IN) := False
       }
       fetchOutput.ready := issueEntryStage.isReady
