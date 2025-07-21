@@ -504,7 +504,7 @@ class StoreBufferPlugin(
                          !commitInfoFromRob(j).entry.status.hasException) {
                         
                         slotIsCommittedThisCycle := True
-                        if(enableLog) report(L"[SQ] COMMIT_DETECT: robPtr=${slots(i).robPtr} (slotIdx=${i}) will be marked as committed next cycle.")
+                        report(L"[SQ] COMMIT_DETECT: robPtr=${slots(i).robPtr} (slotIdx=${i}) will be marked as committed next cycle.")
                     }
                 }
             }
@@ -525,7 +525,7 @@ class StoreBufferPlugin(
             when(toBeFlushedByRob) {
                 // 如果要冲刷，则直接将槽位置为无效，忽略所有其他信号
                 slotsAfterUpdates(i).valid := False
-                if(enableLog) report(L"[SQ] FLUSH (Exec): Invalidating slotIdx=${i} (robPtr=${slots(i).robPtr}) by ROB flush.")
+                report(L"[SQ] FLUSH (Exec): Invalidating slotIdx=${i} (robPtr=${slots(i).robPtr}) by ROB flush.")
             } .elsewhen(slots(i).valid && !slots(i).isCommitted) {
                 // 只有在不被冲刷的前提下，才检查提交信号
 
@@ -557,19 +557,19 @@ class StoreBufferPlugin(
                 // Flush 指令：一旦自身操作完成即可弹出
                 when(operationDone) {
                     popRequest := True
-                    if(enableLog) report(L"[SQ] POP_FLUSH: robPtr=${popHeadSlot.robPtr}")
+                    report(L"[SQ] POP_FLUSH: robPtr=${popHeadSlot.robPtr}")
                 }
             } elsewhen (popHeadSlot.hasEarlyException) {
                 // 带有早期异常的 Store 指令：一旦提交，即可弹出
                 // 注意：如果早期异常的 Store 仍然发出了内存请求（例如，地址异常在发出后才检测到），
                 // 那么它也必须等待 operationDone。目前的 hasEarlyException 意味着不需要内存访问。
                 popRequest := True
-                if(enableLog) report(L"[SQ] POP_EARLY_EXCEPTION: robPtr=${popHeadSlot.robPtr}")
+                report(L"[SQ] POP_EARLY_EXCEPTION: robPtr=${popHeadSlot.robPtr}")
             } otherwise { // 普通 Store (非 Flush, 无早期异常)
                 // 普通 Store 和 MMIO Store：必须等到其内存操作完成
                 when(operationDone) {
                     popRequest := True
-                    if(enableLog) report(L"[SQ] POP_NORMAL_STORE/MMIO: robPtr=${popHeadSlot.robPtr}, isIO=${popHeadSlot.isIO}")
+                    report(L"[SQ] POP_NORMAL_STORE/MMIO: robPtr=${popHeadSlot.robPtr}, isIO=${popHeadSlot.isIO}")
                 }
             }
         } 
@@ -577,7 +577,7 @@ class StoreBufferPlugin(
             // This condition is for when the head slot becomes invalid (e.g. by full flush)
             // and we need to shift the queue. This is a cleanup pop.
             popRequest := True
-            if(enableLog) report(L"[SQ] POP_INVALID_SLOT: Clearing invalid head slot.")
+            report(L"[SQ] POP_INVALID_SLOT: Clearing invalid head slot.")
         }
 
 
@@ -609,7 +609,9 @@ class StoreBufferPlugin(
             bypassInitial.data.assignFromBits(B(0))
             bypassInitial.hitMask.assignFromBits(B(0))
             if(enableLog) report(L"[SQ-Fwd] Query: valid=${query.valid} robPtr=${query.payload.robPtr} addr=${query.payload.address} size=${query.payload.size}")
-
+            else when(query.valid) {
+                report(L"[SQ-Fwd] Query: valid=${query.valid} robPtr=${query.payload.robPtr} addr=${query.payload.address} size=${query.payload.size}")
+            }
             // Store-to-Load 转发逻辑：遍历所有比 Load 旧的、有效的且未被冲刷的 Store。
             val forwardingResult = slots.reverse.foldLeft(bypassInitial) { (acc, slot) =>
                 val nextAcc = CombInit(acc)
@@ -677,7 +679,7 @@ class StoreBufferPlugin(
                         hasOlderOverlappingStore := True // 标记存在旧的、地址重叠的Store
 
                         when(slot.waitRsp || slot.isWaitingForRefill || slot.isWaitingForWb) {
-                            if(enableLog) report(L"[SQ-Fwd] STALL_DATA_NOT_READY (Slot Status): slot=${slot.robPtr} (LoadAddr=${loadWordAddr}, StoreAddr=${storeWordAddr})")
+                            report(L"[SQ-Fwd] STALL_DATA_NOT_READY (Slot Status): slot=${slot.robPtr} (LoadAddr=${loadWordAddr}, StoreAddr=${storeWordAddr})")
                             dataNotReadyStall := True
                         }
                     }
@@ -703,14 +705,14 @@ class StoreBufferPlugin(
             rsp.hit  := query.valid && allRequiredBytesHit && !rsp.olderStoreHasUnknownAddress && !rsp.olderStoreDataNotReady
 
             // *** 修改结束 ***
-            if(enableLog) report(L"[SQ-Fwd] Forwarding? hit=${rsp.hit}, because query.valid=${query.valid}, allRequiredBytesHit=${allRequiredBytesHit}, olderStoreHasUnknownAddress=${rsp.olderStoreHasUnknownAddress}, olderStoreDataNotReady=${rsp.olderStoreDataNotReady}") // Adjusted log message
+            report(L"[SQ-Fwd] Forwarding? hit=${rsp.hit}, because query.valid=${query.valid}, allRequiredBytesHit=${allRequiredBytesHit}, olderStoreHasUnknownAddress=${rsp.olderStoreHasUnknownAddress}, olderStoreDataNotReady=${rsp.olderStoreDataNotReady}") // Adjusted log message
             
             when(query.valid) {
                 // debug print
-                if(enableLog) report(L"[SQ-Fwd] Query: ${query.payload.format}")
-                if(enableLog) report(L"[SQ-Fwd] Rsp: ${rsp.format}")
+                report(L"[SQ-Fwd] Query: ${query.payload.format}")
+                report(L"[SQ-Fwd] Rsp: ${rsp.format}")
             }
-            if(enableLog) report(L"[SQ-Fwd] Result: hitMask=${forwardingResult.hitMask} (loadMask=${loadMask}), allHit=${allRequiredBytesHit}, finalRsp.hit=${rsp.hit}")
+            report(L"[SQ-Fwd] Result: hitMask=${forwardingResult.hitMask} (loadMask=${loadMask}), allHit=${allRequiredBytesHit}, finalRsp.hit=${rsp.hit}")
 
         } // End of forwardingLogic
 
