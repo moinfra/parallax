@@ -229,13 +229,13 @@ class LabSpecWithSRAMModel extends CustomSpinalSimFunSuite {
 
     val compiled = SimConfig.withConfig(SpinalConfig(
           defaultConfigForClockDomains = ClockDomainConfig(resetKind = SYNC),
-          defaultClockDomainFrequency = FixedFrequency(162 MHz),
+          defaultClockDomainFrequency = FixedFrequency(150 MHz),
     )).withIVerilog.withFstWave.compile(new LabTestBenchWithSRAMModel)
 
     compiled.doSim { dut =>
       implicit val cd = dut.clockDomain.get
-      cd.forkStimulus(period = 10 * 1000)
-      SimTimeout(300000 * 1000)
+      cd.forkStimulus(frequency = 300 MHz)
+      SimTimeout(600000 * 1000)
 
       // --- Phase 1: Inject Instructions ---
       println("--- Phase 1: Starting instruction injection ---")
