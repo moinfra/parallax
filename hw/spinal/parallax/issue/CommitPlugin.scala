@@ -354,6 +354,22 @@ class CommitPlugin(
           L"Stats=${commitStatsReg.format}\n" :+
           L"  Slot Details: ${s0.commitSlotLogs.map(s => L"\n    Slot: ${s.format} commitAck=${commitAcks(0)} commitPc=0x${s0.commitPcs(0)}")}" // 为每个槽位格式化输出，每个槽位独占一行
         )
+      } else {
+        // 只打印首次 valid=1 和 doCommit = 1
+        val prevValid = RegNext(commitSlots(0).valid, init = False)
+        when(!prevValid && commitSlots(0).valid) {
+          report(
+            L"[COMMIT] Cycle ${counter} Log: " :+
+            L"Stats=${commitStatsReg.format}\n" :+
+            L"  Slot Details: ${s0.commitSlotLogs(0).format} commitAck=${commitAcks(0)} commitPc=0x${s0.commitPcs(0)}" // 只打印第一个槽位
+          )
+        } elsewhen(commitAcks(0)) {
+          report(
+            L"[COMMIT] Cycle ${counter} Log: " :+
+            L"Stats=${commitStatsReg.format}\n" :+
+            L"  Slot Details: ${s0.commitSlotLogs(0).format} commitAck=${commitAcks(0)} commitPc=0x${s0.commitPcs(0)}" // 只打印第一个槽位
+          )
+        }
       }
   }
 }

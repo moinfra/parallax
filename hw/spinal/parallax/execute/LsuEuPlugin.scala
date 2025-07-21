@@ -166,9 +166,6 @@ class LsuEuPlugin(
           euResult.hasException  := aguOutPayload.alignException
           euResult.exceptionCode := ExceptionCode.STORE_ADDRESS_MISALIGNED
           euResult.destIsFpr     := False
-
-          ParallaxSim.logWhen(aguOutPayload.isLoad, L"[LsuEu] Dispatched LOAD to LQ: robPtr=${aguOutPayload.robPtr}")
-          ParallaxSim.logWhen(aguOutPayload.isStore, L"[LsuEu] Dispatched STORE to SB: robPtr=${aguOutPayload.robPtr}")
       }
     }
 
