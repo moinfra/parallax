@@ -26,6 +26,9 @@ import java.io.FilenameFilter
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
+import parallax.fetch.icache.ICachePlugin
+import parallax.fetch.icache.ICacheConfig
+import parallax.fetch2.FetchService
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // 1. 定义新的 Service 和 Connector Plugin
@@ -47,7 +50,7 @@ trait ExternalMasterService extends Service {
 class SimulationConnectorPlugin(fetchDisableSignal: Bool, axiInjectorMaster: Axi4) extends Plugin {
   val setup = create early new Area {
     // 1. 连接 fetchDisable 信号
-    val fetchService = getService[SimpleFetchPipelineService]
+    val fetchService = getService[FetchService]
     val disablePort = fetchService.newFetchDisablePort()
     disablePort := fetchDisableSignal
 
@@ -193,8 +196,6 @@ class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: GenericMemoryBusConfig
   val logic = create late new Area {
     lock.await()
 
-    // 连接DCache
-    val dcacheMaster = getService[DataCachePlugin].getDCacheMaster
 
     // 创建SGMB桥接器
     val readBridges = readPorts.map(_ => new SplitGmbToAxi4Bridge(sgmbConfig, axiConfig))
@@ -215,7 +216,9 @@ class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: GenericMemoryBusConfig
     }
 
     // 收集所有AXI master
-    val internalSramMasters = writeBridges.map(_.io.axiOut) ++ readBridges.map(_.io.axiOut) ++ Seq(dcacheMaster)
+    val dcacheMasters = getServiceOption[DataCachePlugin].map(_.getDCacheMaster).toList
+    val roMasters = getServicesOf[AxiReadOnlyMasterService].map(_.getAxi4ReadOnlyMaster().toAxi4())
+    val internalSramMasters = writeBridges.map(_.io.axiOut) ++ readBridges.map(_.io.axiOut) ++ dcacheMasters ++ roMasters
     val sramMasters = internalSramMasters ++ externalMasters // +++ 合并内部和外部 Masters
     require(sramMasters.size <= hw.numMasters, "Too many masters for SRAM controller")
 
@@ -259,7 +262,7 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
     dispatchWidth = 1,
     bruEuCount = 1,
     renameWidth = 1,
-    fetchWidth = 8,
+    fetchWidth = 4,
     xlen = 32,
     physGprCount = 64,
     archGprCount = 32,
@@ -369,22 +372,31 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
     end = U(0xbfd00000L + 0x400000L, 32 bits)
   )
 
+  val iCfg = ICacheConfig(
+    totalSize = 4 * 1024,
+    ways = 2,
+    bytesPerLine = 16, // 16 bytes = 4 instructions
+    fetchWidth = pCfg.fetchWidth,
+    enableLog = false
+  )
+
   // CoreNSCSCC设置插件 - 连接必要的控制信号
   class CoreNSCSCCSetupPlugin(pCfg: PipelineConfig) extends Plugin {
     val setup = create early new Area {
-      val fetchService = getService[SimpleFetchPipelineService]
+      val fetchService = getService[FetchService]
+      val fetchOutput = fetchService.fetchOutput()
     }
 
     val logic = create late new Area {
       val commitService = getService[CommitService]
-      val fetchService = getService[SimpleFetchPipelineService]
+      val fetchService = getService[FetchService]
       val issuePpl = getService[IssuePipeline]
+      val fetchOutput = setup.fetchOutput
 
       // 驱动commit enable信号 - 对于独立的CPU核心，总是启用commit
       commitService.setCommitEnable(True)
 
       // 连接fetch输出到decode阶段输入
-      val fetchOutput = fetchService.fetchOutput()
       val issueEntryStage = issuePpl.entryStage
       val signals = issuePpl.signals
 
@@ -407,17 +419,13 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
         issueEntryStage(signals.BRANCH_PREDICTION)(1).assignDontCare()
         issueEntryStage(signals.BRANCH_PREDICTION)(2).assignDontCare()
         issueEntryStage(signals.BRANCH_PREDICTION)(3).assignDontCare()
-        issueEntryStage(signals.BRANCH_PREDICTION)(4).assignDontCare()
-        issueEntryStage(signals.BRANCH_PREDICTION)(5).assignDontCare()
-        issueEntryStage(signals.BRANCH_PREDICTION)(6).assignDontCare()
-        issueEntryStage(signals.BRANCH_PREDICTION)(7).assignDontCare()
-        issueEntryStage(signals.VALID_MASK) := B"00000001" // 只有第一条指令有效
+        issueEntryStage(signals.VALID_MASK) := B"0001" // 只有第一条指令有效
         issueEntryStage(signals.IS_FAULT_IN) := False // 简化：假设无故障
       } otherwise {
         issueEntryStage(signals.GROUP_PC_IN) := 0
         issueEntryStage(signals.RAW_INSTRUCTIONS_IN).assignDontCare()
         issueEntryStage(signals.BRANCH_PREDICTION).assignDontCare()
-        issueEntryStage(signals.VALID_MASK) := B"00000000" // 无有效指令
+        issueEntryStage(signals.VALID_MASK) := B"0000" // 无有效指令
         issueEntryStage(signals.IS_FAULT_IN) := False
       }
       fetchOutput.ready := issueEntryStage.isReady
@@ -430,11 +438,12 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
       // Memory system
       new CoreMemSysPlugin(axiConfig, mmioConfig.get),
       new DataCachePlugin(dCfg),
-      new IFUPlugin(ifuCfg),
+      // new IFUPlugin(ifuCfg),
 
       // BPU and fetch
       new BpuPipelinePlugin(pCfg),
-      new SimpleFetchPipelinePlugin(pCfg, ifuCfg, fifoDepth),
+      // new SimpleFetchPipelinePlugin(pCfg, ifuCfg, fifoDepth),
+      new fetch2.FetchPipelinePlugin(pCfg, iCfg),
       // new BranchCommitTrackerPlugin(),
       // new BranchResolveTrackerPlugin(),
 
@@ -467,6 +476,7 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
       new AguPlugin(lsuConfig, supportPcRel = true, mmioRanges = Seq(uartMmioRange)),
       new StoreBufferPlugin(pCfg, lsuConfig, dParams, lsuConfig.sqDepth, mmioConfig),
       new LoadQueuePlugin(pCfg, lsuConfig, dParams, lsuConfig.lqDepth, mmioConfig),
+      new ICachePlugin(iCfg, axiCfg = axiConfig, pcWidth = pCfg.pcWidth.value),
 
       // Dispatch and linking
       new LinkerPlugin(pCfg),
