@@ -34,6 +34,7 @@ class ICachePlugin(
 
   // --- 内部逻辑区域 ---
   val logic = create late new Area {
+    lock.await()
     val enableLog = iCacheCfg.enableLog
     if (enableLog) ParallaxLogger.log("Plugin: ICache; logic generation started.")
 
@@ -66,7 +67,6 @@ class ICachePlugin(
 
       // --- F1 阶段 ---
       val f1 = new Area {
-        // --- 修正后的流水线驱动方式 ---
         // ICache 永远准备好接收请求
         pipe.F1.valid := port.cmd.valid
         pipe.F1(F1_CMD) := port.cmd.payload
@@ -84,7 +84,6 @@ class ICachePlugin(
         assert(f1_isReady, "ICache F1 stage must be always ready to receive request!")
         pipe.F1(F1_VALID_MASK) := storage.valids(f1_index)
 
-        // --- 修正读-改-写问题的第一步: 在F1读取Meta并传递 ---
         /* public */ val metaReadData = storage.tagLruRam.readSync(f1_index, enable = f1_isFiring)
         /* public */ val dataReadData = Vec(storage.dataRams.map(_.readSync(f1_index, enable = f1_isFiring)))
 
@@ -128,7 +127,6 @@ class ICachePlugin(
         // --- LRU 更新逻辑 ---
         val f2_can_update_lru = pipe.F2.isFiring && isHit
         when(f2_can_update_lru) {
-          // --- 修正类型不匹配问题 ---
           // 现在可以直接在当前上下文中创建实例，因为类型定义在公共作用域
           val updatedLine = ICacheMetaLine(iCacheCfg, pcWidth)
           updatedLine.ways := f2_metaLine.ways
@@ -141,7 +139,7 @@ class ICachePlugin(
 
 
     // =================================================================
-    //  响应与控制区域 (Response and Control Area) - **最终修正版**
+    //  响应与控制区域 (Response and Control Area) 
     // =================================================================
     val ctrl = new Area {
       port.rsp.valid := False
@@ -191,7 +189,6 @@ class ICachePlugin(
         val lineBuffer = Reg(Vec(Bits(32 bits), iCacheCfg.lineWords))
         val refillCounter = Counter(iCacheCfg.lineWords)
         
-        // --- 解决方案: 锁存整个Meta Line ---
         val metaLineToModify = Reg(ICacheMetaLine(iCacheCfg, pcWidth))
 
         // FSM 启动条件直接在 IDLE 状态内部定义

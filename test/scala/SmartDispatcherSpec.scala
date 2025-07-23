@@ -81,6 +81,7 @@ class SmartDispatcherSpec extends CustomSpinalSimFunSuite {
       dut.io.fetchGroupIn.payload.fault #= false // <-- 这里明确设置为 false
       dut.io.fetchGroupIn.payload.pc #= pc
       dut.io.fetchGroupIn.numValidInstructions #= instructions.length
+      dut.io.fetchGroupIn.startInstructionIndex #= 0
 
       for (i <- 0 until testPCfg.fetchWidth) {
         if (i < instructions.length) {
@@ -263,7 +264,6 @@ class SmartDispatcherSpec extends CustomSpinalSimFunSuite {
       // testGroup (BigInt(0x4000), 1, Seq((BigInt(0x63), branchPredecode))) // This is correct for one instruction
       val testGroup = (BigInt(0x4000), 1, Seq((BigInt(0x63), branchPredecode)))
 
-
       driveFetchGroup(dut, Some(testGroup))
       dut.clockDomain.waitSampling() // Cycle 3: Group received, BPU query sent, FSM goes WAITING_FOR_BPU
       driveFetchGroup(dut, None) // Stop driving input
@@ -271,11 +271,15 @@ class SmartDispatcherSpec extends CustomSpinalSimFunSuite {
 
       // Assert that we are busy and waiting for BPU
       assert(dut.isBusyReg.toBoolean, "DUT should be busy after sending BPU query")
-      assert(fsmStateNames(dut.sim_fsmStateId.toInt) == "WAITING_FOR_BPU", s"Expected WAITING_FOR_BPU, got ${fsmStateNames(dut.sim_fsmStateId.toInt)}")
+      assert(
+        fsmStateNames(dut.sim_fsmStateId.toInt) == "WAITING_FOR_BPU",
+        s"Expected WAITING_FOR_BPU, got ${fsmStateNames(dut.sim_fsmStateId.toInt)}"
+      )
 
       // Trigger flush
       dut.io.flush #= true
-      dut.clockDomain.waitSampling() // Cycle 5: Flush arrives. FSM transitions to DRAINING_BPU. isBusyReg should remain true.
+      dut.clockDomain
+        .waitSampling() // Cycle 5: Flush arrives. FSM transitions to DRAINING_BPU. isBusyReg should remain true.
       dut.io.flush #= false // De-assert flush
 
       dut.clockDomain.waitSampling() // Cycle 6: FSM.stateReg is now DRAINING_BPU.
@@ -283,13 +287,17 @@ class SmartDispatcherSpec extends CustomSpinalSimFunSuite {
       // NOW, after flush arrived and before BPU response clears in-flight counter
       // Check if DUT is in DRAINING_BPU state and is still busy
       assert(dut.isBusyReg.toBoolean, "DUT should remain busy in DRAINING_BPU after flush")
-      assert(fsmStateNames(dut.sim_fsmStateId.toInt) == "DRAINING_BPU", s"Expected DRAINING_BPU, got ${fsmStateNames(dut.sim_fsmStateId.toInt)}")
+      assert(
+        fsmStateNames(dut.sim_fsmStateId.toInt) == "DRAINING_BPU",
+        s"Expected DRAINING_BPU, got ${fsmStateNames(dut.sim_fsmStateId.toInt)}"
+      )
       // This is the problematic assert that fails:
       // assert(dut.isBusyReg.toBoolean) // DRAIN BPU
 
       // Now provide BPU response to clear the in-flight counter
       driveBpuResponse(dut, Some(BpuResponseCapture(isTaken = true, target = 0x5000, transactionId = 0)))
-      dut.clockDomain.waitSampling() // Cycle 6: BPU Rsp arrives. bpuInFlightCounterReg becomes 0. FSM transitions to IDLE. isBusyReg becomes false.
+      dut.clockDomain
+        .waitSampling() // Cycle 6: BPU Rsp arrives. bpuInFlightCounterReg becomes 0. FSM transitions to IDLE. isBusyReg becomes false.
       driveBpuResponse(dut, None) // Stop driving BPU response
 
       dut.clockDomain.waitSampling() // Cycle 7: FSM is now IDLE, isBusyReg is false.
@@ -298,8 +306,10 @@ class SmartDispatcherSpec extends CustomSpinalSimFunSuite {
 
       dut.clockDomain.waitSampling()
       assert(!dut.isBusyReg.toBoolean, "DUT should be idle after BPU draining complete") // IDLE again
-      assert(fsmStateNames(dut.sim_fsmStateId.toInt) == "IDLE", s"Expected IDLE, got ${fsmStateNames(dut.sim_fsmStateId.toInt)}")
-
+      assert(
+        fsmStateNames(dut.sim_fsmStateId.toInt) == "IDLE",
+        s"Expected IDLE, got ${fsmStateNames(dut.sim_fsmStateId.toInt)}"
+      )
 
       val newGroup = (BigInt(0x5000), 0, Seq()) // Ensure this is 0 for empty group
       driveFetchGroup(dut, Some(newGroup))
@@ -308,8 +318,10 @@ class SmartDispatcherSpec extends CustomSpinalSimFunSuite {
 
       // This assert should now pass if the empty group logic is correct and instant
       assert(!dut.isBusyReg.toBoolean, "DUT should not be busy after processing an empty group")
-      assert(fsmStateNames(dut.sim_fsmStateId.toInt) == "IDLE", s"Expected IDLE, got ${fsmStateNames(dut.sim_fsmStateId.toInt)}")
-
+      assert(
+        fsmStateNames(dut.sim_fsmStateId.toInt) == "IDLE",
+        s"Expected IDLE, got ${fsmStateNames(dut.sim_fsmStateId.toInt)}"
+      )
 
       ParallaxLogger.debug("[TB] Hard Flush test PASSED.")
     }
@@ -468,7 +480,10 @@ class SmartDispatcherSpec extends CustomSpinalSimFunSuite {
       //            The DUT decides isBusy := False.
 
       // Check final state of the output queue
-      assert(outputQueue.length == testInstructions.length, s"Expected ${testInstructions.length} instructions, but got ${outputQueue.length}")
+      assert(
+        outputQueue.length == testInstructions.length,
+        s"Expected ${testInstructions.length} instructions, but got ${outputQueue.length}"
+      )
       val instrs = outputQueue.toList
       assert(instrs(0).pc == 0x8000 && instrs(0).instruction == 0x13)
       assert(instrs(1).pc == 0x8004 && instrs(1).instruction == 0x33)
@@ -481,7 +496,6 @@ class SmartDispatcherSpec extends CustomSpinalSimFunSuite {
       dut.clockDomain.waitSampling() // 确保 isBusy 寄存器已经更新
       assert(!dut.isBusyReg.toBoolean, "isBusy should now be false as the full group has been processed")
       ParallaxLogger.info(s"[TB] Phase 3 OK: Full group processed. DUT is now idle.")
-
 
       ParallaxLogger.debug("[TB] Back-pressure test PASSED.")
     }
@@ -819,7 +833,8 @@ class SmartDispatcherSpec extends CustomSpinalSimFunSuite {
         fsmStateNames(dut.sim_fsmStateId.toInt) == "IDLE",
         s"Phase 4: Expected IDLE, got ${fsmStateNames(dut.sim_fsmStateId.toInt)}"
       )
-      ParallaxLogger.info(s"[TB] Phase 4: Instruction (PC 0x200) sent. State=${fsmStateNames(dut.sim_fsmStateId.toInt)}")
+      ParallaxLogger
+        .info(s"[TB] Phase 4: Instruction (PC 0x200) sent. State=${fsmStateNames(dut.sim_fsmStateId.toInt)}")
 
       // 移除剩余的 waitSampling(3) 和 NOPs 检查，因为只有一个有效指令，没有额外的 NOPs 需要等待发出。
       // Total instructions: 2 (from old group) + 1 (from new group) = 3
@@ -1084,7 +1099,6 @@ class SmartDispatcherSpec extends CustomSpinalSimFunSuite {
       pulseBpuResponse(dut, bpuRsp_taken) // Cycle 10: BPU Rsp arrives.
       sleep(1)
 
-
       assert(dut.io.softRedirect.valid.toBoolean, "Phase 5: Soft redirect should be valid for taken branch")
       assert(dut.io.softRedirect.payload.toBigInt == 0x6000, "Phase 5: Soft redirect target should be 0x6000")
 
@@ -1112,247 +1126,325 @@ class SmartDispatcherSpec extends CustomSpinalSimFunSuite {
 
   // SmartDispatcherSpec.scala
 
-test("Boundary - Handles empty FetchGroup (numValidInstructions = 0)") {
-  simConfig.compile(createDut(testPCfg)).doSim { dut =>
-    dut.clockDomain.forkStimulus(10)
-    initDut(dut)
+  test("Boundary - Handles empty FetchGroup (numValidInstructions = 0)") {
+    simConfig.compile(createDut(testPCfg)).doSim { dut =>
+      dut.clockDomain.forkStimulus(10)
+      initDut(dut)
 
-    val outputQueue = mutable.Queue[FetchedInstrCapture2]()
-    StreamMonitor(dut.io.fetchOutput, dut.clockDomain) { payload =>
-      outputQueue.enqueue(FetchedInstrCapture2(payload))
+      val outputQueue = mutable.Queue[FetchedInstrCapture2]()
+      StreamMonitor(dut.io.fetchOutput, dut.clockDomain) { payload =>
+        outputQueue.enqueue(FetchedInstrCapture2(payload))
+      }
+
+      ParallaxLogger.info("[TB] Sending an empty FetchGroup.")
+      // 创建一个 numValidInstructions = 0 的 FetchGroup
+      val emptyGroup = (BigInt(0x0000), 100, Seq.empty[(BigInt, PredecodeInfoCapture)])
+
+      dut.io.fetchOutput.ready #= true // 确保输出 ready，但不应该有输出
+
+      // 发送空组
+      pulseFetchGroup(dut, emptyGroup) // Cycle 1: Group received
+
+      dut.clockDomain.waitSampling() // Cycle 2: DUT 应该处理完毕并回到 IDLE
+      assert("IDLE" == fsmStateNames(dut.sim_fsmStateId.toInt))
+      // 验证：
+      // 1. outputQueue 应该为空
+      assert(outputQueue.isEmpty, "No instructions should be dispatched for an empty group.")
+      // 2. DUT 应该立即回到 IDLE 状态
+      assert(!dut.isBusyReg.toBoolean, "DUT should not be busy after processing an empty group.")
+      assert(
+        fsmStateNames(dut.sim_fsmStateId.toInt) == "IDLE",
+        s"FSM should be IDLE, got ${fsmStateNames(dut.sim_fsmStateId.toInt)}"
+      )
+
+      ParallaxLogger.debug("[TB] Empty FetchGroup test PASSED.")
     }
-
-    ParallaxLogger.info("[TB] Sending an empty FetchGroup.")
-    // 创建一个 numValidInstructions = 0 的 FetchGroup
-    val emptyGroup = (BigInt(0x0000), 100, Seq.empty[(BigInt, PredecodeInfoCapture)])
-
-    dut.io.fetchOutput.ready #= true // 确保输出 ready，但不应该有输出
-
-    // 发送空组
-    pulseFetchGroup(dut, emptyGroup) // Cycle 1: Group received
-
-    dut.clockDomain.waitSampling() // Cycle 2: DUT 应该处理完毕并回到 IDLE
-    assert("IDLE" == fsmStateNames(dut.sim_fsmStateId.toInt))
-    // 验证：
-    // 1. outputQueue 应该为空
-    assert(outputQueue.isEmpty, "No instructions should be dispatched for an empty group.")
-    // 2. DUT 应该立即回到 IDLE 状态
-    assert(!dut.isBusyReg.toBoolean, "DUT should not be busy after processing an empty group.")
-    assert(fsmStateNames(dut.sim_fsmStateId.toInt) == "IDLE", s"FSM should be IDLE, got ${fsmStateNames(dut.sim_fsmStateId.toInt)}")
-
-    ParallaxLogger.debug("[TB] Empty FetchGroup test PASSED.")
   }
-}
 
-test("BPU Logic - Handles mispredicted branch and subsequent correction") {
-  simConfig.compile(createDut(testPCfg)).doSim { dut =>
-    dut.clockDomain.forkStimulus(10)
-    initDut(dut)
+  test("BPU Logic - Handles mispredicted branch and subsequent correction") {
+    simConfig.compile(createDut(testPCfg)).doSim { dut =>
+      dut.clockDomain.forkStimulus(10)
+      initDut(dut)
 
-    val bpuQueryLog = mutable.Queue[(BigInt, BigInt)]()
-    FlowMonitor(dut.io.bpuQuery, dut.clockDomain) { payload =>
-      bpuQueryLog.enqueue((payload.pc.toBigInt, payload.transactionId.toBigInt))
+      val bpuQueryLog = mutable.Queue[(BigInt, BigInt)]()
+      FlowMonitor(dut.io.bpuQuery, dut.clockDomain) { payload =>
+        bpuQueryLog.enqueue((payload.pc.toBigInt, payload.transactionId.toBigInt))
+      }
+      val softRedirectLog = mutable.Queue[BigInt]()
+      FlowMonitor(dut.io.softRedirect, dut.clockDomain) { payload =>
+        softRedirectLog.enqueue(payload.toBigInt)
+      }
+      val outputQueue = mutable.Queue[FetchedInstrCapture2]()
+      StreamMonitor(dut.io.fetchOutput, dut.clockDomain) { payload =>
+        outputQueue.enqueue(FetchedInstrCapture2(payload))
+      }
+
+      ParallaxLogger.info("[TB] Phase 1: Sending branch (PC 0xC000) - Mispredict as TAKEN.")
+      val branchPredecode = PredecodeInfoCapture(isBranch = true)
+      val group1 = (BigInt(0xc000), 120, Seq((BigInt(0x63), branchPredecode))) // numValidInstructions = 1
+
+      dut.io.fetchOutput.ready #= true
+      pulseFetchGroup(dut, group1) // Cycle 1: Group received, BPU query for 0xC000 (TID=0) sent.
+      dut.clockDomain.waitSampling() // Cycle 2: In WAITING_FOR_BPU
+
+      assert(bpuQueryLog.length == 1)
+      val (queryPc0, queryTid0) = bpuQueryLog.dequeue()
+      assert(queryPc0 == 0xc000)
+
+      val bpuRsp0 = BpuResponseCapture(isTaken = true, target = 0xd000, transactionId = queryTid0) // Mispredict: Taken
+      pulseBpuResponse(dut, bpuRsp0) // Cycle 3: BPU Rsp arrives, branch (0xC000) sent, softRedirect to 0xD000.
+      dut.clockDomain.waitSampling() // Cycle 4: DUT returns to IDLE.
+
+      assert(outputQueue.length == 1)
+      assert(outputQueue.dequeue().pc == 0xc000)
+      assert(softRedirectLog.length == 1)
+      assert(softRedirectLog.dequeue() == 0xd000)
+      weakAssert("IDLE" == fsmStateNames(dut.sim_fsmStateId.toInt))
+      weakAssert(!dut.isBusyReg.toBoolean)
+      dut.clockDomain.waitSampling() // Cycle 4: DUT returns to IDLE.
+      weakAssert("IDLE" == fsmStateNames(dut.sim_fsmStateId.toInt))
+      weakAssert(!dut.isBusyReg.toBoolean)
+
+      ParallaxLogger.info("[TB] Phase 1 OK: Branch 0xC000 mispredicted as TAKEN, redirected to 0xD000.")
+
+      ParallaxLogger.info("[TB] Phase 2: Sending branch (PC 0xC000) again - Correctly predict as NOT TAKEN.")
+      // 模拟重取指，流水线需要从 0xC000 重新取指
+      val group2 = (BigInt(0xc000), 121, Seq((BigInt(0x63), branchPredecode))) // Same PC, numValidInstructions = 1
+
+      pulseFetchGroup(dut, group2) // Cycle 5: Group received, BPU query for 0xC000 (TID=1) sent.
+      dut.clockDomain.waitSampling() // Cycle 6: In WAITING_FOR_BPU
+
+      assert(bpuQueryLog.length == 1)
+      val (queryPc1, queryTid1) = bpuQueryLog.dequeue()
+      assert(queryPc1 == 0xc000)
+      assert(queryTid1 == 1) // New transaction ID
+
+      val bpuRsp1 =
+        BpuResponseCapture(isTaken = false, target = 0x0, transactionId = queryTid1) // Correct predict: Not Taken
+      pulseBpuResponse(dut, bpuRsp1) // Cycle 7: BPU Rsp arrives, branch (0xC000) sent. No redirect.
+      dut.clockDomain.waitSampling() // Cycle 8: DUT returns to IDLE.
+
+      assert(outputQueue.length == 1)
+      assert(outputQueue.dequeue().pc == 0xc000)
+      assert(!outputQueue.headOption.exists(_.bpuIsTaken), "Branch should be predicted NOT TAKEN")
+      assert(softRedirectLog.isEmpty, "No soft redirect expected for not taken branch")
+      dut.clockDomain.waitSampling()
+      assert(!dut.isBusyReg.toBoolean)
+      ParallaxLogger.info("[TB] Phase 2 OK: Branch 0xC000 correctly predicted as NOT TAKEN.")
+
+      ParallaxLogger.debug("[TB] BPU mispredicted branch test PASSED.")
     }
-    val softRedirectLog = mutable.Queue[BigInt]()
-    FlowMonitor(dut.io.softRedirect, dut.clockDomain) { payload =>
-      softRedirectLog.enqueue(payload.toBigInt)
-    }
-    val outputQueue = mutable.Queue[FetchedInstrCapture2]()
-    StreamMonitor(dut.io.fetchOutput, dut.clockDomain) { payload =>
-      outputQueue.enqueue(FetchedInstrCapture2(payload))
-    }
-
-    ParallaxLogger.info("[TB] Phase 1: Sending branch (PC 0xC000) - Mispredict as TAKEN.")
-    val branchPredecode = PredecodeInfoCapture(isBranch = true)
-    val group1 = (BigInt(0xc000), 120, Seq((BigInt(0x63), branchPredecode))) // numValidInstructions = 1
-
-    dut.io.fetchOutput.ready #= true
-    pulseFetchGroup(dut, group1) // Cycle 1: Group received, BPU query for 0xC000 (TID=0) sent.
-    dut.clockDomain.waitSampling() // Cycle 2: In WAITING_FOR_BPU
-
-    assert(bpuQueryLog.length == 1)
-    val (queryPc0, queryTid0) = bpuQueryLog.dequeue()
-    assert(queryPc0 == 0xc000)
-
-    val bpuRsp0 = BpuResponseCapture(isTaken = true, target = 0xd000, transactionId = queryTid0) // Mispredict: Taken
-    pulseBpuResponse(dut, bpuRsp0) // Cycle 3: BPU Rsp arrives, branch (0xC000) sent, softRedirect to 0xD000.
-    dut.clockDomain.waitSampling() // Cycle 4: DUT returns to IDLE.
-
-    assert(outputQueue.length == 1)
-    assert(outputQueue.dequeue().pc == 0xc000)
-    assert(softRedirectLog.length == 1)
-    assert(softRedirectLog.dequeue() == 0xd000)
-    weakAssert("IDLE" == fsmStateNames(dut.sim_fsmStateId.toInt))
-    weakAssert(!dut.isBusyReg.toBoolean)
-    dut.clockDomain.waitSampling() // Cycle 4: DUT returns to IDLE.
-    weakAssert("IDLE" == fsmStateNames(dut.sim_fsmStateId.toInt))
-    weakAssert(!dut.isBusyReg.toBoolean)
-
-    ParallaxLogger.info("[TB] Phase 1 OK: Branch 0xC000 mispredicted as TAKEN, redirected to 0xD000.")
-
-
-    ParallaxLogger.info("[TB] Phase 2: Sending branch (PC 0xC000) again - Correctly predict as NOT TAKEN.")
-    // 模拟重取指，流水线需要从 0xC000 重新取指
-    val group2 = (BigInt(0xc000), 121, Seq((BigInt(0x63), branchPredecode))) // Same PC, numValidInstructions = 1
-
-    pulseFetchGroup(dut, group2) // Cycle 5: Group received, BPU query for 0xC000 (TID=1) sent.
-    dut.clockDomain.waitSampling() // Cycle 6: In WAITING_FOR_BPU
-
-    assert(bpuQueryLog.length == 1)
-    val (queryPc1, queryTid1) = bpuQueryLog.dequeue()
-    assert(queryPc1 == 0xc000)
-    assert(queryTid1 == 1) // New transaction ID
-
-    val bpuRsp1 = BpuResponseCapture(isTaken = false, target = 0x0, transactionId = queryTid1) // Correct predict: Not Taken
-    pulseBpuResponse(dut, bpuRsp1) // Cycle 7: BPU Rsp arrives, branch (0xC000) sent. No redirect.
-    dut.clockDomain.waitSampling() // Cycle 8: DUT returns to IDLE.
-
-    assert(outputQueue.length == 1)
-    assert(outputQueue.dequeue().pc == 0xc000)
-    assert(!outputQueue.headOption.exists(_.bpuIsTaken), "Branch should be predicted NOT TAKEN")
-    assert(softRedirectLog.isEmpty, "No soft redirect expected for not taken branch")
-    dut.clockDomain.waitSampling() 
-    assert(!dut.isBusyReg.toBoolean)
-    ParallaxLogger.info("[TB] Phase 2 OK: Branch 0xC000 correctly predicted as NOT TAKEN.")
-
-    ParallaxLogger.debug("[TB] BPU mispredicted branch test PASSED.")
   }
-}
 
 // SmartDispatcherSpec.scala
 
-testSkip("Control Flow - Flush in IDLE state") {
-  simConfig.compile(createDut(testPCfg)).doSim { dut =>
-    dut.clockDomain.forkStimulus(10)
-    initDut(dut) // DUT should be in IDLE after init
+  testSkip("Control Flow - Flush in IDLE state") {
+    simConfig.compile(createDut(testPCfg)).doSim { dut =>
+      dut.clockDomain.forkStimulus(10)
+      initDut(dut) // DUT should be in IDLE after init
 
-    assert(!dut.isBusyReg.toBoolean, "DUT should be idle before flush")
-    assert(fsmStateNames(dut.sim_fsmStateId.toInt) == "IDLE", "FSM should be IDLE")
+      assert(!dut.isBusyReg.toBoolean, "DUT should be idle before flush")
+      assert(fsmStateNames(dut.sim_fsmStateId.toInt) == "IDLE", "FSM should be IDLE")
 
-    ParallaxLogger.info("[TB] Asserting flush while in IDLE.")
-    pulseFlush(dut) // Cycle 1: flush high for one cycle
+      ParallaxLogger.info("[TB] Asserting flush while in IDLE.")
+      pulseFlush(dut) // Cycle 1: flush high for one cycle
 
-    dut.clockDomain.waitSampling() // Cycle 2: Check state after flush is deasserted
-    assert(!dut.isBusyReg.toBoolean, "DUT should remain idle after flush in IDLE state")
-    assert(fsmStateNames(dut.sim_fsmStateId.toInt) == "IDLE", "FSM should remain IDLE after flush")
+      dut.clockDomain.waitSampling() // Cycle 2: Check state after flush is deasserted
+      assert(!dut.isBusyReg.toBoolean, "DUT should remain idle after flush in IDLE state")
+      assert(fsmStateNames(dut.sim_fsmStateId.toInt) == "IDLE", "FSM should remain IDLE after flush")
 
-    ParallaxLogger.info("[TB] Verifying DUT can still accept a new group.")
-    val testInstructions = Seq((BigInt(0xe000), PredecodeInfoCapture())) // numValidInstructions = 1
-    val testGroup = (BigInt(0xe000), 130, testInstructions)
-    dut.io.fetchOutput.ready #= true
-    pulseFetchGroup(dut, testGroup) // Cycle 3: New group received
+      ParallaxLogger.info("[TB] Verifying DUT can still accept a new group.")
+      val testInstructions = Seq((BigInt(0xe000), PredecodeInfoCapture())) // numValidInstructions = 1
+      val testGroup = (BigInt(0xe000), 130, testInstructions)
+      dut.io.fetchOutput.ready #= true
+      pulseFetchGroup(dut, testGroup) // Cycle 3: New group received
 
-    dut.clockDomain.waitSampling(2) // Cycles 4-5: Process group and return to IDLE
-    assert(!dut.isBusyReg.toBoolean)
-    assert(fsmStateNames(dut.sim_fsmStateId.toInt) == "IDLE")
+      dut.clockDomain.waitSampling(2) // Cycles 4-5: Process group and return to IDLE
+      assert(!dut.isBusyReg.toBoolean)
+      assert(fsmStateNames(dut.sim_fsmStateId.toInt) == "IDLE")
 
-    ParallaxLogger.debug("[TB] Flush in IDLE state test PASSED.")
+      ParallaxLogger.debug("[TB] Flush in IDLE state test PASSED.")
+    }
   }
-}
 
 // SmartDispatcherSpec.scala
 
-testSkip("Performance - Continuous short instruction groups") {
-  simConfig.compile(createDut(testPCfg)).doSim { dut =>
-    dut.clockDomain.forkStimulus(10)
-    initDut(dut)
+  testSkip("Performance - Continuous short instruction groups") {
+    simConfig.compile(createDut(testPCfg)).doSim { dut =>
+      dut.clockDomain.forkStimulus(10)
+      initDut(dut)
 
-    val outputQueue = mutable.Queue[FetchedInstrCapture2]()
-    StreamMonitor(dut.io.fetchOutput, dut.clockDomain) { payload =>
-      outputQueue.enqueue(FetchedInstrCapture2(payload))
+      val outputQueue = mutable.Queue[FetchedInstrCapture2]()
+      StreamMonitor(dut.io.fetchOutput, dut.clockDomain) { payload =>
+        outputQueue.enqueue(FetchedInstrCapture2(payload))
+      }
+
+      dut.io.fetchOutput.ready #= true // Keep output ready
+
+      val numGroups = 10
+      var currentPc = BigInt(0xf000)
+      for (i <- 0 until numGroups) {
+        ParallaxLogger.info(s"[TB] Sending short group ${i + 1} at PC 0x${currentPc.toLong}%x")
+        val instructions = Seq(
+          (currentPc, PredecodeInfoCapture()), // Instr 0
+          (currentPc + 4, PredecodeInfoCapture()) // Instr 1
+        ) // numValidInstructions = 2
+        val testGroup = (currentPc, 200 + i, instructions)
+
+        pulseFetchGroup(dut, testGroup) // Group received (e.g., Cycle N)
+        dut.clockDomain.waitSampling() // Instr 0 sent (e.g., Cycle N+1)
+        dut.clockDomain.waitSampling() // Instr 1 sent (e.g., Cycle N+2)
+
+        // After 2 instructions from a group of 2, DUT should be idle again
+        dut.clockDomain.waitSampling() // Cycle N+3: Ensure DUT transitions to IDLE
+        assert(!dut.isBusyReg.toBoolean, s"DUT should be idle after group ${i + 1}")
+        assert(fsmStateNames(dut.sim_fsmStateId.toInt) == "IDLE", s"FSM should be IDLE after group ${i + 1}")
+
+        currentPc += 8 // Move to next PC for next group
+      }
+
+      assert(outputQueue.length == numGroups * 2, s"Expected ${numGroups * 2} instructions, got ${outputQueue.length}")
+      ParallaxLogger.debug("[TB] Continuous short instruction groups test PASSED.")
     }
-
-    dut.io.fetchOutput.ready #= true // Keep output ready
-
-    val numGroups = 10
-    var currentPc = BigInt(0xf000)
-    for (i <- 0 until numGroups) {
-      ParallaxLogger.info(s"[TB] Sending short group ${i + 1} at PC 0x${currentPc.toLong}%x")
-      val instructions = Seq(
-        (currentPc, PredecodeInfoCapture()),           // Instr 0
-        (currentPc + 4, PredecodeInfoCapture())        // Instr 1
-      ) // numValidInstructions = 2
-      val testGroup = (currentPc, 200 + i, instructions)
-
-      pulseFetchGroup(dut, testGroup) // Group received (e.g., Cycle N)
-      dut.clockDomain.waitSampling()   // Instr 0 sent (e.g., Cycle N+1)
-      dut.clockDomain.waitSampling()   // Instr 1 sent (e.g., Cycle N+2)
-
-      // After 2 instructions from a group of 2, DUT should be idle again
-      dut.clockDomain.waitSampling() // Cycle N+3: Ensure DUT transitions to IDLE
-      assert(!dut.isBusyReg.toBoolean, s"DUT should be idle after group ${i + 1}")
-      assert(fsmStateNames(dut.sim_fsmStateId.toInt) == "IDLE", s"FSM should be IDLE after group ${i + 1}")
-
-      currentPc += 8 // Move to next PC for next group
-    }
-
-    assert(outputQueue.length == numGroups * 2, s"Expected ${numGroups * 2} instructions, got ${outputQueue.length}")
-    ParallaxLogger.debug("[TB] Continuous short instruction groups test PASSED.")
   }
-}
 
 // SmartDispatcherSpec.scala
 
 // SmartDispatcherSpec.scala
 
-testSkip("BPU Logic - Handles delayed BPU response") {
-  simConfig.compile(createDut(testPCfg)).doSim { dut =>
-    dut.clockDomain.forkStimulus(10)
-    initDut(dut)
+  testSkip("BPU Logic - Handles delayed BPU response") {
+    simConfig.compile(createDut(testPCfg)).doSim { dut =>
+      dut.clockDomain.forkStimulus(10)
+      initDut(dut)
 
-    val bpuQueryLog = mutable.Queue[(BigInt, BigInt)]()
-    FlowMonitor(dut.io.bpuQuery, dut.clockDomain) { payload =>
-      bpuQueryLog.enqueue((payload.pc.toBigInt, payload.transactionId.toBigInt))
+      val bpuQueryLog = mutable.Queue[(BigInt, BigInt)]()
+      FlowMonitor(dut.io.bpuQuery, dut.clockDomain) { payload =>
+        bpuQueryLog.enqueue((payload.pc.toBigInt, payload.transactionId.toBigInt))
+      }
+
+      // 关键改变：在 StreamMonitor 内部，如果可以，立即检查刚刚入队的元素
+      // 或者，在 StreamMonitor 内部只入队，在主线程中等待并检查
+      val capturedInstructions = mutable.Queue[FetchedInstrCapture2]()
+      StreamMonitor(dut.io.fetchOutput, dut.clockDomain) { payload =>
+        val instr = FetchedInstrCapture2(payload)
+        capturedInstructions.enqueue(instr)
+        ParallaxLogger.info(s"[TB] Captured instruction: PC=0x${instr.pc.toLong}%x, taken=${instr.bpuIsTaken}")
+      }
+
+      ParallaxLogger.info("[TB] Phase 1: Sending branch (PC 0x10000) and introducing BPU response delay.")
+      val branchPredecode = PredecodeInfoCapture(isBranch = true)
+      val testGroup = (BigInt(0x10000), 140, Seq((BigInt(0x63), branchPredecode))) // numValidInstructions = 1
+
+      dut.io.fetchOutput.ready #= true
+      pulseFetchGroup(dut, testGroup) // Cycle 1: Group received, BPU query for 0x10000 (TID=0) sent.
+      dut.clockDomain.waitSampling() // Cycle 2: In WAITING_FOR_BPU
+
+      assert(bpuQueryLog.length == 1)
+      val (queryPc, queryTid) = bpuQueryLog.dequeue()
+      assert(queryPc == 0x10000)
+
+      ParallaxLogger.info("[TB] Phase 2: Waiting for 5 cycles for BPU response (simulating delay).")
+      dut.clockDomain.waitSampling(5) // Cycles 3-7: DUT should remain in WAITING_FOR_BPU
+      assert(dut.isBusyReg.toBoolean)
+      assert(
+        fsmStateNames(dut.sim_fsmStateId.toInt) == "WAITING_FOR_BPU",
+        "DUT should be in WAITING_FOR_BPU during delay"
+      )
+      assert(capturedInstructions.isEmpty, "No output during BPU delay") // Use capturedInstructions here
+
+      ParallaxLogger.info("[TB] Phase 3: Providing BPU response after delay.")
+      val bpuRsp = BpuResponseCapture(isTaken = true, target = 0x11000, transactionId = queryTid)
+      pulseBpuResponse(dut, bpuRsp) // Cycle 8: BPU Rsp arrives. outputReg is loaded.
+
+      // 现在，需要等待指令从 outputReg 发送到 fetchOutput
+      // 这通常发生在 pulseBpuResponse 之后的下一个 dut.clockDomain.waitSampling()
+      dut.clockDomain.waitSampling() // Cycle 9: Instruction (0x10000) is fired to outputQueue
+
+      assert(capturedInstructions.length == 1, s"Expected 1 instruction, but got ${capturedInstructions.length}")
+      val issuedInstr = capturedInstructions.dequeue() // Take the one and only instruction
+      assert(issuedInstr.pc == 0x10000, "Issued instruction PC mismatch")
+      assert(issuedInstr.bpuIsTaken, "Issued instruction bpuIsTaken should be true") // This should pass now!
+
+      dut.clockDomain.waitSampling() // Cycle 10: DUT transitions to IDLE
+
+      assert(!dut.isBusyReg.toBoolean)
+      assert(fsmStateNames(dut.sim_fsmStateId.toInt) == "IDLE")
+
+      ParallaxLogger.debug("[TB] Delayed BPU response test PASSED.")
     }
-    
-    // 关键改变：在 StreamMonitor 内部，如果可以，立即检查刚刚入队的元素
-    // 或者，在 StreamMonitor 内部只入队，在主线程中等待并检查
-    val capturedInstructions = mutable.Queue[FetchedInstrCapture2]()
-    StreamMonitor(dut.io.fetchOutput, dut.clockDomain) { payload =>
-      val instr = FetchedInstrCapture2(payload)
-      capturedInstructions.enqueue(instr)
-      ParallaxLogger.info(s"[TB] Captured instruction: PC=0x${instr.pc.toLong}%x, taken=${instr.bpuIsTaken}")
-    }
-
-    ParallaxLogger.info("[TB] Phase 1: Sending branch (PC 0x10000) and introducing BPU response delay.")
-    val branchPredecode = PredecodeInfoCapture(isBranch = true)
-    val testGroup = (BigInt(0x10000), 140, Seq((BigInt(0x63), branchPredecode))) // numValidInstructions = 1
-
-    dut.io.fetchOutput.ready #= true
-    pulseFetchGroup(dut, testGroup) // Cycle 1: Group received, BPU query for 0x10000 (TID=0) sent.
-    dut.clockDomain.waitSampling()   // Cycle 2: In WAITING_FOR_BPU
-
-    assert(bpuQueryLog.length == 1)
-    val (queryPc, queryTid) = bpuQueryLog.dequeue()
-    assert(queryPc == 0x10000)
-
-    ParallaxLogger.info("[TB] Phase 2: Waiting for 5 cycles for BPU response (simulating delay).")
-    dut.clockDomain.waitSampling(5) // Cycles 3-7: DUT should remain in WAITING_FOR_BPU
-    assert(dut.isBusyReg.toBoolean)
-    assert(fsmStateNames(dut.sim_fsmStateId.toInt) == "WAITING_FOR_BPU", "DUT should be in WAITING_FOR_BPU during delay")
-    assert(capturedInstructions.isEmpty, "No output during BPU delay") // Use capturedInstructions here
-
-    ParallaxLogger.info("[TB] Phase 3: Providing BPU response after delay.")
-    val bpuRsp = BpuResponseCapture(isTaken = true, target = 0x11000, transactionId = queryTid)
-    pulseBpuResponse(dut, bpuRsp) // Cycle 8: BPU Rsp arrives. outputReg is loaded.
-
-    // 现在，需要等待指令从 outputReg 发送到 fetchOutput
-    // 这通常发生在 pulseBpuResponse 之后的下一个 dut.clockDomain.waitSampling()
-    dut.clockDomain.waitSampling() // Cycle 9: Instruction (0x10000) is fired to outputQueue
-
-    assert(capturedInstructions.length == 1, s"Expected 1 instruction, but got ${capturedInstructions.length}")
-    val issuedInstr = capturedInstructions.dequeue() // Take the one and only instruction
-    assert(issuedInstr.pc == 0x10000, "Issued instruction PC mismatch")
-    assert(issuedInstr.bpuIsTaken, "Issued instruction bpuIsTaken should be true") // This should pass now!
-
-    dut.clockDomain.waitSampling() // Cycle 10: DUT transitions to IDLE
-
-    assert(!dut.isBusyReg.toBoolean)
-    assert(fsmStateNames(dut.sim_fsmStateId.toInt) == "IDLE")
-
-    ParallaxLogger.debug("[TB] Delayed BPU response test PASSED.")
   }
-}
+
+  test("REGRESSION - Handles BPU query for a branch arriving immediately after a long stall") {
+    // 这个测试专门复现一个bug：
+    // 1. 流水线长时间停顿（例如，因为ICache Miss）。
+    // 2. 停顿结束后，Dispatcher立即收到了一个新的FetchGroup。
+    // 3. 这个FetchGroup的第一条指令就是需要BPU预测的分支。
+    // 4. 由于没有提前量，Dispatcher必须在处理这条分支前，先发送BPU查询并等待结果。
+    // Bug表现: Dispatcher没有等待，直接使用了默认的“不跳转”预测。
+    // 预期行为: Dispatcher应该进入WAITING_FOR_BPU状态，等待BPU响应，然后再根据响应做决策。
+
+    simConfig.compile(createDut(testPCfg)).doSim { dut =>
+      dut.clockDomain.forkStimulus(10)
+      initDut(dut)
+
+      val bpuQueryLog = mutable.Queue[(BigInt, BigInt)]()
+      FlowMonitor(dut.io.bpuQuery, dut.clockDomain) { payload =>
+        bpuQueryLog.enqueue((payload.pc.toBigInt, payload.transactionId.toBigInt))
+      }
+      val outputQueue = mutable.Queue[FetchedInstrCapture2]()
+      StreamMonitor(dut.io.fetchOutput, dut.clockDomain) { payload =>
+        outputQueue.enqueue(FetchedInstrCapture2(payload))
+      }
+
+      // 模拟长时间停顿，Dispatcher处于IDLE状态
+      ParallaxLogger.info("[TB] Phase 1: Simulating a long stall (DUT is IDLE)")
+      dut.io.fetchOutput.ready #= true
+      dut.clockDomain.waitSampling(10) // 保持IDLE状态10个周期
+      assert(fsmStateNames(dut.sim_fsmStateId.toInt) == "IDLE")
+
+      // --- 停顿结束，分支指令包立即到达 ---
+      ParallaxLogger.info("[TB] Phase 2: Stall ends, branch group arrives immediately")
+      val branchPredecode = PredecodeInfoCapture(isBranch = true)
+      // 这个组的第一条指令就是分支
+      val testGroup = (BigInt(0x0bcd0000), 150, Seq((BigInt(0x63), branchPredecode)))
+
+      // 激励：发送这个组
+      pulseFetchGroup(dut, testGroup) // Cycle 11: Group arrives
+      // Cycle 11: FSM从IDLE接收到组，发现第一条是分支，应该发送BPU查询并进入WAITING_FOR_BPU
+
+      dut.clockDomain.waitSampling() // Cycle 12: 检查状态
+
+      // **核心断言**
+      assert(bpuQueryLog.length == 1, "A BPU query MUST be sent for the first instruction if it's a branch.")
+      val (queryPc, queryTid) = bpuQueryLog.dequeue()
+      assert(queryPc == 0x0bcd0000)
+
+      assert(dut.isBusyReg.toBoolean, "DUT should be busy while waiting for BPU response.")
+      assert(fsmStateNames(dut.sim_fsmStateId.toInt) == "WAITING_FOR_BPU", "FSM must transition to WAITING_FOR_BPU.")
+      assert(outputQueue.isEmpty, "No instruction should be dispatched before BPU response is received.")
+
+      ParallaxLogger.info("[TB] Phase 2 OK: DUT correctly sent BPU query and is waiting.")
+
+      // --- 提供BPU响应，完成流程 ---
+      ParallaxLogger.info("[TB] Phase 3: Providing BPU response to complete the flow")
+      val bpuRsp = BpuResponseCapture(isTaken = true, target = 0x0eadbeef, transactionId = queryTid)
+      pulseBpuResponse(dut, bpuRsp) // Cycle 13: BPU Rsp arrives.
+
+      dut.clockDomain.waitSampling() // Cycle 14: Branch is sent.
+
+      assert(outputQueue.length == 1, "Branch instruction should be dispatched after BPU response.")
+      val dispatchedInstr = outputQueue.dequeue()
+      assert(dispatchedInstr.pc == 0x0bcd0000)
+      assert(dispatchedInstr.bpuIsTaken, "The BPU prediction (TAKEN) should be reflected in the output.")
+      assert(dut.io.softRedirect.valid.toBoolean, "A soft redirect should be triggered.")
+      assert(dut.io.softRedirect.payload.toBigInt == 0x0eadbeef)
+
+      dut.clockDomain.waitSampling() // Cycle 15: DUT returns to IDLE.
+      assert(!dut.isBusyReg.toBoolean)
+
+      ParallaxLogger.debug("[TB] REGRESSION test for branch-after-stall PASSED.")
+    }
+  }
 
   thatsAll
 }

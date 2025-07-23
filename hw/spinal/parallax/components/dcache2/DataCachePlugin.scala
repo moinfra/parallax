@@ -152,6 +152,7 @@ class DataCachePlugin(config: DataCachePluginConfig) extends Plugin with LockedI
   def getRefillCompletions = setup.refillCompletions
 
   private val setup = create early new Area {
+    ParallaxLogger.debug("Plugin: DataCachePlugin; setup")
 
     val writebackBusy = Bool()
 

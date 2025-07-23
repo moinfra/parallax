@@ -8,6 +8,7 @@ import parallax.bpu._
 import parallax.utilities.Plugin
 import parallax.utilities.ParallaxSim
 import parallax.utilities.ParallaxLogger.log
+import parallax.utilities.ParallaxLogger
 
 case class BpuPluginConfig(
     phtDepth: Int = 1024,
@@ -35,6 +36,11 @@ class BpuPipelinePlugin(
   override def newBpuUpdatePort(): Stream[BpuUpdate] = updatePortIn
 
   val logic = create late new Area {
+    ParallaxLogger.debug("Plugin: BPU; logic before lock")
+    lock.await()
+    ParallaxLogger.debug("Plugin: BPU; logic after lock")
+
+
     // --- 内存和索引定义 (保持不变) ---
     val pht = Mem(Bits(2 bits), bpuCfg.phtDepth)
     pht.init(Seq.fill(bpuCfg.phtDepth)(B"01"))

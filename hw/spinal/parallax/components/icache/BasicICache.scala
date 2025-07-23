@@ -228,7 +228,7 @@ class BasicICache(implicit
     }
     extractedInstructions
   }
-  report(L"AdvCache: currentCpuAddressReg ${currentCpuAddressReg}")
+  report(L"ICache: currentCpuAddressReg ${currentCpuAddressReg}")
   val fsm = new StateMachine {
     // ... (Default assignments remain similar) ...
     io.cpu.cmd.ready := False

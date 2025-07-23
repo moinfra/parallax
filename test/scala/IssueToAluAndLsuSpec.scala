@@ -55,6 +55,10 @@ class TestOnlyMemSystemPlugin(axiConfig: Axi4Config, sgmbConfig: Option[GenericM
     )
   )
 
+  if(!sgmbConfig.isDefined) {
+    SpinalWarning("SGMB is not defined, using default configuration, this may cause problems.")
+  }
+
   override def newReadPort(): SplitGmbReadChannel = {
     ParallaxLogger.debug("CALL newReadPort.")
     this.framework.requireEarly()
@@ -77,6 +81,8 @@ class TestOnlyMemSystemPlugin(axiConfig: Axi4Config, sgmbConfig: Option[GenericM
   }
 
   val hw = create early new Area {
+        ParallaxLogger.debug("Plugin: TestOnlyMemSystemPlugin; setup")
+
     // SRAM 和控制器定义
     private val sramSize = BigInt("4000", 16)
     private val extSramCfg = SRAMConfig(
@@ -100,8 +106,12 @@ class TestOnlyMemSystemPlugin(axiConfig: Axi4Config, sgmbConfig: Option[GenericM
   }
 
   val logic = create late new Area {
+    ParallaxLogger.debug("Plugin: TestOnlyMemSystemPlugin: before logic")
     lock.await()
-    val dcacheMaster = getService[DataCachePlugin].getDCacheMaster
+    ParallaxLogger.debug("Plugin: TestOnlyMemSystemPlugin: after logic")
+    // val dcacheMaster = getService[DataCachePlugin].getDCacheMaster
+    val dcacheMasters = getServiceOption[DataCachePlugin].map(_.getDCacheMaster).toList
+    val roMasters = getServicesOf[AxiReadOnlyMasterService].map(_.getAxi4ReadOnlyMaster().toAxi4())
     val readBridges = readPorts.map(_ => new SplitGmbToAxi4Bridge(_sgmbConfig, axiConfig))
     val writeBridges = writePorts.map(_ => new SplitGmbToAxi4Bridge(_sgmbConfig, axiConfig))
     ParallaxLogger.debug(s"readBridges.size = ${readBridges.size}, writeBridges.size = ${writeBridges.size}")
@@ -117,7 +127,7 @@ class TestOnlyMemSystemPlugin(axiConfig: Axi4Config, sgmbConfig: Option[GenericM
       bridge.io.gmbIn.read.cmd.setIdle()
       bridge.io.gmbIn.read.rsp.ready := True
     }
-    val sramMasters = writeBridges.map(_.io.axiOut) ++ readBridges.map(_.io.axiOut) ++ Seq(dcacheMaster)
+    val sramMasters = writeBridges.map(_.io.axiOut) ++ readBridges.map(_.io.axiOut) ++ dcacheMasters ++ roMasters
     sramMasters.zipWithIndex.foreach { case (master, index) =>
       ParallaxLogger.info(s"  Master $index: idWidth = ${master.config.idWidth}")
     }

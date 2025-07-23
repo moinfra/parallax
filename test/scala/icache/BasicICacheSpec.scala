@@ -1,3 +1,4 @@
+// testOnly test.scala.icache.BasicICacheSpec
 package test.scala.icache
 
 import scala.collection.mutable

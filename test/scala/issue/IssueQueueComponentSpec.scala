@@ -1,5 +1,5 @@
 // filename: src/test/scala/parallax/issue/IssueQueueComponentSpec.scala
-package test.issue
+package test.scala
 
 import parallax.common._
 import parallax.components.issue._
@@ -57,6 +57,7 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
     bypassNetworkSources = 0, // No longer needed with wakeup bus
     uopUniqueIdWidth = 8 bits,
     exceptionCodeWidth = 8 bits,
+    memOpIdWidth = 8 bits,
     fetchWidth = 2,
     dispatchWidth = 2,
     commitWidth = 2,

@@ -26,6 +26,8 @@ import parallax.fetch.PredecodeInfo // 复用已有的PredecodeInfo
     val branchMask     = Bits(pCfg.fetchWidth bits)
     val fault          = Bool()
     val numValidInstructions = UInt(log2Up(pCfg.fetchWidth + 1) bits) // <<<< ADD THIS
+    val startInstructionIndex = UInt(log2Up(pCfg.fetchWidth) bits)
+
 
     def setDefault(): this.type = {
       pc := 0
@@ -34,6 +36,7 @@ import parallax.fetch.PredecodeInfo // 复用已有的PredecodeInfo
       branchMask := 0
       fault := False
       numValidInstructions := 0
+    startInstructionIndex := 0
       this
     }
   }

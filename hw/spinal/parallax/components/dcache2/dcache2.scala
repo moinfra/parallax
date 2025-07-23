@@ -67,9 +67,9 @@ case class DataLoadPort(
 }
 
 // DataLoadCmd 类：定义加载命令的负载（payload）。
-case class DataLoadCmd(preTranslationWidth: Int, dataWidth: Int, transactionIdWidth: Int) extends Bundle {
+case class DataLoadCmd(preTranslationWidth: Int, loadDataWidth: Int, transactionIdWidth: Int) extends Bundle {
   val virtual = UInt(preTranslationWidth bits) // 虚拟地址
-  val size = UInt(log2Up(log2Up(dataWidth / 8) + 1) bits) // 加载大小（log2_bytes）
+  val size = UInt(log2Up(log2Up(loadDataWidth / 8) + 1) bits) // 加载大小（log2_bytes）
   val redoOnDataHazard = Bool() // 当发生数据冒险时是否重做（例如，MMU重填可能不是LSU保护的）
   val transactionId = transactionIdWidth > 0 generate UInt(transactionIdWidth bits) // 事务ID
   // val unlocked = Bool() // 加载是否允许在未锁定状态下进行 - Removed, related to LockPort
@@ -632,12 +632,6 @@ class DataCache(val p: DataCacheParameters) extends Component {
       val rsp = if (tagsReadAsync) mem.readAsync(cmd.payload) else mem.readSync(cmd.payload, cmd.valid) // 异步或同步读
       KeepAttribute(rsp)
     }
-    val maintenanceRead = new Area {
-      val cmd = Flow(mem.addressType)
-      val rsp = if (tagsReadAsync) mem.readAsync(cmd.payload) else mem.readSync(cmd.payload, cmd.valid)
-      KeepAttribute(rsp)
-      // 不设置idle，由idleWriteback统一管理
-    }
   }
 
   // status 区域：实现缓存行状态的存储。
@@ -657,13 +651,6 @@ class DataCache(val p: DataCacheParameters) extends Component {
       KeepAttribute(rsp)
     }
     val writeLast = write.stage() // 上一个周期的写操作（用于旁路）
-
-    val maintenanceRead = new Area {
-      val cmd = Flow(mem.addressType)
-      val rsp = if (tagsReadAsync) mem.readAsync(cmd.payload) else mem.readSync(cmd.payload, cmd.valid)
-      KeepAttribute(rsp)
-      // 不设置idle，由idleWriteback统一管理
-    }
 
     // bypass 方法：实现对状态的旁路逻辑。
     // 如果最近有对同一地址的写操作，则使用写操作的数据进行旁路。
@@ -1663,159 +1650,6 @@ if(enableLog)         ParallaxSim.log(L"  CanRefill: ${canRefill}, AskRefill: ${
       }
     }
     pipeline.build() // 构建存储流水线
-  }
-
-  // 空闲时后台写回 (Idle Writeback)
-  val idleWriteback = new Area {
-    
-    // 1. 定义 D-Cache 的"空闲"状态
-    // val isIdle = invalidate.done && !io.load.cmd.valid && !io.store.cmd.valid && !refill.slots.map(_.valid).orR && !io.writebackBusy
-    val isIdle = False // 下面的功能有时序 BUG，先禁用。
-    if(enableLog) report(L"[DCache] IdleWriteback: isIdle: ${isIdle} because invalidate.done: ${invalidate.done}  io.load.cmd.valid: ${io.load.cmd.valid}  io.store.cmd.valid: ${io.store.cmd.valid}  refill.slots.map(_.valid).orR: ${refill.slots.map(_.valid).orR}  io.writebackBusy: ${io.writebackBusy}")
-    // 4. 写回完成后清除脏位的状态机 (读-修改-写) - 先定义FSM
-    val clearDirtyFsm = new StateMachine {
-      val reservation = tagsOrStatusWriteArbitration.create(1) // 高优先级(1)
-
-      val completedAddress = Reg(UInt(postTranslationWidth bits))
-      val completedWay = Reg(UInt(log2Up(wayCount) bits))
-
-      // 状态定义
-      val sIDLE = new State with EntryPoint
-      val sREAD_STATUS = new State
-      val sWRITE_STATUS = new State
-
-      // sIDLE: 等待写回完成
-      sIDLE.whenIsActive {
-        when(io.mem.write.rsp.valid) {
-          // 使用switch语句构建Mux，适用于任何writebackCount值
-          switch(io.mem.write.rsp.id) {
-            for(slot <- writeback.slots) {
-              is(slot.id) {
-                completedAddress := slot.address
-                completedWay     := slot.way
-              }
-            }
-          }
-          goto(sREAD_STATUS)
-        }
-      }
-
-      // sREAD_STATUS: 读取包含已完成写回行的整个状态向量
-      sREAD_STATUS.whenIsActive {
-        goto(sWRITE_STATUS)
-      }
-
-      // sWRITE_STATUS: 等待读结果，获取仲裁，然后执行写操作
-      sWRITE_STATUS.whenIsActive {
-        when(reservation.win) {
-          reservation.takeIt()
-          
-          val newStatusVec = CombInit(status.maintenanceRead.rsp)
-          newStatusVec(completedWay).dirty := False // 清除目标way的脏位
-
-          status.write.valid   := True
-          status.write.address := completedAddress(lineRange)
-          status.write.data    := newStatusVec
-
-          if (enableLog) {
-            ParallaxSim.log(L"[DCache] IdleWriteback: Clearing dirty bit via FSM. Address: 0x${completedAddress}, Way: ${completedWay}")
-          }
-          goto(sIDLE)
-        }
-      }
-    }
-
-    // 流水线阶段 0: 扫描命令 (Scan Command)
-    val scanCmd = new Area {
-      val fsmIsUsingRead = clearDirtyFsm.isActive(clearDirtyFsm.sREAD_STATUS) || clearDirtyFsm.isActive(clearDirtyFsm.sWRITE_STATUS)
-      
-      // scanGo 的定义不再依赖 writeback.push.valid，这是打破环路的关键！
-      // 它只依赖于当前是否空闲以及FSM是否在用读端口。
-      val scanGo = isIdle && !fsmIsUsingRead
-      
-      val lineCounter = Counter(linePerWay)
-      when(scanGo) {
-        lineCounter.increment()
-      }
-      val scanLineIdx = lineCounter.value
-
-      // 统一管理维护读端口的驱动
-      when(clearDirtyFsm.isActive(clearDirtyFsm.sREAD_STATUS)) { // FSM 优先级最高
-        status.maintenanceRead.cmd.valid := True
-        status.maintenanceRead.cmd.payload := clearDirtyFsm.completedAddress(lineRange)
-        ways.foreach { way =>
-          way.maintenanceRead.cmd.valid := True
-          way.maintenanceRead.cmd.payload := clearDirtyFsm.completedAddress(lineRange)
-        }
-      } elsewhen(scanGo) { // 其次是扫描器
-        status.maintenanceRead.cmd.valid := True
-        status.maintenanceRead.cmd.payload := scanLineIdx
-        ways.foreach { way =>
-          way.maintenanceRead.cmd.valid := True
-          way.maintenanceRead.cmd.payload := scanLineIdx
-        }
-      } otherwise { // 默认空闲
-        status.maintenanceRead.cmd.valid := False
-        status.maintenanceRead.cmd.payload.assignDontCare()
-        ways.foreach { way =>
-          way.maintenanceRead.cmd.valid := False
-          way.maintenanceRead.cmd.payload.assignDontCare()
-        }
-      }
-    }
-
-    // 流水线阶段 1: 分析并触发 (Analyze & Trigger)
-    val analysisAndTrigger = new Area {
-      val valid = RegNext(scanCmd.scanGo) init(False)
-      val lineIdx = RegNext(scanCmd.scanLineIdx)
-
-      val waysStatus = status.maintenanceRead.rsp
-      val waysTags = Vec(ways.map(_.maintenanceRead.rsp))
-
-      val dirtyOh = B(waysStatus.map(_.dirty))
-      val loadedOh = B(waysTags.map(_.loaded))
-      val candidates = dirtyOh & loadedOh
-      
-      val hasCandidate = candidates.orR
-      val victimWayOh = OHMasking.first(candidates)
-      val victimWay = OHToUInt(victimWayOh)
-
-      val victimTag = waysTags.read(victimWay).address
-      val victimAddress = (victimTag @@ lineIdx) << log2Up(lineSize)
-
-      val isAlreadyBusy = writeback.isLineBusy(victimAddress)
-      val writebackQueueFree = writeback.slots(0).free
-
-      // doWriteback 的计算完全在流水线的第二阶段，与第一阶段的输入（isIdle）解耦
-      val doWriteback = valid && hasCandidate && !isAlreadyBusy && writebackQueueFree
-      if(enableLog) report(L"[DCache] IdleWriteback: doWriteback: ${doWriteback}  valid: ${valid}  hasCandidate: ${hasCandidate}  isAlreadyBusy: ${isAlreadyBusy}  writebackQueueFree: ${writebackQueueFree}")
-      when(valid) { // 只在分析阶段有效时打印
-    if(enableLog) {
-        // 构建一个动态的字符串来表示所有way的状态
-        val wayStates = (0 until wayCount).map { i =>
-            // L-D-Tag: Loaded, Dirty, Tag Address
-            L" W${i}:" :+ L"${waysTags(i).loaded.asBits}" :+
-            L"${waysStatus(i).dirty.asUInt}" :+
-            L"-0x${waysTags(i).address}"
-        }
-        
-        // 将所有way的状态拼接起来
-        val allWayStates = wayStates.reduceLeft(_ :+ L" |" :+ _)
-        
-        ParallaxSim.log(L"[DCache][IW Scan] Line:${lineIdx} |" :+ allWayStates :+ L" | hasCandidate=${hasCandidate}")
-    }
-}
-      // 直接在这里驱动 push 端口
-      when(doWriteback) {
-        writeback.push.valid   := True
-        writeback.push.address := victimAddress
-        writeback.push.way     := victimWay
-        
-        if (enableLog) {
-          ParallaxSim.log(L"[DCache] IdleWriteback: Pushing dirty line. Address: 0x${victimAddress}, Way: ${victimWay}")
-        }
-      }
-    }
   }
 
   // 输出重填事件和写回事件。

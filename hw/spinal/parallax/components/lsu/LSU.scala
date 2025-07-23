@@ -381,7 +381,7 @@ class LsuPlugin(
                 slotsAfterUpdates(0).isWaitingForFwdRsp := False
                 when(fwdRsp.hit) {
                     // Completion logic is handled below by popOnFwdHit
-                } .elsewhen(fwdRsp.olderStoreHasUnknownAddress || fwdRsp.olderStoreMatchingAddress) {
+                } .elsewhen(fwdRsp.olderStoreHasUnknownAddress || fwdRsp.olderStoreDataNotReady) {
                     ParallaxSim.log(L"[LQ-Fwd] STALL: robPtr=${head.robPtr} has dependency...")
                     slotsAfterUpdates(0).isStalledByDependency := True
                 } otherwise {

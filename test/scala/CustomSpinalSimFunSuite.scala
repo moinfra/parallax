@@ -20,6 +20,10 @@ class CustomSpinalSimFunSuite extends SpinalSimFunSuite {
   val tests = ArrayBuffer[(String, () => Unit)]()
   val testsOnly = ArrayBuffer[(String, () => Unit)]()
   override def test(testName: String)(testFun: => Unit): Unit = {
+    if(testName.startsWith("x")) {
+      testOnly(testName)(testFun)
+      return
+    }
     println(s"add test $testName")
     tests += ((testName, () => testFun))
   }
@@ -28,9 +32,7 @@ class CustomSpinalSimFunSuite extends SpinalSimFunSuite {
     warning(s"Skipping test $testName")
   }
 
-  def hello() = {
-    print("hello")
-  }
+  private var gathered = false
 
   def testOnly(testName: String)(testFun: => Unit): Unit = {
     println(s"add only test $testName")
@@ -38,6 +40,11 @@ class CustomSpinalSimFunSuite extends SpinalSimFunSuite {
   }
 
   def thatsAll(): Unit = {
+    if (gathered) {
+      println("Tests already gathered")
+      return
+    }
+    gathered = true
     if (testsOnly.nonEmpty) {
       for ((name, testFn) <- testsOnly) {
         super.test(name)(testFn())
@@ -49,9 +56,17 @@ class CustomSpinalSimFunSuite extends SpinalSimFunSuite {
     }
   }
 
+  def disableAbove(): Unit = {
+    tests.clear()
+    testsOnly.clear()
+    gathered = false
+  }
+
   def weakAssert(cond: Boolean, msg: String = "")(implicit line: sourcecode.Line, file: sourcecode.File): Unit = {
     if (!cond) {
       warning("Assertion failed" + (if (msg.nonEmpty) s": $msg" else ""))(line, file)
+    } else {
+      println(s"Assertion passed" + (if (msg.nonEmpty) s": $msg" else ""))
     }
   }
 

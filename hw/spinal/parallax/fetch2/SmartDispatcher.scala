@@ -8,11 +8,6 @@ import parallax.utilities._
 import parallax.bpu.{BpuQuery, BpuResponse}
 import parallax.fetch.{FetchedInstr, PredecodeInfo}
 
-// 假设这些类在其他地方定义
-// case class FetchGroup(pCfg: PipelineConfig) extends Bundle
-// case class BranchInfo(pCfg: PipelineConfig) extends Bundle
-
-
 class SmartDispatcher(pCfg: PipelineConfig) extends Component {
   val io = new Bundle {
     val fetchGroupIn = slave Stream (FetchGroup(pCfg))
@@ -23,7 +18,7 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
     val flush = in Bool ()
   }
 
-  val enableLog = true
+  val enableLog = false
   val cycleReg = Reg(UInt(32 bits)) init (0)
   cycleReg := cycleReg + 1
   if (enableLog) {
@@ -85,7 +80,8 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
         fetchGroupReg := io.fetchGroupIn.payload
 
         isBusyReg := True
-        dispatchIndexReg := 0
+        val startIdx = io.fetchGroupIn.payload.startInstructionIndex
+        dispatchIndexReg := startIdx
         if (enableLog) report(L"  DEBUG-ASSIGN: dispatchIndexReg assigned 0 from IDLE")
 
 
@@ -103,9 +99,9 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
         } .otherwise {
           // --- ORIGINAL LOGIC (modified for correctness) STARTS HERE for non-empty groups ---
           // Now it's safe to access index 0 because numValidInstructions > 0
-          val firstPredecode = io.fetchGroupIn.payload.predecodeInfos(0)
-          val firstPC = io.fetchGroupIn.payload.pc
-          val firstInstruction = io.fetchGroupIn.payload.instructions(0)
+          val firstPredecode = io.fetchGroupIn.payload.predecodeInfos(startIdx)
+          val firstPC = io.fetchGroupIn.payload.pc + (startIdx << log2Up(pCfg.dataWidth.value / 8))
+          val firstInstruction = io.fetchGroupIn.payload.instructions(startIdx)
 
           if (enableLog) report(L"DISPATCHER-IDLE: Analyzing first instruction (PC=0x${firstPC}, isBranch=${firstPredecode.isBranch}).")
 
@@ -124,12 +120,13 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
               when(redirecting) {
                 io.softRedirect.valid := True
                 io.softRedirect.payload := firstPC + firstPredecode.jumpOffset.asUInt
+                report(L"DISPATCHER-IDLE: First instruction is a direct jump. Redirecting to 0x${io.softRedirect.payload}.")
                 dispatchIndexReg := 0
                 isBusyReg := False
                 goto(IDLE)
               } otherwise {
                 // Corrected condition: is first instruction the ONLY instruction in the group?
-                val isFirstInstructionLast = (io.fetchGroupIn.payload.numValidInstructions === 1) // Using fetchGroupReg which is updated
+                val isFirstInstructionLast = startIdx === (io.fetchGroupIn.payload.numValidInstructions - 1) // Using fetchGroupReg which is updated
                 if (enableLog) report(L"  DEBUG-IDLE-FIRST-ISLAST: fetchGroupReg.numValidInstructions=${fetchGroupReg.numValidInstructions}, isFirstInstructionLast=${isFirstInstructionLast}")
 
                 when(isFirstInstructionLast) {
@@ -138,7 +135,7 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
                   dispatchIndexReg := 0
                   goto(IDLE)
                 } otherwise {
-                  dispatchIndexReg := dispatchIndexReg + 1
+                  dispatchIndexReg := startIdx + 1
                   if (enableLog) report(L"  DEBUG-IDLE-FAST: dispatchIndexReg set to ${dispatchIndexReg} + 1, FSM to DISPATCHING")
                   goto(DISPATCHING)
                 }
@@ -357,9 +354,7 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
   // 仅当 flush 不为高，且 BPU 响应被 FSM 实际“消费”时，才认为是有效 fire
   val rspConsumed = io.bpuRsp.valid && !io.flush && (fsm.isActive(fsm.WAITING_FOR_BPU) || fsm.isActive(fsm.DRAINING_BPU))
 
-  when(queryFired && !rspConsumed) {
-    bpuInFlightCounterReg := bpuInFlightCounterReg + 1
-  }.elsewhen(!queryFired && rspConsumed) {
+  when(!queryFired && rspConsumed) {
     bpuInFlightCounterReg := bpuInFlightCounterReg - 1
   }
 

@@ -190,7 +190,10 @@ class Framework(val plugins: Seq[Plugin]) extends Area {
   earlyLock.release()
   ParallaxLogger.log("Framework: early lock released")
   // 6. 等待所有插件的早期任务（earlyHandles 中的句柄）完成
-  plugins.foreach(_.earlyHandles.foreach(_.await()))
+  plugins.foreach(_.earlyHandles.foreach(h => {
+    println(s"Waiting for early task ${h.getName()}")
+    h.await()
+  }))
   ParallaxLogger.log("Framework: early tasks completed")
   // 7. 释放晚期锁，允许通过 plugin.create.late 创建的任务开始执行
   lateLock.release()
@@ -401,7 +404,7 @@ object ParallaxSim {
       flattenRecursively(
         Seq(
           "[notice] ",
-          ANSI_BLUE,
+          ANSI_YELLOW,
           message,
           ANSI_RESET
         )
