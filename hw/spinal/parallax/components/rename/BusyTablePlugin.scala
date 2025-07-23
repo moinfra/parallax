@@ -59,21 +59,27 @@ class BusyTablePlugin(pCfg: PipelineConfig)
     val setMask = early_setup.setMask
     val busyTableReg = early_setup.busyTableReg
     
-
-    // CRITICAL FIX: Connect to WakeupService for global wakeup coordination
+    // +++ NEW +++
+    // 获取包含所有唤醒源的广播总线
     val wakeupService = getService[parallax.execute.WakeupService]
-    val globalWakeupFlow = wakeupService.getWakeupFlow()
+    val allWakeupFlows = wakeupService.getWakeupFlows()
 
     // Handle clears first (higher priority)
     clearMask.clearAll()
 
-    // CRITICAL FIX: Add global wakeup as a clear source
-    when(globalWakeupFlow.valid) {
-      clearMask(globalWakeupFlow.payload.physRegIdx) := True
-      if(enableLog) report(L"[BusyTable] Global wakeup clear: physReg=${globalWakeupFlow.payload.physRegIdx}")
-    }
+    // +++ NEW +++
+    // 遍历所有并行的唤醒信号，并将它们对应的位设置到clearMask中
+    // BusyTable 清除得太早了。物理寄存器只有在所有依赖它的指令都成功读取了它的值之后，才能被安全地回收重用。
+    // 延迟到了 COmmit阶段
+    // for (wakeup <- allWakeupFlows) {
+    //     when(wakeup.valid) {
+    //         clearMask(wakeup.payload.physRegIdx) := True
+    //         if(enableLog) report(L"[BusyTable] Global wakeup clear: physReg=${wakeup.payload.physRegIdx}")
+    //     }
+    // }
 
     // Handle individual EU clear ports (still needed for direct clears)
+    // 这个逻辑保持不变，它用于一些不通过标准唤醒流程的特殊清除操作
     for (port <- clearPortsBuffer) {
       when(port.valid) {
         clearMask(port.payload) := True
@@ -81,7 +87,7 @@ class BusyTablePlugin(pCfg: PipelineConfig)
       }
     }
 
-    // Handle sets
+    // Handle sets (逻辑不变)
     setMask.clearAll()
     for (port <- setPorts; if port != null) {
       when(port.valid) {
@@ -90,10 +96,9 @@ class BusyTablePlugin(pCfg: PipelineConfig)
       }
     }
 
-    // Combine clear and set operations in one statement: clear has higher priority
+    // Combine clear and set operations (逻辑不变)
     val busyTableNext = (busyTableReg & ~clearMask) | setMask
-    // val busyTableNext = (busyTableReg | setMask) & ~clearMask
-
+    
     if(enableLog) report(L"[BusyTable] Current: busyTableReg=${busyTableReg}, clearMask=${clearMask}, setMask=${setMask}, next=${busyTableNext}")
 
     // Handle Restore
@@ -154,4 +159,3 @@ class BusyTablePlugin(pCfg: PipelineConfig)
 
   override def getClearBypass(): Bits = early_setup.clearMask
 }
-

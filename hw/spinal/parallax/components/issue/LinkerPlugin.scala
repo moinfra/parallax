@@ -58,6 +58,12 @@ class LinkerPlugin(pCfg: PipelineConfig) extends Plugin with LockedImpl {
     lock.await() // Wait for all 'early' setup phases across all plugins to complete.
     ParallaxLogger.log("LinkerPlugin: Late logic phase started. Beginning wiring.")
 
+    // +++ NEW +++
+    // 在实例化IQ之前，先获取广播总线
+    val allWakeupFlows = setup.wakeupService.getWakeupFlows()
+    val numWakeupPorts = allWakeupFlows.length // 这就是总线宽度
+    ParallaxLogger.log(s"LinkerPlugin: Global wakeup bus has ${numWakeupPorts} ports.")
+
     // --- 1. Instantiate Issue Queues and create typed connections ---
     // We iterate through each discovered EU and create a corresponding IQ.
     // The result is a sequence of `Connection` objects, which preserves the type safety.
@@ -76,7 +82,7 @@ class LinkerPlugin(pCfg: PipelineConfig) extends Plugin with LockedImpl {
       // For each IQ, we must request an input channel from the central IssueQueueService.
       // The DispatchPlugin will use this channel to send uops to this specific IQ.
       val iqInputFromDispatch = setup.iqService.newIssueQueue(eu.microOpsHandled)
-      ParallaxLogger.log(s"LinkerPlugin: Registered IQ for EU '${eu.euName}' to handle UopCodes: [${eu.microOpsHandled.mkString(", ")}].")
+      ParallaxLogger.log(s"LinkerPlugin: Registered IQ for EU '${eu.euName}' to handle UopCodes: [${eu.microOpsHandled.mkString(", ")}]")
 
       // Instantiate the generic IssueQueueComponent with the specific type and configuration derived from the EU.
       // The `.asInstanceOf` is unfortunate but necessary here to bridge the generic configuration creation
@@ -89,24 +95,31 @@ class LinkerPlugin(pCfg: PipelineConfig) extends Plugin with LockedImpl {
           uopEntryType = eu.iqEntryType, // Directly use the HardType provided by the EU
           name = s"${eu.euName}_IQ"
         ).asInstanceOf[IssueQueueConfig[T_IQEntry forSome {type T_IQEntry <: Bundle with IQEntryLike}]],
+        numWakeupPorts = numWakeupPorts, // 将宽度传递给IQ
         id = setup.allEus.indexOf(eu)
       )
 
       // Connect the port obtained from the service to the actual IQ hardware input.
       // Convert Stream to Flow for the allocateIn connection
-      iqComponent.io.allocateIn << iqInputFromDispatch.toFlow
+      iqComponent.io.allocateIn << iqInputFromDispatch
 
       // Create a `Connection` object that holds the EU and its corresponding IQ.
       Connection(eu, iqComponent)
     }
 
     // --- 2. Connect Global Signals (Wakeup & Flush) to all IQs ---
-    val globalWakeupFlow = setup.wakeupService.getWakeupFlow()
-
+    // --- OLD ---
+    // val globalWakeupFlow = setup.wakeupService.getWakeupFlow()
+    // for (conn <- connections) {
+    //   conn.issueQueue.io.wakeupIn <-< globalWakeupFlow
+    // }
+    
+    // +++ NEW +++
     for (conn <- connections) {
-      conn.issueQueue.io.wakeupIn <-< globalWakeupFlow
+      // 使用 := 进行向量到向量的连接
+      conn.issueQueue.io.wakeupIn := allWakeupFlows
     }
-    ParallaxLogger.log("LinkerPlugin: Connected global wakeup and flush signals to all IQs.")
+    ParallaxLogger.log("LinkerPlugin: Connected global multi-port wakeup bus to all IQs.")
 
     val flush = new Area {
       getServiceOption[HardRedirectService].foreach(hr => {

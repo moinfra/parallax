@@ -695,7 +695,6 @@ class StoreBufferPlugin(
 
             // 最终的 olderStoreDataNotReady 是这两种 Stall 条件的逻辑或
             rsp.olderStoreDataNotReady := dataNotReadyStall || insufficientCoverageStall
-            // *** 修改结束 ***
 
             // A load hits if:
             // 1. It's a valid query.
@@ -705,8 +704,7 @@ class StoreBufferPlugin(
             //    OR if the available older stores do not fully cover the load.
             rsp.hit  := query.valid && allRequiredBytesHit && !rsp.olderStoreHasUnknownAddress && !rsp.olderStoreDataNotReady
 
-            // *** 修改结束 ***
-            report(L"[SQ-Fwd] Forwarding? hit=${rsp.hit}, because query.valid=${query.valid}, allRequiredBytesHit=${allRequiredBytesHit}, olderStoreHasUnknownAddress=${rsp.olderStoreHasUnknownAddress}, olderStoreDataNotReady=${rsp.olderStoreDataNotReady}") // Adjusted log message
+            if(enableLog) report(L"[SQ-Fwd] Forwarding? hit=${rsp.hit}, because query.valid=${query.valid}, allRequiredBytesHit=${allRequiredBytesHit}, olderStoreHasUnknownAddress=${rsp.olderStoreHasUnknownAddress}, olderStoreDataNotReady=${rsp.olderStoreDataNotReady}") // Adjusted log message
             
             when(query.valid) {
                 // debug print

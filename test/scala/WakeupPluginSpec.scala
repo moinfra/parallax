@@ -10,6 +10,12 @@ import parallax.common._
 import parallax.utilities._
 import spinal.lib.sim.{StreamDriver, StreamMonitor, FlowMonitor}
 
+// +++ NEW +++
+// 定义一个常量，以便在多个地方使用
+object WakeupTestConfig {
+    val NumSources = 3
+}
+
 // Test setup plugin to connect WakeupPlugin ports to testbench IO
 class WakeupTestSetupPlugin(
     pCfg: PipelineConfig,
@@ -18,39 +24,40 @@ class WakeupTestSetupPlugin(
   val setup = create early new Area {
     val wakeupService = getService[WakeupService]
     
-    // Create multiple wakeup sources for testing
-    val source1 = wakeupService.newWakeupSource()
-    val source2 = wakeupService.newWakeupSource()
-    val source3 = wakeupService.newWakeupSource()
-    
-    // Connect sources to test IO
-    source1 <> testIO.source1
-    source2 <> testIO.source2
-    source3 <> testIO.source3
+    // 创建多个唤醒源
+    for (i <- 0 until WakeupTestConfig.NumSources) {
+      val source = wakeupService.newWakeupSource()
+      source <> testIO.sources(i)
+    }
   }
 
   val logic = create late new Area {
     val wakeupService = getService[WakeupService]
     
-    // Connect merged wakeup flow to test IO (must be done in late Area)
-    testIO.mergedWakeupFlow <> wakeupService.getWakeupFlow()
+    // 连接广播总线
+    // testIO.allWakeupFlows <> wakeupService.getWakeupFlows()
+    testIO.allWakeupFlows.zip(wakeupService.getWakeupFlows()) foreach {
+      case (sink, source) => sink <> source
+    }
   }
 }
 
 // Test IO bundle
 case class WakeupTestIO(pCfg: PipelineConfig) extends Bundle with IMasterSlave {
-  val source1 = slave(Flow(WakeupPayload(pCfg)))
-  val source2 = slave(Flow(WakeupPayload(pCfg)))
-  val source3 = slave(Flow(WakeupPayload(pCfg)))
-  val mergedWakeupFlow = master(Flow(WakeupPayload(pCfg)))
+  // --- OLD ---
+  // val source1 = ...
+  // val mergedWakeupFlow = ...
+  // +++ NEW +++
+  val sources = Vec.fill(WakeupTestConfig.NumSources)(slave(Flow(WakeupPayload(pCfg))))
+  val allWakeupFlows = Vec.fill(WakeupTestConfig.NumSources)(master(Flow(WakeupPayload(pCfg))))
   
   override def asMaster(): Unit = {
-    master(source1, source2, source3)
-    slave(mergedWakeupFlow)
+    sources.foreach(master(_))
+    allWakeupFlows.foreach(slave(_))
   }
 }
 
-// Test framework component
+// Test framework component (保持不变)
 class WakeupTestBench(val pCfg: PipelineConfig) extends Component {
   val io = slave(WakeupTestIO(pCfg))
   io.simPublic()
@@ -77,127 +84,121 @@ class WakeupPluginSpec extends CustomSpinalSimFunSuite {
       source.payload.physRegIdx #= physRegIdx
     }
   }
-
-  def clearAllSources(tb: WakeupTestBench): Unit = {
-    driveSource(tb.io.source1, false, 0)
-    driveSource(tb.io.source2, false, 0)
-    driveSource(tb.io.source3, false, 0)
+  
+  // +++ NEW +++
+  def clearAllSources(sources: Vec[Flow[WakeupPayload]]): Unit = {
+      for (source <- sources) {
+          driveSource(source, false, 0)
+      }
   }
 
-  test("WakeupPlugin - Initialization") {
+  // --- 重写所有测试用例 ---
+
+  test("WakeupPlugin - No Sources") {
     simConfig.compile(new WakeupTestBench(pCfg)).doSim { tb =>
       tb.clockDomain.forkStimulus(2)
-      clearAllSources(tb)
+      clearAllSources(tb.io.sources)
       tb.clockDomain.waitSampling()
-      assert(!tb.io.mergedWakeupFlow.valid.toBoolean, "Merged flow should be invalid when no sources active")
+      
+      for (flow <- tb.io.allWakeupFlows) {
+          assert(!flow.valid.toBoolean, "All broadcast flows should be invalid")
+      }
     }
   }
 
   test("WakeupPlugin - Single Source") {
     simConfig.compile(new WakeupTestBench(pCfg)).doSim { tb =>
       tb.clockDomain.forkStimulus(2)
-      clearAllSources(tb)
+      clearAllSources(tb.io.sources)
       tb.clockDomain.waitSampling()
       
-      // Test source1
-      driveSource(tb.io.source1, true, 3)
+      // 测试 source 0
+      driveSource(tb.io.sources(0), true, 3)
       tb.clockDomain.waitSampling()
-      assert(tb.io.mergedWakeupFlow.valid.toBoolean, "Merged flow should be valid when source1 active")
-      assert(tb.io.mergedWakeupFlow.payload.physRegIdx.toInt == 3, "Merged flow should carry physRegIdx 3")
       
-      driveSource(tb.io.source1, false, 0)
+      assert(tb.io.allWakeupFlows(0).valid.toBoolean, "Broadcast flow 0 should be valid")
+      assert(tb.io.allWakeupFlows(0).payload.physRegIdx.toInt == 3, "Broadcast flow 0 should carry physRegIdx 3")
+      assert(!tb.io.allWakeupFlows(1).valid.toBoolean, "Broadcast flow 1 should be invalid")
+      assert(!tb.io.allWakeupFlows(2).valid.toBoolean, "Broadcast flow 2 should be invalid")
+      
+      driveSource(tb.io.sources(0), false, 0)
       tb.clockDomain.waitSampling()
-      assert(!tb.io.mergedWakeupFlow.valid.toBoolean, "Merged flow should be invalid when source1 inactive")
+      assert(!tb.io.allWakeupFlows(0).valid.toBoolean, "Broadcast flow 0 should now be invalid")
     }
   }
 
-  test("WakeupPlugin - Multiple Sources Round Robin") {
+  // 这是最重要的测试！验证并行广播
+  test("WakeupPlugin - Multiple Sources Simultaneously") {
     simConfig.compile(new WakeupTestBench(pCfg)).doSim { tb =>
       tb.clockDomain.forkStimulus(2)
-      clearAllSources(tb)
+      clearAllSources(tb.io.sources)
       tb.clockDomain.waitSampling()
       
-      // Activate all sources simultaneously
-      driveSource(tb.io.source1, true, 1)
-      driveSource(tb.io.source2, true, 2)
-      driveSource(tb.io.source3, true, 3)
-      
-      // Round-robin arbitration should pick sources in order
-      tb.clockDomain.waitSampling()
-      assert(tb.io.mergedWakeupFlow.valid.toBoolean, "Merged flow should be valid")
-      // First should be source1 (round-robin starts with first source)
-      assert(tb.io.mergedWakeupFlow.payload.physRegIdx.toInt == 1, "First should be source1 (physRegIdx 1)")
+      // 同时激活所有源
+      driveSource(tb.io.sources(0), true, 1)
+      driveSource(tb.io.sources(1), true, 2)
+      driveSource(tb.io.sources(2), true, 3)
       
       tb.clockDomain.waitSampling()
-      assert(tb.io.mergedWakeupFlow.valid.toBoolean, "Merged flow should still be valid")
-      // Second should be source2
-      assert(tb.io.mergedWakeupFlow.payload.physRegIdx.toInt == 2, "Second should be source2 (physRegIdx 2)")
       
-      tb.clockDomain.waitSampling()
-      assert(tb.io.mergedWakeupFlow.valid.toBoolean, "Merged flow should still be valid")
-      // Third should be source3
-      assert(tb.io.mergedWakeupFlow.payload.physRegIdx.toInt == 3, "Third should be source3 (physRegIdx 3)")
+      // 验证所有广播端口都同时有效，并携带正确的数据
+      assert(tb.io.allWakeupFlows(0).valid.toBoolean, "Broadcast flow 0 should be valid")
+      assert(tb.io.allWakeupFlows(0).payload.physRegIdx.toInt == 1, "Payload 0 should be 1")
       
-      // Clear all sources
-      clearAllSources(tb)
+      assert(tb.io.allWakeupFlows(1).valid.toBoolean, "Broadcast flow 1 should be valid")
+      assert(tb.io.allWakeupFlows(1).payload.physRegIdx.toInt == 2, "Payload 1 should be 2")
+      
+      assert(tb.io.allWakeupFlows(2).valid.toBoolean, "Broadcast flow 2 should be valid")
+      assert(tb.io.allWakeupFlows(2).payload.physRegIdx.toInt == 3, "Payload 2 should be 3")
+      
+      // 清除所有源
+      clearAllSources(tb.io.sources)
       tb.clockDomain.waitSampling()
-      assert(!tb.io.mergedWakeupFlow.valid.toBoolean, "Merged flow should be invalid when all sources inactive")
+      for (flow <- tb.io.allWakeupFlows) {
+          assert(!flow.valid.toBoolean, "All broadcast flows should be invalid after clearing sources")
+      }
     }
   }
 
+  // 我们可以保留这个测试，但要修改断言
   test("WakeupPlugin - Dynamic Source Activation") {
     simConfig.compile(new WakeupTestBench(pCfg)).doSim { tb =>
       tb.clockDomain.forkStimulus(2)
-      clearAllSources(tb)
+      clearAllSources(tb.io.sources)
       tb.clockDomain.waitSampling()
       
-      // Start with source1
-      driveSource(tb.io.source1, true, 5)
+      // 启动源 1
+      driveSource(tb.io.sources(1), true, 6)
       tb.clockDomain.waitSampling()
-      assert(tb.io.mergedWakeupFlow.payload.physRegIdx.toInt == 5, "Should get physRegIdx 5 from source1")
+      assert(!tb.io.allWakeupFlows(0).valid.toBoolean)
+      assert(tb.io.allWakeupFlows(1).valid.toBoolean && tb.io.allWakeupFlows(1).payload.physRegIdx.toInt == 6)
+      assert(!tb.io.allWakeupFlows(2).valid.toBoolean)
       
-      // Add source2
-      driveSource(tb.io.source2, true, 6)
+      // 再加上源 2
+      driveSource(tb.io.sources(2), true, 7)
       tb.clockDomain.waitSampling()
-      assert(tb.io.mergedWakeupFlow.payload.physRegIdx.toInt == 6, "Should get physRegIdx 6 from source2 (round-robin)")
-      
-      // Remove source1, keep source2
-      driveSource(tb.io.source1, false, 0)
-      tb.clockDomain.waitSampling()
-      assert(tb.io.mergedWakeupFlow.payload.physRegIdx.toInt == 6, "Should still get physRegIdx 6 from source2")
-      
-      // Add source3
-      driveSource(tb.io.source3, true, 7)
-      tb.clockDomain.waitSampling()
-      assert(tb.io.mergedWakeupFlow.payload.physRegIdx.toInt == 7, "Should get physRegIdx 7 from source3 (round-robin)")
-      
-      clearAllSources(tb)
-      tb.clockDomain.waitSampling()
-      assert(!tb.io.mergedWakeupFlow.valid.toBoolean, "Merged flow should be invalid when all sources inactive")
+      assert(!tb.io.allWakeupFlows(0).valid.toBoolean)
+      assert(tb.io.allWakeupFlows(1).valid.toBoolean && tb.io.allWakeupFlows(1).payload.physRegIdx.toInt == 6) // 源1依然有效
+      assert(tb.io.allWakeupFlows(2).valid.toBoolean && tb.io.allWakeupFlows(2).payload.physRegIdx.toInt == 7) // 源2也有效
     }
   }
 
+  // Edge case test is still valid
   test("WakeupPlugin - Edge Cases") {
     simConfig.compile(new WakeupTestBench(pCfg)).doSim { tb =>
-      tb.clockDomain.forkStimulus(2)
-      clearAllSources(tb)
-      tb.clockDomain.waitSampling()
+        tb.clockDomain.forkStimulus(2)
+        clearAllSources(tb.io.sources)
+        tb.clockDomain.waitSampling()
       
-      // Test with physRegIdx 0 (edge case)
-      driveSource(tb.io.source1, true, 0)
-      tb.clockDomain.waitSampling()
-      assert(tb.io.mergedWakeupFlow.valid.toBoolean, "Merged flow should be valid for physRegIdx 0")
-      assert(tb.io.mergedWakeupFlow.payload.physRegIdx.toInt == 0, "Should get physRegIdx 0")
-      
-      // Test with maximum physRegIdx
-      driveSource(tb.io.source1, true, physGprCount - 1)
-      tb.clockDomain.waitSampling()
-      assert(tb.io.mergedWakeupFlow.payload.physRegIdx.toInt == physGprCount - 1, s"Should get physRegIdx ${physGprCount - 1}")
-      
-      clearAllSources(tb)
-      tb.clockDomain.waitSampling()
+        driveSource(tb.io.sources(0), true, 0)
+        tb.clockDomain.waitSampling()
+        assert(tb.io.allWakeupFlows(0).valid.toBoolean && tb.io.allWakeupFlows(0).payload.physRegIdx.toInt == 0)
+
+        driveSource(tb.io.sources(0), true, physGprCount - 1)
+        tb.clockDomain.waitSampling()
+        assert(tb.io.allWakeupFlows(0).valid.toBoolean && tb.io.allWakeupFlows(0).payload.physRegIdx.toInt == physGprCount - 1)
     }
   }
 
-  thatsAll // 确保测试被启用
-} 
+  thatsAll
+}

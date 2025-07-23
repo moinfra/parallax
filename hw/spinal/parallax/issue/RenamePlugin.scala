@@ -9,6 +9,7 @@ import parallax.components.rename._
 import parallax.components.rob.ROBService
 import parallax.utilities.{Plugin, LockedImpl, ParallaxLogger}
 import parallax.components.rename.BusyTableService
+import parallax.utilities.ParallaxSim.notice
 
 class RenamePlugin(
     val pipelineConfig: PipelineConfig,
@@ -80,6 +81,7 @@ class RenamePlugin(
 
       // 2. 如果分配失败，暂停流水线 (RobAllocPlugin 会处理 ROB 满的暂停)
       when(s2_rob_alloc.isValid && !allocationOk) {
+        notice(L"S2: Failed to allocate physical registers for uops: ${s2_rob_alloc(signals.DECODED_UOPS).map(_.format())}")
         s2_rob_alloc.haltIt()
       }
 

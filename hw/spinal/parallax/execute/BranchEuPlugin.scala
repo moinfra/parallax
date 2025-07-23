@@ -183,7 +183,7 @@ class BranchEuPlugin(
     }
     
     when(pipeline.s2_select.isFiring) {
-      report(L"[BranchEU-S2-Select] PREDICTION: wasPredicted=${wasPredicted}, actuallyTaken=${actuallyTaken}, finalTarget=0x${finalTarget}, mispredicted=${!predictionCorrect}")
+      report(L"[BranchEU-S2-Select] PREDICTION: wasPredicted(valid)=${wasPredicted}: predictedTaken=${predictedTaken}, actuallyTaken=${actuallyTaken}, finalTarget=0x${finalTarget}, mispredicted=${!predictionCorrect}")
     }
 
     // 将最终信息存入Stageable，供S3使用

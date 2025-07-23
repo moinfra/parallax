@@ -137,7 +137,11 @@ class CommitPlugin(
     val checkpointManagerService = getService[CheckpointManagerService] 
     val fetchService             = getService[FetchService]
     
-    // === Fetch Pipeline Control for IDLE ===
+    // +++ NEW +++
+    // 在 early 阶段获取 BusyTableService
+    val busyTableService         = getService[BusyTableService]
+    val busyTableClearPort       = busyTableService.newClearPort()
+
     val robFlushPort             = robService.newRobFlushPort()
     val redirectPort             = fetchService.newHardRedirectPort(priority = 10)  // High priority for branch misprediction
     
@@ -151,7 +155,7 @@ class CommitPlugin(
     val ratControlService = hw.ratControlService
     val flControlService = hw.flControlService
     val checkpointManagerService = hw.checkpointManagerService 
-
+    
     // === ROB Interface ===
     val commitSlots = robService.getCommitSlots(pipelineConfig.commitWidth)
     val commitAcks = robService.getCommitAcks(pipelineConfig.commitWidth) // 本插件会发送 commit 用于真正触发提交
@@ -164,6 +168,14 @@ class CommitPlugin(
     require(freePorts.length >= pipelineConfig.commitWidth, 
       s"FreeList must have at least ${pipelineConfig.commitWidth} free ports for commit width")
     
+    // --- NEW ---
+    // === BusyTable Clearing ===
+    // 从服务获取一个清除端口
+    // 默认情况下不清除
+    val busyTableClearPort = hw.busyTableClearPort
+    busyTableClearPort.valid := False
+    busyTableClearPort.payload.assignDontCare()
+
     // === Checkpoint Management Interface ===
     val restoreCheckpointTrigger = checkpointManagerService.getRestoreCheckpointTrigger()
 
@@ -231,15 +243,33 @@ class CommitPlugin(
         report(L"CHECKPOINT: Restore checkpoint triggered due to misprediction last cycle, redirecting to ${actualTargetOfBranchPrev}")
       } 
 
+      // --- NEW: 将 BusyTable 清除逻辑与 FreeList 回收逻辑放在一起 ---
       // 1. 物理寄存器回收 (立即响应)
-      // FIXME: 这里理论上也是对的，但也许应该根据 RenameTable 直接的差量来精确恢复
       for (i <- 0 until pipelineConfig.commitWidth) {
         val commitAck = commitAckMasks(i)
         val committedEntry = rawCommitSlots(i).entry 
         val committedUop = committedEntry.payload.uop 
         
-        freePorts(i).enable := commitAck && committedUop.rename.allocatesPhysDest 
+        // 当一条指令提交，并且它分配了一个新的物理寄存器时...
+        val canRecycle = commitAck && committedUop.rename.allocatesPhysDest 
+        
+        // a) ...它所覆盖的旧的物理寄存器 (`oldPhysDest`) 可以被回收
+        
+        // 回收到 FreeList (使其可用于未来的分配)
+        freePorts(i).enable := canRecycle
         freePorts(i).physReg := committedUop.rename.oldPhysDest.idx
+        
+        // b) ...同时，也从 BusyTable 中清除，标记为不再繁忙
+        when(canRecycle) {
+          busyTableClearPort.valid   := True
+          busyTableClearPort.payload := committedUop.rename.oldPhysDest.idx
+          
+          // 添加日志以确认清除操作
+          ParallaxSim.log(
+            L"[CommitPlugin->BusyTable] Clearing physReg=${committedUop.rename.oldPhysDest.idx} " :+
+            L"because robPtr=${committedUop.robPtr} is committing."
+          )
+        }
       }
 
       for (i <- 0 until pipelineConfig.commitWidth) {

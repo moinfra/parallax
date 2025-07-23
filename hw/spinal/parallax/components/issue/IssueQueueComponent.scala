@@ -7,50 +7,86 @@ import parallax.execute.{WakeupPayload, WakeupService}
 import parallax.utilities.{ParallaxLogger, ParallaxSim}
 import parallax.issue.IqDispatchCmd
 
+/**
+ * IssueQueueComponent IO Bundle
+ *
+ * 使用 Stream 接口进行分配，通过其内建的 ready 信号实现反压。
+ * @param iqConfig IQ 的配置
+ * @param numWakeupPorts 并行唤醒端口的数量
+ */
 case class IssueQueueComponentIo[T_IQEntry <: Data with IQEntryLike](
-    val iqConfig: IssueQueueConfig[T_IQEntry]
+    val iqConfig: IssueQueueConfig[T_IQEntry],
+    val numWakeupPorts: Int
 ) extends Bundle
     with IMasterSlave {
-  val allocateIn = Flow(IqDispatchCmd(iqConfig.pipelineConfig))
-  val canAccept = Bool()
+
+  // 从 Dispatch 阶段接收新的微操作 (uop)
+  val allocateIn = Stream(IqDispatchCmd(iqConfig.pipelineConfig))
+  
+  // 向对应的执行单元 (EU) 发射准备好的微操作
   val issueOut = Stream(iqConfig.getIQEntry())
-  val wakeupIn = Flow(WakeupPayload(iqConfig.pipelineConfig)) // Global wakeup bus
+  
+  // 接收来自所有唤醒源的广播信号
+  val wakeupIn = Vec.fill(numWakeupPorts)(Flow(WakeupPayload(iqConfig.pipelineConfig)))
+  
+  // 接收全局的流水线刷新信号
   val flush = Bool()
 
+  // 定义主从接口的方向
   override def asMaster(): Unit = {
     master(allocateIn)
-    master(wakeupIn)
-    in(canAccept)
+    wakeupIn.foreach(master(_))
     out(flush)
     slave(issueOut)
   }
 }
 
+/**
+ * 通用发射队列 (Issue Queue) 组件
+ *
+ * 这是一个乱序执行处理器的核心组件，它负责：
+ * 1. 暂存从 Dispatch 阶段派发过来的指令。
+ * 2. 监听全局唤醒总线和本地发射端口，以确定指令的源操作数何时就绪。
+ * 3. 当一条指令的所有源操作数都就绪时，将其标记为可发射。
+ * 4. 从所有可发射的指令中，根据预定的策略（如最老优先）选择一条，并将其发射到执行单元。
+ * 5. 当队列满时，通过反压机制暂停上游流水线。
+ *
+ * @param iqConfig       IQ 的配置，包括深度、类型等
+ * @param numWakeupPorts 并行唤醒端口的数量
+ * @param id             组件的唯一ID，用于日志记录
+ */
 class IssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
     val iqConfig: IssueQueueConfig[T_IQEntry],
+    val numWakeupPorts: Int,
     val id: Int = 0
 ) extends Component {
-  val io = slave(IssueQueueComponentIo(iqConfig))
+  
+  // 实例化 IO
+  val io = slave (IssueQueueComponentIo(iqConfig, numWakeupPorts))
   val idStr = s"${iqConfig.name}-${id.toString()}"
 
-  // 状态寄存器保持不变
+  // ====================================================================
+  // 1. 状态寄存器 (State Registers)
+  // ====================================================================
+
+  // 存储 IQ 中每个条目的具体信息
   val entries = Vec.fill(iqConfig.depth)(Reg(iqConfig.getIQEntry()))
+  // 标记每个槽位是否有效
   val entryValids = Vec.fill(iqConfig.depth)(Reg(Bool()) init (False))
 
   // ====================================================================
-  //  帕累托改进: 逻辑重组以优化时序
+  // 2. 唤醒逻辑 (Wakeup Logic)
   // ====================================================================
+  
+  // 这部分是纯组合逻辑，用于计算哪些条目在当前周期被唤醒。
+  // 它的结果 (wokeUp...Mask) 将在步骤4中用于更新下一周期的状态。
 
-  // --- 步骤 1: 预计算唤醒匹配 (Pre-computation Area) ---
-  // 这部分逻辑只依赖于上周期的状态和本周期的输入，可以独立并行计算。
-  // 它的输出 (wokeUp...Mask) 将用于计算下一个周期的 srcReady 状态。
-  // --------------------------------------------------------------------
+  // a. 本地唤醒 (Local Wakeup / Bypass)
+  // 当本IQ成功发射一条指令时，它的结果可以立即用于唤醒队列中的其他指令。
   val localWakeupValid = io.issueOut.fire && io.issueOut.payload.writesToPhysReg
   val localWakeupTag = io.issueOut.payload.physDest.idx
   
-  val globalWakeupValid = io.wakeupIn.valid
-  val globalWakeupTag = io.wakeupIn.payload.physRegIdx
-  
+  // b. 预计算唤醒掩码
   val wokeUpSrc1Mask = Bits(iqConfig.depth bits)
   val wokeUpSrc2Mask = Bits(iqConfig.depth bits)
   wokeUpSrc1Mask.clearAll()
@@ -59,114 +95,169 @@ class IssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
   for (i <- 0 until iqConfig.depth) {
     val entry = entries(i)
     when(entryValids(i)) {
-      when(!entry.src1Ready) {
-        val s1LocalMatch  = localWakeupValid  && entry.useSrc1 && (entry.src1Tag === localWakeupTag)
-        val s1GlobalMatch = globalWakeupValid && entry.useSrc1 && (entry.src1Tag === globalWakeupTag)
-        when(s1LocalMatch || s1GlobalMatch) {
-          wokeUpSrc1Mask(i) := True
-        }
+      // 检查每个源操作数是否需要并可以被唤醒
+      val canWakeupSrc1 = !entry.src1Ready && entry.useSrc1
+      val canWakeupSrc2 = !entry.src2Ready && entry.useSrc2
+
+      // 检查本地唤醒
+      when(canWakeupSrc1 && localWakeupValid && (entry.src1Tag === localWakeupTag)) {
+        wokeUpSrc1Mask(i) := True
       }
-      when(!entry.src2Ready) {
-        val s2LocalMatch  = localWakeupValid  && entry.useSrc2 && (entry.src2Tag === localWakeupTag)
-        val s2GlobalMatch = globalWakeupValid && entry.useSrc2 && (entry.src2Tag === globalWakeupTag)
-        when(s2LocalMatch || s2GlobalMatch) {
-          wokeUpSrc2Mask(i) := True
+      when(canWakeupSrc2 && localWakeupValid && (entry.src2Tag === localWakeupTag)) {
+        wokeUpSrc2Mask(i) := True
+      }
+      
+      // 检查所有并行的全局唤醒端口
+      for (wakeup <- io.wakeupIn) {
+        when(wakeup.valid) {
+          when(canWakeupSrc1 && (entry.src1Tag === wakeup.payload.physRegIdx)) {
+            wokeUpSrc1Mask(i) := True
+          }
+          when(canWakeupSrc2 && (entry.src2Tag === wakeup.payload.physRegIdx)) {
+            wokeUpSrc2Mask(i) := True
+          }
         }
       }
     }
   }
 
-
-  // --- 步骤 2: 基于上周期的状态进行决策 (Decision Area) ---
-  // 【关键优化】: 发射选择逻辑现在只依赖于寄存器中的值 (entries, entryValids)。
-  // 它不再等待本周期的唤醒结果，从而大大缩短了关键路径。
-  // ----------------------------------------------------------------
-  // a. Issue/Selection Logic
+  // ====================================================================
+  // 3. 发射与反压逻辑 (Issue and Back-Pressure Logic)
+  // ====================================================================
+  
+  // 这部分逻辑基于上一个周期的状态 (寄存器中的值) 来做出本周期的决策。
+  
+  // a. 发射选择 (Issue Selection)
+  // 找出所有源操作数都已就绪的条目
   val entriesReadyToIssue = Vec.tabulate(iqConfig.depth) { i =>
     val entry = entries(i)
     entryValids(i) &&
     (!entry.useSrc1 || entry.src1Ready) &&
     (!entry.useSrc2 || entry.src2Ready)
   }
+  
+  // 将就绪条目转换为Bitmask，并使用优先级编码器选择最老的一个
+  // (OHMasking.first 默认选择最低位的 '1'，对应索引最小的槽位，即最老的)
   val issueRequestMask = B(entriesReadyToIssue)
   val issueRequestOh = OHMasking.first(issueRequestMask)
   val issueIdx = OHToUInt(issueRequestOh)
 
-  // b. Allocation Logic
-  val freeSlotsMask = entryValids.map(!_).asBits
-  val canAccept = freeSlotsMask.orR
-  val allocateIdx = OHToUInt(OHMasking.first(freeSlotsMask))
-  
-  // c. Drive IO Outputs
-  io.canAccept := canAccept && !io.flush
+  // 驱动发射端口
   io.issueOut.valid := issueRequestOh.orR && !io.flush
-  io.issueOut.payload := entries(issueIdx) // Payload is from registered state
+  io.issueOut.payload := entries(issueIdx) // 使用寄存器中的值，避免长组合路径
 
+  // b. 分配与反压 (Allocation and Back-Pressure)
+  // 计算当前空闲的槽位
+  val freeSlotsMask = entryValids.map(!_).asBits
+  
+  // 我们可以接受一个新请求，如果：
+  // 1. IQ中本来就有空槽 (freeSlotsMask.orR)
+  // 2. 或者，本周期我们将成功发射一条指令来腾出空间 (io.issueOut.fire)
+  //    (.fire 包含了对下游 .ready 的判断，这是最关键的改进)
+  val hasSpaceForNewEntry = freeSlotsMask.orR || io.issueOut.fire
+  
+  // 驱动 allocateIn.ready 信号，实现对上游的反压
+  io.allocateIn.ready := hasSpaceForNewEntry && !io.flush
+  
+  // 为新分配的指令选择一个槽位
+  // 优先使用一直都空的槽位，如果没有，再使用本周期因发射而变空的槽位
+  val firedSlotMask = B(0, iqConfig.depth bits)
+  when(io.issueOut.fire) {
+    firedSlotMask(issueIdx) := True
+  }
+  val allocationMask = OHMasking.first(freeSlotsMask | firedSlotMask)
+  val allocateIdx = OHToUInt(allocationMask)
+// (接第一部分的代码...)
 
-  // --- 步骤 3: 计算下一周期的状态 (Next State Calculation Area) ---
-  // 这部分逻辑现在合并了所有更新源。
-  // --------------------------------------------------------------------
+  // ====================================================================
+  // 4. 下一周期状态计算 (Next State Calculation)
+  // ====================================================================
+
+  // 这部分逻辑将当前周期的所有事件（唤醒、发射、分配、清空）整合起来，
+  // 计算出下一个时钟周期 `entries` 和 `entryValids` 寄存器应该更新成什么值。
+
+  // a. 首先，默认下一周期的状态与当前周期的状态相同
   val entriesNext = CombInit(entries)
   val entryValidsNext = CombInit(entryValids)
 
-  // a. 应用预计算的唤醒结果
+  // b. 应用唤醒结果 (Apply Wakeups)
+  // 使用在步骤2中预计算好的唤醒掩码来更新 `srcReady` 位
   for(i <- 0 until iqConfig.depth) {
     when(wokeUpSrc1Mask(i)) { entriesNext(i).src1Ready := True }
     when(wokeUpSrc2Mask(i)) { entriesNext(i).src2Ready := True }
   }
   
-  // b. 应用发射结果
+  // c. 应用发射结果 (Apply Issue)
+  // 如果本周期成功发射了一条指令，将对应的槽位标记为无效
   when(io.issueOut.fire) {
     entryValidsNext(issueIdx) := False
   }
 
-  // c. 应用分配结果
-  // 分配操作会覆盖掉它所在槽位的旧内容。
-  // 唤醒-分配的竞态依然由赋值顺序保证：如果本周期有唤醒，`entriesNext`的
-  // `srcReady`位会被置位，即使`allocateIn`的初始值是false。
-  when(io.allocateIn.valid && io.canAccept && !io.flush) {
+  // d. 应用分配结果 (Apply Allocation)
+  // 如果本周期成功分配了一条新指令，用新指令的信息填充选定的槽位
+  when(io.allocateIn.fire) {
     val allocCmd = io.allocateIn.payload
     val allocUop = allocCmd.uop
     
+    // 初始化新条目的内容
     entriesNext(allocateIdx).initFrom(allocUop, allocUop.robPtr)
     entriesNext(allocateIdx).src1Ready := allocCmd.src1InitialReady
     entriesNext(allocateIdx).src2Ready := allocCmd.src2InitialReady
     entryValidsNext(allocateIdx) := True
     
-    // 如果分配的指令恰好被本周期的全局唤醒信号唤醒 (这是一个边缘但可能的情况)
-    when(globalWakeupValid && allocUop.decoded.useArchSrc1 && allocUop.rename.physSrc1.idx === globalWakeupTag) {
-      entriesNext(allocateIdx).src1Ready := True
-    }
-    when(globalWakeupValid && allocUop.decoded.useArchSrc2 && allocUop.rename.physSrc2.idx === globalWakeupTag) {
-      entriesNext(allocateIdx).src2Ready := True
+    // 边界条件处理：如果新分配的指令恰好被本周期的全局唤醒信号唤醒
+    // 这允许指令在进入IQ的同一个周期就被唤醒
+    for (wakeup <- io.wakeupIn) {
+      when(wakeup.valid) {
+        when(allocUop.decoded.useArchSrc1 && !allocCmd.src1InitialReady && allocUop.rename.physSrc1.idx === wakeup.payload.physRegIdx) {
+          entriesNext(allocateIdx).src1Ready := True
+        }
+        when(allocUop.decoded.useArchSrc2 && !allocCmd.src2InitialReady && allocUop.rename.physSrc2.idx === wakeup.payload.physRegIdx) {
+          entriesNext(allocateIdx).src2Ready := True
+        }
+      }
     }
   }
 
-  // d. 应用Flush (最高优先级)
+  // e. 应用Flush (Apply Flush)
+  // Flush 具有最高优先级，它会清空整个IQ
   when(io.flush) {
     entryValidsNext.foreach(_ := False)
   }
 
-  // --- 步骤 4: 寄存器更新 (Register Update at Clock Edge) ---
+  // ====================================================================
+  // 5. 寄存器更新 (Register Update at Clock Edge)
+  // ====================================================================
+  
+  // 在时钟边沿，用计算好的下一周期状态来更新状态寄存器
   entries := entriesNext
   entryValids := entryValidsNext
 
-  // --- Debug and Monitoring ---
+  // ====================================================================
+  // 6. 调试与日志记录 (Debug and Monitoring)
+  // ====================================================================
+  
+  // 计算当前有效的条目数量，用于调试和暴露给测试平台
   val currentValidCount = CountOne(entryValids)
 
-  // Add periodic status logging (reduced frequency)
-  when(currentValidCount > 0 && (issueRequestOh.orR || io.allocateIn.valid)) { // Only log when there's activity
+  // 为了减少日志量，只在有活动（分配或发射）时打印状态
+  val logCondition = io.allocateIn.fire || io.issueOut.fire
+  
+  when(logCondition) {
     ParallaxSim.log(
       L"${idStr}: STATUS - ValidCount=${currentValidCount}, " :+
-      L"CanAccept=${canAccept}, " :+
-      L"CanIssue=${issueRequestOh.orR}"
+      L"allocateIn(valid=${io.allocateIn.valid}, ready=${io.allocateIn.ready}), " :+
+      L"issueOut(valid=${io.issueOut.valid}, ready=${io.issueOut.ready})"
     )
-    
-    // Log details of each valid entry
+  }
+  
+  // 打印每个有效条目的详细信息
+  // 注意：这里打印的是上一个周期的状态 (来自寄存器)，这样可以与当前周期的决策对应起来
+  when(logCondition && currentValidCount > 0) {
     for (i <- 0 until iqConfig.depth) {
       when(entryValids(i)) {
         ParallaxSim.log(
-          L"${idStr}: ENTRY[${i}] - RobPtr=${entries(i).robPtr}, " :+
+          L"${idStr}: (LAST CYCLE) ENTRY[${i}] - RobPtr=${entries(i).robPtr}, " :+
           L"PhysDest=${entries(i).physDest.idx}, " :+
           L"UseSrc1=${entries(i).useSrc1}, Src1Tag=${entries(i).src1Tag}, Src1Ready=${entries(i).src1Ready}, " :+
           L"UseSrc2=${entries(i).useSrc2}, Src2Tag=${entries(i).src2Tag}, Src2Ready=${entries(i).src2Ready}"
@@ -175,43 +266,8 @@ class IssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
     }
   }
 
+  // 在Verilog生成时打印一条信息，确认组件被正确例化
   ParallaxLogger.log(
-    s"${idStr} Component (depth ${iqConfig.depth}, wakeup enabled, type ${iqConfig.uopEntryType().getClass.getSimpleName}) elaborated."
+    s"${idStr} Component (depth ${iqConfig.depth}, wakeup ports ${numWakeupPorts}, type ${iqConfig.uopEntryType().getClass.getSimpleName}) elaborated with Stream-based back-pressure."
   )
-
-  if (GenerationFlags.simulation.isEnabled) {
-    val simCycleCount = Reg(UInt(32 bits)) init (0)
-    simCycleCount := simCycleCount + 1
-  }
-}
-
-object IssueQueueComponent {
-  def IntIQ(pipelineConfig: PipelineConfig, depth: Int, id: Int = 0): IssueQueueComponent[IQEntryAluInt] = {
-    val iqConf = IssueQueueConfig[IQEntryAluInt](
-      pipelineConfig = pipelineConfig,
-      depth = depth,
-      exeUnitType = ExeUnitType.ALU_INT,
-      uopEntryType = HardType(IQEntryAluInt(pipelineConfig)),
-      usesSrc3 = false,
-      name = "IntIQ"
-    )
-    new IssueQueueComponent(iqConf, id)
-  }
-
-  // def FpuIQ(
-  //     pipelineConfig: PipelineConfig,
-  //     depth: Int,
-  //     usesSrc3: Boolean,
-  //     id: Int = 0
-  // ): IssueQueueComponent[IQEntryFpu] = {
-  //   val iqConf = IssueQueueConfig[IQEntryFpu](
-  //     pipelineConfig = pipelineConfig,
-  //     depth = depth,
-  //     exeUnitType = ExeUnitType.FPU_ADD_MUL_CVT_CMP,
-  //     uopEntryType = HardType(IQEntryFpu(pipelineConfig, usesSrc3)),
-  //     usesSrc3 = usesSrc3,
-  //     name = "FpuIQ"
-  //   )
-  //   new IssueQueueComponent(iqConf, id)
-  // }
 }
