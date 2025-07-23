@@ -227,7 +227,7 @@ class BpuPipelinePlugin(
     responseFlowOut.payload.qPc := s2_predict(Q_PC)
     when(s2_predict.isValid) {
       report(
-        L"[BPU] Query PC=0x${(queryPortIn.payload.pc)}, TID=${queryPortIn.payload.transactionId} -> Predict: isTaken=${responseFlowOut.payload.isTaken} target=0x${(responseFlowOut.payload.target)}"
+        L"[BPU] Query PC=0x${(RegNext(queryPortIn.payload.pc))}, TID=${RegNext(queryPortIn.payload.transactionId)} -> Predict: isTaken=${responseFlowOut.payload.isTaken} target=0x${(responseFlowOut.payload.target)}"
       )
     }
 
