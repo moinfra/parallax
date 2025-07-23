@@ -166,7 +166,7 @@ class LsuPlugin(
         val robLoadWritebackPort = robServiceInst.newWritebackPort("LSU_Load")
         val robStoreWritebackPort = robServiceInst.newWritebackPort("LSU_Store")
 
-        val prfWritePort     = prfServiceInst.newPrfWritePort()
+        val prfWritePort     = prfServiceInst.newPrfWritePort(s"LSU.gprWritePort")
         val sbQueryPort      = storeBufferServiceInst.getStoreQueueQueryPort()
         val sbPushPort       = storeBufferServiceInst.getPushPort()
 
