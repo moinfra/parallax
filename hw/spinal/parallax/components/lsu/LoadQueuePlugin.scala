@@ -155,7 +155,7 @@ class LoadQueuePlugin(
         val busyTableClearPort = busyTableServiceInst.newClearPort() // 创建清除端口
         val dCacheLoadPort   = dcacheServiceInst.newLoadPort(priority = 1)
         val robLoadWritebackPort = robServiceInst.newWritebackPort("LQ_Load")
-        val prfWritePort     = prfServiceInst.newPrfWritePort()
+        val prfWritePort     = prfServiceInst.newPrfWritePort(s"LQ.gprWritePort")
         val sbQueryPort      = storeBufferServiceInst.getStoreQueueQueryPort()
         val wakeupServiceInst = getService[WakeupService]
         val wakeupPort = wakeupServiceInst.newWakeupSource()
@@ -336,7 +336,7 @@ class LoadQueuePlugin(
                     ParallaxSim.log(L"[LQ-Fwd] STALL: robPtr=${head.robPtr} has dependency...")
                     slotsAfterUpdates(0).isStalledByDependency := True
                 } otherwise {
-                    ParallaxSim.log(L"[LQ-Fwd] MISS: robPtr=${head.robPtr} is clear to access D-Cache.")
+                    ParallaxSim.log(L"[LQ-Fwd] MISS: robPtr=${head.robPtr} is clear to access D-Cache or MMIO.")
                     slotsAfterUpdates(0).isReadyForDCache := True
                 }
             }
