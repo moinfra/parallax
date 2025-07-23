@@ -94,10 +94,7 @@ import parallax.fetch.{FetchedInstr, InstructionPredecoder}
 import parallax.fetch.icache.{ICacheService, ICachePort, ICacheConfig, ICacheCmd, ICacheRsp} // 导入我们自己的ICache包
 
 import scala.collection.mutable.ArrayBuffer
-import parallax.utilities.ParallaxSim.notice
-import parallax.utilities.ParallaxSim.log
-import parallax.utilities.ParallaxSim.success
-import parallax.utilities.ParallaxSim.warning
+import parallax.utilities.ParallaxSim._
 
 /**
  * 用于在 s4 和 s1 之间传递重试请求的命令。
@@ -123,24 +120,22 @@ class FetchPipelinePlugin(
     outputFifoDepth: Int = 4
 ) extends Plugin with FetchService with HardRedirectService {
 
-    val enableLog = true
+    val enableLog = false
     val verbose = false
     val icacheLatency = 1
 
-    val debug = new Area {
-        val cycles = enableLog generate Reg(UInt(16 bits)) init(0)
-        val c = enableLog generate Reg(UInt(3 bits)) init(0)
-            enableLog generate {
+    val dbg = new Area {
+        val cycles = enableLog generate { Reg(UInt(16 bits)) init(0) }
+        val c = enableLog generate { Reg(UInt(3 bits)) init(0) }
+        enableLog generate {
             cycles := cycles + 1
             c := c + 1
             val alwaysLog = true
-            if(enableLog) {
-                if (alwaysLog) {
-                    log(L"------------ End of cycle 0x$cycles")
-                } else {
-                    when(c === 0) {
-                        log(L"------------ End of cycle 0x$cycles")
-                    }
+            if (alwaysLog) {
+                if(enableLog) log(L"------------ End of cycle 0x$cycles")
+            } else {
+                when(c === 0) {
+                    if(enableLog) log(L"------------ End of cycle 0x$cycles")
                 }
             }
         }
@@ -244,7 +239,7 @@ class FetchPipelinePlugin(
         // --- 重定向与排空逻辑 ---
         val softRedirect = dispatcher.io.softRedirect
         when(softRedirect.valid) {
-            ParallaxSim.notice(L"[${debug.cycles}] !!!!GOT A SOFT REDIRECT to 0x${softRedirect.payload}!!!!")
+            if(enableLog) notice(L"[${dbg.cycles}] !!!!GOT A SOFT REDIRECT to 0x${softRedirect.payload}!!!!")
         }
         val hardRedirect = Flow(UInt(pCfg.pcWidth))
         val sortedHardRedirects = hardRedirectPorts.sortBy(-_._1).map(_._2)
@@ -263,14 +258,14 @@ class FetchPipelinePlugin(
         val doAnyFlush = doSoftFlush || doHardFlush
 
         when(doHardFlush) {
-            ParallaxSim.notice(L"[${debug.cycles}] !!!!GOT A HARD FLUSH to ${hardRedirect.payload}")
+            if(enableLog) notice(L"[${dbg.cycles}] !!!!GOT A HARD FLUSH to ${hardRedirect.payload}")
         }
 
         fetchOutput.io.flush := doHardFlush
         fetchOutput.io.push << dispatcher.io.fetchOutput
 
         when(fetchOutput.io.pop.fire) {
-            ParallaxSim.debug(L"[${debug.cycles}] Dispatcher output a instr: PC=0x${fetchOutput.io.pop.payload.pc}, instr=0x${fetchOutput.io.pop.payload.instruction}")
+            if(enableLog) debug(L"[${dbg.cycles}] Dispatcher output a instr: PC=0x${fetchOutput.io.pop.payload.pc}, instr=0x${fetchOutput.io.pop.payload.instruction}")
         }
 
         val dispatchSoftFlushReg = RegNext(doSoftFlush) init(False)
@@ -283,15 +278,15 @@ class FetchPipelinePlugin(
 
         when(doAnyFlush) {
             isDrainingCacheRspReg := True
-            notice(L"[${debug.cycles}] Draining the pipeline due to a flush. iCacheInFlightCounter.value=${iCacheInFlightCounter.value}")
+            if(enableLog) notice(L"[${dbg.cycles}] Draining the pipeline due to a flush. iCacheInFlightCounter.value=${iCacheInFlightCounter.value}")
         }
         when(isDrainingCacheRspReg) {
             when(iCacheInFlightCounter.value === 0) {
                 isDrainingCacheRspReg := False
-                success(L"[${debug.cycles}] Pipeline drained last cycle")
+                success(L"[${dbg.cycles}] Pipeline drained last cycle")
             }
             .otherwise {
-                notice(L"[${debug.cycles}] Pipeline still has ${iCacheInFlightCounter.value} cycles to drain")
+                if(enableLog) notice(L"[${dbg.cycles}] Pipeline still has ${iCacheInFlightCounter.value} cycles to drain")
             }
         }
         
@@ -343,7 +338,7 @@ class FetchPipelinePlugin(
                 fetchPcReg := hardRedirect.payload
                 retryCmd.lock := False // 硬冲刷取消任何挂起的重试
                 lastRetryIdReg := 0    // 同时重置lastRetryId
-                log(L"[${debug.cycles}] FETCH-S1: fetchPcReg reset to ${hardRedirect.payload} due to hard flush, retry cancelled.")
+                if(enableLog) log(L"[${dbg.cycles}] FETCH-S1: fetchPcReg reset to ${hardRedirect.payload} due to hard flush, retry cancelled.")
             }
             .elsewhen(doSoftFlush) {
                 fetchPcReg := softRedirect.payload
@@ -356,17 +351,17 @@ class FetchPipelinePlugin(
                 // 这会覆盖掉投机性的、超前过度的值。
                 val correctedNextPc = alignToLine(retryCmd.pc) + lineBytes
                 fetchPcReg := correctedNextPc
-                log(L"[${debug.cycles}] FETCH-S1: Correcting fetchPcReg for next cycle to 0x${correctedNextPc}")
+                if(enableLog) log(L"[${dbg.cycles}] FETCH-S1: Correcting fetchPcReg for next cycle to 0x${correctedNextPc}")
             }
             .elsewhen(s1.isFiring && !retryCmd.lock) {
                 fetchPcReg := nextPcRegular
-                log(L"[${debug.cycles}] FETCH-S1: fetchPcReg updated to ${nextPcRegular} (from raw PC=0x${s1(RAW_PC)})")
+                if(enableLog) log(L"[${dbg.cycles}] FETCH-S1: fetchPcReg updated to ${nextPcRegular} (from raw PC=0x${s1(RAW_PC)})")
             }
 
             // 当S1发射一个重试请求时，记录其ID，这样如果S1在下一周期停顿，就不会再次为同一个ID发射请求
             when(s1.isFiring && needRedo) {
                 lastRetryIdReg := retryCmd.id
-                notice(L"[${debug.cycles}] FETCH-S1: Acting on retry for ID ${retryCmd.id}, PC=0x${retryCmd.pc}. Locking this ID in s1.")
+                if(enableLog) notice(L"[${dbg.cycles}] FETCH-S1: Acting on retry for ID ${retryCmd.id}, PC=0x${retryCmd.pc}. Locking this ID in s1.")
             }
 
             // 4. 流水线控制
@@ -379,13 +374,13 @@ class FetchPipelinePlugin(
             )
             {
                 s1.haltIt()
-                log(L"[${debug.cycles}] FETCH-S1: Halting due to isDrainingCacheRspReg=${isDrainingCacheRspReg}, " :+ 
+                if(enableLog) log(L"[${dbg.cycles}] FETCH-S1: Halting due to isDrainingCacheRspReg=${isDrainingCacheRspReg}, " :+ 
                 L"fetchDisabled=${fetchDisabled}, iCacheInFlightCounter.value=${iCacheInFlightCounter.value}" :+
                 L"retryCmd.lock=${retryCmd.lock} retryCmd.id=${retryCmd.id} === lastRetryIdReg=${lastRetryIdReg}")
             }
 
             if(enableLog && verbose) when(s1.isFiring) {
-                log(L"[${debug.cycles}] FETCH-S1: Firing Aligned PC=0x${s1(PC)} (from raw PC=0x${s1(RAW_PC)})")
+                if(enableLog) log(L"[${dbg.cycles}] FETCH-S1: Firing Aligned PC=0x${s1(PC)} (from raw PC=0x${s1(RAW_PC)})")
             }
         }
 
@@ -396,7 +391,7 @@ class FetchPipelinePlugin(
 
             iCachePort.cmd.valid := s2.isFiring && !isDrainingCacheRspReg
             when(iCachePort.cmd.valid) {
-                if(enableLog && verbose) notice(L"[${debug.cycles}] FETCH-S2: Sending ICache request for PC=0x${s2(PC)}")
+                if(enableLog && verbose) notice(L"[${dbg.cycles}] FETCH-S2: Sending ICache request for PC=0x${s2(PC)}")
             }
             val cmdPayload = ICacheCmd(pCfg.pcWidth.value)
             cmdPayload.address := s2(PC)
@@ -404,20 +399,20 @@ class FetchPipelinePlugin(
             iCachePort.cmd.payload := cmdPayload
 
             when(iCachePort.cmd.fire) { iCacheInFlightCounter.increment() }
-            if(enableLog && verbose) when(s2.isFiring) { log(L"[${debug.cycles}] FETCH-S2: ICache request sent for PC=0x${s2(PC)}") }
+            if(enableLog && verbose) when(s2.isFiring) { log(L"[${dbg.cycles}] FETCH-S2: ICache request sent for PC=0x${s2(PC)}") }
         }
 
         // --- s3: I-Cache 等待 ---
         val s3_logic = new Area {
             val s3 = fetchPipeline.s3_iCacheWait
-            if(enableLog && verbose && icacheLatency == 2) when(s3.isFiring) { log(L"[${debug.cycles}] FETCH-S3: Waiting for ICache Rsp for PC=0x${s3(PC)}") }
+            if(enableLog && verbose && icacheLatency == 2) when(s3.isFiring) { log(L"[${dbg.cycles}] FETCH-S3: Waiting for ICache Rsp for PC=0x${s3(PC)}") }
         }
 
         // --- s4: I-Cache响应接收与并行预解码 ---
         val s4_logic = new Area {
             val s4 = fetchPipeline.s4_predecode
             val iCacheRsp = setup.iCachePort.rsp
-            // log(L"[${debug.cycles}] iCacheRsp: ${iCacheRsp.format}")
+            // log(L"[${dbg.cycles}] iCacheRsp: ${iCacheRsp.format}")
             
             when(iCacheRsp.fire) {
                 iCacheInFlightCounter.decrement() 
@@ -431,7 +426,7 @@ class FetchPipelinePlugin(
 
             val handleRsp = s4.isFiring && iCacheRsp.valid && !isDrainingCacheRspReg
             if (enableLog) {
-                log(L"[${debug.cycles}] FETCH-S4: Handling Rsp for PC=0x${s4(PC)}? ${handleRsp} because" :+
+                if(enableLog) log(L"[${dbg.cycles}] FETCH-S4: Handling Rsp for PC=0x${s4(PC)}? ${handleRsp} because" :+
                     L" isFiring=${s4.isFiring}, iCacheRsp.valid=${iCacheRsp.valid}, isDrainingCacheRspReg=${isDrainingCacheRspReg}")
             }
             val hasHigherPriorityStuff = doAnyFlush || dispatchAnyFlushReg || isDrainingCacheRspReg
@@ -450,7 +445,7 @@ class FetchPipelinePlugin(
             }
             
             when(handleRsp) { // 只有收到有效数据且有容量处理才执行下面的逻辑
-                if(enableLog && verbose) log(L"[${debug.cycles}] FETCH-S4: Rsp received for PC=0x${s4(PC)}. Redo=${iCacheRsp.payload.redo}, WasHit=${iCacheRsp.payload.wasHit}, TID=${iCacheRsp.payload.transactionId}")
+                if(enableLog && verbose) log(L"[${dbg.cycles}] FETCH-S4: Rsp received for PC=0x${s4(PC)}. Redo=${iCacheRsp.payload.redo}, WasHit=${iCacheRsp.payload.wasHit}, TID=${iCacheRsp.payload.transactionId}")
                 assert(iCacheRsp.payload.transactionId === (s4(PC) >> 4).resized, L"ICache response TID mismatch! Expect ${(s4(PC) >> 4).resized}, got ${iCacheRsp.payload.transactionId}") 
 
                 when(iCacheRsp.payload.redo) {
@@ -461,21 +456,21 @@ class FetchPipelinePlugin(
                         retryCmd.id   := retryIdCounter.value
                         retryIdCounter.increment()
                         doRetryFlush := True
-                        if(enableLog) notice(L"[${debug.cycles}] FETCH-S4: Requesting retry for raw PC=0x${s4(RAW_PC)}, ID=${iCacheRsp.payload.transactionId}, retryCmd.id=${retryIdCounter.value}")
+                        if(enableLog) notice(L"[${dbg.cycles}] FETCH-S4: Requesting retry for raw PC=0x${s4(RAW_PC)}, ID=${iCacheRsp.payload.transactionId}, retryCmd.id=${retryIdCounter.value}")
                     } .otherwise {
                         if(enableLog) {
                             when(retryCmd.lock && alignToLine(s4(PC)) =/= alignToLine(retryCmd.pc)) {
-                                warning(L"[${debug.cycles}] FETCH-S4: ICache requests retry for ${s4(PC)}, but another retry for ${retryCmd.pc} is already locked. Stalling.")
+                                warning(L"[${dbg.cycles}] FETCH-S4: ICache requests retry for ${s4(PC)}, but another retry for ${retryCmd.pc} is already locked. Stalling.")
                                 assert(False)
                             }
                         }
                     }
                 } .otherwise {
-                    if(enableLog) success(L"[${debug.cycles}] FETCH-S4: ICache hit for PC=0x${s4(PC)}")
+                    if(enableLog) success(L"[${dbg.cycles}] FETCH-S4: ICache hit for PC=0x${s4(PC)}")
                     // 如果此成功响应对应于挂起的重试请求，则清除重试锁
                     when(retryCmd.lock && alignToLine(s4(PC)) === alignToLine(retryCmd.pc)) {
                         retryCmd.lock := False
-                        if(enableLog) success(L"[${debug.cycles}] FETCH-S4: Retry for ID ${retryCmd.id} completed. Clearing lock.")
+                        if(enableLog) success(L"[${dbg.cycles}] FETCH-S4: Retry for ID ${retryCmd.id} completed. Clearing lock.")
                     }
                     // 仅当没有挂起的重试，或者此响应就是针对该重试的成功响应时，才处理数据
                     when(!retryCmd.lock || alignToLine(s4(PC)) === alignToLine(retryCmd.pc)) {
@@ -504,7 +499,7 @@ class FetchPipelinePlugin(
                         
                         s4.haltWhen(!predecodedGroups.io.push.ready)
                         if(enableLog) when(predecodedGroups.io.push.fire) { 
-                            log(L"FETCH-S4: Predecoded and pushing to FIFO. PC=0x${s4(PC)}, startIndex=${predecodedGroup.startInstructionIndex}, numValid=${predecodedGroup.numValidInstructions}") 
+                            if(enableLog) log(L"FETCH-S4: Predecoded and pushing to FIFO. PC=0x${s4(PC)}, startIndex=${predecodedGroup.startInstructionIndex}, numValid=${predecodedGroup.numValidInstructions}") 
                         }
                     }
 
@@ -520,7 +515,7 @@ class FetchPipelinePlugin(
         if(enableLog) when(dispatcher.io.fetchGroupIn.fire) {
             val group = dispatcher.io.fetchGroupIn.payload
             val firstIsBranch = group.predecodeInfos(group.startInstructionIndex).isBranch
-            notice(L"[DISPATCHER-IN] POP from predecodedGroups FIFO. PC=0x${group.pc}, startIdx=${group.startInstructionIndex}, numValid=${group.numValidInstructions}, firstIsBranch=${firstIsBranch}")
+            if(enableLog) notice(L"[DISPATCHER-IN] POP from predecodedGroups FIFO. PC=0x${group.pc}, startIdx=${group.startInstructionIndex}, numValid=${group.numValidInstructions}, firstIsBranch=${firstIsBranch}")
         }
 
         // --- 流水线冲刷 ---
@@ -539,15 +534,15 @@ class FetchPipelinePlugin(
         s4_logic.predecodedGroups.io.flush := dispatchAnyFlushReg || isDrainingCacheRspReg
         dispatcher.io.flush := dispatchAnyFlushReg // 硬冲刷才需要清空下游
         when(s4_logic.predecodedGroups.io.flush) {
-            notice(L"[${debug.cycles}] Flush predecodedGroups")
+            if(enableLog) notice(L"[${dbg.cycles}] Flush predecodedGroups")
         }
         when(dispatcher.io.flush) {
-            ParallaxSim.notice(L"[${debug.cycles}] Flush dispatcher")
+            if(enableLog) notice(L"[${dbg.cycles}] Flush dispatcher")
         }
         if(enableLog) when(dispatchAnyFlushReg) { // Use the registered version as it aligns with the action
             val isHard = dispatchHardFlushReg
             val isSoft = dispatchSoftFlushReg
-            notice(L"[FLUSH LOGIC] dispatchAnyFlushReg is ACTIVE (Cause: isHard=${isHard}, isSoft=${isSoft}. Flushing predecodedGroups and Dispatcher.")
+            if(enableLog) notice(L"[FLUSH LOGIC] dispatchAnyFlushReg is ACTIVE (Cause: isHard=${isHard}, isSoft=${isSoft}. Flushing predecodedGroups and Dispatcher.")
         }
         fetchPipeline.build()
         
