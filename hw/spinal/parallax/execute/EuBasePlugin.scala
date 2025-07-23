@@ -111,13 +111,13 @@ abstract class EuBasePlugin(
   lazy val gprWritePort: PrfWritePort =
     if (euRegType == EuRegType.GPR_ONLY || euRegType == EuRegType.MIXED_GPR_FPR) {
       if (gprFileService == null) SpinalError(s"$euName: GPRFileService 为 null，但 GPR 写端口需要它。")
-      gprFileService.newPrfWritePort()
+      gprFileService.newPrfWritePort(s"$euName.gprWritePort")
     } else null
 
   lazy val fprWritePort: PrfWritePort =
     if (pipelineConfig.hasFpu && (euRegType == EuRegType.FPR_ONLY || euRegType == EuRegType.MIXED_GPR_FPR)) {
       if (fprFileService == null) SpinalError(s"$euName: FPRFileService 为 null，但启用 FPU 时的 FPR 写端口需要它。")
-      fprFileService.newPrfWritePort()
+      fprFileService.newPrfWritePort(s"$euName.gprWritePort")
     } else null
 
   // --- ROB 完成端口 ---
