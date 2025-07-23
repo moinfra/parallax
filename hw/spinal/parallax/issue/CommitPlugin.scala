@@ -7,8 +7,8 @@ import parallax.components.rob.{ROBService, FlushReason}
 import parallax.components.rename._
 import parallax.utilities.{Plugin, Service, ParallaxSim}
 import parallax.utilities.Formattable
-import parallax.fetch.SimpleFetchPipelineService
 import parallax.utilities.ParallaxSim
+import parallax.fetch2.FetchService
 
 /**
  * Commit statistics bundle for monitoring commit stage performance.
@@ -48,7 +48,7 @@ case class CommitSlotLog(pCfg: PipelineConfig) extends Bundle with Formattable {
   def format: Seq[Any] = {
     Seq(
       L"(valid=${valid}, canCommit=${canCommit}, doCommit=${doCommit}, robPtr=${robPtr}",
-      L", oldPhysDest=p${oldPhysDest}, allocatesPhysDest=${allocatesPhysDest})"
+      L", oldPhysDest=${oldPhysDest}, allocatesPhysDest=${allocatesPhysDest})"
     )
   }
 }
@@ -103,7 +103,7 @@ class CommitPlugin(
 ) extends Plugin with CommitService {
   assert(pipelineConfig.commitWidth == 1)
   
-  val enableLog = false // 控制是否启用周期性详细日志
+  val enableLog = true // 控制是否启用周期性详细日志
   
   // Service interface state
   private val commitEnableExt = Bool()
@@ -135,7 +135,7 @@ class CommitPlugin(
     val ratControlService        = getService[RatControlService]
     val flControlService         = getService[FreeListControlService]
     val checkpointManagerService = getService[CheckpointManagerService] 
-    val fetchService             = getService[SimpleFetchPipelineService]
+    val fetchService             = getService[FetchService]
     
     // === Fetch Pipeline Control for IDLE ===
     val robFlushPort             = robService.newRobFlushPort()
@@ -336,9 +336,6 @@ class CommitPlugin(
       commitStatsReg.maxCommitPc        := maxCommitPcReg
     }
     
-    // 调试报告
-    if(enableLog) report(L"commitAckMasks(0)=${s0.commitAckMasks(0)}: commitEnableExt=${commitEnableExt}, commitSlots(0).valid=${commitSlots(0).canCommit}")
-
     // restoreCheckpointTrigger is already set above in the IDLE logic
     getServiceOption[DebugDisplayService].foreach(dbg => { 
       dbg.setDebugValueOnce(s0.committedThisCycle_comb.asBool, DebugValue.COMMIT_FIRE, expectIncr = true)
