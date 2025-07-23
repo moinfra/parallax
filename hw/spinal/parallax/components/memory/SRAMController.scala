@@ -542,14 +542,14 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
       }
       whenIsActive {
         val resp_status = transaction_error_occurred ? Axi4.resp.SLVERR | Axi4.resp.OKAY
-        if (config.enableLog)
-          report(L"$instanceId WRITE_RESPONSE. ID=${aw_cmd_reg.id}, Resp=${resp_status}, Addr=${aw_cmd_reg.addr}, Len=${aw_cmd_reg.len}, Size=${aw_cmd_reg.size}, Burst=${aw_cmd_reg.burst}, Lock=${aw_cmd_reg.lock}, Cache=${aw_cmd_reg.cache}, Prot=${aw_cmd_reg.prot}, Qos=${aw_cmd_reg.qos}, Region=${aw_cmd_reg.region}")
+        if (config.enableLog) report(L"$instanceId WRITE_RESPONSE. ID=${aw_cmd_reg.id}, Resp=${resp_status}, Addr=${aw_cmd_reg.addr}, Len=${aw_cmd_reg.len}, Size=${aw_cmd_reg.size}, Burst=${aw_cmd_reg.burst}, Lock=${aw_cmd_reg.lock}, Cache=${aw_cmd_reg.cache}, Prot=${aw_cmd_reg.prot}, Qos=${aw_cmd_reg.qos}, Region=${aw_cmd_reg.region}")
         
         io.axi.b.valid := True
         io.axi.b.payload.id := aw_cmd_reg.id
         io.axi.b.payload.resp := resp_status
         when(io.axi.b.ready) {
-          report(L"$instanceId B Ready. ID=${aw_cmd_reg.id}, Resp=${resp_status}")
+          if (config.enableLog)
+            report(L"$instanceId B Ready. ID=${aw_cmd_reg.id}, Resp=${resp_status}")
           goto(IDLE)
         }
       }
