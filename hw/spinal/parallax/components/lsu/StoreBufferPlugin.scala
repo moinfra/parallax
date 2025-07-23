@@ -679,7 +679,8 @@ class StoreBufferPlugin(
                         hasOlderOverlappingStore := True // 标记存在旧的、地址重叠的Store
 
                         when(slot.waitRsp || slot.isWaitingForRefill || slot.isWaitingForWb) {
-                            report(L"[SQ-Fwd] STALL_DATA_NOT_READY (Slot Status): slot=${slot.robPtr} (LoadAddr=${loadWordAddr}, StoreAddr=${storeWordAddr})")
+                            report(L"[SQ-Fwd] STALL_DATA_NOT_READY (Slot Status): slot=${slot.robPtr} (LoadAddr=${loadWordAddr}, StoreAddr=${storeWordAddr})" :+
+                            L"reason: waitRsp=${slot.waitRsp}, isWaitingForRefill=${slot.isWaitingForRefill}, isWaitingForWb=${slot.isWaitingForWb}")
                             dataNotReadyStall := True
                         }
                     }
