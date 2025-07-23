@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 49a99dae7b6ed938ae50042417514f24dcaeaaa8
 // Component : CoreNSCSCC
-// Git hash  : 13b326d524a7a3c77186eb7a95558c4dae9918dd
+// Git hash  : 05fe6327fdde2d50ef7fc60dac97de0722f6c981
 
 `timescale 1ns/1ps
 
@@ -1586,9 +1586,6 @@ module CoreNSCSCC (
   wire       [0:0]    _zz_CommitPlugin_logic_s0_committedThisCycle_comb_1;
   reg        [0:0]    _zz_CommitPlugin_logic_s0_recycledThisCycle_comb;
   wire       [0:0]    _zz_CommitPlugin_logic_s0_recycledThisCycle_comb_1;
-  wire       [31:0]   _zz_CommitPlugin_logic_s0_fwd_totalCommitted;
-  wire       [31:0]   _zz_CommitPlugin_logic_s0_fwd_physRegRecycled;
-  wire       [31:0]   _zz_CommitPlugin_logic_s0_fwd_robFlushCount;
   wire       [31:0]   _zz_CommitPlugin_commitStatsReg_totalCommitted;
   wire       [31:0]   _zz_CommitPlugin_commitStatsReg_physRegRecycled;
   wire       [31:0]   _zz_CommitPlugin_commitStatsReg_robFlushCount;
@@ -1730,7 +1727,7 @@ module CoreNSCSCC (
   reg                 s4_Predecode_ready;
   reg        [31:0]   s2_ICache_Access_FetchPipelinePlugin_logic_FetchPipeline_PC;
   wire                s2_ICache_Access_ready;
-  reg                 _zz_s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l376;
+  reg                 _zz_s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l378;
   reg                 s1_PC_Gen_ready;
   wire       [31:0]   s1_PC_Gen_FetchPipelinePlugin_logic_FetchPipeline_PC;
   wire       [31:0]   s1_PC_Gen_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC;
@@ -2521,12 +2518,14 @@ module CoreNSCSCC (
   wire       [31:0]   BpuPipelinePlugin_updatePortIn_payload_pc;
   wire                BpuPipelinePlugin_updatePortIn_payload_isTaken;
   wire       [31:0]   BpuPipelinePlugin_updatePortIn_payload_target;
+  reg        [15:0]   FetchPipelinePlugin_dbg_cycles;
+  reg        [2:0]    FetchPipelinePlugin_dbg_c;
   wire                FetchPipelinePlugin_doHardRedirect_listening;
   wire       [63:0]   BusyTablePlugin_combinationalBusyBits;
   wire                ROBPlugin_aggregatedFlushSignal_valid;
   wire       [1:0]    ROBPlugin_aggregatedFlushSignal_payload_reason;
   wire       [3:0]    ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr;
-  (* MARK_DEBUG = "TRUE" *) reg                 CheckpointManagerPlugin_saveCheckpointTrigger;
+  reg                 CheckpointManagerPlugin_saveCheckpointTrigger;
   reg                 CheckpointManagerPlugin_restoreCheckpointTrigger;
   wire                CommitPlugin_commitEnableExt;
   reg        [0:0]    CommitPlugin_commitStatsReg_committedThisCycle;
@@ -3243,132 +3242,29 @@ module CoreNSCSCC (
   wire       [5:0]    CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_31;
   reg        [63:0]   CheckpointManagerPlugin_logic_initialFreeMask;
   wire       [63:0]   CheckpointManagerPlugin_logic_initialBtCheckpoint_busyBits;
-  wire       [0:0]    CommitPlugin_logic_commitCount;
   wire                CommitPlugin_logic_s0_isMispredictedBranch;
-  reg                 CommitPlugin_logic_s0_isMispredictedBranchPrev;
-  reg        [31:0]   CommitPlugin_logic_s0_actualTargetOfBranchPrev;
   reg                 CommitPlugin_logic_s0_commitAckMasks_0;
-  wire                CommitPlugin_logic_s0_commitIdleThisCycle;
-  wire                when_CommitPlugin_l204;
-  wire                when_CommitPlugin_l263;
+  wire                when_CommitPlugin_l197;
+  wire                when_CommitPlugin_l246;
   wire       [0:0]    CommitPlugin_logic_s0_committedThisCycle_comb;
   wire       [0:0]    CommitPlugin_logic_s0_recycledThisCycle_comb;
   wire       [0:0]    CommitPlugin_logic_s0_flushedThisCycle_comb;
   wire       [31:0]   CommitPlugin_logic_s0_commitPcs_0;
-  wire                CommitPlugin_logic_s0_anyCommitOOB;
   wire       [31:0]   CommitPlugin_logic_s0_maxCommitPcThisCycle;
-  wire       [0:0]    CommitPlugin_logic_s0_fwd_committedThisCycle;
-  wire       [31:0]   CommitPlugin_logic_s0_fwd_totalCommitted;
-  wire       [31:0]   CommitPlugin_logic_s0_fwd_robFlushCount;
-  wire       [31:0]   CommitPlugin_logic_s0_fwd_physRegRecycled;
-  wire                CommitPlugin_logic_s0_fwd_commitOOB;
-  wire       [31:0]   CommitPlugin_logic_s0_fwd_maxCommitPc;
+  wire                CommitPlugin_logic_s0_anyCommitOOB;
   wire                CommitPlugin_logic_s0_commitSlotLogs_0_valid;
   wire                CommitPlugin_logic_s0_commitSlotLogs_0_canCommit;
   wire                CommitPlugin_logic_s0_commitSlotLogs_0_doCommit;
   wire       [3:0]    CommitPlugin_logic_s0_commitSlotLogs_0_robPtr;
   wire       [5:0]    CommitPlugin_logic_s0_commitSlotLogs_0_oldPhysDest;
   wire                CommitPlugin_logic_s0_commitSlotLogs_0_allocatesPhysDest;
-  reg                 CommitPlugin_logic_s1_s1_commitIdleThisCycle;
-  reg        [31:0]   CommitPlugin_logic_s1_s1_headUop_decoded_pc;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_isValid;
-  reg        [4:0]    CommitPlugin_logic_s1_s1_headUop_decoded_uopCode;
-  reg        [3:0]    CommitPlugin_logic_s1_s1_headUop_decoded_exeUnit;
-  reg        [1:0]    CommitPlugin_logic_s1_s1_headUop_decoded_isa;
-  reg        [4:0]    CommitPlugin_logic_s1_s1_headUop_decoded_archDest_idx;
-  reg        [1:0]    CommitPlugin_logic_s1_s1_headUop_decoded_archDest_rtype;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_writeArchDestEn;
-  reg        [4:0]    CommitPlugin_logic_s1_s1_headUop_decoded_archSrc1_idx;
-  reg        [1:0]    CommitPlugin_logic_s1_s1_headUop_decoded_archSrc1_rtype;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_useArchSrc1;
-  reg        [4:0]    CommitPlugin_logic_s1_s1_headUop_decoded_archSrc2_idx;
-  reg        [1:0]    CommitPlugin_logic_s1_s1_headUop_decoded_archSrc2_rtype;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_useArchSrc2;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_usePcForAddr;
-  reg        [31:0]   CommitPlugin_logic_s1_s1_headUop_decoded_imm;
-  reg        [2:0]    CommitPlugin_logic_s1_s1_headUop_decoded_immUsage;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_valid;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_isSub;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_isAdd;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_isSigned;
-  reg        [1:0]    CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_logicOp;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_shiftCtrl_valid;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_shiftCtrl_isRight;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_shiftCtrl_isArithmetic;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_shiftCtrl_isRotate;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_shiftCtrl_isDoubleWord;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_mulDivCtrl_valid;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_mulDivCtrl_isDiv;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_mulDivCtrl_isSigned;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_mulDivCtrl_isWordOp;
-  reg        [1:0]    CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_size;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_isSignedLoad;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_isStore;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_isLoadLinked;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_isStoreCond;
-  reg        [4:0]    CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_atomicOp;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_isFence;
-  reg        [7:0]    CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_fenceMode;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_isCacheOp;
-  reg        [4:0]    CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_cacheOpType;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_isPrefetch;
-  reg        [4:0]    CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_isJump;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_isLink;
-  reg        [4:0]    CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_linkReg_idx;
-  reg        [1:0]    CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_linkReg_rtype;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_isIndirect;
-  reg        [2:0]    CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_laCfIdx;
-  reg        [3:0]    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_opType;
-  reg        [1:0]    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc1;
-  reg        [1:0]    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc2;
-  reg        [1:0]    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeDest;
-  reg        [2:0]    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_roundingMode;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_isIntegerDest;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_isSignedCvt;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fmaNegSrc1;
-  reg        [4:0]    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fcmpCond;
-  reg        [13:0]   CommitPlugin_logic_s1_s1_headUop_decoded_csrCtrl_csrAddr;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_csrCtrl_isWrite;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_csrCtrl_isRead;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_csrCtrl_isExchange;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_csrCtrl_useUimmAsSrc;
-  reg        [19:0]   CommitPlugin_logic_s1_s1_headUop_decoded_sysCtrl_sysCode;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_sysCtrl_isExceptionReturn;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_sysCtrl_isTlbOp;
-  reg        [3:0]    CommitPlugin_logic_s1_s1_headUop_decoded_sysCtrl_tlbOpType;
-  reg        [1:0]    CommitPlugin_logic_s1_s1_headUop_decoded_decodeExceptionCode;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_hasDecodeException;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_isMicrocode;
-  reg        [7:0]    CommitPlugin_logic_s1_s1_headUop_decoded_microcodeEntry;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_isSerializing;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_isBranchOrJump;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_branchPrediction_isTaken;
-  reg        [31:0]   CommitPlugin_logic_s1_s1_headUop_decoded_branchPrediction_target;
-  reg                 CommitPlugin_logic_s1_s1_headUop_decoded_branchPrediction_wasPredicted;
-  reg        [5:0]    CommitPlugin_logic_s1_s1_headUop_rename_physSrc1_idx;
-  reg                 CommitPlugin_logic_s1_s1_headUop_rename_physSrc1IsFpr;
-  reg        [5:0]    CommitPlugin_logic_s1_s1_headUop_rename_physSrc2_idx;
-  reg                 CommitPlugin_logic_s1_s1_headUop_rename_physSrc2IsFpr;
-  reg        [5:0]    CommitPlugin_logic_s1_s1_headUop_rename_physDest_idx;
-  reg                 CommitPlugin_logic_s1_s1_headUop_rename_physDestIsFpr;
-  reg        [5:0]    CommitPlugin_logic_s1_s1_headUop_rename_oldPhysDest_idx;
-  reg                 CommitPlugin_logic_s1_s1_headUop_rename_oldPhysDestIsFpr;
-  reg                 CommitPlugin_logic_s1_s1_headUop_rename_allocatesPhysDest;
-  reg                 CommitPlugin_logic_s1_s1_headUop_rename_writesToPhysReg;
-  reg        [3:0]    CommitPlugin_logic_s1_s1_headUop_robPtr;
-  reg        [15:0]   CommitPlugin_logic_s1_s1_headUop_uniqueId;
-  reg                 CommitPlugin_logic_s1_s1_headUop_dispatched;
-  reg                 CommitPlugin_logic_s1_s1_headUop_executed;
-  reg                 CommitPlugin_logic_s1_s1_headUop_hasException;
-  reg        [7:0]    CommitPlugin_logic_s1_s1_headUop_exceptionCode;
-  reg                 CommitPlugin_logic_s1_s1_hasCommitsThisCycle;
+  reg        [0:0]    CommitPlugin_logic_s1_s1_committedThisCycle;
+  reg        [0:0]    CommitPlugin_logic_s1_s1_recycledThisCycle;
+  reg        [0:0]    CommitPlugin_logic_s1_s1_flushedThisCycle;
   reg        [31:0]   CommitPlugin_logic_s1_s1_maxCommitPcThisCycle;
   reg                 CommitPlugin_logic_s1_s1_anyCommitOOB;
-  reg        [0:0]    CommitPlugin_logic_s1_s1_committedThisCycle_comb;
-  reg        [0:0]    CommitPlugin_logic_s1_s1_recycledThisCycle_comb;
-  reg        [0:0]    CommitPlugin_logic_s1_s1_flushedThisCycle_comb;
-  wire                when_CommitPlugin_l349;
+  wire                CommitPlugin_logic_s1_s1_hasCommitsThisCycle;
+  wire                when_CommitPlugin_l298;
   wire       [4:0]    _zz_when_Debug_l71_6;
   wire                when_Debug_l71_5;
   wire       [7:0]    _zz_28;
@@ -5147,37 +5043,37 @@ module CoreNSCSCC (
   wire       [31:0]   StoreBufferPlugin_logic_bypassInitial_data;
   wire       [3:0]    StoreBufferPlugin_logic_bypassInitial_hitMask;
   reg        [31:0]   _zz_StoreBufferPlugin_logic_finalBypassResult_data;
-  reg        [3:0]    _zz_when_StoreBufferPlugin_l744;
-  wire                when_StoreBufferPlugin_l737;
+  reg        [3:0]    _zz_when_StoreBufferPlugin_l742;
+  wire                when_StoreBufferPlugin_l735;
+  wire                when_StoreBufferPlugin_l740;
   wire                when_StoreBufferPlugin_l742;
-  wire                when_StoreBufferPlugin_l744;
-  wire                when_StoreBufferPlugin_l744_1;
-  wire                when_StoreBufferPlugin_l744_2;
-  wire                when_StoreBufferPlugin_l744_3;
-  reg        [31:0]   _zz_StoreBufferPlugin_logic_finalBypassResult_data_1;
-  reg        [3:0]    _zz_when_StoreBufferPlugin_l744_1;
-  wire                when_StoreBufferPlugin_l737_1;
   wire                when_StoreBufferPlugin_l742_1;
-  wire                when_StoreBufferPlugin_l744_4;
-  wire                when_StoreBufferPlugin_l744_5;
-  wire                when_StoreBufferPlugin_l744_6;
-  wire                when_StoreBufferPlugin_l744_7;
+  wire                when_StoreBufferPlugin_l742_2;
+  wire                when_StoreBufferPlugin_l742_3;
+  reg        [31:0]   _zz_StoreBufferPlugin_logic_finalBypassResult_data_1;
+  reg        [3:0]    _zz_when_StoreBufferPlugin_l742_1;
+  wire                when_StoreBufferPlugin_l735_1;
+  wire                when_StoreBufferPlugin_l740_1;
+  wire                when_StoreBufferPlugin_l742_4;
+  wire                when_StoreBufferPlugin_l742_5;
+  wire                when_StoreBufferPlugin_l742_6;
+  wire                when_StoreBufferPlugin_l742_7;
   reg        [31:0]   _zz_StoreBufferPlugin_logic_finalBypassResult_data_2;
   reg        [3:0]    _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask;
-  wire                when_StoreBufferPlugin_l737_2;
-  wire                when_StoreBufferPlugin_l742_2;
-  wire                when_StoreBufferPlugin_l744_8;
-  wire                when_StoreBufferPlugin_l744_9;
-  wire                when_StoreBufferPlugin_l744_10;
-  wire                when_StoreBufferPlugin_l744_11;
+  wire                when_StoreBufferPlugin_l735_2;
+  wire                when_StoreBufferPlugin_l740_2;
+  wire                when_StoreBufferPlugin_l742_8;
+  wire                when_StoreBufferPlugin_l742_9;
+  wire                when_StoreBufferPlugin_l742_10;
+  wire                when_StoreBufferPlugin_l742_11;
   reg        [31:0]   StoreBufferPlugin_logic_finalBypassResult_data;
   reg        [3:0]    StoreBufferPlugin_logic_finalBypassResult_hitMask;
-  wire                when_StoreBufferPlugin_l737_3;
-  wire                when_StoreBufferPlugin_l742_3;
-  wire                when_StoreBufferPlugin_l744_12;
-  wire                when_StoreBufferPlugin_l744_13;
-  wire                when_StoreBufferPlugin_l744_14;
-  wire                when_StoreBufferPlugin_l744_15;
+  wire                when_StoreBufferPlugin_l735_3;
+  wire                when_StoreBufferPlugin_l740_3;
+  wire                when_StoreBufferPlugin_l742_12;
+  wire                when_StoreBufferPlugin_l742_13;
+  wire                when_StoreBufferPlugin_l742_14;
+  wire                when_StoreBufferPlugin_l742_15;
   wire                StoreBufferPlugin_logic_overallBypassHit;
   wire       [63:0]   BusyTablePlugin_logic_busyTableNext;
   reg                 FetchPipelinePlugin_logic_retryIdCounter_willIncrement;
@@ -5214,7 +5110,7 @@ module CoreNSCSCC (
   wire                when_Utils_l767;
   wire                when_Utils_l769;
   reg                 FetchPipelinePlugin_logic_isDrainingCacheRspReg;
-  wire                when_FetchPipelinePlugin2_l284;
+  wire                when_FetchPipelinePlugin2_l286;
   reg                 FetchPipelinePlugin_logic_retryCmd_lock;
   reg        [31:0]   FetchPipelinePlugin_logic_retryCmd_pc;
   reg        [1:0]    FetchPipelinePlugin_logic_retryCmd_id;
@@ -5224,11 +5120,11 @@ module CoreNSCSCC (
   wire       [31:0]   FetchPipelinePlugin_logic_s1_logic_rawPcToUse;
   wire       [31:0]   FetchPipelinePlugin_logic_s1_logic_nextLinePc;
   wire                s1_PC_Gen_isFiring;
-  wire                when_FetchPipelinePlugin2_l356;
-  wire                when_FetchPipelinePlugin2_l362;
+  wire                when_FetchPipelinePlugin2_l358;
+  wire                when_FetchPipelinePlugin2_l364;
   wire                FetchPipelinePlugin_logic_s1_logic_fetchDisabled;
-  wire                when_FetchPipelinePlugin2_l375;
-  wire                s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l376;
+  wire                when_FetchPipelinePlugin2_l377;
+  wire                s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l378;
   wire                s2_ICache_Access_isFiring;
   wire       [31:0]   FetchPipelinePlugin_logic_s2_logic_cmdPayload_address;
   wire       [7:0]    FetchPipelinePlugin_logic_s2_logic_cmdPayload_transactionId;
@@ -5236,18 +5132,18 @@ module CoreNSCSCC (
   wire                FetchPipelinePlugin_logic_s4_logic_handleRsp;
   wire                FetchPipelinePlugin_logic_s4_logic_hasHigherPriorityStuff;
   wire                FetchPipelinePlugin_logic_s4_logic_backpressureRedo;
-  wire                when_FetchPipelinePlugin2_l437;
+  wire                when_FetchPipelinePlugin2_l439;
   wire       [27:0]   _zz_72;
-  wire                when_FetchPipelinePlugin2_l453;
-  wire                when_FetchPipelinePlugin2_l471;
-  wire                when_FetchPipelinePlugin2_l476;
+  wire                when_FetchPipelinePlugin2_l455;
+  wire                when_FetchPipelinePlugin2_l473;
+  wire                when_FetchPipelinePlugin2_l478;
   wire                _zz_io_push_payload_predecodeInfos_0_isBranch;
   wire                _zz_io_push_payload_predecodeInfos_1_isBranch;
   wire                _zz_io_push_payload_predecodeInfos_2_isBranch;
   wire                _zz_io_push_payload_predecodeInfos_3_isBranch;
   wire       [31:0]   _zz_io_push_payload_numValidInstructions;
   wire       [1:0]    _zz_io_push_payload_numValidInstructions_1;
-  wire                s4_Predecode_haltRequest_FetchPipelinePlugin2_l500;
+  wire                s4_Predecode_haltRequest_FetchPipelinePlugin2_l502;
   wire                _zz_s2_ICache_Access_isFlushingRoot;
   wire                _zz_s3_ICache_Wait_isFlushingRoot;
   reg                 s2_ICache_Access_ready_output;
@@ -6324,21 +6220,6 @@ module CoreNSCSCC (
   reg [7:0] StoreBufferPlugin_hw_bypassQuerySizeIn_string;
   reg [7:0] StoreBufferPlugin_hw_sqQueryPort_cmd_payload_size_string;
   reg [7:0] LsuEU_LsuEuPlugin_hw_lqPushPort_payload_size_string;
-  reg [87:0] CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string;
-  reg [151:0] CommitPlugin_logic_s1_s1_headUop_decoded_exeUnit_string;
-  reg [71:0] CommitPlugin_logic_s1_s1_headUop_decoded_isa_string;
-  reg [39:0] CommitPlugin_logic_s1_s1_headUop_decoded_archDest_rtype_string;
-  reg [39:0] CommitPlugin_logic_s1_s1_headUop_decoded_archSrc1_rtype_string;
-  reg [39:0] CommitPlugin_logic_s1_s1_headUop_decoded_archSrc2_rtype_string;
-  reg [103:0] CommitPlugin_logic_s1_s1_headUop_decoded_immUsage_string;
-  reg [39:0] CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_logicOp_string;
-  reg [7:0] CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_size_string;
-  reg [87:0] CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string;
-  reg [39:0] CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_linkReg_rtype_string;
-  reg [7:0] CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc1_string;
-  reg [7:0] CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeDest_string;
-  reg [95:0] CommitPlugin_logic_s1_s1_headUop_decoded_decodeExceptionCode_string;
   reg [87:0] DecodePlugin_logic_decodedUopsOutputVec_0_uopCode_string;
   reg [151:0] DecodePlugin_logic_decodedUopsOutputVec_0_exeUnit_string;
   reg [71:0] DecodePlugin_logic_decodedUopsOutputVec_0_isa_string;
@@ -6509,9 +6390,9 @@ module CoreNSCSCC (
   reg [95:0] ICachePlugin_logic_refill_fsm_stateNext_string;
   `endif
 
-  reg [42:0] ICachePlugin_logic_storage_tagLruRam [0:127];
-  reg [127:0] ICachePlugin_logic_storage_dataRams_0 [0:127];
-  reg [127:0] ICachePlugin_logic_storage_dataRams_1 [0:127];
+  (* ram_style = "block" *) reg [42:0] ICachePlugin_logic_storage_tagLruRam [0:127];
+  (* ram_style = "block" *) reg [127:0] ICachePlugin_logic_storage_dataRams_0 [0:127];
+  (* ram_style = "block" *) reg [127:0] ICachePlugin_logic_storage_dataRams_1 [0:127];
   reg [1:0] BpuPipelinePlugin_logic_pht [0:1023];
   reg [54:0] BpuPipelinePlugin_logic_btb [0:255];
   function [63:0] zz_CheckpointManagerPlugin_logic_initialFreeMask(input dummy);
@@ -6568,12 +6449,9 @@ module CoreNSCSCC (
   assign _zz_io_triggerIn_9 = 5'h16;
   assign _zz_io_triggerIn_8 = {3'd0, _zz_io_triggerIn_9};
   assign _zz_when_Debug_l71_4_1 = {3'd0, _zz_when_Debug_l71_5};
-  assign _zz_CommitPlugin_logic_s0_fwd_totalCommitted = {31'd0, CommitPlugin_logic_s0_committedThisCycle_comb};
-  assign _zz_CommitPlugin_logic_s0_fwd_physRegRecycled = {31'd0, CommitPlugin_logic_s0_recycledThisCycle_comb};
-  assign _zz_CommitPlugin_logic_s0_fwd_robFlushCount = {31'd0, CommitPlugin_logic_s0_flushedThisCycle_comb};
-  assign _zz_CommitPlugin_commitStatsReg_totalCommitted = {31'd0, CommitPlugin_logic_s1_s1_committedThisCycle_comb};
-  assign _zz_CommitPlugin_commitStatsReg_physRegRecycled = {31'd0, CommitPlugin_logic_s1_s1_recycledThisCycle_comb};
-  assign _zz_CommitPlugin_commitStatsReg_robFlushCount = {31'd0, CommitPlugin_logic_s1_s1_flushedThisCycle_comb};
+  assign _zz_CommitPlugin_commitStatsReg_totalCommitted = {31'd0, CommitPlugin_logic_s1_s1_committedThisCycle};
+  assign _zz_CommitPlugin_commitStatsReg_physRegRecycled = {31'd0, CommitPlugin_logic_s1_s1_recycledThisCycle};
+  assign _zz_CommitPlugin_commitStatsReg_robFlushCount = {31'd0, CommitPlugin_logic_s1_s1_flushedThisCycle};
   assign _zz_io_triggerIn_11 = 5'h19;
   assign _zz_io_triggerIn_10 = {3'd0, _zz_io_triggerIn_11};
   assign _zz_when_Debug_l71_5_1 = {3'd0, _zz_when_Debug_l71_6};
@@ -6650,7 +6528,7 @@ module CoreNSCSCC (
   assign _zz_BpuPipelinePlugin_logic_btb_port = BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_pc[9 : 2];
   assign _zz_BpuPipelinePlugin_logic_btb_port_1 = {BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_target,{BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_pc[31 : 10],1'b1}};
   assign _zz_CommitPlugin_logic_s0_committedThisCycle_comb_1 = CommitPlugin_logic_s0_commitAckMasks_0;
-  assign _zz_CommitPlugin_logic_s0_recycledThisCycle_comb_1 = when_CommitPlugin_l263;
+  assign _zz_CommitPlugin_logic_s0_recycledThisCycle_comb_1 = when_CommitPlugin_l246;
   assign _zz_DispatchPlugin_logic_destinationIqReady_4 = {_zz_DispatchPlugin_logic_destinationIqReady_2,_zz_DispatchPlugin_logic_destinationIqReady_1};
   assign _zz_DispatchPlugin_logic_dispatchOH = (s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode == DispatchPlugin_logic_iqRegs_2_0_1);
   assign _zz_DispatchPlugin_logic_dispatchOH_1 = (s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode == DispatchPlugin_logic_iqRegs_2_0_0);
@@ -7312,7 +7190,7 @@ module CoreNSCSCC (
     .io_allocate_0_enable  (SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_enable                  ), //i
     .io_allocate_0_physReg (SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_physReg[5:0]            ), //o
     .io_allocate_0_success (SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_success                 ), //o
-    .io_free_0_enable      (when_CommitPlugin_l263                                                          ), //i
+    .io_free_0_enable      (when_CommitPlugin_l246                                                          ), //i
     .io_free_0_physReg     (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx[5:0]), //i
     .io_recover            (SimpleFreeListPlugin_early_setup_freeList_io_recover                            ), //i
     .io_numFreeRegs        (SimpleFreeListPlugin_early_setup_freeList_io_numFreeRegs[5:0]                   ), //o
@@ -12679,185 +12557,6 @@ module CoreNSCSCC (
     endcase
   end
   always @(*) begin
-    case(CommitPlugin_logic_s1_s1_headUop_decoded_uopCode)
-      BaseUopCode_NOP : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "NOP        ";
-      BaseUopCode_ILLEGAL : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "ILLEGAL    ";
-      BaseUopCode_ALU : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "ALU        ";
-      BaseUopCode_SHIFT : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "SHIFT      ";
-      BaseUopCode_MUL : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "MUL        ";
-      BaseUopCode_DIV : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "DIV        ";
-      BaseUopCode_LOAD : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "LOAD       ";
-      BaseUopCode_STORE : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "STORE      ";
-      BaseUopCode_ATOMIC : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "ATOMIC     ";
-      BaseUopCode_MEM_BARRIER : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "MEM_BARRIER";
-      BaseUopCode_PREFETCH : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "PREFETCH   ";
-      BaseUopCode_BRANCH : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "BRANCH     ";
-      BaseUopCode_JUMP_REG : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "JUMP_REG   ";
-      BaseUopCode_JUMP_IMM : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "JUMP_IMM   ";
-      BaseUopCode_SYSTEM_OP : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "SYSTEM_OP  ";
-      BaseUopCode_CSR_ACCESS : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "CSR_ACCESS ";
-      BaseUopCode_FPU_ALU : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "FPU_ALU    ";
-      BaseUopCode_FPU_CVT : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "FPU_CVT    ";
-      BaseUopCode_FPU_CMP : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "FPU_CMP    ";
-      BaseUopCode_FPU_SEL : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "FPU_SEL    ";
-      BaseUopCode_LA_BITMANIP : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "LA_BITMANIP";
-      BaseUopCode_LA_CACOP : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "LA_CACOP   ";
-      BaseUopCode_LA_TLB : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "LA_TLB     ";
-      BaseUopCode_IDLE : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "IDLE       ";
-      default : CommitPlugin_logic_s1_s1_headUop_decoded_uopCode_string = "???????????";
-    endcase
-  end
-  always @(*) begin
-    case(CommitPlugin_logic_s1_s1_headUop_decoded_exeUnit)
-      ExeUnitType_NONE : CommitPlugin_logic_s1_s1_headUop_decoded_exeUnit_string = "NONE               ";
-      ExeUnitType_ALU_INT : CommitPlugin_logic_s1_s1_headUop_decoded_exeUnit_string = "ALU_INT            ";
-      ExeUnitType_MUL_INT : CommitPlugin_logic_s1_s1_headUop_decoded_exeUnit_string = "MUL_INT            ";
-      ExeUnitType_DIV_INT : CommitPlugin_logic_s1_s1_headUop_decoded_exeUnit_string = "DIV_INT            ";
-      ExeUnitType_MEM : CommitPlugin_logic_s1_s1_headUop_decoded_exeUnit_string = "MEM                ";
-      ExeUnitType_BRU : CommitPlugin_logic_s1_s1_headUop_decoded_exeUnit_string = "BRU                ";
-      ExeUnitType_CSR : CommitPlugin_logic_s1_s1_headUop_decoded_exeUnit_string = "CSR                ";
-      ExeUnitType_FPU_ADD_MUL_CVT_CMP : CommitPlugin_logic_s1_s1_headUop_decoded_exeUnit_string = "FPU_ADD_MUL_CVT_CMP";
-      ExeUnitType_FPU_DIV_SQRT : CommitPlugin_logic_s1_s1_headUop_decoded_exeUnit_string = "FPU_DIV_SQRT       ";
-      default : CommitPlugin_logic_s1_s1_headUop_decoded_exeUnit_string = "???????????????????";
-    endcase
-  end
-  always @(*) begin
-    case(CommitPlugin_logic_s1_s1_headUop_decoded_isa)
-      IsaType_UNKNOWN : CommitPlugin_logic_s1_s1_headUop_decoded_isa_string = "UNKNOWN  ";
-      IsaType_DEMO : CommitPlugin_logic_s1_s1_headUop_decoded_isa_string = "DEMO     ";
-      IsaType_RISCV : CommitPlugin_logic_s1_s1_headUop_decoded_isa_string = "RISCV    ";
-      IsaType_LOONGARCH : CommitPlugin_logic_s1_s1_headUop_decoded_isa_string = "LOONGARCH";
-      default : CommitPlugin_logic_s1_s1_headUop_decoded_isa_string = "?????????";
-    endcase
-  end
-  always @(*) begin
-    case(CommitPlugin_logic_s1_s1_headUop_decoded_archDest_rtype)
-      ArchRegType_GPR : CommitPlugin_logic_s1_s1_headUop_decoded_archDest_rtype_string = "GPR  ";
-      ArchRegType_FPR : CommitPlugin_logic_s1_s1_headUop_decoded_archDest_rtype_string = "FPR  ";
-      ArchRegType_CSR : CommitPlugin_logic_s1_s1_headUop_decoded_archDest_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : CommitPlugin_logic_s1_s1_headUop_decoded_archDest_rtype_string = "LA_CF";
-      default : CommitPlugin_logic_s1_s1_headUop_decoded_archDest_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
-    case(CommitPlugin_logic_s1_s1_headUop_decoded_archSrc1_rtype)
-      ArchRegType_GPR : CommitPlugin_logic_s1_s1_headUop_decoded_archSrc1_rtype_string = "GPR  ";
-      ArchRegType_FPR : CommitPlugin_logic_s1_s1_headUop_decoded_archSrc1_rtype_string = "FPR  ";
-      ArchRegType_CSR : CommitPlugin_logic_s1_s1_headUop_decoded_archSrc1_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : CommitPlugin_logic_s1_s1_headUop_decoded_archSrc1_rtype_string = "LA_CF";
-      default : CommitPlugin_logic_s1_s1_headUop_decoded_archSrc1_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
-    case(CommitPlugin_logic_s1_s1_headUop_decoded_archSrc2_rtype)
-      ArchRegType_GPR : CommitPlugin_logic_s1_s1_headUop_decoded_archSrc2_rtype_string = "GPR  ";
-      ArchRegType_FPR : CommitPlugin_logic_s1_s1_headUop_decoded_archSrc2_rtype_string = "FPR  ";
-      ArchRegType_CSR : CommitPlugin_logic_s1_s1_headUop_decoded_archSrc2_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : CommitPlugin_logic_s1_s1_headUop_decoded_archSrc2_rtype_string = "LA_CF";
-      default : CommitPlugin_logic_s1_s1_headUop_decoded_archSrc2_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
-    case(CommitPlugin_logic_s1_s1_headUop_decoded_immUsage)
-      ImmUsageType_NONE : CommitPlugin_logic_s1_s1_headUop_decoded_immUsage_string = "NONE         ";
-      ImmUsageType_SRC_ALU : CommitPlugin_logic_s1_s1_headUop_decoded_immUsage_string = "SRC_ALU      ";
-      ImmUsageType_SRC_SHIFT_AMT : CommitPlugin_logic_s1_s1_headUop_decoded_immUsage_string = "SRC_SHIFT_AMT";
-      ImmUsageType_SRC_CSR_UIMM : CommitPlugin_logic_s1_s1_headUop_decoded_immUsage_string = "SRC_CSR_UIMM ";
-      ImmUsageType_MEM_OFFSET : CommitPlugin_logic_s1_s1_headUop_decoded_immUsage_string = "MEM_OFFSET   ";
-      ImmUsageType_BRANCH_OFFSET : CommitPlugin_logic_s1_s1_headUop_decoded_immUsage_string = "BRANCH_OFFSET";
-      ImmUsageType_JUMP_OFFSET : CommitPlugin_logic_s1_s1_headUop_decoded_immUsage_string = "JUMP_OFFSET  ";
-      default : CommitPlugin_logic_s1_s1_headUop_decoded_immUsage_string = "?????????????";
-    endcase
-  end
-  always @(*) begin
-    case(CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_logicOp)
-      LogicOp_NONE : CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_logicOp_string = "NONE ";
-      LogicOp_AND_1 : CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_logicOp_string = "AND_1";
-      LogicOp_OR_1 : CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_logicOp_string = "OR_1 ";
-      LogicOp_XOR_1 : CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_logicOp_string = "XOR_1";
-      default : CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_logicOp_string = "?????";
-    endcase
-  end
-  always @(*) begin
-    case(CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_size)
-      MemAccessSize_B : CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_size_string = "B";
-      MemAccessSize_H : CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_size_string = "H";
-      MemAccessSize_W : CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_size_string = "W";
-      MemAccessSize_D : CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_size_string = "D";
-      default : CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_size_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition)
-      BranchCondition_NUL : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "NUL        ";
-      BranchCondition_EQ : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "EQ         ";
-      BranchCondition_NE : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "NE         ";
-      BranchCondition_LT : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "LT         ";
-      BranchCondition_GE : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "GE         ";
-      BranchCondition_LTU : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "LTU        ";
-      BranchCondition_GEU : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "GEU        ";
-      BranchCondition_EQZ : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "EQZ        ";
-      BranchCondition_NEZ : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "NEZ        ";
-      BranchCondition_LTZ : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "LTZ        ";
-      BranchCondition_GEZ : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "GEZ        ";
-      BranchCondition_GTZ : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "GTZ        ";
-      BranchCondition_LEZ : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "LEZ        ";
-      BranchCondition_F_EQ : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "F_EQ       ";
-      BranchCondition_F_NE : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "F_NE       ";
-      BranchCondition_F_LT : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "F_LT       ";
-      BranchCondition_F_LE : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "F_LE       ";
-      BranchCondition_F_UN : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "F_UN       ";
-      BranchCondition_LA_CF_TRUE : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "LA_CF_TRUE ";
-      BranchCondition_LA_CF_FALSE : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "LA_CF_FALSE";
-      default : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition_string = "???????????";
-    endcase
-  end
-  always @(*) begin
-    case(CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_linkReg_rtype)
-      ArchRegType_GPR : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_linkReg_rtype_string = "GPR  ";
-      ArchRegType_FPR : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_linkReg_rtype_string = "FPR  ";
-      ArchRegType_CSR : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_linkReg_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_linkReg_rtype_string = "LA_CF";
-      default : CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_linkReg_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
-    case(CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc1)
-      MemAccessSize_B : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc1_string = "B";
-      MemAccessSize_H : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc1_string = "H";
-      MemAccessSize_W : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc1_string = "W";
-      MemAccessSize_D : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc1_string = "D";
-      default : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc1_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc2)
-      MemAccessSize_B : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc2_string = "B";
-      MemAccessSize_H : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc2_string = "H";
-      MemAccessSize_W : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc2_string = "W";
-      MemAccessSize_D : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc2_string = "D";
-      default : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc2_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeDest)
-      MemAccessSize_B : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeDest_string = "B";
-      MemAccessSize_H : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeDest_string = "H";
-      MemAccessSize_W : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeDest_string = "W";
-      MemAccessSize_D : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeDest_string = "D";
-      default : CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeDest_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(CommitPlugin_logic_s1_s1_headUop_decoded_decodeExceptionCode)
-      DecodeExCode_INVALID : CommitPlugin_logic_s1_s1_headUop_decoded_decodeExceptionCode_string = "INVALID     ";
-      DecodeExCode_FETCH_ERROR : CommitPlugin_logic_s1_s1_headUop_decoded_decodeExceptionCode_string = "FETCH_ERROR ";
-      DecodeExCode_DECODE_ERROR : CommitPlugin_logic_s1_s1_headUop_decoded_decodeExceptionCode_string = "DECODE_ERROR";
-      DecodeExCode_OK : CommitPlugin_logic_s1_s1_headUop_decoded_decodeExceptionCode_string = "OK          ";
-      default : CommitPlugin_logic_s1_s1_headUop_decoded_decodeExceptionCode_string = "????????????";
-    endcase
-  end
-  always @(*) begin
     case(DecodePlugin_logic_decodedUopsOutputVec_0_uopCode)
       BaseUopCode_NOP : DecodePlugin_logic_decodedUopsOutputVec_0_uopCode_string = "NOP        ";
       BaseUopCode_ILLEGAL : DecodePlugin_logic_decodedUopsOutputVec_0_uopCode_string = "ILLEGAL    ";
@@ -14825,9 +14524,9 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    _zz_s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l376 = 1'b0;
-    if(when_FetchPipelinePlugin2_l375) begin
-      _zz_s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l376 = 1'b1;
+    _zz_s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l378 = 1'b0;
+    if(when_FetchPipelinePlugin2_l377) begin
+      _zz_s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l378 = 1'b1;
     end
   end
 
@@ -14861,14 +14560,14 @@ module CoreNSCSCC (
 
   always @(*) begin
     CheckpointManagerPlugin_saveCheckpointTrigger = 1'b0;
-    if(when_CommitPlugin_l204) begin
+    if(when_CommitPlugin_l197) begin
       CheckpointManagerPlugin_saveCheckpointTrigger = 1'b1;
     end
   end
 
   always @(*) begin
     CheckpointManagerPlugin_restoreCheckpointTrigger = 1'b0;
-    if(CommitPlugin_logic_s0_isMispredictedBranchPrev) begin
+    if(CommitPlugin_logic_s0_isMispredictedBranch) begin
       CheckpointManagerPlugin_restoreCheckpointTrigger = 1'b1;
     end
   end
@@ -15762,15 +15461,15 @@ module CoreNSCSCC (
   assign when_Debug_l71_4 = (_zz_when_Debug_l71 < _zz_when_Debug_l71_4_1);
   always @(*) begin
     CommitPlugin_hw_redirectPort_valid = 1'b0;
-    if(CommitPlugin_logic_s0_isMispredictedBranchPrev) begin
+    if(CommitPlugin_logic_s0_isMispredictedBranch) begin
       CommitPlugin_hw_redirectPort_valid = 1'b1;
     end
   end
 
   always @(*) begin
     CommitPlugin_hw_redirectPort_payload = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-    if(CommitPlugin_logic_s0_isMispredictedBranchPrev) begin
-      CommitPlugin_hw_redirectPort_payload = CommitPlugin_logic_s0_actualTargetOfBranchPrev;
+    if(CommitPlugin_logic_s0_isMispredictedBranch) begin
+      CommitPlugin_hw_redirectPort_payload = ROBPlugin_robComponent_io_commit_0_entry_status_result;
     end
   end
 
@@ -15852,70 +15551,66 @@ module CoreNSCSCC (
   assign CheckpointManagerPlugin_logic_initialBtCheckpoint_busyBits = 64'h0;
   always @(*) begin
     CommitPlugin_hw_robFlushPort_valid = 1'b0;
-    if(CommitPlugin_logic_s0_isMispredictedBranchPrev) begin
+    if(CommitPlugin_logic_s0_isMispredictedBranch) begin
       CommitPlugin_hw_robFlushPort_valid = 1'b1;
     end
   end
 
   always @(*) begin
     CommitPlugin_hw_robFlushPort_payload_reason = (2'bxx);
-    if(CommitPlugin_logic_s0_isMispredictedBranchPrev) begin
+    if(CommitPlugin_logic_s0_isMispredictedBranch) begin
       CommitPlugin_hw_robFlushPort_payload_reason = FlushReason_FULL_FLUSH;
     end
   end
 
   always @(*) begin
     CommitPlugin_hw_robFlushPort_payload_targetRobPtr = 4'bxxxx;
-    if(CommitPlugin_logic_s0_isMispredictedBranchPrev) begin
+    if(CommitPlugin_logic_s0_isMispredictedBranch) begin
       CommitPlugin_hw_robFlushPort_payload_targetRobPtr = 4'bxxxx;
     end
   end
 
   always @(*) begin
     CommitPlugin_hw_busyTableClearPort_valid = 1'b0;
-    if(when_CommitPlugin_l263) begin
+    if(when_CommitPlugin_l246) begin
       CommitPlugin_hw_busyTableClearPort_valid = 1'b1;
     end
   end
 
   always @(*) begin
     CommitPlugin_hw_busyTableClearPort_payload = 6'bxxxxxx;
-    if(when_CommitPlugin_l263) begin
+    if(when_CommitPlugin_l246) begin
       CommitPlugin_hw_busyTableClearPort_payload = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx;
     end
   end
 
-  assign CommitPlugin_logic_s0_isMispredictedBranch = (((CommitPlugin_commitEnableExt && ROBPlugin_robComponent_io_commit_0_canCommit) && ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_isBranchOrJump) && ROBPlugin_robComponent_io_commit_0_entry_status_isMispredictedBranch);
+  assign CommitPlugin_logic_s0_isMispredictedBranch = ((((CommitPlugin_commitEnableExt && ROBPlugin_robComponent_io_commit_0_valid) && ROBPlugin_robComponent_io_commit_0_entry_status_done) && ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_isBranchOrJump) && ROBPlugin_robComponent_io_commit_0_entry_status_isMispredictedBranch);
   always @(*) begin
     CommitPlugin_logic_s0_commitAckMasks_0 = 1'b0;
-    if(when_CommitPlugin_l204) begin
+    if(when_CommitPlugin_l197) begin
       CommitPlugin_logic_s0_commitAckMasks_0 = 1'b1;
+    end
+    if(CommitPlugin_logic_s0_isMispredictedBranch) begin
+      CommitPlugin_logic_s0_commitAckMasks_0 = 1'b0;
     end
   end
 
-  assign CommitPlugin_logic_s0_commitIdleThisCycle = ((ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_IDLE) && CommitPlugin_logic_s0_commitAckMasks_0);
-  assign when_CommitPlugin_l204 = (CommitPlugin_commitEnableExt && ROBPlugin_robComponent_io_commit_0_canCommit);
-  assign when_CommitPlugin_l263 = (CommitPlugin_logic_s0_commitAckMasks_0 && ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_allocatesPhysDest);
+  assign when_CommitPlugin_l197 = ((CommitPlugin_commitEnableExt && ROBPlugin_robComponent_io_commit_0_canCommit) && (! CommitPlugin_logic_s0_isMispredictedBranch));
+  assign when_CommitPlugin_l246 = (CommitPlugin_logic_s0_commitAckMasks_0 && ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_allocatesPhysDest);
   assign CommitPlugin_logic_s0_committedThisCycle_comb = _zz_CommitPlugin_logic_s0_committedThisCycle_comb;
   assign CommitPlugin_logic_s0_recycledThisCycle_comb = _zz_CommitPlugin_logic_s0_recycledThisCycle_comb;
   assign CommitPlugin_logic_s0_flushedThisCycle_comb = CommitPlugin_hw_robFlushPort_valid;
   assign CommitPlugin_logic_s0_commitPcs_0 = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc;
   assign CommitPlugin_logic_s0_maxCommitPcThisCycle = (CommitPlugin_logic_s0_commitAckMasks_0 ? CommitPlugin_logic_s0_commitPcs_0 : 32'h0);
   assign CommitPlugin_logic_s0_anyCommitOOB = (CommitPlugin_maxCommitPcEnabledExt && (CommitPlugin_logic_s0_commitAckMasks_0 && (CommitPlugin_maxCommitPcExt < CommitPlugin_logic_s0_commitPcs_0)));
-  assign CommitPlugin_logic_s0_fwd_committedThisCycle = CommitPlugin_logic_s0_committedThisCycle_comb;
-  assign CommitPlugin_logic_s0_fwd_totalCommitted = (CommitPlugin_commitStatsReg_totalCommitted + _zz_CommitPlugin_logic_s0_fwd_totalCommitted);
-  assign CommitPlugin_logic_s0_fwd_physRegRecycled = (CommitPlugin_commitStatsReg_physRegRecycled + _zz_CommitPlugin_logic_s0_fwd_physRegRecycled);
-  assign CommitPlugin_logic_s0_fwd_robFlushCount = (CommitPlugin_commitStatsReg_robFlushCount + _zz_CommitPlugin_logic_s0_fwd_robFlushCount);
-  assign CommitPlugin_logic_s0_fwd_commitOOB = (CommitPlugin_commitOOBReg || CommitPlugin_logic_s0_anyCommitOOB);
-  assign CommitPlugin_logic_s0_fwd_maxCommitPc = ((CommitPlugin_logic_s0_commitAckMasks_0 && (CommitPlugin_maxCommitPcReg < CommitPlugin_logic_s0_maxCommitPcThisCycle)) ? CommitPlugin_logic_s0_maxCommitPcThisCycle : CommitPlugin_maxCommitPcReg);
   assign CommitPlugin_logic_s0_commitSlotLogs_0_valid = ROBPlugin_robComponent_io_commit_0_valid;
-  assign CommitPlugin_logic_s0_commitSlotLogs_0_canCommit = ROBPlugin_robComponent_io_commit_0_canCommit;
+  assign CommitPlugin_logic_s0_commitSlotLogs_0_canCommit = (ROBPlugin_robComponent_io_commit_0_canCommit && CommitPlugin_commitEnableExt);
   assign CommitPlugin_logic_s0_commitSlotLogs_0_doCommit = CommitPlugin_logic_s0_commitAckMasks_0;
   assign CommitPlugin_logic_s0_commitSlotLogs_0_robPtr = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr;
   assign CommitPlugin_logic_s0_commitSlotLogs_0_oldPhysDest = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx;
   assign CommitPlugin_logic_s0_commitSlotLogs_0_allocatesPhysDest = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_allocatesPhysDest;
-  assign CommitPlugin_logic_commitCount = CommitPlugin_logic_s0_committedThisCycle_comb;
-  assign when_CommitPlugin_l349 = (CommitPlugin_maxCommitPcReg < CommitPlugin_logic_s1_s1_maxCommitPcThisCycle);
+  assign CommitPlugin_logic_s1_s1_hasCommitsThisCycle = (1'b0 < CommitPlugin_logic_s1_s1_committedThisCycle);
+  assign when_CommitPlugin_l298 = (CommitPlugin_logic_s1_s1_hasCommitsThisCycle && (CommitPlugin_maxCommitPcReg < CommitPlugin_logic_s1_s1_maxCommitPcThisCycle));
   assign oneShot_18_io_triggerIn = (CommitPlugin_logic_s0_committedThisCycle_comb[0] && (_zz_when_Debug_l71 < _zz_io_triggerIn_10));
   assign _zz_when_Debug_l71_6 = 5'h19;
   assign when_Debug_l71_5 = (_zz_when_Debug_l71 < _zz_when_Debug_l71_5_1);
@@ -23741,18 +23436,18 @@ module CoreNSCSCC (
   assign StoreBufferPlugin_logic_bypassInitial_hitMask = 4'b0000;
   always @(*) begin
     _zz_StoreBufferPlugin_logic_finalBypassResult_data = StoreBufferPlugin_logic_bypassInitial_data;
-    if(when_StoreBufferPlugin_l737) begin
-      if(when_StoreBufferPlugin_l742) begin
-        if(when_StoreBufferPlugin_l744) begin
+    if(when_StoreBufferPlugin_l735) begin
+      if(when_StoreBufferPlugin_l740) begin
+        if(when_StoreBufferPlugin_l742) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data[7 : 0] = StoreBufferPlugin_logic_slots_3_data[7 : 0];
         end
-        if(when_StoreBufferPlugin_l744_1) begin
+        if(when_StoreBufferPlugin_l742_1) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data[15 : 8] = StoreBufferPlugin_logic_slots_3_data[15 : 8];
         end
-        if(when_StoreBufferPlugin_l744_2) begin
+        if(when_StoreBufferPlugin_l742_2) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data[23 : 16] = StoreBufferPlugin_logic_slots_3_data[23 : 16];
         end
-        if(when_StoreBufferPlugin_l744_3) begin
+        if(when_StoreBufferPlugin_l742_3) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data[31 : 24] = StoreBufferPlugin_logic_slots_3_data[31 : 24];
         end
       end
@@ -23760,45 +23455,45 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    _zz_when_StoreBufferPlugin_l744 = StoreBufferPlugin_logic_bypassInitial_hitMask;
-    if(when_StoreBufferPlugin_l737) begin
-      if(when_StoreBufferPlugin_l742) begin
-        if(when_StoreBufferPlugin_l744) begin
-          _zz_when_StoreBufferPlugin_l744[0] = 1'b1;
+    _zz_when_StoreBufferPlugin_l742 = StoreBufferPlugin_logic_bypassInitial_hitMask;
+    if(when_StoreBufferPlugin_l735) begin
+      if(when_StoreBufferPlugin_l740) begin
+        if(when_StoreBufferPlugin_l742) begin
+          _zz_when_StoreBufferPlugin_l742[0] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l744_1) begin
-          _zz_when_StoreBufferPlugin_l744[1] = 1'b1;
+        if(when_StoreBufferPlugin_l742_1) begin
+          _zz_when_StoreBufferPlugin_l742[1] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l744_2) begin
-          _zz_when_StoreBufferPlugin_l744[2] = 1'b1;
+        if(when_StoreBufferPlugin_l742_2) begin
+          _zz_when_StoreBufferPlugin_l742[2] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l744_3) begin
-          _zz_when_StoreBufferPlugin_l744[3] = 1'b1;
+        if(when_StoreBufferPlugin_l742_3) begin
+          _zz_when_StoreBufferPlugin_l742[3] = 1'b1;
         end
       end
     end
   end
 
-  assign when_StoreBufferPlugin_l737 = ((StoreBufferPlugin_logic_slots_3_valid && (! StoreBufferPlugin_logic_slots_3_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_3_isFlush));
-  assign when_StoreBufferPlugin_l742 = (StoreBufferPlugin_hw_bypassQueryAddrIn[31 : 2] == StoreBufferPlugin_logic_slots_3_addr[31 : 2]);
-  assign when_StoreBufferPlugin_l744 = ((StoreBufferPlugin_logic_slots_3_be[0] && StoreBufferPlugin_logic_loadQueryBe[0]) && (! StoreBufferPlugin_logic_bypassInitial_hitMask[0]));
-  assign when_StoreBufferPlugin_l744_1 = ((StoreBufferPlugin_logic_slots_3_be[1] && StoreBufferPlugin_logic_loadQueryBe[1]) && (! StoreBufferPlugin_logic_bypassInitial_hitMask[1]));
-  assign when_StoreBufferPlugin_l744_2 = ((StoreBufferPlugin_logic_slots_3_be[2] && StoreBufferPlugin_logic_loadQueryBe[2]) && (! StoreBufferPlugin_logic_bypassInitial_hitMask[2]));
-  assign when_StoreBufferPlugin_l744_3 = ((StoreBufferPlugin_logic_slots_3_be[3] && StoreBufferPlugin_logic_loadQueryBe[3]) && (! StoreBufferPlugin_logic_bypassInitial_hitMask[3]));
+  assign when_StoreBufferPlugin_l735 = ((StoreBufferPlugin_logic_slots_3_valid && (! StoreBufferPlugin_logic_slots_3_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_3_isFlush));
+  assign when_StoreBufferPlugin_l740 = (StoreBufferPlugin_hw_bypassQueryAddrIn[31 : 2] == StoreBufferPlugin_logic_slots_3_addr[31 : 2]);
+  assign when_StoreBufferPlugin_l742 = ((StoreBufferPlugin_logic_slots_3_be[0] && StoreBufferPlugin_logic_loadQueryBe[0]) && (! StoreBufferPlugin_logic_bypassInitial_hitMask[0]));
+  assign when_StoreBufferPlugin_l742_1 = ((StoreBufferPlugin_logic_slots_3_be[1] && StoreBufferPlugin_logic_loadQueryBe[1]) && (! StoreBufferPlugin_logic_bypassInitial_hitMask[1]));
+  assign when_StoreBufferPlugin_l742_2 = ((StoreBufferPlugin_logic_slots_3_be[2] && StoreBufferPlugin_logic_loadQueryBe[2]) && (! StoreBufferPlugin_logic_bypassInitial_hitMask[2]));
+  assign when_StoreBufferPlugin_l742_3 = ((StoreBufferPlugin_logic_slots_3_be[3] && StoreBufferPlugin_logic_loadQueryBe[3]) && (! StoreBufferPlugin_logic_bypassInitial_hitMask[3]));
   always @(*) begin
     _zz_StoreBufferPlugin_logic_finalBypassResult_data_1 = _zz_StoreBufferPlugin_logic_finalBypassResult_data;
-    if(when_StoreBufferPlugin_l737_1) begin
-      if(when_StoreBufferPlugin_l742_1) begin
-        if(when_StoreBufferPlugin_l744_4) begin
+    if(when_StoreBufferPlugin_l735_1) begin
+      if(when_StoreBufferPlugin_l740_1) begin
+        if(when_StoreBufferPlugin_l742_4) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data_1[7 : 0] = StoreBufferPlugin_logic_slots_2_data[7 : 0];
         end
-        if(when_StoreBufferPlugin_l744_5) begin
+        if(when_StoreBufferPlugin_l742_5) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data_1[15 : 8] = StoreBufferPlugin_logic_slots_2_data[15 : 8];
         end
-        if(when_StoreBufferPlugin_l744_6) begin
+        if(when_StoreBufferPlugin_l742_6) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data_1[23 : 16] = StoreBufferPlugin_logic_slots_2_data[23 : 16];
         end
-        if(when_StoreBufferPlugin_l744_7) begin
+        if(when_StoreBufferPlugin_l742_7) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data_1[31 : 24] = StoreBufferPlugin_logic_slots_2_data[31 : 24];
         end
       end
@@ -23806,45 +23501,45 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    _zz_when_StoreBufferPlugin_l744_1 = _zz_when_StoreBufferPlugin_l744;
-    if(when_StoreBufferPlugin_l737_1) begin
-      if(when_StoreBufferPlugin_l742_1) begin
-        if(when_StoreBufferPlugin_l744_4) begin
-          _zz_when_StoreBufferPlugin_l744_1[0] = 1'b1;
+    _zz_when_StoreBufferPlugin_l742_1 = _zz_when_StoreBufferPlugin_l742;
+    if(when_StoreBufferPlugin_l735_1) begin
+      if(when_StoreBufferPlugin_l740_1) begin
+        if(when_StoreBufferPlugin_l742_4) begin
+          _zz_when_StoreBufferPlugin_l742_1[0] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l744_5) begin
-          _zz_when_StoreBufferPlugin_l744_1[1] = 1'b1;
+        if(when_StoreBufferPlugin_l742_5) begin
+          _zz_when_StoreBufferPlugin_l742_1[1] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l744_6) begin
-          _zz_when_StoreBufferPlugin_l744_1[2] = 1'b1;
+        if(when_StoreBufferPlugin_l742_6) begin
+          _zz_when_StoreBufferPlugin_l742_1[2] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l744_7) begin
-          _zz_when_StoreBufferPlugin_l744_1[3] = 1'b1;
+        if(when_StoreBufferPlugin_l742_7) begin
+          _zz_when_StoreBufferPlugin_l742_1[3] = 1'b1;
         end
       end
     end
   end
 
-  assign when_StoreBufferPlugin_l737_1 = ((StoreBufferPlugin_logic_slots_2_valid && (! StoreBufferPlugin_logic_slots_2_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_2_isFlush));
-  assign when_StoreBufferPlugin_l742_1 = (StoreBufferPlugin_hw_bypassQueryAddrIn[31 : 2] == StoreBufferPlugin_logic_slots_2_addr[31 : 2]);
-  assign when_StoreBufferPlugin_l744_4 = ((StoreBufferPlugin_logic_slots_2_be[0] && StoreBufferPlugin_logic_loadQueryBe[0]) && (! _zz_when_StoreBufferPlugin_l744[0]));
-  assign when_StoreBufferPlugin_l744_5 = ((StoreBufferPlugin_logic_slots_2_be[1] && StoreBufferPlugin_logic_loadQueryBe[1]) && (! _zz_when_StoreBufferPlugin_l744[1]));
-  assign when_StoreBufferPlugin_l744_6 = ((StoreBufferPlugin_logic_slots_2_be[2] && StoreBufferPlugin_logic_loadQueryBe[2]) && (! _zz_when_StoreBufferPlugin_l744[2]));
-  assign when_StoreBufferPlugin_l744_7 = ((StoreBufferPlugin_logic_slots_2_be[3] && StoreBufferPlugin_logic_loadQueryBe[3]) && (! _zz_when_StoreBufferPlugin_l744[3]));
+  assign when_StoreBufferPlugin_l735_1 = ((StoreBufferPlugin_logic_slots_2_valid && (! StoreBufferPlugin_logic_slots_2_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_2_isFlush));
+  assign when_StoreBufferPlugin_l740_1 = (StoreBufferPlugin_hw_bypassQueryAddrIn[31 : 2] == StoreBufferPlugin_logic_slots_2_addr[31 : 2]);
+  assign when_StoreBufferPlugin_l742_4 = ((StoreBufferPlugin_logic_slots_2_be[0] && StoreBufferPlugin_logic_loadQueryBe[0]) && (! _zz_when_StoreBufferPlugin_l742[0]));
+  assign when_StoreBufferPlugin_l742_5 = ((StoreBufferPlugin_logic_slots_2_be[1] && StoreBufferPlugin_logic_loadQueryBe[1]) && (! _zz_when_StoreBufferPlugin_l742[1]));
+  assign when_StoreBufferPlugin_l742_6 = ((StoreBufferPlugin_logic_slots_2_be[2] && StoreBufferPlugin_logic_loadQueryBe[2]) && (! _zz_when_StoreBufferPlugin_l742[2]));
+  assign when_StoreBufferPlugin_l742_7 = ((StoreBufferPlugin_logic_slots_2_be[3] && StoreBufferPlugin_logic_loadQueryBe[3]) && (! _zz_when_StoreBufferPlugin_l742[3]));
   always @(*) begin
     _zz_StoreBufferPlugin_logic_finalBypassResult_data_2 = _zz_StoreBufferPlugin_logic_finalBypassResult_data_1;
-    if(when_StoreBufferPlugin_l737_2) begin
-      if(when_StoreBufferPlugin_l742_2) begin
-        if(when_StoreBufferPlugin_l744_8) begin
+    if(when_StoreBufferPlugin_l735_2) begin
+      if(when_StoreBufferPlugin_l740_2) begin
+        if(when_StoreBufferPlugin_l742_8) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data_2[7 : 0] = StoreBufferPlugin_logic_slots_1_data[7 : 0];
         end
-        if(when_StoreBufferPlugin_l744_9) begin
+        if(when_StoreBufferPlugin_l742_9) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data_2[15 : 8] = StoreBufferPlugin_logic_slots_1_data[15 : 8];
         end
-        if(when_StoreBufferPlugin_l744_10) begin
+        if(when_StoreBufferPlugin_l742_10) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data_2[23 : 16] = StoreBufferPlugin_logic_slots_1_data[23 : 16];
         end
-        if(when_StoreBufferPlugin_l744_11) begin
+        if(when_StoreBufferPlugin_l742_11) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data_2[31 : 24] = StoreBufferPlugin_logic_slots_1_data[31 : 24];
         end
       end
@@ -23852,45 +23547,45 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask = _zz_when_StoreBufferPlugin_l744_1;
-    if(when_StoreBufferPlugin_l737_2) begin
-      if(when_StoreBufferPlugin_l742_2) begin
-        if(when_StoreBufferPlugin_l744_8) begin
+    _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask = _zz_when_StoreBufferPlugin_l742_1;
+    if(when_StoreBufferPlugin_l735_2) begin
+      if(when_StoreBufferPlugin_l740_2) begin
+        if(when_StoreBufferPlugin_l742_8) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[0] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l744_9) begin
+        if(when_StoreBufferPlugin_l742_9) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[1] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l744_10) begin
+        if(when_StoreBufferPlugin_l742_10) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[2] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l744_11) begin
+        if(when_StoreBufferPlugin_l742_11) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[3] = 1'b1;
         end
       end
     end
   end
 
-  assign when_StoreBufferPlugin_l737_2 = ((StoreBufferPlugin_logic_slots_1_valid && (! StoreBufferPlugin_logic_slots_1_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_1_isFlush));
-  assign when_StoreBufferPlugin_l742_2 = (StoreBufferPlugin_hw_bypassQueryAddrIn[31 : 2] == StoreBufferPlugin_logic_slots_1_addr[31 : 2]);
-  assign when_StoreBufferPlugin_l744_8 = ((StoreBufferPlugin_logic_slots_1_be[0] && StoreBufferPlugin_logic_loadQueryBe[0]) && (! _zz_when_StoreBufferPlugin_l744_1[0]));
-  assign when_StoreBufferPlugin_l744_9 = ((StoreBufferPlugin_logic_slots_1_be[1] && StoreBufferPlugin_logic_loadQueryBe[1]) && (! _zz_when_StoreBufferPlugin_l744_1[1]));
-  assign when_StoreBufferPlugin_l744_10 = ((StoreBufferPlugin_logic_slots_1_be[2] && StoreBufferPlugin_logic_loadQueryBe[2]) && (! _zz_when_StoreBufferPlugin_l744_1[2]));
-  assign when_StoreBufferPlugin_l744_11 = ((StoreBufferPlugin_logic_slots_1_be[3] && StoreBufferPlugin_logic_loadQueryBe[3]) && (! _zz_when_StoreBufferPlugin_l744_1[3]));
+  assign when_StoreBufferPlugin_l735_2 = ((StoreBufferPlugin_logic_slots_1_valid && (! StoreBufferPlugin_logic_slots_1_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_1_isFlush));
+  assign when_StoreBufferPlugin_l740_2 = (StoreBufferPlugin_hw_bypassQueryAddrIn[31 : 2] == StoreBufferPlugin_logic_slots_1_addr[31 : 2]);
+  assign when_StoreBufferPlugin_l742_8 = ((StoreBufferPlugin_logic_slots_1_be[0] && StoreBufferPlugin_logic_loadQueryBe[0]) && (! _zz_when_StoreBufferPlugin_l742_1[0]));
+  assign when_StoreBufferPlugin_l742_9 = ((StoreBufferPlugin_logic_slots_1_be[1] && StoreBufferPlugin_logic_loadQueryBe[1]) && (! _zz_when_StoreBufferPlugin_l742_1[1]));
+  assign when_StoreBufferPlugin_l742_10 = ((StoreBufferPlugin_logic_slots_1_be[2] && StoreBufferPlugin_logic_loadQueryBe[2]) && (! _zz_when_StoreBufferPlugin_l742_1[2]));
+  assign when_StoreBufferPlugin_l742_11 = ((StoreBufferPlugin_logic_slots_1_be[3] && StoreBufferPlugin_logic_loadQueryBe[3]) && (! _zz_when_StoreBufferPlugin_l742_1[3]));
   always @(*) begin
     StoreBufferPlugin_logic_finalBypassResult_data = _zz_StoreBufferPlugin_logic_finalBypassResult_data_2;
-    if(when_StoreBufferPlugin_l737_3) begin
-      if(when_StoreBufferPlugin_l742_3) begin
-        if(when_StoreBufferPlugin_l744_12) begin
+    if(when_StoreBufferPlugin_l735_3) begin
+      if(when_StoreBufferPlugin_l740_3) begin
+        if(when_StoreBufferPlugin_l742_12) begin
           StoreBufferPlugin_logic_finalBypassResult_data[7 : 0] = StoreBufferPlugin_logic_slots_0_data[7 : 0];
         end
-        if(when_StoreBufferPlugin_l744_13) begin
+        if(when_StoreBufferPlugin_l742_13) begin
           StoreBufferPlugin_logic_finalBypassResult_data[15 : 8] = StoreBufferPlugin_logic_slots_0_data[15 : 8];
         end
-        if(when_StoreBufferPlugin_l744_14) begin
+        if(when_StoreBufferPlugin_l742_14) begin
           StoreBufferPlugin_logic_finalBypassResult_data[23 : 16] = StoreBufferPlugin_logic_slots_0_data[23 : 16];
         end
-        if(when_StoreBufferPlugin_l744_15) begin
+        if(when_StoreBufferPlugin_l742_15) begin
           StoreBufferPlugin_logic_finalBypassResult_data[31 : 24] = StoreBufferPlugin_logic_slots_0_data[31 : 24];
         end
       end
@@ -23899,30 +23594,30 @@ module CoreNSCSCC (
 
   always @(*) begin
     StoreBufferPlugin_logic_finalBypassResult_hitMask = _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask;
-    if(when_StoreBufferPlugin_l737_3) begin
-      if(when_StoreBufferPlugin_l742_3) begin
-        if(when_StoreBufferPlugin_l744_12) begin
+    if(when_StoreBufferPlugin_l735_3) begin
+      if(when_StoreBufferPlugin_l740_3) begin
+        if(when_StoreBufferPlugin_l742_12) begin
           StoreBufferPlugin_logic_finalBypassResult_hitMask[0] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l744_13) begin
+        if(when_StoreBufferPlugin_l742_13) begin
           StoreBufferPlugin_logic_finalBypassResult_hitMask[1] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l744_14) begin
+        if(when_StoreBufferPlugin_l742_14) begin
           StoreBufferPlugin_logic_finalBypassResult_hitMask[2] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l744_15) begin
+        if(when_StoreBufferPlugin_l742_15) begin
           StoreBufferPlugin_logic_finalBypassResult_hitMask[3] = 1'b1;
         end
       end
     end
   end
 
-  assign when_StoreBufferPlugin_l737_3 = ((StoreBufferPlugin_logic_slots_0_valid && (! StoreBufferPlugin_logic_slots_0_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_0_isFlush));
-  assign when_StoreBufferPlugin_l742_3 = (StoreBufferPlugin_hw_bypassQueryAddrIn[31 : 2] == StoreBufferPlugin_logic_slots_0_addr[31 : 2]);
-  assign when_StoreBufferPlugin_l744_12 = ((StoreBufferPlugin_logic_slots_0_be[0] && StoreBufferPlugin_logic_loadQueryBe[0]) && (! _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[0]));
-  assign when_StoreBufferPlugin_l744_13 = ((StoreBufferPlugin_logic_slots_0_be[1] && StoreBufferPlugin_logic_loadQueryBe[1]) && (! _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[1]));
-  assign when_StoreBufferPlugin_l744_14 = ((StoreBufferPlugin_logic_slots_0_be[2] && StoreBufferPlugin_logic_loadQueryBe[2]) && (! _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[2]));
-  assign when_StoreBufferPlugin_l744_15 = ((StoreBufferPlugin_logic_slots_0_be[3] && StoreBufferPlugin_logic_loadQueryBe[3]) && (! _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[3]));
+  assign when_StoreBufferPlugin_l735_3 = ((StoreBufferPlugin_logic_slots_0_valid && (! StoreBufferPlugin_logic_slots_0_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_0_isFlush));
+  assign when_StoreBufferPlugin_l740_3 = (StoreBufferPlugin_hw_bypassQueryAddrIn[31 : 2] == StoreBufferPlugin_logic_slots_0_addr[31 : 2]);
+  assign when_StoreBufferPlugin_l742_12 = ((StoreBufferPlugin_logic_slots_0_be[0] && StoreBufferPlugin_logic_loadQueryBe[0]) && (! _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[0]));
+  assign when_StoreBufferPlugin_l742_13 = ((StoreBufferPlugin_logic_slots_0_be[1] && StoreBufferPlugin_logic_loadQueryBe[1]) && (! _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[1]));
+  assign when_StoreBufferPlugin_l742_14 = ((StoreBufferPlugin_logic_slots_0_be[2] && StoreBufferPlugin_logic_loadQueryBe[2]) && (! _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[2]));
+  assign when_StoreBufferPlugin_l742_15 = ((StoreBufferPlugin_logic_slots_0_be[3] && StoreBufferPlugin_logic_loadQueryBe[3]) && (! _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[3]));
   assign StoreBufferPlugin_logic_overallBypassHit = (|StoreBufferPlugin_logic_finalBypassResult_hitMask);
   assign StoreBufferPlugin_hw_bypassDataOutInst_valid = StoreBufferPlugin_logic_overallBypassHit;
   assign StoreBufferPlugin_hw_bypassDataOutInst_payload_data = StoreBufferPlugin_logic_finalBypassResult_data;
@@ -23973,13 +23668,13 @@ module CoreNSCSCC (
   always @(*) begin
     FetchPipelinePlugin_logic_retryIdCounter_willIncrement = 1'b0;
     if(FetchPipelinePlugin_logic_s4_logic_backpressureRedo) begin
-      if(when_FetchPipelinePlugin2_l437) begin
+      if(when_FetchPipelinePlugin2_l439) begin
         FetchPipelinePlugin_logic_retryIdCounter_willIncrement = 1'b1;
       end
     end
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l453) begin
+        if(when_FetchPipelinePlugin2_l455) begin
           FetchPipelinePlugin_logic_retryIdCounter_willIncrement = 1'b1;
         end
       end
@@ -24003,13 +23698,13 @@ module CoreNSCSCC (
   always @(*) begin
     FetchPipelinePlugin_logic_doRetryFlush = 1'b0;
     if(FetchPipelinePlugin_logic_s4_logic_backpressureRedo) begin
-      if(when_FetchPipelinePlugin2_l437) begin
+      if(when_FetchPipelinePlugin2_l439) begin
         FetchPipelinePlugin_logic_doRetryFlush = 1'b1;
       end
     end
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l453) begin
+        if(when_FetchPipelinePlugin2_l455) begin
           FetchPipelinePlugin_logic_doRetryFlush = 1'b1;
         end
       end
@@ -24056,19 +23751,19 @@ module CoreNSCSCC (
 
   assign when_Utils_l769 = ((! FetchPipelinePlugin_logic_iCacheInFlightCounter_incrementIt) && FetchPipelinePlugin_logic_iCacheInFlightCounter_decrementIt);
   assign FetchPipelinePlugin_logic_iCacheInFlightCounter_valueNext = (FetchPipelinePlugin_logic_iCacheInFlightCounter_value + FetchPipelinePlugin_logic_iCacheInFlightCounter_finalIncrement);
-  assign when_FetchPipelinePlugin2_l284 = (FetchPipelinePlugin_logic_iCacheInFlightCounter_value == 3'b000);
+  assign when_FetchPipelinePlugin2_l286 = (FetchPipelinePlugin_logic_iCacheInFlightCounter_value == 3'b000);
   assign FetchPipelinePlugin_logic_s1_logic_needRedo = ((((FetchPipelinePlugin_logic_retryCmd_lock && (FetchPipelinePlugin_logic_retryCmd_id != FetchPipelinePlugin_logic_s1_logic_lastRetryIdReg)) && (! FetchPipelinePlugin_logic_doAnyFlush)) && (! FetchPipelinePlugin_logic_dispatchAnyFlushReg)) && (! FetchPipelinePlugin_logic_isDrainingCacheRspReg));
   assign FetchPipelinePlugin_logic_s1_logic_rawPcToUse = (FetchPipelinePlugin_logic_s1_logic_needRedo ? FetchPipelinePlugin_logic_retryCmd_pc : FetchPipelinePlugin_logic_s1_logic_fetchPcReg);
   assign s1_PC_Gen_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC = FetchPipelinePlugin_logic_s1_logic_rawPcToUse;
   assign s1_PC_Gen_FetchPipelinePlugin_logic_FetchPipeline_PC = {FetchPipelinePlugin_logic_s1_logic_rawPcToUse[31 : 4],4'b0000};
   assign FetchPipelinePlugin_logic_s1_logic_nextLinePc = (FetchPipelinePlugin_logic_s1_logic_fetchPcReg + 32'h00000010);
   assign s1_PC_Gen_isFiring = (s1_PC_Gen_valid && s1_PC_Gen_ready);
-  assign when_FetchPipelinePlugin2_l356 = (s1_PC_Gen_isFiring && (! FetchPipelinePlugin_logic_retryCmd_lock));
-  assign when_FetchPipelinePlugin2_l362 = (s1_PC_Gen_isFiring && FetchPipelinePlugin_logic_s1_logic_needRedo);
+  assign when_FetchPipelinePlugin2_l358 = (s1_PC_Gen_isFiring && (! FetchPipelinePlugin_logic_retryCmd_lock));
+  assign when_FetchPipelinePlugin2_l364 = (s1_PC_Gen_isFiring && FetchPipelinePlugin_logic_s1_logic_needRedo);
   assign FetchPipelinePlugin_logic_s1_logic_fetchDisabled = 1'b0;
   assign s1_PC_Gen_valid = 1'b1;
-  assign when_FetchPipelinePlugin2_l375 = ((FetchPipelinePlugin_logic_isDrainingCacheRspReg || FetchPipelinePlugin_logic_s1_logic_fetchDisabled) || (FetchPipelinePlugin_logic_retryCmd_lock && (FetchPipelinePlugin_logic_retryCmd_id == FetchPipelinePlugin_logic_s1_logic_lastRetryIdReg)));
-  assign s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l376 = _zz_s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l376;
+  assign when_FetchPipelinePlugin2_l377 = ((FetchPipelinePlugin_logic_isDrainingCacheRspReg || FetchPipelinePlugin_logic_s1_logic_fetchDisabled) || (FetchPipelinePlugin_logic_retryCmd_lock && (FetchPipelinePlugin_logic_retryCmd_id == FetchPipelinePlugin_logic_s1_logic_lastRetryIdReg)));
+  assign s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l378 = _zz_s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l378;
   assign s2_ICache_Access_isFiring = (s2_ICache_Access_valid && s2_ICache_Access_ready);
   assign ICachePlugin_port_cmd_valid = (s2_ICache_Access_isFiring && (! FetchPipelinePlugin_logic_isDrainingCacheRspReg));
   assign FetchPipelinePlugin_logic_s2_logic_cmdPayload_address = s2_ICache_Access_FetchPipelinePlugin_logic_FetchPipeline_PC;
@@ -24079,7 +23774,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_valid = 1'b0;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_valid = 1'b1;
         end
       end
@@ -24090,7 +23785,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_pc = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_pc = s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC;
         end
       end
@@ -24101,7 +23796,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_instructions_0 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_instructions_0 = ICachePlugin_port_rsp_payload_instructions_0;
         end
       end
@@ -24112,7 +23807,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_instructions_1 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_instructions_1 = ICachePlugin_port_rsp_payload_instructions_1;
         end
       end
@@ -24123,7 +23818,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_instructions_2 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_instructions_2 = ICachePlugin_port_rsp_payload_instructions_2;
         end
       end
@@ -24134,7 +23829,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_instructions_3 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_instructions_3 = ICachePlugin_port_rsp_payload_instructions_3;
         end
       end
@@ -24145,7 +23840,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_0_isBranch = 1'bx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_0_isBranch = _zz_io_push_payload_predecodeInfos_0_isBranch;
         end
       end
@@ -24156,7 +23851,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_0_isJump = 1'bx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_0_isJump = FetchPipelinePlugin_logic_s4_logic_predecoders_0_io_predecodeInfo_isJump;
         end
       end
@@ -24167,7 +23862,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_0_isDirectJump = 1'bx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_0_isDirectJump = FetchPipelinePlugin_logic_s4_logic_predecoders_0_io_predecodeInfo_isDirectJump;
         end
       end
@@ -24178,7 +23873,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_0_jumpOffset = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_0_jumpOffset = FetchPipelinePlugin_logic_s4_logic_predecoders_0_io_predecodeInfo_jumpOffset;
         end
       end
@@ -24189,7 +23884,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_0_isIdle = 1'bx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_0_isIdle = FetchPipelinePlugin_logic_s4_logic_predecoders_0_io_predecodeInfo_isIdle;
         end
       end
@@ -24200,7 +23895,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_1_isBranch = 1'bx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_1_isBranch = _zz_io_push_payload_predecodeInfos_1_isBranch;
         end
       end
@@ -24211,7 +23906,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_1_isJump = 1'bx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_1_isJump = FetchPipelinePlugin_logic_s4_logic_predecoders_1_io_predecodeInfo_isJump;
         end
       end
@@ -24222,7 +23917,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_1_isDirectJump = 1'bx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_1_isDirectJump = FetchPipelinePlugin_logic_s4_logic_predecoders_1_io_predecodeInfo_isDirectJump;
         end
       end
@@ -24233,7 +23928,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_1_jumpOffset = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_1_jumpOffset = FetchPipelinePlugin_logic_s4_logic_predecoders_1_io_predecodeInfo_jumpOffset;
         end
       end
@@ -24244,7 +23939,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_1_isIdle = 1'bx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_1_isIdle = FetchPipelinePlugin_logic_s4_logic_predecoders_1_io_predecodeInfo_isIdle;
         end
       end
@@ -24255,7 +23950,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_2_isBranch = 1'bx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_2_isBranch = _zz_io_push_payload_predecodeInfos_2_isBranch;
         end
       end
@@ -24266,7 +23961,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_2_isJump = 1'bx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_2_isJump = FetchPipelinePlugin_logic_s4_logic_predecoders_2_io_predecodeInfo_isJump;
         end
       end
@@ -24277,7 +23972,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_2_isDirectJump = 1'bx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_2_isDirectJump = FetchPipelinePlugin_logic_s4_logic_predecoders_2_io_predecodeInfo_isDirectJump;
         end
       end
@@ -24288,7 +23983,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_2_jumpOffset = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_2_jumpOffset = FetchPipelinePlugin_logic_s4_logic_predecoders_2_io_predecodeInfo_jumpOffset;
         end
       end
@@ -24299,7 +23994,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_2_isIdle = 1'bx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_2_isIdle = FetchPipelinePlugin_logic_s4_logic_predecoders_2_io_predecodeInfo_isIdle;
         end
       end
@@ -24310,7 +24005,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_3_isBranch = 1'bx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_3_isBranch = _zz_io_push_payload_predecodeInfos_3_isBranch;
         end
       end
@@ -24321,7 +24016,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_3_isJump = 1'bx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_3_isJump = FetchPipelinePlugin_logic_s4_logic_predecoders_3_io_predecodeInfo_isJump;
         end
       end
@@ -24332,7 +24027,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_3_isDirectJump = 1'bx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_3_isDirectJump = FetchPipelinePlugin_logic_s4_logic_predecoders_3_io_predecodeInfo_isDirectJump;
         end
       end
@@ -24343,7 +24038,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_3_jumpOffset = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_3_jumpOffset = FetchPipelinePlugin_logic_s4_logic_predecoders_3_io_predecodeInfo_jumpOffset;
         end
       end
@@ -24354,7 +24049,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_3_isIdle = 1'bx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_predecodeInfos_3_isIdle = FetchPipelinePlugin_logic_s4_logic_predecoders_3_io_predecodeInfo_isIdle;
         end
       end
@@ -24365,7 +24060,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_branchMask = 4'bxxxx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_branchMask = {_zz_io_push_payload_predecodeInfos_0_isBranch,{_zz_io_push_payload_predecodeInfos_1_isBranch,{_zz_io_push_payload_predecodeInfos_2_isBranch,_zz_io_push_payload_predecodeInfos_3_isBranch}}};
         end
       end
@@ -24376,7 +24071,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_fault = 1'bx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_fault = (! ICachePlugin_port_rsp_payload_wasHit);
         end
       end
@@ -24387,7 +24082,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_numValidInstructions = 3'bxxx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_numValidInstructions = (3'b100 - _zz_io_push_payload_numValidInstructions_2);
         end
       end
@@ -24398,7 +24093,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_startInstructionIndex = 2'bxx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_payload_startInstructionIndex = _zz_io_push_payload_numValidInstructions_1;
         end
       end
@@ -24409,7 +24104,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecoders_0_io_instruction = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecoders_0_io_instruction = ICachePlugin_port_rsp_payload_instructions_0;
         end
       end
@@ -24420,7 +24115,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecoders_1_io_instruction = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecoders_1_io_instruction = ICachePlugin_port_rsp_payload_instructions_1;
         end
       end
@@ -24431,7 +24126,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecoders_2_io_instruction = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecoders_2_io_instruction = ICachePlugin_port_rsp_payload_instructions_2;
         end
       end
@@ -24442,7 +24137,7 @@ module CoreNSCSCC (
     FetchPipelinePlugin_logic_s4_logic_predecoders_3_io_instruction = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l476) begin
+        if(when_FetchPipelinePlugin2_l478) begin
           FetchPipelinePlugin_logic_s4_logic_predecoders_3_io_instruction = ICachePlugin_port_rsp_payload_instructions_3;
         end
       end
@@ -24453,18 +24148,18 @@ module CoreNSCSCC (
   assign FetchPipelinePlugin_logic_s4_logic_handleRsp = ((s4_Predecode_isFiring && ICachePlugin_port_rsp_valid) && (! FetchPipelinePlugin_logic_isDrainingCacheRspReg));
   assign FetchPipelinePlugin_logic_s4_logic_hasHigherPriorityStuff = ((FetchPipelinePlugin_logic_doAnyFlush || FetchPipelinePlugin_logic_dispatchAnyFlushReg) || FetchPipelinePlugin_logic_isDrainingCacheRspReg);
   assign FetchPipelinePlugin_logic_s4_logic_backpressureRedo = ((((((! s4_Predecode_isFiring) && ICachePlugin_port_rsp_valid) && ICachePlugin_port_rsp_payload_wasHit) && (! FetchPipelinePlugin_logic_isDrainingCacheRspReg)) && (! FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_ready)) && (! FetchPipelinePlugin_logic_s4_logic_hasHigherPriorityStuff));
-  assign when_FetchPipelinePlugin2_l437 = (! FetchPipelinePlugin_logic_retryCmd_lock);
+  assign when_FetchPipelinePlugin2_l439 = (! FetchPipelinePlugin_logic_retryCmd_lock);
   assign _zz_72 = (s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC >>> 3'd4);
-  assign when_FetchPipelinePlugin2_l453 = (((! FetchPipelinePlugin_logic_retryCmd_lock) || (FetchPipelinePlugin_logic_retryCmd_lock && ({s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC[31 : 4],4'b0000} == {FetchPipelinePlugin_logic_retryCmd_pc[31 : 4],4'b0000}))) && (! FetchPipelinePlugin_logic_s4_logic_hasHigherPriorityStuff));
-  assign when_FetchPipelinePlugin2_l471 = (FetchPipelinePlugin_logic_retryCmd_lock && ({s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC[31 : 4],4'b0000} == {FetchPipelinePlugin_logic_retryCmd_pc[31 : 4],4'b0000}));
-  assign when_FetchPipelinePlugin2_l476 = ((! FetchPipelinePlugin_logic_retryCmd_lock) || ({s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC[31 : 4],4'b0000} == {FetchPipelinePlugin_logic_retryCmd_pc[31 : 4],4'b0000}));
+  assign when_FetchPipelinePlugin2_l455 = (((! FetchPipelinePlugin_logic_retryCmd_lock) || (FetchPipelinePlugin_logic_retryCmd_lock && ({s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC[31 : 4],4'b0000} == {FetchPipelinePlugin_logic_retryCmd_pc[31 : 4],4'b0000}))) && (! FetchPipelinePlugin_logic_s4_logic_hasHigherPriorityStuff));
+  assign when_FetchPipelinePlugin2_l473 = (FetchPipelinePlugin_logic_retryCmd_lock && ({s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC[31 : 4],4'b0000} == {FetchPipelinePlugin_logic_retryCmd_pc[31 : 4],4'b0000}));
+  assign when_FetchPipelinePlugin2_l478 = ((! FetchPipelinePlugin_logic_retryCmd_lock) || ({s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC[31 : 4],4'b0000} == {FetchPipelinePlugin_logic_retryCmd_pc[31 : 4],4'b0000}));
   assign _zz_io_push_payload_numValidInstructions = (s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC - s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC);
   assign _zz_io_push_payload_numValidInstructions_1 = (_zz_io_push_payload_numValidInstructions[3 : 0] >>> 2'd2);
   assign _zz_io_push_payload_predecodeInfos_0_isBranch = FetchPipelinePlugin_logic_s4_logic_predecoders_0_io_predecodeInfo_isBranch;
   assign _zz_io_push_payload_predecodeInfos_1_isBranch = FetchPipelinePlugin_logic_s4_logic_predecoders_1_io_predecodeInfo_isBranch;
   assign _zz_io_push_payload_predecodeInfos_2_isBranch = FetchPipelinePlugin_logic_s4_logic_predecoders_2_io_predecodeInfo_isBranch;
   assign _zz_io_push_payload_predecodeInfos_3_isBranch = FetchPipelinePlugin_logic_s4_logic_predecoders_3_io_predecodeInfo_isBranch;
-  assign s4_Predecode_haltRequest_FetchPipelinePlugin2_l500 = (! FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_ready);
+  assign s4_Predecode_haltRequest_FetchPipelinePlugin2_l502 = (! FetchPipelinePlugin_logic_s4_logic_predecodedGroups_io_push_ready);
   assign BpuPipelinePlugin_queryPortIn_valid = FetchPipelinePlugin_logic_dispatcher_io_bpuQuery_valid;
   assign BpuPipelinePlugin_queryPortIn_payload_pc = FetchPipelinePlugin_logic_dispatcher_io_bpuQuery_payload_pc;
   assign BpuPipelinePlugin_queryPortIn_payload_transactionId = FetchPipelinePlugin_logic_dispatcher_io_bpuQuery_payload_transactionId;
@@ -24497,7 +24192,7 @@ module CoreNSCSCC (
     end
   end
 
-  assign when_Pipeline_l282_2 = (|s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l376);
+  assign when_Pipeline_l282_2 = (|s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l378);
   always @(*) begin
     _zz_s4_Predecode_valid = s2_ICache_Access_valid;
     if(s2_ICache_Access_isFlushingRoot) begin
@@ -24513,7 +24208,7 @@ module CoreNSCSCC (
     end
   end
 
-  assign when_Pipeline_l282_3 = (|s4_Predecode_haltRequest_FetchPipelinePlugin2_l500);
+  assign when_Pipeline_l282_3 = (|s4_Predecode_haltRequest_FetchPipelinePlugin2_l502);
   always @(*) begin
     s1_PC_Gen_ready_output = s2_ICache_Access_ready;
     if(when_Connection_l74_3) begin
@@ -25889,6 +25584,8 @@ module CoreNSCSCC (
   assign io_leds = _zz_io_leds_1[15:0];
   always @(posedge clk) begin
     if(reset) begin
+      FetchPipelinePlugin_dbg_cycles <= 16'h0;
+      FetchPipelinePlugin_dbg_c <= 3'b000;
       CommitPlugin_commitStatsReg_committedThisCycle <= 1'b0;
       CommitPlugin_commitStatsReg_totalCommitted <= 32'h0;
       CommitPlugin_commitStatsReg_robFlushCount <= 32'h0;
@@ -25941,14 +25638,11 @@ module CoreNSCSCC (
       CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_30 <= CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_30;
       CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_31 <= CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_31;
       CheckpointManagerPlugin_logic_storedBtCheckpoint_busyBits <= CheckpointManagerPlugin_logic_initialBtCheckpoint_busyBits;
-      CommitPlugin_logic_s0_isMispredictedBranchPrev <= 1'b0;
-      CommitPlugin_logic_s1_s1_commitIdleThisCycle <= 1'b0;
-      CommitPlugin_logic_s1_s1_hasCommitsThisCycle <= 1'b0;
+      CommitPlugin_logic_s1_s1_committedThisCycle <= 1'b0;
+      CommitPlugin_logic_s1_s1_recycledThisCycle <= 1'b0;
+      CommitPlugin_logic_s1_s1_flushedThisCycle <= 1'b0;
       CommitPlugin_logic_s1_s1_maxCommitPcThisCycle <= 32'h0;
       CommitPlugin_logic_s1_s1_anyCommitOOB <= 1'b0;
-      CommitPlugin_logic_s1_s1_committedThisCycle_comb <= 1'b0;
-      CommitPlugin_logic_s1_s1_recycledThisCycle_comb <= 1'b0;
-      CommitPlugin_logic_s1_s1_flushedThisCycle_comb <= 1'b0;
       CommitPlugin_logic_counter <= 32'h0;
       DebugDisplayPlugin_logic_displayArea_dpToggle <= 1'b0;
       s1_ReadRegs_valid <= 1'b0;
@@ -26461,6 +26155,8 @@ module CoreNSCSCC (
       io_outputs_2_aw_rValid_3 <= 1'b0;
       _zz_io_leds <= 1'b0;
     end else begin
+      FetchPipelinePlugin_dbg_cycles <= (FetchPipelinePlugin_dbg_cycles + 16'h0001);
+      FetchPipelinePlugin_dbg_c <= (FetchPipelinePlugin_dbg_c + 3'b001);
       if(DataCachePlugin_setup_cache_io_mem_read_cmd_ready) begin
         io_mem_read_cmd_rValid <= DataCachePlugin_setup_cache_io_mem_read_cmd_valid;
       end
@@ -26595,65 +26291,40 @@ module CoreNSCSCC (
         CheckpointManagerPlugin_logic_storedBtCheckpoint_busyBits <= BusyTablePlugin_early_setup_busyTableReg;
         CheckpointManagerPlugin_logic_hasValidCheckpoint <= 1'b1;
       end
-      CommitPlugin_logic_s0_isMispredictedBranchPrev <= CommitPlugin_logic_s0_isMispredictedBranch;
-      if(when_CommitPlugin_l204) begin
+      if(when_CommitPlugin_l197) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // CommitPlugin.scala:L213
+            assert(1'b0); // CommitPlugin.scala:L204
           `else
             if(!1'b0) begin
-              $display("NOTE(CommitPlugin.scala:213):  CHECKPOINT: Save checkpoint triggered"); // CommitPlugin.scala:L213
+              $display("NOTE(CommitPlugin.scala:204):  CHECKPOINT: Save checkpoint triggered on successful commit."); // CommitPlugin.scala:L204
             end
           `endif
         `endif
       end
-      if(CommitPlugin_logic_s0_isMispredictedBranchPrev) begin
+      if(CommitPlugin_logic_s0_isMispredictedBranch) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // CommitPlugin.scala:L243
+            assert(1'b0); // CommitPlugin.scala:L225
           `else
             if(!1'b0) begin
-              $display("NOTE(CommitPlugin.scala:243):  CHECKPOINT: Restore checkpoint triggered due to misprediction last cycle, redirecting to %x", CommitPlugin_logic_s0_actualTargetOfBranchPrev); // CommitPlugin.scala:L243
+              $display("NOTE(CommitPlugin.scala:225):  [notice] [33mBRANCH MISPREDICT: Vetoing commit of robPtr=%x, PC=0x%x and flushing pipeline. Redirecting to 0x%x.[0m", ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr, ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc, ROBPlugin_robComponent_io_commit_0_entry_status_result); // CommitPlugin.scala:L225
             end
           `endif
         `endif
       end
-      if(when_CommitPlugin_l263) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // CommitPlugin.scala:L268
-          `else
-            if(!1'b0) begin
-              $display("NOTE(CommitPlugin.scala:268):  [normal] [CommitPlugin->BusyTable] Clearing physReg=%x because robPtr=%x is committing.", ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx, ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr); // CommitPlugin.scala:L268
-            end
-          `endif
-        `endif
-      end
-      CommitPlugin_logic_s1_s1_commitIdleThisCycle <= CommitPlugin_logic_s0_commitIdleThisCycle;
-      CommitPlugin_logic_s1_s1_hasCommitsThisCycle <= CommitPlugin_logic_s0_commitAckMasks_0;
+      CommitPlugin_logic_s1_s1_committedThisCycle <= CommitPlugin_logic_s0_committedThisCycle_comb;
+      CommitPlugin_logic_s1_s1_recycledThisCycle <= CommitPlugin_logic_s0_recycledThisCycle_comb;
+      CommitPlugin_logic_s1_s1_flushedThisCycle <= CommitPlugin_logic_s0_flushedThisCycle_comb;
       CommitPlugin_logic_s1_s1_maxCommitPcThisCycle <= CommitPlugin_logic_s0_maxCommitPcThisCycle;
       CommitPlugin_logic_s1_s1_anyCommitOOB <= CommitPlugin_logic_s0_anyCommitOOB;
-      CommitPlugin_logic_s1_s1_committedThisCycle_comb <= CommitPlugin_logic_s0_committedThisCycle_comb;
-      CommitPlugin_logic_s1_s1_recycledThisCycle_comb <= CommitPlugin_logic_s0_recycledThisCycle_comb;
-      CommitPlugin_logic_s1_s1_flushedThisCycle_comb <= CommitPlugin_logic_s0_flushedThisCycle_comb;
-      if(CommitPlugin_logic_s1_s1_hasCommitsThisCycle) begin
-        if(when_CommitPlugin_l349) begin
-          CommitPlugin_maxCommitPcReg <= CommitPlugin_logic_s1_s1_maxCommitPcThisCycle;
-        end
+      if(when_CommitPlugin_l298) begin
+        CommitPlugin_maxCommitPcReg <= CommitPlugin_logic_s1_s1_maxCommitPcThisCycle;
       end
       if(CommitPlugin_logic_s1_s1_anyCommitOOB) begin
         CommitPlugin_commitOOBReg <= 1'b1;
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // CommitPlugin.scala:L357
-          `else
-            if(!1'b0) begin
-              $display("NOTE(CommitPlugin.scala:357):  [normal] [CommitPlugin] CRITICAL: Out-of-bounds commit detected! PC=0x%x, maxAllowed=0x%x", CommitPlugin_logic_s1_s1_maxCommitPcThisCycle, CommitPlugin_maxCommitPcExt); // CommitPlugin.scala:L357
-            end
-          `endif
-        `endif
       end
-      CommitPlugin_commitStatsReg_committedThisCycle <= CommitPlugin_logic_s1_s1_committedThisCycle_comb;
+      CommitPlugin_commitStatsReg_committedThisCycle <= CommitPlugin_logic_s1_s1_committedThisCycle;
       CommitPlugin_commitStatsReg_totalCommitted <= (CommitPlugin_commitStatsReg_totalCommitted + _zz_CommitPlugin_commitStatsReg_totalCommitted);
       CommitPlugin_commitStatsReg_physRegRecycled <= (CommitPlugin_commitStatsReg_physRegRecycled + _zz_CommitPlugin_commitStatsReg_physRegRecycled);
       CommitPlugin_commitStatsReg_robFlushCount <= (CommitPlugin_commitStatsReg_robFlushCount + _zz_CommitPlugin_commitStatsReg_robFlushCount);
@@ -26688,10 +26359,10 @@ module CoreNSCSCC (
       CommitPlugin_logic_counter <= (CommitPlugin_logic_counter + 32'h00000001);
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // CommitPlugin.scala:L379
+          assert(1'b0); // CommitPlugin.scala:L330
         `else
           if(!1'b0) begin
-            $display("NOTE(CommitPlugin.scala:379):  [COMMIT] Cycle %x Log: Stats=CommitStats(committedThisCycle=%x, totalCommitted=%x, robFlushCount=%x, physRegRecycled=%x, commitOOB=%x, maxCommitPc=0x%x)\n  Slot Details: \n    Slot: (valid=%x, canCommit=%x, doCommit=%x, robPtr=%x, oldPhysDest=%x, allocatesPhysDest=%x) commitAck=%x commitPc=0x%x", CommitPlugin_logic_counter, CommitPlugin_commitStatsReg_committedThisCycle, CommitPlugin_commitStatsReg_totalCommitted, CommitPlugin_commitStatsReg_robFlushCount, CommitPlugin_commitStatsReg_physRegRecycled, CommitPlugin_commitStatsReg_commitOOB, CommitPlugin_commitStatsReg_maxCommitPc, CommitPlugin_logic_s0_commitSlotLogs_0_valid, CommitPlugin_logic_s0_commitSlotLogs_0_canCommit, CommitPlugin_logic_s0_commitSlotLogs_0_doCommit, CommitPlugin_logic_s0_commitSlotLogs_0_robPtr, CommitPlugin_logic_s0_commitSlotLogs_0_oldPhysDest, CommitPlugin_logic_s0_commitSlotLogs_0_allocatesPhysDest, CommitPlugin_logic_s0_commitAckMasks_0, CommitPlugin_logic_s0_commitPcs_0); // CommitPlugin.scala:L379
+            $display("NOTE(CommitPlugin.scala:330):  [COMMIT] Cycle %x Log: Stats=CommitStats(committedThisCycle=%x, totalCommitted=%x, robFlushCount=%x, physRegRecycled=%x, commitOOB=%x, maxCommitPc=0x%x)\n  Slot Details: \n    Slot: (valid=%x, canCommit=%x, doCommit=%x, robPtr=%x, oldPhysDest=%x, allocatesPhysDest=%x) commitAck=%x commitPc=0x%x", CommitPlugin_logic_counter, CommitPlugin_commitStatsReg_committedThisCycle, CommitPlugin_commitStatsReg_totalCommitted, CommitPlugin_commitStatsReg_robFlushCount, CommitPlugin_commitStatsReg_physRegRecycled, CommitPlugin_commitStatsReg_commitOOB, CommitPlugin_commitStatsReg_maxCommitPc, CommitPlugin_logic_s0_commitSlotLogs_0_valid, CommitPlugin_logic_s0_commitSlotLogs_0_canCommit, CommitPlugin_logic_s0_commitSlotLogs_0_doCommit, CommitPlugin_logic_s0_commitSlotLogs_0_robPtr, CommitPlugin_logic_s0_commitSlotLogs_0_oldPhysDest, CommitPlugin_logic_s0_commitSlotLogs_0_allocatesPhysDest, CommitPlugin_logic_s0_commitAckMasks_0, CommitPlugin_logic_s0_commitPcs_0); // CommitPlugin.scala:L330
           end
         `endif
       `endif
@@ -28787,18 +28458,6 @@ module CoreNSCSCC (
             end
           end
         end
-      end else begin
-        if(when_StoreBufferPlugin_l576) begin
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // StoreBufferPlugin.scala:L580
-            `else
-              if(!1'b0) begin
-                $display("NOTE(StoreBufferPlugin.scala:580):  [SQ] POP_INVALID_SLOT: Clearing invalid head slot."); // StoreBufferPlugin.scala:L580
-              end
-            `endif
-          `endif
-        end
       end
       if(StoreBufferPlugin_hw_sqQueryPort_cmd_valid) begin
         `ifndef SYNTHESIS
@@ -28871,41 +28530,32 @@ module CoreNSCSCC (
           end
         end
       end
-      `ifndef SYNTHESIS
-        `ifdef FORMAL
-          assert(1'b0); // StoreBufferPlugin.scala:L709
-        `else
-          if(!1'b0) begin
-            $display("NOTE(StoreBufferPlugin.scala:709):  [SQ-Fwd] Forwarding? hit=%x, because query.valid=%x, allRequiredBytesHit=%x, olderStoreHasUnknownAddress=%x, olderStoreDataNotReady=%x", StoreBufferPlugin_hw_sqQueryPort_rsp_hit, StoreBufferPlugin_hw_sqQueryPort_cmd_valid, StoreBufferPlugin_logic_forwardingLogic_allRequiredBytesHit, StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreHasUnknownAddress, StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreDataNotReady); // StoreBufferPlugin.scala:L709
-          end
-        `endif
-      `endif
       if(StoreBufferPlugin_hw_sqQueryPort_cmd_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L713
+            assert(1'b0); // StoreBufferPlugin.scala:L711
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:713):  [SQ-Fwd] Query: SqQuery(robPtr=%x,address=%x,size=%s)", StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr, StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address, StoreBufferPlugin_hw_sqQueryPort_cmd_payload_size_string); // StoreBufferPlugin.scala:L713
+              $display("NOTE(StoreBufferPlugin.scala:711):  [SQ-Fwd] Query: SqQuery(robPtr=%x,address=%x,size=%s)", StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr, StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address, StoreBufferPlugin_hw_sqQueryPort_cmd_payload_size_string); // StoreBufferPlugin.scala:L711
             end
           `endif
         `endif
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L714
+            assert(1'b0); // StoreBufferPlugin.scala:L712
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:714):  [SQ-Fwd] Rsp: SqQueryRsp(hit=%x,data=%x,olderStoreHasUnknownAddress=%x,olderStoreDataNotReady=%x)", StoreBufferPlugin_hw_sqQueryPort_rsp_hit, StoreBufferPlugin_hw_sqQueryPort_rsp_data, StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreHasUnknownAddress, StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreDataNotReady); // StoreBufferPlugin.scala:L714
+              $display("NOTE(StoreBufferPlugin.scala:712):  [SQ-Fwd] Rsp: SqQueryRsp(hit=%x,data=%x,olderStoreHasUnknownAddress=%x,olderStoreDataNotReady=%x)", StoreBufferPlugin_hw_sqQueryPort_rsp_hit, StoreBufferPlugin_hw_sqQueryPort_rsp_data, StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreHasUnknownAddress, StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreDataNotReady); // StoreBufferPlugin.scala:L712
             end
           `endif
         `endif
       end
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // StoreBufferPlugin.scala:L716
+          assert(1'b0); // StoreBufferPlugin.scala:L714
         `else
           if(!1'b0) begin
-            $display("NOTE(StoreBufferPlugin.scala:716):  [SQ-Fwd] Result: hitMask=%x (loadMask=%x), allHit=%x, finalRsp.hit=%x", StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask, StoreBufferPlugin_logic_forwardingLogic_loadMask, StoreBufferPlugin_logic_forwardingLogic_allRequiredBytesHit, StoreBufferPlugin_hw_sqQueryPort_rsp_hit); // StoreBufferPlugin.scala:L716
+            $display("NOTE(StoreBufferPlugin.scala:714):  [SQ-Fwd] Result: hitMask=%x (loadMask=%x), allHit=%x, finalRsp.hit=%x", StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask, StoreBufferPlugin_logic_forwardingLogic_loadMask, StoreBufferPlugin_logic_forwardingLogic_allRequiredBytesHit, StoreBufferPlugin_hw_sqQueryPort_rsp_hit); // StoreBufferPlugin.scala:L714
           end
         `endif
       `endif
@@ -29034,6 +28684,39 @@ module CoreNSCSCC (
         BusyTablePlugin_early_setup_busyTableReg <= BusyTablePlugin_logic_busyTableNext;
       end
       FetchPipelinePlugin_logic_retryIdCounter_value <= FetchPipelinePlugin_logic_retryIdCounter_valueNext;
+      if(FetchPipelinePlugin_logic_hardRedirect_valid) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // FetchPipelinePlugin2.scala:L261
+          `else
+            if(!1'b0) begin
+              $display("NOTE(FetchPipelinePlugin2.scala:261):  [notice] [33m[%x] !!!!GOT A HARD FLUSH to %x[0m", FetchPipelinePlugin_dbg_cycles, FetchPipelinePlugin_logic_hardRedirect_payload); // FetchPipelinePlugin2.scala:L261
+            end
+          `endif
+        `endif
+      end
+      if(FetchPipelinePlugin_logic_dispatcher_io_softRedirect_valid) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // FetchPipelinePlugin2.scala:L264
+          `else
+            if(!1'b0) begin
+              $display("NOTE(FetchPipelinePlugin2.scala:264):  [notice] [33m[%x] !!!!GOT A SOFT FLUSH to %x[0m", FetchPipelinePlugin_dbg_cycles, FetchPipelinePlugin_logic_dispatcher_io_softRedirect_payload); // FetchPipelinePlugin2.scala:L264
+            end
+          `endif
+        `endif
+      end
+      if(io_pop_fire) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // FetchPipelinePlugin2.scala:L270
+          `else
+            if(!1'b0) begin
+              $display("NOTE(FetchPipelinePlugin2.scala:270):  [notice] [33m[%x] output a instr to decoder: PC=0x%x, instr=0x%x[0m", FetchPipelinePlugin_dbg_cycles, FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_pc, FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_instruction); // FetchPipelinePlugin2.scala:L270
+            end
+          `endif
+        `endif
+      end
       FetchPipelinePlugin_logic_dispatchSoftFlushReg <= FetchPipelinePlugin_logic_dispatcher_io_softRedirect_valid;
       FetchPipelinePlugin_logic_dispatchHardFlushReg <= FetchPipelinePlugin_logic_hardRedirect_valid;
       FetchPipelinePlugin_logic_dispatchAnyFlushReg <= FetchPipelinePlugin_logic_doAnyFlush;
@@ -29042,14 +28725,14 @@ module CoreNSCSCC (
         FetchPipelinePlugin_logic_isDrainingCacheRspReg <= 1'b1;
       end
       if(FetchPipelinePlugin_logic_isDrainingCacheRspReg) begin
-        if(when_FetchPipelinePlugin2_l284) begin
+        if(when_FetchPipelinePlugin2_l286) begin
           FetchPipelinePlugin_logic_isDrainingCacheRspReg <= 1'b0;
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // FetchPipelinePlugin2.scala:L286
+              assert(1'b0); // FetchPipelinePlugin2.scala:L288
             `else
               if(!1'b0) begin
-                $display("NOTE(FetchPipelinePlugin2.scala:286):  [success] [32m[<null>] Pipeline drained last cycle[0m"); // FetchPipelinePlugin2.scala:L286
+                $display("NOTE(FetchPipelinePlugin2.scala:288):  [success] [32m[%x] Pipeline drained last cycle[0m", FetchPipelinePlugin_dbg_cycles); // FetchPipelinePlugin2.scala:L288
               end
             `endif
           `endif
@@ -29068,17 +28751,17 @@ module CoreNSCSCC (
           if(FetchPipelinePlugin_logic_s1_logic_needRedo) begin
             FetchPipelinePlugin_logic_s1_logic_fetchPcReg <= ({FetchPipelinePlugin_logic_retryCmd_pc[31 : 4],4'b0000} + 32'h00000010);
           end else begin
-            if(when_FetchPipelinePlugin2_l356) begin
+            if(when_FetchPipelinePlugin2_l358) begin
               FetchPipelinePlugin_logic_s1_logic_fetchPcReg <= FetchPipelinePlugin_logic_s1_logic_nextLinePc;
             end
           end
         end
       end
-      if(when_FetchPipelinePlugin2_l362) begin
+      if(when_FetchPipelinePlugin2_l364) begin
         FetchPipelinePlugin_logic_s1_logic_lastRetryIdReg <= FetchPipelinePlugin_logic_retryCmd_id;
       end
       if(FetchPipelinePlugin_logic_s4_logic_backpressureRedo) begin
-        if(when_FetchPipelinePlugin2_l437) begin
+        if(when_FetchPipelinePlugin2_l439) begin
           FetchPipelinePlugin_logic_retryCmd_lock <= 1'b1;
           FetchPipelinePlugin_logic_retryCmd_pc <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC;
           FetchPipelinePlugin_logic_retryCmd_id <= FetchPipelinePlugin_logic_retryIdCounter_value;
@@ -29087,25 +28770,25 @@ module CoreNSCSCC (
       if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert((ICachePlugin_port_rsp_payload_transactionId == _zz_224)); // FetchPipelinePlugin2.scala:L449
+            assert((ICachePlugin_port_rsp_payload_transactionId == _zz_224)); // FetchPipelinePlugin2.scala:L451
           `else
             if(!(ICachePlugin_port_rsp_payload_transactionId == _zz_224)) begin
-              $display("FAILURE ICache response TID mismatch! Expect %x, got %x", _zz_72, ICachePlugin_port_rsp_payload_transactionId); // FetchPipelinePlugin2.scala:L449
+              $display("FAILURE ICache response TID mismatch! Expect %x, got %x", _zz_72, ICachePlugin_port_rsp_payload_transactionId); // FetchPipelinePlugin2.scala:L451
               $finish;
             end
           `endif
         `endif
         if(ICachePlugin_port_rsp_payload_redo) begin
-          if(when_FetchPipelinePlugin2_l453) begin
+          if(when_FetchPipelinePlugin2_l455) begin
             FetchPipelinePlugin_logic_retryCmd_lock <= 1'b1;
             FetchPipelinePlugin_logic_retryCmd_pc <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC;
             FetchPipelinePlugin_logic_retryCmd_id <= FetchPipelinePlugin_logic_retryIdCounter_value;
           end
         end else begin
-          if(when_FetchPipelinePlugin2_l471) begin
+          if(when_FetchPipelinePlugin2_l473) begin
             FetchPipelinePlugin_logic_retryCmd_lock <= 1'b0;
           end
-          if(when_FetchPipelinePlugin2_l476) begin
+          if(when_FetchPipelinePlugin2_l478) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
                 assert((_zz_io_push_payload_numValidInstructions[1 : 0] == 2'b00)); // FetchPipelinePlugin2.scala:L164
@@ -30259,10 +29942,10 @@ module CoreNSCSCC (
       if(BpuPipelinePlugin_logic_s1_read_isFiring) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // BpuPlugin.scala:L84
+            assert(1'b0); // BpuPlugin.scala:L85
           `else
             if(!1'b0) begin
-              $display("NOTE(BpuPlugin.scala:84):  [debug] [34m[BPU.S1] Query Firing for PC=0x%x, TID=%x, PHT Idx=0x%x, BTB Idx=0x%x[0m", BpuPipelinePlugin_logic_s1_read_Q_PC, BpuPipelinePlugin_logic_s1_read_TRANSACTION_ID, _zz_216, _zz_217); // BpuPlugin.scala:L84
+              $display("NOTE(BpuPlugin.scala:85):  [debug] [34m[BPU.S1] Query Firing for PC=0x%x, TID=%x, PHT Idx=0x%x, BTB Idx=0x%x[0m", BpuPipelinePlugin_logic_s1_read_Q_PC, BpuPipelinePlugin_logic_s1_read_TRANSACTION_ID, _zz_216, _zz_217); // BpuPlugin.scala:L85
             end
           `endif
         `endif
@@ -30270,10 +29953,10 @@ module CoreNSCSCC (
       if(BpuPipelinePlugin_logic_s2_predict_isFiring) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // BpuPlugin.scala:L106
+            assert(1'b0); // BpuPlugin.scala:L107
           `else
             if(!1'b0) begin
-              $display("NOTE(BpuPlugin.scala:106):  [debug] [34m[BPU.S2] Predict Firing for PC=0x%x, TID=%x | PHT Readout=%x -> Predict=%x | BTB Readout: valid=%x tag_match=%x -> Hit=%x | Final Predict: isTaken=%x target=0x%x[0m", BpuPipelinePlugin_logic_s2_predict_Q_PC, BpuPipelinePlugin_logic_s2_predict_TRANSACTION_ID, BpuPipelinePlugin_logic_phtReadData_s1, BpuPipelinePlugin_logic_phtPrediction, BpuPipelinePlugin_logic_btbReadData_s1_valid, _zz_220, BpuPipelinePlugin_logic_btbHit, BpuPipelinePlugin_logic_s2_predict_IS_TAKEN, BpuPipelinePlugin_logic_s2_predict_TARGET_PC); // BpuPlugin.scala:L106
+              $display("NOTE(BpuPlugin.scala:107):  [debug] [34m[BPU.S2] Predict Firing for PC=0x%x, TID=%x | PHT Readout=%x -> Predict=%x | BTB Readout: valid=%x tag_match=%x -> Hit=%x | Final Predict: isTaken=%x target=0x%x[0m", BpuPipelinePlugin_logic_s2_predict_Q_PC, BpuPipelinePlugin_logic_s2_predict_TRANSACTION_ID, BpuPipelinePlugin_logic_phtReadData_s1, BpuPipelinePlugin_logic_phtPrediction, BpuPipelinePlugin_logic_btbReadData_s1_valid, _zz_220, BpuPipelinePlugin_logic_btbHit, BpuPipelinePlugin_logic_s2_predict_IS_TAKEN, BpuPipelinePlugin_logic_s2_predict_TARGET_PC); // BpuPlugin.scala:L107
             end
           `endif
         `endif
@@ -30281,10 +29964,10 @@ module CoreNSCSCC (
       if(BpuPipelinePlugin_logic_u1_read_isFiring) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // BpuPlugin.scala:L130
+            assert(1'b0); // BpuPlugin.scala:L131
           `else
             if(!1'b0) begin
-              $display("NOTE(BpuPlugin.scala:130):  [debug] [34m[BPU.U1] Update Firing for PC=0x%x, isTaken=%x[0m", BpuPipelinePlugin_logic_u1_read_U_PAYLOAD_pc, BpuPipelinePlugin_logic_u1_read_U_PAYLOAD_isTaken); // BpuPlugin.scala:L130
+              $display("NOTE(BpuPlugin.scala:131):  [debug] [34m[BPU.U1] Update Firing for PC=0x%x, isTaken=%x[0m", BpuPipelinePlugin_logic_u1_read_U_PAYLOAD_pc, BpuPipelinePlugin_logic_u1_read_U_PAYLOAD_isTaken); // BpuPlugin.scala:L131
             end
           `endif
         `endif
@@ -30292,10 +29975,10 @@ module CoreNSCSCC (
       if(BpuPipelinePlugin_logic_u2_write_isFiring) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // BpuPlugin.scala:L151
+            assert(1'b0); // BpuPlugin.scala:L152
           `else
             if(!1'b0) begin
-              $display("NOTE(BpuPlugin.scala:151):  [debug] [34m[BPU.U2] Write Firing for PC=0x%x | Old PHT=%x -> New PHT=%x | isTaken=%x, Wr BTB?=%x[0m", BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_pc, BpuPipelinePlugin_logic_oldPhtState_u1, BpuPipelinePlugin_logic_newPhtState, BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_isTaken, BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_isTaken); // BpuPlugin.scala:L151
+              $display("NOTE(BpuPlugin.scala:152):  [debug] [34m[BPU.U2] Write Firing for PC=0x%x | Old PHT=%x -> New PHT=%x | isTaken=%x, Wr BTB?=%x[0m", BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_pc, BpuPipelinePlugin_logic_oldPhtState_u1, BpuPipelinePlugin_logic_newPhtState, BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_isTaken, BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_isTaken); // BpuPlugin.scala:L152
             end
           `endif
         `endif
@@ -30303,16 +29986,27 @@ module CoreNSCSCC (
       if(BpuPipelinePlugin_logic_s2_predict_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // BpuPlugin.scala:L229
+            assert(1'b0); // BpuPlugin.scala:L230
           `else
             if(!1'b0) begin
-              $display("NOTE(BpuPlugin.scala:229):  [BPU] Query PC=0x%x, TID=%x -> Predict: isTaken=%x target=0x%x", BpuPipelinePlugin_queryPortIn_payload_pc_regNext, BpuPipelinePlugin_queryPortIn_payload_transactionId_regNext, BpuPipelinePlugin_responseFlowOut_payload_isTaken, BpuPipelinePlugin_responseFlowOut_payload_target); // BpuPlugin.scala:L229
+              $display("NOTE(BpuPlugin.scala:230):  [BPU] Query PC=0x%x, TID=%x -> Predict: isTaken=%x target=0x%x", BpuPipelinePlugin_queryPortIn_payload_pc_regNext, BpuPipelinePlugin_queryPortIn_payload_transactionId_regNext, BpuPipelinePlugin_responseFlowOut_payload_isTaken, BpuPipelinePlugin_responseFlowOut_payload_target); // BpuPlugin.scala:L230
             end
           `endif
         `endif
       end
       BpuPipelinePlugin_logic_s2_predict_valid <= BpuPipelinePlugin_logic_s1_read_valid;
       BpuPipelinePlugin_logic_u2_write_valid <= BpuPipelinePlugin_logic_u1_read_valid;
+      if(FetchPipelinePlugin_doHardRedirect_listening) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // BpuPlugin.scala:L251
+          `else
+            if(!1'b0) begin
+              $display("NOTE(BpuPlugin.scala:251):  [BPU] FLUSH: Flushing internal query and update pipelines due to hard redirect."); // BpuPlugin.scala:L251
+            end
+          `endif
+        `endif
+      end
       if(io_axiOut_readOnly_decoder_io_outputs_0_ar_valid) begin
         io_outputs_0_ar_rValid <= 1'b1;
       end
@@ -30490,99 +30184,6 @@ module CoreNSCSCC (
       DataCachePlugin_setup_dcacheMaster_b_rData_id <= DataCachePlugin_setup_dcacheMaster_b_payload_id;
       DataCachePlugin_setup_dcacheMaster_b_rData_resp <= DataCachePlugin_setup_dcacheMaster_b_payload_resp;
     end
-    CommitPlugin_logic_s0_actualTargetOfBranchPrev <= ROBPlugin_robComponent_io_commit_0_entry_status_result;
-    CommitPlugin_logic_s1_s1_headUop_decoded_pc <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc;
-    CommitPlugin_logic_s1_s1_headUop_decoded_isValid <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_isValid;
-    CommitPlugin_logic_s1_s1_headUop_decoded_uopCode <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode;
-    CommitPlugin_logic_s1_s1_headUop_decoded_exeUnit <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_exeUnit;
-    CommitPlugin_logic_s1_s1_headUop_decoded_isa <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_isa;
-    CommitPlugin_logic_s1_s1_headUop_decoded_archDest_idx <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_archDest_idx;
-    CommitPlugin_logic_s1_s1_headUop_decoded_archDest_rtype <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_archDest_rtype;
-    CommitPlugin_logic_s1_s1_headUop_decoded_writeArchDestEn <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_writeArchDestEn;
-    CommitPlugin_logic_s1_s1_headUop_decoded_archSrc1_idx <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_archSrc1_idx;
-    CommitPlugin_logic_s1_s1_headUop_decoded_archSrc1_rtype <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_archSrc1_rtype;
-    CommitPlugin_logic_s1_s1_headUop_decoded_useArchSrc1 <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_useArchSrc1;
-    CommitPlugin_logic_s1_s1_headUop_decoded_archSrc2_idx <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_archSrc2_idx;
-    CommitPlugin_logic_s1_s1_headUop_decoded_archSrc2_rtype <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_archSrc2_rtype;
-    CommitPlugin_logic_s1_s1_headUop_decoded_useArchSrc2 <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_useArchSrc2;
-    CommitPlugin_logic_s1_s1_headUop_decoded_usePcForAddr <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_usePcForAddr;
-    CommitPlugin_logic_s1_s1_headUop_decoded_imm <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_imm;
-    CommitPlugin_logic_s1_s1_headUop_decoded_immUsage <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_immUsage;
-    CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_valid <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_aluCtrl_valid;
-    CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_isSub <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_aluCtrl_isSub;
-    CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_isAdd <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_aluCtrl_isAdd;
-    CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_isSigned <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_aluCtrl_isSigned;
-    CommitPlugin_logic_s1_s1_headUop_decoded_aluCtrl_logicOp <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_aluCtrl_logicOp;
-    CommitPlugin_logic_s1_s1_headUop_decoded_shiftCtrl_valid <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_shiftCtrl_valid;
-    CommitPlugin_logic_s1_s1_headUop_decoded_shiftCtrl_isRight <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_shiftCtrl_isRight;
-    CommitPlugin_logic_s1_s1_headUop_decoded_shiftCtrl_isArithmetic <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_shiftCtrl_isArithmetic;
-    CommitPlugin_logic_s1_s1_headUop_decoded_shiftCtrl_isRotate <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_shiftCtrl_isRotate;
-    CommitPlugin_logic_s1_s1_headUop_decoded_shiftCtrl_isDoubleWord <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_shiftCtrl_isDoubleWord;
-    CommitPlugin_logic_s1_s1_headUop_decoded_mulDivCtrl_valid <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_mulDivCtrl_valid;
-    CommitPlugin_logic_s1_s1_headUop_decoded_mulDivCtrl_isDiv <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_mulDivCtrl_isDiv;
-    CommitPlugin_logic_s1_s1_headUop_decoded_mulDivCtrl_isSigned <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_mulDivCtrl_isSigned;
-    CommitPlugin_logic_s1_s1_headUop_decoded_mulDivCtrl_isWordOp <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_mulDivCtrl_isWordOp;
-    CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_size <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_memCtrl_size;
-    CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_isSignedLoad <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_memCtrl_isSignedLoad;
-    CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_isStore <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_memCtrl_isStore;
-    CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_isLoadLinked <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_memCtrl_isLoadLinked;
-    CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_isStoreCond <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_memCtrl_isStoreCond;
-    CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_atomicOp <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_memCtrl_atomicOp;
-    CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_isFence <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_memCtrl_isFence;
-    CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_fenceMode <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_memCtrl_fenceMode;
-    CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_isCacheOp <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_memCtrl_isCacheOp;
-    CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_cacheOpType <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_memCtrl_cacheOpType;
-    CommitPlugin_logic_s1_s1_headUop_decoded_memCtrl_isPrefetch <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_memCtrl_isPrefetch;
-    CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_condition <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_branchCtrl_condition;
-    CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_isJump <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_branchCtrl_isJump;
-    CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_isLink <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_branchCtrl_isLink;
-    CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_linkReg_idx <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_branchCtrl_linkReg_idx;
-    CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_linkReg_rtype <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_branchCtrl_linkReg_rtype;
-    CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_isIndirect <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_branchCtrl_isIndirect;
-    CommitPlugin_logic_s1_s1_headUop_decoded_branchCtrl_laCfIdx <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_branchCtrl_laCfIdx;
-    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_opType <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_opType;
-    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc1 <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc1;
-    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeSrc2 <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc2;
-    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fpSizeDest <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeDest;
-    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_roundingMode <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_roundingMode;
-    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_isIntegerDest <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_isIntegerDest;
-    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_isSignedCvt <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_isSignedCvt;
-    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fmaNegSrc1 <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fmaNegSrc1;
-    CommitPlugin_logic_s1_s1_headUop_decoded_fpuCtrl_fcmpCond <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fcmpCond;
-    CommitPlugin_logic_s1_s1_headUop_decoded_csrCtrl_csrAddr <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_csrCtrl_csrAddr;
-    CommitPlugin_logic_s1_s1_headUop_decoded_csrCtrl_isWrite <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_csrCtrl_isWrite;
-    CommitPlugin_logic_s1_s1_headUop_decoded_csrCtrl_isRead <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_csrCtrl_isRead;
-    CommitPlugin_logic_s1_s1_headUop_decoded_csrCtrl_isExchange <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_csrCtrl_isExchange;
-    CommitPlugin_logic_s1_s1_headUop_decoded_csrCtrl_useUimmAsSrc <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_csrCtrl_useUimmAsSrc;
-    CommitPlugin_logic_s1_s1_headUop_decoded_sysCtrl_sysCode <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_sysCtrl_sysCode;
-    CommitPlugin_logic_s1_s1_headUop_decoded_sysCtrl_isExceptionReturn <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_sysCtrl_isExceptionReturn;
-    CommitPlugin_logic_s1_s1_headUop_decoded_sysCtrl_isTlbOp <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_sysCtrl_isTlbOp;
-    CommitPlugin_logic_s1_s1_headUop_decoded_sysCtrl_tlbOpType <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_sysCtrl_tlbOpType;
-    CommitPlugin_logic_s1_s1_headUop_decoded_decodeExceptionCode <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_decodeExceptionCode;
-    CommitPlugin_logic_s1_s1_headUop_decoded_hasDecodeException <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_hasDecodeException;
-    CommitPlugin_logic_s1_s1_headUop_decoded_isMicrocode <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_isMicrocode;
-    CommitPlugin_logic_s1_s1_headUop_decoded_microcodeEntry <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_microcodeEntry;
-    CommitPlugin_logic_s1_s1_headUop_decoded_isSerializing <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_isSerializing;
-    CommitPlugin_logic_s1_s1_headUop_decoded_isBranchOrJump <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_isBranchOrJump;
-    CommitPlugin_logic_s1_s1_headUop_decoded_branchPrediction_isTaken <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_branchPrediction_isTaken;
-    CommitPlugin_logic_s1_s1_headUop_decoded_branchPrediction_target <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_branchPrediction_target;
-    CommitPlugin_logic_s1_s1_headUop_decoded_branchPrediction_wasPredicted <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_branchPrediction_wasPredicted;
-    CommitPlugin_logic_s1_s1_headUop_rename_physSrc1_idx <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physSrc1_idx;
-    CommitPlugin_logic_s1_s1_headUop_rename_physSrc1IsFpr <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physSrc1IsFpr;
-    CommitPlugin_logic_s1_s1_headUop_rename_physSrc2_idx <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physSrc2_idx;
-    CommitPlugin_logic_s1_s1_headUop_rename_physSrc2IsFpr <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physSrc2IsFpr;
-    CommitPlugin_logic_s1_s1_headUop_rename_physDest_idx <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physDest_idx;
-    CommitPlugin_logic_s1_s1_headUop_rename_physDestIsFpr <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physDestIsFpr;
-    CommitPlugin_logic_s1_s1_headUop_rename_oldPhysDest_idx <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx;
-    CommitPlugin_logic_s1_s1_headUop_rename_oldPhysDestIsFpr <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDestIsFpr;
-    CommitPlugin_logic_s1_s1_headUop_rename_allocatesPhysDest <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_allocatesPhysDest;
-    CommitPlugin_logic_s1_s1_headUop_rename_writesToPhysReg <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_writesToPhysReg;
-    CommitPlugin_logic_s1_s1_headUop_robPtr <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr;
-    CommitPlugin_logic_s1_s1_headUop_uniqueId <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_uniqueId;
-    CommitPlugin_logic_s1_s1_headUop_dispatched <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_dispatched;
-    CommitPlugin_logic_s1_s1_headUop_executed <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_executed;
-    CommitPlugin_logic_s1_s1_headUop_hasException <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_hasException;
-    CommitPlugin_logic_s1_s1_headUop_exceptionCode <= ROBPlugin_robComponent_io_commit_0_entry_payload_uop_exceptionCode;
     DecodePlugin_logic_debugLA32RDecodedPhysSrc2_idx <= _zz_DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_idx;
     DecodePlugin_logic_debugLA32RDecodedPhysSrc2_rtype <= _zz_DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype;
     DecodePlugin_logic_debugLA32RRawInstruction <= s0_Decode_IssuePipelineSignals_RAW_INSTRUCTIONS_IN_0;
