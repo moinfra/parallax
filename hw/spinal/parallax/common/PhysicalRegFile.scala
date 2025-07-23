@@ -44,7 +44,7 @@ case class PrfWritePort(
 
 trait PhysicalRegFileService extends Service with LockedImpl {
   def newPrfReadPort(): PrfReadPort
-  def newPrfWritePort(): PrfWritePort
+  def newPrfWritePort(traceName: String = "<null>"): PrfWritePort
 
   def readPort(index: Int): PrfReadPort
   def writePort(index: Int): PrfWritePort
@@ -60,9 +60,11 @@ class PhysicalRegFilePlugin(
     with PhysicalRegFileService
     with LockedImpl {
 
+  private case class PrfWritePortRequest(port: PrfWritePort, traceName: String)
+
   val regIdxWidth = log2Up(numPhysRegs) bits
   private val readPortRequests = ArrayBuffer[PrfReadPort]()
-  private val writePortRequests = ArrayBuffer[PrfWritePort]()
+  private val writePortRequests = ArrayBuffer[PrfWritePortRequest]()
 
   // 标记逻辑是否已经执行
   private var logicExecuted = false
@@ -74,15 +76,17 @@ class PhysicalRegFilePlugin(
     port
   }
 
-  override def newPrfWritePort(): PrfWritePort = {
+  override def newPrfWritePort(traceName: String = "<null>"): PrfWritePort = {
     this.framework.requireEarly()
     val port = PrfWritePort(regIdxWidth, dataWidth)
-    writePortRequests += port
+    // 将端口和它的名字一起存入请求列表
+    writePortRequests += PrfWritePortRequest(port, traceName)
     port
   }
 
   def readPort(index: Int): PrfReadPort = readPortRequests(index)
-  def writePort(index: Int): PrfWritePort = writePortRequests(index)
+  // 为了保持API一致性，writePort(index) 现在只返回端口本身
+  def writePort(index: Int): PrfWritePort = writePortRequests(index).port
 
   val setup = create early new Area {
     ParallaxLogger.log("[PRegPlugin] early")
@@ -110,43 +114,47 @@ class PhysicalRegFilePlugin(
 
     // --- 自定义写端口仲裁逻辑 ---
     if (writePortRequests.nonEmpty) {
+      writePortRequests.foreach { req =>
+        when(req.port.valid) {
+          ParallaxSim.log(
+            L"[PRegPlugin] Write Request from `${req.traceName}`: wants to write ${req.port.data} to reg[${req.port.address}]"
+          )
+        }
+      }
+
+      // 从请求列表中提取出 PrfWritePort 用于仲裁逻辑
+      val actualWritePorts = writePortRequests.map(_.port)
+
       // 创建一个Bundle来承载仲裁后的写请求
       val arbitratedWrite = PrfWritePort(regIdxWidth, dataWidth)
 
       // 1. 获取所有写请求的有效信号
-      val writeValids = Vec(writePortRequests.map(_.valid))
+      val writeValids = Vec(actualWritePorts.map(_.valid))
 
       // 实际上不应该产生并发写，如果有一定是bug
       assert(CountOne(writeValids) <= 1, "PhysicalRegFilePlugin: Multiple write requests detected")
 
       // 2. 生成一个one-hot的授权信号 (grant)，只有第一个有效的请求对应的位为1
-      // OHMasking.first 正是用于固定优先级仲裁
       val writeGrants = OHMasking.first(writeValids)
 
       // 3. 决定最终的仲裁输出
-      // 如果任何一个请求被授权，则仲裁后的端口有效
       arbitratedWrite.valid := writeGrants.orR
-
-      // 使用 MuxOH (One-Hot Mux) 根据授权信号选择获胜者的数据和地址
-      arbitratedWrite.address := MuxOH(writeGrants, writePortRequests.map(_.address))
-      arbitratedWrite.data := MuxOH(writeGrants, writePortRequests.map(_.data))
+      arbitratedWrite.address := MuxOH(writeGrants, actualWritePorts.map(_.address))
+      arbitratedWrite.data := MuxOH(writeGrants, actualWritePorts.map(_.data))
 
       // 4. 使用仲裁后胜出的端口执行唯一的物理写操作
-      when(arbitratedWrite.valid && (arbitratedWrite.address =/= 0))
-      {
+      when(arbitratedWrite.valid && (arbitratedWrite.address =/= 0)) {
         regFile(arbitratedWrite.address) := arbitratedWrite.data
       }
 
-      // 仿真和编译日志
+      // 仿真和编译日志 (仲裁后的最终结果)
       when(arbitratedWrite.valid && (arbitratedWrite.address =/= 0)) {
-        ParallaxSim.log(L"[PRegPlugin] PRF Port ${arbitratedWrite.address} write ${arbitratedWrite.data} (Arbitrated)")
+        ParallaxSim.log(L"[PRegPlugin] PRF Port ${arbitratedWrite.address} write ${arbitratedWrite.data} (Arbitrated Winner)")
       }
       ParallaxLogger.log(s"[PRegPlugin] ${writePortRequests.size}个物理寄存器堆写端口已连接到一个自定义的固定优先级仲裁器，形成一个物理写端口")
 
       val activeWritePortsCount = CountOne(writeValids)
 
-      // 当有效写请求数量大于1时，意味着发生了意外的冲突
-      // 这是一个严重的架构级问题，需要立即报警
       when(activeWritePortsCount > 1) {
         getServiceOption[DebugDisplayService].foreach(_.setDebugValue(DebugValue.REG_WRITE_CONFLICT))
       }
