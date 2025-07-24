@@ -11,7 +11,7 @@ object LoongArchOpcodes {
   def OP_JIRL = B"010011" // [31:26]
 
   def OP_RTYPE_2R1I = B"0000001" // [31:25] -> ADDI, SLTI, ANDI, ORI
-  def OP_LOAD_STORE = B"0010100" // [31:25] -> LD/ST
+  def OP_LOAD_STORE = B"010100" // [31:25] -> LD/ST
   def OP_LU12I = B"0001010" // [31:25]
   def OP_PCADDU12I = B"0001110" // [31:25]
 
@@ -20,12 +20,12 @@ object LoongArchOpcodes {
 
   // Minor Opcodes for OP_GROUP_00 (using more specific fields)
   // For standard R-type (distinguished by inst[24:15])
-  def Minor_ADD_W = B"0000100000"
-  def Minor_SUB_W = B"0000100010"
-  def Minor_AND = B"0000101001"
-  def Minor_OR = B"0000101010"
-  def Minor_XOR = B"0000101011"
-  def Minor_MUL_W = B"0000111000"
+  def Minor_ADD_W  = B"0000100000"
+  def Minor_SUB_W  = B"0000100010"
+  def Minor_AND    = B"0000101001"
+  def Minor_OR     = B"0000101010"
+  def Minor_XOR    = B"0000101011"
+  def Minor_MUL_W  = B"0000111000"
 
   // For shift-immediate R-type (distinguished by inst[24:15])
   def Minor_SLLI_W = B"0010000001" // inst[24:15] for SLLI.W
@@ -42,12 +42,18 @@ object LoongArchOpcodes {
   def Minor_SLTI_i = B"000"
   def Minor_ANDI_i = B"101"
   def Minor_ORI_i = B"110"
+  def Minor_XORI_i = B"111"
 
-  // Minor Opcodes for OP_LOAD_STORE (distinguished by inst[24:22])
-  def Minor_LD_B_m = B"000"
-  def Minor_LD_W_m = B"010"
-  def Minor_ST_B_m = B"100"
-  def Minor_ST_W_m = B"110"
+  // 10-bit Opcodes for Load/Store (inst[31:22])
+  def OP_LD_B =  B"0010100000"
+  def OP_LD_H =  B"0010100001"
+  def OP_LD_W =  B"0010100010"
+  def OP_ST_B =  B"0010100100"
+  def OP_ST_H =  B"0010100101"
+  def OP_ST_W =  B"0010100110"
+  def OP_LD_BU = B"0010101000"
+  def OP_LD_HU = B"0010101001"
+  
 
   // Minor Opcodes for Branch Group (distinguished by full 6-bit opcode)
   def Minor_B = B"010100"
@@ -88,10 +94,12 @@ case class LA32RRawInstructionFields() extends Bundle {
   // Opcode fields for decoding (more structured)
   def opcode_6b = inst(31 downto 26)
   def opcode_7b = inst(31 downto 25)
+  def opcode_10b = inst(31 downto 22)
 
   def opcode_r_minor = inst(24 downto 15) // For ADD.W, SUB.W, etc. (10 bits)
   def opcode_r_sh_minor = inst(24 downto 10) // For SLLI.W, SRLI.W, etc. (15 bits)
   def opcode_i_minor = inst(24 downto 22) // For ADDI.W, LD.W, etc. (3 bits)
+
 }
 
 
@@ -134,10 +142,21 @@ class LA32RSimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends 
   val is_slti   = fields.opcode_7b === LoongArchOpcodes.OP_RTYPE_2R1I && fields.opcode_i_minor === LoongArchOpcodes.Minor_SLTI_i
   val is_andi   = fields.opcode_7b === LoongArchOpcodes.OP_RTYPE_2R1I && fields.opcode_i_minor === LoongArchOpcodes.Minor_ANDI_i
   val is_ori    = fields.opcode_7b === LoongArchOpcodes.OP_RTYPE_2R1I && fields.opcode_i_minor === LoongArchOpcodes.Minor_ORI_i
-  val is_ld_b   = fields.opcode_7b === LoongArchOpcodes.OP_LOAD_STORE && fields.opcode_i_minor === LoongArchOpcodes.Minor_LD_B_m
-  val is_ld_w   = fields.opcode_7b === LoongArchOpcodes.OP_LOAD_STORE && fields.opcode_i_minor === LoongArchOpcodes.Minor_LD_W_m
-  val is_st_b   = fields.opcode_7b === LoongArchOpcodes.OP_LOAD_STORE && fields.opcode_i_minor === LoongArchOpcodes.Minor_ST_B_m
-  val is_st_w   = fields.opcode_7b === LoongArchOpcodes.OP_LOAD_STORE && fields.opcode_i_minor === LoongArchOpcodes.Minor_ST_W_m
+  val is_xori   = fields.opcode_7b === LoongArchOpcodes.OP_RTYPE_2R1I && fields.opcode_i_minor === LoongArchOpcodes.Minor_XORI_i
+  // val is_ld_b   = fields.opcode_6b === LoongArchOpcodes.OP_LOAD_STORE && fields.opcode_mem_minor === LoongArchOpcodes.Minor_LD_B_m
+  // val is_ld_w   = fields.opcode_6b === LoongArchOpcodes.OP_LOAD_STORE && fields.opcode_mem_minor === LoongArchOpcodes.Minor_LD_W_m
+  // val is_st_b   = fields.opcode_6b === LoongArchOpcodes.OP_LOAD_STORE && fields.opcode_mem_minor === LoongArchOpcodes.Minor_ST_B_m
+  // val is_st_w   = fields.opcode_6b === LoongArchOpcodes.OP_LOAD_STORE && fields.opcode_mem_minor === LoongArchOpcodes.Minor_ST_W_m
+  // val is_ld_bu  = fields.opcode_6b === LoongArchOpcodes.OP_LOAD_STORE && fields.opcode_mem_minor === LoongArchOpcodes.Minor_LD_BU_m
+  val is_ld_b   = fields.opcode_10b === LoongArchOpcodes.OP_LD_B
+  val is_ld_h   = fields.opcode_10b === LoongArchOpcodes.OP_LD_H
+  val is_ld_w   = fields.opcode_10b === LoongArchOpcodes.OP_LD_W
+  val is_st_b   = fields.opcode_10b === LoongArchOpcodes.OP_ST_B
+  val is_st_h   = fields.opcode_10b === LoongArchOpcodes.OP_ST_H
+  val is_st_w   = fields.opcode_10b === LoongArchOpcodes.OP_ST_W
+  val is_ld_bu  = fields.opcode_10b === LoongArchOpcodes.OP_LD_BU
+  val is_ld_hu  = fields.opcode_10b === LoongArchOpcodes.OP_LD_HU
+
   val is_lu12i    = fields.opcode_7b === LoongArchOpcodes.OP_LU12I
   val is_pcaddu12i = fields.opcode_7b === LoongArchOpcodes.OP_PCADDU12I
   val is_jirl   = fields.opcode_6b === LoongArchOpcodes.OP_JIRL
@@ -154,8 +173,8 @@ class LA32RSimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends 
   val is_r_type       = is_r_type_alu | is_r_type_shift | is_mul_w
   val is_shift_imm    = is_slli_w | is_srli_w | is_srai_w
   val is_i_type       = is_addi_w | is_slti | is_andi | is_ori
-  val is_load         = is_ld_b | is_ld_w
-  val is_store        = is_st_b | is_st_w
+  val is_load         = is_ld_b | is_ld_h | is_ld_w | is_ld_bu | is_ld_hu
+  val is_store        = is_st_b | is_st_h | is_st_w
   val is_mem_op       = is_load | is_store
   val is_branch       = is_beq | is_bne | is_bltu
   val is_jump         = is_b | is_bl | is_jirl
@@ -231,19 +250,19 @@ class LA32RSimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends 
 
   // --- 控制信号 ---
   io.decodedUop.isBranchOrJump := is_branch_or_jump
-
+  when(is_pcaddu12i)    { io.decodedUop.src1IsPc := True }
   // ALU Control
   when(is_add_w | is_addi_w | is_lu12i | is_pcaddu12i) { io.decodedUop.aluCtrl.isAdd := True }
   when(is_sub_w | is_slti) { io.decodedUop.aluCtrl.isSub := True }
   when(is_slti) { io.decodedUop.aluCtrl.isSigned := True }
   when(is_and | is_andi) { io.decodedUop.aluCtrl.logicOp := LogicOp.AND }
   when(is_or | is_ori)   { io.decodedUop.aluCtrl.logicOp := LogicOp.OR }
-  when(is_xor)           { io.decodedUop.aluCtrl.logicOp := LogicOp.XOR }
+  when(is_xor | is_xori)           { io.decodedUop.aluCtrl.logicOp := LogicOp.XOR }
   io.decodedUop.aluCtrl.valid := (is_add_w | is_addi_w | is_lu12i | is_pcaddu12i) | 
                                 (is_sub_w | is_slti) |
                                 (is_and | is_andi) |
                                 (is_or | is_ori) |
-                                (is_xor)
+                                (is_xor | is_xori)
 
   // SHIFT Control
   when(is_srl_w | is_srli_w | is_sra_w | is_srai_w) { io.decodedUop.shiftCtrl.isRight := True }
@@ -256,8 +275,15 @@ class LA32RSimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends 
 
   // MEM Control
   when(is_store) { io.decodedUop.memCtrl.isStore := True }
-  when(is_load)  { io.decodedUop.memCtrl.isSignedLoad := True } // 所有示例中的Load都是有符号的
-  when(is_ld_b | is_st_b) { io.decodedUop.memCtrl.size := MemAccessSize.B }
+
+  // 默认设为无符号加载，仅在需要时设为有符号
+  io.decodedUop.memCtrl.isSignedLoad := False 
+  when(is_ld_b | is_ld_w) { 
+    io.decodedUop.memCtrl.isSignedLoad := True 
+  }
+
+  // 设置访存大小
+  when(is_ld_b | is_st_b | is_ld_bu) { io.decodedUop.memCtrl.size := MemAccessSize.B }
   when(is_ld_w | is_st_w) { io.decodedUop.memCtrl.size := MemAccessSize.W }
 
   // BRANCH Control

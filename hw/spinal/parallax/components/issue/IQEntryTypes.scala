@@ -11,6 +11,7 @@ import parallax.common._
 case class IQEntryAluInt(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
   // --- Common Fields from IQEntryLike ---
   val robPtr          = UInt(pCfg.robPtrWidth)
+  val pc              = UInt(pCfg.pcWidth)
   val physDest        = PhysicalRegOperand(pCfg.physGprIdxWidth)
   val physDestIsFpr   = Bool()
   val writesToPhysReg = Bool()
@@ -20,6 +21,7 @@ case class IQEntryAluInt(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
   val src1Tag         = UInt(pCfg.physGprIdxWidth)
   val src1Ready       = Bool()
   val src1IsFpr       = Bool()
+  val src1IsPc       = Bool()
 
   val useSrc2         = Bool()
   val src2Data        = Bits(pCfg.dataWidth)
@@ -40,30 +42,33 @@ case class IQEntryAluInt(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
   }
 
   override def setDefault(): this.type = {
-    robPtr := 0
+    robPtr                := 0
+    pc                    := 0
     physDest.setDefault()
-    physDestIsFpr := False
-    writesToPhysReg := False
-    useSrc1 := False
-    src1Data := B(0)
-    src1Tag := 0
-    src1Ready := False
-    src1IsFpr := False
-    useSrc2 := False
-    src2Data := B(0)
-    src2Tag := 0
-    src2Ready := False
-    src2IsFpr := False
-    aluCtrl.setDefault()
-    shiftCtrl.setDefault()
-    imm := B(0)
-    immUsage := ImmUsageType.NONE
+    physDestIsFpr         := False
+    writesToPhysReg       := False
+    useSrc1               := False
+    src1Data              := B(0)
+    src1Tag               := 0
+    src1Ready             := False
+    src1IsFpr             := False
+    src1IsPc              := False
+    useSrc2               := False
+    src2Data              := B(0)
+    src2Tag               := 0
+    src2Ready             := False
+    src2IsFpr             := False
+    aluCtrl.setDefault()    
+    shiftCtrl.setDefault()   
+    imm                   := B(0)
+    immUsage              := ImmUsageType.NONE
     this
   }
   
   def setDefaultForSim(): this.type = {
     import spinal.core.sim._
     robPtr #= 0
+    pc #= 0
     physDest.setDefaultForSim()
     physDestIsFpr #= false
     writesToPhysReg #= false
@@ -72,6 +77,7 @@ case class IQEntryAluInt(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
     src1Tag #= 0
     src1Ready #= false
     src1IsFpr #= false
+    src1IsPc #= false
     useSrc2 #= false
     src2Data #= 0
     src2Tag #= 0
@@ -89,6 +95,7 @@ case class IQEntryAluInt(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
     val renameInfo = renamedUop.rename
 
     this.robPtr          := allocatedRobPtr
+    this.pc              := decoded.pc
     this.physDest        := renameInfo.physDest
     this.physDestIsFpr   := renameInfo.physDestIsFpr
     this.writesToPhysReg := renameInfo.writesToPhysReg
@@ -97,6 +104,8 @@ case class IQEntryAluInt(pCfg: PipelineConfig) extends Bundle with IQEntryLike {
     this.src1Tag         := renameInfo.physSrc1.idx
     this.src1Ready       := !decoded.useArchSrc1
     this.src1IsFpr       := renameInfo.physSrc1IsFpr
+    this.src1IsPc        := decoded.src1IsPc
+    
     
     this.useSrc2         := decoded.useArchSrc2
     this.src2Tag         := renameInfo.physSrc2.idx

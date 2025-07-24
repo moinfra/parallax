@@ -587,10 +587,10 @@ case class DecodedUop(val config: PipelineConfig) extends Bundle {
   val archSrc2 = ArchRegOperand(config)
   val useArchSrc2 = Bool()
   val usePcForAddr = Bool() // 是否使用pc寻址
+  val src1IsPc = Bool()
   // Immediate Value (Sign/Zero extended as needed by the operation by decoder)
   val imm = Bits(config.dataWidth)
   val immUsage = ImmUsageType() // How the immediate is used (as operand, offset, etc.)
-
   // --- Control Flags / Specific Payloads (The "Union" Part) ---
   val aluCtrl = AluCtrlFlags()
   val shiftCtrl = ShiftCtrlFlags()
@@ -631,6 +631,7 @@ case class DecodedUop(val config: PipelineConfig) extends Bundle {
     useArchSrc2 := False
     
     usePcForAddr := False
+    src1IsPc := False
 
     imm := 0
     immUsage := ImmUsageType.NONE
@@ -673,6 +674,7 @@ case class DecodedUop(val config: PipelineConfig) extends Bundle {
     useArchSrc2 #= false
 
     usePcForAddr #= false
+    src1IsPc #= false
 
     imm #= 0
     immUsage #= ImmUsageType.NONE

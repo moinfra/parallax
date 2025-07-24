@@ -5,6 +5,33 @@ import org.scalatest.funsuite.AnyFunSuite
 import scala.math.BigInt
 
 object LA32RInstrBuilder {
+  /**
+   * Checks if a value fits within a specified number of bits (signed).
+   * @param value The integer value to check.
+   * @param bits The number of bits available for the signed value.
+   * @return True if the value fits, false otherwise.
+   */
+  private def fitsInSignedBits(value: Int, bits: Int): Boolean = {
+    val min = -(BigInt(1) << (bits - 1))
+    val max = (BigInt(1) << (bits - 1)) - 1
+    value >= min && value <= max
+  }
+
+  /**
+   * Checks if a value fits within a specified number of bits (unsigned).
+   * @param value The integer value to check.
+   * @param bits The number of bits available for the unsigned value.
+   * @return True if the value fits, false otherwise.
+   */
+  private def fitsInUnsignedBits(value: Int, bits: Int): Boolean = {
+    val max = (BigInt(1) << bits) - 1
+    value >= 0 && value <= max
+  }
+
+  /** Checks if a register index is valid (0-31). */
+  private def requireValidRegister(reg: Int, name: String): Unit = {
+    require(reg >= 0 && reg <= 31, s"Register $name must be between 0 and 31, but got $reg")
+  }
 
   private def toBinary(value: BigInt, width: Int): String = {
     val mask = (BigInt(1) << width) - 1
@@ -13,7 +40,6 @@ object LA32RInstrBuilder {
     "0" * (width - binaryString.length) + binaryString
   }
 
-  // Overload for Int for convenience
   private def toBinary(value: Int, width: Int): String = toBinary(BigInt(value), width)
 
   private def fromBinary(binStr: String): BigInt = {
@@ -27,6 +53,9 @@ object LA32RInstrBuilder {
   // --- R-Type (2R) Instructions ---
   // Format: opcode[31:25]=0 | opcode[24:15] | rk[14:10] | rj[9:5] | rd[4:0]
   private def buildRType(minorOp: String, rd: Int, rj: Int, rk: Int): BigInt = {
+    requireValidRegister(rd, "rd")
+    requireValidRegister(rj, "rj")
+    requireValidRegister(rk, "rk")
     val majorOp = "0000000"
     fromBinary(s"$majorOp$minorOp${toBinary(rk, 5)}${toBinary(rj, 5)}${toBinary(rd, 5)}")
   }
@@ -39,48 +68,96 @@ object LA32RInstrBuilder {
   def mul_w(rd: Int, rj: Int, rk: Int): BigInt = buildRType("0000111000", rd, rj, rk)
   def srl_w(rd: Int, rj: Int, rk: Int): BigInt = buildRType("0000101111", rd, rj, rk)
 
-  // ... (I-Type part is correct) ...
-  def addi_w(rd: Int, rj: Int, imm: Int): BigInt = fromBinary(s"0000001010${toBinary(imm, 12)}${toBinary(rj, 5)}${toBinary(rd, 5)}")
-  def slti(rd: Int, rj: Int, imm: Int): BigInt   = fromBinary(s"0000001000${toBinary(imm, 12)}${toBinary(rj, 5)}${toBinary(rd, 5)}")
-  def ori(rd: Int, rj: Int, imm: Int): BigInt    = fromBinary(s"0000001110${toBinary(imm, 12)}${toBinary(rj, 5)}${toBinary(rd, 5)}")
-  def andi(rd: Int, rj: Int, imm: Int): BigInt   = fromBinary(s"0000001101${toBinary(imm, 12)}${toBinary(rj, 5)}${toBinary(rd, 5)}")
+  // --- I-Type (2R1I) Instructions ---
+  private def buildIType12S(opcode: String, rd: Int, rj: Int, imm: Int): BigInt = {
+    requireValidRegister(rd, "rd")
+    requireValidRegister(rj, "rj")
+    require(fitsInSignedBits(imm, 12), s"12-bit signed immediate must be between -2048 and 2047, but got $imm")
+    fromBinary(s"$opcode${toBinary(imm, 12)}${toBinary(rj, 5)}${toBinary(rd, 5)}")
+  }
+
+  private def buildIType12U(opcode: String, rd: Int, rj: Int, imm: Int): BigInt = {
+    requireValidRegister(rd, "rd")
+    requireValidRegister(rj, "rj")
+    require(fitsInUnsignedBits(imm, 12), s"12-bit unsigned immediate must be between 0 and 4095, but got $imm")
+    fromBinary(s"$opcode${toBinary(imm, 12)}${toBinary(rj, 5)}${toBinary(rd, 5)}")
+  }
+
+  def addi_w(rd: Int, rj: Int, imm: Int): BigInt = buildIType12S("0000001010", rd, rj, imm)
+
+  def slti(rd: Int, rj: Int, imm: Int): BigInt   = buildIType12U("0000001000", rd, rj, imm)
+  def ori(rd: Int, rj: Int, imm: Int): BigInt    = buildIType12U("0000001110", rd, rj, imm)
+  def andi(rd: Int, rj: Int, imm: Int): BigInt   = buildIType12U("0000001101", rd, rj, imm)
+  def xori(rd: Int, rj: Int, imm: Int): BigInt   = buildIType12U("0000001111", rd, rj, imm)
 
   // --- I-Type (2R1I) Shift Instructions ---
-  // Format: opcode[31:25]=0 | opcode[24:10] | ...
   private def buildShiftImm(minorOp: String, rd: Int, rj: Int, imm: Int): BigInt = {
+    requireValidRegister(rd, "rd")
+    requireValidRegister(rj, "rj")
+    require(fitsInUnsignedBits(imm, 5), s"5-bit unsigned shift immediate must be between 0 and 31, but got $imm")
     val majorOp = "0000000"
     fromBinary(s"$majorOp$minorOp${toBinary(imm, 5)}${toBinary(rj, 5)}${toBinary(rd, 5)}")
   }
   
-  // Note: Shift Imm opcodes are 15 bits long, including the ui5 field
-  // The unique part is inst[24:15]
   def slli_w(rd: Int, rj: Int, imm: Int): BigInt = buildShiftImm(s"0010000001", rd, rj, imm)
   def srli_w(rd: Int, rj: Int, imm: Int): BigInt = buildShiftImm(s"0010001001", rd, rj, imm)
 
-
-  // ... (LU12I, PCADDU12I, LD/ST are correct) ...
-  def lu12i_w(rd: Int, imm: Int): BigInt      = fromBinary(s"0001010${toBinary(imm, 20)}${toBinary(rd, 5)}")
-  def pcaddu12i(rd: Int, imm: Int): BigInt = fromBinary(s"0001110${toBinary(imm, 20)}${toBinary(rd, 5)}")
-  def ld_w(rd: Int, rj: Int, offset: Int): BigInt = fromBinary(s"0010100010${toBinary(offset, 12)}${toBinary(rj, 5)}${toBinary(rd, 5)}")
-  def st_w(rd: Int, rj: Int, offset: Int): BigInt = fromBinary(s"0010100110${toBinary(offset, 12)}${toBinary(rj, 5)}${toBinary(rd, 5)}")
-  def ld_b(rd: Int, rj: Int, offset: Int): BigInt = fromBinary(s"0010100000${toBinary(offset, 12)}${toBinary(rj, 5)}${toBinary(rd, 5)}")
-  def st_b(rd: Int, rj: Int, offset: Int): BigInt = fromBinary(s"0010100100${toBinary(offset, 12)}${toBinary(rj, 5)}${toBinary(rd, 5)}")
-
-
-  // --- Branch/Jump Instructions ---
-  // Format JIRL: opcode[31:26] | offs[15:0] | rj[9:5] | rd[4:0] (Correct format is offs16, rj, rd)
-  // Let's re-verify from the PDF
-  // JIRL rd, rj, offs -> 010011 | offs[15:0] | rj | rd
-  // The builder looks correct based on this format.
-  def jirl(rd: Int, rj: Int, offset: Int): BigInt = {
-    val wordOffset = offset >> 2
-    // The immediate is already a word offset in the encoding. So no shift. But the value is a byte offset. So shift is needed.
-    // The spec says "offs" is a signed immediate. Let's assume the builder takes a byte offset.
-    fromBinary(s"010011${toBinary(wordOffset, 16)}${toBinary(rj, 5)}${toBinary(rd, 5)}")
+  // --- I-Type (LU12I, PCADDU12I) ---
+  def lu12i_w(rd: Int, imm: Int): BigInt = {
+    requireValidRegister(rd, "rd")
+    require(fitsInUnsignedBits(imm, 20), s"20-bit unsigned immediate for LU12I.W must be between 0 and 1048575, but got $imm")
+    fromBinary(s"0001010${toBinary(imm, 20)}${toBinary(rd, 5)}")
+  }
+  def pcaddu12i(rd: Int, imm: Int): BigInt = {
+    requireValidRegister(rd, "rd")
+    require(fitsInUnsignedBits(imm, 20), s"20-bit unsigned immediate for PCADDU12I must be between 0 and 1048575, but got $imm")
+    fromBinary(s"0001110${toBinary(imm, 20)}${toBinary(rd, 5)}")
   }
 
-  // Format B/BL: opcode[31:26] | offs[25:16] | offs[15:0]
+  // --- I-Type (LD/ST) ---
+  private def buildLoadStore(opcode: String, rd: Int, rj: Int, offset: Int): BigInt = {
+    requireValidRegister(rd, "rd")
+    requireValidRegister(rj, "rj")
+    require(fitsInSignedBits(offset, 12), s"12-bit signed offset for LD/ST must be between -2048 and 2047, but got $offset")
+    fromBinary(s"$opcode${toBinary(offset, 12)}${toBinary(rj, 5)}${toBinary(rd, 5)}")
+  }
+  def ld_w(rd: Int, rj: Int, offset: Int): BigInt = buildLoadStore("0010100010", rd, rj, offset)
+  def st_w(rd: Int, rj: Int, offset: Int): BigInt = buildLoadStore("0010100110", rd, rj, offset)
+  def ld_b(rd: Int, rj: Int, offset: Int): BigInt = buildLoadStore("0010100000", rd, rj, offset)
+  def st_b(rd: Int, rj: Int, offset: Int): BigInt = buildLoadStore("0010100100", rd, rj, offset)
+
+
+  def ld_bu(rd: Int, rj: Int, offset: Int): BigInt = buildLoadStore("0010101000", rd, rj, offset)
+  def ld_h(rd: Int, rj: Int, offset: Int): BigInt  = buildLoadStore("0010100001", rd, rj, offset)
+  def ld_hu(rd: Int, rj: Int, offset: Int): BigInt = buildLoadStore("0010101001", rd, rj, offset)
+  def st_h(rd: Int, rj: Int, offset: Int): BigInt  = buildLoadStore("0010100101", rd, rj, offset)
+
+  // --- Branch/Jump Instructions ---
+/**
+   * 跳转并链接到寄存器。
+   * @param rd 目标寄存器，用于存放 PC + 4。
+   * @param rj 基址寄存器。
+   * @param offset 字节偏移量。必须是4的倍数，且在18位有符号数范围内。
+   *               范围: [-131072, 131068]
+   * @return 32位指令编码。
+   */
+  def jirl(rd: Int, rj: Int, offset: Int): BigInt = {
+    requireValidRegister(rd, "rd")
+    requireValidRegister(rj, "rj")
+    
+    require(offset % 4 == 0, s"JIRL offset must be 4-byte aligned, but got $offset")
+
+    val offs16 = offset >> 2
+
+    require(fitsInSignedBits(offs16, 16), s"JIRL offset is out of range. It must be between -131072 and 131068, but got $offset (which corresponds to a 16-bit immediate of $offs16)")
+
+    val opcode = "010011"
+    fromBinary(s"$opcode${toBinary(offs16, 16)}${toBinary(rj, 5)}${toBinary(rd, 5)}")
+  }
+
   private def buildJump26(opcode: String, offset: Int): BigInt = {
+    require(fitsInSignedBits(offset, 28), s"B/BL offset must be a 26-bit signed value shifted by 2 (range [-134217728, 134217724]), but got $offset")
+    require(offset % 4 == 0, s"B/BL offset must be 4-byte aligned, but got $offset")
     val wordOffset = offset >> 2
     val imm26_str = toBinary(wordOffset, 26)
     val offs_25_16 = imm26_str.substring(0, 10)
@@ -90,30 +167,24 @@ object LA32RInstrBuilder {
   def b(offset: Int): BigInt  = buildJump26("010100", offset)
   def bl(offset: Int): BigInt = buildJump26("010101", offset)
 
-  // Format BEQ/BNE/BLTU: opcode[31:26] | rj[25:21] | rd[20:16] | offs[15:0]
-  // This is the correct format for these branches.
   private def buildBranch16(opcode: String, rj: Int, rd: Int, offset: Int): BigInt = {
-    val wordOffset = offset >> 2
-    fromBinary(s"$opcode${toBinary(rj, 5)}${toBinary(rd, 5)}${toBinary(wordOffset, 16)}")
-  }
-  // The provided encoding PDF has a different format! Let's follow the PDF:
-  // BEQ rj, rd, offs16 -> 010110 | offs16[15:0] | rj | rd
-  // So my `buildBranch16` is wrong.
-  private def buildBranch16_pdf(opcode: String, rj: Int, rd: Int, offset: Int): BigInt = {
+    requireValidRegister(rj, "rj")
+    requireValidRegister(rd, "rd")
+    require(fitsInSignedBits(offset, 18), s"Branch offset must be a 16-bit signed value shifted by 2 (range [-131072, 131068]), but got $offset")
+    require(offset % 4 == 0, s"Branch offset must be 4-byte aligned, but got $offset")
     val wordOffset = offset >> 2
     fromBinary(s"$opcode${toBinary(wordOffset, 16)}${toBinary(rj, 5)}${toBinary(rd, 5)}")
   }
 
-  def beq(rj: Int, rd: Int, offset: Int): BigInt  = buildBranch16_pdf("010110", rj, rd, offset)
-  def bne(rj: Int, rd: Int, offset: Int): BigInt  = buildBranch16_pdf("010111", rj, rd, offset)
-  def bltu(rj: Int, rd: Int, offset: Int): BigInt = buildBranch16_pdf("011010", rj, rd, offset)
+  def beq(rj: Int, rd: Int, offset: Int): BigInt  = buildBranch16("010110", rj, rd, offset)
+  def bne(rj: Int, rd: Int, offset: Int): BigInt  = buildBranch16("010111", rj, rd, offset)
+  def bltu(rj: Int, rd: Int, offset: Int): BigInt = buildBranch16("011010", rj, rd, offset)
 
   // --- Special Instructions ---
   def nop(): BigInt = addi_w(0, 0, 0)
   
-  // IDLE instruction: 0000011 00100 10001 level[14:0]
-  // Format: opcode[31:25] | fixed_bits[24:15] | level[14:0]
   def idle(level: Int = 0): BigInt = {
+    require(fitsInUnsignedBits(level, 15), s"15-bit unsigned level for IDLE must be between 0 and 32767, but got $level")
     val opcode = "0000011"
     val fixed_bits = "0010010001"
     fromBinary(s"$opcode$fixed_bits${toBinary(level, 15)}")

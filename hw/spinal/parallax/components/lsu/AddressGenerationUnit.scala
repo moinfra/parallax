@@ -40,6 +40,7 @@ case class AguInput(lsuConfig: LsuConfig) extends Bundle with Formattable {
   val basePhysReg = UInt(lsuConfig.physGprIdxWidth)
   val immediate = SInt(lsuConfig.dataWidth)
   val accessSize = MemAccessSize()
+  val isSignedLoad = Bool()
   val usePc = Bool()
   val pc = UInt(lsuConfig.pcWidth)
   val dataReg = UInt(lsuConfig.physGprIdxWidth)
@@ -58,6 +59,7 @@ case class AguInput(lsuConfig: LsuConfig) extends Bundle with Formattable {
       L"basePhysReg=${basePhysReg},",
       L"immediate=${immediate},",
       L"accessSize=${accessSize},",
+      L"isSignedLoad=${isSignedLoad},",
       L"usePc=${usePc},",
       L"pc=${pc},",
       L"dataReg=${dataReg},",
@@ -77,6 +79,7 @@ case class AguOutput(lsuConfig: LsuConfig) extends Bundle with Formattable {
   val address = UInt(lsuConfig.pcWidth)
   val alignException = Bool()
   val accessSize = MemAccessSize()
+  val isSignedLoad = Bool()
   val storeMask = Bits(lsuConfig.dataWidth.value / 8 bits)
   // 透传上下文信息
   val basePhysReg = UInt(lsuConfig.physGprIdxWidth)
@@ -98,6 +101,7 @@ case class AguOutput(lsuConfig: LsuConfig) extends Bundle with Formattable {
       L"address=${address},",
       L"alignException=${alignException},", // 修正了原始代码中多余的 ')'
       L"accessSize=${accessSize},",
+      L"isSignedLoad=${isSignedLoad},",
       L"storeMask=${storeMask},",
       L"basePhysReg=${basePhysReg},",
       L"immediate=${immediate},",
@@ -300,6 +304,7 @@ class AguPlugin(
         s1_stream.payload.storeData     := storeData
         s1_stream.payload.robPtr        := s1.payload.robPtr
         s1_stream.payload.accessSize    := s1.payload.accessSize
+        s1_stream.payload.isSignedLoad  := s1.payload.isSignedLoad
         s1_stream.payload.qPtr          := s1.payload.qPtr
         s1_stream.payload.isLoad        := s1.payload.isLoad
         s1_stream.payload.isStore       := s1.payload.isStore

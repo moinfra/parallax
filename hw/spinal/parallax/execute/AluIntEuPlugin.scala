@@ -65,7 +65,13 @@ class AluIntEuPlugin(
 
     // --- Stage S2: Execute ---
     val uopAtS2 = pipeline.s2_execute(EU_INPUT_PAYLOAD)
-    val aluSrc1Data = pipeline.s2_execute(S1_RS1_DATA)
+    val prfSrc1Data = pipeline.s2_execute(S1_RS1_DATA) // 来自PRF的数据
+
+    val aluSrc1Data = Mux(
+      uopAtS2.src1IsPc,
+      uopAtS2.pc.asBits, // 使用指令的PC值
+      prfSrc1Data        // 使用从PRF读出的数据
+    )
     val aluSrc2Data = pipeline.s2_execute(S1_RS2_DATA)
 
     val effectiveSrc2Data = Mux(
