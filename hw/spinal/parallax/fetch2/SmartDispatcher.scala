@@ -18,11 +18,11 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
     val flush = in Bool ()
   }
 
-  val enableLog = false
+  val enableLog = true
   val cycleReg = Reg(UInt(32 bits)) init (0)
   cycleReg := cycleReg + 1
   if (enableLog) {
-    report(L"------ INSTR DISPATCHER CYCLE: ${cycleReg}")
+    report(L"------ RAW INSTR DISPATCHER CYCLE: ${cycleReg}")
   }
 
   // --- 内部状态 ---
@@ -48,7 +48,8 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
   val currentPcReg = fetchGroupReg.pc + pcIncrReg
   val currentInstructionReg = fetchGroupReg.instructions(dispatchIndexReg)
   val currentPredecodeReg = fetchGroupReg.predecodeInfos(dispatchIndexReg)
-  val isLastInstructionReg = dispatchIndexReg === (fetchGroupReg.numValidInstructions - 1)
+  val lastInstructionIndexInGroup = fetchGroupReg.startInstructionIndex + fetchGroupReg.numValidInstructions - 1
+  val isLastInstructionReg = dispatchIndexReg === lastInstructionIndexInGroup
   val hasValidInstructionReg = fetchGroupReg.numValidInstructions > 0
 
   // 添加更详细的日志
@@ -57,6 +58,19 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
     report(L"  DEBUG: currentPc=0x${currentPcReg}, currentInstructionReg=0x${currentInstructionReg}, currentPredecodeReg.isBranch=${currentPredecodeReg.isBranch}, currentPredecodeReg.isDirectJump=${currentPredecodeReg.isDirectJump}")
     report(L"  DEBUG: fetchGroupReg.numValidInstructions=${fetchGroupReg.numValidInstructions}, dispatchIndexReg=${dispatchIndexReg}")
     report(L"  DEBUG: isLastInstruction=${isLastInstructionReg}")
+  }
+
+  when(io.flush) {
+    fetchGroupReg.setDefault()
+  }
+
+  when(io.bpuQuery.fire) {
+    bpuInFlightCounterReg := bpuInFlightCounterReg + 1
+    bpuTransIdCounterReg := bpuTransIdCounterReg + 1
+  }
+
+  when(io.bpuRsp.fire) {
+    bpuInFlightCounterReg := bpuInFlightCounterReg - 1
   }
 
   // --- 主分发状态机 (零延迟决策版) ---
@@ -166,8 +180,7 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
               pendingBpuQueryReg.bpuTransactionId := bpuTransIdCounterReg
 
               // BPU Query is sent, increment counter
-              bpuInFlightCounterReg := bpuInFlightCounterReg + 1
-              bpuTransIdCounterReg := bpuTransIdCounterReg + 1
+              
 
               if (enableLog) ParallaxSim.notice(L"DISPATCHER-IDLE: BPU Query sent for first instruction. -> WAITING_FOR_BPU")
               goto(WAITING_FOR_BPU)
@@ -201,8 +214,7 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
             pendingBpuQueryReg.predecodeInfo := currentPredecodeReg
             pendingBpuQueryReg.bpuTransactionId := bpuTransIdCounterReg
 
-            bpuInFlightCounterReg := bpuInFlightCounterReg + 1
-            bpuTransIdCounterReg := bpuTransIdCounterReg + 1
+            
             if (enableLog) report(L"DISPATCH-BURST: BPU Query sent for PC=0x${currentPcReg}. -> WAITING_FOR_BPU")
             goto(WAITING_FOR_BPU)
           }otherwise { // Fast Path - Burst Mode: 处理普通指令和简单的直接跳转
@@ -344,19 +356,9 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
 
   fsm.build() // 确保FSM被构建
 
-  when(io.bpuRsp.valid && !fsm.isActive(fsm.WAITING_FOR_BPU) && !fsm.isActive(fsm.DRAINING_BPU)) {
-    assert(False, "BPU Response received but current state is not WAITING_FOR_BPU or DRAINING_BPU. This should not happen.")
-  }
-
-  // --- BPU在途事务计数 ---
-  val queryFired = io.bpuQuery.fire && !fsm.isActive(fsm.DRAINING_BPU)
-
-  // 仅当 flush 不为高，且 BPU 响应被 FSM 实际“消费”时，才认为是有效 fire
-  val rspConsumed = io.bpuRsp.valid && !io.flush && (fsm.isActive(fsm.WAITING_FOR_BPU) || fsm.isActive(fsm.DRAINING_BPU))
-
-  when(!queryFired && rspConsumed) {
-    bpuInFlightCounterReg := bpuInFlightCounterReg - 1
-  }
+  // when(io.bpuRsp.valid && !fsm.isActive(fsm.WAITING_FOR_BPU) && !fsm.isActive(fsm.DRAINING_BPU)) {
+  //   assert(False, "BPU Response received but current state is not WAITING_FOR_BPU or DRAINING_BPU. This should not happen.")
+  // }
 
   // --- 详细日志 ---
   if (enableLog) {

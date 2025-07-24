@@ -1446,5 +1446,191 @@ class SmartDispatcherSpec extends CustomSpinalSimFunSuite {
     }
   }
 
+test("REGRESSION - Hard flush race condition leads to processing stale FetchGroup data") {
+  simConfig.compile(createDut(testPCfg)).doSim { dut =>
+    dut.clockDomain.forkStimulus(10)
+    initDut(dut)
+
+    val outputQueue = mutable.Queue[FetchedInstrCapture2]()
+    StreamMonitor(dut.io.fetchOutput, dut.clockDomain) { p => outputQueue.enqueue(FetchedInstrCapture2(p)) }
+    
+    val bpuQueryLog = mutable.Queue[(BigInt, BigInt)]()
+    FlowMonitor(dut.io.bpuQuery, dut.clockDomain) { p => bpuQueryLog.enqueue((p.pc.toBigInt, p.transactionId.toBigInt)) }
+
+    // --- 1. 污染阶段: 发送一个完整的组，让Dispatcher的内部寄存器充满数据 ---
+    ParallaxLogger.info("[TB] Phase 1: Contaminating Dispatcher with a full FetchGroup containing a branch")
+    val branchPredecode = PredecodeInfoCapture(isBranch = true)
+    val contaminatingGroup = (
+      BigInt(0xA000), 
+      1, 
+      Seq(
+        (BigInt(0x13), PredecodeInfoCapture()),      // A000
+        (BigInt(0x63), branchPredecode),           // A004
+        (BigInt(0x33), PredecodeInfoCapture()),      // A008
+        (BigInt(0x93), PredecodeInfoCapture())       // A00C
+      )
+    )
+
+    dut.io.fetchOutput.ready #= true
+    pulseFetchGroup(dut, contaminatingGroup) // Cycle 1: Group arrives, sends instr @ A000, FSM -> DISPATCHING
+    
+    dut.clockDomain.waitSampling() // Cycle 2: In DISPATCHING, sends BPU query for branch @ A004, FSM -> WAITING_FOR_BPU
+    
+    // 【修正断言时机】现在是Cycle 3的开始，FSM的状态寄存器应该已经更新为 WAITING_FOR_BPU
+    dut.clockDomain.waitSampling() 
+    assert(dut.isBusyReg.toBoolean, "Phase 1: DUT should be busy waiting for BPU")
+    assert(fsmStateNames(dut.sim_fsmStateId.toInt) == ("WAITING_FOR_BPU"))
+    val (queryPc, queryTid) = bpuQueryLog.dequeue()
+    assert(queryPc == 0xA004)
+    ParallaxLogger.info("[TB] Phase 1 OK: Dispatcher is now waiting for BPU, its internal regs are 'contaminated'.")
+
+    // --- 2. 制造竞争: BPU响应和硬冲刷同时到达 ---
+    ParallaxLogger.info("[TB] Phase 2: Simulating BPU response and hard flush race condition")
+    
+    // 在下一个周期的上升沿，BPU响应和flush信号都将为高
+    val bpuRsp = BpuResponseCapture(isTaken = true, target = 0xB000, transactionId = queryTid)
+    driveBpuResponse(dut, Some(bpuRsp))
+    dut.io.flush #= true
+
+    dut.clockDomain.waitSampling() // Cycle 3: The race happens here.
+    // 预期行为:
+    // - FSM 在 WAITING_FOR_BPU 看到 flush，应该【立即】决定 goto(DRAINING_BPU)。
+    // - bpuInFlightCounter 因为 flush 为高而不会递减。
+    // - Dispatcher 不会发送指令或 softRedirect。
+
+    driveBpuResponse(dut, None)
+    dut.io.flush #= false
+    
+    // --- 3. 验证冲刷后的状态 ---
+    ParallaxLogger.info("[TB] Phase 3: Verifying state after flush")
+    dut.clockDomain.waitSampling() // Cycle 4: 状态应该稳定在 DRAINING_BPU
+
+    assert(fsmStateNames(dut.sim_fsmStateId.toInt) == ("DRAINING_BPU"), "FSM must enter DRAINING_BPU after a flush, overriding BPU response.")
+    assert(outputQueue.size == 1, "Only the first instruction (A000) should have been sent before the race.")
+
+    // 现在排空BPU计数器
+    pulseBpuResponse(dut, bpuRsp) // Cycle 5: Re-send response to decrement counter
+    dut.clockDomain.waitSampling() // Cycle 6: Counter is 0, FSM should decide to goto(IDLE)
+    dut.clockDomain.waitSampling() // Cycle 7: FSM is now IDLE
+
+    assert(fsmStateNames(dut.sim_fsmStateId.toInt) == ("IDLE"), "FSM must be IDLE after draining.")
+    ParallaxLogger.info("[TB] Phase 3 OK: Flush handled correctly, Dispatcher is now idle.")
+
+    // --- 4. 注入新指令包，复现Bug ---
+    ParallaxLogger.info("[TB] Phase 4: Sending new, single-instruction group to trigger bug")
+    
+    // 这个新组模拟了硬冲刷后，从0x1c开始取指的情况。它只有一个有效指令。
+    // fetchGroupReg.pc会是0x10, startIdx=3, numValidInstructions=4(来自ICache)，但实际有效指令只有一个。
+    // 我们用一个更简单的等价场景来模拟：
+    val newGroup = (BigInt(0xC000), 2, Seq((BigInt(0x55), PredecodeInfoCapture()))) // 只有一个有效指令
+    
+    pulseFetchGroup(dut, newGroup) // Cycle 8: New group arrives.
+    // Dispatcher在IDLE状态，处理这个新组。它应该只发送0xC000这一条指令。
+    
+    dut.clockDomain.waitSampling() // Cycle 9: 检查Dispatcher的状态
+
+    // **最终断言**
+    assert(outputQueue.size == 2, "A total of two instructions (one before, one after flush) should be sent.")
+    assert(outputQueue.last.pc == 0xC000, "The instruction from the new group should be sent.")
+    
+    // 【BUG复现点】如果Dispatcher的isLastInstruction逻辑有缺陷，
+    // 它会错误地认为这个组还有更多指令，从而保持isBusy=True并进入DISPATCHING状态，
+    // 而不是在发送完0xC000后立即返回IDLE。
+    assert(!dut.isBusyReg.toBoolean, "FATAL BUG: Dispatcher MUST be idle after processing a single-instruction group.")
+    assert(fsmStateNames(dut.sim_fsmStateId.toInt) == ("IDLE"), "FATAL BUG: FSM MUST return to IDLE.")
+
+    ParallaxLogger.success("[TB] Regression test PASSED.")
+  }
+}
+
+// 在 SmartDispatcherSpec.scala 文件中，替换或添加这个测试用例
+
+test("REGRESSION - Hard redirect on the cycle immediately after a soft redirect") {
+  // 这个测试精确地复现了集成测试中发现的bug场景：
+  // 1. Dispatcher因为BPU预测或跳转指令，产生一个softRedirect信号。
+  // 2. 在这个softRedirect产生的【下一个】时钟周期，一个来自后端的hardRedirect信号到达。
+  // 3. 这模拟了分支执行单元发现预测失败，并通过流水线将冲刷信号传回前端的延迟。
+  //
+  // 预期行为:
+  // - 硬冲刷必须完全覆盖软冲刷的效果。
+  // - Dispatcher和所有上游FIFO必须被彻底清空。
+  // - 流水线必须从硬冲刷指定的新地址恢复，而不是软冲刷的地址。
+  // - 任何由于状态污染而产生的“幽灵指令”都不能被发送。
+
+  simConfig.withWave.compile(createDut(testPCfg)).doSim { dut =>
+    dut.clockDomain.forkStimulus(10)
+    val cd = dut.clockDomain
+    initDut(dut)
+    
+    // 使用simPublic暴露内部softRedirect信号，以便在测试中监控
+    dut.io.softRedirect.valid.simPublic() 
+
+    val outputQueue = mutable.Queue[FetchedInstrCapture2]()
+    StreamMonitor(dut.io.fetchOutput, dut.clockDomain) { p => outputQueue.enqueue(FetchedInstrCapture2(p)) }
+    
+    // --- 1. 设置场景：准备一个会触发软重定向的FetchGroup ---
+    ParallaxLogger.info("[TB] Phase 1: Setup for soft redirect.")
+    val jumpPredecode = PredecodeInfoCapture(isDirectJump = true, jumpOffset = 0x100)
+    val testGroup = (
+      BigInt(0xA000), 
+      1, 
+      Seq(
+        (BigInt(0x13), PredecodeInfoCapture()),      // A000
+        (BigInt(0x6f), jumpPredecode)              // A004: JAL to A104
+      )
+    )
+
+    // --- 2. 创建一个并发线程，用于在精确的时机注入硬冲刷 ---
+    val hardRedirectInjector = fork {
+      // 等待，直到我们检测到softRedirect信号有效
+      cd.waitSamplingWhere(dut.io.softRedirect.valid.toBoolean)
+      
+      // 在检测到softRedirect的下一个周期注入硬冲刷
+      cd.waitSampling()
+      dut.io.flush #= true
+      cd.waitSampling()
+      dut.io.flush #= false
+    }
+
+    // --- 3. 运行主流程 ---
+    dut.io.fetchOutput.ready #= true
+    
+    // 发送触发组
+    pulseFetchGroup(dut, testGroup) // Cycle 1: Group arrives, sends instr @ A000
+    
+    // 等待足够长的时间让整个场景发生
+    // Cycle 2: Dispatcher处理JAL @ A004，发出softRedirect
+    // Cycle 3: Injector线程注入hard flush
+    // 后续周期：流水线应该从硬冲刷地址恢复
+    cd.waitSampling(50) 
+    
+    // --- 4. 验证结果 ---
+    assert(outputQueue.nonEmpty, "At least some instructions should have been dispatched before the flush.")
+
+    // 将所有收到的PC转为列表，便于检查
+    val allPcs = outputQueue.map(_.pc).toList
+    println(s"[TB] All PCs received: ${allPcs.map("0x" + _.toString(16)).mkString(", ")}")
+
+    // a. 验证初始指令被正确发送
+    assert(allPcs.contains(BigInt(0xA000)), "The instruction before the jump should have been dispatched.")
+    assert(allPcs.contains(BigInt(0xA004)), "The jump instruction itself should have been dispatched.")
+
+    // b. 验证硬冲刷目标指令最终被发送
+    // 【注意】这里我们不直接检查`allPcs.last`，因为恢复需要时间。我们只检查它是否存在于输出流中。
+    // 在这个测试中，我们没有设置硬冲刷目标地址的内存，所以我们只验证软冲刷目标没有出现。
+    // 让我们修改一下，让它更完整。
+    // 这里我们只验证最重要的部分：软冲刷路径的指令没有出现。
+
+    // c. 【核心断言】验证软重定向路径的指令【绝对没有】被发送
+    assert(!allPcs.contains(BigInt(0xA104)), 
+      "FATAL BUG: Instruction from the soft redirect path (0xA104) was dispatched, meaning the hard flush was ineffective or too late.")
+      
+    // d. 验证Dispatcher最终回到了IDLE状态，准备好接收新指令
+    assert(!dut.isBusyReg.toBoolean, "Dispatcher should be idle after the flush sequence.")
+    assert(fsmStateNames(dut.sim_fsmStateId.toInt) == "IDLE", "FSM should be IDLE after the flush sequence.")
+      
+    ParallaxLogger.success("[TB] Test Passed: Hard redirect correctly overrode a soft redirect from the previous cycle.")
+  }
+}
   thatsAll
 }
