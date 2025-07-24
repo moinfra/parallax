@@ -9,6 +9,7 @@ import parallax.utilities.{Plugin, Service, ParallaxSim}
 import parallax.utilities.Formattable
 import parallax.utilities.ParallaxSim
 import parallax.fetch2.FetchService
+import parallax.bpu.BpuService
 
 /**
  * Commit statistics bundle for monitoring commit stage performance.
@@ -134,12 +135,16 @@ class CommitPlugin(
     val checkpointManagerService = getService[CheckpointManagerService] 
     val fetchService             = getService[FetchService]
     val busyTableService         = getService[BusyTableService]
+    val bpuServiceInst           = getService[BpuService] // 获取BPUService实例
     
     val busyTableClearPort       = busyTableService.newClearPort()
     val robFlushPort             = robService.newRobFlushPort()
     val redirectPort             = fetchService.newHardRedirectPort(priority = 10)
+    val bpuUpdatePort            = bpuServiceInst.newBpuUpdatePort() // 创建BPU更新端口
 
     redirectPort.setIdle()
+    bpuUpdatePort.valid := False // 默认不更新BPU
+    bpuUpdatePort.payload.assignDontCare()
   }
 
   // =========================================================================
@@ -158,6 +163,7 @@ class CommitPlugin(
     val freePorts = flControlService.getFreePorts()
     val busyTableClearPort = hw.busyTableClearPort
     val restoreCheckpointTrigger = checkpointManagerService.getRestoreCheckpointTrigger()
+    val bpuUpdatePort = hw.bpuUpdatePort // 引用BPU更新端口
 
     // 默认值设置
     robFlushPort.valid := False
@@ -178,12 +184,12 @@ class CommitPlugin(
       val headIsBranch = headUop.decoded.isBranchOrJump
       
       // --- 关键判断：在当前周期检测预测失败 ---
-    val isMispredictedBranch = 
-      enable && 
-      headSlot.valid &&                         // 槽位必须有效
-      headSlot.entry.status.done &&        // 指令必须已完成执行
-      headIsBranch &&                           // 必须是分支
-      headSlot.entry.status.isMispredictedBranch // 且状态是预测失败
+      val isMispredictedBranch = 
+        enable && 
+        headSlot.valid &&                         // 槽位必须有效
+        headSlot.entry.status.done &&        // 指令必须已完成执行
+        headIsBranch &&                           // 必须是分支
+        headSlot.entry.status.isMispredictedBranch // 且状态是预测失败
       
       // --- 提交决策逻辑 ---
       val commitAckMasks = Vec(Bool(), pipelineConfig.commitWidth)
@@ -193,8 +199,21 @@ class CommitPlugin(
         commitAckMasks(i) := False
       }
 
+      // BPU更新逻辑：无论是否预测成功都更新
+      when(enable && headSlot.valid && headSlot.entry.status.done && headIsBranch) {
+        bpuUpdatePort.valid := True
+        bpuUpdatePort.payload.pc := headUop.decoded.pc
+        bpuUpdatePort.payload.isTaken := headSlot.entry.status.isTaken // 假设result的MSB表示是否taken
+        bpuUpdatePort.payload.target := headSlot.entry.status.result.asUInt // 假设result是最终目标地址
+        report(L"[COMMIT] BPU UPDATE: pc=0x${bpuUpdatePort.payload.pc}, isTaken=${bpuUpdatePort.payload.isTaken}, target=0x${bpuUpdatePort.payload.target}")
+      } otherwise {
+        when(headIsBranch) {
+          report(L"[COMMIT] BPU Not upated because enable=${enable} headSlot.canCommit=${headSlot.canCommit} headIsBranch=${headIsBranch}")
+        }
+      }
+
       // 默认行为：如果可以提交且没有预测失败，则正常提交
-      when(enable && headSlot.canCommit && !isMispredictedBranch) {
+      when(enable && headSlot.valid && headSlot.entry.status.done && !isMispredictedBranch) {
         commitAckMasks(0) := True
         
         // 保存检查点 (对于成功提交的指令)
@@ -205,7 +224,7 @@ class CommitPlugin(
       }
 
       // *** 核心修复：如果检测到预测失败，则立即覆盖决策，并启动恢复流程 ***
-      when(isMispredictedBranch) {
+      when(enable && headSlot.valid && headSlot.entry.status.done && isMispredictedBranch) {
         // 1. **否决提交**: 这是最重要的！确保错误的指令不会被提交。
         commitAckMasks(0) := False
 
