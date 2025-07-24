@@ -1413,5 +1413,125 @@ class LabSpec extends CustomSpinalSimFunSuite {
     }
   }
 
+  test("Sum 1 to 100 Test on CoreNSCSCC") {
+
+    val instructions = ArrayBuffer[BigInt]()
+    // 目标：计算 1 + 2 + ... + 100，结果为 5050
+    //
+    // 汇编伪代码:
+    //   sum = 0
+    //   i = 1
+    //   limit = 101
+    //   loop:
+    //     sum = sum + i
+    //     i = i + 1
+    //     if (i != limit) goto loop
+    //   store sum to memory
+    //   halt
+    //
+    // 寄存器分配 (基于 ABI):
+    // $zero = r0
+    // $t0 (r12) = sum (累加和)
+    // $t1 (r13) = i (计数器)
+    // $t2 (r14) = limit (循环结束条件: 101)
+    // $a0 (r4)  = 内存地址，用于存储最终结果
+
+    // --- 初始化 ---
+    /*00*/ instructions += addi_w(rd = 12, rj = 0, imm = 0)     // $t0 (sum) = 0
+    /*04*/ instructions += addi_w(rd = 13, rj = 0, imm = 1)     // $t1 (i) = 1
+    /*08*/ instructions += addi_w(rd = 14, rj = 0, imm = 101)   // $t2 (limit) = 101
+    /*0C*/ instructions += lu12i_w(rd = 4, imm = 0x80400)      // $a0 = 0x80400000 (结果存储地址)
+
+    // --- 循环体 (loop 标签在 PC=0x10) ---
+    /*10*/ instructions += add_w(rd = 12, rj = 12, rk = 13)    // $t0 = $t0 + $t1 (sum = sum + i)
+    /*14*/ instructions += addi_w(rd = 13, rj = 13, imm = 1)     // $t1 = $t1 + 1 (i = i + 1)
+    
+    // bne $t1, $t2, loop
+    // 当前指令 PC = 0x18
+    // 目标 'loop' PC = 0x10
+    // 偏移量 = 0x10 - 0x18 = -8 字节
+    /*18*/ instructions += bne(rj = 13, rd = 14, offset = -8)   // if (i != limit) goto loop
+
+    // --- 循环结束, 存储结果 ---
+    /*1C*/ instructions += st_w(rd = 12, rj = 4, offset = 0)   // mem[$a0] = $t0 (将 sum 存入内存)
+
+    // --- 停机 (end 标签在 PC=0x20) ---
+    // bne $zero, $zero, end (原地无限循环)
+    // 当前指令 PC = 0x20
+    // 目标 'end' PC = 0x20
+    // 偏移量 = 0x20 - 0x20 = 0
+    /*20*/ instructions += bne(rj = 0, rd = 0, offset = 0)     // 无效指令，应该顺序执行
+    /*24*/ instructions += beq(rj = 0, rd = 0, offset = 0)     // 无限循环以停机
+
+    LabHelper.dumpBinary(instructions, "bin/Sum100.bin")
+
+    val compiled = SimConfig.withConfig(
+        SpinalConfig().copy(
+          defaultConfigForClockDomains = ClockDomainConfig(resetKind = SYNC),
+        )
+      ).withFstWave.compile(new LabTestBench(instructions))
+
+    compiled.doSim { dut =>
+      val cd = dut.clockDomain
+      cd.forkStimulus(period = 10)
+      SimTimeout(15000) // 100次循环，几千个周期就足够了，设置一个安全的超时
+
+      // 1. 获取 SRAM 句柄
+      val dSram = dut.dSram
+
+      println("--- Starting Summation Simulation ---")
+
+      // 2. 计算期望的总提交指令数以确定仿真何时结束
+      val numInitInstructions = 4     // 3x addi_w, 1x lu12i_w
+      val numLoopInstructions = 3     // 1x add_w, 1x addi_w, 1x bne
+      val numIterations = 100         // i from 1 to 100
+      val numPostLoopInstructions = 1 // 1x st_w
+      val numHaltInstructions = 2     // 1x bne (to self)
+
+      // 总指令数 = 初始化 + 循环体*迭代次数 + 循环后存储 + 停机
+      val expectedTotalCommitted = numInitInstructions + (numIterations * numLoopInstructions) + numPostLoopInstructions + numHaltInstructions
+      
+      println(s"Expected total committed instructions: $expectedTotalCommitted") // 4 + 300 + 1 + 1 = 306
+
+      // 3. 运行仿真直到提交数量达到预期
+      var currentCommitted = 0L
+      while (currentCommitted < expectedTotalCommitted) {
+        cd.waitSampling()
+        currentCommitted = dut.io.commitStats.totalCommitted.toBigInt.toLong
+        if (currentCommitted > 0 && currentCommitted % 50 == 0) {
+            println(s"Committed: $currentCommitted / $expectedTotalCommitted")
+        }
+      }
+
+      println(s"--- Simulation Finished: Committed $currentCommitted instructions ---")
+
+      // 4. 验证存储在数据内存 (dSram) 中的结果
+      println("--- Verification Phase ---")
+      
+      // 期望的结果: 1 + 2 + ... + 100 = (100 * 101) / 2 = 5050
+      val expectedSum = 5050
+
+      // 从 dSram 读取结果
+      dSram.io.tb_readEnable #= true
+      // 内存地址是 0x80400000, 但仿真测试台通常使用相对于 SRAM 基地址的偏移
+      // 我们在汇编中用 st.w $t0, $a0, 0 存储，所以偏移是 0
+      dSram.io.tb_readAddress #= 0
+      cd.waitSampling() // 等待一个周期让读取生效
+      val actualSum = dSram.io.tb_readData.toBigInt
+      
+      dSram.io.tb_readEnable #= false
+
+      println(f"Checking dSram[0x0]: Expected=0x${expectedSum}%x ($expectedSum), Got=0x${actualSum}%x ($actualSum)")
+      
+      assert(
+        actualSum == expectedSum,
+        f"Summation mismatch! Expected $expectedSum (0x${expectedSum}%x), but got $actualSum (0x${actualSum}%x)"
+      )
+
+      println("--- Sum 1 to 100 Test Passed ---")
+    }
+  }
+
+
   thatsAll()
 }
