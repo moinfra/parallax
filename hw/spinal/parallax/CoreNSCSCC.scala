@@ -297,7 +297,7 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
   val dCfg = DataCachePluginConfig(
     pipelineConfig = pCfg,
     memDataWidth = 32,
-    cacheSize = 4096,
+    cacheSize = 1024,
     wayCount = 2,
     refillCount = 8,
     writebackCount = 8,
