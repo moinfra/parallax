@@ -35,6 +35,15 @@ class MulEuPlugin(
       val s5_execute = newStage().setName("mul_s5_Execute")
       val s6_execute = newStage().setName("mul_s6_Execute")
       val s7_writeback = newStage().setName("mul_s7_Writeback")
+
+      s0_dispatch.flushIt(robFlushPort.valid)
+      s1_readRegs.flushIt(robFlushPort.valid)
+      s2_execute.flushIt(robFlushPort.valid)
+      s3_execute.flushIt(robFlushPort.valid)
+      s4_execute.flushIt(robFlushPort.valid)
+      s5_execute.flushIt(robFlushPort.valid)
+      s6_execute.flushIt(robFlushPort.valid)
+      s7_writeback.flushIt(robFlushPort.valid)
     }.setCompositeName(this, "internal_pipeline")
 
     val S1_RS1_DATA = Stageable(Bits(pipelineConfig.dataWidth))

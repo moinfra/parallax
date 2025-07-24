@@ -38,6 +38,11 @@ class AluIntEuPlugin(
       val s1_readRegs  = newStage().setName("s1_ReadRegs")
       val s2_execute   = newStage().setName("s2_Execute")
       val s3_writeback = newStage().setName("s3_Writeback")
+
+      s0_dispatch.flushIt(robFlushPort.valid)
+      s1_readRegs.flushIt(robFlushPort.valid)
+      s2_execute.flushIt(robFlushPort.valid)
+      s3_writeback.flushIt(robFlushPort.valid)
     }.setCompositeName(this, "internal_pipeline")
 
     val S1_RS1_DATA = Stageable(Bits(pipelineConfig.dataWidth))

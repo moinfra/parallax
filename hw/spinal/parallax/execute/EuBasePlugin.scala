@@ -145,6 +145,7 @@ abstract class EuBasePlugin(
     val data = Bits(pipelineConfig.dataWidth) // 计算结果
     val writesToPreg = Bool() // 是否写物理寄存器
     val isMispredictedBranch = Bool()
+    val isTaken = Bool()
     val hasException = Bool()
     val exceptionCode = UInt(pipelineConfig.exceptionCodeWidth)
     val destIsFpr = Bool() // 目标是否为 FPR
@@ -155,6 +156,7 @@ abstract class EuBasePlugin(
     data.assignDontCare()
     writesToPreg.assignDontCare()
     isMispredictedBranch.assignDontCare()
+    isTaken.assignDontCare()
     hasException.assignDontCare()
     exceptionCode.assignDontCare()
     destIsFpr.assignDontCare()
@@ -223,7 +225,7 @@ abstract class EuBasePlugin(
     val uopAtWb = euResult.uop
     
     // --- 新增：检查当前指令是否需要被冲刷 ---
-    val isFlushed = robFlushPort.valid && isNewerOrSame(uopAtWb.robPtr, robFlushPort.payload.targetRobPtr)
+    val isFlushed = robFlushPort.valid
     
     when(isFlushed && euResult.valid) {
       report(L"EUBase ($euName): Killing in-flight uop. robPtr=${uopAtWb.robPtr}, flushTarget=${robFlushPort.payload.targetRobPtr}")
@@ -262,6 +264,7 @@ abstract class EuBasePlugin(
     robWritebackPortBundle.fire                 := executionCompletes
     robWritebackPortBundle.robPtr               := uopAtWb.robPtr
     robWritebackPortBundle.isMispredictedBranch := euResult.isMispredictedBranch
+    robWritebackPortBundle.isTaken              := euResult.isTaken
     robWritebackPortBundle.result               := euResult.data
     robWritebackPortBundle.exceptionOccurred    := euResult.hasException
     robWritebackPortBundle.exceptionCodeIn      := euResult.exceptionCode

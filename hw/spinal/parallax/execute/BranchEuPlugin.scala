@@ -61,6 +61,11 @@ class BranchEuPlugin(
       val s1_calc     = newStage().setName("s1_Calc")
       val s2_select   = newStage().setName("s2_Select")
       val s3_result   = newStage().setName("s3_Result")
+
+      s0_dispatch.flushIt(robFlushPort.valid)
+      s1_calc.flushIt(robFlushPort.valid)
+      s2_select.flushIt(robFlushPort.valid)
+      s3_result.flushIt(robFlushPort.valid)
     }.setCompositeName(this, "internal_pipeline")
 
     // --- Stageables ---
@@ -195,14 +200,14 @@ class BranchEuPlugin(
     pipeline.s2_select(MISPREDICT_INFO).writesToPreg := uopAtS2.branchCtrl.isLink
     pipeline.s2_select(MISPREDICT_INFO).outputData := Mux(uopAtS2.branchCtrl.isLink, linkValue, finalTarget.asBits.resized)
 
-    // +++ MOVED: BPU更新逻辑移至S2，这是能获取到完整信息的最早阶段 +++
-    hw.bpuUpdatePort.valid := pipeline.s2_select.isFiring
-    hw.bpuUpdatePort.payload.pc := uopAtS2.pc
-    hw.bpuUpdatePort.payload.isTaken := actuallyTaken
-    hw.bpuUpdatePort.payload.target := finalTarget
-    when(hw.bpuUpdatePort.fire) {
-      report(L"[BranchEU-BPU] BPU UPDATE (from S2): pc=0x${hw.bpuUpdatePort.payload.pc}, isTaken=${hw.bpuUpdatePort.payload.isTaken}, target=0x${hw.bpuUpdatePort.payload.target}")
-    }
+    // +++BPU更新逻辑移至Commit，这是能获取到完整信息的最早阶段 +++
+    // hw.bpuUpdatePort.valid := pipeline.s2_select.isFiring
+    // hw.bpuUpdatePort.payload.pc := uopAtS2.pc
+    // hw.bpuUpdatePort.payload.isTaken := actuallyTaken
+    // hw.bpuUpdatePort.payload.target := finalTarget
+    // when(hw.bpuUpdatePort.fire) {
+    //   report(L"[BranchEU-BPU] BPU UPDATE (from S2): pc=0x${hw.bpuUpdatePort.payload.pc}, isTaken=${hw.bpuUpdatePort.payload.isTaken}, target=0x${hw.bpuUpdatePort.payload.target}")
+    // }
     
     // +++ NEW: Stage S3: Handle Misprediction and Drive Result +++
     val mispredictInfoAtS3 = pipeline.s3_result(MISPREDICT_INFO)
@@ -214,6 +219,7 @@ class BranchEuPlugin(
       euResult.data := mispredictInfoAtS3.outputData
       euResult.writesToPreg := mispredictInfoAtS3.writesToPreg
       euResult.isMispredictedBranch := mispredictInfoAtS3.mispredicted // This is the signal from your screenshot
+      euResult.isTaken := mispredictInfoAtS3.actuallyTaken
       euResult.hasException := False
       euResult.exceptionCode := 0
       euResult.destIsFpr := False

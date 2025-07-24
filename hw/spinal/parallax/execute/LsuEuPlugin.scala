@@ -51,7 +51,6 @@ class LsuEuPlugin(
     // 获取到后端队列的推送端口
     val sbPushPort = storeBufferServiceInst.getPushPort()
     val lqPushPort = loadQueueServiceInst.newPushPort()
-    val robFlushPort = robServiceInst.doRobFlush()
 
     // 保留服务
     robServiceInst.retain() // 保留服务
@@ -65,7 +64,7 @@ class LsuEuPlugin(
   // =========================================================================
   override def buildEuLogic(): Unit = {
     ParallaxLogger.log(s"[LsuEu ${euName}] Logic start definition.")
-    hw.aguPort.flush := hw.robFlushPort.valid
+    hw.aguPort.flush := robFlushPort.valid
     
 
     // --- 1. EU输入处理 & 分流 ---
@@ -86,7 +85,7 @@ class LsuEuPlugin(
       aguCmd.robPtr      := uop.robPtr
       aguCmd.isLoad      := !isStore
       aguCmd.isStore     := isStore
-      aguCmd.isFlush     := False
+      aguCmd.isFlush     := False // 这里是 Cache 刷新信号，不是ROB 的
       aguCmd.isIO        := Bool(defaultIsIO) // 使用配置参数
       aguCmd.physDst     := uop.physDest.idx
       aguCmd
