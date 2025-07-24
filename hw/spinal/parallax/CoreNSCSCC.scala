@@ -29,6 +29,7 @@ import java.nio.file.StandardCopyOption
 import parallax.fetch.icache.ICachePlugin
 import parallax.fetch.icache.ICacheConfig
 import parallax.fetch2.FetchService
+import parallax.pass.EnforceSyncRamPhase
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // 1. 定义新的 Service 和 Connector Plugin
@@ -610,6 +611,7 @@ object CoreNSCSCCGen extends App {
     defaultClockDomainFrequency = FixedFrequency(50 MHz),
     targetDirectory = "soc"
   )
+    spinalConfig.addTransformationPhase(new EnforceSyncRamPhase)
   spinalConfig.generateVerilog(new CoreNSCSCC)
   println("CoreNSCSCC Verilog Generation DONE")
 
