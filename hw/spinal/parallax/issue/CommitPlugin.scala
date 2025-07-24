@@ -101,17 +101,16 @@ trait CommitService extends Service {
 class CommitPlugin(
     val pipelineConfig: PipelineConfig
 ) extends Plugin with CommitService {
-  assert(pipelineConfig.commitWidth == 1)
+  assert(pipelineConfig.commitWidth == 1, "This revised logic currently supports commitWidth=1 only.")
   
   val enableLog = true // 控制是否启用周期性详细日志
   
-  // Service interface state
+  // Service interface state (这部分保持不变)
   private val commitEnableExt = Bool()
   private val commitStatsReg = Reg(CommitStats(pipelineConfig)).initZero()
   private val maxCommitPcExt = UInt(pipelineConfig.pcWidth)
   private val maxCommitPcEnabledExt = Bool()
   
-  // PC tracking state
   private val maxCommitPcReg = Reg(UInt(pipelineConfig.pcWidth)) init(0) addAttribute("mark_debug", "true")
   private val commitOOBReg = Reg(Bool()) init(False) addAttribute("mark_debug", "true")
   
@@ -124,244 +123,192 @@ class CommitPlugin(
     maxCommitPcEnabledExt := enabled
   }
   
-  private var forwardedStats: CommitStats = null
-  
   override def getCommitStatsReg(): CommitStats = {
     commitStatsReg
   }
   
-  val hw = create early new Area {
+  val hw = create early new Area { // 'hw' 区域保持不变
     val robService               = getService[ROBService[RenamedUop]]
     val ratControlService        = getService[RatControlService]
     val flControlService         = getService[FreeListControlService]
     val checkpointManagerService = getService[CheckpointManagerService] 
     val fetchService             = getService[FetchService]
-    
-    // +++ NEW +++
-    // 在 early 阶段获取 BusyTableService
     val busyTableService         = getService[BusyTableService]
-    val busyTableClearPort       = busyTableService.newClearPort()
-
-    val robFlushPort             = robService.newRobFlushPort()
-    val redirectPort             = fetchService.newHardRedirectPort(priority = 10)  // High priority for branch misprediction
     
-    redirectPort.setIdle()
+    val busyTableClearPort       = busyTableService.newClearPort()
+    val robFlushPort             = robService.newRobFlushPort()
+    val redirectPort             = fetchService.newHardRedirectPort(priority = 10)
 
-    println(L"[CommitPlugin] Early setup - acquired services and fetch disable port")
+    redirectPort.setIdle()
   }
 
+  // =========================================================================
+  //  !!!  L O G I C   A R E A   S T A R T S   H E R E  !!!
+  //  这是主要修改区域
+  // =========================================================================
   val logic = create late new Area {
     val robService = hw.robService
-    val ratControlService = hw.ratControlService
     val flControlService = hw.flControlService
     val checkpointManagerService = hw.checkpointManagerService 
     
-    // === ROB Interface ===
+    // === 接口和端口设置 (保持不变) ===
     val commitSlots = robService.getCommitSlots(pipelineConfig.commitWidth)
-    val commitAcks = robService.getCommitAcks(pipelineConfig.commitWidth) // 本插件会发送 commit 用于真正触发提交
+    val commitAcks = robService.getCommitAcks(pipelineConfig.commitWidth)
     val robFlushPort = hw.robFlushPort
-    robFlushPort.valid := False
-    robFlushPort.payload.assignDontCare()
-
-    // === Physical Register Recycling ===
     val freePorts = flControlService.getFreePorts()
-    require(freePorts.length >= pipelineConfig.commitWidth, 
-      s"FreeList must have at least ${pipelineConfig.commitWidth} free ports for commit width")
-    
-    // --- NEW ---
-    // === BusyTable Clearing ===
-    // 从服务获取一个清除端口
-    // 默认情况下不清除
     val busyTableClearPort = hw.busyTableClearPort
-    busyTableClearPort.valid := False
-    busyTableClearPort.payload.assignDontCare()
-
-    // === Checkpoint Management Interface ===
     val restoreCheckpointTrigger = checkpointManagerService.getRestoreCheckpointTrigger()
 
-    // === Commit Logic ===
-    val commitCount = UInt(log2Up(pipelineConfig.commitWidth + 1) bits) 
-
+    // 默认值设置
+    robFlushPort.valid := False
+    robFlushPort.payload.assignDontCare()
+    busyTableClearPort.valid := False
+    busyTableClearPort.payload.assignDontCare()
+    // restoreCheckpointTrigger := False
+    
     // ====================================================================
-    // S0 阶段：组合逻辑阶段，处理需要立即响应的外部交互
+    // S0 阶段：组合逻辑 - 核心修复在这里
     // ====================================================================
     val s0 = new Area {
-      // --- 从ROB获取原始、实时的提交槽位信息 ---
-      val rawCommitSlots = commitSlots // 这就是当前的commitSlots
       val enable = commitEnableExt
-      val headSlot = rawCommitSlots(0)
+      
+      // --- 从ROB获取头部槽位信息 ---
+      val headSlot = commitSlots(0)
       val headUop = headSlot.entry.payload.uop
       val headIsBranch = headUop.decoded.isBranchOrJump
-      val isMispredictedBranch = enable && headSlot.canCommit && headIsBranch && headSlot.entry.status.isMispredictedBranch
-      val isMispredictedBranchPrev = RegNext(isMispredictedBranch) init(False)
-      val actualTargetOfBranchPrev = RegNext(headSlot.entry.status.result)
-      // val isSafeToCommit = !hasInflightUnResolvedBranches || headIsBranch
-
-      val commitAckMasks = Vec(Bool(), pipelineConfig.commitWidth)
-      commitAckMasks(0) := False
-      val commitIdleThisCycle = headUop.decoded.uopCode === BaseUopCode.IDLE && commitAckMasks(0)
-
-      when(enable && headSlot.canCommit) {
-        val commitAckMask = True
-        commitAckMasks(0) := commitAckMask
-        // 只要提交了指令就立刻一键备份Rat/FreeList/BusyTable
-        val ckptSave = new Area {
-            val ckptService = getService[CheckpointManagerService]
-            val trigger = ckptService.getSaveCheckpointTrigger()
-            trigger.addAttribute("MARK_DEBUG","TRUE")
-            trigger := True
-            report(L"CHECKPOINT: Save checkpoint triggered")
-        }
       
+      // --- 关键判断：在当前周期检测预测失败 ---
+    val isMispredictedBranch = 
+      enable && 
+      headSlot.valid &&                         // 槽位必须有效
+      headSlot.entry.status.done &&        // 指令必须已完成执行
+      headIsBranch &&                           // 必须是分支
+      headSlot.entry.status.isMispredictedBranch // 且状态是预测失败
+      
+      // --- 提交决策逻辑 ---
+      val commitAckMasks = Vec(Bool(), pipelineConfig.commitWidth)
+      
+      // 默认不提交
+      for(i <- 0 until pipelineConfig.commitWidth) {
+        commitAckMasks(i) := False
       }
-      // 在分支指令提交之后回滚
-      when(isMispredictedBranchPrev) {
-        // 1. 让 ROB 回滚到当前分支指令的 robPtr 位置
-        // （当前分支指令以及其后所有指令需要清除，实际上相当于全部清空）
-        var robRestore = new Area {
-          val robFlushPort = hw.robFlushPort
-          robFlushPort.valid := True
-          robFlushPort.payload.reason := FlushReason.FULL_FLUSH
-          hw.robFlushPort.payload.targetRobPtr.assignDontCare()
-        }
-        // 2. 触发 CheckpointManager 状态恢复，触发 HardRedirect 事件
-        val ckptRestore = new Area {
-            val checkpointManagerService = hw.checkpointManagerService 
-            val restoreCheckpointTrigger = checkpointManagerService.getRestoreCheckpointTrigger()
-            restoreCheckpointTrigger := True
-        }
-        // 3. 前端 IF 全部清空并从正确地址取指
-        val redirect = new Area {
-          val redirectPort = hw.redirectPort
-          redirectPort.valid := True
-          redirectPort.payload := actualTargetOfBranchPrev.asUInt
-        }
-        // 4. 发射流水线清空 这个 ROB 监听者自己会搞定
-        // 5. 发射队列清空 这个 ROB 监听者自己会搞定
-        // 6. 执行单元无效化 这个 ROB 监听者自己会搞定
-        // 7. LSQ 无效化 这个 ROB 监听者自己会搞定
-        report(L"CHECKPOINT: Restore checkpoint triggered due to misprediction last cycle, redirecting to ${actualTargetOfBranchPrev}")
-      } 
 
-      // --- NEW: 将 BusyTable 清除逻辑与 FreeList 回收逻辑放在一起 ---
-      // 1. 物理寄存器回收 (立即响应)
+      // 默认行为：如果可以提交且没有预测失败，则正常提交
+      when(enable && headSlot.canCommit && !isMispredictedBranch) {
+        commitAckMasks(0) := True
+        
+        // 保存检查点 (对于成功提交的指令)
+        val ckptService = getService[CheckpointManagerService]
+        val trigger = ckptService.getSaveCheckpointTrigger()
+        trigger := True
+        report(L"CHECKPOINT: Save checkpoint triggered on successful commit.")
+      }
+
+      // *** 核心修复：如果检测到预测失败，则立即覆盖决策，并启动恢复流程 ***
+      when(isMispredictedBranch) {
+        // 1. **否决提交**: 这是最重要的！确保错误的指令不会被提交。
+        commitAckMasks(0) := False
+
+        // 2. **发起ROB冲刷**: 立即清空ROB。
+        robFlushPort.valid := True
+        robFlushPort.payload.reason := FlushReason.FULL_FLUSH
+        robFlushPort.payload.targetRobPtr.assignDontCare() // FULL_FLUSH不需要目标
+
+        // 3. **触发检查点恢复**: 恢复RAT, FreeList, BusyTable到分支前的状态。
+        restoreCheckpointTrigger := True
+
+        // 4. **发起前端硬重定向**: 告诉取指单元新的正确PC。
+        hw.redirectPort.valid := True
+        hw.redirectPort.payload := headSlot.entry.status.result.asUInt
+
+        // --- 日志 ---
+        ParallaxSim.notice(
+          L"BRANCH MISPREDICT: Vetoing commit of robPtr=${headUop.robPtr}, PC=0x${headUop.decoded.pc} " :+
+          L"and flushing pipeline. Redirecting to 0x${headSlot.entry.status.result}."
+        )
+      }
+
+      // --- 物理寄存器回收与BusyTable清除 ---
+      // 这部分逻辑现在是安全的，因为它依赖于最终的、正确的 `commitAckMasks`
       for (i <- 0 until pipelineConfig.commitWidth) {
-        val commitAck = commitAckMasks(i)
-        val committedEntry = rawCommitSlots(i).entry 
+        val doCommit = commitAckMasks(i)
+        val committedEntry = commitSlots(i).entry 
         val committedUop = committedEntry.payload.uop 
         
-        // 当一条指令提交，并且它分配了一个新的物理寄存器时...
-        val canRecycle = commitAck && committedUop.rename.allocatesPhysDest 
+        val canRecycle = doCommit && committedUop.rename.allocatesPhysDest 
         
-        // a) ...它所覆盖的旧的物理寄存器 (`oldPhysDest`) 可以被回收
-        
-        // 回收到 FreeList (使其可用于未来的分配)
+        // 回收到 FreeList
         freePorts(i).enable := canRecycle
         freePorts(i).physReg := committedUop.rename.oldPhysDest.idx
         
-        // b) ...同时，也从 BusyTable 中清除，标记为不再繁忙
+        // 从 BusyTable 中清除
+        // (注意: 这里只处理了一个回收端口，如果commitWidth > 1，需要扩展)
         when(canRecycle) {
           busyTableClearPort.valid   := True
           busyTableClearPort.payload := committedUop.rename.oldPhysDest.idx
-          
-          // 添加日志以确认清除操作
-          ParallaxSim.log(
-            L"[CommitPlugin->BusyTable] Clearing physReg=${committedUop.rename.oldPhysDest.idx} " :+
-            L"because robPtr=${committedUop.robPtr} is committing."
-          )
         }
       }
 
+      // 将最终的提交决策发送给ROB
       for (i <- 0 until pipelineConfig.commitWidth) {
         commitAcks(i) := commitAckMasks(i)
       }
       
-      // 3. 组合逻辑统计接口 (立即响应)
+      // --- 统计与日志逻辑 (这部分基本保持不变, 但现在基于正确的信号) ---
       val committedThisCycle_comb = CountOne(commitAckMasks)
       val recycledThisCycle_comb = CountOne(freePorts.map(_.enable))
       val flushedThisCycle_comb = robFlushPort.valid.asUInt
       
-      // === PC Tracking and OOB Detection ===
       val commitPcs = Vec(UInt(pipelineConfig.pcWidth), pipelineConfig.commitWidth)
-      val anyCommitOOB = Bool()
-      val maxCommitPcThisCycle = UInt(pipelineConfig.pcWidth)
-      
-      // Collect PCs from all committed instructions
       for (i <- 0 until pipelineConfig.commitWidth) {
-        commitPcs(i) := rawCommitSlots(i).entry.payload.uop.decoded.pc
+        commitPcs(i) := commitSlots(i).entry.payload.uop.decoded.pc
       }
-      
-      // Find maximum PC among committed instructions this cycle
-      maxCommitPcThisCycle := commitPcs.zip(commitAckMasks).map { case (pc, ack) =>
+      val maxCommitPcThisCycle = commitPcs.zip(commitAckMasks).map { case (pc, ack) =>
         Mux(ack, pc, U(0, pipelineConfig.pcWidth))
       }.reduce((a, b) => Mux(a > b, a, b))
-      
-      // Check for out-of-bounds commits
-      anyCommitOOB := maxCommitPcEnabledExt && commitAckMasks.zip(commitPcs).map { case (ack, pc) =>
+      val anyCommitOOB = maxCommitPcEnabledExt && commitAckMasks.zip(commitPcs).map { case (ack, pc) =>
         ack && (pc > maxCommitPcExt)
       }.reduce(_ || _)
       
-      val hasCommitsThisCycle = commitAckMasks.reduce(_ || _)
-      
-      // 4. 前馈统计信号 (立即响应)
-      val fwd = CommitStats(pipelineConfig)
-      fwd.committedThisCycle := committedThisCycle_comb
-      fwd.totalCommitted := commitStatsReg.totalCommitted + committedThisCycle_comb
-      fwd.physRegRecycled := commitStatsReg.physRegRecycled + recycledThisCycle_comb
-      fwd.robFlushCount := commitStatsReg.robFlushCount + flushedThisCycle_comb
-      fwd.commitOOB := commitOOBReg || anyCommitOOB
-      
-      // Maximum PC: use current cycle's maximum or previous register value
-      fwd.maxCommitPc := Mux(hasCommitsThisCycle && (maxCommitPcThisCycle > maxCommitPcReg), 
-                            maxCommitPcThisCycle, 
-                            maxCommitPcReg)
-      
-      forwardedStats = fwd
-      
+      // 准备日志Bundle
       val commitSlotLogs = Vec(CommitSlotLog(pipelineConfig), pipelineConfig.commitWidth)
       for (i <- 0 until pipelineConfig.commitWidth) {
-        commitSlotLogs(i).valid := rawCommitSlots(i).valid
-        commitSlotLogs(i).canCommit := rawCommitSlots(i).canCommit
+        commitSlotLogs(i).valid := commitSlots(i).valid
+        commitSlotLogs(i).canCommit := commitSlots(i).canCommit && enable
         commitSlotLogs(i).doCommit := commitAckMasks(i)
-        commitSlotLogs(i).robPtr := rawCommitSlots(i).entry.payload.uop.robPtr
-        commitSlotLogs(i).oldPhysDest := rawCommitSlots(i).entry.payload.uop.rename.oldPhysDest.idx
-        commitSlotLogs(i).allocatesPhysDest := rawCommitSlots(i).entry.payload.uop.rename.allocatesPhysDest
+        commitSlotLogs(i).robPtr := commitSlots(i).entry.payload.uop.robPtr
+        commitSlotLogs(i).oldPhysDest := commitSlots(i).entry.payload.uop.rename.oldPhysDest.idx
+        commitSlotLogs(i).allocatesPhysDest := commitSlots(i).entry.payload.uop.rename.allocatesPhysDest
       }
-      
-      commitCount := committedThisCycle_comb
     }
     
     // ====================================================================
-    // S1 阶段：寄存器更新阶段，处理可以延迟的内部状态更新
+    // S1 阶段：寄存器更新 - 现在基于S0的正确决策
     // ====================================================================
     val s1 = new Area {
-      // 我们只需要注册那些需要在S1中用来更新持久状态（寄存器）的信号
-      val s1_commitIdleThisCycle = RegNext(s0.commitIdleThisCycle, init = False)
-      val s1_headUop = RegNext(s0.headUop)
-      val s1_hasCommitsThisCycle = RegNext(s0.hasCommitsThisCycle, init = False)
-      val s1_maxCommitPcThisCycle = RegNext(s0.maxCommitPcThisCycle, init = U(0, pipelineConfig.pcWidth))
-      val s1_anyCommitOOB = RegNext(s0.anyCommitOOB, init = False)
-      val s1_committedThisCycle_comb = RegNext(s0.committedThisCycle_comb, init = U(0, log2Up(pipelineConfig.commitWidth + 1) bits))
-      val s1_recycledThisCycle_comb = RegNext(s0.recycledThisCycle_comb, init = U(0, log2Up(pipelineConfig.commitWidth + 1) bits))
-      val s1_flushedThisCycle_comb = RegNext(s0.flushedThisCycle_comb, init = U(0, 1 bits))
-      
-      when(s1_hasCommitsThisCycle) {
-        when(s1_maxCommitPcThisCycle > maxCommitPcReg) {
-          maxCommitPcReg := s1_maxCommitPcThisCycle
-        }
+      // 锁存S0的组合逻辑结果
+      val s1_committedThisCycle = RegNext(s0.committedThisCycle_comb) init(0)
+      val s1_recycledThisCycle = RegNext(s0.recycledThisCycle_comb) init(0)
+      val s1_flushedThisCycle = RegNext(s0.flushedThisCycle_comb) init(0)
+      val s1_maxCommitPcThisCycle = RegNext(s0.maxCommitPcThisCycle) init(0)
+      val s1_anyCommitOOB = RegNext(s0.anyCommitOOB) init(False)
+      val s1_hasCommitsThisCycle = s1_committedThisCycle > 0
+
+      // 更新PC跟踪寄存器
+      when(s1_hasCommitsThisCycle && (s1_maxCommitPcThisCycle > maxCommitPcReg)) {
+        maxCommitPcReg := s1_maxCommitPcThisCycle
       }
       
-      // Set OOB flag if any commit is out of bounds
+      // 更新OOB标志
       when(s1_anyCommitOOB) {
         commitOOBReg := True
-        ParallaxSim.log(L"[CommitPlugin] CRITICAL: Out-of-bounds commit detected! PC=0x${s1_maxCommitPcThisCycle}, maxAllowed=0x${maxCommitPcExt}")
       }
       
-      // === 更新持久的统计寄存器 ===
-      commitStatsReg.committedThisCycle := s1_committedThisCycle_comb
-      commitStatsReg.totalCommitted     := commitStatsReg.totalCommitted + s1_committedThisCycle_comb
-      commitStatsReg.physRegRecycled    := commitStatsReg.physRegRecycled + s1_recycledThisCycle_comb
-      commitStatsReg.robFlushCount      := commitStatsReg.robFlushCount + s1_flushedThisCycle_comb
+      // 更新持久的统计寄存器
+      commitStatsReg.committedThisCycle := s1_committedThisCycle
+      commitStatsReg.totalCommitted     := commitStatsReg.totalCommitted + s1_committedThisCycle
+      commitStatsReg.physRegRecycled    := commitStatsReg.physRegRecycled + s1_recycledThisCycle
+      commitStatsReg.robFlushCount      := commitStatsReg.robFlushCount + s1_flushedThisCycle
       commitStatsReg.commitOOB          := commitOOBReg
       commitStatsReg.maxCommitPc        := maxCommitPcReg
     }
@@ -371,6 +318,10 @@ class CommitPlugin(
       dbg.setDebugValueOnce(s0.committedThisCycle_comb.asBool, DebugValue.COMMIT_FIRE, expectIncr = true)
       dbg.setDebugValueOnce(commitOOBReg, DebugValue.COMMIT_OOB_ERROR, expectIncr = false)
     })
+
+    // ====================================================================
+    // 日志和调试
+    // ====================================================================
     val counter = Reg(UInt(32 bits)) init(0)
     counter := counter + 1
     // === 集中式周期性日志打印 ===
