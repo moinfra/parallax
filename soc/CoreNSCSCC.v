@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 49a99dae7b6ed938ae50042417514f24dcaeaaa8
 // Component : CoreNSCSCC
-// Git hash  : b8d5c6b878dc1b0ab089c73795c52a9bf980ab74
+// Git hash  : f8b1e6d8fa2b75b827fd054544bf301146ac6320
 
 `timescale 1ns/1ps
 
@@ -62828,16 +62828,16 @@ module DataCache (
 
   reg        [31:0]   banks_0_mem_spinal_port1;
   reg        [31:0]   banks_1_mem_spinal_port1;
-  wire       [22:0]   ways_0_mem_spinal_port1;
-  wire       [22:0]   ways_0_mem_spinal_port2;
-  wire       [22:0]   ways_1_mem_spinal_port1;
-  wire       [22:0]   ways_1_mem_spinal_port2;
+  wire       [24:0]   ways_0_mem_spinal_port1;
+  wire       [24:0]   ways_0_mem_spinal_port2;
+  wire       [24:0]   ways_1_mem_spinal_port1;
+  wire       [24:0]   ways_1_mem_spinal_port2;
   wire       [1:0]    status_mem_spinal_port1;
   wire       [1:0]    status_mem_spinal_port2;
   reg        [31:0]   writeback_victimBuffer_spinal_port1;
-  wire       [22:0]   _zz_ways_0_mem_port;
+  wire       [24:0]   _zz_ways_0_mem_port;
   wire                _zz_ways_0_mem_port_1;
-  wire       [22:0]   _zz_ways_1_mem_port;
+  wire       [24:0]   _zz_ways_1_mem_port;
   wire                _zz_ways_1_mem_port_1;
   wire       [1:0]    _zz_status_mem_port;
   wire       [0:0]    _zz_status_loadRead_rsp_0_dirty_1;
@@ -63097,39 +63097,39 @@ module DataCache (
   wire       [1:0]    _zz_load_pipeline_stages_1_REFILL_HITS_EARLY_5;
   reg                 _zz__zz_refill_push_payload_victim;
   reg                 _zz_load_ctrl_refillWayNeedWriteback;
-  wire       [5:0]    _zz_load_ctrl_lineBusy;
-  wire       [5:0]    _zz_load_ctrl_lineBusy_1;
+  wire       [3:0]    _zz_load_ctrl_lineBusy;
+  wire       [3:0]    _zz_load_ctrl_lineBusy_1;
   wire                _zz_load_ctrl_lineBusy_2;
   wire                _zz_load_ctrl_lineBusy_3;
-  wire       [5:0]    _zz_load_ctrl_lineBusy_4;
-  wire       [5:0]    _zz_load_ctrl_lineBusy_5;
+  wire       [3:0]    _zz_load_ctrl_lineBusy_4;
+  wire       [3:0]    _zz_load_ctrl_lineBusy_5;
   wire       [0:0]    _zz_load_ctrl_lineBusy_6;
   wire                _zz_load_ctrl_lineBusy_7;
   wire       [3:0]    _zz_load_ctrl_lineBusy_8;
   wire                _zz_load_ctrl_lineBusy_9;
   wire       [0:0]    _zz_load_ctrl_lineBusy_10;
-  wire       [5:0]    _zz_load_ctrl_lineBusy_11;
-  wire       [5:0]    _zz_load_ctrl_lineBusy_12;
+  wire       [3:0]    _zz_load_ctrl_lineBusy_11;
+  wire       [3:0]    _zz_load_ctrl_lineBusy_12;
   wire       [1:0]    _zz_load_ctrl_lineBusy_13;
   wire                _zz_load_ctrl_lineBusy_14;
   wire                _zz_load_ctrl_lineBusy_15;
-  wire       [5:0]    _zz_load_ctrl_lineBusy_16;
-  wire       [5:0]    _zz_load_ctrl_lineBusy_17;
+  wire       [3:0]    _zz_load_ctrl_lineBusy_16;
+  wire       [3:0]    _zz_load_ctrl_lineBusy_17;
   wire                _zz_load_ctrl_lineBusy_18;
   wire                _zz_load_ctrl_lineBusy_19;
-  wire       [5:0]    _zz_load_ctrl_lineBusy_20;
-  wire       [5:0]    _zz_load_ctrl_lineBusy_21;
+  wire       [3:0]    _zz_load_ctrl_lineBusy_20;
+  wire       [3:0]    _zz_load_ctrl_lineBusy_21;
   wire       [0:0]    _zz_load_ctrl_lineBusy_22;
   wire                _zz_load_ctrl_lineBusy_23;
   wire       [3:0]    _zz_load_ctrl_lineBusy_24;
   wire                _zz_load_ctrl_lineBusy_25;
   wire       [0:0]    _zz_load_ctrl_lineBusy_26;
-  wire       [5:0]    _zz_load_ctrl_lineBusy_27;
-  wire       [5:0]    _zz_load_ctrl_lineBusy_28;
+  wire       [3:0]    _zz_load_ctrl_lineBusy_27;
+  wire       [3:0]    _zz_load_ctrl_lineBusy_28;
   wire       [1:0]    _zz_load_ctrl_lineBusy_29;
   wire                _zz_load_ctrl_lineBusy_30;
   wire                _zz_load_ctrl_lineBusy_31;
-  reg        [20:0]   _zz_writeback_push_payload_address;
+  reg        [22:0]   _zz_writeback_push_payload_address;
   wire       [26:0]   _zz_store_pipeline_stages_1_REFILL_HITS_EARLY;
   wire       [26:0]   _zz_store_pipeline_stages_1_REFILL_HITS_EARLY_1;
   wire                _zz_store_pipeline_stages_1_REFILL_HITS_EARLY_2;
@@ -63138,39 +63138,39 @@ module DataCache (
   wire       [1:0]    _zz_store_pipeline_stages_1_REFILL_HITS_EARLY_5;
   reg                 _zz_store_ctrl_replacedWayNeedWriteback;
   reg                 _zz_store_ctrl_replacedWayNeedWriteback_1;
-  wire       [5:0]    _zz_store_ctrl_lineBusy;
-  wire       [5:0]    _zz_store_ctrl_lineBusy_1;
+  wire       [3:0]    _zz_store_ctrl_lineBusy;
+  wire       [3:0]    _zz_store_ctrl_lineBusy_1;
   wire                _zz_store_ctrl_lineBusy_2;
   wire                _zz_store_ctrl_lineBusy_3;
-  wire       [5:0]    _zz_store_ctrl_lineBusy_4;
-  wire       [5:0]    _zz_store_ctrl_lineBusy_5;
+  wire       [3:0]    _zz_store_ctrl_lineBusy_4;
+  wire       [3:0]    _zz_store_ctrl_lineBusy_5;
   wire       [0:0]    _zz_store_ctrl_lineBusy_6;
   wire                _zz_store_ctrl_lineBusy_7;
   wire       [3:0]    _zz_store_ctrl_lineBusy_8;
   wire                _zz_store_ctrl_lineBusy_9;
   wire       [0:0]    _zz_store_ctrl_lineBusy_10;
-  wire       [5:0]    _zz_store_ctrl_lineBusy_11;
-  wire       [5:0]    _zz_store_ctrl_lineBusy_12;
+  wire       [3:0]    _zz_store_ctrl_lineBusy_11;
+  wire       [3:0]    _zz_store_ctrl_lineBusy_12;
   wire       [1:0]    _zz_store_ctrl_lineBusy_13;
   wire                _zz_store_ctrl_lineBusy_14;
   wire                _zz_store_ctrl_lineBusy_15;
-  wire       [5:0]    _zz_store_ctrl_lineBusy_16;
-  wire       [5:0]    _zz_store_ctrl_lineBusy_17;
+  wire       [3:0]    _zz_store_ctrl_lineBusy_16;
+  wire       [3:0]    _zz_store_ctrl_lineBusy_17;
   wire                _zz_store_ctrl_lineBusy_18;
   wire                _zz_store_ctrl_lineBusy_19;
-  wire       [5:0]    _zz_store_ctrl_lineBusy_20;
-  wire       [5:0]    _zz_store_ctrl_lineBusy_21;
+  wire       [3:0]    _zz_store_ctrl_lineBusy_20;
+  wire       [3:0]    _zz_store_ctrl_lineBusy_21;
   wire       [0:0]    _zz_store_ctrl_lineBusy_22;
   wire                _zz_store_ctrl_lineBusy_23;
   wire       [3:0]    _zz_store_ctrl_lineBusy_24;
   wire                _zz_store_ctrl_lineBusy_25;
   wire       [0:0]    _zz_store_ctrl_lineBusy_26;
-  wire       [5:0]    _zz_store_ctrl_lineBusy_27;
-  wire       [5:0]    _zz_store_ctrl_lineBusy_28;
+  wire       [3:0]    _zz_store_ctrl_lineBusy_27;
+  wire       [3:0]    _zz_store_ctrl_lineBusy_28;
   wire       [1:0]    _zz_store_ctrl_lineBusy_29;
   wire                _zz_store_ctrl_lineBusy_30;
   wire                _zz_store_ctrl_lineBusy_31;
-  reg        [20:0]   _zz_writeback_push_payload_address_1;
+  reg        [22:0]   _zz_writeback_push_payload_address_1;
   reg                 _zz_refill_push_payload_victim_1;
   wire       [0:0]    _zz_when;
   wire       [0:0]    _zz_when_1;
@@ -63201,10 +63201,10 @@ module DataCache (
   reg                 store_pipeline_stages_2_STATUS_0_dirty;
   reg                 store_pipeline_stages_2_STATUS_1_dirty;
   reg                 store_pipeline_stages_2_WAYS_TAGS_0_loaded;
-  reg        [20:0]   store_pipeline_stages_2_WAYS_TAGS_0_address;
+  reg        [22:0]   store_pipeline_stages_2_WAYS_TAGS_0_address;
   reg                 store_pipeline_stages_2_WAYS_TAGS_0_fault;
   reg                 store_pipeline_stages_2_WAYS_TAGS_1_loaded;
-  reg        [20:0]   store_pipeline_stages_2_WAYS_TAGS_1_address;
+  reg        [22:0]   store_pipeline_stages_2_WAYS_TAGS_1_address;
   reg                 store_pipeline_stages_2_WAYS_TAGS_1_fault;
   reg        [7:0]    store_pipeline_stages_2_REFILL_HITS_EARLY;
   wire       [7:0]    store_pipeline_stages_2_REFILL_HITS;
@@ -63216,10 +63216,10 @@ module DataCache (
   wire                store_pipeline_stages_1_WAYS_HIT;
   reg        [1:0]    store_pipeline_stages_1_WAYS_HITS;
   wire                store_pipeline_stages_1_WAYS_TAGS_0_loaded;
-  wire       [20:0]   store_pipeline_stages_1_WAYS_TAGS_0_address;
+  wire       [22:0]   store_pipeline_stages_1_WAYS_TAGS_0_address;
   wire                store_pipeline_stages_1_WAYS_TAGS_0_fault;
   wire                store_pipeline_stages_1_WAYS_TAGS_1_loaded;
-  wire       [20:0]   store_pipeline_stages_1_WAYS_TAGS_1_address;
+  wire       [22:0]   store_pipeline_stages_1_WAYS_TAGS_1_address;
   wire                store_pipeline_stages_1_WAYS_TAGS_1_fault;
   wire                store_pipeline_stages_1_ready;
   wire       [1:0]    store_pipeline_stages_0_WAYS_HAZARD;
@@ -63256,10 +63256,10 @@ module DataCache (
   reg                 load_pipeline_stages_2_STATUS_0_dirty;
   reg                 load_pipeline_stages_2_STATUS_1_dirty;
   reg                 load_pipeline_stages_2_WAYS_TAGS_0_loaded;
-  reg        [20:0]   load_pipeline_stages_2_WAYS_TAGS_0_address;
+  reg        [22:0]   load_pipeline_stages_2_WAYS_TAGS_0_address;
   reg                 load_pipeline_stages_2_WAYS_TAGS_0_fault;
   reg                 load_pipeline_stages_2_WAYS_TAGS_1_loaded;
-  reg        [20:0]   load_pipeline_stages_2_WAYS_TAGS_1_address;
+  reg        [22:0]   load_pipeline_stages_2_WAYS_TAGS_1_address;
   reg                 load_pipeline_stages_2_WAYS_TAGS_1_fault;
   reg        [7:0]    load_pipeline_stages_2_REFILL_HITS_EARLY;
   wire       [7:0]    load_pipeline_stages_2_REFILL_HITS;
@@ -63272,10 +63272,10 @@ module DataCache (
   reg        [31:0]   load_pipeline_stages_1_ADDRESS_POST_TRANSLATION;
   reg        [1:0]    load_pipeline_stages_1_WAYS_HITS;
   wire                load_pipeline_stages_1_WAYS_TAGS_0_loaded;
-  wire       [20:0]   load_pipeline_stages_1_WAYS_TAGS_0_address;
+  wire       [22:0]   load_pipeline_stages_1_WAYS_TAGS_0_address;
   wire                load_pipeline_stages_1_WAYS_TAGS_0_fault;
   wire                load_pipeline_stages_1_WAYS_TAGS_1_loaded;
-  wire       [20:0]   load_pipeline_stages_1_WAYS_TAGS_1_address;
+  wire       [22:0]   load_pipeline_stages_1_WAYS_TAGS_1_address;
   wire                load_pipeline_stages_1_WAYS_TAGS_1_fault;
   wire                load_pipeline_stages_1_ready;
   wire                load_pipeline_stages_0_ABORD;
@@ -63303,68 +63303,68 @@ module DataCache (
   reg                 _zz_1;
   reg                 _zz_2;
   reg                 banks_0_write_valid;
-  reg        [8:0]    banks_0_write_payload_address;
+  reg        [6:0]    banks_0_write_payload_address;
   reg        [31:0]   banks_0_write_payload_data;
   reg        [3:0]    banks_0_write_payload_mask;
   reg                 banks_0_read_usedByWriteBack;
   reg                 banks_0_read_cmd_valid;
-  reg        [8:0]    banks_0_read_cmd_payload;
+  reg        [6:0]    banks_0_read_cmd_payload;
   (* keep , syn_keep *) wire       [31:0]   banks_0_read_rsp /* synthesis syn_keep = 1 */ ;
   reg                 banks_1_write_valid;
-  reg        [8:0]    banks_1_write_payload_address;
+  reg        [6:0]    banks_1_write_payload_address;
   reg        [31:0]   banks_1_write_payload_data;
   reg        [3:0]    banks_1_write_payload_mask;
   reg                 banks_1_read_usedByWriteBack;
   reg                 banks_1_read_cmd_valid;
-  reg        [8:0]    banks_1_read_cmd_payload;
+  reg        [6:0]    banks_1_read_cmd_payload;
   (* keep , syn_keep *) wire       [31:0]   banks_1_read_rsp /* synthesis syn_keep = 1 */ ;
   reg        [1:0]    waysWrite_mask;
-  reg        [5:0]    waysWrite_address;
+  reg        [3:0]    waysWrite_address;
   reg                 waysWrite_tag_loaded;
-  reg        [20:0]   waysWrite_tag_address;
+  reg        [22:0]   waysWrite_tag_address;
   reg                 waysWrite_tag_fault;
   reg        [1:0]    waysWrite_maskLast;
-  reg        [5:0]    waysWrite_addressLast;
+  reg        [3:0]    waysWrite_addressLast;
   wire                ways_0_loadRead_cmd_valid;
-  wire       [5:0]    ways_0_loadRead_cmd_payload;
+  wire       [3:0]    ways_0_loadRead_cmd_payload;
   (* keep , syn_keep *) wire                ways_0_loadRead_rsp_loaded /* synthesis syn_keep = 1 */ ;
-  (* keep , syn_keep *) wire       [20:0]   ways_0_loadRead_rsp_address /* synthesis syn_keep = 1 */ ;
+  (* keep , syn_keep *) wire       [22:0]   ways_0_loadRead_rsp_address /* synthesis syn_keep = 1 */ ;
   (* keep , syn_keep *) wire                ways_0_loadRead_rsp_fault /* synthesis syn_keep = 1 */ ;
-  wire       [22:0]   _zz_ways_0_loadRead_rsp_loaded;
+  wire       [24:0]   _zz_ways_0_loadRead_rsp_loaded;
   wire                ways_0_storeRead_cmd_valid;
-  wire       [5:0]    ways_0_storeRead_cmd_payload;
+  wire       [3:0]    ways_0_storeRead_cmd_payload;
   (* keep , syn_keep *) wire                ways_0_storeRead_rsp_loaded /* synthesis syn_keep = 1 */ ;
-  (* keep , syn_keep *) wire       [20:0]   ways_0_storeRead_rsp_address /* synthesis syn_keep = 1 */ ;
+  (* keep , syn_keep *) wire       [22:0]   ways_0_storeRead_rsp_address /* synthesis syn_keep = 1 */ ;
   (* keep , syn_keep *) wire                ways_0_storeRead_rsp_fault /* synthesis syn_keep = 1 */ ;
-  wire       [22:0]   _zz_ways_0_storeRead_rsp_loaded;
+  wire       [24:0]   _zz_ways_0_storeRead_rsp_loaded;
   wire                ways_1_loadRead_cmd_valid;
-  wire       [5:0]    ways_1_loadRead_cmd_payload;
+  wire       [3:0]    ways_1_loadRead_cmd_payload;
   (* keep , syn_keep *) wire                ways_1_loadRead_rsp_loaded /* synthesis syn_keep = 1 */ ;
-  (* keep , syn_keep *) wire       [20:0]   ways_1_loadRead_rsp_address /* synthesis syn_keep = 1 */ ;
+  (* keep , syn_keep *) wire       [22:0]   ways_1_loadRead_rsp_address /* synthesis syn_keep = 1 */ ;
   (* keep , syn_keep *) wire                ways_1_loadRead_rsp_fault /* synthesis syn_keep = 1 */ ;
-  wire       [22:0]   _zz_ways_1_loadRead_rsp_loaded;
+  wire       [24:0]   _zz_ways_1_loadRead_rsp_loaded;
   wire                ways_1_storeRead_cmd_valid;
-  wire       [5:0]    ways_1_storeRead_cmd_payload;
+  wire       [3:0]    ways_1_storeRead_cmd_payload;
   (* keep , syn_keep *) wire                ways_1_storeRead_rsp_loaded /* synthesis syn_keep = 1 */ ;
-  (* keep , syn_keep *) wire       [20:0]   ways_1_storeRead_rsp_address /* synthesis syn_keep = 1 */ ;
+  (* keep , syn_keep *) wire       [22:0]   ways_1_storeRead_rsp_address /* synthesis syn_keep = 1 */ ;
   (* keep , syn_keep *) wire                ways_1_storeRead_rsp_fault /* synthesis syn_keep = 1 */ ;
-  wire       [22:0]   _zz_ways_1_storeRead_rsp_loaded;
+  wire       [24:0]   _zz_ways_1_storeRead_rsp_loaded;
   reg                 status_write_valid;
-  reg        [5:0]    status_write_payload_address;
+  reg        [3:0]    status_write_payload_address;
   reg                 status_write_payload_data_0_dirty;
   reg                 status_write_payload_data_1_dirty;
   wire                status_loadRead_cmd_valid;
-  wire       [5:0]    status_loadRead_cmd_payload;
+  wire       [3:0]    status_loadRead_cmd_payload;
   (* keep , syn_keep *) wire                status_loadRead_rsp_0_dirty /* synthesis syn_keep = 1 */ ;
   (* keep , syn_keep *) wire                status_loadRead_rsp_1_dirty /* synthesis syn_keep = 1 */ ;
   wire       [1:0]    _zz_status_loadRead_rsp_0_dirty;
   wire                status_storeRead_cmd_valid;
-  wire       [5:0]    status_storeRead_cmd_payload;
+  wire       [3:0]    status_storeRead_cmd_payload;
   (* keep , syn_keep *) wire                status_storeRead_rsp_0_dirty /* synthesis syn_keep = 1 */ ;
   (* keep , syn_keep *) wire                status_storeRead_rsp_1_dirty /* synthesis syn_keep = 1 */ ;
   wire       [1:0]    _zz_status_storeRead_rsp_0_dirty;
   reg                 status_writeLast_valid;
-  reg        [5:0]    status_writeLast_payload_address;
+  reg        [3:0]    status_writeLast_payload_address;
   reg                 status_writeLast_payload_data_0_dirty;
   reg                 status_writeLast_payload_data_1_dirty;
   wire                wayRandom_willIncrement;
@@ -63373,7 +63373,7 @@ module DataCache (
   reg        [0:0]    wayRandom_value;
   wire                wayRandom_willOverflowIfInc;
   wire                wayRandom_willOverflow;
-  reg        [6:0]    invalidate_counter;
+  reg        [4:0]    invalidate_counter;
   wire                invalidate_done;
   wire                invalidate_reservation_win;
   reg                 invalidate_reservation_take;
@@ -63817,8 +63817,8 @@ module DataCache (
   wire                when_dcache2_l1583;
   wire                when_dcache2_l1583_1;
   wire       [31:0]   _zz_39;
-  wire       [5:0]    _zz_40;
-  wire       [5:0]    _zz_41;
+  wire       [3:0]    _zz_40;
+  wire       [3:0]    _zz_41;
   wire       [0:0]    _zz_42;
   wire       [0:0]    _zz_43;
   wire       [0:0]    _zz_44;
@@ -63827,25 +63827,25 @@ module DataCache (
   wire       [0:0]    _zz_47;
   wire                when_Pipeline_l276_2;
   wire                when_Pipeline_l276_3;
-  (* ram_style = "block" *) reg [7:0] banks_0_mem_symbol0 [0:511];
-  (* ram_style = "block" *) reg [7:0] banks_0_mem_symbol1 [0:511];
-  (* ram_style = "block" *) reg [7:0] banks_0_mem_symbol2 [0:511];
-  (* ram_style = "block" *) reg [7:0] banks_0_mem_symbol3 [0:511];
+  (* ram_style = "block" *) reg [7:0] banks_0_mem_symbol0 [0:127];
+  (* ram_style = "block" *) reg [7:0] banks_0_mem_symbol1 [0:127];
+  (* ram_style = "block" *) reg [7:0] banks_0_mem_symbol2 [0:127];
+  (* ram_style = "block" *) reg [7:0] banks_0_mem_symbol3 [0:127];
   reg [7:0] _zz_banks_0_memsymbol_read;
   reg [7:0] _zz_banks_0_memsymbol_read_1;
   reg [7:0] _zz_banks_0_memsymbol_read_2;
   reg [7:0] _zz_banks_0_memsymbol_read_3;
-  (* ram_style = "block" *) reg [7:0] banks_1_mem_symbol0 [0:511];
-  (* ram_style = "block" *) reg [7:0] banks_1_mem_symbol1 [0:511];
-  (* ram_style = "block" *) reg [7:0] banks_1_mem_symbol2 [0:511];
-  (* ram_style = "block" *) reg [7:0] banks_1_mem_symbol3 [0:511];
+  (* ram_style = "block" *) reg [7:0] banks_1_mem_symbol0 [0:127];
+  (* ram_style = "block" *) reg [7:0] banks_1_mem_symbol1 [0:127];
+  (* ram_style = "block" *) reg [7:0] banks_1_mem_symbol2 [0:127];
+  (* ram_style = "block" *) reg [7:0] banks_1_mem_symbol3 [0:127];
   reg [7:0] _zz_banks_1_memsymbol_read;
   reg [7:0] _zz_banks_1_memsymbol_read_1;
   reg [7:0] _zz_banks_1_memsymbol_read_2;
   reg [7:0] _zz_banks_1_memsymbol_read_3;
-  (* ram_style = "distributed" *) reg [22:0] ways_0_mem [0:63];
-  (* ram_style = "distributed" *) reg [22:0] ways_1_mem [0:63];
-  (* ram_style = "distributed" *) reg [1:0] status_mem [0:63];
+  (* ram_style = "distributed" *) reg [24:0] ways_0_mem [0:15];
+  (* ram_style = "distributed" *) reg [24:0] ways_1_mem [0:15];
+  (* ram_style = "distributed" *) reg [1:0] status_mem [0:15];
   (* ram_style = "block" *) reg [31:0] writeback_victimBuffer [0:63];
 
   assign _zz_status_loadRead_rsp_0_dirty_1 = _zz_status_loadRead_rsp_0_dirty[0 : 0];
@@ -64103,76 +64103,76 @@ module DataCache (
   assign _zz_load_pipeline_stages_1_REFILL_HITS_EARLY_3 = (refill_slots_3_valid && (refill_slots_3_address[31 : 5] == load_pipeline_stages_1_ADDRESS_POST_TRANSLATION[31 : 5]));
   assign _zz_load_pipeline_stages_1_REFILL_HITS_EARLY_4 = (refill_slots_2_valid && (refill_slots_2_address[31 : 5] == load_pipeline_stages_1_ADDRESS_POST_TRANSLATION[31 : 5]));
   assign _zz_load_pipeline_stages_1_REFILL_HITS_EARLY_5 = {(refill_slots_1_valid && (refill_slots_1_address[31 : 5] == load_pipeline_stages_1_ADDRESS_POST_TRANSLATION[31 : 5])),(refill_slots_0_valid && (refill_slots_0_address[31 : 5] == load_pipeline_stages_1_ADDRESS_POST_TRANSLATION[31 : 5]))};
-  assign _zz_load_ctrl_lineBusy = refill_slots_7_address[10 : 5];
-  assign _zz_load_ctrl_lineBusy_1 = load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5];
-  assign _zz_load_ctrl_lineBusy_2 = (refill_slots_6_address[10 : 5] == load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5]);
+  assign _zz_load_ctrl_lineBusy = refill_slots_7_address[8 : 5];
+  assign _zz_load_ctrl_lineBusy_1 = load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5];
+  assign _zz_load_ctrl_lineBusy_2 = (refill_slots_6_address[8 : 5] == load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5]);
   assign _zz_load_ctrl_lineBusy_3 = (refill_slots_5_valid && (_zz_load_ctrl_lineBusy_4 == _zz_load_ctrl_lineBusy_5));
   assign _zz_load_ctrl_lineBusy_6 = (refill_slots_4_valid && _zz_load_ctrl_lineBusy_7);
   assign _zz_load_ctrl_lineBusy_8 = {_zz_load_ctrl_lineBusy_9,{_zz_load_ctrl_lineBusy_10,_zz_load_ctrl_lineBusy_13}};
-  assign _zz_load_ctrl_lineBusy_16 = writeback_slots_7_address[10 : 5];
-  assign _zz_load_ctrl_lineBusy_17 = load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5];
-  assign _zz_load_ctrl_lineBusy_18 = (writeback_slots_6_address[10 : 5] == load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5]);
+  assign _zz_load_ctrl_lineBusy_16 = writeback_slots_7_address[8 : 5];
+  assign _zz_load_ctrl_lineBusy_17 = load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5];
+  assign _zz_load_ctrl_lineBusy_18 = (writeback_slots_6_address[8 : 5] == load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5]);
   assign _zz_load_ctrl_lineBusy_19 = (writeback_slots_5_valid && (_zz_load_ctrl_lineBusy_20 == _zz_load_ctrl_lineBusy_21));
   assign _zz_load_ctrl_lineBusy_22 = (writeback_slots_4_valid && _zz_load_ctrl_lineBusy_23);
   assign _zz_load_ctrl_lineBusy_24 = {_zz_load_ctrl_lineBusy_25,{_zz_load_ctrl_lineBusy_26,_zz_load_ctrl_lineBusy_29}};
-  assign _zz_load_ctrl_lineBusy_4 = refill_slots_5_address[10 : 5];
-  assign _zz_load_ctrl_lineBusy_5 = load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5];
-  assign _zz_load_ctrl_lineBusy_7 = (refill_slots_4_address[10 : 5] == load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5]);
-  assign _zz_load_ctrl_lineBusy_9 = (refill_slots_3_valid && (refill_slots_3_address[10 : 5] == load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5]));
+  assign _zz_load_ctrl_lineBusy_4 = refill_slots_5_address[8 : 5];
+  assign _zz_load_ctrl_lineBusy_5 = load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5];
+  assign _zz_load_ctrl_lineBusy_7 = (refill_slots_4_address[8 : 5] == load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5]);
+  assign _zz_load_ctrl_lineBusy_9 = (refill_slots_3_valid && (refill_slots_3_address[8 : 5] == load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5]));
   assign _zz_load_ctrl_lineBusy_10 = (refill_slots_2_valid && (_zz_load_ctrl_lineBusy_11 == _zz_load_ctrl_lineBusy_12));
   assign _zz_load_ctrl_lineBusy_13 = {(refill_slots_1_valid && _zz_load_ctrl_lineBusy_14),(refill_slots_0_valid && _zz_load_ctrl_lineBusy_15)};
-  assign _zz_load_ctrl_lineBusy_20 = writeback_slots_5_address[10 : 5];
-  assign _zz_load_ctrl_lineBusy_21 = load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5];
-  assign _zz_load_ctrl_lineBusy_23 = (writeback_slots_4_address[10 : 5] == load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5]);
-  assign _zz_load_ctrl_lineBusy_25 = (writeback_slots_3_valid && (writeback_slots_3_address[10 : 5] == load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5]));
+  assign _zz_load_ctrl_lineBusy_20 = writeback_slots_5_address[8 : 5];
+  assign _zz_load_ctrl_lineBusy_21 = load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5];
+  assign _zz_load_ctrl_lineBusy_23 = (writeback_slots_4_address[8 : 5] == load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5]);
+  assign _zz_load_ctrl_lineBusy_25 = (writeback_slots_3_valid && (writeback_slots_3_address[8 : 5] == load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5]));
   assign _zz_load_ctrl_lineBusy_26 = (writeback_slots_2_valid && (_zz_load_ctrl_lineBusy_27 == _zz_load_ctrl_lineBusy_28));
   assign _zz_load_ctrl_lineBusy_29 = {(writeback_slots_1_valid && _zz_load_ctrl_lineBusy_30),(writeback_slots_0_valid && _zz_load_ctrl_lineBusy_31)};
-  assign _zz_load_ctrl_lineBusy_11 = refill_slots_2_address[10 : 5];
-  assign _zz_load_ctrl_lineBusy_12 = load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5];
-  assign _zz_load_ctrl_lineBusy_14 = (refill_slots_1_address[10 : 5] == load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5]);
-  assign _zz_load_ctrl_lineBusy_15 = (refill_slots_0_address[10 : 5] == load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5]);
-  assign _zz_load_ctrl_lineBusy_27 = writeback_slots_2_address[10 : 5];
-  assign _zz_load_ctrl_lineBusy_28 = load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5];
-  assign _zz_load_ctrl_lineBusy_30 = (writeback_slots_1_address[10 : 5] == load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5]);
-  assign _zz_load_ctrl_lineBusy_31 = (writeback_slots_0_address[10 : 5] == load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5]);
+  assign _zz_load_ctrl_lineBusy_11 = refill_slots_2_address[8 : 5];
+  assign _zz_load_ctrl_lineBusy_12 = load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5];
+  assign _zz_load_ctrl_lineBusy_14 = (refill_slots_1_address[8 : 5] == load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5]);
+  assign _zz_load_ctrl_lineBusy_15 = (refill_slots_0_address[8 : 5] == load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5]);
+  assign _zz_load_ctrl_lineBusy_27 = writeback_slots_2_address[8 : 5];
+  assign _zz_load_ctrl_lineBusy_28 = load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5];
+  assign _zz_load_ctrl_lineBusy_30 = (writeback_slots_1_address[8 : 5] == load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5]);
+  assign _zz_load_ctrl_lineBusy_31 = (writeback_slots_0_address[8 : 5] == load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5]);
   assign _zz_store_pipeline_stages_1_REFILL_HITS_EARLY = refill_slots_5_address[31 : 5];
   assign _zz_store_pipeline_stages_1_REFILL_HITS_EARLY_1 = store_pipeline_stages_1_ADDRESS_POST_TRANSLATION[31 : 5];
   assign _zz_store_pipeline_stages_1_REFILL_HITS_EARLY_2 = (refill_slots_4_address[31 : 5] == store_pipeline_stages_1_ADDRESS_POST_TRANSLATION[31 : 5]);
   assign _zz_store_pipeline_stages_1_REFILL_HITS_EARLY_3 = (refill_slots_3_valid && (refill_slots_3_address[31 : 5] == store_pipeline_stages_1_ADDRESS_POST_TRANSLATION[31 : 5]));
   assign _zz_store_pipeline_stages_1_REFILL_HITS_EARLY_4 = (refill_slots_2_valid && (refill_slots_2_address[31 : 5] == store_pipeline_stages_1_ADDRESS_POST_TRANSLATION[31 : 5]));
   assign _zz_store_pipeline_stages_1_REFILL_HITS_EARLY_5 = {(refill_slots_1_valid && (refill_slots_1_address[31 : 5] == store_pipeline_stages_1_ADDRESS_POST_TRANSLATION[31 : 5])),(refill_slots_0_valid && (refill_slots_0_address[31 : 5] == store_pipeline_stages_1_ADDRESS_POST_TRANSLATION[31 : 5]))};
-  assign _zz_store_ctrl_lineBusy = refill_slots_7_address[10 : 5];
-  assign _zz_store_ctrl_lineBusy_1 = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5];
-  assign _zz_store_ctrl_lineBusy_2 = (refill_slots_6_address[10 : 5] == store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5]);
+  assign _zz_store_ctrl_lineBusy = refill_slots_7_address[8 : 5];
+  assign _zz_store_ctrl_lineBusy_1 = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5];
+  assign _zz_store_ctrl_lineBusy_2 = (refill_slots_6_address[8 : 5] == store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5]);
   assign _zz_store_ctrl_lineBusy_3 = (refill_slots_5_valid && (_zz_store_ctrl_lineBusy_4 == _zz_store_ctrl_lineBusy_5));
   assign _zz_store_ctrl_lineBusy_6 = (refill_slots_4_valid && _zz_store_ctrl_lineBusy_7);
   assign _zz_store_ctrl_lineBusy_8 = {_zz_store_ctrl_lineBusy_9,{_zz_store_ctrl_lineBusy_10,_zz_store_ctrl_lineBusy_13}};
-  assign _zz_store_ctrl_lineBusy_16 = writeback_slots_7_address[10 : 5];
-  assign _zz_store_ctrl_lineBusy_17 = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5];
-  assign _zz_store_ctrl_lineBusy_18 = (writeback_slots_6_address[10 : 5] == store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5]);
+  assign _zz_store_ctrl_lineBusy_16 = writeback_slots_7_address[8 : 5];
+  assign _zz_store_ctrl_lineBusy_17 = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5];
+  assign _zz_store_ctrl_lineBusy_18 = (writeback_slots_6_address[8 : 5] == store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5]);
   assign _zz_store_ctrl_lineBusy_19 = (writeback_slots_5_valid && (_zz_store_ctrl_lineBusy_20 == _zz_store_ctrl_lineBusy_21));
   assign _zz_store_ctrl_lineBusy_22 = (writeback_slots_4_valid && _zz_store_ctrl_lineBusy_23);
   assign _zz_store_ctrl_lineBusy_24 = {_zz_store_ctrl_lineBusy_25,{_zz_store_ctrl_lineBusy_26,_zz_store_ctrl_lineBusy_29}};
-  assign _zz_store_ctrl_lineBusy_4 = refill_slots_5_address[10 : 5];
-  assign _zz_store_ctrl_lineBusy_5 = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5];
-  assign _zz_store_ctrl_lineBusy_7 = (refill_slots_4_address[10 : 5] == store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5]);
-  assign _zz_store_ctrl_lineBusy_9 = (refill_slots_3_valid && (refill_slots_3_address[10 : 5] == store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5]));
+  assign _zz_store_ctrl_lineBusy_4 = refill_slots_5_address[8 : 5];
+  assign _zz_store_ctrl_lineBusy_5 = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5];
+  assign _zz_store_ctrl_lineBusy_7 = (refill_slots_4_address[8 : 5] == store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5]);
+  assign _zz_store_ctrl_lineBusy_9 = (refill_slots_3_valid && (refill_slots_3_address[8 : 5] == store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5]));
   assign _zz_store_ctrl_lineBusy_10 = (refill_slots_2_valid && (_zz_store_ctrl_lineBusy_11 == _zz_store_ctrl_lineBusy_12));
   assign _zz_store_ctrl_lineBusy_13 = {(refill_slots_1_valid && _zz_store_ctrl_lineBusy_14),(refill_slots_0_valid && _zz_store_ctrl_lineBusy_15)};
-  assign _zz_store_ctrl_lineBusy_20 = writeback_slots_5_address[10 : 5];
-  assign _zz_store_ctrl_lineBusy_21 = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5];
-  assign _zz_store_ctrl_lineBusy_23 = (writeback_slots_4_address[10 : 5] == store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5]);
-  assign _zz_store_ctrl_lineBusy_25 = (writeback_slots_3_valid && (writeback_slots_3_address[10 : 5] == store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5]));
+  assign _zz_store_ctrl_lineBusy_20 = writeback_slots_5_address[8 : 5];
+  assign _zz_store_ctrl_lineBusy_21 = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5];
+  assign _zz_store_ctrl_lineBusy_23 = (writeback_slots_4_address[8 : 5] == store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5]);
+  assign _zz_store_ctrl_lineBusy_25 = (writeback_slots_3_valid && (writeback_slots_3_address[8 : 5] == store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5]));
   assign _zz_store_ctrl_lineBusy_26 = (writeback_slots_2_valid && (_zz_store_ctrl_lineBusy_27 == _zz_store_ctrl_lineBusy_28));
   assign _zz_store_ctrl_lineBusy_29 = {(writeback_slots_1_valid && _zz_store_ctrl_lineBusy_30),(writeback_slots_0_valid && _zz_store_ctrl_lineBusy_31)};
-  assign _zz_store_ctrl_lineBusy_11 = refill_slots_2_address[10 : 5];
-  assign _zz_store_ctrl_lineBusy_12 = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5];
-  assign _zz_store_ctrl_lineBusy_14 = (refill_slots_1_address[10 : 5] == store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5]);
-  assign _zz_store_ctrl_lineBusy_15 = (refill_slots_0_address[10 : 5] == store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5]);
-  assign _zz_store_ctrl_lineBusy_27 = writeback_slots_2_address[10 : 5];
-  assign _zz_store_ctrl_lineBusy_28 = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5];
-  assign _zz_store_ctrl_lineBusy_30 = (writeback_slots_1_address[10 : 5] == store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5]);
-  assign _zz_store_ctrl_lineBusy_31 = (writeback_slots_0_address[10 : 5] == store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5]);
+  assign _zz_store_ctrl_lineBusy_11 = refill_slots_2_address[8 : 5];
+  assign _zz_store_ctrl_lineBusy_12 = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5];
+  assign _zz_store_ctrl_lineBusy_14 = (refill_slots_1_address[8 : 5] == store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5]);
+  assign _zz_store_ctrl_lineBusy_15 = (refill_slots_0_address[8 : 5] == store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5]);
+  assign _zz_store_ctrl_lineBusy_27 = writeback_slots_2_address[8 : 5];
+  assign _zz_store_ctrl_lineBusy_28 = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5];
+  assign _zz_store_ctrl_lineBusy_30 = (writeback_slots_1_address[8 : 5] == store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5]);
+  assign _zz_store_ctrl_lineBusy_31 = (writeback_slots_0_address[8 : 5] == store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5]);
   always @(*) begin
     banks_0_mem_spinal_port1 = {_zz_banks_0_memsymbol_read_3, _zz_banks_0_memsymbol_read_2, _zz_banks_0_memsymbol_read_1, _zz_banks_0_memsymbol_read};
   end
@@ -64445,12 +64445,12 @@ module DataCache (
   end
 
   always @(*) begin
-    banks_0_read_cmd_payload = 9'bxxxxxxxxx;
+    banks_0_read_cmd_payload = 7'bxxxxxxx;
     if(when_dcache2_l948) begin
-      banks_0_read_cmd_payload = {writeback_read_address[10 : 5],writeback_read_wordIndex};
+      banks_0_read_cmd_payload = {writeback_read_address[8 : 5],writeback_read_wordIndex};
     end
     if(when_dcache2_l1108) begin
-      banks_0_read_cmd_payload = load_pipeline_stages_0_ADDRESS_PRE_TRANSLATION[10 : 2];
+      banks_0_read_cmd_payload = load_pipeline_stages_0_ADDRESS_PRE_TRANSLATION[8 : 2];
     end
   end
 
@@ -64473,12 +64473,12 @@ module DataCache (
   end
 
   always @(*) begin
-    banks_1_read_cmd_payload = 9'bxxxxxxxxx;
+    banks_1_read_cmd_payload = 7'bxxxxxxx;
     if(when_dcache2_l948_1) begin
-      banks_1_read_cmd_payload = {writeback_read_address[10 : 5],writeback_read_wordIndex};
+      banks_1_read_cmd_payload = {writeback_read_address[8 : 5],writeback_read_wordIndex};
     end
     if(when_dcache2_l1108_1) begin
-      banks_1_read_cmd_payload = load_pipeline_stages_0_ADDRESS_PRE_TRANSLATION[10 : 2];
+      banks_1_read_cmd_payload = load_pipeline_stages_0_ADDRESS_PRE_TRANSLATION[8 : 2];
     end
   end
 
@@ -64511,24 +64511,24 @@ module DataCache (
   end
 
   always @(*) begin
-    waysWrite_address = 6'bxxxxxx;
+    waysWrite_address = 4'bxxxx;
     if(when_dcache2_l680) begin
-      waysWrite_address = invalidate_counter[5:0];
+      waysWrite_address = invalidate_counter[3:0];
     end
     if(io_mem_read_rsp_valid) begin
       if(when_dcache2_l834) begin
-        waysWrite_address = refill_read_rspAddress[10 : 5];
+        waysWrite_address = refill_read_rspAddress[8 : 5];
       end
     end
     if(load_ctrl_startRefill) begin
-      waysWrite_address = load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5];
+      waysWrite_address = load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5];
     end
     if(store_ctrl_startRefill) begin
-      waysWrite_address = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5];
+      waysWrite_address = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5];
     end
     if(store_ctrl_startFlush) begin
       if(store_pipeline_stages_2_FLUSH_FREE) begin
-        waysWrite_address = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5];
+        waysWrite_address = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5];
       end
     end
   end
@@ -64557,10 +64557,10 @@ module DataCache (
   end
 
   always @(*) begin
-    waysWrite_tag_address = 21'bxxxxxxxxxxxxxxxxxxxxx;
+    waysWrite_tag_address = 23'bxxxxxxxxxxxxxxxxxxxxxxx;
     if(io_mem_read_rsp_valid) begin
       if(when_dcache2_l834) begin
-        waysWrite_tag_address = refill_read_rspAddress[31 : 11];
+        waysWrite_tag_address = refill_read_rspAddress[31 : 9];
       end
     end
   end
@@ -64576,20 +64576,20 @@ module DataCache (
 
   assign _zz_ways_0_loadRead_rsp_loaded = ways_0_mem_spinal_port1;
   assign ways_0_loadRead_rsp_loaded = _zz_ways_0_loadRead_rsp_loaded[0];
-  assign ways_0_loadRead_rsp_address = _zz_ways_0_loadRead_rsp_loaded[21 : 1];
-  assign ways_0_loadRead_rsp_fault = _zz_ways_0_loadRead_rsp_loaded[22];
+  assign ways_0_loadRead_rsp_address = _zz_ways_0_loadRead_rsp_loaded[23 : 1];
+  assign ways_0_loadRead_rsp_fault = _zz_ways_0_loadRead_rsp_loaded[24];
   assign _zz_ways_0_storeRead_rsp_loaded = ways_0_mem_spinal_port2;
   assign ways_0_storeRead_rsp_loaded = _zz_ways_0_storeRead_rsp_loaded[0];
-  assign ways_0_storeRead_rsp_address = _zz_ways_0_storeRead_rsp_loaded[21 : 1];
-  assign ways_0_storeRead_rsp_fault = _zz_ways_0_storeRead_rsp_loaded[22];
+  assign ways_0_storeRead_rsp_address = _zz_ways_0_storeRead_rsp_loaded[23 : 1];
+  assign ways_0_storeRead_rsp_fault = _zz_ways_0_storeRead_rsp_loaded[24];
   assign _zz_ways_1_loadRead_rsp_loaded = ways_1_mem_spinal_port1;
   assign ways_1_loadRead_rsp_loaded = _zz_ways_1_loadRead_rsp_loaded[0];
-  assign ways_1_loadRead_rsp_address = _zz_ways_1_loadRead_rsp_loaded[21 : 1];
-  assign ways_1_loadRead_rsp_fault = _zz_ways_1_loadRead_rsp_loaded[22];
+  assign ways_1_loadRead_rsp_address = _zz_ways_1_loadRead_rsp_loaded[23 : 1];
+  assign ways_1_loadRead_rsp_fault = _zz_ways_1_loadRead_rsp_loaded[24];
   assign _zz_ways_1_storeRead_rsp_loaded = ways_1_mem_spinal_port2;
   assign ways_1_storeRead_rsp_loaded = _zz_ways_1_storeRead_rsp_loaded[0];
-  assign ways_1_storeRead_rsp_address = _zz_ways_1_storeRead_rsp_loaded[21 : 1];
-  assign ways_1_storeRead_rsp_fault = _zz_ways_1_storeRead_rsp_loaded[22];
+  assign ways_1_storeRead_rsp_address = _zz_ways_1_storeRead_rsp_loaded[23 : 1];
+  assign ways_1_storeRead_rsp_fault = _zz_ways_1_storeRead_rsp_loaded[24];
   always @(*) begin
     status_write_valid = 1'b0;
     if(load_ctrl_startRefill) begin
@@ -64601,12 +64601,12 @@ module DataCache (
   end
 
   always @(*) begin
-    status_write_payload_address = 6'bxxxxxx;
+    status_write_payload_address = 4'bxxxx;
     if(load_ctrl_startRefill) begin
-      status_write_payload_address = load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5];
+      status_write_payload_address = load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5];
     end
     if(when_dcache2_l1542) begin
-      status_write_payload_address = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5];
+      status_write_payload_address = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5];
     end
   end
 
@@ -64703,7 +64703,7 @@ module DataCache (
   end
 
   assign wayRandom_willIncrement = 1'b1;
-  assign invalidate_done = invalidate_counter[6];
+  assign invalidate_done = invalidate_counter[4];
   always @(*) begin
     invalidate_reservation_take = 1'b0;
     if(when_dcache2_l680) begin
@@ -64847,10 +64847,10 @@ module DataCache (
   end
 
   always @(*) begin
-    banks_0_write_payload_address = {refill_read_rspAddress[10 : 5],refill_read_wordIndex};
+    banks_0_write_payload_address = {refill_read_rspAddress[8 : 5],refill_read_wordIndex};
     if(store_ctrl_writeCache) begin
       if(when_dcache2_l1583) begin
-        banks_0_write_payload_address = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 2];
+        banks_0_write_payload_address = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 2];
       end
     end
   end
@@ -64886,10 +64886,10 @@ module DataCache (
   end
 
   always @(*) begin
-    banks_1_write_payload_address = {refill_read_rspAddress[10 : 5],refill_read_wordIndex};
+    banks_1_write_payload_address = {refill_read_rspAddress[8 : 5],refill_read_wordIndex};
     if(store_ctrl_writeCache) begin
       if(when_dcache2_l1583_1) begin
-        banks_1_write_payload_address = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 2];
+        banks_1_write_payload_address = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 2];
       end
     end
   end
@@ -65183,10 +65183,10 @@ module DataCache (
   always @(*) begin
     writeback_push_payload_address = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     if(load_ctrl_startRefill) begin
-      writeback_push_payload_address = ({5'd0,{_zz_writeback_push_payload_address,load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5]}} <<< 3'd5);
+      writeback_push_payload_address = ({5'd0,{_zz_writeback_push_payload_address,load_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5]}} <<< 3'd5);
     end
     if(when_dcache2_l1552) begin
-      writeback_push_payload_address = ({5'd0,{_zz_writeback_push_payload_address_1,store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5]}} <<< 3'd5);
+      writeback_push_payload_address = ({5'd0,{_zz_writeback_push_payload_address_1,store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5]}} <<< 3'd5);
     end
   end
 
@@ -65317,7 +65317,7 @@ module DataCache (
   assign _zz_load_pipeline_stages_1_throwRequest_dcache2_l1064 = io_load_cancels[1];
   assign load_pipeline_stages_1_throwRequest_dcache2_l1064 = _zz_load_pipeline_stages_1_throwRequest_dcache2_l1064;
   assign load_pipeline_stages_2_throwRequest_dcache2_l1064 = io_load_cancels[2];
-  assign load_pipeline_stages_1_WAYS_HAZARD_overloaded = (load_pipeline_stages_1_WAYS_HAZARD | ((waysWrite_addressLast == load_pipeline_stages_1_ADDRESS_PRE_TRANSLATION[10 : 5]) ? waysWrite_maskLast : 2'b00));
+  assign load_pipeline_stages_1_WAYS_HAZARD_overloaded = (load_pipeline_stages_1_WAYS_HAZARD | ((waysWrite_addressLast == load_pipeline_stages_1_ADDRESS_PRE_TRANSLATION[8 : 5]) ? waysWrite_maskLast : 2'b00));
   assign io_load_cmd_ready = 1'b1;
   assign load_pipeline_stages_0_valid = io_load_cmd_valid;
   assign load_pipeline_stages_0_ADDRESS_PRE_TRANSLATION = io_load_cmd_payload_virtual;
@@ -65350,23 +65350,23 @@ module DataCache (
   assign load_pipeline_stages_0_ADDRESS_POST_TRANSLATION = io_load_translated_physical;
   assign load_pipeline_stages_0_ABORD = io_load_translated_abord;
   assign ways_0_loadRead_cmd_valid = (! (load_pipeline_stages_1_valid && (! load_pipeline_stages_1_ready)));
-  assign ways_0_loadRead_cmd_payload = load_pipeline_stages_1_ADDRESS_PRE_TRANSLATION[10 : 5];
+  assign ways_0_loadRead_cmd_payload = load_pipeline_stages_1_ADDRESS_PRE_TRANSLATION[8 : 5];
   assign load_pipeline_stages_1_WAYS_TAGS_0_loaded = ways_0_loadRead_rsp_loaded;
   assign load_pipeline_stages_1_WAYS_TAGS_0_address = ways_0_loadRead_rsp_address;
   assign load_pipeline_stages_1_WAYS_TAGS_0_fault = ways_0_loadRead_rsp_fault;
   always @(*) begin
-    load_pipeline_stages_1_WAYS_HITS[0] = (load_pipeline_stages_1_WAYS_TAGS_0_loaded && (load_pipeline_stages_1_WAYS_TAGS_0_address == load_pipeline_stages_1_ADDRESS_POST_TRANSLATION[31 : 11]));
-    load_pipeline_stages_1_WAYS_HITS[1] = (load_pipeline_stages_1_WAYS_TAGS_1_loaded && (load_pipeline_stages_1_WAYS_TAGS_1_address == load_pipeline_stages_1_ADDRESS_POST_TRANSLATION[31 : 11]));
+    load_pipeline_stages_1_WAYS_HITS[0] = (load_pipeline_stages_1_WAYS_TAGS_0_loaded && (load_pipeline_stages_1_WAYS_TAGS_0_address == load_pipeline_stages_1_ADDRESS_POST_TRANSLATION[31 : 9]));
+    load_pipeline_stages_1_WAYS_HITS[1] = (load_pipeline_stages_1_WAYS_TAGS_1_loaded && (load_pipeline_stages_1_WAYS_TAGS_1_address == load_pipeline_stages_1_ADDRESS_POST_TRANSLATION[31 : 9]));
   end
 
   assign ways_1_loadRead_cmd_valid = (! (load_pipeline_stages_1_valid && (! load_pipeline_stages_1_ready)));
-  assign ways_1_loadRead_cmd_payload = load_pipeline_stages_1_ADDRESS_PRE_TRANSLATION[10 : 5];
+  assign ways_1_loadRead_cmd_payload = load_pipeline_stages_1_ADDRESS_PRE_TRANSLATION[8 : 5];
   assign load_pipeline_stages_1_WAYS_TAGS_1_loaded = ways_1_loadRead_rsp_loaded;
   assign load_pipeline_stages_1_WAYS_TAGS_1_address = ways_1_loadRead_rsp_address;
   assign load_pipeline_stages_1_WAYS_TAGS_1_fault = ways_1_loadRead_rsp_fault;
   assign load_pipeline_stages_2_WAYS_HIT = (|load_pipeline_stages_2_WAYS_HITS);
   assign status_loadRead_cmd_valid = (! (load_pipeline_stages_1_valid && (! load_pipeline_stages_1_ready)));
-  assign status_loadRead_cmd_payload = load_pipeline_stages_1_ADDRESS_PRE_TRANSLATION[10 : 5];
+  assign status_loadRead_cmd_payload = load_pipeline_stages_1_ADDRESS_PRE_TRANSLATION[8 : 5];
   assign load_pipeline_stages_1_STATUS_0_dirty = status_loadRead_rsp_0_dirty;
   assign load_pipeline_stages_1_STATUS_1_dirty = status_loadRead_rsp_1_dirty;
   always @(*) begin
@@ -65389,8 +65389,8 @@ module DataCache (
     end
   end
 
-  assign when_dcache2_l659 = (status_writeLast_valid && (status_writeLast_payload_address == load_pipeline_stages_1_ADDRESS_POST_TRANSLATION[10 : 5]));
-  assign when_dcache2_l662 = (status_write_valid && (status_write_payload_address == load_pipeline_stages_1_ADDRESS_POST_TRANSLATION[10 : 5]));
+  assign when_dcache2_l659 = (status_writeLast_valid && (status_writeLast_payload_address == load_pipeline_stages_1_ADDRESS_POST_TRANSLATION[8 : 5]));
+  assign when_dcache2_l662 = (status_write_valid && (status_write_payload_address == load_pipeline_stages_1_ADDRESS_POST_TRANSLATION[8 : 5]));
   assign load_pipeline_stages_1_STATUS_overloaded_0_dirty = _zz_load_pipeline_stages_1_STATUS_overloaded_0_dirty;
   assign load_pipeline_stages_1_STATUS_overloaded_1_dirty = _zz_load_pipeline_stages_1_STATUS_overloaded_1_dirty;
   always @(*) begin
@@ -65495,8 +65495,8 @@ module DataCache (
   assign store_pipeline_stages_0_throwRequest_dcache2_l1357 = store_pipeline_discardAll;
   assign store_pipeline_stages_1_throwRequest_dcache2_l1357 = store_pipeline_discardAll;
   assign store_pipeline_stages_2_throwRequest_dcache2_l1357 = store_pipeline_discardAll;
-  assign store_pipeline_stages_1_WAYS_HAZARD_overloaded = (store_pipeline_stages_1_WAYS_HAZARD | ((waysWrite_addressLast == store_pipeline_stages_1_ADDRESS_POST_TRANSLATION[10 : 5]) ? waysWrite_maskLast : 2'b00));
-  assign store_pipeline_stages_2_WAYS_HAZARD_overloaded = (store_pipeline_stages_2_WAYS_HAZARD | ((waysWrite_addressLast == store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5]) ? waysWrite_maskLast : 2'b00));
+  assign store_pipeline_stages_1_WAYS_HAZARD_overloaded = (store_pipeline_stages_1_WAYS_HAZARD | ((waysWrite_addressLast == store_pipeline_stages_1_ADDRESS_POST_TRANSLATION[8 : 5]) ? waysWrite_maskLast : 2'b00));
+  assign store_pipeline_stages_2_WAYS_HAZARD_overloaded = (store_pipeline_stages_2_WAYS_HAZARD | ((waysWrite_addressLast == store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5]) ? waysWrite_maskLast : 2'b00));
   assign store_pipeline_stages_0_valid = io_store_cmd_valid;
   assign store_pipeline_stages_0_ADDRESS_POST_TRANSLATION = io_store_cmd_payload_address;
   assign store_pipeline_stages_0_CPU_WORD = io_store_cmd_payload_data;
@@ -65509,18 +65509,18 @@ module DataCache (
   assign store_pipeline_stages_0_WAYS_HAZARD = 2'b00;
   assign io_store_cmd_ready = 1'b1;
   assign ways_0_storeRead_cmd_valid = (! (store_pipeline_stages_1_valid && (! store_pipeline_stages_1_ready)));
-  assign ways_0_storeRead_cmd_payload = store_pipeline_stages_1_ADDRESS_POST_TRANSLATION[10 : 5];
+  assign ways_0_storeRead_cmd_payload = store_pipeline_stages_1_ADDRESS_POST_TRANSLATION[8 : 5];
   assign store_pipeline_stages_1_WAYS_TAGS_0_loaded = ways_0_storeRead_rsp_loaded;
   assign store_pipeline_stages_1_WAYS_TAGS_0_address = ways_0_storeRead_rsp_address;
   assign store_pipeline_stages_1_WAYS_TAGS_0_fault = ways_0_storeRead_rsp_fault;
   always @(*) begin
-    store_pipeline_stages_1_WAYS_HITS[0] = (store_pipeline_stages_1_WAYS_TAGS_0_loaded && (store_pipeline_stages_1_WAYS_TAGS_0_address == store_pipeline_stages_1_ADDRESS_POST_TRANSLATION[31 : 11]));
-    store_pipeline_stages_1_WAYS_HITS[1] = (store_pipeline_stages_1_WAYS_TAGS_1_loaded && (store_pipeline_stages_1_WAYS_TAGS_1_address == store_pipeline_stages_1_ADDRESS_POST_TRANSLATION[31 : 11]));
+    store_pipeline_stages_1_WAYS_HITS[0] = (store_pipeline_stages_1_WAYS_TAGS_0_loaded && (store_pipeline_stages_1_WAYS_TAGS_0_address == store_pipeline_stages_1_ADDRESS_POST_TRANSLATION[31 : 9]));
+    store_pipeline_stages_1_WAYS_HITS[1] = (store_pipeline_stages_1_WAYS_TAGS_1_loaded && (store_pipeline_stages_1_WAYS_TAGS_1_address == store_pipeline_stages_1_ADDRESS_POST_TRANSLATION[31 : 9]));
   end
 
   assign _zz_35 = store_pipeline_stages_1_WAYS_HITS[0];
   assign ways_1_storeRead_cmd_valid = (! (store_pipeline_stages_1_valid && (! store_pipeline_stages_1_ready)));
-  assign ways_1_storeRead_cmd_payload = store_pipeline_stages_1_ADDRESS_POST_TRANSLATION[10 : 5];
+  assign ways_1_storeRead_cmd_payload = store_pipeline_stages_1_ADDRESS_POST_TRANSLATION[8 : 5];
   assign store_pipeline_stages_1_WAYS_TAGS_1_loaded = ways_1_storeRead_rsp_loaded;
   assign store_pipeline_stages_1_WAYS_TAGS_1_address = ways_1_storeRead_rsp_address;
   assign store_pipeline_stages_1_WAYS_TAGS_1_fault = ways_1_storeRead_rsp_fault;
@@ -65529,7 +65529,7 @@ module DataCache (
   assign _zz_37 = store_pipeline_stages_1_WAYS_HIT;
   assign _zz_38 = store_pipeline_stages_1_WAYS_HITS;
   assign status_storeRead_cmd_valid = (! (store_pipeline_stages_1_valid && (! store_pipeline_stages_1_ready)));
-  assign status_storeRead_cmd_payload = store_pipeline_stages_1_ADDRESS_POST_TRANSLATION[10 : 5];
+  assign status_storeRead_cmd_payload = store_pipeline_stages_1_ADDRESS_POST_TRANSLATION[8 : 5];
   assign store_pipeline_stages_1_STATUS_0_dirty = status_storeRead_rsp_0_dirty;
   assign store_pipeline_stages_1_STATUS_1_dirty = status_storeRead_rsp_1_dirty;
   always @(*) begin
@@ -65552,8 +65552,8 @@ module DataCache (
     end
   end
 
-  assign when_dcache2_l659_1 = (status_writeLast_valid && (status_writeLast_payload_address == store_pipeline_stages_1_ADDRESS_POST_TRANSLATION[10 : 5]));
-  assign when_dcache2_l662_1 = (status_write_valid && (status_write_payload_address == store_pipeline_stages_1_ADDRESS_POST_TRANSLATION[10 : 5]));
+  assign when_dcache2_l659_1 = (status_writeLast_valid && (status_writeLast_payload_address == store_pipeline_stages_1_ADDRESS_POST_TRANSLATION[8 : 5]));
+  assign when_dcache2_l662_1 = (status_write_valid && (status_write_payload_address == store_pipeline_stages_1_ADDRESS_POST_TRANSLATION[8 : 5]));
   assign store_pipeline_stages_1_STATUS_overloaded_0_dirty = _zz_store_pipeline_stages_1_STATUS_overloaded_0_dirty;
   assign store_pipeline_stages_1_STATUS_overloaded_1_dirty = _zz_store_pipeline_stages_1_STATUS_overloaded_1_dirty;
   always @(*) begin
@@ -65674,8 +65674,8 @@ module DataCache (
   assign when_dcache2_l1552 = (store_ctrl_startRefill || store_ctrl_startFlush);
   assign when_dcache2_l1583 = store_pipeline_stages_2_WAYS_HITS[0];
   assign when_dcache2_l1583_1 = store_pipeline_stages_2_WAYS_HITS[1];
-  assign _zz_40 = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5];
-  assign _zz_41 = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[10 : 5];
+  assign _zz_40 = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5];
+  assign _zz_41 = store_pipeline_stages_2_ADDRESS_POST_TRANSLATION[8 : 5];
   assign _zz_42 = store_pipeline_stages_2_WAYS_HIT;
   assign _zz_43 = store_pipeline_stages_2_MISS;
   assign _zz_44 = store_pipeline_stages_2_REDO;
@@ -66612,7 +66612,7 @@ module DataCache (
     if(reset) begin
       status_writeLast_valid <= 1'b0;
       wayRandom_value <= 1'b0;
-      invalidate_counter <= 7'h0;
+      invalidate_counter <= 5'h0;
       invalidate_done_regNext <= 1'b0;
       refill_slots_0_valid <= 1'b0;
       refill_slots_1_valid <= 1'b0;
@@ -66647,7 +66647,7 @@ module DataCache (
       status_writeLast_valid <= status_write_valid;
       wayRandom_value <= wayRandom_valueNext;
       if(when_dcache2_l680) begin
-        invalidate_counter <= (invalidate_counter + 7'h01);
+        invalidate_counter <= (invalidate_counter + 5'h01);
       end
       invalidate_done_regNext <= invalidate_done;
       if(refill_slots_0_loadedDone) begin
