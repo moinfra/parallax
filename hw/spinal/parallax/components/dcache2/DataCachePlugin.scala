@@ -34,7 +34,7 @@ case class DataCachePluginConfig(
     val storeHitAt: Int = 1,
     val storeControlAt: Int = 2,
     val storeRspAt: Int = 2,
-    val tagsReadAsync: Boolean = true,
+    val tagsReadAsync: Boolean = false,
     val reducedBankWidth: Boolean = false
 ) {}
 

@@ -431,7 +431,7 @@ case class DataCacheParameters(
     storeHitAt: Int = 1, // 存储在哪个流水线阶段确定最终hit
     storeControlAt: Int = 2, // 存储在哪个流水线阶段进行控制逻辑
     storeRspAt: Int = 2, // 存储在哪个流水线阶段给出响应
-    tagsReadAsync: Boolean = true, // Tag是否异步读取
+    tagsReadAsync: Boolean = false, // Tag是否异步读取
     reducedBankWidth: Boolean = false, // 数据bank是否使用缩减宽度
     transactionIdWidth: Int = 0,        // 事务ID的位宽
     val enableLog: Boolean = false

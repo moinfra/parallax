@@ -57,7 +57,7 @@ class ICacheTestBench(
     // Expose invalidate signal for testing
     val invalidate = in Bool ()
     // Expose FSM state for white-box testing
-    val sim_fsmStateId = out UInt (2 bits)
+    val sim_fsmStateId = out UInt (3 bits)
   }
 
   // The Framework will automatically wire up plugins that provide/require services.

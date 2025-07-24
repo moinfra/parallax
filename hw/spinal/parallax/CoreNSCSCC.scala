@@ -294,6 +294,7 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
 
   val axiConfig = createAxi4Config(pCfg)
 
+  // 实际不启用，但是为了彻底禁用要大改，没时间了
   val dCfg = DataCachePluginConfig(
     pipelineConfig = pCfg,
     memDataWidth = 32,
@@ -438,7 +439,7 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
     val requried = Seq(
       // Memory system
       new CoreMemSysPlugin(axiConfig, mmioConfig.get),
-      new DataCachePlugin(dCfg),
+      // new DataCachePlugin(dCfg),
       // new IFUPlugin(ifuCfg),
 
       // BPU and fetch

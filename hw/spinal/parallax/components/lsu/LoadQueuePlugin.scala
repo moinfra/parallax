@@ -146,20 +146,20 @@ class LoadQueuePlugin(
 
     val hw = create early new Area {
         val robServiceInst    = getService[ROBService[RenamedUop]]
-        val dcacheServiceInst = getService[DataCacheService]
+        // val dcacheServiceInst = getService[DataCacheService]
         val prfServiceInst    = getService[PhysicalRegFileService]
         val storeBufferServiceInst = getService[StoreBufferService]
         val busyTableServiceInst = getService[BusyTableService] // 获取服务
         val hardRedirectService   = getService[HardRedirectService]
 
         val busyTableClearPort = busyTableServiceInst.newClearPort() // 创建清除端口
-        val dCacheLoadPort   = dcacheServiceInst.newLoadPort(priority = 1)
+        //dcachedisable val dCacheLoadPort   = dcacheServiceInst.newLoadPort(priority = 1)
         val robLoadWritebackPort = robServiceInst.newWritebackPort("LQ_Load")
         val prfWritePort     = prfServiceInst.newPrfWritePort(s"LQ.gprWritePort")
         val sbQueryPort      = storeBufferServiceInst.getStoreQueueQueryPort()
         val wakeupServiceInst = getService[WakeupService]
         val wakeupPort = wakeupServiceInst.newWakeupSource()
-        // TODO: ROB 刷新端口应该也会在硬重定向时触发，所以处理 doHardRedirect 应该是多余的
+        // TODO: ROB 刷新端口应该也会在硬重定向时触发，我们监听了ROB刷新，所以处理 doHardRedirect 应该是多余的
         val doHardRedirect = hardRedirectService.doHardRedirect()
 
         // MMIO支持：如果配置了MMIO，则创建SGMB读通道
@@ -175,7 +175,7 @@ class LoadQueuePlugin(
         busyTableServiceInst.retain()
         sgmbServiceOpt.foreach(_.retain())
         robServiceInst.retain()
-        dcacheServiceInst.retain()
+        //dcachedisable dcacheServiceInst.retain()
         prfServiceInst.retain()
         storeBufferServiceInst.retain()
         wakeupServiceInst.retain()
@@ -189,7 +189,7 @@ class LoadQueuePlugin(
 
         // 从hw区域获取端口
         val sbQueryPort         = hw.sbQueryPort
-        val dCacheLoadPort      = hw.dCacheLoadPort
+        //dcachedisable val dCacheLoadPort      = hw.dCacheLoadPort
         val robLoadWritebackPort = hw.robLoadWritebackPort
         val prfWritePort        = hw.prfWritePort
         val robFlushPort        = hw.robServiceInst.doRobFlush()
@@ -360,22 +360,22 @@ class LoadQueuePlugin(
             val shouldNotSendToMemory = head.isWaitingForFwdRsp || (head.isWaitingForFwdRsp && sbQueryPort.rsp.hit)
 
             // DCache路径（非MMIO）
-            dCacheLoadPort.cmd.valid := headIsReadyToExecute && !head.hasException && !shouldNotSendToMemory && !head.isIO
-            dCacheLoadPort.cmd.virtual       := head.address
-            dCacheLoadPort.cmd.size          := MemAccessSize.toByteSizeLog2(head.size)
-            dCacheLoadPort.cmd.redoOnDataHazard := True
-            if(pipelineConfig.transactionIdWidth > 0) {
-                 dCacheLoadPort.cmd.id       := head.robPtr.resize(pipelineConfig.transactionIdWidth)
-            }
-            dCacheLoadPort.translated.physical       := head.address
-            dCacheLoadPort.translated.abord          := head.hasException
-            dCacheLoadPort.cancels                   := 0
-            
-            when(dCacheLoadPort.cmd.fire) {
-                slotsAfterUpdates(0).isWaitingForRsp := True
-                slotsAfterUpdates(0).isReadyForDCache      := False
-                ParallaxSim.log(L"[LQ-DCache] SEND_TO_DCACHE: robPtr=${head.robPtr} addr=${head.address}")
-            }
+        // disabledcache    dCacheLoadPort.cmd.valid := headIsReadyToExecute && !head.hasException && !shouldNotSendToMemory && !head.isIO
+        //disabledcache    dCacheLoadPort.cmd.virtual       := head.address
+        //disabledcache    dCacheLoadPort.cmd.size          := MemAccessSize.toByteSizeLog2(head.size)
+        //disabledcache    dCacheLoadPort.cmd.redoOnDataHazard := True
+        //disabledcache    if(pipelineConfig.transactionIdWidth > 0) {
+        //disabledcache         dCacheLoadPort.cmd.id       := head.robPtr.resize(pipelineConfig.transactionIdWidth)
+        //disabledcache    }
+        //disabledcache    dCacheLoadPort.translated.physical       := head.address
+        //disabledcache    dCacheLoadPort.translated.abord          := head.hasException
+        //disabledcache    dCacheLoadPort.cancels                   := 0
+        //disabledcache    
+        //disabledcache    when(dCacheLoadPort.cmd.fire) {
+        //disabledcache        slotsAfterUpdates(0).isWaitingForRsp := True
+        //disabledcache        slotsAfterUpdates(0).isReadyForDCache      := False
+        //disabledcache        ParallaxSim.log(L"[LQ-DCache] SEND_TO_DCACHE: robPtr=${head.robPtr} addr=${head.address}")
+        //disabledcache    }
 
             // MMIO路径
             val mmioReadCmd = hw.mmioReadChannel.map { mmioChannel =>
@@ -406,13 +406,13 @@ class LoadQueuePlugin(
             // --- 4. Memory Response Handling ---
 
             // DCache Response Handling (for Redo)
-            when(dCacheLoadPort.rsp.valid && head.valid && head.isWaitingForRsp && !head.isIO) {
-                when(dCacheLoadPort.rsp.payload.redo) {
-                    slotsAfterUpdates(0).isWaitingForRsp := False
-                    slotsAfterUpdates(0).isReadyForDCache      := True 
-                    ParallaxSim.log(L"[LQ-DCache] REDO received for robPtr=${head.robPtr}")
-                }
-            }
+            //dcachedisable when(dCacheLoadPort.rsp.valid && head.valid && head.isWaitingForRsp && !head.isIO) {
+            //dcachedisable     when(dCacheLoadPort.rsp.payload.redo) {
+            //dcachedisable         slotsAfterUpdates(0).isWaitingForRsp := False
+            //dcachedisable         slotsAfterUpdates(0).isReadyForDCache      := True 
+            //dcachedisable         ParallaxSim.log(L"[LQ-DCache] REDO received for robPtr=${head.robPtr}")
+            //dcachedisable     }
+            //dcachedisable }
 
             // MMIO Response Handling (MMIO operations don't have redo)
             hw.mmioReadChannel.foreach { mmioChannel =>
@@ -423,7 +423,8 @@ class LoadQueuePlugin(
 
             // 1. (组合逻辑) 检测本周期是否有完成事件，并准备好要锁存的信息
             val popOnFwdHit = head.isWaitingForFwdRsp && sbQueryRspReg.hit
-            val popOnDCacheSuccess = dCacheLoadPort.rsp.valid && head.valid && head.isWaitingForRsp && !head.isIO && !dCacheLoadPort.rsp.payload.redo
+            //dcachedisable val popOnDCacheSuccess = dCacheLoadPort.rsp.valid && head.valid && head.isWaitingForRsp && !head.isIO && !dCacheLoadPort.rsp.payload.redo
+            val popOnDCacheSuccess = False
             val popOnMMIOSuccess = mmioResponseIsForHead
             val popOnEarlyException = head.valid && head.hasException && !head.isReadyForDCache
             val popRequest = popOnFwdHit || popOnDCacheSuccess || popOnMMIOSuccess || popOnEarlyException
@@ -434,12 +435,12 @@ class LoadQueuePlugin(
                 completionInfo.fromFwd := True
                 completionInfo.data := sbQueryRspReg.data
                 completionInfo.hasFault := False
-            } .elsewhen(popOnDCacheSuccess) {
-                completionInfo.valid := True
-                completionInfo.fromDCache := True
-                completionInfo.data := dCacheLoadPort.rsp.payload.data
-                completionInfo.hasFault := dCacheLoadPort.rsp.payload.fault
-                completionInfo.exceptionCode := ExceptionCode.LOAD_ACCESS_FAULT
+            //dcachedisable } .elsewhen(popOnDCacheSuccess) {
+            //dcachedisable     completionInfo.valid := True
+            //dcachedisable     completionInfo.fromDCache := True
+            //dcachedisable     completionInfo.data := dCacheLoadPort.rsp.payload.data
+            //dcachedisable     completionInfo.hasFault := dCacheLoadPort.rsp.payload.fault
+            //dcachedisable     completionInfo.exceptionCode := ExceptionCode.LOAD_ACCESS_FAULT
             } .elsewhen(popOnMMIOSuccess) {
                 hw.mmioReadChannel.foreach { mmioChannel =>
                     completionInfo.valid := True
@@ -521,7 +522,7 @@ class LoadQueuePlugin(
         } // End of loadQueue Area
 
         hw.robServiceInst.release()
-        hw.dcacheServiceInst.release()
+        //dcachedisable hw.dcacheServiceInst.release()
         hw.prfServiceInst.release()
         hw.storeBufferServiceInst.release()
         hw.sgmbServiceOpt.foreach(_.release())

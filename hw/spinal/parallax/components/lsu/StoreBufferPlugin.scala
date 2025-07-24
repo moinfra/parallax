@@ -196,8 +196,8 @@ class StoreBufferPlugin(
         val bypassDataOutInst = Flow(StoreBufferBypassData(pipelineConfig))
         val sqQueryPort       = SqQueryPort(lsuConfig, pipelineConfig)
         val robServiceInst    = getService[ROBService[RenamedUop]]
-        val dcacheServiceInst = getService[DataCacheService]
-        val dCacheStorePort = dcacheServiceInst.newStorePort()
+        //dcachedisable val dcacheServiceInst = getService[DataCacheService]
+        //dcachedisable val dCacheStorePort = dcacheServiceInst.newStorePort()
 
         var sgmbServiceOpt: Option[SgmbService] = None
         var mmioWriteChannel: Option[SplitGmbWriteChannel] = None
@@ -209,7 +209,7 @@ class StoreBufferPlugin(
             mmioWriteChannel = Some(sgmbService.newWritePort())
         }
         sgmbServiceOpt.foreach(_.retain())
-        dcacheServiceInst.retain()
+        //dcachedisable dcacheServiceInst.retain()
         robServiceInst.retain()
     }
 
@@ -224,9 +224,9 @@ class StoreBufferPlugin(
         lock.await()
 
         val robService    = hw.robServiceInst
-        val dcacheService = hw.dcacheServiceInst
+        //dcachedisable val dcacheService = hw.dcacheServiceInst
 
-        val storePortDCache = hw.dCacheStorePort
+        //dcachedisable val storePortDCache = hw.dCacheStorePort
 
         val pushPortIn    = hw.pushPortInst
         val bypassQueryAddr= hw.bypassQueryAddrIn
@@ -328,35 +328,35 @@ class StoreBufferPlugin(
         ))
 
         // DCache路径（非MMIO）
-        storePortDCache.cmd.valid := canSendToDCache
-        storePortDCache.cmd.payload.assignDontCare()
-        when(canSendToDCache) {
-            when(headSlot.isFlush) {
-                storePortDCache.cmd.payload.address  := headSlot.addr
-                storePortDCache.cmd.payload.flush    := True
-                storePortDCache.cmd.payload.data     := 0
-                storePortDCache.cmd.payload.mask     := 0
-                storePortDCache.cmd.payload.io       := False
-                storePortDCache.cmd.payload.flushFree:= False
-                storePortDCache.cmd.payload.prefetch := False
-                if(pipelineConfig.transactionIdWidth > 0) {
-                    storePortDCache.cmd.payload.id := headSlot.robPtr.resize(pipelineConfig.transactionIdWidth bits)
-                }
-                if(enableLog) report(L"[SQ] Sending FLUSH to D-Cache: addr=${headSlot.addr}, robPtr=${headSlot.robPtr}")
-            } otherwise {
-                storePortDCache.cmd.payload.address  := headSlot.addr
-                storePortDCache.cmd.payload.data     := headSlot.data
-                storePortDCache.cmd.payload.mask     := headSlot.be
-                storePortDCache.cmd.payload.io       := headSlot.isIO // For DCache path, this should be False for normal stores
-                storePortDCache.cmd.payload.flush    := False
-                storePortDCache.cmd.payload.flushFree:= False
-                storePortDCache.cmd.payload.prefetch := False
-                if(pipelineConfig.transactionIdWidth > 0) {
-                    storePortDCache.cmd.payload.id := headSlot.robPtr.resize(pipelineConfig.transactionIdWidth bits)
-                }
-                if(enableLog) report(L"[SQ] Sending STORE to D-Cache: addr=${headSlot.addr}, data=${headSlot.data}, be=${headSlot.be}, robPtr=${headSlot.robPtr}")
-            }
-        }
+        //dcachedisable storePortDCache.cmd.valid := canSendToDCache
+        //dcachedisable storePortDCache.cmd.payload.assignDontCare()
+        //dcachedisable when(canSendToDCache) {
+        //dcachedisable     when(headSlot.isFlush) {
+        //dcachedisable         storePortDCache.cmd.payload.address  := headSlot.addr
+        //dcachedisable         storePortDCache.cmd.payload.flush    := True
+        //dcachedisable         storePortDCache.cmd.payload.data     := 0
+        //dcachedisable         storePortDCache.cmd.payload.mask     := 0
+        //dcachedisable         storePortDCache.cmd.payload.io       := False
+        //dcachedisable         storePortDCache.cmd.payload.flushFree:= False
+        //dcachedisable         storePortDCache.cmd.payload.prefetch := False
+        //dcachedisable         if(pipelineConfig.transactionIdWidth > 0) {
+        //dcachedisable             storePortDCache.cmd.payload.id := headSlot.robPtr.resize(pipelineConfig.transactionIdWidth bits)
+        //dcachedisable         }
+        //dcachedisable         if(enableLog) report(L"[SQ] Sending FLUSH to D-Cache: addr=${headSlot.addr}, robPtr=${headSlot.robPtr}")
+        //dcachedisable     } otherwise {
+        //dcachedisable         storePortDCache.cmd.payload.address  := headSlot.addr
+        //dcachedisable         storePortDCache.cmd.payload.data     := headSlot.data
+        //dcachedisable         storePortDCache.cmd.payload.mask     := headSlot.be
+        //dcachedisable         storePortDCache.cmd.payload.io       := headSlot.isIO // For DCache path, this should be False for normal stores
+        //dcachedisable         storePortDCache.cmd.payload.flush    := False
+        //dcachedisable         storePortDCache.cmd.payload.flushFree:= False
+        //dcachedisable         storePortDCache.cmd.payload.prefetch := False
+        //dcachedisable         if(pipelineConfig.transactionIdWidth > 0) {
+        //dcachedisable             storePortDCache.cmd.payload.id := headSlot.robPtr.resize(pipelineConfig.transactionIdWidth bits)
+        //dcachedisable         }
+        //dcachedisable         if(enableLog) report(L"[SQ] Sending STORE to D-Cache: addr=${headSlot.addr}, data=${headSlot.data}, be=${headSlot.be}, robPtr=${headSlot.robPtr}")
+        //dcachedisable     }
+        //dcachedisable }
 
         // MMIO路径
         val mmioWriteCmd = hw.mmioWriteChannel.map { mmioChannel =>
@@ -379,14 +379,14 @@ class StoreBufferPlugin(
 
         // --- Response and Retry Logic ---
         // Signal that a command was fired from the head THIS cycle.
-        val dcacheCmdFired = canSendToDCache && storePortDCache.cmd.ready
+        //dcachedisable val dcacheCmdFired = canSendToDCache && storePortDCache.cmd.ready
         val mmioCmdFired = hw.mmioWriteChannel.map(channel => canSendToMMIO && channel.cmd.ready).getOrElse(False)
         if(enableLog) report(L"[SQ] mmioCmdFired=${mmioCmdFired} because canSendToMMIO=${canSendToMMIO}, channel.cmd.ready=${hw.mmioWriteChannel.map(_.cmd.ready).getOrElse(null)}")
 
         // Store Buffer是FIFO，所以我们只期望头部槽位的响应
-        val dcacheResponseForHead = storePortDCache.rsp.valid && headSlot.valid &&
-                                    (headSlot.waitRsp || dcacheCmdFired) && !headSlot.isIO && // 必须是DCache事务
-                                    (headSlot.robPtr.resize(pipelineConfig.transactionIdWidth) === storePortDCache.rsp.payload.id) // ID匹配
+        //dcachedisable val dcacheResponseForHead = storePortDCache.rsp.valid && headSlot.valid &&
+        //dcachedisable             (headSlot.waitRsp || dcacheCmdFired) && !headSlot.isIO && // 必须是DCache事务
+        //dcachedisable             (headSlot.robPtr.resize(pipelineConfig.transactionIdWidth) === storePortDCache.rsp.payload.id) // ID匹配
 
         val mmioResponseForHead = hw.mmioWriteChannel.map { mmioChannel =>
             mmioChannel.rsp.valid && headSlot.valid && headSlot.isIO && // 必须是MMIO事务
@@ -394,14 +394,14 @@ class StoreBufferPlugin(
             (headSlot.robPtr.resized === mmioChannel.rsp.payload.id) // ID匹配
         }.getOrElse(False)
 
-        if(enableLog) report(L"[SQ] dcacheResponseForHead=${dcacheResponseForHead}, mmioResponseForHead=${mmioResponseForHead}")
+        //dcachedisable if(enableLog) report(L"[SQ] dcacheResponseForHead=${dcacheResponseForHead}, mmioResponseForHead=${mmioResponseForHead}")
 
         // 当命令成功发出时（必须valid&&ready），我们将其标记为已发送并等待响应。
-        when(dcacheCmdFired) {
-            slotsAfterUpdates(0).sentCmd := True
-            slotsAfterUpdates(0).waitRsp := True 
-            if(enableLog) report(L"[SQ] CMD_FIRED_DCACHE: robPtr=${slots(0).robPtr} (slotIdx=0), addr=${slots(0).addr}")
-        }
+        //dcachedisable when(dcacheCmdFired) {
+        //dcachedisable     slotsAfterUpdates(0).sentCmd := True
+        //dcachedisable     slotsAfterUpdates(0).waitRsp := True 
+        //dcachedisable     if(enableLog) report(L"[SQ] CMD_FIRED_DCACHE: robPtr=${slots(0).robPtr} (slotIdx=0), addr=${slots(0).addr}")
+        //dcachedisable }
         when(mmioCmdFired) {
             slotsAfterUpdates(0).sentCmd := True
             slotsAfterUpdates(0).waitRsp := True
@@ -409,27 +409,27 @@ class StoreBufferPlugin(
         }
 
         // 处理 D-Cache 响应
-        when(dcacheResponseForHead) {
-            // 响应到达，操作不再是待定状态
-            slotsAfterUpdates(0).waitRsp := False
-            
-            when(storePortDCache.rsp.payload.redo) {
-                // REDO 意味着需要重试。清除 sentCmd 以重新启用发送。
-                slotsAfterUpdates(0).sentCmd := False
-                
-                when(storePortDCache.rsp.payload.flush) {
-                    slotsAfterUpdates(0).isWaitingForWb := True // 等待写回完成
-                    if(enableLog) report(L"[SQ] REDO_FOR_FLUSH received for robPtr=${headSlot.robPtr}. Entering WAIT_FOR_WB.")
-                } otherwise {
-                    slotsAfterUpdates(0).isWaitingForRefill := True // 等待填充完成
-                    slotsAfterUpdates(0).refillSlotToWatch  := storePortDCache.rsp.payload.refillSlot
-                    if(enableLog) report(L"[SQ] REDO_FOR_REFILL received for robPtr=${headSlot.robPtr}. Entering WAIT_FOR_REFILL.")
-                }
-            } otherwise {
-                // 成功响应 (redo=0)。操作完成。
-                if(enableLog) report(L"[SQ] DCACHE_RSP_SUCCESS received for robPtr=${headSlot.robPtr}.")
-            }
-        }
+        //dcachedisable when(dcacheResponseForHead) {
+        //dcachedisable     // 响应到达，操作不再是待定状态
+        //dcachedisable     slotsAfterUpdates(0).waitRsp := False
+        //dcachedisable     
+        //dcachedisable     when(storePortDCache.rsp.payload.redo) {
+        //dcachedisable         // REDO 意味着需要重试。清除 sentCmd 以重新启用发送。
+        //dcachedisable         slotsAfterUpdates(0).sentCmd := False
+        //dcachedisable         
+        //dcachedisable         when(storePortDCache.rsp.payload.flush) {
+        //dcachedisable             slotsAfterUpdates(0).isWaitingForWb := True // 等待写回完成
+        //dcachedisable             if(enableLog) report(L"[SQ] REDO_FOR_FLUSH received for robPtr=${headSlot.robPtr}. Entering WAIT_FOR_WB.")
+        //dcachedisable         } otherwise {
+        //dcachedisable             slotsAfterUpdates(0).isWaitingForRefill := True // 等待填充完成
+        //dcachedisable             slotsAfterUpdates(0).refillSlotToWatch  := storePortDCache.rsp.payload.refillSlot
+        //dcachedisable             if(enableLog) report(L"[SQ] REDO_FOR_REFILL received for robPtr=${headSlot.robPtr}. Entering WAIT_FOR_REFILL.")
+        //dcachedisable         }
+        //dcachedisable     } otherwise {
+        //dcachedisable         // 成功响应 (redo=0)。操作完成。
+        //dcachedisable         if(enableLog) report(L"[SQ] DCACHE_RSP_SUCCESS received for robPtr=${headSlot.robPtr}.")
+        //dcachedisable     }
+        //dcachedisable }
         // 处理 MMIO 响应
         when(mmioResponseForHead) {
             hw.mmioWriteChannel.foreach { mmioChannel =>
@@ -457,25 +457,25 @@ class StoreBufferPlugin(
         }
 
         // 处理 D-Cache 填充完成信号 (用于 redo 情况)
-        val refillCompletionsFromDCache = dcacheService.getRefillCompletions()
-        // report(L"[SQ] Watching... refillCompletionsFromDCache=${refillCompletionsFromDCache}")
-        val waitedRefillIsDone = headSlot.valid && headSlot.isWaitingForRefill &&
-                                (headSlot.refillSlotToWatch & refillCompletionsFromDCache).orR
-        if(enableLog) report(L"[SQ] waitedRefillIsDone=${waitedRefillIsDone} because: valid=${headSlot.valid} isWaitingForRefill=${headSlot.isWaitingForRefill} refillSlotToWatch=${headSlot.refillSlotToWatch} refillCompletionsFromDCache=${refillCompletionsFromDCache}")
-        when(waitedRefillIsDone) {
-            slotsAfterUpdates(0).isWaitingForRefill := False
-            slotsAfterUpdates(0).sentCmd := False // Clear sentCmd to retry sending
-            if(enableLog) report(L"[SQ] REFILL_DONE observed for robPtr=${headSlot.robPtr}. Ready to retry.")
-        }
+        //dcachedisable val refillCompletionsFromDCache = dcacheService.getRefillCompletions()
+        //dcachedisable  report(L"[SQ] Watching... refillCompletionsFromDCache=${refillCompletionsFromDCache}")
+        //dcachedisable val waitedRefillIsDone = headSlot.valid && headSlot.isWaitingForRefill &&
+        //dcachedisable                         (headSlot.refillSlotToWatch & refillCompletionsFromDCache).orR
+        //dcachedisable if(enableLog) report(L"[SQ] waitedRefillIsDone=${waitedRefillIsDone} because: valid=${headSlot.valid} isWaitingForRefill=${headSlot.isWaitingForRefill} refillSlotToWatch=${headSlot.refillSlotToWatch} refillCompletionsFromDCache=${refillCompletionsFromDCache}")
+        //dcachedisable when(waitedRefillIsDone) {
+        //dcachedisable     slotsAfterUpdates(0).isWaitingForRefill := False
+        //dcachedisable     slotsAfterUpdates(0).sentCmd := False // Clear sentCmd to retry sending
+        //dcachedisable     if(enableLog) report(L"[SQ] REFILL_DONE observed for robPtr=${headSlot.robPtr}. Ready to retry.")
+        //dcachedisable }
         
         // 处理 D-Cache 写回忙信号 (用于 Flush 的 redo 情况)
-        val dCacheIsWbBusy = dcacheService.writebackBusy()
-        if(enableLog) report(L"[SQ] dCacheIsWbBusy=${dCacheIsWbBusy}")
-        when(headSlot.valid && headSlot.isWaitingForWb && !dCacheIsWbBusy) {
-            slotsAfterUpdates(0).isWaitingForWb := False
-            slotsAfterUpdates(0).sentCmd := False // Clear sentCmd to retry sending
-            if(enableLog) report(L"[SQ] DCACHE_READY observed for robPtr=${headSlot.robPtr}. Exiting WAIT_FOR_WB.")
-        }
+        //dcachedisable val dCacheIsWbBusy = dcacheService.writebackBusy()
+        //dcachedisable if(enableLog) report(L"[SQ] dCacheIsWbBusy=${dCacheIsWbBusy}")
+        //dcachedisable when(headSlot.valid && headSlot.isWaitingForWb && !dCacheIsWbBusy) {
+        //dcachedisable     slotsAfterUpdates(0).isWaitingForWb := False
+        //dcachedisable     slotsAfterUpdates(0).sentCmd := False // Clear sentCmd to retry sending
+        //dcachedisable     if(enableLog) report(L"[SQ] DCACHE_READY observed for robPtr=${headSlot.robPtr}. Exiting WAIT_FOR_WB.")
+        //dcachedisable }
 
         // --- Commit and Flush Logic ---
         val commitInfoFromRob = robService.getCommitSlots(pipelineConfig.commitWidth)
@@ -577,7 +577,7 @@ class StoreBufferPlugin(
             // This condition is for when the head slot becomes invalid (e.g. by full flush)
             // and we need to shift the queue. This is a cleanup pop.
             popRequest := True
-            report(L"[SQ] POP_INVALID_SLOT: Clearing invalid head slot.")
+            if(enableLog) report(L"[SQ] POP_INVALID_SLOT: Clearing invalid head slot.")
         }
 
 
@@ -779,12 +779,12 @@ class StoreBufferPlugin(
             }
         }
         // 监控DCache接口状态
-        if(enableLog) report(L"[SQ-Debug] DCache Interface: " :+
-            L"cmd.valid=${storePortDCache.cmd.valid}, " :+
-            L"cmd.ready=${storePortDCache.cmd.ready}, " :+
-            L"rsp.valid=${storePortDCache.rsp.valid}, " :+
-            L"canSendToDCache=${canSendToDCache}"
-        )
+        //dcachedisable if(enableLog) report(L"[SQ-Debug] DCache Interface: " :+
+        //dcachedisable     L"cmd.valid=${storePortDCache.cmd.valid}, " :+
+        //dcachedisable     L"cmd.ready=${storePortDCache.cmd.ready}, " :+
+        //dcachedisable     L"rsp.valid=${storePortDCache.rsp.valid}, " :+
+        //dcachedisable     L"canSendToDCache=${canSendToDCache}"
+        //dcachedisable )
 
         // Monitor MMIO interface state
         hw.mmioWriteChannel.foreach { mmioChannel =>
@@ -797,7 +797,7 @@ class StoreBufferPlugin(
             )
         }
         
-        hw.dcacheServiceInst.release();
+        //dcachedisable hw.dcacheServiceInst.release();
         hw.robServiceInst.release()
         hw.sgmbServiceOpt.foreach(_.release())
     }

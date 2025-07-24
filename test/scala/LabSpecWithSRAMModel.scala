@@ -235,7 +235,7 @@ class LabSpecWithSRAMModel extends CustomSpinalSimFunSuite {
     compiled.doSim { dut =>
       implicit val cd = dut.clockDomain.get
       cd.forkStimulus(frequency = 300 MHz)
-      SimTimeout(600000 * 1000)
+      SimTimeout(50000 * 1000)
 
       // --- Phase 1: Inject Instructions ---
       println("--- Phase 1: Starting instruction injection ---")

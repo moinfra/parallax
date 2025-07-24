@@ -24,7 +24,6 @@ case class Stack[T <: Data](
   }
 
   val ram = Mem(dataType, wordCount = depth)
-  ram.addAttribute("ram_style", "block")
 
   val ptr = Reg(UInt(log2Up(depth + 1) bits)) init (0)
   ptr.addAttribute("no_init") // Avoid Quartus warning if init is handled by reset

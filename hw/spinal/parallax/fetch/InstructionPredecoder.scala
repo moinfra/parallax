@@ -75,7 +75,7 @@ class InstructionPredecoder(pCfg: PipelineConfig) extends Component {
     }
 
     // --- Unconditional Direct Jumps (isJump = True, isDirectJump = True) ---
-    is(B"010100", B"010101") { // B and BL
+    is(B"010100"/*, B"010101"*/) { // B
       io.predecodeInfo.isJump := True
       io.predecodeInfo.isDirectJump := True
       io.predecodeInfo.jumpOffset := offset  // 只有直接跳转指令才设置jumpOffset
