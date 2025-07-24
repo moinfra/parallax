@@ -776,6 +776,53 @@ class IssueQueueComponentSpec extends CustomSpinalSimFunSuite {
     }
   }
 
+  test("IntIQ - Simultaneous Flush and Wakeup (Race Condition Test)") {
+  SimConfig.withWave.compile(new IssueQueueTestBench(pCfg, MOCK_WAKEUP_PORTS)).doSim { dut =>
+    implicit val cd = dut.clockDomain.get
+    dut.clockDomain.forkStimulus(10)
+    initDutIO(dut)
+
+    // 1. 分配一条需要被唤醒的指令 (依赖 pReg=25)
+    dut.io.issueOut.ready #= false // 阻止它被发射
+    driveAllocRequest(
+      dut.io.allocateIn,
+      robPtrVal = 1,
+      pCfg = pCfg,
+      useSrc1Val = true,
+      src1TagVal = 25,
+      src1InitialReadyVal = false
+    )
+    cd.waitSampling()
+    assert(dut.internalValidCount.toInt == 1, "Instruction should be in IQ")
+
+    // 2. 在同一个时钟周期，既发送 Flush 信号，又发送针对这条指令的 Wakeup 信号
+    println("[SIM] Applying simultaneous FLUSH and WAKEUP for the same instruction.")
+    dut.io.flush #= true
+    driveWakeup(dut.io.wakeupIn, portIdx = 0, pRegIdx = 25)
+
+    cd.waitSampling()
+
+    // 3. 取消驱动
+    dut.io.flush #= false
+    deassertWakeup(dut.io.wakeupIn, portIdx = 0)
+    cd.waitSampling()
+    
+    // 4. 验证结果
+    // 预期：Flush 必须获胜。IQ 应该是空的，并且 issueOut 端口没有任何输出。
+    assert(dut.internalValidCount.toInt == 0, "IQ count should be 0 after flush, even with simultaneous wakeup.")
+
+    // 允许发射，并观察几个周期，确保没有“幽灵指令”被错误地发射出来
+    dut.io.issueOut.ready #= true
+    cd.waitSampling(10) 
+    
+    // 如果有任何东西被发射，StreamMonitor会出错，但我们再加一个断言
+    assert(dut.io.issueOut.valid.toBoolean == false, "A 'ghost' instruction was issued after a simultaneous flush/wakeup event!")
+    
+    println("[SUCCESS] Simultaneous Flush/Wakeup test passed. Flush has higher priority.")
+  }
+}
+
+
   thatsAll()
 }
 
