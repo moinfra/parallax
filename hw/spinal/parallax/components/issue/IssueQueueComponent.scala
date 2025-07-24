@@ -83,7 +83,8 @@ class IssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
 
   // a. 本地唤醒 (Local Wakeup / Bypass)
   // 当本IQ成功发射一条指令时，它的结果可以立即用于唤醒队列中的其他指令。
-  val localWakeupValid = io.issueOut.fire && io.issueOut.payload.writesToPhysReg
+  // val localWakeupValid = io.issueOut.fire && io.issueOut.payload.writesToPhysReg
+  val localWakeupValid = False // 大意了，想得太简单了，在指令发射的瞬间就对它的依赖者进行了唤醒，这是错的。必须是结果出来才能唤醒。
   val localWakeupTag = io.issueOut.payload.physDest.idx
   
   // b. 预计算唤醒掩码
