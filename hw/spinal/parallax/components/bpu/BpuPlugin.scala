@@ -9,6 +9,7 @@ import parallax.utilities.Plugin
 import parallax.utilities.ParallaxSim
 import parallax.utilities.ParallaxLogger.log
 import parallax.utilities.ParallaxLogger
+import parallax.common.HardRedirectService
 
 case class BpuPluginConfig(
     phtDepth: Int = 1024,
@@ -62,7 +63,7 @@ class BpuPipelinePlugin(
     //  查询流水线 (Query Pipeline)
     // =================================================================
 
-  val Q_PC = Stageable(UInt(pCfg.pcWidth))
+    val Q_PC = Stageable(UInt(pCfg.pcWidth))
     val IS_TAKEN = Stageable(Bool())
     val TARGET_PC = Stageable(UInt(pCfg.pcWidth))
     // Stageable to carry the transaction ID through the query pipeline.
@@ -234,5 +235,23 @@ class BpuPipelinePlugin(
     queryPipe.build()
     updatePipe.build()
 
+    val flush = new Area {
+      // 从框架中获取 HardRedirectService
+      getServiceOption[HardRedirectService].foreach { hr =>
+        val doHardRedirect = hr.doHardRedirect()
+        
+        // 当全局冲刷信号有效时
+        when(doHardRedirect) {
+          // 冲刷 BPU 内部的所有流水线
+          s1_read.flushIt()
+          s2_predict.flushIt()
+          u1_read.flushIt()
+          u2_write.flushIt()
+          if (enableLog) {
+            report(L"[BPU] FLUSH: Flushing internal query and update pipelines due to hard redirect.")
+          }
+        }
+      }
+    }
   }
 }
