@@ -44,10 +44,10 @@ class ICachePlugin(
     val storage = new Area {
 
       val valids = Vec(Vec(Reg(Bool()) init (False), iCacheCfg.ways), iCacheCfg.sets)
-      val tagLruRam = Mem(ICacheMetaLine(iCacheCfg, pcWidth), iCacheCfg.sets)
+      val tagLruRam = Mem(ICacheMetaLine(iCacheCfg, pcWidth), iCacheCfg.sets) addAttribute("ram_style", "block")
 
       val dataRams = Seq.fill(iCacheCfg.ways)(
-        Mem(Vec(Bits(32 bits), iCacheCfg.lineWords), iCacheCfg.sets)
+        Mem(Vec(Bits(32 bits), iCacheCfg.lineWords), iCacheCfg.sets) addAttribute("ram_style", "block")
       )
     }
 
