@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 49a99dae7b6ed938ae50042417514f24dcaeaaa8
 // Component : CoreNSCSCC
-// Git hash  : 54ad2ab73c7dafddd990d246ba17e254f2e46b3b
+// Git hash  : 5999d925502367971eb2c9838268b8869746bbba
 
 `timescale 1ns/1ps
 
@@ -6439,9 +6439,9 @@ module CoreNSCSCC (
   reg [95:0] ICachePlugin_logic_refill_fsm_stateNext_string;
   `endif
 
-  (* ram_style = "block" , ram_style = "block" *) reg [42:0] ICachePlugin_logic_storage_tagLruRam [0:127];
-  (* ram_style = "block" , ram_style = "block" *) reg [127:0] ICachePlugin_logic_storage_dataRams_0 [0:127];
-  (* ram_style = "block" , ram_style = "block" *) reg [127:0] ICachePlugin_logic_storage_dataRams_1 [0:127];
+  (* ram_style = "block" *) reg [42:0] ICachePlugin_logic_storage_tagLruRam [0:127];
+  (* ram_style = "block" *) reg [127:0] ICachePlugin_logic_storage_dataRams_0 [0:127];
+  (* ram_style = "block" *) reg [127:0] ICachePlugin_logic_storage_dataRams_1 [0:127];
   (* ram_style = "block" *) reg [1:0] BpuPipelinePlugin_logic_pht [0:1023];
   (* ram_style = "block" *) reg [54:0] BpuPipelinePlugin_logic_btb [0:255];
   function [63:0] zz_CheckpointManagerPlugin_logic_initialFreeMask(input dummy);
