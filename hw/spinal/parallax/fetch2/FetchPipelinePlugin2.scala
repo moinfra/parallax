@@ -118,16 +118,16 @@ class FetchPipelinePlugin(
     iCfg: ICacheConfig, // 增加对ICache配置的依赖
     fetchGroupFifoDepth: Int = 2,
     outputFifoDepth: Int = 4
-) extends Plugin with FetchService with HardRedirectService {
+) extends Plugin with FetchService with HardRedirectService with SoftRedirectService {
 
-    val enableLog = false
+    val enableLog = true
     val verbose = false
     val icacheLatency = 1
 
     val dbg = new Area {
-        val cycles = enableLog generate { Reg(UInt(16 bits)) init(0) }
-        val c = enableLog generate { Reg(UInt(3 bits)) init(0) }
-        enableLog generate {
+        val cycles = true generate { Reg(UInt(16 bits)) init(0) }
+        val c = true generate { Reg(UInt(3 bits)) init(0) }
+        true generate {
             cycles := cycles + 1
             c := c + 1
             val alwaysLog = true
@@ -144,6 +144,7 @@ class FetchPipelinePlugin(
     // --- 服务接口实现 ---
     private val hardRedirectPorts = ArrayBuffer[(Int, Flow[UInt])]()
     private val doHardRedirect_listening = Bool()
+    private val doSoftRedirect_listening = Bool()
     override def newHardRedirectPort(priority: Int): Flow[UInt] = {
         framework.requireEarly(); val port = Flow(UInt(pCfg.pcWidth)); hardRedirectPorts += (priority -> port); port
     }
@@ -152,6 +153,7 @@ class FetchPipelinePlugin(
         framework.requireEarly(); val port = Bool(); fetchDisablePorts += port; port
     }
     override def doHardRedirect(): Bool = doHardRedirect_listening
+    override def doSoftRedirect(): Bool = doSoftRedirect_listening
     override def fetchOutput(): Stream[FetchedInstr] = {
         framework.requireEarly()
         setup.fetchOutput.io.pop
@@ -250,6 +252,7 @@ class FetchPipelinePlugin(
         } else { hardRedirect.setIdle() }
         
         doHardRedirect_listening := hardRedirect.valid
+        doSoftRedirect_listening := softRedirect.valid
 
         // NOTE: 不要删除这个注释。Soft Flush 是指不破坏指令序列地从新地址开始取指
         val doSoftFlush = softRedirect.valid 
@@ -258,35 +261,37 @@ class FetchPipelinePlugin(
         val doAnyFlush = doSoftFlush || doHardFlush
 
         when(doHardFlush) {
-            if(enableLog) notice(L"[${dbg.cycles}] !!!!GOT A HARD FLUSH to ${hardRedirect.payload}")
+            notice(L"[${dbg.cycles}] !!!!GOT A HARD FLUSH to ${hardRedirect.payload}")
         }
-
+        when(doSoftFlush) {
+            notice(L"[${dbg.cycles}] !!!!GOT A SOFT FLUSH to ${softRedirect.payload}")
+        }
         fetchOutput.io.flush := doHardFlush
         fetchOutput.io.push << dispatcher.io.fetchOutput
 
         when(fetchOutput.io.pop.fire) {
-            if(enableLog) debug(L"[${dbg.cycles}] Dispatcher output a instr: PC=0x${fetchOutput.io.pop.payload.pc}, instr=0x${fetchOutput.io.pop.payload.instruction}")
+            notice(L"[${dbg.cycles}] output a instr to decoder: PC=0x${fetchOutput.io.pop.payload.pc}, instr=0x${fetchOutput.io.pop.payload.instruction}")
         }
 
-        val dispatchSoftFlushReg = RegNext(doSoftFlush) init(False)
-        val dispatchHardFlushReg = RegNext(doHardFlush) init(False)
-        val dispatchAnyFlushReg = RegNext(doAnyFlush) init(False)
+        // val dispatchSoftFlushReg = RegNext(doSoftFlush) init(False)
+        // val dispatchHardFlushReg = RegNext(doHardFlush) init(False)
+        // val dispatchAnyFlushReg = RegNext(doAnyFlush) init(False)
 
-        // iCacheInFlightCounter 用于计算需要排空的 ICache 请求数，以便消除幽灵响应
-        val iCacheInFlightCounter = CounterUpDown(1 << log2Up(pCfg.fetchWidth + 1))
+        // iCacheInFlightToDrainCounter 用于计算需要排空的 ICache 请求数，以便消除幽灵响应
+        val iCacheInFlightToDrainCounter = CounterUpDown(1 << log2Up(pCfg.fetchWidth + 1))
         val isDrainingCacheRspReg = Reg(Bool()) init(False)
 
         when(doAnyFlush) {
             isDrainingCacheRspReg := True
-            if(enableLog) notice(L"[${dbg.cycles}] Draining the pipeline due to a flush. iCacheInFlightCounter.value=${iCacheInFlightCounter.value}")
+            if(enableLog) notice(L"[${dbg.cycles}] Draining the pipeline due to a flush. iCacheInFlightToDrainCounter.value=${iCacheInFlightToDrainCounter.value}")
         }
         when(isDrainingCacheRspReg) {
-            when(iCacheInFlightCounter.value === 0) {
+            when(iCacheInFlightToDrainCounter.value === 0) {
                 isDrainingCacheRspReg := False
-                success(L"[${dbg.cycles}] Pipeline drained last cycle")
+                success(L"[${dbg.cycles}] Pipeline still has ${iCacheInFlightToDrainCounter.value} cycles to drain")
             }
             .otherwise {
-                if(enableLog) notice(L"[${dbg.cycles}] Pipeline still has ${iCacheInFlightCounter.value} cycles to drain")
+                if(enableLog) notice(L"[${dbg.cycles}] Pipeline still has ${iCacheInFlightToDrainCounter.value} cycles to drain")
             }
         }
         
@@ -314,7 +319,7 @@ class FetchPipelinePlugin(
             // 当有一个锁定的重试命令，并且其ID与我们上次处理的ID不同时，需要进行重做
             val needRedo = retryCmd.lock && retryCmd.id =/= lastRetryIdReg && 
                             !doAnyFlush && 
-                            !dispatchAnyFlushReg && 
+                            // !dispatchAnyFlushReg && 
                             !isDrainingCacheRspReg
 
 
@@ -353,7 +358,7 @@ class FetchPipelinePlugin(
                 fetchPcReg := correctedNextPc
                 if(enableLog) log(L"[${dbg.cycles}] FETCH-S1: Correcting fetchPcReg for next cycle to 0x${correctedNextPc}")
             }
-            .elsewhen(s1.isFiring && !retryCmd.lock) {
+            .elsewhen(s1.isFiring && !retryCmd.lock && !doAnyFlush) {
                 fetchPcReg := nextPcRegular
                 if(enableLog) log(L"[${dbg.cycles}] FETCH-S1: fetchPcReg updated to ${nextPcRegular} (from raw PC=0x${s1(RAW_PC)})")
             }
@@ -369,13 +374,13 @@ class FetchPipelinePlugin(
             s1.valid := True
             when(isDrainingCacheRspReg 
                 || fetchDisabled 
-                // || (iCacheInFlightCounter.value =/= 0) 这个逻辑删了也能测试通过，吞吐量略微上升
+                // || (iCacheInFlightToDrainCounter.value =/= 0) 这个逻辑删了也能测试通过，吞吐量略微上升
                 || (retryCmd.lock && retryCmd.id === lastRetryIdReg) // 如果刚刚发送了重试，则也需要暂停
             )
             {
                 s1.haltIt()
                 if(enableLog) log(L"[${dbg.cycles}] FETCH-S1: Halting due to isDrainingCacheRspReg=${isDrainingCacheRspReg}, " :+ 
-                L"fetchDisabled=${fetchDisabled}, iCacheInFlightCounter.value=${iCacheInFlightCounter.value}" :+
+                L"fetchDisabled=${fetchDisabled}, iCacheInFlightToDrainCounter.value=${iCacheInFlightToDrainCounter.value}" :+
                 L"retryCmd.lock=${retryCmd.lock} retryCmd.id=${retryCmd.id} === lastRetryIdReg=${lastRetryIdReg}")
             }
 
@@ -389,7 +394,7 @@ class FetchPipelinePlugin(
             val s2 = fetchPipeline.s2_iCacheAccess
             val iCachePort = setup.iCachePort
 
-            iCachePort.cmd.valid := s2.isFiring && !isDrainingCacheRspReg
+            iCachePort.cmd.valid := s2.isFiring && !isDrainingCacheRspReg && !doAnyFlush
             when(iCachePort.cmd.valid) {
                 if(enableLog && verbose) notice(L"[${dbg.cycles}] FETCH-S2: Sending ICache request for PC=0x${s2(PC)}")
             }
@@ -398,7 +403,7 @@ class FetchPipelinePlugin(
             cmdPayload.transactionId := (s2(PC) >> 4).resized
             iCachePort.cmd.payload := cmdPayload
 
-            when(iCachePort.cmd.fire) { iCacheInFlightCounter.increment() }
+            when(iCachePort.cmd.fire) { iCacheInFlightToDrainCounter.increment() }
             if(enableLog && verbose) when(s2.isFiring) { log(L"[${dbg.cycles}] FETCH-S2: ICache request sent for PC=0x${s2(PC)}") }
         }
 
@@ -415,7 +420,7 @@ class FetchPipelinePlugin(
             // log(L"[${dbg.cycles}] iCacheRsp: ${iCacheRsp.format}")
             
             when(iCacheRsp.fire) {
-                iCacheInFlightCounter.decrement() 
+                iCacheInFlightToDrainCounter.decrement() 
             }
             
             val predecodedGroups = StreamFifo(FetchGroup(pCfg), depth = fetchGroupFifoDepth)
@@ -424,12 +429,12 @@ class FetchPipelinePlugin(
             val predecoders = Seq.fill(pCfg.fetchWidth)(new InstructionPredecoder(pCfg))
             predecoders.foreach(_.io.instruction.assignDontCare())
 
-            val handleRsp = s4.isFiring && iCacheRsp.valid && !isDrainingCacheRspReg
+            val handleRsp = s4.isFiring && iCacheRsp.valid && !isDrainingCacheRspReg && !doAnyFlush
             if (enableLog) {
                 if(enableLog) log(L"[${dbg.cycles}] FETCH-S4: Handling Rsp for PC=0x${s4(PC)}? ${handleRsp} because" :+
                     L" isFiring=${s4.isFiring}, iCacheRsp.valid=${iCacheRsp.valid}, isDrainingCacheRspReg=${isDrainingCacheRspReg}")
             }
-            val hasHigherPriorityStuff = doAnyFlush || dispatchAnyFlushReg || isDrainingCacheRspReg
+            val hasHigherPriorityStuff = doAnyFlush || isDrainingCacheRspReg
             // ICache响应到达，但下游已满，无法处理 -> 触发重试！
             val backpressureRedo = !s4.isFiring && iCacheRsp.valid && iCacheRsp.payload.wasHit && !isDrainingCacheRspReg && !predecodedGroups.io.push.ready &&
                                     !hasHigherPriorityStuff
@@ -493,7 +498,7 @@ class FetchPipelinePlugin(
                         predecodedGroup.branchMask := B(predecodedGroup.predecodeInfos.map(_.isBranch).reverse)
 
                         predecodedGroup.numValidInstructions := U(pCfg.fetchWidth) - startInstructionIndex
-                        
+                        assert(!doAnyFlush && !isDrainingCacheRspReg, "Impossible to push valid predecoded group while flushing or draining cache Rsp.")
                         predecodedGroups.io.push.valid   := True
                         predecodedGroups.io.push.payload := predecodedGroup
                         
@@ -508,7 +513,14 @@ class FetchPipelinePlugin(
         }
 
         // --- 连接到智能分发器 ---
-        dispatcher.io.fetchGroupIn << s4_logic.predecodedGroups.io.pop
+        // dispatcher.io.fetchGroupIn << s4_logic.predecodedGroups.io.pop
+        // 手动连接 predecodedGroups.io.pop -> dispatcher.io.fetchGroupIn
+        dispatcher.io.fetchGroupIn.valid   := s4_logic.predecodedGroups.io.pop.valid
+        dispatcher.io.fetchGroupIn.payload := s4_logic.predecodedGroups.io.pop.payload
+
+        // 自定义 ready 信号以处理冲刷
+        s4_logic.predecodedGroups.io.pop.ready := dispatcher.io.fetchGroupIn.ready && !doAnyFlush
+
         dispatcher.io.bpuRsp << setup.bpuResponse
         setup.bpuQueryPort << dispatcher.io.bpuQuery
 
@@ -531,21 +543,21 @@ class FetchPipelinePlugin(
             在下一个周期 (RegNext)，当s1开始从新地址取指时，这个flush信号会清空这些陈旧的、
             不再需要的指令包。
          */
-        s4_logic.predecodedGroups.io.flush := dispatchAnyFlushReg || isDrainingCacheRspReg
-        dispatcher.io.flush := dispatchAnyFlushReg // 硬冲刷才需要清空下游
+        s4_logic.predecodedGroups.io.flush := doAnyFlush || isDrainingCacheRspReg
+        dispatcher.io.flush := doHardFlush // 硬冲刷才需要清空下游
         when(s4_logic.predecodedGroups.io.flush) {
             if(enableLog) notice(L"[${dbg.cycles}] Flush predecodedGroups")
         }
         when(dispatcher.io.flush) {
             if(enableLog) notice(L"[${dbg.cycles}] Flush dispatcher")
         }
-        if(enableLog) when(dispatchAnyFlushReg) { // Use the registered version as it aligns with the action
-            val isHard = dispatchHardFlushReg
-            val isSoft = dispatchSoftFlushReg
-            if(enableLog) notice(L"[FLUSH LOGIC] dispatchAnyFlushReg is ACTIVE (Cause: isHard=${isHard}, isSoft=${isSoft}. Flushing predecodedGroups and Dispatcher.")
-        }
+        // if(enableLog) when(dispatchAnyFlushReg) { // Use the registered version as it aligns with the action
+        //     val isHard = dispatchHardFlushReg
+        //     val isSoft = dispatchSoftFlushReg
+        //     if(enableLog) notice(L"[FLUSH LOGIC] dispatchAnyFlushReg is ACTIVE (Cause: isHard=${isHard}, isSoft=${isSoft}. Flushing predecodedGroups and Dispatcher.")
+        // }
         fetchPipeline.build()
-        
+
         // --- 资源释放 ---
         setup.iCacheService.release()
         setup.bpuService.release()

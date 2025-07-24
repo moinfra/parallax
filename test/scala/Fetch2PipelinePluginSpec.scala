@@ -98,6 +98,11 @@ class Fetch2PipelineTestBench(
       new Fetch2TestSetupPlugin(io)
     )
   )
+  val fetchPlugin = framework.getService[FetchPipelinePlugin]
+  val simSoftRedirectValid = fetchPlugin.doSoftRedirect()
+  val cycle = fetchPlugin.dbg.cycles.simPublic()
+  simSoftRedirectValid.simPublic()
+
 }
 
 // =========================================================================
@@ -996,6 +1001,152 @@ class FetchPipelinePluginSpec extends CustomSpinalSimFunSuite {
     }
   }
 
+  test("Fetch2 - P0 - Mispredict Recovery (HardRedirect must flush internal buffers)") {
+    // 这是一个最高优先级的测试，因为它直接模拟了导致CPU死锁的场景。
+    // 目标: 验证一个由后端发起的、用于纠正分支预测失败的硬重定向，
+    //       是否能完全清除流水线内部所有基于错误预测而缓存的指令。
+    //
+    // 场景模拟:
+    // 1. BPU 错误地预测 0x1004 的 beq 会跳转到 0x2000。
+    // 2. Fetch Pipeline 根据这个错误的预测，投机地去取 0x2000 处的指令。
+    //    这些“幽灵指令”会被缓存到流水线内部的某个FIFO中。
+    // 3. 在“幽灵指令”即将被送出时，我们模拟后端的Commit Stage发现了预测错误，
+    //    并发出一个硬重定向信号，要求流水线跳转到正确的路径 0x1008。
+    // 预期:
+    // - 流水线必须丢弃所有来自 0x2000 的“幽灵指令”。
+    // - 在硬重定向后，输出的第一条指令必须来自正确的PC 0x1008。
+    SimConfig.withWave.compile(new Fetch2PipelineTestBench(pCfg, iCfg, axiConfig)).doSim { dut =>
+      implicit val cd = dut.clockDomain.get
+      cd.forkStimulus(10)
+      val helper = new Fetch2TestHelper(dut)
+      helper.init()
+
+      // 1. 设置内存和BPU，创造一个预测失败的场景
+      // BPU预测 beq @ 0x1004 会跳转 (Taken)
+      helper.updateBpu(pc = 0x1004, target = 0x2000, isTaken = true)
+
+      // 写入指令
+      helper.writeInstructionsToMem(
+        0x1000,
+        Seq(
+          nop(), // 0x1000
+          beq(1, 1, 8), // 0x1004 <-- 分支指令。实际不会跳转，但BPU预测会跳转。
+          addi_w(1, 1, 1) // 0x1008 <-- 正确的 fall-through 路径
+        )
+      )
+      // 在错误的预测路径上放置一个有明显特征的指令
+      helper.writeInstructionsToMem(0x2000, Seq(addi_w(9, 9, 9))) // 0x2000 <-- “幽灵指令”
+
+      helper.startMonitor()
+
+      // 2. 让流水线开始执行，并根据错误的预测进行投机
+      // 消费到分支指令，这将触发到 0x2000 的软重定向
+      helper.expectInstr(0x1000, nop())
+      helper.expectInstr(0x1004, beq(1, 1, 8), expectedIsBranch = true, predictedTaken = Some(true))
+
+      // 关键: 在这里，Fetch Pipeline 已经发出了对 0x2000 的取指请求。
+      // 我们需要给它一点时间，让 0x2000 的“幽灵指令”被取回并缓存到内部FIFO中。
+      // 同时，我们保持 fetchOutput.ready = false，防止它被过早地送出。
+      dut.io.fetchOutput.ready #= false
+      cd.waitSampling(20) // 等待，让幽灵指令进入管道
+
+      // 3. 模拟后端的Mispredict信号：发出一个更高优先级的硬重定向
+      ParallaxLogger.info("[TB] Simulating mispredict recovery: Issuing Hard Redirect to 0x1008")
+      helper.issueHardRedirect(0x1008)
+      cd.waitSampling(5) // 等待冲刷信号传播
+
+      // 4. 打开闸门，检查输出
+      dut.io.fetchOutput.ready #= true
+
+      // 预期: 所有在 0x2000 的幽灵指令都应被清除。
+      // 输出的第一条指令必须是来自正确路径 0x1008 的。
+      helper.expectInstr(0x1008, addi_w(1, 1, 1), timeout = 100)
+
+      // 确认队列中没有任何来自错误路径的幽灵指令
+      assert(
+        !helper.receivedInstrs.exists(_.pc == 0x2000),
+        "FATAL: A 'ghost' instruction from the mispredicted path (0x2000) survived the flush!"
+      )
+      
+      ParallaxLogger.success("[TB] Test Passed: Mispredict recovery correctly flushed internal buffers.")
+    }
+  }
+
+  test("xFetch2 - P0 - HardRedirect_Races_And_Wins_Against_SoftRedirect") {
+    // FIXME: 这个测试写得有点毛病，得修复一下
+    // 这是一个最高优先级的测试，因为它精确地模拟了软冲刷和硬冲刷的竞争条件。
+    // 目标: 验证当软冲刷(来自BPU)正在被处理时，一个紧随其后(下一周期)的
+    //       硬冲刷(来自后端)能够正确地抢占并覆盖它，确保流水线状态的最终一致性。
+    //
+    // 策略:
+    // 1. 预热阶段: 运行一次指令序列，确保BPU对目标分支的预测状态是“Taken”，
+    //    并且相关的指令已经在ICache中。
+    // 2. 监控与注入: fork一个并行线程，专门监控DUT内部的软冲刷信号。
+    //    一旦该信号有效，此线程在下一个周期立即注入硬冲刷。
+    // 3. 验证: 主线程验证最终的输出是否来自硬冲刷的目标，而不是软冲刷的目标。
+    SimConfig.withWave.compile(new Fetch2PipelineTestBench(pCfg, iCfg, axiConfig)).doSim { dut =>
+      implicit val cd = dut.clockDomain.get
+      cd.forkStimulus(10)
+      val helper = new Fetch2TestHelper(dut)
+
+      // --- 1. 真正的预热阶段 ---
+      helper.init()
+      ParallaxLogger.info("[TB] Starting Pre-heat Phase...")
+      // b. 写入所有需要的指令到内存，预热ICache
+      helper.writeInstructionsToMem(0x1000, Seq(nop(), beq(1, 2, 8)))
+      helper.writeInstructionsToMem(0x2000, Seq(addi_w(1, 1, 1))) // 软重定向的目标 (幽灵路径)
+      helper.writeInstructionsToMem(0x3000, Seq(addi_w(2, 2, 2))) // 硬重定向的目标 (正确路径)
+      // c. 运行一次，确保指令进入ICache
+      helper.issueHardRedirect(0x1000)
+      cd.waitSampling(50)
+      ParallaxLogger.info("[TB] Pre-heat Phase Complete. Resetting for test.")
+      // d. 重置PC，准备正式测试
+      helper.issueHardRedirect(0x1000)
+      helper.clearBuffer()
+
+      // a. 设置BPU状态，让它强烈预测分支会跳转
+      helper.updateBpu(pc = 0x1004, target = 0x2000, isTaken = true)
+
+
+      // 创建一个并发线程来注入硬冲刷
+      val hardRedirectInjector = fork {
+        // 等待，直到我们检测到软冲刷信号在前一个周期被置位
+        // (由于我们监控的是RegNext版本，所以当它为true时，表示原始信号在上一个周期为true)
+        cd.waitSamplingWhere(dut.simSoftRedirectValid.toBoolean)
+        
+        val triggerCycle = dut.cycle.toBigInt
+        ParallaxLogger.success(s"[TB-INJECTOR] Detected soft redirect event at cycle ${(triggerCycle - 1).toString(16)}. Injecting hard redirect at cycle ${triggerCycle.toString(16)}.")
+        helper.issueHardRedirect(0x3000)
+      }
+
+      // --- 2. 监控与注入 ---
+      helper.startMonitor()
+      cd.waitSampling(10) // 这个时候线程应该就绪了
+
+      // 主线程正常运行，但现在不主动干预时序
+      dut.io.fetchOutput.ready #= true // 让流水线自由流动
+      ParallaxLogger.info("[TB] Running main thread...")
+
+      // --- 3. 验证 ---
+      // 我们期望的最终结果是：硬重定向获胜。
+      // 流水线可能会输出 0x1000 和 0x1004, 然后必须是 0x3000。
+      helper.expectInstr(0x1000, nop(), timeout=100)
+      helper.expectInstr(0x1004, beq(1, 2, 8), expectedIsBranch=true, predictedTaken=Some(true), timeout=100)
+      
+      // 关键验证点：下一个指令必须来自硬重定向的目标
+      helper.expectInstr(0x3000, addi_w(2, 2, 2), timeout = 200)
+
+      // 确保软重定向路径的指令从未被送出
+      assert(
+        !helper.receivedInstrs.exists(_.pc == 0x2000),
+        "FATAL: Instruction from the soft redirect target (0x2000) was incorrectly fetched! Hard redirect failed to win the race."
+      )
+      
+      helper.expectNoOutput(50)
+      ParallaxLogger.success("[TB] Test Passed: Hard redirect correctly raced and won against the soft redirect.")
+    }
+  }
+
   // =========================================================================
   //  Performance Test Cases (REVISED with CycleTimer)
   // =========================================================================
@@ -1024,7 +1175,7 @@ class FetchPipelinePluginSpec extends CustomSpinalSimFunSuite {
         val insts = (0 until totalInstructions).map(i => addi_w(1, 1, i))
         helper.writeInstructionsToMem(startAddress, insts)
 
-        // 3. 预热阶段
+        // 3. 预热阶段，如果不预热
         ParallaxLogger.info("[TB] Warming up ICache...")
         helper.startMonitor() // 此时启动监控器
         dut.io.fetchOutput.ready #= true // 让数据可以流出
