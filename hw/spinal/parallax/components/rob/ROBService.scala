@@ -69,4 +69,6 @@ trait ROBService[RU <: Data with Formattable with HasRobPtr] extends Service wit
    */
   def newRobFlushPort(): (Flow[ROBFlushPayload])
   def doRobFlush(): (Flow[ROBFlushPayload])
+  // Commit 阶段可以用这个信号来丢弃ROB头部的条目，即使它不提交
+  // def getDiscardHeadPort(): Bool
 }

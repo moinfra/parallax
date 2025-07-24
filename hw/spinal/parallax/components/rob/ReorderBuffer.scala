@@ -71,8 +71,9 @@ case class ROBFlushPayload(robPtrWidth: BitCount) extends Bundle {
 // --- Data Bundles for ROB Internal Storage ---
 case class ROBStatus[RU <: Data with Formattable with HasRobPtr](config: ROBConfig[RU]) extends Bundle {
   val busy = Bool()
-  val done = Bool()
+  val done = Bool() // 已经完成了其执行阶段，并且其结果（包括数据结果、分支预测是否正确、是否发生异常等）已经写入 ROB。
   val isMispredictedBranch = Bool()
+  val isTaken = Bool()
   val result = Bits(config.pcWidth)
   val hasException = Bool()
   val exceptionCode = UInt(config.exceptionCodeWidth)
@@ -110,19 +111,21 @@ case class ROBWritebackPort[RU <: Data with Formattable with HasRobPtr](config: 
     with IMasterSlave {
   val fire = Bool()
   val robPtr = UInt(config.robPtrWidth) 
+  val isTaken = Bool()
   val isMispredictedBranch = Bool()
   val result = Bits(config.pcWidth)
   val exceptionOccurred = Bool()
   val exceptionCodeIn = UInt(config.exceptionCodeWidth)
 
   override def asMaster(): Unit = {
-    in(fire, robPtr, isMispredictedBranch, result, exceptionOccurred, exceptionCodeIn)
+    in(fire, robPtr, isMispredictedBranch, isTaken, result, exceptionOccurred, exceptionCodeIn)
   }
 
   def setDefault(): Unit = {
     this.fire := False
     this.robPtr.assignDontCare()
     this.isMispredictedBranch.assignDontCare()
+    this.isTaken.assignDontCare()
     this.result.assignDontCare()
     this.exceptionOccurred.assignDontCare()
     this.exceptionCodeIn.assignDontCare()
@@ -132,8 +135,8 @@ case class ROBWritebackPort[RU <: Data with Formattable with HasRobPtr](config: 
 case class ROBCommitSlot[RU <: Data with Formattable with HasRobPtr](config: ROBConfig[RU])
     extends Bundle
     with IMasterSlave {
-  val valid = Bool() // ok to commit
-  val canCommit = Bool() // ok to commit
+  val valid = Bool() // 当前持有一个有效的、可以被检查是否可以提交的指令条目。但不一定可以提交。
+  val canCommit = Bool() // 满足了所有提交的条件，只需要一个 ack 就可以完成提交
   val entry = ROBFullEntry(config)
 
   override def asMaster(): Unit = {
@@ -369,10 +372,11 @@ class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfi
     val wbGenBit = wbPort.robPtr.msb
     val statusBeforeWb = statuses(wbPhysIdx)
     
-    when(wbPort.fire && wbGenBit === statusBeforeWb.genBit) {
+    when(!io.flush.valid && wbPort.fire && wbGenBit === statusBeforeWb.genBit) {
       statuses(wbPhysIdx).busy := False
       statuses(wbPhysIdx).done := True
       statuses(wbPhysIdx).isMispredictedBranch := wbPort.isMispredictedBranch
+      statuses(wbPhysIdx).isTaken := wbPort.isTaken
       statuses(wbPhysIdx).result := wbPort.result
       statuses(wbPhysIdx).hasException := wbPort.exceptionOccurred
       statuses(wbPhysIdx).exceptionCode := Mux(wbPort.exceptionOccurred, wbPort.exceptionCodeIn, statusBeforeWb.exceptionCode)

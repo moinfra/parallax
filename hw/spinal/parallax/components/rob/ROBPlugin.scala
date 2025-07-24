@@ -141,6 +141,10 @@ class ROBPlugin[RU <: Data with Formattable with HasRobPtr](
     // 这样其他服务可以监听聚合后的flush信号
     aggregatedFlushSignal
   }
+
+  // override def getDiscardHeadPort(): Bool = {
+  //   robComponent.io.discardHead
+  // }
   // ROBPlugin 可能还有自己的 setup/logic 区域来处理一些初始化或全局逻辑，
   // 但主要的服务实现是通过连接到 robComponent.io。
   val logic = create late new Area {
