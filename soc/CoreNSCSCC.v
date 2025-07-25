@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 49a99dae7b6ed938ae50042417514f24dcaeaaa8
 // Component : CoreNSCSCC
-// Git hash  : 5f1e5401d87da3c44b31cdd7a8764d9c2b3cee32
+// Git hash  : e223e68c78e2e562ebb82b4941a41ed1d19e5c12
 
 `timescale 1ns/1ps
 
@@ -212,6 +212,9 @@ module CoreNSCSCC (
   wire                oneShot_21_io_triggerIn;
   wire       [0:0]    streamDemux_1_io_select;
   wire                oneShot_22_io_triggerIn;
+  wire                streamFifo_14_io_push_valid;
+  wire                streamFifo_14_io_push_payload_alignException;
+  wire                streamFifo_14_io_push_payload_isIO;
   wire                oneShot_23_io_triggerIn;
   reg                 FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_valid;
   reg        [31:0]   FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_pc;
@@ -925,6 +928,27 @@ module CoreNSCSCC (
   wire                streamDemux_1_io_outputs_1_payload_isFlush;
   wire                streamDemux_1_io_outputs_1_payload_isIO;
   wire                oneShot_22_io_pulseOut;
+  wire                streamFifo_14_io_push_ready;
+  wire                streamFifo_14_io_pop_valid;
+  wire       [2:0]    streamFifo_14_io_pop_payload_qPtr;
+  wire       [31:0]   streamFifo_14_io_pop_payload_address;
+  wire                streamFifo_14_io_pop_payload_alignException;
+  wire       [1:0]    streamFifo_14_io_pop_payload_accessSize;
+  wire                streamFifo_14_io_pop_payload_isSignedLoad;
+  wire       [3:0]    streamFifo_14_io_pop_payload_storeMask;
+  wire       [5:0]    streamFifo_14_io_pop_payload_basePhysReg;
+  wire       [31:0]   streamFifo_14_io_pop_payload_immediate;
+  wire                streamFifo_14_io_pop_payload_usePc;
+  wire       [31:0]   streamFifo_14_io_pop_payload_pc;
+  wire       [3:0]    streamFifo_14_io_pop_payload_robPtr;
+  wire                streamFifo_14_io_pop_payload_isLoad;
+  wire                streamFifo_14_io_pop_payload_isStore;
+  wire       [5:0]    streamFifo_14_io_pop_payload_physDst;
+  wire       [31:0]   streamFifo_14_io_pop_payload_storeData;
+  wire                streamFifo_14_io_pop_payload_isFlush;
+  wire                streamFifo_14_io_pop_payload_isIO;
+  wire       [1:0]    streamFifo_14_io_occupancy;
+  wire       [1:0]    streamFifo_14_io_availability;
   wire                streamArbiter_9_io_inputs_0_ready;
   wire                streamArbiter_9_io_output_valid;
   wire       [3:0]    streamArbiter_9_io_output_payload_robPtr;
@@ -1429,7 +1453,7 @@ module CoreNSCSCC (
   wire       [7:0]    _zz_io_triggerIn_18;
   wire       [4:0]    _zz_io_triggerIn_19;
   wire       [7:0]    _zz_when_Debug_l71_9_1;
-  wire       [31:0]   _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException_2;
+  wire       [31:0]   _zz_io_push_payload_alignException_2;
   wire       [3:0]    _zz_LoadQueuePlugin_logic_loadQueue_pushOh;
   wire       [31:0]   _zz__zz_LoadQueuePlugin_hw_prfWritePort_data;
   wire       [7:0]    _zz__zz_LoadQueuePlugin_hw_prfWritePort_data_1;
@@ -2824,6 +2848,8 @@ module CoreNSCSCC (
   reg        [5:0]    LoadQueuePlugin_hw_wakeupPort_payload_physRegIdx;
   wire                _zz_LoadQueuePlugin_logic_loadQueue_mmioCmdFired;
   wire                _zz_LoadQueuePlugin_logic_loadQueue_mmioCmdFired_1;
+  wire       [31:0]   _zz_LoadQueuePlugin_logic_loadQueue_completionInfo_data;
+  wire                _zz_LoadQueuePlugin_logic_loadQueue_completionInfo_hasFault;
   reg                 CheckpointManagerPlugin_setup_btRestorePort_valid;
   reg        [63:0]   CheckpointManagerPlugin_setup_btRestorePort_payload_busyBits;
   wire                LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_valid;
@@ -4029,58 +4055,36 @@ module CoreNSCSCC (
   wire                when_Connection_l74_1;
   wire                when_Connection_l74_2;
   wire                _zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_valid;
-  reg                 _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_valid;
-  reg        [2:0]    _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_qPtr;
+  reg                 _zz_io_push_valid;
+  reg        [2:0]    _zz_io_push_payload_qPtr;
   reg        [5:0]    _zz_when_AddressGenerationUnit_l219;
-  reg        [31:0]   _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_immediate;
-  reg        [1:0]    _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException;
-  reg                 _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isSignedLoad;
-  reg                 _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_usePc;
-  reg        [31:0]   _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_pc;
+  reg        [31:0]   _zz_io_push_payload_immediate;
+  reg        [1:0]    _zz_io_push_payload_alignException;
+  reg                 _zz_io_push_payload_isSignedLoad;
+  reg                 _zz_io_push_payload_usePc;
+  reg        [31:0]   _zz_io_push_payload_pc;
   reg        [5:0]    _zz_when_AddressGenerationUnit_l224;
-  reg        [3:0]    _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_robPtr;
-  reg                 _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isLoad;
+  reg        [3:0]    _zz_io_push_payload_robPtr;
+  reg                 _zz_io_push_payload_isLoad;
   reg                 _zz_when_AddressGenerationUnit_l224_1;
-  reg                 _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isFlush;
-  reg                 _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isIO;
-  reg        [5:0]    _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_physDst;
-  reg        [31:0]   _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address;
-  reg        [31:0]   _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeData;
-  reg                 _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address_1;
-  reg        [31:0]   _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address_2;
-  reg                 _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeData_1;
-  reg        [31:0]   _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeData_2;
+  reg                 _zz_io_push_payload_isFlush;
+  reg                 _zz_io_push_payload_isIO;
+  reg        [5:0]    _zz_io_push_payload_physDst;
+  reg        [31:0]   _zz_io_push_payload_address;
+  reg        [31:0]   _zz_io_push_payload_storeData;
+  reg                 _zz_io_push_payload_address_1;
+  reg        [31:0]   _zz_io_push_payload_address_2;
+  reg                 _zz_io_push_payload_storeData_1;
+  reg        [31:0]   _zz_io_push_payload_storeData_2;
   wire                when_AddressGenerationUnit_l219;
   wire                when_AddressGenerationUnit_l224;
-  wire       [31:0]   _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address_3;
-  reg        [31:0]   _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeData_3;
-  wire       [31:0]   _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address_4;
-  reg        [2:0]    _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException_1;
-  wire       [1:0]    _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeMask;
-  reg        [3:0]    _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeMask_1;
-  reg                 _zz_LsuEU_LsuEuPlugin_hw_aguPort_input_ready;
-  wire       [1:0]    _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize;
-  wire                _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_valid_1;
-  wire       [1:0]    _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize_1;
-  reg                 _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_valid_2;
-  reg        [2:0]    _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_qPtr_1;
-  reg        [31:0]   _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address_5;
-  reg                 _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException_2;
-  reg        [1:0]    _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize_2;
-  reg                 _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isSignedLoad_1;
-  reg        [3:0]    _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeMask_2;
-  reg        [5:0]    _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_basePhysReg;
-  reg        [31:0]   _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_immediate_1;
-  reg                 _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_usePc_1;
-  reg        [31:0]   _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_pc_1;
-  reg        [3:0]    _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_robPtr_1;
-  reg                 _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isLoad_1;
-  reg                 _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isStore;
-  reg        [5:0]    _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_physDst_1;
-  reg        [31:0]   _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeData_4;
-  reg                 _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isFlush_1;
-  reg                 _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isIO_1;
-  wire                when_Stream_l477;
+  wire       [31:0]   _zz_io_push_payload_address_3;
+  reg        [31:0]   _zz_io_push_payload_storeData_3;
+  wire       [31:0]   _zz_io_push_payload_address_4;
+  reg        [2:0]    _zz_io_push_payload_alignException_1;
+  wire       [1:0]    _zz_io_push_payload_storeMask;
+  reg        [3:0]    _zz_io_push_payload_storeMask_1;
+  wire       [1:0]    _zz_io_push_payload_accessSize;
   wire                LoadQueuePlugin_logic_pushCmd_valid;
   wire                LoadQueuePlugin_logic_pushCmd_ready;
   wire       [3:0]    LoadQueuePlugin_logic_pushCmd_payload_robPtr;
@@ -4317,27 +4321,27 @@ module CoreNSCSCC (
   reg                 LoadQueuePlugin_logic_loadQueue_completingHead_isReadyForDCache;
   reg                 LoadQueuePlugin_logic_loadQueue_completingHead_isWaitingForRsp;
   reg        [31:0]   _zz_LoadQueuePlugin_hw_prfWritePort_data;
-  wire                when_LoadQueuePlugin_l533;
-  wire                _zz_when_LoadQueuePlugin_l563;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l563_1;
-  wire                _zz_when_LoadQueuePlugin_l563_2;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l563_3;
-  wire                when_LoadQueuePlugin_l563;
-  wire                _zz_when_LoadQueuePlugin_l563_4;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l563_5;
-  wire                _zz_when_LoadQueuePlugin_l563_6;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l563_7;
-  wire                when_LoadQueuePlugin_l563_1;
-  wire                _zz_when_LoadQueuePlugin_l563_8;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l563_9;
-  wire                _zz_when_LoadQueuePlugin_l563_10;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l563_11;
-  wire                when_LoadQueuePlugin_l563_2;
-  wire                _zz_when_LoadQueuePlugin_l563_12;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l563_13;
-  wire                _zz_when_LoadQueuePlugin_l563_14;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l563_15;
-  wire                when_LoadQueuePlugin_l563_3;
+  wire                when_LoadQueuePlugin_l535;
+  wire                _zz_when_LoadQueuePlugin_l565;
+  wire       [2:0]    _zz_when_LoadQueuePlugin_l565_1;
+  wire                _zz_when_LoadQueuePlugin_l565_2;
+  wire       [2:0]    _zz_when_LoadQueuePlugin_l565_3;
+  wire                when_LoadQueuePlugin_l565;
+  wire                _zz_when_LoadQueuePlugin_l565_4;
+  wire       [2:0]    _zz_when_LoadQueuePlugin_l565_5;
+  wire                _zz_when_LoadQueuePlugin_l565_6;
+  wire       [2:0]    _zz_when_LoadQueuePlugin_l565_7;
+  wire                when_LoadQueuePlugin_l565_1;
+  wire                _zz_when_LoadQueuePlugin_l565_8;
+  wire       [2:0]    _zz_when_LoadQueuePlugin_l565_9;
+  wire                _zz_when_LoadQueuePlugin_l565_10;
+  wire       [2:0]    _zz_when_LoadQueuePlugin_l565_11;
+  wire                when_LoadQueuePlugin_l565_2;
+  wire                _zz_when_LoadQueuePlugin_l565_12;
+  wire       [2:0]    _zz_when_LoadQueuePlugin_l565_13;
+  wire                _zz_when_LoadQueuePlugin_l565_14;
+  wire       [2:0]    _zz_when_LoadQueuePlugin_l565_15;
+  wire                when_LoadQueuePlugin_l565_3;
   reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_0;
   reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_1;
   reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_2;
@@ -4950,8 +4954,8 @@ module CoreNSCSCC (
   wire       [3:0]    CoreMemSysPlugin_logic_roMasters_0_r_payload_id;
   wire       [1:0]    CoreMemSysPlugin_logic_roMasters_0_r_payload_resp;
   wire                CoreMemSysPlugin_logic_roMasters_0_r_payload_last;
-  wire                when_CheckpointManagerPlugin_l117;
-  wire                when_CheckpointManagerPlugin_l121;
+  wire                when_CheckpointManagerPlugin_l125;
+  wire                when_CheckpointManagerPlugin_l129;
   reg                 ICachePlugin_logic_storage_valids_0_0;
   reg                 ICachePlugin_logic_storage_valids_0_1;
   reg                 ICachePlugin_logic_storage_valids_1_0;
@@ -6037,10 +6041,8 @@ module CoreNSCSCC (
   reg [7:0] io_outputs_0_combStage_translated_payload_size_string;
   reg [7:0] _zz_io_outputs_1_combStage_translated_payload_accessSize_string;
   reg [7:0] io_outputs_1_combStage_translated_payload_accessSize_string;
-  reg [7:0] _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException_string;
-  reg [7:0] _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize_string;
-  reg [7:0] _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize_1_string;
-  reg [7:0] _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize_2_string;
+  reg [7:0] _zz_io_push_payload_alignException_string;
+  reg [7:0] _zz_io_push_payload_accessSize_string;
   reg [7:0] LoadQueuePlugin_logic_pushCmd_payload_size_string;
   reg [7:0] LoadQueuePlugin_logic_loadQueue_slots_0_size_string;
   reg [7:0] LoadQueuePlugin_logic_loadQueue_slots_1_size_string;
@@ -6165,7 +6167,7 @@ module CoreNSCSCC (
   assign _zz_io_triggerIn_19 = 5'h18;
   assign _zz_io_triggerIn_18 = {3'd0, _zz_io_triggerIn_19};
   assign _zz_when_Debug_l71_9_1 = {3'd0, _zz_when_Debug_l71_10};
-  assign _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException_2 = {29'd0, _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException_1};
+  assign _zz_io_push_payload_alignException_2 = {29'd0, _zz_io_push_payload_alignException_1};
   assign _zz_LoadQueuePlugin_logic_loadQueue_pushOh = ((~ LoadQueuePlugin_logic_loadQueue_availableSlotsMask) + 4'b0001);
   assign _zz__zz_LoadQueuePlugin_hw_prfWritePort_data_1 = LoadQueuePlugin_logic_loadQueue_completionInfoReg_data[7 : 0];
   assign _zz__zz_LoadQueuePlugin_hw_prfWritePort_data = {{24{_zz__zz_LoadQueuePlugin_hw_prfWritePort_data_1[7]}}, _zz__zz_LoadQueuePlugin_hw_prfWritePort_data_1};
@@ -7936,6 +7938,51 @@ module CoreNSCSCC (
     .clk          (clk                    ), //i
     .reset        (reset                  )  //i
   );
+  StreamFifo_12 streamFifo_14 (
+    .io_push_valid                  (streamFifo_14_io_push_valid                  ), //i
+    .io_push_ready                  (streamFifo_14_io_push_ready                  ), //o
+    .io_push_payload_qPtr           (_zz_io_push_payload_qPtr[2:0]                ), //i
+    .io_push_payload_address        (_zz_io_push_payload_address_4[31:0]          ), //i
+    .io_push_payload_alignException (streamFifo_14_io_push_payload_alignException ), //i
+    .io_push_payload_accessSize     (_zz_io_push_payload_accessSize[1:0]          ), //i
+    .io_push_payload_isSignedLoad   (_zz_io_push_payload_isSignedLoad             ), //i
+    .io_push_payload_storeMask      (_zz_io_push_payload_storeMask_1[3:0]         ), //i
+    .io_push_payload_basePhysReg    (_zz_when_AddressGenerationUnit_l219[5:0]     ), //i
+    .io_push_payload_immediate      (_zz_io_push_payload_immediate[31:0]          ), //i
+    .io_push_payload_usePc          (_zz_io_push_payload_usePc                    ), //i
+    .io_push_payload_pc             (_zz_io_push_payload_pc[31:0]                 ), //i
+    .io_push_payload_robPtr         (_zz_io_push_payload_robPtr[3:0]              ), //i
+    .io_push_payload_isLoad         (_zz_io_push_payload_isLoad                   ), //i
+    .io_push_payload_isStore        (_zz_when_AddressGenerationUnit_l224_1        ), //i
+    .io_push_payload_physDst        (_zz_io_push_payload_physDst[5:0]             ), //i
+    .io_push_payload_storeData      (_zz_io_push_payload_storeData_3[31:0]        ), //i
+    .io_push_payload_isFlush        (_zz_io_push_payload_isFlush                  ), //i
+    .io_push_payload_isIO           (streamFifo_14_io_push_payload_isIO           ), //i
+    .io_pop_valid                   (streamFifo_14_io_pop_valid                   ), //o
+    .io_pop_ready                   (LsuEU_LsuEuPlugin_hw_aguPort_output_ready    ), //i
+    .io_pop_payload_qPtr            (streamFifo_14_io_pop_payload_qPtr[2:0]       ), //o
+    .io_pop_payload_address         (streamFifo_14_io_pop_payload_address[31:0]   ), //o
+    .io_pop_payload_alignException  (streamFifo_14_io_pop_payload_alignException  ), //o
+    .io_pop_payload_accessSize      (streamFifo_14_io_pop_payload_accessSize[1:0] ), //o
+    .io_pop_payload_isSignedLoad    (streamFifo_14_io_pop_payload_isSignedLoad    ), //o
+    .io_pop_payload_storeMask       (streamFifo_14_io_pop_payload_storeMask[3:0]  ), //o
+    .io_pop_payload_basePhysReg     (streamFifo_14_io_pop_payload_basePhysReg[5:0]), //o
+    .io_pop_payload_immediate       (streamFifo_14_io_pop_payload_immediate[31:0] ), //o
+    .io_pop_payload_usePc           (streamFifo_14_io_pop_payload_usePc           ), //o
+    .io_pop_payload_pc              (streamFifo_14_io_pop_payload_pc[31:0]        ), //o
+    .io_pop_payload_robPtr          (streamFifo_14_io_pop_payload_robPtr[3:0]     ), //o
+    .io_pop_payload_isLoad          (streamFifo_14_io_pop_payload_isLoad          ), //o
+    .io_pop_payload_isStore         (streamFifo_14_io_pop_payload_isStore         ), //o
+    .io_pop_payload_physDst         (streamFifo_14_io_pop_payload_physDst[5:0]    ), //o
+    .io_pop_payload_storeData       (streamFifo_14_io_pop_payload_storeData[31:0] ), //o
+    .io_pop_payload_isFlush         (streamFifo_14_io_pop_payload_isFlush         ), //o
+    .io_pop_payload_isIO            (streamFifo_14_io_pop_payload_isIO            ), //o
+    .io_flush                       (1'b0                                         ), //i
+    .io_occupancy                   (streamFifo_14_io_occupancy[1:0]              ), //o
+    .io_availability                (streamFifo_14_io_availability[1:0]           ), //o
+    .clk                            (clk                                          ), //i
+    .reset                          (reset                                        )  //i
+  );
   StreamArbiter_7 streamArbiter_9 (
     .io_inputs_0_valid                      (LsuEU_LsuEuPlugin_hw_lqPushPort_valid                          ), //i
     .io_inputs_0_ready                      (streamArbiter_9_io_inputs_0_ready                              ), //o
@@ -8005,7 +8052,7 @@ module CoreNSCSCC (
     .clk                                               (clk                                                                                        ), //i
     .reset                                             (reset                                                                                      )  //i
   );
-  StreamFifo_12 FetchPipelinePlugin_logic_s4_logic_rawFetchGroups (
+  StreamFifo_13 FetchPipelinePlugin_logic_s4_logic_rawFetchGroups (
     .io_push_valid                         (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_valid                             ), //i
     .io_push_ready                         (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_ready                             ), //o
     .io_push_payload_pc                    (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_pc[31:0]                  ), //i
@@ -14060,39 +14107,21 @@ module CoreNSCSCC (
     endcase
   end
   always @(*) begin
-    case(_zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException)
-      MemAccessSize_B : _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException_string = "B";
-      MemAccessSize_H : _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException_string = "H";
-      MemAccessSize_W : _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException_string = "W";
-      MemAccessSize_D : _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException_string = "D";
-      default : _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException_string = "?";
+    case(_zz_io_push_payload_alignException)
+      MemAccessSize_B : _zz_io_push_payload_alignException_string = "B";
+      MemAccessSize_H : _zz_io_push_payload_alignException_string = "H";
+      MemAccessSize_W : _zz_io_push_payload_alignException_string = "W";
+      MemAccessSize_D : _zz_io_push_payload_alignException_string = "D";
+      default : _zz_io_push_payload_alignException_string = "?";
     endcase
   end
   always @(*) begin
-    case(_zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize)
-      MemAccessSize_B : _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize_string = "B";
-      MemAccessSize_H : _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize_string = "H";
-      MemAccessSize_W : _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize_string = "W";
-      MemAccessSize_D : _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize_string = "D";
-      default : _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(_zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize_1)
-      MemAccessSize_B : _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize_1_string = "B";
-      MemAccessSize_H : _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize_1_string = "H";
-      MemAccessSize_W : _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize_1_string = "W";
-      MemAccessSize_D : _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize_1_string = "D";
-      default : _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize_1_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(_zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize_2)
-      MemAccessSize_B : _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize_2_string = "B";
-      MemAccessSize_H : _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize_2_string = "H";
-      MemAccessSize_W : _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize_2_string = "W";
-      MemAccessSize_D : _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize_2_string = "D";
-      default : _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize_2_string = "?";
+    case(_zz_io_push_payload_accessSize)
+      MemAccessSize_B : _zz_io_push_payload_accessSize_string = "B";
+      MemAccessSize_H : _zz_io_push_payload_accessSize_string = "H";
+      MemAccessSize_W : _zz_io_push_payload_accessSize_string = "W";
+      MemAccessSize_D : _zz_io_push_payload_accessSize_string = "D";
+      default : _zz_io_push_payload_accessSize_string = "?";
     endcase
   end
   always @(*) begin
@@ -20001,117 +20030,110 @@ module CoreNSCSCC (
   assign LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_valid = (_zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_valid && LsuEU_LsuEuPlugin_hw_aguPort_input_payload_isStore);
   assign LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_address = LsuEU_LsuEuPlugin_hw_aguPort_input_payload_dataReg;
   always @(*) begin
-    _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address_1 = 1'b0;
+    _zz_io_push_payload_address_1 = 1'b0;
     if(AguPlugin_logic_bypassFlow_valid) begin
       if(when_AddressGenerationUnit_l219) begin
-        _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address_1 = 1'b1;
+        _zz_io_push_payload_address_1 = 1'b1;
       end
     end
   end
 
   always @(*) begin
-    _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address_2 = 32'h0;
+    _zz_io_push_payload_address_2 = 32'h0;
     if(AguPlugin_logic_bypassFlow_valid) begin
       if(when_AddressGenerationUnit_l219) begin
-        _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address_2 = AguPlugin_logic_bypassFlow_payload_physRegData;
+        _zz_io_push_payload_address_2 = AguPlugin_logic_bypassFlow_payload_physRegData;
       end
     end
   end
 
   always @(*) begin
-    _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeData_1 = 1'b0;
+    _zz_io_push_payload_storeData_1 = 1'b0;
     if(AguPlugin_logic_bypassFlow_valid) begin
       if(when_AddressGenerationUnit_l224) begin
-        _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeData_1 = 1'b1;
+        _zz_io_push_payload_storeData_1 = 1'b1;
       end
     end
   end
 
   always @(*) begin
-    _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeData_2 = 32'h0;
+    _zz_io_push_payload_storeData_2 = 32'h0;
     if(AguPlugin_logic_bypassFlow_valid) begin
       if(when_AddressGenerationUnit_l224) begin
-        _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeData_2 = AguPlugin_logic_bypassFlow_payload_physRegData;
+        _zz_io_push_payload_storeData_2 = AguPlugin_logic_bypassFlow_payload_physRegData;
       end
     end
   end
 
   assign when_AddressGenerationUnit_l219 = (AguPlugin_logic_bypassFlow_payload_physRegIdx == _zz_when_AddressGenerationUnit_l219);
   assign when_AddressGenerationUnit_l224 = (_zz_when_AddressGenerationUnit_l224_1 && (AguPlugin_logic_bypassFlow_payload_physRegIdx == _zz_when_AddressGenerationUnit_l224));
-  assign _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address_3 = (_zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address_1 ? _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address_2 : _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address);
+  assign _zz_io_push_payload_address_3 = (_zz_io_push_payload_address_1 ? _zz_io_push_payload_address_2 : _zz_io_push_payload_address);
   always @(*) begin
-    _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeData_3 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    _zz_io_push_payload_storeData_3 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     if(_zz_when_AddressGenerationUnit_l224_1) begin
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeData_3 = (_zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeData_1 ? _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeData_2 : _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeData);
+      _zz_io_push_payload_storeData_3 = (_zz_io_push_payload_storeData_1 ? _zz_io_push_payload_storeData_2 : _zz_io_push_payload_storeData);
     end
   end
 
-  assign _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address_4 = ((_zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_usePc ? _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_pc : _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address_3) + _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_immediate);
+  assign _zz_io_push_payload_address_4 = ((_zz_io_push_payload_usePc ? _zz_io_push_payload_pc : _zz_io_push_payload_address_3) + _zz_io_push_payload_immediate);
   always @(*) begin
-    case(_zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException)
+    case(_zz_io_push_payload_alignException)
       MemAccessSize_B : begin
-        _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException_1 = 3'b000;
+        _zz_io_push_payload_alignException_1 = 3'b000;
       end
       MemAccessSize_H : begin
-        _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException_1 = 3'b001;
+        _zz_io_push_payload_alignException_1 = 3'b001;
       end
       MemAccessSize_W : begin
-        _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException_1 = 3'b011;
+        _zz_io_push_payload_alignException_1 = 3'b011;
       end
       default : begin
-        _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException_1 = 3'b111;
+        _zz_io_push_payload_alignException_1 = 3'b111;
       end
     endcase
   end
 
-  assign _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeMask = _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address_4[1 : 0];
+  assign _zz_io_push_payload_storeMask = _zz_io_push_payload_address_4[1 : 0];
   always @(*) begin
-    case(_zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException)
+    case(_zz_io_push_payload_alignException)
       MemAccessSize_B : begin
-        _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeMask_1 = (4'b0001 <<< _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeMask);
+        _zz_io_push_payload_storeMask_1 = (4'b0001 <<< _zz_io_push_payload_storeMask);
       end
       MemAccessSize_H : begin
-        _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeMask_1 = (4'b0011 <<< (_zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeMask & (~ 2'b01)));
+        _zz_io_push_payload_storeMask_1 = (4'b0011 <<< (_zz_io_push_payload_storeMask & (~ 2'b01)));
       end
       MemAccessSize_W : begin
-        _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeMask_1 = 4'b1111;
+        _zz_io_push_payload_storeMask_1 = 4'b1111;
       end
       default : begin
-        _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeMask_1 = 4'b1000;
+        _zz_io_push_payload_storeMask_1 = 4'b1000;
       end
     endcase
   end
 
-  assign _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize = _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException;
-  always @(*) begin
-    _zz_LsuEU_LsuEuPlugin_hw_aguPort_input_ready = LsuEU_LsuEuPlugin_hw_aguPort_output_ready;
-    if(when_Stream_l477) begin
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_input_ready = 1'b1;
-    end
-  end
-
-  assign when_Stream_l477 = (! _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_valid_1);
-  assign _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_valid_1 = _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_valid_2;
-  assign _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize_1 = _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize_2;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_valid = _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_valid_1;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_qPtr = _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_qPtr_1;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address = _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address_5;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException = _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException_2;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize = _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize_1;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isSignedLoad = _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isSignedLoad_1;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeMask = _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeMask_2;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_basePhysReg = _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_basePhysReg;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_immediate = _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_immediate_1;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_usePc = _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_usePc_1;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_pc = _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_pc_1;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_robPtr = _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_robPtr_1;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isLoad = _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isLoad_1;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isStore = _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isStore;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_physDst = _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_physDst_1;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeData = _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeData_4;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isFlush = _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isFlush_1;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isIO = _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isIO_1;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_input_ready = (_zz_LsuEU_LsuEuPlugin_hw_aguPort_input_ready && (! LsuEU_LsuEuPlugin_hw_aguPort_flush));
+  assign _zz_io_push_payload_accessSize = _zz_io_push_payload_alignException;
+  assign streamFifo_14_io_push_valid = (_zz_io_push_valid && (! LsuEU_LsuEuPlugin_hw_aguPort_flush));
+  assign streamFifo_14_io_push_payload_alignException = (((_zz_io_push_payload_address_4 & _zz_io_push_payload_alignException_2) != 32'h0) && (_zz_io_push_payload_alignException != MemAccessSize_B));
+  assign streamFifo_14_io_push_payload_isIO = (_zz_io_push_payload_isIO || (1'b0 || ((32'hbfd00000 <= _zz_io_push_payload_address_4) && (_zz_io_push_payload_address_4 <= 32'hc0100000))));
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_valid = streamFifo_14_io_pop_valid;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_qPtr = streamFifo_14_io_pop_payload_qPtr;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address = streamFifo_14_io_pop_payload_address;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException = streamFifo_14_io_pop_payload_alignException;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize = streamFifo_14_io_pop_payload_accessSize;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isSignedLoad = streamFifo_14_io_pop_payload_isSignedLoad;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeMask = streamFifo_14_io_pop_payload_storeMask;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_basePhysReg = streamFifo_14_io_pop_payload_basePhysReg;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_immediate = streamFifo_14_io_pop_payload_immediate;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_usePc = streamFifo_14_io_pop_payload_usePc;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_pc = streamFifo_14_io_pop_payload_pc;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_robPtr = streamFifo_14_io_pop_payload_robPtr;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isLoad = streamFifo_14_io_pop_payload_isLoad;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isStore = streamFifo_14_io_pop_payload_isStore;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_physDst = streamFifo_14_io_pop_payload_physDst;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeData = streamFifo_14_io_pop_payload_storeData;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isFlush = streamFifo_14_io_pop_payload_isFlush;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isIO = streamFifo_14_io_pop_payload_isIO;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_input_ready = (streamFifo_14_io_push_ready && (! LsuEU_LsuEuPlugin_hw_aguPort_flush));
   assign LsuEU_LsuEuPlugin_hw_lqPushPort_ready = streamArbiter_9_io_inputs_0_ready;
   assign LoadQueuePlugin_logic_pushCmd_valid = streamArbiter_9_io_output_valid;
   assign LoadQueuePlugin_logic_pushCmd_payload_robPtr = streamArbiter_9_io_output_payload_robPtr;
@@ -20171,7 +20193,7 @@ module CoreNSCSCC (
       LoadQueuePlugin_logic_loadQueue_completionInfo_data = LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_data;
     end else begin
       if(LoadQueuePlugin_logic_loadQueue_mmioResponseIsForHead) begin
-        LoadQueuePlugin_logic_loadQueue_completionInfo_data = CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_payload_data;
+        LoadQueuePlugin_logic_loadQueue_completionInfo_data = _zz_LoadQueuePlugin_logic_loadQueue_completionInfo_data;
       end
     end
   end
@@ -20182,7 +20204,7 @@ module CoreNSCSCC (
       LoadQueuePlugin_logic_loadQueue_completionInfo_hasFault = 1'b0;
     end else begin
       if(LoadQueuePlugin_logic_loadQueue_mmioResponseIsForHead) begin
-        LoadQueuePlugin_logic_loadQueue_completionInfo_hasFault = CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_payload_error;
+        LoadQueuePlugin_logic_loadQueue_completionInfo_hasFault = _zz_LoadQueuePlugin_logic_loadQueue_completionInfo_hasFault;
       end else begin
         if(LoadQueuePlugin_logic_loadQueue_popOnEarlyException) begin
           LoadQueuePlugin_logic_loadQueue_completionInfo_hasFault = 1'b1;
@@ -20712,7 +20734,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_valid = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_valid;
     end
-    if(when_LoadQueuePlugin_l563) begin
+    if(when_LoadQueuePlugin_l565) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_valid = 1'b0;
     end
   end
@@ -20725,7 +20747,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_address = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_address;
     end
-    if(when_LoadQueuePlugin_l563) begin
+    if(when_LoadQueuePlugin_l565) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_address = 32'h0;
     end
   end
@@ -20738,7 +20760,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_size = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_size;
     end
-    if(when_LoadQueuePlugin_l563) begin
+    if(when_LoadQueuePlugin_l565) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_size = MemAccessSize_W;
     end
   end
@@ -20751,7 +20773,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_robPtr;
     end
-    if(when_LoadQueuePlugin_l563) begin
+    if(when_LoadQueuePlugin_l565) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_robPtr = 4'b0000;
     end
   end
@@ -20764,7 +20786,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_pdest = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_pdest;
     end
-    if(when_LoadQueuePlugin_l563) begin
+    if(when_LoadQueuePlugin_l565) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_pdest = 6'h0;
     end
   end
@@ -20777,7 +20799,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isIO = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isIO;
     end
-    if(when_LoadQueuePlugin_l563) begin
+    if(when_LoadQueuePlugin_l565) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isIO = 1'b0;
     end
   end
@@ -20790,7 +20812,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isSignedLoad = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isSignedLoad;
     end
-    if(when_LoadQueuePlugin_l563) begin
+    if(when_LoadQueuePlugin_l565) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isSignedLoad = 1'b0;
     end
   end
@@ -20803,7 +20825,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_hasException = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_hasException;
     end
-    if(when_LoadQueuePlugin_l563) begin
+    if(when_LoadQueuePlugin_l565) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_hasException = 1'b0;
     end
   end
@@ -20816,7 +20838,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_exceptionCode = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_exceptionCode;
     end
-    if(when_LoadQueuePlugin_l563) begin
+    if(when_LoadQueuePlugin_l565) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_exceptionCode = 8'h0;
     end
   end
@@ -20829,7 +20851,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isWaitingForFwdRsp;
     end
-    if(when_LoadQueuePlugin_l563) begin
+    if(when_LoadQueuePlugin_l565) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isWaitingForFwdRsp = 1'b0;
     end
   end
@@ -20842,7 +20864,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isStalledByDependency;
     end
-    if(when_LoadQueuePlugin_l563) begin
+    if(when_LoadQueuePlugin_l565) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isStalledByDependency = 1'b0;
     end
   end
@@ -20855,7 +20877,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isReadyForDCache;
     end
-    if(when_LoadQueuePlugin_l563) begin
+    if(when_LoadQueuePlugin_l565) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isReadyForDCache = 1'b0;
     end
   end
@@ -20868,7 +20890,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isWaitingForRsp;
     end
-    if(when_LoadQueuePlugin_l563) begin
+    if(when_LoadQueuePlugin_l565) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isWaitingForRsp = 1'b0;
     end
   end
@@ -20881,7 +20903,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_valid = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_valid;
     end
-    if(when_LoadQueuePlugin_l563_1) begin
+    if(when_LoadQueuePlugin_l565_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_valid = 1'b0;
     end
   end
@@ -20894,7 +20916,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_address = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_address;
     end
-    if(when_LoadQueuePlugin_l563_1) begin
+    if(when_LoadQueuePlugin_l565_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_address = 32'h0;
     end
   end
@@ -20907,7 +20929,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_size = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_size;
     end
-    if(when_LoadQueuePlugin_l563_1) begin
+    if(when_LoadQueuePlugin_l565_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_size = MemAccessSize_W;
     end
   end
@@ -20920,7 +20942,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_robPtr;
     end
-    if(when_LoadQueuePlugin_l563_1) begin
+    if(when_LoadQueuePlugin_l565_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_robPtr = 4'b0000;
     end
   end
@@ -20933,7 +20955,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_pdest = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_pdest;
     end
-    if(when_LoadQueuePlugin_l563_1) begin
+    if(when_LoadQueuePlugin_l565_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_pdest = 6'h0;
     end
   end
@@ -20946,7 +20968,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isIO = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isIO;
     end
-    if(when_LoadQueuePlugin_l563_1) begin
+    if(when_LoadQueuePlugin_l565_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isIO = 1'b0;
     end
   end
@@ -20959,7 +20981,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isSignedLoad = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isSignedLoad;
     end
-    if(when_LoadQueuePlugin_l563_1) begin
+    if(when_LoadQueuePlugin_l565_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isSignedLoad = 1'b0;
     end
   end
@@ -20972,7 +20994,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_hasException = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_hasException;
     end
-    if(when_LoadQueuePlugin_l563_1) begin
+    if(when_LoadQueuePlugin_l565_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_hasException = 1'b0;
     end
   end
@@ -20985,7 +21007,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_exceptionCode = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_exceptionCode;
     end
-    if(when_LoadQueuePlugin_l563_1) begin
+    if(when_LoadQueuePlugin_l565_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_exceptionCode = 8'h0;
     end
   end
@@ -20998,7 +21020,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isWaitingForFwdRsp;
     end
-    if(when_LoadQueuePlugin_l563_1) begin
+    if(when_LoadQueuePlugin_l565_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isWaitingForFwdRsp = 1'b0;
     end
   end
@@ -21011,7 +21033,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isStalledByDependency;
     end
-    if(when_LoadQueuePlugin_l563_1) begin
+    if(when_LoadQueuePlugin_l565_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isStalledByDependency = 1'b0;
     end
   end
@@ -21024,7 +21046,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isReadyForDCache;
     end
-    if(when_LoadQueuePlugin_l563_1) begin
+    if(when_LoadQueuePlugin_l565_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isReadyForDCache = 1'b0;
     end
   end
@@ -21037,7 +21059,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isWaitingForRsp;
     end
-    if(when_LoadQueuePlugin_l563_1) begin
+    if(when_LoadQueuePlugin_l565_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isWaitingForRsp = 1'b0;
     end
   end
@@ -21050,7 +21072,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_valid = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_valid;
     end
-    if(when_LoadQueuePlugin_l563_2) begin
+    if(when_LoadQueuePlugin_l565_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_valid = 1'b0;
     end
   end
@@ -21063,7 +21085,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_address = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_address;
     end
-    if(when_LoadQueuePlugin_l563_2) begin
+    if(when_LoadQueuePlugin_l565_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_address = 32'h0;
     end
   end
@@ -21076,7 +21098,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_size = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_size;
     end
-    if(when_LoadQueuePlugin_l563_2) begin
+    if(when_LoadQueuePlugin_l565_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_size = MemAccessSize_W;
     end
   end
@@ -21089,7 +21111,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_robPtr;
     end
-    if(when_LoadQueuePlugin_l563_2) begin
+    if(when_LoadQueuePlugin_l565_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_robPtr = 4'b0000;
     end
   end
@@ -21102,7 +21124,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_pdest = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_pdest;
     end
-    if(when_LoadQueuePlugin_l563_2) begin
+    if(when_LoadQueuePlugin_l565_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_pdest = 6'h0;
     end
   end
@@ -21115,7 +21137,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isIO = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isIO;
     end
-    if(when_LoadQueuePlugin_l563_2) begin
+    if(when_LoadQueuePlugin_l565_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isIO = 1'b0;
     end
   end
@@ -21128,7 +21150,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isSignedLoad = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isSignedLoad;
     end
-    if(when_LoadQueuePlugin_l563_2) begin
+    if(when_LoadQueuePlugin_l565_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isSignedLoad = 1'b0;
     end
   end
@@ -21141,7 +21163,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_hasException = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_hasException;
     end
-    if(when_LoadQueuePlugin_l563_2) begin
+    if(when_LoadQueuePlugin_l565_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_hasException = 1'b0;
     end
   end
@@ -21154,7 +21176,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_exceptionCode = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_exceptionCode;
     end
-    if(when_LoadQueuePlugin_l563_2) begin
+    if(when_LoadQueuePlugin_l565_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_exceptionCode = 8'h0;
     end
   end
@@ -21167,7 +21189,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isWaitingForFwdRsp;
     end
-    if(when_LoadQueuePlugin_l563_2) begin
+    if(when_LoadQueuePlugin_l565_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isWaitingForFwdRsp = 1'b0;
     end
   end
@@ -21180,7 +21202,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isStalledByDependency;
     end
-    if(when_LoadQueuePlugin_l563_2) begin
+    if(when_LoadQueuePlugin_l565_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isStalledByDependency = 1'b0;
     end
   end
@@ -21193,7 +21215,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isReadyForDCache;
     end
-    if(when_LoadQueuePlugin_l563_2) begin
+    if(when_LoadQueuePlugin_l565_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isReadyForDCache = 1'b0;
     end
   end
@@ -21206,7 +21228,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isWaitingForRsp;
     end
-    if(when_LoadQueuePlugin_l563_2) begin
+    if(when_LoadQueuePlugin_l565_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isWaitingForRsp = 1'b0;
     end
   end
@@ -21219,7 +21241,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_valid = 1'b0;
     end
-    if(when_LoadQueuePlugin_l563_3) begin
+    if(when_LoadQueuePlugin_l565_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_valid = 1'b0;
     end
   end
@@ -21232,7 +21254,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_address = 32'h0;
     end
-    if(when_LoadQueuePlugin_l563_3) begin
+    if(when_LoadQueuePlugin_l565_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_address = 32'h0;
     end
   end
@@ -21245,7 +21267,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_size = MemAccessSize_W;
     end
-    if(when_LoadQueuePlugin_l563_3) begin
+    if(when_LoadQueuePlugin_l565_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_size = MemAccessSize_W;
     end
   end
@@ -21258,7 +21280,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_robPtr = 4'b0000;
     end
-    if(when_LoadQueuePlugin_l563_3) begin
+    if(when_LoadQueuePlugin_l565_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_robPtr = 4'b0000;
     end
   end
@@ -21271,7 +21293,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_pdest = 6'h0;
     end
-    if(when_LoadQueuePlugin_l563_3) begin
+    if(when_LoadQueuePlugin_l565_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_pdest = 6'h0;
     end
   end
@@ -21284,7 +21306,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isIO = 1'b0;
     end
-    if(when_LoadQueuePlugin_l563_3) begin
+    if(when_LoadQueuePlugin_l565_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isIO = 1'b0;
     end
   end
@@ -21297,7 +21319,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isSignedLoad = 1'b0;
     end
-    if(when_LoadQueuePlugin_l563_3) begin
+    if(when_LoadQueuePlugin_l565_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isSignedLoad = 1'b0;
     end
   end
@@ -21310,7 +21332,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_hasException = 1'b0;
     end
-    if(when_LoadQueuePlugin_l563_3) begin
+    if(when_LoadQueuePlugin_l565_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_hasException = 1'b0;
     end
   end
@@ -21323,7 +21345,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_exceptionCode = 8'h0;
     end
-    if(when_LoadQueuePlugin_l563_3) begin
+    if(when_LoadQueuePlugin_l565_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_exceptionCode = 8'h0;
     end
   end
@@ -21336,7 +21358,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isWaitingForFwdRsp = 1'b0;
     end
-    if(when_LoadQueuePlugin_l563_3) begin
+    if(when_LoadQueuePlugin_l565_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isWaitingForFwdRsp = 1'b0;
     end
   end
@@ -21349,7 +21371,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isStalledByDependency = 1'b0;
     end
-    if(when_LoadQueuePlugin_l563_3) begin
+    if(when_LoadQueuePlugin_l565_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isStalledByDependency = 1'b0;
     end
   end
@@ -21362,7 +21384,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isReadyForDCache = 1'b0;
     end
-    if(when_LoadQueuePlugin_l563_3) begin
+    if(when_LoadQueuePlugin_l565_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isReadyForDCache = 1'b0;
     end
   end
@@ -21375,7 +21397,7 @@ module CoreNSCSCC (
     if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isWaitingForRsp = 1'b0;
     end
-    if(when_LoadQueuePlugin_l563_3) begin
+    if(when_LoadQueuePlugin_l565_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isWaitingForRsp = 1'b0;
     end
   end
@@ -21457,7 +21479,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_hw_prfWritePort_valid = 1'b0;
     if(LoadQueuePlugin_logic_loadQueue_completionInfoReg_valid) begin
-      if(when_LoadQueuePlugin_l533) begin
+      if(when_LoadQueuePlugin_l535) begin
         LoadQueuePlugin_hw_prfWritePort_valid = 1'b1;
       end
     end
@@ -21466,7 +21488,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_hw_prfWritePort_address = 6'bxxxxxx;
     if(LoadQueuePlugin_logic_loadQueue_completionInfoReg_valid) begin
-      if(when_LoadQueuePlugin_l533) begin
+      if(when_LoadQueuePlugin_l535) begin
         LoadQueuePlugin_hw_prfWritePort_address = LoadQueuePlugin_logic_loadQueue_completingHead_pdest;
       end
     end
@@ -21475,7 +21497,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_hw_prfWritePort_data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     if(LoadQueuePlugin_logic_loadQueue_completionInfoReg_valid) begin
-      if(when_LoadQueuePlugin_l533) begin
+      if(when_LoadQueuePlugin_l535) begin
         LoadQueuePlugin_hw_prfWritePort_data = _zz_LoadQueuePlugin_hw_prfWritePort_data;
       end
     end
@@ -21484,7 +21506,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_hw_wakeupPort_valid = 1'b0;
     if(LoadQueuePlugin_logic_loadQueue_completionInfoReg_valid) begin
-      if(when_LoadQueuePlugin_l533) begin
+      if(when_LoadQueuePlugin_l535) begin
         LoadQueuePlugin_hw_wakeupPort_valid = 1'b1;
       end
     end
@@ -21493,7 +21515,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_hw_wakeupPort_payload_physRegIdx = 6'bxxxxxx;
     if(LoadQueuePlugin_logic_loadQueue_completionInfoReg_valid) begin
-      if(when_LoadQueuePlugin_l533) begin
+      if(when_LoadQueuePlugin_l535) begin
         LoadQueuePlugin_hw_wakeupPort_payload_physRegIdx = LoadQueuePlugin_logic_loadQueue_completingHead_pdest;
       end
     end
@@ -21521,27 +21543,27 @@ module CoreNSCSCC (
     endcase
   end
 
-  assign when_LoadQueuePlugin_l533 = (! LoadQueuePlugin_logic_loadQueue_completionInfoReg_hasFault);
-  assign _zz_when_LoadQueuePlugin_l563 = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[3];
-  assign _zz_when_LoadQueuePlugin_l563_1 = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[2 : 0];
-  assign _zz_when_LoadQueuePlugin_l563_2 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
-  assign _zz_when_LoadQueuePlugin_l563_3 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
-  assign when_LoadQueuePlugin_l563 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_0_valid) && (((_zz_when_LoadQueuePlugin_l563 == _zz_when_LoadQueuePlugin_l563_2) && (_zz_when_LoadQueuePlugin_l563_3 <= _zz_when_LoadQueuePlugin_l563_1)) || ((_zz_when_LoadQueuePlugin_l563 != _zz_when_LoadQueuePlugin_l563_2) && (_zz_when_LoadQueuePlugin_l563_1 < _zz_when_LoadQueuePlugin_l563_3))));
-  assign _zz_when_LoadQueuePlugin_l563_4 = LoadQueuePlugin_logic_loadQueue_slots_1_robPtr[3];
-  assign _zz_when_LoadQueuePlugin_l563_5 = LoadQueuePlugin_logic_loadQueue_slots_1_robPtr[2 : 0];
-  assign _zz_when_LoadQueuePlugin_l563_6 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
-  assign _zz_when_LoadQueuePlugin_l563_7 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
-  assign when_LoadQueuePlugin_l563_1 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_1_valid) && (((_zz_when_LoadQueuePlugin_l563_4 == _zz_when_LoadQueuePlugin_l563_6) && (_zz_when_LoadQueuePlugin_l563_7 <= _zz_when_LoadQueuePlugin_l563_5)) || ((_zz_when_LoadQueuePlugin_l563_4 != _zz_when_LoadQueuePlugin_l563_6) && (_zz_when_LoadQueuePlugin_l563_5 < _zz_when_LoadQueuePlugin_l563_7))));
-  assign _zz_when_LoadQueuePlugin_l563_8 = LoadQueuePlugin_logic_loadQueue_slots_2_robPtr[3];
-  assign _zz_when_LoadQueuePlugin_l563_9 = LoadQueuePlugin_logic_loadQueue_slots_2_robPtr[2 : 0];
-  assign _zz_when_LoadQueuePlugin_l563_10 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
-  assign _zz_when_LoadQueuePlugin_l563_11 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
-  assign when_LoadQueuePlugin_l563_2 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_2_valid) && (((_zz_when_LoadQueuePlugin_l563_8 == _zz_when_LoadQueuePlugin_l563_10) && (_zz_when_LoadQueuePlugin_l563_11 <= _zz_when_LoadQueuePlugin_l563_9)) || ((_zz_when_LoadQueuePlugin_l563_8 != _zz_when_LoadQueuePlugin_l563_10) && (_zz_when_LoadQueuePlugin_l563_9 < _zz_when_LoadQueuePlugin_l563_11))));
-  assign _zz_when_LoadQueuePlugin_l563_12 = LoadQueuePlugin_logic_loadQueue_slots_3_robPtr[3];
-  assign _zz_when_LoadQueuePlugin_l563_13 = LoadQueuePlugin_logic_loadQueue_slots_3_robPtr[2 : 0];
-  assign _zz_when_LoadQueuePlugin_l563_14 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
-  assign _zz_when_LoadQueuePlugin_l563_15 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
-  assign when_LoadQueuePlugin_l563_3 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_3_valid) && (((_zz_when_LoadQueuePlugin_l563_12 == _zz_when_LoadQueuePlugin_l563_14) && (_zz_when_LoadQueuePlugin_l563_15 <= _zz_when_LoadQueuePlugin_l563_13)) || ((_zz_when_LoadQueuePlugin_l563_12 != _zz_when_LoadQueuePlugin_l563_14) && (_zz_when_LoadQueuePlugin_l563_13 < _zz_when_LoadQueuePlugin_l563_15))));
+  assign when_LoadQueuePlugin_l535 = (! LoadQueuePlugin_logic_loadQueue_completionInfoReg_hasFault);
+  assign _zz_when_LoadQueuePlugin_l565 = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[3];
+  assign _zz_when_LoadQueuePlugin_l565_1 = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[2 : 0];
+  assign _zz_when_LoadQueuePlugin_l565_2 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
+  assign _zz_when_LoadQueuePlugin_l565_3 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
+  assign when_LoadQueuePlugin_l565 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_0_valid) && (((_zz_when_LoadQueuePlugin_l565 == _zz_when_LoadQueuePlugin_l565_2) && (_zz_when_LoadQueuePlugin_l565_3 <= _zz_when_LoadQueuePlugin_l565_1)) || ((_zz_when_LoadQueuePlugin_l565 != _zz_when_LoadQueuePlugin_l565_2) && (_zz_when_LoadQueuePlugin_l565_1 < _zz_when_LoadQueuePlugin_l565_3))));
+  assign _zz_when_LoadQueuePlugin_l565_4 = LoadQueuePlugin_logic_loadQueue_slots_1_robPtr[3];
+  assign _zz_when_LoadQueuePlugin_l565_5 = LoadQueuePlugin_logic_loadQueue_slots_1_robPtr[2 : 0];
+  assign _zz_when_LoadQueuePlugin_l565_6 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
+  assign _zz_when_LoadQueuePlugin_l565_7 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
+  assign when_LoadQueuePlugin_l565_1 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_1_valid) && (((_zz_when_LoadQueuePlugin_l565_4 == _zz_when_LoadQueuePlugin_l565_6) && (_zz_when_LoadQueuePlugin_l565_7 <= _zz_when_LoadQueuePlugin_l565_5)) || ((_zz_when_LoadQueuePlugin_l565_4 != _zz_when_LoadQueuePlugin_l565_6) && (_zz_when_LoadQueuePlugin_l565_5 < _zz_when_LoadQueuePlugin_l565_7))));
+  assign _zz_when_LoadQueuePlugin_l565_8 = LoadQueuePlugin_logic_loadQueue_slots_2_robPtr[3];
+  assign _zz_when_LoadQueuePlugin_l565_9 = LoadQueuePlugin_logic_loadQueue_slots_2_robPtr[2 : 0];
+  assign _zz_when_LoadQueuePlugin_l565_10 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
+  assign _zz_when_LoadQueuePlugin_l565_11 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
+  assign when_LoadQueuePlugin_l565_2 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_2_valid) && (((_zz_when_LoadQueuePlugin_l565_8 == _zz_when_LoadQueuePlugin_l565_10) && (_zz_when_LoadQueuePlugin_l565_11 <= _zz_when_LoadQueuePlugin_l565_9)) || ((_zz_when_LoadQueuePlugin_l565_8 != _zz_when_LoadQueuePlugin_l565_10) && (_zz_when_LoadQueuePlugin_l565_9 < _zz_when_LoadQueuePlugin_l565_11))));
+  assign _zz_when_LoadQueuePlugin_l565_12 = LoadQueuePlugin_logic_loadQueue_slots_3_robPtr[3];
+  assign _zz_when_LoadQueuePlugin_l565_13 = LoadQueuePlugin_logic_loadQueue_slots_3_robPtr[2 : 0];
+  assign _zz_when_LoadQueuePlugin_l565_14 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
+  assign _zz_when_LoadQueuePlugin_l565_15 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
+  assign when_LoadQueuePlugin_l565_3 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_3_valid) && (((_zz_when_LoadQueuePlugin_l565_12 == _zz_when_LoadQueuePlugin_l565_14) && (_zz_when_LoadQueuePlugin_l565_15 <= _zz_when_LoadQueuePlugin_l565_13)) || ((_zz_when_LoadQueuePlugin_l565_12 != _zz_when_LoadQueuePlugin_l565_14) && (_zz_when_LoadQueuePlugin_l565_13 < _zz_when_LoadQueuePlugin_l565_15))));
   assign AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = ((AluIntEU_AluIntEuPlugin_gprReadPorts_0_address == 6'h0) ? 32'h0 : _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp);
   assign AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = ((AluIntEU_AluIntEuPlugin_gprReadPorts_1_address == 6'h0) ? 32'h0 : _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp);
   assign MulEU_MulEuPlugin_gprReadPorts_0_rsp = ((MulEU_MulEuPlugin_gprReadPorts_0_address == 6'h0) ? 32'h0 : _zz_MulEU_MulEuPlugin_gprReadPorts_0_rsp);
@@ -23875,6 +23897,8 @@ module CoreNSCSCC (
   assign ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr = _zz_ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr;
   assign _zz_LoadQueuePlugin_logic_loadQueue_mmioCmdFired_1 = CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_cmd_ready;
   assign CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_ready = (LoadQueuePlugin_logic_loadQueue_slots_0_valid && LoadQueuePlugin_logic_loadQueue_slots_0_isIO);
+  assign _zz_LoadQueuePlugin_logic_loadQueue_completionInfo_data = CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_payload_data;
+  assign _zz_LoadQueuePlugin_logic_loadQueue_completionInfo_hasFault = CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_payload_error;
   assign CoreMemSysPlugin_logic_roMasters_0_ar_valid = ICachePlugin_axiMaster_ar_valid;
   assign ICachePlugin_axiMaster_ar_ready = CoreMemSysPlugin_logic_roMasters_0_ar_ready;
   assign CoreMemSysPlugin_logic_roMasters_0_ar_payload_addr = ICachePlugin_axiMaster_ar_payload_addr;
@@ -23899,10 +23923,10 @@ module CoreNSCSCC (
   assign CoreMemSysPlugin_logic_roMasters_0_w_payload_strb = 4'bxxxx;
   assign CoreMemSysPlugin_logic_roMasters_0_w_payload_last = 1'bx;
   assign CoreMemSysPlugin_logic_roMasters_0_b_ready = 1'b0;
-  assign when_CheckpointManagerPlugin_l117 = (CheckpointManagerPlugin_restoreCheckpointTrigger && (! CheckpointManagerPlugin_logic_hasValidCheckpoint));
-  assign when_CheckpointManagerPlugin_l121 = (CheckpointManagerPlugin_restoreCheckpointTrigger && CheckpointManagerPlugin_logic_hasValidCheckpoint);
+  assign when_CheckpointManagerPlugin_l125 = (CheckpointManagerPlugin_restoreCheckpointTrigger && (! CheckpointManagerPlugin_logic_hasValidCheckpoint));
+  assign when_CheckpointManagerPlugin_l129 = (CheckpointManagerPlugin_restoreCheckpointTrigger && CheckpointManagerPlugin_logic_hasValidCheckpoint);
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_valid = 1'b1;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_valid = 1'b0;
@@ -23910,7 +23934,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_0 = CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_0;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_0 = 6'bxxxxxx;
@@ -23918,7 +23942,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_1 = CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_1;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_1 = 6'bxxxxxx;
@@ -23926,7 +23950,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_2 = CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_2;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_2 = 6'bxxxxxx;
@@ -23934,7 +23958,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_3 = CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_3;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_3 = 6'bxxxxxx;
@@ -23942,7 +23966,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_4 = CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_4;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_4 = 6'bxxxxxx;
@@ -23950,7 +23974,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_5 = CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_5;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_5 = 6'bxxxxxx;
@@ -23958,7 +23982,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_6 = CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_6;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_6 = 6'bxxxxxx;
@@ -23966,7 +23990,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_7 = CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_7;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_7 = 6'bxxxxxx;
@@ -23974,7 +23998,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_8 = CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_8;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_8 = 6'bxxxxxx;
@@ -23982,7 +24006,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_9 = CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_9;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_9 = 6'bxxxxxx;
@@ -23990,7 +24014,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_10 = CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_10;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_10 = 6'bxxxxxx;
@@ -23998,7 +24022,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_11 = CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_11;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_11 = 6'bxxxxxx;
@@ -24006,7 +24030,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_12 = CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_12;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_12 = 6'bxxxxxx;
@@ -24014,7 +24038,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_13 = CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_13;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_13 = 6'bxxxxxx;
@@ -24022,7 +24046,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_14 = CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_14;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_14 = 6'bxxxxxx;
@@ -24030,7 +24054,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_15 = CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_15;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_15 = 6'bxxxxxx;
@@ -24038,7 +24062,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_16 = CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_16;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_16 = 6'bxxxxxx;
@@ -24046,7 +24070,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_17 = CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_17;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_17 = 6'bxxxxxx;
@@ -24054,7 +24078,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_18 = CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_18;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_18 = 6'bxxxxxx;
@@ -24062,7 +24086,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_19 = CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_19;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_19 = 6'bxxxxxx;
@@ -24070,7 +24094,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_20 = CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_20;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_20 = 6'bxxxxxx;
@@ -24078,7 +24102,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_21 = CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_21;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_21 = 6'bxxxxxx;
@@ -24086,7 +24110,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_22 = CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_22;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_22 = 6'bxxxxxx;
@@ -24094,7 +24118,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_23 = CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_23;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_23 = 6'bxxxxxx;
@@ -24102,7 +24126,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_24 = CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_24;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_24 = 6'bxxxxxx;
@@ -24110,7 +24134,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_25 = CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_25;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_25 = 6'bxxxxxx;
@@ -24118,7 +24142,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_26 = CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_26;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_26 = 6'bxxxxxx;
@@ -24126,7 +24150,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_27 = CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_27;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_27 = 6'bxxxxxx;
@@ -24134,7 +24158,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_28 = CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_28;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_28 = 6'bxxxxxx;
@@ -24142,7 +24166,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_29 = CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_29;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_29 = 6'bxxxxxx;
@@ -24150,7 +24174,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_30 = CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_30;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_30 = 6'bxxxxxx;
@@ -24158,7 +24182,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_31 = CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_31;
     end else begin
       RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_31 = 6'bxxxxxx;
@@ -24166,7 +24190,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       SimpleFreeListPlugin_early_setup_freeList_io_recover = 1'b1;
     end else begin
       SimpleFreeListPlugin_early_setup_freeList_io_recover = 1'b0;
@@ -24174,7 +24198,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       CheckpointManagerPlugin_setup_btRestorePort_valid = 1'b1;
     end else begin
       CheckpointManagerPlugin_setup_btRestorePort_valid = 1'b0;
@@ -24182,7 +24206,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(when_CheckpointManagerPlugin_l121) begin
+    if(when_CheckpointManagerPlugin_l129) begin
       CheckpointManagerPlugin_setup_btRestorePort_payload_busyBits = CheckpointManagerPlugin_logic_initialBtCheckpoint_busyBits;
     end else begin
       CheckpointManagerPlugin_setup_btRestorePort_payload_busyBits = 64'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
@@ -25270,8 +25294,7 @@ module CoreNSCSCC (
       s1_Rename_valid <= 1'b0;
       s2_RobAlloc_valid <= 1'b0;
       s3_Dispatch_valid <= 1'b0;
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_valid <= 1'b0;
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_valid_2 <= 1'b0;
+      _zz_io_push_valid <= 1'b0;
       LoadQueuePlugin_logic_loadQueue_completionInfoReg_valid <= 1'b0;
       LoadQueuePlugin_logic_loadQueue_completionInfoReg_fromFwd <= 1'b0;
       LoadQueuePlugin_logic_loadQueue_completionInfoReg_fromDCache <= 1'b0;
@@ -25850,6 +25873,312 @@ module CoreNSCSCC (
         CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_31 <= RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_31;
         CheckpointManagerPlugin_logic_storedBtCheckpoint_busyBits <= BusyTablePlugin_early_setup_busyTableReg;
         CheckpointManagerPlugin_logic_hasValidCheckpoint <= 1'b1;
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L120
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:120):  [CheckpointManager] Checkpoint saved - captured REAL RAT, FreeList and BusyTable state (single-cycle)"); // CheckpointManagerPlugin.scala:L120
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L97
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:97):  [CheckpointManager] RAT mapping: "); // CheckpointManagerPlugin.scala:L97
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 0 -> physReg %x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_0); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 1 -> physReg %x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_1); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 2 -> physReg %x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_2); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 3 -> physReg %x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_3); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 4 -> physReg %x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_4); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 5 -> physReg %x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_5); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 6 -> physReg %x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_6); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 7 -> physReg %x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_7); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 8 -> physReg %x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_8); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 9 -> physReg %x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_9); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a -> physReg %x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_10); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg b -> physReg %x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_11); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg c -> physReg %x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_12); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg d -> physReg %x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_13); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg e -> physReg %x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_14); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg f -> physReg %x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_15); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 10 -> physReg %x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_16); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 11 -> physReg %x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_17); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 12 -> physReg %x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_18); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 13 -> physReg %x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_19); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 14 -> physReg %x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_20); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 15 -> physReg %x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_21); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 16 -> physReg %x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_22); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 17 -> physReg %x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_23); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 18 -> physReg %x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_24); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 19 -> physReg %x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_25); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 1a -> physReg %x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_26); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 1b -> physReg %x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_27); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 1c -> physReg %x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_28); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 1d -> physReg %x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_29); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 1e -> physReg %x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_30); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 1f -> physReg %x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_31); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
       end
       if(when_CommitPlugin_l203) begin
         `ifndef SYNTHESIS
@@ -26520,23 +26849,20 @@ module CoreNSCSCC (
       if(when_Connection_l66) begin
         s3_Dispatch_valid <= 1'b0;
       end
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_valid <= _zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_valid;
+      _zz_io_push_valid <= _zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_valid;
       if(LsuEU_LsuEuPlugin_hw_aguPort_flush) begin
-        _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_valid <= 1'b0;
+        _zz_io_push_valid <= 1'b0;
       end
-      if(_zz_LsuEU_LsuEuPlugin_hw_aguPort_output_valid) begin
+      if(_zz_io_push_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
             assert(1'b0); // AddressGenerationUnit.scala:L270
           `else
             if(!1'b0) begin
-              $display("NOTE(AddressGenerationUnit.scala:270):  [normal] [AGU-0-S1-Output-Debug] s1.payload=AguInput(qPtr=%x,basePhysReg=%x,immediate=%x,accessSize=%s,isSignedLoad=%x,usePc=%x,pc=%x,dataReg=%x,robPtr=%x,isLoad=%x,isStore=%x,isFlush=%x,isIO=%x,physDst=%x) baseData=0x%x ==> effAddr=0x%x", _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_qPtr, _zz_when_AddressGenerationUnit_l219, _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_immediate, _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException_string, _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isSignedLoad, _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_usePc, _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_pc, _zz_when_AddressGenerationUnit_l224, _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_robPtr, _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isLoad, _zz_when_AddressGenerationUnit_l224_1, _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isFlush, _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isIO, _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_physDst, _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address_3, _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address_4); // AddressGenerationUnit.scala:L270
+              $display("NOTE(AddressGenerationUnit.scala:270):  [normal] [AGU-0-S1-Output-Debug] s1.payload=AguInput(qPtr=%x,basePhysReg=%x,immediate=%x,accessSize=%s,isSignedLoad=%x,usePc=%x,pc=%x,dataReg=%x,robPtr=%x,isLoad=%x,isStore=%x,isFlush=%x,isIO=%x,physDst=%x) baseData=0x%x ==> effAddr=0x%x", _zz_io_push_payload_qPtr, _zz_when_AddressGenerationUnit_l219, _zz_io_push_payload_immediate, _zz_io_push_payload_alignException_string, _zz_io_push_payload_isSignedLoad, _zz_io_push_payload_usePc, _zz_io_push_payload_pc, _zz_when_AddressGenerationUnit_l224, _zz_io_push_payload_robPtr, _zz_io_push_payload_isLoad, _zz_when_AddressGenerationUnit_l224_1, _zz_io_push_payload_isFlush, _zz_io_push_payload_isIO, _zz_io_push_payload_physDst, _zz_io_push_payload_address_3, _zz_io_push_payload_address_4); // AddressGenerationUnit.scala:L270
             end
           `endif
         `endif
-      end
-      if(_zz_LsuEU_LsuEuPlugin_hw_aguPort_input_ready) begin
-        _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_valid_2 <= (_zz_LsuEU_LsuEuPlugin_hw_aguPort_output_valid && (! LsuEU_LsuEuPlugin_hw_aguPort_flush));
       end
       LoadQueuePlugin_logic_loadQueue_completionInfoReg_valid <= LoadQueuePlugin_logic_loadQueue_completionInfo_valid;
       LoadQueuePlugin_logic_loadQueue_completionInfoReg_fromFwd <= LoadQueuePlugin_logic_loadQueue_completionInfo_fromFwd;
@@ -26648,46 +26974,59 @@ module CoreNSCSCC (
           `endif
         `endif
       end
-      if(when_LoadQueuePlugin_l563) begin
+      if(!LoadQueuePlugin_logic_loadQueue_popOnFwdHit) begin
+        if(LoadQueuePlugin_logic_loadQueue_mmioResponseIsForHead) begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // LoadQueuePlugin.scala:L482
+            `else
+              if(!1'b0) begin
+                $display("NOTE(LoadQueuePlugin.scala:482):  [LQ-MMIO] MMIO RESPONSE: robPtr=%x, data=%x, error=%x", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, _zz_LoadQueuePlugin_logic_loadQueue_completionInfo_data, _zz_LoadQueuePlugin_logic_loadQueue_completionInfo_hasFault); // LoadQueuePlugin.scala:L482
+              end
+            `endif
+          `endif
+        end
+      end
+      if(when_LoadQueuePlugin_l565) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // LoadQueuePlugin.scala:L566
+            assert(1'b0); // LoadQueuePlugin.scala:L568
           `else
             if(!1'b0) begin
-              $display("NOTE(LoadQueuePlugin.scala:566):  [normal] [LQ] FLUSH (Exec): Invalidating slotIdx=0 (robPtr=%x)", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr); // LoadQueuePlugin.scala:L566
+              $display("NOTE(LoadQueuePlugin.scala:568):  [normal] [LQ] FLUSH (Exec): Invalidating slotIdx=0 (robPtr=%x)", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr); // LoadQueuePlugin.scala:L568
             end
           `endif
         `endif
       end
-      if(when_LoadQueuePlugin_l563_1) begin
+      if(when_LoadQueuePlugin_l565_1) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // LoadQueuePlugin.scala:L566
+            assert(1'b0); // LoadQueuePlugin.scala:L568
           `else
             if(!1'b0) begin
-              $display("NOTE(LoadQueuePlugin.scala:566):  [normal] [LQ] FLUSH (Exec): Invalidating slotIdx=1 (robPtr=%x)", LoadQueuePlugin_logic_loadQueue_slots_1_robPtr); // LoadQueuePlugin.scala:L566
+              $display("NOTE(LoadQueuePlugin.scala:568):  [normal] [LQ] FLUSH (Exec): Invalidating slotIdx=1 (robPtr=%x)", LoadQueuePlugin_logic_loadQueue_slots_1_robPtr); // LoadQueuePlugin.scala:L568
             end
           `endif
         `endif
       end
-      if(when_LoadQueuePlugin_l563_2) begin
+      if(when_LoadQueuePlugin_l565_2) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // LoadQueuePlugin.scala:L566
+            assert(1'b0); // LoadQueuePlugin.scala:L568
           `else
             if(!1'b0) begin
-              $display("NOTE(LoadQueuePlugin.scala:566):  [normal] [LQ] FLUSH (Exec): Invalidating slotIdx=2 (robPtr=%x)", LoadQueuePlugin_logic_loadQueue_slots_2_robPtr); // LoadQueuePlugin.scala:L566
+              $display("NOTE(LoadQueuePlugin.scala:568):  [normal] [LQ] FLUSH (Exec): Invalidating slotIdx=2 (robPtr=%x)", LoadQueuePlugin_logic_loadQueue_slots_2_robPtr); // LoadQueuePlugin.scala:L568
             end
           `endif
         `endif
       end
-      if(when_LoadQueuePlugin_l563_3) begin
+      if(when_LoadQueuePlugin_l565_3) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // LoadQueuePlugin.scala:L566
+            assert(1'b0); // LoadQueuePlugin.scala:L568
           `else
             if(!1'b0) begin
-              $display("NOTE(LoadQueuePlugin.scala:566):  [normal] [LQ] FLUSH (Exec): Invalidating slotIdx=3 (robPtr=%x)", LoadQueuePlugin_logic_loadQueue_slots_3_robPtr); // LoadQueuePlugin.scala:L566
+              $display("NOTE(LoadQueuePlugin.scala:568):  [normal] [LQ] FLUSH (Exec): Invalidating slotIdx=3 (robPtr=%x)", LoadQueuePlugin_logic_loadQueue_slots_3_robPtr); // LoadQueuePlugin.scala:L568
             end
           `endif
         `endif
@@ -27967,7 +28306,7 @@ module CoreNSCSCC (
             assert(1'b0); // StoreBufferPlugin.scala:L408
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:408):  [SQ] CMD_FIRED_MMIO: robPtr=%x (slotIdx=0), addr=%x", StoreBufferPlugin_logic_slots_0_robPtr, StoreBufferPlugin_logic_slots_0_addr); // StoreBufferPlugin.scala:L408
+              $display("NOTE(StoreBufferPlugin.scala:408):  [SQ] CMD_FIRED_MMIO: robPtr=%x (slotIdx=0), addr=%x data=%x be=%x", StoreBufferPlugin_logic_slots_0_robPtr, StoreBufferPlugin_logic_slots_0_addr, StoreBufferPlugin_logic_slots_0_data, StoreBufferPlugin_logic_slots_0_be); // StoreBufferPlugin.scala:L408
             end
           `endif
         `endif
@@ -29300,14 +29639,322 @@ module CoreNSCSCC (
           `endif
         `endif
       end
-      if(when_CheckpointManagerPlugin_l117) begin
+      if(when_CheckpointManagerPlugin_l125) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // CheckpointManagerPlugin.scala:L118
+            assert(1'b0); // CheckpointManagerPlugin.scala:L126
           `else
             if(!1'b0) begin
-              $display("FAILURE Checkpoint restore requested but no valid checkpoint available"); // CheckpointManagerPlugin.scala:L118
+              $display("FAILURE Checkpoint restore requested but no valid checkpoint available"); // CheckpointManagerPlugin.scala:L126
               $finish;
+            end
+          `endif
+        `endif
+      end
+      if(when_CheckpointManagerPlugin_l129) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L143
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:143):  [CheckpointManager] Checkpoint restored - restored REAL state (single-cycle)"); // CheckpointManagerPlugin.scala:L143
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L97
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:97):  [CheckpointManager] RAT mapping: "); // CheckpointManagerPlugin.scala:L97
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 0 -> physReg %x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_0); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 1 -> physReg %x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_1); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 2 -> physReg %x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_2); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 3 -> physReg %x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_3); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 4 -> physReg %x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_4); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 5 -> physReg %x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_5); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 6 -> physReg %x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_6); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 7 -> physReg %x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_7); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 8 -> physReg %x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_8); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 9 -> physReg %x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_9); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a -> physReg %x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_10); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg b -> physReg %x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_11); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg c -> physReg %x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_12); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg d -> physReg %x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_13); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg e -> physReg %x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_14); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg f -> physReg %x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_15); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 10 -> physReg %x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_16); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 11 -> physReg %x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_17); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 12 -> physReg %x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_18); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 13 -> physReg %x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_19); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 14 -> physReg %x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_20); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 15 -> physReg %x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_21); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 16 -> physReg %x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_22); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 17 -> physReg %x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_23); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 18 -> physReg %x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_24); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 19 -> physReg %x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_25); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 1a -> physReg %x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_26); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 1b -> physReg %x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_27); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 1c -> physReg %x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_28); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 1d -> physReg %x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_29); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 1e -> physReg %x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_30); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg 1f -> physReg %x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_31); // CheckpointManagerPlugin.scala:L99
             end
           `endif
         `endif
@@ -31048,42 +31695,23 @@ module CoreNSCSCC (
       s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_exceptionCode <= s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_exceptionCode;
     end
     if(_zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_valid) begin
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_qPtr <= LsuEU_LsuEuPlugin_hw_aguPort_input_payload_qPtr;
+      _zz_io_push_payload_qPtr <= LsuEU_LsuEuPlugin_hw_aguPort_input_payload_qPtr;
       _zz_when_AddressGenerationUnit_l219 <= LsuEU_LsuEuPlugin_hw_aguPort_input_payload_basePhysReg;
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_immediate <= LsuEU_LsuEuPlugin_hw_aguPort_input_payload_immediate;
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException <= LsuEU_LsuEuPlugin_hw_aguPort_input_payload_accessSize;
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isSignedLoad <= LsuEU_LsuEuPlugin_hw_aguPort_input_payload_isSignedLoad;
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_usePc <= LsuEU_LsuEuPlugin_hw_aguPort_input_payload_usePc;
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_pc <= LsuEU_LsuEuPlugin_hw_aguPort_input_payload_pc;
+      _zz_io_push_payload_immediate <= LsuEU_LsuEuPlugin_hw_aguPort_input_payload_immediate;
+      _zz_io_push_payload_alignException <= LsuEU_LsuEuPlugin_hw_aguPort_input_payload_accessSize;
+      _zz_io_push_payload_isSignedLoad <= LsuEU_LsuEuPlugin_hw_aguPort_input_payload_isSignedLoad;
+      _zz_io_push_payload_usePc <= LsuEU_LsuEuPlugin_hw_aguPort_input_payload_usePc;
+      _zz_io_push_payload_pc <= LsuEU_LsuEuPlugin_hw_aguPort_input_payload_pc;
       _zz_when_AddressGenerationUnit_l224 <= LsuEU_LsuEuPlugin_hw_aguPort_input_payload_dataReg;
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_robPtr <= LsuEU_LsuEuPlugin_hw_aguPort_input_payload_robPtr;
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isLoad <= LsuEU_LsuEuPlugin_hw_aguPort_input_payload_isLoad;
+      _zz_io_push_payload_robPtr <= LsuEU_LsuEuPlugin_hw_aguPort_input_payload_robPtr;
+      _zz_io_push_payload_isLoad <= LsuEU_LsuEuPlugin_hw_aguPort_input_payload_isLoad;
       _zz_when_AddressGenerationUnit_l224_1 <= LsuEU_LsuEuPlugin_hw_aguPort_input_payload_isStore;
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isFlush <= LsuEU_LsuEuPlugin_hw_aguPort_input_payload_isFlush;
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isIO <= LsuEU_LsuEuPlugin_hw_aguPort_input_payload_isIO;
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_physDst <= LsuEU_LsuEuPlugin_hw_aguPort_input_payload_physDst;
+      _zz_io_push_payload_isFlush <= LsuEU_LsuEuPlugin_hw_aguPort_input_payload_isFlush;
+      _zz_io_push_payload_isIO <= LsuEU_LsuEuPlugin_hw_aguPort_input_payload_isIO;
+      _zz_io_push_payload_physDst <= LsuEU_LsuEuPlugin_hw_aguPort_input_payload_physDst;
     end
-    _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address <= LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp;
-    _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeData <= LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp;
-    if(_zz_LsuEU_LsuEuPlugin_hw_aguPort_input_ready) begin
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_qPtr_1 <= _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_qPtr;
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address_5 <= _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address_4;
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException_2 <= (((_zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address_4 & _zz__zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException_2) != 32'h0) && (_zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException != MemAccessSize_B));
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize_2 <= _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize;
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isSignedLoad_1 <= _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isSignedLoad;
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeMask_2 <= _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeMask_1;
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_basePhysReg <= _zz_when_AddressGenerationUnit_l219;
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_immediate_1 <= _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_immediate;
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_usePc_1 <= _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_usePc;
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_pc_1 <= _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_pc;
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_robPtr_1 <= _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_robPtr;
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isLoad_1 <= _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isLoad;
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isStore <= _zz_when_AddressGenerationUnit_l224_1;
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_physDst_1 <= _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_physDst;
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeData_4 <= _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeData_3;
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isFlush_1 <= _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isFlush;
-      _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isIO_1 <= (_zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isIO || (1'b0 || ((32'hbfd00000 <= _zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address_4) && (_zz_LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address_4 <= 32'hc0100000))));
-    end
+    _zz_io_push_payload_address <= LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp;
+    _zz_io_push_payload_storeData <= LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp;
     if(StoreBufferPlugin_hw_sqQueryPort_cmd_valid) begin
       LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_hit <= StoreBufferPlugin_hw_sqQueryPort_rsp_hit;
       LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_data <= StoreBufferPlugin_hw_sqQueryPort_rsp_data;
@@ -32483,7 +33111,7 @@ module SplitGmbToAxi4Bridge (
 
 endmodule
 
-module StreamFifo_12 (
+module StreamFifo_13 (
   input  wire          io_push_valid,
   output wire          io_push_ready,
   input  wire [31:0]   io_push_payload_pc,
@@ -34308,6 +34936,480 @@ module StreamArbiter_7 (
       end
       if(io_output_fire) begin
         locked <= 1'b0;
+      end
+    end
+  end
+
+
+endmodule
+
+module StreamFifo_12 (
+  input  wire          io_push_valid,
+  output wire          io_push_ready,
+  input  wire [2:0]    io_push_payload_qPtr,
+  input  wire [31:0]   io_push_payload_address,
+  input  wire          io_push_payload_alignException,
+  input  wire [1:0]    io_push_payload_accessSize,
+  input  wire          io_push_payload_isSignedLoad,
+  input  wire [3:0]    io_push_payload_storeMask,
+  input  wire [5:0]    io_push_payload_basePhysReg,
+  input  wire [31:0]   io_push_payload_immediate,
+  input  wire          io_push_payload_usePc,
+  input  wire [31:0]   io_push_payload_pc,
+  input  wire [3:0]    io_push_payload_robPtr,
+  input  wire          io_push_payload_isLoad,
+  input  wire          io_push_payload_isStore,
+  input  wire [5:0]    io_push_payload_physDst,
+  input  wire [31:0]   io_push_payload_storeData,
+  input  wire          io_push_payload_isFlush,
+  input  wire          io_push_payload_isIO,
+  output wire          io_pop_valid,
+  input  wire          io_pop_ready,
+  output wire [2:0]    io_pop_payload_qPtr,
+  output wire [31:0]   io_pop_payload_address,
+  output wire          io_pop_payload_alignException,
+  output wire [1:0]    io_pop_payload_accessSize,
+  output wire          io_pop_payload_isSignedLoad,
+  output wire [3:0]    io_pop_payload_storeMask,
+  output wire [5:0]    io_pop_payload_basePhysReg,
+  output wire [31:0]   io_pop_payload_immediate,
+  output wire          io_pop_payload_usePc,
+  output wire [31:0]   io_pop_payload_pc,
+  output wire [3:0]    io_pop_payload_robPtr,
+  output wire          io_pop_payload_isLoad,
+  output wire          io_pop_payload_isStore,
+  output wire [5:0]    io_pop_payload_physDst,
+  output wire [31:0]   io_pop_payload_storeData,
+  output wire          io_pop_payload_isFlush,
+  output wire          io_pop_payload_isIO,
+  input  wire          io_flush,
+  output wire [1:0]    io_occupancy,
+  output wire [1:0]    io_availability,
+  input  wire          clk,
+  input  wire          reset
+);
+  localparam MemAccessSize_B = 2'd0;
+  localparam MemAccessSize_H = 2'd1;
+  localparam MemAccessSize_W = 2'd2;
+  localparam MemAccessSize_D = 2'd3;
+
+  wire       [0:0]    _zz__zz_1;
+  reg        [2:0]    _zz_logic_pop_async_readed_qPtr;
+  reg        [31:0]   _zz_logic_pop_async_readed_address;
+  reg                 _zz_logic_pop_async_readed_alignException;
+  reg        [1:0]    _zz_logic_pop_async_readed_accessSize;
+  reg                 _zz_logic_pop_async_readed_isSignedLoad;
+  reg        [3:0]    _zz_logic_pop_async_readed_storeMask;
+  reg        [5:0]    _zz_logic_pop_async_readed_basePhysReg;
+  reg        [31:0]   _zz_logic_pop_async_readed_immediate;
+  reg                 _zz_logic_pop_async_readed_usePc;
+  reg        [31:0]   _zz_logic_pop_async_readed_pc;
+  reg        [3:0]    _zz_logic_pop_async_readed_robPtr;
+  reg                 _zz_logic_pop_async_readed_isLoad;
+  reg                 _zz_logic_pop_async_readed_isStore;
+  reg        [5:0]    _zz_logic_pop_async_readed_physDst;
+  reg        [31:0]   _zz_logic_pop_async_readed_storeData;
+  reg                 _zz_logic_pop_async_readed_isFlush;
+  reg                 _zz_logic_pop_async_readed_isIO;
+  reg        [2:0]    logic_vec_0_qPtr;
+  reg        [31:0]   logic_vec_0_address;
+  reg                 logic_vec_0_alignException;
+  reg        [1:0]    logic_vec_0_accessSize;
+  reg                 logic_vec_0_isSignedLoad;
+  reg        [3:0]    logic_vec_0_storeMask;
+  reg        [5:0]    logic_vec_0_basePhysReg;
+  reg        [31:0]   logic_vec_0_immediate;
+  reg                 logic_vec_0_usePc;
+  reg        [31:0]   logic_vec_0_pc;
+  reg        [3:0]    logic_vec_0_robPtr;
+  reg                 logic_vec_0_isLoad;
+  reg                 logic_vec_0_isStore;
+  reg        [5:0]    logic_vec_0_physDst;
+  reg        [31:0]   logic_vec_0_storeData;
+  reg                 logic_vec_0_isFlush;
+  reg                 logic_vec_0_isIO;
+  reg        [2:0]    logic_vec_1_qPtr;
+  reg        [31:0]   logic_vec_1_address;
+  reg                 logic_vec_1_alignException;
+  reg        [1:0]    logic_vec_1_accessSize;
+  reg                 logic_vec_1_isSignedLoad;
+  reg        [3:0]    logic_vec_1_storeMask;
+  reg        [5:0]    logic_vec_1_basePhysReg;
+  reg        [31:0]   logic_vec_1_immediate;
+  reg                 logic_vec_1_usePc;
+  reg        [31:0]   logic_vec_1_pc;
+  reg        [3:0]    logic_vec_1_robPtr;
+  reg                 logic_vec_1_isLoad;
+  reg                 logic_vec_1_isStore;
+  reg        [5:0]    logic_vec_1_physDst;
+  reg        [31:0]   logic_vec_1_storeData;
+  reg                 logic_vec_1_isFlush;
+  reg                 logic_vec_1_isIO;
+  wire                logic_ptr_doPush;
+  wire                logic_ptr_doPop;
+  wire                logic_ptr_full;
+  wire                logic_ptr_empty;
+  reg        [1:0]    logic_ptr_push;
+  reg        [1:0]    logic_ptr_pop;
+  wire       [1:0]    logic_ptr_occupancy;
+  wire       [1:0]    logic_ptr_popOnIo;
+  wire                when_Stream_l1455;
+  reg                 logic_ptr_wentUp;
+  wire                io_push_fire;
+  wire       [1:0]    _zz_1;
+  wire                _zz_2;
+  wire                _zz_3;
+  wire                logic_pop_addressGen_valid;
+  wire                logic_pop_addressGen_ready;
+  wire       [0:0]    logic_pop_addressGen_payload;
+  wire                logic_pop_addressGen_fire;
+  wire       [2:0]    logic_pop_async_readed_qPtr;
+  wire       [31:0]   logic_pop_async_readed_address;
+  wire                logic_pop_async_readed_alignException;
+  wire       [1:0]    logic_pop_async_readed_accessSize;
+  wire                logic_pop_async_readed_isSignedLoad;
+  wire       [3:0]    logic_pop_async_readed_storeMask;
+  wire       [5:0]    logic_pop_async_readed_basePhysReg;
+  wire       [31:0]   logic_pop_async_readed_immediate;
+  wire                logic_pop_async_readed_usePc;
+  wire       [31:0]   logic_pop_async_readed_pc;
+  wire       [3:0]    logic_pop_async_readed_robPtr;
+  wire                logic_pop_async_readed_isLoad;
+  wire                logic_pop_async_readed_isStore;
+  wire       [5:0]    logic_pop_async_readed_physDst;
+  wire       [31:0]   logic_pop_async_readed_storeData;
+  wire                logic_pop_async_readed_isFlush;
+  wire                logic_pop_async_readed_isIO;
+  wire                logic_pop_addressGen_translated_valid;
+  wire                logic_pop_addressGen_translated_ready;
+  wire       [2:0]    logic_pop_addressGen_translated_payload_qPtr;
+  wire       [31:0]   logic_pop_addressGen_translated_payload_address;
+  wire                logic_pop_addressGen_translated_payload_alignException;
+  wire       [1:0]    logic_pop_addressGen_translated_payload_accessSize;
+  wire                logic_pop_addressGen_translated_payload_isSignedLoad;
+  wire       [3:0]    logic_pop_addressGen_translated_payload_storeMask;
+  wire       [5:0]    logic_pop_addressGen_translated_payload_basePhysReg;
+  wire       [31:0]   logic_pop_addressGen_translated_payload_immediate;
+  wire                logic_pop_addressGen_translated_payload_usePc;
+  wire       [31:0]   logic_pop_addressGen_translated_payload_pc;
+  wire       [3:0]    logic_pop_addressGen_translated_payload_robPtr;
+  wire                logic_pop_addressGen_translated_payload_isLoad;
+  wire                logic_pop_addressGen_translated_payload_isStore;
+  wire       [5:0]    logic_pop_addressGen_translated_payload_physDst;
+  wire       [31:0]   logic_pop_addressGen_translated_payload_storeData;
+  wire                logic_pop_addressGen_translated_payload_isFlush;
+  wire                logic_pop_addressGen_translated_payload_isIO;
+  `ifndef SYNTHESIS
+  reg [7:0] io_push_payload_accessSize_string;
+  reg [7:0] io_pop_payload_accessSize_string;
+  reg [7:0] logic_vec_0_accessSize_string;
+  reg [7:0] logic_vec_1_accessSize_string;
+  reg [7:0] logic_pop_async_readed_accessSize_string;
+  reg [7:0] logic_pop_addressGen_translated_payload_accessSize_string;
+  `endif
+
+
+  assign _zz__zz_1 = logic_ptr_push[0:0];
+  always @(*) begin
+    case(logic_pop_addressGen_payload)
+      1'b0 : begin
+        _zz_logic_pop_async_readed_qPtr = logic_vec_0_qPtr;
+        _zz_logic_pop_async_readed_address = logic_vec_0_address;
+        _zz_logic_pop_async_readed_alignException = logic_vec_0_alignException;
+        _zz_logic_pop_async_readed_accessSize = logic_vec_0_accessSize;
+        _zz_logic_pop_async_readed_isSignedLoad = logic_vec_0_isSignedLoad;
+        _zz_logic_pop_async_readed_storeMask = logic_vec_0_storeMask;
+        _zz_logic_pop_async_readed_basePhysReg = logic_vec_0_basePhysReg;
+        _zz_logic_pop_async_readed_immediate = logic_vec_0_immediate;
+        _zz_logic_pop_async_readed_usePc = logic_vec_0_usePc;
+        _zz_logic_pop_async_readed_pc = logic_vec_0_pc;
+        _zz_logic_pop_async_readed_robPtr = logic_vec_0_robPtr;
+        _zz_logic_pop_async_readed_isLoad = logic_vec_0_isLoad;
+        _zz_logic_pop_async_readed_isStore = logic_vec_0_isStore;
+        _zz_logic_pop_async_readed_physDst = logic_vec_0_physDst;
+        _zz_logic_pop_async_readed_storeData = logic_vec_0_storeData;
+        _zz_logic_pop_async_readed_isFlush = logic_vec_0_isFlush;
+        _zz_logic_pop_async_readed_isIO = logic_vec_0_isIO;
+      end
+      default : begin
+        _zz_logic_pop_async_readed_qPtr = logic_vec_1_qPtr;
+        _zz_logic_pop_async_readed_address = logic_vec_1_address;
+        _zz_logic_pop_async_readed_alignException = logic_vec_1_alignException;
+        _zz_logic_pop_async_readed_accessSize = logic_vec_1_accessSize;
+        _zz_logic_pop_async_readed_isSignedLoad = logic_vec_1_isSignedLoad;
+        _zz_logic_pop_async_readed_storeMask = logic_vec_1_storeMask;
+        _zz_logic_pop_async_readed_basePhysReg = logic_vec_1_basePhysReg;
+        _zz_logic_pop_async_readed_immediate = logic_vec_1_immediate;
+        _zz_logic_pop_async_readed_usePc = logic_vec_1_usePc;
+        _zz_logic_pop_async_readed_pc = logic_vec_1_pc;
+        _zz_logic_pop_async_readed_robPtr = logic_vec_1_robPtr;
+        _zz_logic_pop_async_readed_isLoad = logic_vec_1_isLoad;
+        _zz_logic_pop_async_readed_isStore = logic_vec_1_isStore;
+        _zz_logic_pop_async_readed_physDst = logic_vec_1_physDst;
+        _zz_logic_pop_async_readed_storeData = logic_vec_1_storeData;
+        _zz_logic_pop_async_readed_isFlush = logic_vec_1_isFlush;
+        _zz_logic_pop_async_readed_isIO = logic_vec_1_isIO;
+      end
+    endcase
+  end
+
+  `ifndef SYNTHESIS
+  always @(*) begin
+    case(io_push_payload_accessSize)
+      MemAccessSize_B : io_push_payload_accessSize_string = "B";
+      MemAccessSize_H : io_push_payload_accessSize_string = "H";
+      MemAccessSize_W : io_push_payload_accessSize_string = "W";
+      MemAccessSize_D : io_push_payload_accessSize_string = "D";
+      default : io_push_payload_accessSize_string = "?";
+    endcase
+  end
+  always @(*) begin
+    case(io_pop_payload_accessSize)
+      MemAccessSize_B : io_pop_payload_accessSize_string = "B";
+      MemAccessSize_H : io_pop_payload_accessSize_string = "H";
+      MemAccessSize_W : io_pop_payload_accessSize_string = "W";
+      MemAccessSize_D : io_pop_payload_accessSize_string = "D";
+      default : io_pop_payload_accessSize_string = "?";
+    endcase
+  end
+  always @(*) begin
+    case(logic_vec_0_accessSize)
+      MemAccessSize_B : logic_vec_0_accessSize_string = "B";
+      MemAccessSize_H : logic_vec_0_accessSize_string = "H";
+      MemAccessSize_W : logic_vec_0_accessSize_string = "W";
+      MemAccessSize_D : logic_vec_0_accessSize_string = "D";
+      default : logic_vec_0_accessSize_string = "?";
+    endcase
+  end
+  always @(*) begin
+    case(logic_vec_1_accessSize)
+      MemAccessSize_B : logic_vec_1_accessSize_string = "B";
+      MemAccessSize_H : logic_vec_1_accessSize_string = "H";
+      MemAccessSize_W : logic_vec_1_accessSize_string = "W";
+      MemAccessSize_D : logic_vec_1_accessSize_string = "D";
+      default : logic_vec_1_accessSize_string = "?";
+    endcase
+  end
+  always @(*) begin
+    case(logic_pop_async_readed_accessSize)
+      MemAccessSize_B : logic_pop_async_readed_accessSize_string = "B";
+      MemAccessSize_H : logic_pop_async_readed_accessSize_string = "H";
+      MemAccessSize_W : logic_pop_async_readed_accessSize_string = "W";
+      MemAccessSize_D : logic_pop_async_readed_accessSize_string = "D";
+      default : logic_pop_async_readed_accessSize_string = "?";
+    endcase
+  end
+  always @(*) begin
+    case(logic_pop_addressGen_translated_payload_accessSize)
+      MemAccessSize_B : logic_pop_addressGen_translated_payload_accessSize_string = "B";
+      MemAccessSize_H : logic_pop_addressGen_translated_payload_accessSize_string = "H";
+      MemAccessSize_W : logic_pop_addressGen_translated_payload_accessSize_string = "W";
+      MemAccessSize_D : logic_pop_addressGen_translated_payload_accessSize_string = "D";
+      default : logic_pop_addressGen_translated_payload_accessSize_string = "?";
+    endcase
+  end
+  `endif
+
+  assign when_Stream_l1455 = (logic_ptr_doPush != logic_ptr_doPop);
+  assign logic_ptr_full = (((logic_ptr_push ^ logic_ptr_popOnIo) ^ 2'b10) == 2'b00);
+  assign logic_ptr_empty = (logic_ptr_push == logic_ptr_pop);
+  assign logic_ptr_occupancy = (logic_ptr_push - logic_ptr_popOnIo);
+  assign io_push_ready = (! logic_ptr_full);
+  assign io_push_fire = (io_push_valid && io_push_ready);
+  assign logic_ptr_doPush = io_push_fire;
+  assign _zz_1 = ({1'd0,1'b1} <<< _zz__zz_1);
+  assign _zz_2 = _zz_1[0];
+  assign _zz_3 = _zz_1[1];
+  assign logic_pop_addressGen_valid = (! logic_ptr_empty);
+  assign logic_pop_addressGen_payload = logic_ptr_pop[0:0];
+  assign logic_pop_addressGen_fire = (logic_pop_addressGen_valid && logic_pop_addressGen_ready);
+  assign logic_ptr_doPop = logic_pop_addressGen_fire;
+  assign logic_pop_async_readed_qPtr = _zz_logic_pop_async_readed_qPtr;
+  assign logic_pop_async_readed_address = _zz_logic_pop_async_readed_address;
+  assign logic_pop_async_readed_alignException = _zz_logic_pop_async_readed_alignException;
+  assign logic_pop_async_readed_accessSize = _zz_logic_pop_async_readed_accessSize;
+  assign logic_pop_async_readed_isSignedLoad = _zz_logic_pop_async_readed_isSignedLoad;
+  assign logic_pop_async_readed_storeMask = _zz_logic_pop_async_readed_storeMask;
+  assign logic_pop_async_readed_basePhysReg = _zz_logic_pop_async_readed_basePhysReg;
+  assign logic_pop_async_readed_immediate = _zz_logic_pop_async_readed_immediate;
+  assign logic_pop_async_readed_usePc = _zz_logic_pop_async_readed_usePc;
+  assign logic_pop_async_readed_pc = _zz_logic_pop_async_readed_pc;
+  assign logic_pop_async_readed_robPtr = _zz_logic_pop_async_readed_robPtr;
+  assign logic_pop_async_readed_isLoad = _zz_logic_pop_async_readed_isLoad;
+  assign logic_pop_async_readed_isStore = _zz_logic_pop_async_readed_isStore;
+  assign logic_pop_async_readed_physDst = _zz_logic_pop_async_readed_physDst;
+  assign logic_pop_async_readed_storeData = _zz_logic_pop_async_readed_storeData;
+  assign logic_pop_async_readed_isFlush = _zz_logic_pop_async_readed_isFlush;
+  assign logic_pop_async_readed_isIO = _zz_logic_pop_async_readed_isIO;
+  assign logic_pop_addressGen_translated_valid = logic_pop_addressGen_valid;
+  assign logic_pop_addressGen_ready = logic_pop_addressGen_translated_ready;
+  assign logic_pop_addressGen_translated_payload_qPtr = logic_pop_async_readed_qPtr;
+  assign logic_pop_addressGen_translated_payload_address = logic_pop_async_readed_address;
+  assign logic_pop_addressGen_translated_payload_alignException = logic_pop_async_readed_alignException;
+  assign logic_pop_addressGen_translated_payload_accessSize = logic_pop_async_readed_accessSize;
+  assign logic_pop_addressGen_translated_payload_isSignedLoad = logic_pop_async_readed_isSignedLoad;
+  assign logic_pop_addressGen_translated_payload_storeMask = logic_pop_async_readed_storeMask;
+  assign logic_pop_addressGen_translated_payload_basePhysReg = logic_pop_async_readed_basePhysReg;
+  assign logic_pop_addressGen_translated_payload_immediate = logic_pop_async_readed_immediate;
+  assign logic_pop_addressGen_translated_payload_usePc = logic_pop_async_readed_usePc;
+  assign logic_pop_addressGen_translated_payload_pc = logic_pop_async_readed_pc;
+  assign logic_pop_addressGen_translated_payload_robPtr = logic_pop_async_readed_robPtr;
+  assign logic_pop_addressGen_translated_payload_isLoad = logic_pop_async_readed_isLoad;
+  assign logic_pop_addressGen_translated_payload_isStore = logic_pop_async_readed_isStore;
+  assign logic_pop_addressGen_translated_payload_physDst = logic_pop_async_readed_physDst;
+  assign logic_pop_addressGen_translated_payload_storeData = logic_pop_async_readed_storeData;
+  assign logic_pop_addressGen_translated_payload_isFlush = logic_pop_async_readed_isFlush;
+  assign logic_pop_addressGen_translated_payload_isIO = logic_pop_async_readed_isIO;
+  assign io_pop_valid = logic_pop_addressGen_translated_valid;
+  assign logic_pop_addressGen_translated_ready = io_pop_ready;
+  assign io_pop_payload_qPtr = logic_pop_addressGen_translated_payload_qPtr;
+  assign io_pop_payload_address = logic_pop_addressGen_translated_payload_address;
+  assign io_pop_payload_alignException = logic_pop_addressGen_translated_payload_alignException;
+  assign io_pop_payload_accessSize = logic_pop_addressGen_translated_payload_accessSize;
+  assign io_pop_payload_isSignedLoad = logic_pop_addressGen_translated_payload_isSignedLoad;
+  assign io_pop_payload_storeMask = logic_pop_addressGen_translated_payload_storeMask;
+  assign io_pop_payload_basePhysReg = logic_pop_addressGen_translated_payload_basePhysReg;
+  assign io_pop_payload_immediate = logic_pop_addressGen_translated_payload_immediate;
+  assign io_pop_payload_usePc = logic_pop_addressGen_translated_payload_usePc;
+  assign io_pop_payload_pc = logic_pop_addressGen_translated_payload_pc;
+  assign io_pop_payload_robPtr = logic_pop_addressGen_translated_payload_robPtr;
+  assign io_pop_payload_isLoad = logic_pop_addressGen_translated_payload_isLoad;
+  assign io_pop_payload_isStore = logic_pop_addressGen_translated_payload_isStore;
+  assign io_pop_payload_physDst = logic_pop_addressGen_translated_payload_physDst;
+  assign io_pop_payload_storeData = logic_pop_addressGen_translated_payload_storeData;
+  assign io_pop_payload_isFlush = logic_pop_addressGen_translated_payload_isFlush;
+  assign io_pop_payload_isIO = logic_pop_addressGen_translated_payload_isIO;
+  assign logic_ptr_popOnIo = logic_ptr_pop;
+  assign io_occupancy = logic_ptr_occupancy;
+  assign io_availability = (2'b10 - logic_ptr_occupancy);
+  always @(posedge clk) begin
+    if(reset) begin
+      logic_ptr_push <= 2'b00;
+      logic_ptr_pop <= 2'b00;
+      logic_ptr_wentUp <= 1'b0;
+    end else begin
+      if(when_Stream_l1455) begin
+        logic_ptr_wentUp <= logic_ptr_doPush;
+      end
+      if(io_flush) begin
+        logic_ptr_wentUp <= 1'b0;
+      end
+      if(logic_ptr_doPush) begin
+        logic_ptr_push <= (logic_ptr_push + 2'b01);
+      end
+      if(logic_ptr_doPop) begin
+        logic_ptr_pop <= (logic_ptr_pop + 2'b01);
+      end
+      if(io_flush) begin
+        logic_ptr_push <= 2'b00;
+        logic_ptr_pop <= 2'b00;
+      end
+    end
+  end
+
+  always @(posedge clk) begin
+    if(io_push_fire) begin
+      if(_zz_2) begin
+        logic_vec_0_qPtr <= io_push_payload_qPtr;
+      end
+      if(_zz_3) begin
+        logic_vec_1_qPtr <= io_push_payload_qPtr;
+      end
+      if(_zz_2) begin
+        logic_vec_0_address <= io_push_payload_address;
+      end
+      if(_zz_3) begin
+        logic_vec_1_address <= io_push_payload_address;
+      end
+      if(_zz_2) begin
+        logic_vec_0_alignException <= io_push_payload_alignException;
+      end
+      if(_zz_3) begin
+        logic_vec_1_alignException <= io_push_payload_alignException;
+      end
+      if(_zz_2) begin
+        logic_vec_0_accessSize <= io_push_payload_accessSize;
+      end
+      if(_zz_3) begin
+        logic_vec_1_accessSize <= io_push_payload_accessSize;
+      end
+      if(_zz_2) begin
+        logic_vec_0_isSignedLoad <= io_push_payload_isSignedLoad;
+      end
+      if(_zz_3) begin
+        logic_vec_1_isSignedLoad <= io_push_payload_isSignedLoad;
+      end
+      if(_zz_2) begin
+        logic_vec_0_storeMask <= io_push_payload_storeMask;
+      end
+      if(_zz_3) begin
+        logic_vec_1_storeMask <= io_push_payload_storeMask;
+      end
+      if(_zz_2) begin
+        logic_vec_0_basePhysReg <= io_push_payload_basePhysReg;
+      end
+      if(_zz_3) begin
+        logic_vec_1_basePhysReg <= io_push_payload_basePhysReg;
+      end
+      if(_zz_2) begin
+        logic_vec_0_immediate <= io_push_payload_immediate;
+      end
+      if(_zz_3) begin
+        logic_vec_1_immediate <= io_push_payload_immediate;
+      end
+      if(_zz_2) begin
+        logic_vec_0_usePc <= io_push_payload_usePc;
+      end
+      if(_zz_3) begin
+        logic_vec_1_usePc <= io_push_payload_usePc;
+      end
+      if(_zz_2) begin
+        logic_vec_0_pc <= io_push_payload_pc;
+      end
+      if(_zz_3) begin
+        logic_vec_1_pc <= io_push_payload_pc;
+      end
+      if(_zz_2) begin
+        logic_vec_0_robPtr <= io_push_payload_robPtr;
+      end
+      if(_zz_3) begin
+        logic_vec_1_robPtr <= io_push_payload_robPtr;
+      end
+      if(_zz_2) begin
+        logic_vec_0_isLoad <= io_push_payload_isLoad;
+      end
+      if(_zz_3) begin
+        logic_vec_1_isLoad <= io_push_payload_isLoad;
+      end
+      if(_zz_2) begin
+        logic_vec_0_isStore <= io_push_payload_isStore;
+      end
+      if(_zz_3) begin
+        logic_vec_1_isStore <= io_push_payload_isStore;
+      end
+      if(_zz_2) begin
+        logic_vec_0_physDst <= io_push_payload_physDst;
+      end
+      if(_zz_3) begin
+        logic_vec_1_physDst <= io_push_payload_physDst;
+      end
+      if(_zz_2) begin
+        logic_vec_0_storeData <= io_push_payload_storeData;
+      end
+      if(_zz_3) begin
+        logic_vec_1_storeData <= io_push_payload_storeData;
+      end
+      if(_zz_2) begin
+        logic_vec_0_isFlush <= io_push_payload_isFlush;
+      end
+      if(_zz_3) begin
+        logic_vec_1_isFlush <= io_push_payload_isFlush;
+      end
+      if(_zz_2) begin
+        logic_vec_0_isIO <= io_push_payload_isIO;
+      end
+      if(_zz_3) begin
+        logic_vec_1_isIO <= io_push_payload_isIO;
       end
     end
   end

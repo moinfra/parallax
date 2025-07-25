@@ -65,6 +65,11 @@ class IssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
   val io = slave (IssueQueueComponentIo(iqConfig, numWakeupPorts))
   val idStr = s"${iqConfig.name}-${id.toString()}"
 
+  val wakeupInReg = RegNextWhen(io.wakeupIn, cond = !io.flush) initZero()
+  when(io.flush) {
+    wakeupInReg.clearAll()
+  }
+
   // ====================================================================
   // 1. 状态寄存器 (State Registers)
   // ====================================================================
@@ -95,7 +100,7 @@ class IssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
 
   for (i <- 0 until iqConfig.depth) {
     val entry = entries(i)
-    when(entryValids(i)) {
+    when(entryValids(i) && !io.flush) {
       // 检查每个源操作数是否需要并可以被唤醒
       val canWakeupSrc1 = !entry.src1Ready && entry.useSrc1
       val canWakeupSrc2 = !entry.src2Ready && entry.useSrc2
@@ -109,7 +114,7 @@ class IssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
       }
       
       // 检查所有并行的全局唤醒端口
-      for (wakeup <- io.wakeupIn) {
+      for (wakeup <- wakeupInReg) {
         when(wakeup.valid) {
           when(canWakeupSrc1 && (entry.src1Tag === wakeup.payload.physRegIdx)) {
             wokeUpSrc1Mask(i) := True
@@ -134,7 +139,7 @@ class IssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
     val entry = entries(i)
     entryValids(i) &&
     (!entry.useSrc1 || entry.src1Ready) &&
-    (!entry.useSrc2 || entry.src2Ready)
+    (!entry.useSrc2 || entry.src2Ready) && !io.flush
   }
   
   // 将就绪条目转换为Bitmask，并使用优先级编码器选择最老的一个
@@ -174,65 +179,47 @@ class IssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
   // 4. 下一周期状态计算 (Next State Calculation)
   // ====================================================================
 
-  // 这部分逻辑将当前周期的所有事件（唤醒、发射、分配、清空）整合起来，
-  // 计算出下一个时钟周期 `entries` 和 `entryValids` 寄存器应该更新成什么值。
+  // Iterate through each slot and determine its next state in a parallel way
+for (i <- 0 until iqConfig.depth) {
 
-  // a. 首先，默认下一周期的状态与当前周期的状态相同
-  val entriesNext = CombInit(entries)
-  val entryValidsNext = CombInit(entryValids)
+  // --- Condition 1: A new instruction is allocated to this slot ---
+  val isAllocatingToThisSlot = io.allocateIn.fire && (allocateIdx === i)
 
-  // b. 应用唤醒结果 (Apply Wakeups)
-  // 使用在步骤2中预计算好的唤醒掩码来更新 `srcReady` 位
-  for(i <- 0 until iqConfig.depth) {
-    when(wokeUpSrc1Mask(i)) { entriesNext(i).src1Ready := True }
-    when(wokeUpSrc2Mask(i)) { entriesNext(i).src2Ready := True }
-  }
+  // --- Condition 2: This slot is being issued and thus cleared ---
+  val isIssuingFromThisSlot = io.issueOut.fire && (issueIdx === i)
   
-  // c. 应用发射结果 (Apply Issue)
-  // 如果本周期成功发射了一条指令，将对应的槽位标记为无效
-  when(io.issueOut.fire) {
-    entryValidsNext(issueIdx) := False
-  }
-
-  // d. 应用分配结果 (Apply Allocation)
-  // 如果本周期成功分配了一条新指令，用新指令的信息填充选定的槽位
-  when(io.allocateIn.fire) {
+  when(isAllocatingToThisSlot) {
+    // If we are allocating here, the entry is completely overwritten.
     val allocCmd = io.allocateIn.payload
     val allocUop = allocCmd.uop
     
-    // 初始化新条目的内容
-    entriesNext(allocateIdx).initFrom(allocUop, allocUop.robPtr)
-    entriesNext(allocateIdx).src1Ready := allocCmd.src1InitialReady
-    entriesNext(allocateIdx).src2Ready := allocCmd.src2InitialReady
-    entryValidsNext(allocateIdx) := True
+    entries(i).initFrom(allocUop, allocUop.robPtr).allowOverride()
+    entryValids(i) := True
     
-    // 边界条件处理：如果新分配的指令恰好被本周期的全局唤醒信号唤醒
-    // 这允许指令在进入IQ的同一个周期就被唤醒
-    for (wakeup <- io.wakeupIn) {
-      when(wakeup.valid) {
-        when(allocUop.decoded.useArchSrc1 && !allocCmd.src1InitialReady && allocUop.rename.physSrc1.idx === wakeup.payload.physRegIdx) {
-          entriesNext(allocateIdx).src1Ready := True
-        }
-        when(allocUop.decoded.useArchSrc2 && !allocCmd.src2InitialReady && allocUop.rename.physSrc2.idx === wakeup.payload.physRegIdx) {
-          entriesNext(allocateIdx).src2Ready := True
-        }
-      }
-    }
-  }
+    // Check for same-cycle wakeup for the new entry
+    val s1WakesUp = wakeupInReg.map(w => w.valid && (allocUop.rename.physSrc1.idx === w.payload.physRegIdx)).orR
+    val s2WakesUp = wakeupInReg.map(w => w.valid && (allocUop.rename.physSrc2.idx === w.payload.physRegIdx)).orR
 
-  // e. 应用Flush (Apply Flush)
-  // Flush 具有最高优先级，它会清空整个IQ
-  when(io.flush) {
-    entryValidsNext.foreach(_ := False)
-  }
+    entries(i).src1Ready := allocCmd.src1InitialReady || s1WakesUp
+    entries(i).src2Ready := allocCmd.src2InitialReady || s2WakesUp
 
-  // ====================================================================
-  // 5. 寄存器更新 (Register Update at Clock Edge)
-  // ====================================================================
-  
-  // 在时钟边沿，用计算好的下一周期状态来更新状态寄存器
-  entries := entriesNext
-  entryValids := entryValidsNext
+  } elsewhen (isIssuingFromThisSlot) {
+    // If we are issuing from here, the slot becomes invalid.
+    entryValids(i) := False
+    // The rest of the entry's state doesn't matter as it's invalid.
+
+  } otherwise {
+    // If not being allocated to or issued from, just update the ready bits based on wakeup.
+    // The valid bit and other fields remain the same.
+    when(wokeUpSrc1Mask(i)) { entries(i).src1Ready := True }
+    when(wokeUpSrc2Mask(i)) { entries(i).src2Ready := True }
+  }
+}
+
+// Apply Flush with highest priority, overriding all other logic.
+when(io.flush) {
+  entryValids.foreach(_ := False)
+}
 
   // ====================================================================
   // 6. 调试与日志记录 (Debug and Monitoring)
