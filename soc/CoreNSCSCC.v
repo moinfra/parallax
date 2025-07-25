@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 49a99dae7b6ed938ae50042417514f24dcaeaaa8
 // Component : CoreNSCSCC
-// Git hash  : 483240ff62b0707c279758dac18d9c4be459e8d7
+// Git hash  : 5f1e5401d87da3c44b31cdd7a8764d9c2b3cee32
 
 `timescale 1ns/1ps
 
@@ -34780,6 +34780,8 @@ module IssueQueueComponent_3 (
   reg                 _zz_io_issueOut_payload_usePc;
   reg        [31:0]   _zz_io_issueOut_payload_pcData;
   wire       [3:0]    _zz_allocationMask_1;
+  wire                _zz_entries_0_src1Ready;
+  wire                _zz_entries_0_src1Ready_1;
   reg        [2:0]    _zz_currentValidCount_8;
   wire       [2:0]    _zz_currentValidCount_9;
   reg        [2:0]    _zz_currentValidCount_10;
@@ -35004,155 +35006,23 @@ module IssueQueueComponent_3 (
   wire                _zz_allocateIdx_1;
   wire                _zz_allocateIdx_2;
   wire       [1:0]    allocateIdx;
-  reg        [3:0]    entriesNext_0_robPtr;
-  reg        [5:0]    entriesNext_0_physDest_idx;
-  reg                 entriesNext_0_physDestIsFpr;
-  reg                 entriesNext_0_writesToPhysReg;
-  reg                 entriesNext_0_useSrc1;
-  reg        [31:0]   entriesNext_0_src1Data;
-  reg        [5:0]    entriesNext_0_src1Tag;
-  reg                 entriesNext_0_src1Ready;
-  reg                 entriesNext_0_src1IsFpr;
-  reg                 entriesNext_0_useSrc2;
-  reg        [31:0]   entriesNext_0_src2Data;
-  reg        [5:0]    entriesNext_0_src2Tag;
-  reg                 entriesNext_0_src2Ready;
-  reg                 entriesNext_0_src2IsFpr;
-  reg        [1:0]    entriesNext_0_memCtrl_size;
-  reg                 entriesNext_0_memCtrl_isSignedLoad;
-  reg                 entriesNext_0_memCtrl_isStore;
-  reg                 entriesNext_0_memCtrl_isLoadLinked;
-  reg                 entriesNext_0_memCtrl_isStoreCond;
-  reg        [4:0]    entriesNext_0_memCtrl_atomicOp;
-  reg                 entriesNext_0_memCtrl_isFence;
-  reg        [7:0]    entriesNext_0_memCtrl_fenceMode;
-  reg                 entriesNext_0_memCtrl_isCacheOp;
-  reg        [4:0]    entriesNext_0_memCtrl_cacheOpType;
-  reg                 entriesNext_0_memCtrl_isPrefetch;
-  reg        [31:0]   entriesNext_0_imm;
-  reg                 entriesNext_0_usePc;
-  reg        [31:0]   entriesNext_0_pcData;
-  reg        [3:0]    entriesNext_1_robPtr;
-  reg        [5:0]    entriesNext_1_physDest_idx;
-  reg                 entriesNext_1_physDestIsFpr;
-  reg                 entriesNext_1_writesToPhysReg;
-  reg                 entriesNext_1_useSrc1;
-  reg        [31:0]   entriesNext_1_src1Data;
-  reg        [5:0]    entriesNext_1_src1Tag;
-  reg                 entriesNext_1_src1Ready;
-  reg                 entriesNext_1_src1IsFpr;
-  reg                 entriesNext_1_useSrc2;
-  reg        [31:0]   entriesNext_1_src2Data;
-  reg        [5:0]    entriesNext_1_src2Tag;
-  reg                 entriesNext_1_src2Ready;
-  reg                 entriesNext_1_src2IsFpr;
-  reg        [1:0]    entriesNext_1_memCtrl_size;
-  reg                 entriesNext_1_memCtrl_isSignedLoad;
-  reg                 entriesNext_1_memCtrl_isStore;
-  reg                 entriesNext_1_memCtrl_isLoadLinked;
-  reg                 entriesNext_1_memCtrl_isStoreCond;
-  reg        [4:0]    entriesNext_1_memCtrl_atomicOp;
-  reg                 entriesNext_1_memCtrl_isFence;
-  reg        [7:0]    entriesNext_1_memCtrl_fenceMode;
-  reg                 entriesNext_1_memCtrl_isCacheOp;
-  reg        [4:0]    entriesNext_1_memCtrl_cacheOpType;
-  reg                 entriesNext_1_memCtrl_isPrefetch;
-  reg        [31:0]   entriesNext_1_imm;
-  reg                 entriesNext_1_usePc;
-  reg        [31:0]   entriesNext_1_pcData;
-  reg        [3:0]    entriesNext_2_robPtr;
-  reg        [5:0]    entriesNext_2_physDest_idx;
-  reg                 entriesNext_2_physDestIsFpr;
-  reg                 entriesNext_2_writesToPhysReg;
-  reg                 entriesNext_2_useSrc1;
-  reg        [31:0]   entriesNext_2_src1Data;
-  reg        [5:0]    entriesNext_2_src1Tag;
-  reg                 entriesNext_2_src1Ready;
-  reg                 entriesNext_2_src1IsFpr;
-  reg                 entriesNext_2_useSrc2;
-  reg        [31:0]   entriesNext_2_src2Data;
-  reg        [5:0]    entriesNext_2_src2Tag;
-  reg                 entriesNext_2_src2Ready;
-  reg                 entriesNext_2_src2IsFpr;
-  reg        [1:0]    entriesNext_2_memCtrl_size;
-  reg                 entriesNext_2_memCtrl_isSignedLoad;
-  reg                 entriesNext_2_memCtrl_isStore;
-  reg                 entriesNext_2_memCtrl_isLoadLinked;
-  reg                 entriesNext_2_memCtrl_isStoreCond;
-  reg        [4:0]    entriesNext_2_memCtrl_atomicOp;
-  reg                 entriesNext_2_memCtrl_isFence;
-  reg        [7:0]    entriesNext_2_memCtrl_fenceMode;
-  reg                 entriesNext_2_memCtrl_isCacheOp;
-  reg        [4:0]    entriesNext_2_memCtrl_cacheOpType;
-  reg                 entriesNext_2_memCtrl_isPrefetch;
-  reg        [31:0]   entriesNext_2_imm;
-  reg                 entriesNext_2_usePc;
-  reg        [31:0]   entriesNext_2_pcData;
-  reg        [3:0]    entriesNext_3_robPtr;
-  reg        [5:0]    entriesNext_3_physDest_idx;
-  reg                 entriesNext_3_physDestIsFpr;
-  reg                 entriesNext_3_writesToPhysReg;
-  reg                 entriesNext_3_useSrc1;
-  reg        [31:0]   entriesNext_3_src1Data;
-  reg        [5:0]    entriesNext_3_src1Tag;
-  reg                 entriesNext_3_src1Ready;
-  reg                 entriesNext_3_src1IsFpr;
-  reg                 entriesNext_3_useSrc2;
-  reg        [31:0]   entriesNext_3_src2Data;
-  reg        [5:0]    entriesNext_3_src2Tag;
-  reg                 entriesNext_3_src2Ready;
-  reg                 entriesNext_3_src2IsFpr;
-  reg        [1:0]    entriesNext_3_memCtrl_size;
-  reg                 entriesNext_3_memCtrl_isSignedLoad;
-  reg                 entriesNext_3_memCtrl_isStore;
-  reg                 entriesNext_3_memCtrl_isLoadLinked;
-  reg                 entriesNext_3_memCtrl_isStoreCond;
-  reg        [4:0]    entriesNext_3_memCtrl_atomicOp;
-  reg                 entriesNext_3_memCtrl_isFence;
-  reg        [7:0]    entriesNext_3_memCtrl_fenceMode;
-  reg                 entriesNext_3_memCtrl_isCacheOp;
-  reg        [4:0]    entriesNext_3_memCtrl_cacheOpType;
-  reg                 entriesNext_3_memCtrl_isPrefetch;
-  reg        [31:0]   entriesNext_3_imm;
-  reg                 entriesNext_3_usePc;
-  reg        [31:0]   entriesNext_3_pcData;
-  reg                 entryValidsNext_0;
-  reg                 entryValidsNext_1;
-  reg                 entryValidsNext_2;
-  reg                 entryValidsNext_3;
-  wire                when_IssueQueueComponent_l192;
-  wire                when_IssueQueueComponent_l193;
-  wire                when_IssueQueueComponent_l192_1;
-  wire                when_IssueQueueComponent_l193_1;
-  wire                when_IssueQueueComponent_l192_2;
-  wire                when_IssueQueueComponent_l193_2;
-  wire                when_IssueQueueComponent_l192_3;
-  wire                when_IssueQueueComponent_l193_3;
-  wire       [3:0]    _zz_1;
   wire                io_allocateIn_fire;
-  wire       [3:0]    _zz_2;
-  wire                _zz_3;
-  wire                _zz_4;
-  wire                _zz_5;
-  wire                _zz_6;
-  wire                _zz_entriesNext_0_src1Ready;
-  wire                _zz_entriesNext_0_src2Ready;
-  wire       [3:0]    _zz_7;
-  wire                when_IssueQueueComponent_l217;
-  wire                when_IssueQueueComponent_l218;
-  wire                when_IssueQueueComponent_l221;
-  wire                when_IssueQueueComponent_l217_1;
-  wire                when_IssueQueueComponent_l218_1;
-  wire                when_IssueQueueComponent_l221_1;
-  wire                when_IssueQueueComponent_l217_2;
-  wire                when_IssueQueueComponent_l218_2;
-  wire                when_IssueQueueComponent_l221_2;
-  wire                when_IssueQueueComponent_l217_3;
-  wire                when_IssueQueueComponent_l218_3;
-  wire                when_IssueQueueComponent_l221_3;
-  wire                when_IssueQueueComponent_l217_4;
-  wire                when_IssueQueueComponent_l218_4;
-  wire                when_IssueQueueComponent_l221_4;
+  wire                when_IssueQueueComponent_l191;
+  wire                when_IssueQueueComponent_l206;
+  wire                when_IssueQueueComponent_l214;
+  wire                when_IssueQueueComponent_l215;
+  wire                when_IssueQueueComponent_l191_1;
+  wire                when_IssueQueueComponent_l206_1;
+  wire                when_IssueQueueComponent_l214_1;
+  wire                when_IssueQueueComponent_l215_1;
+  wire                when_IssueQueueComponent_l191_2;
+  wire                when_IssueQueueComponent_l206_2;
+  wire                when_IssueQueueComponent_l214_2;
+  wire                when_IssueQueueComponent_l215_2;
+  wire                when_IssueQueueComponent_l191_3;
+  wire                when_IssueQueueComponent_l206_3;
+  wire                when_IssueQueueComponent_l214_3;
+  wire                when_IssueQueueComponent_l215_3;
   wire       [2:0]    _zz_currentValidCount;
   wire       [2:0]    _zz_currentValidCount_1;
   wire       [2:0]    _zz_currentValidCount_2;
@@ -35163,7 +35033,7 @@ module IssueQueueComponent_3 (
   wire       [2:0]    _zz_currentValidCount_7;
   wire       [2:0]    currentValidCount;
   wire                logCondition;
-  wire                when_IssueQueueComponent_l262;
+  wire                when_IssueQueueComponent_l244;
   `ifndef SYNTHESIS
   reg [87:0] io_allocateIn_payload_uop_decoded_uopCode_string;
   reg [151:0] io_allocateIn_payload_uop_decoded_exeUnit_string;
@@ -35187,10 +35057,6 @@ module IssueQueueComponent_3 (
   reg [7:0] entries_2_memCtrl_size_string;
   reg [7:0] entries_3_memCtrl_size_string;
   reg [7:0] _zz_io_issueOut_payload_memCtrl_size_string;
-  reg [7:0] entriesNext_0_memCtrl_size_string;
-  reg [7:0] entriesNext_1_memCtrl_size_string;
-  reg [7:0] entriesNext_2_memCtrl_size_string;
-  reg [7:0] entriesNext_3_memCtrl_size_string;
   `endif
 
 
@@ -35204,6 +35070,8 @@ module IssueQueueComponent_3 (
   assign _zz_currentValidCount_12 = entryValids_3;
   assign _zz_currentValidCount_11 = {2'd0, _zz_currentValidCount_12};
   assign _zz_currentValidCount_9 = {entryValids_2,{entryValids_1,entryValids_0}};
+  assign _zz_entries_0_src1Ready = (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_1_payload_physRegIdx);
+  assign _zz_entries_0_src1Ready_1 = (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_0_payload_physRegIdx);
   always @(*) begin
     case(issueIdx)
       2'b00 : begin
@@ -35617,42 +35485,6 @@ module IssueQueueComponent_3 (
       default : _zz_io_issueOut_payload_memCtrl_size_string = "?";
     endcase
   end
-  always @(*) begin
-    case(entriesNext_0_memCtrl_size)
-      MemAccessSize_B : entriesNext_0_memCtrl_size_string = "B";
-      MemAccessSize_H : entriesNext_0_memCtrl_size_string = "H";
-      MemAccessSize_W : entriesNext_0_memCtrl_size_string = "W";
-      MemAccessSize_D : entriesNext_0_memCtrl_size_string = "D";
-      default : entriesNext_0_memCtrl_size_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_1_memCtrl_size)
-      MemAccessSize_B : entriesNext_1_memCtrl_size_string = "B";
-      MemAccessSize_H : entriesNext_1_memCtrl_size_string = "H";
-      MemAccessSize_W : entriesNext_1_memCtrl_size_string = "W";
-      MemAccessSize_D : entriesNext_1_memCtrl_size_string = "D";
-      default : entriesNext_1_memCtrl_size_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_2_memCtrl_size)
-      MemAccessSize_B : entriesNext_2_memCtrl_size_string = "B";
-      MemAccessSize_H : entriesNext_2_memCtrl_size_string = "H";
-      MemAccessSize_W : entriesNext_2_memCtrl_size_string = "W";
-      MemAccessSize_D : entriesNext_2_memCtrl_size_string = "D";
-      default : entriesNext_2_memCtrl_size_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_3_memCtrl_size)
-      MemAccessSize_B : entriesNext_3_memCtrl_size_string = "B";
-      MemAccessSize_H : entriesNext_3_memCtrl_size_string = "H";
-      MemAccessSize_W : entriesNext_3_memCtrl_size_string = "W";
-      MemAccessSize_D : entriesNext_3_memCtrl_size_string = "D";
-      default : entriesNext_3_memCtrl_size_string = "?";
-    endcase
-  end
   `endif
 
   assign when_IssueQueueComponent_l68 = (! io_flush);
@@ -36030,1443 +35862,23 @@ module IssueQueueComponent_3 (
   assign _zz_allocateIdx_1 = (allocationMask[1] || _zz_allocateIdx);
   assign _zz_allocateIdx_2 = (allocationMask[2] || _zz_allocateIdx);
   assign allocateIdx = {_zz_allocateIdx_2,_zz_allocateIdx_1};
-  always @(*) begin
-    entriesNext_0_robPtr = entries_0_robPtr;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_robPtr = io_allocateIn_payload_uop_robPtr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_physDest_idx = entries_0_physDest_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_physDest_idx = io_allocateIn_payload_uop_rename_physDest_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_physDestIsFpr = entries_0_physDestIsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_physDestIsFpr = io_allocateIn_payload_uop_rename_physDestIsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_writesToPhysReg = entries_0_writesToPhysReg;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_writesToPhysReg = io_allocateIn_payload_uop_rename_writesToPhysReg;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_useSrc1 = entries_0_useSrc1;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_useSrc1 = io_allocateIn_payload_uop_decoded_useArchSrc1;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src1Data = entries_0_src1Data;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src1Data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src1Tag = entries_0_src1Tag;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src1Tag = io_allocateIn_payload_uop_rename_physSrc1_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src1Ready = entries_0_src1Ready;
-    if(when_IssueQueueComponent_l192) begin
-      entriesNext_0_src1Ready = 1'b1;
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src1Ready = _zz_entriesNext_0_src1Ready;
-      end
-      if(_zz_3) begin
-        entriesNext_0_src1Ready = io_allocateIn_payload_src1InitialReady;
-      end
-      if(when_IssueQueueComponent_l217) begin
-        if(when_IssueQueueComponent_l218) begin
-          if(_zz_3) begin
-            entriesNext_0_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_1) begin
-        if(when_IssueQueueComponent_l218_1) begin
-          if(_zz_3) begin
-            entriesNext_0_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_2) begin
-        if(when_IssueQueueComponent_l218_2) begin
-          if(_zz_3) begin
-            entriesNext_0_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_3) begin
-        if(when_IssueQueueComponent_l218_3) begin
-          if(_zz_3) begin
-            entriesNext_0_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_4) begin
-        if(when_IssueQueueComponent_l218_4) begin
-          if(_zz_3) begin
-            entriesNext_0_src1Ready = 1'b1;
-          end
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src1IsFpr = entries_0_src1IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src1IsFpr = io_allocateIn_payload_uop_rename_physSrc1IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_useSrc2 = entries_0_useSrc2;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_useSrc2 = io_allocateIn_payload_uop_decoded_useArchSrc2;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src2Data = entries_0_src2Data;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src2Data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src2Tag = entries_0_src2Tag;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src2Tag = io_allocateIn_payload_uop_rename_physSrc2_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src2Ready = entries_0_src2Ready;
-    if(when_IssueQueueComponent_l193) begin
-      entriesNext_0_src2Ready = 1'b1;
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src2Ready = _zz_entriesNext_0_src2Ready;
-      end
-      if(_zz_3) begin
-        entriesNext_0_src2Ready = io_allocateIn_payload_src2InitialReady;
-      end
-      if(when_IssueQueueComponent_l217) begin
-        if(when_IssueQueueComponent_l221) begin
-          if(_zz_3) begin
-            entriesNext_0_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_1) begin
-        if(when_IssueQueueComponent_l221_1) begin
-          if(_zz_3) begin
-            entriesNext_0_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_2) begin
-        if(when_IssueQueueComponent_l221_2) begin
-          if(_zz_3) begin
-            entriesNext_0_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_3) begin
-        if(when_IssueQueueComponent_l221_3) begin
-          if(_zz_3) begin
-            entriesNext_0_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_4) begin
-        if(when_IssueQueueComponent_l221_4) begin
-          if(_zz_3) begin
-            entriesNext_0_src2Ready = 1'b1;
-          end
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src2IsFpr = entries_0_src2IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src2IsFpr = io_allocateIn_payload_uop_rename_physSrc2IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_memCtrl_size = entries_0_memCtrl_size;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_memCtrl_size = io_allocateIn_payload_uop_decoded_memCtrl_size;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_memCtrl_isSignedLoad = entries_0_memCtrl_isSignedLoad;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_memCtrl_isSignedLoad = io_allocateIn_payload_uop_decoded_memCtrl_isSignedLoad;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_memCtrl_isStore = entries_0_memCtrl_isStore;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_memCtrl_isStore = io_allocateIn_payload_uop_decoded_memCtrl_isStore;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_memCtrl_isLoadLinked = entries_0_memCtrl_isLoadLinked;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_memCtrl_isLoadLinked = io_allocateIn_payload_uop_decoded_memCtrl_isLoadLinked;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_memCtrl_isStoreCond = entries_0_memCtrl_isStoreCond;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_memCtrl_isStoreCond = io_allocateIn_payload_uop_decoded_memCtrl_isStoreCond;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_memCtrl_atomicOp = entries_0_memCtrl_atomicOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_memCtrl_atomicOp = io_allocateIn_payload_uop_decoded_memCtrl_atomicOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_memCtrl_isFence = entries_0_memCtrl_isFence;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_memCtrl_isFence = io_allocateIn_payload_uop_decoded_memCtrl_isFence;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_memCtrl_fenceMode = entries_0_memCtrl_fenceMode;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_memCtrl_fenceMode = io_allocateIn_payload_uop_decoded_memCtrl_fenceMode;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_memCtrl_isCacheOp = entries_0_memCtrl_isCacheOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_memCtrl_isCacheOp = io_allocateIn_payload_uop_decoded_memCtrl_isCacheOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_memCtrl_cacheOpType = entries_0_memCtrl_cacheOpType;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_memCtrl_cacheOpType = io_allocateIn_payload_uop_decoded_memCtrl_cacheOpType;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_memCtrl_isPrefetch = entries_0_memCtrl_isPrefetch;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_memCtrl_isPrefetch = io_allocateIn_payload_uop_decoded_memCtrl_isPrefetch;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_imm = entries_0_imm;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_imm = io_allocateIn_payload_uop_decoded_imm;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_usePc = entries_0_usePc;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_usePc = io_allocateIn_payload_uop_decoded_usePcForAddr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_pcData = entries_0_pcData;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_pcData = io_allocateIn_payload_uop_decoded_pc;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_robPtr = entries_1_robPtr;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_robPtr = io_allocateIn_payload_uop_robPtr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_physDest_idx = entries_1_physDest_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_physDest_idx = io_allocateIn_payload_uop_rename_physDest_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_physDestIsFpr = entries_1_physDestIsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_physDestIsFpr = io_allocateIn_payload_uop_rename_physDestIsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_writesToPhysReg = entries_1_writesToPhysReg;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_writesToPhysReg = io_allocateIn_payload_uop_rename_writesToPhysReg;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_useSrc1 = entries_1_useSrc1;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_useSrc1 = io_allocateIn_payload_uop_decoded_useArchSrc1;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src1Data = entries_1_src1Data;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src1Data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src1Tag = entries_1_src1Tag;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src1Tag = io_allocateIn_payload_uop_rename_physSrc1_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src1Ready = entries_1_src1Ready;
-    if(when_IssueQueueComponent_l192_1) begin
-      entriesNext_1_src1Ready = 1'b1;
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src1Ready = _zz_entriesNext_0_src1Ready;
-      end
-      if(_zz_4) begin
-        entriesNext_1_src1Ready = io_allocateIn_payload_src1InitialReady;
-      end
-      if(when_IssueQueueComponent_l217) begin
-        if(when_IssueQueueComponent_l218) begin
-          if(_zz_4) begin
-            entriesNext_1_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_1) begin
-        if(when_IssueQueueComponent_l218_1) begin
-          if(_zz_4) begin
-            entriesNext_1_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_2) begin
-        if(when_IssueQueueComponent_l218_2) begin
-          if(_zz_4) begin
-            entriesNext_1_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_3) begin
-        if(when_IssueQueueComponent_l218_3) begin
-          if(_zz_4) begin
-            entriesNext_1_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_4) begin
-        if(when_IssueQueueComponent_l218_4) begin
-          if(_zz_4) begin
-            entriesNext_1_src1Ready = 1'b1;
-          end
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src1IsFpr = entries_1_src1IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src1IsFpr = io_allocateIn_payload_uop_rename_physSrc1IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_useSrc2 = entries_1_useSrc2;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_useSrc2 = io_allocateIn_payload_uop_decoded_useArchSrc2;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src2Data = entries_1_src2Data;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src2Data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src2Tag = entries_1_src2Tag;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src2Tag = io_allocateIn_payload_uop_rename_physSrc2_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src2Ready = entries_1_src2Ready;
-    if(when_IssueQueueComponent_l193_1) begin
-      entriesNext_1_src2Ready = 1'b1;
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src2Ready = _zz_entriesNext_0_src2Ready;
-      end
-      if(_zz_4) begin
-        entriesNext_1_src2Ready = io_allocateIn_payload_src2InitialReady;
-      end
-      if(when_IssueQueueComponent_l217) begin
-        if(when_IssueQueueComponent_l221) begin
-          if(_zz_4) begin
-            entriesNext_1_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_1) begin
-        if(when_IssueQueueComponent_l221_1) begin
-          if(_zz_4) begin
-            entriesNext_1_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_2) begin
-        if(when_IssueQueueComponent_l221_2) begin
-          if(_zz_4) begin
-            entriesNext_1_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_3) begin
-        if(when_IssueQueueComponent_l221_3) begin
-          if(_zz_4) begin
-            entriesNext_1_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_4) begin
-        if(when_IssueQueueComponent_l221_4) begin
-          if(_zz_4) begin
-            entriesNext_1_src2Ready = 1'b1;
-          end
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src2IsFpr = entries_1_src2IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src2IsFpr = io_allocateIn_payload_uop_rename_physSrc2IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_memCtrl_size = entries_1_memCtrl_size;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_memCtrl_size = io_allocateIn_payload_uop_decoded_memCtrl_size;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_memCtrl_isSignedLoad = entries_1_memCtrl_isSignedLoad;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_memCtrl_isSignedLoad = io_allocateIn_payload_uop_decoded_memCtrl_isSignedLoad;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_memCtrl_isStore = entries_1_memCtrl_isStore;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_memCtrl_isStore = io_allocateIn_payload_uop_decoded_memCtrl_isStore;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_memCtrl_isLoadLinked = entries_1_memCtrl_isLoadLinked;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_memCtrl_isLoadLinked = io_allocateIn_payload_uop_decoded_memCtrl_isLoadLinked;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_memCtrl_isStoreCond = entries_1_memCtrl_isStoreCond;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_memCtrl_isStoreCond = io_allocateIn_payload_uop_decoded_memCtrl_isStoreCond;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_memCtrl_atomicOp = entries_1_memCtrl_atomicOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_memCtrl_atomicOp = io_allocateIn_payload_uop_decoded_memCtrl_atomicOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_memCtrl_isFence = entries_1_memCtrl_isFence;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_memCtrl_isFence = io_allocateIn_payload_uop_decoded_memCtrl_isFence;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_memCtrl_fenceMode = entries_1_memCtrl_fenceMode;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_memCtrl_fenceMode = io_allocateIn_payload_uop_decoded_memCtrl_fenceMode;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_memCtrl_isCacheOp = entries_1_memCtrl_isCacheOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_memCtrl_isCacheOp = io_allocateIn_payload_uop_decoded_memCtrl_isCacheOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_memCtrl_cacheOpType = entries_1_memCtrl_cacheOpType;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_memCtrl_cacheOpType = io_allocateIn_payload_uop_decoded_memCtrl_cacheOpType;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_memCtrl_isPrefetch = entries_1_memCtrl_isPrefetch;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_memCtrl_isPrefetch = io_allocateIn_payload_uop_decoded_memCtrl_isPrefetch;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_imm = entries_1_imm;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_imm = io_allocateIn_payload_uop_decoded_imm;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_usePc = entries_1_usePc;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_usePc = io_allocateIn_payload_uop_decoded_usePcForAddr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_pcData = entries_1_pcData;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_pcData = io_allocateIn_payload_uop_decoded_pc;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_robPtr = entries_2_robPtr;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_robPtr = io_allocateIn_payload_uop_robPtr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_physDest_idx = entries_2_physDest_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_physDest_idx = io_allocateIn_payload_uop_rename_physDest_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_physDestIsFpr = entries_2_physDestIsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_physDestIsFpr = io_allocateIn_payload_uop_rename_physDestIsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_writesToPhysReg = entries_2_writesToPhysReg;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_writesToPhysReg = io_allocateIn_payload_uop_rename_writesToPhysReg;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_useSrc1 = entries_2_useSrc1;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_useSrc1 = io_allocateIn_payload_uop_decoded_useArchSrc1;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src1Data = entries_2_src1Data;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src1Data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src1Tag = entries_2_src1Tag;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src1Tag = io_allocateIn_payload_uop_rename_physSrc1_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src1Ready = entries_2_src1Ready;
-    if(when_IssueQueueComponent_l192_2) begin
-      entriesNext_2_src1Ready = 1'b1;
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src1Ready = _zz_entriesNext_0_src1Ready;
-      end
-      if(_zz_5) begin
-        entriesNext_2_src1Ready = io_allocateIn_payload_src1InitialReady;
-      end
-      if(when_IssueQueueComponent_l217) begin
-        if(when_IssueQueueComponent_l218) begin
-          if(_zz_5) begin
-            entriesNext_2_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_1) begin
-        if(when_IssueQueueComponent_l218_1) begin
-          if(_zz_5) begin
-            entriesNext_2_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_2) begin
-        if(when_IssueQueueComponent_l218_2) begin
-          if(_zz_5) begin
-            entriesNext_2_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_3) begin
-        if(when_IssueQueueComponent_l218_3) begin
-          if(_zz_5) begin
-            entriesNext_2_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_4) begin
-        if(when_IssueQueueComponent_l218_4) begin
-          if(_zz_5) begin
-            entriesNext_2_src1Ready = 1'b1;
-          end
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src1IsFpr = entries_2_src1IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src1IsFpr = io_allocateIn_payload_uop_rename_physSrc1IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_useSrc2 = entries_2_useSrc2;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_useSrc2 = io_allocateIn_payload_uop_decoded_useArchSrc2;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src2Data = entries_2_src2Data;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src2Data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src2Tag = entries_2_src2Tag;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src2Tag = io_allocateIn_payload_uop_rename_physSrc2_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src2Ready = entries_2_src2Ready;
-    if(when_IssueQueueComponent_l193_2) begin
-      entriesNext_2_src2Ready = 1'b1;
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src2Ready = _zz_entriesNext_0_src2Ready;
-      end
-      if(_zz_5) begin
-        entriesNext_2_src2Ready = io_allocateIn_payload_src2InitialReady;
-      end
-      if(when_IssueQueueComponent_l217) begin
-        if(when_IssueQueueComponent_l221) begin
-          if(_zz_5) begin
-            entriesNext_2_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_1) begin
-        if(when_IssueQueueComponent_l221_1) begin
-          if(_zz_5) begin
-            entriesNext_2_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_2) begin
-        if(when_IssueQueueComponent_l221_2) begin
-          if(_zz_5) begin
-            entriesNext_2_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_3) begin
-        if(when_IssueQueueComponent_l221_3) begin
-          if(_zz_5) begin
-            entriesNext_2_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_4) begin
-        if(when_IssueQueueComponent_l221_4) begin
-          if(_zz_5) begin
-            entriesNext_2_src2Ready = 1'b1;
-          end
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src2IsFpr = entries_2_src2IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src2IsFpr = io_allocateIn_payload_uop_rename_physSrc2IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_memCtrl_size = entries_2_memCtrl_size;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_memCtrl_size = io_allocateIn_payload_uop_decoded_memCtrl_size;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_memCtrl_isSignedLoad = entries_2_memCtrl_isSignedLoad;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_memCtrl_isSignedLoad = io_allocateIn_payload_uop_decoded_memCtrl_isSignedLoad;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_memCtrl_isStore = entries_2_memCtrl_isStore;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_memCtrl_isStore = io_allocateIn_payload_uop_decoded_memCtrl_isStore;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_memCtrl_isLoadLinked = entries_2_memCtrl_isLoadLinked;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_memCtrl_isLoadLinked = io_allocateIn_payload_uop_decoded_memCtrl_isLoadLinked;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_memCtrl_isStoreCond = entries_2_memCtrl_isStoreCond;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_memCtrl_isStoreCond = io_allocateIn_payload_uop_decoded_memCtrl_isStoreCond;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_memCtrl_atomicOp = entries_2_memCtrl_atomicOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_memCtrl_atomicOp = io_allocateIn_payload_uop_decoded_memCtrl_atomicOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_memCtrl_isFence = entries_2_memCtrl_isFence;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_memCtrl_isFence = io_allocateIn_payload_uop_decoded_memCtrl_isFence;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_memCtrl_fenceMode = entries_2_memCtrl_fenceMode;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_memCtrl_fenceMode = io_allocateIn_payload_uop_decoded_memCtrl_fenceMode;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_memCtrl_isCacheOp = entries_2_memCtrl_isCacheOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_memCtrl_isCacheOp = io_allocateIn_payload_uop_decoded_memCtrl_isCacheOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_memCtrl_cacheOpType = entries_2_memCtrl_cacheOpType;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_memCtrl_cacheOpType = io_allocateIn_payload_uop_decoded_memCtrl_cacheOpType;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_memCtrl_isPrefetch = entries_2_memCtrl_isPrefetch;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_memCtrl_isPrefetch = io_allocateIn_payload_uop_decoded_memCtrl_isPrefetch;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_imm = entries_2_imm;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_imm = io_allocateIn_payload_uop_decoded_imm;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_usePc = entries_2_usePc;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_usePc = io_allocateIn_payload_uop_decoded_usePcForAddr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_pcData = entries_2_pcData;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_pcData = io_allocateIn_payload_uop_decoded_pc;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_robPtr = entries_3_robPtr;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_robPtr = io_allocateIn_payload_uop_robPtr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_physDest_idx = entries_3_physDest_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_physDest_idx = io_allocateIn_payload_uop_rename_physDest_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_physDestIsFpr = entries_3_physDestIsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_physDestIsFpr = io_allocateIn_payload_uop_rename_physDestIsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_writesToPhysReg = entries_3_writesToPhysReg;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_writesToPhysReg = io_allocateIn_payload_uop_rename_writesToPhysReg;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_useSrc1 = entries_3_useSrc1;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_useSrc1 = io_allocateIn_payload_uop_decoded_useArchSrc1;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src1Data = entries_3_src1Data;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src1Data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src1Tag = entries_3_src1Tag;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src1Tag = io_allocateIn_payload_uop_rename_physSrc1_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src1Ready = entries_3_src1Ready;
-    if(when_IssueQueueComponent_l192_3) begin
-      entriesNext_3_src1Ready = 1'b1;
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src1Ready = _zz_entriesNext_0_src1Ready;
-      end
-      if(_zz_6) begin
-        entriesNext_3_src1Ready = io_allocateIn_payload_src1InitialReady;
-      end
-      if(when_IssueQueueComponent_l217) begin
-        if(when_IssueQueueComponent_l218) begin
-          if(_zz_6) begin
-            entriesNext_3_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_1) begin
-        if(when_IssueQueueComponent_l218_1) begin
-          if(_zz_6) begin
-            entriesNext_3_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_2) begin
-        if(when_IssueQueueComponent_l218_2) begin
-          if(_zz_6) begin
-            entriesNext_3_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_3) begin
-        if(when_IssueQueueComponent_l218_3) begin
-          if(_zz_6) begin
-            entriesNext_3_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_4) begin
-        if(when_IssueQueueComponent_l218_4) begin
-          if(_zz_6) begin
-            entriesNext_3_src1Ready = 1'b1;
-          end
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src1IsFpr = entries_3_src1IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src1IsFpr = io_allocateIn_payload_uop_rename_physSrc1IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_useSrc2 = entries_3_useSrc2;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_useSrc2 = io_allocateIn_payload_uop_decoded_useArchSrc2;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src2Data = entries_3_src2Data;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src2Data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src2Tag = entries_3_src2Tag;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src2Tag = io_allocateIn_payload_uop_rename_physSrc2_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src2Ready = entries_3_src2Ready;
-    if(when_IssueQueueComponent_l193_3) begin
-      entriesNext_3_src2Ready = 1'b1;
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src2Ready = _zz_entriesNext_0_src2Ready;
-      end
-      if(_zz_6) begin
-        entriesNext_3_src2Ready = io_allocateIn_payload_src2InitialReady;
-      end
-      if(when_IssueQueueComponent_l217) begin
-        if(when_IssueQueueComponent_l221) begin
-          if(_zz_6) begin
-            entriesNext_3_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_1) begin
-        if(when_IssueQueueComponent_l221_1) begin
-          if(_zz_6) begin
-            entriesNext_3_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_2) begin
-        if(when_IssueQueueComponent_l221_2) begin
-          if(_zz_6) begin
-            entriesNext_3_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_3) begin
-        if(when_IssueQueueComponent_l221_3) begin
-          if(_zz_6) begin
-            entriesNext_3_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_4) begin
-        if(when_IssueQueueComponent_l221_4) begin
-          if(_zz_6) begin
-            entriesNext_3_src2Ready = 1'b1;
-          end
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src2IsFpr = entries_3_src2IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src2IsFpr = io_allocateIn_payload_uop_rename_physSrc2IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_memCtrl_size = entries_3_memCtrl_size;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_memCtrl_size = io_allocateIn_payload_uop_decoded_memCtrl_size;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_memCtrl_isSignedLoad = entries_3_memCtrl_isSignedLoad;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_memCtrl_isSignedLoad = io_allocateIn_payload_uop_decoded_memCtrl_isSignedLoad;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_memCtrl_isStore = entries_3_memCtrl_isStore;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_memCtrl_isStore = io_allocateIn_payload_uop_decoded_memCtrl_isStore;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_memCtrl_isLoadLinked = entries_3_memCtrl_isLoadLinked;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_memCtrl_isLoadLinked = io_allocateIn_payload_uop_decoded_memCtrl_isLoadLinked;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_memCtrl_isStoreCond = entries_3_memCtrl_isStoreCond;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_memCtrl_isStoreCond = io_allocateIn_payload_uop_decoded_memCtrl_isStoreCond;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_memCtrl_atomicOp = entries_3_memCtrl_atomicOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_memCtrl_atomicOp = io_allocateIn_payload_uop_decoded_memCtrl_atomicOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_memCtrl_isFence = entries_3_memCtrl_isFence;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_memCtrl_isFence = io_allocateIn_payload_uop_decoded_memCtrl_isFence;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_memCtrl_fenceMode = entries_3_memCtrl_fenceMode;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_memCtrl_fenceMode = io_allocateIn_payload_uop_decoded_memCtrl_fenceMode;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_memCtrl_isCacheOp = entries_3_memCtrl_isCacheOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_memCtrl_isCacheOp = io_allocateIn_payload_uop_decoded_memCtrl_isCacheOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_memCtrl_cacheOpType = entries_3_memCtrl_cacheOpType;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_memCtrl_cacheOpType = io_allocateIn_payload_uop_decoded_memCtrl_cacheOpType;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_memCtrl_isPrefetch = entries_3_memCtrl_isPrefetch;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_memCtrl_isPrefetch = io_allocateIn_payload_uop_decoded_memCtrl_isPrefetch;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_imm = entries_3_imm;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_imm = io_allocateIn_payload_uop_decoded_imm;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_usePc = entries_3_usePc;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_usePc = io_allocateIn_payload_uop_decoded_usePcForAddr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_pcData = entries_3_pcData;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_pcData = io_allocateIn_payload_uop_decoded_pc;
-      end
-    end
-  end
-
-  always @(*) begin
-    entryValidsNext_0 = entryValids_0;
-    if(io_issueOut_fire) begin
-      if(_zz_1[0]) begin
-        entryValidsNext_0 = 1'b0;
-      end
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_7[0]) begin
-        entryValidsNext_0 = 1'b1;
-      end
-    end
-    if(io_flush) begin
-      entryValidsNext_0 = 1'b0;
-    end
-  end
-
-  always @(*) begin
-    entryValidsNext_1 = entryValids_1;
-    if(io_issueOut_fire) begin
-      if(_zz_1[1]) begin
-        entryValidsNext_1 = 1'b0;
-      end
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_7[1]) begin
-        entryValidsNext_1 = 1'b1;
-      end
-    end
-    if(io_flush) begin
-      entryValidsNext_1 = 1'b0;
-    end
-  end
-
-  always @(*) begin
-    entryValidsNext_2 = entryValids_2;
-    if(io_issueOut_fire) begin
-      if(_zz_1[2]) begin
-        entryValidsNext_2 = 1'b0;
-      end
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_7[2]) begin
-        entryValidsNext_2 = 1'b1;
-      end
-    end
-    if(io_flush) begin
-      entryValidsNext_2 = 1'b0;
-    end
-  end
-
-  always @(*) begin
-    entryValidsNext_3 = entryValids_3;
-    if(io_issueOut_fire) begin
-      if(_zz_1[3]) begin
-        entryValidsNext_3 = 1'b0;
-      end
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_7[3]) begin
-        entryValidsNext_3 = 1'b1;
-      end
-    end
-    if(io_flush) begin
-      entryValidsNext_3 = 1'b0;
-    end
-  end
-
-  assign when_IssueQueueComponent_l192 = wokeUpSrc1Mask[0];
-  assign when_IssueQueueComponent_l193 = wokeUpSrc2Mask[0];
-  assign when_IssueQueueComponent_l192_1 = wokeUpSrc1Mask[1];
-  assign when_IssueQueueComponent_l193_1 = wokeUpSrc2Mask[1];
-  assign when_IssueQueueComponent_l192_2 = wokeUpSrc1Mask[2];
-  assign when_IssueQueueComponent_l193_2 = wokeUpSrc2Mask[2];
-  assign when_IssueQueueComponent_l192_3 = wokeUpSrc1Mask[3];
-  assign when_IssueQueueComponent_l193_3 = wokeUpSrc2Mask[3];
-  assign _zz_1 = ({3'd0,1'b1} <<< issueIdx);
   assign io_allocateIn_fire = (io_allocateIn_valid && io_allocateIn_ready);
-  assign _zz_2 = ({3'd0,1'b1} <<< allocateIdx);
-  assign _zz_3 = _zz_2[0];
-  assign _zz_4 = _zz_2[1];
-  assign _zz_5 = _zz_2[2];
-  assign _zz_6 = _zz_2[3];
-  assign _zz_entriesNext_0_src1Ready = (! io_allocateIn_payload_uop_decoded_useArchSrc1);
-  assign _zz_entriesNext_0_src2Ready = (! io_allocateIn_payload_uop_decoded_useArchSrc2);
-  assign _zz_7 = ({3'd0,1'b1} <<< allocateIdx);
-  assign when_IssueQueueComponent_l217 = (wakeupInReg_0_valid && (! io_flush));
-  assign when_IssueQueueComponent_l218 = ((io_allocateIn_payload_uop_decoded_useArchSrc1 && (! io_allocateIn_payload_src1InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_0_payload_physRegIdx));
-  assign when_IssueQueueComponent_l221 = ((io_allocateIn_payload_uop_decoded_useArchSrc2 && (! io_allocateIn_payload_src2InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_0_payload_physRegIdx));
-  assign when_IssueQueueComponent_l217_1 = (wakeupInReg_1_valid && (! io_flush));
-  assign when_IssueQueueComponent_l218_1 = ((io_allocateIn_payload_uop_decoded_useArchSrc1 && (! io_allocateIn_payload_src1InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_1_payload_physRegIdx));
-  assign when_IssueQueueComponent_l221_1 = ((io_allocateIn_payload_uop_decoded_useArchSrc2 && (! io_allocateIn_payload_src2InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_1_payload_physRegIdx));
-  assign when_IssueQueueComponent_l217_2 = (wakeupInReg_2_valid && (! io_flush));
-  assign when_IssueQueueComponent_l218_2 = ((io_allocateIn_payload_uop_decoded_useArchSrc1 && (! io_allocateIn_payload_src1InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_2_payload_physRegIdx));
-  assign when_IssueQueueComponent_l221_2 = ((io_allocateIn_payload_uop_decoded_useArchSrc2 && (! io_allocateIn_payload_src2InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_2_payload_physRegIdx));
-  assign when_IssueQueueComponent_l217_3 = (wakeupInReg_3_valid && (! io_flush));
-  assign when_IssueQueueComponent_l218_3 = ((io_allocateIn_payload_uop_decoded_useArchSrc1 && (! io_allocateIn_payload_src1InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_3_payload_physRegIdx));
-  assign when_IssueQueueComponent_l221_3 = ((io_allocateIn_payload_uop_decoded_useArchSrc2 && (! io_allocateIn_payload_src2InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_3_payload_physRegIdx));
-  assign when_IssueQueueComponent_l217_4 = (wakeupInReg_4_valid && (! io_flush));
-  assign when_IssueQueueComponent_l218_4 = ((io_allocateIn_payload_uop_decoded_useArchSrc1 && (! io_allocateIn_payload_src1InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_4_payload_physRegIdx));
-  assign when_IssueQueueComponent_l221_4 = ((io_allocateIn_payload_uop_decoded_useArchSrc2 && (! io_allocateIn_payload_src2InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_4_payload_physRegIdx));
+  assign when_IssueQueueComponent_l191 = (io_allocateIn_fire && (allocateIdx == 2'b00));
+  assign when_IssueQueueComponent_l206 = (io_issueOut_fire && (issueIdx == 2'b00));
+  assign when_IssueQueueComponent_l214 = wokeUpSrc1Mask[0];
+  assign when_IssueQueueComponent_l215 = wokeUpSrc2Mask[0];
+  assign when_IssueQueueComponent_l191_1 = (io_allocateIn_fire && (allocateIdx == 2'b01));
+  assign when_IssueQueueComponent_l206_1 = (io_issueOut_fire && (issueIdx == 2'b01));
+  assign when_IssueQueueComponent_l214_1 = wokeUpSrc1Mask[1];
+  assign when_IssueQueueComponent_l215_1 = wokeUpSrc2Mask[1];
+  assign when_IssueQueueComponent_l191_2 = (io_allocateIn_fire && (allocateIdx == 2'b10));
+  assign when_IssueQueueComponent_l206_2 = (io_issueOut_fire && (issueIdx == 2'b10));
+  assign when_IssueQueueComponent_l214_2 = wokeUpSrc1Mask[2];
+  assign when_IssueQueueComponent_l215_2 = wokeUpSrc2Mask[2];
+  assign when_IssueQueueComponent_l191_3 = (io_allocateIn_fire && (allocateIdx == 2'b11));
+  assign when_IssueQueueComponent_l206_3 = (io_issueOut_fire && (issueIdx == 2'b11));
+  assign when_IssueQueueComponent_l214_3 = wokeUpSrc1Mask[3];
+  assign when_IssueQueueComponent_l215_3 = wokeUpSrc2Mask[3];
   assign _zz_currentValidCount = 3'b000;
   assign _zz_currentValidCount_1 = 3'b001;
   assign _zz_currentValidCount_2 = 3'b001;
@@ -37477,7 +35889,7 @@ module IssueQueueComponent_3 (
   assign _zz_currentValidCount_7 = 3'b011;
   assign currentValidCount = (_zz_currentValidCount_8 + _zz_currentValidCount_10);
   assign logCondition = (io_allocateIn_fire || io_issueOut_fire);
-  assign when_IssueQueueComponent_l262 = (logCondition && (3'b000 < currentValidCount));
+  assign when_IssueQueueComponent_l244 = (logCondition && (3'b000 < currentValidCount));
   always @(posedge clk) begin
     if(reset) begin
       wakeupInReg_0_valid <= 1'b0;
@@ -37519,29 +35931,59 @@ module IssueQueueComponent_3 (
         wakeupInReg_4_valid <= _zz_wakeupInReg_4_valid[0];
         wakeupInReg_4_payload_physRegIdx <= _zz_wakeupInReg_4_payload_physRegIdx[5 : 0];
       end
-      entryValids_0 <= entryValidsNext_0;
-      entryValids_1 <= entryValidsNext_1;
-      entryValids_2 <= entryValidsNext_2;
-      entryValids_3 <= entryValidsNext_3;
+      if(when_IssueQueueComponent_l191) begin
+        entryValids_0 <= 1'b1;
+      end else begin
+        if(when_IssueQueueComponent_l206) begin
+          entryValids_0 <= 1'b0;
+        end
+      end
+      if(when_IssueQueueComponent_l191_1) begin
+        entryValids_1 <= 1'b1;
+      end else begin
+        if(when_IssueQueueComponent_l206_1) begin
+          entryValids_1 <= 1'b0;
+        end
+      end
+      if(when_IssueQueueComponent_l191_2) begin
+        entryValids_2 <= 1'b1;
+      end else begin
+        if(when_IssueQueueComponent_l206_2) begin
+          entryValids_2 <= 1'b0;
+        end
+      end
+      if(when_IssueQueueComponent_l191_3) begin
+        entryValids_3 <= 1'b1;
+      end else begin
+        if(when_IssueQueueComponent_l206_3) begin
+          entryValids_3 <= 1'b0;
+        end
+      end
+      if(io_flush) begin
+        entryValids_0 <= 1'b0;
+        entryValids_1 <= 1'b0;
+        entryValids_2 <= 1'b0;
+        entryValids_3 <= 1'b0;
+      end
       if(logCondition) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // IssueQueueComponent.scala:L253
+            assert(1'b0); // IssueQueueComponent.scala:L235
           `else
             if(!1'b0) begin
-              $display("NOTE(IssueQueueComponent.scala:253):  [normal] LsuEU_IQ-3: STATUS - ValidCount=%x, allocateIn(valid=%x, ready=%x), issueOut(valid=%x, ready=%x)", currentValidCount, io_allocateIn_valid, io_allocateIn_ready, io_issueOut_valid, io_issueOut_ready); // IssueQueueComponent.scala:L253
+              $display("NOTE(IssueQueueComponent.scala:235):  [normal] LsuEU_IQ-3: STATUS - ValidCount=%x, allocateIn(valid=%x, ready=%x), issueOut(valid=%x, ready=%x)", currentValidCount, io_allocateIn_valid, io_allocateIn_ready, io_issueOut_valid, io_issueOut_ready); // IssueQueueComponent.scala:L235
             end
           `endif
         `endif
       end
-      if(when_IssueQueueComponent_l262) begin
+      if(when_IssueQueueComponent_l244) begin
         if(entryValids_0) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // IssueQueueComponent.scala:L265
+              assert(1'b0); // IssueQueueComponent.scala:L247
             `else
               if(!1'b0) begin
-                $display("NOTE(IssueQueueComponent.scala:265):  [normal] LsuEU_IQ-3: (LAST CYCLE) ENTRY[0] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_0_robPtr, entries_0_physDest_idx, entries_0_useSrc1, entries_0_src1Tag, entries_0_src1Ready, entries_0_useSrc2, entries_0_src2Tag, entries_0_src2Ready); // IssueQueueComponent.scala:L265
+                $display("NOTE(IssueQueueComponent.scala:247):  [normal] LsuEU_IQ-3: (LAST CYCLE) ENTRY[0] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_0_robPtr, entries_0_physDest_idx, entries_0_useSrc1, entries_0_src1Tag, entries_0_src1Ready, entries_0_useSrc2, entries_0_src2Tag, entries_0_src2Ready); // IssueQueueComponent.scala:L247
               end
             `endif
           `endif
@@ -37549,10 +35991,10 @@ module IssueQueueComponent_3 (
         if(entryValids_1) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // IssueQueueComponent.scala:L265
+              assert(1'b0); // IssueQueueComponent.scala:L247
             `else
               if(!1'b0) begin
-                $display("NOTE(IssueQueueComponent.scala:265):  [normal] LsuEU_IQ-3: (LAST CYCLE) ENTRY[1] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_1_robPtr, entries_1_physDest_idx, entries_1_useSrc1, entries_1_src1Tag, entries_1_src1Ready, entries_1_useSrc2, entries_1_src2Tag, entries_1_src2Ready); // IssueQueueComponent.scala:L265
+                $display("NOTE(IssueQueueComponent.scala:247):  [normal] LsuEU_IQ-3: (LAST CYCLE) ENTRY[1] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_1_robPtr, entries_1_physDest_idx, entries_1_useSrc1, entries_1_src1Tag, entries_1_src1Ready, entries_1_useSrc2, entries_1_src2Tag, entries_1_src2Ready); // IssueQueueComponent.scala:L247
               end
             `endif
           `endif
@@ -37560,10 +36002,10 @@ module IssueQueueComponent_3 (
         if(entryValids_2) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // IssueQueueComponent.scala:L265
+              assert(1'b0); // IssueQueueComponent.scala:L247
             `else
               if(!1'b0) begin
-                $display("NOTE(IssueQueueComponent.scala:265):  [normal] LsuEU_IQ-3: (LAST CYCLE) ENTRY[2] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_2_robPtr, entries_2_physDest_idx, entries_2_useSrc1, entries_2_src1Tag, entries_2_src1Ready, entries_2_useSrc2, entries_2_src2Tag, entries_2_src2Ready); // IssueQueueComponent.scala:L265
+                $display("NOTE(IssueQueueComponent.scala:247):  [normal] LsuEU_IQ-3: (LAST CYCLE) ENTRY[2] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_2_robPtr, entries_2_physDest_idx, entries_2_useSrc1, entries_2_src1Tag, entries_2_src1Ready, entries_2_useSrc2, entries_2_src2Tag, entries_2_src2Ready); // IssueQueueComponent.scala:L247
               end
             `endif
           `endif
@@ -37571,10 +36013,10 @@ module IssueQueueComponent_3 (
         if(entryValids_3) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // IssueQueueComponent.scala:L265
+              assert(1'b0); // IssueQueueComponent.scala:L247
             `else
               if(!1'b0) begin
-                $display("NOTE(IssueQueueComponent.scala:265):  [normal] LsuEU_IQ-3: (LAST CYCLE) ENTRY[3] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_3_robPtr, entries_3_physDest_idx, entries_3_useSrc1, entries_3_src1Tag, entries_3_src1Ready, entries_3_useSrc2, entries_3_src2Tag, entries_3_src2Ready); // IssueQueueComponent.scala:L265
+                $display("NOTE(IssueQueueComponent.scala:247):  [normal] LsuEU_IQ-3: (LAST CYCLE) ENTRY[3] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_3_robPtr, entries_3_physDest_idx, entries_3_useSrc1, entries_3_src1Tag, entries_3_src1Ready, entries_3_useSrc2, entries_3_src2Tag, entries_3_src2Ready); // IssueQueueComponent.scala:L247
               end
             `endif
           `endif
@@ -37584,118 +36026,170 @@ module IssueQueueComponent_3 (
   end
 
   always @(posedge clk) begin
-    entries_0_robPtr <= entriesNext_0_robPtr;
-    entries_0_physDest_idx <= entriesNext_0_physDest_idx;
-    entries_0_physDestIsFpr <= entriesNext_0_physDestIsFpr;
-    entries_0_writesToPhysReg <= entriesNext_0_writesToPhysReg;
-    entries_0_useSrc1 <= entriesNext_0_useSrc1;
-    entries_0_src1Data <= entriesNext_0_src1Data;
-    entries_0_src1Tag <= entriesNext_0_src1Tag;
-    entries_0_src1Ready <= entriesNext_0_src1Ready;
-    entries_0_src1IsFpr <= entriesNext_0_src1IsFpr;
-    entries_0_useSrc2 <= entriesNext_0_useSrc2;
-    entries_0_src2Data <= entriesNext_0_src2Data;
-    entries_0_src2Tag <= entriesNext_0_src2Tag;
-    entries_0_src2Ready <= entriesNext_0_src2Ready;
-    entries_0_src2IsFpr <= entriesNext_0_src2IsFpr;
-    entries_0_memCtrl_size <= entriesNext_0_memCtrl_size;
-    entries_0_memCtrl_isSignedLoad <= entriesNext_0_memCtrl_isSignedLoad;
-    entries_0_memCtrl_isStore <= entriesNext_0_memCtrl_isStore;
-    entries_0_memCtrl_isLoadLinked <= entriesNext_0_memCtrl_isLoadLinked;
-    entries_0_memCtrl_isStoreCond <= entriesNext_0_memCtrl_isStoreCond;
-    entries_0_memCtrl_atomicOp <= entriesNext_0_memCtrl_atomicOp;
-    entries_0_memCtrl_isFence <= entriesNext_0_memCtrl_isFence;
-    entries_0_memCtrl_fenceMode <= entriesNext_0_memCtrl_fenceMode;
-    entries_0_memCtrl_isCacheOp <= entriesNext_0_memCtrl_isCacheOp;
-    entries_0_memCtrl_cacheOpType <= entriesNext_0_memCtrl_cacheOpType;
-    entries_0_memCtrl_isPrefetch <= entriesNext_0_memCtrl_isPrefetch;
-    entries_0_imm <= entriesNext_0_imm;
-    entries_0_usePc <= entriesNext_0_usePc;
-    entries_0_pcData <= entriesNext_0_pcData;
-    entries_1_robPtr <= entriesNext_1_robPtr;
-    entries_1_physDest_idx <= entriesNext_1_physDest_idx;
-    entries_1_physDestIsFpr <= entriesNext_1_physDestIsFpr;
-    entries_1_writesToPhysReg <= entriesNext_1_writesToPhysReg;
-    entries_1_useSrc1 <= entriesNext_1_useSrc1;
-    entries_1_src1Data <= entriesNext_1_src1Data;
-    entries_1_src1Tag <= entriesNext_1_src1Tag;
-    entries_1_src1Ready <= entriesNext_1_src1Ready;
-    entries_1_src1IsFpr <= entriesNext_1_src1IsFpr;
-    entries_1_useSrc2 <= entriesNext_1_useSrc2;
-    entries_1_src2Data <= entriesNext_1_src2Data;
-    entries_1_src2Tag <= entriesNext_1_src2Tag;
-    entries_1_src2Ready <= entriesNext_1_src2Ready;
-    entries_1_src2IsFpr <= entriesNext_1_src2IsFpr;
-    entries_1_memCtrl_size <= entriesNext_1_memCtrl_size;
-    entries_1_memCtrl_isSignedLoad <= entriesNext_1_memCtrl_isSignedLoad;
-    entries_1_memCtrl_isStore <= entriesNext_1_memCtrl_isStore;
-    entries_1_memCtrl_isLoadLinked <= entriesNext_1_memCtrl_isLoadLinked;
-    entries_1_memCtrl_isStoreCond <= entriesNext_1_memCtrl_isStoreCond;
-    entries_1_memCtrl_atomicOp <= entriesNext_1_memCtrl_atomicOp;
-    entries_1_memCtrl_isFence <= entriesNext_1_memCtrl_isFence;
-    entries_1_memCtrl_fenceMode <= entriesNext_1_memCtrl_fenceMode;
-    entries_1_memCtrl_isCacheOp <= entriesNext_1_memCtrl_isCacheOp;
-    entries_1_memCtrl_cacheOpType <= entriesNext_1_memCtrl_cacheOpType;
-    entries_1_memCtrl_isPrefetch <= entriesNext_1_memCtrl_isPrefetch;
-    entries_1_imm <= entriesNext_1_imm;
-    entries_1_usePc <= entriesNext_1_usePc;
-    entries_1_pcData <= entriesNext_1_pcData;
-    entries_2_robPtr <= entriesNext_2_robPtr;
-    entries_2_physDest_idx <= entriesNext_2_physDest_idx;
-    entries_2_physDestIsFpr <= entriesNext_2_physDestIsFpr;
-    entries_2_writesToPhysReg <= entriesNext_2_writesToPhysReg;
-    entries_2_useSrc1 <= entriesNext_2_useSrc1;
-    entries_2_src1Data <= entriesNext_2_src1Data;
-    entries_2_src1Tag <= entriesNext_2_src1Tag;
-    entries_2_src1Ready <= entriesNext_2_src1Ready;
-    entries_2_src1IsFpr <= entriesNext_2_src1IsFpr;
-    entries_2_useSrc2 <= entriesNext_2_useSrc2;
-    entries_2_src2Data <= entriesNext_2_src2Data;
-    entries_2_src2Tag <= entriesNext_2_src2Tag;
-    entries_2_src2Ready <= entriesNext_2_src2Ready;
-    entries_2_src2IsFpr <= entriesNext_2_src2IsFpr;
-    entries_2_memCtrl_size <= entriesNext_2_memCtrl_size;
-    entries_2_memCtrl_isSignedLoad <= entriesNext_2_memCtrl_isSignedLoad;
-    entries_2_memCtrl_isStore <= entriesNext_2_memCtrl_isStore;
-    entries_2_memCtrl_isLoadLinked <= entriesNext_2_memCtrl_isLoadLinked;
-    entries_2_memCtrl_isStoreCond <= entriesNext_2_memCtrl_isStoreCond;
-    entries_2_memCtrl_atomicOp <= entriesNext_2_memCtrl_atomicOp;
-    entries_2_memCtrl_isFence <= entriesNext_2_memCtrl_isFence;
-    entries_2_memCtrl_fenceMode <= entriesNext_2_memCtrl_fenceMode;
-    entries_2_memCtrl_isCacheOp <= entriesNext_2_memCtrl_isCacheOp;
-    entries_2_memCtrl_cacheOpType <= entriesNext_2_memCtrl_cacheOpType;
-    entries_2_memCtrl_isPrefetch <= entriesNext_2_memCtrl_isPrefetch;
-    entries_2_imm <= entriesNext_2_imm;
-    entries_2_usePc <= entriesNext_2_usePc;
-    entries_2_pcData <= entriesNext_2_pcData;
-    entries_3_robPtr <= entriesNext_3_robPtr;
-    entries_3_physDest_idx <= entriesNext_3_physDest_idx;
-    entries_3_physDestIsFpr <= entriesNext_3_physDestIsFpr;
-    entries_3_writesToPhysReg <= entriesNext_3_writesToPhysReg;
-    entries_3_useSrc1 <= entriesNext_3_useSrc1;
-    entries_3_src1Data <= entriesNext_3_src1Data;
-    entries_3_src1Tag <= entriesNext_3_src1Tag;
-    entries_3_src1Ready <= entriesNext_3_src1Ready;
-    entries_3_src1IsFpr <= entriesNext_3_src1IsFpr;
-    entries_3_useSrc2 <= entriesNext_3_useSrc2;
-    entries_3_src2Data <= entriesNext_3_src2Data;
-    entries_3_src2Tag <= entriesNext_3_src2Tag;
-    entries_3_src2Ready <= entriesNext_3_src2Ready;
-    entries_3_src2IsFpr <= entriesNext_3_src2IsFpr;
-    entries_3_memCtrl_size <= entriesNext_3_memCtrl_size;
-    entries_3_memCtrl_isSignedLoad <= entriesNext_3_memCtrl_isSignedLoad;
-    entries_3_memCtrl_isStore <= entriesNext_3_memCtrl_isStore;
-    entries_3_memCtrl_isLoadLinked <= entriesNext_3_memCtrl_isLoadLinked;
-    entries_3_memCtrl_isStoreCond <= entriesNext_3_memCtrl_isStoreCond;
-    entries_3_memCtrl_atomicOp <= entriesNext_3_memCtrl_atomicOp;
-    entries_3_memCtrl_isFence <= entriesNext_3_memCtrl_isFence;
-    entries_3_memCtrl_fenceMode <= entriesNext_3_memCtrl_fenceMode;
-    entries_3_memCtrl_isCacheOp <= entriesNext_3_memCtrl_isCacheOp;
-    entries_3_memCtrl_cacheOpType <= entriesNext_3_memCtrl_cacheOpType;
-    entries_3_memCtrl_isPrefetch <= entriesNext_3_memCtrl_isPrefetch;
-    entries_3_imm <= entriesNext_3_imm;
-    entries_3_usePc <= entriesNext_3_usePc;
-    entries_3_pcData <= entriesNext_3_pcData;
+    if(when_IssueQueueComponent_l191) begin
+      entries_0_robPtr <= io_allocateIn_payload_uop_robPtr;
+      entries_0_physDest_idx <= io_allocateIn_payload_uop_rename_physDest_idx;
+      entries_0_physDestIsFpr <= io_allocateIn_payload_uop_rename_physDestIsFpr;
+      entries_0_writesToPhysReg <= io_allocateIn_payload_uop_rename_writesToPhysReg;
+      entries_0_useSrc1 <= io_allocateIn_payload_uop_decoded_useArchSrc1;
+      entries_0_src1Tag <= io_allocateIn_payload_uop_rename_physSrc1_idx;
+      entries_0_src1Ready <= (! io_allocateIn_payload_uop_decoded_useArchSrc1);
+      entries_0_src1IsFpr <= io_allocateIn_payload_uop_rename_physSrc1IsFpr;
+      entries_0_useSrc2 <= io_allocateIn_payload_uop_decoded_useArchSrc2;
+      entries_0_src2Tag <= io_allocateIn_payload_uop_rename_physSrc2_idx;
+      entries_0_src2Ready <= (! io_allocateIn_payload_uop_decoded_useArchSrc2);
+      entries_0_src2IsFpr <= io_allocateIn_payload_uop_rename_physSrc2IsFpr;
+      entries_0_src1Data <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      entries_0_src2Data <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      entries_0_memCtrl_size <= io_allocateIn_payload_uop_decoded_memCtrl_size;
+      entries_0_memCtrl_isSignedLoad <= io_allocateIn_payload_uop_decoded_memCtrl_isSignedLoad;
+      entries_0_memCtrl_isStore <= io_allocateIn_payload_uop_decoded_memCtrl_isStore;
+      entries_0_memCtrl_isLoadLinked <= io_allocateIn_payload_uop_decoded_memCtrl_isLoadLinked;
+      entries_0_memCtrl_isStoreCond <= io_allocateIn_payload_uop_decoded_memCtrl_isStoreCond;
+      entries_0_memCtrl_atomicOp <= io_allocateIn_payload_uop_decoded_memCtrl_atomicOp;
+      entries_0_memCtrl_isFence <= io_allocateIn_payload_uop_decoded_memCtrl_isFence;
+      entries_0_memCtrl_fenceMode <= io_allocateIn_payload_uop_decoded_memCtrl_fenceMode;
+      entries_0_memCtrl_isCacheOp <= io_allocateIn_payload_uop_decoded_memCtrl_isCacheOp;
+      entries_0_memCtrl_cacheOpType <= io_allocateIn_payload_uop_decoded_memCtrl_cacheOpType;
+      entries_0_memCtrl_isPrefetch <= io_allocateIn_payload_uop_decoded_memCtrl_isPrefetch;
+      entries_0_imm <= io_allocateIn_payload_uop_decoded_imm;
+      entries_0_usePc <= io_allocateIn_payload_uop_decoded_usePcForAddr;
+      entries_0_pcData <= io_allocateIn_payload_uop_decoded_pc;
+      entries_0_src1Ready <= (io_allocateIn_payload_src1InitialReady || (|{(wakeupInReg_4_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_4_payload_physRegIdx)),{(wakeupInReg_3_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_3_payload_physRegIdx)),{(wakeupInReg_2_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_2_payload_physRegIdx)),{(wakeupInReg_1_valid && _zz_entries_0_src1Ready),(wakeupInReg_0_valid && _zz_entries_0_src1Ready_1)}}}}));
+      entries_0_src2Ready <= (io_allocateIn_payload_src2InitialReady || (|{(wakeupInReg_4_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_4_payload_physRegIdx)),{(wakeupInReg_3_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_3_payload_physRegIdx)),{(wakeupInReg_2_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_2_payload_physRegIdx)),{(wakeupInReg_1_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_1_payload_physRegIdx)),(wakeupInReg_0_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_0_payload_physRegIdx))}}}}));
+    end else begin
+      if(!when_IssueQueueComponent_l206) begin
+        if(when_IssueQueueComponent_l214) begin
+          entries_0_src1Ready <= 1'b1;
+        end
+        if(when_IssueQueueComponent_l215) begin
+          entries_0_src2Ready <= 1'b1;
+        end
+      end
+    end
+    if(when_IssueQueueComponent_l191_1) begin
+      entries_1_robPtr <= io_allocateIn_payload_uop_robPtr;
+      entries_1_physDest_idx <= io_allocateIn_payload_uop_rename_physDest_idx;
+      entries_1_physDestIsFpr <= io_allocateIn_payload_uop_rename_physDestIsFpr;
+      entries_1_writesToPhysReg <= io_allocateIn_payload_uop_rename_writesToPhysReg;
+      entries_1_useSrc1 <= io_allocateIn_payload_uop_decoded_useArchSrc1;
+      entries_1_src1Tag <= io_allocateIn_payload_uop_rename_physSrc1_idx;
+      entries_1_src1Ready <= (! io_allocateIn_payload_uop_decoded_useArchSrc1);
+      entries_1_src1IsFpr <= io_allocateIn_payload_uop_rename_physSrc1IsFpr;
+      entries_1_useSrc2 <= io_allocateIn_payload_uop_decoded_useArchSrc2;
+      entries_1_src2Tag <= io_allocateIn_payload_uop_rename_physSrc2_idx;
+      entries_1_src2Ready <= (! io_allocateIn_payload_uop_decoded_useArchSrc2);
+      entries_1_src2IsFpr <= io_allocateIn_payload_uop_rename_physSrc2IsFpr;
+      entries_1_src1Data <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      entries_1_src2Data <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      entries_1_memCtrl_size <= io_allocateIn_payload_uop_decoded_memCtrl_size;
+      entries_1_memCtrl_isSignedLoad <= io_allocateIn_payload_uop_decoded_memCtrl_isSignedLoad;
+      entries_1_memCtrl_isStore <= io_allocateIn_payload_uop_decoded_memCtrl_isStore;
+      entries_1_memCtrl_isLoadLinked <= io_allocateIn_payload_uop_decoded_memCtrl_isLoadLinked;
+      entries_1_memCtrl_isStoreCond <= io_allocateIn_payload_uop_decoded_memCtrl_isStoreCond;
+      entries_1_memCtrl_atomicOp <= io_allocateIn_payload_uop_decoded_memCtrl_atomicOp;
+      entries_1_memCtrl_isFence <= io_allocateIn_payload_uop_decoded_memCtrl_isFence;
+      entries_1_memCtrl_fenceMode <= io_allocateIn_payload_uop_decoded_memCtrl_fenceMode;
+      entries_1_memCtrl_isCacheOp <= io_allocateIn_payload_uop_decoded_memCtrl_isCacheOp;
+      entries_1_memCtrl_cacheOpType <= io_allocateIn_payload_uop_decoded_memCtrl_cacheOpType;
+      entries_1_memCtrl_isPrefetch <= io_allocateIn_payload_uop_decoded_memCtrl_isPrefetch;
+      entries_1_imm <= io_allocateIn_payload_uop_decoded_imm;
+      entries_1_usePc <= io_allocateIn_payload_uop_decoded_usePcForAddr;
+      entries_1_pcData <= io_allocateIn_payload_uop_decoded_pc;
+      entries_1_src1Ready <= (io_allocateIn_payload_src1InitialReady || (|{(wakeupInReg_4_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_4_payload_physRegIdx)),{(wakeupInReg_3_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_3_payload_physRegIdx)),{(wakeupInReg_2_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_2_payload_physRegIdx)),{(wakeupInReg_1_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_1_payload_physRegIdx)),(wakeupInReg_0_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_0_payload_physRegIdx))}}}}));
+      entries_1_src2Ready <= (io_allocateIn_payload_src2InitialReady || (|{(wakeupInReg_4_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_4_payload_physRegIdx)),{(wakeupInReg_3_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_3_payload_physRegIdx)),{(wakeupInReg_2_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_2_payload_physRegIdx)),{(wakeupInReg_1_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_1_payload_physRegIdx)),(wakeupInReg_0_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_0_payload_physRegIdx))}}}}));
+    end else begin
+      if(!when_IssueQueueComponent_l206_1) begin
+        if(when_IssueQueueComponent_l214_1) begin
+          entries_1_src1Ready <= 1'b1;
+        end
+        if(when_IssueQueueComponent_l215_1) begin
+          entries_1_src2Ready <= 1'b1;
+        end
+      end
+    end
+    if(when_IssueQueueComponent_l191_2) begin
+      entries_2_robPtr <= io_allocateIn_payload_uop_robPtr;
+      entries_2_physDest_idx <= io_allocateIn_payload_uop_rename_physDest_idx;
+      entries_2_physDestIsFpr <= io_allocateIn_payload_uop_rename_physDestIsFpr;
+      entries_2_writesToPhysReg <= io_allocateIn_payload_uop_rename_writesToPhysReg;
+      entries_2_useSrc1 <= io_allocateIn_payload_uop_decoded_useArchSrc1;
+      entries_2_src1Tag <= io_allocateIn_payload_uop_rename_physSrc1_idx;
+      entries_2_src1Ready <= (! io_allocateIn_payload_uop_decoded_useArchSrc1);
+      entries_2_src1IsFpr <= io_allocateIn_payload_uop_rename_physSrc1IsFpr;
+      entries_2_useSrc2 <= io_allocateIn_payload_uop_decoded_useArchSrc2;
+      entries_2_src2Tag <= io_allocateIn_payload_uop_rename_physSrc2_idx;
+      entries_2_src2Ready <= (! io_allocateIn_payload_uop_decoded_useArchSrc2);
+      entries_2_src2IsFpr <= io_allocateIn_payload_uop_rename_physSrc2IsFpr;
+      entries_2_src1Data <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      entries_2_src2Data <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      entries_2_memCtrl_size <= io_allocateIn_payload_uop_decoded_memCtrl_size;
+      entries_2_memCtrl_isSignedLoad <= io_allocateIn_payload_uop_decoded_memCtrl_isSignedLoad;
+      entries_2_memCtrl_isStore <= io_allocateIn_payload_uop_decoded_memCtrl_isStore;
+      entries_2_memCtrl_isLoadLinked <= io_allocateIn_payload_uop_decoded_memCtrl_isLoadLinked;
+      entries_2_memCtrl_isStoreCond <= io_allocateIn_payload_uop_decoded_memCtrl_isStoreCond;
+      entries_2_memCtrl_atomicOp <= io_allocateIn_payload_uop_decoded_memCtrl_atomicOp;
+      entries_2_memCtrl_isFence <= io_allocateIn_payload_uop_decoded_memCtrl_isFence;
+      entries_2_memCtrl_fenceMode <= io_allocateIn_payload_uop_decoded_memCtrl_fenceMode;
+      entries_2_memCtrl_isCacheOp <= io_allocateIn_payload_uop_decoded_memCtrl_isCacheOp;
+      entries_2_memCtrl_cacheOpType <= io_allocateIn_payload_uop_decoded_memCtrl_cacheOpType;
+      entries_2_memCtrl_isPrefetch <= io_allocateIn_payload_uop_decoded_memCtrl_isPrefetch;
+      entries_2_imm <= io_allocateIn_payload_uop_decoded_imm;
+      entries_2_usePc <= io_allocateIn_payload_uop_decoded_usePcForAddr;
+      entries_2_pcData <= io_allocateIn_payload_uop_decoded_pc;
+      entries_2_src1Ready <= (io_allocateIn_payload_src1InitialReady || (|{(wakeupInReg_4_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_4_payload_physRegIdx)),{(wakeupInReg_3_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_3_payload_physRegIdx)),{(wakeupInReg_2_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_2_payload_physRegIdx)),{(wakeupInReg_1_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_1_payload_physRegIdx)),(wakeupInReg_0_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_0_payload_physRegIdx))}}}}));
+      entries_2_src2Ready <= (io_allocateIn_payload_src2InitialReady || (|{(wakeupInReg_4_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_4_payload_physRegIdx)),{(wakeupInReg_3_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_3_payload_physRegIdx)),{(wakeupInReg_2_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_2_payload_physRegIdx)),{(wakeupInReg_1_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_1_payload_physRegIdx)),(wakeupInReg_0_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_0_payload_physRegIdx))}}}}));
+    end else begin
+      if(!when_IssueQueueComponent_l206_2) begin
+        if(when_IssueQueueComponent_l214_2) begin
+          entries_2_src1Ready <= 1'b1;
+        end
+        if(when_IssueQueueComponent_l215_2) begin
+          entries_2_src2Ready <= 1'b1;
+        end
+      end
+    end
+    if(when_IssueQueueComponent_l191_3) begin
+      entries_3_robPtr <= io_allocateIn_payload_uop_robPtr;
+      entries_3_physDest_idx <= io_allocateIn_payload_uop_rename_physDest_idx;
+      entries_3_physDestIsFpr <= io_allocateIn_payload_uop_rename_physDestIsFpr;
+      entries_3_writesToPhysReg <= io_allocateIn_payload_uop_rename_writesToPhysReg;
+      entries_3_useSrc1 <= io_allocateIn_payload_uop_decoded_useArchSrc1;
+      entries_3_src1Tag <= io_allocateIn_payload_uop_rename_physSrc1_idx;
+      entries_3_src1Ready <= (! io_allocateIn_payload_uop_decoded_useArchSrc1);
+      entries_3_src1IsFpr <= io_allocateIn_payload_uop_rename_physSrc1IsFpr;
+      entries_3_useSrc2 <= io_allocateIn_payload_uop_decoded_useArchSrc2;
+      entries_3_src2Tag <= io_allocateIn_payload_uop_rename_physSrc2_idx;
+      entries_3_src2Ready <= (! io_allocateIn_payload_uop_decoded_useArchSrc2);
+      entries_3_src2IsFpr <= io_allocateIn_payload_uop_rename_physSrc2IsFpr;
+      entries_3_src1Data <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      entries_3_src2Data <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      entries_3_memCtrl_size <= io_allocateIn_payload_uop_decoded_memCtrl_size;
+      entries_3_memCtrl_isSignedLoad <= io_allocateIn_payload_uop_decoded_memCtrl_isSignedLoad;
+      entries_3_memCtrl_isStore <= io_allocateIn_payload_uop_decoded_memCtrl_isStore;
+      entries_3_memCtrl_isLoadLinked <= io_allocateIn_payload_uop_decoded_memCtrl_isLoadLinked;
+      entries_3_memCtrl_isStoreCond <= io_allocateIn_payload_uop_decoded_memCtrl_isStoreCond;
+      entries_3_memCtrl_atomicOp <= io_allocateIn_payload_uop_decoded_memCtrl_atomicOp;
+      entries_3_memCtrl_isFence <= io_allocateIn_payload_uop_decoded_memCtrl_isFence;
+      entries_3_memCtrl_fenceMode <= io_allocateIn_payload_uop_decoded_memCtrl_fenceMode;
+      entries_3_memCtrl_isCacheOp <= io_allocateIn_payload_uop_decoded_memCtrl_isCacheOp;
+      entries_3_memCtrl_cacheOpType <= io_allocateIn_payload_uop_decoded_memCtrl_cacheOpType;
+      entries_3_memCtrl_isPrefetch <= io_allocateIn_payload_uop_decoded_memCtrl_isPrefetch;
+      entries_3_imm <= io_allocateIn_payload_uop_decoded_imm;
+      entries_3_usePc <= io_allocateIn_payload_uop_decoded_usePcForAddr;
+      entries_3_pcData <= io_allocateIn_payload_uop_decoded_pc;
+      entries_3_src1Ready <= (io_allocateIn_payload_src1InitialReady || (|{(wakeupInReg_4_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_4_payload_physRegIdx)),{(wakeupInReg_3_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_3_payload_physRegIdx)),{(wakeupInReg_2_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_2_payload_physRegIdx)),{(wakeupInReg_1_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_1_payload_physRegIdx)),(wakeupInReg_0_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_0_payload_physRegIdx))}}}}));
+      entries_3_src2Ready <= (io_allocateIn_payload_src2InitialReady || (|{(wakeupInReg_4_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_4_payload_physRegIdx)),{(wakeupInReg_3_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_3_payload_physRegIdx)),{(wakeupInReg_2_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_2_payload_physRegIdx)),{(wakeupInReg_1_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_1_payload_physRegIdx)),(wakeupInReg_0_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_0_payload_physRegIdx))}}}}));
+    end else begin
+      if(!when_IssueQueueComponent_l206_3) begin
+        if(when_IssueQueueComponent_l214_3) begin
+          entries_3_src1Ready <= 1'b1;
+        end
+        if(when_IssueQueueComponent_l215_3) begin
+          entries_3_src2Ready <= 1'b1;
+        end
+      end
+    end
   end
 
 
@@ -37959,6 +36453,8 @@ module IssueQueueComponent_2 (
   reg        [31:0]   _zz_io_issueOut_payload_branchPrediction_target;
   reg                 _zz_io_issueOut_payload_branchPrediction_wasPredicted;
   wire       [3:0]    _zz_allocationMask_1;
+  wire                _zz_entries_0_src1Ready;
+  wire                _zz_entries_0_src1Ready_1;
   reg        [2:0]    _zz_currentValidCount_8;
   wire       [2:0]    _zz_currentValidCount_9;
   reg        [2:0]    _zz_currentValidCount_10;
@@ -38176,147 +36672,23 @@ module IssueQueueComponent_2 (
   wire                _zz_allocateIdx_1;
   wire                _zz_allocateIdx_2;
   wire       [1:0]    allocateIdx;
-  reg        [3:0]    entriesNext_0_robPtr;
-  reg        [5:0]    entriesNext_0_physDest_idx;
-  reg                 entriesNext_0_physDestIsFpr;
-  reg                 entriesNext_0_writesToPhysReg;
-  reg                 entriesNext_0_useSrc1;
-  reg        [31:0]   entriesNext_0_src1Data;
-  reg        [5:0]    entriesNext_0_src1Tag;
-  reg                 entriesNext_0_src1Ready;
-  reg                 entriesNext_0_src1IsFpr;
-  reg                 entriesNext_0_useSrc2;
-  reg        [31:0]   entriesNext_0_src2Data;
-  reg        [5:0]    entriesNext_0_src2Tag;
-  reg                 entriesNext_0_src2Ready;
-  reg                 entriesNext_0_src2IsFpr;
-  reg        [4:0]    entriesNext_0_branchCtrl_condition;
-  reg                 entriesNext_0_branchCtrl_isJump;
-  reg                 entriesNext_0_branchCtrl_isLink;
-  reg        [4:0]    entriesNext_0_branchCtrl_linkReg_idx;
-  reg        [1:0]    entriesNext_0_branchCtrl_linkReg_rtype;
-  reg                 entriesNext_0_branchCtrl_isIndirect;
-  reg        [2:0]    entriesNext_0_branchCtrl_laCfIdx;
-  reg        [31:0]   entriesNext_0_imm;
-  reg        [31:0]   entriesNext_0_pc;
-  reg                 entriesNext_0_branchPrediction_isTaken;
-  reg        [31:0]   entriesNext_0_branchPrediction_target;
-  reg                 entriesNext_0_branchPrediction_wasPredicted;
-  reg        [3:0]    entriesNext_1_robPtr;
-  reg        [5:0]    entriesNext_1_physDest_idx;
-  reg                 entriesNext_1_physDestIsFpr;
-  reg                 entriesNext_1_writesToPhysReg;
-  reg                 entriesNext_1_useSrc1;
-  reg        [31:0]   entriesNext_1_src1Data;
-  reg        [5:0]    entriesNext_1_src1Tag;
-  reg                 entriesNext_1_src1Ready;
-  reg                 entriesNext_1_src1IsFpr;
-  reg                 entriesNext_1_useSrc2;
-  reg        [31:0]   entriesNext_1_src2Data;
-  reg        [5:0]    entriesNext_1_src2Tag;
-  reg                 entriesNext_1_src2Ready;
-  reg                 entriesNext_1_src2IsFpr;
-  reg        [4:0]    entriesNext_1_branchCtrl_condition;
-  reg                 entriesNext_1_branchCtrl_isJump;
-  reg                 entriesNext_1_branchCtrl_isLink;
-  reg        [4:0]    entriesNext_1_branchCtrl_linkReg_idx;
-  reg        [1:0]    entriesNext_1_branchCtrl_linkReg_rtype;
-  reg                 entriesNext_1_branchCtrl_isIndirect;
-  reg        [2:0]    entriesNext_1_branchCtrl_laCfIdx;
-  reg        [31:0]   entriesNext_1_imm;
-  reg        [31:0]   entriesNext_1_pc;
-  reg                 entriesNext_1_branchPrediction_isTaken;
-  reg        [31:0]   entriesNext_1_branchPrediction_target;
-  reg                 entriesNext_1_branchPrediction_wasPredicted;
-  reg        [3:0]    entriesNext_2_robPtr;
-  reg        [5:0]    entriesNext_2_physDest_idx;
-  reg                 entriesNext_2_physDestIsFpr;
-  reg                 entriesNext_2_writesToPhysReg;
-  reg                 entriesNext_2_useSrc1;
-  reg        [31:0]   entriesNext_2_src1Data;
-  reg        [5:0]    entriesNext_2_src1Tag;
-  reg                 entriesNext_2_src1Ready;
-  reg                 entriesNext_2_src1IsFpr;
-  reg                 entriesNext_2_useSrc2;
-  reg        [31:0]   entriesNext_2_src2Data;
-  reg        [5:0]    entriesNext_2_src2Tag;
-  reg                 entriesNext_2_src2Ready;
-  reg                 entriesNext_2_src2IsFpr;
-  reg        [4:0]    entriesNext_2_branchCtrl_condition;
-  reg                 entriesNext_2_branchCtrl_isJump;
-  reg                 entriesNext_2_branchCtrl_isLink;
-  reg        [4:0]    entriesNext_2_branchCtrl_linkReg_idx;
-  reg        [1:0]    entriesNext_2_branchCtrl_linkReg_rtype;
-  reg                 entriesNext_2_branchCtrl_isIndirect;
-  reg        [2:0]    entriesNext_2_branchCtrl_laCfIdx;
-  reg        [31:0]   entriesNext_2_imm;
-  reg        [31:0]   entriesNext_2_pc;
-  reg                 entriesNext_2_branchPrediction_isTaken;
-  reg        [31:0]   entriesNext_2_branchPrediction_target;
-  reg                 entriesNext_2_branchPrediction_wasPredicted;
-  reg        [3:0]    entriesNext_3_robPtr;
-  reg        [5:0]    entriesNext_3_physDest_idx;
-  reg                 entriesNext_3_physDestIsFpr;
-  reg                 entriesNext_3_writesToPhysReg;
-  reg                 entriesNext_3_useSrc1;
-  reg        [31:0]   entriesNext_3_src1Data;
-  reg        [5:0]    entriesNext_3_src1Tag;
-  reg                 entriesNext_3_src1Ready;
-  reg                 entriesNext_3_src1IsFpr;
-  reg                 entriesNext_3_useSrc2;
-  reg        [31:0]   entriesNext_3_src2Data;
-  reg        [5:0]    entriesNext_3_src2Tag;
-  reg                 entriesNext_3_src2Ready;
-  reg                 entriesNext_3_src2IsFpr;
-  reg        [4:0]    entriesNext_3_branchCtrl_condition;
-  reg                 entriesNext_3_branchCtrl_isJump;
-  reg                 entriesNext_3_branchCtrl_isLink;
-  reg        [4:0]    entriesNext_3_branchCtrl_linkReg_idx;
-  reg        [1:0]    entriesNext_3_branchCtrl_linkReg_rtype;
-  reg                 entriesNext_3_branchCtrl_isIndirect;
-  reg        [2:0]    entriesNext_3_branchCtrl_laCfIdx;
-  reg        [31:0]   entriesNext_3_imm;
-  reg        [31:0]   entriesNext_3_pc;
-  reg                 entriesNext_3_branchPrediction_isTaken;
-  reg        [31:0]   entriesNext_3_branchPrediction_target;
-  reg                 entriesNext_3_branchPrediction_wasPredicted;
-  reg                 entryValidsNext_0;
-  reg                 entryValidsNext_1;
-  reg                 entryValidsNext_2;
-  reg                 entryValidsNext_3;
-  wire                when_IssueQueueComponent_l192;
-  wire                when_IssueQueueComponent_l193;
-  wire                when_IssueQueueComponent_l192_1;
-  wire                when_IssueQueueComponent_l193_1;
-  wire                when_IssueQueueComponent_l192_2;
-  wire                when_IssueQueueComponent_l193_2;
-  wire                when_IssueQueueComponent_l192_3;
-  wire                when_IssueQueueComponent_l193_3;
-  wire       [3:0]    _zz_1;
   wire                io_allocateIn_fire;
-  wire       [3:0]    _zz_2;
-  wire                _zz_3;
-  wire                _zz_4;
-  wire                _zz_5;
-  wire                _zz_6;
-  wire                _zz_entriesNext_0_src1Ready;
-  wire                _zz_entriesNext_0_src2Ready;
-  wire       [3:0]    _zz_7;
-  wire                when_IssueQueueComponent_l217;
-  wire                when_IssueQueueComponent_l218;
-  wire                when_IssueQueueComponent_l221;
-  wire                when_IssueQueueComponent_l217_1;
-  wire                when_IssueQueueComponent_l218_1;
-  wire                when_IssueQueueComponent_l221_1;
-  wire                when_IssueQueueComponent_l217_2;
-  wire                when_IssueQueueComponent_l218_2;
-  wire                when_IssueQueueComponent_l221_2;
-  wire                when_IssueQueueComponent_l217_3;
-  wire                when_IssueQueueComponent_l218_3;
-  wire                when_IssueQueueComponent_l221_3;
-  wire                when_IssueQueueComponent_l217_4;
-  wire                when_IssueQueueComponent_l218_4;
-  wire                when_IssueQueueComponent_l221_4;
+  wire                when_IssueQueueComponent_l191;
+  wire                when_IssueQueueComponent_l206;
+  wire                when_IssueQueueComponent_l214;
+  wire                when_IssueQueueComponent_l215;
+  wire                when_IssueQueueComponent_l191_1;
+  wire                when_IssueQueueComponent_l206_1;
+  wire                when_IssueQueueComponent_l214_1;
+  wire                when_IssueQueueComponent_l215_1;
+  wire                when_IssueQueueComponent_l191_2;
+  wire                when_IssueQueueComponent_l206_2;
+  wire                when_IssueQueueComponent_l214_2;
+  wire                when_IssueQueueComponent_l215_2;
+  wire                when_IssueQueueComponent_l191_3;
+  wire                when_IssueQueueComponent_l206_3;
+  wire                when_IssueQueueComponent_l214_3;
+  wire                when_IssueQueueComponent_l215_3;
   wire       [2:0]    _zz_currentValidCount;
   wire       [2:0]    _zz_currentValidCount_1;
   wire       [2:0]    _zz_currentValidCount_2;
@@ -38327,7 +36699,7 @@ module IssueQueueComponent_2 (
   wire       [2:0]    _zz_currentValidCount_7;
   wire       [2:0]    currentValidCount;
   wire                logCondition;
-  wire                when_IssueQueueComponent_l262;
+  wire                when_IssueQueueComponent_l244;
   `ifndef SYNTHESIS
   reg [87:0] io_allocateIn_payload_uop_decoded_uopCode_string;
   reg [151:0] io_allocateIn_payload_uop_decoded_exeUnit_string;
@@ -38357,14 +36729,6 @@ module IssueQueueComponent_2 (
   reg [39:0] entries_3_branchCtrl_linkReg_rtype_string;
   reg [87:0] _zz_io_issueOut_payload_branchCtrl_condition_string;
   reg [39:0] _zz_io_issueOut_payload_branchCtrl_linkReg_rtype_string;
-  reg [87:0] entriesNext_0_branchCtrl_condition_string;
-  reg [39:0] entriesNext_0_branchCtrl_linkReg_rtype_string;
-  reg [87:0] entriesNext_1_branchCtrl_condition_string;
-  reg [39:0] entriesNext_1_branchCtrl_linkReg_rtype_string;
-  reg [87:0] entriesNext_2_branchCtrl_condition_string;
-  reg [39:0] entriesNext_2_branchCtrl_linkReg_rtype_string;
-  reg [87:0] entriesNext_3_branchCtrl_condition_string;
-  reg [39:0] entriesNext_3_branchCtrl_linkReg_rtype_string;
   `endif
 
 
@@ -38378,6 +36742,8 @@ module IssueQueueComponent_2 (
   assign _zz_currentValidCount_12 = entryValids_3;
   assign _zz_currentValidCount_11 = {2'd0, _zz_currentValidCount_12};
   assign _zz_currentValidCount_9 = {entryValids_2,{entryValids_1,entryValids_0}};
+  assign _zz_entries_0_src1Ready = (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_1_payload_physRegIdx);
+  assign _zz_entries_0_src1Ready_1 = (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_0_payload_physRegIdx);
   always @(*) begin
     case(issueIdx)
       2'b00 : begin
@@ -38933,142 +37299,6 @@ module IssueQueueComponent_2 (
       default : _zz_io_issueOut_payload_branchCtrl_linkReg_rtype_string = "?????";
     endcase
   end
-  always @(*) begin
-    case(entriesNext_0_branchCtrl_condition)
-      BranchCondition_NUL : entriesNext_0_branchCtrl_condition_string = "NUL        ";
-      BranchCondition_EQ : entriesNext_0_branchCtrl_condition_string = "EQ         ";
-      BranchCondition_NE : entriesNext_0_branchCtrl_condition_string = "NE         ";
-      BranchCondition_LT : entriesNext_0_branchCtrl_condition_string = "LT         ";
-      BranchCondition_GE : entriesNext_0_branchCtrl_condition_string = "GE         ";
-      BranchCondition_LTU : entriesNext_0_branchCtrl_condition_string = "LTU        ";
-      BranchCondition_GEU : entriesNext_0_branchCtrl_condition_string = "GEU        ";
-      BranchCondition_EQZ : entriesNext_0_branchCtrl_condition_string = "EQZ        ";
-      BranchCondition_NEZ : entriesNext_0_branchCtrl_condition_string = "NEZ        ";
-      BranchCondition_LTZ : entriesNext_0_branchCtrl_condition_string = "LTZ        ";
-      BranchCondition_GEZ : entriesNext_0_branchCtrl_condition_string = "GEZ        ";
-      BranchCondition_GTZ : entriesNext_0_branchCtrl_condition_string = "GTZ        ";
-      BranchCondition_LEZ : entriesNext_0_branchCtrl_condition_string = "LEZ        ";
-      BranchCondition_F_EQ : entriesNext_0_branchCtrl_condition_string = "F_EQ       ";
-      BranchCondition_F_NE : entriesNext_0_branchCtrl_condition_string = "F_NE       ";
-      BranchCondition_F_LT : entriesNext_0_branchCtrl_condition_string = "F_LT       ";
-      BranchCondition_F_LE : entriesNext_0_branchCtrl_condition_string = "F_LE       ";
-      BranchCondition_F_UN : entriesNext_0_branchCtrl_condition_string = "F_UN       ";
-      BranchCondition_LA_CF_TRUE : entriesNext_0_branchCtrl_condition_string = "LA_CF_TRUE ";
-      BranchCondition_LA_CF_FALSE : entriesNext_0_branchCtrl_condition_string = "LA_CF_FALSE";
-      default : entriesNext_0_branchCtrl_condition_string = "???????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_0_branchCtrl_linkReg_rtype)
-      ArchRegType_GPR : entriesNext_0_branchCtrl_linkReg_rtype_string = "GPR  ";
-      ArchRegType_FPR : entriesNext_0_branchCtrl_linkReg_rtype_string = "FPR  ";
-      ArchRegType_CSR : entriesNext_0_branchCtrl_linkReg_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : entriesNext_0_branchCtrl_linkReg_rtype_string = "LA_CF";
-      default : entriesNext_0_branchCtrl_linkReg_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_1_branchCtrl_condition)
-      BranchCondition_NUL : entriesNext_1_branchCtrl_condition_string = "NUL        ";
-      BranchCondition_EQ : entriesNext_1_branchCtrl_condition_string = "EQ         ";
-      BranchCondition_NE : entriesNext_1_branchCtrl_condition_string = "NE         ";
-      BranchCondition_LT : entriesNext_1_branchCtrl_condition_string = "LT         ";
-      BranchCondition_GE : entriesNext_1_branchCtrl_condition_string = "GE         ";
-      BranchCondition_LTU : entriesNext_1_branchCtrl_condition_string = "LTU        ";
-      BranchCondition_GEU : entriesNext_1_branchCtrl_condition_string = "GEU        ";
-      BranchCondition_EQZ : entriesNext_1_branchCtrl_condition_string = "EQZ        ";
-      BranchCondition_NEZ : entriesNext_1_branchCtrl_condition_string = "NEZ        ";
-      BranchCondition_LTZ : entriesNext_1_branchCtrl_condition_string = "LTZ        ";
-      BranchCondition_GEZ : entriesNext_1_branchCtrl_condition_string = "GEZ        ";
-      BranchCondition_GTZ : entriesNext_1_branchCtrl_condition_string = "GTZ        ";
-      BranchCondition_LEZ : entriesNext_1_branchCtrl_condition_string = "LEZ        ";
-      BranchCondition_F_EQ : entriesNext_1_branchCtrl_condition_string = "F_EQ       ";
-      BranchCondition_F_NE : entriesNext_1_branchCtrl_condition_string = "F_NE       ";
-      BranchCondition_F_LT : entriesNext_1_branchCtrl_condition_string = "F_LT       ";
-      BranchCondition_F_LE : entriesNext_1_branchCtrl_condition_string = "F_LE       ";
-      BranchCondition_F_UN : entriesNext_1_branchCtrl_condition_string = "F_UN       ";
-      BranchCondition_LA_CF_TRUE : entriesNext_1_branchCtrl_condition_string = "LA_CF_TRUE ";
-      BranchCondition_LA_CF_FALSE : entriesNext_1_branchCtrl_condition_string = "LA_CF_FALSE";
-      default : entriesNext_1_branchCtrl_condition_string = "???????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_1_branchCtrl_linkReg_rtype)
-      ArchRegType_GPR : entriesNext_1_branchCtrl_linkReg_rtype_string = "GPR  ";
-      ArchRegType_FPR : entriesNext_1_branchCtrl_linkReg_rtype_string = "FPR  ";
-      ArchRegType_CSR : entriesNext_1_branchCtrl_linkReg_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : entriesNext_1_branchCtrl_linkReg_rtype_string = "LA_CF";
-      default : entriesNext_1_branchCtrl_linkReg_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_2_branchCtrl_condition)
-      BranchCondition_NUL : entriesNext_2_branchCtrl_condition_string = "NUL        ";
-      BranchCondition_EQ : entriesNext_2_branchCtrl_condition_string = "EQ         ";
-      BranchCondition_NE : entriesNext_2_branchCtrl_condition_string = "NE         ";
-      BranchCondition_LT : entriesNext_2_branchCtrl_condition_string = "LT         ";
-      BranchCondition_GE : entriesNext_2_branchCtrl_condition_string = "GE         ";
-      BranchCondition_LTU : entriesNext_2_branchCtrl_condition_string = "LTU        ";
-      BranchCondition_GEU : entriesNext_2_branchCtrl_condition_string = "GEU        ";
-      BranchCondition_EQZ : entriesNext_2_branchCtrl_condition_string = "EQZ        ";
-      BranchCondition_NEZ : entriesNext_2_branchCtrl_condition_string = "NEZ        ";
-      BranchCondition_LTZ : entriesNext_2_branchCtrl_condition_string = "LTZ        ";
-      BranchCondition_GEZ : entriesNext_2_branchCtrl_condition_string = "GEZ        ";
-      BranchCondition_GTZ : entriesNext_2_branchCtrl_condition_string = "GTZ        ";
-      BranchCondition_LEZ : entriesNext_2_branchCtrl_condition_string = "LEZ        ";
-      BranchCondition_F_EQ : entriesNext_2_branchCtrl_condition_string = "F_EQ       ";
-      BranchCondition_F_NE : entriesNext_2_branchCtrl_condition_string = "F_NE       ";
-      BranchCondition_F_LT : entriesNext_2_branchCtrl_condition_string = "F_LT       ";
-      BranchCondition_F_LE : entriesNext_2_branchCtrl_condition_string = "F_LE       ";
-      BranchCondition_F_UN : entriesNext_2_branchCtrl_condition_string = "F_UN       ";
-      BranchCondition_LA_CF_TRUE : entriesNext_2_branchCtrl_condition_string = "LA_CF_TRUE ";
-      BranchCondition_LA_CF_FALSE : entriesNext_2_branchCtrl_condition_string = "LA_CF_FALSE";
-      default : entriesNext_2_branchCtrl_condition_string = "???????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_2_branchCtrl_linkReg_rtype)
-      ArchRegType_GPR : entriesNext_2_branchCtrl_linkReg_rtype_string = "GPR  ";
-      ArchRegType_FPR : entriesNext_2_branchCtrl_linkReg_rtype_string = "FPR  ";
-      ArchRegType_CSR : entriesNext_2_branchCtrl_linkReg_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : entriesNext_2_branchCtrl_linkReg_rtype_string = "LA_CF";
-      default : entriesNext_2_branchCtrl_linkReg_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_3_branchCtrl_condition)
-      BranchCondition_NUL : entriesNext_3_branchCtrl_condition_string = "NUL        ";
-      BranchCondition_EQ : entriesNext_3_branchCtrl_condition_string = "EQ         ";
-      BranchCondition_NE : entriesNext_3_branchCtrl_condition_string = "NE         ";
-      BranchCondition_LT : entriesNext_3_branchCtrl_condition_string = "LT         ";
-      BranchCondition_GE : entriesNext_3_branchCtrl_condition_string = "GE         ";
-      BranchCondition_LTU : entriesNext_3_branchCtrl_condition_string = "LTU        ";
-      BranchCondition_GEU : entriesNext_3_branchCtrl_condition_string = "GEU        ";
-      BranchCondition_EQZ : entriesNext_3_branchCtrl_condition_string = "EQZ        ";
-      BranchCondition_NEZ : entriesNext_3_branchCtrl_condition_string = "NEZ        ";
-      BranchCondition_LTZ : entriesNext_3_branchCtrl_condition_string = "LTZ        ";
-      BranchCondition_GEZ : entriesNext_3_branchCtrl_condition_string = "GEZ        ";
-      BranchCondition_GTZ : entriesNext_3_branchCtrl_condition_string = "GTZ        ";
-      BranchCondition_LEZ : entriesNext_3_branchCtrl_condition_string = "LEZ        ";
-      BranchCondition_F_EQ : entriesNext_3_branchCtrl_condition_string = "F_EQ       ";
-      BranchCondition_F_NE : entriesNext_3_branchCtrl_condition_string = "F_NE       ";
-      BranchCondition_F_LT : entriesNext_3_branchCtrl_condition_string = "F_LT       ";
-      BranchCondition_F_LE : entriesNext_3_branchCtrl_condition_string = "F_LE       ";
-      BranchCondition_F_UN : entriesNext_3_branchCtrl_condition_string = "F_UN       ";
-      BranchCondition_LA_CF_TRUE : entriesNext_3_branchCtrl_condition_string = "LA_CF_TRUE ";
-      BranchCondition_LA_CF_FALSE : entriesNext_3_branchCtrl_condition_string = "LA_CF_FALSE";
-      default : entriesNext_3_branchCtrl_condition_string = "???????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_3_branchCtrl_linkReg_rtype)
-      ArchRegType_GPR : entriesNext_3_branchCtrl_linkReg_rtype_string = "GPR  ";
-      ArchRegType_FPR : entriesNext_3_branchCtrl_linkReg_rtype_string = "FPR  ";
-      ArchRegType_CSR : entriesNext_3_branchCtrl_linkReg_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : entriesNext_3_branchCtrl_linkReg_rtype_string = "LA_CF";
-      default : entriesNext_3_branchCtrl_linkReg_rtype_string = "?????";
-    endcase
-  end
   `endif
 
   assign when_IssueQueueComponent_l68 = (! io_flush);
@@ -39445,1371 +37675,23 @@ module IssueQueueComponent_2 (
   assign _zz_allocateIdx_1 = (allocationMask[1] || _zz_allocateIdx);
   assign _zz_allocateIdx_2 = (allocationMask[2] || _zz_allocateIdx);
   assign allocateIdx = {_zz_allocateIdx_2,_zz_allocateIdx_1};
-  always @(*) begin
-    entriesNext_0_robPtr = entries_0_robPtr;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_robPtr = io_allocateIn_payload_uop_robPtr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_physDest_idx = entries_0_physDest_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_physDest_idx = io_allocateIn_payload_uop_rename_physDest_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_physDestIsFpr = entries_0_physDestIsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_physDestIsFpr = io_allocateIn_payload_uop_rename_physDestIsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_writesToPhysReg = entries_0_writesToPhysReg;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_writesToPhysReg = io_allocateIn_payload_uop_rename_writesToPhysReg;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_useSrc1 = entries_0_useSrc1;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_useSrc1 = io_allocateIn_payload_uop_decoded_useArchSrc1;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src1Data = entries_0_src1Data;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src1Data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src1Tag = entries_0_src1Tag;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src1Tag = io_allocateIn_payload_uop_rename_physSrc1_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src1Ready = entries_0_src1Ready;
-    if(when_IssueQueueComponent_l192) begin
-      entriesNext_0_src1Ready = 1'b1;
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src1Ready = _zz_entriesNext_0_src1Ready;
-      end
-      if(_zz_3) begin
-        entriesNext_0_src1Ready = io_allocateIn_payload_src1InitialReady;
-      end
-      if(when_IssueQueueComponent_l217) begin
-        if(when_IssueQueueComponent_l218) begin
-          if(_zz_3) begin
-            entriesNext_0_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_1) begin
-        if(when_IssueQueueComponent_l218_1) begin
-          if(_zz_3) begin
-            entriesNext_0_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_2) begin
-        if(when_IssueQueueComponent_l218_2) begin
-          if(_zz_3) begin
-            entriesNext_0_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_3) begin
-        if(when_IssueQueueComponent_l218_3) begin
-          if(_zz_3) begin
-            entriesNext_0_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_4) begin
-        if(when_IssueQueueComponent_l218_4) begin
-          if(_zz_3) begin
-            entriesNext_0_src1Ready = 1'b1;
-          end
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src1IsFpr = entries_0_src1IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src1IsFpr = io_allocateIn_payload_uop_rename_physSrc1IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_useSrc2 = entries_0_useSrc2;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_useSrc2 = io_allocateIn_payload_uop_decoded_useArchSrc2;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src2Data = entries_0_src2Data;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src2Data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src2Tag = entries_0_src2Tag;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src2Tag = io_allocateIn_payload_uop_rename_physSrc2_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src2Ready = entries_0_src2Ready;
-    if(when_IssueQueueComponent_l193) begin
-      entriesNext_0_src2Ready = 1'b1;
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src2Ready = _zz_entriesNext_0_src2Ready;
-      end
-      if(_zz_3) begin
-        entriesNext_0_src2Ready = io_allocateIn_payload_src2InitialReady;
-      end
-      if(when_IssueQueueComponent_l217) begin
-        if(when_IssueQueueComponent_l221) begin
-          if(_zz_3) begin
-            entriesNext_0_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_1) begin
-        if(when_IssueQueueComponent_l221_1) begin
-          if(_zz_3) begin
-            entriesNext_0_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_2) begin
-        if(when_IssueQueueComponent_l221_2) begin
-          if(_zz_3) begin
-            entriesNext_0_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_3) begin
-        if(when_IssueQueueComponent_l221_3) begin
-          if(_zz_3) begin
-            entriesNext_0_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_4) begin
-        if(when_IssueQueueComponent_l221_4) begin
-          if(_zz_3) begin
-            entriesNext_0_src2Ready = 1'b1;
-          end
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src2IsFpr = entries_0_src2IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src2IsFpr = io_allocateIn_payload_uop_rename_physSrc2IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_branchCtrl_condition = entries_0_branchCtrl_condition;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_branchCtrl_condition = io_allocateIn_payload_uop_decoded_branchCtrl_condition;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_branchCtrl_isJump = entries_0_branchCtrl_isJump;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_branchCtrl_isJump = io_allocateIn_payload_uop_decoded_branchCtrl_isJump;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_branchCtrl_isLink = entries_0_branchCtrl_isLink;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_branchCtrl_isLink = io_allocateIn_payload_uop_decoded_branchCtrl_isLink;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_branchCtrl_linkReg_idx = entries_0_branchCtrl_linkReg_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_branchCtrl_linkReg_idx = io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_branchCtrl_linkReg_rtype = entries_0_branchCtrl_linkReg_rtype;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_branchCtrl_linkReg_rtype = io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_rtype;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_branchCtrl_isIndirect = entries_0_branchCtrl_isIndirect;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_branchCtrl_isIndirect = io_allocateIn_payload_uop_decoded_branchCtrl_isIndirect;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_branchCtrl_laCfIdx = entries_0_branchCtrl_laCfIdx;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_branchCtrl_laCfIdx = io_allocateIn_payload_uop_decoded_branchCtrl_laCfIdx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_imm = entries_0_imm;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_imm = io_allocateIn_payload_uop_decoded_imm;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_pc = entries_0_pc;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_pc = io_allocateIn_payload_uop_decoded_pc;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_branchPrediction_isTaken = entries_0_branchPrediction_isTaken;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_branchPrediction_isTaken = io_allocateIn_payload_uop_decoded_branchPrediction_isTaken;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_branchPrediction_target = entries_0_branchPrediction_target;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_branchPrediction_target = io_allocateIn_payload_uop_decoded_branchPrediction_target;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_branchPrediction_wasPredicted = entries_0_branchPrediction_wasPredicted;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_branchPrediction_wasPredicted = io_allocateIn_payload_uop_decoded_branchPrediction_wasPredicted;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_robPtr = entries_1_robPtr;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_robPtr = io_allocateIn_payload_uop_robPtr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_physDest_idx = entries_1_physDest_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_physDest_idx = io_allocateIn_payload_uop_rename_physDest_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_physDestIsFpr = entries_1_physDestIsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_physDestIsFpr = io_allocateIn_payload_uop_rename_physDestIsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_writesToPhysReg = entries_1_writesToPhysReg;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_writesToPhysReg = io_allocateIn_payload_uop_rename_writesToPhysReg;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_useSrc1 = entries_1_useSrc1;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_useSrc1 = io_allocateIn_payload_uop_decoded_useArchSrc1;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src1Data = entries_1_src1Data;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src1Data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src1Tag = entries_1_src1Tag;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src1Tag = io_allocateIn_payload_uop_rename_physSrc1_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src1Ready = entries_1_src1Ready;
-    if(when_IssueQueueComponent_l192_1) begin
-      entriesNext_1_src1Ready = 1'b1;
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src1Ready = _zz_entriesNext_0_src1Ready;
-      end
-      if(_zz_4) begin
-        entriesNext_1_src1Ready = io_allocateIn_payload_src1InitialReady;
-      end
-      if(when_IssueQueueComponent_l217) begin
-        if(when_IssueQueueComponent_l218) begin
-          if(_zz_4) begin
-            entriesNext_1_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_1) begin
-        if(when_IssueQueueComponent_l218_1) begin
-          if(_zz_4) begin
-            entriesNext_1_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_2) begin
-        if(when_IssueQueueComponent_l218_2) begin
-          if(_zz_4) begin
-            entriesNext_1_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_3) begin
-        if(when_IssueQueueComponent_l218_3) begin
-          if(_zz_4) begin
-            entriesNext_1_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_4) begin
-        if(when_IssueQueueComponent_l218_4) begin
-          if(_zz_4) begin
-            entriesNext_1_src1Ready = 1'b1;
-          end
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src1IsFpr = entries_1_src1IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src1IsFpr = io_allocateIn_payload_uop_rename_physSrc1IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_useSrc2 = entries_1_useSrc2;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_useSrc2 = io_allocateIn_payload_uop_decoded_useArchSrc2;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src2Data = entries_1_src2Data;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src2Data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src2Tag = entries_1_src2Tag;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src2Tag = io_allocateIn_payload_uop_rename_physSrc2_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src2Ready = entries_1_src2Ready;
-    if(when_IssueQueueComponent_l193_1) begin
-      entriesNext_1_src2Ready = 1'b1;
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src2Ready = _zz_entriesNext_0_src2Ready;
-      end
-      if(_zz_4) begin
-        entriesNext_1_src2Ready = io_allocateIn_payload_src2InitialReady;
-      end
-      if(when_IssueQueueComponent_l217) begin
-        if(when_IssueQueueComponent_l221) begin
-          if(_zz_4) begin
-            entriesNext_1_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_1) begin
-        if(when_IssueQueueComponent_l221_1) begin
-          if(_zz_4) begin
-            entriesNext_1_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_2) begin
-        if(when_IssueQueueComponent_l221_2) begin
-          if(_zz_4) begin
-            entriesNext_1_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_3) begin
-        if(when_IssueQueueComponent_l221_3) begin
-          if(_zz_4) begin
-            entriesNext_1_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_4) begin
-        if(when_IssueQueueComponent_l221_4) begin
-          if(_zz_4) begin
-            entriesNext_1_src2Ready = 1'b1;
-          end
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src2IsFpr = entries_1_src2IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src2IsFpr = io_allocateIn_payload_uop_rename_physSrc2IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_branchCtrl_condition = entries_1_branchCtrl_condition;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_branchCtrl_condition = io_allocateIn_payload_uop_decoded_branchCtrl_condition;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_branchCtrl_isJump = entries_1_branchCtrl_isJump;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_branchCtrl_isJump = io_allocateIn_payload_uop_decoded_branchCtrl_isJump;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_branchCtrl_isLink = entries_1_branchCtrl_isLink;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_branchCtrl_isLink = io_allocateIn_payload_uop_decoded_branchCtrl_isLink;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_branchCtrl_linkReg_idx = entries_1_branchCtrl_linkReg_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_branchCtrl_linkReg_idx = io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_branchCtrl_linkReg_rtype = entries_1_branchCtrl_linkReg_rtype;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_branchCtrl_linkReg_rtype = io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_rtype;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_branchCtrl_isIndirect = entries_1_branchCtrl_isIndirect;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_branchCtrl_isIndirect = io_allocateIn_payload_uop_decoded_branchCtrl_isIndirect;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_branchCtrl_laCfIdx = entries_1_branchCtrl_laCfIdx;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_branchCtrl_laCfIdx = io_allocateIn_payload_uop_decoded_branchCtrl_laCfIdx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_imm = entries_1_imm;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_imm = io_allocateIn_payload_uop_decoded_imm;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_pc = entries_1_pc;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_pc = io_allocateIn_payload_uop_decoded_pc;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_branchPrediction_isTaken = entries_1_branchPrediction_isTaken;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_branchPrediction_isTaken = io_allocateIn_payload_uop_decoded_branchPrediction_isTaken;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_branchPrediction_target = entries_1_branchPrediction_target;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_branchPrediction_target = io_allocateIn_payload_uop_decoded_branchPrediction_target;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_branchPrediction_wasPredicted = entries_1_branchPrediction_wasPredicted;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_branchPrediction_wasPredicted = io_allocateIn_payload_uop_decoded_branchPrediction_wasPredicted;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_robPtr = entries_2_robPtr;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_robPtr = io_allocateIn_payload_uop_robPtr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_physDest_idx = entries_2_physDest_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_physDest_idx = io_allocateIn_payload_uop_rename_physDest_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_physDestIsFpr = entries_2_physDestIsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_physDestIsFpr = io_allocateIn_payload_uop_rename_physDestIsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_writesToPhysReg = entries_2_writesToPhysReg;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_writesToPhysReg = io_allocateIn_payload_uop_rename_writesToPhysReg;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_useSrc1 = entries_2_useSrc1;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_useSrc1 = io_allocateIn_payload_uop_decoded_useArchSrc1;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src1Data = entries_2_src1Data;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src1Data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src1Tag = entries_2_src1Tag;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src1Tag = io_allocateIn_payload_uop_rename_physSrc1_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src1Ready = entries_2_src1Ready;
-    if(when_IssueQueueComponent_l192_2) begin
-      entriesNext_2_src1Ready = 1'b1;
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src1Ready = _zz_entriesNext_0_src1Ready;
-      end
-      if(_zz_5) begin
-        entriesNext_2_src1Ready = io_allocateIn_payload_src1InitialReady;
-      end
-      if(when_IssueQueueComponent_l217) begin
-        if(when_IssueQueueComponent_l218) begin
-          if(_zz_5) begin
-            entriesNext_2_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_1) begin
-        if(when_IssueQueueComponent_l218_1) begin
-          if(_zz_5) begin
-            entriesNext_2_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_2) begin
-        if(when_IssueQueueComponent_l218_2) begin
-          if(_zz_5) begin
-            entriesNext_2_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_3) begin
-        if(when_IssueQueueComponent_l218_3) begin
-          if(_zz_5) begin
-            entriesNext_2_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_4) begin
-        if(when_IssueQueueComponent_l218_4) begin
-          if(_zz_5) begin
-            entriesNext_2_src1Ready = 1'b1;
-          end
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src1IsFpr = entries_2_src1IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src1IsFpr = io_allocateIn_payload_uop_rename_physSrc1IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_useSrc2 = entries_2_useSrc2;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_useSrc2 = io_allocateIn_payload_uop_decoded_useArchSrc2;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src2Data = entries_2_src2Data;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src2Data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src2Tag = entries_2_src2Tag;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src2Tag = io_allocateIn_payload_uop_rename_physSrc2_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src2Ready = entries_2_src2Ready;
-    if(when_IssueQueueComponent_l193_2) begin
-      entriesNext_2_src2Ready = 1'b1;
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src2Ready = _zz_entriesNext_0_src2Ready;
-      end
-      if(_zz_5) begin
-        entriesNext_2_src2Ready = io_allocateIn_payload_src2InitialReady;
-      end
-      if(when_IssueQueueComponent_l217) begin
-        if(when_IssueQueueComponent_l221) begin
-          if(_zz_5) begin
-            entriesNext_2_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_1) begin
-        if(when_IssueQueueComponent_l221_1) begin
-          if(_zz_5) begin
-            entriesNext_2_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_2) begin
-        if(when_IssueQueueComponent_l221_2) begin
-          if(_zz_5) begin
-            entriesNext_2_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_3) begin
-        if(when_IssueQueueComponent_l221_3) begin
-          if(_zz_5) begin
-            entriesNext_2_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_4) begin
-        if(when_IssueQueueComponent_l221_4) begin
-          if(_zz_5) begin
-            entriesNext_2_src2Ready = 1'b1;
-          end
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src2IsFpr = entries_2_src2IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src2IsFpr = io_allocateIn_payload_uop_rename_physSrc2IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_branchCtrl_condition = entries_2_branchCtrl_condition;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_branchCtrl_condition = io_allocateIn_payload_uop_decoded_branchCtrl_condition;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_branchCtrl_isJump = entries_2_branchCtrl_isJump;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_branchCtrl_isJump = io_allocateIn_payload_uop_decoded_branchCtrl_isJump;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_branchCtrl_isLink = entries_2_branchCtrl_isLink;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_branchCtrl_isLink = io_allocateIn_payload_uop_decoded_branchCtrl_isLink;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_branchCtrl_linkReg_idx = entries_2_branchCtrl_linkReg_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_branchCtrl_linkReg_idx = io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_branchCtrl_linkReg_rtype = entries_2_branchCtrl_linkReg_rtype;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_branchCtrl_linkReg_rtype = io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_rtype;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_branchCtrl_isIndirect = entries_2_branchCtrl_isIndirect;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_branchCtrl_isIndirect = io_allocateIn_payload_uop_decoded_branchCtrl_isIndirect;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_branchCtrl_laCfIdx = entries_2_branchCtrl_laCfIdx;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_branchCtrl_laCfIdx = io_allocateIn_payload_uop_decoded_branchCtrl_laCfIdx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_imm = entries_2_imm;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_imm = io_allocateIn_payload_uop_decoded_imm;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_pc = entries_2_pc;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_pc = io_allocateIn_payload_uop_decoded_pc;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_branchPrediction_isTaken = entries_2_branchPrediction_isTaken;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_branchPrediction_isTaken = io_allocateIn_payload_uop_decoded_branchPrediction_isTaken;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_branchPrediction_target = entries_2_branchPrediction_target;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_branchPrediction_target = io_allocateIn_payload_uop_decoded_branchPrediction_target;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_branchPrediction_wasPredicted = entries_2_branchPrediction_wasPredicted;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_branchPrediction_wasPredicted = io_allocateIn_payload_uop_decoded_branchPrediction_wasPredicted;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_robPtr = entries_3_robPtr;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_robPtr = io_allocateIn_payload_uop_robPtr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_physDest_idx = entries_3_physDest_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_physDest_idx = io_allocateIn_payload_uop_rename_physDest_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_physDestIsFpr = entries_3_physDestIsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_physDestIsFpr = io_allocateIn_payload_uop_rename_physDestIsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_writesToPhysReg = entries_3_writesToPhysReg;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_writesToPhysReg = io_allocateIn_payload_uop_rename_writesToPhysReg;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_useSrc1 = entries_3_useSrc1;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_useSrc1 = io_allocateIn_payload_uop_decoded_useArchSrc1;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src1Data = entries_3_src1Data;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src1Data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src1Tag = entries_3_src1Tag;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src1Tag = io_allocateIn_payload_uop_rename_physSrc1_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src1Ready = entries_3_src1Ready;
-    if(when_IssueQueueComponent_l192_3) begin
-      entriesNext_3_src1Ready = 1'b1;
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src1Ready = _zz_entriesNext_0_src1Ready;
-      end
-      if(_zz_6) begin
-        entriesNext_3_src1Ready = io_allocateIn_payload_src1InitialReady;
-      end
-      if(when_IssueQueueComponent_l217) begin
-        if(when_IssueQueueComponent_l218) begin
-          if(_zz_6) begin
-            entriesNext_3_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_1) begin
-        if(when_IssueQueueComponent_l218_1) begin
-          if(_zz_6) begin
-            entriesNext_3_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_2) begin
-        if(when_IssueQueueComponent_l218_2) begin
-          if(_zz_6) begin
-            entriesNext_3_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_3) begin
-        if(when_IssueQueueComponent_l218_3) begin
-          if(_zz_6) begin
-            entriesNext_3_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_4) begin
-        if(when_IssueQueueComponent_l218_4) begin
-          if(_zz_6) begin
-            entriesNext_3_src1Ready = 1'b1;
-          end
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src1IsFpr = entries_3_src1IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src1IsFpr = io_allocateIn_payload_uop_rename_physSrc1IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_useSrc2 = entries_3_useSrc2;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_useSrc2 = io_allocateIn_payload_uop_decoded_useArchSrc2;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src2Data = entries_3_src2Data;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src2Data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src2Tag = entries_3_src2Tag;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src2Tag = io_allocateIn_payload_uop_rename_physSrc2_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src2Ready = entries_3_src2Ready;
-    if(when_IssueQueueComponent_l193_3) begin
-      entriesNext_3_src2Ready = 1'b1;
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src2Ready = _zz_entriesNext_0_src2Ready;
-      end
-      if(_zz_6) begin
-        entriesNext_3_src2Ready = io_allocateIn_payload_src2InitialReady;
-      end
-      if(when_IssueQueueComponent_l217) begin
-        if(when_IssueQueueComponent_l221) begin
-          if(_zz_6) begin
-            entriesNext_3_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_1) begin
-        if(when_IssueQueueComponent_l221_1) begin
-          if(_zz_6) begin
-            entriesNext_3_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_2) begin
-        if(when_IssueQueueComponent_l221_2) begin
-          if(_zz_6) begin
-            entriesNext_3_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_3) begin
-        if(when_IssueQueueComponent_l221_3) begin
-          if(_zz_6) begin
-            entriesNext_3_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_4) begin
-        if(when_IssueQueueComponent_l221_4) begin
-          if(_zz_6) begin
-            entriesNext_3_src2Ready = 1'b1;
-          end
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src2IsFpr = entries_3_src2IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src2IsFpr = io_allocateIn_payload_uop_rename_physSrc2IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_branchCtrl_condition = entries_3_branchCtrl_condition;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_branchCtrl_condition = io_allocateIn_payload_uop_decoded_branchCtrl_condition;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_branchCtrl_isJump = entries_3_branchCtrl_isJump;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_branchCtrl_isJump = io_allocateIn_payload_uop_decoded_branchCtrl_isJump;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_branchCtrl_isLink = entries_3_branchCtrl_isLink;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_branchCtrl_isLink = io_allocateIn_payload_uop_decoded_branchCtrl_isLink;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_branchCtrl_linkReg_idx = entries_3_branchCtrl_linkReg_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_branchCtrl_linkReg_idx = io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_branchCtrl_linkReg_rtype = entries_3_branchCtrl_linkReg_rtype;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_branchCtrl_linkReg_rtype = io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_rtype;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_branchCtrl_isIndirect = entries_3_branchCtrl_isIndirect;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_branchCtrl_isIndirect = io_allocateIn_payload_uop_decoded_branchCtrl_isIndirect;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_branchCtrl_laCfIdx = entries_3_branchCtrl_laCfIdx;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_branchCtrl_laCfIdx = io_allocateIn_payload_uop_decoded_branchCtrl_laCfIdx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_imm = entries_3_imm;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_imm = io_allocateIn_payload_uop_decoded_imm;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_pc = entries_3_pc;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_pc = io_allocateIn_payload_uop_decoded_pc;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_branchPrediction_isTaken = entries_3_branchPrediction_isTaken;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_branchPrediction_isTaken = io_allocateIn_payload_uop_decoded_branchPrediction_isTaken;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_branchPrediction_target = entries_3_branchPrediction_target;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_branchPrediction_target = io_allocateIn_payload_uop_decoded_branchPrediction_target;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_branchPrediction_wasPredicted = entries_3_branchPrediction_wasPredicted;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_branchPrediction_wasPredicted = io_allocateIn_payload_uop_decoded_branchPrediction_wasPredicted;
-      end
-    end
-  end
-
-  always @(*) begin
-    entryValidsNext_0 = entryValids_0;
-    if(io_issueOut_fire) begin
-      if(_zz_1[0]) begin
-        entryValidsNext_0 = 1'b0;
-      end
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_7[0]) begin
-        entryValidsNext_0 = 1'b1;
-      end
-    end
-    if(io_flush) begin
-      entryValidsNext_0 = 1'b0;
-    end
-  end
-
-  always @(*) begin
-    entryValidsNext_1 = entryValids_1;
-    if(io_issueOut_fire) begin
-      if(_zz_1[1]) begin
-        entryValidsNext_1 = 1'b0;
-      end
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_7[1]) begin
-        entryValidsNext_1 = 1'b1;
-      end
-    end
-    if(io_flush) begin
-      entryValidsNext_1 = 1'b0;
-    end
-  end
-
-  always @(*) begin
-    entryValidsNext_2 = entryValids_2;
-    if(io_issueOut_fire) begin
-      if(_zz_1[2]) begin
-        entryValidsNext_2 = 1'b0;
-      end
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_7[2]) begin
-        entryValidsNext_2 = 1'b1;
-      end
-    end
-    if(io_flush) begin
-      entryValidsNext_2 = 1'b0;
-    end
-  end
-
-  always @(*) begin
-    entryValidsNext_3 = entryValids_3;
-    if(io_issueOut_fire) begin
-      if(_zz_1[3]) begin
-        entryValidsNext_3 = 1'b0;
-      end
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_7[3]) begin
-        entryValidsNext_3 = 1'b1;
-      end
-    end
-    if(io_flush) begin
-      entryValidsNext_3 = 1'b0;
-    end
-  end
-
-  assign when_IssueQueueComponent_l192 = wokeUpSrc1Mask[0];
-  assign when_IssueQueueComponent_l193 = wokeUpSrc2Mask[0];
-  assign when_IssueQueueComponent_l192_1 = wokeUpSrc1Mask[1];
-  assign when_IssueQueueComponent_l193_1 = wokeUpSrc2Mask[1];
-  assign when_IssueQueueComponent_l192_2 = wokeUpSrc1Mask[2];
-  assign when_IssueQueueComponent_l193_2 = wokeUpSrc2Mask[2];
-  assign when_IssueQueueComponent_l192_3 = wokeUpSrc1Mask[3];
-  assign when_IssueQueueComponent_l193_3 = wokeUpSrc2Mask[3];
-  assign _zz_1 = ({3'd0,1'b1} <<< issueIdx);
   assign io_allocateIn_fire = (io_allocateIn_valid && io_allocateIn_ready);
-  assign _zz_2 = ({3'd0,1'b1} <<< allocateIdx);
-  assign _zz_3 = _zz_2[0];
-  assign _zz_4 = _zz_2[1];
-  assign _zz_5 = _zz_2[2];
-  assign _zz_6 = _zz_2[3];
-  assign _zz_entriesNext_0_src1Ready = (! io_allocateIn_payload_uop_decoded_useArchSrc1);
-  assign _zz_entriesNext_0_src2Ready = (! io_allocateIn_payload_uop_decoded_useArchSrc2);
-  assign _zz_7 = ({3'd0,1'b1} <<< allocateIdx);
-  assign when_IssueQueueComponent_l217 = (wakeupInReg_0_valid && (! io_flush));
-  assign when_IssueQueueComponent_l218 = ((io_allocateIn_payload_uop_decoded_useArchSrc1 && (! io_allocateIn_payload_src1InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_0_payload_physRegIdx));
-  assign when_IssueQueueComponent_l221 = ((io_allocateIn_payload_uop_decoded_useArchSrc2 && (! io_allocateIn_payload_src2InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_0_payload_physRegIdx));
-  assign when_IssueQueueComponent_l217_1 = (wakeupInReg_1_valid && (! io_flush));
-  assign when_IssueQueueComponent_l218_1 = ((io_allocateIn_payload_uop_decoded_useArchSrc1 && (! io_allocateIn_payload_src1InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_1_payload_physRegIdx));
-  assign when_IssueQueueComponent_l221_1 = ((io_allocateIn_payload_uop_decoded_useArchSrc2 && (! io_allocateIn_payload_src2InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_1_payload_physRegIdx));
-  assign when_IssueQueueComponent_l217_2 = (wakeupInReg_2_valid && (! io_flush));
-  assign when_IssueQueueComponent_l218_2 = ((io_allocateIn_payload_uop_decoded_useArchSrc1 && (! io_allocateIn_payload_src1InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_2_payload_physRegIdx));
-  assign when_IssueQueueComponent_l221_2 = ((io_allocateIn_payload_uop_decoded_useArchSrc2 && (! io_allocateIn_payload_src2InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_2_payload_physRegIdx));
-  assign when_IssueQueueComponent_l217_3 = (wakeupInReg_3_valid && (! io_flush));
-  assign when_IssueQueueComponent_l218_3 = ((io_allocateIn_payload_uop_decoded_useArchSrc1 && (! io_allocateIn_payload_src1InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_3_payload_physRegIdx));
-  assign when_IssueQueueComponent_l221_3 = ((io_allocateIn_payload_uop_decoded_useArchSrc2 && (! io_allocateIn_payload_src2InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_3_payload_physRegIdx));
-  assign when_IssueQueueComponent_l217_4 = (wakeupInReg_4_valid && (! io_flush));
-  assign when_IssueQueueComponent_l218_4 = ((io_allocateIn_payload_uop_decoded_useArchSrc1 && (! io_allocateIn_payload_src1InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_4_payload_physRegIdx));
-  assign when_IssueQueueComponent_l221_4 = ((io_allocateIn_payload_uop_decoded_useArchSrc2 && (! io_allocateIn_payload_src2InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_4_payload_physRegIdx));
+  assign when_IssueQueueComponent_l191 = (io_allocateIn_fire && (allocateIdx == 2'b00));
+  assign when_IssueQueueComponent_l206 = (io_issueOut_fire && (issueIdx == 2'b00));
+  assign when_IssueQueueComponent_l214 = wokeUpSrc1Mask[0];
+  assign when_IssueQueueComponent_l215 = wokeUpSrc2Mask[0];
+  assign when_IssueQueueComponent_l191_1 = (io_allocateIn_fire && (allocateIdx == 2'b01));
+  assign when_IssueQueueComponent_l206_1 = (io_issueOut_fire && (issueIdx == 2'b01));
+  assign when_IssueQueueComponent_l214_1 = wokeUpSrc1Mask[1];
+  assign when_IssueQueueComponent_l215_1 = wokeUpSrc2Mask[1];
+  assign when_IssueQueueComponent_l191_2 = (io_allocateIn_fire && (allocateIdx == 2'b10));
+  assign when_IssueQueueComponent_l206_2 = (io_issueOut_fire && (issueIdx == 2'b10));
+  assign when_IssueQueueComponent_l214_2 = wokeUpSrc1Mask[2];
+  assign when_IssueQueueComponent_l215_2 = wokeUpSrc2Mask[2];
+  assign when_IssueQueueComponent_l191_3 = (io_allocateIn_fire && (allocateIdx == 2'b11));
+  assign when_IssueQueueComponent_l206_3 = (io_issueOut_fire && (issueIdx == 2'b11));
+  assign when_IssueQueueComponent_l214_3 = wokeUpSrc1Mask[3];
+  assign when_IssueQueueComponent_l215_3 = wokeUpSrc2Mask[3];
   assign _zz_currentValidCount = 3'b000;
   assign _zz_currentValidCount_1 = 3'b001;
   assign _zz_currentValidCount_2 = 3'b001;
@@ -40820,7 +37702,7 @@ module IssueQueueComponent_2 (
   assign _zz_currentValidCount_7 = 3'b011;
   assign currentValidCount = (_zz_currentValidCount_8 + _zz_currentValidCount_10);
   assign logCondition = (io_allocateIn_fire || io_issueOut_fire);
-  assign when_IssueQueueComponent_l262 = (logCondition && (3'b000 < currentValidCount));
+  assign when_IssueQueueComponent_l244 = (logCondition && (3'b000 < currentValidCount));
   always @(posedge clk) begin
     if(reset) begin
       wakeupInReg_0_valid <= 1'b0;
@@ -40862,29 +37744,59 @@ module IssueQueueComponent_2 (
         wakeupInReg_4_valid <= _zz_wakeupInReg_4_valid[0];
         wakeupInReg_4_payload_physRegIdx <= _zz_wakeupInReg_4_payload_physRegIdx[5 : 0];
       end
-      entryValids_0 <= entryValidsNext_0;
-      entryValids_1 <= entryValidsNext_1;
-      entryValids_2 <= entryValidsNext_2;
-      entryValids_3 <= entryValidsNext_3;
+      if(when_IssueQueueComponent_l191) begin
+        entryValids_0 <= 1'b1;
+      end else begin
+        if(when_IssueQueueComponent_l206) begin
+          entryValids_0 <= 1'b0;
+        end
+      end
+      if(when_IssueQueueComponent_l191_1) begin
+        entryValids_1 <= 1'b1;
+      end else begin
+        if(when_IssueQueueComponent_l206_1) begin
+          entryValids_1 <= 1'b0;
+        end
+      end
+      if(when_IssueQueueComponent_l191_2) begin
+        entryValids_2 <= 1'b1;
+      end else begin
+        if(when_IssueQueueComponent_l206_2) begin
+          entryValids_2 <= 1'b0;
+        end
+      end
+      if(when_IssueQueueComponent_l191_3) begin
+        entryValids_3 <= 1'b1;
+      end else begin
+        if(when_IssueQueueComponent_l206_3) begin
+          entryValids_3 <= 1'b0;
+        end
+      end
+      if(io_flush) begin
+        entryValids_0 <= 1'b0;
+        entryValids_1 <= 1'b0;
+        entryValids_2 <= 1'b0;
+        entryValids_3 <= 1'b0;
+      end
       if(logCondition) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // IssueQueueComponent.scala:L253
+            assert(1'b0); // IssueQueueComponent.scala:L235
           `else
             if(!1'b0) begin
-              $display("NOTE(IssueQueueComponent.scala:253):  [normal] BranchEU_IQ-2: STATUS - ValidCount=%x, allocateIn(valid=%x, ready=%x), issueOut(valid=%x, ready=%x)", currentValidCount, io_allocateIn_valid, io_allocateIn_ready, io_issueOut_valid, io_issueOut_ready); // IssueQueueComponent.scala:L253
+              $display("NOTE(IssueQueueComponent.scala:235):  [normal] BranchEU_IQ-2: STATUS - ValidCount=%x, allocateIn(valid=%x, ready=%x), issueOut(valid=%x, ready=%x)", currentValidCount, io_allocateIn_valid, io_allocateIn_ready, io_issueOut_valid, io_issueOut_ready); // IssueQueueComponent.scala:L235
             end
           `endif
         `endif
       end
-      if(when_IssueQueueComponent_l262) begin
+      if(when_IssueQueueComponent_l244) begin
         if(entryValids_0) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // IssueQueueComponent.scala:L265
+              assert(1'b0); // IssueQueueComponent.scala:L247
             `else
               if(!1'b0) begin
-                $display("NOTE(IssueQueueComponent.scala:265):  [normal] BranchEU_IQ-2: (LAST CYCLE) ENTRY[0] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_0_robPtr, entries_0_physDest_idx, entries_0_useSrc1, entries_0_src1Tag, entries_0_src1Ready, entries_0_useSrc2, entries_0_src2Tag, entries_0_src2Ready); // IssueQueueComponent.scala:L265
+                $display("NOTE(IssueQueueComponent.scala:247):  [normal] BranchEU_IQ-2: (LAST CYCLE) ENTRY[0] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_0_robPtr, entries_0_physDest_idx, entries_0_useSrc1, entries_0_src1Tag, entries_0_src1Ready, entries_0_useSrc2, entries_0_src2Tag, entries_0_src2Ready); // IssueQueueComponent.scala:L247
               end
             `endif
           `endif
@@ -40892,10 +37804,10 @@ module IssueQueueComponent_2 (
         if(entryValids_1) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // IssueQueueComponent.scala:L265
+              assert(1'b0); // IssueQueueComponent.scala:L247
             `else
               if(!1'b0) begin
-                $display("NOTE(IssueQueueComponent.scala:265):  [normal] BranchEU_IQ-2: (LAST CYCLE) ENTRY[1] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_1_robPtr, entries_1_physDest_idx, entries_1_useSrc1, entries_1_src1Tag, entries_1_src1Ready, entries_1_useSrc2, entries_1_src2Tag, entries_1_src2Ready); // IssueQueueComponent.scala:L265
+                $display("NOTE(IssueQueueComponent.scala:247):  [normal] BranchEU_IQ-2: (LAST CYCLE) ENTRY[1] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_1_robPtr, entries_1_physDest_idx, entries_1_useSrc1, entries_1_src1Tag, entries_1_src1Ready, entries_1_useSrc2, entries_1_src2Tag, entries_1_src2Ready); // IssueQueueComponent.scala:L247
               end
             `endif
           `endif
@@ -40903,10 +37815,10 @@ module IssueQueueComponent_2 (
         if(entryValids_2) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // IssueQueueComponent.scala:L265
+              assert(1'b0); // IssueQueueComponent.scala:L247
             `else
               if(!1'b0) begin
-                $display("NOTE(IssueQueueComponent.scala:265):  [normal] BranchEU_IQ-2: (LAST CYCLE) ENTRY[2] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_2_robPtr, entries_2_physDest_idx, entries_2_useSrc1, entries_2_src1Tag, entries_2_src1Ready, entries_2_useSrc2, entries_2_src2Tag, entries_2_src2Ready); // IssueQueueComponent.scala:L265
+                $display("NOTE(IssueQueueComponent.scala:247):  [normal] BranchEU_IQ-2: (LAST CYCLE) ENTRY[2] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_2_robPtr, entries_2_physDest_idx, entries_2_useSrc1, entries_2_src1Tag, entries_2_src1Ready, entries_2_useSrc2, entries_2_src2Tag, entries_2_src2Ready); // IssueQueueComponent.scala:L247
               end
             `endif
           `endif
@@ -40914,10 +37826,10 @@ module IssueQueueComponent_2 (
         if(entryValids_3) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // IssueQueueComponent.scala:L265
+              assert(1'b0); // IssueQueueComponent.scala:L247
             `else
               if(!1'b0) begin
-                $display("NOTE(IssueQueueComponent.scala:265):  [normal] BranchEU_IQ-2: (LAST CYCLE) ENTRY[3] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_3_robPtr, entries_3_physDest_idx, entries_3_useSrc1, entries_3_src1Tag, entries_3_src1Ready, entries_3_useSrc2, entries_3_src2Tag, entries_3_src2Ready); // IssueQueueComponent.scala:L265
+                $display("NOTE(IssueQueueComponent.scala:247):  [normal] BranchEU_IQ-2: (LAST CYCLE) ENTRY[3] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_3_robPtr, entries_3_physDest_idx, entries_3_useSrc1, entries_3_src1Tag, entries_3_src1Ready, entries_3_useSrc2, entries_3_src2Tag, entries_3_src2Ready); // IssueQueueComponent.scala:L247
               end
             `endif
           `endif
@@ -40927,110 +37839,162 @@ module IssueQueueComponent_2 (
   end
 
   always @(posedge clk) begin
-    entries_0_robPtr <= entriesNext_0_robPtr;
-    entries_0_physDest_idx <= entriesNext_0_physDest_idx;
-    entries_0_physDestIsFpr <= entriesNext_0_physDestIsFpr;
-    entries_0_writesToPhysReg <= entriesNext_0_writesToPhysReg;
-    entries_0_useSrc1 <= entriesNext_0_useSrc1;
-    entries_0_src1Data <= entriesNext_0_src1Data;
-    entries_0_src1Tag <= entriesNext_0_src1Tag;
-    entries_0_src1Ready <= entriesNext_0_src1Ready;
-    entries_0_src1IsFpr <= entriesNext_0_src1IsFpr;
-    entries_0_useSrc2 <= entriesNext_0_useSrc2;
-    entries_0_src2Data <= entriesNext_0_src2Data;
-    entries_0_src2Tag <= entriesNext_0_src2Tag;
-    entries_0_src2Ready <= entriesNext_0_src2Ready;
-    entries_0_src2IsFpr <= entriesNext_0_src2IsFpr;
-    entries_0_branchCtrl_condition <= entriesNext_0_branchCtrl_condition;
-    entries_0_branchCtrl_isJump <= entriesNext_0_branchCtrl_isJump;
-    entries_0_branchCtrl_isLink <= entriesNext_0_branchCtrl_isLink;
-    entries_0_branchCtrl_linkReg_idx <= entriesNext_0_branchCtrl_linkReg_idx;
-    entries_0_branchCtrl_linkReg_rtype <= entriesNext_0_branchCtrl_linkReg_rtype;
-    entries_0_branchCtrl_isIndirect <= entriesNext_0_branchCtrl_isIndirect;
-    entries_0_branchCtrl_laCfIdx <= entriesNext_0_branchCtrl_laCfIdx;
-    entries_0_imm <= entriesNext_0_imm;
-    entries_0_pc <= entriesNext_0_pc;
-    entries_0_branchPrediction_isTaken <= entriesNext_0_branchPrediction_isTaken;
-    entries_0_branchPrediction_target <= entriesNext_0_branchPrediction_target;
-    entries_0_branchPrediction_wasPredicted <= entriesNext_0_branchPrediction_wasPredicted;
-    entries_1_robPtr <= entriesNext_1_robPtr;
-    entries_1_physDest_idx <= entriesNext_1_physDest_idx;
-    entries_1_physDestIsFpr <= entriesNext_1_physDestIsFpr;
-    entries_1_writesToPhysReg <= entriesNext_1_writesToPhysReg;
-    entries_1_useSrc1 <= entriesNext_1_useSrc1;
-    entries_1_src1Data <= entriesNext_1_src1Data;
-    entries_1_src1Tag <= entriesNext_1_src1Tag;
-    entries_1_src1Ready <= entriesNext_1_src1Ready;
-    entries_1_src1IsFpr <= entriesNext_1_src1IsFpr;
-    entries_1_useSrc2 <= entriesNext_1_useSrc2;
-    entries_1_src2Data <= entriesNext_1_src2Data;
-    entries_1_src2Tag <= entriesNext_1_src2Tag;
-    entries_1_src2Ready <= entriesNext_1_src2Ready;
-    entries_1_src2IsFpr <= entriesNext_1_src2IsFpr;
-    entries_1_branchCtrl_condition <= entriesNext_1_branchCtrl_condition;
-    entries_1_branchCtrl_isJump <= entriesNext_1_branchCtrl_isJump;
-    entries_1_branchCtrl_isLink <= entriesNext_1_branchCtrl_isLink;
-    entries_1_branchCtrl_linkReg_idx <= entriesNext_1_branchCtrl_linkReg_idx;
-    entries_1_branchCtrl_linkReg_rtype <= entriesNext_1_branchCtrl_linkReg_rtype;
-    entries_1_branchCtrl_isIndirect <= entriesNext_1_branchCtrl_isIndirect;
-    entries_1_branchCtrl_laCfIdx <= entriesNext_1_branchCtrl_laCfIdx;
-    entries_1_imm <= entriesNext_1_imm;
-    entries_1_pc <= entriesNext_1_pc;
-    entries_1_branchPrediction_isTaken <= entriesNext_1_branchPrediction_isTaken;
-    entries_1_branchPrediction_target <= entriesNext_1_branchPrediction_target;
-    entries_1_branchPrediction_wasPredicted <= entriesNext_1_branchPrediction_wasPredicted;
-    entries_2_robPtr <= entriesNext_2_robPtr;
-    entries_2_physDest_idx <= entriesNext_2_physDest_idx;
-    entries_2_physDestIsFpr <= entriesNext_2_physDestIsFpr;
-    entries_2_writesToPhysReg <= entriesNext_2_writesToPhysReg;
-    entries_2_useSrc1 <= entriesNext_2_useSrc1;
-    entries_2_src1Data <= entriesNext_2_src1Data;
-    entries_2_src1Tag <= entriesNext_2_src1Tag;
-    entries_2_src1Ready <= entriesNext_2_src1Ready;
-    entries_2_src1IsFpr <= entriesNext_2_src1IsFpr;
-    entries_2_useSrc2 <= entriesNext_2_useSrc2;
-    entries_2_src2Data <= entriesNext_2_src2Data;
-    entries_2_src2Tag <= entriesNext_2_src2Tag;
-    entries_2_src2Ready <= entriesNext_2_src2Ready;
-    entries_2_src2IsFpr <= entriesNext_2_src2IsFpr;
-    entries_2_branchCtrl_condition <= entriesNext_2_branchCtrl_condition;
-    entries_2_branchCtrl_isJump <= entriesNext_2_branchCtrl_isJump;
-    entries_2_branchCtrl_isLink <= entriesNext_2_branchCtrl_isLink;
-    entries_2_branchCtrl_linkReg_idx <= entriesNext_2_branchCtrl_linkReg_idx;
-    entries_2_branchCtrl_linkReg_rtype <= entriesNext_2_branchCtrl_linkReg_rtype;
-    entries_2_branchCtrl_isIndirect <= entriesNext_2_branchCtrl_isIndirect;
-    entries_2_branchCtrl_laCfIdx <= entriesNext_2_branchCtrl_laCfIdx;
-    entries_2_imm <= entriesNext_2_imm;
-    entries_2_pc <= entriesNext_2_pc;
-    entries_2_branchPrediction_isTaken <= entriesNext_2_branchPrediction_isTaken;
-    entries_2_branchPrediction_target <= entriesNext_2_branchPrediction_target;
-    entries_2_branchPrediction_wasPredicted <= entriesNext_2_branchPrediction_wasPredicted;
-    entries_3_robPtr <= entriesNext_3_robPtr;
-    entries_3_physDest_idx <= entriesNext_3_physDest_idx;
-    entries_3_physDestIsFpr <= entriesNext_3_physDestIsFpr;
-    entries_3_writesToPhysReg <= entriesNext_3_writesToPhysReg;
-    entries_3_useSrc1 <= entriesNext_3_useSrc1;
-    entries_3_src1Data <= entriesNext_3_src1Data;
-    entries_3_src1Tag <= entriesNext_3_src1Tag;
-    entries_3_src1Ready <= entriesNext_3_src1Ready;
-    entries_3_src1IsFpr <= entriesNext_3_src1IsFpr;
-    entries_3_useSrc2 <= entriesNext_3_useSrc2;
-    entries_3_src2Data <= entriesNext_3_src2Data;
-    entries_3_src2Tag <= entriesNext_3_src2Tag;
-    entries_3_src2Ready <= entriesNext_3_src2Ready;
-    entries_3_src2IsFpr <= entriesNext_3_src2IsFpr;
-    entries_3_branchCtrl_condition <= entriesNext_3_branchCtrl_condition;
-    entries_3_branchCtrl_isJump <= entriesNext_3_branchCtrl_isJump;
-    entries_3_branchCtrl_isLink <= entriesNext_3_branchCtrl_isLink;
-    entries_3_branchCtrl_linkReg_idx <= entriesNext_3_branchCtrl_linkReg_idx;
-    entries_3_branchCtrl_linkReg_rtype <= entriesNext_3_branchCtrl_linkReg_rtype;
-    entries_3_branchCtrl_isIndirect <= entriesNext_3_branchCtrl_isIndirect;
-    entries_3_branchCtrl_laCfIdx <= entriesNext_3_branchCtrl_laCfIdx;
-    entries_3_imm <= entriesNext_3_imm;
-    entries_3_pc <= entriesNext_3_pc;
-    entries_3_branchPrediction_isTaken <= entriesNext_3_branchPrediction_isTaken;
-    entries_3_branchPrediction_target <= entriesNext_3_branchPrediction_target;
-    entries_3_branchPrediction_wasPredicted <= entriesNext_3_branchPrediction_wasPredicted;
+    if(when_IssueQueueComponent_l191) begin
+      entries_0_robPtr <= io_allocateIn_payload_uop_robPtr;
+      entries_0_physDest_idx <= io_allocateIn_payload_uop_rename_physDest_idx;
+      entries_0_physDestIsFpr <= io_allocateIn_payload_uop_rename_physDestIsFpr;
+      entries_0_writesToPhysReg <= io_allocateIn_payload_uop_rename_writesToPhysReg;
+      entries_0_useSrc1 <= io_allocateIn_payload_uop_decoded_useArchSrc1;
+      entries_0_src1Tag <= io_allocateIn_payload_uop_rename_physSrc1_idx;
+      entries_0_src1Ready <= (! io_allocateIn_payload_uop_decoded_useArchSrc1);
+      entries_0_src1IsFpr <= io_allocateIn_payload_uop_rename_physSrc1IsFpr;
+      entries_0_useSrc2 <= io_allocateIn_payload_uop_decoded_useArchSrc2;
+      entries_0_src2Tag <= io_allocateIn_payload_uop_rename_physSrc2_idx;
+      entries_0_src2Ready <= (! io_allocateIn_payload_uop_decoded_useArchSrc2);
+      entries_0_src2IsFpr <= io_allocateIn_payload_uop_rename_physSrc2IsFpr;
+      entries_0_src1Data <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      entries_0_src2Data <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      entries_0_branchCtrl_condition <= io_allocateIn_payload_uop_decoded_branchCtrl_condition;
+      entries_0_branchCtrl_isJump <= io_allocateIn_payload_uop_decoded_branchCtrl_isJump;
+      entries_0_branchCtrl_isLink <= io_allocateIn_payload_uop_decoded_branchCtrl_isLink;
+      entries_0_branchCtrl_linkReg_idx <= io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_idx;
+      entries_0_branchCtrl_linkReg_rtype <= io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_rtype;
+      entries_0_branchCtrl_isIndirect <= io_allocateIn_payload_uop_decoded_branchCtrl_isIndirect;
+      entries_0_branchCtrl_laCfIdx <= io_allocateIn_payload_uop_decoded_branchCtrl_laCfIdx;
+      entries_0_imm <= io_allocateIn_payload_uop_decoded_imm;
+      entries_0_pc <= io_allocateIn_payload_uop_decoded_pc;
+      entries_0_branchPrediction_isTaken <= io_allocateIn_payload_uop_decoded_branchPrediction_isTaken;
+      entries_0_branchPrediction_target <= io_allocateIn_payload_uop_decoded_branchPrediction_target;
+      entries_0_branchPrediction_wasPredicted <= io_allocateIn_payload_uop_decoded_branchPrediction_wasPredicted;
+      entries_0_src1Ready <= (io_allocateIn_payload_src1InitialReady || (|{(wakeupInReg_4_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_4_payload_physRegIdx)),{(wakeupInReg_3_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_3_payload_physRegIdx)),{(wakeupInReg_2_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_2_payload_physRegIdx)),{(wakeupInReg_1_valid && _zz_entries_0_src1Ready),(wakeupInReg_0_valid && _zz_entries_0_src1Ready_1)}}}}));
+      entries_0_src2Ready <= (io_allocateIn_payload_src2InitialReady || (|{(wakeupInReg_4_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_4_payload_physRegIdx)),{(wakeupInReg_3_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_3_payload_physRegIdx)),{(wakeupInReg_2_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_2_payload_physRegIdx)),{(wakeupInReg_1_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_1_payload_physRegIdx)),(wakeupInReg_0_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_0_payload_physRegIdx))}}}}));
+    end else begin
+      if(!when_IssueQueueComponent_l206) begin
+        if(when_IssueQueueComponent_l214) begin
+          entries_0_src1Ready <= 1'b1;
+        end
+        if(when_IssueQueueComponent_l215) begin
+          entries_0_src2Ready <= 1'b1;
+        end
+      end
+    end
+    if(when_IssueQueueComponent_l191_1) begin
+      entries_1_robPtr <= io_allocateIn_payload_uop_robPtr;
+      entries_1_physDest_idx <= io_allocateIn_payload_uop_rename_physDest_idx;
+      entries_1_physDestIsFpr <= io_allocateIn_payload_uop_rename_physDestIsFpr;
+      entries_1_writesToPhysReg <= io_allocateIn_payload_uop_rename_writesToPhysReg;
+      entries_1_useSrc1 <= io_allocateIn_payload_uop_decoded_useArchSrc1;
+      entries_1_src1Tag <= io_allocateIn_payload_uop_rename_physSrc1_idx;
+      entries_1_src1Ready <= (! io_allocateIn_payload_uop_decoded_useArchSrc1);
+      entries_1_src1IsFpr <= io_allocateIn_payload_uop_rename_physSrc1IsFpr;
+      entries_1_useSrc2 <= io_allocateIn_payload_uop_decoded_useArchSrc2;
+      entries_1_src2Tag <= io_allocateIn_payload_uop_rename_physSrc2_idx;
+      entries_1_src2Ready <= (! io_allocateIn_payload_uop_decoded_useArchSrc2);
+      entries_1_src2IsFpr <= io_allocateIn_payload_uop_rename_physSrc2IsFpr;
+      entries_1_src1Data <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      entries_1_src2Data <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      entries_1_branchCtrl_condition <= io_allocateIn_payload_uop_decoded_branchCtrl_condition;
+      entries_1_branchCtrl_isJump <= io_allocateIn_payload_uop_decoded_branchCtrl_isJump;
+      entries_1_branchCtrl_isLink <= io_allocateIn_payload_uop_decoded_branchCtrl_isLink;
+      entries_1_branchCtrl_linkReg_idx <= io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_idx;
+      entries_1_branchCtrl_linkReg_rtype <= io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_rtype;
+      entries_1_branchCtrl_isIndirect <= io_allocateIn_payload_uop_decoded_branchCtrl_isIndirect;
+      entries_1_branchCtrl_laCfIdx <= io_allocateIn_payload_uop_decoded_branchCtrl_laCfIdx;
+      entries_1_imm <= io_allocateIn_payload_uop_decoded_imm;
+      entries_1_pc <= io_allocateIn_payload_uop_decoded_pc;
+      entries_1_branchPrediction_isTaken <= io_allocateIn_payload_uop_decoded_branchPrediction_isTaken;
+      entries_1_branchPrediction_target <= io_allocateIn_payload_uop_decoded_branchPrediction_target;
+      entries_1_branchPrediction_wasPredicted <= io_allocateIn_payload_uop_decoded_branchPrediction_wasPredicted;
+      entries_1_src1Ready <= (io_allocateIn_payload_src1InitialReady || (|{(wakeupInReg_4_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_4_payload_physRegIdx)),{(wakeupInReg_3_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_3_payload_physRegIdx)),{(wakeupInReg_2_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_2_payload_physRegIdx)),{(wakeupInReg_1_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_1_payload_physRegIdx)),(wakeupInReg_0_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_0_payload_physRegIdx))}}}}));
+      entries_1_src2Ready <= (io_allocateIn_payload_src2InitialReady || (|{(wakeupInReg_4_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_4_payload_physRegIdx)),{(wakeupInReg_3_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_3_payload_physRegIdx)),{(wakeupInReg_2_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_2_payload_physRegIdx)),{(wakeupInReg_1_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_1_payload_physRegIdx)),(wakeupInReg_0_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_0_payload_physRegIdx))}}}}));
+    end else begin
+      if(!when_IssueQueueComponent_l206_1) begin
+        if(when_IssueQueueComponent_l214_1) begin
+          entries_1_src1Ready <= 1'b1;
+        end
+        if(when_IssueQueueComponent_l215_1) begin
+          entries_1_src2Ready <= 1'b1;
+        end
+      end
+    end
+    if(when_IssueQueueComponent_l191_2) begin
+      entries_2_robPtr <= io_allocateIn_payload_uop_robPtr;
+      entries_2_physDest_idx <= io_allocateIn_payload_uop_rename_physDest_idx;
+      entries_2_physDestIsFpr <= io_allocateIn_payload_uop_rename_physDestIsFpr;
+      entries_2_writesToPhysReg <= io_allocateIn_payload_uop_rename_writesToPhysReg;
+      entries_2_useSrc1 <= io_allocateIn_payload_uop_decoded_useArchSrc1;
+      entries_2_src1Tag <= io_allocateIn_payload_uop_rename_physSrc1_idx;
+      entries_2_src1Ready <= (! io_allocateIn_payload_uop_decoded_useArchSrc1);
+      entries_2_src1IsFpr <= io_allocateIn_payload_uop_rename_physSrc1IsFpr;
+      entries_2_useSrc2 <= io_allocateIn_payload_uop_decoded_useArchSrc2;
+      entries_2_src2Tag <= io_allocateIn_payload_uop_rename_physSrc2_idx;
+      entries_2_src2Ready <= (! io_allocateIn_payload_uop_decoded_useArchSrc2);
+      entries_2_src2IsFpr <= io_allocateIn_payload_uop_rename_physSrc2IsFpr;
+      entries_2_src1Data <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      entries_2_src2Data <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      entries_2_branchCtrl_condition <= io_allocateIn_payload_uop_decoded_branchCtrl_condition;
+      entries_2_branchCtrl_isJump <= io_allocateIn_payload_uop_decoded_branchCtrl_isJump;
+      entries_2_branchCtrl_isLink <= io_allocateIn_payload_uop_decoded_branchCtrl_isLink;
+      entries_2_branchCtrl_linkReg_idx <= io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_idx;
+      entries_2_branchCtrl_linkReg_rtype <= io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_rtype;
+      entries_2_branchCtrl_isIndirect <= io_allocateIn_payload_uop_decoded_branchCtrl_isIndirect;
+      entries_2_branchCtrl_laCfIdx <= io_allocateIn_payload_uop_decoded_branchCtrl_laCfIdx;
+      entries_2_imm <= io_allocateIn_payload_uop_decoded_imm;
+      entries_2_pc <= io_allocateIn_payload_uop_decoded_pc;
+      entries_2_branchPrediction_isTaken <= io_allocateIn_payload_uop_decoded_branchPrediction_isTaken;
+      entries_2_branchPrediction_target <= io_allocateIn_payload_uop_decoded_branchPrediction_target;
+      entries_2_branchPrediction_wasPredicted <= io_allocateIn_payload_uop_decoded_branchPrediction_wasPredicted;
+      entries_2_src1Ready <= (io_allocateIn_payload_src1InitialReady || (|{(wakeupInReg_4_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_4_payload_physRegIdx)),{(wakeupInReg_3_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_3_payload_physRegIdx)),{(wakeupInReg_2_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_2_payload_physRegIdx)),{(wakeupInReg_1_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_1_payload_physRegIdx)),(wakeupInReg_0_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_0_payload_physRegIdx))}}}}));
+      entries_2_src2Ready <= (io_allocateIn_payload_src2InitialReady || (|{(wakeupInReg_4_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_4_payload_physRegIdx)),{(wakeupInReg_3_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_3_payload_physRegIdx)),{(wakeupInReg_2_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_2_payload_physRegIdx)),{(wakeupInReg_1_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_1_payload_physRegIdx)),(wakeupInReg_0_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_0_payload_physRegIdx))}}}}));
+    end else begin
+      if(!when_IssueQueueComponent_l206_2) begin
+        if(when_IssueQueueComponent_l214_2) begin
+          entries_2_src1Ready <= 1'b1;
+        end
+        if(when_IssueQueueComponent_l215_2) begin
+          entries_2_src2Ready <= 1'b1;
+        end
+      end
+    end
+    if(when_IssueQueueComponent_l191_3) begin
+      entries_3_robPtr <= io_allocateIn_payload_uop_robPtr;
+      entries_3_physDest_idx <= io_allocateIn_payload_uop_rename_physDest_idx;
+      entries_3_physDestIsFpr <= io_allocateIn_payload_uop_rename_physDestIsFpr;
+      entries_3_writesToPhysReg <= io_allocateIn_payload_uop_rename_writesToPhysReg;
+      entries_3_useSrc1 <= io_allocateIn_payload_uop_decoded_useArchSrc1;
+      entries_3_src1Tag <= io_allocateIn_payload_uop_rename_physSrc1_idx;
+      entries_3_src1Ready <= (! io_allocateIn_payload_uop_decoded_useArchSrc1);
+      entries_3_src1IsFpr <= io_allocateIn_payload_uop_rename_physSrc1IsFpr;
+      entries_3_useSrc2 <= io_allocateIn_payload_uop_decoded_useArchSrc2;
+      entries_3_src2Tag <= io_allocateIn_payload_uop_rename_physSrc2_idx;
+      entries_3_src2Ready <= (! io_allocateIn_payload_uop_decoded_useArchSrc2);
+      entries_3_src2IsFpr <= io_allocateIn_payload_uop_rename_physSrc2IsFpr;
+      entries_3_src1Data <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      entries_3_src2Data <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      entries_3_branchCtrl_condition <= io_allocateIn_payload_uop_decoded_branchCtrl_condition;
+      entries_3_branchCtrl_isJump <= io_allocateIn_payload_uop_decoded_branchCtrl_isJump;
+      entries_3_branchCtrl_isLink <= io_allocateIn_payload_uop_decoded_branchCtrl_isLink;
+      entries_3_branchCtrl_linkReg_idx <= io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_idx;
+      entries_3_branchCtrl_linkReg_rtype <= io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_rtype;
+      entries_3_branchCtrl_isIndirect <= io_allocateIn_payload_uop_decoded_branchCtrl_isIndirect;
+      entries_3_branchCtrl_laCfIdx <= io_allocateIn_payload_uop_decoded_branchCtrl_laCfIdx;
+      entries_3_imm <= io_allocateIn_payload_uop_decoded_imm;
+      entries_3_pc <= io_allocateIn_payload_uop_decoded_pc;
+      entries_3_branchPrediction_isTaken <= io_allocateIn_payload_uop_decoded_branchPrediction_isTaken;
+      entries_3_branchPrediction_target <= io_allocateIn_payload_uop_decoded_branchPrediction_target;
+      entries_3_branchPrediction_wasPredicted <= io_allocateIn_payload_uop_decoded_branchPrediction_wasPredicted;
+      entries_3_src1Ready <= (io_allocateIn_payload_src1InitialReady || (|{(wakeupInReg_4_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_4_payload_physRegIdx)),{(wakeupInReg_3_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_3_payload_physRegIdx)),{(wakeupInReg_2_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_2_payload_physRegIdx)),{(wakeupInReg_1_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_1_payload_physRegIdx)),(wakeupInReg_0_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_0_payload_physRegIdx))}}}}));
+      entries_3_src2Ready <= (io_allocateIn_payload_src2InitialReady || (|{(wakeupInReg_4_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_4_payload_physRegIdx)),{(wakeupInReg_3_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_3_payload_physRegIdx)),{(wakeupInReg_2_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_2_payload_physRegIdx)),{(wakeupInReg_1_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_1_payload_physRegIdx)),(wakeupInReg_0_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_0_payload_physRegIdx))}}}}));
+    end else begin
+      if(!when_IssueQueueComponent_l206_3) begin
+        if(when_IssueQueueComponent_l214_3) begin
+          entries_3_src1Ready <= 1'b1;
+        end
+        if(when_IssueQueueComponent_l215_3) begin
+          entries_3_src2Ready <= 1'b1;
+        end
+      end
+    end
   end
 
 
@@ -41466,6 +38430,8 @@ module IssueQueueComponent_1 (
   reg                 _zz_io_issueOut_payload_mulDivCtrl_isSigned;
   reg                 _zz_io_issueOut_payload_mulDivCtrl_isWordOp;
   wire       [3:0]    _zz_allocationMask_1;
+  wire                _zz_entries_0_src1Ready;
+  wire                _zz_entries_0_src1Ready_1;
   reg        [2:0]    _zz_currentValidCount_8;
   wire       [2:0]    _zz_currentValidCount_9;
   reg        [2:0]    _zz_currentValidCount_10;
@@ -42041,491 +39007,23 @@ module IssueQueueComponent_1 (
   wire                _zz_allocateIdx_1;
   wire                _zz_allocateIdx_2;
   wire       [1:0]    allocateIdx;
-  reg        [31:0]   entriesNext_0_uop_decoded_pc;
-  reg                 entriesNext_0_uop_decoded_isValid;
-  reg        [4:0]    entriesNext_0_uop_decoded_uopCode;
-  reg        [3:0]    entriesNext_0_uop_decoded_exeUnit;
-  reg        [1:0]    entriesNext_0_uop_decoded_isa;
-  reg        [4:0]    entriesNext_0_uop_decoded_archDest_idx;
-  reg        [1:0]    entriesNext_0_uop_decoded_archDest_rtype;
-  reg                 entriesNext_0_uop_decoded_writeArchDestEn;
-  reg        [4:0]    entriesNext_0_uop_decoded_archSrc1_idx;
-  reg        [1:0]    entriesNext_0_uop_decoded_archSrc1_rtype;
-  reg                 entriesNext_0_uop_decoded_useArchSrc1;
-  reg        [4:0]    entriesNext_0_uop_decoded_archSrc2_idx;
-  reg        [1:0]    entriesNext_0_uop_decoded_archSrc2_rtype;
-  reg                 entriesNext_0_uop_decoded_useArchSrc2;
-  reg                 entriesNext_0_uop_decoded_usePcForAddr;
-  reg                 entriesNext_0_uop_decoded_src1IsPc;
-  reg        [31:0]   entriesNext_0_uop_decoded_imm;
-  reg        [2:0]    entriesNext_0_uop_decoded_immUsage;
-  reg                 entriesNext_0_uop_decoded_aluCtrl_valid;
-  reg                 entriesNext_0_uop_decoded_aluCtrl_isSub;
-  reg                 entriesNext_0_uop_decoded_aluCtrl_isAdd;
-  reg                 entriesNext_0_uop_decoded_aluCtrl_isSigned;
-  reg        [2:0]    entriesNext_0_uop_decoded_aluCtrl_logicOp;
-  reg        [4:0]    entriesNext_0_uop_decoded_aluCtrl_condition;
-  reg                 entriesNext_0_uop_decoded_shiftCtrl_valid;
-  reg                 entriesNext_0_uop_decoded_shiftCtrl_isRight;
-  reg                 entriesNext_0_uop_decoded_shiftCtrl_isArithmetic;
-  reg                 entriesNext_0_uop_decoded_shiftCtrl_isRotate;
-  reg                 entriesNext_0_uop_decoded_shiftCtrl_isDoubleWord;
-  reg                 entriesNext_0_uop_decoded_mulDivCtrl_valid;
-  reg                 entriesNext_0_uop_decoded_mulDivCtrl_isDiv;
-  reg                 entriesNext_0_uop_decoded_mulDivCtrl_isSigned;
-  reg                 entriesNext_0_uop_decoded_mulDivCtrl_isWordOp;
-  reg        [1:0]    entriesNext_0_uop_decoded_memCtrl_size;
-  reg                 entriesNext_0_uop_decoded_memCtrl_isSignedLoad;
-  reg                 entriesNext_0_uop_decoded_memCtrl_isStore;
-  reg                 entriesNext_0_uop_decoded_memCtrl_isLoadLinked;
-  reg                 entriesNext_0_uop_decoded_memCtrl_isStoreCond;
-  reg        [4:0]    entriesNext_0_uop_decoded_memCtrl_atomicOp;
-  reg                 entriesNext_0_uop_decoded_memCtrl_isFence;
-  reg        [7:0]    entriesNext_0_uop_decoded_memCtrl_fenceMode;
-  reg                 entriesNext_0_uop_decoded_memCtrl_isCacheOp;
-  reg        [4:0]    entriesNext_0_uop_decoded_memCtrl_cacheOpType;
-  reg                 entriesNext_0_uop_decoded_memCtrl_isPrefetch;
-  reg        [4:0]    entriesNext_0_uop_decoded_branchCtrl_condition;
-  reg                 entriesNext_0_uop_decoded_branchCtrl_isJump;
-  reg                 entriesNext_0_uop_decoded_branchCtrl_isLink;
-  reg        [4:0]    entriesNext_0_uop_decoded_branchCtrl_linkReg_idx;
-  reg        [1:0]    entriesNext_0_uop_decoded_branchCtrl_linkReg_rtype;
-  reg                 entriesNext_0_uop_decoded_branchCtrl_isIndirect;
-  reg        [2:0]    entriesNext_0_uop_decoded_branchCtrl_laCfIdx;
-  reg        [3:0]    entriesNext_0_uop_decoded_fpuCtrl_opType;
-  reg        [1:0]    entriesNext_0_uop_decoded_fpuCtrl_fpSizeSrc1;
-  reg        [1:0]    entriesNext_0_uop_decoded_fpuCtrl_fpSizeSrc2;
-  reg        [1:0]    entriesNext_0_uop_decoded_fpuCtrl_fpSizeDest;
-  reg        [2:0]    entriesNext_0_uop_decoded_fpuCtrl_roundingMode;
-  reg                 entriesNext_0_uop_decoded_fpuCtrl_isIntegerDest;
-  reg                 entriesNext_0_uop_decoded_fpuCtrl_isSignedCvt;
-  reg                 entriesNext_0_uop_decoded_fpuCtrl_fmaNegSrc1;
-  reg        [4:0]    entriesNext_0_uop_decoded_fpuCtrl_fcmpCond;
-  reg        [13:0]   entriesNext_0_uop_decoded_csrCtrl_csrAddr;
-  reg                 entriesNext_0_uop_decoded_csrCtrl_isWrite;
-  reg                 entriesNext_0_uop_decoded_csrCtrl_isRead;
-  reg                 entriesNext_0_uop_decoded_csrCtrl_isExchange;
-  reg                 entriesNext_0_uop_decoded_csrCtrl_useUimmAsSrc;
-  reg        [19:0]   entriesNext_0_uop_decoded_sysCtrl_sysCode;
-  reg                 entriesNext_0_uop_decoded_sysCtrl_isExceptionReturn;
-  reg                 entriesNext_0_uop_decoded_sysCtrl_isTlbOp;
-  reg        [3:0]    entriesNext_0_uop_decoded_sysCtrl_tlbOpType;
-  reg        [1:0]    entriesNext_0_uop_decoded_decodeExceptionCode;
-  reg                 entriesNext_0_uop_decoded_hasDecodeException;
-  reg                 entriesNext_0_uop_decoded_isMicrocode;
-  reg        [7:0]    entriesNext_0_uop_decoded_microcodeEntry;
-  reg                 entriesNext_0_uop_decoded_isSerializing;
-  reg                 entriesNext_0_uop_decoded_isBranchOrJump;
-  reg                 entriesNext_0_uop_decoded_branchPrediction_isTaken;
-  reg        [31:0]   entriesNext_0_uop_decoded_branchPrediction_target;
-  reg                 entriesNext_0_uop_decoded_branchPrediction_wasPredicted;
-  reg        [5:0]    entriesNext_0_uop_rename_physSrc1_idx;
-  reg                 entriesNext_0_uop_rename_physSrc1IsFpr;
-  reg        [5:0]    entriesNext_0_uop_rename_physSrc2_idx;
-  reg                 entriesNext_0_uop_rename_physSrc2IsFpr;
-  reg        [5:0]    entriesNext_0_uop_rename_physDest_idx;
-  reg                 entriesNext_0_uop_rename_physDestIsFpr;
-  reg        [5:0]    entriesNext_0_uop_rename_oldPhysDest_idx;
-  reg                 entriesNext_0_uop_rename_oldPhysDestIsFpr;
-  reg                 entriesNext_0_uop_rename_allocatesPhysDest;
-  reg                 entriesNext_0_uop_rename_writesToPhysReg;
-  reg        [3:0]    entriesNext_0_uop_robPtr;
-  reg        [15:0]   entriesNext_0_uop_uniqueId;
-  reg                 entriesNext_0_uop_dispatched;
-  reg                 entriesNext_0_uop_executed;
-  reg                 entriesNext_0_uop_hasException;
-  reg        [7:0]    entriesNext_0_uop_exceptionCode;
-  reg        [3:0]    entriesNext_0_robPtr;
-  reg        [5:0]    entriesNext_0_physDest_idx;
-  reg                 entriesNext_0_physDestIsFpr;
-  reg                 entriesNext_0_writesToPhysReg;
-  reg                 entriesNext_0_useSrc1;
-  reg        [31:0]   entriesNext_0_src1Data;
-  reg        [5:0]    entriesNext_0_src1Tag;
-  reg                 entriesNext_0_src1Ready;
-  reg                 entriesNext_0_src1IsFpr;
-  reg                 entriesNext_0_useSrc2;
-  reg        [31:0]   entriesNext_0_src2Data;
-  reg        [5:0]    entriesNext_0_src2Tag;
-  reg                 entriesNext_0_src2Ready;
-  reg                 entriesNext_0_src2IsFpr;
-  reg                 entriesNext_0_mulDivCtrl_valid;
-  reg                 entriesNext_0_mulDivCtrl_isDiv;
-  reg                 entriesNext_0_mulDivCtrl_isSigned;
-  reg                 entriesNext_0_mulDivCtrl_isWordOp;
-  reg        [31:0]   entriesNext_1_uop_decoded_pc;
-  reg                 entriesNext_1_uop_decoded_isValid;
-  reg        [4:0]    entriesNext_1_uop_decoded_uopCode;
-  reg        [3:0]    entriesNext_1_uop_decoded_exeUnit;
-  reg        [1:0]    entriesNext_1_uop_decoded_isa;
-  reg        [4:0]    entriesNext_1_uop_decoded_archDest_idx;
-  reg        [1:0]    entriesNext_1_uop_decoded_archDest_rtype;
-  reg                 entriesNext_1_uop_decoded_writeArchDestEn;
-  reg        [4:0]    entriesNext_1_uop_decoded_archSrc1_idx;
-  reg        [1:0]    entriesNext_1_uop_decoded_archSrc1_rtype;
-  reg                 entriesNext_1_uop_decoded_useArchSrc1;
-  reg        [4:0]    entriesNext_1_uop_decoded_archSrc2_idx;
-  reg        [1:0]    entriesNext_1_uop_decoded_archSrc2_rtype;
-  reg                 entriesNext_1_uop_decoded_useArchSrc2;
-  reg                 entriesNext_1_uop_decoded_usePcForAddr;
-  reg                 entriesNext_1_uop_decoded_src1IsPc;
-  reg        [31:0]   entriesNext_1_uop_decoded_imm;
-  reg        [2:0]    entriesNext_1_uop_decoded_immUsage;
-  reg                 entriesNext_1_uop_decoded_aluCtrl_valid;
-  reg                 entriesNext_1_uop_decoded_aluCtrl_isSub;
-  reg                 entriesNext_1_uop_decoded_aluCtrl_isAdd;
-  reg                 entriesNext_1_uop_decoded_aluCtrl_isSigned;
-  reg        [2:0]    entriesNext_1_uop_decoded_aluCtrl_logicOp;
-  reg        [4:0]    entriesNext_1_uop_decoded_aluCtrl_condition;
-  reg                 entriesNext_1_uop_decoded_shiftCtrl_valid;
-  reg                 entriesNext_1_uop_decoded_shiftCtrl_isRight;
-  reg                 entriesNext_1_uop_decoded_shiftCtrl_isArithmetic;
-  reg                 entriesNext_1_uop_decoded_shiftCtrl_isRotate;
-  reg                 entriesNext_1_uop_decoded_shiftCtrl_isDoubleWord;
-  reg                 entriesNext_1_uop_decoded_mulDivCtrl_valid;
-  reg                 entriesNext_1_uop_decoded_mulDivCtrl_isDiv;
-  reg                 entriesNext_1_uop_decoded_mulDivCtrl_isSigned;
-  reg                 entriesNext_1_uop_decoded_mulDivCtrl_isWordOp;
-  reg        [1:0]    entriesNext_1_uop_decoded_memCtrl_size;
-  reg                 entriesNext_1_uop_decoded_memCtrl_isSignedLoad;
-  reg                 entriesNext_1_uop_decoded_memCtrl_isStore;
-  reg                 entriesNext_1_uop_decoded_memCtrl_isLoadLinked;
-  reg                 entriesNext_1_uop_decoded_memCtrl_isStoreCond;
-  reg        [4:0]    entriesNext_1_uop_decoded_memCtrl_atomicOp;
-  reg                 entriesNext_1_uop_decoded_memCtrl_isFence;
-  reg        [7:0]    entriesNext_1_uop_decoded_memCtrl_fenceMode;
-  reg                 entriesNext_1_uop_decoded_memCtrl_isCacheOp;
-  reg        [4:0]    entriesNext_1_uop_decoded_memCtrl_cacheOpType;
-  reg                 entriesNext_1_uop_decoded_memCtrl_isPrefetch;
-  reg        [4:0]    entriesNext_1_uop_decoded_branchCtrl_condition;
-  reg                 entriesNext_1_uop_decoded_branchCtrl_isJump;
-  reg                 entriesNext_1_uop_decoded_branchCtrl_isLink;
-  reg        [4:0]    entriesNext_1_uop_decoded_branchCtrl_linkReg_idx;
-  reg        [1:0]    entriesNext_1_uop_decoded_branchCtrl_linkReg_rtype;
-  reg                 entriesNext_1_uop_decoded_branchCtrl_isIndirect;
-  reg        [2:0]    entriesNext_1_uop_decoded_branchCtrl_laCfIdx;
-  reg        [3:0]    entriesNext_1_uop_decoded_fpuCtrl_opType;
-  reg        [1:0]    entriesNext_1_uop_decoded_fpuCtrl_fpSizeSrc1;
-  reg        [1:0]    entriesNext_1_uop_decoded_fpuCtrl_fpSizeSrc2;
-  reg        [1:0]    entriesNext_1_uop_decoded_fpuCtrl_fpSizeDest;
-  reg        [2:0]    entriesNext_1_uop_decoded_fpuCtrl_roundingMode;
-  reg                 entriesNext_1_uop_decoded_fpuCtrl_isIntegerDest;
-  reg                 entriesNext_1_uop_decoded_fpuCtrl_isSignedCvt;
-  reg                 entriesNext_1_uop_decoded_fpuCtrl_fmaNegSrc1;
-  reg        [4:0]    entriesNext_1_uop_decoded_fpuCtrl_fcmpCond;
-  reg        [13:0]   entriesNext_1_uop_decoded_csrCtrl_csrAddr;
-  reg                 entriesNext_1_uop_decoded_csrCtrl_isWrite;
-  reg                 entriesNext_1_uop_decoded_csrCtrl_isRead;
-  reg                 entriesNext_1_uop_decoded_csrCtrl_isExchange;
-  reg                 entriesNext_1_uop_decoded_csrCtrl_useUimmAsSrc;
-  reg        [19:0]   entriesNext_1_uop_decoded_sysCtrl_sysCode;
-  reg                 entriesNext_1_uop_decoded_sysCtrl_isExceptionReturn;
-  reg                 entriesNext_1_uop_decoded_sysCtrl_isTlbOp;
-  reg        [3:0]    entriesNext_1_uop_decoded_sysCtrl_tlbOpType;
-  reg        [1:0]    entriesNext_1_uop_decoded_decodeExceptionCode;
-  reg                 entriesNext_1_uop_decoded_hasDecodeException;
-  reg                 entriesNext_1_uop_decoded_isMicrocode;
-  reg        [7:0]    entriesNext_1_uop_decoded_microcodeEntry;
-  reg                 entriesNext_1_uop_decoded_isSerializing;
-  reg                 entriesNext_1_uop_decoded_isBranchOrJump;
-  reg                 entriesNext_1_uop_decoded_branchPrediction_isTaken;
-  reg        [31:0]   entriesNext_1_uop_decoded_branchPrediction_target;
-  reg                 entriesNext_1_uop_decoded_branchPrediction_wasPredicted;
-  reg        [5:0]    entriesNext_1_uop_rename_physSrc1_idx;
-  reg                 entriesNext_1_uop_rename_physSrc1IsFpr;
-  reg        [5:0]    entriesNext_1_uop_rename_physSrc2_idx;
-  reg                 entriesNext_1_uop_rename_physSrc2IsFpr;
-  reg        [5:0]    entriesNext_1_uop_rename_physDest_idx;
-  reg                 entriesNext_1_uop_rename_physDestIsFpr;
-  reg        [5:0]    entriesNext_1_uop_rename_oldPhysDest_idx;
-  reg                 entriesNext_1_uop_rename_oldPhysDestIsFpr;
-  reg                 entriesNext_1_uop_rename_allocatesPhysDest;
-  reg                 entriesNext_1_uop_rename_writesToPhysReg;
-  reg        [3:0]    entriesNext_1_uop_robPtr;
-  reg        [15:0]   entriesNext_1_uop_uniqueId;
-  reg                 entriesNext_1_uop_dispatched;
-  reg                 entriesNext_1_uop_executed;
-  reg                 entriesNext_1_uop_hasException;
-  reg        [7:0]    entriesNext_1_uop_exceptionCode;
-  reg        [3:0]    entriesNext_1_robPtr;
-  reg        [5:0]    entriesNext_1_physDest_idx;
-  reg                 entriesNext_1_physDestIsFpr;
-  reg                 entriesNext_1_writesToPhysReg;
-  reg                 entriesNext_1_useSrc1;
-  reg        [31:0]   entriesNext_1_src1Data;
-  reg        [5:0]    entriesNext_1_src1Tag;
-  reg                 entriesNext_1_src1Ready;
-  reg                 entriesNext_1_src1IsFpr;
-  reg                 entriesNext_1_useSrc2;
-  reg        [31:0]   entriesNext_1_src2Data;
-  reg        [5:0]    entriesNext_1_src2Tag;
-  reg                 entriesNext_1_src2Ready;
-  reg                 entriesNext_1_src2IsFpr;
-  reg                 entriesNext_1_mulDivCtrl_valid;
-  reg                 entriesNext_1_mulDivCtrl_isDiv;
-  reg                 entriesNext_1_mulDivCtrl_isSigned;
-  reg                 entriesNext_1_mulDivCtrl_isWordOp;
-  reg        [31:0]   entriesNext_2_uop_decoded_pc;
-  reg                 entriesNext_2_uop_decoded_isValid;
-  reg        [4:0]    entriesNext_2_uop_decoded_uopCode;
-  reg        [3:0]    entriesNext_2_uop_decoded_exeUnit;
-  reg        [1:0]    entriesNext_2_uop_decoded_isa;
-  reg        [4:0]    entriesNext_2_uop_decoded_archDest_idx;
-  reg        [1:0]    entriesNext_2_uop_decoded_archDest_rtype;
-  reg                 entriesNext_2_uop_decoded_writeArchDestEn;
-  reg        [4:0]    entriesNext_2_uop_decoded_archSrc1_idx;
-  reg        [1:0]    entriesNext_2_uop_decoded_archSrc1_rtype;
-  reg                 entriesNext_2_uop_decoded_useArchSrc1;
-  reg        [4:0]    entriesNext_2_uop_decoded_archSrc2_idx;
-  reg        [1:0]    entriesNext_2_uop_decoded_archSrc2_rtype;
-  reg                 entriesNext_2_uop_decoded_useArchSrc2;
-  reg                 entriesNext_2_uop_decoded_usePcForAddr;
-  reg                 entriesNext_2_uop_decoded_src1IsPc;
-  reg        [31:0]   entriesNext_2_uop_decoded_imm;
-  reg        [2:0]    entriesNext_2_uop_decoded_immUsage;
-  reg                 entriesNext_2_uop_decoded_aluCtrl_valid;
-  reg                 entriesNext_2_uop_decoded_aluCtrl_isSub;
-  reg                 entriesNext_2_uop_decoded_aluCtrl_isAdd;
-  reg                 entriesNext_2_uop_decoded_aluCtrl_isSigned;
-  reg        [2:0]    entriesNext_2_uop_decoded_aluCtrl_logicOp;
-  reg        [4:0]    entriesNext_2_uop_decoded_aluCtrl_condition;
-  reg                 entriesNext_2_uop_decoded_shiftCtrl_valid;
-  reg                 entriesNext_2_uop_decoded_shiftCtrl_isRight;
-  reg                 entriesNext_2_uop_decoded_shiftCtrl_isArithmetic;
-  reg                 entriesNext_2_uop_decoded_shiftCtrl_isRotate;
-  reg                 entriesNext_2_uop_decoded_shiftCtrl_isDoubleWord;
-  reg                 entriesNext_2_uop_decoded_mulDivCtrl_valid;
-  reg                 entriesNext_2_uop_decoded_mulDivCtrl_isDiv;
-  reg                 entriesNext_2_uop_decoded_mulDivCtrl_isSigned;
-  reg                 entriesNext_2_uop_decoded_mulDivCtrl_isWordOp;
-  reg        [1:0]    entriesNext_2_uop_decoded_memCtrl_size;
-  reg                 entriesNext_2_uop_decoded_memCtrl_isSignedLoad;
-  reg                 entriesNext_2_uop_decoded_memCtrl_isStore;
-  reg                 entriesNext_2_uop_decoded_memCtrl_isLoadLinked;
-  reg                 entriesNext_2_uop_decoded_memCtrl_isStoreCond;
-  reg        [4:0]    entriesNext_2_uop_decoded_memCtrl_atomicOp;
-  reg                 entriesNext_2_uop_decoded_memCtrl_isFence;
-  reg        [7:0]    entriesNext_2_uop_decoded_memCtrl_fenceMode;
-  reg                 entriesNext_2_uop_decoded_memCtrl_isCacheOp;
-  reg        [4:0]    entriesNext_2_uop_decoded_memCtrl_cacheOpType;
-  reg                 entriesNext_2_uop_decoded_memCtrl_isPrefetch;
-  reg        [4:0]    entriesNext_2_uop_decoded_branchCtrl_condition;
-  reg                 entriesNext_2_uop_decoded_branchCtrl_isJump;
-  reg                 entriesNext_2_uop_decoded_branchCtrl_isLink;
-  reg        [4:0]    entriesNext_2_uop_decoded_branchCtrl_linkReg_idx;
-  reg        [1:0]    entriesNext_2_uop_decoded_branchCtrl_linkReg_rtype;
-  reg                 entriesNext_2_uop_decoded_branchCtrl_isIndirect;
-  reg        [2:0]    entriesNext_2_uop_decoded_branchCtrl_laCfIdx;
-  reg        [3:0]    entriesNext_2_uop_decoded_fpuCtrl_opType;
-  reg        [1:0]    entriesNext_2_uop_decoded_fpuCtrl_fpSizeSrc1;
-  reg        [1:0]    entriesNext_2_uop_decoded_fpuCtrl_fpSizeSrc2;
-  reg        [1:0]    entriesNext_2_uop_decoded_fpuCtrl_fpSizeDest;
-  reg        [2:0]    entriesNext_2_uop_decoded_fpuCtrl_roundingMode;
-  reg                 entriesNext_2_uop_decoded_fpuCtrl_isIntegerDest;
-  reg                 entriesNext_2_uop_decoded_fpuCtrl_isSignedCvt;
-  reg                 entriesNext_2_uop_decoded_fpuCtrl_fmaNegSrc1;
-  reg        [4:0]    entriesNext_2_uop_decoded_fpuCtrl_fcmpCond;
-  reg        [13:0]   entriesNext_2_uop_decoded_csrCtrl_csrAddr;
-  reg                 entriesNext_2_uop_decoded_csrCtrl_isWrite;
-  reg                 entriesNext_2_uop_decoded_csrCtrl_isRead;
-  reg                 entriesNext_2_uop_decoded_csrCtrl_isExchange;
-  reg                 entriesNext_2_uop_decoded_csrCtrl_useUimmAsSrc;
-  reg        [19:0]   entriesNext_2_uop_decoded_sysCtrl_sysCode;
-  reg                 entriesNext_2_uop_decoded_sysCtrl_isExceptionReturn;
-  reg                 entriesNext_2_uop_decoded_sysCtrl_isTlbOp;
-  reg        [3:0]    entriesNext_2_uop_decoded_sysCtrl_tlbOpType;
-  reg        [1:0]    entriesNext_2_uop_decoded_decodeExceptionCode;
-  reg                 entriesNext_2_uop_decoded_hasDecodeException;
-  reg                 entriesNext_2_uop_decoded_isMicrocode;
-  reg        [7:0]    entriesNext_2_uop_decoded_microcodeEntry;
-  reg                 entriesNext_2_uop_decoded_isSerializing;
-  reg                 entriesNext_2_uop_decoded_isBranchOrJump;
-  reg                 entriesNext_2_uop_decoded_branchPrediction_isTaken;
-  reg        [31:0]   entriesNext_2_uop_decoded_branchPrediction_target;
-  reg                 entriesNext_2_uop_decoded_branchPrediction_wasPredicted;
-  reg        [5:0]    entriesNext_2_uop_rename_physSrc1_idx;
-  reg                 entriesNext_2_uop_rename_physSrc1IsFpr;
-  reg        [5:0]    entriesNext_2_uop_rename_physSrc2_idx;
-  reg                 entriesNext_2_uop_rename_physSrc2IsFpr;
-  reg        [5:0]    entriesNext_2_uop_rename_physDest_idx;
-  reg                 entriesNext_2_uop_rename_physDestIsFpr;
-  reg        [5:0]    entriesNext_2_uop_rename_oldPhysDest_idx;
-  reg                 entriesNext_2_uop_rename_oldPhysDestIsFpr;
-  reg                 entriesNext_2_uop_rename_allocatesPhysDest;
-  reg                 entriesNext_2_uop_rename_writesToPhysReg;
-  reg        [3:0]    entriesNext_2_uop_robPtr;
-  reg        [15:0]   entriesNext_2_uop_uniqueId;
-  reg                 entriesNext_2_uop_dispatched;
-  reg                 entriesNext_2_uop_executed;
-  reg                 entriesNext_2_uop_hasException;
-  reg        [7:0]    entriesNext_2_uop_exceptionCode;
-  reg        [3:0]    entriesNext_2_robPtr;
-  reg        [5:0]    entriesNext_2_physDest_idx;
-  reg                 entriesNext_2_physDestIsFpr;
-  reg                 entriesNext_2_writesToPhysReg;
-  reg                 entriesNext_2_useSrc1;
-  reg        [31:0]   entriesNext_2_src1Data;
-  reg        [5:0]    entriesNext_2_src1Tag;
-  reg                 entriesNext_2_src1Ready;
-  reg                 entriesNext_2_src1IsFpr;
-  reg                 entriesNext_2_useSrc2;
-  reg        [31:0]   entriesNext_2_src2Data;
-  reg        [5:0]    entriesNext_2_src2Tag;
-  reg                 entriesNext_2_src2Ready;
-  reg                 entriesNext_2_src2IsFpr;
-  reg                 entriesNext_2_mulDivCtrl_valid;
-  reg                 entriesNext_2_mulDivCtrl_isDiv;
-  reg                 entriesNext_2_mulDivCtrl_isSigned;
-  reg                 entriesNext_2_mulDivCtrl_isWordOp;
-  reg        [31:0]   entriesNext_3_uop_decoded_pc;
-  reg                 entriesNext_3_uop_decoded_isValid;
-  reg        [4:0]    entriesNext_3_uop_decoded_uopCode;
-  reg        [3:0]    entriesNext_3_uop_decoded_exeUnit;
-  reg        [1:0]    entriesNext_3_uop_decoded_isa;
-  reg        [4:0]    entriesNext_3_uop_decoded_archDest_idx;
-  reg        [1:0]    entriesNext_3_uop_decoded_archDest_rtype;
-  reg                 entriesNext_3_uop_decoded_writeArchDestEn;
-  reg        [4:0]    entriesNext_3_uop_decoded_archSrc1_idx;
-  reg        [1:0]    entriesNext_3_uop_decoded_archSrc1_rtype;
-  reg                 entriesNext_3_uop_decoded_useArchSrc1;
-  reg        [4:0]    entriesNext_3_uop_decoded_archSrc2_idx;
-  reg        [1:0]    entriesNext_3_uop_decoded_archSrc2_rtype;
-  reg                 entriesNext_3_uop_decoded_useArchSrc2;
-  reg                 entriesNext_3_uop_decoded_usePcForAddr;
-  reg                 entriesNext_3_uop_decoded_src1IsPc;
-  reg        [31:0]   entriesNext_3_uop_decoded_imm;
-  reg        [2:0]    entriesNext_3_uop_decoded_immUsage;
-  reg                 entriesNext_3_uop_decoded_aluCtrl_valid;
-  reg                 entriesNext_3_uop_decoded_aluCtrl_isSub;
-  reg                 entriesNext_3_uop_decoded_aluCtrl_isAdd;
-  reg                 entriesNext_3_uop_decoded_aluCtrl_isSigned;
-  reg        [2:0]    entriesNext_3_uop_decoded_aluCtrl_logicOp;
-  reg        [4:0]    entriesNext_3_uop_decoded_aluCtrl_condition;
-  reg                 entriesNext_3_uop_decoded_shiftCtrl_valid;
-  reg                 entriesNext_3_uop_decoded_shiftCtrl_isRight;
-  reg                 entriesNext_3_uop_decoded_shiftCtrl_isArithmetic;
-  reg                 entriesNext_3_uop_decoded_shiftCtrl_isRotate;
-  reg                 entriesNext_3_uop_decoded_shiftCtrl_isDoubleWord;
-  reg                 entriesNext_3_uop_decoded_mulDivCtrl_valid;
-  reg                 entriesNext_3_uop_decoded_mulDivCtrl_isDiv;
-  reg                 entriesNext_3_uop_decoded_mulDivCtrl_isSigned;
-  reg                 entriesNext_3_uop_decoded_mulDivCtrl_isWordOp;
-  reg        [1:0]    entriesNext_3_uop_decoded_memCtrl_size;
-  reg                 entriesNext_3_uop_decoded_memCtrl_isSignedLoad;
-  reg                 entriesNext_3_uop_decoded_memCtrl_isStore;
-  reg                 entriesNext_3_uop_decoded_memCtrl_isLoadLinked;
-  reg                 entriesNext_3_uop_decoded_memCtrl_isStoreCond;
-  reg        [4:0]    entriesNext_3_uop_decoded_memCtrl_atomicOp;
-  reg                 entriesNext_3_uop_decoded_memCtrl_isFence;
-  reg        [7:0]    entriesNext_3_uop_decoded_memCtrl_fenceMode;
-  reg                 entriesNext_3_uop_decoded_memCtrl_isCacheOp;
-  reg        [4:0]    entriesNext_3_uop_decoded_memCtrl_cacheOpType;
-  reg                 entriesNext_3_uop_decoded_memCtrl_isPrefetch;
-  reg        [4:0]    entriesNext_3_uop_decoded_branchCtrl_condition;
-  reg                 entriesNext_3_uop_decoded_branchCtrl_isJump;
-  reg                 entriesNext_3_uop_decoded_branchCtrl_isLink;
-  reg        [4:0]    entriesNext_3_uop_decoded_branchCtrl_linkReg_idx;
-  reg        [1:0]    entriesNext_3_uop_decoded_branchCtrl_linkReg_rtype;
-  reg                 entriesNext_3_uop_decoded_branchCtrl_isIndirect;
-  reg        [2:0]    entriesNext_3_uop_decoded_branchCtrl_laCfIdx;
-  reg        [3:0]    entriesNext_3_uop_decoded_fpuCtrl_opType;
-  reg        [1:0]    entriesNext_3_uop_decoded_fpuCtrl_fpSizeSrc1;
-  reg        [1:0]    entriesNext_3_uop_decoded_fpuCtrl_fpSizeSrc2;
-  reg        [1:0]    entriesNext_3_uop_decoded_fpuCtrl_fpSizeDest;
-  reg        [2:0]    entriesNext_3_uop_decoded_fpuCtrl_roundingMode;
-  reg                 entriesNext_3_uop_decoded_fpuCtrl_isIntegerDest;
-  reg                 entriesNext_3_uop_decoded_fpuCtrl_isSignedCvt;
-  reg                 entriesNext_3_uop_decoded_fpuCtrl_fmaNegSrc1;
-  reg        [4:0]    entriesNext_3_uop_decoded_fpuCtrl_fcmpCond;
-  reg        [13:0]   entriesNext_3_uop_decoded_csrCtrl_csrAddr;
-  reg                 entriesNext_3_uop_decoded_csrCtrl_isWrite;
-  reg                 entriesNext_3_uop_decoded_csrCtrl_isRead;
-  reg                 entriesNext_3_uop_decoded_csrCtrl_isExchange;
-  reg                 entriesNext_3_uop_decoded_csrCtrl_useUimmAsSrc;
-  reg        [19:0]   entriesNext_3_uop_decoded_sysCtrl_sysCode;
-  reg                 entriesNext_3_uop_decoded_sysCtrl_isExceptionReturn;
-  reg                 entriesNext_3_uop_decoded_sysCtrl_isTlbOp;
-  reg        [3:0]    entriesNext_3_uop_decoded_sysCtrl_tlbOpType;
-  reg        [1:0]    entriesNext_3_uop_decoded_decodeExceptionCode;
-  reg                 entriesNext_3_uop_decoded_hasDecodeException;
-  reg                 entriesNext_3_uop_decoded_isMicrocode;
-  reg        [7:0]    entriesNext_3_uop_decoded_microcodeEntry;
-  reg                 entriesNext_3_uop_decoded_isSerializing;
-  reg                 entriesNext_3_uop_decoded_isBranchOrJump;
-  reg                 entriesNext_3_uop_decoded_branchPrediction_isTaken;
-  reg        [31:0]   entriesNext_3_uop_decoded_branchPrediction_target;
-  reg                 entriesNext_3_uop_decoded_branchPrediction_wasPredicted;
-  reg        [5:0]    entriesNext_3_uop_rename_physSrc1_idx;
-  reg                 entriesNext_3_uop_rename_physSrc1IsFpr;
-  reg        [5:0]    entriesNext_3_uop_rename_physSrc2_idx;
-  reg                 entriesNext_3_uop_rename_physSrc2IsFpr;
-  reg        [5:0]    entriesNext_3_uop_rename_physDest_idx;
-  reg                 entriesNext_3_uop_rename_physDestIsFpr;
-  reg        [5:0]    entriesNext_3_uop_rename_oldPhysDest_idx;
-  reg                 entriesNext_3_uop_rename_oldPhysDestIsFpr;
-  reg                 entriesNext_3_uop_rename_allocatesPhysDest;
-  reg                 entriesNext_3_uop_rename_writesToPhysReg;
-  reg        [3:0]    entriesNext_3_uop_robPtr;
-  reg        [15:0]   entriesNext_3_uop_uniqueId;
-  reg                 entriesNext_3_uop_dispatched;
-  reg                 entriesNext_3_uop_executed;
-  reg                 entriesNext_3_uop_hasException;
-  reg        [7:0]    entriesNext_3_uop_exceptionCode;
-  reg        [3:0]    entriesNext_3_robPtr;
-  reg        [5:0]    entriesNext_3_physDest_idx;
-  reg                 entriesNext_3_physDestIsFpr;
-  reg                 entriesNext_3_writesToPhysReg;
-  reg                 entriesNext_3_useSrc1;
-  reg        [31:0]   entriesNext_3_src1Data;
-  reg        [5:0]    entriesNext_3_src1Tag;
-  reg                 entriesNext_3_src1Ready;
-  reg                 entriesNext_3_src1IsFpr;
-  reg                 entriesNext_3_useSrc2;
-  reg        [31:0]   entriesNext_3_src2Data;
-  reg        [5:0]    entriesNext_3_src2Tag;
-  reg                 entriesNext_3_src2Ready;
-  reg                 entriesNext_3_src2IsFpr;
-  reg                 entriesNext_3_mulDivCtrl_valid;
-  reg                 entriesNext_3_mulDivCtrl_isDiv;
-  reg                 entriesNext_3_mulDivCtrl_isSigned;
-  reg                 entriesNext_3_mulDivCtrl_isWordOp;
-  reg                 entryValidsNext_0;
-  reg                 entryValidsNext_1;
-  reg                 entryValidsNext_2;
-  reg                 entryValidsNext_3;
-  wire                when_IssueQueueComponent_l192;
-  wire                when_IssueQueueComponent_l193;
-  wire                when_IssueQueueComponent_l192_1;
-  wire                when_IssueQueueComponent_l193_1;
-  wire                when_IssueQueueComponent_l192_2;
-  wire                when_IssueQueueComponent_l193_2;
-  wire                when_IssueQueueComponent_l192_3;
-  wire                when_IssueQueueComponent_l193_3;
-  wire       [3:0]    _zz_1;
   wire                io_allocateIn_fire;
-  wire       [3:0]    _zz_2;
-  wire                _zz_3;
-  wire                _zz_4;
-  wire                _zz_5;
-  wire                _zz_6;
-  wire                _zz_entriesNext_0_src1Ready;
-  wire                _zz_entriesNext_0_src2Ready;
-  wire       [3:0]    _zz_7;
-  wire                when_IssueQueueComponent_l217;
-  wire                when_IssueQueueComponent_l218;
-  wire                when_IssueQueueComponent_l221;
-  wire                when_IssueQueueComponent_l217_1;
-  wire                when_IssueQueueComponent_l218_1;
-  wire                when_IssueQueueComponent_l221_1;
-  wire                when_IssueQueueComponent_l217_2;
-  wire                when_IssueQueueComponent_l218_2;
-  wire                when_IssueQueueComponent_l221_2;
-  wire                when_IssueQueueComponent_l217_3;
-  wire                when_IssueQueueComponent_l218_3;
-  wire                when_IssueQueueComponent_l221_3;
-  wire                when_IssueQueueComponent_l217_4;
-  wire                when_IssueQueueComponent_l218_4;
-  wire                when_IssueQueueComponent_l221_4;
+  wire                when_IssueQueueComponent_l191;
+  wire                when_IssueQueueComponent_l206;
+  wire                when_IssueQueueComponent_l214;
+  wire                when_IssueQueueComponent_l215;
+  wire                when_IssueQueueComponent_l191_1;
+  wire                when_IssueQueueComponent_l206_1;
+  wire                when_IssueQueueComponent_l214_1;
+  wire                when_IssueQueueComponent_l215_1;
+  wire                when_IssueQueueComponent_l191_2;
+  wire                when_IssueQueueComponent_l206_2;
+  wire                when_IssueQueueComponent_l214_2;
+  wire                when_IssueQueueComponent_l215_2;
+  wire                when_IssueQueueComponent_l191_3;
+  wire                when_IssueQueueComponent_l206_3;
+  wire                when_IssueQueueComponent_l214_3;
+  wire                when_IssueQueueComponent_l215_3;
   wire       [2:0]    _zz_currentValidCount;
   wire       [2:0]    _zz_currentValidCount_1;
   wire       [2:0]    _zz_currentValidCount_2;
@@ -42536,7 +39034,7 @@ module IssueQueueComponent_1 (
   wire       [2:0]    _zz_currentValidCount_7;
   wire       [2:0]    currentValidCount;
   wire                logCondition;
-  wire                when_IssueQueueComponent_l262;
+  wire                when_IssueQueueComponent_l244;
   `ifndef SYNTHESIS
   reg [87:0] io_allocateIn_payload_uop_decoded_uopCode_string;
   reg [151:0] io_allocateIn_payload_uop_decoded_exeUnit_string;
@@ -42650,70 +39148,6 @@ module IssueQueueComponent_1 (
   reg [7:0] _zz_io_issueOut_payload_uop_decoded_fpuCtrl_fpSizeSrc2_string;
   reg [7:0] _zz_io_issueOut_payload_uop_decoded_fpuCtrl_fpSizeDest_string;
   reg [95:0] _zz_io_issueOut_payload_uop_decoded_decodeExceptionCode_string;
-  reg [87:0] entriesNext_0_uop_decoded_uopCode_string;
-  reg [151:0] entriesNext_0_uop_decoded_exeUnit_string;
-  reg [71:0] entriesNext_0_uop_decoded_isa_string;
-  reg [39:0] entriesNext_0_uop_decoded_archDest_rtype_string;
-  reg [39:0] entriesNext_0_uop_decoded_archSrc1_rtype_string;
-  reg [39:0] entriesNext_0_uop_decoded_archSrc2_rtype_string;
-  reg [103:0] entriesNext_0_uop_decoded_immUsage_string;
-  reg [47:0] entriesNext_0_uop_decoded_aluCtrl_logicOp_string;
-  reg [87:0] entriesNext_0_uop_decoded_aluCtrl_condition_string;
-  reg [7:0] entriesNext_0_uop_decoded_memCtrl_size_string;
-  reg [87:0] entriesNext_0_uop_decoded_branchCtrl_condition_string;
-  reg [39:0] entriesNext_0_uop_decoded_branchCtrl_linkReg_rtype_string;
-  reg [7:0] entriesNext_0_uop_decoded_fpuCtrl_fpSizeSrc1_string;
-  reg [7:0] entriesNext_0_uop_decoded_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] entriesNext_0_uop_decoded_fpuCtrl_fpSizeDest_string;
-  reg [95:0] entriesNext_0_uop_decoded_decodeExceptionCode_string;
-  reg [87:0] entriesNext_1_uop_decoded_uopCode_string;
-  reg [151:0] entriesNext_1_uop_decoded_exeUnit_string;
-  reg [71:0] entriesNext_1_uop_decoded_isa_string;
-  reg [39:0] entriesNext_1_uop_decoded_archDest_rtype_string;
-  reg [39:0] entriesNext_1_uop_decoded_archSrc1_rtype_string;
-  reg [39:0] entriesNext_1_uop_decoded_archSrc2_rtype_string;
-  reg [103:0] entriesNext_1_uop_decoded_immUsage_string;
-  reg [47:0] entriesNext_1_uop_decoded_aluCtrl_logicOp_string;
-  reg [87:0] entriesNext_1_uop_decoded_aluCtrl_condition_string;
-  reg [7:0] entriesNext_1_uop_decoded_memCtrl_size_string;
-  reg [87:0] entriesNext_1_uop_decoded_branchCtrl_condition_string;
-  reg [39:0] entriesNext_1_uop_decoded_branchCtrl_linkReg_rtype_string;
-  reg [7:0] entriesNext_1_uop_decoded_fpuCtrl_fpSizeSrc1_string;
-  reg [7:0] entriesNext_1_uop_decoded_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] entriesNext_1_uop_decoded_fpuCtrl_fpSizeDest_string;
-  reg [95:0] entriesNext_1_uop_decoded_decodeExceptionCode_string;
-  reg [87:0] entriesNext_2_uop_decoded_uopCode_string;
-  reg [151:0] entriesNext_2_uop_decoded_exeUnit_string;
-  reg [71:0] entriesNext_2_uop_decoded_isa_string;
-  reg [39:0] entriesNext_2_uop_decoded_archDest_rtype_string;
-  reg [39:0] entriesNext_2_uop_decoded_archSrc1_rtype_string;
-  reg [39:0] entriesNext_2_uop_decoded_archSrc2_rtype_string;
-  reg [103:0] entriesNext_2_uop_decoded_immUsage_string;
-  reg [47:0] entriesNext_2_uop_decoded_aluCtrl_logicOp_string;
-  reg [87:0] entriesNext_2_uop_decoded_aluCtrl_condition_string;
-  reg [7:0] entriesNext_2_uop_decoded_memCtrl_size_string;
-  reg [87:0] entriesNext_2_uop_decoded_branchCtrl_condition_string;
-  reg [39:0] entriesNext_2_uop_decoded_branchCtrl_linkReg_rtype_string;
-  reg [7:0] entriesNext_2_uop_decoded_fpuCtrl_fpSizeSrc1_string;
-  reg [7:0] entriesNext_2_uop_decoded_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] entriesNext_2_uop_decoded_fpuCtrl_fpSizeDest_string;
-  reg [95:0] entriesNext_2_uop_decoded_decodeExceptionCode_string;
-  reg [87:0] entriesNext_3_uop_decoded_uopCode_string;
-  reg [151:0] entriesNext_3_uop_decoded_exeUnit_string;
-  reg [71:0] entriesNext_3_uop_decoded_isa_string;
-  reg [39:0] entriesNext_3_uop_decoded_archDest_rtype_string;
-  reg [39:0] entriesNext_3_uop_decoded_archSrc1_rtype_string;
-  reg [39:0] entriesNext_3_uop_decoded_archSrc2_rtype_string;
-  reg [103:0] entriesNext_3_uop_decoded_immUsage_string;
-  reg [47:0] entriesNext_3_uop_decoded_aluCtrl_logicOp_string;
-  reg [87:0] entriesNext_3_uop_decoded_aluCtrl_condition_string;
-  reg [7:0] entriesNext_3_uop_decoded_memCtrl_size_string;
-  reg [87:0] entriesNext_3_uop_decoded_branchCtrl_condition_string;
-  reg [39:0] entriesNext_3_uop_decoded_branchCtrl_linkReg_rtype_string;
-  reg [7:0] entriesNext_3_uop_decoded_fpuCtrl_fpSizeSrc1_string;
-  reg [7:0] entriesNext_3_uop_decoded_fpuCtrl_fpSizeSrc2_string;
-  reg [7:0] entriesNext_3_uop_decoded_fpuCtrl_fpSizeDest_string;
-  reg [95:0] entriesNext_3_uop_decoded_decodeExceptionCode_string;
   `endif
 
 
@@ -42727,6 +39161,8 @@ module IssueQueueComponent_1 (
   assign _zz_currentValidCount_12 = entryValids_3;
   assign _zz_currentValidCount_11 = {2'd0, _zz_currentValidCount_12};
   assign _zz_currentValidCount_9 = {entryValids_2,{entryValids_1,entryValids_0}};
+  assign _zz_entries_0_src1Ready = (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_1_payload_physRegIdx);
+  assign _zz_entries_0_src1Ready_1 = (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_0_payload_physRegIdx);
   always @(*) begin
     case(issueIdx)
       2'b00 : begin
@@ -44664,834 +41100,6 @@ module IssueQueueComponent_1 (
       default : _zz_io_issueOut_payload_uop_decoded_decodeExceptionCode_string = "????????????";
     endcase
   end
-  always @(*) begin
-    case(entriesNext_0_uop_decoded_uopCode)
-      BaseUopCode_NOP : entriesNext_0_uop_decoded_uopCode_string = "NOP        ";
-      BaseUopCode_ILLEGAL : entriesNext_0_uop_decoded_uopCode_string = "ILLEGAL    ";
-      BaseUopCode_ALU : entriesNext_0_uop_decoded_uopCode_string = "ALU        ";
-      BaseUopCode_SHIFT : entriesNext_0_uop_decoded_uopCode_string = "SHIFT      ";
-      BaseUopCode_MUL : entriesNext_0_uop_decoded_uopCode_string = "MUL        ";
-      BaseUopCode_DIV : entriesNext_0_uop_decoded_uopCode_string = "DIV        ";
-      BaseUopCode_LOAD : entriesNext_0_uop_decoded_uopCode_string = "LOAD       ";
-      BaseUopCode_STORE : entriesNext_0_uop_decoded_uopCode_string = "STORE      ";
-      BaseUopCode_ATOMIC : entriesNext_0_uop_decoded_uopCode_string = "ATOMIC     ";
-      BaseUopCode_MEM_BARRIER : entriesNext_0_uop_decoded_uopCode_string = "MEM_BARRIER";
-      BaseUopCode_PREFETCH : entriesNext_0_uop_decoded_uopCode_string = "PREFETCH   ";
-      BaseUopCode_BRANCH : entriesNext_0_uop_decoded_uopCode_string = "BRANCH     ";
-      BaseUopCode_JUMP_REG : entriesNext_0_uop_decoded_uopCode_string = "JUMP_REG   ";
-      BaseUopCode_JUMP_IMM : entriesNext_0_uop_decoded_uopCode_string = "JUMP_IMM   ";
-      BaseUopCode_SYSTEM_OP : entriesNext_0_uop_decoded_uopCode_string = "SYSTEM_OP  ";
-      BaseUopCode_CSR_ACCESS : entriesNext_0_uop_decoded_uopCode_string = "CSR_ACCESS ";
-      BaseUopCode_FPU_ALU : entriesNext_0_uop_decoded_uopCode_string = "FPU_ALU    ";
-      BaseUopCode_FPU_CVT : entriesNext_0_uop_decoded_uopCode_string = "FPU_CVT    ";
-      BaseUopCode_FPU_CMP : entriesNext_0_uop_decoded_uopCode_string = "FPU_CMP    ";
-      BaseUopCode_FPU_SEL : entriesNext_0_uop_decoded_uopCode_string = "FPU_SEL    ";
-      BaseUopCode_LA_BITMANIP : entriesNext_0_uop_decoded_uopCode_string = "LA_BITMANIP";
-      BaseUopCode_LA_CACOP : entriesNext_0_uop_decoded_uopCode_string = "LA_CACOP   ";
-      BaseUopCode_LA_TLB : entriesNext_0_uop_decoded_uopCode_string = "LA_TLB     ";
-      BaseUopCode_IDLE : entriesNext_0_uop_decoded_uopCode_string = "IDLE       ";
-      default : entriesNext_0_uop_decoded_uopCode_string = "???????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_0_uop_decoded_exeUnit)
-      ExeUnitType_NONE : entriesNext_0_uop_decoded_exeUnit_string = "NONE               ";
-      ExeUnitType_ALU_INT : entriesNext_0_uop_decoded_exeUnit_string = "ALU_INT            ";
-      ExeUnitType_MUL_INT : entriesNext_0_uop_decoded_exeUnit_string = "MUL_INT            ";
-      ExeUnitType_DIV_INT : entriesNext_0_uop_decoded_exeUnit_string = "DIV_INT            ";
-      ExeUnitType_MEM : entriesNext_0_uop_decoded_exeUnit_string = "MEM                ";
-      ExeUnitType_BRU : entriesNext_0_uop_decoded_exeUnit_string = "BRU                ";
-      ExeUnitType_CSR : entriesNext_0_uop_decoded_exeUnit_string = "CSR                ";
-      ExeUnitType_FPU_ADD_MUL_CVT_CMP : entriesNext_0_uop_decoded_exeUnit_string = "FPU_ADD_MUL_CVT_CMP";
-      ExeUnitType_FPU_DIV_SQRT : entriesNext_0_uop_decoded_exeUnit_string = "FPU_DIV_SQRT       ";
-      default : entriesNext_0_uop_decoded_exeUnit_string = "???????????????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_0_uop_decoded_isa)
-      IsaType_UNKNOWN : entriesNext_0_uop_decoded_isa_string = "UNKNOWN  ";
-      IsaType_DEMO : entriesNext_0_uop_decoded_isa_string = "DEMO     ";
-      IsaType_RISCV : entriesNext_0_uop_decoded_isa_string = "RISCV    ";
-      IsaType_LOONGARCH : entriesNext_0_uop_decoded_isa_string = "LOONGARCH";
-      default : entriesNext_0_uop_decoded_isa_string = "?????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_0_uop_decoded_archDest_rtype)
-      ArchRegType_GPR : entriesNext_0_uop_decoded_archDest_rtype_string = "GPR  ";
-      ArchRegType_FPR : entriesNext_0_uop_decoded_archDest_rtype_string = "FPR  ";
-      ArchRegType_CSR : entriesNext_0_uop_decoded_archDest_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : entriesNext_0_uop_decoded_archDest_rtype_string = "LA_CF";
-      default : entriesNext_0_uop_decoded_archDest_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_0_uop_decoded_archSrc1_rtype)
-      ArchRegType_GPR : entriesNext_0_uop_decoded_archSrc1_rtype_string = "GPR  ";
-      ArchRegType_FPR : entriesNext_0_uop_decoded_archSrc1_rtype_string = "FPR  ";
-      ArchRegType_CSR : entriesNext_0_uop_decoded_archSrc1_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : entriesNext_0_uop_decoded_archSrc1_rtype_string = "LA_CF";
-      default : entriesNext_0_uop_decoded_archSrc1_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_0_uop_decoded_archSrc2_rtype)
-      ArchRegType_GPR : entriesNext_0_uop_decoded_archSrc2_rtype_string = "GPR  ";
-      ArchRegType_FPR : entriesNext_0_uop_decoded_archSrc2_rtype_string = "FPR  ";
-      ArchRegType_CSR : entriesNext_0_uop_decoded_archSrc2_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : entriesNext_0_uop_decoded_archSrc2_rtype_string = "LA_CF";
-      default : entriesNext_0_uop_decoded_archSrc2_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_0_uop_decoded_immUsage)
-      ImmUsageType_NONE : entriesNext_0_uop_decoded_immUsage_string = "NONE         ";
-      ImmUsageType_SRC_ALU : entriesNext_0_uop_decoded_immUsage_string = "SRC_ALU      ";
-      ImmUsageType_SRC_SHIFT_AMT : entriesNext_0_uop_decoded_immUsage_string = "SRC_SHIFT_AMT";
-      ImmUsageType_SRC_CSR_UIMM : entriesNext_0_uop_decoded_immUsage_string = "SRC_CSR_UIMM ";
-      ImmUsageType_MEM_OFFSET : entriesNext_0_uop_decoded_immUsage_string = "MEM_OFFSET   ";
-      ImmUsageType_BRANCH_OFFSET : entriesNext_0_uop_decoded_immUsage_string = "BRANCH_OFFSET";
-      ImmUsageType_JUMP_OFFSET : entriesNext_0_uop_decoded_immUsage_string = "JUMP_OFFSET  ";
-      default : entriesNext_0_uop_decoded_immUsage_string = "?????????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_0_uop_decoded_aluCtrl_logicOp)
-      LogicOp_NONE : entriesNext_0_uop_decoded_aluCtrl_logicOp_string = "NONE  ";
-      LogicOp_AND_1 : entriesNext_0_uop_decoded_aluCtrl_logicOp_string = "AND_1 ";
-      LogicOp_OR_1 : entriesNext_0_uop_decoded_aluCtrl_logicOp_string = "OR_1  ";
-      LogicOp_NOR_1 : entriesNext_0_uop_decoded_aluCtrl_logicOp_string = "NOR_1 ";
-      LogicOp_XOR_1 : entriesNext_0_uop_decoded_aluCtrl_logicOp_string = "XOR_1 ";
-      LogicOp_NAND_1 : entriesNext_0_uop_decoded_aluCtrl_logicOp_string = "NAND_1";
-      LogicOp_XNOR_1 : entriesNext_0_uop_decoded_aluCtrl_logicOp_string = "XNOR_1";
-      default : entriesNext_0_uop_decoded_aluCtrl_logicOp_string = "??????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_0_uop_decoded_aluCtrl_condition)
-      BranchCondition_NUL : entriesNext_0_uop_decoded_aluCtrl_condition_string = "NUL        ";
-      BranchCondition_EQ : entriesNext_0_uop_decoded_aluCtrl_condition_string = "EQ         ";
-      BranchCondition_NE : entriesNext_0_uop_decoded_aluCtrl_condition_string = "NE         ";
-      BranchCondition_LT : entriesNext_0_uop_decoded_aluCtrl_condition_string = "LT         ";
-      BranchCondition_GE : entriesNext_0_uop_decoded_aluCtrl_condition_string = "GE         ";
-      BranchCondition_LTU : entriesNext_0_uop_decoded_aluCtrl_condition_string = "LTU        ";
-      BranchCondition_GEU : entriesNext_0_uop_decoded_aluCtrl_condition_string = "GEU        ";
-      BranchCondition_EQZ : entriesNext_0_uop_decoded_aluCtrl_condition_string = "EQZ        ";
-      BranchCondition_NEZ : entriesNext_0_uop_decoded_aluCtrl_condition_string = "NEZ        ";
-      BranchCondition_LTZ : entriesNext_0_uop_decoded_aluCtrl_condition_string = "LTZ        ";
-      BranchCondition_GEZ : entriesNext_0_uop_decoded_aluCtrl_condition_string = "GEZ        ";
-      BranchCondition_GTZ : entriesNext_0_uop_decoded_aluCtrl_condition_string = "GTZ        ";
-      BranchCondition_LEZ : entriesNext_0_uop_decoded_aluCtrl_condition_string = "LEZ        ";
-      BranchCondition_F_EQ : entriesNext_0_uop_decoded_aluCtrl_condition_string = "F_EQ       ";
-      BranchCondition_F_NE : entriesNext_0_uop_decoded_aluCtrl_condition_string = "F_NE       ";
-      BranchCondition_F_LT : entriesNext_0_uop_decoded_aluCtrl_condition_string = "F_LT       ";
-      BranchCondition_F_LE : entriesNext_0_uop_decoded_aluCtrl_condition_string = "F_LE       ";
-      BranchCondition_F_UN : entriesNext_0_uop_decoded_aluCtrl_condition_string = "F_UN       ";
-      BranchCondition_LA_CF_TRUE : entriesNext_0_uop_decoded_aluCtrl_condition_string = "LA_CF_TRUE ";
-      BranchCondition_LA_CF_FALSE : entriesNext_0_uop_decoded_aluCtrl_condition_string = "LA_CF_FALSE";
-      default : entriesNext_0_uop_decoded_aluCtrl_condition_string = "???????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_0_uop_decoded_memCtrl_size)
-      MemAccessSize_B : entriesNext_0_uop_decoded_memCtrl_size_string = "B";
-      MemAccessSize_H : entriesNext_0_uop_decoded_memCtrl_size_string = "H";
-      MemAccessSize_W : entriesNext_0_uop_decoded_memCtrl_size_string = "W";
-      MemAccessSize_D : entriesNext_0_uop_decoded_memCtrl_size_string = "D";
-      default : entriesNext_0_uop_decoded_memCtrl_size_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_0_uop_decoded_branchCtrl_condition)
-      BranchCondition_NUL : entriesNext_0_uop_decoded_branchCtrl_condition_string = "NUL        ";
-      BranchCondition_EQ : entriesNext_0_uop_decoded_branchCtrl_condition_string = "EQ         ";
-      BranchCondition_NE : entriesNext_0_uop_decoded_branchCtrl_condition_string = "NE         ";
-      BranchCondition_LT : entriesNext_0_uop_decoded_branchCtrl_condition_string = "LT         ";
-      BranchCondition_GE : entriesNext_0_uop_decoded_branchCtrl_condition_string = "GE         ";
-      BranchCondition_LTU : entriesNext_0_uop_decoded_branchCtrl_condition_string = "LTU        ";
-      BranchCondition_GEU : entriesNext_0_uop_decoded_branchCtrl_condition_string = "GEU        ";
-      BranchCondition_EQZ : entriesNext_0_uop_decoded_branchCtrl_condition_string = "EQZ        ";
-      BranchCondition_NEZ : entriesNext_0_uop_decoded_branchCtrl_condition_string = "NEZ        ";
-      BranchCondition_LTZ : entriesNext_0_uop_decoded_branchCtrl_condition_string = "LTZ        ";
-      BranchCondition_GEZ : entriesNext_0_uop_decoded_branchCtrl_condition_string = "GEZ        ";
-      BranchCondition_GTZ : entriesNext_0_uop_decoded_branchCtrl_condition_string = "GTZ        ";
-      BranchCondition_LEZ : entriesNext_0_uop_decoded_branchCtrl_condition_string = "LEZ        ";
-      BranchCondition_F_EQ : entriesNext_0_uop_decoded_branchCtrl_condition_string = "F_EQ       ";
-      BranchCondition_F_NE : entriesNext_0_uop_decoded_branchCtrl_condition_string = "F_NE       ";
-      BranchCondition_F_LT : entriesNext_0_uop_decoded_branchCtrl_condition_string = "F_LT       ";
-      BranchCondition_F_LE : entriesNext_0_uop_decoded_branchCtrl_condition_string = "F_LE       ";
-      BranchCondition_F_UN : entriesNext_0_uop_decoded_branchCtrl_condition_string = "F_UN       ";
-      BranchCondition_LA_CF_TRUE : entriesNext_0_uop_decoded_branchCtrl_condition_string = "LA_CF_TRUE ";
-      BranchCondition_LA_CF_FALSE : entriesNext_0_uop_decoded_branchCtrl_condition_string = "LA_CF_FALSE";
-      default : entriesNext_0_uop_decoded_branchCtrl_condition_string = "???????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_0_uop_decoded_branchCtrl_linkReg_rtype)
-      ArchRegType_GPR : entriesNext_0_uop_decoded_branchCtrl_linkReg_rtype_string = "GPR  ";
-      ArchRegType_FPR : entriesNext_0_uop_decoded_branchCtrl_linkReg_rtype_string = "FPR  ";
-      ArchRegType_CSR : entriesNext_0_uop_decoded_branchCtrl_linkReg_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : entriesNext_0_uop_decoded_branchCtrl_linkReg_rtype_string = "LA_CF";
-      default : entriesNext_0_uop_decoded_branchCtrl_linkReg_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_0_uop_decoded_fpuCtrl_fpSizeSrc1)
-      MemAccessSize_B : entriesNext_0_uop_decoded_fpuCtrl_fpSizeSrc1_string = "B";
-      MemAccessSize_H : entriesNext_0_uop_decoded_fpuCtrl_fpSizeSrc1_string = "H";
-      MemAccessSize_W : entriesNext_0_uop_decoded_fpuCtrl_fpSizeSrc1_string = "W";
-      MemAccessSize_D : entriesNext_0_uop_decoded_fpuCtrl_fpSizeSrc1_string = "D";
-      default : entriesNext_0_uop_decoded_fpuCtrl_fpSizeSrc1_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_0_uop_decoded_fpuCtrl_fpSizeSrc2)
-      MemAccessSize_B : entriesNext_0_uop_decoded_fpuCtrl_fpSizeSrc2_string = "B";
-      MemAccessSize_H : entriesNext_0_uop_decoded_fpuCtrl_fpSizeSrc2_string = "H";
-      MemAccessSize_W : entriesNext_0_uop_decoded_fpuCtrl_fpSizeSrc2_string = "W";
-      MemAccessSize_D : entriesNext_0_uop_decoded_fpuCtrl_fpSizeSrc2_string = "D";
-      default : entriesNext_0_uop_decoded_fpuCtrl_fpSizeSrc2_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_0_uop_decoded_fpuCtrl_fpSizeDest)
-      MemAccessSize_B : entriesNext_0_uop_decoded_fpuCtrl_fpSizeDest_string = "B";
-      MemAccessSize_H : entriesNext_0_uop_decoded_fpuCtrl_fpSizeDest_string = "H";
-      MemAccessSize_W : entriesNext_0_uop_decoded_fpuCtrl_fpSizeDest_string = "W";
-      MemAccessSize_D : entriesNext_0_uop_decoded_fpuCtrl_fpSizeDest_string = "D";
-      default : entriesNext_0_uop_decoded_fpuCtrl_fpSizeDest_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_0_uop_decoded_decodeExceptionCode)
-      DecodeExCode_INVALID : entriesNext_0_uop_decoded_decodeExceptionCode_string = "INVALID     ";
-      DecodeExCode_FETCH_ERROR : entriesNext_0_uop_decoded_decodeExceptionCode_string = "FETCH_ERROR ";
-      DecodeExCode_DECODE_ERROR : entriesNext_0_uop_decoded_decodeExceptionCode_string = "DECODE_ERROR";
-      DecodeExCode_OK : entriesNext_0_uop_decoded_decodeExceptionCode_string = "OK          ";
-      default : entriesNext_0_uop_decoded_decodeExceptionCode_string = "????????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_1_uop_decoded_uopCode)
-      BaseUopCode_NOP : entriesNext_1_uop_decoded_uopCode_string = "NOP        ";
-      BaseUopCode_ILLEGAL : entriesNext_1_uop_decoded_uopCode_string = "ILLEGAL    ";
-      BaseUopCode_ALU : entriesNext_1_uop_decoded_uopCode_string = "ALU        ";
-      BaseUopCode_SHIFT : entriesNext_1_uop_decoded_uopCode_string = "SHIFT      ";
-      BaseUopCode_MUL : entriesNext_1_uop_decoded_uopCode_string = "MUL        ";
-      BaseUopCode_DIV : entriesNext_1_uop_decoded_uopCode_string = "DIV        ";
-      BaseUopCode_LOAD : entriesNext_1_uop_decoded_uopCode_string = "LOAD       ";
-      BaseUopCode_STORE : entriesNext_1_uop_decoded_uopCode_string = "STORE      ";
-      BaseUopCode_ATOMIC : entriesNext_1_uop_decoded_uopCode_string = "ATOMIC     ";
-      BaseUopCode_MEM_BARRIER : entriesNext_1_uop_decoded_uopCode_string = "MEM_BARRIER";
-      BaseUopCode_PREFETCH : entriesNext_1_uop_decoded_uopCode_string = "PREFETCH   ";
-      BaseUopCode_BRANCH : entriesNext_1_uop_decoded_uopCode_string = "BRANCH     ";
-      BaseUopCode_JUMP_REG : entriesNext_1_uop_decoded_uopCode_string = "JUMP_REG   ";
-      BaseUopCode_JUMP_IMM : entriesNext_1_uop_decoded_uopCode_string = "JUMP_IMM   ";
-      BaseUopCode_SYSTEM_OP : entriesNext_1_uop_decoded_uopCode_string = "SYSTEM_OP  ";
-      BaseUopCode_CSR_ACCESS : entriesNext_1_uop_decoded_uopCode_string = "CSR_ACCESS ";
-      BaseUopCode_FPU_ALU : entriesNext_1_uop_decoded_uopCode_string = "FPU_ALU    ";
-      BaseUopCode_FPU_CVT : entriesNext_1_uop_decoded_uopCode_string = "FPU_CVT    ";
-      BaseUopCode_FPU_CMP : entriesNext_1_uop_decoded_uopCode_string = "FPU_CMP    ";
-      BaseUopCode_FPU_SEL : entriesNext_1_uop_decoded_uopCode_string = "FPU_SEL    ";
-      BaseUopCode_LA_BITMANIP : entriesNext_1_uop_decoded_uopCode_string = "LA_BITMANIP";
-      BaseUopCode_LA_CACOP : entriesNext_1_uop_decoded_uopCode_string = "LA_CACOP   ";
-      BaseUopCode_LA_TLB : entriesNext_1_uop_decoded_uopCode_string = "LA_TLB     ";
-      BaseUopCode_IDLE : entriesNext_1_uop_decoded_uopCode_string = "IDLE       ";
-      default : entriesNext_1_uop_decoded_uopCode_string = "???????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_1_uop_decoded_exeUnit)
-      ExeUnitType_NONE : entriesNext_1_uop_decoded_exeUnit_string = "NONE               ";
-      ExeUnitType_ALU_INT : entriesNext_1_uop_decoded_exeUnit_string = "ALU_INT            ";
-      ExeUnitType_MUL_INT : entriesNext_1_uop_decoded_exeUnit_string = "MUL_INT            ";
-      ExeUnitType_DIV_INT : entriesNext_1_uop_decoded_exeUnit_string = "DIV_INT            ";
-      ExeUnitType_MEM : entriesNext_1_uop_decoded_exeUnit_string = "MEM                ";
-      ExeUnitType_BRU : entriesNext_1_uop_decoded_exeUnit_string = "BRU                ";
-      ExeUnitType_CSR : entriesNext_1_uop_decoded_exeUnit_string = "CSR                ";
-      ExeUnitType_FPU_ADD_MUL_CVT_CMP : entriesNext_1_uop_decoded_exeUnit_string = "FPU_ADD_MUL_CVT_CMP";
-      ExeUnitType_FPU_DIV_SQRT : entriesNext_1_uop_decoded_exeUnit_string = "FPU_DIV_SQRT       ";
-      default : entriesNext_1_uop_decoded_exeUnit_string = "???????????????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_1_uop_decoded_isa)
-      IsaType_UNKNOWN : entriesNext_1_uop_decoded_isa_string = "UNKNOWN  ";
-      IsaType_DEMO : entriesNext_1_uop_decoded_isa_string = "DEMO     ";
-      IsaType_RISCV : entriesNext_1_uop_decoded_isa_string = "RISCV    ";
-      IsaType_LOONGARCH : entriesNext_1_uop_decoded_isa_string = "LOONGARCH";
-      default : entriesNext_1_uop_decoded_isa_string = "?????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_1_uop_decoded_archDest_rtype)
-      ArchRegType_GPR : entriesNext_1_uop_decoded_archDest_rtype_string = "GPR  ";
-      ArchRegType_FPR : entriesNext_1_uop_decoded_archDest_rtype_string = "FPR  ";
-      ArchRegType_CSR : entriesNext_1_uop_decoded_archDest_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : entriesNext_1_uop_decoded_archDest_rtype_string = "LA_CF";
-      default : entriesNext_1_uop_decoded_archDest_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_1_uop_decoded_archSrc1_rtype)
-      ArchRegType_GPR : entriesNext_1_uop_decoded_archSrc1_rtype_string = "GPR  ";
-      ArchRegType_FPR : entriesNext_1_uop_decoded_archSrc1_rtype_string = "FPR  ";
-      ArchRegType_CSR : entriesNext_1_uop_decoded_archSrc1_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : entriesNext_1_uop_decoded_archSrc1_rtype_string = "LA_CF";
-      default : entriesNext_1_uop_decoded_archSrc1_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_1_uop_decoded_archSrc2_rtype)
-      ArchRegType_GPR : entriesNext_1_uop_decoded_archSrc2_rtype_string = "GPR  ";
-      ArchRegType_FPR : entriesNext_1_uop_decoded_archSrc2_rtype_string = "FPR  ";
-      ArchRegType_CSR : entriesNext_1_uop_decoded_archSrc2_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : entriesNext_1_uop_decoded_archSrc2_rtype_string = "LA_CF";
-      default : entriesNext_1_uop_decoded_archSrc2_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_1_uop_decoded_immUsage)
-      ImmUsageType_NONE : entriesNext_1_uop_decoded_immUsage_string = "NONE         ";
-      ImmUsageType_SRC_ALU : entriesNext_1_uop_decoded_immUsage_string = "SRC_ALU      ";
-      ImmUsageType_SRC_SHIFT_AMT : entriesNext_1_uop_decoded_immUsage_string = "SRC_SHIFT_AMT";
-      ImmUsageType_SRC_CSR_UIMM : entriesNext_1_uop_decoded_immUsage_string = "SRC_CSR_UIMM ";
-      ImmUsageType_MEM_OFFSET : entriesNext_1_uop_decoded_immUsage_string = "MEM_OFFSET   ";
-      ImmUsageType_BRANCH_OFFSET : entriesNext_1_uop_decoded_immUsage_string = "BRANCH_OFFSET";
-      ImmUsageType_JUMP_OFFSET : entriesNext_1_uop_decoded_immUsage_string = "JUMP_OFFSET  ";
-      default : entriesNext_1_uop_decoded_immUsage_string = "?????????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_1_uop_decoded_aluCtrl_logicOp)
-      LogicOp_NONE : entriesNext_1_uop_decoded_aluCtrl_logicOp_string = "NONE  ";
-      LogicOp_AND_1 : entriesNext_1_uop_decoded_aluCtrl_logicOp_string = "AND_1 ";
-      LogicOp_OR_1 : entriesNext_1_uop_decoded_aluCtrl_logicOp_string = "OR_1  ";
-      LogicOp_NOR_1 : entriesNext_1_uop_decoded_aluCtrl_logicOp_string = "NOR_1 ";
-      LogicOp_XOR_1 : entriesNext_1_uop_decoded_aluCtrl_logicOp_string = "XOR_1 ";
-      LogicOp_NAND_1 : entriesNext_1_uop_decoded_aluCtrl_logicOp_string = "NAND_1";
-      LogicOp_XNOR_1 : entriesNext_1_uop_decoded_aluCtrl_logicOp_string = "XNOR_1";
-      default : entriesNext_1_uop_decoded_aluCtrl_logicOp_string = "??????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_1_uop_decoded_aluCtrl_condition)
-      BranchCondition_NUL : entriesNext_1_uop_decoded_aluCtrl_condition_string = "NUL        ";
-      BranchCondition_EQ : entriesNext_1_uop_decoded_aluCtrl_condition_string = "EQ         ";
-      BranchCondition_NE : entriesNext_1_uop_decoded_aluCtrl_condition_string = "NE         ";
-      BranchCondition_LT : entriesNext_1_uop_decoded_aluCtrl_condition_string = "LT         ";
-      BranchCondition_GE : entriesNext_1_uop_decoded_aluCtrl_condition_string = "GE         ";
-      BranchCondition_LTU : entriesNext_1_uop_decoded_aluCtrl_condition_string = "LTU        ";
-      BranchCondition_GEU : entriesNext_1_uop_decoded_aluCtrl_condition_string = "GEU        ";
-      BranchCondition_EQZ : entriesNext_1_uop_decoded_aluCtrl_condition_string = "EQZ        ";
-      BranchCondition_NEZ : entriesNext_1_uop_decoded_aluCtrl_condition_string = "NEZ        ";
-      BranchCondition_LTZ : entriesNext_1_uop_decoded_aluCtrl_condition_string = "LTZ        ";
-      BranchCondition_GEZ : entriesNext_1_uop_decoded_aluCtrl_condition_string = "GEZ        ";
-      BranchCondition_GTZ : entriesNext_1_uop_decoded_aluCtrl_condition_string = "GTZ        ";
-      BranchCondition_LEZ : entriesNext_1_uop_decoded_aluCtrl_condition_string = "LEZ        ";
-      BranchCondition_F_EQ : entriesNext_1_uop_decoded_aluCtrl_condition_string = "F_EQ       ";
-      BranchCondition_F_NE : entriesNext_1_uop_decoded_aluCtrl_condition_string = "F_NE       ";
-      BranchCondition_F_LT : entriesNext_1_uop_decoded_aluCtrl_condition_string = "F_LT       ";
-      BranchCondition_F_LE : entriesNext_1_uop_decoded_aluCtrl_condition_string = "F_LE       ";
-      BranchCondition_F_UN : entriesNext_1_uop_decoded_aluCtrl_condition_string = "F_UN       ";
-      BranchCondition_LA_CF_TRUE : entriesNext_1_uop_decoded_aluCtrl_condition_string = "LA_CF_TRUE ";
-      BranchCondition_LA_CF_FALSE : entriesNext_1_uop_decoded_aluCtrl_condition_string = "LA_CF_FALSE";
-      default : entriesNext_1_uop_decoded_aluCtrl_condition_string = "???????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_1_uop_decoded_memCtrl_size)
-      MemAccessSize_B : entriesNext_1_uop_decoded_memCtrl_size_string = "B";
-      MemAccessSize_H : entriesNext_1_uop_decoded_memCtrl_size_string = "H";
-      MemAccessSize_W : entriesNext_1_uop_decoded_memCtrl_size_string = "W";
-      MemAccessSize_D : entriesNext_1_uop_decoded_memCtrl_size_string = "D";
-      default : entriesNext_1_uop_decoded_memCtrl_size_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_1_uop_decoded_branchCtrl_condition)
-      BranchCondition_NUL : entriesNext_1_uop_decoded_branchCtrl_condition_string = "NUL        ";
-      BranchCondition_EQ : entriesNext_1_uop_decoded_branchCtrl_condition_string = "EQ         ";
-      BranchCondition_NE : entriesNext_1_uop_decoded_branchCtrl_condition_string = "NE         ";
-      BranchCondition_LT : entriesNext_1_uop_decoded_branchCtrl_condition_string = "LT         ";
-      BranchCondition_GE : entriesNext_1_uop_decoded_branchCtrl_condition_string = "GE         ";
-      BranchCondition_LTU : entriesNext_1_uop_decoded_branchCtrl_condition_string = "LTU        ";
-      BranchCondition_GEU : entriesNext_1_uop_decoded_branchCtrl_condition_string = "GEU        ";
-      BranchCondition_EQZ : entriesNext_1_uop_decoded_branchCtrl_condition_string = "EQZ        ";
-      BranchCondition_NEZ : entriesNext_1_uop_decoded_branchCtrl_condition_string = "NEZ        ";
-      BranchCondition_LTZ : entriesNext_1_uop_decoded_branchCtrl_condition_string = "LTZ        ";
-      BranchCondition_GEZ : entriesNext_1_uop_decoded_branchCtrl_condition_string = "GEZ        ";
-      BranchCondition_GTZ : entriesNext_1_uop_decoded_branchCtrl_condition_string = "GTZ        ";
-      BranchCondition_LEZ : entriesNext_1_uop_decoded_branchCtrl_condition_string = "LEZ        ";
-      BranchCondition_F_EQ : entriesNext_1_uop_decoded_branchCtrl_condition_string = "F_EQ       ";
-      BranchCondition_F_NE : entriesNext_1_uop_decoded_branchCtrl_condition_string = "F_NE       ";
-      BranchCondition_F_LT : entriesNext_1_uop_decoded_branchCtrl_condition_string = "F_LT       ";
-      BranchCondition_F_LE : entriesNext_1_uop_decoded_branchCtrl_condition_string = "F_LE       ";
-      BranchCondition_F_UN : entriesNext_1_uop_decoded_branchCtrl_condition_string = "F_UN       ";
-      BranchCondition_LA_CF_TRUE : entriesNext_1_uop_decoded_branchCtrl_condition_string = "LA_CF_TRUE ";
-      BranchCondition_LA_CF_FALSE : entriesNext_1_uop_decoded_branchCtrl_condition_string = "LA_CF_FALSE";
-      default : entriesNext_1_uop_decoded_branchCtrl_condition_string = "???????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_1_uop_decoded_branchCtrl_linkReg_rtype)
-      ArchRegType_GPR : entriesNext_1_uop_decoded_branchCtrl_linkReg_rtype_string = "GPR  ";
-      ArchRegType_FPR : entriesNext_1_uop_decoded_branchCtrl_linkReg_rtype_string = "FPR  ";
-      ArchRegType_CSR : entriesNext_1_uop_decoded_branchCtrl_linkReg_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : entriesNext_1_uop_decoded_branchCtrl_linkReg_rtype_string = "LA_CF";
-      default : entriesNext_1_uop_decoded_branchCtrl_linkReg_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_1_uop_decoded_fpuCtrl_fpSizeSrc1)
-      MemAccessSize_B : entriesNext_1_uop_decoded_fpuCtrl_fpSizeSrc1_string = "B";
-      MemAccessSize_H : entriesNext_1_uop_decoded_fpuCtrl_fpSizeSrc1_string = "H";
-      MemAccessSize_W : entriesNext_1_uop_decoded_fpuCtrl_fpSizeSrc1_string = "W";
-      MemAccessSize_D : entriesNext_1_uop_decoded_fpuCtrl_fpSizeSrc1_string = "D";
-      default : entriesNext_1_uop_decoded_fpuCtrl_fpSizeSrc1_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_1_uop_decoded_fpuCtrl_fpSizeSrc2)
-      MemAccessSize_B : entriesNext_1_uop_decoded_fpuCtrl_fpSizeSrc2_string = "B";
-      MemAccessSize_H : entriesNext_1_uop_decoded_fpuCtrl_fpSizeSrc2_string = "H";
-      MemAccessSize_W : entriesNext_1_uop_decoded_fpuCtrl_fpSizeSrc2_string = "W";
-      MemAccessSize_D : entriesNext_1_uop_decoded_fpuCtrl_fpSizeSrc2_string = "D";
-      default : entriesNext_1_uop_decoded_fpuCtrl_fpSizeSrc2_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_1_uop_decoded_fpuCtrl_fpSizeDest)
-      MemAccessSize_B : entriesNext_1_uop_decoded_fpuCtrl_fpSizeDest_string = "B";
-      MemAccessSize_H : entriesNext_1_uop_decoded_fpuCtrl_fpSizeDest_string = "H";
-      MemAccessSize_W : entriesNext_1_uop_decoded_fpuCtrl_fpSizeDest_string = "W";
-      MemAccessSize_D : entriesNext_1_uop_decoded_fpuCtrl_fpSizeDest_string = "D";
-      default : entriesNext_1_uop_decoded_fpuCtrl_fpSizeDest_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_1_uop_decoded_decodeExceptionCode)
-      DecodeExCode_INVALID : entriesNext_1_uop_decoded_decodeExceptionCode_string = "INVALID     ";
-      DecodeExCode_FETCH_ERROR : entriesNext_1_uop_decoded_decodeExceptionCode_string = "FETCH_ERROR ";
-      DecodeExCode_DECODE_ERROR : entriesNext_1_uop_decoded_decodeExceptionCode_string = "DECODE_ERROR";
-      DecodeExCode_OK : entriesNext_1_uop_decoded_decodeExceptionCode_string = "OK          ";
-      default : entriesNext_1_uop_decoded_decodeExceptionCode_string = "????????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_2_uop_decoded_uopCode)
-      BaseUopCode_NOP : entriesNext_2_uop_decoded_uopCode_string = "NOP        ";
-      BaseUopCode_ILLEGAL : entriesNext_2_uop_decoded_uopCode_string = "ILLEGAL    ";
-      BaseUopCode_ALU : entriesNext_2_uop_decoded_uopCode_string = "ALU        ";
-      BaseUopCode_SHIFT : entriesNext_2_uop_decoded_uopCode_string = "SHIFT      ";
-      BaseUopCode_MUL : entriesNext_2_uop_decoded_uopCode_string = "MUL        ";
-      BaseUopCode_DIV : entriesNext_2_uop_decoded_uopCode_string = "DIV        ";
-      BaseUopCode_LOAD : entriesNext_2_uop_decoded_uopCode_string = "LOAD       ";
-      BaseUopCode_STORE : entriesNext_2_uop_decoded_uopCode_string = "STORE      ";
-      BaseUopCode_ATOMIC : entriesNext_2_uop_decoded_uopCode_string = "ATOMIC     ";
-      BaseUopCode_MEM_BARRIER : entriesNext_2_uop_decoded_uopCode_string = "MEM_BARRIER";
-      BaseUopCode_PREFETCH : entriesNext_2_uop_decoded_uopCode_string = "PREFETCH   ";
-      BaseUopCode_BRANCH : entriesNext_2_uop_decoded_uopCode_string = "BRANCH     ";
-      BaseUopCode_JUMP_REG : entriesNext_2_uop_decoded_uopCode_string = "JUMP_REG   ";
-      BaseUopCode_JUMP_IMM : entriesNext_2_uop_decoded_uopCode_string = "JUMP_IMM   ";
-      BaseUopCode_SYSTEM_OP : entriesNext_2_uop_decoded_uopCode_string = "SYSTEM_OP  ";
-      BaseUopCode_CSR_ACCESS : entriesNext_2_uop_decoded_uopCode_string = "CSR_ACCESS ";
-      BaseUopCode_FPU_ALU : entriesNext_2_uop_decoded_uopCode_string = "FPU_ALU    ";
-      BaseUopCode_FPU_CVT : entriesNext_2_uop_decoded_uopCode_string = "FPU_CVT    ";
-      BaseUopCode_FPU_CMP : entriesNext_2_uop_decoded_uopCode_string = "FPU_CMP    ";
-      BaseUopCode_FPU_SEL : entriesNext_2_uop_decoded_uopCode_string = "FPU_SEL    ";
-      BaseUopCode_LA_BITMANIP : entriesNext_2_uop_decoded_uopCode_string = "LA_BITMANIP";
-      BaseUopCode_LA_CACOP : entriesNext_2_uop_decoded_uopCode_string = "LA_CACOP   ";
-      BaseUopCode_LA_TLB : entriesNext_2_uop_decoded_uopCode_string = "LA_TLB     ";
-      BaseUopCode_IDLE : entriesNext_2_uop_decoded_uopCode_string = "IDLE       ";
-      default : entriesNext_2_uop_decoded_uopCode_string = "???????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_2_uop_decoded_exeUnit)
-      ExeUnitType_NONE : entriesNext_2_uop_decoded_exeUnit_string = "NONE               ";
-      ExeUnitType_ALU_INT : entriesNext_2_uop_decoded_exeUnit_string = "ALU_INT            ";
-      ExeUnitType_MUL_INT : entriesNext_2_uop_decoded_exeUnit_string = "MUL_INT            ";
-      ExeUnitType_DIV_INT : entriesNext_2_uop_decoded_exeUnit_string = "DIV_INT            ";
-      ExeUnitType_MEM : entriesNext_2_uop_decoded_exeUnit_string = "MEM                ";
-      ExeUnitType_BRU : entriesNext_2_uop_decoded_exeUnit_string = "BRU                ";
-      ExeUnitType_CSR : entriesNext_2_uop_decoded_exeUnit_string = "CSR                ";
-      ExeUnitType_FPU_ADD_MUL_CVT_CMP : entriesNext_2_uop_decoded_exeUnit_string = "FPU_ADD_MUL_CVT_CMP";
-      ExeUnitType_FPU_DIV_SQRT : entriesNext_2_uop_decoded_exeUnit_string = "FPU_DIV_SQRT       ";
-      default : entriesNext_2_uop_decoded_exeUnit_string = "???????????????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_2_uop_decoded_isa)
-      IsaType_UNKNOWN : entriesNext_2_uop_decoded_isa_string = "UNKNOWN  ";
-      IsaType_DEMO : entriesNext_2_uop_decoded_isa_string = "DEMO     ";
-      IsaType_RISCV : entriesNext_2_uop_decoded_isa_string = "RISCV    ";
-      IsaType_LOONGARCH : entriesNext_2_uop_decoded_isa_string = "LOONGARCH";
-      default : entriesNext_2_uop_decoded_isa_string = "?????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_2_uop_decoded_archDest_rtype)
-      ArchRegType_GPR : entriesNext_2_uop_decoded_archDest_rtype_string = "GPR  ";
-      ArchRegType_FPR : entriesNext_2_uop_decoded_archDest_rtype_string = "FPR  ";
-      ArchRegType_CSR : entriesNext_2_uop_decoded_archDest_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : entriesNext_2_uop_decoded_archDest_rtype_string = "LA_CF";
-      default : entriesNext_2_uop_decoded_archDest_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_2_uop_decoded_archSrc1_rtype)
-      ArchRegType_GPR : entriesNext_2_uop_decoded_archSrc1_rtype_string = "GPR  ";
-      ArchRegType_FPR : entriesNext_2_uop_decoded_archSrc1_rtype_string = "FPR  ";
-      ArchRegType_CSR : entriesNext_2_uop_decoded_archSrc1_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : entriesNext_2_uop_decoded_archSrc1_rtype_string = "LA_CF";
-      default : entriesNext_2_uop_decoded_archSrc1_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_2_uop_decoded_archSrc2_rtype)
-      ArchRegType_GPR : entriesNext_2_uop_decoded_archSrc2_rtype_string = "GPR  ";
-      ArchRegType_FPR : entriesNext_2_uop_decoded_archSrc2_rtype_string = "FPR  ";
-      ArchRegType_CSR : entriesNext_2_uop_decoded_archSrc2_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : entriesNext_2_uop_decoded_archSrc2_rtype_string = "LA_CF";
-      default : entriesNext_2_uop_decoded_archSrc2_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_2_uop_decoded_immUsage)
-      ImmUsageType_NONE : entriesNext_2_uop_decoded_immUsage_string = "NONE         ";
-      ImmUsageType_SRC_ALU : entriesNext_2_uop_decoded_immUsage_string = "SRC_ALU      ";
-      ImmUsageType_SRC_SHIFT_AMT : entriesNext_2_uop_decoded_immUsage_string = "SRC_SHIFT_AMT";
-      ImmUsageType_SRC_CSR_UIMM : entriesNext_2_uop_decoded_immUsage_string = "SRC_CSR_UIMM ";
-      ImmUsageType_MEM_OFFSET : entriesNext_2_uop_decoded_immUsage_string = "MEM_OFFSET   ";
-      ImmUsageType_BRANCH_OFFSET : entriesNext_2_uop_decoded_immUsage_string = "BRANCH_OFFSET";
-      ImmUsageType_JUMP_OFFSET : entriesNext_2_uop_decoded_immUsage_string = "JUMP_OFFSET  ";
-      default : entriesNext_2_uop_decoded_immUsage_string = "?????????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_2_uop_decoded_aluCtrl_logicOp)
-      LogicOp_NONE : entriesNext_2_uop_decoded_aluCtrl_logicOp_string = "NONE  ";
-      LogicOp_AND_1 : entriesNext_2_uop_decoded_aluCtrl_logicOp_string = "AND_1 ";
-      LogicOp_OR_1 : entriesNext_2_uop_decoded_aluCtrl_logicOp_string = "OR_1  ";
-      LogicOp_NOR_1 : entriesNext_2_uop_decoded_aluCtrl_logicOp_string = "NOR_1 ";
-      LogicOp_XOR_1 : entriesNext_2_uop_decoded_aluCtrl_logicOp_string = "XOR_1 ";
-      LogicOp_NAND_1 : entriesNext_2_uop_decoded_aluCtrl_logicOp_string = "NAND_1";
-      LogicOp_XNOR_1 : entriesNext_2_uop_decoded_aluCtrl_logicOp_string = "XNOR_1";
-      default : entriesNext_2_uop_decoded_aluCtrl_logicOp_string = "??????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_2_uop_decoded_aluCtrl_condition)
-      BranchCondition_NUL : entriesNext_2_uop_decoded_aluCtrl_condition_string = "NUL        ";
-      BranchCondition_EQ : entriesNext_2_uop_decoded_aluCtrl_condition_string = "EQ         ";
-      BranchCondition_NE : entriesNext_2_uop_decoded_aluCtrl_condition_string = "NE         ";
-      BranchCondition_LT : entriesNext_2_uop_decoded_aluCtrl_condition_string = "LT         ";
-      BranchCondition_GE : entriesNext_2_uop_decoded_aluCtrl_condition_string = "GE         ";
-      BranchCondition_LTU : entriesNext_2_uop_decoded_aluCtrl_condition_string = "LTU        ";
-      BranchCondition_GEU : entriesNext_2_uop_decoded_aluCtrl_condition_string = "GEU        ";
-      BranchCondition_EQZ : entriesNext_2_uop_decoded_aluCtrl_condition_string = "EQZ        ";
-      BranchCondition_NEZ : entriesNext_2_uop_decoded_aluCtrl_condition_string = "NEZ        ";
-      BranchCondition_LTZ : entriesNext_2_uop_decoded_aluCtrl_condition_string = "LTZ        ";
-      BranchCondition_GEZ : entriesNext_2_uop_decoded_aluCtrl_condition_string = "GEZ        ";
-      BranchCondition_GTZ : entriesNext_2_uop_decoded_aluCtrl_condition_string = "GTZ        ";
-      BranchCondition_LEZ : entriesNext_2_uop_decoded_aluCtrl_condition_string = "LEZ        ";
-      BranchCondition_F_EQ : entriesNext_2_uop_decoded_aluCtrl_condition_string = "F_EQ       ";
-      BranchCondition_F_NE : entriesNext_2_uop_decoded_aluCtrl_condition_string = "F_NE       ";
-      BranchCondition_F_LT : entriesNext_2_uop_decoded_aluCtrl_condition_string = "F_LT       ";
-      BranchCondition_F_LE : entriesNext_2_uop_decoded_aluCtrl_condition_string = "F_LE       ";
-      BranchCondition_F_UN : entriesNext_2_uop_decoded_aluCtrl_condition_string = "F_UN       ";
-      BranchCondition_LA_CF_TRUE : entriesNext_2_uop_decoded_aluCtrl_condition_string = "LA_CF_TRUE ";
-      BranchCondition_LA_CF_FALSE : entriesNext_2_uop_decoded_aluCtrl_condition_string = "LA_CF_FALSE";
-      default : entriesNext_2_uop_decoded_aluCtrl_condition_string = "???????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_2_uop_decoded_memCtrl_size)
-      MemAccessSize_B : entriesNext_2_uop_decoded_memCtrl_size_string = "B";
-      MemAccessSize_H : entriesNext_2_uop_decoded_memCtrl_size_string = "H";
-      MemAccessSize_W : entriesNext_2_uop_decoded_memCtrl_size_string = "W";
-      MemAccessSize_D : entriesNext_2_uop_decoded_memCtrl_size_string = "D";
-      default : entriesNext_2_uop_decoded_memCtrl_size_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_2_uop_decoded_branchCtrl_condition)
-      BranchCondition_NUL : entriesNext_2_uop_decoded_branchCtrl_condition_string = "NUL        ";
-      BranchCondition_EQ : entriesNext_2_uop_decoded_branchCtrl_condition_string = "EQ         ";
-      BranchCondition_NE : entriesNext_2_uop_decoded_branchCtrl_condition_string = "NE         ";
-      BranchCondition_LT : entriesNext_2_uop_decoded_branchCtrl_condition_string = "LT         ";
-      BranchCondition_GE : entriesNext_2_uop_decoded_branchCtrl_condition_string = "GE         ";
-      BranchCondition_LTU : entriesNext_2_uop_decoded_branchCtrl_condition_string = "LTU        ";
-      BranchCondition_GEU : entriesNext_2_uop_decoded_branchCtrl_condition_string = "GEU        ";
-      BranchCondition_EQZ : entriesNext_2_uop_decoded_branchCtrl_condition_string = "EQZ        ";
-      BranchCondition_NEZ : entriesNext_2_uop_decoded_branchCtrl_condition_string = "NEZ        ";
-      BranchCondition_LTZ : entriesNext_2_uop_decoded_branchCtrl_condition_string = "LTZ        ";
-      BranchCondition_GEZ : entriesNext_2_uop_decoded_branchCtrl_condition_string = "GEZ        ";
-      BranchCondition_GTZ : entriesNext_2_uop_decoded_branchCtrl_condition_string = "GTZ        ";
-      BranchCondition_LEZ : entriesNext_2_uop_decoded_branchCtrl_condition_string = "LEZ        ";
-      BranchCondition_F_EQ : entriesNext_2_uop_decoded_branchCtrl_condition_string = "F_EQ       ";
-      BranchCondition_F_NE : entriesNext_2_uop_decoded_branchCtrl_condition_string = "F_NE       ";
-      BranchCondition_F_LT : entriesNext_2_uop_decoded_branchCtrl_condition_string = "F_LT       ";
-      BranchCondition_F_LE : entriesNext_2_uop_decoded_branchCtrl_condition_string = "F_LE       ";
-      BranchCondition_F_UN : entriesNext_2_uop_decoded_branchCtrl_condition_string = "F_UN       ";
-      BranchCondition_LA_CF_TRUE : entriesNext_2_uop_decoded_branchCtrl_condition_string = "LA_CF_TRUE ";
-      BranchCondition_LA_CF_FALSE : entriesNext_2_uop_decoded_branchCtrl_condition_string = "LA_CF_FALSE";
-      default : entriesNext_2_uop_decoded_branchCtrl_condition_string = "???????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_2_uop_decoded_branchCtrl_linkReg_rtype)
-      ArchRegType_GPR : entriesNext_2_uop_decoded_branchCtrl_linkReg_rtype_string = "GPR  ";
-      ArchRegType_FPR : entriesNext_2_uop_decoded_branchCtrl_linkReg_rtype_string = "FPR  ";
-      ArchRegType_CSR : entriesNext_2_uop_decoded_branchCtrl_linkReg_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : entriesNext_2_uop_decoded_branchCtrl_linkReg_rtype_string = "LA_CF";
-      default : entriesNext_2_uop_decoded_branchCtrl_linkReg_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_2_uop_decoded_fpuCtrl_fpSizeSrc1)
-      MemAccessSize_B : entriesNext_2_uop_decoded_fpuCtrl_fpSizeSrc1_string = "B";
-      MemAccessSize_H : entriesNext_2_uop_decoded_fpuCtrl_fpSizeSrc1_string = "H";
-      MemAccessSize_W : entriesNext_2_uop_decoded_fpuCtrl_fpSizeSrc1_string = "W";
-      MemAccessSize_D : entriesNext_2_uop_decoded_fpuCtrl_fpSizeSrc1_string = "D";
-      default : entriesNext_2_uop_decoded_fpuCtrl_fpSizeSrc1_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_2_uop_decoded_fpuCtrl_fpSizeSrc2)
-      MemAccessSize_B : entriesNext_2_uop_decoded_fpuCtrl_fpSizeSrc2_string = "B";
-      MemAccessSize_H : entriesNext_2_uop_decoded_fpuCtrl_fpSizeSrc2_string = "H";
-      MemAccessSize_W : entriesNext_2_uop_decoded_fpuCtrl_fpSizeSrc2_string = "W";
-      MemAccessSize_D : entriesNext_2_uop_decoded_fpuCtrl_fpSizeSrc2_string = "D";
-      default : entriesNext_2_uop_decoded_fpuCtrl_fpSizeSrc2_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_2_uop_decoded_fpuCtrl_fpSizeDest)
-      MemAccessSize_B : entriesNext_2_uop_decoded_fpuCtrl_fpSizeDest_string = "B";
-      MemAccessSize_H : entriesNext_2_uop_decoded_fpuCtrl_fpSizeDest_string = "H";
-      MemAccessSize_W : entriesNext_2_uop_decoded_fpuCtrl_fpSizeDest_string = "W";
-      MemAccessSize_D : entriesNext_2_uop_decoded_fpuCtrl_fpSizeDest_string = "D";
-      default : entriesNext_2_uop_decoded_fpuCtrl_fpSizeDest_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_2_uop_decoded_decodeExceptionCode)
-      DecodeExCode_INVALID : entriesNext_2_uop_decoded_decodeExceptionCode_string = "INVALID     ";
-      DecodeExCode_FETCH_ERROR : entriesNext_2_uop_decoded_decodeExceptionCode_string = "FETCH_ERROR ";
-      DecodeExCode_DECODE_ERROR : entriesNext_2_uop_decoded_decodeExceptionCode_string = "DECODE_ERROR";
-      DecodeExCode_OK : entriesNext_2_uop_decoded_decodeExceptionCode_string = "OK          ";
-      default : entriesNext_2_uop_decoded_decodeExceptionCode_string = "????????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_3_uop_decoded_uopCode)
-      BaseUopCode_NOP : entriesNext_3_uop_decoded_uopCode_string = "NOP        ";
-      BaseUopCode_ILLEGAL : entriesNext_3_uop_decoded_uopCode_string = "ILLEGAL    ";
-      BaseUopCode_ALU : entriesNext_3_uop_decoded_uopCode_string = "ALU        ";
-      BaseUopCode_SHIFT : entriesNext_3_uop_decoded_uopCode_string = "SHIFT      ";
-      BaseUopCode_MUL : entriesNext_3_uop_decoded_uopCode_string = "MUL        ";
-      BaseUopCode_DIV : entriesNext_3_uop_decoded_uopCode_string = "DIV        ";
-      BaseUopCode_LOAD : entriesNext_3_uop_decoded_uopCode_string = "LOAD       ";
-      BaseUopCode_STORE : entriesNext_3_uop_decoded_uopCode_string = "STORE      ";
-      BaseUopCode_ATOMIC : entriesNext_3_uop_decoded_uopCode_string = "ATOMIC     ";
-      BaseUopCode_MEM_BARRIER : entriesNext_3_uop_decoded_uopCode_string = "MEM_BARRIER";
-      BaseUopCode_PREFETCH : entriesNext_3_uop_decoded_uopCode_string = "PREFETCH   ";
-      BaseUopCode_BRANCH : entriesNext_3_uop_decoded_uopCode_string = "BRANCH     ";
-      BaseUopCode_JUMP_REG : entriesNext_3_uop_decoded_uopCode_string = "JUMP_REG   ";
-      BaseUopCode_JUMP_IMM : entriesNext_3_uop_decoded_uopCode_string = "JUMP_IMM   ";
-      BaseUopCode_SYSTEM_OP : entriesNext_3_uop_decoded_uopCode_string = "SYSTEM_OP  ";
-      BaseUopCode_CSR_ACCESS : entriesNext_3_uop_decoded_uopCode_string = "CSR_ACCESS ";
-      BaseUopCode_FPU_ALU : entriesNext_3_uop_decoded_uopCode_string = "FPU_ALU    ";
-      BaseUopCode_FPU_CVT : entriesNext_3_uop_decoded_uopCode_string = "FPU_CVT    ";
-      BaseUopCode_FPU_CMP : entriesNext_3_uop_decoded_uopCode_string = "FPU_CMP    ";
-      BaseUopCode_FPU_SEL : entriesNext_3_uop_decoded_uopCode_string = "FPU_SEL    ";
-      BaseUopCode_LA_BITMANIP : entriesNext_3_uop_decoded_uopCode_string = "LA_BITMANIP";
-      BaseUopCode_LA_CACOP : entriesNext_3_uop_decoded_uopCode_string = "LA_CACOP   ";
-      BaseUopCode_LA_TLB : entriesNext_3_uop_decoded_uopCode_string = "LA_TLB     ";
-      BaseUopCode_IDLE : entriesNext_3_uop_decoded_uopCode_string = "IDLE       ";
-      default : entriesNext_3_uop_decoded_uopCode_string = "???????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_3_uop_decoded_exeUnit)
-      ExeUnitType_NONE : entriesNext_3_uop_decoded_exeUnit_string = "NONE               ";
-      ExeUnitType_ALU_INT : entriesNext_3_uop_decoded_exeUnit_string = "ALU_INT            ";
-      ExeUnitType_MUL_INT : entriesNext_3_uop_decoded_exeUnit_string = "MUL_INT            ";
-      ExeUnitType_DIV_INT : entriesNext_3_uop_decoded_exeUnit_string = "DIV_INT            ";
-      ExeUnitType_MEM : entriesNext_3_uop_decoded_exeUnit_string = "MEM                ";
-      ExeUnitType_BRU : entriesNext_3_uop_decoded_exeUnit_string = "BRU                ";
-      ExeUnitType_CSR : entriesNext_3_uop_decoded_exeUnit_string = "CSR                ";
-      ExeUnitType_FPU_ADD_MUL_CVT_CMP : entriesNext_3_uop_decoded_exeUnit_string = "FPU_ADD_MUL_CVT_CMP";
-      ExeUnitType_FPU_DIV_SQRT : entriesNext_3_uop_decoded_exeUnit_string = "FPU_DIV_SQRT       ";
-      default : entriesNext_3_uop_decoded_exeUnit_string = "???????????????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_3_uop_decoded_isa)
-      IsaType_UNKNOWN : entriesNext_3_uop_decoded_isa_string = "UNKNOWN  ";
-      IsaType_DEMO : entriesNext_3_uop_decoded_isa_string = "DEMO     ";
-      IsaType_RISCV : entriesNext_3_uop_decoded_isa_string = "RISCV    ";
-      IsaType_LOONGARCH : entriesNext_3_uop_decoded_isa_string = "LOONGARCH";
-      default : entriesNext_3_uop_decoded_isa_string = "?????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_3_uop_decoded_archDest_rtype)
-      ArchRegType_GPR : entriesNext_3_uop_decoded_archDest_rtype_string = "GPR  ";
-      ArchRegType_FPR : entriesNext_3_uop_decoded_archDest_rtype_string = "FPR  ";
-      ArchRegType_CSR : entriesNext_3_uop_decoded_archDest_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : entriesNext_3_uop_decoded_archDest_rtype_string = "LA_CF";
-      default : entriesNext_3_uop_decoded_archDest_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_3_uop_decoded_archSrc1_rtype)
-      ArchRegType_GPR : entriesNext_3_uop_decoded_archSrc1_rtype_string = "GPR  ";
-      ArchRegType_FPR : entriesNext_3_uop_decoded_archSrc1_rtype_string = "FPR  ";
-      ArchRegType_CSR : entriesNext_3_uop_decoded_archSrc1_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : entriesNext_3_uop_decoded_archSrc1_rtype_string = "LA_CF";
-      default : entriesNext_3_uop_decoded_archSrc1_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_3_uop_decoded_archSrc2_rtype)
-      ArchRegType_GPR : entriesNext_3_uop_decoded_archSrc2_rtype_string = "GPR  ";
-      ArchRegType_FPR : entriesNext_3_uop_decoded_archSrc2_rtype_string = "FPR  ";
-      ArchRegType_CSR : entriesNext_3_uop_decoded_archSrc2_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : entriesNext_3_uop_decoded_archSrc2_rtype_string = "LA_CF";
-      default : entriesNext_3_uop_decoded_archSrc2_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_3_uop_decoded_immUsage)
-      ImmUsageType_NONE : entriesNext_3_uop_decoded_immUsage_string = "NONE         ";
-      ImmUsageType_SRC_ALU : entriesNext_3_uop_decoded_immUsage_string = "SRC_ALU      ";
-      ImmUsageType_SRC_SHIFT_AMT : entriesNext_3_uop_decoded_immUsage_string = "SRC_SHIFT_AMT";
-      ImmUsageType_SRC_CSR_UIMM : entriesNext_3_uop_decoded_immUsage_string = "SRC_CSR_UIMM ";
-      ImmUsageType_MEM_OFFSET : entriesNext_3_uop_decoded_immUsage_string = "MEM_OFFSET   ";
-      ImmUsageType_BRANCH_OFFSET : entriesNext_3_uop_decoded_immUsage_string = "BRANCH_OFFSET";
-      ImmUsageType_JUMP_OFFSET : entriesNext_3_uop_decoded_immUsage_string = "JUMP_OFFSET  ";
-      default : entriesNext_3_uop_decoded_immUsage_string = "?????????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_3_uop_decoded_aluCtrl_logicOp)
-      LogicOp_NONE : entriesNext_3_uop_decoded_aluCtrl_logicOp_string = "NONE  ";
-      LogicOp_AND_1 : entriesNext_3_uop_decoded_aluCtrl_logicOp_string = "AND_1 ";
-      LogicOp_OR_1 : entriesNext_3_uop_decoded_aluCtrl_logicOp_string = "OR_1  ";
-      LogicOp_NOR_1 : entriesNext_3_uop_decoded_aluCtrl_logicOp_string = "NOR_1 ";
-      LogicOp_XOR_1 : entriesNext_3_uop_decoded_aluCtrl_logicOp_string = "XOR_1 ";
-      LogicOp_NAND_1 : entriesNext_3_uop_decoded_aluCtrl_logicOp_string = "NAND_1";
-      LogicOp_XNOR_1 : entriesNext_3_uop_decoded_aluCtrl_logicOp_string = "XNOR_1";
-      default : entriesNext_3_uop_decoded_aluCtrl_logicOp_string = "??????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_3_uop_decoded_aluCtrl_condition)
-      BranchCondition_NUL : entriesNext_3_uop_decoded_aluCtrl_condition_string = "NUL        ";
-      BranchCondition_EQ : entriesNext_3_uop_decoded_aluCtrl_condition_string = "EQ         ";
-      BranchCondition_NE : entriesNext_3_uop_decoded_aluCtrl_condition_string = "NE         ";
-      BranchCondition_LT : entriesNext_3_uop_decoded_aluCtrl_condition_string = "LT         ";
-      BranchCondition_GE : entriesNext_3_uop_decoded_aluCtrl_condition_string = "GE         ";
-      BranchCondition_LTU : entriesNext_3_uop_decoded_aluCtrl_condition_string = "LTU        ";
-      BranchCondition_GEU : entriesNext_3_uop_decoded_aluCtrl_condition_string = "GEU        ";
-      BranchCondition_EQZ : entriesNext_3_uop_decoded_aluCtrl_condition_string = "EQZ        ";
-      BranchCondition_NEZ : entriesNext_3_uop_decoded_aluCtrl_condition_string = "NEZ        ";
-      BranchCondition_LTZ : entriesNext_3_uop_decoded_aluCtrl_condition_string = "LTZ        ";
-      BranchCondition_GEZ : entriesNext_3_uop_decoded_aluCtrl_condition_string = "GEZ        ";
-      BranchCondition_GTZ : entriesNext_3_uop_decoded_aluCtrl_condition_string = "GTZ        ";
-      BranchCondition_LEZ : entriesNext_3_uop_decoded_aluCtrl_condition_string = "LEZ        ";
-      BranchCondition_F_EQ : entriesNext_3_uop_decoded_aluCtrl_condition_string = "F_EQ       ";
-      BranchCondition_F_NE : entriesNext_3_uop_decoded_aluCtrl_condition_string = "F_NE       ";
-      BranchCondition_F_LT : entriesNext_3_uop_decoded_aluCtrl_condition_string = "F_LT       ";
-      BranchCondition_F_LE : entriesNext_3_uop_decoded_aluCtrl_condition_string = "F_LE       ";
-      BranchCondition_F_UN : entriesNext_3_uop_decoded_aluCtrl_condition_string = "F_UN       ";
-      BranchCondition_LA_CF_TRUE : entriesNext_3_uop_decoded_aluCtrl_condition_string = "LA_CF_TRUE ";
-      BranchCondition_LA_CF_FALSE : entriesNext_3_uop_decoded_aluCtrl_condition_string = "LA_CF_FALSE";
-      default : entriesNext_3_uop_decoded_aluCtrl_condition_string = "???????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_3_uop_decoded_memCtrl_size)
-      MemAccessSize_B : entriesNext_3_uop_decoded_memCtrl_size_string = "B";
-      MemAccessSize_H : entriesNext_3_uop_decoded_memCtrl_size_string = "H";
-      MemAccessSize_W : entriesNext_3_uop_decoded_memCtrl_size_string = "W";
-      MemAccessSize_D : entriesNext_3_uop_decoded_memCtrl_size_string = "D";
-      default : entriesNext_3_uop_decoded_memCtrl_size_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_3_uop_decoded_branchCtrl_condition)
-      BranchCondition_NUL : entriesNext_3_uop_decoded_branchCtrl_condition_string = "NUL        ";
-      BranchCondition_EQ : entriesNext_3_uop_decoded_branchCtrl_condition_string = "EQ         ";
-      BranchCondition_NE : entriesNext_3_uop_decoded_branchCtrl_condition_string = "NE         ";
-      BranchCondition_LT : entriesNext_3_uop_decoded_branchCtrl_condition_string = "LT         ";
-      BranchCondition_GE : entriesNext_3_uop_decoded_branchCtrl_condition_string = "GE         ";
-      BranchCondition_LTU : entriesNext_3_uop_decoded_branchCtrl_condition_string = "LTU        ";
-      BranchCondition_GEU : entriesNext_3_uop_decoded_branchCtrl_condition_string = "GEU        ";
-      BranchCondition_EQZ : entriesNext_3_uop_decoded_branchCtrl_condition_string = "EQZ        ";
-      BranchCondition_NEZ : entriesNext_3_uop_decoded_branchCtrl_condition_string = "NEZ        ";
-      BranchCondition_LTZ : entriesNext_3_uop_decoded_branchCtrl_condition_string = "LTZ        ";
-      BranchCondition_GEZ : entriesNext_3_uop_decoded_branchCtrl_condition_string = "GEZ        ";
-      BranchCondition_GTZ : entriesNext_3_uop_decoded_branchCtrl_condition_string = "GTZ        ";
-      BranchCondition_LEZ : entriesNext_3_uop_decoded_branchCtrl_condition_string = "LEZ        ";
-      BranchCondition_F_EQ : entriesNext_3_uop_decoded_branchCtrl_condition_string = "F_EQ       ";
-      BranchCondition_F_NE : entriesNext_3_uop_decoded_branchCtrl_condition_string = "F_NE       ";
-      BranchCondition_F_LT : entriesNext_3_uop_decoded_branchCtrl_condition_string = "F_LT       ";
-      BranchCondition_F_LE : entriesNext_3_uop_decoded_branchCtrl_condition_string = "F_LE       ";
-      BranchCondition_F_UN : entriesNext_3_uop_decoded_branchCtrl_condition_string = "F_UN       ";
-      BranchCondition_LA_CF_TRUE : entriesNext_3_uop_decoded_branchCtrl_condition_string = "LA_CF_TRUE ";
-      BranchCondition_LA_CF_FALSE : entriesNext_3_uop_decoded_branchCtrl_condition_string = "LA_CF_FALSE";
-      default : entriesNext_3_uop_decoded_branchCtrl_condition_string = "???????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_3_uop_decoded_branchCtrl_linkReg_rtype)
-      ArchRegType_GPR : entriesNext_3_uop_decoded_branchCtrl_linkReg_rtype_string = "GPR  ";
-      ArchRegType_FPR : entriesNext_3_uop_decoded_branchCtrl_linkReg_rtype_string = "FPR  ";
-      ArchRegType_CSR : entriesNext_3_uop_decoded_branchCtrl_linkReg_rtype_string = "CSR  ";
-      ArchRegType_LA_CF : entriesNext_3_uop_decoded_branchCtrl_linkReg_rtype_string = "LA_CF";
-      default : entriesNext_3_uop_decoded_branchCtrl_linkReg_rtype_string = "?????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_3_uop_decoded_fpuCtrl_fpSizeSrc1)
-      MemAccessSize_B : entriesNext_3_uop_decoded_fpuCtrl_fpSizeSrc1_string = "B";
-      MemAccessSize_H : entriesNext_3_uop_decoded_fpuCtrl_fpSizeSrc1_string = "H";
-      MemAccessSize_W : entriesNext_3_uop_decoded_fpuCtrl_fpSizeSrc1_string = "W";
-      MemAccessSize_D : entriesNext_3_uop_decoded_fpuCtrl_fpSizeSrc1_string = "D";
-      default : entriesNext_3_uop_decoded_fpuCtrl_fpSizeSrc1_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_3_uop_decoded_fpuCtrl_fpSizeSrc2)
-      MemAccessSize_B : entriesNext_3_uop_decoded_fpuCtrl_fpSizeSrc2_string = "B";
-      MemAccessSize_H : entriesNext_3_uop_decoded_fpuCtrl_fpSizeSrc2_string = "H";
-      MemAccessSize_W : entriesNext_3_uop_decoded_fpuCtrl_fpSizeSrc2_string = "W";
-      MemAccessSize_D : entriesNext_3_uop_decoded_fpuCtrl_fpSizeSrc2_string = "D";
-      default : entriesNext_3_uop_decoded_fpuCtrl_fpSizeSrc2_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_3_uop_decoded_fpuCtrl_fpSizeDest)
-      MemAccessSize_B : entriesNext_3_uop_decoded_fpuCtrl_fpSizeDest_string = "B";
-      MemAccessSize_H : entriesNext_3_uop_decoded_fpuCtrl_fpSizeDest_string = "H";
-      MemAccessSize_W : entriesNext_3_uop_decoded_fpuCtrl_fpSizeDest_string = "W";
-      MemAccessSize_D : entriesNext_3_uop_decoded_fpuCtrl_fpSizeDest_string = "D";
-      default : entriesNext_3_uop_decoded_fpuCtrl_fpSizeDest_string = "?";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_3_uop_decoded_decodeExceptionCode)
-      DecodeExCode_INVALID : entriesNext_3_uop_decoded_decodeExceptionCode_string = "INVALID     ";
-      DecodeExCode_FETCH_ERROR : entriesNext_3_uop_decoded_decodeExceptionCode_string = "FETCH_ERROR ";
-      DecodeExCode_DECODE_ERROR : entriesNext_3_uop_decoded_decodeExceptionCode_string = "DECODE_ERROR";
-      DecodeExCode_OK : entriesNext_3_uop_decoded_decodeExceptionCode_string = "OK          ";
-      default : entriesNext_3_uop_decoded_decodeExceptionCode_string = "????????????";
-    endcase
-  end
   `endif
 
   assign when_IssueQueueComponent_l68 = (! io_flush);
@@ -45968,4467 +41576,23 @@ module IssueQueueComponent_1 (
   assign _zz_allocateIdx_1 = (allocationMask[1] || _zz_allocateIdx);
   assign _zz_allocateIdx_2 = (allocationMask[2] || _zz_allocateIdx);
   assign allocateIdx = {_zz_allocateIdx_2,_zz_allocateIdx_1};
-  always @(*) begin
-    entriesNext_0_uop_decoded_pc = entries_0_uop_decoded_pc;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_pc = io_allocateIn_payload_uop_decoded_pc;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_isValid = entries_0_uop_decoded_isValid;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_isValid = io_allocateIn_payload_uop_decoded_isValid;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_uopCode = entries_0_uop_decoded_uopCode;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_uopCode = io_allocateIn_payload_uop_decoded_uopCode;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_exeUnit = entries_0_uop_decoded_exeUnit;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_exeUnit = io_allocateIn_payload_uop_decoded_exeUnit;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_isa = entries_0_uop_decoded_isa;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_isa = io_allocateIn_payload_uop_decoded_isa;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_archDest_idx = entries_0_uop_decoded_archDest_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_archDest_idx = io_allocateIn_payload_uop_decoded_archDest_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_archDest_rtype = entries_0_uop_decoded_archDest_rtype;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_archDest_rtype = io_allocateIn_payload_uop_decoded_archDest_rtype;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_writeArchDestEn = entries_0_uop_decoded_writeArchDestEn;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_writeArchDestEn = io_allocateIn_payload_uop_decoded_writeArchDestEn;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_archSrc1_idx = entries_0_uop_decoded_archSrc1_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_archSrc1_idx = io_allocateIn_payload_uop_decoded_archSrc1_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_archSrc1_rtype = entries_0_uop_decoded_archSrc1_rtype;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_archSrc1_rtype = io_allocateIn_payload_uop_decoded_archSrc1_rtype;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_useArchSrc1 = entries_0_uop_decoded_useArchSrc1;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_useArchSrc1 = io_allocateIn_payload_uop_decoded_useArchSrc1;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_archSrc2_idx = entries_0_uop_decoded_archSrc2_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_archSrc2_idx = io_allocateIn_payload_uop_decoded_archSrc2_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_archSrc2_rtype = entries_0_uop_decoded_archSrc2_rtype;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_archSrc2_rtype = io_allocateIn_payload_uop_decoded_archSrc2_rtype;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_useArchSrc2 = entries_0_uop_decoded_useArchSrc2;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_useArchSrc2 = io_allocateIn_payload_uop_decoded_useArchSrc2;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_usePcForAddr = entries_0_uop_decoded_usePcForAddr;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_usePcForAddr = io_allocateIn_payload_uop_decoded_usePcForAddr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_src1IsPc = entries_0_uop_decoded_src1IsPc;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_src1IsPc = io_allocateIn_payload_uop_decoded_src1IsPc;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_imm = entries_0_uop_decoded_imm;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_imm = io_allocateIn_payload_uop_decoded_imm;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_immUsage = entries_0_uop_decoded_immUsage;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_immUsage = io_allocateIn_payload_uop_decoded_immUsage;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_aluCtrl_valid = entries_0_uop_decoded_aluCtrl_valid;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_aluCtrl_valid = io_allocateIn_payload_uop_decoded_aluCtrl_valid;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_aluCtrl_isSub = entries_0_uop_decoded_aluCtrl_isSub;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_aluCtrl_isSub = io_allocateIn_payload_uop_decoded_aluCtrl_isSub;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_aluCtrl_isAdd = entries_0_uop_decoded_aluCtrl_isAdd;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_aluCtrl_isAdd = io_allocateIn_payload_uop_decoded_aluCtrl_isAdd;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_aluCtrl_isSigned = entries_0_uop_decoded_aluCtrl_isSigned;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_aluCtrl_isSigned = io_allocateIn_payload_uop_decoded_aluCtrl_isSigned;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_aluCtrl_logicOp = entries_0_uop_decoded_aluCtrl_logicOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_aluCtrl_logicOp = io_allocateIn_payload_uop_decoded_aluCtrl_logicOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_aluCtrl_condition = entries_0_uop_decoded_aluCtrl_condition;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_aluCtrl_condition = io_allocateIn_payload_uop_decoded_aluCtrl_condition;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_shiftCtrl_valid = entries_0_uop_decoded_shiftCtrl_valid;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_shiftCtrl_valid = io_allocateIn_payload_uop_decoded_shiftCtrl_valid;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_shiftCtrl_isRight = entries_0_uop_decoded_shiftCtrl_isRight;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_shiftCtrl_isRight = io_allocateIn_payload_uop_decoded_shiftCtrl_isRight;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_shiftCtrl_isArithmetic = entries_0_uop_decoded_shiftCtrl_isArithmetic;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_shiftCtrl_isArithmetic = io_allocateIn_payload_uop_decoded_shiftCtrl_isArithmetic;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_shiftCtrl_isRotate = entries_0_uop_decoded_shiftCtrl_isRotate;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_shiftCtrl_isRotate = io_allocateIn_payload_uop_decoded_shiftCtrl_isRotate;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_shiftCtrl_isDoubleWord = entries_0_uop_decoded_shiftCtrl_isDoubleWord;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_shiftCtrl_isDoubleWord = io_allocateIn_payload_uop_decoded_shiftCtrl_isDoubleWord;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_mulDivCtrl_valid = entries_0_uop_decoded_mulDivCtrl_valid;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_mulDivCtrl_valid = io_allocateIn_payload_uop_decoded_mulDivCtrl_valid;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_mulDivCtrl_isDiv = entries_0_uop_decoded_mulDivCtrl_isDiv;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_mulDivCtrl_isDiv = io_allocateIn_payload_uop_decoded_mulDivCtrl_isDiv;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_mulDivCtrl_isSigned = entries_0_uop_decoded_mulDivCtrl_isSigned;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_mulDivCtrl_isSigned = io_allocateIn_payload_uop_decoded_mulDivCtrl_isSigned;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_mulDivCtrl_isWordOp = entries_0_uop_decoded_mulDivCtrl_isWordOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_mulDivCtrl_isWordOp = io_allocateIn_payload_uop_decoded_mulDivCtrl_isWordOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_memCtrl_size = entries_0_uop_decoded_memCtrl_size;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_memCtrl_size = io_allocateIn_payload_uop_decoded_memCtrl_size;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_memCtrl_isSignedLoad = entries_0_uop_decoded_memCtrl_isSignedLoad;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_memCtrl_isSignedLoad = io_allocateIn_payload_uop_decoded_memCtrl_isSignedLoad;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_memCtrl_isStore = entries_0_uop_decoded_memCtrl_isStore;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_memCtrl_isStore = io_allocateIn_payload_uop_decoded_memCtrl_isStore;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_memCtrl_isLoadLinked = entries_0_uop_decoded_memCtrl_isLoadLinked;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_memCtrl_isLoadLinked = io_allocateIn_payload_uop_decoded_memCtrl_isLoadLinked;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_memCtrl_isStoreCond = entries_0_uop_decoded_memCtrl_isStoreCond;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_memCtrl_isStoreCond = io_allocateIn_payload_uop_decoded_memCtrl_isStoreCond;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_memCtrl_atomicOp = entries_0_uop_decoded_memCtrl_atomicOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_memCtrl_atomicOp = io_allocateIn_payload_uop_decoded_memCtrl_atomicOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_memCtrl_isFence = entries_0_uop_decoded_memCtrl_isFence;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_memCtrl_isFence = io_allocateIn_payload_uop_decoded_memCtrl_isFence;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_memCtrl_fenceMode = entries_0_uop_decoded_memCtrl_fenceMode;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_memCtrl_fenceMode = io_allocateIn_payload_uop_decoded_memCtrl_fenceMode;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_memCtrl_isCacheOp = entries_0_uop_decoded_memCtrl_isCacheOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_memCtrl_isCacheOp = io_allocateIn_payload_uop_decoded_memCtrl_isCacheOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_memCtrl_cacheOpType = entries_0_uop_decoded_memCtrl_cacheOpType;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_memCtrl_cacheOpType = io_allocateIn_payload_uop_decoded_memCtrl_cacheOpType;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_memCtrl_isPrefetch = entries_0_uop_decoded_memCtrl_isPrefetch;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_memCtrl_isPrefetch = io_allocateIn_payload_uop_decoded_memCtrl_isPrefetch;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_branchCtrl_condition = entries_0_uop_decoded_branchCtrl_condition;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_branchCtrl_condition = io_allocateIn_payload_uop_decoded_branchCtrl_condition;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_branchCtrl_isJump = entries_0_uop_decoded_branchCtrl_isJump;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_branchCtrl_isJump = io_allocateIn_payload_uop_decoded_branchCtrl_isJump;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_branchCtrl_isLink = entries_0_uop_decoded_branchCtrl_isLink;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_branchCtrl_isLink = io_allocateIn_payload_uop_decoded_branchCtrl_isLink;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_branchCtrl_linkReg_idx = entries_0_uop_decoded_branchCtrl_linkReg_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_branchCtrl_linkReg_idx = io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_branchCtrl_linkReg_rtype = entries_0_uop_decoded_branchCtrl_linkReg_rtype;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_branchCtrl_linkReg_rtype = io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_rtype;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_branchCtrl_isIndirect = entries_0_uop_decoded_branchCtrl_isIndirect;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_branchCtrl_isIndirect = io_allocateIn_payload_uop_decoded_branchCtrl_isIndirect;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_branchCtrl_laCfIdx = entries_0_uop_decoded_branchCtrl_laCfIdx;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_branchCtrl_laCfIdx = io_allocateIn_payload_uop_decoded_branchCtrl_laCfIdx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_fpuCtrl_opType = entries_0_uop_decoded_fpuCtrl_opType;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_fpuCtrl_opType = io_allocateIn_payload_uop_decoded_fpuCtrl_opType;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_fpuCtrl_fpSizeSrc1 = entries_0_uop_decoded_fpuCtrl_fpSizeSrc1;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_fpuCtrl_fpSizeSrc1 = io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc1;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_fpuCtrl_fpSizeSrc2 = entries_0_uop_decoded_fpuCtrl_fpSizeSrc2;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_fpuCtrl_fpSizeSrc2 = io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc2;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_fpuCtrl_fpSizeDest = entries_0_uop_decoded_fpuCtrl_fpSizeDest;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_fpuCtrl_fpSizeDest = io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeDest;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_fpuCtrl_roundingMode = entries_0_uop_decoded_fpuCtrl_roundingMode;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_fpuCtrl_roundingMode = io_allocateIn_payload_uop_decoded_fpuCtrl_roundingMode;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_fpuCtrl_isIntegerDest = entries_0_uop_decoded_fpuCtrl_isIntegerDest;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_fpuCtrl_isIntegerDest = io_allocateIn_payload_uop_decoded_fpuCtrl_isIntegerDest;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_fpuCtrl_isSignedCvt = entries_0_uop_decoded_fpuCtrl_isSignedCvt;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_fpuCtrl_isSignedCvt = io_allocateIn_payload_uop_decoded_fpuCtrl_isSignedCvt;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_fpuCtrl_fmaNegSrc1 = entries_0_uop_decoded_fpuCtrl_fmaNegSrc1;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_fpuCtrl_fmaNegSrc1 = io_allocateIn_payload_uop_decoded_fpuCtrl_fmaNegSrc1;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_fpuCtrl_fcmpCond = entries_0_uop_decoded_fpuCtrl_fcmpCond;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_fpuCtrl_fcmpCond = io_allocateIn_payload_uop_decoded_fpuCtrl_fcmpCond;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_csrCtrl_csrAddr = entries_0_uop_decoded_csrCtrl_csrAddr;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_csrCtrl_csrAddr = io_allocateIn_payload_uop_decoded_csrCtrl_csrAddr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_csrCtrl_isWrite = entries_0_uop_decoded_csrCtrl_isWrite;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_csrCtrl_isWrite = io_allocateIn_payload_uop_decoded_csrCtrl_isWrite;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_csrCtrl_isRead = entries_0_uop_decoded_csrCtrl_isRead;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_csrCtrl_isRead = io_allocateIn_payload_uop_decoded_csrCtrl_isRead;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_csrCtrl_isExchange = entries_0_uop_decoded_csrCtrl_isExchange;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_csrCtrl_isExchange = io_allocateIn_payload_uop_decoded_csrCtrl_isExchange;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_csrCtrl_useUimmAsSrc = entries_0_uop_decoded_csrCtrl_useUimmAsSrc;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_csrCtrl_useUimmAsSrc = io_allocateIn_payload_uop_decoded_csrCtrl_useUimmAsSrc;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_sysCtrl_sysCode = entries_0_uop_decoded_sysCtrl_sysCode;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_sysCtrl_sysCode = io_allocateIn_payload_uop_decoded_sysCtrl_sysCode;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_sysCtrl_isExceptionReturn = entries_0_uop_decoded_sysCtrl_isExceptionReturn;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_sysCtrl_isExceptionReturn = io_allocateIn_payload_uop_decoded_sysCtrl_isExceptionReturn;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_sysCtrl_isTlbOp = entries_0_uop_decoded_sysCtrl_isTlbOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_sysCtrl_isTlbOp = io_allocateIn_payload_uop_decoded_sysCtrl_isTlbOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_sysCtrl_tlbOpType = entries_0_uop_decoded_sysCtrl_tlbOpType;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_sysCtrl_tlbOpType = io_allocateIn_payload_uop_decoded_sysCtrl_tlbOpType;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_decodeExceptionCode = entries_0_uop_decoded_decodeExceptionCode;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_decodeExceptionCode = io_allocateIn_payload_uop_decoded_decodeExceptionCode;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_hasDecodeException = entries_0_uop_decoded_hasDecodeException;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_hasDecodeException = io_allocateIn_payload_uop_decoded_hasDecodeException;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_isMicrocode = entries_0_uop_decoded_isMicrocode;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_isMicrocode = io_allocateIn_payload_uop_decoded_isMicrocode;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_microcodeEntry = entries_0_uop_decoded_microcodeEntry;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_microcodeEntry = io_allocateIn_payload_uop_decoded_microcodeEntry;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_isSerializing = entries_0_uop_decoded_isSerializing;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_isSerializing = io_allocateIn_payload_uop_decoded_isSerializing;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_isBranchOrJump = entries_0_uop_decoded_isBranchOrJump;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_isBranchOrJump = io_allocateIn_payload_uop_decoded_isBranchOrJump;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_branchPrediction_isTaken = entries_0_uop_decoded_branchPrediction_isTaken;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_branchPrediction_isTaken = io_allocateIn_payload_uop_decoded_branchPrediction_isTaken;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_branchPrediction_target = entries_0_uop_decoded_branchPrediction_target;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_branchPrediction_target = io_allocateIn_payload_uop_decoded_branchPrediction_target;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_decoded_branchPrediction_wasPredicted = entries_0_uop_decoded_branchPrediction_wasPredicted;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_decoded_branchPrediction_wasPredicted = io_allocateIn_payload_uop_decoded_branchPrediction_wasPredicted;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_rename_physSrc1_idx = entries_0_uop_rename_physSrc1_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_rename_physSrc1_idx = io_allocateIn_payload_uop_rename_physSrc1_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_rename_physSrc1IsFpr = entries_0_uop_rename_physSrc1IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_rename_physSrc1IsFpr = io_allocateIn_payload_uop_rename_physSrc1IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_rename_physSrc2_idx = entries_0_uop_rename_physSrc2_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_rename_physSrc2_idx = io_allocateIn_payload_uop_rename_physSrc2_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_rename_physSrc2IsFpr = entries_0_uop_rename_physSrc2IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_rename_physSrc2IsFpr = io_allocateIn_payload_uop_rename_physSrc2IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_rename_physDest_idx = entries_0_uop_rename_physDest_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_rename_physDest_idx = io_allocateIn_payload_uop_rename_physDest_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_rename_physDestIsFpr = entries_0_uop_rename_physDestIsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_rename_physDestIsFpr = io_allocateIn_payload_uop_rename_physDestIsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_rename_oldPhysDest_idx = entries_0_uop_rename_oldPhysDest_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_rename_oldPhysDest_idx = io_allocateIn_payload_uop_rename_oldPhysDest_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_rename_oldPhysDestIsFpr = entries_0_uop_rename_oldPhysDestIsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_rename_oldPhysDestIsFpr = io_allocateIn_payload_uop_rename_oldPhysDestIsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_rename_allocatesPhysDest = entries_0_uop_rename_allocatesPhysDest;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_rename_allocatesPhysDest = io_allocateIn_payload_uop_rename_allocatesPhysDest;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_rename_writesToPhysReg = entries_0_uop_rename_writesToPhysReg;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_rename_writesToPhysReg = io_allocateIn_payload_uop_rename_writesToPhysReg;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_robPtr = entries_0_uop_robPtr;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_robPtr = io_allocateIn_payload_uop_robPtr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_uniqueId = entries_0_uop_uniqueId;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_uniqueId = io_allocateIn_payload_uop_uniqueId;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_dispatched = entries_0_uop_dispatched;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_dispatched = io_allocateIn_payload_uop_dispatched;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_executed = entries_0_uop_executed;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_executed = io_allocateIn_payload_uop_executed;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_hasException = entries_0_uop_hasException;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_hasException = io_allocateIn_payload_uop_hasException;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_uop_exceptionCode = entries_0_uop_exceptionCode;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_uop_exceptionCode = io_allocateIn_payload_uop_exceptionCode;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_robPtr = entries_0_robPtr;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_robPtr = io_allocateIn_payload_uop_robPtr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_physDest_idx = entries_0_physDest_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_physDest_idx = io_allocateIn_payload_uop_rename_physDest_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_physDestIsFpr = entries_0_physDestIsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_physDestIsFpr = io_allocateIn_payload_uop_rename_physDestIsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_writesToPhysReg = entries_0_writesToPhysReg;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_writesToPhysReg = io_allocateIn_payload_uop_rename_writesToPhysReg;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_useSrc1 = entries_0_useSrc1;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_useSrc1 = io_allocateIn_payload_uop_decoded_useArchSrc1;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src1Data = entries_0_src1Data;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src1Data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src1Tag = entries_0_src1Tag;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src1Tag = io_allocateIn_payload_uop_rename_physSrc1_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src1Ready = entries_0_src1Ready;
-    if(when_IssueQueueComponent_l192) begin
-      entriesNext_0_src1Ready = 1'b1;
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src1Ready = _zz_entriesNext_0_src1Ready;
-      end
-      if(_zz_3) begin
-        entriesNext_0_src1Ready = io_allocateIn_payload_src1InitialReady;
-      end
-      if(when_IssueQueueComponent_l217) begin
-        if(when_IssueQueueComponent_l218) begin
-          if(_zz_3) begin
-            entriesNext_0_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_1) begin
-        if(when_IssueQueueComponent_l218_1) begin
-          if(_zz_3) begin
-            entriesNext_0_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_2) begin
-        if(when_IssueQueueComponent_l218_2) begin
-          if(_zz_3) begin
-            entriesNext_0_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_3) begin
-        if(when_IssueQueueComponent_l218_3) begin
-          if(_zz_3) begin
-            entriesNext_0_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_4) begin
-        if(when_IssueQueueComponent_l218_4) begin
-          if(_zz_3) begin
-            entriesNext_0_src1Ready = 1'b1;
-          end
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src1IsFpr = entries_0_src1IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src1IsFpr = io_allocateIn_payload_uop_rename_physSrc1IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_useSrc2 = entries_0_useSrc2;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_useSrc2 = io_allocateIn_payload_uop_decoded_useArchSrc2;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src2Data = entries_0_src2Data;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src2Data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src2Tag = entries_0_src2Tag;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src2Tag = io_allocateIn_payload_uop_rename_physSrc2_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src2Ready = entries_0_src2Ready;
-    if(when_IssueQueueComponent_l193) begin
-      entriesNext_0_src2Ready = 1'b1;
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src2Ready = _zz_entriesNext_0_src2Ready;
-      end
-      if(_zz_3) begin
-        entriesNext_0_src2Ready = io_allocateIn_payload_src2InitialReady;
-      end
-      if(when_IssueQueueComponent_l217) begin
-        if(when_IssueQueueComponent_l221) begin
-          if(_zz_3) begin
-            entriesNext_0_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_1) begin
-        if(when_IssueQueueComponent_l221_1) begin
-          if(_zz_3) begin
-            entriesNext_0_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_2) begin
-        if(when_IssueQueueComponent_l221_2) begin
-          if(_zz_3) begin
-            entriesNext_0_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_3) begin
-        if(when_IssueQueueComponent_l221_3) begin
-          if(_zz_3) begin
-            entriesNext_0_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_4) begin
-        if(when_IssueQueueComponent_l221_4) begin
-          if(_zz_3) begin
-            entriesNext_0_src2Ready = 1'b1;
-          end
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src2IsFpr = entries_0_src2IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src2IsFpr = io_allocateIn_payload_uop_rename_physSrc2IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_mulDivCtrl_valid = entries_0_mulDivCtrl_valid;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_mulDivCtrl_valid = io_allocateIn_payload_uop_decoded_mulDivCtrl_valid;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_mulDivCtrl_isDiv = entries_0_mulDivCtrl_isDiv;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_mulDivCtrl_isDiv = io_allocateIn_payload_uop_decoded_mulDivCtrl_isDiv;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_mulDivCtrl_isSigned = entries_0_mulDivCtrl_isSigned;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_mulDivCtrl_isSigned = io_allocateIn_payload_uop_decoded_mulDivCtrl_isSigned;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_mulDivCtrl_isWordOp = entries_0_mulDivCtrl_isWordOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_mulDivCtrl_isWordOp = io_allocateIn_payload_uop_decoded_mulDivCtrl_isWordOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_pc = entries_1_uop_decoded_pc;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_pc = io_allocateIn_payload_uop_decoded_pc;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_isValid = entries_1_uop_decoded_isValid;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_isValid = io_allocateIn_payload_uop_decoded_isValid;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_uopCode = entries_1_uop_decoded_uopCode;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_uopCode = io_allocateIn_payload_uop_decoded_uopCode;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_exeUnit = entries_1_uop_decoded_exeUnit;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_exeUnit = io_allocateIn_payload_uop_decoded_exeUnit;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_isa = entries_1_uop_decoded_isa;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_isa = io_allocateIn_payload_uop_decoded_isa;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_archDest_idx = entries_1_uop_decoded_archDest_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_archDest_idx = io_allocateIn_payload_uop_decoded_archDest_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_archDest_rtype = entries_1_uop_decoded_archDest_rtype;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_archDest_rtype = io_allocateIn_payload_uop_decoded_archDest_rtype;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_writeArchDestEn = entries_1_uop_decoded_writeArchDestEn;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_writeArchDestEn = io_allocateIn_payload_uop_decoded_writeArchDestEn;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_archSrc1_idx = entries_1_uop_decoded_archSrc1_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_archSrc1_idx = io_allocateIn_payload_uop_decoded_archSrc1_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_archSrc1_rtype = entries_1_uop_decoded_archSrc1_rtype;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_archSrc1_rtype = io_allocateIn_payload_uop_decoded_archSrc1_rtype;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_useArchSrc1 = entries_1_uop_decoded_useArchSrc1;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_useArchSrc1 = io_allocateIn_payload_uop_decoded_useArchSrc1;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_archSrc2_idx = entries_1_uop_decoded_archSrc2_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_archSrc2_idx = io_allocateIn_payload_uop_decoded_archSrc2_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_archSrc2_rtype = entries_1_uop_decoded_archSrc2_rtype;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_archSrc2_rtype = io_allocateIn_payload_uop_decoded_archSrc2_rtype;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_useArchSrc2 = entries_1_uop_decoded_useArchSrc2;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_useArchSrc2 = io_allocateIn_payload_uop_decoded_useArchSrc2;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_usePcForAddr = entries_1_uop_decoded_usePcForAddr;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_usePcForAddr = io_allocateIn_payload_uop_decoded_usePcForAddr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_src1IsPc = entries_1_uop_decoded_src1IsPc;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_src1IsPc = io_allocateIn_payload_uop_decoded_src1IsPc;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_imm = entries_1_uop_decoded_imm;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_imm = io_allocateIn_payload_uop_decoded_imm;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_immUsage = entries_1_uop_decoded_immUsage;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_immUsage = io_allocateIn_payload_uop_decoded_immUsage;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_aluCtrl_valid = entries_1_uop_decoded_aluCtrl_valid;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_aluCtrl_valid = io_allocateIn_payload_uop_decoded_aluCtrl_valid;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_aluCtrl_isSub = entries_1_uop_decoded_aluCtrl_isSub;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_aluCtrl_isSub = io_allocateIn_payload_uop_decoded_aluCtrl_isSub;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_aluCtrl_isAdd = entries_1_uop_decoded_aluCtrl_isAdd;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_aluCtrl_isAdd = io_allocateIn_payload_uop_decoded_aluCtrl_isAdd;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_aluCtrl_isSigned = entries_1_uop_decoded_aluCtrl_isSigned;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_aluCtrl_isSigned = io_allocateIn_payload_uop_decoded_aluCtrl_isSigned;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_aluCtrl_logicOp = entries_1_uop_decoded_aluCtrl_logicOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_aluCtrl_logicOp = io_allocateIn_payload_uop_decoded_aluCtrl_logicOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_aluCtrl_condition = entries_1_uop_decoded_aluCtrl_condition;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_aluCtrl_condition = io_allocateIn_payload_uop_decoded_aluCtrl_condition;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_shiftCtrl_valid = entries_1_uop_decoded_shiftCtrl_valid;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_shiftCtrl_valid = io_allocateIn_payload_uop_decoded_shiftCtrl_valid;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_shiftCtrl_isRight = entries_1_uop_decoded_shiftCtrl_isRight;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_shiftCtrl_isRight = io_allocateIn_payload_uop_decoded_shiftCtrl_isRight;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_shiftCtrl_isArithmetic = entries_1_uop_decoded_shiftCtrl_isArithmetic;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_shiftCtrl_isArithmetic = io_allocateIn_payload_uop_decoded_shiftCtrl_isArithmetic;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_shiftCtrl_isRotate = entries_1_uop_decoded_shiftCtrl_isRotate;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_shiftCtrl_isRotate = io_allocateIn_payload_uop_decoded_shiftCtrl_isRotate;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_shiftCtrl_isDoubleWord = entries_1_uop_decoded_shiftCtrl_isDoubleWord;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_shiftCtrl_isDoubleWord = io_allocateIn_payload_uop_decoded_shiftCtrl_isDoubleWord;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_mulDivCtrl_valid = entries_1_uop_decoded_mulDivCtrl_valid;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_mulDivCtrl_valid = io_allocateIn_payload_uop_decoded_mulDivCtrl_valid;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_mulDivCtrl_isDiv = entries_1_uop_decoded_mulDivCtrl_isDiv;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_mulDivCtrl_isDiv = io_allocateIn_payload_uop_decoded_mulDivCtrl_isDiv;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_mulDivCtrl_isSigned = entries_1_uop_decoded_mulDivCtrl_isSigned;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_mulDivCtrl_isSigned = io_allocateIn_payload_uop_decoded_mulDivCtrl_isSigned;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_mulDivCtrl_isWordOp = entries_1_uop_decoded_mulDivCtrl_isWordOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_mulDivCtrl_isWordOp = io_allocateIn_payload_uop_decoded_mulDivCtrl_isWordOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_memCtrl_size = entries_1_uop_decoded_memCtrl_size;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_memCtrl_size = io_allocateIn_payload_uop_decoded_memCtrl_size;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_memCtrl_isSignedLoad = entries_1_uop_decoded_memCtrl_isSignedLoad;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_memCtrl_isSignedLoad = io_allocateIn_payload_uop_decoded_memCtrl_isSignedLoad;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_memCtrl_isStore = entries_1_uop_decoded_memCtrl_isStore;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_memCtrl_isStore = io_allocateIn_payload_uop_decoded_memCtrl_isStore;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_memCtrl_isLoadLinked = entries_1_uop_decoded_memCtrl_isLoadLinked;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_memCtrl_isLoadLinked = io_allocateIn_payload_uop_decoded_memCtrl_isLoadLinked;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_memCtrl_isStoreCond = entries_1_uop_decoded_memCtrl_isStoreCond;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_memCtrl_isStoreCond = io_allocateIn_payload_uop_decoded_memCtrl_isStoreCond;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_memCtrl_atomicOp = entries_1_uop_decoded_memCtrl_atomicOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_memCtrl_atomicOp = io_allocateIn_payload_uop_decoded_memCtrl_atomicOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_memCtrl_isFence = entries_1_uop_decoded_memCtrl_isFence;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_memCtrl_isFence = io_allocateIn_payload_uop_decoded_memCtrl_isFence;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_memCtrl_fenceMode = entries_1_uop_decoded_memCtrl_fenceMode;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_memCtrl_fenceMode = io_allocateIn_payload_uop_decoded_memCtrl_fenceMode;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_memCtrl_isCacheOp = entries_1_uop_decoded_memCtrl_isCacheOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_memCtrl_isCacheOp = io_allocateIn_payload_uop_decoded_memCtrl_isCacheOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_memCtrl_cacheOpType = entries_1_uop_decoded_memCtrl_cacheOpType;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_memCtrl_cacheOpType = io_allocateIn_payload_uop_decoded_memCtrl_cacheOpType;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_memCtrl_isPrefetch = entries_1_uop_decoded_memCtrl_isPrefetch;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_memCtrl_isPrefetch = io_allocateIn_payload_uop_decoded_memCtrl_isPrefetch;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_branchCtrl_condition = entries_1_uop_decoded_branchCtrl_condition;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_branchCtrl_condition = io_allocateIn_payload_uop_decoded_branchCtrl_condition;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_branchCtrl_isJump = entries_1_uop_decoded_branchCtrl_isJump;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_branchCtrl_isJump = io_allocateIn_payload_uop_decoded_branchCtrl_isJump;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_branchCtrl_isLink = entries_1_uop_decoded_branchCtrl_isLink;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_branchCtrl_isLink = io_allocateIn_payload_uop_decoded_branchCtrl_isLink;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_branchCtrl_linkReg_idx = entries_1_uop_decoded_branchCtrl_linkReg_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_branchCtrl_linkReg_idx = io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_branchCtrl_linkReg_rtype = entries_1_uop_decoded_branchCtrl_linkReg_rtype;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_branchCtrl_linkReg_rtype = io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_rtype;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_branchCtrl_isIndirect = entries_1_uop_decoded_branchCtrl_isIndirect;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_branchCtrl_isIndirect = io_allocateIn_payload_uop_decoded_branchCtrl_isIndirect;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_branchCtrl_laCfIdx = entries_1_uop_decoded_branchCtrl_laCfIdx;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_branchCtrl_laCfIdx = io_allocateIn_payload_uop_decoded_branchCtrl_laCfIdx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_fpuCtrl_opType = entries_1_uop_decoded_fpuCtrl_opType;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_fpuCtrl_opType = io_allocateIn_payload_uop_decoded_fpuCtrl_opType;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_fpuCtrl_fpSizeSrc1 = entries_1_uop_decoded_fpuCtrl_fpSizeSrc1;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_fpuCtrl_fpSizeSrc1 = io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc1;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_fpuCtrl_fpSizeSrc2 = entries_1_uop_decoded_fpuCtrl_fpSizeSrc2;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_fpuCtrl_fpSizeSrc2 = io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc2;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_fpuCtrl_fpSizeDest = entries_1_uop_decoded_fpuCtrl_fpSizeDest;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_fpuCtrl_fpSizeDest = io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeDest;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_fpuCtrl_roundingMode = entries_1_uop_decoded_fpuCtrl_roundingMode;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_fpuCtrl_roundingMode = io_allocateIn_payload_uop_decoded_fpuCtrl_roundingMode;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_fpuCtrl_isIntegerDest = entries_1_uop_decoded_fpuCtrl_isIntegerDest;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_fpuCtrl_isIntegerDest = io_allocateIn_payload_uop_decoded_fpuCtrl_isIntegerDest;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_fpuCtrl_isSignedCvt = entries_1_uop_decoded_fpuCtrl_isSignedCvt;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_fpuCtrl_isSignedCvt = io_allocateIn_payload_uop_decoded_fpuCtrl_isSignedCvt;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_fpuCtrl_fmaNegSrc1 = entries_1_uop_decoded_fpuCtrl_fmaNegSrc1;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_fpuCtrl_fmaNegSrc1 = io_allocateIn_payload_uop_decoded_fpuCtrl_fmaNegSrc1;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_fpuCtrl_fcmpCond = entries_1_uop_decoded_fpuCtrl_fcmpCond;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_fpuCtrl_fcmpCond = io_allocateIn_payload_uop_decoded_fpuCtrl_fcmpCond;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_csrCtrl_csrAddr = entries_1_uop_decoded_csrCtrl_csrAddr;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_csrCtrl_csrAddr = io_allocateIn_payload_uop_decoded_csrCtrl_csrAddr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_csrCtrl_isWrite = entries_1_uop_decoded_csrCtrl_isWrite;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_csrCtrl_isWrite = io_allocateIn_payload_uop_decoded_csrCtrl_isWrite;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_csrCtrl_isRead = entries_1_uop_decoded_csrCtrl_isRead;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_csrCtrl_isRead = io_allocateIn_payload_uop_decoded_csrCtrl_isRead;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_csrCtrl_isExchange = entries_1_uop_decoded_csrCtrl_isExchange;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_csrCtrl_isExchange = io_allocateIn_payload_uop_decoded_csrCtrl_isExchange;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_csrCtrl_useUimmAsSrc = entries_1_uop_decoded_csrCtrl_useUimmAsSrc;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_csrCtrl_useUimmAsSrc = io_allocateIn_payload_uop_decoded_csrCtrl_useUimmAsSrc;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_sysCtrl_sysCode = entries_1_uop_decoded_sysCtrl_sysCode;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_sysCtrl_sysCode = io_allocateIn_payload_uop_decoded_sysCtrl_sysCode;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_sysCtrl_isExceptionReturn = entries_1_uop_decoded_sysCtrl_isExceptionReturn;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_sysCtrl_isExceptionReturn = io_allocateIn_payload_uop_decoded_sysCtrl_isExceptionReturn;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_sysCtrl_isTlbOp = entries_1_uop_decoded_sysCtrl_isTlbOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_sysCtrl_isTlbOp = io_allocateIn_payload_uop_decoded_sysCtrl_isTlbOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_sysCtrl_tlbOpType = entries_1_uop_decoded_sysCtrl_tlbOpType;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_sysCtrl_tlbOpType = io_allocateIn_payload_uop_decoded_sysCtrl_tlbOpType;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_decodeExceptionCode = entries_1_uop_decoded_decodeExceptionCode;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_decodeExceptionCode = io_allocateIn_payload_uop_decoded_decodeExceptionCode;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_hasDecodeException = entries_1_uop_decoded_hasDecodeException;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_hasDecodeException = io_allocateIn_payload_uop_decoded_hasDecodeException;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_isMicrocode = entries_1_uop_decoded_isMicrocode;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_isMicrocode = io_allocateIn_payload_uop_decoded_isMicrocode;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_microcodeEntry = entries_1_uop_decoded_microcodeEntry;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_microcodeEntry = io_allocateIn_payload_uop_decoded_microcodeEntry;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_isSerializing = entries_1_uop_decoded_isSerializing;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_isSerializing = io_allocateIn_payload_uop_decoded_isSerializing;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_isBranchOrJump = entries_1_uop_decoded_isBranchOrJump;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_isBranchOrJump = io_allocateIn_payload_uop_decoded_isBranchOrJump;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_branchPrediction_isTaken = entries_1_uop_decoded_branchPrediction_isTaken;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_branchPrediction_isTaken = io_allocateIn_payload_uop_decoded_branchPrediction_isTaken;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_branchPrediction_target = entries_1_uop_decoded_branchPrediction_target;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_branchPrediction_target = io_allocateIn_payload_uop_decoded_branchPrediction_target;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_decoded_branchPrediction_wasPredicted = entries_1_uop_decoded_branchPrediction_wasPredicted;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_decoded_branchPrediction_wasPredicted = io_allocateIn_payload_uop_decoded_branchPrediction_wasPredicted;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_rename_physSrc1_idx = entries_1_uop_rename_physSrc1_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_rename_physSrc1_idx = io_allocateIn_payload_uop_rename_physSrc1_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_rename_physSrc1IsFpr = entries_1_uop_rename_physSrc1IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_rename_physSrc1IsFpr = io_allocateIn_payload_uop_rename_physSrc1IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_rename_physSrc2_idx = entries_1_uop_rename_physSrc2_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_rename_physSrc2_idx = io_allocateIn_payload_uop_rename_physSrc2_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_rename_physSrc2IsFpr = entries_1_uop_rename_physSrc2IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_rename_physSrc2IsFpr = io_allocateIn_payload_uop_rename_physSrc2IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_rename_physDest_idx = entries_1_uop_rename_physDest_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_rename_physDest_idx = io_allocateIn_payload_uop_rename_physDest_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_rename_physDestIsFpr = entries_1_uop_rename_physDestIsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_rename_physDestIsFpr = io_allocateIn_payload_uop_rename_physDestIsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_rename_oldPhysDest_idx = entries_1_uop_rename_oldPhysDest_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_rename_oldPhysDest_idx = io_allocateIn_payload_uop_rename_oldPhysDest_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_rename_oldPhysDestIsFpr = entries_1_uop_rename_oldPhysDestIsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_rename_oldPhysDestIsFpr = io_allocateIn_payload_uop_rename_oldPhysDestIsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_rename_allocatesPhysDest = entries_1_uop_rename_allocatesPhysDest;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_rename_allocatesPhysDest = io_allocateIn_payload_uop_rename_allocatesPhysDest;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_rename_writesToPhysReg = entries_1_uop_rename_writesToPhysReg;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_rename_writesToPhysReg = io_allocateIn_payload_uop_rename_writesToPhysReg;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_robPtr = entries_1_uop_robPtr;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_robPtr = io_allocateIn_payload_uop_robPtr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_uniqueId = entries_1_uop_uniqueId;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_uniqueId = io_allocateIn_payload_uop_uniqueId;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_dispatched = entries_1_uop_dispatched;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_dispatched = io_allocateIn_payload_uop_dispatched;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_executed = entries_1_uop_executed;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_executed = io_allocateIn_payload_uop_executed;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_hasException = entries_1_uop_hasException;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_hasException = io_allocateIn_payload_uop_hasException;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_uop_exceptionCode = entries_1_uop_exceptionCode;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_uop_exceptionCode = io_allocateIn_payload_uop_exceptionCode;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_robPtr = entries_1_robPtr;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_robPtr = io_allocateIn_payload_uop_robPtr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_physDest_idx = entries_1_physDest_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_physDest_idx = io_allocateIn_payload_uop_rename_physDest_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_physDestIsFpr = entries_1_physDestIsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_physDestIsFpr = io_allocateIn_payload_uop_rename_physDestIsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_writesToPhysReg = entries_1_writesToPhysReg;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_writesToPhysReg = io_allocateIn_payload_uop_rename_writesToPhysReg;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_useSrc1 = entries_1_useSrc1;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_useSrc1 = io_allocateIn_payload_uop_decoded_useArchSrc1;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src1Data = entries_1_src1Data;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src1Data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src1Tag = entries_1_src1Tag;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src1Tag = io_allocateIn_payload_uop_rename_physSrc1_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src1Ready = entries_1_src1Ready;
-    if(when_IssueQueueComponent_l192_1) begin
-      entriesNext_1_src1Ready = 1'b1;
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src1Ready = _zz_entriesNext_0_src1Ready;
-      end
-      if(_zz_4) begin
-        entriesNext_1_src1Ready = io_allocateIn_payload_src1InitialReady;
-      end
-      if(when_IssueQueueComponent_l217) begin
-        if(when_IssueQueueComponent_l218) begin
-          if(_zz_4) begin
-            entriesNext_1_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_1) begin
-        if(when_IssueQueueComponent_l218_1) begin
-          if(_zz_4) begin
-            entriesNext_1_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_2) begin
-        if(when_IssueQueueComponent_l218_2) begin
-          if(_zz_4) begin
-            entriesNext_1_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_3) begin
-        if(when_IssueQueueComponent_l218_3) begin
-          if(_zz_4) begin
-            entriesNext_1_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_4) begin
-        if(when_IssueQueueComponent_l218_4) begin
-          if(_zz_4) begin
-            entriesNext_1_src1Ready = 1'b1;
-          end
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src1IsFpr = entries_1_src1IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src1IsFpr = io_allocateIn_payload_uop_rename_physSrc1IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_useSrc2 = entries_1_useSrc2;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_useSrc2 = io_allocateIn_payload_uop_decoded_useArchSrc2;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src2Data = entries_1_src2Data;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src2Data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src2Tag = entries_1_src2Tag;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src2Tag = io_allocateIn_payload_uop_rename_physSrc2_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src2Ready = entries_1_src2Ready;
-    if(when_IssueQueueComponent_l193_1) begin
-      entriesNext_1_src2Ready = 1'b1;
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src2Ready = _zz_entriesNext_0_src2Ready;
-      end
-      if(_zz_4) begin
-        entriesNext_1_src2Ready = io_allocateIn_payload_src2InitialReady;
-      end
-      if(when_IssueQueueComponent_l217) begin
-        if(when_IssueQueueComponent_l221) begin
-          if(_zz_4) begin
-            entriesNext_1_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_1) begin
-        if(when_IssueQueueComponent_l221_1) begin
-          if(_zz_4) begin
-            entriesNext_1_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_2) begin
-        if(when_IssueQueueComponent_l221_2) begin
-          if(_zz_4) begin
-            entriesNext_1_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_3) begin
-        if(when_IssueQueueComponent_l221_3) begin
-          if(_zz_4) begin
-            entriesNext_1_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_4) begin
-        if(when_IssueQueueComponent_l221_4) begin
-          if(_zz_4) begin
-            entriesNext_1_src2Ready = 1'b1;
-          end
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src2IsFpr = entries_1_src2IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src2IsFpr = io_allocateIn_payload_uop_rename_physSrc2IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_mulDivCtrl_valid = entries_1_mulDivCtrl_valid;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_mulDivCtrl_valid = io_allocateIn_payload_uop_decoded_mulDivCtrl_valid;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_mulDivCtrl_isDiv = entries_1_mulDivCtrl_isDiv;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_mulDivCtrl_isDiv = io_allocateIn_payload_uop_decoded_mulDivCtrl_isDiv;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_mulDivCtrl_isSigned = entries_1_mulDivCtrl_isSigned;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_mulDivCtrl_isSigned = io_allocateIn_payload_uop_decoded_mulDivCtrl_isSigned;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_mulDivCtrl_isWordOp = entries_1_mulDivCtrl_isWordOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_mulDivCtrl_isWordOp = io_allocateIn_payload_uop_decoded_mulDivCtrl_isWordOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_pc = entries_2_uop_decoded_pc;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_pc = io_allocateIn_payload_uop_decoded_pc;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_isValid = entries_2_uop_decoded_isValid;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_isValid = io_allocateIn_payload_uop_decoded_isValid;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_uopCode = entries_2_uop_decoded_uopCode;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_uopCode = io_allocateIn_payload_uop_decoded_uopCode;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_exeUnit = entries_2_uop_decoded_exeUnit;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_exeUnit = io_allocateIn_payload_uop_decoded_exeUnit;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_isa = entries_2_uop_decoded_isa;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_isa = io_allocateIn_payload_uop_decoded_isa;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_archDest_idx = entries_2_uop_decoded_archDest_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_archDest_idx = io_allocateIn_payload_uop_decoded_archDest_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_archDest_rtype = entries_2_uop_decoded_archDest_rtype;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_archDest_rtype = io_allocateIn_payload_uop_decoded_archDest_rtype;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_writeArchDestEn = entries_2_uop_decoded_writeArchDestEn;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_writeArchDestEn = io_allocateIn_payload_uop_decoded_writeArchDestEn;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_archSrc1_idx = entries_2_uop_decoded_archSrc1_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_archSrc1_idx = io_allocateIn_payload_uop_decoded_archSrc1_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_archSrc1_rtype = entries_2_uop_decoded_archSrc1_rtype;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_archSrc1_rtype = io_allocateIn_payload_uop_decoded_archSrc1_rtype;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_useArchSrc1 = entries_2_uop_decoded_useArchSrc1;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_useArchSrc1 = io_allocateIn_payload_uop_decoded_useArchSrc1;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_archSrc2_idx = entries_2_uop_decoded_archSrc2_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_archSrc2_idx = io_allocateIn_payload_uop_decoded_archSrc2_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_archSrc2_rtype = entries_2_uop_decoded_archSrc2_rtype;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_archSrc2_rtype = io_allocateIn_payload_uop_decoded_archSrc2_rtype;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_useArchSrc2 = entries_2_uop_decoded_useArchSrc2;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_useArchSrc2 = io_allocateIn_payload_uop_decoded_useArchSrc2;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_usePcForAddr = entries_2_uop_decoded_usePcForAddr;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_usePcForAddr = io_allocateIn_payload_uop_decoded_usePcForAddr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_src1IsPc = entries_2_uop_decoded_src1IsPc;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_src1IsPc = io_allocateIn_payload_uop_decoded_src1IsPc;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_imm = entries_2_uop_decoded_imm;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_imm = io_allocateIn_payload_uop_decoded_imm;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_immUsage = entries_2_uop_decoded_immUsage;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_immUsage = io_allocateIn_payload_uop_decoded_immUsage;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_aluCtrl_valid = entries_2_uop_decoded_aluCtrl_valid;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_aluCtrl_valid = io_allocateIn_payload_uop_decoded_aluCtrl_valid;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_aluCtrl_isSub = entries_2_uop_decoded_aluCtrl_isSub;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_aluCtrl_isSub = io_allocateIn_payload_uop_decoded_aluCtrl_isSub;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_aluCtrl_isAdd = entries_2_uop_decoded_aluCtrl_isAdd;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_aluCtrl_isAdd = io_allocateIn_payload_uop_decoded_aluCtrl_isAdd;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_aluCtrl_isSigned = entries_2_uop_decoded_aluCtrl_isSigned;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_aluCtrl_isSigned = io_allocateIn_payload_uop_decoded_aluCtrl_isSigned;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_aluCtrl_logicOp = entries_2_uop_decoded_aluCtrl_logicOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_aluCtrl_logicOp = io_allocateIn_payload_uop_decoded_aluCtrl_logicOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_aluCtrl_condition = entries_2_uop_decoded_aluCtrl_condition;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_aluCtrl_condition = io_allocateIn_payload_uop_decoded_aluCtrl_condition;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_shiftCtrl_valid = entries_2_uop_decoded_shiftCtrl_valid;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_shiftCtrl_valid = io_allocateIn_payload_uop_decoded_shiftCtrl_valid;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_shiftCtrl_isRight = entries_2_uop_decoded_shiftCtrl_isRight;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_shiftCtrl_isRight = io_allocateIn_payload_uop_decoded_shiftCtrl_isRight;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_shiftCtrl_isArithmetic = entries_2_uop_decoded_shiftCtrl_isArithmetic;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_shiftCtrl_isArithmetic = io_allocateIn_payload_uop_decoded_shiftCtrl_isArithmetic;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_shiftCtrl_isRotate = entries_2_uop_decoded_shiftCtrl_isRotate;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_shiftCtrl_isRotate = io_allocateIn_payload_uop_decoded_shiftCtrl_isRotate;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_shiftCtrl_isDoubleWord = entries_2_uop_decoded_shiftCtrl_isDoubleWord;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_shiftCtrl_isDoubleWord = io_allocateIn_payload_uop_decoded_shiftCtrl_isDoubleWord;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_mulDivCtrl_valid = entries_2_uop_decoded_mulDivCtrl_valid;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_mulDivCtrl_valid = io_allocateIn_payload_uop_decoded_mulDivCtrl_valid;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_mulDivCtrl_isDiv = entries_2_uop_decoded_mulDivCtrl_isDiv;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_mulDivCtrl_isDiv = io_allocateIn_payload_uop_decoded_mulDivCtrl_isDiv;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_mulDivCtrl_isSigned = entries_2_uop_decoded_mulDivCtrl_isSigned;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_mulDivCtrl_isSigned = io_allocateIn_payload_uop_decoded_mulDivCtrl_isSigned;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_mulDivCtrl_isWordOp = entries_2_uop_decoded_mulDivCtrl_isWordOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_mulDivCtrl_isWordOp = io_allocateIn_payload_uop_decoded_mulDivCtrl_isWordOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_memCtrl_size = entries_2_uop_decoded_memCtrl_size;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_memCtrl_size = io_allocateIn_payload_uop_decoded_memCtrl_size;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_memCtrl_isSignedLoad = entries_2_uop_decoded_memCtrl_isSignedLoad;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_memCtrl_isSignedLoad = io_allocateIn_payload_uop_decoded_memCtrl_isSignedLoad;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_memCtrl_isStore = entries_2_uop_decoded_memCtrl_isStore;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_memCtrl_isStore = io_allocateIn_payload_uop_decoded_memCtrl_isStore;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_memCtrl_isLoadLinked = entries_2_uop_decoded_memCtrl_isLoadLinked;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_memCtrl_isLoadLinked = io_allocateIn_payload_uop_decoded_memCtrl_isLoadLinked;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_memCtrl_isStoreCond = entries_2_uop_decoded_memCtrl_isStoreCond;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_memCtrl_isStoreCond = io_allocateIn_payload_uop_decoded_memCtrl_isStoreCond;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_memCtrl_atomicOp = entries_2_uop_decoded_memCtrl_atomicOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_memCtrl_atomicOp = io_allocateIn_payload_uop_decoded_memCtrl_atomicOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_memCtrl_isFence = entries_2_uop_decoded_memCtrl_isFence;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_memCtrl_isFence = io_allocateIn_payload_uop_decoded_memCtrl_isFence;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_memCtrl_fenceMode = entries_2_uop_decoded_memCtrl_fenceMode;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_memCtrl_fenceMode = io_allocateIn_payload_uop_decoded_memCtrl_fenceMode;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_memCtrl_isCacheOp = entries_2_uop_decoded_memCtrl_isCacheOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_memCtrl_isCacheOp = io_allocateIn_payload_uop_decoded_memCtrl_isCacheOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_memCtrl_cacheOpType = entries_2_uop_decoded_memCtrl_cacheOpType;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_memCtrl_cacheOpType = io_allocateIn_payload_uop_decoded_memCtrl_cacheOpType;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_memCtrl_isPrefetch = entries_2_uop_decoded_memCtrl_isPrefetch;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_memCtrl_isPrefetch = io_allocateIn_payload_uop_decoded_memCtrl_isPrefetch;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_branchCtrl_condition = entries_2_uop_decoded_branchCtrl_condition;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_branchCtrl_condition = io_allocateIn_payload_uop_decoded_branchCtrl_condition;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_branchCtrl_isJump = entries_2_uop_decoded_branchCtrl_isJump;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_branchCtrl_isJump = io_allocateIn_payload_uop_decoded_branchCtrl_isJump;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_branchCtrl_isLink = entries_2_uop_decoded_branchCtrl_isLink;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_branchCtrl_isLink = io_allocateIn_payload_uop_decoded_branchCtrl_isLink;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_branchCtrl_linkReg_idx = entries_2_uop_decoded_branchCtrl_linkReg_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_branchCtrl_linkReg_idx = io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_branchCtrl_linkReg_rtype = entries_2_uop_decoded_branchCtrl_linkReg_rtype;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_branchCtrl_linkReg_rtype = io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_rtype;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_branchCtrl_isIndirect = entries_2_uop_decoded_branchCtrl_isIndirect;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_branchCtrl_isIndirect = io_allocateIn_payload_uop_decoded_branchCtrl_isIndirect;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_branchCtrl_laCfIdx = entries_2_uop_decoded_branchCtrl_laCfIdx;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_branchCtrl_laCfIdx = io_allocateIn_payload_uop_decoded_branchCtrl_laCfIdx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_fpuCtrl_opType = entries_2_uop_decoded_fpuCtrl_opType;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_fpuCtrl_opType = io_allocateIn_payload_uop_decoded_fpuCtrl_opType;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_fpuCtrl_fpSizeSrc1 = entries_2_uop_decoded_fpuCtrl_fpSizeSrc1;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_fpuCtrl_fpSizeSrc1 = io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc1;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_fpuCtrl_fpSizeSrc2 = entries_2_uop_decoded_fpuCtrl_fpSizeSrc2;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_fpuCtrl_fpSizeSrc2 = io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc2;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_fpuCtrl_fpSizeDest = entries_2_uop_decoded_fpuCtrl_fpSizeDest;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_fpuCtrl_fpSizeDest = io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeDest;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_fpuCtrl_roundingMode = entries_2_uop_decoded_fpuCtrl_roundingMode;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_fpuCtrl_roundingMode = io_allocateIn_payload_uop_decoded_fpuCtrl_roundingMode;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_fpuCtrl_isIntegerDest = entries_2_uop_decoded_fpuCtrl_isIntegerDest;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_fpuCtrl_isIntegerDest = io_allocateIn_payload_uop_decoded_fpuCtrl_isIntegerDest;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_fpuCtrl_isSignedCvt = entries_2_uop_decoded_fpuCtrl_isSignedCvt;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_fpuCtrl_isSignedCvt = io_allocateIn_payload_uop_decoded_fpuCtrl_isSignedCvt;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_fpuCtrl_fmaNegSrc1 = entries_2_uop_decoded_fpuCtrl_fmaNegSrc1;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_fpuCtrl_fmaNegSrc1 = io_allocateIn_payload_uop_decoded_fpuCtrl_fmaNegSrc1;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_fpuCtrl_fcmpCond = entries_2_uop_decoded_fpuCtrl_fcmpCond;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_fpuCtrl_fcmpCond = io_allocateIn_payload_uop_decoded_fpuCtrl_fcmpCond;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_csrCtrl_csrAddr = entries_2_uop_decoded_csrCtrl_csrAddr;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_csrCtrl_csrAddr = io_allocateIn_payload_uop_decoded_csrCtrl_csrAddr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_csrCtrl_isWrite = entries_2_uop_decoded_csrCtrl_isWrite;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_csrCtrl_isWrite = io_allocateIn_payload_uop_decoded_csrCtrl_isWrite;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_csrCtrl_isRead = entries_2_uop_decoded_csrCtrl_isRead;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_csrCtrl_isRead = io_allocateIn_payload_uop_decoded_csrCtrl_isRead;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_csrCtrl_isExchange = entries_2_uop_decoded_csrCtrl_isExchange;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_csrCtrl_isExchange = io_allocateIn_payload_uop_decoded_csrCtrl_isExchange;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_csrCtrl_useUimmAsSrc = entries_2_uop_decoded_csrCtrl_useUimmAsSrc;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_csrCtrl_useUimmAsSrc = io_allocateIn_payload_uop_decoded_csrCtrl_useUimmAsSrc;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_sysCtrl_sysCode = entries_2_uop_decoded_sysCtrl_sysCode;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_sysCtrl_sysCode = io_allocateIn_payload_uop_decoded_sysCtrl_sysCode;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_sysCtrl_isExceptionReturn = entries_2_uop_decoded_sysCtrl_isExceptionReturn;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_sysCtrl_isExceptionReturn = io_allocateIn_payload_uop_decoded_sysCtrl_isExceptionReturn;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_sysCtrl_isTlbOp = entries_2_uop_decoded_sysCtrl_isTlbOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_sysCtrl_isTlbOp = io_allocateIn_payload_uop_decoded_sysCtrl_isTlbOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_sysCtrl_tlbOpType = entries_2_uop_decoded_sysCtrl_tlbOpType;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_sysCtrl_tlbOpType = io_allocateIn_payload_uop_decoded_sysCtrl_tlbOpType;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_decodeExceptionCode = entries_2_uop_decoded_decodeExceptionCode;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_decodeExceptionCode = io_allocateIn_payload_uop_decoded_decodeExceptionCode;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_hasDecodeException = entries_2_uop_decoded_hasDecodeException;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_hasDecodeException = io_allocateIn_payload_uop_decoded_hasDecodeException;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_isMicrocode = entries_2_uop_decoded_isMicrocode;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_isMicrocode = io_allocateIn_payload_uop_decoded_isMicrocode;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_microcodeEntry = entries_2_uop_decoded_microcodeEntry;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_microcodeEntry = io_allocateIn_payload_uop_decoded_microcodeEntry;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_isSerializing = entries_2_uop_decoded_isSerializing;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_isSerializing = io_allocateIn_payload_uop_decoded_isSerializing;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_isBranchOrJump = entries_2_uop_decoded_isBranchOrJump;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_isBranchOrJump = io_allocateIn_payload_uop_decoded_isBranchOrJump;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_branchPrediction_isTaken = entries_2_uop_decoded_branchPrediction_isTaken;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_branchPrediction_isTaken = io_allocateIn_payload_uop_decoded_branchPrediction_isTaken;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_branchPrediction_target = entries_2_uop_decoded_branchPrediction_target;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_branchPrediction_target = io_allocateIn_payload_uop_decoded_branchPrediction_target;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_decoded_branchPrediction_wasPredicted = entries_2_uop_decoded_branchPrediction_wasPredicted;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_decoded_branchPrediction_wasPredicted = io_allocateIn_payload_uop_decoded_branchPrediction_wasPredicted;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_rename_physSrc1_idx = entries_2_uop_rename_physSrc1_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_rename_physSrc1_idx = io_allocateIn_payload_uop_rename_physSrc1_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_rename_physSrc1IsFpr = entries_2_uop_rename_physSrc1IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_rename_physSrc1IsFpr = io_allocateIn_payload_uop_rename_physSrc1IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_rename_physSrc2_idx = entries_2_uop_rename_physSrc2_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_rename_physSrc2_idx = io_allocateIn_payload_uop_rename_physSrc2_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_rename_physSrc2IsFpr = entries_2_uop_rename_physSrc2IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_rename_physSrc2IsFpr = io_allocateIn_payload_uop_rename_physSrc2IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_rename_physDest_idx = entries_2_uop_rename_physDest_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_rename_physDest_idx = io_allocateIn_payload_uop_rename_physDest_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_rename_physDestIsFpr = entries_2_uop_rename_physDestIsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_rename_physDestIsFpr = io_allocateIn_payload_uop_rename_physDestIsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_rename_oldPhysDest_idx = entries_2_uop_rename_oldPhysDest_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_rename_oldPhysDest_idx = io_allocateIn_payload_uop_rename_oldPhysDest_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_rename_oldPhysDestIsFpr = entries_2_uop_rename_oldPhysDestIsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_rename_oldPhysDestIsFpr = io_allocateIn_payload_uop_rename_oldPhysDestIsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_rename_allocatesPhysDest = entries_2_uop_rename_allocatesPhysDest;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_rename_allocatesPhysDest = io_allocateIn_payload_uop_rename_allocatesPhysDest;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_rename_writesToPhysReg = entries_2_uop_rename_writesToPhysReg;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_rename_writesToPhysReg = io_allocateIn_payload_uop_rename_writesToPhysReg;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_robPtr = entries_2_uop_robPtr;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_robPtr = io_allocateIn_payload_uop_robPtr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_uniqueId = entries_2_uop_uniqueId;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_uniqueId = io_allocateIn_payload_uop_uniqueId;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_dispatched = entries_2_uop_dispatched;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_dispatched = io_allocateIn_payload_uop_dispatched;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_executed = entries_2_uop_executed;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_executed = io_allocateIn_payload_uop_executed;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_hasException = entries_2_uop_hasException;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_hasException = io_allocateIn_payload_uop_hasException;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_uop_exceptionCode = entries_2_uop_exceptionCode;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_uop_exceptionCode = io_allocateIn_payload_uop_exceptionCode;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_robPtr = entries_2_robPtr;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_robPtr = io_allocateIn_payload_uop_robPtr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_physDest_idx = entries_2_physDest_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_physDest_idx = io_allocateIn_payload_uop_rename_physDest_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_physDestIsFpr = entries_2_physDestIsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_physDestIsFpr = io_allocateIn_payload_uop_rename_physDestIsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_writesToPhysReg = entries_2_writesToPhysReg;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_writesToPhysReg = io_allocateIn_payload_uop_rename_writesToPhysReg;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_useSrc1 = entries_2_useSrc1;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_useSrc1 = io_allocateIn_payload_uop_decoded_useArchSrc1;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src1Data = entries_2_src1Data;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src1Data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src1Tag = entries_2_src1Tag;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src1Tag = io_allocateIn_payload_uop_rename_physSrc1_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src1Ready = entries_2_src1Ready;
-    if(when_IssueQueueComponent_l192_2) begin
-      entriesNext_2_src1Ready = 1'b1;
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src1Ready = _zz_entriesNext_0_src1Ready;
-      end
-      if(_zz_5) begin
-        entriesNext_2_src1Ready = io_allocateIn_payload_src1InitialReady;
-      end
-      if(when_IssueQueueComponent_l217) begin
-        if(when_IssueQueueComponent_l218) begin
-          if(_zz_5) begin
-            entriesNext_2_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_1) begin
-        if(when_IssueQueueComponent_l218_1) begin
-          if(_zz_5) begin
-            entriesNext_2_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_2) begin
-        if(when_IssueQueueComponent_l218_2) begin
-          if(_zz_5) begin
-            entriesNext_2_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_3) begin
-        if(when_IssueQueueComponent_l218_3) begin
-          if(_zz_5) begin
-            entriesNext_2_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_4) begin
-        if(when_IssueQueueComponent_l218_4) begin
-          if(_zz_5) begin
-            entriesNext_2_src1Ready = 1'b1;
-          end
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src1IsFpr = entries_2_src1IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src1IsFpr = io_allocateIn_payload_uop_rename_physSrc1IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_useSrc2 = entries_2_useSrc2;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_useSrc2 = io_allocateIn_payload_uop_decoded_useArchSrc2;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src2Data = entries_2_src2Data;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src2Data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src2Tag = entries_2_src2Tag;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src2Tag = io_allocateIn_payload_uop_rename_physSrc2_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src2Ready = entries_2_src2Ready;
-    if(when_IssueQueueComponent_l193_2) begin
-      entriesNext_2_src2Ready = 1'b1;
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src2Ready = _zz_entriesNext_0_src2Ready;
-      end
-      if(_zz_5) begin
-        entriesNext_2_src2Ready = io_allocateIn_payload_src2InitialReady;
-      end
-      if(when_IssueQueueComponent_l217) begin
-        if(when_IssueQueueComponent_l221) begin
-          if(_zz_5) begin
-            entriesNext_2_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_1) begin
-        if(when_IssueQueueComponent_l221_1) begin
-          if(_zz_5) begin
-            entriesNext_2_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_2) begin
-        if(when_IssueQueueComponent_l221_2) begin
-          if(_zz_5) begin
-            entriesNext_2_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_3) begin
-        if(when_IssueQueueComponent_l221_3) begin
-          if(_zz_5) begin
-            entriesNext_2_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_4) begin
-        if(when_IssueQueueComponent_l221_4) begin
-          if(_zz_5) begin
-            entriesNext_2_src2Ready = 1'b1;
-          end
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src2IsFpr = entries_2_src2IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src2IsFpr = io_allocateIn_payload_uop_rename_physSrc2IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_mulDivCtrl_valid = entries_2_mulDivCtrl_valid;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_mulDivCtrl_valid = io_allocateIn_payload_uop_decoded_mulDivCtrl_valid;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_mulDivCtrl_isDiv = entries_2_mulDivCtrl_isDiv;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_mulDivCtrl_isDiv = io_allocateIn_payload_uop_decoded_mulDivCtrl_isDiv;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_mulDivCtrl_isSigned = entries_2_mulDivCtrl_isSigned;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_mulDivCtrl_isSigned = io_allocateIn_payload_uop_decoded_mulDivCtrl_isSigned;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_mulDivCtrl_isWordOp = entries_2_mulDivCtrl_isWordOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_mulDivCtrl_isWordOp = io_allocateIn_payload_uop_decoded_mulDivCtrl_isWordOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_pc = entries_3_uop_decoded_pc;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_pc = io_allocateIn_payload_uop_decoded_pc;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_isValid = entries_3_uop_decoded_isValid;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_isValid = io_allocateIn_payload_uop_decoded_isValid;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_uopCode = entries_3_uop_decoded_uopCode;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_uopCode = io_allocateIn_payload_uop_decoded_uopCode;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_exeUnit = entries_3_uop_decoded_exeUnit;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_exeUnit = io_allocateIn_payload_uop_decoded_exeUnit;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_isa = entries_3_uop_decoded_isa;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_isa = io_allocateIn_payload_uop_decoded_isa;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_archDest_idx = entries_3_uop_decoded_archDest_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_archDest_idx = io_allocateIn_payload_uop_decoded_archDest_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_archDest_rtype = entries_3_uop_decoded_archDest_rtype;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_archDest_rtype = io_allocateIn_payload_uop_decoded_archDest_rtype;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_writeArchDestEn = entries_3_uop_decoded_writeArchDestEn;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_writeArchDestEn = io_allocateIn_payload_uop_decoded_writeArchDestEn;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_archSrc1_idx = entries_3_uop_decoded_archSrc1_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_archSrc1_idx = io_allocateIn_payload_uop_decoded_archSrc1_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_archSrc1_rtype = entries_3_uop_decoded_archSrc1_rtype;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_archSrc1_rtype = io_allocateIn_payload_uop_decoded_archSrc1_rtype;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_useArchSrc1 = entries_3_uop_decoded_useArchSrc1;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_useArchSrc1 = io_allocateIn_payload_uop_decoded_useArchSrc1;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_archSrc2_idx = entries_3_uop_decoded_archSrc2_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_archSrc2_idx = io_allocateIn_payload_uop_decoded_archSrc2_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_archSrc2_rtype = entries_3_uop_decoded_archSrc2_rtype;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_archSrc2_rtype = io_allocateIn_payload_uop_decoded_archSrc2_rtype;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_useArchSrc2 = entries_3_uop_decoded_useArchSrc2;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_useArchSrc2 = io_allocateIn_payload_uop_decoded_useArchSrc2;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_usePcForAddr = entries_3_uop_decoded_usePcForAddr;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_usePcForAddr = io_allocateIn_payload_uop_decoded_usePcForAddr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_src1IsPc = entries_3_uop_decoded_src1IsPc;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_src1IsPc = io_allocateIn_payload_uop_decoded_src1IsPc;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_imm = entries_3_uop_decoded_imm;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_imm = io_allocateIn_payload_uop_decoded_imm;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_immUsage = entries_3_uop_decoded_immUsage;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_immUsage = io_allocateIn_payload_uop_decoded_immUsage;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_aluCtrl_valid = entries_3_uop_decoded_aluCtrl_valid;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_aluCtrl_valid = io_allocateIn_payload_uop_decoded_aluCtrl_valid;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_aluCtrl_isSub = entries_3_uop_decoded_aluCtrl_isSub;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_aluCtrl_isSub = io_allocateIn_payload_uop_decoded_aluCtrl_isSub;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_aluCtrl_isAdd = entries_3_uop_decoded_aluCtrl_isAdd;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_aluCtrl_isAdd = io_allocateIn_payload_uop_decoded_aluCtrl_isAdd;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_aluCtrl_isSigned = entries_3_uop_decoded_aluCtrl_isSigned;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_aluCtrl_isSigned = io_allocateIn_payload_uop_decoded_aluCtrl_isSigned;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_aluCtrl_logicOp = entries_3_uop_decoded_aluCtrl_logicOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_aluCtrl_logicOp = io_allocateIn_payload_uop_decoded_aluCtrl_logicOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_aluCtrl_condition = entries_3_uop_decoded_aluCtrl_condition;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_aluCtrl_condition = io_allocateIn_payload_uop_decoded_aluCtrl_condition;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_shiftCtrl_valid = entries_3_uop_decoded_shiftCtrl_valid;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_shiftCtrl_valid = io_allocateIn_payload_uop_decoded_shiftCtrl_valid;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_shiftCtrl_isRight = entries_3_uop_decoded_shiftCtrl_isRight;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_shiftCtrl_isRight = io_allocateIn_payload_uop_decoded_shiftCtrl_isRight;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_shiftCtrl_isArithmetic = entries_3_uop_decoded_shiftCtrl_isArithmetic;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_shiftCtrl_isArithmetic = io_allocateIn_payload_uop_decoded_shiftCtrl_isArithmetic;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_shiftCtrl_isRotate = entries_3_uop_decoded_shiftCtrl_isRotate;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_shiftCtrl_isRotate = io_allocateIn_payload_uop_decoded_shiftCtrl_isRotate;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_shiftCtrl_isDoubleWord = entries_3_uop_decoded_shiftCtrl_isDoubleWord;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_shiftCtrl_isDoubleWord = io_allocateIn_payload_uop_decoded_shiftCtrl_isDoubleWord;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_mulDivCtrl_valid = entries_3_uop_decoded_mulDivCtrl_valid;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_mulDivCtrl_valid = io_allocateIn_payload_uop_decoded_mulDivCtrl_valid;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_mulDivCtrl_isDiv = entries_3_uop_decoded_mulDivCtrl_isDiv;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_mulDivCtrl_isDiv = io_allocateIn_payload_uop_decoded_mulDivCtrl_isDiv;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_mulDivCtrl_isSigned = entries_3_uop_decoded_mulDivCtrl_isSigned;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_mulDivCtrl_isSigned = io_allocateIn_payload_uop_decoded_mulDivCtrl_isSigned;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_mulDivCtrl_isWordOp = entries_3_uop_decoded_mulDivCtrl_isWordOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_mulDivCtrl_isWordOp = io_allocateIn_payload_uop_decoded_mulDivCtrl_isWordOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_memCtrl_size = entries_3_uop_decoded_memCtrl_size;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_memCtrl_size = io_allocateIn_payload_uop_decoded_memCtrl_size;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_memCtrl_isSignedLoad = entries_3_uop_decoded_memCtrl_isSignedLoad;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_memCtrl_isSignedLoad = io_allocateIn_payload_uop_decoded_memCtrl_isSignedLoad;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_memCtrl_isStore = entries_3_uop_decoded_memCtrl_isStore;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_memCtrl_isStore = io_allocateIn_payload_uop_decoded_memCtrl_isStore;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_memCtrl_isLoadLinked = entries_3_uop_decoded_memCtrl_isLoadLinked;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_memCtrl_isLoadLinked = io_allocateIn_payload_uop_decoded_memCtrl_isLoadLinked;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_memCtrl_isStoreCond = entries_3_uop_decoded_memCtrl_isStoreCond;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_memCtrl_isStoreCond = io_allocateIn_payload_uop_decoded_memCtrl_isStoreCond;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_memCtrl_atomicOp = entries_3_uop_decoded_memCtrl_atomicOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_memCtrl_atomicOp = io_allocateIn_payload_uop_decoded_memCtrl_atomicOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_memCtrl_isFence = entries_3_uop_decoded_memCtrl_isFence;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_memCtrl_isFence = io_allocateIn_payload_uop_decoded_memCtrl_isFence;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_memCtrl_fenceMode = entries_3_uop_decoded_memCtrl_fenceMode;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_memCtrl_fenceMode = io_allocateIn_payload_uop_decoded_memCtrl_fenceMode;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_memCtrl_isCacheOp = entries_3_uop_decoded_memCtrl_isCacheOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_memCtrl_isCacheOp = io_allocateIn_payload_uop_decoded_memCtrl_isCacheOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_memCtrl_cacheOpType = entries_3_uop_decoded_memCtrl_cacheOpType;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_memCtrl_cacheOpType = io_allocateIn_payload_uop_decoded_memCtrl_cacheOpType;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_memCtrl_isPrefetch = entries_3_uop_decoded_memCtrl_isPrefetch;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_memCtrl_isPrefetch = io_allocateIn_payload_uop_decoded_memCtrl_isPrefetch;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_branchCtrl_condition = entries_3_uop_decoded_branchCtrl_condition;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_branchCtrl_condition = io_allocateIn_payload_uop_decoded_branchCtrl_condition;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_branchCtrl_isJump = entries_3_uop_decoded_branchCtrl_isJump;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_branchCtrl_isJump = io_allocateIn_payload_uop_decoded_branchCtrl_isJump;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_branchCtrl_isLink = entries_3_uop_decoded_branchCtrl_isLink;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_branchCtrl_isLink = io_allocateIn_payload_uop_decoded_branchCtrl_isLink;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_branchCtrl_linkReg_idx = entries_3_uop_decoded_branchCtrl_linkReg_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_branchCtrl_linkReg_idx = io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_branchCtrl_linkReg_rtype = entries_3_uop_decoded_branchCtrl_linkReg_rtype;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_branchCtrl_linkReg_rtype = io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_rtype;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_branchCtrl_isIndirect = entries_3_uop_decoded_branchCtrl_isIndirect;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_branchCtrl_isIndirect = io_allocateIn_payload_uop_decoded_branchCtrl_isIndirect;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_branchCtrl_laCfIdx = entries_3_uop_decoded_branchCtrl_laCfIdx;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_branchCtrl_laCfIdx = io_allocateIn_payload_uop_decoded_branchCtrl_laCfIdx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_fpuCtrl_opType = entries_3_uop_decoded_fpuCtrl_opType;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_fpuCtrl_opType = io_allocateIn_payload_uop_decoded_fpuCtrl_opType;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_fpuCtrl_fpSizeSrc1 = entries_3_uop_decoded_fpuCtrl_fpSizeSrc1;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_fpuCtrl_fpSizeSrc1 = io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc1;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_fpuCtrl_fpSizeSrc2 = entries_3_uop_decoded_fpuCtrl_fpSizeSrc2;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_fpuCtrl_fpSizeSrc2 = io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc2;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_fpuCtrl_fpSizeDest = entries_3_uop_decoded_fpuCtrl_fpSizeDest;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_fpuCtrl_fpSizeDest = io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeDest;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_fpuCtrl_roundingMode = entries_3_uop_decoded_fpuCtrl_roundingMode;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_fpuCtrl_roundingMode = io_allocateIn_payload_uop_decoded_fpuCtrl_roundingMode;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_fpuCtrl_isIntegerDest = entries_3_uop_decoded_fpuCtrl_isIntegerDest;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_fpuCtrl_isIntegerDest = io_allocateIn_payload_uop_decoded_fpuCtrl_isIntegerDest;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_fpuCtrl_isSignedCvt = entries_3_uop_decoded_fpuCtrl_isSignedCvt;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_fpuCtrl_isSignedCvt = io_allocateIn_payload_uop_decoded_fpuCtrl_isSignedCvt;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_fpuCtrl_fmaNegSrc1 = entries_3_uop_decoded_fpuCtrl_fmaNegSrc1;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_fpuCtrl_fmaNegSrc1 = io_allocateIn_payload_uop_decoded_fpuCtrl_fmaNegSrc1;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_fpuCtrl_fcmpCond = entries_3_uop_decoded_fpuCtrl_fcmpCond;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_fpuCtrl_fcmpCond = io_allocateIn_payload_uop_decoded_fpuCtrl_fcmpCond;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_csrCtrl_csrAddr = entries_3_uop_decoded_csrCtrl_csrAddr;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_csrCtrl_csrAddr = io_allocateIn_payload_uop_decoded_csrCtrl_csrAddr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_csrCtrl_isWrite = entries_3_uop_decoded_csrCtrl_isWrite;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_csrCtrl_isWrite = io_allocateIn_payload_uop_decoded_csrCtrl_isWrite;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_csrCtrl_isRead = entries_3_uop_decoded_csrCtrl_isRead;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_csrCtrl_isRead = io_allocateIn_payload_uop_decoded_csrCtrl_isRead;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_csrCtrl_isExchange = entries_3_uop_decoded_csrCtrl_isExchange;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_csrCtrl_isExchange = io_allocateIn_payload_uop_decoded_csrCtrl_isExchange;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_csrCtrl_useUimmAsSrc = entries_3_uop_decoded_csrCtrl_useUimmAsSrc;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_csrCtrl_useUimmAsSrc = io_allocateIn_payload_uop_decoded_csrCtrl_useUimmAsSrc;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_sysCtrl_sysCode = entries_3_uop_decoded_sysCtrl_sysCode;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_sysCtrl_sysCode = io_allocateIn_payload_uop_decoded_sysCtrl_sysCode;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_sysCtrl_isExceptionReturn = entries_3_uop_decoded_sysCtrl_isExceptionReturn;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_sysCtrl_isExceptionReturn = io_allocateIn_payload_uop_decoded_sysCtrl_isExceptionReturn;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_sysCtrl_isTlbOp = entries_3_uop_decoded_sysCtrl_isTlbOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_sysCtrl_isTlbOp = io_allocateIn_payload_uop_decoded_sysCtrl_isTlbOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_sysCtrl_tlbOpType = entries_3_uop_decoded_sysCtrl_tlbOpType;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_sysCtrl_tlbOpType = io_allocateIn_payload_uop_decoded_sysCtrl_tlbOpType;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_decodeExceptionCode = entries_3_uop_decoded_decodeExceptionCode;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_decodeExceptionCode = io_allocateIn_payload_uop_decoded_decodeExceptionCode;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_hasDecodeException = entries_3_uop_decoded_hasDecodeException;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_hasDecodeException = io_allocateIn_payload_uop_decoded_hasDecodeException;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_isMicrocode = entries_3_uop_decoded_isMicrocode;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_isMicrocode = io_allocateIn_payload_uop_decoded_isMicrocode;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_microcodeEntry = entries_3_uop_decoded_microcodeEntry;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_microcodeEntry = io_allocateIn_payload_uop_decoded_microcodeEntry;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_isSerializing = entries_3_uop_decoded_isSerializing;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_isSerializing = io_allocateIn_payload_uop_decoded_isSerializing;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_isBranchOrJump = entries_3_uop_decoded_isBranchOrJump;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_isBranchOrJump = io_allocateIn_payload_uop_decoded_isBranchOrJump;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_branchPrediction_isTaken = entries_3_uop_decoded_branchPrediction_isTaken;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_branchPrediction_isTaken = io_allocateIn_payload_uop_decoded_branchPrediction_isTaken;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_branchPrediction_target = entries_3_uop_decoded_branchPrediction_target;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_branchPrediction_target = io_allocateIn_payload_uop_decoded_branchPrediction_target;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_decoded_branchPrediction_wasPredicted = entries_3_uop_decoded_branchPrediction_wasPredicted;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_decoded_branchPrediction_wasPredicted = io_allocateIn_payload_uop_decoded_branchPrediction_wasPredicted;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_rename_physSrc1_idx = entries_3_uop_rename_physSrc1_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_rename_physSrc1_idx = io_allocateIn_payload_uop_rename_physSrc1_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_rename_physSrc1IsFpr = entries_3_uop_rename_physSrc1IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_rename_physSrc1IsFpr = io_allocateIn_payload_uop_rename_physSrc1IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_rename_physSrc2_idx = entries_3_uop_rename_physSrc2_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_rename_physSrc2_idx = io_allocateIn_payload_uop_rename_physSrc2_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_rename_physSrc2IsFpr = entries_3_uop_rename_physSrc2IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_rename_physSrc2IsFpr = io_allocateIn_payload_uop_rename_physSrc2IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_rename_physDest_idx = entries_3_uop_rename_physDest_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_rename_physDest_idx = io_allocateIn_payload_uop_rename_physDest_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_rename_physDestIsFpr = entries_3_uop_rename_physDestIsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_rename_physDestIsFpr = io_allocateIn_payload_uop_rename_physDestIsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_rename_oldPhysDest_idx = entries_3_uop_rename_oldPhysDest_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_rename_oldPhysDest_idx = io_allocateIn_payload_uop_rename_oldPhysDest_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_rename_oldPhysDestIsFpr = entries_3_uop_rename_oldPhysDestIsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_rename_oldPhysDestIsFpr = io_allocateIn_payload_uop_rename_oldPhysDestIsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_rename_allocatesPhysDest = entries_3_uop_rename_allocatesPhysDest;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_rename_allocatesPhysDest = io_allocateIn_payload_uop_rename_allocatesPhysDest;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_rename_writesToPhysReg = entries_3_uop_rename_writesToPhysReg;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_rename_writesToPhysReg = io_allocateIn_payload_uop_rename_writesToPhysReg;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_robPtr = entries_3_uop_robPtr;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_robPtr = io_allocateIn_payload_uop_robPtr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_uniqueId = entries_3_uop_uniqueId;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_uniqueId = io_allocateIn_payload_uop_uniqueId;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_dispatched = entries_3_uop_dispatched;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_dispatched = io_allocateIn_payload_uop_dispatched;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_executed = entries_3_uop_executed;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_executed = io_allocateIn_payload_uop_executed;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_hasException = entries_3_uop_hasException;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_hasException = io_allocateIn_payload_uop_hasException;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_uop_exceptionCode = entries_3_uop_exceptionCode;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_uop_exceptionCode = io_allocateIn_payload_uop_exceptionCode;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_robPtr = entries_3_robPtr;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_robPtr = io_allocateIn_payload_uop_robPtr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_physDest_idx = entries_3_physDest_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_physDest_idx = io_allocateIn_payload_uop_rename_physDest_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_physDestIsFpr = entries_3_physDestIsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_physDestIsFpr = io_allocateIn_payload_uop_rename_physDestIsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_writesToPhysReg = entries_3_writesToPhysReg;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_writesToPhysReg = io_allocateIn_payload_uop_rename_writesToPhysReg;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_useSrc1 = entries_3_useSrc1;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_useSrc1 = io_allocateIn_payload_uop_decoded_useArchSrc1;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src1Data = entries_3_src1Data;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src1Data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src1Tag = entries_3_src1Tag;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src1Tag = io_allocateIn_payload_uop_rename_physSrc1_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src1Ready = entries_3_src1Ready;
-    if(when_IssueQueueComponent_l192_3) begin
-      entriesNext_3_src1Ready = 1'b1;
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src1Ready = _zz_entriesNext_0_src1Ready;
-      end
-      if(_zz_6) begin
-        entriesNext_3_src1Ready = io_allocateIn_payload_src1InitialReady;
-      end
-      if(when_IssueQueueComponent_l217) begin
-        if(when_IssueQueueComponent_l218) begin
-          if(_zz_6) begin
-            entriesNext_3_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_1) begin
-        if(when_IssueQueueComponent_l218_1) begin
-          if(_zz_6) begin
-            entriesNext_3_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_2) begin
-        if(when_IssueQueueComponent_l218_2) begin
-          if(_zz_6) begin
-            entriesNext_3_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_3) begin
-        if(when_IssueQueueComponent_l218_3) begin
-          if(_zz_6) begin
-            entriesNext_3_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_4) begin
-        if(when_IssueQueueComponent_l218_4) begin
-          if(_zz_6) begin
-            entriesNext_3_src1Ready = 1'b1;
-          end
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src1IsFpr = entries_3_src1IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src1IsFpr = io_allocateIn_payload_uop_rename_physSrc1IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_useSrc2 = entries_3_useSrc2;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_useSrc2 = io_allocateIn_payload_uop_decoded_useArchSrc2;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src2Data = entries_3_src2Data;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src2Data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src2Tag = entries_3_src2Tag;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src2Tag = io_allocateIn_payload_uop_rename_physSrc2_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src2Ready = entries_3_src2Ready;
-    if(when_IssueQueueComponent_l193_3) begin
-      entriesNext_3_src2Ready = 1'b1;
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src2Ready = _zz_entriesNext_0_src2Ready;
-      end
-      if(_zz_6) begin
-        entriesNext_3_src2Ready = io_allocateIn_payload_src2InitialReady;
-      end
-      if(when_IssueQueueComponent_l217) begin
-        if(when_IssueQueueComponent_l221) begin
-          if(_zz_6) begin
-            entriesNext_3_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_1) begin
-        if(when_IssueQueueComponent_l221_1) begin
-          if(_zz_6) begin
-            entriesNext_3_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_2) begin
-        if(when_IssueQueueComponent_l221_2) begin
-          if(_zz_6) begin
-            entriesNext_3_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_3) begin
-        if(when_IssueQueueComponent_l221_3) begin
-          if(_zz_6) begin
-            entriesNext_3_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_4) begin
-        if(when_IssueQueueComponent_l221_4) begin
-          if(_zz_6) begin
-            entriesNext_3_src2Ready = 1'b1;
-          end
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src2IsFpr = entries_3_src2IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src2IsFpr = io_allocateIn_payload_uop_rename_physSrc2IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_mulDivCtrl_valid = entries_3_mulDivCtrl_valid;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_mulDivCtrl_valid = io_allocateIn_payload_uop_decoded_mulDivCtrl_valid;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_mulDivCtrl_isDiv = entries_3_mulDivCtrl_isDiv;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_mulDivCtrl_isDiv = io_allocateIn_payload_uop_decoded_mulDivCtrl_isDiv;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_mulDivCtrl_isSigned = entries_3_mulDivCtrl_isSigned;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_mulDivCtrl_isSigned = io_allocateIn_payload_uop_decoded_mulDivCtrl_isSigned;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_mulDivCtrl_isWordOp = entries_3_mulDivCtrl_isWordOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_mulDivCtrl_isWordOp = io_allocateIn_payload_uop_decoded_mulDivCtrl_isWordOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entryValidsNext_0 = entryValids_0;
-    if(io_issueOut_fire) begin
-      if(_zz_1[0]) begin
-        entryValidsNext_0 = 1'b0;
-      end
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_7[0]) begin
-        entryValidsNext_0 = 1'b1;
-      end
-    end
-    if(io_flush) begin
-      entryValidsNext_0 = 1'b0;
-    end
-  end
-
-  always @(*) begin
-    entryValidsNext_1 = entryValids_1;
-    if(io_issueOut_fire) begin
-      if(_zz_1[1]) begin
-        entryValidsNext_1 = 1'b0;
-      end
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_7[1]) begin
-        entryValidsNext_1 = 1'b1;
-      end
-    end
-    if(io_flush) begin
-      entryValidsNext_1 = 1'b0;
-    end
-  end
-
-  always @(*) begin
-    entryValidsNext_2 = entryValids_2;
-    if(io_issueOut_fire) begin
-      if(_zz_1[2]) begin
-        entryValidsNext_2 = 1'b0;
-      end
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_7[2]) begin
-        entryValidsNext_2 = 1'b1;
-      end
-    end
-    if(io_flush) begin
-      entryValidsNext_2 = 1'b0;
-    end
-  end
-
-  always @(*) begin
-    entryValidsNext_3 = entryValids_3;
-    if(io_issueOut_fire) begin
-      if(_zz_1[3]) begin
-        entryValidsNext_3 = 1'b0;
-      end
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_7[3]) begin
-        entryValidsNext_3 = 1'b1;
-      end
-    end
-    if(io_flush) begin
-      entryValidsNext_3 = 1'b0;
-    end
-  end
-
-  assign when_IssueQueueComponent_l192 = wokeUpSrc1Mask[0];
-  assign when_IssueQueueComponent_l193 = wokeUpSrc2Mask[0];
-  assign when_IssueQueueComponent_l192_1 = wokeUpSrc1Mask[1];
-  assign when_IssueQueueComponent_l193_1 = wokeUpSrc2Mask[1];
-  assign when_IssueQueueComponent_l192_2 = wokeUpSrc1Mask[2];
-  assign when_IssueQueueComponent_l193_2 = wokeUpSrc2Mask[2];
-  assign when_IssueQueueComponent_l192_3 = wokeUpSrc1Mask[3];
-  assign when_IssueQueueComponent_l193_3 = wokeUpSrc2Mask[3];
-  assign _zz_1 = ({3'd0,1'b1} <<< issueIdx);
   assign io_allocateIn_fire = (io_allocateIn_valid && io_allocateIn_ready);
-  assign _zz_2 = ({3'd0,1'b1} <<< allocateIdx);
-  assign _zz_3 = _zz_2[0];
-  assign _zz_4 = _zz_2[1];
-  assign _zz_5 = _zz_2[2];
-  assign _zz_6 = _zz_2[3];
-  assign _zz_entriesNext_0_src1Ready = (! io_allocateIn_payload_uop_decoded_useArchSrc1);
-  assign _zz_entriesNext_0_src2Ready = (! io_allocateIn_payload_uop_decoded_useArchSrc2);
-  assign _zz_7 = ({3'd0,1'b1} <<< allocateIdx);
-  assign when_IssueQueueComponent_l217 = (wakeupInReg_0_valid && (! io_flush));
-  assign when_IssueQueueComponent_l218 = ((io_allocateIn_payload_uop_decoded_useArchSrc1 && (! io_allocateIn_payload_src1InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_0_payload_physRegIdx));
-  assign when_IssueQueueComponent_l221 = ((io_allocateIn_payload_uop_decoded_useArchSrc2 && (! io_allocateIn_payload_src2InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_0_payload_physRegIdx));
-  assign when_IssueQueueComponent_l217_1 = (wakeupInReg_1_valid && (! io_flush));
-  assign when_IssueQueueComponent_l218_1 = ((io_allocateIn_payload_uop_decoded_useArchSrc1 && (! io_allocateIn_payload_src1InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_1_payload_physRegIdx));
-  assign when_IssueQueueComponent_l221_1 = ((io_allocateIn_payload_uop_decoded_useArchSrc2 && (! io_allocateIn_payload_src2InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_1_payload_physRegIdx));
-  assign when_IssueQueueComponent_l217_2 = (wakeupInReg_2_valid && (! io_flush));
-  assign when_IssueQueueComponent_l218_2 = ((io_allocateIn_payload_uop_decoded_useArchSrc1 && (! io_allocateIn_payload_src1InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_2_payload_physRegIdx));
-  assign when_IssueQueueComponent_l221_2 = ((io_allocateIn_payload_uop_decoded_useArchSrc2 && (! io_allocateIn_payload_src2InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_2_payload_physRegIdx));
-  assign when_IssueQueueComponent_l217_3 = (wakeupInReg_3_valid && (! io_flush));
-  assign when_IssueQueueComponent_l218_3 = ((io_allocateIn_payload_uop_decoded_useArchSrc1 && (! io_allocateIn_payload_src1InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_3_payload_physRegIdx));
-  assign when_IssueQueueComponent_l221_3 = ((io_allocateIn_payload_uop_decoded_useArchSrc2 && (! io_allocateIn_payload_src2InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_3_payload_physRegIdx));
-  assign when_IssueQueueComponent_l217_4 = (wakeupInReg_4_valid && (! io_flush));
-  assign when_IssueQueueComponent_l218_4 = ((io_allocateIn_payload_uop_decoded_useArchSrc1 && (! io_allocateIn_payload_src1InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_4_payload_physRegIdx));
-  assign when_IssueQueueComponent_l221_4 = ((io_allocateIn_payload_uop_decoded_useArchSrc2 && (! io_allocateIn_payload_src2InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_4_payload_physRegIdx));
+  assign when_IssueQueueComponent_l191 = (io_allocateIn_fire && (allocateIdx == 2'b00));
+  assign when_IssueQueueComponent_l206 = (io_issueOut_fire && (issueIdx == 2'b00));
+  assign when_IssueQueueComponent_l214 = wokeUpSrc1Mask[0];
+  assign when_IssueQueueComponent_l215 = wokeUpSrc2Mask[0];
+  assign when_IssueQueueComponent_l191_1 = (io_allocateIn_fire && (allocateIdx == 2'b01));
+  assign when_IssueQueueComponent_l206_1 = (io_issueOut_fire && (issueIdx == 2'b01));
+  assign when_IssueQueueComponent_l214_1 = wokeUpSrc1Mask[1];
+  assign when_IssueQueueComponent_l215_1 = wokeUpSrc2Mask[1];
+  assign when_IssueQueueComponent_l191_2 = (io_allocateIn_fire && (allocateIdx == 2'b10));
+  assign when_IssueQueueComponent_l206_2 = (io_issueOut_fire && (issueIdx == 2'b10));
+  assign when_IssueQueueComponent_l214_2 = wokeUpSrc1Mask[2];
+  assign when_IssueQueueComponent_l215_2 = wokeUpSrc2Mask[2];
+  assign when_IssueQueueComponent_l191_3 = (io_allocateIn_fire && (allocateIdx == 2'b11));
+  assign when_IssueQueueComponent_l206_3 = (io_issueOut_fire && (issueIdx == 2'b11));
+  assign when_IssueQueueComponent_l214_3 = wokeUpSrc1Mask[3];
+  assign when_IssueQueueComponent_l215_3 = wokeUpSrc2Mask[3];
   assign _zz_currentValidCount = 3'b000;
   assign _zz_currentValidCount_1 = 3'b001;
   assign _zz_currentValidCount_2 = 3'b001;
@@ -50439,7 +41603,7 @@ module IssueQueueComponent_1 (
   assign _zz_currentValidCount_7 = 3'b011;
   assign currentValidCount = (_zz_currentValidCount_8 + _zz_currentValidCount_10);
   assign logCondition = (io_allocateIn_fire || io_issueOut_fire);
-  assign when_IssueQueueComponent_l262 = (logCondition && (3'b000 < currentValidCount));
+  assign when_IssueQueueComponent_l244 = (logCondition && (3'b000 < currentValidCount));
   always @(posedge clk) begin
     if(reset) begin
       wakeupInReg_0_valid <= 1'b0;
@@ -50481,29 +41645,59 @@ module IssueQueueComponent_1 (
         wakeupInReg_4_valid <= _zz_wakeupInReg_4_valid[0];
         wakeupInReg_4_payload_physRegIdx <= _zz_wakeupInReg_4_payload_physRegIdx[5 : 0];
       end
-      entryValids_0 <= entryValidsNext_0;
-      entryValids_1 <= entryValidsNext_1;
-      entryValids_2 <= entryValidsNext_2;
-      entryValids_3 <= entryValidsNext_3;
+      if(when_IssueQueueComponent_l191) begin
+        entryValids_0 <= 1'b1;
+      end else begin
+        if(when_IssueQueueComponent_l206) begin
+          entryValids_0 <= 1'b0;
+        end
+      end
+      if(when_IssueQueueComponent_l191_1) begin
+        entryValids_1 <= 1'b1;
+      end else begin
+        if(when_IssueQueueComponent_l206_1) begin
+          entryValids_1 <= 1'b0;
+        end
+      end
+      if(when_IssueQueueComponent_l191_2) begin
+        entryValids_2 <= 1'b1;
+      end else begin
+        if(when_IssueQueueComponent_l206_2) begin
+          entryValids_2 <= 1'b0;
+        end
+      end
+      if(when_IssueQueueComponent_l191_3) begin
+        entryValids_3 <= 1'b1;
+      end else begin
+        if(when_IssueQueueComponent_l206_3) begin
+          entryValids_3 <= 1'b0;
+        end
+      end
+      if(io_flush) begin
+        entryValids_0 <= 1'b0;
+        entryValids_1 <= 1'b0;
+        entryValids_2 <= 1'b0;
+        entryValids_3 <= 1'b0;
+      end
       if(logCondition) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // IssueQueueComponent.scala:L253
+            assert(1'b0); // IssueQueueComponent.scala:L235
           `else
             if(!1'b0) begin
-              $display("NOTE(IssueQueueComponent.scala:253):  [normal] MulEU_IQ-1: STATUS - ValidCount=%x, allocateIn(valid=%x, ready=%x), issueOut(valid=%x, ready=%x)", currentValidCount, io_allocateIn_valid, io_allocateIn_ready, io_issueOut_valid, io_issueOut_ready); // IssueQueueComponent.scala:L253
+              $display("NOTE(IssueQueueComponent.scala:235):  [normal] MulEU_IQ-1: STATUS - ValidCount=%x, allocateIn(valid=%x, ready=%x), issueOut(valid=%x, ready=%x)", currentValidCount, io_allocateIn_valid, io_allocateIn_ready, io_issueOut_valid, io_issueOut_ready); // IssueQueueComponent.scala:L235
             end
           `endif
         `endif
       end
-      if(when_IssueQueueComponent_l262) begin
+      if(when_IssueQueueComponent_l244) begin
         if(entryValids_0) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // IssueQueueComponent.scala:L265
+              assert(1'b0); // IssueQueueComponent.scala:L247
             `else
               if(!1'b0) begin
-                $display("NOTE(IssueQueueComponent.scala:265):  [normal] MulEU_IQ-1: (LAST CYCLE) ENTRY[0] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_0_robPtr, entries_0_physDest_idx, entries_0_useSrc1, entries_0_src1Tag, entries_0_src1Ready, entries_0_useSrc2, entries_0_src2Tag, entries_0_src2Ready); // IssueQueueComponent.scala:L265
+                $display("NOTE(IssueQueueComponent.scala:247):  [normal] MulEU_IQ-1: (LAST CYCLE) ENTRY[0] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_0_robPtr, entries_0_physDest_idx, entries_0_useSrc1, entries_0_src1Tag, entries_0_src1Ready, entries_0_useSrc2, entries_0_src2Tag, entries_0_src2Ready); // IssueQueueComponent.scala:L247
               end
             `endif
           `endif
@@ -50511,10 +41705,10 @@ module IssueQueueComponent_1 (
         if(entryValids_1) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // IssueQueueComponent.scala:L265
+              assert(1'b0); // IssueQueueComponent.scala:L247
             `else
               if(!1'b0) begin
-                $display("NOTE(IssueQueueComponent.scala:265):  [normal] MulEU_IQ-1: (LAST CYCLE) ENTRY[1] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_1_robPtr, entries_1_physDest_idx, entries_1_useSrc1, entries_1_src1Tag, entries_1_src1Ready, entries_1_useSrc2, entries_1_src2Tag, entries_1_src2Ready); // IssueQueueComponent.scala:L265
+                $display("NOTE(IssueQueueComponent.scala:247):  [normal] MulEU_IQ-1: (LAST CYCLE) ENTRY[1] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_1_robPtr, entries_1_physDest_idx, entries_1_useSrc1, entries_1_src1Tag, entries_1_src1Ready, entries_1_useSrc2, entries_1_src2Tag, entries_1_src2Ready); // IssueQueueComponent.scala:L247
               end
             `endif
           `endif
@@ -50522,10 +41716,10 @@ module IssueQueueComponent_1 (
         if(entryValids_2) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // IssueQueueComponent.scala:L265
+              assert(1'b0); // IssueQueueComponent.scala:L247
             `else
               if(!1'b0) begin
-                $display("NOTE(IssueQueueComponent.scala:265):  [normal] MulEU_IQ-1: (LAST CYCLE) ENTRY[2] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_2_robPtr, entries_2_physDest_idx, entries_2_useSrc1, entries_2_src1Tag, entries_2_src1Ready, entries_2_useSrc2, entries_2_src2Tag, entries_2_src2Ready); // IssueQueueComponent.scala:L265
+                $display("NOTE(IssueQueueComponent.scala:247):  [normal] MulEU_IQ-1: (LAST CYCLE) ENTRY[2] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_2_robPtr, entries_2_physDest_idx, entries_2_useSrc1, entries_2_src1Tag, entries_2_src1Ready, entries_2_useSrc2, entries_2_src2Tag, entries_2_src2Ready); // IssueQueueComponent.scala:L247
               end
             `endif
           `endif
@@ -50533,10 +41727,10 @@ module IssueQueueComponent_1 (
         if(entryValids_3) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // IssueQueueComponent.scala:L265
+              assert(1'b0); // IssueQueueComponent.scala:L247
             `else
               if(!1'b0) begin
-                $display("NOTE(IssueQueueComponent.scala:265):  [normal] MulEU_IQ-1: (LAST CYCLE) ENTRY[3] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_3_robPtr, entries_3_physDest_idx, entries_3_useSrc1, entries_3_src1Tag, entries_3_src1Ready, entries_3_useSrc2, entries_3_src2Tag, entries_3_src2Ready); // IssueQueueComponent.scala:L265
+                $display("NOTE(IssueQueueComponent.scala:247):  [normal] MulEU_IQ-1: (LAST CYCLE) ENTRY[3] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_3_robPtr, entries_3_physDest_idx, entries_3_useSrc1, entries_3_src1Tag, entries_3_src1Ready, entries_3_useSrc2, entries_3_src2Tag, entries_3_src2Ready); // IssueQueueComponent.scala:L247
               end
             `endif
           `endif
@@ -50546,454 +41740,506 @@ module IssueQueueComponent_1 (
   end
 
   always @(posedge clk) begin
-    entries_0_uop_decoded_pc <= entriesNext_0_uop_decoded_pc;
-    entries_0_uop_decoded_isValid <= entriesNext_0_uop_decoded_isValid;
-    entries_0_uop_decoded_uopCode <= entriesNext_0_uop_decoded_uopCode;
-    entries_0_uop_decoded_exeUnit <= entriesNext_0_uop_decoded_exeUnit;
-    entries_0_uop_decoded_isa <= entriesNext_0_uop_decoded_isa;
-    entries_0_uop_decoded_archDest_idx <= entriesNext_0_uop_decoded_archDest_idx;
-    entries_0_uop_decoded_archDest_rtype <= entriesNext_0_uop_decoded_archDest_rtype;
-    entries_0_uop_decoded_writeArchDestEn <= entriesNext_0_uop_decoded_writeArchDestEn;
-    entries_0_uop_decoded_archSrc1_idx <= entriesNext_0_uop_decoded_archSrc1_idx;
-    entries_0_uop_decoded_archSrc1_rtype <= entriesNext_0_uop_decoded_archSrc1_rtype;
-    entries_0_uop_decoded_useArchSrc1 <= entriesNext_0_uop_decoded_useArchSrc1;
-    entries_0_uop_decoded_archSrc2_idx <= entriesNext_0_uop_decoded_archSrc2_idx;
-    entries_0_uop_decoded_archSrc2_rtype <= entriesNext_0_uop_decoded_archSrc2_rtype;
-    entries_0_uop_decoded_useArchSrc2 <= entriesNext_0_uop_decoded_useArchSrc2;
-    entries_0_uop_decoded_usePcForAddr <= entriesNext_0_uop_decoded_usePcForAddr;
-    entries_0_uop_decoded_src1IsPc <= entriesNext_0_uop_decoded_src1IsPc;
-    entries_0_uop_decoded_imm <= entriesNext_0_uop_decoded_imm;
-    entries_0_uop_decoded_immUsage <= entriesNext_0_uop_decoded_immUsage;
-    entries_0_uop_decoded_aluCtrl_valid <= entriesNext_0_uop_decoded_aluCtrl_valid;
-    entries_0_uop_decoded_aluCtrl_isSub <= entriesNext_0_uop_decoded_aluCtrl_isSub;
-    entries_0_uop_decoded_aluCtrl_isAdd <= entriesNext_0_uop_decoded_aluCtrl_isAdd;
-    entries_0_uop_decoded_aluCtrl_isSigned <= entriesNext_0_uop_decoded_aluCtrl_isSigned;
-    entries_0_uop_decoded_aluCtrl_logicOp <= entriesNext_0_uop_decoded_aluCtrl_logicOp;
-    entries_0_uop_decoded_aluCtrl_condition <= entriesNext_0_uop_decoded_aluCtrl_condition;
-    entries_0_uop_decoded_shiftCtrl_valid <= entriesNext_0_uop_decoded_shiftCtrl_valid;
-    entries_0_uop_decoded_shiftCtrl_isRight <= entriesNext_0_uop_decoded_shiftCtrl_isRight;
-    entries_0_uop_decoded_shiftCtrl_isArithmetic <= entriesNext_0_uop_decoded_shiftCtrl_isArithmetic;
-    entries_0_uop_decoded_shiftCtrl_isRotate <= entriesNext_0_uop_decoded_shiftCtrl_isRotate;
-    entries_0_uop_decoded_shiftCtrl_isDoubleWord <= entriesNext_0_uop_decoded_shiftCtrl_isDoubleWord;
-    entries_0_uop_decoded_mulDivCtrl_valid <= entriesNext_0_uop_decoded_mulDivCtrl_valid;
-    entries_0_uop_decoded_mulDivCtrl_isDiv <= entriesNext_0_uop_decoded_mulDivCtrl_isDiv;
-    entries_0_uop_decoded_mulDivCtrl_isSigned <= entriesNext_0_uop_decoded_mulDivCtrl_isSigned;
-    entries_0_uop_decoded_mulDivCtrl_isWordOp <= entriesNext_0_uop_decoded_mulDivCtrl_isWordOp;
-    entries_0_uop_decoded_memCtrl_size <= entriesNext_0_uop_decoded_memCtrl_size;
-    entries_0_uop_decoded_memCtrl_isSignedLoad <= entriesNext_0_uop_decoded_memCtrl_isSignedLoad;
-    entries_0_uop_decoded_memCtrl_isStore <= entriesNext_0_uop_decoded_memCtrl_isStore;
-    entries_0_uop_decoded_memCtrl_isLoadLinked <= entriesNext_0_uop_decoded_memCtrl_isLoadLinked;
-    entries_0_uop_decoded_memCtrl_isStoreCond <= entriesNext_0_uop_decoded_memCtrl_isStoreCond;
-    entries_0_uop_decoded_memCtrl_atomicOp <= entriesNext_0_uop_decoded_memCtrl_atomicOp;
-    entries_0_uop_decoded_memCtrl_isFence <= entriesNext_0_uop_decoded_memCtrl_isFence;
-    entries_0_uop_decoded_memCtrl_fenceMode <= entriesNext_0_uop_decoded_memCtrl_fenceMode;
-    entries_0_uop_decoded_memCtrl_isCacheOp <= entriesNext_0_uop_decoded_memCtrl_isCacheOp;
-    entries_0_uop_decoded_memCtrl_cacheOpType <= entriesNext_0_uop_decoded_memCtrl_cacheOpType;
-    entries_0_uop_decoded_memCtrl_isPrefetch <= entriesNext_0_uop_decoded_memCtrl_isPrefetch;
-    entries_0_uop_decoded_branchCtrl_condition <= entriesNext_0_uop_decoded_branchCtrl_condition;
-    entries_0_uop_decoded_branchCtrl_isJump <= entriesNext_0_uop_decoded_branchCtrl_isJump;
-    entries_0_uop_decoded_branchCtrl_isLink <= entriesNext_0_uop_decoded_branchCtrl_isLink;
-    entries_0_uop_decoded_branchCtrl_linkReg_idx <= entriesNext_0_uop_decoded_branchCtrl_linkReg_idx;
-    entries_0_uop_decoded_branchCtrl_linkReg_rtype <= entriesNext_0_uop_decoded_branchCtrl_linkReg_rtype;
-    entries_0_uop_decoded_branchCtrl_isIndirect <= entriesNext_0_uop_decoded_branchCtrl_isIndirect;
-    entries_0_uop_decoded_branchCtrl_laCfIdx <= entriesNext_0_uop_decoded_branchCtrl_laCfIdx;
-    entries_0_uop_decoded_fpuCtrl_opType <= entriesNext_0_uop_decoded_fpuCtrl_opType;
-    entries_0_uop_decoded_fpuCtrl_fpSizeSrc1 <= entriesNext_0_uop_decoded_fpuCtrl_fpSizeSrc1;
-    entries_0_uop_decoded_fpuCtrl_fpSizeSrc2 <= entriesNext_0_uop_decoded_fpuCtrl_fpSizeSrc2;
-    entries_0_uop_decoded_fpuCtrl_fpSizeDest <= entriesNext_0_uop_decoded_fpuCtrl_fpSizeDest;
-    entries_0_uop_decoded_fpuCtrl_roundingMode <= entriesNext_0_uop_decoded_fpuCtrl_roundingMode;
-    entries_0_uop_decoded_fpuCtrl_isIntegerDest <= entriesNext_0_uop_decoded_fpuCtrl_isIntegerDest;
-    entries_0_uop_decoded_fpuCtrl_isSignedCvt <= entriesNext_0_uop_decoded_fpuCtrl_isSignedCvt;
-    entries_0_uop_decoded_fpuCtrl_fmaNegSrc1 <= entriesNext_0_uop_decoded_fpuCtrl_fmaNegSrc1;
-    entries_0_uop_decoded_fpuCtrl_fcmpCond <= entriesNext_0_uop_decoded_fpuCtrl_fcmpCond;
-    entries_0_uop_decoded_csrCtrl_csrAddr <= entriesNext_0_uop_decoded_csrCtrl_csrAddr;
-    entries_0_uop_decoded_csrCtrl_isWrite <= entriesNext_0_uop_decoded_csrCtrl_isWrite;
-    entries_0_uop_decoded_csrCtrl_isRead <= entriesNext_0_uop_decoded_csrCtrl_isRead;
-    entries_0_uop_decoded_csrCtrl_isExchange <= entriesNext_0_uop_decoded_csrCtrl_isExchange;
-    entries_0_uop_decoded_csrCtrl_useUimmAsSrc <= entriesNext_0_uop_decoded_csrCtrl_useUimmAsSrc;
-    entries_0_uop_decoded_sysCtrl_sysCode <= entriesNext_0_uop_decoded_sysCtrl_sysCode;
-    entries_0_uop_decoded_sysCtrl_isExceptionReturn <= entriesNext_0_uop_decoded_sysCtrl_isExceptionReturn;
-    entries_0_uop_decoded_sysCtrl_isTlbOp <= entriesNext_0_uop_decoded_sysCtrl_isTlbOp;
-    entries_0_uop_decoded_sysCtrl_tlbOpType <= entriesNext_0_uop_decoded_sysCtrl_tlbOpType;
-    entries_0_uop_decoded_decodeExceptionCode <= entriesNext_0_uop_decoded_decodeExceptionCode;
-    entries_0_uop_decoded_hasDecodeException <= entriesNext_0_uop_decoded_hasDecodeException;
-    entries_0_uop_decoded_isMicrocode <= entriesNext_0_uop_decoded_isMicrocode;
-    entries_0_uop_decoded_microcodeEntry <= entriesNext_0_uop_decoded_microcodeEntry;
-    entries_0_uop_decoded_isSerializing <= entriesNext_0_uop_decoded_isSerializing;
-    entries_0_uop_decoded_isBranchOrJump <= entriesNext_0_uop_decoded_isBranchOrJump;
-    entries_0_uop_decoded_branchPrediction_isTaken <= entriesNext_0_uop_decoded_branchPrediction_isTaken;
-    entries_0_uop_decoded_branchPrediction_target <= entriesNext_0_uop_decoded_branchPrediction_target;
-    entries_0_uop_decoded_branchPrediction_wasPredicted <= entriesNext_0_uop_decoded_branchPrediction_wasPredicted;
-    entries_0_uop_rename_physSrc1_idx <= entriesNext_0_uop_rename_physSrc1_idx;
-    entries_0_uop_rename_physSrc1IsFpr <= entriesNext_0_uop_rename_physSrc1IsFpr;
-    entries_0_uop_rename_physSrc2_idx <= entriesNext_0_uop_rename_physSrc2_idx;
-    entries_0_uop_rename_physSrc2IsFpr <= entriesNext_0_uop_rename_physSrc2IsFpr;
-    entries_0_uop_rename_physDest_idx <= entriesNext_0_uop_rename_physDest_idx;
-    entries_0_uop_rename_physDestIsFpr <= entriesNext_0_uop_rename_physDestIsFpr;
-    entries_0_uop_rename_oldPhysDest_idx <= entriesNext_0_uop_rename_oldPhysDest_idx;
-    entries_0_uop_rename_oldPhysDestIsFpr <= entriesNext_0_uop_rename_oldPhysDestIsFpr;
-    entries_0_uop_rename_allocatesPhysDest <= entriesNext_0_uop_rename_allocatesPhysDest;
-    entries_0_uop_rename_writesToPhysReg <= entriesNext_0_uop_rename_writesToPhysReg;
-    entries_0_uop_robPtr <= entriesNext_0_uop_robPtr;
-    entries_0_uop_uniqueId <= entriesNext_0_uop_uniqueId;
-    entries_0_uop_dispatched <= entriesNext_0_uop_dispatched;
-    entries_0_uop_executed <= entriesNext_0_uop_executed;
-    entries_0_uop_hasException <= entriesNext_0_uop_hasException;
-    entries_0_uop_exceptionCode <= entriesNext_0_uop_exceptionCode;
-    entries_0_robPtr <= entriesNext_0_robPtr;
-    entries_0_physDest_idx <= entriesNext_0_physDest_idx;
-    entries_0_physDestIsFpr <= entriesNext_0_physDestIsFpr;
-    entries_0_writesToPhysReg <= entriesNext_0_writesToPhysReg;
-    entries_0_useSrc1 <= entriesNext_0_useSrc1;
-    entries_0_src1Data <= entriesNext_0_src1Data;
-    entries_0_src1Tag <= entriesNext_0_src1Tag;
-    entries_0_src1Ready <= entriesNext_0_src1Ready;
-    entries_0_src1IsFpr <= entriesNext_0_src1IsFpr;
-    entries_0_useSrc2 <= entriesNext_0_useSrc2;
-    entries_0_src2Data <= entriesNext_0_src2Data;
-    entries_0_src2Tag <= entriesNext_0_src2Tag;
-    entries_0_src2Ready <= entriesNext_0_src2Ready;
-    entries_0_src2IsFpr <= entriesNext_0_src2IsFpr;
-    entries_0_mulDivCtrl_valid <= entriesNext_0_mulDivCtrl_valid;
-    entries_0_mulDivCtrl_isDiv <= entriesNext_0_mulDivCtrl_isDiv;
-    entries_0_mulDivCtrl_isSigned <= entriesNext_0_mulDivCtrl_isSigned;
-    entries_0_mulDivCtrl_isWordOp <= entriesNext_0_mulDivCtrl_isWordOp;
-    entries_1_uop_decoded_pc <= entriesNext_1_uop_decoded_pc;
-    entries_1_uop_decoded_isValid <= entriesNext_1_uop_decoded_isValid;
-    entries_1_uop_decoded_uopCode <= entriesNext_1_uop_decoded_uopCode;
-    entries_1_uop_decoded_exeUnit <= entriesNext_1_uop_decoded_exeUnit;
-    entries_1_uop_decoded_isa <= entriesNext_1_uop_decoded_isa;
-    entries_1_uop_decoded_archDest_idx <= entriesNext_1_uop_decoded_archDest_idx;
-    entries_1_uop_decoded_archDest_rtype <= entriesNext_1_uop_decoded_archDest_rtype;
-    entries_1_uop_decoded_writeArchDestEn <= entriesNext_1_uop_decoded_writeArchDestEn;
-    entries_1_uop_decoded_archSrc1_idx <= entriesNext_1_uop_decoded_archSrc1_idx;
-    entries_1_uop_decoded_archSrc1_rtype <= entriesNext_1_uop_decoded_archSrc1_rtype;
-    entries_1_uop_decoded_useArchSrc1 <= entriesNext_1_uop_decoded_useArchSrc1;
-    entries_1_uop_decoded_archSrc2_idx <= entriesNext_1_uop_decoded_archSrc2_idx;
-    entries_1_uop_decoded_archSrc2_rtype <= entriesNext_1_uop_decoded_archSrc2_rtype;
-    entries_1_uop_decoded_useArchSrc2 <= entriesNext_1_uop_decoded_useArchSrc2;
-    entries_1_uop_decoded_usePcForAddr <= entriesNext_1_uop_decoded_usePcForAddr;
-    entries_1_uop_decoded_src1IsPc <= entriesNext_1_uop_decoded_src1IsPc;
-    entries_1_uop_decoded_imm <= entriesNext_1_uop_decoded_imm;
-    entries_1_uop_decoded_immUsage <= entriesNext_1_uop_decoded_immUsage;
-    entries_1_uop_decoded_aluCtrl_valid <= entriesNext_1_uop_decoded_aluCtrl_valid;
-    entries_1_uop_decoded_aluCtrl_isSub <= entriesNext_1_uop_decoded_aluCtrl_isSub;
-    entries_1_uop_decoded_aluCtrl_isAdd <= entriesNext_1_uop_decoded_aluCtrl_isAdd;
-    entries_1_uop_decoded_aluCtrl_isSigned <= entriesNext_1_uop_decoded_aluCtrl_isSigned;
-    entries_1_uop_decoded_aluCtrl_logicOp <= entriesNext_1_uop_decoded_aluCtrl_logicOp;
-    entries_1_uop_decoded_aluCtrl_condition <= entriesNext_1_uop_decoded_aluCtrl_condition;
-    entries_1_uop_decoded_shiftCtrl_valid <= entriesNext_1_uop_decoded_shiftCtrl_valid;
-    entries_1_uop_decoded_shiftCtrl_isRight <= entriesNext_1_uop_decoded_shiftCtrl_isRight;
-    entries_1_uop_decoded_shiftCtrl_isArithmetic <= entriesNext_1_uop_decoded_shiftCtrl_isArithmetic;
-    entries_1_uop_decoded_shiftCtrl_isRotate <= entriesNext_1_uop_decoded_shiftCtrl_isRotate;
-    entries_1_uop_decoded_shiftCtrl_isDoubleWord <= entriesNext_1_uop_decoded_shiftCtrl_isDoubleWord;
-    entries_1_uop_decoded_mulDivCtrl_valid <= entriesNext_1_uop_decoded_mulDivCtrl_valid;
-    entries_1_uop_decoded_mulDivCtrl_isDiv <= entriesNext_1_uop_decoded_mulDivCtrl_isDiv;
-    entries_1_uop_decoded_mulDivCtrl_isSigned <= entriesNext_1_uop_decoded_mulDivCtrl_isSigned;
-    entries_1_uop_decoded_mulDivCtrl_isWordOp <= entriesNext_1_uop_decoded_mulDivCtrl_isWordOp;
-    entries_1_uop_decoded_memCtrl_size <= entriesNext_1_uop_decoded_memCtrl_size;
-    entries_1_uop_decoded_memCtrl_isSignedLoad <= entriesNext_1_uop_decoded_memCtrl_isSignedLoad;
-    entries_1_uop_decoded_memCtrl_isStore <= entriesNext_1_uop_decoded_memCtrl_isStore;
-    entries_1_uop_decoded_memCtrl_isLoadLinked <= entriesNext_1_uop_decoded_memCtrl_isLoadLinked;
-    entries_1_uop_decoded_memCtrl_isStoreCond <= entriesNext_1_uop_decoded_memCtrl_isStoreCond;
-    entries_1_uop_decoded_memCtrl_atomicOp <= entriesNext_1_uop_decoded_memCtrl_atomicOp;
-    entries_1_uop_decoded_memCtrl_isFence <= entriesNext_1_uop_decoded_memCtrl_isFence;
-    entries_1_uop_decoded_memCtrl_fenceMode <= entriesNext_1_uop_decoded_memCtrl_fenceMode;
-    entries_1_uop_decoded_memCtrl_isCacheOp <= entriesNext_1_uop_decoded_memCtrl_isCacheOp;
-    entries_1_uop_decoded_memCtrl_cacheOpType <= entriesNext_1_uop_decoded_memCtrl_cacheOpType;
-    entries_1_uop_decoded_memCtrl_isPrefetch <= entriesNext_1_uop_decoded_memCtrl_isPrefetch;
-    entries_1_uop_decoded_branchCtrl_condition <= entriesNext_1_uop_decoded_branchCtrl_condition;
-    entries_1_uop_decoded_branchCtrl_isJump <= entriesNext_1_uop_decoded_branchCtrl_isJump;
-    entries_1_uop_decoded_branchCtrl_isLink <= entriesNext_1_uop_decoded_branchCtrl_isLink;
-    entries_1_uop_decoded_branchCtrl_linkReg_idx <= entriesNext_1_uop_decoded_branchCtrl_linkReg_idx;
-    entries_1_uop_decoded_branchCtrl_linkReg_rtype <= entriesNext_1_uop_decoded_branchCtrl_linkReg_rtype;
-    entries_1_uop_decoded_branchCtrl_isIndirect <= entriesNext_1_uop_decoded_branchCtrl_isIndirect;
-    entries_1_uop_decoded_branchCtrl_laCfIdx <= entriesNext_1_uop_decoded_branchCtrl_laCfIdx;
-    entries_1_uop_decoded_fpuCtrl_opType <= entriesNext_1_uop_decoded_fpuCtrl_opType;
-    entries_1_uop_decoded_fpuCtrl_fpSizeSrc1 <= entriesNext_1_uop_decoded_fpuCtrl_fpSizeSrc1;
-    entries_1_uop_decoded_fpuCtrl_fpSizeSrc2 <= entriesNext_1_uop_decoded_fpuCtrl_fpSizeSrc2;
-    entries_1_uop_decoded_fpuCtrl_fpSizeDest <= entriesNext_1_uop_decoded_fpuCtrl_fpSizeDest;
-    entries_1_uop_decoded_fpuCtrl_roundingMode <= entriesNext_1_uop_decoded_fpuCtrl_roundingMode;
-    entries_1_uop_decoded_fpuCtrl_isIntegerDest <= entriesNext_1_uop_decoded_fpuCtrl_isIntegerDest;
-    entries_1_uop_decoded_fpuCtrl_isSignedCvt <= entriesNext_1_uop_decoded_fpuCtrl_isSignedCvt;
-    entries_1_uop_decoded_fpuCtrl_fmaNegSrc1 <= entriesNext_1_uop_decoded_fpuCtrl_fmaNegSrc1;
-    entries_1_uop_decoded_fpuCtrl_fcmpCond <= entriesNext_1_uop_decoded_fpuCtrl_fcmpCond;
-    entries_1_uop_decoded_csrCtrl_csrAddr <= entriesNext_1_uop_decoded_csrCtrl_csrAddr;
-    entries_1_uop_decoded_csrCtrl_isWrite <= entriesNext_1_uop_decoded_csrCtrl_isWrite;
-    entries_1_uop_decoded_csrCtrl_isRead <= entriesNext_1_uop_decoded_csrCtrl_isRead;
-    entries_1_uop_decoded_csrCtrl_isExchange <= entriesNext_1_uop_decoded_csrCtrl_isExchange;
-    entries_1_uop_decoded_csrCtrl_useUimmAsSrc <= entriesNext_1_uop_decoded_csrCtrl_useUimmAsSrc;
-    entries_1_uop_decoded_sysCtrl_sysCode <= entriesNext_1_uop_decoded_sysCtrl_sysCode;
-    entries_1_uop_decoded_sysCtrl_isExceptionReturn <= entriesNext_1_uop_decoded_sysCtrl_isExceptionReturn;
-    entries_1_uop_decoded_sysCtrl_isTlbOp <= entriesNext_1_uop_decoded_sysCtrl_isTlbOp;
-    entries_1_uop_decoded_sysCtrl_tlbOpType <= entriesNext_1_uop_decoded_sysCtrl_tlbOpType;
-    entries_1_uop_decoded_decodeExceptionCode <= entriesNext_1_uop_decoded_decodeExceptionCode;
-    entries_1_uop_decoded_hasDecodeException <= entriesNext_1_uop_decoded_hasDecodeException;
-    entries_1_uop_decoded_isMicrocode <= entriesNext_1_uop_decoded_isMicrocode;
-    entries_1_uop_decoded_microcodeEntry <= entriesNext_1_uop_decoded_microcodeEntry;
-    entries_1_uop_decoded_isSerializing <= entriesNext_1_uop_decoded_isSerializing;
-    entries_1_uop_decoded_isBranchOrJump <= entriesNext_1_uop_decoded_isBranchOrJump;
-    entries_1_uop_decoded_branchPrediction_isTaken <= entriesNext_1_uop_decoded_branchPrediction_isTaken;
-    entries_1_uop_decoded_branchPrediction_target <= entriesNext_1_uop_decoded_branchPrediction_target;
-    entries_1_uop_decoded_branchPrediction_wasPredicted <= entriesNext_1_uop_decoded_branchPrediction_wasPredicted;
-    entries_1_uop_rename_physSrc1_idx <= entriesNext_1_uop_rename_physSrc1_idx;
-    entries_1_uop_rename_physSrc1IsFpr <= entriesNext_1_uop_rename_physSrc1IsFpr;
-    entries_1_uop_rename_physSrc2_idx <= entriesNext_1_uop_rename_physSrc2_idx;
-    entries_1_uop_rename_physSrc2IsFpr <= entriesNext_1_uop_rename_physSrc2IsFpr;
-    entries_1_uop_rename_physDest_idx <= entriesNext_1_uop_rename_physDest_idx;
-    entries_1_uop_rename_physDestIsFpr <= entriesNext_1_uop_rename_physDestIsFpr;
-    entries_1_uop_rename_oldPhysDest_idx <= entriesNext_1_uop_rename_oldPhysDest_idx;
-    entries_1_uop_rename_oldPhysDestIsFpr <= entriesNext_1_uop_rename_oldPhysDestIsFpr;
-    entries_1_uop_rename_allocatesPhysDest <= entriesNext_1_uop_rename_allocatesPhysDest;
-    entries_1_uop_rename_writesToPhysReg <= entriesNext_1_uop_rename_writesToPhysReg;
-    entries_1_uop_robPtr <= entriesNext_1_uop_robPtr;
-    entries_1_uop_uniqueId <= entriesNext_1_uop_uniqueId;
-    entries_1_uop_dispatched <= entriesNext_1_uop_dispatched;
-    entries_1_uop_executed <= entriesNext_1_uop_executed;
-    entries_1_uop_hasException <= entriesNext_1_uop_hasException;
-    entries_1_uop_exceptionCode <= entriesNext_1_uop_exceptionCode;
-    entries_1_robPtr <= entriesNext_1_robPtr;
-    entries_1_physDest_idx <= entriesNext_1_physDest_idx;
-    entries_1_physDestIsFpr <= entriesNext_1_physDestIsFpr;
-    entries_1_writesToPhysReg <= entriesNext_1_writesToPhysReg;
-    entries_1_useSrc1 <= entriesNext_1_useSrc1;
-    entries_1_src1Data <= entriesNext_1_src1Data;
-    entries_1_src1Tag <= entriesNext_1_src1Tag;
-    entries_1_src1Ready <= entriesNext_1_src1Ready;
-    entries_1_src1IsFpr <= entriesNext_1_src1IsFpr;
-    entries_1_useSrc2 <= entriesNext_1_useSrc2;
-    entries_1_src2Data <= entriesNext_1_src2Data;
-    entries_1_src2Tag <= entriesNext_1_src2Tag;
-    entries_1_src2Ready <= entriesNext_1_src2Ready;
-    entries_1_src2IsFpr <= entriesNext_1_src2IsFpr;
-    entries_1_mulDivCtrl_valid <= entriesNext_1_mulDivCtrl_valid;
-    entries_1_mulDivCtrl_isDiv <= entriesNext_1_mulDivCtrl_isDiv;
-    entries_1_mulDivCtrl_isSigned <= entriesNext_1_mulDivCtrl_isSigned;
-    entries_1_mulDivCtrl_isWordOp <= entriesNext_1_mulDivCtrl_isWordOp;
-    entries_2_uop_decoded_pc <= entriesNext_2_uop_decoded_pc;
-    entries_2_uop_decoded_isValid <= entriesNext_2_uop_decoded_isValid;
-    entries_2_uop_decoded_uopCode <= entriesNext_2_uop_decoded_uopCode;
-    entries_2_uop_decoded_exeUnit <= entriesNext_2_uop_decoded_exeUnit;
-    entries_2_uop_decoded_isa <= entriesNext_2_uop_decoded_isa;
-    entries_2_uop_decoded_archDest_idx <= entriesNext_2_uop_decoded_archDest_idx;
-    entries_2_uop_decoded_archDest_rtype <= entriesNext_2_uop_decoded_archDest_rtype;
-    entries_2_uop_decoded_writeArchDestEn <= entriesNext_2_uop_decoded_writeArchDestEn;
-    entries_2_uop_decoded_archSrc1_idx <= entriesNext_2_uop_decoded_archSrc1_idx;
-    entries_2_uop_decoded_archSrc1_rtype <= entriesNext_2_uop_decoded_archSrc1_rtype;
-    entries_2_uop_decoded_useArchSrc1 <= entriesNext_2_uop_decoded_useArchSrc1;
-    entries_2_uop_decoded_archSrc2_idx <= entriesNext_2_uop_decoded_archSrc2_idx;
-    entries_2_uop_decoded_archSrc2_rtype <= entriesNext_2_uop_decoded_archSrc2_rtype;
-    entries_2_uop_decoded_useArchSrc2 <= entriesNext_2_uop_decoded_useArchSrc2;
-    entries_2_uop_decoded_usePcForAddr <= entriesNext_2_uop_decoded_usePcForAddr;
-    entries_2_uop_decoded_src1IsPc <= entriesNext_2_uop_decoded_src1IsPc;
-    entries_2_uop_decoded_imm <= entriesNext_2_uop_decoded_imm;
-    entries_2_uop_decoded_immUsage <= entriesNext_2_uop_decoded_immUsage;
-    entries_2_uop_decoded_aluCtrl_valid <= entriesNext_2_uop_decoded_aluCtrl_valid;
-    entries_2_uop_decoded_aluCtrl_isSub <= entriesNext_2_uop_decoded_aluCtrl_isSub;
-    entries_2_uop_decoded_aluCtrl_isAdd <= entriesNext_2_uop_decoded_aluCtrl_isAdd;
-    entries_2_uop_decoded_aluCtrl_isSigned <= entriesNext_2_uop_decoded_aluCtrl_isSigned;
-    entries_2_uop_decoded_aluCtrl_logicOp <= entriesNext_2_uop_decoded_aluCtrl_logicOp;
-    entries_2_uop_decoded_aluCtrl_condition <= entriesNext_2_uop_decoded_aluCtrl_condition;
-    entries_2_uop_decoded_shiftCtrl_valid <= entriesNext_2_uop_decoded_shiftCtrl_valid;
-    entries_2_uop_decoded_shiftCtrl_isRight <= entriesNext_2_uop_decoded_shiftCtrl_isRight;
-    entries_2_uop_decoded_shiftCtrl_isArithmetic <= entriesNext_2_uop_decoded_shiftCtrl_isArithmetic;
-    entries_2_uop_decoded_shiftCtrl_isRotate <= entriesNext_2_uop_decoded_shiftCtrl_isRotate;
-    entries_2_uop_decoded_shiftCtrl_isDoubleWord <= entriesNext_2_uop_decoded_shiftCtrl_isDoubleWord;
-    entries_2_uop_decoded_mulDivCtrl_valid <= entriesNext_2_uop_decoded_mulDivCtrl_valid;
-    entries_2_uop_decoded_mulDivCtrl_isDiv <= entriesNext_2_uop_decoded_mulDivCtrl_isDiv;
-    entries_2_uop_decoded_mulDivCtrl_isSigned <= entriesNext_2_uop_decoded_mulDivCtrl_isSigned;
-    entries_2_uop_decoded_mulDivCtrl_isWordOp <= entriesNext_2_uop_decoded_mulDivCtrl_isWordOp;
-    entries_2_uop_decoded_memCtrl_size <= entriesNext_2_uop_decoded_memCtrl_size;
-    entries_2_uop_decoded_memCtrl_isSignedLoad <= entriesNext_2_uop_decoded_memCtrl_isSignedLoad;
-    entries_2_uop_decoded_memCtrl_isStore <= entriesNext_2_uop_decoded_memCtrl_isStore;
-    entries_2_uop_decoded_memCtrl_isLoadLinked <= entriesNext_2_uop_decoded_memCtrl_isLoadLinked;
-    entries_2_uop_decoded_memCtrl_isStoreCond <= entriesNext_2_uop_decoded_memCtrl_isStoreCond;
-    entries_2_uop_decoded_memCtrl_atomicOp <= entriesNext_2_uop_decoded_memCtrl_atomicOp;
-    entries_2_uop_decoded_memCtrl_isFence <= entriesNext_2_uop_decoded_memCtrl_isFence;
-    entries_2_uop_decoded_memCtrl_fenceMode <= entriesNext_2_uop_decoded_memCtrl_fenceMode;
-    entries_2_uop_decoded_memCtrl_isCacheOp <= entriesNext_2_uop_decoded_memCtrl_isCacheOp;
-    entries_2_uop_decoded_memCtrl_cacheOpType <= entriesNext_2_uop_decoded_memCtrl_cacheOpType;
-    entries_2_uop_decoded_memCtrl_isPrefetch <= entriesNext_2_uop_decoded_memCtrl_isPrefetch;
-    entries_2_uop_decoded_branchCtrl_condition <= entriesNext_2_uop_decoded_branchCtrl_condition;
-    entries_2_uop_decoded_branchCtrl_isJump <= entriesNext_2_uop_decoded_branchCtrl_isJump;
-    entries_2_uop_decoded_branchCtrl_isLink <= entriesNext_2_uop_decoded_branchCtrl_isLink;
-    entries_2_uop_decoded_branchCtrl_linkReg_idx <= entriesNext_2_uop_decoded_branchCtrl_linkReg_idx;
-    entries_2_uop_decoded_branchCtrl_linkReg_rtype <= entriesNext_2_uop_decoded_branchCtrl_linkReg_rtype;
-    entries_2_uop_decoded_branchCtrl_isIndirect <= entriesNext_2_uop_decoded_branchCtrl_isIndirect;
-    entries_2_uop_decoded_branchCtrl_laCfIdx <= entriesNext_2_uop_decoded_branchCtrl_laCfIdx;
-    entries_2_uop_decoded_fpuCtrl_opType <= entriesNext_2_uop_decoded_fpuCtrl_opType;
-    entries_2_uop_decoded_fpuCtrl_fpSizeSrc1 <= entriesNext_2_uop_decoded_fpuCtrl_fpSizeSrc1;
-    entries_2_uop_decoded_fpuCtrl_fpSizeSrc2 <= entriesNext_2_uop_decoded_fpuCtrl_fpSizeSrc2;
-    entries_2_uop_decoded_fpuCtrl_fpSizeDest <= entriesNext_2_uop_decoded_fpuCtrl_fpSizeDest;
-    entries_2_uop_decoded_fpuCtrl_roundingMode <= entriesNext_2_uop_decoded_fpuCtrl_roundingMode;
-    entries_2_uop_decoded_fpuCtrl_isIntegerDest <= entriesNext_2_uop_decoded_fpuCtrl_isIntegerDest;
-    entries_2_uop_decoded_fpuCtrl_isSignedCvt <= entriesNext_2_uop_decoded_fpuCtrl_isSignedCvt;
-    entries_2_uop_decoded_fpuCtrl_fmaNegSrc1 <= entriesNext_2_uop_decoded_fpuCtrl_fmaNegSrc1;
-    entries_2_uop_decoded_fpuCtrl_fcmpCond <= entriesNext_2_uop_decoded_fpuCtrl_fcmpCond;
-    entries_2_uop_decoded_csrCtrl_csrAddr <= entriesNext_2_uop_decoded_csrCtrl_csrAddr;
-    entries_2_uop_decoded_csrCtrl_isWrite <= entriesNext_2_uop_decoded_csrCtrl_isWrite;
-    entries_2_uop_decoded_csrCtrl_isRead <= entriesNext_2_uop_decoded_csrCtrl_isRead;
-    entries_2_uop_decoded_csrCtrl_isExchange <= entriesNext_2_uop_decoded_csrCtrl_isExchange;
-    entries_2_uop_decoded_csrCtrl_useUimmAsSrc <= entriesNext_2_uop_decoded_csrCtrl_useUimmAsSrc;
-    entries_2_uop_decoded_sysCtrl_sysCode <= entriesNext_2_uop_decoded_sysCtrl_sysCode;
-    entries_2_uop_decoded_sysCtrl_isExceptionReturn <= entriesNext_2_uop_decoded_sysCtrl_isExceptionReturn;
-    entries_2_uop_decoded_sysCtrl_isTlbOp <= entriesNext_2_uop_decoded_sysCtrl_isTlbOp;
-    entries_2_uop_decoded_sysCtrl_tlbOpType <= entriesNext_2_uop_decoded_sysCtrl_tlbOpType;
-    entries_2_uop_decoded_decodeExceptionCode <= entriesNext_2_uop_decoded_decodeExceptionCode;
-    entries_2_uop_decoded_hasDecodeException <= entriesNext_2_uop_decoded_hasDecodeException;
-    entries_2_uop_decoded_isMicrocode <= entriesNext_2_uop_decoded_isMicrocode;
-    entries_2_uop_decoded_microcodeEntry <= entriesNext_2_uop_decoded_microcodeEntry;
-    entries_2_uop_decoded_isSerializing <= entriesNext_2_uop_decoded_isSerializing;
-    entries_2_uop_decoded_isBranchOrJump <= entriesNext_2_uop_decoded_isBranchOrJump;
-    entries_2_uop_decoded_branchPrediction_isTaken <= entriesNext_2_uop_decoded_branchPrediction_isTaken;
-    entries_2_uop_decoded_branchPrediction_target <= entriesNext_2_uop_decoded_branchPrediction_target;
-    entries_2_uop_decoded_branchPrediction_wasPredicted <= entriesNext_2_uop_decoded_branchPrediction_wasPredicted;
-    entries_2_uop_rename_physSrc1_idx <= entriesNext_2_uop_rename_physSrc1_idx;
-    entries_2_uop_rename_physSrc1IsFpr <= entriesNext_2_uop_rename_physSrc1IsFpr;
-    entries_2_uop_rename_physSrc2_idx <= entriesNext_2_uop_rename_physSrc2_idx;
-    entries_2_uop_rename_physSrc2IsFpr <= entriesNext_2_uop_rename_physSrc2IsFpr;
-    entries_2_uop_rename_physDest_idx <= entriesNext_2_uop_rename_physDest_idx;
-    entries_2_uop_rename_physDestIsFpr <= entriesNext_2_uop_rename_physDestIsFpr;
-    entries_2_uop_rename_oldPhysDest_idx <= entriesNext_2_uop_rename_oldPhysDest_idx;
-    entries_2_uop_rename_oldPhysDestIsFpr <= entriesNext_2_uop_rename_oldPhysDestIsFpr;
-    entries_2_uop_rename_allocatesPhysDest <= entriesNext_2_uop_rename_allocatesPhysDest;
-    entries_2_uop_rename_writesToPhysReg <= entriesNext_2_uop_rename_writesToPhysReg;
-    entries_2_uop_robPtr <= entriesNext_2_uop_robPtr;
-    entries_2_uop_uniqueId <= entriesNext_2_uop_uniqueId;
-    entries_2_uop_dispatched <= entriesNext_2_uop_dispatched;
-    entries_2_uop_executed <= entriesNext_2_uop_executed;
-    entries_2_uop_hasException <= entriesNext_2_uop_hasException;
-    entries_2_uop_exceptionCode <= entriesNext_2_uop_exceptionCode;
-    entries_2_robPtr <= entriesNext_2_robPtr;
-    entries_2_physDest_idx <= entriesNext_2_physDest_idx;
-    entries_2_physDestIsFpr <= entriesNext_2_physDestIsFpr;
-    entries_2_writesToPhysReg <= entriesNext_2_writesToPhysReg;
-    entries_2_useSrc1 <= entriesNext_2_useSrc1;
-    entries_2_src1Data <= entriesNext_2_src1Data;
-    entries_2_src1Tag <= entriesNext_2_src1Tag;
-    entries_2_src1Ready <= entriesNext_2_src1Ready;
-    entries_2_src1IsFpr <= entriesNext_2_src1IsFpr;
-    entries_2_useSrc2 <= entriesNext_2_useSrc2;
-    entries_2_src2Data <= entriesNext_2_src2Data;
-    entries_2_src2Tag <= entriesNext_2_src2Tag;
-    entries_2_src2Ready <= entriesNext_2_src2Ready;
-    entries_2_src2IsFpr <= entriesNext_2_src2IsFpr;
-    entries_2_mulDivCtrl_valid <= entriesNext_2_mulDivCtrl_valid;
-    entries_2_mulDivCtrl_isDiv <= entriesNext_2_mulDivCtrl_isDiv;
-    entries_2_mulDivCtrl_isSigned <= entriesNext_2_mulDivCtrl_isSigned;
-    entries_2_mulDivCtrl_isWordOp <= entriesNext_2_mulDivCtrl_isWordOp;
-    entries_3_uop_decoded_pc <= entriesNext_3_uop_decoded_pc;
-    entries_3_uop_decoded_isValid <= entriesNext_3_uop_decoded_isValid;
-    entries_3_uop_decoded_uopCode <= entriesNext_3_uop_decoded_uopCode;
-    entries_3_uop_decoded_exeUnit <= entriesNext_3_uop_decoded_exeUnit;
-    entries_3_uop_decoded_isa <= entriesNext_3_uop_decoded_isa;
-    entries_3_uop_decoded_archDest_idx <= entriesNext_3_uop_decoded_archDest_idx;
-    entries_3_uop_decoded_archDest_rtype <= entriesNext_3_uop_decoded_archDest_rtype;
-    entries_3_uop_decoded_writeArchDestEn <= entriesNext_3_uop_decoded_writeArchDestEn;
-    entries_3_uop_decoded_archSrc1_idx <= entriesNext_3_uop_decoded_archSrc1_idx;
-    entries_3_uop_decoded_archSrc1_rtype <= entriesNext_3_uop_decoded_archSrc1_rtype;
-    entries_3_uop_decoded_useArchSrc1 <= entriesNext_3_uop_decoded_useArchSrc1;
-    entries_3_uop_decoded_archSrc2_idx <= entriesNext_3_uop_decoded_archSrc2_idx;
-    entries_3_uop_decoded_archSrc2_rtype <= entriesNext_3_uop_decoded_archSrc2_rtype;
-    entries_3_uop_decoded_useArchSrc2 <= entriesNext_3_uop_decoded_useArchSrc2;
-    entries_3_uop_decoded_usePcForAddr <= entriesNext_3_uop_decoded_usePcForAddr;
-    entries_3_uop_decoded_src1IsPc <= entriesNext_3_uop_decoded_src1IsPc;
-    entries_3_uop_decoded_imm <= entriesNext_3_uop_decoded_imm;
-    entries_3_uop_decoded_immUsage <= entriesNext_3_uop_decoded_immUsage;
-    entries_3_uop_decoded_aluCtrl_valid <= entriesNext_3_uop_decoded_aluCtrl_valid;
-    entries_3_uop_decoded_aluCtrl_isSub <= entriesNext_3_uop_decoded_aluCtrl_isSub;
-    entries_3_uop_decoded_aluCtrl_isAdd <= entriesNext_3_uop_decoded_aluCtrl_isAdd;
-    entries_3_uop_decoded_aluCtrl_isSigned <= entriesNext_3_uop_decoded_aluCtrl_isSigned;
-    entries_3_uop_decoded_aluCtrl_logicOp <= entriesNext_3_uop_decoded_aluCtrl_logicOp;
-    entries_3_uop_decoded_aluCtrl_condition <= entriesNext_3_uop_decoded_aluCtrl_condition;
-    entries_3_uop_decoded_shiftCtrl_valid <= entriesNext_3_uop_decoded_shiftCtrl_valid;
-    entries_3_uop_decoded_shiftCtrl_isRight <= entriesNext_3_uop_decoded_shiftCtrl_isRight;
-    entries_3_uop_decoded_shiftCtrl_isArithmetic <= entriesNext_3_uop_decoded_shiftCtrl_isArithmetic;
-    entries_3_uop_decoded_shiftCtrl_isRotate <= entriesNext_3_uop_decoded_shiftCtrl_isRotate;
-    entries_3_uop_decoded_shiftCtrl_isDoubleWord <= entriesNext_3_uop_decoded_shiftCtrl_isDoubleWord;
-    entries_3_uop_decoded_mulDivCtrl_valid <= entriesNext_3_uop_decoded_mulDivCtrl_valid;
-    entries_3_uop_decoded_mulDivCtrl_isDiv <= entriesNext_3_uop_decoded_mulDivCtrl_isDiv;
-    entries_3_uop_decoded_mulDivCtrl_isSigned <= entriesNext_3_uop_decoded_mulDivCtrl_isSigned;
-    entries_3_uop_decoded_mulDivCtrl_isWordOp <= entriesNext_3_uop_decoded_mulDivCtrl_isWordOp;
-    entries_3_uop_decoded_memCtrl_size <= entriesNext_3_uop_decoded_memCtrl_size;
-    entries_3_uop_decoded_memCtrl_isSignedLoad <= entriesNext_3_uop_decoded_memCtrl_isSignedLoad;
-    entries_3_uop_decoded_memCtrl_isStore <= entriesNext_3_uop_decoded_memCtrl_isStore;
-    entries_3_uop_decoded_memCtrl_isLoadLinked <= entriesNext_3_uop_decoded_memCtrl_isLoadLinked;
-    entries_3_uop_decoded_memCtrl_isStoreCond <= entriesNext_3_uop_decoded_memCtrl_isStoreCond;
-    entries_3_uop_decoded_memCtrl_atomicOp <= entriesNext_3_uop_decoded_memCtrl_atomicOp;
-    entries_3_uop_decoded_memCtrl_isFence <= entriesNext_3_uop_decoded_memCtrl_isFence;
-    entries_3_uop_decoded_memCtrl_fenceMode <= entriesNext_3_uop_decoded_memCtrl_fenceMode;
-    entries_3_uop_decoded_memCtrl_isCacheOp <= entriesNext_3_uop_decoded_memCtrl_isCacheOp;
-    entries_3_uop_decoded_memCtrl_cacheOpType <= entriesNext_3_uop_decoded_memCtrl_cacheOpType;
-    entries_3_uop_decoded_memCtrl_isPrefetch <= entriesNext_3_uop_decoded_memCtrl_isPrefetch;
-    entries_3_uop_decoded_branchCtrl_condition <= entriesNext_3_uop_decoded_branchCtrl_condition;
-    entries_3_uop_decoded_branchCtrl_isJump <= entriesNext_3_uop_decoded_branchCtrl_isJump;
-    entries_3_uop_decoded_branchCtrl_isLink <= entriesNext_3_uop_decoded_branchCtrl_isLink;
-    entries_3_uop_decoded_branchCtrl_linkReg_idx <= entriesNext_3_uop_decoded_branchCtrl_linkReg_idx;
-    entries_3_uop_decoded_branchCtrl_linkReg_rtype <= entriesNext_3_uop_decoded_branchCtrl_linkReg_rtype;
-    entries_3_uop_decoded_branchCtrl_isIndirect <= entriesNext_3_uop_decoded_branchCtrl_isIndirect;
-    entries_3_uop_decoded_branchCtrl_laCfIdx <= entriesNext_3_uop_decoded_branchCtrl_laCfIdx;
-    entries_3_uop_decoded_fpuCtrl_opType <= entriesNext_3_uop_decoded_fpuCtrl_opType;
-    entries_3_uop_decoded_fpuCtrl_fpSizeSrc1 <= entriesNext_3_uop_decoded_fpuCtrl_fpSizeSrc1;
-    entries_3_uop_decoded_fpuCtrl_fpSizeSrc2 <= entriesNext_3_uop_decoded_fpuCtrl_fpSizeSrc2;
-    entries_3_uop_decoded_fpuCtrl_fpSizeDest <= entriesNext_3_uop_decoded_fpuCtrl_fpSizeDest;
-    entries_3_uop_decoded_fpuCtrl_roundingMode <= entriesNext_3_uop_decoded_fpuCtrl_roundingMode;
-    entries_3_uop_decoded_fpuCtrl_isIntegerDest <= entriesNext_3_uop_decoded_fpuCtrl_isIntegerDest;
-    entries_3_uop_decoded_fpuCtrl_isSignedCvt <= entriesNext_3_uop_decoded_fpuCtrl_isSignedCvt;
-    entries_3_uop_decoded_fpuCtrl_fmaNegSrc1 <= entriesNext_3_uop_decoded_fpuCtrl_fmaNegSrc1;
-    entries_3_uop_decoded_fpuCtrl_fcmpCond <= entriesNext_3_uop_decoded_fpuCtrl_fcmpCond;
-    entries_3_uop_decoded_csrCtrl_csrAddr <= entriesNext_3_uop_decoded_csrCtrl_csrAddr;
-    entries_3_uop_decoded_csrCtrl_isWrite <= entriesNext_3_uop_decoded_csrCtrl_isWrite;
-    entries_3_uop_decoded_csrCtrl_isRead <= entriesNext_3_uop_decoded_csrCtrl_isRead;
-    entries_3_uop_decoded_csrCtrl_isExchange <= entriesNext_3_uop_decoded_csrCtrl_isExchange;
-    entries_3_uop_decoded_csrCtrl_useUimmAsSrc <= entriesNext_3_uop_decoded_csrCtrl_useUimmAsSrc;
-    entries_3_uop_decoded_sysCtrl_sysCode <= entriesNext_3_uop_decoded_sysCtrl_sysCode;
-    entries_3_uop_decoded_sysCtrl_isExceptionReturn <= entriesNext_3_uop_decoded_sysCtrl_isExceptionReturn;
-    entries_3_uop_decoded_sysCtrl_isTlbOp <= entriesNext_3_uop_decoded_sysCtrl_isTlbOp;
-    entries_3_uop_decoded_sysCtrl_tlbOpType <= entriesNext_3_uop_decoded_sysCtrl_tlbOpType;
-    entries_3_uop_decoded_decodeExceptionCode <= entriesNext_3_uop_decoded_decodeExceptionCode;
-    entries_3_uop_decoded_hasDecodeException <= entriesNext_3_uop_decoded_hasDecodeException;
-    entries_3_uop_decoded_isMicrocode <= entriesNext_3_uop_decoded_isMicrocode;
-    entries_3_uop_decoded_microcodeEntry <= entriesNext_3_uop_decoded_microcodeEntry;
-    entries_3_uop_decoded_isSerializing <= entriesNext_3_uop_decoded_isSerializing;
-    entries_3_uop_decoded_isBranchOrJump <= entriesNext_3_uop_decoded_isBranchOrJump;
-    entries_3_uop_decoded_branchPrediction_isTaken <= entriesNext_3_uop_decoded_branchPrediction_isTaken;
-    entries_3_uop_decoded_branchPrediction_target <= entriesNext_3_uop_decoded_branchPrediction_target;
-    entries_3_uop_decoded_branchPrediction_wasPredicted <= entriesNext_3_uop_decoded_branchPrediction_wasPredicted;
-    entries_3_uop_rename_physSrc1_idx <= entriesNext_3_uop_rename_physSrc1_idx;
-    entries_3_uop_rename_physSrc1IsFpr <= entriesNext_3_uop_rename_physSrc1IsFpr;
-    entries_3_uop_rename_physSrc2_idx <= entriesNext_3_uop_rename_physSrc2_idx;
-    entries_3_uop_rename_physSrc2IsFpr <= entriesNext_3_uop_rename_physSrc2IsFpr;
-    entries_3_uop_rename_physDest_idx <= entriesNext_3_uop_rename_physDest_idx;
-    entries_3_uop_rename_physDestIsFpr <= entriesNext_3_uop_rename_physDestIsFpr;
-    entries_3_uop_rename_oldPhysDest_idx <= entriesNext_3_uop_rename_oldPhysDest_idx;
-    entries_3_uop_rename_oldPhysDestIsFpr <= entriesNext_3_uop_rename_oldPhysDestIsFpr;
-    entries_3_uop_rename_allocatesPhysDest <= entriesNext_3_uop_rename_allocatesPhysDest;
-    entries_3_uop_rename_writesToPhysReg <= entriesNext_3_uop_rename_writesToPhysReg;
-    entries_3_uop_robPtr <= entriesNext_3_uop_robPtr;
-    entries_3_uop_uniqueId <= entriesNext_3_uop_uniqueId;
-    entries_3_uop_dispatched <= entriesNext_3_uop_dispatched;
-    entries_3_uop_executed <= entriesNext_3_uop_executed;
-    entries_3_uop_hasException <= entriesNext_3_uop_hasException;
-    entries_3_uop_exceptionCode <= entriesNext_3_uop_exceptionCode;
-    entries_3_robPtr <= entriesNext_3_robPtr;
-    entries_3_physDest_idx <= entriesNext_3_physDest_idx;
-    entries_3_physDestIsFpr <= entriesNext_3_physDestIsFpr;
-    entries_3_writesToPhysReg <= entriesNext_3_writesToPhysReg;
-    entries_3_useSrc1 <= entriesNext_3_useSrc1;
-    entries_3_src1Data <= entriesNext_3_src1Data;
-    entries_3_src1Tag <= entriesNext_3_src1Tag;
-    entries_3_src1Ready <= entriesNext_3_src1Ready;
-    entries_3_src1IsFpr <= entriesNext_3_src1IsFpr;
-    entries_3_useSrc2 <= entriesNext_3_useSrc2;
-    entries_3_src2Data <= entriesNext_3_src2Data;
-    entries_3_src2Tag <= entriesNext_3_src2Tag;
-    entries_3_src2Ready <= entriesNext_3_src2Ready;
-    entries_3_src2IsFpr <= entriesNext_3_src2IsFpr;
-    entries_3_mulDivCtrl_valid <= entriesNext_3_mulDivCtrl_valid;
-    entries_3_mulDivCtrl_isDiv <= entriesNext_3_mulDivCtrl_isDiv;
-    entries_3_mulDivCtrl_isSigned <= entriesNext_3_mulDivCtrl_isSigned;
-    entries_3_mulDivCtrl_isWordOp <= entriesNext_3_mulDivCtrl_isWordOp;
+    if(when_IssueQueueComponent_l191) begin
+      entries_0_uop_decoded_pc <= io_allocateIn_payload_uop_decoded_pc;
+      entries_0_uop_decoded_isValid <= io_allocateIn_payload_uop_decoded_isValid;
+      entries_0_uop_decoded_uopCode <= io_allocateIn_payload_uop_decoded_uopCode;
+      entries_0_uop_decoded_exeUnit <= io_allocateIn_payload_uop_decoded_exeUnit;
+      entries_0_uop_decoded_isa <= io_allocateIn_payload_uop_decoded_isa;
+      entries_0_uop_decoded_archDest_idx <= io_allocateIn_payload_uop_decoded_archDest_idx;
+      entries_0_uop_decoded_archDest_rtype <= io_allocateIn_payload_uop_decoded_archDest_rtype;
+      entries_0_uop_decoded_writeArchDestEn <= io_allocateIn_payload_uop_decoded_writeArchDestEn;
+      entries_0_uop_decoded_archSrc1_idx <= io_allocateIn_payload_uop_decoded_archSrc1_idx;
+      entries_0_uop_decoded_archSrc1_rtype <= io_allocateIn_payload_uop_decoded_archSrc1_rtype;
+      entries_0_uop_decoded_useArchSrc1 <= io_allocateIn_payload_uop_decoded_useArchSrc1;
+      entries_0_uop_decoded_archSrc2_idx <= io_allocateIn_payload_uop_decoded_archSrc2_idx;
+      entries_0_uop_decoded_archSrc2_rtype <= io_allocateIn_payload_uop_decoded_archSrc2_rtype;
+      entries_0_uop_decoded_useArchSrc2 <= io_allocateIn_payload_uop_decoded_useArchSrc2;
+      entries_0_uop_decoded_usePcForAddr <= io_allocateIn_payload_uop_decoded_usePcForAddr;
+      entries_0_uop_decoded_src1IsPc <= io_allocateIn_payload_uop_decoded_src1IsPc;
+      entries_0_uop_decoded_imm <= io_allocateIn_payload_uop_decoded_imm;
+      entries_0_uop_decoded_immUsage <= io_allocateIn_payload_uop_decoded_immUsage;
+      entries_0_uop_decoded_aluCtrl_valid <= io_allocateIn_payload_uop_decoded_aluCtrl_valid;
+      entries_0_uop_decoded_aluCtrl_isSub <= io_allocateIn_payload_uop_decoded_aluCtrl_isSub;
+      entries_0_uop_decoded_aluCtrl_isAdd <= io_allocateIn_payload_uop_decoded_aluCtrl_isAdd;
+      entries_0_uop_decoded_aluCtrl_isSigned <= io_allocateIn_payload_uop_decoded_aluCtrl_isSigned;
+      entries_0_uop_decoded_aluCtrl_logicOp <= io_allocateIn_payload_uop_decoded_aluCtrl_logicOp;
+      entries_0_uop_decoded_aluCtrl_condition <= io_allocateIn_payload_uop_decoded_aluCtrl_condition;
+      entries_0_uop_decoded_shiftCtrl_valid <= io_allocateIn_payload_uop_decoded_shiftCtrl_valid;
+      entries_0_uop_decoded_shiftCtrl_isRight <= io_allocateIn_payload_uop_decoded_shiftCtrl_isRight;
+      entries_0_uop_decoded_shiftCtrl_isArithmetic <= io_allocateIn_payload_uop_decoded_shiftCtrl_isArithmetic;
+      entries_0_uop_decoded_shiftCtrl_isRotate <= io_allocateIn_payload_uop_decoded_shiftCtrl_isRotate;
+      entries_0_uop_decoded_shiftCtrl_isDoubleWord <= io_allocateIn_payload_uop_decoded_shiftCtrl_isDoubleWord;
+      entries_0_uop_decoded_mulDivCtrl_valid <= io_allocateIn_payload_uop_decoded_mulDivCtrl_valid;
+      entries_0_uop_decoded_mulDivCtrl_isDiv <= io_allocateIn_payload_uop_decoded_mulDivCtrl_isDiv;
+      entries_0_uop_decoded_mulDivCtrl_isSigned <= io_allocateIn_payload_uop_decoded_mulDivCtrl_isSigned;
+      entries_0_uop_decoded_mulDivCtrl_isWordOp <= io_allocateIn_payload_uop_decoded_mulDivCtrl_isWordOp;
+      entries_0_uop_decoded_memCtrl_size <= io_allocateIn_payload_uop_decoded_memCtrl_size;
+      entries_0_uop_decoded_memCtrl_isSignedLoad <= io_allocateIn_payload_uop_decoded_memCtrl_isSignedLoad;
+      entries_0_uop_decoded_memCtrl_isStore <= io_allocateIn_payload_uop_decoded_memCtrl_isStore;
+      entries_0_uop_decoded_memCtrl_isLoadLinked <= io_allocateIn_payload_uop_decoded_memCtrl_isLoadLinked;
+      entries_0_uop_decoded_memCtrl_isStoreCond <= io_allocateIn_payload_uop_decoded_memCtrl_isStoreCond;
+      entries_0_uop_decoded_memCtrl_atomicOp <= io_allocateIn_payload_uop_decoded_memCtrl_atomicOp;
+      entries_0_uop_decoded_memCtrl_isFence <= io_allocateIn_payload_uop_decoded_memCtrl_isFence;
+      entries_0_uop_decoded_memCtrl_fenceMode <= io_allocateIn_payload_uop_decoded_memCtrl_fenceMode;
+      entries_0_uop_decoded_memCtrl_isCacheOp <= io_allocateIn_payload_uop_decoded_memCtrl_isCacheOp;
+      entries_0_uop_decoded_memCtrl_cacheOpType <= io_allocateIn_payload_uop_decoded_memCtrl_cacheOpType;
+      entries_0_uop_decoded_memCtrl_isPrefetch <= io_allocateIn_payload_uop_decoded_memCtrl_isPrefetch;
+      entries_0_uop_decoded_branchCtrl_condition <= io_allocateIn_payload_uop_decoded_branchCtrl_condition;
+      entries_0_uop_decoded_branchCtrl_isJump <= io_allocateIn_payload_uop_decoded_branchCtrl_isJump;
+      entries_0_uop_decoded_branchCtrl_isLink <= io_allocateIn_payload_uop_decoded_branchCtrl_isLink;
+      entries_0_uop_decoded_branchCtrl_linkReg_idx <= io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_idx;
+      entries_0_uop_decoded_branchCtrl_linkReg_rtype <= io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_rtype;
+      entries_0_uop_decoded_branchCtrl_isIndirect <= io_allocateIn_payload_uop_decoded_branchCtrl_isIndirect;
+      entries_0_uop_decoded_branchCtrl_laCfIdx <= io_allocateIn_payload_uop_decoded_branchCtrl_laCfIdx;
+      entries_0_uop_decoded_fpuCtrl_opType <= io_allocateIn_payload_uop_decoded_fpuCtrl_opType;
+      entries_0_uop_decoded_fpuCtrl_fpSizeSrc1 <= io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc1;
+      entries_0_uop_decoded_fpuCtrl_fpSizeSrc2 <= io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc2;
+      entries_0_uop_decoded_fpuCtrl_fpSizeDest <= io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeDest;
+      entries_0_uop_decoded_fpuCtrl_roundingMode <= io_allocateIn_payload_uop_decoded_fpuCtrl_roundingMode;
+      entries_0_uop_decoded_fpuCtrl_isIntegerDest <= io_allocateIn_payload_uop_decoded_fpuCtrl_isIntegerDest;
+      entries_0_uop_decoded_fpuCtrl_isSignedCvt <= io_allocateIn_payload_uop_decoded_fpuCtrl_isSignedCvt;
+      entries_0_uop_decoded_fpuCtrl_fmaNegSrc1 <= io_allocateIn_payload_uop_decoded_fpuCtrl_fmaNegSrc1;
+      entries_0_uop_decoded_fpuCtrl_fcmpCond <= io_allocateIn_payload_uop_decoded_fpuCtrl_fcmpCond;
+      entries_0_uop_decoded_csrCtrl_csrAddr <= io_allocateIn_payload_uop_decoded_csrCtrl_csrAddr;
+      entries_0_uop_decoded_csrCtrl_isWrite <= io_allocateIn_payload_uop_decoded_csrCtrl_isWrite;
+      entries_0_uop_decoded_csrCtrl_isRead <= io_allocateIn_payload_uop_decoded_csrCtrl_isRead;
+      entries_0_uop_decoded_csrCtrl_isExchange <= io_allocateIn_payload_uop_decoded_csrCtrl_isExchange;
+      entries_0_uop_decoded_csrCtrl_useUimmAsSrc <= io_allocateIn_payload_uop_decoded_csrCtrl_useUimmAsSrc;
+      entries_0_uop_decoded_sysCtrl_sysCode <= io_allocateIn_payload_uop_decoded_sysCtrl_sysCode;
+      entries_0_uop_decoded_sysCtrl_isExceptionReturn <= io_allocateIn_payload_uop_decoded_sysCtrl_isExceptionReturn;
+      entries_0_uop_decoded_sysCtrl_isTlbOp <= io_allocateIn_payload_uop_decoded_sysCtrl_isTlbOp;
+      entries_0_uop_decoded_sysCtrl_tlbOpType <= io_allocateIn_payload_uop_decoded_sysCtrl_tlbOpType;
+      entries_0_uop_decoded_decodeExceptionCode <= io_allocateIn_payload_uop_decoded_decodeExceptionCode;
+      entries_0_uop_decoded_hasDecodeException <= io_allocateIn_payload_uop_decoded_hasDecodeException;
+      entries_0_uop_decoded_isMicrocode <= io_allocateIn_payload_uop_decoded_isMicrocode;
+      entries_0_uop_decoded_microcodeEntry <= io_allocateIn_payload_uop_decoded_microcodeEntry;
+      entries_0_uop_decoded_isSerializing <= io_allocateIn_payload_uop_decoded_isSerializing;
+      entries_0_uop_decoded_isBranchOrJump <= io_allocateIn_payload_uop_decoded_isBranchOrJump;
+      entries_0_uop_decoded_branchPrediction_isTaken <= io_allocateIn_payload_uop_decoded_branchPrediction_isTaken;
+      entries_0_uop_decoded_branchPrediction_target <= io_allocateIn_payload_uop_decoded_branchPrediction_target;
+      entries_0_uop_decoded_branchPrediction_wasPredicted <= io_allocateIn_payload_uop_decoded_branchPrediction_wasPredicted;
+      entries_0_uop_rename_physSrc1_idx <= io_allocateIn_payload_uop_rename_physSrc1_idx;
+      entries_0_uop_rename_physSrc1IsFpr <= io_allocateIn_payload_uop_rename_physSrc1IsFpr;
+      entries_0_uop_rename_physSrc2_idx <= io_allocateIn_payload_uop_rename_physSrc2_idx;
+      entries_0_uop_rename_physSrc2IsFpr <= io_allocateIn_payload_uop_rename_physSrc2IsFpr;
+      entries_0_uop_rename_physDest_idx <= io_allocateIn_payload_uop_rename_physDest_idx;
+      entries_0_uop_rename_physDestIsFpr <= io_allocateIn_payload_uop_rename_physDestIsFpr;
+      entries_0_uop_rename_oldPhysDest_idx <= io_allocateIn_payload_uop_rename_oldPhysDest_idx;
+      entries_0_uop_rename_oldPhysDestIsFpr <= io_allocateIn_payload_uop_rename_oldPhysDestIsFpr;
+      entries_0_uop_rename_allocatesPhysDest <= io_allocateIn_payload_uop_rename_allocatesPhysDest;
+      entries_0_uop_rename_writesToPhysReg <= io_allocateIn_payload_uop_rename_writesToPhysReg;
+      entries_0_uop_robPtr <= io_allocateIn_payload_uop_robPtr;
+      entries_0_uop_uniqueId <= io_allocateIn_payload_uop_uniqueId;
+      entries_0_uop_dispatched <= io_allocateIn_payload_uop_dispatched;
+      entries_0_uop_executed <= io_allocateIn_payload_uop_executed;
+      entries_0_uop_hasException <= io_allocateIn_payload_uop_hasException;
+      entries_0_uop_exceptionCode <= io_allocateIn_payload_uop_exceptionCode;
+      entries_0_robPtr <= io_allocateIn_payload_uop_robPtr;
+      entries_0_physDest_idx <= io_allocateIn_payload_uop_rename_physDest_idx;
+      entries_0_physDestIsFpr <= io_allocateIn_payload_uop_rename_physDestIsFpr;
+      entries_0_writesToPhysReg <= io_allocateIn_payload_uop_rename_writesToPhysReg;
+      entries_0_useSrc1 <= io_allocateIn_payload_uop_decoded_useArchSrc1;
+      entries_0_src1Tag <= io_allocateIn_payload_uop_rename_physSrc1_idx;
+      entries_0_src1Ready <= (! io_allocateIn_payload_uop_decoded_useArchSrc1);
+      entries_0_src1IsFpr <= io_allocateIn_payload_uop_rename_physSrc1IsFpr;
+      entries_0_useSrc2 <= io_allocateIn_payload_uop_decoded_useArchSrc2;
+      entries_0_src2Tag <= io_allocateIn_payload_uop_rename_physSrc2_idx;
+      entries_0_src2Ready <= (! io_allocateIn_payload_uop_decoded_useArchSrc2);
+      entries_0_src2IsFpr <= io_allocateIn_payload_uop_rename_physSrc2IsFpr;
+      entries_0_src1Data <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      entries_0_src2Data <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      entries_0_mulDivCtrl_valid <= io_allocateIn_payload_uop_decoded_mulDivCtrl_valid;
+      entries_0_mulDivCtrl_isDiv <= io_allocateIn_payload_uop_decoded_mulDivCtrl_isDiv;
+      entries_0_mulDivCtrl_isSigned <= io_allocateIn_payload_uop_decoded_mulDivCtrl_isSigned;
+      entries_0_mulDivCtrl_isWordOp <= io_allocateIn_payload_uop_decoded_mulDivCtrl_isWordOp;
+      entries_0_src1Ready <= (io_allocateIn_payload_src1InitialReady || (|{(wakeupInReg_4_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_4_payload_physRegIdx)),{(wakeupInReg_3_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_3_payload_physRegIdx)),{(wakeupInReg_2_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_2_payload_physRegIdx)),{(wakeupInReg_1_valid && _zz_entries_0_src1Ready),(wakeupInReg_0_valid && _zz_entries_0_src1Ready_1)}}}}));
+      entries_0_src2Ready <= (io_allocateIn_payload_src2InitialReady || (|{(wakeupInReg_4_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_4_payload_physRegIdx)),{(wakeupInReg_3_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_3_payload_physRegIdx)),{(wakeupInReg_2_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_2_payload_physRegIdx)),{(wakeupInReg_1_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_1_payload_physRegIdx)),(wakeupInReg_0_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_0_payload_physRegIdx))}}}}));
+    end else begin
+      if(!when_IssueQueueComponent_l206) begin
+        if(when_IssueQueueComponent_l214) begin
+          entries_0_src1Ready <= 1'b1;
+        end
+        if(when_IssueQueueComponent_l215) begin
+          entries_0_src2Ready <= 1'b1;
+        end
+      end
+    end
+    if(when_IssueQueueComponent_l191_1) begin
+      entries_1_uop_decoded_pc <= io_allocateIn_payload_uop_decoded_pc;
+      entries_1_uop_decoded_isValid <= io_allocateIn_payload_uop_decoded_isValid;
+      entries_1_uop_decoded_uopCode <= io_allocateIn_payload_uop_decoded_uopCode;
+      entries_1_uop_decoded_exeUnit <= io_allocateIn_payload_uop_decoded_exeUnit;
+      entries_1_uop_decoded_isa <= io_allocateIn_payload_uop_decoded_isa;
+      entries_1_uop_decoded_archDest_idx <= io_allocateIn_payload_uop_decoded_archDest_idx;
+      entries_1_uop_decoded_archDest_rtype <= io_allocateIn_payload_uop_decoded_archDest_rtype;
+      entries_1_uop_decoded_writeArchDestEn <= io_allocateIn_payload_uop_decoded_writeArchDestEn;
+      entries_1_uop_decoded_archSrc1_idx <= io_allocateIn_payload_uop_decoded_archSrc1_idx;
+      entries_1_uop_decoded_archSrc1_rtype <= io_allocateIn_payload_uop_decoded_archSrc1_rtype;
+      entries_1_uop_decoded_useArchSrc1 <= io_allocateIn_payload_uop_decoded_useArchSrc1;
+      entries_1_uop_decoded_archSrc2_idx <= io_allocateIn_payload_uop_decoded_archSrc2_idx;
+      entries_1_uop_decoded_archSrc2_rtype <= io_allocateIn_payload_uop_decoded_archSrc2_rtype;
+      entries_1_uop_decoded_useArchSrc2 <= io_allocateIn_payload_uop_decoded_useArchSrc2;
+      entries_1_uop_decoded_usePcForAddr <= io_allocateIn_payload_uop_decoded_usePcForAddr;
+      entries_1_uop_decoded_src1IsPc <= io_allocateIn_payload_uop_decoded_src1IsPc;
+      entries_1_uop_decoded_imm <= io_allocateIn_payload_uop_decoded_imm;
+      entries_1_uop_decoded_immUsage <= io_allocateIn_payload_uop_decoded_immUsage;
+      entries_1_uop_decoded_aluCtrl_valid <= io_allocateIn_payload_uop_decoded_aluCtrl_valid;
+      entries_1_uop_decoded_aluCtrl_isSub <= io_allocateIn_payload_uop_decoded_aluCtrl_isSub;
+      entries_1_uop_decoded_aluCtrl_isAdd <= io_allocateIn_payload_uop_decoded_aluCtrl_isAdd;
+      entries_1_uop_decoded_aluCtrl_isSigned <= io_allocateIn_payload_uop_decoded_aluCtrl_isSigned;
+      entries_1_uop_decoded_aluCtrl_logicOp <= io_allocateIn_payload_uop_decoded_aluCtrl_logicOp;
+      entries_1_uop_decoded_aluCtrl_condition <= io_allocateIn_payload_uop_decoded_aluCtrl_condition;
+      entries_1_uop_decoded_shiftCtrl_valid <= io_allocateIn_payload_uop_decoded_shiftCtrl_valid;
+      entries_1_uop_decoded_shiftCtrl_isRight <= io_allocateIn_payload_uop_decoded_shiftCtrl_isRight;
+      entries_1_uop_decoded_shiftCtrl_isArithmetic <= io_allocateIn_payload_uop_decoded_shiftCtrl_isArithmetic;
+      entries_1_uop_decoded_shiftCtrl_isRotate <= io_allocateIn_payload_uop_decoded_shiftCtrl_isRotate;
+      entries_1_uop_decoded_shiftCtrl_isDoubleWord <= io_allocateIn_payload_uop_decoded_shiftCtrl_isDoubleWord;
+      entries_1_uop_decoded_mulDivCtrl_valid <= io_allocateIn_payload_uop_decoded_mulDivCtrl_valid;
+      entries_1_uop_decoded_mulDivCtrl_isDiv <= io_allocateIn_payload_uop_decoded_mulDivCtrl_isDiv;
+      entries_1_uop_decoded_mulDivCtrl_isSigned <= io_allocateIn_payload_uop_decoded_mulDivCtrl_isSigned;
+      entries_1_uop_decoded_mulDivCtrl_isWordOp <= io_allocateIn_payload_uop_decoded_mulDivCtrl_isWordOp;
+      entries_1_uop_decoded_memCtrl_size <= io_allocateIn_payload_uop_decoded_memCtrl_size;
+      entries_1_uop_decoded_memCtrl_isSignedLoad <= io_allocateIn_payload_uop_decoded_memCtrl_isSignedLoad;
+      entries_1_uop_decoded_memCtrl_isStore <= io_allocateIn_payload_uop_decoded_memCtrl_isStore;
+      entries_1_uop_decoded_memCtrl_isLoadLinked <= io_allocateIn_payload_uop_decoded_memCtrl_isLoadLinked;
+      entries_1_uop_decoded_memCtrl_isStoreCond <= io_allocateIn_payload_uop_decoded_memCtrl_isStoreCond;
+      entries_1_uop_decoded_memCtrl_atomicOp <= io_allocateIn_payload_uop_decoded_memCtrl_atomicOp;
+      entries_1_uop_decoded_memCtrl_isFence <= io_allocateIn_payload_uop_decoded_memCtrl_isFence;
+      entries_1_uop_decoded_memCtrl_fenceMode <= io_allocateIn_payload_uop_decoded_memCtrl_fenceMode;
+      entries_1_uop_decoded_memCtrl_isCacheOp <= io_allocateIn_payload_uop_decoded_memCtrl_isCacheOp;
+      entries_1_uop_decoded_memCtrl_cacheOpType <= io_allocateIn_payload_uop_decoded_memCtrl_cacheOpType;
+      entries_1_uop_decoded_memCtrl_isPrefetch <= io_allocateIn_payload_uop_decoded_memCtrl_isPrefetch;
+      entries_1_uop_decoded_branchCtrl_condition <= io_allocateIn_payload_uop_decoded_branchCtrl_condition;
+      entries_1_uop_decoded_branchCtrl_isJump <= io_allocateIn_payload_uop_decoded_branchCtrl_isJump;
+      entries_1_uop_decoded_branchCtrl_isLink <= io_allocateIn_payload_uop_decoded_branchCtrl_isLink;
+      entries_1_uop_decoded_branchCtrl_linkReg_idx <= io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_idx;
+      entries_1_uop_decoded_branchCtrl_linkReg_rtype <= io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_rtype;
+      entries_1_uop_decoded_branchCtrl_isIndirect <= io_allocateIn_payload_uop_decoded_branchCtrl_isIndirect;
+      entries_1_uop_decoded_branchCtrl_laCfIdx <= io_allocateIn_payload_uop_decoded_branchCtrl_laCfIdx;
+      entries_1_uop_decoded_fpuCtrl_opType <= io_allocateIn_payload_uop_decoded_fpuCtrl_opType;
+      entries_1_uop_decoded_fpuCtrl_fpSizeSrc1 <= io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc1;
+      entries_1_uop_decoded_fpuCtrl_fpSizeSrc2 <= io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc2;
+      entries_1_uop_decoded_fpuCtrl_fpSizeDest <= io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeDest;
+      entries_1_uop_decoded_fpuCtrl_roundingMode <= io_allocateIn_payload_uop_decoded_fpuCtrl_roundingMode;
+      entries_1_uop_decoded_fpuCtrl_isIntegerDest <= io_allocateIn_payload_uop_decoded_fpuCtrl_isIntegerDest;
+      entries_1_uop_decoded_fpuCtrl_isSignedCvt <= io_allocateIn_payload_uop_decoded_fpuCtrl_isSignedCvt;
+      entries_1_uop_decoded_fpuCtrl_fmaNegSrc1 <= io_allocateIn_payload_uop_decoded_fpuCtrl_fmaNegSrc1;
+      entries_1_uop_decoded_fpuCtrl_fcmpCond <= io_allocateIn_payload_uop_decoded_fpuCtrl_fcmpCond;
+      entries_1_uop_decoded_csrCtrl_csrAddr <= io_allocateIn_payload_uop_decoded_csrCtrl_csrAddr;
+      entries_1_uop_decoded_csrCtrl_isWrite <= io_allocateIn_payload_uop_decoded_csrCtrl_isWrite;
+      entries_1_uop_decoded_csrCtrl_isRead <= io_allocateIn_payload_uop_decoded_csrCtrl_isRead;
+      entries_1_uop_decoded_csrCtrl_isExchange <= io_allocateIn_payload_uop_decoded_csrCtrl_isExchange;
+      entries_1_uop_decoded_csrCtrl_useUimmAsSrc <= io_allocateIn_payload_uop_decoded_csrCtrl_useUimmAsSrc;
+      entries_1_uop_decoded_sysCtrl_sysCode <= io_allocateIn_payload_uop_decoded_sysCtrl_sysCode;
+      entries_1_uop_decoded_sysCtrl_isExceptionReturn <= io_allocateIn_payload_uop_decoded_sysCtrl_isExceptionReturn;
+      entries_1_uop_decoded_sysCtrl_isTlbOp <= io_allocateIn_payload_uop_decoded_sysCtrl_isTlbOp;
+      entries_1_uop_decoded_sysCtrl_tlbOpType <= io_allocateIn_payload_uop_decoded_sysCtrl_tlbOpType;
+      entries_1_uop_decoded_decodeExceptionCode <= io_allocateIn_payload_uop_decoded_decodeExceptionCode;
+      entries_1_uop_decoded_hasDecodeException <= io_allocateIn_payload_uop_decoded_hasDecodeException;
+      entries_1_uop_decoded_isMicrocode <= io_allocateIn_payload_uop_decoded_isMicrocode;
+      entries_1_uop_decoded_microcodeEntry <= io_allocateIn_payload_uop_decoded_microcodeEntry;
+      entries_1_uop_decoded_isSerializing <= io_allocateIn_payload_uop_decoded_isSerializing;
+      entries_1_uop_decoded_isBranchOrJump <= io_allocateIn_payload_uop_decoded_isBranchOrJump;
+      entries_1_uop_decoded_branchPrediction_isTaken <= io_allocateIn_payload_uop_decoded_branchPrediction_isTaken;
+      entries_1_uop_decoded_branchPrediction_target <= io_allocateIn_payload_uop_decoded_branchPrediction_target;
+      entries_1_uop_decoded_branchPrediction_wasPredicted <= io_allocateIn_payload_uop_decoded_branchPrediction_wasPredicted;
+      entries_1_uop_rename_physSrc1_idx <= io_allocateIn_payload_uop_rename_physSrc1_idx;
+      entries_1_uop_rename_physSrc1IsFpr <= io_allocateIn_payload_uop_rename_physSrc1IsFpr;
+      entries_1_uop_rename_physSrc2_idx <= io_allocateIn_payload_uop_rename_physSrc2_idx;
+      entries_1_uop_rename_physSrc2IsFpr <= io_allocateIn_payload_uop_rename_physSrc2IsFpr;
+      entries_1_uop_rename_physDest_idx <= io_allocateIn_payload_uop_rename_physDest_idx;
+      entries_1_uop_rename_physDestIsFpr <= io_allocateIn_payload_uop_rename_physDestIsFpr;
+      entries_1_uop_rename_oldPhysDest_idx <= io_allocateIn_payload_uop_rename_oldPhysDest_idx;
+      entries_1_uop_rename_oldPhysDestIsFpr <= io_allocateIn_payload_uop_rename_oldPhysDestIsFpr;
+      entries_1_uop_rename_allocatesPhysDest <= io_allocateIn_payload_uop_rename_allocatesPhysDest;
+      entries_1_uop_rename_writesToPhysReg <= io_allocateIn_payload_uop_rename_writesToPhysReg;
+      entries_1_uop_robPtr <= io_allocateIn_payload_uop_robPtr;
+      entries_1_uop_uniqueId <= io_allocateIn_payload_uop_uniqueId;
+      entries_1_uop_dispatched <= io_allocateIn_payload_uop_dispatched;
+      entries_1_uop_executed <= io_allocateIn_payload_uop_executed;
+      entries_1_uop_hasException <= io_allocateIn_payload_uop_hasException;
+      entries_1_uop_exceptionCode <= io_allocateIn_payload_uop_exceptionCode;
+      entries_1_robPtr <= io_allocateIn_payload_uop_robPtr;
+      entries_1_physDest_idx <= io_allocateIn_payload_uop_rename_physDest_idx;
+      entries_1_physDestIsFpr <= io_allocateIn_payload_uop_rename_physDestIsFpr;
+      entries_1_writesToPhysReg <= io_allocateIn_payload_uop_rename_writesToPhysReg;
+      entries_1_useSrc1 <= io_allocateIn_payload_uop_decoded_useArchSrc1;
+      entries_1_src1Tag <= io_allocateIn_payload_uop_rename_physSrc1_idx;
+      entries_1_src1Ready <= (! io_allocateIn_payload_uop_decoded_useArchSrc1);
+      entries_1_src1IsFpr <= io_allocateIn_payload_uop_rename_physSrc1IsFpr;
+      entries_1_useSrc2 <= io_allocateIn_payload_uop_decoded_useArchSrc2;
+      entries_1_src2Tag <= io_allocateIn_payload_uop_rename_physSrc2_idx;
+      entries_1_src2Ready <= (! io_allocateIn_payload_uop_decoded_useArchSrc2);
+      entries_1_src2IsFpr <= io_allocateIn_payload_uop_rename_physSrc2IsFpr;
+      entries_1_src1Data <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      entries_1_src2Data <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      entries_1_mulDivCtrl_valid <= io_allocateIn_payload_uop_decoded_mulDivCtrl_valid;
+      entries_1_mulDivCtrl_isDiv <= io_allocateIn_payload_uop_decoded_mulDivCtrl_isDiv;
+      entries_1_mulDivCtrl_isSigned <= io_allocateIn_payload_uop_decoded_mulDivCtrl_isSigned;
+      entries_1_mulDivCtrl_isWordOp <= io_allocateIn_payload_uop_decoded_mulDivCtrl_isWordOp;
+      entries_1_src1Ready <= (io_allocateIn_payload_src1InitialReady || (|{(wakeupInReg_4_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_4_payload_physRegIdx)),{(wakeupInReg_3_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_3_payload_physRegIdx)),{(wakeupInReg_2_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_2_payload_physRegIdx)),{(wakeupInReg_1_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_1_payload_physRegIdx)),(wakeupInReg_0_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_0_payload_physRegIdx))}}}}));
+      entries_1_src2Ready <= (io_allocateIn_payload_src2InitialReady || (|{(wakeupInReg_4_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_4_payload_physRegIdx)),{(wakeupInReg_3_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_3_payload_physRegIdx)),{(wakeupInReg_2_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_2_payload_physRegIdx)),{(wakeupInReg_1_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_1_payload_physRegIdx)),(wakeupInReg_0_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_0_payload_physRegIdx))}}}}));
+    end else begin
+      if(!when_IssueQueueComponent_l206_1) begin
+        if(when_IssueQueueComponent_l214_1) begin
+          entries_1_src1Ready <= 1'b1;
+        end
+        if(when_IssueQueueComponent_l215_1) begin
+          entries_1_src2Ready <= 1'b1;
+        end
+      end
+    end
+    if(when_IssueQueueComponent_l191_2) begin
+      entries_2_uop_decoded_pc <= io_allocateIn_payload_uop_decoded_pc;
+      entries_2_uop_decoded_isValid <= io_allocateIn_payload_uop_decoded_isValid;
+      entries_2_uop_decoded_uopCode <= io_allocateIn_payload_uop_decoded_uopCode;
+      entries_2_uop_decoded_exeUnit <= io_allocateIn_payload_uop_decoded_exeUnit;
+      entries_2_uop_decoded_isa <= io_allocateIn_payload_uop_decoded_isa;
+      entries_2_uop_decoded_archDest_idx <= io_allocateIn_payload_uop_decoded_archDest_idx;
+      entries_2_uop_decoded_archDest_rtype <= io_allocateIn_payload_uop_decoded_archDest_rtype;
+      entries_2_uop_decoded_writeArchDestEn <= io_allocateIn_payload_uop_decoded_writeArchDestEn;
+      entries_2_uop_decoded_archSrc1_idx <= io_allocateIn_payload_uop_decoded_archSrc1_idx;
+      entries_2_uop_decoded_archSrc1_rtype <= io_allocateIn_payload_uop_decoded_archSrc1_rtype;
+      entries_2_uop_decoded_useArchSrc1 <= io_allocateIn_payload_uop_decoded_useArchSrc1;
+      entries_2_uop_decoded_archSrc2_idx <= io_allocateIn_payload_uop_decoded_archSrc2_idx;
+      entries_2_uop_decoded_archSrc2_rtype <= io_allocateIn_payload_uop_decoded_archSrc2_rtype;
+      entries_2_uop_decoded_useArchSrc2 <= io_allocateIn_payload_uop_decoded_useArchSrc2;
+      entries_2_uop_decoded_usePcForAddr <= io_allocateIn_payload_uop_decoded_usePcForAddr;
+      entries_2_uop_decoded_src1IsPc <= io_allocateIn_payload_uop_decoded_src1IsPc;
+      entries_2_uop_decoded_imm <= io_allocateIn_payload_uop_decoded_imm;
+      entries_2_uop_decoded_immUsage <= io_allocateIn_payload_uop_decoded_immUsage;
+      entries_2_uop_decoded_aluCtrl_valid <= io_allocateIn_payload_uop_decoded_aluCtrl_valid;
+      entries_2_uop_decoded_aluCtrl_isSub <= io_allocateIn_payload_uop_decoded_aluCtrl_isSub;
+      entries_2_uop_decoded_aluCtrl_isAdd <= io_allocateIn_payload_uop_decoded_aluCtrl_isAdd;
+      entries_2_uop_decoded_aluCtrl_isSigned <= io_allocateIn_payload_uop_decoded_aluCtrl_isSigned;
+      entries_2_uop_decoded_aluCtrl_logicOp <= io_allocateIn_payload_uop_decoded_aluCtrl_logicOp;
+      entries_2_uop_decoded_aluCtrl_condition <= io_allocateIn_payload_uop_decoded_aluCtrl_condition;
+      entries_2_uop_decoded_shiftCtrl_valid <= io_allocateIn_payload_uop_decoded_shiftCtrl_valid;
+      entries_2_uop_decoded_shiftCtrl_isRight <= io_allocateIn_payload_uop_decoded_shiftCtrl_isRight;
+      entries_2_uop_decoded_shiftCtrl_isArithmetic <= io_allocateIn_payload_uop_decoded_shiftCtrl_isArithmetic;
+      entries_2_uop_decoded_shiftCtrl_isRotate <= io_allocateIn_payload_uop_decoded_shiftCtrl_isRotate;
+      entries_2_uop_decoded_shiftCtrl_isDoubleWord <= io_allocateIn_payload_uop_decoded_shiftCtrl_isDoubleWord;
+      entries_2_uop_decoded_mulDivCtrl_valid <= io_allocateIn_payload_uop_decoded_mulDivCtrl_valid;
+      entries_2_uop_decoded_mulDivCtrl_isDiv <= io_allocateIn_payload_uop_decoded_mulDivCtrl_isDiv;
+      entries_2_uop_decoded_mulDivCtrl_isSigned <= io_allocateIn_payload_uop_decoded_mulDivCtrl_isSigned;
+      entries_2_uop_decoded_mulDivCtrl_isWordOp <= io_allocateIn_payload_uop_decoded_mulDivCtrl_isWordOp;
+      entries_2_uop_decoded_memCtrl_size <= io_allocateIn_payload_uop_decoded_memCtrl_size;
+      entries_2_uop_decoded_memCtrl_isSignedLoad <= io_allocateIn_payload_uop_decoded_memCtrl_isSignedLoad;
+      entries_2_uop_decoded_memCtrl_isStore <= io_allocateIn_payload_uop_decoded_memCtrl_isStore;
+      entries_2_uop_decoded_memCtrl_isLoadLinked <= io_allocateIn_payload_uop_decoded_memCtrl_isLoadLinked;
+      entries_2_uop_decoded_memCtrl_isStoreCond <= io_allocateIn_payload_uop_decoded_memCtrl_isStoreCond;
+      entries_2_uop_decoded_memCtrl_atomicOp <= io_allocateIn_payload_uop_decoded_memCtrl_atomicOp;
+      entries_2_uop_decoded_memCtrl_isFence <= io_allocateIn_payload_uop_decoded_memCtrl_isFence;
+      entries_2_uop_decoded_memCtrl_fenceMode <= io_allocateIn_payload_uop_decoded_memCtrl_fenceMode;
+      entries_2_uop_decoded_memCtrl_isCacheOp <= io_allocateIn_payload_uop_decoded_memCtrl_isCacheOp;
+      entries_2_uop_decoded_memCtrl_cacheOpType <= io_allocateIn_payload_uop_decoded_memCtrl_cacheOpType;
+      entries_2_uop_decoded_memCtrl_isPrefetch <= io_allocateIn_payload_uop_decoded_memCtrl_isPrefetch;
+      entries_2_uop_decoded_branchCtrl_condition <= io_allocateIn_payload_uop_decoded_branchCtrl_condition;
+      entries_2_uop_decoded_branchCtrl_isJump <= io_allocateIn_payload_uop_decoded_branchCtrl_isJump;
+      entries_2_uop_decoded_branchCtrl_isLink <= io_allocateIn_payload_uop_decoded_branchCtrl_isLink;
+      entries_2_uop_decoded_branchCtrl_linkReg_idx <= io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_idx;
+      entries_2_uop_decoded_branchCtrl_linkReg_rtype <= io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_rtype;
+      entries_2_uop_decoded_branchCtrl_isIndirect <= io_allocateIn_payload_uop_decoded_branchCtrl_isIndirect;
+      entries_2_uop_decoded_branchCtrl_laCfIdx <= io_allocateIn_payload_uop_decoded_branchCtrl_laCfIdx;
+      entries_2_uop_decoded_fpuCtrl_opType <= io_allocateIn_payload_uop_decoded_fpuCtrl_opType;
+      entries_2_uop_decoded_fpuCtrl_fpSizeSrc1 <= io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc1;
+      entries_2_uop_decoded_fpuCtrl_fpSizeSrc2 <= io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc2;
+      entries_2_uop_decoded_fpuCtrl_fpSizeDest <= io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeDest;
+      entries_2_uop_decoded_fpuCtrl_roundingMode <= io_allocateIn_payload_uop_decoded_fpuCtrl_roundingMode;
+      entries_2_uop_decoded_fpuCtrl_isIntegerDest <= io_allocateIn_payload_uop_decoded_fpuCtrl_isIntegerDest;
+      entries_2_uop_decoded_fpuCtrl_isSignedCvt <= io_allocateIn_payload_uop_decoded_fpuCtrl_isSignedCvt;
+      entries_2_uop_decoded_fpuCtrl_fmaNegSrc1 <= io_allocateIn_payload_uop_decoded_fpuCtrl_fmaNegSrc1;
+      entries_2_uop_decoded_fpuCtrl_fcmpCond <= io_allocateIn_payload_uop_decoded_fpuCtrl_fcmpCond;
+      entries_2_uop_decoded_csrCtrl_csrAddr <= io_allocateIn_payload_uop_decoded_csrCtrl_csrAddr;
+      entries_2_uop_decoded_csrCtrl_isWrite <= io_allocateIn_payload_uop_decoded_csrCtrl_isWrite;
+      entries_2_uop_decoded_csrCtrl_isRead <= io_allocateIn_payload_uop_decoded_csrCtrl_isRead;
+      entries_2_uop_decoded_csrCtrl_isExchange <= io_allocateIn_payload_uop_decoded_csrCtrl_isExchange;
+      entries_2_uop_decoded_csrCtrl_useUimmAsSrc <= io_allocateIn_payload_uop_decoded_csrCtrl_useUimmAsSrc;
+      entries_2_uop_decoded_sysCtrl_sysCode <= io_allocateIn_payload_uop_decoded_sysCtrl_sysCode;
+      entries_2_uop_decoded_sysCtrl_isExceptionReturn <= io_allocateIn_payload_uop_decoded_sysCtrl_isExceptionReturn;
+      entries_2_uop_decoded_sysCtrl_isTlbOp <= io_allocateIn_payload_uop_decoded_sysCtrl_isTlbOp;
+      entries_2_uop_decoded_sysCtrl_tlbOpType <= io_allocateIn_payload_uop_decoded_sysCtrl_tlbOpType;
+      entries_2_uop_decoded_decodeExceptionCode <= io_allocateIn_payload_uop_decoded_decodeExceptionCode;
+      entries_2_uop_decoded_hasDecodeException <= io_allocateIn_payload_uop_decoded_hasDecodeException;
+      entries_2_uop_decoded_isMicrocode <= io_allocateIn_payload_uop_decoded_isMicrocode;
+      entries_2_uop_decoded_microcodeEntry <= io_allocateIn_payload_uop_decoded_microcodeEntry;
+      entries_2_uop_decoded_isSerializing <= io_allocateIn_payload_uop_decoded_isSerializing;
+      entries_2_uop_decoded_isBranchOrJump <= io_allocateIn_payload_uop_decoded_isBranchOrJump;
+      entries_2_uop_decoded_branchPrediction_isTaken <= io_allocateIn_payload_uop_decoded_branchPrediction_isTaken;
+      entries_2_uop_decoded_branchPrediction_target <= io_allocateIn_payload_uop_decoded_branchPrediction_target;
+      entries_2_uop_decoded_branchPrediction_wasPredicted <= io_allocateIn_payload_uop_decoded_branchPrediction_wasPredicted;
+      entries_2_uop_rename_physSrc1_idx <= io_allocateIn_payload_uop_rename_physSrc1_idx;
+      entries_2_uop_rename_physSrc1IsFpr <= io_allocateIn_payload_uop_rename_physSrc1IsFpr;
+      entries_2_uop_rename_physSrc2_idx <= io_allocateIn_payload_uop_rename_physSrc2_idx;
+      entries_2_uop_rename_physSrc2IsFpr <= io_allocateIn_payload_uop_rename_physSrc2IsFpr;
+      entries_2_uop_rename_physDest_idx <= io_allocateIn_payload_uop_rename_physDest_idx;
+      entries_2_uop_rename_physDestIsFpr <= io_allocateIn_payload_uop_rename_physDestIsFpr;
+      entries_2_uop_rename_oldPhysDest_idx <= io_allocateIn_payload_uop_rename_oldPhysDest_idx;
+      entries_2_uop_rename_oldPhysDestIsFpr <= io_allocateIn_payload_uop_rename_oldPhysDestIsFpr;
+      entries_2_uop_rename_allocatesPhysDest <= io_allocateIn_payload_uop_rename_allocatesPhysDest;
+      entries_2_uop_rename_writesToPhysReg <= io_allocateIn_payload_uop_rename_writesToPhysReg;
+      entries_2_uop_robPtr <= io_allocateIn_payload_uop_robPtr;
+      entries_2_uop_uniqueId <= io_allocateIn_payload_uop_uniqueId;
+      entries_2_uop_dispatched <= io_allocateIn_payload_uop_dispatched;
+      entries_2_uop_executed <= io_allocateIn_payload_uop_executed;
+      entries_2_uop_hasException <= io_allocateIn_payload_uop_hasException;
+      entries_2_uop_exceptionCode <= io_allocateIn_payload_uop_exceptionCode;
+      entries_2_robPtr <= io_allocateIn_payload_uop_robPtr;
+      entries_2_physDest_idx <= io_allocateIn_payload_uop_rename_physDest_idx;
+      entries_2_physDestIsFpr <= io_allocateIn_payload_uop_rename_physDestIsFpr;
+      entries_2_writesToPhysReg <= io_allocateIn_payload_uop_rename_writesToPhysReg;
+      entries_2_useSrc1 <= io_allocateIn_payload_uop_decoded_useArchSrc1;
+      entries_2_src1Tag <= io_allocateIn_payload_uop_rename_physSrc1_idx;
+      entries_2_src1Ready <= (! io_allocateIn_payload_uop_decoded_useArchSrc1);
+      entries_2_src1IsFpr <= io_allocateIn_payload_uop_rename_physSrc1IsFpr;
+      entries_2_useSrc2 <= io_allocateIn_payload_uop_decoded_useArchSrc2;
+      entries_2_src2Tag <= io_allocateIn_payload_uop_rename_physSrc2_idx;
+      entries_2_src2Ready <= (! io_allocateIn_payload_uop_decoded_useArchSrc2);
+      entries_2_src2IsFpr <= io_allocateIn_payload_uop_rename_physSrc2IsFpr;
+      entries_2_src1Data <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      entries_2_src2Data <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      entries_2_mulDivCtrl_valid <= io_allocateIn_payload_uop_decoded_mulDivCtrl_valid;
+      entries_2_mulDivCtrl_isDiv <= io_allocateIn_payload_uop_decoded_mulDivCtrl_isDiv;
+      entries_2_mulDivCtrl_isSigned <= io_allocateIn_payload_uop_decoded_mulDivCtrl_isSigned;
+      entries_2_mulDivCtrl_isWordOp <= io_allocateIn_payload_uop_decoded_mulDivCtrl_isWordOp;
+      entries_2_src1Ready <= (io_allocateIn_payload_src1InitialReady || (|{(wakeupInReg_4_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_4_payload_physRegIdx)),{(wakeupInReg_3_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_3_payload_physRegIdx)),{(wakeupInReg_2_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_2_payload_physRegIdx)),{(wakeupInReg_1_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_1_payload_physRegIdx)),(wakeupInReg_0_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_0_payload_physRegIdx))}}}}));
+      entries_2_src2Ready <= (io_allocateIn_payload_src2InitialReady || (|{(wakeupInReg_4_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_4_payload_physRegIdx)),{(wakeupInReg_3_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_3_payload_physRegIdx)),{(wakeupInReg_2_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_2_payload_physRegIdx)),{(wakeupInReg_1_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_1_payload_physRegIdx)),(wakeupInReg_0_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_0_payload_physRegIdx))}}}}));
+    end else begin
+      if(!when_IssueQueueComponent_l206_2) begin
+        if(when_IssueQueueComponent_l214_2) begin
+          entries_2_src1Ready <= 1'b1;
+        end
+        if(when_IssueQueueComponent_l215_2) begin
+          entries_2_src2Ready <= 1'b1;
+        end
+      end
+    end
+    if(when_IssueQueueComponent_l191_3) begin
+      entries_3_uop_decoded_pc <= io_allocateIn_payload_uop_decoded_pc;
+      entries_3_uop_decoded_isValid <= io_allocateIn_payload_uop_decoded_isValid;
+      entries_3_uop_decoded_uopCode <= io_allocateIn_payload_uop_decoded_uopCode;
+      entries_3_uop_decoded_exeUnit <= io_allocateIn_payload_uop_decoded_exeUnit;
+      entries_3_uop_decoded_isa <= io_allocateIn_payload_uop_decoded_isa;
+      entries_3_uop_decoded_archDest_idx <= io_allocateIn_payload_uop_decoded_archDest_idx;
+      entries_3_uop_decoded_archDest_rtype <= io_allocateIn_payload_uop_decoded_archDest_rtype;
+      entries_3_uop_decoded_writeArchDestEn <= io_allocateIn_payload_uop_decoded_writeArchDestEn;
+      entries_3_uop_decoded_archSrc1_idx <= io_allocateIn_payload_uop_decoded_archSrc1_idx;
+      entries_3_uop_decoded_archSrc1_rtype <= io_allocateIn_payload_uop_decoded_archSrc1_rtype;
+      entries_3_uop_decoded_useArchSrc1 <= io_allocateIn_payload_uop_decoded_useArchSrc1;
+      entries_3_uop_decoded_archSrc2_idx <= io_allocateIn_payload_uop_decoded_archSrc2_idx;
+      entries_3_uop_decoded_archSrc2_rtype <= io_allocateIn_payload_uop_decoded_archSrc2_rtype;
+      entries_3_uop_decoded_useArchSrc2 <= io_allocateIn_payload_uop_decoded_useArchSrc2;
+      entries_3_uop_decoded_usePcForAddr <= io_allocateIn_payload_uop_decoded_usePcForAddr;
+      entries_3_uop_decoded_src1IsPc <= io_allocateIn_payload_uop_decoded_src1IsPc;
+      entries_3_uop_decoded_imm <= io_allocateIn_payload_uop_decoded_imm;
+      entries_3_uop_decoded_immUsage <= io_allocateIn_payload_uop_decoded_immUsage;
+      entries_3_uop_decoded_aluCtrl_valid <= io_allocateIn_payload_uop_decoded_aluCtrl_valid;
+      entries_3_uop_decoded_aluCtrl_isSub <= io_allocateIn_payload_uop_decoded_aluCtrl_isSub;
+      entries_3_uop_decoded_aluCtrl_isAdd <= io_allocateIn_payload_uop_decoded_aluCtrl_isAdd;
+      entries_3_uop_decoded_aluCtrl_isSigned <= io_allocateIn_payload_uop_decoded_aluCtrl_isSigned;
+      entries_3_uop_decoded_aluCtrl_logicOp <= io_allocateIn_payload_uop_decoded_aluCtrl_logicOp;
+      entries_3_uop_decoded_aluCtrl_condition <= io_allocateIn_payload_uop_decoded_aluCtrl_condition;
+      entries_3_uop_decoded_shiftCtrl_valid <= io_allocateIn_payload_uop_decoded_shiftCtrl_valid;
+      entries_3_uop_decoded_shiftCtrl_isRight <= io_allocateIn_payload_uop_decoded_shiftCtrl_isRight;
+      entries_3_uop_decoded_shiftCtrl_isArithmetic <= io_allocateIn_payload_uop_decoded_shiftCtrl_isArithmetic;
+      entries_3_uop_decoded_shiftCtrl_isRotate <= io_allocateIn_payload_uop_decoded_shiftCtrl_isRotate;
+      entries_3_uop_decoded_shiftCtrl_isDoubleWord <= io_allocateIn_payload_uop_decoded_shiftCtrl_isDoubleWord;
+      entries_3_uop_decoded_mulDivCtrl_valid <= io_allocateIn_payload_uop_decoded_mulDivCtrl_valid;
+      entries_3_uop_decoded_mulDivCtrl_isDiv <= io_allocateIn_payload_uop_decoded_mulDivCtrl_isDiv;
+      entries_3_uop_decoded_mulDivCtrl_isSigned <= io_allocateIn_payload_uop_decoded_mulDivCtrl_isSigned;
+      entries_3_uop_decoded_mulDivCtrl_isWordOp <= io_allocateIn_payload_uop_decoded_mulDivCtrl_isWordOp;
+      entries_3_uop_decoded_memCtrl_size <= io_allocateIn_payload_uop_decoded_memCtrl_size;
+      entries_3_uop_decoded_memCtrl_isSignedLoad <= io_allocateIn_payload_uop_decoded_memCtrl_isSignedLoad;
+      entries_3_uop_decoded_memCtrl_isStore <= io_allocateIn_payload_uop_decoded_memCtrl_isStore;
+      entries_3_uop_decoded_memCtrl_isLoadLinked <= io_allocateIn_payload_uop_decoded_memCtrl_isLoadLinked;
+      entries_3_uop_decoded_memCtrl_isStoreCond <= io_allocateIn_payload_uop_decoded_memCtrl_isStoreCond;
+      entries_3_uop_decoded_memCtrl_atomicOp <= io_allocateIn_payload_uop_decoded_memCtrl_atomicOp;
+      entries_3_uop_decoded_memCtrl_isFence <= io_allocateIn_payload_uop_decoded_memCtrl_isFence;
+      entries_3_uop_decoded_memCtrl_fenceMode <= io_allocateIn_payload_uop_decoded_memCtrl_fenceMode;
+      entries_3_uop_decoded_memCtrl_isCacheOp <= io_allocateIn_payload_uop_decoded_memCtrl_isCacheOp;
+      entries_3_uop_decoded_memCtrl_cacheOpType <= io_allocateIn_payload_uop_decoded_memCtrl_cacheOpType;
+      entries_3_uop_decoded_memCtrl_isPrefetch <= io_allocateIn_payload_uop_decoded_memCtrl_isPrefetch;
+      entries_3_uop_decoded_branchCtrl_condition <= io_allocateIn_payload_uop_decoded_branchCtrl_condition;
+      entries_3_uop_decoded_branchCtrl_isJump <= io_allocateIn_payload_uop_decoded_branchCtrl_isJump;
+      entries_3_uop_decoded_branchCtrl_isLink <= io_allocateIn_payload_uop_decoded_branchCtrl_isLink;
+      entries_3_uop_decoded_branchCtrl_linkReg_idx <= io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_idx;
+      entries_3_uop_decoded_branchCtrl_linkReg_rtype <= io_allocateIn_payload_uop_decoded_branchCtrl_linkReg_rtype;
+      entries_3_uop_decoded_branchCtrl_isIndirect <= io_allocateIn_payload_uop_decoded_branchCtrl_isIndirect;
+      entries_3_uop_decoded_branchCtrl_laCfIdx <= io_allocateIn_payload_uop_decoded_branchCtrl_laCfIdx;
+      entries_3_uop_decoded_fpuCtrl_opType <= io_allocateIn_payload_uop_decoded_fpuCtrl_opType;
+      entries_3_uop_decoded_fpuCtrl_fpSizeSrc1 <= io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc1;
+      entries_3_uop_decoded_fpuCtrl_fpSizeSrc2 <= io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeSrc2;
+      entries_3_uop_decoded_fpuCtrl_fpSizeDest <= io_allocateIn_payload_uop_decoded_fpuCtrl_fpSizeDest;
+      entries_3_uop_decoded_fpuCtrl_roundingMode <= io_allocateIn_payload_uop_decoded_fpuCtrl_roundingMode;
+      entries_3_uop_decoded_fpuCtrl_isIntegerDest <= io_allocateIn_payload_uop_decoded_fpuCtrl_isIntegerDest;
+      entries_3_uop_decoded_fpuCtrl_isSignedCvt <= io_allocateIn_payload_uop_decoded_fpuCtrl_isSignedCvt;
+      entries_3_uop_decoded_fpuCtrl_fmaNegSrc1 <= io_allocateIn_payload_uop_decoded_fpuCtrl_fmaNegSrc1;
+      entries_3_uop_decoded_fpuCtrl_fcmpCond <= io_allocateIn_payload_uop_decoded_fpuCtrl_fcmpCond;
+      entries_3_uop_decoded_csrCtrl_csrAddr <= io_allocateIn_payload_uop_decoded_csrCtrl_csrAddr;
+      entries_3_uop_decoded_csrCtrl_isWrite <= io_allocateIn_payload_uop_decoded_csrCtrl_isWrite;
+      entries_3_uop_decoded_csrCtrl_isRead <= io_allocateIn_payload_uop_decoded_csrCtrl_isRead;
+      entries_3_uop_decoded_csrCtrl_isExchange <= io_allocateIn_payload_uop_decoded_csrCtrl_isExchange;
+      entries_3_uop_decoded_csrCtrl_useUimmAsSrc <= io_allocateIn_payload_uop_decoded_csrCtrl_useUimmAsSrc;
+      entries_3_uop_decoded_sysCtrl_sysCode <= io_allocateIn_payload_uop_decoded_sysCtrl_sysCode;
+      entries_3_uop_decoded_sysCtrl_isExceptionReturn <= io_allocateIn_payload_uop_decoded_sysCtrl_isExceptionReturn;
+      entries_3_uop_decoded_sysCtrl_isTlbOp <= io_allocateIn_payload_uop_decoded_sysCtrl_isTlbOp;
+      entries_3_uop_decoded_sysCtrl_tlbOpType <= io_allocateIn_payload_uop_decoded_sysCtrl_tlbOpType;
+      entries_3_uop_decoded_decodeExceptionCode <= io_allocateIn_payload_uop_decoded_decodeExceptionCode;
+      entries_3_uop_decoded_hasDecodeException <= io_allocateIn_payload_uop_decoded_hasDecodeException;
+      entries_3_uop_decoded_isMicrocode <= io_allocateIn_payload_uop_decoded_isMicrocode;
+      entries_3_uop_decoded_microcodeEntry <= io_allocateIn_payload_uop_decoded_microcodeEntry;
+      entries_3_uop_decoded_isSerializing <= io_allocateIn_payload_uop_decoded_isSerializing;
+      entries_3_uop_decoded_isBranchOrJump <= io_allocateIn_payload_uop_decoded_isBranchOrJump;
+      entries_3_uop_decoded_branchPrediction_isTaken <= io_allocateIn_payload_uop_decoded_branchPrediction_isTaken;
+      entries_3_uop_decoded_branchPrediction_target <= io_allocateIn_payload_uop_decoded_branchPrediction_target;
+      entries_3_uop_decoded_branchPrediction_wasPredicted <= io_allocateIn_payload_uop_decoded_branchPrediction_wasPredicted;
+      entries_3_uop_rename_physSrc1_idx <= io_allocateIn_payload_uop_rename_physSrc1_idx;
+      entries_3_uop_rename_physSrc1IsFpr <= io_allocateIn_payload_uop_rename_physSrc1IsFpr;
+      entries_3_uop_rename_physSrc2_idx <= io_allocateIn_payload_uop_rename_physSrc2_idx;
+      entries_3_uop_rename_physSrc2IsFpr <= io_allocateIn_payload_uop_rename_physSrc2IsFpr;
+      entries_3_uop_rename_physDest_idx <= io_allocateIn_payload_uop_rename_physDest_idx;
+      entries_3_uop_rename_physDestIsFpr <= io_allocateIn_payload_uop_rename_physDestIsFpr;
+      entries_3_uop_rename_oldPhysDest_idx <= io_allocateIn_payload_uop_rename_oldPhysDest_idx;
+      entries_3_uop_rename_oldPhysDestIsFpr <= io_allocateIn_payload_uop_rename_oldPhysDestIsFpr;
+      entries_3_uop_rename_allocatesPhysDest <= io_allocateIn_payload_uop_rename_allocatesPhysDest;
+      entries_3_uop_rename_writesToPhysReg <= io_allocateIn_payload_uop_rename_writesToPhysReg;
+      entries_3_uop_robPtr <= io_allocateIn_payload_uop_robPtr;
+      entries_3_uop_uniqueId <= io_allocateIn_payload_uop_uniqueId;
+      entries_3_uop_dispatched <= io_allocateIn_payload_uop_dispatched;
+      entries_3_uop_executed <= io_allocateIn_payload_uop_executed;
+      entries_3_uop_hasException <= io_allocateIn_payload_uop_hasException;
+      entries_3_uop_exceptionCode <= io_allocateIn_payload_uop_exceptionCode;
+      entries_3_robPtr <= io_allocateIn_payload_uop_robPtr;
+      entries_3_physDest_idx <= io_allocateIn_payload_uop_rename_physDest_idx;
+      entries_3_physDestIsFpr <= io_allocateIn_payload_uop_rename_physDestIsFpr;
+      entries_3_writesToPhysReg <= io_allocateIn_payload_uop_rename_writesToPhysReg;
+      entries_3_useSrc1 <= io_allocateIn_payload_uop_decoded_useArchSrc1;
+      entries_3_src1Tag <= io_allocateIn_payload_uop_rename_physSrc1_idx;
+      entries_3_src1Ready <= (! io_allocateIn_payload_uop_decoded_useArchSrc1);
+      entries_3_src1IsFpr <= io_allocateIn_payload_uop_rename_physSrc1IsFpr;
+      entries_3_useSrc2 <= io_allocateIn_payload_uop_decoded_useArchSrc2;
+      entries_3_src2Tag <= io_allocateIn_payload_uop_rename_physSrc2_idx;
+      entries_3_src2Ready <= (! io_allocateIn_payload_uop_decoded_useArchSrc2);
+      entries_3_src2IsFpr <= io_allocateIn_payload_uop_rename_physSrc2IsFpr;
+      entries_3_src1Data <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      entries_3_src2Data <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      entries_3_mulDivCtrl_valid <= io_allocateIn_payload_uop_decoded_mulDivCtrl_valid;
+      entries_3_mulDivCtrl_isDiv <= io_allocateIn_payload_uop_decoded_mulDivCtrl_isDiv;
+      entries_3_mulDivCtrl_isSigned <= io_allocateIn_payload_uop_decoded_mulDivCtrl_isSigned;
+      entries_3_mulDivCtrl_isWordOp <= io_allocateIn_payload_uop_decoded_mulDivCtrl_isWordOp;
+      entries_3_src1Ready <= (io_allocateIn_payload_src1InitialReady || (|{(wakeupInReg_4_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_4_payload_physRegIdx)),{(wakeupInReg_3_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_3_payload_physRegIdx)),{(wakeupInReg_2_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_2_payload_physRegIdx)),{(wakeupInReg_1_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_1_payload_physRegIdx)),(wakeupInReg_0_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_0_payload_physRegIdx))}}}}));
+      entries_3_src2Ready <= (io_allocateIn_payload_src2InitialReady || (|{(wakeupInReg_4_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_4_payload_physRegIdx)),{(wakeupInReg_3_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_3_payload_physRegIdx)),{(wakeupInReg_2_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_2_payload_physRegIdx)),{(wakeupInReg_1_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_1_payload_physRegIdx)),(wakeupInReg_0_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_0_payload_physRegIdx))}}}}));
+    end else begin
+      if(!when_IssueQueueComponent_l206_3) begin
+        if(when_IssueQueueComponent_l214_3) begin
+          entries_3_src1Ready <= 1'b1;
+        end
+        if(when_IssueQueueComponent_l215_3) begin
+          entries_3_src2Ready <= 1'b1;
+        end
+      end
+    end
   end
 
 
@@ -51263,6 +42509,8 @@ module IssueQueueComponent (
   reg                 _zz_io_issueOut_payload_shiftCtrl_isDoubleWord;
   reg        [31:0]   _zz_io_issueOut_payload_imm;
   wire       [3:0]    _zz_allocationMask_1;
+  wire                _zz_entries_0_src1Ready;
+  wire                _zz_entries_0_src1Ready_1;
   reg        [2:0]    _zz_currentValidCount_8;
   wire       [2:0]    _zz_currentValidCount_9;
   reg        [2:0]    _zz_currentValidCount_10;
@@ -51493,159 +42741,23 @@ module IssueQueueComponent (
   wire                _zz_allocateIdx_1;
   wire                _zz_allocateIdx_2;
   wire       [1:0]    allocateIdx;
-  reg        [3:0]    entriesNext_0_robPtr;
-  reg        [31:0]   entriesNext_0_pc;
-  reg        [5:0]    entriesNext_0_physDest_idx;
-  reg                 entriesNext_0_physDestIsFpr;
-  reg                 entriesNext_0_writesToPhysReg;
-  reg                 entriesNext_0_useSrc1;
-  reg        [31:0]   entriesNext_0_src1Data;
-  reg        [5:0]    entriesNext_0_src1Tag;
-  reg                 entriesNext_0_src1Ready;
-  reg                 entriesNext_0_src1IsFpr;
-  reg                 entriesNext_0_src1IsPc;
-  reg                 entriesNext_0_useSrc2;
-  reg        [31:0]   entriesNext_0_src2Data;
-  reg        [5:0]    entriesNext_0_src2Tag;
-  reg                 entriesNext_0_src2Ready;
-  reg                 entriesNext_0_src2IsFpr;
-  reg                 entriesNext_0_aluCtrl_valid;
-  reg                 entriesNext_0_aluCtrl_isSub;
-  reg                 entriesNext_0_aluCtrl_isAdd;
-  reg                 entriesNext_0_aluCtrl_isSigned;
-  reg        [2:0]    entriesNext_0_aluCtrl_logicOp;
-  reg        [4:0]    entriesNext_0_aluCtrl_condition;
-  reg                 entriesNext_0_shiftCtrl_valid;
-  reg                 entriesNext_0_shiftCtrl_isRight;
-  reg                 entriesNext_0_shiftCtrl_isArithmetic;
-  reg                 entriesNext_0_shiftCtrl_isRotate;
-  reg                 entriesNext_0_shiftCtrl_isDoubleWord;
-  reg        [31:0]   entriesNext_0_imm;
-  reg        [2:0]    entriesNext_0_immUsage;
-  reg        [3:0]    entriesNext_1_robPtr;
-  reg        [31:0]   entriesNext_1_pc;
-  reg        [5:0]    entriesNext_1_physDest_idx;
-  reg                 entriesNext_1_physDestIsFpr;
-  reg                 entriesNext_1_writesToPhysReg;
-  reg                 entriesNext_1_useSrc1;
-  reg        [31:0]   entriesNext_1_src1Data;
-  reg        [5:0]    entriesNext_1_src1Tag;
-  reg                 entriesNext_1_src1Ready;
-  reg                 entriesNext_1_src1IsFpr;
-  reg                 entriesNext_1_src1IsPc;
-  reg                 entriesNext_1_useSrc2;
-  reg        [31:0]   entriesNext_1_src2Data;
-  reg        [5:0]    entriesNext_1_src2Tag;
-  reg                 entriesNext_1_src2Ready;
-  reg                 entriesNext_1_src2IsFpr;
-  reg                 entriesNext_1_aluCtrl_valid;
-  reg                 entriesNext_1_aluCtrl_isSub;
-  reg                 entriesNext_1_aluCtrl_isAdd;
-  reg                 entriesNext_1_aluCtrl_isSigned;
-  reg        [2:0]    entriesNext_1_aluCtrl_logicOp;
-  reg        [4:0]    entriesNext_1_aluCtrl_condition;
-  reg                 entriesNext_1_shiftCtrl_valid;
-  reg                 entriesNext_1_shiftCtrl_isRight;
-  reg                 entriesNext_1_shiftCtrl_isArithmetic;
-  reg                 entriesNext_1_shiftCtrl_isRotate;
-  reg                 entriesNext_1_shiftCtrl_isDoubleWord;
-  reg        [31:0]   entriesNext_1_imm;
-  reg        [2:0]    entriesNext_1_immUsage;
-  reg        [3:0]    entriesNext_2_robPtr;
-  reg        [31:0]   entriesNext_2_pc;
-  reg        [5:0]    entriesNext_2_physDest_idx;
-  reg                 entriesNext_2_physDestIsFpr;
-  reg                 entriesNext_2_writesToPhysReg;
-  reg                 entriesNext_2_useSrc1;
-  reg        [31:0]   entriesNext_2_src1Data;
-  reg        [5:0]    entriesNext_2_src1Tag;
-  reg                 entriesNext_2_src1Ready;
-  reg                 entriesNext_2_src1IsFpr;
-  reg                 entriesNext_2_src1IsPc;
-  reg                 entriesNext_2_useSrc2;
-  reg        [31:0]   entriesNext_2_src2Data;
-  reg        [5:0]    entriesNext_2_src2Tag;
-  reg                 entriesNext_2_src2Ready;
-  reg                 entriesNext_2_src2IsFpr;
-  reg                 entriesNext_2_aluCtrl_valid;
-  reg                 entriesNext_2_aluCtrl_isSub;
-  reg                 entriesNext_2_aluCtrl_isAdd;
-  reg                 entriesNext_2_aluCtrl_isSigned;
-  reg        [2:0]    entriesNext_2_aluCtrl_logicOp;
-  reg        [4:0]    entriesNext_2_aluCtrl_condition;
-  reg                 entriesNext_2_shiftCtrl_valid;
-  reg                 entriesNext_2_shiftCtrl_isRight;
-  reg                 entriesNext_2_shiftCtrl_isArithmetic;
-  reg                 entriesNext_2_shiftCtrl_isRotate;
-  reg                 entriesNext_2_shiftCtrl_isDoubleWord;
-  reg        [31:0]   entriesNext_2_imm;
-  reg        [2:0]    entriesNext_2_immUsage;
-  reg        [3:0]    entriesNext_3_robPtr;
-  reg        [31:0]   entriesNext_3_pc;
-  reg        [5:0]    entriesNext_3_physDest_idx;
-  reg                 entriesNext_3_physDestIsFpr;
-  reg                 entriesNext_3_writesToPhysReg;
-  reg                 entriesNext_3_useSrc1;
-  reg        [31:0]   entriesNext_3_src1Data;
-  reg        [5:0]    entriesNext_3_src1Tag;
-  reg                 entriesNext_3_src1Ready;
-  reg                 entriesNext_3_src1IsFpr;
-  reg                 entriesNext_3_src1IsPc;
-  reg                 entriesNext_3_useSrc2;
-  reg        [31:0]   entriesNext_3_src2Data;
-  reg        [5:0]    entriesNext_3_src2Tag;
-  reg                 entriesNext_3_src2Ready;
-  reg                 entriesNext_3_src2IsFpr;
-  reg                 entriesNext_3_aluCtrl_valid;
-  reg                 entriesNext_3_aluCtrl_isSub;
-  reg                 entriesNext_3_aluCtrl_isAdd;
-  reg                 entriesNext_3_aluCtrl_isSigned;
-  reg        [2:0]    entriesNext_3_aluCtrl_logicOp;
-  reg        [4:0]    entriesNext_3_aluCtrl_condition;
-  reg                 entriesNext_3_shiftCtrl_valid;
-  reg                 entriesNext_3_shiftCtrl_isRight;
-  reg                 entriesNext_3_shiftCtrl_isArithmetic;
-  reg                 entriesNext_3_shiftCtrl_isRotate;
-  reg                 entriesNext_3_shiftCtrl_isDoubleWord;
-  reg        [31:0]   entriesNext_3_imm;
-  reg        [2:0]    entriesNext_3_immUsage;
-  reg                 entryValidsNext_0;
-  reg                 entryValidsNext_1;
-  reg                 entryValidsNext_2;
-  reg                 entryValidsNext_3;
-  wire                when_IssueQueueComponent_l192;
-  wire                when_IssueQueueComponent_l193;
-  wire                when_IssueQueueComponent_l192_1;
-  wire                when_IssueQueueComponent_l193_1;
-  wire                when_IssueQueueComponent_l192_2;
-  wire                when_IssueQueueComponent_l193_2;
-  wire                when_IssueQueueComponent_l192_3;
-  wire                when_IssueQueueComponent_l193_3;
-  wire       [3:0]    _zz_1;
   wire                io_allocateIn_fire;
-  wire       [3:0]    _zz_2;
-  wire                _zz_3;
-  wire                _zz_4;
-  wire                _zz_5;
-  wire                _zz_6;
-  wire                _zz_entriesNext_0_src1Ready;
-  wire                _zz_entriesNext_0_src2Ready;
-  wire       [3:0]    _zz_7;
-  wire                when_IssueQueueComponent_l217;
-  wire                when_IssueQueueComponent_l218;
-  wire                when_IssueQueueComponent_l221;
-  wire                when_IssueQueueComponent_l217_1;
-  wire                when_IssueQueueComponent_l218_1;
-  wire                when_IssueQueueComponent_l221_1;
-  wire                when_IssueQueueComponent_l217_2;
-  wire                when_IssueQueueComponent_l218_2;
-  wire                when_IssueQueueComponent_l221_2;
-  wire                when_IssueQueueComponent_l217_3;
-  wire                when_IssueQueueComponent_l218_3;
-  wire                when_IssueQueueComponent_l221_3;
-  wire                when_IssueQueueComponent_l217_4;
-  wire                when_IssueQueueComponent_l218_4;
-  wire                when_IssueQueueComponent_l221_4;
+  wire                when_IssueQueueComponent_l191;
+  wire                when_IssueQueueComponent_l206;
+  wire                when_IssueQueueComponent_l214;
+  wire                when_IssueQueueComponent_l215;
+  wire                when_IssueQueueComponent_l191_1;
+  wire                when_IssueQueueComponent_l206_1;
+  wire                when_IssueQueueComponent_l214_1;
+  wire                when_IssueQueueComponent_l215_1;
+  wire                when_IssueQueueComponent_l191_2;
+  wire                when_IssueQueueComponent_l206_2;
+  wire                when_IssueQueueComponent_l214_2;
+  wire                when_IssueQueueComponent_l215_2;
+  wire                when_IssueQueueComponent_l191_3;
+  wire                when_IssueQueueComponent_l206_3;
+  wire                when_IssueQueueComponent_l214_3;
+  wire                when_IssueQueueComponent_l215_3;
   wire       [2:0]    _zz_currentValidCount;
   wire       [2:0]    _zz_currentValidCount_1;
   wire       [2:0]    _zz_currentValidCount_2;
@@ -51656,7 +42768,7 @@ module IssueQueueComponent (
   wire       [2:0]    _zz_currentValidCount_7;
   wire       [2:0]    currentValidCount;
   wire                logCondition;
-  wire                when_IssueQueueComponent_l262;
+  wire                when_IssueQueueComponent_l244;
   `ifndef SYNTHESIS
   reg [87:0] io_allocateIn_payload_uop_decoded_uopCode_string;
   reg [151:0] io_allocateIn_payload_uop_decoded_exeUnit_string;
@@ -51692,18 +42804,6 @@ module IssueQueueComponent (
   reg [47:0] _zz_io_issueOut_payload_aluCtrl_logicOp_string;
   reg [87:0] _zz_io_issueOut_payload_aluCtrl_condition_string;
   reg [103:0] _zz_io_issueOut_payload_immUsage_string;
-  reg [47:0] entriesNext_0_aluCtrl_logicOp_string;
-  reg [87:0] entriesNext_0_aluCtrl_condition_string;
-  reg [103:0] entriesNext_0_immUsage_string;
-  reg [47:0] entriesNext_1_aluCtrl_logicOp_string;
-  reg [87:0] entriesNext_1_aluCtrl_condition_string;
-  reg [103:0] entriesNext_1_immUsage_string;
-  reg [47:0] entriesNext_2_aluCtrl_logicOp_string;
-  reg [87:0] entriesNext_2_aluCtrl_condition_string;
-  reg [103:0] entriesNext_2_immUsage_string;
-  reg [47:0] entriesNext_3_aluCtrl_logicOp_string;
-  reg [87:0] entriesNext_3_aluCtrl_condition_string;
-  reg [103:0] entriesNext_3_immUsage_string;
   `endif
 
 
@@ -51717,6 +42817,8 @@ module IssueQueueComponent (
   assign _zz_currentValidCount_12 = entryValids_3;
   assign _zz_currentValidCount_11 = {2'd0, _zz_currentValidCount_12};
   assign _zz_currentValidCount_9 = {entryValids_2,{entryValids_1,entryValids_0}};
+  assign _zz_entries_0_src1Ready = (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_1_payload_physRegIdx);
+  assign _zz_entries_0_src1Ready_1 = (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_0_payload_physRegIdx);
   always @(*) begin
     case(issueIdx)
       2'b00 : begin
@@ -52374,202 +43476,6 @@ module IssueQueueComponent (
       default : _zz_io_issueOut_payload_immUsage_string = "?????????????";
     endcase
   end
-  always @(*) begin
-    case(entriesNext_0_aluCtrl_logicOp)
-      LogicOp_NONE : entriesNext_0_aluCtrl_logicOp_string = "NONE  ";
-      LogicOp_AND_1 : entriesNext_0_aluCtrl_logicOp_string = "AND_1 ";
-      LogicOp_OR_1 : entriesNext_0_aluCtrl_logicOp_string = "OR_1  ";
-      LogicOp_NOR_1 : entriesNext_0_aluCtrl_logicOp_string = "NOR_1 ";
-      LogicOp_XOR_1 : entriesNext_0_aluCtrl_logicOp_string = "XOR_1 ";
-      LogicOp_NAND_1 : entriesNext_0_aluCtrl_logicOp_string = "NAND_1";
-      LogicOp_XNOR_1 : entriesNext_0_aluCtrl_logicOp_string = "XNOR_1";
-      default : entriesNext_0_aluCtrl_logicOp_string = "??????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_0_aluCtrl_condition)
-      BranchCondition_NUL : entriesNext_0_aluCtrl_condition_string = "NUL        ";
-      BranchCondition_EQ : entriesNext_0_aluCtrl_condition_string = "EQ         ";
-      BranchCondition_NE : entriesNext_0_aluCtrl_condition_string = "NE         ";
-      BranchCondition_LT : entriesNext_0_aluCtrl_condition_string = "LT         ";
-      BranchCondition_GE : entriesNext_0_aluCtrl_condition_string = "GE         ";
-      BranchCondition_LTU : entriesNext_0_aluCtrl_condition_string = "LTU        ";
-      BranchCondition_GEU : entriesNext_0_aluCtrl_condition_string = "GEU        ";
-      BranchCondition_EQZ : entriesNext_0_aluCtrl_condition_string = "EQZ        ";
-      BranchCondition_NEZ : entriesNext_0_aluCtrl_condition_string = "NEZ        ";
-      BranchCondition_LTZ : entriesNext_0_aluCtrl_condition_string = "LTZ        ";
-      BranchCondition_GEZ : entriesNext_0_aluCtrl_condition_string = "GEZ        ";
-      BranchCondition_GTZ : entriesNext_0_aluCtrl_condition_string = "GTZ        ";
-      BranchCondition_LEZ : entriesNext_0_aluCtrl_condition_string = "LEZ        ";
-      BranchCondition_F_EQ : entriesNext_0_aluCtrl_condition_string = "F_EQ       ";
-      BranchCondition_F_NE : entriesNext_0_aluCtrl_condition_string = "F_NE       ";
-      BranchCondition_F_LT : entriesNext_0_aluCtrl_condition_string = "F_LT       ";
-      BranchCondition_F_LE : entriesNext_0_aluCtrl_condition_string = "F_LE       ";
-      BranchCondition_F_UN : entriesNext_0_aluCtrl_condition_string = "F_UN       ";
-      BranchCondition_LA_CF_TRUE : entriesNext_0_aluCtrl_condition_string = "LA_CF_TRUE ";
-      BranchCondition_LA_CF_FALSE : entriesNext_0_aluCtrl_condition_string = "LA_CF_FALSE";
-      default : entriesNext_0_aluCtrl_condition_string = "???????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_0_immUsage)
-      ImmUsageType_NONE : entriesNext_0_immUsage_string = "NONE         ";
-      ImmUsageType_SRC_ALU : entriesNext_0_immUsage_string = "SRC_ALU      ";
-      ImmUsageType_SRC_SHIFT_AMT : entriesNext_0_immUsage_string = "SRC_SHIFT_AMT";
-      ImmUsageType_SRC_CSR_UIMM : entriesNext_0_immUsage_string = "SRC_CSR_UIMM ";
-      ImmUsageType_MEM_OFFSET : entriesNext_0_immUsage_string = "MEM_OFFSET   ";
-      ImmUsageType_BRANCH_OFFSET : entriesNext_0_immUsage_string = "BRANCH_OFFSET";
-      ImmUsageType_JUMP_OFFSET : entriesNext_0_immUsage_string = "JUMP_OFFSET  ";
-      default : entriesNext_0_immUsage_string = "?????????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_1_aluCtrl_logicOp)
-      LogicOp_NONE : entriesNext_1_aluCtrl_logicOp_string = "NONE  ";
-      LogicOp_AND_1 : entriesNext_1_aluCtrl_logicOp_string = "AND_1 ";
-      LogicOp_OR_1 : entriesNext_1_aluCtrl_logicOp_string = "OR_1  ";
-      LogicOp_NOR_1 : entriesNext_1_aluCtrl_logicOp_string = "NOR_1 ";
-      LogicOp_XOR_1 : entriesNext_1_aluCtrl_logicOp_string = "XOR_1 ";
-      LogicOp_NAND_1 : entriesNext_1_aluCtrl_logicOp_string = "NAND_1";
-      LogicOp_XNOR_1 : entriesNext_1_aluCtrl_logicOp_string = "XNOR_1";
-      default : entriesNext_1_aluCtrl_logicOp_string = "??????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_1_aluCtrl_condition)
-      BranchCondition_NUL : entriesNext_1_aluCtrl_condition_string = "NUL        ";
-      BranchCondition_EQ : entriesNext_1_aluCtrl_condition_string = "EQ         ";
-      BranchCondition_NE : entriesNext_1_aluCtrl_condition_string = "NE         ";
-      BranchCondition_LT : entriesNext_1_aluCtrl_condition_string = "LT         ";
-      BranchCondition_GE : entriesNext_1_aluCtrl_condition_string = "GE         ";
-      BranchCondition_LTU : entriesNext_1_aluCtrl_condition_string = "LTU        ";
-      BranchCondition_GEU : entriesNext_1_aluCtrl_condition_string = "GEU        ";
-      BranchCondition_EQZ : entriesNext_1_aluCtrl_condition_string = "EQZ        ";
-      BranchCondition_NEZ : entriesNext_1_aluCtrl_condition_string = "NEZ        ";
-      BranchCondition_LTZ : entriesNext_1_aluCtrl_condition_string = "LTZ        ";
-      BranchCondition_GEZ : entriesNext_1_aluCtrl_condition_string = "GEZ        ";
-      BranchCondition_GTZ : entriesNext_1_aluCtrl_condition_string = "GTZ        ";
-      BranchCondition_LEZ : entriesNext_1_aluCtrl_condition_string = "LEZ        ";
-      BranchCondition_F_EQ : entriesNext_1_aluCtrl_condition_string = "F_EQ       ";
-      BranchCondition_F_NE : entriesNext_1_aluCtrl_condition_string = "F_NE       ";
-      BranchCondition_F_LT : entriesNext_1_aluCtrl_condition_string = "F_LT       ";
-      BranchCondition_F_LE : entriesNext_1_aluCtrl_condition_string = "F_LE       ";
-      BranchCondition_F_UN : entriesNext_1_aluCtrl_condition_string = "F_UN       ";
-      BranchCondition_LA_CF_TRUE : entriesNext_1_aluCtrl_condition_string = "LA_CF_TRUE ";
-      BranchCondition_LA_CF_FALSE : entriesNext_1_aluCtrl_condition_string = "LA_CF_FALSE";
-      default : entriesNext_1_aluCtrl_condition_string = "???????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_1_immUsage)
-      ImmUsageType_NONE : entriesNext_1_immUsage_string = "NONE         ";
-      ImmUsageType_SRC_ALU : entriesNext_1_immUsage_string = "SRC_ALU      ";
-      ImmUsageType_SRC_SHIFT_AMT : entriesNext_1_immUsage_string = "SRC_SHIFT_AMT";
-      ImmUsageType_SRC_CSR_UIMM : entriesNext_1_immUsage_string = "SRC_CSR_UIMM ";
-      ImmUsageType_MEM_OFFSET : entriesNext_1_immUsage_string = "MEM_OFFSET   ";
-      ImmUsageType_BRANCH_OFFSET : entriesNext_1_immUsage_string = "BRANCH_OFFSET";
-      ImmUsageType_JUMP_OFFSET : entriesNext_1_immUsage_string = "JUMP_OFFSET  ";
-      default : entriesNext_1_immUsage_string = "?????????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_2_aluCtrl_logicOp)
-      LogicOp_NONE : entriesNext_2_aluCtrl_logicOp_string = "NONE  ";
-      LogicOp_AND_1 : entriesNext_2_aluCtrl_logicOp_string = "AND_1 ";
-      LogicOp_OR_1 : entriesNext_2_aluCtrl_logicOp_string = "OR_1  ";
-      LogicOp_NOR_1 : entriesNext_2_aluCtrl_logicOp_string = "NOR_1 ";
-      LogicOp_XOR_1 : entriesNext_2_aluCtrl_logicOp_string = "XOR_1 ";
-      LogicOp_NAND_1 : entriesNext_2_aluCtrl_logicOp_string = "NAND_1";
-      LogicOp_XNOR_1 : entriesNext_2_aluCtrl_logicOp_string = "XNOR_1";
-      default : entriesNext_2_aluCtrl_logicOp_string = "??????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_2_aluCtrl_condition)
-      BranchCondition_NUL : entriesNext_2_aluCtrl_condition_string = "NUL        ";
-      BranchCondition_EQ : entriesNext_2_aluCtrl_condition_string = "EQ         ";
-      BranchCondition_NE : entriesNext_2_aluCtrl_condition_string = "NE         ";
-      BranchCondition_LT : entriesNext_2_aluCtrl_condition_string = "LT         ";
-      BranchCondition_GE : entriesNext_2_aluCtrl_condition_string = "GE         ";
-      BranchCondition_LTU : entriesNext_2_aluCtrl_condition_string = "LTU        ";
-      BranchCondition_GEU : entriesNext_2_aluCtrl_condition_string = "GEU        ";
-      BranchCondition_EQZ : entriesNext_2_aluCtrl_condition_string = "EQZ        ";
-      BranchCondition_NEZ : entriesNext_2_aluCtrl_condition_string = "NEZ        ";
-      BranchCondition_LTZ : entriesNext_2_aluCtrl_condition_string = "LTZ        ";
-      BranchCondition_GEZ : entriesNext_2_aluCtrl_condition_string = "GEZ        ";
-      BranchCondition_GTZ : entriesNext_2_aluCtrl_condition_string = "GTZ        ";
-      BranchCondition_LEZ : entriesNext_2_aluCtrl_condition_string = "LEZ        ";
-      BranchCondition_F_EQ : entriesNext_2_aluCtrl_condition_string = "F_EQ       ";
-      BranchCondition_F_NE : entriesNext_2_aluCtrl_condition_string = "F_NE       ";
-      BranchCondition_F_LT : entriesNext_2_aluCtrl_condition_string = "F_LT       ";
-      BranchCondition_F_LE : entriesNext_2_aluCtrl_condition_string = "F_LE       ";
-      BranchCondition_F_UN : entriesNext_2_aluCtrl_condition_string = "F_UN       ";
-      BranchCondition_LA_CF_TRUE : entriesNext_2_aluCtrl_condition_string = "LA_CF_TRUE ";
-      BranchCondition_LA_CF_FALSE : entriesNext_2_aluCtrl_condition_string = "LA_CF_FALSE";
-      default : entriesNext_2_aluCtrl_condition_string = "???????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_2_immUsage)
-      ImmUsageType_NONE : entriesNext_2_immUsage_string = "NONE         ";
-      ImmUsageType_SRC_ALU : entriesNext_2_immUsage_string = "SRC_ALU      ";
-      ImmUsageType_SRC_SHIFT_AMT : entriesNext_2_immUsage_string = "SRC_SHIFT_AMT";
-      ImmUsageType_SRC_CSR_UIMM : entriesNext_2_immUsage_string = "SRC_CSR_UIMM ";
-      ImmUsageType_MEM_OFFSET : entriesNext_2_immUsage_string = "MEM_OFFSET   ";
-      ImmUsageType_BRANCH_OFFSET : entriesNext_2_immUsage_string = "BRANCH_OFFSET";
-      ImmUsageType_JUMP_OFFSET : entriesNext_2_immUsage_string = "JUMP_OFFSET  ";
-      default : entriesNext_2_immUsage_string = "?????????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_3_aluCtrl_logicOp)
-      LogicOp_NONE : entriesNext_3_aluCtrl_logicOp_string = "NONE  ";
-      LogicOp_AND_1 : entriesNext_3_aluCtrl_logicOp_string = "AND_1 ";
-      LogicOp_OR_1 : entriesNext_3_aluCtrl_logicOp_string = "OR_1  ";
-      LogicOp_NOR_1 : entriesNext_3_aluCtrl_logicOp_string = "NOR_1 ";
-      LogicOp_XOR_1 : entriesNext_3_aluCtrl_logicOp_string = "XOR_1 ";
-      LogicOp_NAND_1 : entriesNext_3_aluCtrl_logicOp_string = "NAND_1";
-      LogicOp_XNOR_1 : entriesNext_3_aluCtrl_logicOp_string = "XNOR_1";
-      default : entriesNext_3_aluCtrl_logicOp_string = "??????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_3_aluCtrl_condition)
-      BranchCondition_NUL : entriesNext_3_aluCtrl_condition_string = "NUL        ";
-      BranchCondition_EQ : entriesNext_3_aluCtrl_condition_string = "EQ         ";
-      BranchCondition_NE : entriesNext_3_aluCtrl_condition_string = "NE         ";
-      BranchCondition_LT : entriesNext_3_aluCtrl_condition_string = "LT         ";
-      BranchCondition_GE : entriesNext_3_aluCtrl_condition_string = "GE         ";
-      BranchCondition_LTU : entriesNext_3_aluCtrl_condition_string = "LTU        ";
-      BranchCondition_GEU : entriesNext_3_aluCtrl_condition_string = "GEU        ";
-      BranchCondition_EQZ : entriesNext_3_aluCtrl_condition_string = "EQZ        ";
-      BranchCondition_NEZ : entriesNext_3_aluCtrl_condition_string = "NEZ        ";
-      BranchCondition_LTZ : entriesNext_3_aluCtrl_condition_string = "LTZ        ";
-      BranchCondition_GEZ : entriesNext_3_aluCtrl_condition_string = "GEZ        ";
-      BranchCondition_GTZ : entriesNext_3_aluCtrl_condition_string = "GTZ        ";
-      BranchCondition_LEZ : entriesNext_3_aluCtrl_condition_string = "LEZ        ";
-      BranchCondition_F_EQ : entriesNext_3_aluCtrl_condition_string = "F_EQ       ";
-      BranchCondition_F_NE : entriesNext_3_aluCtrl_condition_string = "F_NE       ";
-      BranchCondition_F_LT : entriesNext_3_aluCtrl_condition_string = "F_LT       ";
-      BranchCondition_F_LE : entriesNext_3_aluCtrl_condition_string = "F_LE       ";
-      BranchCondition_F_UN : entriesNext_3_aluCtrl_condition_string = "F_UN       ";
-      BranchCondition_LA_CF_TRUE : entriesNext_3_aluCtrl_condition_string = "LA_CF_TRUE ";
-      BranchCondition_LA_CF_FALSE : entriesNext_3_aluCtrl_condition_string = "LA_CF_FALSE";
-      default : entriesNext_3_aluCtrl_condition_string = "???????????";
-    endcase
-  end
-  always @(*) begin
-    case(entriesNext_3_immUsage)
-      ImmUsageType_NONE : entriesNext_3_immUsage_string = "NONE         ";
-      ImmUsageType_SRC_ALU : entriesNext_3_immUsage_string = "SRC_ALU      ";
-      ImmUsageType_SRC_SHIFT_AMT : entriesNext_3_immUsage_string = "SRC_SHIFT_AMT";
-      ImmUsageType_SRC_CSR_UIMM : entriesNext_3_immUsage_string = "SRC_CSR_UIMM ";
-      ImmUsageType_MEM_OFFSET : entriesNext_3_immUsage_string = "MEM_OFFSET   ";
-      ImmUsageType_BRANCH_OFFSET : entriesNext_3_immUsage_string = "BRANCH_OFFSET";
-      ImmUsageType_JUMP_OFFSET : entriesNext_3_immUsage_string = "JUMP_OFFSET  ";
-      default : entriesNext_3_immUsage_string = "?????????????";
-    endcase
-  end
   `endif
 
   assign when_IssueQueueComponent_l68 = (! io_flush);
@@ -52950,1479 +43856,23 @@ module IssueQueueComponent (
   assign _zz_allocateIdx_1 = (allocationMask[1] || _zz_allocateIdx);
   assign _zz_allocateIdx_2 = (allocationMask[2] || _zz_allocateIdx);
   assign allocateIdx = {_zz_allocateIdx_2,_zz_allocateIdx_1};
-  always @(*) begin
-    entriesNext_0_robPtr = entries_0_robPtr;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_robPtr = io_allocateIn_payload_uop_robPtr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_pc = entries_0_pc;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_pc = io_allocateIn_payload_uop_decoded_pc;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_physDest_idx = entries_0_physDest_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_physDest_idx = io_allocateIn_payload_uop_rename_physDest_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_physDestIsFpr = entries_0_physDestIsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_physDestIsFpr = io_allocateIn_payload_uop_rename_physDestIsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_writesToPhysReg = entries_0_writesToPhysReg;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_writesToPhysReg = io_allocateIn_payload_uop_rename_writesToPhysReg;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_useSrc1 = entries_0_useSrc1;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_useSrc1 = io_allocateIn_payload_uop_decoded_useArchSrc1;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src1Data = entries_0_src1Data;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src1Data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src1Tag = entries_0_src1Tag;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src1Tag = io_allocateIn_payload_uop_rename_physSrc1_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src1Ready = entries_0_src1Ready;
-    if(when_IssueQueueComponent_l192) begin
-      entriesNext_0_src1Ready = 1'b1;
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src1Ready = _zz_entriesNext_0_src1Ready;
-      end
-      if(_zz_3) begin
-        entriesNext_0_src1Ready = io_allocateIn_payload_src1InitialReady;
-      end
-      if(when_IssueQueueComponent_l217) begin
-        if(when_IssueQueueComponent_l218) begin
-          if(_zz_3) begin
-            entriesNext_0_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_1) begin
-        if(when_IssueQueueComponent_l218_1) begin
-          if(_zz_3) begin
-            entriesNext_0_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_2) begin
-        if(when_IssueQueueComponent_l218_2) begin
-          if(_zz_3) begin
-            entriesNext_0_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_3) begin
-        if(when_IssueQueueComponent_l218_3) begin
-          if(_zz_3) begin
-            entriesNext_0_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_4) begin
-        if(when_IssueQueueComponent_l218_4) begin
-          if(_zz_3) begin
-            entriesNext_0_src1Ready = 1'b1;
-          end
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src1IsFpr = entries_0_src1IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src1IsFpr = io_allocateIn_payload_uop_rename_physSrc1IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src1IsPc = entries_0_src1IsPc;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src1IsPc = io_allocateIn_payload_uop_decoded_src1IsPc;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_useSrc2 = entries_0_useSrc2;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_useSrc2 = io_allocateIn_payload_uop_decoded_useArchSrc2;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src2Data = entries_0_src2Data;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src2Data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src2Tag = entries_0_src2Tag;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src2Tag = io_allocateIn_payload_uop_rename_physSrc2_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src2Ready = entries_0_src2Ready;
-    if(when_IssueQueueComponent_l193) begin
-      entriesNext_0_src2Ready = 1'b1;
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src2Ready = _zz_entriesNext_0_src2Ready;
-      end
-      if(_zz_3) begin
-        entriesNext_0_src2Ready = io_allocateIn_payload_src2InitialReady;
-      end
-      if(when_IssueQueueComponent_l217) begin
-        if(when_IssueQueueComponent_l221) begin
-          if(_zz_3) begin
-            entriesNext_0_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_1) begin
-        if(when_IssueQueueComponent_l221_1) begin
-          if(_zz_3) begin
-            entriesNext_0_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_2) begin
-        if(when_IssueQueueComponent_l221_2) begin
-          if(_zz_3) begin
-            entriesNext_0_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_3) begin
-        if(when_IssueQueueComponent_l221_3) begin
-          if(_zz_3) begin
-            entriesNext_0_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_4) begin
-        if(when_IssueQueueComponent_l221_4) begin
-          if(_zz_3) begin
-            entriesNext_0_src2Ready = 1'b1;
-          end
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_src2IsFpr = entries_0_src2IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_src2IsFpr = io_allocateIn_payload_uop_rename_physSrc2IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_aluCtrl_valid = entries_0_aluCtrl_valid;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_aluCtrl_valid = io_allocateIn_payload_uop_decoded_aluCtrl_valid;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_aluCtrl_isSub = entries_0_aluCtrl_isSub;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_aluCtrl_isSub = io_allocateIn_payload_uop_decoded_aluCtrl_isSub;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_aluCtrl_isAdd = entries_0_aluCtrl_isAdd;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_aluCtrl_isAdd = io_allocateIn_payload_uop_decoded_aluCtrl_isAdd;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_aluCtrl_isSigned = entries_0_aluCtrl_isSigned;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_aluCtrl_isSigned = io_allocateIn_payload_uop_decoded_aluCtrl_isSigned;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_aluCtrl_logicOp = entries_0_aluCtrl_logicOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_aluCtrl_logicOp = io_allocateIn_payload_uop_decoded_aluCtrl_logicOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_aluCtrl_condition = entries_0_aluCtrl_condition;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_aluCtrl_condition = io_allocateIn_payload_uop_decoded_aluCtrl_condition;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_shiftCtrl_valid = entries_0_shiftCtrl_valid;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_shiftCtrl_valid = io_allocateIn_payload_uop_decoded_shiftCtrl_valid;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_shiftCtrl_isRight = entries_0_shiftCtrl_isRight;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_shiftCtrl_isRight = io_allocateIn_payload_uop_decoded_shiftCtrl_isRight;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_shiftCtrl_isArithmetic = entries_0_shiftCtrl_isArithmetic;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_shiftCtrl_isArithmetic = io_allocateIn_payload_uop_decoded_shiftCtrl_isArithmetic;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_shiftCtrl_isRotate = entries_0_shiftCtrl_isRotate;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_shiftCtrl_isRotate = io_allocateIn_payload_uop_decoded_shiftCtrl_isRotate;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_shiftCtrl_isDoubleWord = entries_0_shiftCtrl_isDoubleWord;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_shiftCtrl_isDoubleWord = io_allocateIn_payload_uop_decoded_shiftCtrl_isDoubleWord;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_imm = entries_0_imm;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_imm = io_allocateIn_payload_uop_decoded_imm;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_0_immUsage = entries_0_immUsage;
-    if(io_allocateIn_fire) begin
-      if(_zz_3) begin
-        entriesNext_0_immUsage = io_allocateIn_payload_uop_decoded_immUsage;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_robPtr = entries_1_robPtr;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_robPtr = io_allocateIn_payload_uop_robPtr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_pc = entries_1_pc;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_pc = io_allocateIn_payload_uop_decoded_pc;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_physDest_idx = entries_1_physDest_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_physDest_idx = io_allocateIn_payload_uop_rename_physDest_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_physDestIsFpr = entries_1_physDestIsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_physDestIsFpr = io_allocateIn_payload_uop_rename_physDestIsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_writesToPhysReg = entries_1_writesToPhysReg;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_writesToPhysReg = io_allocateIn_payload_uop_rename_writesToPhysReg;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_useSrc1 = entries_1_useSrc1;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_useSrc1 = io_allocateIn_payload_uop_decoded_useArchSrc1;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src1Data = entries_1_src1Data;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src1Data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src1Tag = entries_1_src1Tag;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src1Tag = io_allocateIn_payload_uop_rename_physSrc1_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src1Ready = entries_1_src1Ready;
-    if(when_IssueQueueComponent_l192_1) begin
-      entriesNext_1_src1Ready = 1'b1;
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src1Ready = _zz_entriesNext_0_src1Ready;
-      end
-      if(_zz_4) begin
-        entriesNext_1_src1Ready = io_allocateIn_payload_src1InitialReady;
-      end
-      if(when_IssueQueueComponent_l217) begin
-        if(when_IssueQueueComponent_l218) begin
-          if(_zz_4) begin
-            entriesNext_1_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_1) begin
-        if(when_IssueQueueComponent_l218_1) begin
-          if(_zz_4) begin
-            entriesNext_1_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_2) begin
-        if(when_IssueQueueComponent_l218_2) begin
-          if(_zz_4) begin
-            entriesNext_1_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_3) begin
-        if(when_IssueQueueComponent_l218_3) begin
-          if(_zz_4) begin
-            entriesNext_1_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_4) begin
-        if(when_IssueQueueComponent_l218_4) begin
-          if(_zz_4) begin
-            entriesNext_1_src1Ready = 1'b1;
-          end
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src1IsFpr = entries_1_src1IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src1IsFpr = io_allocateIn_payload_uop_rename_physSrc1IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src1IsPc = entries_1_src1IsPc;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src1IsPc = io_allocateIn_payload_uop_decoded_src1IsPc;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_useSrc2 = entries_1_useSrc2;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_useSrc2 = io_allocateIn_payload_uop_decoded_useArchSrc2;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src2Data = entries_1_src2Data;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src2Data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src2Tag = entries_1_src2Tag;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src2Tag = io_allocateIn_payload_uop_rename_physSrc2_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src2Ready = entries_1_src2Ready;
-    if(when_IssueQueueComponent_l193_1) begin
-      entriesNext_1_src2Ready = 1'b1;
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src2Ready = _zz_entriesNext_0_src2Ready;
-      end
-      if(_zz_4) begin
-        entriesNext_1_src2Ready = io_allocateIn_payload_src2InitialReady;
-      end
-      if(when_IssueQueueComponent_l217) begin
-        if(when_IssueQueueComponent_l221) begin
-          if(_zz_4) begin
-            entriesNext_1_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_1) begin
-        if(when_IssueQueueComponent_l221_1) begin
-          if(_zz_4) begin
-            entriesNext_1_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_2) begin
-        if(when_IssueQueueComponent_l221_2) begin
-          if(_zz_4) begin
-            entriesNext_1_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_3) begin
-        if(when_IssueQueueComponent_l221_3) begin
-          if(_zz_4) begin
-            entriesNext_1_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_4) begin
-        if(when_IssueQueueComponent_l221_4) begin
-          if(_zz_4) begin
-            entriesNext_1_src2Ready = 1'b1;
-          end
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_src2IsFpr = entries_1_src2IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_src2IsFpr = io_allocateIn_payload_uop_rename_physSrc2IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_aluCtrl_valid = entries_1_aluCtrl_valid;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_aluCtrl_valid = io_allocateIn_payload_uop_decoded_aluCtrl_valid;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_aluCtrl_isSub = entries_1_aluCtrl_isSub;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_aluCtrl_isSub = io_allocateIn_payload_uop_decoded_aluCtrl_isSub;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_aluCtrl_isAdd = entries_1_aluCtrl_isAdd;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_aluCtrl_isAdd = io_allocateIn_payload_uop_decoded_aluCtrl_isAdd;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_aluCtrl_isSigned = entries_1_aluCtrl_isSigned;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_aluCtrl_isSigned = io_allocateIn_payload_uop_decoded_aluCtrl_isSigned;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_aluCtrl_logicOp = entries_1_aluCtrl_logicOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_aluCtrl_logicOp = io_allocateIn_payload_uop_decoded_aluCtrl_logicOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_aluCtrl_condition = entries_1_aluCtrl_condition;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_aluCtrl_condition = io_allocateIn_payload_uop_decoded_aluCtrl_condition;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_shiftCtrl_valid = entries_1_shiftCtrl_valid;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_shiftCtrl_valid = io_allocateIn_payload_uop_decoded_shiftCtrl_valid;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_shiftCtrl_isRight = entries_1_shiftCtrl_isRight;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_shiftCtrl_isRight = io_allocateIn_payload_uop_decoded_shiftCtrl_isRight;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_shiftCtrl_isArithmetic = entries_1_shiftCtrl_isArithmetic;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_shiftCtrl_isArithmetic = io_allocateIn_payload_uop_decoded_shiftCtrl_isArithmetic;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_shiftCtrl_isRotate = entries_1_shiftCtrl_isRotate;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_shiftCtrl_isRotate = io_allocateIn_payload_uop_decoded_shiftCtrl_isRotate;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_shiftCtrl_isDoubleWord = entries_1_shiftCtrl_isDoubleWord;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_shiftCtrl_isDoubleWord = io_allocateIn_payload_uop_decoded_shiftCtrl_isDoubleWord;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_imm = entries_1_imm;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_imm = io_allocateIn_payload_uop_decoded_imm;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_1_immUsage = entries_1_immUsage;
-    if(io_allocateIn_fire) begin
-      if(_zz_4) begin
-        entriesNext_1_immUsage = io_allocateIn_payload_uop_decoded_immUsage;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_robPtr = entries_2_robPtr;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_robPtr = io_allocateIn_payload_uop_robPtr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_pc = entries_2_pc;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_pc = io_allocateIn_payload_uop_decoded_pc;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_physDest_idx = entries_2_physDest_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_physDest_idx = io_allocateIn_payload_uop_rename_physDest_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_physDestIsFpr = entries_2_physDestIsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_physDestIsFpr = io_allocateIn_payload_uop_rename_physDestIsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_writesToPhysReg = entries_2_writesToPhysReg;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_writesToPhysReg = io_allocateIn_payload_uop_rename_writesToPhysReg;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_useSrc1 = entries_2_useSrc1;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_useSrc1 = io_allocateIn_payload_uop_decoded_useArchSrc1;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src1Data = entries_2_src1Data;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src1Data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src1Tag = entries_2_src1Tag;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src1Tag = io_allocateIn_payload_uop_rename_physSrc1_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src1Ready = entries_2_src1Ready;
-    if(when_IssueQueueComponent_l192_2) begin
-      entriesNext_2_src1Ready = 1'b1;
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src1Ready = _zz_entriesNext_0_src1Ready;
-      end
-      if(_zz_5) begin
-        entriesNext_2_src1Ready = io_allocateIn_payload_src1InitialReady;
-      end
-      if(when_IssueQueueComponent_l217) begin
-        if(when_IssueQueueComponent_l218) begin
-          if(_zz_5) begin
-            entriesNext_2_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_1) begin
-        if(when_IssueQueueComponent_l218_1) begin
-          if(_zz_5) begin
-            entriesNext_2_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_2) begin
-        if(when_IssueQueueComponent_l218_2) begin
-          if(_zz_5) begin
-            entriesNext_2_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_3) begin
-        if(when_IssueQueueComponent_l218_3) begin
-          if(_zz_5) begin
-            entriesNext_2_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_4) begin
-        if(when_IssueQueueComponent_l218_4) begin
-          if(_zz_5) begin
-            entriesNext_2_src1Ready = 1'b1;
-          end
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src1IsFpr = entries_2_src1IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src1IsFpr = io_allocateIn_payload_uop_rename_physSrc1IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src1IsPc = entries_2_src1IsPc;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src1IsPc = io_allocateIn_payload_uop_decoded_src1IsPc;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_useSrc2 = entries_2_useSrc2;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_useSrc2 = io_allocateIn_payload_uop_decoded_useArchSrc2;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src2Data = entries_2_src2Data;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src2Data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src2Tag = entries_2_src2Tag;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src2Tag = io_allocateIn_payload_uop_rename_physSrc2_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src2Ready = entries_2_src2Ready;
-    if(when_IssueQueueComponent_l193_2) begin
-      entriesNext_2_src2Ready = 1'b1;
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src2Ready = _zz_entriesNext_0_src2Ready;
-      end
-      if(_zz_5) begin
-        entriesNext_2_src2Ready = io_allocateIn_payload_src2InitialReady;
-      end
-      if(when_IssueQueueComponent_l217) begin
-        if(when_IssueQueueComponent_l221) begin
-          if(_zz_5) begin
-            entriesNext_2_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_1) begin
-        if(when_IssueQueueComponent_l221_1) begin
-          if(_zz_5) begin
-            entriesNext_2_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_2) begin
-        if(when_IssueQueueComponent_l221_2) begin
-          if(_zz_5) begin
-            entriesNext_2_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_3) begin
-        if(when_IssueQueueComponent_l221_3) begin
-          if(_zz_5) begin
-            entriesNext_2_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_4) begin
-        if(when_IssueQueueComponent_l221_4) begin
-          if(_zz_5) begin
-            entriesNext_2_src2Ready = 1'b1;
-          end
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_src2IsFpr = entries_2_src2IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_src2IsFpr = io_allocateIn_payload_uop_rename_physSrc2IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_aluCtrl_valid = entries_2_aluCtrl_valid;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_aluCtrl_valid = io_allocateIn_payload_uop_decoded_aluCtrl_valid;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_aluCtrl_isSub = entries_2_aluCtrl_isSub;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_aluCtrl_isSub = io_allocateIn_payload_uop_decoded_aluCtrl_isSub;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_aluCtrl_isAdd = entries_2_aluCtrl_isAdd;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_aluCtrl_isAdd = io_allocateIn_payload_uop_decoded_aluCtrl_isAdd;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_aluCtrl_isSigned = entries_2_aluCtrl_isSigned;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_aluCtrl_isSigned = io_allocateIn_payload_uop_decoded_aluCtrl_isSigned;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_aluCtrl_logicOp = entries_2_aluCtrl_logicOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_aluCtrl_logicOp = io_allocateIn_payload_uop_decoded_aluCtrl_logicOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_aluCtrl_condition = entries_2_aluCtrl_condition;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_aluCtrl_condition = io_allocateIn_payload_uop_decoded_aluCtrl_condition;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_shiftCtrl_valid = entries_2_shiftCtrl_valid;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_shiftCtrl_valid = io_allocateIn_payload_uop_decoded_shiftCtrl_valid;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_shiftCtrl_isRight = entries_2_shiftCtrl_isRight;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_shiftCtrl_isRight = io_allocateIn_payload_uop_decoded_shiftCtrl_isRight;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_shiftCtrl_isArithmetic = entries_2_shiftCtrl_isArithmetic;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_shiftCtrl_isArithmetic = io_allocateIn_payload_uop_decoded_shiftCtrl_isArithmetic;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_shiftCtrl_isRotate = entries_2_shiftCtrl_isRotate;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_shiftCtrl_isRotate = io_allocateIn_payload_uop_decoded_shiftCtrl_isRotate;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_shiftCtrl_isDoubleWord = entries_2_shiftCtrl_isDoubleWord;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_shiftCtrl_isDoubleWord = io_allocateIn_payload_uop_decoded_shiftCtrl_isDoubleWord;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_imm = entries_2_imm;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_imm = io_allocateIn_payload_uop_decoded_imm;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_2_immUsage = entries_2_immUsage;
-    if(io_allocateIn_fire) begin
-      if(_zz_5) begin
-        entriesNext_2_immUsage = io_allocateIn_payload_uop_decoded_immUsage;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_robPtr = entries_3_robPtr;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_robPtr = io_allocateIn_payload_uop_robPtr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_pc = entries_3_pc;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_pc = io_allocateIn_payload_uop_decoded_pc;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_physDest_idx = entries_3_physDest_idx;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_physDest_idx = io_allocateIn_payload_uop_rename_physDest_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_physDestIsFpr = entries_3_physDestIsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_physDestIsFpr = io_allocateIn_payload_uop_rename_physDestIsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_writesToPhysReg = entries_3_writesToPhysReg;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_writesToPhysReg = io_allocateIn_payload_uop_rename_writesToPhysReg;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_useSrc1 = entries_3_useSrc1;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_useSrc1 = io_allocateIn_payload_uop_decoded_useArchSrc1;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src1Data = entries_3_src1Data;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src1Data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src1Tag = entries_3_src1Tag;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src1Tag = io_allocateIn_payload_uop_rename_physSrc1_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src1Ready = entries_3_src1Ready;
-    if(when_IssueQueueComponent_l192_3) begin
-      entriesNext_3_src1Ready = 1'b1;
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src1Ready = _zz_entriesNext_0_src1Ready;
-      end
-      if(_zz_6) begin
-        entriesNext_3_src1Ready = io_allocateIn_payload_src1InitialReady;
-      end
-      if(when_IssueQueueComponent_l217) begin
-        if(when_IssueQueueComponent_l218) begin
-          if(_zz_6) begin
-            entriesNext_3_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_1) begin
-        if(when_IssueQueueComponent_l218_1) begin
-          if(_zz_6) begin
-            entriesNext_3_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_2) begin
-        if(when_IssueQueueComponent_l218_2) begin
-          if(_zz_6) begin
-            entriesNext_3_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_3) begin
-        if(when_IssueQueueComponent_l218_3) begin
-          if(_zz_6) begin
-            entriesNext_3_src1Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_4) begin
-        if(when_IssueQueueComponent_l218_4) begin
-          if(_zz_6) begin
-            entriesNext_3_src1Ready = 1'b1;
-          end
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src1IsFpr = entries_3_src1IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src1IsFpr = io_allocateIn_payload_uop_rename_physSrc1IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src1IsPc = entries_3_src1IsPc;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src1IsPc = io_allocateIn_payload_uop_decoded_src1IsPc;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_useSrc2 = entries_3_useSrc2;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_useSrc2 = io_allocateIn_payload_uop_decoded_useArchSrc2;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src2Data = entries_3_src2Data;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src2Data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src2Tag = entries_3_src2Tag;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src2Tag = io_allocateIn_payload_uop_rename_physSrc2_idx;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src2Ready = entries_3_src2Ready;
-    if(when_IssueQueueComponent_l193_3) begin
-      entriesNext_3_src2Ready = 1'b1;
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src2Ready = _zz_entriesNext_0_src2Ready;
-      end
-      if(_zz_6) begin
-        entriesNext_3_src2Ready = io_allocateIn_payload_src2InitialReady;
-      end
-      if(when_IssueQueueComponent_l217) begin
-        if(when_IssueQueueComponent_l221) begin
-          if(_zz_6) begin
-            entriesNext_3_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_1) begin
-        if(when_IssueQueueComponent_l221_1) begin
-          if(_zz_6) begin
-            entriesNext_3_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_2) begin
-        if(when_IssueQueueComponent_l221_2) begin
-          if(_zz_6) begin
-            entriesNext_3_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_3) begin
-        if(when_IssueQueueComponent_l221_3) begin
-          if(_zz_6) begin
-            entriesNext_3_src2Ready = 1'b1;
-          end
-        end
-      end
-      if(when_IssueQueueComponent_l217_4) begin
-        if(when_IssueQueueComponent_l221_4) begin
-          if(_zz_6) begin
-            entriesNext_3_src2Ready = 1'b1;
-          end
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_src2IsFpr = entries_3_src2IsFpr;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_src2IsFpr = io_allocateIn_payload_uop_rename_physSrc2IsFpr;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_aluCtrl_valid = entries_3_aluCtrl_valid;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_aluCtrl_valid = io_allocateIn_payload_uop_decoded_aluCtrl_valid;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_aluCtrl_isSub = entries_3_aluCtrl_isSub;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_aluCtrl_isSub = io_allocateIn_payload_uop_decoded_aluCtrl_isSub;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_aluCtrl_isAdd = entries_3_aluCtrl_isAdd;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_aluCtrl_isAdd = io_allocateIn_payload_uop_decoded_aluCtrl_isAdd;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_aluCtrl_isSigned = entries_3_aluCtrl_isSigned;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_aluCtrl_isSigned = io_allocateIn_payload_uop_decoded_aluCtrl_isSigned;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_aluCtrl_logicOp = entries_3_aluCtrl_logicOp;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_aluCtrl_logicOp = io_allocateIn_payload_uop_decoded_aluCtrl_logicOp;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_aluCtrl_condition = entries_3_aluCtrl_condition;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_aluCtrl_condition = io_allocateIn_payload_uop_decoded_aluCtrl_condition;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_shiftCtrl_valid = entries_3_shiftCtrl_valid;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_shiftCtrl_valid = io_allocateIn_payload_uop_decoded_shiftCtrl_valid;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_shiftCtrl_isRight = entries_3_shiftCtrl_isRight;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_shiftCtrl_isRight = io_allocateIn_payload_uop_decoded_shiftCtrl_isRight;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_shiftCtrl_isArithmetic = entries_3_shiftCtrl_isArithmetic;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_shiftCtrl_isArithmetic = io_allocateIn_payload_uop_decoded_shiftCtrl_isArithmetic;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_shiftCtrl_isRotate = entries_3_shiftCtrl_isRotate;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_shiftCtrl_isRotate = io_allocateIn_payload_uop_decoded_shiftCtrl_isRotate;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_shiftCtrl_isDoubleWord = entries_3_shiftCtrl_isDoubleWord;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_shiftCtrl_isDoubleWord = io_allocateIn_payload_uop_decoded_shiftCtrl_isDoubleWord;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_imm = entries_3_imm;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_imm = io_allocateIn_payload_uop_decoded_imm;
-      end
-    end
-  end
-
-  always @(*) begin
-    entriesNext_3_immUsage = entries_3_immUsage;
-    if(io_allocateIn_fire) begin
-      if(_zz_6) begin
-        entriesNext_3_immUsage = io_allocateIn_payload_uop_decoded_immUsage;
-      end
-    end
-  end
-
-  always @(*) begin
-    entryValidsNext_0 = entryValids_0;
-    if(io_issueOut_fire) begin
-      if(_zz_1[0]) begin
-        entryValidsNext_0 = 1'b0;
-      end
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_7[0]) begin
-        entryValidsNext_0 = 1'b1;
-      end
-    end
-    if(io_flush) begin
-      entryValidsNext_0 = 1'b0;
-    end
-  end
-
-  always @(*) begin
-    entryValidsNext_1 = entryValids_1;
-    if(io_issueOut_fire) begin
-      if(_zz_1[1]) begin
-        entryValidsNext_1 = 1'b0;
-      end
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_7[1]) begin
-        entryValidsNext_1 = 1'b1;
-      end
-    end
-    if(io_flush) begin
-      entryValidsNext_1 = 1'b0;
-    end
-  end
-
-  always @(*) begin
-    entryValidsNext_2 = entryValids_2;
-    if(io_issueOut_fire) begin
-      if(_zz_1[2]) begin
-        entryValidsNext_2 = 1'b0;
-      end
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_7[2]) begin
-        entryValidsNext_2 = 1'b1;
-      end
-    end
-    if(io_flush) begin
-      entryValidsNext_2 = 1'b0;
-    end
-  end
-
-  always @(*) begin
-    entryValidsNext_3 = entryValids_3;
-    if(io_issueOut_fire) begin
-      if(_zz_1[3]) begin
-        entryValidsNext_3 = 1'b0;
-      end
-    end
-    if(io_allocateIn_fire) begin
-      if(_zz_7[3]) begin
-        entryValidsNext_3 = 1'b1;
-      end
-    end
-    if(io_flush) begin
-      entryValidsNext_3 = 1'b0;
-    end
-  end
-
-  assign when_IssueQueueComponent_l192 = wokeUpSrc1Mask[0];
-  assign when_IssueQueueComponent_l193 = wokeUpSrc2Mask[0];
-  assign when_IssueQueueComponent_l192_1 = wokeUpSrc1Mask[1];
-  assign when_IssueQueueComponent_l193_1 = wokeUpSrc2Mask[1];
-  assign when_IssueQueueComponent_l192_2 = wokeUpSrc1Mask[2];
-  assign when_IssueQueueComponent_l193_2 = wokeUpSrc2Mask[2];
-  assign when_IssueQueueComponent_l192_3 = wokeUpSrc1Mask[3];
-  assign when_IssueQueueComponent_l193_3 = wokeUpSrc2Mask[3];
-  assign _zz_1 = ({3'd0,1'b1} <<< issueIdx);
   assign io_allocateIn_fire = (io_allocateIn_valid && io_allocateIn_ready);
-  assign _zz_2 = ({3'd0,1'b1} <<< allocateIdx);
-  assign _zz_3 = _zz_2[0];
-  assign _zz_4 = _zz_2[1];
-  assign _zz_5 = _zz_2[2];
-  assign _zz_6 = _zz_2[3];
-  assign _zz_entriesNext_0_src1Ready = (! io_allocateIn_payload_uop_decoded_useArchSrc1);
-  assign _zz_entriesNext_0_src2Ready = (! io_allocateIn_payload_uop_decoded_useArchSrc2);
-  assign _zz_7 = ({3'd0,1'b1} <<< allocateIdx);
-  assign when_IssueQueueComponent_l217 = (wakeupInReg_0_valid && (! io_flush));
-  assign when_IssueQueueComponent_l218 = ((io_allocateIn_payload_uop_decoded_useArchSrc1 && (! io_allocateIn_payload_src1InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_0_payload_physRegIdx));
-  assign when_IssueQueueComponent_l221 = ((io_allocateIn_payload_uop_decoded_useArchSrc2 && (! io_allocateIn_payload_src2InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_0_payload_physRegIdx));
-  assign when_IssueQueueComponent_l217_1 = (wakeupInReg_1_valid && (! io_flush));
-  assign when_IssueQueueComponent_l218_1 = ((io_allocateIn_payload_uop_decoded_useArchSrc1 && (! io_allocateIn_payload_src1InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_1_payload_physRegIdx));
-  assign when_IssueQueueComponent_l221_1 = ((io_allocateIn_payload_uop_decoded_useArchSrc2 && (! io_allocateIn_payload_src2InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_1_payload_physRegIdx));
-  assign when_IssueQueueComponent_l217_2 = (wakeupInReg_2_valid && (! io_flush));
-  assign when_IssueQueueComponent_l218_2 = ((io_allocateIn_payload_uop_decoded_useArchSrc1 && (! io_allocateIn_payload_src1InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_2_payload_physRegIdx));
-  assign when_IssueQueueComponent_l221_2 = ((io_allocateIn_payload_uop_decoded_useArchSrc2 && (! io_allocateIn_payload_src2InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_2_payload_physRegIdx));
-  assign when_IssueQueueComponent_l217_3 = (wakeupInReg_3_valid && (! io_flush));
-  assign when_IssueQueueComponent_l218_3 = ((io_allocateIn_payload_uop_decoded_useArchSrc1 && (! io_allocateIn_payload_src1InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_3_payload_physRegIdx));
-  assign when_IssueQueueComponent_l221_3 = ((io_allocateIn_payload_uop_decoded_useArchSrc2 && (! io_allocateIn_payload_src2InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_3_payload_physRegIdx));
-  assign when_IssueQueueComponent_l217_4 = (wakeupInReg_4_valid && (! io_flush));
-  assign when_IssueQueueComponent_l218_4 = ((io_allocateIn_payload_uop_decoded_useArchSrc1 && (! io_allocateIn_payload_src1InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_4_payload_physRegIdx));
-  assign when_IssueQueueComponent_l221_4 = ((io_allocateIn_payload_uop_decoded_useArchSrc2 && (! io_allocateIn_payload_src2InitialReady)) && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_4_payload_physRegIdx));
+  assign when_IssueQueueComponent_l191 = (io_allocateIn_fire && (allocateIdx == 2'b00));
+  assign when_IssueQueueComponent_l206 = (io_issueOut_fire && (issueIdx == 2'b00));
+  assign when_IssueQueueComponent_l214 = wokeUpSrc1Mask[0];
+  assign when_IssueQueueComponent_l215 = wokeUpSrc2Mask[0];
+  assign when_IssueQueueComponent_l191_1 = (io_allocateIn_fire && (allocateIdx == 2'b01));
+  assign when_IssueQueueComponent_l206_1 = (io_issueOut_fire && (issueIdx == 2'b01));
+  assign when_IssueQueueComponent_l214_1 = wokeUpSrc1Mask[1];
+  assign when_IssueQueueComponent_l215_1 = wokeUpSrc2Mask[1];
+  assign when_IssueQueueComponent_l191_2 = (io_allocateIn_fire && (allocateIdx == 2'b10));
+  assign when_IssueQueueComponent_l206_2 = (io_issueOut_fire && (issueIdx == 2'b10));
+  assign when_IssueQueueComponent_l214_2 = wokeUpSrc1Mask[2];
+  assign when_IssueQueueComponent_l215_2 = wokeUpSrc2Mask[2];
+  assign when_IssueQueueComponent_l191_3 = (io_allocateIn_fire && (allocateIdx == 2'b11));
+  assign when_IssueQueueComponent_l206_3 = (io_issueOut_fire && (issueIdx == 2'b11));
+  assign when_IssueQueueComponent_l214_3 = wokeUpSrc1Mask[3];
+  assign when_IssueQueueComponent_l215_3 = wokeUpSrc2Mask[3];
   assign _zz_currentValidCount = 3'b000;
   assign _zz_currentValidCount_1 = 3'b001;
   assign _zz_currentValidCount_2 = 3'b001;
@@ -54433,7 +43883,7 @@ module IssueQueueComponent (
   assign _zz_currentValidCount_7 = 3'b011;
   assign currentValidCount = (_zz_currentValidCount_8 + _zz_currentValidCount_10);
   assign logCondition = (io_allocateIn_fire || io_issueOut_fire);
-  assign when_IssueQueueComponent_l262 = (logCondition && (3'b000 < currentValidCount));
+  assign when_IssueQueueComponent_l244 = (logCondition && (3'b000 < currentValidCount));
   always @(posedge clk) begin
     if(reset) begin
       wakeupInReg_0_valid <= 1'b0;
@@ -54475,29 +43925,59 @@ module IssueQueueComponent (
         wakeupInReg_4_valid <= _zz_wakeupInReg_4_valid[0];
         wakeupInReg_4_payload_physRegIdx <= _zz_wakeupInReg_4_payload_physRegIdx[5 : 0];
       end
-      entryValids_0 <= entryValidsNext_0;
-      entryValids_1 <= entryValidsNext_1;
-      entryValids_2 <= entryValidsNext_2;
-      entryValids_3 <= entryValidsNext_3;
+      if(when_IssueQueueComponent_l191) begin
+        entryValids_0 <= 1'b1;
+      end else begin
+        if(when_IssueQueueComponent_l206) begin
+          entryValids_0 <= 1'b0;
+        end
+      end
+      if(when_IssueQueueComponent_l191_1) begin
+        entryValids_1 <= 1'b1;
+      end else begin
+        if(when_IssueQueueComponent_l206_1) begin
+          entryValids_1 <= 1'b0;
+        end
+      end
+      if(when_IssueQueueComponent_l191_2) begin
+        entryValids_2 <= 1'b1;
+      end else begin
+        if(when_IssueQueueComponent_l206_2) begin
+          entryValids_2 <= 1'b0;
+        end
+      end
+      if(when_IssueQueueComponent_l191_3) begin
+        entryValids_3 <= 1'b1;
+      end else begin
+        if(when_IssueQueueComponent_l206_3) begin
+          entryValids_3 <= 1'b0;
+        end
+      end
+      if(io_flush) begin
+        entryValids_0 <= 1'b0;
+        entryValids_1 <= 1'b0;
+        entryValids_2 <= 1'b0;
+        entryValids_3 <= 1'b0;
+      end
       if(logCondition) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // IssueQueueComponent.scala:L253
+            assert(1'b0); // IssueQueueComponent.scala:L235
           `else
             if(!1'b0) begin
-              $display("NOTE(IssueQueueComponent.scala:253):  [normal] AluIntEU_IQ-0: STATUS - ValidCount=%x, allocateIn(valid=%x, ready=%x), issueOut(valid=%x, ready=%x)", currentValidCount, io_allocateIn_valid, io_allocateIn_ready, io_issueOut_valid, io_issueOut_ready); // IssueQueueComponent.scala:L253
+              $display("NOTE(IssueQueueComponent.scala:235):  [normal] AluIntEU_IQ-0: STATUS - ValidCount=%x, allocateIn(valid=%x, ready=%x), issueOut(valid=%x, ready=%x)", currentValidCount, io_allocateIn_valid, io_allocateIn_ready, io_issueOut_valid, io_issueOut_ready); // IssueQueueComponent.scala:L235
             end
           `endif
         `endif
       end
-      if(when_IssueQueueComponent_l262) begin
+      if(when_IssueQueueComponent_l244) begin
         if(entryValids_0) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // IssueQueueComponent.scala:L265
+              assert(1'b0); // IssueQueueComponent.scala:L247
             `else
               if(!1'b0) begin
-                $display("NOTE(IssueQueueComponent.scala:265):  [normal] AluIntEU_IQ-0: (LAST CYCLE) ENTRY[0] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_0_robPtr, entries_0_physDest_idx, entries_0_useSrc1, entries_0_src1Tag, entries_0_src1Ready, entries_0_useSrc2, entries_0_src2Tag, entries_0_src2Ready); // IssueQueueComponent.scala:L265
+                $display("NOTE(IssueQueueComponent.scala:247):  [normal] AluIntEU_IQ-0: (LAST CYCLE) ENTRY[0] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_0_robPtr, entries_0_physDest_idx, entries_0_useSrc1, entries_0_src1Tag, entries_0_src1Ready, entries_0_useSrc2, entries_0_src2Tag, entries_0_src2Ready); // IssueQueueComponent.scala:L247
               end
             `endif
           `endif
@@ -54505,10 +43985,10 @@ module IssueQueueComponent (
         if(entryValids_1) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // IssueQueueComponent.scala:L265
+              assert(1'b0); // IssueQueueComponent.scala:L247
             `else
               if(!1'b0) begin
-                $display("NOTE(IssueQueueComponent.scala:265):  [normal] AluIntEU_IQ-0: (LAST CYCLE) ENTRY[1] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_1_robPtr, entries_1_physDest_idx, entries_1_useSrc1, entries_1_src1Tag, entries_1_src1Ready, entries_1_useSrc2, entries_1_src2Tag, entries_1_src2Ready); // IssueQueueComponent.scala:L265
+                $display("NOTE(IssueQueueComponent.scala:247):  [normal] AluIntEU_IQ-0: (LAST CYCLE) ENTRY[1] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_1_robPtr, entries_1_physDest_idx, entries_1_useSrc1, entries_1_src1Tag, entries_1_src1Ready, entries_1_useSrc2, entries_1_src2Tag, entries_1_src2Ready); // IssueQueueComponent.scala:L247
               end
             `endif
           `endif
@@ -54516,10 +43996,10 @@ module IssueQueueComponent (
         if(entryValids_2) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // IssueQueueComponent.scala:L265
+              assert(1'b0); // IssueQueueComponent.scala:L247
             `else
               if(!1'b0) begin
-                $display("NOTE(IssueQueueComponent.scala:265):  [normal] AluIntEU_IQ-0: (LAST CYCLE) ENTRY[2] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_2_robPtr, entries_2_physDest_idx, entries_2_useSrc1, entries_2_src1Tag, entries_2_src1Ready, entries_2_useSrc2, entries_2_src2Tag, entries_2_src2Ready); // IssueQueueComponent.scala:L265
+                $display("NOTE(IssueQueueComponent.scala:247):  [normal] AluIntEU_IQ-0: (LAST CYCLE) ENTRY[2] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_2_robPtr, entries_2_physDest_idx, entries_2_useSrc1, entries_2_src1Tag, entries_2_src1Ready, entries_2_useSrc2, entries_2_src2Tag, entries_2_src2Ready); // IssueQueueComponent.scala:L247
               end
             `endif
           `endif
@@ -54527,10 +44007,10 @@ module IssueQueueComponent (
         if(entryValids_3) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // IssueQueueComponent.scala:L265
+              assert(1'b0); // IssueQueueComponent.scala:L247
             `else
               if(!1'b0) begin
-                $display("NOTE(IssueQueueComponent.scala:265):  [normal] AluIntEU_IQ-0: (LAST CYCLE) ENTRY[3] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_3_robPtr, entries_3_physDest_idx, entries_3_useSrc1, entries_3_src1Tag, entries_3_src1Ready, entries_3_useSrc2, entries_3_src2Tag, entries_3_src2Ready); // IssueQueueComponent.scala:L265
+                $display("NOTE(IssueQueueComponent.scala:247):  [normal] AluIntEU_IQ-0: (LAST CYCLE) ENTRY[3] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_3_robPtr, entries_3_physDest_idx, entries_3_useSrc1, entries_3_src1Tag, entries_3_src1Ready, entries_3_useSrc2, entries_3_src2Tag, entries_3_src2Ready); // IssueQueueComponent.scala:L247
               end
             `endif
           `endif
@@ -54540,122 +44020,174 @@ module IssueQueueComponent (
   end
 
   always @(posedge clk) begin
-    entries_0_robPtr <= entriesNext_0_robPtr;
-    entries_0_pc <= entriesNext_0_pc;
-    entries_0_physDest_idx <= entriesNext_0_physDest_idx;
-    entries_0_physDestIsFpr <= entriesNext_0_physDestIsFpr;
-    entries_0_writesToPhysReg <= entriesNext_0_writesToPhysReg;
-    entries_0_useSrc1 <= entriesNext_0_useSrc1;
-    entries_0_src1Data <= entriesNext_0_src1Data;
-    entries_0_src1Tag <= entriesNext_0_src1Tag;
-    entries_0_src1Ready <= entriesNext_0_src1Ready;
-    entries_0_src1IsFpr <= entriesNext_0_src1IsFpr;
-    entries_0_src1IsPc <= entriesNext_0_src1IsPc;
-    entries_0_useSrc2 <= entriesNext_0_useSrc2;
-    entries_0_src2Data <= entriesNext_0_src2Data;
-    entries_0_src2Tag <= entriesNext_0_src2Tag;
-    entries_0_src2Ready <= entriesNext_0_src2Ready;
-    entries_0_src2IsFpr <= entriesNext_0_src2IsFpr;
-    entries_0_aluCtrl_valid <= entriesNext_0_aluCtrl_valid;
-    entries_0_aluCtrl_isSub <= entriesNext_0_aluCtrl_isSub;
-    entries_0_aluCtrl_isAdd <= entriesNext_0_aluCtrl_isAdd;
-    entries_0_aluCtrl_isSigned <= entriesNext_0_aluCtrl_isSigned;
-    entries_0_aluCtrl_logicOp <= entriesNext_0_aluCtrl_logicOp;
-    entries_0_aluCtrl_condition <= entriesNext_0_aluCtrl_condition;
-    entries_0_shiftCtrl_valid <= entriesNext_0_shiftCtrl_valid;
-    entries_0_shiftCtrl_isRight <= entriesNext_0_shiftCtrl_isRight;
-    entries_0_shiftCtrl_isArithmetic <= entriesNext_0_shiftCtrl_isArithmetic;
-    entries_0_shiftCtrl_isRotate <= entriesNext_0_shiftCtrl_isRotate;
-    entries_0_shiftCtrl_isDoubleWord <= entriesNext_0_shiftCtrl_isDoubleWord;
-    entries_0_imm <= entriesNext_0_imm;
-    entries_0_immUsage <= entriesNext_0_immUsage;
-    entries_1_robPtr <= entriesNext_1_robPtr;
-    entries_1_pc <= entriesNext_1_pc;
-    entries_1_physDest_idx <= entriesNext_1_physDest_idx;
-    entries_1_physDestIsFpr <= entriesNext_1_physDestIsFpr;
-    entries_1_writesToPhysReg <= entriesNext_1_writesToPhysReg;
-    entries_1_useSrc1 <= entriesNext_1_useSrc1;
-    entries_1_src1Data <= entriesNext_1_src1Data;
-    entries_1_src1Tag <= entriesNext_1_src1Tag;
-    entries_1_src1Ready <= entriesNext_1_src1Ready;
-    entries_1_src1IsFpr <= entriesNext_1_src1IsFpr;
-    entries_1_src1IsPc <= entriesNext_1_src1IsPc;
-    entries_1_useSrc2 <= entriesNext_1_useSrc2;
-    entries_1_src2Data <= entriesNext_1_src2Data;
-    entries_1_src2Tag <= entriesNext_1_src2Tag;
-    entries_1_src2Ready <= entriesNext_1_src2Ready;
-    entries_1_src2IsFpr <= entriesNext_1_src2IsFpr;
-    entries_1_aluCtrl_valid <= entriesNext_1_aluCtrl_valid;
-    entries_1_aluCtrl_isSub <= entriesNext_1_aluCtrl_isSub;
-    entries_1_aluCtrl_isAdd <= entriesNext_1_aluCtrl_isAdd;
-    entries_1_aluCtrl_isSigned <= entriesNext_1_aluCtrl_isSigned;
-    entries_1_aluCtrl_logicOp <= entriesNext_1_aluCtrl_logicOp;
-    entries_1_aluCtrl_condition <= entriesNext_1_aluCtrl_condition;
-    entries_1_shiftCtrl_valid <= entriesNext_1_shiftCtrl_valid;
-    entries_1_shiftCtrl_isRight <= entriesNext_1_shiftCtrl_isRight;
-    entries_1_shiftCtrl_isArithmetic <= entriesNext_1_shiftCtrl_isArithmetic;
-    entries_1_shiftCtrl_isRotate <= entriesNext_1_shiftCtrl_isRotate;
-    entries_1_shiftCtrl_isDoubleWord <= entriesNext_1_shiftCtrl_isDoubleWord;
-    entries_1_imm <= entriesNext_1_imm;
-    entries_1_immUsage <= entriesNext_1_immUsage;
-    entries_2_robPtr <= entriesNext_2_robPtr;
-    entries_2_pc <= entriesNext_2_pc;
-    entries_2_physDest_idx <= entriesNext_2_physDest_idx;
-    entries_2_physDestIsFpr <= entriesNext_2_physDestIsFpr;
-    entries_2_writesToPhysReg <= entriesNext_2_writesToPhysReg;
-    entries_2_useSrc1 <= entriesNext_2_useSrc1;
-    entries_2_src1Data <= entriesNext_2_src1Data;
-    entries_2_src1Tag <= entriesNext_2_src1Tag;
-    entries_2_src1Ready <= entriesNext_2_src1Ready;
-    entries_2_src1IsFpr <= entriesNext_2_src1IsFpr;
-    entries_2_src1IsPc <= entriesNext_2_src1IsPc;
-    entries_2_useSrc2 <= entriesNext_2_useSrc2;
-    entries_2_src2Data <= entriesNext_2_src2Data;
-    entries_2_src2Tag <= entriesNext_2_src2Tag;
-    entries_2_src2Ready <= entriesNext_2_src2Ready;
-    entries_2_src2IsFpr <= entriesNext_2_src2IsFpr;
-    entries_2_aluCtrl_valid <= entriesNext_2_aluCtrl_valid;
-    entries_2_aluCtrl_isSub <= entriesNext_2_aluCtrl_isSub;
-    entries_2_aluCtrl_isAdd <= entriesNext_2_aluCtrl_isAdd;
-    entries_2_aluCtrl_isSigned <= entriesNext_2_aluCtrl_isSigned;
-    entries_2_aluCtrl_logicOp <= entriesNext_2_aluCtrl_logicOp;
-    entries_2_aluCtrl_condition <= entriesNext_2_aluCtrl_condition;
-    entries_2_shiftCtrl_valid <= entriesNext_2_shiftCtrl_valid;
-    entries_2_shiftCtrl_isRight <= entriesNext_2_shiftCtrl_isRight;
-    entries_2_shiftCtrl_isArithmetic <= entriesNext_2_shiftCtrl_isArithmetic;
-    entries_2_shiftCtrl_isRotate <= entriesNext_2_shiftCtrl_isRotate;
-    entries_2_shiftCtrl_isDoubleWord <= entriesNext_2_shiftCtrl_isDoubleWord;
-    entries_2_imm <= entriesNext_2_imm;
-    entries_2_immUsage <= entriesNext_2_immUsage;
-    entries_3_robPtr <= entriesNext_3_robPtr;
-    entries_3_pc <= entriesNext_3_pc;
-    entries_3_physDest_idx <= entriesNext_3_physDest_idx;
-    entries_3_physDestIsFpr <= entriesNext_3_physDestIsFpr;
-    entries_3_writesToPhysReg <= entriesNext_3_writesToPhysReg;
-    entries_3_useSrc1 <= entriesNext_3_useSrc1;
-    entries_3_src1Data <= entriesNext_3_src1Data;
-    entries_3_src1Tag <= entriesNext_3_src1Tag;
-    entries_3_src1Ready <= entriesNext_3_src1Ready;
-    entries_3_src1IsFpr <= entriesNext_3_src1IsFpr;
-    entries_3_src1IsPc <= entriesNext_3_src1IsPc;
-    entries_3_useSrc2 <= entriesNext_3_useSrc2;
-    entries_3_src2Data <= entriesNext_3_src2Data;
-    entries_3_src2Tag <= entriesNext_3_src2Tag;
-    entries_3_src2Ready <= entriesNext_3_src2Ready;
-    entries_3_src2IsFpr <= entriesNext_3_src2IsFpr;
-    entries_3_aluCtrl_valid <= entriesNext_3_aluCtrl_valid;
-    entries_3_aluCtrl_isSub <= entriesNext_3_aluCtrl_isSub;
-    entries_3_aluCtrl_isAdd <= entriesNext_3_aluCtrl_isAdd;
-    entries_3_aluCtrl_isSigned <= entriesNext_3_aluCtrl_isSigned;
-    entries_3_aluCtrl_logicOp <= entriesNext_3_aluCtrl_logicOp;
-    entries_3_aluCtrl_condition <= entriesNext_3_aluCtrl_condition;
-    entries_3_shiftCtrl_valid <= entriesNext_3_shiftCtrl_valid;
-    entries_3_shiftCtrl_isRight <= entriesNext_3_shiftCtrl_isRight;
-    entries_3_shiftCtrl_isArithmetic <= entriesNext_3_shiftCtrl_isArithmetic;
-    entries_3_shiftCtrl_isRotate <= entriesNext_3_shiftCtrl_isRotate;
-    entries_3_shiftCtrl_isDoubleWord <= entriesNext_3_shiftCtrl_isDoubleWord;
-    entries_3_imm <= entriesNext_3_imm;
-    entries_3_immUsage <= entriesNext_3_immUsage;
+    if(when_IssueQueueComponent_l191) begin
+      entries_0_robPtr <= io_allocateIn_payload_uop_robPtr;
+      entries_0_pc <= io_allocateIn_payload_uop_decoded_pc;
+      entries_0_physDest_idx <= io_allocateIn_payload_uop_rename_physDest_idx;
+      entries_0_physDestIsFpr <= io_allocateIn_payload_uop_rename_physDestIsFpr;
+      entries_0_writesToPhysReg <= io_allocateIn_payload_uop_rename_writesToPhysReg;
+      entries_0_useSrc1 <= io_allocateIn_payload_uop_decoded_useArchSrc1;
+      entries_0_src1Tag <= io_allocateIn_payload_uop_rename_physSrc1_idx;
+      entries_0_src1Ready <= (! io_allocateIn_payload_uop_decoded_useArchSrc1);
+      entries_0_src1IsFpr <= io_allocateIn_payload_uop_rename_physSrc1IsFpr;
+      entries_0_src1IsPc <= io_allocateIn_payload_uop_decoded_src1IsPc;
+      entries_0_useSrc2 <= io_allocateIn_payload_uop_decoded_useArchSrc2;
+      entries_0_src2Tag <= io_allocateIn_payload_uop_rename_physSrc2_idx;
+      entries_0_src2Ready <= (! io_allocateIn_payload_uop_decoded_useArchSrc2);
+      entries_0_src2IsFpr <= io_allocateIn_payload_uop_rename_physSrc2IsFpr;
+      entries_0_src1Data <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      entries_0_src2Data <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      entries_0_aluCtrl_valid <= io_allocateIn_payload_uop_decoded_aluCtrl_valid;
+      entries_0_aluCtrl_isSub <= io_allocateIn_payload_uop_decoded_aluCtrl_isSub;
+      entries_0_aluCtrl_isAdd <= io_allocateIn_payload_uop_decoded_aluCtrl_isAdd;
+      entries_0_aluCtrl_isSigned <= io_allocateIn_payload_uop_decoded_aluCtrl_isSigned;
+      entries_0_aluCtrl_logicOp <= io_allocateIn_payload_uop_decoded_aluCtrl_logicOp;
+      entries_0_aluCtrl_condition <= io_allocateIn_payload_uop_decoded_aluCtrl_condition;
+      entries_0_shiftCtrl_valid <= io_allocateIn_payload_uop_decoded_shiftCtrl_valid;
+      entries_0_shiftCtrl_isRight <= io_allocateIn_payload_uop_decoded_shiftCtrl_isRight;
+      entries_0_shiftCtrl_isArithmetic <= io_allocateIn_payload_uop_decoded_shiftCtrl_isArithmetic;
+      entries_0_shiftCtrl_isRotate <= io_allocateIn_payload_uop_decoded_shiftCtrl_isRotate;
+      entries_0_shiftCtrl_isDoubleWord <= io_allocateIn_payload_uop_decoded_shiftCtrl_isDoubleWord;
+      entries_0_imm <= io_allocateIn_payload_uop_decoded_imm;
+      entries_0_immUsage <= io_allocateIn_payload_uop_decoded_immUsage;
+      entries_0_src1Ready <= (io_allocateIn_payload_src1InitialReady || (|{(wakeupInReg_4_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_4_payload_physRegIdx)),{(wakeupInReg_3_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_3_payload_physRegIdx)),{(wakeupInReg_2_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_2_payload_physRegIdx)),{(wakeupInReg_1_valid && _zz_entries_0_src1Ready),(wakeupInReg_0_valid && _zz_entries_0_src1Ready_1)}}}}));
+      entries_0_src2Ready <= (io_allocateIn_payload_src2InitialReady || (|{(wakeupInReg_4_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_4_payload_physRegIdx)),{(wakeupInReg_3_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_3_payload_physRegIdx)),{(wakeupInReg_2_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_2_payload_physRegIdx)),{(wakeupInReg_1_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_1_payload_physRegIdx)),(wakeupInReg_0_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_0_payload_physRegIdx))}}}}));
+    end else begin
+      if(!when_IssueQueueComponent_l206) begin
+        if(when_IssueQueueComponent_l214) begin
+          entries_0_src1Ready <= 1'b1;
+        end
+        if(when_IssueQueueComponent_l215) begin
+          entries_0_src2Ready <= 1'b1;
+        end
+      end
+    end
+    if(when_IssueQueueComponent_l191_1) begin
+      entries_1_robPtr <= io_allocateIn_payload_uop_robPtr;
+      entries_1_pc <= io_allocateIn_payload_uop_decoded_pc;
+      entries_1_physDest_idx <= io_allocateIn_payload_uop_rename_physDest_idx;
+      entries_1_physDestIsFpr <= io_allocateIn_payload_uop_rename_physDestIsFpr;
+      entries_1_writesToPhysReg <= io_allocateIn_payload_uop_rename_writesToPhysReg;
+      entries_1_useSrc1 <= io_allocateIn_payload_uop_decoded_useArchSrc1;
+      entries_1_src1Tag <= io_allocateIn_payload_uop_rename_physSrc1_idx;
+      entries_1_src1Ready <= (! io_allocateIn_payload_uop_decoded_useArchSrc1);
+      entries_1_src1IsFpr <= io_allocateIn_payload_uop_rename_physSrc1IsFpr;
+      entries_1_src1IsPc <= io_allocateIn_payload_uop_decoded_src1IsPc;
+      entries_1_useSrc2 <= io_allocateIn_payload_uop_decoded_useArchSrc2;
+      entries_1_src2Tag <= io_allocateIn_payload_uop_rename_physSrc2_idx;
+      entries_1_src2Ready <= (! io_allocateIn_payload_uop_decoded_useArchSrc2);
+      entries_1_src2IsFpr <= io_allocateIn_payload_uop_rename_physSrc2IsFpr;
+      entries_1_src1Data <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      entries_1_src2Data <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      entries_1_aluCtrl_valid <= io_allocateIn_payload_uop_decoded_aluCtrl_valid;
+      entries_1_aluCtrl_isSub <= io_allocateIn_payload_uop_decoded_aluCtrl_isSub;
+      entries_1_aluCtrl_isAdd <= io_allocateIn_payload_uop_decoded_aluCtrl_isAdd;
+      entries_1_aluCtrl_isSigned <= io_allocateIn_payload_uop_decoded_aluCtrl_isSigned;
+      entries_1_aluCtrl_logicOp <= io_allocateIn_payload_uop_decoded_aluCtrl_logicOp;
+      entries_1_aluCtrl_condition <= io_allocateIn_payload_uop_decoded_aluCtrl_condition;
+      entries_1_shiftCtrl_valid <= io_allocateIn_payload_uop_decoded_shiftCtrl_valid;
+      entries_1_shiftCtrl_isRight <= io_allocateIn_payload_uop_decoded_shiftCtrl_isRight;
+      entries_1_shiftCtrl_isArithmetic <= io_allocateIn_payload_uop_decoded_shiftCtrl_isArithmetic;
+      entries_1_shiftCtrl_isRotate <= io_allocateIn_payload_uop_decoded_shiftCtrl_isRotate;
+      entries_1_shiftCtrl_isDoubleWord <= io_allocateIn_payload_uop_decoded_shiftCtrl_isDoubleWord;
+      entries_1_imm <= io_allocateIn_payload_uop_decoded_imm;
+      entries_1_immUsage <= io_allocateIn_payload_uop_decoded_immUsage;
+      entries_1_src1Ready <= (io_allocateIn_payload_src1InitialReady || (|{(wakeupInReg_4_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_4_payload_physRegIdx)),{(wakeupInReg_3_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_3_payload_physRegIdx)),{(wakeupInReg_2_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_2_payload_physRegIdx)),{(wakeupInReg_1_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_1_payload_physRegIdx)),(wakeupInReg_0_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_0_payload_physRegIdx))}}}}));
+      entries_1_src2Ready <= (io_allocateIn_payload_src2InitialReady || (|{(wakeupInReg_4_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_4_payload_physRegIdx)),{(wakeupInReg_3_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_3_payload_physRegIdx)),{(wakeupInReg_2_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_2_payload_physRegIdx)),{(wakeupInReg_1_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_1_payload_physRegIdx)),(wakeupInReg_0_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_0_payload_physRegIdx))}}}}));
+    end else begin
+      if(!when_IssueQueueComponent_l206_1) begin
+        if(when_IssueQueueComponent_l214_1) begin
+          entries_1_src1Ready <= 1'b1;
+        end
+        if(when_IssueQueueComponent_l215_1) begin
+          entries_1_src2Ready <= 1'b1;
+        end
+      end
+    end
+    if(when_IssueQueueComponent_l191_2) begin
+      entries_2_robPtr <= io_allocateIn_payload_uop_robPtr;
+      entries_2_pc <= io_allocateIn_payload_uop_decoded_pc;
+      entries_2_physDest_idx <= io_allocateIn_payload_uop_rename_physDest_idx;
+      entries_2_physDestIsFpr <= io_allocateIn_payload_uop_rename_physDestIsFpr;
+      entries_2_writesToPhysReg <= io_allocateIn_payload_uop_rename_writesToPhysReg;
+      entries_2_useSrc1 <= io_allocateIn_payload_uop_decoded_useArchSrc1;
+      entries_2_src1Tag <= io_allocateIn_payload_uop_rename_physSrc1_idx;
+      entries_2_src1Ready <= (! io_allocateIn_payload_uop_decoded_useArchSrc1);
+      entries_2_src1IsFpr <= io_allocateIn_payload_uop_rename_physSrc1IsFpr;
+      entries_2_src1IsPc <= io_allocateIn_payload_uop_decoded_src1IsPc;
+      entries_2_useSrc2 <= io_allocateIn_payload_uop_decoded_useArchSrc2;
+      entries_2_src2Tag <= io_allocateIn_payload_uop_rename_physSrc2_idx;
+      entries_2_src2Ready <= (! io_allocateIn_payload_uop_decoded_useArchSrc2);
+      entries_2_src2IsFpr <= io_allocateIn_payload_uop_rename_physSrc2IsFpr;
+      entries_2_src1Data <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      entries_2_src2Data <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      entries_2_aluCtrl_valid <= io_allocateIn_payload_uop_decoded_aluCtrl_valid;
+      entries_2_aluCtrl_isSub <= io_allocateIn_payload_uop_decoded_aluCtrl_isSub;
+      entries_2_aluCtrl_isAdd <= io_allocateIn_payload_uop_decoded_aluCtrl_isAdd;
+      entries_2_aluCtrl_isSigned <= io_allocateIn_payload_uop_decoded_aluCtrl_isSigned;
+      entries_2_aluCtrl_logicOp <= io_allocateIn_payload_uop_decoded_aluCtrl_logicOp;
+      entries_2_aluCtrl_condition <= io_allocateIn_payload_uop_decoded_aluCtrl_condition;
+      entries_2_shiftCtrl_valid <= io_allocateIn_payload_uop_decoded_shiftCtrl_valid;
+      entries_2_shiftCtrl_isRight <= io_allocateIn_payload_uop_decoded_shiftCtrl_isRight;
+      entries_2_shiftCtrl_isArithmetic <= io_allocateIn_payload_uop_decoded_shiftCtrl_isArithmetic;
+      entries_2_shiftCtrl_isRotate <= io_allocateIn_payload_uop_decoded_shiftCtrl_isRotate;
+      entries_2_shiftCtrl_isDoubleWord <= io_allocateIn_payload_uop_decoded_shiftCtrl_isDoubleWord;
+      entries_2_imm <= io_allocateIn_payload_uop_decoded_imm;
+      entries_2_immUsage <= io_allocateIn_payload_uop_decoded_immUsage;
+      entries_2_src1Ready <= (io_allocateIn_payload_src1InitialReady || (|{(wakeupInReg_4_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_4_payload_physRegIdx)),{(wakeupInReg_3_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_3_payload_physRegIdx)),{(wakeupInReg_2_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_2_payload_physRegIdx)),{(wakeupInReg_1_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_1_payload_physRegIdx)),(wakeupInReg_0_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_0_payload_physRegIdx))}}}}));
+      entries_2_src2Ready <= (io_allocateIn_payload_src2InitialReady || (|{(wakeupInReg_4_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_4_payload_physRegIdx)),{(wakeupInReg_3_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_3_payload_physRegIdx)),{(wakeupInReg_2_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_2_payload_physRegIdx)),{(wakeupInReg_1_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_1_payload_physRegIdx)),(wakeupInReg_0_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_0_payload_physRegIdx))}}}}));
+    end else begin
+      if(!when_IssueQueueComponent_l206_2) begin
+        if(when_IssueQueueComponent_l214_2) begin
+          entries_2_src1Ready <= 1'b1;
+        end
+        if(when_IssueQueueComponent_l215_2) begin
+          entries_2_src2Ready <= 1'b1;
+        end
+      end
+    end
+    if(when_IssueQueueComponent_l191_3) begin
+      entries_3_robPtr <= io_allocateIn_payload_uop_robPtr;
+      entries_3_pc <= io_allocateIn_payload_uop_decoded_pc;
+      entries_3_physDest_idx <= io_allocateIn_payload_uop_rename_physDest_idx;
+      entries_3_physDestIsFpr <= io_allocateIn_payload_uop_rename_physDestIsFpr;
+      entries_3_writesToPhysReg <= io_allocateIn_payload_uop_rename_writesToPhysReg;
+      entries_3_useSrc1 <= io_allocateIn_payload_uop_decoded_useArchSrc1;
+      entries_3_src1Tag <= io_allocateIn_payload_uop_rename_physSrc1_idx;
+      entries_3_src1Ready <= (! io_allocateIn_payload_uop_decoded_useArchSrc1);
+      entries_3_src1IsFpr <= io_allocateIn_payload_uop_rename_physSrc1IsFpr;
+      entries_3_src1IsPc <= io_allocateIn_payload_uop_decoded_src1IsPc;
+      entries_3_useSrc2 <= io_allocateIn_payload_uop_decoded_useArchSrc2;
+      entries_3_src2Tag <= io_allocateIn_payload_uop_rename_physSrc2_idx;
+      entries_3_src2Ready <= (! io_allocateIn_payload_uop_decoded_useArchSrc2);
+      entries_3_src2IsFpr <= io_allocateIn_payload_uop_rename_physSrc2IsFpr;
+      entries_3_src1Data <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      entries_3_src2Data <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      entries_3_aluCtrl_valid <= io_allocateIn_payload_uop_decoded_aluCtrl_valid;
+      entries_3_aluCtrl_isSub <= io_allocateIn_payload_uop_decoded_aluCtrl_isSub;
+      entries_3_aluCtrl_isAdd <= io_allocateIn_payload_uop_decoded_aluCtrl_isAdd;
+      entries_3_aluCtrl_isSigned <= io_allocateIn_payload_uop_decoded_aluCtrl_isSigned;
+      entries_3_aluCtrl_logicOp <= io_allocateIn_payload_uop_decoded_aluCtrl_logicOp;
+      entries_3_aluCtrl_condition <= io_allocateIn_payload_uop_decoded_aluCtrl_condition;
+      entries_3_shiftCtrl_valid <= io_allocateIn_payload_uop_decoded_shiftCtrl_valid;
+      entries_3_shiftCtrl_isRight <= io_allocateIn_payload_uop_decoded_shiftCtrl_isRight;
+      entries_3_shiftCtrl_isArithmetic <= io_allocateIn_payload_uop_decoded_shiftCtrl_isArithmetic;
+      entries_3_shiftCtrl_isRotate <= io_allocateIn_payload_uop_decoded_shiftCtrl_isRotate;
+      entries_3_shiftCtrl_isDoubleWord <= io_allocateIn_payload_uop_decoded_shiftCtrl_isDoubleWord;
+      entries_3_imm <= io_allocateIn_payload_uop_decoded_imm;
+      entries_3_immUsage <= io_allocateIn_payload_uop_decoded_immUsage;
+      entries_3_src1Ready <= (io_allocateIn_payload_src1InitialReady || (|{(wakeupInReg_4_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_4_payload_physRegIdx)),{(wakeupInReg_3_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_3_payload_physRegIdx)),{(wakeupInReg_2_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_2_payload_physRegIdx)),{(wakeupInReg_1_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_1_payload_physRegIdx)),(wakeupInReg_0_valid && (io_allocateIn_payload_uop_rename_physSrc1_idx == wakeupInReg_0_payload_physRegIdx))}}}}));
+      entries_3_src2Ready <= (io_allocateIn_payload_src2InitialReady || (|{(wakeupInReg_4_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_4_payload_physRegIdx)),{(wakeupInReg_3_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_3_payload_physRegIdx)),{(wakeupInReg_2_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_2_payload_physRegIdx)),{(wakeupInReg_1_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_1_payload_physRegIdx)),(wakeupInReg_0_valid && (io_allocateIn_payload_uop_rename_physSrc2_idx == wakeupInReg_0_payload_physRegIdx))}}}}));
+    end else begin
+      if(!when_IssueQueueComponent_l206_3) begin
+        if(when_IssueQueueComponent_l214_3) begin
+          entries_3_src1Ready <= 1'b1;
+        end
+        if(when_IssueQueueComponent_l215_3) begin
+          entries_3_src2Ready <= 1'b1;
+        end
+      end
+    end
   end
 
 
