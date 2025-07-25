@@ -87,16 +87,16 @@ class SmartDispatcherSpec extends CustomSpinalSimFunSuite {
         if (i < instructions.length) {
           val (inst, predecode) = instructions(i)
           dut.io.fetchGroupIn.payload.instructions(i) #= inst
-          dut.io.fetchGroupIn.payload.predecodeInfos(i).isBranch #= predecode.isBranch
-          dut.io.fetchGroupIn.payload.predecodeInfos(i).isJump #= predecode.isJump
-          dut.io.fetchGroupIn.payload.predecodeInfos(i).isDirectJump #= predecode.isDirectJump
-          dut.io.fetchGroupIn.payload.predecodeInfos(i).jumpOffset #= predecode.jumpOffset
+          // dut.io.fetchGroupIn.payload.predecodeInfos(i).isBranch #= predecode.isBranch
+          // dut.io.fetchGroupIn.payload.predecodeInfos(i).isJump #= predecode.isJump
+          // dut.io.fetchGroupIn.payload.predecodeInfos(i).isDirectJump #= predecode.isDirectJump
+          // dut.io.fetchGroupIn.payload.predecodeInfos(i).jumpOffset #= predecode.jumpOffset
         } else {
           dut.io.fetchGroupIn.payload.instructions(i) #= 0
-          dut.io.fetchGroupIn.payload.predecodeInfos(i).isBranch #= false
-          dut.io.fetchGroupIn.payload.predecodeInfos(i).isJump #= false
-          dut.io.fetchGroupIn.payload.predecodeInfos(i).isDirectJump #= false
-          dut.io.fetchGroupIn.payload.predecodeInfos(i).jumpOffset #= 0 // 确保 offset 也是 0
+          // dut.io.fetchGroupIn.payload.predecodeInfos(i).isBranch #= false
+          // dut.io.fetchGroupIn.payload.predecodeInfos(i).isJump #= false
+          // dut.io.fetchGroupIn.payload.predecodeInfos(i).isDirectJump #= false
+          // dut.io.fetchGroupIn.payload.predecodeInfos(i).jumpOffset #= 0 // 确保 offset 也是 0
         }
       }
     } else {

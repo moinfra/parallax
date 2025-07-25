@@ -24,6 +24,7 @@ object LoongArchOpcodes {
   def Minor_SUB_W  = B"0000100010"
   def Minor_AND    = B"0000101001"
   def Minor_OR     = B"0000101010"
+  def Minor_NOR    = B"0000101000"
   def Minor_XOR    = B"0000101011"
   def Minor_MUL_W  = B"0000111000"
 
@@ -33,34 +34,40 @@ object LoongArchOpcodes {
   def Minor_SRAI_W = B"0010010001" // inst[24:15] for SRAI.W
 
   // For register-register shift instructions (distinguished by inst[24:15])
-  def Minor_SLL_W = B"0000101110"  // inst[24:15] for SLL.W
-  def Minor_SRL_W = B"0000101111"  // inst[24:15] for SRL.W
-  def Minor_SRA_W = B"0000110000"  // inst[24:15] for SRA.W
+  def Minor_SLL_W  = B"0000101110"  // inst[24:15] for SLL.W
+  def Minor_SRL_W  = B"0000101111"  // inst[24:15] for SRL.W
+  def Minor_SRA_W  = B"0000110000"  // inst[24:15] for SRA.W
+  def Minor_SLT    = B"0000100100"
+  def Minor_SLTU   = B"0000100101"
 
   // Minor Opcodes for OP_RTYPE_2R1I (distinguished by inst[24:22])
   def Minor_ADDI_W_i = B"010"
-  def Minor_SLTI_i = B"000"
-  def Minor_ANDI_i = B"101"
-  def Minor_ORI_i = B"110"
-  def Minor_XORI_i = B"111"
+  def Minor_SLTUI_i  = B"001"
+  def Minor_SLTI_i   = B"000"
+  def Minor_ANDI_i   = B"101"
+  def Minor_ORI_i    = B"110"
+  def Minor_XORI_i   = B"111"
 
   // 10-bit Opcodes for Load/Store (inst[31:22])
-  def OP_LD_B =  B"0010100000"
-  def OP_LD_H =  B"0010100001"
-  def OP_LD_W =  B"0010100010"
-  def OP_ST_B =  B"0010100100"
-  def OP_ST_H =  B"0010100101"
-  def OP_ST_W =  B"0010100110"
+  def OP_LD_B  =  B"0010100000"
+  def OP_LD_H  =  B"0010100001"
+  def OP_LD_W  =  B"0010100010"
+  def OP_ST_B  =  B"0010100100"
+  def OP_ST_H  =  B"0010100101"
+  def OP_ST_W  =  B"0010100110"
   def OP_LD_BU = B"0010101000"
   def OP_LD_HU = B"0010101001"
   
 
   // Minor Opcodes for Branch Group (distinguished by full 6-bit opcode)
-  def Minor_B = B"010100"
-  def Minor_BL = B"010101"
-  def Minor_BEQ = B"010110"
-  def Minor_BNE = B"010111"
-  def Minor_BLTU = B"011010"
+  def Minor_B     = B"010100"
+  def Minor_BL    = B"010101"
+  def Minor_BEQ   = B"010110"
+  def Minor_BNE   = B"010111"
+  def Minor_BLT   = B"011000"
+  def Minor_BLTU  = B"011010"
+  def Minor_BGE   = B"011001"
+  def Minor_BGEU  = B"011011"
   
   // IDLE instruction: 0000011 00100 10001 level[14:0]
   def OP_IDLE = B"0000011" // [31:25]
@@ -126,28 +133,37 @@ class LA32RSimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends 
   val imm_shift_5 = fields.ui5.resize(config.dataWidth).asBits
 
   // --- 1. 扁平化的指令识别标志 (并行计算) ---
+
+  // OP_GROUP_00 类型的指令
   val is_add_w  = fields.opcode_7b === LoongArchOpcodes.OP_GROUP_00 && fields.opcode_r_minor === LoongArchOpcodes.Minor_ADD_W
   val is_sub_w  = fields.opcode_7b === LoongArchOpcodes.OP_GROUP_00 && fields.opcode_r_minor === LoongArchOpcodes.Minor_SUB_W
+  val is_mul_w  = fields.opcode_7b === LoongArchOpcodes.OP_GROUP_00 && fields.opcode_r_minor === LoongArchOpcodes.Minor_MUL_W
+
   val is_and    = fields.opcode_7b === LoongArchOpcodes.OP_GROUP_00 && fields.opcode_r_minor === LoongArchOpcodes.Minor_AND
   val is_or     = fields.opcode_7b === LoongArchOpcodes.OP_GROUP_00 && fields.opcode_r_minor === LoongArchOpcodes.Minor_OR
+  val is_nor    = fields.opcode_7b === LoongArchOpcodes.OP_GROUP_00 && fields.opcode_r_minor === LoongArchOpcodes.Minor_NOR
   val is_xor    = fields.opcode_7b === LoongArchOpcodes.OP_GROUP_00 && fields.opcode_r_minor === LoongArchOpcodes.Minor_XOR
-  val is_mul_w  = fields.opcode_7b === LoongArchOpcodes.OP_GROUP_00 && fields.opcode_r_minor === LoongArchOpcodes.Minor_MUL_W
+
   val is_sll_w  = fields.opcode_7b === LoongArchOpcodes.OP_GROUP_00 && fields.opcode_r_minor === LoongArchOpcodes.Minor_SLL_W
   val is_srl_w  = fields.opcode_7b === LoongArchOpcodes.OP_GROUP_00 && fields.opcode_r_minor === LoongArchOpcodes.Minor_SRL_W
   val is_sra_w  = fields.opcode_7b === LoongArchOpcodes.OP_GROUP_00 && fields.opcode_r_minor === LoongArchOpcodes.Minor_SRA_W
   val is_slli_w = fields.opcode_7b === LoongArchOpcodes.OP_GROUP_00 && fields.opcode_r_minor === LoongArchOpcodes.Minor_SLLI_W
   val is_srli_w = fields.opcode_7b === LoongArchOpcodes.OP_GROUP_00 && fields.opcode_r_minor === LoongArchOpcodes.Minor_SRLI_W
   val is_srai_w = fields.opcode_7b === LoongArchOpcodes.OP_GROUP_00 && fields.opcode_r_minor === LoongArchOpcodes.Minor_SRAI_W
+
+  val is_slt    = fields.opcode_7b === LoongArchOpcodes.OP_GROUP_00 && fields.opcode_r_minor === LoongArchOpcodes.Minor_SLT
+  val is_sltu   = fields.opcode_7b === LoongArchOpcodes.OP_GROUP_00 && fields.opcode_r_minor === LoongArchOpcodes.Minor_SLTU
+
+  // OP_RTYPE_2R1I 类型的指令
   val is_addi_w = fields.opcode_7b === LoongArchOpcodes.OP_RTYPE_2R1I && fields.opcode_i_minor === LoongArchOpcodes.Minor_ADDI_W_i
-  val is_slti   = fields.opcode_7b === LoongArchOpcodes.OP_RTYPE_2R1I && fields.opcode_i_minor === LoongArchOpcodes.Minor_SLTI_i
+
   val is_andi   = fields.opcode_7b === LoongArchOpcodes.OP_RTYPE_2R1I && fields.opcode_i_minor === LoongArchOpcodes.Minor_ANDI_i
   val is_ori    = fields.opcode_7b === LoongArchOpcodes.OP_RTYPE_2R1I && fields.opcode_i_minor === LoongArchOpcodes.Minor_ORI_i
   val is_xori   = fields.opcode_7b === LoongArchOpcodes.OP_RTYPE_2R1I && fields.opcode_i_minor === LoongArchOpcodes.Minor_XORI_i
-  // val is_ld_b   = fields.opcode_6b === LoongArchOpcodes.OP_LOAD_STORE && fields.opcode_mem_minor === LoongArchOpcodes.Minor_LD_B_m
-  // val is_ld_w   = fields.opcode_6b === LoongArchOpcodes.OP_LOAD_STORE && fields.opcode_mem_minor === LoongArchOpcodes.Minor_LD_W_m
-  // val is_st_b   = fields.opcode_6b === LoongArchOpcodes.OP_LOAD_STORE && fields.opcode_mem_minor === LoongArchOpcodes.Minor_ST_B_m
-  // val is_st_w   = fields.opcode_6b === LoongArchOpcodes.OP_LOAD_STORE && fields.opcode_mem_minor === LoongArchOpcodes.Minor_ST_W_m
-  // val is_ld_bu  = fields.opcode_6b === LoongArchOpcodes.OP_LOAD_STORE && fields.opcode_mem_minor === LoongArchOpcodes.Minor_LD_BU_m
+
+  val is_slti   = fields.opcode_7b === LoongArchOpcodes.OP_RTYPE_2R1I && fields.opcode_i_minor === LoongArchOpcodes.Minor_SLTI_i
+  val is_sltui  = fields.opcode_7b === LoongArchOpcodes.OP_RTYPE_2R1I && fields.opcode_i_minor === LoongArchOpcodes.Minor_SLTUI_i
+
   val is_ld_b   = fields.opcode_10b === LoongArchOpcodes.OP_LD_B
   val is_ld_h   = fields.opcode_10b === LoongArchOpcodes.OP_LD_H
   val is_ld_w   = fields.opcode_10b === LoongArchOpcodes.OP_LD_W
@@ -164,19 +180,23 @@ class LA32RSimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends 
   val is_bl     = fields.opcode_6b === LoongArchOpcodes.Minor_BL
   val is_beq    = fields.opcode_6b === LoongArchOpcodes.Minor_BEQ
   val is_bne    = fields.opcode_6b === LoongArchOpcodes.Minor_BNE
+  val is_blt    = fields.opcode_6b === LoongArchOpcodes.Minor_BLT
   val is_bltu   = fields.opcode_6b === LoongArchOpcodes.Minor_BLTU
+  val is_bge    = fields.opcode_6b === LoongArchOpcodes.Minor_BGE
+  val is_bgeu   = fields.opcode_6b === LoongArchOpcodes.Minor_BGEU
+
   val is_idle   = fields.opcode_7b === LoongArchOpcodes.OP_IDLE && fields.opcode_r_minor === LoongArchOpcodes.IDLE_FIXED_BITS
 
   // --- 用于逻辑简化的分组标志 ---
-  val is_r_type_alu   = is_add_w | is_sub_w | is_and | is_or | is_xor
+  val is_r_type_alu   = is_add_w | is_sub_w | is_and | is_or | is_nor | is_xor | is_slt | is_sltu
   val is_r_type_shift = is_sll_w | is_srl_w | is_sra_w
   val is_r_type       = is_r_type_alu | is_r_type_shift | is_mul_w
   val is_shift_imm    = is_slli_w | is_srli_w | is_srai_w
-  val is_i_type       = is_addi_w | is_slti | is_andi | is_ori
+  val is_i_type       = is_addi_w | is_slti | is_sltui | is_andi | is_ori | is_xori
   val is_load         = is_ld_b | is_ld_h | is_ld_w | is_ld_bu | is_ld_hu
   val is_store        = is_st_b | is_st_h | is_st_w
   val is_mem_op       = is_load | is_store
-  val is_branch       = is_beq | is_bne | is_bltu
+  val is_branch       = is_beq | is_bne | is_blt | is_bltu | is_bge | is_bgeu
   val is_jump         = is_b | is_bl | is_jirl
   val is_branch_or_jump = is_branch | is_jump
   
@@ -232,7 +252,7 @@ class LA32RSimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends 
 
   // --- 立即数 ---
   io.decodedUop.imm := 0
-  when(is_addi_w | is_slti | is_mem_op) { io.decodedUop.imm := imm_sext_12 }
+  when(is_addi_w | is_slti | is_sltui | is_mem_op) { io.decodedUop.imm := imm_sext_12 }
   when(is_andi | is_ori)        { io.decodedUop.imm := imm_zext_12 }
   when(is_lu12i)                { io.decodedUop.imm := imm_lu12i }
   when(is_pcaddu12i)            { io.decodedUop.imm := imm_pcadd_u12i }
@@ -252,22 +272,29 @@ class LA32RSimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends 
   io.decodedUop.isBranchOrJump := is_branch_or_jump
   when(is_pcaddu12i)    { io.decodedUop.src1IsPc := True }
   // ALU Control
-  when(is_add_w | is_addi_w | is_lu12i | is_pcaddu12i) { io.decodedUop.aluCtrl.isAdd := True }
-  when(is_sub_w | is_slti) { io.decodedUop.aluCtrl.isSub := True }
-  when(is_slti) { io.decodedUop.aluCtrl.isSigned := True }
-  when(is_and | is_andi) { io.decodedUop.aluCtrl.logicOp := LogicOp.AND }
-  when(is_or | is_ori)   { io.decodedUop.aluCtrl.logicOp := LogicOp.OR }
-  when(is_xor | is_xori)           { io.decodedUop.aluCtrl.logicOp := LogicOp.XOR }
+  when(is_add_w | is_addi_w | is_lu12i | is_pcaddu12i) { io.decodedUop.aluCtrl.isAdd     := True }
+  when(is_sub_w)                                       { io.decodedUop.aluCtrl.isSub     := True }
+  when(is_slt   | is_slti)                             { io.decodedUop.aluCtrl.condition := BranchCondition.LT }
+  when(is_sltu  | is_sltui)                            { io.decodedUop.aluCtrl.condition := BranchCondition.LTU }
+  when(is_and   | is_andi)                             { io.decodedUop.aluCtrl.logicOp   := LogicOp.AND }
+  when(is_nor)                                         { io.decodedUop.aluCtrl.logicOp   := LogicOp.NOR }
+  when(is_or    | is_ori)                              { io.decodedUop.aluCtrl.logicOp   := LogicOp.OR }
+  when(is_xor   | is_xori)                             { io.decodedUop.aluCtrl.logicOp   := LogicOp.XOR }
   io.decodedUop.aluCtrl.valid := (is_add_w | is_addi_w | is_lu12i | is_pcaddu12i) | 
-                                (is_sub_w | is_slti) |
-                                (is_and | is_andi) |
-                                (is_or | is_ori) |
-                                (is_xor | is_xori)
+                                 (is_sub_w) |
+                                 (is_and | is_andi) |
+                                 (is_nor) |
+                                 (is_or | is_ori) |
+                                 (is_xor | is_xori) |
+                                 (is_slt | is_slti) |
+                                 (is_sltu | is_sltui)
 
   // SHIFT Control
   when(is_srl_w | is_srli_w | is_sra_w | is_srai_w) { io.decodedUop.shiftCtrl.isRight := True }
   when(is_sra_w | is_srai_w) { io.decodedUop.shiftCtrl.isArithmetic := True }
-  io.decodedUop.shiftCtrl.valid := (is_srl_w | is_srli_w | is_sra_w | is_srai_w)
+  io.decodedUop.shiftCtrl.valid := (is_srl_w | is_srli_w | is_sra_w | is_srai_w) |
+                                   (is_srai_w) |
+                                   (is_slli_w)
   
   // MUL/DIV Control
   when(is_mul_w) { io.decodedUop.mulDivCtrl.isSigned := True }
@@ -295,7 +322,10 @@ class LA32RSimpleDecoder(val config: PipelineConfig = PipelineConfig()) extends 
   
   when(is_beq)  { io.decodedUop.branchCtrl.condition := BranchCondition.EQ }
   when(is_bne)  { io.decodedUop.branchCtrl.condition := BranchCondition.NE }
+  when(is_blt)  { io.decodedUop.branchCtrl.condition := BranchCondition.LT }
   when(is_bltu) { io.decodedUop.branchCtrl.condition := BranchCondition.LTU }
+  when(is_bge)  { io.decodedUop.branchCtrl.condition := BranchCondition.GE }
+  when(is_bgeu) { io.decodedUop.branchCtrl.condition := BranchCondition.GEU }
   
   // --- 异常处理 ---
   when(!isValid) {

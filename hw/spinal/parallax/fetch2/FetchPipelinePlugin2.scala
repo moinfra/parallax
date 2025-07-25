@@ -120,7 +120,7 @@ class FetchPipelinePlugin(
     outputFifoDepth: Int = 4
 ) extends Plugin with FetchService with HardRedirectService with SoftRedirectService {
 
-    val enableLog = true
+    val enableLog = false
     val verbose = false
     val icacheLatency = 1
 
@@ -236,6 +236,7 @@ class FetchPipelinePlugin(
         import fetchPipeline._
 
         val fetchOutput = setup.fetchOutput
+        // SmartDispatcher现在接收RawFetchGroup
         val dispatcher = new SmartDispatcher(pCfg)
 
         // --- 重定向与排空逻辑 ---
@@ -413,22 +414,21 @@ class FetchPipelinePlugin(
             if(enableLog && verbose && icacheLatency == 2) when(s3.isFiring) { log(L"[${dbg.cycles}] FETCH-S3: Waiting for ICache Rsp for PC=0x${s3(PC)}") }
         }
 
-        // --- s4: I-Cache响应接收与并行预解码 ---
+        // --- s4: I-Cache响应接收 (移除并行预解码) ---
         val s4_logic = new Area {
             val s4 = fetchPipeline.s4_predecode
             val iCacheRsp = setup.iCachePort.rsp
-            // log(L"[${dbg.cycles}] iCacheRsp: ${iCacheRsp.format}")
             
+            // 使用新的RawFetchGroup作为FIFO类型
+            val rawFetchGroups = StreamFifo(RawFetchGroup(pCfg), depth = fetchGroupFifoDepth)
+            rawFetchGroups.io.push.setIdle()
+
+            // 预解码器已移除，不再实例化
+
             when(iCacheRsp.fire) {
                 iCacheInFlightToDrainCounter.decrement() 
             }
             
-            val predecodedGroups = StreamFifo(FetchGroup(pCfg), depth = fetchGroupFifoDepth)
-            predecodedGroups.io.push.setIdle()
-
-            val predecoders = Seq.fill(pCfg.fetchWidth)(new InstructionPredecoder(pCfg))
-            predecoders.foreach(_.io.instruction.assignDontCare())
-
             val handleRsp = s4.isFiring && iCacheRsp.valid && !isDrainingCacheRspReg && !doAnyFlush
             if (enableLog) {
                 if(enableLog) log(L"[${dbg.cycles}] FETCH-S4: Handling Rsp for PC=0x${s4(PC)}? ${handleRsp} because" :+
@@ -436,7 +436,7 @@ class FetchPipelinePlugin(
             }
             val hasHigherPriorityStuff = doAnyFlush || isDrainingCacheRspReg
             // ICache响应到达，但下游已满，无法处理 -> 触发重试！
-            val backpressureRedo = !s4.isFiring && iCacheRsp.valid && iCacheRsp.payload.wasHit && !isDrainingCacheRspReg && !predecodedGroups.io.push.ready &&
+            val backpressureRedo = !s4.isFiring && iCacheRsp.valid && iCacheRsp.payload.wasHit && !isDrainingCacheRspReg && !rawFetchGroups.io.push.ready &&
                                     !hasHigherPriorityStuff
             when(backpressureRedo) {
                 when(!retryCmd.lock) { // 仅当没有挂起的重试时才设置新的重试
@@ -479,32 +479,26 @@ class FetchPipelinePlugin(
                     }
                     // 仅当没有挂起的重试，或者此响应就是针对该重试的成功响应时，才处理数据
                     when(!retryCmd.lock || alignToLine(s4(PC)) === alignToLine(retryCmd.pc)) {
-                        val predecodedGroup = FetchGroup(pCfg)
+                        // 创建新的 RawFetchGroup
+                        val rawGroup = RawFetchGroup(pCfg)
                         val instructionSlots = iCacheRsp.payload.instructions
                         val startInstructionIndex = calculateStartIndex(s4(RAW_PC), s4(PC))
-                        predecodedGroup.startInstructionIndex := startInstructionIndex
-                        predecodedGroup.pc := s4(PC)
-                        predecodedGroup.fault := !iCacheRsp.payload.wasHit
-
-                        assert(instructionSlots.length == pCfg.fetchWidth, s"Expected ${pCfg.fetchWidth} instruction slots, got ${instructionSlots.length}")
-                        assert(predecodedGroup.predecodeInfos.length == pCfg.fetchWidth, s"Expected ${pCfg.fetchWidth} predecoded infos, got ${predecodedGroup.predecodeInfos.length}")
+                        rawGroup.startInstructionIndex := startInstructionIndex
+                        rawGroup.pc := s4(PC)
+                        rawGroup.firstPc := s4(RAW_PC)
+                        rawGroup.fault := !iCacheRsp.payload.wasHit
                         
-                        predecodedGroup.instructions := Vec(instructionSlots)
+                        rawGroup.instructions := Vec(instructionSlots)
                         
-                        for (i <- 0 until pCfg.fetchWidth) {
-                            predecoders(i).io.instruction := instructionSlots(i)
-                            predecodedGroup.predecodeInfos(i) := predecoders(i).io.predecodeInfo
-                        }
-                        predecodedGroup.branchMask := B(predecodedGroup.predecodeInfos.map(_.isBranch).reverse)
-
-                        predecodedGroup.numValidInstructions := U(pCfg.fetchWidth) - startInstructionIndex
-                        assert(!doAnyFlush && !isDrainingCacheRspReg, "Impossible to push valid predecoded group while flushing or draining cache Rsp.")
-                        predecodedGroups.io.push.valid   := True
-                        predecodedGroups.io.push.payload := predecodedGroup
+                        rawGroup.numValidInstructions := U(pCfg.fetchWidth) - startInstructionIndex
                         
-                        s4.haltWhen(!predecodedGroups.io.push.ready)
-                        if(enableLog) when(predecodedGroups.io.push.fire) { 
-                            if(enableLog) log(L"FETCH-S4: Predecoded and pushing to FIFO. PC=0x${s4(PC)}, startIndex=${predecodedGroup.startInstructionIndex}, numValid=${predecodedGroup.numValidInstructions}") 
+                        assert(!doAnyFlush && !isDrainingCacheRspReg, "Impossible to push valid group while flushing or draining cache Rsp.")
+                        rawFetchGroups.io.push.valid   := True
+                        rawFetchGroups.io.push.payload := rawGroup
+                        
+                        s4.haltWhen(!rawFetchGroups.io.push.ready)
+                        if(enableLog) when(rawFetchGroups.io.push.fire) { 
+                            if(enableLog) log(L"FETCH-S4: Pushing raw instructions to FIFO. PC=0x${s4(PC)}, startIndex=${rawGroup.startInstructionIndex}, numValid=${rawGroup.numValidInstructions}") 
                         }
                     }
 
@@ -513,21 +507,20 @@ class FetchPipelinePlugin(
         }
 
         // --- 连接到智能分发器 ---
-        // dispatcher.io.fetchGroupIn << s4_logic.predecodedGroups.io.pop
-        // 手动连接 predecodedGroups.io.pop -> dispatcher.io.fetchGroupIn
-        dispatcher.io.fetchGroupIn.valid   := s4_logic.predecodedGroups.io.pop.valid
-        dispatcher.io.fetchGroupIn.payload := s4_logic.predecodedGroups.io.pop.payload
+        // 手动连接，因为ready信号有特殊逻辑
+        dispatcher.io.fetchGroupIn.valid   := s4_logic.rawFetchGroups.io.pop.valid
+        dispatcher.io.fetchGroupIn.payload := s4_logic.rawFetchGroups.io.pop.payload
 
         // 自定义 ready 信号以处理冲刷
-        s4_logic.predecodedGroups.io.pop.ready := dispatcher.io.fetchGroupIn.ready && !doAnyFlush
+        s4_logic.rawFetchGroups.io.pop.ready := dispatcher.io.fetchGroupIn.ready && !doAnyFlush
 
         dispatcher.io.bpuRsp << setup.bpuResponse
         setup.bpuQueryPort << dispatcher.io.bpuQuery
 
         if(enableLog) when(dispatcher.io.fetchGroupIn.fire) {
             val group = dispatcher.io.fetchGroupIn.payload
-            val firstIsBranch = group.predecodeInfos(group.startInstructionIndex).isBranch
-            if(enableLog) notice(L"[DISPATCHER-IN] POP from predecodedGroups FIFO. PC=0x${group.pc}, startIdx=${group.startInstructionIndex}, numValid=${group.numValidInstructions}, firstIsBranch=${firstIsBranch}")
+            // RawFetchGroup不再有predecodeInfos，所以不能直接访问firstIsBranch
+            if(enableLog) notice(L"[DISPATCHER-IN] POP from rawFetchGroups FIFO. PC=0x${group.pc}, startIdx=${group.startInstructionIndex}, numValid=${group.numValidInstructions}")
         }
 
         // --- 流水线冲刷 ---
@@ -539,23 +532,18 @@ class FetchPipelinePlugin(
         /* 
         软冲刷时：
             当dispatcher发出软重定向后，它已经消费了包含分支指令的那个取指包。
-            但此时，predecodedGroups FIFO里可能还缓存着来自错误路径（即分支不跳转的顺序路径）的指令包。
+            但此时，rawFetchGroups FIFO里可能还缓存着来自错误路径（即分支不跳转的顺序路径）的指令包。
             在下一个周期 (RegNext)，当s1开始从新地址取指时，这个flush信号会清空这些陈旧的、
             不再需要的指令包。
          */
-        s4_logic.predecodedGroups.io.flush := doAnyFlush || isDrainingCacheRspReg
+        s4_logic.rawFetchGroups.io.flush := doAnyFlush || isDrainingCacheRspReg
         dispatcher.io.flush := doHardFlush // 硬冲刷才需要清空下游
-        when(s4_logic.predecodedGroups.io.flush) {
-            if(enableLog) notice(L"[${dbg.cycles}] Flush predecodedGroups")
+        when(s4_logic.rawFetchGroups.io.flush) {
+            if(enableLog) notice(L"[${dbg.cycles}] Flush rawFetchGroups")
         }
         when(dispatcher.io.flush) {
             if(enableLog) notice(L"[${dbg.cycles}] Flush dispatcher")
         }
-        // if(enableLog) when(dispatchAnyFlushReg) { // Use the registered version as it aligns with the action
-        //     val isHard = dispatchHardFlushReg
-        //     val isSoft = dispatchSoftFlushReg
-        //     if(enableLog) notice(L"[FLUSH LOGIC] dispatchAnyFlushReg is ACTIVE (Cause: isHard=${isHard}, isSoft=${isSoft}. Flushing predecodedGroups and Dispatcher.")
-        // }
         fetchPipeline.build()
 
         // --- 资源释放 ---

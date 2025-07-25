@@ -7,10 +7,12 @@ import parallax.common._
 import parallax.utilities._
 import parallax.bpu.{BpuQuery, BpuResponse}
 import parallax.fetch.{FetchedInstr, PredecodeInfo}
+import parallax.fetch.InstructionPredecoder
 
 class SmartDispatcher(pCfg: PipelineConfig) extends Component {
   val io = new Bundle {
-    val fetchGroupIn = slave Stream (FetchGroup(pCfg))
+    // 输入流类型改变，接收原始指令组
+    val fetchGroupIn = slave Stream (RawFetchGroup(pCfg))
     val bpuRsp = slave Flow (BpuResponse(pCfg))
     val fetchOutput = master Stream (FetchedInstr(pCfg))
     val bpuQuery = master Flow (BpuQuery(pCfg))
@@ -18,7 +20,7 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
     val flush = in Bool ()
   }
 
-  val enableLog = true
+  val enableLog = false
   val cycleReg = Reg(UInt(32 bits)) init (0)
   cycleReg := cycleReg + 1
   if (enableLog) {
@@ -26,6 +28,7 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
   }
 
   // --- 内部状态 ---
+  // fetchGroupReg 保持为 FetchGroup 类型，因为它将存储预解码后的完整信息
   val fetchGroupReg = Reg(FetchGroup(pCfg))
   val isBusyReg = Reg(Bool()) init (False)
   val dispatchIndexReg = Reg(UInt(log2Up(pCfg.fetchWidth) bits)) init (0)
@@ -44,13 +47,15 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
   io.fetchGroupIn.ready := !isBusyReg
 
   // --- 当前指令信息 (组合逻辑) ---
+  // 这部分逻辑现在完全不需要修改，因为它直接从 fetchGroupReg 中读取预解码信息，
+  // 而我们将在接收时填充好 fetchGroupReg。
   val pcIncrReg = (dispatchIndexReg << log2Up(pCfg.dataWidth.value / 8))
   val currentPcReg = fetchGroupReg.pc + pcIncrReg
   val currentInstructionReg = fetchGroupReg.instructions(dispatchIndexReg)
   val currentPredecodeReg = fetchGroupReg.predecodeInfos(dispatchIndexReg)
   val lastInstructionIndexInGroup = fetchGroupReg.startInstructionIndex + fetchGroupReg.numValidInstructions - 1
-  val isLastInstructionReg = dispatchIndexReg === lastInstructionIndexInGroup
   val hasValidInstructionReg = fetchGroupReg.numValidInstructions > 0
+  val isLastInstructionReg = hasValidInstructionReg && dispatchIndexReg === lastInstructionIndexInGroup
 
   // 添加更详细的日志
   if (enableLog) {
@@ -88,15 +93,39 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
         if (enableLog) report(L"DISPATCHER-IDLE: Flush asserted, remaining in IDLE.")
         goto(IDLE)
       }.elsewhen(io.fetchGroupIn.fire) {
-        // Step 1: Immediately load the new FetchGroup into the register.
-        // This is crucial for subsequent logic (like numValidInstructions checks)
-        // to operate on the newly received payload.
-        fetchGroupReg := io.fetchGroupIn.payload
+        // =======================================================================
+        // 关键修改点：所有在本周期内的决策，都必须使用 io.fetchGroupIn (组合输入)
+        // =======================================================================
 
+        val rawGroup = io.fetchGroupIn.payload
+        val startIdx = rawGroup.startInstructionIndex
+
+        // --- 组合逻辑路径：用于本周期的决策 ---
+        // 1. 对整个输入组进行并行预解码 (组合逻辑)
+        val decodedInfos = Vec.tabulate(pCfg.fetchWidth) { i =>
+          val tempPredecoder = new InstructionPredecoder(pCfg)
+          tempPredecoder.io.instruction := rawGroup.instructions(i)
+          tempPredecoder.io.predecodeInfo
+        }
+
+        // 2. 提取第一条指令的预解码信息，用于立即决策
+        val firstPredecode = decodedInfos(startIdx)
+        val firstPC = rawGroup.firstPc
+        val firstInstruction = rawGroup.instructions(startIdx)
+
+        // --- 寄存器更新路径：为下一周期准备数据 ---
+        // 在同一时刻，准备好要锁存到 fetchGroupReg 的完整数据
+        fetchGroupReg.pc             := rawGroup.pc
+        fetchGroupReg.instructions   := rawGroup.instructions
+        fetchGroupReg.fault          := rawGroup.fault
+        fetchGroupReg.numValidInstructions := rawGroup.numValidInstructions
+        fetchGroupReg.startInstructionIndex := startIdx
+        fetchGroupReg.predecodeInfos := decodedInfos // 使用刚刚计算出的组合结果
+        fetchGroupReg.branchMask     := B(decodedInfos.map(_.isBranch).reverse)
+
+        // 更新其他状态寄存器
         isBusyReg := True
-        val startIdx = io.fetchGroupIn.payload.startInstructionIndex
         dispatchIndexReg := startIdx
-        if (enableLog) report(L"  DEBUG-ASSIGN: dispatchIndexReg assigned 0 from IDLE")
 
 
         if (enableLog) {
@@ -105,18 +134,15 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
         }
 
         // --- NEW LOGIC START: Handle empty FetchGroup explicitly ---
-        when(io.fetchGroupIn.payload.numValidInstructions === 0) {
+        when(rawGroup.numValidInstructions === 0) {
           if (enableLog) report(L"DISPATCHER-IDLE: Received empty FetchGroup (numValidInstructions=0). Going back to IDLE.")
           isBusyReg := False // Not busy for an empty group
           dispatchIndexReg := 0 // Ensure dispatchIndexReg is reset
           goto(IDLE) // Go back to IDLE immediately, do nothing else
         } .otherwise {
-          // --- ORIGINAL LOGIC (modified for correctness) STARTS HERE for non-empty groups ---
-          // Now it's safe to access index 0 because numValidInstructions > 0
-          val firstPredecode = io.fetchGroupIn.payload.predecodeInfos(startIdx)
-          val firstPC = io.fetchGroupIn.payload.pc + (startIdx << log2Up(pCfg.dataWidth.value / 8))
-          val firstInstruction = io.fetchGroupIn.payload.instructions(startIdx)
-
+          // =================================================================
+          // 决策逻辑完全复用原始代码，但现在它安全地作用于组合逻辑结果！
+          // =================================================================
           if (enableLog) report(L"DISPATCHER-IDLE: Analyzing first instruction (PC=0x${firstPC}, isBranch=${firstPredecode.isBranch}).")
 
           // Fast Path for first instruction
@@ -133,15 +159,15 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
               if (enableLog) report(L"DISPATCHER-IDLE: First instruction (fast path) fired.")
               when(redirecting) {
                 io.softRedirect.valid := True
-                io.softRedirect.payload := firstPC + firstPredecode.jumpOffset.asUInt
+                io.softRedirect.payload := firstPC + firstPredecode.jumpOffset.asUInt // FIXME: 这个运算非常重量级
                 report(L"DISPATCHER-IDLE: First instruction is a direct jump. Redirecting to 0x${io.softRedirect.payload}.")
                 dispatchIndexReg := 0
                 isBusyReg := False
                 goto(IDLE)
               } otherwise {
                 // Corrected condition: is first instruction the ONLY instruction in the group?
-                val isFirstInstructionLast = startIdx === (io.fetchGroupIn.payload.numValidInstructions - 1) // Using fetchGroupReg which is updated
-                if (enableLog) report(L"  DEBUG-IDLE-FIRST-ISLAST: fetchGroupReg.numValidInstructions=${fetchGroupReg.numValidInstructions}, isFirstInstructionLast=${isFirstInstructionLast}")
+                val isFirstInstructionLast = rawGroup.numValidInstructions === 1 // Using rawGroup which is current input
+                if (enableLog) report(L"  DEBUG-IDLE-FIRST-ISLAST: rawGroup.numValidInstructions=${rawGroup.numValidInstructions}, isFirstInstructionLast=${isFirstInstructionLast} beacuse startIdx=${startIdx}")
 
                 when(isFirstInstructionLast) {
                   if (enableLog) report(L"  DEBUG-IDLE-FAST: First instruction is last in group (not branch/redirect), Group finished. -> IDLE")
@@ -179,9 +205,6 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
               pendingBpuQueryReg.predecodeInfo := firstPredecode
               pendingBpuQueryReg.bpuTransactionId := bpuTransIdCounterReg
 
-              // BPU Query is sent, increment counter
-              
-
               if (enableLog) ParallaxSim.notice(L"DISPATCHER-IDLE: BPU Query sent for first instruction. -> WAITING_FOR_BPU")
               goto(WAITING_FOR_BPU)
             }
@@ -214,7 +237,6 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
             pendingBpuQueryReg.predecodeInfo := currentPredecodeReg
             pendingBpuQueryReg.bpuTransactionId := bpuTransIdCounterReg
 
-            
             if (enableLog) report(L"DISPATCH-BURST: BPU Query sent for PC=0x${currentPcReg}. -> WAITING_FOR_BPU")
             goto(WAITING_FOR_BPU)
           }otherwise { // Fast Path - Burst Mode: 处理普通指令和简单的直接跳转

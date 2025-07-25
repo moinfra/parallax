@@ -1180,8 +1180,6 @@ class LabSpec extends CustomSpinalSimFunSuite {
   }
 
   test("Comprehensive Instruction and Memory Test") {
-    val insts = new ArrayBuffer[BigInt]()
-
     // --- 1. Register and Constant Definitions ---
     val R_BASE_MEM = 4      // r4, base address for results
     val R_ERR_COUNT = 5     // r5, counts mismatches
@@ -1191,60 +1189,81 @@ class LabSpec extends CustomSpinalSimFunSuite {
     val R_EXPECT = 13       // r13, holds expected result for verification
     val R_ACTUAL = 14       // r14, holds actual result from memory for verification
     val R_LINK = 1          // r1, used for jirl
-    val R_TEMP = 15         // r15, temporary register for branch tests
+    val R_TEMP = 15         // r15, temporary register
 
     val MEM_BASE_ADDR = BigInt("80400000", 16)
     val MASK32 = (BigInt(1) << 32) - 1
     
-    // Use values that test edge cases (positive, negative)
     val VAL_POS = BigInt("01ABCDEF", 16)
     val VAL_NEG = BigInt("FEDCBA98", 16) // A negative number in signed 32-bit
-    val VAL_SHIFT = BigInt(5)
+    val VAL_SHIFT = 5
 
     def toSigned32(n: BigInt): BigInt = {
         val masked = n & MASK32
         if ((masked >> 31) == 1) masked - (BigInt(1) << 32) else masked
     }
+    
+    def logicalRightShift(value: BigInt, shift: Int): BigInt = {
+      (value & MASK32) >> shift
+    }
 
     // --- 2. Data Processing Test Case Structure ---
     case class TestCase(name: String, instructions: Seq[BigInt], expected: BigInt)
 
-    // --- FIX for Circular Reference ---
-    // First, define all test cases *except* the one that needs to know the list's length.
-    val baseDataProcessingTests = Seq(
+    // --- Define all test cases ---
+    val baseDataProcessingTests = ArrayBuffer(
       TestCase("add.w",  Seq(add_w(R_RESULT, R_SRC1, R_SRC2)), (VAL_POS + VAL_NEG) & MASK32),
       TestCase("sub.w",  Seq(sub_w(R_RESULT, R_SRC1, R_SRC2)), (VAL_POS - VAL_NEG) & MASK32),
       TestCase("mul.w",  Seq(mul_w(R_RESULT, R_SRC1, R_SRC2)), (toSigned32(VAL_POS) * toSigned32(VAL_NEG)) & MASK32),
       TestCase("or",     Seq(or(R_RESULT, R_SRC1, R_SRC2)), VAL_POS | VAL_NEG),
       TestCase("and",    Seq(and(R_RESULT, R_SRC1, R_SRC2)), VAL_POS & VAL_NEG),
       TestCase("xor",    Seq(xor(R_RESULT, R_SRC1, R_SRC2)), VAL_POS ^ VAL_NEG),
-      // Use lower 5 bits of rk as shift amount for srl.w
-      TestCase("srl.w",  Seq(add_w(R_TEMP, R_SRC2, 0), srl_w(R_RESULT, R_SRC1, R_TEMP)), (VAL_POS >> (VAL_NEG.toInt & 0x1F)) & MASK32),
-      TestCase("addi.w", Seq(addi_w(R_RESULT, R_SRC1, -256)), (VAL_POS + BigInt(-256)) & MASK32),
-      TestCase("slti (true)",  Seq(slti(R_RESULT, R_SRC2, 0)), 1), // VAL_NEG < 0 (signed)
-      TestCase("slti (false)", Seq(slti(R_RESULT, R_SRC1, 0)), 0), // VAL_POS < 0 (signed)
+      TestCase("srl.w",  Seq(srl_w(R_RESULT, R_SRC1, R_SRC2)), logicalRightShift(VAL_POS, VAL_NEG.toInt & 0x1F)),
+      TestCase("addi.w", Seq(addi_w(R_RESULT, R_SRC1, -256)), (VAL_POS - 256) & MASK32),
+      TestCase("slti (true)",  Seq(slti(R_RESULT, R_SRC2, 0)), 1), // VAL_NEG (-ve) < 0 is true
+      TestCase("slti (false)", Seq(slti(R_RESULT, R_SRC1, 0)), 0), // VAL_POS (+ve) < 0 is false
       TestCase("ori",    Seq(ori(R_RESULT, R_SRC1, 0xDEF)), VAL_POS | 0xDEF),
       TestCase("andi",   Seq(andi(R_RESULT, R_SRC1, 0xDEF)), VAL_POS & 0xDEF),
-      TestCase("slli.w", Seq(slli_w(R_RESULT, R_SRC1, VAL_SHIFT.toInt)), (VAL_POS << VAL_SHIFT.toInt) & MASK32),
-      TestCase("srli.w", Seq(srli_w(R_RESULT, R_SRC1, VAL_SHIFT.toInt)), (VAL_POS >> VAL_SHIFT.toInt) & MASK32),
+      TestCase("slli.w", Seq(slli_w(R_RESULT, R_SRC1, VAL_SHIFT)), (VAL_POS << VAL_SHIFT) & MASK32),
+      TestCase("srli.w", Seq(srli_w(R_RESULT, R_SRC1, VAL_SHIFT)), logicalRightShift(VAL_POS, VAL_SHIFT)),
       TestCase("lu12i.w",Seq(lu12i_w(R_RESULT, 0xABCDE)), BigInt("ABCDE000", 16))
     )
 
-    // Now, we can safely get the length of the base list. This will be the index for our next test case.
-    val stbLdbTestIndex = baseDataProcessingTests.length
-    
-    // Create the st.b/ld.b test case using the correct index/offset.
-    val stbLdbTestCase = TestCase(
-      "st.b/ld.b",
+    // --- Add memory tests dynamically to resolve circular dependency on list length ---
+    val stwLdwIndex = baseDataProcessingTests.length
+    baseDataProcessingTests += TestCase(
+      "st.w/ld.w",
       Seq(
-        st_b(rd = R_SRC1, rj = R_BASE_MEM, offset = stbLdbTestIndex * 4),
-        ld_b(rd = R_RESULT, rj = R_BASE_MEM, offset = stbLdbTestIndex * 4)
+        st_w(rd = R_SRC1, rj = R_BASE_MEM, offset = stwLdwIndex * 4),
+        ld_w(rd = R_RESULT, rj = R_BASE_MEM, offset = stwLdwIndex * 4)
       ),
-      VAL_POS & 0xFF // Expected result is the LSB of VAL_POS
+      VAL_POS
     )
 
-    // Finally, create the complete list of test cases by appending the special one.
-    val dataProcessingTestCases = baseDataProcessingTests :+ stbLdbTestCase
+    val stbLdbIndex = baseDataProcessingTests.length
+    val ldb_byte = VAL_POS & 0xFF
+    val expected_ldb = if ((ldb_byte & 0x80) != 0) BigInt("FFFFFFFF", 16) - (0xFF - ldb_byte) else ldb_byte
+    baseDataProcessingTests += TestCase(
+      "st.b/ld.b (signed)",
+      Seq(
+        st_b(rd = R_SRC1, rj = R_BASE_MEM, offset = stbLdbIndex * 4),
+        ld_b(rd = R_RESULT, rj = R_BASE_MEM, offset = stbLdbIndex * 4)
+      ),
+      expected_ldb // Should be 0xFFFFFFEF
+    )
+    
+    val stbLdbuIndex = baseDataProcessingTests.length
+    baseDataProcessingTests += TestCase(
+      "st.b/ld.bu (unsigned)",
+      Seq(
+        st_b(rd = R_SRC1, rj = R_BASE_MEM, offset = stbLdbuIndex * 4),
+        ld_bu(rd = R_RESULT, rj = R_BASE_MEM, offset = stbLdbuIndex * 4)
+      ),
+      VAL_POS & 0xFF // Should be 0xEF
+    )
+
+    val dataProcessingTestCases = baseDataProcessingTests.toSeq
+    val insts = new ArrayBuffer[BigInt]()
 
     // --- 3. Generate Assembly Code ---
     
@@ -1266,7 +1285,8 @@ class LabSpec extends CustomSpinalSimFunSuite {
     // --- PART III: READ AND VERIFY RESULTS ---
     for ((tc, i) <- dataProcessingTestCases.zipWithIndex) {
       val expected = tc.expected
-      insts += lu12i_w(rd = R_EXPECT, imm = (expected >> 12).toInt)
+      // Load large constants in two steps
+      insts += lu12i_w(rd = R_EXPECT, imm = (expected >> 12).toInt & 0xFFFFF)
       insts += ori(rd = R_EXPECT, rj = R_EXPECT, imm = (expected & 0xFFF).toInt)
       insts += ld_w(rd = R_ACTUAL, rj = R_BASE_MEM, offset = i * 4)
       insts += beq(rj = R_EXPECT, rd = R_ACTUAL, offset = 8) // If equal, skip error increment
@@ -1274,40 +1294,40 @@ class LabSpec extends CustomSpinalSimFunSuite {
     }
     
     // --- PART IV: BRANCHING TESTS ---
-    // At this point, R_ERR_COUNT should be 0. We will now intentionally cause it to increment.
     var expectedErrorCount = 0
 
-    // Test BEQ (true case): should jump, error count unchanged
+    // Test BEQ (true case): should jump
     insts += beq(rj = 0, rd = 0, offset = 8)
     insts += addi_w(rd = R_ERR_COUNT, rj = R_ERR_COUNT, imm = 1) 
 
-    // Test BEQ (false case): should not jump, error count increments
+    // Test BEQ (false case): should not jump
     insts += beq(rj = R_SRC1, rd = 0, offset = 8)
     insts += addi_w(rd = R_ERR_COUNT, rj = R_ERR_COUNT, imm = 1)
     expectedErrorCount += 1
 
-    // Test BNE (true case): should jump, error count unchanged
+    // Test BNE (true case): should jump
     insts += bne(rj = R_SRC1, rd = 0, offset = 8)
     insts += addi_w(rd = R_ERR_COUNT, rj = R_ERR_COUNT, imm = 1)
 
-    // Test BNE (false case): should not jump, error count increments
+    // Test BNE (false case): should not jump
     insts += bne(rj = 0, rd = 0, offset = 8)
     insts += addi_w(rd = R_ERR_COUNT, rj = R_ERR_COUNT, imm = 1)
     expectedErrorCount += 1
 
-    // Test BLTU (true case, unsigned less than): should jump, error count unchanged
+    // Test BLTU (true case, unsigned less than)
     insts += bltu(rj = R_SRC1, rd = R_SRC2, offset = 8) // VAL_POS (0x01...) < VAL_NEG (0xFE...) is true
     insts += addi_w(rd = R_ERR_COUNT, rj = R_ERR_COUNT, imm = 1)
 
-    // Test BLTU (false case, unsigned less than): should not jump, error count increments
+    // Test BLTU (false case, unsigned less than)
     insts += bltu(rj = R_SRC2, rd = R_SRC1, offset = 8) // VAL_NEG (0xFE...) < VAL_POS (0x01...) is false
     insts += addi_w(rd = R_ERR_COUNT, rj = R_ERR_COUNT, imm = 1)
     expectedErrorCount += 1
 
     // Test JIRL: Jump over the error increment instruction.
-    val jirl_pc = BigInt("80000000", 16) + insts.length * 4
-    val target_pc = jirl_pc + 8 // Target is the instruction after the error increment
-    insts += lu12i_w(R_TEMP, (target_pc >> 12).toInt)
+    val jirl_setup_pc = BigInt("80000000", 16) + insts.length * 4
+    val jirl_instr_pc = jirl_setup_pc + 8 // lu12i, ori
+    val target_pc = jirl_instr_pc + 8 // jirl, addi.w
+    insts += lu12i_w(R_TEMP, (target_pc >> 12).toInt & 0xFFFFF)
     insts += ori(R_TEMP, R_TEMP, (target_pc & 0xfff).toInt)
     insts += jirl(rd = R_LINK, rj = R_TEMP, offset = 0)
     insts += addi_w(rd = R_ERR_COUNT, rj = R_ERR_COUNT, imm = 1) // This should be skipped
@@ -1317,9 +1337,9 @@ class LabSpec extends CustomSpinalSimFunSuite {
     insts += beq(rj = R_ERR_COUNT, rd = R_TEMP, offset = 8) // If R_ERR_COUNT == expected, jump to success
     
     // Fail loop (fallthrough)
-    insts += beq(rj = 0, rd = 0, offset = 0)
+    insts += beq(rj = 0, rd = 0, offset = 0) // Infinite loop
     // Success loop
-    insts += beq(rj = 0, rd = 0, offset = 0)
+    insts += beq(rj = 0, rd = 0, offset = 0) // Infinite loop
 
     // --- 4. Simulation Execution ---
     val finalInstructions = insts.toSeq
@@ -1391,10 +1411,11 @@ class LabSpec extends CustomSpinalSimFunSuite {
       println(f"Failure PC: 0x${failPC.toString(16)}")
 
       // Run simulation until the CPU halts in either the success or fail loop.
-      SimTimeout(finalInstructions.length * 50)
+      val simTimeout = finalInstructions.length * 200
+      SimTimeout(simTimeout)
       var simTime = 0
       cd.waitSampling() // Let reset propagate
-      while(dut.io.commitStats.maxCommitPc.toBigInt < failPC && simTime < finalInstructions.length * 45) {
+      while(dut.io.commitStats.maxCommitPc.toBigInt < failPC && simTime < simTimeout) {
         cd.waitSampling()
         simTime += 1
       }

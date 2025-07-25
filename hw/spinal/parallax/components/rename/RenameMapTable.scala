@@ -1,3 +1,4 @@
+// filename: src/main/scala/parallax/components/rename/RenameMapTable.scala
 package parallax.components.rename
 
 import spinal.core._
@@ -13,62 +14,64 @@ case class RenameMapTableConfig(
   def archRegIdxWidth: BitCount = log2Up(archRegCount) bits
 }
 
-// Bundle for a single read port
 case class RatReadPort(config: RenameMapTableConfig) extends Bundle with IMasterSlave {
-  val archReg = UInt(config.archRegIdxWidth) // Input to RAT from master's perspective
-  val physReg = UInt(config.physRegIdxWidth) // Output from RAT from master's perspective
+  val archReg = UInt(config.archRegIdxWidth)
+  val physReg = UInt(config.physRegIdxWidth)
 
   override def asMaster(): Unit = {
-    // When this Bundle is used as a master port (e.g., on the component requesting a read)
-    // archReg is an output (driving the RAT's input)
-    // physReg is an input (receiving from the RAT's output)
     out(archReg)
     in(physReg)
   }
-  // asSlave() will be automatically inferred by SpinalHDL by flipping directions from asMaster()
 }
 
-// Bundle for a single write port
 case class RatWritePort(config: RenameMapTableConfig) extends Bundle with IMasterSlave {
-  val wen = Bool() default(False) // Input to RAT
-  val archReg = UInt(config.archRegIdxWidth) default(U(0, config.archRegIdxWidth)) // Input to RAT
-  val physReg = UInt(config.physRegIdxWidth) default(U(0, config.physRegIdxWidth)) // Input to RAT
+  val wen = Bool() default(False)
+  val archReg = UInt(config.archRegIdxWidth) default(U(0, config.archRegIdxWidth))
+  val physReg = UInt(config.physRegIdxWidth) default(U(0, config.physRegIdxWidth))
 
   override def asMaster(): Unit = {
-    // When this Bundle is used as a master port (e.g., on the component initiating a write)
-    // all these signals are outputs.
     out(wen, archReg, physReg)
   }
 }
 
-// Bundle for checkpointing - This is a data structure, not typically a port itself.
-// Its directionality is handled by the Stream that carries it.
-// So, it usually does NOT need to implement IMasterSlave unless used directly as an IO port.
 case class RatCheckpoint(config: RenameMapTableConfig) extends Bundle {
-  // arch -> phys mapping
   val mapping = Vec(UInt(config.physRegIdxWidth), config.archRegCount)
 }
 
-// The IO Bundle for RenameMapTable
+case class RatCommitUpdatePort(config: RenameMapTableConfig) extends Bundle with IMasterSlave {
+  val wen = Bool() default(False)
+  val archReg = UInt(config.archRegIdxWidth) default(U(0, config.archRegIdxWidth))
+  val physReg = UInt(config.physRegIdxWidth) default(U(0, config.physRegIdxWidth))
+
+  override def asMaster(): Unit = {
+    out(wen, archReg, physReg)
+  }
+}
+
+
 case class RenameMapTableIo(config: RenameMapTableConfig) extends Bundle with IMasterSlave {
-  // Read ports for source operands
+  // Read ports for source operands (from RenameUnit, reads RRAT)
   val readPorts = Vec(slave(RatReadPort(config)), config.numReadPorts)
 
-  // Write port for destination operand mapping update
+  // Write port for destination operand mapping update (from RenameUnit, writes RRAT)
   val writePorts = Vec(slave(RatWritePort(config)), config.numWritePorts)
 
-  // Read-only port for monitoring current internal state (for external checkpoint management)
+  // New: Commit update port (from CommitPlugin, writes ARAT)
+  val commitUpdatePort = in (RatCommitUpdatePort(config))
+
+  // Read-only port for monitoring current Architectural state (for external checkpoint management, reads ARAT)
   val currentState = RatCheckpoint(config)
 
-  // Checkpoint restore mechanism (external manager provides state to restore)
+  // Checkpoint restore mechanism (external manager provides ARAT state to restore RRAT)
   val checkpointRestore = slave Stream (RatCheckpoint(config))
   
-  // BACKWARD COMPATIBILITY: Deprecated save port for existing tests
+  // BACKWARD COMPATIBILITY: Deprecated save port for existing tests (keeping for now, but will be unused)
   val checkpointSave = slave Stream (RatCheckpoint(config))
 
   override def asMaster(): Unit = {
     readPorts.foreach(master(_))
     writePorts.foreach(master(_))
+    out(commitUpdatePort)
     
     // currentState: From caller's perspective, receives current state from RAT
     in(currentState)
@@ -82,7 +85,7 @@ case class RenameMapTableIo(config: RenameMapTableConfig) extends Bundle with IM
 }
 
 class RenameMapTable(val config: RenameMapTableConfig) extends Component {
-  // Configuration parameter validation at elaboration time
+  // Configuration parameter validation
   require(config.archRegCount > 0, "Number of architectural registers must be positive.")
   require(config.physRegIdxWidth.value > 0, "Physical register index width must be positive.")
   require(config.numReadPorts > 0, "Number of read ports must be positive.")
@@ -90,7 +93,6 @@ class RenameMapTable(val config: RenameMapTableConfig) extends Component {
     config.numWritePorts > 0,
     "Number of write ports must be positive."
   )
-
   require(
     config.archRegIdxWidth.value == log2Up(config.archRegCount),
     s"archRegIdxWidth (${config.archRegIdxWidth.value}) must be log2Up(archRegCount = ${config.archRegCount}), which is ${log2Up(config.archRegCount)}"
@@ -98,11 +100,15 @@ class RenameMapTable(val config: RenameMapTableConfig) extends Component {
 
   val io = slave(RenameMapTableIo(config))
 
-  val mapReg = Reg(RatCheckpoint(config)) init (initRatCheckpoint())
+  // --- ARAT (Architectural RAT) - 仅在Commit时更新，保存已提交的映射
+  val aratMapReg = Reg(RatCheckpoint(config)) init (initRatCheckpoint())
 
+  // --- RRAT (Rename RAT) - 被RenameUnit更新，包含推测性映射，分支错误时回滚
+  val rratMapReg = Reg(RatCheckpoint(config)) init (initRatCheckpoint())
+
+  // 私有初始化函数
   private def initRatCheckpoint(): RatCheckpoint = {
     val checkpoint = RatCheckpoint(config)
-    // Validations ensure archRegCount > 0 and physRegIdxWidth > 0
     for (i <- 0 until config.archRegCount) {
       if (i == 0) { // Assuming r0 is always 0 and maps to physical register 0
         checkpoint.mapping(i) := U(0, config.physRegIdxWidth)
@@ -112,43 +118,45 @@ class RenameMapTable(val config: RenameMapTableConfig) extends Component {
     }
     checkpoint
   }
-  val nextMapRegMapping = CombInit(mapReg.mapping)
 
-  // --- Read Logic ---
+  // --- Read Logic (读取 RRAT) ---
   for (i <- 0 until config.numReadPorts) {
-    // r0 (architectural register 0) always returns physical register 0
     when(io.readPorts(i).archReg === U(0, config.archRegIdxWidth)) {
-      io.readPorts(i).physReg := U(0, config.physRegIdxWidth)
+      io.readPorts(i).physReg := U(0, config.physRegIdxWidth) // r0 永远映射到 p0
     } otherwise {
-      io.readPorts(i).physReg := mapReg.mapping(io.readPorts(i).archReg)
+      io.readPorts(i).physReg := rratMapReg.mapping(io.readPorts(i).archReg) // 从 RRAT 读取
     }
   }
 
-  // --- Write and Restore Logic ---
-  // Create a combinational signal for the next state of the mapping, initially copying the current state
+  // --- RRAT Write Logic (来自 RenameUnit) ---
+  val nextRratMapRegMapping = CombInit(rratMapReg.mapping) // 下一个 RRAT 状态的组合逻辑
 
   when(io.checkpointRestore.valid) {
-    // Restore has highest priority
-    nextMapRegMapping := io.checkpointRestore.payload.mapping
+    nextRratMapRegMapping := io.checkpointRestore.payload.mapping // 恢复到CheckpointManager提供的ARAT状态
   } otherwise {
-    // Apply updates from each write port.
-    // Loop provides implicit priority: later ports in the loop (higher index 'i')
-    // will overwrite earlier ports if they target the same architectural register.
+    // 应用来自 RenameUnit 的写入（更新 RRAT）
     for (i <- 0 until config.numWritePorts) {
       when(io.writePorts(i).wen && io.writePorts(i).archReg =/= U(0, config.archRegIdxWidth)) {
-        nextMapRegMapping(io.writePorts(i).archReg) := io.writePorts(i).physReg
+        nextRratMapRegMapping(io.writePorts(i).archReg) := io.writePorts(i).physReg
       }
     }
   }
-  // Assign the calculated next state to the actual register at the clock edge
-  mapReg.mapping := nextMapRegMapping
+  rratMapReg.mapping := nextRratMapRegMapping // RRAT 寄存器更新
 
-  // --- Checkpoint Restore Logic ---
-  io.checkpointRestore.ready := True // RAT is always ready to restore
-  
+  // --- ARAT Write Logic (来自 CommitPlugin) ---
+  val nextAratMapRegMapping = CombInit(aratMapReg.mapping) // 下一个 ARAT 状态的组合逻辑
+
+  when(io.commitUpdatePort.wen && io.commitUpdatePort.archReg =/= U(0, config.archRegIdxWidth)) {
+    nextAratMapRegMapping(io.commitUpdatePort.archReg) := io.commitUpdatePort.physReg
+  }
+  aratMapReg.mapping := nextAratMapRegMapping // ARAT 寄存器更新
+
+  // --- Checkpoint Restore Logic (针对 RRAT 的恢复端口) ---
+  io.checkpointRestore.ready := True // RRAT 恢复端口总是就绪
+
   // --- BACKWARD COMPATIBILITY: Checkpoint Save (deprecated) ---
   io.checkpointSave.ready := True // Always ready but ignored
 
-  // --- Current State Output (Read-only monitoring port) ---
-  io.currentState.mapping := mapReg.mapping
+  // --- Current State Output (暴露 ARAT 状态给 CheckpointManager) ---
+  io.currentState.mapping := nextAratMapRegMapping // 暴露 ARAT 作为已提交的干净状态
 }

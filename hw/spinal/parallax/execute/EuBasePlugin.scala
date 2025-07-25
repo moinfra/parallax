@@ -90,7 +90,7 @@ abstract class EuBasePlugin(
   // --- 新增服务: BusyTableService 和 WakeupService ---
   lazy val busyTableService: BusyTableService = getService[BusyTableService]
   lazy val wakeupService: WakeupService = getService[WakeupService]
-  lazy val wakeupSourcePort: Flow[WakeupPayload] = wakeupService.newWakeupSource()
+  lazy val wakeupSourcePort: Flow[WakeupPayload] = wakeupService.newWakeupSource(s"$euName.wakeupPort")
 
   // --- PRF 读/写端口 ---
   // 由子类决定端口数量
@@ -192,7 +192,7 @@ abstract class EuBasePlugin(
 
     ParallaxLogger.log(s"EUBase ($euName): Setup 阶段完成。")
 
-    val clearBusyPort = busyTableService.newClearPort()
+    // val busyTableClearPort = busyTableService.newClearPort()
   }
 
   // Logic 阶段：连接 EU 特定逻辑，然后是通用的写回/旁路/ROB 逻辑
@@ -293,8 +293,9 @@ abstract class EuBasePlugin(
     // - 无异常：指令成功写入PRF，BusyTable位需要清除（寄存器现在有有效数据）
     // 对于不写寄存器的指令（如分支、Store），无需清除BusyTable位
 
-    setup.clearBusyPort.valid := executionCompletes && euResult.writesToPreg
-    setup.clearBusyPort.payload := uopAtWb.physDest.idx
+    // 交给 wakeup机制自动unset
+    // setup.busyTableClearPort.valid := executionCompletes && euResult.writesToPreg
+    // setup.busyTableClearPort.payload := uopAtWb.physDest.idx
     
     // RAW HAZARD DEBUG: Track when each EU clears busy bits (only for registers 1-5 and only when actually writing)
     when(executionCompletes && euResult.writesToPreg && uopAtWb.physDest.idx < 6) {

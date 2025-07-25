@@ -31,7 +31,7 @@ class CheckpointManagerPlugin(
     val flConfig: SimpleFreeListConfig
 ) extends Plugin with CheckpointManagerService {
   
-  val enableLog = false
+  val enableLog = true
   
   // Service interface signals
   val saveCheckpointTrigger = False
@@ -62,7 +62,7 @@ class CheckpointManagerPlugin(
     val btRestorePort = setup.btRestorePort
 
     // Single checkpoint storage
-    val storedRatCheckpoint = Reg(RatCheckpoint(ratConfig))
+    val storedRatCheckpoint = Reg(RatCheckpoint(ratConfig)) // FIXME: 这玩意儿没有存在的意义了
     // val storedFlCheckpoint = Reg(SuperScalarFreeListCheckpoint(flConfig))
     val storedBtCheckpoint = Reg(BusyTableCheckpoint(pipelineConfig))
     val hasValidCheckpoint = RegInit(False)
@@ -93,6 +93,13 @@ class CheckpointManagerPlugin(
     // storedFlCheckpoint init(initialFlCheckpoint)
     storedBtCheckpoint init(initialBtCheckpoint)
     
+    def printRAT(rat: RatCheckpoint) = {
+      report(L"[CheckpointManager] RAT mapping: ")
+      for (i <- 0 until ratConfig.archRegCount) {
+        report(L"archReg ${i.toHexString} -> physReg ${rat.mapping(i)}")
+      }
+    }
+
     // REAL SAVE OPERATION: Capture ACTUAL current state
     when(saveCheckpointTrigger) {
       // Capture the REAL current state from RAT service
@@ -111,6 +118,7 @@ class CheckpointManagerPlugin(
       
       if (enableLog) {
         report(L"[CheckpointManager] Checkpoint saved - captured REAL RAT, FreeList and BusyTable state (single-cycle)")
+        printRAT(currentRatState)
       }
     }
     
@@ -128,10 +136,12 @@ class CheckpointManagerPlugin(
 
       // Drive BusyTable restore
       btRestorePort.valid := True
-      btRestorePort.payload := storedBtCheckpoint
+      // btRestorePort.payload := storedBtCheckpoint
+      btRestorePort.payload := initialBtCheckpoint // 由于commit时冲刷，检查点里的busybits都是孤儿。
       
       if (enableLog) {
         report(L"[CheckpointManager] Checkpoint restored - restored REAL state (single-cycle)")
+        printRAT(storedRatCheckpoint)
       }
     } otherwise {
       ratRestorePort.valid := False

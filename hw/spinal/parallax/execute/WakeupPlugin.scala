@@ -15,7 +15,11 @@ case class WakeupPayload(pCfg: PipelineConfig) extends Bundle {
 // The service trait
 trait WakeupService extends Service with LockedImpl {
     /** Called by EUs to broadcast a completed tag */
-    def newWakeupSource(): Flow[WakeupPayload]
+    // --- OLD ---
+    // def newWakeupSource(): Flow[WakeupPayload]
+    // +++ NEW +++
+    // 增加一个可选的String参数traceName
+    def newWakeupSource(traceName: String = "UnnamedWakeupSource"): Flow[WakeupPayload]
 
     /** Called by IQs to listen to all wakeup events */
     // --- OLD ---
@@ -28,7 +32,12 @@ trait WakeupService extends Service with LockedImpl {
 // The plugin that implements the service by merging all sources
 class WakeupPlugin(pCfg: PipelineConfig) extends Plugin with WakeupService {
 
-    private val wakeupSources = ArrayBuffer[Flow[WakeupPayload]]()
+    // --- OLD ---
+    // private val wakeupSources = ArrayBuffer[Flow[WakeupPayload]]()
+    // +++ NEW +++
+    // 存储 Flow 和其对应的 traceName
+    val wakeupSources = ArrayBuffer[(Flow[WakeupPayload], String)]()
+
     // --- OLD ---
     // private var mergedWakeupFlow: Flow[WakeupPayload] = null
     // +++ NEW +++
@@ -38,10 +47,13 @@ class WakeupPlugin(pCfg: PipelineConfig) extends Plugin with WakeupService {
     // setup Area不再需要做任何事
     val setup = create early new Area {}
 
-    override def newWakeupSource(): Flow[WakeupPayload] = {
+    // --- OLD ---
+    // override def newWakeupSource(): Flow[WakeupPayload] = { ... }
+    // +++ NEW +++
+    override def newWakeupSource(traceName: String = "UnnamedWakeupSource"): Flow[WakeupPayload] = {
         this.framework.requireEarly()
         val source = Flow(WakeupPayload(pCfg))
-        wakeupSources += source
+        wakeupSources += ((source, traceName)) // 将 Flow 和 traceName 一起存储
         source
     }
 
@@ -60,19 +72,23 @@ class WakeupPlugin(pCfg: PipelineConfig) extends Plugin with WakeupService {
         ParallaxLogger.log(s"WakeupPlugin: Found ${wakeupSources.length} wakeup sources")
         
         // 创建一个硬件Vec，其大小等于唤醒源的数量
-        allWakeupFlows = Vec(wakeupSources.map(s => cloneOf(s)))
+        // 我们只关心 Flow 部分来创建 Vec
+        allWakeupFlows = Vec(wakeupSources.map(s => cloneOf(s._1)))
 
         lock.await()
         // 将软件中收集的每个源连接到硬件Vec的对应端口
-        for ((source, idx) <- wakeupSources.zipWithIndex) {
-            allWakeupFlows(idx) << source
+        // 遍历 wakeupSources，它现在是 (Flow, String) 对
+        for (((sourceFlow, sourceName), idx) <- wakeupSources.zipWithIndex) {
+            allWakeupFlows(idx) << sourceFlow
         }
 
         // ======================= 调试日志（非常重要！）=======================
         // 打印出所有同时有效的唤醒信号
-        for ((flow, idx) <- allWakeupFlows.zipWithIndex) {
+        // 遍历 allWakeupFlows 和原始的 wakeupSources（包含 traceName）
+        for (((flow, traceName), idx) <- allWakeupFlows.zip(wakeupSources.map(_._2)).zipWithIndex) {
             when(flow.valid) {
-                ParallaxSim.log(L"WakeupPlugin: Broadcasting from source[${idx}] for physReg=${flow.payload.physRegIdx}")
+                // 使用 traceName 进行日志记录
+                ParallaxSim.log(L"WakeupPlugin: Broadcasting from source[${idx}] ('${traceName}') for physReg=${flow.payload.physRegIdx}")
             }
         }
         // ======================= 日志结束 =======================

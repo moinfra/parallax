@@ -35,6 +35,7 @@ class RenamePlugin(
     val s2_rob_alloc = issuePpl.pipeline.s2_rob_alloc
     val signals = issuePpl.signals
   }
+  val doGlobalFlush = Bool()
 
   // --- 核心逻辑实现 ---
   val logic = create late new Area {
@@ -43,7 +44,6 @@ class RenamePlugin(
     val s1_rename = setup.s1_rename
     val s2_rob_alloc = setup.s2_rob_alloc
     val signals = setup.signals
-
     val rat = setup.rat
     val freeList = setup.freeList
     val busyTableService = setup.busyTableService
@@ -81,12 +81,13 @@ class RenamePlugin(
 
       // 2. 如果分配失败，暂停流水线 (RobAllocPlugin 会处理 ROB 满的暂停)
       when(s2_rob_alloc.isValid && !allocationOk) {
-        notice(L"S2: Failed to allocate physical registers for uops: ${s2_rob_alloc(signals.DECODED_UOPS).map(_.format())}")
+        notice(L"[RegRes] S2: Failed to allocate physical registers for uops: ${s2_rob_alloc(signals.DECODED_UOPS).map(_.tinyDump())}")
         s2_rob_alloc.haltIt()
       }
 
       // --- 核心修改：在 S2 中连接 renameUnit 的所有输入 ---
       renameUnit.io.decodedUopsIn := decodedUopsInS2
+      renameUnit.io.flush := doGlobalFlush || RegNext(doGlobalFlush)
       rat.getReadPorts() <> renameUnit.io.ratReadPorts
       for (i <- 0 until pipelineConfig.renameWidth) {
         renameUnit.io.physRegsIn(i) := freeListPorts(i).physReg
@@ -100,23 +101,23 @@ class RenamePlugin(
       assert(!s2_rob_alloc.isFiring || allocationOk, "ASSERTION FAILED: Firing S2 stage with failed FreeList allocation!")
       // 4. 写回状态表 (当流水线发射时)
       rat.getWritePorts().zip(finalRenamedUops).foreach { case (ratPort, uop) =>
-        ratPort.wen := s2_rob_alloc.isFiring && uop.rename.allocatesPhysDest
+        ratPort.wen := s2_rob_alloc.isFiring && uop.rename.allocatesPhysDest && !doGlobalFlush && !RegNext(doGlobalFlush)
         ratPort.archReg := uop.decoded.archDest.idx
         ratPort.physReg := uop.rename.physDest.idx
       }
 
       for (i <- 0 until pipelineConfig.renameWidth) {
         val uopOut = finalRenamedUops(i)
-        setup.btSetBusyPorts(i).valid := s2_rob_alloc.isFiring && uopOut.rename.allocatesPhysDest
+        setup.btSetBusyPorts(i).valid := s2_rob_alloc.isFiring && uopOut.rename.allocatesPhysDest && !doGlobalFlush && !RegNext(doGlobalFlush)
         setup.btSetBusyPorts(i).payload := uopOut.rename.physDest.idx
       }
     }
 
     // Flush 逻辑，与您原来的一致
-    val flush = new Area {
+    val flushLogic = new Area {
       getServiceOption[HardRedirectService].foreach(hr => {
-        val doHardRedirect = hr.doHardRedirect()
-        when(doHardRedirect) {
+        doGlobalFlush := hr.doHardRedirect()
+        when(doGlobalFlush) {
           s1_rename.flushIt()
         }
       })

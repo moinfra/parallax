@@ -15,6 +15,7 @@ trait SgmbService extends Service with LockedImpl {
   def newWritePort(): SplitGmbWriteChannel
 }
 
+// SqQuery
 case class SqQuery(lsuCfg: LsuConfig, pipelineCfg: PipelineConfig) extends Bundle with Formattable {
     val robPtr      = UInt(pipelineCfg.robPtrWidth) // ESSENTIAL for ordering
     val address     = UInt(lsuCfg.pcWidth)
@@ -31,15 +32,14 @@ case class SqQuery(lsuCfg: LsuConfig, pipelineCfg: PipelineConfig) extends Bundl
     }
 }
 
+// SqQueryRsp
 case class SqQueryRsp(lsuCfg: LsuConfig) extends Bundle with Formattable {
     val hit         = Bool() // 是否命中一个可以转发的store
     val data        = Bits(lsuCfg.dataWidth)
 
     // 依赖相关 (Disambiguation)
     val olderStoreHasUnknownAddress = Bool() // 是否存在一个更早的、地址未知的store
-    // *** 修改开始 ***
     val olderStoreDataNotReady = Bool() // 是否存在一个更早的、地址匹配但数据未就绪的store
-    // *** 修改结束 ***
 
     def format: Seq[Any] = {
         Seq(
@@ -47,20 +47,20 @@ case class SqQueryRsp(lsuCfg: LsuConfig) extends Bundle with Formattable {
             L"hit=${hit},",
             L"data=${data},",
             L"olderStoreHasUnknownAddress=${olderStoreHasUnknownAddress},",
-            // *** 修改开始 ***
-            L"olderStoreDataNotReady=${olderStoreDataNotReady}", // Changed name
-            // *** 修改结束 ***
+            L"olderStoreDataNotReady=${olderStoreDataNotReady}",
             L")"
         )
     }
 }
 
+// SqQueryPort
 case class SqQueryPort(lsuCfg: LsuConfig, pipelineCfg: PipelineConfig) extends Bundle with IMasterSlave {
     val cmd = Flow(SqQuery(lsuCfg, pipelineCfg))
     val rsp = SqQueryRsp(lsuCfg)
     override def asMaster(): Unit = { master(cmd); in(rsp) }
 }
 
+// StoreBufferPushCmd
 case class StoreBufferPushCmd(val pCfg: PipelineConfig, val lsuCfg: LsuConfig) extends Bundle {
     val addr    = UInt(pCfg.pcWidth)
     val data    = Bits(pCfg.dataWidth)
@@ -73,6 +73,7 @@ case class StoreBufferPushCmd(val pCfg: PipelineConfig, val lsuCfg: LsuConfig) e
     val earlyExceptionCode= UInt(pCfg.exceptionCodeWidth)
 }
 
+// StoreBufferSlot
 case class StoreBufferSlot(val pCfg: PipelineConfig, val lsuCfg: LsuConfig, val dCacheParams: DataCacheParameters) extends Bundle with Formattable {
     val isFlush             = Bool()
     val addr                = UInt(pCfg.pcWidth)
@@ -84,10 +85,6 @@ case class StoreBufferSlot(val pCfg: PipelineConfig, val lsuCfg: LsuConfig, val 
     val valid               = Bool()
     val hasEarlyException   = Bool()
     val earlyExceptionCode  = UInt(pCfg.exceptionCodeWidth)
-    /*
-        推测阶段 (isCommitted = False): Store位于SB中，但其结果是临时的。如果发生冲刷，它可能被作废。它只对后续的Load指令（通过转发）可见，但对系统的其它部分（如D-Cache和其他核心）不可见。
-        提交阶段 (isCommitted = True):  ROB已经确认这条指令是正确路径上的一部分。它的写操作现在必须发生，且不可撤销。这个标志是触发Store从SB写入D-Cache的先决条件。
-     */
     val isCommitted         = Bool()
     val sentCmd      = Bool()
     val waitRsp     = Bool()
@@ -160,11 +157,13 @@ case class StoreBufferSlot(val pCfg: PipelineConfig, val lsuCfg: LsuConfig, val 
     }
 }
 
+// BypassAccumulator
 case class BypassAccumulator(pCfg: PipelineConfig) extends Bundle {
     val data    = Bits(pCfg.dataWidth)
     val hitMask = Bits(pCfg.dataWidth.value / 8 bits)
 }
 
+// StoreBufferBypassData
 case class StoreBufferBypassData(val pCfg: PipelineConfig) extends Bundle {
     val hit     = Bool()
     val data    = Bits(pCfg.dataWidth)
@@ -172,6 +171,7 @@ case class StoreBufferBypassData(val pCfg: PipelineConfig) extends Bundle {
     def setDefault(): this.type = { hit := False; data := 0; hitMask := 0; this }
 }
 
+// StoreBufferService
 trait StoreBufferService extends Service with LockedImpl {
     def getPushPort(): Stream[StoreBufferPushCmd]
     def getBypassQueryAddressInput(): UInt
@@ -188,7 +188,7 @@ class StoreBufferPlugin(
     val mmioConfig: Option[GenericMemoryBusConfig] = None
 ) extends Plugin with StoreBufferService with LockedImpl {
     ParallaxLogger.debug("Creating Store Buffer Plugin, mmioConfig = " + mmioConfig.toString())
-    val enableLog = false
+    val enableLog = true
     val hw = create early new Area {
         val pushPortInst      = Stream(StoreBufferPushCmd(pipelineConfig, lsuConfig))
         val bypassQueryAddrIn = UInt(pipelineConfig.pcWidth)
@@ -196,8 +196,6 @@ class StoreBufferPlugin(
         val bypassDataOutInst = Flow(StoreBufferBypassData(pipelineConfig))
         val sqQueryPort       = SqQueryPort(lsuConfig, pipelineConfig)
         val robServiceInst    = getService[ROBService[RenamedUop]]
-        //dcachedisable val dcacheServiceInst = getService[DataCacheService]
-        //dcachedisable val dCacheStorePort = dcacheServiceInst.newStorePort()
 
         var sgmbServiceOpt: Option[SgmbService] = None
         var mmioWriteChannel: Option[SplitGmbWriteChannel] = None
@@ -209,7 +207,6 @@ class StoreBufferPlugin(
             mmioWriteChannel = Some(sgmbService.newWritePort())
         }
         sgmbServiceOpt.foreach(_.retain())
-        //dcachedisable dcacheServiceInst.retain()
         robServiceInst.retain()
     }
 
@@ -219,15 +216,9 @@ class StoreBufferPlugin(
     override def getBypassDataOutput(): Flow[StoreBufferBypassData] = hw.bypassDataOutInst
     override def getStoreQueueQueryPort(): SqQueryPort = hw.sqQueryPort
 
-
     val logic = create late new Area {
         lock.await()
-
         val robService    = hw.robServiceInst
-        //dcachedisable val dcacheService = hw.dcacheServiceInst
-
-        //dcachedisable val storePortDCache = hw.dCacheStorePort
-
         val pushPortIn    = hw.pushPortInst
         val bypassQueryAddr= hw.bypassQueryAddrIn
         val bypassQuerySz = hw.bypassQuerySizeIn
@@ -240,8 +231,7 @@ class StoreBufferPlugin(
         for(i <- 0 until sbDepth) {
             slots(i).init(StoreBufferSlot(pipelineConfig, lsuConfig, dCacheParams).setDefault())
         }
-
-        // is robPtrA newer or same than robPtrB?
+        
         private def isNewerOrSame(robPtrA: UInt, robPtrB: UInt): Bool = {
             val width = robPtrA.getWidth
             require(width == robPtrB.getWidth, "ROB pointer widths must match")
@@ -258,15 +248,10 @@ class StoreBufferPlugin(
             (genA === genB && idxA >= idxB) || (genA =/= genB && idxA < idxB)
         }
         private def isOlder(robPtrA: UInt, robPtrB: UInt): Bool = !isNewerOrSame(robPtrA, robPtrB)
-
-        // --- Flush Logic (moved here to define flushInProgress early) ---
+        
         val robFlushPort = robService.doRobFlush()
-        
-        // 1. 立即生效的组合逻辑信号：用于立即屏蔽交互
         val flushInProgress = robFlushPort.valid && robFlushPort.payload.reason === FlushReason.ROLLBACK_TO_ROB_IDX
-        val flushTargetRobPtr = robFlushPort.payload.targetRobPtr // 立即生效的冲刷目标
-        
-        // 2. 延迟一拍的寄存器信号：用于实际执行槽位清理
+        val flushTargetRobPtr = robFlushPort.payload.targetRobPtr
         case class FlushInfo() extends Bundle {
             val valid = Bool()
             val targetRobPtr = UInt(pipelineConfig.robPtrWidth)
@@ -283,154 +268,62 @@ class StoreBufferPlugin(
             info
         })
         
-        // --- SB Push/Pop/Commit/Flush Logic ---
+        // --- SB Push Logic  ---
         val validFall = Vec(Bool(), sbDepth)
         validFall(0) := !slots(0).valid
         for(i <- 1 until sbDepth) { validFall(i) := slots(i-1).valid && !slots(i).valid }
         val canPush = validFall.orR && !flushInProgress
         pushPortIn.ready := canPush
 
+        val pushIdx = OHToUInt(validFall)
         when(pushPortIn.fire) {
-            val pushIdx = OHToUInt(validFall)
             val newSlotData = StoreBufferSlot(pipelineConfig, lsuConfig, dCacheParams)
             newSlotData.initFromCommand(pushPortIn.payload)
             slotsAfterUpdates(pushIdx) := newSlotData
             if(enableLog) report(L"[SQ] PUSH: robPtr=${pushPortIn.payload.robPtr} to slotIdx=${pushIdx}")
         }
         
-        // --- Sending Logic: Strict In-Order from the head ---
+
         val headSlot = slots(0)
-        
-        // Normal Store操作发送条件（非MMIO）
         val sharedWriteCond = headSlot.valid && headSlot.isCommitted && !headSlot.isFlush &&
                             !headSlot.waitRsp && !headSlot.isWaitingForRefill && !headSlot.isWaitingForWb &&
                             !headSlot.hasEarlyException // 仅当没有早期异常时才尝试发送
         val canPopNormalOp = sharedWriteCond && !headSlot.isIO // 普通DCache写
-        
-        // Flush指令: 只要它到达头部并且它自己的操作未完成，就可以尝试发送。
-        // Flush 指令不需要 isCommitted，但其操作本身也可能需要等待
         val canPopFlushOp = headSlot.valid && headSlot.isFlush && !headSlot.waitRsp && !headSlot.isWaitingForWb
-
-        // MMIO Store操作发送条件
         val canPopMMIOOp = sharedWriteCond && headSlot.isIO
         when(Bool(!mmioConfig.isDefined) && headSlot.isIO) {
             assert(False, "Got isIO but no MMIO service.")
         }
-        
-        // canPopToDCache 现在只表示非MMIO操作，并且它们必须可以发送到DCache（而非陷入某种等待）
         val canSendToDCache = canPopNormalOp || canPopFlushOp
         val canSendToMMIO = canPopMMIOOp
-
-        if(enableLog) report(Seq(
-            L"[SQ] sharedWriteCond = ${sharedWriteCond} of headslot: ${headSlot.format}",
-            L"canSendToDCache = ${canSendToDCache}. ",
-            L"canSendToMMIO = ${canSendToMMIO}. "
-        ))
-
-        // DCache路径（非MMIO）
-        //dcachedisable storePortDCache.cmd.valid := canSendToDCache
-        //dcachedisable storePortDCache.cmd.payload.assignDontCare()
-        //dcachedisable when(canSendToDCache) {
-        //dcachedisable     when(headSlot.isFlush) {
-        //dcachedisable         storePortDCache.cmd.payload.address  := headSlot.addr
-        //dcachedisable         storePortDCache.cmd.payload.flush    := True
-        //dcachedisable         storePortDCache.cmd.payload.data     := 0
-        //dcachedisable         storePortDCache.cmd.payload.mask     := 0
-        //dcachedisable         storePortDCache.cmd.payload.io       := False
-        //dcachedisable         storePortDCache.cmd.payload.flushFree:= False
-        //dcachedisable         storePortDCache.cmd.payload.prefetch := False
-        //dcachedisable         if(pipelineConfig.transactionIdWidth > 0) {
-        //dcachedisable             storePortDCache.cmd.payload.id := headSlot.robPtr.resize(pipelineConfig.transactionIdWidth bits)
-        //dcachedisable         }
-        //dcachedisable         if(enableLog) report(L"[SQ] Sending FLUSH to D-Cache: addr=${headSlot.addr}, robPtr=${headSlot.robPtr}")
-        //dcachedisable     } otherwise {
-        //dcachedisable         storePortDCache.cmd.payload.address  := headSlot.addr
-        //dcachedisable         storePortDCache.cmd.payload.data     := headSlot.data
-        //dcachedisable         storePortDCache.cmd.payload.mask     := headSlot.be
-        //dcachedisable         storePortDCache.cmd.payload.io       := headSlot.isIO // For DCache path, this should be False for normal stores
-        //dcachedisable         storePortDCache.cmd.payload.flush    := False
-        //dcachedisable         storePortDCache.cmd.payload.flushFree:= False
-        //dcachedisable         storePortDCache.cmd.payload.prefetch := False
-        //dcachedisable         if(pipelineConfig.transactionIdWidth > 0) {
-        //dcachedisable             storePortDCache.cmd.payload.id := headSlot.robPtr.resize(pipelineConfig.transactionIdWidth bits)
-        //dcachedisable         }
-        //dcachedisable         if(enableLog) report(L"[SQ] Sending STORE to D-Cache: addr=${headSlot.addr}, data=${headSlot.data}, be=${headSlot.be}, robPtr=${headSlot.robPtr}")
-        //dcachedisable     }
-        //dcachedisable }
-
-        // MMIO路径
+        if(enableLog) report(Seq(L"[SQ] sharedWriteCond = ${sharedWriteCond} of headslot: ${headSlot.format}", L"canSendToDCache = ${canSendToDCache}. ", L"canSendToMMIO = ${canSendToMMIO}. "))
         val mmioWriteCmd = hw.mmioWriteChannel.map { mmioChannel =>
             mmioChannel.cmd.valid := canSendToMMIO
             mmioChannel.cmd.address := headSlot.addr
             mmioChannel.cmd.data := headSlot.data
             mmioChannel.cmd.byteEnables := headSlot.be
-            mmioChannel.cmd.last := True // MMIO操作总是单拍
+            mmioChannel.cmd.last := True
             if (mmioConfig.get.useId) {
                 require(mmioChannel.cmd.id.getWidth >= headSlot.robPtr.getWidth, "MMIO ID width must be at least as wide as ROB pointer width")
                 mmioChannel.cmd.id := headSlot.robPtr.resized
             }
-
             when(mmioChannel.cmd.valid) {
                 if(enableLog) report(L"[SQ-MMIO] Sending MMIO STORE: payload=${mmioChannel.cmd.payload.format} headslot=${headSlot.format} valid=${mmioChannel.cmd.valid} ready=${mmioChannel.cmd.ready}")
             }
             mmioChannel.cmd
         }
-
-
-        // --- Response and Retry Logic ---
-        // Signal that a command was fired from the head THIS cycle.
-        //dcachedisable val dcacheCmdFired = canSendToDCache && storePortDCache.cmd.ready
         val mmioCmdFired = hw.mmioWriteChannel.map(channel => canSendToMMIO && channel.cmd.ready).getOrElse(False)
         if(enableLog) report(L"[SQ] mmioCmdFired=${mmioCmdFired} because canSendToMMIO=${canSendToMMIO}, channel.cmd.ready=${hw.mmioWriteChannel.map(_.cmd.ready).getOrElse(null)}")
-
-        // Store Buffer是FIFO，所以我们只期望头部槽位的响应
-        //dcachedisable val dcacheResponseForHead = storePortDCache.rsp.valid && headSlot.valid &&
-        //dcachedisable             (headSlot.waitRsp || dcacheCmdFired) && !headSlot.isIO && // 必须是DCache事务
-        //dcachedisable             (headSlot.robPtr.resize(pipelineConfig.transactionIdWidth) === storePortDCache.rsp.payload.id) // ID匹配
-
+        when(mmioCmdFired) {
+            slotsAfterUpdates(0).sentCmd := True
+            slotsAfterUpdates(0).waitRsp := True
+            report(L"[SQ] CMD_FIRED_MMIO: robPtr=${slots(0).robPtr} (slotIdx=0), addr=${slots(0).addr} data=${slots(0).data} be=${slots(0).be}")
+        }
         val mmioResponseForHead = hw.mmioWriteChannel.map { mmioChannel =>
             mmioChannel.rsp.valid && headSlot.valid && headSlot.isIO && // 必须是MMIO事务
             (headSlot.waitRsp || mmioCmdFired) && // 'mmioCmdFired' 确保响应是为当前发送的命令
             (headSlot.robPtr.resized === mmioChannel.rsp.payload.id) // ID匹配
         }.getOrElse(False)
-
-        //dcachedisable if(enableLog) report(L"[SQ] dcacheResponseForHead=${dcacheResponseForHead}, mmioResponseForHead=${mmioResponseForHead}")
-
-        // 当命令成功发出时（必须valid&&ready），我们将其标记为已发送并等待响应。
-        //dcachedisable when(dcacheCmdFired) {
-        //dcachedisable     slotsAfterUpdates(0).sentCmd := True
-        //dcachedisable     slotsAfterUpdates(0).waitRsp := True 
-        //dcachedisable     if(enableLog) report(L"[SQ] CMD_FIRED_DCACHE: robPtr=${slots(0).robPtr} (slotIdx=0), addr=${slots(0).addr}")
-        //dcachedisable }
-        when(mmioCmdFired) {
-            slotsAfterUpdates(0).sentCmd := True
-            slotsAfterUpdates(0).waitRsp := True
-            report(L"[SQ] CMD_FIRED_MMIO: robPtr=${slots(0).robPtr} (slotIdx=0), addr=${slots(0).addr}")
-        }
-
-        // 处理 D-Cache 响应
-        //dcachedisable when(dcacheResponseForHead) {
-        //dcachedisable     // 响应到达，操作不再是待定状态
-        //dcachedisable     slotsAfterUpdates(0).waitRsp := False
-        //dcachedisable     
-        //dcachedisable     when(storePortDCache.rsp.payload.redo) {
-        //dcachedisable         // REDO 意味着需要重试。清除 sentCmd 以重新启用发送。
-        //dcachedisable         slotsAfterUpdates(0).sentCmd := False
-        //dcachedisable         
-        //dcachedisable         when(storePortDCache.rsp.payload.flush) {
-        //dcachedisable             slotsAfterUpdates(0).isWaitingForWb := True // 等待写回完成
-        //dcachedisable             if(enableLog) report(L"[SQ] REDO_FOR_FLUSH received for robPtr=${headSlot.robPtr}. Entering WAIT_FOR_WB.")
-        //dcachedisable         } otherwise {
-        //dcachedisable             slotsAfterUpdates(0).isWaitingForRefill := True // 等待填充完成
-        //dcachedisable             slotsAfterUpdates(0).refillSlotToWatch  := storePortDCache.rsp.payload.refillSlot
-        //dcachedisable             if(enableLog) report(L"[SQ] REDO_FOR_REFILL received for robPtr=${headSlot.robPtr}. Entering WAIT_FOR_REFILL.")
-        //dcachedisable         }
-        //dcachedisable     } otherwise {
-        //dcachedisable         // 成功响应 (redo=0)。操作完成。
-        //dcachedisable         if(enableLog) report(L"[SQ] DCACHE_RSP_SUCCESS received for robPtr=${headSlot.robPtr}.")
-        //dcachedisable     }
-        //dcachedisable }
-        // 处理 MMIO 响应
         when(mmioResponseForHead) {
             hw.mmioWriteChannel.foreach { mmioChannel =>
                 // MMIO 响应到达，操作完成 (MMIO 没有 redo)
@@ -446,53 +339,22 @@ class StoreBufferPlugin(
                 }
             }
         }
-
-            getServiceOption[DebugDisplayService].foreach(dbg => { 
+        getServiceOption[DebugDisplayService].foreach(dbg => { 
             dbg.setDebugValueOnce(mmioResponseForHead, DebugValue.MEM_WRITE_FIRE, expectIncr = true)
         })
-
-        // MMIO响应的 ready 信号只在响应有效且是为当前头部的 Store 时拉高
         hw.mmioWriteChannel.foreach { mmioChannel =>
             mmioChannel.rsp.ready := mmioResponseForHead
         }
-
-        // 处理 D-Cache 填充完成信号 (用于 redo 情况)
-        //dcachedisable val refillCompletionsFromDCache = dcacheService.getRefillCompletions()
-        //dcachedisable  report(L"[SQ] Watching... refillCompletionsFromDCache=${refillCompletionsFromDCache}")
-        //dcachedisable val waitedRefillIsDone = headSlot.valid && headSlot.isWaitingForRefill &&
-        //dcachedisable                         (headSlot.refillSlotToWatch & refillCompletionsFromDCache).orR
-        //dcachedisable if(enableLog) report(L"[SQ] waitedRefillIsDone=${waitedRefillIsDone} because: valid=${headSlot.valid} isWaitingForRefill=${headSlot.isWaitingForRefill} refillSlotToWatch=${headSlot.refillSlotToWatch} refillCompletionsFromDCache=${refillCompletionsFromDCache}")
-        //dcachedisable when(waitedRefillIsDone) {
-        //dcachedisable     slotsAfterUpdates(0).isWaitingForRefill := False
-        //dcachedisable     slotsAfterUpdates(0).sentCmd := False // Clear sentCmd to retry sending
-        //dcachedisable     if(enableLog) report(L"[SQ] REFILL_DONE observed for robPtr=${headSlot.robPtr}. Ready to retry.")
-        //dcachedisable }
-        
-        // 处理 D-Cache 写回忙信号 (用于 Flush 的 redo 情况)
-        //dcachedisable val dCacheIsWbBusy = dcacheService.writebackBusy()
-        //dcachedisable if(enableLog) report(L"[SQ] dCacheIsWbBusy=${dCacheIsWbBusy}")
-        //dcachedisable when(headSlot.valid && headSlot.isWaitingForWb && !dCacheIsWbBusy) {
-        //dcachedisable     slotsAfterUpdates(0).isWaitingForWb := False
-        //dcachedisable     slotsAfterUpdates(0).sentCmd := False // Clear sentCmd to retry sending
-        //dcachedisable     if(enableLog) report(L"[SQ] DCACHE_READY observed for robPtr=${headSlot.robPtr}. Exiting WAIT_FOR_WB.")
-        //dcachedisable }
-
-        // --- Commit and Flush Logic ---
         val commitInfoFromRob = robService.getCommitSlots(pipelineConfig.commitWidth)
-        
-        // 创建一个Bundle来存储一个周期的所有提交信息
         case class CommitUpdateInfo() extends Bundle {
-            val validMask = Bits(sbDepth bits) // 每个bit对应一个SB槽位是否被提交
+            val validMask = Bits(sbDepth bits)
             def setDefault(initValue: Int = 0): this.type = {
                 validMask := initValue
                 this
             }
         }
-
         val commitUpdateInfo = CommitUpdateInfo()
-        commitUpdateInfo.validMask.clearAll() // 默认无提交
-
-        // 组合逻辑：计算本周期的提交事件，填充commitUpdateInfo
+        commitUpdateInfo.validMask.clearAll()
         for(i <- 0 until sbDepth) {
             val slotIsCommittedThisCycle = False
             when(slots(i).valid && !slots(i).isCommitted) {
@@ -500,7 +362,7 @@ class StoreBufferPlugin(
                     when(commitInfoFromRob(j).canCommit &&
                          commitInfoFromRob(j).entry.payload.uop.robPtr === slots(i).robPtr &&
                          (commitInfoFromRob(j).entry.payload.uop.decoded.uopCode === BaseUopCode.STORE ||
-                          /*commitInfoFromRob(j).entry.payload.uop.isFlush*/ False) && // 提交也可以是Flush指令
+                          /*commitInfoFromRob(j).entry.payload.uop.isFlush*/ False) &&
                          !commitInfoFromRob(j).entry.status.hasException) {
                         
                         slotIsCommittedThisCycle := True
@@ -510,77 +372,52 @@ class StoreBufferPlugin(
             }
             commitUpdateInfo.validMask(i) := slotIsCommittedThisCycle
         }
-
-        // 时序逻辑：锁存本周期的提交信息，供下一周期使用
         val registeredCommitUpdate = RegNext(commitUpdateInfo).init(CommitUpdateInfo().setDefault())
-        
         for(i <- 0 until sbDepth){
-            // 检查这个槽位是否在此周期被延迟的冲刷信号命中
             val toBeFlushedByRob = registeredFlush.valid && 
                                   slots(i).valid && 
                                   !slots(i).isCommitted && // 只冲刷未提交的
                                   isNewerOrSame(slots(i).robPtr, registeredFlush.targetRobPtr)
-
-            // 优先处理冲刷
             when(toBeFlushedByRob) {
-                // 如果要冲刷，则直接将槽位置为无效，忽略所有其他信号
                 slotsAfterUpdates(i).valid := False
                 report(L"[SQ] FLUSH (Exec): Invalidating slotIdx=${i} (robPtr=${slots(i).robPtr}) by ROB flush.")
             } .elsewhen(slots(i).valid && !slots(i).isCommitted) {
-                // 只有在不被冲刷的前提下，才检查提交信号
-
-                // 使用上一周期锁存的提交信息来更新 isCommitted
                 when(registeredCommitUpdate.validMask(i)) {
                     slotsAfterUpdates(i).isCommitted := True
                     if(enableLog) report(L"[SQ] COMMIT_EXEC: robPtr=${slots(i).robPtr} (slotIdx=${i}) marked as committed based on registered info.")
                 }
             }
         }
-
         when(robFlushPort.valid && robFlushPort.payload.reason === FlushReason.FULL_FLUSH) {
                 if(enableLog) report(L"[SQ] FULL_FLUSH received. Clearing all slots.")
                 for(i <- 0 until sbDepth) {
-                    slotsAfterUpdates(i).setDefault() // Use setDefault to clear all internal state
+                    slotsAfterUpdates(i).setDefault()
                 }
         }
-
-        // --- Pop Logic (FIFO Enforcement) ---
         val popHeadSlot = slotsAfterUpdates(0)
         if(enableLog) report("slotsAfterUpdates(0): " :+ popHeadSlot.format)
-        // 操作完成的通用条件：命令已发出，且不再等待任何响应/重试信号
         val operationDone = popHeadSlot.sentCmd && !popHeadSlot.waitRsp && !popHeadSlot.isWaitingForRefill && !popHeadSlot.isWaitingForWb
-
-        val popRequest = False // 默认不弹出
-
-        when(popHeadSlot.valid && popHeadSlot.isCommitted) { // 只有有效、已提交的头部槽位才可能弹出
+        val popRequest = False
+        when(popHeadSlot.valid && popHeadSlot.isCommitted) {
             when(popHeadSlot.isFlush) {
-                // Flush 指令：一旦自身操作完成即可弹出
                 when(operationDone) {
                     popRequest := True
                     report(L"[SQ] POP_FLUSH: robPtr=${popHeadSlot.robPtr}")
                 }
             } elsewhen (popHeadSlot.hasEarlyException) {
-                // 带有早期异常的 Store 指令：一旦提交，即可弹出
-                // 注意：如果早期异常的 Store 仍然发出了内存请求（例如，地址异常在发出后才检测到），
-                // 那么它也必须等待 operationDone。目前的 hasEarlyException 意味着不需要内存访问。
                 popRequest := True
                 report(L"[SQ] POP_EARLY_EXCEPTION: robPtr=${popHeadSlot.robPtr}")
-            } otherwise { // 普通 Store (非 Flush, 无早期异常)
-                // 普通 Store 和 MMIO Store：必须等到其内存操作完成
+            } otherwise {
                 when(operationDone) {
                     popRequest := True
                     report(L"[SQ] POP_NORMAL_STORE/MMIO: robPtr=${popHeadSlot.robPtr}, isIO=${popHeadSlot.isIO}")
                 }
             }
         } 
-        .elsewhen(!popHeadSlot.valid && !slots.tail.map(_.valid).orR) { // 如果头部无效，且其余槽位都无效，则清空队列 (避免死锁)
-            // This condition is for when the head slot becomes invalid (e.g. by full flush)
-            // and we need to shift the queue. This is a cleanup pop.
+        .elsewhen(!popHeadSlot.valid && !slots.tail.map(_.valid).orR) {
             popRequest := True
             if(enableLog) report(L"[SQ] POP_INVALID_SLOT: Clearing invalid head slot.")
         }
-
-
         when(popRequest) {
             for (i <- 0 until sbDepth - 1) {
                 slotsNext(i) := slotsAfterUpdates(i + 1)
@@ -590,7 +427,6 @@ class StoreBufferPlugin(
 
         // =============================================================================
         // >> 集成: Store-to-Load 转发逻辑 (SqQueryPort)
-        // (保持不变，因为这部分逻辑是查询，不涉及实际的内存操作和弹出)
         // =============================================================================
         val forwardingLogic = new Area {
             ParallaxLogger.log("StoreBufferPlugin: Elaborating Store-to-Load forwarding logic.")
@@ -612,28 +448,40 @@ class StoreBufferPlugin(
             else when(query.valid) {
                 report(L"[SQ-Fwd] Query: valid=${query.valid} robPtr=${query.payload.robPtr} addr=${query.payload.address} size=${query.payload.size}")
             }
+
+            // *** 修改开始 ***
+            // 创建一个组合逻辑的 slot 视图，它反映了本周期的更新
+            val slotsView = Vec.fill(sbDepth)(StoreBufferSlot(pipelineConfig, lsuConfig, dCacheParams))
+            for (i <- 0 until sbDepth) {
+                // 如果这个 slot 是本周期 PUSH 的目标
+                when(pushPortIn.fire && (pushIdx === i)) {
+                    // 使用 pushPort 进来的新数据来构建视图
+                    slotsView(i).initFromCommand(pushPortIn.payload)
+                } otherwise {
+                    // 否则，使用寄存器中的旧数据
+                    slotsView(i) := slots(i) 
+                }
+            }
+            
             // Store-to-Load 转发逻辑：遍历所有比 Load 旧的、有效的且未被冲刷的 Store。
-            val forwardingResult = slots.reverse.foldLeft(bypassInitial) { (acc, slot) =>
+            // 使用 slotsView 而不是 slots
+            val forwardingResult = slotsView.reverse.foldLeft(bypassInitial) { (acc, slot) =>
+            // *** 修改结束 ***
                 val nextAcc = CombInit(acc)
                 
                 // 一个槽位只有在它本身有效，并且它不是一个正在被冲刷的推测性条目时，才是可见的。
                 // 此外，只有已提交或在转发时可用的Store（如在Commit后的Forwarding阶段）才可用于转发。
                 // 但在SB，未Commit的Store也可以转发给Load，只要其地址已知且不等待Disambiguation。
-                // *** 修改开始 ***
                 val isSlotVisibleAndForwardable = slot.valid && 
-                                                  !slot.hasEarlyException && // 早期异常的Store不提供数据
-                                                  !slot.isFlush && // Flush指令不提供数据
-                                                  isOlder(slot.robPtr, query.payload.robPtr) && // Store必须比Load旧
-                                                  // NOTE: isWaitingForRefill / isWaitingForWb / waitRsp 的 Store 在内存中数据不确定，不能转发
-                                                  !slot.waitRsp && !slot.isWaitingForRefill && !slot.isWaitingForWb // 只有数据稳定的才能转发
-                // *** 修改结束 ***
+                                                  !slot.hasEarlyException &&
+                                                  !slot.isFlush &&
+                                                  isOlder(slot.robPtr, query.payload.robPtr) &&
+                                                  !slot.waitRsp && !slot.isWaitingForRefill && !slot.isWaitingForWb
 
                 when(isSlotVisibleAndForwardable) {
                     val loadWordAddr = query.payload.address(pcAddrWidth-1 downto wordAddrBits)
                     val storeWordAddr = slot.addr(pcAddrWidth-1 downto wordAddrBits)
-                    val canForward = !slot.hasEarlyException &&
-                                     isOlder(slot.robPtr, query.payload.robPtr) && // 再次确认旧于Load
-                                     (loadWordAddr === storeWordAddr) // 地址匹配，字粒度
+                    val canForward = (loadWordAddr === storeWordAddr)
                     
                     when(canForward) {
                         for (k <- 0 until dataWidthBytes) {
@@ -649,22 +497,15 @@ class StoreBufferPlugin(
 
             val allRequiredBytesHit = (forwardingResult.hitMask & loadMask) === loadMask
             rsp.data := forwardingResult.data
-            // val hasSomeOverlap = (forwardingResult.hitMask & loadMask).orR // Not used directly in final hit logic.
 
-            // --- 依赖关系检查 (Disambiguation) ---
-            rsp.olderStoreHasUnknownAddress := False // 简化：假设Store地址在写入SB时已是已知
+            rsp.olderStoreHasUnknownAddress := False
 
-            // *** 修改开始 ***
-
-            // 1. 计算 "数据未就绪" (Data Not Ready) 的 Stall 条件 (和之前一样，没有改动)
             val dataNotReadyStall = Bool()
             dataNotReadyStall := False
-
-            // This signal checks if *any* older, overlapping store exists, regardless of its data readiness.
             val hasOlderOverlappingStore = Bool()
             hasOlderOverlappingStore := False
 
-            for(slot <- slots) {
+            for(slot <- slotsView) {
                 val isSlotActiveForDisambiguation = slot.valid &&
                                                     !slot.hasEarlyException &&
                                                     !slot.isFlush
@@ -676,10 +517,10 @@ class StoreBufferPlugin(
                     val isAddressOverlap = (loadWordAddr === storeWordAddr)
 
                     when(isOlderAndPotentiallyConflicting && isAddressOverlap) {
-                        hasOlderOverlappingStore := True // 标记存在旧的、地址重叠的Store
+                        hasOlderOverlappingStore := True
 
                         when(slot.waitRsp || slot.isWaitingForRefill || slot.isWaitingForWb) {
-                            report(L"[SQ-Fwd] STALL_DATA_NOT_READY (Slot Status): slot=${slot.robPtr} (LoadAddr=${loadWordAddr}, StoreAddr=${storeWordAddr})" :+
+                            report(L"[SQ-Fwd] STALL_DATA_NOT_READY (Slot Status): slot=${slot.robPtr} (LoadAddr(word)=${loadWordAddr}, StoreAddr(word)=${storeWordAddr})" :+
                             L"reason: waitRsp=${slot.waitRsp}, isWaitingForRefill=${slot.isWaitingForRefill}, isWaitingForWb=${slot.isWaitingForWb}")
                             dataNotReadyStall := True
                         }
@@ -690,10 +531,7 @@ class StoreBufferPlugin(
             // 2. 计算 "数据覆盖不足" (Insufficient Coverage) 的 Stall 条件
             //    只有在 `query.valid` 且 `hasOlderOverlappingStore` 为 `true`
             //    且 `allRequiredBytesHit` 为 `false` 时才触发。
-            val insufficientCoverageStall = Bool()
-            insufficientCoverageStall := query.valid && hasOlderOverlappingStore && !allRequiredBytesHit
-
-            // 最终的 olderStoreDataNotReady 是这两种 Stall 条件的逻辑或
+            val insufficientCoverageStall = query.valid && hasOlderOverlappingStore && !allRequiredBytesHit
             rsp.olderStoreDataNotReady := dataNotReadyStall || insufficientCoverageStall
 
             // A load hits if:
@@ -704,19 +542,18 @@ class StoreBufferPlugin(
             //    OR if the available older stores do not fully cover the load.
             rsp.hit  := query.valid && allRequiredBytesHit && !rsp.olderStoreHasUnknownAddress && !rsp.olderStoreDataNotReady
 
-            if(enableLog) report(L"[SQ-Fwd] Forwarding? hit=${rsp.hit}, because query.valid=${query.valid}, allRequiredBytesHit=${allRequiredBytesHit}, olderStoreHasUnknownAddress=${rsp.olderStoreHasUnknownAddress}, olderStoreDataNotReady=${rsp.olderStoreDataNotReady}") // Adjusted log message
+            if(enableLog) report(L"[SQ-Fwd] Forwarding? hit=${rsp.hit}, because query.valid=${query.valid}, allRequiredBytesHit=${allRequiredBytesHit}, olderStoreHasUnknownAddress=${rsp.olderStoreHasUnknownAddress}, olderStoreDataNotReady=${rsp.olderStoreDataNotReady}")
             
             when(query.valid) {
-                // debug print
                 report(L"[SQ-Fwd] Query: ${query.payload.format}")
                 report(L"[SQ-Fwd] Rsp: ${rsp.format}")
+                report(L"[SQ-Fwd] Result: hitMask=${forwardingResult.hitMask} (loadMask=${loadMask}), allHit=${allRequiredBytesHit}, finalRsp.hit=${rsp.hit}")
             }
-            report(L"[SQ-Fwd] Result: hitMask=${forwardingResult.hitMask} (loadMask=${loadMask}), allHit=${allRequiredBytesHit}, finalRsp.hit=${rsp.hit}")
-
-        } // End of forwardingLogic
+            if(enableLog) report(L"[SQ-Fwd] Result: hitMask=${forwardingResult.hitMask} (loadMask=${loadMask}), allHit=${allRequiredBytesHit}, finalRsp.hit=${rsp.hit}")
+        }
 
         // --- 同周期流水线旁路逻辑 (Existing Logic) ---
-        // (这部分逻辑不涉及对外部总线的交互，仅处理内部数据转发，所以通常无需修改)
+        // (保持不变)
         val bypassResult            = StoreBufferBypassData(pipelineConfig)
         val loadQueryBe             = MemAccessSize.toByteEnable(bypassQuerySz, bypassQueryAddr(log2Up(pipelineConfig.dataWidth.value/8)-1 downto 0), pipelineConfig.dataWidth.value / 8)
         val bypassInitial           = BypassAccumulator(pipelineConfig)
@@ -748,20 +585,17 @@ class StoreBufferPlugin(
             }
             nextAcc
         }
-
         val finalHitMask = finalBypassResult.hitMask
         val overallBypassHit = finalHitMask.orR
-
         bypassDataOut.valid            := overallBypassHit
         bypassDataOut.payload.data     := finalBypassResult.data
         bypassDataOut.payload.hitMask  := finalHitMask
         bypassDataOut.payload.hit      := overallBypassHit && (finalHitMask === loadQueryBe)
-        // --- End of Bypass Logic ---
         if(enableLog) report(L"[SQ] bypassDataOut: valid=${bypassDataOut.valid}, data=${bypassDataOut.payload.data}, hit=${bypassDataOut.payload.hit}, hitMask=${bypassDataOut.payload.hitMask}")
 
         slots := slotsNext
 
-        // 在StoreBufferPlugin中添加调试输出
+        // ... (调试日志保持不变)
         for (i <- 0 until sbDepth) {
             when(slots(i).valid) {
                 if(enableLog) report(L"[SQ-Debug] SlotState[${i}]: " :+
@@ -778,15 +612,6 @@ class StoreBufferPlugin(
                 )
             }
         }
-        // 监控DCache接口状态
-        //dcachedisable if(enableLog) report(L"[SQ-Debug] DCache Interface: " :+
-        //dcachedisable     L"cmd.valid=${storePortDCache.cmd.valid}, " :+
-        //dcachedisable     L"cmd.ready=${storePortDCache.cmd.ready}, " :+
-        //dcachedisable     L"rsp.valid=${storePortDCache.rsp.valid}, " :+
-        //dcachedisable     L"canSendToDCache=${canSendToDCache}"
-        //dcachedisable )
-
-        // Monitor MMIO interface state
         hw.mmioWriteChannel.foreach { mmioChannel =>
             if(enableLog) report(L"[SQ-Debug] MMIO Interface: " :+
                 L"cmd.valid=${mmioChannel.cmd.valid}, " :+
@@ -797,7 +622,6 @@ class StoreBufferPlugin(
             )
         }
         
-        //dcachedisable hw.dcacheServiceInst.release();
         hw.robServiceInst.release()
         hw.sgmbServiceOpt.foreach(_.release())
     }

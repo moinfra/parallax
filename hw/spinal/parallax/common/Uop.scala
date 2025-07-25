@@ -120,7 +120,7 @@ object ImmUsageType extends SpinalEnum {
 }
 
 object LogicOp extends SpinalEnum {
-  val NONE, AND, OR, XOR = newElement()
+  val NONE, AND, OR, NOR, XOR, NAND, XNOR = newElement()
 }
 
 // --- Control Flags Sub-Bundles ---
@@ -130,6 +130,7 @@ case class AluCtrlFlags() extends Bundle {
   val isAdd = Bool()
   val isSigned = Bool()
   val logicOp = LogicOp()
+  val condition = BranchCondition()
 
   def setDefault(): this.type = {
     valid := False
@@ -137,6 +138,7 @@ case class AluCtrlFlags() extends Bundle {
     isAdd := False
     isSigned := False
     logicOp := LogicOp.NONE // Default to a benign/NOP logic op representation
+    condition := BranchCondition.NUL
     this
   }
 
@@ -148,11 +150,12 @@ case class AluCtrlFlags() extends Bundle {
     isAdd #= false
     isSigned #= false
     logicOp #= LogicOp.NONE
+    condition #= BranchCondition.NUL
     this
   }
 
   def format(): Seq[Any] = {
-    Seq("AluCtrlFlags: isSub=", isSub, " isAdd=", isAdd, " isSigned=", isSigned, " logicOp=", logicOp)
+    Seq("AluCtrlFlags: isSub=", isSub, " isAdd=", isAdd, " isSigned=", isSigned, " logicOp=", logicOp, " condition=", condition)
   }
 }
 case class ShiftCtrlFlags() extends Bundle {

@@ -189,7 +189,7 @@ class CoreMemSysPlugin(axiConfig: Axi4Config, mmioConfig: GenericMemoryBusConfig
     val numMasters = 7 // DCache + SGMB bridges + Injector
     val sramAxi4Cfg = axiConfig.copy(idWidth = axiConfig.idWidth + log2Up(numMasters))
 
-    // BaseRAM和ExtRAM使用相同的控制器
+    // BaseRAM和ExtRAM使用相同的控制器 // FIXME: 避免二者互斥访问，提高并行
     val baseramCtrl = new SRAMController(sramAxi4Cfg, baseramCfg)
     val extramCtrl = new SRAMController(sramAxi4Cfg, extsramCfg)
   }

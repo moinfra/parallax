@@ -49,7 +49,7 @@ case class CommitSlotLog(pCfg: PipelineConfig) extends Bundle with Formattable {
   def format: Seq[Any] = {
     Seq(
       L"(valid=${valid}, canCommit=${canCommit}, doCommit=${doCommit}, robPtr=${robPtr}",
-      L", oldPhysDest=${oldPhysDest}, allocatesPhysDest=${allocatesPhysDest})"
+      L", oldPhysDest=${oldPhysDest}, allocPhysDest=${allocatesPhysDest})"
     )
   }
 }
@@ -137,14 +137,19 @@ class CommitPlugin(
     val busyTableService         = getService[BusyTableService]
     val bpuServiceInst           = getService[BpuService] // 获取BPUService实例
     
-    val busyTableClearPort       = busyTableService.newClearPort()
+    // val busyTableClearPort       = busyTableService.newClearPort()
     val robFlushPort             = robService.newRobFlushPort()
     val redirectPort             = fetchService.newHardRedirectPort(priority = 10)
     val bpuUpdatePort            = bpuServiceInst.newBpuUpdatePort() // 创建BPU更新端口
+    val ratCommitUpdatePort      = ratControlService.getCommitPort() // 获取Commit更新端口
 
     redirectPort.setIdle()
     bpuUpdatePort.valid := False // 默认不更新BPU
     bpuUpdatePort.payload.assignDontCare()
+    
+    ratCommitUpdatePort.wen := False // 默认不更新ARAT
+    ratCommitUpdatePort.archReg.assignDontCare()
+    ratCommitUpdatePort.physReg.assignDontCare()
   }
 
   // =========================================================================
@@ -161,15 +166,16 @@ class CommitPlugin(
     val commitAcks = robService.getCommitAcks(pipelineConfig.commitWidth)
     val robFlushPort = hw.robFlushPort
     val freePorts = flControlService.getFreePorts()
-    val busyTableClearPort = hw.busyTableClearPort
+    // // val busyTableClearPort = hw.busyTableClearPort
     val restoreCheckpointTrigger = checkpointManagerService.getRestoreCheckpointTrigger()
     val bpuUpdatePort = hw.bpuUpdatePort // 引用BPU更新端口
+    val ratCommitUpdatePort = hw.ratCommitUpdatePort
 
     // 默认值设置
     robFlushPort.valid := False
     robFlushPort.payload.assignDontCare()
-    busyTableClearPort.valid := False
-    busyTableClearPort.payload.assignDontCare()
+    // busyTableClearPort.valid := False
+    // busyTableClearPort.payload.assignDontCare()
     // restoreCheckpointTrigger := False
     
     // ====================================================================
@@ -208,7 +214,7 @@ class CommitPlugin(
         report(L"[COMMIT] BPU UPDATE: pc=0x${bpuUpdatePort.payload.pc}, isTaken=${bpuUpdatePort.payload.isTaken}, target=0x${bpuUpdatePort.payload.target}")
       } otherwise {
         when(headIsBranch) {
-          report(L"[COMMIT] BPU Not upated because enable=${enable} headSlot.canCommit=${headSlot.canCommit} headIsBranch=${headIsBranch}")
+          // report(L"[COMMIT] BPU Not upated because enable=${enable} headSlot.canCommit=${headSlot.canCommit} headIsBranch=${headIsBranch}")
         }
       }
 
@@ -218,9 +224,15 @@ class CommitPlugin(
         
         // 保存检查点 (对于成功提交的指令)
         val ckptService = getService[CheckpointManagerService]
-        val trigger = ckptService.getSaveCheckpointTrigger()
-        trigger := True
+        val saveCheckpointTrigger = ckptService.getSaveCheckpointTrigger()
+        saveCheckpointTrigger := True
         report(L"CHECKPOINT: Save checkpoint triggered on successful commit.")
+
+        when(headUop.rename.writesToPhysReg) { // 如果该指令有写入目的寄存器 FIXME: JIRL 是不是也需要更新寄存器，哪怕预测失败？
+        ratCommitUpdatePort.wen     := True
+        ratCommitUpdatePort.archReg := headUop.decoded.archDest.idx
+        ratCommitUpdatePort.physReg := headUop.rename.physDest.idx
+        }
       }
 
       // *** 核心修复：如果检测到预测失败，则立即覆盖决策，并启动恢复流程 ***
@@ -235,6 +247,9 @@ class CommitPlugin(
 
         // 3. **触发检查点恢复**: 恢复RAT, FreeList, BusyTable到分支前的状态。
         restoreCheckpointTrigger := True
+        report(
+          L"[RegRes] freelist gc, busytable recover to last committed state. "
+        )
 
         // 4. **发起前端硬重定向**: 告诉取指单元新的正确PC。
         hw.redirectPort.valid := True
@@ -254,18 +269,22 @@ class CommitPlugin(
         val committedEntry = commitSlots(i).entry 
         val committedUop = committedEntry.payload.uop 
         
-        val canRecycle = doCommit && committedUop.rename.allocatesPhysDest 
+        // 当恢复流程启动时，禁止所有回收操作
+        val canRecycle = doCommit && committedUop.rename.allocatesPhysDest && !isMispredictedBranch
         
         // 回收到 FreeList
         freePorts(i).enable := canRecycle
         freePorts(i).physReg := committedUop.rename.oldPhysDest.idx
-        
-        // 从 BusyTable 中清除
-        // (注意: 这里只处理了一个回收端口，如果commitWidth > 1，需要扩展)
         when(canRecycle) {
-          busyTableClearPort.valid   := True
-          busyTableClearPort.payload := committedUop.rename.oldPhysDest.idx
+          report(L"[RegRes] freelist recycle reg ${committedUop.rename.oldPhysDest.idx} (because commit uop@${committedUop.decoded.pc})")
         }
+        
+        // 从 BusyTable 中清除，这部分逻辑已删除，让具体的执行单元去做
+        // (注意: 这里只处理了一个回收端口，如果commitWidth > 1，需要扩展)
+        // when(canRecycle) {
+        //   busyTableClearPort.valid   := True
+        //   busyTableClearPort.payload := committedUop.rename.oldPhysDest.idx
+        // }
       }
 
       // 将最终的提交决策发送给ROB

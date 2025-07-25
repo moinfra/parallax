@@ -17,7 +17,7 @@ class RobAllocPlugin(val pCfg: PipelineConfig) extends Plugin with LockedImpl {
     val s2_rob_alloc = issuePpl.pipeline.s2_rob_alloc
     val signals = issuePpl.signals
   }
-
+  val doGlobalFlush = Bool()
   val logic = create late new Area {
     lock.await()
     val s2_rob_alloc = setup.s2_rob_alloc
@@ -57,6 +57,16 @@ class RobAllocPlugin(val pCfg: PipelineConfig) extends Plugin with LockedImpl {
         outUop.robPtr       := robAllocPorts(i).robPtr
     }
     
+    val flushLogic = new Area {
+      getServiceOption[HardRedirectService].foreach(hr => {
+        doGlobalFlush := hr.doHardRedirect()
+        when(doGlobalFlush) {
+          s2_rob_alloc.flushIt()
+          report(L"DispatchPlugin: (s3): Flushing pipeline due to hard redirect")
+        }
+      })
+    }
+
     s2_rob_alloc(signals.ALLOCATED_UOPS) := allocatedUops
     
     setup.issuePpl.release(); setup.robService.release()

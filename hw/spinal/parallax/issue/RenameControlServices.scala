@@ -19,6 +19,7 @@ trait RatControlService extends Service {
    * External components can read this to capture current mapping state.
    */
   def getCurrentState(): RatCheckpoint
+  def getCommitPort(): RatCommitUpdatePort
   
   /** 
    * Get a master port to command the RAT to restore its state.

@@ -12,13 +12,14 @@ case class RenameUnitIo(
 ) extends Bundle with IMasterSlave {
   val decodedUopsIn = in(Vec(HardType(DecodedUop(pipelineConfig)), pipelineConfig.renameWidth))
   val physRegsIn = in(Vec(HardType(UInt(ratConfig.physRegIdxWidth)), pipelineConfig.renameWidth))
+  val flush = in(Bool) default(False)
   val renamedUopsOut = out(Vec(HardType(RenamedUop(pipelineConfig)), pipelineConfig.renameWidth))
   val numPhysRegsRequired = out(UInt(log2Up(pipelineConfig.renameWidth + 1) bits))
   val ratReadPorts = Vec(master(RatReadPort(ratConfig)), ratConfig.numReadPorts)
   val ratWritePorts = Vec(master(RatWritePort(ratConfig)), ratConfig.numWritePorts)
 
   override def asMaster(): Unit = {
-    out(decodedUopsIn, physRegsIn)
+    out(decodedUopsIn, physRegsIn, flush)
     in(renamedUopsOut, numPhysRegsRequired)
     ratReadPorts.foreach(slave(_))
     ratWritePorts.foreach(slave(_))
@@ -38,8 +39,9 @@ class RenameUnit(
   val decodedUop = io.decodedUopsIn(slotIdx)
   val renamedUop = io.renamedUopsOut(slotIdx)
 
-  val uopNeedsNewPhysDest = decodedUop.isValid && decodedUop.writeArchDestEn && (decodedUop.archDest.isGPR || decodedUop.archDest.isFPR)
-  io.numPhysRegsRequired := uopNeedsNewPhysDest.asUInt.resized
+  val uopNeedsNewPhysDest = decodedUop.isValid && decodedUop.writeArchDestEn && (decodedUop.archDest.isGPR || decodedUop.archDest.isFPR) && !io.flush
+  io.numPhysRegsRequired := Mux(io.flush, U(0, log2Up(pipelineConfig.renameWidth + 1) bits), uopNeedsNewPhysDest.asUInt.resized)
+
 
   // --- 1. 驱动所有RAT读端口 ---
   val physSrc1Port    = io.ratReadPorts(0)
@@ -99,12 +101,19 @@ class RenameUnit(
     when(uopNeedsNewPhysDest) {
       report(
         Seq(
-            L"[RenameUnit] Rename for uop@${decodedUop.pc}: archDest=${decodedUop.archDest.idx} -> physReg=${io.physRegsIn(slotIdx)} (isFPR=${decodedUop.archDest.isFPR})",
+            L"[RegRes|RenameUnit] Rename for uop@${decodedUop.pc}: archDest=${decodedUop.archDest.idx} -> physReg=${io.physRegsIn(slotIdx)} (isFPR=${decodedUop.archDest.isFPR})",
             L"Src1: archSrc1=${decodedUop.archSrc1.idx} -> physReg=${renameInfo.physSrc1.idx} (isFPR=${decodedUop.archSrc1.isFPR}, bypassed=0)",
             L"Src2: archSrc2=${decodedUop.archSrc2.idx} -> physReg=${renameInfo.physSrc2.idx} (isFPR=${decodedUop.archSrc2.isFPR}, bypassed=0)",
             L"oldPhysDest: archDest=${decodedUop.archDest.idx} -> oldPhysReg=${renameInfo.oldPhysDest.idx} (isFPR=${decodedUop.archDest.isFPR})",
           )
         )
+    } elsewhen(decodedUop.isValid) {
+      report(
+        Seq(
+          L"[RegRes|RenameUnit] Mapping oprands for uop@${decodedUop.pc}: archSrc1=${decodedUop.archSrc1.idx} -> physReg=${renameInfo.physSrc1.idx} (isFPR=${decodedUop.archSrc1.isFPR}, bypassed=0)",
+          L"archSrc2=${decodedUop.archSrc2.idx} -> physReg=${renameInfo.physSrc2.idx} (isFPR=${decodedUop.archSrc2.isFPR}, bypassed=0)",
+        )
+      )
     }
   }
 

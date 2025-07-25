@@ -100,7 +100,7 @@ class DispatchPlugin(pCfg: PipelineConfig) extends Plugin with LockedImpl {
     when(s3_dispatch.isFiring && uopIn.decoded.isValid) {
       ParallaxSim.log(
         L"DispatchPlugin: Firing robPtr=${uopIn.robPtr} (UopCode=${uopIn.decoded.uopCode}), " :+
-        L"s1_ready=${src1InitialReady}, s2_ready=${src2InitialReady}"
+        L"s1_ready(initial)=${src1InitialReady}, s2_ready(initial)=${src2InitialReady}"
       )
     }
 

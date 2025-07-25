@@ -21,6 +21,7 @@ case class LoadQueuePushCmd(pCfg: PipelineConfig, lsuCfg: LsuConfig) extends Bun
   val address           = UInt(lsuCfg.pcWidth)
   val isIO              = Bool()
   val size              = MemAccessSize()
+  val isSignedLoad      = Bool()
   val hasEarlyException = Bool()
   val earlyExceptionCode = UInt(8 bits)
 }
@@ -39,6 +40,7 @@ case class LoadQueueSlot(pCfg: PipelineConfig, lsuCfg: LsuConfig, dCacheParams: 
     val robPtr            = UInt(lsuCfg.robPtrWidth)
     val pdest             = UInt(pCfg.physGprIdxWidth)
     val isIO              = Bool()
+    val isSignedLoad      = Bool()
 
     val hasException      = Bool()
     val exceptionCode     = UInt(8 bits)
@@ -55,6 +57,7 @@ case class LoadQueueSlot(pCfg: PipelineConfig, lsuCfg: LsuConfig, dCacheParams: 
         this.robPtr                := 0
         this.pdest                 := 0
         this.isIO                  := False
+        this.isSignedLoad          := False
         this.hasException          := False
         this.exceptionCode         := 0
         this.isWaitingForFwdRsp    := False
@@ -71,6 +74,7 @@ case class LoadQueueSlot(pCfg: PipelineConfig, lsuCfg: LsuConfig, dCacheParams: 
         this.robPtr                := cmd.robPtr
         this.pdest                 := cmd.pdest
         this.isIO                  := cmd.isIO
+        this.isSignedLoad          := cmd.isSignedLoad
         this.hasException          := cmd.hasEarlyException
         this.exceptionCode         := cmd.earlyExceptionCode
         
@@ -89,6 +93,7 @@ case class LoadQueueSlot(pCfg: PipelineConfig, lsuCfg: LsuConfig, dCacheParams: 
         this.robPtr                := cmd.robPtr
         this.pdest                 := cmd.physDst
         this.isIO                  := cmd.isIO
+        this.isSignedLoad          := cmd.isSignedLoad
         
         // 这些字段在 AguRspCmd 中可能没有直接对应，但为了完整性，这里也进行初始化
         // 如果 AguRspCmd 提供了这些信息，可以根据需要进行映射
@@ -116,6 +121,7 @@ case class LoadQueueSlot(pCfg: PipelineConfig, lsuCfg: LsuConfig, dCacheParams: 
             L"robPtr=${robPtr}, " :+
             L"pdest=${pdest}, " :+
             L"isIO=${isIO}, " :+
+            L"isSignedLoad=${isSignedLoad}, " :+
             L"hasException=${hasException}, " :+
             L"isWaitingForFwdRsp=${isWaitingForFwdRsp}, " :+
             L"isStalledByDependency=${isStalledByDependency}, " :+
@@ -152,13 +158,13 @@ class LoadQueuePlugin(
         val busyTableServiceInst = getService[BusyTableService] // 获取服务
         val hardRedirectService   = getService[HardRedirectService]
 
-        val busyTableClearPort = busyTableServiceInst.newClearPort() // 创建清除端口
+        // val busyTableClearPort = busyTableServiceInst.newClearPort() // 创建清除端口
         //dcachedisable val dCacheLoadPort   = dcacheServiceInst.newLoadPort(priority = 1)
         val robLoadWritebackPort = robServiceInst.newWritebackPort("LQ_Load")
         val prfWritePort     = prfServiceInst.newPrfWritePort(s"LQ.gprWritePort")
         val sbQueryPort      = storeBufferServiceInst.getStoreQueueQueryPort()
         val wakeupServiceInst = getService[WakeupService]
-        val wakeupPort = wakeupServiceInst.newWakeupSource()
+        val wakeupPort = wakeupServiceInst.newWakeupSource("LQ.wakeupPort")
         // TODO: ROB 刷新端口应该也会在硬重定向时触发，我们监听了ROB刷新，所以处理 doHardRedirect 应该是多余的
         val doHardRedirect = hardRedirectService.doHardRedirect()
 
@@ -183,6 +189,7 @@ class LoadQueuePlugin(
     }
 
     val logic = create late new Area {
+        val perfCounter = new PerfCounter()
         lock.await()
         // 将所有push端口仲裁成一个
         val pushCmd = StreamArbiterFactory.roundRobin.on(pushPorts)
@@ -194,7 +201,7 @@ class LoadQueuePlugin(
         val prfWritePort        = hw.prfWritePort
         val robFlushPort        = hw.robServiceInst.doRobFlush()
         val wakeupPort          = hw.wakeupPort
-        val busyTableClearPort  = hw.busyTableClearPort
+        // // val busyTableClearPort  = hw.busyTableClearPort
         // Store Path Area is completely removed.
 
         private def isNewerOrSame(robPtrA: UInt, robPtrB: UInt): Bool = {
@@ -329,6 +336,11 @@ class LoadQueuePlugin(
             when(head.isWaitingForFwdRsp && sbQueryRspValid) {
                 val fwdRsp = sbQueryRspReg
                 slotsAfterUpdates(0).isWaitingForFwdRsp := False
+                ParallaxSim.log(
+                    L"--- LQ FWD RESPONSE --- Cycle=${perfCounter.value}\n" :+
+                    L"  Head ROB Ptr: ${head.robPtr}\n" :+
+                    L"  Rsp Hit: ${fwdRsp.hit}, Rsp Stall: ${fwdRsp.olderStoreHasUnknownAddress || fwdRsp.olderStoreDataNotReady}"
+                )
                 when(fwdRsp.hit) {
                     // Completion logic is handled below by popOnFwdHit
                     ParallaxSim.log(L"[LQ-Fwd] HIT: robPtr=${head.robPtr}, data=${fwdRsp.data}. Will complete via popOnFwdHit.")
@@ -357,7 +369,7 @@ class LoadQueuePlugin(
             val headIsReadyToExecute = headIsVisible && head.isReadyForDCache && !head.isWaitingForRsp
             
             // 如果正在等待转发响应，或者转发命中，则不应该发送到DCache/MMIO
-            val shouldNotSendToMemory = head.isWaitingForFwdRsp || (head.isWaitingForFwdRsp && sbQueryPort.rsp.hit)
+            val shouldNotSendToMemory = head.isWaitingForFwdRsp
 
             // DCache路径（非MMIO）
         // disabledcache    dCacheLoadPort.cmd.valid := headIsReadyToExecute && !head.hasException && !shouldNotSendToMemory && !head.isIO
@@ -380,6 +392,10 @@ class LoadQueuePlugin(
             // MMIO路径
             val mmioReadCmd = hw.mmioReadChannel.map { mmioChannel =>
                 mmioChannel.cmd.valid := headIsReadyToExecute && !head.hasException && !shouldNotSendToMemory && head.isIO
+                when(headIsReadyToExecute && head.isIO) {
+                    ParallaxSim.log(L"[LQ-MMIO] robPtr=${head.robPtr} head is ready but: head.hasException=${head.hasException}, shouldNotSendToMemory=${shouldNotSendToMemory}" :+
+                    L", head.isIO=${head.isIO}, mmioChannel.cmd.ready=${mmioChannel.cmd.ready}")
+                }
                 mmioChannel.cmd.address := head.address
                 if (mmioConfig.get.useId) {
                     require(mmioChannel.cmd.id.getWidth >= head.robPtr.getWidth, "MMIO ID width must be at least as wide as ROB pointer width")
@@ -416,7 +432,9 @@ class LoadQueuePlugin(
 
             // MMIO Response Handling (MMIO operations don't have redo)
             hw.mmioReadChannel.foreach { mmioChannel =>
-                mmioChannel.rsp.ready := head.valid && head.isIO && head.isWaitingForRsp
+                // mmioChannel.rsp.ready := head.valid && head.isIO && head.isWaitingForRsp
+                mmioChannel.rsp.ready := head.valid && head.isIO
+                // TODO: 调查 head.isWaitingForRsp
             }
 
             // --- Completion & Pop Logic ---
@@ -428,7 +446,19 @@ class LoadQueuePlugin(
             val popOnMMIOSuccess = mmioResponseIsForHead
             val popOnEarlyException = head.valid && head.hasException && !head.isReadyForDCache
             val popRequest = popOnFwdHit || popOnDCacheSuccess || popOnMMIOSuccess || popOnEarlyException
-
+            // when(popRequest) {
+            //     ParallaxSim.log(
+            //         L"--- LQ POP REQUEST --- Cycle=${perfCounter.value}\n" :+
+            //         L"  Head ROB Ptr: ${head.robPtr}\n" :+
+            //         L"  Triggers: \n" :+
+            //         L"    - popOnFwdHit: ${popOnFwdHit}\n" :+
+            //         L"    - popOnDCacheSuccess: ${popOnDCacheSuccess}\n" :+
+            //         L"    - popOnMMIOSuccess: ${popOnMMIOSuccess}\n" :+
+            //         L"    - popOnEarlyException: ${popOnEarlyException}\n" :+
+            //         L"  Head State (at time of pop request):\n" :+
+            //         L"    - valid: ${head.valid}, isWaitingForFwdRsp: ${head.isWaitingForFwdRsp}, isReadyForDCache: ${head.isReadyForDCache}, isWaitingForRsp: ${head.isWaitingForRsp}"
+            //     )
+            // }
             // 设置本周期要锁存的完成信息
             when(popOnFwdHit) {
                 completionInfo.valid := True
@@ -448,6 +478,8 @@ class LoadQueuePlugin(
                     completionInfo.data := mmioChannel.rsp.payload.data
                     completionInfo.hasFault := mmioChannel.rsp.payload.error
                     completionInfo.exceptionCode := ExceptionCode.LOAD_ACCESS_FAULT
+
+                    report(L"[LQ-MMIO] MMIO RESPONSE: robPtr=${head.robPtr}, data=${mmioChannel.rsp.payload.data}, error=${mmioChannel.rsp.payload.error}")
                 }
             } .elsewhen(popOnEarlyException) {
                 completionInfo.valid := True
@@ -463,8 +495,8 @@ class LoadQueuePlugin(
             prfWritePort.data.assignDontCare()
             wakeupPort.valid := False
             wakeupPort.payload.physRegIdx.assignDontCare()
-            busyTableClearPort.valid := False
-            busyTableClearPort.payload.assignDontCare()
+            // busyTableClearPort.valid := False
+            // busyTableClearPort.payload.assignDontCare()
 
             // 从寄存器中读取上一周期的完成事件
             val completingHead = RegNext(head) // 同时锁存需要写回的head信息
@@ -473,21 +505,45 @@ class LoadQueuePlugin(
                 robLoadWritebackPort.robPtr := completingHead.robPtr
                 robLoadWritebackPort.exceptionOccurred := completionInfoReg.hasFault
                 robLoadWritebackPort.exceptionCodeIn := completionInfoReg.exceptionCode
-                robLoadWritebackPort.result := completionInfoReg.data
+                    // --- 数据扩展逻辑 ---
+                    val rawData = completionInfoReg.data
+                    val extendedData = Bits(pipelineConfig.dataWidth)
+                    
+                    // 根据大小和符号位进行选择性扩展
+                    switch(completingHead.size) {
+                        is(MemAccessSize.B) {
+                            when(completingHead.isSignedLoad) {
+                                extendedData := S(rawData(7 downto 0)).resize(pipelineConfig.dataWidth).asBits
+                            } otherwise {
+                                extendedData := U(rawData(7 downto 0)).resize(pipelineConfig.dataWidth).asBits
+                            }
+                        }
+                        is(MemAccessSize.H) { // 假设未来支持半字
+                            when(completingHead.isSignedLoad) {
+                                extendedData := S(rawData(15 downto 0)).resize(pipelineConfig.dataWidth).asBits
+                            } otherwise {
+                                extendedData := U(rawData(15 downto 0)).resize(pipelineConfig.dataWidth).asBits
+                            }
+                        }
+                        default { // 对于 MemAccessSize.W (字) 或更大，不需要扩展
+                            extendedData := rawData
+                        }
+                    }
+                robLoadWritebackPort.result := extendedData
                 
                 // 只有在没有故障/异常时才写回PRF并唤醒
                 when(!completionInfoReg.hasFault) {
                     prfWritePort.valid   := True
                     prfWritePort.address := completingHead.pdest
-                    prfWritePort.data    := completionInfoReg.data
+                    prfWritePort.data    := extendedData
                     
                     wakeupPort.valid := True
                     wakeupPort.payload.physRegIdx := completingHead.pdest
                 }
                 
-                // 无论成功与否，只要指令完成，就要释放物理寄存器
-                busyTableClearPort.valid := True
-                busyTableClearPort.payload := completingHead.pdest
+                // 无论成功与否，只要指令完成，就要清楚busybit，但是物理寄存器直到commit才回收
+                // busyTableClearPort.valid := True
+                // busyTableClearPort.payload := completingHead.pdest
             }
 
             // 3. (组合逻辑) LQ Pop的请求仍然是组合的，但执行被推迟
@@ -514,7 +570,18 @@ class LoadQueuePlugin(
                 // 注意：LoadQueue 不像 StoreBuffer 那样有明确的 commit 操作
                 // 所以这里不需要 .elsewhen 的特殊处理
             }
-
+            // when(head.valid || slotsNext(0).valid) { // 只在LQ非空时打印，避免刷屏
+            //     ParallaxSim.log(
+            //         L"--- LQ FINAL UPDATE --- Cycle=${perfCounter.value}\n" :+
+            //         L"  Current head(0).robPtr: ${slots(0).robPtr}\n" :+
+            //         L"  slotsAfterUpdates(0).isReadyForDCache: ${slotsAfterUpdates(0).isReadyForDCache}\n" :+
+            //         L"  popRequest this cycle: ${popRequest}\n" :+
+            //         L"  Next state for slot 0 (slotsNext(0)):\n" :+
+            //         L"    - robPtr: ${slotsNext(0).robPtr}\n" :+
+            //         L"    - isReadyForDCache: ${slotsNext(0).isReadyForDCache}\n" :+
+            //         L"    - From where? slotsAfterUpdates(1).robPtr: ${slotsAfterUpdates(1).robPtr}, valid: ${slotsAfterUpdates(1).valid}"
+            //     )
+            // }
             // Final register update
             for(i <- 0 until lqDepth) {
                 slots(i) := slotsNext(i)

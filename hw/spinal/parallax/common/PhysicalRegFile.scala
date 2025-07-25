@@ -117,8 +117,8 @@ class PhysicalRegFilePlugin(
         // 断言：如果两个不同的端口都有效，它们的目标地址必须不相同。
         assert(
           !(portA.valid && portB.valid && portA.address === portB.address),
-          s"CRITICAL ERROR: Concurrent write to the same physical register detected between " +
-          s"${writePortRequests(i).traceName} and ${writePortRequests(j).traceName}. " +
+          L"CRITICAL ERROR: Concurrent write to the same physical register ${portA.address} detected between " :+
+          L"${writePortRequests(i).traceName} and ${writePortRequests(j).traceName}. " :+
           "This is a design flaw in the pipeline scheduling logic."
         )
       }

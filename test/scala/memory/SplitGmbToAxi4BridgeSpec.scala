@@ -521,5 +521,92 @@ class SplitGmbToAxi4BridgeSpec extends CustomSpinalSimFunSuite {
     }
   }
 
+  // =======================================================
+  // --- 测试6：复现读通道死锁场景 ---
+  // =======================================================
+  test("xDeadlock_On_Read_Channel_With_Response_Stall") {
+    SimConfig.withWave.compile(createTB).doSim { dut =>
+      SimTimeout(5000) // 设置一个超时，如果死锁发生，测试会在这里失败
+      implicit val cd: ClockDomain = dut.clockDomain
+      dut.clockDomain.forkStimulus(10)
+
+      val gmbReadCmd = dut.io.gmbReadCmdIn
+      val gmbReadRsp = dut.io.gmbReadRspOut
+      val axiAr = dut.bridge.io.axiOut.ar
+      val axiR = dut.bridge.io.axiOut.r
+      
+      // --- 测试设置 ---
+      // 1. 准备发送4个读请求，这超过了桥接器内部深度为2的响应FIFO
+      val numRequestsToSend = 4
+      var requestsSent = 0
+      var responsesReceived = 0
+
+      // 2. 初始化：GMB响应通道一开始是准备好接收的
+      gmbReadRsp.ready #= true
+      gmbReadCmd.valid #= false
+
+      // --- 激励进程 ---
+      val stimulus = fork {
+        for (i <- 0 until numRequestsToSend) {
+          gmbReadCmd.valid #= true
+          gmbReadCmd.payload.address #= 0x40 + i * 4
+          gmbReadCmd.payload.id #= i
+          dut.clockDomain.waitSamplingWhere(gmbReadCmd.ready.toBoolean)
+          requestsSent += 1
+          println(s"Test @${simTime()}: Sent GMB Read CMD ${i+1}/$numRequestsToSend (ID=$i). Total sent: $requestsSent.")
+        }
+        gmbReadCmd.valid #= false
+        println(s"Test @${simTime()}: All $numRequestsToSend requests have been accepted by the bridge.")
+      }
+
+      // --- 响应监控与背压注入进程 ---
+      val monitor = fork {
+        // 1. 首先，正常接收第一个响应，确保流水线在流动
+        dut.clockDomain.waitSamplingWhere(gmbReadRsp.valid.toBoolean)
+        responsesReceived += 1
+        println(s"Test @${simTime()}: Received GMB Read RSP 1 (ID=${gmbReadRsp.payload.id.toInt}).")
+
+        // 2. **关键操作：注入背压**
+        // 在收到第一个响应后，立即停止接收后续的响应
+        println(s"Test @${simTime()}: !!! INJECTING BACK-PRESSURE: gmbReadRsp.ready is now FALSE. !!!")
+        gmbReadRsp.ready #= false
+
+        // 3. 等待足够长的时间，让死锁发生
+        // 在这段时间内：
+        // - 第2个和第3个响应应该会填满桥接器内部深度为2的axiR_buffered
+        // - 第4个响应会被SRAMController阻塞在AXI R通道上 (axiR.valid=1, axiR.ready=0)
+        // - 这会导致SRAMController无法接收新的AR请求
+        dut.clockDomain.waitSampling(50)
+
+        // 4. 验证死锁状态
+        println(s"Test @${simTime()}: Verifying deadlock state...")
+        // 预期：AXI R通道被阻塞
+        assert(axiR.valid.toBoolean, "AXI R channel should be valid (SRAMController trying to send)")
+        assert(!axiR.ready.toBoolean, "AXI R channel should NOT be ready (Bridge response FIFO is full)")
+        // 预期：上游GMB命令通道也被阻塞了
+        assert(!gmbReadCmd.ready.toBoolean, "GMB command channel should be back-pressured and NOT ready")
+        println(s"Test @${simTime()}: Deadlock confirmed. AXI R valid=${axiR.valid.toBoolean}, ready=${axiR.ready.toBoolean}. GMB CMD ready=${gmbReadCmd.ready.toBoolean}.")
+
+        // 5. 移除背压，验证系统是否能恢复
+        println(s"Test @${simTime()}: Removing back-pressure. System should now recover.")
+        gmbReadRsp.ready #= true
+        
+        // 6. 接收剩余的响应
+        for (i <- 0 until (numRequestsToSend - responsesReceived)) {
+            dut.clockDomain.waitSamplingWhere(gmbReadRsp.valid.toBoolean)
+            println(s"Test @${simTime()}: Received remaining GMB Read RSP (ID=${gmbReadRsp.payload.id.toInt}).")
+        }
+        responsesReceived = numRequestsToSend
+      }
+      
+      stimulus.join()
+      monitor.join()
+
+      assert(requestsSent == numRequestsToSend, s"Not all requests were sent! Sent: $requestsSent")
+      assert(responsesReceived == numRequestsToSend, s"Not all responses were received! Received: $responsesReceived")
+      println(s"Test @${simTime()}: Deadlock test completed. System recovered successfully after stall.")
+    }
+  }
+
   thatsAll()
 }

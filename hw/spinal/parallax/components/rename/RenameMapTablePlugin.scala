@@ -20,6 +20,7 @@ class RenameMapTablePlugin(
 
   // Implement RatControlService by directly returning RAT's ports (following BPU pattern)
   override def getCurrentState(): RatCheckpoint = early_setup.rat.io.currentState
+  override def getCommitPort(): RatCommitUpdatePort = early_setup.rat.io.commitUpdatePort
   override def newCheckpointRestorePort(): Stream[RatCheckpoint] = early_setup.rat.io.checkpointRestore
   override def getReadPorts(): Vec[RatReadPort] = early_setup.rat.io.readPorts
   override def getWritePorts(): Vec[RatWritePort] = early_setup.rat.io.writePorts

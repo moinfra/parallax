@@ -6,7 +6,7 @@ import spinal.lib._
 import spinal.lib.pipeline._
 import parallax.common._
 import parallax.components.decode._
-import parallax.utilities.{LockedImpl, ParallaxLogger, Plugin}
+import parallax.utilities._
 
 class DecodePlugin(val issueConfig: PipelineConfig) extends Plugin with LockedImpl {
   val enableLog = false
@@ -65,6 +65,7 @@ class DecodePlugin(val issueConfig: PipelineConfig) extends Plugin with LockedIm
       // If it's a NOP, invalidate it so subsequent stages ignore it.
       when(isNop) {
         currentDecodedUop.isValid := False
+        report(L"DecodePlugin (s0_decode): Invalidate NOP uop at PC=${currentDecodedUop.pc}")
       }
       
       // -- MODIFICATION END --
@@ -74,6 +75,7 @@ class DecodePlugin(val issueConfig: PipelineConfig) extends Plugin with LockedIm
         currentDecodedUop.hasDecodeException := True
         currentDecodedUop.decodeExceptionCode := DecodeExCode.FETCH_ERROR
         currentDecodedUop.uopCode := BaseUopCode.ILLEGAL
+        report(L"DecodePlugin (s0_decode): Invalidate fault uop at PC=${currentDecodedUop.pc}")
       }
       
       when(!groupValidMask(i)) {
@@ -91,7 +93,7 @@ class DecodePlugin(val issueConfig: PipelineConfig) extends Plugin with LockedIm
     s0_decode(signals.DECODED_UOPS) := decodedUopsOutputVec
 
     when(s0_decode.isFiring) {
-      if(enableLog) report(L"DecodePlugin (s0_decode): Firing. Input PC_Group=${groupPcIn}, Input GroupFault=${isGroupFaultIn}")
+      report(L"DecodePlugin (s0_decode): Firing. Input PC_Group=${groupPcIn}, Input GroupFault=${isGroupFaultIn}")
       for (i <- 0 until issueConfig.renameWidth) {
         val pc = groupPcIn + U(i * issueConfig.bytesPerInstruction)
         if(enableLog) report(
@@ -107,7 +109,7 @@ class DecodePlugin(val issueConfig: PipelineConfig) extends Plugin with LockedIm
         val doHardRedirect = hr.doHardRedirect()
         when(doHardRedirect) {
           s0_decode.flushIt()
-          if(enableLog) report(L"DecodePlugin (s0_decode): Flushing pipeline due to hard redirect")
+          report(L"DecodePlugin (s0_decode): Flushing pipeline due to hard redirect")
         }
       })
     }
@@ -115,7 +117,11 @@ class DecodePlugin(val issueConfig: PipelineConfig) extends Plugin with LockedIm
     if(enableLog) report(L"DEBUG: s0_decode.isFiring=${s0_decode.isFiring}, groupValidMask=${groupValidMask}, isGroupFaultIn=${isGroupFaultIn}")
     if(enableLog) report(L"DEBUG: decodedUopsOutputVec(0).isValid=${decodedUopsOutputVec(0).isValid}, decodedUopsOutputVec(0).uopCode=${decodedUopsOutputVec(0).uopCode}")
     when(s0_decode.isFiring && decodedUopsOutputVec(0).isValid) {
-      report(L"DecodePlugin (s0_decode): Firing. Output DecodedUops=${decodedUopsOutputVec(0).format()}")
+      when(decodedUopsOutputVec(0).isValid) {
+        report(L"DecodePlugin (s0_decode): Firing. Output DecodedUops=${decodedUopsOutputVec(0).format()}")
+      } otherwise {
+        ParallaxSim.notice(L"DecodePlugin (s0_decode): Firing. Output DecodedUops=${decodedUopsOutputVec(0).format()}")
+      }      
     }
     setup.issuePpl.release()
   }

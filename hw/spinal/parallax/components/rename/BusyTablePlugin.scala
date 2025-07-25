@@ -6,6 +6,7 @@ import spinal.lib._
 import parallax.common._
 import parallax.utilities._
 import scala.collection.mutable.ArrayBuffer
+import parallax.execute.WakeupPlugin
 
 // --- Service Definition ---
 trait BusyTableService extends Service with LockedImpl {
@@ -38,7 +39,8 @@ class BusyTablePlugin(pCfg: PipelineConfig)
     with BusyTableService
     with BusyTableCheckpointService {
   // HONEST ERROR REPORTING: Enable detailed logging for RAW hazard debugging
-  val enableLog = false // FORCE enable logging for debugging
+  val enableLog = true // FORCE enable logging for debugging
+  val verbose = false
   println("[BusyTablePlugin] enableLog: " + enableLog)
   private val setPorts = ArrayBuffer[Flow[UInt]]()
   private val clearPortsBuffer = ArrayBuffer[Flow[UInt]]() // 使用ArrayBuffer存储所有清除端口
@@ -61,7 +63,7 @@ class BusyTablePlugin(pCfg: PipelineConfig)
     
     // +++ NEW +++
     // 获取包含所有唤醒源的广播总线
-    val wakeupService = getService[parallax.execute.WakeupService]
+    val wakeupService = getService[WakeupPlugin]
     val allWakeupFlows = wakeupService.getWakeupFlows()
 
     // Handle clears first (higher priority)
@@ -69,21 +71,20 @@ class BusyTablePlugin(pCfg: PipelineConfig)
 
     // +++ NEW +++
     // 遍历所有并行的唤醒信号，并将它们对应的位设置到clearMask中
-    // BusyTable 清除得太早了。物理寄存器只有在所有依赖它的指令都成功读取了它的值之后，才能被安全地回收重用。
-    // 延迟到了 COmmit阶段
-    // for (wakeup <- allWakeupFlows) {
-    //     when(wakeup.valid) {
-    //         clearMask(wakeup.payload.physRegIdx) := True
-    //         if(enableLog) report(L"[BusyTable] Global wakeup clear: physReg=${wakeup.payload.physRegIdx}")
-    //     }
-    // }
+    // busy 可以立刻清零，但是对于的寄存器必须在commit才能回收
+    for ((wakeup, name) <- wakeupService.wakeupSources) {
+        when(wakeup.valid) {
+            clearMask(wakeup.payload.physRegIdx) := True
+            if(enableLog) report(L"[RegRes|BusyTable] Global wakeup clear: physReg=${wakeup.payload.physRegIdx} (from ${name} executed operation)")
+        }
+    }
 
     // Handle individual EU clear ports (still needed for direct clears)
     // 这个逻辑保持不变，它用于一些不通过标准唤醒流程的特殊清除操作
     for (port <- clearPortsBuffer) {
       when(port.valid) {
         clearMask(port.payload) := True
-        if(enableLog) report(L"[BusyTable] Clear port valid: physReg=${port.payload}")
+        if(enableLog) report(L"[RegRes|BusyTable] clear bit: preg=${port.payload}")
       }
     }
 
@@ -92,20 +93,29 @@ class BusyTablePlugin(pCfg: PipelineConfig)
     for (port <- setPorts; if port != null) {
       when(port.valid) {
         setMask(port.payload) := True
-        if(enableLog) report(L"[BusyTable] Set port valid: physReg=${port.payload}")
+        if(enableLog) report(L"[RegRes|BusyTable] set bit: preg=${port.payload}")
       }
     }
 
     // Combine clear and set operations (逻辑不变)
     val busyTableNext = (busyTableReg & ~clearMask) | setMask
     
-    if(enableLog) report(L"[BusyTable] Current: busyTableReg=${busyTableReg}, clearMask=${clearMask}, setMask=${setMask}, next=${busyTableNext}")
+    if(enableLog && verbose) report(L"[BusyTable] Current: busyTableReg=${busyTableReg}, clearMask=${clearMask}, setMask=${setMask}, next=${busyTableNext}")
 
     // Handle Restore
     val restorePort = restorePorts.head // Assuming single restore port for now
     when(restorePort.valid) {
       busyTableReg := restorePort.payload.busyBits
-      if(enableLog) report(L"[BusyTable] Restored from checkpoint: busyBits=${restorePort.payload.busyBits}")
+      if(enableLog) 
+      {
+        val details = restorePort.payload.busyBits.asBools
+        report(L"[RegRes|BusyTable] Restored from checkpoint: busyBits=${restorePort.payload.busyBits}")
+        for(i <- 0 until pCfg.physGprCount) {
+           when(details(i)) {
+            report(L"[RegRes|BusyTable]     preg=${i}")
+           }
+        }
+      }
     } .otherwise {
       busyTableReg := busyTableNext
     }

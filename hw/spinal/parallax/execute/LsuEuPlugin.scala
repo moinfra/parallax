@@ -79,6 +79,7 @@ class LsuEuPlugin(
       aguCmd.basePhysReg := uop.src1Tag
       aguCmd.immediate   := uop.imm.asSInt
       aguCmd.accessSize  := uop.memCtrl.size
+      aguCmd.isSignedLoad:= uop.memCtrl.isSignedLoad
       aguCmd.usePc       := uop.usePc
       aguCmd.pc          := uop.pcData
       aguCmd.dataReg     := uop.src2Tag
@@ -109,6 +110,7 @@ class LsuEuPlugin(
         cmd.address            := aguOutPayload.address
         cmd.isIO               := aguOutPayload.isIO
         cmd.size               := aguOutPayload.accessSize
+        cmd.isSignedLoad       := aguOutPayload.isSignedLoad
         cmd.hasEarlyException  := aguOutPayload.alignException
         cmd.earlyExceptionCode := ExceptionCode.LOAD_ADDR_MISALIGNED
         cmd
@@ -140,7 +142,7 @@ class LsuEuPlugin(
     // 只有当分派事件发生时才进行处理
     when(dispatchCompleted) {
         ParallaxSim.logWhen(aguOutPayload.isLoad, L"[LsuEu] Dispatched LOAD to LQ: robPtr=${aguOutPayload.robPtr}")
-        ParallaxSim.logWhen(aguOutPayload.isStore, L"[LsuEu] Dispatched STORE to SB: robPtr=${aguOutPayload.robPtr}")
+        ParallaxSim.logWhen(aguOutPayload.isStore, L"[LsuEu] Dispatched STORE to SB: robPtr=${aguOutPayload.robPtr} pc=${uop.pcData} addr=${aguOutPayload.address} data=${aguOutPayload.storeData}")
         
         // =======================================================================
     // >> 关键修正 <<

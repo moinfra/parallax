@@ -312,7 +312,7 @@ class AguPlugin(
         s1_stream.payload.isFlush       := s1.payload.isFlush
         s1_stream.payload.isIO       := mmioDetection.finalIsIO
         
-        externalPort.output << s1_stream.stage()
+        externalPort.output << s1_stream.queueOfReg(size = 2)
         s0.ready := s1_stream.ready && !externalPort.flush
       }
 

@@ -11,8 +11,8 @@ class RenameMapTableTestBench(val config: RenameMapTableConfig) extends Componen
   val rat = new RenameMapTable(config)
   val dutIo = new RenameMapTableIo(config)
   rat.io <> dutIo
-  def internalMapState = rat.mapReg.mapping
-  rat.mapReg.mapping.simPublic
+  def internalMapState = rat.rratMapReg.mapping
+  rat.rratMapReg.mapping.simPublic
 }
 
 class RenameMapTableSpec extends CustomSpinalSimFunSuite {
@@ -72,13 +72,13 @@ class RenameMapTableSpec extends CustomSpinalSimFunSuite {
       dutTb.dutIo.checkpointRestore.valid #= false
 
       dutTb.clockDomain.waitSampling() // Initial reset
-      val initialState = (0 until config.archRegCount).map(idx => dutTb.rat.mapReg.mapping(idx).toInt).toSeq
+      val initialState = (0 until config.archRegCount).map(idx => dutTb.rat.rratMapReg.mapping(idx).toInt).toSeq
       println(s"Stability Test - Initial: ${initialState.mkString(", ")}")
       assert(initialState == Seq(0, 1, 2, 3))
 
       dutTb.clockDomain.waitSampling(5) // Wait a few cycles with no activity
 
-      val stateAfterWait = (0 until config.archRegCount).map(idx => dutTb.rat.mapReg.mapping(idx).toInt).toSeq
+      val stateAfterWait = (0 until config.archRegCount).map(idx => dutTb.rat.rratMapReg.mapping(idx).toInt).toSeq
       println(s"Stability Test - After Wait: ${stateAfterWait.mkString(", ")}")
       assert(stateAfterWait == Seq(0, 1, 2, 3), "mapState changed without explicit write/restore")
     }
@@ -264,7 +264,7 @@ class RenameMapTableSpec extends CustomSpinalSimFunSuite {
       println(s"Combinational read for r2 during write cycle: p$readValueDuringWrite")
       assert(readValueDuringWrite == 2, "Concurrent read should see the OLD value (Read-First behavior)")
 
-      // Wait for the clock edge. The write will be latched into mapReg.
+      // Wait for the clock edge. The write will be latched into rratMapReg.
       dutTb.clockDomain.waitSampling()
 
       // --- Cycle 2: De-assert write and verify results ---

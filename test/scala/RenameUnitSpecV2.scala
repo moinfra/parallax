@@ -35,7 +35,7 @@ class RenameUnitTestBench(
   renameUnit.io.physRegsIn := io.allocatedPhysRegsIn
   io.renamedUopsOut := renameUnit.io.renamedUopsOut
 
-  renameMapTable.mapReg.mapping.simPublic()
+  renameMapTable.rratMapReg.mapping.simPublic()
   renameUnit.io.simPublic()
   
   renameMapTable.io.checkpointSave.valid := False
@@ -248,13 +248,13 @@ class RenameUnitSpec extends CustomSpinalSimFunSuite {
       
       // Additional verification: Check that the mapping table is correctly updated
       println("=== Verification: Final mapping table state ===")
-      println(s"r1 -> p${dut.renameMapTable.mapReg.mapping(1).toInt}")
-      println(s"r2 -> p${dut.renameMapTable.mapReg.mapping(2).toInt}")
-      println(s"r3 -> p${dut.renameMapTable.mapReg.mapping(3).toInt}")
+      println(s"r1 -> p${dut.renameMapTable.rratMapReg.mapping(1).toInt}")
+      println(s"r2 -> p${dut.renameMapTable.rratMapReg.mapping(2).toInt}")
+      println(s"r3 -> p${dut.renameMapTable.rratMapReg.mapping(3).toInt}")
       
-      assert(dut.renameMapTable.mapReg.mapping(1).toInt == 8, "r1 should map to p8 in table")
-      assert(dut.renameMapTable.mapReg.mapping(2).toInt == 9, "r2 should map to p9 in table") 
-      assert(dut.renameMapTable.mapReg.mapping(3).toInt == 10, "r3 should map to p10 in table")
+      assert(dut.renameMapTable.rratMapReg.mapping(1).toInt == 8, "r1 should map to p8 in table")
+      assert(dut.renameMapTable.rratMapReg.mapping(2).toInt == 9, "r2 should map to p9 in table") 
+      assert(dut.renameMapTable.rratMapReg.mapping(3).toInt == 10, "r3 should map to p10 in table")
       
       println("✅ RAW Hazard sequence test passed!")
     }
@@ -331,8 +331,8 @@ class RenameUnitSpec extends CustomSpinalSimFunSuite {
       // --- Optional: Verify final RAT state ---
       driveIdle(dut) // Drive an idle cycle to let the last write commit and be readable
       println("\nVerifying final RAT state after one cycle...")
-      assert(dut.renameMapTable.mapReg.mapping(1).toInt == 10, s"Final RAT state for r1 should be p10, but it is p${dut.renameMapTable.mapReg.mapping(1).toInt}")
-      assert(dut.renameMapTable.mapReg.mapping(2).toInt == 9, s"Final RAT state for r2 should be p9, but it is p${dut.renameMapTable.mapReg.mapping(2).toInt}")
+      assert(dut.renameMapTable.rratMapReg.mapping(1).toInt == 10, s"Final RAT state for r1 should be p10, but it is p${dut.renameMapTable.rratMapReg.mapping(1).toInt}")
+      assert(dut.renameMapTable.rratMapReg.mapping(2).toInt == 9, s"Final RAT state for r2 should be p9, but it is p${dut.renameMapTable.rratMapReg.mapping(2).toInt}")
       println("Final RAT state is correct.")
     }
 }
@@ -445,8 +445,8 @@ test("Bug 1 - RenameUnit Self-Dependency Error (e.g. add r1, r1, r2)") {
 
       // Final check: after this cycle, the RAT state itself should be updated
       driveIdle(dut)
-      assert(dut.renameMapTable.mapReg.mapping(5).toInt == 8, "RAT internal state for r5 was not updated to p8.")
-      assert(dut.renameMapTable.mapReg.mapping(6).toInt == 9, "RAT internal state for r6 was not updated to p9.")
+      assert(dut.renameMapTable.rratMapReg.mapping(5).toInt == 8, "RAT internal state for r5 was not updated to p8.")
+      assert(dut.renameMapTable.rratMapReg.mapping(6).toInt == 9, "RAT internal state for r6 was not updated to p9.")
       
       println("\n✅ Bug 2 Test Passed (or would have failed on buggy code).")
     }

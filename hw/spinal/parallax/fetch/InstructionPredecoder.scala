@@ -36,55 +36,52 @@ case class PredecodeInfo() extends Bundle {
 class InstructionPredecoder(pCfg: PipelineConfig) extends Component {
   val io = new Bundle {
     val instruction = in Bits (pCfg.dataWidth)
-    // 输出现在是一个完整的 PredecodeInfo bundle
     val predecodeInfo = out(PredecodeInfo())
   }
 
   val opcode = io.instruction(31 downto 26)
-  
-  // IDLE instruction pattern: 0000011 00100 10001 level[14:0]
-  val opcode_7b = io.instruction(31 downto 25)
-  val idle_fixed_bits = io.instruction(24 downto 15)
 
-  // 默认值
-  io.predecodeInfo.isBranch := False
-  io.predecodeInfo.isJump := False
-  io.predecodeInfo.isDirectJump := False
-  io.predecodeInfo.jumpOffset := 0
-  io.predecodeInfo.isIdle := False
+  // --- 1. 并行比较，生成各个指令类型的标志位 ---
+  // isBranch 指令的 Opcode 列表
+  val isBceqzBcnez = (opcode === B"010010")
+  val isJirl       = (opcode === B"010011")
+  val isBeq        = (opcode === B"010110")
+  val isBne        = (opcode === B"010111")
+  val isBlt        = (opcode === B"011000")
+  val isBge        = (opcode === B"011001")
+  val isBltu       = (opcode === B"011010")
+  val isBgeu       = (opcode === B"011011")
 
-  // 根据手册，offs26 是由 offs[15:0] 和 offs[25:16] 拼接而成
-  // offs[15:0] 位于 instruction[15:0]  
-  // offs[25:16] 位于 instruction[25:16]
+  // isJump (Direct) 指令的 Opcode 列表
+  val isB       = (opcode === B"010100") // 包含 B 和 BL
+  // 假设 010101 也是直接跳转，可以像这样添加
+  // val isBL = (opcode === B"010101")
+
+  // --- 2. 汇总标志位，生成最终输出 (纯组合逻辑，无优先级) ---
+
+  // 如果是条件分支或间接跳转，则 isBranch 为 True
+  io.predecodeInfo.isBranch := isBceqzBcnez | isJirl | isBeq | isBne | isBlt | isBge | isBltu | isBgeu
+
+  // 如果是直接跳转 (B/BL)，则 isJump 和 isDirectJump 都为 True
+  val isAnyDirectJump = isB // | isBL
+  io.predecodeInfo.isJump       := isAnyDirectJump
+  io.predecodeInfo.isDirectJump := isAnyDirectJump
+  io.predecodeInfo.isIdle       := False // 初赛不管了
+
+
+  // --- 3. 计算 jumpOffset (只在需要时有效) ---
+
+  // 提取偏移量字段，这部分是无条件的组合逻辑
   val offs26 = io.instruction(25 downto 16) ## io.instruction(15 downto 0)
-
-  // 计算偏移量：{offs26, 2'b0} 然后符号扩展 - 只在需要时计算
-  val offset = Cat(offs26, B"00").asSInt.resize(pCfg.xlen)
   
-  // IDLE instruction detection
-  when(opcode_7b === B"0000011" && idle_fixed_bits === B"0010010001") {
-    io.predecodeInfo.isIdle := True
-    report(L"Found IDLE instruction: ${io.instruction.asUInt}")
-  }
+  // 符号扩展和移位，这也是无条件的组合逻辑
+  val offset = (offs26.asSInt << 2).resize(pCfg.xlen) // 修正：直接移位2，然后符号扩展
 
-  switch(opcode) {
-    // --- Conditional Branches & Indirect Jumps (isBranch = True) ---
-    is(B"010010", B"010011", B"010110", B"010111", B"011000", B"011001", B"011010", B"011011") {
-      io.predecodeInfo.isBranch := True
-      // 分支指令的jumpOffset保持为0，因为它们不是直接跳转
-    }
-
-    // --- Unconditional Direct Jumps (isJump = True, isDirectJump = True) ---
-    is(B"010100"/*, B"010101"*/) { // B
-      io.predecodeInfo.isJump := True
-      io.predecodeInfo.isDirectJump := True
-      io.predecodeInfo.jumpOffset := offset  // 只有直接跳转指令才设置jumpOffset
-    }
-    
-    // --- 默认情况 ---
-    default {
-      // 保持默认值：所有predecode字段都为False/0
-      // jumpOffset保持为0，避免使用指令中的随机位
-    }
-  }
+  // 只有当指令是直接跳转时，才将计算出的 offset 赋给 jumpOffset
+  // 否则 jumpOffset 为 0
+  io.predecodeInfo.jumpOffset := Mux(
+    isAnyDirectJump,
+     offset,
+     S(0, pCfg.xlen bits)
+  )
 }
