@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 49a99dae7b6ed938ae50042417514f24dcaeaaa8
 // Component : CoreNSCSCC
-// Git hash  : e223e68c78e2e562ebb82b4941a41ed1d19e5c12
+// Git hash  : 6637bf177244c02151636e337c79c5394838d439
 
 `timescale 1ns/1ps
 
@@ -154,6 +154,8 @@ module CoreNSCSCC (
   localparam ICachePlugin_logic_refill_fsm_RECEIVE_DATA_OH_ID = 3;
   localparam ICachePlugin_logic_refill_fsm_COMMIT_OH_ID = 4;
 
+  wire                FetchPipelinePlugin_setup_fetchOutput_io_push_valid;
+  reg                 FetchPipelinePlugin_setup_fetchOutput_io_pop_ready;
   wire                ROBPlugin_robComponent_io_allocate_0_valid;
   reg                 ROBPlugin_robComponent_io_writeback_4_fire;
   reg        [3:0]    ROBPlugin_robComponent_io_writeback_4_robPtr;
@@ -161,6 +163,9 @@ module CoreNSCSCC (
   reg                 ROBPlugin_robComponent_io_writeback_4_exceptionOccurred;
   reg        [7:0]    ROBPlugin_robComponent_io_writeback_4_exceptionCodeIn;
   wire                RenameMapTablePlugin_early_setup_rat_io_writePorts_0_wen;
+  reg                 RenameMapTablePlugin_early_setup_rat_io_commitUpdatePort_wen;
+  reg        [4:0]    RenameMapTablePlugin_early_setup_rat_io_commitUpdatePort_archReg;
+  reg        [5:0]    RenameMapTablePlugin_early_setup_rat_io_commitUpdatePort_physReg;
   reg                 RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_valid;
   reg        [5:0]    RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_0;
   reg        [5:0]    RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_1;
@@ -216,18 +221,43 @@ module CoreNSCSCC (
   wire                streamFifo_14_io_push_payload_alignException;
   wire                streamFifo_14_io_push_payload_isIO;
   wire                oneShot_23_io_triggerIn;
-  reg                 FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_valid;
-  reg        [31:0]   FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_pc;
-  reg        [31:0]   FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_firstPc;
-  reg        [31:0]   FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_instructions_0;
-  reg        [31:0]   FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_instructions_1;
-  reg        [31:0]   FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_instructions_2;
-  reg        [31:0]   FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_instructions_3;
-  reg                 FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_fault;
-  reg        [2:0]    FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_numValidInstructions;
-  reg        [1:0]    FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_startInstructionIndex;
-  wire                FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_ready;
-  wire                FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_flush;
+  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_valid;
+  reg        [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_pc;
+  reg        [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_firstPc;
+  reg        [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_instructions_0;
+  reg        [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_instructions_1;
+  reg        [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_instructions_2;
+  reg        [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_instructions_3;
+  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_isBranch;
+  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_isJump;
+  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_isDirectJump;
+  reg        [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_jumpOffset;
+  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_isIdle;
+  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_isBranch;
+  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_isJump;
+  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_isDirectJump;
+  reg        [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_jumpOffset;
+  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_isIdle;
+  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_isBranch;
+  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_isJump;
+  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_isDirectJump;
+  reg        [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_jumpOffset;
+  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_isIdle;
+  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_isBranch;
+  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_isJump;
+  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_isDirectJump;
+  reg        [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_jumpOffset;
+  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_isIdle;
+  reg        [3:0]    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_branchMask;
+  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_fault;
+  reg        [2:0]    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_numValidInstructions;
+  reg        [1:0]    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_startInstructionIndex;
+  reg        [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_potentialJumpTargets_0;
+  reg        [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_potentialJumpTargets_1;
+  reg        [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_potentialJumpTargets_2;
+  reg        [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_potentialJumpTargets_3;
+  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_ready;
+  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_flush;
   wire                CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_ready;
   wire       [3:0]    io_axiOut_readOnly_decoder_io_outputs_0_r_payload_id;
   wire       [3:0]    io_axiOut_readOnly_decoder_io_outputs_1_r_payload_id;
@@ -978,19 +1008,64 @@ module CoreNSCSCC (
   wire       [2:0]    FetchPipelinePlugin_logic_dispatcher_io_bpuQuery_payload_transactionId;
   wire                FetchPipelinePlugin_logic_dispatcher_io_softRedirect_valid;
   wire       [31:0]   FetchPipelinePlugin_logic_dispatcher_io_softRedirect_payload;
-  wire                FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_ready;
-  wire                FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_valid;
-  wire       [31:0]   FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_payload_pc;
-  wire       [31:0]   FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_payload_firstPc;
-  wire       [31:0]   FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_payload_instructions_0;
-  wire       [31:0]   FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_payload_instructions_1;
-  wire       [31:0]   FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_payload_instructions_2;
-  wire       [31:0]   FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_payload_instructions_3;
-  wire                FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_payload_fault;
-  wire       [2:0]    FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_payload_numValidInstructions;
-  wire       [1:0]    FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_payload_startInstructionIndex;
-  wire       [1:0]    FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_occupancy;
-  wire       [1:0]    FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_availability;
+  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_push_ready;
+  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_valid;
+  wire       [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_pc;
+  wire       [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_firstPc;
+  wire       [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_instructions_0;
+  wire       [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_instructions_1;
+  wire       [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_instructions_2;
+  wire       [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_instructions_3;
+  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_0_isBranch;
+  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_0_isJump;
+  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_0_isDirectJump;
+  wire       [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_0_jumpOffset;
+  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_0_isIdle;
+  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_1_isBranch;
+  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_1_isJump;
+  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_1_isDirectJump;
+  wire       [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_1_jumpOffset;
+  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_1_isIdle;
+  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_2_isBranch;
+  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_2_isJump;
+  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_2_isDirectJump;
+  wire       [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_2_jumpOffset;
+  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_2_isIdle;
+  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_3_isBranch;
+  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_3_isJump;
+  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_3_isDirectJump;
+  wire       [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_3_jumpOffset;
+  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_3_isIdle;
+  wire       [3:0]    FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_branchMask;
+  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_fault;
+  wire       [2:0]    FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_numValidInstructions;
+  wire       [1:0]    FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_startInstructionIndex;
+  wire       [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_potentialJumpTargets_0;
+  wire       [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_potentialJumpTargets_1;
+  wire       [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_potentialJumpTargets_2;
+  wire       [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_potentialJumpTargets_3;
+  wire       [1:0]    FetchPipelinePlugin_logic_fetchGroupsOut_io_occupancy;
+  wire       [1:0]    FetchPipelinePlugin_logic_fetchGroupsOut_io_availability;
+  wire                instructionPredecoder_4_io_predecodeInfo_isBranch;
+  wire                instructionPredecoder_4_io_predecodeInfo_isJump;
+  wire                instructionPredecoder_4_io_predecodeInfo_isDirectJump;
+  wire       [31:0]   instructionPredecoder_4_io_predecodeInfo_jumpOffset;
+  wire                instructionPredecoder_4_io_predecodeInfo_isIdle;
+  wire                instructionPredecoder_5_io_predecodeInfo_isBranch;
+  wire                instructionPredecoder_5_io_predecodeInfo_isJump;
+  wire                instructionPredecoder_5_io_predecodeInfo_isDirectJump;
+  wire       [31:0]   instructionPredecoder_5_io_predecodeInfo_jumpOffset;
+  wire                instructionPredecoder_5_io_predecodeInfo_isIdle;
+  wire                instructionPredecoder_6_io_predecodeInfo_isBranch;
+  wire                instructionPredecoder_6_io_predecodeInfo_isJump;
+  wire                instructionPredecoder_6_io_predecodeInfo_isDirectJump;
+  wire       [31:0]   instructionPredecoder_6_io_predecodeInfo_jumpOffset;
+  wire                instructionPredecoder_6_io_predecodeInfo_isIdle;
+  wire                instructionPredecoder_7_io_predecodeInfo_isBranch;
+  wire                instructionPredecoder_7_io_predecodeInfo_isJump;
+  wire                instructionPredecoder_7_io_predecodeInfo_isDirectJump;
+  wire       [31:0]   instructionPredecoder_7_io_predecodeInfo_jumpOffset;
+  wire                instructionPredecoder_7_io_predecodeInfo_isIdle;
   wire                CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_cmd_ready;
   wire                CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_valid;
   wire       [31:0]   CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_payload_data;
@@ -1491,9 +1566,44 @@ module CoreNSCSCC (
   wire       [1:0]    _zz_FetchPipelinePlugin_logic_retryIdCounter_valueNext;
   wire       [0:0]    _zz_FetchPipelinePlugin_logic_retryIdCounter_valueNext_1;
   wire       [27:0]   _zz_FetchPipelinePlugin_logic_s2_logic_cmdPayload_transactionId;
-  wire       [7:0]    _zz_218;
-  wire       [27:0]   _zz_219;
-  wire       [2:0]    _zz_io_push_payload_numValidInstructions_2;
+  wire       [7:0]    _zz_219;
+  wire       [27:0]   _zz_220;
+  wire       [2:0]    _zz_s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_NUM_VALID_INSTRS;
+  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_0;
+  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_0_1;
+  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_0_2;
+  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_0_3;
+  wire       [1:0]    _zz_io_push_payload_potentialJumpTargets_0_4;
+  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_0_5;
+  wire       [27:0]   _zz_io_push_payload_potentialJumpTargets_0_6;
+  wire       [25:0]   _zz_io_push_payload_potentialJumpTargets_0_7;
+  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_1;
+  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_1_1;
+  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_1_2;
+  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_1_3;
+  wire       [2:0]    _zz_io_push_payload_potentialJumpTargets_1_4;
+  wire       [2:0]    _zz_io_push_payload_potentialJumpTargets_1_5;
+  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_1_6;
+  wire       [27:0]   _zz_io_push_payload_potentialJumpTargets_1_7;
+  wire       [25:0]   _zz_io_push_payload_potentialJumpTargets_1_8;
+  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_2;
+  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_2_1;
+  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_2_2;
+  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_2_3;
+  wire       [3:0]    _zz_io_push_payload_potentialJumpTargets_2_4;
+  wire       [3:0]    _zz_io_push_payload_potentialJumpTargets_2_5;
+  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_2_6;
+  wire       [27:0]   _zz_io_push_payload_potentialJumpTargets_2_7;
+  wire       [25:0]   _zz_io_push_payload_potentialJumpTargets_2_8;
+  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_3;
+  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_3_1;
+  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_3_2;
+  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_3_3;
+  wire       [3:0]    _zz_io_push_payload_potentialJumpTargets_3_4;
+  wire       [3:0]    _zz_io_push_payload_potentialJumpTargets_3_5;
+  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_3_6;
+  wire       [27:0]   _zz_io_push_payload_potentialJumpTargets_3_7;
+  wire       [25:0]   _zz_io_push_payload_potentialJumpTargets_3_8;
   wire       [42:0]   _zz_ICachePlugin_logic_storage_tagLruRam_port;
   reg                 _zz_ICache_F1_Access_ICachePlugin_logic_pipeline_F1_VALID_MASK_0;
   reg                 _zz_ICache_F1_Access_ICachePlugin_logic_pipeline_F1_VALID_MASK_1;
@@ -1550,6 +1660,7 @@ module CoreNSCSCC (
   wire                ICache_F1_Access_ready;
   wire       [31:0]   ICache_F1_Access_ICachePlugin_logic_pipeline_F1_CMD_address;
   wire       [7:0]    ICache_F1_Access_ICachePlugin_logic_pipeline_F1_CMD_transactionId;
+  wire                s5_Target_Calc_isFlushingRoot;
   wire                s4_Predecode_isFlushingRoot;
   wire                s3_ICache_Wait_isFlushingRoot;
   wire                s2_ICache_Access_isFlushingRoot;
@@ -1557,17 +1668,82 @@ module CoreNSCSCC (
   wire                s1_PC_Gen_isFlushed;
   wire                s2_ICache_Access_isFlushed;
   wire                s4_Predecode_isFlushed;
+  wire                s5_Target_Calc_isFlushed;
   wire                s3_ICache_Wait_isFlushed;
   reg        [31:0]   s2_ICache_Access_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC;
-  reg        [31:0]   s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC;
+  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_FAULT;
+  reg        [2:0]    s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_NUM_VALID_INSTRS;
+  reg        [1:0]    s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_START_INSTR_INDEX;
+  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isBranch;
+  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isJump;
+  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isDirectJump;
+  reg        [31:0]   s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_jumpOffset;
+  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isIdle;
+  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isBranch;
+  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isJump;
+  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isDirectJump;
+  reg        [31:0]   s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_jumpOffset;
+  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isIdle;
+  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isBranch;
+  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isJump;
+  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isDirectJump;
+  reg        [31:0]   s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_jumpOffset;
+  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isIdle;
+  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isBranch;
+  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isJump;
+  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isDirectJump;
+  reg        [31:0]   s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_jumpOffset;
+  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isIdle;
+  reg        [7:0]    s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_transactionId;
+  reg        [31:0]   s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_0;
+  reg        [31:0]   s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_1;
+  reg        [31:0]   s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_2;
+  reg        [31:0]   s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_3;
+  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_wasHit;
+  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_redo;
+  reg        [31:0]   s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC;
+  reg        [31:0]   s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PC;
   reg        [31:0]   s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC;
-  reg                 s4_Predecode_ready;
+  reg        [31:0]   s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC;
+  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_FAULT;
+  reg        [2:0]    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_NUM_VALID_INSTRS;
+  reg        [1:0]    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_START_INSTR_INDEX;
+  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isBranch;
+  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isJump;
+  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isDirectJump;
+  reg        [31:0]   s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_jumpOffset;
+  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isIdle;
+  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isBranch;
+  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isJump;
+  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isDirectJump;
+  reg        [31:0]   s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_jumpOffset;
+  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isIdle;
+  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isBranch;
+  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isJump;
+  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isDirectJump;
+  reg        [31:0]   s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_jumpOffset;
+  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isIdle;
+  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isBranch;
+  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isJump;
+  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isDirectJump;
+  reg        [31:0]   s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_jumpOffset;
+  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isIdle;
+  reg        [7:0]    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_transactionId;
+  reg        [31:0]   s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_0;
+  reg        [31:0]   s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_1;
+  reg        [31:0]   s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_2;
+  reg        [31:0]   s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_3;
+  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_wasHit;
+  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_redo;
   reg        [31:0]   s2_ICache_Access_FetchPipelinePlugin_logic_FetchPipeline_PC;
-  wire                s2_ICache_Access_ready;
-  reg                 _zz_s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l382;
-  reg                 s1_PC_Gen_ready;
+  reg                 _zz_s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l400;
   wire       [31:0]   s1_PC_Gen_FetchPipelinePlugin_logic_FetchPipeline_PC;
   wire       [31:0]   s1_PC_Gen_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC;
+  reg                 s5_Target_Calc_ready;
+  wire                s4_Predecode_ready;
+  wire                s3_ICache_Wait_ready;
+  wire                s2_ICache_Access_ready;
+  reg                 s1_PC_Gen_ready;
   wire                s3_Dispatch_isFlushingRoot;
   wire                s2_RobAlloc_isFlushingRoot;
   wire                s1_Rename_isFlushingRoot;
@@ -2841,6 +3017,15 @@ module CoreNSCSCC (
   wire       [31:0]   StoreBufferPlugin_hw_sqQueryPort_rsp_data;
   wire                StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreHasUnknownAddress;
   wire                StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreDataNotReady;
+  wire                _zz_io_gmbIn_write_cmd_valid;
+  wire                _zz_StoreBufferPlugin_logic_mmioCmdFired;
+  wire       [31:0]   _zz_io_gmbIn_write_cmd_payload_address;
+  wire       [31:0]   _zz_io_gmbIn_write_cmd_payload_data;
+  wire       [3:0]    _zz_io_gmbIn_write_cmd_payload_byteEnables;
+  wire       [3:0]    _zz_io_gmbIn_write_cmd_payload_id;
+  wire                _zz_26;
+  wire                _zz_StoreBufferPlugin_logic_mmioResponseForHead;
+  wire                _zz_io_gmbIn_write_rsp_ready;
   reg                 LoadQueuePlugin_hw_prfWritePort_valid;
   reg        [5:0]    LoadQueuePlugin_hw_prfWritePort_address;
   reg        [31:0]   LoadQueuePlugin_hw_prfWritePort_data;
@@ -2850,6 +3035,18 @@ module CoreNSCSCC (
   wire                _zz_LoadQueuePlugin_logic_loadQueue_mmioCmdFired_1;
   wire       [31:0]   _zz_LoadQueuePlugin_logic_loadQueue_completionInfo_data;
   wire                _zz_LoadQueuePlugin_logic_loadQueue_completionInfo_hasFault;
+  reg                 CoreNSCSCCSetupPlugin_setup_fetchOutput_valid;
+  wire                CoreNSCSCCSetupPlugin_setup_fetchOutput_ready;
+  wire       [31:0]   CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_pc;
+  wire       [31:0]   CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_instruction;
+  wire                CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_predecode_isBranch;
+  wire                CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_predecode_isJump;
+  wire                CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_predecode_isDirectJump;
+  wire       [31:0]   CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_predecode_jumpOffset;
+  wire                CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_predecode_isIdle;
+  wire                CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_bpuPrediction_isTaken;
+  wire       [31:0]   CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_bpuPrediction_target;
+  wire                CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_bpuPrediction_wasPredicted;
   reg                 CheckpointManagerPlugin_setup_btRestorePort_valid;
   reg        [63:0]   CheckpointManagerPlugin_setup_btRestorePort_payload_busyBits;
   wire                LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_valid;
@@ -2987,10 +3184,10 @@ module CoreNSCSCC (
   wire       [63:0]   CheckpointManagerPlugin_logic_initialBtCheckpoint_busyBits;
   wire                CommitPlugin_logic_s0_isMispredictedBranch;
   reg                 CommitPlugin_logic_s0_commitAckMasks_0;
-  wire                when_CommitPlugin_l203;
-  wire                when_CommitPlugin_l216;
-  wire                when_CommitPlugin_l227;
-  wire                when_CommitPlugin_l266;
+  wire                when_CommitPlugin_l209;
+  wire                when_CommitPlugin_l222;
+  wire                when_CommitPlugin_l239;
+  wire                when_CommitPlugin_l278;
   wire       [0:0]    CommitPlugin_logic_s0_committedThisCycle_comb;
   wire       [0:0]    CommitPlugin_logic_s0_recycledThisCycle_comb;
   wire       [0:0]    CommitPlugin_logic_s0_flushedThisCycle_comb;
@@ -3009,10 +3206,10 @@ module CoreNSCSCC (
   reg        [31:0]   CommitPlugin_logic_s1_s1_maxCommitPcThisCycle;
   reg                 CommitPlugin_logic_s1_s1_anyCommitOOB;
   wire                CommitPlugin_logic_s1_s1_hasCommitsThisCycle;
-  wire                when_CommitPlugin_l324;
+  wire                when_CommitPlugin_l336;
   wire       [4:0]    _zz_when_Debug_l71_5;
   wire                when_Debug_l71_4;
-  wire       [7:0]    _zz_26;
+  wire       [7:0]    _zz_27;
   reg        [31:0]   CommitPlugin_logic_counter;
   wire       [31:0]   DecodePlugin_logic_decodedUopsOutputVec_0_pc;
   wire                DecodePlugin_logic_decodedUopsOutputVec_0_isValid;
@@ -3123,7 +3320,6 @@ module CoreNSCSCC (
   wire                when_DecodePlugin_l81;
   wire                when_DecodePlugin_l87;
   wire                when_DecodePlugin_l119;
-  wire                _zz_27;
   wire                _zz_28;
   wire                _zz_29;
   wire                _zz_30;
@@ -3147,6 +3343,7 @@ module CoreNSCSCC (
   wire                _zz_48;
   wire                _zz_49;
   wire                _zz_50;
+  wire                _zz_51;
   wire                RenamePlugin_logic_s2_logic_allocationOk;
   wire                when_RenamePlugin_l83;
   wire                s2_RobAlloc_haltRequest_RenamePlugin_l85;
@@ -3890,7 +4087,7 @@ module CoreNSCSCC (
   wire       [31:0]   _zz_io_iqEntryIn_payload_src1Data_1;
   wire       [31:0]   _zz_io_iqEntryIn_payload_src2Data_1;
   wire                s2_Execute_isFiring;
-  wire       [2:0]    _zz_51;
+  wire       [2:0]    _zz_52;
   wire                s3_Writeback_isFiring;
   wire                when_Connection_l66_1;
   wire                when_Connection_l66_2;
@@ -3947,7 +4144,7 @@ module CoreNSCSCC (
   reg        [31:0]   _zz_BranchEU_BranchEuPlugin_euResult_data_6;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_isTaken_1;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_isMispredictedBranch_1;
-  wire                _zz_52;
+  wire                _zz_53;
   wire                s3_Result_isFiring;
   wire                when_Connection_l66_9;
   wire                when_Connection_l66_10;
@@ -4284,11 +4481,11 @@ module CoreNSCSCC (
   wire                _zz_LoadQueuePlugin_logic_loadQueue_pushIdx_2;
   wire       [1:0]    LoadQueuePlugin_logic_loadQueue_pushIdx;
   wire                LoadQueuePlugin_logic_pushCmd_fire;
-  wire       [3:0]    _zz_53;
-  wire                _zz_54;
+  wire       [3:0]    _zz_54;
   wire                _zz_55;
   wire                _zz_56;
   wire                _zz_57;
+  wire                _zz_58;
   wire                _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible;
   wire       [2:0]    _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_1;
   wire                _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_2;
@@ -4296,7 +4493,7 @@ module CoreNSCSCC (
   wire                LoadQueuePlugin_logic_loadQueue_headIsVisible;
   wire                LoadQueuePlugin_logic_loadQueue_headIsReadyForFwdQuery;
   wire                when_LoadQueuePlugin_l336;
-  wire                _zz_58;
+  wire                _zz_59;
   wire                when_LoadQueuePlugin_l347;
   wire                when_LoadQueuePlugin_l362;
   wire                LoadQueuePlugin_logic_loadQueue_headIsReadyToExecute;
@@ -4407,15 +4604,15 @@ module CoreNSCSCC (
   reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_62;
   reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_63;
   wire                when_PhysicalRegFile_l130;
-  wire       [63:0]   _zz_59;
-  wire                when_PhysicalRegFile_l130_1;
   wire       [63:0]   _zz_60;
-  wire                when_PhysicalRegFile_l130_2;
+  wire                when_PhysicalRegFile_l130_1;
   wire       [63:0]   _zz_61;
-  wire                when_PhysicalRegFile_l130_3;
+  wire                when_PhysicalRegFile_l130_2;
   wire       [63:0]   _zz_62;
-  wire                when_PhysicalRegFile_l130_4;
+  wire                when_PhysicalRegFile_l130_3;
   wire       [63:0]   _zz_63;
+  wire                when_PhysicalRegFile_l130_4;
+  wire       [63:0]   _zz_64;
   reg                 StoreBufferPlugin_logic_slots_0_isFlush;
   reg        [31:0]   StoreBufferPlugin_logic_slots_0_addr;
   reg        [31:0]   StoreBufferPlugin_logic_slots_0_data;
@@ -4616,8 +4813,9 @@ module CoreNSCSCC (
   wire                StoreBufferPlugin_logic_validFall_2;
   wire                StoreBufferPlugin_logic_validFall_3;
   wire                StoreBufferPlugin_logic_canPush;
-  wire                _zz_64;
-  wire                _zz_65;
+  wire                _zz_StoreBufferPlugin_logic_pushIdx;
+  wire                _zz_StoreBufferPlugin_logic_pushIdx_1;
+  wire       [1:0]    StoreBufferPlugin_logic_pushIdx;
   wire                _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush;
   wire       [31:0]   _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr;
   wire       [31:0]   _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data;
@@ -4627,16 +4825,16 @@ module CoreNSCSCC (
   wire                _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO;
   wire                _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException;
   wire       [7:0]    _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode;
-  wire       [3:0]    _zz_66;
+  wire       [3:0]    _zz_65;
+  wire                _zz_66;
   wire                _zz_67;
   wire                _zz_68;
   wire                _zz_69;
-  wire                _zz_70;
   wire                StoreBufferPlugin_logic_sharedWriteCond;
   wire                StoreBufferPlugin_logic_canPopNormalOp;
   wire                StoreBufferPlugin_logic_canPopFlushOp;
   wire                StoreBufferPlugin_logic_canPopMMIOOp;
-  wire                when_StoreBufferPlugin_l316;
+  wire                when_StoreBufferPlugin_l294;
   wire                StoreBufferPlugin_logic_canSendToDCache;
   wire                StoreBufferPlugin_logic_mmioCmdFired;
   wire                StoreBufferPlugin_logic_mmioResponseForHead;
@@ -4644,159 +4842,211 @@ module CoreNSCSCC (
   wire                when_Debug_l71_10;
   reg        [3:0]    StoreBufferPlugin_logic_commitUpdateInfo_validMask;
   reg                 _zz_StoreBufferPlugin_logic_commitUpdateInfo_validMask;
-  wire                when_StoreBufferPlugin_l498;
-  wire                when_StoreBufferPlugin_l504;
+  wire                when_StoreBufferPlugin_l360;
+  wire                when_StoreBufferPlugin_l366;
   reg                 _zz_StoreBufferPlugin_logic_commitUpdateInfo_validMask_1;
-  wire                when_StoreBufferPlugin_l498_1;
-  wire                when_StoreBufferPlugin_l504_1;
+  wire                when_StoreBufferPlugin_l360_1;
+  wire                when_StoreBufferPlugin_l366_1;
   reg                 _zz_StoreBufferPlugin_logic_commitUpdateInfo_validMask_2;
-  wire                when_StoreBufferPlugin_l498_2;
-  wire                when_StoreBufferPlugin_l504_2;
+  wire                when_StoreBufferPlugin_l360_2;
+  wire                when_StoreBufferPlugin_l366_2;
   reg                 _zz_StoreBufferPlugin_logic_commitUpdateInfo_validMask_3;
-  wire                when_StoreBufferPlugin_l498_3;
-  wire                when_StoreBufferPlugin_l504_3;
+  wire                when_StoreBufferPlugin_l360_3;
+  wire                when_StoreBufferPlugin_l366_3;
   reg        [3:0]    StoreBufferPlugin_logic_registeredCommitUpdate_validMask;
-  wire                _zz_when_StoreBufferPlugin_l525;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l525_1;
-  wire                _zz_when_StoreBufferPlugin_l525_2;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l525_3;
-  wire                when_StoreBufferPlugin_l525;
-  wire                when_StoreBufferPlugin_l533;
-  wire                when_StoreBufferPlugin_l529;
-  wire                _zz_when_StoreBufferPlugin_l525_4;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l525_5;
-  wire                _zz_when_StoreBufferPlugin_l525_6;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l525_7;
-  wire                when_StoreBufferPlugin_l525_1;
-  wire                when_StoreBufferPlugin_l533_1;
-  wire                when_StoreBufferPlugin_l529_1;
-  wire                _zz_when_StoreBufferPlugin_l525_8;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l525_9;
-  wire                _zz_when_StoreBufferPlugin_l525_10;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l525_11;
-  wire                when_StoreBufferPlugin_l525_2;
-  wire                when_StoreBufferPlugin_l533_2;
-  wire                when_StoreBufferPlugin_l529_2;
-  wire                _zz_when_StoreBufferPlugin_l525_12;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l525_13;
-  wire                _zz_when_StoreBufferPlugin_l525_14;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l525_15;
-  wire                when_StoreBufferPlugin_l525_3;
-  wire                when_StoreBufferPlugin_l533_3;
-  wire                when_StoreBufferPlugin_l529_3;
-  wire                when_StoreBufferPlugin_l540;
+  wire                _zz_when_StoreBufferPlugin_l381;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l381_1;
+  wire                _zz_when_StoreBufferPlugin_l381_2;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l381_3;
+  wire                when_StoreBufferPlugin_l381;
+  wire                when_StoreBufferPlugin_l385;
+  wire                when_StoreBufferPlugin_l384;
+  wire                _zz_when_StoreBufferPlugin_l381_4;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l381_5;
+  wire                _zz_when_StoreBufferPlugin_l381_6;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l381_7;
+  wire                when_StoreBufferPlugin_l381_1;
+  wire                when_StoreBufferPlugin_l385_1;
+  wire                when_StoreBufferPlugin_l384_1;
+  wire                _zz_when_StoreBufferPlugin_l381_8;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l381_9;
+  wire                _zz_when_StoreBufferPlugin_l381_10;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l381_11;
+  wire                when_StoreBufferPlugin_l381_2;
+  wire                when_StoreBufferPlugin_l385_2;
+  wire                when_StoreBufferPlugin_l384_2;
+  wire                _zz_when_StoreBufferPlugin_l381_12;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l381_13;
+  wire                _zz_when_StoreBufferPlugin_l381_14;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l381_15;
+  wire                when_StoreBufferPlugin_l381_3;
+  wire                when_StoreBufferPlugin_l385_3;
+  wire                when_StoreBufferPlugin_l384_3;
+  wire                when_StoreBufferPlugin_l391;
   wire                StoreBufferPlugin_logic_operationDone;
   reg                 StoreBufferPlugin_logic_popRequest;
-  wire                when_StoreBufferPlugin_l555;
-  wire                when_StoreBufferPlugin_l576;
+  wire                when_StoreBufferPlugin_l401;
+  wire                when_StoreBufferPlugin_l417;
   wire       [3:0]    StoreBufferPlugin_logic_forwardingLogic_loadMask;
   reg        [3:0]    _zz_StoreBufferPlugin_logic_forwardingLogic_loadMask;
   wire       [1:0]    _zz_StoreBufferPlugin_logic_forwardingLogic_loadMask_1;
   wire       [31:0]   StoreBufferPlugin_logic_forwardingLogic_bypassInitial_data;
   wire       [3:0]    StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_0_isFlush;
+  reg        [31:0]   StoreBufferPlugin_logic_forwardingLogic_slotsView_0_addr;
+  reg        [31:0]   StoreBufferPlugin_logic_forwardingLogic_slotsView_0_data;
+  reg        [3:0]    StoreBufferPlugin_logic_forwardingLogic_slotsView_0_be;
+  reg        [3:0]    StoreBufferPlugin_logic_forwardingLogic_slotsView_0_robPtr;
+  reg        [1:0]    StoreBufferPlugin_logic_forwardingLogic_slotsView_0_accessSize;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_0_isIO;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_0_valid;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_0_hasEarlyException;
+  reg        [7:0]    StoreBufferPlugin_logic_forwardingLogic_slotsView_0_earlyExceptionCode;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_0_isCommitted;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_0_sentCmd;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_0_waitRsp;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_0_isWaitingForRefill;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_0_isWaitingForWb;
+  reg        [7:0]    StoreBufferPlugin_logic_forwardingLogic_slotsView_0_refillSlotToWatch;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_1_isFlush;
+  reg        [31:0]   StoreBufferPlugin_logic_forwardingLogic_slotsView_1_addr;
+  reg        [31:0]   StoreBufferPlugin_logic_forwardingLogic_slotsView_1_data;
+  reg        [3:0]    StoreBufferPlugin_logic_forwardingLogic_slotsView_1_be;
+  reg        [3:0]    StoreBufferPlugin_logic_forwardingLogic_slotsView_1_robPtr;
+  reg        [1:0]    StoreBufferPlugin_logic_forwardingLogic_slotsView_1_accessSize;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_1_isIO;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_1_valid;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_1_hasEarlyException;
+  reg        [7:0]    StoreBufferPlugin_logic_forwardingLogic_slotsView_1_earlyExceptionCode;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_1_isCommitted;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_1_sentCmd;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_1_waitRsp;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_1_isWaitingForRefill;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_1_isWaitingForWb;
+  reg        [7:0]    StoreBufferPlugin_logic_forwardingLogic_slotsView_1_refillSlotToWatch;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_2_isFlush;
+  reg        [31:0]   StoreBufferPlugin_logic_forwardingLogic_slotsView_2_addr;
+  reg        [31:0]   StoreBufferPlugin_logic_forwardingLogic_slotsView_2_data;
+  reg        [3:0]    StoreBufferPlugin_logic_forwardingLogic_slotsView_2_be;
+  reg        [3:0]    StoreBufferPlugin_logic_forwardingLogic_slotsView_2_robPtr;
+  reg        [1:0]    StoreBufferPlugin_logic_forwardingLogic_slotsView_2_accessSize;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_2_isIO;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_2_valid;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_2_hasEarlyException;
+  reg        [7:0]    StoreBufferPlugin_logic_forwardingLogic_slotsView_2_earlyExceptionCode;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_2_isCommitted;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_2_sentCmd;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_2_waitRsp;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_2_isWaitingForRefill;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_2_isWaitingForWb;
+  reg        [7:0]    StoreBufferPlugin_logic_forwardingLogic_slotsView_2_refillSlotToWatch;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_3_isFlush;
+  reg        [31:0]   StoreBufferPlugin_logic_forwardingLogic_slotsView_3_addr;
+  reg        [31:0]   StoreBufferPlugin_logic_forwardingLogic_slotsView_3_data;
+  reg        [3:0]    StoreBufferPlugin_logic_forwardingLogic_slotsView_3_be;
+  reg        [3:0]    StoreBufferPlugin_logic_forwardingLogic_slotsView_3_robPtr;
+  reg        [1:0]    StoreBufferPlugin_logic_forwardingLogic_slotsView_3_accessSize;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_3_isIO;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_3_valid;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_3_hasEarlyException;
+  reg        [7:0]    StoreBufferPlugin_logic_forwardingLogic_slotsView_3_earlyExceptionCode;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_3_isCommitted;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_3_sentCmd;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_3_waitRsp;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_3_isWaitingForRefill;
+  reg                 StoreBufferPlugin_logic_forwardingLogic_slotsView_3_isWaitingForWb;
+  reg        [7:0]    StoreBufferPlugin_logic_forwardingLogic_slotsView_3_refillSlotToWatch;
+  wire                when_StoreBufferPlugin_l457;
+  wire                when_StoreBufferPlugin_l457_1;
+  wire                when_StoreBufferPlugin_l457_2;
+  wire                when_StoreBufferPlugin_l457_3;
   reg        [31:0]   _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data;
-  reg        [3:0]    _zz_when_StoreBufferPlugin_l640;
-  wire                _zz_when_StoreBufferPlugin_l631;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l631_1;
-  wire                _zz_when_StoreBufferPlugin_l631_2;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l631_3;
-  wire                when_StoreBufferPlugin_l631;
-  wire                _zz_when_StoreBufferPlugin_l638;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l638_1;
-  wire                _zz_when_StoreBufferPlugin_l638_2;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l638_3;
-  wire                when_StoreBufferPlugin_l638;
-  wire                when_StoreBufferPlugin_l640;
-  wire                when_StoreBufferPlugin_l640_1;
-  wire                when_StoreBufferPlugin_l640_2;
-  wire                when_StoreBufferPlugin_l640_3;
+  reg        [3:0]    _zz_when_StoreBufferPlugin_l488;
+  wire                _zz_when_StoreBufferPlugin_l481;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l481_1;
+  wire                _zz_when_StoreBufferPlugin_l481_2;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l481_3;
+  wire                when_StoreBufferPlugin_l481;
+  wire                when_StoreBufferPlugin_l486;
+  wire                when_StoreBufferPlugin_l488;
+  wire                when_StoreBufferPlugin_l488_1;
+  wire                when_StoreBufferPlugin_l488_2;
+  wire                when_StoreBufferPlugin_l488_3;
   reg        [31:0]   _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_1;
-  reg        [3:0]    _zz_when_StoreBufferPlugin_l640_1;
-  wire                _zz_when_StoreBufferPlugin_l631_4;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l631_5;
-  wire                _zz_when_StoreBufferPlugin_l631_6;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l631_7;
-  wire                when_StoreBufferPlugin_l631_1;
-  wire                _zz_when_StoreBufferPlugin_l638_4;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l638_5;
-  wire                _zz_when_StoreBufferPlugin_l638_6;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l638_7;
-  wire                when_StoreBufferPlugin_l638_1;
-  wire                when_StoreBufferPlugin_l640_4;
-  wire                when_StoreBufferPlugin_l640_5;
-  wire                when_StoreBufferPlugin_l640_6;
-  wire                when_StoreBufferPlugin_l640_7;
+  reg        [3:0]    _zz_when_StoreBufferPlugin_l488_1;
+  wire                _zz_when_StoreBufferPlugin_l481_4;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l481_5;
+  wire                _zz_when_StoreBufferPlugin_l481_6;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l481_7;
+  wire                when_StoreBufferPlugin_l481_1;
+  wire                when_StoreBufferPlugin_l486_1;
+  wire                when_StoreBufferPlugin_l488_4;
+  wire                when_StoreBufferPlugin_l488_5;
+  wire                when_StoreBufferPlugin_l488_6;
+  wire                when_StoreBufferPlugin_l488_7;
   reg        [31:0]   _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_2;
   reg        [3:0]    _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask;
-  wire                _zz_when_StoreBufferPlugin_l631_8;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l631_9;
-  wire                _zz_when_StoreBufferPlugin_l631_10;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l631_11;
-  wire                when_StoreBufferPlugin_l631_2;
-  wire                _zz_when_StoreBufferPlugin_l638_8;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l638_9;
-  wire                _zz_when_StoreBufferPlugin_l638_10;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l638_11;
-  wire                when_StoreBufferPlugin_l638_2;
-  wire                when_StoreBufferPlugin_l640_8;
-  wire                when_StoreBufferPlugin_l640_9;
-  wire                when_StoreBufferPlugin_l640_10;
-  wire                when_StoreBufferPlugin_l640_11;
+  wire                _zz_when_StoreBufferPlugin_l481_8;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l481_9;
+  wire                _zz_when_StoreBufferPlugin_l481_10;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l481_11;
+  wire                when_StoreBufferPlugin_l481_2;
+  wire                when_StoreBufferPlugin_l486_2;
+  wire                when_StoreBufferPlugin_l488_8;
+  wire                when_StoreBufferPlugin_l488_9;
+  wire                when_StoreBufferPlugin_l488_10;
+  wire                when_StoreBufferPlugin_l488_11;
   reg        [31:0]   StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data;
   reg        [3:0]    StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask;
-  wire                _zz_when_StoreBufferPlugin_l631_12;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l631_13;
-  wire                _zz_when_StoreBufferPlugin_l631_14;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l631_15;
-  wire                when_StoreBufferPlugin_l631_3;
-  wire                _zz_when_StoreBufferPlugin_l638_12;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l638_13;
-  wire                _zz_when_StoreBufferPlugin_l638_14;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l638_15;
-  wire                when_StoreBufferPlugin_l638_3;
-  wire                when_StoreBufferPlugin_l640_12;
-  wire                when_StoreBufferPlugin_l640_13;
-  wire                when_StoreBufferPlugin_l640_14;
-  wire                when_StoreBufferPlugin_l640_15;
+  wire                _zz_when_StoreBufferPlugin_l481_12;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l481_13;
+  wire                _zz_when_StoreBufferPlugin_l481_14;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l481_15;
+  wire                when_StoreBufferPlugin_l481_3;
+  wire                when_StoreBufferPlugin_l486_3;
+  wire                when_StoreBufferPlugin_l488_12;
+  wire                when_StoreBufferPlugin_l488_13;
+  wire                when_StoreBufferPlugin_l488_14;
+  wire                when_StoreBufferPlugin_l488_15;
   wire                StoreBufferPlugin_logic_forwardingLogic_allRequiredBytesHit;
   reg                 StoreBufferPlugin_logic_forwardingLogic_dataNotReadyStall;
   reg                 StoreBufferPlugin_logic_forwardingLogic_hasOlderOverlappingStore;
-  wire                when_StoreBufferPlugin_l672;
-  wire                _zz_when_StoreBufferPlugin_l678;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l678_1;
-  wire                _zz_when_StoreBufferPlugin_l678_2;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l678_3;
-  wire       [29:0]   _zz_when_StoreBufferPlugin_l678_4;
-  wire       [29:0]   _zz_when_StoreBufferPlugin_l678_5;
-  wire                when_StoreBufferPlugin_l678;
-  wire                when_StoreBufferPlugin_l681;
-  wire                when_StoreBufferPlugin_l672_1;
-  wire                _zz_when_StoreBufferPlugin_l678_6;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l678_7;
-  wire                _zz_when_StoreBufferPlugin_l678_8;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l678_9;
-  wire       [29:0]   _zz_when_StoreBufferPlugin_l678_10;
-  wire       [29:0]   _zz_when_StoreBufferPlugin_l678_11;
-  wire                when_StoreBufferPlugin_l678_1;
-  wire                when_StoreBufferPlugin_l681_1;
-  wire                when_StoreBufferPlugin_l672_2;
-  wire                _zz_when_StoreBufferPlugin_l678_12;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l678_13;
-  wire                _zz_when_StoreBufferPlugin_l678_14;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l678_15;
-  wire       [29:0]   _zz_when_StoreBufferPlugin_l678_16;
-  wire       [29:0]   _zz_when_StoreBufferPlugin_l678_17;
-  wire                when_StoreBufferPlugin_l678_2;
-  wire                when_StoreBufferPlugin_l681_2;
-  wire                when_StoreBufferPlugin_l672_3;
-  wire                _zz_when_StoreBufferPlugin_l678_18;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l678_19;
-  wire                _zz_when_StoreBufferPlugin_l678_20;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l678_21;
-  wire       [29:0]   _zz_when_StoreBufferPlugin_l678_22;
-  wire       [29:0]   _zz_when_StoreBufferPlugin_l678_23;
-  wire                when_StoreBufferPlugin_l678_3;
-  wire                when_StoreBufferPlugin_l681_3;
+  wire                when_StoreBufferPlugin_l513;
+  wire                _zz_when_StoreBufferPlugin_l519;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l519_1;
+  wire                _zz_when_StoreBufferPlugin_l519_2;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l519_3;
+  wire       [29:0]   _zz_when_StoreBufferPlugin_l519_4;
+  wire       [29:0]   _zz_when_StoreBufferPlugin_l519_5;
+  wire                when_StoreBufferPlugin_l519;
+  wire                when_StoreBufferPlugin_l522;
+  wire                when_StoreBufferPlugin_l513_1;
+  wire                _zz_when_StoreBufferPlugin_l519_6;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l519_7;
+  wire                _zz_when_StoreBufferPlugin_l519_8;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l519_9;
+  wire       [29:0]   _zz_when_StoreBufferPlugin_l519_10;
+  wire       [29:0]   _zz_when_StoreBufferPlugin_l519_11;
+  wire                when_StoreBufferPlugin_l519_1;
+  wire                when_StoreBufferPlugin_l522_1;
+  wire                when_StoreBufferPlugin_l513_2;
+  wire                _zz_when_StoreBufferPlugin_l519_12;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l519_13;
+  wire                _zz_when_StoreBufferPlugin_l519_14;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l519_15;
+  wire       [29:0]   _zz_when_StoreBufferPlugin_l519_16;
+  wire       [29:0]   _zz_when_StoreBufferPlugin_l519_17;
+  wire                when_StoreBufferPlugin_l519_2;
+  wire                when_StoreBufferPlugin_l522_2;
+  wire                when_StoreBufferPlugin_l513_3;
+  wire                _zz_when_StoreBufferPlugin_l519_18;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l519_19;
+  wire                _zz_when_StoreBufferPlugin_l519_20;
+  wire       [2:0]    _zz_when_StoreBufferPlugin_l519_21;
+  wire       [29:0]   _zz_when_StoreBufferPlugin_l519_22;
+  wire       [29:0]   _zz_when_StoreBufferPlugin_l519_23;
+  wire                when_StoreBufferPlugin_l519_3;
+  wire                when_StoreBufferPlugin_l522_3;
   wire                StoreBufferPlugin_logic_forwardingLogic_insufficientCoverageStall;
   wire                StoreBufferPlugin_logic_bypassResult_hit;
   wire       [31:0]   StoreBufferPlugin_logic_bypassResult_data;
@@ -4807,37 +5057,37 @@ module CoreNSCSCC (
   wire       [31:0]   StoreBufferPlugin_logic_bypassInitial_data;
   wire       [3:0]    StoreBufferPlugin_logic_bypassInitial_hitMask;
   reg        [31:0]   _zz_StoreBufferPlugin_logic_finalBypassResult_data;
-  reg        [3:0]    _zz_when_StoreBufferPlugin_l742;
-  wire                when_StoreBufferPlugin_l735;
-  wire                when_StoreBufferPlugin_l740;
-  wire                when_StoreBufferPlugin_l742;
-  wire                when_StoreBufferPlugin_l742_1;
-  wire                when_StoreBufferPlugin_l742_2;
-  wire                when_StoreBufferPlugin_l742_3;
+  reg        [3:0]    _zz_when_StoreBufferPlugin_l579;
+  wire                when_StoreBufferPlugin_l572;
+  wire                when_StoreBufferPlugin_l577;
+  wire                when_StoreBufferPlugin_l579;
+  wire                when_StoreBufferPlugin_l579_1;
+  wire                when_StoreBufferPlugin_l579_2;
+  wire                when_StoreBufferPlugin_l579_3;
   reg        [31:0]   _zz_StoreBufferPlugin_logic_finalBypassResult_data_1;
-  reg        [3:0]    _zz_when_StoreBufferPlugin_l742_1;
-  wire                when_StoreBufferPlugin_l735_1;
-  wire                when_StoreBufferPlugin_l740_1;
-  wire                when_StoreBufferPlugin_l742_4;
-  wire                when_StoreBufferPlugin_l742_5;
-  wire                when_StoreBufferPlugin_l742_6;
-  wire                when_StoreBufferPlugin_l742_7;
+  reg        [3:0]    _zz_when_StoreBufferPlugin_l579_1;
+  wire                when_StoreBufferPlugin_l572_1;
+  wire                when_StoreBufferPlugin_l577_1;
+  wire                when_StoreBufferPlugin_l579_4;
+  wire                when_StoreBufferPlugin_l579_5;
+  wire                when_StoreBufferPlugin_l579_6;
+  wire                when_StoreBufferPlugin_l579_7;
   reg        [31:0]   _zz_StoreBufferPlugin_logic_finalBypassResult_data_2;
   reg        [3:0]    _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask;
-  wire                when_StoreBufferPlugin_l735_2;
-  wire                when_StoreBufferPlugin_l740_2;
-  wire                when_StoreBufferPlugin_l742_8;
-  wire                when_StoreBufferPlugin_l742_9;
-  wire                when_StoreBufferPlugin_l742_10;
-  wire                when_StoreBufferPlugin_l742_11;
+  wire                when_StoreBufferPlugin_l572_2;
+  wire                when_StoreBufferPlugin_l577_2;
+  wire                when_StoreBufferPlugin_l579_8;
+  wire                when_StoreBufferPlugin_l579_9;
+  wire                when_StoreBufferPlugin_l579_10;
+  wire                when_StoreBufferPlugin_l579_11;
   reg        [31:0]   StoreBufferPlugin_logic_finalBypassResult_data;
   reg        [3:0]    StoreBufferPlugin_logic_finalBypassResult_hitMask;
-  wire                when_StoreBufferPlugin_l735_3;
-  wire                when_StoreBufferPlugin_l740_3;
-  wire                when_StoreBufferPlugin_l742_12;
-  wire                when_StoreBufferPlugin_l742_13;
-  wire                when_StoreBufferPlugin_l742_14;
-  wire                when_StoreBufferPlugin_l742_15;
+  wire                when_StoreBufferPlugin_l572_3;
+  wire                when_StoreBufferPlugin_l577_3;
+  wire                when_StoreBufferPlugin_l579_12;
+  wire                when_StoreBufferPlugin_l579_13;
+  wire                when_StoreBufferPlugin_l579_14;
+  wire                when_StoreBufferPlugin_l579_15;
   wire                StoreBufferPlugin_logic_overallBypassHit;
   wire       [63:0]   BusyTablePlugin_logic_busyTableNext;
   reg                 FetchPipelinePlugin_logic_retryIdCounter_willIncrement;
@@ -4852,7 +5102,17 @@ module CoreNSCSCC (
   reg                 s2_ICache_Access_valid;
   reg                 _zz_s4_Predecode_valid;
   wire                s3_ICache_Wait_valid;
+  reg                 _zz_70;
   reg                 s4_Predecode_valid;
+  reg                 _zz_s5_Target_Calc_valid;
+  reg                 s5_Target_Calc_valid;
+  reg                 _zz_71;
+  wire                s1_PC_Gen_isFiring;
+  wire                s2_ICache_Access_isFiring;
+  wire                s3_ICache_Wait_isFiring;
+  wire                s4_Predecode_isFiring;
+  wire                s5_Target_Calc_isFiring;
+  wire                FetchPipelinePlugin_logic_fetchDisabled;
   wire                FetchPipelinePlugin_logic_hardRedirect_valid;
   wire       [31:0]   FetchPipelinePlugin_logic_hardRedirect_payload;
   wire                FetchPipelinePlugin_logic_doAnyFlush;
@@ -4871,7 +5131,7 @@ module CoreNSCSCC (
   wire                when_Utils_l767;
   wire                when_Utils_l769;
   reg                 FetchPipelinePlugin_logic_isDrainingCacheRspReg;
-  wire                when_FetchPipelinePlugin2_l290;
+  wire                when_FetchPipelinePlugin2_l325;
   reg                 FetchPipelinePlugin_logic_retryCmd_lock;
   reg        [31:0]   FetchPipelinePlugin_logic_retryCmd_pc;
   reg        [1:0]    FetchPipelinePlugin_logic_retryCmd_id;
@@ -4880,36 +5140,39 @@ module CoreNSCSCC (
   wire                FetchPipelinePlugin_logic_s1_logic_needRedo;
   wire       [31:0]   FetchPipelinePlugin_logic_s1_logic_rawPcToUse;
   wire       [31:0]   FetchPipelinePlugin_logic_s1_logic_nextLinePc;
-  wire                s1_PC_Gen_isFiring;
-  wire                when_FetchPipelinePlugin2_l362;
-  wire                when_FetchPipelinePlugin2_l368;
-  wire                FetchPipelinePlugin_logic_s1_logic_fetchDisabled;
-  wire                when_FetchPipelinePlugin2_l381;
-  wire                s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l382;
-  wire                s2_ICache_Access_isFiring;
+  wire       [31:0]   _zz_FetchPipelinePlugin_logic_s1_logic_fetchPcReg;
+  wire                when_FetchPipelinePlugin2_l384;
+  wire                when_FetchPipelinePlugin2_l389;
+  wire                when_FetchPipelinePlugin2_l399;
+  wire                s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l400;
   wire       [31:0]   FetchPipelinePlugin_logic_s2_logic_cmdPayload_address;
   wire       [7:0]    FetchPipelinePlugin_logic_s2_logic_cmdPayload_transactionId;
-  wire                s4_Predecode_isFiring;
   wire                FetchPipelinePlugin_logic_s4_logic_handleRsp;
   wire                FetchPipelinePlugin_logic_s4_logic_hasHigherPriorityStuff;
   wire                FetchPipelinePlugin_logic_s4_logic_backpressureRedo;
-  wire                when_FetchPipelinePlugin2_l442;
-  wire       [27:0]   _zz_71;
-  wire                when_FetchPipelinePlugin2_l458;
-  wire                when_FetchPipelinePlugin2_l476;
-  wire                when_FetchPipelinePlugin2_l481;
-  wire       [31:0]   _zz_io_push_payload_numValidInstructions;
-  wire       [1:0]    _zz_io_push_payload_numValidInstructions_1;
-  wire                s4_Predecode_haltRequest_FetchPipelinePlugin2_l499;
+  wire                when_FetchPipelinePlugin2_l466;
+  wire       [27:0]   _zz_72;
+  wire                when_FetchPipelinePlugin2_l482;
+  wire                when_FetchPipelinePlugin2_l491;
+  wire                when_FetchPipelinePlugin2_l500;
+  wire                when_FetchPipelinePlugin2_l505;
+  wire       [31:0]   _zz_s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_START_INSTR_INDEX;
+  wire                io_push_fire;
+  wire                io_fetchOutput_fire;
+  wire                s5_Target_Calc_haltRequest_FetchPipelinePlugin2_l591;
+  wire                io_fetchGroupIn_fire;
   wire                _zz_s2_ICache_Access_isFlushingRoot;
   wire                _zz_s3_ICache_Wait_isFlushingRoot;
-  reg                 s2_ICache_Access_ready_output;
+  reg                 s4_Predecode_ready_output;
   wire                when_Connection_l66_13;
+  reg                 s2_ICache_Access_ready_output;
+  wire                when_Connection_l66_14;
   reg                 s1_PC_Gen_ready_output;
   wire                when_Pipeline_l282_2;
   wire                when_Pipeline_l282_3;
   wire                when_Connection_l74_3;
   wire                when_Connection_l74_4;
+  wire                when_Connection_l74_5;
   reg        [1:0]    _zz_ROBPlugin_aggregatedFlushSignal_payload_reason;
   reg        [3:0]    _zz_ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr;
   reg                 ICachePlugin_axiMaster_ar_valid;
@@ -5279,16 +5542,15 @@ module CoreNSCSCC (
   wire                when_ICachePlugin_l212;
   wire                ICachePlugin_axiMaster_ar_fire;
   wire                ICachePlugin_axiMaster_r_fire;
-  wire       [3:0]    _zz_78;
+  wire       [3:0]    _zz_79;
   wire       [6:0]    _zz_ICachePlugin_logic_tag_write_logic_writeAddress;
   wire                when_ICachePlugin_l260;
   wire                when_ICachePlugin_l260_1;
   reg        [20:0]   _zz_ICachePlugin_logic_tag_write_logic_writeData_ways_0_tag;
   reg        [20:0]   _zz_ICachePlugin_logic_tag_write_logic_writeData_ways_1_tag;
-  wire       [1:0]    _zz_79;
+  wire       [1:0]    _zz_80;
   wire       [20:0]   _zz_ICachePlugin_logic_tag_write_logic_writeData_ways_0_tag_1;
-  wire       [127:0]  _zz_80;
-  wire                _zz_81;
+  wire       [127:0]  _zz_81;
   wire                _zz_82;
   wire                _zz_83;
   wire                _zz_84;
@@ -5416,7 +5678,8 @@ module CoreNSCSCC (
   wire                _zz_206;
   wire                _zz_207;
   wire                _zz_208;
-  wire       [1:0]    _zz_209;
+  wire                _zz_209;
+  wire       [1:0]    _zz_210;
   wire                ICachePlugin_logic_refill_fsm_onExit_BOOT;
   wire                ICachePlugin_logic_refill_fsm_onExit_IDLE;
   wire                ICachePlugin_logic_refill_fsm_onExit_SEND_REQ;
@@ -5435,8 +5698,8 @@ module CoreNSCSCC (
   wire                BpuPipelinePlugin_logic_s1_read_valid;
   reg                 BpuPipelinePlugin_logic_s2_predict_valid;
   wire                BpuPipelinePlugin_logic_s1_read_isFiring;
-  wire       [9:0]    _zz_210;
-  wire       [7:0]    _zz_211;
+  wire       [9:0]    _zz_211;
+  wire       [7:0]    _zz_212;
   wire       [9:0]    _zz_BpuPipelinePlugin_logic_phtReadData_s1;
   wire       [1:0]    BpuPipelinePlugin_logic_phtReadData_s1;
   wire       [7:0]    _zz_BpuPipelinePlugin_logic_btbReadData_s1_valid;
@@ -5447,7 +5710,7 @@ module CoreNSCSCC (
   wire                BpuPipelinePlugin_logic_phtPrediction;
   wire                BpuPipelinePlugin_logic_btbHit;
   wire                BpuPipelinePlugin_logic_s2_predict_isFiring;
-  wire                _zz_214;
+  wire                _zz_215;
   wire                BpuPipelinePlugin_logic_u1_read_valid;
   reg                 BpuPipelinePlugin_logic_u2_write_valid;
   wire                BpuPipelinePlugin_logic_u1_read_isFiring;
@@ -6070,6 +6333,10 @@ module CoreNSCSCC (
   reg [7:0] StoreBufferPlugin_logic_slotsNext_2_accessSize_string;
   reg [7:0] StoreBufferPlugin_logic_slotsNext_3_accessSize_string;
   reg [7:0] _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize_string;
+  reg [7:0] StoreBufferPlugin_logic_forwardingLogic_slotsView_0_accessSize_string;
+  reg [7:0] StoreBufferPlugin_logic_forwardingLogic_slotsView_1_accessSize_string;
+  reg [7:0] StoreBufferPlugin_logic_forwardingLogic_slotsView_2_accessSize_string;
+  reg [7:0] StoreBufferPlugin_logic_forwardingLogic_slotsView_3_accessSize_string;
   reg [151:0] _zz_ROBPlugin_aggregatedFlushSignal_payload_reason_string;
   reg [95:0] ICachePlugin_logic_refill_fsm_stateReg_string;
   reg [95:0] ICachePlugin_logic_refill_fsm_stateNext_string;
@@ -6117,7 +6384,7 @@ module CoreNSCSCC (
       zz_CheckpointManagerPlugin_logic_initialFreeMask[63] = 1'b1;
     end
   endfunction
-  wire [63:0] _zz_220;
+  wire [63:0] _zz_221;
 
   assign _zz_io_triggerIn_1 = 5'h13;
   assign _zz_io_triggerIn = {3'd0, _zz_io_triggerIn_1};
@@ -6197,9 +6464,44 @@ module CoreNSCSCC (
   assign _zz_FetchPipelinePlugin_logic_retryIdCounter_valueNext_1 = FetchPipelinePlugin_logic_retryIdCounter_willIncrement;
   assign _zz_FetchPipelinePlugin_logic_retryIdCounter_valueNext = {1'd0, _zz_FetchPipelinePlugin_logic_retryIdCounter_valueNext_1};
   assign _zz_FetchPipelinePlugin_logic_s2_logic_cmdPayload_transactionId = (s2_ICache_Access_FetchPipelinePlugin_logic_FetchPipeline_PC >>> 3'd4);
-  assign _zz_219 = (s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC >>> 3'd4);
-  assign _zz_218 = _zz_219[7:0];
-  assign _zz_io_push_payload_numValidInstructions_2 = {1'd0, _zz_io_push_payload_numValidInstructions_1};
+  assign _zz_220 = (s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC >>> 3'd4);
+  assign _zz_219 = _zz_220[7:0];
+  assign _zz_s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_NUM_VALID_INSTRS = {1'd0, s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_START_INSTR_INDEX};
+  assign _zz_io_push_payload_potentialJumpTargets_0 = ($signed(_zz_io_push_payload_potentialJumpTargets_0_1) + $signed(_zz_io_push_payload_potentialJumpTargets_0_5));
+  assign _zz_io_push_payload_potentialJumpTargets_0_1 = ($signed(_zz_io_push_payload_potentialJumpTargets_0_2) + $signed(_zz_io_push_payload_potentialJumpTargets_0_3));
+  assign _zz_io_push_payload_potentialJumpTargets_0_2 = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PC;
+  assign _zz_io_push_payload_potentialJumpTargets_0_4 = 2'b00;
+  assign _zz_io_push_payload_potentialJumpTargets_0_3 = {{30{_zz_io_push_payload_potentialJumpTargets_0_4[1]}}, _zz_io_push_payload_potentialJumpTargets_0_4};
+  assign _zz_io_push_payload_potentialJumpTargets_0_6 = ({2'd0,_zz_io_push_payload_potentialJumpTargets_0_7} <<< 2'd2);
+  assign _zz_io_push_payload_potentialJumpTargets_0_5 = {{4{_zz_io_push_payload_potentialJumpTargets_0_6[27]}}, _zz_io_push_payload_potentialJumpTargets_0_6};
+  assign _zz_io_push_payload_potentialJumpTargets_0_7 = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_0[25 : 0];
+  assign _zz_io_push_payload_potentialJumpTargets_1 = ($signed(_zz_io_push_payload_potentialJumpTargets_1_1) + $signed(_zz_io_push_payload_potentialJumpTargets_1_6));
+  assign _zz_io_push_payload_potentialJumpTargets_1_1 = ($signed(_zz_io_push_payload_potentialJumpTargets_1_2) + $signed(_zz_io_push_payload_potentialJumpTargets_1_3));
+  assign _zz_io_push_payload_potentialJumpTargets_1_2 = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PC;
+  assign _zz_io_push_payload_potentialJumpTargets_1_4 = _zz_io_push_payload_potentialJumpTargets_1_5;
+  assign _zz_io_push_payload_potentialJumpTargets_1_3 = {{29{_zz_io_push_payload_potentialJumpTargets_1_4[2]}}, _zz_io_push_payload_potentialJumpTargets_1_4};
+  assign _zz_io_push_payload_potentialJumpTargets_1_5 = ({2'd0,1'b1} <<< 2'd2);
+  assign _zz_io_push_payload_potentialJumpTargets_1_7 = ({2'd0,_zz_io_push_payload_potentialJumpTargets_1_8} <<< 2'd2);
+  assign _zz_io_push_payload_potentialJumpTargets_1_6 = {{4{_zz_io_push_payload_potentialJumpTargets_1_7[27]}}, _zz_io_push_payload_potentialJumpTargets_1_7};
+  assign _zz_io_push_payload_potentialJumpTargets_1_8 = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_1[25 : 0];
+  assign _zz_io_push_payload_potentialJumpTargets_2 = ($signed(_zz_io_push_payload_potentialJumpTargets_2_1) + $signed(_zz_io_push_payload_potentialJumpTargets_2_6));
+  assign _zz_io_push_payload_potentialJumpTargets_2_1 = ($signed(_zz_io_push_payload_potentialJumpTargets_2_2) + $signed(_zz_io_push_payload_potentialJumpTargets_2_3));
+  assign _zz_io_push_payload_potentialJumpTargets_2_2 = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PC;
+  assign _zz_io_push_payload_potentialJumpTargets_2_4 = _zz_io_push_payload_potentialJumpTargets_2_5;
+  assign _zz_io_push_payload_potentialJumpTargets_2_3 = {{28{_zz_io_push_payload_potentialJumpTargets_2_4[3]}}, _zz_io_push_payload_potentialJumpTargets_2_4};
+  assign _zz_io_push_payload_potentialJumpTargets_2_5 = ({2'd0,2'b10} <<< 2'd2);
+  assign _zz_io_push_payload_potentialJumpTargets_2_7 = ({2'd0,_zz_io_push_payload_potentialJumpTargets_2_8} <<< 2'd2);
+  assign _zz_io_push_payload_potentialJumpTargets_2_6 = {{4{_zz_io_push_payload_potentialJumpTargets_2_7[27]}}, _zz_io_push_payload_potentialJumpTargets_2_7};
+  assign _zz_io_push_payload_potentialJumpTargets_2_8 = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_2[25 : 0];
+  assign _zz_io_push_payload_potentialJumpTargets_3 = ($signed(_zz_io_push_payload_potentialJumpTargets_3_1) + $signed(_zz_io_push_payload_potentialJumpTargets_3_6));
+  assign _zz_io_push_payload_potentialJumpTargets_3_1 = ($signed(_zz_io_push_payload_potentialJumpTargets_3_2) + $signed(_zz_io_push_payload_potentialJumpTargets_3_3));
+  assign _zz_io_push_payload_potentialJumpTargets_3_2 = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PC;
+  assign _zz_io_push_payload_potentialJumpTargets_3_4 = _zz_io_push_payload_potentialJumpTargets_3_5;
+  assign _zz_io_push_payload_potentialJumpTargets_3_3 = {{28{_zz_io_push_payload_potentialJumpTargets_3_4[3]}}, _zz_io_push_payload_potentialJumpTargets_3_4};
+  assign _zz_io_push_payload_potentialJumpTargets_3_5 = ({2'd0,2'b11} <<< 2'd2);
+  assign _zz_io_push_payload_potentialJumpTargets_3_7 = ({2'd0,_zz_io_push_payload_potentialJumpTargets_3_8} <<< 2'd2);
+  assign _zz_io_push_payload_potentialJumpTargets_3_6 = {{4{_zz_io_push_payload_potentialJumpTargets_3_7[27]}}, _zz_io_push_payload_potentialJumpTargets_3_7};
+  assign _zz_io_push_payload_potentialJumpTargets_3_8 = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_3[25 : 0];
   assign _zz_ICachePlugin_logic_pipeline_f1_metaReadData_ways_0_tag_1 = _zz_ICachePlugin_logic_pipeline_f1_metaReadData_ways_0_tag[20 : 0];
   assign _zz_ICachePlugin_logic_pipeline_f1_metaReadData_ways_1_tag = _zz_ICachePlugin_logic_pipeline_f1_metaReadData_ways_0_tag[41 : 21];
   assign _zz__zz_ICachePlugin_logic_pipeline_f2_hitWayIdx = {ICachePlugin_logic_pipeline_f2_hit_ways_1,ICachePlugin_logic_pipeline_f2_hit_ways_0};
@@ -6217,7 +6519,7 @@ module CoreNSCSCC (
   assign _zz_BpuPipelinePlugin_logic_btb_port = BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_pc[9 : 2];
   assign _zz_BpuPipelinePlugin_logic_btb_port_1 = {BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_target,{BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_pc[31 : 10],1'b1}};
   assign _zz_CommitPlugin_logic_s0_committedThisCycle_comb_1 = CommitPlugin_logic_s0_commitAckMasks_0;
-  assign _zz_CommitPlugin_logic_s0_recycledThisCycle_comb_1 = when_CommitPlugin_l266;
+  assign _zz_CommitPlugin_logic_s0_recycledThisCycle_comb_1 = when_CommitPlugin_l278;
   assign _zz_DispatchPlugin_logic_destinationIqReady_4 = {_zz_DispatchPlugin_logic_destinationIqReady_2,_zz_DispatchPlugin_logic_destinationIqReady_1};
   assign _zz_DispatchPlugin_logic_dispatchOH = (s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode == DispatchPlugin_logic_iqRegs_2_0_1);
   assign _zz_DispatchPlugin_logic_dispatchOH_1 = (s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode == DispatchPlugin_logic_iqRegs_2_0_0);
@@ -6420,7 +6722,7 @@ module CoreNSCSCC (
     .reset                   (reset                                                     )  //i
   );
   StreamFifo_11 FetchPipelinePlugin_setup_fetchOutput (
-    .io_push_valid                              (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_valid                             ), //i
+    .io_push_valid                              (FetchPipelinePlugin_setup_fetchOutput_io_push_valid                                   ), //i
     .io_push_ready                              (FetchPipelinePlugin_setup_fetchOutput_io_push_ready                                   ), //o
     .io_push_payload_pc                         (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_pc[31:0]                  ), //i
     .io_push_payload_instruction                (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_instruction[31:0]         ), //i
@@ -6433,7 +6735,7 @@ module CoreNSCSCC (
     .io_push_payload_bpuPrediction_target       (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_bpuPrediction_target[31:0]), //i
     .io_push_payload_bpuPrediction_wasPredicted (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_bpuPrediction_wasPredicted), //i
     .io_pop_valid                               (FetchPipelinePlugin_setup_fetchOutput_io_pop_valid                                    ), //o
-    .io_pop_ready                               (s0_Decode_ready                                                                       ), //i
+    .io_pop_ready                               (FetchPipelinePlugin_setup_fetchOutput_io_pop_ready                                    ), //i
     .io_pop_payload_pc                          (FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_pc[31:0]                         ), //o
     .io_pop_payload_instruction                 (FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_instruction[31:0]                ), //o
     .io_pop_payload_predecode_isBranch          (FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_predecode_isBranch               ), //o
@@ -6712,6 +7014,9 @@ module CoreNSCSCC (
     .io_writePorts_0_wen                     (RenameMapTablePlugin_early_setup_rat_io_writePorts_0_wen                         ), //i
     .io_writePorts_0_archReg                 (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_decoded_archDest_idx[4:0]      ), //i
     .io_writePorts_0_physReg                 (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_physDest_idx[5:0]       ), //i
+    .io_commitUpdatePort_wen                 (RenameMapTablePlugin_early_setup_rat_io_commitUpdatePort_wen                     ), //i
+    .io_commitUpdatePort_archReg             (RenameMapTablePlugin_early_setup_rat_io_commitUpdatePort_archReg[4:0]            ), //i
+    .io_commitUpdatePort_physReg             (RenameMapTablePlugin_early_setup_rat_io_commitUpdatePort_physReg[5:0]            ), //i
     .io_currentState_mapping_0               (RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_0[5:0]              ), //o
     .io_currentState_mapping_1               (RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_1[5:0]              ), //o
     .io_currentState_mapping_2               (RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_2[5:0]              ), //o
@@ -6819,7 +7124,7 @@ module CoreNSCSCC (
     .io_allocate_0_enable  (SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_enable                  ), //i
     .io_allocate_0_physReg (SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_physReg[5:0]            ), //o
     .io_allocate_0_success (SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_success                 ), //o
-    .io_free_0_enable      (when_CommitPlugin_l266                                                          ), //i
+    .io_free_0_enable      (when_CommitPlugin_l278                                                          ), //i
     .io_free_0_physReg     (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx[5:0]), //i
     .io_recover            (SimpleFreeListPlugin_early_setup_freeList_io_recover                            ), //i
     .io_numFreeRegs        (SimpleFreeListPlugin_early_setup_freeList_io_numFreeRegs[5:0]                   ), //o
@@ -8015,71 +8320,178 @@ module CoreNSCSCC (
     .reset        (reset                  )  //i
   );
   SmartDispatcher FetchPipelinePlugin_logic_dispatcher (
-    .io_fetchGroupIn_valid                             (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_valid                             ), //i
-    .io_fetchGroupIn_ready                             (FetchPipelinePlugin_logic_dispatcher_io_fetchGroupIn_ready                                 ), //o
-    .io_fetchGroupIn_payload_pc                        (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_payload_pc[31:0]                  ), //i
-    .io_fetchGroupIn_payload_firstPc                   (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_payload_firstPc[31:0]             ), //i
-    .io_fetchGroupIn_payload_instructions_0            (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_payload_instructions_0[31:0]      ), //i
-    .io_fetchGroupIn_payload_instructions_1            (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_payload_instructions_1[31:0]      ), //i
-    .io_fetchGroupIn_payload_instructions_2            (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_payload_instructions_2[31:0]      ), //i
-    .io_fetchGroupIn_payload_instructions_3            (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_payload_instructions_3[31:0]      ), //i
-    .io_fetchGroupIn_payload_fault                     (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_payload_fault                     ), //i
-    .io_fetchGroupIn_payload_numValidInstructions      (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_payload_numValidInstructions[2:0] ), //i
-    .io_fetchGroupIn_payload_startInstructionIndex     (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_payload_startInstructionIndex[1:0]), //i
-    .io_bpuRsp_valid                                   (BpuPipelinePlugin_responseFlowOut_valid                                                    ), //i
-    .io_bpuRsp_payload_isTaken                         (BpuPipelinePlugin_responseFlowOut_payload_isTaken                                          ), //i
-    .io_bpuRsp_payload_target                          (BpuPipelinePlugin_responseFlowOut_payload_target[31:0]                                     ), //i
-    .io_bpuRsp_payload_transactionId                   (BpuPipelinePlugin_responseFlowOut_payload_transactionId[2:0]                               ), //i
-    .io_bpuRsp_payload_qPc                             (BpuPipelinePlugin_responseFlowOut_payload_qPc[31:0]                                        ), //i
-    .io_fetchOutput_valid                              (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_valid                                  ), //o
-    .io_fetchOutput_ready                              (FetchPipelinePlugin_setup_fetchOutput_io_push_ready                                        ), //i
-    .io_fetchOutput_payload_pc                         (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_pc[31:0]                       ), //o
-    .io_fetchOutput_payload_instruction                (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_instruction[31:0]              ), //o
-    .io_fetchOutput_payload_predecode_isBranch         (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_predecode_isBranch             ), //o
-    .io_fetchOutput_payload_predecode_isJump           (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_predecode_isJump               ), //o
-    .io_fetchOutput_payload_predecode_isDirectJump     (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_predecode_isDirectJump         ), //o
-    .io_fetchOutput_payload_predecode_jumpOffset       (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_predecode_jumpOffset[31:0]     ), //o
-    .io_fetchOutput_payload_predecode_isIdle           (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_predecode_isIdle               ), //o
-    .io_fetchOutput_payload_bpuPrediction_isTaken      (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_bpuPrediction_isTaken          ), //o
-    .io_fetchOutput_payload_bpuPrediction_target       (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_bpuPrediction_target[31:0]     ), //o
-    .io_fetchOutput_payload_bpuPrediction_wasPredicted (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_bpuPrediction_wasPredicted     ), //o
-    .io_bpuQuery_valid                                 (FetchPipelinePlugin_logic_dispatcher_io_bpuQuery_valid                                     ), //o
-    .io_bpuQuery_payload_pc                            (FetchPipelinePlugin_logic_dispatcher_io_bpuQuery_payload_pc[31:0]                          ), //o
-    .io_bpuQuery_payload_transactionId                 (FetchPipelinePlugin_logic_dispatcher_io_bpuQuery_payload_transactionId[2:0]                ), //o
-    .io_softRedirect_valid                             (FetchPipelinePlugin_logic_dispatcher_io_softRedirect_valid                                 ), //o
-    .io_softRedirect_payload                           (FetchPipelinePlugin_logic_dispatcher_io_softRedirect_payload[31:0]                         ), //o
-    .io_flush                                          (FetchPipelinePlugin_logic_hardRedirect_valid                                               ), //i
-    .clk                                               (clk                                                                                        ), //i
-    .reset                                             (reset                                                                                      )  //i
+    .io_fetchGroupIn_valid                                 (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_valid                                    ), //i
+    .io_fetchGroupIn_ready                                 (FetchPipelinePlugin_logic_dispatcher_io_fetchGroupIn_ready                               ), //o
+    .io_fetchGroupIn_payload_pc                            (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_pc[31:0]                         ), //i
+    .io_fetchGroupIn_payload_firstPc                       (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_firstPc[31:0]                    ), //i
+    .io_fetchGroupIn_payload_instructions_0                (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_instructions_0[31:0]             ), //i
+    .io_fetchGroupIn_payload_instructions_1                (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_instructions_1[31:0]             ), //i
+    .io_fetchGroupIn_payload_instructions_2                (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_instructions_2[31:0]             ), //i
+    .io_fetchGroupIn_payload_instructions_3                (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_instructions_3[31:0]             ), //i
+    .io_fetchGroupIn_payload_predecodeInfos_0_isBranch     (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_0_isBranch        ), //i
+    .io_fetchGroupIn_payload_predecodeInfos_0_isJump       (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_0_isJump          ), //i
+    .io_fetchGroupIn_payload_predecodeInfos_0_isDirectJump (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_0_isDirectJump    ), //i
+    .io_fetchGroupIn_payload_predecodeInfos_0_jumpOffset   (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_0_jumpOffset[31:0]), //i
+    .io_fetchGroupIn_payload_predecodeInfos_0_isIdle       (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_0_isIdle          ), //i
+    .io_fetchGroupIn_payload_predecodeInfos_1_isBranch     (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_1_isBranch        ), //i
+    .io_fetchGroupIn_payload_predecodeInfos_1_isJump       (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_1_isJump          ), //i
+    .io_fetchGroupIn_payload_predecodeInfos_1_isDirectJump (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_1_isDirectJump    ), //i
+    .io_fetchGroupIn_payload_predecodeInfos_1_jumpOffset   (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_1_jumpOffset[31:0]), //i
+    .io_fetchGroupIn_payload_predecodeInfos_1_isIdle       (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_1_isIdle          ), //i
+    .io_fetchGroupIn_payload_predecodeInfos_2_isBranch     (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_2_isBranch        ), //i
+    .io_fetchGroupIn_payload_predecodeInfos_2_isJump       (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_2_isJump          ), //i
+    .io_fetchGroupIn_payload_predecodeInfos_2_isDirectJump (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_2_isDirectJump    ), //i
+    .io_fetchGroupIn_payload_predecodeInfos_2_jumpOffset   (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_2_jumpOffset[31:0]), //i
+    .io_fetchGroupIn_payload_predecodeInfos_2_isIdle       (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_2_isIdle          ), //i
+    .io_fetchGroupIn_payload_predecodeInfos_3_isBranch     (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_3_isBranch        ), //i
+    .io_fetchGroupIn_payload_predecodeInfos_3_isJump       (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_3_isJump          ), //i
+    .io_fetchGroupIn_payload_predecodeInfos_3_isDirectJump (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_3_isDirectJump    ), //i
+    .io_fetchGroupIn_payload_predecodeInfos_3_jumpOffset   (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_3_jumpOffset[31:0]), //i
+    .io_fetchGroupIn_payload_predecodeInfos_3_isIdle       (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_3_isIdle          ), //i
+    .io_fetchGroupIn_payload_branchMask                    (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_branchMask[3:0]                  ), //i
+    .io_fetchGroupIn_payload_fault                         (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_fault                            ), //i
+    .io_fetchGroupIn_payload_numValidInstructions          (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_numValidInstructions[2:0]        ), //i
+    .io_fetchGroupIn_payload_startInstructionIndex         (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_startInstructionIndex[1:0]       ), //i
+    .io_fetchGroupIn_payload_potentialJumpTargets_0        (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_potentialJumpTargets_0[31:0]     ), //i
+    .io_fetchGroupIn_payload_potentialJumpTargets_1        (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_potentialJumpTargets_1[31:0]     ), //i
+    .io_fetchGroupIn_payload_potentialJumpTargets_2        (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_potentialJumpTargets_2[31:0]     ), //i
+    .io_fetchGroupIn_payload_potentialJumpTargets_3        (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_potentialJumpTargets_3[31:0]     ), //i
+    .io_bpuRsp_valid                                       (BpuPipelinePlugin_responseFlowOut_valid                                                  ), //i
+    .io_bpuRsp_payload_isTaken                             (BpuPipelinePlugin_responseFlowOut_payload_isTaken                                        ), //i
+    .io_bpuRsp_payload_target                              (BpuPipelinePlugin_responseFlowOut_payload_target[31:0]                                   ), //i
+    .io_bpuRsp_payload_transactionId                       (BpuPipelinePlugin_responseFlowOut_payload_transactionId[2:0]                             ), //i
+    .io_bpuRsp_payload_qPc                                 (BpuPipelinePlugin_responseFlowOut_payload_qPc[31:0]                                      ), //i
+    .io_fetchOutput_valid                                  (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_valid                                ), //o
+    .io_fetchOutput_ready                                  (FetchPipelinePlugin_setup_fetchOutput_io_push_ready                                      ), //i
+    .io_fetchOutput_payload_pc                             (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_pc[31:0]                     ), //o
+    .io_fetchOutput_payload_instruction                    (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_instruction[31:0]            ), //o
+    .io_fetchOutput_payload_predecode_isBranch             (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_predecode_isBranch           ), //o
+    .io_fetchOutput_payload_predecode_isJump               (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_predecode_isJump             ), //o
+    .io_fetchOutput_payload_predecode_isDirectJump         (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_predecode_isDirectJump       ), //o
+    .io_fetchOutput_payload_predecode_jumpOffset           (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_predecode_jumpOffset[31:0]   ), //o
+    .io_fetchOutput_payload_predecode_isIdle               (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_predecode_isIdle             ), //o
+    .io_fetchOutput_payload_bpuPrediction_isTaken          (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_bpuPrediction_isTaken        ), //o
+    .io_fetchOutput_payload_bpuPrediction_target           (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_bpuPrediction_target[31:0]   ), //o
+    .io_fetchOutput_payload_bpuPrediction_wasPredicted     (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_bpuPrediction_wasPredicted   ), //o
+    .io_bpuQuery_valid                                     (FetchPipelinePlugin_logic_dispatcher_io_bpuQuery_valid                                   ), //o
+    .io_bpuQuery_payload_pc                                (FetchPipelinePlugin_logic_dispatcher_io_bpuQuery_payload_pc[31:0]                        ), //o
+    .io_bpuQuery_payload_transactionId                     (FetchPipelinePlugin_logic_dispatcher_io_bpuQuery_payload_transactionId[2:0]              ), //o
+    .io_softRedirect_valid                                 (FetchPipelinePlugin_logic_dispatcher_io_softRedirect_valid                               ), //o
+    .io_softRedirect_payload                               (FetchPipelinePlugin_logic_dispatcher_io_softRedirect_payload[31:0]                       ), //o
+    .io_flush                                              (FetchPipelinePlugin_logic_hardRedirect_valid                                             ), //i
+    .clk                                                   (clk                                                                                      ), //i
+    .reset                                                 (reset                                                                                    )  //i
   );
-  StreamFifo_13 FetchPipelinePlugin_logic_s4_logic_rawFetchGroups (
-    .io_push_valid                         (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_valid                             ), //i
-    .io_push_ready                         (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_ready                             ), //o
-    .io_push_payload_pc                    (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_pc[31:0]                  ), //i
-    .io_push_payload_firstPc               (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_firstPc[31:0]             ), //i
-    .io_push_payload_instructions_0        (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_instructions_0[31:0]      ), //i
-    .io_push_payload_instructions_1        (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_instructions_1[31:0]      ), //i
-    .io_push_payload_instructions_2        (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_instructions_2[31:0]      ), //i
-    .io_push_payload_instructions_3        (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_instructions_3[31:0]      ), //i
-    .io_push_payload_fault                 (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_fault                     ), //i
-    .io_push_payload_numValidInstructions  (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_numValidInstructions[2:0] ), //i
-    .io_push_payload_startInstructionIndex (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_startInstructionIndex[1:0]), //i
-    .io_pop_valid                          (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_valid                              ), //o
-    .io_pop_ready                          (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_ready                              ), //i
-    .io_pop_payload_pc                     (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_payload_pc[31:0]                   ), //o
-    .io_pop_payload_firstPc                (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_payload_firstPc[31:0]              ), //o
-    .io_pop_payload_instructions_0         (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_payload_instructions_0[31:0]       ), //o
-    .io_pop_payload_instructions_1         (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_payload_instructions_1[31:0]       ), //o
-    .io_pop_payload_instructions_2         (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_payload_instructions_2[31:0]       ), //o
-    .io_pop_payload_instructions_3         (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_payload_instructions_3[31:0]       ), //o
-    .io_pop_payload_fault                  (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_payload_fault                      ), //o
-    .io_pop_payload_numValidInstructions   (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_payload_numValidInstructions[2:0]  ), //o
-    .io_pop_payload_startInstructionIndex  (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_payload_startInstructionIndex[1:0] ), //o
-    .io_flush                              (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_flush                                  ), //i
-    .io_occupancy                          (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_occupancy[1:0]                         ), //o
-    .io_availability                       (FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_availability[1:0]                      ), //o
-    .clk                                   (clk                                                                                         ), //i
-    .reset                                 (reset                                                                                       )  //i
+  StreamFifo_13 FetchPipelinePlugin_logic_fetchGroupsOut (
+    .io_push_valid                                 (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_valid                                    ), //i
+    .io_push_ready                                 (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_ready                                    ), //o
+    .io_push_payload_pc                            (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_pc[31:0]                         ), //i
+    .io_push_payload_firstPc                       (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_firstPc[31:0]                    ), //i
+    .io_push_payload_instructions_0                (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_instructions_0[31:0]             ), //i
+    .io_push_payload_instructions_1                (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_instructions_1[31:0]             ), //i
+    .io_push_payload_instructions_2                (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_instructions_2[31:0]             ), //i
+    .io_push_payload_instructions_3                (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_instructions_3[31:0]             ), //i
+    .io_push_payload_predecodeInfos_0_isBranch     (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_isBranch        ), //i
+    .io_push_payload_predecodeInfos_0_isJump       (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_isJump          ), //i
+    .io_push_payload_predecodeInfos_0_isDirectJump (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_isDirectJump    ), //i
+    .io_push_payload_predecodeInfos_0_jumpOffset   (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_jumpOffset[31:0]), //i
+    .io_push_payload_predecodeInfos_0_isIdle       (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_isIdle          ), //i
+    .io_push_payload_predecodeInfos_1_isBranch     (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_isBranch        ), //i
+    .io_push_payload_predecodeInfos_1_isJump       (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_isJump          ), //i
+    .io_push_payload_predecodeInfos_1_isDirectJump (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_isDirectJump    ), //i
+    .io_push_payload_predecodeInfos_1_jumpOffset   (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_jumpOffset[31:0]), //i
+    .io_push_payload_predecodeInfos_1_isIdle       (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_isIdle          ), //i
+    .io_push_payload_predecodeInfos_2_isBranch     (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_isBranch        ), //i
+    .io_push_payload_predecodeInfos_2_isJump       (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_isJump          ), //i
+    .io_push_payload_predecodeInfos_2_isDirectJump (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_isDirectJump    ), //i
+    .io_push_payload_predecodeInfos_2_jumpOffset   (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_jumpOffset[31:0]), //i
+    .io_push_payload_predecodeInfos_2_isIdle       (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_isIdle          ), //i
+    .io_push_payload_predecodeInfos_3_isBranch     (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_isBranch        ), //i
+    .io_push_payload_predecodeInfos_3_isJump       (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_isJump          ), //i
+    .io_push_payload_predecodeInfos_3_isDirectJump (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_isDirectJump    ), //i
+    .io_push_payload_predecodeInfos_3_jumpOffset   (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_jumpOffset[31:0]), //i
+    .io_push_payload_predecodeInfos_3_isIdle       (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_isIdle          ), //i
+    .io_push_payload_branchMask                    (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_branchMask[3:0]                  ), //i
+    .io_push_payload_fault                         (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_fault                            ), //i
+    .io_push_payload_numValidInstructions          (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_numValidInstructions[2:0]        ), //i
+    .io_push_payload_startInstructionIndex         (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_startInstructionIndex[1:0]       ), //i
+    .io_push_payload_potentialJumpTargets_0        (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_potentialJumpTargets_0[31:0]     ), //i
+    .io_push_payload_potentialJumpTargets_1        (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_potentialJumpTargets_1[31:0]     ), //i
+    .io_push_payload_potentialJumpTargets_2        (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_potentialJumpTargets_2[31:0]     ), //i
+    .io_push_payload_potentialJumpTargets_3        (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_potentialJumpTargets_3[31:0]     ), //i
+    .io_pop_valid                                  (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_valid                                     ), //o
+    .io_pop_ready                                  (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_ready                                     ), //i
+    .io_pop_payload_pc                             (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_pc[31:0]                          ), //o
+    .io_pop_payload_firstPc                        (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_firstPc[31:0]                     ), //o
+    .io_pop_payload_instructions_0                 (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_instructions_0[31:0]              ), //o
+    .io_pop_payload_instructions_1                 (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_instructions_1[31:0]              ), //o
+    .io_pop_payload_instructions_2                 (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_instructions_2[31:0]              ), //o
+    .io_pop_payload_instructions_3                 (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_instructions_3[31:0]              ), //o
+    .io_pop_payload_predecodeInfos_0_isBranch      (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_0_isBranch         ), //o
+    .io_pop_payload_predecodeInfos_0_isJump        (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_0_isJump           ), //o
+    .io_pop_payload_predecodeInfos_0_isDirectJump  (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_0_isDirectJump     ), //o
+    .io_pop_payload_predecodeInfos_0_jumpOffset    (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_0_jumpOffset[31:0] ), //o
+    .io_pop_payload_predecodeInfos_0_isIdle        (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_0_isIdle           ), //o
+    .io_pop_payload_predecodeInfos_1_isBranch      (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_1_isBranch         ), //o
+    .io_pop_payload_predecodeInfos_1_isJump        (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_1_isJump           ), //o
+    .io_pop_payload_predecodeInfos_1_isDirectJump  (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_1_isDirectJump     ), //o
+    .io_pop_payload_predecodeInfos_1_jumpOffset    (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_1_jumpOffset[31:0] ), //o
+    .io_pop_payload_predecodeInfos_1_isIdle        (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_1_isIdle           ), //o
+    .io_pop_payload_predecodeInfos_2_isBranch      (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_2_isBranch         ), //o
+    .io_pop_payload_predecodeInfos_2_isJump        (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_2_isJump           ), //o
+    .io_pop_payload_predecodeInfos_2_isDirectJump  (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_2_isDirectJump     ), //o
+    .io_pop_payload_predecodeInfos_2_jumpOffset    (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_2_jumpOffset[31:0] ), //o
+    .io_pop_payload_predecodeInfos_2_isIdle        (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_2_isIdle           ), //o
+    .io_pop_payload_predecodeInfos_3_isBranch      (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_3_isBranch         ), //o
+    .io_pop_payload_predecodeInfos_3_isJump        (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_3_isJump           ), //o
+    .io_pop_payload_predecodeInfos_3_isDirectJump  (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_3_isDirectJump     ), //o
+    .io_pop_payload_predecodeInfos_3_jumpOffset    (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_3_jumpOffset[31:0] ), //o
+    .io_pop_payload_predecodeInfos_3_isIdle        (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_3_isIdle           ), //o
+    .io_pop_payload_branchMask                     (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_branchMask[3:0]                   ), //o
+    .io_pop_payload_fault                          (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_fault                             ), //o
+    .io_pop_payload_numValidInstructions           (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_numValidInstructions[2:0]         ), //o
+    .io_pop_payload_startInstructionIndex          (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_startInstructionIndex[1:0]        ), //o
+    .io_pop_payload_potentialJumpTargets_0         (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_potentialJumpTargets_0[31:0]      ), //o
+    .io_pop_payload_potentialJumpTargets_1         (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_potentialJumpTargets_1[31:0]      ), //o
+    .io_pop_payload_potentialJumpTargets_2         (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_potentialJumpTargets_2[31:0]      ), //o
+    .io_pop_payload_potentialJumpTargets_3         (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_potentialJumpTargets_3[31:0]      ), //o
+    .io_flush                                      (FetchPipelinePlugin_logic_fetchGroupsOut_io_flush                                         ), //i
+    .io_occupancy                                  (FetchPipelinePlugin_logic_fetchGroupsOut_io_occupancy[1:0]                                ), //o
+    .io_availability                               (FetchPipelinePlugin_logic_fetchGroupsOut_io_availability[1:0]                             ), //o
+    .clk                                           (clk                                                                                       ), //i
+    .reset                                         (reset                                                                                     )  //i
+  );
+  InstructionPredecoder instructionPredecoder_4 (
+    .io_instruction                (ICachePlugin_port_rsp_payload_instructions_0[31:0]       ), //i
+    .io_predecodeInfo_isBranch     (instructionPredecoder_4_io_predecodeInfo_isBranch        ), //o
+    .io_predecodeInfo_isJump       (instructionPredecoder_4_io_predecodeInfo_isJump          ), //o
+    .io_predecodeInfo_isDirectJump (instructionPredecoder_4_io_predecodeInfo_isDirectJump    ), //o
+    .io_predecodeInfo_jumpOffset   (instructionPredecoder_4_io_predecodeInfo_jumpOffset[31:0]), //o
+    .io_predecodeInfo_isIdle       (instructionPredecoder_4_io_predecodeInfo_isIdle          )  //o
+  );
+  InstructionPredecoder instructionPredecoder_5 (
+    .io_instruction                (ICachePlugin_port_rsp_payload_instructions_1[31:0]       ), //i
+    .io_predecodeInfo_isBranch     (instructionPredecoder_5_io_predecodeInfo_isBranch        ), //o
+    .io_predecodeInfo_isJump       (instructionPredecoder_5_io_predecodeInfo_isJump          ), //o
+    .io_predecodeInfo_isDirectJump (instructionPredecoder_5_io_predecodeInfo_isDirectJump    ), //o
+    .io_predecodeInfo_jumpOffset   (instructionPredecoder_5_io_predecodeInfo_jumpOffset[31:0]), //o
+    .io_predecodeInfo_isIdle       (instructionPredecoder_5_io_predecodeInfo_isIdle          )  //o
+  );
+  InstructionPredecoder instructionPredecoder_6 (
+    .io_instruction                (ICachePlugin_port_rsp_payload_instructions_2[31:0]       ), //i
+    .io_predecodeInfo_isBranch     (instructionPredecoder_6_io_predecodeInfo_isBranch        ), //o
+    .io_predecodeInfo_isJump       (instructionPredecoder_6_io_predecodeInfo_isJump          ), //o
+    .io_predecodeInfo_isDirectJump (instructionPredecoder_6_io_predecodeInfo_isDirectJump    ), //o
+    .io_predecodeInfo_jumpOffset   (instructionPredecoder_6_io_predecodeInfo_jumpOffset[31:0]), //o
+    .io_predecodeInfo_isIdle       (instructionPredecoder_6_io_predecodeInfo_isIdle          )  //o
+  );
+  InstructionPredecoder instructionPredecoder_7 (
+    .io_instruction                (ICachePlugin_port_rsp_payload_instructions_3[31:0]       ), //i
+    .io_predecodeInfo_isBranch     (instructionPredecoder_7_io_predecodeInfo_isBranch        ), //o
+    .io_predecodeInfo_isJump       (instructionPredecoder_7_io_predecodeInfo_isJump          ), //o
+    .io_predecodeInfo_isDirectJump (instructionPredecoder_7_io_predecodeInfo_isDirectJump    ), //o
+    .io_predecodeInfo_jumpOffset   (instructionPredecoder_7_io_predecodeInfo_jumpOffset[31:0]), //o
+    .io_predecodeInfo_isIdle       (instructionPredecoder_7_io_predecodeInfo_isIdle          )  //o
   );
   SplitGmbToAxi4Bridge CoreMemSysPlugin_logic_readBridges_0 (
     .io_gmbIn_read_cmd_valid                (_zz_LoadQueuePlugin_logic_loadQueue_mmioCmdFired                         ), //i
@@ -8144,15 +8556,15 @@ module CoreNSCSCC (
     .io_gmbIn_read_rsp_payload_data         (CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_read_rsp_payload_data[31:0]), //o
     .io_gmbIn_read_rsp_payload_error        (CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_read_rsp_payload_error     ), //o
     .io_gmbIn_read_rsp_payload_id           (CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_read_rsp_payload_id[3:0]   ), //o
-    .io_gmbIn_write_cmd_valid               (StoreBufferPlugin_logic_canPopMMIOOp                                      ), //i
+    .io_gmbIn_write_cmd_valid               (_zz_io_gmbIn_write_cmd_valid                                              ), //i
     .io_gmbIn_write_cmd_ready               (CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_cmd_ready            ), //o
-    .io_gmbIn_write_cmd_payload_address     (StoreBufferPlugin_logic_slots_0_addr[31:0]                                ), //i
-    .io_gmbIn_write_cmd_payload_data        (StoreBufferPlugin_logic_slots_0_data[31:0]                                ), //i
-    .io_gmbIn_write_cmd_payload_byteEnables (StoreBufferPlugin_logic_slots_0_be[3:0]                                   ), //i
-    .io_gmbIn_write_cmd_payload_id          (StoreBufferPlugin_logic_slots_0_robPtr[3:0]                               ), //i
+    .io_gmbIn_write_cmd_payload_address     (_zz_io_gmbIn_write_cmd_payload_address[31:0]                              ), //i
+    .io_gmbIn_write_cmd_payload_data        (_zz_io_gmbIn_write_cmd_payload_data[31:0]                                 ), //i
+    .io_gmbIn_write_cmd_payload_byteEnables (_zz_io_gmbIn_write_cmd_payload_byteEnables[3:0]                           ), //i
+    .io_gmbIn_write_cmd_payload_id          (_zz_io_gmbIn_write_cmd_payload_id[3:0]                                    ), //i
     .io_gmbIn_write_cmd_payload_last        (1'b1                                                                      ), //i
     .io_gmbIn_write_rsp_valid               (CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_rsp_valid            ), //o
-    .io_gmbIn_write_rsp_ready               (StoreBufferPlugin_logic_mmioResponseForHead                               ), //i
+    .io_gmbIn_write_rsp_ready               (_zz_io_gmbIn_write_rsp_ready                                              ), //i
     .io_gmbIn_write_rsp_payload_error       (CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_rsp_payload_error    ), //o
     .io_gmbIn_write_rsp_payload_id          (CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_rsp_payload_id[3:0]  ), //o
     .io_axiOut_aw_valid                     (CoreMemSysPlugin_logic_writeBridges_0_io_axiOut_aw_valid                  ), //o
@@ -14368,6 +14780,42 @@ module CoreNSCSCC (
     endcase
   end
   always @(*) begin
+    case(StoreBufferPlugin_logic_forwardingLogic_slotsView_0_accessSize)
+      MemAccessSize_B : StoreBufferPlugin_logic_forwardingLogic_slotsView_0_accessSize_string = "B";
+      MemAccessSize_H : StoreBufferPlugin_logic_forwardingLogic_slotsView_0_accessSize_string = "H";
+      MemAccessSize_W : StoreBufferPlugin_logic_forwardingLogic_slotsView_0_accessSize_string = "W";
+      MemAccessSize_D : StoreBufferPlugin_logic_forwardingLogic_slotsView_0_accessSize_string = "D";
+      default : StoreBufferPlugin_logic_forwardingLogic_slotsView_0_accessSize_string = "?";
+    endcase
+  end
+  always @(*) begin
+    case(StoreBufferPlugin_logic_forwardingLogic_slotsView_1_accessSize)
+      MemAccessSize_B : StoreBufferPlugin_logic_forwardingLogic_slotsView_1_accessSize_string = "B";
+      MemAccessSize_H : StoreBufferPlugin_logic_forwardingLogic_slotsView_1_accessSize_string = "H";
+      MemAccessSize_W : StoreBufferPlugin_logic_forwardingLogic_slotsView_1_accessSize_string = "W";
+      MemAccessSize_D : StoreBufferPlugin_logic_forwardingLogic_slotsView_1_accessSize_string = "D";
+      default : StoreBufferPlugin_logic_forwardingLogic_slotsView_1_accessSize_string = "?";
+    endcase
+  end
+  always @(*) begin
+    case(StoreBufferPlugin_logic_forwardingLogic_slotsView_2_accessSize)
+      MemAccessSize_B : StoreBufferPlugin_logic_forwardingLogic_slotsView_2_accessSize_string = "B";
+      MemAccessSize_H : StoreBufferPlugin_logic_forwardingLogic_slotsView_2_accessSize_string = "H";
+      MemAccessSize_W : StoreBufferPlugin_logic_forwardingLogic_slotsView_2_accessSize_string = "W";
+      MemAccessSize_D : StoreBufferPlugin_logic_forwardingLogic_slotsView_2_accessSize_string = "D";
+      default : StoreBufferPlugin_logic_forwardingLogic_slotsView_2_accessSize_string = "?";
+    endcase
+  end
+  always @(*) begin
+    case(StoreBufferPlugin_logic_forwardingLogic_slotsView_3_accessSize)
+      MemAccessSize_B : StoreBufferPlugin_logic_forwardingLogic_slotsView_3_accessSize_string = "B";
+      MemAccessSize_H : StoreBufferPlugin_logic_forwardingLogic_slotsView_3_accessSize_string = "H";
+      MemAccessSize_W : StoreBufferPlugin_logic_forwardingLogic_slotsView_3_accessSize_string = "W";
+      MemAccessSize_D : StoreBufferPlugin_logic_forwardingLogic_slotsView_3_accessSize_string = "D";
+      default : StoreBufferPlugin_logic_forwardingLogic_slotsView_3_accessSize_string = "?";
+    endcase
+  end
+  always @(*) begin
     case(_zz_ROBPlugin_aggregatedFlushSignal_payload_reason)
       FlushReason_NONE : _zz_ROBPlugin_aggregatedFlushSignal_payload_reason_string = "NONE               ";
       FlushReason_FULL_FLUSH : _zz_ROBPlugin_aggregatedFlushSignal_payload_reason_string = "FULL_FLUSH         ";
@@ -14454,9 +14902,9 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    _zz_s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l382 = 1'b0;
-    if(when_FetchPipelinePlugin2_l381) begin
-      _zz_s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l382 = 1'b1;
+    _zz_s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l400 = 1'b0;
+    if(when_FetchPipelinePlugin2_l399) begin
+      _zz_s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l400 = 1'b1;
     end
   end
 
@@ -14497,14 +14945,14 @@ module CoreNSCSCC (
 
   always @(*) begin
     CheckpointManagerPlugin_saveCheckpointTrigger = 1'b0;
-    if(when_CommitPlugin_l216) begin
+    if(when_CommitPlugin_l222) begin
       CheckpointManagerPlugin_saveCheckpointTrigger = 1'b1;
     end
   end
 
   always @(*) begin
     CheckpointManagerPlugin_restoreCheckpointTrigger = 1'b0;
-    if(when_CommitPlugin_l227) begin
+    if(when_CommitPlugin_l239) begin
       CheckpointManagerPlugin_restoreCheckpointTrigger = 1'b1;
     end
   end
@@ -15290,46 +15738,97 @@ module CoreNSCSCC (
   assign when_Debug_l71_3 = (_zz_when_Debug_l71 < _zz_when_Debug_l71_3_1);
   always @(*) begin
     CommitPlugin_hw_redirectPort_valid = 1'b0;
-    if(when_CommitPlugin_l227) begin
+    if(when_CommitPlugin_l239) begin
       CommitPlugin_hw_redirectPort_valid = 1'b1;
     end
   end
 
   always @(*) begin
     CommitPlugin_hw_redirectPort_payload = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-    if(when_CommitPlugin_l227) begin
+    if(when_CommitPlugin_l239) begin
       CommitPlugin_hw_redirectPort_payload = ROBPlugin_robComponent_io_commit_0_entry_status_result;
     end
   end
 
   always @(*) begin
     BpuPipelinePlugin_updatePortIn_valid = 1'b0;
-    if(when_CommitPlugin_l203) begin
+    if(when_CommitPlugin_l209) begin
       BpuPipelinePlugin_updatePortIn_valid = 1'b1;
     end
   end
 
   always @(*) begin
     BpuPipelinePlugin_updatePortIn_payload_pc = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-    if(when_CommitPlugin_l203) begin
+    if(when_CommitPlugin_l209) begin
       BpuPipelinePlugin_updatePortIn_payload_pc = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc;
     end
   end
 
   always @(*) begin
     BpuPipelinePlugin_updatePortIn_payload_isTaken = 1'bx;
-    if(when_CommitPlugin_l203) begin
+    if(when_CommitPlugin_l209) begin
       BpuPipelinePlugin_updatePortIn_payload_isTaken = ROBPlugin_robComponent_io_commit_0_entry_status_isTaken;
     end
   end
 
   always @(*) begin
     BpuPipelinePlugin_updatePortIn_payload_target = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-    if(when_CommitPlugin_l203) begin
+    if(when_CommitPlugin_l209) begin
       BpuPipelinePlugin_updatePortIn_payload_target = ROBPlugin_robComponent_io_commit_0_entry_status_result;
     end
   end
 
+  always @(*) begin
+    RenameMapTablePlugin_early_setup_rat_io_commitUpdatePort_wen = 1'b0;
+    if(when_CommitPlugin_l222) begin
+      if(ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_writesToPhysReg) begin
+        RenameMapTablePlugin_early_setup_rat_io_commitUpdatePort_wen = 1'b1;
+      end
+    end
+  end
+
+  always @(*) begin
+    RenameMapTablePlugin_early_setup_rat_io_commitUpdatePort_archReg = 5'bxxxxx;
+    if(when_CommitPlugin_l222) begin
+      if(ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_writesToPhysReg) begin
+        RenameMapTablePlugin_early_setup_rat_io_commitUpdatePort_archReg = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_archDest_idx;
+      end
+    end
+  end
+
+  always @(*) begin
+    RenameMapTablePlugin_early_setup_rat_io_commitUpdatePort_physReg = 6'bxxxxxx;
+    if(when_CommitPlugin_l222) begin
+      if(ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_writesToPhysReg) begin
+        RenameMapTablePlugin_early_setup_rat_io_commitUpdatePort_physReg = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physDest_idx;
+      end
+    end
+  end
+
+  always @(*) begin
+    CoreNSCSCCSetupPlugin_setup_fetchOutput_valid = FetchPipelinePlugin_setup_fetchOutput_io_pop_valid;
+    if(FetchPipelinePlugin_doHardRedirect_listening) begin
+      CoreNSCSCCSetupPlugin_setup_fetchOutput_valid = 1'b0;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_setup_fetchOutput_io_pop_ready = CoreNSCSCCSetupPlugin_setup_fetchOutput_ready;
+    if(FetchPipelinePlugin_doHardRedirect_listening) begin
+      FetchPipelinePlugin_setup_fetchOutput_io_pop_ready = 1'b1;
+    end
+  end
+
+  assign CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_pc = FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_pc;
+  assign CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_instruction = FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_instruction;
+  assign CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_predecode_isBranch = FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_predecode_isBranch;
+  assign CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_predecode_isJump = FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_predecode_isJump;
+  assign CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_predecode_isDirectJump = FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_predecode_isDirectJump;
+  assign CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_predecode_jumpOffset = FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_predecode_jumpOffset;
+  assign CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_predecode_isIdle = FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_predecode_isIdle;
+  assign CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_bpuPrediction_isTaken = FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_bpuPrediction_isTaken;
+  assign CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_bpuPrediction_target = FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_bpuPrediction_target;
+  assign CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_bpuPrediction_wasPredicted = FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_bpuPrediction_wasPredicted;
   assign CommitPlugin_maxCommitPcExt = 32'h80001000;
   assign CommitPlugin_maxCommitPcEnabledExt = 1'b1;
   assign AluIntEU_AluIntEuPlugin_bypassOutputPort_toStream_valid = AluIntEU_AluIntEuPlugin_bypassOutputPort_valid;
@@ -15403,26 +15902,26 @@ module CoreNSCSCC (
   assign CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_29 = 6'h1d;
   assign CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_30 = 6'h1e;
   assign CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_31 = 6'h1f;
-  assign _zz_220 = zz_CheckpointManagerPlugin_logic_initialFreeMask(1'b0);
-  always @(*) CheckpointManagerPlugin_logic_initialFreeMask = _zz_220;
+  assign _zz_221 = zz_CheckpointManagerPlugin_logic_initialFreeMask(1'b0);
+  always @(*) CheckpointManagerPlugin_logic_initialFreeMask = _zz_221;
   assign CheckpointManagerPlugin_logic_initialBtCheckpoint_busyBits = 64'h0;
   always @(*) begin
     CommitPlugin_hw_robFlushPort_valid = 1'b0;
-    if(when_CommitPlugin_l227) begin
+    if(when_CommitPlugin_l239) begin
       CommitPlugin_hw_robFlushPort_valid = 1'b1;
     end
   end
 
   always @(*) begin
     CommitPlugin_hw_robFlushPort_payload_reason = (2'bxx);
-    if(when_CommitPlugin_l227) begin
+    if(when_CommitPlugin_l239) begin
       CommitPlugin_hw_robFlushPort_payload_reason = FlushReason_FULL_FLUSH;
     end
   end
 
   always @(*) begin
     CommitPlugin_hw_robFlushPort_payload_targetRobPtr = 4'bxxxx;
-    if(when_CommitPlugin_l227) begin
+    if(when_CommitPlugin_l239) begin
       CommitPlugin_hw_robFlushPort_payload_targetRobPtr = 4'bxxxx;
     end
   end
@@ -15430,18 +15929,18 @@ module CoreNSCSCC (
   assign CommitPlugin_logic_s0_isMispredictedBranch = ((((CommitPlugin_commitEnableExt && ROBPlugin_robComponent_io_commit_0_valid) && ROBPlugin_robComponent_io_commit_0_entry_status_done) && ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_isBranchOrJump) && ROBPlugin_robComponent_io_commit_0_entry_status_isMispredictedBranch);
   always @(*) begin
     CommitPlugin_logic_s0_commitAckMasks_0 = 1'b0;
-    if(when_CommitPlugin_l216) begin
+    if(when_CommitPlugin_l222) begin
       CommitPlugin_logic_s0_commitAckMasks_0 = 1'b1;
     end
-    if(when_CommitPlugin_l227) begin
+    if(when_CommitPlugin_l239) begin
       CommitPlugin_logic_s0_commitAckMasks_0 = 1'b0;
     end
   end
 
-  assign when_CommitPlugin_l203 = (((CommitPlugin_commitEnableExt && ROBPlugin_robComponent_io_commit_0_valid) && ROBPlugin_robComponent_io_commit_0_entry_status_done) && ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_isBranchOrJump);
-  assign when_CommitPlugin_l216 = (((CommitPlugin_commitEnableExt && ROBPlugin_robComponent_io_commit_0_valid) && ROBPlugin_robComponent_io_commit_0_entry_status_done) && (! CommitPlugin_logic_s0_isMispredictedBranch));
-  assign when_CommitPlugin_l227 = (((CommitPlugin_commitEnableExt && ROBPlugin_robComponent_io_commit_0_valid) && ROBPlugin_robComponent_io_commit_0_entry_status_done) && CommitPlugin_logic_s0_isMispredictedBranch);
-  assign when_CommitPlugin_l266 = ((CommitPlugin_logic_s0_commitAckMasks_0 && ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_allocatesPhysDest) && (! CommitPlugin_logic_s0_isMispredictedBranch));
+  assign when_CommitPlugin_l209 = (((CommitPlugin_commitEnableExt && ROBPlugin_robComponent_io_commit_0_valid) && ROBPlugin_robComponent_io_commit_0_entry_status_done) && ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_isBranchOrJump);
+  assign when_CommitPlugin_l222 = (((CommitPlugin_commitEnableExt && ROBPlugin_robComponent_io_commit_0_valid) && ROBPlugin_robComponent_io_commit_0_entry_status_done) && (! CommitPlugin_logic_s0_isMispredictedBranch));
+  assign when_CommitPlugin_l239 = (((CommitPlugin_commitEnableExt && ROBPlugin_robComponent_io_commit_0_valid) && ROBPlugin_robComponent_io_commit_0_entry_status_done) && CommitPlugin_logic_s0_isMispredictedBranch);
+  assign when_CommitPlugin_l278 = ((CommitPlugin_logic_s0_commitAckMasks_0 && ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_allocatesPhysDest) && (! CommitPlugin_logic_s0_isMispredictedBranch));
   assign CommitPlugin_logic_s0_committedThisCycle_comb = _zz_CommitPlugin_logic_s0_committedThisCycle_comb;
   assign CommitPlugin_logic_s0_recycledThisCycle_comb = _zz_CommitPlugin_logic_s0_recycledThisCycle_comb;
   assign CommitPlugin_logic_s0_flushedThisCycle_comb = CommitPlugin_hw_robFlushPort_valid;
@@ -15455,11 +15954,11 @@ module CoreNSCSCC (
   assign CommitPlugin_logic_s0_commitSlotLogs_0_oldPhysDest = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx;
   assign CommitPlugin_logic_s0_commitSlotLogs_0_allocatesPhysDest = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_allocatesPhysDest;
   assign CommitPlugin_logic_s1_s1_hasCommitsThisCycle = (1'b0 < CommitPlugin_logic_s1_s1_committedThisCycle);
-  assign when_CommitPlugin_l324 = (CommitPlugin_logic_s1_s1_hasCommitsThisCycle && (CommitPlugin_maxCommitPcReg < CommitPlugin_logic_s1_s1_maxCommitPcThisCycle));
+  assign when_CommitPlugin_l336 = (CommitPlugin_logic_s1_s1_hasCommitsThisCycle && (CommitPlugin_maxCommitPcReg < CommitPlugin_logic_s1_s1_maxCommitPcThisCycle));
   assign oneShot_16_io_triggerIn = (CommitPlugin_logic_s0_committedThisCycle_comb[0] && (_zz_when_Debug_l71 < _zz_io_triggerIn_8));
   assign _zz_when_Debug_l71_5 = 5'h19;
   assign when_Debug_l71_4 = (_zz_when_Debug_l71 < _zz_when_Debug_l71_4_1);
-  assign _zz_26 = 8'he3;
+  assign _zz_27 = 8'he3;
   assign lA32RSimpleDecoder_1_io_pcIn = (s0_Decode_IssuePipelineSignals_GROUP_PC_IN + 32'h0);
   assign _zz_DecodePlugin_logic_decodedUopsOutputVec_0_pc = lA32RSimpleDecoder_1_io_decodedUop_pc;
   always @(*) begin
@@ -15696,30 +16195,30 @@ module CoreNSCSCC (
   assign s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_branchPrediction_target = DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_target;
   assign s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_branchPrediction_wasPredicted = DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_wasPredicted;
   assign when_DecodePlugin_l119 = (s0_Decode_isFiring && DecodePlugin_logic_decodedUopsOutputVec_0_isValid);
-  assign _zz_27 = (DecodePlugin_logic_decodedUopsOutputVec_0_archDest_rtype == ArchRegType_GPR);
-  assign _zz_28 = (DecodePlugin_logic_decodedUopsOutputVec_0_archDest_rtype == ArchRegType_FPR);
-  assign _zz_29 = (DecodePlugin_logic_decodedUopsOutputVec_0_archDest_rtype == ArchRegType_CSR);
-  assign _zz_30 = (DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_rtype == ArchRegType_GPR);
-  assign _zz_31 = (DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_rtype == ArchRegType_FPR);
-  assign _zz_32 = (DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_rtype == ArchRegType_CSR);
-  assign _zz_33 = (DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype == ArchRegType_GPR);
-  assign _zz_34 = (DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype == ArchRegType_FPR);
-  assign _zz_35 = (DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype == ArchRegType_CSR);
-  assign _zz_36 = (DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype == ArchRegType_GPR);
-  assign _zz_37 = (DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype == ArchRegType_FPR);
-  assign _zz_38 = (DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype == ArchRegType_CSR);
-  assign _zz_39 = (DecodePlugin_logic_decodedUopsOutputVec_0_archDest_rtype == ArchRegType_GPR);
-  assign _zz_40 = (DecodePlugin_logic_decodedUopsOutputVec_0_archDest_rtype == ArchRegType_FPR);
-  assign _zz_41 = (DecodePlugin_logic_decodedUopsOutputVec_0_archDest_rtype == ArchRegType_CSR);
-  assign _zz_42 = (DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_rtype == ArchRegType_GPR);
-  assign _zz_43 = (DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_rtype == ArchRegType_FPR);
-  assign _zz_44 = (DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_rtype == ArchRegType_CSR);
-  assign _zz_45 = (DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype == ArchRegType_GPR);
-  assign _zz_46 = (DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype == ArchRegType_FPR);
-  assign _zz_47 = (DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype == ArchRegType_CSR);
-  assign _zz_48 = (DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype == ArchRegType_GPR);
-  assign _zz_49 = (DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype == ArchRegType_FPR);
-  assign _zz_50 = (DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype == ArchRegType_CSR);
+  assign _zz_28 = (DecodePlugin_logic_decodedUopsOutputVec_0_archDest_rtype == ArchRegType_GPR);
+  assign _zz_29 = (DecodePlugin_logic_decodedUopsOutputVec_0_archDest_rtype == ArchRegType_FPR);
+  assign _zz_30 = (DecodePlugin_logic_decodedUopsOutputVec_0_archDest_rtype == ArchRegType_CSR);
+  assign _zz_31 = (DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_rtype == ArchRegType_GPR);
+  assign _zz_32 = (DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_rtype == ArchRegType_FPR);
+  assign _zz_33 = (DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_rtype == ArchRegType_CSR);
+  assign _zz_34 = (DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype == ArchRegType_GPR);
+  assign _zz_35 = (DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype == ArchRegType_FPR);
+  assign _zz_36 = (DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype == ArchRegType_CSR);
+  assign _zz_37 = (DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype == ArchRegType_GPR);
+  assign _zz_38 = (DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype == ArchRegType_FPR);
+  assign _zz_39 = (DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype == ArchRegType_CSR);
+  assign _zz_40 = (DecodePlugin_logic_decodedUopsOutputVec_0_archDest_rtype == ArchRegType_GPR);
+  assign _zz_41 = (DecodePlugin_logic_decodedUopsOutputVec_0_archDest_rtype == ArchRegType_FPR);
+  assign _zz_42 = (DecodePlugin_logic_decodedUopsOutputVec_0_archDest_rtype == ArchRegType_CSR);
+  assign _zz_43 = (DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_rtype == ArchRegType_GPR);
+  assign _zz_44 = (DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_rtype == ArchRegType_FPR);
+  assign _zz_45 = (DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_rtype == ArchRegType_CSR);
+  assign _zz_46 = (DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype == ArchRegType_GPR);
+  assign _zz_47 = (DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype == ArchRegType_FPR);
+  assign _zz_48 = (DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype == ArchRegType_CSR);
+  assign _zz_49 = (DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype == ArchRegType_GPR);
+  assign _zz_50 = (DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype == ArchRegType_FPR);
+  assign _zz_51 = (DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype == ArchRegType_CSR);
   assign SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_enable = (s1_Rename_valid && s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_writeArchDestEn);
   assign s1_Rename_IssuePipelineSignals_NEEDS_PHYS_REG_0 = s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_writeArchDestEn;
   assign RenamePlugin_logic_s2_logic_allocationOk = (&((! s2_RobAlloc_IssuePipelineSignals_NEEDS_PHYS_REG_0) || SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_success));
@@ -19319,21 +19818,21 @@ module CoreNSCSCC (
 
   assign when_DispatchPlugin_l100 = (s3_Dispatch_isFiring && s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isValid);
   assign CommitPlugin_commitEnableExt = 1'b1;
-  assign CoreNSCSCCSetupPlugin_logic_instructionVec_0 = FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_instruction;
+  assign CoreNSCSCCSetupPlugin_logic_instructionVec_0 = CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_instruction;
   assign CoreNSCSCCSetupPlugin_logic_instructionVec_1 = 32'h0;
   assign CoreNSCSCCSetupPlugin_logic_instructionVec_2 = 32'h0;
   assign CoreNSCSCCSetupPlugin_logic_instructionVec_3 = 32'h0;
-  assign s0_Decode_valid = FetchPipelinePlugin_setup_fetchOutput_io_pop_valid;
+  assign s0_Decode_valid = CoreNSCSCCSetupPlugin_setup_fetchOutput_valid;
   always @(*) begin
-    if(FetchPipelinePlugin_setup_fetchOutput_io_pop_valid) begin
-      s0_Decode_IssuePipelineSignals_GROUP_PC_IN = FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_pc;
+    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
+      s0_Decode_IssuePipelineSignals_GROUP_PC_IN = CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_pc;
     end else begin
       s0_Decode_IssuePipelineSignals_GROUP_PC_IN = 32'h0;
     end
   end
 
   always @(*) begin
-    if(FetchPipelinePlugin_setup_fetchOutput_io_pop_valid) begin
+    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
       s0_Decode_IssuePipelineSignals_RAW_INSTRUCTIONS_IN_0 = CoreNSCSCCSetupPlugin_logic_instructionVec_0;
     end else begin
       s0_Decode_IssuePipelineSignals_RAW_INSTRUCTIONS_IN_0 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
@@ -19341,7 +19840,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(FetchPipelinePlugin_setup_fetchOutput_io_pop_valid) begin
+    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
       s0_Decode_IssuePipelineSignals_RAW_INSTRUCTIONS_IN_1 = CoreNSCSCCSetupPlugin_logic_instructionVec_1;
     end else begin
       s0_Decode_IssuePipelineSignals_RAW_INSTRUCTIONS_IN_1 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
@@ -19349,7 +19848,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(FetchPipelinePlugin_setup_fetchOutput_io_pop_valid) begin
+    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
       s0_Decode_IssuePipelineSignals_RAW_INSTRUCTIONS_IN_2 = CoreNSCSCCSetupPlugin_logic_instructionVec_2;
     end else begin
       s0_Decode_IssuePipelineSignals_RAW_INSTRUCTIONS_IN_2 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
@@ -19357,7 +19856,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(FetchPipelinePlugin_setup_fetchOutput_io_pop_valid) begin
+    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
       s0_Decode_IssuePipelineSignals_RAW_INSTRUCTIONS_IN_3 = CoreNSCSCCSetupPlugin_logic_instructionVec_3;
     end else begin
       s0_Decode_IssuePipelineSignals_RAW_INSTRUCTIONS_IN_3 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
@@ -19365,31 +19864,31 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(FetchPipelinePlugin_setup_fetchOutput_io_pop_valid) begin
-      s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_0_isTaken = FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_bpuPrediction_isTaken;
+    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
+      s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_0_isTaken = CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_bpuPrediction_isTaken;
     end else begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_0_isTaken = 1'bx;
     end
   end
 
   always @(*) begin
-    if(FetchPipelinePlugin_setup_fetchOutput_io_pop_valid) begin
-      s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_0_target = FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_bpuPrediction_target;
+    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
+      s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_0_target = CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_bpuPrediction_target;
     end else begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_0_target = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     end
   end
 
   always @(*) begin
-    if(FetchPipelinePlugin_setup_fetchOutput_io_pop_valid) begin
-      s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_0_wasPredicted = FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_bpuPrediction_wasPredicted;
+    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
+      s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_0_wasPredicted = CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_bpuPrediction_wasPredicted;
     end else begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_0_wasPredicted = 1'bx;
     end
   end
 
   always @(*) begin
-    if(FetchPipelinePlugin_setup_fetchOutput_io_pop_valid) begin
+    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_1_isTaken = 1'bx;
     end else begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_1_isTaken = 1'bx;
@@ -19397,7 +19896,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(FetchPipelinePlugin_setup_fetchOutput_io_pop_valid) begin
+    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_1_target = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     end else begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_1_target = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
@@ -19405,7 +19904,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(FetchPipelinePlugin_setup_fetchOutput_io_pop_valid) begin
+    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_1_wasPredicted = 1'bx;
     end else begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_1_wasPredicted = 1'bx;
@@ -19413,7 +19912,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(FetchPipelinePlugin_setup_fetchOutput_io_pop_valid) begin
+    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_2_isTaken = 1'bx;
     end else begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_2_isTaken = 1'bx;
@@ -19421,7 +19920,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(FetchPipelinePlugin_setup_fetchOutput_io_pop_valid) begin
+    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_2_target = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     end else begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_2_target = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
@@ -19429,7 +19928,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(FetchPipelinePlugin_setup_fetchOutput_io_pop_valid) begin
+    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_2_wasPredicted = 1'bx;
     end else begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_2_wasPredicted = 1'bx;
@@ -19437,7 +19936,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(FetchPipelinePlugin_setup_fetchOutput_io_pop_valid) begin
+    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_3_isTaken = 1'bx;
     end else begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_3_isTaken = 1'bx;
@@ -19445,7 +19944,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(FetchPipelinePlugin_setup_fetchOutput_io_pop_valid) begin
+    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_3_target = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     end else begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_3_target = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
@@ -19453,7 +19952,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(FetchPipelinePlugin_setup_fetchOutput_io_pop_valid) begin
+    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_3_wasPredicted = 1'bx;
     end else begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_3_wasPredicted = 1'bx;
@@ -19461,7 +19960,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(FetchPipelinePlugin_setup_fetchOutput_io_pop_valid) begin
+    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
       s0_Decode_IssuePipelineSignals_VALID_MASK = 4'b0001;
     end else begin
       s0_Decode_IssuePipelineSignals_VALID_MASK = 4'b0000;
@@ -19469,13 +19968,14 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(FetchPipelinePlugin_setup_fetchOutput_io_pop_valid) begin
+    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
       s0_Decode_IssuePipelineSignals_IS_FAULT_IN = 1'b0;
     end else begin
       s0_Decode_IssuePipelineSignals_IS_FAULT_IN = 1'b0;
     end
   end
 
+  assign CoreNSCSCCSetupPlugin_setup_fetchOutput_ready = s0_Decode_ready;
   assign DebugDisplayPlugin_hw_dpyController_io_dp0 = (! DebugDisplayPlugin_logic_displayArea_dpToggle);
   assign s0_Dispatch_valid = AluIntEU_AluIntEuPlugin_euInputPort_valid;
   assign AluIntEU_AluIntEuPlugin_euInputPort_ready = s0_Dispatch_ready_1;
@@ -19491,7 +19991,7 @@ module CoreNSCSCC (
   assign _zz_io_iqEntryIn_payload_src2Data_1 = ((_zz_io_iqEntryIn_payload_immUsage == ImmUsageType_SRC_ALU) ? _zz_io_iqEntryIn_payload_imm : _zz_io_iqEntryIn_payload_src2Data);
   assign _zz_AluIntEU_AluIntEuPlugin_euResult_exceptionCode_1 = AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_exceptionCode;
   assign s2_Execute_isFiring = (s2_Execute_valid && s2_Execute_ready);
-  assign _zz_51 = _zz_io_iqEntryIn_payload_immUsage;
+  assign _zz_52 = _zz_io_iqEntryIn_payload_immUsage;
   assign s3_Writeback_isFiring = (s3_Writeback_valid && s3_Writeback_ready);
   assign s3_Writeback_isFlushed = ROBPlugin_aggregatedFlushSignal_valid;
   assign when_Connection_l66_1 = (|{ROBPlugin_aggregatedFlushSignal_valid,ROBPlugin_aggregatedFlushSignal_valid});
@@ -19754,7 +20254,7 @@ module CoreNSCSCC (
     end
   end
 
-  assign _zz_52 = (! _zz_BranchEU_BranchEuPlugin_euResult_isMispredictedBranch_1);
+  assign _zz_53 = (! _zz_BranchEU_BranchEuPlugin_euResult_isMispredictedBranch_1);
   assign s3_Result_isFiring = (s3_Result_valid && s3_Result_ready);
   assign s3_Result_isFlushed = ROBPlugin_aggregatedFlushSignal_valid;
   assign when_Connection_l66_9 = (|{ROBPlugin_aggregatedFlushSignal_valid,ROBPlugin_aggregatedFlushSignal_valid});
@@ -20229,7 +20729,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_valid = LoadQueuePlugin_logic_loadQueue_slots_0_valid;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_54) begin
+      if(_zz_55) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_valid = 1'b1;
       end
     end
@@ -20238,7 +20738,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_address = LoadQueuePlugin_logic_loadQueue_slots_0_address;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_54) begin
+      if(_zz_55) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_address = LoadQueuePlugin_logic_pushCmd_payload_address;
       end
     end
@@ -20247,7 +20747,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_size = LoadQueuePlugin_logic_loadQueue_slots_0_size;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_54) begin
+      if(_zz_55) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_size = LoadQueuePlugin_logic_pushCmd_payload_size;
       end
     end
@@ -20256,7 +20756,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_robPtr = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_54) begin
+      if(_zz_55) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_robPtr = LoadQueuePlugin_logic_pushCmd_payload_robPtr;
       end
     end
@@ -20265,7 +20765,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_pdest = LoadQueuePlugin_logic_loadQueue_slots_0_pdest;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_54) begin
+      if(_zz_55) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_pdest = LoadQueuePlugin_logic_pushCmd_payload_pdest;
       end
     end
@@ -20274,7 +20774,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isIO = LoadQueuePlugin_logic_loadQueue_slots_0_isIO;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_54) begin
+      if(_zz_55) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isIO = LoadQueuePlugin_logic_pushCmd_payload_isIO;
       end
     end
@@ -20283,7 +20783,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isSignedLoad = LoadQueuePlugin_logic_loadQueue_slots_0_isSignedLoad;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_54) begin
+      if(_zz_55) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isSignedLoad = LoadQueuePlugin_logic_pushCmd_payload_isSignedLoad;
       end
     end
@@ -20292,7 +20792,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_hasException = LoadQueuePlugin_logic_loadQueue_slots_0_hasException;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_54) begin
+      if(_zz_55) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_hasException = LoadQueuePlugin_logic_pushCmd_payload_hasEarlyException;
       end
     end
@@ -20301,7 +20801,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_exceptionCode = LoadQueuePlugin_logic_loadQueue_slots_0_exceptionCode;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_54) begin
+      if(_zz_55) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_exceptionCode = LoadQueuePlugin_logic_pushCmd_payload_earlyExceptionCode;
       end
     end
@@ -20310,7 +20810,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForFwdRsp;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_54) begin
+      if(_zz_55) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isWaitingForFwdRsp = 1'b0;
       end
     end
@@ -20325,7 +20825,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slots_0_isStalledByDependency;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_54) begin
+      if(_zz_55) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isStalledByDependency = 1'b0;
       end
     end
@@ -20344,7 +20844,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slots_0_isReadyForDCache;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_54) begin
+      if(_zz_55) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isReadyForDCache = 1'b0;
       end
     end
@@ -20366,7 +20866,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForRsp;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_54) begin
+      if(_zz_55) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isWaitingForRsp = 1'b0;
       end
     end
@@ -20378,7 +20878,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_valid = LoadQueuePlugin_logic_loadQueue_slots_1_valid;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_55) begin
+      if(_zz_56) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_valid = 1'b1;
       end
     end
@@ -20387,7 +20887,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_address = LoadQueuePlugin_logic_loadQueue_slots_1_address;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_55) begin
+      if(_zz_56) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_address = LoadQueuePlugin_logic_pushCmd_payload_address;
       end
     end
@@ -20396,7 +20896,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_size = LoadQueuePlugin_logic_loadQueue_slots_1_size;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_55) begin
+      if(_zz_56) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_size = LoadQueuePlugin_logic_pushCmd_payload_size;
       end
     end
@@ -20405,7 +20905,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_robPtr = LoadQueuePlugin_logic_loadQueue_slots_1_robPtr;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_55) begin
+      if(_zz_56) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_robPtr = LoadQueuePlugin_logic_pushCmd_payload_robPtr;
       end
     end
@@ -20414,7 +20914,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_pdest = LoadQueuePlugin_logic_loadQueue_slots_1_pdest;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_55) begin
+      if(_zz_56) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_pdest = LoadQueuePlugin_logic_pushCmd_payload_pdest;
       end
     end
@@ -20423,7 +20923,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isIO = LoadQueuePlugin_logic_loadQueue_slots_1_isIO;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_55) begin
+      if(_zz_56) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isIO = LoadQueuePlugin_logic_pushCmd_payload_isIO;
       end
     end
@@ -20432,7 +20932,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isSignedLoad = LoadQueuePlugin_logic_loadQueue_slots_1_isSignedLoad;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_55) begin
+      if(_zz_56) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isSignedLoad = LoadQueuePlugin_logic_pushCmd_payload_isSignedLoad;
       end
     end
@@ -20441,7 +20941,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_hasException = LoadQueuePlugin_logic_loadQueue_slots_1_hasException;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_55) begin
+      if(_zz_56) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_hasException = LoadQueuePlugin_logic_pushCmd_payload_hasEarlyException;
       end
     end
@@ -20450,7 +20950,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_exceptionCode = LoadQueuePlugin_logic_loadQueue_slots_1_exceptionCode;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_55) begin
+      if(_zz_56) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_exceptionCode = LoadQueuePlugin_logic_pushCmd_payload_earlyExceptionCode;
       end
     end
@@ -20459,7 +20959,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slots_1_isWaitingForFwdRsp;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_55) begin
+      if(_zz_56) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isWaitingForFwdRsp = 1'b0;
       end
     end
@@ -20468,7 +20968,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slots_1_isStalledByDependency;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_55) begin
+      if(_zz_56) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isStalledByDependency = 1'b0;
       end
     end
@@ -20477,7 +20977,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slots_1_isReadyForDCache;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_55) begin
+      if(_zz_56) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isReadyForDCache = 1'b0;
       end
     end
@@ -20486,7 +20986,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slots_1_isWaitingForRsp;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_55) begin
+      if(_zz_56) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isWaitingForRsp = 1'b0;
       end
     end
@@ -20495,7 +20995,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_valid = LoadQueuePlugin_logic_loadQueue_slots_2_valid;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_56) begin
+      if(_zz_57) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_valid = 1'b1;
       end
     end
@@ -20504,7 +21004,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_address = LoadQueuePlugin_logic_loadQueue_slots_2_address;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_56) begin
+      if(_zz_57) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_address = LoadQueuePlugin_logic_pushCmd_payload_address;
       end
     end
@@ -20513,7 +21013,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_size = LoadQueuePlugin_logic_loadQueue_slots_2_size;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_56) begin
+      if(_zz_57) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_size = LoadQueuePlugin_logic_pushCmd_payload_size;
       end
     end
@@ -20522,7 +21022,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_robPtr = LoadQueuePlugin_logic_loadQueue_slots_2_robPtr;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_56) begin
+      if(_zz_57) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_robPtr = LoadQueuePlugin_logic_pushCmd_payload_robPtr;
       end
     end
@@ -20531,7 +21031,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_pdest = LoadQueuePlugin_logic_loadQueue_slots_2_pdest;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_56) begin
+      if(_zz_57) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_pdest = LoadQueuePlugin_logic_pushCmd_payload_pdest;
       end
     end
@@ -20540,7 +21040,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isIO = LoadQueuePlugin_logic_loadQueue_slots_2_isIO;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_56) begin
+      if(_zz_57) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isIO = LoadQueuePlugin_logic_pushCmd_payload_isIO;
       end
     end
@@ -20549,7 +21049,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isSignedLoad = LoadQueuePlugin_logic_loadQueue_slots_2_isSignedLoad;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_56) begin
+      if(_zz_57) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isSignedLoad = LoadQueuePlugin_logic_pushCmd_payload_isSignedLoad;
       end
     end
@@ -20558,7 +21058,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_hasException = LoadQueuePlugin_logic_loadQueue_slots_2_hasException;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_56) begin
+      if(_zz_57) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_hasException = LoadQueuePlugin_logic_pushCmd_payload_hasEarlyException;
       end
     end
@@ -20567,7 +21067,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_exceptionCode = LoadQueuePlugin_logic_loadQueue_slots_2_exceptionCode;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_56) begin
+      if(_zz_57) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_exceptionCode = LoadQueuePlugin_logic_pushCmd_payload_earlyExceptionCode;
       end
     end
@@ -20576,7 +21076,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slots_2_isWaitingForFwdRsp;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_56) begin
+      if(_zz_57) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isWaitingForFwdRsp = 1'b0;
       end
     end
@@ -20585,7 +21085,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slots_2_isStalledByDependency;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_56) begin
+      if(_zz_57) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isStalledByDependency = 1'b0;
       end
     end
@@ -20594,7 +21094,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slots_2_isReadyForDCache;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_56) begin
+      if(_zz_57) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isReadyForDCache = 1'b0;
       end
     end
@@ -20603,7 +21103,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slots_2_isWaitingForRsp;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_56) begin
+      if(_zz_57) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isWaitingForRsp = 1'b0;
       end
     end
@@ -20612,7 +21112,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_valid = LoadQueuePlugin_logic_loadQueue_slots_3_valid;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_57) begin
+      if(_zz_58) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_valid = 1'b1;
       end
     end
@@ -20621,7 +21121,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_address = LoadQueuePlugin_logic_loadQueue_slots_3_address;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_57) begin
+      if(_zz_58) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_address = LoadQueuePlugin_logic_pushCmd_payload_address;
       end
     end
@@ -20630,7 +21130,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_size = LoadQueuePlugin_logic_loadQueue_slots_3_size;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_57) begin
+      if(_zz_58) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_size = LoadQueuePlugin_logic_pushCmd_payload_size;
       end
     end
@@ -20639,7 +21139,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_robPtr = LoadQueuePlugin_logic_loadQueue_slots_3_robPtr;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_57) begin
+      if(_zz_58) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_robPtr = LoadQueuePlugin_logic_pushCmd_payload_robPtr;
       end
     end
@@ -20648,7 +21148,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_pdest = LoadQueuePlugin_logic_loadQueue_slots_3_pdest;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_57) begin
+      if(_zz_58) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_pdest = LoadQueuePlugin_logic_pushCmd_payload_pdest;
       end
     end
@@ -20657,7 +21157,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isIO = LoadQueuePlugin_logic_loadQueue_slots_3_isIO;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_57) begin
+      if(_zz_58) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isIO = LoadQueuePlugin_logic_pushCmd_payload_isIO;
       end
     end
@@ -20666,7 +21166,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isSignedLoad = LoadQueuePlugin_logic_loadQueue_slots_3_isSignedLoad;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_57) begin
+      if(_zz_58) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isSignedLoad = LoadQueuePlugin_logic_pushCmd_payload_isSignedLoad;
       end
     end
@@ -20675,7 +21175,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_hasException = LoadQueuePlugin_logic_loadQueue_slots_3_hasException;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_57) begin
+      if(_zz_58) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_hasException = LoadQueuePlugin_logic_pushCmd_payload_hasEarlyException;
       end
     end
@@ -20684,7 +21184,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_exceptionCode = LoadQueuePlugin_logic_loadQueue_slots_3_exceptionCode;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_57) begin
+      if(_zz_58) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_exceptionCode = LoadQueuePlugin_logic_pushCmd_payload_earlyExceptionCode;
       end
     end
@@ -20693,7 +21193,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slots_3_isWaitingForFwdRsp;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_57) begin
+      if(_zz_58) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isWaitingForFwdRsp = 1'b0;
       end
     end
@@ -20702,7 +21202,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slots_3_isStalledByDependency;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_57) begin
+      if(_zz_58) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isStalledByDependency = 1'b0;
       end
     end
@@ -20711,7 +21211,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slots_3_isReadyForDCache;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_57) begin
+      if(_zz_58) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isReadyForDCache = 1'b0;
       end
     end
@@ -20720,7 +21220,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slots_3_isWaitingForRsp;
     if(LoadQueuePlugin_logic_pushCmd_fire) begin
-      if(_zz_57) begin
+      if(_zz_58) begin
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isWaitingForRsp = 1'b0;
       end
     end
@@ -21413,11 +21913,11 @@ module CoreNSCSCC (
   assign _zz_LoadQueuePlugin_logic_loadQueue_pushIdx_2 = (LoadQueuePlugin_logic_loadQueue_pushOh[2] || _zz_LoadQueuePlugin_logic_loadQueue_pushIdx);
   assign LoadQueuePlugin_logic_loadQueue_pushIdx = {_zz_LoadQueuePlugin_logic_loadQueue_pushIdx_2,_zz_LoadQueuePlugin_logic_loadQueue_pushIdx_1};
   assign LoadQueuePlugin_logic_pushCmd_fire = (LoadQueuePlugin_logic_pushCmd_valid && LoadQueuePlugin_logic_pushCmd_ready);
-  assign _zz_53 = ({3'd0,1'b1} <<< LoadQueuePlugin_logic_loadQueue_pushIdx);
-  assign _zz_54 = _zz_53[0];
-  assign _zz_55 = _zz_53[1];
-  assign _zz_56 = _zz_53[2];
-  assign _zz_57 = _zz_53[3];
+  assign _zz_54 = ({3'd0,1'b1} <<< LoadQueuePlugin_logic_loadQueue_pushIdx);
+  assign _zz_55 = _zz_54[0];
+  assign _zz_56 = _zz_54[1];
+  assign _zz_57 = _zz_54[2];
+  assign _zz_58 = _zz_54[3];
   assign _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[3];
   assign _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_1 = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[2 : 0];
   assign _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_2 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
@@ -21429,7 +21929,7 @@ module CoreNSCSCC (
   assign StoreBufferPlugin_hw_sqQueryPort_cmd_payload_size = LoadQueuePlugin_logic_loadQueue_slots_0_size;
   assign StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr;
   assign when_LoadQueuePlugin_l336 = (LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForFwdRsp && LoadQueuePlugin_logic_loadQueue_sbQueryRspValid);
-  assign _zz_58 = (LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_olderStoreHasUnknownAddress || LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_olderStoreDataNotReady);
+  assign _zz_59 = (LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_olderStoreHasUnknownAddress || LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_olderStoreDataNotReady);
   assign when_LoadQueuePlugin_l347 = (LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_olderStoreHasUnknownAddress || LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_olderStoreDataNotReady);
   assign when_LoadQueuePlugin_l362 = ((((LoadQueuePlugin_logic_loadQueue_headIsVisible && LoadQueuePlugin_logic_loadQueue_slots_0_hasException) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isReadyForDCache)) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForFwdRsp)) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForRsp));
   assign LoadQueuePlugin_logic_loadQueue_headIsReadyToExecute = ((LoadQueuePlugin_logic_loadQueue_headIsVisible && LoadQueuePlugin_logic_loadQueue_slots_0_isReadyForDCache) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForRsp));
@@ -21573,23 +22073,23 @@ module CoreNSCSCC (
   assign LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp = ((LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_address == 6'h0) ? 32'h0 : _zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp);
   assign LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp = ((LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_address == 6'h0) ? 32'h0 : _zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp);
   assign when_PhysicalRegFile_l130 = (AluIntEU_AluIntEuPlugin_gprWritePort_valid && (AluIntEU_AluIntEuPlugin_gprWritePort_address != 6'h0));
-  assign _zz_59 = ({63'd0,1'b1} <<< AluIntEU_AluIntEuPlugin_gprWritePort_address);
+  assign _zz_60 = ({63'd0,1'b1} <<< AluIntEU_AluIntEuPlugin_gprWritePort_address);
   assign when_PhysicalRegFile_l130_1 = (MulEU_MulEuPlugin_gprWritePort_valid && (MulEU_MulEuPlugin_gprWritePort_address != 6'h0));
-  assign _zz_60 = ({63'd0,1'b1} <<< MulEU_MulEuPlugin_gprWritePort_address);
+  assign _zz_61 = ({63'd0,1'b1} <<< MulEU_MulEuPlugin_gprWritePort_address);
   assign when_PhysicalRegFile_l130_2 = (BranchEU_BranchEuPlugin_gprWritePort_valid && (BranchEU_BranchEuPlugin_gprWritePort_address != 6'h0));
-  assign _zz_61 = ({63'd0,1'b1} <<< BranchEU_BranchEuPlugin_gprWritePort_address);
+  assign _zz_62 = ({63'd0,1'b1} <<< BranchEU_BranchEuPlugin_gprWritePort_address);
   assign when_PhysicalRegFile_l130_3 = (LsuEU_LsuEuPlugin_gprWritePort_valid && (LsuEU_LsuEuPlugin_gprWritePort_address != 6'h0));
-  assign _zz_62 = ({63'd0,1'b1} <<< LsuEU_LsuEuPlugin_gprWritePort_address);
+  assign _zz_63 = ({63'd0,1'b1} <<< LsuEU_LsuEuPlugin_gprWritePort_address);
   assign when_PhysicalRegFile_l130_4 = (LoadQueuePlugin_hw_prfWritePort_valid && (LoadQueuePlugin_hw_prfWritePort_address != 6'h0));
-  assign _zz_63 = ({63'd0,1'b1} <<< LoadQueuePlugin_hw_prfWritePort_address);
+  assign _zz_64 = ({63'd0,1'b1} <<< LoadQueuePlugin_hw_prfWritePort_address);
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush = StoreBufferPlugin_logic_slots_0_isFlush;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_67) begin
+      if(_zz_66) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush = 1'b0;
     end
   end
@@ -21597,11 +22097,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_addr = StoreBufferPlugin_logic_slots_0_addr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_67) begin
+      if(_zz_66) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_addr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_0_addr = 32'h0;
     end
   end
@@ -21609,11 +22109,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_data = StoreBufferPlugin_logic_slots_0_data;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_67) begin
+      if(_zz_66) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_data = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_0_data = 32'h0;
     end
   end
@@ -21621,11 +22121,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_be = StoreBufferPlugin_logic_slots_0_be;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_67) begin
+      if(_zz_66) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_be = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_be;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_0_be = 4'b0000;
     end
   end
@@ -21633,11 +22133,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr = StoreBufferPlugin_logic_slots_0_robPtr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_67) begin
+      if(_zz_66) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr = 4'b0000;
     end
   end
@@ -21645,11 +22145,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize = StoreBufferPlugin_logic_slots_0_accessSize;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_67) begin
+      if(_zz_66) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize = MemAccessSize_W;
     end
   end
@@ -21657,11 +22157,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO = StoreBufferPlugin_logic_slots_0_isIO;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_67) begin
+      if(_zz_66) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO = 1'b0;
     end
   end
@@ -21669,14 +22169,14 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_valid = StoreBufferPlugin_logic_slots_0_valid;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_67) begin
+      if(_zz_66) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_valid = 1'b1;
       end
     end
-    if(when_StoreBufferPlugin_l525) begin
+    if(when_StoreBufferPlugin_l381) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_0_valid = 1'b0;
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_0_valid = 1'b0;
     end
   end
@@ -21684,7 +22184,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException = StoreBufferPlugin_logic_slots_0_hasEarlyException;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_67) begin
+      if(_zz_66) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException;
       end
     end
@@ -21693,7 +22193,7 @@ module CoreNSCSCC (
         StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException = 1'b1;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException = 1'b0;
     end
   end
@@ -21701,7 +22201,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode = StoreBufferPlugin_logic_slots_0_earlyExceptionCode;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_67) begin
+      if(_zz_66) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode;
       end
     end
@@ -21710,7 +22210,7 @@ module CoreNSCSCC (
         StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode = 8'h07;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode = 8'h0;
     end
   end
@@ -21718,18 +22218,18 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_isCommitted = StoreBufferPlugin_logic_slots_0_isCommitted;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_67) begin
+      if(_zz_66) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_isCommitted = 1'b0;
       end
     end
-    if(!when_StoreBufferPlugin_l525) begin
-      if(when_StoreBufferPlugin_l529) begin
-        if(when_StoreBufferPlugin_l533) begin
+    if(!when_StoreBufferPlugin_l381) begin
+      if(when_StoreBufferPlugin_l384) begin
+        if(when_StoreBufferPlugin_l385) begin
           StoreBufferPlugin_logic_slotsAfterUpdates_0_isCommitted = 1'b1;
         end
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_0_isCommitted = 1'b0;
     end
   end
@@ -21737,14 +22237,14 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_sentCmd = StoreBufferPlugin_logic_slots_0_sentCmd;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_67) begin
+      if(_zz_66) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_sentCmd = 1'b0;
       end
     end
     if(StoreBufferPlugin_logic_mmioCmdFired) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_0_sentCmd = 1'b1;
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_0_sentCmd = 1'b0;
     end
   end
@@ -21752,7 +22252,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_waitRsp = StoreBufferPlugin_logic_slots_0_waitRsp;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_67) begin
+      if(_zz_66) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_waitRsp = 1'b0;
       end
     end
@@ -21762,7 +22262,7 @@ module CoreNSCSCC (
     if(StoreBufferPlugin_logic_mmioResponseForHead) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_0_waitRsp = 1'b0;
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_0_waitRsp = 1'b0;
     end
   end
@@ -21770,11 +22270,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForRefill = StoreBufferPlugin_logic_slots_0_isWaitingForRefill;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_67) begin
+      if(_zz_66) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForRefill = 1'b0;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForRefill = 1'b0;
     end
   end
@@ -21782,11 +22282,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForWb = StoreBufferPlugin_logic_slots_0_isWaitingForWb;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_67) begin
+      if(_zz_66) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForWb = 1'b0;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForWb = 1'b0;
     end
   end
@@ -21794,11 +22294,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_0_refillSlotToWatch = StoreBufferPlugin_logic_slots_0_refillSlotToWatch;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_67) begin
+      if(_zz_66) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_0_refillSlotToWatch = 8'h0;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_0_refillSlotToWatch = 8'h0;
     end
   end
@@ -21806,11 +22306,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_isFlush = StoreBufferPlugin_logic_slots_1_isFlush;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_68) begin
+      if(_zz_67) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_isFlush = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_1_isFlush = 1'b0;
     end
   end
@@ -21818,11 +22318,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_addr = StoreBufferPlugin_logic_slots_1_addr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_68) begin
+      if(_zz_67) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_addr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_1_addr = 32'h0;
     end
   end
@@ -21830,11 +22330,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_data = StoreBufferPlugin_logic_slots_1_data;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_68) begin
+      if(_zz_67) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_data = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_1_data = 32'h0;
     end
   end
@@ -21842,11 +22342,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_be = StoreBufferPlugin_logic_slots_1_be;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_68) begin
+      if(_zz_67) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_be = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_be;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_1_be = 4'b0000;
     end
   end
@@ -21854,11 +22354,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_robPtr = StoreBufferPlugin_logic_slots_1_robPtr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_68) begin
+      if(_zz_67) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_robPtr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_1_robPtr = 4'b0000;
     end
   end
@@ -21866,11 +22366,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_accessSize = StoreBufferPlugin_logic_slots_1_accessSize;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_68) begin
+      if(_zz_67) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_accessSize = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_1_accessSize = MemAccessSize_W;
     end
   end
@@ -21878,11 +22378,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_isIO = StoreBufferPlugin_logic_slots_1_isIO;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_68) begin
+      if(_zz_67) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_isIO = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_1_isIO = 1'b0;
     end
   end
@@ -21890,14 +22390,14 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_valid = StoreBufferPlugin_logic_slots_1_valid;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_68) begin
+      if(_zz_67) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_valid = 1'b1;
       end
     end
-    if(when_StoreBufferPlugin_l525_1) begin
+    if(when_StoreBufferPlugin_l381_1) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_1_valid = 1'b0;
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_1_valid = 1'b0;
     end
   end
@@ -21905,11 +22405,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_hasEarlyException = StoreBufferPlugin_logic_slots_1_hasEarlyException;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_68) begin
+      if(_zz_67) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_hasEarlyException = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_1_hasEarlyException = 1'b0;
     end
   end
@@ -21917,11 +22417,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_earlyExceptionCode = StoreBufferPlugin_logic_slots_1_earlyExceptionCode;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_68) begin
+      if(_zz_67) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_earlyExceptionCode = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_1_earlyExceptionCode = 8'h0;
     end
   end
@@ -21929,18 +22429,18 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_isCommitted = StoreBufferPlugin_logic_slots_1_isCommitted;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_68) begin
+      if(_zz_67) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_isCommitted = 1'b0;
       end
     end
-    if(!when_StoreBufferPlugin_l525_1) begin
-      if(when_StoreBufferPlugin_l529_1) begin
-        if(when_StoreBufferPlugin_l533_1) begin
+    if(!when_StoreBufferPlugin_l381_1) begin
+      if(when_StoreBufferPlugin_l384_1) begin
+        if(when_StoreBufferPlugin_l385_1) begin
           StoreBufferPlugin_logic_slotsAfterUpdates_1_isCommitted = 1'b1;
         end
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_1_isCommitted = 1'b0;
     end
   end
@@ -21948,11 +22448,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_sentCmd = StoreBufferPlugin_logic_slots_1_sentCmd;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_68) begin
+      if(_zz_67) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_sentCmd = 1'b0;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_1_sentCmd = 1'b0;
     end
   end
@@ -21960,11 +22460,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_waitRsp = StoreBufferPlugin_logic_slots_1_waitRsp;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_68) begin
+      if(_zz_67) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_waitRsp = 1'b0;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_1_waitRsp = 1'b0;
     end
   end
@@ -21972,11 +22472,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_isWaitingForRefill = StoreBufferPlugin_logic_slots_1_isWaitingForRefill;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_68) begin
+      if(_zz_67) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_isWaitingForRefill = 1'b0;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_1_isWaitingForRefill = 1'b0;
     end
   end
@@ -21984,11 +22484,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_isWaitingForWb = StoreBufferPlugin_logic_slots_1_isWaitingForWb;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_68) begin
+      if(_zz_67) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_isWaitingForWb = 1'b0;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_1_isWaitingForWb = 1'b0;
     end
   end
@@ -21996,11 +22496,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_1_refillSlotToWatch = StoreBufferPlugin_logic_slots_1_refillSlotToWatch;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_68) begin
+      if(_zz_67) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_1_refillSlotToWatch = 8'h0;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_1_refillSlotToWatch = 8'h0;
     end
   end
@@ -22008,11 +22508,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_isFlush = StoreBufferPlugin_logic_slots_2_isFlush;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_69) begin
+      if(_zz_68) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_isFlush = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_2_isFlush = 1'b0;
     end
   end
@@ -22020,11 +22520,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_addr = StoreBufferPlugin_logic_slots_2_addr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_69) begin
+      if(_zz_68) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_addr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_2_addr = 32'h0;
     end
   end
@@ -22032,11 +22532,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_data = StoreBufferPlugin_logic_slots_2_data;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_69) begin
+      if(_zz_68) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_data = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_2_data = 32'h0;
     end
   end
@@ -22044,11 +22544,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_be = StoreBufferPlugin_logic_slots_2_be;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_69) begin
+      if(_zz_68) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_be = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_be;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_2_be = 4'b0000;
     end
   end
@@ -22056,11 +22556,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_robPtr = StoreBufferPlugin_logic_slots_2_robPtr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_69) begin
+      if(_zz_68) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_robPtr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_2_robPtr = 4'b0000;
     end
   end
@@ -22068,11 +22568,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_accessSize = StoreBufferPlugin_logic_slots_2_accessSize;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_69) begin
+      if(_zz_68) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_accessSize = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_2_accessSize = MemAccessSize_W;
     end
   end
@@ -22080,11 +22580,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_isIO = StoreBufferPlugin_logic_slots_2_isIO;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_69) begin
+      if(_zz_68) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_isIO = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_2_isIO = 1'b0;
     end
   end
@@ -22092,14 +22592,14 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_valid = StoreBufferPlugin_logic_slots_2_valid;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_69) begin
+      if(_zz_68) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_valid = 1'b1;
       end
     end
-    if(when_StoreBufferPlugin_l525_2) begin
+    if(when_StoreBufferPlugin_l381_2) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_2_valid = 1'b0;
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_2_valid = 1'b0;
     end
   end
@@ -22107,11 +22607,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_hasEarlyException = StoreBufferPlugin_logic_slots_2_hasEarlyException;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_69) begin
+      if(_zz_68) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_hasEarlyException = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_2_hasEarlyException = 1'b0;
     end
   end
@@ -22119,11 +22619,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_earlyExceptionCode = StoreBufferPlugin_logic_slots_2_earlyExceptionCode;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_69) begin
+      if(_zz_68) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_earlyExceptionCode = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_2_earlyExceptionCode = 8'h0;
     end
   end
@@ -22131,18 +22631,18 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_isCommitted = StoreBufferPlugin_logic_slots_2_isCommitted;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_69) begin
+      if(_zz_68) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_isCommitted = 1'b0;
       end
     end
-    if(!when_StoreBufferPlugin_l525_2) begin
-      if(when_StoreBufferPlugin_l529_2) begin
-        if(when_StoreBufferPlugin_l533_2) begin
+    if(!when_StoreBufferPlugin_l381_2) begin
+      if(when_StoreBufferPlugin_l384_2) begin
+        if(when_StoreBufferPlugin_l385_2) begin
           StoreBufferPlugin_logic_slotsAfterUpdates_2_isCommitted = 1'b1;
         end
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_2_isCommitted = 1'b0;
     end
   end
@@ -22150,11 +22650,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_sentCmd = StoreBufferPlugin_logic_slots_2_sentCmd;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_69) begin
+      if(_zz_68) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_sentCmd = 1'b0;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_2_sentCmd = 1'b0;
     end
   end
@@ -22162,11 +22662,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_waitRsp = StoreBufferPlugin_logic_slots_2_waitRsp;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_69) begin
+      if(_zz_68) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_waitRsp = 1'b0;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_2_waitRsp = 1'b0;
     end
   end
@@ -22174,11 +22674,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_isWaitingForRefill = StoreBufferPlugin_logic_slots_2_isWaitingForRefill;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_69) begin
+      if(_zz_68) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_isWaitingForRefill = 1'b0;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_2_isWaitingForRefill = 1'b0;
     end
   end
@@ -22186,11 +22686,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_isWaitingForWb = StoreBufferPlugin_logic_slots_2_isWaitingForWb;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_69) begin
+      if(_zz_68) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_isWaitingForWb = 1'b0;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_2_isWaitingForWb = 1'b0;
     end
   end
@@ -22198,11 +22698,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_2_refillSlotToWatch = StoreBufferPlugin_logic_slots_2_refillSlotToWatch;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_69) begin
+      if(_zz_68) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_2_refillSlotToWatch = 8'h0;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_2_refillSlotToWatch = 8'h0;
     end
   end
@@ -22210,11 +22710,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_isFlush = StoreBufferPlugin_logic_slots_3_isFlush;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_70) begin
+      if(_zz_69) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_isFlush = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_3_isFlush = 1'b0;
     end
   end
@@ -22222,11 +22722,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_addr = StoreBufferPlugin_logic_slots_3_addr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_70) begin
+      if(_zz_69) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_addr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_3_addr = 32'h0;
     end
   end
@@ -22234,11 +22734,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_data = StoreBufferPlugin_logic_slots_3_data;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_70) begin
+      if(_zz_69) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_data = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_3_data = 32'h0;
     end
   end
@@ -22246,11 +22746,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_be = StoreBufferPlugin_logic_slots_3_be;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_70) begin
+      if(_zz_69) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_be = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_be;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_3_be = 4'b0000;
     end
   end
@@ -22258,11 +22758,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_robPtr = StoreBufferPlugin_logic_slots_3_robPtr;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_70) begin
+      if(_zz_69) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_robPtr = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_3_robPtr = 4'b0000;
     end
   end
@@ -22270,11 +22770,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_accessSize = StoreBufferPlugin_logic_slots_3_accessSize;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_70) begin
+      if(_zz_69) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_accessSize = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_3_accessSize = MemAccessSize_W;
     end
   end
@@ -22282,11 +22782,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_isIO = StoreBufferPlugin_logic_slots_3_isIO;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_70) begin
+      if(_zz_69) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_isIO = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_3_isIO = 1'b0;
     end
   end
@@ -22294,14 +22794,14 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_valid = StoreBufferPlugin_logic_slots_3_valid;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_70) begin
+      if(_zz_69) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_valid = 1'b1;
       end
     end
-    if(when_StoreBufferPlugin_l525_3) begin
+    if(when_StoreBufferPlugin_l381_3) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_3_valid = 1'b0;
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_3_valid = 1'b0;
     end
   end
@@ -22309,11 +22809,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_hasEarlyException = StoreBufferPlugin_logic_slots_3_hasEarlyException;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_70) begin
+      if(_zz_69) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_hasEarlyException = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_3_hasEarlyException = 1'b0;
     end
   end
@@ -22321,11 +22821,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_earlyExceptionCode = StoreBufferPlugin_logic_slots_3_earlyExceptionCode;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_70) begin
+      if(_zz_69) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_earlyExceptionCode = _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_3_earlyExceptionCode = 8'h0;
     end
   end
@@ -22333,18 +22833,18 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_isCommitted = StoreBufferPlugin_logic_slots_3_isCommitted;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_70) begin
+      if(_zz_69) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_isCommitted = 1'b0;
       end
     end
-    if(!when_StoreBufferPlugin_l525_3) begin
-      if(when_StoreBufferPlugin_l529_3) begin
-        if(when_StoreBufferPlugin_l533_3) begin
+    if(!when_StoreBufferPlugin_l381_3) begin
+      if(when_StoreBufferPlugin_l384_3) begin
+        if(when_StoreBufferPlugin_l385_3) begin
           StoreBufferPlugin_logic_slotsAfterUpdates_3_isCommitted = 1'b1;
         end
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_3_isCommitted = 1'b0;
     end
   end
@@ -22352,11 +22852,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_sentCmd = StoreBufferPlugin_logic_slots_3_sentCmd;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_70) begin
+      if(_zz_69) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_sentCmd = 1'b0;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_3_sentCmd = 1'b0;
     end
   end
@@ -22364,11 +22864,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_waitRsp = StoreBufferPlugin_logic_slots_3_waitRsp;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_70) begin
+      if(_zz_69) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_waitRsp = 1'b0;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_3_waitRsp = 1'b0;
     end
   end
@@ -22376,11 +22876,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_isWaitingForRefill = StoreBufferPlugin_logic_slots_3_isWaitingForRefill;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_70) begin
+      if(_zz_69) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_isWaitingForRefill = 1'b0;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_3_isWaitingForRefill = 1'b0;
     end
   end
@@ -22388,11 +22888,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_isWaitingForWb = StoreBufferPlugin_logic_slots_3_isWaitingForWb;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_70) begin
+      if(_zz_69) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_isWaitingForWb = 1'b0;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_3_isWaitingForWb = 1'b0;
     end
   end
@@ -22400,11 +22900,11 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_slotsAfterUpdates_3_refillSlotToWatch = StoreBufferPlugin_logic_slots_3_refillSlotToWatch;
     if(StoreBufferPlugin_hw_pushPortInst_fire) begin
-      if(_zz_70) begin
+      if(_zz_69) begin
         StoreBufferPlugin_logic_slotsAfterUpdates_3_refillSlotToWatch = 8'h0;
       end
     end
-    if(when_StoreBufferPlugin_l540) begin
+    if(when_StoreBufferPlugin_l391) begin
       StoreBufferPlugin_logic_slotsAfterUpdates_3_refillSlotToWatch = 8'h0;
     end
   end
@@ -22864,8 +23364,9 @@ module CoreNSCSCC (
   assign StoreBufferPlugin_logic_validFall_3 = (StoreBufferPlugin_logic_slots_2_valid && (! StoreBufferPlugin_logic_slots_3_valid));
   assign StoreBufferPlugin_logic_canPush = ((|{StoreBufferPlugin_logic_validFall_3,{StoreBufferPlugin_logic_validFall_2,{StoreBufferPlugin_logic_validFall_1,StoreBufferPlugin_logic_validFall_0}}}) && (! StoreBufferPlugin_logic_flushInProgress));
   assign StoreBufferPlugin_hw_pushPortInst_ready = StoreBufferPlugin_logic_canPush;
-  assign _zz_64 = (StoreBufferPlugin_logic_validFall_1 || StoreBufferPlugin_logic_validFall_3);
-  assign _zz_65 = (StoreBufferPlugin_logic_validFall_2 || StoreBufferPlugin_logic_validFall_3);
+  assign _zz_StoreBufferPlugin_logic_pushIdx = (StoreBufferPlugin_logic_validFall_1 || StoreBufferPlugin_logic_validFall_3);
+  assign _zz_StoreBufferPlugin_logic_pushIdx_1 = (StoreBufferPlugin_logic_validFall_2 || StoreBufferPlugin_logic_validFall_3);
+  assign StoreBufferPlugin_logic_pushIdx = {_zz_StoreBufferPlugin_logic_pushIdx_1,_zz_StoreBufferPlugin_logic_pushIdx};
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush = StoreBufferPlugin_hw_pushPortInst_payload_isFlush;
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_addr = StoreBufferPlugin_hw_pushPortInst_payload_addr;
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_data = StoreBufferPlugin_hw_pushPortInst_payload_data;
@@ -22875,22 +23376,29 @@ module CoreNSCSCC (
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO = StoreBufferPlugin_hw_pushPortInst_payload_isIO;
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException = StoreBufferPlugin_hw_pushPortInst_payload_hasEarlyException;
   assign _zz_StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode = StoreBufferPlugin_hw_pushPortInst_payload_earlyExceptionCode;
-  assign _zz_66 = ({3'd0,1'b1} <<< {_zz_65,_zz_64});
-  assign _zz_67 = _zz_66[0];
-  assign _zz_68 = _zz_66[1];
-  assign _zz_69 = _zz_66[2];
-  assign _zz_70 = _zz_66[3];
+  assign _zz_65 = ({3'd0,1'b1} <<< StoreBufferPlugin_logic_pushIdx);
+  assign _zz_66 = _zz_65[0];
+  assign _zz_67 = _zz_65[1];
+  assign _zz_68 = _zz_65[2];
+  assign _zz_69 = _zz_65[3];
   assign StoreBufferPlugin_logic_sharedWriteCond = ((((((StoreBufferPlugin_logic_slots_0_valid && StoreBufferPlugin_logic_slots_0_isCommitted) && (! StoreBufferPlugin_logic_slots_0_isFlush)) && (! StoreBufferPlugin_logic_slots_0_waitRsp)) && (! StoreBufferPlugin_logic_slots_0_isWaitingForRefill)) && (! StoreBufferPlugin_logic_slots_0_isWaitingForWb)) && (! StoreBufferPlugin_logic_slots_0_hasEarlyException));
   assign StoreBufferPlugin_logic_canPopNormalOp = (StoreBufferPlugin_logic_sharedWriteCond && (! StoreBufferPlugin_logic_slots_0_isIO));
   assign StoreBufferPlugin_logic_canPopFlushOp = (((StoreBufferPlugin_logic_slots_0_valid && StoreBufferPlugin_logic_slots_0_isFlush) && (! StoreBufferPlugin_logic_slots_0_waitRsp)) && (! StoreBufferPlugin_logic_slots_0_isWaitingForWb));
   assign StoreBufferPlugin_logic_canPopMMIOOp = (StoreBufferPlugin_logic_sharedWriteCond && StoreBufferPlugin_logic_slots_0_isIO);
-  assign when_StoreBufferPlugin_l316 = (1'b0 && StoreBufferPlugin_logic_slots_0_isIO);
+  assign when_StoreBufferPlugin_l294 = (1'b0 && StoreBufferPlugin_logic_slots_0_isIO);
   assign StoreBufferPlugin_logic_canSendToDCache = (StoreBufferPlugin_logic_canPopNormalOp || StoreBufferPlugin_logic_canPopFlushOp);
-  assign StoreBufferPlugin_logic_mmioCmdFired = (StoreBufferPlugin_logic_canPopMMIOOp && CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_cmd_ready);
-  assign StoreBufferPlugin_logic_mmioResponseForHead = ((((CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_rsp_valid && StoreBufferPlugin_logic_slots_0_valid) && StoreBufferPlugin_logic_slots_0_isIO) && (StoreBufferPlugin_logic_slots_0_waitRsp || StoreBufferPlugin_logic_mmioCmdFired)) && (StoreBufferPlugin_logic_slots_0_robPtr == CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_rsp_payload_id));
+  assign _zz_io_gmbIn_write_cmd_valid = StoreBufferPlugin_logic_canPopMMIOOp;
+  assign _zz_io_gmbIn_write_cmd_payload_address = StoreBufferPlugin_logic_slots_0_addr;
+  assign _zz_io_gmbIn_write_cmd_payload_data = StoreBufferPlugin_logic_slots_0_data;
+  assign _zz_io_gmbIn_write_cmd_payload_byteEnables = StoreBufferPlugin_logic_slots_0_be;
+  assign _zz_26 = 1'b1;
+  assign _zz_io_gmbIn_write_cmd_payload_id = StoreBufferPlugin_logic_slots_0_robPtr;
+  assign StoreBufferPlugin_logic_mmioCmdFired = (StoreBufferPlugin_logic_canPopMMIOOp && _zz_StoreBufferPlugin_logic_mmioCmdFired);
+  assign StoreBufferPlugin_logic_mmioResponseForHead = ((((_zz_StoreBufferPlugin_logic_mmioResponseForHead && StoreBufferPlugin_logic_slots_0_valid) && StoreBufferPlugin_logic_slots_0_isIO) && (StoreBufferPlugin_logic_slots_0_waitRsp || StoreBufferPlugin_logic_mmioCmdFired)) && (StoreBufferPlugin_logic_slots_0_robPtr == CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_rsp_payload_id));
   assign oneShot_23_io_triggerIn = (StoreBufferPlugin_logic_mmioResponseForHead && (_zz_when_Debug_l71 < _zz_io_triggerIn_20));
   assign _zz_when_Debug_l71_11 = 6'h20;
   assign when_Debug_l71_10 = (_zz_when_Debug_l71 < _zz_when_Debug_l71_10_1);
+  assign _zz_io_gmbIn_write_rsp_ready = StoreBufferPlugin_logic_mmioResponseForHead;
   always @(*) begin
     StoreBufferPlugin_logic_commitUpdateInfo_validMask = 4'b0000;
     StoreBufferPlugin_logic_commitUpdateInfo_validMask[0] = _zz_StoreBufferPlugin_logic_commitUpdateInfo_validMask;
@@ -22901,81 +23409,81 @@ module CoreNSCSCC (
 
   always @(*) begin
     _zz_StoreBufferPlugin_logic_commitUpdateInfo_validMask = 1'b0;
-    if(when_StoreBufferPlugin_l498) begin
-      if(when_StoreBufferPlugin_l504) begin
+    if(when_StoreBufferPlugin_l360) begin
+      if(when_StoreBufferPlugin_l366) begin
         _zz_StoreBufferPlugin_logic_commitUpdateInfo_validMask = 1'b1;
       end
     end
   end
 
-  assign when_StoreBufferPlugin_l498 = (StoreBufferPlugin_logic_slots_0_valid && (! StoreBufferPlugin_logic_slots_0_isCommitted));
-  assign when_StoreBufferPlugin_l504 = (((ROBPlugin_robComponent_io_commit_0_canCommit && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr == StoreBufferPlugin_logic_slots_0_robPtr)) && ((ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_STORE) || 1'b0)) && (! ROBPlugin_robComponent_io_commit_0_entry_status_hasException));
+  assign when_StoreBufferPlugin_l360 = (StoreBufferPlugin_logic_slots_0_valid && (! StoreBufferPlugin_logic_slots_0_isCommitted));
+  assign when_StoreBufferPlugin_l366 = (((ROBPlugin_robComponent_io_commit_0_canCommit && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr == StoreBufferPlugin_logic_slots_0_robPtr)) && ((ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_STORE) || 1'b0)) && (! ROBPlugin_robComponent_io_commit_0_entry_status_hasException));
   always @(*) begin
     _zz_StoreBufferPlugin_logic_commitUpdateInfo_validMask_1 = 1'b0;
-    if(when_StoreBufferPlugin_l498_1) begin
-      if(when_StoreBufferPlugin_l504_1) begin
+    if(when_StoreBufferPlugin_l360_1) begin
+      if(when_StoreBufferPlugin_l366_1) begin
         _zz_StoreBufferPlugin_logic_commitUpdateInfo_validMask_1 = 1'b1;
       end
     end
   end
 
-  assign when_StoreBufferPlugin_l498_1 = (StoreBufferPlugin_logic_slots_1_valid && (! StoreBufferPlugin_logic_slots_1_isCommitted));
-  assign when_StoreBufferPlugin_l504_1 = (((ROBPlugin_robComponent_io_commit_0_canCommit && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr == StoreBufferPlugin_logic_slots_1_robPtr)) && ((ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_STORE) || 1'b0)) && (! ROBPlugin_robComponent_io_commit_0_entry_status_hasException));
+  assign when_StoreBufferPlugin_l360_1 = (StoreBufferPlugin_logic_slots_1_valid && (! StoreBufferPlugin_logic_slots_1_isCommitted));
+  assign when_StoreBufferPlugin_l366_1 = (((ROBPlugin_robComponent_io_commit_0_canCommit && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr == StoreBufferPlugin_logic_slots_1_robPtr)) && ((ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_STORE) || 1'b0)) && (! ROBPlugin_robComponent_io_commit_0_entry_status_hasException));
   always @(*) begin
     _zz_StoreBufferPlugin_logic_commitUpdateInfo_validMask_2 = 1'b0;
-    if(when_StoreBufferPlugin_l498_2) begin
-      if(when_StoreBufferPlugin_l504_2) begin
+    if(when_StoreBufferPlugin_l360_2) begin
+      if(when_StoreBufferPlugin_l366_2) begin
         _zz_StoreBufferPlugin_logic_commitUpdateInfo_validMask_2 = 1'b1;
       end
     end
   end
 
-  assign when_StoreBufferPlugin_l498_2 = (StoreBufferPlugin_logic_slots_2_valid && (! StoreBufferPlugin_logic_slots_2_isCommitted));
-  assign when_StoreBufferPlugin_l504_2 = (((ROBPlugin_robComponent_io_commit_0_canCommit && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr == StoreBufferPlugin_logic_slots_2_robPtr)) && ((ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_STORE) || 1'b0)) && (! ROBPlugin_robComponent_io_commit_0_entry_status_hasException));
+  assign when_StoreBufferPlugin_l360_2 = (StoreBufferPlugin_logic_slots_2_valid && (! StoreBufferPlugin_logic_slots_2_isCommitted));
+  assign when_StoreBufferPlugin_l366_2 = (((ROBPlugin_robComponent_io_commit_0_canCommit && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr == StoreBufferPlugin_logic_slots_2_robPtr)) && ((ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_STORE) || 1'b0)) && (! ROBPlugin_robComponent_io_commit_0_entry_status_hasException));
   always @(*) begin
     _zz_StoreBufferPlugin_logic_commitUpdateInfo_validMask_3 = 1'b0;
-    if(when_StoreBufferPlugin_l498_3) begin
-      if(when_StoreBufferPlugin_l504_3) begin
+    if(when_StoreBufferPlugin_l360_3) begin
+      if(when_StoreBufferPlugin_l366_3) begin
         _zz_StoreBufferPlugin_logic_commitUpdateInfo_validMask_3 = 1'b1;
       end
     end
   end
 
-  assign when_StoreBufferPlugin_l498_3 = (StoreBufferPlugin_logic_slots_3_valid && (! StoreBufferPlugin_logic_slots_3_isCommitted));
-  assign when_StoreBufferPlugin_l504_3 = (((ROBPlugin_robComponent_io_commit_0_canCommit && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr == StoreBufferPlugin_logic_slots_3_robPtr)) && ((ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_STORE) || 1'b0)) && (! ROBPlugin_robComponent_io_commit_0_entry_status_hasException));
-  assign _zz_when_StoreBufferPlugin_l525 = StoreBufferPlugin_logic_slots_0_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l525_1 = StoreBufferPlugin_logic_slots_0_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l525_2 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[3];
-  assign _zz_when_StoreBufferPlugin_l525_3 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[2 : 0];
-  assign when_StoreBufferPlugin_l525 = (((StoreBufferPlugin_logic_registeredFlush_valid && StoreBufferPlugin_logic_slots_0_valid) && (! StoreBufferPlugin_logic_slots_0_isCommitted)) && (((_zz_when_StoreBufferPlugin_l525 == _zz_when_StoreBufferPlugin_l525_2) && (_zz_when_StoreBufferPlugin_l525_3 <= _zz_when_StoreBufferPlugin_l525_1)) || ((_zz_when_StoreBufferPlugin_l525 != _zz_when_StoreBufferPlugin_l525_2) && (_zz_when_StoreBufferPlugin_l525_1 < _zz_when_StoreBufferPlugin_l525_3))));
-  assign when_StoreBufferPlugin_l533 = StoreBufferPlugin_logic_registeredCommitUpdate_validMask[0];
-  assign when_StoreBufferPlugin_l529 = (StoreBufferPlugin_logic_slots_0_valid && (! StoreBufferPlugin_logic_slots_0_isCommitted));
-  assign _zz_when_StoreBufferPlugin_l525_4 = StoreBufferPlugin_logic_slots_1_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l525_5 = StoreBufferPlugin_logic_slots_1_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l525_6 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[3];
-  assign _zz_when_StoreBufferPlugin_l525_7 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[2 : 0];
-  assign when_StoreBufferPlugin_l525_1 = (((StoreBufferPlugin_logic_registeredFlush_valid && StoreBufferPlugin_logic_slots_1_valid) && (! StoreBufferPlugin_logic_slots_1_isCommitted)) && (((_zz_when_StoreBufferPlugin_l525_4 == _zz_when_StoreBufferPlugin_l525_6) && (_zz_when_StoreBufferPlugin_l525_7 <= _zz_when_StoreBufferPlugin_l525_5)) || ((_zz_when_StoreBufferPlugin_l525_4 != _zz_when_StoreBufferPlugin_l525_6) && (_zz_when_StoreBufferPlugin_l525_5 < _zz_when_StoreBufferPlugin_l525_7))));
-  assign when_StoreBufferPlugin_l533_1 = StoreBufferPlugin_logic_registeredCommitUpdate_validMask[1];
-  assign when_StoreBufferPlugin_l529_1 = (StoreBufferPlugin_logic_slots_1_valid && (! StoreBufferPlugin_logic_slots_1_isCommitted));
-  assign _zz_when_StoreBufferPlugin_l525_8 = StoreBufferPlugin_logic_slots_2_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l525_9 = StoreBufferPlugin_logic_slots_2_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l525_10 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[3];
-  assign _zz_when_StoreBufferPlugin_l525_11 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[2 : 0];
-  assign when_StoreBufferPlugin_l525_2 = (((StoreBufferPlugin_logic_registeredFlush_valid && StoreBufferPlugin_logic_slots_2_valid) && (! StoreBufferPlugin_logic_slots_2_isCommitted)) && (((_zz_when_StoreBufferPlugin_l525_8 == _zz_when_StoreBufferPlugin_l525_10) && (_zz_when_StoreBufferPlugin_l525_11 <= _zz_when_StoreBufferPlugin_l525_9)) || ((_zz_when_StoreBufferPlugin_l525_8 != _zz_when_StoreBufferPlugin_l525_10) && (_zz_when_StoreBufferPlugin_l525_9 < _zz_when_StoreBufferPlugin_l525_11))));
-  assign when_StoreBufferPlugin_l533_2 = StoreBufferPlugin_logic_registeredCommitUpdate_validMask[2];
-  assign when_StoreBufferPlugin_l529_2 = (StoreBufferPlugin_logic_slots_2_valid && (! StoreBufferPlugin_logic_slots_2_isCommitted));
-  assign _zz_when_StoreBufferPlugin_l525_12 = StoreBufferPlugin_logic_slots_3_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l525_13 = StoreBufferPlugin_logic_slots_3_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l525_14 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[3];
-  assign _zz_when_StoreBufferPlugin_l525_15 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[2 : 0];
-  assign when_StoreBufferPlugin_l525_3 = (((StoreBufferPlugin_logic_registeredFlush_valid && StoreBufferPlugin_logic_slots_3_valid) && (! StoreBufferPlugin_logic_slots_3_isCommitted)) && (((_zz_when_StoreBufferPlugin_l525_12 == _zz_when_StoreBufferPlugin_l525_14) && (_zz_when_StoreBufferPlugin_l525_15 <= _zz_when_StoreBufferPlugin_l525_13)) || ((_zz_when_StoreBufferPlugin_l525_12 != _zz_when_StoreBufferPlugin_l525_14) && (_zz_when_StoreBufferPlugin_l525_13 < _zz_when_StoreBufferPlugin_l525_15))));
-  assign when_StoreBufferPlugin_l533_3 = StoreBufferPlugin_logic_registeredCommitUpdate_validMask[3];
-  assign when_StoreBufferPlugin_l529_3 = (StoreBufferPlugin_logic_slots_3_valid && (! StoreBufferPlugin_logic_slots_3_isCommitted));
-  assign when_StoreBufferPlugin_l540 = (ROBPlugin_aggregatedFlushSignal_valid && (ROBPlugin_aggregatedFlushSignal_payload_reason == FlushReason_FULL_FLUSH));
+  assign when_StoreBufferPlugin_l360_3 = (StoreBufferPlugin_logic_slots_3_valid && (! StoreBufferPlugin_logic_slots_3_isCommitted));
+  assign when_StoreBufferPlugin_l366_3 = (((ROBPlugin_robComponent_io_commit_0_canCommit && (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr == StoreBufferPlugin_logic_slots_3_robPtr)) && ((ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_uopCode == BaseUopCode_STORE) || 1'b0)) && (! ROBPlugin_robComponent_io_commit_0_entry_status_hasException));
+  assign _zz_when_StoreBufferPlugin_l381 = StoreBufferPlugin_logic_slots_0_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l381_1 = StoreBufferPlugin_logic_slots_0_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l381_2 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[3];
+  assign _zz_when_StoreBufferPlugin_l381_3 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[2 : 0];
+  assign when_StoreBufferPlugin_l381 = (((StoreBufferPlugin_logic_registeredFlush_valid && StoreBufferPlugin_logic_slots_0_valid) && (! StoreBufferPlugin_logic_slots_0_isCommitted)) && (((_zz_when_StoreBufferPlugin_l381 == _zz_when_StoreBufferPlugin_l381_2) && (_zz_when_StoreBufferPlugin_l381_3 <= _zz_when_StoreBufferPlugin_l381_1)) || ((_zz_when_StoreBufferPlugin_l381 != _zz_when_StoreBufferPlugin_l381_2) && (_zz_when_StoreBufferPlugin_l381_1 < _zz_when_StoreBufferPlugin_l381_3))));
+  assign when_StoreBufferPlugin_l385 = StoreBufferPlugin_logic_registeredCommitUpdate_validMask[0];
+  assign when_StoreBufferPlugin_l384 = (StoreBufferPlugin_logic_slots_0_valid && (! StoreBufferPlugin_logic_slots_0_isCommitted));
+  assign _zz_when_StoreBufferPlugin_l381_4 = StoreBufferPlugin_logic_slots_1_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l381_5 = StoreBufferPlugin_logic_slots_1_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l381_6 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[3];
+  assign _zz_when_StoreBufferPlugin_l381_7 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[2 : 0];
+  assign when_StoreBufferPlugin_l381_1 = (((StoreBufferPlugin_logic_registeredFlush_valid && StoreBufferPlugin_logic_slots_1_valid) && (! StoreBufferPlugin_logic_slots_1_isCommitted)) && (((_zz_when_StoreBufferPlugin_l381_4 == _zz_when_StoreBufferPlugin_l381_6) && (_zz_when_StoreBufferPlugin_l381_7 <= _zz_when_StoreBufferPlugin_l381_5)) || ((_zz_when_StoreBufferPlugin_l381_4 != _zz_when_StoreBufferPlugin_l381_6) && (_zz_when_StoreBufferPlugin_l381_5 < _zz_when_StoreBufferPlugin_l381_7))));
+  assign when_StoreBufferPlugin_l385_1 = StoreBufferPlugin_logic_registeredCommitUpdate_validMask[1];
+  assign when_StoreBufferPlugin_l384_1 = (StoreBufferPlugin_logic_slots_1_valid && (! StoreBufferPlugin_logic_slots_1_isCommitted));
+  assign _zz_when_StoreBufferPlugin_l381_8 = StoreBufferPlugin_logic_slots_2_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l381_9 = StoreBufferPlugin_logic_slots_2_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l381_10 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[3];
+  assign _zz_when_StoreBufferPlugin_l381_11 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[2 : 0];
+  assign when_StoreBufferPlugin_l381_2 = (((StoreBufferPlugin_logic_registeredFlush_valid && StoreBufferPlugin_logic_slots_2_valid) && (! StoreBufferPlugin_logic_slots_2_isCommitted)) && (((_zz_when_StoreBufferPlugin_l381_8 == _zz_when_StoreBufferPlugin_l381_10) && (_zz_when_StoreBufferPlugin_l381_11 <= _zz_when_StoreBufferPlugin_l381_9)) || ((_zz_when_StoreBufferPlugin_l381_8 != _zz_when_StoreBufferPlugin_l381_10) && (_zz_when_StoreBufferPlugin_l381_9 < _zz_when_StoreBufferPlugin_l381_11))));
+  assign when_StoreBufferPlugin_l385_2 = StoreBufferPlugin_logic_registeredCommitUpdate_validMask[2];
+  assign when_StoreBufferPlugin_l384_2 = (StoreBufferPlugin_logic_slots_2_valid && (! StoreBufferPlugin_logic_slots_2_isCommitted));
+  assign _zz_when_StoreBufferPlugin_l381_12 = StoreBufferPlugin_logic_slots_3_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l381_13 = StoreBufferPlugin_logic_slots_3_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l381_14 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[3];
+  assign _zz_when_StoreBufferPlugin_l381_15 = StoreBufferPlugin_logic_registeredFlush_targetRobPtr[2 : 0];
+  assign when_StoreBufferPlugin_l381_3 = (((StoreBufferPlugin_logic_registeredFlush_valid && StoreBufferPlugin_logic_slots_3_valid) && (! StoreBufferPlugin_logic_slots_3_isCommitted)) && (((_zz_when_StoreBufferPlugin_l381_12 == _zz_when_StoreBufferPlugin_l381_14) && (_zz_when_StoreBufferPlugin_l381_15 <= _zz_when_StoreBufferPlugin_l381_13)) || ((_zz_when_StoreBufferPlugin_l381_12 != _zz_when_StoreBufferPlugin_l381_14) && (_zz_when_StoreBufferPlugin_l381_13 < _zz_when_StoreBufferPlugin_l381_15))));
+  assign when_StoreBufferPlugin_l385_3 = StoreBufferPlugin_logic_registeredCommitUpdate_validMask[3];
+  assign when_StoreBufferPlugin_l384_3 = (StoreBufferPlugin_logic_slots_3_valid && (! StoreBufferPlugin_logic_slots_3_isCommitted));
+  assign when_StoreBufferPlugin_l391 = (ROBPlugin_aggregatedFlushSignal_valid && (ROBPlugin_aggregatedFlushSignal_payload_reason == FlushReason_FULL_FLUSH));
   assign StoreBufferPlugin_logic_operationDone = (((StoreBufferPlugin_logic_slotsAfterUpdates_0_sentCmd && (! StoreBufferPlugin_logic_slotsAfterUpdates_0_waitRsp)) && (! StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForRefill)) && (! StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForWb));
   always @(*) begin
     StoreBufferPlugin_logic_popRequest = 1'b0;
-    if(when_StoreBufferPlugin_l555) begin
+    if(when_StoreBufferPlugin_l401) begin
       if(StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush) begin
         if(StoreBufferPlugin_logic_operationDone) begin
           StoreBufferPlugin_logic_popRequest = 1'b1;
@@ -22990,14 +23498,14 @@ module CoreNSCSCC (
         end
       end
     end else begin
-      if(when_StoreBufferPlugin_l576) begin
+      if(when_StoreBufferPlugin_l417) begin
         StoreBufferPlugin_logic_popRequest = 1'b1;
       end
     end
   end
 
-  assign when_StoreBufferPlugin_l555 = (StoreBufferPlugin_logic_slotsAfterUpdates_0_valid && StoreBufferPlugin_logic_slotsAfterUpdates_0_isCommitted);
-  assign when_StoreBufferPlugin_l576 = ((! StoreBufferPlugin_logic_slotsAfterUpdates_0_valid) && (! (|{StoreBufferPlugin_logic_slots_3_valid,{StoreBufferPlugin_logic_slots_2_valid,StoreBufferPlugin_logic_slots_1_valid}})));
+  assign when_StoreBufferPlugin_l401 = (StoreBufferPlugin_logic_slotsAfterUpdates_0_valid && StoreBufferPlugin_logic_slotsAfterUpdates_0_isCommitted);
+  assign when_StoreBufferPlugin_l417 = ((! StoreBufferPlugin_logic_slotsAfterUpdates_0_valid) && (! (|{StoreBufferPlugin_logic_slots_3_valid,{StoreBufferPlugin_logic_slots_2_valid,StoreBufferPlugin_logic_slots_1_valid}})));
   always @(*) begin
     _zz_StoreBufferPlugin_logic_forwardingLogic_loadMask = 4'b0000;
     case(StoreBufferPlugin_hw_sqQueryPort_cmd_payload_size)
@@ -23020,183 +23528,687 @@ module CoreNSCSCC (
   assign StoreBufferPlugin_logic_forwardingLogic_loadMask = _zz_StoreBufferPlugin_logic_forwardingLogic_loadMask;
   assign StoreBufferPlugin_logic_forwardingLogic_bypassInitial_data = 32'h0;
   assign StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask = 4'b0000;
+  assign when_StoreBufferPlugin_l457 = (StoreBufferPlugin_hw_pushPortInst_fire && (StoreBufferPlugin_logic_pushIdx == 2'b00));
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_0_isFlush = StoreBufferPlugin_hw_pushPortInst_payload_isFlush;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_0_isFlush = StoreBufferPlugin_logic_slots_0_isFlush;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_0_addr = StoreBufferPlugin_hw_pushPortInst_payload_addr;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_0_addr = StoreBufferPlugin_logic_slots_0_addr;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_0_data = StoreBufferPlugin_hw_pushPortInst_payload_data;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_0_data = StoreBufferPlugin_logic_slots_0_data;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_0_be = StoreBufferPlugin_hw_pushPortInst_payload_be;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_0_be = StoreBufferPlugin_logic_slots_0_be;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_0_robPtr = StoreBufferPlugin_hw_pushPortInst_payload_robPtr;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_0_robPtr = StoreBufferPlugin_logic_slots_0_robPtr;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_0_accessSize = StoreBufferPlugin_hw_pushPortInst_payload_accessSize;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_0_accessSize = StoreBufferPlugin_logic_slots_0_accessSize;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_0_isIO = StoreBufferPlugin_hw_pushPortInst_payload_isIO;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_0_isIO = StoreBufferPlugin_logic_slots_0_isIO;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_0_hasEarlyException = StoreBufferPlugin_hw_pushPortInst_payload_hasEarlyException;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_0_hasEarlyException = StoreBufferPlugin_logic_slots_0_hasEarlyException;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_0_earlyExceptionCode = StoreBufferPlugin_hw_pushPortInst_payload_earlyExceptionCode;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_0_earlyExceptionCode = StoreBufferPlugin_logic_slots_0_earlyExceptionCode;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_0_valid = 1'b1;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_0_valid = StoreBufferPlugin_logic_slots_0_valid;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_0_isCommitted = 1'b0;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_0_isCommitted = StoreBufferPlugin_logic_slots_0_isCommitted;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_0_sentCmd = 1'b0;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_0_sentCmd = StoreBufferPlugin_logic_slots_0_sentCmd;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_0_waitRsp = 1'b0;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_0_waitRsp = StoreBufferPlugin_logic_slots_0_waitRsp;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_0_isWaitingForRefill = 1'b0;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_0_isWaitingForRefill = StoreBufferPlugin_logic_slots_0_isWaitingForRefill;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_0_isWaitingForWb = 1'b0;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_0_isWaitingForWb = StoreBufferPlugin_logic_slots_0_isWaitingForWb;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_0_refillSlotToWatch = 8'h0;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_0_refillSlotToWatch = StoreBufferPlugin_logic_slots_0_refillSlotToWatch;
+    end
+  end
+
+  assign when_StoreBufferPlugin_l457_1 = (StoreBufferPlugin_hw_pushPortInst_fire && (StoreBufferPlugin_logic_pushIdx == 2'b01));
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_1) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_1_isFlush = StoreBufferPlugin_hw_pushPortInst_payload_isFlush;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_1_isFlush = StoreBufferPlugin_logic_slots_1_isFlush;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_1) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_1_addr = StoreBufferPlugin_hw_pushPortInst_payload_addr;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_1_addr = StoreBufferPlugin_logic_slots_1_addr;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_1) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_1_data = StoreBufferPlugin_hw_pushPortInst_payload_data;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_1_data = StoreBufferPlugin_logic_slots_1_data;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_1) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_1_be = StoreBufferPlugin_hw_pushPortInst_payload_be;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_1_be = StoreBufferPlugin_logic_slots_1_be;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_1) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_1_robPtr = StoreBufferPlugin_hw_pushPortInst_payload_robPtr;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_1_robPtr = StoreBufferPlugin_logic_slots_1_robPtr;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_1) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_1_accessSize = StoreBufferPlugin_hw_pushPortInst_payload_accessSize;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_1_accessSize = StoreBufferPlugin_logic_slots_1_accessSize;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_1) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_1_isIO = StoreBufferPlugin_hw_pushPortInst_payload_isIO;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_1_isIO = StoreBufferPlugin_logic_slots_1_isIO;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_1) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_1_hasEarlyException = StoreBufferPlugin_hw_pushPortInst_payload_hasEarlyException;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_1_hasEarlyException = StoreBufferPlugin_logic_slots_1_hasEarlyException;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_1) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_1_earlyExceptionCode = StoreBufferPlugin_hw_pushPortInst_payload_earlyExceptionCode;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_1_earlyExceptionCode = StoreBufferPlugin_logic_slots_1_earlyExceptionCode;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_1) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_1_valid = 1'b1;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_1_valid = StoreBufferPlugin_logic_slots_1_valid;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_1) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_1_isCommitted = 1'b0;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_1_isCommitted = StoreBufferPlugin_logic_slots_1_isCommitted;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_1) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_1_sentCmd = 1'b0;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_1_sentCmd = StoreBufferPlugin_logic_slots_1_sentCmd;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_1) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_1_waitRsp = 1'b0;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_1_waitRsp = StoreBufferPlugin_logic_slots_1_waitRsp;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_1) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_1_isWaitingForRefill = 1'b0;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_1_isWaitingForRefill = StoreBufferPlugin_logic_slots_1_isWaitingForRefill;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_1) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_1_isWaitingForWb = 1'b0;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_1_isWaitingForWb = StoreBufferPlugin_logic_slots_1_isWaitingForWb;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_1) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_1_refillSlotToWatch = 8'h0;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_1_refillSlotToWatch = StoreBufferPlugin_logic_slots_1_refillSlotToWatch;
+    end
+  end
+
+  assign when_StoreBufferPlugin_l457_2 = (StoreBufferPlugin_hw_pushPortInst_fire && (StoreBufferPlugin_logic_pushIdx == 2'b10));
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_2) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_2_isFlush = StoreBufferPlugin_hw_pushPortInst_payload_isFlush;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_2_isFlush = StoreBufferPlugin_logic_slots_2_isFlush;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_2) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_2_addr = StoreBufferPlugin_hw_pushPortInst_payload_addr;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_2_addr = StoreBufferPlugin_logic_slots_2_addr;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_2) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_2_data = StoreBufferPlugin_hw_pushPortInst_payload_data;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_2_data = StoreBufferPlugin_logic_slots_2_data;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_2) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_2_be = StoreBufferPlugin_hw_pushPortInst_payload_be;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_2_be = StoreBufferPlugin_logic_slots_2_be;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_2) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_2_robPtr = StoreBufferPlugin_hw_pushPortInst_payload_robPtr;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_2_robPtr = StoreBufferPlugin_logic_slots_2_robPtr;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_2) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_2_accessSize = StoreBufferPlugin_hw_pushPortInst_payload_accessSize;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_2_accessSize = StoreBufferPlugin_logic_slots_2_accessSize;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_2) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_2_isIO = StoreBufferPlugin_hw_pushPortInst_payload_isIO;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_2_isIO = StoreBufferPlugin_logic_slots_2_isIO;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_2) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_2_hasEarlyException = StoreBufferPlugin_hw_pushPortInst_payload_hasEarlyException;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_2_hasEarlyException = StoreBufferPlugin_logic_slots_2_hasEarlyException;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_2) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_2_earlyExceptionCode = StoreBufferPlugin_hw_pushPortInst_payload_earlyExceptionCode;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_2_earlyExceptionCode = StoreBufferPlugin_logic_slots_2_earlyExceptionCode;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_2) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_2_valid = 1'b1;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_2_valid = StoreBufferPlugin_logic_slots_2_valid;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_2) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_2_isCommitted = 1'b0;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_2_isCommitted = StoreBufferPlugin_logic_slots_2_isCommitted;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_2) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_2_sentCmd = 1'b0;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_2_sentCmd = StoreBufferPlugin_logic_slots_2_sentCmd;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_2) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_2_waitRsp = 1'b0;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_2_waitRsp = StoreBufferPlugin_logic_slots_2_waitRsp;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_2) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_2_isWaitingForRefill = 1'b0;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_2_isWaitingForRefill = StoreBufferPlugin_logic_slots_2_isWaitingForRefill;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_2) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_2_isWaitingForWb = 1'b0;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_2_isWaitingForWb = StoreBufferPlugin_logic_slots_2_isWaitingForWb;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_2) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_2_refillSlotToWatch = 8'h0;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_2_refillSlotToWatch = StoreBufferPlugin_logic_slots_2_refillSlotToWatch;
+    end
+  end
+
+  assign when_StoreBufferPlugin_l457_3 = (StoreBufferPlugin_hw_pushPortInst_fire && (StoreBufferPlugin_logic_pushIdx == 2'b11));
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_3) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_3_isFlush = StoreBufferPlugin_hw_pushPortInst_payload_isFlush;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_3_isFlush = StoreBufferPlugin_logic_slots_3_isFlush;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_3) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_3_addr = StoreBufferPlugin_hw_pushPortInst_payload_addr;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_3_addr = StoreBufferPlugin_logic_slots_3_addr;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_3) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_3_data = StoreBufferPlugin_hw_pushPortInst_payload_data;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_3_data = StoreBufferPlugin_logic_slots_3_data;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_3) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_3_be = StoreBufferPlugin_hw_pushPortInst_payload_be;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_3_be = StoreBufferPlugin_logic_slots_3_be;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_3) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_3_robPtr = StoreBufferPlugin_hw_pushPortInst_payload_robPtr;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_3_robPtr = StoreBufferPlugin_logic_slots_3_robPtr;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_3) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_3_accessSize = StoreBufferPlugin_hw_pushPortInst_payload_accessSize;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_3_accessSize = StoreBufferPlugin_logic_slots_3_accessSize;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_3) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_3_isIO = StoreBufferPlugin_hw_pushPortInst_payload_isIO;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_3_isIO = StoreBufferPlugin_logic_slots_3_isIO;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_3) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_3_hasEarlyException = StoreBufferPlugin_hw_pushPortInst_payload_hasEarlyException;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_3_hasEarlyException = StoreBufferPlugin_logic_slots_3_hasEarlyException;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_3) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_3_earlyExceptionCode = StoreBufferPlugin_hw_pushPortInst_payload_earlyExceptionCode;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_3_earlyExceptionCode = StoreBufferPlugin_logic_slots_3_earlyExceptionCode;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_3) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_3_valid = 1'b1;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_3_valid = StoreBufferPlugin_logic_slots_3_valid;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_3) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_3_isCommitted = 1'b0;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_3_isCommitted = StoreBufferPlugin_logic_slots_3_isCommitted;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_3) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_3_sentCmd = 1'b0;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_3_sentCmd = StoreBufferPlugin_logic_slots_3_sentCmd;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_3) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_3_waitRsp = 1'b0;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_3_waitRsp = StoreBufferPlugin_logic_slots_3_waitRsp;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_3) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_3_isWaitingForRefill = 1'b0;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_3_isWaitingForRefill = StoreBufferPlugin_logic_slots_3_isWaitingForRefill;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_3) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_3_isWaitingForWb = 1'b0;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_3_isWaitingForWb = StoreBufferPlugin_logic_slots_3_isWaitingForWb;
+    end
+  end
+
+  always @(*) begin
+    if(when_StoreBufferPlugin_l457_3) begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_3_refillSlotToWatch = 8'h0;
+    end else begin
+      StoreBufferPlugin_logic_forwardingLogic_slotsView_3_refillSlotToWatch = StoreBufferPlugin_logic_slots_3_refillSlotToWatch;
+    end
+  end
+
   always @(*) begin
     _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data = StoreBufferPlugin_logic_forwardingLogic_bypassInitial_data;
-    if(when_StoreBufferPlugin_l631) begin
-      if(when_StoreBufferPlugin_l638) begin
-        if(when_StoreBufferPlugin_l640) begin
-          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[7 : 0] = StoreBufferPlugin_logic_slots_3_data[7 : 0];
+    if(when_StoreBufferPlugin_l481) begin
+      if(when_StoreBufferPlugin_l486) begin
+        if(when_StoreBufferPlugin_l488) begin
+          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[7 : 0] = StoreBufferPlugin_logic_forwardingLogic_slotsView_3_data[7 : 0];
         end
-        if(when_StoreBufferPlugin_l640_1) begin
-          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[15 : 8] = StoreBufferPlugin_logic_slots_3_data[15 : 8];
+        if(when_StoreBufferPlugin_l488_1) begin
+          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[15 : 8] = StoreBufferPlugin_logic_forwardingLogic_slotsView_3_data[15 : 8];
         end
-        if(when_StoreBufferPlugin_l640_2) begin
-          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[23 : 16] = StoreBufferPlugin_logic_slots_3_data[23 : 16];
+        if(when_StoreBufferPlugin_l488_2) begin
+          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[23 : 16] = StoreBufferPlugin_logic_forwardingLogic_slotsView_3_data[23 : 16];
         end
-        if(when_StoreBufferPlugin_l640_3) begin
-          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[31 : 24] = StoreBufferPlugin_logic_slots_3_data[31 : 24];
+        if(when_StoreBufferPlugin_l488_3) begin
+          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[31 : 24] = StoreBufferPlugin_logic_forwardingLogic_slotsView_3_data[31 : 24];
         end
       end
     end
   end
 
   always @(*) begin
-    _zz_when_StoreBufferPlugin_l640 = StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask;
-    if(when_StoreBufferPlugin_l631) begin
-      if(when_StoreBufferPlugin_l638) begin
-        if(when_StoreBufferPlugin_l640) begin
-          _zz_when_StoreBufferPlugin_l640[0] = 1'b1;
+    _zz_when_StoreBufferPlugin_l488 = StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask;
+    if(when_StoreBufferPlugin_l481) begin
+      if(when_StoreBufferPlugin_l486) begin
+        if(when_StoreBufferPlugin_l488) begin
+          _zz_when_StoreBufferPlugin_l488[0] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l640_1) begin
-          _zz_when_StoreBufferPlugin_l640[1] = 1'b1;
+        if(when_StoreBufferPlugin_l488_1) begin
+          _zz_when_StoreBufferPlugin_l488[1] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l640_2) begin
-          _zz_when_StoreBufferPlugin_l640[2] = 1'b1;
+        if(when_StoreBufferPlugin_l488_2) begin
+          _zz_when_StoreBufferPlugin_l488[2] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l640_3) begin
-          _zz_when_StoreBufferPlugin_l640[3] = 1'b1;
+        if(when_StoreBufferPlugin_l488_3) begin
+          _zz_when_StoreBufferPlugin_l488[3] = 1'b1;
         end
       end
     end
   end
 
-  assign _zz_when_StoreBufferPlugin_l631 = StoreBufferPlugin_logic_slots_3_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l631_1 = StoreBufferPlugin_logic_slots_3_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l631_2 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l631_3 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
-  assign when_StoreBufferPlugin_l631 = ((((((StoreBufferPlugin_logic_slots_3_valid && (! StoreBufferPlugin_logic_slots_3_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_3_isFlush)) && (! (((_zz_when_StoreBufferPlugin_l631 == _zz_when_StoreBufferPlugin_l631_2) && (_zz_when_StoreBufferPlugin_l631_3 <= _zz_when_StoreBufferPlugin_l631_1)) || ((_zz_when_StoreBufferPlugin_l631 != _zz_when_StoreBufferPlugin_l631_2) && (_zz_when_StoreBufferPlugin_l631_1 < _zz_when_StoreBufferPlugin_l631_3))))) && (! StoreBufferPlugin_logic_slots_3_waitRsp)) && (! StoreBufferPlugin_logic_slots_3_isWaitingForRefill)) && (! StoreBufferPlugin_logic_slots_3_isWaitingForWb));
-  assign _zz_when_StoreBufferPlugin_l638 = StoreBufferPlugin_logic_slots_3_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l638_1 = StoreBufferPlugin_logic_slots_3_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l638_2 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l638_3 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
-  assign when_StoreBufferPlugin_l638 = (((! StoreBufferPlugin_logic_slots_3_hasEarlyException) && (! (((_zz_when_StoreBufferPlugin_l638 == _zz_when_StoreBufferPlugin_l638_2) && (_zz_when_StoreBufferPlugin_l638_3 <= _zz_when_StoreBufferPlugin_l638_1)) || ((_zz_when_StoreBufferPlugin_l638 != _zz_when_StoreBufferPlugin_l638_2) && (_zz_when_StoreBufferPlugin_l638_1 < _zz_when_StoreBufferPlugin_l638_3))))) && (StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2] == StoreBufferPlugin_logic_slots_3_addr[31 : 2]));
-  assign when_StoreBufferPlugin_l640 = ((StoreBufferPlugin_logic_slots_3_be[0] && StoreBufferPlugin_logic_forwardingLogic_loadMask[0]) && (! StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask[0]));
-  assign when_StoreBufferPlugin_l640_1 = ((StoreBufferPlugin_logic_slots_3_be[1] && StoreBufferPlugin_logic_forwardingLogic_loadMask[1]) && (! StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask[1]));
-  assign when_StoreBufferPlugin_l640_2 = ((StoreBufferPlugin_logic_slots_3_be[2] && StoreBufferPlugin_logic_forwardingLogic_loadMask[2]) && (! StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask[2]));
-  assign when_StoreBufferPlugin_l640_3 = ((StoreBufferPlugin_logic_slots_3_be[3] && StoreBufferPlugin_logic_forwardingLogic_loadMask[3]) && (! StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask[3]));
+  assign _zz_when_StoreBufferPlugin_l481 = StoreBufferPlugin_logic_forwardingLogic_slotsView_3_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l481_1 = StoreBufferPlugin_logic_forwardingLogic_slotsView_3_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l481_2 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l481_3 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign when_StoreBufferPlugin_l481 = ((((((StoreBufferPlugin_logic_forwardingLogic_slotsView_3_valid && (! StoreBufferPlugin_logic_forwardingLogic_slotsView_3_hasEarlyException)) && (! StoreBufferPlugin_logic_forwardingLogic_slotsView_3_isFlush)) && (! (((_zz_when_StoreBufferPlugin_l481 == _zz_when_StoreBufferPlugin_l481_2) && (_zz_when_StoreBufferPlugin_l481_3 <= _zz_when_StoreBufferPlugin_l481_1)) || ((_zz_when_StoreBufferPlugin_l481 != _zz_when_StoreBufferPlugin_l481_2) && (_zz_when_StoreBufferPlugin_l481_1 < _zz_when_StoreBufferPlugin_l481_3))))) && (! StoreBufferPlugin_logic_forwardingLogic_slotsView_3_waitRsp)) && (! StoreBufferPlugin_logic_forwardingLogic_slotsView_3_isWaitingForRefill)) && (! StoreBufferPlugin_logic_forwardingLogic_slotsView_3_isWaitingForWb));
+  assign when_StoreBufferPlugin_l486 = (StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2] == StoreBufferPlugin_logic_forwardingLogic_slotsView_3_addr[31 : 2]);
+  assign when_StoreBufferPlugin_l488 = ((StoreBufferPlugin_logic_forwardingLogic_slotsView_3_be[0] && StoreBufferPlugin_logic_forwardingLogic_loadMask[0]) && (! StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask[0]));
+  assign when_StoreBufferPlugin_l488_1 = ((StoreBufferPlugin_logic_forwardingLogic_slotsView_3_be[1] && StoreBufferPlugin_logic_forwardingLogic_loadMask[1]) && (! StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask[1]));
+  assign when_StoreBufferPlugin_l488_2 = ((StoreBufferPlugin_logic_forwardingLogic_slotsView_3_be[2] && StoreBufferPlugin_logic_forwardingLogic_loadMask[2]) && (! StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask[2]));
+  assign when_StoreBufferPlugin_l488_3 = ((StoreBufferPlugin_logic_forwardingLogic_slotsView_3_be[3] && StoreBufferPlugin_logic_forwardingLogic_loadMask[3]) && (! StoreBufferPlugin_logic_forwardingLogic_bypassInitial_hitMask[3]));
   always @(*) begin
     _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_1 = _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data;
-    if(when_StoreBufferPlugin_l631_1) begin
-      if(when_StoreBufferPlugin_l638_1) begin
-        if(when_StoreBufferPlugin_l640_4) begin
-          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_1[7 : 0] = StoreBufferPlugin_logic_slots_2_data[7 : 0];
+    if(when_StoreBufferPlugin_l481_1) begin
+      if(when_StoreBufferPlugin_l486_1) begin
+        if(when_StoreBufferPlugin_l488_4) begin
+          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_1[7 : 0] = StoreBufferPlugin_logic_forwardingLogic_slotsView_2_data[7 : 0];
         end
-        if(when_StoreBufferPlugin_l640_5) begin
-          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_1[15 : 8] = StoreBufferPlugin_logic_slots_2_data[15 : 8];
+        if(when_StoreBufferPlugin_l488_5) begin
+          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_1[15 : 8] = StoreBufferPlugin_logic_forwardingLogic_slotsView_2_data[15 : 8];
         end
-        if(when_StoreBufferPlugin_l640_6) begin
-          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_1[23 : 16] = StoreBufferPlugin_logic_slots_2_data[23 : 16];
+        if(when_StoreBufferPlugin_l488_6) begin
+          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_1[23 : 16] = StoreBufferPlugin_logic_forwardingLogic_slotsView_2_data[23 : 16];
         end
-        if(when_StoreBufferPlugin_l640_7) begin
-          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_1[31 : 24] = StoreBufferPlugin_logic_slots_2_data[31 : 24];
+        if(when_StoreBufferPlugin_l488_7) begin
+          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_1[31 : 24] = StoreBufferPlugin_logic_forwardingLogic_slotsView_2_data[31 : 24];
         end
       end
     end
   end
 
   always @(*) begin
-    _zz_when_StoreBufferPlugin_l640_1 = _zz_when_StoreBufferPlugin_l640;
-    if(when_StoreBufferPlugin_l631_1) begin
-      if(when_StoreBufferPlugin_l638_1) begin
-        if(when_StoreBufferPlugin_l640_4) begin
-          _zz_when_StoreBufferPlugin_l640_1[0] = 1'b1;
+    _zz_when_StoreBufferPlugin_l488_1 = _zz_when_StoreBufferPlugin_l488;
+    if(when_StoreBufferPlugin_l481_1) begin
+      if(when_StoreBufferPlugin_l486_1) begin
+        if(when_StoreBufferPlugin_l488_4) begin
+          _zz_when_StoreBufferPlugin_l488_1[0] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l640_5) begin
-          _zz_when_StoreBufferPlugin_l640_1[1] = 1'b1;
+        if(when_StoreBufferPlugin_l488_5) begin
+          _zz_when_StoreBufferPlugin_l488_1[1] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l640_6) begin
-          _zz_when_StoreBufferPlugin_l640_1[2] = 1'b1;
+        if(when_StoreBufferPlugin_l488_6) begin
+          _zz_when_StoreBufferPlugin_l488_1[2] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l640_7) begin
-          _zz_when_StoreBufferPlugin_l640_1[3] = 1'b1;
+        if(when_StoreBufferPlugin_l488_7) begin
+          _zz_when_StoreBufferPlugin_l488_1[3] = 1'b1;
         end
       end
     end
   end
 
-  assign _zz_when_StoreBufferPlugin_l631_4 = StoreBufferPlugin_logic_slots_2_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l631_5 = StoreBufferPlugin_logic_slots_2_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l631_6 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l631_7 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
-  assign when_StoreBufferPlugin_l631_1 = ((((((StoreBufferPlugin_logic_slots_2_valid && (! StoreBufferPlugin_logic_slots_2_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_2_isFlush)) && (! (((_zz_when_StoreBufferPlugin_l631_4 == _zz_when_StoreBufferPlugin_l631_6) && (_zz_when_StoreBufferPlugin_l631_7 <= _zz_when_StoreBufferPlugin_l631_5)) || ((_zz_when_StoreBufferPlugin_l631_4 != _zz_when_StoreBufferPlugin_l631_6) && (_zz_when_StoreBufferPlugin_l631_5 < _zz_when_StoreBufferPlugin_l631_7))))) && (! StoreBufferPlugin_logic_slots_2_waitRsp)) && (! StoreBufferPlugin_logic_slots_2_isWaitingForRefill)) && (! StoreBufferPlugin_logic_slots_2_isWaitingForWb));
-  assign _zz_when_StoreBufferPlugin_l638_4 = StoreBufferPlugin_logic_slots_2_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l638_5 = StoreBufferPlugin_logic_slots_2_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l638_6 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l638_7 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
-  assign when_StoreBufferPlugin_l638_1 = (((! StoreBufferPlugin_logic_slots_2_hasEarlyException) && (! (((_zz_when_StoreBufferPlugin_l638_4 == _zz_when_StoreBufferPlugin_l638_6) && (_zz_when_StoreBufferPlugin_l638_7 <= _zz_when_StoreBufferPlugin_l638_5)) || ((_zz_when_StoreBufferPlugin_l638_4 != _zz_when_StoreBufferPlugin_l638_6) && (_zz_when_StoreBufferPlugin_l638_5 < _zz_when_StoreBufferPlugin_l638_7))))) && (StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2] == StoreBufferPlugin_logic_slots_2_addr[31 : 2]));
-  assign when_StoreBufferPlugin_l640_4 = ((StoreBufferPlugin_logic_slots_2_be[0] && StoreBufferPlugin_logic_forwardingLogic_loadMask[0]) && (! _zz_when_StoreBufferPlugin_l640[0]));
-  assign when_StoreBufferPlugin_l640_5 = ((StoreBufferPlugin_logic_slots_2_be[1] && StoreBufferPlugin_logic_forwardingLogic_loadMask[1]) && (! _zz_when_StoreBufferPlugin_l640[1]));
-  assign when_StoreBufferPlugin_l640_6 = ((StoreBufferPlugin_logic_slots_2_be[2] && StoreBufferPlugin_logic_forwardingLogic_loadMask[2]) && (! _zz_when_StoreBufferPlugin_l640[2]));
-  assign when_StoreBufferPlugin_l640_7 = ((StoreBufferPlugin_logic_slots_2_be[3] && StoreBufferPlugin_logic_forwardingLogic_loadMask[3]) && (! _zz_when_StoreBufferPlugin_l640[3]));
+  assign _zz_when_StoreBufferPlugin_l481_4 = StoreBufferPlugin_logic_forwardingLogic_slotsView_2_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l481_5 = StoreBufferPlugin_logic_forwardingLogic_slotsView_2_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l481_6 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l481_7 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign when_StoreBufferPlugin_l481_1 = ((((((StoreBufferPlugin_logic_forwardingLogic_slotsView_2_valid && (! StoreBufferPlugin_logic_forwardingLogic_slotsView_2_hasEarlyException)) && (! StoreBufferPlugin_logic_forwardingLogic_slotsView_2_isFlush)) && (! (((_zz_when_StoreBufferPlugin_l481_4 == _zz_when_StoreBufferPlugin_l481_6) && (_zz_when_StoreBufferPlugin_l481_7 <= _zz_when_StoreBufferPlugin_l481_5)) || ((_zz_when_StoreBufferPlugin_l481_4 != _zz_when_StoreBufferPlugin_l481_6) && (_zz_when_StoreBufferPlugin_l481_5 < _zz_when_StoreBufferPlugin_l481_7))))) && (! StoreBufferPlugin_logic_forwardingLogic_slotsView_2_waitRsp)) && (! StoreBufferPlugin_logic_forwardingLogic_slotsView_2_isWaitingForRefill)) && (! StoreBufferPlugin_logic_forwardingLogic_slotsView_2_isWaitingForWb));
+  assign when_StoreBufferPlugin_l486_1 = (StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2] == StoreBufferPlugin_logic_forwardingLogic_slotsView_2_addr[31 : 2]);
+  assign when_StoreBufferPlugin_l488_4 = ((StoreBufferPlugin_logic_forwardingLogic_slotsView_2_be[0] && StoreBufferPlugin_logic_forwardingLogic_loadMask[0]) && (! _zz_when_StoreBufferPlugin_l488[0]));
+  assign when_StoreBufferPlugin_l488_5 = ((StoreBufferPlugin_logic_forwardingLogic_slotsView_2_be[1] && StoreBufferPlugin_logic_forwardingLogic_loadMask[1]) && (! _zz_when_StoreBufferPlugin_l488[1]));
+  assign when_StoreBufferPlugin_l488_6 = ((StoreBufferPlugin_logic_forwardingLogic_slotsView_2_be[2] && StoreBufferPlugin_logic_forwardingLogic_loadMask[2]) && (! _zz_when_StoreBufferPlugin_l488[2]));
+  assign when_StoreBufferPlugin_l488_7 = ((StoreBufferPlugin_logic_forwardingLogic_slotsView_2_be[3] && StoreBufferPlugin_logic_forwardingLogic_loadMask[3]) && (! _zz_when_StoreBufferPlugin_l488[3]));
   always @(*) begin
     _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_2 = _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_1;
-    if(when_StoreBufferPlugin_l631_2) begin
-      if(when_StoreBufferPlugin_l638_2) begin
-        if(when_StoreBufferPlugin_l640_8) begin
-          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_2[7 : 0] = StoreBufferPlugin_logic_slots_1_data[7 : 0];
+    if(when_StoreBufferPlugin_l481_2) begin
+      if(when_StoreBufferPlugin_l486_2) begin
+        if(when_StoreBufferPlugin_l488_8) begin
+          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_2[7 : 0] = StoreBufferPlugin_logic_forwardingLogic_slotsView_1_data[7 : 0];
         end
-        if(when_StoreBufferPlugin_l640_9) begin
-          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_2[15 : 8] = StoreBufferPlugin_logic_slots_1_data[15 : 8];
+        if(when_StoreBufferPlugin_l488_9) begin
+          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_2[15 : 8] = StoreBufferPlugin_logic_forwardingLogic_slotsView_1_data[15 : 8];
         end
-        if(when_StoreBufferPlugin_l640_10) begin
-          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_2[23 : 16] = StoreBufferPlugin_logic_slots_1_data[23 : 16];
+        if(when_StoreBufferPlugin_l488_10) begin
+          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_2[23 : 16] = StoreBufferPlugin_logic_forwardingLogic_slotsView_1_data[23 : 16];
         end
-        if(when_StoreBufferPlugin_l640_11) begin
-          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_2[31 : 24] = StoreBufferPlugin_logic_slots_1_data[31 : 24];
+        if(when_StoreBufferPlugin_l488_11) begin
+          _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_2[31 : 24] = StoreBufferPlugin_logic_forwardingLogic_slotsView_1_data[31 : 24];
         end
       end
     end
   end
 
   always @(*) begin
-    _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask = _zz_when_StoreBufferPlugin_l640_1;
-    if(when_StoreBufferPlugin_l631_2) begin
-      if(when_StoreBufferPlugin_l638_2) begin
-        if(when_StoreBufferPlugin_l640_8) begin
+    _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask = _zz_when_StoreBufferPlugin_l488_1;
+    if(when_StoreBufferPlugin_l481_2) begin
+      if(when_StoreBufferPlugin_l486_2) begin
+        if(when_StoreBufferPlugin_l488_8) begin
           _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[0] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l640_9) begin
+        if(when_StoreBufferPlugin_l488_9) begin
           _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[1] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l640_10) begin
+        if(when_StoreBufferPlugin_l488_10) begin
           _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[2] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l640_11) begin
+        if(when_StoreBufferPlugin_l488_11) begin
           _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[3] = 1'b1;
         end
       end
     end
   end
 
-  assign _zz_when_StoreBufferPlugin_l631_8 = StoreBufferPlugin_logic_slots_1_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l631_9 = StoreBufferPlugin_logic_slots_1_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l631_10 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l631_11 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
-  assign when_StoreBufferPlugin_l631_2 = ((((((StoreBufferPlugin_logic_slots_1_valid && (! StoreBufferPlugin_logic_slots_1_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_1_isFlush)) && (! (((_zz_when_StoreBufferPlugin_l631_8 == _zz_when_StoreBufferPlugin_l631_10) && (_zz_when_StoreBufferPlugin_l631_11 <= _zz_when_StoreBufferPlugin_l631_9)) || ((_zz_when_StoreBufferPlugin_l631_8 != _zz_when_StoreBufferPlugin_l631_10) && (_zz_when_StoreBufferPlugin_l631_9 < _zz_when_StoreBufferPlugin_l631_11))))) && (! StoreBufferPlugin_logic_slots_1_waitRsp)) && (! StoreBufferPlugin_logic_slots_1_isWaitingForRefill)) && (! StoreBufferPlugin_logic_slots_1_isWaitingForWb));
-  assign _zz_when_StoreBufferPlugin_l638_8 = StoreBufferPlugin_logic_slots_1_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l638_9 = StoreBufferPlugin_logic_slots_1_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l638_10 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l638_11 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
-  assign when_StoreBufferPlugin_l638_2 = (((! StoreBufferPlugin_logic_slots_1_hasEarlyException) && (! (((_zz_when_StoreBufferPlugin_l638_8 == _zz_when_StoreBufferPlugin_l638_10) && (_zz_when_StoreBufferPlugin_l638_11 <= _zz_when_StoreBufferPlugin_l638_9)) || ((_zz_when_StoreBufferPlugin_l638_8 != _zz_when_StoreBufferPlugin_l638_10) && (_zz_when_StoreBufferPlugin_l638_9 < _zz_when_StoreBufferPlugin_l638_11))))) && (StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2] == StoreBufferPlugin_logic_slots_1_addr[31 : 2]));
-  assign when_StoreBufferPlugin_l640_8 = ((StoreBufferPlugin_logic_slots_1_be[0] && StoreBufferPlugin_logic_forwardingLogic_loadMask[0]) && (! _zz_when_StoreBufferPlugin_l640_1[0]));
-  assign when_StoreBufferPlugin_l640_9 = ((StoreBufferPlugin_logic_slots_1_be[1] && StoreBufferPlugin_logic_forwardingLogic_loadMask[1]) && (! _zz_when_StoreBufferPlugin_l640_1[1]));
-  assign when_StoreBufferPlugin_l640_10 = ((StoreBufferPlugin_logic_slots_1_be[2] && StoreBufferPlugin_logic_forwardingLogic_loadMask[2]) && (! _zz_when_StoreBufferPlugin_l640_1[2]));
-  assign when_StoreBufferPlugin_l640_11 = ((StoreBufferPlugin_logic_slots_1_be[3] && StoreBufferPlugin_logic_forwardingLogic_loadMask[3]) && (! _zz_when_StoreBufferPlugin_l640_1[3]));
+  assign _zz_when_StoreBufferPlugin_l481_8 = StoreBufferPlugin_logic_forwardingLogic_slotsView_1_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l481_9 = StoreBufferPlugin_logic_forwardingLogic_slotsView_1_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l481_10 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l481_11 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign when_StoreBufferPlugin_l481_2 = ((((((StoreBufferPlugin_logic_forwardingLogic_slotsView_1_valid && (! StoreBufferPlugin_logic_forwardingLogic_slotsView_1_hasEarlyException)) && (! StoreBufferPlugin_logic_forwardingLogic_slotsView_1_isFlush)) && (! (((_zz_when_StoreBufferPlugin_l481_8 == _zz_when_StoreBufferPlugin_l481_10) && (_zz_when_StoreBufferPlugin_l481_11 <= _zz_when_StoreBufferPlugin_l481_9)) || ((_zz_when_StoreBufferPlugin_l481_8 != _zz_when_StoreBufferPlugin_l481_10) && (_zz_when_StoreBufferPlugin_l481_9 < _zz_when_StoreBufferPlugin_l481_11))))) && (! StoreBufferPlugin_logic_forwardingLogic_slotsView_1_waitRsp)) && (! StoreBufferPlugin_logic_forwardingLogic_slotsView_1_isWaitingForRefill)) && (! StoreBufferPlugin_logic_forwardingLogic_slotsView_1_isWaitingForWb));
+  assign when_StoreBufferPlugin_l486_2 = (StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2] == StoreBufferPlugin_logic_forwardingLogic_slotsView_1_addr[31 : 2]);
+  assign when_StoreBufferPlugin_l488_8 = ((StoreBufferPlugin_logic_forwardingLogic_slotsView_1_be[0] && StoreBufferPlugin_logic_forwardingLogic_loadMask[0]) && (! _zz_when_StoreBufferPlugin_l488_1[0]));
+  assign when_StoreBufferPlugin_l488_9 = ((StoreBufferPlugin_logic_forwardingLogic_slotsView_1_be[1] && StoreBufferPlugin_logic_forwardingLogic_loadMask[1]) && (! _zz_when_StoreBufferPlugin_l488_1[1]));
+  assign when_StoreBufferPlugin_l488_10 = ((StoreBufferPlugin_logic_forwardingLogic_slotsView_1_be[2] && StoreBufferPlugin_logic_forwardingLogic_loadMask[2]) && (! _zz_when_StoreBufferPlugin_l488_1[2]));
+  assign when_StoreBufferPlugin_l488_11 = ((StoreBufferPlugin_logic_forwardingLogic_slotsView_1_be[3] && StoreBufferPlugin_logic_forwardingLogic_loadMask[3]) && (! _zz_when_StoreBufferPlugin_l488_1[3]));
   always @(*) begin
     StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data = _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data_2;
-    if(when_StoreBufferPlugin_l631_3) begin
-      if(when_StoreBufferPlugin_l638_3) begin
-        if(when_StoreBufferPlugin_l640_12) begin
-          StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[7 : 0] = StoreBufferPlugin_logic_slots_0_data[7 : 0];
+    if(when_StoreBufferPlugin_l481_3) begin
+      if(when_StoreBufferPlugin_l486_3) begin
+        if(when_StoreBufferPlugin_l488_12) begin
+          StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[7 : 0] = StoreBufferPlugin_logic_forwardingLogic_slotsView_0_data[7 : 0];
         end
-        if(when_StoreBufferPlugin_l640_13) begin
-          StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[15 : 8] = StoreBufferPlugin_logic_slots_0_data[15 : 8];
+        if(when_StoreBufferPlugin_l488_13) begin
+          StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[15 : 8] = StoreBufferPlugin_logic_forwardingLogic_slotsView_0_data[15 : 8];
         end
-        if(when_StoreBufferPlugin_l640_14) begin
-          StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[23 : 16] = StoreBufferPlugin_logic_slots_0_data[23 : 16];
+        if(when_StoreBufferPlugin_l488_14) begin
+          StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[23 : 16] = StoreBufferPlugin_logic_forwardingLogic_slotsView_0_data[23 : 16];
         end
-        if(when_StoreBufferPlugin_l640_15) begin
-          StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[31 : 24] = StoreBufferPlugin_logic_slots_0_data[31 : 24];
+        if(when_StoreBufferPlugin_l488_15) begin
+          StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data[31 : 24] = StoreBufferPlugin_logic_forwardingLogic_slotsView_0_data[31 : 24];
         end
       end
     end
@@ -23204,67 +24216,63 @@ module CoreNSCSCC (
 
   always @(*) begin
     StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask = _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask;
-    if(when_StoreBufferPlugin_l631_3) begin
-      if(when_StoreBufferPlugin_l638_3) begin
-        if(when_StoreBufferPlugin_l640_12) begin
+    if(when_StoreBufferPlugin_l481_3) begin
+      if(when_StoreBufferPlugin_l486_3) begin
+        if(when_StoreBufferPlugin_l488_12) begin
           StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[0] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l640_13) begin
+        if(when_StoreBufferPlugin_l488_13) begin
           StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[1] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l640_14) begin
+        if(when_StoreBufferPlugin_l488_14) begin
           StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[2] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l640_15) begin
+        if(when_StoreBufferPlugin_l488_15) begin
           StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[3] = 1'b1;
         end
       end
     end
   end
 
-  assign _zz_when_StoreBufferPlugin_l631_12 = StoreBufferPlugin_logic_slots_0_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l631_13 = StoreBufferPlugin_logic_slots_0_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l631_14 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l631_15 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
-  assign when_StoreBufferPlugin_l631_3 = ((((((StoreBufferPlugin_logic_slots_0_valid && (! StoreBufferPlugin_logic_slots_0_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_0_isFlush)) && (! (((_zz_when_StoreBufferPlugin_l631_12 == _zz_when_StoreBufferPlugin_l631_14) && (_zz_when_StoreBufferPlugin_l631_15 <= _zz_when_StoreBufferPlugin_l631_13)) || ((_zz_when_StoreBufferPlugin_l631_12 != _zz_when_StoreBufferPlugin_l631_14) && (_zz_when_StoreBufferPlugin_l631_13 < _zz_when_StoreBufferPlugin_l631_15))))) && (! StoreBufferPlugin_logic_slots_0_waitRsp)) && (! StoreBufferPlugin_logic_slots_0_isWaitingForRefill)) && (! StoreBufferPlugin_logic_slots_0_isWaitingForWb));
-  assign _zz_when_StoreBufferPlugin_l638_12 = StoreBufferPlugin_logic_slots_0_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l638_13 = StoreBufferPlugin_logic_slots_0_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l638_14 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l638_15 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
-  assign when_StoreBufferPlugin_l638_3 = (((! StoreBufferPlugin_logic_slots_0_hasEarlyException) && (! (((_zz_when_StoreBufferPlugin_l638_12 == _zz_when_StoreBufferPlugin_l638_14) && (_zz_when_StoreBufferPlugin_l638_15 <= _zz_when_StoreBufferPlugin_l638_13)) || ((_zz_when_StoreBufferPlugin_l638_12 != _zz_when_StoreBufferPlugin_l638_14) && (_zz_when_StoreBufferPlugin_l638_13 < _zz_when_StoreBufferPlugin_l638_15))))) && (StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2] == StoreBufferPlugin_logic_slots_0_addr[31 : 2]));
-  assign when_StoreBufferPlugin_l640_12 = ((StoreBufferPlugin_logic_slots_0_be[0] && StoreBufferPlugin_logic_forwardingLogic_loadMask[0]) && (! _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[0]));
-  assign when_StoreBufferPlugin_l640_13 = ((StoreBufferPlugin_logic_slots_0_be[1] && StoreBufferPlugin_logic_forwardingLogic_loadMask[1]) && (! _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[1]));
-  assign when_StoreBufferPlugin_l640_14 = ((StoreBufferPlugin_logic_slots_0_be[2] && StoreBufferPlugin_logic_forwardingLogic_loadMask[2]) && (! _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[2]));
-  assign when_StoreBufferPlugin_l640_15 = ((StoreBufferPlugin_logic_slots_0_be[3] && StoreBufferPlugin_logic_forwardingLogic_loadMask[3]) && (! _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[3]));
+  assign _zz_when_StoreBufferPlugin_l481_12 = StoreBufferPlugin_logic_forwardingLogic_slotsView_0_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l481_13 = StoreBufferPlugin_logic_forwardingLogic_slotsView_0_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l481_14 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l481_15 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign when_StoreBufferPlugin_l481_3 = ((((((StoreBufferPlugin_logic_forwardingLogic_slotsView_0_valid && (! StoreBufferPlugin_logic_forwardingLogic_slotsView_0_hasEarlyException)) && (! StoreBufferPlugin_logic_forwardingLogic_slotsView_0_isFlush)) && (! (((_zz_when_StoreBufferPlugin_l481_12 == _zz_when_StoreBufferPlugin_l481_14) && (_zz_when_StoreBufferPlugin_l481_15 <= _zz_when_StoreBufferPlugin_l481_13)) || ((_zz_when_StoreBufferPlugin_l481_12 != _zz_when_StoreBufferPlugin_l481_14) && (_zz_when_StoreBufferPlugin_l481_13 < _zz_when_StoreBufferPlugin_l481_15))))) && (! StoreBufferPlugin_logic_forwardingLogic_slotsView_0_waitRsp)) && (! StoreBufferPlugin_logic_forwardingLogic_slotsView_0_isWaitingForRefill)) && (! StoreBufferPlugin_logic_forwardingLogic_slotsView_0_isWaitingForWb));
+  assign when_StoreBufferPlugin_l486_3 = (StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2] == StoreBufferPlugin_logic_forwardingLogic_slotsView_0_addr[31 : 2]);
+  assign when_StoreBufferPlugin_l488_12 = ((StoreBufferPlugin_logic_forwardingLogic_slotsView_0_be[0] && StoreBufferPlugin_logic_forwardingLogic_loadMask[0]) && (! _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[0]));
+  assign when_StoreBufferPlugin_l488_13 = ((StoreBufferPlugin_logic_forwardingLogic_slotsView_0_be[1] && StoreBufferPlugin_logic_forwardingLogic_loadMask[1]) && (! _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[1]));
+  assign when_StoreBufferPlugin_l488_14 = ((StoreBufferPlugin_logic_forwardingLogic_slotsView_0_be[2] && StoreBufferPlugin_logic_forwardingLogic_loadMask[2]) && (! _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[2]));
+  assign when_StoreBufferPlugin_l488_15 = ((StoreBufferPlugin_logic_forwardingLogic_slotsView_0_be[3] && StoreBufferPlugin_logic_forwardingLogic_loadMask[3]) && (! _zz_StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask[3]));
   assign StoreBufferPlugin_logic_forwardingLogic_allRequiredBytesHit = ((StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask & StoreBufferPlugin_logic_forwardingLogic_loadMask) == StoreBufferPlugin_logic_forwardingLogic_loadMask);
   assign StoreBufferPlugin_hw_sqQueryPort_rsp_data = StoreBufferPlugin_logic_forwardingLogic_forwardingResult_data;
   assign StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreHasUnknownAddress = 1'b0;
   always @(*) begin
     StoreBufferPlugin_logic_forwardingLogic_dataNotReadyStall = 1'b0;
-    if(when_StoreBufferPlugin_l672) begin
-      if(when_StoreBufferPlugin_l678) begin
-        if(when_StoreBufferPlugin_l681) begin
+    if(when_StoreBufferPlugin_l513) begin
+      if(when_StoreBufferPlugin_l519) begin
+        if(when_StoreBufferPlugin_l522) begin
           StoreBufferPlugin_logic_forwardingLogic_dataNotReadyStall = 1'b1;
         end
       end
     end
-    if(when_StoreBufferPlugin_l672_1) begin
-      if(when_StoreBufferPlugin_l678_1) begin
-        if(when_StoreBufferPlugin_l681_1) begin
+    if(when_StoreBufferPlugin_l513_1) begin
+      if(when_StoreBufferPlugin_l519_1) begin
+        if(when_StoreBufferPlugin_l522_1) begin
           StoreBufferPlugin_logic_forwardingLogic_dataNotReadyStall = 1'b1;
         end
       end
     end
-    if(when_StoreBufferPlugin_l672_2) begin
-      if(when_StoreBufferPlugin_l678_2) begin
-        if(when_StoreBufferPlugin_l681_2) begin
+    if(when_StoreBufferPlugin_l513_2) begin
+      if(when_StoreBufferPlugin_l519_2) begin
+        if(when_StoreBufferPlugin_l522_2) begin
           StoreBufferPlugin_logic_forwardingLogic_dataNotReadyStall = 1'b1;
         end
       end
     end
-    if(when_StoreBufferPlugin_l672_3) begin
-      if(when_StoreBufferPlugin_l678_3) begin
-        if(when_StoreBufferPlugin_l681_3) begin
+    if(when_StoreBufferPlugin_l513_3) begin
+      if(when_StoreBufferPlugin_l519_3) begin
+        if(when_StoreBufferPlugin_l522_3) begin
           StoreBufferPlugin_logic_forwardingLogic_dataNotReadyStall = 1'b1;
         end
       end
@@ -23273,64 +24281,64 @@ module CoreNSCSCC (
 
   always @(*) begin
     StoreBufferPlugin_logic_forwardingLogic_hasOlderOverlappingStore = 1'b0;
-    if(when_StoreBufferPlugin_l672) begin
-      if(when_StoreBufferPlugin_l678) begin
+    if(when_StoreBufferPlugin_l513) begin
+      if(when_StoreBufferPlugin_l519) begin
         StoreBufferPlugin_logic_forwardingLogic_hasOlderOverlappingStore = 1'b1;
       end
     end
-    if(when_StoreBufferPlugin_l672_1) begin
-      if(when_StoreBufferPlugin_l678_1) begin
+    if(when_StoreBufferPlugin_l513_1) begin
+      if(when_StoreBufferPlugin_l519_1) begin
         StoreBufferPlugin_logic_forwardingLogic_hasOlderOverlappingStore = 1'b1;
       end
     end
-    if(when_StoreBufferPlugin_l672_2) begin
-      if(when_StoreBufferPlugin_l678_2) begin
+    if(when_StoreBufferPlugin_l513_2) begin
+      if(when_StoreBufferPlugin_l519_2) begin
         StoreBufferPlugin_logic_forwardingLogic_hasOlderOverlappingStore = 1'b1;
       end
     end
-    if(when_StoreBufferPlugin_l672_3) begin
-      if(when_StoreBufferPlugin_l678_3) begin
+    if(when_StoreBufferPlugin_l513_3) begin
+      if(when_StoreBufferPlugin_l519_3) begin
         StoreBufferPlugin_logic_forwardingLogic_hasOlderOverlappingStore = 1'b1;
       end
     end
   end
 
-  assign when_StoreBufferPlugin_l672 = ((StoreBufferPlugin_logic_slots_0_valid && (! StoreBufferPlugin_logic_slots_0_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_0_isFlush));
-  assign _zz_when_StoreBufferPlugin_l678 = StoreBufferPlugin_logic_slots_0_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l678_1 = StoreBufferPlugin_logic_slots_0_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l678_2 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l678_3 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l678_4 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2];
-  assign _zz_when_StoreBufferPlugin_l678_5 = StoreBufferPlugin_logic_slots_0_addr[31 : 2];
-  assign when_StoreBufferPlugin_l678 = ((! (((_zz_when_StoreBufferPlugin_l678 == _zz_when_StoreBufferPlugin_l678_2) && (_zz_when_StoreBufferPlugin_l678_3 <= _zz_when_StoreBufferPlugin_l678_1)) || ((_zz_when_StoreBufferPlugin_l678 != _zz_when_StoreBufferPlugin_l678_2) && (_zz_when_StoreBufferPlugin_l678_1 < _zz_when_StoreBufferPlugin_l678_3)))) && (_zz_when_StoreBufferPlugin_l678_4 == _zz_when_StoreBufferPlugin_l678_5));
-  assign when_StoreBufferPlugin_l681 = ((StoreBufferPlugin_logic_slots_0_waitRsp || StoreBufferPlugin_logic_slots_0_isWaitingForRefill) || StoreBufferPlugin_logic_slots_0_isWaitingForWb);
-  assign when_StoreBufferPlugin_l672_1 = ((StoreBufferPlugin_logic_slots_1_valid && (! StoreBufferPlugin_logic_slots_1_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_1_isFlush));
-  assign _zz_when_StoreBufferPlugin_l678_6 = StoreBufferPlugin_logic_slots_1_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l678_7 = StoreBufferPlugin_logic_slots_1_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l678_8 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l678_9 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l678_10 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2];
-  assign _zz_when_StoreBufferPlugin_l678_11 = StoreBufferPlugin_logic_slots_1_addr[31 : 2];
-  assign when_StoreBufferPlugin_l678_1 = ((! (((_zz_when_StoreBufferPlugin_l678_6 == _zz_when_StoreBufferPlugin_l678_8) && (_zz_when_StoreBufferPlugin_l678_9 <= _zz_when_StoreBufferPlugin_l678_7)) || ((_zz_when_StoreBufferPlugin_l678_6 != _zz_when_StoreBufferPlugin_l678_8) && (_zz_when_StoreBufferPlugin_l678_7 < _zz_when_StoreBufferPlugin_l678_9)))) && (_zz_when_StoreBufferPlugin_l678_10 == _zz_when_StoreBufferPlugin_l678_11));
-  assign when_StoreBufferPlugin_l681_1 = ((StoreBufferPlugin_logic_slots_1_waitRsp || StoreBufferPlugin_logic_slots_1_isWaitingForRefill) || StoreBufferPlugin_logic_slots_1_isWaitingForWb);
-  assign when_StoreBufferPlugin_l672_2 = ((StoreBufferPlugin_logic_slots_2_valid && (! StoreBufferPlugin_logic_slots_2_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_2_isFlush));
-  assign _zz_when_StoreBufferPlugin_l678_12 = StoreBufferPlugin_logic_slots_2_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l678_13 = StoreBufferPlugin_logic_slots_2_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l678_14 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l678_15 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l678_16 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2];
-  assign _zz_when_StoreBufferPlugin_l678_17 = StoreBufferPlugin_logic_slots_2_addr[31 : 2];
-  assign when_StoreBufferPlugin_l678_2 = ((! (((_zz_when_StoreBufferPlugin_l678_12 == _zz_when_StoreBufferPlugin_l678_14) && (_zz_when_StoreBufferPlugin_l678_15 <= _zz_when_StoreBufferPlugin_l678_13)) || ((_zz_when_StoreBufferPlugin_l678_12 != _zz_when_StoreBufferPlugin_l678_14) && (_zz_when_StoreBufferPlugin_l678_13 < _zz_when_StoreBufferPlugin_l678_15)))) && (_zz_when_StoreBufferPlugin_l678_16 == _zz_when_StoreBufferPlugin_l678_17));
-  assign when_StoreBufferPlugin_l681_2 = ((StoreBufferPlugin_logic_slots_2_waitRsp || StoreBufferPlugin_logic_slots_2_isWaitingForRefill) || StoreBufferPlugin_logic_slots_2_isWaitingForWb);
-  assign when_StoreBufferPlugin_l672_3 = ((StoreBufferPlugin_logic_slots_3_valid && (! StoreBufferPlugin_logic_slots_3_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_3_isFlush));
-  assign _zz_when_StoreBufferPlugin_l678_18 = StoreBufferPlugin_logic_slots_3_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l678_19 = StoreBufferPlugin_logic_slots_3_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l678_20 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l678_21 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l678_22 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2];
-  assign _zz_when_StoreBufferPlugin_l678_23 = StoreBufferPlugin_logic_slots_3_addr[31 : 2];
-  assign when_StoreBufferPlugin_l678_3 = ((! (((_zz_when_StoreBufferPlugin_l678_18 == _zz_when_StoreBufferPlugin_l678_20) && (_zz_when_StoreBufferPlugin_l678_21 <= _zz_when_StoreBufferPlugin_l678_19)) || ((_zz_when_StoreBufferPlugin_l678_18 != _zz_when_StoreBufferPlugin_l678_20) && (_zz_when_StoreBufferPlugin_l678_19 < _zz_when_StoreBufferPlugin_l678_21)))) && (_zz_when_StoreBufferPlugin_l678_22 == _zz_when_StoreBufferPlugin_l678_23));
-  assign when_StoreBufferPlugin_l681_3 = ((StoreBufferPlugin_logic_slots_3_waitRsp || StoreBufferPlugin_logic_slots_3_isWaitingForRefill) || StoreBufferPlugin_logic_slots_3_isWaitingForWb);
+  assign when_StoreBufferPlugin_l513 = ((StoreBufferPlugin_logic_forwardingLogic_slotsView_0_valid && (! StoreBufferPlugin_logic_forwardingLogic_slotsView_0_hasEarlyException)) && (! StoreBufferPlugin_logic_forwardingLogic_slotsView_0_isFlush));
+  assign _zz_when_StoreBufferPlugin_l519 = StoreBufferPlugin_logic_forwardingLogic_slotsView_0_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l519_1 = StoreBufferPlugin_logic_forwardingLogic_slotsView_0_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l519_2 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l519_3 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l519_4 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2];
+  assign _zz_when_StoreBufferPlugin_l519_5 = StoreBufferPlugin_logic_forwardingLogic_slotsView_0_addr[31 : 2];
+  assign when_StoreBufferPlugin_l519 = ((! (((_zz_when_StoreBufferPlugin_l519 == _zz_when_StoreBufferPlugin_l519_2) && (_zz_when_StoreBufferPlugin_l519_3 <= _zz_when_StoreBufferPlugin_l519_1)) || ((_zz_when_StoreBufferPlugin_l519 != _zz_when_StoreBufferPlugin_l519_2) && (_zz_when_StoreBufferPlugin_l519_1 < _zz_when_StoreBufferPlugin_l519_3)))) && (_zz_when_StoreBufferPlugin_l519_4 == _zz_when_StoreBufferPlugin_l519_5));
+  assign when_StoreBufferPlugin_l522 = ((StoreBufferPlugin_logic_forwardingLogic_slotsView_0_waitRsp || StoreBufferPlugin_logic_forwardingLogic_slotsView_0_isWaitingForRefill) || StoreBufferPlugin_logic_forwardingLogic_slotsView_0_isWaitingForWb);
+  assign when_StoreBufferPlugin_l513_1 = ((StoreBufferPlugin_logic_forwardingLogic_slotsView_1_valid && (! StoreBufferPlugin_logic_forwardingLogic_slotsView_1_hasEarlyException)) && (! StoreBufferPlugin_logic_forwardingLogic_slotsView_1_isFlush));
+  assign _zz_when_StoreBufferPlugin_l519_6 = StoreBufferPlugin_logic_forwardingLogic_slotsView_1_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l519_7 = StoreBufferPlugin_logic_forwardingLogic_slotsView_1_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l519_8 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l519_9 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l519_10 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2];
+  assign _zz_when_StoreBufferPlugin_l519_11 = StoreBufferPlugin_logic_forwardingLogic_slotsView_1_addr[31 : 2];
+  assign when_StoreBufferPlugin_l519_1 = ((! (((_zz_when_StoreBufferPlugin_l519_6 == _zz_when_StoreBufferPlugin_l519_8) && (_zz_when_StoreBufferPlugin_l519_9 <= _zz_when_StoreBufferPlugin_l519_7)) || ((_zz_when_StoreBufferPlugin_l519_6 != _zz_when_StoreBufferPlugin_l519_8) && (_zz_when_StoreBufferPlugin_l519_7 < _zz_when_StoreBufferPlugin_l519_9)))) && (_zz_when_StoreBufferPlugin_l519_10 == _zz_when_StoreBufferPlugin_l519_11));
+  assign when_StoreBufferPlugin_l522_1 = ((StoreBufferPlugin_logic_forwardingLogic_slotsView_1_waitRsp || StoreBufferPlugin_logic_forwardingLogic_slotsView_1_isWaitingForRefill) || StoreBufferPlugin_logic_forwardingLogic_slotsView_1_isWaitingForWb);
+  assign when_StoreBufferPlugin_l513_2 = ((StoreBufferPlugin_logic_forwardingLogic_slotsView_2_valid && (! StoreBufferPlugin_logic_forwardingLogic_slotsView_2_hasEarlyException)) && (! StoreBufferPlugin_logic_forwardingLogic_slotsView_2_isFlush));
+  assign _zz_when_StoreBufferPlugin_l519_12 = StoreBufferPlugin_logic_forwardingLogic_slotsView_2_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l519_13 = StoreBufferPlugin_logic_forwardingLogic_slotsView_2_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l519_14 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l519_15 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l519_16 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2];
+  assign _zz_when_StoreBufferPlugin_l519_17 = StoreBufferPlugin_logic_forwardingLogic_slotsView_2_addr[31 : 2];
+  assign when_StoreBufferPlugin_l519_2 = ((! (((_zz_when_StoreBufferPlugin_l519_12 == _zz_when_StoreBufferPlugin_l519_14) && (_zz_when_StoreBufferPlugin_l519_15 <= _zz_when_StoreBufferPlugin_l519_13)) || ((_zz_when_StoreBufferPlugin_l519_12 != _zz_when_StoreBufferPlugin_l519_14) && (_zz_when_StoreBufferPlugin_l519_13 < _zz_when_StoreBufferPlugin_l519_15)))) && (_zz_when_StoreBufferPlugin_l519_16 == _zz_when_StoreBufferPlugin_l519_17));
+  assign when_StoreBufferPlugin_l522_2 = ((StoreBufferPlugin_logic_forwardingLogic_slotsView_2_waitRsp || StoreBufferPlugin_logic_forwardingLogic_slotsView_2_isWaitingForRefill) || StoreBufferPlugin_logic_forwardingLogic_slotsView_2_isWaitingForWb);
+  assign when_StoreBufferPlugin_l513_3 = ((StoreBufferPlugin_logic_forwardingLogic_slotsView_3_valid && (! StoreBufferPlugin_logic_forwardingLogic_slotsView_3_hasEarlyException)) && (! StoreBufferPlugin_logic_forwardingLogic_slotsView_3_isFlush));
+  assign _zz_when_StoreBufferPlugin_l519_18 = StoreBufferPlugin_logic_forwardingLogic_slotsView_3_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l519_19 = StoreBufferPlugin_logic_forwardingLogic_slotsView_3_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l519_20 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
+  assign _zz_when_StoreBufferPlugin_l519_21 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l519_22 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2];
+  assign _zz_when_StoreBufferPlugin_l519_23 = StoreBufferPlugin_logic_forwardingLogic_slotsView_3_addr[31 : 2];
+  assign when_StoreBufferPlugin_l519_3 = ((! (((_zz_when_StoreBufferPlugin_l519_18 == _zz_when_StoreBufferPlugin_l519_20) && (_zz_when_StoreBufferPlugin_l519_21 <= _zz_when_StoreBufferPlugin_l519_19)) || ((_zz_when_StoreBufferPlugin_l519_18 != _zz_when_StoreBufferPlugin_l519_20) && (_zz_when_StoreBufferPlugin_l519_19 < _zz_when_StoreBufferPlugin_l519_21)))) && (_zz_when_StoreBufferPlugin_l519_22 == _zz_when_StoreBufferPlugin_l519_23));
+  assign when_StoreBufferPlugin_l522_3 = ((StoreBufferPlugin_logic_forwardingLogic_slotsView_3_waitRsp || StoreBufferPlugin_logic_forwardingLogic_slotsView_3_isWaitingForRefill) || StoreBufferPlugin_logic_forwardingLogic_slotsView_3_isWaitingForWb);
   assign StoreBufferPlugin_logic_forwardingLogic_insufficientCoverageStall = ((StoreBufferPlugin_hw_sqQueryPort_cmd_valid && StoreBufferPlugin_logic_forwardingLogic_hasOlderOverlappingStore) && (! StoreBufferPlugin_logic_forwardingLogic_allRequiredBytesHit));
   assign StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreDataNotReady = (StoreBufferPlugin_logic_forwardingLogic_dataNotReadyStall || StoreBufferPlugin_logic_forwardingLogic_insufficientCoverageStall);
   assign StoreBufferPlugin_hw_sqQueryPort_rsp_hit = (((StoreBufferPlugin_hw_sqQueryPort_cmd_valid && StoreBufferPlugin_logic_forwardingLogic_allRequiredBytesHit) && (! StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreHasUnknownAddress)) && (! StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreDataNotReady));
@@ -23358,18 +24366,18 @@ module CoreNSCSCC (
   assign StoreBufferPlugin_logic_bypassInitial_hitMask = 4'b0000;
   always @(*) begin
     _zz_StoreBufferPlugin_logic_finalBypassResult_data = StoreBufferPlugin_logic_bypassInitial_data;
-    if(when_StoreBufferPlugin_l735) begin
-      if(when_StoreBufferPlugin_l740) begin
-        if(when_StoreBufferPlugin_l742) begin
+    if(when_StoreBufferPlugin_l572) begin
+      if(when_StoreBufferPlugin_l577) begin
+        if(when_StoreBufferPlugin_l579) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data[7 : 0] = StoreBufferPlugin_logic_slots_3_data[7 : 0];
         end
-        if(when_StoreBufferPlugin_l742_1) begin
+        if(when_StoreBufferPlugin_l579_1) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data[15 : 8] = StoreBufferPlugin_logic_slots_3_data[15 : 8];
         end
-        if(when_StoreBufferPlugin_l742_2) begin
+        if(when_StoreBufferPlugin_l579_2) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data[23 : 16] = StoreBufferPlugin_logic_slots_3_data[23 : 16];
         end
-        if(when_StoreBufferPlugin_l742_3) begin
+        if(when_StoreBufferPlugin_l579_3) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data[31 : 24] = StoreBufferPlugin_logic_slots_3_data[31 : 24];
         end
       end
@@ -23377,45 +24385,45 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    _zz_when_StoreBufferPlugin_l742 = StoreBufferPlugin_logic_bypassInitial_hitMask;
-    if(when_StoreBufferPlugin_l735) begin
-      if(when_StoreBufferPlugin_l740) begin
-        if(when_StoreBufferPlugin_l742) begin
-          _zz_when_StoreBufferPlugin_l742[0] = 1'b1;
+    _zz_when_StoreBufferPlugin_l579 = StoreBufferPlugin_logic_bypassInitial_hitMask;
+    if(when_StoreBufferPlugin_l572) begin
+      if(when_StoreBufferPlugin_l577) begin
+        if(when_StoreBufferPlugin_l579) begin
+          _zz_when_StoreBufferPlugin_l579[0] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l742_1) begin
-          _zz_when_StoreBufferPlugin_l742[1] = 1'b1;
+        if(when_StoreBufferPlugin_l579_1) begin
+          _zz_when_StoreBufferPlugin_l579[1] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l742_2) begin
-          _zz_when_StoreBufferPlugin_l742[2] = 1'b1;
+        if(when_StoreBufferPlugin_l579_2) begin
+          _zz_when_StoreBufferPlugin_l579[2] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l742_3) begin
-          _zz_when_StoreBufferPlugin_l742[3] = 1'b1;
+        if(when_StoreBufferPlugin_l579_3) begin
+          _zz_when_StoreBufferPlugin_l579[3] = 1'b1;
         end
       end
     end
   end
 
-  assign when_StoreBufferPlugin_l735 = ((StoreBufferPlugin_logic_slots_3_valid && (! StoreBufferPlugin_logic_slots_3_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_3_isFlush));
-  assign when_StoreBufferPlugin_l740 = (StoreBufferPlugin_hw_bypassQueryAddrIn[31 : 2] == StoreBufferPlugin_logic_slots_3_addr[31 : 2]);
-  assign when_StoreBufferPlugin_l742 = ((StoreBufferPlugin_logic_slots_3_be[0] && StoreBufferPlugin_logic_loadQueryBe[0]) && (! StoreBufferPlugin_logic_bypassInitial_hitMask[0]));
-  assign when_StoreBufferPlugin_l742_1 = ((StoreBufferPlugin_logic_slots_3_be[1] && StoreBufferPlugin_logic_loadQueryBe[1]) && (! StoreBufferPlugin_logic_bypassInitial_hitMask[1]));
-  assign when_StoreBufferPlugin_l742_2 = ((StoreBufferPlugin_logic_slots_3_be[2] && StoreBufferPlugin_logic_loadQueryBe[2]) && (! StoreBufferPlugin_logic_bypassInitial_hitMask[2]));
-  assign when_StoreBufferPlugin_l742_3 = ((StoreBufferPlugin_logic_slots_3_be[3] && StoreBufferPlugin_logic_loadQueryBe[3]) && (! StoreBufferPlugin_logic_bypassInitial_hitMask[3]));
+  assign when_StoreBufferPlugin_l572 = ((StoreBufferPlugin_logic_slots_3_valid && (! StoreBufferPlugin_logic_slots_3_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_3_isFlush));
+  assign when_StoreBufferPlugin_l577 = (StoreBufferPlugin_hw_bypassQueryAddrIn[31 : 2] == StoreBufferPlugin_logic_slots_3_addr[31 : 2]);
+  assign when_StoreBufferPlugin_l579 = ((StoreBufferPlugin_logic_slots_3_be[0] && StoreBufferPlugin_logic_loadQueryBe[0]) && (! StoreBufferPlugin_logic_bypassInitial_hitMask[0]));
+  assign when_StoreBufferPlugin_l579_1 = ((StoreBufferPlugin_logic_slots_3_be[1] && StoreBufferPlugin_logic_loadQueryBe[1]) && (! StoreBufferPlugin_logic_bypassInitial_hitMask[1]));
+  assign when_StoreBufferPlugin_l579_2 = ((StoreBufferPlugin_logic_slots_3_be[2] && StoreBufferPlugin_logic_loadQueryBe[2]) && (! StoreBufferPlugin_logic_bypassInitial_hitMask[2]));
+  assign when_StoreBufferPlugin_l579_3 = ((StoreBufferPlugin_logic_slots_3_be[3] && StoreBufferPlugin_logic_loadQueryBe[3]) && (! StoreBufferPlugin_logic_bypassInitial_hitMask[3]));
   always @(*) begin
     _zz_StoreBufferPlugin_logic_finalBypassResult_data_1 = _zz_StoreBufferPlugin_logic_finalBypassResult_data;
-    if(when_StoreBufferPlugin_l735_1) begin
-      if(when_StoreBufferPlugin_l740_1) begin
-        if(when_StoreBufferPlugin_l742_4) begin
+    if(when_StoreBufferPlugin_l572_1) begin
+      if(when_StoreBufferPlugin_l577_1) begin
+        if(when_StoreBufferPlugin_l579_4) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data_1[7 : 0] = StoreBufferPlugin_logic_slots_2_data[7 : 0];
         end
-        if(when_StoreBufferPlugin_l742_5) begin
+        if(when_StoreBufferPlugin_l579_5) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data_1[15 : 8] = StoreBufferPlugin_logic_slots_2_data[15 : 8];
         end
-        if(when_StoreBufferPlugin_l742_6) begin
+        if(when_StoreBufferPlugin_l579_6) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data_1[23 : 16] = StoreBufferPlugin_logic_slots_2_data[23 : 16];
         end
-        if(when_StoreBufferPlugin_l742_7) begin
+        if(when_StoreBufferPlugin_l579_7) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data_1[31 : 24] = StoreBufferPlugin_logic_slots_2_data[31 : 24];
         end
       end
@@ -23423,45 +24431,45 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    _zz_when_StoreBufferPlugin_l742_1 = _zz_when_StoreBufferPlugin_l742;
-    if(when_StoreBufferPlugin_l735_1) begin
-      if(when_StoreBufferPlugin_l740_1) begin
-        if(when_StoreBufferPlugin_l742_4) begin
-          _zz_when_StoreBufferPlugin_l742_1[0] = 1'b1;
+    _zz_when_StoreBufferPlugin_l579_1 = _zz_when_StoreBufferPlugin_l579;
+    if(when_StoreBufferPlugin_l572_1) begin
+      if(when_StoreBufferPlugin_l577_1) begin
+        if(when_StoreBufferPlugin_l579_4) begin
+          _zz_when_StoreBufferPlugin_l579_1[0] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l742_5) begin
-          _zz_when_StoreBufferPlugin_l742_1[1] = 1'b1;
+        if(when_StoreBufferPlugin_l579_5) begin
+          _zz_when_StoreBufferPlugin_l579_1[1] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l742_6) begin
-          _zz_when_StoreBufferPlugin_l742_1[2] = 1'b1;
+        if(when_StoreBufferPlugin_l579_6) begin
+          _zz_when_StoreBufferPlugin_l579_1[2] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l742_7) begin
-          _zz_when_StoreBufferPlugin_l742_1[3] = 1'b1;
+        if(when_StoreBufferPlugin_l579_7) begin
+          _zz_when_StoreBufferPlugin_l579_1[3] = 1'b1;
         end
       end
     end
   end
 
-  assign when_StoreBufferPlugin_l735_1 = ((StoreBufferPlugin_logic_slots_2_valid && (! StoreBufferPlugin_logic_slots_2_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_2_isFlush));
-  assign when_StoreBufferPlugin_l740_1 = (StoreBufferPlugin_hw_bypassQueryAddrIn[31 : 2] == StoreBufferPlugin_logic_slots_2_addr[31 : 2]);
-  assign when_StoreBufferPlugin_l742_4 = ((StoreBufferPlugin_logic_slots_2_be[0] && StoreBufferPlugin_logic_loadQueryBe[0]) && (! _zz_when_StoreBufferPlugin_l742[0]));
-  assign when_StoreBufferPlugin_l742_5 = ((StoreBufferPlugin_logic_slots_2_be[1] && StoreBufferPlugin_logic_loadQueryBe[1]) && (! _zz_when_StoreBufferPlugin_l742[1]));
-  assign when_StoreBufferPlugin_l742_6 = ((StoreBufferPlugin_logic_slots_2_be[2] && StoreBufferPlugin_logic_loadQueryBe[2]) && (! _zz_when_StoreBufferPlugin_l742[2]));
-  assign when_StoreBufferPlugin_l742_7 = ((StoreBufferPlugin_logic_slots_2_be[3] && StoreBufferPlugin_logic_loadQueryBe[3]) && (! _zz_when_StoreBufferPlugin_l742[3]));
+  assign when_StoreBufferPlugin_l572_1 = ((StoreBufferPlugin_logic_slots_2_valid && (! StoreBufferPlugin_logic_slots_2_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_2_isFlush));
+  assign when_StoreBufferPlugin_l577_1 = (StoreBufferPlugin_hw_bypassQueryAddrIn[31 : 2] == StoreBufferPlugin_logic_slots_2_addr[31 : 2]);
+  assign when_StoreBufferPlugin_l579_4 = ((StoreBufferPlugin_logic_slots_2_be[0] && StoreBufferPlugin_logic_loadQueryBe[0]) && (! _zz_when_StoreBufferPlugin_l579[0]));
+  assign when_StoreBufferPlugin_l579_5 = ((StoreBufferPlugin_logic_slots_2_be[1] && StoreBufferPlugin_logic_loadQueryBe[1]) && (! _zz_when_StoreBufferPlugin_l579[1]));
+  assign when_StoreBufferPlugin_l579_6 = ((StoreBufferPlugin_logic_slots_2_be[2] && StoreBufferPlugin_logic_loadQueryBe[2]) && (! _zz_when_StoreBufferPlugin_l579[2]));
+  assign when_StoreBufferPlugin_l579_7 = ((StoreBufferPlugin_logic_slots_2_be[3] && StoreBufferPlugin_logic_loadQueryBe[3]) && (! _zz_when_StoreBufferPlugin_l579[3]));
   always @(*) begin
     _zz_StoreBufferPlugin_logic_finalBypassResult_data_2 = _zz_StoreBufferPlugin_logic_finalBypassResult_data_1;
-    if(when_StoreBufferPlugin_l735_2) begin
-      if(when_StoreBufferPlugin_l740_2) begin
-        if(when_StoreBufferPlugin_l742_8) begin
+    if(when_StoreBufferPlugin_l572_2) begin
+      if(when_StoreBufferPlugin_l577_2) begin
+        if(when_StoreBufferPlugin_l579_8) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data_2[7 : 0] = StoreBufferPlugin_logic_slots_1_data[7 : 0];
         end
-        if(when_StoreBufferPlugin_l742_9) begin
+        if(when_StoreBufferPlugin_l579_9) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data_2[15 : 8] = StoreBufferPlugin_logic_slots_1_data[15 : 8];
         end
-        if(when_StoreBufferPlugin_l742_10) begin
+        if(when_StoreBufferPlugin_l579_10) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data_2[23 : 16] = StoreBufferPlugin_logic_slots_1_data[23 : 16];
         end
-        if(when_StoreBufferPlugin_l742_11) begin
+        if(when_StoreBufferPlugin_l579_11) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_data_2[31 : 24] = StoreBufferPlugin_logic_slots_1_data[31 : 24];
         end
       end
@@ -23469,45 +24477,45 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask = _zz_when_StoreBufferPlugin_l742_1;
-    if(when_StoreBufferPlugin_l735_2) begin
-      if(when_StoreBufferPlugin_l740_2) begin
-        if(when_StoreBufferPlugin_l742_8) begin
+    _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask = _zz_when_StoreBufferPlugin_l579_1;
+    if(when_StoreBufferPlugin_l572_2) begin
+      if(when_StoreBufferPlugin_l577_2) begin
+        if(when_StoreBufferPlugin_l579_8) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[0] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l742_9) begin
+        if(when_StoreBufferPlugin_l579_9) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[1] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l742_10) begin
+        if(when_StoreBufferPlugin_l579_10) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[2] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l742_11) begin
+        if(when_StoreBufferPlugin_l579_11) begin
           _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[3] = 1'b1;
         end
       end
     end
   end
 
-  assign when_StoreBufferPlugin_l735_2 = ((StoreBufferPlugin_logic_slots_1_valid && (! StoreBufferPlugin_logic_slots_1_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_1_isFlush));
-  assign when_StoreBufferPlugin_l740_2 = (StoreBufferPlugin_hw_bypassQueryAddrIn[31 : 2] == StoreBufferPlugin_logic_slots_1_addr[31 : 2]);
-  assign when_StoreBufferPlugin_l742_8 = ((StoreBufferPlugin_logic_slots_1_be[0] && StoreBufferPlugin_logic_loadQueryBe[0]) && (! _zz_when_StoreBufferPlugin_l742_1[0]));
-  assign when_StoreBufferPlugin_l742_9 = ((StoreBufferPlugin_logic_slots_1_be[1] && StoreBufferPlugin_logic_loadQueryBe[1]) && (! _zz_when_StoreBufferPlugin_l742_1[1]));
-  assign when_StoreBufferPlugin_l742_10 = ((StoreBufferPlugin_logic_slots_1_be[2] && StoreBufferPlugin_logic_loadQueryBe[2]) && (! _zz_when_StoreBufferPlugin_l742_1[2]));
-  assign when_StoreBufferPlugin_l742_11 = ((StoreBufferPlugin_logic_slots_1_be[3] && StoreBufferPlugin_logic_loadQueryBe[3]) && (! _zz_when_StoreBufferPlugin_l742_1[3]));
+  assign when_StoreBufferPlugin_l572_2 = ((StoreBufferPlugin_logic_slots_1_valid && (! StoreBufferPlugin_logic_slots_1_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_1_isFlush));
+  assign when_StoreBufferPlugin_l577_2 = (StoreBufferPlugin_hw_bypassQueryAddrIn[31 : 2] == StoreBufferPlugin_logic_slots_1_addr[31 : 2]);
+  assign when_StoreBufferPlugin_l579_8 = ((StoreBufferPlugin_logic_slots_1_be[0] && StoreBufferPlugin_logic_loadQueryBe[0]) && (! _zz_when_StoreBufferPlugin_l579_1[0]));
+  assign when_StoreBufferPlugin_l579_9 = ((StoreBufferPlugin_logic_slots_1_be[1] && StoreBufferPlugin_logic_loadQueryBe[1]) && (! _zz_when_StoreBufferPlugin_l579_1[1]));
+  assign when_StoreBufferPlugin_l579_10 = ((StoreBufferPlugin_logic_slots_1_be[2] && StoreBufferPlugin_logic_loadQueryBe[2]) && (! _zz_when_StoreBufferPlugin_l579_1[2]));
+  assign when_StoreBufferPlugin_l579_11 = ((StoreBufferPlugin_logic_slots_1_be[3] && StoreBufferPlugin_logic_loadQueryBe[3]) && (! _zz_when_StoreBufferPlugin_l579_1[3]));
   always @(*) begin
     StoreBufferPlugin_logic_finalBypassResult_data = _zz_StoreBufferPlugin_logic_finalBypassResult_data_2;
-    if(when_StoreBufferPlugin_l735_3) begin
-      if(when_StoreBufferPlugin_l740_3) begin
-        if(when_StoreBufferPlugin_l742_12) begin
+    if(when_StoreBufferPlugin_l572_3) begin
+      if(when_StoreBufferPlugin_l577_3) begin
+        if(when_StoreBufferPlugin_l579_12) begin
           StoreBufferPlugin_logic_finalBypassResult_data[7 : 0] = StoreBufferPlugin_logic_slots_0_data[7 : 0];
         end
-        if(when_StoreBufferPlugin_l742_13) begin
+        if(when_StoreBufferPlugin_l579_13) begin
           StoreBufferPlugin_logic_finalBypassResult_data[15 : 8] = StoreBufferPlugin_logic_slots_0_data[15 : 8];
         end
-        if(when_StoreBufferPlugin_l742_14) begin
+        if(when_StoreBufferPlugin_l579_14) begin
           StoreBufferPlugin_logic_finalBypassResult_data[23 : 16] = StoreBufferPlugin_logic_slots_0_data[23 : 16];
         end
-        if(when_StoreBufferPlugin_l742_15) begin
+        if(when_StoreBufferPlugin_l579_15) begin
           StoreBufferPlugin_logic_finalBypassResult_data[31 : 24] = StoreBufferPlugin_logic_slots_0_data[31 : 24];
         end
       end
@@ -23516,30 +24524,30 @@ module CoreNSCSCC (
 
   always @(*) begin
     StoreBufferPlugin_logic_finalBypassResult_hitMask = _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask;
-    if(when_StoreBufferPlugin_l735_3) begin
-      if(when_StoreBufferPlugin_l740_3) begin
-        if(when_StoreBufferPlugin_l742_12) begin
+    if(when_StoreBufferPlugin_l572_3) begin
+      if(when_StoreBufferPlugin_l577_3) begin
+        if(when_StoreBufferPlugin_l579_12) begin
           StoreBufferPlugin_logic_finalBypassResult_hitMask[0] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l742_13) begin
+        if(when_StoreBufferPlugin_l579_13) begin
           StoreBufferPlugin_logic_finalBypassResult_hitMask[1] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l742_14) begin
+        if(when_StoreBufferPlugin_l579_14) begin
           StoreBufferPlugin_logic_finalBypassResult_hitMask[2] = 1'b1;
         end
-        if(when_StoreBufferPlugin_l742_15) begin
+        if(when_StoreBufferPlugin_l579_15) begin
           StoreBufferPlugin_logic_finalBypassResult_hitMask[3] = 1'b1;
         end
       end
     end
   end
 
-  assign when_StoreBufferPlugin_l735_3 = ((StoreBufferPlugin_logic_slots_0_valid && (! StoreBufferPlugin_logic_slots_0_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_0_isFlush));
-  assign when_StoreBufferPlugin_l740_3 = (StoreBufferPlugin_hw_bypassQueryAddrIn[31 : 2] == StoreBufferPlugin_logic_slots_0_addr[31 : 2]);
-  assign when_StoreBufferPlugin_l742_12 = ((StoreBufferPlugin_logic_slots_0_be[0] && StoreBufferPlugin_logic_loadQueryBe[0]) && (! _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[0]));
-  assign when_StoreBufferPlugin_l742_13 = ((StoreBufferPlugin_logic_slots_0_be[1] && StoreBufferPlugin_logic_loadQueryBe[1]) && (! _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[1]));
-  assign when_StoreBufferPlugin_l742_14 = ((StoreBufferPlugin_logic_slots_0_be[2] && StoreBufferPlugin_logic_loadQueryBe[2]) && (! _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[2]));
-  assign when_StoreBufferPlugin_l742_15 = ((StoreBufferPlugin_logic_slots_0_be[3] && StoreBufferPlugin_logic_loadQueryBe[3]) && (! _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[3]));
+  assign when_StoreBufferPlugin_l572_3 = ((StoreBufferPlugin_logic_slots_0_valid && (! StoreBufferPlugin_logic_slots_0_hasEarlyException)) && (! StoreBufferPlugin_logic_slots_0_isFlush));
+  assign when_StoreBufferPlugin_l577_3 = (StoreBufferPlugin_hw_bypassQueryAddrIn[31 : 2] == StoreBufferPlugin_logic_slots_0_addr[31 : 2]);
+  assign when_StoreBufferPlugin_l579_12 = ((StoreBufferPlugin_logic_slots_0_be[0] && StoreBufferPlugin_logic_loadQueryBe[0]) && (! _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[0]));
+  assign when_StoreBufferPlugin_l579_13 = ((StoreBufferPlugin_logic_slots_0_be[1] && StoreBufferPlugin_logic_loadQueryBe[1]) && (! _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[1]));
+  assign when_StoreBufferPlugin_l579_14 = ((StoreBufferPlugin_logic_slots_0_be[2] && StoreBufferPlugin_logic_loadQueryBe[2]) && (! _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[2]));
+  assign when_StoreBufferPlugin_l579_15 = ((StoreBufferPlugin_logic_slots_0_be[3] && StoreBufferPlugin_logic_loadQueryBe[3]) && (! _zz_StoreBufferPlugin_logic_finalBypassResult_hitMask[3]));
   assign StoreBufferPlugin_logic_overallBypassHit = (|StoreBufferPlugin_logic_finalBypassResult_hitMask);
   assign StoreBufferPlugin_hw_bypassDataOutInst_valid = StoreBufferPlugin_logic_overallBypassHit;
   assign StoreBufferPlugin_hw_bypassDataOutInst_payload_data = StoreBufferPlugin_logic_finalBypassResult_data;
@@ -23587,13 +24595,13 @@ module CoreNSCSCC (
   always @(*) begin
     FetchPipelinePlugin_logic_retryIdCounter_willIncrement = 1'b0;
     if(FetchPipelinePlugin_logic_s4_logic_backpressureRedo) begin
-      if(when_FetchPipelinePlugin2_l442) begin
+      if(when_FetchPipelinePlugin2_l466) begin
         FetchPipelinePlugin_logic_retryIdCounter_willIncrement = 1'b1;
       end
     end
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l458) begin
+        if(when_FetchPipelinePlugin2_l482) begin
           FetchPipelinePlugin_logic_retryIdCounter_willIncrement = 1'b1;
         end
       end
@@ -23616,17 +24624,263 @@ module CoreNSCSCC (
 
   always @(*) begin
     FetchPipelinePlugin_logic_doRetryFlush = 1'b0;
-    if(FetchPipelinePlugin_logic_s4_logic_backpressureRedo) begin
-      if(when_FetchPipelinePlugin2_l442) begin
-        FetchPipelinePlugin_logic_doRetryFlush = 1'b1;
-      end
-    end
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l458) begin
+        if(when_FetchPipelinePlugin2_l482) begin
           FetchPipelinePlugin_logic_doRetryFlush = 1'b1;
         end
       end
+    end
+  end
+
+  assign s1_PC_Gen_isFiring = (s1_PC_Gen_valid && s1_PC_Gen_ready);
+  assign s2_ICache_Access_isFiring = (s2_ICache_Access_valid && s2_ICache_Access_ready);
+  assign s3_ICache_Wait_isFiring = (s3_ICache_Wait_valid && s3_ICache_Wait_ready);
+  assign s4_Predecode_isFiring = (s4_Predecode_valid && s4_Predecode_ready);
+  assign s5_Target_Calc_isFiring = (s5_Target_Calc_valid && s5_Target_Calc_ready);
+  assign FetchPipelinePlugin_logic_fetchDisabled = 1'b0;
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_valid = 1'b0;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_valid = (! s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_FAULT);
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_pc = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_pc = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PC;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_firstPc = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_firstPc = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_instructions_0 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_instructions_0 = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_0;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_instructions_1 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_instructions_1 = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_1;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_instructions_2 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_instructions_2 = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_2;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_instructions_3 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_instructions_3 = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_3;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_isBranch = 1'bx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_isBranch = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isBranch;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_isJump = 1'bx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_isJump = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isJump;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_isDirectJump = 1'bx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_isDirectJump = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isDirectJump;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_jumpOffset = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_jumpOffset = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_jumpOffset;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_isIdle = 1'bx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_isIdle = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isIdle;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_isBranch = 1'bx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_isBranch = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isBranch;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_isJump = 1'bx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_isJump = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isJump;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_isDirectJump = 1'bx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_isDirectJump = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isDirectJump;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_jumpOffset = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_jumpOffset = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_jumpOffset;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_isIdle = 1'bx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_isIdle = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isIdle;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_isBranch = 1'bx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_isBranch = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isBranch;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_isJump = 1'bx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_isJump = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isJump;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_isDirectJump = 1'bx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_isDirectJump = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isDirectJump;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_jumpOffset = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_jumpOffset = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_jumpOffset;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_isIdle = 1'bx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_isIdle = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isIdle;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_isBranch = 1'bx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_isBranch = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isBranch;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_isJump = 1'bx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_isJump = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isJump;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_isDirectJump = 1'bx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_isDirectJump = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isDirectJump;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_jumpOffset = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_jumpOffset = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_jumpOffset;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_isIdle = 1'bx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_isIdle = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isIdle;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_branchMask = 4'bxxxx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_branchMask = {s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isBranch,{s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isBranch,{s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isBranch,s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isBranch}}};
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_fault = 1'bx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_fault = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_FAULT;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_numValidInstructions = 3'bxxx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_numValidInstructions = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_NUM_VALID_INSTRS;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_startInstructionIndex = 2'bxx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_startInstructionIndex = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_START_INSTR_INDEX;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_potentialJumpTargets_0 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_potentialJumpTargets_0 = _zz_io_push_payload_potentialJumpTargets_0;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_potentialJumpTargets_1 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_potentialJumpTargets_1 = _zz_io_push_payload_potentialJumpTargets_1;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_potentialJumpTargets_2 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_potentialJumpTargets_2 = _zz_io_push_payload_potentialJumpTargets_2;
+    end
+  end
+
+  always @(*) begin
+    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_potentialJumpTargets_3 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    if(s5_Target_Calc_isFiring) begin
+      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_potentialJumpTargets_3 = _zz_io_push_payload_potentialJumpTargets_3;
     end
   end
 
@@ -23635,7 +24889,8 @@ module CoreNSCSCC (
   assign FetchPipelinePlugin_doHardRedirect_listening = FetchPipelinePlugin_logic_hardRedirect_valid;
   assign FetchPipelinePlugin_doSoftRedirect_listening = FetchPipelinePlugin_logic_dispatcher_io_softRedirect_valid;
   assign FetchPipelinePlugin_logic_doAnyFlush = (FetchPipelinePlugin_logic_dispatcher_io_softRedirect_valid || FetchPipelinePlugin_logic_hardRedirect_valid);
-  assign io_pop_fire = (FetchPipelinePlugin_setup_fetchOutput_io_pop_valid && s0_Decode_ready);
+  assign FetchPipelinePlugin_setup_fetchOutput_io_push_valid = (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_valid && (! FetchPipelinePlugin_logic_hardRedirect_valid));
+  assign io_pop_fire = (FetchPipelinePlugin_setup_fetchOutput_io_pop_valid && FetchPipelinePlugin_setup_fetchOutput_io_pop_ready);
   always @(*) begin
     FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_incrementIt = 1'b0;
     if(ICachePlugin_port_cmd_valid) begin
@@ -23671,163 +24926,386 @@ module CoreNSCSCC (
 
   assign when_Utils_l769 = ((! FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_incrementIt) && FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_decrementIt);
   assign FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_valueNext = (FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_value + FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_finalIncrement);
-  assign when_FetchPipelinePlugin2_l290 = (FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_value == 3'b000);
-  assign FetchPipelinePlugin_logic_s1_logic_needRedo = (((FetchPipelinePlugin_logic_retryCmd_lock && (FetchPipelinePlugin_logic_retryCmd_id != FetchPipelinePlugin_logic_s1_logic_lastRetryIdReg)) && (! FetchPipelinePlugin_logic_doAnyFlush)) && (! FetchPipelinePlugin_logic_isDrainingCacheRspReg));
-  assign FetchPipelinePlugin_logic_s1_logic_rawPcToUse = (FetchPipelinePlugin_logic_s1_logic_needRedo ? FetchPipelinePlugin_logic_retryCmd_pc : FetchPipelinePlugin_logic_s1_logic_fetchPcReg);
+  assign when_FetchPipelinePlugin2_l325 = (FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_value == 3'b000);
+  assign FetchPipelinePlugin_logic_s1_logic_needRedo = ((((FetchPipelinePlugin_logic_retryCmd_lock && (FetchPipelinePlugin_logic_retryCmd_id != FetchPipelinePlugin_logic_s1_logic_lastRetryIdReg)) && (! FetchPipelinePlugin_logic_doAnyFlush)) && (! FetchPipelinePlugin_logic_isDrainingCacheRspReg)) && (! FetchPipelinePlugin_logic_fetchDisabled));
+  assign FetchPipelinePlugin_logic_s1_logic_rawPcToUse = (FetchPipelinePlugin_logic_hardRedirect_valid ? FetchPipelinePlugin_logic_hardRedirect_payload : (FetchPipelinePlugin_logic_s1_logic_needRedo ? FetchPipelinePlugin_logic_retryCmd_pc : FetchPipelinePlugin_logic_s1_logic_fetchPcReg));
   assign s1_PC_Gen_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC = FetchPipelinePlugin_logic_s1_logic_rawPcToUse;
   assign s1_PC_Gen_FetchPipelinePlugin_logic_FetchPipeline_PC = {FetchPipelinePlugin_logic_s1_logic_rawPcToUse[31 : 4],4'b0000};
   assign FetchPipelinePlugin_logic_s1_logic_nextLinePc = (FetchPipelinePlugin_logic_s1_logic_fetchPcReg + 32'h00000010);
-  assign s1_PC_Gen_isFiring = (s1_PC_Gen_valid && s1_PC_Gen_ready);
-  assign when_FetchPipelinePlugin2_l362 = ((s1_PC_Gen_isFiring && (! FetchPipelinePlugin_logic_retryCmd_lock)) && (! FetchPipelinePlugin_logic_doAnyFlush));
-  assign when_FetchPipelinePlugin2_l368 = (s1_PC_Gen_isFiring && FetchPipelinePlugin_logic_s1_logic_needRedo);
-  assign FetchPipelinePlugin_logic_s1_logic_fetchDisabled = 1'b0;
+  assign _zz_FetchPipelinePlugin_logic_s1_logic_fetchPcReg = ({FetchPipelinePlugin_logic_retryCmd_pc[31 : 4],4'b0000} + 32'h00000010);
+  assign when_FetchPipelinePlugin2_l384 = ((s1_PC_Gen_isFiring && (! FetchPipelinePlugin_logic_retryCmd_lock)) && (! FetchPipelinePlugin_logic_doAnyFlush));
+  assign when_FetchPipelinePlugin2_l389 = (s1_PC_Gen_isFiring && FetchPipelinePlugin_logic_s1_logic_needRedo);
   assign s1_PC_Gen_valid = 1'b1;
-  assign when_FetchPipelinePlugin2_l381 = ((FetchPipelinePlugin_logic_isDrainingCacheRspReg || FetchPipelinePlugin_logic_s1_logic_fetchDisabled) || (FetchPipelinePlugin_logic_retryCmd_lock && (FetchPipelinePlugin_logic_retryCmd_id == FetchPipelinePlugin_logic_s1_logic_lastRetryIdReg)));
-  assign s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l382 = _zz_s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l382;
-  assign s2_ICache_Access_isFiring = (s2_ICache_Access_valid && s2_ICache_Access_ready);
+  assign when_FetchPipelinePlugin2_l399 = ((FetchPipelinePlugin_logic_isDrainingCacheRspReg || FetchPipelinePlugin_logic_fetchDisabled) || (FetchPipelinePlugin_logic_retryCmd_lock && (FetchPipelinePlugin_logic_retryCmd_id == FetchPipelinePlugin_logic_s1_logic_lastRetryIdReg)));
+  assign s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l400 = _zz_s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l400;
   assign ICachePlugin_port_cmd_valid = ((s2_ICache_Access_isFiring && (! FetchPipelinePlugin_logic_isDrainingCacheRspReg)) && (! FetchPipelinePlugin_logic_doAnyFlush));
   assign FetchPipelinePlugin_logic_s2_logic_cmdPayload_address = s2_ICache_Access_FetchPipelinePlugin_logic_FetchPipeline_PC;
   assign FetchPipelinePlugin_logic_s2_logic_cmdPayload_transactionId = _zz_FetchPipelinePlugin_logic_s2_logic_cmdPayload_transactionId[7:0];
   assign ICachePlugin_port_cmd_payload_address = FetchPipelinePlugin_logic_s2_logic_cmdPayload_address;
   assign ICachePlugin_port_cmd_payload_transactionId = FetchPipelinePlugin_logic_s2_logic_cmdPayload_transactionId;
   always @(*) begin
-    FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_valid = 1'b0;
+    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_transactionId = 8'h0;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l481) begin
-          FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_valid = 1'b1;
+        if(when_FetchPipelinePlugin2_l505) begin
+          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_transactionId = ICachePlugin_port_rsp_payload_transactionId;
         end
       end
     end
   end
 
   always @(*) begin
-    FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_pc = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_0 = 32'h0;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l481) begin
-          FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_pc = s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC;
+        if(when_FetchPipelinePlugin2_l505) begin
+          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_0 = ICachePlugin_port_rsp_payload_instructions_0;
         end
       end
     end
   end
 
   always @(*) begin
-    FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_firstPc = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_1 = 32'h0;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l481) begin
-          FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_firstPc = s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC;
+        if(when_FetchPipelinePlugin2_l505) begin
+          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_1 = ICachePlugin_port_rsp_payload_instructions_1;
         end
       end
     end
   end
 
   always @(*) begin
-    FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_instructions_0 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_2 = 32'h0;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l481) begin
-          FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_instructions_0 = ICachePlugin_port_rsp_payload_instructions_0;
+        if(when_FetchPipelinePlugin2_l505) begin
+          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_2 = ICachePlugin_port_rsp_payload_instructions_2;
         end
       end
     end
   end
 
   always @(*) begin
-    FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_instructions_1 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_3 = 32'h0;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l481) begin
-          FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_instructions_1 = ICachePlugin_port_rsp_payload_instructions_1;
+        if(when_FetchPipelinePlugin2_l505) begin
+          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_3 = ICachePlugin_port_rsp_payload_instructions_3;
         end
       end
     end
   end
 
   always @(*) begin
-    FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_instructions_2 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_wasHit = 1'b0;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l481) begin
-          FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_instructions_2 = ICachePlugin_port_rsp_payload_instructions_2;
+        if(when_FetchPipelinePlugin2_l505) begin
+          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_wasHit = ICachePlugin_port_rsp_payload_wasHit;
         end
       end
     end
   end
 
   always @(*) begin
-    FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_instructions_3 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_redo = 1'b0;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l481) begin
-          FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_instructions_3 = ICachePlugin_port_rsp_payload_instructions_3;
+        if(when_FetchPipelinePlugin2_l505) begin
+          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_redo = ICachePlugin_port_rsp_payload_redo;
         end
       end
     end
   end
 
   always @(*) begin
-    FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_fault = 1'bx;
+    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isBranch = 1'b0;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l481) begin
-          FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_fault = (! ICachePlugin_port_rsp_payload_wasHit);
+        if(when_FetchPipelinePlugin2_l505) begin
+          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isBranch = instructionPredecoder_4_io_predecodeInfo_isBranch;
         end
       end
     end
   end
 
   always @(*) begin
-    FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_numValidInstructions = 3'bxxx;
+    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isJump = 1'b0;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l481) begin
-          FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_numValidInstructions = (3'b100 - _zz_io_push_payload_numValidInstructions_2);
+        if(when_FetchPipelinePlugin2_l505) begin
+          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isJump = instructionPredecoder_4_io_predecodeInfo_isJump;
         end
       end
     end
   end
 
   always @(*) begin
-    FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_startInstructionIndex = 2'bxx;
+    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isDirectJump = 1'b0;
     if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
       if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l481) begin
-          FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_payload_startInstructionIndex = _zz_io_push_payload_numValidInstructions_1;
+        if(when_FetchPipelinePlugin2_l505) begin
+          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isDirectJump = instructionPredecoder_4_io_predecodeInfo_isDirectJump;
         end
       end
     end
   end
 
-  assign s4_Predecode_isFiring = (s4_Predecode_valid && s4_Predecode_ready);
-  assign FetchPipelinePlugin_logic_s4_logic_handleRsp = (((s4_Predecode_isFiring && ICachePlugin_port_rsp_valid) && (! FetchPipelinePlugin_logic_isDrainingCacheRspReg)) && (! FetchPipelinePlugin_logic_doAnyFlush));
+  always @(*) begin
+    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_jumpOffset = 32'h0;
+    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
+      if(!ICachePlugin_port_rsp_payload_redo) begin
+        if(when_FetchPipelinePlugin2_l505) begin
+          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_jumpOffset = instructionPredecoder_4_io_predecodeInfo_jumpOffset;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isIdle = 1'b0;
+    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
+      if(!ICachePlugin_port_rsp_payload_redo) begin
+        if(when_FetchPipelinePlugin2_l505) begin
+          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isIdle = instructionPredecoder_4_io_predecodeInfo_isIdle;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isBranch = 1'b0;
+    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
+      if(!ICachePlugin_port_rsp_payload_redo) begin
+        if(when_FetchPipelinePlugin2_l505) begin
+          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isBranch = instructionPredecoder_5_io_predecodeInfo_isBranch;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isJump = 1'b0;
+    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
+      if(!ICachePlugin_port_rsp_payload_redo) begin
+        if(when_FetchPipelinePlugin2_l505) begin
+          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isJump = instructionPredecoder_5_io_predecodeInfo_isJump;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isDirectJump = 1'b0;
+    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
+      if(!ICachePlugin_port_rsp_payload_redo) begin
+        if(when_FetchPipelinePlugin2_l505) begin
+          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isDirectJump = instructionPredecoder_5_io_predecodeInfo_isDirectJump;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_jumpOffset = 32'h0;
+    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
+      if(!ICachePlugin_port_rsp_payload_redo) begin
+        if(when_FetchPipelinePlugin2_l505) begin
+          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_jumpOffset = instructionPredecoder_5_io_predecodeInfo_jumpOffset;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isIdle = 1'b0;
+    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
+      if(!ICachePlugin_port_rsp_payload_redo) begin
+        if(when_FetchPipelinePlugin2_l505) begin
+          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isIdle = instructionPredecoder_5_io_predecodeInfo_isIdle;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isBranch = 1'b0;
+    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
+      if(!ICachePlugin_port_rsp_payload_redo) begin
+        if(when_FetchPipelinePlugin2_l505) begin
+          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isBranch = instructionPredecoder_6_io_predecodeInfo_isBranch;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isJump = 1'b0;
+    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
+      if(!ICachePlugin_port_rsp_payload_redo) begin
+        if(when_FetchPipelinePlugin2_l505) begin
+          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isJump = instructionPredecoder_6_io_predecodeInfo_isJump;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isDirectJump = 1'b0;
+    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
+      if(!ICachePlugin_port_rsp_payload_redo) begin
+        if(when_FetchPipelinePlugin2_l505) begin
+          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isDirectJump = instructionPredecoder_6_io_predecodeInfo_isDirectJump;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_jumpOffset = 32'h0;
+    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
+      if(!ICachePlugin_port_rsp_payload_redo) begin
+        if(when_FetchPipelinePlugin2_l505) begin
+          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_jumpOffset = instructionPredecoder_6_io_predecodeInfo_jumpOffset;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isIdle = 1'b0;
+    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
+      if(!ICachePlugin_port_rsp_payload_redo) begin
+        if(when_FetchPipelinePlugin2_l505) begin
+          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isIdle = instructionPredecoder_6_io_predecodeInfo_isIdle;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isBranch = 1'b0;
+    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
+      if(!ICachePlugin_port_rsp_payload_redo) begin
+        if(when_FetchPipelinePlugin2_l505) begin
+          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isBranch = instructionPredecoder_7_io_predecodeInfo_isBranch;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isJump = 1'b0;
+    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
+      if(!ICachePlugin_port_rsp_payload_redo) begin
+        if(when_FetchPipelinePlugin2_l505) begin
+          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isJump = instructionPredecoder_7_io_predecodeInfo_isJump;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isDirectJump = 1'b0;
+    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
+      if(!ICachePlugin_port_rsp_payload_redo) begin
+        if(when_FetchPipelinePlugin2_l505) begin
+          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isDirectJump = instructionPredecoder_7_io_predecodeInfo_isDirectJump;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_jumpOffset = 32'h0;
+    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
+      if(!ICachePlugin_port_rsp_payload_redo) begin
+        if(when_FetchPipelinePlugin2_l505) begin
+          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_jumpOffset = instructionPredecoder_7_io_predecodeInfo_jumpOffset;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isIdle = 1'b0;
+    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
+      if(!ICachePlugin_port_rsp_payload_redo) begin
+        if(when_FetchPipelinePlugin2_l505) begin
+          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isIdle = instructionPredecoder_7_io_predecodeInfo_isIdle;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_START_INSTR_INDEX = 2'b00;
+    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
+      if(!ICachePlugin_port_rsp_payload_redo) begin
+        if(when_FetchPipelinePlugin2_l505) begin
+          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_START_INSTR_INDEX = (_zz_s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_START_INSTR_INDEX[3 : 0] >>> 2'd2);
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_NUM_VALID_INSTRS = 3'b000;
+    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
+      if(!ICachePlugin_port_rsp_payload_redo) begin
+        if(when_FetchPipelinePlugin2_l505) begin
+          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_NUM_VALID_INSTRS = (3'b100 - _zz_s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_NUM_VALID_INSTRS);
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_FAULT = 1'b1;
+    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
+      if(!ICachePlugin_port_rsp_payload_redo) begin
+        if(when_FetchPipelinePlugin2_l505) begin
+          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_FAULT = (! ICachePlugin_port_rsp_payload_wasHit);
+        end
+      end
+    end
+  end
+
+  assign FetchPipelinePlugin_logic_s4_logic_handleRsp = (((s4_Predecode_valid && ICachePlugin_port_rsp_valid) && (! FetchPipelinePlugin_logic_isDrainingCacheRspReg)) && (! FetchPipelinePlugin_logic_doAnyFlush));
   assign FetchPipelinePlugin_logic_s4_logic_hasHigherPriorityStuff = (FetchPipelinePlugin_logic_doAnyFlush || FetchPipelinePlugin_logic_isDrainingCacheRspReg);
-  assign FetchPipelinePlugin_logic_s4_logic_backpressureRedo = ((((((! s4_Predecode_isFiring) && ICachePlugin_port_rsp_valid) && ICachePlugin_port_rsp_payload_wasHit) && (! FetchPipelinePlugin_logic_isDrainingCacheRspReg)) && (! FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_ready)) && (! FetchPipelinePlugin_logic_s4_logic_hasHigherPriorityStuff));
-  assign when_FetchPipelinePlugin2_l442 = (! FetchPipelinePlugin_logic_retryCmd_lock);
-  assign _zz_71 = (s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC >>> 3'd4);
-  assign when_FetchPipelinePlugin2_l458 = (((! FetchPipelinePlugin_logic_retryCmd_lock) || (FetchPipelinePlugin_logic_retryCmd_lock && ({s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC[31 : 4],4'b0000} == {FetchPipelinePlugin_logic_retryCmd_pc[31 : 4],4'b0000}))) && (! FetchPipelinePlugin_logic_s4_logic_hasHigherPriorityStuff));
-  assign when_FetchPipelinePlugin2_l476 = (FetchPipelinePlugin_logic_retryCmd_lock && ({s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC[31 : 4],4'b0000} == {FetchPipelinePlugin_logic_retryCmd_pc[31 : 4],4'b0000}));
-  assign when_FetchPipelinePlugin2_l481 = ((! FetchPipelinePlugin_logic_retryCmd_lock) || ({s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC[31 : 4],4'b0000} == {FetchPipelinePlugin_logic_retryCmd_pc[31 : 4],4'b0000}));
-  assign _zz_io_push_payload_numValidInstructions = (s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC - s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC);
-  assign _zz_io_push_payload_numValidInstructions_1 = (_zz_io_push_payload_numValidInstructions[3 : 0] >>> 2'd2);
-  assign s4_Predecode_haltRequest_FetchPipelinePlugin2_l499 = (! FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_push_ready);
-  assign FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_pop_ready = (FetchPipelinePlugin_logic_dispatcher_io_fetchGroupIn_ready && (! FetchPipelinePlugin_logic_doAnyFlush));
+  assign FetchPipelinePlugin_logic_s4_logic_backpressureRedo = (((((((! s4_Predecode_isFiring) && ICachePlugin_port_rsp_valid) && ICachePlugin_port_rsp_payload_wasHit) && (! FetchPipelinePlugin_logic_isDrainingCacheRspReg)) && (! FetchPipelinePlugin_logic_fetchGroupsOut_io_push_ready)) && (! FetchPipelinePlugin_logic_s4_logic_hasHigherPriorityStuff)) && (! FetchPipelinePlugin_logic_retryCmd_lock));
+  assign when_FetchPipelinePlugin2_l466 = (! FetchPipelinePlugin_logic_retryCmd_lock);
+  assign _zz_72 = (s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC >>> 3'd4);
+  assign when_FetchPipelinePlugin2_l482 = (((! FetchPipelinePlugin_logic_retryCmd_lock) || (FetchPipelinePlugin_logic_retryCmd_lock && ({s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC[31 : 4],4'b0000} == {FetchPipelinePlugin_logic_retryCmd_pc[31 : 4],4'b0000}))) && (! FetchPipelinePlugin_logic_s4_logic_hasHigherPriorityStuff));
+  assign when_FetchPipelinePlugin2_l491 = (FetchPipelinePlugin_logic_retryCmd_lock && ({s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC[31 : 4],4'b0000} != {FetchPipelinePlugin_logic_retryCmd_pc[31 : 4],4'b0000}));
+  assign when_FetchPipelinePlugin2_l500 = (FetchPipelinePlugin_logic_retryCmd_lock && ({s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC[31 : 4],4'b0000} == {FetchPipelinePlugin_logic_retryCmd_pc[31 : 4],4'b0000}));
+  assign when_FetchPipelinePlugin2_l505 = ((! FetchPipelinePlugin_logic_retryCmd_lock) || ({s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC[31 : 4],4'b0000} == {FetchPipelinePlugin_logic_retryCmd_pc[31 : 4],4'b0000}));
+  assign _zz_s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_START_INSTR_INDEX = (s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC - s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC);
+  assign io_push_fire = (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_valid && FetchPipelinePlugin_logic_fetchGroupsOut_io_push_ready);
+  assign io_fetchOutput_fire = (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_valid && FetchPipelinePlugin_setup_fetchOutput_io_push_ready);
+  assign s5_Target_Calc_haltRequest_FetchPipelinePlugin2_l591 = (! FetchPipelinePlugin_logic_fetchGroupsOut_io_push_ready);
+  assign FetchPipelinePlugin_logic_fetchGroupsOut_io_flush = (FetchPipelinePlugin_logic_doAnyFlush || FetchPipelinePlugin_logic_isDrainingCacheRspReg);
+  assign FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_ready = (FetchPipelinePlugin_logic_dispatcher_io_fetchGroupIn_ready && (! FetchPipelinePlugin_logic_doAnyFlush));
   assign BpuPipelinePlugin_queryPortIn_valid = FetchPipelinePlugin_logic_dispatcher_io_bpuQuery_valid;
   assign BpuPipelinePlugin_queryPortIn_payload_pc = FetchPipelinePlugin_logic_dispatcher_io_bpuQuery_payload_pc;
   assign BpuPipelinePlugin_queryPortIn_payload_transactionId = FetchPipelinePlugin_logic_dispatcher_io_bpuQuery_payload_transactionId;
+  assign io_fetchGroupIn_fire = (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_valid && FetchPipelinePlugin_logic_dispatcher_io_fetchGroupIn_ready);
   assign _zz_s2_ICache_Access_isFlushingRoot = (FetchPipelinePlugin_logic_hardRedirect_valid || FetchPipelinePlugin_logic_doRetryFlush);
   assign _zz_s3_ICache_Wait_isFlushingRoot = (FetchPipelinePlugin_logic_hardRedirect_valid || FetchPipelinePlugin_logic_doRetryFlush);
-  assign FetchPipelinePlugin_logic_s4_logic_rawFetchGroups_io_flush = (FetchPipelinePlugin_logic_doAnyFlush || FetchPipelinePlugin_logic_isDrainingCacheRspReg);
   assign s3_ICache_Wait_isFlushed = _zz_s3_ICache_Wait_isFlushingRoot;
-  assign s4_Predecode_isFlushed = FetchPipelinePlugin_logic_hardRedirect_valid;
-  assign when_Connection_l66_13 = (|{FetchPipelinePlugin_logic_hardRedirect_valid,_zz_s2_ICache_Access_isFlushingRoot});
-  assign s2_ICache_Access_isFlushed = when_Connection_l66_13;
-  assign s1_PC_Gen_isFlushed = (|{when_Connection_l66_13,FetchPipelinePlugin_logic_hardRedirect_valid});
+  assign s5_Target_Calc_isFlushed = FetchPipelinePlugin_logic_hardRedirect_valid;
+  assign when_Connection_l66_13 = (|{FetchPipelinePlugin_logic_hardRedirect_valid,FetchPipelinePlugin_logic_hardRedirect_valid});
+  assign s4_Predecode_isFlushed = when_Connection_l66_13;
+  assign when_Connection_l66_14 = (|{when_Connection_l66_13,_zz_s2_ICache_Access_isFlushingRoot});
+  assign s2_ICache_Access_isFlushed = when_Connection_l66_14;
+  assign s1_PC_Gen_isFlushed = (|{when_Connection_l66_14,FetchPipelinePlugin_logic_hardRedirect_valid});
   assign s1_PC_Gen_isFlushingRoot = (|FetchPipelinePlugin_logic_hardRedirect_valid);
   assign s2_ICache_Access_isFlushingRoot = (|_zz_s2_ICache_Access_isFlushingRoot);
   assign s3_ICache_Wait_isFlushingRoot = (|_zz_s3_ICache_Wait_isFlushingRoot);
   assign s4_Predecode_isFlushingRoot = (|FetchPipelinePlugin_logic_hardRedirect_valid);
+  assign s5_Target_Calc_isFlushingRoot = (|FetchPipelinePlugin_logic_hardRedirect_valid);
   always @(*) begin
     _zz_s2_ICache_Access_valid = s1_PC_Gen_valid;
     if(s1_PC_Gen_isFlushingRoot) begin
@@ -23845,7 +25323,7 @@ module CoreNSCSCC (
     end
   end
 
-  assign when_Pipeline_l282_2 = (|s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l382);
+  assign when_Pipeline_l282_2 = (|s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l400);
   always @(*) begin
     _zz_s4_Predecode_valid = s2_ICache_Access_valid;
     if(s2_ICache_Access_isFlushingRoot) begin
@@ -23855,13 +25333,39 @@ module CoreNSCSCC (
 
   assign s2_ICache_Access_ready = s2_ICache_Access_ready_output;
   always @(*) begin
-    s4_Predecode_ready = 1'b1;
-    if(when_Pipeline_l282_3) begin
-      s4_Predecode_ready = 1'b0;
+    _zz_70 = s3_ICache_Wait_valid;
+    if(s3_ICache_Wait_isFlushingRoot) begin
+      _zz_70 = 1'b0;
     end
   end
 
-  assign when_Pipeline_l282_3 = (|s4_Predecode_haltRequest_FetchPipelinePlugin2_l499);
+  assign s3_ICache_Wait_ready = 1'b1;
+  always @(*) begin
+    _zz_s5_Target_Calc_valid = s4_Predecode_valid;
+    if(s4_Predecode_isFlushingRoot) begin
+      _zz_s5_Target_Calc_valid = 1'b0;
+    end
+  end
+
+  assign s4_Predecode_ready = s4_Predecode_ready_output;
+  always @(*) begin
+    _zz_71 = s5_Target_Calc_valid;
+    if(s5_Target_Calc_isFlushingRoot) begin
+      _zz_71 = 1'b0;
+    end
+    if(when_Pipeline_l282_3) begin
+      _zz_71 = 1'b0;
+    end
+  end
+
+  always @(*) begin
+    s5_Target_Calc_ready = 1'b1;
+    if(when_Pipeline_l282_3) begin
+      s5_Target_Calc_ready = 1'b0;
+    end
+  end
+
+  assign when_Pipeline_l282_3 = (|s5_Target_Calc_haltRequest_FetchPipelinePlugin2_l591);
   always @(*) begin
     s1_PC_Gen_ready_output = s2_ICache_Access_ready;
     if(when_Connection_l74_3) begin
@@ -23878,6 +25382,14 @@ module CoreNSCSCC (
   end
 
   assign when_Connection_l74_4 = (! s4_Predecode_valid);
+  always @(*) begin
+    s4_Predecode_ready_output = s5_Target_Calc_ready;
+    if(when_Connection_l74_5) begin
+      s4_Predecode_ready_output = 1'b1;
+    end
+  end
+
+  assign when_Connection_l74_5 = (! s5_Target_Calc_valid);
   assign ROBPlugin_aggregatedFlushSignal_valid = CommitPlugin_hw_robFlushPort_valid;
   always @(*) begin
     _zz_ROBPlugin_aggregatedFlushSignal_payload_reason = (2'bxx);
@@ -23899,6 +25411,8 @@ module CoreNSCSCC (
   assign CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_ready = (LoadQueuePlugin_logic_loadQueue_slots_0_valid && LoadQueuePlugin_logic_loadQueue_slots_0_isIO);
   assign _zz_LoadQueuePlugin_logic_loadQueue_completionInfo_data = CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_payload_data;
   assign _zz_LoadQueuePlugin_logic_loadQueue_completionInfo_hasFault = CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_payload_error;
+  assign _zz_StoreBufferPlugin_logic_mmioCmdFired = CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_cmd_ready;
+  assign _zz_StoreBufferPlugin_logic_mmioResponseForHead = CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_rsp_valid;
   assign CoreMemSysPlugin_logic_roMasters_0_ar_valid = ICachePlugin_axiMaster_ar_valid;
   assign ICachePlugin_axiMaster_ar_ready = CoreMemSysPlugin_logic_roMasters_0_ar_ready;
   assign CoreMemSysPlugin_logic_roMasters_0_ar_payload_addr = ICachePlugin_axiMaster_ar_payload_addr;
@@ -24645,156 +26159,156 @@ module CoreNSCSCC (
   assign when_ICachePlugin_l212 = (ICache_F2_HitCheck_valid && (! ICachePlugin_logic_pipeline_f2_isHit));
   assign ICachePlugin_axiMaster_ar_fire = (ICachePlugin_axiMaster_ar_valid && ICachePlugin_axiMaster_ar_ready);
   assign ICachePlugin_axiMaster_r_fire = (ICachePlugin_axiMaster_r_valid && ICachePlugin_axiMaster_r_ready);
-  assign _zz_78 = ({3'd0,1'b1} <<< ICachePlugin_logic_refill_refillCounter_value);
+  assign _zz_79 = ({3'd0,1'b1} <<< ICachePlugin_logic_refill_refillCounter_value);
   assign _zz_ICachePlugin_logic_tag_write_logic_writeAddress = ICachePlugin_logic_refill_refillCmdReg_address[10 : 4];
   assign when_ICachePlugin_l260 = (ICachePlugin_logic_refill_victimWayReg == 1'b0);
   assign when_ICachePlugin_l260_1 = (ICachePlugin_logic_refill_victimWayReg == 1'b1);
   always @(*) begin
     _zz_ICachePlugin_logic_tag_write_logic_writeData_ways_0_tag = ICachePlugin_logic_refill_latchedMetaOnMiss_ways_0_tag;
-    if(_zz_79[0]) begin
+    if(_zz_80[0]) begin
       _zz_ICachePlugin_logic_tag_write_logic_writeData_ways_0_tag = _zz_ICachePlugin_logic_tag_write_logic_writeData_ways_0_tag_1;
     end
   end
 
   always @(*) begin
     _zz_ICachePlugin_logic_tag_write_logic_writeData_ways_1_tag = ICachePlugin_logic_refill_latchedMetaOnMiss_ways_1_tag;
-    if(_zz_79[1]) begin
+    if(_zz_80[1]) begin
       _zz_ICachePlugin_logic_tag_write_logic_writeData_ways_1_tag = _zz_ICachePlugin_logic_tag_write_logic_writeData_ways_0_tag_1;
     end
   end
 
-  assign _zz_79 = ({1'd0,1'b1} <<< ICachePlugin_logic_refill_victimWayReg);
+  assign _zz_80 = ({1'd0,1'b1} <<< ICachePlugin_logic_refill_victimWayReg);
   assign _zz_ICachePlugin_logic_tag_write_logic_writeData_ways_0_tag_1 = ICachePlugin_logic_refill_refillCmdReg_address[31 : 11];
-  assign _zz_80 = ({127'd0,1'b1} <<< _zz_ICachePlugin_logic_tag_write_logic_writeAddress);
-  assign _zz_81 = _zz_80[0];
-  assign _zz_82 = _zz_80[1];
-  assign _zz_83 = _zz_80[2];
-  assign _zz_84 = _zz_80[3];
-  assign _zz_85 = _zz_80[4];
-  assign _zz_86 = _zz_80[5];
-  assign _zz_87 = _zz_80[6];
-  assign _zz_88 = _zz_80[7];
-  assign _zz_89 = _zz_80[8];
-  assign _zz_90 = _zz_80[9];
-  assign _zz_91 = _zz_80[10];
-  assign _zz_92 = _zz_80[11];
-  assign _zz_93 = _zz_80[12];
-  assign _zz_94 = _zz_80[13];
-  assign _zz_95 = _zz_80[14];
-  assign _zz_96 = _zz_80[15];
-  assign _zz_97 = _zz_80[16];
-  assign _zz_98 = _zz_80[17];
-  assign _zz_99 = _zz_80[18];
-  assign _zz_100 = _zz_80[19];
-  assign _zz_101 = _zz_80[20];
-  assign _zz_102 = _zz_80[21];
-  assign _zz_103 = _zz_80[22];
-  assign _zz_104 = _zz_80[23];
-  assign _zz_105 = _zz_80[24];
-  assign _zz_106 = _zz_80[25];
-  assign _zz_107 = _zz_80[26];
-  assign _zz_108 = _zz_80[27];
-  assign _zz_109 = _zz_80[28];
-  assign _zz_110 = _zz_80[29];
-  assign _zz_111 = _zz_80[30];
-  assign _zz_112 = _zz_80[31];
-  assign _zz_113 = _zz_80[32];
-  assign _zz_114 = _zz_80[33];
-  assign _zz_115 = _zz_80[34];
-  assign _zz_116 = _zz_80[35];
-  assign _zz_117 = _zz_80[36];
-  assign _zz_118 = _zz_80[37];
-  assign _zz_119 = _zz_80[38];
-  assign _zz_120 = _zz_80[39];
-  assign _zz_121 = _zz_80[40];
-  assign _zz_122 = _zz_80[41];
-  assign _zz_123 = _zz_80[42];
-  assign _zz_124 = _zz_80[43];
-  assign _zz_125 = _zz_80[44];
-  assign _zz_126 = _zz_80[45];
-  assign _zz_127 = _zz_80[46];
-  assign _zz_128 = _zz_80[47];
-  assign _zz_129 = _zz_80[48];
-  assign _zz_130 = _zz_80[49];
-  assign _zz_131 = _zz_80[50];
-  assign _zz_132 = _zz_80[51];
-  assign _zz_133 = _zz_80[52];
-  assign _zz_134 = _zz_80[53];
-  assign _zz_135 = _zz_80[54];
-  assign _zz_136 = _zz_80[55];
-  assign _zz_137 = _zz_80[56];
-  assign _zz_138 = _zz_80[57];
-  assign _zz_139 = _zz_80[58];
-  assign _zz_140 = _zz_80[59];
-  assign _zz_141 = _zz_80[60];
-  assign _zz_142 = _zz_80[61];
-  assign _zz_143 = _zz_80[62];
-  assign _zz_144 = _zz_80[63];
-  assign _zz_145 = _zz_80[64];
-  assign _zz_146 = _zz_80[65];
-  assign _zz_147 = _zz_80[66];
-  assign _zz_148 = _zz_80[67];
-  assign _zz_149 = _zz_80[68];
-  assign _zz_150 = _zz_80[69];
-  assign _zz_151 = _zz_80[70];
-  assign _zz_152 = _zz_80[71];
-  assign _zz_153 = _zz_80[72];
-  assign _zz_154 = _zz_80[73];
-  assign _zz_155 = _zz_80[74];
-  assign _zz_156 = _zz_80[75];
-  assign _zz_157 = _zz_80[76];
-  assign _zz_158 = _zz_80[77];
-  assign _zz_159 = _zz_80[78];
-  assign _zz_160 = _zz_80[79];
-  assign _zz_161 = _zz_80[80];
-  assign _zz_162 = _zz_80[81];
-  assign _zz_163 = _zz_80[82];
-  assign _zz_164 = _zz_80[83];
-  assign _zz_165 = _zz_80[84];
-  assign _zz_166 = _zz_80[85];
-  assign _zz_167 = _zz_80[86];
-  assign _zz_168 = _zz_80[87];
-  assign _zz_169 = _zz_80[88];
-  assign _zz_170 = _zz_80[89];
-  assign _zz_171 = _zz_80[90];
-  assign _zz_172 = _zz_80[91];
-  assign _zz_173 = _zz_80[92];
-  assign _zz_174 = _zz_80[93];
-  assign _zz_175 = _zz_80[94];
-  assign _zz_176 = _zz_80[95];
-  assign _zz_177 = _zz_80[96];
-  assign _zz_178 = _zz_80[97];
-  assign _zz_179 = _zz_80[98];
-  assign _zz_180 = _zz_80[99];
-  assign _zz_181 = _zz_80[100];
-  assign _zz_182 = _zz_80[101];
-  assign _zz_183 = _zz_80[102];
-  assign _zz_184 = _zz_80[103];
-  assign _zz_185 = _zz_80[104];
-  assign _zz_186 = _zz_80[105];
-  assign _zz_187 = _zz_80[106];
-  assign _zz_188 = _zz_80[107];
-  assign _zz_189 = _zz_80[108];
-  assign _zz_190 = _zz_80[109];
-  assign _zz_191 = _zz_80[110];
-  assign _zz_192 = _zz_80[111];
-  assign _zz_193 = _zz_80[112];
-  assign _zz_194 = _zz_80[113];
-  assign _zz_195 = _zz_80[114];
-  assign _zz_196 = _zz_80[115];
-  assign _zz_197 = _zz_80[116];
-  assign _zz_198 = _zz_80[117];
-  assign _zz_199 = _zz_80[118];
-  assign _zz_200 = _zz_80[119];
-  assign _zz_201 = _zz_80[120];
-  assign _zz_202 = _zz_80[121];
-  assign _zz_203 = _zz_80[122];
-  assign _zz_204 = _zz_80[123];
-  assign _zz_205 = _zz_80[124];
-  assign _zz_206 = _zz_80[125];
-  assign _zz_207 = _zz_80[126];
-  assign _zz_208 = _zz_80[127];
-  assign _zz_209 = ({1'd0,1'b1} <<< ICachePlugin_logic_refill_victimWayReg);
+  assign _zz_81 = ({127'd0,1'b1} <<< _zz_ICachePlugin_logic_tag_write_logic_writeAddress);
+  assign _zz_82 = _zz_81[0];
+  assign _zz_83 = _zz_81[1];
+  assign _zz_84 = _zz_81[2];
+  assign _zz_85 = _zz_81[3];
+  assign _zz_86 = _zz_81[4];
+  assign _zz_87 = _zz_81[5];
+  assign _zz_88 = _zz_81[6];
+  assign _zz_89 = _zz_81[7];
+  assign _zz_90 = _zz_81[8];
+  assign _zz_91 = _zz_81[9];
+  assign _zz_92 = _zz_81[10];
+  assign _zz_93 = _zz_81[11];
+  assign _zz_94 = _zz_81[12];
+  assign _zz_95 = _zz_81[13];
+  assign _zz_96 = _zz_81[14];
+  assign _zz_97 = _zz_81[15];
+  assign _zz_98 = _zz_81[16];
+  assign _zz_99 = _zz_81[17];
+  assign _zz_100 = _zz_81[18];
+  assign _zz_101 = _zz_81[19];
+  assign _zz_102 = _zz_81[20];
+  assign _zz_103 = _zz_81[21];
+  assign _zz_104 = _zz_81[22];
+  assign _zz_105 = _zz_81[23];
+  assign _zz_106 = _zz_81[24];
+  assign _zz_107 = _zz_81[25];
+  assign _zz_108 = _zz_81[26];
+  assign _zz_109 = _zz_81[27];
+  assign _zz_110 = _zz_81[28];
+  assign _zz_111 = _zz_81[29];
+  assign _zz_112 = _zz_81[30];
+  assign _zz_113 = _zz_81[31];
+  assign _zz_114 = _zz_81[32];
+  assign _zz_115 = _zz_81[33];
+  assign _zz_116 = _zz_81[34];
+  assign _zz_117 = _zz_81[35];
+  assign _zz_118 = _zz_81[36];
+  assign _zz_119 = _zz_81[37];
+  assign _zz_120 = _zz_81[38];
+  assign _zz_121 = _zz_81[39];
+  assign _zz_122 = _zz_81[40];
+  assign _zz_123 = _zz_81[41];
+  assign _zz_124 = _zz_81[42];
+  assign _zz_125 = _zz_81[43];
+  assign _zz_126 = _zz_81[44];
+  assign _zz_127 = _zz_81[45];
+  assign _zz_128 = _zz_81[46];
+  assign _zz_129 = _zz_81[47];
+  assign _zz_130 = _zz_81[48];
+  assign _zz_131 = _zz_81[49];
+  assign _zz_132 = _zz_81[50];
+  assign _zz_133 = _zz_81[51];
+  assign _zz_134 = _zz_81[52];
+  assign _zz_135 = _zz_81[53];
+  assign _zz_136 = _zz_81[54];
+  assign _zz_137 = _zz_81[55];
+  assign _zz_138 = _zz_81[56];
+  assign _zz_139 = _zz_81[57];
+  assign _zz_140 = _zz_81[58];
+  assign _zz_141 = _zz_81[59];
+  assign _zz_142 = _zz_81[60];
+  assign _zz_143 = _zz_81[61];
+  assign _zz_144 = _zz_81[62];
+  assign _zz_145 = _zz_81[63];
+  assign _zz_146 = _zz_81[64];
+  assign _zz_147 = _zz_81[65];
+  assign _zz_148 = _zz_81[66];
+  assign _zz_149 = _zz_81[67];
+  assign _zz_150 = _zz_81[68];
+  assign _zz_151 = _zz_81[69];
+  assign _zz_152 = _zz_81[70];
+  assign _zz_153 = _zz_81[71];
+  assign _zz_154 = _zz_81[72];
+  assign _zz_155 = _zz_81[73];
+  assign _zz_156 = _zz_81[74];
+  assign _zz_157 = _zz_81[75];
+  assign _zz_158 = _zz_81[76];
+  assign _zz_159 = _zz_81[77];
+  assign _zz_160 = _zz_81[78];
+  assign _zz_161 = _zz_81[79];
+  assign _zz_162 = _zz_81[80];
+  assign _zz_163 = _zz_81[81];
+  assign _zz_164 = _zz_81[82];
+  assign _zz_165 = _zz_81[83];
+  assign _zz_166 = _zz_81[84];
+  assign _zz_167 = _zz_81[85];
+  assign _zz_168 = _zz_81[86];
+  assign _zz_169 = _zz_81[87];
+  assign _zz_170 = _zz_81[88];
+  assign _zz_171 = _zz_81[89];
+  assign _zz_172 = _zz_81[90];
+  assign _zz_173 = _zz_81[91];
+  assign _zz_174 = _zz_81[92];
+  assign _zz_175 = _zz_81[93];
+  assign _zz_176 = _zz_81[94];
+  assign _zz_177 = _zz_81[95];
+  assign _zz_178 = _zz_81[96];
+  assign _zz_179 = _zz_81[97];
+  assign _zz_180 = _zz_81[98];
+  assign _zz_181 = _zz_81[99];
+  assign _zz_182 = _zz_81[100];
+  assign _zz_183 = _zz_81[101];
+  assign _zz_184 = _zz_81[102];
+  assign _zz_185 = _zz_81[103];
+  assign _zz_186 = _zz_81[104];
+  assign _zz_187 = _zz_81[105];
+  assign _zz_188 = _zz_81[106];
+  assign _zz_189 = _zz_81[107];
+  assign _zz_190 = _zz_81[108];
+  assign _zz_191 = _zz_81[109];
+  assign _zz_192 = _zz_81[110];
+  assign _zz_193 = _zz_81[111];
+  assign _zz_194 = _zz_81[112];
+  assign _zz_195 = _zz_81[113];
+  assign _zz_196 = _zz_81[114];
+  assign _zz_197 = _zz_81[115];
+  assign _zz_198 = _zz_81[116];
+  assign _zz_199 = _zz_81[117];
+  assign _zz_200 = _zz_81[118];
+  assign _zz_201 = _zz_81[119];
+  assign _zz_202 = _zz_81[120];
+  assign _zz_203 = _zz_81[121];
+  assign _zz_204 = _zz_81[122];
+  assign _zz_205 = _zz_81[123];
+  assign _zz_206 = _zz_81[124];
+  assign _zz_207 = _zz_81[125];
+  assign _zz_208 = _zz_81[126];
+  assign _zz_209 = _zz_81[127];
+  assign _zz_210 = ({1'd0,1'b1} <<< ICachePlugin_logic_refill_victimWayReg);
   assign ICachePlugin_logic_refill_fsm_onExit_BOOT = ((! ICachePlugin_logic_refill_fsm_stateNext[ICachePlugin_logic_refill_fsm_BOOT_OH_ID]) && (ICachePlugin_logic_refill_fsm_stateReg[ICachePlugin_logic_refill_fsm_BOOT_OH_ID]));
   assign ICachePlugin_logic_refill_fsm_onExit_IDLE = ((! ICachePlugin_logic_refill_fsm_stateNext[ICachePlugin_logic_refill_fsm_IDLE_OH_ID]) && (ICachePlugin_logic_refill_fsm_stateReg[ICachePlugin_logic_refill_fsm_IDLE_OH_ID]));
   assign ICachePlugin_logic_refill_fsm_onExit_SEND_REQ = ((! ICachePlugin_logic_refill_fsm_stateNext[ICachePlugin_logic_refill_fsm_SEND_REQ_OH_ID]) && (ICachePlugin_logic_refill_fsm_stateReg[ICachePlugin_logic_refill_fsm_SEND_REQ_OH_ID]));
@@ -24831,8 +26345,8 @@ module CoreNSCSCC (
   assign BpuPipelinePlugin_logic_s1_read_Q_PC = BpuPipelinePlugin_queryPortIn_payload_pc;
   assign BpuPipelinePlugin_logic_s1_read_TRANSACTION_ID = BpuPipelinePlugin_queryPortIn_payload_transactionId;
   assign BpuPipelinePlugin_logic_s1_read_isFiring = (BpuPipelinePlugin_logic_s1_read_valid && BpuPipelinePlugin_logic_s1_read_ready);
-  assign _zz_210 = BpuPipelinePlugin_logic_s1_read_Q_PC[11 : 2];
-  assign _zz_211 = BpuPipelinePlugin_logic_s1_read_Q_PC[9 : 2];
+  assign _zz_211 = BpuPipelinePlugin_logic_s1_read_Q_PC[11 : 2];
+  assign _zz_212 = BpuPipelinePlugin_logic_s1_read_Q_PC[9 : 2];
   assign _zz_BpuPipelinePlugin_logic_phtReadData_s1 = BpuPipelinePlugin_logic_s1_read_Q_PC[11 : 2];
   assign BpuPipelinePlugin_logic_phtReadData_s1 = BpuPipelinePlugin_logic_pht_spinal_port0;
   assign _zz_BpuPipelinePlugin_logic_btbReadData_s1_valid = BpuPipelinePlugin_logic_s1_read_Q_PC[9 : 2];
@@ -24845,7 +26359,7 @@ module CoreNSCSCC (
   assign BpuPipelinePlugin_logic_s2_predict_IS_TAKEN = (BpuPipelinePlugin_logic_btbHit && BpuPipelinePlugin_logic_phtPrediction);
   assign BpuPipelinePlugin_logic_s2_predict_TARGET_PC = BpuPipelinePlugin_logic_btbReadData_s1_target;
   assign BpuPipelinePlugin_logic_s2_predict_isFiring = (BpuPipelinePlugin_logic_s2_predict_valid && BpuPipelinePlugin_logic_s2_predict_ready);
-  assign _zz_214 = (BpuPipelinePlugin_logic_btbReadData_s1_tag == BpuPipelinePlugin_logic_s2_predict_Q_PC[31 : 10]);
+  assign _zz_215 = (BpuPipelinePlugin_logic_btbReadData_s1_tag == BpuPipelinePlugin_logic_s2_predict_Q_PC[31 : 10]);
   assign BpuPipelinePlugin_logic_u1_read_valid = BpuPipelinePlugin_updatePortIn_valid;
   assign BpuPipelinePlugin_updatePortIn_ready = BpuPipelinePlugin_logic_u1_read_ready;
   assign BpuPipelinePlugin_logic_u1_read_U_PAYLOAD_pc = BpuPipelinePlugin_updatePortIn_payload_pc;
@@ -25499,6 +27013,7 @@ module CoreNSCSCC (
       FetchPipelinePlugin_logic_s1_logic_lastRetryIdReg <= 2'b00;
       s2_ICache_Access_valid <= 1'b0;
       s4_Predecode_valid <= 1'b0;
+      s5_Target_Calc_valid <= 1'b0;
       ICachePlugin_logic_storage_valids_0_0 <= 1'b0;
       ICachePlugin_logic_storage_valids_0_1 <= 1'b0;
       ICachePlugin_logic_storage_valids_1_0 <= 1'b0;
@@ -25782,6 +27297,15 @@ module CoreNSCSCC (
     end else begin
       FetchPipelinePlugin_dbg_cycles <= (FetchPipelinePlugin_dbg_cycles + 16'h0001);
       FetchPipelinePlugin_dbg_c <= (FetchPipelinePlugin_dbg_c + 3'b001);
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // FetchPipelinePlugin2.scala:L136
+        `else
+          if(!1'b0) begin
+            $display("NOTE(FetchPipelinePlugin2.scala:136):  [normal] ------------ End of cycle 0x%x", FetchPipelinePlugin_dbg_cycles); // FetchPipelinePlugin2.scala:L136
+          end
+        `endif
+      `endif
       if(oneShot_12_io_pulseOut) begin
         if(when_Debug_l71) begin
           _zz_when_Debug_l71 <= {3'd0, _zz_when_Debug_l71_1};
@@ -25837,6 +27361,18 @@ module CoreNSCSCC (
             `endif
           `endif
         end
+      end
+      if(FetchPipelinePlugin_doHardRedirect_listening) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert((! CoreNSCSCCSetupPlugin_setup_fetchOutput_valid)); // FetchPipelinePlugin2.scala:L162
+          `else
+            if(!(! CoreNSCSCCSetupPlugin_setup_fetchOutput_valid)) begin
+              $display("FAILURE "); // FetchPipelinePlugin2.scala:L162
+              $finish;
+            end
+          `endif
+        `endif
       end
       if(CheckpointManagerPlugin_saveCheckpointTrigger) begin
         CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_0 <= RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_0;
@@ -26180,55 +27716,55 @@ module CoreNSCSCC (
           `endif
         `endif
       end
-      if(when_CommitPlugin_l203) begin
+      if(when_CommitPlugin_l209) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // CommitPlugin.scala:L208
+            assert(1'b0); // CommitPlugin.scala:L214
           `else
             if(!1'b0) begin
-              $display("NOTE(CommitPlugin.scala:208):  [COMMIT] BPU UPDATE: pc=0x%x, isTaken=%x, target=0x%x", BpuPipelinePlugin_updatePortIn_payload_pc, BpuPipelinePlugin_updatePortIn_payload_isTaken, BpuPipelinePlugin_updatePortIn_payload_target); // CommitPlugin.scala:L208
+              $display("NOTE(CommitPlugin.scala:214):  [COMMIT] BPU UPDATE: pc=0x%x, isTaken=%x, target=0x%x", BpuPipelinePlugin_updatePortIn_payload_pc, BpuPipelinePlugin_updatePortIn_payload_isTaken, BpuPipelinePlugin_updatePortIn_payload_target); // CommitPlugin.scala:L214
             end
           `endif
         `endif
       end
-      if(when_CommitPlugin_l216) begin
+      if(when_CommitPlugin_l222) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // CommitPlugin.scala:L223
+            assert(1'b0); // CommitPlugin.scala:L229
           `else
             if(!1'b0) begin
-              $display("NOTE(CommitPlugin.scala:223):  CHECKPOINT: Save checkpoint triggered on successful commit."); // CommitPlugin.scala:L223
+              $display("NOTE(CommitPlugin.scala:229):  CHECKPOINT: Save checkpoint triggered on successful commit."); // CommitPlugin.scala:L229
             end
           `endif
         `endif
       end
-      if(when_CommitPlugin_l227) begin
+      if(when_CommitPlugin_l239) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // CommitPlugin.scala:L238
+            assert(1'b0); // CommitPlugin.scala:L250
           `else
             if(!1'b0) begin
-              $display("NOTE(CommitPlugin.scala:238):  [RegRes] freelist gc, busytable recover to last committed state. "); // CommitPlugin.scala:L238
+              $display("NOTE(CommitPlugin.scala:250):  [RegRes] freelist gc, busytable recover to last committed state. "); // CommitPlugin.scala:L250
             end
           `endif
         `endif
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // CommitPlugin.scala:L247
+            assert(1'b0); // CommitPlugin.scala:L259
           `else
             if(!1'b0) begin
-              $display("NOTE(CommitPlugin.scala:247):  [notice] [33mBRANCH MISPREDICT: Vetoing commit of robPtr=%x, PC=0x%x and flushing pipeline. Redirecting to 0x%x.[0m", ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr, ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc, ROBPlugin_robComponent_io_commit_0_entry_status_result); // CommitPlugin.scala:L247
+              $display("NOTE(CommitPlugin.scala:259):  [notice] [33mBRANCH MISPREDICT: Vetoing commit of robPtr=%x, PC=0x%x and flushing pipeline. Redirecting to 0x%x.[0m", ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr, ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc, ROBPlugin_robComponent_io_commit_0_entry_status_result); // CommitPlugin.scala:L259
             end
           `endif
         `endif
       end
-      if(when_CommitPlugin_l266) begin
+      if(when_CommitPlugin_l278) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // CommitPlugin.scala:L267
+            assert(1'b0); // CommitPlugin.scala:L279
           `else
             if(!1'b0) begin
-              $display("NOTE(CommitPlugin.scala:267):  [RegRes] freelist recycle reg %x (because commit uop@%x)", ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx, ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc); // CommitPlugin.scala:L267
+              $display("NOTE(CommitPlugin.scala:279):  [RegRes] freelist recycle reg %x (because commit uop@%x)", ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx, ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc); // CommitPlugin.scala:L279
             end
           `endif
         `endif
@@ -26238,7 +27774,7 @@ module CoreNSCSCC (
       CommitPlugin_logic_s1_s1_flushedThisCycle <= CommitPlugin_logic_s0_flushedThisCycle_comb;
       CommitPlugin_logic_s1_s1_maxCommitPcThisCycle <= CommitPlugin_logic_s0_maxCommitPcThisCycle;
       CommitPlugin_logic_s1_s1_anyCommitOOB <= CommitPlugin_logic_s0_anyCommitOOB;
-      if(when_CommitPlugin_l324) begin
+      if(when_CommitPlugin_l336) begin
         CommitPlugin_maxCommitPcReg <= CommitPlugin_logic_s1_s1_maxCommitPcThisCycle;
       end
       if(CommitPlugin_logic_s1_s1_anyCommitOOB) begin
@@ -26271,7 +27807,7 @@ module CoreNSCSCC (
             assert(1'b0); // Debug.scala:L77
           `else
             if(!1'b0) begin
-              $display("NOTE(Debug.scala:77):  [DbgSvc] Set value to 0x%x", _zz_26); // Debug.scala:L77
+              $display("NOTE(Debug.scala:77):  [DbgSvc] Set value to 0x%x", _zz_27); // Debug.scala:L77
             end
           `endif
         `endif
@@ -26279,10 +27815,10 @@ module CoreNSCSCC (
       CommitPlugin_logic_counter <= (CommitPlugin_logic_counter + 32'h00000001);
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // CommitPlugin.scala:L356
+          assert(1'b0); // CommitPlugin.scala:L368
         `else
           if(!1'b0) begin
-            $display("NOTE(CommitPlugin.scala:356):  [COMMIT] Cycle %x Log: Stats=CommitStats(committedThisCycle=%x, totalCommitted=%x, robFlushCount=%x, physRegRecycled=%x, commitOOB=%x, maxCommitPc=0x%x)\n  Slot Details: \n    Slot: (valid=%x, canCommit=%x, doCommit=%x, robPtr=%x, oldPhysDest=%x, allocPhysDest=%x) commitAck=%x commitPc=0x%x", CommitPlugin_logic_counter, CommitPlugin_commitStatsReg_committedThisCycle, CommitPlugin_commitStatsReg_totalCommitted, CommitPlugin_commitStatsReg_robFlushCount, CommitPlugin_commitStatsReg_physRegRecycled, CommitPlugin_commitStatsReg_commitOOB, CommitPlugin_commitStatsReg_maxCommitPc, CommitPlugin_logic_s0_commitSlotLogs_0_valid, CommitPlugin_logic_s0_commitSlotLogs_0_canCommit, CommitPlugin_logic_s0_commitSlotLogs_0_doCommit, CommitPlugin_logic_s0_commitSlotLogs_0_robPtr, CommitPlugin_logic_s0_commitSlotLogs_0_oldPhysDest, CommitPlugin_logic_s0_commitSlotLogs_0_allocatesPhysDest, CommitPlugin_logic_s0_commitAckMasks_0, CommitPlugin_logic_s0_commitPcs_0); // CommitPlugin.scala:L356
+            $display("NOTE(CommitPlugin.scala:368):  [COMMIT] Cycle %x Log: Stats=CommitStats(committedThisCycle=%x, totalCommitted=%x, robFlushCount=%x, physRegRecycled=%x, commitOOB=%x, maxCommitPc=0x%x)\n  Slot Details: \n    Slot: (valid=%x, canCommit=%x, doCommit=%x, robPtr=%x, oldPhysDest=%x, allocPhysDest=%x) commitAck=%x commitPc=0x%x", CommitPlugin_logic_counter, CommitPlugin_commitStatsReg_committedThisCycle, CommitPlugin_commitStatsReg_totalCommitted, CommitPlugin_commitStatsReg_robFlushCount, CommitPlugin_commitStatsReg_physRegRecycled, CommitPlugin_commitStatsReg_commitOOB, CommitPlugin_commitStatsReg_maxCommitPc, CommitPlugin_logic_s0_commitSlotLogs_0_valid, CommitPlugin_logic_s0_commitSlotLogs_0_canCommit, CommitPlugin_logic_s0_commitSlotLogs_0_doCommit, CommitPlugin_logic_s0_commitSlotLogs_0_robPtr, CommitPlugin_logic_s0_commitSlotLogs_0_oldPhysDest, CommitPlugin_logic_s0_commitSlotLogs_0_allocatesPhysDest, CommitPlugin_logic_s0_commitAckMasks_0, CommitPlugin_logic_s0_commitPcs_0); // CommitPlugin.scala:L368
           end
         `endif
       `endif
@@ -26337,7 +27873,7 @@ module CoreNSCSCC (
               assert(1'b0); // DecodePlugin.scala:L121
             `else
               if(!1'b0) begin
-                $display("NOTE(DecodePlugin.scala:121):  DecodePlugin (s0_decode): Firing. Output DecodedUops=DecodedUop @ pc=%x (%x)\n  Core Info:   uopCode=%s  exeUnit=%s  isa=%s\n  Operands:\n    dest=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x writeEn=%x\n    src1=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x use=%x\n    src2=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x use=%x\n use=\n    imm=%x (usage=%s)\n  Control Flags:\n    ALU: AluCtrlFlags: isSub=%x isAdd=%x isSigned=%x logicOp=%s condition=%s\n    Shift: ShiftCtrlFlags: isRight=%x isArithmetic=%x isRotate=%x isDoubleWord=%x\n    MulDiv: MulDivCtrlFlags: isDiv=%x isSigned=%x isWordOp=%x\n    Mem: MemCtrlFlags: size=%s isSignedLoad=%x isStore=%x isLoadLinked=%x isStoreCond=%x atomicOp=%x isFence=%x fenceMode=%x isCacheOp=%x cacheOpType=%x isPrefetch=%x\n    Branch: BranchCtrlFlags: condition=%s isJump=%x isLink=%x linkReg=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x isIndirect=%x laCfIdx=%x\n    FPU: FpuCtrlFlags: opType=%x fpSizeSrc1=%s fpSizeSrc2=%s fpSizeDest=%s roundingMode=%x isIntegerDest=%x isSignedCvt=%x fmaNegSrc1=%x fcmpCond=%x\n    CSR: CsrCtrlFlags: csrAddr=%x isWrite=%x isRead=%x isExchange=%x useUimmAsSrc=%x\n    System: SystemCtrlFlags: sysCode=%x isExceptionReturn=%x isTlbOp=%x tlbOpType=%x\n  Status:\n    decodeEx=%s hasEx=%x\n    isMicrocode=%x entry=%x\n    isSerializing=%x isBranchOrJump=%x branchPrediction=BranchPredictionInfo: isTaken=%x target=%x wasPredicted=%x", DecodePlugin_logic_decodedUopsOutputVec_0_pc, DecodePlugin_logic_decodedUopsOutputVec_0_isValid, DecodePlugin_logic_decodedUopsOutputVec_0_uopCode_string, DecodePlugin_logic_decodedUopsOutputVec_0_exeUnit_string, DecodePlugin_logic_decodedUopsOutputVec_0_isa_string, DecodePlugin_logic_decodedUopsOutputVec_0_archDest_idx, DecodePlugin_logic_decodedUopsOutputVec_0_archDest_rtype_string, _zz_27, _zz_28, _zz_29, DecodePlugin_logic_decodedUopsOutputVec_0_writeArchDestEn, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_idx, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_rtype_string, _zz_30, _zz_31, _zz_32, DecodePlugin_logic_decodedUopsOutputVec_0_useArchSrc1, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_idx, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype_string, _zz_33, _zz_34, _zz_35, DecodePlugin_logic_decodedUopsOutputVec_0_useArchSrc2, DecodePlugin_logic_decodedUopsOutputVec_0_imm, DecodePlugin_logic_decodedUopsOutputVec_0_immUsage_string, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_isSub, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_isAdd, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_isSigned, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_logicOp_string, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_condition_string, DecodePlugin_logic_decodedUopsOutputVec_0_shiftCtrl_isRight, DecodePlugin_logic_decodedUopsOutputVec_0_shiftCtrl_isArithmetic, DecodePlugin_logic_decodedUopsOutputVec_0_shiftCtrl_isRotate, DecodePlugin_logic_decodedUopsOutputVec_0_shiftCtrl_isDoubleWord, DecodePlugin_logic_decodedUopsOutputVec_0_mulDivCtrl_isDiv, DecodePlugin_logic_decodedUopsOutputVec_0_mulDivCtrl_isSigned, DecodePlugin_logic_decodedUopsOutputVec_0_mulDivCtrl_isWordOp, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_size_string, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isSignedLoad, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isStore, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isLoadLinked, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isStoreCond, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_atomicOp, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isFence, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_fenceMode, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isCacheOp, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_cacheOpType, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isPrefetch, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_condition_string, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_isJump, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_isLink, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_idx, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype_string, _zz_36, _zz_37, _zz_38, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_isIndirect, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_laCfIdx, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_opType, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc1_string, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc2_string, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeDest_string, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_roundingMode, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_isIntegerDest, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_isSignedCvt, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fmaNegSrc1, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fcmpCond, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_csrAddr, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_isWrite, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_isRead, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_isExchange, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_useUimmAsSrc, DecodePlugin_logic_decodedUopsOutputVec_0_sysCtrl_sysCode, DecodePlugin_logic_decodedUopsOutputVec_0_sysCtrl_isExceptionReturn, DecodePlugin_logic_decodedUopsOutputVec_0_sysCtrl_isTlbOp, DecodePlugin_logic_decodedUopsOutputVec_0_sysCtrl_tlbOpType, DecodePlugin_logic_decodedUopsOutputVec_0_decodeExceptionCode_string, DecodePlugin_logic_decodedUopsOutputVec_0_hasDecodeException, DecodePlugin_logic_decodedUopsOutputVec_0_isMicrocode, DecodePlugin_logic_decodedUopsOutputVec_0_microcodeEntry, DecodePlugin_logic_decodedUopsOutputVec_0_isSerializing, DecodePlugin_logic_decodedUopsOutputVec_0_isBranchOrJump, DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_isTaken, DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_target, DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_wasPredicted); // DecodePlugin.scala:L121
+                $display("NOTE(DecodePlugin.scala:121):  DecodePlugin (s0_decode): Firing. Output DecodedUops=DecodedUop @ pc=%x (%x)\n  Core Info:   uopCode=%s  exeUnit=%s  isa=%s\n  Operands:\n    dest=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x writeEn=%x\n    src1=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x use=%x\n    src2=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x use=%x\n use=\n    imm=%x (usage=%s)\n  Control Flags:\n    ALU: AluCtrlFlags: isSub=%x isAdd=%x isSigned=%x logicOp=%s condition=%s\n    Shift: ShiftCtrlFlags: isRight=%x isArithmetic=%x isRotate=%x isDoubleWord=%x\n    MulDiv: MulDivCtrlFlags: isDiv=%x isSigned=%x isWordOp=%x\n    Mem: MemCtrlFlags: size=%s isSignedLoad=%x isStore=%x isLoadLinked=%x isStoreCond=%x atomicOp=%x isFence=%x fenceMode=%x isCacheOp=%x cacheOpType=%x isPrefetch=%x\n    Branch: BranchCtrlFlags: condition=%s isJump=%x isLink=%x linkReg=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x isIndirect=%x laCfIdx=%x\n    FPU: FpuCtrlFlags: opType=%x fpSizeSrc1=%s fpSizeSrc2=%s fpSizeDest=%s roundingMode=%x isIntegerDest=%x isSignedCvt=%x fmaNegSrc1=%x fcmpCond=%x\n    CSR: CsrCtrlFlags: csrAddr=%x isWrite=%x isRead=%x isExchange=%x useUimmAsSrc=%x\n    System: SystemCtrlFlags: sysCode=%x isExceptionReturn=%x isTlbOp=%x tlbOpType=%x\n  Status:\n    decodeEx=%s hasEx=%x\n    isMicrocode=%x entry=%x\n    isSerializing=%x isBranchOrJump=%x branchPrediction=BranchPredictionInfo: isTaken=%x target=%x wasPredicted=%x", DecodePlugin_logic_decodedUopsOutputVec_0_pc, DecodePlugin_logic_decodedUopsOutputVec_0_isValid, DecodePlugin_logic_decodedUopsOutputVec_0_uopCode_string, DecodePlugin_logic_decodedUopsOutputVec_0_exeUnit_string, DecodePlugin_logic_decodedUopsOutputVec_0_isa_string, DecodePlugin_logic_decodedUopsOutputVec_0_archDest_idx, DecodePlugin_logic_decodedUopsOutputVec_0_archDest_rtype_string, _zz_28, _zz_29, _zz_30, DecodePlugin_logic_decodedUopsOutputVec_0_writeArchDestEn, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_idx, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_rtype_string, _zz_31, _zz_32, _zz_33, DecodePlugin_logic_decodedUopsOutputVec_0_useArchSrc1, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_idx, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype_string, _zz_34, _zz_35, _zz_36, DecodePlugin_logic_decodedUopsOutputVec_0_useArchSrc2, DecodePlugin_logic_decodedUopsOutputVec_0_imm, DecodePlugin_logic_decodedUopsOutputVec_0_immUsage_string, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_isSub, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_isAdd, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_isSigned, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_logicOp_string, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_condition_string, DecodePlugin_logic_decodedUopsOutputVec_0_shiftCtrl_isRight, DecodePlugin_logic_decodedUopsOutputVec_0_shiftCtrl_isArithmetic, DecodePlugin_logic_decodedUopsOutputVec_0_shiftCtrl_isRotate, DecodePlugin_logic_decodedUopsOutputVec_0_shiftCtrl_isDoubleWord, DecodePlugin_logic_decodedUopsOutputVec_0_mulDivCtrl_isDiv, DecodePlugin_logic_decodedUopsOutputVec_0_mulDivCtrl_isSigned, DecodePlugin_logic_decodedUopsOutputVec_0_mulDivCtrl_isWordOp, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_size_string, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isSignedLoad, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isStore, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isLoadLinked, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isStoreCond, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_atomicOp, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isFence, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_fenceMode, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isCacheOp, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_cacheOpType, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isPrefetch, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_condition_string, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_isJump, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_isLink, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_idx, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype_string, _zz_37, _zz_38, _zz_39, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_isIndirect, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_laCfIdx, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_opType, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc1_string, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc2_string, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeDest_string, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_roundingMode, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_isIntegerDest, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_isSignedCvt, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fmaNegSrc1, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fcmpCond, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_csrAddr, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_isWrite, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_isRead, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_isExchange, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_useUimmAsSrc, DecodePlugin_logic_decodedUopsOutputVec_0_sysCtrl_sysCode, DecodePlugin_logic_decodedUopsOutputVec_0_sysCtrl_isExceptionReturn, DecodePlugin_logic_decodedUopsOutputVec_0_sysCtrl_isTlbOp, DecodePlugin_logic_decodedUopsOutputVec_0_sysCtrl_tlbOpType, DecodePlugin_logic_decodedUopsOutputVec_0_decodeExceptionCode_string, DecodePlugin_logic_decodedUopsOutputVec_0_hasDecodeException, DecodePlugin_logic_decodedUopsOutputVec_0_isMicrocode, DecodePlugin_logic_decodedUopsOutputVec_0_microcodeEntry, DecodePlugin_logic_decodedUopsOutputVec_0_isSerializing, DecodePlugin_logic_decodedUopsOutputVec_0_isBranchOrJump, DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_isTaken, DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_target, DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_wasPredicted); // DecodePlugin.scala:L121
               end
             `endif
           `endif
@@ -26347,7 +27883,7 @@ module CoreNSCSCC (
               assert(1'b0); // DecodePlugin.scala:L123
             `else
               if(!1'b0) begin
-                $display("NOTE(DecodePlugin.scala:123):  [notice] [33mDecodePlugin (s0_decode): Firing. Output DecodedUops=DecodedUop @ pc=%x (%x)\n  Core Info:   uopCode=%s  exeUnit=%s  isa=%s\n  Operands:\n    dest=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x writeEn=%x\n    src1=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x use=%x\n    src2=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x use=%x\n use=\n    imm=%x (usage=%s)\n  Control Flags:\n    ALU: AluCtrlFlags: isSub=%x isAdd=%x isSigned=%x logicOp=%s condition=%s\n    Shift: ShiftCtrlFlags: isRight=%x isArithmetic=%x isRotate=%x isDoubleWord=%x\n    MulDiv: MulDivCtrlFlags: isDiv=%x isSigned=%x isWordOp=%x\n    Mem: MemCtrlFlags: size=%s isSignedLoad=%x isStore=%x isLoadLinked=%x isStoreCond=%x atomicOp=%x isFence=%x fenceMode=%x isCacheOp=%x cacheOpType=%x isPrefetch=%x\n    Branch: BranchCtrlFlags: condition=%s isJump=%x isLink=%x linkReg=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x isIndirect=%x laCfIdx=%x\n    FPU: FpuCtrlFlags: opType=%x fpSizeSrc1=%s fpSizeSrc2=%s fpSizeDest=%s roundingMode=%x isIntegerDest=%x isSignedCvt=%x fmaNegSrc1=%x fcmpCond=%x\n    CSR: CsrCtrlFlags: csrAddr=%x isWrite=%x isRead=%x isExchange=%x useUimmAsSrc=%x\n    System: SystemCtrlFlags: sysCode=%x isExceptionReturn=%x isTlbOp=%x tlbOpType=%x\n  Status:\n    decodeEx=%s hasEx=%x\n    isMicrocode=%x entry=%x\n    isSerializing=%x isBranchOrJump=%x branchPrediction=BranchPredictionInfo: isTaken=%x target=%x wasPredicted=%x[0m", DecodePlugin_logic_decodedUopsOutputVec_0_pc, DecodePlugin_logic_decodedUopsOutputVec_0_isValid, DecodePlugin_logic_decodedUopsOutputVec_0_uopCode_string, DecodePlugin_logic_decodedUopsOutputVec_0_exeUnit_string, DecodePlugin_logic_decodedUopsOutputVec_0_isa_string, DecodePlugin_logic_decodedUopsOutputVec_0_archDest_idx, DecodePlugin_logic_decodedUopsOutputVec_0_archDest_rtype_string, _zz_39, _zz_40, _zz_41, DecodePlugin_logic_decodedUopsOutputVec_0_writeArchDestEn, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_idx, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_rtype_string, _zz_42, _zz_43, _zz_44, DecodePlugin_logic_decodedUopsOutputVec_0_useArchSrc1, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_idx, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype_string, _zz_45, _zz_46, _zz_47, DecodePlugin_logic_decodedUopsOutputVec_0_useArchSrc2, DecodePlugin_logic_decodedUopsOutputVec_0_imm, DecodePlugin_logic_decodedUopsOutputVec_0_immUsage_string, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_isSub, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_isAdd, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_isSigned, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_logicOp_string, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_condition_string, DecodePlugin_logic_decodedUopsOutputVec_0_shiftCtrl_isRight, DecodePlugin_logic_decodedUopsOutputVec_0_shiftCtrl_isArithmetic, DecodePlugin_logic_decodedUopsOutputVec_0_shiftCtrl_isRotate, DecodePlugin_logic_decodedUopsOutputVec_0_shiftCtrl_isDoubleWord, DecodePlugin_logic_decodedUopsOutputVec_0_mulDivCtrl_isDiv, DecodePlugin_logic_decodedUopsOutputVec_0_mulDivCtrl_isSigned, DecodePlugin_logic_decodedUopsOutputVec_0_mulDivCtrl_isWordOp, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_size_string, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isSignedLoad, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isStore, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isLoadLinked, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isStoreCond, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_atomicOp, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isFence, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_fenceMode, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isCacheOp, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_cacheOpType, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isPrefetch, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_condition_string, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_isJump, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_isLink, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_idx, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype_string, _zz_48, _zz_49, _zz_50, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_isIndirect, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_laCfIdx, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_opType, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc1_string, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc2_string, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeDest_string, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_roundingMode, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_isIntegerDest, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_isSignedCvt, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fmaNegSrc1, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fcmpCond, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_csrAddr, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_isWrite, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_isRead, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_isExchange, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_useUimmAsSrc, DecodePlugin_logic_decodedUopsOutputVec_0_sysCtrl_sysCode, DecodePlugin_logic_decodedUopsOutputVec_0_sysCtrl_isExceptionReturn, DecodePlugin_logic_decodedUopsOutputVec_0_sysCtrl_isTlbOp, DecodePlugin_logic_decodedUopsOutputVec_0_sysCtrl_tlbOpType, DecodePlugin_logic_decodedUopsOutputVec_0_decodeExceptionCode_string, DecodePlugin_logic_decodedUopsOutputVec_0_hasDecodeException, DecodePlugin_logic_decodedUopsOutputVec_0_isMicrocode, DecodePlugin_logic_decodedUopsOutputVec_0_microcodeEntry, DecodePlugin_logic_decodedUopsOutputVec_0_isSerializing, DecodePlugin_logic_decodedUopsOutputVec_0_isBranchOrJump, DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_isTaken, DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_target, DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_wasPredicted); // DecodePlugin.scala:L123
+                $display("NOTE(DecodePlugin.scala:123):  [notice] [33mDecodePlugin (s0_decode): Firing. Output DecodedUops=DecodedUop @ pc=%x (%x)\n  Core Info:   uopCode=%s  exeUnit=%s  isa=%s\n  Operands:\n    dest=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x writeEn=%x\n    src1=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x use=%x\n    src2=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x use=%x\n use=\n    imm=%x (usage=%s)\n  Control Flags:\n    ALU: AluCtrlFlags: isSub=%x isAdd=%x isSigned=%x logicOp=%s condition=%s\n    Shift: ShiftCtrlFlags: isRight=%x isArithmetic=%x isRotate=%x isDoubleWord=%x\n    MulDiv: MulDivCtrlFlags: isDiv=%x isSigned=%x isWordOp=%x\n    Mem: MemCtrlFlags: size=%s isSignedLoad=%x isStore=%x isLoadLinked=%x isStoreCond=%x atomicOp=%x isFence=%x fenceMode=%x isCacheOp=%x cacheOpType=%x isPrefetch=%x\n    Branch: BranchCtrlFlags: condition=%s isJump=%x isLink=%x linkReg=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x isIndirect=%x laCfIdx=%x\n    FPU: FpuCtrlFlags: opType=%x fpSizeSrc1=%s fpSizeSrc2=%s fpSizeDest=%s roundingMode=%x isIntegerDest=%x isSignedCvt=%x fmaNegSrc1=%x fcmpCond=%x\n    CSR: CsrCtrlFlags: csrAddr=%x isWrite=%x isRead=%x isExchange=%x useUimmAsSrc=%x\n    System: SystemCtrlFlags: sysCode=%x isExceptionReturn=%x isTlbOp=%x tlbOpType=%x\n  Status:\n    decodeEx=%s hasEx=%x\n    isMicrocode=%x entry=%x\n    isSerializing=%x isBranchOrJump=%x branchPrediction=BranchPredictionInfo: isTaken=%x target=%x wasPredicted=%x[0m", DecodePlugin_logic_decodedUopsOutputVec_0_pc, DecodePlugin_logic_decodedUopsOutputVec_0_isValid, DecodePlugin_logic_decodedUopsOutputVec_0_uopCode_string, DecodePlugin_logic_decodedUopsOutputVec_0_exeUnit_string, DecodePlugin_logic_decodedUopsOutputVec_0_isa_string, DecodePlugin_logic_decodedUopsOutputVec_0_archDest_idx, DecodePlugin_logic_decodedUopsOutputVec_0_archDest_rtype_string, _zz_40, _zz_41, _zz_42, DecodePlugin_logic_decodedUopsOutputVec_0_writeArchDestEn, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_idx, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_rtype_string, _zz_43, _zz_44, _zz_45, DecodePlugin_logic_decodedUopsOutputVec_0_useArchSrc1, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_idx, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype_string, _zz_46, _zz_47, _zz_48, DecodePlugin_logic_decodedUopsOutputVec_0_useArchSrc2, DecodePlugin_logic_decodedUopsOutputVec_0_imm, DecodePlugin_logic_decodedUopsOutputVec_0_immUsage_string, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_isSub, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_isAdd, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_isSigned, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_logicOp_string, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_condition_string, DecodePlugin_logic_decodedUopsOutputVec_0_shiftCtrl_isRight, DecodePlugin_logic_decodedUopsOutputVec_0_shiftCtrl_isArithmetic, DecodePlugin_logic_decodedUopsOutputVec_0_shiftCtrl_isRotate, DecodePlugin_logic_decodedUopsOutputVec_0_shiftCtrl_isDoubleWord, DecodePlugin_logic_decodedUopsOutputVec_0_mulDivCtrl_isDiv, DecodePlugin_logic_decodedUopsOutputVec_0_mulDivCtrl_isSigned, DecodePlugin_logic_decodedUopsOutputVec_0_mulDivCtrl_isWordOp, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_size_string, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isSignedLoad, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isStore, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isLoadLinked, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isStoreCond, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_atomicOp, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isFence, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_fenceMode, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isCacheOp, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_cacheOpType, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isPrefetch, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_condition_string, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_isJump, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_isLink, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_idx, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype_string, _zz_49, _zz_50, _zz_51, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_isIndirect, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_laCfIdx, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_opType, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc1_string, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc2_string, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeDest_string, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_roundingMode, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_isIntegerDest, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_isSignedCvt, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fmaNegSrc1, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fcmpCond, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_csrAddr, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_isWrite, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_isRead, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_isExchange, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_useUimmAsSrc, DecodePlugin_logic_decodedUopsOutputVec_0_sysCtrl_sysCode, DecodePlugin_logic_decodedUopsOutputVec_0_sysCtrl_isExceptionReturn, DecodePlugin_logic_decodedUopsOutputVec_0_sysCtrl_isTlbOp, DecodePlugin_logic_decodedUopsOutputVec_0_sysCtrl_tlbOpType, DecodePlugin_logic_decodedUopsOutputVec_0_decodeExceptionCode_string, DecodePlugin_logic_decodedUopsOutputVec_0_hasDecodeException, DecodePlugin_logic_decodedUopsOutputVec_0_isMicrocode, DecodePlugin_logic_decodedUopsOutputVec_0_microcodeEntry, DecodePlugin_logic_decodedUopsOutputVec_0_isSerializing, DecodePlugin_logic_decodedUopsOutputVec_0_isBranchOrJump, DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_isTaken, DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_target, DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_wasPredicted); // DecodePlugin.scala:L123
               end
             `endif
           `endif
@@ -26485,7 +28021,7 @@ module CoreNSCSCC (
             assert(1'b0); // AluIntEuPlugin.scala:L113
           `else
             if(!1'b0) begin
-              $display("NOTE(AluIntEuPlugin.scala:113):  [debug] [34mAluIntEu (AluIntEU) S2 Firing: RobPtr=%x, ResultData=%x, WritesPreg=%x, ImmUsage=%x, UseSrc2=%x op: AluCtrlFlags: isSub=%x isAdd=%x isSigned=%x logicOp=%s condition=%s, lhs=%x, rhs=%x[0m", _zz_io_iqEntryIn_payload_robPtr, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_data, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_writesToPhysReg, _zz_51, _zz_io_iqEntryIn_payload_useSrc2, _zz_io_iqEntryIn_payload_aluCtrl_isSub, _zz_io_iqEntryIn_payload_aluCtrl_isAdd, _zz_io_iqEntryIn_payload_aluCtrl_isSigned, _zz_io_iqEntryIn_payload_aluCtrl_logicOp_string, _zz_io_iqEntryIn_payload_aluCtrl_condition_string, _zz_io_iqEntryIn_payload_src1Data_1, _zz_io_iqEntryIn_payload_src2Data_1); // AluIntEuPlugin.scala:L113
+              $display("NOTE(AluIntEuPlugin.scala:113):  [debug] [34mAluIntEu (AluIntEU) S2 Firing: RobPtr=%x, ResultData=%x, WritesPreg=%x, ImmUsage=%x, UseSrc2=%x op: AluCtrlFlags: isSub=%x isAdd=%x isSigned=%x logicOp=%s condition=%s, lhs=%x, rhs=%x[0m", _zz_io_iqEntryIn_payload_robPtr, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_data, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_writesToPhysReg, _zz_52, _zz_io_iqEntryIn_payload_useSrc2, _zz_io_iqEntryIn_payload_aluCtrl_isSub, _zz_io_iqEntryIn_payload_aluCtrl_isAdd, _zz_io_iqEntryIn_payload_aluCtrl_isSigned, _zz_io_iqEntryIn_payload_aluCtrl_logicOp_string, _zz_io_iqEntryIn_payload_aluCtrl_condition_string, _zz_io_iqEntryIn_payload_src1Data_1, _zz_io_iqEntryIn_payload_src2Data_1); // AluIntEuPlugin.scala:L113
             end
           `endif
         `endif
@@ -26685,7 +28221,7 @@ module CoreNSCSCC (
             assert(1'b0); // BranchEuPlugin.scala:L191
           `else
             if(!1'b0) begin
-              $display("NOTE(BranchEuPlugin.scala:191):  [BranchEU-S2-Select] PREDICTION: wasPredicted(valid)=%x: predictedTaken=%x, actuallyTaken=%x, finalTarget=0x%x, mispredicted=%x", _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted_1, _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken_1, _zz_BranchEU_BranchEuPlugin_euResult_isTaken_1, _zz_BranchEU_BranchEuPlugin_euResult_data_6, _zz_52); // BranchEuPlugin.scala:L191
+              $display("NOTE(BranchEuPlugin.scala:191):  [BranchEU-S2-Select] PREDICTION: wasPredicted(valid)=%x: predictedTaken=%x, actuallyTaken=%x, finalTarget=0x%x, mispredicted=%x", _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted_1, _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken_1, _zz_BranchEU_BranchEuPlugin_euResult_isTaken_1, _zz_BranchEU_BranchEuPlugin_euResult_data_6, _zz_53); // BranchEuPlugin.scala:L191
             end
           `endif
         `endif
@@ -26778,7 +28314,7 @@ module CoreNSCSCC (
               assert(1'b0); // LsuEuPlugin.scala:L145
             `else
               if(!1'b0) begin
-                $display("NOTE(LsuEuPlugin.scala:145):  [normal] [LsuEu] Dispatched STORE to SB: robPtr=%x", LsuEU_LsuEuPlugin_hw_aguPort_output_payload_robPtr); // LsuEuPlugin.scala:L145
+                $display("NOTE(LsuEuPlugin.scala:145):  [normal] [LsuEu] Dispatched STORE to SB: robPtr=%x pc=%x addr=%x data=%x", LsuEU_LsuEuPlugin_hw_aguPort_output_payload_robPtr, LsuEU_LsuEuPlugin_euInputPort_payload_pcData, LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address, LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeData); // LsuEuPlugin.scala:L145
               end
             `endif
           `endif
@@ -26903,7 +28439,7 @@ module CoreNSCSCC (
             assert(1'b0); // LoadQueuePlugin.scala:L339
           `else
             if(!1'b0) begin
-              $display("NOTE(LoadQueuePlugin.scala:339):  [normal] --- LQ FWD RESPONSE --- Cycle=%x\n  Head ROB Ptr: %x\n  Rsp Hit: %x, Rsp Stall: %x", LoadQueuePlugin_logic_perfCounter_io_value, LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_hit, _zz_58); // LoadQueuePlugin.scala:L339
+              $display("NOTE(LoadQueuePlugin.scala:339):  [normal] --- LQ FWD RESPONSE --- Cycle=%x\n  Head ROB Ptr: %x\n  Rsp Hit: %x, Rsp Stall: %x", LoadQueuePlugin_logic_perfCounter_io_value, LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_hit, _zz_59); // LoadQueuePlugin.scala:L339
             end
           `endif
         `endif
@@ -27272,196 +28808,196 @@ module CoreNSCSCC (
         `endif
       `endif
       if(when_PhysicalRegFile_l130) begin
-        if(_zz_59[0]) begin
+        if(_zz_60[0]) begin
           PhysicalRegFilePlugin_logic_regFile_0 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[1]) begin
+        if(_zz_60[1]) begin
           PhysicalRegFilePlugin_logic_regFile_1 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[2]) begin
+        if(_zz_60[2]) begin
           PhysicalRegFilePlugin_logic_regFile_2 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[3]) begin
+        if(_zz_60[3]) begin
           PhysicalRegFilePlugin_logic_regFile_3 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[4]) begin
+        if(_zz_60[4]) begin
           PhysicalRegFilePlugin_logic_regFile_4 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[5]) begin
+        if(_zz_60[5]) begin
           PhysicalRegFilePlugin_logic_regFile_5 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[6]) begin
+        if(_zz_60[6]) begin
           PhysicalRegFilePlugin_logic_regFile_6 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[7]) begin
+        if(_zz_60[7]) begin
           PhysicalRegFilePlugin_logic_regFile_7 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[8]) begin
+        if(_zz_60[8]) begin
           PhysicalRegFilePlugin_logic_regFile_8 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[9]) begin
+        if(_zz_60[9]) begin
           PhysicalRegFilePlugin_logic_regFile_9 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[10]) begin
+        if(_zz_60[10]) begin
           PhysicalRegFilePlugin_logic_regFile_10 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[11]) begin
+        if(_zz_60[11]) begin
           PhysicalRegFilePlugin_logic_regFile_11 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[12]) begin
+        if(_zz_60[12]) begin
           PhysicalRegFilePlugin_logic_regFile_12 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[13]) begin
+        if(_zz_60[13]) begin
           PhysicalRegFilePlugin_logic_regFile_13 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[14]) begin
+        if(_zz_60[14]) begin
           PhysicalRegFilePlugin_logic_regFile_14 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[15]) begin
+        if(_zz_60[15]) begin
           PhysicalRegFilePlugin_logic_regFile_15 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[16]) begin
+        if(_zz_60[16]) begin
           PhysicalRegFilePlugin_logic_regFile_16 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[17]) begin
+        if(_zz_60[17]) begin
           PhysicalRegFilePlugin_logic_regFile_17 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[18]) begin
+        if(_zz_60[18]) begin
           PhysicalRegFilePlugin_logic_regFile_18 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[19]) begin
+        if(_zz_60[19]) begin
           PhysicalRegFilePlugin_logic_regFile_19 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[20]) begin
+        if(_zz_60[20]) begin
           PhysicalRegFilePlugin_logic_regFile_20 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[21]) begin
+        if(_zz_60[21]) begin
           PhysicalRegFilePlugin_logic_regFile_21 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[22]) begin
+        if(_zz_60[22]) begin
           PhysicalRegFilePlugin_logic_regFile_22 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[23]) begin
+        if(_zz_60[23]) begin
           PhysicalRegFilePlugin_logic_regFile_23 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[24]) begin
+        if(_zz_60[24]) begin
           PhysicalRegFilePlugin_logic_regFile_24 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[25]) begin
+        if(_zz_60[25]) begin
           PhysicalRegFilePlugin_logic_regFile_25 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[26]) begin
+        if(_zz_60[26]) begin
           PhysicalRegFilePlugin_logic_regFile_26 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[27]) begin
+        if(_zz_60[27]) begin
           PhysicalRegFilePlugin_logic_regFile_27 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[28]) begin
+        if(_zz_60[28]) begin
           PhysicalRegFilePlugin_logic_regFile_28 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[29]) begin
+        if(_zz_60[29]) begin
           PhysicalRegFilePlugin_logic_regFile_29 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[30]) begin
+        if(_zz_60[30]) begin
           PhysicalRegFilePlugin_logic_regFile_30 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[31]) begin
+        if(_zz_60[31]) begin
           PhysicalRegFilePlugin_logic_regFile_31 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[32]) begin
+        if(_zz_60[32]) begin
           PhysicalRegFilePlugin_logic_regFile_32 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[33]) begin
+        if(_zz_60[33]) begin
           PhysicalRegFilePlugin_logic_regFile_33 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[34]) begin
+        if(_zz_60[34]) begin
           PhysicalRegFilePlugin_logic_regFile_34 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[35]) begin
+        if(_zz_60[35]) begin
           PhysicalRegFilePlugin_logic_regFile_35 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[36]) begin
+        if(_zz_60[36]) begin
           PhysicalRegFilePlugin_logic_regFile_36 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[37]) begin
+        if(_zz_60[37]) begin
           PhysicalRegFilePlugin_logic_regFile_37 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[38]) begin
+        if(_zz_60[38]) begin
           PhysicalRegFilePlugin_logic_regFile_38 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[39]) begin
+        if(_zz_60[39]) begin
           PhysicalRegFilePlugin_logic_regFile_39 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[40]) begin
+        if(_zz_60[40]) begin
           PhysicalRegFilePlugin_logic_regFile_40 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[41]) begin
+        if(_zz_60[41]) begin
           PhysicalRegFilePlugin_logic_regFile_41 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[42]) begin
+        if(_zz_60[42]) begin
           PhysicalRegFilePlugin_logic_regFile_42 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[43]) begin
+        if(_zz_60[43]) begin
           PhysicalRegFilePlugin_logic_regFile_43 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[44]) begin
+        if(_zz_60[44]) begin
           PhysicalRegFilePlugin_logic_regFile_44 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[45]) begin
+        if(_zz_60[45]) begin
           PhysicalRegFilePlugin_logic_regFile_45 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[46]) begin
+        if(_zz_60[46]) begin
           PhysicalRegFilePlugin_logic_regFile_46 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[47]) begin
+        if(_zz_60[47]) begin
           PhysicalRegFilePlugin_logic_regFile_47 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[48]) begin
+        if(_zz_60[48]) begin
           PhysicalRegFilePlugin_logic_regFile_48 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[49]) begin
+        if(_zz_60[49]) begin
           PhysicalRegFilePlugin_logic_regFile_49 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[50]) begin
+        if(_zz_60[50]) begin
           PhysicalRegFilePlugin_logic_regFile_50 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[51]) begin
+        if(_zz_60[51]) begin
           PhysicalRegFilePlugin_logic_regFile_51 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[52]) begin
+        if(_zz_60[52]) begin
           PhysicalRegFilePlugin_logic_regFile_52 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[53]) begin
+        if(_zz_60[53]) begin
           PhysicalRegFilePlugin_logic_regFile_53 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[54]) begin
+        if(_zz_60[54]) begin
           PhysicalRegFilePlugin_logic_regFile_54 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[55]) begin
+        if(_zz_60[55]) begin
           PhysicalRegFilePlugin_logic_regFile_55 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[56]) begin
+        if(_zz_60[56]) begin
           PhysicalRegFilePlugin_logic_regFile_56 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[57]) begin
+        if(_zz_60[57]) begin
           PhysicalRegFilePlugin_logic_regFile_57 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[58]) begin
+        if(_zz_60[58]) begin
           PhysicalRegFilePlugin_logic_regFile_58 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[59]) begin
+        if(_zz_60[59]) begin
           PhysicalRegFilePlugin_logic_regFile_59 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[60]) begin
+        if(_zz_60[60]) begin
           PhysicalRegFilePlugin_logic_regFile_60 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[61]) begin
+        if(_zz_60[61]) begin
           PhysicalRegFilePlugin_logic_regFile_61 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[62]) begin
+        if(_zz_60[62]) begin
           PhysicalRegFilePlugin_logic_regFile_62 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
-        if(_zz_59[63]) begin
+        if(_zz_60[63]) begin
           PhysicalRegFilePlugin_logic_regFile_63 <= AluIntEU_AluIntEuPlugin_gprWritePort_data;
         end
         `ifndef SYNTHESIS
@@ -27475,196 +29011,196 @@ module CoreNSCSCC (
         `endif
       end
       if(when_PhysicalRegFile_l130_1) begin
-        if(_zz_60[0]) begin
+        if(_zz_61[0]) begin
           PhysicalRegFilePlugin_logic_regFile_0 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[1]) begin
+        if(_zz_61[1]) begin
           PhysicalRegFilePlugin_logic_regFile_1 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[2]) begin
+        if(_zz_61[2]) begin
           PhysicalRegFilePlugin_logic_regFile_2 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[3]) begin
+        if(_zz_61[3]) begin
           PhysicalRegFilePlugin_logic_regFile_3 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[4]) begin
+        if(_zz_61[4]) begin
           PhysicalRegFilePlugin_logic_regFile_4 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[5]) begin
+        if(_zz_61[5]) begin
           PhysicalRegFilePlugin_logic_regFile_5 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[6]) begin
+        if(_zz_61[6]) begin
           PhysicalRegFilePlugin_logic_regFile_6 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[7]) begin
+        if(_zz_61[7]) begin
           PhysicalRegFilePlugin_logic_regFile_7 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[8]) begin
+        if(_zz_61[8]) begin
           PhysicalRegFilePlugin_logic_regFile_8 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[9]) begin
+        if(_zz_61[9]) begin
           PhysicalRegFilePlugin_logic_regFile_9 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[10]) begin
+        if(_zz_61[10]) begin
           PhysicalRegFilePlugin_logic_regFile_10 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[11]) begin
+        if(_zz_61[11]) begin
           PhysicalRegFilePlugin_logic_regFile_11 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[12]) begin
+        if(_zz_61[12]) begin
           PhysicalRegFilePlugin_logic_regFile_12 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[13]) begin
+        if(_zz_61[13]) begin
           PhysicalRegFilePlugin_logic_regFile_13 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[14]) begin
+        if(_zz_61[14]) begin
           PhysicalRegFilePlugin_logic_regFile_14 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[15]) begin
+        if(_zz_61[15]) begin
           PhysicalRegFilePlugin_logic_regFile_15 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[16]) begin
+        if(_zz_61[16]) begin
           PhysicalRegFilePlugin_logic_regFile_16 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[17]) begin
+        if(_zz_61[17]) begin
           PhysicalRegFilePlugin_logic_regFile_17 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[18]) begin
+        if(_zz_61[18]) begin
           PhysicalRegFilePlugin_logic_regFile_18 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[19]) begin
+        if(_zz_61[19]) begin
           PhysicalRegFilePlugin_logic_regFile_19 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[20]) begin
+        if(_zz_61[20]) begin
           PhysicalRegFilePlugin_logic_regFile_20 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[21]) begin
+        if(_zz_61[21]) begin
           PhysicalRegFilePlugin_logic_regFile_21 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[22]) begin
+        if(_zz_61[22]) begin
           PhysicalRegFilePlugin_logic_regFile_22 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[23]) begin
+        if(_zz_61[23]) begin
           PhysicalRegFilePlugin_logic_regFile_23 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[24]) begin
+        if(_zz_61[24]) begin
           PhysicalRegFilePlugin_logic_regFile_24 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[25]) begin
+        if(_zz_61[25]) begin
           PhysicalRegFilePlugin_logic_regFile_25 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[26]) begin
+        if(_zz_61[26]) begin
           PhysicalRegFilePlugin_logic_regFile_26 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[27]) begin
+        if(_zz_61[27]) begin
           PhysicalRegFilePlugin_logic_regFile_27 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[28]) begin
+        if(_zz_61[28]) begin
           PhysicalRegFilePlugin_logic_regFile_28 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[29]) begin
+        if(_zz_61[29]) begin
           PhysicalRegFilePlugin_logic_regFile_29 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[30]) begin
+        if(_zz_61[30]) begin
           PhysicalRegFilePlugin_logic_regFile_30 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[31]) begin
+        if(_zz_61[31]) begin
           PhysicalRegFilePlugin_logic_regFile_31 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[32]) begin
+        if(_zz_61[32]) begin
           PhysicalRegFilePlugin_logic_regFile_32 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[33]) begin
+        if(_zz_61[33]) begin
           PhysicalRegFilePlugin_logic_regFile_33 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[34]) begin
+        if(_zz_61[34]) begin
           PhysicalRegFilePlugin_logic_regFile_34 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[35]) begin
+        if(_zz_61[35]) begin
           PhysicalRegFilePlugin_logic_regFile_35 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[36]) begin
+        if(_zz_61[36]) begin
           PhysicalRegFilePlugin_logic_regFile_36 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[37]) begin
+        if(_zz_61[37]) begin
           PhysicalRegFilePlugin_logic_regFile_37 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[38]) begin
+        if(_zz_61[38]) begin
           PhysicalRegFilePlugin_logic_regFile_38 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[39]) begin
+        if(_zz_61[39]) begin
           PhysicalRegFilePlugin_logic_regFile_39 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[40]) begin
+        if(_zz_61[40]) begin
           PhysicalRegFilePlugin_logic_regFile_40 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[41]) begin
+        if(_zz_61[41]) begin
           PhysicalRegFilePlugin_logic_regFile_41 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[42]) begin
+        if(_zz_61[42]) begin
           PhysicalRegFilePlugin_logic_regFile_42 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[43]) begin
+        if(_zz_61[43]) begin
           PhysicalRegFilePlugin_logic_regFile_43 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[44]) begin
+        if(_zz_61[44]) begin
           PhysicalRegFilePlugin_logic_regFile_44 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[45]) begin
+        if(_zz_61[45]) begin
           PhysicalRegFilePlugin_logic_regFile_45 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[46]) begin
+        if(_zz_61[46]) begin
           PhysicalRegFilePlugin_logic_regFile_46 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[47]) begin
+        if(_zz_61[47]) begin
           PhysicalRegFilePlugin_logic_regFile_47 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[48]) begin
+        if(_zz_61[48]) begin
           PhysicalRegFilePlugin_logic_regFile_48 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[49]) begin
+        if(_zz_61[49]) begin
           PhysicalRegFilePlugin_logic_regFile_49 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[50]) begin
+        if(_zz_61[50]) begin
           PhysicalRegFilePlugin_logic_regFile_50 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[51]) begin
+        if(_zz_61[51]) begin
           PhysicalRegFilePlugin_logic_regFile_51 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[52]) begin
+        if(_zz_61[52]) begin
           PhysicalRegFilePlugin_logic_regFile_52 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[53]) begin
+        if(_zz_61[53]) begin
           PhysicalRegFilePlugin_logic_regFile_53 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[54]) begin
+        if(_zz_61[54]) begin
           PhysicalRegFilePlugin_logic_regFile_54 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[55]) begin
+        if(_zz_61[55]) begin
           PhysicalRegFilePlugin_logic_regFile_55 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[56]) begin
+        if(_zz_61[56]) begin
           PhysicalRegFilePlugin_logic_regFile_56 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[57]) begin
+        if(_zz_61[57]) begin
           PhysicalRegFilePlugin_logic_regFile_57 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[58]) begin
+        if(_zz_61[58]) begin
           PhysicalRegFilePlugin_logic_regFile_58 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[59]) begin
+        if(_zz_61[59]) begin
           PhysicalRegFilePlugin_logic_regFile_59 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[60]) begin
+        if(_zz_61[60]) begin
           PhysicalRegFilePlugin_logic_regFile_60 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[61]) begin
+        if(_zz_61[61]) begin
           PhysicalRegFilePlugin_logic_regFile_61 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[62]) begin
+        if(_zz_61[62]) begin
           PhysicalRegFilePlugin_logic_regFile_62 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
-        if(_zz_60[63]) begin
+        if(_zz_61[63]) begin
           PhysicalRegFilePlugin_logic_regFile_63 <= MulEU_MulEuPlugin_gprWritePort_data;
         end
         `ifndef SYNTHESIS
@@ -27678,196 +29214,196 @@ module CoreNSCSCC (
         `endif
       end
       if(when_PhysicalRegFile_l130_2) begin
-        if(_zz_61[0]) begin
+        if(_zz_62[0]) begin
           PhysicalRegFilePlugin_logic_regFile_0 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[1]) begin
+        if(_zz_62[1]) begin
           PhysicalRegFilePlugin_logic_regFile_1 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[2]) begin
+        if(_zz_62[2]) begin
           PhysicalRegFilePlugin_logic_regFile_2 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[3]) begin
+        if(_zz_62[3]) begin
           PhysicalRegFilePlugin_logic_regFile_3 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[4]) begin
+        if(_zz_62[4]) begin
           PhysicalRegFilePlugin_logic_regFile_4 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[5]) begin
+        if(_zz_62[5]) begin
           PhysicalRegFilePlugin_logic_regFile_5 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[6]) begin
+        if(_zz_62[6]) begin
           PhysicalRegFilePlugin_logic_regFile_6 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[7]) begin
+        if(_zz_62[7]) begin
           PhysicalRegFilePlugin_logic_regFile_7 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[8]) begin
+        if(_zz_62[8]) begin
           PhysicalRegFilePlugin_logic_regFile_8 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[9]) begin
+        if(_zz_62[9]) begin
           PhysicalRegFilePlugin_logic_regFile_9 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[10]) begin
+        if(_zz_62[10]) begin
           PhysicalRegFilePlugin_logic_regFile_10 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[11]) begin
+        if(_zz_62[11]) begin
           PhysicalRegFilePlugin_logic_regFile_11 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[12]) begin
+        if(_zz_62[12]) begin
           PhysicalRegFilePlugin_logic_regFile_12 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[13]) begin
+        if(_zz_62[13]) begin
           PhysicalRegFilePlugin_logic_regFile_13 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[14]) begin
+        if(_zz_62[14]) begin
           PhysicalRegFilePlugin_logic_regFile_14 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[15]) begin
+        if(_zz_62[15]) begin
           PhysicalRegFilePlugin_logic_regFile_15 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[16]) begin
+        if(_zz_62[16]) begin
           PhysicalRegFilePlugin_logic_regFile_16 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[17]) begin
+        if(_zz_62[17]) begin
           PhysicalRegFilePlugin_logic_regFile_17 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[18]) begin
+        if(_zz_62[18]) begin
           PhysicalRegFilePlugin_logic_regFile_18 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[19]) begin
+        if(_zz_62[19]) begin
           PhysicalRegFilePlugin_logic_regFile_19 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[20]) begin
+        if(_zz_62[20]) begin
           PhysicalRegFilePlugin_logic_regFile_20 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[21]) begin
+        if(_zz_62[21]) begin
           PhysicalRegFilePlugin_logic_regFile_21 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[22]) begin
+        if(_zz_62[22]) begin
           PhysicalRegFilePlugin_logic_regFile_22 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[23]) begin
+        if(_zz_62[23]) begin
           PhysicalRegFilePlugin_logic_regFile_23 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[24]) begin
+        if(_zz_62[24]) begin
           PhysicalRegFilePlugin_logic_regFile_24 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[25]) begin
+        if(_zz_62[25]) begin
           PhysicalRegFilePlugin_logic_regFile_25 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[26]) begin
+        if(_zz_62[26]) begin
           PhysicalRegFilePlugin_logic_regFile_26 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[27]) begin
+        if(_zz_62[27]) begin
           PhysicalRegFilePlugin_logic_regFile_27 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[28]) begin
+        if(_zz_62[28]) begin
           PhysicalRegFilePlugin_logic_regFile_28 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[29]) begin
+        if(_zz_62[29]) begin
           PhysicalRegFilePlugin_logic_regFile_29 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[30]) begin
+        if(_zz_62[30]) begin
           PhysicalRegFilePlugin_logic_regFile_30 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[31]) begin
+        if(_zz_62[31]) begin
           PhysicalRegFilePlugin_logic_regFile_31 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[32]) begin
+        if(_zz_62[32]) begin
           PhysicalRegFilePlugin_logic_regFile_32 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[33]) begin
+        if(_zz_62[33]) begin
           PhysicalRegFilePlugin_logic_regFile_33 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[34]) begin
+        if(_zz_62[34]) begin
           PhysicalRegFilePlugin_logic_regFile_34 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[35]) begin
+        if(_zz_62[35]) begin
           PhysicalRegFilePlugin_logic_regFile_35 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[36]) begin
+        if(_zz_62[36]) begin
           PhysicalRegFilePlugin_logic_regFile_36 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[37]) begin
+        if(_zz_62[37]) begin
           PhysicalRegFilePlugin_logic_regFile_37 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[38]) begin
+        if(_zz_62[38]) begin
           PhysicalRegFilePlugin_logic_regFile_38 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[39]) begin
+        if(_zz_62[39]) begin
           PhysicalRegFilePlugin_logic_regFile_39 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[40]) begin
+        if(_zz_62[40]) begin
           PhysicalRegFilePlugin_logic_regFile_40 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[41]) begin
+        if(_zz_62[41]) begin
           PhysicalRegFilePlugin_logic_regFile_41 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[42]) begin
+        if(_zz_62[42]) begin
           PhysicalRegFilePlugin_logic_regFile_42 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[43]) begin
+        if(_zz_62[43]) begin
           PhysicalRegFilePlugin_logic_regFile_43 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[44]) begin
+        if(_zz_62[44]) begin
           PhysicalRegFilePlugin_logic_regFile_44 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[45]) begin
+        if(_zz_62[45]) begin
           PhysicalRegFilePlugin_logic_regFile_45 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[46]) begin
+        if(_zz_62[46]) begin
           PhysicalRegFilePlugin_logic_regFile_46 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[47]) begin
+        if(_zz_62[47]) begin
           PhysicalRegFilePlugin_logic_regFile_47 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[48]) begin
+        if(_zz_62[48]) begin
           PhysicalRegFilePlugin_logic_regFile_48 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[49]) begin
+        if(_zz_62[49]) begin
           PhysicalRegFilePlugin_logic_regFile_49 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[50]) begin
+        if(_zz_62[50]) begin
           PhysicalRegFilePlugin_logic_regFile_50 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[51]) begin
+        if(_zz_62[51]) begin
           PhysicalRegFilePlugin_logic_regFile_51 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[52]) begin
+        if(_zz_62[52]) begin
           PhysicalRegFilePlugin_logic_regFile_52 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[53]) begin
+        if(_zz_62[53]) begin
           PhysicalRegFilePlugin_logic_regFile_53 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[54]) begin
+        if(_zz_62[54]) begin
           PhysicalRegFilePlugin_logic_regFile_54 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[55]) begin
+        if(_zz_62[55]) begin
           PhysicalRegFilePlugin_logic_regFile_55 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[56]) begin
+        if(_zz_62[56]) begin
           PhysicalRegFilePlugin_logic_regFile_56 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[57]) begin
+        if(_zz_62[57]) begin
           PhysicalRegFilePlugin_logic_regFile_57 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[58]) begin
+        if(_zz_62[58]) begin
           PhysicalRegFilePlugin_logic_regFile_58 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[59]) begin
+        if(_zz_62[59]) begin
           PhysicalRegFilePlugin_logic_regFile_59 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[60]) begin
+        if(_zz_62[60]) begin
           PhysicalRegFilePlugin_logic_regFile_60 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[61]) begin
+        if(_zz_62[61]) begin
           PhysicalRegFilePlugin_logic_regFile_61 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[62]) begin
+        if(_zz_62[62]) begin
           PhysicalRegFilePlugin_logic_regFile_62 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
-        if(_zz_61[63]) begin
+        if(_zz_62[63]) begin
           PhysicalRegFilePlugin_logic_regFile_63 <= BranchEU_BranchEuPlugin_gprWritePort_data;
         end
         `ifndef SYNTHESIS
@@ -27881,196 +29417,196 @@ module CoreNSCSCC (
         `endif
       end
       if(when_PhysicalRegFile_l130_3) begin
-        if(_zz_62[0]) begin
+        if(_zz_63[0]) begin
           PhysicalRegFilePlugin_logic_regFile_0 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[1]) begin
+        if(_zz_63[1]) begin
           PhysicalRegFilePlugin_logic_regFile_1 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[2]) begin
+        if(_zz_63[2]) begin
           PhysicalRegFilePlugin_logic_regFile_2 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[3]) begin
+        if(_zz_63[3]) begin
           PhysicalRegFilePlugin_logic_regFile_3 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[4]) begin
+        if(_zz_63[4]) begin
           PhysicalRegFilePlugin_logic_regFile_4 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[5]) begin
+        if(_zz_63[5]) begin
           PhysicalRegFilePlugin_logic_regFile_5 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[6]) begin
+        if(_zz_63[6]) begin
           PhysicalRegFilePlugin_logic_regFile_6 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[7]) begin
+        if(_zz_63[7]) begin
           PhysicalRegFilePlugin_logic_regFile_7 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[8]) begin
+        if(_zz_63[8]) begin
           PhysicalRegFilePlugin_logic_regFile_8 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[9]) begin
+        if(_zz_63[9]) begin
           PhysicalRegFilePlugin_logic_regFile_9 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[10]) begin
+        if(_zz_63[10]) begin
           PhysicalRegFilePlugin_logic_regFile_10 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[11]) begin
+        if(_zz_63[11]) begin
           PhysicalRegFilePlugin_logic_regFile_11 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[12]) begin
+        if(_zz_63[12]) begin
           PhysicalRegFilePlugin_logic_regFile_12 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[13]) begin
+        if(_zz_63[13]) begin
           PhysicalRegFilePlugin_logic_regFile_13 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[14]) begin
+        if(_zz_63[14]) begin
           PhysicalRegFilePlugin_logic_regFile_14 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[15]) begin
+        if(_zz_63[15]) begin
           PhysicalRegFilePlugin_logic_regFile_15 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[16]) begin
+        if(_zz_63[16]) begin
           PhysicalRegFilePlugin_logic_regFile_16 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[17]) begin
+        if(_zz_63[17]) begin
           PhysicalRegFilePlugin_logic_regFile_17 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[18]) begin
+        if(_zz_63[18]) begin
           PhysicalRegFilePlugin_logic_regFile_18 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[19]) begin
+        if(_zz_63[19]) begin
           PhysicalRegFilePlugin_logic_regFile_19 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[20]) begin
+        if(_zz_63[20]) begin
           PhysicalRegFilePlugin_logic_regFile_20 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[21]) begin
+        if(_zz_63[21]) begin
           PhysicalRegFilePlugin_logic_regFile_21 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[22]) begin
+        if(_zz_63[22]) begin
           PhysicalRegFilePlugin_logic_regFile_22 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[23]) begin
+        if(_zz_63[23]) begin
           PhysicalRegFilePlugin_logic_regFile_23 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[24]) begin
+        if(_zz_63[24]) begin
           PhysicalRegFilePlugin_logic_regFile_24 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[25]) begin
+        if(_zz_63[25]) begin
           PhysicalRegFilePlugin_logic_regFile_25 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[26]) begin
+        if(_zz_63[26]) begin
           PhysicalRegFilePlugin_logic_regFile_26 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[27]) begin
+        if(_zz_63[27]) begin
           PhysicalRegFilePlugin_logic_regFile_27 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[28]) begin
+        if(_zz_63[28]) begin
           PhysicalRegFilePlugin_logic_regFile_28 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[29]) begin
+        if(_zz_63[29]) begin
           PhysicalRegFilePlugin_logic_regFile_29 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[30]) begin
+        if(_zz_63[30]) begin
           PhysicalRegFilePlugin_logic_regFile_30 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[31]) begin
+        if(_zz_63[31]) begin
           PhysicalRegFilePlugin_logic_regFile_31 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[32]) begin
+        if(_zz_63[32]) begin
           PhysicalRegFilePlugin_logic_regFile_32 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[33]) begin
+        if(_zz_63[33]) begin
           PhysicalRegFilePlugin_logic_regFile_33 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[34]) begin
+        if(_zz_63[34]) begin
           PhysicalRegFilePlugin_logic_regFile_34 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[35]) begin
+        if(_zz_63[35]) begin
           PhysicalRegFilePlugin_logic_regFile_35 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[36]) begin
+        if(_zz_63[36]) begin
           PhysicalRegFilePlugin_logic_regFile_36 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[37]) begin
+        if(_zz_63[37]) begin
           PhysicalRegFilePlugin_logic_regFile_37 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[38]) begin
+        if(_zz_63[38]) begin
           PhysicalRegFilePlugin_logic_regFile_38 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[39]) begin
+        if(_zz_63[39]) begin
           PhysicalRegFilePlugin_logic_regFile_39 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[40]) begin
+        if(_zz_63[40]) begin
           PhysicalRegFilePlugin_logic_regFile_40 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[41]) begin
+        if(_zz_63[41]) begin
           PhysicalRegFilePlugin_logic_regFile_41 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[42]) begin
+        if(_zz_63[42]) begin
           PhysicalRegFilePlugin_logic_regFile_42 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[43]) begin
+        if(_zz_63[43]) begin
           PhysicalRegFilePlugin_logic_regFile_43 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[44]) begin
+        if(_zz_63[44]) begin
           PhysicalRegFilePlugin_logic_regFile_44 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[45]) begin
+        if(_zz_63[45]) begin
           PhysicalRegFilePlugin_logic_regFile_45 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[46]) begin
+        if(_zz_63[46]) begin
           PhysicalRegFilePlugin_logic_regFile_46 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[47]) begin
+        if(_zz_63[47]) begin
           PhysicalRegFilePlugin_logic_regFile_47 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[48]) begin
+        if(_zz_63[48]) begin
           PhysicalRegFilePlugin_logic_regFile_48 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[49]) begin
+        if(_zz_63[49]) begin
           PhysicalRegFilePlugin_logic_regFile_49 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[50]) begin
+        if(_zz_63[50]) begin
           PhysicalRegFilePlugin_logic_regFile_50 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[51]) begin
+        if(_zz_63[51]) begin
           PhysicalRegFilePlugin_logic_regFile_51 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[52]) begin
+        if(_zz_63[52]) begin
           PhysicalRegFilePlugin_logic_regFile_52 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[53]) begin
+        if(_zz_63[53]) begin
           PhysicalRegFilePlugin_logic_regFile_53 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[54]) begin
+        if(_zz_63[54]) begin
           PhysicalRegFilePlugin_logic_regFile_54 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[55]) begin
+        if(_zz_63[55]) begin
           PhysicalRegFilePlugin_logic_regFile_55 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[56]) begin
+        if(_zz_63[56]) begin
           PhysicalRegFilePlugin_logic_regFile_56 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[57]) begin
+        if(_zz_63[57]) begin
           PhysicalRegFilePlugin_logic_regFile_57 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[58]) begin
+        if(_zz_63[58]) begin
           PhysicalRegFilePlugin_logic_regFile_58 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[59]) begin
+        if(_zz_63[59]) begin
           PhysicalRegFilePlugin_logic_regFile_59 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[60]) begin
+        if(_zz_63[60]) begin
           PhysicalRegFilePlugin_logic_regFile_60 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[61]) begin
+        if(_zz_63[61]) begin
           PhysicalRegFilePlugin_logic_regFile_61 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[62]) begin
+        if(_zz_63[62]) begin
           PhysicalRegFilePlugin_logic_regFile_62 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
-        if(_zz_62[63]) begin
+        if(_zz_63[63]) begin
           PhysicalRegFilePlugin_logic_regFile_63 <= LsuEU_LsuEuPlugin_gprWritePort_data;
         end
         `ifndef SYNTHESIS
@@ -28084,196 +29620,196 @@ module CoreNSCSCC (
         `endif
       end
       if(when_PhysicalRegFile_l130_4) begin
-        if(_zz_63[0]) begin
+        if(_zz_64[0]) begin
           PhysicalRegFilePlugin_logic_regFile_0 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[1]) begin
+        if(_zz_64[1]) begin
           PhysicalRegFilePlugin_logic_regFile_1 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[2]) begin
+        if(_zz_64[2]) begin
           PhysicalRegFilePlugin_logic_regFile_2 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[3]) begin
+        if(_zz_64[3]) begin
           PhysicalRegFilePlugin_logic_regFile_3 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[4]) begin
+        if(_zz_64[4]) begin
           PhysicalRegFilePlugin_logic_regFile_4 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[5]) begin
+        if(_zz_64[5]) begin
           PhysicalRegFilePlugin_logic_regFile_5 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[6]) begin
+        if(_zz_64[6]) begin
           PhysicalRegFilePlugin_logic_regFile_6 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[7]) begin
+        if(_zz_64[7]) begin
           PhysicalRegFilePlugin_logic_regFile_7 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[8]) begin
+        if(_zz_64[8]) begin
           PhysicalRegFilePlugin_logic_regFile_8 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[9]) begin
+        if(_zz_64[9]) begin
           PhysicalRegFilePlugin_logic_regFile_9 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[10]) begin
+        if(_zz_64[10]) begin
           PhysicalRegFilePlugin_logic_regFile_10 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[11]) begin
+        if(_zz_64[11]) begin
           PhysicalRegFilePlugin_logic_regFile_11 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[12]) begin
+        if(_zz_64[12]) begin
           PhysicalRegFilePlugin_logic_regFile_12 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[13]) begin
+        if(_zz_64[13]) begin
           PhysicalRegFilePlugin_logic_regFile_13 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[14]) begin
+        if(_zz_64[14]) begin
           PhysicalRegFilePlugin_logic_regFile_14 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[15]) begin
+        if(_zz_64[15]) begin
           PhysicalRegFilePlugin_logic_regFile_15 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[16]) begin
+        if(_zz_64[16]) begin
           PhysicalRegFilePlugin_logic_regFile_16 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[17]) begin
+        if(_zz_64[17]) begin
           PhysicalRegFilePlugin_logic_regFile_17 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[18]) begin
+        if(_zz_64[18]) begin
           PhysicalRegFilePlugin_logic_regFile_18 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[19]) begin
+        if(_zz_64[19]) begin
           PhysicalRegFilePlugin_logic_regFile_19 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[20]) begin
+        if(_zz_64[20]) begin
           PhysicalRegFilePlugin_logic_regFile_20 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[21]) begin
+        if(_zz_64[21]) begin
           PhysicalRegFilePlugin_logic_regFile_21 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[22]) begin
+        if(_zz_64[22]) begin
           PhysicalRegFilePlugin_logic_regFile_22 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[23]) begin
+        if(_zz_64[23]) begin
           PhysicalRegFilePlugin_logic_regFile_23 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[24]) begin
+        if(_zz_64[24]) begin
           PhysicalRegFilePlugin_logic_regFile_24 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[25]) begin
+        if(_zz_64[25]) begin
           PhysicalRegFilePlugin_logic_regFile_25 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[26]) begin
+        if(_zz_64[26]) begin
           PhysicalRegFilePlugin_logic_regFile_26 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[27]) begin
+        if(_zz_64[27]) begin
           PhysicalRegFilePlugin_logic_regFile_27 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[28]) begin
+        if(_zz_64[28]) begin
           PhysicalRegFilePlugin_logic_regFile_28 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[29]) begin
+        if(_zz_64[29]) begin
           PhysicalRegFilePlugin_logic_regFile_29 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[30]) begin
+        if(_zz_64[30]) begin
           PhysicalRegFilePlugin_logic_regFile_30 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[31]) begin
+        if(_zz_64[31]) begin
           PhysicalRegFilePlugin_logic_regFile_31 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[32]) begin
+        if(_zz_64[32]) begin
           PhysicalRegFilePlugin_logic_regFile_32 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[33]) begin
+        if(_zz_64[33]) begin
           PhysicalRegFilePlugin_logic_regFile_33 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[34]) begin
+        if(_zz_64[34]) begin
           PhysicalRegFilePlugin_logic_regFile_34 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[35]) begin
+        if(_zz_64[35]) begin
           PhysicalRegFilePlugin_logic_regFile_35 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[36]) begin
+        if(_zz_64[36]) begin
           PhysicalRegFilePlugin_logic_regFile_36 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[37]) begin
+        if(_zz_64[37]) begin
           PhysicalRegFilePlugin_logic_regFile_37 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[38]) begin
+        if(_zz_64[38]) begin
           PhysicalRegFilePlugin_logic_regFile_38 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[39]) begin
+        if(_zz_64[39]) begin
           PhysicalRegFilePlugin_logic_regFile_39 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[40]) begin
+        if(_zz_64[40]) begin
           PhysicalRegFilePlugin_logic_regFile_40 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[41]) begin
+        if(_zz_64[41]) begin
           PhysicalRegFilePlugin_logic_regFile_41 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[42]) begin
+        if(_zz_64[42]) begin
           PhysicalRegFilePlugin_logic_regFile_42 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[43]) begin
+        if(_zz_64[43]) begin
           PhysicalRegFilePlugin_logic_regFile_43 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[44]) begin
+        if(_zz_64[44]) begin
           PhysicalRegFilePlugin_logic_regFile_44 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[45]) begin
+        if(_zz_64[45]) begin
           PhysicalRegFilePlugin_logic_regFile_45 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[46]) begin
+        if(_zz_64[46]) begin
           PhysicalRegFilePlugin_logic_regFile_46 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[47]) begin
+        if(_zz_64[47]) begin
           PhysicalRegFilePlugin_logic_regFile_47 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[48]) begin
+        if(_zz_64[48]) begin
           PhysicalRegFilePlugin_logic_regFile_48 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[49]) begin
+        if(_zz_64[49]) begin
           PhysicalRegFilePlugin_logic_regFile_49 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[50]) begin
+        if(_zz_64[50]) begin
           PhysicalRegFilePlugin_logic_regFile_50 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[51]) begin
+        if(_zz_64[51]) begin
           PhysicalRegFilePlugin_logic_regFile_51 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[52]) begin
+        if(_zz_64[52]) begin
           PhysicalRegFilePlugin_logic_regFile_52 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[53]) begin
+        if(_zz_64[53]) begin
           PhysicalRegFilePlugin_logic_regFile_53 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[54]) begin
+        if(_zz_64[54]) begin
           PhysicalRegFilePlugin_logic_regFile_54 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[55]) begin
+        if(_zz_64[55]) begin
           PhysicalRegFilePlugin_logic_regFile_55 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[56]) begin
+        if(_zz_64[56]) begin
           PhysicalRegFilePlugin_logic_regFile_56 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[57]) begin
+        if(_zz_64[57]) begin
           PhysicalRegFilePlugin_logic_regFile_57 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[58]) begin
+        if(_zz_64[58]) begin
           PhysicalRegFilePlugin_logic_regFile_58 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[59]) begin
+        if(_zz_64[59]) begin
           PhysicalRegFilePlugin_logic_regFile_59 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[60]) begin
+        if(_zz_64[60]) begin
           PhysicalRegFilePlugin_logic_regFile_60 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[61]) begin
+        if(_zz_64[61]) begin
           PhysicalRegFilePlugin_logic_regFile_61 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[62]) begin
+        if(_zz_64[62]) begin
           PhysicalRegFilePlugin_logic_regFile_62 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
-        if(_zz_63[63]) begin
+        if(_zz_64[63]) begin
           PhysicalRegFilePlugin_logic_regFile_63 <= LoadQueuePlugin_hw_prfWritePort_data;
         end
         `ifndef SYNTHESIS
@@ -28288,25 +29824,65 @@ module CoreNSCSCC (
       end
       StoreBufferPlugin_logic_registeredFlush_valid <= StoreBufferPlugin_logic_flushInProgress;
       StoreBufferPlugin_logic_registeredFlush_targetRobPtr <= ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr;
-      if(when_StoreBufferPlugin_l316) begin
+      if(StoreBufferPlugin_hw_pushPortInst_fire) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L317
+            assert(1'b0); // StoreBufferPlugin.scala:L283
           `else
             if(!1'b0) begin
-              $display("FAILURE Got isIO but no MMIO service."); // StoreBufferPlugin.scala:L317
+              $display("NOTE(StoreBufferPlugin.scala:283):  [SQ] PUSH: robPtr=%x to slotIdx=%x", StoreBufferPlugin_hw_pushPortInst_payload_robPtr, StoreBufferPlugin_logic_pushIdx); // StoreBufferPlugin.scala:L283
+            end
+          `endif
+        `endif
+      end
+      if(when_StoreBufferPlugin_l294) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // StoreBufferPlugin.scala:L295
+          `else
+            if(!1'b0) begin
+              $display("FAILURE Got isIO but no MMIO service."); // StoreBufferPlugin.scala:L295
               $finish;
             end
           `endif
         `endif
       end
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // StoreBufferPlugin.scala:L299
+        `else
+          if(!1'b0) begin
+            $display("NOTE(StoreBufferPlugin.scala:299):  [SQ] sharedWriteCond = %x of headslot: StoreBufferSlot(valid=%x,isFlush=%x,addr=%x,data=%x,be=%x,robPtr=%x,accessSize=%s,isIO=%x,hasEarlyException=%x,earlyExceptionCode=%x,isCommitted=%x,sentCmd=%x,waitRsp=%x,isWaitingForRefill=%x,isWaitingForWb=%x,refillSlotToWatch=%x)canSendToDCache = %x. canSendToMMIO = %x. ", StoreBufferPlugin_logic_sharedWriteCond, StoreBufferPlugin_logic_slots_0_valid, StoreBufferPlugin_logic_slots_0_isFlush, StoreBufferPlugin_logic_slots_0_addr, StoreBufferPlugin_logic_slots_0_data, StoreBufferPlugin_logic_slots_0_be, StoreBufferPlugin_logic_slots_0_robPtr, StoreBufferPlugin_logic_slots_0_accessSize_string, StoreBufferPlugin_logic_slots_0_isIO, StoreBufferPlugin_logic_slots_0_hasEarlyException, StoreBufferPlugin_logic_slots_0_earlyExceptionCode, StoreBufferPlugin_logic_slots_0_isCommitted, StoreBufferPlugin_logic_slots_0_sentCmd, StoreBufferPlugin_logic_slots_0_waitRsp, StoreBufferPlugin_logic_slots_0_isWaitingForRefill, StoreBufferPlugin_logic_slots_0_isWaitingForWb, StoreBufferPlugin_logic_slots_0_refillSlotToWatch, StoreBufferPlugin_logic_canSendToDCache, StoreBufferPlugin_logic_canPopMMIOOp); // StoreBufferPlugin.scala:L299
+          end
+        `endif
+      `endif
+      if(_zz_io_gmbIn_write_cmd_valid) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // StoreBufferPlugin.scala:L311
+          `else
+            if(!1'b0) begin
+              $display("NOTE(StoreBufferPlugin.scala:311):  [SQ-MMIO] Sending MMIO STORE: payload=SplitGmbWriteCmd(address=%x,data=%x,byteEnables=%x,id=%x,last=%x) headslot=StoreBufferSlot(valid=%x,isFlush=%x,addr=%x,data=%x,be=%x,robPtr=%x,accessSize=%s,isIO=%x,hasEarlyException=%x,earlyExceptionCode=%x,isCommitted=%x,sentCmd=%x,waitRsp=%x,isWaitingForRefill=%x,isWaitingForWb=%x,refillSlotToWatch=%x) valid=%x ready=%x", _zz_io_gmbIn_write_cmd_payload_address, _zz_io_gmbIn_write_cmd_payload_data, _zz_io_gmbIn_write_cmd_payload_byteEnables, _zz_io_gmbIn_write_cmd_payload_id, _zz_26, StoreBufferPlugin_logic_slots_0_valid, StoreBufferPlugin_logic_slots_0_isFlush, StoreBufferPlugin_logic_slots_0_addr, StoreBufferPlugin_logic_slots_0_data, StoreBufferPlugin_logic_slots_0_be, StoreBufferPlugin_logic_slots_0_robPtr, StoreBufferPlugin_logic_slots_0_accessSize_string, StoreBufferPlugin_logic_slots_0_isIO, StoreBufferPlugin_logic_slots_0_hasEarlyException, StoreBufferPlugin_logic_slots_0_earlyExceptionCode, StoreBufferPlugin_logic_slots_0_isCommitted, StoreBufferPlugin_logic_slots_0_sentCmd, StoreBufferPlugin_logic_slots_0_waitRsp, StoreBufferPlugin_logic_slots_0_isWaitingForRefill, StoreBufferPlugin_logic_slots_0_isWaitingForWb, StoreBufferPlugin_logic_slots_0_refillSlotToWatch, _zz_io_gmbIn_write_cmd_valid, _zz_StoreBufferPlugin_logic_mmioCmdFired); // StoreBufferPlugin.scala:L311
+            end
+          `endif
+        `endif
+      end
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // StoreBufferPlugin.scala:L316
+        `else
+          if(!1'b0) begin
+            $display("NOTE(StoreBufferPlugin.scala:316):  [SQ] mmioCmdFired=%x because canSendToMMIO=%x, channel.cmd.ready=%x", StoreBufferPlugin_logic_mmioCmdFired, StoreBufferPlugin_logic_canPopMMIOOp, _zz_StoreBufferPlugin_logic_mmioCmdFired); // StoreBufferPlugin.scala:L316
+          end
+        `endif
+      `endif
       if(StoreBufferPlugin_logic_mmioCmdFired) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L408
+            assert(1'b0); // StoreBufferPlugin.scala:L320
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:408):  [SQ] CMD_FIRED_MMIO: robPtr=%x (slotIdx=0), addr=%x data=%x be=%x", StoreBufferPlugin_logic_slots_0_robPtr, StoreBufferPlugin_logic_slots_0_addr, StoreBufferPlugin_logic_slots_0_data, StoreBufferPlugin_logic_slots_0_be); // StoreBufferPlugin.scala:L408
+              $display("NOTE(StoreBufferPlugin.scala:320):  [SQ] CMD_FIRED_MMIO: robPtr=%x (slotIdx=0), addr=%x data=%x be=%x", StoreBufferPlugin_logic_slots_0_robPtr, StoreBufferPlugin_logic_slots_0_addr, StoreBufferPlugin_logic_slots_0_data, StoreBufferPlugin_logic_slots_0_be); // StoreBufferPlugin.scala:L320
             end
           `endif
         `endif
@@ -28315,20 +29891,20 @@ module CoreNSCSCC (
         if(CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_rsp_payload_error) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // StoreBufferPlugin.scala:L440
+              assert(1'b0); // StoreBufferPlugin.scala:L333
             `else
               if(!1'b0) begin
-                $display("NOTE(StoreBufferPlugin.scala:440):  [SQ-MMIO] MMIO RSP_ERROR received for robPtr=%x.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L440
+                $display("NOTE(StoreBufferPlugin.scala:333):  [SQ-MMIO] MMIO RSP_ERROR received for robPtr=%x.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L333
               end
             `endif
           `endif
         end else begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // StoreBufferPlugin.scala:L445
+              assert(1'b0); // StoreBufferPlugin.scala:L338
             `else
               if(!1'b0) begin
-                $display("NOTE(StoreBufferPlugin.scala:445):  [SQ-MMIO] MMIO RSP_SUCCESS received for robPtr=%x.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L445
+                $display("NOTE(StoreBufferPlugin.scala:338):  [SQ-MMIO] MMIO RSP_SUCCESS received for robPtr=%x.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L338
               end
             `endif
           `endif
@@ -28348,112 +29924,188 @@ module CoreNSCSCC (
           `endif
         end
       end
-      if(when_StoreBufferPlugin_l498) begin
-        if(when_StoreBufferPlugin_l504) begin
+      if(when_StoreBufferPlugin_l360) begin
+        if(when_StoreBufferPlugin_l366) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // StoreBufferPlugin.scala:L507
+              assert(1'b0); // StoreBufferPlugin.scala:L369
             `else
               if(!1'b0) begin
-                $display("NOTE(StoreBufferPlugin.scala:507):  [SQ] COMMIT_DETECT: robPtr=%x (slotIdx=0) will be marked as committed next cycle.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L507
+                $display("NOTE(StoreBufferPlugin.scala:369):  [SQ] COMMIT_DETECT: robPtr=%x (slotIdx=0) will be marked as committed next cycle.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L369
               end
             `endif
           `endif
         end
       end
-      if(when_StoreBufferPlugin_l498_1) begin
-        if(when_StoreBufferPlugin_l504_1) begin
+      if(when_StoreBufferPlugin_l360_1) begin
+        if(when_StoreBufferPlugin_l366_1) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // StoreBufferPlugin.scala:L507
+              assert(1'b0); // StoreBufferPlugin.scala:L369
             `else
               if(!1'b0) begin
-                $display("NOTE(StoreBufferPlugin.scala:507):  [SQ] COMMIT_DETECT: robPtr=%x (slotIdx=1) will be marked as committed next cycle.", StoreBufferPlugin_logic_slots_1_robPtr); // StoreBufferPlugin.scala:L507
+                $display("NOTE(StoreBufferPlugin.scala:369):  [SQ] COMMIT_DETECT: robPtr=%x (slotIdx=1) will be marked as committed next cycle.", StoreBufferPlugin_logic_slots_1_robPtr); // StoreBufferPlugin.scala:L369
               end
             `endif
           `endif
         end
       end
-      if(when_StoreBufferPlugin_l498_2) begin
-        if(when_StoreBufferPlugin_l504_2) begin
+      if(when_StoreBufferPlugin_l360_2) begin
+        if(when_StoreBufferPlugin_l366_2) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // StoreBufferPlugin.scala:L507
+              assert(1'b0); // StoreBufferPlugin.scala:L369
             `else
               if(!1'b0) begin
-                $display("NOTE(StoreBufferPlugin.scala:507):  [SQ] COMMIT_DETECT: robPtr=%x (slotIdx=2) will be marked as committed next cycle.", StoreBufferPlugin_logic_slots_2_robPtr); // StoreBufferPlugin.scala:L507
+                $display("NOTE(StoreBufferPlugin.scala:369):  [SQ] COMMIT_DETECT: robPtr=%x (slotIdx=2) will be marked as committed next cycle.", StoreBufferPlugin_logic_slots_2_robPtr); // StoreBufferPlugin.scala:L369
               end
             `endif
           `endif
         end
       end
-      if(when_StoreBufferPlugin_l498_3) begin
-        if(when_StoreBufferPlugin_l504_3) begin
+      if(when_StoreBufferPlugin_l360_3) begin
+        if(when_StoreBufferPlugin_l366_3) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // StoreBufferPlugin.scala:L507
+              assert(1'b0); // StoreBufferPlugin.scala:L369
             `else
               if(!1'b0) begin
-                $display("NOTE(StoreBufferPlugin.scala:507):  [SQ] COMMIT_DETECT: robPtr=%x (slotIdx=3) will be marked as committed next cycle.", StoreBufferPlugin_logic_slots_3_robPtr); // StoreBufferPlugin.scala:L507
+                $display("NOTE(StoreBufferPlugin.scala:369):  [SQ] COMMIT_DETECT: robPtr=%x (slotIdx=3) will be marked as committed next cycle.", StoreBufferPlugin_logic_slots_3_robPtr); // StoreBufferPlugin.scala:L369
               end
             `endif
           `endif
         end
       end
       StoreBufferPlugin_logic_registeredCommitUpdate_validMask <= StoreBufferPlugin_logic_commitUpdateInfo_validMask;
-      if(when_StoreBufferPlugin_l525) begin
+      if(when_StoreBufferPlugin_l381) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L528
+            assert(1'b0); // StoreBufferPlugin.scala:L383
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:528):  [SQ] FLUSH (Exec): Invalidating slotIdx=0 (robPtr=%x) by ROB flush.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L528
+              $display("NOTE(StoreBufferPlugin.scala:383):  [SQ] FLUSH (Exec): Invalidating slotIdx=0 (robPtr=%x) by ROB flush.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L383
+            end
+          `endif
+        `endif
+      end else begin
+        if(when_StoreBufferPlugin_l384) begin
+          if(when_StoreBufferPlugin_l385) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // StoreBufferPlugin.scala:L387
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(StoreBufferPlugin.scala:387):  [SQ] COMMIT_EXEC: robPtr=%x (slotIdx=0) marked as committed based on registered info.", StoreBufferPlugin_logic_slots_0_robPtr); // StoreBufferPlugin.scala:L387
+                end
+              `endif
+            `endif
+          end
+        end
+      end
+      if(when_StoreBufferPlugin_l381_1) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // StoreBufferPlugin.scala:L383
+          `else
+            if(!1'b0) begin
+              $display("NOTE(StoreBufferPlugin.scala:383):  [SQ] FLUSH (Exec): Invalidating slotIdx=1 (robPtr=%x) by ROB flush.", StoreBufferPlugin_logic_slots_1_robPtr); // StoreBufferPlugin.scala:L383
+            end
+          `endif
+        `endif
+      end else begin
+        if(when_StoreBufferPlugin_l384_1) begin
+          if(when_StoreBufferPlugin_l385_1) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // StoreBufferPlugin.scala:L387
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(StoreBufferPlugin.scala:387):  [SQ] COMMIT_EXEC: robPtr=%x (slotIdx=1) marked as committed based on registered info.", StoreBufferPlugin_logic_slots_1_robPtr); // StoreBufferPlugin.scala:L387
+                end
+              `endif
+            `endif
+          end
+        end
+      end
+      if(when_StoreBufferPlugin_l381_2) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // StoreBufferPlugin.scala:L383
+          `else
+            if(!1'b0) begin
+              $display("NOTE(StoreBufferPlugin.scala:383):  [SQ] FLUSH (Exec): Invalidating slotIdx=2 (robPtr=%x) by ROB flush.", StoreBufferPlugin_logic_slots_2_robPtr); // StoreBufferPlugin.scala:L383
+            end
+          `endif
+        `endif
+      end else begin
+        if(when_StoreBufferPlugin_l384_2) begin
+          if(when_StoreBufferPlugin_l385_2) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // StoreBufferPlugin.scala:L387
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(StoreBufferPlugin.scala:387):  [SQ] COMMIT_EXEC: robPtr=%x (slotIdx=2) marked as committed based on registered info.", StoreBufferPlugin_logic_slots_2_robPtr); // StoreBufferPlugin.scala:L387
+                end
+              `endif
+            `endif
+          end
+        end
+      end
+      if(when_StoreBufferPlugin_l381_3) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // StoreBufferPlugin.scala:L383
+          `else
+            if(!1'b0) begin
+              $display("NOTE(StoreBufferPlugin.scala:383):  [SQ] FLUSH (Exec): Invalidating slotIdx=3 (robPtr=%x) by ROB flush.", StoreBufferPlugin_logic_slots_3_robPtr); // StoreBufferPlugin.scala:L383
+            end
+          `endif
+        `endif
+      end else begin
+        if(when_StoreBufferPlugin_l384_3) begin
+          if(when_StoreBufferPlugin_l385_3) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // StoreBufferPlugin.scala:L387
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(StoreBufferPlugin.scala:387):  [SQ] COMMIT_EXEC: robPtr=%x (slotIdx=3) marked as committed based on registered info.", StoreBufferPlugin_logic_slots_3_robPtr); // StoreBufferPlugin.scala:L387
+                end
+              `endif
+            `endif
+          end
+        end
+      end
+      if(when_StoreBufferPlugin_l391) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // StoreBufferPlugin.scala:L392
+          `else
+            if(!1'b0) begin
+              $display("NOTE(StoreBufferPlugin.scala:392):  [SQ] FULL_FLUSH received. Clearing all slots."); // StoreBufferPlugin.scala:L392
             end
           `endif
         `endif
       end
-      if(when_StoreBufferPlugin_l525_1) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L528
-          `else
-            if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:528):  [SQ] FLUSH (Exec): Invalidating slotIdx=1 (robPtr=%x) by ROB flush.", StoreBufferPlugin_logic_slots_1_robPtr); // StoreBufferPlugin.scala:L528
-            end
-          `endif
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // StoreBufferPlugin.scala:L398
+        `else
+          if(!1'b0) begin
+            $display("NOTE(StoreBufferPlugin.scala:398):  slotsAfterUpdates(0): StoreBufferSlot(valid=%x,isFlush=%x,addr=%x,data=%x,be=%x,robPtr=%x,accessSize=%s,isIO=%x,hasEarlyException=%x,earlyExceptionCode=%x,isCommitted=%x,sentCmd=%x,waitRsp=%x,isWaitingForRefill=%x,isWaitingForWb=%x,refillSlotToWatch=%x)", StoreBufferPlugin_logic_slotsAfterUpdates_0_valid, StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush, StoreBufferPlugin_logic_slotsAfterUpdates_0_addr, StoreBufferPlugin_logic_slotsAfterUpdates_0_data, StoreBufferPlugin_logic_slotsAfterUpdates_0_be, StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr, StoreBufferPlugin_logic_slotsAfterUpdates_0_accessSize_string, StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO, StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException, StoreBufferPlugin_logic_slotsAfterUpdates_0_earlyExceptionCode, StoreBufferPlugin_logic_slotsAfterUpdates_0_isCommitted, StoreBufferPlugin_logic_slotsAfterUpdates_0_sentCmd, StoreBufferPlugin_logic_slotsAfterUpdates_0_waitRsp, StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForRefill, StoreBufferPlugin_logic_slotsAfterUpdates_0_isWaitingForWb, StoreBufferPlugin_logic_slotsAfterUpdates_0_refillSlotToWatch); // StoreBufferPlugin.scala:L398
+          end
         `endif
-      end
-      if(when_StoreBufferPlugin_l525_2) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L528
-          `else
-            if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:528):  [SQ] FLUSH (Exec): Invalidating slotIdx=2 (robPtr=%x) by ROB flush.", StoreBufferPlugin_logic_slots_2_robPtr); // StoreBufferPlugin.scala:L528
-            end
-          `endif
-        `endif
-      end
-      if(when_StoreBufferPlugin_l525_3) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L528
-          `else
-            if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:528):  [SQ] FLUSH (Exec): Invalidating slotIdx=3 (robPtr=%x) by ROB flush.", StoreBufferPlugin_logic_slots_3_robPtr); // StoreBufferPlugin.scala:L528
-            end
-          `endif
-        `endif
-      end
-      if(when_StoreBufferPlugin_l555) begin
+      `endif
+      if(when_StoreBufferPlugin_l401) begin
         if(StoreBufferPlugin_logic_slotsAfterUpdates_0_isFlush) begin
           if(StoreBufferPlugin_logic_operationDone) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // StoreBufferPlugin.scala:L560
+                assert(1'b0); // StoreBufferPlugin.scala:L405
               `else
                 if(!1'b0) begin
-                  $display("NOTE(StoreBufferPlugin.scala:560):  [SQ] POP_FLUSH: robPtr=%x", StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr); // StoreBufferPlugin.scala:L560
+                  $display("NOTE(StoreBufferPlugin.scala:405):  [SQ] POP_FLUSH: robPtr=%x", StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr); // StoreBufferPlugin.scala:L405
                 end
               `endif
             `endif
@@ -28462,10 +30114,10 @@ module CoreNSCSCC (
           if(StoreBufferPlugin_logic_slotsAfterUpdates_0_hasEarlyException) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // StoreBufferPlugin.scala:L567
+                assert(1'b0); // StoreBufferPlugin.scala:L409
               `else
                 if(!1'b0) begin
-                  $display("NOTE(StoreBufferPlugin.scala:567):  [SQ] POP_EARLY_EXCEPTION: robPtr=%x", StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr); // StoreBufferPlugin.scala:L567
+                  $display("NOTE(StoreBufferPlugin.scala:409):  [SQ] POP_EARLY_EXCEPTION: robPtr=%x", StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr); // StoreBufferPlugin.scala:L409
                 end
               `endif
             `endif
@@ -28473,88 +30125,154 @@ module CoreNSCSCC (
             if(StoreBufferPlugin_logic_operationDone) begin
               `ifndef SYNTHESIS
                 `ifdef FORMAL
-                  assert(1'b0); // StoreBufferPlugin.scala:L572
+                  assert(1'b0); // StoreBufferPlugin.scala:L413
                 `else
                   if(!1'b0) begin
-                    $display("NOTE(StoreBufferPlugin.scala:572):  [SQ] POP_NORMAL_STORE/MMIO: robPtr=%x, isIO=%x", StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr, StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO); // StoreBufferPlugin.scala:L572
+                    $display("NOTE(StoreBufferPlugin.scala:413):  [SQ] POP_NORMAL_STORE/MMIO: robPtr=%x, isIO=%x", StoreBufferPlugin_logic_slotsAfterUpdates_0_robPtr, StoreBufferPlugin_logic_slotsAfterUpdates_0_isIO); // StoreBufferPlugin.scala:L413
                   end
                 `endif
               `endif
             end
           end
         end
+      end else begin
+        if(when_StoreBufferPlugin_l417) begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // StoreBufferPlugin.scala:L419
+            `else
+              if(!1'b0) begin
+                $display("NOTE(StoreBufferPlugin.scala:419):  [SQ] POP_INVALID_SLOT: Clearing invalid head slot."); // StoreBufferPlugin.scala:L419
+              end
+            `endif
+          `endif
+        end
       end
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // StoreBufferPlugin.scala:L447
+        `else
+          if(!1'b0) begin
+            $display("NOTE(StoreBufferPlugin.scala:447):  [SQ-Fwd] Query: valid=%x robPtr=%x addr=%x size=%s", StoreBufferPlugin_hw_sqQueryPort_cmd_valid, StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr, StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address, StoreBufferPlugin_hw_sqQueryPort_cmd_payload_size_string); // StoreBufferPlugin.scala:L447
+          end
+        `endif
+      `endif
+      if(when_StoreBufferPlugin_l513) begin
+        if(when_StoreBufferPlugin_l519) begin
+          if(when_StoreBufferPlugin_l522) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // StoreBufferPlugin.scala:L523
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(StoreBufferPlugin.scala:523):  [SQ-Fwd] STALL_DATA_NOT_READY (Slot Status): slot=%x (LoadAddr(word)=%x, StoreAddr(word)=%x)reason: waitRsp=%x, isWaitingForRefill=%x, isWaitingForWb=%x", StoreBufferPlugin_logic_forwardingLogic_slotsView_0_robPtr, _zz_when_StoreBufferPlugin_l519_4, _zz_when_StoreBufferPlugin_l519_5, StoreBufferPlugin_logic_forwardingLogic_slotsView_0_waitRsp, StoreBufferPlugin_logic_forwardingLogic_slotsView_0_isWaitingForRefill, StoreBufferPlugin_logic_forwardingLogic_slotsView_0_isWaitingForWb); // StoreBufferPlugin.scala:L523
+                end
+              `endif
+            `endif
+          end
+        end
+      end
+      if(when_StoreBufferPlugin_l513_1) begin
+        if(when_StoreBufferPlugin_l519_1) begin
+          if(when_StoreBufferPlugin_l522_1) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // StoreBufferPlugin.scala:L523
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(StoreBufferPlugin.scala:523):  [SQ-Fwd] STALL_DATA_NOT_READY (Slot Status): slot=%x (LoadAddr(word)=%x, StoreAddr(word)=%x)reason: waitRsp=%x, isWaitingForRefill=%x, isWaitingForWb=%x", StoreBufferPlugin_logic_forwardingLogic_slotsView_1_robPtr, _zz_when_StoreBufferPlugin_l519_10, _zz_when_StoreBufferPlugin_l519_11, StoreBufferPlugin_logic_forwardingLogic_slotsView_1_waitRsp, StoreBufferPlugin_logic_forwardingLogic_slotsView_1_isWaitingForRefill, StoreBufferPlugin_logic_forwardingLogic_slotsView_1_isWaitingForWb); // StoreBufferPlugin.scala:L523
+                end
+              `endif
+            `endif
+          end
+        end
+      end
+      if(when_StoreBufferPlugin_l513_2) begin
+        if(when_StoreBufferPlugin_l519_2) begin
+          if(when_StoreBufferPlugin_l522_2) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // StoreBufferPlugin.scala:L523
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(StoreBufferPlugin.scala:523):  [SQ-Fwd] STALL_DATA_NOT_READY (Slot Status): slot=%x (LoadAddr(word)=%x, StoreAddr(word)=%x)reason: waitRsp=%x, isWaitingForRefill=%x, isWaitingForWb=%x", StoreBufferPlugin_logic_forwardingLogic_slotsView_2_robPtr, _zz_when_StoreBufferPlugin_l519_16, _zz_when_StoreBufferPlugin_l519_17, StoreBufferPlugin_logic_forwardingLogic_slotsView_2_waitRsp, StoreBufferPlugin_logic_forwardingLogic_slotsView_2_isWaitingForRefill, StoreBufferPlugin_logic_forwardingLogic_slotsView_2_isWaitingForWb); // StoreBufferPlugin.scala:L523
+                end
+              `endif
+            `endif
+          end
+        end
+      end
+      if(when_StoreBufferPlugin_l513_3) begin
+        if(when_StoreBufferPlugin_l519_3) begin
+          if(when_StoreBufferPlugin_l522_3) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // StoreBufferPlugin.scala:L523
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(StoreBufferPlugin.scala:523):  [SQ-Fwd] STALL_DATA_NOT_READY (Slot Status): slot=%x (LoadAddr(word)=%x, StoreAddr(word)=%x)reason: waitRsp=%x, isWaitingForRefill=%x, isWaitingForWb=%x", StoreBufferPlugin_logic_forwardingLogic_slotsView_3_robPtr, _zz_when_StoreBufferPlugin_l519_22, _zz_when_StoreBufferPlugin_l519_23, StoreBufferPlugin_logic_forwardingLogic_slotsView_3_waitRsp, StoreBufferPlugin_logic_forwardingLogic_slotsView_3_isWaitingForRefill, StoreBufferPlugin_logic_forwardingLogic_slotsView_3_isWaitingForWb); // StoreBufferPlugin.scala:L523
+                end
+              `endif
+            `endif
+          end
+        end
+      end
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // StoreBufferPlugin.scala:L545
+        `else
+          if(!1'b0) begin
+            $display("NOTE(StoreBufferPlugin.scala:545):  [SQ-Fwd] Forwarding? hit=%x, because query.valid=%x, allRequiredBytesHit=%x, olderStoreHasUnknownAddress=%x, olderStoreDataNotReady=%x", StoreBufferPlugin_hw_sqQueryPort_rsp_hit, StoreBufferPlugin_hw_sqQueryPort_cmd_valid, StoreBufferPlugin_logic_forwardingLogic_allRequiredBytesHit, StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreHasUnknownAddress, StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreDataNotReady); // StoreBufferPlugin.scala:L545
+          end
+        `endif
+      `endif
       if(StoreBufferPlugin_hw_sqQueryPort_cmd_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // StoreBufferPlugin.scala:L613
+            assert(1'b0); // StoreBufferPlugin.scala:L548
           `else
             if(!1'b0) begin
-              $display("NOTE(StoreBufferPlugin.scala:613):  [SQ-Fwd] Query: valid=%x robPtr=%x addr=%x size=%s", StoreBufferPlugin_hw_sqQueryPort_cmd_valid, StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr, StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address, StoreBufferPlugin_hw_sqQueryPort_cmd_payload_size_string); // StoreBufferPlugin.scala:L613
+              $display("NOTE(StoreBufferPlugin.scala:548):  [SQ-Fwd] Query: SqQuery(robPtr=%x,address=%x,size=%s)", StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr, StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address, StoreBufferPlugin_hw_sqQueryPort_cmd_payload_size_string); // StoreBufferPlugin.scala:L548
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // StoreBufferPlugin.scala:L549
+          `else
+            if(!1'b0) begin
+              $display("NOTE(StoreBufferPlugin.scala:549):  [SQ-Fwd] Rsp: SqQueryRsp(hit=%x,data=%x,olderStoreHasUnknownAddress=%x,olderStoreDataNotReady=%x)", StoreBufferPlugin_hw_sqQueryPort_rsp_hit, StoreBufferPlugin_hw_sqQueryPort_rsp_data, StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreHasUnknownAddress, StoreBufferPlugin_hw_sqQueryPort_rsp_olderStoreDataNotReady); // StoreBufferPlugin.scala:L549
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // StoreBufferPlugin.scala:L550
+          `else
+            if(!1'b0) begin
+              $display("NOTE(StoreBufferPlugin.scala:550):  [SQ-Fwd] Result: hitMask=%x (loadMask=%x), allHit=%x, finalRsp.hit=%x", StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask, StoreBufferPlugin_logic_forwardingLogic_loadMask, StoreBufferPlugin_logic_forwardingLogic_allRequiredBytesHit, StoreBufferPlugin_hw_sqQueryPort_rsp_hit); // StoreBufferPlugin.scala:L550
             end
           `endif
         `endif
       end
-      if(when_StoreBufferPlugin_l672) begin
-        if(when_StoreBufferPlugin_l678) begin
-          if(when_StoreBufferPlugin_l681) begin
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(1'b0); // StoreBufferPlugin.scala:L682
-              `else
-                if(!1'b0) begin
-                  $display("NOTE(StoreBufferPlugin.scala:682):  [SQ-Fwd] STALL_DATA_NOT_READY (Slot Status): slot=%x (LoadAddr=%x, StoreAddr=%x)reason: waitRsp=%x, isWaitingForRefill=%x, isWaitingForWb=%x", StoreBufferPlugin_logic_slots_0_robPtr, _zz_when_StoreBufferPlugin_l678_4, _zz_when_StoreBufferPlugin_l678_5, StoreBufferPlugin_logic_slots_0_waitRsp, StoreBufferPlugin_logic_slots_0_isWaitingForRefill, StoreBufferPlugin_logic_slots_0_isWaitingForWb); // StoreBufferPlugin.scala:L682
-                end
-              `endif
-            `endif
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // StoreBufferPlugin.scala:L552
+        `else
+          if(!1'b0) begin
+            $display("NOTE(StoreBufferPlugin.scala:552):  [SQ-Fwd] Result: hitMask=%x (loadMask=%x), allHit=%x, finalRsp.hit=%x", StoreBufferPlugin_logic_forwardingLogic_forwardingResult_hitMask, StoreBufferPlugin_logic_forwardingLogic_loadMask, StoreBufferPlugin_logic_forwardingLogic_allRequiredBytesHit, StoreBufferPlugin_hw_sqQueryPort_rsp_hit); // StoreBufferPlugin.scala:L552
           end
-        end
-      end
-      if(when_StoreBufferPlugin_l672_1) begin
-        if(when_StoreBufferPlugin_l678_1) begin
-          if(when_StoreBufferPlugin_l681_1) begin
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(1'b0); // StoreBufferPlugin.scala:L682
-              `else
-                if(!1'b0) begin
-                  $display("NOTE(StoreBufferPlugin.scala:682):  [SQ-Fwd] STALL_DATA_NOT_READY (Slot Status): slot=%x (LoadAddr=%x, StoreAddr=%x)reason: waitRsp=%x, isWaitingForRefill=%x, isWaitingForWb=%x", StoreBufferPlugin_logic_slots_1_robPtr, _zz_when_StoreBufferPlugin_l678_10, _zz_when_StoreBufferPlugin_l678_11, StoreBufferPlugin_logic_slots_1_waitRsp, StoreBufferPlugin_logic_slots_1_isWaitingForRefill, StoreBufferPlugin_logic_slots_1_isWaitingForWb); // StoreBufferPlugin.scala:L682
-                end
-              `endif
-            `endif
+        `endif
+      `endif
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // StoreBufferPlugin.scala:L594
+        `else
+          if(!1'b0) begin
+            $display("NOTE(StoreBufferPlugin.scala:594):  [SQ] bypassDataOut: valid=%x, data=%x, hit=%x, hitMask=%x", StoreBufferPlugin_hw_bypassDataOutInst_valid, StoreBufferPlugin_hw_bypassDataOutInst_payload_data, StoreBufferPlugin_hw_bypassDataOutInst_payload_hit, StoreBufferPlugin_hw_bypassDataOutInst_payload_hitMask); // StoreBufferPlugin.scala:L594
           end
-        end
-      end
-      if(when_StoreBufferPlugin_l672_2) begin
-        if(when_StoreBufferPlugin_l678_2) begin
-          if(when_StoreBufferPlugin_l681_2) begin
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(1'b0); // StoreBufferPlugin.scala:L682
-              `else
-                if(!1'b0) begin
-                  $display("NOTE(StoreBufferPlugin.scala:682):  [SQ-Fwd] STALL_DATA_NOT_READY (Slot Status): slot=%x (LoadAddr=%x, StoreAddr=%x)reason: waitRsp=%x, isWaitingForRefill=%x, isWaitingForWb=%x", StoreBufferPlugin_logic_slots_2_robPtr, _zz_when_StoreBufferPlugin_l678_16, _zz_when_StoreBufferPlugin_l678_17, StoreBufferPlugin_logic_slots_2_waitRsp, StoreBufferPlugin_logic_slots_2_isWaitingForRefill, StoreBufferPlugin_logic_slots_2_isWaitingForWb); // StoreBufferPlugin.scala:L682
-                end
-              `endif
-            `endif
-          end
-        end
-      end
-      if(when_StoreBufferPlugin_l672_3) begin
-        if(when_StoreBufferPlugin_l678_3) begin
-          if(when_StoreBufferPlugin_l681_3) begin
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(1'b0); // StoreBufferPlugin.scala:L682
-              `else
-                if(!1'b0) begin
-                  $display("NOTE(StoreBufferPlugin.scala:682):  [SQ-Fwd] STALL_DATA_NOT_READY (Slot Status): slot=%x (LoadAddr=%x, StoreAddr=%x)reason: waitRsp=%x, isWaitingForRefill=%x, isWaitingForWb=%x", StoreBufferPlugin_logic_slots_3_robPtr, _zz_when_StoreBufferPlugin_l678_22, _zz_when_StoreBufferPlugin_l678_23, StoreBufferPlugin_logic_slots_3_waitRsp, StoreBufferPlugin_logic_slots_3_isWaitingForRefill, StoreBufferPlugin_logic_slots_3_isWaitingForWb); // StoreBufferPlugin.scala:L682
-                end
-              `endif
-            `endif
-          end
-        end
-      end
+        `endif
+      `endif
       StoreBufferPlugin_logic_slots_0_isFlush <= StoreBufferPlugin_logic_slotsNext_0_isFlush;
       StoreBufferPlugin_logic_slots_0_addr <= StoreBufferPlugin_logic_slotsNext_0_addr;
       StoreBufferPlugin_logic_slots_0_data <= StoreBufferPlugin_logic_slotsNext_0_data;
@@ -28619,6 +30337,59 @@ module CoreNSCSCC (
       StoreBufferPlugin_logic_slots_3_isWaitingForRefill <= StoreBufferPlugin_logic_slotsNext_3_isWaitingForRefill;
       StoreBufferPlugin_logic_slots_3_isWaitingForWb <= StoreBufferPlugin_logic_slotsNext_3_isWaitingForWb;
       StoreBufferPlugin_logic_slots_3_refillSlotToWatch <= StoreBufferPlugin_logic_slotsNext_3_refillSlotToWatch;
+      if(StoreBufferPlugin_logic_slots_0_valid) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // StoreBufferPlugin.scala:L601
+          `else
+            if(!1'b0) begin
+              $display("NOTE(StoreBufferPlugin.scala:601):  [SQ-Debug] SlotState[0]: robPtr=%x, valid=%x, isCommitted=%x, sentCmd=%x, waitRsp=%x, isWaitingForRefill=%x, isWaitingForWb=%x, hasEarlyException=%x, isIO=%x, isFlush=%x", StoreBufferPlugin_logic_slots_0_robPtr, StoreBufferPlugin_logic_slots_0_valid, StoreBufferPlugin_logic_slots_0_isCommitted, StoreBufferPlugin_logic_slots_0_sentCmd, StoreBufferPlugin_logic_slots_0_waitRsp, StoreBufferPlugin_logic_slots_0_isWaitingForRefill, StoreBufferPlugin_logic_slots_0_isWaitingForWb, StoreBufferPlugin_logic_slots_0_hasEarlyException, StoreBufferPlugin_logic_slots_0_isIO, StoreBufferPlugin_logic_slots_0_isFlush); // StoreBufferPlugin.scala:L601
+            end
+          `endif
+        `endif
+      end
+      if(StoreBufferPlugin_logic_slots_1_valid) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // StoreBufferPlugin.scala:L601
+          `else
+            if(!1'b0) begin
+              $display("NOTE(StoreBufferPlugin.scala:601):  [SQ-Debug] SlotState[1]: robPtr=%x, valid=%x, isCommitted=%x, sentCmd=%x, waitRsp=%x, isWaitingForRefill=%x, isWaitingForWb=%x, hasEarlyException=%x, isIO=%x, isFlush=%x", StoreBufferPlugin_logic_slots_1_robPtr, StoreBufferPlugin_logic_slots_1_valid, StoreBufferPlugin_logic_slots_1_isCommitted, StoreBufferPlugin_logic_slots_1_sentCmd, StoreBufferPlugin_logic_slots_1_waitRsp, StoreBufferPlugin_logic_slots_1_isWaitingForRefill, StoreBufferPlugin_logic_slots_1_isWaitingForWb, StoreBufferPlugin_logic_slots_1_hasEarlyException, StoreBufferPlugin_logic_slots_1_isIO, StoreBufferPlugin_logic_slots_1_isFlush); // StoreBufferPlugin.scala:L601
+            end
+          `endif
+        `endif
+      end
+      if(StoreBufferPlugin_logic_slots_2_valid) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // StoreBufferPlugin.scala:L601
+          `else
+            if(!1'b0) begin
+              $display("NOTE(StoreBufferPlugin.scala:601):  [SQ-Debug] SlotState[2]: robPtr=%x, valid=%x, isCommitted=%x, sentCmd=%x, waitRsp=%x, isWaitingForRefill=%x, isWaitingForWb=%x, hasEarlyException=%x, isIO=%x, isFlush=%x", StoreBufferPlugin_logic_slots_2_robPtr, StoreBufferPlugin_logic_slots_2_valid, StoreBufferPlugin_logic_slots_2_isCommitted, StoreBufferPlugin_logic_slots_2_sentCmd, StoreBufferPlugin_logic_slots_2_waitRsp, StoreBufferPlugin_logic_slots_2_isWaitingForRefill, StoreBufferPlugin_logic_slots_2_isWaitingForWb, StoreBufferPlugin_logic_slots_2_hasEarlyException, StoreBufferPlugin_logic_slots_2_isIO, StoreBufferPlugin_logic_slots_2_isFlush); // StoreBufferPlugin.scala:L601
+            end
+          `endif
+        `endif
+      end
+      if(StoreBufferPlugin_logic_slots_3_valid) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // StoreBufferPlugin.scala:L601
+          `else
+            if(!1'b0) begin
+              $display("NOTE(StoreBufferPlugin.scala:601):  [SQ-Debug] SlotState[3]: robPtr=%x, valid=%x, isCommitted=%x, sentCmd=%x, waitRsp=%x, isWaitingForRefill=%x, isWaitingForWb=%x, hasEarlyException=%x, isIO=%x, isFlush=%x", StoreBufferPlugin_logic_slots_3_robPtr, StoreBufferPlugin_logic_slots_3_valid, StoreBufferPlugin_logic_slots_3_isCommitted, StoreBufferPlugin_logic_slots_3_sentCmd, StoreBufferPlugin_logic_slots_3_waitRsp, StoreBufferPlugin_logic_slots_3_isWaitingForRefill, StoreBufferPlugin_logic_slots_3_isWaitingForWb, StoreBufferPlugin_logic_slots_3_hasEarlyException, StoreBufferPlugin_logic_slots_3_isIO, StoreBufferPlugin_logic_slots_3_isFlush); // StoreBufferPlugin.scala:L601
+            end
+          `endif
+        `endif
+      end
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // StoreBufferPlugin.scala:L616
+        `else
+          if(!1'b0) begin
+            $display("NOTE(StoreBufferPlugin.scala:616):  [SQ-Debug] MMIO Interface: cmd.valid=%x, cmd.ready=%x, rsp.valid=%x, rsp.ready=%x, canSendToMMIO=%x", _zz_io_gmbIn_write_cmd_valid, _zz_StoreBufferPlugin_logic_mmioCmdFired, _zz_StoreBufferPlugin_logic_mmioResponseForHead, _zz_io_gmbIn_write_rsp_ready, StoreBufferPlugin_logic_canPopMMIOOp); // StoreBufferPlugin.scala:L616
+          end
+        `endif
+      `endif
       if(LinkerPlugin_logic_allWakeupFlows_0_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
@@ -29459,13 +31230,33 @@ module CoreNSCSCC (
         BusyTablePlugin_early_setup_busyTableReg <= BusyTablePlugin_logic_busyTableNext;
       end
       FetchPipelinePlugin_logic_retryIdCounter_value <= FetchPipelinePlugin_logic_retryIdCounter_valueNext;
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // FetchPipelinePlugin2.scala:L232
+        `else
+          if(!1'b0) begin
+            $display("NOTE(FetchPipelinePlugin2.scala:232):  [normal] IssuePipeline status: \ns1_PC_Gen: fire=%x, in.v=%x, in.r=%x, out.v=%x, out.r=null\ns2_ICache_Access: fire=%x, in.v=%x, in.r=%x, out.v=%x, out.r=null\ns3_ICache_Wait: fire=%x, in.v=%x, in.r=%x, out.v=%x, out.r=null\ns4_Predecode: fire=%x, in.v=%x, in.r=%x, out.v=%x, out.r=null\ns5_Target_Calc: fire=%x, in.v=%x, in.r=%x, out.v=%x, out.r=null\n", s1_PC_Gen_isFiring, s1_PC_Gen_valid, s1_PC_Gen_ready, _zz_s2_ICache_Access_valid, s2_ICache_Access_isFiring, s2_ICache_Access_valid, s2_ICache_Access_ready, _zz_s4_Predecode_valid, s3_ICache_Wait_isFiring, s3_ICache_Wait_valid, s3_ICache_Wait_ready, _zz_70, s4_Predecode_isFiring, s4_Predecode_valid, s4_Predecode_ready, _zz_s5_Target_Calc_valid, s5_Target_Calc_isFiring, s5_Target_Calc_valid, s5_Target_Calc_ready, _zz_71); // FetchPipelinePlugin2.scala:L232
+          end
+        `endif
+      `endif
+      if(FetchPipelinePlugin_logic_dispatcher_io_softRedirect_valid) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // FetchPipelinePlugin2.scala:L276
+          `else
+            if(!1'b0) begin
+              $display("NOTE(FetchPipelinePlugin2.scala:276):  [notice] [33m[%x] !!!!GOT A SOFT REDIRECT to 0x%x!!!![0m", FetchPipelinePlugin_dbg_cycles, FetchPipelinePlugin_logic_dispatcher_io_softRedirect_payload); // FetchPipelinePlugin2.scala:L276
+            end
+          `endif
+        `endif
+      end
       if(FetchPipelinePlugin_logic_hardRedirect_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // FetchPipelinePlugin2.scala:L265
+            assert(1'b0); // FetchPipelinePlugin2.scala:L294
           `else
             if(!1'b0) begin
-              $display("NOTE(FetchPipelinePlugin2.scala:265):  [notice] [33m[%x] !!!!GOT A HARD FLUSH to %x[0m", FetchPipelinePlugin_dbg_cycles, FetchPipelinePlugin_logic_hardRedirect_payload); // FetchPipelinePlugin2.scala:L265
+              $display("NOTE(FetchPipelinePlugin2.scala:294):  [notice] [33m[%x] !!!!GOT A HARD FLUSH to %x[0m", FetchPipelinePlugin_dbg_cycles, FetchPipelinePlugin_logic_hardRedirect_payload); // FetchPipelinePlugin2.scala:L294
             end
           `endif
         `endif
@@ -29473,10 +31264,32 @@ module CoreNSCSCC (
       if(FetchPipelinePlugin_logic_dispatcher_io_softRedirect_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // FetchPipelinePlugin2.scala:L268
+            assert(1'b0); // FetchPipelinePlugin2.scala:L297
           `else
             if(!1'b0) begin
-              $display("NOTE(FetchPipelinePlugin2.scala:268):  [notice] [33m[%x] !!!!GOT A SOFT FLUSH to %x[0m", FetchPipelinePlugin_dbg_cycles, FetchPipelinePlugin_logic_dispatcher_io_softRedirect_payload); // FetchPipelinePlugin2.scala:L268
+              $display("NOTE(FetchPipelinePlugin2.scala:297):  [notice] [33m[%x] !!!!GOT A SOFT FLUSH to %x[0m", FetchPipelinePlugin_dbg_cycles, FetchPipelinePlugin_logic_dispatcher_io_softRedirect_payload); // FetchPipelinePlugin2.scala:L297
+            end
+          `endif
+        `endif
+      end
+      if(FetchPipelinePlugin_logic_hardRedirect_valid) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // FetchPipelinePlugin2.scala:L305
+          `else
+            if(!1'b0) begin
+              $display("NOTE(FetchPipelinePlugin2.scala:305):  [notice] [33m[FLUSH_LOGIC] doHardFlush is HIGH at cycle 0x%x![0m", FetchPipelinePlugin_dbg_cycles); // FetchPipelinePlugin2.scala:L305
+            end
+          `endif
+        `endif
+      end
+      if(FetchPipelinePlugin_logic_hardRedirect_valid) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // FetchPipelinePlugin2.scala:L311
+          `else
+            if(!1'b0) begin
+              $display("NOTE(FetchPipelinePlugin2.scala:311):  [notice] [33m[FLUSH_TO_FIFO] fetchOutput.io.flush is DRIVEN HIGH at cycle 0x%x![0m", FetchPipelinePlugin_dbg_cycles); // FetchPipelinePlugin2.scala:L311
             end
           `endif
         `endif
@@ -29484,10 +31297,10 @@ module CoreNSCSCC (
       if(io_pop_fire) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // FetchPipelinePlugin2.scala:L274
+            assert(1'b0); // FetchPipelinePlugin2.scala:L314
           `else
             if(!1'b0) begin
-              $display("NOTE(FetchPipelinePlugin2.scala:274):  [notice] [33m[%x] output a instr to decoder: PC=0x%x, instr=0x%x[0m", FetchPipelinePlugin_dbg_cycles, FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_pc, FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_instruction); // FetchPipelinePlugin2.scala:L274
+              $display("NOTE(FetchPipelinePlugin2.scala:314):  [notice] [33m[%x] output a instr to decoder: PC=0x%x, instr=0x%x[0m", FetchPipelinePlugin_dbg_cycles, FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_pc, FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_instruction); // FetchPipelinePlugin2.scala:L314
             end
           `endif
         `endif
@@ -29495,16 +31308,35 @@ module CoreNSCSCC (
       FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_value <= FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_valueNext;
       if(FetchPipelinePlugin_logic_doAnyFlush) begin
         FetchPipelinePlugin_logic_isDrainingCacheRspReg <= 1'b1;
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // FetchPipelinePlugin2.scala:L322
+          `else
+            if(!1'b0) begin
+              $display("NOTE(FetchPipelinePlugin2.scala:322):  [notice] [33m[%x] Draining the pipeline due to a flush. iCacheInFlightToDrainCounter.value=%x[0m", FetchPipelinePlugin_dbg_cycles, FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_value); // FetchPipelinePlugin2.scala:L322
+            end
+          `endif
+        `endif
       end
       if(FetchPipelinePlugin_logic_isDrainingCacheRspReg) begin
-        if(when_FetchPipelinePlugin2_l290) begin
+        if(when_FetchPipelinePlugin2_l325) begin
           FetchPipelinePlugin_logic_isDrainingCacheRspReg <= 1'b0;
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // FetchPipelinePlugin2.scala:L292
+              assert(1'b0); // FetchPipelinePlugin2.scala:L327
             `else
               if(!1'b0) begin
-                $display("NOTE(FetchPipelinePlugin2.scala:292):  [success] [32m[%x] Pipeline still has %x cycles to drain[0m", FetchPipelinePlugin_dbg_cycles, FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_value); // FetchPipelinePlugin2.scala:L292
+                $display("NOTE(FetchPipelinePlugin2.scala:327):  [success] [32m[%x] Pipeline still has %x cycles to drain[0m", FetchPipelinePlugin_dbg_cycles, FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_value); // FetchPipelinePlugin2.scala:L327
+              end
+            `endif
+          `endif
+        end else begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // FetchPipelinePlugin2.scala:L330
+            `else
+              if(!1'b0) begin
+                $display("NOTE(FetchPipelinePlugin2.scala:330):  [notice] [33m[%x] Pipeline still has %x cycles to drain[0m", FetchPipelinePlugin_dbg_cycles, FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_value); // FetchPipelinePlugin2.scala:L330
               end
             `endif
           `endif
@@ -29514,6 +31346,15 @@ module CoreNSCSCC (
         FetchPipelinePlugin_logic_s1_logic_fetchPcReg <= FetchPipelinePlugin_logic_hardRedirect_payload;
         FetchPipelinePlugin_logic_retryCmd_lock <= 1'b0;
         FetchPipelinePlugin_logic_s1_logic_lastRetryIdReg <= 2'b00;
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // FetchPipelinePlugin2.scala:L372
+          `else
+            if(!1'b0) begin
+              $display("NOTE(FetchPipelinePlugin2.scala:372):  [normal] [%x] FETCH-S1: fetchPcReg reset to %x due to hard flush, retry cancelled.", FetchPipelinePlugin_dbg_cycles, FetchPipelinePlugin_logic_hardRedirect_payload); // FetchPipelinePlugin2.scala:L372
+            end
+          `endif
+        `endif
       end else begin
         if(FetchPipelinePlugin_logic_dispatcher_io_softRedirect_valid) begin
           FetchPipelinePlugin_logic_s1_logic_fetchPcReg <= FetchPipelinePlugin_logic_dispatcher_io_softRedirect_payload;
@@ -29521,72 +31362,199 @@ module CoreNSCSCC (
           FetchPipelinePlugin_logic_s1_logic_lastRetryIdReg <= 2'b00;
         end else begin
           if(FetchPipelinePlugin_logic_s1_logic_needRedo) begin
-            FetchPipelinePlugin_logic_s1_logic_fetchPcReg <= ({FetchPipelinePlugin_logic_retryCmd_pc[31 : 4],4'b0000} + 32'h00000010);
+            FetchPipelinePlugin_logic_s1_logic_fetchPcReg <= _zz_FetchPipelinePlugin_logic_s1_logic_fetchPcReg;
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // FetchPipelinePlugin2.scala:L382
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(FetchPipelinePlugin2.scala:382):  [normal] [%x] FETCH-S1: Correcting fetchPcReg for next cycle to 0x%x", FetchPipelinePlugin_dbg_cycles, _zz_FetchPipelinePlugin_logic_s1_logic_fetchPcReg); // FetchPipelinePlugin2.scala:L382
+                end
+              `endif
+            `endif
           end else begin
-            if(when_FetchPipelinePlugin2_l362) begin
+            if(when_FetchPipelinePlugin2_l384) begin
               FetchPipelinePlugin_logic_s1_logic_fetchPcReg <= FetchPipelinePlugin_logic_s1_logic_nextLinePc;
+              `ifndef SYNTHESIS
+                `ifdef FORMAL
+                  assert(1'b0); // FetchPipelinePlugin2.scala:L386
+                `else
+                  if(!1'b0) begin
+                    $display("NOTE(FetchPipelinePlugin2.scala:386):  [normal] [%x] FETCH-S1: fetchPcReg updated to %x (from raw PC=0x%x)", FetchPipelinePlugin_dbg_cycles, FetchPipelinePlugin_logic_s1_logic_nextLinePc, s1_PC_Gen_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC); // FetchPipelinePlugin2.scala:L386
+                  end
+                `endif
+              `endif
             end
           end
         end
       end
-      if(when_FetchPipelinePlugin2_l368) begin
+      if(when_FetchPipelinePlugin2_l389) begin
         FetchPipelinePlugin_logic_s1_logic_lastRetryIdReg <= FetchPipelinePlugin_logic_retryCmd_id;
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // FetchPipelinePlugin2.scala:L391
+          `else
+            if(!1'b0) begin
+              $display("NOTE(FetchPipelinePlugin2.scala:391):  [notice] [33m[%x] FETCH-S1: Acting on retry for ID %x, PC=0x%x. Locking this ID in s1.[0m", FetchPipelinePlugin_dbg_cycles, FetchPipelinePlugin_logic_retryCmd_id, FetchPipelinePlugin_logic_retryCmd_pc); // FetchPipelinePlugin2.scala:L391
+            end
+          `endif
+        `endif
       end
+      if(when_FetchPipelinePlugin2_l399) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // FetchPipelinePlugin2.scala:L401
+          `else
+            if(!1'b0) begin
+              $display("NOTE(FetchPipelinePlugin2.scala:401):  [normal] [%x] FETCH-S1: Halting due to isDrainingCacheRspReg=%x, fetchDisabled=%x, iCacheInFlightToDrainCounter.value=%xretryCmd.lock=%x retryCmd.id=%x === lastRetryIdReg=%x", FetchPipelinePlugin_dbg_cycles, FetchPipelinePlugin_logic_isDrainingCacheRspReg, FetchPipelinePlugin_logic_fetchDisabled, FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_value, FetchPipelinePlugin_logic_retryCmd_lock, FetchPipelinePlugin_logic_retryCmd_id, FetchPipelinePlugin_logic_s1_logic_lastRetryIdReg); // FetchPipelinePlugin2.scala:L401
+            end
+          `endif
+        `endif
+      end
+      if(s1_PC_Gen_isFiring) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // FetchPipelinePlugin2.scala:L407
+          `else
+            if(!1'b0) begin
+              $display("NOTE(FetchPipelinePlugin2.scala:407):  [normal] [%x] FETCH-S1: Firing Aligned PC=0x%x (from raw PC=0x%x)", FetchPipelinePlugin_dbg_cycles, s1_PC_Gen_FetchPipelinePlugin_logic_FetchPipeline_PC, s1_PC_Gen_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC); // FetchPipelinePlugin2.scala:L407
+            end
+          `endif
+        `endif
+      end
+      if(ICachePlugin_port_cmd_valid) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // FetchPipelinePlugin2.scala:L418
+          `else
+            if(!1'b0) begin
+              $display("NOTE(FetchPipelinePlugin2.scala:418):  [notice] [33m[%x] FETCH-S2: Sending ICache request for PC=0x%x[0m", FetchPipelinePlugin_dbg_cycles, s2_ICache_Access_FetchPipelinePlugin_logic_FetchPipeline_PC); // FetchPipelinePlugin2.scala:L418
+            end
+          `endif
+        `endif
+      end
+      if(s2_ICache_Access_isFiring) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // FetchPipelinePlugin2.scala:L426
+          `else
+            if(!1'b0) begin
+              $display("NOTE(FetchPipelinePlugin2.scala:426):  [normal] [%x] FETCH-S2: ICache request sent for PC=0x%x", FetchPipelinePlugin_dbg_cycles, s2_ICache_Access_FetchPipelinePlugin_logic_FetchPipeline_PC); // FetchPipelinePlugin2.scala:L426
+            end
+          `endif
+        `endif
+      end
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // FetchPipelinePlugin2.scala:L451
+        `else
+          if(!1'b0) begin
+            $display("NOTE(FetchPipelinePlugin2.scala:451):  [normal] [%x] FETCH-S4: Handling Rsp for PC=0x%x? %x because isFiring=%x, iCacheRsp.valid=%x, isDrainingCacheRspReg=%x", FetchPipelinePlugin_dbg_cycles, s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC, FetchPipelinePlugin_logic_s4_logic_handleRsp, s4_Predecode_isFiring, ICachePlugin_port_rsp_valid, FetchPipelinePlugin_logic_isDrainingCacheRspReg); // FetchPipelinePlugin2.scala:L451
+          end
+        `endif
+      `endif
       if(FetchPipelinePlugin_logic_s4_logic_backpressureRedo) begin
-        if(when_FetchPipelinePlugin2_l442) begin
+        if(when_FetchPipelinePlugin2_l466) begin
           FetchPipelinePlugin_logic_retryCmd_lock <= 1'b1;
           FetchPipelinePlugin_logic_retryCmd_pc <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC;
           FetchPipelinePlugin_logic_retryCmd_id <= FetchPipelinePlugin_logic_retryIdCounter_value;
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // FetchPipelinePlugin2.scala:L472
+            `else
+              if(!1'b0) begin
+                $display("NOTE(FetchPipelinePlugin2.scala:472):  [notice] [33m[FETCH-S4] BACKPRESSURE REDO requested for raw PC=0x%x, ID=%x because downstream S5 is not ready, retryCmd.id=%x.[0m", s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC, ICachePlugin_port_rsp_payload_transactionId, FetchPipelinePlugin_logic_retryIdCounter_value); // FetchPipelinePlugin2.scala:L472
+              end
+            `endif
+          `endif
         end
       end
       if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert((ICachePlugin_port_rsp_payload_transactionId == _zz_218)); // FetchPipelinePlugin2.scala:L454
+            assert(1'b0); // FetchPipelinePlugin2.scala:L477
           `else
-            if(!(ICachePlugin_port_rsp_payload_transactionId == _zz_218)) begin
-              $display("FAILURE ICache response TID mismatch! Expect %x, got %x", _zz_71, ICachePlugin_port_rsp_payload_transactionId); // FetchPipelinePlugin2.scala:L454
+            if(!1'b0) begin
+              $display("NOTE(FetchPipelinePlugin2.scala:477):  [normal] [%x] FETCH-S4: Rsp received for PC=0x%x. Redo=%x, WasHit=%x, TID=%x", FetchPipelinePlugin_dbg_cycles, s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC, ICachePlugin_port_rsp_payload_redo, ICachePlugin_port_rsp_payload_wasHit, ICachePlugin_port_rsp_payload_transactionId); // FetchPipelinePlugin2.scala:L477
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert((ICachePlugin_port_rsp_payload_transactionId == _zz_219)); // FetchPipelinePlugin2.scala:L478
+          `else
+            if(!(ICachePlugin_port_rsp_payload_transactionId == _zz_219)) begin
+              $display("FAILURE ICache response TID mismatch! Expect %x, got %x", _zz_72, ICachePlugin_port_rsp_payload_transactionId); // FetchPipelinePlugin2.scala:L478
               $finish;
             end
           `endif
         `endif
         if(ICachePlugin_port_rsp_payload_redo) begin
-          if(when_FetchPipelinePlugin2_l458) begin
+          if(when_FetchPipelinePlugin2_l482) begin
             FetchPipelinePlugin_logic_retryCmd_lock <= 1'b1;
             FetchPipelinePlugin_logic_retryCmd_pc <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC;
             FetchPipelinePlugin_logic_retryCmd_id <= FetchPipelinePlugin_logic_retryIdCounter_value;
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // FetchPipelinePlugin2.scala:L488
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(FetchPipelinePlugin2.scala:488):  [notice] [33m[%x] FETCH-S4: Requesting retry for raw PC=0x%x, ID=%x, retryCmd.id=%x[0m", FetchPipelinePlugin_dbg_cycles, s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC, ICachePlugin_port_rsp_payload_transactionId, FetchPipelinePlugin_logic_retryIdCounter_value); // FetchPipelinePlugin2.scala:L488
+                end
+              `endif
+            `endif
+          end else begin
+            if(when_FetchPipelinePlugin2_l491) begin
+              `ifndef SYNTHESIS
+                `ifdef FORMAL
+                  assert(1'b0); // FetchPipelinePlugin2.scala:L492
+                `else
+                  if(!1'b0) begin
+                    $display("NOTE(FetchPipelinePlugin2.scala:492):  [warning] [33m[%x] FETCH-S4: ICache requests retry for %x, but another retry for %x is already locked. Stalling.[0m", FetchPipelinePlugin_dbg_cycles, s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC, FetchPipelinePlugin_logic_retryCmd_pc); // FetchPipelinePlugin2.scala:L492
+                  end
+                `endif
+              `endif
+            end
           end
         end else begin
-          if(when_FetchPipelinePlugin2_l476) begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // FetchPipelinePlugin2.scala:L498
+            `else
+              if(!1'b0) begin
+                $display("NOTE(FetchPipelinePlugin2.scala:498):  [success] [32m[%x] FETCH-S4: ICache hit for PC=0x%x[0m", FetchPipelinePlugin_dbg_cycles, s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC); // FetchPipelinePlugin2.scala:L498
+              end
+            `endif
+          `endif
+          if(when_FetchPipelinePlugin2_l500) begin
             FetchPipelinePlugin_logic_retryCmd_lock <= 1'b0;
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // FetchPipelinePlugin2.scala:L502
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(FetchPipelinePlugin2.scala:502):  [success] [32m[%x] FETCH-S4: Retry for ID %x completed. Clearing lock.[0m", FetchPipelinePlugin_dbg_cycles, FetchPipelinePlugin_logic_retryCmd_id); // FetchPipelinePlugin2.scala:L502
+                end
+              `endif
+            `endif
           end
-          if(when_FetchPipelinePlugin2_l481) begin
+          if(when_FetchPipelinePlugin2_l505) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert((_zz_io_push_payload_numValidInstructions[1 : 0] == 2'b00)); // FetchPipelinePlugin2.scala:L166
+                assert((_zz_s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_START_INSTR_INDEX[1 : 0] == 2'b00)); // FetchPipelinePlugin2.scala:L171
               `else
-                if(!(_zz_io_push_payload_numValidInstructions[1 : 0] == 2'b00)) begin
-                  $display("FAILURE RAW_PC is not instruction-aligned within the cache line!"); // FetchPipelinePlugin2.scala:L166
+                if(!(_zz_s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_START_INSTR_INDEX[1 : 0] == 2'b00)) begin
+                  $display("FAILURE RAW_PC is not instruction-aligned within the cache line!"); // FetchPipelinePlugin2.scala:L171
                   $finish;
                 end
               `endif
             `endif
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert((_zz_io_push_payload_numValidInstructions < 32'h00000010)); // FetchPipelinePlugin2.scala:L168
+                assert((_zz_s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_START_INSTR_INDEX < 32'h00000010)); // FetchPipelinePlugin2.scala:L173
               `else
-                if(!(_zz_io_push_payload_numValidInstructions < 32'h00000010)) begin
-                  $display("FAILURE pcOffset exceeds cache line boundary!"); // FetchPipelinePlugin2.scala:L168
-                  $finish;
-                end
-              `endif
-            `endif
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(((! FetchPipelinePlugin_logic_doAnyFlush) && (! FetchPipelinePlugin_logic_isDrainingCacheRspReg))); // FetchPipelinePlugin2.scala:L495
-              `else
-                if(!((! FetchPipelinePlugin_logic_doAnyFlush) && (! FetchPipelinePlugin_logic_isDrainingCacheRspReg))) begin
-                  $display("FAILURE Impossible to push valid group while flushing or draining cache Rsp."); // FetchPipelinePlugin2.scala:L495
+                if(!(_zz_s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_START_INSTR_INDEX < 32'h00000010)) begin
+                  $display("FAILURE pcOffset exceeds cache line boundary!"); // FetchPipelinePlugin2.scala:L173
                   $finish;
                 end
               `endif
@@ -29594,17 +31562,78 @@ module CoreNSCSCC (
           end
         end
       end
+      if(io_push_fire) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // FetchPipelinePlugin2.scala:L537
+          `else
+            if(!1'b0) begin
+              $display("NOTE(FetchPipelinePlugin2.scala:537):  [success] [32m[S5_TO_DISPATCH] PUSH to fetchGroupsOut: PC=0x%x, firstPC=0x%x, startIdx=%x, numValid=%x[0m", FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_pc, FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_firstPc, FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_startInstructionIndex, FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_numValidInstructions); // FetchPipelinePlugin2.scala:L537
+            end
+          `endif
+        `endif
+      end
+      if(FetchPipelinePlugin_logic_fetchGroupsOut_io_flush) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // FetchPipelinePlugin2.scala:L541
+          `else
+            if(!1'b0) begin
+              $display("NOTE(FetchPipelinePlugin2.scala:541):  [warning] [33m[FLUSH_MONITOR] FLUSHING fetchGroupsOut FIFO![0m"); // FetchPipelinePlugin2.scala:L541
+            end
+          `endif
+        `endif
+      end
+      if(FetchPipelinePlugin_logic_hardRedirect_valid) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // FetchPipelinePlugin2.scala:L544
+          `else
+            if(!1'b0) begin
+              $display("NOTE(FetchPipelinePlugin2.scala:544):  [warning] [33m[FLUSH_MONITOR] FLUSHING fetchOutput FIFO![0m"); // FetchPipelinePlugin2.scala:L544
+            end
+          `endif
+        `endif
+      end
+      if(io_fetchOutput_fire) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // FetchPipelinePlugin2.scala:L548
+          `else
+            if(!1'b0) begin
+              $display("NOTE(FetchPipelinePlugin2.scala:548):  [success] [32m[DISPATCH_TO_FIFO] PUSH to fetchOutput: PC=0x%x, isBranch=%x, predTaken=%x[0m", FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_pc, FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_predecode_isBranch, FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_bpuPrediction_isTaken); // FetchPipelinePlugin2.scala:L548
+            end
+          `endif
+        `endif
+      end
+      if(io_fetchGroupIn_fire) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // FetchPipelinePlugin2.scala:L610
+          `else
+            if(!1'b0) begin
+              $display("NOTE(FetchPipelinePlugin2.scala:610):  [notice] [33m[DISPATCHER-IN] POP from fetchGroupsOut FIFO. PC=0x%x, startIdx=%x, numValid=%x, firstPc=0x%x[0m", FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_pc, FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_startInstructionIndex, FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_numValidInstructions, FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_firstPc); // FetchPipelinePlugin2.scala:L610
+            end
+          `endif
+        `endif
+      end
       if(s1_PC_Gen_ready_output) begin
         s2_ICache_Access_valid <= _zz_s2_ICache_Access_valid;
       end
-      if(when_Connection_l66_13) begin
+      if(when_Connection_l66_14) begin
         s2_ICache_Access_valid <= 1'b0;
       end
       if(s2_ICache_Access_ready_output) begin
         s4_Predecode_valid <= _zz_s4_Predecode_valid;
       end
-      if(FetchPipelinePlugin_logic_hardRedirect_valid) begin
+      if(when_Connection_l66_13) begin
         s4_Predecode_valid <= 1'b0;
+      end
+      if(s4_Predecode_ready_output) begin
+        s5_Target_Calc_valid <= _zz_s5_Target_Calc_valid;
+      end
+      if(FetchPipelinePlugin_logic_hardRedirect_valid) begin
+        s5_Target_Calc_valid <= 1'b0;
       end
       if(ROBPlugin_aggregatedFlushSignal_valid) begin
         `ifndef SYNTHESIS
@@ -29982,775 +32011,775 @@ module CoreNSCSCC (
         (ICachePlugin_logic_refill_fsm_stateReg[ICachePlugin_logic_refill_fsm_RECEIVE_DATA_OH_ID]) : begin
         end
         (ICachePlugin_logic_refill_fsm_stateReg[ICachePlugin_logic_refill_fsm_COMMIT_OH_ID]) : begin
-          if(_zz_209[0]) begin
-            if(_zz_81) begin
+          if(_zz_210[0]) begin
+            if(_zz_82) begin
               ICachePlugin_logic_storage_valids_0_0 <= 1'b1;
             end
-            if(_zz_82) begin
+            if(_zz_83) begin
               ICachePlugin_logic_storage_valids_1_0 <= 1'b1;
             end
-            if(_zz_83) begin
+            if(_zz_84) begin
               ICachePlugin_logic_storage_valids_2_0 <= 1'b1;
             end
-            if(_zz_84) begin
+            if(_zz_85) begin
               ICachePlugin_logic_storage_valids_3_0 <= 1'b1;
             end
-            if(_zz_85) begin
+            if(_zz_86) begin
               ICachePlugin_logic_storage_valids_4_0 <= 1'b1;
             end
-            if(_zz_86) begin
+            if(_zz_87) begin
               ICachePlugin_logic_storage_valids_5_0 <= 1'b1;
             end
-            if(_zz_87) begin
+            if(_zz_88) begin
               ICachePlugin_logic_storage_valids_6_0 <= 1'b1;
             end
-            if(_zz_88) begin
+            if(_zz_89) begin
               ICachePlugin_logic_storage_valids_7_0 <= 1'b1;
             end
-            if(_zz_89) begin
+            if(_zz_90) begin
               ICachePlugin_logic_storage_valids_8_0 <= 1'b1;
             end
-            if(_zz_90) begin
+            if(_zz_91) begin
               ICachePlugin_logic_storage_valids_9_0 <= 1'b1;
             end
-            if(_zz_91) begin
+            if(_zz_92) begin
               ICachePlugin_logic_storage_valids_10_0 <= 1'b1;
             end
-            if(_zz_92) begin
+            if(_zz_93) begin
               ICachePlugin_logic_storage_valids_11_0 <= 1'b1;
             end
-            if(_zz_93) begin
+            if(_zz_94) begin
               ICachePlugin_logic_storage_valids_12_0 <= 1'b1;
             end
-            if(_zz_94) begin
+            if(_zz_95) begin
               ICachePlugin_logic_storage_valids_13_0 <= 1'b1;
             end
-            if(_zz_95) begin
+            if(_zz_96) begin
               ICachePlugin_logic_storage_valids_14_0 <= 1'b1;
             end
-            if(_zz_96) begin
+            if(_zz_97) begin
               ICachePlugin_logic_storage_valids_15_0 <= 1'b1;
             end
-            if(_zz_97) begin
+            if(_zz_98) begin
               ICachePlugin_logic_storage_valids_16_0 <= 1'b1;
             end
-            if(_zz_98) begin
+            if(_zz_99) begin
               ICachePlugin_logic_storage_valids_17_0 <= 1'b1;
             end
-            if(_zz_99) begin
+            if(_zz_100) begin
               ICachePlugin_logic_storage_valids_18_0 <= 1'b1;
             end
-            if(_zz_100) begin
+            if(_zz_101) begin
               ICachePlugin_logic_storage_valids_19_0 <= 1'b1;
             end
-            if(_zz_101) begin
+            if(_zz_102) begin
               ICachePlugin_logic_storage_valids_20_0 <= 1'b1;
             end
-            if(_zz_102) begin
+            if(_zz_103) begin
               ICachePlugin_logic_storage_valids_21_0 <= 1'b1;
             end
-            if(_zz_103) begin
+            if(_zz_104) begin
               ICachePlugin_logic_storage_valids_22_0 <= 1'b1;
             end
-            if(_zz_104) begin
+            if(_zz_105) begin
               ICachePlugin_logic_storage_valids_23_0 <= 1'b1;
             end
-            if(_zz_105) begin
+            if(_zz_106) begin
               ICachePlugin_logic_storage_valids_24_0 <= 1'b1;
             end
-            if(_zz_106) begin
+            if(_zz_107) begin
               ICachePlugin_logic_storage_valids_25_0 <= 1'b1;
             end
-            if(_zz_107) begin
+            if(_zz_108) begin
               ICachePlugin_logic_storage_valids_26_0 <= 1'b1;
             end
-            if(_zz_108) begin
+            if(_zz_109) begin
               ICachePlugin_logic_storage_valids_27_0 <= 1'b1;
             end
-            if(_zz_109) begin
+            if(_zz_110) begin
               ICachePlugin_logic_storage_valids_28_0 <= 1'b1;
             end
-            if(_zz_110) begin
+            if(_zz_111) begin
               ICachePlugin_logic_storage_valids_29_0 <= 1'b1;
             end
-            if(_zz_111) begin
+            if(_zz_112) begin
               ICachePlugin_logic_storage_valids_30_0 <= 1'b1;
             end
-            if(_zz_112) begin
+            if(_zz_113) begin
               ICachePlugin_logic_storage_valids_31_0 <= 1'b1;
             end
-            if(_zz_113) begin
+            if(_zz_114) begin
               ICachePlugin_logic_storage_valids_32_0 <= 1'b1;
             end
-            if(_zz_114) begin
+            if(_zz_115) begin
               ICachePlugin_logic_storage_valids_33_0 <= 1'b1;
             end
-            if(_zz_115) begin
+            if(_zz_116) begin
               ICachePlugin_logic_storage_valids_34_0 <= 1'b1;
             end
-            if(_zz_116) begin
+            if(_zz_117) begin
               ICachePlugin_logic_storage_valids_35_0 <= 1'b1;
             end
-            if(_zz_117) begin
+            if(_zz_118) begin
               ICachePlugin_logic_storage_valids_36_0 <= 1'b1;
             end
-            if(_zz_118) begin
+            if(_zz_119) begin
               ICachePlugin_logic_storage_valids_37_0 <= 1'b1;
             end
-            if(_zz_119) begin
+            if(_zz_120) begin
               ICachePlugin_logic_storage_valids_38_0 <= 1'b1;
             end
-            if(_zz_120) begin
+            if(_zz_121) begin
               ICachePlugin_logic_storage_valids_39_0 <= 1'b1;
             end
-            if(_zz_121) begin
+            if(_zz_122) begin
               ICachePlugin_logic_storage_valids_40_0 <= 1'b1;
             end
-            if(_zz_122) begin
+            if(_zz_123) begin
               ICachePlugin_logic_storage_valids_41_0 <= 1'b1;
             end
-            if(_zz_123) begin
+            if(_zz_124) begin
               ICachePlugin_logic_storage_valids_42_0 <= 1'b1;
             end
-            if(_zz_124) begin
+            if(_zz_125) begin
               ICachePlugin_logic_storage_valids_43_0 <= 1'b1;
             end
-            if(_zz_125) begin
+            if(_zz_126) begin
               ICachePlugin_logic_storage_valids_44_0 <= 1'b1;
             end
-            if(_zz_126) begin
+            if(_zz_127) begin
               ICachePlugin_logic_storage_valids_45_0 <= 1'b1;
             end
-            if(_zz_127) begin
+            if(_zz_128) begin
               ICachePlugin_logic_storage_valids_46_0 <= 1'b1;
             end
-            if(_zz_128) begin
+            if(_zz_129) begin
               ICachePlugin_logic_storage_valids_47_0 <= 1'b1;
             end
-            if(_zz_129) begin
+            if(_zz_130) begin
               ICachePlugin_logic_storage_valids_48_0 <= 1'b1;
             end
-            if(_zz_130) begin
+            if(_zz_131) begin
               ICachePlugin_logic_storage_valids_49_0 <= 1'b1;
             end
-            if(_zz_131) begin
+            if(_zz_132) begin
               ICachePlugin_logic_storage_valids_50_0 <= 1'b1;
             end
-            if(_zz_132) begin
+            if(_zz_133) begin
               ICachePlugin_logic_storage_valids_51_0 <= 1'b1;
             end
-            if(_zz_133) begin
+            if(_zz_134) begin
               ICachePlugin_logic_storage_valids_52_0 <= 1'b1;
             end
-            if(_zz_134) begin
+            if(_zz_135) begin
               ICachePlugin_logic_storage_valids_53_0 <= 1'b1;
             end
-            if(_zz_135) begin
+            if(_zz_136) begin
               ICachePlugin_logic_storage_valids_54_0 <= 1'b1;
             end
-            if(_zz_136) begin
+            if(_zz_137) begin
               ICachePlugin_logic_storage_valids_55_0 <= 1'b1;
             end
-            if(_zz_137) begin
+            if(_zz_138) begin
               ICachePlugin_logic_storage_valids_56_0 <= 1'b1;
             end
-            if(_zz_138) begin
+            if(_zz_139) begin
               ICachePlugin_logic_storage_valids_57_0 <= 1'b1;
             end
-            if(_zz_139) begin
+            if(_zz_140) begin
               ICachePlugin_logic_storage_valids_58_0 <= 1'b1;
             end
-            if(_zz_140) begin
+            if(_zz_141) begin
               ICachePlugin_logic_storage_valids_59_0 <= 1'b1;
             end
-            if(_zz_141) begin
+            if(_zz_142) begin
               ICachePlugin_logic_storage_valids_60_0 <= 1'b1;
             end
-            if(_zz_142) begin
+            if(_zz_143) begin
               ICachePlugin_logic_storage_valids_61_0 <= 1'b1;
             end
-            if(_zz_143) begin
+            if(_zz_144) begin
               ICachePlugin_logic_storage_valids_62_0 <= 1'b1;
             end
-            if(_zz_144) begin
+            if(_zz_145) begin
               ICachePlugin_logic_storage_valids_63_0 <= 1'b1;
             end
-            if(_zz_145) begin
+            if(_zz_146) begin
               ICachePlugin_logic_storage_valids_64_0 <= 1'b1;
             end
-            if(_zz_146) begin
+            if(_zz_147) begin
               ICachePlugin_logic_storage_valids_65_0 <= 1'b1;
             end
-            if(_zz_147) begin
+            if(_zz_148) begin
               ICachePlugin_logic_storage_valids_66_0 <= 1'b1;
             end
-            if(_zz_148) begin
+            if(_zz_149) begin
               ICachePlugin_logic_storage_valids_67_0 <= 1'b1;
             end
-            if(_zz_149) begin
+            if(_zz_150) begin
               ICachePlugin_logic_storage_valids_68_0 <= 1'b1;
             end
-            if(_zz_150) begin
+            if(_zz_151) begin
               ICachePlugin_logic_storage_valids_69_0 <= 1'b1;
             end
-            if(_zz_151) begin
+            if(_zz_152) begin
               ICachePlugin_logic_storage_valids_70_0 <= 1'b1;
             end
-            if(_zz_152) begin
+            if(_zz_153) begin
               ICachePlugin_logic_storage_valids_71_0 <= 1'b1;
             end
-            if(_zz_153) begin
+            if(_zz_154) begin
               ICachePlugin_logic_storage_valids_72_0 <= 1'b1;
             end
-            if(_zz_154) begin
+            if(_zz_155) begin
               ICachePlugin_logic_storage_valids_73_0 <= 1'b1;
             end
-            if(_zz_155) begin
+            if(_zz_156) begin
               ICachePlugin_logic_storage_valids_74_0 <= 1'b1;
             end
-            if(_zz_156) begin
+            if(_zz_157) begin
               ICachePlugin_logic_storage_valids_75_0 <= 1'b1;
             end
-            if(_zz_157) begin
+            if(_zz_158) begin
               ICachePlugin_logic_storage_valids_76_0 <= 1'b1;
             end
-            if(_zz_158) begin
+            if(_zz_159) begin
               ICachePlugin_logic_storage_valids_77_0 <= 1'b1;
             end
-            if(_zz_159) begin
+            if(_zz_160) begin
               ICachePlugin_logic_storage_valids_78_0 <= 1'b1;
             end
-            if(_zz_160) begin
+            if(_zz_161) begin
               ICachePlugin_logic_storage_valids_79_0 <= 1'b1;
             end
-            if(_zz_161) begin
+            if(_zz_162) begin
               ICachePlugin_logic_storage_valids_80_0 <= 1'b1;
             end
-            if(_zz_162) begin
+            if(_zz_163) begin
               ICachePlugin_logic_storage_valids_81_0 <= 1'b1;
             end
-            if(_zz_163) begin
+            if(_zz_164) begin
               ICachePlugin_logic_storage_valids_82_0 <= 1'b1;
             end
-            if(_zz_164) begin
+            if(_zz_165) begin
               ICachePlugin_logic_storage_valids_83_0 <= 1'b1;
             end
-            if(_zz_165) begin
+            if(_zz_166) begin
               ICachePlugin_logic_storage_valids_84_0 <= 1'b1;
             end
-            if(_zz_166) begin
+            if(_zz_167) begin
               ICachePlugin_logic_storage_valids_85_0 <= 1'b1;
             end
-            if(_zz_167) begin
+            if(_zz_168) begin
               ICachePlugin_logic_storage_valids_86_0 <= 1'b1;
             end
-            if(_zz_168) begin
+            if(_zz_169) begin
               ICachePlugin_logic_storage_valids_87_0 <= 1'b1;
             end
-            if(_zz_169) begin
+            if(_zz_170) begin
               ICachePlugin_logic_storage_valids_88_0 <= 1'b1;
             end
-            if(_zz_170) begin
+            if(_zz_171) begin
               ICachePlugin_logic_storage_valids_89_0 <= 1'b1;
             end
-            if(_zz_171) begin
+            if(_zz_172) begin
               ICachePlugin_logic_storage_valids_90_0 <= 1'b1;
             end
-            if(_zz_172) begin
+            if(_zz_173) begin
               ICachePlugin_logic_storage_valids_91_0 <= 1'b1;
             end
-            if(_zz_173) begin
+            if(_zz_174) begin
               ICachePlugin_logic_storage_valids_92_0 <= 1'b1;
             end
-            if(_zz_174) begin
+            if(_zz_175) begin
               ICachePlugin_logic_storage_valids_93_0 <= 1'b1;
             end
-            if(_zz_175) begin
+            if(_zz_176) begin
               ICachePlugin_logic_storage_valids_94_0 <= 1'b1;
             end
-            if(_zz_176) begin
+            if(_zz_177) begin
               ICachePlugin_logic_storage_valids_95_0 <= 1'b1;
             end
-            if(_zz_177) begin
+            if(_zz_178) begin
               ICachePlugin_logic_storage_valids_96_0 <= 1'b1;
             end
-            if(_zz_178) begin
+            if(_zz_179) begin
               ICachePlugin_logic_storage_valids_97_0 <= 1'b1;
             end
-            if(_zz_179) begin
+            if(_zz_180) begin
               ICachePlugin_logic_storage_valids_98_0 <= 1'b1;
             end
-            if(_zz_180) begin
+            if(_zz_181) begin
               ICachePlugin_logic_storage_valids_99_0 <= 1'b1;
             end
-            if(_zz_181) begin
+            if(_zz_182) begin
               ICachePlugin_logic_storage_valids_100_0 <= 1'b1;
             end
-            if(_zz_182) begin
+            if(_zz_183) begin
               ICachePlugin_logic_storage_valids_101_0 <= 1'b1;
             end
-            if(_zz_183) begin
+            if(_zz_184) begin
               ICachePlugin_logic_storage_valids_102_0 <= 1'b1;
             end
-            if(_zz_184) begin
+            if(_zz_185) begin
               ICachePlugin_logic_storage_valids_103_0 <= 1'b1;
             end
-            if(_zz_185) begin
+            if(_zz_186) begin
               ICachePlugin_logic_storage_valids_104_0 <= 1'b1;
             end
-            if(_zz_186) begin
+            if(_zz_187) begin
               ICachePlugin_logic_storage_valids_105_0 <= 1'b1;
             end
-            if(_zz_187) begin
+            if(_zz_188) begin
               ICachePlugin_logic_storage_valids_106_0 <= 1'b1;
             end
-            if(_zz_188) begin
+            if(_zz_189) begin
               ICachePlugin_logic_storage_valids_107_0 <= 1'b1;
             end
-            if(_zz_189) begin
+            if(_zz_190) begin
               ICachePlugin_logic_storage_valids_108_0 <= 1'b1;
             end
-            if(_zz_190) begin
+            if(_zz_191) begin
               ICachePlugin_logic_storage_valids_109_0 <= 1'b1;
             end
-            if(_zz_191) begin
+            if(_zz_192) begin
               ICachePlugin_logic_storage_valids_110_0 <= 1'b1;
             end
-            if(_zz_192) begin
+            if(_zz_193) begin
               ICachePlugin_logic_storage_valids_111_0 <= 1'b1;
             end
-            if(_zz_193) begin
+            if(_zz_194) begin
               ICachePlugin_logic_storage_valids_112_0 <= 1'b1;
             end
-            if(_zz_194) begin
+            if(_zz_195) begin
               ICachePlugin_logic_storage_valids_113_0 <= 1'b1;
             end
-            if(_zz_195) begin
+            if(_zz_196) begin
               ICachePlugin_logic_storage_valids_114_0 <= 1'b1;
             end
-            if(_zz_196) begin
+            if(_zz_197) begin
               ICachePlugin_logic_storage_valids_115_0 <= 1'b1;
             end
-            if(_zz_197) begin
+            if(_zz_198) begin
               ICachePlugin_logic_storage_valids_116_0 <= 1'b1;
             end
-            if(_zz_198) begin
+            if(_zz_199) begin
               ICachePlugin_logic_storage_valids_117_0 <= 1'b1;
             end
-            if(_zz_199) begin
+            if(_zz_200) begin
               ICachePlugin_logic_storage_valids_118_0 <= 1'b1;
             end
-            if(_zz_200) begin
+            if(_zz_201) begin
               ICachePlugin_logic_storage_valids_119_0 <= 1'b1;
             end
-            if(_zz_201) begin
+            if(_zz_202) begin
               ICachePlugin_logic_storage_valids_120_0 <= 1'b1;
             end
-            if(_zz_202) begin
+            if(_zz_203) begin
               ICachePlugin_logic_storage_valids_121_0 <= 1'b1;
             end
-            if(_zz_203) begin
+            if(_zz_204) begin
               ICachePlugin_logic_storage_valids_122_0 <= 1'b1;
             end
-            if(_zz_204) begin
+            if(_zz_205) begin
               ICachePlugin_logic_storage_valids_123_0 <= 1'b1;
             end
-            if(_zz_205) begin
+            if(_zz_206) begin
               ICachePlugin_logic_storage_valids_124_0 <= 1'b1;
             end
-            if(_zz_206) begin
+            if(_zz_207) begin
               ICachePlugin_logic_storage_valids_125_0 <= 1'b1;
             end
-            if(_zz_207) begin
+            if(_zz_208) begin
               ICachePlugin_logic_storage_valids_126_0 <= 1'b1;
             end
-            if(_zz_208) begin
+            if(_zz_209) begin
               ICachePlugin_logic_storage_valids_127_0 <= 1'b1;
             end
           end
-          if(_zz_209[1]) begin
-            if(_zz_81) begin
+          if(_zz_210[1]) begin
+            if(_zz_82) begin
               ICachePlugin_logic_storage_valids_0_1 <= 1'b1;
             end
-            if(_zz_82) begin
+            if(_zz_83) begin
               ICachePlugin_logic_storage_valids_1_1 <= 1'b1;
             end
-            if(_zz_83) begin
+            if(_zz_84) begin
               ICachePlugin_logic_storage_valids_2_1 <= 1'b1;
             end
-            if(_zz_84) begin
+            if(_zz_85) begin
               ICachePlugin_logic_storage_valids_3_1 <= 1'b1;
             end
-            if(_zz_85) begin
+            if(_zz_86) begin
               ICachePlugin_logic_storage_valids_4_1 <= 1'b1;
             end
-            if(_zz_86) begin
+            if(_zz_87) begin
               ICachePlugin_logic_storage_valids_5_1 <= 1'b1;
             end
-            if(_zz_87) begin
+            if(_zz_88) begin
               ICachePlugin_logic_storage_valids_6_1 <= 1'b1;
             end
-            if(_zz_88) begin
+            if(_zz_89) begin
               ICachePlugin_logic_storage_valids_7_1 <= 1'b1;
             end
-            if(_zz_89) begin
+            if(_zz_90) begin
               ICachePlugin_logic_storage_valids_8_1 <= 1'b1;
             end
-            if(_zz_90) begin
+            if(_zz_91) begin
               ICachePlugin_logic_storage_valids_9_1 <= 1'b1;
             end
-            if(_zz_91) begin
+            if(_zz_92) begin
               ICachePlugin_logic_storage_valids_10_1 <= 1'b1;
             end
-            if(_zz_92) begin
+            if(_zz_93) begin
               ICachePlugin_logic_storage_valids_11_1 <= 1'b1;
             end
-            if(_zz_93) begin
+            if(_zz_94) begin
               ICachePlugin_logic_storage_valids_12_1 <= 1'b1;
             end
-            if(_zz_94) begin
+            if(_zz_95) begin
               ICachePlugin_logic_storage_valids_13_1 <= 1'b1;
             end
-            if(_zz_95) begin
+            if(_zz_96) begin
               ICachePlugin_logic_storage_valids_14_1 <= 1'b1;
             end
-            if(_zz_96) begin
+            if(_zz_97) begin
               ICachePlugin_logic_storage_valids_15_1 <= 1'b1;
             end
-            if(_zz_97) begin
+            if(_zz_98) begin
               ICachePlugin_logic_storage_valids_16_1 <= 1'b1;
             end
-            if(_zz_98) begin
+            if(_zz_99) begin
               ICachePlugin_logic_storage_valids_17_1 <= 1'b1;
             end
-            if(_zz_99) begin
+            if(_zz_100) begin
               ICachePlugin_logic_storage_valids_18_1 <= 1'b1;
             end
-            if(_zz_100) begin
+            if(_zz_101) begin
               ICachePlugin_logic_storage_valids_19_1 <= 1'b1;
             end
-            if(_zz_101) begin
+            if(_zz_102) begin
               ICachePlugin_logic_storage_valids_20_1 <= 1'b1;
             end
-            if(_zz_102) begin
+            if(_zz_103) begin
               ICachePlugin_logic_storage_valids_21_1 <= 1'b1;
             end
-            if(_zz_103) begin
+            if(_zz_104) begin
               ICachePlugin_logic_storage_valids_22_1 <= 1'b1;
             end
-            if(_zz_104) begin
+            if(_zz_105) begin
               ICachePlugin_logic_storage_valids_23_1 <= 1'b1;
             end
-            if(_zz_105) begin
+            if(_zz_106) begin
               ICachePlugin_logic_storage_valids_24_1 <= 1'b1;
             end
-            if(_zz_106) begin
+            if(_zz_107) begin
               ICachePlugin_logic_storage_valids_25_1 <= 1'b1;
             end
-            if(_zz_107) begin
+            if(_zz_108) begin
               ICachePlugin_logic_storage_valids_26_1 <= 1'b1;
             end
-            if(_zz_108) begin
+            if(_zz_109) begin
               ICachePlugin_logic_storage_valids_27_1 <= 1'b1;
             end
-            if(_zz_109) begin
+            if(_zz_110) begin
               ICachePlugin_logic_storage_valids_28_1 <= 1'b1;
             end
-            if(_zz_110) begin
+            if(_zz_111) begin
               ICachePlugin_logic_storage_valids_29_1 <= 1'b1;
             end
-            if(_zz_111) begin
+            if(_zz_112) begin
               ICachePlugin_logic_storage_valids_30_1 <= 1'b1;
             end
-            if(_zz_112) begin
+            if(_zz_113) begin
               ICachePlugin_logic_storage_valids_31_1 <= 1'b1;
             end
-            if(_zz_113) begin
+            if(_zz_114) begin
               ICachePlugin_logic_storage_valids_32_1 <= 1'b1;
             end
-            if(_zz_114) begin
+            if(_zz_115) begin
               ICachePlugin_logic_storage_valids_33_1 <= 1'b1;
             end
-            if(_zz_115) begin
+            if(_zz_116) begin
               ICachePlugin_logic_storage_valids_34_1 <= 1'b1;
             end
-            if(_zz_116) begin
+            if(_zz_117) begin
               ICachePlugin_logic_storage_valids_35_1 <= 1'b1;
             end
-            if(_zz_117) begin
+            if(_zz_118) begin
               ICachePlugin_logic_storage_valids_36_1 <= 1'b1;
             end
-            if(_zz_118) begin
+            if(_zz_119) begin
               ICachePlugin_logic_storage_valids_37_1 <= 1'b1;
             end
-            if(_zz_119) begin
+            if(_zz_120) begin
               ICachePlugin_logic_storage_valids_38_1 <= 1'b1;
             end
-            if(_zz_120) begin
+            if(_zz_121) begin
               ICachePlugin_logic_storage_valids_39_1 <= 1'b1;
             end
-            if(_zz_121) begin
+            if(_zz_122) begin
               ICachePlugin_logic_storage_valids_40_1 <= 1'b1;
             end
-            if(_zz_122) begin
+            if(_zz_123) begin
               ICachePlugin_logic_storage_valids_41_1 <= 1'b1;
             end
-            if(_zz_123) begin
+            if(_zz_124) begin
               ICachePlugin_logic_storage_valids_42_1 <= 1'b1;
             end
-            if(_zz_124) begin
+            if(_zz_125) begin
               ICachePlugin_logic_storage_valids_43_1 <= 1'b1;
             end
-            if(_zz_125) begin
+            if(_zz_126) begin
               ICachePlugin_logic_storage_valids_44_1 <= 1'b1;
             end
-            if(_zz_126) begin
+            if(_zz_127) begin
               ICachePlugin_logic_storage_valids_45_1 <= 1'b1;
             end
-            if(_zz_127) begin
+            if(_zz_128) begin
               ICachePlugin_logic_storage_valids_46_1 <= 1'b1;
             end
-            if(_zz_128) begin
+            if(_zz_129) begin
               ICachePlugin_logic_storage_valids_47_1 <= 1'b1;
             end
-            if(_zz_129) begin
+            if(_zz_130) begin
               ICachePlugin_logic_storage_valids_48_1 <= 1'b1;
             end
-            if(_zz_130) begin
+            if(_zz_131) begin
               ICachePlugin_logic_storage_valids_49_1 <= 1'b1;
             end
-            if(_zz_131) begin
+            if(_zz_132) begin
               ICachePlugin_logic_storage_valids_50_1 <= 1'b1;
             end
-            if(_zz_132) begin
+            if(_zz_133) begin
               ICachePlugin_logic_storage_valids_51_1 <= 1'b1;
             end
-            if(_zz_133) begin
+            if(_zz_134) begin
               ICachePlugin_logic_storage_valids_52_1 <= 1'b1;
             end
-            if(_zz_134) begin
+            if(_zz_135) begin
               ICachePlugin_logic_storage_valids_53_1 <= 1'b1;
             end
-            if(_zz_135) begin
+            if(_zz_136) begin
               ICachePlugin_logic_storage_valids_54_1 <= 1'b1;
             end
-            if(_zz_136) begin
+            if(_zz_137) begin
               ICachePlugin_logic_storage_valids_55_1 <= 1'b1;
             end
-            if(_zz_137) begin
+            if(_zz_138) begin
               ICachePlugin_logic_storage_valids_56_1 <= 1'b1;
             end
-            if(_zz_138) begin
+            if(_zz_139) begin
               ICachePlugin_logic_storage_valids_57_1 <= 1'b1;
             end
-            if(_zz_139) begin
+            if(_zz_140) begin
               ICachePlugin_logic_storage_valids_58_1 <= 1'b1;
             end
-            if(_zz_140) begin
+            if(_zz_141) begin
               ICachePlugin_logic_storage_valids_59_1 <= 1'b1;
             end
-            if(_zz_141) begin
+            if(_zz_142) begin
               ICachePlugin_logic_storage_valids_60_1 <= 1'b1;
             end
-            if(_zz_142) begin
+            if(_zz_143) begin
               ICachePlugin_logic_storage_valids_61_1 <= 1'b1;
             end
-            if(_zz_143) begin
+            if(_zz_144) begin
               ICachePlugin_logic_storage_valids_62_1 <= 1'b1;
             end
-            if(_zz_144) begin
+            if(_zz_145) begin
               ICachePlugin_logic_storage_valids_63_1 <= 1'b1;
             end
-            if(_zz_145) begin
+            if(_zz_146) begin
               ICachePlugin_logic_storage_valids_64_1 <= 1'b1;
             end
-            if(_zz_146) begin
+            if(_zz_147) begin
               ICachePlugin_logic_storage_valids_65_1 <= 1'b1;
             end
-            if(_zz_147) begin
+            if(_zz_148) begin
               ICachePlugin_logic_storage_valids_66_1 <= 1'b1;
             end
-            if(_zz_148) begin
+            if(_zz_149) begin
               ICachePlugin_logic_storage_valids_67_1 <= 1'b1;
             end
-            if(_zz_149) begin
+            if(_zz_150) begin
               ICachePlugin_logic_storage_valids_68_1 <= 1'b1;
             end
-            if(_zz_150) begin
+            if(_zz_151) begin
               ICachePlugin_logic_storage_valids_69_1 <= 1'b1;
             end
-            if(_zz_151) begin
+            if(_zz_152) begin
               ICachePlugin_logic_storage_valids_70_1 <= 1'b1;
             end
-            if(_zz_152) begin
+            if(_zz_153) begin
               ICachePlugin_logic_storage_valids_71_1 <= 1'b1;
             end
-            if(_zz_153) begin
+            if(_zz_154) begin
               ICachePlugin_logic_storage_valids_72_1 <= 1'b1;
             end
-            if(_zz_154) begin
+            if(_zz_155) begin
               ICachePlugin_logic_storage_valids_73_1 <= 1'b1;
             end
-            if(_zz_155) begin
+            if(_zz_156) begin
               ICachePlugin_logic_storage_valids_74_1 <= 1'b1;
             end
-            if(_zz_156) begin
+            if(_zz_157) begin
               ICachePlugin_logic_storage_valids_75_1 <= 1'b1;
             end
-            if(_zz_157) begin
+            if(_zz_158) begin
               ICachePlugin_logic_storage_valids_76_1 <= 1'b1;
             end
-            if(_zz_158) begin
+            if(_zz_159) begin
               ICachePlugin_logic_storage_valids_77_1 <= 1'b1;
             end
-            if(_zz_159) begin
+            if(_zz_160) begin
               ICachePlugin_logic_storage_valids_78_1 <= 1'b1;
             end
-            if(_zz_160) begin
+            if(_zz_161) begin
               ICachePlugin_logic_storage_valids_79_1 <= 1'b1;
             end
-            if(_zz_161) begin
+            if(_zz_162) begin
               ICachePlugin_logic_storage_valids_80_1 <= 1'b1;
             end
-            if(_zz_162) begin
+            if(_zz_163) begin
               ICachePlugin_logic_storage_valids_81_1 <= 1'b1;
             end
-            if(_zz_163) begin
+            if(_zz_164) begin
               ICachePlugin_logic_storage_valids_82_1 <= 1'b1;
             end
-            if(_zz_164) begin
+            if(_zz_165) begin
               ICachePlugin_logic_storage_valids_83_1 <= 1'b1;
             end
-            if(_zz_165) begin
+            if(_zz_166) begin
               ICachePlugin_logic_storage_valids_84_1 <= 1'b1;
             end
-            if(_zz_166) begin
+            if(_zz_167) begin
               ICachePlugin_logic_storage_valids_85_1 <= 1'b1;
             end
-            if(_zz_167) begin
+            if(_zz_168) begin
               ICachePlugin_logic_storage_valids_86_1 <= 1'b1;
             end
-            if(_zz_168) begin
+            if(_zz_169) begin
               ICachePlugin_logic_storage_valids_87_1 <= 1'b1;
             end
-            if(_zz_169) begin
+            if(_zz_170) begin
               ICachePlugin_logic_storage_valids_88_1 <= 1'b1;
             end
-            if(_zz_170) begin
+            if(_zz_171) begin
               ICachePlugin_logic_storage_valids_89_1 <= 1'b1;
             end
-            if(_zz_171) begin
+            if(_zz_172) begin
               ICachePlugin_logic_storage_valids_90_1 <= 1'b1;
             end
-            if(_zz_172) begin
+            if(_zz_173) begin
               ICachePlugin_logic_storage_valids_91_1 <= 1'b1;
             end
-            if(_zz_173) begin
+            if(_zz_174) begin
               ICachePlugin_logic_storage_valids_92_1 <= 1'b1;
             end
-            if(_zz_174) begin
+            if(_zz_175) begin
               ICachePlugin_logic_storage_valids_93_1 <= 1'b1;
             end
-            if(_zz_175) begin
+            if(_zz_176) begin
               ICachePlugin_logic_storage_valids_94_1 <= 1'b1;
             end
-            if(_zz_176) begin
+            if(_zz_177) begin
               ICachePlugin_logic_storage_valids_95_1 <= 1'b1;
             end
-            if(_zz_177) begin
+            if(_zz_178) begin
               ICachePlugin_logic_storage_valids_96_1 <= 1'b1;
             end
-            if(_zz_178) begin
+            if(_zz_179) begin
               ICachePlugin_logic_storage_valids_97_1 <= 1'b1;
             end
-            if(_zz_179) begin
+            if(_zz_180) begin
               ICachePlugin_logic_storage_valids_98_1 <= 1'b1;
             end
-            if(_zz_180) begin
+            if(_zz_181) begin
               ICachePlugin_logic_storage_valids_99_1 <= 1'b1;
             end
-            if(_zz_181) begin
+            if(_zz_182) begin
               ICachePlugin_logic_storage_valids_100_1 <= 1'b1;
             end
-            if(_zz_182) begin
+            if(_zz_183) begin
               ICachePlugin_logic_storage_valids_101_1 <= 1'b1;
             end
-            if(_zz_183) begin
+            if(_zz_184) begin
               ICachePlugin_logic_storage_valids_102_1 <= 1'b1;
             end
-            if(_zz_184) begin
+            if(_zz_185) begin
               ICachePlugin_logic_storage_valids_103_1 <= 1'b1;
             end
-            if(_zz_185) begin
+            if(_zz_186) begin
               ICachePlugin_logic_storage_valids_104_1 <= 1'b1;
             end
-            if(_zz_186) begin
+            if(_zz_187) begin
               ICachePlugin_logic_storage_valids_105_1 <= 1'b1;
             end
-            if(_zz_187) begin
+            if(_zz_188) begin
               ICachePlugin_logic_storage_valids_106_1 <= 1'b1;
             end
-            if(_zz_188) begin
+            if(_zz_189) begin
               ICachePlugin_logic_storage_valids_107_1 <= 1'b1;
             end
-            if(_zz_189) begin
+            if(_zz_190) begin
               ICachePlugin_logic_storage_valids_108_1 <= 1'b1;
             end
-            if(_zz_190) begin
+            if(_zz_191) begin
               ICachePlugin_logic_storage_valids_109_1 <= 1'b1;
             end
-            if(_zz_191) begin
+            if(_zz_192) begin
               ICachePlugin_logic_storage_valids_110_1 <= 1'b1;
             end
-            if(_zz_192) begin
+            if(_zz_193) begin
               ICachePlugin_logic_storage_valids_111_1 <= 1'b1;
             end
-            if(_zz_193) begin
+            if(_zz_194) begin
               ICachePlugin_logic_storage_valids_112_1 <= 1'b1;
             end
-            if(_zz_194) begin
+            if(_zz_195) begin
               ICachePlugin_logic_storage_valids_113_1 <= 1'b1;
             end
-            if(_zz_195) begin
+            if(_zz_196) begin
               ICachePlugin_logic_storage_valids_114_1 <= 1'b1;
             end
-            if(_zz_196) begin
+            if(_zz_197) begin
               ICachePlugin_logic_storage_valids_115_1 <= 1'b1;
             end
-            if(_zz_197) begin
+            if(_zz_198) begin
               ICachePlugin_logic_storage_valids_116_1 <= 1'b1;
             end
-            if(_zz_198) begin
+            if(_zz_199) begin
               ICachePlugin_logic_storage_valids_117_1 <= 1'b1;
             end
-            if(_zz_199) begin
+            if(_zz_200) begin
               ICachePlugin_logic_storage_valids_118_1 <= 1'b1;
             end
-            if(_zz_200) begin
+            if(_zz_201) begin
               ICachePlugin_logic_storage_valids_119_1 <= 1'b1;
             end
-            if(_zz_201) begin
+            if(_zz_202) begin
               ICachePlugin_logic_storage_valids_120_1 <= 1'b1;
             end
-            if(_zz_202) begin
+            if(_zz_203) begin
               ICachePlugin_logic_storage_valids_121_1 <= 1'b1;
             end
-            if(_zz_203) begin
+            if(_zz_204) begin
               ICachePlugin_logic_storage_valids_122_1 <= 1'b1;
             end
-            if(_zz_204) begin
+            if(_zz_205) begin
               ICachePlugin_logic_storage_valids_123_1 <= 1'b1;
             end
-            if(_zz_205) begin
+            if(_zz_206) begin
               ICachePlugin_logic_storage_valids_124_1 <= 1'b1;
             end
-            if(_zz_206) begin
+            if(_zz_207) begin
               ICachePlugin_logic_storage_valids_125_1 <= 1'b1;
             end
-            if(_zz_207) begin
+            if(_zz_208) begin
               ICachePlugin_logic_storage_valids_126_1 <= 1'b1;
             end
-            if(_zz_208) begin
+            if(_zz_209) begin
               ICachePlugin_logic_storage_valids_127_1 <= 1'b1;
             end
           end
@@ -31023,7 +33052,7 @@ module CoreNSCSCC (
             assert(1'b0); // BpuPlugin.scala:L85
           `else
             if(!1'b0) begin
-              $display("NOTE(BpuPlugin.scala:85):  [debug] [34m[BPU.S1] Query Firing for PC=0x%x, TID=%x, PHT Idx=0x%x, BTB Idx=0x%x[0m", BpuPipelinePlugin_logic_s1_read_Q_PC, BpuPipelinePlugin_logic_s1_read_TRANSACTION_ID, _zz_210, _zz_211); // BpuPlugin.scala:L85
+              $display("NOTE(BpuPlugin.scala:85):  [debug] [34m[BPU.S1] Query Firing for PC=0x%x, TID=%x, PHT Idx=0x%x, BTB Idx=0x%x[0m", BpuPipelinePlugin_logic_s1_read_Q_PC, BpuPipelinePlugin_logic_s1_read_TRANSACTION_ID, _zz_211, _zz_212); // BpuPlugin.scala:L85
             end
           `endif
         `endif
@@ -31034,7 +33063,7 @@ module CoreNSCSCC (
             assert(1'b0); // BpuPlugin.scala:L107
           `else
             if(!1'b0) begin
-              $display("NOTE(BpuPlugin.scala:107):  [debug] [34m[BPU.S2] Predict Firing for PC=0x%x, TID=%x | PHT Readout=%x -> Predict=%x | BTB Readout: valid=%x tag_match=%x -> Hit=%x | Final Predict: isTaken=%x target=0x%x[0m", BpuPipelinePlugin_logic_s2_predict_Q_PC, BpuPipelinePlugin_logic_s2_predict_TRANSACTION_ID, BpuPipelinePlugin_logic_phtReadData_s1, BpuPipelinePlugin_logic_phtPrediction, BpuPipelinePlugin_logic_btbReadData_s1_valid, _zz_214, BpuPipelinePlugin_logic_btbHit, BpuPipelinePlugin_logic_s2_predict_IS_TAKEN, BpuPipelinePlugin_logic_s2_predict_TARGET_PC); // BpuPlugin.scala:L107
+              $display("NOTE(BpuPlugin.scala:107):  [debug] [34m[BPU.S2] Predict Firing for PC=0x%x, TID=%x | PHT Readout=%x -> Predict=%x | BTB Readout: valid=%x tag_match=%x -> Hit=%x | Final Predict: isTaken=%x target=0x%x[0m", BpuPipelinePlugin_logic_s2_predict_Q_PC, BpuPipelinePlugin_logic_s2_predict_TRANSACTION_ID, BpuPipelinePlugin_logic_phtReadData_s1, BpuPipelinePlugin_logic_phtPrediction, BpuPipelinePlugin_logic_btbReadData_s1_valid, _zz_215, BpuPipelinePlugin_logic_btbHit, BpuPipelinePlugin_logic_s2_predict_IS_TAKEN, BpuPipelinePlugin_logic_s2_predict_TARGET_PC); // BpuPlugin.scala:L107
             end
           `endif
         `endif
@@ -31739,6 +33768,40 @@ module CoreNSCSCC (
       s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC <= s2_ICache_Access_FetchPipelinePlugin_logic_FetchPipeline_PC;
       s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC <= s2_ICache_Access_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC;
     end
+    if(s4_Predecode_ready_output) begin
+      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_transactionId <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_transactionId;
+      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_0 <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_0;
+      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_1 <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_1;
+      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_2 <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_2;
+      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_3 <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_3;
+      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_wasHit <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_wasHit;
+      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_redo <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_redo;
+      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isBranch <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isBranch;
+      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isJump <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isJump;
+      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isDirectJump <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isDirectJump;
+      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_jumpOffset <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_jumpOffset;
+      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isIdle <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isIdle;
+      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isBranch <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isBranch;
+      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isJump <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isJump;
+      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isDirectJump <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isDirectJump;
+      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_jumpOffset <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_jumpOffset;
+      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isIdle <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isIdle;
+      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isBranch <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isBranch;
+      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isJump <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isJump;
+      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isDirectJump <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isDirectJump;
+      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_jumpOffset <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_jumpOffset;
+      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isIdle <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isIdle;
+      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isBranch <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isBranch;
+      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isJump <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isJump;
+      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isDirectJump <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isDirectJump;
+      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_jumpOffset <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_jumpOffset;
+      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isIdle <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isIdle;
+      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_START_INSTR_INDEX <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_START_INSTR_INDEX;
+      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_NUM_VALID_INSTRS <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_NUM_VALID_INSTRS;
+      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_FAULT <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_FAULT;
+      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PC <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC;
+      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC;
+    end
     (* parallel_case *)
     case(1) // synthesis parallel_case
       (ICachePlugin_logic_refill_fsm_stateReg[ICachePlugin_logic_refill_fsm_IDLE_OH_ID]) : begin
@@ -31755,16 +33818,16 @@ module CoreNSCSCC (
       end
       (ICachePlugin_logic_refill_fsm_stateReg[ICachePlugin_logic_refill_fsm_RECEIVE_DATA_OH_ID]) : begin
         if(ICachePlugin_axiMaster_r_fire) begin
-          if(_zz_78[0]) begin
+          if(_zz_79[0]) begin
             ICachePlugin_logic_refill_lineBuffer_0 <= ICachePlugin_axiMaster_r_payload_data;
           end
-          if(_zz_78[1]) begin
+          if(_zz_79[1]) begin
             ICachePlugin_logic_refill_lineBuffer_1 <= ICachePlugin_axiMaster_r_payload_data;
           end
-          if(_zz_78[2]) begin
+          if(_zz_79[2]) begin
             ICachePlugin_logic_refill_lineBuffer_2 <= ICachePlugin_axiMaster_r_payload_data;
           end
-          if(_zz_78[3]) begin
+          if(_zz_79[3]) begin
             ICachePlugin_logic_refill_lineBuffer_3 <= ICachePlugin_axiMaster_r_payload_data;
           end
         end
@@ -33111,6 +35174,58 @@ module SplitGmbToAxi4Bridge (
 
 endmodule
 
+//InstructionPredecoder_3 replaced by InstructionPredecoder
+
+//InstructionPredecoder_2 replaced by InstructionPredecoder
+
+//InstructionPredecoder_1 replaced by InstructionPredecoder
+
+module InstructionPredecoder (
+  input  wire [31:0]   io_instruction,
+  output wire          io_predecodeInfo_isBranch,
+  output wire          io_predecodeInfo_isJump,
+  output wire          io_predecodeInfo_isDirectJump,
+  output wire [31:0]   io_predecodeInfo_jumpOffset,
+  output wire          io_predecodeInfo_isIdle
+);
+
+  wire       [27:0]   _zz_offset;
+  wire       [25:0]   _zz_offset_1;
+  wire       [5:0]    opcode;
+  wire                isBceqzBcnez;
+  wire                isJirl;
+  wire                isBeq;
+  wire                isBne;
+  wire                isBlt;
+  wire                isBge;
+  wire                isBltu;
+  wire                isBgeu;
+  wire                isB;
+  wire       [25:0]   offs26;
+  wire       [31:0]   offset;
+
+  assign _zz_offset = ({2'd0,_zz_offset_1} <<< 2'd2);
+  assign _zz_offset_1 = offs26;
+  assign opcode = io_instruction[31 : 26];
+  assign isBceqzBcnez = (opcode == 6'h12);
+  assign isJirl = (opcode == 6'h13);
+  assign isBeq = (opcode == 6'h16);
+  assign isBne = (opcode == 6'h17);
+  assign isBlt = (opcode == 6'h18);
+  assign isBge = (opcode == 6'h19);
+  assign isBltu = (opcode == 6'h1a);
+  assign isBgeu = (opcode == 6'h1b);
+  assign isB = (opcode == 6'h14);
+  assign io_predecodeInfo_isBranch = (((((((isBceqzBcnez || isJirl) || isBeq) || isBne) || isBlt) || isBge) || isBltu) || isBgeu);
+  assign io_predecodeInfo_isJump = isB;
+  assign io_predecodeInfo_isDirectJump = isB;
+  assign io_predecodeInfo_isIdle = 1'b0;
+  assign offs26 = {io_instruction[25 : 16],io_instruction[15 : 0]};
+  assign offset = {{4{_zz_offset[27]}}, _zz_offset};
+  assign io_predecodeInfo_jumpOffset = (isB ? offset : 32'h0);
+
+endmodule
+
 module StreamFifo_13 (
   input  wire          io_push_valid,
   output wire          io_push_ready,
@@ -33120,9 +35235,34 @@ module StreamFifo_13 (
   input  wire [31:0]   io_push_payload_instructions_1,
   input  wire [31:0]   io_push_payload_instructions_2,
   input  wire [31:0]   io_push_payload_instructions_3,
+  input  wire          io_push_payload_predecodeInfos_0_isBranch,
+  input  wire          io_push_payload_predecodeInfos_0_isJump,
+  input  wire          io_push_payload_predecodeInfos_0_isDirectJump,
+  input  wire [31:0]   io_push_payload_predecodeInfos_0_jumpOffset,
+  input  wire          io_push_payload_predecodeInfos_0_isIdle,
+  input  wire          io_push_payload_predecodeInfos_1_isBranch,
+  input  wire          io_push_payload_predecodeInfos_1_isJump,
+  input  wire          io_push_payload_predecodeInfos_1_isDirectJump,
+  input  wire [31:0]   io_push_payload_predecodeInfos_1_jumpOffset,
+  input  wire          io_push_payload_predecodeInfos_1_isIdle,
+  input  wire          io_push_payload_predecodeInfos_2_isBranch,
+  input  wire          io_push_payload_predecodeInfos_2_isJump,
+  input  wire          io_push_payload_predecodeInfos_2_isDirectJump,
+  input  wire [31:0]   io_push_payload_predecodeInfos_2_jumpOffset,
+  input  wire          io_push_payload_predecodeInfos_2_isIdle,
+  input  wire          io_push_payload_predecodeInfos_3_isBranch,
+  input  wire          io_push_payload_predecodeInfos_3_isJump,
+  input  wire          io_push_payload_predecodeInfos_3_isDirectJump,
+  input  wire [31:0]   io_push_payload_predecodeInfos_3_jumpOffset,
+  input  wire          io_push_payload_predecodeInfos_3_isIdle,
+  input  wire [3:0]    io_push_payload_branchMask,
   input  wire          io_push_payload_fault,
   input  wire [2:0]    io_push_payload_numValidInstructions,
   input  wire [1:0]    io_push_payload_startInstructionIndex,
+  input  wire [31:0]   io_push_payload_potentialJumpTargets_0,
+  input  wire [31:0]   io_push_payload_potentialJumpTargets_1,
+  input  wire [31:0]   io_push_payload_potentialJumpTargets_2,
+  input  wire [31:0]   io_push_payload_potentialJumpTargets_3,
   output wire          io_pop_valid,
   input  wire          io_pop_ready,
   output wire [31:0]   io_pop_payload_pc,
@@ -33131,9 +35271,34 @@ module StreamFifo_13 (
   output wire [31:0]   io_pop_payload_instructions_1,
   output wire [31:0]   io_pop_payload_instructions_2,
   output wire [31:0]   io_pop_payload_instructions_3,
+  output wire          io_pop_payload_predecodeInfos_0_isBranch,
+  output wire          io_pop_payload_predecodeInfos_0_isJump,
+  output wire          io_pop_payload_predecodeInfos_0_isDirectJump,
+  output wire [31:0]   io_pop_payload_predecodeInfos_0_jumpOffset,
+  output wire          io_pop_payload_predecodeInfos_0_isIdle,
+  output wire          io_pop_payload_predecodeInfos_1_isBranch,
+  output wire          io_pop_payload_predecodeInfos_1_isJump,
+  output wire          io_pop_payload_predecodeInfos_1_isDirectJump,
+  output wire [31:0]   io_pop_payload_predecodeInfos_1_jumpOffset,
+  output wire          io_pop_payload_predecodeInfos_1_isIdle,
+  output wire          io_pop_payload_predecodeInfos_2_isBranch,
+  output wire          io_pop_payload_predecodeInfos_2_isJump,
+  output wire          io_pop_payload_predecodeInfos_2_isDirectJump,
+  output wire [31:0]   io_pop_payload_predecodeInfos_2_jumpOffset,
+  output wire          io_pop_payload_predecodeInfos_2_isIdle,
+  output wire          io_pop_payload_predecodeInfos_3_isBranch,
+  output wire          io_pop_payload_predecodeInfos_3_isJump,
+  output wire          io_pop_payload_predecodeInfos_3_isDirectJump,
+  output wire [31:0]   io_pop_payload_predecodeInfos_3_jumpOffset,
+  output wire          io_pop_payload_predecodeInfos_3_isIdle,
+  output wire [3:0]    io_pop_payload_branchMask,
   output wire          io_pop_payload_fault,
   output wire [2:0]    io_pop_payload_numValidInstructions,
   output wire [1:0]    io_pop_payload_startInstructionIndex,
+  output wire [31:0]   io_pop_payload_potentialJumpTargets_0,
+  output wire [31:0]   io_pop_payload_potentialJumpTargets_1,
+  output wire [31:0]   io_pop_payload_potentialJumpTargets_2,
+  output wire [31:0]   io_pop_payload_potentialJumpTargets_3,
   input  wire          io_flush,
   output wire [1:0]    io_occupancy,
   output wire [1:0]    io_availability,
@@ -33141,8 +35306,8 @@ module StreamFifo_13 (
   input  wire          reset
 );
 
-  reg        [197:0]  logic_ram_spinal_port1;
-  wire       [197:0]  _zz_logic_ram_port;
+  reg        [473:0]  logic_ram_spinal_port1;
+  wire       [473:0]  _zz_logic_ram_port;
   reg                 _zz_1;
   wire                logic_ptr_doPush;
   wire                logic_ptr_doPop;
@@ -33163,9 +35328,34 @@ module StreamFifo_13 (
   wire       [31:0]   logic_push_onRam_write_payload_data_instructions_1;
   wire       [31:0]   logic_push_onRam_write_payload_data_instructions_2;
   wire       [31:0]   logic_push_onRam_write_payload_data_instructions_3;
+  wire                logic_push_onRam_write_payload_data_predecodeInfos_0_isBranch;
+  wire                logic_push_onRam_write_payload_data_predecodeInfos_0_isJump;
+  wire                logic_push_onRam_write_payload_data_predecodeInfos_0_isDirectJump;
+  wire       [31:0]   logic_push_onRam_write_payload_data_predecodeInfos_0_jumpOffset;
+  wire                logic_push_onRam_write_payload_data_predecodeInfos_0_isIdle;
+  wire                logic_push_onRam_write_payload_data_predecodeInfos_1_isBranch;
+  wire                logic_push_onRam_write_payload_data_predecodeInfos_1_isJump;
+  wire                logic_push_onRam_write_payload_data_predecodeInfos_1_isDirectJump;
+  wire       [31:0]   logic_push_onRam_write_payload_data_predecodeInfos_1_jumpOffset;
+  wire                logic_push_onRam_write_payload_data_predecodeInfos_1_isIdle;
+  wire                logic_push_onRam_write_payload_data_predecodeInfos_2_isBranch;
+  wire                logic_push_onRam_write_payload_data_predecodeInfos_2_isJump;
+  wire                logic_push_onRam_write_payload_data_predecodeInfos_2_isDirectJump;
+  wire       [31:0]   logic_push_onRam_write_payload_data_predecodeInfos_2_jumpOffset;
+  wire                logic_push_onRam_write_payload_data_predecodeInfos_2_isIdle;
+  wire                logic_push_onRam_write_payload_data_predecodeInfos_3_isBranch;
+  wire                logic_push_onRam_write_payload_data_predecodeInfos_3_isJump;
+  wire                logic_push_onRam_write_payload_data_predecodeInfos_3_isDirectJump;
+  wire       [31:0]   logic_push_onRam_write_payload_data_predecodeInfos_3_jumpOffset;
+  wire                logic_push_onRam_write_payload_data_predecodeInfos_3_isIdle;
+  wire       [3:0]    logic_push_onRam_write_payload_data_branchMask;
   wire                logic_push_onRam_write_payload_data_fault;
   wire       [2:0]    logic_push_onRam_write_payload_data_numValidInstructions;
   wire       [1:0]    logic_push_onRam_write_payload_data_startInstructionIndex;
+  wire       [31:0]   logic_push_onRam_write_payload_data_potentialJumpTargets_0;
+  wire       [31:0]   logic_push_onRam_write_payload_data_potentialJumpTargets_1;
+  wire       [31:0]   logic_push_onRam_write_payload_data_potentialJumpTargets_2;
+  wire       [31:0]   logic_push_onRam_write_payload_data_potentialJumpTargets_3;
   wire                logic_pop_addressGen_valid;
   reg                 logic_pop_addressGen_ready;
   wire       [0:0]    logic_pop_addressGen_payload;
@@ -33184,11 +35374,42 @@ module StreamFifo_13 (
   wire       [31:0]   logic_pop_sync_readPort_rsp_instructions_1;
   wire       [31:0]   logic_pop_sync_readPort_rsp_instructions_2;
   wire       [31:0]   logic_pop_sync_readPort_rsp_instructions_3;
+  wire                logic_pop_sync_readPort_rsp_predecodeInfos_0_isBranch;
+  wire                logic_pop_sync_readPort_rsp_predecodeInfos_0_isJump;
+  wire                logic_pop_sync_readPort_rsp_predecodeInfos_0_isDirectJump;
+  wire       [31:0]   logic_pop_sync_readPort_rsp_predecodeInfos_0_jumpOffset;
+  wire                logic_pop_sync_readPort_rsp_predecodeInfos_0_isIdle;
+  wire                logic_pop_sync_readPort_rsp_predecodeInfos_1_isBranch;
+  wire                logic_pop_sync_readPort_rsp_predecodeInfos_1_isJump;
+  wire                logic_pop_sync_readPort_rsp_predecodeInfos_1_isDirectJump;
+  wire       [31:0]   logic_pop_sync_readPort_rsp_predecodeInfos_1_jumpOffset;
+  wire                logic_pop_sync_readPort_rsp_predecodeInfos_1_isIdle;
+  wire                logic_pop_sync_readPort_rsp_predecodeInfos_2_isBranch;
+  wire                logic_pop_sync_readPort_rsp_predecodeInfos_2_isJump;
+  wire                logic_pop_sync_readPort_rsp_predecodeInfos_2_isDirectJump;
+  wire       [31:0]   logic_pop_sync_readPort_rsp_predecodeInfos_2_jumpOffset;
+  wire                logic_pop_sync_readPort_rsp_predecodeInfos_2_isIdle;
+  wire                logic_pop_sync_readPort_rsp_predecodeInfos_3_isBranch;
+  wire                logic_pop_sync_readPort_rsp_predecodeInfos_3_isJump;
+  wire                logic_pop_sync_readPort_rsp_predecodeInfos_3_isDirectJump;
+  wire       [31:0]   logic_pop_sync_readPort_rsp_predecodeInfos_3_jumpOffset;
+  wire                logic_pop_sync_readPort_rsp_predecodeInfos_3_isIdle;
+  wire       [3:0]    logic_pop_sync_readPort_rsp_branchMask;
   wire                logic_pop_sync_readPort_rsp_fault;
   wire       [2:0]    logic_pop_sync_readPort_rsp_numValidInstructions;
   wire       [1:0]    logic_pop_sync_readPort_rsp_startInstructionIndex;
-  wire       [197:0]  _zz_logic_pop_sync_readPort_rsp_pc;
+  wire       [31:0]   logic_pop_sync_readPort_rsp_potentialJumpTargets_0;
+  wire       [31:0]   logic_pop_sync_readPort_rsp_potentialJumpTargets_1;
+  wire       [31:0]   logic_pop_sync_readPort_rsp_potentialJumpTargets_2;
+  wire       [31:0]   logic_pop_sync_readPort_rsp_potentialJumpTargets_3;
+  wire       [473:0]  _zz_logic_pop_sync_readPort_rsp_pc;
   wire       [127:0]  _zz_logic_pop_sync_readPort_rsp_instructions_0;
+  wire       [143:0]  _zz_logic_pop_sync_readPort_rsp_predecodeInfos_0_isBranch;
+  wire       [35:0]   _zz_logic_pop_sync_readPort_rsp_predecodeInfos_0_isBranch_1;
+  wire       [35:0]   _zz_logic_pop_sync_readPort_rsp_predecodeInfos_1_isBranch;
+  wire       [35:0]   _zz_logic_pop_sync_readPort_rsp_predecodeInfos_2_isBranch;
+  wire       [35:0]   _zz_logic_pop_sync_readPort_rsp_predecodeInfos_3_isBranch;
+  wire       [127:0]  _zz_logic_pop_sync_readPort_rsp_potentialJumpTargets_0;
   wire                logic_pop_addressGen_toFlowFire_valid;
   wire       [0:0]    logic_pop_addressGen_toFlowFire_payload;
   wire                logic_pop_sync_readArbitation_translated_valid;
@@ -33199,14 +35420,39 @@ module StreamFifo_13 (
   wire       [31:0]   logic_pop_sync_readArbitation_translated_payload_instructions_1;
   wire       [31:0]   logic_pop_sync_readArbitation_translated_payload_instructions_2;
   wire       [31:0]   logic_pop_sync_readArbitation_translated_payload_instructions_3;
+  wire                logic_pop_sync_readArbitation_translated_payload_predecodeInfos_0_isBranch;
+  wire                logic_pop_sync_readArbitation_translated_payload_predecodeInfos_0_isJump;
+  wire                logic_pop_sync_readArbitation_translated_payload_predecodeInfos_0_isDirectJump;
+  wire       [31:0]   logic_pop_sync_readArbitation_translated_payload_predecodeInfos_0_jumpOffset;
+  wire                logic_pop_sync_readArbitation_translated_payload_predecodeInfos_0_isIdle;
+  wire                logic_pop_sync_readArbitation_translated_payload_predecodeInfos_1_isBranch;
+  wire                logic_pop_sync_readArbitation_translated_payload_predecodeInfos_1_isJump;
+  wire                logic_pop_sync_readArbitation_translated_payload_predecodeInfos_1_isDirectJump;
+  wire       [31:0]   logic_pop_sync_readArbitation_translated_payload_predecodeInfos_1_jumpOffset;
+  wire                logic_pop_sync_readArbitation_translated_payload_predecodeInfos_1_isIdle;
+  wire                logic_pop_sync_readArbitation_translated_payload_predecodeInfos_2_isBranch;
+  wire                logic_pop_sync_readArbitation_translated_payload_predecodeInfos_2_isJump;
+  wire                logic_pop_sync_readArbitation_translated_payload_predecodeInfos_2_isDirectJump;
+  wire       [31:0]   logic_pop_sync_readArbitation_translated_payload_predecodeInfos_2_jumpOffset;
+  wire                logic_pop_sync_readArbitation_translated_payload_predecodeInfos_2_isIdle;
+  wire                logic_pop_sync_readArbitation_translated_payload_predecodeInfos_3_isBranch;
+  wire                logic_pop_sync_readArbitation_translated_payload_predecodeInfos_3_isJump;
+  wire                logic_pop_sync_readArbitation_translated_payload_predecodeInfos_3_isDirectJump;
+  wire       [31:0]   logic_pop_sync_readArbitation_translated_payload_predecodeInfos_3_jumpOffset;
+  wire                logic_pop_sync_readArbitation_translated_payload_predecodeInfos_3_isIdle;
+  wire       [3:0]    logic_pop_sync_readArbitation_translated_payload_branchMask;
   wire                logic_pop_sync_readArbitation_translated_payload_fault;
   wire       [2:0]    logic_pop_sync_readArbitation_translated_payload_numValidInstructions;
   wire       [1:0]    logic_pop_sync_readArbitation_translated_payload_startInstructionIndex;
+  wire       [31:0]   logic_pop_sync_readArbitation_translated_payload_potentialJumpTargets_0;
+  wire       [31:0]   logic_pop_sync_readArbitation_translated_payload_potentialJumpTargets_1;
+  wire       [31:0]   logic_pop_sync_readArbitation_translated_payload_potentialJumpTargets_2;
+  wire       [31:0]   logic_pop_sync_readArbitation_translated_payload_potentialJumpTargets_3;
   wire                logic_pop_sync_readArbitation_fire;
   reg        [1:0]    logic_pop_sync_popReg;
-  (* ram_style = "block" *) reg [197:0] logic_ram [0:1];
+  (* ram_style = "block" *) reg [473:0] logic_ram [0:1];
 
-  assign _zz_logic_ram_port = {logic_push_onRam_write_payload_data_startInstructionIndex,{logic_push_onRam_write_payload_data_numValidInstructions,{logic_push_onRam_write_payload_data_fault,{{logic_push_onRam_write_payload_data_instructions_3,{logic_push_onRam_write_payload_data_instructions_2,{logic_push_onRam_write_payload_data_instructions_1,logic_push_onRam_write_payload_data_instructions_0}}},{logic_push_onRam_write_payload_data_firstPc,logic_push_onRam_write_payload_data_pc}}}}};
+  assign _zz_logic_ram_port = {{logic_push_onRam_write_payload_data_potentialJumpTargets_3,{logic_push_onRam_write_payload_data_potentialJumpTargets_2,{logic_push_onRam_write_payload_data_potentialJumpTargets_1,logic_push_onRam_write_payload_data_potentialJumpTargets_0}}},{logic_push_onRam_write_payload_data_startInstructionIndex,{logic_push_onRam_write_payload_data_numValidInstructions,{logic_push_onRam_write_payload_data_fault,{logic_push_onRam_write_payload_data_branchMask,{{{logic_push_onRam_write_payload_data_predecodeInfos_3_isIdle,{logic_push_onRam_write_payload_data_predecodeInfos_3_jumpOffset,{logic_push_onRam_write_payload_data_predecodeInfos_3_isDirectJump,{logic_push_onRam_write_payload_data_predecodeInfos_3_isJump,logic_push_onRam_write_payload_data_predecodeInfos_3_isBranch}}}},{{logic_push_onRam_write_payload_data_predecodeInfos_2_isIdle,{logic_push_onRam_write_payload_data_predecodeInfos_2_jumpOffset,{logic_push_onRam_write_payload_data_predecodeInfos_2_isDirectJump,{logic_push_onRam_write_payload_data_predecodeInfos_2_isJump,logic_push_onRam_write_payload_data_predecodeInfos_2_isBranch}}}},{{logic_push_onRam_write_payload_data_predecodeInfos_1_isIdle,{logic_push_onRam_write_payload_data_predecodeInfos_1_jumpOffset,{logic_push_onRam_write_payload_data_predecodeInfos_1_isDirectJump,{logic_push_onRam_write_payload_data_predecodeInfos_1_isJump,logic_push_onRam_write_payload_data_predecodeInfos_1_isBranch}}}},{logic_push_onRam_write_payload_data_predecodeInfos_0_isIdle,{logic_push_onRam_write_payload_data_predecodeInfos_0_jumpOffset,{logic_push_onRam_write_payload_data_predecodeInfos_0_isDirectJump,{logic_push_onRam_write_payload_data_predecodeInfos_0_isJump,logic_push_onRam_write_payload_data_predecodeInfos_0_isBranch}}}}}}},{{logic_push_onRam_write_payload_data_instructions_3,{logic_push_onRam_write_payload_data_instructions_2,{logic_push_onRam_write_payload_data_instructions_1,logic_push_onRam_write_payload_data_instructions_0}}},{logic_push_onRam_write_payload_data_firstPc,logic_push_onRam_write_payload_data_pc}}}}}}}};
   always @(posedge clk) begin
     if(_zz_1) begin
       logic_ram[logic_push_onRam_write_payload_address] <= _zz_logic_ram_port;
@@ -33241,9 +35487,34 @@ module StreamFifo_13 (
   assign logic_push_onRam_write_payload_data_instructions_1 = io_push_payload_instructions_1;
   assign logic_push_onRam_write_payload_data_instructions_2 = io_push_payload_instructions_2;
   assign logic_push_onRam_write_payload_data_instructions_3 = io_push_payload_instructions_3;
+  assign logic_push_onRam_write_payload_data_predecodeInfos_0_isBranch = io_push_payload_predecodeInfos_0_isBranch;
+  assign logic_push_onRam_write_payload_data_predecodeInfos_0_isJump = io_push_payload_predecodeInfos_0_isJump;
+  assign logic_push_onRam_write_payload_data_predecodeInfos_0_isDirectJump = io_push_payload_predecodeInfos_0_isDirectJump;
+  assign logic_push_onRam_write_payload_data_predecodeInfos_0_jumpOffset = io_push_payload_predecodeInfos_0_jumpOffset;
+  assign logic_push_onRam_write_payload_data_predecodeInfos_0_isIdle = io_push_payload_predecodeInfos_0_isIdle;
+  assign logic_push_onRam_write_payload_data_predecodeInfos_1_isBranch = io_push_payload_predecodeInfos_1_isBranch;
+  assign logic_push_onRam_write_payload_data_predecodeInfos_1_isJump = io_push_payload_predecodeInfos_1_isJump;
+  assign logic_push_onRam_write_payload_data_predecodeInfos_1_isDirectJump = io_push_payload_predecodeInfos_1_isDirectJump;
+  assign logic_push_onRam_write_payload_data_predecodeInfos_1_jumpOffset = io_push_payload_predecodeInfos_1_jumpOffset;
+  assign logic_push_onRam_write_payload_data_predecodeInfos_1_isIdle = io_push_payload_predecodeInfos_1_isIdle;
+  assign logic_push_onRam_write_payload_data_predecodeInfos_2_isBranch = io_push_payload_predecodeInfos_2_isBranch;
+  assign logic_push_onRam_write_payload_data_predecodeInfos_2_isJump = io_push_payload_predecodeInfos_2_isJump;
+  assign logic_push_onRam_write_payload_data_predecodeInfos_2_isDirectJump = io_push_payload_predecodeInfos_2_isDirectJump;
+  assign logic_push_onRam_write_payload_data_predecodeInfos_2_jumpOffset = io_push_payload_predecodeInfos_2_jumpOffset;
+  assign logic_push_onRam_write_payload_data_predecodeInfos_2_isIdle = io_push_payload_predecodeInfos_2_isIdle;
+  assign logic_push_onRam_write_payload_data_predecodeInfos_3_isBranch = io_push_payload_predecodeInfos_3_isBranch;
+  assign logic_push_onRam_write_payload_data_predecodeInfos_3_isJump = io_push_payload_predecodeInfos_3_isJump;
+  assign logic_push_onRam_write_payload_data_predecodeInfos_3_isDirectJump = io_push_payload_predecodeInfos_3_isDirectJump;
+  assign logic_push_onRam_write_payload_data_predecodeInfos_3_jumpOffset = io_push_payload_predecodeInfos_3_jumpOffset;
+  assign logic_push_onRam_write_payload_data_predecodeInfos_3_isIdle = io_push_payload_predecodeInfos_3_isIdle;
+  assign logic_push_onRam_write_payload_data_branchMask = io_push_payload_branchMask;
   assign logic_push_onRam_write_payload_data_fault = io_push_payload_fault;
   assign logic_push_onRam_write_payload_data_numValidInstructions = io_push_payload_numValidInstructions;
   assign logic_push_onRam_write_payload_data_startInstructionIndex = io_push_payload_startInstructionIndex;
+  assign logic_push_onRam_write_payload_data_potentialJumpTargets_0 = io_push_payload_potentialJumpTargets_0;
+  assign logic_push_onRam_write_payload_data_potentialJumpTargets_1 = io_push_payload_potentialJumpTargets_1;
+  assign logic_push_onRam_write_payload_data_potentialJumpTargets_2 = io_push_payload_potentialJumpTargets_2;
+  assign logic_push_onRam_write_payload_data_potentialJumpTargets_3 = io_push_payload_potentialJumpTargets_3;
   assign logic_pop_addressGen_valid = (! logic_ptr_empty);
   assign logic_pop_addressGen_payload = logic_ptr_pop[0:0];
   assign logic_pop_addressGen_fire = (logic_pop_addressGen_valid && logic_pop_addressGen_ready);
@@ -33260,15 +35531,46 @@ module StreamFifo_13 (
   assign logic_pop_sync_readArbitation_payload = logic_pop_addressGen_rData;
   assign _zz_logic_pop_sync_readPort_rsp_pc = logic_ram_spinal_port1;
   assign _zz_logic_pop_sync_readPort_rsp_instructions_0 = _zz_logic_pop_sync_readPort_rsp_pc[191 : 64];
+  assign _zz_logic_pop_sync_readPort_rsp_predecodeInfos_0_isBranch = _zz_logic_pop_sync_readPort_rsp_pc[335 : 192];
+  assign _zz_logic_pop_sync_readPort_rsp_predecodeInfos_0_isBranch_1 = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_0_isBranch[35 : 0];
+  assign _zz_logic_pop_sync_readPort_rsp_predecodeInfos_1_isBranch = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_0_isBranch[71 : 36];
+  assign _zz_logic_pop_sync_readPort_rsp_predecodeInfos_2_isBranch = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_0_isBranch[107 : 72];
+  assign _zz_logic_pop_sync_readPort_rsp_predecodeInfos_3_isBranch = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_0_isBranch[143 : 108];
+  assign _zz_logic_pop_sync_readPort_rsp_potentialJumpTargets_0 = _zz_logic_pop_sync_readPort_rsp_pc[473 : 346];
   assign logic_pop_sync_readPort_rsp_pc = _zz_logic_pop_sync_readPort_rsp_pc[31 : 0];
   assign logic_pop_sync_readPort_rsp_firstPc = _zz_logic_pop_sync_readPort_rsp_pc[63 : 32];
   assign logic_pop_sync_readPort_rsp_instructions_0 = _zz_logic_pop_sync_readPort_rsp_instructions_0[31 : 0];
   assign logic_pop_sync_readPort_rsp_instructions_1 = _zz_logic_pop_sync_readPort_rsp_instructions_0[63 : 32];
   assign logic_pop_sync_readPort_rsp_instructions_2 = _zz_logic_pop_sync_readPort_rsp_instructions_0[95 : 64];
   assign logic_pop_sync_readPort_rsp_instructions_3 = _zz_logic_pop_sync_readPort_rsp_instructions_0[127 : 96];
-  assign logic_pop_sync_readPort_rsp_fault = _zz_logic_pop_sync_readPort_rsp_pc[192];
-  assign logic_pop_sync_readPort_rsp_numValidInstructions = _zz_logic_pop_sync_readPort_rsp_pc[195 : 193];
-  assign logic_pop_sync_readPort_rsp_startInstructionIndex = _zz_logic_pop_sync_readPort_rsp_pc[197 : 196];
+  assign logic_pop_sync_readPort_rsp_predecodeInfos_0_isBranch = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_0_isBranch_1[0];
+  assign logic_pop_sync_readPort_rsp_predecodeInfos_0_isJump = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_0_isBranch_1[1];
+  assign logic_pop_sync_readPort_rsp_predecodeInfos_0_isDirectJump = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_0_isBranch_1[2];
+  assign logic_pop_sync_readPort_rsp_predecodeInfos_0_jumpOffset = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_0_isBranch_1[34 : 3];
+  assign logic_pop_sync_readPort_rsp_predecodeInfos_0_isIdle = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_0_isBranch_1[35];
+  assign logic_pop_sync_readPort_rsp_predecodeInfos_1_isBranch = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_1_isBranch[0];
+  assign logic_pop_sync_readPort_rsp_predecodeInfos_1_isJump = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_1_isBranch[1];
+  assign logic_pop_sync_readPort_rsp_predecodeInfos_1_isDirectJump = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_1_isBranch[2];
+  assign logic_pop_sync_readPort_rsp_predecodeInfos_1_jumpOffset = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_1_isBranch[34 : 3];
+  assign logic_pop_sync_readPort_rsp_predecodeInfos_1_isIdle = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_1_isBranch[35];
+  assign logic_pop_sync_readPort_rsp_predecodeInfos_2_isBranch = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_2_isBranch[0];
+  assign logic_pop_sync_readPort_rsp_predecodeInfos_2_isJump = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_2_isBranch[1];
+  assign logic_pop_sync_readPort_rsp_predecodeInfos_2_isDirectJump = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_2_isBranch[2];
+  assign logic_pop_sync_readPort_rsp_predecodeInfos_2_jumpOffset = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_2_isBranch[34 : 3];
+  assign logic_pop_sync_readPort_rsp_predecodeInfos_2_isIdle = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_2_isBranch[35];
+  assign logic_pop_sync_readPort_rsp_predecodeInfos_3_isBranch = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_3_isBranch[0];
+  assign logic_pop_sync_readPort_rsp_predecodeInfos_3_isJump = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_3_isBranch[1];
+  assign logic_pop_sync_readPort_rsp_predecodeInfos_3_isDirectJump = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_3_isBranch[2];
+  assign logic_pop_sync_readPort_rsp_predecodeInfos_3_jumpOffset = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_3_isBranch[34 : 3];
+  assign logic_pop_sync_readPort_rsp_predecodeInfos_3_isIdle = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_3_isBranch[35];
+  assign logic_pop_sync_readPort_rsp_branchMask = _zz_logic_pop_sync_readPort_rsp_pc[339 : 336];
+  assign logic_pop_sync_readPort_rsp_fault = _zz_logic_pop_sync_readPort_rsp_pc[340];
+  assign logic_pop_sync_readPort_rsp_numValidInstructions = _zz_logic_pop_sync_readPort_rsp_pc[343 : 341];
+  assign logic_pop_sync_readPort_rsp_startInstructionIndex = _zz_logic_pop_sync_readPort_rsp_pc[345 : 344];
+  assign logic_pop_sync_readPort_rsp_potentialJumpTargets_0 = _zz_logic_pop_sync_readPort_rsp_potentialJumpTargets_0[31 : 0];
+  assign logic_pop_sync_readPort_rsp_potentialJumpTargets_1 = _zz_logic_pop_sync_readPort_rsp_potentialJumpTargets_0[63 : 32];
+  assign logic_pop_sync_readPort_rsp_potentialJumpTargets_2 = _zz_logic_pop_sync_readPort_rsp_potentialJumpTargets_0[95 : 64];
+  assign logic_pop_sync_readPort_rsp_potentialJumpTargets_3 = _zz_logic_pop_sync_readPort_rsp_potentialJumpTargets_0[127 : 96];
   assign logic_pop_addressGen_toFlowFire_valid = logic_pop_addressGen_fire;
   assign logic_pop_addressGen_toFlowFire_payload = logic_pop_addressGen_payload;
   assign logic_pop_sync_readPort_cmd_valid = logic_pop_addressGen_toFlowFire_valid;
@@ -33281,9 +35583,34 @@ module StreamFifo_13 (
   assign logic_pop_sync_readArbitation_translated_payload_instructions_1 = logic_pop_sync_readPort_rsp_instructions_1;
   assign logic_pop_sync_readArbitation_translated_payload_instructions_2 = logic_pop_sync_readPort_rsp_instructions_2;
   assign logic_pop_sync_readArbitation_translated_payload_instructions_3 = logic_pop_sync_readPort_rsp_instructions_3;
+  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_0_isBranch = logic_pop_sync_readPort_rsp_predecodeInfos_0_isBranch;
+  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_0_isJump = logic_pop_sync_readPort_rsp_predecodeInfos_0_isJump;
+  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_0_isDirectJump = logic_pop_sync_readPort_rsp_predecodeInfos_0_isDirectJump;
+  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_0_jumpOffset = logic_pop_sync_readPort_rsp_predecodeInfos_0_jumpOffset;
+  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_0_isIdle = logic_pop_sync_readPort_rsp_predecodeInfos_0_isIdle;
+  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_1_isBranch = logic_pop_sync_readPort_rsp_predecodeInfos_1_isBranch;
+  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_1_isJump = logic_pop_sync_readPort_rsp_predecodeInfos_1_isJump;
+  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_1_isDirectJump = logic_pop_sync_readPort_rsp_predecodeInfos_1_isDirectJump;
+  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_1_jumpOffset = logic_pop_sync_readPort_rsp_predecodeInfos_1_jumpOffset;
+  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_1_isIdle = logic_pop_sync_readPort_rsp_predecodeInfos_1_isIdle;
+  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_2_isBranch = logic_pop_sync_readPort_rsp_predecodeInfos_2_isBranch;
+  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_2_isJump = logic_pop_sync_readPort_rsp_predecodeInfos_2_isJump;
+  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_2_isDirectJump = logic_pop_sync_readPort_rsp_predecodeInfos_2_isDirectJump;
+  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_2_jumpOffset = logic_pop_sync_readPort_rsp_predecodeInfos_2_jumpOffset;
+  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_2_isIdle = logic_pop_sync_readPort_rsp_predecodeInfos_2_isIdle;
+  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_3_isBranch = logic_pop_sync_readPort_rsp_predecodeInfos_3_isBranch;
+  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_3_isJump = logic_pop_sync_readPort_rsp_predecodeInfos_3_isJump;
+  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_3_isDirectJump = logic_pop_sync_readPort_rsp_predecodeInfos_3_isDirectJump;
+  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_3_jumpOffset = logic_pop_sync_readPort_rsp_predecodeInfos_3_jumpOffset;
+  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_3_isIdle = logic_pop_sync_readPort_rsp_predecodeInfos_3_isIdle;
+  assign logic_pop_sync_readArbitation_translated_payload_branchMask = logic_pop_sync_readPort_rsp_branchMask;
   assign logic_pop_sync_readArbitation_translated_payload_fault = logic_pop_sync_readPort_rsp_fault;
   assign logic_pop_sync_readArbitation_translated_payload_numValidInstructions = logic_pop_sync_readPort_rsp_numValidInstructions;
   assign logic_pop_sync_readArbitation_translated_payload_startInstructionIndex = logic_pop_sync_readPort_rsp_startInstructionIndex;
+  assign logic_pop_sync_readArbitation_translated_payload_potentialJumpTargets_0 = logic_pop_sync_readPort_rsp_potentialJumpTargets_0;
+  assign logic_pop_sync_readArbitation_translated_payload_potentialJumpTargets_1 = logic_pop_sync_readPort_rsp_potentialJumpTargets_1;
+  assign logic_pop_sync_readArbitation_translated_payload_potentialJumpTargets_2 = logic_pop_sync_readPort_rsp_potentialJumpTargets_2;
+  assign logic_pop_sync_readArbitation_translated_payload_potentialJumpTargets_3 = logic_pop_sync_readPort_rsp_potentialJumpTargets_3;
   assign io_pop_valid = logic_pop_sync_readArbitation_translated_valid;
   assign logic_pop_sync_readArbitation_translated_ready = io_pop_ready;
   assign io_pop_payload_pc = logic_pop_sync_readArbitation_translated_payload_pc;
@@ -33292,9 +35619,34 @@ module StreamFifo_13 (
   assign io_pop_payload_instructions_1 = logic_pop_sync_readArbitation_translated_payload_instructions_1;
   assign io_pop_payload_instructions_2 = logic_pop_sync_readArbitation_translated_payload_instructions_2;
   assign io_pop_payload_instructions_3 = logic_pop_sync_readArbitation_translated_payload_instructions_3;
+  assign io_pop_payload_predecodeInfos_0_isBranch = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_0_isBranch;
+  assign io_pop_payload_predecodeInfos_0_isJump = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_0_isJump;
+  assign io_pop_payload_predecodeInfos_0_isDirectJump = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_0_isDirectJump;
+  assign io_pop_payload_predecodeInfos_0_jumpOffset = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_0_jumpOffset;
+  assign io_pop_payload_predecodeInfos_0_isIdle = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_0_isIdle;
+  assign io_pop_payload_predecodeInfos_1_isBranch = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_1_isBranch;
+  assign io_pop_payload_predecodeInfos_1_isJump = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_1_isJump;
+  assign io_pop_payload_predecodeInfos_1_isDirectJump = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_1_isDirectJump;
+  assign io_pop_payload_predecodeInfos_1_jumpOffset = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_1_jumpOffset;
+  assign io_pop_payload_predecodeInfos_1_isIdle = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_1_isIdle;
+  assign io_pop_payload_predecodeInfos_2_isBranch = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_2_isBranch;
+  assign io_pop_payload_predecodeInfos_2_isJump = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_2_isJump;
+  assign io_pop_payload_predecodeInfos_2_isDirectJump = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_2_isDirectJump;
+  assign io_pop_payload_predecodeInfos_2_jumpOffset = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_2_jumpOffset;
+  assign io_pop_payload_predecodeInfos_2_isIdle = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_2_isIdle;
+  assign io_pop_payload_predecodeInfos_3_isBranch = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_3_isBranch;
+  assign io_pop_payload_predecodeInfos_3_isJump = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_3_isJump;
+  assign io_pop_payload_predecodeInfos_3_isDirectJump = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_3_isDirectJump;
+  assign io_pop_payload_predecodeInfos_3_jumpOffset = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_3_jumpOffset;
+  assign io_pop_payload_predecodeInfos_3_isIdle = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_3_isIdle;
+  assign io_pop_payload_branchMask = logic_pop_sync_readArbitation_translated_payload_branchMask;
   assign io_pop_payload_fault = logic_pop_sync_readArbitation_translated_payload_fault;
   assign io_pop_payload_numValidInstructions = logic_pop_sync_readArbitation_translated_payload_numValidInstructions;
   assign io_pop_payload_startInstructionIndex = logic_pop_sync_readArbitation_translated_payload_startInstructionIndex;
+  assign io_pop_payload_potentialJumpTargets_0 = logic_pop_sync_readArbitation_translated_payload_potentialJumpTargets_0;
+  assign io_pop_payload_potentialJumpTargets_1 = logic_pop_sync_readArbitation_translated_payload_potentialJumpTargets_1;
+  assign io_pop_payload_potentialJumpTargets_2 = logic_pop_sync_readArbitation_translated_payload_potentialJumpTargets_2;
+  assign io_pop_payload_potentialJumpTargets_3 = logic_pop_sync_readArbitation_translated_payload_potentialJumpTargets_3;
   assign logic_pop_sync_readArbitation_fire = (logic_pop_sync_readArbitation_valid && logic_pop_sync_readArbitation_ready);
   assign logic_ptr_popOnIo = logic_pop_sync_popReg;
   assign io_occupancy = logic_ptr_occupancy;
@@ -33356,9 +35708,34 @@ module SmartDispatcher (
   input  wire [31:0]   io_fetchGroupIn_payload_instructions_1,
   input  wire [31:0]   io_fetchGroupIn_payload_instructions_2,
   input  wire [31:0]   io_fetchGroupIn_payload_instructions_3,
+  input  wire          io_fetchGroupIn_payload_predecodeInfos_0_isBranch,
+  input  wire          io_fetchGroupIn_payload_predecodeInfos_0_isJump,
+  input  wire          io_fetchGroupIn_payload_predecodeInfos_0_isDirectJump,
+  input  wire [31:0]   io_fetchGroupIn_payload_predecodeInfos_0_jumpOffset,
+  input  wire          io_fetchGroupIn_payload_predecodeInfos_0_isIdle,
+  input  wire          io_fetchGroupIn_payload_predecodeInfos_1_isBranch,
+  input  wire          io_fetchGroupIn_payload_predecodeInfos_1_isJump,
+  input  wire          io_fetchGroupIn_payload_predecodeInfos_1_isDirectJump,
+  input  wire [31:0]   io_fetchGroupIn_payload_predecodeInfos_1_jumpOffset,
+  input  wire          io_fetchGroupIn_payload_predecodeInfos_1_isIdle,
+  input  wire          io_fetchGroupIn_payload_predecodeInfos_2_isBranch,
+  input  wire          io_fetchGroupIn_payload_predecodeInfos_2_isJump,
+  input  wire          io_fetchGroupIn_payload_predecodeInfos_2_isDirectJump,
+  input  wire [31:0]   io_fetchGroupIn_payload_predecodeInfos_2_jumpOffset,
+  input  wire          io_fetchGroupIn_payload_predecodeInfos_2_isIdle,
+  input  wire          io_fetchGroupIn_payload_predecodeInfos_3_isBranch,
+  input  wire          io_fetchGroupIn_payload_predecodeInfos_3_isJump,
+  input  wire          io_fetchGroupIn_payload_predecodeInfos_3_isDirectJump,
+  input  wire [31:0]   io_fetchGroupIn_payload_predecodeInfos_3_jumpOffset,
+  input  wire          io_fetchGroupIn_payload_predecodeInfos_3_isIdle,
+  input  wire [3:0]    io_fetchGroupIn_payload_branchMask,
   input  wire          io_fetchGroupIn_payload_fault,
   input  wire [2:0]    io_fetchGroupIn_payload_numValidInstructions,
   input  wire [1:0]    io_fetchGroupIn_payload_startInstructionIndex,
+  input  wire [31:0]   io_fetchGroupIn_payload_potentialJumpTargets_0,
+  input  wire [31:0]   io_fetchGroupIn_payload_potentialJumpTargets_1,
+  input  wire [31:0]   io_fetchGroupIn_payload_potentialJumpTargets_2,
+  input  wire [31:0]   io_fetchGroupIn_payload_potentialJumpTargets_3,
   input  wire          io_bpuRsp_valid,
   input  wire          io_bpuRsp_payload_isTaken,
   input  wire [31:0]   io_bpuRsp_payload_target,
@@ -33398,33 +35775,16 @@ module SmartDispatcher (
   localparam fsm_1_SEND_BRANCH_OH_ID = 4;
   localparam fsm_1_DRAINING_BPU_OH_ID = 5;
 
-  wire                instructionPredecoder_4_io_predecodeInfo_isBranch;
-  wire                instructionPredecoder_4_io_predecodeInfo_isJump;
-  wire                instructionPredecoder_4_io_predecodeInfo_isDirectJump;
-  wire       [31:0]   instructionPredecoder_4_io_predecodeInfo_jumpOffset;
-  wire                instructionPredecoder_4_io_predecodeInfo_isIdle;
-  wire                instructionPredecoder_5_io_predecodeInfo_isBranch;
-  wire                instructionPredecoder_5_io_predecodeInfo_isJump;
-  wire                instructionPredecoder_5_io_predecodeInfo_isDirectJump;
-  wire       [31:0]   instructionPredecoder_5_io_predecodeInfo_jumpOffset;
-  wire                instructionPredecoder_5_io_predecodeInfo_isIdle;
-  wire                instructionPredecoder_6_io_predecodeInfo_isBranch;
-  wire                instructionPredecoder_6_io_predecodeInfo_isJump;
-  wire                instructionPredecoder_6_io_predecodeInfo_isDirectJump;
-  wire       [31:0]   instructionPredecoder_6_io_predecodeInfo_jumpOffset;
-  wire                instructionPredecoder_6_io_predecodeInfo_isIdle;
-  wire                instructionPredecoder_7_io_predecodeInfo_isBranch;
-  wire                instructionPredecoder_7_io_predecodeInfo_isJump;
-  wire                instructionPredecoder_7_io_predecodeInfo_isDirectJump;
-  wire       [31:0]   instructionPredecoder_7_io_predecodeInfo_jumpOffset;
-  wire                instructionPredecoder_7_io_predecodeInfo_isIdle;
   wire       [31:0]   _zz_currentPcReg;
+  wire       [3:0]    _zz_currentPcReg_1;
+  wire       [1:0]    _zz_currentPcReg_2;
   reg        [31:0]   _zz_currentInstructionReg;
   reg                 _zz_currentPredecodeReg_isBranch;
   reg                 _zz_currentPredecodeReg_isJump;
   reg                 _zz_currentPredecodeReg_isDirectJump;
   reg        [31:0]   _zz_currentPredecodeReg_jumpOffset;
   reg                 _zz_currentPredecodeReg_isIdle;
+  reg        [31:0]   _zz_currentPotentialJumpTarget;
   wire       [2:0]    _zz_lastInstructionIndexInGroup;
   wire       [2:0]    _zz_lastInstructionIndexInGroup_1;
   wire       [2:0]    _zz_isLastInstructionReg;
@@ -33434,9 +35794,10 @@ module SmartDispatcher (
   reg        [31:0]   _zz__zz_io_fetchOutput_payload_predecode_jumpOffset;
   reg                 _zz__zz_io_fetchOutput_payload_predecode_isIdle;
   reg        [31:0]   _zz__zz_io_fetchOutput_payload_instruction;
-  wire       [31:0]   _zz_io_softRedirect_payload;
+  reg        [31:0]   _zz__zz_io_softRedirect_payload;
   reg        [31:0]   cycleReg;
   reg        [31:0]   fetchGroupReg_pc;
+  reg        [31:0]   fetchGroupReg_firstPc;
   reg        [31:0]   fetchGroupReg_instructions_0;
   reg        [31:0]   fetchGroupReg_instructions_1;
   reg        [31:0]   fetchGroupReg_instructions_2;
@@ -33465,6 +35826,10 @@ module SmartDispatcher (
   reg                 fetchGroupReg_fault;
   reg        [2:0]    fetchGroupReg_numValidInstructions;
   reg        [1:0]    fetchGroupReg_startInstructionIndex;
+  reg        [31:0]   fetchGroupReg_potentialJumpTargets_0;
+  reg        [31:0]   fetchGroupReg_potentialJumpTargets_1;
+  reg        [31:0]   fetchGroupReg_potentialJumpTargets_2;
+  reg        [31:0]   fetchGroupReg_potentialJumpTargets_3;
   reg                 isBusyReg;
   reg        [1:0]    dispatchIndexReg;
   reg        [2:0]    bpuInFlightCounterReg;
@@ -33487,7 +35852,7 @@ module SmartDispatcher (
   reg                 outputReg_bpuPrediction_isTaken;
   reg        [31:0]   outputReg_bpuPrediction_target;
   reg                 outputReg_bpuPrediction_wasPredicted;
-  wire       [3:0]    pcIncrReg;
+  reg        [31:0]   outputRegJumpTarget;
   wire       [31:0]   currentPcReg;
   wire       [31:0]   currentInstructionReg;
   wire                currentPredecodeReg_isBranch;
@@ -33495,32 +35860,36 @@ module SmartDispatcher (
   wire                currentPredecodeReg_isDirectJump;
   wire       [31:0]   currentPredecodeReg_jumpOffset;
   wire                currentPredecodeReg_isIdle;
+  wire       [31:0]   currentPotentialJumpTarget;
   wire       [2:0]    lastInstructionIndexInGroup;
   wire                hasValidInstructionReg;
   wire                isLastInstructionReg;
+  reg        [2:0]    fetchGroupReg_numValidInstructions_regNext;
   wire                fsm_wantExit;
   reg                 fsm_wantStart;
   wire                fsm_wantKill;
   reg        [5:0]    fsm_stateReg;
   reg        [5:0]    fsm_stateNext;
+  wire                when_SmartDispatcher_l123;
   wire                _zz_io_fetchOutput_payload_predecode_isBranch;
   wire                _zz_io_fetchOutput_payload_predecode_isJump;
   wire                _zz_io_fetchOutput_payload_predecode_isDirectJump;
   wire       [31:0]   _zz_io_fetchOutput_payload_predecode_jumpOffset;
   wire                _zz_io_fetchOutput_payload_predecode_isIdle;
   wire       [31:0]   _zz_io_fetchOutput_payload_instruction;
-  wire                when_SmartDispatcher_l137;
-  wire                when_SmartDispatcher_l149;
-  wire                when_SmartDispatcher_l172;
+  wire       [31:0]   _zz_io_softRedirect_payload;
+  wire                when_SmartDispatcher_l140;
+  wire                when_SmartDispatcher_l163;
   wire                io_fetchGroupIn_fire;
-  wire                when_SmartDispatcher_l229;
-  wire                when_SmartDispatcher_l261;
-  wire                when_SmartDispatcher_l301;
-  wire                when_SmartDispatcher_l290;
+  wire                when_SmartDispatcher_l221;
+  wire                when_SmartDispatcher_l254;
+  wire                when_SmartDispatcher_l294;
+  wire                when_SmartDispatcher_l283;
+  wire                when_SmartDispatcher_l288;
   wire                io_fetchOutput_fire;
-  wire                when_SmartDispatcher_l338;
-  wire                when_SmartDispatcher_l348;
-  wire                when_SmartDispatcher_l369;
+  wire                when_SmartDispatcher_l332;
+  wire                when_SmartDispatcher_l342;
+  wire                when_SmartDispatcher_l363;
   wire                fsm_onExit_BOOT;
   wire                fsm_onExit_IDLE;
   wire                fsm_onExit_DISPATCHING;
@@ -33534,54 +35903,23 @@ module SmartDispatcher (
   wire                fsm_onEntry_SEND_BRANCH;
   wire                fsm_onEntry_DRAINING_BPU;
   reg        [2:0]    sim_fsmStateId;
-  wire                when_SmartDispatcher_l403;
-  wire                when_SmartDispatcher_l404;
-  wire                when_SmartDispatcher_l405;
-  wire                when_SmartDispatcher_l406;
-  wire                when_SmartDispatcher_l407;
+  wire                when_SmartDispatcher_l397;
+  wire                when_SmartDispatcher_l398;
+  wire                when_SmartDispatcher_l399;
+  wire                when_SmartDispatcher_l400;
+  wire                when_SmartDispatcher_l401;
   `ifndef SYNTHESIS
   reg [119:0] fsm_stateReg_string;
   reg [119:0] fsm_stateNext_string;
   `endif
 
 
-  assign _zz_currentPcReg = {28'd0, pcIncrReg};
+  assign _zz_currentPcReg_1 = ({2'd0,_zz_currentPcReg_2} <<< 2'd2);
+  assign _zz_currentPcReg = {28'd0, _zz_currentPcReg_1};
+  assign _zz_currentPcReg_2 = (dispatchIndexReg - fetchGroupReg_startInstructionIndex);
   assign _zz_lastInstructionIndexInGroup = (_zz_lastInstructionIndexInGroup_1 + fetchGroupReg_numValidInstructions);
   assign _zz_lastInstructionIndexInGroup_1 = {1'd0, fetchGroupReg_startInstructionIndex};
   assign _zz_isLastInstructionReg = {1'd0, dispatchIndexReg};
-  assign _zz_io_softRedirect_payload = (outputReg_pc + outputReg_predecode_jumpOffset);
-  InstructionPredecoder instructionPredecoder_4 (
-    .io_instruction                (io_fetchGroupIn_payload_instructions_0[31:0]             ), //i
-    .io_predecodeInfo_isBranch     (instructionPredecoder_4_io_predecodeInfo_isBranch        ), //o
-    .io_predecodeInfo_isJump       (instructionPredecoder_4_io_predecodeInfo_isJump          ), //o
-    .io_predecodeInfo_isDirectJump (instructionPredecoder_4_io_predecodeInfo_isDirectJump    ), //o
-    .io_predecodeInfo_jumpOffset   (instructionPredecoder_4_io_predecodeInfo_jumpOffset[31:0]), //o
-    .io_predecodeInfo_isIdle       (instructionPredecoder_4_io_predecodeInfo_isIdle          )  //o
-  );
-  InstructionPredecoder instructionPredecoder_5 (
-    .io_instruction                (io_fetchGroupIn_payload_instructions_1[31:0]             ), //i
-    .io_predecodeInfo_isBranch     (instructionPredecoder_5_io_predecodeInfo_isBranch        ), //o
-    .io_predecodeInfo_isJump       (instructionPredecoder_5_io_predecodeInfo_isJump          ), //o
-    .io_predecodeInfo_isDirectJump (instructionPredecoder_5_io_predecodeInfo_isDirectJump    ), //o
-    .io_predecodeInfo_jumpOffset   (instructionPredecoder_5_io_predecodeInfo_jumpOffset[31:0]), //o
-    .io_predecodeInfo_isIdle       (instructionPredecoder_5_io_predecodeInfo_isIdle          )  //o
-  );
-  InstructionPredecoder instructionPredecoder_6 (
-    .io_instruction                (io_fetchGroupIn_payload_instructions_2[31:0]             ), //i
-    .io_predecodeInfo_isBranch     (instructionPredecoder_6_io_predecodeInfo_isBranch        ), //o
-    .io_predecodeInfo_isJump       (instructionPredecoder_6_io_predecodeInfo_isJump          ), //o
-    .io_predecodeInfo_isDirectJump (instructionPredecoder_6_io_predecodeInfo_isDirectJump    ), //o
-    .io_predecodeInfo_jumpOffset   (instructionPredecoder_6_io_predecodeInfo_jumpOffset[31:0]), //o
-    .io_predecodeInfo_isIdle       (instructionPredecoder_6_io_predecodeInfo_isIdle          )  //o
-  );
-  InstructionPredecoder instructionPredecoder_7 (
-    .io_instruction                (io_fetchGroupIn_payload_instructions_3[31:0]             ), //i
-    .io_predecodeInfo_isBranch     (instructionPredecoder_7_io_predecodeInfo_isBranch        ), //o
-    .io_predecodeInfo_isJump       (instructionPredecoder_7_io_predecodeInfo_isJump          ), //o
-    .io_predecodeInfo_isDirectJump (instructionPredecoder_7_io_predecodeInfo_isDirectJump    ), //o
-    .io_predecodeInfo_jumpOffset   (instructionPredecoder_7_io_predecodeInfo_jumpOffset[31:0]), //o
-    .io_predecodeInfo_isIdle       (instructionPredecoder_7_io_predecodeInfo_isIdle          )  //o
-  );
   always @(*) begin
     case(dispatchIndexReg)
       2'b00 : begin
@@ -33591,6 +35929,7 @@ module SmartDispatcher (
         _zz_currentPredecodeReg_isDirectJump = fetchGroupReg_predecodeInfos_0_isDirectJump;
         _zz_currentPredecodeReg_jumpOffset = fetchGroupReg_predecodeInfos_0_jumpOffset;
         _zz_currentPredecodeReg_isIdle = fetchGroupReg_predecodeInfos_0_isIdle;
+        _zz_currentPotentialJumpTarget = fetchGroupReg_potentialJumpTargets_0;
       end
       2'b01 : begin
         _zz_currentInstructionReg = fetchGroupReg_instructions_1;
@@ -33599,6 +35938,7 @@ module SmartDispatcher (
         _zz_currentPredecodeReg_isDirectJump = fetchGroupReg_predecodeInfos_1_isDirectJump;
         _zz_currentPredecodeReg_jumpOffset = fetchGroupReg_predecodeInfos_1_jumpOffset;
         _zz_currentPredecodeReg_isIdle = fetchGroupReg_predecodeInfos_1_isIdle;
+        _zz_currentPotentialJumpTarget = fetchGroupReg_potentialJumpTargets_1;
       end
       2'b10 : begin
         _zz_currentInstructionReg = fetchGroupReg_instructions_2;
@@ -33607,6 +35947,7 @@ module SmartDispatcher (
         _zz_currentPredecodeReg_isDirectJump = fetchGroupReg_predecodeInfos_2_isDirectJump;
         _zz_currentPredecodeReg_jumpOffset = fetchGroupReg_predecodeInfos_2_jumpOffset;
         _zz_currentPredecodeReg_isIdle = fetchGroupReg_predecodeInfos_2_isIdle;
+        _zz_currentPotentialJumpTarget = fetchGroupReg_potentialJumpTargets_2;
       end
       default : begin
         _zz_currentInstructionReg = fetchGroupReg_instructions_3;
@@ -33615,6 +35956,7 @@ module SmartDispatcher (
         _zz_currentPredecodeReg_isDirectJump = fetchGroupReg_predecodeInfos_3_isDirectJump;
         _zz_currentPredecodeReg_jumpOffset = fetchGroupReg_predecodeInfos_3_jumpOffset;
         _zz_currentPredecodeReg_isIdle = fetchGroupReg_predecodeInfos_3_isIdle;
+        _zz_currentPotentialJumpTarget = fetchGroupReg_potentialJumpTargets_3;
       end
     endcase
   end
@@ -33622,36 +35964,40 @@ module SmartDispatcher (
   always @(*) begin
     case(io_fetchGroupIn_payload_startInstructionIndex)
       2'b00 : begin
-        _zz__zz_io_fetchOutput_payload_predecode_isBranch = instructionPredecoder_4_io_predecodeInfo_isBranch;
-        _zz__zz_io_fetchOutput_payload_predecode_isJump = instructionPredecoder_4_io_predecodeInfo_isJump;
-        _zz__zz_io_fetchOutput_payload_predecode_isDirectJump = instructionPredecoder_4_io_predecodeInfo_isDirectJump;
-        _zz__zz_io_fetchOutput_payload_predecode_jumpOffset = instructionPredecoder_4_io_predecodeInfo_jumpOffset;
-        _zz__zz_io_fetchOutput_payload_predecode_isIdle = instructionPredecoder_4_io_predecodeInfo_isIdle;
+        _zz__zz_io_fetchOutput_payload_predecode_isBranch = io_fetchGroupIn_payload_predecodeInfos_0_isBranch;
+        _zz__zz_io_fetchOutput_payload_predecode_isJump = io_fetchGroupIn_payload_predecodeInfos_0_isJump;
+        _zz__zz_io_fetchOutput_payload_predecode_isDirectJump = io_fetchGroupIn_payload_predecodeInfos_0_isDirectJump;
+        _zz__zz_io_fetchOutput_payload_predecode_jumpOffset = io_fetchGroupIn_payload_predecodeInfos_0_jumpOffset;
+        _zz__zz_io_fetchOutput_payload_predecode_isIdle = io_fetchGroupIn_payload_predecodeInfos_0_isIdle;
         _zz__zz_io_fetchOutput_payload_instruction = io_fetchGroupIn_payload_instructions_0;
+        _zz__zz_io_softRedirect_payload = io_fetchGroupIn_payload_potentialJumpTargets_0;
       end
       2'b01 : begin
-        _zz__zz_io_fetchOutput_payload_predecode_isBranch = instructionPredecoder_5_io_predecodeInfo_isBranch;
-        _zz__zz_io_fetchOutput_payload_predecode_isJump = instructionPredecoder_5_io_predecodeInfo_isJump;
-        _zz__zz_io_fetchOutput_payload_predecode_isDirectJump = instructionPredecoder_5_io_predecodeInfo_isDirectJump;
-        _zz__zz_io_fetchOutput_payload_predecode_jumpOffset = instructionPredecoder_5_io_predecodeInfo_jumpOffset;
-        _zz__zz_io_fetchOutput_payload_predecode_isIdle = instructionPredecoder_5_io_predecodeInfo_isIdle;
+        _zz__zz_io_fetchOutput_payload_predecode_isBranch = io_fetchGroupIn_payload_predecodeInfos_1_isBranch;
+        _zz__zz_io_fetchOutput_payload_predecode_isJump = io_fetchGroupIn_payload_predecodeInfos_1_isJump;
+        _zz__zz_io_fetchOutput_payload_predecode_isDirectJump = io_fetchGroupIn_payload_predecodeInfos_1_isDirectJump;
+        _zz__zz_io_fetchOutput_payload_predecode_jumpOffset = io_fetchGroupIn_payload_predecodeInfos_1_jumpOffset;
+        _zz__zz_io_fetchOutput_payload_predecode_isIdle = io_fetchGroupIn_payload_predecodeInfos_1_isIdle;
         _zz__zz_io_fetchOutput_payload_instruction = io_fetchGroupIn_payload_instructions_1;
+        _zz__zz_io_softRedirect_payload = io_fetchGroupIn_payload_potentialJumpTargets_1;
       end
       2'b10 : begin
-        _zz__zz_io_fetchOutput_payload_predecode_isBranch = instructionPredecoder_6_io_predecodeInfo_isBranch;
-        _zz__zz_io_fetchOutput_payload_predecode_isJump = instructionPredecoder_6_io_predecodeInfo_isJump;
-        _zz__zz_io_fetchOutput_payload_predecode_isDirectJump = instructionPredecoder_6_io_predecodeInfo_isDirectJump;
-        _zz__zz_io_fetchOutput_payload_predecode_jumpOffset = instructionPredecoder_6_io_predecodeInfo_jumpOffset;
-        _zz__zz_io_fetchOutput_payload_predecode_isIdle = instructionPredecoder_6_io_predecodeInfo_isIdle;
+        _zz__zz_io_fetchOutput_payload_predecode_isBranch = io_fetchGroupIn_payload_predecodeInfos_2_isBranch;
+        _zz__zz_io_fetchOutput_payload_predecode_isJump = io_fetchGroupIn_payload_predecodeInfos_2_isJump;
+        _zz__zz_io_fetchOutput_payload_predecode_isDirectJump = io_fetchGroupIn_payload_predecodeInfos_2_isDirectJump;
+        _zz__zz_io_fetchOutput_payload_predecode_jumpOffset = io_fetchGroupIn_payload_predecodeInfos_2_jumpOffset;
+        _zz__zz_io_fetchOutput_payload_predecode_isIdle = io_fetchGroupIn_payload_predecodeInfos_2_isIdle;
         _zz__zz_io_fetchOutput_payload_instruction = io_fetchGroupIn_payload_instructions_2;
+        _zz__zz_io_softRedirect_payload = io_fetchGroupIn_payload_potentialJumpTargets_2;
       end
       default : begin
-        _zz__zz_io_fetchOutput_payload_predecode_isBranch = instructionPredecoder_7_io_predecodeInfo_isBranch;
-        _zz__zz_io_fetchOutput_payload_predecode_isJump = instructionPredecoder_7_io_predecodeInfo_isJump;
-        _zz__zz_io_fetchOutput_payload_predecode_isDirectJump = instructionPredecoder_7_io_predecodeInfo_isDirectJump;
-        _zz__zz_io_fetchOutput_payload_predecode_jumpOffset = instructionPredecoder_7_io_predecodeInfo_jumpOffset;
-        _zz__zz_io_fetchOutput_payload_predecode_isIdle = instructionPredecoder_7_io_predecodeInfo_isIdle;
+        _zz__zz_io_fetchOutput_payload_predecode_isBranch = io_fetchGroupIn_payload_predecodeInfos_3_isBranch;
+        _zz__zz_io_fetchOutput_payload_predecode_isJump = io_fetchGroupIn_payload_predecodeInfos_3_isJump;
+        _zz__zz_io_fetchOutput_payload_predecode_isDirectJump = io_fetchGroupIn_payload_predecodeInfos_3_isDirectJump;
+        _zz__zz_io_fetchOutput_payload_predecode_jumpOffset = io_fetchGroupIn_payload_predecodeInfos_3_jumpOffset;
+        _zz__zz_io_fetchOutput_payload_predecode_isIdle = io_fetchGroupIn_payload_predecodeInfos_3_isIdle;
         _zz__zz_io_fetchOutput_payload_instruction = io_fetchGroupIn_payload_instructions_3;
+        _zz__zz_io_softRedirect_payload = io_fetchGroupIn_payload_potentialJumpTargets_3;
       end
     endcase
   end
@@ -33683,13 +36029,16 @@ module SmartDispatcher (
 
   always @(*) begin
     io_fetchOutput_valid = 1'b0;
+    if(io_flush) begin
+      io_fetchOutput_valid = 1'b0;
+    end
     (* parallel_case *)
     case(1) // synthesis parallel_case
       (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l137) begin
-              if(when_SmartDispatcher_l149) begin
+            if(!when_SmartDispatcher_l123) begin
+              if(when_SmartDispatcher_l140) begin
                 io_fetchOutput_valid = 1'b1;
               end
             end
@@ -33700,7 +36049,7 @@ module SmartDispatcher (
         if(!io_flush) begin
           if(isBusyReg) begin
             if(!fetchGroupReg_fault) begin
-              if(!when_SmartDispatcher_l229) begin
+              if(!when_SmartDispatcher_l221) begin
                 io_fetchOutput_valid = 1'b1;
               end
             end
@@ -33728,8 +36077,8 @@ module SmartDispatcher (
       (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l137) begin
-              if(when_SmartDispatcher_l149) begin
+            if(!when_SmartDispatcher_l123) begin
+              if(when_SmartDispatcher_l140) begin
                 io_fetchOutput_payload_pc = io_fetchGroupIn_payload_firstPc;
               end
             end
@@ -33740,7 +36089,7 @@ module SmartDispatcher (
         if(!io_flush) begin
           if(isBusyReg) begin
             if(!fetchGroupReg_fault) begin
-              if(!when_SmartDispatcher_l229) begin
+              if(!when_SmartDispatcher_l221) begin
                 io_fetchOutput_payload_pc = currentPcReg;
               end
             end
@@ -33768,8 +36117,8 @@ module SmartDispatcher (
       (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l137) begin
-              if(when_SmartDispatcher_l149) begin
+            if(!when_SmartDispatcher_l123) begin
+              if(when_SmartDispatcher_l140) begin
                 io_fetchOutput_payload_instruction = _zz_io_fetchOutput_payload_instruction;
               end
             end
@@ -33780,7 +36129,7 @@ module SmartDispatcher (
         if(!io_flush) begin
           if(isBusyReg) begin
             if(!fetchGroupReg_fault) begin
-              if(!when_SmartDispatcher_l229) begin
+              if(!when_SmartDispatcher_l221) begin
                 io_fetchOutput_payload_instruction = currentInstructionReg;
               end
             end
@@ -33808,8 +36157,8 @@ module SmartDispatcher (
       (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l137) begin
-              if(when_SmartDispatcher_l149) begin
+            if(!when_SmartDispatcher_l123) begin
+              if(when_SmartDispatcher_l140) begin
                 io_fetchOutput_payload_predecode_isBranch = _zz_io_fetchOutput_payload_predecode_isBranch;
               end
             end
@@ -33820,7 +36169,7 @@ module SmartDispatcher (
         if(!io_flush) begin
           if(isBusyReg) begin
             if(!fetchGroupReg_fault) begin
-              if(!when_SmartDispatcher_l229) begin
+              if(!when_SmartDispatcher_l221) begin
                 io_fetchOutput_payload_predecode_isBranch = currentPredecodeReg_isBranch;
               end
             end
@@ -33848,8 +36197,8 @@ module SmartDispatcher (
       (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l137) begin
-              if(when_SmartDispatcher_l149) begin
+            if(!when_SmartDispatcher_l123) begin
+              if(when_SmartDispatcher_l140) begin
                 io_fetchOutput_payload_predecode_isJump = _zz_io_fetchOutput_payload_predecode_isJump;
               end
             end
@@ -33860,7 +36209,7 @@ module SmartDispatcher (
         if(!io_flush) begin
           if(isBusyReg) begin
             if(!fetchGroupReg_fault) begin
-              if(!when_SmartDispatcher_l229) begin
+              if(!when_SmartDispatcher_l221) begin
                 io_fetchOutput_payload_predecode_isJump = currentPredecodeReg_isJump;
               end
             end
@@ -33888,8 +36237,8 @@ module SmartDispatcher (
       (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l137) begin
-              if(when_SmartDispatcher_l149) begin
+            if(!when_SmartDispatcher_l123) begin
+              if(when_SmartDispatcher_l140) begin
                 io_fetchOutput_payload_predecode_isDirectJump = _zz_io_fetchOutput_payload_predecode_isDirectJump;
               end
             end
@@ -33900,7 +36249,7 @@ module SmartDispatcher (
         if(!io_flush) begin
           if(isBusyReg) begin
             if(!fetchGroupReg_fault) begin
-              if(!when_SmartDispatcher_l229) begin
+              if(!when_SmartDispatcher_l221) begin
                 io_fetchOutput_payload_predecode_isDirectJump = currentPredecodeReg_isDirectJump;
               end
             end
@@ -33928,8 +36277,8 @@ module SmartDispatcher (
       (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l137) begin
-              if(when_SmartDispatcher_l149) begin
+            if(!when_SmartDispatcher_l123) begin
+              if(when_SmartDispatcher_l140) begin
                 io_fetchOutput_payload_predecode_jumpOffset = _zz_io_fetchOutput_payload_predecode_jumpOffset;
               end
             end
@@ -33940,7 +36289,7 @@ module SmartDispatcher (
         if(!io_flush) begin
           if(isBusyReg) begin
             if(!fetchGroupReg_fault) begin
-              if(!when_SmartDispatcher_l229) begin
+              if(!when_SmartDispatcher_l221) begin
                 io_fetchOutput_payload_predecode_jumpOffset = currentPredecodeReg_jumpOffset;
               end
             end
@@ -33968,8 +36317,8 @@ module SmartDispatcher (
       (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l137) begin
-              if(when_SmartDispatcher_l149) begin
+            if(!when_SmartDispatcher_l123) begin
+              if(when_SmartDispatcher_l140) begin
                 io_fetchOutput_payload_predecode_isIdle = _zz_io_fetchOutput_payload_predecode_isIdle;
               end
             end
@@ -33980,7 +36329,7 @@ module SmartDispatcher (
         if(!io_flush) begin
           if(isBusyReg) begin
             if(!fetchGroupReg_fault) begin
-              if(!when_SmartDispatcher_l229) begin
+              if(!when_SmartDispatcher_l221) begin
                 io_fetchOutput_payload_predecode_isIdle = currentPredecodeReg_isIdle;
               end
             end
@@ -34008,8 +36357,8 @@ module SmartDispatcher (
       (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l137) begin
-              if(when_SmartDispatcher_l149) begin
+            if(!when_SmartDispatcher_l123) begin
+              if(when_SmartDispatcher_l140) begin
                 io_fetchOutput_payload_bpuPrediction_isTaken = 1'b0;
               end
             end
@@ -34020,7 +36369,7 @@ module SmartDispatcher (
         if(!io_flush) begin
           if(isBusyReg) begin
             if(!fetchGroupReg_fault) begin
-              if(!when_SmartDispatcher_l229) begin
+              if(!when_SmartDispatcher_l221) begin
                 io_fetchOutput_payload_bpuPrediction_isTaken = 1'b0;
               end
             end
@@ -34048,8 +36397,8 @@ module SmartDispatcher (
       (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l137) begin
-              if(when_SmartDispatcher_l149) begin
+            if(!when_SmartDispatcher_l123) begin
+              if(when_SmartDispatcher_l140) begin
                 io_fetchOutput_payload_bpuPrediction_target = 32'h0;
               end
             end
@@ -34060,7 +36409,7 @@ module SmartDispatcher (
         if(!io_flush) begin
           if(isBusyReg) begin
             if(!fetchGroupReg_fault) begin
-              if(!when_SmartDispatcher_l229) begin
+              if(!when_SmartDispatcher_l221) begin
                 io_fetchOutput_payload_bpuPrediction_target = 32'h0;
               end
             end
@@ -34088,8 +36437,8 @@ module SmartDispatcher (
       (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l137) begin
-              if(when_SmartDispatcher_l149) begin
+            if(!when_SmartDispatcher_l123) begin
+              if(when_SmartDispatcher_l140) begin
                 io_fetchOutput_payload_bpuPrediction_wasPredicted = 1'b0;
               end
             end
@@ -34100,7 +36449,7 @@ module SmartDispatcher (
         if(!io_flush) begin
           if(isBusyReg) begin
             if(!fetchGroupReg_fault) begin
-              if(!when_SmartDispatcher_l229) begin
+              if(!when_SmartDispatcher_l221) begin
                 io_fetchOutput_payload_bpuPrediction_wasPredicted = 1'b0;
               end
             end
@@ -34128,8 +36477,8 @@ module SmartDispatcher (
       (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l137) begin
-              if(!when_SmartDispatcher_l149) begin
+            if(!when_SmartDispatcher_l123) begin
+              if(!when_SmartDispatcher_l140) begin
                 io_bpuQuery_valid = 1'b1;
               end
             end
@@ -34140,7 +36489,7 @@ module SmartDispatcher (
         if(!io_flush) begin
           if(isBusyReg) begin
             if(!fetchGroupReg_fault) begin
-              if(when_SmartDispatcher_l229) begin
+              if(when_SmartDispatcher_l221) begin
                 io_bpuQuery_valid = 1'b1;
               end
             end
@@ -34165,8 +36514,8 @@ module SmartDispatcher (
       (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l137) begin
-              if(!when_SmartDispatcher_l149) begin
+            if(!when_SmartDispatcher_l123) begin
+              if(!when_SmartDispatcher_l140) begin
                 io_bpuQuery_payload_pc = io_fetchGroupIn_payload_firstPc;
               end
             end
@@ -34177,7 +36526,7 @@ module SmartDispatcher (
         if(!io_flush) begin
           if(isBusyReg) begin
             if(!fetchGroupReg_fault) begin
-              if(when_SmartDispatcher_l229) begin
+              if(when_SmartDispatcher_l221) begin
                 io_bpuQuery_payload_pc = currentPcReg;
               end
             end
@@ -34202,8 +36551,8 @@ module SmartDispatcher (
       (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l137) begin
-              if(!when_SmartDispatcher_l149) begin
+            if(!when_SmartDispatcher_l123) begin
+              if(!when_SmartDispatcher_l140) begin
                 io_bpuQuery_payload_transactionId = bpuTransIdCounterReg;
               end
             end
@@ -34214,7 +36563,7 @@ module SmartDispatcher (
         if(!io_flush) begin
           if(isBusyReg) begin
             if(!fetchGroupReg_fault) begin
-              if(when_SmartDispatcher_l229) begin
+              if(when_SmartDispatcher_l221) begin
                 io_bpuQuery_payload_transactionId = bpuTransIdCounterReg;
               end
             end
@@ -34239,8 +36588,8 @@ module SmartDispatcher (
       (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l137) begin
-              if(when_SmartDispatcher_l149) begin
+            if(!when_SmartDispatcher_l123) begin
+              if(when_SmartDispatcher_l140) begin
                 if(io_fetchOutput_ready) begin
                   if(_zz_io_fetchOutput_payload_predecode_isDirectJump) begin
                     io_softRedirect_valid = 1'b1;
@@ -34255,7 +36604,7 @@ module SmartDispatcher (
         if(!io_flush) begin
           if(isBusyReg) begin
             if(!fetchGroupReg_fault) begin
-              if(!when_SmartDispatcher_l229) begin
+              if(!when_SmartDispatcher_l221) begin
                 if(io_fetchOutput_ready) begin
                   if(currentPredecodeReg_isDirectJump) begin
                     io_softRedirect_valid = 1'b1;
@@ -34271,7 +36620,7 @@ module SmartDispatcher (
       (fsm_stateReg[fsm_1_SEND_BRANCH_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchOutput_fire) begin
-            if(when_SmartDispatcher_l338) begin
+            if(when_SmartDispatcher_l332) begin
               io_softRedirect_valid = 1'b1;
             end
           end
@@ -34291,11 +36640,11 @@ module SmartDispatcher (
       (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l137) begin
-              if(when_SmartDispatcher_l149) begin
+            if(!when_SmartDispatcher_l123) begin
+              if(when_SmartDispatcher_l140) begin
                 if(io_fetchOutput_ready) begin
                   if(_zz_io_fetchOutput_payload_predecode_isDirectJump) begin
-                    io_softRedirect_payload = (io_fetchGroupIn_payload_firstPc + _zz_io_fetchOutput_payload_predecode_jumpOffset);
+                    io_softRedirect_payload = _zz_io_softRedirect_payload;
                   end
                 end
               end
@@ -34307,10 +36656,10 @@ module SmartDispatcher (
         if(!io_flush) begin
           if(isBusyReg) begin
             if(!fetchGroupReg_fault) begin
-              if(!when_SmartDispatcher_l229) begin
+              if(!when_SmartDispatcher_l221) begin
                 if(io_fetchOutput_ready) begin
                   if(currentPredecodeReg_isDirectJump) begin
-                    io_softRedirect_payload = (currentPcReg + currentPredecodeReg_jumpOffset);
+                    io_softRedirect_payload = currentPotentialJumpTarget;
                   end
                 end
               end
@@ -34323,8 +36672,8 @@ module SmartDispatcher (
       (fsm_stateReg[fsm_1_SEND_BRANCH_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchOutput_fire) begin
-            if(when_SmartDispatcher_l338) begin
-              io_softRedirect_payload = (outputReg_predecode_isDirectJump ? _zz_io_softRedirect_payload : outputReg_bpuPrediction_target);
+            if(when_SmartDispatcher_l332) begin
+              io_softRedirect_payload = (outputReg_predecode_isDirectJump ? outputRegJumpTarget : outputReg_bpuPrediction_target);
             end
           end
         end
@@ -34337,14 +36686,14 @@ module SmartDispatcher (
   end
 
   assign io_fetchGroupIn_ready = (! isBusyReg);
-  assign pcIncrReg = ({2'd0,dispatchIndexReg} <<< 2'd2);
-  assign currentPcReg = (fetchGroupReg_pc + _zz_currentPcReg);
+  assign currentPcReg = (fetchGroupReg_firstPc + _zz_currentPcReg);
   assign currentInstructionReg = _zz_currentInstructionReg;
   assign currentPredecodeReg_isBranch = _zz_currentPredecodeReg_isBranch;
   assign currentPredecodeReg_isJump = _zz_currentPredecodeReg_isJump;
   assign currentPredecodeReg_isDirectJump = _zz_currentPredecodeReg_isDirectJump;
   assign currentPredecodeReg_jumpOffset = _zz_currentPredecodeReg_jumpOffset;
   assign currentPredecodeReg_isIdle = _zz_currentPredecodeReg_isIdle;
+  assign currentPotentialJumpTarget = _zz_currentPotentialJumpTarget;
   assign lastInstructionIndexInGroup = (_zz_lastInstructionIndexInGroup - 3'b001);
   assign hasValidInstructionReg = (3'b000 < fetchGroupReg_numValidInstructions);
   assign isLastInstructionReg = (hasValidInstructionReg && (_zz_isLastInstructionReg == lastInstructionIndexInGroup));
@@ -34379,15 +36728,15 @@ module SmartDispatcher (
           fsm_stateNext = fsm_1_IDLE;
         end else begin
           if(io_fetchGroupIn_fire) begin
-            if(when_SmartDispatcher_l137) begin
+            if(when_SmartDispatcher_l123) begin
               fsm_stateNext = fsm_1_IDLE;
             end else begin
-              if(when_SmartDispatcher_l149) begin
+              if(when_SmartDispatcher_l140) begin
                 if(io_fetchOutput_ready) begin
                   if(_zz_io_fetchOutput_payload_predecode_isDirectJump) begin
                     fsm_stateNext = fsm_1_IDLE;
                   end else begin
-                    if(when_SmartDispatcher_l172) begin
+                    if(when_SmartDispatcher_l163) begin
                       fsm_stateNext = fsm_1_IDLE;
                     end else begin
                       fsm_stateNext = fsm_1_DISPATCHING;
@@ -34411,11 +36760,11 @@ module SmartDispatcher (
             if(fetchGroupReg_fault) begin
               fsm_stateNext = fsm_1_IDLE;
             end else begin
-              if(when_SmartDispatcher_l229) begin
+              if(when_SmartDispatcher_l221) begin
                 fsm_stateNext = fsm_1_WAITING_FOR_BPU;
               end else begin
                 if(io_fetchOutput_ready) begin
-                  if(when_SmartDispatcher_l261) begin
+                  if(when_SmartDispatcher_l254) begin
                     fsm_stateNext = fsm_1_IDLE;
                   end
                 end
@@ -34430,7 +36779,7 @@ module SmartDispatcher (
         if(io_flush) begin
           fsm_stateNext = fsm_1_DRAINING_BPU;
         end else begin
-          if(when_SmartDispatcher_l301) begin
+          if(when_SmartDispatcher_l294) begin
             fsm_stateNext = fsm_1_SEND_BRANCH;
           end
         end
@@ -34440,7 +36789,7 @@ module SmartDispatcher (
           fsm_stateNext = fsm_1_DRAINING_BPU;
         end else begin
           if(io_fetchOutput_fire) begin
-            if(when_SmartDispatcher_l348) begin
+            if(when_SmartDispatcher_l342) begin
               fsm_stateNext = fsm_1_IDLE;
             end else begin
               fsm_stateNext = fsm_1_DISPATCHING;
@@ -34449,7 +36798,7 @@ module SmartDispatcher (
         end
       end
       (fsm_stateReg[fsm_1_DRAINING_BPU_OH_ID]) : begin
-        if(when_SmartDispatcher_l369) begin
+        if(when_SmartDispatcher_l363) begin
           fsm_stateNext = fsm_1_IDLE;
         end
       end
@@ -34464,24 +36813,26 @@ module SmartDispatcher (
     end
   end
 
+  assign when_SmartDispatcher_l123 = (io_fetchGroupIn_payload_numValidInstructions == 3'b000);
   assign _zz_io_fetchOutput_payload_predecode_isBranch = _zz__zz_io_fetchOutput_payload_predecode_isBranch;
   assign _zz_io_fetchOutput_payload_predecode_isJump = _zz__zz_io_fetchOutput_payload_predecode_isJump;
   assign _zz_io_fetchOutput_payload_predecode_isDirectJump = _zz__zz_io_fetchOutput_payload_predecode_isDirectJump;
   assign _zz_io_fetchOutput_payload_predecode_jumpOffset = _zz__zz_io_fetchOutput_payload_predecode_jumpOffset;
   assign _zz_io_fetchOutput_payload_predecode_isIdle = _zz__zz_io_fetchOutput_payload_predecode_isIdle;
   assign _zz_io_fetchOutput_payload_instruction = _zz__zz_io_fetchOutput_payload_instruction;
-  assign when_SmartDispatcher_l137 = (io_fetchGroupIn_payload_numValidInstructions == 3'b000);
-  assign when_SmartDispatcher_l149 = (! _zz_io_fetchOutput_payload_predecode_isBranch);
-  assign when_SmartDispatcher_l172 = (io_fetchGroupIn_payload_numValidInstructions == 3'b001);
+  assign _zz_io_softRedirect_payload = _zz__zz_io_softRedirect_payload;
+  assign when_SmartDispatcher_l140 = (! _zz_io_fetchOutput_payload_predecode_isBranch);
+  assign when_SmartDispatcher_l163 = (io_fetchGroupIn_payload_numValidInstructions == 3'b001);
   assign io_fetchGroupIn_fire = (io_fetchGroupIn_valid && io_fetchGroupIn_ready);
-  assign when_SmartDispatcher_l229 = (currentPredecodeReg_isBranch && (! currentPredecodeReg_isDirectJump));
-  assign when_SmartDispatcher_l261 = (isLastInstructionReg || currentPredecodeReg_isDirectJump);
-  assign when_SmartDispatcher_l301 = (io_bpuRsp_valid && (io_bpuRsp_payload_transactionId == pendingBpuQueryReg_bpuTransactionId));
-  assign when_SmartDispatcher_l290 = (! when_SmartDispatcher_l301);
+  assign when_SmartDispatcher_l221 = (currentPredecodeReg_isBranch && (! currentPredecodeReg_isDirectJump));
+  assign when_SmartDispatcher_l254 = (isLastInstructionReg || currentPredecodeReg_isDirectJump);
+  assign when_SmartDispatcher_l294 = (io_bpuRsp_valid && (io_bpuRsp_payload_transactionId == pendingBpuQueryReg_bpuTransactionId));
+  assign when_SmartDispatcher_l283 = (! when_SmartDispatcher_l294);
+  assign when_SmartDispatcher_l288 = (isBusyReg && (! when_SmartDispatcher_l294));
   assign io_fetchOutput_fire = (io_fetchOutput_valid && io_fetchOutput_ready);
-  assign when_SmartDispatcher_l338 = (outputReg_predecode_isDirectJump || (outputReg_bpuPrediction_wasPredicted && outputReg_bpuPrediction_isTaken));
-  assign when_SmartDispatcher_l348 = (isLastInstructionReg || when_SmartDispatcher_l338);
-  assign when_SmartDispatcher_l369 = (bpuInFlightCounterReg == 3'b000);
+  assign when_SmartDispatcher_l332 = (outputReg_predecode_isDirectJump || (outputReg_bpuPrediction_wasPredicted && outputReg_bpuPrediction_isTaken));
+  assign when_SmartDispatcher_l342 = (isLastInstructionReg || when_SmartDispatcher_l332);
+  assign when_SmartDispatcher_l363 = (bpuInFlightCounterReg == 3'b000);
   assign fsm_onExit_BOOT = ((! fsm_stateNext[fsm_1_BOOT_OH_ID]) && (fsm_stateReg[fsm_1_BOOT_OH_ID]));
   assign fsm_onExit_IDLE = ((! fsm_stateNext[fsm_1_IDLE_OH_ID]) && (fsm_stateReg[fsm_1_IDLE_OH_ID]));
   assign fsm_onExit_DISPATCHING = ((! fsm_stateNext[fsm_1_DISPATCHING_OH_ID]) && (fsm_stateReg[fsm_1_DISPATCHING_OH_ID]));
@@ -34494,21 +36845,21 @@ module SmartDispatcher (
   assign fsm_onEntry_WAITING_FOR_BPU = ((fsm_stateNext[fsm_1_WAITING_FOR_BPU_OH_ID]) && (! fsm_stateReg[fsm_1_WAITING_FOR_BPU_OH_ID]));
   assign fsm_onEntry_SEND_BRANCH = ((fsm_stateNext[fsm_1_SEND_BRANCH_OH_ID]) && (! fsm_stateReg[fsm_1_SEND_BRANCH_OH_ID]));
   assign fsm_onEntry_DRAINING_BPU = ((fsm_stateNext[fsm_1_DRAINING_BPU_OH_ID]) && (! fsm_stateReg[fsm_1_DRAINING_BPU_OH_ID]));
-  assign when_SmartDispatcher_l403 = (fsm_stateReg[fsm_1_IDLE_OH_ID]);
+  assign when_SmartDispatcher_l397 = (fsm_stateReg[fsm_1_IDLE_OH_ID]);
   always @(*) begin
-    if(when_SmartDispatcher_l403) begin
+    if(when_SmartDispatcher_l397) begin
       sim_fsmStateId = 3'b000;
     end else begin
-      if(when_SmartDispatcher_l404) begin
+      if(when_SmartDispatcher_l398) begin
         sim_fsmStateId = 3'b001;
       end else begin
-        if(when_SmartDispatcher_l405) begin
+        if(when_SmartDispatcher_l399) begin
           sim_fsmStateId = 3'b010;
         end else begin
-          if(when_SmartDispatcher_l406) begin
+          if(when_SmartDispatcher_l400) begin
             sim_fsmStateId = 3'b011;
           end else begin
-            if(when_SmartDispatcher_l407) begin
+            if(when_SmartDispatcher_l401) begin
               sim_fsmStateId = 3'b100;
             end else begin
               sim_fsmStateId = 3'b101;
@@ -34519,169 +36870,15 @@ module SmartDispatcher (
     end
   end
 
-  assign when_SmartDispatcher_l404 = (fsm_stateReg[fsm_1_DISPATCHING_OH_ID]);
-  assign when_SmartDispatcher_l405 = (fsm_stateReg[fsm_1_WAITING_FOR_BPU_OH_ID]);
-  assign when_SmartDispatcher_l406 = (fsm_stateReg[fsm_1_SEND_BRANCH_OH_ID]);
-  assign when_SmartDispatcher_l407 = (fsm_stateReg[fsm_1_DRAINING_BPU_OH_ID]);
+  assign when_SmartDispatcher_l398 = (fsm_stateReg[fsm_1_DISPATCHING_OH_ID]);
+  assign when_SmartDispatcher_l399 = (fsm_stateReg[fsm_1_WAITING_FOR_BPU_OH_ID]);
+  assign when_SmartDispatcher_l400 = (fsm_stateReg[fsm_1_SEND_BRANCH_OH_ID]);
+  assign when_SmartDispatcher_l401 = (fsm_stateReg[fsm_1_DRAINING_BPU_OH_ID]);
   always @(posedge clk) begin
     if(reset) begin
       cycleReg <= 32'h0;
-      isBusyReg <= 1'b0;
-      dispatchIndexReg <= 2'b00;
-      bpuInFlightCounterReg <= 3'b000;
-      bpuTransIdCounterReg <= 3'b000;
-      fsm_stateReg <= fsm_1_BOOT;
-    end else begin
-      cycleReg <= (cycleReg + 32'h00000001);
-      if(io_bpuQuery_valid) begin
-        bpuInFlightCounterReg <= (bpuInFlightCounterReg + 3'b001);
-        bpuTransIdCounterReg <= (bpuTransIdCounterReg + 3'b001);
-      end
-      if(io_bpuRsp_valid) begin
-        bpuInFlightCounterReg <= (bpuInFlightCounterReg - 3'b001);
-      end
-      fsm_stateReg <= fsm_stateNext;
-      (* parallel_case *)
-      case(1) // synthesis parallel_case
-        (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
-          if(!io_flush) begin
-            if(io_fetchGroupIn_fire) begin
-              isBusyReg <= 1'b1;
-              dispatchIndexReg <= io_fetchGroupIn_payload_startInstructionIndex;
-              if(when_SmartDispatcher_l137) begin
-                isBusyReg <= 1'b0;
-                dispatchIndexReg <= 2'b00;
-              end else begin
-                if(when_SmartDispatcher_l149) begin
-                  if(io_fetchOutput_ready) begin
-                    if(_zz_io_fetchOutput_payload_predecode_isDirectJump) begin
-                      `ifndef SYNTHESIS
-                        `ifdef FORMAL
-                          assert(1'b0); // SmartDispatcher.scala:L163
-                        `else
-                          if(!1'b0) begin
-                            $display("NOTE(SmartDispatcher.scala:163):  DISPATCHER-IDLE: First instruction is a direct jump. Redirecting to 0x%x.", io_softRedirect_payload); // SmartDispatcher.scala:L163
-                          end
-                        `endif
-                      `endif
-                      dispatchIndexReg <= 2'b00;
-                      isBusyReg <= 1'b0;
-                    end else begin
-                      if(when_SmartDispatcher_l172) begin
-                        isBusyReg <= 1'b0;
-                        dispatchIndexReg <= 2'b00;
-                      end else begin
-                        dispatchIndexReg <= (io_fetchGroupIn_payload_startInstructionIndex + 2'b01);
-                      end
-                    end
-                  end
-                end
-              end
-            end
-          end
-        end
-        (fsm_stateReg[fsm_1_DISPATCHING_OH_ID]) : begin
-          if(io_flush) begin
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(1'b0); // SmartDispatcher.scala:L217
-              `else
-                if(!1'b0) begin
-                  $display("NOTE(SmartDispatcher.scala:217):  [notice] [33mDISPATCHER: Flush received in DISPATCHING. -> DRAINING_BPU[0m"); // SmartDispatcher.scala:L217
-                end
-              `endif
-            `endif
-          end else begin
-            if(isBusyReg) begin
-              if(fetchGroupReg_fault) begin
-                isBusyReg <= 1'b0;
-                dispatchIndexReg <= 2'b00;
-              end else begin
-                if(!when_SmartDispatcher_l229) begin
-                  if(io_fetchOutput_ready) begin
-                    if(when_SmartDispatcher_l261) begin
-                      isBusyReg <= 1'b0;
-                      dispatchIndexReg <= 2'b00;
-                    end else begin
-                      dispatchIndexReg <= (dispatchIndexReg + 2'b01);
-                    end
-                  end
-                end
-              end
-            end
-          end
-        end
-        (fsm_stateReg[fsm_1_WAITING_FOR_BPU_OH_ID]) : begin
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // SmartDispatcher.scala:L282
-            `else
-              if(!1'b0) begin
-                $display("NOTE(SmartDispatcher.scala:282):  DISPATCH-WAIT-DEBUG: Current State (BEFORE flush check): io.flush=%x, io.bpuRsp.valid=%x, io.bpuRsp.payload.transactionId=%x, pendingTID=%x", io_flush, io_bpuRsp_valid, io_bpuRsp_payload_transactionId, pendingBpuQueryReg_bpuTransactionId); // SmartDispatcher.scala:L282
-              end
-            `endif
-          `endif
-          if(io_flush) begin
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(1'b0); // SmartDispatcher.scala:L284
-              `else
-                if(!1'b0) begin
-                  $display("NOTE(SmartDispatcher.scala:284):  [notice] [33mDISPATCHER: Flushing while WAITING_FOR_BPU. -> DRAINING_BPU[0m"); // SmartDispatcher.scala:L284
-                end
-              `endif
-            `endif
-          end else begin
-            if(when_SmartDispatcher_l290) begin
-              `ifndef SYNTHESIS
-                `ifdef FORMAL
-                  assert(1'b0); // SmartDispatcher.scala:L291
-                `else
-                  if(!1'b0) begin
-                    $display("NOTE(SmartDispatcher.scala:291):  DISPATCH-WAIT: BPU Rsp mismatch because: valid=%x, transactionId=%x, pending=%x", io_bpuRsp_valid, io_bpuRsp_payload_transactionId, pendingBpuQueryReg_bpuTransactionId); // SmartDispatcher.scala:L291
-                  end
-                `endif
-              `endif
-            end
-          end
-        end
-        (fsm_stateReg[fsm_1_SEND_BRANCH_OH_ID]) : begin
-          if(io_flush) begin
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(1'b0); // SmartDispatcher.scala:L326
-              `else
-                if(!1'b0) begin
-                  $display("NOTE(SmartDispatcher.scala:326):  [notice] [33mDISPATCHER: Flush received in SEND_BRANCH. -> DRAINING_BPU[0m"); // SmartDispatcher.scala:L326
-                end
-              `endif
-            `endif
-          end else begin
-            if(io_fetchOutput_fire) begin
-              if(when_SmartDispatcher_l348) begin
-                isBusyReg <= 1'b0;
-                dispatchIndexReg <= 2'b00;
-              end else begin
-                dispatchIndexReg <= (dispatchIndexReg + 2'b01);
-              end
-            end
-          end
-        end
-        (fsm_stateReg[fsm_1_DRAINING_BPU_OH_ID]) : begin
-          if(when_SmartDispatcher_l369) begin
-            isBusyReg <= 1'b0;
-            dispatchIndexReg <= 2'b00;
-          end
-        end
-        default : begin
-        end
-      endcase
-    end
-  end
-
-  always @(posedge clk) begin
-    if(io_flush) begin
       fetchGroupReg_pc <= 32'h0;
+      fetchGroupReg_firstPc <= 32'h0;
       fetchGroupReg_instructions_0 <= 32'h0;
       fetchGroupReg_instructions_1 <= 32'h0;
       fetchGroupReg_instructions_2 <= 32'h0;
@@ -34710,43 +36907,751 @@ module SmartDispatcher (
       fetchGroupReg_fault <= 1'b0;
       fetchGroupReg_numValidInstructions <= 3'b000;
       fetchGroupReg_startInstructionIndex <= 2'b00;
+      fetchGroupReg_potentialJumpTargets_0 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      fetchGroupReg_potentialJumpTargets_1 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      fetchGroupReg_potentialJumpTargets_2 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      fetchGroupReg_potentialJumpTargets_3 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      isBusyReg <= 1'b0;
+      dispatchIndexReg <= 2'b00;
+      bpuInFlightCounterReg <= 3'b000;
+      bpuTransIdCounterReg <= 3'b000;
+      pendingBpuQueryReg_pc <= 32'h0;
+      pendingBpuQueryReg_instruction <= 32'h0;
+      pendingBpuQueryReg_predecodeInfo_isBranch <= 1'b0;
+      pendingBpuQueryReg_predecodeInfo_isJump <= 1'b0;
+      pendingBpuQueryReg_predecodeInfo_isDirectJump <= 1'b0;
+      pendingBpuQueryReg_predecodeInfo_jumpOffset <= 32'h0;
+      pendingBpuQueryReg_predecodeInfo_isIdle <= 1'b0;
+      pendingBpuQueryReg_bpuTransactionId <= 3'b000;
+      fetchGroupReg_numValidInstructions_regNext <= 3'b000;
+      fsm_stateReg <= fsm_1_BOOT;
+    end else begin
+      cycleReg <= (cycleReg + 32'h00000001);
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // SmartDispatcher.scala:L27
+        `else
+          if(!1'b0) begin
+            $display("NOTE(SmartDispatcher.scala:27):  ------ RAW INSTR DISPATCHER CYCLE: %x", cycleReg); // SmartDispatcher.scala:L27
+          end
+        `endif
+      `endif
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // SmartDispatcher.scala:L67
+        `else
+          if(!1'b0) begin
+            $display("NOTE(SmartDispatcher.scala:67):    ------ RAW INSTR DISPATCHER CYCLE: %x ------", cycleReg); // SmartDispatcher.scala:L67
+          end
+        `endif
+      `endif
+      fetchGroupReg_numValidInstructions_regNext <= fetchGroupReg_numValidInstructions;
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // SmartDispatcher.scala:L68
+        `else
+          if(!1'b0) begin
+            $display("NOTE(SmartDispatcher.scala:68):    DEBUG-VALID: fetchGroupReg numValidInstructions is %x, last cycle it is %x", fetchGroupReg_numValidInstructions, fetchGroupReg_numValidInstructions_regNext); // SmartDispatcher.scala:L68
+          end
+        `endif
+      `endif
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // SmartDispatcher.scala:L69
+        `else
+          if(!1'b0) begin
+            $display("NOTE(SmartDispatcher.scala:69):    DEBUG: currentPc=0x%x, currentInstructionReg=0x%x, currentPredecodeReg.isBranch=%x, currentPredecodeReg.isDirectJump=%x", currentPcReg, currentInstructionReg, currentPredecodeReg_isBranch, currentPredecodeReg_isDirectJump); // SmartDispatcher.scala:L69
+          end
+        `endif
+      `endif
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // SmartDispatcher.scala:L70
+        `else
+          if(!1'b0) begin
+            $display("NOTE(SmartDispatcher.scala:70):    DEBUG: fetchGroupReg.numValidInstructions=%x, dispatchIndexReg=%x", fetchGroupReg_numValidInstructions, dispatchIndexReg); // SmartDispatcher.scala:L70
+          end
+        `endif
+      `endif
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // SmartDispatcher.scala:L71
+        `else
+          if(!1'b0) begin
+            $display("NOTE(SmartDispatcher.scala:71):    DEBUG: isLastInstruction=%x", isLastInstructionReg); // SmartDispatcher.scala:L71
+          end
+        `endif
+      `endif
+      if(io_flush) begin
+        fetchGroupReg_pc <= 32'h0;
+        fetchGroupReg_firstPc <= 32'h0;
+        fetchGroupReg_instructions_0 <= 32'h0;
+        fetchGroupReg_instructions_1 <= 32'h0;
+        fetchGroupReg_instructions_2 <= 32'h0;
+        fetchGroupReg_instructions_3 <= 32'h0;
+        fetchGroupReg_predecodeInfos_0_isBranch <= 1'b0;
+        fetchGroupReg_predecodeInfos_0_isJump <= 1'b0;
+        fetchGroupReg_predecodeInfos_0_isDirectJump <= 1'b0;
+        fetchGroupReg_predecodeInfos_0_jumpOffset <= 32'h0;
+        fetchGroupReg_predecodeInfos_0_isIdle <= 1'b0;
+        fetchGroupReg_predecodeInfos_1_isBranch <= 1'b0;
+        fetchGroupReg_predecodeInfos_1_isJump <= 1'b0;
+        fetchGroupReg_predecodeInfos_1_isDirectJump <= 1'b0;
+        fetchGroupReg_predecodeInfos_1_jumpOffset <= 32'h0;
+        fetchGroupReg_predecodeInfos_1_isIdle <= 1'b0;
+        fetchGroupReg_predecodeInfos_2_isBranch <= 1'b0;
+        fetchGroupReg_predecodeInfos_2_isJump <= 1'b0;
+        fetchGroupReg_predecodeInfos_2_isDirectJump <= 1'b0;
+        fetchGroupReg_predecodeInfos_2_jumpOffset <= 32'h0;
+        fetchGroupReg_predecodeInfos_2_isIdle <= 1'b0;
+        fetchGroupReg_predecodeInfos_3_isBranch <= 1'b0;
+        fetchGroupReg_predecodeInfos_3_isJump <= 1'b0;
+        fetchGroupReg_predecodeInfos_3_isDirectJump <= 1'b0;
+        fetchGroupReg_predecodeInfos_3_jumpOffset <= 32'h0;
+        fetchGroupReg_predecodeInfos_3_isIdle <= 1'b0;
+        fetchGroupReg_branchMask <= 4'b0000;
+        fetchGroupReg_fault <= 1'b0;
+        fetchGroupReg_numValidInstructions <= 3'b000;
+        fetchGroupReg_startInstructionIndex <= 2'b00;
+        fetchGroupReg_potentialJumpTargets_0 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+        fetchGroupReg_potentialJumpTargets_1 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+        fetchGroupReg_potentialJumpTargets_2 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+        fetchGroupReg_potentialJumpTargets_3 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      end
+      if(io_bpuQuery_valid) begin
+        bpuInFlightCounterReg <= (bpuInFlightCounterReg + 3'b001);
+        bpuTransIdCounterReg <= (bpuTransIdCounterReg + 3'b001);
+      end
+      if(io_bpuRsp_valid) begin
+        bpuInFlightCounterReg <= (bpuInFlightCounterReg - 3'b001);
+      end
+      fsm_stateReg <= fsm_stateNext;
+      (* parallel_case *)
+      case(1) // synthesis parallel_case
+        (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
+          if(io_flush) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // SmartDispatcher.scala:L99
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(SmartDispatcher.scala:99):  DISPATCHER-IDLE: Flush asserted, remaining in IDLE."); // SmartDispatcher.scala:L99
+                end
+              `endif
+            `endif
+          end else begin
+            if(io_fetchGroupIn_fire) begin
+              fetchGroupReg_pc <= io_fetchGroupIn_payload_pc;
+              fetchGroupReg_firstPc <= io_fetchGroupIn_payload_firstPc;
+              fetchGroupReg_instructions_0 <= io_fetchGroupIn_payload_instructions_0;
+              fetchGroupReg_instructions_1 <= io_fetchGroupIn_payload_instructions_1;
+              fetchGroupReg_instructions_2 <= io_fetchGroupIn_payload_instructions_2;
+              fetchGroupReg_instructions_3 <= io_fetchGroupIn_payload_instructions_3;
+              fetchGroupReg_predecodeInfos_0_isBranch <= io_fetchGroupIn_payload_predecodeInfos_0_isBranch;
+              fetchGroupReg_predecodeInfos_0_isJump <= io_fetchGroupIn_payload_predecodeInfos_0_isJump;
+              fetchGroupReg_predecodeInfos_0_isDirectJump <= io_fetchGroupIn_payload_predecodeInfos_0_isDirectJump;
+              fetchGroupReg_predecodeInfos_0_jumpOffset <= io_fetchGroupIn_payload_predecodeInfos_0_jumpOffset;
+              fetchGroupReg_predecodeInfos_0_isIdle <= io_fetchGroupIn_payload_predecodeInfos_0_isIdle;
+              fetchGroupReg_predecodeInfos_1_isBranch <= io_fetchGroupIn_payload_predecodeInfos_1_isBranch;
+              fetchGroupReg_predecodeInfos_1_isJump <= io_fetchGroupIn_payload_predecodeInfos_1_isJump;
+              fetchGroupReg_predecodeInfos_1_isDirectJump <= io_fetchGroupIn_payload_predecodeInfos_1_isDirectJump;
+              fetchGroupReg_predecodeInfos_1_jumpOffset <= io_fetchGroupIn_payload_predecodeInfos_1_jumpOffset;
+              fetchGroupReg_predecodeInfos_1_isIdle <= io_fetchGroupIn_payload_predecodeInfos_1_isIdle;
+              fetchGroupReg_predecodeInfos_2_isBranch <= io_fetchGroupIn_payload_predecodeInfos_2_isBranch;
+              fetchGroupReg_predecodeInfos_2_isJump <= io_fetchGroupIn_payload_predecodeInfos_2_isJump;
+              fetchGroupReg_predecodeInfos_2_isDirectJump <= io_fetchGroupIn_payload_predecodeInfos_2_isDirectJump;
+              fetchGroupReg_predecodeInfos_2_jumpOffset <= io_fetchGroupIn_payload_predecodeInfos_2_jumpOffset;
+              fetchGroupReg_predecodeInfos_2_isIdle <= io_fetchGroupIn_payload_predecodeInfos_2_isIdle;
+              fetchGroupReg_predecodeInfos_3_isBranch <= io_fetchGroupIn_payload_predecodeInfos_3_isBranch;
+              fetchGroupReg_predecodeInfos_3_isJump <= io_fetchGroupIn_payload_predecodeInfos_3_isJump;
+              fetchGroupReg_predecodeInfos_3_isDirectJump <= io_fetchGroupIn_payload_predecodeInfos_3_isDirectJump;
+              fetchGroupReg_predecodeInfos_3_jumpOffset <= io_fetchGroupIn_payload_predecodeInfos_3_jumpOffset;
+              fetchGroupReg_predecodeInfos_3_isIdle <= io_fetchGroupIn_payload_predecodeInfos_3_isIdle;
+              fetchGroupReg_branchMask <= io_fetchGroupIn_payload_branchMask;
+              fetchGroupReg_fault <= io_fetchGroupIn_payload_fault;
+              fetchGroupReg_numValidInstructions <= io_fetchGroupIn_payload_numValidInstructions;
+              fetchGroupReg_startInstructionIndex <= io_fetchGroupIn_payload_startInstructionIndex;
+              fetchGroupReg_potentialJumpTargets_0 <= io_fetchGroupIn_payload_potentialJumpTargets_0;
+              fetchGroupReg_potentialJumpTargets_1 <= io_fetchGroupIn_payload_potentialJumpTargets_1;
+              fetchGroupReg_potentialJumpTargets_2 <= io_fetchGroupIn_payload_potentialJumpTargets_2;
+              fetchGroupReg_potentialJumpTargets_3 <= io_fetchGroupIn_payload_potentialJumpTargets_3;
+              isBusyReg <= 1'b1;
+              dispatchIndexReg <= io_fetchGroupIn_payload_startInstructionIndex;
+              `ifndef SYNTHESIS
+                `ifdef FORMAL
+                  assert(1'b0); // SmartDispatcher.scala:L118
+                `else
+                  if(!1'b0) begin
+                    $display("NOTE(SmartDispatcher.scala:118):  DISPATCHER-IDLE: New Group Received. PC=0x%x.", io_fetchGroupIn_payload_pc); // SmartDispatcher.scala:L118
+                  end
+                `endif
+              `endif
+              `ifndef SYNTHESIS
+                `ifdef FORMAL
+                  assert(1'b0); // SmartDispatcher.scala:L119
+                `else
+                  if(!1'b0) begin
+                    $display("NOTE(SmartDispatcher.scala:119):    DEBUG-IDLE-LOAD-PAYLOAD: io.fetchGroupIn.payload.numValidInstructions=%x", io_fetchGroupIn_payload_numValidInstructions); // SmartDispatcher.scala:L119
+                  end
+                `endif
+              `endif
+              if(when_SmartDispatcher_l123) begin
+                `ifndef SYNTHESIS
+                  `ifdef FORMAL
+                    assert(1'b0); // SmartDispatcher.scala:L124
+                  `else
+                    if(!1'b0) begin
+                      $display("NOTE(SmartDispatcher.scala:124):  DISPATCHER-IDLE: Received empty FetchGroup (numValidInstructions=0). Going back to IDLE."); // SmartDispatcher.scala:L124
+                    end
+                  `endif
+                `endif
+                isBusyReg <= 1'b0;
+                dispatchIndexReg <= 2'b00;
+              end else begin
+                `ifndef SYNTHESIS
+                  `ifdef FORMAL
+                    assert(1'b0); // SmartDispatcher.scala:L137
+                  `else
+                    if(!1'b0) begin
+                      $display("NOTE(SmartDispatcher.scala:137):  DISPATCHER-IDLE: Analyzing first instruction (PC=0x%x, isBranch=%x).", io_fetchGroupIn_payload_firstPc, _zz_io_fetchOutput_payload_predecode_isBranch); // SmartDispatcher.scala:L137
+                    end
+                  `endif
+                `endif
+                if(when_SmartDispatcher_l140) begin
+                  `ifndef SYNTHESIS
+                    `ifdef FORMAL
+                      assert(1'b0); // SmartDispatcher.scala:L141
+                    `else
+                      if(!1'b0) begin
+                        $display("NOTE(SmartDispatcher.scala:141):  DISPATCHER-IDLE: First instruction is Fast Path. PC=0x%x", io_fetchGroupIn_payload_firstPc); // SmartDispatcher.scala:L141
+                      end
+                    `endif
+                  `endif
+                  if(io_fetchOutput_ready) begin
+                    `ifndef SYNTHESIS
+                      `ifdef FORMAL
+                        assert(1'b0); // SmartDispatcher.scala:L150
+                      `else
+                        if(!1'b0) begin
+                          $display("NOTE(SmartDispatcher.scala:150):  DISPATCHER-IDLE: First instruction (fast path) fired."); // SmartDispatcher.scala:L150
+                        end
+                      `endif
+                    `endif
+                    if(_zz_io_fetchOutput_payload_predecode_isDirectJump) begin
+                      `ifndef SYNTHESIS
+                        `ifdef FORMAL
+                          assert(1'b0); // SmartDispatcher.scala:L154
+                        `else
+                          if(!1'b0) begin
+                            $display("NOTE(SmartDispatcher.scala:154):  DISPATCHER-IDLE: First instruction is a direct jump. Redirecting to 0x%x.", io_softRedirect_payload); // SmartDispatcher.scala:L154
+                          end
+                        `endif
+                      `endif
+                      dispatchIndexReg <= 2'b00;
+                      isBusyReg <= 1'b0;
+                    end else begin
+                      `ifndef SYNTHESIS
+                        `ifdef FORMAL
+                          assert(1'b0); // SmartDispatcher.scala:L161
+                        `else
+                          if(!1'b0) begin
+                            $display("NOTE(SmartDispatcher.scala:161):    DEBUG-IDLE-FIRST-ISLAST: group.numValidInstructions=%x, isFirstInstructionLast=%x beacuse startIdx=%x", io_fetchGroupIn_payload_numValidInstructions, when_SmartDispatcher_l163, io_fetchGroupIn_payload_startInstructionIndex); // SmartDispatcher.scala:L161
+                          end
+                        `endif
+                      `endif
+                      if(when_SmartDispatcher_l163) begin
+                        `ifndef SYNTHESIS
+                          `ifdef FORMAL
+                            assert(1'b0); // SmartDispatcher.scala:L164
+                          `else
+                            if(!1'b0) begin
+                              $display("NOTE(SmartDispatcher.scala:164):    DEBUG-IDLE-FAST: First instruction is last in group (not branch/redirect), Group finished. -> IDLE"); // SmartDispatcher.scala:L164
+                            end
+                          `endif
+                        `endif
+                        isBusyReg <= 1'b0;
+                        dispatchIndexReg <= 2'b00;
+                      end else begin
+                        dispatchIndexReg <= (io_fetchGroupIn_payload_startInstructionIndex + 2'b01);
+                        `ifndef SYNTHESIS
+                          `ifdef FORMAL
+                            assert(1'b0); // SmartDispatcher.scala:L170
+                          `else
+                            if(!1'b0) begin
+                              $display("NOTE(SmartDispatcher.scala:170):    DEBUG-IDLE-FAST: dispatchIndexReg set to %x + 1, FSM to DISPATCHING", dispatchIndexReg); // SmartDispatcher.scala:L170
+                            end
+                          `endif
+                        `endif
+                      end
+                    end
+                  end else begin
+                    `ifndef SYNTHESIS
+                      `ifdef FORMAL
+                        assert(1'b0); // SmartDispatcher.scala:L175
+                      `else
+                        if(!1'b0) begin
+                          $display("NOTE(SmartDispatcher.scala:175):  DISPATCHER-IDLE: First instruction (fast path) stalled. -> SEND_BRANCH"); // SmartDispatcher.scala:L175
+                        end
+                      `endif
+                    `endif
+                    `ifndef SYNTHESIS
+                      `ifdef FORMAL
+                        assert(1'b0); // SmartDispatcher.scala:L176
+                      `else
+                        if(!1'b0) begin
+                          $display("NOTE(SmartDispatcher.scala:176):    DEBUG-IDLE-STALL: FSM to SEND_BRANCH"); // SmartDispatcher.scala:L176
+                        end
+                      `endif
+                    `endif
+                  end
+                end else begin
+                  `ifndef SYNTHESIS
+                    `ifdef FORMAL
+                      assert(1'b0); // SmartDispatcher.scala:L189
+                    `else
+                      if(!1'b0) begin
+                        $display("NOTE(SmartDispatcher.scala:189):  DISPATCHER-IDLE: First instruction is Slow Path. PC=0x%x", io_fetchGroupIn_payload_firstPc); // SmartDispatcher.scala:L189
+                      end
+                    `endif
+                  `endif
+                  pendingBpuQueryReg_pc <= io_fetchGroupIn_payload_firstPc;
+                  pendingBpuQueryReg_instruction <= _zz_io_fetchOutput_payload_instruction;
+                  pendingBpuQueryReg_predecodeInfo_isBranch <= _zz_io_fetchOutput_payload_predecode_isBranch;
+                  pendingBpuQueryReg_predecodeInfo_isJump <= _zz_io_fetchOutput_payload_predecode_isJump;
+                  pendingBpuQueryReg_predecodeInfo_isDirectJump <= _zz_io_fetchOutput_payload_predecode_isDirectJump;
+                  pendingBpuQueryReg_predecodeInfo_jumpOffset <= _zz_io_fetchOutput_payload_predecode_jumpOffset;
+                  pendingBpuQueryReg_predecodeInfo_isIdle <= _zz_io_fetchOutput_payload_predecode_isIdle;
+                  pendingBpuQueryReg_bpuTransactionId <= bpuTransIdCounterReg;
+                  `ifndef SYNTHESIS
+                    `ifdef FORMAL
+                      assert(1'b0); // SmartDispatcher.scala:L200
+                    `else
+                      if(!1'b0) begin
+                        $display("NOTE(SmartDispatcher.scala:200):  [notice] [33mDISPATCHER-IDLE: BPU Query sent for first instruction. -> WAITING_FOR_BPU[0m"); // SmartDispatcher.scala:L200
+                      end
+                    `endif
+                  `endif
+                end
+              end
+            end
+          end
+        end
+        (fsm_stateReg[fsm_1_DISPATCHING_OH_ID]) : begin
+          if(io_flush) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // SmartDispatcher.scala:L209
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(SmartDispatcher.scala:209):  [notice] [33mDISPATCHER: Flush received in DISPATCHING. -> DRAINING_BPU[0m"); // SmartDispatcher.scala:L209
+                end
+              `endif
+            `endif
+          end else begin
+            if(isBusyReg) begin
+              if(fetchGroupReg_fault) begin
+                `ifndef SYNTHESIS
+                  `ifdef FORMAL
+                    assert(1'b0); // SmartDispatcher.scala:L217
+                  `else
+                    if(!1'b0) begin
+                      $display("NOTE(SmartDispatcher.scala:217):  DISPATCHER: Discarding faulted group PC=0x%x. -> IDLE", fetchGroupReg_pc); // SmartDispatcher.scala:L217
+                    end
+                  `endif
+                `endif
+                isBusyReg <= 1'b0;
+                dispatchIndexReg <= 2'b00;
+              end else begin
+                if(when_SmartDispatcher_l221) begin
+                  `ifndef SYNTHESIS
+                    `ifdef FORMAL
+                      assert(1'b0); // SmartDispatcher.scala:L222
+                    `else
+                      if(!1'b0) begin
+                        $display("NOTE(SmartDispatcher.scala:222):  DISPATCHER: Complex Branch detected at PC=0x%x. -> QUERY_BPU", currentPcReg); // SmartDispatcher.scala:L222
+                      end
+                    `endif
+                  `endif
+                  pendingBpuQueryReg_pc <= currentPcReg;
+                  pendingBpuQueryReg_instruction <= currentInstructionReg;
+                  pendingBpuQueryReg_predecodeInfo_isBranch <= currentPredecodeReg_isBranch;
+                  pendingBpuQueryReg_predecodeInfo_isJump <= currentPredecodeReg_isJump;
+                  pendingBpuQueryReg_predecodeInfo_isDirectJump <= currentPredecodeReg_isDirectJump;
+                  pendingBpuQueryReg_predecodeInfo_jumpOffset <= currentPredecodeReg_jumpOffset;
+                  pendingBpuQueryReg_predecodeInfo_isIdle <= currentPredecodeReg_isIdle;
+                  pendingBpuQueryReg_bpuTransactionId <= bpuTransIdCounterReg;
+                  `ifndef SYNTHESIS
+                    `ifdef FORMAL
+                      assert(1'b0); // SmartDispatcher.scala:L232
+                    `else
+                      if(!1'b0) begin
+                        $display("NOTE(SmartDispatcher.scala:232):  DISPATCH-BURST: BPU Query sent for PC=0x%x. -> WAITING_FOR_BPU", currentPcReg); // SmartDispatcher.scala:L232
+                      end
+                    `endif
+                  `endif
+                end else begin
+                  if(io_fetchOutput_ready) begin
+                    `ifndef SYNTHESIS
+                      `ifdef FORMAL
+                        assert(1'b0); // SmartDispatcher.scala:L244
+                      `else
+                        if(!1'b0) begin
+                          $display("NOTE(SmartDispatcher.scala:244):  DISPATCH-BURST: Fired PC=0x%x. isLast=%x, redirecting=%x", currentPcReg, isLastInstructionReg, currentPredecodeReg_isDirectJump); // SmartDispatcher.scala:L244
+                        end
+                      `endif
+                    `endif
+                    if(when_SmartDispatcher_l254) begin
+                      `ifndef SYNTHESIS
+                        `ifdef FORMAL
+                          assert(1'b0); // SmartDispatcher.scala:L255
+                        `else
+                          if(!1'b0) begin
+                            $display("NOTE(SmartDispatcher.scala:255):    DEBUG-DISPATCH-END: isLastInstruction=%x, redirecting=%x. Group finished. -> IDLE", isLastInstructionReg, currentPredecodeReg_isDirectJump); // SmartDispatcher.scala:L255
+                          end
+                        `endif
+                      `endif
+                      isBusyReg <= 1'b0;
+                      dispatchIndexReg <= 2'b00;
+                    end else begin
+                      dispatchIndexReg <= (dispatchIndexReg + 2'b01);
+                      `ifndef SYNTHESIS
+                        `ifdef FORMAL
+                          assert(1'b0); // SmartDispatcher.scala:L261
+                        `else
+                          if(!1'b0) begin
+                            $display("NOTE(SmartDispatcher.scala:261):    DEBUG-DISPATCH-CONT: dispatchIndexReg set to %x + 1. Staying in DISPATCHING", dispatchIndexReg); // SmartDispatcher.scala:L261
+                          end
+                        `endif
+                      `endif
+                    end
+                  end else begin
+                    `ifndef SYNTHESIS
+                      `ifdef FORMAL
+                        assert(1'b0); // SmartDispatcher.scala:L265
+                      `else
+                        if(!1'b0) begin
+                          $display("NOTE(SmartDispatcher.scala:265):  DISPATCH-BURST: Stalled for PC=0x%x", currentPcReg); // SmartDispatcher.scala:L265
+                        end
+                      `endif
+                    `endif
+                  end
+                end
+              end
+            end else begin
+              `ifndef SYNTHESIS
+                `ifdef FORMAL
+                  assert(1'b0); // SmartDispatcher.scala:L269
+                `else
+                  if(!1'b0) begin
+                    $display("NOTE(SmartDispatcher.scala:269):  DISPATCHER-WARNING: isBusyReg is false but FSM is in DISPATCHING state. -> IDLE"); // SmartDispatcher.scala:L269
+                  end
+                `endif
+              `endif
+            end
+          end
+        end
+        (fsm_stateReg[fsm_1_WAITING_FOR_BPU_OH_ID]) : begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // SmartDispatcher.scala:L275
+            `else
+              if(!1'b0) begin
+                $display("NOTE(SmartDispatcher.scala:275):  DISPATCH-WAIT-DEBUG: Current State (BEFORE flush check): io.flush=%x, io.bpuRsp.valid=%x, io.bpuRsp.payload.transactionId=%x, pendingTID=%x", io_flush, io_bpuRsp_valid, io_bpuRsp_payload_transactionId, pendingBpuQueryReg_bpuTransactionId); // SmartDispatcher.scala:L275
+              end
+            `endif
+          `endif
+          if(io_flush) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // SmartDispatcher.scala:L277
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(SmartDispatcher.scala:277):  [notice] [33mDISPATCHER: Flushing while WAITING_FOR_BPU. -> DRAINING_BPU[0m"); // SmartDispatcher.scala:L277
+                end
+              `endif
+            `endif
+          end else begin
+            if(when_SmartDispatcher_l283) begin
+              `ifndef SYNTHESIS
+                `ifdef FORMAL
+                  assert(1'b0); // SmartDispatcher.scala:L284
+                `else
+                  if(!1'b0) begin
+                    $display("NOTE(SmartDispatcher.scala:284):  DISPATCH-WAIT: BPU Rsp mismatch because: valid=%x, transactionId=%x, pending=%x", io_bpuRsp_valid, io_bpuRsp_payload_transactionId, pendingBpuQueryReg_bpuTransactionId); // SmartDispatcher.scala:L284
+                  end
+                `endif
+              `endif
+            end
+            if(when_SmartDispatcher_l288) begin
+              `ifndef SYNTHESIS
+                `ifdef FORMAL
+                  assert(1'b0); // SmartDispatcher.scala:L289
+                `else
+                  if(!1'b0) begin
+                    $display("NOTE(SmartDispatcher.scala:289):  DISPATCH-WAIT: Waiting BPU Rsp for PC=0x%x, TID=%x", pendingBpuQueryReg_pc, pendingBpuQueryReg_bpuTransactionId); // SmartDispatcher.scala:L289
+                  end
+                `endif
+              `endif
+            end
+            if(when_SmartDispatcher_l294) begin
+              `ifndef SYNTHESIS
+                `ifdef FORMAL
+                  assert(1'b0); // SmartDispatcher.scala:L296
+                `else
+                  if(!1'b0) begin
+                    $display("NOTE(SmartDispatcher.scala:296):  [notice] [33mDISPATCH-WAIT: BPU Rsp Match! PC=0x%x, Taken=%x. -> SEND_BRANCH[0m", pendingBpuQueryReg_pc, io_bpuRsp_payload_isTaken); // SmartDispatcher.scala:L296
+                  end
+                `endif
+              `endif
+              `ifndef SYNTHESIS
+                `ifdef FORMAL
+                  assert(1'b0); // SmartDispatcher.scala:L310
+                `else
+                  if(!1'b0) begin
+                    $display("NOTE(SmartDispatcher.scala:310):    DEBUG-OUTPUT-REG-UPDATED: outputReg.bpuPrediction.isTaken_ASSIGNED=%x, PC_ASSIGNED=%x", io_bpuRsp_payload_isTaken, pendingBpuQueryReg_pc); // SmartDispatcher.scala:L310
+                  end
+                `endif
+              `endif
+              `ifndef SYNTHESIS
+                `ifdef FORMAL
+                  assert(1'b0); // SmartDispatcher.scala:L311
+                `else
+                  if(!1'b0) begin
+                    $display("NOTE(SmartDispatcher.scala:311):    DEBUG-OUTPUT-REG-UPDATED: outputReg.bpuPrediction.isTaken_REG_OUT=%x, PC_REG_OUT=%x", outputReg_bpuPrediction_isTaken, outputReg_pc); // SmartDispatcher.scala:L311
+                  end
+                `endif
+              `endif
+            end
+          end
+        end
+        (fsm_stateReg[fsm_1_SEND_BRANCH_OH_ID]) : begin
+          if(io_flush) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // SmartDispatcher.scala:L320
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(SmartDispatcher.scala:320):  [notice] [33mDISPATCHER: Flush received in SEND_BRANCH. -> DRAINING_BPU[0m"); // SmartDispatcher.scala:L320
+                end
+              `endif
+            `endif
+          end else begin
+            if(io_fetchOutput_fire) begin
+              `ifndef SYNTHESIS
+                `ifdef FORMAL
+                  assert(1'b0); // SmartDispatcher.scala:L328
+                `else
+                  if(!1'b0) begin
+                    $display("NOTE(SmartDispatcher.scala:328):  DISPATCH-SEND: Fired Branch/Stalled-FastPath PC=0x%x", outputReg_pc); // SmartDispatcher.scala:L328
+                  end
+                `endif
+              `endif
+              `ifndef SYNTHESIS
+                `ifdef FORMAL
+                  assert(1'b0); // SmartDispatcher.scala:L329
+                `else
+                  if(!1'b0) begin
+                    $display("NOTE(SmartDispatcher.scala:329):    DEBUG-OUTPUT-FIRED: outputReg.bpuPrediction.isTaken=%x, PC=0x%x", outputReg_bpuPrediction_isTaken, outputReg_pc); // SmartDispatcher.scala:L329
+                  end
+                `endif
+              `endif
+              if(when_SmartDispatcher_l332) begin
+                `ifndef SYNTHESIS
+                  `ifdef FORMAL
+                    assert(1'b0); // SmartDispatcher.scala:L339
+                  `else
+                    if(!1'b0) begin
+                      $display("NOTE(SmartDispatcher.scala:339):  DISPATCH-SEND: Soft redirect triggered to 0x%x", io_softRedirect_payload); // SmartDispatcher.scala:L339
+                    end
+                  `endif
+                `endif
+              end
+              if(when_SmartDispatcher_l342) begin
+                `ifndef SYNTHESIS
+                  `ifdef FORMAL
+                    assert(1'b0); // SmartDispatcher.scala:L343
+                  `else
+                    if(!1'b0) begin
+                      $display("NOTE(SmartDispatcher.scala:343):    DEBUG-SEND-END: isLastInstruction=%x, redirecting=%x. Group finished. -> IDLE", isLastInstructionReg, when_SmartDispatcher_l332); // SmartDispatcher.scala:L343
+                    end
+                  `endif
+                `endif
+                isBusyReg <= 1'b0;
+                `ifndef SYNTHESIS
+                  `ifdef FORMAL
+                    assert(1'b0); // SmartDispatcher.scala:L345
+                  `else
+                    if(!1'b0) begin
+                      $display("NOTE(SmartDispatcher.scala:345):  DISPATCH-SEND: Group finished. -> IDLE"); // SmartDispatcher.scala:L345
+                    end
+                  `endif
+                `endif
+                dispatchIndexReg <= 2'b00;
+              end else begin
+                dispatchIndexReg <= (dispatchIndexReg + 2'b01);
+                `ifndef SYNTHESIS
+                  `ifdef FORMAL
+                    assert(1'b0); // SmartDispatcher.scala:L350
+                  `else
+                    if(!1'b0) begin
+                      $display("NOTE(SmartDispatcher.scala:350):    DEBUG-SEND-CONT: dispatchIndexReg set to %x + 1. -> DISPATCHING", dispatchIndexReg); // SmartDispatcher.scala:L350
+                    end
+                  `endif
+                `endif
+                `ifndef SYNTHESIS
+                  `ifdef FORMAL
+                    assert(1'b0); // SmartDispatcher.scala:L351
+                  `else
+                    if(!1'b0) begin
+                      $display("NOTE(SmartDispatcher.scala:351):  DISPATCH-SEND: More instructions in group. -> DISPATCHING"); // SmartDispatcher.scala:L351
+                    end
+                  `endif
+                `endif
+              end
+            end else begin
+              `ifndef SYNTHESIS
+                `ifdef FORMAL
+                  assert(1'b0); // SmartDispatcher.scala:L355
+                `else
+                  if(!1'b0) begin
+                    $display("NOTE(SmartDispatcher.scala:355):  DISPATCH-SEND: Stalled on output. PC=0x%x", outputReg_pc); // SmartDispatcher.scala:L355
+                  end
+                `endif
+              `endif
+              `ifndef SYNTHESIS
+                `ifdef FORMAL
+                  assert(1'b0); // SmartDispatcher.scala:L356
+                `else
+                  if(!1'b0) begin
+                    $display("NOTE(SmartDispatcher.scala:356):    DEBUG-SEND-STALL: Stalled on output. PC=0x%x", outputReg_pc); // SmartDispatcher.scala:L356
+                  end
+                `endif
+              `endif
+            end
+          end
+        end
+        (fsm_stateReg[fsm_1_DRAINING_BPU_OH_ID]) : begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // SmartDispatcher.scala:L362
+            `else
+              if(!1'b0) begin
+                $display("NOTE(SmartDispatcher.scala:362):  DISPATCHER: Draining BPU requests. InFlight=%x", bpuInFlightCounterReg); // SmartDispatcher.scala:L362
+              end
+            `endif
+          `endif
+          if(when_SmartDispatcher_l363) begin
+            isBusyReg <= 1'b0;
+            dispatchIndexReg <= 2'b00;
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // SmartDispatcher.scala:L366
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(SmartDispatcher.scala:366):    DEBUG-ASSIGN: dispatchIndexReg assigned 0 from DRAINING_BPU"); // SmartDispatcher.scala:L366
+                end
+              `endif
+            `endif
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // SmartDispatcher.scala:L367
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(SmartDispatcher.scala:367):  DISPATCHER: BPU Draining complete. -> IDLE"); // SmartDispatcher.scala:L367
+                end
+              `endif
+            `endif
+          end
+        end
+        default : begin
+        end
+      endcase
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // SmartDispatcher.scala:L381
+        `else
+          if(!1'b0) begin
+            $display("NOTE(SmartDispatcher.scala:381):  DISPATCHER STATE: isBusyReg=%x, dispatchIndexReg=%x, fsmState=%s, bpuInFlight=%x", isBusyReg, dispatchIndexReg, fsm_stateReg_string, bpuInFlightCounterReg); // SmartDispatcher.scala:L381
+          end
+        `endif
+      `endif
+      if(io_fetchGroupIn_fire) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // SmartDispatcher.scala:L384
+          `else
+            if(!1'b0) begin
+              $display("NOTE(SmartDispatcher.scala:384):    -> EVENT: fetchGroupIn.fire"); // SmartDispatcher.scala:L384
+            end
+          `endif
+        `endif
+      end
+      if(io_fetchOutput_fire) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // SmartDispatcher.scala:L385
+          `else
+            if(!1'b0) begin
+              $display("NOTE(SmartDispatcher.scala:385):    -> EVENT: fetchOutput.fire"); // SmartDispatcher.scala:L385
+            end
+          `endif
+        `endif
+      end
+      if(io_bpuQuery_valid) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // SmartDispatcher.scala:L386
+          `else
+            if(!1'b0) begin
+              $display("NOTE(SmartDispatcher.scala:386):    -> EVENT: bpuQuery.fire"); // SmartDispatcher.scala:L386
+            end
+          `endif
+        `endif
+      end
+      if(io_bpuRsp_valid) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // SmartDispatcher.scala:L387
+          `else
+            if(!1'b0) begin
+              $display("NOTE(SmartDispatcher.scala:387):    -> EVENT: bpuRsp.fire"); // SmartDispatcher.scala:L387
+            end
+          `endif
+        `endif
+      end
+      if(io_softRedirect_valid) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // SmartDispatcher.scala:L388
+          `else
+            if(!1'b0) begin
+              $display("NOTE(SmartDispatcher.scala:388):    -> EVENT: softRedirect.valid"); // SmartDispatcher.scala:L388
+            end
+          `endif
+        `endif
+      end
+      if(io_flush) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // SmartDispatcher.scala:L389
+          `else
+            if(!1'b0) begin
+              $display("NOTE(SmartDispatcher.scala:389):    -> EVENT: FLUSH asserted"); // SmartDispatcher.scala:L389
+            end
+          `endif
+        `endif
+      end
     end
+  end
+
+  always @(posedge clk) begin
     (* parallel_case *)
     case(1) // synthesis parallel_case
       (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchGroupIn_fire) begin
-            fetchGroupReg_pc <= io_fetchGroupIn_payload_pc;
-            fetchGroupReg_instructions_0 <= io_fetchGroupIn_payload_instructions_0;
-            fetchGroupReg_instructions_1 <= io_fetchGroupIn_payload_instructions_1;
-            fetchGroupReg_instructions_2 <= io_fetchGroupIn_payload_instructions_2;
-            fetchGroupReg_instructions_3 <= io_fetchGroupIn_payload_instructions_3;
-            fetchGroupReg_fault <= io_fetchGroupIn_payload_fault;
-            fetchGroupReg_numValidInstructions <= io_fetchGroupIn_payload_numValidInstructions;
-            fetchGroupReg_startInstructionIndex <= io_fetchGroupIn_payload_startInstructionIndex;
-            fetchGroupReg_predecodeInfos_0_isBranch <= instructionPredecoder_4_io_predecodeInfo_isBranch;
-            fetchGroupReg_predecodeInfos_0_isJump <= instructionPredecoder_4_io_predecodeInfo_isJump;
-            fetchGroupReg_predecodeInfos_0_isDirectJump <= instructionPredecoder_4_io_predecodeInfo_isDirectJump;
-            fetchGroupReg_predecodeInfos_0_jumpOffset <= instructionPredecoder_4_io_predecodeInfo_jumpOffset;
-            fetchGroupReg_predecodeInfos_0_isIdle <= instructionPredecoder_4_io_predecodeInfo_isIdle;
-            fetchGroupReg_predecodeInfos_1_isBranch <= instructionPredecoder_5_io_predecodeInfo_isBranch;
-            fetchGroupReg_predecodeInfos_1_isJump <= instructionPredecoder_5_io_predecodeInfo_isJump;
-            fetchGroupReg_predecodeInfos_1_isDirectJump <= instructionPredecoder_5_io_predecodeInfo_isDirectJump;
-            fetchGroupReg_predecodeInfos_1_jumpOffset <= instructionPredecoder_5_io_predecodeInfo_jumpOffset;
-            fetchGroupReg_predecodeInfos_1_isIdle <= instructionPredecoder_5_io_predecodeInfo_isIdle;
-            fetchGroupReg_predecodeInfos_2_isBranch <= instructionPredecoder_6_io_predecodeInfo_isBranch;
-            fetchGroupReg_predecodeInfos_2_isJump <= instructionPredecoder_6_io_predecodeInfo_isJump;
-            fetchGroupReg_predecodeInfos_2_isDirectJump <= instructionPredecoder_6_io_predecodeInfo_isDirectJump;
-            fetchGroupReg_predecodeInfos_2_jumpOffset <= instructionPredecoder_6_io_predecodeInfo_jumpOffset;
-            fetchGroupReg_predecodeInfos_2_isIdle <= instructionPredecoder_6_io_predecodeInfo_isIdle;
-            fetchGroupReg_predecodeInfos_3_isBranch <= instructionPredecoder_7_io_predecodeInfo_isBranch;
-            fetchGroupReg_predecodeInfos_3_isJump <= instructionPredecoder_7_io_predecodeInfo_isJump;
-            fetchGroupReg_predecodeInfos_3_isDirectJump <= instructionPredecoder_7_io_predecodeInfo_isDirectJump;
-            fetchGroupReg_predecodeInfos_3_jumpOffset <= instructionPredecoder_7_io_predecodeInfo_jumpOffset;
-            fetchGroupReg_predecodeInfos_3_isIdle <= instructionPredecoder_7_io_predecodeInfo_isIdle;
-            fetchGroupReg_branchMask <= {instructionPredecoder_4_io_predecodeInfo_isBranch,{instructionPredecoder_5_io_predecodeInfo_isBranch,{instructionPredecoder_6_io_predecodeInfo_isBranch,instructionPredecoder_7_io_predecodeInfo_isBranch}}};
-            if(!when_SmartDispatcher_l137) begin
-              if(when_SmartDispatcher_l149) begin
+            if(!when_SmartDispatcher_l123) begin
+              if(when_SmartDispatcher_l140) begin
                 if(!io_fetchOutput_ready) begin
                   outputReg_pc <= io_fetchGroupIn_payload_firstPc;
                   outputReg_instruction <= _zz_io_fetchOutput_payload_instruction;
@@ -34758,42 +37663,18 @@ module SmartDispatcher (
                   outputReg_bpuPrediction_isTaken <= 1'b0;
                   outputReg_bpuPrediction_target <= 32'h0;
                   outputReg_bpuPrediction_wasPredicted <= 1'b0;
+                  outputRegJumpTarget <= _zz_io_softRedirect_payload;
                 end
-              end else begin
-                pendingBpuQueryReg_pc <= io_fetchGroupIn_payload_firstPc;
-                pendingBpuQueryReg_instruction <= _zz_io_fetchOutput_payload_instruction;
-                pendingBpuQueryReg_predecodeInfo_isBranch <= _zz_io_fetchOutput_payload_predecode_isBranch;
-                pendingBpuQueryReg_predecodeInfo_isJump <= _zz_io_fetchOutput_payload_predecode_isJump;
-                pendingBpuQueryReg_predecodeInfo_isDirectJump <= _zz_io_fetchOutput_payload_predecode_isDirectJump;
-                pendingBpuQueryReg_predecodeInfo_jumpOffset <= _zz_io_fetchOutput_payload_predecode_jumpOffset;
-                pendingBpuQueryReg_predecodeInfo_isIdle <= _zz_io_fetchOutput_payload_predecode_isIdle;
-                pendingBpuQueryReg_bpuTransactionId <= bpuTransIdCounterReg;
               end
             end
           end
         end
       end
       (fsm_stateReg[fsm_1_DISPATCHING_OH_ID]) : begin
-        if(!io_flush) begin
-          if(isBusyReg) begin
-            if(!fetchGroupReg_fault) begin
-              if(when_SmartDispatcher_l229) begin
-                pendingBpuQueryReg_pc <= currentPcReg;
-                pendingBpuQueryReg_instruction <= currentInstructionReg;
-                pendingBpuQueryReg_predecodeInfo_isBranch <= currentPredecodeReg_isBranch;
-                pendingBpuQueryReg_predecodeInfo_isJump <= currentPredecodeReg_isJump;
-                pendingBpuQueryReg_predecodeInfo_isDirectJump <= currentPredecodeReg_isDirectJump;
-                pendingBpuQueryReg_predecodeInfo_jumpOffset <= currentPredecodeReg_jumpOffset;
-                pendingBpuQueryReg_predecodeInfo_isIdle <= currentPredecodeReg_isIdle;
-                pendingBpuQueryReg_bpuTransactionId <= bpuTransIdCounterReg;
-              end
-            end
-          end
-        end
       end
       (fsm_stateReg[fsm_1_WAITING_FOR_BPU_OH_ID]) : begin
         if(!io_flush) begin
-          if(when_SmartDispatcher_l301) begin
+          if(when_SmartDispatcher_l294) begin
             outputReg_pc <= pendingBpuQueryReg_pc;
             outputReg_instruction <= pendingBpuQueryReg_instruction;
             outputReg_predecode_isBranch <= pendingBpuQueryReg_predecodeInfo_isBranch;
@@ -46875,6 +49756,8 @@ module RenameUnit (
   wire                _zz_2;
   wire                _zz_3;
   wire                _zz_4;
+  wire                _zz_5;
+  wire                _zz_6;
   (* MARK_DEBUG = "TRUE" , DONT_TOUCH = "TRUE" *) reg        [4:0]    toplevel_RenamePlugin_setup_renameUnit_debugDecodedArchSrc2;
   (* MARK_DEBUG = "TRUE" , DONT_TOUCH = "TRUE" *) reg                 toplevel_RenamePlugin_setup_renameUnit_debugDecodedUseArchSrc2;
   (* MARK_DEBUG = "TRUE" , DONT_TOUCH = "TRUE" *) reg        [5:0]    toplevel_RenamePlugin_setup_renameUnit_debugRenamedPhysSrc2;
@@ -47479,6 +50362,8 @@ module RenameUnit (
   assign _zz_2 = (io_decodedUopsIn_0_archSrc1_rtype == ArchRegType_FPR);
   assign _zz_3 = (io_decodedUopsIn_0_archSrc2_rtype == ArchRegType_FPR);
   assign _zz_4 = (io_decodedUopsIn_0_archDest_rtype == ArchRegType_FPR);
+  assign _zz_5 = (io_decodedUopsIn_0_archSrc1_rtype == ArchRegType_FPR);
+  assign _zz_6 = (io_decodedUopsIn_0_archSrc2_rtype == ArchRegType_FPR);
   always @(posedge clk) begin
     if(reset) begin
     end else begin
@@ -47492,6 +50377,18 @@ module RenameUnit (
             end
           `endif
         `endif
+      end else begin
+        if(io_decodedUopsIn_0_isValid) begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // RenameUnit.scala:L111
+            `else
+              if(!1'b0) begin
+                $display("NOTE(RenameUnit.scala:111):  [RegRes|RenameUnit] Mapping oprands for uop@%x: archSrc1=%x -> physReg=%x (isFPR=%x, bypassed=0)archSrc2=%x -> physReg=%x (isFPR=%x, bypassed=0)", io_decodedUopsIn_0_pc, io_decodedUopsIn_0_archSrc1_idx, io_renamedUopsOut_0_rename_physSrc1_idx, _zz_5, io_decodedUopsIn_0_archSrc2_idx, io_renamedUopsOut_0_rename_physSrc2_idx, _zz_6); // RenameUnit.scala:L111
+              end
+            `endif
+          `endif
+        end
       end
     end
   end
@@ -47882,6 +50779,9 @@ module RenameMapTable (
   input  wire          io_writePorts_0_wen,
   input  wire [4:0]    io_writePorts_0_archReg,
   input  wire [5:0]    io_writePorts_0_physReg,
+  input  wire          io_commitUpdatePort_wen,
+  input  wire [4:0]    io_commitUpdatePort_archReg,
+  input  wire [5:0]    io_commitUpdatePort_physReg,
   output wire [5:0]    io_currentState_mapping_0,
   output wire [5:0]    io_currentState_mapping_1,
   output wire [5:0]    io_currentState_mapping_2,
@@ -47989,733 +50889,1153 @@ module RenameMapTable (
   reg        [5:0]    _zz_io_readPorts_0_physReg;
   reg        [5:0]    _zz_io_readPorts_1_physReg;
   reg        [5:0]    _zz_io_readPorts_2_physReg;
-  reg        [5:0]    mapReg_mapping_0;
-  reg        [5:0]    mapReg_mapping_1;
-  reg        [5:0]    mapReg_mapping_2;
-  reg        [5:0]    mapReg_mapping_3;
-  reg        [5:0]    mapReg_mapping_4;
-  reg        [5:0]    mapReg_mapping_5;
-  reg        [5:0]    mapReg_mapping_6;
-  reg        [5:0]    mapReg_mapping_7;
-  reg        [5:0]    mapReg_mapping_8;
-  reg        [5:0]    mapReg_mapping_9;
-  reg        [5:0]    mapReg_mapping_10;
-  reg        [5:0]    mapReg_mapping_11;
-  reg        [5:0]    mapReg_mapping_12;
-  reg        [5:0]    mapReg_mapping_13;
-  reg        [5:0]    mapReg_mapping_14;
-  reg        [5:0]    mapReg_mapping_15;
-  reg        [5:0]    mapReg_mapping_16;
-  reg        [5:0]    mapReg_mapping_17;
-  reg        [5:0]    mapReg_mapping_18;
-  reg        [5:0]    mapReg_mapping_19;
-  reg        [5:0]    mapReg_mapping_20;
-  reg        [5:0]    mapReg_mapping_21;
-  reg        [5:0]    mapReg_mapping_22;
-  reg        [5:0]    mapReg_mapping_23;
-  reg        [5:0]    mapReg_mapping_24;
-  reg        [5:0]    mapReg_mapping_25;
-  reg        [5:0]    mapReg_mapping_26;
-  reg        [5:0]    mapReg_mapping_27;
-  reg        [5:0]    mapReg_mapping_28;
-  reg        [5:0]    mapReg_mapping_29;
-  reg        [5:0]    mapReg_mapping_30;
-  reg        [5:0]    mapReg_mapping_31;
-  reg        [5:0]    nextMapRegMapping_0;
-  reg        [5:0]    nextMapRegMapping_1;
-  reg        [5:0]    nextMapRegMapping_2;
-  reg        [5:0]    nextMapRegMapping_3;
-  reg        [5:0]    nextMapRegMapping_4;
-  reg        [5:0]    nextMapRegMapping_5;
-  reg        [5:0]    nextMapRegMapping_6;
-  reg        [5:0]    nextMapRegMapping_7;
-  reg        [5:0]    nextMapRegMapping_8;
-  reg        [5:0]    nextMapRegMapping_9;
-  reg        [5:0]    nextMapRegMapping_10;
-  reg        [5:0]    nextMapRegMapping_11;
-  reg        [5:0]    nextMapRegMapping_12;
-  reg        [5:0]    nextMapRegMapping_13;
-  reg        [5:0]    nextMapRegMapping_14;
-  reg        [5:0]    nextMapRegMapping_15;
-  reg        [5:0]    nextMapRegMapping_16;
-  reg        [5:0]    nextMapRegMapping_17;
-  reg        [5:0]    nextMapRegMapping_18;
-  reg        [5:0]    nextMapRegMapping_19;
-  reg        [5:0]    nextMapRegMapping_20;
-  reg        [5:0]    nextMapRegMapping_21;
-  reg        [5:0]    nextMapRegMapping_22;
-  reg        [5:0]    nextMapRegMapping_23;
-  reg        [5:0]    nextMapRegMapping_24;
-  reg        [5:0]    nextMapRegMapping_25;
-  reg        [5:0]    nextMapRegMapping_26;
-  reg        [5:0]    nextMapRegMapping_27;
-  reg        [5:0]    nextMapRegMapping_28;
-  reg        [5:0]    nextMapRegMapping_29;
-  reg        [5:0]    nextMapRegMapping_30;
-  reg        [5:0]    nextMapRegMapping_31;
-  wire                when_RenameMapTable_l120;
-  wire                when_RenameMapTable_l120_1;
-  wire                when_RenameMapTable_l120_2;
-  wire                when_RenameMapTable_l138;
+  reg        [5:0]    aratMapReg_mapping_0;
+  reg        [5:0]    aratMapReg_mapping_1;
+  reg        [5:0]    aratMapReg_mapping_2;
+  reg        [5:0]    aratMapReg_mapping_3;
+  reg        [5:0]    aratMapReg_mapping_4;
+  reg        [5:0]    aratMapReg_mapping_5;
+  reg        [5:0]    aratMapReg_mapping_6;
+  reg        [5:0]    aratMapReg_mapping_7;
+  reg        [5:0]    aratMapReg_mapping_8;
+  reg        [5:0]    aratMapReg_mapping_9;
+  reg        [5:0]    aratMapReg_mapping_10;
+  reg        [5:0]    aratMapReg_mapping_11;
+  reg        [5:0]    aratMapReg_mapping_12;
+  reg        [5:0]    aratMapReg_mapping_13;
+  reg        [5:0]    aratMapReg_mapping_14;
+  reg        [5:0]    aratMapReg_mapping_15;
+  reg        [5:0]    aratMapReg_mapping_16;
+  reg        [5:0]    aratMapReg_mapping_17;
+  reg        [5:0]    aratMapReg_mapping_18;
+  reg        [5:0]    aratMapReg_mapping_19;
+  reg        [5:0]    aratMapReg_mapping_20;
+  reg        [5:0]    aratMapReg_mapping_21;
+  reg        [5:0]    aratMapReg_mapping_22;
+  reg        [5:0]    aratMapReg_mapping_23;
+  reg        [5:0]    aratMapReg_mapping_24;
+  reg        [5:0]    aratMapReg_mapping_25;
+  reg        [5:0]    aratMapReg_mapping_26;
+  reg        [5:0]    aratMapReg_mapping_27;
+  reg        [5:0]    aratMapReg_mapping_28;
+  reg        [5:0]    aratMapReg_mapping_29;
+  reg        [5:0]    aratMapReg_mapping_30;
+  reg        [5:0]    aratMapReg_mapping_31;
+  reg        [5:0]    rratMapReg_mapping_0;
+  reg        [5:0]    rratMapReg_mapping_1;
+  reg        [5:0]    rratMapReg_mapping_2;
+  reg        [5:0]    rratMapReg_mapping_3;
+  reg        [5:0]    rratMapReg_mapping_4;
+  reg        [5:0]    rratMapReg_mapping_5;
+  reg        [5:0]    rratMapReg_mapping_6;
+  reg        [5:0]    rratMapReg_mapping_7;
+  reg        [5:0]    rratMapReg_mapping_8;
+  reg        [5:0]    rratMapReg_mapping_9;
+  reg        [5:0]    rratMapReg_mapping_10;
+  reg        [5:0]    rratMapReg_mapping_11;
+  reg        [5:0]    rratMapReg_mapping_12;
+  reg        [5:0]    rratMapReg_mapping_13;
+  reg        [5:0]    rratMapReg_mapping_14;
+  reg        [5:0]    rratMapReg_mapping_15;
+  reg        [5:0]    rratMapReg_mapping_16;
+  reg        [5:0]    rratMapReg_mapping_17;
+  reg        [5:0]    rratMapReg_mapping_18;
+  reg        [5:0]    rratMapReg_mapping_19;
+  reg        [5:0]    rratMapReg_mapping_20;
+  reg        [5:0]    rratMapReg_mapping_21;
+  reg        [5:0]    rratMapReg_mapping_22;
+  reg        [5:0]    rratMapReg_mapping_23;
+  reg        [5:0]    rratMapReg_mapping_24;
+  reg        [5:0]    rratMapReg_mapping_25;
+  reg        [5:0]    rratMapReg_mapping_26;
+  reg        [5:0]    rratMapReg_mapping_27;
+  reg        [5:0]    rratMapReg_mapping_28;
+  reg        [5:0]    rratMapReg_mapping_29;
+  reg        [5:0]    rratMapReg_mapping_30;
+  reg        [5:0]    rratMapReg_mapping_31;
+  wire                when_RenameMapTable_l124;
+  wire                when_RenameMapTable_l124_1;
+  wire                when_RenameMapTable_l124_2;
+  reg        [5:0]    nextRratMapRegMapping_0;
+  reg        [5:0]    nextRratMapRegMapping_1;
+  reg        [5:0]    nextRratMapRegMapping_2;
+  reg        [5:0]    nextRratMapRegMapping_3;
+  reg        [5:0]    nextRratMapRegMapping_4;
+  reg        [5:0]    nextRratMapRegMapping_5;
+  reg        [5:0]    nextRratMapRegMapping_6;
+  reg        [5:0]    nextRratMapRegMapping_7;
+  reg        [5:0]    nextRratMapRegMapping_8;
+  reg        [5:0]    nextRratMapRegMapping_9;
+  reg        [5:0]    nextRratMapRegMapping_10;
+  reg        [5:0]    nextRratMapRegMapping_11;
+  reg        [5:0]    nextRratMapRegMapping_12;
+  reg        [5:0]    nextRratMapRegMapping_13;
+  reg        [5:0]    nextRratMapRegMapping_14;
+  reg        [5:0]    nextRratMapRegMapping_15;
+  reg        [5:0]    nextRratMapRegMapping_16;
+  reg        [5:0]    nextRratMapRegMapping_17;
+  reg        [5:0]    nextRratMapRegMapping_18;
+  reg        [5:0]    nextRratMapRegMapping_19;
+  reg        [5:0]    nextRratMapRegMapping_20;
+  reg        [5:0]    nextRratMapRegMapping_21;
+  reg        [5:0]    nextRratMapRegMapping_22;
+  reg        [5:0]    nextRratMapRegMapping_23;
+  reg        [5:0]    nextRratMapRegMapping_24;
+  reg        [5:0]    nextRratMapRegMapping_25;
+  reg        [5:0]    nextRratMapRegMapping_26;
+  reg        [5:0]    nextRratMapRegMapping_27;
+  reg        [5:0]    nextRratMapRegMapping_28;
+  reg        [5:0]    nextRratMapRegMapping_29;
+  reg        [5:0]    nextRratMapRegMapping_30;
+  reg        [5:0]    nextRratMapRegMapping_31;
+  wire                when_RenameMapTable_l139;
   wire       [31:0]   _zz_1;
+  reg        [5:0]    nextAratMapRegMapping_0;
+  reg        [5:0]    nextAratMapRegMapping_1;
+  reg        [5:0]    nextAratMapRegMapping_2;
+  reg        [5:0]    nextAratMapRegMapping_3;
+  reg        [5:0]    nextAratMapRegMapping_4;
+  reg        [5:0]    nextAratMapRegMapping_5;
+  reg        [5:0]    nextAratMapRegMapping_6;
+  reg        [5:0]    nextAratMapRegMapping_7;
+  reg        [5:0]    nextAratMapRegMapping_8;
+  reg        [5:0]    nextAratMapRegMapping_9;
+  reg        [5:0]    nextAratMapRegMapping_10;
+  reg        [5:0]    nextAratMapRegMapping_11;
+  reg        [5:0]    nextAratMapRegMapping_12;
+  reg        [5:0]    nextAratMapRegMapping_13;
+  reg        [5:0]    nextAratMapRegMapping_14;
+  reg        [5:0]    nextAratMapRegMapping_15;
+  reg        [5:0]    nextAratMapRegMapping_16;
+  reg        [5:0]    nextAratMapRegMapping_17;
+  reg        [5:0]    nextAratMapRegMapping_18;
+  reg        [5:0]    nextAratMapRegMapping_19;
+  reg        [5:0]    nextAratMapRegMapping_20;
+  reg        [5:0]    nextAratMapRegMapping_21;
+  reg        [5:0]    nextAratMapRegMapping_22;
+  reg        [5:0]    nextAratMapRegMapping_23;
+  reg        [5:0]    nextAratMapRegMapping_24;
+  reg        [5:0]    nextAratMapRegMapping_25;
+  reg        [5:0]    nextAratMapRegMapping_26;
+  reg        [5:0]    nextAratMapRegMapping_27;
+  reg        [5:0]    nextAratMapRegMapping_28;
+  reg        [5:0]    nextAratMapRegMapping_29;
+  reg        [5:0]    nextAratMapRegMapping_30;
+  reg        [5:0]    nextAratMapRegMapping_31;
+  wire                when_RenameMapTable_l149;
+  wire       [31:0]   _zz_2;
 
   always @(*) begin
     case(io_readPorts_0_archReg)
-      5'b00000 : _zz_io_readPorts_0_physReg = mapReg_mapping_0;
-      5'b00001 : _zz_io_readPorts_0_physReg = mapReg_mapping_1;
-      5'b00010 : _zz_io_readPorts_0_physReg = mapReg_mapping_2;
-      5'b00011 : _zz_io_readPorts_0_physReg = mapReg_mapping_3;
-      5'b00100 : _zz_io_readPorts_0_physReg = mapReg_mapping_4;
-      5'b00101 : _zz_io_readPorts_0_physReg = mapReg_mapping_5;
-      5'b00110 : _zz_io_readPorts_0_physReg = mapReg_mapping_6;
-      5'b00111 : _zz_io_readPorts_0_physReg = mapReg_mapping_7;
-      5'b01000 : _zz_io_readPorts_0_physReg = mapReg_mapping_8;
-      5'b01001 : _zz_io_readPorts_0_physReg = mapReg_mapping_9;
-      5'b01010 : _zz_io_readPorts_0_physReg = mapReg_mapping_10;
-      5'b01011 : _zz_io_readPorts_0_physReg = mapReg_mapping_11;
-      5'b01100 : _zz_io_readPorts_0_physReg = mapReg_mapping_12;
-      5'b01101 : _zz_io_readPorts_0_physReg = mapReg_mapping_13;
-      5'b01110 : _zz_io_readPorts_0_physReg = mapReg_mapping_14;
-      5'b01111 : _zz_io_readPorts_0_physReg = mapReg_mapping_15;
-      5'b10000 : _zz_io_readPorts_0_physReg = mapReg_mapping_16;
-      5'b10001 : _zz_io_readPorts_0_physReg = mapReg_mapping_17;
-      5'b10010 : _zz_io_readPorts_0_physReg = mapReg_mapping_18;
-      5'b10011 : _zz_io_readPorts_0_physReg = mapReg_mapping_19;
-      5'b10100 : _zz_io_readPorts_0_physReg = mapReg_mapping_20;
-      5'b10101 : _zz_io_readPorts_0_physReg = mapReg_mapping_21;
-      5'b10110 : _zz_io_readPorts_0_physReg = mapReg_mapping_22;
-      5'b10111 : _zz_io_readPorts_0_physReg = mapReg_mapping_23;
-      5'b11000 : _zz_io_readPorts_0_physReg = mapReg_mapping_24;
-      5'b11001 : _zz_io_readPorts_0_physReg = mapReg_mapping_25;
-      5'b11010 : _zz_io_readPorts_0_physReg = mapReg_mapping_26;
-      5'b11011 : _zz_io_readPorts_0_physReg = mapReg_mapping_27;
-      5'b11100 : _zz_io_readPorts_0_physReg = mapReg_mapping_28;
-      5'b11101 : _zz_io_readPorts_0_physReg = mapReg_mapping_29;
-      5'b11110 : _zz_io_readPorts_0_physReg = mapReg_mapping_30;
-      default : _zz_io_readPorts_0_physReg = mapReg_mapping_31;
+      5'b00000 : _zz_io_readPorts_0_physReg = rratMapReg_mapping_0;
+      5'b00001 : _zz_io_readPorts_0_physReg = rratMapReg_mapping_1;
+      5'b00010 : _zz_io_readPorts_0_physReg = rratMapReg_mapping_2;
+      5'b00011 : _zz_io_readPorts_0_physReg = rratMapReg_mapping_3;
+      5'b00100 : _zz_io_readPorts_0_physReg = rratMapReg_mapping_4;
+      5'b00101 : _zz_io_readPorts_0_physReg = rratMapReg_mapping_5;
+      5'b00110 : _zz_io_readPorts_0_physReg = rratMapReg_mapping_6;
+      5'b00111 : _zz_io_readPorts_0_physReg = rratMapReg_mapping_7;
+      5'b01000 : _zz_io_readPorts_0_physReg = rratMapReg_mapping_8;
+      5'b01001 : _zz_io_readPorts_0_physReg = rratMapReg_mapping_9;
+      5'b01010 : _zz_io_readPorts_0_physReg = rratMapReg_mapping_10;
+      5'b01011 : _zz_io_readPorts_0_physReg = rratMapReg_mapping_11;
+      5'b01100 : _zz_io_readPorts_0_physReg = rratMapReg_mapping_12;
+      5'b01101 : _zz_io_readPorts_0_physReg = rratMapReg_mapping_13;
+      5'b01110 : _zz_io_readPorts_0_physReg = rratMapReg_mapping_14;
+      5'b01111 : _zz_io_readPorts_0_physReg = rratMapReg_mapping_15;
+      5'b10000 : _zz_io_readPorts_0_physReg = rratMapReg_mapping_16;
+      5'b10001 : _zz_io_readPorts_0_physReg = rratMapReg_mapping_17;
+      5'b10010 : _zz_io_readPorts_0_physReg = rratMapReg_mapping_18;
+      5'b10011 : _zz_io_readPorts_0_physReg = rratMapReg_mapping_19;
+      5'b10100 : _zz_io_readPorts_0_physReg = rratMapReg_mapping_20;
+      5'b10101 : _zz_io_readPorts_0_physReg = rratMapReg_mapping_21;
+      5'b10110 : _zz_io_readPorts_0_physReg = rratMapReg_mapping_22;
+      5'b10111 : _zz_io_readPorts_0_physReg = rratMapReg_mapping_23;
+      5'b11000 : _zz_io_readPorts_0_physReg = rratMapReg_mapping_24;
+      5'b11001 : _zz_io_readPorts_0_physReg = rratMapReg_mapping_25;
+      5'b11010 : _zz_io_readPorts_0_physReg = rratMapReg_mapping_26;
+      5'b11011 : _zz_io_readPorts_0_physReg = rratMapReg_mapping_27;
+      5'b11100 : _zz_io_readPorts_0_physReg = rratMapReg_mapping_28;
+      5'b11101 : _zz_io_readPorts_0_physReg = rratMapReg_mapping_29;
+      5'b11110 : _zz_io_readPorts_0_physReg = rratMapReg_mapping_30;
+      default : _zz_io_readPorts_0_physReg = rratMapReg_mapping_31;
     endcase
   end
 
   always @(*) begin
     case(io_readPorts_1_archReg)
-      5'b00000 : _zz_io_readPorts_1_physReg = mapReg_mapping_0;
-      5'b00001 : _zz_io_readPorts_1_physReg = mapReg_mapping_1;
-      5'b00010 : _zz_io_readPorts_1_physReg = mapReg_mapping_2;
-      5'b00011 : _zz_io_readPorts_1_physReg = mapReg_mapping_3;
-      5'b00100 : _zz_io_readPorts_1_physReg = mapReg_mapping_4;
-      5'b00101 : _zz_io_readPorts_1_physReg = mapReg_mapping_5;
-      5'b00110 : _zz_io_readPorts_1_physReg = mapReg_mapping_6;
-      5'b00111 : _zz_io_readPorts_1_physReg = mapReg_mapping_7;
-      5'b01000 : _zz_io_readPorts_1_physReg = mapReg_mapping_8;
-      5'b01001 : _zz_io_readPorts_1_physReg = mapReg_mapping_9;
-      5'b01010 : _zz_io_readPorts_1_physReg = mapReg_mapping_10;
-      5'b01011 : _zz_io_readPorts_1_physReg = mapReg_mapping_11;
-      5'b01100 : _zz_io_readPorts_1_physReg = mapReg_mapping_12;
-      5'b01101 : _zz_io_readPorts_1_physReg = mapReg_mapping_13;
-      5'b01110 : _zz_io_readPorts_1_physReg = mapReg_mapping_14;
-      5'b01111 : _zz_io_readPorts_1_physReg = mapReg_mapping_15;
-      5'b10000 : _zz_io_readPorts_1_physReg = mapReg_mapping_16;
-      5'b10001 : _zz_io_readPorts_1_physReg = mapReg_mapping_17;
-      5'b10010 : _zz_io_readPorts_1_physReg = mapReg_mapping_18;
-      5'b10011 : _zz_io_readPorts_1_physReg = mapReg_mapping_19;
-      5'b10100 : _zz_io_readPorts_1_physReg = mapReg_mapping_20;
-      5'b10101 : _zz_io_readPorts_1_physReg = mapReg_mapping_21;
-      5'b10110 : _zz_io_readPorts_1_physReg = mapReg_mapping_22;
-      5'b10111 : _zz_io_readPorts_1_physReg = mapReg_mapping_23;
-      5'b11000 : _zz_io_readPorts_1_physReg = mapReg_mapping_24;
-      5'b11001 : _zz_io_readPorts_1_physReg = mapReg_mapping_25;
-      5'b11010 : _zz_io_readPorts_1_physReg = mapReg_mapping_26;
-      5'b11011 : _zz_io_readPorts_1_physReg = mapReg_mapping_27;
-      5'b11100 : _zz_io_readPorts_1_physReg = mapReg_mapping_28;
-      5'b11101 : _zz_io_readPorts_1_physReg = mapReg_mapping_29;
-      5'b11110 : _zz_io_readPorts_1_physReg = mapReg_mapping_30;
-      default : _zz_io_readPorts_1_physReg = mapReg_mapping_31;
+      5'b00000 : _zz_io_readPorts_1_physReg = rratMapReg_mapping_0;
+      5'b00001 : _zz_io_readPorts_1_physReg = rratMapReg_mapping_1;
+      5'b00010 : _zz_io_readPorts_1_physReg = rratMapReg_mapping_2;
+      5'b00011 : _zz_io_readPorts_1_physReg = rratMapReg_mapping_3;
+      5'b00100 : _zz_io_readPorts_1_physReg = rratMapReg_mapping_4;
+      5'b00101 : _zz_io_readPorts_1_physReg = rratMapReg_mapping_5;
+      5'b00110 : _zz_io_readPorts_1_physReg = rratMapReg_mapping_6;
+      5'b00111 : _zz_io_readPorts_1_physReg = rratMapReg_mapping_7;
+      5'b01000 : _zz_io_readPorts_1_physReg = rratMapReg_mapping_8;
+      5'b01001 : _zz_io_readPorts_1_physReg = rratMapReg_mapping_9;
+      5'b01010 : _zz_io_readPorts_1_physReg = rratMapReg_mapping_10;
+      5'b01011 : _zz_io_readPorts_1_physReg = rratMapReg_mapping_11;
+      5'b01100 : _zz_io_readPorts_1_physReg = rratMapReg_mapping_12;
+      5'b01101 : _zz_io_readPorts_1_physReg = rratMapReg_mapping_13;
+      5'b01110 : _zz_io_readPorts_1_physReg = rratMapReg_mapping_14;
+      5'b01111 : _zz_io_readPorts_1_physReg = rratMapReg_mapping_15;
+      5'b10000 : _zz_io_readPorts_1_physReg = rratMapReg_mapping_16;
+      5'b10001 : _zz_io_readPorts_1_physReg = rratMapReg_mapping_17;
+      5'b10010 : _zz_io_readPorts_1_physReg = rratMapReg_mapping_18;
+      5'b10011 : _zz_io_readPorts_1_physReg = rratMapReg_mapping_19;
+      5'b10100 : _zz_io_readPorts_1_physReg = rratMapReg_mapping_20;
+      5'b10101 : _zz_io_readPorts_1_physReg = rratMapReg_mapping_21;
+      5'b10110 : _zz_io_readPorts_1_physReg = rratMapReg_mapping_22;
+      5'b10111 : _zz_io_readPorts_1_physReg = rratMapReg_mapping_23;
+      5'b11000 : _zz_io_readPorts_1_physReg = rratMapReg_mapping_24;
+      5'b11001 : _zz_io_readPorts_1_physReg = rratMapReg_mapping_25;
+      5'b11010 : _zz_io_readPorts_1_physReg = rratMapReg_mapping_26;
+      5'b11011 : _zz_io_readPorts_1_physReg = rratMapReg_mapping_27;
+      5'b11100 : _zz_io_readPorts_1_physReg = rratMapReg_mapping_28;
+      5'b11101 : _zz_io_readPorts_1_physReg = rratMapReg_mapping_29;
+      5'b11110 : _zz_io_readPorts_1_physReg = rratMapReg_mapping_30;
+      default : _zz_io_readPorts_1_physReg = rratMapReg_mapping_31;
     endcase
   end
 
   always @(*) begin
     case(io_readPorts_2_archReg)
-      5'b00000 : _zz_io_readPorts_2_physReg = mapReg_mapping_0;
-      5'b00001 : _zz_io_readPorts_2_physReg = mapReg_mapping_1;
-      5'b00010 : _zz_io_readPorts_2_physReg = mapReg_mapping_2;
-      5'b00011 : _zz_io_readPorts_2_physReg = mapReg_mapping_3;
-      5'b00100 : _zz_io_readPorts_2_physReg = mapReg_mapping_4;
-      5'b00101 : _zz_io_readPorts_2_physReg = mapReg_mapping_5;
-      5'b00110 : _zz_io_readPorts_2_physReg = mapReg_mapping_6;
-      5'b00111 : _zz_io_readPorts_2_physReg = mapReg_mapping_7;
-      5'b01000 : _zz_io_readPorts_2_physReg = mapReg_mapping_8;
-      5'b01001 : _zz_io_readPorts_2_physReg = mapReg_mapping_9;
-      5'b01010 : _zz_io_readPorts_2_physReg = mapReg_mapping_10;
-      5'b01011 : _zz_io_readPorts_2_physReg = mapReg_mapping_11;
-      5'b01100 : _zz_io_readPorts_2_physReg = mapReg_mapping_12;
-      5'b01101 : _zz_io_readPorts_2_physReg = mapReg_mapping_13;
-      5'b01110 : _zz_io_readPorts_2_physReg = mapReg_mapping_14;
-      5'b01111 : _zz_io_readPorts_2_physReg = mapReg_mapping_15;
-      5'b10000 : _zz_io_readPorts_2_physReg = mapReg_mapping_16;
-      5'b10001 : _zz_io_readPorts_2_physReg = mapReg_mapping_17;
-      5'b10010 : _zz_io_readPorts_2_physReg = mapReg_mapping_18;
-      5'b10011 : _zz_io_readPorts_2_physReg = mapReg_mapping_19;
-      5'b10100 : _zz_io_readPorts_2_physReg = mapReg_mapping_20;
-      5'b10101 : _zz_io_readPorts_2_physReg = mapReg_mapping_21;
-      5'b10110 : _zz_io_readPorts_2_physReg = mapReg_mapping_22;
-      5'b10111 : _zz_io_readPorts_2_physReg = mapReg_mapping_23;
-      5'b11000 : _zz_io_readPorts_2_physReg = mapReg_mapping_24;
-      5'b11001 : _zz_io_readPorts_2_physReg = mapReg_mapping_25;
-      5'b11010 : _zz_io_readPorts_2_physReg = mapReg_mapping_26;
-      5'b11011 : _zz_io_readPorts_2_physReg = mapReg_mapping_27;
-      5'b11100 : _zz_io_readPorts_2_physReg = mapReg_mapping_28;
-      5'b11101 : _zz_io_readPorts_2_physReg = mapReg_mapping_29;
-      5'b11110 : _zz_io_readPorts_2_physReg = mapReg_mapping_30;
-      default : _zz_io_readPorts_2_physReg = mapReg_mapping_31;
+      5'b00000 : _zz_io_readPorts_2_physReg = rratMapReg_mapping_0;
+      5'b00001 : _zz_io_readPorts_2_physReg = rratMapReg_mapping_1;
+      5'b00010 : _zz_io_readPorts_2_physReg = rratMapReg_mapping_2;
+      5'b00011 : _zz_io_readPorts_2_physReg = rratMapReg_mapping_3;
+      5'b00100 : _zz_io_readPorts_2_physReg = rratMapReg_mapping_4;
+      5'b00101 : _zz_io_readPorts_2_physReg = rratMapReg_mapping_5;
+      5'b00110 : _zz_io_readPorts_2_physReg = rratMapReg_mapping_6;
+      5'b00111 : _zz_io_readPorts_2_physReg = rratMapReg_mapping_7;
+      5'b01000 : _zz_io_readPorts_2_physReg = rratMapReg_mapping_8;
+      5'b01001 : _zz_io_readPorts_2_physReg = rratMapReg_mapping_9;
+      5'b01010 : _zz_io_readPorts_2_physReg = rratMapReg_mapping_10;
+      5'b01011 : _zz_io_readPorts_2_physReg = rratMapReg_mapping_11;
+      5'b01100 : _zz_io_readPorts_2_physReg = rratMapReg_mapping_12;
+      5'b01101 : _zz_io_readPorts_2_physReg = rratMapReg_mapping_13;
+      5'b01110 : _zz_io_readPorts_2_physReg = rratMapReg_mapping_14;
+      5'b01111 : _zz_io_readPorts_2_physReg = rratMapReg_mapping_15;
+      5'b10000 : _zz_io_readPorts_2_physReg = rratMapReg_mapping_16;
+      5'b10001 : _zz_io_readPorts_2_physReg = rratMapReg_mapping_17;
+      5'b10010 : _zz_io_readPorts_2_physReg = rratMapReg_mapping_18;
+      5'b10011 : _zz_io_readPorts_2_physReg = rratMapReg_mapping_19;
+      5'b10100 : _zz_io_readPorts_2_physReg = rratMapReg_mapping_20;
+      5'b10101 : _zz_io_readPorts_2_physReg = rratMapReg_mapping_21;
+      5'b10110 : _zz_io_readPorts_2_physReg = rratMapReg_mapping_22;
+      5'b10111 : _zz_io_readPorts_2_physReg = rratMapReg_mapping_23;
+      5'b11000 : _zz_io_readPorts_2_physReg = rratMapReg_mapping_24;
+      5'b11001 : _zz_io_readPorts_2_physReg = rratMapReg_mapping_25;
+      5'b11010 : _zz_io_readPorts_2_physReg = rratMapReg_mapping_26;
+      5'b11011 : _zz_io_readPorts_2_physReg = rratMapReg_mapping_27;
+      5'b11100 : _zz_io_readPorts_2_physReg = rratMapReg_mapping_28;
+      5'b11101 : _zz_io_readPorts_2_physReg = rratMapReg_mapping_29;
+      5'b11110 : _zz_io_readPorts_2_physReg = rratMapReg_mapping_30;
+      default : _zz_io_readPorts_2_physReg = rratMapReg_mapping_31;
     endcase
   end
 
+  assign when_RenameMapTable_l124 = (io_readPorts_0_archReg == 5'h0);
   always @(*) begin
-    nextMapRegMapping_0 = mapReg_mapping_0;
-    if(io_checkpointRestore_valid) begin
-      nextMapRegMapping_0 = io_checkpointRestore_payload_mapping_0;
-    end else begin
-      if(when_RenameMapTable_l138) begin
-        if(_zz_1[0]) begin
-          nextMapRegMapping_0 = io_writePorts_0_physReg;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    nextMapRegMapping_1 = mapReg_mapping_1;
-    if(io_checkpointRestore_valid) begin
-      nextMapRegMapping_1 = io_checkpointRestore_payload_mapping_1;
-    end else begin
-      if(when_RenameMapTable_l138) begin
-        if(_zz_1[1]) begin
-          nextMapRegMapping_1 = io_writePorts_0_physReg;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    nextMapRegMapping_2 = mapReg_mapping_2;
-    if(io_checkpointRestore_valid) begin
-      nextMapRegMapping_2 = io_checkpointRestore_payload_mapping_2;
-    end else begin
-      if(when_RenameMapTable_l138) begin
-        if(_zz_1[2]) begin
-          nextMapRegMapping_2 = io_writePorts_0_physReg;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    nextMapRegMapping_3 = mapReg_mapping_3;
-    if(io_checkpointRestore_valid) begin
-      nextMapRegMapping_3 = io_checkpointRestore_payload_mapping_3;
-    end else begin
-      if(when_RenameMapTable_l138) begin
-        if(_zz_1[3]) begin
-          nextMapRegMapping_3 = io_writePorts_0_physReg;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    nextMapRegMapping_4 = mapReg_mapping_4;
-    if(io_checkpointRestore_valid) begin
-      nextMapRegMapping_4 = io_checkpointRestore_payload_mapping_4;
-    end else begin
-      if(when_RenameMapTable_l138) begin
-        if(_zz_1[4]) begin
-          nextMapRegMapping_4 = io_writePorts_0_physReg;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    nextMapRegMapping_5 = mapReg_mapping_5;
-    if(io_checkpointRestore_valid) begin
-      nextMapRegMapping_5 = io_checkpointRestore_payload_mapping_5;
-    end else begin
-      if(when_RenameMapTable_l138) begin
-        if(_zz_1[5]) begin
-          nextMapRegMapping_5 = io_writePorts_0_physReg;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    nextMapRegMapping_6 = mapReg_mapping_6;
-    if(io_checkpointRestore_valid) begin
-      nextMapRegMapping_6 = io_checkpointRestore_payload_mapping_6;
-    end else begin
-      if(when_RenameMapTable_l138) begin
-        if(_zz_1[6]) begin
-          nextMapRegMapping_6 = io_writePorts_0_physReg;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    nextMapRegMapping_7 = mapReg_mapping_7;
-    if(io_checkpointRestore_valid) begin
-      nextMapRegMapping_7 = io_checkpointRestore_payload_mapping_7;
-    end else begin
-      if(when_RenameMapTable_l138) begin
-        if(_zz_1[7]) begin
-          nextMapRegMapping_7 = io_writePorts_0_physReg;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    nextMapRegMapping_8 = mapReg_mapping_8;
-    if(io_checkpointRestore_valid) begin
-      nextMapRegMapping_8 = io_checkpointRestore_payload_mapping_8;
-    end else begin
-      if(when_RenameMapTable_l138) begin
-        if(_zz_1[8]) begin
-          nextMapRegMapping_8 = io_writePorts_0_physReg;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    nextMapRegMapping_9 = mapReg_mapping_9;
-    if(io_checkpointRestore_valid) begin
-      nextMapRegMapping_9 = io_checkpointRestore_payload_mapping_9;
-    end else begin
-      if(when_RenameMapTable_l138) begin
-        if(_zz_1[9]) begin
-          nextMapRegMapping_9 = io_writePorts_0_physReg;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    nextMapRegMapping_10 = mapReg_mapping_10;
-    if(io_checkpointRestore_valid) begin
-      nextMapRegMapping_10 = io_checkpointRestore_payload_mapping_10;
-    end else begin
-      if(when_RenameMapTable_l138) begin
-        if(_zz_1[10]) begin
-          nextMapRegMapping_10 = io_writePorts_0_physReg;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    nextMapRegMapping_11 = mapReg_mapping_11;
-    if(io_checkpointRestore_valid) begin
-      nextMapRegMapping_11 = io_checkpointRestore_payload_mapping_11;
-    end else begin
-      if(when_RenameMapTable_l138) begin
-        if(_zz_1[11]) begin
-          nextMapRegMapping_11 = io_writePorts_0_physReg;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    nextMapRegMapping_12 = mapReg_mapping_12;
-    if(io_checkpointRestore_valid) begin
-      nextMapRegMapping_12 = io_checkpointRestore_payload_mapping_12;
-    end else begin
-      if(when_RenameMapTable_l138) begin
-        if(_zz_1[12]) begin
-          nextMapRegMapping_12 = io_writePorts_0_physReg;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    nextMapRegMapping_13 = mapReg_mapping_13;
-    if(io_checkpointRestore_valid) begin
-      nextMapRegMapping_13 = io_checkpointRestore_payload_mapping_13;
-    end else begin
-      if(when_RenameMapTable_l138) begin
-        if(_zz_1[13]) begin
-          nextMapRegMapping_13 = io_writePorts_0_physReg;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    nextMapRegMapping_14 = mapReg_mapping_14;
-    if(io_checkpointRestore_valid) begin
-      nextMapRegMapping_14 = io_checkpointRestore_payload_mapping_14;
-    end else begin
-      if(when_RenameMapTable_l138) begin
-        if(_zz_1[14]) begin
-          nextMapRegMapping_14 = io_writePorts_0_physReg;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    nextMapRegMapping_15 = mapReg_mapping_15;
-    if(io_checkpointRestore_valid) begin
-      nextMapRegMapping_15 = io_checkpointRestore_payload_mapping_15;
-    end else begin
-      if(when_RenameMapTable_l138) begin
-        if(_zz_1[15]) begin
-          nextMapRegMapping_15 = io_writePorts_0_physReg;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    nextMapRegMapping_16 = mapReg_mapping_16;
-    if(io_checkpointRestore_valid) begin
-      nextMapRegMapping_16 = io_checkpointRestore_payload_mapping_16;
-    end else begin
-      if(when_RenameMapTable_l138) begin
-        if(_zz_1[16]) begin
-          nextMapRegMapping_16 = io_writePorts_0_physReg;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    nextMapRegMapping_17 = mapReg_mapping_17;
-    if(io_checkpointRestore_valid) begin
-      nextMapRegMapping_17 = io_checkpointRestore_payload_mapping_17;
-    end else begin
-      if(when_RenameMapTable_l138) begin
-        if(_zz_1[17]) begin
-          nextMapRegMapping_17 = io_writePorts_0_physReg;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    nextMapRegMapping_18 = mapReg_mapping_18;
-    if(io_checkpointRestore_valid) begin
-      nextMapRegMapping_18 = io_checkpointRestore_payload_mapping_18;
-    end else begin
-      if(when_RenameMapTable_l138) begin
-        if(_zz_1[18]) begin
-          nextMapRegMapping_18 = io_writePorts_0_physReg;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    nextMapRegMapping_19 = mapReg_mapping_19;
-    if(io_checkpointRestore_valid) begin
-      nextMapRegMapping_19 = io_checkpointRestore_payload_mapping_19;
-    end else begin
-      if(when_RenameMapTable_l138) begin
-        if(_zz_1[19]) begin
-          nextMapRegMapping_19 = io_writePorts_0_physReg;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    nextMapRegMapping_20 = mapReg_mapping_20;
-    if(io_checkpointRestore_valid) begin
-      nextMapRegMapping_20 = io_checkpointRestore_payload_mapping_20;
-    end else begin
-      if(when_RenameMapTable_l138) begin
-        if(_zz_1[20]) begin
-          nextMapRegMapping_20 = io_writePorts_0_physReg;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    nextMapRegMapping_21 = mapReg_mapping_21;
-    if(io_checkpointRestore_valid) begin
-      nextMapRegMapping_21 = io_checkpointRestore_payload_mapping_21;
-    end else begin
-      if(when_RenameMapTable_l138) begin
-        if(_zz_1[21]) begin
-          nextMapRegMapping_21 = io_writePorts_0_physReg;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    nextMapRegMapping_22 = mapReg_mapping_22;
-    if(io_checkpointRestore_valid) begin
-      nextMapRegMapping_22 = io_checkpointRestore_payload_mapping_22;
-    end else begin
-      if(when_RenameMapTable_l138) begin
-        if(_zz_1[22]) begin
-          nextMapRegMapping_22 = io_writePorts_0_physReg;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    nextMapRegMapping_23 = mapReg_mapping_23;
-    if(io_checkpointRestore_valid) begin
-      nextMapRegMapping_23 = io_checkpointRestore_payload_mapping_23;
-    end else begin
-      if(when_RenameMapTable_l138) begin
-        if(_zz_1[23]) begin
-          nextMapRegMapping_23 = io_writePorts_0_physReg;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    nextMapRegMapping_24 = mapReg_mapping_24;
-    if(io_checkpointRestore_valid) begin
-      nextMapRegMapping_24 = io_checkpointRestore_payload_mapping_24;
-    end else begin
-      if(when_RenameMapTable_l138) begin
-        if(_zz_1[24]) begin
-          nextMapRegMapping_24 = io_writePorts_0_physReg;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    nextMapRegMapping_25 = mapReg_mapping_25;
-    if(io_checkpointRestore_valid) begin
-      nextMapRegMapping_25 = io_checkpointRestore_payload_mapping_25;
-    end else begin
-      if(when_RenameMapTable_l138) begin
-        if(_zz_1[25]) begin
-          nextMapRegMapping_25 = io_writePorts_0_physReg;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    nextMapRegMapping_26 = mapReg_mapping_26;
-    if(io_checkpointRestore_valid) begin
-      nextMapRegMapping_26 = io_checkpointRestore_payload_mapping_26;
-    end else begin
-      if(when_RenameMapTable_l138) begin
-        if(_zz_1[26]) begin
-          nextMapRegMapping_26 = io_writePorts_0_physReg;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    nextMapRegMapping_27 = mapReg_mapping_27;
-    if(io_checkpointRestore_valid) begin
-      nextMapRegMapping_27 = io_checkpointRestore_payload_mapping_27;
-    end else begin
-      if(when_RenameMapTable_l138) begin
-        if(_zz_1[27]) begin
-          nextMapRegMapping_27 = io_writePorts_0_physReg;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    nextMapRegMapping_28 = mapReg_mapping_28;
-    if(io_checkpointRestore_valid) begin
-      nextMapRegMapping_28 = io_checkpointRestore_payload_mapping_28;
-    end else begin
-      if(when_RenameMapTable_l138) begin
-        if(_zz_1[28]) begin
-          nextMapRegMapping_28 = io_writePorts_0_physReg;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    nextMapRegMapping_29 = mapReg_mapping_29;
-    if(io_checkpointRestore_valid) begin
-      nextMapRegMapping_29 = io_checkpointRestore_payload_mapping_29;
-    end else begin
-      if(when_RenameMapTable_l138) begin
-        if(_zz_1[29]) begin
-          nextMapRegMapping_29 = io_writePorts_0_physReg;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    nextMapRegMapping_30 = mapReg_mapping_30;
-    if(io_checkpointRestore_valid) begin
-      nextMapRegMapping_30 = io_checkpointRestore_payload_mapping_30;
-    end else begin
-      if(when_RenameMapTable_l138) begin
-        if(_zz_1[30]) begin
-          nextMapRegMapping_30 = io_writePorts_0_physReg;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    nextMapRegMapping_31 = mapReg_mapping_31;
-    if(io_checkpointRestore_valid) begin
-      nextMapRegMapping_31 = io_checkpointRestore_payload_mapping_31;
-    end else begin
-      if(when_RenameMapTable_l138) begin
-        if(_zz_1[31]) begin
-          nextMapRegMapping_31 = io_writePorts_0_physReg;
-        end
-      end
-    end
-  end
-
-  assign when_RenameMapTable_l120 = (io_readPorts_0_archReg == 5'h0);
-  always @(*) begin
-    if(when_RenameMapTable_l120) begin
+    if(when_RenameMapTable_l124) begin
       io_readPorts_0_physReg = 6'h0;
     end else begin
       io_readPorts_0_physReg = _zz_io_readPorts_0_physReg;
     end
   end
 
-  assign when_RenameMapTable_l120_1 = (io_readPorts_1_archReg == 5'h0);
+  assign when_RenameMapTable_l124_1 = (io_readPorts_1_archReg == 5'h0);
   always @(*) begin
-    if(when_RenameMapTable_l120_1) begin
+    if(when_RenameMapTable_l124_1) begin
       io_readPorts_1_physReg = 6'h0;
     end else begin
       io_readPorts_1_physReg = _zz_io_readPorts_1_physReg;
     end
   end
 
-  assign when_RenameMapTable_l120_2 = (io_readPorts_2_archReg == 5'h0);
+  assign when_RenameMapTable_l124_2 = (io_readPorts_2_archReg == 5'h0);
   always @(*) begin
-    if(when_RenameMapTable_l120_2) begin
+    if(when_RenameMapTable_l124_2) begin
       io_readPorts_2_physReg = 6'h0;
     end else begin
       io_readPorts_2_physReg = _zz_io_readPorts_2_physReg;
     end
   end
 
-  assign when_RenameMapTable_l138 = (io_writePorts_0_wen && (io_writePorts_0_archReg != 5'h0));
+  always @(*) begin
+    nextRratMapRegMapping_0 = rratMapReg_mapping_0;
+    if(io_checkpointRestore_valid) begin
+      nextRratMapRegMapping_0 = io_checkpointRestore_payload_mapping_0;
+    end else begin
+      if(when_RenameMapTable_l139) begin
+        if(_zz_1[0]) begin
+          nextRratMapRegMapping_0 = io_writePorts_0_physReg;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    nextRratMapRegMapping_1 = rratMapReg_mapping_1;
+    if(io_checkpointRestore_valid) begin
+      nextRratMapRegMapping_1 = io_checkpointRestore_payload_mapping_1;
+    end else begin
+      if(when_RenameMapTable_l139) begin
+        if(_zz_1[1]) begin
+          nextRratMapRegMapping_1 = io_writePorts_0_physReg;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    nextRratMapRegMapping_2 = rratMapReg_mapping_2;
+    if(io_checkpointRestore_valid) begin
+      nextRratMapRegMapping_2 = io_checkpointRestore_payload_mapping_2;
+    end else begin
+      if(when_RenameMapTable_l139) begin
+        if(_zz_1[2]) begin
+          nextRratMapRegMapping_2 = io_writePorts_0_physReg;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    nextRratMapRegMapping_3 = rratMapReg_mapping_3;
+    if(io_checkpointRestore_valid) begin
+      nextRratMapRegMapping_3 = io_checkpointRestore_payload_mapping_3;
+    end else begin
+      if(when_RenameMapTable_l139) begin
+        if(_zz_1[3]) begin
+          nextRratMapRegMapping_3 = io_writePorts_0_physReg;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    nextRratMapRegMapping_4 = rratMapReg_mapping_4;
+    if(io_checkpointRestore_valid) begin
+      nextRratMapRegMapping_4 = io_checkpointRestore_payload_mapping_4;
+    end else begin
+      if(when_RenameMapTable_l139) begin
+        if(_zz_1[4]) begin
+          nextRratMapRegMapping_4 = io_writePorts_0_physReg;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    nextRratMapRegMapping_5 = rratMapReg_mapping_5;
+    if(io_checkpointRestore_valid) begin
+      nextRratMapRegMapping_5 = io_checkpointRestore_payload_mapping_5;
+    end else begin
+      if(when_RenameMapTable_l139) begin
+        if(_zz_1[5]) begin
+          nextRratMapRegMapping_5 = io_writePorts_0_physReg;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    nextRratMapRegMapping_6 = rratMapReg_mapping_6;
+    if(io_checkpointRestore_valid) begin
+      nextRratMapRegMapping_6 = io_checkpointRestore_payload_mapping_6;
+    end else begin
+      if(when_RenameMapTable_l139) begin
+        if(_zz_1[6]) begin
+          nextRratMapRegMapping_6 = io_writePorts_0_physReg;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    nextRratMapRegMapping_7 = rratMapReg_mapping_7;
+    if(io_checkpointRestore_valid) begin
+      nextRratMapRegMapping_7 = io_checkpointRestore_payload_mapping_7;
+    end else begin
+      if(when_RenameMapTable_l139) begin
+        if(_zz_1[7]) begin
+          nextRratMapRegMapping_7 = io_writePorts_0_physReg;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    nextRratMapRegMapping_8 = rratMapReg_mapping_8;
+    if(io_checkpointRestore_valid) begin
+      nextRratMapRegMapping_8 = io_checkpointRestore_payload_mapping_8;
+    end else begin
+      if(when_RenameMapTable_l139) begin
+        if(_zz_1[8]) begin
+          nextRratMapRegMapping_8 = io_writePorts_0_physReg;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    nextRratMapRegMapping_9 = rratMapReg_mapping_9;
+    if(io_checkpointRestore_valid) begin
+      nextRratMapRegMapping_9 = io_checkpointRestore_payload_mapping_9;
+    end else begin
+      if(when_RenameMapTable_l139) begin
+        if(_zz_1[9]) begin
+          nextRratMapRegMapping_9 = io_writePorts_0_physReg;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    nextRratMapRegMapping_10 = rratMapReg_mapping_10;
+    if(io_checkpointRestore_valid) begin
+      nextRratMapRegMapping_10 = io_checkpointRestore_payload_mapping_10;
+    end else begin
+      if(when_RenameMapTable_l139) begin
+        if(_zz_1[10]) begin
+          nextRratMapRegMapping_10 = io_writePorts_0_physReg;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    nextRratMapRegMapping_11 = rratMapReg_mapping_11;
+    if(io_checkpointRestore_valid) begin
+      nextRratMapRegMapping_11 = io_checkpointRestore_payload_mapping_11;
+    end else begin
+      if(when_RenameMapTable_l139) begin
+        if(_zz_1[11]) begin
+          nextRratMapRegMapping_11 = io_writePorts_0_physReg;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    nextRratMapRegMapping_12 = rratMapReg_mapping_12;
+    if(io_checkpointRestore_valid) begin
+      nextRratMapRegMapping_12 = io_checkpointRestore_payload_mapping_12;
+    end else begin
+      if(when_RenameMapTable_l139) begin
+        if(_zz_1[12]) begin
+          nextRratMapRegMapping_12 = io_writePorts_0_physReg;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    nextRratMapRegMapping_13 = rratMapReg_mapping_13;
+    if(io_checkpointRestore_valid) begin
+      nextRratMapRegMapping_13 = io_checkpointRestore_payload_mapping_13;
+    end else begin
+      if(when_RenameMapTable_l139) begin
+        if(_zz_1[13]) begin
+          nextRratMapRegMapping_13 = io_writePorts_0_physReg;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    nextRratMapRegMapping_14 = rratMapReg_mapping_14;
+    if(io_checkpointRestore_valid) begin
+      nextRratMapRegMapping_14 = io_checkpointRestore_payload_mapping_14;
+    end else begin
+      if(when_RenameMapTable_l139) begin
+        if(_zz_1[14]) begin
+          nextRratMapRegMapping_14 = io_writePorts_0_physReg;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    nextRratMapRegMapping_15 = rratMapReg_mapping_15;
+    if(io_checkpointRestore_valid) begin
+      nextRratMapRegMapping_15 = io_checkpointRestore_payload_mapping_15;
+    end else begin
+      if(when_RenameMapTable_l139) begin
+        if(_zz_1[15]) begin
+          nextRratMapRegMapping_15 = io_writePorts_0_physReg;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    nextRratMapRegMapping_16 = rratMapReg_mapping_16;
+    if(io_checkpointRestore_valid) begin
+      nextRratMapRegMapping_16 = io_checkpointRestore_payload_mapping_16;
+    end else begin
+      if(when_RenameMapTable_l139) begin
+        if(_zz_1[16]) begin
+          nextRratMapRegMapping_16 = io_writePorts_0_physReg;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    nextRratMapRegMapping_17 = rratMapReg_mapping_17;
+    if(io_checkpointRestore_valid) begin
+      nextRratMapRegMapping_17 = io_checkpointRestore_payload_mapping_17;
+    end else begin
+      if(when_RenameMapTable_l139) begin
+        if(_zz_1[17]) begin
+          nextRratMapRegMapping_17 = io_writePorts_0_physReg;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    nextRratMapRegMapping_18 = rratMapReg_mapping_18;
+    if(io_checkpointRestore_valid) begin
+      nextRratMapRegMapping_18 = io_checkpointRestore_payload_mapping_18;
+    end else begin
+      if(when_RenameMapTable_l139) begin
+        if(_zz_1[18]) begin
+          nextRratMapRegMapping_18 = io_writePorts_0_physReg;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    nextRratMapRegMapping_19 = rratMapReg_mapping_19;
+    if(io_checkpointRestore_valid) begin
+      nextRratMapRegMapping_19 = io_checkpointRestore_payload_mapping_19;
+    end else begin
+      if(when_RenameMapTable_l139) begin
+        if(_zz_1[19]) begin
+          nextRratMapRegMapping_19 = io_writePorts_0_physReg;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    nextRratMapRegMapping_20 = rratMapReg_mapping_20;
+    if(io_checkpointRestore_valid) begin
+      nextRratMapRegMapping_20 = io_checkpointRestore_payload_mapping_20;
+    end else begin
+      if(when_RenameMapTable_l139) begin
+        if(_zz_1[20]) begin
+          nextRratMapRegMapping_20 = io_writePorts_0_physReg;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    nextRratMapRegMapping_21 = rratMapReg_mapping_21;
+    if(io_checkpointRestore_valid) begin
+      nextRratMapRegMapping_21 = io_checkpointRestore_payload_mapping_21;
+    end else begin
+      if(when_RenameMapTable_l139) begin
+        if(_zz_1[21]) begin
+          nextRratMapRegMapping_21 = io_writePorts_0_physReg;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    nextRratMapRegMapping_22 = rratMapReg_mapping_22;
+    if(io_checkpointRestore_valid) begin
+      nextRratMapRegMapping_22 = io_checkpointRestore_payload_mapping_22;
+    end else begin
+      if(when_RenameMapTable_l139) begin
+        if(_zz_1[22]) begin
+          nextRratMapRegMapping_22 = io_writePorts_0_physReg;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    nextRratMapRegMapping_23 = rratMapReg_mapping_23;
+    if(io_checkpointRestore_valid) begin
+      nextRratMapRegMapping_23 = io_checkpointRestore_payload_mapping_23;
+    end else begin
+      if(when_RenameMapTable_l139) begin
+        if(_zz_1[23]) begin
+          nextRratMapRegMapping_23 = io_writePorts_0_physReg;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    nextRratMapRegMapping_24 = rratMapReg_mapping_24;
+    if(io_checkpointRestore_valid) begin
+      nextRratMapRegMapping_24 = io_checkpointRestore_payload_mapping_24;
+    end else begin
+      if(when_RenameMapTable_l139) begin
+        if(_zz_1[24]) begin
+          nextRratMapRegMapping_24 = io_writePorts_0_physReg;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    nextRratMapRegMapping_25 = rratMapReg_mapping_25;
+    if(io_checkpointRestore_valid) begin
+      nextRratMapRegMapping_25 = io_checkpointRestore_payload_mapping_25;
+    end else begin
+      if(when_RenameMapTable_l139) begin
+        if(_zz_1[25]) begin
+          nextRratMapRegMapping_25 = io_writePorts_0_physReg;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    nextRratMapRegMapping_26 = rratMapReg_mapping_26;
+    if(io_checkpointRestore_valid) begin
+      nextRratMapRegMapping_26 = io_checkpointRestore_payload_mapping_26;
+    end else begin
+      if(when_RenameMapTable_l139) begin
+        if(_zz_1[26]) begin
+          nextRratMapRegMapping_26 = io_writePorts_0_physReg;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    nextRratMapRegMapping_27 = rratMapReg_mapping_27;
+    if(io_checkpointRestore_valid) begin
+      nextRratMapRegMapping_27 = io_checkpointRestore_payload_mapping_27;
+    end else begin
+      if(when_RenameMapTable_l139) begin
+        if(_zz_1[27]) begin
+          nextRratMapRegMapping_27 = io_writePorts_0_physReg;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    nextRratMapRegMapping_28 = rratMapReg_mapping_28;
+    if(io_checkpointRestore_valid) begin
+      nextRratMapRegMapping_28 = io_checkpointRestore_payload_mapping_28;
+    end else begin
+      if(when_RenameMapTable_l139) begin
+        if(_zz_1[28]) begin
+          nextRratMapRegMapping_28 = io_writePorts_0_physReg;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    nextRratMapRegMapping_29 = rratMapReg_mapping_29;
+    if(io_checkpointRestore_valid) begin
+      nextRratMapRegMapping_29 = io_checkpointRestore_payload_mapping_29;
+    end else begin
+      if(when_RenameMapTable_l139) begin
+        if(_zz_1[29]) begin
+          nextRratMapRegMapping_29 = io_writePorts_0_physReg;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    nextRratMapRegMapping_30 = rratMapReg_mapping_30;
+    if(io_checkpointRestore_valid) begin
+      nextRratMapRegMapping_30 = io_checkpointRestore_payload_mapping_30;
+    end else begin
+      if(when_RenameMapTable_l139) begin
+        if(_zz_1[30]) begin
+          nextRratMapRegMapping_30 = io_writePorts_0_physReg;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    nextRratMapRegMapping_31 = rratMapReg_mapping_31;
+    if(io_checkpointRestore_valid) begin
+      nextRratMapRegMapping_31 = io_checkpointRestore_payload_mapping_31;
+    end else begin
+      if(when_RenameMapTable_l139) begin
+        if(_zz_1[31]) begin
+          nextRratMapRegMapping_31 = io_writePorts_0_physReg;
+        end
+      end
+    end
+  end
+
+  assign when_RenameMapTable_l139 = (io_writePorts_0_wen && (io_writePorts_0_archReg != 5'h0));
   assign _zz_1 = ({31'd0,1'b1} <<< io_writePorts_0_archReg);
+  always @(*) begin
+    nextAratMapRegMapping_0 = aratMapReg_mapping_0;
+    if(when_RenameMapTable_l149) begin
+      if(_zz_2[0]) begin
+        nextAratMapRegMapping_0 = io_commitUpdatePort_physReg;
+      end
+    end
+  end
+
+  always @(*) begin
+    nextAratMapRegMapping_1 = aratMapReg_mapping_1;
+    if(when_RenameMapTable_l149) begin
+      if(_zz_2[1]) begin
+        nextAratMapRegMapping_1 = io_commitUpdatePort_physReg;
+      end
+    end
+  end
+
+  always @(*) begin
+    nextAratMapRegMapping_2 = aratMapReg_mapping_2;
+    if(when_RenameMapTable_l149) begin
+      if(_zz_2[2]) begin
+        nextAratMapRegMapping_2 = io_commitUpdatePort_physReg;
+      end
+    end
+  end
+
+  always @(*) begin
+    nextAratMapRegMapping_3 = aratMapReg_mapping_3;
+    if(when_RenameMapTable_l149) begin
+      if(_zz_2[3]) begin
+        nextAratMapRegMapping_3 = io_commitUpdatePort_physReg;
+      end
+    end
+  end
+
+  always @(*) begin
+    nextAratMapRegMapping_4 = aratMapReg_mapping_4;
+    if(when_RenameMapTable_l149) begin
+      if(_zz_2[4]) begin
+        nextAratMapRegMapping_4 = io_commitUpdatePort_physReg;
+      end
+    end
+  end
+
+  always @(*) begin
+    nextAratMapRegMapping_5 = aratMapReg_mapping_5;
+    if(when_RenameMapTable_l149) begin
+      if(_zz_2[5]) begin
+        nextAratMapRegMapping_5 = io_commitUpdatePort_physReg;
+      end
+    end
+  end
+
+  always @(*) begin
+    nextAratMapRegMapping_6 = aratMapReg_mapping_6;
+    if(when_RenameMapTable_l149) begin
+      if(_zz_2[6]) begin
+        nextAratMapRegMapping_6 = io_commitUpdatePort_physReg;
+      end
+    end
+  end
+
+  always @(*) begin
+    nextAratMapRegMapping_7 = aratMapReg_mapping_7;
+    if(when_RenameMapTable_l149) begin
+      if(_zz_2[7]) begin
+        nextAratMapRegMapping_7 = io_commitUpdatePort_physReg;
+      end
+    end
+  end
+
+  always @(*) begin
+    nextAratMapRegMapping_8 = aratMapReg_mapping_8;
+    if(when_RenameMapTable_l149) begin
+      if(_zz_2[8]) begin
+        nextAratMapRegMapping_8 = io_commitUpdatePort_physReg;
+      end
+    end
+  end
+
+  always @(*) begin
+    nextAratMapRegMapping_9 = aratMapReg_mapping_9;
+    if(when_RenameMapTable_l149) begin
+      if(_zz_2[9]) begin
+        nextAratMapRegMapping_9 = io_commitUpdatePort_physReg;
+      end
+    end
+  end
+
+  always @(*) begin
+    nextAratMapRegMapping_10 = aratMapReg_mapping_10;
+    if(when_RenameMapTable_l149) begin
+      if(_zz_2[10]) begin
+        nextAratMapRegMapping_10 = io_commitUpdatePort_physReg;
+      end
+    end
+  end
+
+  always @(*) begin
+    nextAratMapRegMapping_11 = aratMapReg_mapping_11;
+    if(when_RenameMapTable_l149) begin
+      if(_zz_2[11]) begin
+        nextAratMapRegMapping_11 = io_commitUpdatePort_physReg;
+      end
+    end
+  end
+
+  always @(*) begin
+    nextAratMapRegMapping_12 = aratMapReg_mapping_12;
+    if(when_RenameMapTable_l149) begin
+      if(_zz_2[12]) begin
+        nextAratMapRegMapping_12 = io_commitUpdatePort_physReg;
+      end
+    end
+  end
+
+  always @(*) begin
+    nextAratMapRegMapping_13 = aratMapReg_mapping_13;
+    if(when_RenameMapTable_l149) begin
+      if(_zz_2[13]) begin
+        nextAratMapRegMapping_13 = io_commitUpdatePort_physReg;
+      end
+    end
+  end
+
+  always @(*) begin
+    nextAratMapRegMapping_14 = aratMapReg_mapping_14;
+    if(when_RenameMapTable_l149) begin
+      if(_zz_2[14]) begin
+        nextAratMapRegMapping_14 = io_commitUpdatePort_physReg;
+      end
+    end
+  end
+
+  always @(*) begin
+    nextAratMapRegMapping_15 = aratMapReg_mapping_15;
+    if(when_RenameMapTable_l149) begin
+      if(_zz_2[15]) begin
+        nextAratMapRegMapping_15 = io_commitUpdatePort_physReg;
+      end
+    end
+  end
+
+  always @(*) begin
+    nextAratMapRegMapping_16 = aratMapReg_mapping_16;
+    if(when_RenameMapTable_l149) begin
+      if(_zz_2[16]) begin
+        nextAratMapRegMapping_16 = io_commitUpdatePort_physReg;
+      end
+    end
+  end
+
+  always @(*) begin
+    nextAratMapRegMapping_17 = aratMapReg_mapping_17;
+    if(when_RenameMapTable_l149) begin
+      if(_zz_2[17]) begin
+        nextAratMapRegMapping_17 = io_commitUpdatePort_physReg;
+      end
+    end
+  end
+
+  always @(*) begin
+    nextAratMapRegMapping_18 = aratMapReg_mapping_18;
+    if(when_RenameMapTable_l149) begin
+      if(_zz_2[18]) begin
+        nextAratMapRegMapping_18 = io_commitUpdatePort_physReg;
+      end
+    end
+  end
+
+  always @(*) begin
+    nextAratMapRegMapping_19 = aratMapReg_mapping_19;
+    if(when_RenameMapTable_l149) begin
+      if(_zz_2[19]) begin
+        nextAratMapRegMapping_19 = io_commitUpdatePort_physReg;
+      end
+    end
+  end
+
+  always @(*) begin
+    nextAratMapRegMapping_20 = aratMapReg_mapping_20;
+    if(when_RenameMapTable_l149) begin
+      if(_zz_2[20]) begin
+        nextAratMapRegMapping_20 = io_commitUpdatePort_physReg;
+      end
+    end
+  end
+
+  always @(*) begin
+    nextAratMapRegMapping_21 = aratMapReg_mapping_21;
+    if(when_RenameMapTable_l149) begin
+      if(_zz_2[21]) begin
+        nextAratMapRegMapping_21 = io_commitUpdatePort_physReg;
+      end
+    end
+  end
+
+  always @(*) begin
+    nextAratMapRegMapping_22 = aratMapReg_mapping_22;
+    if(when_RenameMapTable_l149) begin
+      if(_zz_2[22]) begin
+        nextAratMapRegMapping_22 = io_commitUpdatePort_physReg;
+      end
+    end
+  end
+
+  always @(*) begin
+    nextAratMapRegMapping_23 = aratMapReg_mapping_23;
+    if(when_RenameMapTable_l149) begin
+      if(_zz_2[23]) begin
+        nextAratMapRegMapping_23 = io_commitUpdatePort_physReg;
+      end
+    end
+  end
+
+  always @(*) begin
+    nextAratMapRegMapping_24 = aratMapReg_mapping_24;
+    if(when_RenameMapTable_l149) begin
+      if(_zz_2[24]) begin
+        nextAratMapRegMapping_24 = io_commitUpdatePort_physReg;
+      end
+    end
+  end
+
+  always @(*) begin
+    nextAratMapRegMapping_25 = aratMapReg_mapping_25;
+    if(when_RenameMapTable_l149) begin
+      if(_zz_2[25]) begin
+        nextAratMapRegMapping_25 = io_commitUpdatePort_physReg;
+      end
+    end
+  end
+
+  always @(*) begin
+    nextAratMapRegMapping_26 = aratMapReg_mapping_26;
+    if(when_RenameMapTable_l149) begin
+      if(_zz_2[26]) begin
+        nextAratMapRegMapping_26 = io_commitUpdatePort_physReg;
+      end
+    end
+  end
+
+  always @(*) begin
+    nextAratMapRegMapping_27 = aratMapReg_mapping_27;
+    if(when_RenameMapTable_l149) begin
+      if(_zz_2[27]) begin
+        nextAratMapRegMapping_27 = io_commitUpdatePort_physReg;
+      end
+    end
+  end
+
+  always @(*) begin
+    nextAratMapRegMapping_28 = aratMapReg_mapping_28;
+    if(when_RenameMapTable_l149) begin
+      if(_zz_2[28]) begin
+        nextAratMapRegMapping_28 = io_commitUpdatePort_physReg;
+      end
+    end
+  end
+
+  always @(*) begin
+    nextAratMapRegMapping_29 = aratMapReg_mapping_29;
+    if(when_RenameMapTable_l149) begin
+      if(_zz_2[29]) begin
+        nextAratMapRegMapping_29 = io_commitUpdatePort_physReg;
+      end
+    end
+  end
+
+  always @(*) begin
+    nextAratMapRegMapping_30 = aratMapReg_mapping_30;
+    if(when_RenameMapTable_l149) begin
+      if(_zz_2[30]) begin
+        nextAratMapRegMapping_30 = io_commitUpdatePort_physReg;
+      end
+    end
+  end
+
+  always @(*) begin
+    nextAratMapRegMapping_31 = aratMapReg_mapping_31;
+    if(when_RenameMapTable_l149) begin
+      if(_zz_2[31]) begin
+        nextAratMapRegMapping_31 = io_commitUpdatePort_physReg;
+      end
+    end
+  end
+
+  assign when_RenameMapTable_l149 = (io_commitUpdatePort_wen && (io_commitUpdatePort_archReg != 5'h0));
+  assign _zz_2 = ({31'd0,1'b1} <<< io_commitUpdatePort_archReg);
   assign io_checkpointRestore_ready = 1'b1;
   assign io_checkpointSave_ready = 1'b1;
-  assign io_currentState_mapping_0 = mapReg_mapping_0;
-  assign io_currentState_mapping_1 = mapReg_mapping_1;
-  assign io_currentState_mapping_2 = mapReg_mapping_2;
-  assign io_currentState_mapping_3 = mapReg_mapping_3;
-  assign io_currentState_mapping_4 = mapReg_mapping_4;
-  assign io_currentState_mapping_5 = mapReg_mapping_5;
-  assign io_currentState_mapping_6 = mapReg_mapping_6;
-  assign io_currentState_mapping_7 = mapReg_mapping_7;
-  assign io_currentState_mapping_8 = mapReg_mapping_8;
-  assign io_currentState_mapping_9 = mapReg_mapping_9;
-  assign io_currentState_mapping_10 = mapReg_mapping_10;
-  assign io_currentState_mapping_11 = mapReg_mapping_11;
-  assign io_currentState_mapping_12 = mapReg_mapping_12;
-  assign io_currentState_mapping_13 = mapReg_mapping_13;
-  assign io_currentState_mapping_14 = mapReg_mapping_14;
-  assign io_currentState_mapping_15 = mapReg_mapping_15;
-  assign io_currentState_mapping_16 = mapReg_mapping_16;
-  assign io_currentState_mapping_17 = mapReg_mapping_17;
-  assign io_currentState_mapping_18 = mapReg_mapping_18;
-  assign io_currentState_mapping_19 = mapReg_mapping_19;
-  assign io_currentState_mapping_20 = mapReg_mapping_20;
-  assign io_currentState_mapping_21 = mapReg_mapping_21;
-  assign io_currentState_mapping_22 = mapReg_mapping_22;
-  assign io_currentState_mapping_23 = mapReg_mapping_23;
-  assign io_currentState_mapping_24 = mapReg_mapping_24;
-  assign io_currentState_mapping_25 = mapReg_mapping_25;
-  assign io_currentState_mapping_26 = mapReg_mapping_26;
-  assign io_currentState_mapping_27 = mapReg_mapping_27;
-  assign io_currentState_mapping_28 = mapReg_mapping_28;
-  assign io_currentState_mapping_29 = mapReg_mapping_29;
-  assign io_currentState_mapping_30 = mapReg_mapping_30;
-  assign io_currentState_mapping_31 = mapReg_mapping_31;
+  assign io_currentState_mapping_0 = nextAratMapRegMapping_0;
+  assign io_currentState_mapping_1 = nextAratMapRegMapping_1;
+  assign io_currentState_mapping_2 = nextAratMapRegMapping_2;
+  assign io_currentState_mapping_3 = nextAratMapRegMapping_3;
+  assign io_currentState_mapping_4 = nextAratMapRegMapping_4;
+  assign io_currentState_mapping_5 = nextAratMapRegMapping_5;
+  assign io_currentState_mapping_6 = nextAratMapRegMapping_6;
+  assign io_currentState_mapping_7 = nextAratMapRegMapping_7;
+  assign io_currentState_mapping_8 = nextAratMapRegMapping_8;
+  assign io_currentState_mapping_9 = nextAratMapRegMapping_9;
+  assign io_currentState_mapping_10 = nextAratMapRegMapping_10;
+  assign io_currentState_mapping_11 = nextAratMapRegMapping_11;
+  assign io_currentState_mapping_12 = nextAratMapRegMapping_12;
+  assign io_currentState_mapping_13 = nextAratMapRegMapping_13;
+  assign io_currentState_mapping_14 = nextAratMapRegMapping_14;
+  assign io_currentState_mapping_15 = nextAratMapRegMapping_15;
+  assign io_currentState_mapping_16 = nextAratMapRegMapping_16;
+  assign io_currentState_mapping_17 = nextAratMapRegMapping_17;
+  assign io_currentState_mapping_18 = nextAratMapRegMapping_18;
+  assign io_currentState_mapping_19 = nextAratMapRegMapping_19;
+  assign io_currentState_mapping_20 = nextAratMapRegMapping_20;
+  assign io_currentState_mapping_21 = nextAratMapRegMapping_21;
+  assign io_currentState_mapping_22 = nextAratMapRegMapping_22;
+  assign io_currentState_mapping_23 = nextAratMapRegMapping_23;
+  assign io_currentState_mapping_24 = nextAratMapRegMapping_24;
+  assign io_currentState_mapping_25 = nextAratMapRegMapping_25;
+  assign io_currentState_mapping_26 = nextAratMapRegMapping_26;
+  assign io_currentState_mapping_27 = nextAratMapRegMapping_27;
+  assign io_currentState_mapping_28 = nextAratMapRegMapping_28;
+  assign io_currentState_mapping_29 = nextAratMapRegMapping_29;
+  assign io_currentState_mapping_30 = nextAratMapRegMapping_30;
+  assign io_currentState_mapping_31 = nextAratMapRegMapping_31;
   always @(posedge clk) begin
     if(reset) begin
-      mapReg_mapping_0 <= 6'h0;
-      mapReg_mapping_1 <= 6'h01;
-      mapReg_mapping_2 <= 6'h02;
-      mapReg_mapping_3 <= 6'h03;
-      mapReg_mapping_4 <= 6'h04;
-      mapReg_mapping_5 <= 6'h05;
-      mapReg_mapping_6 <= 6'h06;
-      mapReg_mapping_7 <= 6'h07;
-      mapReg_mapping_8 <= 6'h08;
-      mapReg_mapping_9 <= 6'h09;
-      mapReg_mapping_10 <= 6'h0a;
-      mapReg_mapping_11 <= 6'h0b;
-      mapReg_mapping_12 <= 6'h0c;
-      mapReg_mapping_13 <= 6'h0d;
-      mapReg_mapping_14 <= 6'h0e;
-      mapReg_mapping_15 <= 6'h0f;
-      mapReg_mapping_16 <= 6'h10;
-      mapReg_mapping_17 <= 6'h11;
-      mapReg_mapping_18 <= 6'h12;
-      mapReg_mapping_19 <= 6'h13;
-      mapReg_mapping_20 <= 6'h14;
-      mapReg_mapping_21 <= 6'h15;
-      mapReg_mapping_22 <= 6'h16;
-      mapReg_mapping_23 <= 6'h17;
-      mapReg_mapping_24 <= 6'h18;
-      mapReg_mapping_25 <= 6'h19;
-      mapReg_mapping_26 <= 6'h1a;
-      mapReg_mapping_27 <= 6'h1b;
-      mapReg_mapping_28 <= 6'h1c;
-      mapReg_mapping_29 <= 6'h1d;
-      mapReg_mapping_30 <= 6'h1e;
-      mapReg_mapping_31 <= 6'h1f;
+      aratMapReg_mapping_0 <= 6'h0;
+      aratMapReg_mapping_1 <= 6'h01;
+      aratMapReg_mapping_2 <= 6'h02;
+      aratMapReg_mapping_3 <= 6'h03;
+      aratMapReg_mapping_4 <= 6'h04;
+      aratMapReg_mapping_5 <= 6'h05;
+      aratMapReg_mapping_6 <= 6'h06;
+      aratMapReg_mapping_7 <= 6'h07;
+      aratMapReg_mapping_8 <= 6'h08;
+      aratMapReg_mapping_9 <= 6'h09;
+      aratMapReg_mapping_10 <= 6'h0a;
+      aratMapReg_mapping_11 <= 6'h0b;
+      aratMapReg_mapping_12 <= 6'h0c;
+      aratMapReg_mapping_13 <= 6'h0d;
+      aratMapReg_mapping_14 <= 6'h0e;
+      aratMapReg_mapping_15 <= 6'h0f;
+      aratMapReg_mapping_16 <= 6'h10;
+      aratMapReg_mapping_17 <= 6'h11;
+      aratMapReg_mapping_18 <= 6'h12;
+      aratMapReg_mapping_19 <= 6'h13;
+      aratMapReg_mapping_20 <= 6'h14;
+      aratMapReg_mapping_21 <= 6'h15;
+      aratMapReg_mapping_22 <= 6'h16;
+      aratMapReg_mapping_23 <= 6'h17;
+      aratMapReg_mapping_24 <= 6'h18;
+      aratMapReg_mapping_25 <= 6'h19;
+      aratMapReg_mapping_26 <= 6'h1a;
+      aratMapReg_mapping_27 <= 6'h1b;
+      aratMapReg_mapping_28 <= 6'h1c;
+      aratMapReg_mapping_29 <= 6'h1d;
+      aratMapReg_mapping_30 <= 6'h1e;
+      aratMapReg_mapping_31 <= 6'h1f;
+      rratMapReg_mapping_0 <= 6'h0;
+      rratMapReg_mapping_1 <= 6'h01;
+      rratMapReg_mapping_2 <= 6'h02;
+      rratMapReg_mapping_3 <= 6'h03;
+      rratMapReg_mapping_4 <= 6'h04;
+      rratMapReg_mapping_5 <= 6'h05;
+      rratMapReg_mapping_6 <= 6'h06;
+      rratMapReg_mapping_7 <= 6'h07;
+      rratMapReg_mapping_8 <= 6'h08;
+      rratMapReg_mapping_9 <= 6'h09;
+      rratMapReg_mapping_10 <= 6'h0a;
+      rratMapReg_mapping_11 <= 6'h0b;
+      rratMapReg_mapping_12 <= 6'h0c;
+      rratMapReg_mapping_13 <= 6'h0d;
+      rratMapReg_mapping_14 <= 6'h0e;
+      rratMapReg_mapping_15 <= 6'h0f;
+      rratMapReg_mapping_16 <= 6'h10;
+      rratMapReg_mapping_17 <= 6'h11;
+      rratMapReg_mapping_18 <= 6'h12;
+      rratMapReg_mapping_19 <= 6'h13;
+      rratMapReg_mapping_20 <= 6'h14;
+      rratMapReg_mapping_21 <= 6'h15;
+      rratMapReg_mapping_22 <= 6'h16;
+      rratMapReg_mapping_23 <= 6'h17;
+      rratMapReg_mapping_24 <= 6'h18;
+      rratMapReg_mapping_25 <= 6'h19;
+      rratMapReg_mapping_26 <= 6'h1a;
+      rratMapReg_mapping_27 <= 6'h1b;
+      rratMapReg_mapping_28 <= 6'h1c;
+      rratMapReg_mapping_29 <= 6'h1d;
+      rratMapReg_mapping_30 <= 6'h1e;
+      rratMapReg_mapping_31 <= 6'h1f;
     end else begin
-      mapReg_mapping_0 <= nextMapRegMapping_0;
-      mapReg_mapping_1 <= nextMapRegMapping_1;
-      mapReg_mapping_2 <= nextMapRegMapping_2;
-      mapReg_mapping_3 <= nextMapRegMapping_3;
-      mapReg_mapping_4 <= nextMapRegMapping_4;
-      mapReg_mapping_5 <= nextMapRegMapping_5;
-      mapReg_mapping_6 <= nextMapRegMapping_6;
-      mapReg_mapping_7 <= nextMapRegMapping_7;
-      mapReg_mapping_8 <= nextMapRegMapping_8;
-      mapReg_mapping_9 <= nextMapRegMapping_9;
-      mapReg_mapping_10 <= nextMapRegMapping_10;
-      mapReg_mapping_11 <= nextMapRegMapping_11;
-      mapReg_mapping_12 <= nextMapRegMapping_12;
-      mapReg_mapping_13 <= nextMapRegMapping_13;
-      mapReg_mapping_14 <= nextMapRegMapping_14;
-      mapReg_mapping_15 <= nextMapRegMapping_15;
-      mapReg_mapping_16 <= nextMapRegMapping_16;
-      mapReg_mapping_17 <= nextMapRegMapping_17;
-      mapReg_mapping_18 <= nextMapRegMapping_18;
-      mapReg_mapping_19 <= nextMapRegMapping_19;
-      mapReg_mapping_20 <= nextMapRegMapping_20;
-      mapReg_mapping_21 <= nextMapRegMapping_21;
-      mapReg_mapping_22 <= nextMapRegMapping_22;
-      mapReg_mapping_23 <= nextMapRegMapping_23;
-      mapReg_mapping_24 <= nextMapRegMapping_24;
-      mapReg_mapping_25 <= nextMapRegMapping_25;
-      mapReg_mapping_26 <= nextMapRegMapping_26;
-      mapReg_mapping_27 <= nextMapRegMapping_27;
-      mapReg_mapping_28 <= nextMapRegMapping_28;
-      mapReg_mapping_29 <= nextMapRegMapping_29;
-      mapReg_mapping_30 <= nextMapRegMapping_30;
-      mapReg_mapping_31 <= nextMapRegMapping_31;
+      rratMapReg_mapping_0 <= nextRratMapRegMapping_0;
+      rratMapReg_mapping_1 <= nextRratMapRegMapping_1;
+      rratMapReg_mapping_2 <= nextRratMapRegMapping_2;
+      rratMapReg_mapping_3 <= nextRratMapRegMapping_3;
+      rratMapReg_mapping_4 <= nextRratMapRegMapping_4;
+      rratMapReg_mapping_5 <= nextRratMapRegMapping_5;
+      rratMapReg_mapping_6 <= nextRratMapRegMapping_6;
+      rratMapReg_mapping_7 <= nextRratMapRegMapping_7;
+      rratMapReg_mapping_8 <= nextRratMapRegMapping_8;
+      rratMapReg_mapping_9 <= nextRratMapRegMapping_9;
+      rratMapReg_mapping_10 <= nextRratMapRegMapping_10;
+      rratMapReg_mapping_11 <= nextRratMapRegMapping_11;
+      rratMapReg_mapping_12 <= nextRratMapRegMapping_12;
+      rratMapReg_mapping_13 <= nextRratMapRegMapping_13;
+      rratMapReg_mapping_14 <= nextRratMapRegMapping_14;
+      rratMapReg_mapping_15 <= nextRratMapRegMapping_15;
+      rratMapReg_mapping_16 <= nextRratMapRegMapping_16;
+      rratMapReg_mapping_17 <= nextRratMapRegMapping_17;
+      rratMapReg_mapping_18 <= nextRratMapRegMapping_18;
+      rratMapReg_mapping_19 <= nextRratMapRegMapping_19;
+      rratMapReg_mapping_20 <= nextRratMapRegMapping_20;
+      rratMapReg_mapping_21 <= nextRratMapRegMapping_21;
+      rratMapReg_mapping_22 <= nextRratMapRegMapping_22;
+      rratMapReg_mapping_23 <= nextRratMapRegMapping_23;
+      rratMapReg_mapping_24 <= nextRratMapRegMapping_24;
+      rratMapReg_mapping_25 <= nextRratMapRegMapping_25;
+      rratMapReg_mapping_26 <= nextRratMapRegMapping_26;
+      rratMapReg_mapping_27 <= nextRratMapRegMapping_27;
+      rratMapReg_mapping_28 <= nextRratMapRegMapping_28;
+      rratMapReg_mapping_29 <= nextRratMapRegMapping_29;
+      rratMapReg_mapping_30 <= nextRratMapRegMapping_30;
+      rratMapReg_mapping_31 <= nextRratMapRegMapping_31;
+      aratMapReg_mapping_0 <= nextAratMapRegMapping_0;
+      aratMapReg_mapping_1 <= nextAratMapRegMapping_1;
+      aratMapReg_mapping_2 <= nextAratMapRegMapping_2;
+      aratMapReg_mapping_3 <= nextAratMapRegMapping_3;
+      aratMapReg_mapping_4 <= nextAratMapRegMapping_4;
+      aratMapReg_mapping_5 <= nextAratMapRegMapping_5;
+      aratMapReg_mapping_6 <= nextAratMapRegMapping_6;
+      aratMapReg_mapping_7 <= nextAratMapRegMapping_7;
+      aratMapReg_mapping_8 <= nextAratMapRegMapping_8;
+      aratMapReg_mapping_9 <= nextAratMapRegMapping_9;
+      aratMapReg_mapping_10 <= nextAratMapRegMapping_10;
+      aratMapReg_mapping_11 <= nextAratMapRegMapping_11;
+      aratMapReg_mapping_12 <= nextAratMapRegMapping_12;
+      aratMapReg_mapping_13 <= nextAratMapRegMapping_13;
+      aratMapReg_mapping_14 <= nextAratMapRegMapping_14;
+      aratMapReg_mapping_15 <= nextAratMapRegMapping_15;
+      aratMapReg_mapping_16 <= nextAratMapRegMapping_16;
+      aratMapReg_mapping_17 <= nextAratMapRegMapping_17;
+      aratMapReg_mapping_18 <= nextAratMapRegMapping_18;
+      aratMapReg_mapping_19 <= nextAratMapRegMapping_19;
+      aratMapReg_mapping_20 <= nextAratMapRegMapping_20;
+      aratMapReg_mapping_21 <= nextAratMapRegMapping_21;
+      aratMapReg_mapping_22 <= nextAratMapRegMapping_22;
+      aratMapReg_mapping_23 <= nextAratMapRegMapping_23;
+      aratMapReg_mapping_24 <= nextAratMapRegMapping_24;
+      aratMapReg_mapping_25 <= nextAratMapRegMapping_25;
+      aratMapReg_mapping_26 <= nextAratMapRegMapping_26;
+      aratMapReg_mapping_27 <= nextAratMapRegMapping_27;
+      aratMapReg_mapping_28 <= nextAratMapRegMapping_28;
+      aratMapReg_mapping_29 <= nextAratMapRegMapping_29;
+      aratMapReg_mapping_30 <= nextAratMapRegMapping_30;
+      aratMapReg_mapping_31 <= nextAratMapRegMapping_31;
     end
   end
 
@@ -57029,58 +60349,6 @@ module StreamFifo (
     end
   end
 
-
-endmodule
-
-//InstructionPredecoder_3 replaced by InstructionPredecoder
-
-//InstructionPredecoder_2 replaced by InstructionPredecoder
-
-//InstructionPredecoder_1 replaced by InstructionPredecoder
-
-module InstructionPredecoder (
-  input  wire [31:0]   io_instruction,
-  output wire          io_predecodeInfo_isBranch,
-  output wire          io_predecodeInfo_isJump,
-  output wire          io_predecodeInfo_isDirectJump,
-  output wire [31:0]   io_predecodeInfo_jumpOffset,
-  output wire          io_predecodeInfo_isIdle
-);
-
-  wire       [27:0]   _zz_offset;
-  wire       [25:0]   _zz_offset_1;
-  wire       [5:0]    opcode;
-  wire                isBceqzBcnez;
-  wire                isJirl;
-  wire                isBeq;
-  wire                isBne;
-  wire                isBlt;
-  wire                isBge;
-  wire                isBltu;
-  wire                isBgeu;
-  wire                isB;
-  wire       [25:0]   offs26;
-  wire       [31:0]   offset;
-
-  assign _zz_offset = ({2'd0,_zz_offset_1} <<< 2'd2);
-  assign _zz_offset_1 = offs26;
-  assign opcode = io_instruction[31 : 26];
-  assign isBceqzBcnez = (opcode == 6'h12);
-  assign isJirl = (opcode == 6'h13);
-  assign isBeq = (opcode == 6'h16);
-  assign isBne = (opcode == 6'h17);
-  assign isBlt = (opcode == 6'h18);
-  assign isBge = (opcode == 6'h19);
-  assign isBltu = (opcode == 6'h1a);
-  assign isBgeu = (opcode == 6'h1b);
-  assign isB = (opcode == 6'h14);
-  assign io_predecodeInfo_isBranch = (((((((isBceqzBcnez || isJirl) || isBeq) || isBne) || isBlt) || isBge) || isBltu) || isBgeu);
-  assign io_predecodeInfo_isJump = isB;
-  assign io_predecodeInfo_isDirectJump = isB;
-  assign io_predecodeInfo_isIdle = 1'b0;
-  assign offs26 = {io_instruction[25 : 16],io_instruction[15 : 0]};
-  assign offset = {{4{_zz_offset[27]}}, _zz_offset};
-  assign io_predecodeInfo_jumpOffset = (isB ? offset : 32'h0);
 
 endmodule
 
