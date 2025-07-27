@@ -795,5 +795,74 @@ class ICachePluginSpec extends CustomSpinalSimFunSuite {
       ParallaxLogger.debug("[TB] Test 'Fill_Entire_Cache_And_Verify' PASSED.")
     }
   }
+
+  test("xData_Corruption_On_Read_After_Write_Hazard") {
+    simConfig.withWave.compile(new ICacheTestBench(iCacheCfg, axiCfg, pcWidth)).doSim { dut =>
+      dut.clockDomain.forkStimulus(10)
+      ICacheTestHelper.initDut(dut)
+
+      val rspQueue = mutable.Queue[ICacheRspCapture]()
+      FlowMonitor(dut.io.iCachePort.rsp, dut.clockDomain) { payload =>
+        rspQueue.enqueue(ICacheRspCapture(payload))
+      }
+
+      // --- 1. 地址和数据准备 ---
+      val addrA = BigInt("00001000", 16)
+      val tagIncrement = (1 << (iCacheCfg.offsetWidth + iCacheCfg.indexWidth))
+      val addrB = addrA + tagIncrement
+
+      val testDataA = Seq.tabulate(iCacheCfg.lineWords)(i => BigInt("a0a00000", 16) + i)
+      val testDataB = Seq.tabulate(iCacheCfg.lineWords)(i => BigInt("b0b00000", 16) + i)
+
+      ICacheTestHelper.writeSramLine(dut, addrA, testDataA)
+      ICacheTestHelper.writeSramLine(dut, addrB, testDataB)
+      dut.clockDomain.waitSampling(5)
+
+      // --- 2. 填充AddrA ---
+      ParallaxLogger.info("[TB] Phase 1: Filling cache with AddrA.")
+      ICacheTestHelper.requestAndConfirmHit(dut, rspQueue, addrA, 10, testDataA)
+
+      // --- 3. 触发对AddrB的Refill ---
+      ParallaxLogger.info("[TB] Phase 2: Requesting AddrB to trigger a refill.")
+      rspQueue.clear()
+      ICacheTestHelper.driveCmd(dut, addrB, 20)
+      dut.clockDomain.waitSamplingWhere(rspQueue.nonEmpty) // 等待Miss响应
+      assert(!rspQueue.dequeue().wasHit, "AddrB should be a miss")
+
+      // --- 4. 在Refill的COMMIT阶段发起攻击 ---
+      ParallaxLogger.info("[TB] Phase 3: Waiting for FSM to reach COMMIT, then immediately re-requesting AddrB.")
+
+      // 等待FSM进入COMMIT状态
+      var timeout =
+        dut.clockDomain.waitSamplingWhere(100)(dut.io.sim_fsmStateId.toInt == 3) // 3 is COMMIT in my mapping
+      if (timeout) assert(false, "FSM never reached COMMIT state for AddrB refill")
+
+      // FSM在当前周期的后半段处于COMMIT。在下一个周期的开始，我们将发起新请求。
+      // 这将与COMMIT状态的写操作在同一个周期发生（在下一个周期的F1阶段）
+      ParallaxLogger.info("[TB] FSM is in COMMIT. Attacking now!")
+      ICacheTestHelper.driveCmd(dut, addrB, 21)
+
+      // --- 5. 捕获并验证响应 ---
+      timeout = dut.clockDomain.waitSamplingWhere(timeout = 20)(rspQueue.nonEmpty)
+      if (timeout) assert(false, "Did not receive response for the attack request")
+
+      val rsp = rspQueue.dequeue()
+      assert(rsp.wasHit, "The attack request should be a HIT due to tag forwarding.")
+      assert(rsp.transactionId == 21, "TID mismatch on attack response.")
+
+      // *** 这是证明Bug的关键断言 ***
+      // 如果没有Data前推，rsp.instructions会是testDataA
+      assert(
+        rsp.instructions == testDataB,
+        s"""DATA CORRUPTION DETECTED!
+               |  Expected: ${testDataB.map(_.toString(16))}
+               |  Got:      ${rsp.instructions.map(_.toString(16))}
+            """.stripMargin
+      )
+
+      ParallaxLogger.debug("[TB] Test 'Data_Corruption_On_Read_After_Write_Hazard' PASSED.")
+    }
+  }
+
   thatsAll()
 }

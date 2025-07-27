@@ -74,6 +74,7 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
   val currentPredecodeReg = fetchGroupReg.predecodeInfos(dispatchIndexReg)
   // OPTIMIZATION: 直接从寄存器读取预计算的跳转目标
   val currentPotentialJumpTarget = fetchGroupReg.potentialJumpTargets(dispatchIndexReg)
+  // 注意：branchMask 只是分支 的 mask，而不是 jump 的mask
   val lastInstructionIndexInGroup = fetchGroupReg.startInstructionIndex + fetchGroupReg.numValidInstructions - 1
   val hasValidInstructionReg = fetchGroupReg.numValidInstructions > 0
   val isLastInstructionReg = hasValidInstructionReg && dispatchIndexReg === lastInstructionIndexInGroup
@@ -167,7 +168,7 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
               when(redirecting) {
                 redirectingReg := True
                 redirectingTargetReg := firstJumpTarget
-                report(L"DISPATCHER-IDLE: First instruction is a direct jump. Redirecting to 0x${io.softRedirect.payload}.")
+                report(L"DISPATCHER-IDLE: First instruction is a direct jump. Soft redirect scheduled to 0x${firstJumpTarget}.")
                 dispatchIndexReg := 0
                 isBusyReg := False
                 goto(IDLE)
@@ -260,6 +261,7 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
               when(redirecting) {
                 redirectingReg := redirecting
                 redirectingTargetReg := currentPotentialJumpTarget
+                report(L"Soft redirect scheduled to 0x${currentPotentialJumpTarget} at PC=0x${currentPcReg}.")
               }
               
 

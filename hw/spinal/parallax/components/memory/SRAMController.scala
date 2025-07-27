@@ -180,6 +180,7 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
     axiConfig.dataWidth == config.dataWidth,
     s"AXI and SRAM data width must match axiConfig.dataWidth = ${axiConfig.dataWidth} ExtSRAMConfig.dataWidth = ${config.dataWidth}"
   )
+  val enableLog = config.enableLog || false
   // --- NEW ---: 对字地址模式的额外要求
   if (config.useWordAddressing) {
     require(axiConfig.useSize, "AXI useSize must be enabled for word addressing mode to ensure proper burst increments.")
@@ -222,9 +223,9 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
   val sram_addr_out_reg        = Reg(UInt(config.addressWidth bits))        addAttribute("mark_debug","TRUE") init(0) 
   val sram_data_out_reg        = Reg(Bits(config.dataWidth bits)) init(0)   addAttribute("mark_debug","TRUE")
   val sram_be_n_out_reg        = Reg(Bits(config.dataWidth / 8 bits))       addAttribute("mark_debug","TRUE") init(sram_be_n_inactive_value)                   
-  val sram_ce_n_out_reg        = Reg(Bool()) init(True)                     addAttribute("mark_debug","TRUE")
-  val sram_oe_n_out_reg        = Reg(Bool()) init(True)                     addAttribute("mark_debug","TRUE")
-  val sram_we_n_out_reg        = Reg(Bool()) init(True)                     addAttribute("mark_debug","TRUE")
+  val sram_ce_n_out_reg        = Reg(Bool())                                addAttribute("mark_debug","TRUE") init(True)
+  val sram_oe_n_out_reg        = Reg(Bool())                                addAttribute("mark_debug","TRUE") init(True)
+  val sram_we_n_out_reg        = Reg(Bool())                                addAttribute("mark_debug","TRUE") init(True)
   val sram_data_writeEnable_out_reg = Reg(Bool())                           addAttribute("mark_debug","TRUE") init(False) // 用于控制TriState数据总线方向                     
   val write_data_buffer = Reg(Bits(config.dataWidth bits))                  addAttribute("mark_debug","TRUE")
   val write_strb_buffer = Reg(Bits(config.dataWidth / 8 bits))              addAttribute("mark_debug","TRUE")
@@ -239,11 +240,11 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
 
   // --- 状态机定义 ---
   val fsm = new StateMachine {
-    val ar_cmd_reg             = Reg(cloneOf(io.axi.ar.payload))         addAttribute("mark_debug","TRUE")
-    val aw_cmd_reg             = Reg(cloneOf(io.axi.aw.payload))         addAttribute("mark_debug","TRUE")
-    val burst_count_remaining  = Reg(UInt(axiConfig.lenWidth + 1 bits))  addAttribute("mark_debug","TRUE")
-    val current_sram_addr      = Reg(UInt(config.addressWidth bits))     addAttribute("mark_debug","TRUE") // 用于记录本次burst的当前SRAM逻辑地址
-    val read_data_buffer       = Reg(Bits(config.dataWidth bits))        addAttribute("mark_debug","TRUE")
+    val ar_cmd_reg             = Reg(cloneOf(io.axi.ar.payload))                                                addAttribute("mark_debug","TRUE")
+    val aw_cmd_reg             = Reg(cloneOf(io.axi.aw.payload))                                                addAttribute("mark_debug","TRUE")
+    val burst_count_remaining  = Reg(UInt(axiConfig.lenWidth + 1 bits))  init(U(0, axiConfig.lenWidth + 1 bits))                                       addAttribute("mark_debug","TRUE")
+    val current_sram_addr      = Reg(UInt(config.addressWidth bits))     init(U(0, config.addressWidth bits))                                addAttribute("mark_debug","TRUE") // 用于记录本次burst的当前SRAM逻辑地址
+    val read_data_buffer       = Reg(Bits(config.dataWidth bits))                                               addAttribute("mark_debug","TRUE")
     val read_wait_counter      = hasReadWaitCycles   generate Reg(UInt(log2Up(config.readWaitCycles + 1) bits))
     val write_wait_counter     = hasWriteWaitCycles  generate Reg(UInt(log2Up(config.writeWaitCycles + 1) bits))
 
@@ -262,7 +263,7 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
 
     // --- NEW: 辅助函数用于报告寄存器赋值 ---
     def reportRegAssignment(regName: String, oldVal: Data, newVal: Data, state: String, assignType: String): Unit = {
-      if (config.enableLog) {
+      if (enableLog) {
         report(L"Assignment: State=${state}, Type=${assignType}, Reg=${regName}, OldValue=${oldVal}, NewValue=${newVal}")
       }
     }
@@ -305,7 +306,7 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
         when(io.axi.aw.fire) {
           // Log the incoming request
           val sizeInfo = if (axiConfig.useSize) L", Size=${io.axi.aw.size}" else L""
-          if (config.enableLog) {
+          if (enableLog) {
             report(
               L"$instanceId AW Fire. Addr=0x${io.axi.aw.addr}, ID=${io.axi.aw.id}, Len=${io.axi.aw.len}, Burst=${io.axi.aw.burst}${sizeInfo}"
             )
@@ -334,7 +335,7 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
         when(io.axi.ar.fire) {
           // Log the incoming request
           val sizeInfo = if (axiConfig.useSize) L", Size=${io.axi.ar.size}" else L""
-          if (config.enableLog) {
+          if (enableLog) {
             report(
               L"$instanceId AR Fire. Addr=0x${io.axi.ar.addr}, ID=${io.axi.ar.id}, Len=${io.axi.ar.len}, Burst=${io.axi.ar.burst}${sizeInfo}"
             )
@@ -516,7 +517,7 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
         io.axi.ar.ready := False
         io.axi.w.ready := True
         
-        if (config.enableLog) report(L"$instanceId WRITE_DATA_ERROR_CONSUME. BurstCountRem=${burst_count_remaining}")
+        if (enableLog) report(L"$instanceId WRITE_DATA_ERROR_CONSUME. BurstCountRem=${burst_count_remaining}")
         
         when(io.axi.w.fire) {
           burst_count_remaining := burst_count_remaining - 1
@@ -542,13 +543,13 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
       }
       whenIsActive {
         val resp_status = transaction_error_occurred ? Axi4.resp.SLVERR | Axi4.resp.OKAY
-        if (config.enableLog) report(L"$instanceId WRITE_RESPONSE. ID=${aw_cmd_reg.id}, Resp=${resp_status}, Addr=${aw_cmd_reg.addr}, Len=${aw_cmd_reg.len}, Size=${aw_cmd_reg.size}, Burst=${aw_cmd_reg.burst}, Lock=${aw_cmd_reg.lock}, Cache=${aw_cmd_reg.cache}, Prot=${aw_cmd_reg.prot}, Qos=${aw_cmd_reg.qos}, Region=${aw_cmd_reg.region}")
+        if (enableLog) report(L"$instanceId WRITE_RESPONSE. ID=${aw_cmd_reg.id}, Resp=${resp_status}, Addr=${aw_cmd_reg.addr}, Len=${aw_cmd_reg.len}, Size=${aw_cmd_reg.size}, Burst=${aw_cmd_reg.burst}, Lock=${aw_cmd_reg.lock}, Cache=${aw_cmd_reg.cache}, Prot=${aw_cmd_reg.prot}, Qos=${aw_cmd_reg.qos}, Region=${aw_cmd_reg.region}")
         
         io.axi.b.valid := True
         io.axi.b.payload.id := aw_cmd_reg.id
         io.axi.b.payload.resp := resp_status
         when(io.axi.b.ready) {
-          if (config.enableLog)
+          if (enableLog)
             report(L"$instanceId B Ready. ID=${aw_cmd_reg.id}, Resp=${resp_status}")
           goto(IDLE)
         }
@@ -567,7 +568,7 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
         sram_be_n_out_reg := B(0, config.dataWidth / 8 bits) // 读操作通常全字节使能
       }
       whenIsActive {
-        if (config.enableLog)
+        if (enableLog)
           report(
             L"$instanceId READ_SETUP. SRAM Addr=0x${current_sram_addr}, BurstCountRem=${burst_count_remaining}"
           )
@@ -605,7 +606,7 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
         sram_be_n_out_reg := B(0, config.dataWidth / 8 bits)
       }
       whenIsActive {
-        if (config.enableLog)
+        if (enableLog)
           report(
             L"$instanceId READ_WAIT. SRAM Addr=0x${sram_addr_out_reg}, WaitCounter=${hasReadWaitCycles generate read_wait_counter}, AddrPrefetchValid=${addr_prefetch_valid}"
           )
@@ -625,7 +626,7 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
         ) {
           next_sram_addr_prefetch := getNextSramAddr(current_sram_addr, ar_cmd_reg.size)
           addr_prefetch_valid := True
-          if (config.enableLog)
+          if (enableLog)
             report(
               L"$instanceId Address prefetch at wait_cycle ${hasReadWaitCycles generate read_wait_counter} - Next sram_addr 0x${getNextSramAddr(current_sram_addr, ar_cmd_reg.size)}"
             )
@@ -647,7 +648,7 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
       }
       whenIsActive {
         val is_last_beat = burst_count_remaining === 1
-        if (config.enableLog)
+        if (enableLog)
           report(
             L"$instanceId READ_RESPONSE. ID=${ar_cmd_reg.id}, Data=0x${read_data_buffer}, BurstCountRem=${burst_count_remaining}, Resp=${Axi4.resp.OKAY}, Last=${is_last_beat}"
           )
@@ -659,7 +660,7 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
         io.axi.r.payload.last := is_last_beat
 
         when(io.axi.r.fire) {
-          if (config.enableLog) report(L"$instanceId R Fire. Last=${io.axi.r.last}")
+          if (enableLog) report(L"$instanceId R Fire. Last=${io.axi.r.last}")
           burst_count_remaining := burst_count_remaining - 1
           when(is_last_beat) {
             goto(IDLE)
@@ -673,7 +674,7 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
             goto(READ_SETUP)
           }
         } otherwise {
-          if (config.enableLog) report(L"io.axi.r.valid = ${io.axi.r.valid}, io.axi.r.ready = ${io.axi.r.ready}")
+          if (enableLog) report(L"io.axi.r.valid = ${io.axi.r.valid}, io.axi.r.ready = ${io.axi.r.ready}")
         }
       }
       onExit {
@@ -695,7 +696,7 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
       }
       whenIsActive {
         val is_last_beat = burst_count_remaining === 1
-        if (config.enableLog)
+        if (enableLog)
           report(
             L"$instanceId READ_RESPONSE_ERROR. ID=${ar_cmd_reg.id}, BurstCountRem=${burst_count_remaining}, Resp=${Axi4.resp.SLVERR}, Last=${is_last_beat}, r.valid=${io.axi.r.valid}, r.ready=${io.axi.r.ready}, r.fire=${io.axi.r.fire}"
           )
@@ -707,11 +708,11 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
         io.axi.r.payload.last := is_last_beat
 
         when(io.axi.r.fire) {
-          if (config.enableLog)
+          if (enableLog)
             report(L"$instanceId READ_RESPONSE_ERROR - r.fire detected! BurstCountRem=${burst_count_remaining}, is_last_beat=${is_last_beat}")
           burst_count_remaining := burst_count_remaining - 1
           when(is_last_beat) {
-            if (config.enableLog)
+            if (enableLog)
               report(L"$instanceId READ_RESPONSE_ERROR - Going to IDLE")
             goto(IDLE)
           }
@@ -726,7 +727,7 @@ class SRAMController(val axiConfig: Axi4Config, val config: SRAMConfig) extends 
     _.addAttribute("mark_debug", "true")
   )
 
-  if (config.enableLog) {
+  if (enableLog) {
     val currentCycle = Reg(UInt(32 bits)) init(0)
     currentCycle := currentCycle + 1
     report(

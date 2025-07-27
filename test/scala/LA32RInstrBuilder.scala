@@ -164,6 +164,8 @@ object LA32RInstrBuilder {
     val offs_15_0  = imm26_str.substring(10)
     fromBinary(s"$opcode$offs_25_16$offs_15_0")
   }
+
+  // NOTE: byte offset
   def b(offset: Int): BigInt  = buildJump26("010100", offset)
   def bl(offset: Int): BigInt = buildJump26("010101", offset)
 

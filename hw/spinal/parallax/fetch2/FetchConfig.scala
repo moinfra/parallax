@@ -7,6 +7,7 @@ import parallax.components.dcache2.DataCachePluginConfig
 import parallax.fetch.PredecodeInfo // 复用已有的PredecodeInfo
 import spinal.core.sim.SimBaseTypePimper
 import spinal.core.sim.SimBitVectorPimper
+import parallax.utilities.Formattable
 
 /** I-Cache响应和其原始请求PC的捆绑。
   */
@@ -19,7 +20,7 @@ case class ICacheRspWithPC(pCfg: PipelineConfig, dCfg: DataCachePluginConfig) ex
 
 /** 预解码后的整个指令块（Cache Line）。
   */
-case class FetchGroup(pCfg: PipelineConfig) extends Bundle {
+case class FetchGroup(pCfg: PipelineConfig) extends Bundle with Formattable {
   val pc = UInt(pCfg.pcWidth)
   val firstPc = UInt(pCfg.pcWidth) // 继承 firstPc
   val instructions = Vec(Bits(pCfg.dataWidth), pCfg.fetchWidth)
@@ -42,6 +43,20 @@ case class FetchGroup(pCfg: PipelineConfig) extends Bundle {
     potentialJumpTargets.foreach(_.assignDontCare())
     this
   }
+
+  override def format: Seq[Any] = Seq(
+    L"FetchGroup(",
+    L"pc=${pc}, ",
+    L"firstPc=${firstPc}, ",
+    L"instructions=${instructions}, ",
+    L"predecodeInfos=..., ",
+    L"branchMask=${branchMask}, ",
+    L"fault=${fault}, ",
+    L"numValidInstructions=${numValidInstructions}, ",
+    L"startInstructionIndex=${startInstructionIndex}, ",
+    L"potentialJumpTargets=${potentialJumpTargets}, ",
+    L")"
+  )
 }
 
 case class FetchGroupCapture(

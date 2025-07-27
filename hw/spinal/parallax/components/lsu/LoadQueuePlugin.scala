@@ -189,7 +189,6 @@ class LoadQueuePlugin(
     }
 
     val logic = create late new Area {
-        val perfCounter = new PerfCounter()
         lock.await()
         // 将所有push端口仲裁成一个
         val pushCmd = StreamArbiterFactory.roundRobin.on(pushPorts)
@@ -337,7 +336,6 @@ class LoadQueuePlugin(
                 val fwdRsp = sbQueryRspReg
                 slotsAfterUpdates(0).isWaitingForFwdRsp := False
                 ParallaxSim.log(
-                    L"--- LQ FWD RESPONSE --- Cycle=${perfCounter.value}\n" :+
                     L"  Head ROB Ptr: ${head.robPtr}\n" :+
                     L"  Rsp Hit: ${fwdRsp.hit}, Rsp Stall: ${fwdRsp.olderStoreHasUnknownAddress || fwdRsp.olderStoreDataNotReady}"
                 )

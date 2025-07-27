@@ -18,7 +18,7 @@ import parallax.fetch.icache.{ICachePlugin, ICacheConfig} // 导入我们自己�
 import spinal.lib.bus.amba4.axi.Axi4Config
 import LA32RInstrBuilder._
 import scala.collection.mutable
-import parallax.components.bpu.BpuPipelinePlugin
+import parallax.components.bpu._
 import parallax.fetch.FetchedInstr
 
 // =========================================================================
@@ -93,14 +93,14 @@ class Fetch2PipelineTestBench(
       // new DataCachePlugin(dCfg), // 移除 DCache
       new ICachePlugin(iCfg, axiCfg, pCfg.pcWidth.value), // 添加 ICache
       new TestOnlyMemSystemPlugin(axiConfig = axiCfg),
-      new BpuPipelinePlugin(pCfg),
+      new BpuPipelinePlugin(pCfg, BpuPluginConfig(disableForwarding = false)),
       new FetchPipelinePlugin(pCfg, iCfg), // 修改 FetchPipelinePlugin 的构造参数，传入 ICacheConfig
-      new Fetch2TestSetupPlugin(io)
+      new Fetch2TestSetupPlugin(io),
+      new PerfCounter()
     )
   )
   val fetchPlugin = framework.getService[FetchPipelinePlugin]
   val simSoftRedirectValid = fetchPlugin.doSoftRedirect()
-  val cycle = fetchPlugin.dbg.cycles.simPublic()
   simSoftRedirectValid.simPublic()
 
 }
@@ -403,7 +403,7 @@ class FetchPipelinePluginSpec extends CustomSpinalSimFunSuite {
       val helper = new Fetch2TestHelper(dut)
       helper.init()
 
-      helper.writeInstructionsToMem(0x1000, Seq(nop(), nop(), nop(), nop()))
+      helper.writeInstructionsToMem(0x1000, Seq(nop(), bl(220), nop(), nop()))
       helper.writeInstructionsToMem(0x2000, Seq(b(4), nop()))
 
       helper.startMonitor()

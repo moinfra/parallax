@@ -87,7 +87,8 @@ package object icache {
       Seq(
         L"ICacheRsp(",
         L"tid=${transactionId}, ",
-        L"instr(0)=${instructions(0)}, ",
+        // L"instr(0)=${instructions(0)}, ",
+        L"instr(s)=${instructions}, ",
         L"hit=${wasHit}, ",
         L"redo=${redo})"
       )

@@ -148,6 +148,12 @@ class FrameworkConfig() {
   val plugins = ArrayBuffer[Plugin]()
 }
 
+class PerfCounter() extends Plugin {
+  val cycles = Reg(UInt(32 bits)) init (0)
+  cycles := cycles + 1
+  Component.current.userCache.put("__perf_counter_cycles", cycles)
+}
+
 /** 主框架类（Framework）
   * 继承自 SpinalHDL 的 Area。
   * 负责管理插件的生命周期、服务发现以及构建阶段的同步。
@@ -155,7 +161,7 @@ class FrameworkConfig() {
   */
 class Framework(val plugins: Seq[Plugin]) extends Area {
   // 收集所有服务：包括插件本身以及它们通过 getSubServices() 提供的子服务
-  val services = plugins ++ plugins.flatMap(_.getSubServices())
+  val services = Seq(new PerfCounter) ++ plugins ++ plugins.flatMap(_.getSubServices())
   ParallaxLogger.log("Framework: services collected")
   // --- 用于控制构建阶段的锁 ---
   val configLock = Lock() // 配置阶段锁
@@ -355,12 +361,12 @@ object ParallaxSim {
     case seq: Seq[Any] => seq.flatMap(flattenRecursively) // 递归处理子元素
     case elem          => Seq(elem) // 非 Seq 元素，包装成单元素 Seq
   }
-  lazy val cycles = {
-    val area = new Area {
-      val cycles = Reg(UInt(32 bits)) init(0)
-      cycles := cycles + 1
+
+  private def cycles(): UInt = {
+    Component.current.userCache.get("__perf_counter_cycles") match {
+      case Some(c: UInt) => c
+      case _             => null
     }
-    area.cycles
   }
 
   def dump(message: Seq[Any])(implicit loc: Location) {

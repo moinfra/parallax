@@ -7,11 +7,18 @@ import parallax.fetch.InstructionPredecoder
 import parallax.fetch.icache.{ICacheCmd, ICacheRsp, ICacheConfig}
 import parallax.utilities.ParallaxSim.success
 import parallax.utilities.ParallaxSim.debug
+import parallax.utilities.ParallaxSim.notice
+import parallax.utilities.Formattable
 
 // 从S1传来的请求负载
-case class FetchRequestPayload(pCfg: PipelineConfig) extends Bundle {
+case class FetchRequestPayload(pCfg: PipelineConfig) extends Bundle with Formattable {
   val pc = UInt(pCfg.pcWidth) // 行对齐地址
   val rawPc = UInt(pCfg.pcWidth) // 原始字节地址
+
+  override def format: Seq[Any] = Seq(
+    L"pc=${pc}, ",
+    L"rawPc=${rawPc}"
+  )
 }
 
 // IFT中每个槽位的数据结构
@@ -140,9 +147,16 @@ class FetchSequencer(pCfg: PipelineConfig, iCfg: ICacheConfig) extends Component
       val instruction = olderSlot.rspData(i)
       val offs26 = instruction(25 downto 0)
       val operandA = olderSlot.pc.asSInt
-      val operandB = S(U(i) << 2, pCfg.pcWidth)
+      val operandB = S(i << 2, pCfg.pcWidth)
       val operandC = (offs26.asSInt << 2).resize(pCfg.pcWidth)
-      (operandA + operandB + operandC).asUInt.resized
+      val result = (operandA + operandB + operandC).asUInt.resized
+      report(L"jump target for instruction ${i} is ${result} because a=${operandA}, b=${operandB}, c=${operandC}")
+      result
+    
+    }
+
+    when(io.dispatchGroupOut.fire) {
+      success(L"group @${io.dispatchGroupOut.payload.pc} sent to dispatcher. data: ${io.dispatchGroupOut.payload.format}")
     }
   }
 
@@ -153,6 +167,7 @@ class FetchSequencer(pCfg: PipelineConfig, iCfg: ICacheConfig) extends Component
     nextTid := nextTid + 1
     val freeSlotIndex = Mux(!slots(0).valid, U(0), U(1))
     slots(freeSlotIndex).setInit(io.newRequest.payload.pc, io.newRequest.payload.rawPc, nextTid)
+    notice(L"Got new request: ${io.newRequest.format}")
 
     // 如果IFT从空变为非空，新分配的slot成为队首
     when(isEmpty) {
@@ -166,7 +181,7 @@ class FetchSequencer(pCfg: PipelineConfig, iCfg: ICacheConfig) extends Component
       when(!slots(i).done && slots(i).valid && slots(i).tid === io.iCacheRsp.payload.transactionId) {
         slots(i).done := True
         slots(i).rspData := io.iCacheRsp.payload.instructions
-        success(L"slot ${i} (pc=${slots(i).pc}) done with tid=${io.iCacheRsp.payload.transactionId}")
+        success(L"slot ${i} (pc=${slots(i).pc}) done with tid=${io.iCacheRsp.payload.transactionId} cacheline=${io.iCacheRsp.payload.instructions}")
       }
     }
   }
@@ -187,7 +202,7 @@ class FetchSequencer(pCfg: PipelineConfig, iCfg: ICacheConfig) extends Component
   }
 
   val dbg2 = new Area {
-    val verbose = false
+    val verbose = true
     when(io.iCacheCmd.valid) {
       if(verbose) debug(L"oldIndex=${oldIndex} sending ${io.iCacheCmd.payload.format}")
     }

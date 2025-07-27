@@ -2,8 +2,9 @@ package parallax.fetch
 
 import spinal.core._
 import parallax.common.PipelineConfig
+import parallax.utilities._
 
-case class PredecodeInfo() extends Bundle {
+case class PredecodeInfo() extends Bundle with Formattable {
   val isBranch = Bool()
   val isJump = Bool()
   // is a jump with a PC-relative offset known at this stage
@@ -30,6 +31,18 @@ case class PredecodeInfo() extends Bundle {
     jumpOffset #= 0
     isIdle #= false
     this
+  }
+
+  override def format: Seq[Any] = {
+    Seq(
+      L"PredecodeInfo(",
+      L"isBranch -> ", isBranch,
+      L", isJump -> ", isJump,
+      L", isDirectJump -> ", isDirectJump,
+      L", jumpOffset -> ", jumpOffset,
+      L", isIdle -> ", isIdle,
+      L")"
+    )
   }
 }
 
@@ -67,7 +80,7 @@ class InstructionPredecoder(pCfg: PipelineConfig) extends Component {
   io.predecodeInfo.isJump       := isAnyDirectJump
   io.predecodeInfo.isDirectJump := isAnyDirectJump
   io.predecodeInfo.isIdle       := False // 初赛不管了
-
+  report(L"predecodeInfo: input=${io.instruction}. output ${io.predecodeInfo.format}")
 
   // --- 3. 计算 jumpOffset (只在需要时有效) ---
 

@@ -74,6 +74,9 @@ class SimulatedSRAM(
     // In byte-addressing mode, convert the byte address to a word address.
     (io.ram.addr >> log2Up(config.bytesPerWord)).resize(config.internalWordAddrWidth)
   }
+  when(io.ram.ce_n === False) {
+      assert(addrInRange, L"SRAM access from DUT is out of bounds! config.useWordAddressing=${config.useWordAddressing} Addr=${io.ram.addr}, Max=${config.internalWordMaxAddr}(word) ${config.internalMaxByteAddr}(byte)")
+  }
 
   assert(!(readCondition && writeCondition), "Read and write cannot be active simultaneously")
   assert(!(io.tb_writeEnable && writeCondition), "Test/normal write conflict")
