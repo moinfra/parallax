@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 49a99dae7b6ed938ae50042417514f24dcaeaaa8
 // Component : CoreNSCSCC
-// Git hash  : 6637bf177244c02151636e337c79c5394838d439
+// Git hash  : f43cef40d05c6d6a0054dc4c7cc1a70b6911e3bf
 
 `timescale 1ns/1ps
 
@@ -154,8 +154,7 @@ module CoreNSCSCC (
   localparam ICachePlugin_logic_refill_fsm_RECEIVE_DATA_OH_ID = 3;
   localparam ICachePlugin_logic_refill_fsm_COMMIT_OH_ID = 4;
 
-  wire                FetchPipelinePlugin_setup_fetchOutput_io_push_valid;
-  reg                 FetchPipelinePlugin_setup_fetchOutput_io_pop_ready;
+  reg                 FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_ready;
   wire                ROBPlugin_robComponent_io_allocate_0_valid;
   reg                 ROBPlugin_robComponent_io_writeback_4_fire;
   reg        [3:0]    ROBPlugin_robComponent_io_writeback_4_robPtr;
@@ -200,6 +199,8 @@ module CoreNSCSCC (
   reg        [5:0]    RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_30;
   reg        [5:0]    RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_31;
   wire                SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_enable;
+  reg                 SimpleFreeListPlugin_early_setup_freeList_io_free_0_enable;
+  reg        [5:0]    SimpleFreeListPlugin_early_setup_freeList_io_free_0_physReg;
   reg                 SimpleFreeListPlugin_early_setup_freeList_io_recover;
   wire                oneShot_12_io_triggerIn;
   wire                oneShot_13_io_triggerIn;
@@ -217,47 +218,13 @@ module CoreNSCSCC (
   wire                oneShot_21_io_triggerIn;
   wire       [0:0]    streamDemux_1_io_select;
   wire                oneShot_22_io_triggerIn;
-  wire                streamFifo_14_io_push_valid;
-  wire                streamFifo_14_io_push_payload_alignException;
-  wire                streamFifo_14_io_push_payload_isIO;
+  wire                streamFifo_13_io_push_valid;
+  wire                streamFifo_13_io_push_payload_alignException;
+  wire                streamFifo_13_io_push_payload_isIO;
   wire                oneShot_23_io_triggerIn;
-  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_valid;
-  reg        [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_pc;
-  reg        [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_firstPc;
-  reg        [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_instructions_0;
-  reg        [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_instructions_1;
-  reg        [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_instructions_2;
-  reg        [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_instructions_3;
-  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_isBranch;
-  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_isJump;
-  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_isDirectJump;
-  reg        [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_jumpOffset;
-  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_isIdle;
-  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_isBranch;
-  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_isJump;
-  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_isDirectJump;
-  reg        [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_jumpOffset;
-  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_isIdle;
-  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_isBranch;
-  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_isJump;
-  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_isDirectJump;
-  reg        [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_jumpOffset;
-  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_isIdle;
-  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_isBranch;
-  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_isJump;
-  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_isDirectJump;
-  reg        [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_jumpOffset;
-  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_isIdle;
-  reg        [3:0]    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_branchMask;
-  reg                 FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_fault;
-  reg        [2:0]    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_numValidInstructions;
-  reg        [1:0]    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_startInstructionIndex;
-  reg        [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_potentialJumpTargets_0;
-  reg        [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_potentialJumpTargets_1;
-  reg        [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_potentialJumpTargets_2;
-  reg        [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_potentialJumpTargets_3;
-  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_ready;
-  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_flush;
+  wire                FetchPipelinePlugin_logic_sequencer_io_newRequest_valid;
+  wire       [31:0]   FetchPipelinePlugin_logic_sequencer_io_newRequest_payload_pc;
+  wire                FetchPipelinePlugin_logic_sequencer_io_flush;
   wire                CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_ready;
   wire       [3:0]    io_axiOut_readOnly_decoder_io_outputs_0_r_payload_id;
   wire       [3:0]    io_axiOut_readOnly_decoder_io_outputs_1_r_payload_id;
@@ -344,20 +311,20 @@ module CoreNSCSCC (
   wire                CoreMemSysPlugin_hw_extramCtrl_io_ram_ce_n;
   wire                CoreMemSysPlugin_hw_extramCtrl_io_ram_oe_n;
   wire                CoreMemSysPlugin_hw_extramCtrl_io_ram_we_n;
-  wire                FetchPipelinePlugin_setup_fetchOutput_io_push_ready;
-  wire                FetchPipelinePlugin_setup_fetchOutput_io_pop_valid;
-  wire       [31:0]   FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_pc;
-  wire       [31:0]   FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_instruction;
-  wire                FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_predecode_isBranch;
-  wire                FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_predecode_isJump;
-  wire                FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_predecode_isDirectJump;
-  wire       [31:0]   FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_predecode_jumpOffset;
-  wire                FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_predecode_isIdle;
-  wire                FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_bpuPrediction_isTaken;
-  wire       [31:0]   FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_bpuPrediction_target;
-  wire                FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_bpuPrediction_wasPredicted;
-  wire       [2:0]    FetchPipelinePlugin_setup_fetchOutput_io_occupancy;
-  wire       [2:0]    FetchPipelinePlugin_setup_fetchOutput_io_availability;
+  wire                FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_push_ready;
+  wire                FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_valid;
+  wire       [31:0]   FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_payload_pc;
+  wire       [31:0]   FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_payload_instruction;
+  wire                FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_payload_predecode_isBranch;
+  wire                FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_payload_predecode_isJump;
+  wire                FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_payload_predecode_isDirectJump;
+  wire       [31:0]   FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_payload_predecode_jumpOffset;
+  wire                FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_payload_predecode_isIdle;
+  wire                FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_payload_bpuPrediction_isTaken;
+  wire       [31:0]   FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_payload_bpuPrediction_target;
+  wire                FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_payload_bpuPrediction_wasPredicted;
+  wire       [4:0]    FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_occupancy;
+  wire       [4:0]    FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_availability;
   wire       [3:0]    ROBPlugin_robComponent_io_allocate_0_robPtr;
   wire                ROBPlugin_robComponent_io_allocate_0_ready;
   wire                ROBPlugin_robComponent_io_canAllocate_0;
@@ -461,6 +428,7 @@ module CoreNSCSCC (
   wire                ROBPlugin_robComponent_io_commit_0_entry_status_busy;
   wire                ROBPlugin_robComponent_io_commit_0_entry_status_done;
   wire                ROBPlugin_robComponent_io_commit_0_entry_status_isMispredictedBranch;
+  wire       [31:0]   ROBPlugin_robComponent_io_commit_0_entry_status_targetPc;
   wire                ROBPlugin_robComponent_io_commit_0_entry_status_isTaken;
   wire       [31:0]   ROBPlugin_robComponent_io_commit_0_entry_status_result;
   wire                ROBPlugin_robComponent_io_commit_0_entry_status_hasException;
@@ -710,7 +678,6 @@ module CoreNSCSCC (
   wire                lA32RSimpleDecoder_1_io_decodedUop_branchPrediction_isTaken;
   wire       [31:0]   lA32RSimpleDecoder_1_io_decodedUop_branchPrediction_target;
   wire                lA32RSimpleDecoder_1_io_decodedUop_branchPrediction_wasPredicted;
-  wire       [31:0]   LoadQueuePlugin_logic_perfCounter_io_value;
   wire                issueQueueComponent_4_io_allocateIn_ready;
   wire                issueQueueComponent_4_io_issueOut_valid;
   wire       [3:0]    issueQueueComponent_4_io_issueOut_payload_robPtr;
@@ -958,27 +925,27 @@ module CoreNSCSCC (
   wire                streamDemux_1_io_outputs_1_payload_isFlush;
   wire                streamDemux_1_io_outputs_1_payload_isIO;
   wire                oneShot_22_io_pulseOut;
-  wire                streamFifo_14_io_push_ready;
-  wire                streamFifo_14_io_pop_valid;
-  wire       [2:0]    streamFifo_14_io_pop_payload_qPtr;
-  wire       [31:0]   streamFifo_14_io_pop_payload_address;
-  wire                streamFifo_14_io_pop_payload_alignException;
-  wire       [1:0]    streamFifo_14_io_pop_payload_accessSize;
-  wire                streamFifo_14_io_pop_payload_isSignedLoad;
-  wire       [3:0]    streamFifo_14_io_pop_payload_storeMask;
-  wire       [5:0]    streamFifo_14_io_pop_payload_basePhysReg;
-  wire       [31:0]   streamFifo_14_io_pop_payload_immediate;
-  wire                streamFifo_14_io_pop_payload_usePc;
-  wire       [31:0]   streamFifo_14_io_pop_payload_pc;
-  wire       [3:0]    streamFifo_14_io_pop_payload_robPtr;
-  wire                streamFifo_14_io_pop_payload_isLoad;
-  wire                streamFifo_14_io_pop_payload_isStore;
-  wire       [5:0]    streamFifo_14_io_pop_payload_physDst;
-  wire       [31:0]   streamFifo_14_io_pop_payload_storeData;
-  wire                streamFifo_14_io_pop_payload_isFlush;
-  wire                streamFifo_14_io_pop_payload_isIO;
-  wire       [1:0]    streamFifo_14_io_occupancy;
-  wire       [1:0]    streamFifo_14_io_availability;
+  wire                streamFifo_13_io_push_ready;
+  wire                streamFifo_13_io_pop_valid;
+  wire       [2:0]    streamFifo_13_io_pop_payload_qPtr;
+  wire       [31:0]   streamFifo_13_io_pop_payload_address;
+  wire                streamFifo_13_io_pop_payload_alignException;
+  wire       [1:0]    streamFifo_13_io_pop_payload_accessSize;
+  wire                streamFifo_13_io_pop_payload_isSignedLoad;
+  wire       [3:0]    streamFifo_13_io_pop_payload_storeMask;
+  wire       [5:0]    streamFifo_13_io_pop_payload_basePhysReg;
+  wire       [31:0]   streamFifo_13_io_pop_payload_immediate;
+  wire                streamFifo_13_io_pop_payload_usePc;
+  wire       [31:0]   streamFifo_13_io_pop_payload_pc;
+  wire       [3:0]    streamFifo_13_io_pop_payload_robPtr;
+  wire                streamFifo_13_io_pop_payload_isLoad;
+  wire                streamFifo_13_io_pop_payload_isStore;
+  wire       [5:0]    streamFifo_13_io_pop_payload_physDst;
+  wire       [31:0]   streamFifo_13_io_pop_payload_storeData;
+  wire                streamFifo_13_io_pop_payload_isFlush;
+  wire                streamFifo_13_io_pop_payload_isIO;
+  wire       [1:0]    streamFifo_13_io_occupancy;
+  wire       [1:0]    streamFifo_13_io_availability;
   wire                streamArbiter_9_io_inputs_0_ready;
   wire                streamArbiter_9_io_output_valid;
   wire       [3:0]    streamArbiter_9_io_output_payload_robPtr;
@@ -991,81 +958,62 @@ module CoreNSCSCC (
   wire       [7:0]    streamArbiter_9_io_output_payload_earlyExceptionCode;
   wire       [0:0]    streamArbiter_9_io_chosenOH;
   wire                oneShot_23_io_pulseOut;
+  wire                FetchPipelinePlugin_logic_sequencer_io_newRequest_ready;
+  wire                FetchPipelinePlugin_logic_sequencer_io_iCacheCmd_valid;
+  wire       [31:0]   FetchPipelinePlugin_logic_sequencer_io_iCacheCmd_payload_address;
+  wire       [7:0]    FetchPipelinePlugin_logic_sequencer_io_iCacheCmd_payload_transactionId;
+  wire                FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_valid;
+  wire       [31:0]   FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_pc;
+  wire       [31:0]   FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_firstPc;
+  wire       [31:0]   FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_instructions_0;
+  wire       [31:0]   FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_instructions_1;
+  wire       [31:0]   FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_instructions_2;
+  wire       [31:0]   FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_instructions_3;
+  wire                FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_0_isBranch;
+  wire                FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_0_isJump;
+  wire                FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_0_isDirectJump;
+  wire       [31:0]   FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_0_jumpOffset;
+  wire                FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_0_isIdle;
+  wire                FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_1_isBranch;
+  wire                FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_1_isJump;
+  wire                FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_1_isDirectJump;
+  wire       [31:0]   FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_1_jumpOffset;
+  wire                FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_1_isIdle;
+  wire                FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_2_isBranch;
+  wire                FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_2_isJump;
+  wire                FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_2_isDirectJump;
+  wire       [31:0]   FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_2_jumpOffset;
+  wire                FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_2_isIdle;
+  wire                FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_3_isBranch;
+  wire                FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_3_isJump;
+  wire                FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_3_isDirectJump;
+  wire       [31:0]   FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_3_jumpOffset;
+  wire                FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_3_isIdle;
+  wire       [3:0]    FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_branchMask;
+  wire                FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_fault;
+  wire       [2:0]    FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_numValidInstructions;
+  wire       [1:0]    FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_startInstructionIndex;
+  wire       [31:0]   FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_potentialJumpTargets_0;
+  wire       [31:0]   FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_potentialJumpTargets_1;
+  wire       [31:0]   FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_potentialJumpTargets_2;
+  wire       [31:0]   FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_potentialJumpTargets_3;
   wire                FetchPipelinePlugin_logic_dispatcher_io_fetchGroupIn_ready;
-  wire                FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_valid;
-  wire       [31:0]   FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_pc;
-  wire       [31:0]   FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_instruction;
-  wire                FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_predecode_isBranch;
-  wire                FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_predecode_isJump;
-  wire                FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_predecode_isDirectJump;
-  wire       [31:0]   FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_predecode_jumpOffset;
-  wire                FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_predecode_isIdle;
-  wire                FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_bpuPrediction_isTaken;
-  wire       [31:0]   FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_bpuPrediction_target;
-  wire                FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_bpuPrediction_wasPredicted;
+  wire                FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_valid;
+  wire       [31:0]   FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_payload_pc;
+  wire       [31:0]   FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_payload_instruction;
+  wire                FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_payload_predecode_isBranch;
+  wire                FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_payload_predecode_isJump;
+  wire                FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_payload_predecode_isDirectJump;
+  wire       [31:0]   FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_payload_predecode_jumpOffset;
+  wire                FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_payload_predecode_isIdle;
+  wire                FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_payload_bpuPrediction_isTaken;
+  wire       [31:0]   FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_payload_bpuPrediction_target;
+  wire                FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_payload_bpuPrediction_wasPredicted;
   wire                FetchPipelinePlugin_logic_dispatcher_io_bpuQuery_valid;
   wire       [31:0]   FetchPipelinePlugin_logic_dispatcher_io_bpuQuery_payload_pc;
   wire       [2:0]    FetchPipelinePlugin_logic_dispatcher_io_bpuQuery_payload_transactionId;
   wire                FetchPipelinePlugin_logic_dispatcher_io_softRedirect_valid;
   wire       [31:0]   FetchPipelinePlugin_logic_dispatcher_io_softRedirect_payload;
-  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_push_ready;
-  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_valid;
-  wire       [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_pc;
-  wire       [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_firstPc;
-  wire       [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_instructions_0;
-  wire       [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_instructions_1;
-  wire       [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_instructions_2;
-  wire       [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_instructions_3;
-  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_0_isBranch;
-  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_0_isJump;
-  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_0_isDirectJump;
-  wire       [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_0_jumpOffset;
-  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_0_isIdle;
-  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_1_isBranch;
-  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_1_isJump;
-  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_1_isDirectJump;
-  wire       [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_1_jumpOffset;
-  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_1_isIdle;
-  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_2_isBranch;
-  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_2_isJump;
-  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_2_isDirectJump;
-  wire       [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_2_jumpOffset;
-  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_2_isIdle;
-  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_3_isBranch;
-  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_3_isJump;
-  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_3_isDirectJump;
-  wire       [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_3_jumpOffset;
-  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_3_isIdle;
-  wire       [3:0]    FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_branchMask;
-  wire                FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_fault;
-  wire       [2:0]    FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_numValidInstructions;
-  wire       [1:0]    FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_startInstructionIndex;
-  wire       [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_potentialJumpTargets_0;
-  wire       [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_potentialJumpTargets_1;
-  wire       [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_potentialJumpTargets_2;
-  wire       [31:0]   FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_potentialJumpTargets_3;
-  wire       [1:0]    FetchPipelinePlugin_logic_fetchGroupsOut_io_occupancy;
-  wire       [1:0]    FetchPipelinePlugin_logic_fetchGroupsOut_io_availability;
-  wire                instructionPredecoder_4_io_predecodeInfo_isBranch;
-  wire                instructionPredecoder_4_io_predecodeInfo_isJump;
-  wire                instructionPredecoder_4_io_predecodeInfo_isDirectJump;
-  wire       [31:0]   instructionPredecoder_4_io_predecodeInfo_jumpOffset;
-  wire                instructionPredecoder_4_io_predecodeInfo_isIdle;
-  wire                instructionPredecoder_5_io_predecodeInfo_isBranch;
-  wire                instructionPredecoder_5_io_predecodeInfo_isJump;
-  wire                instructionPredecoder_5_io_predecodeInfo_isDirectJump;
-  wire       [31:0]   instructionPredecoder_5_io_predecodeInfo_jumpOffset;
-  wire                instructionPredecoder_5_io_predecodeInfo_isIdle;
-  wire                instructionPredecoder_6_io_predecodeInfo_isBranch;
-  wire                instructionPredecoder_6_io_predecodeInfo_isJump;
-  wire                instructionPredecoder_6_io_predecodeInfo_isDirectJump;
-  wire       [31:0]   instructionPredecoder_6_io_predecodeInfo_jumpOffset;
-  wire                instructionPredecoder_6_io_predecodeInfo_isIdle;
-  wire                instructionPredecoder_7_io_predecodeInfo_isBranch;
-  wire                instructionPredecoder_7_io_predecodeInfo_isJump;
-  wire                instructionPredecoder_7_io_predecodeInfo_isDirectJump;
-  wire       [31:0]   instructionPredecoder_7_io_predecodeInfo_jumpOffset;
-  wire                instructionPredecoder_7_io_predecodeInfo_isIdle;
   wire                CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_cmd_ready;
   wire                CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_valid;
   wire       [31:0]   CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_payload_data;
@@ -1487,7 +1435,6 @@ module CoreNSCSCC (
   wire       [0:0]    _zz_CommitPlugin_logic_s0_recycledThisCycle_comb_1;
   wire       [31:0]   _zz_CommitPlugin_commitStatsReg_totalCommitted;
   wire       [31:0]   _zz_CommitPlugin_commitStatsReg_physRegRecycled;
-  wire       [31:0]   _zz_CommitPlugin_commitStatsReg_robFlushCount;
   wire       [7:0]    _zz_io_triggerIn_8;
   wire       [4:0]    _zz_io_triggerIn_9;
   wire       [7:0]    _zz_when_Debug_l71_4_1;
@@ -1517,11 +1464,11 @@ module CoreNSCSCC (
   wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_euResult_data_3_5;
   wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_euResult_data_3_6;
   wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_euResult_data_3_7;
-  wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_euResult_data_4;
-  wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_euResult_data_4_1;
-  wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_euResult_data_4_2;
-  wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_euResult_data_4_3;
-  wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_euResult_data_4_4;
+  wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_euResult_data_1;
+  wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_euResult_data_1_1;
+  wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_euResult_data_1_2;
+  wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_euResult_data_1_3;
+  wire       [31:0]   _zz__zz_BranchEU_BranchEuPlugin_euResult_data_1_4;
   wire       [7:0]    _zz_io_triggerIn_16;
   wire       [4:0]    _zz_io_triggerIn_17;
   wire       [7:0]    _zz_when_Debug_l71_8_1;
@@ -1563,47 +1510,6 @@ module CoreNSCSCC (
   wire       [1:0]    _zz__zz_StoreBufferPlugin_logic_loadQueryBe_4;
   wire       [6:0]    _zz__zz_StoreBufferPlugin_logic_loadQueryBe_5;
   wire       [6:0]    _zz__zz_StoreBufferPlugin_logic_loadQueryBe_6;
-  wire       [1:0]    _zz_FetchPipelinePlugin_logic_retryIdCounter_valueNext;
-  wire       [0:0]    _zz_FetchPipelinePlugin_logic_retryIdCounter_valueNext_1;
-  wire       [27:0]   _zz_FetchPipelinePlugin_logic_s2_logic_cmdPayload_transactionId;
-  wire       [7:0]    _zz_219;
-  wire       [27:0]   _zz_220;
-  wire       [2:0]    _zz_s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_NUM_VALID_INSTRS;
-  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_0;
-  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_0_1;
-  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_0_2;
-  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_0_3;
-  wire       [1:0]    _zz_io_push_payload_potentialJumpTargets_0_4;
-  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_0_5;
-  wire       [27:0]   _zz_io_push_payload_potentialJumpTargets_0_6;
-  wire       [25:0]   _zz_io_push_payload_potentialJumpTargets_0_7;
-  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_1;
-  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_1_1;
-  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_1_2;
-  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_1_3;
-  wire       [2:0]    _zz_io_push_payload_potentialJumpTargets_1_4;
-  wire       [2:0]    _zz_io_push_payload_potentialJumpTargets_1_5;
-  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_1_6;
-  wire       [27:0]   _zz_io_push_payload_potentialJumpTargets_1_7;
-  wire       [25:0]   _zz_io_push_payload_potentialJumpTargets_1_8;
-  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_2;
-  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_2_1;
-  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_2_2;
-  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_2_3;
-  wire       [3:0]    _zz_io_push_payload_potentialJumpTargets_2_4;
-  wire       [3:0]    _zz_io_push_payload_potentialJumpTargets_2_5;
-  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_2_6;
-  wire       [27:0]   _zz_io_push_payload_potentialJumpTargets_2_7;
-  wire       [25:0]   _zz_io_push_payload_potentialJumpTargets_2_8;
-  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_3;
-  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_3_1;
-  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_3_2;
-  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_3_3;
-  wire       [3:0]    _zz_io_push_payload_potentialJumpTargets_3_4;
-  wire       [3:0]    _zz_io_push_payload_potentialJumpTargets_3_5;
-  wire       [31:0]   _zz_io_push_payload_potentialJumpTargets_3_6;
-  wire       [27:0]   _zz_io_push_payload_potentialJumpTargets_3_7;
-  wire       [25:0]   _zz_io_push_payload_potentialJumpTargets_3_8;
   wire       [42:0]   _zz_ICachePlugin_logic_storage_tagLruRam_port;
   reg                 _zz_ICache_F1_Access_ICachePlugin_logic_pipeline_F1_VALID_MASK_0;
   reg                 _zz_ICache_F1_Access_ICachePlugin_logic_pipeline_F1_VALID_MASK_1;
@@ -1643,14 +1549,26 @@ module CoreNSCSCC (
   reg                 _zz_3;
   reg                 _zz_4;
   wire                ICache_F2_HitCheck_ready;
+  reg        [0:0]    ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F2_VICTIM_WAY_ON_HAZARD;
+  reg        [31:0]   ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F2_FORWARDED_DATA_0;
+  reg        [31:0]   ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F2_FORWARDED_DATA_1;
+  reg        [31:0]   ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F2_FORWARDED_DATA_2;
+  reg        [31:0]   ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F2_FORWARDED_DATA_3;
   reg        [20:0]   ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F2_FORWARDED_META_ways_0_tag;
   reg        [20:0]   ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F2_FORWARDED_META_ways_1_tag;
   reg                 ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F2_FORWARDED_META_lru;
+  reg                 ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F2_USE_FORWARDED_DATA;
   reg                 ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F2_USE_FORWARDED_META;
   reg                 ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F1_VALID_MASK_0;
   reg                 ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F1_VALID_MASK_1;
   reg        [31:0]   ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F1_CMD_address;
   reg        [7:0]    ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F1_CMD_transactionId;
+  wire       [0:0]    ICache_F1_Access_ICachePlugin_logic_pipeline_F2_VICTIM_WAY_ON_HAZARD;
+  wire       [31:0]   ICache_F1_Access_ICachePlugin_logic_pipeline_F2_FORWARDED_DATA_0;
+  wire       [31:0]   ICache_F1_Access_ICachePlugin_logic_pipeline_F2_FORWARDED_DATA_1;
+  wire       [31:0]   ICache_F1_Access_ICachePlugin_logic_pipeline_F2_FORWARDED_DATA_2;
+  wire       [31:0]   ICache_F1_Access_ICachePlugin_logic_pipeline_F2_FORWARDED_DATA_3;
+  wire                ICache_F1_Access_ICachePlugin_logic_pipeline_F2_USE_FORWARDED_DATA;
   wire       [20:0]   ICache_F1_Access_ICachePlugin_logic_pipeline_F2_FORWARDED_META_ways_0_tag;
   wire       [20:0]   ICache_F1_Access_ICachePlugin_logic_pipeline_F2_FORWARDED_META_ways_1_tag;
   wire                ICache_F1_Access_ICachePlugin_logic_pipeline_F2_FORWARDED_META_lru;
@@ -1660,90 +1578,6 @@ module CoreNSCSCC (
   wire                ICache_F1_Access_ready;
   wire       [31:0]   ICache_F1_Access_ICachePlugin_logic_pipeline_F1_CMD_address;
   wire       [7:0]    ICache_F1_Access_ICachePlugin_logic_pipeline_F1_CMD_transactionId;
-  wire                s5_Target_Calc_isFlushingRoot;
-  wire                s4_Predecode_isFlushingRoot;
-  wire                s3_ICache_Wait_isFlushingRoot;
-  wire                s2_ICache_Access_isFlushingRoot;
-  wire                s1_PC_Gen_isFlushingRoot;
-  wire                s1_PC_Gen_isFlushed;
-  wire                s2_ICache_Access_isFlushed;
-  wire                s4_Predecode_isFlushed;
-  wire                s5_Target_Calc_isFlushed;
-  wire                s3_ICache_Wait_isFlushed;
-  reg        [31:0]   s2_ICache_Access_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC;
-  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_FAULT;
-  reg        [2:0]    s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_NUM_VALID_INSTRS;
-  reg        [1:0]    s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_START_INSTR_INDEX;
-  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isBranch;
-  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isJump;
-  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isDirectJump;
-  reg        [31:0]   s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_jumpOffset;
-  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isIdle;
-  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isBranch;
-  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isJump;
-  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isDirectJump;
-  reg        [31:0]   s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_jumpOffset;
-  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isIdle;
-  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isBranch;
-  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isJump;
-  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isDirectJump;
-  reg        [31:0]   s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_jumpOffset;
-  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isIdle;
-  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isBranch;
-  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isJump;
-  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isDirectJump;
-  reg        [31:0]   s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_jumpOffset;
-  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isIdle;
-  reg        [7:0]    s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_transactionId;
-  reg        [31:0]   s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_0;
-  reg        [31:0]   s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_1;
-  reg        [31:0]   s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_2;
-  reg        [31:0]   s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_3;
-  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_wasHit;
-  reg                 s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_redo;
-  reg        [31:0]   s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC;
-  reg        [31:0]   s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PC;
-  reg        [31:0]   s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC;
-  reg        [31:0]   s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC;
-  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_FAULT;
-  reg        [2:0]    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_NUM_VALID_INSTRS;
-  reg        [1:0]    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_START_INSTR_INDEX;
-  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isBranch;
-  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isJump;
-  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isDirectJump;
-  reg        [31:0]   s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_jumpOffset;
-  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isIdle;
-  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isBranch;
-  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isJump;
-  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isDirectJump;
-  reg        [31:0]   s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_jumpOffset;
-  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isIdle;
-  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isBranch;
-  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isJump;
-  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isDirectJump;
-  reg        [31:0]   s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_jumpOffset;
-  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isIdle;
-  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isBranch;
-  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isJump;
-  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isDirectJump;
-  reg        [31:0]   s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_jumpOffset;
-  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isIdle;
-  reg        [7:0]    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_transactionId;
-  reg        [31:0]   s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_0;
-  reg        [31:0]   s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_1;
-  reg        [31:0]   s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_2;
-  reg        [31:0]   s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_3;
-  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_wasHit;
-  reg                 s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_redo;
-  reg        [31:0]   s2_ICache_Access_FetchPipelinePlugin_logic_FetchPipeline_PC;
-  reg                 _zz_s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l400;
-  wire       [31:0]   s1_PC_Gen_FetchPipelinePlugin_logic_FetchPipeline_PC;
-  wire       [31:0]   s1_PC_Gen_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC;
-  reg                 s5_Target_Calc_ready;
-  wire                s4_Predecode_ready;
-  wire                s3_ICache_Wait_ready;
-  wire                s2_ICache_Access_ready;
-  reg                 s1_PC_Gen_ready;
   wire                s3_Dispatch_isFlushingRoot;
   wire                s2_RobAlloc_isFlushingRoot;
   wire                s1_Rename_isFlushingRoot;
@@ -1788,6 +1622,7 @@ module CoreNSCSCC (
   reg        [31:0]   _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_target;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_isMispredictedBranch;
+  reg        [31:0]   _zz_BranchEU_BranchEuPlugin_euResult_targetPc;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_isTaken;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_writesToPreg;
   reg        [31:0]   _zz_BranchEU_BranchEuPlugin_euResult_data;
@@ -1836,11 +1671,11 @@ module CoreNSCSCC (
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Ready_2;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_src2IsFpr_2;
   reg        [4:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2;
-  reg                 _zz_switch_BranchEuPlugin_l133;
+  reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isJump_2;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink_2;
   reg        [4:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_idx_2;
   reg        [1:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_2;
-  reg                 _zz_switch_BranchEuPlugin_l133_1;
+  reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isIndirect_2;
   reg        [2:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_laCfIdx_2;
   reg        [31:0]   _zz_BranchEU_BranchEuPlugin_euResult_uop_imm_2;
   reg        [31:0]   _zz_BranchEU_BranchEuPlugin_euResult_uop_pc_2;
@@ -2588,8 +2423,6 @@ module CoreNSCSCC (
   reg        [31:0]   BpuPipelinePlugin_updatePortIn_payload_pc;
   reg                 BpuPipelinePlugin_updatePortIn_payload_isTaken;
   reg        [31:0]   BpuPipelinePlugin_updatePortIn_payload_target;
-  reg        [15:0]   FetchPipelinePlugin_dbg_cycles;
-  reg        [2:0]    FetchPipelinePlugin_dbg_c;
   wire                FetchPipelinePlugin_doHardRedirect_listening;
   wire                FetchPipelinePlugin_doSoftRedirect_listening;
   wire       [63:0]   BusyTablePlugin_combinationalBusyBits;
@@ -2644,6 +2477,7 @@ module CoreNSCSCC (
   reg        [31:0]   AluIntEU_AluIntEuPlugin_euResult_data;
   reg                 AluIntEU_AluIntEuPlugin_euResult_writesToPreg;
   wire                AluIntEU_AluIntEuPlugin_euResult_isMispredictedBranch;
+  wire       [31:0]   AluIntEU_AluIntEuPlugin_euResult_targetPc;
   wire                AluIntEU_AluIntEuPlugin_euResult_isTaken;
   reg                 AluIntEU_AluIntEuPlugin_euResult_hasException;
   reg        [7:0]    AluIntEU_AluIntEuPlugin_euResult_exceptionCode;
@@ -2768,6 +2602,7 @@ module CoreNSCSCC (
   reg        [31:0]   MulEU_MulEuPlugin_euResult_data;
   reg                 MulEU_MulEuPlugin_euResult_writesToPreg;
   wire                MulEU_MulEuPlugin_euResult_isMispredictedBranch;
+  wire       [31:0]   MulEU_MulEuPlugin_euResult_targetPc;
   wire                MulEU_MulEuPlugin_euResult_isTaken;
   reg                 MulEU_MulEuPlugin_euResult_hasException;
   reg        [7:0]    MulEU_MulEuPlugin_euResult_exceptionCode;
@@ -2803,6 +2638,7 @@ module CoreNSCSCC (
   reg        [31:0]   BranchEU_BranchEuPlugin_euResult_data;
   reg                 BranchEU_BranchEuPlugin_euResult_writesToPreg;
   reg                 BranchEU_BranchEuPlugin_euResult_isMispredictedBranch;
+  reg        [31:0]   BranchEU_BranchEuPlugin_euResult_targetPc;
   reg                 BranchEU_BranchEuPlugin_euResult_isTaken;
   reg                 BranchEU_BranchEuPlugin_euResult_hasException;
   reg        [7:0]    BranchEU_BranchEuPlugin_euResult_exceptionCode;
@@ -2842,6 +2678,7 @@ module CoreNSCSCC (
   wire       [31:0]   LsuEU_LsuEuPlugin_euResult_data;
   reg                 LsuEU_LsuEuPlugin_euResult_writesToPreg;
   wire                LsuEU_LsuEuPlugin_euResult_isMispredictedBranch;
+  wire       [31:0]   LsuEU_LsuEuPlugin_euResult_targetPc;
   wire                LsuEU_LsuEuPlugin_euResult_isTaken;
   reg                 LsuEU_LsuEuPlugin_euResult_hasException;
   reg        [7:0]    LsuEU_LsuEuPlugin_euResult_exceptionCode;
@@ -2861,6 +2698,19 @@ module CoreNSCSCC (
   reg                 ICachePlugin_port_rsp_payload_redo;
   wire                ICachePlugin_invalidate;
   reg        [7:0]    _zz_when_Debug_l71;
+  reg        [31:0]   PerfCounter_cycles;
+  wire                FetchPipelinePlugin_setup_relayedFetchOutput_valid;
+  wire                FetchPipelinePlugin_setup_relayedFetchOutput_ready;
+  wire       [31:0]   FetchPipelinePlugin_setup_relayedFetchOutput_payload_pc;
+  wire       [31:0]   FetchPipelinePlugin_setup_relayedFetchOutput_payload_instruction;
+  wire                FetchPipelinePlugin_setup_relayedFetchOutput_payload_predecode_isBranch;
+  wire                FetchPipelinePlugin_setup_relayedFetchOutput_payload_predecode_isJump;
+  wire                FetchPipelinePlugin_setup_relayedFetchOutput_payload_predecode_isDirectJump;
+  wire       [31:0]   FetchPipelinePlugin_setup_relayedFetchOutput_payload_predecode_jumpOffset;
+  wire                FetchPipelinePlugin_setup_relayedFetchOutput_payload_predecode_isIdle;
+  wire                FetchPipelinePlugin_setup_relayedFetchOutput_payload_bpuPrediction_isTaken;
+  wire       [31:0]   FetchPipelinePlugin_setup_relayedFetchOutput_payload_bpuPrediction_target;
+  wire                FetchPipelinePlugin_setup_relayedFetchOutput_payload_bpuPrediction_wasPredicted;
   reg        [63:0]   BusyTablePlugin_early_setup_busyTableReg;
   reg        [63:0]   BusyTablePlugin_early_setup_clearMask;
   reg        [63:0]   BusyTablePlugin_early_setup_setMask;
@@ -3035,18 +2885,6 @@ module CoreNSCSCC (
   wire                _zz_LoadQueuePlugin_logic_loadQueue_mmioCmdFired_1;
   wire       [31:0]   _zz_LoadQueuePlugin_logic_loadQueue_completionInfo_data;
   wire                _zz_LoadQueuePlugin_logic_loadQueue_completionInfo_hasFault;
-  reg                 CoreNSCSCCSetupPlugin_setup_fetchOutput_valid;
-  wire                CoreNSCSCCSetupPlugin_setup_fetchOutput_ready;
-  wire       [31:0]   CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_pc;
-  wire       [31:0]   CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_instruction;
-  wire                CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_predecode_isBranch;
-  wire                CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_predecode_isJump;
-  wire                CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_predecode_isDirectJump;
-  wire       [31:0]   CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_predecode_jumpOffset;
-  wire                CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_predecode_isIdle;
-  wire                CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_bpuPrediction_isTaken;
-  wire       [31:0]   CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_bpuPrediction_target;
-  wire                CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_bpuPrediction_wasPredicted;
   reg                 CheckpointManagerPlugin_setup_btRestorePort_valid;
   reg        [63:0]   CheckpointManagerPlugin_setup_btRestorePort_payload_busyBits;
   wire                LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_valid;
@@ -3182,15 +3020,15 @@ module CoreNSCSCC (
   wire       [5:0]    CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_31;
   reg        [63:0]   CheckpointManagerPlugin_logic_initialFreeMask;
   wire       [63:0]   CheckpointManagerPlugin_logic_initialBtCheckpoint_busyBits;
-  wire                CommitPlugin_logic_s0_isMispredictedBranch;
+  wire                CommitPlugin_logic_mispredictedBranchCanCommit;
+  reg                 CommitPlugin_logic_scheduedFlush;
+  reg        [31:0]   CommitPlugin_logic_hardRedirectTarget;
+  wire                CommitPlugin_logic_s0_headIsDone;
   reg                 CommitPlugin_logic_s0_commitAckMasks_0;
-  wire                when_CommitPlugin_l209;
-  wire                when_CommitPlugin_l222;
-  wire                when_CommitPlugin_l239;
-  wire                when_CommitPlugin_l278;
+  wire                when_CommitPlugin_l229;
+  wire                when_CommitPlugin_l273;
   wire       [0:0]    CommitPlugin_logic_s0_committedThisCycle_comb;
   wire       [0:0]    CommitPlugin_logic_s0_recycledThisCycle_comb;
-  wire       [0:0]    CommitPlugin_logic_s0_flushedThisCycle_comb;
   wire       [31:0]   CommitPlugin_logic_s0_commitPcs_0;
   wire       [31:0]   CommitPlugin_logic_s0_maxCommitPcThisCycle;
   wire                CommitPlugin_logic_s0_anyCommitOOB;
@@ -3202,11 +3040,11 @@ module CoreNSCSCC (
   wire                CommitPlugin_logic_s0_commitSlotLogs_0_allocatesPhysDest;
   reg        [0:0]    CommitPlugin_logic_s1_s1_committedThisCycle;
   reg        [0:0]    CommitPlugin_logic_s1_s1_recycledThisCycle;
-  reg        [0:0]    CommitPlugin_logic_s1_s1_flushedThisCycle;
+  reg                 CommitPlugin_logic_s1_s1_flushedThisCycle;
   reg        [31:0]   CommitPlugin_logic_s1_s1_maxCommitPcThisCycle;
   reg                 CommitPlugin_logic_s1_s1_anyCommitOOB;
   wire                CommitPlugin_logic_s1_s1_hasCommitsThisCycle;
-  wire                when_CommitPlugin_l336;
+  wire                when_CommitPlugin_l346;
   wire       [4:0]    _zz_when_Debug_l71_5;
   wire                when_Debug_l71_4;
   wire       [7:0]    _zz_27;
@@ -4091,12 +3929,12 @@ module CoreNSCSCC (
   wire                s3_Writeback_isFiring;
   wire                when_Connection_l66_1;
   wire                when_Connection_l66_2;
-  wire                when_EuBasePlugin_l230;
+  wire                when_EuBasePlugin_l232;
   wire                AluIntEU_AluIntEuPlugin_logicPhase_executionCompletes;
   wire                AluIntEU_AluIntEuPlugin_logicPhase_completesSuccessfully;
   wire       [4:0]    _zz_when_Debug_l71_7;
   wire                when_Debug_l71_6;
-  wire                when_EuBasePlugin_l301;
+  wire                when_EuBasePlugin_l304;
   wire                mul_s0_Dispatch_valid;
   reg                 _zz_mul_s1_ReadRegs_valid;
   reg                 mul_s1_ReadRegs_valid;
@@ -4121,12 +3959,12 @@ module CoreNSCSCC (
   wire                when_Connection_l66_6;
   wire                when_Connection_l66_7;
   wire                when_Connection_l66_8;
-  wire                when_EuBasePlugin_l230_1;
+  wire                when_EuBasePlugin_l232_1;
   wire                MulEU_MulEuPlugin_logicPhase_executionCompletes;
   wire                MulEU_MulEuPlugin_logicPhase_completesSuccessfully;
   wire       [4:0]    _zz_when_Debug_l71_8;
   wire                when_Debug_l71_7;
-  wire                when_EuBasePlugin_l301_1;
+  wire                when_EuBasePlugin_l304_1;
   wire                s0_Dispatch_valid_1;
   reg                 _zz_s1_Calc_valid;
   reg                 s1_Calc_valid;
@@ -4137,23 +3975,21 @@ module CoreNSCSCC (
   wire                s0_Dispatch_isFiring;
   wire                s1_Calc_isFiring;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_data_3;
-  reg        [31:0]   _zz_BranchEU_BranchEuPlugin_euResult_data_4;
-  wire       [1:0]    switch_BranchEuPlugin_l133;
   wire                s2_Select_isFiring;
-  wire       [31:0]   _zz_BranchEU_BranchEuPlugin_euResult_data_5;
-  reg        [31:0]   _zz_BranchEU_BranchEuPlugin_euResult_data_6;
+  wire       [31:0]   _zz_BranchEU_BranchEuPlugin_euResult_data_4;
+  reg        [31:0]   _zz_BranchEU_BranchEuPlugin_euResult_data_5;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_isTaken_1;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_isMispredictedBranch_1;
   wire                _zz_53;
   wire                s3_Result_isFiring;
   wire                when_Connection_l66_9;
   wire                when_Connection_l66_10;
-  wire                when_EuBasePlugin_l230_2;
+  wire                when_EuBasePlugin_l232_2;
   wire                BranchEU_BranchEuPlugin_logicPhase_executionCompletes;
   wire                BranchEU_BranchEuPlugin_logicPhase_completesSuccessfully;
   wire       [4:0]    _zz_when_Debug_l71_9;
   wire                when_Debug_l71_8;
-  wire                when_EuBasePlugin_l301_2;
+  wire                when_EuBasePlugin_l304_2;
   wire       [1:0]    _zz_LsuEU_LsuEuPlugin_euInputPort_translated_payload_accessSize;
   wire                LsuEU_LsuEuPlugin_euInputPort_translated_valid;
   wire                LsuEU_LsuEuPlugin_euInputPort_translated_ready;
@@ -4235,12 +4071,12 @@ module CoreNSCSCC (
   wire                LsuEU_LsuEuPlugin_hw_lqPushPort_fire;
   wire                StoreBufferPlugin_hw_pushPortInst_fire;
   wire                when_LsuEuPlugin_l143;
-  wire                when_EuBasePlugin_l230_3;
+  wire                when_EuBasePlugin_l232_3;
   wire                LsuEU_LsuEuPlugin_logicPhase_executionCompletes;
   wire                LsuEU_LsuEuPlugin_logicPhase_completesSuccessfully;
   wire       [4:0]    _zz_when_Debug_l71_10;
   wire                when_Debug_l71_9;
-  wire                when_EuBasePlugin_l301_3;
+  wire                when_EuBasePlugin_l304_3;
   reg                 s2_RobAlloc_ready_output;
   wire                when_Connection_l66_11;
   reg                 s1_Rename_ready_output;
@@ -4472,7 +4308,7 @@ module CoreNSCSCC (
   wire                LoadQueuePlugin_logic_loadQueue_flushInProgress;
   reg                 LoadQueuePlugin_logic_loadQueue_registeredFlush_valid;
   reg        [3:0]    LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr;
-  wire                when_LoadQueuePlugin_l298;
+  wire                when_LoadQueuePlugin_l297;
   wire                LoadQueuePlugin_logic_loadQueue_canPush;
   wire       [3:0]    LoadQueuePlugin_logic_loadQueue_availableSlotsMask;
   wire       [3:0]    LoadQueuePlugin_logic_loadQueue_pushOh;
@@ -4492,12 +4328,12 @@ module CoreNSCSCC (
   wire       [2:0]    _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_3;
   wire                LoadQueuePlugin_logic_loadQueue_headIsVisible;
   wire                LoadQueuePlugin_logic_loadQueue_headIsReadyForFwdQuery;
-  wire                when_LoadQueuePlugin_l336;
+  wire                when_LoadQueuePlugin_l335;
   wire                _zz_59;
-  wire                when_LoadQueuePlugin_l347;
-  wire                when_LoadQueuePlugin_l362;
+  wire                when_LoadQueuePlugin_l345;
+  wire                when_LoadQueuePlugin_l360;
   wire                LoadQueuePlugin_logic_loadQueue_headIsReadyToExecute;
-  wire                when_LoadQueuePlugin_l395;
+  wire                when_LoadQueuePlugin_l393;
   wire                LoadQueuePlugin_logic_loadQueue_mmioCmdFired;
   wire                LoadQueuePlugin_logic_loadQueue_mmioResponseIsForHead;
   wire                LoadQueuePlugin_logic_loadQueue_popOnFwdHit;
@@ -4518,27 +4354,28 @@ module CoreNSCSCC (
   reg                 LoadQueuePlugin_logic_loadQueue_completingHead_isReadyForDCache;
   reg                 LoadQueuePlugin_logic_loadQueue_completingHead_isWaitingForRsp;
   reg        [31:0]   _zz_LoadQueuePlugin_hw_prfWritePort_data;
-  wire                when_LoadQueuePlugin_l535;
-  wire                _zz_when_LoadQueuePlugin_l565;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l565_1;
-  wire                _zz_when_LoadQueuePlugin_l565_2;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l565_3;
-  wire                when_LoadQueuePlugin_l565;
-  wire                _zz_when_LoadQueuePlugin_l565_4;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l565_5;
-  wire                _zz_when_LoadQueuePlugin_l565_6;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l565_7;
-  wire                when_LoadQueuePlugin_l565_1;
-  wire                _zz_when_LoadQueuePlugin_l565_8;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l565_9;
-  wire                _zz_when_LoadQueuePlugin_l565_10;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l565_11;
-  wire                when_LoadQueuePlugin_l565_2;
-  wire                _zz_when_LoadQueuePlugin_l565_12;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l565_13;
-  wire                _zz_when_LoadQueuePlugin_l565_14;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l565_15;
-  wire                when_LoadQueuePlugin_l565_3;
+  wire                when_LoadQueuePlugin_l533;
+  wire                when_LoadQueuePlugin_l548;
+  wire                _zz_when_LoadQueuePlugin_l563;
+  wire       [2:0]    _zz_when_LoadQueuePlugin_l563_1;
+  wire                _zz_when_LoadQueuePlugin_l563_2;
+  wire       [2:0]    _zz_when_LoadQueuePlugin_l563_3;
+  wire                when_LoadQueuePlugin_l563;
+  wire                _zz_when_LoadQueuePlugin_l563_4;
+  wire       [2:0]    _zz_when_LoadQueuePlugin_l563_5;
+  wire                _zz_when_LoadQueuePlugin_l563_6;
+  wire       [2:0]    _zz_when_LoadQueuePlugin_l563_7;
+  wire                when_LoadQueuePlugin_l563_1;
+  wire                _zz_when_LoadQueuePlugin_l563_8;
+  wire       [2:0]    _zz_when_LoadQueuePlugin_l563_9;
+  wire                _zz_when_LoadQueuePlugin_l563_10;
+  wire       [2:0]    _zz_when_LoadQueuePlugin_l563_11;
+  wire                when_LoadQueuePlugin_l563_2;
+  wire                _zz_when_LoadQueuePlugin_l563_12;
+  wire       [2:0]    _zz_when_LoadQueuePlugin_l563_13;
+  wire                _zz_when_LoadQueuePlugin_l563_14;
+  wire       [2:0]    _zz_when_LoadQueuePlugin_l563_15;
+  wire                when_LoadQueuePlugin_l563_3;
   reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_0;
   reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_1;
   reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_2;
@@ -5090,89 +4927,33 @@ module CoreNSCSCC (
   wire                when_StoreBufferPlugin_l579_15;
   wire                StoreBufferPlugin_logic_overallBypassHit;
   wire       [63:0]   BusyTablePlugin_logic_busyTableNext;
-  reg                 FetchPipelinePlugin_logic_retryIdCounter_willIncrement;
-  wire                FetchPipelinePlugin_logic_retryIdCounter_willClear;
-  reg        [1:0]    FetchPipelinePlugin_logic_retryIdCounter_valueNext;
-  reg        [1:0]    FetchPipelinePlugin_logic_retryIdCounter_value;
-  wire                FetchPipelinePlugin_logic_retryIdCounter_willOverflowIfInc;
-  wire                FetchPipelinePlugin_logic_retryIdCounter_willOverflow;
-  reg                 FetchPipelinePlugin_logic_doRetryFlush;
-  wire                s1_PC_Gen_valid;
-  reg                 _zz_s2_ICache_Access_valid;
-  reg                 s2_ICache_Access_valid;
-  reg                 _zz_s4_Predecode_valid;
-  wire                s3_ICache_Wait_valid;
-  reg                 _zz_70;
-  reg                 s4_Predecode_valid;
-  reg                 _zz_s5_Target_Calc_valid;
-  reg                 s5_Target_Calc_valid;
-  reg                 _zz_71;
-  wire                s1_PC_Gen_isFiring;
-  wire                s2_ICache_Access_isFiring;
-  wire                s3_ICache_Wait_isFiring;
-  wire                s4_Predecode_isFiring;
-  wire                s5_Target_Calc_isFiring;
-  wire                FetchPipelinePlugin_logic_fetchDisabled;
-  wire                FetchPipelinePlugin_logic_hardRedirect_valid;
-  wire       [31:0]   FetchPipelinePlugin_logic_hardRedirect_payload;
-  wire                FetchPipelinePlugin_logic_doAnyFlush;
+  reg        [31:0]   FetchPipelinePlugin_logic_pcGen_fetchPcReg;
+  wire                FetchPipelinePlugin_logic_pcGen_hardRedirect_valid;
+  wire       [31:0]   FetchPipelinePlugin_logic_pcGen_hardRedirect_payload;
+  wire                FetchPipelinePlugin_logic_pcGen_redirectValid;
+  wire       [31:0]   FetchPipelinePlugin_logic_pcGen_redirectPc;
+  wire       [31:0]   _zz_FetchPipelinePlugin_logic_pcGen_fetchPcReg;
+  wire                io_newRequest_fire;
+  wire                FetchPipelinePlugin_logic_pcGen_fetchDisabled;
+  wire                when_FetchPipelinePlugin2_l130;
+  wire       [31:0]   _zz_70;
+  reg                 io_pop_throwWhen_valid;
+  wire                io_pop_throwWhen_ready;
+  wire       [31:0]   io_pop_throwWhen_payload_pc;
+  wire       [31:0]   io_pop_throwWhen_payload_instruction;
+  wire                io_pop_throwWhen_payload_predecode_isBranch;
+  wire                io_pop_throwWhen_payload_predecode_isJump;
+  wire                io_pop_throwWhen_payload_predecode_isDirectJump;
+  wire       [31:0]   io_pop_throwWhen_payload_predecode_jumpOffset;
+  wire                io_pop_throwWhen_payload_predecode_isIdle;
+  wire                io_pop_throwWhen_payload_bpuPrediction_isTaken;
+  wire       [31:0]   io_pop_throwWhen_payload_bpuPrediction_target;
+  wire                io_pop_throwWhen_payload_bpuPrediction_wasPredicted;
   wire                io_pop_fire;
-  reg                 FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_incrementIt;
-  reg                 FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_decrementIt;
-  wire       [2:0]    FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_valueNext;
-  reg        [2:0]    FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_value;
-  wire                FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_mayOverflow;
-  wire                FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_mayUnderflow;
-  wire                FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_willOverflowIfInc;
-  wire                FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_willOverflow;
-  wire                FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_willUnderflowIfDec;
-  wire                FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_willUnderflow;
-  reg        [2:0]    FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_finalIncrement;
-  wire                when_Utils_l767;
-  wire                when_Utils_l769;
-  reg                 FetchPipelinePlugin_logic_isDrainingCacheRspReg;
-  wire                when_FetchPipelinePlugin2_l325;
-  reg                 FetchPipelinePlugin_logic_retryCmd_lock;
-  reg        [31:0]   FetchPipelinePlugin_logic_retryCmd_pc;
-  reg        [1:0]    FetchPipelinePlugin_logic_retryCmd_id;
-  reg        [31:0]   FetchPipelinePlugin_logic_s1_logic_fetchPcReg;
-  reg        [1:0]    FetchPipelinePlugin_logic_s1_logic_lastRetryIdReg;
-  wire                FetchPipelinePlugin_logic_s1_logic_needRedo;
-  wire       [31:0]   FetchPipelinePlugin_logic_s1_logic_rawPcToUse;
-  wire       [31:0]   FetchPipelinePlugin_logic_s1_logic_nextLinePc;
-  wire       [31:0]   _zz_FetchPipelinePlugin_logic_s1_logic_fetchPcReg;
-  wire                when_FetchPipelinePlugin2_l384;
-  wire                when_FetchPipelinePlugin2_l389;
-  wire                when_FetchPipelinePlugin2_l399;
-  wire                s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l400;
-  wire       [31:0]   FetchPipelinePlugin_logic_s2_logic_cmdPayload_address;
-  wire       [7:0]    FetchPipelinePlugin_logic_s2_logic_cmdPayload_transactionId;
-  wire                FetchPipelinePlugin_logic_s4_logic_handleRsp;
-  wire                FetchPipelinePlugin_logic_s4_logic_hasHigherPriorityStuff;
-  wire                FetchPipelinePlugin_logic_s4_logic_backpressureRedo;
-  wire                when_FetchPipelinePlugin2_l466;
-  wire       [27:0]   _zz_72;
-  wire                when_FetchPipelinePlugin2_l482;
-  wire                when_FetchPipelinePlugin2_l491;
-  wire                when_FetchPipelinePlugin2_l500;
-  wire                when_FetchPipelinePlugin2_l505;
-  wire       [31:0]   _zz_s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_START_INSTR_INDEX;
-  wire                io_push_fire;
-  wire                io_fetchOutput_fire;
-  wire                s5_Target_Calc_haltRequest_FetchPipelinePlugin2_l591;
-  wire                io_fetchGroupIn_fire;
-  wire                _zz_s2_ICache_Access_isFlushingRoot;
-  wire                _zz_s3_ICache_Wait_isFlushingRoot;
-  reg                 s4_Predecode_ready_output;
-  wire                when_Connection_l66_13;
-  reg                 s2_ICache_Access_ready_output;
-  wire                when_Connection_l66_14;
-  reg                 s1_PC_Gen_ready_output;
-  wire                when_Pipeline_l282_2;
-  wire                when_Pipeline_l282_3;
-  wire                when_Connection_l74_3;
-  wire                when_Connection_l74_4;
-  wire                when_Connection_l74_5;
+  wire                when_FetchPipelinePlugin2_l183;
+  wire                FetchPipelinePlugin_setup_relayedFetchOutput_fire;
+  reg                 FetchPipelinePlugin_logic_hardFlushDelayed;
+  wire                when_FetchPipelinePlugin2_l203;
   reg        [1:0]    _zz_ROBPlugin_aggregatedFlushSignal_payload_reason;
   reg        [3:0]    _zz_ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr;
   reg                 ICachePlugin_axiMaster_ar_valid;
@@ -5475,6 +5256,11 @@ module CoreNSCSCC (
   reg                 ICachePlugin_logic_storage_valids_126_1;
   reg                 ICachePlugin_logic_storage_valids_127_0;
   reg                 ICachePlugin_logic_storage_valids_127_1;
+  reg        [0:0]    ICachePlugin_logic_storage_victimWayReg;
+  reg        [31:0]   ICachePlugin_logic_storage_lineBuffer_0;
+  reg        [31:0]   ICachePlugin_logic_storage_lineBuffer_1;
+  reg        [31:0]   ICachePlugin_logic_storage_lineBuffer_2;
+  reg        [31:0]   ICachePlugin_logic_storage_lineBuffer_3;
   reg                 ICachePlugin_logic_tag_write_logic_fsmIsCommitting;
   reg                 ICachePlugin_logic_tag_write_logic_f2IsUpdatingLru;
   reg        [6:0]    ICachePlugin_logic_tag_write_logic_writeAddress;
@@ -5502,6 +5288,7 @@ module CoreNSCSCC (
   wire       [31:0]   ICachePlugin_logic_pipeline_f1_dataReadData_1_3;
   wire       [127:0]  _zz_ICachePlugin_logic_pipeline_f1_dataReadData_1_0;
   wire                ICachePlugin_logic_pipeline_f1_writeReadHazard;
+  wire                ICachePlugin_logic_pipeline_f1_dataForwardingIsRequired;
   wire       [6:0]    ICachePlugin_logic_pipeline_f2_f2_index;
   wire       [20:0]   ICachePlugin_logic_pipeline_f2_f2_tag;
   wire       [20:0]   ICachePlugin_logic_pipeline_f2_f2_metaLine_ways_0_tag;
@@ -5510,21 +5297,25 @@ module CoreNSCSCC (
   wire                ICachePlugin_logic_pipeline_f2_hit_ways_0;
   wire                ICachePlugin_logic_pipeline_f2_hit_ways_1;
   wire                ICachePlugin_logic_pipeline_f2_isHit;
-  wire       [31:0]   ICachePlugin_logic_pipeline_f2_hitWayData_0;
-  wire       [31:0]   ICachePlugin_logic_pipeline_f2_hitWayData_1;
-  wire       [31:0]   ICachePlugin_logic_pipeline_f2_hitWayData_2;
-  wire       [31:0]   ICachePlugin_logic_pipeline_f2_hitWayData_3;
   wire                _zz_ICachePlugin_logic_pipeline_f2_hitWayIdx;
   wire       [0:0]    ICachePlugin_logic_pipeline_f2_hitWayIdx;
+  wire       [31:0]   ICachePlugin_logic_pipeline_f2_hitWayDataFromRam_0;
+  wire       [31:0]   ICachePlugin_logic_pipeline_f2_hitWayDataFromRam_1;
+  wire       [31:0]   ICachePlugin_logic_pipeline_f2_hitWayDataFromRam_2;
+  wire       [31:0]   ICachePlugin_logic_pipeline_f2_hitWayDataFromRam_3;
+  wire                ICachePlugin_logic_pipeline_f2_hitWayIsVictimWay;
+  wire                ICachePlugin_logic_pipeline_f2_needsDataForwarding;
+  wire       [31:0]   ICachePlugin_logic_pipeline_f2_finalHitData_0;
+  wire       [31:0]   ICachePlugin_logic_pipeline_f2_finalHitData_1;
+  wire       [31:0]   ICachePlugin_logic_pipeline_f2_finalHitData_2;
+  wire       [31:0]   ICachePlugin_logic_pipeline_f2_finalHitData_3;
   wire                ICache_F2_HitCheck_isFiring;
   wire                ICachePlugin_logic_pipeline_f2_f2_can_update_lru;
+  wire                _zz_ICachePlugin_logic_tag_write_logic_writeData_lru;
+  wire                when_ICachePlugin_l219;
+  wire                _zz_75;
   reg        [31:0]   ICachePlugin_logic_refill_refillCmdReg_address;
   reg        [7:0]    ICachePlugin_logic_refill_refillCmdReg_transactionId;
-  reg        [0:0]    ICachePlugin_logic_refill_victimWayReg;
-  reg        [31:0]   ICachePlugin_logic_refill_lineBuffer_0;
-  reg        [31:0]   ICachePlugin_logic_refill_lineBuffer_1;
-  reg        [31:0]   ICachePlugin_logic_refill_lineBuffer_2;
-  reg        [31:0]   ICachePlugin_logic_refill_lineBuffer_3;
   reg                 ICachePlugin_logic_refill_refillCounter_willIncrement;
   reg                 ICachePlugin_logic_refill_refillCounter_willClear;
   reg        [1:0]    ICachePlugin_logic_refill_refillCounter_valueNext;
@@ -5539,15 +5330,17 @@ module CoreNSCSCC (
   wire                ICachePlugin_logic_refill_fsm_wantKill;
   reg        [4:0]    ICachePlugin_logic_refill_fsm_stateReg;
   reg        [4:0]    ICachePlugin_logic_refill_fsm_stateNext;
-  wire                when_ICachePlugin_l212;
+  wire                when_ICachePlugin_l272;
+  wire       [0:0]    _zz_78;
   wire                ICachePlugin_axiMaster_ar_fire;
   wire                ICachePlugin_axiMaster_r_fire;
   wire       [3:0]    _zz_79;
   wire       [6:0]    _zz_ICachePlugin_logic_tag_write_logic_writeAddress;
-  wire                when_ICachePlugin_l260;
-  wire                when_ICachePlugin_l260_1;
+  wire                when_ICachePlugin_l320;
+  wire                when_ICachePlugin_l320_1;
   reg        [20:0]   _zz_ICachePlugin_logic_tag_write_logic_writeData_ways_0_tag;
   reg        [20:0]   _zz_ICachePlugin_logic_tag_write_logic_writeData_ways_1_tag;
+  wire                _zz_ICachePlugin_logic_tag_write_logic_writeData_lru_1;
   wire       [1:0]    _zz_80;
   wire       [20:0]   _zz_ICachePlugin_logic_tag_write_logic_writeData_ways_0_tag_1;
   wire       [127:0]  _zz_81;
@@ -5691,15 +5484,16 @@ module CoreNSCSCC (
   wire                ICachePlugin_logic_refill_fsm_onEntry_RECEIVE_DATA;
   wire                ICachePlugin_logic_refill_fsm_onEntry_COMMIT;
   reg        [2:0]    ICachePlugin_logic_management_sim_fsmStateId;
-  wire                when_ICachePlugin_l299;
-  wire                when_ICachePlugin_l300;
-  wire                when_ICachePlugin_l301;
-  wire                when_ICachePlugin_l302;
+  wire                when_ICachePlugin_l359;
+  wire                when_ICachePlugin_l360;
+  wire                when_ICachePlugin_l361;
+  wire                when_ICachePlugin_l362;
+  reg        [31:0]   _zz_211;
   wire                BpuPipelinePlugin_logic_s1_read_valid;
   reg                 BpuPipelinePlugin_logic_s2_predict_valid;
   wire                BpuPipelinePlugin_logic_s1_read_isFiring;
-  wire       [9:0]    _zz_211;
-  wire       [7:0]    _zz_212;
+  wire       [9:0]    _zz_212;
+  wire       [7:0]    _zz_213;
   wire       [9:0]    _zz_BpuPipelinePlugin_logic_phtReadData_s1;
   wire       [1:0]    BpuPipelinePlugin_logic_phtReadData_s1;
   wire       [7:0]    _zz_BpuPipelinePlugin_logic_btbReadData_s1_valid;
@@ -5710,7 +5504,7 @@ module CoreNSCSCC (
   wire                BpuPipelinePlugin_logic_phtPrediction;
   wire                BpuPipelinePlugin_logic_btbHit;
   wire                BpuPipelinePlugin_logic_s2_predict_isFiring;
-  wire                _zz_215;
+  wire                _zz_216;
   wire                BpuPipelinePlugin_logic_u1_read_valid;
   reg                 BpuPipelinePlugin_logic_u2_write_valid;
   wire                BpuPipelinePlugin_logic_u1_read_isFiring;
@@ -6384,7 +6178,7 @@ module CoreNSCSCC (
       zz_CheckpointManagerPlugin_logic_initialFreeMask[63] = 1'b1;
     end
   endfunction
-  wire [63:0] _zz_221;
+  wire [63:0] _zz_220;
 
   assign _zz_io_triggerIn_1 = 5'h13;
   assign _zz_io_triggerIn = {3'd0, _zz_io_triggerIn_1};
@@ -6400,7 +6194,6 @@ module CoreNSCSCC (
   assign _zz_when_Debug_l71_3_1 = {3'd0, _zz_when_Debug_l71_4};
   assign _zz_CommitPlugin_commitStatsReg_totalCommitted = {31'd0, CommitPlugin_logic_s1_s1_committedThisCycle};
   assign _zz_CommitPlugin_commitStatsReg_physRegRecycled = {31'd0, CommitPlugin_logic_s1_s1_recycledThisCycle};
-  assign _zz_CommitPlugin_commitStatsReg_robFlushCount = {31'd0, CommitPlugin_logic_s1_s1_flushedThisCycle};
   assign _zz_io_triggerIn_9 = 5'h19;
   assign _zz_io_triggerIn_8 = {3'd0, _zz_io_triggerIn_9};
   assign _zz_when_Debug_l71_4_1 = {3'd0, _zz_when_Debug_l71_5};
@@ -6423,11 +6216,11 @@ module CoreNSCSCC (
   assign _zz__zz_BranchEU_BranchEuPlugin_euResult_data_3_5 = BranchEU_BranchEuPlugin_gprReadPorts_0_rsp;
   assign _zz__zz_BranchEU_BranchEuPlugin_euResult_data_3_6 = BranchEU_BranchEuPlugin_gprReadPorts_0_rsp;
   assign _zz__zz_BranchEU_BranchEuPlugin_euResult_data_3_7 = BranchEU_BranchEuPlugin_gprReadPorts_0_rsp;
-  assign _zz__zz_BranchEU_BranchEuPlugin_euResult_data_4 = _zz_BranchEU_BranchEuPlugin_euResult_uop_imm_2;
-  assign _zz__zz_BranchEU_BranchEuPlugin_euResult_data_4_1 = ($signed(_zz__zz_BranchEU_BranchEuPlugin_euResult_data_4_2) + $signed(_zz__zz_BranchEU_BranchEuPlugin_euResult_data_4_3));
-  assign _zz__zz_BranchEU_BranchEuPlugin_euResult_data_4_2 = BranchEU_BranchEuPlugin_gprReadPorts_0_rsp;
-  assign _zz__zz_BranchEU_BranchEuPlugin_euResult_data_4_3 = _zz_BranchEU_BranchEuPlugin_euResult_uop_imm_2;
-  assign _zz__zz_BranchEU_BranchEuPlugin_euResult_data_4_4 = _zz_BranchEU_BranchEuPlugin_euResult_uop_imm_2;
+  assign _zz__zz_BranchEU_BranchEuPlugin_euResult_data_1 = ($signed(_zz__zz_BranchEU_BranchEuPlugin_euResult_data_1_1) + $signed(_zz__zz_BranchEU_BranchEuPlugin_euResult_data_1_2));
+  assign _zz__zz_BranchEU_BranchEuPlugin_euResult_data_1_1 = BranchEU_BranchEuPlugin_gprReadPorts_0_rsp;
+  assign _zz__zz_BranchEU_BranchEuPlugin_euResult_data_1_2 = _zz_BranchEU_BranchEuPlugin_euResult_uop_imm_2;
+  assign _zz__zz_BranchEU_BranchEuPlugin_euResult_data_1_3 = (_zz_BranchEU_BranchEuPlugin_euResult_uop_pc_2 + _zz__zz_BranchEU_BranchEuPlugin_euResult_data_1_4);
+  assign _zz__zz_BranchEU_BranchEuPlugin_euResult_data_1_4 = _zz_BranchEU_BranchEuPlugin_euResult_uop_imm_2;
   assign _zz_io_triggerIn_17 = 5'h18;
   assign _zz_io_triggerIn_16 = {3'd0, _zz_io_triggerIn_17};
   assign _zz_when_Debug_l71_8_1 = {3'd0, _zz_when_Debug_l71_9};
@@ -6461,47 +6254,6 @@ module CoreNSCSCC (
   assign _zz__zz_StoreBufferPlugin_logic_loadQueryBe_4 = ({1'd0,_zz_StoreBufferPlugin_logic_loadQueryBe_1[1 : 1]} <<< 1'd1);
   assign _zz__zz_StoreBufferPlugin_logic_loadQueryBe_5 = _zz__zz_StoreBufferPlugin_logic_loadQueryBe_6;
   assign _zz__zz_StoreBufferPlugin_logic_loadQueryBe_6 = ({3'd0,4'b1111} <<< 2'b00);
-  assign _zz_FetchPipelinePlugin_logic_retryIdCounter_valueNext_1 = FetchPipelinePlugin_logic_retryIdCounter_willIncrement;
-  assign _zz_FetchPipelinePlugin_logic_retryIdCounter_valueNext = {1'd0, _zz_FetchPipelinePlugin_logic_retryIdCounter_valueNext_1};
-  assign _zz_FetchPipelinePlugin_logic_s2_logic_cmdPayload_transactionId = (s2_ICache_Access_FetchPipelinePlugin_logic_FetchPipeline_PC >>> 3'd4);
-  assign _zz_220 = (s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC >>> 3'd4);
-  assign _zz_219 = _zz_220[7:0];
-  assign _zz_s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_NUM_VALID_INSTRS = {1'd0, s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_START_INSTR_INDEX};
-  assign _zz_io_push_payload_potentialJumpTargets_0 = ($signed(_zz_io_push_payload_potentialJumpTargets_0_1) + $signed(_zz_io_push_payload_potentialJumpTargets_0_5));
-  assign _zz_io_push_payload_potentialJumpTargets_0_1 = ($signed(_zz_io_push_payload_potentialJumpTargets_0_2) + $signed(_zz_io_push_payload_potentialJumpTargets_0_3));
-  assign _zz_io_push_payload_potentialJumpTargets_0_2 = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PC;
-  assign _zz_io_push_payload_potentialJumpTargets_0_4 = 2'b00;
-  assign _zz_io_push_payload_potentialJumpTargets_0_3 = {{30{_zz_io_push_payload_potentialJumpTargets_0_4[1]}}, _zz_io_push_payload_potentialJumpTargets_0_4};
-  assign _zz_io_push_payload_potentialJumpTargets_0_6 = ({2'd0,_zz_io_push_payload_potentialJumpTargets_0_7} <<< 2'd2);
-  assign _zz_io_push_payload_potentialJumpTargets_0_5 = {{4{_zz_io_push_payload_potentialJumpTargets_0_6[27]}}, _zz_io_push_payload_potentialJumpTargets_0_6};
-  assign _zz_io_push_payload_potentialJumpTargets_0_7 = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_0[25 : 0];
-  assign _zz_io_push_payload_potentialJumpTargets_1 = ($signed(_zz_io_push_payload_potentialJumpTargets_1_1) + $signed(_zz_io_push_payload_potentialJumpTargets_1_6));
-  assign _zz_io_push_payload_potentialJumpTargets_1_1 = ($signed(_zz_io_push_payload_potentialJumpTargets_1_2) + $signed(_zz_io_push_payload_potentialJumpTargets_1_3));
-  assign _zz_io_push_payload_potentialJumpTargets_1_2 = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PC;
-  assign _zz_io_push_payload_potentialJumpTargets_1_4 = _zz_io_push_payload_potentialJumpTargets_1_5;
-  assign _zz_io_push_payload_potentialJumpTargets_1_3 = {{29{_zz_io_push_payload_potentialJumpTargets_1_4[2]}}, _zz_io_push_payload_potentialJumpTargets_1_4};
-  assign _zz_io_push_payload_potentialJumpTargets_1_5 = ({2'd0,1'b1} <<< 2'd2);
-  assign _zz_io_push_payload_potentialJumpTargets_1_7 = ({2'd0,_zz_io_push_payload_potentialJumpTargets_1_8} <<< 2'd2);
-  assign _zz_io_push_payload_potentialJumpTargets_1_6 = {{4{_zz_io_push_payload_potentialJumpTargets_1_7[27]}}, _zz_io_push_payload_potentialJumpTargets_1_7};
-  assign _zz_io_push_payload_potentialJumpTargets_1_8 = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_1[25 : 0];
-  assign _zz_io_push_payload_potentialJumpTargets_2 = ($signed(_zz_io_push_payload_potentialJumpTargets_2_1) + $signed(_zz_io_push_payload_potentialJumpTargets_2_6));
-  assign _zz_io_push_payload_potentialJumpTargets_2_1 = ($signed(_zz_io_push_payload_potentialJumpTargets_2_2) + $signed(_zz_io_push_payload_potentialJumpTargets_2_3));
-  assign _zz_io_push_payload_potentialJumpTargets_2_2 = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PC;
-  assign _zz_io_push_payload_potentialJumpTargets_2_4 = _zz_io_push_payload_potentialJumpTargets_2_5;
-  assign _zz_io_push_payload_potentialJumpTargets_2_3 = {{28{_zz_io_push_payload_potentialJumpTargets_2_4[3]}}, _zz_io_push_payload_potentialJumpTargets_2_4};
-  assign _zz_io_push_payload_potentialJumpTargets_2_5 = ({2'd0,2'b10} <<< 2'd2);
-  assign _zz_io_push_payload_potentialJumpTargets_2_7 = ({2'd0,_zz_io_push_payload_potentialJumpTargets_2_8} <<< 2'd2);
-  assign _zz_io_push_payload_potentialJumpTargets_2_6 = {{4{_zz_io_push_payload_potentialJumpTargets_2_7[27]}}, _zz_io_push_payload_potentialJumpTargets_2_7};
-  assign _zz_io_push_payload_potentialJumpTargets_2_8 = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_2[25 : 0];
-  assign _zz_io_push_payload_potentialJumpTargets_3 = ($signed(_zz_io_push_payload_potentialJumpTargets_3_1) + $signed(_zz_io_push_payload_potentialJumpTargets_3_6));
-  assign _zz_io_push_payload_potentialJumpTargets_3_1 = ($signed(_zz_io_push_payload_potentialJumpTargets_3_2) + $signed(_zz_io_push_payload_potentialJumpTargets_3_3));
-  assign _zz_io_push_payload_potentialJumpTargets_3_2 = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PC;
-  assign _zz_io_push_payload_potentialJumpTargets_3_4 = _zz_io_push_payload_potentialJumpTargets_3_5;
-  assign _zz_io_push_payload_potentialJumpTargets_3_3 = {{28{_zz_io_push_payload_potentialJumpTargets_3_4[3]}}, _zz_io_push_payload_potentialJumpTargets_3_4};
-  assign _zz_io_push_payload_potentialJumpTargets_3_5 = ({2'd0,2'b11} <<< 2'd2);
-  assign _zz_io_push_payload_potentialJumpTargets_3_7 = ({2'd0,_zz_io_push_payload_potentialJumpTargets_3_8} <<< 2'd2);
-  assign _zz_io_push_payload_potentialJumpTargets_3_6 = {{4{_zz_io_push_payload_potentialJumpTargets_3_7[27]}}, _zz_io_push_payload_potentialJumpTargets_3_7};
-  assign _zz_io_push_payload_potentialJumpTargets_3_8 = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_3[25 : 0];
   assign _zz_ICachePlugin_logic_pipeline_f1_metaReadData_ways_0_tag_1 = _zz_ICachePlugin_logic_pipeline_f1_metaReadData_ways_0_tag[20 : 0];
   assign _zz_ICachePlugin_logic_pipeline_f1_metaReadData_ways_1_tag = _zz_ICachePlugin_logic_pipeline_f1_metaReadData_ways_0_tag[41 : 21];
   assign _zz__zz_ICachePlugin_logic_pipeline_f2_hitWayIdx = {ICachePlugin_logic_pipeline_f2_hit_ways_1,ICachePlugin_logic_pipeline_f2_hit_ways_0};
@@ -6513,13 +6265,13 @@ module CoreNSCSCC (
   assign _zz_uartAxi_b_payload_id = io_uart_b_bits_id;
   assign _zz_io_leds_1 = (_zz_io_leds ? CommitPlugin_commitStatsReg_maxCommitPc : CommitPlugin_commitStatsReg_totalCommitted);
   assign _zz_ICachePlugin_logic_storage_tagLruRam_port = {ICachePlugin_logic_tag_write_logic_writeData_lru,{ICachePlugin_logic_tag_write_logic_writeData_ways_1_tag,ICachePlugin_logic_tag_write_logic_writeData_ways_0_tag}};
-  assign _zz_ICachePlugin_logic_storage_dataRams_0_port = {ICachePlugin_logic_refill_lineBuffer_3,{ICachePlugin_logic_refill_lineBuffer_2,{ICachePlugin_logic_refill_lineBuffer_1,ICachePlugin_logic_refill_lineBuffer_0}}};
-  assign _zz_ICachePlugin_logic_storage_dataRams_1_port = {ICachePlugin_logic_refill_lineBuffer_3,{ICachePlugin_logic_refill_lineBuffer_2,{ICachePlugin_logic_refill_lineBuffer_1,ICachePlugin_logic_refill_lineBuffer_0}}};
+  assign _zz_ICachePlugin_logic_storage_dataRams_0_port = {ICachePlugin_logic_storage_lineBuffer_3,{ICachePlugin_logic_storage_lineBuffer_2,{ICachePlugin_logic_storage_lineBuffer_1,ICachePlugin_logic_storage_lineBuffer_0}}};
+  assign _zz_ICachePlugin_logic_storage_dataRams_1_port = {ICachePlugin_logic_storage_lineBuffer_3,{ICachePlugin_logic_storage_lineBuffer_2,{ICachePlugin_logic_storage_lineBuffer_1,ICachePlugin_logic_storage_lineBuffer_0}}};
   assign _zz_BpuPipelinePlugin_logic_pht_port = BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_pc[11 : 2];
   assign _zz_BpuPipelinePlugin_logic_btb_port = BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_pc[9 : 2];
   assign _zz_BpuPipelinePlugin_logic_btb_port_1 = {BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_target,{BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_pc[31 : 10],1'b1}};
   assign _zz_CommitPlugin_logic_s0_committedThisCycle_comb_1 = CommitPlugin_logic_s0_commitAckMasks_0;
-  assign _zz_CommitPlugin_logic_s0_recycledThisCycle_comb_1 = when_CommitPlugin_l278;
+  assign _zz_CommitPlugin_logic_s0_recycledThisCycle_comb_1 = SimpleFreeListPlugin_early_setup_freeList_io_free_0_enable;
   assign _zz_DispatchPlugin_logic_destinationIqReady_4 = {_zz_DispatchPlugin_logic_destinationIqReady_2,_zz_DispatchPlugin_logic_destinationIqReady_1};
   assign _zz_DispatchPlugin_logic_dispatchOH = (s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode == DispatchPlugin_logic_iqRegs_2_0_1);
   assign _zz_DispatchPlugin_logic_dispatchOH_1 = (s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode == DispatchPlugin_logic_iqRegs_2_0_0);
@@ -6721,36 +6473,36 @@ module CoreNSCSCC (
     .clk                     (clk                                                       ), //i
     .reset                   (reset                                                     )  //i
   );
-  StreamFifo_11 FetchPipelinePlugin_setup_fetchOutput (
-    .io_push_valid                              (FetchPipelinePlugin_setup_fetchOutput_io_push_valid                                   ), //i
-    .io_push_ready                              (FetchPipelinePlugin_setup_fetchOutput_io_push_ready                                   ), //o
-    .io_push_payload_pc                         (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_pc[31:0]                  ), //i
-    .io_push_payload_instruction                (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_instruction[31:0]         ), //i
-    .io_push_payload_predecode_isBranch         (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_predecode_isBranch        ), //i
-    .io_push_payload_predecode_isJump           (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_predecode_isJump          ), //i
-    .io_push_payload_predecode_isDirectJump     (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_predecode_isDirectJump    ), //i
-    .io_push_payload_predecode_jumpOffset       (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_predecode_jumpOffset[31:0]), //i
-    .io_push_payload_predecode_isIdle           (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_predecode_isIdle          ), //i
-    .io_push_payload_bpuPrediction_isTaken      (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_bpuPrediction_isTaken     ), //i
-    .io_push_payload_bpuPrediction_target       (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_bpuPrediction_target[31:0]), //i
-    .io_push_payload_bpuPrediction_wasPredicted (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_bpuPrediction_wasPredicted), //i
-    .io_pop_valid                               (FetchPipelinePlugin_setup_fetchOutput_io_pop_valid                                    ), //o
-    .io_pop_ready                               (FetchPipelinePlugin_setup_fetchOutput_io_pop_ready                                    ), //i
-    .io_pop_payload_pc                          (FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_pc[31:0]                         ), //o
-    .io_pop_payload_instruction                 (FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_instruction[31:0]                ), //o
-    .io_pop_payload_predecode_isBranch          (FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_predecode_isBranch               ), //o
-    .io_pop_payload_predecode_isJump            (FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_predecode_isJump                 ), //o
-    .io_pop_payload_predecode_isDirectJump      (FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_predecode_isDirectJump           ), //o
-    .io_pop_payload_predecode_jumpOffset        (FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_predecode_jumpOffset[31:0]       ), //o
-    .io_pop_payload_predecode_isIdle            (FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_predecode_isIdle                 ), //o
-    .io_pop_payload_bpuPrediction_isTaken       (FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_bpuPrediction_isTaken            ), //o
-    .io_pop_payload_bpuPrediction_target        (FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_bpuPrediction_target[31:0]       ), //o
-    .io_pop_payload_bpuPrediction_wasPredicted  (FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_bpuPrediction_wasPredicted       ), //o
-    .io_flush                                   (FetchPipelinePlugin_logic_hardRedirect_valid                                          ), //i
-    .io_occupancy                               (FetchPipelinePlugin_setup_fetchOutput_io_occupancy[2:0]                               ), //o
-    .io_availability                            (FetchPipelinePlugin_setup_fetchOutput_io_availability[2:0]                            ), //o
-    .clk                                        (clk                                                                                   ), //i
-    .reset                                      (reset                                                                                 )  //i
+  StreamFifo_11 FetchPipelinePlugin_setup_fetchOutputRawBuffer (
+    .io_push_valid                              (FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_valid                             ), //i
+    .io_push_ready                              (FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_push_ready                            ), //o
+    .io_push_payload_pc                         (FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_payload_pc[31:0]                  ), //i
+    .io_push_payload_instruction                (FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_payload_instruction[31:0]         ), //i
+    .io_push_payload_predecode_isBranch         (FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_payload_predecode_isBranch        ), //i
+    .io_push_payload_predecode_isJump           (FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_payload_predecode_isJump          ), //i
+    .io_push_payload_predecode_isDirectJump     (FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_payload_predecode_isDirectJump    ), //i
+    .io_push_payload_predecode_jumpOffset       (FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_payload_predecode_jumpOffset[31:0]), //i
+    .io_push_payload_predecode_isIdle           (FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_payload_predecode_isIdle          ), //i
+    .io_push_payload_bpuPrediction_isTaken      (FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_payload_bpuPrediction_isTaken     ), //i
+    .io_push_payload_bpuPrediction_target       (FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_payload_bpuPrediction_target[31:0]), //i
+    .io_push_payload_bpuPrediction_wasPredicted (FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_payload_bpuPrediction_wasPredicted), //i
+    .io_pop_valid                               (FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_valid                             ), //o
+    .io_pop_ready                               (FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_ready                             ), //i
+    .io_pop_payload_pc                          (FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_payload_pc[31:0]                  ), //o
+    .io_pop_payload_instruction                 (FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_payload_instruction[31:0]         ), //o
+    .io_pop_payload_predecode_isBranch          (FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_payload_predecode_isBranch        ), //o
+    .io_pop_payload_predecode_isJump            (FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_payload_predecode_isJump          ), //o
+    .io_pop_payload_predecode_isDirectJump      (FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_payload_predecode_isDirectJump    ), //o
+    .io_pop_payload_predecode_jumpOffset        (FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_payload_predecode_jumpOffset[31:0]), //o
+    .io_pop_payload_predecode_isIdle            (FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_payload_predecode_isIdle          ), //o
+    .io_pop_payload_bpuPrediction_isTaken       (FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_payload_bpuPrediction_isTaken     ), //o
+    .io_pop_payload_bpuPrediction_target        (FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_payload_bpuPrediction_target[31:0]), //o
+    .io_pop_payload_bpuPrediction_wasPredicted  (FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_payload_bpuPrediction_wasPredicted), //o
+    .io_flush                                   (FetchPipelinePlugin_logic_pcGen_hardRedirect_valid                                      ), //i
+    .io_occupancy                               (FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_occupancy[4:0]                        ), //o
+    .io_availability                            (FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_availability[4:0]                     ), //o
+    .clk                                        (clk                                                                                     ), //i
+    .reset                                      (reset                                                                                   )  //i
   );
   ReorderBuffer ROBPlugin_robComponent (
     .io_allocate_0_valid                                                 (ROBPlugin_robComponent_io_allocate_0_valid                                                ), //i
@@ -6856,6 +6608,7 @@ module CoreNSCSCC (
     .io_writeback_0_robPtr                                               (AluIntEU_AluIntEuPlugin_euResult_uop_robPtr[3:0]                                          ), //i
     .io_writeback_0_isTaken                                              (AluIntEU_AluIntEuPlugin_euResult_isTaken                                                  ), //i
     .io_writeback_0_isMispredictedBranch                                 (AluIntEU_AluIntEuPlugin_euResult_isMispredictedBranch                                     ), //i
+    .io_writeback_0_targetPc                                             (AluIntEU_AluIntEuPlugin_euResult_targetPc[31:0]                                           ), //i
     .io_writeback_0_result                                               (AluIntEU_AluIntEuPlugin_euResult_data[31:0]                                               ), //i
     .io_writeback_0_exceptionOccurred                                    (AluIntEU_AluIntEuPlugin_euResult_hasException                                             ), //i
     .io_writeback_0_exceptionCodeIn                                      (AluIntEU_AluIntEuPlugin_euResult_exceptionCode[7:0]                                       ), //i
@@ -6863,6 +6616,7 @@ module CoreNSCSCC (
     .io_writeback_1_robPtr                                               (MulEU_MulEuPlugin_euResult_uop_robPtr[3:0]                                                ), //i
     .io_writeback_1_isTaken                                              (MulEU_MulEuPlugin_euResult_isTaken                                                        ), //i
     .io_writeback_1_isMispredictedBranch                                 (MulEU_MulEuPlugin_euResult_isMispredictedBranch                                           ), //i
+    .io_writeback_1_targetPc                                             (MulEU_MulEuPlugin_euResult_targetPc[31:0]                                                 ), //i
     .io_writeback_1_result                                               (MulEU_MulEuPlugin_euResult_data[31:0]                                                     ), //i
     .io_writeback_1_exceptionOccurred                                    (MulEU_MulEuPlugin_euResult_hasException                                                   ), //i
     .io_writeback_1_exceptionCodeIn                                      (MulEU_MulEuPlugin_euResult_exceptionCode[7:0]                                             ), //i
@@ -6870,6 +6624,7 @@ module CoreNSCSCC (
     .io_writeback_2_robPtr                                               (BranchEU_BranchEuPlugin_euResult_uop_robPtr[3:0]                                          ), //i
     .io_writeback_2_isTaken                                              (BranchEU_BranchEuPlugin_euResult_isTaken                                                  ), //i
     .io_writeback_2_isMispredictedBranch                                 (BranchEU_BranchEuPlugin_euResult_isMispredictedBranch                                     ), //i
+    .io_writeback_2_targetPc                                             (BranchEU_BranchEuPlugin_euResult_targetPc[31:0]                                           ), //i
     .io_writeback_2_result                                               (BranchEU_BranchEuPlugin_euResult_data[31:0]                                               ), //i
     .io_writeback_2_exceptionOccurred                                    (BranchEU_BranchEuPlugin_euResult_hasException                                             ), //i
     .io_writeback_2_exceptionCodeIn                                      (BranchEU_BranchEuPlugin_euResult_exceptionCode[7:0]                                       ), //i
@@ -6877,6 +6632,7 @@ module CoreNSCSCC (
     .io_writeback_3_robPtr                                               (LsuEU_LsuEuPlugin_euResult_uop_robPtr[3:0]                                                ), //i
     .io_writeback_3_isTaken                                              (LsuEU_LsuEuPlugin_euResult_isTaken                                                        ), //i
     .io_writeback_3_isMispredictedBranch                                 (LsuEU_LsuEuPlugin_euResult_isMispredictedBranch                                           ), //i
+    .io_writeback_3_targetPc                                             (LsuEU_LsuEuPlugin_euResult_targetPc[31:0]                                                 ), //i
     .io_writeback_3_result                                               (LsuEU_LsuEuPlugin_euResult_data[31:0]                                                     ), //i
     .io_writeback_3_exceptionOccurred                                    (LsuEU_LsuEuPlugin_euResult_hasException                                                   ), //i
     .io_writeback_3_exceptionCodeIn                                      (LsuEU_LsuEuPlugin_euResult_exceptionCode[7:0]                                             ), //i
@@ -6884,6 +6640,7 @@ module CoreNSCSCC (
     .io_writeback_4_robPtr                                               (ROBPlugin_robComponent_io_writeback_4_robPtr[3:0]                                         ), //i
     .io_writeback_4_isTaken                                              (1'bx                                                                                      ), //i
     .io_writeback_4_isMispredictedBranch                                 (1'bx                                                                                      ), //i
+    .io_writeback_4_targetPc                                             (32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx                                                      ), //i
     .io_writeback_4_result                                               (ROBPlugin_robComponent_io_writeback_4_result[31:0]                                        ), //i
     .io_writeback_4_exceptionOccurred                                    (ROBPlugin_robComponent_io_writeback_4_exceptionOccurred                                   ), //i
     .io_writeback_4_exceptionCodeIn                                      (ROBPlugin_robComponent_io_writeback_4_exceptionCodeIn[7:0]                                ), //i
@@ -6987,6 +6744,7 @@ module CoreNSCSCC (
     .io_commit_0_entry_status_busy                                       (ROBPlugin_robComponent_io_commit_0_entry_status_busy                                      ), //o
     .io_commit_0_entry_status_done                                       (ROBPlugin_robComponent_io_commit_0_entry_status_done                                      ), //o
     .io_commit_0_entry_status_isMispredictedBranch                       (ROBPlugin_robComponent_io_commit_0_entry_status_isMispredictedBranch                      ), //o
+    .io_commit_0_entry_status_targetPc                                   (ROBPlugin_robComponent_io_commit_0_entry_status_targetPc[31:0]                            ), //o
     .io_commit_0_entry_status_isTaken                                    (ROBPlugin_robComponent_io_commit_0_entry_status_isTaken                                   ), //o
     .io_commit_0_entry_status_result                                     (ROBPlugin_robComponent_io_commit_0_entry_status_result[31:0]                              ), //o
     .io_commit_0_entry_status_hasException                               (ROBPlugin_robComponent_io_commit_0_entry_status_hasException                              ), //o
@@ -7121,15 +6879,15 @@ module CoreNSCSCC (
     .reset                                   (reset                                                                            )  //i
   );
   SimpleFreeList SimpleFreeListPlugin_early_setup_freeList (
-    .io_allocate_0_enable  (SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_enable                  ), //i
-    .io_allocate_0_physReg (SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_physReg[5:0]            ), //o
-    .io_allocate_0_success (SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_success                 ), //o
-    .io_free_0_enable      (when_CommitPlugin_l278                                                          ), //i
-    .io_free_0_physReg     (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx[5:0]), //i
-    .io_recover            (SimpleFreeListPlugin_early_setup_freeList_io_recover                            ), //i
-    .io_numFreeRegs        (SimpleFreeListPlugin_early_setup_freeList_io_numFreeRegs[5:0]                   ), //o
-    .clk                   (clk                                                                             ), //i
-    .reset                 (reset                                                                           )  //i
+    .io_allocate_0_enable  (SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_enable      ), //i
+    .io_allocate_0_physReg (SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_physReg[5:0]), //o
+    .io_allocate_0_success (SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_success     ), //o
+    .io_free_0_enable      (SimpleFreeListPlugin_early_setup_freeList_io_free_0_enable          ), //i
+    .io_free_0_physReg     (SimpleFreeListPlugin_early_setup_freeList_io_free_0_physReg[5:0]    ), //i
+    .io_recover            (SimpleFreeListPlugin_early_setup_freeList_io_recover                ), //i
+    .io_numFreeRegs        (SimpleFreeListPlugin_early_setup_freeList_io_numFreeRegs[5:0]       ), //o
+    .clk                   (clk                                                                 ), //i
+    .reset                 (reset                                                               )  //i
   );
   OneShot oneShot_12 (
     .io_triggerIn (oneShot_12_io_triggerIn), //i
@@ -7481,11 +7239,6 @@ module CoreNSCSCC (
     .io_decodedUop_branchPrediction_isTaken      (lA32RSimpleDecoder_1_io_decodedUop_branchPrediction_isTaken     ), //o
     .io_decodedUop_branchPrediction_target       (lA32RSimpleDecoder_1_io_decodedUop_branchPrediction_target[31:0]), //o
     .io_decodedUop_branchPrediction_wasPredicted (lA32RSimpleDecoder_1_io_decodedUop_branchPrediction_wasPredicted)  //o
-  );
-  PerfCounter LoadQueuePlugin_logic_perfCounter (
-    .io_value (LoadQueuePlugin_logic_perfCounter_io_value[31:0]), //o
-    .clk      (clk                                             ), //i
-    .reset    (reset                                           )  //i
   );
   IssueQueueComponent issueQueueComponent_4 (
     .io_allocateIn_valid                                             (DispatchPlugin_logic_iqRegs_0_1_valid                                            ), //i
@@ -8243,12 +7996,12 @@ module CoreNSCSCC (
     .clk          (clk                    ), //i
     .reset        (reset                  )  //i
   );
-  StreamFifo_12 streamFifo_14 (
-    .io_push_valid                  (streamFifo_14_io_push_valid                  ), //i
-    .io_push_ready                  (streamFifo_14_io_push_ready                  ), //o
+  StreamFifo_12 streamFifo_13 (
+    .io_push_valid                  (streamFifo_13_io_push_valid                  ), //i
+    .io_push_ready                  (streamFifo_13_io_push_ready                  ), //o
     .io_push_payload_qPtr           (_zz_io_push_payload_qPtr[2:0]                ), //i
     .io_push_payload_address        (_zz_io_push_payload_address_4[31:0]          ), //i
-    .io_push_payload_alignException (streamFifo_14_io_push_payload_alignException ), //i
+    .io_push_payload_alignException (streamFifo_13_io_push_payload_alignException ), //i
     .io_push_payload_accessSize     (_zz_io_push_payload_accessSize[1:0]          ), //i
     .io_push_payload_isSignedLoad   (_zz_io_push_payload_isSignedLoad             ), //i
     .io_push_payload_storeMask      (_zz_io_push_payload_storeMask_1[3:0]         ), //i
@@ -8262,29 +8015,29 @@ module CoreNSCSCC (
     .io_push_payload_physDst        (_zz_io_push_payload_physDst[5:0]             ), //i
     .io_push_payload_storeData      (_zz_io_push_payload_storeData_3[31:0]        ), //i
     .io_push_payload_isFlush        (_zz_io_push_payload_isFlush                  ), //i
-    .io_push_payload_isIO           (streamFifo_14_io_push_payload_isIO           ), //i
-    .io_pop_valid                   (streamFifo_14_io_pop_valid                   ), //o
+    .io_push_payload_isIO           (streamFifo_13_io_push_payload_isIO           ), //i
+    .io_pop_valid                   (streamFifo_13_io_pop_valid                   ), //o
     .io_pop_ready                   (LsuEU_LsuEuPlugin_hw_aguPort_output_ready    ), //i
-    .io_pop_payload_qPtr            (streamFifo_14_io_pop_payload_qPtr[2:0]       ), //o
-    .io_pop_payload_address         (streamFifo_14_io_pop_payload_address[31:0]   ), //o
-    .io_pop_payload_alignException  (streamFifo_14_io_pop_payload_alignException  ), //o
-    .io_pop_payload_accessSize      (streamFifo_14_io_pop_payload_accessSize[1:0] ), //o
-    .io_pop_payload_isSignedLoad    (streamFifo_14_io_pop_payload_isSignedLoad    ), //o
-    .io_pop_payload_storeMask       (streamFifo_14_io_pop_payload_storeMask[3:0]  ), //o
-    .io_pop_payload_basePhysReg     (streamFifo_14_io_pop_payload_basePhysReg[5:0]), //o
-    .io_pop_payload_immediate       (streamFifo_14_io_pop_payload_immediate[31:0] ), //o
-    .io_pop_payload_usePc           (streamFifo_14_io_pop_payload_usePc           ), //o
-    .io_pop_payload_pc              (streamFifo_14_io_pop_payload_pc[31:0]        ), //o
-    .io_pop_payload_robPtr          (streamFifo_14_io_pop_payload_robPtr[3:0]     ), //o
-    .io_pop_payload_isLoad          (streamFifo_14_io_pop_payload_isLoad          ), //o
-    .io_pop_payload_isStore         (streamFifo_14_io_pop_payload_isStore         ), //o
-    .io_pop_payload_physDst         (streamFifo_14_io_pop_payload_physDst[5:0]    ), //o
-    .io_pop_payload_storeData       (streamFifo_14_io_pop_payload_storeData[31:0] ), //o
-    .io_pop_payload_isFlush         (streamFifo_14_io_pop_payload_isFlush         ), //o
-    .io_pop_payload_isIO            (streamFifo_14_io_pop_payload_isIO            ), //o
+    .io_pop_payload_qPtr            (streamFifo_13_io_pop_payload_qPtr[2:0]       ), //o
+    .io_pop_payload_address         (streamFifo_13_io_pop_payload_address[31:0]   ), //o
+    .io_pop_payload_alignException  (streamFifo_13_io_pop_payload_alignException  ), //o
+    .io_pop_payload_accessSize      (streamFifo_13_io_pop_payload_accessSize[1:0] ), //o
+    .io_pop_payload_isSignedLoad    (streamFifo_13_io_pop_payload_isSignedLoad    ), //o
+    .io_pop_payload_storeMask       (streamFifo_13_io_pop_payload_storeMask[3:0]  ), //o
+    .io_pop_payload_basePhysReg     (streamFifo_13_io_pop_payload_basePhysReg[5:0]), //o
+    .io_pop_payload_immediate       (streamFifo_13_io_pop_payload_immediate[31:0] ), //o
+    .io_pop_payload_usePc           (streamFifo_13_io_pop_payload_usePc           ), //o
+    .io_pop_payload_pc              (streamFifo_13_io_pop_payload_pc[31:0]        ), //o
+    .io_pop_payload_robPtr          (streamFifo_13_io_pop_payload_robPtr[3:0]     ), //o
+    .io_pop_payload_isLoad          (streamFifo_13_io_pop_payload_isLoad          ), //o
+    .io_pop_payload_isStore         (streamFifo_13_io_pop_payload_isStore         ), //o
+    .io_pop_payload_physDst         (streamFifo_13_io_pop_payload_physDst[5:0]    ), //o
+    .io_pop_payload_storeData       (streamFifo_13_io_pop_payload_storeData[31:0] ), //o
+    .io_pop_payload_isFlush         (streamFifo_13_io_pop_payload_isFlush         ), //o
+    .io_pop_payload_isIO            (streamFifo_13_io_pop_payload_isIO            ), //o
     .io_flush                       (1'b0                                         ), //i
-    .io_occupancy                   (streamFifo_14_io_occupancy[1:0]              ), //o
-    .io_availability                (streamFifo_14_io_availability[1:0]           ), //o
+    .io_occupancy                   (streamFifo_13_io_occupancy[1:0]              ), //o
+    .io_availability                (streamFifo_13_io_availability[1:0]           ), //o
     .clk                            (clk                                          ), //i
     .reset                          (reset                                        )  //i
   );
@@ -8319,179 +8072,124 @@ module CoreNSCSCC (
     .clk          (clk                    ), //i
     .reset        (reset                  )  //i
   );
+  FetchSequencer FetchPipelinePlugin_logic_sequencer (
+    .io_newRequest_valid                                         (FetchPipelinePlugin_logic_sequencer_io_newRequest_valid                                            ), //i
+    .io_newRequest_ready                                         (FetchPipelinePlugin_logic_sequencer_io_newRequest_ready                                            ), //o
+    .io_newRequest_payload_pc                                    (FetchPipelinePlugin_logic_sequencer_io_newRequest_payload_pc[31:0]                                 ), //i
+    .io_newRequest_payload_rawPc                                 (FetchPipelinePlugin_logic_pcGen_fetchPcReg[31:0]                                                   ), //i
+    .io_iCacheCmd_valid                                          (FetchPipelinePlugin_logic_sequencer_io_iCacheCmd_valid                                             ), //o
+    .io_iCacheCmd_payload_address                                (FetchPipelinePlugin_logic_sequencer_io_iCacheCmd_payload_address[31:0]                             ), //o
+    .io_iCacheCmd_payload_transactionId                          (FetchPipelinePlugin_logic_sequencer_io_iCacheCmd_payload_transactionId[7:0]                        ), //o
+    .io_iCacheRsp_valid                                          (ICachePlugin_port_rsp_valid                                                                        ), //i
+    .io_iCacheRsp_payload_transactionId                          (ICachePlugin_port_rsp_payload_transactionId[7:0]                                                   ), //i
+    .io_iCacheRsp_payload_instructions_0                         (ICachePlugin_port_rsp_payload_instructions_0[31:0]                                                 ), //i
+    .io_iCacheRsp_payload_instructions_1                         (ICachePlugin_port_rsp_payload_instructions_1[31:0]                                                 ), //i
+    .io_iCacheRsp_payload_instructions_2                         (ICachePlugin_port_rsp_payload_instructions_2[31:0]                                                 ), //i
+    .io_iCacheRsp_payload_instructions_3                         (ICachePlugin_port_rsp_payload_instructions_3[31:0]                                                 ), //i
+    .io_iCacheRsp_payload_wasHit                                 (ICachePlugin_port_rsp_payload_wasHit                                                               ), //i
+    .io_iCacheRsp_payload_redo                                   (ICachePlugin_port_rsp_payload_redo                                                                 ), //i
+    .sequencerToDispatcher_valid                                 (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_valid                                    ), //o
+    .sequencerToDispatcher_ready                                 (FetchPipelinePlugin_logic_dispatcher_io_fetchGroupIn_ready                                         ), //i
+    .sequencerToDispatcher_payload_pc                            (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_pc[31:0]                         ), //o
+    .sequencerToDispatcher_payload_firstPc                       (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_firstPc[31:0]                    ), //o
+    .sequencerToDispatcher_payload_instructions_0                (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_instructions_0[31:0]             ), //o
+    .sequencerToDispatcher_payload_instructions_1                (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_instructions_1[31:0]             ), //o
+    .sequencerToDispatcher_payload_instructions_2                (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_instructions_2[31:0]             ), //o
+    .sequencerToDispatcher_payload_instructions_3                (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_instructions_3[31:0]             ), //o
+    .sequencerToDispatcher_payload_predecodeInfos_0_isBranch     (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_0_isBranch        ), //o
+    .sequencerToDispatcher_payload_predecodeInfos_0_isJump       (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_0_isJump          ), //o
+    .sequencerToDispatcher_payload_predecodeInfos_0_isDirectJump (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_0_isDirectJump    ), //o
+    .sequencerToDispatcher_payload_predecodeInfos_0_jumpOffset   (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_0_jumpOffset[31:0]), //o
+    .sequencerToDispatcher_payload_predecodeInfos_0_isIdle       (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_0_isIdle          ), //o
+    .sequencerToDispatcher_payload_predecodeInfos_1_isBranch     (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_1_isBranch        ), //o
+    .sequencerToDispatcher_payload_predecodeInfos_1_isJump       (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_1_isJump          ), //o
+    .sequencerToDispatcher_payload_predecodeInfos_1_isDirectJump (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_1_isDirectJump    ), //o
+    .sequencerToDispatcher_payload_predecodeInfos_1_jumpOffset   (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_1_jumpOffset[31:0]), //o
+    .sequencerToDispatcher_payload_predecodeInfos_1_isIdle       (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_1_isIdle          ), //o
+    .sequencerToDispatcher_payload_predecodeInfos_2_isBranch     (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_2_isBranch        ), //o
+    .sequencerToDispatcher_payload_predecodeInfos_2_isJump       (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_2_isJump          ), //o
+    .sequencerToDispatcher_payload_predecodeInfos_2_isDirectJump (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_2_isDirectJump    ), //o
+    .sequencerToDispatcher_payload_predecodeInfos_2_jumpOffset   (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_2_jumpOffset[31:0]), //o
+    .sequencerToDispatcher_payload_predecodeInfos_2_isIdle       (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_2_isIdle          ), //o
+    .sequencerToDispatcher_payload_predecodeInfos_3_isBranch     (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_3_isBranch        ), //o
+    .sequencerToDispatcher_payload_predecodeInfos_3_isJump       (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_3_isJump          ), //o
+    .sequencerToDispatcher_payload_predecodeInfos_3_isDirectJump (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_3_isDirectJump    ), //o
+    .sequencerToDispatcher_payload_predecodeInfos_3_jumpOffset   (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_3_jumpOffset[31:0]), //o
+    .sequencerToDispatcher_payload_predecodeInfos_3_isIdle       (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_3_isIdle          ), //o
+    .sequencerToDispatcher_payload_branchMask                    (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_branchMask[3:0]                  ), //o
+    .sequencerToDispatcher_payload_fault                         (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_fault                            ), //o
+    .sequencerToDispatcher_payload_numValidInstructions          (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_numValidInstructions[2:0]        ), //o
+    .sequencerToDispatcher_payload_startInstructionIndex         (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_startInstructionIndex[1:0]       ), //o
+    .sequencerToDispatcher_payload_potentialJumpTargets_0        (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_potentialJumpTargets_0[31:0]     ), //o
+    .sequencerToDispatcher_payload_potentialJumpTargets_1        (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_potentialJumpTargets_1[31:0]     ), //o
+    .sequencerToDispatcher_payload_potentialJumpTargets_2        (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_potentialJumpTargets_2[31:0]     ), //o
+    .sequencerToDispatcher_payload_potentialJumpTargets_3        (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_potentialJumpTargets_3[31:0]     ), //o
+    .io_flush                                                    (FetchPipelinePlugin_logic_sequencer_io_flush                                                       ), //i
+    .clk                                                         (clk                                                                                                ), //i
+    .reset                                                       (reset                                                                                              )  //i
+  );
   SmartDispatcher FetchPipelinePlugin_logic_dispatcher (
-    .io_fetchGroupIn_valid                                 (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_valid                                    ), //i
-    .io_fetchGroupIn_ready                                 (FetchPipelinePlugin_logic_dispatcher_io_fetchGroupIn_ready                               ), //o
-    .io_fetchGroupIn_payload_pc                            (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_pc[31:0]                         ), //i
-    .io_fetchGroupIn_payload_firstPc                       (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_firstPc[31:0]                    ), //i
-    .io_fetchGroupIn_payload_instructions_0                (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_instructions_0[31:0]             ), //i
-    .io_fetchGroupIn_payload_instructions_1                (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_instructions_1[31:0]             ), //i
-    .io_fetchGroupIn_payload_instructions_2                (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_instructions_2[31:0]             ), //i
-    .io_fetchGroupIn_payload_instructions_3                (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_instructions_3[31:0]             ), //i
-    .io_fetchGroupIn_payload_predecodeInfos_0_isBranch     (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_0_isBranch        ), //i
-    .io_fetchGroupIn_payload_predecodeInfos_0_isJump       (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_0_isJump          ), //i
-    .io_fetchGroupIn_payload_predecodeInfos_0_isDirectJump (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_0_isDirectJump    ), //i
-    .io_fetchGroupIn_payload_predecodeInfos_0_jumpOffset   (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_0_jumpOffset[31:0]), //i
-    .io_fetchGroupIn_payload_predecodeInfos_0_isIdle       (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_0_isIdle          ), //i
-    .io_fetchGroupIn_payload_predecodeInfos_1_isBranch     (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_1_isBranch        ), //i
-    .io_fetchGroupIn_payload_predecodeInfos_1_isJump       (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_1_isJump          ), //i
-    .io_fetchGroupIn_payload_predecodeInfos_1_isDirectJump (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_1_isDirectJump    ), //i
-    .io_fetchGroupIn_payload_predecodeInfos_1_jumpOffset   (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_1_jumpOffset[31:0]), //i
-    .io_fetchGroupIn_payload_predecodeInfos_1_isIdle       (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_1_isIdle          ), //i
-    .io_fetchGroupIn_payload_predecodeInfos_2_isBranch     (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_2_isBranch        ), //i
-    .io_fetchGroupIn_payload_predecodeInfos_2_isJump       (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_2_isJump          ), //i
-    .io_fetchGroupIn_payload_predecodeInfos_2_isDirectJump (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_2_isDirectJump    ), //i
-    .io_fetchGroupIn_payload_predecodeInfos_2_jumpOffset   (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_2_jumpOffset[31:0]), //i
-    .io_fetchGroupIn_payload_predecodeInfos_2_isIdle       (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_2_isIdle          ), //i
-    .io_fetchGroupIn_payload_predecodeInfos_3_isBranch     (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_3_isBranch        ), //i
-    .io_fetchGroupIn_payload_predecodeInfos_3_isJump       (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_3_isJump          ), //i
-    .io_fetchGroupIn_payload_predecodeInfos_3_isDirectJump (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_3_isDirectJump    ), //i
-    .io_fetchGroupIn_payload_predecodeInfos_3_jumpOffset   (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_3_jumpOffset[31:0]), //i
-    .io_fetchGroupIn_payload_predecodeInfos_3_isIdle       (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_3_isIdle          ), //i
-    .io_fetchGroupIn_payload_branchMask                    (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_branchMask[3:0]                  ), //i
-    .io_fetchGroupIn_payload_fault                         (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_fault                            ), //i
-    .io_fetchGroupIn_payload_numValidInstructions          (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_numValidInstructions[2:0]        ), //i
-    .io_fetchGroupIn_payload_startInstructionIndex         (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_startInstructionIndex[1:0]       ), //i
-    .io_fetchGroupIn_payload_potentialJumpTargets_0        (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_potentialJumpTargets_0[31:0]     ), //i
-    .io_fetchGroupIn_payload_potentialJumpTargets_1        (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_potentialJumpTargets_1[31:0]     ), //i
-    .io_fetchGroupIn_payload_potentialJumpTargets_2        (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_potentialJumpTargets_2[31:0]     ), //i
-    .io_fetchGroupIn_payload_potentialJumpTargets_3        (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_potentialJumpTargets_3[31:0]     ), //i
-    .io_bpuRsp_valid                                       (BpuPipelinePlugin_responseFlowOut_valid                                                  ), //i
-    .io_bpuRsp_payload_isTaken                             (BpuPipelinePlugin_responseFlowOut_payload_isTaken                                        ), //i
-    .io_bpuRsp_payload_target                              (BpuPipelinePlugin_responseFlowOut_payload_target[31:0]                                   ), //i
-    .io_bpuRsp_payload_transactionId                       (BpuPipelinePlugin_responseFlowOut_payload_transactionId[2:0]                             ), //i
-    .io_bpuRsp_payload_qPc                                 (BpuPipelinePlugin_responseFlowOut_payload_qPc[31:0]                                      ), //i
-    .io_fetchOutput_valid                                  (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_valid                                ), //o
-    .io_fetchOutput_ready                                  (FetchPipelinePlugin_setup_fetchOutput_io_push_ready                                      ), //i
-    .io_fetchOutput_payload_pc                             (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_pc[31:0]                     ), //o
-    .io_fetchOutput_payload_instruction                    (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_instruction[31:0]            ), //o
-    .io_fetchOutput_payload_predecode_isBranch             (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_predecode_isBranch           ), //o
-    .io_fetchOutput_payload_predecode_isJump               (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_predecode_isJump             ), //o
-    .io_fetchOutput_payload_predecode_isDirectJump         (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_predecode_isDirectJump       ), //o
-    .io_fetchOutput_payload_predecode_jumpOffset           (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_predecode_jumpOffset[31:0]   ), //o
-    .io_fetchOutput_payload_predecode_isIdle               (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_predecode_isIdle             ), //o
-    .io_fetchOutput_payload_bpuPrediction_isTaken          (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_bpuPrediction_isTaken        ), //o
-    .io_fetchOutput_payload_bpuPrediction_target           (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_bpuPrediction_target[31:0]   ), //o
-    .io_fetchOutput_payload_bpuPrediction_wasPredicted     (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_bpuPrediction_wasPredicted   ), //o
-    .io_bpuQuery_valid                                     (FetchPipelinePlugin_logic_dispatcher_io_bpuQuery_valid                                   ), //o
-    .io_bpuQuery_payload_pc                                (FetchPipelinePlugin_logic_dispatcher_io_bpuQuery_payload_pc[31:0]                        ), //o
-    .io_bpuQuery_payload_transactionId                     (FetchPipelinePlugin_logic_dispatcher_io_bpuQuery_payload_transactionId[2:0]              ), //o
-    .io_softRedirect_valid                                 (FetchPipelinePlugin_logic_dispatcher_io_softRedirect_valid                               ), //o
-    .io_softRedirect_payload                               (FetchPipelinePlugin_logic_dispatcher_io_softRedirect_payload[31:0]                       ), //o
-    .io_flush                                              (FetchPipelinePlugin_logic_hardRedirect_valid                                             ), //i
-    .clk                                                   (clk                                                                                      ), //i
-    .reset                                                 (reset                                                                                    )  //i
-  );
-  StreamFifo_13 FetchPipelinePlugin_logic_fetchGroupsOut (
-    .io_push_valid                                 (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_valid                                    ), //i
-    .io_push_ready                                 (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_ready                                    ), //o
-    .io_push_payload_pc                            (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_pc[31:0]                         ), //i
-    .io_push_payload_firstPc                       (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_firstPc[31:0]                    ), //i
-    .io_push_payload_instructions_0                (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_instructions_0[31:0]             ), //i
-    .io_push_payload_instructions_1                (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_instructions_1[31:0]             ), //i
-    .io_push_payload_instructions_2                (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_instructions_2[31:0]             ), //i
-    .io_push_payload_instructions_3                (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_instructions_3[31:0]             ), //i
-    .io_push_payload_predecodeInfos_0_isBranch     (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_isBranch        ), //i
-    .io_push_payload_predecodeInfos_0_isJump       (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_isJump          ), //i
-    .io_push_payload_predecodeInfos_0_isDirectJump (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_isDirectJump    ), //i
-    .io_push_payload_predecodeInfos_0_jumpOffset   (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_jumpOffset[31:0]), //i
-    .io_push_payload_predecodeInfos_0_isIdle       (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_isIdle          ), //i
-    .io_push_payload_predecodeInfos_1_isBranch     (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_isBranch        ), //i
-    .io_push_payload_predecodeInfos_1_isJump       (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_isJump          ), //i
-    .io_push_payload_predecodeInfos_1_isDirectJump (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_isDirectJump    ), //i
-    .io_push_payload_predecodeInfos_1_jumpOffset   (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_jumpOffset[31:0]), //i
-    .io_push_payload_predecodeInfos_1_isIdle       (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_isIdle          ), //i
-    .io_push_payload_predecodeInfos_2_isBranch     (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_isBranch        ), //i
-    .io_push_payload_predecodeInfos_2_isJump       (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_isJump          ), //i
-    .io_push_payload_predecodeInfos_2_isDirectJump (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_isDirectJump    ), //i
-    .io_push_payload_predecodeInfos_2_jumpOffset   (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_jumpOffset[31:0]), //i
-    .io_push_payload_predecodeInfos_2_isIdle       (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_isIdle          ), //i
-    .io_push_payload_predecodeInfos_3_isBranch     (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_isBranch        ), //i
-    .io_push_payload_predecodeInfos_3_isJump       (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_isJump          ), //i
-    .io_push_payload_predecodeInfos_3_isDirectJump (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_isDirectJump    ), //i
-    .io_push_payload_predecodeInfos_3_jumpOffset   (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_jumpOffset[31:0]), //i
-    .io_push_payload_predecodeInfos_3_isIdle       (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_isIdle          ), //i
-    .io_push_payload_branchMask                    (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_branchMask[3:0]                  ), //i
-    .io_push_payload_fault                         (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_fault                            ), //i
-    .io_push_payload_numValidInstructions          (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_numValidInstructions[2:0]        ), //i
-    .io_push_payload_startInstructionIndex         (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_startInstructionIndex[1:0]       ), //i
-    .io_push_payload_potentialJumpTargets_0        (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_potentialJumpTargets_0[31:0]     ), //i
-    .io_push_payload_potentialJumpTargets_1        (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_potentialJumpTargets_1[31:0]     ), //i
-    .io_push_payload_potentialJumpTargets_2        (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_potentialJumpTargets_2[31:0]     ), //i
-    .io_push_payload_potentialJumpTargets_3        (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_potentialJumpTargets_3[31:0]     ), //i
-    .io_pop_valid                                  (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_valid                                     ), //o
-    .io_pop_ready                                  (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_ready                                     ), //i
-    .io_pop_payload_pc                             (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_pc[31:0]                          ), //o
-    .io_pop_payload_firstPc                        (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_firstPc[31:0]                     ), //o
-    .io_pop_payload_instructions_0                 (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_instructions_0[31:0]              ), //o
-    .io_pop_payload_instructions_1                 (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_instructions_1[31:0]              ), //o
-    .io_pop_payload_instructions_2                 (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_instructions_2[31:0]              ), //o
-    .io_pop_payload_instructions_3                 (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_instructions_3[31:0]              ), //o
-    .io_pop_payload_predecodeInfos_0_isBranch      (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_0_isBranch         ), //o
-    .io_pop_payload_predecodeInfos_0_isJump        (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_0_isJump           ), //o
-    .io_pop_payload_predecodeInfos_0_isDirectJump  (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_0_isDirectJump     ), //o
-    .io_pop_payload_predecodeInfos_0_jumpOffset    (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_0_jumpOffset[31:0] ), //o
-    .io_pop_payload_predecodeInfos_0_isIdle        (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_0_isIdle           ), //o
-    .io_pop_payload_predecodeInfos_1_isBranch      (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_1_isBranch         ), //o
-    .io_pop_payload_predecodeInfos_1_isJump        (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_1_isJump           ), //o
-    .io_pop_payload_predecodeInfos_1_isDirectJump  (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_1_isDirectJump     ), //o
-    .io_pop_payload_predecodeInfos_1_jumpOffset    (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_1_jumpOffset[31:0] ), //o
-    .io_pop_payload_predecodeInfos_1_isIdle        (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_1_isIdle           ), //o
-    .io_pop_payload_predecodeInfos_2_isBranch      (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_2_isBranch         ), //o
-    .io_pop_payload_predecodeInfos_2_isJump        (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_2_isJump           ), //o
-    .io_pop_payload_predecodeInfos_2_isDirectJump  (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_2_isDirectJump     ), //o
-    .io_pop_payload_predecodeInfos_2_jumpOffset    (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_2_jumpOffset[31:0] ), //o
-    .io_pop_payload_predecodeInfos_2_isIdle        (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_2_isIdle           ), //o
-    .io_pop_payload_predecodeInfos_3_isBranch      (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_3_isBranch         ), //o
-    .io_pop_payload_predecodeInfos_3_isJump        (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_3_isJump           ), //o
-    .io_pop_payload_predecodeInfos_3_isDirectJump  (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_3_isDirectJump     ), //o
-    .io_pop_payload_predecodeInfos_3_jumpOffset    (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_3_jumpOffset[31:0] ), //o
-    .io_pop_payload_predecodeInfos_3_isIdle        (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_predecodeInfos_3_isIdle           ), //o
-    .io_pop_payload_branchMask                     (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_branchMask[3:0]                   ), //o
-    .io_pop_payload_fault                          (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_fault                             ), //o
-    .io_pop_payload_numValidInstructions           (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_numValidInstructions[2:0]         ), //o
-    .io_pop_payload_startInstructionIndex          (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_startInstructionIndex[1:0]        ), //o
-    .io_pop_payload_potentialJumpTargets_0         (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_potentialJumpTargets_0[31:0]      ), //o
-    .io_pop_payload_potentialJumpTargets_1         (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_potentialJumpTargets_1[31:0]      ), //o
-    .io_pop_payload_potentialJumpTargets_2         (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_potentialJumpTargets_2[31:0]      ), //o
-    .io_pop_payload_potentialJumpTargets_3         (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_potentialJumpTargets_3[31:0]      ), //o
-    .io_flush                                      (FetchPipelinePlugin_logic_fetchGroupsOut_io_flush                                         ), //i
-    .io_occupancy                                  (FetchPipelinePlugin_logic_fetchGroupsOut_io_occupancy[1:0]                                ), //o
-    .io_availability                               (FetchPipelinePlugin_logic_fetchGroupsOut_io_availability[1:0]                             ), //o
-    .clk                                           (clk                                                                                       ), //i
-    .reset                                         (reset                                                                                     )  //i
-  );
-  InstructionPredecoder instructionPredecoder_4 (
-    .io_instruction                (ICachePlugin_port_rsp_payload_instructions_0[31:0]       ), //i
-    .io_predecodeInfo_isBranch     (instructionPredecoder_4_io_predecodeInfo_isBranch        ), //o
-    .io_predecodeInfo_isJump       (instructionPredecoder_4_io_predecodeInfo_isJump          ), //o
-    .io_predecodeInfo_isDirectJump (instructionPredecoder_4_io_predecodeInfo_isDirectJump    ), //o
-    .io_predecodeInfo_jumpOffset   (instructionPredecoder_4_io_predecodeInfo_jumpOffset[31:0]), //o
-    .io_predecodeInfo_isIdle       (instructionPredecoder_4_io_predecodeInfo_isIdle          )  //o
-  );
-  InstructionPredecoder instructionPredecoder_5 (
-    .io_instruction                (ICachePlugin_port_rsp_payload_instructions_1[31:0]       ), //i
-    .io_predecodeInfo_isBranch     (instructionPredecoder_5_io_predecodeInfo_isBranch        ), //o
-    .io_predecodeInfo_isJump       (instructionPredecoder_5_io_predecodeInfo_isJump          ), //o
-    .io_predecodeInfo_isDirectJump (instructionPredecoder_5_io_predecodeInfo_isDirectJump    ), //o
-    .io_predecodeInfo_jumpOffset   (instructionPredecoder_5_io_predecodeInfo_jumpOffset[31:0]), //o
-    .io_predecodeInfo_isIdle       (instructionPredecoder_5_io_predecodeInfo_isIdle          )  //o
-  );
-  InstructionPredecoder instructionPredecoder_6 (
-    .io_instruction                (ICachePlugin_port_rsp_payload_instructions_2[31:0]       ), //i
-    .io_predecodeInfo_isBranch     (instructionPredecoder_6_io_predecodeInfo_isBranch        ), //o
-    .io_predecodeInfo_isJump       (instructionPredecoder_6_io_predecodeInfo_isJump          ), //o
-    .io_predecodeInfo_isDirectJump (instructionPredecoder_6_io_predecodeInfo_isDirectJump    ), //o
-    .io_predecodeInfo_jumpOffset   (instructionPredecoder_6_io_predecodeInfo_jumpOffset[31:0]), //o
-    .io_predecodeInfo_isIdle       (instructionPredecoder_6_io_predecodeInfo_isIdle          )  //o
-  );
-  InstructionPredecoder instructionPredecoder_7 (
-    .io_instruction                (ICachePlugin_port_rsp_payload_instructions_3[31:0]       ), //i
-    .io_predecodeInfo_isBranch     (instructionPredecoder_7_io_predecodeInfo_isBranch        ), //o
-    .io_predecodeInfo_isJump       (instructionPredecoder_7_io_predecodeInfo_isJump          ), //o
-    .io_predecodeInfo_isDirectJump (instructionPredecoder_7_io_predecodeInfo_isDirectJump    ), //o
-    .io_predecodeInfo_jumpOffset   (instructionPredecoder_7_io_predecodeInfo_jumpOffset[31:0]), //o
-    .io_predecodeInfo_isIdle       (instructionPredecoder_7_io_predecodeInfo_isIdle          )  //o
+    .io_fetchGroupIn_valid                                 (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_valid                                    ), //i
+    .io_fetchGroupIn_ready                                 (FetchPipelinePlugin_logic_dispatcher_io_fetchGroupIn_ready                                         ), //o
+    .io_fetchGroupIn_payload_pc                            (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_pc[31:0]                         ), //i
+    .io_fetchGroupIn_payload_firstPc                       (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_firstPc[31:0]                    ), //i
+    .io_fetchGroupIn_payload_instructions_0                (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_instructions_0[31:0]             ), //i
+    .io_fetchGroupIn_payload_instructions_1                (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_instructions_1[31:0]             ), //i
+    .io_fetchGroupIn_payload_instructions_2                (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_instructions_2[31:0]             ), //i
+    .io_fetchGroupIn_payload_instructions_3                (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_instructions_3[31:0]             ), //i
+    .io_fetchGroupIn_payload_predecodeInfos_0_isBranch     (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_0_isBranch        ), //i
+    .io_fetchGroupIn_payload_predecodeInfos_0_isJump       (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_0_isJump          ), //i
+    .io_fetchGroupIn_payload_predecodeInfos_0_isDirectJump (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_0_isDirectJump    ), //i
+    .io_fetchGroupIn_payload_predecodeInfos_0_jumpOffset   (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_0_jumpOffset[31:0]), //i
+    .io_fetchGroupIn_payload_predecodeInfos_0_isIdle       (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_0_isIdle          ), //i
+    .io_fetchGroupIn_payload_predecodeInfos_1_isBranch     (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_1_isBranch        ), //i
+    .io_fetchGroupIn_payload_predecodeInfos_1_isJump       (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_1_isJump          ), //i
+    .io_fetchGroupIn_payload_predecodeInfos_1_isDirectJump (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_1_isDirectJump    ), //i
+    .io_fetchGroupIn_payload_predecodeInfos_1_jumpOffset   (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_1_jumpOffset[31:0]), //i
+    .io_fetchGroupIn_payload_predecodeInfos_1_isIdle       (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_1_isIdle          ), //i
+    .io_fetchGroupIn_payload_predecodeInfos_2_isBranch     (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_2_isBranch        ), //i
+    .io_fetchGroupIn_payload_predecodeInfos_2_isJump       (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_2_isJump          ), //i
+    .io_fetchGroupIn_payload_predecodeInfos_2_isDirectJump (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_2_isDirectJump    ), //i
+    .io_fetchGroupIn_payload_predecodeInfos_2_jumpOffset   (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_2_jumpOffset[31:0]), //i
+    .io_fetchGroupIn_payload_predecodeInfos_2_isIdle       (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_2_isIdle          ), //i
+    .io_fetchGroupIn_payload_predecodeInfos_3_isBranch     (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_3_isBranch        ), //i
+    .io_fetchGroupIn_payload_predecodeInfos_3_isJump       (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_3_isJump          ), //i
+    .io_fetchGroupIn_payload_predecodeInfos_3_isDirectJump (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_3_isDirectJump    ), //i
+    .io_fetchGroupIn_payload_predecodeInfos_3_jumpOffset   (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_3_jumpOffset[31:0]), //i
+    .io_fetchGroupIn_payload_predecodeInfos_3_isIdle       (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_predecodeInfos_3_isIdle          ), //i
+    .io_fetchGroupIn_payload_branchMask                    (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_branchMask[3:0]                  ), //i
+    .io_fetchGroupIn_payload_fault                         (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_fault                            ), //i
+    .io_fetchGroupIn_payload_numValidInstructions          (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_numValidInstructions[2:0]        ), //i
+    .io_fetchGroupIn_payload_startInstructionIndex         (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_startInstructionIndex[1:0]       ), //i
+    .io_fetchGroupIn_payload_potentialJumpTargets_0        (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_potentialJumpTargets_0[31:0]     ), //i
+    .io_fetchGroupIn_payload_potentialJumpTargets_1        (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_potentialJumpTargets_1[31:0]     ), //i
+    .io_fetchGroupIn_payload_potentialJumpTargets_2        (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_potentialJumpTargets_2[31:0]     ), //i
+    .io_fetchGroupIn_payload_potentialJumpTargets_3        (FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_payload_potentialJumpTargets_3[31:0]     ), //i
+    .io_bpuRsp_valid                                       (BpuPipelinePlugin_responseFlowOut_valid                                                            ), //i
+    .io_bpuRsp_payload_isTaken                             (BpuPipelinePlugin_responseFlowOut_payload_isTaken                                                  ), //i
+    .io_bpuRsp_payload_target                              (BpuPipelinePlugin_responseFlowOut_payload_target[31:0]                                             ), //i
+    .io_bpuRsp_payload_transactionId                       (BpuPipelinePlugin_responseFlowOut_payload_transactionId[2:0]                                       ), //i
+    .io_bpuRsp_payload_qPc                                 (BpuPipelinePlugin_responseFlowOut_payload_qPc[31:0]                                                ), //i
+    .dispatcherToFifo_valid                                (FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_valid                                        ), //o
+    .dispatcherToFifo_ready                                (FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_push_ready                                       ), //i
+    .dispatcherToFifo_payload_pc                           (FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_payload_pc[31:0]                             ), //o
+    .dispatcherToFifo_payload_instruction                  (FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_payload_instruction[31:0]                    ), //o
+    .dispatcherToFifo_payload_predecode_isBranch           (FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_payload_predecode_isBranch                   ), //o
+    .dispatcherToFifo_payload_predecode_isJump             (FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_payload_predecode_isJump                     ), //o
+    .dispatcherToFifo_payload_predecode_isDirectJump       (FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_payload_predecode_isDirectJump               ), //o
+    .dispatcherToFifo_payload_predecode_jumpOffset         (FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_payload_predecode_jumpOffset[31:0]           ), //o
+    .dispatcherToFifo_payload_predecode_isIdle             (FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_payload_predecode_isIdle                     ), //o
+    .dispatcherToFifo_payload_bpuPrediction_isTaken        (FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_payload_bpuPrediction_isTaken                ), //o
+    .dispatcherToFifo_payload_bpuPrediction_target         (FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_payload_bpuPrediction_target[31:0]           ), //o
+    .dispatcherToFifo_payload_bpuPrediction_wasPredicted   (FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_payload_bpuPrediction_wasPredicted           ), //o
+    .io_bpuQuery_valid                                     (FetchPipelinePlugin_logic_dispatcher_io_bpuQuery_valid                                             ), //o
+    .io_bpuQuery_payload_pc                                (FetchPipelinePlugin_logic_dispatcher_io_bpuQuery_payload_pc[31:0]                                  ), //o
+    .io_bpuQuery_payload_transactionId                     (FetchPipelinePlugin_logic_dispatcher_io_bpuQuery_payload_transactionId[2:0]                        ), //o
+    .io_softRedirect_valid                                 (FetchPipelinePlugin_logic_dispatcher_io_softRedirect_valid                                         ), //o
+    .io_softRedirect_payload                               (FetchPipelinePlugin_logic_dispatcher_io_softRedirect_payload[31:0]                                 ), //o
+    .io_flush                                              (FetchPipelinePlugin_logic_pcGen_hardRedirect_valid                                                 ), //i
+    .clk                                                   (clk                                                                                                ), //i
+    .reset                                                 (reset                                                                                              )  //i
   );
   SplitGmbToAxi4Bridge CoreMemSysPlugin_logic_readBridges_0 (
     .io_gmbIn_read_cmd_valid                (_zz_LoadQueuePlugin_logic_loadQueue_mmioCmdFired                         ), //i
@@ -14872,7 +14570,7 @@ module CoreNSCSCC (
       (ICachePlugin_logic_refill_fsm_stateReg[ICachePlugin_logic_refill_fsm_RECEIVE_DATA_OH_ID]) : begin
       end
       (ICachePlugin_logic_refill_fsm_stateReg[ICachePlugin_logic_refill_fsm_COMMIT_OH_ID]) : begin
-        if(when_ICachePlugin_l260_1) begin
+        if(when_ICachePlugin_l320_1) begin
           _zz_3 = 1'b1;
         end
       end
@@ -14892,20 +14590,13 @@ module CoreNSCSCC (
       (ICachePlugin_logic_refill_fsm_stateReg[ICachePlugin_logic_refill_fsm_RECEIVE_DATA_OH_ID]) : begin
       end
       (ICachePlugin_logic_refill_fsm_stateReg[ICachePlugin_logic_refill_fsm_COMMIT_OH_ID]) : begin
-        if(when_ICachePlugin_l260) begin
+        if(when_ICachePlugin_l320) begin
           _zz_4 = 1'b1;
         end
       end
       default : begin
       end
     endcase
-  end
-
-  always @(*) begin
-    _zz_s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l400 = 1'b0;
-    if(when_FetchPipelinePlugin2_l399) begin
-      _zz_s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l400 = 1'b1;
-    end
   end
 
   always @(*) begin
@@ -14945,14 +14636,14 @@ module CoreNSCSCC (
 
   always @(*) begin
     CheckpointManagerPlugin_saveCheckpointTrigger = 1'b0;
-    if(when_CommitPlugin_l222) begin
+    if(when_CommitPlugin_l273) begin
       CheckpointManagerPlugin_saveCheckpointTrigger = 1'b1;
     end
   end
 
   always @(*) begin
     CheckpointManagerPlugin_restoreCheckpointTrigger = 1'b0;
-    if(when_CommitPlugin_l239) begin
+    if(CommitPlugin_logic_scheduedFlush) begin
       CheckpointManagerPlugin_restoreCheckpointTrigger = 1'b1;
     end
   end
@@ -15182,6 +14873,7 @@ module CoreNSCSCC (
   end
 
   assign AluIntEU_AluIntEuPlugin_euResult_isMispredictedBranch = 1'bx;
+  assign AluIntEU_AluIntEuPlugin_euResult_targetPc = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
   assign AluIntEU_AluIntEuPlugin_euResult_isTaken = 1'bx;
   always @(*) begin
     AluIntEU_AluIntEuPlugin_euResult_hasException = 1'bx;
@@ -15354,6 +15046,7 @@ module CoreNSCSCC (
   end
 
   assign MulEU_MulEuPlugin_euResult_isMispredictedBranch = 1'bx;
+  assign MulEU_MulEuPlugin_euResult_targetPc = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
   assign MulEU_MulEuPlugin_euResult_isTaken = 1'bx;
   always @(*) begin
     MulEU_MulEuPlugin_euResult_hasException = 1'bx;
@@ -15588,6 +15281,13 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
+    BranchEU_BranchEuPlugin_euResult_targetPc = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    if(s3_Result_isFiring) begin
+      BranchEU_BranchEuPlugin_euResult_targetPc = _zz_BranchEU_BranchEuPlugin_euResult_targetPc;
+    end
+  end
+
+  always @(*) begin
     BranchEU_BranchEuPlugin_euResult_isTaken = 1'bx;
     if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_isTaken = _zz_BranchEU_BranchEuPlugin_euResult_isTaken;
@@ -15690,6 +15390,7 @@ module CoreNSCSCC (
   end
 
   assign LsuEU_LsuEuPlugin_euResult_isMispredictedBranch = 1'bx;
+  assign LsuEU_LsuEuPlugin_euResult_targetPc = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
   assign LsuEU_LsuEuPlugin_euResult_isTaken = 1'bx;
   always @(*) begin
     LsuEU_LsuEuPlugin_euResult_hasException = 1'bx;
@@ -15738,49 +15439,57 @@ module CoreNSCSCC (
   assign when_Debug_l71_3 = (_zz_when_Debug_l71 < _zz_when_Debug_l71_3_1);
   always @(*) begin
     CommitPlugin_hw_redirectPort_valid = 1'b0;
-    if(when_CommitPlugin_l239) begin
+    if(CommitPlugin_logic_scheduedFlush) begin
       CommitPlugin_hw_redirectPort_valid = 1'b1;
     end
   end
 
   always @(*) begin
     CommitPlugin_hw_redirectPort_payload = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-    if(when_CommitPlugin_l239) begin
-      CommitPlugin_hw_redirectPort_payload = ROBPlugin_robComponent_io_commit_0_entry_status_result;
+    if(CommitPlugin_logic_scheduedFlush) begin
+      CommitPlugin_hw_redirectPort_payload = CommitPlugin_logic_hardRedirectTarget;
     end
   end
 
   always @(*) begin
     BpuPipelinePlugin_updatePortIn_valid = 1'b0;
-    if(when_CommitPlugin_l209) begin
-      BpuPipelinePlugin_updatePortIn_valid = 1'b1;
+    if(when_CommitPlugin_l229) begin
+      if(ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_isBranchOrJump) begin
+        BpuPipelinePlugin_updatePortIn_valid = 1'b1;
+      end
     end
   end
 
   always @(*) begin
     BpuPipelinePlugin_updatePortIn_payload_pc = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-    if(when_CommitPlugin_l209) begin
-      BpuPipelinePlugin_updatePortIn_payload_pc = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc;
+    if(when_CommitPlugin_l229) begin
+      if(ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_isBranchOrJump) begin
+        BpuPipelinePlugin_updatePortIn_payload_pc = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc;
+      end
     end
   end
 
   always @(*) begin
     BpuPipelinePlugin_updatePortIn_payload_isTaken = 1'bx;
-    if(when_CommitPlugin_l209) begin
-      BpuPipelinePlugin_updatePortIn_payload_isTaken = ROBPlugin_robComponent_io_commit_0_entry_status_isTaken;
+    if(when_CommitPlugin_l229) begin
+      if(ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_isBranchOrJump) begin
+        BpuPipelinePlugin_updatePortIn_payload_isTaken = ROBPlugin_robComponent_io_commit_0_entry_status_isTaken;
+      end
     end
   end
 
   always @(*) begin
     BpuPipelinePlugin_updatePortIn_payload_target = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-    if(when_CommitPlugin_l209) begin
-      BpuPipelinePlugin_updatePortIn_payload_target = ROBPlugin_robComponent_io_commit_0_entry_status_result;
+    if(when_CommitPlugin_l229) begin
+      if(ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_isBranchOrJump) begin
+        BpuPipelinePlugin_updatePortIn_payload_target = ROBPlugin_robComponent_io_commit_0_entry_status_targetPc;
+      end
     end
   end
 
   always @(*) begin
     RenameMapTablePlugin_early_setup_rat_io_commitUpdatePort_wen = 1'b0;
-    if(when_CommitPlugin_l222) begin
+    if(when_CommitPlugin_l229) begin
       if(ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_writesToPhysReg) begin
         RenameMapTablePlugin_early_setup_rat_io_commitUpdatePort_wen = 1'b1;
       end
@@ -15789,7 +15498,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     RenameMapTablePlugin_early_setup_rat_io_commitUpdatePort_archReg = 5'bxxxxx;
-    if(when_CommitPlugin_l222) begin
+    if(when_CommitPlugin_l229) begin
       if(ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_writesToPhysReg) begin
         RenameMapTablePlugin_early_setup_rat_io_commitUpdatePort_archReg = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_archDest_idx;
       end
@@ -15798,37 +15507,13 @@ module CoreNSCSCC (
 
   always @(*) begin
     RenameMapTablePlugin_early_setup_rat_io_commitUpdatePort_physReg = 6'bxxxxxx;
-    if(when_CommitPlugin_l222) begin
+    if(when_CommitPlugin_l229) begin
       if(ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_writesToPhysReg) begin
         RenameMapTablePlugin_early_setup_rat_io_commitUpdatePort_physReg = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physDest_idx;
       end
     end
   end
 
-  always @(*) begin
-    CoreNSCSCCSetupPlugin_setup_fetchOutput_valid = FetchPipelinePlugin_setup_fetchOutput_io_pop_valid;
-    if(FetchPipelinePlugin_doHardRedirect_listening) begin
-      CoreNSCSCCSetupPlugin_setup_fetchOutput_valid = 1'b0;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_setup_fetchOutput_io_pop_ready = CoreNSCSCCSetupPlugin_setup_fetchOutput_ready;
-    if(FetchPipelinePlugin_doHardRedirect_listening) begin
-      FetchPipelinePlugin_setup_fetchOutput_io_pop_ready = 1'b1;
-    end
-  end
-
-  assign CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_pc = FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_pc;
-  assign CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_instruction = FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_instruction;
-  assign CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_predecode_isBranch = FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_predecode_isBranch;
-  assign CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_predecode_isJump = FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_predecode_isJump;
-  assign CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_predecode_isDirectJump = FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_predecode_isDirectJump;
-  assign CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_predecode_jumpOffset = FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_predecode_jumpOffset;
-  assign CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_predecode_isIdle = FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_predecode_isIdle;
-  assign CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_bpuPrediction_isTaken = FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_bpuPrediction_isTaken;
-  assign CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_bpuPrediction_target = FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_bpuPrediction_target;
-  assign CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_bpuPrediction_wasPredicted = FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_bpuPrediction_wasPredicted;
   assign CommitPlugin_maxCommitPcExt = 32'h80001000;
   assign CommitPlugin_maxCommitPcEnabledExt = 1'b1;
   assign AluIntEU_AluIntEuPlugin_bypassOutputPort_toStream_valid = AluIntEU_AluIntEuPlugin_bypassOutputPort_valid;
@@ -15902,48 +15587,61 @@ module CoreNSCSCC (
   assign CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_29 = 6'h1d;
   assign CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_30 = 6'h1e;
   assign CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_31 = 6'h1f;
-  assign _zz_221 = zz_CheckpointManagerPlugin_logic_initialFreeMask(1'b0);
-  always @(*) CheckpointManagerPlugin_logic_initialFreeMask = _zz_221;
+  assign _zz_220 = zz_CheckpointManagerPlugin_logic_initialFreeMask(1'b0);
+  always @(*) CheckpointManagerPlugin_logic_initialFreeMask = _zz_220;
   assign CheckpointManagerPlugin_logic_initialBtCheckpoint_busyBits = 64'h0;
   always @(*) begin
     CommitPlugin_hw_robFlushPort_valid = 1'b0;
-    if(when_CommitPlugin_l239) begin
+    if(CommitPlugin_logic_scheduedFlush) begin
       CommitPlugin_hw_robFlushPort_valid = 1'b1;
     end
   end
 
   always @(*) begin
     CommitPlugin_hw_robFlushPort_payload_reason = (2'bxx);
-    if(when_CommitPlugin_l239) begin
+    if(CommitPlugin_logic_scheduedFlush) begin
       CommitPlugin_hw_robFlushPort_payload_reason = FlushReason_FULL_FLUSH;
     end
   end
 
   always @(*) begin
     CommitPlugin_hw_robFlushPort_payload_targetRobPtr = 4'bxxxx;
-    if(when_CommitPlugin_l239) begin
+    if(CommitPlugin_logic_scheduedFlush) begin
       CommitPlugin_hw_robFlushPort_payload_targetRobPtr = 4'bxxxx;
     end
   end
 
-  assign CommitPlugin_logic_s0_isMispredictedBranch = ((((CommitPlugin_commitEnableExt && ROBPlugin_robComponent_io_commit_0_valid) && ROBPlugin_robComponent_io_commit_0_entry_status_done) && ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_isBranchOrJump) && ROBPlugin_robComponent_io_commit_0_entry_status_isMispredictedBranch);
+  assign CommitPlugin_logic_s0_headIsDone = ((ROBPlugin_robComponent_io_commit_0_valid && ROBPlugin_robComponent_io_commit_0_canCommit) && ROBPlugin_robComponent_io_commit_0_entry_status_done);
+  assign CommitPlugin_logic_mispredictedBranchCanCommit = (((CommitPlugin_commitEnableExt && CommitPlugin_logic_s0_headIsDone) && ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_isBranchOrJump) && ROBPlugin_robComponent_io_commit_0_entry_status_isMispredictedBranch);
   always @(*) begin
     CommitPlugin_logic_s0_commitAckMasks_0 = 1'b0;
-    if(when_CommitPlugin_l222) begin
+    if(when_CommitPlugin_l229) begin
       CommitPlugin_logic_s0_commitAckMasks_0 = 1'b1;
-    end
-    if(when_CommitPlugin_l239) begin
-      CommitPlugin_logic_s0_commitAckMasks_0 = 1'b0;
     end
   end
 
-  assign when_CommitPlugin_l209 = (((CommitPlugin_commitEnableExt && ROBPlugin_robComponent_io_commit_0_valid) && ROBPlugin_robComponent_io_commit_0_entry_status_done) && ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_isBranchOrJump);
-  assign when_CommitPlugin_l222 = (((CommitPlugin_commitEnableExt && ROBPlugin_robComponent_io_commit_0_valid) && ROBPlugin_robComponent_io_commit_0_entry_status_done) && (! CommitPlugin_logic_s0_isMispredictedBranch));
-  assign when_CommitPlugin_l239 = (((CommitPlugin_commitEnableExt && ROBPlugin_robComponent_io_commit_0_valid) && ROBPlugin_robComponent_io_commit_0_entry_status_done) && CommitPlugin_logic_s0_isMispredictedBranch);
-  assign when_CommitPlugin_l278 = ((CommitPlugin_logic_s0_commitAckMasks_0 && ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_allocatesPhysDest) && (! CommitPlugin_logic_s0_isMispredictedBranch));
+  always @(*) begin
+    SimpleFreeListPlugin_early_setup_freeList_io_free_0_enable = 1'b0;
+    if(when_CommitPlugin_l229) begin
+      if(ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_allocatesPhysDest) begin
+        SimpleFreeListPlugin_early_setup_freeList_io_free_0_enable = 1'b1;
+      end
+    end
+  end
+
+  always @(*) begin
+    SimpleFreeListPlugin_early_setup_freeList_io_free_0_physReg = 6'bxxxxxx;
+    if(when_CommitPlugin_l229) begin
+      if(ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_allocatesPhysDest) begin
+        SimpleFreeListPlugin_early_setup_freeList_io_free_0_physReg = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx;
+      end
+    end
+  end
+
+  assign when_CommitPlugin_l229 = ((CommitPlugin_commitEnableExt && CommitPlugin_logic_s0_headIsDone) && (! CommitPlugin_logic_scheduedFlush));
+  assign when_CommitPlugin_l273 = ((CommitPlugin_commitEnableExt && CommitPlugin_logic_s0_headIsDone) && (! CommitPlugin_logic_scheduedFlush));
   assign CommitPlugin_logic_s0_committedThisCycle_comb = _zz_CommitPlugin_logic_s0_committedThisCycle_comb;
   assign CommitPlugin_logic_s0_recycledThisCycle_comb = _zz_CommitPlugin_logic_s0_recycledThisCycle_comb;
-  assign CommitPlugin_logic_s0_flushedThisCycle_comb = CommitPlugin_hw_robFlushPort_valid;
   assign CommitPlugin_logic_s0_commitPcs_0 = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc;
   assign CommitPlugin_logic_s0_maxCommitPcThisCycle = (CommitPlugin_logic_s0_commitAckMasks_0 ? CommitPlugin_logic_s0_commitPcs_0 : 32'h0);
   assign CommitPlugin_logic_s0_anyCommitOOB = (CommitPlugin_maxCommitPcEnabledExt && (CommitPlugin_logic_s0_commitAckMasks_0 && (CommitPlugin_maxCommitPcExt < CommitPlugin_logic_s0_commitPcs_0)));
@@ -15954,7 +15652,7 @@ module CoreNSCSCC (
   assign CommitPlugin_logic_s0_commitSlotLogs_0_oldPhysDest = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx;
   assign CommitPlugin_logic_s0_commitSlotLogs_0_allocatesPhysDest = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_allocatesPhysDest;
   assign CommitPlugin_logic_s1_s1_hasCommitsThisCycle = (1'b0 < CommitPlugin_logic_s1_s1_committedThisCycle);
-  assign when_CommitPlugin_l336 = (CommitPlugin_logic_s1_s1_hasCommitsThisCycle && (CommitPlugin_maxCommitPcReg < CommitPlugin_logic_s1_s1_maxCommitPcThisCycle));
+  assign when_CommitPlugin_l346 = (CommitPlugin_logic_s1_s1_hasCommitsThisCycle && (CommitPlugin_maxCommitPcReg < CommitPlugin_logic_s1_s1_maxCommitPcThisCycle));
   assign oneShot_16_io_triggerIn = (CommitPlugin_logic_s0_committedThisCycle_comb[0] && (_zz_when_Debug_l71 < _zz_io_triggerIn_8));
   assign _zz_when_Debug_l71_5 = 5'h19;
   assign when_Debug_l71_4 = (_zz_when_Debug_l71 < _zz_when_Debug_l71_4_1);
@@ -19818,21 +19516,21 @@ module CoreNSCSCC (
 
   assign when_DispatchPlugin_l100 = (s3_Dispatch_isFiring && s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_isValid);
   assign CommitPlugin_commitEnableExt = 1'b1;
-  assign CoreNSCSCCSetupPlugin_logic_instructionVec_0 = CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_instruction;
+  assign CoreNSCSCCSetupPlugin_logic_instructionVec_0 = FetchPipelinePlugin_setup_relayedFetchOutput_payload_instruction;
   assign CoreNSCSCCSetupPlugin_logic_instructionVec_1 = 32'h0;
   assign CoreNSCSCCSetupPlugin_logic_instructionVec_2 = 32'h0;
   assign CoreNSCSCCSetupPlugin_logic_instructionVec_3 = 32'h0;
-  assign s0_Decode_valid = CoreNSCSCCSetupPlugin_setup_fetchOutput_valid;
+  assign s0_Decode_valid = FetchPipelinePlugin_setup_relayedFetchOutput_valid;
   always @(*) begin
-    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
-      s0_Decode_IssuePipelineSignals_GROUP_PC_IN = CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_pc;
+    if(FetchPipelinePlugin_setup_relayedFetchOutput_valid) begin
+      s0_Decode_IssuePipelineSignals_GROUP_PC_IN = FetchPipelinePlugin_setup_relayedFetchOutput_payload_pc;
     end else begin
       s0_Decode_IssuePipelineSignals_GROUP_PC_IN = 32'h0;
     end
   end
 
   always @(*) begin
-    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
+    if(FetchPipelinePlugin_setup_relayedFetchOutput_valid) begin
       s0_Decode_IssuePipelineSignals_RAW_INSTRUCTIONS_IN_0 = CoreNSCSCCSetupPlugin_logic_instructionVec_0;
     end else begin
       s0_Decode_IssuePipelineSignals_RAW_INSTRUCTIONS_IN_0 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
@@ -19840,7 +19538,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
+    if(FetchPipelinePlugin_setup_relayedFetchOutput_valid) begin
       s0_Decode_IssuePipelineSignals_RAW_INSTRUCTIONS_IN_1 = CoreNSCSCCSetupPlugin_logic_instructionVec_1;
     end else begin
       s0_Decode_IssuePipelineSignals_RAW_INSTRUCTIONS_IN_1 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
@@ -19848,7 +19546,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
+    if(FetchPipelinePlugin_setup_relayedFetchOutput_valid) begin
       s0_Decode_IssuePipelineSignals_RAW_INSTRUCTIONS_IN_2 = CoreNSCSCCSetupPlugin_logic_instructionVec_2;
     end else begin
       s0_Decode_IssuePipelineSignals_RAW_INSTRUCTIONS_IN_2 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
@@ -19856,7 +19554,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
+    if(FetchPipelinePlugin_setup_relayedFetchOutput_valid) begin
       s0_Decode_IssuePipelineSignals_RAW_INSTRUCTIONS_IN_3 = CoreNSCSCCSetupPlugin_logic_instructionVec_3;
     end else begin
       s0_Decode_IssuePipelineSignals_RAW_INSTRUCTIONS_IN_3 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
@@ -19864,31 +19562,31 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
-      s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_0_isTaken = CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_bpuPrediction_isTaken;
+    if(FetchPipelinePlugin_setup_relayedFetchOutput_valid) begin
+      s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_0_isTaken = FetchPipelinePlugin_setup_relayedFetchOutput_payload_bpuPrediction_isTaken;
     end else begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_0_isTaken = 1'bx;
     end
   end
 
   always @(*) begin
-    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
-      s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_0_target = CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_bpuPrediction_target;
+    if(FetchPipelinePlugin_setup_relayedFetchOutput_valid) begin
+      s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_0_target = FetchPipelinePlugin_setup_relayedFetchOutput_payload_bpuPrediction_target;
     end else begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_0_target = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     end
   end
 
   always @(*) begin
-    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
-      s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_0_wasPredicted = CoreNSCSCCSetupPlugin_setup_fetchOutput_payload_bpuPrediction_wasPredicted;
+    if(FetchPipelinePlugin_setup_relayedFetchOutput_valid) begin
+      s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_0_wasPredicted = FetchPipelinePlugin_setup_relayedFetchOutput_payload_bpuPrediction_wasPredicted;
     end else begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_0_wasPredicted = 1'bx;
     end
   end
 
   always @(*) begin
-    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
+    if(FetchPipelinePlugin_setup_relayedFetchOutput_valid) begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_1_isTaken = 1'bx;
     end else begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_1_isTaken = 1'bx;
@@ -19896,7 +19594,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
+    if(FetchPipelinePlugin_setup_relayedFetchOutput_valid) begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_1_target = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     end else begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_1_target = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
@@ -19904,7 +19602,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
+    if(FetchPipelinePlugin_setup_relayedFetchOutput_valid) begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_1_wasPredicted = 1'bx;
     end else begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_1_wasPredicted = 1'bx;
@@ -19912,7 +19610,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
+    if(FetchPipelinePlugin_setup_relayedFetchOutput_valid) begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_2_isTaken = 1'bx;
     end else begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_2_isTaken = 1'bx;
@@ -19920,7 +19618,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
+    if(FetchPipelinePlugin_setup_relayedFetchOutput_valid) begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_2_target = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     end else begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_2_target = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
@@ -19928,7 +19626,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
+    if(FetchPipelinePlugin_setup_relayedFetchOutput_valid) begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_2_wasPredicted = 1'bx;
     end else begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_2_wasPredicted = 1'bx;
@@ -19936,7 +19634,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
+    if(FetchPipelinePlugin_setup_relayedFetchOutput_valid) begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_3_isTaken = 1'bx;
     end else begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_3_isTaken = 1'bx;
@@ -19944,7 +19642,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
+    if(FetchPipelinePlugin_setup_relayedFetchOutput_valid) begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_3_target = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     end else begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_3_target = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
@@ -19952,7 +19650,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
+    if(FetchPipelinePlugin_setup_relayedFetchOutput_valid) begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_3_wasPredicted = 1'bx;
     end else begin
       s0_Decode_IssuePipelineSignals_BRANCH_PREDICTION_3_wasPredicted = 1'bx;
@@ -19960,7 +19658,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
+    if(FetchPipelinePlugin_setup_relayedFetchOutput_valid) begin
       s0_Decode_IssuePipelineSignals_VALID_MASK = 4'b0001;
     end else begin
       s0_Decode_IssuePipelineSignals_VALID_MASK = 4'b0000;
@@ -19968,14 +19666,14 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    if(CoreNSCSCCSetupPlugin_setup_fetchOutput_valid) begin
+    if(FetchPipelinePlugin_setup_relayedFetchOutput_valid) begin
       s0_Decode_IssuePipelineSignals_IS_FAULT_IN = 1'b0;
     end else begin
       s0_Decode_IssuePipelineSignals_IS_FAULT_IN = 1'b0;
     end
   end
 
-  assign CoreNSCSCCSetupPlugin_setup_fetchOutput_ready = s0_Decode_ready;
+  assign FetchPipelinePlugin_setup_relayedFetchOutput_ready = s0_Decode_ready;
   assign DebugDisplayPlugin_hw_dpyController_io_dp0 = (! DebugDisplayPlugin_logic_displayArea_dpToggle);
   assign s0_Dispatch_valid = AluIntEU_AluIntEuPlugin_euInputPort_valid;
   assign AluIntEU_AluIntEuPlugin_euInputPort_ready = s0_Dispatch_ready_1;
@@ -20028,7 +19726,7 @@ module CoreNSCSCC (
 
   assign s2_Execute_ready = 1'b1;
   assign s3_Writeback_ready = 1'b1;
-  assign when_EuBasePlugin_l230 = (ROBPlugin_aggregatedFlushSignal_valid && AluIntEU_AluIntEuPlugin_euResult_valid);
+  assign when_EuBasePlugin_l232 = (ROBPlugin_aggregatedFlushSignal_valid && AluIntEU_AluIntEuPlugin_euResult_valid);
   assign AluIntEU_AluIntEuPlugin_logicPhase_executionCompletes = (AluIntEU_AluIntEuPlugin_euResult_valid && (! ROBPlugin_aggregatedFlushSignal_valid));
   assign AluIntEU_AluIntEuPlugin_logicPhase_completesSuccessfully = (AluIntEU_AluIntEuPlugin_logicPhase_executionCompletes && (! AluIntEU_AluIntEuPlugin_euResult_hasException));
   assign oneShot_19_io_triggerIn = (AluIntEU_AluIntEuPlugin_logicPhase_executionCompletes && (_zz_when_Debug_l71 < _zz_io_triggerIn_12));
@@ -20046,7 +19744,7 @@ module CoreNSCSCC (
   assign AluIntEU_AluIntEuPlugin_bypassOutputPort_payload_exceptionCode = AluIntEU_AluIntEuPlugin_euResult_exceptionCode;
   assign AluIntEU_AluIntEuPlugin_wakeupSourcePort_valid = (AluIntEU_AluIntEuPlugin_logicPhase_executionCompletes && AluIntEU_AluIntEuPlugin_euResult_writesToPreg);
   assign AluIntEU_AluIntEuPlugin_wakeupSourcePort_payload_physRegIdx = AluIntEU_AluIntEuPlugin_euResult_uop_physDest_idx;
-  assign when_EuBasePlugin_l301 = ((AluIntEU_AluIntEuPlugin_logicPhase_executionCompletes && AluIntEU_AluIntEuPlugin_euResult_writesToPreg) && (AluIntEU_AluIntEuPlugin_euResult_uop_physDest_idx < 6'h06));
+  assign when_EuBasePlugin_l304 = ((AluIntEU_AluIntEuPlugin_logicPhase_executionCompletes && AluIntEU_AluIntEuPlugin_euResult_writesToPreg) && (AluIntEU_AluIntEuPlugin_euResult_uop_physDest_idx < 6'h06));
   assign mul_s0_Dispatch_valid = MulEU_MulEuPlugin_euInputPort_valid;
   assign MulEU_MulEuPlugin_euInputPort_ready = mul_s0_Dispatch_ready;
   assign mul_s1_ReadRegs_isFiring = (mul_s1_ReadRegs_valid && mul_s1_ReadRegs_ready);
@@ -20136,7 +19834,7 @@ module CoreNSCSCC (
   end
 
   assign mul_s7_Writeback_ready = 1'b1;
-  assign when_EuBasePlugin_l230_1 = (ROBPlugin_aggregatedFlushSignal_valid && MulEU_MulEuPlugin_euResult_valid);
+  assign when_EuBasePlugin_l232_1 = (ROBPlugin_aggregatedFlushSignal_valid && MulEU_MulEuPlugin_euResult_valid);
   assign MulEU_MulEuPlugin_logicPhase_executionCompletes = (MulEU_MulEuPlugin_euResult_valid && (! ROBPlugin_aggregatedFlushSignal_valid));
   assign MulEU_MulEuPlugin_logicPhase_completesSuccessfully = (MulEU_MulEuPlugin_logicPhase_executionCompletes && (! MulEU_MulEuPlugin_euResult_hasException));
   assign oneShot_20_io_triggerIn = (MulEU_MulEuPlugin_logicPhase_executionCompletes && (_zz_when_Debug_l71 < _zz_io_triggerIn_14));
@@ -20154,7 +19852,7 @@ module CoreNSCSCC (
   assign MulEU_MulEuPlugin_bypassOutputPort_payload_exceptionCode = MulEU_MulEuPlugin_euResult_exceptionCode;
   assign MulEU_MulEuPlugin_wakeupSourcePort_valid = (MulEU_MulEuPlugin_logicPhase_executionCompletes && MulEU_MulEuPlugin_euResult_writesToPreg);
   assign MulEU_MulEuPlugin_wakeupSourcePort_payload_physRegIdx = MulEU_MulEuPlugin_euResult_uop_physDest_idx;
-  assign when_EuBasePlugin_l301_1 = ((MulEU_MulEuPlugin_logicPhase_executionCompletes && MulEU_MulEuPlugin_euResult_writesToPreg) && (MulEU_MulEuPlugin_euResult_uop_physDest_idx < 6'h06));
+  assign when_EuBasePlugin_l304_1 = ((MulEU_MulEuPlugin_logicPhase_executionCompletes && MulEU_MulEuPlugin_euResult_writesToPreg) && (MulEU_MulEuPlugin_euResult_uop_physDest_idx < 6'h06));
   assign s0_Dispatch_valid_1 = BranchEU_BranchEuPlugin_euInputPort_valid;
   assign BranchEU_BranchEuPlugin_euInputPort_ready = s0_Dispatch_ready;
   assign _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_3 = BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_condition;
@@ -20210,26 +19908,8 @@ module CoreNSCSCC (
     endcase
   end
 
-  assign switch_BranchEuPlugin_l133 = {_zz_switch_BranchEuPlugin_l133,_zz_switch_BranchEuPlugin_l133_1};
-  always @(*) begin
-    case(switch_BranchEuPlugin_l133)
-      2'b00 : begin
-        _zz_BranchEU_BranchEuPlugin_euResult_data_4 = (_zz_BranchEU_BranchEuPlugin_euResult_uop_pc_2 + _zz__zz_BranchEU_BranchEuPlugin_euResult_data_4);
-      end
-      2'b01 : begin
-        _zz_BranchEU_BranchEuPlugin_euResult_data_4 = _zz__zz_BranchEU_BranchEuPlugin_euResult_data_4_1;
-      end
-      2'b10 : begin
-        _zz_BranchEU_BranchEuPlugin_euResult_data_4 = (_zz_BranchEU_BranchEuPlugin_euResult_uop_pc_2 + _zz__zz_BranchEU_BranchEuPlugin_euResult_data_4_4);
-      end
-      default : begin
-        _zz_BranchEU_BranchEuPlugin_euResult_data_4 = (_zz_BranchEU_BranchEuPlugin_euResult_uop_pc_2 + 32'h00000004);
-      end
-    endcase
-  end
-
   assign s2_Select_isFiring = (s2_Select_valid && s2_Select_ready);
-  assign _zz_BranchEU_BranchEuPlugin_euResult_data_5 = (_zz_BranchEU_BranchEuPlugin_euResult_uop_pc_1 + 32'h00000004);
+  assign _zz_BranchEU_BranchEuPlugin_euResult_data_4 = (_zz_BranchEU_BranchEuPlugin_euResult_uop_pc_1 + 32'h00000004);
   always @(*) begin
     if(_zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isJump_1) begin
       _zz_BranchEU_BranchEuPlugin_euResult_isTaken_1 = 1'b1;
@@ -20240,15 +19920,15 @@ module CoreNSCSCC (
 
   always @(*) begin
     if(_zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isJump_1) begin
-      _zz_BranchEU_BranchEuPlugin_euResult_data_6 = _zz_BranchEU_BranchEuPlugin_euResult_data_1;
+      _zz_BranchEU_BranchEuPlugin_euResult_data_5 = _zz_BranchEU_BranchEuPlugin_euResult_data_1;
     end else begin
-      _zz_BranchEU_BranchEuPlugin_euResult_data_6 = (_zz_BranchEU_BranchEuPlugin_euResult_data_2 ? _zz_BranchEU_BranchEuPlugin_euResult_data_1 : _zz_BranchEU_BranchEuPlugin_euResult_data_5);
+      _zz_BranchEU_BranchEuPlugin_euResult_data_5 = (_zz_BranchEU_BranchEuPlugin_euResult_data_2 ? _zz_BranchEU_BranchEuPlugin_euResult_data_1 : _zz_BranchEU_BranchEuPlugin_euResult_data_4);
     end
   end
 
   always @(*) begin
     if(_zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted_1) begin
-      _zz_BranchEU_BranchEuPlugin_euResult_isMispredictedBranch_1 = ((_zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken_1 == _zz_BranchEU_BranchEuPlugin_euResult_isTaken_1) && ((! _zz_BranchEU_BranchEuPlugin_euResult_isTaken_1) || (_zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_target_1 == _zz_BranchEU_BranchEuPlugin_euResult_data_6)));
+      _zz_BranchEU_BranchEuPlugin_euResult_isMispredictedBranch_1 = ((_zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken_1 == _zz_BranchEU_BranchEuPlugin_euResult_isTaken_1) && ((! _zz_BranchEU_BranchEuPlugin_euResult_isTaken_1) || (_zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_target_1 == _zz_BranchEU_BranchEuPlugin_euResult_data_5)));
     end else begin
       _zz_BranchEU_BranchEuPlugin_euResult_isMispredictedBranch_1 = (! _zz_BranchEU_BranchEuPlugin_euResult_isTaken_1);
     end
@@ -20291,7 +19971,7 @@ module CoreNSCSCC (
 
   assign s2_Select_ready = 1'b1;
   assign s3_Result_ready = 1'b1;
-  assign when_EuBasePlugin_l230_2 = (ROBPlugin_aggregatedFlushSignal_valid && BranchEU_BranchEuPlugin_euResult_valid);
+  assign when_EuBasePlugin_l232_2 = (ROBPlugin_aggregatedFlushSignal_valid && BranchEU_BranchEuPlugin_euResult_valid);
   assign BranchEU_BranchEuPlugin_logicPhase_executionCompletes = (BranchEU_BranchEuPlugin_euResult_valid && (! ROBPlugin_aggregatedFlushSignal_valid));
   assign BranchEU_BranchEuPlugin_logicPhase_completesSuccessfully = (BranchEU_BranchEuPlugin_logicPhase_executionCompletes && (! BranchEU_BranchEuPlugin_euResult_hasException));
   assign oneShot_21_io_triggerIn = (BranchEU_BranchEuPlugin_logicPhase_executionCompletes && (_zz_when_Debug_l71 < _zz_io_triggerIn_16));
@@ -20309,7 +19989,7 @@ module CoreNSCSCC (
   assign BranchEU_BranchEuPlugin_bypassOutputPort_payload_exceptionCode = BranchEU_BranchEuPlugin_euResult_exceptionCode;
   assign BranchEU_BranchEuPlugin_wakeupSourcePort_valid = (BranchEU_BranchEuPlugin_logicPhase_executionCompletes && BranchEU_BranchEuPlugin_euResult_writesToPreg);
   assign BranchEU_BranchEuPlugin_wakeupSourcePort_payload_physRegIdx = BranchEU_BranchEuPlugin_euResult_uop_physDest_idx;
-  assign when_EuBasePlugin_l301_2 = ((BranchEU_BranchEuPlugin_logicPhase_executionCompletes && BranchEU_BranchEuPlugin_euResult_writesToPreg) && (BranchEU_BranchEuPlugin_euResult_uop_physDest_idx < 6'h06));
+  assign when_EuBasePlugin_l304_2 = ((BranchEU_BranchEuPlugin_logicPhase_executionCompletes && BranchEU_BranchEuPlugin_euResult_writesToPreg) && (BranchEU_BranchEuPlugin_euResult_uop_physDest_idx < 6'h06));
   assign LsuEU_LsuEuPlugin_hw_aguPort_flush = ROBPlugin_aggregatedFlushSignal_valid;
   assign _zz_LsuEU_LsuEuPlugin_euInputPort_translated_payload_accessSize = LsuEU_LsuEuPlugin_euInputPort_payload_memCtrl_size;
   assign LsuEU_LsuEuPlugin_euInputPort_translated_valid = LsuEU_LsuEuPlugin_euInputPort_valid;
@@ -20429,7 +20109,7 @@ module CoreNSCSCC (
   assign LsuEU_LsuEuPlugin_hw_lqPushPort_fire = (LsuEU_LsuEuPlugin_hw_lqPushPort_valid && LsuEU_LsuEuPlugin_hw_lqPushPort_ready);
   assign StoreBufferPlugin_hw_pushPortInst_fire = (StoreBufferPlugin_hw_pushPortInst_valid && StoreBufferPlugin_hw_pushPortInst_ready);
   assign when_LsuEuPlugin_l143 = (LsuEU_LsuEuPlugin_hw_lqPushPort_fire || StoreBufferPlugin_hw_pushPortInst_fire);
-  assign when_EuBasePlugin_l230_3 = (ROBPlugin_aggregatedFlushSignal_valid && LsuEU_LsuEuPlugin_euResult_valid);
+  assign when_EuBasePlugin_l232_3 = (ROBPlugin_aggregatedFlushSignal_valid && LsuEU_LsuEuPlugin_euResult_valid);
   assign LsuEU_LsuEuPlugin_logicPhase_executionCompletes = (LsuEU_LsuEuPlugin_euResult_valid && (! ROBPlugin_aggregatedFlushSignal_valid));
   assign LsuEU_LsuEuPlugin_logicPhase_completesSuccessfully = (LsuEU_LsuEuPlugin_logicPhase_executionCompletes && (! LsuEU_LsuEuPlugin_euResult_hasException));
   assign oneShot_22_io_triggerIn = (LsuEU_LsuEuPlugin_logicPhase_executionCompletes && (_zz_when_Debug_l71 < _zz_io_triggerIn_18));
@@ -20447,7 +20127,7 @@ module CoreNSCSCC (
   assign LsuEU_LsuEuPlugin_bypassOutputPort_payload_exceptionCode = LsuEU_LsuEuPlugin_euResult_exceptionCode;
   assign LsuEU_LsuEuPlugin_wakeupSourcePort_valid = (LsuEU_LsuEuPlugin_logicPhase_executionCompletes && LsuEU_LsuEuPlugin_euResult_writesToPreg);
   assign LsuEU_LsuEuPlugin_wakeupSourcePort_payload_physRegIdx = LsuEU_LsuEuPlugin_euResult_uop_physDest_idx;
-  assign when_EuBasePlugin_l301_3 = ((LsuEU_LsuEuPlugin_logicPhase_executionCompletes && LsuEU_LsuEuPlugin_euResult_writesToPreg) && (LsuEU_LsuEuPlugin_euResult_uop_physDest_idx < 6'h06));
+  assign when_EuBasePlugin_l304_3 = ((LsuEU_LsuEuPlugin_logicPhase_executionCompletes && LsuEU_LsuEuPlugin_euResult_writesToPreg) && (LsuEU_LsuEuPlugin_euResult_uop_physDest_idx < 6'h06));
   assign s3_Dispatch_isFlushed = when_Connection_l66;
   assign when_Connection_l66_11 = (|{when_Connection_l66,_zz_s2_RobAlloc_isFlushingRoot});
   assign s2_RobAlloc_isFlushed = when_Connection_l66_11;
@@ -20612,28 +20292,28 @@ module CoreNSCSCC (
   end
 
   assign _zz_io_push_payload_accessSize = _zz_io_push_payload_alignException;
-  assign streamFifo_14_io_push_valid = (_zz_io_push_valid && (! LsuEU_LsuEuPlugin_hw_aguPort_flush));
-  assign streamFifo_14_io_push_payload_alignException = (((_zz_io_push_payload_address_4 & _zz_io_push_payload_alignException_2) != 32'h0) && (_zz_io_push_payload_alignException != MemAccessSize_B));
-  assign streamFifo_14_io_push_payload_isIO = (_zz_io_push_payload_isIO || (1'b0 || ((32'hbfd00000 <= _zz_io_push_payload_address_4) && (_zz_io_push_payload_address_4 <= 32'hc0100000))));
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_valid = streamFifo_14_io_pop_valid;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_qPtr = streamFifo_14_io_pop_payload_qPtr;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address = streamFifo_14_io_pop_payload_address;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException = streamFifo_14_io_pop_payload_alignException;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize = streamFifo_14_io_pop_payload_accessSize;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isSignedLoad = streamFifo_14_io_pop_payload_isSignedLoad;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeMask = streamFifo_14_io_pop_payload_storeMask;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_basePhysReg = streamFifo_14_io_pop_payload_basePhysReg;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_immediate = streamFifo_14_io_pop_payload_immediate;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_usePc = streamFifo_14_io_pop_payload_usePc;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_pc = streamFifo_14_io_pop_payload_pc;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_robPtr = streamFifo_14_io_pop_payload_robPtr;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isLoad = streamFifo_14_io_pop_payload_isLoad;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isStore = streamFifo_14_io_pop_payload_isStore;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_physDst = streamFifo_14_io_pop_payload_physDst;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeData = streamFifo_14_io_pop_payload_storeData;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isFlush = streamFifo_14_io_pop_payload_isFlush;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isIO = streamFifo_14_io_pop_payload_isIO;
-  assign LsuEU_LsuEuPlugin_hw_aguPort_input_ready = (streamFifo_14_io_push_ready && (! LsuEU_LsuEuPlugin_hw_aguPort_flush));
+  assign streamFifo_13_io_push_valid = (_zz_io_push_valid && (! LsuEU_LsuEuPlugin_hw_aguPort_flush));
+  assign streamFifo_13_io_push_payload_alignException = (((_zz_io_push_payload_address_4 & _zz_io_push_payload_alignException_2) != 32'h0) && (_zz_io_push_payload_alignException != MemAccessSize_B));
+  assign streamFifo_13_io_push_payload_isIO = (_zz_io_push_payload_isIO || (1'b0 || ((32'hbfd00000 <= _zz_io_push_payload_address_4) && (_zz_io_push_payload_address_4 <= 32'hc0100000))));
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_valid = streamFifo_13_io_pop_valid;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_qPtr = streamFifo_13_io_pop_payload_qPtr;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address = streamFifo_13_io_pop_payload_address;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_alignException = streamFifo_13_io_pop_payload_alignException;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_accessSize = streamFifo_13_io_pop_payload_accessSize;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isSignedLoad = streamFifo_13_io_pop_payload_isSignedLoad;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeMask = streamFifo_13_io_pop_payload_storeMask;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_basePhysReg = streamFifo_13_io_pop_payload_basePhysReg;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_immediate = streamFifo_13_io_pop_payload_immediate;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_usePc = streamFifo_13_io_pop_payload_usePc;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_pc = streamFifo_13_io_pop_payload_pc;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_robPtr = streamFifo_13_io_pop_payload_robPtr;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isLoad = streamFifo_13_io_pop_payload_isLoad;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isStore = streamFifo_13_io_pop_payload_isStore;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_physDst = streamFifo_13_io_pop_payload_physDst;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeData = streamFifo_13_io_pop_payload_storeData;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isFlush = streamFifo_13_io_pop_payload_isFlush;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isIO = streamFifo_13_io_pop_payload_isIO;
+  assign LsuEU_LsuEuPlugin_hw_aguPort_input_ready = (streamFifo_13_io_push_ready && (! LsuEU_LsuEuPlugin_hw_aguPort_flush));
   assign LsuEU_LsuEuPlugin_hw_lqPushPort_ready = streamArbiter_9_io_inputs_0_ready;
   assign LoadQueuePlugin_logic_pushCmd_valid = streamArbiter_9_io_output_valid;
   assign LoadQueuePlugin_logic_pushCmd_payload_robPtr = streamArbiter_9_io_output_payload_robPtr;
@@ -20817,7 +20497,7 @@ module CoreNSCSCC (
     if(StoreBufferPlugin_hw_sqQueryPort_cmd_valid) begin
       LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isWaitingForFwdRsp = 1'b1;
     end
-    if(when_LoadQueuePlugin_l336) begin
+    if(when_LoadQueuePlugin_l335) begin
       LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isWaitingForFwdRsp = 1'b0;
     end
   end
@@ -20829,9 +20509,9 @@ module CoreNSCSCC (
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isStalledByDependency = 1'b0;
       end
     end
-    if(when_LoadQueuePlugin_l336) begin
+    if(when_LoadQueuePlugin_l335) begin
       if(!LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_hit) begin
-        if(when_LoadQueuePlugin_l347) begin
+        if(when_LoadQueuePlugin_l345) begin
           LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isStalledByDependency = 1'b1;
         end
       end
@@ -20848,14 +20528,14 @@ module CoreNSCSCC (
         LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isReadyForDCache = 1'b0;
       end
     end
-    if(when_LoadQueuePlugin_l336) begin
+    if(when_LoadQueuePlugin_l335) begin
       if(!LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_hit) begin
-        if(!when_LoadQueuePlugin_l347) begin
+        if(!when_LoadQueuePlugin_l345) begin
           LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isReadyForDCache = 1'b1;
         end
       end
     end
-    if(when_LoadQueuePlugin_l362) begin
+    if(when_LoadQueuePlugin_l360) begin
       LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isReadyForDCache = 1'b1;
     end
     if(LoadQueuePlugin_logic_loadQueue_mmioCmdFired) begin
@@ -21228,682 +20908,682 @@ module CoreNSCSCC (
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_0_valid = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_valid;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_valid = 1'b0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_valid = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_valid;
     end
-    if(when_LoadQueuePlugin_l565) begin
+    if(when_LoadQueuePlugin_l563) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_valid = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_0_address = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_address;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_address = 32'h0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_address = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_address;
     end
-    if(when_LoadQueuePlugin_l565) begin
+    if(when_LoadQueuePlugin_l563) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_address = 32'h0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_0_size = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_size;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_size = MemAccessSize_W;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_size = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_size;
     end
-    if(when_LoadQueuePlugin_l565) begin
+    if(when_LoadQueuePlugin_l563) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_size = MemAccessSize_W;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_0_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_robPtr;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_robPtr = 4'b0000;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_robPtr;
     end
-    if(when_LoadQueuePlugin_l565) begin
+    if(when_LoadQueuePlugin_l563) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_robPtr = 4'b0000;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_0_pdest = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_pdest;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_pdest = 6'h0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_pdest = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_pdest;
     end
-    if(when_LoadQueuePlugin_l565) begin
+    if(when_LoadQueuePlugin_l563) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_pdest = 6'h0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_0_isIO = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isIO;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isIO = 1'b0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isIO = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isIO;
     end
-    if(when_LoadQueuePlugin_l565) begin
+    if(when_LoadQueuePlugin_l563) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isIO = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_0_isSignedLoad = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isSignedLoad;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isSignedLoad = 1'b0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isSignedLoad = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isSignedLoad;
     end
-    if(when_LoadQueuePlugin_l565) begin
+    if(when_LoadQueuePlugin_l563) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isSignedLoad = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_0_hasException = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_hasException;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_hasException = 1'b0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_hasException = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_hasException;
     end
-    if(when_LoadQueuePlugin_l565) begin
+    if(when_LoadQueuePlugin_l563) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_hasException = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_0_exceptionCode = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_exceptionCode;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_exceptionCode = 8'h0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_exceptionCode = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_exceptionCode;
     end
-    if(when_LoadQueuePlugin_l565) begin
+    if(when_LoadQueuePlugin_l563) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_exceptionCode = 8'h0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_0_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isWaitingForFwdRsp;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isWaitingForFwdRsp = 1'b0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isWaitingForFwdRsp;
     end
-    if(when_LoadQueuePlugin_l565) begin
+    if(when_LoadQueuePlugin_l563) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isWaitingForFwdRsp = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_0_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isStalledByDependency;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isStalledByDependency = 1'b0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isStalledByDependency;
     end
-    if(when_LoadQueuePlugin_l565) begin
+    if(when_LoadQueuePlugin_l563) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isStalledByDependency = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_0_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isReadyForDCache;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isReadyForDCache = 1'b0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isReadyForDCache;
     end
-    if(when_LoadQueuePlugin_l565) begin
+    if(when_LoadQueuePlugin_l563) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isReadyForDCache = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_0_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isWaitingForRsp;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isWaitingForRsp = 1'b0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isWaitingForRsp;
     end
-    if(when_LoadQueuePlugin_l565) begin
+    if(when_LoadQueuePlugin_l563) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_isWaitingForRsp = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_1_valid = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_valid;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_valid = 1'b0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_valid = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_valid;
     end
-    if(when_LoadQueuePlugin_l565_1) begin
+    if(when_LoadQueuePlugin_l563_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_valid = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_1_address = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_address;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_address = 32'h0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_address = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_address;
     end
-    if(when_LoadQueuePlugin_l565_1) begin
+    if(when_LoadQueuePlugin_l563_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_address = 32'h0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_1_size = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_size;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_size = MemAccessSize_W;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_size = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_size;
     end
-    if(when_LoadQueuePlugin_l565_1) begin
+    if(when_LoadQueuePlugin_l563_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_size = MemAccessSize_W;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_1_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_robPtr;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_robPtr = 4'b0000;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_robPtr;
     end
-    if(when_LoadQueuePlugin_l565_1) begin
+    if(when_LoadQueuePlugin_l563_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_robPtr = 4'b0000;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_1_pdest = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_pdest;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_pdest = 6'h0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_pdest = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_pdest;
     end
-    if(when_LoadQueuePlugin_l565_1) begin
+    if(when_LoadQueuePlugin_l563_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_pdest = 6'h0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_1_isIO = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isIO;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isIO = 1'b0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isIO = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isIO;
     end
-    if(when_LoadQueuePlugin_l565_1) begin
+    if(when_LoadQueuePlugin_l563_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isIO = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_1_isSignedLoad = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isSignedLoad;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isSignedLoad = 1'b0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isSignedLoad = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isSignedLoad;
     end
-    if(when_LoadQueuePlugin_l565_1) begin
+    if(when_LoadQueuePlugin_l563_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isSignedLoad = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_1_hasException = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_hasException;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_hasException = 1'b0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_hasException = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_hasException;
     end
-    if(when_LoadQueuePlugin_l565_1) begin
+    if(when_LoadQueuePlugin_l563_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_hasException = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_1_exceptionCode = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_exceptionCode;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_exceptionCode = 8'h0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_exceptionCode = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_exceptionCode;
     end
-    if(when_LoadQueuePlugin_l565_1) begin
+    if(when_LoadQueuePlugin_l563_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_exceptionCode = 8'h0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_1_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isWaitingForFwdRsp;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isWaitingForFwdRsp = 1'b0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isWaitingForFwdRsp;
     end
-    if(when_LoadQueuePlugin_l565_1) begin
+    if(when_LoadQueuePlugin_l563_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isWaitingForFwdRsp = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_1_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isStalledByDependency;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isStalledByDependency = 1'b0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isStalledByDependency;
     end
-    if(when_LoadQueuePlugin_l565_1) begin
+    if(when_LoadQueuePlugin_l563_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isStalledByDependency = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_1_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isReadyForDCache;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isReadyForDCache = 1'b0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isReadyForDCache;
     end
-    if(when_LoadQueuePlugin_l565_1) begin
+    if(when_LoadQueuePlugin_l563_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isReadyForDCache = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_1_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isWaitingForRsp;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isWaitingForRsp = 1'b0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isWaitingForRsp;
     end
-    if(when_LoadQueuePlugin_l565_1) begin
+    if(when_LoadQueuePlugin_l563_1) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_isWaitingForRsp = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_2_valid = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_valid;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_valid = 1'b0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_valid = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_valid;
     end
-    if(when_LoadQueuePlugin_l565_2) begin
+    if(when_LoadQueuePlugin_l563_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_valid = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_2_address = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_address;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_address = 32'h0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_address = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_address;
     end
-    if(when_LoadQueuePlugin_l565_2) begin
+    if(when_LoadQueuePlugin_l563_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_address = 32'h0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_2_size = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_size;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_size = MemAccessSize_W;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_size = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_size;
     end
-    if(when_LoadQueuePlugin_l565_2) begin
+    if(when_LoadQueuePlugin_l563_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_size = MemAccessSize_W;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_2_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_robPtr;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_robPtr = 4'b0000;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_robPtr;
     end
-    if(when_LoadQueuePlugin_l565_2) begin
+    if(when_LoadQueuePlugin_l563_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_robPtr = 4'b0000;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_2_pdest = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_pdest;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_pdest = 6'h0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_pdest = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_pdest;
     end
-    if(when_LoadQueuePlugin_l565_2) begin
+    if(when_LoadQueuePlugin_l563_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_pdest = 6'h0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_2_isIO = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isIO;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isIO = 1'b0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isIO = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isIO;
     end
-    if(when_LoadQueuePlugin_l565_2) begin
+    if(when_LoadQueuePlugin_l563_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isIO = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_2_isSignedLoad = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isSignedLoad;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isSignedLoad = 1'b0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isSignedLoad = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isSignedLoad;
     end
-    if(when_LoadQueuePlugin_l565_2) begin
+    if(when_LoadQueuePlugin_l563_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isSignedLoad = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_2_hasException = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_hasException;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_hasException = 1'b0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_hasException = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_hasException;
     end
-    if(when_LoadQueuePlugin_l565_2) begin
+    if(when_LoadQueuePlugin_l563_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_hasException = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_2_exceptionCode = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_exceptionCode;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_exceptionCode = 8'h0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_exceptionCode = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_exceptionCode;
     end
-    if(when_LoadQueuePlugin_l565_2) begin
+    if(when_LoadQueuePlugin_l563_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_exceptionCode = 8'h0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_2_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isWaitingForFwdRsp;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isWaitingForFwdRsp = 1'b0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isWaitingForFwdRsp;
     end
-    if(when_LoadQueuePlugin_l565_2) begin
+    if(when_LoadQueuePlugin_l563_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isWaitingForFwdRsp = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_2_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isStalledByDependency;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isStalledByDependency = 1'b0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isStalledByDependency;
     end
-    if(when_LoadQueuePlugin_l565_2) begin
+    if(when_LoadQueuePlugin_l563_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isStalledByDependency = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_2_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isReadyForDCache;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isReadyForDCache = 1'b0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isReadyForDCache;
     end
-    if(when_LoadQueuePlugin_l565_2) begin
+    if(when_LoadQueuePlugin_l563_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isReadyForDCache = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_2_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isWaitingForRsp;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isWaitingForRsp = 1'b0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isWaitingForRsp;
     end
-    if(when_LoadQueuePlugin_l565_2) begin
+    if(when_LoadQueuePlugin_l563_2) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_isWaitingForRsp = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_3_valid = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_valid;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_valid = 1'b0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_valid = 1'b0;
     end
-    if(when_LoadQueuePlugin_l565_3) begin
+    if(when_LoadQueuePlugin_l563_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_valid = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_3_address = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_address;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_address = 32'h0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_address = 32'h0;
     end
-    if(when_LoadQueuePlugin_l565_3) begin
+    if(when_LoadQueuePlugin_l563_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_address = 32'h0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_3_size = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_size;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_size = MemAccessSize_W;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_size = MemAccessSize_W;
     end
-    if(when_LoadQueuePlugin_l565_3) begin
+    if(when_LoadQueuePlugin_l563_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_size = MemAccessSize_W;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_3_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_robPtr;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_robPtr = 4'b0000;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_robPtr = 4'b0000;
     end
-    if(when_LoadQueuePlugin_l565_3) begin
+    if(when_LoadQueuePlugin_l563_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_robPtr = 4'b0000;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_3_pdest = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_pdest;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_pdest = 6'h0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_pdest = 6'h0;
     end
-    if(when_LoadQueuePlugin_l565_3) begin
+    if(when_LoadQueuePlugin_l563_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_pdest = 6'h0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_3_isIO = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isIO;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isIO = 1'b0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isIO = 1'b0;
     end
-    if(when_LoadQueuePlugin_l565_3) begin
+    if(when_LoadQueuePlugin_l563_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isIO = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_3_isSignedLoad = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isSignedLoad;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isSignedLoad = 1'b0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isSignedLoad = 1'b0;
     end
-    if(when_LoadQueuePlugin_l565_3) begin
+    if(when_LoadQueuePlugin_l563_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isSignedLoad = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_3_hasException = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_hasException;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_hasException = 1'b0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_hasException = 1'b0;
     end
-    if(when_LoadQueuePlugin_l565_3) begin
+    if(when_LoadQueuePlugin_l563_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_hasException = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_3_exceptionCode = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_exceptionCode;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_exceptionCode = 8'h0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_exceptionCode = 8'h0;
     end
-    if(when_LoadQueuePlugin_l565_3) begin
+    if(when_LoadQueuePlugin_l563_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_exceptionCode = 8'h0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_3_isWaitingForFwdRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isWaitingForFwdRsp;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isWaitingForFwdRsp = 1'b0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isWaitingForFwdRsp = 1'b0;
     end
-    if(when_LoadQueuePlugin_l565_3) begin
+    if(when_LoadQueuePlugin_l563_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isWaitingForFwdRsp = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_3_isStalledByDependency = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isStalledByDependency;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isStalledByDependency = 1'b0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isStalledByDependency = 1'b0;
     end
-    if(when_LoadQueuePlugin_l565_3) begin
+    if(when_LoadQueuePlugin_l563_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isStalledByDependency = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_3_isReadyForDCache = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isReadyForDCache;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isReadyForDCache = 1'b0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isReadyForDCache = 1'b0;
     end
-    if(when_LoadQueuePlugin_l565_3) begin
+    if(when_LoadQueuePlugin_l563_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isReadyForDCache = 1'b0;
     end
   end
 
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_3_isWaitingForRsp = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isWaitingForRsp;
-    if(when_LoadQueuePlugin_l298) begin
+    if(when_LoadQueuePlugin_l297) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isWaitingForRsp = 1'b0;
     end
-    if(LoadQueuePlugin_logic_loadQueue_popRequest) begin
+    if(when_LoadQueuePlugin_l548) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isWaitingForRsp = 1'b0;
     end
-    if(when_LoadQueuePlugin_l565_3) begin
+    if(when_LoadQueuePlugin_l563_3) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_isWaitingForRsp = 1'b0;
     end
   end
 
   assign LoadQueuePlugin_logic_loadQueue_flushInProgress = (ROBPlugin_aggregatedFlushSignal_valid && (ROBPlugin_aggregatedFlushSignal_payload_reason == FlushReason_ROLLBACK_TO_ROB_IDX));
-  assign when_LoadQueuePlugin_l298 = (ROBPlugin_aggregatedFlushSignal_valid && (ROBPlugin_aggregatedFlushSignal_payload_reason == FlushReason_FULL_FLUSH));
+  assign when_LoadQueuePlugin_l297 = (ROBPlugin_aggregatedFlushSignal_valid && (ROBPlugin_aggregatedFlushSignal_payload_reason == FlushReason_FULL_FLUSH));
   assign LoadQueuePlugin_logic_loadQueue_canPush = ((! (&{LoadQueuePlugin_logic_loadQueue_slots_3_valid,{LoadQueuePlugin_logic_loadQueue_slots_2_valid,{LoadQueuePlugin_logic_loadQueue_slots_1_valid,LoadQueuePlugin_logic_loadQueue_slots_0_valid}}})) && (! LoadQueuePlugin_logic_loadQueue_flushInProgress));
   assign LoadQueuePlugin_logic_pushCmd_ready = LoadQueuePlugin_logic_loadQueue_canPush;
   assign LoadQueuePlugin_logic_loadQueue_availableSlotsMask = {(! LoadQueuePlugin_logic_loadQueue_slots_3_valid),{(! LoadQueuePlugin_logic_loadQueue_slots_2_valid),{(! LoadQueuePlugin_logic_loadQueue_slots_1_valid),(! LoadQueuePlugin_logic_loadQueue_slots_0_valid)}}};
@@ -21928,13 +21608,13 @@ module CoreNSCSCC (
   assign StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address = LoadQueuePlugin_logic_loadQueue_slots_0_address;
   assign StoreBufferPlugin_hw_sqQueryPort_cmd_payload_size = LoadQueuePlugin_logic_loadQueue_slots_0_size;
   assign StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr;
-  assign when_LoadQueuePlugin_l336 = (LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForFwdRsp && LoadQueuePlugin_logic_loadQueue_sbQueryRspValid);
+  assign when_LoadQueuePlugin_l335 = (LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForFwdRsp && LoadQueuePlugin_logic_loadQueue_sbQueryRspValid);
   assign _zz_59 = (LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_olderStoreHasUnknownAddress || LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_olderStoreDataNotReady);
-  assign when_LoadQueuePlugin_l347 = (LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_olderStoreHasUnknownAddress || LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_olderStoreDataNotReady);
-  assign when_LoadQueuePlugin_l362 = ((((LoadQueuePlugin_logic_loadQueue_headIsVisible && LoadQueuePlugin_logic_loadQueue_slots_0_hasException) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isReadyForDCache)) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForFwdRsp)) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForRsp));
+  assign when_LoadQueuePlugin_l345 = (LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_olderStoreHasUnknownAddress || LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_olderStoreDataNotReady);
+  assign when_LoadQueuePlugin_l360 = ((((LoadQueuePlugin_logic_loadQueue_headIsVisible && LoadQueuePlugin_logic_loadQueue_slots_0_hasException) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isReadyForDCache)) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForFwdRsp)) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForRsp));
   assign LoadQueuePlugin_logic_loadQueue_headIsReadyToExecute = ((LoadQueuePlugin_logic_loadQueue_headIsVisible && LoadQueuePlugin_logic_loadQueue_slots_0_isReadyForDCache) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForRsp));
   assign _zz_LoadQueuePlugin_logic_loadQueue_mmioCmdFired = (((LoadQueuePlugin_logic_loadQueue_headIsReadyToExecute && (! LoadQueuePlugin_logic_loadQueue_slots_0_hasException)) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForFwdRsp)) && LoadQueuePlugin_logic_loadQueue_slots_0_isIO);
-  assign when_LoadQueuePlugin_l395 = (LoadQueuePlugin_logic_loadQueue_headIsReadyToExecute && LoadQueuePlugin_logic_loadQueue_slots_0_isIO);
+  assign when_LoadQueuePlugin_l393 = (LoadQueuePlugin_logic_loadQueue_headIsReadyToExecute && LoadQueuePlugin_logic_loadQueue_slots_0_isIO);
   assign LoadQueuePlugin_logic_loadQueue_mmioCmdFired = (_zz_LoadQueuePlugin_logic_loadQueue_mmioCmdFired && _zz_LoadQueuePlugin_logic_loadQueue_mmioCmdFired_1);
   assign LoadQueuePlugin_logic_loadQueue_mmioResponseIsForHead = (((CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_valid && LoadQueuePlugin_logic_loadQueue_slots_0_valid) && (LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForRsp || LoadQueuePlugin_logic_loadQueue_mmioCmdFired)) && LoadQueuePlugin_logic_loadQueue_slots_0_isIO);
   assign LoadQueuePlugin_logic_loadQueue_popOnFwdHit = (LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForFwdRsp && LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_hit);
@@ -21979,7 +21659,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_hw_prfWritePort_valid = 1'b0;
     if(LoadQueuePlugin_logic_loadQueue_completionInfoReg_valid) begin
-      if(when_LoadQueuePlugin_l535) begin
+      if(when_LoadQueuePlugin_l533) begin
         LoadQueuePlugin_hw_prfWritePort_valid = 1'b1;
       end
     end
@@ -21988,7 +21668,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_hw_prfWritePort_address = 6'bxxxxxx;
     if(LoadQueuePlugin_logic_loadQueue_completionInfoReg_valid) begin
-      if(when_LoadQueuePlugin_l535) begin
+      if(when_LoadQueuePlugin_l533) begin
         LoadQueuePlugin_hw_prfWritePort_address = LoadQueuePlugin_logic_loadQueue_completingHead_pdest;
       end
     end
@@ -21997,7 +21677,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_hw_prfWritePort_data = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     if(LoadQueuePlugin_logic_loadQueue_completionInfoReg_valid) begin
-      if(when_LoadQueuePlugin_l535) begin
+      if(when_LoadQueuePlugin_l533) begin
         LoadQueuePlugin_hw_prfWritePort_data = _zz_LoadQueuePlugin_hw_prfWritePort_data;
       end
     end
@@ -22006,7 +21686,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_hw_wakeupPort_valid = 1'b0;
     if(LoadQueuePlugin_logic_loadQueue_completionInfoReg_valid) begin
-      if(when_LoadQueuePlugin_l535) begin
+      if(when_LoadQueuePlugin_l533) begin
         LoadQueuePlugin_hw_wakeupPort_valid = 1'b1;
       end
     end
@@ -22015,7 +21695,7 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_hw_wakeupPort_payload_physRegIdx = 6'bxxxxxx;
     if(LoadQueuePlugin_logic_loadQueue_completionInfoReg_valid) begin
-      if(when_LoadQueuePlugin_l535) begin
+      if(when_LoadQueuePlugin_l533) begin
         LoadQueuePlugin_hw_wakeupPort_payload_physRegIdx = LoadQueuePlugin_logic_loadQueue_completingHead_pdest;
       end
     end
@@ -22043,27 +21723,28 @@ module CoreNSCSCC (
     endcase
   end
 
-  assign when_LoadQueuePlugin_l535 = (! LoadQueuePlugin_logic_loadQueue_completionInfoReg_hasFault);
-  assign _zz_when_LoadQueuePlugin_l565 = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[3];
-  assign _zz_when_LoadQueuePlugin_l565_1 = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[2 : 0];
-  assign _zz_when_LoadQueuePlugin_l565_2 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
-  assign _zz_when_LoadQueuePlugin_l565_3 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
-  assign when_LoadQueuePlugin_l565 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_0_valid) && (((_zz_when_LoadQueuePlugin_l565 == _zz_when_LoadQueuePlugin_l565_2) && (_zz_when_LoadQueuePlugin_l565_3 <= _zz_when_LoadQueuePlugin_l565_1)) || ((_zz_when_LoadQueuePlugin_l565 != _zz_when_LoadQueuePlugin_l565_2) && (_zz_when_LoadQueuePlugin_l565_1 < _zz_when_LoadQueuePlugin_l565_3))));
-  assign _zz_when_LoadQueuePlugin_l565_4 = LoadQueuePlugin_logic_loadQueue_slots_1_robPtr[3];
-  assign _zz_when_LoadQueuePlugin_l565_5 = LoadQueuePlugin_logic_loadQueue_slots_1_robPtr[2 : 0];
-  assign _zz_when_LoadQueuePlugin_l565_6 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
-  assign _zz_when_LoadQueuePlugin_l565_7 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
-  assign when_LoadQueuePlugin_l565_1 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_1_valid) && (((_zz_when_LoadQueuePlugin_l565_4 == _zz_when_LoadQueuePlugin_l565_6) && (_zz_when_LoadQueuePlugin_l565_7 <= _zz_when_LoadQueuePlugin_l565_5)) || ((_zz_when_LoadQueuePlugin_l565_4 != _zz_when_LoadQueuePlugin_l565_6) && (_zz_when_LoadQueuePlugin_l565_5 < _zz_when_LoadQueuePlugin_l565_7))));
-  assign _zz_when_LoadQueuePlugin_l565_8 = LoadQueuePlugin_logic_loadQueue_slots_2_robPtr[3];
-  assign _zz_when_LoadQueuePlugin_l565_9 = LoadQueuePlugin_logic_loadQueue_slots_2_robPtr[2 : 0];
-  assign _zz_when_LoadQueuePlugin_l565_10 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
-  assign _zz_when_LoadQueuePlugin_l565_11 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
-  assign when_LoadQueuePlugin_l565_2 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_2_valid) && (((_zz_when_LoadQueuePlugin_l565_8 == _zz_when_LoadQueuePlugin_l565_10) && (_zz_when_LoadQueuePlugin_l565_11 <= _zz_when_LoadQueuePlugin_l565_9)) || ((_zz_when_LoadQueuePlugin_l565_8 != _zz_when_LoadQueuePlugin_l565_10) && (_zz_when_LoadQueuePlugin_l565_9 < _zz_when_LoadQueuePlugin_l565_11))));
-  assign _zz_when_LoadQueuePlugin_l565_12 = LoadQueuePlugin_logic_loadQueue_slots_3_robPtr[3];
-  assign _zz_when_LoadQueuePlugin_l565_13 = LoadQueuePlugin_logic_loadQueue_slots_3_robPtr[2 : 0];
-  assign _zz_when_LoadQueuePlugin_l565_14 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
-  assign _zz_when_LoadQueuePlugin_l565_15 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
-  assign when_LoadQueuePlugin_l565_3 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_3_valid) && (((_zz_when_LoadQueuePlugin_l565_12 == _zz_when_LoadQueuePlugin_l565_14) && (_zz_when_LoadQueuePlugin_l565_15 <= _zz_when_LoadQueuePlugin_l565_13)) || ((_zz_when_LoadQueuePlugin_l565_12 != _zz_when_LoadQueuePlugin_l565_14) && (_zz_when_LoadQueuePlugin_l565_13 < _zz_when_LoadQueuePlugin_l565_15))));
+  assign when_LoadQueuePlugin_l533 = (! LoadQueuePlugin_logic_loadQueue_completionInfoReg_hasFault);
+  assign when_LoadQueuePlugin_l548 = (LoadQueuePlugin_logic_loadQueue_popRequest && (! LoadQueuePlugin_logic_loadQueue_flushInProgress));
+  assign _zz_when_LoadQueuePlugin_l563 = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[3];
+  assign _zz_when_LoadQueuePlugin_l563_1 = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[2 : 0];
+  assign _zz_when_LoadQueuePlugin_l563_2 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
+  assign _zz_when_LoadQueuePlugin_l563_3 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
+  assign when_LoadQueuePlugin_l563 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_0_valid) && (((_zz_when_LoadQueuePlugin_l563 == _zz_when_LoadQueuePlugin_l563_2) && (_zz_when_LoadQueuePlugin_l563_3 <= _zz_when_LoadQueuePlugin_l563_1)) || ((_zz_when_LoadQueuePlugin_l563 != _zz_when_LoadQueuePlugin_l563_2) && (_zz_when_LoadQueuePlugin_l563_1 < _zz_when_LoadQueuePlugin_l563_3))));
+  assign _zz_when_LoadQueuePlugin_l563_4 = LoadQueuePlugin_logic_loadQueue_slots_1_robPtr[3];
+  assign _zz_when_LoadQueuePlugin_l563_5 = LoadQueuePlugin_logic_loadQueue_slots_1_robPtr[2 : 0];
+  assign _zz_when_LoadQueuePlugin_l563_6 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
+  assign _zz_when_LoadQueuePlugin_l563_7 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
+  assign when_LoadQueuePlugin_l563_1 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_1_valid) && (((_zz_when_LoadQueuePlugin_l563_4 == _zz_when_LoadQueuePlugin_l563_6) && (_zz_when_LoadQueuePlugin_l563_7 <= _zz_when_LoadQueuePlugin_l563_5)) || ((_zz_when_LoadQueuePlugin_l563_4 != _zz_when_LoadQueuePlugin_l563_6) && (_zz_when_LoadQueuePlugin_l563_5 < _zz_when_LoadQueuePlugin_l563_7))));
+  assign _zz_when_LoadQueuePlugin_l563_8 = LoadQueuePlugin_logic_loadQueue_slots_2_robPtr[3];
+  assign _zz_when_LoadQueuePlugin_l563_9 = LoadQueuePlugin_logic_loadQueue_slots_2_robPtr[2 : 0];
+  assign _zz_when_LoadQueuePlugin_l563_10 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
+  assign _zz_when_LoadQueuePlugin_l563_11 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
+  assign when_LoadQueuePlugin_l563_2 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_2_valid) && (((_zz_when_LoadQueuePlugin_l563_8 == _zz_when_LoadQueuePlugin_l563_10) && (_zz_when_LoadQueuePlugin_l563_11 <= _zz_when_LoadQueuePlugin_l563_9)) || ((_zz_when_LoadQueuePlugin_l563_8 != _zz_when_LoadQueuePlugin_l563_10) && (_zz_when_LoadQueuePlugin_l563_9 < _zz_when_LoadQueuePlugin_l563_11))));
+  assign _zz_when_LoadQueuePlugin_l563_12 = LoadQueuePlugin_logic_loadQueue_slots_3_robPtr[3];
+  assign _zz_when_LoadQueuePlugin_l563_13 = LoadQueuePlugin_logic_loadQueue_slots_3_robPtr[2 : 0];
+  assign _zz_when_LoadQueuePlugin_l563_14 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
+  assign _zz_when_LoadQueuePlugin_l563_15 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
+  assign when_LoadQueuePlugin_l563_3 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_3_valid) && (((_zz_when_LoadQueuePlugin_l563_12 == _zz_when_LoadQueuePlugin_l563_14) && (_zz_when_LoadQueuePlugin_l563_15 <= _zz_when_LoadQueuePlugin_l563_13)) || ((_zz_when_LoadQueuePlugin_l563_12 != _zz_when_LoadQueuePlugin_l563_14) && (_zz_when_LoadQueuePlugin_l563_13 < _zz_when_LoadQueuePlugin_l563_15))));
   assign AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = ((AluIntEU_AluIntEuPlugin_gprReadPorts_0_address == 6'h0) ? 32'h0 : _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp);
   assign AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = ((AluIntEU_AluIntEuPlugin_gprReadPorts_1_address == 6'h0) ? 32'h0 : _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp);
   assign MulEU_MulEuPlugin_gprReadPorts_0_rsp = ((MulEU_MulEuPlugin_gprReadPorts_0_address == 6'h0) ? 32'h0 : _zz_MulEU_MulEuPlugin_gprReadPorts_0_rsp);
@@ -24591,805 +24272,67 @@ module CoreNSCSCC (
 
   assign BusyTablePlugin_logic_busyTableNext = ((BusyTablePlugin_early_setup_busyTableReg & (~ BusyTablePlugin_early_setup_clearMask)) | BusyTablePlugin_early_setup_setMask);
   assign BusyTablePlugin_combinationalBusyBits = BusyTablePlugin_logic_busyTableNext;
+  assign FetchPipelinePlugin_logic_pcGen_hardRedirect_valid = (|CommitPlugin_hw_redirectPort_valid);
+  assign FetchPipelinePlugin_logic_pcGen_hardRedirect_payload = CommitPlugin_hw_redirectPort_payload;
+  assign FetchPipelinePlugin_logic_pcGen_redirectValid = (FetchPipelinePlugin_logic_pcGen_hardRedirect_valid || FetchPipelinePlugin_logic_dispatcher_io_softRedirect_valid);
+  assign FetchPipelinePlugin_logic_pcGen_redirectPc = (FetchPipelinePlugin_logic_pcGen_hardRedirect_valid ? FetchPipelinePlugin_logic_pcGen_hardRedirect_payload : FetchPipelinePlugin_logic_dispatcher_io_softRedirect_payload);
+  assign _zz_FetchPipelinePlugin_logic_pcGen_fetchPcReg = ((FetchPipelinePlugin_logic_pcGen_fetchPcReg & (~ 32'h0000000f)) + 32'h00000010);
+  assign io_newRequest_fire = (FetchPipelinePlugin_logic_sequencer_io_newRequest_valid && FetchPipelinePlugin_logic_sequencer_io_newRequest_ready);
+  assign FetchPipelinePlugin_logic_pcGen_fetchDisabled = 1'b0;
+  assign FetchPipelinePlugin_logic_sequencer_io_newRequest_valid = ((! FetchPipelinePlugin_logic_pcGen_redirectValid) && (! FetchPipelinePlugin_logic_pcGen_fetchDisabled));
+  assign FetchPipelinePlugin_logic_sequencer_io_newRequest_payload_pc = (FetchPipelinePlugin_logic_pcGen_fetchPcReg & (~ 32'h0000000f));
+  assign when_FetchPipelinePlugin2_l130 = (! FetchPipelinePlugin_logic_sequencer_io_newRequest_ready);
+  assign _zz_70 = (FetchPipelinePlugin_logic_pcGen_fetchPcReg & (~ 32'h0000000f));
+  assign ICachePlugin_port_cmd_valid = FetchPipelinePlugin_logic_sequencer_io_iCacheCmd_valid;
+  assign ICachePlugin_port_cmd_payload_address = FetchPipelinePlugin_logic_sequencer_io_iCacheCmd_payload_address;
+  assign ICachePlugin_port_cmd_payload_transactionId = FetchPipelinePlugin_logic_sequencer_io_iCacheCmd_payload_transactionId;
   assign ICachePlugin_invalidate = 1'b0;
-  always @(*) begin
-    FetchPipelinePlugin_logic_retryIdCounter_willIncrement = 1'b0;
-    if(FetchPipelinePlugin_logic_s4_logic_backpressureRedo) begin
-      if(when_FetchPipelinePlugin2_l466) begin
-        FetchPipelinePlugin_logic_retryIdCounter_willIncrement = 1'b1;
-      end
-    end
-    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-      if(ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l482) begin
-          FetchPipelinePlugin_logic_retryIdCounter_willIncrement = 1'b1;
-        end
-      end
-    end
-  end
-
-  assign FetchPipelinePlugin_logic_retryIdCounter_willClear = 1'b0;
-  assign FetchPipelinePlugin_logic_retryIdCounter_willOverflowIfInc = (FetchPipelinePlugin_logic_retryIdCounter_value == 2'b11);
-  assign FetchPipelinePlugin_logic_retryIdCounter_willOverflow = (FetchPipelinePlugin_logic_retryIdCounter_willOverflowIfInc && FetchPipelinePlugin_logic_retryIdCounter_willIncrement);
-  always @(*) begin
-    if(FetchPipelinePlugin_logic_retryIdCounter_willOverflow) begin
-      FetchPipelinePlugin_logic_retryIdCounter_valueNext = 2'b01;
-    end else begin
-      FetchPipelinePlugin_logic_retryIdCounter_valueNext = (FetchPipelinePlugin_logic_retryIdCounter_value + _zz_FetchPipelinePlugin_logic_retryIdCounter_valueNext);
-    end
-    if(FetchPipelinePlugin_logic_retryIdCounter_willClear) begin
-      FetchPipelinePlugin_logic_retryIdCounter_valueNext = 2'b01;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_doRetryFlush = 1'b0;
-    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-      if(ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l482) begin
-          FetchPipelinePlugin_logic_doRetryFlush = 1'b1;
-        end
-      end
-    end
-  end
-
-  assign s1_PC_Gen_isFiring = (s1_PC_Gen_valid && s1_PC_Gen_ready);
-  assign s2_ICache_Access_isFiring = (s2_ICache_Access_valid && s2_ICache_Access_ready);
-  assign s3_ICache_Wait_isFiring = (s3_ICache_Wait_valid && s3_ICache_Wait_ready);
-  assign s4_Predecode_isFiring = (s4_Predecode_valid && s4_Predecode_ready);
-  assign s5_Target_Calc_isFiring = (s5_Target_Calc_valid && s5_Target_Calc_ready);
-  assign FetchPipelinePlugin_logic_fetchDisabled = 1'b0;
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_valid = 1'b0;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_valid = (! s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_FAULT);
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_pc = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_pc = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PC;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_firstPc = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_firstPc = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_instructions_0 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_instructions_0 = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_0;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_instructions_1 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_instructions_1 = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_1;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_instructions_2 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_instructions_2 = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_2;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_instructions_3 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_instructions_3 = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_3;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_isBranch = 1'bx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_isBranch = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isBranch;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_isJump = 1'bx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_isJump = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isJump;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_isDirectJump = 1'bx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_isDirectJump = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isDirectJump;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_jumpOffset = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_jumpOffset = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_jumpOffset;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_isIdle = 1'bx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_0_isIdle = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isIdle;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_isBranch = 1'bx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_isBranch = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isBranch;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_isJump = 1'bx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_isJump = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isJump;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_isDirectJump = 1'bx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_isDirectJump = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isDirectJump;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_jumpOffset = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_jumpOffset = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_jumpOffset;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_isIdle = 1'bx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_1_isIdle = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isIdle;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_isBranch = 1'bx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_isBranch = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isBranch;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_isJump = 1'bx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_isJump = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isJump;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_isDirectJump = 1'bx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_isDirectJump = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isDirectJump;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_jumpOffset = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_jumpOffset = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_jumpOffset;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_isIdle = 1'bx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_2_isIdle = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isIdle;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_isBranch = 1'bx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_isBranch = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isBranch;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_isJump = 1'bx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_isJump = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isJump;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_isDirectJump = 1'bx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_isDirectJump = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isDirectJump;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_jumpOffset = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_jumpOffset = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_jumpOffset;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_isIdle = 1'bx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_predecodeInfos_3_isIdle = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isIdle;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_branchMask = 4'bxxxx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_branchMask = {s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isBranch,{s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isBranch,{s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isBranch,s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isBranch}}};
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_fault = 1'bx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_fault = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_FAULT;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_numValidInstructions = 3'bxxx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_numValidInstructions = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_NUM_VALID_INSTRS;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_startInstructionIndex = 2'bxx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_startInstructionIndex = s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_START_INSTR_INDEX;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_potentialJumpTargets_0 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_potentialJumpTargets_0 = _zz_io_push_payload_potentialJumpTargets_0;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_potentialJumpTargets_1 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_potentialJumpTargets_1 = _zz_io_push_payload_potentialJumpTargets_1;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_potentialJumpTargets_2 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_potentialJumpTargets_2 = _zz_io_push_payload_potentialJumpTargets_2;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_potentialJumpTargets_3 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-    if(s5_Target_Calc_isFiring) begin
-      FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_potentialJumpTargets_3 = _zz_io_push_payload_potentialJumpTargets_3;
-    end
-  end
-
-  assign FetchPipelinePlugin_logic_hardRedirect_valid = (|CommitPlugin_hw_redirectPort_valid);
-  assign FetchPipelinePlugin_logic_hardRedirect_payload = CommitPlugin_hw_redirectPort_payload;
-  assign FetchPipelinePlugin_doHardRedirect_listening = FetchPipelinePlugin_logic_hardRedirect_valid;
-  assign FetchPipelinePlugin_doSoftRedirect_listening = FetchPipelinePlugin_logic_dispatcher_io_softRedirect_valid;
-  assign FetchPipelinePlugin_logic_doAnyFlush = (FetchPipelinePlugin_logic_dispatcher_io_softRedirect_valid || FetchPipelinePlugin_logic_hardRedirect_valid);
-  assign FetchPipelinePlugin_setup_fetchOutput_io_push_valid = (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_valid && (! FetchPipelinePlugin_logic_hardRedirect_valid));
-  assign io_pop_fire = (FetchPipelinePlugin_setup_fetchOutput_io_pop_valid && FetchPipelinePlugin_setup_fetchOutput_io_pop_ready);
-  always @(*) begin
-    FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_incrementIt = 1'b0;
-    if(ICachePlugin_port_cmd_valid) begin
-      FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_incrementIt = 1'b1;
-    end
-  end
-
-  always @(*) begin
-    FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_decrementIt = 1'b0;
-    if(ICachePlugin_port_rsp_valid) begin
-      FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_decrementIt = 1'b1;
-    end
-  end
-
-  assign FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_mayOverflow = (FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_value == 3'b111);
-  assign FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_mayUnderflow = (FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_value == 3'b000);
-  assign FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_willOverflowIfInc = (FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_mayOverflow && (! FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_decrementIt));
-  assign FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_willOverflow = (FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_willOverflowIfInc && FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_incrementIt);
-  assign FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_willUnderflowIfDec = (FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_mayUnderflow && (! FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_incrementIt));
-  assign FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_willUnderflow = (FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_willUnderflowIfDec && FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_decrementIt);
-  assign when_Utils_l767 = (FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_incrementIt && (! FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_decrementIt));
-  always @(*) begin
-    if(when_Utils_l767) begin
-      FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_finalIncrement = 3'b001;
-    end else begin
-      if(when_Utils_l769) begin
-        FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_finalIncrement = 3'b111;
-      end else begin
-        FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_finalIncrement = 3'b000;
-      end
-    end
-  end
-
-  assign when_Utils_l769 = ((! FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_incrementIt) && FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_decrementIt);
-  assign FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_valueNext = (FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_value + FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_finalIncrement);
-  assign when_FetchPipelinePlugin2_l325 = (FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_value == 3'b000);
-  assign FetchPipelinePlugin_logic_s1_logic_needRedo = ((((FetchPipelinePlugin_logic_retryCmd_lock && (FetchPipelinePlugin_logic_retryCmd_id != FetchPipelinePlugin_logic_s1_logic_lastRetryIdReg)) && (! FetchPipelinePlugin_logic_doAnyFlush)) && (! FetchPipelinePlugin_logic_isDrainingCacheRspReg)) && (! FetchPipelinePlugin_logic_fetchDisabled));
-  assign FetchPipelinePlugin_logic_s1_logic_rawPcToUse = (FetchPipelinePlugin_logic_hardRedirect_valid ? FetchPipelinePlugin_logic_hardRedirect_payload : (FetchPipelinePlugin_logic_s1_logic_needRedo ? FetchPipelinePlugin_logic_retryCmd_pc : FetchPipelinePlugin_logic_s1_logic_fetchPcReg));
-  assign s1_PC_Gen_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC = FetchPipelinePlugin_logic_s1_logic_rawPcToUse;
-  assign s1_PC_Gen_FetchPipelinePlugin_logic_FetchPipeline_PC = {FetchPipelinePlugin_logic_s1_logic_rawPcToUse[31 : 4],4'b0000};
-  assign FetchPipelinePlugin_logic_s1_logic_nextLinePc = (FetchPipelinePlugin_logic_s1_logic_fetchPcReg + 32'h00000010);
-  assign _zz_FetchPipelinePlugin_logic_s1_logic_fetchPcReg = ({FetchPipelinePlugin_logic_retryCmd_pc[31 : 4],4'b0000} + 32'h00000010);
-  assign when_FetchPipelinePlugin2_l384 = ((s1_PC_Gen_isFiring && (! FetchPipelinePlugin_logic_retryCmd_lock)) && (! FetchPipelinePlugin_logic_doAnyFlush));
-  assign when_FetchPipelinePlugin2_l389 = (s1_PC_Gen_isFiring && FetchPipelinePlugin_logic_s1_logic_needRedo);
-  assign s1_PC_Gen_valid = 1'b1;
-  assign when_FetchPipelinePlugin2_l399 = ((FetchPipelinePlugin_logic_isDrainingCacheRspReg || FetchPipelinePlugin_logic_fetchDisabled) || (FetchPipelinePlugin_logic_retryCmd_lock && (FetchPipelinePlugin_logic_retryCmd_id == FetchPipelinePlugin_logic_s1_logic_lastRetryIdReg)));
-  assign s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l400 = _zz_s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l400;
-  assign ICachePlugin_port_cmd_valid = ((s2_ICache_Access_isFiring && (! FetchPipelinePlugin_logic_isDrainingCacheRspReg)) && (! FetchPipelinePlugin_logic_doAnyFlush));
-  assign FetchPipelinePlugin_logic_s2_logic_cmdPayload_address = s2_ICache_Access_FetchPipelinePlugin_logic_FetchPipeline_PC;
-  assign FetchPipelinePlugin_logic_s2_logic_cmdPayload_transactionId = _zz_FetchPipelinePlugin_logic_s2_logic_cmdPayload_transactionId[7:0];
-  assign ICachePlugin_port_cmd_payload_address = FetchPipelinePlugin_logic_s2_logic_cmdPayload_address;
-  assign ICachePlugin_port_cmd_payload_transactionId = FetchPipelinePlugin_logic_s2_logic_cmdPayload_transactionId;
-  always @(*) begin
-    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_transactionId = 8'h0;
-    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-      if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l505) begin
-          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_transactionId = ICachePlugin_port_rsp_payload_transactionId;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_0 = 32'h0;
-    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-      if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l505) begin
-          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_0 = ICachePlugin_port_rsp_payload_instructions_0;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_1 = 32'h0;
-    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-      if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l505) begin
-          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_1 = ICachePlugin_port_rsp_payload_instructions_1;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_2 = 32'h0;
-    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-      if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l505) begin
-          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_2 = ICachePlugin_port_rsp_payload_instructions_2;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_3 = 32'h0;
-    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-      if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l505) begin
-          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_3 = ICachePlugin_port_rsp_payload_instructions_3;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_wasHit = 1'b0;
-    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-      if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l505) begin
-          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_wasHit = ICachePlugin_port_rsp_payload_wasHit;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_redo = 1'b0;
-    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-      if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l505) begin
-          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_redo = ICachePlugin_port_rsp_payload_redo;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isBranch = 1'b0;
-    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-      if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l505) begin
-          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isBranch = instructionPredecoder_4_io_predecodeInfo_isBranch;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isJump = 1'b0;
-    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-      if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l505) begin
-          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isJump = instructionPredecoder_4_io_predecodeInfo_isJump;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isDirectJump = 1'b0;
-    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-      if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l505) begin
-          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isDirectJump = instructionPredecoder_4_io_predecodeInfo_isDirectJump;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_jumpOffset = 32'h0;
-    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-      if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l505) begin
-          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_jumpOffset = instructionPredecoder_4_io_predecodeInfo_jumpOffset;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isIdle = 1'b0;
-    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-      if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l505) begin
-          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isIdle = instructionPredecoder_4_io_predecodeInfo_isIdle;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isBranch = 1'b0;
-    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-      if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l505) begin
-          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isBranch = instructionPredecoder_5_io_predecodeInfo_isBranch;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isJump = 1'b0;
-    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-      if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l505) begin
-          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isJump = instructionPredecoder_5_io_predecodeInfo_isJump;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isDirectJump = 1'b0;
-    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-      if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l505) begin
-          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isDirectJump = instructionPredecoder_5_io_predecodeInfo_isDirectJump;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_jumpOffset = 32'h0;
-    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-      if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l505) begin
-          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_jumpOffset = instructionPredecoder_5_io_predecodeInfo_jumpOffset;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isIdle = 1'b0;
-    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-      if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l505) begin
-          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isIdle = instructionPredecoder_5_io_predecodeInfo_isIdle;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isBranch = 1'b0;
-    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-      if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l505) begin
-          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isBranch = instructionPredecoder_6_io_predecodeInfo_isBranch;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isJump = 1'b0;
-    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-      if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l505) begin
-          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isJump = instructionPredecoder_6_io_predecodeInfo_isJump;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isDirectJump = 1'b0;
-    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-      if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l505) begin
-          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isDirectJump = instructionPredecoder_6_io_predecodeInfo_isDirectJump;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_jumpOffset = 32'h0;
-    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-      if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l505) begin
-          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_jumpOffset = instructionPredecoder_6_io_predecodeInfo_jumpOffset;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isIdle = 1'b0;
-    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-      if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l505) begin
-          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isIdle = instructionPredecoder_6_io_predecodeInfo_isIdle;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isBranch = 1'b0;
-    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-      if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l505) begin
-          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isBranch = instructionPredecoder_7_io_predecodeInfo_isBranch;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isJump = 1'b0;
-    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-      if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l505) begin
-          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isJump = instructionPredecoder_7_io_predecodeInfo_isJump;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isDirectJump = 1'b0;
-    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-      if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l505) begin
-          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isDirectJump = instructionPredecoder_7_io_predecodeInfo_isDirectJump;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_jumpOffset = 32'h0;
-    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-      if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l505) begin
-          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_jumpOffset = instructionPredecoder_7_io_predecodeInfo_jumpOffset;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isIdle = 1'b0;
-    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-      if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l505) begin
-          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isIdle = instructionPredecoder_7_io_predecodeInfo_isIdle;
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_START_INSTR_INDEX = 2'b00;
-    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-      if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l505) begin
-          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_START_INSTR_INDEX = (_zz_s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_START_INSTR_INDEX[3 : 0] >>> 2'd2);
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_NUM_VALID_INSTRS = 3'b000;
-    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-      if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l505) begin
-          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_NUM_VALID_INSTRS = (3'b100 - _zz_s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_NUM_VALID_INSTRS);
-        end
-      end
-    end
-  end
-
-  always @(*) begin
-    s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_FAULT = 1'b1;
-    if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-      if(!ICachePlugin_port_rsp_payload_redo) begin
-        if(when_FetchPipelinePlugin2_l505) begin
-          s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_FAULT = (! ICachePlugin_port_rsp_payload_wasHit);
-        end
-      end
-    end
-  end
-
-  assign FetchPipelinePlugin_logic_s4_logic_handleRsp = (((s4_Predecode_valid && ICachePlugin_port_rsp_valid) && (! FetchPipelinePlugin_logic_isDrainingCacheRspReg)) && (! FetchPipelinePlugin_logic_doAnyFlush));
-  assign FetchPipelinePlugin_logic_s4_logic_hasHigherPriorityStuff = (FetchPipelinePlugin_logic_doAnyFlush || FetchPipelinePlugin_logic_isDrainingCacheRspReg);
-  assign FetchPipelinePlugin_logic_s4_logic_backpressureRedo = (((((((! s4_Predecode_isFiring) && ICachePlugin_port_rsp_valid) && ICachePlugin_port_rsp_payload_wasHit) && (! FetchPipelinePlugin_logic_isDrainingCacheRspReg)) && (! FetchPipelinePlugin_logic_fetchGroupsOut_io_push_ready)) && (! FetchPipelinePlugin_logic_s4_logic_hasHigherPriorityStuff)) && (! FetchPipelinePlugin_logic_retryCmd_lock));
-  assign when_FetchPipelinePlugin2_l466 = (! FetchPipelinePlugin_logic_retryCmd_lock);
-  assign _zz_72 = (s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC >>> 3'd4);
-  assign when_FetchPipelinePlugin2_l482 = (((! FetchPipelinePlugin_logic_retryCmd_lock) || (FetchPipelinePlugin_logic_retryCmd_lock && ({s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC[31 : 4],4'b0000} == {FetchPipelinePlugin_logic_retryCmd_pc[31 : 4],4'b0000}))) && (! FetchPipelinePlugin_logic_s4_logic_hasHigherPriorityStuff));
-  assign when_FetchPipelinePlugin2_l491 = (FetchPipelinePlugin_logic_retryCmd_lock && ({s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC[31 : 4],4'b0000} != {FetchPipelinePlugin_logic_retryCmd_pc[31 : 4],4'b0000}));
-  assign when_FetchPipelinePlugin2_l500 = (FetchPipelinePlugin_logic_retryCmd_lock && ({s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC[31 : 4],4'b0000} == {FetchPipelinePlugin_logic_retryCmd_pc[31 : 4],4'b0000}));
-  assign when_FetchPipelinePlugin2_l505 = ((! FetchPipelinePlugin_logic_retryCmd_lock) || ({s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC[31 : 4],4'b0000} == {FetchPipelinePlugin_logic_retryCmd_pc[31 : 4],4'b0000}));
-  assign _zz_s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_START_INSTR_INDEX = (s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC - s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC);
-  assign io_push_fire = (FetchPipelinePlugin_logic_fetchGroupsOut_io_push_valid && FetchPipelinePlugin_logic_fetchGroupsOut_io_push_ready);
-  assign io_fetchOutput_fire = (FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_valid && FetchPipelinePlugin_setup_fetchOutput_io_push_ready);
-  assign s5_Target_Calc_haltRequest_FetchPipelinePlugin2_l591 = (! FetchPipelinePlugin_logic_fetchGroupsOut_io_push_ready);
-  assign FetchPipelinePlugin_logic_fetchGroupsOut_io_flush = (FetchPipelinePlugin_logic_doAnyFlush || FetchPipelinePlugin_logic_isDrainingCacheRspReg);
-  assign FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_ready = (FetchPipelinePlugin_logic_dispatcher_io_fetchGroupIn_ready && (! FetchPipelinePlugin_logic_doAnyFlush));
   assign BpuPipelinePlugin_queryPortIn_valid = FetchPipelinePlugin_logic_dispatcher_io_bpuQuery_valid;
   assign BpuPipelinePlugin_queryPortIn_payload_pc = FetchPipelinePlugin_logic_dispatcher_io_bpuQuery_payload_pc;
   assign BpuPipelinePlugin_queryPortIn_payload_transactionId = FetchPipelinePlugin_logic_dispatcher_io_bpuQuery_payload_transactionId;
-  assign io_fetchGroupIn_fire = (FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_valid && FetchPipelinePlugin_logic_dispatcher_io_fetchGroupIn_ready);
-  assign _zz_s2_ICache_Access_isFlushingRoot = (FetchPipelinePlugin_logic_hardRedirect_valid || FetchPipelinePlugin_logic_doRetryFlush);
-  assign _zz_s3_ICache_Wait_isFlushingRoot = (FetchPipelinePlugin_logic_hardRedirect_valid || FetchPipelinePlugin_logic_doRetryFlush);
-  assign s3_ICache_Wait_isFlushed = _zz_s3_ICache_Wait_isFlushingRoot;
-  assign s5_Target_Calc_isFlushed = FetchPipelinePlugin_logic_hardRedirect_valid;
-  assign when_Connection_l66_13 = (|{FetchPipelinePlugin_logic_hardRedirect_valid,FetchPipelinePlugin_logic_hardRedirect_valid});
-  assign s4_Predecode_isFlushed = when_Connection_l66_13;
-  assign when_Connection_l66_14 = (|{when_Connection_l66_13,_zz_s2_ICache_Access_isFlushingRoot});
-  assign s2_ICache_Access_isFlushed = when_Connection_l66_14;
-  assign s1_PC_Gen_isFlushed = (|{when_Connection_l66_14,FetchPipelinePlugin_logic_hardRedirect_valid});
-  assign s1_PC_Gen_isFlushingRoot = (|FetchPipelinePlugin_logic_hardRedirect_valid);
-  assign s2_ICache_Access_isFlushingRoot = (|_zz_s2_ICache_Access_isFlushingRoot);
-  assign s3_ICache_Wait_isFlushingRoot = (|_zz_s3_ICache_Wait_isFlushingRoot);
-  assign s4_Predecode_isFlushingRoot = (|FetchPipelinePlugin_logic_hardRedirect_valid);
-  assign s5_Target_Calc_isFlushingRoot = (|FetchPipelinePlugin_logic_hardRedirect_valid);
+  assign FetchPipelinePlugin_logic_sequencer_io_flush = (FetchPipelinePlugin_logic_pcGen_hardRedirect_valid || FetchPipelinePlugin_logic_dispatcher_io_softRedirect_valid);
   always @(*) begin
-    _zz_s2_ICache_Access_valid = s1_PC_Gen_valid;
-    if(s1_PC_Gen_isFlushingRoot) begin
-      _zz_s2_ICache_Access_valid = 1'b0;
-    end
-    if(when_Pipeline_l282_2) begin
-      _zz_s2_ICache_Access_valid = 1'b0;
+    io_pop_throwWhen_valid = FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_valid;
+    if(FetchPipelinePlugin_logic_pcGen_hardRedirect_valid) begin
+      io_pop_throwWhen_valid = 1'b0;
     end
   end
 
   always @(*) begin
-    s1_PC_Gen_ready = s1_PC_Gen_ready_output;
-    if(when_Pipeline_l282_2) begin
-      s1_PC_Gen_ready = 1'b0;
+    FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_ready = io_pop_throwWhen_ready;
+    if(FetchPipelinePlugin_logic_pcGen_hardRedirect_valid) begin
+      FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_ready = 1'b1;
     end
   end
 
-  assign when_Pipeline_l282_2 = (|s1_PC_Gen_haltRequest_FetchPipelinePlugin2_l400);
-  always @(*) begin
-    _zz_s4_Predecode_valid = s2_ICache_Access_valid;
-    if(s2_ICache_Access_isFlushingRoot) begin
-      _zz_s4_Predecode_valid = 1'b0;
-    end
-  end
-
-  assign s2_ICache_Access_ready = s2_ICache_Access_ready_output;
-  always @(*) begin
-    _zz_70 = s3_ICache_Wait_valid;
-    if(s3_ICache_Wait_isFlushingRoot) begin
-      _zz_70 = 1'b0;
-    end
-  end
-
-  assign s3_ICache_Wait_ready = 1'b1;
-  always @(*) begin
-    _zz_s5_Target_Calc_valid = s4_Predecode_valid;
-    if(s4_Predecode_isFlushingRoot) begin
-      _zz_s5_Target_Calc_valid = 1'b0;
-    end
-  end
-
-  assign s4_Predecode_ready = s4_Predecode_ready_output;
-  always @(*) begin
-    _zz_71 = s5_Target_Calc_valid;
-    if(s5_Target_Calc_isFlushingRoot) begin
-      _zz_71 = 1'b0;
-    end
-    if(when_Pipeline_l282_3) begin
-      _zz_71 = 1'b0;
-    end
-  end
-
-  always @(*) begin
-    s5_Target_Calc_ready = 1'b1;
-    if(when_Pipeline_l282_3) begin
-      s5_Target_Calc_ready = 1'b0;
-    end
-  end
-
-  assign when_Pipeline_l282_3 = (|s5_Target_Calc_haltRequest_FetchPipelinePlugin2_l591);
-  always @(*) begin
-    s1_PC_Gen_ready_output = s2_ICache_Access_ready;
-    if(when_Connection_l74_3) begin
-      s1_PC_Gen_ready_output = 1'b1;
-    end
-  end
-
-  assign when_Connection_l74_3 = (! s2_ICache_Access_valid);
-  always @(*) begin
-    s2_ICache_Access_ready_output = s4_Predecode_ready;
-    if(when_Connection_l74_4) begin
-      s2_ICache_Access_ready_output = 1'b1;
-    end
-  end
-
-  assign when_Connection_l74_4 = (! s4_Predecode_valid);
-  always @(*) begin
-    s4_Predecode_ready_output = s5_Target_Calc_ready;
-    if(when_Connection_l74_5) begin
-      s4_Predecode_ready_output = 1'b1;
-    end
-  end
-
-  assign when_Connection_l74_5 = (! s5_Target_Calc_valid);
+  assign io_pop_throwWhen_payload_pc = FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_payload_pc;
+  assign io_pop_throwWhen_payload_instruction = FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_payload_instruction;
+  assign io_pop_throwWhen_payload_predecode_isBranch = FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_payload_predecode_isBranch;
+  assign io_pop_throwWhen_payload_predecode_isJump = FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_payload_predecode_isJump;
+  assign io_pop_throwWhen_payload_predecode_isDirectJump = FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_payload_predecode_isDirectJump;
+  assign io_pop_throwWhen_payload_predecode_jumpOffset = FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_payload_predecode_jumpOffset;
+  assign io_pop_throwWhen_payload_predecode_isIdle = FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_payload_predecode_isIdle;
+  assign io_pop_throwWhen_payload_bpuPrediction_isTaken = FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_payload_bpuPrediction_isTaken;
+  assign io_pop_throwWhen_payload_bpuPrediction_target = FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_payload_bpuPrediction_target;
+  assign io_pop_throwWhen_payload_bpuPrediction_wasPredicted = FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_payload_bpuPrediction_wasPredicted;
+  assign FetchPipelinePlugin_setup_relayedFetchOutput_valid = io_pop_throwWhen_valid;
+  assign io_pop_throwWhen_ready = FetchPipelinePlugin_setup_relayedFetchOutput_ready;
+  assign FetchPipelinePlugin_setup_relayedFetchOutput_payload_pc = io_pop_throwWhen_payload_pc;
+  assign FetchPipelinePlugin_setup_relayedFetchOutput_payload_instruction = io_pop_throwWhen_payload_instruction;
+  assign FetchPipelinePlugin_setup_relayedFetchOutput_payload_predecode_isBranch = io_pop_throwWhen_payload_predecode_isBranch;
+  assign FetchPipelinePlugin_setup_relayedFetchOutput_payload_predecode_isJump = io_pop_throwWhen_payload_predecode_isJump;
+  assign FetchPipelinePlugin_setup_relayedFetchOutput_payload_predecode_isDirectJump = io_pop_throwWhen_payload_predecode_isDirectJump;
+  assign FetchPipelinePlugin_setup_relayedFetchOutput_payload_predecode_jumpOffset = io_pop_throwWhen_payload_predecode_jumpOffset;
+  assign FetchPipelinePlugin_setup_relayedFetchOutput_payload_predecode_isIdle = io_pop_throwWhen_payload_predecode_isIdle;
+  assign FetchPipelinePlugin_setup_relayedFetchOutput_payload_bpuPrediction_isTaken = io_pop_throwWhen_payload_bpuPrediction_isTaken;
+  assign FetchPipelinePlugin_setup_relayedFetchOutput_payload_bpuPrediction_target = io_pop_throwWhen_payload_bpuPrediction_target;
+  assign FetchPipelinePlugin_setup_relayedFetchOutput_payload_bpuPrediction_wasPredicted = io_pop_throwWhen_payload_bpuPrediction_wasPredicted;
+  assign io_pop_fire = (FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_valid && FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_ready);
+  assign when_FetchPipelinePlugin2_l183 = (io_pop_fire && FetchPipelinePlugin_logic_pcGen_hardRedirect_valid);
+  assign FetchPipelinePlugin_setup_relayedFetchOutput_fire = (FetchPipelinePlugin_setup_relayedFetchOutput_valid && FetchPipelinePlugin_setup_relayedFetchOutput_ready);
+  assign when_FetchPipelinePlugin2_l203 = (! FetchPipelinePlugin_logic_sequencer_io_newRequest_ready);
+  assign FetchPipelinePlugin_doHardRedirect_listening = FetchPipelinePlugin_logic_pcGen_hardRedirect_valid;
+  assign FetchPipelinePlugin_doSoftRedirect_listening = FetchPipelinePlugin_logic_dispatcher_io_softRedirect_valid;
   assign ROBPlugin_aggregatedFlushSignal_valid = CommitPlugin_hw_robFlushPort_valid;
   always @(*) begin
     _zz_ROBPlugin_aggregatedFlushSignal_payload_reason = (2'bxx);
@@ -25818,7 +24761,7 @@ module CoreNSCSCC (
   always @(*) begin
     ICachePlugin_logic_tag_write_logic_writeData_lru = 1'bx;
     if(ICachePlugin_logic_pipeline_f2_f2_can_update_lru) begin
-      ICachePlugin_logic_tag_write_logic_writeData_lru = (! ICachePlugin_logic_pipeline_f2_hitWayIdx[0]);
+      ICachePlugin_logic_tag_write_logic_writeData_lru = _zz_ICachePlugin_logic_tag_write_logic_writeData_lru;
     end
     (* parallel_case *)
     case(1) // synthesis parallel_case
@@ -25829,7 +24772,7 @@ module CoreNSCSCC (
       (ICachePlugin_logic_refill_fsm_stateReg[ICachePlugin_logic_refill_fsm_RECEIVE_DATA_OH_ID]) : begin
       end
       (ICachePlugin_logic_refill_fsm_stateReg[ICachePlugin_logic_refill_fsm_COMMIT_OH_ID]) : begin
-        ICachePlugin_logic_tag_write_logic_writeData_lru = (! ICachePlugin_logic_refill_victimWayReg[0]);
+        ICachePlugin_logic_tag_write_logic_writeData_lru = _zz_ICachePlugin_logic_tag_write_logic_writeData_lru_1;
       end
       default : begin
       end
@@ -25864,6 +24807,13 @@ module CoreNSCSCC (
   assign ICache_F1_Access_ICachePlugin_logic_pipeline_F2_FORWARDED_META_ways_0_tag = ICachePlugin_logic_tag_write_logic_writeData_ways_0_tag;
   assign ICache_F1_Access_ICachePlugin_logic_pipeline_F2_FORWARDED_META_ways_1_tag = ICachePlugin_logic_tag_write_logic_writeData_ways_1_tag;
   assign ICache_F1_Access_ICachePlugin_logic_pipeline_F2_FORWARDED_META_lru = ICachePlugin_logic_tag_write_logic_writeData_lru;
+  assign ICachePlugin_logic_pipeline_f1_dataForwardingIsRequired = (ICachePlugin_logic_pipeline_f1_writeReadHazard && ICachePlugin_logic_tag_write_logic_fsmIsCommitting);
+  assign ICache_F1_Access_ICachePlugin_logic_pipeline_F2_USE_FORWARDED_DATA = ICachePlugin_logic_pipeline_f1_dataForwardingIsRequired;
+  assign ICache_F1_Access_ICachePlugin_logic_pipeline_F2_FORWARDED_DATA_0 = ICachePlugin_logic_storage_lineBuffer_0;
+  assign ICache_F1_Access_ICachePlugin_logic_pipeline_F2_FORWARDED_DATA_1 = ICachePlugin_logic_storage_lineBuffer_1;
+  assign ICache_F1_Access_ICachePlugin_logic_pipeline_F2_FORWARDED_DATA_2 = ICachePlugin_logic_storage_lineBuffer_2;
+  assign ICache_F1_Access_ICachePlugin_logic_pipeline_F2_FORWARDED_DATA_3 = ICachePlugin_logic_storage_lineBuffer_3;
+  assign ICache_F1_Access_ICachePlugin_logic_pipeline_F2_VICTIM_WAY_ON_HAZARD = ICachePlugin_logic_storage_victimWayReg;
   assign ICachePlugin_logic_pipeline_f2_f2_index = ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F1_CMD_address[10 : 4];
   assign ICachePlugin_logic_pipeline_f2_f2_tag = ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F1_CMD_address[31 : 11];
   assign ICachePlugin_logic_pipeline_f2_f2_metaLine_ways_0_tag = (ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F2_USE_FORWARDED_META ? ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F2_FORWARDED_META_ways_0_tag : ICachePlugin_logic_pipeline_f1_metaReadData_ways_0_tag);
@@ -25872,14 +24822,22 @@ module CoreNSCSCC (
   assign ICachePlugin_logic_pipeline_f2_hit_ways_0 = (ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F1_VALID_MASK_0 && (ICachePlugin_logic_pipeline_f2_f2_metaLine_ways_0_tag == ICachePlugin_logic_pipeline_f2_f2_tag));
   assign ICachePlugin_logic_pipeline_f2_hit_ways_1 = (ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F1_VALID_MASK_1 && (ICachePlugin_logic_pipeline_f2_f2_metaLine_ways_1_tag == ICachePlugin_logic_pipeline_f2_f2_tag));
   assign ICachePlugin_logic_pipeline_f2_isHit = (|{ICachePlugin_logic_pipeline_f2_hit_ways_1,ICachePlugin_logic_pipeline_f2_hit_ways_0});
-  assign ICachePlugin_logic_pipeline_f2_hitWayData_0 = (ICachePlugin_logic_pipeline_f2_hit_ways_0 ? ICachePlugin_logic_pipeline_f1_dataReadData_0_0 : ICachePlugin_logic_pipeline_f1_dataReadData_1_0);
-  assign ICachePlugin_logic_pipeline_f2_hitWayData_1 = (ICachePlugin_logic_pipeline_f2_hit_ways_0 ? ICachePlugin_logic_pipeline_f1_dataReadData_0_1 : ICachePlugin_logic_pipeline_f1_dataReadData_1_1);
-  assign ICachePlugin_logic_pipeline_f2_hitWayData_2 = (ICachePlugin_logic_pipeline_f2_hit_ways_0 ? ICachePlugin_logic_pipeline_f1_dataReadData_0_2 : ICachePlugin_logic_pipeline_f1_dataReadData_1_2);
-  assign ICachePlugin_logic_pipeline_f2_hitWayData_3 = (ICachePlugin_logic_pipeline_f2_hit_ways_0 ? ICachePlugin_logic_pipeline_f1_dataReadData_0_3 : ICachePlugin_logic_pipeline_f1_dataReadData_1_3);
   assign _zz_ICachePlugin_logic_pipeline_f2_hitWayIdx = _zz__zz_ICachePlugin_logic_pipeline_f2_hitWayIdx[1];
   assign ICachePlugin_logic_pipeline_f2_hitWayIdx = _zz_ICachePlugin_logic_pipeline_f2_hitWayIdx;
+  assign ICachePlugin_logic_pipeline_f2_hitWayDataFromRam_0 = (ICachePlugin_logic_pipeline_f2_hit_ways_0 ? ICachePlugin_logic_pipeline_f1_dataReadData_0_0 : ICachePlugin_logic_pipeline_f1_dataReadData_1_0);
+  assign ICachePlugin_logic_pipeline_f2_hitWayDataFromRam_1 = (ICachePlugin_logic_pipeline_f2_hit_ways_0 ? ICachePlugin_logic_pipeline_f1_dataReadData_0_1 : ICachePlugin_logic_pipeline_f1_dataReadData_1_1);
+  assign ICachePlugin_logic_pipeline_f2_hitWayDataFromRam_2 = (ICachePlugin_logic_pipeline_f2_hit_ways_0 ? ICachePlugin_logic_pipeline_f1_dataReadData_0_2 : ICachePlugin_logic_pipeline_f1_dataReadData_1_2);
+  assign ICachePlugin_logic_pipeline_f2_hitWayDataFromRam_3 = (ICachePlugin_logic_pipeline_f2_hit_ways_0 ? ICachePlugin_logic_pipeline_f1_dataReadData_0_3 : ICachePlugin_logic_pipeline_f1_dataReadData_1_3);
+  assign ICachePlugin_logic_pipeline_f2_hitWayIsVictimWay = (ICachePlugin_logic_pipeline_f2_isHit && (ICachePlugin_logic_pipeline_f2_hitWayIdx == ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F2_VICTIM_WAY_ON_HAZARD));
+  assign ICachePlugin_logic_pipeline_f2_needsDataForwarding = (ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F2_USE_FORWARDED_DATA && ICachePlugin_logic_pipeline_f2_hitWayIsVictimWay);
+  assign ICachePlugin_logic_pipeline_f2_finalHitData_0 = (ICachePlugin_logic_pipeline_f2_needsDataForwarding ? ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F2_FORWARDED_DATA_0 : ICachePlugin_logic_pipeline_f2_hitWayDataFromRam_0);
+  assign ICachePlugin_logic_pipeline_f2_finalHitData_1 = (ICachePlugin_logic_pipeline_f2_needsDataForwarding ? ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F2_FORWARDED_DATA_1 : ICachePlugin_logic_pipeline_f2_hitWayDataFromRam_1);
+  assign ICachePlugin_logic_pipeline_f2_finalHitData_2 = (ICachePlugin_logic_pipeline_f2_needsDataForwarding ? ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F2_FORWARDED_DATA_2 : ICachePlugin_logic_pipeline_f2_hitWayDataFromRam_2);
+  assign ICachePlugin_logic_pipeline_f2_finalHitData_3 = (ICachePlugin_logic_pipeline_f2_needsDataForwarding ? ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F2_FORWARDED_DATA_3 : ICachePlugin_logic_pipeline_f2_hitWayDataFromRam_3);
   assign ICache_F2_HitCheck_isFiring = (ICache_F2_HitCheck_valid && ICache_F2_HitCheck_ready);
   assign ICachePlugin_logic_pipeline_f2_f2_can_update_lru = (ICache_F2_HitCheck_isFiring && ICachePlugin_logic_pipeline_f2_isHit);
+  assign _zz_ICachePlugin_logic_tag_write_logic_writeData_lru = (! ICachePlugin_logic_pipeline_f2_hitWayIdx[0]);
+  assign when_ICachePlugin_l219 = (ICache_F2_HitCheck_isFiring && ICachePlugin_logic_pipeline_f2_needsDataForwarding);
   always @(*) begin
     ICachePlugin_port_rsp_valid = 1'b0;
     if(ICache_F2_HitCheck_valid) begin
@@ -25898,7 +24856,7 @@ module CoreNSCSCC (
     ICachePlugin_port_rsp_payload_instructions_0 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     if(ICache_F2_HitCheck_valid) begin
       if(ICachePlugin_logic_pipeline_f2_isHit) begin
-        ICachePlugin_port_rsp_payload_instructions_0 = ICachePlugin_logic_pipeline_f2_hitWayData_0;
+        ICachePlugin_port_rsp_payload_instructions_0 = ICachePlugin_logic_pipeline_f2_finalHitData_0;
       end else begin
         ICachePlugin_port_rsp_payload_instructions_0 = 32'h0;
       end
@@ -25909,7 +24867,7 @@ module CoreNSCSCC (
     ICachePlugin_port_rsp_payload_instructions_1 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     if(ICache_F2_HitCheck_valid) begin
       if(ICachePlugin_logic_pipeline_f2_isHit) begin
-        ICachePlugin_port_rsp_payload_instructions_1 = ICachePlugin_logic_pipeline_f2_hitWayData_1;
+        ICachePlugin_port_rsp_payload_instructions_1 = ICachePlugin_logic_pipeline_f2_finalHitData_1;
       end else begin
         ICachePlugin_port_rsp_payload_instructions_1 = 32'h0;
       end
@@ -25920,7 +24878,7 @@ module CoreNSCSCC (
     ICachePlugin_port_rsp_payload_instructions_2 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     if(ICache_F2_HitCheck_valid) begin
       if(ICachePlugin_logic_pipeline_f2_isHit) begin
-        ICachePlugin_port_rsp_payload_instructions_2 = ICachePlugin_logic_pipeline_f2_hitWayData_2;
+        ICachePlugin_port_rsp_payload_instructions_2 = ICachePlugin_logic_pipeline_f2_finalHitData_2;
       end else begin
         ICachePlugin_port_rsp_payload_instructions_2 = 32'h0;
       end
@@ -25931,7 +24889,7 @@ module CoreNSCSCC (
     ICachePlugin_port_rsp_payload_instructions_3 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     if(ICache_F2_HitCheck_valid) begin
       if(ICachePlugin_logic_pipeline_f2_isHit) begin
-        ICachePlugin_port_rsp_payload_instructions_3 = ICachePlugin_logic_pipeline_f2_hitWayData_3;
+        ICachePlugin_port_rsp_payload_instructions_3 = ICachePlugin_logic_pipeline_f2_finalHitData_3;
       end else begin
         ICachePlugin_port_rsp_payload_instructions_3 = 32'h0;
       end
@@ -25956,6 +24914,7 @@ module CoreNSCSCC (
     end
   end
 
+  assign _zz_75 = (! ICachePlugin_logic_pipeline_f2_isHit);
   always @(*) begin
     ICachePlugin_axiMaster_ar_valid = 1'b0;
     (* parallel_case *)
@@ -26126,7 +25085,7 @@ module CoreNSCSCC (
     (* parallel_case *)
     case(1) // synthesis parallel_case
       (ICachePlugin_logic_refill_fsm_stateReg[ICachePlugin_logic_refill_fsm_IDLE_OH_ID]) : begin
-        if(when_ICachePlugin_l212) begin
+        if(when_ICachePlugin_l272) begin
           ICachePlugin_logic_refill_fsm_stateNext = ICachePlugin_logic_refill_fsm_SEND_REQ;
         end
       end
@@ -26156,13 +25115,14 @@ module CoreNSCSCC (
     end
   end
 
-  assign when_ICachePlugin_l212 = (ICache_F2_HitCheck_valid && (! ICachePlugin_logic_pipeline_f2_isHit));
+  assign when_ICachePlugin_l272 = (ICache_F2_HitCheck_valid && (! ICachePlugin_logic_pipeline_f2_isHit));
+  assign _zz_78 = ICachePlugin_logic_pipeline_f2_f2_metaLine_lru;
   assign ICachePlugin_axiMaster_ar_fire = (ICachePlugin_axiMaster_ar_valid && ICachePlugin_axiMaster_ar_ready);
   assign ICachePlugin_axiMaster_r_fire = (ICachePlugin_axiMaster_r_valid && ICachePlugin_axiMaster_r_ready);
   assign _zz_79 = ({3'd0,1'b1} <<< ICachePlugin_logic_refill_refillCounter_value);
   assign _zz_ICachePlugin_logic_tag_write_logic_writeAddress = ICachePlugin_logic_refill_refillCmdReg_address[10 : 4];
-  assign when_ICachePlugin_l260 = (ICachePlugin_logic_refill_victimWayReg == 1'b0);
-  assign when_ICachePlugin_l260_1 = (ICachePlugin_logic_refill_victimWayReg == 1'b1);
+  assign when_ICachePlugin_l320 = (ICachePlugin_logic_storage_victimWayReg == 1'b0);
+  assign when_ICachePlugin_l320_1 = (ICachePlugin_logic_storage_victimWayReg == 1'b1);
   always @(*) begin
     _zz_ICachePlugin_logic_tag_write_logic_writeData_ways_0_tag = ICachePlugin_logic_refill_latchedMetaOnMiss_ways_0_tag;
     if(_zz_80[0]) begin
@@ -26177,8 +25137,9 @@ module CoreNSCSCC (
     end
   end
 
-  assign _zz_80 = ({1'd0,1'b1} <<< ICachePlugin_logic_refill_victimWayReg);
+  assign _zz_80 = ({1'd0,1'b1} <<< ICachePlugin_logic_storage_victimWayReg);
   assign _zz_ICachePlugin_logic_tag_write_logic_writeData_ways_0_tag_1 = ICachePlugin_logic_refill_refillCmdReg_address[31 : 11];
+  assign _zz_ICachePlugin_logic_tag_write_logic_writeData_lru_1 = (! ICachePlugin_logic_storage_victimWayReg[0]);
   assign _zz_81 = ({127'd0,1'b1} <<< _zz_ICachePlugin_logic_tag_write_logic_writeAddress);
   assign _zz_82 = _zz_81[0];
   assign _zz_83 = _zz_81[1];
@@ -26308,7 +25269,7 @@ module CoreNSCSCC (
   assign _zz_207 = _zz_81[125];
   assign _zz_208 = _zz_81[126];
   assign _zz_209 = _zz_81[127];
-  assign _zz_210 = ({1'd0,1'b1} <<< ICachePlugin_logic_refill_victimWayReg);
+  assign _zz_210 = ({1'd0,1'b1} <<< ICachePlugin_logic_storage_victimWayReg);
   assign ICachePlugin_logic_refill_fsm_onExit_BOOT = ((! ICachePlugin_logic_refill_fsm_stateNext[ICachePlugin_logic_refill_fsm_BOOT_OH_ID]) && (ICachePlugin_logic_refill_fsm_stateReg[ICachePlugin_logic_refill_fsm_BOOT_OH_ID]));
   assign ICachePlugin_logic_refill_fsm_onExit_IDLE = ((! ICachePlugin_logic_refill_fsm_stateNext[ICachePlugin_logic_refill_fsm_IDLE_OH_ID]) && (ICachePlugin_logic_refill_fsm_stateReg[ICachePlugin_logic_refill_fsm_IDLE_OH_ID]));
   assign ICachePlugin_logic_refill_fsm_onExit_SEND_REQ = ((! ICachePlugin_logic_refill_fsm_stateNext[ICachePlugin_logic_refill_fsm_SEND_REQ_OH_ID]) && (ICachePlugin_logic_refill_fsm_stateReg[ICachePlugin_logic_refill_fsm_SEND_REQ_OH_ID]));
@@ -26321,32 +25282,32 @@ module CoreNSCSCC (
   assign ICachePlugin_logic_refill_fsm_onEntry_COMMIT = ((ICachePlugin_logic_refill_fsm_stateNext[ICachePlugin_logic_refill_fsm_COMMIT_OH_ID]) && (! ICachePlugin_logic_refill_fsm_stateReg[ICachePlugin_logic_refill_fsm_COMMIT_OH_ID]));
   always @(*) begin
     ICachePlugin_logic_management_sim_fsmStateId = 3'b111;
-    if(when_ICachePlugin_l299) begin
+    if(when_ICachePlugin_l359) begin
       ICachePlugin_logic_management_sim_fsmStateId = 3'b000;
     end
-    if(when_ICachePlugin_l300) begin
+    if(when_ICachePlugin_l360) begin
       ICachePlugin_logic_management_sim_fsmStateId = 3'b001;
     end
-    if(when_ICachePlugin_l301) begin
+    if(when_ICachePlugin_l361) begin
       ICachePlugin_logic_management_sim_fsmStateId = 3'b010;
     end
-    if(when_ICachePlugin_l302) begin
+    if(when_ICachePlugin_l362) begin
       ICachePlugin_logic_management_sim_fsmStateId = 3'b011;
     end
   end
 
-  assign when_ICachePlugin_l299 = (ICachePlugin_logic_refill_fsm_stateReg[ICachePlugin_logic_refill_fsm_IDLE_OH_ID]);
-  assign when_ICachePlugin_l300 = (ICachePlugin_logic_refill_fsm_stateReg[ICachePlugin_logic_refill_fsm_SEND_REQ_OH_ID]);
-  assign when_ICachePlugin_l301 = (ICachePlugin_logic_refill_fsm_stateReg[ICachePlugin_logic_refill_fsm_RECEIVE_DATA_OH_ID]);
-  assign when_ICachePlugin_l302 = (ICachePlugin_logic_refill_fsm_stateReg[ICachePlugin_logic_refill_fsm_COMMIT_OH_ID]);
+  assign when_ICachePlugin_l359 = (ICachePlugin_logic_refill_fsm_stateReg[ICachePlugin_logic_refill_fsm_IDLE_OH_ID]);
+  assign when_ICachePlugin_l360 = (ICachePlugin_logic_refill_fsm_stateReg[ICachePlugin_logic_refill_fsm_SEND_REQ_OH_ID]);
+  assign when_ICachePlugin_l361 = (ICachePlugin_logic_refill_fsm_stateReg[ICachePlugin_logic_refill_fsm_RECEIVE_DATA_OH_ID]);
+  assign when_ICachePlugin_l362 = (ICachePlugin_logic_refill_fsm_stateReg[ICachePlugin_logic_refill_fsm_COMMIT_OH_ID]);
   assign ICache_F1_Access_ready = 1'b1;
   assign ICache_F2_HitCheck_ready = 1'b1;
   assign BpuPipelinePlugin_logic_s1_read_valid = BpuPipelinePlugin_queryPortIn_valid;
   assign BpuPipelinePlugin_logic_s1_read_Q_PC = BpuPipelinePlugin_queryPortIn_payload_pc;
   assign BpuPipelinePlugin_logic_s1_read_TRANSACTION_ID = BpuPipelinePlugin_queryPortIn_payload_transactionId;
   assign BpuPipelinePlugin_logic_s1_read_isFiring = (BpuPipelinePlugin_logic_s1_read_valid && BpuPipelinePlugin_logic_s1_read_ready);
-  assign _zz_211 = BpuPipelinePlugin_logic_s1_read_Q_PC[11 : 2];
-  assign _zz_212 = BpuPipelinePlugin_logic_s1_read_Q_PC[9 : 2];
+  assign _zz_212 = BpuPipelinePlugin_logic_s1_read_Q_PC[11 : 2];
+  assign _zz_213 = BpuPipelinePlugin_logic_s1_read_Q_PC[9 : 2];
   assign _zz_BpuPipelinePlugin_logic_phtReadData_s1 = BpuPipelinePlugin_logic_s1_read_Q_PC[11 : 2];
   assign BpuPipelinePlugin_logic_phtReadData_s1 = BpuPipelinePlugin_logic_pht_spinal_port0;
   assign _zz_BpuPipelinePlugin_logic_btbReadData_s1_valid = BpuPipelinePlugin_logic_s1_read_Q_PC[9 : 2];
@@ -26359,7 +25320,7 @@ module CoreNSCSCC (
   assign BpuPipelinePlugin_logic_s2_predict_IS_TAKEN = (BpuPipelinePlugin_logic_btbHit && BpuPipelinePlugin_logic_phtPrediction);
   assign BpuPipelinePlugin_logic_s2_predict_TARGET_PC = BpuPipelinePlugin_logic_btbReadData_s1_target;
   assign BpuPipelinePlugin_logic_s2_predict_isFiring = (BpuPipelinePlugin_logic_s2_predict_valid && BpuPipelinePlugin_logic_s2_predict_ready);
-  assign _zz_215 = (BpuPipelinePlugin_logic_btbReadData_s1_tag == BpuPipelinePlugin_logic_s2_predict_Q_PC[31 : 10]);
+  assign _zz_216 = (BpuPipelinePlugin_logic_btbReadData_s1_tag == BpuPipelinePlugin_logic_s2_predict_Q_PC[31 : 10]);
   assign BpuPipelinePlugin_logic_u1_read_valid = BpuPipelinePlugin_updatePortIn_valid;
   assign BpuPipelinePlugin_updatePortIn_ready = BpuPipelinePlugin_logic_u1_read_ready;
   assign BpuPipelinePlugin_logic_u1_read_U_PAYLOAD_pc = BpuPipelinePlugin_updatePortIn_payload_pc;
@@ -26739,8 +25700,6 @@ module CoreNSCSCC (
   assign io_leds = _zz_io_leds_1[15:0];
   always @(posedge clk) begin
     if(reset) begin
-      FetchPipelinePlugin_dbg_cycles <= 16'h0;
-      FetchPipelinePlugin_dbg_c <= 3'b000;
       CommitPlugin_commitStatsReg_committedThisCycle <= 1'b0;
       CommitPlugin_commitStatsReg_totalCommitted <= 32'h0;
       CommitPlugin_commitStatsReg_robFlushCount <= 32'h0;
@@ -26750,6 +25709,7 @@ module CoreNSCSCC (
       CommitPlugin_maxCommitPcReg <= 32'h0;
       CommitPlugin_commitOOBReg <= 1'b0;
       _zz_when_Debug_l71 <= 8'h0;
+      PerfCounter_cycles <= 32'h0;
       BusyTablePlugin_early_setup_busyTableReg <= 64'h0;
       CheckpointManagerPlugin_logic_hasValidCheckpoint <= 1'b0;
       CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_0 <= CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_0;
@@ -26785,6 +25745,7 @@ module CoreNSCSCC (
       CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_30 <= CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_30;
       CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_31 <= CheckpointManagerPlugin_logic_initialRatCheckpoint_mapping_31;
       CheckpointManagerPlugin_logic_storedBtCheckpoint_busyBits <= CheckpointManagerPlugin_logic_initialBtCheckpoint_busyBits;
+      CommitPlugin_logic_scheduedFlush <= 1'b0;
       CommitPlugin_logic_s1_s1_committedThisCycle <= 1'b0;
       CommitPlugin_logic_s1_s1_recycledThisCycle <= 1'b0;
       CommitPlugin_logic_s1_s1_flushedThisCycle <= 1'b0;
@@ -27003,17 +25964,8 @@ module CoreNSCSCC (
       StoreBufferPlugin_logic_registeredFlush_valid <= 1'b0;
       StoreBufferPlugin_logic_registeredFlush_targetRobPtr <= 4'b0000;
       StoreBufferPlugin_logic_registeredCommitUpdate_validMask <= 4'b0000;
-      FetchPipelinePlugin_logic_retryIdCounter_value <= 2'b01;
-      FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_value <= 3'b000;
-      FetchPipelinePlugin_logic_isDrainingCacheRspReg <= 1'b0;
-      FetchPipelinePlugin_logic_retryCmd_lock <= 1'b0;
-      FetchPipelinePlugin_logic_retryCmd_pc <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-      FetchPipelinePlugin_logic_retryCmd_id <= 2'bxx;
-      FetchPipelinePlugin_logic_s1_logic_fetchPcReg <= 32'h80000000;
-      FetchPipelinePlugin_logic_s1_logic_lastRetryIdReg <= 2'b00;
-      s2_ICache_Access_valid <= 1'b0;
-      s4_Predecode_valid <= 1'b0;
-      s5_Target_Calc_valid <= 1'b0;
+      FetchPipelinePlugin_logic_pcGen_fetchPcReg <= 32'h80000000;
+      FetchPipelinePlugin_logic_hardFlushDelayed <= 1'b0;
       ICachePlugin_logic_storage_valids_0_0 <= 1'b0;
       ICachePlugin_logic_storage_valids_0_1 <= 1'b0;
       ICachePlugin_logic_storage_valids_1_0 <= 1'b0;
@@ -27272,6 +26224,7 @@ module CoreNSCSCC (
       ICachePlugin_logic_storage_valids_127_1 <= 1'b0;
       ICachePlugin_logic_refill_refillCounter_value <= 2'b00;
       ICachePlugin_logic_refill_fsm_stateReg <= ICachePlugin_logic_refill_fsm_BOOT;
+      _zz_211 <= 32'h0;
       ICache_F2_HitCheck_valid <= 1'b0;
       BpuPipelinePlugin_logic_s2_predict_valid <= 1'b0;
       BpuPipelinePlugin_logic_u2_write_valid <= 1'b0;
@@ -27295,17 +26248,7 @@ module CoreNSCSCC (
       io_outputs_2_aw_rValid_2 <= 1'b0;
       _zz_io_leds <= 1'b0;
     end else begin
-      FetchPipelinePlugin_dbg_cycles <= (FetchPipelinePlugin_dbg_cycles + 16'h0001);
-      FetchPipelinePlugin_dbg_c <= (FetchPipelinePlugin_dbg_c + 3'b001);
-      `ifndef SYNTHESIS
-        `ifdef FORMAL
-          assert(1'b0); // FetchPipelinePlugin2.scala:L136
-        `else
-          if(!1'b0) begin
-            $display("NOTE(FetchPipelinePlugin2.scala:136):  [normal] ------------ End of cycle 0x%x", FetchPipelinePlugin_dbg_cycles); // FetchPipelinePlugin2.scala:L136
-          end
-        `endif
-      `endif
+      PerfCounter_cycles <= (PerfCounter_cycles + 32'h00000001);
       if(oneShot_12_io_pulseOut) begin
         if(when_Debug_l71) begin
           _zz_when_Debug_l71 <= {3'd0, _zz_when_Debug_l71_1};
@@ -27361,18 +26304,6 @@ module CoreNSCSCC (
             `endif
           `endif
         end
-      end
-      if(FetchPipelinePlugin_doHardRedirect_listening) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert((! CoreNSCSCCSetupPlugin_setup_fetchOutput_valid)); // FetchPipelinePlugin2.scala:L162
-          `else
-            if(!(! CoreNSCSCCSetupPlugin_setup_fetchOutput_valid)) begin
-              $display("FAILURE "); // FetchPipelinePlugin2.scala:L162
-              $finish;
-            end
-          `endif
-        `endif
       end
       if(CheckpointManagerPlugin_saveCheckpointTrigger) begin
         CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_0 <= RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_0;
@@ -27716,65 +26647,93 @@ module CoreNSCSCC (
           `endif
         `endif
       end
-      if(when_CommitPlugin_l209) begin
+      CommitPlugin_logic_scheduedFlush <= CommitPlugin_logic_mispredictedBranchCanCommit;
+      if(CommitPlugin_logic_scheduedFlush) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // CommitPlugin.scala:L214
+            assert(1'b0); // CommitPlugin.scala:L201
           `else
             if(!1'b0) begin
-              $display("NOTE(CommitPlugin.scala:214):  [COMMIT] BPU UPDATE: pc=0x%x, isTaken=%x, target=0x%x", BpuPipelinePlugin_updatePortIn_payload_pc, BpuPipelinePlugin_updatePortIn_payload_isTaken, BpuPipelinePlugin_updatePortIn_payload_target); // CommitPlugin.scala:L214
+              $display("NOTE(CommitPlugin.scala:201):  [notice ] %x     [33mFLUSH EXECUTION (T+1): Flushing pipeline due to mispredict. Redirecting to 0x%x.[0m", PerfCounter_cycles, CommitPlugin_logic_hardRedirectTarget); // CommitPlugin.scala:L201
             end
           `endif
         `endif
       end
-      if(when_CommitPlugin_l222) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // CommitPlugin.scala:L229
-          `else
-            if(!1'b0) begin
-              $display("NOTE(CommitPlugin.scala:229):  CHECKPOINT: Save checkpoint triggered on successful commit."); // CommitPlugin.scala:L229
-            end
+      if(when_CommitPlugin_l229) begin
+        if(ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_writesToPhysReg) begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // CommitPlugin.scala:L238
+            `else
+              if(!1'b0) begin
+                $display("NOTE(CommitPlugin.scala:238):  [RegRes] Update ARAT: archReg=%x, physReg=%x", RenameMapTablePlugin_early_setup_rat_io_commitUpdatePort_archReg, RenameMapTablePlugin_early_setup_rat_io_commitUpdatePort_physReg); // CommitPlugin.scala:L238
+              end
+            `endif
           `endif
-        `endif
+        end
+        if(ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_allocatesPhysDest) begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // CommitPlugin.scala:L247
+            `else
+              if(!1'b0) begin
+                $display("NOTE(CommitPlugin.scala:247):  [RegRes] freelist recycle reg %x (committing PC=0x%x)", ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx, ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc); // CommitPlugin.scala:L247
+              end
+            `endif
+          `endif
+        end
+        if(ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_isBranchOrJump) begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // CommitPlugin.scala:L258
+            `else
+              if(!1'b0) begin
+                $display("NOTE(CommitPlugin.scala:258):  [COMMIT] BPU UPDATE: pc=0x%x, isTaken=%x, target=0x%x", BpuPipelinePlugin_updatePortIn_payload_pc, BpuPipelinePlugin_updatePortIn_payload_isTaken, BpuPipelinePlugin_updatePortIn_payload_target); // CommitPlugin.scala:L258
+              end
+            `endif
+          `endif
+        end
       end
-      if(when_CommitPlugin_l239) begin
+      if(when_CommitPlugin_l273) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // CommitPlugin.scala:L250
+            assert(1'b0); // CommitPlugin.scala:L277
           `else
             if(!1'b0) begin
-              $display("NOTE(CommitPlugin.scala:250):  [RegRes] freelist gc, busytable recover to last committed state. "); // CommitPlugin.scala:L250
+              $display("NOTE(CommitPlugin.scala:277):  CHECKPOINT: Save checkpoint triggered on successful commit. PC=0x%x", ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc); // CommitPlugin.scala:L277
             end
           `endif
         `endif
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // CommitPlugin.scala:L259
-          `else
-            if(!1'b0) begin
-              $display("NOTE(CommitPlugin.scala:259):  [notice] [33mBRANCH MISPREDICT: Vetoing commit of robPtr=%x, PC=0x%x and flushing pipeline. Redirecting to 0x%x.[0m", ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr, ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc, ROBPlugin_robComponent_io_commit_0_entry_status_result); // CommitPlugin.scala:L259
-            end
+        if(CommitPlugin_logic_mispredictedBranchCanCommit) begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // CommitPlugin.scala:L279
+            `else
+              if(!1'b0) begin
+                $display("NOTE(CommitPlugin.scala:279):  [notice ] %x     [33mMISPREDICT MARK (T): Marking for flush in next cycle. PC=0x%x, Target=0x%x. This branch instruction itself is being committed.[0m", PerfCounter_cycles, ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc, ROBPlugin_robComponent_io_commit_0_entry_status_targetPc); // CommitPlugin.scala:L279
+              end
+            `endif
           `endif
-        `endif
+        end
       end
-      if(when_CommitPlugin_l278) begin
+      if(CommitPlugin_logic_s0_commitAckMasks_0) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // CommitPlugin.scala:L279
+            assert((! CommitPlugin_logic_scheduedFlush)); // CommitPlugin.scala:L292
           `else
-            if(!1'b0) begin
-              $display("NOTE(CommitPlugin.scala:279):  [RegRes] freelist recycle reg %x (because commit uop@%x)", ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx, ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc); // CommitPlugin.scala:L279
+            if(!(! CommitPlugin_logic_scheduedFlush)) begin
+              $display("FAILURE Cannot commit this cycle when a mispredicted branch caused a flush."); // CommitPlugin.scala:L292
+              $finish;
             end
           `endif
         `endif
       end
       CommitPlugin_logic_s1_s1_committedThisCycle <= CommitPlugin_logic_s0_committedThisCycle_comb;
       CommitPlugin_logic_s1_s1_recycledThisCycle <= CommitPlugin_logic_s0_recycledThisCycle_comb;
-      CommitPlugin_logic_s1_s1_flushedThisCycle <= CommitPlugin_logic_s0_flushedThisCycle_comb;
+      CommitPlugin_logic_s1_s1_flushedThisCycle <= CommitPlugin_logic_scheduedFlush;
       CommitPlugin_logic_s1_s1_maxCommitPcThisCycle <= CommitPlugin_logic_s0_maxCommitPcThisCycle;
       CommitPlugin_logic_s1_s1_anyCommitOOB <= CommitPlugin_logic_s0_anyCommitOOB;
-      if(when_CommitPlugin_l336) begin
+      if(when_CommitPlugin_l346) begin
         CommitPlugin_maxCommitPcReg <= CommitPlugin_logic_s1_s1_maxCommitPcThisCycle;
       end
       if(CommitPlugin_logic_s1_s1_anyCommitOOB) begin
@@ -27783,7 +26742,7 @@ module CoreNSCSCC (
       CommitPlugin_commitStatsReg_committedThisCycle <= CommitPlugin_logic_s1_s1_committedThisCycle;
       CommitPlugin_commitStatsReg_totalCommitted <= (CommitPlugin_commitStatsReg_totalCommitted + _zz_CommitPlugin_commitStatsReg_totalCommitted);
       CommitPlugin_commitStatsReg_physRegRecycled <= (CommitPlugin_commitStatsReg_physRegRecycled + _zz_CommitPlugin_commitStatsReg_physRegRecycled);
-      CommitPlugin_commitStatsReg_robFlushCount <= (CommitPlugin_commitStatsReg_robFlushCount + _zz_CommitPlugin_commitStatsReg_robFlushCount);
+      CommitPlugin_commitStatsReg_robFlushCount <= CommitPlugin_commitStatsReg_robFlushCount;
       CommitPlugin_commitStatsReg_commitOOB <= CommitPlugin_commitOOBReg;
       CommitPlugin_commitStatsReg_maxCommitPc <= CommitPlugin_maxCommitPcReg;
       if(oneShot_16_io_pulseOut) begin
@@ -27815,10 +26774,10 @@ module CoreNSCSCC (
       CommitPlugin_logic_counter <= (CommitPlugin_logic_counter + 32'h00000001);
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // CommitPlugin.scala:L368
+          assert(1'b0); // CommitPlugin.scala:L378
         `else
           if(!1'b0) begin
-            $display("NOTE(CommitPlugin.scala:368):  [COMMIT] Cycle %x Log: Stats=CommitStats(committedThisCycle=%x, totalCommitted=%x, robFlushCount=%x, physRegRecycled=%x, commitOOB=%x, maxCommitPc=0x%x)\n  Slot Details: \n    Slot: (valid=%x, canCommit=%x, doCommit=%x, robPtr=%x, oldPhysDest=%x, allocPhysDest=%x) commitAck=%x commitPc=0x%x", CommitPlugin_logic_counter, CommitPlugin_commitStatsReg_committedThisCycle, CommitPlugin_commitStatsReg_totalCommitted, CommitPlugin_commitStatsReg_robFlushCount, CommitPlugin_commitStatsReg_physRegRecycled, CommitPlugin_commitStatsReg_commitOOB, CommitPlugin_commitStatsReg_maxCommitPc, CommitPlugin_logic_s0_commitSlotLogs_0_valid, CommitPlugin_logic_s0_commitSlotLogs_0_canCommit, CommitPlugin_logic_s0_commitSlotLogs_0_doCommit, CommitPlugin_logic_s0_commitSlotLogs_0_robPtr, CommitPlugin_logic_s0_commitSlotLogs_0_oldPhysDest, CommitPlugin_logic_s0_commitSlotLogs_0_allocatesPhysDest, CommitPlugin_logic_s0_commitAckMasks_0, CommitPlugin_logic_s0_commitPcs_0); // CommitPlugin.scala:L368
+            $display("NOTE(CommitPlugin.scala:378):  [COMMIT] Cycle %x Log: Stats=CommitStats(committedThisCycle=%x, totalCommitted=%x, robFlushCount=%x, physRegRecycled=%x, commitOOB=%x, maxCommitPc=0x%x)\n  Slot Details: \n    Slot: (valid=%x, canCommit=%x, doCommit=%x, robPtr=%x, oldPhysDest=%x, allocPhysDest(bool)=%x) commitPc=0x%x", CommitPlugin_logic_counter, CommitPlugin_commitStatsReg_committedThisCycle, CommitPlugin_commitStatsReg_totalCommitted, CommitPlugin_commitStatsReg_robFlushCount, CommitPlugin_commitStatsReg_physRegRecycled, CommitPlugin_commitStatsReg_commitOOB, CommitPlugin_commitStatsReg_maxCommitPc, CommitPlugin_logic_s0_commitSlotLogs_0_valid, CommitPlugin_logic_s0_commitSlotLogs_0_canCommit, CommitPlugin_logic_s0_commitSlotLogs_0_doCommit, CommitPlugin_logic_s0_commitSlotLogs_0_robPtr, CommitPlugin_logic_s0_commitSlotLogs_0_oldPhysDest, CommitPlugin_logic_s0_commitSlotLogs_0_allocatesPhysDest, CommitPlugin_logic_s0_commitPcs_0); // CommitPlugin.scala:L378
           end
         `endif
       `endif
@@ -27883,7 +26842,7 @@ module CoreNSCSCC (
               assert(1'b0); // DecodePlugin.scala:L123
             `else
               if(!1'b0) begin
-                $display("NOTE(DecodePlugin.scala:123):  [notice] [33mDecodePlugin (s0_decode): Firing. Output DecodedUops=DecodedUop @ pc=%x (%x)\n  Core Info:   uopCode=%s  exeUnit=%s  isa=%s\n  Operands:\n    dest=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x writeEn=%x\n    src1=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x use=%x\n    src2=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x use=%x\n use=\n    imm=%x (usage=%s)\n  Control Flags:\n    ALU: AluCtrlFlags: isSub=%x isAdd=%x isSigned=%x logicOp=%s condition=%s\n    Shift: ShiftCtrlFlags: isRight=%x isArithmetic=%x isRotate=%x isDoubleWord=%x\n    MulDiv: MulDivCtrlFlags: isDiv=%x isSigned=%x isWordOp=%x\n    Mem: MemCtrlFlags: size=%s isSignedLoad=%x isStore=%x isLoadLinked=%x isStoreCond=%x atomicOp=%x isFence=%x fenceMode=%x isCacheOp=%x cacheOpType=%x isPrefetch=%x\n    Branch: BranchCtrlFlags: condition=%s isJump=%x isLink=%x linkReg=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x isIndirect=%x laCfIdx=%x\n    FPU: FpuCtrlFlags: opType=%x fpSizeSrc1=%s fpSizeSrc2=%s fpSizeDest=%s roundingMode=%x isIntegerDest=%x isSignedCvt=%x fmaNegSrc1=%x fcmpCond=%x\n    CSR: CsrCtrlFlags: csrAddr=%x isWrite=%x isRead=%x isExchange=%x useUimmAsSrc=%x\n    System: SystemCtrlFlags: sysCode=%x isExceptionReturn=%x isTlbOp=%x tlbOpType=%x\n  Status:\n    decodeEx=%s hasEx=%x\n    isMicrocode=%x entry=%x\n    isSerializing=%x isBranchOrJump=%x branchPrediction=BranchPredictionInfo: isTaken=%x target=%x wasPredicted=%x[0m", DecodePlugin_logic_decodedUopsOutputVec_0_pc, DecodePlugin_logic_decodedUopsOutputVec_0_isValid, DecodePlugin_logic_decodedUopsOutputVec_0_uopCode_string, DecodePlugin_logic_decodedUopsOutputVec_0_exeUnit_string, DecodePlugin_logic_decodedUopsOutputVec_0_isa_string, DecodePlugin_logic_decodedUopsOutputVec_0_archDest_idx, DecodePlugin_logic_decodedUopsOutputVec_0_archDest_rtype_string, _zz_40, _zz_41, _zz_42, DecodePlugin_logic_decodedUopsOutputVec_0_writeArchDestEn, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_idx, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_rtype_string, _zz_43, _zz_44, _zz_45, DecodePlugin_logic_decodedUopsOutputVec_0_useArchSrc1, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_idx, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype_string, _zz_46, _zz_47, _zz_48, DecodePlugin_logic_decodedUopsOutputVec_0_useArchSrc2, DecodePlugin_logic_decodedUopsOutputVec_0_imm, DecodePlugin_logic_decodedUopsOutputVec_0_immUsage_string, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_isSub, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_isAdd, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_isSigned, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_logicOp_string, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_condition_string, DecodePlugin_logic_decodedUopsOutputVec_0_shiftCtrl_isRight, DecodePlugin_logic_decodedUopsOutputVec_0_shiftCtrl_isArithmetic, DecodePlugin_logic_decodedUopsOutputVec_0_shiftCtrl_isRotate, DecodePlugin_logic_decodedUopsOutputVec_0_shiftCtrl_isDoubleWord, DecodePlugin_logic_decodedUopsOutputVec_0_mulDivCtrl_isDiv, DecodePlugin_logic_decodedUopsOutputVec_0_mulDivCtrl_isSigned, DecodePlugin_logic_decodedUopsOutputVec_0_mulDivCtrl_isWordOp, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_size_string, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isSignedLoad, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isStore, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isLoadLinked, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isStoreCond, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_atomicOp, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isFence, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_fenceMode, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isCacheOp, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_cacheOpType, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isPrefetch, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_condition_string, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_isJump, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_isLink, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_idx, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype_string, _zz_49, _zz_50, _zz_51, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_isIndirect, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_laCfIdx, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_opType, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc1_string, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc2_string, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeDest_string, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_roundingMode, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_isIntegerDest, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_isSignedCvt, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fmaNegSrc1, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fcmpCond, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_csrAddr, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_isWrite, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_isRead, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_isExchange, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_useUimmAsSrc, DecodePlugin_logic_decodedUopsOutputVec_0_sysCtrl_sysCode, DecodePlugin_logic_decodedUopsOutputVec_0_sysCtrl_isExceptionReturn, DecodePlugin_logic_decodedUopsOutputVec_0_sysCtrl_isTlbOp, DecodePlugin_logic_decodedUopsOutputVec_0_sysCtrl_tlbOpType, DecodePlugin_logic_decodedUopsOutputVec_0_decodeExceptionCode_string, DecodePlugin_logic_decodedUopsOutputVec_0_hasDecodeException, DecodePlugin_logic_decodedUopsOutputVec_0_isMicrocode, DecodePlugin_logic_decodedUopsOutputVec_0_microcodeEntry, DecodePlugin_logic_decodedUopsOutputVec_0_isSerializing, DecodePlugin_logic_decodedUopsOutputVec_0_isBranchOrJump, DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_isTaken, DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_target, DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_wasPredicted); // DecodePlugin.scala:L123
+                $display("NOTE(DecodePlugin.scala:123):  [notice ] %x     [33mDecodePlugin (s0_decode): Firing. Output DecodedUops=DecodedUop @ pc=%x (%x)\n  Core Info:   uopCode=%s  exeUnit=%s  isa=%s\n  Operands:\n    dest=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x writeEn=%x\n    src1=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x use=%x\n    src2=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x use=%x\n use=\n    imm=%x (usage=%s)\n  Control Flags:\n    ALU: AluCtrlFlags: isSub=%x isAdd=%x isSigned=%x logicOp=%s condition=%s\n    Shift: ShiftCtrlFlags: isRight=%x isArithmetic=%x isRotate=%x isDoubleWord=%x\n    MulDiv: MulDivCtrlFlags: isDiv=%x isSigned=%x isWordOp=%x\n    Mem: MemCtrlFlags: size=%s isSignedLoad=%x isStore=%x isLoadLinked=%x isStoreCond=%x atomicOp=%x isFence=%x fenceMode=%x isCacheOp=%x cacheOpType=%x isPrefetch=%x\n    Branch: BranchCtrlFlags: condition=%s isJump=%x isLink=%x linkReg=ArchRegOperand: idx=%xrtype=%sisGPR=%xisFPR=%xisCSR=%x isIndirect=%x laCfIdx=%x\n    FPU: FpuCtrlFlags: opType=%x fpSizeSrc1=%s fpSizeSrc2=%s fpSizeDest=%s roundingMode=%x isIntegerDest=%x isSignedCvt=%x fmaNegSrc1=%x fcmpCond=%x\n    CSR: CsrCtrlFlags: csrAddr=%x isWrite=%x isRead=%x isExchange=%x useUimmAsSrc=%x\n    System: SystemCtrlFlags: sysCode=%x isExceptionReturn=%x isTlbOp=%x tlbOpType=%x\n  Status:\n    decodeEx=%s hasEx=%x\n    isMicrocode=%x entry=%x\n    isSerializing=%x isBranchOrJump=%x branchPrediction=BranchPredictionInfo: isTaken=%x target=%x wasPredicted=%x[0m", PerfCounter_cycles, DecodePlugin_logic_decodedUopsOutputVec_0_pc, DecodePlugin_logic_decodedUopsOutputVec_0_isValid, DecodePlugin_logic_decodedUopsOutputVec_0_uopCode_string, DecodePlugin_logic_decodedUopsOutputVec_0_exeUnit_string, DecodePlugin_logic_decodedUopsOutputVec_0_isa_string, DecodePlugin_logic_decodedUopsOutputVec_0_archDest_idx, DecodePlugin_logic_decodedUopsOutputVec_0_archDest_rtype_string, _zz_40, _zz_41, _zz_42, DecodePlugin_logic_decodedUopsOutputVec_0_writeArchDestEn, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_idx, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc1_rtype_string, _zz_43, _zz_44, _zz_45, DecodePlugin_logic_decodedUopsOutputVec_0_useArchSrc1, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_idx, DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype_string, _zz_46, _zz_47, _zz_48, DecodePlugin_logic_decodedUopsOutputVec_0_useArchSrc2, DecodePlugin_logic_decodedUopsOutputVec_0_imm, DecodePlugin_logic_decodedUopsOutputVec_0_immUsage_string, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_isSub, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_isAdd, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_isSigned, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_logicOp_string, DecodePlugin_logic_decodedUopsOutputVec_0_aluCtrl_condition_string, DecodePlugin_logic_decodedUopsOutputVec_0_shiftCtrl_isRight, DecodePlugin_logic_decodedUopsOutputVec_0_shiftCtrl_isArithmetic, DecodePlugin_logic_decodedUopsOutputVec_0_shiftCtrl_isRotate, DecodePlugin_logic_decodedUopsOutputVec_0_shiftCtrl_isDoubleWord, DecodePlugin_logic_decodedUopsOutputVec_0_mulDivCtrl_isDiv, DecodePlugin_logic_decodedUopsOutputVec_0_mulDivCtrl_isSigned, DecodePlugin_logic_decodedUopsOutputVec_0_mulDivCtrl_isWordOp, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_size_string, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isSignedLoad, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isStore, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isLoadLinked, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isStoreCond, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_atomicOp, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isFence, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_fenceMode, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isCacheOp, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_cacheOpType, DecodePlugin_logic_decodedUopsOutputVec_0_memCtrl_isPrefetch, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_condition_string, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_isJump, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_isLink, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_idx, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype_string, _zz_49, _zz_50, _zz_51, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_isIndirect, DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_laCfIdx, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_opType, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc1_string, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeSrc2_string, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fpSizeDest_string, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_roundingMode, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_isIntegerDest, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_isSignedCvt, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fmaNegSrc1, DecodePlugin_logic_decodedUopsOutputVec_0_fpuCtrl_fcmpCond, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_csrAddr, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_isWrite, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_isRead, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_isExchange, DecodePlugin_logic_decodedUopsOutputVec_0_csrCtrl_useUimmAsSrc, DecodePlugin_logic_decodedUopsOutputVec_0_sysCtrl_sysCode, DecodePlugin_logic_decodedUopsOutputVec_0_sysCtrl_isExceptionReturn, DecodePlugin_logic_decodedUopsOutputVec_0_sysCtrl_isTlbOp, DecodePlugin_logic_decodedUopsOutputVec_0_sysCtrl_tlbOpType, DecodePlugin_logic_decodedUopsOutputVec_0_decodeExceptionCode_string, DecodePlugin_logic_decodedUopsOutputVec_0_hasDecodeException, DecodePlugin_logic_decodedUopsOutputVec_0_isMicrocode, DecodePlugin_logic_decodedUopsOutputVec_0_microcodeEntry, DecodePlugin_logic_decodedUopsOutputVec_0_isSerializing, DecodePlugin_logic_decodedUopsOutputVec_0_isBranchOrJump, DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_isTaken, DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_target, DecodePlugin_logic_decodedUopsOutputVec_0_branchPrediction_wasPredicted); // DecodePlugin.scala:L123
               end
             `endif
           `endif
@@ -27895,7 +26854,7 @@ module CoreNSCSCC (
             assert(1'b0); // RenamePlugin.scala:L84
           `else
             if(!1'b0) begin
-              $display("NOTE(RenamePlugin.scala:84):  [notice] [33m[RegRes] S2: Failed to allocate physical registers for uops: DecodedUop @ pc=%x (%x)\n[0m", s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_pc, s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_isValid); // RenamePlugin.scala:L84
+              $display("NOTE(RenamePlugin.scala:84):  [notice ] %x     [33m[RegRes] S2: Failed to allocate physical registers for uops: DecodedUop @ pc=%x (%x)\n[0m", PerfCounter_cycles, s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_pc, s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_isValid); // RenamePlugin.scala:L84
             end
           `endif
         `endif
@@ -27927,7 +26886,7 @@ module CoreNSCSCC (
             assert(1'b0); // LinkerPlugin.scala:L130
           `else
             if(!1'b0) begin
-              $display("NOTE(LinkerPlugin.scala:130):  [normal] LinkerPlugin: Global doHardRedirect signal is asserted!"); // LinkerPlugin.scala:L130
+              $display("NOTE(LinkerPlugin.scala:130):  [normal ] %x     LinkerPlugin: Global doHardRedirect signal is asserted!", PerfCounter_cycles); // LinkerPlugin.scala:L130
             end
           `endif
         `endif
@@ -27938,7 +26897,7 @@ module CoreNSCSCC (
             assert(1'b0); // LinkerPlugin.scala:L143
           `else
             if(!1'b0) begin
-              $display("NOTE(LinkerPlugin.scala:143):  [normal] LinkerPlugin-Trace: Firing from IQ 'AluIntEU_IQ-0' to EU 'AluIntEU'. RobPtr=%x", AluIntEU_AluIntEuPlugin_euInputPort_payload_robPtr); // LinkerPlugin.scala:L143
+              $display("NOTE(LinkerPlugin.scala:143):  [normal ] %x     LinkerPlugin-Trace: Firing from IQ 'AluIntEU_IQ-0' to EU 'AluIntEU'. RobPtr=%x", PerfCounter_cycles, AluIntEU_AluIntEuPlugin_euInputPort_payload_robPtr); // LinkerPlugin.scala:L143
             end
           `endif
         `endif
@@ -27949,7 +26908,7 @@ module CoreNSCSCC (
             assert(1'b0); // LinkerPlugin.scala:L143
           `else
             if(!1'b0) begin
-              $display("NOTE(LinkerPlugin.scala:143):  [normal] LinkerPlugin-Trace: Firing from IQ 'MulEU_IQ-1' to EU 'MulEU'. RobPtr=%x", MulEU_MulEuPlugin_euInputPort_payload_robPtr); // LinkerPlugin.scala:L143
+              $display("NOTE(LinkerPlugin.scala:143):  [normal ] %x     LinkerPlugin-Trace: Firing from IQ 'MulEU_IQ-1' to EU 'MulEU'. RobPtr=%x", PerfCounter_cycles, MulEU_MulEuPlugin_euInputPort_payload_robPtr); // LinkerPlugin.scala:L143
             end
           `endif
         `endif
@@ -27960,7 +26919,7 @@ module CoreNSCSCC (
             assert(1'b0); // LinkerPlugin.scala:L143
           `else
             if(!1'b0) begin
-              $display("NOTE(LinkerPlugin.scala:143):  [normal] LinkerPlugin-Trace: Firing from IQ 'BranchEU_IQ-2' to EU 'BranchEU'. RobPtr=%x", BranchEU_BranchEuPlugin_euInputPort_payload_robPtr); // LinkerPlugin.scala:L143
+              $display("NOTE(LinkerPlugin.scala:143):  [normal ] %x     LinkerPlugin-Trace: Firing from IQ 'BranchEU_IQ-2' to EU 'BranchEU'. RobPtr=%x", PerfCounter_cycles, BranchEU_BranchEuPlugin_euInputPort_payload_robPtr); // LinkerPlugin.scala:L143
             end
           `endif
         `endif
@@ -27971,7 +26930,7 @@ module CoreNSCSCC (
             assert(1'b0); // LinkerPlugin.scala:L143
           `else
             if(!1'b0) begin
-              $display("NOTE(LinkerPlugin.scala:143):  [normal] LinkerPlugin-Trace: Firing from IQ 'LsuEU_IQ-3' to EU 'LsuEU'. RobPtr=%x", LsuEU_LsuEuPlugin_euInputPort_payload_robPtr); // LinkerPlugin.scala:L143
+              $display("NOTE(LinkerPlugin.scala:143):  [normal ] %x     LinkerPlugin-Trace: Firing from IQ 'LsuEU_IQ-3' to EU 'LsuEU'. RobPtr=%x", PerfCounter_cycles, LsuEU_LsuEuPlugin_euInputPort_payload_robPtr); // LinkerPlugin.scala:L143
             end
           `endif
         `endif
@@ -27996,7 +26955,7 @@ module CoreNSCSCC (
             assert(1'b0); // DispatchPlugin.scala:L101
           `else
             if(!1'b0) begin
-              $display("NOTE(DispatchPlugin.scala:101):  [normal] DispatchPlugin: Firing robPtr=%x (UopCode=%s), s1_ready(initial)=%x, s2_ready(initial)=%x", s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_robPtr, s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string, DispatchPlugin_logic_src1InitialReady, DispatchPlugin_logic_src2InitialReady); // DispatchPlugin.scala:L101
+              $display("NOTE(DispatchPlugin.scala:101):  [normal ] %x     DispatchPlugin: Firing robPtr=%x (UopCode=%s), s1_ready(initial)=%x, s2_ready(initial)=%x", PerfCounter_cycles, s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_robPtr, s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_decoded_uopCode_string, DispatchPlugin_logic_src1InitialReady, DispatchPlugin_logic_src2InitialReady); // DispatchPlugin.scala:L101
             end
           `endif
         `endif
@@ -28021,7 +26980,7 @@ module CoreNSCSCC (
             assert(1'b0); // AluIntEuPlugin.scala:L113
           `else
             if(!1'b0) begin
-              $display("NOTE(AluIntEuPlugin.scala:113):  [debug] [34mAluIntEu (AluIntEU) S2 Firing: RobPtr=%x, ResultData=%x, WritesPreg=%x, ImmUsage=%x, UseSrc2=%x op: AluCtrlFlags: isSub=%x isAdd=%x isSigned=%x logicOp=%s condition=%s, lhs=%x, rhs=%x[0m", _zz_io_iqEntryIn_payload_robPtr, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_data, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_writesToPhysReg, _zz_52, _zz_io_iqEntryIn_payload_useSrc2, _zz_io_iqEntryIn_payload_aluCtrl_isSub, _zz_io_iqEntryIn_payload_aluCtrl_isAdd, _zz_io_iqEntryIn_payload_aluCtrl_isSigned, _zz_io_iqEntryIn_payload_aluCtrl_logicOp_string, _zz_io_iqEntryIn_payload_aluCtrl_condition_string, _zz_io_iqEntryIn_payload_src1Data_1, _zz_io_iqEntryIn_payload_src2Data_1); // AluIntEuPlugin.scala:L113
+              $display("NOTE(AluIntEuPlugin.scala:113):  [debug  ] %x     [34mAluIntEu (AluIntEU) S2 Firing: RobPtr=%x, ResultData=%x, WritesPreg=%x, ImmUsage=%x, UseSrc2=%x op: AluCtrlFlags: isSub=%x isAdd=%x isSigned=%x logicOp=%s condition=%s, lhs=%x, rhs=%x[0m", PerfCounter_cycles, _zz_io_iqEntryIn_payload_robPtr, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_data, AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_writesToPhysReg, _zz_52, _zz_io_iqEntryIn_payload_useSrc2, _zz_io_iqEntryIn_payload_aluCtrl_isSub, _zz_io_iqEntryIn_payload_aluCtrl_isAdd, _zz_io_iqEntryIn_payload_aluCtrl_isSigned, _zz_io_iqEntryIn_payload_aluCtrl_logicOp_string, _zz_io_iqEntryIn_payload_aluCtrl_condition_string, _zz_io_iqEntryIn_payload_src1Data_1, _zz_io_iqEntryIn_payload_src2Data_1); // AluIntEuPlugin.scala:L113
             end
           `endif
         `endif
@@ -28038,13 +26997,13 @@ module CoreNSCSCC (
       if(ROBPlugin_aggregatedFlushSignal_valid) begin
         s3_Writeback_valid <= 1'b0;
       end
-      if(when_EuBasePlugin_l230) begin
+      if(when_EuBasePlugin_l232) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // EuBasePlugin.scala:L231
+            assert(1'b0); // EuBasePlugin.scala:L233
           `else
             if(!1'b0) begin
-              $display("NOTE(EuBasePlugin.scala:231):  EUBase (AluIntEU): Killing in-flight uop. robPtr=%x, flushTarget=%x", AluIntEU_AluIntEuPlugin_euResult_uop_robPtr, ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr); // EuBasePlugin.scala:L231
+              $display("NOTE(EuBasePlugin.scala:233):  EUBase (AluIntEU): Killing in-flight uop. robPtr=%x, flushTarget=%x", AluIntEU_AluIntEuPlugin_euResult_uop_robPtr, ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr); // EuBasePlugin.scala:L233
             end
           `endif
         `endif
@@ -28052,10 +27011,10 @@ module CoreNSCSCC (
       if(AluIntEU_AluIntEuPlugin_euResult_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // EuBasePlugin.scala:L243
+            assert(1'b0); // EuBasePlugin.scala:L245
           `else
             if(!1'b0) begin
-              $display("NOTE(EuBasePlugin.scala:243):  EUBase (AluIntEU): Result valid, writesToPreg=%x, hasException=%x, executionCompletes=%x, completesSuccessfully=%x, isFlushed=%x", AluIntEU_AluIntEuPlugin_euResult_writesToPreg, AluIntEU_AluIntEuPlugin_euResult_hasException, AluIntEU_AluIntEuPlugin_logicPhase_executionCompletes, AluIntEU_AluIntEuPlugin_logicPhase_completesSuccessfully, ROBPlugin_aggregatedFlushSignal_valid); // EuBasePlugin.scala:L243
+              $display("NOTE(EuBasePlugin.scala:245):  EUBase (AluIntEU): Result valid, writesToPreg=%x, hasException=%x, executionCompletes=%x, completesSuccessfully=%x, isFlushed=%x", AluIntEU_AluIntEuPlugin_euResult_writesToPreg, AluIntEU_AluIntEuPlugin_euResult_hasException, AluIntEU_AluIntEuPlugin_logicPhase_executionCompletes, AluIntEU_AluIntEuPlugin_logicPhase_completesSuccessfully, ROBPlugin_aggregatedFlushSignal_valid); // EuBasePlugin.scala:L245
             end
           `endif
         `endif
@@ -28074,13 +27033,13 @@ module CoreNSCSCC (
           `endif
         end
       end
-      if(when_EuBasePlugin_l301) begin
+      if(when_EuBasePlugin_l304) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // EuBasePlugin.scala:L302
+            assert(1'b0); // EuBasePlugin.scala:L305
           `else
             if(!1'b0) begin
-              $display("NOTE(EuBasePlugin.scala:302):  [RAW_DEBUG] EU (AluIntEU) clearing BusyTable: physReg=%x, robPtr=%x", AluIntEU_AluIntEuPlugin_euResult_uop_physDest_idx, AluIntEU_AluIntEuPlugin_euResult_uop_robPtr); // EuBasePlugin.scala:L302
+              $display("NOTE(EuBasePlugin.scala:305):  [RAW_DEBUG] EU (AluIntEU) clearing BusyTable: physReg=%x, robPtr=%x", AluIntEU_AluIntEuPlugin_euResult_uop_physDest_idx, AluIntEU_AluIntEuPlugin_euResult_uop_robPtr); // EuBasePlugin.scala:L305
             end
           `endif
         `endif
@@ -28091,7 +27050,7 @@ module CoreNSCSCC (
             assert(1'b0); // MulEuPlugin.scala:L96
           `else
             if(!1'b0) begin
-              $display("NOTE(MulEuPlugin.scala:96):  [normal] MulEuPlugin (MulEU) S2 Firing: RobPtr=%x, src1=%x, src2=%xmulDivCtrl=MulDivCtrlFlags: isDiv=%x isSigned=%x isWordOp=%x", _zz_MulEU_MulEuPlugin_euResult_uop_robPtr_6, _zz_A, _zz_B, _zz_23, _zz_24, _zz_25); // MulEuPlugin.scala:L96
+              $display("NOTE(MulEuPlugin.scala:96):  [normal ] %x     MulEuPlugin (MulEU) S2 Firing: RobPtr=%x, src1=%x, src2=%xmulDivCtrl=MulDivCtrlFlags: isDiv=%x isSigned=%x isWordOp=%x", PerfCounter_cycles, _zz_MulEU_MulEuPlugin_euResult_uop_robPtr_6, _zz_A, _zz_B, _zz_23, _zz_24, _zz_25); // MulEuPlugin.scala:L96
             end
           `endif
         `endif
@@ -28102,7 +27061,7 @@ module CoreNSCSCC (
             assert(1'b0); // MulEuPlugin.scala:L114
           `else
             if(!1'b0) begin
-              $display("NOTE(MulEuPlugin.scala:114):  [normal] MulEuPlugin (MulEU) S7 Firing: RobPtr=%x, Result=%xmulDivCtrl=MulDivCtrlFlags: isDiv=%x isSigned=%x isWordOp=%x", _zz_MulEU_MulEuPlugin_euResult_uop_robPtr_5, _zz_MulEU_MulEuPlugin_euResult_data, _zz_20, _zz_21, _zz_22); // MulEuPlugin.scala:L114
+              $display("NOTE(MulEuPlugin.scala:114):  [normal ] %x     MulEuPlugin (MulEU) S7 Firing: RobPtr=%x, Result=%xmulDivCtrl=MulDivCtrlFlags: isDiv=%x isSigned=%x isWordOp=%x", PerfCounter_cycles, _zz_MulEU_MulEuPlugin_euResult_uop_robPtr_5, _zz_MulEU_MulEuPlugin_euResult_data, _zz_20, _zz_21, _zz_22); // MulEuPlugin.scala:L114
             end
           `endif
         `endif
@@ -28135,13 +27094,13 @@ module CoreNSCSCC (
       if(ROBPlugin_aggregatedFlushSignal_valid) begin
         mul_s7_Writeback_valid <= 1'b0;
       end
-      if(when_EuBasePlugin_l230_1) begin
+      if(when_EuBasePlugin_l232_1) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // EuBasePlugin.scala:L231
+            assert(1'b0); // EuBasePlugin.scala:L233
           `else
             if(!1'b0) begin
-              $display("NOTE(EuBasePlugin.scala:231):  EUBase (MulEU): Killing in-flight uop. robPtr=%x, flushTarget=%x", MulEU_MulEuPlugin_euResult_uop_robPtr, ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr); // EuBasePlugin.scala:L231
+              $display("NOTE(EuBasePlugin.scala:233):  EUBase (MulEU): Killing in-flight uop. robPtr=%x, flushTarget=%x", MulEU_MulEuPlugin_euResult_uop_robPtr, ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr); // EuBasePlugin.scala:L233
             end
           `endif
         `endif
@@ -28149,10 +27108,10 @@ module CoreNSCSCC (
       if(MulEU_MulEuPlugin_euResult_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // EuBasePlugin.scala:L243
+            assert(1'b0); // EuBasePlugin.scala:L245
           `else
             if(!1'b0) begin
-              $display("NOTE(EuBasePlugin.scala:243):  EUBase (MulEU): Result valid, writesToPreg=%x, hasException=%x, executionCompletes=%x, completesSuccessfully=%x, isFlushed=%x", MulEU_MulEuPlugin_euResult_writesToPreg, MulEU_MulEuPlugin_euResult_hasException, MulEU_MulEuPlugin_logicPhase_executionCompletes, MulEU_MulEuPlugin_logicPhase_completesSuccessfully, ROBPlugin_aggregatedFlushSignal_valid); // EuBasePlugin.scala:L243
+              $display("NOTE(EuBasePlugin.scala:245):  EUBase (MulEU): Result valid, writesToPreg=%x, hasException=%x, executionCompletes=%x, completesSuccessfully=%x, isFlushed=%x", MulEU_MulEuPlugin_euResult_writesToPreg, MulEU_MulEuPlugin_euResult_hasException, MulEU_MulEuPlugin_logicPhase_executionCompletes, MulEU_MulEuPlugin_logicPhase_completesSuccessfully, ROBPlugin_aggregatedFlushSignal_valid); // EuBasePlugin.scala:L245
             end
           `endif
         `endif
@@ -28171,13 +27130,13 @@ module CoreNSCSCC (
           `endif
         end
       end
-      if(when_EuBasePlugin_l301_1) begin
+      if(when_EuBasePlugin_l304_1) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // EuBasePlugin.scala:L302
+            assert(1'b0); // EuBasePlugin.scala:L305
           `else
             if(!1'b0) begin
-              $display("NOTE(EuBasePlugin.scala:302):  [RAW_DEBUG] EU (MulEU) clearing BusyTable: physReg=%x, robPtr=%x", MulEU_MulEuPlugin_euResult_uop_physDest_idx, MulEU_MulEuPlugin_euResult_uop_robPtr); // EuBasePlugin.scala:L302
+              $display("NOTE(EuBasePlugin.scala:305):  [RAW_DEBUG] EU (MulEU) clearing BusyTable: physReg=%x, robPtr=%x", MulEU_MulEuPlugin_euResult_uop_physDest_idx, MulEU_MulEuPlugin_euResult_uop_robPtr); // EuBasePlugin.scala:L305
             end
           `endif
         `endif
@@ -28210,7 +27169,7 @@ module CoreNSCSCC (
             assert(1'b0); // BranchEuPlugin.scala:L151
           `else
             if(!1'b0) begin
-              $display("NOTE(BranchEuPlugin.scala:151):  [BranchEU-S2-Select] SELECT START: PC=0x%x, branchTaken(from S1)=%x", _zz_BranchEU_BranchEuPlugin_euResult_uop_pc_1, _zz_BranchEU_BranchEuPlugin_euResult_data_2); // BranchEuPlugin.scala:L151
+              $display("NOTE(BranchEuPlugin.scala:151):  [BranchEU-S2-Select] SELECT START: PC=0x%x, branchTaken(from S1)=%x isIndirect=%x, imm=%x", _zz_BranchEU_BranchEuPlugin_euResult_uop_pc_1, _zz_BranchEU_BranchEuPlugin_euResult_data_2, _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isIndirect_1, _zz_BranchEU_BranchEuPlugin_euResult_uop_imm_1); // BranchEuPlugin.scala:L151
             end
           `endif
         `endif
@@ -28221,7 +27180,7 @@ module CoreNSCSCC (
             assert(1'b0); // BranchEuPlugin.scala:L191
           `else
             if(!1'b0) begin
-              $display("NOTE(BranchEuPlugin.scala:191):  [BranchEU-S2-Select] PREDICTION: wasPredicted(valid)=%x: predictedTaken=%x, actuallyTaken=%x, finalTarget=0x%x, mispredicted=%x", _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted_1, _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken_1, _zz_BranchEU_BranchEuPlugin_euResult_isTaken_1, _zz_BranchEU_BranchEuPlugin_euResult_data_6, _zz_53); // BranchEuPlugin.scala:L191
+              $display("NOTE(BranchEuPlugin.scala:191):  [BranchEU-S2-Select] PREDICTION: wasPredicted(valid)=%x: predictedTaken=%x, actuallyTaken=%x, finalTarget=0x%x, mispredicted=%x", _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted_1, _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_isTaken_1, _zz_BranchEU_BranchEuPlugin_euResult_isTaken_1, _zz_BranchEU_BranchEuPlugin_euResult_data_5, _zz_53); // BranchEuPlugin.scala:L191
             end
           `endif
         `endif
@@ -28229,10 +27188,10 @@ module CoreNSCSCC (
       if(s3_Result_isFiring) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // BranchEuPlugin.scala:L226
+            assert(1'b0); // BranchEuPlugin.scala:L227
           `else
             if(!1'b0) begin
-              $display("NOTE(BranchEuPlugin.scala:226):  [BranchEU-S3-Result] RESULT: euResult.valid=1, writesToPreg=%x, data=0x%x, mispredicted=%x", BranchEU_BranchEuPlugin_euResult_writesToPreg, BranchEU_BranchEuPlugin_euResult_data, BranchEU_BranchEuPlugin_euResult_isMispredictedBranch); // BranchEuPlugin.scala:L226
+              $display("NOTE(BranchEuPlugin.scala:227):  [BranchEU-S3-Result] RESULT: euResult.valid=1, writesToPreg=%x, data=0x%x, mispredicted=%x", BranchEU_BranchEuPlugin_euResult_writesToPreg, BranchEU_BranchEuPlugin_euResult_data, BranchEU_BranchEuPlugin_euResult_isMispredictedBranch); // BranchEuPlugin.scala:L227
             end
           `endif
         `endif
@@ -28249,13 +27208,13 @@ module CoreNSCSCC (
       if(ROBPlugin_aggregatedFlushSignal_valid) begin
         s3_Result_valid <= 1'b0;
       end
-      if(when_EuBasePlugin_l230_2) begin
+      if(when_EuBasePlugin_l232_2) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // EuBasePlugin.scala:L231
+            assert(1'b0); // EuBasePlugin.scala:L233
           `else
             if(!1'b0) begin
-              $display("NOTE(EuBasePlugin.scala:231):  EUBase (BranchEU): Killing in-flight uop. robPtr=%x, flushTarget=%x", BranchEU_BranchEuPlugin_euResult_uop_robPtr, ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr); // EuBasePlugin.scala:L231
+              $display("NOTE(EuBasePlugin.scala:233):  EUBase (BranchEU): Killing in-flight uop. robPtr=%x, flushTarget=%x", BranchEU_BranchEuPlugin_euResult_uop_robPtr, ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr); // EuBasePlugin.scala:L233
             end
           `endif
         `endif
@@ -28263,10 +27222,10 @@ module CoreNSCSCC (
       if(BranchEU_BranchEuPlugin_euResult_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // EuBasePlugin.scala:L243
+            assert(1'b0); // EuBasePlugin.scala:L245
           `else
             if(!1'b0) begin
-              $display("NOTE(EuBasePlugin.scala:243):  EUBase (BranchEU): Result valid, writesToPreg=%x, hasException=%x, executionCompletes=%x, completesSuccessfully=%x, isFlushed=%x", BranchEU_BranchEuPlugin_euResult_writesToPreg, BranchEU_BranchEuPlugin_euResult_hasException, BranchEU_BranchEuPlugin_logicPhase_executionCompletes, BranchEU_BranchEuPlugin_logicPhase_completesSuccessfully, ROBPlugin_aggregatedFlushSignal_valid); // EuBasePlugin.scala:L243
+              $display("NOTE(EuBasePlugin.scala:245):  EUBase (BranchEU): Result valid, writesToPreg=%x, hasException=%x, executionCompletes=%x, completesSuccessfully=%x, isFlushed=%x", BranchEU_BranchEuPlugin_euResult_writesToPreg, BranchEU_BranchEuPlugin_euResult_hasException, BranchEU_BranchEuPlugin_logicPhase_executionCompletes, BranchEU_BranchEuPlugin_logicPhase_completesSuccessfully, ROBPlugin_aggregatedFlushSignal_valid); // EuBasePlugin.scala:L245
             end
           `endif
         `endif
@@ -28285,13 +27244,13 @@ module CoreNSCSCC (
           `endif
         end
       end
-      if(when_EuBasePlugin_l301_2) begin
+      if(when_EuBasePlugin_l304_2) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // EuBasePlugin.scala:L302
+            assert(1'b0); // EuBasePlugin.scala:L305
           `else
             if(!1'b0) begin
-              $display("NOTE(EuBasePlugin.scala:302):  [RAW_DEBUG] EU (BranchEU) clearing BusyTable: physReg=%x, robPtr=%x", BranchEU_BranchEuPlugin_euResult_uop_physDest_idx, BranchEU_BranchEuPlugin_euResult_uop_robPtr); // EuBasePlugin.scala:L302
+              $display("NOTE(EuBasePlugin.scala:305):  [RAW_DEBUG] EU (BranchEU) clearing BusyTable: physReg=%x, robPtr=%x", BranchEU_BranchEuPlugin_euResult_uop_physDest_idx, BranchEU_BranchEuPlugin_euResult_uop_robPtr); // EuBasePlugin.scala:L305
             end
           `endif
         `endif
@@ -28303,7 +27262,7 @@ module CoreNSCSCC (
               assert(1'b0); // LsuEuPlugin.scala:L144
             `else
               if(!1'b0) begin
-                $display("NOTE(LsuEuPlugin.scala:144):  [normal] [LsuEu] Dispatched LOAD to LQ: robPtr=%x", LsuEU_LsuEuPlugin_hw_aguPort_output_payload_robPtr); // LsuEuPlugin.scala:L144
+                $display("NOTE(LsuEuPlugin.scala:144):  [normal ] %x     [LsuEu] Dispatched LOAD to LQ: robPtr=%x", PerfCounter_cycles, LsuEU_LsuEuPlugin_hw_aguPort_output_payload_robPtr); // LsuEuPlugin.scala:L144
               end
             `endif
           `endif
@@ -28314,19 +27273,19 @@ module CoreNSCSCC (
               assert(1'b0); // LsuEuPlugin.scala:L145
             `else
               if(!1'b0) begin
-                $display("NOTE(LsuEuPlugin.scala:145):  [normal] [LsuEu] Dispatched STORE to SB: robPtr=%x pc=%x addr=%x data=%x", LsuEU_LsuEuPlugin_hw_aguPort_output_payload_robPtr, LsuEU_LsuEuPlugin_euInputPort_payload_pcData, LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address, LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeData); // LsuEuPlugin.scala:L145
+                $display("NOTE(LsuEuPlugin.scala:145):  [normal ] %x     [LsuEu] Dispatched STORE to SB: robPtr=%x pc=%x addr=%x data=%x", PerfCounter_cycles, LsuEU_LsuEuPlugin_hw_aguPort_output_payload_robPtr, LsuEU_LsuEuPlugin_hw_aguPort_output_payload_pc, LsuEU_LsuEuPlugin_hw_aguPort_output_payload_address, LsuEU_LsuEuPlugin_hw_aguPort_output_payload_storeData); // LsuEuPlugin.scala:L145
               end
             `endif
           `endif
         end
       end
-      if(when_EuBasePlugin_l230_3) begin
+      if(when_EuBasePlugin_l232_3) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // EuBasePlugin.scala:L231
+            assert(1'b0); // EuBasePlugin.scala:L233
           `else
             if(!1'b0) begin
-              $display("NOTE(EuBasePlugin.scala:231):  EUBase (LsuEU): Killing in-flight uop. robPtr=%x, flushTarget=%x", LsuEU_LsuEuPlugin_euResult_uop_robPtr, ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr); // EuBasePlugin.scala:L231
+              $display("NOTE(EuBasePlugin.scala:233):  EUBase (LsuEU): Killing in-flight uop. robPtr=%x, flushTarget=%x", LsuEU_LsuEuPlugin_euResult_uop_robPtr, ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr); // EuBasePlugin.scala:L233
             end
           `endif
         `endif
@@ -28334,10 +27293,10 @@ module CoreNSCSCC (
       if(LsuEU_LsuEuPlugin_euResult_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // EuBasePlugin.scala:L243
+            assert(1'b0); // EuBasePlugin.scala:L245
           `else
             if(!1'b0) begin
-              $display("NOTE(EuBasePlugin.scala:243):  EUBase (LsuEU): Result valid, writesToPreg=%x, hasException=%x, executionCompletes=%x, completesSuccessfully=%x, isFlushed=%x", LsuEU_LsuEuPlugin_euResult_writesToPreg, LsuEU_LsuEuPlugin_euResult_hasException, LsuEU_LsuEuPlugin_logicPhase_executionCompletes, LsuEU_LsuEuPlugin_logicPhase_completesSuccessfully, ROBPlugin_aggregatedFlushSignal_valid); // EuBasePlugin.scala:L243
+              $display("NOTE(EuBasePlugin.scala:245):  EUBase (LsuEU): Result valid, writesToPreg=%x, hasException=%x, executionCompletes=%x, completesSuccessfully=%x, isFlushed=%x", LsuEU_LsuEuPlugin_euResult_writesToPreg, LsuEU_LsuEuPlugin_euResult_hasException, LsuEU_LsuEuPlugin_logicPhase_executionCompletes, LsuEU_LsuEuPlugin_logicPhase_completesSuccessfully, ROBPlugin_aggregatedFlushSignal_valid); // EuBasePlugin.scala:L245
             end
           `endif
         `endif
@@ -28356,13 +27315,13 @@ module CoreNSCSCC (
           `endif
         end
       end
-      if(when_EuBasePlugin_l301_3) begin
+      if(when_EuBasePlugin_l304_3) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // EuBasePlugin.scala:L302
+            assert(1'b0); // EuBasePlugin.scala:L305
           `else
             if(!1'b0) begin
-              $display("NOTE(EuBasePlugin.scala:302):  [RAW_DEBUG] EU (LsuEU) clearing BusyTable: physReg=%x, robPtr=%x", LsuEU_LsuEuPlugin_euResult_uop_physDest_idx, LsuEU_LsuEuPlugin_euResult_uop_robPtr); // EuBasePlugin.scala:L302
+              $display("NOTE(EuBasePlugin.scala:305):  [RAW_DEBUG] EU (LsuEU) clearing BusyTable: physReg=%x, robPtr=%x", LsuEU_LsuEuPlugin_euResult_uop_physDest_idx, LsuEU_LsuEuPlugin_euResult_uop_robPtr); // EuBasePlugin.scala:L305
             end
           `endif
         `endif
@@ -28389,13 +27348,70 @@ module CoreNSCSCC (
       if(LsuEU_LsuEuPlugin_hw_aguPort_flush) begin
         _zz_io_push_valid <= 1'b0;
       end
+      if(_zz_LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_valid) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // AddressGenerationUnit.scala:L198
+          `else
+            if(!1'b0) begin
+              $display("NOTE(AddressGenerationUnit.scala:198):  [AGU-0-S0-Input] PC=0x%x, basePhysReg=%x, dataReg=%x, isLoad=%x, isStore=%x, robPtr=%x", LsuEU_LsuEuPlugin_hw_aguPort_input_payload_pc, LsuEU_LsuEuPlugin_hw_aguPort_input_payload_basePhysReg, LsuEU_LsuEuPlugin_hw_aguPort_input_payload_dataReg, LsuEU_LsuEuPlugin_hw_aguPort_input_payload_isLoad, LsuEU_LsuEuPlugin_hw_aguPort_input_payload_isStore, LsuEU_LsuEuPlugin_hw_aguPort_input_payload_robPtr); // AddressGenerationUnit.scala:L198
+            end
+          `endif
+        `endif
+      end
+      if(_zz_io_push_valid) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // AddressGenerationUnit.scala:L201
+          `else
+            if(!1'b0) begin
+              $display("NOTE(AddressGenerationUnit.scala:201):  [AGU-0-S1-Input] PC=0x%x, basePhysReg=%x, dataReg=%x, prfBaseRsp=0x%x, prfDataRsp=0x%x", _zz_io_push_payload_pc, _zz_when_AddressGenerationUnit_l219, _zz_when_AddressGenerationUnit_l224, _zz_io_push_payload_address, _zz_io_push_payload_storeData); // AddressGenerationUnit.scala:L201
+            end
+          `endif
+        `endif
+      end
+      if(_zz_io_push_valid) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // AddressGenerationUnit.scala:L214
+          `else
+            if(!1'b0) begin
+              $display("NOTE(AddressGenerationUnit.scala:214):  [AGU-0-BypassFlowState] PC=0x%x, bypassFlow.valid=%x, bypassFlow.physRegIdx=%x, bypassFlow.data=0x%x", _zz_io_push_payload_pc, AguPlugin_logic_bypassFlow_valid, AguPlugin_logic_bypassFlow_payload_physRegIdx, AguPlugin_logic_bypassFlow_payload_physRegData); // AddressGenerationUnit.scala:L214
+            end
+          `endif
+        `endif
+      end
+      if(AguPlugin_logic_bypassFlow_valid) begin
+        if(when_AddressGenerationUnit_l219) begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // AddressGenerationUnit.scala:L222
+            `else
+              if(!1'b0) begin
+                $display("NOTE(AddressGenerationUnit.scala:222):  [AGU-0-BypassMatch] PC=0x%x, BaseReg Matched! PhysReg=%x, BypassData=0x%x", _zz_io_push_payload_pc, _zz_when_AddressGenerationUnit_l219, AguPlugin_logic_bypassFlow_payload_physRegData); // AddressGenerationUnit.scala:L222
+              end
+            `endif
+          `endif
+        end
+        if(when_AddressGenerationUnit_l224) begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // AddressGenerationUnit.scala:L227
+            `else
+              if(!1'b0) begin
+                $display("NOTE(AddressGenerationUnit.scala:227):  [AGU-0-BypassMatch] PC=0x%x, DataReg Matched! PhysReg=%x, BypassData=0x%x", _zz_io_push_payload_pc, _zz_when_AddressGenerationUnit_l224, AguPlugin_logic_bypassFlow_payload_physRegData); // AddressGenerationUnit.scala:L227
+              end
+            `endif
+          `endif
+        end
+      end
       if(_zz_io_push_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
             assert(1'b0); // AddressGenerationUnit.scala:L270
           `else
             if(!1'b0) begin
-              $display("NOTE(AddressGenerationUnit.scala:270):  [normal] [AGU-0-S1-Output-Debug] s1.payload=AguInput(qPtr=%x,basePhysReg=%x,immediate=%x,accessSize=%s,isSignedLoad=%x,usePc=%x,pc=%x,dataReg=%x,robPtr=%x,isLoad=%x,isStore=%x,isFlush=%x,isIO=%x,physDst=%x) baseData=0x%x ==> effAddr=0x%x", _zz_io_push_payload_qPtr, _zz_when_AddressGenerationUnit_l219, _zz_io_push_payload_immediate, _zz_io_push_payload_alignException_string, _zz_io_push_payload_isSignedLoad, _zz_io_push_payload_usePc, _zz_io_push_payload_pc, _zz_when_AddressGenerationUnit_l224, _zz_io_push_payload_robPtr, _zz_io_push_payload_isLoad, _zz_when_AddressGenerationUnit_l224_1, _zz_io_push_payload_isFlush, _zz_io_push_payload_isIO, _zz_io_push_payload_physDst, _zz_io_push_payload_address_3, _zz_io_push_payload_address_4); // AddressGenerationUnit.scala:L270
+              $display("NOTE(AddressGenerationUnit.scala:270):  [normal ] %x     [AGU-0-S1-Output-Debug] s1.payload=AguInput(qPtr=%x,basePhysReg=%x,immediate=%x,accessSize=%s,isSignedLoad=%x,usePc=%x,pc=%x,dataReg=%x,robPtr=%x,isLoad=%x,isStore=%x,isFlush=%x,isIO=%x,physDst=%x) baseData=0x%x ==> effAddr=0x%x", PerfCounter_cycles, _zz_io_push_payload_qPtr, _zz_when_AddressGenerationUnit_l219, _zz_io_push_payload_immediate, _zz_io_push_payload_alignException_string, _zz_io_push_payload_isSignedLoad, _zz_io_push_payload_usePc, _zz_io_push_payload_pc, _zz_when_AddressGenerationUnit_l224, _zz_io_push_payload_robPtr, _zz_io_push_payload_isLoad, _zz_when_AddressGenerationUnit_l224_1, _zz_io_push_payload_isFlush, _zz_io_push_payload_isIO, _zz_io_push_payload_physDst, _zz_io_push_payload_address_3, _zz_io_push_payload_address_4); // AddressGenerationUnit.scala:L270
             end
           `endif
         `endif
@@ -28414,10 +27430,10 @@ module CoreNSCSCC (
       if(LoadQueuePlugin_logic_pushCmd_fire) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // LoadQueuePlugin.scala:L311
+            assert(1'b0); // LoadQueuePlugin.scala:L310
           `else
             if(!1'b0) begin
-              $display("NOTE(LoadQueuePlugin.scala:311):  [normal] [LQ] PUSH from LsuEu: robPtr=%x addr=%x to slotIdx=%x", LoadQueuePlugin_logic_pushCmd_payload_robPtr, LoadQueuePlugin_logic_pushCmd_payload_address, LoadQueuePlugin_logic_loadQueue_pushIdx); // LoadQueuePlugin.scala:L311
+              $display("NOTE(LoadQueuePlugin.scala:310):  [normal ] %x     [LQ] PUSH from LsuEu: robPtr=%x addr=%x to slotIdx=%x", PerfCounter_cycles, LoadQueuePlugin_logic_pushCmd_payload_robPtr, LoadQueuePlugin_logic_pushCmd_payload_address, LoadQueuePlugin_logic_loadQueue_pushIdx); // LoadQueuePlugin.scala:L310
             end
           `endif
         `endif
@@ -28425,76 +27441,76 @@ module CoreNSCSCC (
       if(StoreBufferPlugin_hw_sqQueryPort_cmd_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // LoadQueuePlugin.scala:L333
+            assert(1'b0); // LoadQueuePlugin.scala:L332
           `else
             if(!1'b0) begin
-              $display("NOTE(LoadQueuePlugin.scala:333):  [normal] [LQ-Fwd] QUERY: robPtr=%x addr=%x", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, LoadQueuePlugin_logic_loadQueue_slots_0_address); // LoadQueuePlugin.scala:L333
+              $display("NOTE(LoadQueuePlugin.scala:332):  [normal ] %x     [LQ-Fwd] QUERY: robPtr=%x addr=%x", PerfCounter_cycles, LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, LoadQueuePlugin_logic_loadQueue_slots_0_address); // LoadQueuePlugin.scala:L332
             end
           `endif
         `endif
       end
-      if(when_LoadQueuePlugin_l336) begin
+      if(when_LoadQueuePlugin_l335) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // LoadQueuePlugin.scala:L339
+            assert(1'b0); // LoadQueuePlugin.scala:L338
           `else
             if(!1'b0) begin
-              $display("NOTE(LoadQueuePlugin.scala:339):  [normal] --- LQ FWD RESPONSE --- Cycle=%x\n  Head ROB Ptr: %x\n  Rsp Hit: %x, Rsp Stall: %x", LoadQueuePlugin_logic_perfCounter_io_value, LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_hit, _zz_59); // LoadQueuePlugin.scala:L339
+              $display("NOTE(LoadQueuePlugin.scala:338):  [normal ] %x       Head ROB Ptr: %x\n  Rsp Hit: %x, Rsp Stall: %x", PerfCounter_cycles, LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_hit, _zz_59); // LoadQueuePlugin.scala:L338
             end
           `endif
         `endif
         if(LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_hit) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // LoadQueuePlugin.scala:L346
+              assert(1'b0); // LoadQueuePlugin.scala:L344
             `else
               if(!1'b0) begin
-                $display("NOTE(LoadQueuePlugin.scala:346):  [normal] [LQ-Fwd] HIT: robPtr=%x, data=%x. Will complete via popOnFwdHit.", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_data); // LoadQueuePlugin.scala:L346
+                $display("NOTE(LoadQueuePlugin.scala:344):  [normal ] %x     [LQ-Fwd] HIT: robPtr=%x, data=%x. Will complete via popOnFwdHit.", PerfCounter_cycles, LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, LoadQueuePlugin_logic_loadQueue_sbQueryRspReg_data); // LoadQueuePlugin.scala:L344
               end
             `endif
           `endif
         end else begin
-          if(when_LoadQueuePlugin_l347) begin
+          if(when_LoadQueuePlugin_l345) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // LoadQueuePlugin.scala:L348
+                assert(1'b0); // LoadQueuePlugin.scala:L346
               `else
                 if(!1'b0) begin
-                  $display("NOTE(LoadQueuePlugin.scala:348):  [normal] [LQ-Fwd] STALL: robPtr=%x has dependency...", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr); // LoadQueuePlugin.scala:L348
+                  $display("NOTE(LoadQueuePlugin.scala:346):  [normal ] %x     [LQ-Fwd] STALL: robPtr=%x has dependency...", PerfCounter_cycles, LoadQueuePlugin_logic_loadQueue_slots_0_robPtr); // LoadQueuePlugin.scala:L346
                 end
               `endif
             `endif
           end else begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // LoadQueuePlugin.scala:L351
+                assert(1'b0); // LoadQueuePlugin.scala:L349
               `else
                 if(!1'b0) begin
-                  $display("NOTE(LoadQueuePlugin.scala:351):  [normal] [LQ-Fwd] MISS: robPtr=%x is clear to access D-Cache or MMIO.", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr); // LoadQueuePlugin.scala:L351
+                  $display("NOTE(LoadQueuePlugin.scala:349):  [normal ] %x     [LQ-Fwd] MISS: robPtr=%x is clear to access D-Cache or MMIO.", PerfCounter_cycles, LoadQueuePlugin_logic_loadQueue_slots_0_robPtr); // LoadQueuePlugin.scala:L349
                 end
               `endif
             `endif
           end
         end
       end
-      if(when_LoadQueuePlugin_l362) begin
+      if(when_LoadQueuePlugin_l360) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // LoadQueuePlugin.scala:L364
+            assert(1'b0); // LoadQueuePlugin.scala:L362
           `else
             if(!1'b0) begin
-              $display("NOTE(LoadQueuePlugin.scala:364):  [normal] [LQ] Early exception for robPtr=%x, marking ready for exception handling", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr); // LoadQueuePlugin.scala:L364
+              $display("NOTE(LoadQueuePlugin.scala:362):  [normal ] %x     [LQ] Early exception for robPtr=%x, marking ready for exception handling", PerfCounter_cycles, LoadQueuePlugin_logic_loadQueue_slots_0_robPtr); // LoadQueuePlugin.scala:L362
             end
           `endif
         `endif
       end
-      if(when_LoadQueuePlugin_l395) begin
+      if(when_LoadQueuePlugin_l393) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // LoadQueuePlugin.scala:L396
+            assert(1'b0); // LoadQueuePlugin.scala:L394
           `else
             if(!1'b0) begin
-              $display("NOTE(LoadQueuePlugin.scala:396):  [normal] [LQ-MMIO] robPtr=%x head is ready but: head.hasException=%x, shouldNotSendToMemory=%x, head.isIO=%x, mmioChannel.cmd.ready=%x", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, LoadQueuePlugin_logic_loadQueue_slots_0_hasException, LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForFwdRsp, LoadQueuePlugin_logic_loadQueue_slots_0_isIO, _zz_LoadQueuePlugin_logic_loadQueue_mmioCmdFired_1); // LoadQueuePlugin.scala:L396
+              $display("NOTE(LoadQueuePlugin.scala:394):  [normal ] %x     [LQ-MMIO] robPtr=%x head is ready but: head.hasException=%x, shouldNotSendToMemory=%x, head.isIO=%x, mmioChannel.cmd.ready=%x", PerfCounter_cycles, LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, LoadQueuePlugin_logic_loadQueue_slots_0_hasException, LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForFwdRsp, LoadQueuePlugin_logic_loadQueue_slots_0_isIO, _zz_LoadQueuePlugin_logic_loadQueue_mmioCmdFired_1); // LoadQueuePlugin.scala:L394
             end
           `endif
         `endif
@@ -28502,10 +27518,10 @@ module CoreNSCSCC (
       if(LoadQueuePlugin_logic_loadQueue_mmioCmdFired) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // LoadQueuePlugin.scala:L408
+            assert(1'b0); // LoadQueuePlugin.scala:L406
           `else
             if(!1'b0) begin
-              $display("NOTE(LoadQueuePlugin.scala:408):  [normal] [LQ-MMIO] SEND_TO_MMIO: robPtr=%x addr=%x", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, LoadQueuePlugin_logic_loadQueue_slots_0_address); // LoadQueuePlugin.scala:L408
+              $display("NOTE(LoadQueuePlugin.scala:406):  [normal ] %x     [LQ-MMIO] SEND_TO_MMIO: robPtr=%x addr=%x", PerfCounter_cycles, LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, LoadQueuePlugin_logic_loadQueue_slots_0_address); // LoadQueuePlugin.scala:L406
             end
           `endif
         `endif
@@ -28514,55 +27530,55 @@ module CoreNSCSCC (
         if(LoadQueuePlugin_logic_loadQueue_mmioResponseIsForHead) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // LoadQueuePlugin.scala:L482
+              assert(1'b0); // LoadQueuePlugin.scala:L480
             `else
               if(!1'b0) begin
-                $display("NOTE(LoadQueuePlugin.scala:482):  [LQ-MMIO] MMIO RESPONSE: robPtr=%x, data=%x, error=%x", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, _zz_LoadQueuePlugin_logic_loadQueue_completionInfo_data, _zz_LoadQueuePlugin_logic_loadQueue_completionInfo_hasFault); // LoadQueuePlugin.scala:L482
+                $display("NOTE(LoadQueuePlugin.scala:480):  [LQ-MMIO] MMIO RESPONSE: robPtr=%x, data=%x, error=%x", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr, _zz_LoadQueuePlugin_logic_loadQueue_completionInfo_data, _zz_LoadQueuePlugin_logic_loadQueue_completionInfo_hasFault); // LoadQueuePlugin.scala:L480
               end
             `endif
           `endif
         end
       end
-      if(when_LoadQueuePlugin_l565) begin
+      if(when_LoadQueuePlugin_l563) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // LoadQueuePlugin.scala:L568
+            assert(1'b0); // LoadQueuePlugin.scala:L566
           `else
             if(!1'b0) begin
-              $display("NOTE(LoadQueuePlugin.scala:568):  [normal] [LQ] FLUSH (Exec): Invalidating slotIdx=0 (robPtr=%x)", LoadQueuePlugin_logic_loadQueue_slots_0_robPtr); // LoadQueuePlugin.scala:L568
+              $display("NOTE(LoadQueuePlugin.scala:566):  [normal ] %x     [LQ] FLUSH (Exec): Invalidating slotIdx=0 (robPtr=%x)", PerfCounter_cycles, LoadQueuePlugin_logic_loadQueue_slots_0_robPtr); // LoadQueuePlugin.scala:L566
             end
           `endif
         `endif
       end
-      if(when_LoadQueuePlugin_l565_1) begin
+      if(when_LoadQueuePlugin_l563_1) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // LoadQueuePlugin.scala:L568
+            assert(1'b0); // LoadQueuePlugin.scala:L566
           `else
             if(!1'b0) begin
-              $display("NOTE(LoadQueuePlugin.scala:568):  [normal] [LQ] FLUSH (Exec): Invalidating slotIdx=1 (robPtr=%x)", LoadQueuePlugin_logic_loadQueue_slots_1_robPtr); // LoadQueuePlugin.scala:L568
+              $display("NOTE(LoadQueuePlugin.scala:566):  [normal ] %x     [LQ] FLUSH (Exec): Invalidating slotIdx=1 (robPtr=%x)", PerfCounter_cycles, LoadQueuePlugin_logic_loadQueue_slots_1_robPtr); // LoadQueuePlugin.scala:L566
             end
           `endif
         `endif
       end
-      if(when_LoadQueuePlugin_l565_2) begin
+      if(when_LoadQueuePlugin_l563_2) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // LoadQueuePlugin.scala:L568
+            assert(1'b0); // LoadQueuePlugin.scala:L566
           `else
             if(!1'b0) begin
-              $display("NOTE(LoadQueuePlugin.scala:568):  [normal] [LQ] FLUSH (Exec): Invalidating slotIdx=2 (robPtr=%x)", LoadQueuePlugin_logic_loadQueue_slots_2_robPtr); // LoadQueuePlugin.scala:L568
+              $display("NOTE(LoadQueuePlugin.scala:566):  [normal ] %x     [LQ] FLUSH (Exec): Invalidating slotIdx=2 (robPtr=%x)", PerfCounter_cycles, LoadQueuePlugin_logic_loadQueue_slots_2_robPtr); // LoadQueuePlugin.scala:L566
             end
           `endif
         `endif
       end
-      if(when_LoadQueuePlugin_l565_3) begin
+      if(when_LoadQueuePlugin_l563_3) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // LoadQueuePlugin.scala:L568
+            assert(1'b0); // LoadQueuePlugin.scala:L566
           `else
             if(!1'b0) begin
-              $display("NOTE(LoadQueuePlugin.scala:568):  [normal] [LQ] FLUSH (Exec): Invalidating slotIdx=3 (robPtr=%x)", LoadQueuePlugin_logic_loadQueue_slots_3_robPtr); // LoadQueuePlugin.scala:L568
+              $display("NOTE(LoadQueuePlugin.scala:566):  [normal ] %x     [LQ] FLUSH (Exec): Invalidating slotIdx=3 (robPtr=%x)", PerfCounter_cycles, LoadQueuePlugin_logic_loadQueue_slots_3_robPtr); // LoadQueuePlugin.scala:L566
             end
           `endif
         `endif
@@ -28625,7 +27641,7 @@ module CoreNSCSCC (
             assert(1'b0); // PhysicalRegFile.scala:L104
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:104):  [normal] [PRegPlugin] Read from reg[%x] -> %x", AluIntEU_AluIntEuPlugin_gprReadPorts_0_address, AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp); // PhysicalRegFile.scala:L104
+              $display("NOTE(PhysicalRegFile.scala:104):  [normal ] %x     [PRegPlugin] Read from reg[%x] -> %x", PerfCounter_cycles, AluIntEU_AluIntEuPlugin_gprReadPorts_0_address, AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp); // PhysicalRegFile.scala:L104
             end
           `endif
         `endif
@@ -28636,7 +27652,7 @@ module CoreNSCSCC (
             assert(1'b0); // PhysicalRegFile.scala:L104
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:104):  [normal] [PRegPlugin] Read from reg[%x] -> %x", AluIntEU_AluIntEuPlugin_gprReadPorts_1_address, AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp); // PhysicalRegFile.scala:L104
+              $display("NOTE(PhysicalRegFile.scala:104):  [normal ] %x     [PRegPlugin] Read from reg[%x] -> %x", PerfCounter_cycles, AluIntEU_AluIntEuPlugin_gprReadPorts_1_address, AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp); // PhysicalRegFile.scala:L104
             end
           `endif
         `endif
@@ -28647,7 +27663,7 @@ module CoreNSCSCC (
             assert(1'b0); // PhysicalRegFile.scala:L104
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:104):  [normal] [PRegPlugin] Read from reg[%x] -> %x", MulEU_MulEuPlugin_gprReadPorts_0_address, MulEU_MulEuPlugin_gprReadPorts_0_rsp); // PhysicalRegFile.scala:L104
+              $display("NOTE(PhysicalRegFile.scala:104):  [normal ] %x     [PRegPlugin] Read from reg[%x] -> %x", PerfCounter_cycles, MulEU_MulEuPlugin_gprReadPorts_0_address, MulEU_MulEuPlugin_gprReadPorts_0_rsp); // PhysicalRegFile.scala:L104
             end
           `endif
         `endif
@@ -28658,7 +27674,7 @@ module CoreNSCSCC (
             assert(1'b0); // PhysicalRegFile.scala:L104
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:104):  [normal] [PRegPlugin] Read from reg[%x] -> %x", MulEU_MulEuPlugin_gprReadPorts_1_address, MulEU_MulEuPlugin_gprReadPorts_1_rsp); // PhysicalRegFile.scala:L104
+              $display("NOTE(PhysicalRegFile.scala:104):  [normal ] %x     [PRegPlugin] Read from reg[%x] -> %x", PerfCounter_cycles, MulEU_MulEuPlugin_gprReadPorts_1_address, MulEU_MulEuPlugin_gprReadPorts_1_rsp); // PhysicalRegFile.scala:L104
             end
           `endif
         `endif
@@ -28669,7 +27685,7 @@ module CoreNSCSCC (
             assert(1'b0); // PhysicalRegFile.scala:L104
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:104):  [normal] [PRegPlugin] Read from reg[%x] -> %x", BranchEU_BranchEuPlugin_gprReadPorts_0_address, BranchEU_BranchEuPlugin_gprReadPorts_0_rsp); // PhysicalRegFile.scala:L104
+              $display("NOTE(PhysicalRegFile.scala:104):  [normal ] %x     [PRegPlugin] Read from reg[%x] -> %x", PerfCounter_cycles, BranchEU_BranchEuPlugin_gprReadPorts_0_address, BranchEU_BranchEuPlugin_gprReadPorts_0_rsp); // PhysicalRegFile.scala:L104
             end
           `endif
         `endif
@@ -28680,7 +27696,7 @@ module CoreNSCSCC (
             assert(1'b0); // PhysicalRegFile.scala:L104
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:104):  [normal] [PRegPlugin] Read from reg[%x] -> %x", BranchEU_BranchEuPlugin_gprReadPorts_1_address, BranchEU_BranchEuPlugin_gprReadPorts_1_rsp); // PhysicalRegFile.scala:L104
+              $display("NOTE(PhysicalRegFile.scala:104):  [normal ] %x     [PRegPlugin] Read from reg[%x] -> %x", PerfCounter_cycles, BranchEU_BranchEuPlugin_gprReadPorts_1_address, BranchEU_BranchEuPlugin_gprReadPorts_1_rsp); // PhysicalRegFile.scala:L104
             end
           `endif
         `endif
@@ -28691,7 +27707,7 @@ module CoreNSCSCC (
             assert(1'b0); // PhysicalRegFile.scala:L104
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:104):  [normal] [PRegPlugin] Read from reg[%x] -> %x", LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_address, LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp); // PhysicalRegFile.scala:L104
+              $display("NOTE(PhysicalRegFile.scala:104):  [normal ] %x     [PRegPlugin] Read from reg[%x] -> %x", PerfCounter_cycles, LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_address, LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp); // PhysicalRegFile.scala:L104
             end
           `endif
         `endif
@@ -28702,7 +27718,7 @@ module CoreNSCSCC (
             assert(1'b0); // PhysicalRegFile.scala:L104
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:104):  [normal] [PRegPlugin] Read from reg[%x] -> %x", LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_address, LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp); // PhysicalRegFile.scala:L104
+              $display("NOTE(PhysicalRegFile.scala:104):  [normal ] %x     [PRegPlugin] Read from reg[%x] -> %x", PerfCounter_cycles, LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_address, LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp); // PhysicalRegFile.scala:L104
             end
           `endif
         `endif
@@ -29005,7 +28021,7 @@ module CoreNSCSCC (
             assert(1'b0); // PhysicalRegFile.scala:L134
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:134):  [normal] [PRegPlugin] Write from `AluIntEU.gprWritePort` to reg[%x] with data %x", AluIntEU_AluIntEuPlugin_gprWritePort_address, AluIntEU_AluIntEuPlugin_gprWritePort_data); // PhysicalRegFile.scala:L134
+              $display("NOTE(PhysicalRegFile.scala:134):  [normal ] %x     [PRegPlugin] Write from `AluIntEU.gprWritePort` to reg[%x] with data %x", PerfCounter_cycles, AluIntEU_AluIntEuPlugin_gprWritePort_address, AluIntEU_AluIntEuPlugin_gprWritePort_data); // PhysicalRegFile.scala:L134
             end
           `endif
         `endif
@@ -29208,7 +28224,7 @@ module CoreNSCSCC (
             assert(1'b0); // PhysicalRegFile.scala:L134
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:134):  [normal] [PRegPlugin] Write from `MulEU.gprWritePort` to reg[%x] with data %x", MulEU_MulEuPlugin_gprWritePort_address, MulEU_MulEuPlugin_gprWritePort_data); // PhysicalRegFile.scala:L134
+              $display("NOTE(PhysicalRegFile.scala:134):  [normal ] %x     [PRegPlugin] Write from `MulEU.gprWritePort` to reg[%x] with data %x", PerfCounter_cycles, MulEU_MulEuPlugin_gprWritePort_address, MulEU_MulEuPlugin_gprWritePort_data); // PhysicalRegFile.scala:L134
             end
           `endif
         `endif
@@ -29411,7 +28427,7 @@ module CoreNSCSCC (
             assert(1'b0); // PhysicalRegFile.scala:L134
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:134):  [normal] [PRegPlugin] Write from `BranchEU.gprWritePort` to reg[%x] with data %x", BranchEU_BranchEuPlugin_gprWritePort_address, BranchEU_BranchEuPlugin_gprWritePort_data); // PhysicalRegFile.scala:L134
+              $display("NOTE(PhysicalRegFile.scala:134):  [normal ] %x     [PRegPlugin] Write from `BranchEU.gprWritePort` to reg[%x] with data %x", PerfCounter_cycles, BranchEU_BranchEuPlugin_gprWritePort_address, BranchEU_BranchEuPlugin_gprWritePort_data); // PhysicalRegFile.scala:L134
             end
           `endif
         `endif
@@ -29614,7 +28630,7 @@ module CoreNSCSCC (
             assert(1'b0); // PhysicalRegFile.scala:L134
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:134):  [normal] [PRegPlugin] Write from `LsuEU.gprWritePort` to reg[%x] with data %x", LsuEU_LsuEuPlugin_gprWritePort_address, LsuEU_LsuEuPlugin_gprWritePort_data); // PhysicalRegFile.scala:L134
+              $display("NOTE(PhysicalRegFile.scala:134):  [normal ] %x     [PRegPlugin] Write from `LsuEU.gprWritePort` to reg[%x] with data %x", PerfCounter_cycles, LsuEU_LsuEuPlugin_gprWritePort_address, LsuEU_LsuEuPlugin_gprWritePort_data); // PhysicalRegFile.scala:L134
             end
           `endif
         `endif
@@ -29817,7 +28833,7 @@ module CoreNSCSCC (
             assert(1'b0); // PhysicalRegFile.scala:L134
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:134):  [normal] [PRegPlugin] Write from `LQ.gprWritePort` to reg[%x] with data %x", LoadQueuePlugin_hw_prfWritePort_address, LoadQueuePlugin_hw_prfWritePort_data); // PhysicalRegFile.scala:L134
+              $display("NOTE(PhysicalRegFile.scala:134):  [normal ] %x     [PRegPlugin] Write from `LQ.gprWritePort` to reg[%x] with data %x", PerfCounter_cycles, LoadQueuePlugin_hw_prfWritePort_address, LoadQueuePlugin_hw_prfWritePort_data); // PhysicalRegFile.scala:L134
             end
           `endif
         `endif
@@ -30396,7 +29412,7 @@ module CoreNSCSCC (
             assert(1'b0); // WakeupPlugin.scala:L91
           `else
             if(!1'b0) begin
-              $display("NOTE(WakeupPlugin.scala:91):  [normal] WakeupPlugin: Broadcasting from source[0] ('AluIntEU.wakeupPort') for physReg=%x", LinkerPlugin_logic_allWakeupFlows_0_payload_physRegIdx); // WakeupPlugin.scala:L91
+              $display("NOTE(WakeupPlugin.scala:91):  [normal ] %x     WakeupPlugin: Broadcasting from source[0] ('AluIntEU.wakeupPort') for physReg=%x", PerfCounter_cycles, LinkerPlugin_logic_allWakeupFlows_0_payload_physRegIdx); // WakeupPlugin.scala:L91
             end
           `endif
         `endif
@@ -30407,7 +29423,7 @@ module CoreNSCSCC (
             assert(1'b0); // WakeupPlugin.scala:L91
           `else
             if(!1'b0) begin
-              $display("NOTE(WakeupPlugin.scala:91):  [normal] WakeupPlugin: Broadcasting from source[1] ('MulEU.wakeupPort') for physReg=%x", LinkerPlugin_logic_allWakeupFlows_1_payload_physRegIdx); // WakeupPlugin.scala:L91
+              $display("NOTE(WakeupPlugin.scala:91):  [normal ] %x     WakeupPlugin: Broadcasting from source[1] ('MulEU.wakeupPort') for physReg=%x", PerfCounter_cycles, LinkerPlugin_logic_allWakeupFlows_1_payload_physRegIdx); // WakeupPlugin.scala:L91
             end
           `endif
         `endif
@@ -30418,7 +29434,7 @@ module CoreNSCSCC (
             assert(1'b0); // WakeupPlugin.scala:L91
           `else
             if(!1'b0) begin
-              $display("NOTE(WakeupPlugin.scala:91):  [normal] WakeupPlugin: Broadcasting from source[2] ('BranchEU.wakeupPort') for physReg=%x", LinkerPlugin_logic_allWakeupFlows_2_payload_physRegIdx); // WakeupPlugin.scala:L91
+              $display("NOTE(WakeupPlugin.scala:91):  [normal ] %x     WakeupPlugin: Broadcasting from source[2] ('BranchEU.wakeupPort') for physReg=%x", PerfCounter_cycles, LinkerPlugin_logic_allWakeupFlows_2_payload_physRegIdx); // WakeupPlugin.scala:L91
             end
           `endif
         `endif
@@ -30429,7 +29445,7 @@ module CoreNSCSCC (
             assert(1'b0); // WakeupPlugin.scala:L91
           `else
             if(!1'b0) begin
-              $display("NOTE(WakeupPlugin.scala:91):  [normal] WakeupPlugin: Broadcasting from source[3] ('LsuEU.wakeupPort') for physReg=%x", LinkerPlugin_logic_allWakeupFlows_3_payload_physRegIdx); // WakeupPlugin.scala:L91
+              $display("NOTE(WakeupPlugin.scala:91):  [normal ] %x     WakeupPlugin: Broadcasting from source[3] ('LsuEU.wakeupPort') for physReg=%x", PerfCounter_cycles, LinkerPlugin_logic_allWakeupFlows_3_payload_physRegIdx); // WakeupPlugin.scala:L91
             end
           `endif
         `endif
@@ -30440,7 +29456,7 @@ module CoreNSCSCC (
             assert(1'b0); // WakeupPlugin.scala:L91
           `else
             if(!1'b0) begin
-              $display("NOTE(WakeupPlugin.scala:91):  [normal] WakeupPlugin: Broadcasting from source[4] ('LQ.wakeupPort') for physReg=%x", LinkerPlugin_logic_allWakeupFlows_4_payload_physRegIdx); // WakeupPlugin.scala:L91
+              $display("NOTE(WakeupPlugin.scala:91):  [normal ] %x     WakeupPlugin: Broadcasting from source[4] ('LQ.wakeupPort') for physReg=%x", PerfCounter_cycles, LinkerPlugin_logic_allWakeupFlows_4_payload_physRegIdx); // WakeupPlugin.scala:L91
             end
           `endif
         `endif
@@ -31229,411 +30245,160 @@ module CoreNSCSCC (
       end else begin
         BusyTablePlugin_early_setup_busyTableReg <= BusyTablePlugin_logic_busyTableNext;
       end
-      FetchPipelinePlugin_logic_retryIdCounter_value <= FetchPipelinePlugin_logic_retryIdCounter_valueNext;
-      `ifndef SYNTHESIS
-        `ifdef FORMAL
-          assert(1'b0); // FetchPipelinePlugin2.scala:L232
-        `else
-          if(!1'b0) begin
-            $display("NOTE(FetchPipelinePlugin2.scala:232):  [normal] IssuePipeline status: \ns1_PC_Gen: fire=%x, in.v=%x, in.r=%x, out.v=%x, out.r=null\ns2_ICache_Access: fire=%x, in.v=%x, in.r=%x, out.v=%x, out.r=null\ns3_ICache_Wait: fire=%x, in.v=%x, in.r=%x, out.v=%x, out.r=null\ns4_Predecode: fire=%x, in.v=%x, in.r=%x, out.v=%x, out.r=null\ns5_Target_Calc: fire=%x, in.v=%x, in.r=%x, out.v=%x, out.r=null\n", s1_PC_Gen_isFiring, s1_PC_Gen_valid, s1_PC_Gen_ready, _zz_s2_ICache_Access_valid, s2_ICache_Access_isFiring, s2_ICache_Access_valid, s2_ICache_Access_ready, _zz_s4_Predecode_valid, s3_ICache_Wait_isFiring, s3_ICache_Wait_valid, s3_ICache_Wait_ready, _zz_70, s4_Predecode_isFiring, s4_Predecode_valid, s4_Predecode_ready, _zz_s5_Target_Calc_valid, s5_Target_Calc_isFiring, s5_Target_Calc_valid, s5_Target_Calc_ready, _zz_71); // FetchPipelinePlugin2.scala:L232
-          end
-        `endif
-      `endif
-      if(FetchPipelinePlugin_logic_dispatcher_io_softRedirect_valid) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // FetchPipelinePlugin2.scala:L276
-          `else
-            if(!1'b0) begin
-              $display("NOTE(FetchPipelinePlugin2.scala:276):  [notice] [33m[%x] !!!!GOT A SOFT REDIRECT to 0x%x!!!![0m", FetchPipelinePlugin_dbg_cycles, FetchPipelinePlugin_logic_dispatcher_io_softRedirect_payload); // FetchPipelinePlugin2.scala:L276
-            end
-          `endif
-        `endif
-      end
-      if(FetchPipelinePlugin_logic_hardRedirect_valid) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // FetchPipelinePlugin2.scala:L294
-          `else
-            if(!1'b0) begin
-              $display("NOTE(FetchPipelinePlugin2.scala:294):  [notice] [33m[%x] !!!!GOT A HARD FLUSH to %x[0m", FetchPipelinePlugin_dbg_cycles, FetchPipelinePlugin_logic_hardRedirect_payload); // FetchPipelinePlugin2.scala:L294
-            end
-          `endif
-        `endif
-      end
-      if(FetchPipelinePlugin_logic_dispatcher_io_softRedirect_valid) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // FetchPipelinePlugin2.scala:L297
-          `else
-            if(!1'b0) begin
-              $display("NOTE(FetchPipelinePlugin2.scala:297):  [notice] [33m[%x] !!!!GOT A SOFT FLUSH to %x[0m", FetchPipelinePlugin_dbg_cycles, FetchPipelinePlugin_logic_dispatcher_io_softRedirect_payload); // FetchPipelinePlugin2.scala:L297
-            end
-          `endif
-        `endif
-      end
-      if(FetchPipelinePlugin_logic_hardRedirect_valid) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // FetchPipelinePlugin2.scala:L305
-          `else
-            if(!1'b0) begin
-              $display("NOTE(FetchPipelinePlugin2.scala:305):  [notice] [33m[FLUSH_LOGIC] doHardFlush is HIGH at cycle 0x%x![0m", FetchPipelinePlugin_dbg_cycles); // FetchPipelinePlugin2.scala:L305
-            end
-          `endif
-        `endif
-      end
-      if(FetchPipelinePlugin_logic_hardRedirect_valid) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // FetchPipelinePlugin2.scala:L311
-          `else
-            if(!1'b0) begin
-              $display("NOTE(FetchPipelinePlugin2.scala:311):  [notice] [33m[FLUSH_TO_FIFO] fetchOutput.io.flush is DRIVEN HIGH at cycle 0x%x![0m", FetchPipelinePlugin_dbg_cycles); // FetchPipelinePlugin2.scala:L311
-            end
-          `endif
-        `endif
-      end
-      if(io_pop_fire) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // FetchPipelinePlugin2.scala:L314
-          `else
-            if(!1'b0) begin
-              $display("NOTE(FetchPipelinePlugin2.scala:314):  [notice] [33m[%x] output a instr to decoder: PC=0x%x, instr=0x%x[0m", FetchPipelinePlugin_dbg_cycles, FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_pc, FetchPipelinePlugin_setup_fetchOutput_io_pop_payload_instruction); // FetchPipelinePlugin2.scala:L314
-            end
-          `endif
-        `endif
-      end
-      FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_value <= FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_valueNext;
-      if(FetchPipelinePlugin_logic_doAnyFlush) begin
-        FetchPipelinePlugin_logic_isDrainingCacheRspReg <= 1'b1;
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // FetchPipelinePlugin2.scala:L322
-          `else
-            if(!1'b0) begin
-              $display("NOTE(FetchPipelinePlugin2.scala:322):  [notice] [33m[%x] Draining the pipeline due to a flush. iCacheInFlightToDrainCounter.value=%x[0m", FetchPipelinePlugin_dbg_cycles, FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_value); // FetchPipelinePlugin2.scala:L322
-            end
-          `endif
-        `endif
-      end
-      if(FetchPipelinePlugin_logic_isDrainingCacheRspReg) begin
-        if(when_FetchPipelinePlugin2_l325) begin
-          FetchPipelinePlugin_logic_isDrainingCacheRspReg <= 1'b0;
+      if(FetchPipelinePlugin_logic_pcGen_redirectValid) begin
+        FetchPipelinePlugin_logic_pcGen_fetchPcReg <= FetchPipelinePlugin_logic_pcGen_redirectPc;
+        if(FetchPipelinePlugin_logic_pcGen_hardRedirect_valid) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // FetchPipelinePlugin2.scala:L327
+              assert(1'b0); // FetchPipelinePlugin2.scala:L112
             `else
               if(!1'b0) begin
-                $display("NOTE(FetchPipelinePlugin2.scala:327):  [success] [32m[%x] Pipeline still has %x cycles to drain[0m", FetchPipelinePlugin_dbg_cycles, FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_value); // FetchPipelinePlugin2.scala:L327
+                $display("NOTE(FetchPipelinePlugin2.scala:112):  [notice ] %x     [33mPC_GEN: Hard Redirect to 0x%x[0m", PerfCounter_cycles, FetchPipelinePlugin_logic_pcGen_hardRedirect_payload); // FetchPipelinePlugin2.scala:L112
               end
             `endif
           `endif
         end else begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // FetchPipelinePlugin2.scala:L330
+              assert(1'b0); // FetchPipelinePlugin2.scala:L114
             `else
               if(!1'b0) begin
-                $display("NOTE(FetchPipelinePlugin2.scala:330):  [notice] [33m[%x] Pipeline still has %x cycles to drain[0m", FetchPipelinePlugin_dbg_cycles, FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_value); // FetchPipelinePlugin2.scala:L330
+                $display("NOTE(FetchPipelinePlugin2.scala:114):  [notice ] %x     [33mPC_GEN: Soft Redirect to 0x%x[0m", PerfCounter_cycles, FetchPipelinePlugin_logic_dispatcher_io_softRedirect_payload); // FetchPipelinePlugin2.scala:L114
               end
             `endif
           `endif
         end
-      end
-      if(FetchPipelinePlugin_logic_hardRedirect_valid) begin
-        FetchPipelinePlugin_logic_s1_logic_fetchPcReg <= FetchPipelinePlugin_logic_hardRedirect_payload;
-        FetchPipelinePlugin_logic_retryCmd_lock <= 1'b0;
-        FetchPipelinePlugin_logic_s1_logic_lastRetryIdReg <= 2'b00;
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // FetchPipelinePlugin2.scala:L372
-          `else
-            if(!1'b0) begin
-              $display("NOTE(FetchPipelinePlugin2.scala:372):  [normal] [%x] FETCH-S1: fetchPcReg reset to %x due to hard flush, retry cancelled.", FetchPipelinePlugin_dbg_cycles, FetchPipelinePlugin_logic_hardRedirect_payload); // FetchPipelinePlugin2.scala:L372
-            end
-          `endif
-        `endif
       end else begin
-        if(FetchPipelinePlugin_logic_dispatcher_io_softRedirect_valid) begin
-          FetchPipelinePlugin_logic_s1_logic_fetchPcReg <= FetchPipelinePlugin_logic_dispatcher_io_softRedirect_payload;
-          FetchPipelinePlugin_logic_retryCmd_lock <= 1'b0;
-          FetchPipelinePlugin_logic_s1_logic_lastRetryIdReg <= 2'b00;
-        end else begin
-          if(FetchPipelinePlugin_logic_s1_logic_needRedo) begin
-            FetchPipelinePlugin_logic_s1_logic_fetchPcReg <= _zz_FetchPipelinePlugin_logic_s1_logic_fetchPcReg;
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(1'b0); // FetchPipelinePlugin2.scala:L382
-              `else
-                if(!1'b0) begin
-                  $display("NOTE(FetchPipelinePlugin2.scala:382):  [normal] [%x] FETCH-S1: Correcting fetchPcReg for next cycle to 0x%x", FetchPipelinePlugin_dbg_cycles, _zz_FetchPipelinePlugin_logic_s1_logic_fetchPcReg); // FetchPipelinePlugin2.scala:L382
-                end
-              `endif
+        if(io_newRequest_fire) begin
+          FetchPipelinePlugin_logic_pcGen_fetchPcReg <= _zz_FetchPipelinePlugin_logic_pcGen_fetchPcReg;
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // FetchPipelinePlugin2.scala:L120
+            `else
+              if(!1'b0) begin
+                $display("NOTE(FetchPipelinePlugin2.scala:120):  [debug  ] %x     [34mPC_GEN: Advancing PC to next line 0x%x[0m", PerfCounter_cycles, _zz_FetchPipelinePlugin_logic_pcGen_fetchPcReg); // FetchPipelinePlugin2.scala:L120
+              end
             `endif
-          end else begin
-            if(when_FetchPipelinePlugin2_l384) begin
-              FetchPipelinePlugin_logic_s1_logic_fetchPcReg <= FetchPipelinePlugin_logic_s1_logic_nextLinePc;
-              `ifndef SYNTHESIS
-                `ifdef FORMAL
-                  assert(1'b0); // FetchPipelinePlugin2.scala:L386
-                `else
-                  if(!1'b0) begin
-                    $display("NOTE(FetchPipelinePlugin2.scala:386):  [normal] [%x] FETCH-S1: fetchPcReg updated to %x (from raw PC=0x%x)", FetchPipelinePlugin_dbg_cycles, FetchPipelinePlugin_logic_s1_logic_nextLinePc, s1_PC_Gen_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC); // FetchPipelinePlugin2.scala:L386
-                  end
-                `endif
-              `endif
-            end
-          end
+          `endif
         end
       end
-      if(when_FetchPipelinePlugin2_l389) begin
-        FetchPipelinePlugin_logic_s1_logic_lastRetryIdReg <= FetchPipelinePlugin_logic_retryCmd_id;
+      if(when_FetchPipelinePlugin2_l130) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // FetchPipelinePlugin2.scala:L391
+            assert(1'b0); // FetchPipelinePlugin2.scala:L131
           `else
             if(!1'b0) begin
-              $display("NOTE(FetchPipelinePlugin2.scala:391):  [notice] [33m[%x] FETCH-S1: Acting on retry for ID %x, PC=0x%x. Locking this ID in s1.[0m", FetchPipelinePlugin_dbg_cycles, FetchPipelinePlugin_logic_retryCmd_id, FetchPipelinePlugin_logic_retryCmd_pc); // FetchPipelinePlugin2.scala:L391
+              $display("NOTE(FetchPipelinePlugin2.scala:131):  PC_GEN: Stalled by Sequencer (not ready). Current PC=0x%x", FetchPipelinePlugin_logic_pcGen_fetchPcReg); // FetchPipelinePlugin2.scala:L131
             end
           `endif
         `endif
       end
-      if(when_FetchPipelinePlugin2_l399) begin
+      if(io_newRequest_fire) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // FetchPipelinePlugin2.scala:L401
+            assert(1'b0); // FetchPipelinePlugin2.scala:L134
           `else
             if(!1'b0) begin
-              $display("NOTE(FetchPipelinePlugin2.scala:401):  [normal] [%x] FETCH-S1: Halting due to isDrainingCacheRspReg=%x, fetchDisabled=%x, iCacheInFlightToDrainCounter.value=%xretryCmd.lock=%x retryCmd.id=%x === lastRetryIdReg=%x", FetchPipelinePlugin_dbg_cycles, FetchPipelinePlugin_logic_isDrainingCacheRspReg, FetchPipelinePlugin_logic_fetchDisabled, FetchPipelinePlugin_logic_iCacheInFlightToDrainCounter_value, FetchPipelinePlugin_logic_retryCmd_lock, FetchPipelinePlugin_logic_retryCmd_id, FetchPipelinePlugin_logic_s1_logic_lastRetryIdReg); // FetchPipelinePlugin2.scala:L401
+              $display("NOTE(FetchPipelinePlugin2.scala:134):  [success] %x     [32mPC_GEN: Firing new request to Sequencer. PC=0x%x, RawPC=0x%x[0m", PerfCounter_cycles, _zz_70, FetchPipelinePlugin_logic_pcGen_fetchPcReg); // FetchPipelinePlugin2.scala:L134
             end
           `endif
         `endif
       end
-      if(s1_PC_Gen_isFiring) begin
+      if(FetchPipelinePlugin_logic_pcGen_hardRedirect_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // FetchPipelinePlugin2.scala:L407
+            assert(1'b0); // FetchPipelinePlugin2.scala:L171
           `else
             if(!1'b0) begin
-              $display("NOTE(FetchPipelinePlugin2.scala:407):  [normal] [%x] FETCH-S1: Firing Aligned PC=0x%x (from raw PC=0x%x)", FetchPipelinePlugin_dbg_cycles, s1_PC_Gen_FetchPipelinePlugin_logic_FetchPipeline_PC, s1_PC_Gen_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC); // FetchPipelinePlugin2.scala:L407
+              $display("NOTE(FetchPipelinePlugin2.scala:171):  [notice ] %x     [33m!!! SYSTEM: Hard Flush asserted![0m", PerfCounter_cycles); // FetchPipelinePlugin2.scala:L171
             end
           `endif
         `endif
       end
-      if(ICachePlugin_port_cmd_valid) begin
+      if(FetchPipelinePlugin_logic_dispatcher_io_softRedirect_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // FetchPipelinePlugin2.scala:L418
+            assert(1'b0); // FetchPipelinePlugin2.scala:L174
           `else
             if(!1'b0) begin
-              $display("NOTE(FetchPipelinePlugin2.scala:418):  [notice] [33m[%x] FETCH-S2: Sending ICache request for PC=0x%x[0m", FetchPipelinePlugin_dbg_cycles, s2_ICache_Access_FetchPipelinePlugin_logic_FetchPipeline_PC); // FetchPipelinePlugin2.scala:L418
+              $display("NOTE(FetchPipelinePlugin2.scala:174):  [notice ] %x     [33m!!! SYSTEM: Soft Flush asserted![0m", PerfCounter_cycles); // FetchPipelinePlugin2.scala:L174
             end
           `endif
         `endif
       end
-      if(s2_ICache_Access_isFiring) begin
+      if(when_FetchPipelinePlugin2_l183) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // FetchPipelinePlugin2.scala:L426
+            assert(1'b0); // FetchPipelinePlugin2.scala:L184
           `else
             if(!1'b0) begin
-              $display("NOTE(FetchPipelinePlugin2.scala:426):  [normal] [%x] FETCH-S2: ICache request sent for PC=0x%x", FetchPipelinePlugin_dbg_cycles, s2_ICache_Access_FetchPipelinePlugin_logic_FetchPipeline_PC); // FetchPipelinePlugin2.scala:L426
+              $display("NOTE(FetchPipelinePlugin2.scala:184):  [warning] %x     [33mFETCH_OUT: Instruction popped from FIFO but discarded due to hard flush.[0m", PerfCounter_cycles); // FetchPipelinePlugin2.scala:L184
+            end
+          `endif
+        `endif
+      end
+      if(FetchPipelinePlugin_setup_relayedFetchOutput_fire) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // FetchPipelinePlugin2.scala:L187
+          `else
+            if(!1'b0) begin
+              $display("NOTE(FetchPipelinePlugin2.scala:187):  [success] %x     [32mFETCH_OUT: Output a instruction to Decode. PC=0x%x, Instr=0x%x[0m", PerfCounter_cycles, FetchPipelinePlugin_setup_relayedFetchOutput_payload_pc, FetchPipelinePlugin_setup_relayedFetchOutput_payload_instruction); // FetchPipelinePlugin2.scala:L187
             end
           `endif
         `endif
       end
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // FetchPipelinePlugin2.scala:L451
+          assert(1'b0); // FetchPipelinePlugin2.scala:L189
         `else
           if(!1'b0) begin
-            $display("NOTE(FetchPipelinePlugin2.scala:451):  [normal] [%x] FETCH-S4: Handling Rsp for PC=0x%x? %x because isFiring=%x, iCacheRsp.valid=%x, isDrainingCacheRspReg=%x", FetchPipelinePlugin_dbg_cycles, s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC, FetchPipelinePlugin_logic_s4_logic_handleRsp, s4_Predecode_isFiring, ICachePlugin_port_rsp_valid, FetchPipelinePlugin_logic_isDrainingCacheRspReg); // FetchPipelinePlugin2.scala:L451
+            $display("NOTE(FetchPipelinePlugin2.scala:189):  FIFO_STATUS: Sequencer->Dispatcher valid=%x, ready=%x", FetchPipelinePlugin_logic_sequencer_sequencerToDispatcher_valid, FetchPipelinePlugin_logic_dispatcher_io_fetchGroupIn_ready); // FetchPipelinePlugin2.scala:L189
           end
         `endif
       `endif
-      if(FetchPipelinePlugin_logic_s4_logic_backpressureRedo) begin
-        if(when_FetchPipelinePlugin2_l466) begin
-          FetchPipelinePlugin_logic_retryCmd_lock <= 1'b1;
-          FetchPipelinePlugin_logic_retryCmd_pc <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC;
-          FetchPipelinePlugin_logic_retryCmd_id <= FetchPipelinePlugin_logic_retryIdCounter_value;
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // FetchPipelinePlugin2.scala:L472
-            `else
-              if(!1'b0) begin
-                $display("NOTE(FetchPipelinePlugin2.scala:472):  [notice] [33m[FETCH-S4] BACKPRESSURE REDO requested for raw PC=0x%x, ID=%x because downstream S5 is not ready, retryCmd.id=%x.[0m", s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC, ICachePlugin_port_rsp_payload_transactionId, FetchPipelinePlugin_logic_retryIdCounter_value); // FetchPipelinePlugin2.scala:L472
-              end
-            `endif
-          `endif
-        end
-      end
-      if(FetchPipelinePlugin_logic_s4_logic_handleRsp) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // FetchPipelinePlugin2.scala:L477
-          `else
-            if(!1'b0) begin
-              $display("NOTE(FetchPipelinePlugin2.scala:477):  [normal] [%x] FETCH-S4: Rsp received for PC=0x%x. Redo=%x, WasHit=%x, TID=%x", FetchPipelinePlugin_dbg_cycles, s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC, ICachePlugin_port_rsp_payload_redo, ICachePlugin_port_rsp_payload_wasHit, ICachePlugin_port_rsp_payload_transactionId); // FetchPipelinePlugin2.scala:L477
-            end
-          `endif
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // FetchPipelinePlugin2.scala:L190
+        `else
+          if(!1'b0) begin
+            $display("NOTE(FetchPipelinePlugin2.scala:190):  FIFO_STATUS: Dispatcher->Output valid=%x, ready=%x", FetchPipelinePlugin_logic_dispatcher_dispatcherToFifo_valid, FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_push_ready); // FetchPipelinePlugin2.scala:L190
+          end
         `endif
+      `endif
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // FetchPipelinePlugin2.scala:L191
+        `else
+          if(!1'b0) begin
+            $display("NOTE(FetchPipelinePlugin2.scala:191):  FIFO_STATUS: Final Output Buffer occupancy=%x, valid=%x, ready=%x", FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_occupancy, FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_valid, FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_ready); // FetchPipelinePlugin2.scala:L191
+          end
+        `endif
+      `endif
+      FetchPipelinePlugin_logic_hardFlushDelayed <= FetchPipelinePlugin_logic_pcGen_hardRedirect_valid;
+      if(FetchPipelinePlugin_logic_hardFlushDelayed) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert((ICachePlugin_port_rsp_payload_transactionId == _zz_219)); // FetchPipelinePlugin2.scala:L478
+            assert((FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_occupancy == 5'h0)); // FetchPipelinePlugin2.scala:L199
           `else
-            if(!(ICachePlugin_port_rsp_payload_transactionId == _zz_219)) begin
-              $display("FAILURE ICache response TID mismatch! Expect %x, got %x", _zz_72, ICachePlugin_port_rsp_payload_transactionId); // FetchPipelinePlugin2.scala:L478
+            if(!(FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_occupancy == 5'h0)) begin
+              $display("FAILURE Output FIFO should be empty one cycle after a hard flush"); // FetchPipelinePlugin2.scala:L199
               $finish;
             end
           `endif
         `endif
-        if(ICachePlugin_port_rsp_payload_redo) begin
-          if(when_FetchPipelinePlugin2_l482) begin
-            FetchPipelinePlugin_logic_retryCmd_lock <= 1'b1;
-            FetchPipelinePlugin_logic_retryCmd_pc <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC;
-            FetchPipelinePlugin_logic_retryCmd_id <= FetchPipelinePlugin_logic_retryIdCounter_value;
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(1'b0); // FetchPipelinePlugin2.scala:L488
-              `else
-                if(!1'b0) begin
-                  $display("NOTE(FetchPipelinePlugin2.scala:488):  [notice] [33m[%x] FETCH-S4: Requesting retry for raw PC=0x%x, ID=%x, retryCmd.id=%x[0m", FetchPipelinePlugin_dbg_cycles, s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC, ICachePlugin_port_rsp_payload_transactionId, FetchPipelinePlugin_logic_retryIdCounter_value); // FetchPipelinePlugin2.scala:L488
-                end
-              `endif
-            `endif
-          end else begin
-            if(when_FetchPipelinePlugin2_l491) begin
-              `ifndef SYNTHESIS
-                `ifdef FORMAL
-                  assert(1'b0); // FetchPipelinePlugin2.scala:L492
-                `else
-                  if(!1'b0) begin
-                    $display("NOTE(FetchPipelinePlugin2.scala:492):  [warning] [33m[%x] FETCH-S4: ICache requests retry for %x, but another retry for %x is already locked. Stalling.[0m", FetchPipelinePlugin_dbg_cycles, s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC, FetchPipelinePlugin_logic_retryCmd_pc); // FetchPipelinePlugin2.scala:L492
-                  end
-                `endif
-              `endif
-            end
-          end
-        end else begin
-          `ifndef SYNTHESIS
-            `ifdef FORMAL
-              assert(1'b0); // FetchPipelinePlugin2.scala:L498
-            `else
-              if(!1'b0) begin
-                $display("NOTE(FetchPipelinePlugin2.scala:498):  [success] [32m[%x] FETCH-S4: ICache hit for PC=0x%x[0m", FetchPipelinePlugin_dbg_cycles, s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC); // FetchPipelinePlugin2.scala:L498
-              end
-            `endif
-          `endif
-          if(when_FetchPipelinePlugin2_l500) begin
-            FetchPipelinePlugin_logic_retryCmd_lock <= 1'b0;
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert(1'b0); // FetchPipelinePlugin2.scala:L502
-              `else
-                if(!1'b0) begin
-                  $display("NOTE(FetchPipelinePlugin2.scala:502):  [success] [32m[%x] FETCH-S4: Retry for ID %x completed. Clearing lock.[0m", FetchPipelinePlugin_dbg_cycles, FetchPipelinePlugin_logic_retryCmd_id); // FetchPipelinePlugin2.scala:L502
-                end
-              `endif
-            `endif
-          end
-          if(when_FetchPipelinePlugin2_l505) begin
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert((_zz_s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_START_INSTR_INDEX[1 : 0] == 2'b00)); // FetchPipelinePlugin2.scala:L171
-              `else
-                if(!(_zz_s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_START_INSTR_INDEX[1 : 0] == 2'b00)) begin
-                  $display("FAILURE RAW_PC is not instruction-aligned within the cache line!"); // FetchPipelinePlugin2.scala:L171
-                  $finish;
-                end
-              `endif
-            `endif
-            `ifndef SYNTHESIS
-              `ifdef FORMAL
-                assert((_zz_s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_START_INSTR_INDEX < 32'h00000010)); // FetchPipelinePlugin2.scala:L173
-              `else
-                if(!(_zz_s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_START_INSTR_INDEX < 32'h00000010)) begin
-                  $display("FAILURE pcOffset exceeds cache line boundary!"); // FetchPipelinePlugin2.scala:L173
-                  $finish;
-                end
-              `endif
-            `endif
-          end
-        end
       end
-      if(io_push_fire) begin
+      if(when_FetchPipelinePlugin2_l203) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // FetchPipelinePlugin2.scala:L537
+            assert((! io_newRequest_fire)); // FetchPipelinePlugin2.scala:L204
           `else
-            if(!1'b0) begin
-              $display("NOTE(FetchPipelinePlugin2.scala:537):  [success] [32m[S5_TO_DISPATCH] PUSH to fetchGroupsOut: PC=0x%x, firstPC=0x%x, startIdx=%x, numValid=%x[0m", FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_pc, FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_firstPc, FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_startInstructionIndex, FetchPipelinePlugin_logic_fetchGroupsOut_io_push_payload_numValidInstructions); // FetchPipelinePlugin2.scala:L537
+            if(!(! io_newRequest_fire)) begin
+              $display("FAILURE Sequencer should not fire when not ready"); // FetchPipelinePlugin2.scala:L204
+              $finish;
             end
           `endif
         `endif
-      end
-      if(FetchPipelinePlugin_logic_fetchGroupsOut_io_flush) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // FetchPipelinePlugin2.scala:L541
-          `else
-            if(!1'b0) begin
-              $display("NOTE(FetchPipelinePlugin2.scala:541):  [warning] [33m[FLUSH_MONITOR] FLUSHING fetchGroupsOut FIFO![0m"); // FetchPipelinePlugin2.scala:L541
-            end
-          `endif
-        `endif
-      end
-      if(FetchPipelinePlugin_logic_hardRedirect_valid) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // FetchPipelinePlugin2.scala:L544
-          `else
-            if(!1'b0) begin
-              $display("NOTE(FetchPipelinePlugin2.scala:544):  [warning] [33m[FLUSH_MONITOR] FLUSHING fetchOutput FIFO![0m"); // FetchPipelinePlugin2.scala:L544
-            end
-          `endif
-        `endif
-      end
-      if(io_fetchOutput_fire) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // FetchPipelinePlugin2.scala:L548
-          `else
-            if(!1'b0) begin
-              $display("NOTE(FetchPipelinePlugin2.scala:548):  [success] [32m[DISPATCH_TO_FIFO] PUSH to fetchOutput: PC=0x%x, isBranch=%x, predTaken=%x[0m", FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_pc, FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_predecode_isBranch, FetchPipelinePlugin_logic_dispatcher_io_fetchOutput_payload_bpuPrediction_isTaken); // FetchPipelinePlugin2.scala:L548
-            end
-          `endif
-        `endif
-      end
-      if(io_fetchGroupIn_fire) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // FetchPipelinePlugin2.scala:L610
-          `else
-            if(!1'b0) begin
-              $display("NOTE(FetchPipelinePlugin2.scala:610):  [notice] [33m[DISPATCHER-IN] POP from fetchGroupsOut FIFO. PC=0x%x, startIdx=%x, numValid=%x, firstPc=0x%x[0m", FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_pc, FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_startInstructionIndex, FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_numValidInstructions, FetchPipelinePlugin_logic_fetchGroupsOut_io_pop_payload_firstPc); // FetchPipelinePlugin2.scala:L610
-            end
-          `endif
-        `endif
-      end
-      if(s1_PC_Gen_ready_output) begin
-        s2_ICache_Access_valid <= _zz_s2_ICache_Access_valid;
-      end
-      if(when_Connection_l66_14) begin
-        s2_ICache_Access_valid <= 1'b0;
-      end
-      if(s2_ICache_Access_ready_output) begin
-        s4_Predecode_valid <= _zz_s4_Predecode_valid;
-      end
-      if(when_Connection_l66_13) begin
-        s4_Predecode_valid <= 1'b0;
-      end
-      if(s4_Predecode_ready_output) begin
-        s5_Target_Calc_valid <= _zz_s5_Target_Calc_valid;
-      end
-      if(FetchPipelinePlugin_logic_hardRedirect_valid) begin
-        s5_Target_Calc_valid <= 1'b0;
       end
       if(ROBPlugin_aggregatedFlushSignal_valid) begin
         `ifndef SYNTHESIS
@@ -31991,26 +30756,148 @@ module CoreNSCSCC (
       if(ICache_F1_Access_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert((ICache_F1_Access_ICachePlugin_logic_pipeline_F1_CMD_address[3 : 0] == 4'b0000)); // ICachePlugin.scala:L102
+            assert((ICache_F1_Access_ICachePlugin_logic_pipeline_F1_CMD_address[3 : 0] == 4'b0000)); // ICachePlugin.scala:L110
           `else
             if(!(ICache_F1_Access_ICachePlugin_logic_pipeline_F1_CMD_address[3 : 0] == 4'b0000)) begin
-              $display("FAILURE ICache request must be line-aligned!"); // ICachePlugin.scala:L102
+              $display("FAILURE ICache request must be line-aligned!"); // ICachePlugin.scala:L110
               $finish;
             end
           `endif
         `endif
+      end
+      if(ICache_F1_Access_isFiring) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // ICachePlugin.scala:L149
+          `else
+            if(!1'b0) begin
+              $display("NOTE(ICachePlugin.scala:149):  [ICache F1] Firing! Addr=0x%x, Index=0x%x, TID=%x", ICache_F1_Access_ICachePlugin_logic_pipeline_F1_CMD_address, ICachePlugin_logic_pipeline_f1_f1_index, ICache_F1_Access_ICachePlugin_logic_pipeline_F1_CMD_transactionId); // ICachePlugin.scala:L149
+            end
+          `endif
+        `endif
+        if(ICachePlugin_logic_pipeline_f1_writeReadHazard) begin
+          if(ICachePlugin_logic_tag_write_logic_fsmIsCommitting) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // ICachePlugin.scala:L153
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(ICachePlugin.scala:153):  [ICache F1] HAZARD DETECTED (FSM Commit)! Forwarding Meta+Data for Index=0x%x", ICachePlugin_logic_pipeline_f1_f1_index); // ICachePlugin.scala:L153
+                end
+              `endif
+            `endif
+          end else begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // ICachePlugin.scala:L155
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(ICachePlugin.scala:155):  [ICache F1] HAZARD DETECTED (LRU Update)! Forwarding Meta-Only for Index=0x%x", ICachePlugin_logic_pipeline_f1_f1_index); // ICachePlugin.scala:L155
+                end
+              `endif
+            `endif
+          end
+        end
+      end
+      if(ICachePlugin_logic_pipeline_f2_f2_can_update_lru) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // ICachePlugin.scala:L210
+          `else
+            if(!1'b0) begin
+              $display("NOTE(ICachePlugin.scala:210):  [ICache F2] Hit! Requesting LRU Write for Index=0x%x to %x", ICachePlugin_logic_pipeline_f2_f2_index, _zz_ICachePlugin_logic_tag_write_logic_writeData_lru); // ICachePlugin.scala:L210
+            end
+          `endif
+        `endif
+      end
+      if(when_ICachePlugin_l219) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // ICachePlugin.scala:L220
+          `else
+            if(!1'b0) begin
+              $display("NOTE(ICachePlugin.scala:220):  [notice ] %x     [33m[ICache F2] DATA FORWARDING ACTIVATED! Using data from refill buffer for Way %x.[0m", PerfCounter_cycles, ICachePlugin_logic_pipeline_f2_hitWayIdx); // ICachePlugin.scala:L220
+            end
+          `endif
+        `endif
+      end
+      if(ICache_F2_HitCheck_valid) begin
+        if(ICache_F2_HitCheck_isFiring) begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // ICachePlugin.scala:L245
+            `else
+              if(!1'b0) begin
+                $display("NOTE(ICachePlugin.scala:245):  [ICache Rsp] Firing! Hit=%x, Redo=%x, TID=%x", ICachePlugin_logic_pipeline_f2_isHit, _zz_75, ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F1_CMD_transactionId); // ICachePlugin.scala:L245
+              end
+            `endif
+          `endif
+        end
       end
       ICachePlugin_logic_refill_refillCounter_value <= ICachePlugin_logic_refill_refillCounter_valueNext;
       ICachePlugin_logic_refill_fsm_stateReg <= ICachePlugin_logic_refill_fsm_stateNext;
       (* parallel_case *)
       case(1) // synthesis parallel_case
         (ICachePlugin_logic_refill_fsm_stateReg[ICachePlugin_logic_refill_fsm_IDLE_OH_ID]) : begin
+          if(when_ICachePlugin_l272) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // ICachePlugin.scala:L276
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(ICachePlugin.scala:276):  [RefillFSM] Start triggered! Addr=0x%x. Victim Way=%x.", ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F1_CMD_address, _zz_78); // ICachePlugin.scala:L276
+                end
+              `endif
+            `endif
+          end
         end
         (ICachePlugin_logic_refill_fsm_stateReg[ICachePlugin_logic_refill_fsm_SEND_REQ_OH_ID]) : begin
+          if(ICachePlugin_axiMaster_ar_fire) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // ICachePlugin.scala:L293
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(ICachePlugin.scala:293):  [RefillFSM] AXI AR Sent."); // ICachePlugin.scala:L293
+                end
+              `endif
+            `endif
+          end
         end
         (ICachePlugin_logic_refill_fsm_stateReg[ICachePlugin_logic_refill_fsm_RECEIVE_DATA_OH_ID]) : begin
+          if(ICachePlugin_axiMaster_r_fire) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(1'b0); // ICachePlugin.scala:L302
+              `else
+                if(!1'b0) begin
+                  $display("NOTE(ICachePlugin.scala:302):  [RefillFSM] AXI R Received. Word %x, Data=0x%x", ICachePlugin_logic_refill_refillCounter_value, ICachePlugin_axiMaster_r_payload_data); // ICachePlugin.scala:L302
+                end
+              `endif
+            `endif
+            if(ICachePlugin_axiMaster_r_payload_last) begin
+              `ifndef SYNTHESIS
+                `ifdef FORMAL
+                  assert(1'b0); // ICachePlugin.scala:L307
+                `else
+                  if(!1'b0) begin
+                    $display("NOTE(ICachePlugin.scala:307):  [RefillFSM] Last AXI R received. Moving to COMMIT state."); // ICachePlugin.scala:L307
+                  end
+                `endif
+              `endif
+            end
+          end
         end
         (ICachePlugin_logic_refill_fsm_stateReg[ICachePlugin_logic_refill_fsm_COMMIT_OH_ID]) : begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // ICachePlugin.scala:L314
+            `else
+              if(!1'b0) begin
+                $display("NOTE(ICachePlugin.scala:314):  [RefillFSM] In COMMIT state. Writing to cache memories."); // ICachePlugin.scala:L314
+              end
+            `endif
+          `endif
           if(_zz_210[0]) begin
             if(_zz_82) begin
               ICachePlugin_logic_storage_valids_0_0 <= 1'b1;
@@ -32783,6 +31670,15 @@ module CoreNSCSCC (
               ICachePlugin_logic_storage_valids_127_1 <= 1'b1;
             end
           end
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // ICachePlugin.scala:L342
+            `else
+              if(!1'b0) begin
+                $display("NOTE(ICachePlugin.scala:342):  [RefillFSM] Commit complete. Requesting write to central logic. New Meta=%x%x, New LRU=%x", _zz_ICachePlugin_logic_tag_write_logic_writeData_ways_0_tag, _zz_ICachePlugin_logic_tag_write_logic_writeData_ways_1_tag, _zz_ICachePlugin_logic_tag_write_logic_writeData_lru_1); // ICachePlugin.scala:L342
+              end
+            `endif
+          `endif
         end
         default : begin
         end
@@ -33044,7 +31940,26 @@ module CoreNSCSCC (
         ICachePlugin_logic_storage_valids_126_1 <= 1'b0;
         ICachePlugin_logic_storage_valids_127_0 <= 1'b0;
         ICachePlugin_logic_storage_valids_127_1 <= 1'b0;
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // ICachePlugin.scala:L355
+          `else
+            if(!1'b0) begin
+              $display("NOTE(ICachePlugin.scala:355):  [ICache Mgmt] Full cache invalidation triggered."); // ICachePlugin.scala:L355
+            end
+          `endif
+        `endif
       end
+      _zz_211 <= (_zz_211 + 32'h00000001);
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // ICachePlugin.scala:L366
+        `else
+          if(!1'b0) begin
+            $display("NOTE(ICachePlugin.scala:366):  [ICache Mgmt] ------ cycle %x end, Last FSM State = %s", _zz_211, ICachePlugin_logic_refill_fsm_stateReg_string); // ICachePlugin.scala:L366
+          end
+        `endif
+      `endif
       ICache_F2_HitCheck_valid <= ICache_F1_Access_valid;
       if(BpuPipelinePlugin_logic_s1_read_isFiring) begin
         `ifndef SYNTHESIS
@@ -33052,7 +31967,7 @@ module CoreNSCSCC (
             assert(1'b0); // BpuPlugin.scala:L85
           `else
             if(!1'b0) begin
-              $display("NOTE(BpuPlugin.scala:85):  [debug] [34m[BPU.S1] Query Firing for PC=0x%x, TID=%x, PHT Idx=0x%x, BTB Idx=0x%x[0m", BpuPipelinePlugin_logic_s1_read_Q_PC, BpuPipelinePlugin_logic_s1_read_TRANSACTION_ID, _zz_211, _zz_212); // BpuPlugin.scala:L85
+              $display("NOTE(BpuPlugin.scala:85):  [debug  ] %x     [34m[BPU.S1] Query Firing for PC=0x%x, TID=%x, PHT Idx=0x%x, BTB Idx=0x%x[0m", PerfCounter_cycles, BpuPipelinePlugin_logic_s1_read_Q_PC, BpuPipelinePlugin_logic_s1_read_TRANSACTION_ID, _zz_212, _zz_213); // BpuPlugin.scala:L85
             end
           `endif
         `endif
@@ -33063,7 +31978,7 @@ module CoreNSCSCC (
             assert(1'b0); // BpuPlugin.scala:L107
           `else
             if(!1'b0) begin
-              $display("NOTE(BpuPlugin.scala:107):  [debug] [34m[BPU.S2] Predict Firing for PC=0x%x, TID=%x | PHT Readout=%x -> Predict=%x | BTB Readout: valid=%x tag_match=%x -> Hit=%x | Final Predict: isTaken=%x target=0x%x[0m", BpuPipelinePlugin_logic_s2_predict_Q_PC, BpuPipelinePlugin_logic_s2_predict_TRANSACTION_ID, BpuPipelinePlugin_logic_phtReadData_s1, BpuPipelinePlugin_logic_phtPrediction, BpuPipelinePlugin_logic_btbReadData_s1_valid, _zz_215, BpuPipelinePlugin_logic_btbHit, BpuPipelinePlugin_logic_s2_predict_IS_TAKEN, BpuPipelinePlugin_logic_s2_predict_TARGET_PC); // BpuPlugin.scala:L107
+              $display("NOTE(BpuPlugin.scala:107):  [debug  ] %x     [34m[BPU.S2] Predict Firing for PC=0x%x, TID=%x | PHT Readout=%x -> Predict=%x | BTB Readout: valid=%x tag_match=%x -> Hit=%x | Final Predict: isTaken=%x target=0x%x[0m", PerfCounter_cycles, BpuPipelinePlugin_logic_s2_predict_Q_PC, BpuPipelinePlugin_logic_s2_predict_TRANSACTION_ID, BpuPipelinePlugin_logic_phtReadData_s1, BpuPipelinePlugin_logic_phtPrediction, BpuPipelinePlugin_logic_btbReadData_s1_valid, _zz_216, BpuPipelinePlugin_logic_btbHit, BpuPipelinePlugin_logic_s2_predict_IS_TAKEN, BpuPipelinePlugin_logic_s2_predict_TARGET_PC); // BpuPlugin.scala:L107
             end
           `endif
         `endif
@@ -33074,7 +31989,7 @@ module CoreNSCSCC (
             assert(1'b0); // BpuPlugin.scala:L131
           `else
             if(!1'b0) begin
-              $display("NOTE(BpuPlugin.scala:131):  [debug] [34m[BPU.U1] Update Firing for PC=0x%x, isTaken=%x[0m", BpuPipelinePlugin_logic_u1_read_U_PAYLOAD_pc, BpuPipelinePlugin_logic_u1_read_U_PAYLOAD_isTaken); // BpuPlugin.scala:L131
+              $display("NOTE(BpuPlugin.scala:131):  [debug  ] %x     [34m[BPU.U1] Update Firing for PC=0x%x, isTaken=%x[0m", PerfCounter_cycles, BpuPipelinePlugin_logic_u1_read_U_PAYLOAD_pc, BpuPipelinePlugin_logic_u1_read_U_PAYLOAD_isTaken); // BpuPlugin.scala:L131
             end
           `endif
         `endif
@@ -33085,7 +32000,7 @@ module CoreNSCSCC (
             assert(1'b0); // BpuPlugin.scala:L152
           `else
             if(!1'b0) begin
-              $display("NOTE(BpuPlugin.scala:152):  [debug] [34m[BPU.U2] Write Firing for PC=0x%x | Old PHT=%x -> New PHT=%x | isTaken=%x, Wr BTB?=%x[0m", BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_pc, BpuPipelinePlugin_logic_oldPhtState_u1, BpuPipelinePlugin_logic_newPhtState, BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_isTaken, BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_isTaken); // BpuPlugin.scala:L152
+              $display("NOTE(BpuPlugin.scala:152):  [debug  ] %x     [34m[BPU.U2] Write Firing for PC=0x%x | Old PHT=%x -> New PHT=%x | isTaken=%x, Wr BTB?=%x[0m", PerfCounter_cycles, BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_pc, BpuPipelinePlugin_logic_oldPhtState_u1, BpuPipelinePlugin_logic_newPhtState, BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_isTaken, BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_isTaken); // BpuPlugin.scala:L152
             end
           `endif
         `endif
@@ -33229,6 +32144,7 @@ module CoreNSCSCC (
   end
 
   always @(posedge clk) begin
+    CommitPlugin_logic_hardRedirectTarget <= ROBPlugin_robComponent_io_commit_0_entry_status_targetPc;
     DecodePlugin_logic_debugLA32RDecodedPhysSrc2_idx <= _zz_DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_idx;
     DecodePlugin_logic_debugLA32RDecodedPhysSrc2_rtype <= _zz_DecodePlugin_logic_decodedUopsOutputVec_0_archSrc2_rtype;
     DecodePlugin_logic_debugLA32RRawInstruction <= s0_Decode_IssuePipelineSignals_RAW_INSTRUCTIONS_IN_0;
@@ -33397,11 +32313,11 @@ module CoreNSCSCC (
     _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Ready_2 <= BranchEU_BranchEuPlugin_euInputPort_payload_src2Ready;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_src2IsFpr_2 <= BranchEU_BranchEuPlugin_euInputPort_payload_src2IsFpr;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_3;
-    _zz_switch_BranchEuPlugin_l133 <= BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_isJump;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isJump_2 <= BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_isJump;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink_2 <= BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_isLink;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_idx_2 <= BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_linkReg_idx;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_2 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_3;
-    _zz_switch_BranchEuPlugin_l133_1 <= BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_isIndirect;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isIndirect_2 <= BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_isIndirect;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_laCfIdx_2 <= BranchEU_BranchEuPlugin_euInputPort_payload_branchCtrl_laCfIdx;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_imm_2 <= BranchEU_BranchEuPlugin_euInputPort_payload_imm;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_pc_2 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_pc_3;
@@ -33423,11 +32339,11 @@ module CoreNSCSCC (
     _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Ready_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_src2Ready_2;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_src2IsFpr_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_src2IsFpr_2;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_2;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isJump_1 <= _zz_switch_BranchEuPlugin_l133;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isJump_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isJump_2;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink_2;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_idx_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_idx_2;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_2;
-    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isIndirect_1 <= _zz_switch_BranchEuPlugin_l133_1;
+    _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isIndirect_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isIndirect_2;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_laCfIdx_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_laCfIdx_2;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_imm_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_imm_2;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_pc_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_pc_2;
@@ -33435,7 +32351,7 @@ module CoreNSCSCC (
     _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_target_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_target_2;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted_1 <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted_2;
     _zz_BranchEU_BranchEuPlugin_euResult_data_2 <= _zz_BranchEU_BranchEuPlugin_euResult_data_3;
-    _zz_BranchEU_BranchEuPlugin_euResult_data_1 <= _zz_BranchEU_BranchEuPlugin_euResult_data_4;
+    _zz_BranchEU_BranchEuPlugin_euResult_data_1 <= (_zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isIndirect_2 ? _zz__zz_BranchEU_BranchEuPlugin_euResult_data_1 : _zz__zz_BranchEU_BranchEuPlugin_euResult_data_1_3);
     _zz_BranchEU_BranchEuPlugin_euResult_uop_robPtr <= _zz_BranchEU_BranchEuPlugin_euResult_uop_robPtr_1;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_physDest_idx <= _zz_BranchEU_BranchEuPlugin_euResult_uop_physDest_idx_1;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_physDestIsFpr <= _zz_BranchEU_BranchEuPlugin_euResult_uop_physDestIsFpr_1;
@@ -33463,9 +32379,10 @@ module CoreNSCSCC (
     _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_target <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_target_1;
     _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted_1;
     _zz_BranchEU_BranchEuPlugin_euResult_isMispredictedBranch <= (! _zz_BranchEU_BranchEuPlugin_euResult_isMispredictedBranch_1);
+    _zz_BranchEU_BranchEuPlugin_euResult_targetPc <= _zz_BranchEU_BranchEuPlugin_euResult_data_5;
     _zz_BranchEU_BranchEuPlugin_euResult_isTaken <= _zz_BranchEU_BranchEuPlugin_euResult_isTaken_1;
     _zz_BranchEU_BranchEuPlugin_euResult_writesToPreg <= _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink_1;
-    _zz_BranchEU_BranchEuPlugin_euResult_data <= (_zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink_1 ? _zz_BranchEU_BranchEuPlugin_euResult_data_5 : _zz_BranchEU_BranchEuPlugin_euResult_data_6);
+    _zz_BranchEU_BranchEuPlugin_euResult_data <= (_zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_isLink_1 ? _zz_BranchEU_BranchEuPlugin_euResult_data_4 : _zz_BranchEU_BranchEuPlugin_euResult_data_5);
     if(s0_Decode_ready_output) begin
       s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_pc <= s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_pc;
       s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_isValid <= s0_Decode_IssuePipelineSignals_DECODED_UOPS_0_isValid;
@@ -33760,55 +32677,13 @@ module CoreNSCSCC (
     LoadQueuePlugin_logic_loadQueue_completingHead_isStalledByDependency <= LoadQueuePlugin_logic_loadQueue_slots_0_isStalledByDependency;
     LoadQueuePlugin_logic_loadQueue_completingHead_isReadyForDCache <= LoadQueuePlugin_logic_loadQueue_slots_0_isReadyForDCache;
     LoadQueuePlugin_logic_loadQueue_completingHead_isWaitingForRsp <= LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForRsp;
-    if(s1_PC_Gen_ready_output) begin
-      s2_ICache_Access_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC <= s1_PC_Gen_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC;
-      s2_ICache_Access_FetchPipelinePlugin_logic_FetchPipeline_PC <= s1_PC_Gen_FetchPipelinePlugin_logic_FetchPipeline_PC;
-    end
-    if(s2_ICache_Access_ready_output) begin
-      s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC <= s2_ICache_Access_FetchPipelinePlugin_logic_FetchPipeline_PC;
-      s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC <= s2_ICache_Access_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC;
-    end
-    if(s4_Predecode_ready_output) begin
-      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_transactionId <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_transactionId;
-      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_0 <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_0;
-      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_1 <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_1;
-      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_2 <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_2;
-      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_3 <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_instructions_3;
-      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_wasHit <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_wasHit;
-      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_redo <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_ICACHE_RSP_PAYLOAD_redo;
-      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isBranch <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isBranch;
-      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isJump <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isJump;
-      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isDirectJump <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isDirectJump;
-      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_jumpOffset <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_jumpOffset;
-      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isIdle <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_0_isIdle;
-      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isBranch <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isBranch;
-      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isJump <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isJump;
-      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isDirectJump <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isDirectJump;
-      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_jumpOffset <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_jumpOffset;
-      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isIdle <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_1_isIdle;
-      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isBranch <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isBranch;
-      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isJump <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isJump;
-      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isDirectJump <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isDirectJump;
-      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_jumpOffset <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_jumpOffset;
-      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isIdle <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_2_isIdle;
-      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isBranch <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isBranch;
-      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isJump <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isJump;
-      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isDirectJump <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isDirectJump;
-      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_jumpOffset <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_jumpOffset;
-      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isIdle <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PREDECODE_INFOS_3_isIdle;
-      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_START_INSTR_INDEX <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_START_INSTR_INDEX;
-      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_NUM_VALID_INSTRS <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_NUM_VALID_INSTRS;
-      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_FAULT <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_FAULT;
-      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_PC <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_PC;
-      s5_Target_Calc_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC <= s4_Predecode_FetchPipelinePlugin_logic_FetchPipeline_RAW_PC;
-    end
     (* parallel_case *)
     case(1) // synthesis parallel_case
       (ICachePlugin_logic_refill_fsm_stateReg[ICachePlugin_logic_refill_fsm_IDLE_OH_ID]) : begin
-        if(when_ICachePlugin_l212) begin
+        if(when_ICachePlugin_l272) begin
           ICachePlugin_logic_refill_refillCmdReg_address <= ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F1_CMD_address;
           ICachePlugin_logic_refill_refillCmdReg_transactionId <= ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F1_CMD_transactionId;
-          ICachePlugin_logic_refill_victimWayReg <= ICachePlugin_logic_pipeline_f2_f2_metaLine_lru;
+          ICachePlugin_logic_storage_victimWayReg <= ICachePlugin_logic_pipeline_f2_f2_metaLine_lru;
           ICachePlugin_logic_refill_latchedMetaOnMiss_ways_0_tag <= ICachePlugin_logic_pipeline_f2_f2_metaLine_ways_0_tag;
           ICachePlugin_logic_refill_latchedMetaOnMiss_ways_1_tag <= ICachePlugin_logic_pipeline_f2_f2_metaLine_ways_1_tag;
           ICachePlugin_logic_refill_latchedMetaOnMiss_lru <= ICachePlugin_logic_pipeline_f2_f2_metaLine_lru;
@@ -33819,16 +32694,16 @@ module CoreNSCSCC (
       (ICachePlugin_logic_refill_fsm_stateReg[ICachePlugin_logic_refill_fsm_RECEIVE_DATA_OH_ID]) : begin
         if(ICachePlugin_axiMaster_r_fire) begin
           if(_zz_79[0]) begin
-            ICachePlugin_logic_refill_lineBuffer_0 <= ICachePlugin_axiMaster_r_payload_data;
+            ICachePlugin_logic_storage_lineBuffer_0 <= ICachePlugin_axiMaster_r_payload_data;
           end
           if(_zz_79[1]) begin
-            ICachePlugin_logic_refill_lineBuffer_1 <= ICachePlugin_axiMaster_r_payload_data;
+            ICachePlugin_logic_storage_lineBuffer_1 <= ICachePlugin_axiMaster_r_payload_data;
           end
           if(_zz_79[2]) begin
-            ICachePlugin_logic_refill_lineBuffer_2 <= ICachePlugin_axiMaster_r_payload_data;
+            ICachePlugin_logic_storage_lineBuffer_2 <= ICachePlugin_axiMaster_r_payload_data;
           end
           if(_zz_79[3]) begin
-            ICachePlugin_logic_refill_lineBuffer_3 <= ICachePlugin_axiMaster_r_payload_data;
+            ICachePlugin_logic_storage_lineBuffer_3 <= ICachePlugin_axiMaster_r_payload_data;
           end
         end
       end
@@ -33845,6 +32720,12 @@ module CoreNSCSCC (
     ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F2_FORWARDED_META_ways_0_tag <= ICache_F1_Access_ICachePlugin_logic_pipeline_F2_FORWARDED_META_ways_0_tag;
     ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F2_FORWARDED_META_ways_1_tag <= ICache_F1_Access_ICachePlugin_logic_pipeline_F2_FORWARDED_META_ways_1_tag;
     ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F2_FORWARDED_META_lru <= ICache_F1_Access_ICachePlugin_logic_pipeline_F2_FORWARDED_META_lru;
+    ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F2_USE_FORWARDED_DATA <= ICache_F1_Access_ICachePlugin_logic_pipeline_F2_USE_FORWARDED_DATA;
+    ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F2_FORWARDED_DATA_0 <= ICache_F1_Access_ICachePlugin_logic_pipeline_F2_FORWARDED_DATA_0;
+    ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F2_FORWARDED_DATA_1 <= ICache_F1_Access_ICachePlugin_logic_pipeline_F2_FORWARDED_DATA_1;
+    ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F2_FORWARDED_DATA_2 <= ICache_F1_Access_ICachePlugin_logic_pipeline_F2_FORWARDED_DATA_2;
+    ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F2_FORWARDED_DATA_3 <= ICache_F1_Access_ICachePlugin_logic_pipeline_F2_FORWARDED_DATA_3;
+    ICache_F2_HitCheck_ICachePlugin_logic_pipeline_F2_VICTIM_WAY_ON_HAZARD <= ICache_F1_Access_ICachePlugin_logic_pipeline_F2_VICTIM_WAY_ON_HAZARD;
     BpuPipelinePlugin_logic_s2_predict_Q_PC <= BpuPipelinePlugin_logic_s1_read_Q_PC;
     BpuPipelinePlugin_logic_s2_predict_TRANSACTION_ID <= BpuPipelinePlugin_logic_s1_read_TRANSACTION_ID;
     BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_pc <= BpuPipelinePlugin_logic_u1_read_U_PAYLOAD_pc;
@@ -35174,531 +34055,6 @@ module SplitGmbToAxi4Bridge (
 
 endmodule
 
-//InstructionPredecoder_3 replaced by InstructionPredecoder
-
-//InstructionPredecoder_2 replaced by InstructionPredecoder
-
-//InstructionPredecoder_1 replaced by InstructionPredecoder
-
-module InstructionPredecoder (
-  input  wire [31:0]   io_instruction,
-  output wire          io_predecodeInfo_isBranch,
-  output wire          io_predecodeInfo_isJump,
-  output wire          io_predecodeInfo_isDirectJump,
-  output wire [31:0]   io_predecodeInfo_jumpOffset,
-  output wire          io_predecodeInfo_isIdle
-);
-
-  wire       [27:0]   _zz_offset;
-  wire       [25:0]   _zz_offset_1;
-  wire       [5:0]    opcode;
-  wire                isBceqzBcnez;
-  wire                isJirl;
-  wire                isBeq;
-  wire                isBne;
-  wire                isBlt;
-  wire                isBge;
-  wire                isBltu;
-  wire                isBgeu;
-  wire                isB;
-  wire       [25:0]   offs26;
-  wire       [31:0]   offset;
-
-  assign _zz_offset = ({2'd0,_zz_offset_1} <<< 2'd2);
-  assign _zz_offset_1 = offs26;
-  assign opcode = io_instruction[31 : 26];
-  assign isBceqzBcnez = (opcode == 6'h12);
-  assign isJirl = (opcode == 6'h13);
-  assign isBeq = (opcode == 6'h16);
-  assign isBne = (opcode == 6'h17);
-  assign isBlt = (opcode == 6'h18);
-  assign isBge = (opcode == 6'h19);
-  assign isBltu = (opcode == 6'h1a);
-  assign isBgeu = (opcode == 6'h1b);
-  assign isB = (opcode == 6'h14);
-  assign io_predecodeInfo_isBranch = (((((((isBceqzBcnez || isJirl) || isBeq) || isBne) || isBlt) || isBge) || isBltu) || isBgeu);
-  assign io_predecodeInfo_isJump = isB;
-  assign io_predecodeInfo_isDirectJump = isB;
-  assign io_predecodeInfo_isIdle = 1'b0;
-  assign offs26 = {io_instruction[25 : 16],io_instruction[15 : 0]};
-  assign offset = {{4{_zz_offset[27]}}, _zz_offset};
-  assign io_predecodeInfo_jumpOffset = (isB ? offset : 32'h0);
-
-endmodule
-
-module StreamFifo_13 (
-  input  wire          io_push_valid,
-  output wire          io_push_ready,
-  input  wire [31:0]   io_push_payload_pc,
-  input  wire [31:0]   io_push_payload_firstPc,
-  input  wire [31:0]   io_push_payload_instructions_0,
-  input  wire [31:0]   io_push_payload_instructions_1,
-  input  wire [31:0]   io_push_payload_instructions_2,
-  input  wire [31:0]   io_push_payload_instructions_3,
-  input  wire          io_push_payload_predecodeInfos_0_isBranch,
-  input  wire          io_push_payload_predecodeInfos_0_isJump,
-  input  wire          io_push_payload_predecodeInfos_0_isDirectJump,
-  input  wire [31:0]   io_push_payload_predecodeInfos_0_jumpOffset,
-  input  wire          io_push_payload_predecodeInfos_0_isIdle,
-  input  wire          io_push_payload_predecodeInfos_1_isBranch,
-  input  wire          io_push_payload_predecodeInfos_1_isJump,
-  input  wire          io_push_payload_predecodeInfos_1_isDirectJump,
-  input  wire [31:0]   io_push_payload_predecodeInfos_1_jumpOffset,
-  input  wire          io_push_payload_predecodeInfos_1_isIdle,
-  input  wire          io_push_payload_predecodeInfos_2_isBranch,
-  input  wire          io_push_payload_predecodeInfos_2_isJump,
-  input  wire          io_push_payload_predecodeInfos_2_isDirectJump,
-  input  wire [31:0]   io_push_payload_predecodeInfos_2_jumpOffset,
-  input  wire          io_push_payload_predecodeInfos_2_isIdle,
-  input  wire          io_push_payload_predecodeInfos_3_isBranch,
-  input  wire          io_push_payload_predecodeInfos_3_isJump,
-  input  wire          io_push_payload_predecodeInfos_3_isDirectJump,
-  input  wire [31:0]   io_push_payload_predecodeInfos_3_jumpOffset,
-  input  wire          io_push_payload_predecodeInfos_3_isIdle,
-  input  wire [3:0]    io_push_payload_branchMask,
-  input  wire          io_push_payload_fault,
-  input  wire [2:0]    io_push_payload_numValidInstructions,
-  input  wire [1:0]    io_push_payload_startInstructionIndex,
-  input  wire [31:0]   io_push_payload_potentialJumpTargets_0,
-  input  wire [31:0]   io_push_payload_potentialJumpTargets_1,
-  input  wire [31:0]   io_push_payload_potentialJumpTargets_2,
-  input  wire [31:0]   io_push_payload_potentialJumpTargets_3,
-  output wire          io_pop_valid,
-  input  wire          io_pop_ready,
-  output wire [31:0]   io_pop_payload_pc,
-  output wire [31:0]   io_pop_payload_firstPc,
-  output wire [31:0]   io_pop_payload_instructions_0,
-  output wire [31:0]   io_pop_payload_instructions_1,
-  output wire [31:0]   io_pop_payload_instructions_2,
-  output wire [31:0]   io_pop_payload_instructions_3,
-  output wire          io_pop_payload_predecodeInfos_0_isBranch,
-  output wire          io_pop_payload_predecodeInfos_0_isJump,
-  output wire          io_pop_payload_predecodeInfos_0_isDirectJump,
-  output wire [31:0]   io_pop_payload_predecodeInfos_0_jumpOffset,
-  output wire          io_pop_payload_predecodeInfos_0_isIdle,
-  output wire          io_pop_payload_predecodeInfos_1_isBranch,
-  output wire          io_pop_payload_predecodeInfos_1_isJump,
-  output wire          io_pop_payload_predecodeInfos_1_isDirectJump,
-  output wire [31:0]   io_pop_payload_predecodeInfos_1_jumpOffset,
-  output wire          io_pop_payload_predecodeInfos_1_isIdle,
-  output wire          io_pop_payload_predecodeInfos_2_isBranch,
-  output wire          io_pop_payload_predecodeInfos_2_isJump,
-  output wire          io_pop_payload_predecodeInfos_2_isDirectJump,
-  output wire [31:0]   io_pop_payload_predecodeInfos_2_jumpOffset,
-  output wire          io_pop_payload_predecodeInfos_2_isIdle,
-  output wire          io_pop_payload_predecodeInfos_3_isBranch,
-  output wire          io_pop_payload_predecodeInfos_3_isJump,
-  output wire          io_pop_payload_predecodeInfos_3_isDirectJump,
-  output wire [31:0]   io_pop_payload_predecodeInfos_3_jumpOffset,
-  output wire          io_pop_payload_predecodeInfos_3_isIdle,
-  output wire [3:0]    io_pop_payload_branchMask,
-  output wire          io_pop_payload_fault,
-  output wire [2:0]    io_pop_payload_numValidInstructions,
-  output wire [1:0]    io_pop_payload_startInstructionIndex,
-  output wire [31:0]   io_pop_payload_potentialJumpTargets_0,
-  output wire [31:0]   io_pop_payload_potentialJumpTargets_1,
-  output wire [31:0]   io_pop_payload_potentialJumpTargets_2,
-  output wire [31:0]   io_pop_payload_potentialJumpTargets_3,
-  input  wire          io_flush,
-  output wire [1:0]    io_occupancy,
-  output wire [1:0]    io_availability,
-  input  wire          clk,
-  input  wire          reset
-);
-
-  reg        [473:0]  logic_ram_spinal_port1;
-  wire       [473:0]  _zz_logic_ram_port;
-  reg                 _zz_1;
-  wire                logic_ptr_doPush;
-  wire                logic_ptr_doPop;
-  wire                logic_ptr_full;
-  wire                logic_ptr_empty;
-  reg        [1:0]    logic_ptr_push;
-  reg        [1:0]    logic_ptr_pop;
-  wire       [1:0]    logic_ptr_occupancy;
-  wire       [1:0]    logic_ptr_popOnIo;
-  wire                when_Stream_l1455;
-  reg                 logic_ptr_wentUp;
-  wire                io_push_fire;
-  wire                logic_push_onRam_write_valid;
-  wire       [0:0]    logic_push_onRam_write_payload_address;
-  wire       [31:0]   logic_push_onRam_write_payload_data_pc;
-  wire       [31:0]   logic_push_onRam_write_payload_data_firstPc;
-  wire       [31:0]   logic_push_onRam_write_payload_data_instructions_0;
-  wire       [31:0]   logic_push_onRam_write_payload_data_instructions_1;
-  wire       [31:0]   logic_push_onRam_write_payload_data_instructions_2;
-  wire       [31:0]   logic_push_onRam_write_payload_data_instructions_3;
-  wire                logic_push_onRam_write_payload_data_predecodeInfos_0_isBranch;
-  wire                logic_push_onRam_write_payload_data_predecodeInfos_0_isJump;
-  wire                logic_push_onRam_write_payload_data_predecodeInfos_0_isDirectJump;
-  wire       [31:0]   logic_push_onRam_write_payload_data_predecodeInfos_0_jumpOffset;
-  wire                logic_push_onRam_write_payload_data_predecodeInfos_0_isIdle;
-  wire                logic_push_onRam_write_payload_data_predecodeInfos_1_isBranch;
-  wire                logic_push_onRam_write_payload_data_predecodeInfos_1_isJump;
-  wire                logic_push_onRam_write_payload_data_predecodeInfos_1_isDirectJump;
-  wire       [31:0]   logic_push_onRam_write_payload_data_predecodeInfos_1_jumpOffset;
-  wire                logic_push_onRam_write_payload_data_predecodeInfos_1_isIdle;
-  wire                logic_push_onRam_write_payload_data_predecodeInfos_2_isBranch;
-  wire                logic_push_onRam_write_payload_data_predecodeInfos_2_isJump;
-  wire                logic_push_onRam_write_payload_data_predecodeInfos_2_isDirectJump;
-  wire       [31:0]   logic_push_onRam_write_payload_data_predecodeInfos_2_jumpOffset;
-  wire                logic_push_onRam_write_payload_data_predecodeInfos_2_isIdle;
-  wire                logic_push_onRam_write_payload_data_predecodeInfos_3_isBranch;
-  wire                logic_push_onRam_write_payload_data_predecodeInfos_3_isJump;
-  wire                logic_push_onRam_write_payload_data_predecodeInfos_3_isDirectJump;
-  wire       [31:0]   logic_push_onRam_write_payload_data_predecodeInfos_3_jumpOffset;
-  wire                logic_push_onRam_write_payload_data_predecodeInfos_3_isIdle;
-  wire       [3:0]    logic_push_onRam_write_payload_data_branchMask;
-  wire                logic_push_onRam_write_payload_data_fault;
-  wire       [2:0]    logic_push_onRam_write_payload_data_numValidInstructions;
-  wire       [1:0]    logic_push_onRam_write_payload_data_startInstructionIndex;
-  wire       [31:0]   logic_push_onRam_write_payload_data_potentialJumpTargets_0;
-  wire       [31:0]   logic_push_onRam_write_payload_data_potentialJumpTargets_1;
-  wire       [31:0]   logic_push_onRam_write_payload_data_potentialJumpTargets_2;
-  wire       [31:0]   logic_push_onRam_write_payload_data_potentialJumpTargets_3;
-  wire                logic_pop_addressGen_valid;
-  reg                 logic_pop_addressGen_ready;
-  wire       [0:0]    logic_pop_addressGen_payload;
-  wire                logic_pop_addressGen_fire;
-  wire                logic_pop_sync_readArbitation_valid;
-  wire                logic_pop_sync_readArbitation_ready;
-  wire       [0:0]    logic_pop_sync_readArbitation_payload;
-  reg                 logic_pop_addressGen_rValid;
-  reg        [0:0]    logic_pop_addressGen_rData;
-  wire                when_Stream_l477;
-  wire                logic_pop_sync_readPort_cmd_valid;
-  wire       [0:0]    logic_pop_sync_readPort_cmd_payload;
-  wire       [31:0]   logic_pop_sync_readPort_rsp_pc;
-  wire       [31:0]   logic_pop_sync_readPort_rsp_firstPc;
-  wire       [31:0]   logic_pop_sync_readPort_rsp_instructions_0;
-  wire       [31:0]   logic_pop_sync_readPort_rsp_instructions_1;
-  wire       [31:0]   logic_pop_sync_readPort_rsp_instructions_2;
-  wire       [31:0]   logic_pop_sync_readPort_rsp_instructions_3;
-  wire                logic_pop_sync_readPort_rsp_predecodeInfos_0_isBranch;
-  wire                logic_pop_sync_readPort_rsp_predecodeInfos_0_isJump;
-  wire                logic_pop_sync_readPort_rsp_predecodeInfos_0_isDirectJump;
-  wire       [31:0]   logic_pop_sync_readPort_rsp_predecodeInfos_0_jumpOffset;
-  wire                logic_pop_sync_readPort_rsp_predecodeInfos_0_isIdle;
-  wire                logic_pop_sync_readPort_rsp_predecodeInfos_1_isBranch;
-  wire                logic_pop_sync_readPort_rsp_predecodeInfos_1_isJump;
-  wire                logic_pop_sync_readPort_rsp_predecodeInfos_1_isDirectJump;
-  wire       [31:0]   logic_pop_sync_readPort_rsp_predecodeInfos_1_jumpOffset;
-  wire                logic_pop_sync_readPort_rsp_predecodeInfos_1_isIdle;
-  wire                logic_pop_sync_readPort_rsp_predecodeInfos_2_isBranch;
-  wire                logic_pop_sync_readPort_rsp_predecodeInfos_2_isJump;
-  wire                logic_pop_sync_readPort_rsp_predecodeInfos_2_isDirectJump;
-  wire       [31:0]   logic_pop_sync_readPort_rsp_predecodeInfos_2_jumpOffset;
-  wire                logic_pop_sync_readPort_rsp_predecodeInfos_2_isIdle;
-  wire                logic_pop_sync_readPort_rsp_predecodeInfos_3_isBranch;
-  wire                logic_pop_sync_readPort_rsp_predecodeInfos_3_isJump;
-  wire                logic_pop_sync_readPort_rsp_predecodeInfos_3_isDirectJump;
-  wire       [31:0]   logic_pop_sync_readPort_rsp_predecodeInfos_3_jumpOffset;
-  wire                logic_pop_sync_readPort_rsp_predecodeInfos_3_isIdle;
-  wire       [3:0]    logic_pop_sync_readPort_rsp_branchMask;
-  wire                logic_pop_sync_readPort_rsp_fault;
-  wire       [2:0]    logic_pop_sync_readPort_rsp_numValidInstructions;
-  wire       [1:0]    logic_pop_sync_readPort_rsp_startInstructionIndex;
-  wire       [31:0]   logic_pop_sync_readPort_rsp_potentialJumpTargets_0;
-  wire       [31:0]   logic_pop_sync_readPort_rsp_potentialJumpTargets_1;
-  wire       [31:0]   logic_pop_sync_readPort_rsp_potentialJumpTargets_2;
-  wire       [31:0]   logic_pop_sync_readPort_rsp_potentialJumpTargets_3;
-  wire       [473:0]  _zz_logic_pop_sync_readPort_rsp_pc;
-  wire       [127:0]  _zz_logic_pop_sync_readPort_rsp_instructions_0;
-  wire       [143:0]  _zz_logic_pop_sync_readPort_rsp_predecodeInfos_0_isBranch;
-  wire       [35:0]   _zz_logic_pop_sync_readPort_rsp_predecodeInfos_0_isBranch_1;
-  wire       [35:0]   _zz_logic_pop_sync_readPort_rsp_predecodeInfos_1_isBranch;
-  wire       [35:0]   _zz_logic_pop_sync_readPort_rsp_predecodeInfos_2_isBranch;
-  wire       [35:0]   _zz_logic_pop_sync_readPort_rsp_predecodeInfos_3_isBranch;
-  wire       [127:0]  _zz_logic_pop_sync_readPort_rsp_potentialJumpTargets_0;
-  wire                logic_pop_addressGen_toFlowFire_valid;
-  wire       [0:0]    logic_pop_addressGen_toFlowFire_payload;
-  wire                logic_pop_sync_readArbitation_translated_valid;
-  wire                logic_pop_sync_readArbitation_translated_ready;
-  wire       [31:0]   logic_pop_sync_readArbitation_translated_payload_pc;
-  wire       [31:0]   logic_pop_sync_readArbitation_translated_payload_firstPc;
-  wire       [31:0]   logic_pop_sync_readArbitation_translated_payload_instructions_0;
-  wire       [31:0]   logic_pop_sync_readArbitation_translated_payload_instructions_1;
-  wire       [31:0]   logic_pop_sync_readArbitation_translated_payload_instructions_2;
-  wire       [31:0]   logic_pop_sync_readArbitation_translated_payload_instructions_3;
-  wire                logic_pop_sync_readArbitation_translated_payload_predecodeInfos_0_isBranch;
-  wire                logic_pop_sync_readArbitation_translated_payload_predecodeInfos_0_isJump;
-  wire                logic_pop_sync_readArbitation_translated_payload_predecodeInfos_0_isDirectJump;
-  wire       [31:0]   logic_pop_sync_readArbitation_translated_payload_predecodeInfos_0_jumpOffset;
-  wire                logic_pop_sync_readArbitation_translated_payload_predecodeInfos_0_isIdle;
-  wire                logic_pop_sync_readArbitation_translated_payload_predecodeInfos_1_isBranch;
-  wire                logic_pop_sync_readArbitation_translated_payload_predecodeInfos_1_isJump;
-  wire                logic_pop_sync_readArbitation_translated_payload_predecodeInfos_1_isDirectJump;
-  wire       [31:0]   logic_pop_sync_readArbitation_translated_payload_predecodeInfos_1_jumpOffset;
-  wire                logic_pop_sync_readArbitation_translated_payload_predecodeInfos_1_isIdle;
-  wire                logic_pop_sync_readArbitation_translated_payload_predecodeInfos_2_isBranch;
-  wire                logic_pop_sync_readArbitation_translated_payload_predecodeInfos_2_isJump;
-  wire                logic_pop_sync_readArbitation_translated_payload_predecodeInfos_2_isDirectJump;
-  wire       [31:0]   logic_pop_sync_readArbitation_translated_payload_predecodeInfos_2_jumpOffset;
-  wire                logic_pop_sync_readArbitation_translated_payload_predecodeInfos_2_isIdle;
-  wire                logic_pop_sync_readArbitation_translated_payload_predecodeInfos_3_isBranch;
-  wire                logic_pop_sync_readArbitation_translated_payload_predecodeInfos_3_isJump;
-  wire                logic_pop_sync_readArbitation_translated_payload_predecodeInfos_3_isDirectJump;
-  wire       [31:0]   logic_pop_sync_readArbitation_translated_payload_predecodeInfos_3_jumpOffset;
-  wire                logic_pop_sync_readArbitation_translated_payload_predecodeInfos_3_isIdle;
-  wire       [3:0]    logic_pop_sync_readArbitation_translated_payload_branchMask;
-  wire                logic_pop_sync_readArbitation_translated_payload_fault;
-  wire       [2:0]    logic_pop_sync_readArbitation_translated_payload_numValidInstructions;
-  wire       [1:0]    logic_pop_sync_readArbitation_translated_payload_startInstructionIndex;
-  wire       [31:0]   logic_pop_sync_readArbitation_translated_payload_potentialJumpTargets_0;
-  wire       [31:0]   logic_pop_sync_readArbitation_translated_payload_potentialJumpTargets_1;
-  wire       [31:0]   logic_pop_sync_readArbitation_translated_payload_potentialJumpTargets_2;
-  wire       [31:0]   logic_pop_sync_readArbitation_translated_payload_potentialJumpTargets_3;
-  wire                logic_pop_sync_readArbitation_fire;
-  reg        [1:0]    logic_pop_sync_popReg;
-  (* ram_style = "block" *) reg [473:0] logic_ram [0:1];
-
-  assign _zz_logic_ram_port = {{logic_push_onRam_write_payload_data_potentialJumpTargets_3,{logic_push_onRam_write_payload_data_potentialJumpTargets_2,{logic_push_onRam_write_payload_data_potentialJumpTargets_1,logic_push_onRam_write_payload_data_potentialJumpTargets_0}}},{logic_push_onRam_write_payload_data_startInstructionIndex,{logic_push_onRam_write_payload_data_numValidInstructions,{logic_push_onRam_write_payload_data_fault,{logic_push_onRam_write_payload_data_branchMask,{{{logic_push_onRam_write_payload_data_predecodeInfos_3_isIdle,{logic_push_onRam_write_payload_data_predecodeInfos_3_jumpOffset,{logic_push_onRam_write_payload_data_predecodeInfos_3_isDirectJump,{logic_push_onRam_write_payload_data_predecodeInfos_3_isJump,logic_push_onRam_write_payload_data_predecodeInfos_3_isBranch}}}},{{logic_push_onRam_write_payload_data_predecodeInfos_2_isIdle,{logic_push_onRam_write_payload_data_predecodeInfos_2_jumpOffset,{logic_push_onRam_write_payload_data_predecodeInfos_2_isDirectJump,{logic_push_onRam_write_payload_data_predecodeInfos_2_isJump,logic_push_onRam_write_payload_data_predecodeInfos_2_isBranch}}}},{{logic_push_onRam_write_payload_data_predecodeInfos_1_isIdle,{logic_push_onRam_write_payload_data_predecodeInfos_1_jumpOffset,{logic_push_onRam_write_payload_data_predecodeInfos_1_isDirectJump,{logic_push_onRam_write_payload_data_predecodeInfos_1_isJump,logic_push_onRam_write_payload_data_predecodeInfos_1_isBranch}}}},{logic_push_onRam_write_payload_data_predecodeInfos_0_isIdle,{logic_push_onRam_write_payload_data_predecodeInfos_0_jumpOffset,{logic_push_onRam_write_payload_data_predecodeInfos_0_isDirectJump,{logic_push_onRam_write_payload_data_predecodeInfos_0_isJump,logic_push_onRam_write_payload_data_predecodeInfos_0_isBranch}}}}}}},{{logic_push_onRam_write_payload_data_instructions_3,{logic_push_onRam_write_payload_data_instructions_2,{logic_push_onRam_write_payload_data_instructions_1,logic_push_onRam_write_payload_data_instructions_0}}},{logic_push_onRam_write_payload_data_firstPc,logic_push_onRam_write_payload_data_pc}}}}}}}};
-  always @(posedge clk) begin
-    if(_zz_1) begin
-      logic_ram[logic_push_onRam_write_payload_address] <= _zz_logic_ram_port;
-    end
-  end
-
-  always @(posedge clk) begin
-    if(logic_pop_sync_readPort_cmd_valid) begin
-      logic_ram_spinal_port1 <= logic_ram[logic_pop_sync_readPort_cmd_payload];
-    end
-  end
-
-  always @(*) begin
-    _zz_1 = 1'b0;
-    if(logic_push_onRam_write_valid) begin
-      _zz_1 = 1'b1;
-    end
-  end
-
-  assign when_Stream_l1455 = (logic_ptr_doPush != logic_ptr_doPop);
-  assign logic_ptr_full = (((logic_ptr_push ^ logic_ptr_popOnIo) ^ 2'b10) == 2'b00);
-  assign logic_ptr_empty = (logic_ptr_push == logic_ptr_pop);
-  assign logic_ptr_occupancy = (logic_ptr_push - logic_ptr_popOnIo);
-  assign io_push_ready = (! logic_ptr_full);
-  assign io_push_fire = (io_push_valid && io_push_ready);
-  assign logic_ptr_doPush = io_push_fire;
-  assign logic_push_onRam_write_valid = io_push_fire;
-  assign logic_push_onRam_write_payload_address = logic_ptr_push[0:0];
-  assign logic_push_onRam_write_payload_data_pc = io_push_payload_pc;
-  assign logic_push_onRam_write_payload_data_firstPc = io_push_payload_firstPc;
-  assign logic_push_onRam_write_payload_data_instructions_0 = io_push_payload_instructions_0;
-  assign logic_push_onRam_write_payload_data_instructions_1 = io_push_payload_instructions_1;
-  assign logic_push_onRam_write_payload_data_instructions_2 = io_push_payload_instructions_2;
-  assign logic_push_onRam_write_payload_data_instructions_3 = io_push_payload_instructions_3;
-  assign logic_push_onRam_write_payload_data_predecodeInfos_0_isBranch = io_push_payload_predecodeInfos_0_isBranch;
-  assign logic_push_onRam_write_payload_data_predecodeInfos_0_isJump = io_push_payload_predecodeInfos_0_isJump;
-  assign logic_push_onRam_write_payload_data_predecodeInfos_0_isDirectJump = io_push_payload_predecodeInfos_0_isDirectJump;
-  assign logic_push_onRam_write_payload_data_predecodeInfos_0_jumpOffset = io_push_payload_predecodeInfos_0_jumpOffset;
-  assign logic_push_onRam_write_payload_data_predecodeInfos_0_isIdle = io_push_payload_predecodeInfos_0_isIdle;
-  assign logic_push_onRam_write_payload_data_predecodeInfos_1_isBranch = io_push_payload_predecodeInfos_1_isBranch;
-  assign logic_push_onRam_write_payload_data_predecodeInfos_1_isJump = io_push_payload_predecodeInfos_1_isJump;
-  assign logic_push_onRam_write_payload_data_predecodeInfos_1_isDirectJump = io_push_payload_predecodeInfos_1_isDirectJump;
-  assign logic_push_onRam_write_payload_data_predecodeInfos_1_jumpOffset = io_push_payload_predecodeInfos_1_jumpOffset;
-  assign logic_push_onRam_write_payload_data_predecodeInfos_1_isIdle = io_push_payload_predecodeInfos_1_isIdle;
-  assign logic_push_onRam_write_payload_data_predecodeInfos_2_isBranch = io_push_payload_predecodeInfos_2_isBranch;
-  assign logic_push_onRam_write_payload_data_predecodeInfos_2_isJump = io_push_payload_predecodeInfos_2_isJump;
-  assign logic_push_onRam_write_payload_data_predecodeInfos_2_isDirectJump = io_push_payload_predecodeInfos_2_isDirectJump;
-  assign logic_push_onRam_write_payload_data_predecodeInfos_2_jumpOffset = io_push_payload_predecodeInfos_2_jumpOffset;
-  assign logic_push_onRam_write_payload_data_predecodeInfos_2_isIdle = io_push_payload_predecodeInfos_2_isIdle;
-  assign logic_push_onRam_write_payload_data_predecodeInfos_3_isBranch = io_push_payload_predecodeInfos_3_isBranch;
-  assign logic_push_onRam_write_payload_data_predecodeInfos_3_isJump = io_push_payload_predecodeInfos_3_isJump;
-  assign logic_push_onRam_write_payload_data_predecodeInfos_3_isDirectJump = io_push_payload_predecodeInfos_3_isDirectJump;
-  assign logic_push_onRam_write_payload_data_predecodeInfos_3_jumpOffset = io_push_payload_predecodeInfos_3_jumpOffset;
-  assign logic_push_onRam_write_payload_data_predecodeInfos_3_isIdle = io_push_payload_predecodeInfos_3_isIdle;
-  assign logic_push_onRam_write_payload_data_branchMask = io_push_payload_branchMask;
-  assign logic_push_onRam_write_payload_data_fault = io_push_payload_fault;
-  assign logic_push_onRam_write_payload_data_numValidInstructions = io_push_payload_numValidInstructions;
-  assign logic_push_onRam_write_payload_data_startInstructionIndex = io_push_payload_startInstructionIndex;
-  assign logic_push_onRam_write_payload_data_potentialJumpTargets_0 = io_push_payload_potentialJumpTargets_0;
-  assign logic_push_onRam_write_payload_data_potentialJumpTargets_1 = io_push_payload_potentialJumpTargets_1;
-  assign logic_push_onRam_write_payload_data_potentialJumpTargets_2 = io_push_payload_potentialJumpTargets_2;
-  assign logic_push_onRam_write_payload_data_potentialJumpTargets_3 = io_push_payload_potentialJumpTargets_3;
-  assign logic_pop_addressGen_valid = (! logic_ptr_empty);
-  assign logic_pop_addressGen_payload = logic_ptr_pop[0:0];
-  assign logic_pop_addressGen_fire = (logic_pop_addressGen_valid && logic_pop_addressGen_ready);
-  assign logic_ptr_doPop = logic_pop_addressGen_fire;
-  always @(*) begin
-    logic_pop_addressGen_ready = logic_pop_sync_readArbitation_ready;
-    if(when_Stream_l477) begin
-      logic_pop_addressGen_ready = 1'b1;
-    end
-  end
-
-  assign when_Stream_l477 = (! logic_pop_sync_readArbitation_valid);
-  assign logic_pop_sync_readArbitation_valid = logic_pop_addressGen_rValid;
-  assign logic_pop_sync_readArbitation_payload = logic_pop_addressGen_rData;
-  assign _zz_logic_pop_sync_readPort_rsp_pc = logic_ram_spinal_port1;
-  assign _zz_logic_pop_sync_readPort_rsp_instructions_0 = _zz_logic_pop_sync_readPort_rsp_pc[191 : 64];
-  assign _zz_logic_pop_sync_readPort_rsp_predecodeInfos_0_isBranch = _zz_logic_pop_sync_readPort_rsp_pc[335 : 192];
-  assign _zz_logic_pop_sync_readPort_rsp_predecodeInfos_0_isBranch_1 = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_0_isBranch[35 : 0];
-  assign _zz_logic_pop_sync_readPort_rsp_predecodeInfos_1_isBranch = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_0_isBranch[71 : 36];
-  assign _zz_logic_pop_sync_readPort_rsp_predecodeInfos_2_isBranch = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_0_isBranch[107 : 72];
-  assign _zz_logic_pop_sync_readPort_rsp_predecodeInfos_3_isBranch = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_0_isBranch[143 : 108];
-  assign _zz_logic_pop_sync_readPort_rsp_potentialJumpTargets_0 = _zz_logic_pop_sync_readPort_rsp_pc[473 : 346];
-  assign logic_pop_sync_readPort_rsp_pc = _zz_logic_pop_sync_readPort_rsp_pc[31 : 0];
-  assign logic_pop_sync_readPort_rsp_firstPc = _zz_logic_pop_sync_readPort_rsp_pc[63 : 32];
-  assign logic_pop_sync_readPort_rsp_instructions_0 = _zz_logic_pop_sync_readPort_rsp_instructions_0[31 : 0];
-  assign logic_pop_sync_readPort_rsp_instructions_1 = _zz_logic_pop_sync_readPort_rsp_instructions_0[63 : 32];
-  assign logic_pop_sync_readPort_rsp_instructions_2 = _zz_logic_pop_sync_readPort_rsp_instructions_0[95 : 64];
-  assign logic_pop_sync_readPort_rsp_instructions_3 = _zz_logic_pop_sync_readPort_rsp_instructions_0[127 : 96];
-  assign logic_pop_sync_readPort_rsp_predecodeInfos_0_isBranch = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_0_isBranch_1[0];
-  assign logic_pop_sync_readPort_rsp_predecodeInfos_0_isJump = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_0_isBranch_1[1];
-  assign logic_pop_sync_readPort_rsp_predecodeInfos_0_isDirectJump = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_0_isBranch_1[2];
-  assign logic_pop_sync_readPort_rsp_predecodeInfos_0_jumpOffset = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_0_isBranch_1[34 : 3];
-  assign logic_pop_sync_readPort_rsp_predecodeInfos_0_isIdle = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_0_isBranch_1[35];
-  assign logic_pop_sync_readPort_rsp_predecodeInfos_1_isBranch = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_1_isBranch[0];
-  assign logic_pop_sync_readPort_rsp_predecodeInfos_1_isJump = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_1_isBranch[1];
-  assign logic_pop_sync_readPort_rsp_predecodeInfos_1_isDirectJump = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_1_isBranch[2];
-  assign logic_pop_sync_readPort_rsp_predecodeInfos_1_jumpOffset = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_1_isBranch[34 : 3];
-  assign logic_pop_sync_readPort_rsp_predecodeInfos_1_isIdle = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_1_isBranch[35];
-  assign logic_pop_sync_readPort_rsp_predecodeInfos_2_isBranch = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_2_isBranch[0];
-  assign logic_pop_sync_readPort_rsp_predecodeInfos_2_isJump = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_2_isBranch[1];
-  assign logic_pop_sync_readPort_rsp_predecodeInfos_2_isDirectJump = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_2_isBranch[2];
-  assign logic_pop_sync_readPort_rsp_predecodeInfos_2_jumpOffset = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_2_isBranch[34 : 3];
-  assign logic_pop_sync_readPort_rsp_predecodeInfos_2_isIdle = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_2_isBranch[35];
-  assign logic_pop_sync_readPort_rsp_predecodeInfos_3_isBranch = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_3_isBranch[0];
-  assign logic_pop_sync_readPort_rsp_predecodeInfos_3_isJump = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_3_isBranch[1];
-  assign logic_pop_sync_readPort_rsp_predecodeInfos_3_isDirectJump = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_3_isBranch[2];
-  assign logic_pop_sync_readPort_rsp_predecodeInfos_3_jumpOffset = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_3_isBranch[34 : 3];
-  assign logic_pop_sync_readPort_rsp_predecodeInfos_3_isIdle = _zz_logic_pop_sync_readPort_rsp_predecodeInfos_3_isBranch[35];
-  assign logic_pop_sync_readPort_rsp_branchMask = _zz_logic_pop_sync_readPort_rsp_pc[339 : 336];
-  assign logic_pop_sync_readPort_rsp_fault = _zz_logic_pop_sync_readPort_rsp_pc[340];
-  assign logic_pop_sync_readPort_rsp_numValidInstructions = _zz_logic_pop_sync_readPort_rsp_pc[343 : 341];
-  assign logic_pop_sync_readPort_rsp_startInstructionIndex = _zz_logic_pop_sync_readPort_rsp_pc[345 : 344];
-  assign logic_pop_sync_readPort_rsp_potentialJumpTargets_0 = _zz_logic_pop_sync_readPort_rsp_potentialJumpTargets_0[31 : 0];
-  assign logic_pop_sync_readPort_rsp_potentialJumpTargets_1 = _zz_logic_pop_sync_readPort_rsp_potentialJumpTargets_0[63 : 32];
-  assign logic_pop_sync_readPort_rsp_potentialJumpTargets_2 = _zz_logic_pop_sync_readPort_rsp_potentialJumpTargets_0[95 : 64];
-  assign logic_pop_sync_readPort_rsp_potentialJumpTargets_3 = _zz_logic_pop_sync_readPort_rsp_potentialJumpTargets_0[127 : 96];
-  assign logic_pop_addressGen_toFlowFire_valid = logic_pop_addressGen_fire;
-  assign logic_pop_addressGen_toFlowFire_payload = logic_pop_addressGen_payload;
-  assign logic_pop_sync_readPort_cmd_valid = logic_pop_addressGen_toFlowFire_valid;
-  assign logic_pop_sync_readPort_cmd_payload = logic_pop_addressGen_toFlowFire_payload;
-  assign logic_pop_sync_readArbitation_translated_valid = logic_pop_sync_readArbitation_valid;
-  assign logic_pop_sync_readArbitation_ready = logic_pop_sync_readArbitation_translated_ready;
-  assign logic_pop_sync_readArbitation_translated_payload_pc = logic_pop_sync_readPort_rsp_pc;
-  assign logic_pop_sync_readArbitation_translated_payload_firstPc = logic_pop_sync_readPort_rsp_firstPc;
-  assign logic_pop_sync_readArbitation_translated_payload_instructions_0 = logic_pop_sync_readPort_rsp_instructions_0;
-  assign logic_pop_sync_readArbitation_translated_payload_instructions_1 = logic_pop_sync_readPort_rsp_instructions_1;
-  assign logic_pop_sync_readArbitation_translated_payload_instructions_2 = logic_pop_sync_readPort_rsp_instructions_2;
-  assign logic_pop_sync_readArbitation_translated_payload_instructions_3 = logic_pop_sync_readPort_rsp_instructions_3;
-  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_0_isBranch = logic_pop_sync_readPort_rsp_predecodeInfos_0_isBranch;
-  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_0_isJump = logic_pop_sync_readPort_rsp_predecodeInfos_0_isJump;
-  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_0_isDirectJump = logic_pop_sync_readPort_rsp_predecodeInfos_0_isDirectJump;
-  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_0_jumpOffset = logic_pop_sync_readPort_rsp_predecodeInfos_0_jumpOffset;
-  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_0_isIdle = logic_pop_sync_readPort_rsp_predecodeInfos_0_isIdle;
-  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_1_isBranch = logic_pop_sync_readPort_rsp_predecodeInfos_1_isBranch;
-  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_1_isJump = logic_pop_sync_readPort_rsp_predecodeInfos_1_isJump;
-  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_1_isDirectJump = logic_pop_sync_readPort_rsp_predecodeInfos_1_isDirectJump;
-  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_1_jumpOffset = logic_pop_sync_readPort_rsp_predecodeInfos_1_jumpOffset;
-  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_1_isIdle = logic_pop_sync_readPort_rsp_predecodeInfos_1_isIdle;
-  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_2_isBranch = logic_pop_sync_readPort_rsp_predecodeInfos_2_isBranch;
-  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_2_isJump = logic_pop_sync_readPort_rsp_predecodeInfos_2_isJump;
-  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_2_isDirectJump = logic_pop_sync_readPort_rsp_predecodeInfos_2_isDirectJump;
-  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_2_jumpOffset = logic_pop_sync_readPort_rsp_predecodeInfos_2_jumpOffset;
-  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_2_isIdle = logic_pop_sync_readPort_rsp_predecodeInfos_2_isIdle;
-  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_3_isBranch = logic_pop_sync_readPort_rsp_predecodeInfos_3_isBranch;
-  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_3_isJump = logic_pop_sync_readPort_rsp_predecodeInfos_3_isJump;
-  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_3_isDirectJump = logic_pop_sync_readPort_rsp_predecodeInfos_3_isDirectJump;
-  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_3_jumpOffset = logic_pop_sync_readPort_rsp_predecodeInfos_3_jumpOffset;
-  assign logic_pop_sync_readArbitation_translated_payload_predecodeInfos_3_isIdle = logic_pop_sync_readPort_rsp_predecodeInfos_3_isIdle;
-  assign logic_pop_sync_readArbitation_translated_payload_branchMask = logic_pop_sync_readPort_rsp_branchMask;
-  assign logic_pop_sync_readArbitation_translated_payload_fault = logic_pop_sync_readPort_rsp_fault;
-  assign logic_pop_sync_readArbitation_translated_payload_numValidInstructions = logic_pop_sync_readPort_rsp_numValidInstructions;
-  assign logic_pop_sync_readArbitation_translated_payload_startInstructionIndex = logic_pop_sync_readPort_rsp_startInstructionIndex;
-  assign logic_pop_sync_readArbitation_translated_payload_potentialJumpTargets_0 = logic_pop_sync_readPort_rsp_potentialJumpTargets_0;
-  assign logic_pop_sync_readArbitation_translated_payload_potentialJumpTargets_1 = logic_pop_sync_readPort_rsp_potentialJumpTargets_1;
-  assign logic_pop_sync_readArbitation_translated_payload_potentialJumpTargets_2 = logic_pop_sync_readPort_rsp_potentialJumpTargets_2;
-  assign logic_pop_sync_readArbitation_translated_payload_potentialJumpTargets_3 = logic_pop_sync_readPort_rsp_potentialJumpTargets_3;
-  assign io_pop_valid = logic_pop_sync_readArbitation_translated_valid;
-  assign logic_pop_sync_readArbitation_translated_ready = io_pop_ready;
-  assign io_pop_payload_pc = logic_pop_sync_readArbitation_translated_payload_pc;
-  assign io_pop_payload_firstPc = logic_pop_sync_readArbitation_translated_payload_firstPc;
-  assign io_pop_payload_instructions_0 = logic_pop_sync_readArbitation_translated_payload_instructions_0;
-  assign io_pop_payload_instructions_1 = logic_pop_sync_readArbitation_translated_payload_instructions_1;
-  assign io_pop_payload_instructions_2 = logic_pop_sync_readArbitation_translated_payload_instructions_2;
-  assign io_pop_payload_instructions_3 = logic_pop_sync_readArbitation_translated_payload_instructions_3;
-  assign io_pop_payload_predecodeInfos_0_isBranch = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_0_isBranch;
-  assign io_pop_payload_predecodeInfos_0_isJump = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_0_isJump;
-  assign io_pop_payload_predecodeInfos_0_isDirectJump = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_0_isDirectJump;
-  assign io_pop_payload_predecodeInfos_0_jumpOffset = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_0_jumpOffset;
-  assign io_pop_payload_predecodeInfos_0_isIdle = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_0_isIdle;
-  assign io_pop_payload_predecodeInfos_1_isBranch = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_1_isBranch;
-  assign io_pop_payload_predecodeInfos_1_isJump = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_1_isJump;
-  assign io_pop_payload_predecodeInfos_1_isDirectJump = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_1_isDirectJump;
-  assign io_pop_payload_predecodeInfos_1_jumpOffset = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_1_jumpOffset;
-  assign io_pop_payload_predecodeInfos_1_isIdle = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_1_isIdle;
-  assign io_pop_payload_predecodeInfos_2_isBranch = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_2_isBranch;
-  assign io_pop_payload_predecodeInfos_2_isJump = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_2_isJump;
-  assign io_pop_payload_predecodeInfos_2_isDirectJump = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_2_isDirectJump;
-  assign io_pop_payload_predecodeInfos_2_jumpOffset = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_2_jumpOffset;
-  assign io_pop_payload_predecodeInfos_2_isIdle = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_2_isIdle;
-  assign io_pop_payload_predecodeInfos_3_isBranch = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_3_isBranch;
-  assign io_pop_payload_predecodeInfos_3_isJump = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_3_isJump;
-  assign io_pop_payload_predecodeInfos_3_isDirectJump = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_3_isDirectJump;
-  assign io_pop_payload_predecodeInfos_3_jumpOffset = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_3_jumpOffset;
-  assign io_pop_payload_predecodeInfos_3_isIdle = logic_pop_sync_readArbitation_translated_payload_predecodeInfos_3_isIdle;
-  assign io_pop_payload_branchMask = logic_pop_sync_readArbitation_translated_payload_branchMask;
-  assign io_pop_payload_fault = logic_pop_sync_readArbitation_translated_payload_fault;
-  assign io_pop_payload_numValidInstructions = logic_pop_sync_readArbitation_translated_payload_numValidInstructions;
-  assign io_pop_payload_startInstructionIndex = logic_pop_sync_readArbitation_translated_payload_startInstructionIndex;
-  assign io_pop_payload_potentialJumpTargets_0 = logic_pop_sync_readArbitation_translated_payload_potentialJumpTargets_0;
-  assign io_pop_payload_potentialJumpTargets_1 = logic_pop_sync_readArbitation_translated_payload_potentialJumpTargets_1;
-  assign io_pop_payload_potentialJumpTargets_2 = logic_pop_sync_readArbitation_translated_payload_potentialJumpTargets_2;
-  assign io_pop_payload_potentialJumpTargets_3 = logic_pop_sync_readArbitation_translated_payload_potentialJumpTargets_3;
-  assign logic_pop_sync_readArbitation_fire = (logic_pop_sync_readArbitation_valid && logic_pop_sync_readArbitation_ready);
-  assign logic_ptr_popOnIo = logic_pop_sync_popReg;
-  assign io_occupancy = logic_ptr_occupancy;
-  assign io_availability = (2'b10 - logic_ptr_occupancy);
-  always @(posedge clk) begin
-    if(reset) begin
-      logic_ptr_push <= 2'b00;
-      logic_ptr_pop <= 2'b00;
-      logic_ptr_wentUp <= 1'b0;
-      logic_pop_addressGen_rValid <= 1'b0;
-      logic_pop_sync_popReg <= 2'b00;
-    end else begin
-      if(when_Stream_l1455) begin
-        logic_ptr_wentUp <= logic_ptr_doPush;
-      end
-      if(io_flush) begin
-        logic_ptr_wentUp <= 1'b0;
-      end
-      if(logic_ptr_doPush) begin
-        logic_ptr_push <= (logic_ptr_push + 2'b01);
-      end
-      if(logic_ptr_doPop) begin
-        logic_ptr_pop <= (logic_ptr_pop + 2'b01);
-      end
-      if(io_flush) begin
-        logic_ptr_push <= 2'b00;
-        logic_ptr_pop <= 2'b00;
-      end
-      if(logic_pop_addressGen_ready) begin
-        logic_pop_addressGen_rValid <= logic_pop_addressGen_valid;
-      end
-      if(io_flush) begin
-        logic_pop_addressGen_rValid <= 1'b0;
-      end
-      if(logic_pop_sync_readArbitation_fire) begin
-        logic_pop_sync_popReg <= logic_ptr_pop;
-      end
-      if(io_flush) begin
-        logic_pop_sync_popReg <= 2'b00;
-      end
-    end
-  end
-
-  always @(posedge clk) begin
-    if(logic_pop_addressGen_ready) begin
-      logic_pop_addressGen_rData <= logic_pop_addressGen_payload;
-    end
-  end
-
-
-endmodule
-
 module SmartDispatcher (
   input  wire          io_fetchGroupIn_valid,
   output wire          io_fetchGroupIn_ready,
@@ -35741,18 +34097,18 @@ module SmartDispatcher (
   input  wire [31:0]   io_bpuRsp_payload_target,
   input  wire [2:0]    io_bpuRsp_payload_transactionId,
   input  wire [31:0]   io_bpuRsp_payload_qPc,
-  output reg           io_fetchOutput_valid,
-  input  wire          io_fetchOutput_ready,
-  output reg  [31:0]   io_fetchOutput_payload_pc,
-  output reg  [31:0]   io_fetchOutput_payload_instruction,
-  output reg           io_fetchOutput_payload_predecode_isBranch,
-  output reg           io_fetchOutput_payload_predecode_isJump,
-  output reg           io_fetchOutput_payload_predecode_isDirectJump,
-  output reg  [31:0]   io_fetchOutput_payload_predecode_jumpOffset,
-  output reg           io_fetchOutput_payload_predecode_isIdle,
-  output reg           io_fetchOutput_payload_bpuPrediction_isTaken,
-  output reg  [31:0]   io_fetchOutput_payload_bpuPrediction_target,
-  output reg           io_fetchOutput_payload_bpuPrediction_wasPredicted,
+  output reg           dispatcherToFifo_valid,
+  input  wire          dispatcherToFifo_ready,
+  output reg  [31:0]   dispatcherToFifo_payload_pc,
+  output reg  [31:0]   dispatcherToFifo_payload_instruction,
+  output reg           dispatcherToFifo_payload_predecode_isBranch,
+  output reg           dispatcherToFifo_payload_predecode_isJump,
+  output reg           dispatcherToFifo_payload_predecode_isDirectJump,
+  output reg  [31:0]   dispatcherToFifo_payload_predecode_jumpOffset,
+  output reg           dispatcherToFifo_payload_predecode_isIdle,
+  output reg           dispatcherToFifo_payload_bpuPrediction_isTaken,
+  output reg  [31:0]   dispatcherToFifo_payload_bpuPrediction_target,
+  output reg           dispatcherToFifo_payload_bpuPrediction_wasPredicted,
   output reg           io_bpuQuery_valid,
   output reg  [31:0]   io_bpuQuery_payload_pc,
   output reg  [2:0]    io_bpuQuery_payload_transactionId,
@@ -35788,13 +34144,14 @@ module SmartDispatcher (
   wire       [2:0]    _zz_lastInstructionIndexInGroup;
   wire       [2:0]    _zz_lastInstructionIndexInGroup_1;
   wire       [2:0]    _zz_isLastInstructionReg;
-  reg                 _zz__zz_io_fetchOutput_payload_predecode_isBranch;
-  reg                 _zz__zz_io_fetchOutput_payload_predecode_isJump;
-  reg                 _zz__zz_io_fetchOutput_payload_predecode_isDirectJump;
-  reg        [31:0]   _zz__zz_io_fetchOutput_payload_predecode_jumpOffset;
-  reg                 _zz__zz_io_fetchOutput_payload_predecode_isIdle;
-  reg        [31:0]   _zz__zz_io_fetchOutput_payload_instruction;
-  reg        [31:0]   _zz__zz_io_softRedirect_payload;
+  wire       [2:0]    _zz_1;
+  reg                 _zz__zz_dispatcherToFifo_payload_predecode_isBranch;
+  reg                 _zz__zz_dispatcherToFifo_payload_predecode_isJump;
+  reg                 _zz__zz_dispatcherToFifo_payload_predecode_isDirectJump;
+  reg        [31:0]   _zz__zz_dispatcherToFifo_payload_predecode_jumpOffset;
+  reg                 _zz__zz_dispatcherToFifo_payload_predecode_isIdle;
+  reg        [31:0]   _zz__zz_dispatcherToFifo_payload_instruction;
+  reg        [31:0]   _zz__zz_redirectingTargetReg;
   reg        [31:0]   cycleReg;
   reg        [31:0]   fetchGroupReg_pc;
   reg        [31:0]   fetchGroupReg_firstPc;
@@ -35832,6 +34189,8 @@ module SmartDispatcher (
   reg        [31:0]   fetchGroupReg_potentialJumpTargets_3;
   reg                 isBusyReg;
   reg        [1:0]    dispatchIndexReg;
+  reg                 redirectingReg;
+  reg        [31:0]   redirectingTargetReg;
   reg        [2:0]    bpuInFlightCounterReg;
   reg        [2:0]    bpuTransIdCounterReg;
   reg        [31:0]   pendingBpuQueryReg_pc;
@@ -35852,6 +34211,7 @@ module SmartDispatcher (
   reg                 outputReg_bpuPrediction_isTaken;
   reg        [31:0]   outputReg_bpuPrediction_target;
   reg                 outputReg_bpuPrediction_wasPredicted;
+  reg                 outputRegValid;
   reg        [31:0]   outputRegJumpTarget;
   wire       [31:0]   currentPcReg;
   wire       [31:0]   currentInstructionReg;
@@ -35870,26 +34230,27 @@ module SmartDispatcher (
   wire                fsm_wantKill;
   reg        [5:0]    fsm_stateReg;
   reg        [5:0]    fsm_stateNext;
-  wire                when_SmartDispatcher_l123;
-  wire                _zz_io_fetchOutput_payload_predecode_isBranch;
-  wire                _zz_io_fetchOutput_payload_predecode_isJump;
-  wire                _zz_io_fetchOutput_payload_predecode_isDirectJump;
-  wire       [31:0]   _zz_io_fetchOutput_payload_predecode_jumpOffset;
-  wire                _zz_io_fetchOutput_payload_predecode_isIdle;
-  wire       [31:0]   _zz_io_fetchOutput_payload_instruction;
-  wire       [31:0]   _zz_io_softRedirect_payload;
   wire                when_SmartDispatcher_l140;
-  wire                when_SmartDispatcher_l163;
+  wire                _zz_dispatcherToFifo_payload_predecode_isBranch;
+  wire                _zz_dispatcherToFifo_payload_predecode_isJump;
+  wire                _zz_dispatcherToFifo_payload_predecode_isDirectJump;
+  wire       [31:0]   _zz_dispatcherToFifo_payload_predecode_jumpOffset;
+  wire                _zz_dispatcherToFifo_payload_predecode_isIdle;
+  wire       [31:0]   _zz_dispatcherToFifo_payload_instruction;
+  wire       [31:0]   _zz_redirectingTargetReg;
+  wire                when_SmartDispatcher_l157;
+  wire                when_SmartDispatcher_l180;
   wire                io_fetchGroupIn_fire;
-  wire                when_SmartDispatcher_l221;
-  wire                when_SmartDispatcher_l254;
-  wire                when_SmartDispatcher_l294;
-  wire                when_SmartDispatcher_l283;
-  wire                when_SmartDispatcher_l288;
-  wire                io_fetchOutput_fire;
-  wire                when_SmartDispatcher_l332;
-  wire                when_SmartDispatcher_l342;
-  wire                when_SmartDispatcher_l363;
+  wire                when_SmartDispatcher_l239;
+  wire                when_SmartDispatcher_l273;
+  wire                when_SmartDispatcher_l313;
+  wire                when_SmartDispatcher_l302;
+  wire                when_SmartDispatcher_l307;
+  wire                dispatcherToFifo_fire;
+  wire                when_SmartDispatcher_l353;
+  wire       [31:0]   _zz_redirectingTargetReg_1;
+  wire                when_SmartDispatcher_l364;
+  wire                when_SmartDispatcher_l385;
   wire                fsm_onExit_BOOT;
   wire                fsm_onExit_IDLE;
   wire                fsm_onExit_DISPATCHING;
@@ -35903,11 +34264,11 @@ module SmartDispatcher (
   wire                fsm_onEntry_SEND_BRANCH;
   wire                fsm_onEntry_DRAINING_BPU;
   reg        [2:0]    sim_fsmStateId;
-  wire                when_SmartDispatcher_l397;
-  wire                when_SmartDispatcher_l398;
-  wire                when_SmartDispatcher_l399;
-  wire                when_SmartDispatcher_l400;
-  wire                when_SmartDispatcher_l401;
+  wire                when_SmartDispatcher_l419;
+  wire                when_SmartDispatcher_l420;
+  wire                when_SmartDispatcher_l421;
+  wire                when_SmartDispatcher_l422;
+  wire                when_SmartDispatcher_l423;
   `ifndef SYNTHESIS
   reg [119:0] fsm_stateReg_string;
   reg [119:0] fsm_stateNext_string;
@@ -35920,6 +34281,7 @@ module SmartDispatcher (
   assign _zz_lastInstructionIndexInGroup = (_zz_lastInstructionIndexInGroup_1 + fetchGroupReg_numValidInstructions);
   assign _zz_lastInstructionIndexInGroup_1 = {1'd0, fetchGroupReg_startInstructionIndex};
   assign _zz_isLastInstructionReg = {1'd0, dispatchIndexReg};
+  assign _zz_1 = {1'd0, dispatchIndexReg};
   always @(*) begin
     case(dispatchIndexReg)
       2'b00 : begin
@@ -35964,40 +34326,40 @@ module SmartDispatcher (
   always @(*) begin
     case(io_fetchGroupIn_payload_startInstructionIndex)
       2'b00 : begin
-        _zz__zz_io_fetchOutput_payload_predecode_isBranch = io_fetchGroupIn_payload_predecodeInfos_0_isBranch;
-        _zz__zz_io_fetchOutput_payload_predecode_isJump = io_fetchGroupIn_payload_predecodeInfos_0_isJump;
-        _zz__zz_io_fetchOutput_payload_predecode_isDirectJump = io_fetchGroupIn_payload_predecodeInfos_0_isDirectJump;
-        _zz__zz_io_fetchOutput_payload_predecode_jumpOffset = io_fetchGroupIn_payload_predecodeInfos_0_jumpOffset;
-        _zz__zz_io_fetchOutput_payload_predecode_isIdle = io_fetchGroupIn_payload_predecodeInfos_0_isIdle;
-        _zz__zz_io_fetchOutput_payload_instruction = io_fetchGroupIn_payload_instructions_0;
-        _zz__zz_io_softRedirect_payload = io_fetchGroupIn_payload_potentialJumpTargets_0;
+        _zz__zz_dispatcherToFifo_payload_predecode_isBranch = io_fetchGroupIn_payload_predecodeInfos_0_isBranch;
+        _zz__zz_dispatcherToFifo_payload_predecode_isJump = io_fetchGroupIn_payload_predecodeInfos_0_isJump;
+        _zz__zz_dispatcherToFifo_payload_predecode_isDirectJump = io_fetchGroupIn_payload_predecodeInfos_0_isDirectJump;
+        _zz__zz_dispatcherToFifo_payload_predecode_jumpOffset = io_fetchGroupIn_payload_predecodeInfos_0_jumpOffset;
+        _zz__zz_dispatcherToFifo_payload_predecode_isIdle = io_fetchGroupIn_payload_predecodeInfos_0_isIdle;
+        _zz__zz_dispatcherToFifo_payload_instruction = io_fetchGroupIn_payload_instructions_0;
+        _zz__zz_redirectingTargetReg = io_fetchGroupIn_payload_potentialJumpTargets_0;
       end
       2'b01 : begin
-        _zz__zz_io_fetchOutput_payload_predecode_isBranch = io_fetchGroupIn_payload_predecodeInfos_1_isBranch;
-        _zz__zz_io_fetchOutput_payload_predecode_isJump = io_fetchGroupIn_payload_predecodeInfos_1_isJump;
-        _zz__zz_io_fetchOutput_payload_predecode_isDirectJump = io_fetchGroupIn_payload_predecodeInfos_1_isDirectJump;
-        _zz__zz_io_fetchOutput_payload_predecode_jumpOffset = io_fetchGroupIn_payload_predecodeInfos_1_jumpOffset;
-        _zz__zz_io_fetchOutput_payload_predecode_isIdle = io_fetchGroupIn_payload_predecodeInfos_1_isIdle;
-        _zz__zz_io_fetchOutput_payload_instruction = io_fetchGroupIn_payload_instructions_1;
-        _zz__zz_io_softRedirect_payload = io_fetchGroupIn_payload_potentialJumpTargets_1;
+        _zz__zz_dispatcherToFifo_payload_predecode_isBranch = io_fetchGroupIn_payload_predecodeInfos_1_isBranch;
+        _zz__zz_dispatcherToFifo_payload_predecode_isJump = io_fetchGroupIn_payload_predecodeInfos_1_isJump;
+        _zz__zz_dispatcherToFifo_payload_predecode_isDirectJump = io_fetchGroupIn_payload_predecodeInfos_1_isDirectJump;
+        _zz__zz_dispatcherToFifo_payload_predecode_jumpOffset = io_fetchGroupIn_payload_predecodeInfos_1_jumpOffset;
+        _zz__zz_dispatcherToFifo_payload_predecode_isIdle = io_fetchGroupIn_payload_predecodeInfos_1_isIdle;
+        _zz__zz_dispatcherToFifo_payload_instruction = io_fetchGroupIn_payload_instructions_1;
+        _zz__zz_redirectingTargetReg = io_fetchGroupIn_payload_potentialJumpTargets_1;
       end
       2'b10 : begin
-        _zz__zz_io_fetchOutput_payload_predecode_isBranch = io_fetchGroupIn_payload_predecodeInfos_2_isBranch;
-        _zz__zz_io_fetchOutput_payload_predecode_isJump = io_fetchGroupIn_payload_predecodeInfos_2_isJump;
-        _zz__zz_io_fetchOutput_payload_predecode_isDirectJump = io_fetchGroupIn_payload_predecodeInfos_2_isDirectJump;
-        _zz__zz_io_fetchOutput_payload_predecode_jumpOffset = io_fetchGroupIn_payload_predecodeInfos_2_jumpOffset;
-        _zz__zz_io_fetchOutput_payload_predecode_isIdle = io_fetchGroupIn_payload_predecodeInfos_2_isIdle;
-        _zz__zz_io_fetchOutput_payload_instruction = io_fetchGroupIn_payload_instructions_2;
-        _zz__zz_io_softRedirect_payload = io_fetchGroupIn_payload_potentialJumpTargets_2;
+        _zz__zz_dispatcherToFifo_payload_predecode_isBranch = io_fetchGroupIn_payload_predecodeInfos_2_isBranch;
+        _zz__zz_dispatcherToFifo_payload_predecode_isJump = io_fetchGroupIn_payload_predecodeInfos_2_isJump;
+        _zz__zz_dispatcherToFifo_payload_predecode_isDirectJump = io_fetchGroupIn_payload_predecodeInfos_2_isDirectJump;
+        _zz__zz_dispatcherToFifo_payload_predecode_jumpOffset = io_fetchGroupIn_payload_predecodeInfos_2_jumpOffset;
+        _zz__zz_dispatcherToFifo_payload_predecode_isIdle = io_fetchGroupIn_payload_predecodeInfos_2_isIdle;
+        _zz__zz_dispatcherToFifo_payload_instruction = io_fetchGroupIn_payload_instructions_2;
+        _zz__zz_redirectingTargetReg = io_fetchGroupIn_payload_potentialJumpTargets_2;
       end
       default : begin
-        _zz__zz_io_fetchOutput_payload_predecode_isBranch = io_fetchGroupIn_payload_predecodeInfos_3_isBranch;
-        _zz__zz_io_fetchOutput_payload_predecode_isJump = io_fetchGroupIn_payload_predecodeInfos_3_isJump;
-        _zz__zz_io_fetchOutput_payload_predecode_isDirectJump = io_fetchGroupIn_payload_predecodeInfos_3_isDirectJump;
-        _zz__zz_io_fetchOutput_payload_predecode_jumpOffset = io_fetchGroupIn_payload_predecodeInfos_3_jumpOffset;
-        _zz__zz_io_fetchOutput_payload_predecode_isIdle = io_fetchGroupIn_payload_predecodeInfos_3_isIdle;
-        _zz__zz_io_fetchOutput_payload_instruction = io_fetchGroupIn_payload_instructions_3;
-        _zz__zz_io_softRedirect_payload = io_fetchGroupIn_payload_potentialJumpTargets_3;
+        _zz__zz_dispatcherToFifo_payload_predecode_isBranch = io_fetchGroupIn_payload_predecodeInfos_3_isBranch;
+        _zz__zz_dispatcherToFifo_payload_predecode_isJump = io_fetchGroupIn_payload_predecodeInfos_3_isJump;
+        _zz__zz_dispatcherToFifo_payload_predecode_isDirectJump = io_fetchGroupIn_payload_predecodeInfos_3_isDirectJump;
+        _zz__zz_dispatcherToFifo_payload_predecode_jumpOffset = io_fetchGroupIn_payload_predecodeInfos_3_jumpOffset;
+        _zz__zz_dispatcherToFifo_payload_predecode_isIdle = io_fetchGroupIn_payload_predecodeInfos_3_isIdle;
+        _zz__zz_dispatcherToFifo_payload_instruction = io_fetchGroupIn_payload_instructions_3;
+        _zz__zz_redirectingTargetReg = io_fetchGroupIn_payload_potentialJumpTargets_3;
       end
     endcase
   end
@@ -36028,18 +34390,18 @@ module SmartDispatcher (
   `endif
 
   always @(*) begin
-    io_fetchOutput_valid = 1'b0;
+    dispatcherToFifo_valid = 1'b0;
     if(io_flush) begin
-      io_fetchOutput_valid = 1'b0;
+      dispatcherToFifo_valid = 1'b0;
     end
     (* parallel_case *)
     case(1) // synthesis parallel_case
       (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l123) begin
-              if(when_SmartDispatcher_l140) begin
-                io_fetchOutput_valid = 1'b1;
+            if(!when_SmartDispatcher_l140) begin
+              if(when_SmartDispatcher_l157) begin
+                dispatcherToFifo_valid = 1'b1;
               end
             end
           end
@@ -36049,8 +34411,8 @@ module SmartDispatcher (
         if(!io_flush) begin
           if(isBusyReg) begin
             if(!fetchGroupReg_fault) begin
-              if(!when_SmartDispatcher_l221) begin
-                io_fetchOutput_valid = 1'b1;
+              if(!when_SmartDispatcher_l239) begin
+                dispatcherToFifo_valid = 1'b1;
               end
             end
           end
@@ -36060,7 +34422,7 @@ module SmartDispatcher (
       end
       (fsm_stateReg[fsm_1_SEND_BRANCH_OH_ID]) : begin
         if(!io_flush) begin
-          io_fetchOutput_valid = 1'b1;
+          dispatcherToFifo_valid = 1'b1;
         end
       end
       (fsm_stateReg[fsm_1_DRAINING_BPU_OH_ID]) : begin
@@ -36071,15 +34433,15 @@ module SmartDispatcher (
   end
 
   always @(*) begin
-    io_fetchOutput_payload_pc = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    dispatcherToFifo_payload_pc = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     (* parallel_case *)
     case(1) // synthesis parallel_case
       (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l123) begin
-              if(when_SmartDispatcher_l140) begin
-                io_fetchOutput_payload_pc = io_fetchGroupIn_payload_firstPc;
+            if(!when_SmartDispatcher_l140) begin
+              if(when_SmartDispatcher_l157) begin
+                dispatcherToFifo_payload_pc = io_fetchGroupIn_payload_firstPc;
               end
             end
           end
@@ -36089,8 +34451,8 @@ module SmartDispatcher (
         if(!io_flush) begin
           if(isBusyReg) begin
             if(!fetchGroupReg_fault) begin
-              if(!when_SmartDispatcher_l221) begin
-                io_fetchOutput_payload_pc = currentPcReg;
+              if(!when_SmartDispatcher_l239) begin
+                dispatcherToFifo_payload_pc = currentPcReg;
               end
             end
           end
@@ -36100,7 +34462,7 @@ module SmartDispatcher (
       end
       (fsm_stateReg[fsm_1_SEND_BRANCH_OH_ID]) : begin
         if(!io_flush) begin
-          io_fetchOutput_payload_pc = outputReg_pc;
+          dispatcherToFifo_payload_pc = outputReg_pc;
         end
       end
       (fsm_stateReg[fsm_1_DRAINING_BPU_OH_ID]) : begin
@@ -36111,15 +34473,15 @@ module SmartDispatcher (
   end
 
   always @(*) begin
-    io_fetchOutput_payload_instruction = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    dispatcherToFifo_payload_instruction = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     (* parallel_case *)
     case(1) // synthesis parallel_case
       (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l123) begin
-              if(when_SmartDispatcher_l140) begin
-                io_fetchOutput_payload_instruction = _zz_io_fetchOutput_payload_instruction;
+            if(!when_SmartDispatcher_l140) begin
+              if(when_SmartDispatcher_l157) begin
+                dispatcherToFifo_payload_instruction = _zz_dispatcherToFifo_payload_instruction;
               end
             end
           end
@@ -36129,8 +34491,8 @@ module SmartDispatcher (
         if(!io_flush) begin
           if(isBusyReg) begin
             if(!fetchGroupReg_fault) begin
-              if(!when_SmartDispatcher_l221) begin
-                io_fetchOutput_payload_instruction = currentInstructionReg;
+              if(!when_SmartDispatcher_l239) begin
+                dispatcherToFifo_payload_instruction = currentInstructionReg;
               end
             end
           end
@@ -36140,7 +34502,7 @@ module SmartDispatcher (
       end
       (fsm_stateReg[fsm_1_SEND_BRANCH_OH_ID]) : begin
         if(!io_flush) begin
-          io_fetchOutput_payload_instruction = outputReg_instruction;
+          dispatcherToFifo_payload_instruction = outputReg_instruction;
         end
       end
       (fsm_stateReg[fsm_1_DRAINING_BPU_OH_ID]) : begin
@@ -36151,15 +34513,15 @@ module SmartDispatcher (
   end
 
   always @(*) begin
-    io_fetchOutput_payload_predecode_isBranch = 1'bx;
+    dispatcherToFifo_payload_predecode_isBranch = 1'bx;
     (* parallel_case *)
     case(1) // synthesis parallel_case
       (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l123) begin
-              if(when_SmartDispatcher_l140) begin
-                io_fetchOutput_payload_predecode_isBranch = _zz_io_fetchOutput_payload_predecode_isBranch;
+            if(!when_SmartDispatcher_l140) begin
+              if(when_SmartDispatcher_l157) begin
+                dispatcherToFifo_payload_predecode_isBranch = _zz_dispatcherToFifo_payload_predecode_isBranch;
               end
             end
           end
@@ -36169,8 +34531,8 @@ module SmartDispatcher (
         if(!io_flush) begin
           if(isBusyReg) begin
             if(!fetchGroupReg_fault) begin
-              if(!when_SmartDispatcher_l221) begin
-                io_fetchOutput_payload_predecode_isBranch = currentPredecodeReg_isBranch;
+              if(!when_SmartDispatcher_l239) begin
+                dispatcherToFifo_payload_predecode_isBranch = currentPredecodeReg_isBranch;
               end
             end
           end
@@ -36180,7 +34542,7 @@ module SmartDispatcher (
       end
       (fsm_stateReg[fsm_1_SEND_BRANCH_OH_ID]) : begin
         if(!io_flush) begin
-          io_fetchOutput_payload_predecode_isBranch = outputReg_predecode_isBranch;
+          dispatcherToFifo_payload_predecode_isBranch = outputReg_predecode_isBranch;
         end
       end
       (fsm_stateReg[fsm_1_DRAINING_BPU_OH_ID]) : begin
@@ -36191,15 +34553,15 @@ module SmartDispatcher (
   end
 
   always @(*) begin
-    io_fetchOutput_payload_predecode_isJump = 1'bx;
+    dispatcherToFifo_payload_predecode_isJump = 1'bx;
     (* parallel_case *)
     case(1) // synthesis parallel_case
       (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l123) begin
-              if(when_SmartDispatcher_l140) begin
-                io_fetchOutput_payload_predecode_isJump = _zz_io_fetchOutput_payload_predecode_isJump;
+            if(!when_SmartDispatcher_l140) begin
+              if(when_SmartDispatcher_l157) begin
+                dispatcherToFifo_payload_predecode_isJump = _zz_dispatcherToFifo_payload_predecode_isJump;
               end
             end
           end
@@ -36209,8 +34571,8 @@ module SmartDispatcher (
         if(!io_flush) begin
           if(isBusyReg) begin
             if(!fetchGroupReg_fault) begin
-              if(!when_SmartDispatcher_l221) begin
-                io_fetchOutput_payload_predecode_isJump = currentPredecodeReg_isJump;
+              if(!when_SmartDispatcher_l239) begin
+                dispatcherToFifo_payload_predecode_isJump = currentPredecodeReg_isJump;
               end
             end
           end
@@ -36220,7 +34582,7 @@ module SmartDispatcher (
       end
       (fsm_stateReg[fsm_1_SEND_BRANCH_OH_ID]) : begin
         if(!io_flush) begin
-          io_fetchOutput_payload_predecode_isJump = outputReg_predecode_isJump;
+          dispatcherToFifo_payload_predecode_isJump = outputReg_predecode_isJump;
         end
       end
       (fsm_stateReg[fsm_1_DRAINING_BPU_OH_ID]) : begin
@@ -36231,15 +34593,15 @@ module SmartDispatcher (
   end
 
   always @(*) begin
-    io_fetchOutput_payload_predecode_isDirectJump = 1'bx;
+    dispatcherToFifo_payload_predecode_isDirectJump = 1'bx;
     (* parallel_case *)
     case(1) // synthesis parallel_case
       (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l123) begin
-              if(when_SmartDispatcher_l140) begin
-                io_fetchOutput_payload_predecode_isDirectJump = _zz_io_fetchOutput_payload_predecode_isDirectJump;
+            if(!when_SmartDispatcher_l140) begin
+              if(when_SmartDispatcher_l157) begin
+                dispatcherToFifo_payload_predecode_isDirectJump = _zz_dispatcherToFifo_payload_predecode_isDirectJump;
               end
             end
           end
@@ -36249,8 +34611,8 @@ module SmartDispatcher (
         if(!io_flush) begin
           if(isBusyReg) begin
             if(!fetchGroupReg_fault) begin
-              if(!when_SmartDispatcher_l221) begin
-                io_fetchOutput_payload_predecode_isDirectJump = currentPredecodeReg_isDirectJump;
+              if(!when_SmartDispatcher_l239) begin
+                dispatcherToFifo_payload_predecode_isDirectJump = currentPredecodeReg_isDirectJump;
               end
             end
           end
@@ -36260,7 +34622,7 @@ module SmartDispatcher (
       end
       (fsm_stateReg[fsm_1_SEND_BRANCH_OH_ID]) : begin
         if(!io_flush) begin
-          io_fetchOutput_payload_predecode_isDirectJump = outputReg_predecode_isDirectJump;
+          dispatcherToFifo_payload_predecode_isDirectJump = outputReg_predecode_isDirectJump;
         end
       end
       (fsm_stateReg[fsm_1_DRAINING_BPU_OH_ID]) : begin
@@ -36271,15 +34633,15 @@ module SmartDispatcher (
   end
 
   always @(*) begin
-    io_fetchOutput_payload_predecode_jumpOffset = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    dispatcherToFifo_payload_predecode_jumpOffset = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     (* parallel_case *)
     case(1) // synthesis parallel_case
       (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l123) begin
-              if(when_SmartDispatcher_l140) begin
-                io_fetchOutput_payload_predecode_jumpOffset = _zz_io_fetchOutput_payload_predecode_jumpOffset;
+            if(!when_SmartDispatcher_l140) begin
+              if(when_SmartDispatcher_l157) begin
+                dispatcherToFifo_payload_predecode_jumpOffset = _zz_dispatcherToFifo_payload_predecode_jumpOffset;
               end
             end
           end
@@ -36289,8 +34651,8 @@ module SmartDispatcher (
         if(!io_flush) begin
           if(isBusyReg) begin
             if(!fetchGroupReg_fault) begin
-              if(!when_SmartDispatcher_l221) begin
-                io_fetchOutput_payload_predecode_jumpOffset = currentPredecodeReg_jumpOffset;
+              if(!when_SmartDispatcher_l239) begin
+                dispatcherToFifo_payload_predecode_jumpOffset = currentPredecodeReg_jumpOffset;
               end
             end
           end
@@ -36300,7 +34662,7 @@ module SmartDispatcher (
       end
       (fsm_stateReg[fsm_1_SEND_BRANCH_OH_ID]) : begin
         if(!io_flush) begin
-          io_fetchOutput_payload_predecode_jumpOffset = outputReg_predecode_jumpOffset;
+          dispatcherToFifo_payload_predecode_jumpOffset = outputReg_predecode_jumpOffset;
         end
       end
       (fsm_stateReg[fsm_1_DRAINING_BPU_OH_ID]) : begin
@@ -36311,15 +34673,15 @@ module SmartDispatcher (
   end
 
   always @(*) begin
-    io_fetchOutput_payload_predecode_isIdle = 1'bx;
+    dispatcherToFifo_payload_predecode_isIdle = 1'bx;
     (* parallel_case *)
     case(1) // synthesis parallel_case
       (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l123) begin
-              if(when_SmartDispatcher_l140) begin
-                io_fetchOutput_payload_predecode_isIdle = _zz_io_fetchOutput_payload_predecode_isIdle;
+            if(!when_SmartDispatcher_l140) begin
+              if(when_SmartDispatcher_l157) begin
+                dispatcherToFifo_payload_predecode_isIdle = _zz_dispatcherToFifo_payload_predecode_isIdle;
               end
             end
           end
@@ -36329,8 +34691,8 @@ module SmartDispatcher (
         if(!io_flush) begin
           if(isBusyReg) begin
             if(!fetchGroupReg_fault) begin
-              if(!when_SmartDispatcher_l221) begin
-                io_fetchOutput_payload_predecode_isIdle = currentPredecodeReg_isIdle;
+              if(!when_SmartDispatcher_l239) begin
+                dispatcherToFifo_payload_predecode_isIdle = currentPredecodeReg_isIdle;
               end
             end
           end
@@ -36340,7 +34702,7 @@ module SmartDispatcher (
       end
       (fsm_stateReg[fsm_1_SEND_BRANCH_OH_ID]) : begin
         if(!io_flush) begin
-          io_fetchOutput_payload_predecode_isIdle = outputReg_predecode_isIdle;
+          dispatcherToFifo_payload_predecode_isIdle = outputReg_predecode_isIdle;
         end
       end
       (fsm_stateReg[fsm_1_DRAINING_BPU_OH_ID]) : begin
@@ -36351,15 +34713,15 @@ module SmartDispatcher (
   end
 
   always @(*) begin
-    io_fetchOutput_payload_bpuPrediction_isTaken = 1'bx;
+    dispatcherToFifo_payload_bpuPrediction_isTaken = 1'bx;
     (* parallel_case *)
     case(1) // synthesis parallel_case
       (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l123) begin
-              if(when_SmartDispatcher_l140) begin
-                io_fetchOutput_payload_bpuPrediction_isTaken = 1'b0;
+            if(!when_SmartDispatcher_l140) begin
+              if(when_SmartDispatcher_l157) begin
+                dispatcherToFifo_payload_bpuPrediction_isTaken = 1'b0;
               end
             end
           end
@@ -36369,8 +34731,8 @@ module SmartDispatcher (
         if(!io_flush) begin
           if(isBusyReg) begin
             if(!fetchGroupReg_fault) begin
-              if(!when_SmartDispatcher_l221) begin
-                io_fetchOutput_payload_bpuPrediction_isTaken = 1'b0;
+              if(!when_SmartDispatcher_l239) begin
+                dispatcherToFifo_payload_bpuPrediction_isTaken = 1'b0;
               end
             end
           end
@@ -36380,7 +34742,7 @@ module SmartDispatcher (
       end
       (fsm_stateReg[fsm_1_SEND_BRANCH_OH_ID]) : begin
         if(!io_flush) begin
-          io_fetchOutput_payload_bpuPrediction_isTaken = outputReg_bpuPrediction_isTaken;
+          dispatcherToFifo_payload_bpuPrediction_isTaken = outputReg_bpuPrediction_isTaken;
         end
       end
       (fsm_stateReg[fsm_1_DRAINING_BPU_OH_ID]) : begin
@@ -36391,15 +34753,15 @@ module SmartDispatcher (
   end
 
   always @(*) begin
-    io_fetchOutput_payload_bpuPrediction_target = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    dispatcherToFifo_payload_bpuPrediction_target = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     (* parallel_case *)
     case(1) // synthesis parallel_case
       (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l123) begin
-              if(when_SmartDispatcher_l140) begin
-                io_fetchOutput_payload_bpuPrediction_target = 32'h0;
+            if(!when_SmartDispatcher_l140) begin
+              if(when_SmartDispatcher_l157) begin
+                dispatcherToFifo_payload_bpuPrediction_target = 32'h0;
               end
             end
           end
@@ -36409,8 +34771,8 @@ module SmartDispatcher (
         if(!io_flush) begin
           if(isBusyReg) begin
             if(!fetchGroupReg_fault) begin
-              if(!when_SmartDispatcher_l221) begin
-                io_fetchOutput_payload_bpuPrediction_target = 32'h0;
+              if(!when_SmartDispatcher_l239) begin
+                dispatcherToFifo_payload_bpuPrediction_target = 32'h0;
               end
             end
           end
@@ -36420,7 +34782,7 @@ module SmartDispatcher (
       end
       (fsm_stateReg[fsm_1_SEND_BRANCH_OH_ID]) : begin
         if(!io_flush) begin
-          io_fetchOutput_payload_bpuPrediction_target = outputReg_bpuPrediction_target;
+          dispatcherToFifo_payload_bpuPrediction_target = outputReg_bpuPrediction_target;
         end
       end
       (fsm_stateReg[fsm_1_DRAINING_BPU_OH_ID]) : begin
@@ -36431,15 +34793,15 @@ module SmartDispatcher (
   end
 
   always @(*) begin
-    io_fetchOutput_payload_bpuPrediction_wasPredicted = 1'bx;
+    dispatcherToFifo_payload_bpuPrediction_wasPredicted = 1'bx;
     (* parallel_case *)
     case(1) // synthesis parallel_case
       (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l123) begin
-              if(when_SmartDispatcher_l140) begin
-                io_fetchOutput_payload_bpuPrediction_wasPredicted = 1'b0;
+            if(!when_SmartDispatcher_l140) begin
+              if(when_SmartDispatcher_l157) begin
+                dispatcherToFifo_payload_bpuPrediction_wasPredicted = 1'b0;
               end
             end
           end
@@ -36449,8 +34811,8 @@ module SmartDispatcher (
         if(!io_flush) begin
           if(isBusyReg) begin
             if(!fetchGroupReg_fault) begin
-              if(!when_SmartDispatcher_l221) begin
-                io_fetchOutput_payload_bpuPrediction_wasPredicted = 1'b0;
+              if(!when_SmartDispatcher_l239) begin
+                dispatcherToFifo_payload_bpuPrediction_wasPredicted = 1'b0;
               end
             end
           end
@@ -36460,7 +34822,7 @@ module SmartDispatcher (
       end
       (fsm_stateReg[fsm_1_SEND_BRANCH_OH_ID]) : begin
         if(!io_flush) begin
-          io_fetchOutput_payload_bpuPrediction_wasPredicted = outputReg_bpuPrediction_wasPredicted;
+          dispatcherToFifo_payload_bpuPrediction_wasPredicted = outputReg_bpuPrediction_wasPredicted;
         end
       end
       (fsm_stateReg[fsm_1_DRAINING_BPU_OH_ID]) : begin
@@ -36477,8 +34839,8 @@ module SmartDispatcher (
       (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l123) begin
-              if(!when_SmartDispatcher_l140) begin
+            if(!when_SmartDispatcher_l140) begin
+              if(!when_SmartDispatcher_l157) begin
                 io_bpuQuery_valid = 1'b1;
               end
             end
@@ -36489,7 +34851,7 @@ module SmartDispatcher (
         if(!io_flush) begin
           if(isBusyReg) begin
             if(!fetchGroupReg_fault) begin
-              if(when_SmartDispatcher_l221) begin
+              if(when_SmartDispatcher_l239) begin
                 io_bpuQuery_valid = 1'b1;
               end
             end
@@ -36514,8 +34876,8 @@ module SmartDispatcher (
       (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l123) begin
-              if(!when_SmartDispatcher_l140) begin
+            if(!when_SmartDispatcher_l140) begin
+              if(!when_SmartDispatcher_l157) begin
                 io_bpuQuery_payload_pc = io_fetchGroupIn_payload_firstPc;
               end
             end
@@ -36526,7 +34888,7 @@ module SmartDispatcher (
         if(!io_flush) begin
           if(isBusyReg) begin
             if(!fetchGroupReg_fault) begin
-              if(when_SmartDispatcher_l221) begin
+              if(when_SmartDispatcher_l239) begin
                 io_bpuQuery_payload_pc = currentPcReg;
               end
             end
@@ -36551,8 +34913,8 @@ module SmartDispatcher (
       (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l123) begin
-              if(!when_SmartDispatcher_l140) begin
+            if(!when_SmartDispatcher_l140) begin
+              if(!when_SmartDispatcher_l157) begin
                 io_bpuQuery_payload_transactionId = bpuTransIdCounterReg;
               end
             end
@@ -36563,7 +34925,7 @@ module SmartDispatcher (
         if(!io_flush) begin
           if(isBusyReg) begin
             if(!fetchGroupReg_fault) begin
-              if(when_SmartDispatcher_l221) begin
+              if(when_SmartDispatcher_l239) begin
                 io_bpuQuery_payload_transactionId = bpuTransIdCounterReg;
               end
             end
@@ -36583,109 +34945,19 @@ module SmartDispatcher (
 
   always @(*) begin
     io_softRedirect_valid = 1'b0;
-    (* parallel_case *)
-    case(1) // synthesis parallel_case
-      (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
-        if(!io_flush) begin
-          if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l123) begin
-              if(when_SmartDispatcher_l140) begin
-                if(io_fetchOutput_ready) begin
-                  if(_zz_io_fetchOutput_payload_predecode_isDirectJump) begin
-                    io_softRedirect_valid = 1'b1;
-                  end
-                end
-              end
-            end
-          end
-        end
-      end
-      (fsm_stateReg[fsm_1_DISPATCHING_OH_ID]) : begin
-        if(!io_flush) begin
-          if(isBusyReg) begin
-            if(!fetchGroupReg_fault) begin
-              if(!when_SmartDispatcher_l221) begin
-                if(io_fetchOutput_ready) begin
-                  if(currentPredecodeReg_isDirectJump) begin
-                    io_softRedirect_valid = 1'b1;
-                  end
-                end
-              end
-            end
-          end
-        end
-      end
-      (fsm_stateReg[fsm_1_WAITING_FOR_BPU_OH_ID]) : begin
-      end
-      (fsm_stateReg[fsm_1_SEND_BRANCH_OH_ID]) : begin
-        if(!io_flush) begin
-          if(io_fetchOutput_fire) begin
-            if(when_SmartDispatcher_l332) begin
-              io_softRedirect_valid = 1'b1;
-            end
-          end
-        end
-      end
-      (fsm_stateReg[fsm_1_DRAINING_BPU_OH_ID]) : begin
-      end
-      default : begin
-      end
-    endcase
+    if(redirectingReg) begin
+      io_softRedirect_valid = 1'b1;
+    end
   end
 
   always @(*) begin
     io_softRedirect_payload = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-    (* parallel_case *)
-    case(1) // synthesis parallel_case
-      (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
-        if(!io_flush) begin
-          if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l123) begin
-              if(when_SmartDispatcher_l140) begin
-                if(io_fetchOutput_ready) begin
-                  if(_zz_io_fetchOutput_payload_predecode_isDirectJump) begin
-                    io_softRedirect_payload = _zz_io_softRedirect_payload;
-                  end
-                end
-              end
-            end
-          end
-        end
-      end
-      (fsm_stateReg[fsm_1_DISPATCHING_OH_ID]) : begin
-        if(!io_flush) begin
-          if(isBusyReg) begin
-            if(!fetchGroupReg_fault) begin
-              if(!when_SmartDispatcher_l221) begin
-                if(io_fetchOutput_ready) begin
-                  if(currentPredecodeReg_isDirectJump) begin
-                    io_softRedirect_payload = currentPotentialJumpTarget;
-                  end
-                end
-              end
-            end
-          end
-        end
-      end
-      (fsm_stateReg[fsm_1_WAITING_FOR_BPU_OH_ID]) : begin
-      end
-      (fsm_stateReg[fsm_1_SEND_BRANCH_OH_ID]) : begin
-        if(!io_flush) begin
-          if(io_fetchOutput_fire) begin
-            if(when_SmartDispatcher_l332) begin
-              io_softRedirect_payload = (outputReg_predecode_isDirectJump ? outputRegJumpTarget : outputReg_bpuPrediction_target);
-            end
-          end
-        end
-      end
-      (fsm_stateReg[fsm_1_DRAINING_BPU_OH_ID]) : begin
-      end
-      default : begin
-      end
-    endcase
+    if(redirectingReg) begin
+      io_softRedirect_payload = redirectingTargetReg;
+    end
   end
 
-  assign io_fetchGroupIn_ready = (! isBusyReg);
+  assign io_fetchGroupIn_ready = (((! isBusyReg) && (! io_flush)) && (! redirectingReg));
   assign currentPcReg = (fetchGroupReg_firstPc + _zz_currentPcReg);
   assign currentInstructionReg = _zz_currentInstructionReg;
   assign currentPredecodeReg_isBranch = _zz_currentPredecodeReg_isBranch;
@@ -36728,15 +35000,15 @@ module SmartDispatcher (
           fsm_stateNext = fsm_1_IDLE;
         end else begin
           if(io_fetchGroupIn_fire) begin
-            if(when_SmartDispatcher_l123) begin
+            if(when_SmartDispatcher_l140) begin
               fsm_stateNext = fsm_1_IDLE;
             end else begin
-              if(when_SmartDispatcher_l140) begin
-                if(io_fetchOutput_ready) begin
-                  if(_zz_io_fetchOutput_payload_predecode_isDirectJump) begin
+              if(when_SmartDispatcher_l157) begin
+                if(dispatcherToFifo_ready) begin
+                  if(_zz_dispatcherToFifo_payload_predecode_isDirectJump) begin
                     fsm_stateNext = fsm_1_IDLE;
                   end else begin
-                    if(when_SmartDispatcher_l163) begin
+                    if(when_SmartDispatcher_l180) begin
                       fsm_stateNext = fsm_1_IDLE;
                     end else begin
                       fsm_stateNext = fsm_1_DISPATCHING;
@@ -36760,11 +35032,11 @@ module SmartDispatcher (
             if(fetchGroupReg_fault) begin
               fsm_stateNext = fsm_1_IDLE;
             end else begin
-              if(when_SmartDispatcher_l221) begin
+              if(when_SmartDispatcher_l239) begin
                 fsm_stateNext = fsm_1_WAITING_FOR_BPU;
               end else begin
-                if(io_fetchOutput_ready) begin
-                  if(when_SmartDispatcher_l254) begin
+                if(dispatcherToFifo_ready) begin
+                  if(when_SmartDispatcher_l273) begin
                     fsm_stateNext = fsm_1_IDLE;
                   end
                 end
@@ -36779,7 +35051,7 @@ module SmartDispatcher (
         if(io_flush) begin
           fsm_stateNext = fsm_1_DRAINING_BPU;
         end else begin
-          if(when_SmartDispatcher_l294) begin
+          if(when_SmartDispatcher_l313) begin
             fsm_stateNext = fsm_1_SEND_BRANCH;
           end
         end
@@ -36788,8 +35060,8 @@ module SmartDispatcher (
         if(io_flush) begin
           fsm_stateNext = fsm_1_DRAINING_BPU;
         end else begin
-          if(io_fetchOutput_fire) begin
-            if(when_SmartDispatcher_l342) begin
+          if(dispatcherToFifo_fire) begin
+            if(when_SmartDispatcher_l364) begin
               fsm_stateNext = fsm_1_IDLE;
             end else begin
               fsm_stateNext = fsm_1_DISPATCHING;
@@ -36798,7 +35070,7 @@ module SmartDispatcher (
         end
       end
       (fsm_stateReg[fsm_1_DRAINING_BPU_OH_ID]) : begin
-        if(when_SmartDispatcher_l363) begin
+        if(when_SmartDispatcher_l385) begin
           fsm_stateNext = fsm_1_IDLE;
         end
       end
@@ -36813,26 +35085,27 @@ module SmartDispatcher (
     end
   end
 
-  assign when_SmartDispatcher_l123 = (io_fetchGroupIn_payload_numValidInstructions == 3'b000);
-  assign _zz_io_fetchOutput_payload_predecode_isBranch = _zz__zz_io_fetchOutput_payload_predecode_isBranch;
-  assign _zz_io_fetchOutput_payload_predecode_isJump = _zz__zz_io_fetchOutput_payload_predecode_isJump;
-  assign _zz_io_fetchOutput_payload_predecode_isDirectJump = _zz__zz_io_fetchOutput_payload_predecode_isDirectJump;
-  assign _zz_io_fetchOutput_payload_predecode_jumpOffset = _zz__zz_io_fetchOutput_payload_predecode_jumpOffset;
-  assign _zz_io_fetchOutput_payload_predecode_isIdle = _zz__zz_io_fetchOutput_payload_predecode_isIdle;
-  assign _zz_io_fetchOutput_payload_instruction = _zz__zz_io_fetchOutput_payload_instruction;
-  assign _zz_io_softRedirect_payload = _zz__zz_io_softRedirect_payload;
-  assign when_SmartDispatcher_l140 = (! _zz_io_fetchOutput_payload_predecode_isBranch);
-  assign when_SmartDispatcher_l163 = (io_fetchGroupIn_payload_numValidInstructions == 3'b001);
+  assign when_SmartDispatcher_l140 = (io_fetchGroupIn_payload_numValidInstructions == 3'b000);
+  assign _zz_dispatcherToFifo_payload_predecode_isBranch = _zz__zz_dispatcherToFifo_payload_predecode_isBranch;
+  assign _zz_dispatcherToFifo_payload_predecode_isJump = _zz__zz_dispatcherToFifo_payload_predecode_isJump;
+  assign _zz_dispatcherToFifo_payload_predecode_isDirectJump = _zz__zz_dispatcherToFifo_payload_predecode_isDirectJump;
+  assign _zz_dispatcherToFifo_payload_predecode_jumpOffset = _zz__zz_dispatcherToFifo_payload_predecode_jumpOffset;
+  assign _zz_dispatcherToFifo_payload_predecode_isIdle = _zz__zz_dispatcherToFifo_payload_predecode_isIdle;
+  assign _zz_dispatcherToFifo_payload_instruction = _zz__zz_dispatcherToFifo_payload_instruction;
+  assign _zz_redirectingTargetReg = _zz__zz_redirectingTargetReg;
+  assign when_SmartDispatcher_l157 = (! _zz_dispatcherToFifo_payload_predecode_isBranch);
+  assign when_SmartDispatcher_l180 = (io_fetchGroupIn_payload_numValidInstructions == 3'b001);
   assign io_fetchGroupIn_fire = (io_fetchGroupIn_valid && io_fetchGroupIn_ready);
-  assign when_SmartDispatcher_l221 = (currentPredecodeReg_isBranch && (! currentPredecodeReg_isDirectJump));
-  assign when_SmartDispatcher_l254 = (isLastInstructionReg || currentPredecodeReg_isDirectJump);
-  assign when_SmartDispatcher_l294 = (io_bpuRsp_valid && (io_bpuRsp_payload_transactionId == pendingBpuQueryReg_bpuTransactionId));
-  assign when_SmartDispatcher_l283 = (! when_SmartDispatcher_l294);
-  assign when_SmartDispatcher_l288 = (isBusyReg && (! when_SmartDispatcher_l294));
-  assign io_fetchOutput_fire = (io_fetchOutput_valid && io_fetchOutput_ready);
-  assign when_SmartDispatcher_l332 = (outputReg_predecode_isDirectJump || (outputReg_bpuPrediction_wasPredicted && outputReg_bpuPrediction_isTaken));
-  assign when_SmartDispatcher_l342 = (isLastInstructionReg || when_SmartDispatcher_l332);
-  assign when_SmartDispatcher_l363 = (bpuInFlightCounterReg == 3'b000);
+  assign when_SmartDispatcher_l239 = (currentPredecodeReg_isBranch && (! currentPredecodeReg_isDirectJump));
+  assign when_SmartDispatcher_l273 = (isLastInstructionReg || currentPredecodeReg_isDirectJump);
+  assign when_SmartDispatcher_l313 = (io_bpuRsp_valid && (io_bpuRsp_payload_transactionId == pendingBpuQueryReg_bpuTransactionId));
+  assign when_SmartDispatcher_l302 = (! when_SmartDispatcher_l313);
+  assign when_SmartDispatcher_l307 = (isBusyReg && (! when_SmartDispatcher_l313));
+  assign dispatcherToFifo_fire = (dispatcherToFifo_valid && dispatcherToFifo_ready);
+  assign when_SmartDispatcher_l353 = (outputReg_predecode_isDirectJump || (outputReg_bpuPrediction_wasPredicted && outputReg_bpuPrediction_isTaken));
+  assign _zz_redirectingTargetReg_1 = (outputReg_predecode_isDirectJump ? outputRegJumpTarget : outputReg_bpuPrediction_target);
+  assign when_SmartDispatcher_l364 = (isLastInstructionReg || when_SmartDispatcher_l353);
+  assign when_SmartDispatcher_l385 = (bpuInFlightCounterReg == 3'b000);
   assign fsm_onExit_BOOT = ((! fsm_stateNext[fsm_1_BOOT_OH_ID]) && (fsm_stateReg[fsm_1_BOOT_OH_ID]));
   assign fsm_onExit_IDLE = ((! fsm_stateNext[fsm_1_IDLE_OH_ID]) && (fsm_stateReg[fsm_1_IDLE_OH_ID]));
   assign fsm_onExit_DISPATCHING = ((! fsm_stateNext[fsm_1_DISPATCHING_OH_ID]) && (fsm_stateReg[fsm_1_DISPATCHING_OH_ID]));
@@ -36845,21 +35118,21 @@ module SmartDispatcher (
   assign fsm_onEntry_WAITING_FOR_BPU = ((fsm_stateNext[fsm_1_WAITING_FOR_BPU_OH_ID]) && (! fsm_stateReg[fsm_1_WAITING_FOR_BPU_OH_ID]));
   assign fsm_onEntry_SEND_BRANCH = ((fsm_stateNext[fsm_1_SEND_BRANCH_OH_ID]) && (! fsm_stateReg[fsm_1_SEND_BRANCH_OH_ID]));
   assign fsm_onEntry_DRAINING_BPU = ((fsm_stateNext[fsm_1_DRAINING_BPU_OH_ID]) && (! fsm_stateReg[fsm_1_DRAINING_BPU_OH_ID]));
-  assign when_SmartDispatcher_l397 = (fsm_stateReg[fsm_1_IDLE_OH_ID]);
+  assign when_SmartDispatcher_l419 = (fsm_stateReg[fsm_1_IDLE_OH_ID]);
   always @(*) begin
-    if(when_SmartDispatcher_l397) begin
+    if(when_SmartDispatcher_l419) begin
       sim_fsmStateId = 3'b000;
     end else begin
-      if(when_SmartDispatcher_l398) begin
+      if(when_SmartDispatcher_l420) begin
         sim_fsmStateId = 3'b001;
       end else begin
-        if(when_SmartDispatcher_l399) begin
+        if(when_SmartDispatcher_l421) begin
           sim_fsmStateId = 3'b010;
         end else begin
-          if(when_SmartDispatcher_l400) begin
+          if(when_SmartDispatcher_l422) begin
             sim_fsmStateId = 3'b011;
           end else begin
-            if(when_SmartDispatcher_l401) begin
+            if(when_SmartDispatcher_l423) begin
               sim_fsmStateId = 3'b100;
             end else begin
               sim_fsmStateId = 3'b101;
@@ -36870,10 +35143,10 @@ module SmartDispatcher (
     end
   end
 
-  assign when_SmartDispatcher_l398 = (fsm_stateReg[fsm_1_DISPATCHING_OH_ID]);
-  assign when_SmartDispatcher_l399 = (fsm_stateReg[fsm_1_WAITING_FOR_BPU_OH_ID]);
-  assign when_SmartDispatcher_l400 = (fsm_stateReg[fsm_1_SEND_BRANCH_OH_ID]);
-  assign when_SmartDispatcher_l401 = (fsm_stateReg[fsm_1_DRAINING_BPU_OH_ID]);
+  assign when_SmartDispatcher_l420 = (fsm_stateReg[fsm_1_DISPATCHING_OH_ID]);
+  assign when_SmartDispatcher_l421 = (fsm_stateReg[fsm_1_WAITING_FOR_BPU_OH_ID]);
+  assign when_SmartDispatcher_l422 = (fsm_stateReg[fsm_1_SEND_BRANCH_OH_ID]);
+  assign when_SmartDispatcher_l423 = (fsm_stateReg[fsm_1_DRAINING_BPU_OH_ID]);
   always @(posedge clk) begin
     if(reset) begin
       cycleReg <= 32'h0;
@@ -36913,6 +35186,7 @@ module SmartDispatcher (
       fetchGroupReg_potentialJumpTargets_3 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
       isBusyReg <= 1'b0;
       dispatchIndexReg <= 2'b00;
+      redirectingReg <= 1'b0;
       bpuInFlightCounterReg <= 3'b000;
       bpuTransIdCounterReg <= 3'b000;
       pendingBpuQueryReg_pc <= 32'h0;
@@ -36923,6 +35197,7 @@ module SmartDispatcher (
       pendingBpuQueryReg_predecodeInfo_jumpOffset <= 32'h0;
       pendingBpuQueryReg_predecodeInfo_isIdle <= 1'b0;
       pendingBpuQueryReg_bpuTransactionId <= 3'b000;
+      outputRegValid <= 1'b0;
       fetchGroupReg_numValidInstructions_regNext <= 3'b000;
       fsm_stateReg <= fsm_1_BOOT;
     end else begin
@@ -36936,53 +35211,10 @@ module SmartDispatcher (
           end
         `endif
       `endif
-      `ifndef SYNTHESIS
-        `ifdef FORMAL
-          assert(1'b0); // SmartDispatcher.scala:L67
-        `else
-          if(!1'b0) begin
-            $display("NOTE(SmartDispatcher.scala:67):    ------ RAW INSTR DISPATCHER CYCLE: %x ------", cycleReg); // SmartDispatcher.scala:L67
-          end
-        `endif
-      `endif
-      fetchGroupReg_numValidInstructions_regNext <= fetchGroupReg_numValidInstructions;
-      `ifndef SYNTHESIS
-        `ifdef FORMAL
-          assert(1'b0); // SmartDispatcher.scala:L68
-        `else
-          if(!1'b0) begin
-            $display("NOTE(SmartDispatcher.scala:68):    DEBUG-VALID: fetchGroupReg numValidInstructions is %x, last cycle it is %x", fetchGroupReg_numValidInstructions, fetchGroupReg_numValidInstructions_regNext); // SmartDispatcher.scala:L68
-          end
-        `endif
-      `endif
-      `ifndef SYNTHESIS
-        `ifdef FORMAL
-          assert(1'b0); // SmartDispatcher.scala:L69
-        `else
-          if(!1'b0) begin
-            $display("NOTE(SmartDispatcher.scala:69):    DEBUG: currentPc=0x%x, currentInstructionReg=0x%x, currentPredecodeReg.isBranch=%x, currentPredecodeReg.isDirectJump=%x", currentPcReg, currentInstructionReg, currentPredecodeReg_isBranch, currentPredecodeReg_isDirectJump); // SmartDispatcher.scala:L69
-          end
-        `endif
-      `endif
-      `ifndef SYNTHESIS
-        `ifdef FORMAL
-          assert(1'b0); // SmartDispatcher.scala:L70
-        `else
-          if(!1'b0) begin
-            $display("NOTE(SmartDispatcher.scala:70):    DEBUG: fetchGroupReg.numValidInstructions=%x, dispatchIndexReg=%x", fetchGroupReg_numValidInstructions, dispatchIndexReg); // SmartDispatcher.scala:L70
-          end
-        `endif
-      `endif
-      `ifndef SYNTHESIS
-        `ifdef FORMAL
-          assert(1'b0); // SmartDispatcher.scala:L71
-        `else
-          if(!1'b0) begin
-            $display("NOTE(SmartDispatcher.scala:71):    DEBUG: isLastInstruction=%x", isLastInstructionReg); // SmartDispatcher.scala:L71
-          end
-        `endif
-      `endif
+      redirectingReg <= 1'b0;
       if(io_flush) begin
+        outputRegValid <= 1'b0;
+        dispatchIndexReg <= 2'b00;
         fetchGroupReg_pc <= 32'h0;
         fetchGroupReg_firstPc <= 32'h0;
         fetchGroupReg_instructions_0 <= 32'h0;
@@ -37018,6 +35250,63 @@ module SmartDispatcher (
         fetchGroupReg_potentialJumpTargets_2 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
         fetchGroupReg_potentialJumpTargets_3 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
       end
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert((_zz_1 <= lastInstructionIndexInGroup)); // SmartDispatcher.scala:L81
+        `else
+          if(!(_zz_1 <= lastInstructionIndexInGroup)) begin
+            $display("FAILURE dispatchIndexReg (%x) should be less than or equal to the last valid index (%x) in the group.", dispatchIndexReg, lastInstructionIndexInGroup); // SmartDispatcher.scala:L81
+            $finish;
+          end
+        `endif
+      `endif
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert((fetchGroupReg_numValidInstructions <= 3'b100)); // SmartDispatcher.scala:L85
+        `else
+          if(!(fetchGroupReg_numValidInstructions <= 3'b100)) begin
+            $display("FAILURE fetchGroupReg.numValidInstructions should be less than or equal to pCfg.fetchWidth"); // SmartDispatcher.scala:L85
+            $finish;
+          end
+        `endif
+      `endif
+      fetchGroupReg_numValidInstructions_regNext <= fetchGroupReg_numValidInstructions;
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // SmartDispatcher.scala:L88
+        `else
+          if(!1'b0) begin
+            $display("NOTE(SmartDispatcher.scala:88):    DEBUG-VALID: fetchGroupReg numValidInstructions is %x, last cycle it is %x", fetchGroupReg_numValidInstructions, fetchGroupReg_numValidInstructions_regNext); // SmartDispatcher.scala:L88
+          end
+        `endif
+      `endif
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // SmartDispatcher.scala:L89
+        `else
+          if(!1'b0) begin
+            $display("NOTE(SmartDispatcher.scala:89):    DEBUG: currentPc=0x%x, currentInstructionReg=0x%x, currentPredecodeReg.isBranch=%x, currentPredecodeReg.isDirectJump=%x", currentPcReg, currentInstructionReg, currentPredecodeReg_isBranch, currentPredecodeReg_isDirectJump); // SmartDispatcher.scala:L89
+          end
+        `endif
+      `endif
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // SmartDispatcher.scala:L90
+        `else
+          if(!1'b0) begin
+            $display("NOTE(SmartDispatcher.scala:90):    DEBUG: fetchGroupReg.numValidInstructions=%x, dispatchIndexReg=%x", fetchGroupReg_numValidInstructions, dispatchIndexReg); // SmartDispatcher.scala:L90
+          end
+        `endif
+      `endif
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // SmartDispatcher.scala:L91
+        `else
+          if(!1'b0) begin
+            $display("NOTE(SmartDispatcher.scala:91):    DEBUG: isLastInstruction=%x", isLastInstructionReg); // SmartDispatcher.scala:L91
+          end
+        `endif
+      `endif
       if(io_bpuQuery_valid) begin
         bpuInFlightCounterReg <= (bpuInFlightCounterReg + 3'b001);
         bpuTransIdCounterReg <= (bpuTransIdCounterReg + 3'b001);
@@ -37032,10 +35321,10 @@ module SmartDispatcher (
           if(io_flush) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // SmartDispatcher.scala:L99
+                assert(1'b0); // SmartDispatcher.scala:L116
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SmartDispatcher.scala:99):  DISPATCHER-IDLE: Flush asserted, remaining in IDLE."); // SmartDispatcher.scala:L99
+                  $display("NOTE(SmartDispatcher.scala:116):  DISPATCHER-IDLE: Flush asserted, remaining in IDLE."); // SmartDispatcher.scala:L116
                 end
               `endif
             `endif
@@ -37079,29 +35368,29 @@ module SmartDispatcher (
               dispatchIndexReg <= io_fetchGroupIn_payload_startInstructionIndex;
               `ifndef SYNTHESIS
                 `ifdef FORMAL
-                  assert(1'b0); // SmartDispatcher.scala:L118
+                  assert(1'b0); // SmartDispatcher.scala:L135
                 `else
                   if(!1'b0) begin
-                    $display("NOTE(SmartDispatcher.scala:118):  DISPATCHER-IDLE: New Group Received. PC=0x%x.", io_fetchGroupIn_payload_pc); // SmartDispatcher.scala:L118
+                    $display("NOTE(SmartDispatcher.scala:135):  DISPATCHER-IDLE: New Group Received. PC=0x%x.", io_fetchGroupIn_payload_pc); // SmartDispatcher.scala:L135
                   end
                 `endif
               `endif
               `ifndef SYNTHESIS
                 `ifdef FORMAL
-                  assert(1'b0); // SmartDispatcher.scala:L119
+                  assert(1'b0); // SmartDispatcher.scala:L136
                 `else
                   if(!1'b0) begin
-                    $display("NOTE(SmartDispatcher.scala:119):    DEBUG-IDLE-LOAD-PAYLOAD: io.fetchGroupIn.payload.numValidInstructions=%x", io_fetchGroupIn_payload_numValidInstructions); // SmartDispatcher.scala:L119
+                    $display("NOTE(SmartDispatcher.scala:136):    DEBUG-IDLE-LOAD-PAYLOAD: io.fetchGroupIn.payload.numValidInstructions=%x", io_fetchGroupIn_payload_numValidInstructions); // SmartDispatcher.scala:L136
                   end
                 `endif
               `endif
-              if(when_SmartDispatcher_l123) begin
+              if(when_SmartDispatcher_l140) begin
                 `ifndef SYNTHESIS
                   `ifdef FORMAL
-                    assert(1'b0); // SmartDispatcher.scala:L124
+                    assert(1'b0); // SmartDispatcher.scala:L141
                   `else
                     if(!1'b0) begin
-                      $display("NOTE(SmartDispatcher.scala:124):  DISPATCHER-IDLE: Received empty FetchGroup (numValidInstructions=0). Going back to IDLE."); // SmartDispatcher.scala:L124
+                      $display("NOTE(SmartDispatcher.scala:141):  DISPATCHER-IDLE: Received empty FetchGroup (numValidInstructions=0). Going back to IDLE."); // SmartDispatcher.scala:L141
                     end
                   `endif
                 `endif
@@ -37110,40 +35399,41 @@ module SmartDispatcher (
               end else begin
                 `ifndef SYNTHESIS
                   `ifdef FORMAL
-                    assert(1'b0); // SmartDispatcher.scala:L137
+                    assert(1'b0); // SmartDispatcher.scala:L154
                   `else
                     if(!1'b0) begin
-                      $display("NOTE(SmartDispatcher.scala:137):  DISPATCHER-IDLE: Analyzing first instruction (PC=0x%x, isBranch=%x).", io_fetchGroupIn_payload_firstPc, _zz_io_fetchOutput_payload_predecode_isBranch); // SmartDispatcher.scala:L137
+                      $display("NOTE(SmartDispatcher.scala:154):  DISPATCHER-IDLE: Analyzing first instruction (PC=0x%x, isBranch=%x).", io_fetchGroupIn_payload_firstPc, _zz_dispatcherToFifo_payload_predecode_isBranch); // SmartDispatcher.scala:L154
                     end
                   `endif
                 `endif
-                if(when_SmartDispatcher_l140) begin
+                if(when_SmartDispatcher_l157) begin
                   `ifndef SYNTHESIS
                     `ifdef FORMAL
-                      assert(1'b0); // SmartDispatcher.scala:L141
+                      assert(1'b0); // SmartDispatcher.scala:L158
                     `else
                       if(!1'b0) begin
-                        $display("NOTE(SmartDispatcher.scala:141):  DISPATCHER-IDLE: First instruction is Fast Path. PC=0x%x", io_fetchGroupIn_payload_firstPc); // SmartDispatcher.scala:L141
+                        $display("NOTE(SmartDispatcher.scala:158):  DISPATCHER-IDLE: First instruction is Fast Path. PC=0x%x", io_fetchGroupIn_payload_firstPc); // SmartDispatcher.scala:L158
                       end
                     `endif
                   `endif
-                  if(io_fetchOutput_ready) begin
+                  if(dispatcherToFifo_ready) begin
                     `ifndef SYNTHESIS
                       `ifdef FORMAL
-                        assert(1'b0); // SmartDispatcher.scala:L150
+                        assert(1'b0); // SmartDispatcher.scala:L167
                       `else
                         if(!1'b0) begin
-                          $display("NOTE(SmartDispatcher.scala:150):  DISPATCHER-IDLE: First instruction (fast path) fired."); // SmartDispatcher.scala:L150
+                          $display("NOTE(SmartDispatcher.scala:167):  DISPATCHER-IDLE: First instruction (fast path) fired."); // SmartDispatcher.scala:L167
                         end
                       `endif
                     `endif
-                    if(_zz_io_fetchOutput_payload_predecode_isDirectJump) begin
+                    if(_zz_dispatcherToFifo_payload_predecode_isDirectJump) begin
+                      redirectingReg <= 1'b1;
                       `ifndef SYNTHESIS
                         `ifdef FORMAL
-                          assert(1'b0); // SmartDispatcher.scala:L154
+                          assert(1'b0); // SmartDispatcher.scala:L171
                         `else
                           if(!1'b0) begin
-                            $display("NOTE(SmartDispatcher.scala:154):  DISPATCHER-IDLE: First instruction is a direct jump. Redirecting to 0x%x.", io_softRedirect_payload); // SmartDispatcher.scala:L154
+                            $display("NOTE(SmartDispatcher.scala:171):  DISPATCHER-IDLE: First instruction is a direct jump. Soft redirect scheduled to 0x%x.", _zz_redirectingTargetReg); // SmartDispatcher.scala:L171
                           end
                         `endif
                       `endif
@@ -37152,20 +35442,20 @@ module SmartDispatcher (
                     end else begin
                       `ifndef SYNTHESIS
                         `ifdef FORMAL
-                          assert(1'b0); // SmartDispatcher.scala:L161
+                          assert(1'b0); // SmartDispatcher.scala:L178
                         `else
                           if(!1'b0) begin
-                            $display("NOTE(SmartDispatcher.scala:161):    DEBUG-IDLE-FIRST-ISLAST: group.numValidInstructions=%x, isFirstInstructionLast=%x beacuse startIdx=%x", io_fetchGroupIn_payload_numValidInstructions, when_SmartDispatcher_l163, io_fetchGroupIn_payload_startInstructionIndex); // SmartDispatcher.scala:L161
+                            $display("NOTE(SmartDispatcher.scala:178):    DEBUG-IDLE-FIRST-ISLAST: group.numValidInstructions=%x, isFirstInstructionLast=%x beacuse startIdx=%x", io_fetchGroupIn_payload_numValidInstructions, when_SmartDispatcher_l180, io_fetchGroupIn_payload_startInstructionIndex); // SmartDispatcher.scala:L178
                           end
                         `endif
                       `endif
-                      if(when_SmartDispatcher_l163) begin
+                      if(when_SmartDispatcher_l180) begin
                         `ifndef SYNTHESIS
                           `ifdef FORMAL
-                            assert(1'b0); // SmartDispatcher.scala:L164
+                            assert(1'b0); // SmartDispatcher.scala:L181
                           `else
                             if(!1'b0) begin
-                              $display("NOTE(SmartDispatcher.scala:164):    DEBUG-IDLE-FAST: First instruction is last in group (not branch/redirect), Group finished. -> IDLE"); // SmartDispatcher.scala:L164
+                              $display("NOTE(SmartDispatcher.scala:181):    DEBUG-IDLE-FAST: First instruction is last in group (not branch/redirect), Group finished. -> IDLE"); // SmartDispatcher.scala:L181
                             end
                           `endif
                         `endif
@@ -37175,10 +35465,10 @@ module SmartDispatcher (
                         dispatchIndexReg <= (io_fetchGroupIn_payload_startInstructionIndex + 2'b01);
                         `ifndef SYNTHESIS
                           `ifdef FORMAL
-                            assert(1'b0); // SmartDispatcher.scala:L170
+                            assert(1'b0); // SmartDispatcher.scala:L187
                           `else
                             if(!1'b0) begin
-                              $display("NOTE(SmartDispatcher.scala:170):    DEBUG-IDLE-FAST: dispatchIndexReg set to %x + 1, FSM to DISPATCHING", dispatchIndexReg); // SmartDispatcher.scala:L170
+                              $display("NOTE(SmartDispatcher.scala:187):    DEBUG-IDLE-FAST: dispatchIndexReg set to %x + 1, FSM to DISPATCHING", dispatchIndexReg); // SmartDispatcher.scala:L187
                             end
                           `endif
                         `endif
@@ -37187,47 +35477,48 @@ module SmartDispatcher (
                   end else begin
                     `ifndef SYNTHESIS
                       `ifdef FORMAL
-                        assert(1'b0); // SmartDispatcher.scala:L175
+                        assert(1'b0); // SmartDispatcher.scala:L192
                       `else
                         if(!1'b0) begin
-                          $display("NOTE(SmartDispatcher.scala:175):  DISPATCHER-IDLE: First instruction (fast path) stalled. -> SEND_BRANCH"); // SmartDispatcher.scala:L175
+                          $display("NOTE(SmartDispatcher.scala:192):  DISPATCHER-IDLE: First instruction (fast path) stalled. -> SEND_BRANCH"); // SmartDispatcher.scala:L192
                         end
                       `endif
                     `endif
                     `ifndef SYNTHESIS
                       `ifdef FORMAL
-                        assert(1'b0); // SmartDispatcher.scala:L176
+                        assert(1'b0); // SmartDispatcher.scala:L193
                       `else
                         if(!1'b0) begin
-                          $display("NOTE(SmartDispatcher.scala:176):    DEBUG-IDLE-STALL: FSM to SEND_BRANCH"); // SmartDispatcher.scala:L176
+                          $display("NOTE(SmartDispatcher.scala:193):    DEBUG-IDLE-STALL: FSM to SEND_BRANCH"); // SmartDispatcher.scala:L193
                         end
                       `endif
                     `endif
+                    outputRegValid <= 1'b1;
                   end
                 end else begin
                   `ifndef SYNTHESIS
                     `ifdef FORMAL
-                      assert(1'b0); // SmartDispatcher.scala:L189
+                      assert(1'b0); // SmartDispatcher.scala:L207
                     `else
                       if(!1'b0) begin
-                        $display("NOTE(SmartDispatcher.scala:189):  DISPATCHER-IDLE: First instruction is Slow Path. PC=0x%x", io_fetchGroupIn_payload_firstPc); // SmartDispatcher.scala:L189
+                        $display("NOTE(SmartDispatcher.scala:207):  DISPATCHER-IDLE: First instruction is Slow Path. PC=0x%x", io_fetchGroupIn_payload_firstPc); // SmartDispatcher.scala:L207
                       end
                     `endif
                   `endif
                   pendingBpuQueryReg_pc <= io_fetchGroupIn_payload_firstPc;
-                  pendingBpuQueryReg_instruction <= _zz_io_fetchOutput_payload_instruction;
-                  pendingBpuQueryReg_predecodeInfo_isBranch <= _zz_io_fetchOutput_payload_predecode_isBranch;
-                  pendingBpuQueryReg_predecodeInfo_isJump <= _zz_io_fetchOutput_payload_predecode_isJump;
-                  pendingBpuQueryReg_predecodeInfo_isDirectJump <= _zz_io_fetchOutput_payload_predecode_isDirectJump;
-                  pendingBpuQueryReg_predecodeInfo_jumpOffset <= _zz_io_fetchOutput_payload_predecode_jumpOffset;
-                  pendingBpuQueryReg_predecodeInfo_isIdle <= _zz_io_fetchOutput_payload_predecode_isIdle;
+                  pendingBpuQueryReg_instruction <= _zz_dispatcherToFifo_payload_instruction;
+                  pendingBpuQueryReg_predecodeInfo_isBranch <= _zz_dispatcherToFifo_payload_predecode_isBranch;
+                  pendingBpuQueryReg_predecodeInfo_isJump <= _zz_dispatcherToFifo_payload_predecode_isJump;
+                  pendingBpuQueryReg_predecodeInfo_isDirectJump <= _zz_dispatcherToFifo_payload_predecode_isDirectJump;
+                  pendingBpuQueryReg_predecodeInfo_jumpOffset <= _zz_dispatcherToFifo_payload_predecode_jumpOffset;
+                  pendingBpuQueryReg_predecodeInfo_isIdle <= _zz_dispatcherToFifo_payload_predecode_isIdle;
                   pendingBpuQueryReg_bpuTransactionId <= bpuTransIdCounterReg;
                   `ifndef SYNTHESIS
                     `ifdef FORMAL
-                      assert(1'b0); // SmartDispatcher.scala:L200
+                      assert(1'b0); // SmartDispatcher.scala:L218
                     `else
                       if(!1'b0) begin
-                        $display("NOTE(SmartDispatcher.scala:200):  [notice] [33mDISPATCHER-IDLE: BPU Query sent for first instruction. -> WAITING_FOR_BPU[0m"); // SmartDispatcher.scala:L200
+                        $display("NOTE(SmartDispatcher.scala:218):  [notice ] <null>     [33mDISPATCHER-IDLE: BPU Query sent for first instruction. -> WAITING_FOR_BPU[0m"); // SmartDispatcher.scala:L218
                       end
                     `endif
                   `endif
@@ -37240,10 +35531,10 @@ module SmartDispatcher (
           if(io_flush) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // SmartDispatcher.scala:L209
+                assert(1'b0); // SmartDispatcher.scala:L227
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SmartDispatcher.scala:209):  [notice] [33mDISPATCHER: Flush received in DISPATCHING. -> DRAINING_BPU[0m"); // SmartDispatcher.scala:L209
+                  $display("NOTE(SmartDispatcher.scala:227):  [notice ] <null>     [33mDISPATCHER: Flush received in DISPATCHING. -> DRAINING_BPU[0m"); // SmartDispatcher.scala:L227
                 end
               `endif
             `endif
@@ -37252,23 +35543,23 @@ module SmartDispatcher (
               if(fetchGroupReg_fault) begin
                 `ifndef SYNTHESIS
                   `ifdef FORMAL
-                    assert(1'b0); // SmartDispatcher.scala:L217
+                    assert(1'b0); // SmartDispatcher.scala:L235
                   `else
                     if(!1'b0) begin
-                      $display("NOTE(SmartDispatcher.scala:217):  DISPATCHER: Discarding faulted group PC=0x%x. -> IDLE", fetchGroupReg_pc); // SmartDispatcher.scala:L217
+                      $display("NOTE(SmartDispatcher.scala:235):  DISPATCHER: Discarding faulted group PC=0x%x. -> IDLE", fetchGroupReg_pc); // SmartDispatcher.scala:L235
                     end
                   `endif
                 `endif
                 isBusyReg <= 1'b0;
                 dispatchIndexReg <= 2'b00;
               end else begin
-                if(when_SmartDispatcher_l221) begin
+                if(when_SmartDispatcher_l239) begin
                   `ifndef SYNTHESIS
                     `ifdef FORMAL
-                      assert(1'b0); // SmartDispatcher.scala:L222
+                      assert(1'b0); // SmartDispatcher.scala:L240
                     `else
                       if(!1'b0) begin
-                        $display("NOTE(SmartDispatcher.scala:222):  DISPATCHER: Complex Branch detected at PC=0x%x. -> QUERY_BPU", currentPcReg); // SmartDispatcher.scala:L222
+                        $display("NOTE(SmartDispatcher.scala:240):  DISPATCHER: Complex Branch detected at PC=0x%x. -> QUERY_BPU", currentPcReg); // SmartDispatcher.scala:L240
                       end
                     `endif
                   `endif
@@ -37282,31 +35573,43 @@ module SmartDispatcher (
                   pendingBpuQueryReg_bpuTransactionId <= bpuTransIdCounterReg;
                   `ifndef SYNTHESIS
                     `ifdef FORMAL
-                      assert(1'b0); // SmartDispatcher.scala:L232
+                      assert(1'b0); // SmartDispatcher.scala:L250
                     `else
                       if(!1'b0) begin
-                        $display("NOTE(SmartDispatcher.scala:232):  DISPATCH-BURST: BPU Query sent for PC=0x%x. -> WAITING_FOR_BPU", currentPcReg); // SmartDispatcher.scala:L232
+                        $display("NOTE(SmartDispatcher.scala:250):  DISPATCH-BURST: BPU Query sent for PC=0x%x. -> WAITING_FOR_BPU", currentPcReg); // SmartDispatcher.scala:L250
                       end
                     `endif
                   `endif
                 end else begin
-                  if(io_fetchOutput_ready) begin
+                  if(dispatcherToFifo_ready) begin
+                    if(currentPredecodeReg_isDirectJump) begin
+                      redirectingReg <= currentPredecodeReg_isDirectJump;
+                      `ifndef SYNTHESIS
+                        `ifdef FORMAL
+                          assert(1'b0); // SmartDispatcher.scala:L264
+                        `else
+                          if(!1'b0) begin
+                            $display("NOTE(SmartDispatcher.scala:264):  Soft redirect scheduled to 0x%x at PC=0x%x.", currentPotentialJumpTarget, currentPcReg); // SmartDispatcher.scala:L264
+                          end
+                        `endif
+                      `endif
+                    end
                     `ifndef SYNTHESIS
                       `ifdef FORMAL
-                        assert(1'b0); // SmartDispatcher.scala:L244
+                        assert(1'b0); // SmartDispatcher.scala:L269
                       `else
                         if(!1'b0) begin
-                          $display("NOTE(SmartDispatcher.scala:244):  DISPATCH-BURST: Fired PC=0x%x. isLast=%x, redirecting=%x", currentPcReg, isLastInstructionReg, currentPredecodeReg_isDirectJump); // SmartDispatcher.scala:L244
+                          $display("NOTE(SmartDispatcher.scala:269):  DISPATCH-BURST: Fired PC=0x%x. isLast=%x, redirecting=%x", currentPcReg, isLastInstructionReg, currentPredecodeReg_isDirectJump); // SmartDispatcher.scala:L269
                         end
                       `endif
                     `endif
-                    if(when_SmartDispatcher_l254) begin
+                    if(when_SmartDispatcher_l273) begin
                       `ifndef SYNTHESIS
                         `ifdef FORMAL
-                          assert(1'b0); // SmartDispatcher.scala:L255
+                          assert(1'b0); // SmartDispatcher.scala:L274
                         `else
                           if(!1'b0) begin
-                            $display("NOTE(SmartDispatcher.scala:255):    DEBUG-DISPATCH-END: isLastInstruction=%x, redirecting=%x. Group finished. -> IDLE", isLastInstructionReg, currentPredecodeReg_isDirectJump); // SmartDispatcher.scala:L255
+                            $display("NOTE(SmartDispatcher.scala:274):    DEBUG-DISPATCH-END: isLastInstruction=%x, redirecting=%x. Group finished. -> IDLE", isLastInstructionReg, currentPredecodeReg_isDirectJump); // SmartDispatcher.scala:L274
                           end
                         `endif
                       `endif
@@ -37316,10 +35619,10 @@ module SmartDispatcher (
                       dispatchIndexReg <= (dispatchIndexReg + 2'b01);
                       `ifndef SYNTHESIS
                         `ifdef FORMAL
-                          assert(1'b0); // SmartDispatcher.scala:L261
+                          assert(1'b0); // SmartDispatcher.scala:L280
                         `else
                           if(!1'b0) begin
-                            $display("NOTE(SmartDispatcher.scala:261):    DEBUG-DISPATCH-CONT: dispatchIndexReg set to %x + 1. Staying in DISPATCHING", dispatchIndexReg); // SmartDispatcher.scala:L261
+                            $display("NOTE(SmartDispatcher.scala:280):    DEBUG-DISPATCH-CONT: dispatchIndexReg set to %x + 1. Staying in DISPATCHING", dispatchIndexReg); // SmartDispatcher.scala:L280
                           end
                         `endif
                       `endif
@@ -37327,10 +35630,10 @@ module SmartDispatcher (
                   end else begin
                     `ifndef SYNTHESIS
                       `ifdef FORMAL
-                        assert(1'b0); // SmartDispatcher.scala:L265
+                        assert(1'b0); // SmartDispatcher.scala:L284
                       `else
                         if(!1'b0) begin
-                          $display("NOTE(SmartDispatcher.scala:265):  DISPATCH-BURST: Stalled for PC=0x%x", currentPcReg); // SmartDispatcher.scala:L265
+                          $display("NOTE(SmartDispatcher.scala:284):  DISPATCH-BURST: Stalled for PC=0x%x", currentPcReg); // SmartDispatcher.scala:L284
                         end
                       `endif
                     `endif
@@ -37340,10 +35643,10 @@ module SmartDispatcher (
             end else begin
               `ifndef SYNTHESIS
                 `ifdef FORMAL
-                  assert(1'b0); // SmartDispatcher.scala:L269
+                  assert(1'b0); // SmartDispatcher.scala:L288
                 `else
                   if(!1'b0) begin
-                    $display("NOTE(SmartDispatcher.scala:269):  DISPATCHER-WARNING: isBusyReg is false but FSM is in DISPATCHING state. -> IDLE"); // SmartDispatcher.scala:L269
+                    $display("NOTE(SmartDispatcher.scala:288):  DISPATCHER-WARNING: isBusyReg is false but FSM is in DISPATCHING state. -> IDLE"); // SmartDispatcher.scala:L288
                   end
                 `endif
               `endif
@@ -37353,71 +35656,72 @@ module SmartDispatcher (
         (fsm_stateReg[fsm_1_WAITING_FOR_BPU_OH_ID]) : begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // SmartDispatcher.scala:L275
+              assert(1'b0); // SmartDispatcher.scala:L294
             `else
               if(!1'b0) begin
-                $display("NOTE(SmartDispatcher.scala:275):  DISPATCH-WAIT-DEBUG: Current State (BEFORE flush check): io.flush=%x, io.bpuRsp.valid=%x, io.bpuRsp.payload.transactionId=%x, pendingTID=%x", io_flush, io_bpuRsp_valid, io_bpuRsp_payload_transactionId, pendingBpuQueryReg_bpuTransactionId); // SmartDispatcher.scala:L275
+                $display("NOTE(SmartDispatcher.scala:294):  DISPATCH-WAIT-DEBUG: Current State (BEFORE flush check): io.flush=%x, io.bpuRsp.valid=%x, io.bpuRsp.payload.transactionId=%x, pendingTID=%x", io_flush, io_bpuRsp_valid, io_bpuRsp_payload_transactionId, pendingBpuQueryReg_bpuTransactionId); // SmartDispatcher.scala:L294
               end
             `endif
           `endif
           if(io_flush) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // SmartDispatcher.scala:L277
+                assert(1'b0); // SmartDispatcher.scala:L296
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SmartDispatcher.scala:277):  [notice] [33mDISPATCHER: Flushing while WAITING_FOR_BPU. -> DRAINING_BPU[0m"); // SmartDispatcher.scala:L277
+                  $display("NOTE(SmartDispatcher.scala:296):  [notice ] <null>     [33mDISPATCHER: Flushing while WAITING_FOR_BPU. -> DRAINING_BPU[0m"); // SmartDispatcher.scala:L296
                 end
               `endif
             `endif
           end else begin
-            if(when_SmartDispatcher_l283) begin
+            if(when_SmartDispatcher_l302) begin
               `ifndef SYNTHESIS
                 `ifdef FORMAL
-                  assert(1'b0); // SmartDispatcher.scala:L284
+                  assert(1'b0); // SmartDispatcher.scala:L303
                 `else
                   if(!1'b0) begin
-                    $display("NOTE(SmartDispatcher.scala:284):  DISPATCH-WAIT: BPU Rsp mismatch because: valid=%x, transactionId=%x, pending=%x", io_bpuRsp_valid, io_bpuRsp_payload_transactionId, pendingBpuQueryReg_bpuTransactionId); // SmartDispatcher.scala:L284
+                    $display("NOTE(SmartDispatcher.scala:303):  DISPATCH-WAIT: BPU Rsp mismatch because: valid=%x, transactionId=%x, pending=%x", io_bpuRsp_valid, io_bpuRsp_payload_transactionId, pendingBpuQueryReg_bpuTransactionId); // SmartDispatcher.scala:L303
                   end
                 `endif
               `endif
             end
-            if(when_SmartDispatcher_l288) begin
+            if(when_SmartDispatcher_l307) begin
               `ifndef SYNTHESIS
                 `ifdef FORMAL
-                  assert(1'b0); // SmartDispatcher.scala:L289
+                  assert(1'b0); // SmartDispatcher.scala:L308
                 `else
                   if(!1'b0) begin
-                    $display("NOTE(SmartDispatcher.scala:289):  DISPATCH-WAIT: Waiting BPU Rsp for PC=0x%x, TID=%x", pendingBpuQueryReg_pc, pendingBpuQueryReg_bpuTransactionId); // SmartDispatcher.scala:L289
+                    $display("NOTE(SmartDispatcher.scala:308):  DISPATCH-WAIT: Waiting BPU Rsp for PC=0x%x, TID=%x", pendingBpuQueryReg_pc, pendingBpuQueryReg_bpuTransactionId); // SmartDispatcher.scala:L308
                   end
                 `endif
               `endif
             end
-            if(when_SmartDispatcher_l294) begin
+            if(when_SmartDispatcher_l313) begin
               `ifndef SYNTHESIS
                 `ifdef FORMAL
-                  assert(1'b0); // SmartDispatcher.scala:L296
+                  assert(1'b0); // SmartDispatcher.scala:L315
                 `else
                   if(!1'b0) begin
-                    $display("NOTE(SmartDispatcher.scala:296):  [notice] [33mDISPATCH-WAIT: BPU Rsp Match! PC=0x%x, Taken=%x. -> SEND_BRANCH[0m", pendingBpuQueryReg_pc, io_bpuRsp_payload_isTaken); // SmartDispatcher.scala:L296
+                    $display("NOTE(SmartDispatcher.scala:315):  [notice ] <null>     [33mDISPATCH-WAIT: BPU Rsp Match! PC=0x%x, Taken=%x. -> SEND_BRANCH[0m", pendingBpuQueryReg_pc, io_bpuRsp_payload_isTaken); // SmartDispatcher.scala:L315
+                  end
+                `endif
+              `endif
+              outputRegValid <= 1'b1;
+              `ifndef SYNTHESIS
+                `ifdef FORMAL
+                  assert(1'b0); // SmartDispatcher.scala:L329
+                `else
+                  if(!1'b0) begin
+                    $display("NOTE(SmartDispatcher.scala:329):    DEBUG-OUTPUT-REG-UPDATED: outputReg.bpuPrediction.isTaken_ASSIGNED=%x, PC_ASSIGNED=%x", io_bpuRsp_payload_isTaken, pendingBpuQueryReg_pc); // SmartDispatcher.scala:L329
                   end
                 `endif
               `endif
               `ifndef SYNTHESIS
                 `ifdef FORMAL
-                  assert(1'b0); // SmartDispatcher.scala:L310
+                  assert(1'b0); // SmartDispatcher.scala:L330
                 `else
                   if(!1'b0) begin
-                    $display("NOTE(SmartDispatcher.scala:310):    DEBUG-OUTPUT-REG-UPDATED: outputReg.bpuPrediction.isTaken_ASSIGNED=%x, PC_ASSIGNED=%x", io_bpuRsp_payload_isTaken, pendingBpuQueryReg_pc); // SmartDispatcher.scala:L310
-                  end
-                `endif
-              `endif
-              `ifndef SYNTHESIS
-                `ifdef FORMAL
-                  assert(1'b0); // SmartDispatcher.scala:L311
-                `else
-                  if(!1'b0) begin
-                    $display("NOTE(SmartDispatcher.scala:311):    DEBUG-OUTPUT-REG-UPDATED: outputReg.bpuPrediction.isTaken_REG_OUT=%x, PC_REG_OUT=%x", outputReg_bpuPrediction_isTaken, outputReg_pc); // SmartDispatcher.scala:L311
+                    $display("NOTE(SmartDispatcher.scala:330):    DEBUG-OUTPUT-REG-UPDATED: outputReg.bpuPrediction.isTaken_REG_OUT=%x, PC_REG_OUT=%x", outputReg_bpuPrediction_isTaken, outputReg_pc); // SmartDispatcher.scala:L330
                   end
                 `endif
               `endif
@@ -37428,61 +35732,73 @@ module SmartDispatcher (
           if(io_flush) begin
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // SmartDispatcher.scala:L320
+                assert(1'b0); // SmartDispatcher.scala:L339
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SmartDispatcher.scala:320):  [notice] [33mDISPATCHER: Flush received in SEND_BRANCH. -> DRAINING_BPU[0m"); // SmartDispatcher.scala:L320
+                  $display("NOTE(SmartDispatcher.scala:339):  [notice ] <null>     [33mDISPATCHER: Flush received in SEND_BRANCH. -> DRAINING_BPU[0m"); // SmartDispatcher.scala:L339
                 end
               `endif
             `endif
           end else begin
-            if(io_fetchOutput_fire) begin
+            `ifndef SYNTHESIS
+              `ifdef FORMAL
+                assert(outputRegValid); // SmartDispatcher.scala:L343
+              `else
+                if(!outputRegValid) begin
+                  $display("FAILURE OutputReg should be valid in SEND_BRANCH state"); // SmartDispatcher.scala:L343
+                  $finish;
+                end
+              `endif
+            `endif
+            if(dispatcherToFifo_fire) begin
+              outputRegValid <= 1'b0;
               `ifndef SYNTHESIS
                 `ifdef FORMAL
-                  assert(1'b0); // SmartDispatcher.scala:L328
+                  assert(1'b0); // SmartDispatcher.scala:L349
                 `else
                   if(!1'b0) begin
-                    $display("NOTE(SmartDispatcher.scala:328):  DISPATCH-SEND: Fired Branch/Stalled-FastPath PC=0x%x", outputReg_pc); // SmartDispatcher.scala:L328
+                    $display("NOTE(SmartDispatcher.scala:349):  DISPATCH-SEND: Fired Branch/Stalled-FastPath PC=0x%x", outputReg_pc); // SmartDispatcher.scala:L349
                   end
                 `endif
               `endif
               `ifndef SYNTHESIS
                 `ifdef FORMAL
-                  assert(1'b0); // SmartDispatcher.scala:L329
+                  assert(1'b0); // SmartDispatcher.scala:L350
                 `else
                   if(!1'b0) begin
-                    $display("NOTE(SmartDispatcher.scala:329):    DEBUG-OUTPUT-FIRED: outputReg.bpuPrediction.isTaken=%x, PC=0x%x", outputReg_bpuPrediction_isTaken, outputReg_pc); // SmartDispatcher.scala:L329
+                    $display("NOTE(SmartDispatcher.scala:350):    DEBUG-OUTPUT-FIRED: outputReg.bpuPrediction.isTaken=%x, PC=0x%x", outputReg_bpuPrediction_isTaken, outputReg_pc); // SmartDispatcher.scala:L350
                   end
                 `endif
               `endif
-              if(when_SmartDispatcher_l332) begin
+              if(when_SmartDispatcher_l353) begin
+                redirectingReg <= 1'b1;
                 `ifndef SYNTHESIS
                   `ifdef FORMAL
-                    assert(1'b0); // SmartDispatcher.scala:L339
+                    assert(1'b0); // SmartDispatcher.scala:L361
                   `else
                     if(!1'b0) begin
-                      $display("NOTE(SmartDispatcher.scala:339):  DISPATCH-SEND: Soft redirect triggered to 0x%x", io_softRedirect_payload); // SmartDispatcher.scala:L339
+                      $display("NOTE(SmartDispatcher.scala:361):  DISPATCH-SEND: Soft redirect scheduled to 0x%x", _zz_redirectingTargetReg_1); // SmartDispatcher.scala:L361
                     end
                   `endif
                 `endif
               end
-              if(when_SmartDispatcher_l342) begin
+              if(when_SmartDispatcher_l364) begin
                 `ifndef SYNTHESIS
                   `ifdef FORMAL
-                    assert(1'b0); // SmartDispatcher.scala:L343
+                    assert(1'b0); // SmartDispatcher.scala:L365
                   `else
                     if(!1'b0) begin
-                      $display("NOTE(SmartDispatcher.scala:343):    DEBUG-SEND-END: isLastInstruction=%x, redirecting=%x. Group finished. -> IDLE", isLastInstructionReg, when_SmartDispatcher_l332); // SmartDispatcher.scala:L343
+                      $display("NOTE(SmartDispatcher.scala:365):    DEBUG-SEND-END: isLastInstruction=%x, redirecting=%x. Group finished. -> IDLE", isLastInstructionReg, when_SmartDispatcher_l353); // SmartDispatcher.scala:L365
                     end
                   `endif
                 `endif
                 isBusyReg <= 1'b0;
                 `ifndef SYNTHESIS
                   `ifdef FORMAL
-                    assert(1'b0); // SmartDispatcher.scala:L345
+                    assert(1'b0); // SmartDispatcher.scala:L367
                   `else
                     if(!1'b0) begin
-                      $display("NOTE(SmartDispatcher.scala:345):  DISPATCH-SEND: Group finished. -> IDLE"); // SmartDispatcher.scala:L345
+                      $display("NOTE(SmartDispatcher.scala:367):  DISPATCH-SEND: Group finished. -> IDLE"); // SmartDispatcher.scala:L367
                     end
                   `endif
                 `endif
@@ -37491,19 +35807,19 @@ module SmartDispatcher (
                 dispatchIndexReg <= (dispatchIndexReg + 2'b01);
                 `ifndef SYNTHESIS
                   `ifdef FORMAL
-                    assert(1'b0); // SmartDispatcher.scala:L350
+                    assert(1'b0); // SmartDispatcher.scala:L372
                   `else
                     if(!1'b0) begin
-                      $display("NOTE(SmartDispatcher.scala:350):    DEBUG-SEND-CONT: dispatchIndexReg set to %x + 1. -> DISPATCHING", dispatchIndexReg); // SmartDispatcher.scala:L350
+                      $display("NOTE(SmartDispatcher.scala:372):    DEBUG-SEND-CONT: dispatchIndexReg set to %x + 1. -> DISPATCHING", dispatchIndexReg); // SmartDispatcher.scala:L372
                     end
                   `endif
                 `endif
                 `ifndef SYNTHESIS
                   `ifdef FORMAL
-                    assert(1'b0); // SmartDispatcher.scala:L351
+                    assert(1'b0); // SmartDispatcher.scala:L373
                   `else
                     if(!1'b0) begin
-                      $display("NOTE(SmartDispatcher.scala:351):  DISPATCH-SEND: More instructions in group. -> DISPATCHING"); // SmartDispatcher.scala:L351
+                      $display("NOTE(SmartDispatcher.scala:373):  DISPATCH-SEND: More instructions in group. -> DISPATCHING"); // SmartDispatcher.scala:L373
                     end
                   `endif
                 `endif
@@ -37511,19 +35827,19 @@ module SmartDispatcher (
             end else begin
               `ifndef SYNTHESIS
                 `ifdef FORMAL
-                  assert(1'b0); // SmartDispatcher.scala:L355
+                  assert(1'b0); // SmartDispatcher.scala:L377
                 `else
                   if(!1'b0) begin
-                    $display("NOTE(SmartDispatcher.scala:355):  DISPATCH-SEND: Stalled on output. PC=0x%x", outputReg_pc); // SmartDispatcher.scala:L355
+                    $display("NOTE(SmartDispatcher.scala:377):  DISPATCH-SEND: Stalled on output. PC=0x%x", outputReg_pc); // SmartDispatcher.scala:L377
                   end
                 `endif
               `endif
               `ifndef SYNTHESIS
                 `ifdef FORMAL
-                  assert(1'b0); // SmartDispatcher.scala:L356
+                  assert(1'b0); // SmartDispatcher.scala:L378
                 `else
                   if(!1'b0) begin
-                    $display("NOTE(SmartDispatcher.scala:356):    DEBUG-SEND-STALL: Stalled on output. PC=0x%x", outputReg_pc); // SmartDispatcher.scala:L356
+                    $display("NOTE(SmartDispatcher.scala:378):    DEBUG-SEND-STALL: Stalled on output. PC=0x%x", outputReg_pc); // SmartDispatcher.scala:L378
                   end
                 `endif
               `endif
@@ -37533,31 +35849,31 @@ module SmartDispatcher (
         (fsm_stateReg[fsm_1_DRAINING_BPU_OH_ID]) : begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // SmartDispatcher.scala:L362
+              assert(1'b0); // SmartDispatcher.scala:L384
             `else
               if(!1'b0) begin
-                $display("NOTE(SmartDispatcher.scala:362):  DISPATCHER: Draining BPU requests. InFlight=%x", bpuInFlightCounterReg); // SmartDispatcher.scala:L362
+                $display("NOTE(SmartDispatcher.scala:384):  DISPATCHER: Draining BPU requests. InFlight=%x", bpuInFlightCounterReg); // SmartDispatcher.scala:L384
               end
             `endif
           `endif
-          if(when_SmartDispatcher_l363) begin
+          if(when_SmartDispatcher_l385) begin
             isBusyReg <= 1'b0;
             dispatchIndexReg <= 2'b00;
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // SmartDispatcher.scala:L366
+                assert(1'b0); // SmartDispatcher.scala:L388
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SmartDispatcher.scala:366):    DEBUG-ASSIGN: dispatchIndexReg assigned 0 from DRAINING_BPU"); // SmartDispatcher.scala:L366
+                  $display("NOTE(SmartDispatcher.scala:388):    DEBUG-ASSIGN: dispatchIndexReg assigned 0 from DRAINING_BPU"); // SmartDispatcher.scala:L388
                 end
               `endif
             `endif
             `ifndef SYNTHESIS
               `ifdef FORMAL
-                assert(1'b0); // SmartDispatcher.scala:L367
+                assert(1'b0); // SmartDispatcher.scala:L389
               `else
                 if(!1'b0) begin
-                  $display("NOTE(SmartDispatcher.scala:367):  DISPATCHER: BPU Draining complete. -> IDLE"); // SmartDispatcher.scala:L367
+                  $display("NOTE(SmartDispatcher.scala:389):  DISPATCHER: BPU Draining complete. -> IDLE"); // SmartDispatcher.scala:L389
                 end
               `endif
             `endif
@@ -37568,31 +35884,31 @@ module SmartDispatcher (
       endcase
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // SmartDispatcher.scala:L381
+          assert(1'b0); // SmartDispatcher.scala:L403
         `else
           if(!1'b0) begin
-            $display("NOTE(SmartDispatcher.scala:381):  DISPATCHER STATE: isBusyReg=%x, dispatchIndexReg=%x, fsmState=%s, bpuInFlight=%x", isBusyReg, dispatchIndexReg, fsm_stateReg_string, bpuInFlightCounterReg); // SmartDispatcher.scala:L381
+            $display("NOTE(SmartDispatcher.scala:403):  DISPATCHER STATE: isBusyReg=%x, dispatchIndexReg=%x, fsmState=%s, bpuInFlight=%x", isBusyReg, dispatchIndexReg, fsm_stateReg_string, bpuInFlightCounterReg); // SmartDispatcher.scala:L403
           end
         `endif
       `endif
       if(io_fetchGroupIn_fire) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // SmartDispatcher.scala:L384
+            assert(1'b0); // SmartDispatcher.scala:L406
           `else
             if(!1'b0) begin
-              $display("NOTE(SmartDispatcher.scala:384):    -> EVENT: fetchGroupIn.fire"); // SmartDispatcher.scala:L384
+              $display("NOTE(SmartDispatcher.scala:406):    -> EVENT: fetchGroupIn.fire"); // SmartDispatcher.scala:L406
             end
           `endif
         `endif
       end
-      if(io_fetchOutput_fire) begin
+      if(dispatcherToFifo_fire) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // SmartDispatcher.scala:L385
+            assert(1'b0); // SmartDispatcher.scala:L407
           `else
             if(!1'b0) begin
-              $display("NOTE(SmartDispatcher.scala:385):    -> EVENT: fetchOutput.fire"); // SmartDispatcher.scala:L385
+              $display("NOTE(SmartDispatcher.scala:407):    -> EVENT: fetchOutput.fire"); // SmartDispatcher.scala:L407
             end
           `endif
         `endif
@@ -37600,10 +35916,10 @@ module SmartDispatcher (
       if(io_bpuQuery_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // SmartDispatcher.scala:L386
+            assert(1'b0); // SmartDispatcher.scala:L408
           `else
             if(!1'b0) begin
-              $display("NOTE(SmartDispatcher.scala:386):    -> EVENT: bpuQuery.fire"); // SmartDispatcher.scala:L386
+              $display("NOTE(SmartDispatcher.scala:408):    -> EVENT: bpuQuery.fire"); // SmartDispatcher.scala:L408
             end
           `endif
         `endif
@@ -37611,10 +35927,10 @@ module SmartDispatcher (
       if(io_bpuRsp_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // SmartDispatcher.scala:L387
+            assert(1'b0); // SmartDispatcher.scala:L409
           `else
             if(!1'b0) begin
-              $display("NOTE(SmartDispatcher.scala:387):    -> EVENT: bpuRsp.fire"); // SmartDispatcher.scala:L387
+              $display("NOTE(SmartDispatcher.scala:409):    -> EVENT: bpuRsp.fire"); // SmartDispatcher.scala:L409
             end
           `endif
         `endif
@@ -37622,10 +35938,10 @@ module SmartDispatcher (
       if(io_softRedirect_valid) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // SmartDispatcher.scala:L388
+            assert(1'b0); // SmartDispatcher.scala:L410
           `else
             if(!1'b0) begin
-              $display("NOTE(SmartDispatcher.scala:388):    -> EVENT: softRedirect.valid"); // SmartDispatcher.scala:L388
+              $display("NOTE(SmartDispatcher.scala:410):    -> EVENT: softRedirect.valid"); // SmartDispatcher.scala:L410
             end
           `endif
         `endif
@@ -37633,10 +35949,10 @@ module SmartDispatcher (
       if(io_flush) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // SmartDispatcher.scala:L389
+            assert(1'b0); // SmartDispatcher.scala:L411
           `else
             if(!1'b0) begin
-              $display("NOTE(SmartDispatcher.scala:389):    -> EVENT: FLUSH asserted"); // SmartDispatcher.scala:L389
+              $display("NOTE(SmartDispatcher.scala:411):    -> EVENT: FLUSH asserted"); // SmartDispatcher.scala:L411
             end
           `endif
         `endif
@@ -37645,25 +35961,30 @@ module SmartDispatcher (
   end
 
   always @(posedge clk) begin
+    redirectingTargetReg <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
     (* parallel_case *)
     case(1) // synthesis parallel_case
       (fsm_stateReg[fsm_1_IDLE_OH_ID]) : begin
         if(!io_flush) begin
           if(io_fetchGroupIn_fire) begin
-            if(!when_SmartDispatcher_l123) begin
-              if(when_SmartDispatcher_l140) begin
-                if(!io_fetchOutput_ready) begin
+            if(!when_SmartDispatcher_l140) begin
+              if(when_SmartDispatcher_l157) begin
+                if(dispatcherToFifo_ready) begin
+                  if(_zz_dispatcherToFifo_payload_predecode_isDirectJump) begin
+                    redirectingTargetReg <= _zz_redirectingTargetReg;
+                  end
+                end else begin
                   outputReg_pc <= io_fetchGroupIn_payload_firstPc;
-                  outputReg_instruction <= _zz_io_fetchOutput_payload_instruction;
-                  outputReg_predecode_isBranch <= _zz_io_fetchOutput_payload_predecode_isBranch;
-                  outputReg_predecode_isJump <= _zz_io_fetchOutput_payload_predecode_isJump;
-                  outputReg_predecode_isDirectJump <= _zz_io_fetchOutput_payload_predecode_isDirectJump;
-                  outputReg_predecode_jumpOffset <= _zz_io_fetchOutput_payload_predecode_jumpOffset;
-                  outputReg_predecode_isIdle <= _zz_io_fetchOutput_payload_predecode_isIdle;
+                  outputReg_instruction <= _zz_dispatcherToFifo_payload_instruction;
+                  outputReg_predecode_isBranch <= _zz_dispatcherToFifo_payload_predecode_isBranch;
+                  outputReg_predecode_isJump <= _zz_dispatcherToFifo_payload_predecode_isJump;
+                  outputReg_predecode_isDirectJump <= _zz_dispatcherToFifo_payload_predecode_isDirectJump;
+                  outputReg_predecode_jumpOffset <= _zz_dispatcherToFifo_payload_predecode_jumpOffset;
+                  outputReg_predecode_isIdle <= _zz_dispatcherToFifo_payload_predecode_isIdle;
                   outputReg_bpuPrediction_isTaken <= 1'b0;
                   outputReg_bpuPrediction_target <= 32'h0;
                   outputReg_bpuPrediction_wasPredicted <= 1'b0;
-                  outputRegJumpTarget <= _zz_io_softRedirect_payload;
+                  outputRegJumpTarget <= _zz_redirectingTargetReg;
                 end
               end
             end
@@ -37671,10 +35992,23 @@ module SmartDispatcher (
         end
       end
       (fsm_stateReg[fsm_1_DISPATCHING_OH_ID]) : begin
+        if(!io_flush) begin
+          if(isBusyReg) begin
+            if(!fetchGroupReg_fault) begin
+              if(!when_SmartDispatcher_l239) begin
+                if(dispatcherToFifo_ready) begin
+                  if(currentPredecodeReg_isDirectJump) begin
+                    redirectingTargetReg <= currentPotentialJumpTarget;
+                  end
+                end
+              end
+            end
+          end
+        end
       end
       (fsm_stateReg[fsm_1_WAITING_FOR_BPU_OH_ID]) : begin
         if(!io_flush) begin
-          if(when_SmartDispatcher_l294) begin
+          if(when_SmartDispatcher_l313) begin
             outputReg_pc <= pendingBpuQueryReg_pc;
             outputReg_instruction <= pendingBpuQueryReg_instruction;
             outputReg_predecode_isBranch <= pendingBpuQueryReg_predecodeInfo_isBranch;
@@ -37689,12 +36023,920 @@ module SmartDispatcher (
         end
       end
       (fsm_stateReg[fsm_1_SEND_BRANCH_OH_ID]) : begin
+        if(!io_flush) begin
+          if(dispatcherToFifo_fire) begin
+            if(when_SmartDispatcher_l353) begin
+              redirectingTargetReg <= _zz_redirectingTargetReg_1;
+            end
+          end
+        end
       end
       (fsm_stateReg[fsm_1_DRAINING_BPU_OH_ID]) : begin
       end
       default : begin
       end
     endcase
+  end
+
+
+endmodule
+
+module FetchSequencer (
+  input  wire          io_newRequest_valid,
+  output wire          io_newRequest_ready,
+  input  wire [31:0]   io_newRequest_payload_pc,
+  input  wire [31:0]   io_newRequest_payload_rawPc,
+  output reg           io_iCacheCmd_valid,
+  output reg  [31:0]   io_iCacheCmd_payload_address,
+  output reg  [7:0]    io_iCacheCmd_payload_transactionId,
+  input  wire          io_iCacheRsp_valid,
+  input  wire [7:0]    io_iCacheRsp_payload_transactionId,
+  input  wire [31:0]   io_iCacheRsp_payload_instructions_0,
+  input  wire [31:0]   io_iCacheRsp_payload_instructions_1,
+  input  wire [31:0]   io_iCacheRsp_payload_instructions_2,
+  input  wire [31:0]   io_iCacheRsp_payload_instructions_3,
+  input  wire          io_iCacheRsp_payload_wasHit,
+  input  wire          io_iCacheRsp_payload_redo,
+  output wire          sequencerToDispatcher_valid,
+  input  wire          sequencerToDispatcher_ready,
+  output reg  [31:0]   sequencerToDispatcher_payload_pc,
+  output reg  [31:0]   sequencerToDispatcher_payload_firstPc,
+  output reg  [31:0]   sequencerToDispatcher_payload_instructions_0,
+  output reg  [31:0]   sequencerToDispatcher_payload_instructions_1,
+  output reg  [31:0]   sequencerToDispatcher_payload_instructions_2,
+  output reg  [31:0]   sequencerToDispatcher_payload_instructions_3,
+  output reg           sequencerToDispatcher_payload_predecodeInfos_0_isBranch,
+  output reg           sequencerToDispatcher_payload_predecodeInfos_0_isJump,
+  output reg           sequencerToDispatcher_payload_predecodeInfos_0_isDirectJump,
+  output reg  [31:0]   sequencerToDispatcher_payload_predecodeInfos_0_jumpOffset,
+  output reg           sequencerToDispatcher_payload_predecodeInfos_0_isIdle,
+  output reg           sequencerToDispatcher_payload_predecodeInfos_1_isBranch,
+  output reg           sequencerToDispatcher_payload_predecodeInfos_1_isJump,
+  output reg           sequencerToDispatcher_payload_predecodeInfos_1_isDirectJump,
+  output reg  [31:0]   sequencerToDispatcher_payload_predecodeInfos_1_jumpOffset,
+  output reg           sequencerToDispatcher_payload_predecodeInfos_1_isIdle,
+  output reg           sequencerToDispatcher_payload_predecodeInfos_2_isBranch,
+  output reg           sequencerToDispatcher_payload_predecodeInfos_2_isJump,
+  output reg           sequencerToDispatcher_payload_predecodeInfos_2_isDirectJump,
+  output reg  [31:0]   sequencerToDispatcher_payload_predecodeInfos_2_jumpOffset,
+  output reg           sequencerToDispatcher_payload_predecodeInfos_2_isIdle,
+  output reg           sequencerToDispatcher_payload_predecodeInfos_3_isBranch,
+  output reg           sequencerToDispatcher_payload_predecodeInfos_3_isJump,
+  output reg           sequencerToDispatcher_payload_predecodeInfos_3_isDirectJump,
+  output reg  [31:0]   sequencerToDispatcher_payload_predecodeInfos_3_jumpOffset,
+  output reg           sequencerToDispatcher_payload_predecodeInfos_3_isIdle,
+  output reg  [3:0]    sequencerToDispatcher_payload_branchMask,
+  output reg           sequencerToDispatcher_payload_fault,
+  output reg  [2:0]    sequencerToDispatcher_payload_numValidInstructions,
+  output reg  [1:0]    sequencerToDispatcher_payload_startInstructionIndex,
+  output reg  [31:0]   sequencerToDispatcher_payload_potentialJumpTargets_0,
+  output reg  [31:0]   sequencerToDispatcher_payload_potentialJumpTargets_1,
+  output reg  [31:0]   sequencerToDispatcher_payload_potentialJumpTargets_2,
+  output reg  [31:0]   sequencerToDispatcher_payload_potentialJumpTargets_3,
+  input  wire          io_flush,
+  input  wire          clk,
+  input  wire          reset
+);
+
+  wire                instructionPredecoder_4_io_predecodeInfo_isBranch;
+  wire                instructionPredecoder_4_io_predecodeInfo_isJump;
+  wire                instructionPredecoder_4_io_predecodeInfo_isDirectJump;
+  wire       [31:0]   instructionPredecoder_4_io_predecodeInfo_jumpOffset;
+  wire                instructionPredecoder_4_io_predecodeInfo_isIdle;
+  wire                instructionPredecoder_5_io_predecodeInfo_isBranch;
+  wire                instructionPredecoder_5_io_predecodeInfo_isJump;
+  wire                instructionPredecoder_5_io_predecodeInfo_isDirectJump;
+  wire       [31:0]   instructionPredecoder_5_io_predecodeInfo_jumpOffset;
+  wire                instructionPredecoder_5_io_predecodeInfo_isIdle;
+  wire                instructionPredecoder_6_io_predecodeInfo_isBranch;
+  wire                instructionPredecoder_6_io_predecodeInfo_isJump;
+  wire                instructionPredecoder_6_io_predecodeInfo_isDirectJump;
+  wire       [31:0]   instructionPredecoder_6_io_predecodeInfo_jumpOffset;
+  wire                instructionPredecoder_6_io_predecodeInfo_isIdle;
+  wire                instructionPredecoder_7_io_predecodeInfo_isBranch;
+  wire                instructionPredecoder_7_io_predecodeInfo_isJump;
+  wire                instructionPredecoder_7_io_predecodeInfo_isDirectJump;
+  wire       [31:0]   instructionPredecoder_7_io_predecodeInfo_jumpOffset;
+  wire                instructionPredecoder_7_io_predecodeInfo_isIdle;
+  reg                 _zz_olderSlot_valid;
+  reg        [31:0]   _zz_olderSlot_pc;
+  reg        [31:0]   _zz_olderSlot_rawPc;
+  reg        [7:0]    _zz_olderSlot_tid;
+  reg                 _zz_olderSlot_done;
+  reg        [31:0]   _zz_olderSlot_rspData_0;
+  reg        [31:0]   _zz_olderSlot_rspData_1;
+  reg        [31:0]   _zz_olderSlot_rspData_2;
+  reg        [31:0]   _zz_olderSlot_rspData_3;
+  reg                 _zz_newerSlot_valid;
+  reg        [31:0]   _zz_newerSlot_pc;
+  reg        [31:0]   _zz_newerSlot_rawPc;
+  reg        [7:0]    _zz_newerSlot_tid;
+  reg                 _zz_newerSlot_done;
+  reg        [31:0]   _zz_newerSlot_rspData_0;
+  reg        [31:0]   _zz_newerSlot_rspData_1;
+  reg        [31:0]   _zz_newerSlot_rspData_2;
+  reg        [31:0]   _zz_newerSlot_rspData_3;
+  wire       [31:0]   _zz_sequencerToDispatcher_payload_startInstructionIndex;
+  wire       [2:0]    _zz_sequencerToDispatcher_payload_numValidInstructions;
+  wire       [27:0]   _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_0_2;
+  wire       [25:0]   _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_0_2_1;
+  wire       [31:0]   _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_0_3;
+  wire       [31:0]   _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_0_3_1;
+  wire       [27:0]   _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_1_2;
+  wire       [25:0]   _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_1_2_1;
+  wire       [31:0]   _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_1_3;
+  wire       [31:0]   _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_1_3_1;
+  wire       [27:0]   _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_2_2;
+  wire       [25:0]   _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_2_2_1;
+  wire       [31:0]   _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_2_3;
+  wire       [31:0]   _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_2_3_1;
+  wire       [27:0]   _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_3_2;
+  wire       [25:0]   _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_3_2_1;
+  wire       [31:0]   _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_3_3;
+  wire       [31:0]   _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_3_3_1;
+  reg        [31:0]   cycle;
+  reg                 slots_0_valid;
+  reg        [31:0]   slots_0_pc;
+  reg        [31:0]   slots_0_rawPc;
+  reg        [7:0]    slots_0_tid;
+  reg                 slots_0_done;
+  reg        [31:0]   slots_0_rspData_0;
+  reg        [31:0]   slots_0_rspData_1;
+  reg        [31:0]   slots_0_rspData_2;
+  reg        [31:0]   slots_0_rspData_3;
+  reg                 slots_1_valid;
+  reg        [31:0]   slots_1_pc;
+  reg        [31:0]   slots_1_rawPc;
+  reg        [7:0]    slots_1_tid;
+  reg                 slots_1_done;
+  reg        [31:0]   slots_1_rspData_0;
+  reg        [31:0]   slots_1_rspData_1;
+  reg        [31:0]   slots_1_rspData_2;
+  reg        [31:0]   slots_1_rspData_3;
+  reg        [0:0]    oldIndex;
+  reg        [7:0]    nextTid;
+  wire                isFull;
+  wire                isEmpty;
+  wire       [0:0]    newIndex;
+  wire                olderSlot_valid;
+  wire       [31:0]   olderSlot_pc;
+  wire       [31:0]   olderSlot_rawPc;
+  wire       [7:0]    olderSlot_tid;
+  wire                olderSlot_done;
+  wire       [31:0]   olderSlot_rspData_0;
+  wire       [31:0]   olderSlot_rspData_1;
+  wire       [31:0]   olderSlot_rspData_2;
+  wire       [31:0]   olderSlot_rspData_3;
+  wire       [1:0]    _zz_1;
+  wire                newerSlot_valid;
+  wire       [31:0]   newerSlot_pc;
+  wire       [31:0]   newerSlot_rawPc;
+  wire       [7:0]    newerSlot_tid;
+  wire                newerSlot_done;
+  wire       [31:0]   newerSlot_rspData_0;
+  wire       [31:0]   newerSlot_rspData_1;
+  wire       [31:0]   newerSlot_rspData_2;
+  wire       [31:0]   newerSlot_rspData_3;
+  wire                when_FetchSequencer_l104;
+  wire                when_FetchSequencer_l108;
+  wire                io_newRequest_fire;
+  wire       [31:0]   _zz_sequencerToDispatcher_payload_potentialJumpTargets_0;
+  wire       [31:0]   _zz_sequencerToDispatcher_payload_potentialJumpTargets_0_1;
+  wire       [31:0]   _zz_sequencerToDispatcher_payload_potentialJumpTargets_0_2;
+  wire       [31:0]   _zz_sequencerToDispatcher_payload_potentialJumpTargets_0_3;
+  wire       [31:0]   _zz_sequencerToDispatcher_payload_potentialJumpTargets_1;
+  wire       [31:0]   _zz_sequencerToDispatcher_payload_potentialJumpTargets_1_1;
+  wire       [31:0]   _zz_sequencerToDispatcher_payload_potentialJumpTargets_1_2;
+  wire       [31:0]   _zz_sequencerToDispatcher_payload_potentialJumpTargets_1_3;
+  wire       [31:0]   _zz_sequencerToDispatcher_payload_potentialJumpTargets_2;
+  wire       [31:0]   _zz_sequencerToDispatcher_payload_potentialJumpTargets_2_1;
+  wire       [31:0]   _zz_sequencerToDispatcher_payload_potentialJumpTargets_2_2;
+  wire       [31:0]   _zz_sequencerToDispatcher_payload_potentialJumpTargets_2_3;
+  wire       [31:0]   _zz_sequencerToDispatcher_payload_potentialJumpTargets_3;
+  wire       [31:0]   _zz_sequencerToDispatcher_payload_potentialJumpTargets_3_1;
+  wire       [31:0]   _zz_sequencerToDispatcher_payload_potentialJumpTargets_3_2;
+  wire       [31:0]   _zz_sequencerToDispatcher_payload_potentialJumpTargets_3_3;
+  wire                sequencerToDispatcher_fire;
+  wire       [0:0]    _zz_oldIndex;
+  wire       [1:0]    _zz_2;
+  wire                _zz_3;
+  wire                _zz_4;
+  wire                when_FetchSequencer_l179;
+  wire                when_FetchSequencer_l181;
+  wire                when_FetchSequencer_l181_1;
+  wire                when_FetchSequencer_l189;
+
+  assign _zz_sequencerToDispatcher_payload_startInstructionIndex = (olderSlot_rawPc - olderSlot_pc);
+  assign _zz_sequencerToDispatcher_payload_numValidInstructions = {1'd0, sequencerToDispatcher_payload_startInstructionIndex};
+  assign _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_0_2 = ({2'd0,_zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_0_2_1} <<< 2'd2);
+  assign _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_0_2_1 = olderSlot_rspData_0[25 : 0];
+  assign _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_0_3 = ($signed(_zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_0_3_1) + $signed(_zz_sequencerToDispatcher_payload_potentialJumpTargets_0_2));
+  assign _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_0_3_1 = ($signed(_zz_sequencerToDispatcher_payload_potentialJumpTargets_0) + $signed(_zz_sequencerToDispatcher_payload_potentialJumpTargets_0_1));
+  assign _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_1_2 = ({2'd0,_zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_1_2_1} <<< 2'd2);
+  assign _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_1_2_1 = olderSlot_rspData_1[25 : 0];
+  assign _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_1_3 = ($signed(_zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_1_3_1) + $signed(_zz_sequencerToDispatcher_payload_potentialJumpTargets_1_2));
+  assign _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_1_3_1 = ($signed(_zz_sequencerToDispatcher_payload_potentialJumpTargets_1) + $signed(_zz_sequencerToDispatcher_payload_potentialJumpTargets_1_1));
+  assign _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_2_2 = ({2'd0,_zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_2_2_1} <<< 2'd2);
+  assign _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_2_2_1 = olderSlot_rspData_2[25 : 0];
+  assign _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_2_3 = ($signed(_zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_2_3_1) + $signed(_zz_sequencerToDispatcher_payload_potentialJumpTargets_2_2));
+  assign _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_2_3_1 = ($signed(_zz_sequencerToDispatcher_payload_potentialJumpTargets_2) + $signed(_zz_sequencerToDispatcher_payload_potentialJumpTargets_2_1));
+  assign _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_3_2 = ({2'd0,_zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_3_2_1} <<< 2'd2);
+  assign _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_3_2_1 = olderSlot_rspData_3[25 : 0];
+  assign _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_3_3 = ($signed(_zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_3_3_1) + $signed(_zz_sequencerToDispatcher_payload_potentialJumpTargets_3_2));
+  assign _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_3_3_1 = ($signed(_zz_sequencerToDispatcher_payload_potentialJumpTargets_3) + $signed(_zz_sequencerToDispatcher_payload_potentialJumpTargets_3_1));
+  InstructionPredecoder instructionPredecoder_4 (
+    .io_instruction                (olderSlot_rspData_0[31:0]                                ), //i
+    .io_predecodeInfo_isBranch     (instructionPredecoder_4_io_predecodeInfo_isBranch        ), //o
+    .io_predecodeInfo_isJump       (instructionPredecoder_4_io_predecodeInfo_isJump          ), //o
+    .io_predecodeInfo_isDirectJump (instructionPredecoder_4_io_predecodeInfo_isDirectJump    ), //o
+    .io_predecodeInfo_jumpOffset   (instructionPredecoder_4_io_predecodeInfo_jumpOffset[31:0]), //o
+    .io_predecodeInfo_isIdle       (instructionPredecoder_4_io_predecodeInfo_isIdle          ), //o
+    .clk                           (clk                                                      ), //i
+    .reset                         (reset                                                    )  //i
+  );
+  InstructionPredecoder instructionPredecoder_5 (
+    .io_instruction                (olderSlot_rspData_1[31:0]                                ), //i
+    .io_predecodeInfo_isBranch     (instructionPredecoder_5_io_predecodeInfo_isBranch        ), //o
+    .io_predecodeInfo_isJump       (instructionPredecoder_5_io_predecodeInfo_isJump          ), //o
+    .io_predecodeInfo_isDirectJump (instructionPredecoder_5_io_predecodeInfo_isDirectJump    ), //o
+    .io_predecodeInfo_jumpOffset   (instructionPredecoder_5_io_predecodeInfo_jumpOffset[31:0]), //o
+    .io_predecodeInfo_isIdle       (instructionPredecoder_5_io_predecodeInfo_isIdle          ), //o
+    .clk                           (clk                                                      ), //i
+    .reset                         (reset                                                    )  //i
+  );
+  InstructionPredecoder instructionPredecoder_6 (
+    .io_instruction                (olderSlot_rspData_2[31:0]                                ), //i
+    .io_predecodeInfo_isBranch     (instructionPredecoder_6_io_predecodeInfo_isBranch        ), //o
+    .io_predecodeInfo_isJump       (instructionPredecoder_6_io_predecodeInfo_isJump          ), //o
+    .io_predecodeInfo_isDirectJump (instructionPredecoder_6_io_predecodeInfo_isDirectJump    ), //o
+    .io_predecodeInfo_jumpOffset   (instructionPredecoder_6_io_predecodeInfo_jumpOffset[31:0]), //o
+    .io_predecodeInfo_isIdle       (instructionPredecoder_6_io_predecodeInfo_isIdle          ), //o
+    .clk                           (clk                                                      ), //i
+    .reset                         (reset                                                    )  //i
+  );
+  InstructionPredecoder instructionPredecoder_7 (
+    .io_instruction                (olderSlot_rspData_3[31:0]                                ), //i
+    .io_predecodeInfo_isBranch     (instructionPredecoder_7_io_predecodeInfo_isBranch        ), //o
+    .io_predecodeInfo_isJump       (instructionPredecoder_7_io_predecodeInfo_isJump          ), //o
+    .io_predecodeInfo_isDirectJump (instructionPredecoder_7_io_predecodeInfo_isDirectJump    ), //o
+    .io_predecodeInfo_jumpOffset   (instructionPredecoder_7_io_predecodeInfo_jumpOffset[31:0]), //o
+    .io_predecodeInfo_isIdle       (instructionPredecoder_7_io_predecodeInfo_isIdle          ), //o
+    .clk                           (clk                                                      ), //i
+    .reset                         (reset                                                    )  //i
+  );
+  always @(*) begin
+    case(oldIndex)
+      1'b0 : begin
+        _zz_olderSlot_valid = slots_0_valid;
+        _zz_olderSlot_pc = slots_0_pc;
+        _zz_olderSlot_rawPc = slots_0_rawPc;
+        _zz_olderSlot_tid = slots_0_tid;
+        _zz_olderSlot_done = slots_0_done;
+        _zz_olderSlot_rspData_0 = slots_0_rspData_0;
+        _zz_olderSlot_rspData_1 = slots_0_rspData_1;
+        _zz_olderSlot_rspData_2 = slots_0_rspData_2;
+        _zz_olderSlot_rspData_3 = slots_0_rspData_3;
+      end
+      default : begin
+        _zz_olderSlot_valid = slots_1_valid;
+        _zz_olderSlot_pc = slots_1_pc;
+        _zz_olderSlot_rawPc = slots_1_rawPc;
+        _zz_olderSlot_tid = slots_1_tid;
+        _zz_olderSlot_done = slots_1_done;
+        _zz_olderSlot_rspData_0 = slots_1_rspData_0;
+        _zz_olderSlot_rspData_1 = slots_1_rspData_1;
+        _zz_olderSlot_rspData_2 = slots_1_rspData_2;
+        _zz_olderSlot_rspData_3 = slots_1_rspData_3;
+      end
+    endcase
+  end
+
+  always @(*) begin
+    case(newIndex)
+      1'b0 : begin
+        _zz_newerSlot_valid = slots_0_valid;
+        _zz_newerSlot_pc = slots_0_pc;
+        _zz_newerSlot_rawPc = slots_0_rawPc;
+        _zz_newerSlot_tid = slots_0_tid;
+        _zz_newerSlot_done = slots_0_done;
+        _zz_newerSlot_rspData_0 = slots_0_rspData_0;
+        _zz_newerSlot_rspData_1 = slots_0_rspData_1;
+        _zz_newerSlot_rspData_2 = slots_0_rspData_2;
+        _zz_newerSlot_rspData_3 = slots_0_rspData_3;
+      end
+      default : begin
+        _zz_newerSlot_valid = slots_1_valid;
+        _zz_newerSlot_pc = slots_1_pc;
+        _zz_newerSlot_rawPc = slots_1_rawPc;
+        _zz_newerSlot_tid = slots_1_tid;
+        _zz_newerSlot_done = slots_1_done;
+        _zz_newerSlot_rspData_0 = slots_1_rspData_0;
+        _zz_newerSlot_rspData_1 = slots_1_rspData_1;
+        _zz_newerSlot_rspData_2 = slots_1_rspData_2;
+        _zz_newerSlot_rspData_3 = slots_1_rspData_3;
+      end
+    endcase
+  end
+
+  assign isFull = (slots_0_valid && slots_1_valid);
+  assign isEmpty = ((! slots_0_valid) && (! slots_1_valid));
+  assign newIndex = (oldIndex + 1'b1);
+  assign olderSlot_valid = _zz_olderSlot_valid;
+  assign olderSlot_pc = _zz_olderSlot_pc;
+  assign olderSlot_rawPc = _zz_olderSlot_rawPc;
+  assign olderSlot_tid = _zz_olderSlot_tid;
+  assign olderSlot_done = _zz_olderSlot_done;
+  assign olderSlot_rspData_0 = _zz_olderSlot_rspData_0;
+  assign olderSlot_rspData_1 = _zz_olderSlot_rspData_1;
+  assign olderSlot_rspData_2 = _zz_olderSlot_rspData_2;
+  assign olderSlot_rspData_3 = _zz_olderSlot_rspData_3;
+  assign _zz_1 = ({1'd0,1'b1} <<< oldIndex);
+  assign newerSlot_valid = _zz_newerSlot_valid;
+  assign newerSlot_pc = _zz_newerSlot_pc;
+  assign newerSlot_rawPc = _zz_newerSlot_rawPc;
+  assign newerSlot_tid = _zz_newerSlot_tid;
+  assign newerSlot_done = _zz_newerSlot_done;
+  assign newerSlot_rspData_0 = _zz_newerSlot_rspData_0;
+  assign newerSlot_rspData_1 = _zz_newerSlot_rspData_1;
+  assign newerSlot_rspData_2 = _zz_newerSlot_rspData_2;
+  assign newerSlot_rspData_3 = _zz_newerSlot_rspData_3;
+  assign io_newRequest_ready = (! isFull);
+  always @(*) begin
+    io_iCacheCmd_valid = 1'b0;
+    if(when_FetchSequencer_l104) begin
+      io_iCacheCmd_valid = 1'b1;
+    end else begin
+      if(when_FetchSequencer_l108) begin
+        io_iCacheCmd_valid = 1'b1;
+      end else begin
+        if(io_newRequest_fire) begin
+          io_iCacheCmd_valid = 1'b1;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    io_iCacheCmd_payload_address = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    if(when_FetchSequencer_l104) begin
+      io_iCacheCmd_payload_address = olderSlot_pc;
+    end else begin
+      if(when_FetchSequencer_l108) begin
+        io_iCacheCmd_payload_address = newerSlot_pc;
+      end else begin
+        if(io_newRequest_fire) begin
+          io_iCacheCmd_payload_address = io_newRequest_payload_pc;
+        end
+      end
+    end
+  end
+
+  always @(*) begin
+    io_iCacheCmd_payload_transactionId = 8'bxxxxxxxx;
+    if(when_FetchSequencer_l104) begin
+      io_iCacheCmd_payload_transactionId = olderSlot_tid;
+    end else begin
+      if(when_FetchSequencer_l108) begin
+        io_iCacheCmd_payload_transactionId = newerSlot_tid;
+      end else begin
+        if(io_newRequest_fire) begin
+          io_iCacheCmd_payload_transactionId = nextTid;
+        end
+      end
+    end
+  end
+
+  assign when_FetchSequencer_l104 = (olderSlot_valid && (! olderSlot_done));
+  assign when_FetchSequencer_l108 = (newerSlot_valid && (! newerSlot_done));
+  assign io_newRequest_fire = (io_newRequest_valid && io_newRequest_ready);
+  assign sequencerToDispatcher_valid = ((olderSlot_valid && olderSlot_done) && (! io_flush));
+  always @(*) begin
+    sequencerToDispatcher_payload_pc = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_pc = olderSlot_pc;
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_firstPc = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_firstPc = olderSlot_rawPc;
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_instructions_0 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_instructions_0 = olderSlot_rspData_0;
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_instructions_1 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_instructions_1 = olderSlot_rspData_1;
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_instructions_2 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_instructions_2 = olderSlot_rspData_2;
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_instructions_3 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_instructions_3 = olderSlot_rspData_3;
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_predecodeInfos_0_isBranch = 1'bx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_predecodeInfos_0_isBranch = instructionPredecoder_4_io_predecodeInfo_isBranch;
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_predecodeInfos_0_isJump = 1'bx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_predecodeInfos_0_isJump = instructionPredecoder_4_io_predecodeInfo_isJump;
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_predecodeInfos_0_isDirectJump = 1'bx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_predecodeInfos_0_isDirectJump = instructionPredecoder_4_io_predecodeInfo_isDirectJump;
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_predecodeInfos_0_jumpOffset = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_predecodeInfos_0_jumpOffset = instructionPredecoder_4_io_predecodeInfo_jumpOffset;
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_predecodeInfos_0_isIdle = 1'bx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_predecodeInfos_0_isIdle = instructionPredecoder_4_io_predecodeInfo_isIdle;
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_predecodeInfos_1_isBranch = 1'bx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_predecodeInfos_1_isBranch = instructionPredecoder_5_io_predecodeInfo_isBranch;
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_predecodeInfos_1_isJump = 1'bx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_predecodeInfos_1_isJump = instructionPredecoder_5_io_predecodeInfo_isJump;
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_predecodeInfos_1_isDirectJump = 1'bx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_predecodeInfos_1_isDirectJump = instructionPredecoder_5_io_predecodeInfo_isDirectJump;
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_predecodeInfos_1_jumpOffset = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_predecodeInfos_1_jumpOffset = instructionPredecoder_5_io_predecodeInfo_jumpOffset;
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_predecodeInfos_1_isIdle = 1'bx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_predecodeInfos_1_isIdle = instructionPredecoder_5_io_predecodeInfo_isIdle;
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_predecodeInfos_2_isBranch = 1'bx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_predecodeInfos_2_isBranch = instructionPredecoder_6_io_predecodeInfo_isBranch;
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_predecodeInfos_2_isJump = 1'bx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_predecodeInfos_2_isJump = instructionPredecoder_6_io_predecodeInfo_isJump;
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_predecodeInfos_2_isDirectJump = 1'bx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_predecodeInfos_2_isDirectJump = instructionPredecoder_6_io_predecodeInfo_isDirectJump;
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_predecodeInfos_2_jumpOffset = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_predecodeInfos_2_jumpOffset = instructionPredecoder_6_io_predecodeInfo_jumpOffset;
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_predecodeInfos_2_isIdle = 1'bx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_predecodeInfos_2_isIdle = instructionPredecoder_6_io_predecodeInfo_isIdle;
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_predecodeInfos_3_isBranch = 1'bx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_predecodeInfos_3_isBranch = instructionPredecoder_7_io_predecodeInfo_isBranch;
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_predecodeInfos_3_isJump = 1'bx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_predecodeInfos_3_isJump = instructionPredecoder_7_io_predecodeInfo_isJump;
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_predecodeInfos_3_isDirectJump = 1'bx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_predecodeInfos_3_isDirectJump = instructionPredecoder_7_io_predecodeInfo_isDirectJump;
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_predecodeInfos_3_jumpOffset = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_predecodeInfos_3_jumpOffset = instructionPredecoder_7_io_predecodeInfo_jumpOffset;
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_predecodeInfos_3_isIdle = 1'bx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_predecodeInfos_3_isIdle = instructionPredecoder_7_io_predecodeInfo_isIdle;
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_branchMask = 4'bxxxx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_branchMask = {instructionPredecoder_4_io_predecodeInfo_isBranch,{instructionPredecoder_5_io_predecodeInfo_isBranch,{instructionPredecoder_6_io_predecodeInfo_isBranch,instructionPredecoder_7_io_predecodeInfo_isBranch}}};
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_fault = 1'bx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_fault = 1'b0;
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_numValidInstructions = 3'bxxx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_numValidInstructions = (3'b100 - _zz_sequencerToDispatcher_payload_numValidInstructions);
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_startInstructionIndex = 2'bxx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_startInstructionIndex = (_zz_sequencerToDispatcher_payload_startInstructionIndex[3 : 0] >>> 2'd2);
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_potentialJumpTargets_0 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_potentialJumpTargets_0 = _zz_sequencerToDispatcher_payload_potentialJumpTargets_0_3;
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_potentialJumpTargets_1 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_potentialJumpTargets_1 = _zz_sequencerToDispatcher_payload_potentialJumpTargets_1_3;
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_potentialJumpTargets_2 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_potentialJumpTargets_2 = _zz_sequencerToDispatcher_payload_potentialJumpTargets_2_3;
+    end
+  end
+
+  always @(*) begin
+    sequencerToDispatcher_payload_potentialJumpTargets_3 = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+    if(sequencerToDispatcher_valid) begin
+      sequencerToDispatcher_payload_potentialJumpTargets_3 = _zz_sequencerToDispatcher_payload_potentialJumpTargets_3_3;
+    end
+  end
+
+  assign _zz_sequencerToDispatcher_payload_potentialJumpTargets_0 = olderSlot_pc;
+  assign _zz_sequencerToDispatcher_payload_potentialJumpTargets_0_1 = 32'h0;
+  assign _zz_sequencerToDispatcher_payload_potentialJumpTargets_0_2 = {{4{_zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_0_2[27]}}, _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_0_2};
+  assign _zz_sequencerToDispatcher_payload_potentialJumpTargets_0_3 = _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_0_3;
+  assign _zz_sequencerToDispatcher_payload_potentialJumpTargets_1 = olderSlot_pc;
+  assign _zz_sequencerToDispatcher_payload_potentialJumpTargets_1_1 = 32'h00000004;
+  assign _zz_sequencerToDispatcher_payload_potentialJumpTargets_1_2 = {{4{_zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_1_2[27]}}, _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_1_2};
+  assign _zz_sequencerToDispatcher_payload_potentialJumpTargets_1_3 = _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_1_3;
+  assign _zz_sequencerToDispatcher_payload_potentialJumpTargets_2 = olderSlot_pc;
+  assign _zz_sequencerToDispatcher_payload_potentialJumpTargets_2_1 = 32'h00000008;
+  assign _zz_sequencerToDispatcher_payload_potentialJumpTargets_2_2 = {{4{_zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_2_2[27]}}, _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_2_2};
+  assign _zz_sequencerToDispatcher_payload_potentialJumpTargets_2_3 = _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_2_3;
+  assign _zz_sequencerToDispatcher_payload_potentialJumpTargets_3 = olderSlot_pc;
+  assign _zz_sequencerToDispatcher_payload_potentialJumpTargets_3_1 = 32'h0000000c;
+  assign _zz_sequencerToDispatcher_payload_potentialJumpTargets_3_2 = {{4{_zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_3_2[27]}}, _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_3_2};
+  assign _zz_sequencerToDispatcher_payload_potentialJumpTargets_3_3 = _zz__zz_sequencerToDispatcher_payload_potentialJumpTargets_3_3;
+  assign sequencerToDispatcher_fire = (sequencerToDispatcher_valid && sequencerToDispatcher_ready);
+  assign _zz_oldIndex = ((! slots_0_valid) ? 1'b0 : 1'b1);
+  assign _zz_2 = ({1'd0,1'b1} <<< _zz_oldIndex);
+  assign _zz_3 = _zz_2[0];
+  assign _zz_4 = _zz_2[1];
+  assign when_FetchSequencer_l179 = ((io_iCacheRsp_valid && (! io_iCacheRsp_payload_redo)) && io_iCacheRsp_payload_wasHit);
+  assign when_FetchSequencer_l181 = (((! slots_0_done) && slots_0_valid) && (slots_0_tid == io_iCacheRsp_payload_transactionId));
+  assign when_FetchSequencer_l181_1 = (((! slots_1_done) && slots_1_valid) && (slots_1_tid == io_iCacheRsp_payload_transactionId));
+  assign when_FetchSequencer_l189 = ((olderSlot_valid && olderSlot_done) && sequencerToDispatcher_fire);
+  always @(posedge clk) begin
+    if(reset) begin
+      cycle <= 32'h0;
+      slots_0_valid <= 1'b0;
+      slots_0_pc <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      slots_0_rawPc <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      slots_0_tid <= 8'bxxxxxxxx;
+      slots_0_done <= 1'b0;
+      slots_0_rspData_0 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      slots_0_rspData_1 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      slots_0_rspData_2 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      slots_0_rspData_3 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      slots_1_valid <= 1'b0;
+      slots_1_pc <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      slots_1_rawPc <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      slots_1_tid <= 8'bxxxxxxxx;
+      slots_1_done <= 1'b0;
+      slots_1_rspData_0 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      slots_1_rspData_1 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      slots_1_rspData_2 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      slots_1_rspData_3 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+      oldIndex <= 1'b0;
+      nextTid <= 8'h0;
+    end else begin
+      cycle <= (cycle + 32'h00000001);
+      if(io_flush) begin
+        slots_0_valid <= 1'b0;
+        slots_0_pc <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+        slots_0_rawPc <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+        slots_0_tid <= 8'bxxxxxxxx;
+        slots_0_done <= 1'b0;
+        slots_0_rspData_0 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+        slots_0_rspData_1 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+        slots_0_rspData_2 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+        slots_0_rspData_3 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+        slots_1_valid <= 1'b0;
+        slots_1_pc <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+        slots_1_rawPc <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+        slots_1_tid <= 8'bxxxxxxxx;
+        slots_1_done <= 1'b0;
+        slots_1_rspData_0 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+        slots_1_rspData_1 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+        slots_1_rspData_2 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+        slots_1_rspData_3 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+        oldIndex <= 1'b0;
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // FetchSequencer.scala:L84
+          `else
+            if(!1'b0) begin
+              $display("NOTE(FetchSequencer.scala:84):  [debug  ] <null>     [34mhard flush[0m"); // FetchSequencer.scala:L84
+            end
+          `endif
+        `endif
+      end
+      if(sequencerToDispatcher_valid) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // FetchSequencer.scala:L153
+          `else
+            if(!1'b0) begin
+              $display("NOTE(FetchSequencer.scala:153):  jump target for instruction 0 is %x because a=%x, b=%x, c=%x", _zz_sequencerToDispatcher_payload_potentialJumpTargets_0_3, _zz_sequencerToDispatcher_payload_potentialJumpTargets_0, _zz_sequencerToDispatcher_payload_potentialJumpTargets_0_1, _zz_sequencerToDispatcher_payload_potentialJumpTargets_0_2); // FetchSequencer.scala:L153
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // FetchSequencer.scala:L153
+          `else
+            if(!1'b0) begin
+              $display("NOTE(FetchSequencer.scala:153):  jump target for instruction 1 is %x because a=%x, b=%x, c=%x", _zz_sequencerToDispatcher_payload_potentialJumpTargets_1_3, _zz_sequencerToDispatcher_payload_potentialJumpTargets_1, _zz_sequencerToDispatcher_payload_potentialJumpTargets_1_1, _zz_sequencerToDispatcher_payload_potentialJumpTargets_1_2); // FetchSequencer.scala:L153
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // FetchSequencer.scala:L153
+          `else
+            if(!1'b0) begin
+              $display("NOTE(FetchSequencer.scala:153):  jump target for instruction 2 is %x because a=%x, b=%x, c=%x", _zz_sequencerToDispatcher_payload_potentialJumpTargets_2_3, _zz_sequencerToDispatcher_payload_potentialJumpTargets_2, _zz_sequencerToDispatcher_payload_potentialJumpTargets_2_1, _zz_sequencerToDispatcher_payload_potentialJumpTargets_2_2); // FetchSequencer.scala:L153
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // FetchSequencer.scala:L153
+          `else
+            if(!1'b0) begin
+              $display("NOTE(FetchSequencer.scala:153):  jump target for instruction 3 is %x because a=%x, b=%x, c=%x", _zz_sequencerToDispatcher_payload_potentialJumpTargets_3_3, _zz_sequencerToDispatcher_payload_potentialJumpTargets_3, _zz_sequencerToDispatcher_payload_potentialJumpTargets_3_1, _zz_sequencerToDispatcher_payload_potentialJumpTargets_3_2); // FetchSequencer.scala:L153
+            end
+          `endif
+        `endif
+        if(sequencerToDispatcher_fire) begin
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // FetchSequencer.scala:L159
+            `else
+              if(!1'b0) begin
+                $display("NOTE(FetchSequencer.scala:159):  [success] <null>     [32mgroup @%x sent to dispatcher. data: FetchGroup(pc=%x, firstPc=%x, instructions=%x%x%x%x, predecodeInfos=..., branchMask=%x, fault=%x, numValidInstructions=%x, startInstructionIndex=%x, potentialJumpTargets=%x%x%x%x, )[0m", sequencerToDispatcher_payload_pc, sequencerToDispatcher_payload_pc, sequencerToDispatcher_payload_firstPc, sequencerToDispatcher_payload_instructions_0, sequencerToDispatcher_payload_instructions_1, sequencerToDispatcher_payload_instructions_2, sequencerToDispatcher_payload_instructions_3, sequencerToDispatcher_payload_branchMask, sequencerToDispatcher_payload_fault, sequencerToDispatcher_payload_numValidInstructions, sequencerToDispatcher_payload_startInstructionIndex, sequencerToDispatcher_payload_potentialJumpTargets_0, sequencerToDispatcher_payload_potentialJumpTargets_1, sequencerToDispatcher_payload_potentialJumpTargets_2, sequencerToDispatcher_payload_potentialJumpTargets_3); // FetchSequencer.scala:L159
+              end
+            `endif
+          `endif
+        end
+      end
+      if(io_newRequest_fire) begin
+        nextTid <= (nextTid + 8'h01);
+        if(_zz_3) begin
+          slots_0_valid <= 1'b1;
+        end
+        if(_zz_4) begin
+          slots_1_valid <= 1'b1;
+        end
+        if(_zz_3) begin
+          slots_0_pc <= io_newRequest_payload_pc;
+        end
+        if(_zz_4) begin
+          slots_1_pc <= io_newRequest_payload_pc;
+        end
+        if(_zz_3) begin
+          slots_0_rawPc <= io_newRequest_payload_rawPc;
+        end
+        if(_zz_4) begin
+          slots_1_rawPc <= io_newRequest_payload_rawPc;
+        end
+        if(_zz_3) begin
+          slots_0_tid <= nextTid;
+        end
+        if(_zz_4) begin
+          slots_1_tid <= nextTid;
+        end
+        if(_zz_3) begin
+          slots_0_done <= 1'b0;
+        end
+        if(_zz_4) begin
+          slots_1_done <= 1'b0;
+        end
+        if(_zz_3) begin
+          slots_0_rspData_0 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+        end
+        if(_zz_4) begin
+          slots_1_rspData_0 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+        end
+        if(_zz_3) begin
+          slots_0_rspData_1 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+        end
+        if(_zz_4) begin
+          slots_1_rspData_1 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+        end
+        if(_zz_3) begin
+          slots_0_rspData_2 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+        end
+        if(_zz_4) begin
+          slots_1_rspData_2 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+        end
+        if(_zz_3) begin
+          slots_0_rspData_3 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+        end
+        if(_zz_4) begin
+          slots_1_rspData_3 <= 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
+        end
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // FetchSequencer.scala:L170
+          `else
+            if(!1'b0) begin
+              $display("NOTE(FetchSequencer.scala:170):  [notice ] <null>     [33mGot new request: pc=%x, rawPc=%x[0m", io_newRequest_payload_pc, io_newRequest_payload_rawPc); // FetchSequencer.scala:L170
+            end
+          `endif
+        `endif
+        if(isEmpty) begin
+          oldIndex <= _zz_oldIndex;
+        end
+      end
+      if(when_FetchSequencer_l179) begin
+        if(when_FetchSequencer_l181) begin
+          slots_0_done <= 1'b1;
+          slots_0_rspData_0 <= io_iCacheRsp_payload_instructions_0;
+          slots_0_rspData_1 <= io_iCacheRsp_payload_instructions_1;
+          slots_0_rspData_2 <= io_iCacheRsp_payload_instructions_2;
+          slots_0_rspData_3 <= io_iCacheRsp_payload_instructions_3;
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // FetchSequencer.scala:L184
+            `else
+              if(!1'b0) begin
+                $display("NOTE(FetchSequencer.scala:184):  [success] <null>     [32mslot 0 (pc=%x) done with tid=%x cacheline=%x%x%x%x[0m", slots_0_pc, io_iCacheRsp_payload_transactionId, io_iCacheRsp_payload_instructions_0, io_iCacheRsp_payload_instructions_1, io_iCacheRsp_payload_instructions_2, io_iCacheRsp_payload_instructions_3); // FetchSequencer.scala:L184
+              end
+            `endif
+          `endif
+        end
+        if(when_FetchSequencer_l181_1) begin
+          slots_1_done <= 1'b1;
+          slots_1_rspData_0 <= io_iCacheRsp_payload_instructions_0;
+          slots_1_rspData_1 <= io_iCacheRsp_payload_instructions_1;
+          slots_1_rspData_2 <= io_iCacheRsp_payload_instructions_2;
+          slots_1_rspData_3 <= io_iCacheRsp_payload_instructions_3;
+          `ifndef SYNTHESIS
+            `ifdef FORMAL
+              assert(1'b0); // FetchSequencer.scala:L184
+            `else
+              if(!1'b0) begin
+                $display("NOTE(FetchSequencer.scala:184):  [success] <null>     [32mslot 1 (pc=%x) done with tid=%x cacheline=%x%x%x%x[0m", slots_1_pc, io_iCacheRsp_payload_transactionId, io_iCacheRsp_payload_instructions_0, io_iCacheRsp_payload_instructions_1, io_iCacheRsp_payload_instructions_2, io_iCacheRsp_payload_instructions_3); // FetchSequencer.scala:L184
+              end
+            `endif
+          `endif
+        end
+      end
+      if(when_FetchSequencer_l189) begin
+        if(_zz_1[0]) begin
+          slots_0_valid <= 1'b0;
+        end
+        if(_zz_1[1]) begin
+          slots_1_valid <= 1'b0;
+        end
+        oldIndex <= newIndex;
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // FetchSequencer.scala:L194
+          `else
+            if(!1'b0) begin
+              $display("NOTE(FetchSequencer.scala:194):  [debug  ] <null>     [34mslot %x promoted to front[0m", newIndex); // FetchSequencer.scala:L194
+            end
+          `endif
+        `endif
+      end
+      if(io_flush) begin
+        slots_0_valid <= 1'b0;
+        slots_1_valid <= 1'b0;
+        oldIndex <= 1'b0;
+      end
+      if(io_iCacheCmd_valid) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // FetchSequencer.scala:L207
+          `else
+            if(!1'b0) begin
+              $display("NOTE(FetchSequencer.scala:207):  [debug  ] <null>     [34moldIndex=%x sending ICacheCmd(addr=%x, tid=%x)[0m", oldIndex, io_iCacheCmd_payload_address, io_iCacheCmd_payload_transactionId); // FetchSequencer.scala:L207
+            end
+          `endif
+        `endif
+      end
+      if(io_iCacheRsp_valid) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // FetchSequencer.scala:L210
+          `else
+            if(!1'b0) begin
+              $display("NOTE(FetchSequencer.scala:210):  [debug  ] <null>     [34moldIndex=%x received ICacheRsp(tid=%x, instr(s)=%x%x%x%x, hit=%x, redo=%x)[0m", oldIndex, io_iCacheRsp_payload_transactionId, io_iCacheRsp_payload_instructions_0, io_iCacheRsp_payload_instructions_1, io_iCacheRsp_payload_instructions_2, io_iCacheRsp_payload_instructions_3, io_iCacheRsp_payload_wasHit, io_iCacheRsp_payload_redo); // FetchSequencer.scala:L210
+            end
+          `endif
+        `endif
+      end
+      if(sequencerToDispatcher_fire) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // FetchSequencer.scala:L213
+          `else
+            if(!1'b0) begin
+              $display("NOTE(FetchSequencer.scala:213):  [success] <null>     [32moldIndex=%x sending group @%x[0m", oldIndex, sequencerToDispatcher_payload_pc); // FetchSequencer.scala:L213
+            end
+          `endif
+        `endif
+      end
+    end
   end
 
 
@@ -39954,7 +39196,7 @@ module IssueQueueComponent_3 (
             assert(1'b0); // IssueQueueComponent.scala:L235
           `else
             if(!1'b0) begin
-              $display("NOTE(IssueQueueComponent.scala:235):  [normal] LsuEU_IQ-3: STATUS - ValidCount=%x, allocateIn(valid=%x, ready=%x), issueOut(valid=%x, ready=%x)", currentValidCount, io_allocateIn_valid, io_allocateIn_ready, io_issueOut_valid, io_issueOut_ready); // IssueQueueComponent.scala:L235
+              $display("NOTE(IssueQueueComponent.scala:235):  [normal ] <null>     LsuEU_IQ-3: STATUS - ValidCount=%x, allocateIn(valid=%x, ready=%x), issueOut(valid=%x, ready=%x)", currentValidCount, io_allocateIn_valid, io_allocateIn_ready, io_issueOut_valid, io_issueOut_ready); // IssueQueueComponent.scala:L235
             end
           `endif
         `endif
@@ -39966,7 +39208,7 @@ module IssueQueueComponent_3 (
               assert(1'b0); // IssueQueueComponent.scala:L247
             `else
               if(!1'b0) begin
-                $display("NOTE(IssueQueueComponent.scala:247):  [normal] LsuEU_IQ-3: (LAST CYCLE) ENTRY[0] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_0_robPtr, entries_0_physDest_idx, entries_0_useSrc1, entries_0_src1Tag, entries_0_src1Ready, entries_0_useSrc2, entries_0_src2Tag, entries_0_src2Ready); // IssueQueueComponent.scala:L247
+                $display("NOTE(IssueQueueComponent.scala:247):  [normal ] <null>     LsuEU_IQ-3: (LAST CYCLE) ENTRY[0] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_0_robPtr, entries_0_physDest_idx, entries_0_useSrc1, entries_0_src1Tag, entries_0_src1Ready, entries_0_useSrc2, entries_0_src2Tag, entries_0_src2Ready); // IssueQueueComponent.scala:L247
               end
             `endif
           `endif
@@ -39977,7 +39219,7 @@ module IssueQueueComponent_3 (
               assert(1'b0); // IssueQueueComponent.scala:L247
             `else
               if(!1'b0) begin
-                $display("NOTE(IssueQueueComponent.scala:247):  [normal] LsuEU_IQ-3: (LAST CYCLE) ENTRY[1] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_1_robPtr, entries_1_physDest_idx, entries_1_useSrc1, entries_1_src1Tag, entries_1_src1Ready, entries_1_useSrc2, entries_1_src2Tag, entries_1_src2Ready); // IssueQueueComponent.scala:L247
+                $display("NOTE(IssueQueueComponent.scala:247):  [normal ] <null>     LsuEU_IQ-3: (LAST CYCLE) ENTRY[1] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_1_robPtr, entries_1_physDest_idx, entries_1_useSrc1, entries_1_src1Tag, entries_1_src1Ready, entries_1_useSrc2, entries_1_src2Tag, entries_1_src2Ready); // IssueQueueComponent.scala:L247
               end
             `endif
           `endif
@@ -39988,7 +39230,7 @@ module IssueQueueComponent_3 (
               assert(1'b0); // IssueQueueComponent.scala:L247
             `else
               if(!1'b0) begin
-                $display("NOTE(IssueQueueComponent.scala:247):  [normal] LsuEU_IQ-3: (LAST CYCLE) ENTRY[2] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_2_robPtr, entries_2_physDest_idx, entries_2_useSrc1, entries_2_src1Tag, entries_2_src1Ready, entries_2_useSrc2, entries_2_src2Tag, entries_2_src2Ready); // IssueQueueComponent.scala:L247
+                $display("NOTE(IssueQueueComponent.scala:247):  [normal ] <null>     LsuEU_IQ-3: (LAST CYCLE) ENTRY[2] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_2_robPtr, entries_2_physDest_idx, entries_2_useSrc1, entries_2_src1Tag, entries_2_src1Ready, entries_2_useSrc2, entries_2_src2Tag, entries_2_src2Ready); // IssueQueueComponent.scala:L247
               end
             `endif
           `endif
@@ -39999,7 +39241,7 @@ module IssueQueueComponent_3 (
               assert(1'b0); // IssueQueueComponent.scala:L247
             `else
               if(!1'b0) begin
-                $display("NOTE(IssueQueueComponent.scala:247):  [normal] LsuEU_IQ-3: (LAST CYCLE) ENTRY[3] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_3_robPtr, entries_3_physDest_idx, entries_3_useSrc1, entries_3_src1Tag, entries_3_src1Ready, entries_3_useSrc2, entries_3_src2Tag, entries_3_src2Ready); // IssueQueueComponent.scala:L247
+                $display("NOTE(IssueQueueComponent.scala:247):  [normal ] <null>     LsuEU_IQ-3: (LAST CYCLE) ENTRY[3] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_3_robPtr, entries_3_physDest_idx, entries_3_useSrc1, entries_3_src1Tag, entries_3_src1Ready, entries_3_useSrc2, entries_3_src2Tag, entries_3_src2Ready); // IssueQueueComponent.scala:L247
               end
             `endif
           `endif
@@ -41767,7 +41009,7 @@ module IssueQueueComponent_2 (
             assert(1'b0); // IssueQueueComponent.scala:L235
           `else
             if(!1'b0) begin
-              $display("NOTE(IssueQueueComponent.scala:235):  [normal] BranchEU_IQ-2: STATUS - ValidCount=%x, allocateIn(valid=%x, ready=%x), issueOut(valid=%x, ready=%x)", currentValidCount, io_allocateIn_valid, io_allocateIn_ready, io_issueOut_valid, io_issueOut_ready); // IssueQueueComponent.scala:L235
+              $display("NOTE(IssueQueueComponent.scala:235):  [normal ] <null>     BranchEU_IQ-2: STATUS - ValidCount=%x, allocateIn(valid=%x, ready=%x), issueOut(valid=%x, ready=%x)", currentValidCount, io_allocateIn_valid, io_allocateIn_ready, io_issueOut_valid, io_issueOut_ready); // IssueQueueComponent.scala:L235
             end
           `endif
         `endif
@@ -41779,7 +41021,7 @@ module IssueQueueComponent_2 (
               assert(1'b0); // IssueQueueComponent.scala:L247
             `else
               if(!1'b0) begin
-                $display("NOTE(IssueQueueComponent.scala:247):  [normal] BranchEU_IQ-2: (LAST CYCLE) ENTRY[0] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_0_robPtr, entries_0_physDest_idx, entries_0_useSrc1, entries_0_src1Tag, entries_0_src1Ready, entries_0_useSrc2, entries_0_src2Tag, entries_0_src2Ready); // IssueQueueComponent.scala:L247
+                $display("NOTE(IssueQueueComponent.scala:247):  [normal ] <null>     BranchEU_IQ-2: (LAST CYCLE) ENTRY[0] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_0_robPtr, entries_0_physDest_idx, entries_0_useSrc1, entries_0_src1Tag, entries_0_src1Ready, entries_0_useSrc2, entries_0_src2Tag, entries_0_src2Ready); // IssueQueueComponent.scala:L247
               end
             `endif
           `endif
@@ -41790,7 +41032,7 @@ module IssueQueueComponent_2 (
               assert(1'b0); // IssueQueueComponent.scala:L247
             `else
               if(!1'b0) begin
-                $display("NOTE(IssueQueueComponent.scala:247):  [normal] BranchEU_IQ-2: (LAST CYCLE) ENTRY[1] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_1_robPtr, entries_1_physDest_idx, entries_1_useSrc1, entries_1_src1Tag, entries_1_src1Ready, entries_1_useSrc2, entries_1_src2Tag, entries_1_src2Ready); // IssueQueueComponent.scala:L247
+                $display("NOTE(IssueQueueComponent.scala:247):  [normal ] <null>     BranchEU_IQ-2: (LAST CYCLE) ENTRY[1] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_1_robPtr, entries_1_physDest_idx, entries_1_useSrc1, entries_1_src1Tag, entries_1_src1Ready, entries_1_useSrc2, entries_1_src2Tag, entries_1_src2Ready); // IssueQueueComponent.scala:L247
               end
             `endif
           `endif
@@ -41801,7 +41043,7 @@ module IssueQueueComponent_2 (
               assert(1'b0); // IssueQueueComponent.scala:L247
             `else
               if(!1'b0) begin
-                $display("NOTE(IssueQueueComponent.scala:247):  [normal] BranchEU_IQ-2: (LAST CYCLE) ENTRY[2] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_2_robPtr, entries_2_physDest_idx, entries_2_useSrc1, entries_2_src1Tag, entries_2_src1Ready, entries_2_useSrc2, entries_2_src2Tag, entries_2_src2Ready); // IssueQueueComponent.scala:L247
+                $display("NOTE(IssueQueueComponent.scala:247):  [normal ] <null>     BranchEU_IQ-2: (LAST CYCLE) ENTRY[2] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_2_robPtr, entries_2_physDest_idx, entries_2_useSrc1, entries_2_src1Tag, entries_2_src1Ready, entries_2_useSrc2, entries_2_src2Tag, entries_2_src2Ready); // IssueQueueComponent.scala:L247
               end
             `endif
           `endif
@@ -41812,7 +41054,7 @@ module IssueQueueComponent_2 (
               assert(1'b0); // IssueQueueComponent.scala:L247
             `else
               if(!1'b0) begin
-                $display("NOTE(IssueQueueComponent.scala:247):  [normal] BranchEU_IQ-2: (LAST CYCLE) ENTRY[3] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_3_robPtr, entries_3_physDest_idx, entries_3_useSrc1, entries_3_src1Tag, entries_3_src1Ready, entries_3_useSrc2, entries_3_src2Tag, entries_3_src2Ready); // IssueQueueComponent.scala:L247
+                $display("NOTE(IssueQueueComponent.scala:247):  [normal ] <null>     BranchEU_IQ-2: (LAST CYCLE) ENTRY[3] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_3_robPtr, entries_3_physDest_idx, entries_3_useSrc1, entries_3_src1Tag, entries_3_src1Ready, entries_3_useSrc2, entries_3_src2Tag, entries_3_src2Ready); // IssueQueueComponent.scala:L247
               end
             `endif
           `endif
@@ -45668,7 +44910,7 @@ module IssueQueueComponent_1 (
             assert(1'b0); // IssueQueueComponent.scala:L235
           `else
             if(!1'b0) begin
-              $display("NOTE(IssueQueueComponent.scala:235):  [normal] MulEU_IQ-1: STATUS - ValidCount=%x, allocateIn(valid=%x, ready=%x), issueOut(valid=%x, ready=%x)", currentValidCount, io_allocateIn_valid, io_allocateIn_ready, io_issueOut_valid, io_issueOut_ready); // IssueQueueComponent.scala:L235
+              $display("NOTE(IssueQueueComponent.scala:235):  [normal ] <null>     MulEU_IQ-1: STATUS - ValidCount=%x, allocateIn(valid=%x, ready=%x), issueOut(valid=%x, ready=%x)", currentValidCount, io_allocateIn_valid, io_allocateIn_ready, io_issueOut_valid, io_issueOut_ready); // IssueQueueComponent.scala:L235
             end
           `endif
         `endif
@@ -45680,7 +44922,7 @@ module IssueQueueComponent_1 (
               assert(1'b0); // IssueQueueComponent.scala:L247
             `else
               if(!1'b0) begin
-                $display("NOTE(IssueQueueComponent.scala:247):  [normal] MulEU_IQ-1: (LAST CYCLE) ENTRY[0] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_0_robPtr, entries_0_physDest_idx, entries_0_useSrc1, entries_0_src1Tag, entries_0_src1Ready, entries_0_useSrc2, entries_0_src2Tag, entries_0_src2Ready); // IssueQueueComponent.scala:L247
+                $display("NOTE(IssueQueueComponent.scala:247):  [normal ] <null>     MulEU_IQ-1: (LAST CYCLE) ENTRY[0] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_0_robPtr, entries_0_physDest_idx, entries_0_useSrc1, entries_0_src1Tag, entries_0_src1Ready, entries_0_useSrc2, entries_0_src2Tag, entries_0_src2Ready); // IssueQueueComponent.scala:L247
               end
             `endif
           `endif
@@ -45691,7 +44933,7 @@ module IssueQueueComponent_1 (
               assert(1'b0); // IssueQueueComponent.scala:L247
             `else
               if(!1'b0) begin
-                $display("NOTE(IssueQueueComponent.scala:247):  [normal] MulEU_IQ-1: (LAST CYCLE) ENTRY[1] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_1_robPtr, entries_1_physDest_idx, entries_1_useSrc1, entries_1_src1Tag, entries_1_src1Ready, entries_1_useSrc2, entries_1_src2Tag, entries_1_src2Ready); // IssueQueueComponent.scala:L247
+                $display("NOTE(IssueQueueComponent.scala:247):  [normal ] <null>     MulEU_IQ-1: (LAST CYCLE) ENTRY[1] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_1_robPtr, entries_1_physDest_idx, entries_1_useSrc1, entries_1_src1Tag, entries_1_src1Ready, entries_1_useSrc2, entries_1_src2Tag, entries_1_src2Ready); // IssueQueueComponent.scala:L247
               end
             `endif
           `endif
@@ -45702,7 +44944,7 @@ module IssueQueueComponent_1 (
               assert(1'b0); // IssueQueueComponent.scala:L247
             `else
               if(!1'b0) begin
-                $display("NOTE(IssueQueueComponent.scala:247):  [normal] MulEU_IQ-1: (LAST CYCLE) ENTRY[2] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_2_robPtr, entries_2_physDest_idx, entries_2_useSrc1, entries_2_src1Tag, entries_2_src1Ready, entries_2_useSrc2, entries_2_src2Tag, entries_2_src2Ready); // IssueQueueComponent.scala:L247
+                $display("NOTE(IssueQueueComponent.scala:247):  [normal ] <null>     MulEU_IQ-1: (LAST CYCLE) ENTRY[2] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_2_robPtr, entries_2_physDest_idx, entries_2_useSrc1, entries_2_src1Tag, entries_2_src1Ready, entries_2_useSrc2, entries_2_src2Tag, entries_2_src2Ready); // IssueQueueComponent.scala:L247
               end
             `endif
           `endif
@@ -45713,7 +44955,7 @@ module IssueQueueComponent_1 (
               assert(1'b0); // IssueQueueComponent.scala:L247
             `else
               if(!1'b0) begin
-                $display("NOTE(IssueQueueComponent.scala:247):  [normal] MulEU_IQ-1: (LAST CYCLE) ENTRY[3] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_3_robPtr, entries_3_physDest_idx, entries_3_useSrc1, entries_3_src1Tag, entries_3_src1Ready, entries_3_useSrc2, entries_3_src2Tag, entries_3_src2Ready); // IssueQueueComponent.scala:L247
+                $display("NOTE(IssueQueueComponent.scala:247):  [normal ] <null>     MulEU_IQ-1: (LAST CYCLE) ENTRY[3] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_3_robPtr, entries_3_physDest_idx, entries_3_useSrc1, entries_3_src1Tag, entries_3_src1Ready, entries_3_useSrc2, entries_3_src2Tag, entries_3_src2Ready); // IssueQueueComponent.scala:L247
               end
             `endif
           `endif
@@ -47948,7 +47190,7 @@ module IssueQueueComponent (
             assert(1'b0); // IssueQueueComponent.scala:L235
           `else
             if(!1'b0) begin
-              $display("NOTE(IssueQueueComponent.scala:235):  [normal] AluIntEU_IQ-0: STATUS - ValidCount=%x, allocateIn(valid=%x, ready=%x), issueOut(valid=%x, ready=%x)", currentValidCount, io_allocateIn_valid, io_allocateIn_ready, io_issueOut_valid, io_issueOut_ready); // IssueQueueComponent.scala:L235
+              $display("NOTE(IssueQueueComponent.scala:235):  [normal ] <null>     AluIntEU_IQ-0: STATUS - ValidCount=%x, allocateIn(valid=%x, ready=%x), issueOut(valid=%x, ready=%x)", currentValidCount, io_allocateIn_valid, io_allocateIn_ready, io_issueOut_valid, io_issueOut_ready); // IssueQueueComponent.scala:L235
             end
           `endif
         `endif
@@ -47960,7 +47202,7 @@ module IssueQueueComponent (
               assert(1'b0); // IssueQueueComponent.scala:L247
             `else
               if(!1'b0) begin
-                $display("NOTE(IssueQueueComponent.scala:247):  [normal] AluIntEU_IQ-0: (LAST CYCLE) ENTRY[0] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_0_robPtr, entries_0_physDest_idx, entries_0_useSrc1, entries_0_src1Tag, entries_0_src1Ready, entries_0_useSrc2, entries_0_src2Tag, entries_0_src2Ready); // IssueQueueComponent.scala:L247
+                $display("NOTE(IssueQueueComponent.scala:247):  [normal ] <null>     AluIntEU_IQ-0: (LAST CYCLE) ENTRY[0] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_0_robPtr, entries_0_physDest_idx, entries_0_useSrc1, entries_0_src1Tag, entries_0_src1Ready, entries_0_useSrc2, entries_0_src2Tag, entries_0_src2Ready); // IssueQueueComponent.scala:L247
               end
             `endif
           `endif
@@ -47971,7 +47213,7 @@ module IssueQueueComponent (
               assert(1'b0); // IssueQueueComponent.scala:L247
             `else
               if(!1'b0) begin
-                $display("NOTE(IssueQueueComponent.scala:247):  [normal] AluIntEU_IQ-0: (LAST CYCLE) ENTRY[1] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_1_robPtr, entries_1_physDest_idx, entries_1_useSrc1, entries_1_src1Tag, entries_1_src1Ready, entries_1_useSrc2, entries_1_src2Tag, entries_1_src2Ready); // IssueQueueComponent.scala:L247
+                $display("NOTE(IssueQueueComponent.scala:247):  [normal ] <null>     AluIntEU_IQ-0: (LAST CYCLE) ENTRY[1] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_1_robPtr, entries_1_physDest_idx, entries_1_useSrc1, entries_1_src1Tag, entries_1_src1Ready, entries_1_useSrc2, entries_1_src2Tag, entries_1_src2Ready); // IssueQueueComponent.scala:L247
               end
             `endif
           `endif
@@ -47982,7 +47224,7 @@ module IssueQueueComponent (
               assert(1'b0); // IssueQueueComponent.scala:L247
             `else
               if(!1'b0) begin
-                $display("NOTE(IssueQueueComponent.scala:247):  [normal] AluIntEU_IQ-0: (LAST CYCLE) ENTRY[2] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_2_robPtr, entries_2_physDest_idx, entries_2_useSrc1, entries_2_src1Tag, entries_2_src1Ready, entries_2_useSrc2, entries_2_src2Tag, entries_2_src2Ready); // IssueQueueComponent.scala:L247
+                $display("NOTE(IssueQueueComponent.scala:247):  [normal ] <null>     AluIntEU_IQ-0: (LAST CYCLE) ENTRY[2] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_2_robPtr, entries_2_physDest_idx, entries_2_useSrc1, entries_2_src1Tag, entries_2_src1Ready, entries_2_useSrc2, entries_2_src2Tag, entries_2_src2Ready); // IssueQueueComponent.scala:L247
               end
             `endif
           `endif
@@ -47993,7 +47235,7 @@ module IssueQueueComponent (
               assert(1'b0); // IssueQueueComponent.scala:L247
             `else
               if(!1'b0) begin
-                $display("NOTE(IssueQueueComponent.scala:247):  [normal] AluIntEU_IQ-0: (LAST CYCLE) ENTRY[3] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_3_robPtr, entries_3_physDest_idx, entries_3_useSrc1, entries_3_src1Tag, entries_3_src1Ready, entries_3_useSrc2, entries_3_src2Tag, entries_3_src2Ready); // IssueQueueComponent.scala:L247
+                $display("NOTE(IssueQueueComponent.scala:247):  [normal ] <null>     AluIntEU_IQ-0: (LAST CYCLE) ENTRY[3] - RobPtr=%x, PhysDest=%x, UseSrc1=%x, Src1Tag=%x, Src1Ready=%x, UseSrc2=%x, Src2Tag=%x, Src2Ready=%x", entries_3_robPtr, entries_3_physDest_idx, entries_3_useSrc1, entries_3_src1Tag, entries_3_src1Ready, entries_3_useSrc2, entries_3_src2Tag, entries_3_src2Ready); // IssueQueueComponent.scala:L247
               end
             `endif
           `endif
@@ -48176,25 +47418,6 @@ module IssueQueueComponent (
 
 endmodule
 
-module PerfCounter (
-  output wire [31:0]   io_value,
-  input  wire          clk,
-  input  wire          reset
-);
-
-  reg        [31:0]   cycles;
-
-  always @(posedge clk) begin
-    if(reset) begin
-      cycles <= 32'h0;
-    end else begin
-      cycles <= (cycles + 32'h00000001);
-    end
-  end
-
-
-endmodule
-
 module LA32RSimpleDecoder (
   input  wire [31:0]   io_instruction,
   input  wire [31:0]   io_pcIn,
@@ -48365,8 +47588,7 @@ module LA32RSimpleDecoder (
   wire       [11:0]   _zz_imm_sext_12_1;
   wire       [31:0]   _zz_imm_zext_12;
   wire       [11:0]   _zz_imm_zext_12_1;
-  wire       [31:0]   _zz_imm_pcadd_u12i;
-  wire       [19:0]   _zz_imm_pcadd_u12i_1;
+  wire       [31:0]   _zz_imm_pcadd_s12i;
   wire       [31:0]   _zz_imm_branch_16;
   wire       [17:0]   _zz_imm_branch_16_1;
   wire       [15:0]   _zz_imm_branch_16_2;
@@ -48381,7 +47603,7 @@ module LA32RSimpleDecoder (
   wire       [31:0]   imm_sext_12;
   wire       [31:0]   imm_zext_12;
   wire       [31:0]   imm_lu12i;
-  wire       [31:0]   imm_pcadd_u12i;
+  wire       [31:0]   imm_pcadd_s12i;
   wire       [31:0]   imm_branch_16;
   wire       [31:0]   imm_branch_26;
   wire       [31:0]   imm_shift_5;
@@ -48488,8 +47710,7 @@ module LA32RSimpleDecoder (
   assign _zz_imm_sext_12 = {{20{_zz_imm_sext_12_1[11]}}, _zz_imm_sext_12_1};
   assign _zz_imm_zext_12_1 = fields_inst[21 : 10];
   assign _zz_imm_zext_12 = {20'd0, _zz_imm_zext_12_1};
-  assign _zz_imm_pcadd_u12i = ({12'd0,_zz_imm_pcadd_u12i_1} <<< 4'd12);
-  assign _zz_imm_pcadd_u12i_1 = fields_inst[24 : 5];
+  assign _zz_imm_pcadd_s12i = {fields_inst[24 : 5],12'h0};
   assign _zz_imm_branch_16_1 = ({2'd0,_zz_imm_branch_16_2} <<< 2'd2);
   assign _zz_imm_branch_16 = {{14{_zz_imm_branch_16_1[17]}}, _zz_imm_branch_16_1};
   assign _zz_imm_branch_16_2 = fields_inst[25 : 10];
@@ -48714,7 +47935,7 @@ module LA32RSimpleDecoder (
   assign imm_sext_12 = _zz_imm_sext_12;
   assign imm_zext_12 = _zz_imm_zext_12;
   assign imm_lu12i = {fields_inst[24 : 5],12'h0};
-  assign imm_pcadd_u12i = _zz_imm_pcadd_u12i;
+  assign imm_pcadd_s12i = _zz_imm_pcadd_s12i;
   assign imm_branch_16 = _zz_imm_branch_16;
   assign imm_branch_26 = _zz_imm_branch_26;
   assign imm_shift_5 = _zz_imm_shift_5;
@@ -48922,7 +48143,7 @@ module LA32RSimpleDecoder (
       io_decodedUop_imm = imm_lu12i;
     end
     if(is_pcaddu12i) begin
-      io_decodedUop_imm = imm_pcadd_u12i;
+      io_decodedUop_imm = imm_pcadd_s12i;
     end
     if(when_LA32RSimpleDecoder_l259) begin
       io_decodedUop_imm = imm_branch_16;
@@ -49179,7 +48400,7 @@ module LA32RSimpleDecoder (
   assign when_LA32RSimpleDecoder_l241 = ((((((is_r_type || is_shift_imm) || is_i_type) || is_load) || is_lu12i) || is_pcaddu12i) || is_jirl);
   assign when_LA32RSimpleDecoder_l245 = (((((((is_r_type || is_shift_imm) || is_i_type) || is_load) || is_lu12i) || is_pcaddu12i) || is_jirl) && (fields_inst[4 : 0] != r0_idx));
   assign when_LA32RSimpleDecoder_l255 = (((is_addi_w || is_slti) || is_sltui) || is_mem_op);
-  assign when_LA32RSimpleDecoder_l256 = (is_andi || is_ori);
+  assign when_LA32RSimpleDecoder_l256 = ((is_andi || is_ori) || is_xori);
   assign when_LA32RSimpleDecoder_l259 = (is_branch || is_jirl);
   assign when_LA32RSimpleDecoder_l260 = (is_b || is_bl);
   assign when_LA32RSimpleDecoder_l264 = ((is_i_type || is_lu12i) || is_pcaddu12i);
@@ -52146,6 +51367,7 @@ module ReorderBuffer (
   input  wire [3:0]    io_writeback_0_robPtr,
   input  wire          io_writeback_0_isTaken,
   input  wire          io_writeback_0_isMispredictedBranch,
+  input  wire [31:0]   io_writeback_0_targetPc,
   input  wire [31:0]   io_writeback_0_result,
   input  wire          io_writeback_0_exceptionOccurred,
   input  wire [7:0]    io_writeback_0_exceptionCodeIn,
@@ -52153,6 +51375,7 @@ module ReorderBuffer (
   input  wire [3:0]    io_writeback_1_robPtr,
   input  wire          io_writeback_1_isTaken,
   input  wire          io_writeback_1_isMispredictedBranch,
+  input  wire [31:0]   io_writeback_1_targetPc,
   input  wire [31:0]   io_writeback_1_result,
   input  wire          io_writeback_1_exceptionOccurred,
   input  wire [7:0]    io_writeback_1_exceptionCodeIn,
@@ -52160,6 +51383,7 @@ module ReorderBuffer (
   input  wire [3:0]    io_writeback_2_robPtr,
   input  wire          io_writeback_2_isTaken,
   input  wire          io_writeback_2_isMispredictedBranch,
+  input  wire [31:0]   io_writeback_2_targetPc,
   input  wire [31:0]   io_writeback_2_result,
   input  wire          io_writeback_2_exceptionOccurred,
   input  wire [7:0]    io_writeback_2_exceptionCodeIn,
@@ -52167,6 +51391,7 @@ module ReorderBuffer (
   input  wire [3:0]    io_writeback_3_robPtr,
   input  wire          io_writeback_3_isTaken,
   input  wire          io_writeback_3_isMispredictedBranch,
+  input  wire [31:0]   io_writeback_3_targetPc,
   input  wire [31:0]   io_writeback_3_result,
   input  wire          io_writeback_3_exceptionOccurred,
   input  wire [7:0]    io_writeback_3_exceptionCodeIn,
@@ -52174,6 +51399,7 @@ module ReorderBuffer (
   input  wire [3:0]    io_writeback_4_robPtr,
   input  wire          io_writeback_4_isTaken,
   input  wire          io_writeback_4_isMispredictedBranch,
+  input  wire [31:0]   io_writeback_4_targetPc,
   input  wire [31:0]   io_writeback_4_result,
   input  wire          io_writeback_4_exceptionOccurred,
   input  wire [7:0]    io_writeback_4_exceptionCodeIn,
@@ -52277,6 +51503,7 @@ module ReorderBuffer (
   output wire          io_commit_0_entry_status_busy,
   output wire          io_commit_0_entry_status_done,
   output wire          io_commit_0_entry_status_isMispredictedBranch,
+  output wire [31:0]   io_commit_0_entry_status_targetPc,
   output wire          io_commit_0_entry_status_isTaken,
   output wire [31:0]   io_commit_0_entry_status_result,
   output wire          io_commit_0_entry_status_hasException,
@@ -52393,6 +51620,7 @@ module ReorderBuffer (
   wire       [5:0]    _zz_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx;
   reg                 _zz_io_commit_0_entry_status_busy_1;
   reg                 _zz_io_commit_0_entry_status_isMispredictedBranch;
+  reg        [31:0]   _zz_io_commit_0_entry_status_targetPc;
   reg                 _zz_io_commit_0_entry_status_isTaken;
   reg        [31:0]   _zz_io_commit_0_entry_status_result;
   reg                 _zz_io_commit_0_entry_status_hasException;
@@ -52407,36 +51635,37 @@ module ReorderBuffer (
   wire       [4:0]    _zz__zz_nextCount;
   wire       [4:0]    _zz__zz_nextCount_1;
   wire       [376:0]  _zz_payloads_port;
-  reg                 _zz_when_ReorderBuffer_l375_5;
+  reg                 _zz_when_ReorderBuffer_l378_5;
   reg        [7:0]    _zz__zz_statuses_0_exceptionCode;
-  reg                 _zz_when_ReorderBuffer_l375_1_1;
+  reg                 _zz_when_ReorderBuffer_l378_1_1;
   reg        [7:0]    _zz__zz_statuses_0_exceptionCode_1;
-  reg                 _zz_when_ReorderBuffer_l375_2_1;
+  reg                 _zz_when_ReorderBuffer_l378_2_1;
   reg        [7:0]    _zz__zz_statuses_0_exceptionCode_2;
-  reg                 _zz_when_ReorderBuffer_l375_3_1;
+  reg                 _zz_when_ReorderBuffer_l378_3_1;
   reg        [7:0]    _zz__zz_statuses_0_exceptionCode_3;
-  reg                 _zz_when_ReorderBuffer_l375_4_1;
+  reg                 _zz_when_ReorderBuffer_l378_4_1;
   reg        [7:0]    _zz__zz_statuses_0_exceptionCode_4;
-  wire       [3:0]    _zz__zz_when_ReorderBuffer_l418_3;
-  reg                 _zz__zz_when_ReorderBuffer_l418_3_1;
-  wire       [3:0]    _zz__zz_when_ReorderBuffer_l418_7;
-  reg                 _zz__zz_when_ReorderBuffer_l418_7_1;
-  wire       [3:0]    _zz__zz_when_ReorderBuffer_l418_11;
-  reg                 _zz__zz_when_ReorderBuffer_l418_11_1;
-  wire       [3:0]    _zz__zz_when_ReorderBuffer_l418_15;
-  reg                 _zz__zz_when_ReorderBuffer_l418_15_1;
-  wire       [3:0]    _zz__zz_when_ReorderBuffer_l418_19;
-  reg                 _zz__zz_when_ReorderBuffer_l418_19_1;
-  wire       [3:0]    _zz__zz_when_ReorderBuffer_l418_23;
-  reg                 _zz__zz_when_ReorderBuffer_l418_23_1;
-  wire       [3:0]    _zz__zz_when_ReorderBuffer_l418_27;
-  reg                 _zz__zz_when_ReorderBuffer_l418_27_1;
-  wire       [3:0]    _zz__zz_when_ReorderBuffer_l418_31;
-  reg                 _zz__zz_when_ReorderBuffer_l418_31_1;
+  wire       [3:0]    _zz__zz_when_ReorderBuffer_l422_3;
+  reg                 _zz__zz_when_ReorderBuffer_l422_3_1;
+  wire       [3:0]    _zz__zz_when_ReorderBuffer_l422_7;
+  reg                 _zz__zz_when_ReorderBuffer_l422_7_1;
+  wire       [3:0]    _zz__zz_when_ReorderBuffer_l422_11;
+  reg                 _zz__zz_when_ReorderBuffer_l422_11_1;
+  wire       [3:0]    _zz__zz_when_ReorderBuffer_l422_15;
+  reg                 _zz__zz_when_ReorderBuffer_l422_15_1;
+  wire       [3:0]    _zz__zz_when_ReorderBuffer_l422_19;
+  reg                 _zz__zz_when_ReorderBuffer_l422_19_1;
+  wire       [3:0]    _zz__zz_when_ReorderBuffer_l422_23;
+  reg                 _zz__zz_when_ReorderBuffer_l422_23_1;
+  wire       [3:0]    _zz__zz_when_ReorderBuffer_l422_27;
+  reg                 _zz__zz_when_ReorderBuffer_l422_27_1;
+  wire       [3:0]    _zz__zz_when_ReorderBuffer_l422_31;
+  reg                 _zz__zz_when_ReorderBuffer_l422_31_1;
   reg                 _zz_1;
   reg                 statuses_0_busy;
   reg                 statuses_0_done;
   reg                 statuses_0_isMispredictedBranch;
+  reg        [31:0]   statuses_0_targetPc;
   reg                 statuses_0_isTaken;
   reg        [31:0]   statuses_0_result;
   reg                 statuses_0_hasException;
@@ -52445,6 +51674,7 @@ module ReorderBuffer (
   reg                 statuses_1_busy;
   reg                 statuses_1_done;
   reg                 statuses_1_isMispredictedBranch;
+  reg        [31:0]   statuses_1_targetPc;
   reg                 statuses_1_isTaken;
   reg        [31:0]   statuses_1_result;
   reg                 statuses_1_hasException;
@@ -52453,6 +51683,7 @@ module ReorderBuffer (
   reg                 statuses_2_busy;
   reg                 statuses_2_done;
   reg                 statuses_2_isMispredictedBranch;
+  reg        [31:0]   statuses_2_targetPc;
   reg                 statuses_2_isTaken;
   reg        [31:0]   statuses_2_result;
   reg                 statuses_2_hasException;
@@ -52461,6 +51692,7 @@ module ReorderBuffer (
   reg                 statuses_3_busy;
   reg                 statuses_3_done;
   reg                 statuses_3_isMispredictedBranch;
+  reg        [31:0]   statuses_3_targetPc;
   reg                 statuses_3_isTaken;
   reg        [31:0]   statuses_3_result;
   reg                 statuses_3_hasException;
@@ -52469,6 +51701,7 @@ module ReorderBuffer (
   reg                 statuses_4_busy;
   reg                 statuses_4_done;
   reg                 statuses_4_isMispredictedBranch;
+  reg        [31:0]   statuses_4_targetPc;
   reg                 statuses_4_isTaken;
   reg        [31:0]   statuses_4_result;
   reg                 statuses_4_hasException;
@@ -52477,6 +51710,7 @@ module ReorderBuffer (
   reg                 statuses_5_busy;
   reg                 statuses_5_done;
   reg                 statuses_5_isMispredictedBranch;
+  reg        [31:0]   statuses_5_targetPc;
   reg                 statuses_5_isTaken;
   reg        [31:0]   statuses_5_result;
   reg                 statuses_5_hasException;
@@ -52485,6 +51719,7 @@ module ReorderBuffer (
   reg                 statuses_6_busy;
   reg                 statuses_6_done;
   reg                 statuses_6_isMispredictedBranch;
+  reg        [31:0]   statuses_6_targetPc;
   reg                 statuses_6_isTaken;
   reg        [31:0]   statuses_6_result;
   reg                 statuses_6_hasException;
@@ -52493,6 +51728,7 @@ module ReorderBuffer (
   reg                 statuses_7_busy;
   reg                 statuses_7_done;
   reg                 statuses_7_isMispredictedBranch;
+  reg        [31:0]   statuses_7_targetPc;
   reg                 statuses_7_isTaken;
   reg        [31:0]   statuses_7_result;
   reg                 statuses_7_hasException;
@@ -52562,14 +51798,14 @@ module ReorderBuffer (
   wire       [33:0]   _zz_io_commit_0_entry_payload_uop_decoded_branchPrediction_isTaken;
   wire       [29:0]   _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx;
   wire       [0:0]    numToCommit;
-  wire                when_ReorderBuffer_l285;
+  wire                when_ReorderBuffer_l288;
   reg        [3:0]    nextHead;
   reg        [3:0]    nextTail;
   reg        [3:0]    nextCount;
   reg        [4:0]    _zz_nextCount;
-  wire       [4:0]    _zz_when_ReorderBuffer_l321;
-  wire       [4:0]    _zz_when_ReorderBuffer_l321_1;
-  wire                when_ReorderBuffer_l321;
+  wire       [4:0]    _zz_when_ReorderBuffer_l324;
+  wire       [4:0]    _zz_when_ReorderBuffer_l324_1;
+  wire                when_ReorderBuffer_l324;
   wire       [3:0]    _zz_statuses_0_genBit;
   wire       [2:0]    _zz_3;
   wire                _zz_statuses_0_genBit_1;
@@ -52677,7 +51913,7 @@ module ReorderBuffer (
   wire                _zz_105;
   wire                _zz_106;
   wire                _zz_107;
-  wire       [2:0]    _zz_when_ReorderBuffer_l375;
+  wire       [2:0]    _zz_when_ReorderBuffer_l378;
   wire       [7:0]    _zz_109;
   wire                _zz_110;
   wire                _zz_111;
@@ -52687,9 +51923,9 @@ module ReorderBuffer (
   wire                _zz_115;
   wire                _zz_116;
   wire                _zz_117;
-  wire                when_ReorderBuffer_l375;
+  wire                when_ReorderBuffer_l378;
   wire       [7:0]    _zz_statuses_0_exceptionCode;
-  wire       [2:0]    _zz_when_ReorderBuffer_l375_1;
+  wire       [2:0]    _zz_when_ReorderBuffer_l378_1;
   wire       [7:0]    _zz_118;
   wire                _zz_119;
   wire                _zz_120;
@@ -52699,9 +51935,9 @@ module ReorderBuffer (
   wire                _zz_124;
   wire                _zz_125;
   wire                _zz_126;
-  wire                when_ReorderBuffer_l375_1;
+  wire                when_ReorderBuffer_l378_1;
   wire       [7:0]    _zz_statuses_0_exceptionCode_1;
-  wire       [2:0]    _zz_when_ReorderBuffer_l375_2;
+  wire       [2:0]    _zz_when_ReorderBuffer_l378_2;
   wire       [7:0]    _zz_127;
   wire                _zz_128;
   wire                _zz_129;
@@ -52711,9 +51947,9 @@ module ReorderBuffer (
   wire                _zz_133;
   wire                _zz_134;
   wire                _zz_135;
-  wire                when_ReorderBuffer_l375_2;
+  wire                when_ReorderBuffer_l378_2;
   wire       [7:0]    _zz_statuses_0_exceptionCode_2;
-  wire       [2:0]    _zz_when_ReorderBuffer_l375_3;
+  wire       [2:0]    _zz_when_ReorderBuffer_l378_3;
   wire       [7:0]    _zz_136;
   wire                _zz_137;
   wire                _zz_138;
@@ -52723,9 +51959,9 @@ module ReorderBuffer (
   wire                _zz_142;
   wire                _zz_143;
   wire                _zz_144;
-  wire                when_ReorderBuffer_l375_3;
+  wire                when_ReorderBuffer_l378_3;
   wire       [7:0]    _zz_statuses_0_exceptionCode_3;
-  wire       [2:0]    _zz_when_ReorderBuffer_l375_4;
+  wire       [2:0]    _zz_when_ReorderBuffer_l378_4;
   wire       [7:0]    _zz_145;
   wire                _zz_146;
   wire                _zz_147;
@@ -52735,9 +51971,9 @@ module ReorderBuffer (
   wire                _zz_151;
   wire                _zz_152;
   wire                _zz_153;
-  wire                when_ReorderBuffer_l375_4;
+  wire                when_ReorderBuffer_l378_4;
   wire       [7:0]    _zz_statuses_0_exceptionCode_4;
-  wire       [2:0]    _zz_when_ReorderBuffer_l418;
+  wire       [2:0]    _zz_when_ReorderBuffer_l422;
   wire       [7:0]    _zz_154;
   wire                _zz_155;
   wire                _zz_156;
@@ -52747,12 +51983,12 @@ module ReorderBuffer (
   wire                _zz_160;
   wire                _zz_161;
   wire                _zz_162;
-  wire       [4:0]    _zz_when_ReorderBuffer_l418_1;
-  wire       [4:0]    _zz_when_ReorderBuffer_l418_2;
-  wire       [4:0]    _zz_when_ReorderBuffer_l418_3;
-  reg                 when_ReorderBuffer_l418;
-  wire                when_ReorderBuffer_l412;
-  wire       [2:0]    _zz_when_ReorderBuffer_l418_4;
+  wire       [4:0]    _zz_when_ReorderBuffer_l422_1;
+  wire       [4:0]    _zz_when_ReorderBuffer_l422_2;
+  wire       [4:0]    _zz_when_ReorderBuffer_l422_3;
+  reg                 when_ReorderBuffer_l422;
+  wire                when_ReorderBuffer_l416;
+  wire       [2:0]    _zz_when_ReorderBuffer_l422_4;
   wire       [7:0]    _zz_163;
   wire                _zz_164;
   wire                _zz_165;
@@ -52762,12 +51998,12 @@ module ReorderBuffer (
   wire                _zz_169;
   wire                _zz_170;
   wire                _zz_171;
-  wire       [4:0]    _zz_when_ReorderBuffer_l418_5;
-  wire       [4:0]    _zz_when_ReorderBuffer_l418_6;
-  wire       [4:0]    _zz_when_ReorderBuffer_l418_7;
-  reg                 when_ReorderBuffer_l418_1;
-  wire                when_ReorderBuffer_l412_1;
-  wire       [2:0]    _zz_when_ReorderBuffer_l418_8;
+  wire       [4:0]    _zz_when_ReorderBuffer_l422_5;
+  wire       [4:0]    _zz_when_ReorderBuffer_l422_6;
+  wire       [4:0]    _zz_when_ReorderBuffer_l422_7;
+  reg                 when_ReorderBuffer_l422_1;
+  wire                when_ReorderBuffer_l416_1;
+  wire       [2:0]    _zz_when_ReorderBuffer_l422_8;
   wire       [7:0]    _zz_172;
   wire                _zz_173;
   wire                _zz_174;
@@ -52777,12 +52013,12 @@ module ReorderBuffer (
   wire                _zz_178;
   wire                _zz_179;
   wire                _zz_180;
-  wire       [4:0]    _zz_when_ReorderBuffer_l418_9;
-  wire       [4:0]    _zz_when_ReorderBuffer_l418_10;
-  wire       [4:0]    _zz_when_ReorderBuffer_l418_11;
-  reg                 when_ReorderBuffer_l418_2;
-  wire                when_ReorderBuffer_l412_2;
-  wire       [2:0]    _zz_when_ReorderBuffer_l418_12;
+  wire       [4:0]    _zz_when_ReorderBuffer_l422_9;
+  wire       [4:0]    _zz_when_ReorderBuffer_l422_10;
+  wire       [4:0]    _zz_when_ReorderBuffer_l422_11;
+  reg                 when_ReorderBuffer_l422_2;
+  wire                when_ReorderBuffer_l416_2;
+  wire       [2:0]    _zz_when_ReorderBuffer_l422_12;
   wire       [7:0]    _zz_181;
   wire                _zz_182;
   wire                _zz_183;
@@ -52792,12 +52028,12 @@ module ReorderBuffer (
   wire                _zz_187;
   wire                _zz_188;
   wire                _zz_189;
-  wire       [4:0]    _zz_when_ReorderBuffer_l418_13;
-  wire       [4:0]    _zz_when_ReorderBuffer_l418_14;
-  wire       [4:0]    _zz_when_ReorderBuffer_l418_15;
-  reg                 when_ReorderBuffer_l418_3;
-  wire                when_ReorderBuffer_l412_3;
-  wire       [2:0]    _zz_when_ReorderBuffer_l418_16;
+  wire       [4:0]    _zz_when_ReorderBuffer_l422_13;
+  wire       [4:0]    _zz_when_ReorderBuffer_l422_14;
+  wire       [4:0]    _zz_when_ReorderBuffer_l422_15;
+  reg                 when_ReorderBuffer_l422_3;
+  wire                when_ReorderBuffer_l416_3;
+  wire       [2:0]    _zz_when_ReorderBuffer_l422_16;
   wire       [7:0]    _zz_190;
   wire                _zz_191;
   wire                _zz_192;
@@ -52807,12 +52043,12 @@ module ReorderBuffer (
   wire                _zz_196;
   wire                _zz_197;
   wire                _zz_198;
-  wire       [4:0]    _zz_when_ReorderBuffer_l418_17;
-  wire       [4:0]    _zz_when_ReorderBuffer_l418_18;
-  wire       [4:0]    _zz_when_ReorderBuffer_l418_19;
-  reg                 when_ReorderBuffer_l418_4;
-  wire                when_ReorderBuffer_l412_4;
-  wire       [2:0]    _zz_when_ReorderBuffer_l418_20;
+  wire       [4:0]    _zz_when_ReorderBuffer_l422_17;
+  wire       [4:0]    _zz_when_ReorderBuffer_l422_18;
+  wire       [4:0]    _zz_when_ReorderBuffer_l422_19;
+  reg                 when_ReorderBuffer_l422_4;
+  wire                when_ReorderBuffer_l416_4;
+  wire       [2:0]    _zz_when_ReorderBuffer_l422_20;
   wire       [7:0]    _zz_199;
   wire                _zz_200;
   wire                _zz_201;
@@ -52822,12 +52058,12 @@ module ReorderBuffer (
   wire                _zz_205;
   wire                _zz_206;
   wire                _zz_207;
-  wire       [4:0]    _zz_when_ReorderBuffer_l418_21;
-  wire       [4:0]    _zz_when_ReorderBuffer_l418_22;
-  wire       [4:0]    _zz_when_ReorderBuffer_l418_23;
-  reg                 when_ReorderBuffer_l418_5;
-  wire                when_ReorderBuffer_l412_5;
-  wire       [2:0]    _zz_when_ReorderBuffer_l418_24;
+  wire       [4:0]    _zz_when_ReorderBuffer_l422_21;
+  wire       [4:0]    _zz_when_ReorderBuffer_l422_22;
+  wire       [4:0]    _zz_when_ReorderBuffer_l422_23;
+  reg                 when_ReorderBuffer_l422_5;
+  wire                when_ReorderBuffer_l416_5;
+  wire       [2:0]    _zz_when_ReorderBuffer_l422_24;
   wire       [7:0]    _zz_208;
   wire                _zz_209;
   wire                _zz_210;
@@ -52837,12 +52073,12 @@ module ReorderBuffer (
   wire                _zz_214;
   wire                _zz_215;
   wire                _zz_216;
-  wire       [4:0]    _zz_when_ReorderBuffer_l418_25;
-  wire       [4:0]    _zz_when_ReorderBuffer_l418_26;
-  wire       [4:0]    _zz_when_ReorderBuffer_l418_27;
-  reg                 when_ReorderBuffer_l418_6;
-  wire                when_ReorderBuffer_l412_6;
-  wire       [2:0]    _zz_when_ReorderBuffer_l418_28;
+  wire       [4:0]    _zz_when_ReorderBuffer_l422_25;
+  wire       [4:0]    _zz_when_ReorderBuffer_l422_26;
+  wire       [4:0]    _zz_when_ReorderBuffer_l422_27;
+  reg                 when_ReorderBuffer_l422_6;
+  wire                when_ReorderBuffer_l416_6;
+  wire       [2:0]    _zz_when_ReorderBuffer_l422_28;
   wire       [7:0]    _zz_217;
   wire                _zz_218;
   wire                _zz_219;
@@ -52852,11 +52088,11 @@ module ReorderBuffer (
   wire                _zz_223;
   wire                _zz_224;
   wire                _zz_225;
-  wire       [4:0]    _zz_when_ReorderBuffer_l418_29;
-  wire       [4:0]    _zz_when_ReorderBuffer_l418_30;
-  wire       [4:0]    _zz_when_ReorderBuffer_l418_31;
-  reg                 when_ReorderBuffer_l418_7;
-  wire                when_ReorderBuffer_l412_7;
+  wire       [4:0]    _zz_when_ReorderBuffer_l422_29;
+  wire       [4:0]    _zz_when_ReorderBuffer_l422_30;
+  wire       [4:0]    _zz_when_ReorderBuffer_l422_31;
+  reg                 when_ReorderBuffer_l422_7;
+  wire                when_ReorderBuffer_l416_7;
   `ifndef SYNTHESIS
   reg [87:0] io_allocate_0_uopIn_decoded_uopCode_string;
   reg [151:0] io_allocate_0_uopIn_decoded_exeUnit_string;
@@ -52953,16 +52189,16 @@ module ReorderBuffer (
   assign _zz_nextCount_1 = (count_reg + _zz_nextCount_2);
   assign _zz_nextCount_2 = {3'd0, numActuallyAllocatedThisCycle};
   assign _zz_nextCount_3 = {3'd0, numToCommit};
-  assign _zz__zz_nextCount = (_zz_when_ReorderBuffer_l321_1 - _zz_when_ReorderBuffer_l321);
+  assign _zz__zz_nextCount = (_zz_when_ReorderBuffer_l324_1 - _zz_when_ReorderBuffer_l324);
   assign _zz__zz_nextCount_1 = ({4'd0,1'b1} <<< 3'd4);
-  assign _zz__zz_when_ReorderBuffer_l418_3 = {_zz__zz_when_ReorderBuffer_l418_3_1,_zz_when_ReorderBuffer_l418};
-  assign _zz__zz_when_ReorderBuffer_l418_7 = {_zz__zz_when_ReorderBuffer_l418_7_1,_zz_when_ReorderBuffer_l418_4};
-  assign _zz__zz_when_ReorderBuffer_l418_11 = {_zz__zz_when_ReorderBuffer_l418_11_1,_zz_when_ReorderBuffer_l418_8};
-  assign _zz__zz_when_ReorderBuffer_l418_15 = {_zz__zz_when_ReorderBuffer_l418_15_1,_zz_when_ReorderBuffer_l418_12};
-  assign _zz__zz_when_ReorderBuffer_l418_19 = {_zz__zz_when_ReorderBuffer_l418_19_1,_zz_when_ReorderBuffer_l418_16};
-  assign _zz__zz_when_ReorderBuffer_l418_23 = {_zz__zz_when_ReorderBuffer_l418_23_1,_zz_when_ReorderBuffer_l418_20};
-  assign _zz__zz_when_ReorderBuffer_l418_27 = {_zz__zz_when_ReorderBuffer_l418_27_1,_zz_when_ReorderBuffer_l418_24};
-  assign _zz__zz_when_ReorderBuffer_l418_31 = {_zz__zz_when_ReorderBuffer_l418_31_1,_zz_when_ReorderBuffer_l418_28};
+  assign _zz__zz_when_ReorderBuffer_l422_3 = {_zz__zz_when_ReorderBuffer_l422_3_1,_zz_when_ReorderBuffer_l422};
+  assign _zz__zz_when_ReorderBuffer_l422_7 = {_zz__zz_when_ReorderBuffer_l422_7_1,_zz_when_ReorderBuffer_l422_4};
+  assign _zz__zz_when_ReorderBuffer_l422_11 = {_zz__zz_when_ReorderBuffer_l422_11_1,_zz_when_ReorderBuffer_l422_8};
+  assign _zz__zz_when_ReorderBuffer_l422_15 = {_zz__zz_when_ReorderBuffer_l422_15_1,_zz_when_ReorderBuffer_l422_12};
+  assign _zz__zz_when_ReorderBuffer_l422_19 = {_zz__zz_when_ReorderBuffer_l422_19_1,_zz_when_ReorderBuffer_l422_16};
+  assign _zz__zz_when_ReorderBuffer_l422_23 = {_zz__zz_when_ReorderBuffer_l422_23_1,_zz_when_ReorderBuffer_l422_20};
+  assign _zz__zz_when_ReorderBuffer_l422_27 = {_zz__zz_when_ReorderBuffer_l422_27_1,_zz_when_ReorderBuffer_l422_24};
+  assign _zz__zz_when_ReorderBuffer_l422_31 = {_zz__zz_when_ReorderBuffer_l422_31_1,_zz_when_ReorderBuffer_l422_28};
   assign _zz_payloads_port = {_zz_98,{_zz_97,{_zz_96,{_zz_95,{_zz_94,{_zz_93,{_zz_92,{{_zz_91,{_zz_90,{_zz_89,{_zz_88,{_zz_87,{_zz_86,{_zz_85,{_zz_84,{_zz_83,_zz_82}}}}}}}}},{{_zz_81,{_zz_80,_zz_79}},{_zz_78,{_zz_77,{_zz_76,{_zz_75,{_zz_74,{_zz_73,{{_zz_72,{_zz_71,{_zz_70,_zz_69}}},{{_zz_68,{_zz_67,{_zz_66,{_zz_65,_zz_64}}}},{{_zz_63,{_zz_62,{_zz_61,{_zz_60,{_zz_59,{_zz_58,{_zz_57,{_zz_56,_zz_55}}}}}}}},{{_zz_54,{_zz_53,{{_zz_52,_zz_51},{_zz_50,{_zz_49,_zz_48}}}}},{{_zz_47,{_zz_46,{_zz_45,{_zz_44,{_zz_43,{_zz_42,{_zz_41,{_zz_40,{_zz_39,{_zz_38,_zz_37}}}}}}}}}},{{_zz_36,{_zz_35,{_zz_34,_zz_33}}},{{_zz_32,{_zz_31,{_zz_30,{_zz_29,_zz_28}}}},{{_zz_27,{_zz_26,{_zz_25,{_zz_24,{_zz_23,_zz_22}}}}},{_zz_21,{_zz_20,{_zz_19,{_zz_18,{_zz_17,{{_zz_16,_zz_15},{_zz_14,{{_zz_13,_zz_12},{_zz_11,{{_zz_10,_zz_9},{_zz_8,{_zz_7,{_zz_6,{_zz_5,_zz_4}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}};
   assign _zz_numActuallyAllocatedThisCycle_1 = slotWillAllocate_0;
   assign _zz_numToCommit_1 = actualCommittedMask_0;
@@ -52987,6 +52223,7 @@ module ReorderBuffer (
         _zz__zz_io_commit_0_entry_status_genBit = statuses_0_genBit;
         _zz_io_commit_0_entry_status_busy_1 = statuses_0_busy;
         _zz_io_commit_0_entry_status_isMispredictedBranch = statuses_0_isMispredictedBranch;
+        _zz_io_commit_0_entry_status_targetPc = statuses_0_targetPc;
         _zz_io_commit_0_entry_status_isTaken = statuses_0_isTaken;
         _zz_io_commit_0_entry_status_result = statuses_0_result;
         _zz_io_commit_0_entry_status_hasException = statuses_0_hasException;
@@ -52997,6 +52234,7 @@ module ReorderBuffer (
         _zz__zz_io_commit_0_entry_status_genBit = statuses_1_genBit;
         _zz_io_commit_0_entry_status_busy_1 = statuses_1_busy;
         _zz_io_commit_0_entry_status_isMispredictedBranch = statuses_1_isMispredictedBranch;
+        _zz_io_commit_0_entry_status_targetPc = statuses_1_targetPc;
         _zz_io_commit_0_entry_status_isTaken = statuses_1_isTaken;
         _zz_io_commit_0_entry_status_result = statuses_1_result;
         _zz_io_commit_0_entry_status_hasException = statuses_1_hasException;
@@ -53007,6 +52245,7 @@ module ReorderBuffer (
         _zz__zz_io_commit_0_entry_status_genBit = statuses_2_genBit;
         _zz_io_commit_0_entry_status_busy_1 = statuses_2_busy;
         _zz_io_commit_0_entry_status_isMispredictedBranch = statuses_2_isMispredictedBranch;
+        _zz_io_commit_0_entry_status_targetPc = statuses_2_targetPc;
         _zz_io_commit_0_entry_status_isTaken = statuses_2_isTaken;
         _zz_io_commit_0_entry_status_result = statuses_2_result;
         _zz_io_commit_0_entry_status_hasException = statuses_2_hasException;
@@ -53017,6 +52256,7 @@ module ReorderBuffer (
         _zz__zz_io_commit_0_entry_status_genBit = statuses_3_genBit;
         _zz_io_commit_0_entry_status_busy_1 = statuses_3_busy;
         _zz_io_commit_0_entry_status_isMispredictedBranch = statuses_3_isMispredictedBranch;
+        _zz_io_commit_0_entry_status_targetPc = statuses_3_targetPc;
         _zz_io_commit_0_entry_status_isTaken = statuses_3_isTaken;
         _zz_io_commit_0_entry_status_result = statuses_3_result;
         _zz_io_commit_0_entry_status_hasException = statuses_3_hasException;
@@ -53027,6 +52267,7 @@ module ReorderBuffer (
         _zz__zz_io_commit_0_entry_status_genBit = statuses_4_genBit;
         _zz_io_commit_0_entry_status_busy_1 = statuses_4_busy;
         _zz_io_commit_0_entry_status_isMispredictedBranch = statuses_4_isMispredictedBranch;
+        _zz_io_commit_0_entry_status_targetPc = statuses_4_targetPc;
         _zz_io_commit_0_entry_status_isTaken = statuses_4_isTaken;
         _zz_io_commit_0_entry_status_result = statuses_4_result;
         _zz_io_commit_0_entry_status_hasException = statuses_4_hasException;
@@ -53037,6 +52278,7 @@ module ReorderBuffer (
         _zz__zz_io_commit_0_entry_status_genBit = statuses_5_genBit;
         _zz_io_commit_0_entry_status_busy_1 = statuses_5_busy;
         _zz_io_commit_0_entry_status_isMispredictedBranch = statuses_5_isMispredictedBranch;
+        _zz_io_commit_0_entry_status_targetPc = statuses_5_targetPc;
         _zz_io_commit_0_entry_status_isTaken = statuses_5_isTaken;
         _zz_io_commit_0_entry_status_result = statuses_5_result;
         _zz_io_commit_0_entry_status_hasException = statuses_5_hasException;
@@ -53047,6 +52289,7 @@ module ReorderBuffer (
         _zz__zz_io_commit_0_entry_status_genBit = statuses_6_genBit;
         _zz_io_commit_0_entry_status_busy_1 = statuses_6_busy;
         _zz_io_commit_0_entry_status_isMispredictedBranch = statuses_6_isMispredictedBranch;
+        _zz_io_commit_0_entry_status_targetPc = statuses_6_targetPc;
         _zz_io_commit_0_entry_status_isTaken = statuses_6_isTaken;
         _zz_io_commit_0_entry_status_result = statuses_6_result;
         _zz_io_commit_0_entry_status_hasException = statuses_6_hasException;
@@ -53057,6 +52300,7 @@ module ReorderBuffer (
         _zz__zz_io_commit_0_entry_status_genBit = statuses_7_genBit;
         _zz_io_commit_0_entry_status_busy_1 = statuses_7_busy;
         _zz_io_commit_0_entry_status_isMispredictedBranch = statuses_7_isMispredictedBranch;
+        _zz_io_commit_0_entry_status_targetPc = statuses_7_targetPc;
         _zz_io_commit_0_entry_status_isTaken = statuses_7_isTaken;
         _zz_io_commit_0_entry_status_result = statuses_7_result;
         _zz_io_commit_0_entry_status_hasException = statuses_7_hasException;
@@ -53073,291 +52317,291 @@ module ReorderBuffer (
   end
 
   always @(*) begin
-    case(_zz_when_ReorderBuffer_l375)
+    case(_zz_when_ReorderBuffer_l378)
       3'b000 : begin
-        _zz_when_ReorderBuffer_l375_5 = statuses_0_genBit;
+        _zz_when_ReorderBuffer_l378_5 = statuses_0_genBit;
         _zz__zz_statuses_0_exceptionCode = statuses_0_exceptionCode;
       end
       3'b001 : begin
-        _zz_when_ReorderBuffer_l375_5 = statuses_1_genBit;
+        _zz_when_ReorderBuffer_l378_5 = statuses_1_genBit;
         _zz__zz_statuses_0_exceptionCode = statuses_1_exceptionCode;
       end
       3'b010 : begin
-        _zz_when_ReorderBuffer_l375_5 = statuses_2_genBit;
+        _zz_when_ReorderBuffer_l378_5 = statuses_2_genBit;
         _zz__zz_statuses_0_exceptionCode = statuses_2_exceptionCode;
       end
       3'b011 : begin
-        _zz_when_ReorderBuffer_l375_5 = statuses_3_genBit;
+        _zz_when_ReorderBuffer_l378_5 = statuses_3_genBit;
         _zz__zz_statuses_0_exceptionCode = statuses_3_exceptionCode;
       end
       3'b100 : begin
-        _zz_when_ReorderBuffer_l375_5 = statuses_4_genBit;
+        _zz_when_ReorderBuffer_l378_5 = statuses_4_genBit;
         _zz__zz_statuses_0_exceptionCode = statuses_4_exceptionCode;
       end
       3'b101 : begin
-        _zz_when_ReorderBuffer_l375_5 = statuses_5_genBit;
+        _zz_when_ReorderBuffer_l378_5 = statuses_5_genBit;
         _zz__zz_statuses_0_exceptionCode = statuses_5_exceptionCode;
       end
       3'b110 : begin
-        _zz_when_ReorderBuffer_l375_5 = statuses_6_genBit;
+        _zz_when_ReorderBuffer_l378_5 = statuses_6_genBit;
         _zz__zz_statuses_0_exceptionCode = statuses_6_exceptionCode;
       end
       default : begin
-        _zz_when_ReorderBuffer_l375_5 = statuses_7_genBit;
+        _zz_when_ReorderBuffer_l378_5 = statuses_7_genBit;
         _zz__zz_statuses_0_exceptionCode = statuses_7_exceptionCode;
       end
     endcase
   end
 
   always @(*) begin
-    case(_zz_when_ReorderBuffer_l375_1)
+    case(_zz_when_ReorderBuffer_l378_1)
       3'b000 : begin
-        _zz_when_ReorderBuffer_l375_1_1 = statuses_0_genBit;
+        _zz_when_ReorderBuffer_l378_1_1 = statuses_0_genBit;
         _zz__zz_statuses_0_exceptionCode_1 = statuses_0_exceptionCode;
       end
       3'b001 : begin
-        _zz_when_ReorderBuffer_l375_1_1 = statuses_1_genBit;
+        _zz_when_ReorderBuffer_l378_1_1 = statuses_1_genBit;
         _zz__zz_statuses_0_exceptionCode_1 = statuses_1_exceptionCode;
       end
       3'b010 : begin
-        _zz_when_ReorderBuffer_l375_1_1 = statuses_2_genBit;
+        _zz_when_ReorderBuffer_l378_1_1 = statuses_2_genBit;
         _zz__zz_statuses_0_exceptionCode_1 = statuses_2_exceptionCode;
       end
       3'b011 : begin
-        _zz_when_ReorderBuffer_l375_1_1 = statuses_3_genBit;
+        _zz_when_ReorderBuffer_l378_1_1 = statuses_3_genBit;
         _zz__zz_statuses_0_exceptionCode_1 = statuses_3_exceptionCode;
       end
       3'b100 : begin
-        _zz_when_ReorderBuffer_l375_1_1 = statuses_4_genBit;
+        _zz_when_ReorderBuffer_l378_1_1 = statuses_4_genBit;
         _zz__zz_statuses_0_exceptionCode_1 = statuses_4_exceptionCode;
       end
       3'b101 : begin
-        _zz_when_ReorderBuffer_l375_1_1 = statuses_5_genBit;
+        _zz_when_ReorderBuffer_l378_1_1 = statuses_5_genBit;
         _zz__zz_statuses_0_exceptionCode_1 = statuses_5_exceptionCode;
       end
       3'b110 : begin
-        _zz_when_ReorderBuffer_l375_1_1 = statuses_6_genBit;
+        _zz_when_ReorderBuffer_l378_1_1 = statuses_6_genBit;
         _zz__zz_statuses_0_exceptionCode_1 = statuses_6_exceptionCode;
       end
       default : begin
-        _zz_when_ReorderBuffer_l375_1_1 = statuses_7_genBit;
+        _zz_when_ReorderBuffer_l378_1_1 = statuses_7_genBit;
         _zz__zz_statuses_0_exceptionCode_1 = statuses_7_exceptionCode;
       end
     endcase
   end
 
   always @(*) begin
-    case(_zz_when_ReorderBuffer_l375_2)
+    case(_zz_when_ReorderBuffer_l378_2)
       3'b000 : begin
-        _zz_when_ReorderBuffer_l375_2_1 = statuses_0_genBit;
+        _zz_when_ReorderBuffer_l378_2_1 = statuses_0_genBit;
         _zz__zz_statuses_0_exceptionCode_2 = statuses_0_exceptionCode;
       end
       3'b001 : begin
-        _zz_when_ReorderBuffer_l375_2_1 = statuses_1_genBit;
+        _zz_when_ReorderBuffer_l378_2_1 = statuses_1_genBit;
         _zz__zz_statuses_0_exceptionCode_2 = statuses_1_exceptionCode;
       end
       3'b010 : begin
-        _zz_when_ReorderBuffer_l375_2_1 = statuses_2_genBit;
+        _zz_when_ReorderBuffer_l378_2_1 = statuses_2_genBit;
         _zz__zz_statuses_0_exceptionCode_2 = statuses_2_exceptionCode;
       end
       3'b011 : begin
-        _zz_when_ReorderBuffer_l375_2_1 = statuses_3_genBit;
+        _zz_when_ReorderBuffer_l378_2_1 = statuses_3_genBit;
         _zz__zz_statuses_0_exceptionCode_2 = statuses_3_exceptionCode;
       end
       3'b100 : begin
-        _zz_when_ReorderBuffer_l375_2_1 = statuses_4_genBit;
+        _zz_when_ReorderBuffer_l378_2_1 = statuses_4_genBit;
         _zz__zz_statuses_0_exceptionCode_2 = statuses_4_exceptionCode;
       end
       3'b101 : begin
-        _zz_when_ReorderBuffer_l375_2_1 = statuses_5_genBit;
+        _zz_when_ReorderBuffer_l378_2_1 = statuses_5_genBit;
         _zz__zz_statuses_0_exceptionCode_2 = statuses_5_exceptionCode;
       end
       3'b110 : begin
-        _zz_when_ReorderBuffer_l375_2_1 = statuses_6_genBit;
+        _zz_when_ReorderBuffer_l378_2_1 = statuses_6_genBit;
         _zz__zz_statuses_0_exceptionCode_2 = statuses_6_exceptionCode;
       end
       default : begin
-        _zz_when_ReorderBuffer_l375_2_1 = statuses_7_genBit;
+        _zz_when_ReorderBuffer_l378_2_1 = statuses_7_genBit;
         _zz__zz_statuses_0_exceptionCode_2 = statuses_7_exceptionCode;
       end
     endcase
   end
 
   always @(*) begin
-    case(_zz_when_ReorderBuffer_l375_3)
+    case(_zz_when_ReorderBuffer_l378_3)
       3'b000 : begin
-        _zz_when_ReorderBuffer_l375_3_1 = statuses_0_genBit;
+        _zz_when_ReorderBuffer_l378_3_1 = statuses_0_genBit;
         _zz__zz_statuses_0_exceptionCode_3 = statuses_0_exceptionCode;
       end
       3'b001 : begin
-        _zz_when_ReorderBuffer_l375_3_1 = statuses_1_genBit;
+        _zz_when_ReorderBuffer_l378_3_1 = statuses_1_genBit;
         _zz__zz_statuses_0_exceptionCode_3 = statuses_1_exceptionCode;
       end
       3'b010 : begin
-        _zz_when_ReorderBuffer_l375_3_1 = statuses_2_genBit;
+        _zz_when_ReorderBuffer_l378_3_1 = statuses_2_genBit;
         _zz__zz_statuses_0_exceptionCode_3 = statuses_2_exceptionCode;
       end
       3'b011 : begin
-        _zz_when_ReorderBuffer_l375_3_1 = statuses_3_genBit;
+        _zz_when_ReorderBuffer_l378_3_1 = statuses_3_genBit;
         _zz__zz_statuses_0_exceptionCode_3 = statuses_3_exceptionCode;
       end
       3'b100 : begin
-        _zz_when_ReorderBuffer_l375_3_1 = statuses_4_genBit;
+        _zz_when_ReorderBuffer_l378_3_1 = statuses_4_genBit;
         _zz__zz_statuses_0_exceptionCode_3 = statuses_4_exceptionCode;
       end
       3'b101 : begin
-        _zz_when_ReorderBuffer_l375_3_1 = statuses_5_genBit;
+        _zz_when_ReorderBuffer_l378_3_1 = statuses_5_genBit;
         _zz__zz_statuses_0_exceptionCode_3 = statuses_5_exceptionCode;
       end
       3'b110 : begin
-        _zz_when_ReorderBuffer_l375_3_1 = statuses_6_genBit;
+        _zz_when_ReorderBuffer_l378_3_1 = statuses_6_genBit;
         _zz__zz_statuses_0_exceptionCode_3 = statuses_6_exceptionCode;
       end
       default : begin
-        _zz_when_ReorderBuffer_l375_3_1 = statuses_7_genBit;
+        _zz_when_ReorderBuffer_l378_3_1 = statuses_7_genBit;
         _zz__zz_statuses_0_exceptionCode_3 = statuses_7_exceptionCode;
       end
     endcase
   end
 
   always @(*) begin
-    case(_zz_when_ReorderBuffer_l375_4)
+    case(_zz_when_ReorderBuffer_l378_4)
       3'b000 : begin
-        _zz_when_ReorderBuffer_l375_4_1 = statuses_0_genBit;
+        _zz_when_ReorderBuffer_l378_4_1 = statuses_0_genBit;
         _zz__zz_statuses_0_exceptionCode_4 = statuses_0_exceptionCode;
       end
       3'b001 : begin
-        _zz_when_ReorderBuffer_l375_4_1 = statuses_1_genBit;
+        _zz_when_ReorderBuffer_l378_4_1 = statuses_1_genBit;
         _zz__zz_statuses_0_exceptionCode_4 = statuses_1_exceptionCode;
       end
       3'b010 : begin
-        _zz_when_ReorderBuffer_l375_4_1 = statuses_2_genBit;
+        _zz_when_ReorderBuffer_l378_4_1 = statuses_2_genBit;
         _zz__zz_statuses_0_exceptionCode_4 = statuses_2_exceptionCode;
       end
       3'b011 : begin
-        _zz_when_ReorderBuffer_l375_4_1 = statuses_3_genBit;
+        _zz_when_ReorderBuffer_l378_4_1 = statuses_3_genBit;
         _zz__zz_statuses_0_exceptionCode_4 = statuses_3_exceptionCode;
       end
       3'b100 : begin
-        _zz_when_ReorderBuffer_l375_4_1 = statuses_4_genBit;
+        _zz_when_ReorderBuffer_l378_4_1 = statuses_4_genBit;
         _zz__zz_statuses_0_exceptionCode_4 = statuses_4_exceptionCode;
       end
       3'b101 : begin
-        _zz_when_ReorderBuffer_l375_4_1 = statuses_5_genBit;
+        _zz_when_ReorderBuffer_l378_4_1 = statuses_5_genBit;
         _zz__zz_statuses_0_exceptionCode_4 = statuses_5_exceptionCode;
       end
       3'b110 : begin
-        _zz_when_ReorderBuffer_l375_4_1 = statuses_6_genBit;
+        _zz_when_ReorderBuffer_l378_4_1 = statuses_6_genBit;
         _zz__zz_statuses_0_exceptionCode_4 = statuses_6_exceptionCode;
       end
       default : begin
-        _zz_when_ReorderBuffer_l375_4_1 = statuses_7_genBit;
+        _zz_when_ReorderBuffer_l378_4_1 = statuses_7_genBit;
         _zz__zz_statuses_0_exceptionCode_4 = statuses_7_exceptionCode;
       end
     endcase
   end
 
   always @(*) begin
-    case(_zz_when_ReorderBuffer_l418)
-      3'b000 : _zz__zz_when_ReorderBuffer_l418_3_1 = statuses_0_genBit;
-      3'b001 : _zz__zz_when_ReorderBuffer_l418_3_1 = statuses_1_genBit;
-      3'b010 : _zz__zz_when_ReorderBuffer_l418_3_1 = statuses_2_genBit;
-      3'b011 : _zz__zz_when_ReorderBuffer_l418_3_1 = statuses_3_genBit;
-      3'b100 : _zz__zz_when_ReorderBuffer_l418_3_1 = statuses_4_genBit;
-      3'b101 : _zz__zz_when_ReorderBuffer_l418_3_1 = statuses_5_genBit;
-      3'b110 : _zz__zz_when_ReorderBuffer_l418_3_1 = statuses_6_genBit;
-      default : _zz__zz_when_ReorderBuffer_l418_3_1 = statuses_7_genBit;
+    case(_zz_when_ReorderBuffer_l422)
+      3'b000 : _zz__zz_when_ReorderBuffer_l422_3_1 = statuses_0_genBit;
+      3'b001 : _zz__zz_when_ReorderBuffer_l422_3_1 = statuses_1_genBit;
+      3'b010 : _zz__zz_when_ReorderBuffer_l422_3_1 = statuses_2_genBit;
+      3'b011 : _zz__zz_when_ReorderBuffer_l422_3_1 = statuses_3_genBit;
+      3'b100 : _zz__zz_when_ReorderBuffer_l422_3_1 = statuses_4_genBit;
+      3'b101 : _zz__zz_when_ReorderBuffer_l422_3_1 = statuses_5_genBit;
+      3'b110 : _zz__zz_when_ReorderBuffer_l422_3_1 = statuses_6_genBit;
+      default : _zz__zz_when_ReorderBuffer_l422_3_1 = statuses_7_genBit;
     endcase
   end
 
   always @(*) begin
-    case(_zz_when_ReorderBuffer_l418_4)
-      3'b000 : _zz__zz_when_ReorderBuffer_l418_7_1 = statuses_0_genBit;
-      3'b001 : _zz__zz_when_ReorderBuffer_l418_7_1 = statuses_1_genBit;
-      3'b010 : _zz__zz_when_ReorderBuffer_l418_7_1 = statuses_2_genBit;
-      3'b011 : _zz__zz_when_ReorderBuffer_l418_7_1 = statuses_3_genBit;
-      3'b100 : _zz__zz_when_ReorderBuffer_l418_7_1 = statuses_4_genBit;
-      3'b101 : _zz__zz_when_ReorderBuffer_l418_7_1 = statuses_5_genBit;
-      3'b110 : _zz__zz_when_ReorderBuffer_l418_7_1 = statuses_6_genBit;
-      default : _zz__zz_when_ReorderBuffer_l418_7_1 = statuses_7_genBit;
+    case(_zz_when_ReorderBuffer_l422_4)
+      3'b000 : _zz__zz_when_ReorderBuffer_l422_7_1 = statuses_0_genBit;
+      3'b001 : _zz__zz_when_ReorderBuffer_l422_7_1 = statuses_1_genBit;
+      3'b010 : _zz__zz_when_ReorderBuffer_l422_7_1 = statuses_2_genBit;
+      3'b011 : _zz__zz_when_ReorderBuffer_l422_7_1 = statuses_3_genBit;
+      3'b100 : _zz__zz_when_ReorderBuffer_l422_7_1 = statuses_4_genBit;
+      3'b101 : _zz__zz_when_ReorderBuffer_l422_7_1 = statuses_5_genBit;
+      3'b110 : _zz__zz_when_ReorderBuffer_l422_7_1 = statuses_6_genBit;
+      default : _zz__zz_when_ReorderBuffer_l422_7_1 = statuses_7_genBit;
     endcase
   end
 
   always @(*) begin
-    case(_zz_when_ReorderBuffer_l418_8)
-      3'b000 : _zz__zz_when_ReorderBuffer_l418_11_1 = statuses_0_genBit;
-      3'b001 : _zz__zz_when_ReorderBuffer_l418_11_1 = statuses_1_genBit;
-      3'b010 : _zz__zz_when_ReorderBuffer_l418_11_1 = statuses_2_genBit;
-      3'b011 : _zz__zz_when_ReorderBuffer_l418_11_1 = statuses_3_genBit;
-      3'b100 : _zz__zz_when_ReorderBuffer_l418_11_1 = statuses_4_genBit;
-      3'b101 : _zz__zz_when_ReorderBuffer_l418_11_1 = statuses_5_genBit;
-      3'b110 : _zz__zz_when_ReorderBuffer_l418_11_1 = statuses_6_genBit;
-      default : _zz__zz_when_ReorderBuffer_l418_11_1 = statuses_7_genBit;
+    case(_zz_when_ReorderBuffer_l422_8)
+      3'b000 : _zz__zz_when_ReorderBuffer_l422_11_1 = statuses_0_genBit;
+      3'b001 : _zz__zz_when_ReorderBuffer_l422_11_1 = statuses_1_genBit;
+      3'b010 : _zz__zz_when_ReorderBuffer_l422_11_1 = statuses_2_genBit;
+      3'b011 : _zz__zz_when_ReorderBuffer_l422_11_1 = statuses_3_genBit;
+      3'b100 : _zz__zz_when_ReorderBuffer_l422_11_1 = statuses_4_genBit;
+      3'b101 : _zz__zz_when_ReorderBuffer_l422_11_1 = statuses_5_genBit;
+      3'b110 : _zz__zz_when_ReorderBuffer_l422_11_1 = statuses_6_genBit;
+      default : _zz__zz_when_ReorderBuffer_l422_11_1 = statuses_7_genBit;
     endcase
   end
 
   always @(*) begin
-    case(_zz_when_ReorderBuffer_l418_12)
-      3'b000 : _zz__zz_when_ReorderBuffer_l418_15_1 = statuses_0_genBit;
-      3'b001 : _zz__zz_when_ReorderBuffer_l418_15_1 = statuses_1_genBit;
-      3'b010 : _zz__zz_when_ReorderBuffer_l418_15_1 = statuses_2_genBit;
-      3'b011 : _zz__zz_when_ReorderBuffer_l418_15_1 = statuses_3_genBit;
-      3'b100 : _zz__zz_when_ReorderBuffer_l418_15_1 = statuses_4_genBit;
-      3'b101 : _zz__zz_when_ReorderBuffer_l418_15_1 = statuses_5_genBit;
-      3'b110 : _zz__zz_when_ReorderBuffer_l418_15_1 = statuses_6_genBit;
-      default : _zz__zz_when_ReorderBuffer_l418_15_1 = statuses_7_genBit;
+    case(_zz_when_ReorderBuffer_l422_12)
+      3'b000 : _zz__zz_when_ReorderBuffer_l422_15_1 = statuses_0_genBit;
+      3'b001 : _zz__zz_when_ReorderBuffer_l422_15_1 = statuses_1_genBit;
+      3'b010 : _zz__zz_when_ReorderBuffer_l422_15_1 = statuses_2_genBit;
+      3'b011 : _zz__zz_when_ReorderBuffer_l422_15_1 = statuses_3_genBit;
+      3'b100 : _zz__zz_when_ReorderBuffer_l422_15_1 = statuses_4_genBit;
+      3'b101 : _zz__zz_when_ReorderBuffer_l422_15_1 = statuses_5_genBit;
+      3'b110 : _zz__zz_when_ReorderBuffer_l422_15_1 = statuses_6_genBit;
+      default : _zz__zz_when_ReorderBuffer_l422_15_1 = statuses_7_genBit;
     endcase
   end
 
   always @(*) begin
-    case(_zz_when_ReorderBuffer_l418_16)
-      3'b000 : _zz__zz_when_ReorderBuffer_l418_19_1 = statuses_0_genBit;
-      3'b001 : _zz__zz_when_ReorderBuffer_l418_19_1 = statuses_1_genBit;
-      3'b010 : _zz__zz_when_ReorderBuffer_l418_19_1 = statuses_2_genBit;
-      3'b011 : _zz__zz_when_ReorderBuffer_l418_19_1 = statuses_3_genBit;
-      3'b100 : _zz__zz_when_ReorderBuffer_l418_19_1 = statuses_4_genBit;
-      3'b101 : _zz__zz_when_ReorderBuffer_l418_19_1 = statuses_5_genBit;
-      3'b110 : _zz__zz_when_ReorderBuffer_l418_19_1 = statuses_6_genBit;
-      default : _zz__zz_when_ReorderBuffer_l418_19_1 = statuses_7_genBit;
+    case(_zz_when_ReorderBuffer_l422_16)
+      3'b000 : _zz__zz_when_ReorderBuffer_l422_19_1 = statuses_0_genBit;
+      3'b001 : _zz__zz_when_ReorderBuffer_l422_19_1 = statuses_1_genBit;
+      3'b010 : _zz__zz_when_ReorderBuffer_l422_19_1 = statuses_2_genBit;
+      3'b011 : _zz__zz_when_ReorderBuffer_l422_19_1 = statuses_3_genBit;
+      3'b100 : _zz__zz_when_ReorderBuffer_l422_19_1 = statuses_4_genBit;
+      3'b101 : _zz__zz_when_ReorderBuffer_l422_19_1 = statuses_5_genBit;
+      3'b110 : _zz__zz_when_ReorderBuffer_l422_19_1 = statuses_6_genBit;
+      default : _zz__zz_when_ReorderBuffer_l422_19_1 = statuses_7_genBit;
     endcase
   end
 
   always @(*) begin
-    case(_zz_when_ReorderBuffer_l418_20)
-      3'b000 : _zz__zz_when_ReorderBuffer_l418_23_1 = statuses_0_genBit;
-      3'b001 : _zz__zz_when_ReorderBuffer_l418_23_1 = statuses_1_genBit;
-      3'b010 : _zz__zz_when_ReorderBuffer_l418_23_1 = statuses_2_genBit;
-      3'b011 : _zz__zz_when_ReorderBuffer_l418_23_1 = statuses_3_genBit;
-      3'b100 : _zz__zz_when_ReorderBuffer_l418_23_1 = statuses_4_genBit;
-      3'b101 : _zz__zz_when_ReorderBuffer_l418_23_1 = statuses_5_genBit;
-      3'b110 : _zz__zz_when_ReorderBuffer_l418_23_1 = statuses_6_genBit;
-      default : _zz__zz_when_ReorderBuffer_l418_23_1 = statuses_7_genBit;
+    case(_zz_when_ReorderBuffer_l422_20)
+      3'b000 : _zz__zz_when_ReorderBuffer_l422_23_1 = statuses_0_genBit;
+      3'b001 : _zz__zz_when_ReorderBuffer_l422_23_1 = statuses_1_genBit;
+      3'b010 : _zz__zz_when_ReorderBuffer_l422_23_1 = statuses_2_genBit;
+      3'b011 : _zz__zz_when_ReorderBuffer_l422_23_1 = statuses_3_genBit;
+      3'b100 : _zz__zz_when_ReorderBuffer_l422_23_1 = statuses_4_genBit;
+      3'b101 : _zz__zz_when_ReorderBuffer_l422_23_1 = statuses_5_genBit;
+      3'b110 : _zz__zz_when_ReorderBuffer_l422_23_1 = statuses_6_genBit;
+      default : _zz__zz_when_ReorderBuffer_l422_23_1 = statuses_7_genBit;
     endcase
   end
 
   always @(*) begin
-    case(_zz_when_ReorderBuffer_l418_24)
-      3'b000 : _zz__zz_when_ReorderBuffer_l418_27_1 = statuses_0_genBit;
-      3'b001 : _zz__zz_when_ReorderBuffer_l418_27_1 = statuses_1_genBit;
-      3'b010 : _zz__zz_when_ReorderBuffer_l418_27_1 = statuses_2_genBit;
-      3'b011 : _zz__zz_when_ReorderBuffer_l418_27_1 = statuses_3_genBit;
-      3'b100 : _zz__zz_when_ReorderBuffer_l418_27_1 = statuses_4_genBit;
-      3'b101 : _zz__zz_when_ReorderBuffer_l418_27_1 = statuses_5_genBit;
-      3'b110 : _zz__zz_when_ReorderBuffer_l418_27_1 = statuses_6_genBit;
-      default : _zz__zz_when_ReorderBuffer_l418_27_1 = statuses_7_genBit;
+    case(_zz_when_ReorderBuffer_l422_24)
+      3'b000 : _zz__zz_when_ReorderBuffer_l422_27_1 = statuses_0_genBit;
+      3'b001 : _zz__zz_when_ReorderBuffer_l422_27_1 = statuses_1_genBit;
+      3'b010 : _zz__zz_when_ReorderBuffer_l422_27_1 = statuses_2_genBit;
+      3'b011 : _zz__zz_when_ReorderBuffer_l422_27_1 = statuses_3_genBit;
+      3'b100 : _zz__zz_when_ReorderBuffer_l422_27_1 = statuses_4_genBit;
+      3'b101 : _zz__zz_when_ReorderBuffer_l422_27_1 = statuses_5_genBit;
+      3'b110 : _zz__zz_when_ReorderBuffer_l422_27_1 = statuses_6_genBit;
+      default : _zz__zz_when_ReorderBuffer_l422_27_1 = statuses_7_genBit;
     endcase
   end
 
   always @(*) begin
-    case(_zz_when_ReorderBuffer_l418_28)
-      3'b000 : _zz__zz_when_ReorderBuffer_l418_31_1 = statuses_0_genBit;
-      3'b001 : _zz__zz_when_ReorderBuffer_l418_31_1 = statuses_1_genBit;
-      3'b010 : _zz__zz_when_ReorderBuffer_l418_31_1 = statuses_2_genBit;
-      3'b011 : _zz__zz_when_ReorderBuffer_l418_31_1 = statuses_3_genBit;
-      3'b100 : _zz__zz_when_ReorderBuffer_l418_31_1 = statuses_4_genBit;
-      3'b101 : _zz__zz_when_ReorderBuffer_l418_31_1 = statuses_5_genBit;
-      3'b110 : _zz__zz_when_ReorderBuffer_l418_31_1 = statuses_6_genBit;
-      default : _zz__zz_when_ReorderBuffer_l418_31_1 = statuses_7_genBit;
+    case(_zz_when_ReorderBuffer_l422_28)
+      3'b000 : _zz__zz_when_ReorderBuffer_l422_31_1 = statuses_0_genBit;
+      3'b001 : _zz__zz_when_ReorderBuffer_l422_31_1 = statuses_1_genBit;
+      3'b010 : _zz__zz_when_ReorderBuffer_l422_31_1 = statuses_2_genBit;
+      3'b011 : _zz__zz_when_ReorderBuffer_l422_31_1 = statuses_3_genBit;
+      3'b100 : _zz__zz_when_ReorderBuffer_l422_31_1 = statuses_4_genBit;
+      3'b101 : _zz__zz_when_ReorderBuffer_l422_31_1 = statuses_5_genBit;
+      3'b110 : _zz__zz_when_ReorderBuffer_l422_31_1 = statuses_6_genBit;
+      default : _zz__zz_when_ReorderBuffer_l422_31_1 = statuses_7_genBit;
     endcase
   end
 
@@ -54574,6 +53818,7 @@ module ReorderBuffer (
   assign io_commit_0_entry_status_busy = _zz_io_commit_0_entry_status_busy_1;
   assign io_commit_0_entry_status_done = _zz_io_commit_0_entry_status_done;
   assign io_commit_0_entry_status_isMispredictedBranch = _zz_io_commit_0_entry_status_isMispredictedBranch;
+  assign io_commit_0_entry_status_targetPc = _zz_io_commit_0_entry_status_targetPc;
   assign io_commit_0_entry_status_isTaken = _zz_io_commit_0_entry_status_isTaken;
   assign io_commit_0_entry_status_result = _zz_io_commit_0_entry_status_result;
   assign io_commit_0_entry_status_hasException = _zz_io_commit_0_entry_status_hasException;
@@ -54581,7 +53826,7 @@ module ReorderBuffer (
   assign io_commit_0_entry_status_genBit = _zz_io_commit_0_entry_status_genBit;
   assign actualCommittedMask_0 = ((1'b1 && canCommitFlags_0) && io_commitAck_0);
   assign numToCommit = _zz_numToCommit;
-  assign when_ReorderBuffer_l285 = (1'b0 < numToCommit);
+  assign when_ReorderBuffer_l288 = (1'b0 < numToCommit);
   always @(*) begin
     nextHead = (headPtr_reg + _zz_nextHead);
     if(io_flush_valid) begin
@@ -54637,12 +53882,12 @@ module ReorderBuffer (
     end
   end
 
-  assign _zz_when_ReorderBuffer_l321 = {1'd0, headPtr_reg};
-  assign _zz_when_ReorderBuffer_l321_1 = {1'd0, io_flush_payload_targetRobPtr};
-  assign when_ReorderBuffer_l321 = (_zz_when_ReorderBuffer_l321 <= _zz_when_ReorderBuffer_l321_1);
+  assign _zz_when_ReorderBuffer_l324 = {1'd0, headPtr_reg};
+  assign _zz_when_ReorderBuffer_l324_1 = {1'd0, io_flush_payload_targetRobPtr};
+  assign when_ReorderBuffer_l324 = (_zz_when_ReorderBuffer_l324 <= _zz_when_ReorderBuffer_l324_1);
   always @(*) begin
-    if(when_ReorderBuffer_l321) begin
-      _zz_nextCount = (_zz_when_ReorderBuffer_l321_1 - _zz_when_ReorderBuffer_l321);
+    if(when_ReorderBuffer_l324) begin
+      _zz_nextCount = (_zz_when_ReorderBuffer_l324_1 - _zz_when_ReorderBuffer_l324);
     end else begin
       _zz_nextCount = (_zz__zz_nextCount + _zz__zz_nextCount_1);
     end
@@ -54759,8 +54004,8 @@ module ReorderBuffer (
   assign _zz_105 = _zz_99[5];
   assign _zz_106 = _zz_99[6];
   assign _zz_107 = _zz_99[7];
-  assign _zz_when_ReorderBuffer_l375 = io_writeback_0_robPtr[2:0];
-  assign _zz_109 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l375);
+  assign _zz_when_ReorderBuffer_l378 = io_writeback_0_robPtr[2:0];
+  assign _zz_109 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l378);
   assign _zz_110 = _zz_109[0];
   assign _zz_111 = _zz_109[1];
   assign _zz_112 = _zz_109[2];
@@ -54769,10 +54014,10 @@ module ReorderBuffer (
   assign _zz_115 = _zz_109[5];
   assign _zz_116 = _zz_109[6];
   assign _zz_117 = _zz_109[7];
-  assign when_ReorderBuffer_l375 = (((! io_flush_valid) && io_writeback_0_fire) && (io_writeback_0_robPtr[3] == _zz_when_ReorderBuffer_l375_5));
+  assign when_ReorderBuffer_l378 = (((! io_flush_valid) && io_writeback_0_fire) && (io_writeback_0_robPtr[3] == _zz_when_ReorderBuffer_l378_5));
   assign _zz_statuses_0_exceptionCode = (io_writeback_0_exceptionOccurred ? io_writeback_0_exceptionCodeIn : _zz__zz_statuses_0_exceptionCode);
-  assign _zz_when_ReorderBuffer_l375_1 = io_writeback_1_robPtr[2:0];
-  assign _zz_118 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l375_1);
+  assign _zz_when_ReorderBuffer_l378_1 = io_writeback_1_robPtr[2:0];
+  assign _zz_118 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l378_1);
   assign _zz_119 = _zz_118[0];
   assign _zz_120 = _zz_118[1];
   assign _zz_121 = _zz_118[2];
@@ -54781,10 +54026,10 @@ module ReorderBuffer (
   assign _zz_124 = _zz_118[5];
   assign _zz_125 = _zz_118[6];
   assign _zz_126 = _zz_118[7];
-  assign when_ReorderBuffer_l375_1 = (((! io_flush_valid) && io_writeback_1_fire) && (io_writeback_1_robPtr[3] == _zz_when_ReorderBuffer_l375_1_1));
+  assign when_ReorderBuffer_l378_1 = (((! io_flush_valid) && io_writeback_1_fire) && (io_writeback_1_robPtr[3] == _zz_when_ReorderBuffer_l378_1_1));
   assign _zz_statuses_0_exceptionCode_1 = (io_writeback_1_exceptionOccurred ? io_writeback_1_exceptionCodeIn : _zz__zz_statuses_0_exceptionCode_1);
-  assign _zz_when_ReorderBuffer_l375_2 = io_writeback_2_robPtr[2:0];
-  assign _zz_127 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l375_2);
+  assign _zz_when_ReorderBuffer_l378_2 = io_writeback_2_robPtr[2:0];
+  assign _zz_127 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l378_2);
   assign _zz_128 = _zz_127[0];
   assign _zz_129 = _zz_127[1];
   assign _zz_130 = _zz_127[2];
@@ -54793,10 +54038,10 @@ module ReorderBuffer (
   assign _zz_133 = _zz_127[5];
   assign _zz_134 = _zz_127[6];
   assign _zz_135 = _zz_127[7];
-  assign when_ReorderBuffer_l375_2 = (((! io_flush_valid) && io_writeback_2_fire) && (io_writeback_2_robPtr[3] == _zz_when_ReorderBuffer_l375_2_1));
+  assign when_ReorderBuffer_l378_2 = (((! io_flush_valid) && io_writeback_2_fire) && (io_writeback_2_robPtr[3] == _zz_when_ReorderBuffer_l378_2_1));
   assign _zz_statuses_0_exceptionCode_2 = (io_writeback_2_exceptionOccurred ? io_writeback_2_exceptionCodeIn : _zz__zz_statuses_0_exceptionCode_2);
-  assign _zz_when_ReorderBuffer_l375_3 = io_writeback_3_robPtr[2:0];
-  assign _zz_136 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l375_3);
+  assign _zz_when_ReorderBuffer_l378_3 = io_writeback_3_robPtr[2:0];
+  assign _zz_136 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l378_3);
   assign _zz_137 = _zz_136[0];
   assign _zz_138 = _zz_136[1];
   assign _zz_139 = _zz_136[2];
@@ -54805,10 +54050,10 @@ module ReorderBuffer (
   assign _zz_142 = _zz_136[5];
   assign _zz_143 = _zz_136[6];
   assign _zz_144 = _zz_136[7];
-  assign when_ReorderBuffer_l375_3 = (((! io_flush_valid) && io_writeback_3_fire) && (io_writeback_3_robPtr[3] == _zz_when_ReorderBuffer_l375_3_1));
+  assign when_ReorderBuffer_l378_3 = (((! io_flush_valid) && io_writeback_3_fire) && (io_writeback_3_robPtr[3] == _zz_when_ReorderBuffer_l378_3_1));
   assign _zz_statuses_0_exceptionCode_3 = (io_writeback_3_exceptionOccurred ? io_writeback_3_exceptionCodeIn : _zz__zz_statuses_0_exceptionCode_3);
-  assign _zz_when_ReorderBuffer_l375_4 = io_writeback_4_robPtr[2:0];
-  assign _zz_145 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l375_4);
+  assign _zz_when_ReorderBuffer_l378_4 = io_writeback_4_robPtr[2:0];
+  assign _zz_145 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l378_4);
   assign _zz_146 = _zz_145[0];
   assign _zz_147 = _zz_145[1];
   assign _zz_148 = _zz_145[2];
@@ -54817,10 +54062,10 @@ module ReorderBuffer (
   assign _zz_151 = _zz_145[5];
   assign _zz_152 = _zz_145[6];
   assign _zz_153 = _zz_145[7];
-  assign when_ReorderBuffer_l375_4 = (((! io_flush_valid) && io_writeback_4_fire) && (io_writeback_4_robPtr[3] == _zz_when_ReorderBuffer_l375_4_1));
+  assign when_ReorderBuffer_l378_4 = (((! io_flush_valid) && io_writeback_4_fire) && (io_writeback_4_robPtr[3] == _zz_when_ReorderBuffer_l378_4_1));
   assign _zz_statuses_0_exceptionCode_4 = (io_writeback_4_exceptionOccurred ? io_writeback_4_exceptionCodeIn : _zz__zz_statuses_0_exceptionCode_4);
-  assign _zz_when_ReorderBuffer_l418 = 3'b000;
-  assign _zz_154 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l418);
+  assign _zz_when_ReorderBuffer_l422 = 3'b000;
+  assign _zz_154 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l422);
   assign _zz_155 = _zz_154[0];
   assign _zz_156 = _zz_154[1];
   assign _zz_157 = _zz_154[2];
@@ -54829,20 +54074,20 @@ module ReorderBuffer (
   assign _zz_160 = _zz_154[5];
   assign _zz_161 = _zz_154[6];
   assign _zz_162 = _zz_154[7];
-  assign _zz_when_ReorderBuffer_l418_1 = {1'd0, io_flush_payload_targetRobPtr};
-  assign _zz_when_ReorderBuffer_l418_2 = {1'd0, tailPtr_reg};
-  assign _zz_when_ReorderBuffer_l418_3 = {1'd0, _zz__zz_when_ReorderBuffer_l418_3};
-  assign when_ReorderBuffer_l412 = (_zz_when_ReorderBuffer_l418_1 <= _zz_when_ReorderBuffer_l418_2);
+  assign _zz_when_ReorderBuffer_l422_1 = {1'd0, io_flush_payload_targetRobPtr};
+  assign _zz_when_ReorderBuffer_l422_2 = {1'd0, tailPtr_reg};
+  assign _zz_when_ReorderBuffer_l422_3 = {1'd0, _zz__zz_when_ReorderBuffer_l422_3};
+  assign when_ReorderBuffer_l416 = (_zz_when_ReorderBuffer_l422_1 <= _zz_when_ReorderBuffer_l422_2);
   always @(*) begin
-    if(when_ReorderBuffer_l412) begin
-      when_ReorderBuffer_l418 = ((_zz_when_ReorderBuffer_l418_1 <= _zz_when_ReorderBuffer_l418_3) && (_zz_when_ReorderBuffer_l418_3 < _zz_when_ReorderBuffer_l418_2));
+    if(when_ReorderBuffer_l416) begin
+      when_ReorderBuffer_l422 = ((_zz_when_ReorderBuffer_l422_1 <= _zz_when_ReorderBuffer_l422_3) && (_zz_when_ReorderBuffer_l422_3 < _zz_when_ReorderBuffer_l422_2));
     end else begin
-      when_ReorderBuffer_l418 = ((_zz_when_ReorderBuffer_l418_1 <= _zz_when_ReorderBuffer_l418_3) || (_zz_when_ReorderBuffer_l418_3 < _zz_when_ReorderBuffer_l418_2));
+      when_ReorderBuffer_l422 = ((_zz_when_ReorderBuffer_l422_1 <= _zz_when_ReorderBuffer_l422_3) || (_zz_when_ReorderBuffer_l422_3 < _zz_when_ReorderBuffer_l422_2));
     end
   end
 
-  assign _zz_when_ReorderBuffer_l418_4 = 3'b001;
-  assign _zz_163 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l418_4);
+  assign _zz_when_ReorderBuffer_l422_4 = 3'b001;
+  assign _zz_163 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l422_4);
   assign _zz_164 = _zz_163[0];
   assign _zz_165 = _zz_163[1];
   assign _zz_166 = _zz_163[2];
@@ -54851,20 +54096,20 @@ module ReorderBuffer (
   assign _zz_169 = _zz_163[5];
   assign _zz_170 = _zz_163[6];
   assign _zz_171 = _zz_163[7];
-  assign _zz_when_ReorderBuffer_l418_5 = {1'd0, io_flush_payload_targetRobPtr};
-  assign _zz_when_ReorderBuffer_l418_6 = {1'd0, tailPtr_reg};
-  assign _zz_when_ReorderBuffer_l418_7 = {1'd0, _zz__zz_when_ReorderBuffer_l418_7};
-  assign when_ReorderBuffer_l412_1 = (_zz_when_ReorderBuffer_l418_5 <= _zz_when_ReorderBuffer_l418_6);
+  assign _zz_when_ReorderBuffer_l422_5 = {1'd0, io_flush_payload_targetRobPtr};
+  assign _zz_when_ReorderBuffer_l422_6 = {1'd0, tailPtr_reg};
+  assign _zz_when_ReorderBuffer_l422_7 = {1'd0, _zz__zz_when_ReorderBuffer_l422_7};
+  assign when_ReorderBuffer_l416_1 = (_zz_when_ReorderBuffer_l422_5 <= _zz_when_ReorderBuffer_l422_6);
   always @(*) begin
-    if(when_ReorderBuffer_l412_1) begin
-      when_ReorderBuffer_l418_1 = ((_zz_when_ReorderBuffer_l418_5 <= _zz_when_ReorderBuffer_l418_7) && (_zz_when_ReorderBuffer_l418_7 < _zz_when_ReorderBuffer_l418_6));
+    if(when_ReorderBuffer_l416_1) begin
+      when_ReorderBuffer_l422_1 = ((_zz_when_ReorderBuffer_l422_5 <= _zz_when_ReorderBuffer_l422_7) && (_zz_when_ReorderBuffer_l422_7 < _zz_when_ReorderBuffer_l422_6));
     end else begin
-      when_ReorderBuffer_l418_1 = ((_zz_when_ReorderBuffer_l418_5 <= _zz_when_ReorderBuffer_l418_7) || (_zz_when_ReorderBuffer_l418_7 < _zz_when_ReorderBuffer_l418_6));
+      when_ReorderBuffer_l422_1 = ((_zz_when_ReorderBuffer_l422_5 <= _zz_when_ReorderBuffer_l422_7) || (_zz_when_ReorderBuffer_l422_7 < _zz_when_ReorderBuffer_l422_6));
     end
   end
 
-  assign _zz_when_ReorderBuffer_l418_8 = 3'b010;
-  assign _zz_172 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l418_8);
+  assign _zz_when_ReorderBuffer_l422_8 = 3'b010;
+  assign _zz_172 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l422_8);
   assign _zz_173 = _zz_172[0];
   assign _zz_174 = _zz_172[1];
   assign _zz_175 = _zz_172[2];
@@ -54873,20 +54118,20 @@ module ReorderBuffer (
   assign _zz_178 = _zz_172[5];
   assign _zz_179 = _zz_172[6];
   assign _zz_180 = _zz_172[7];
-  assign _zz_when_ReorderBuffer_l418_9 = {1'd0, io_flush_payload_targetRobPtr};
-  assign _zz_when_ReorderBuffer_l418_10 = {1'd0, tailPtr_reg};
-  assign _zz_when_ReorderBuffer_l418_11 = {1'd0, _zz__zz_when_ReorderBuffer_l418_11};
-  assign when_ReorderBuffer_l412_2 = (_zz_when_ReorderBuffer_l418_9 <= _zz_when_ReorderBuffer_l418_10);
+  assign _zz_when_ReorderBuffer_l422_9 = {1'd0, io_flush_payload_targetRobPtr};
+  assign _zz_when_ReorderBuffer_l422_10 = {1'd0, tailPtr_reg};
+  assign _zz_when_ReorderBuffer_l422_11 = {1'd0, _zz__zz_when_ReorderBuffer_l422_11};
+  assign when_ReorderBuffer_l416_2 = (_zz_when_ReorderBuffer_l422_9 <= _zz_when_ReorderBuffer_l422_10);
   always @(*) begin
-    if(when_ReorderBuffer_l412_2) begin
-      when_ReorderBuffer_l418_2 = ((_zz_when_ReorderBuffer_l418_9 <= _zz_when_ReorderBuffer_l418_11) && (_zz_when_ReorderBuffer_l418_11 < _zz_when_ReorderBuffer_l418_10));
+    if(when_ReorderBuffer_l416_2) begin
+      when_ReorderBuffer_l422_2 = ((_zz_when_ReorderBuffer_l422_9 <= _zz_when_ReorderBuffer_l422_11) && (_zz_when_ReorderBuffer_l422_11 < _zz_when_ReorderBuffer_l422_10));
     end else begin
-      when_ReorderBuffer_l418_2 = ((_zz_when_ReorderBuffer_l418_9 <= _zz_when_ReorderBuffer_l418_11) || (_zz_when_ReorderBuffer_l418_11 < _zz_when_ReorderBuffer_l418_10));
+      when_ReorderBuffer_l422_2 = ((_zz_when_ReorderBuffer_l422_9 <= _zz_when_ReorderBuffer_l422_11) || (_zz_when_ReorderBuffer_l422_11 < _zz_when_ReorderBuffer_l422_10));
     end
   end
 
-  assign _zz_when_ReorderBuffer_l418_12 = 3'b011;
-  assign _zz_181 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l418_12);
+  assign _zz_when_ReorderBuffer_l422_12 = 3'b011;
+  assign _zz_181 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l422_12);
   assign _zz_182 = _zz_181[0];
   assign _zz_183 = _zz_181[1];
   assign _zz_184 = _zz_181[2];
@@ -54895,20 +54140,20 @@ module ReorderBuffer (
   assign _zz_187 = _zz_181[5];
   assign _zz_188 = _zz_181[6];
   assign _zz_189 = _zz_181[7];
-  assign _zz_when_ReorderBuffer_l418_13 = {1'd0, io_flush_payload_targetRobPtr};
-  assign _zz_when_ReorderBuffer_l418_14 = {1'd0, tailPtr_reg};
-  assign _zz_when_ReorderBuffer_l418_15 = {1'd0, _zz__zz_when_ReorderBuffer_l418_15};
-  assign when_ReorderBuffer_l412_3 = (_zz_when_ReorderBuffer_l418_13 <= _zz_when_ReorderBuffer_l418_14);
+  assign _zz_when_ReorderBuffer_l422_13 = {1'd0, io_flush_payload_targetRobPtr};
+  assign _zz_when_ReorderBuffer_l422_14 = {1'd0, tailPtr_reg};
+  assign _zz_when_ReorderBuffer_l422_15 = {1'd0, _zz__zz_when_ReorderBuffer_l422_15};
+  assign when_ReorderBuffer_l416_3 = (_zz_when_ReorderBuffer_l422_13 <= _zz_when_ReorderBuffer_l422_14);
   always @(*) begin
-    if(when_ReorderBuffer_l412_3) begin
-      when_ReorderBuffer_l418_3 = ((_zz_when_ReorderBuffer_l418_13 <= _zz_when_ReorderBuffer_l418_15) && (_zz_when_ReorderBuffer_l418_15 < _zz_when_ReorderBuffer_l418_14));
+    if(when_ReorderBuffer_l416_3) begin
+      when_ReorderBuffer_l422_3 = ((_zz_when_ReorderBuffer_l422_13 <= _zz_when_ReorderBuffer_l422_15) && (_zz_when_ReorderBuffer_l422_15 < _zz_when_ReorderBuffer_l422_14));
     end else begin
-      when_ReorderBuffer_l418_3 = ((_zz_when_ReorderBuffer_l418_13 <= _zz_when_ReorderBuffer_l418_15) || (_zz_when_ReorderBuffer_l418_15 < _zz_when_ReorderBuffer_l418_14));
+      when_ReorderBuffer_l422_3 = ((_zz_when_ReorderBuffer_l422_13 <= _zz_when_ReorderBuffer_l422_15) || (_zz_when_ReorderBuffer_l422_15 < _zz_when_ReorderBuffer_l422_14));
     end
   end
 
-  assign _zz_when_ReorderBuffer_l418_16 = 3'b100;
-  assign _zz_190 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l418_16);
+  assign _zz_when_ReorderBuffer_l422_16 = 3'b100;
+  assign _zz_190 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l422_16);
   assign _zz_191 = _zz_190[0];
   assign _zz_192 = _zz_190[1];
   assign _zz_193 = _zz_190[2];
@@ -54917,20 +54162,20 @@ module ReorderBuffer (
   assign _zz_196 = _zz_190[5];
   assign _zz_197 = _zz_190[6];
   assign _zz_198 = _zz_190[7];
-  assign _zz_when_ReorderBuffer_l418_17 = {1'd0, io_flush_payload_targetRobPtr};
-  assign _zz_when_ReorderBuffer_l418_18 = {1'd0, tailPtr_reg};
-  assign _zz_when_ReorderBuffer_l418_19 = {1'd0, _zz__zz_when_ReorderBuffer_l418_19};
-  assign when_ReorderBuffer_l412_4 = (_zz_when_ReorderBuffer_l418_17 <= _zz_when_ReorderBuffer_l418_18);
+  assign _zz_when_ReorderBuffer_l422_17 = {1'd0, io_flush_payload_targetRobPtr};
+  assign _zz_when_ReorderBuffer_l422_18 = {1'd0, tailPtr_reg};
+  assign _zz_when_ReorderBuffer_l422_19 = {1'd0, _zz__zz_when_ReorderBuffer_l422_19};
+  assign when_ReorderBuffer_l416_4 = (_zz_when_ReorderBuffer_l422_17 <= _zz_when_ReorderBuffer_l422_18);
   always @(*) begin
-    if(when_ReorderBuffer_l412_4) begin
-      when_ReorderBuffer_l418_4 = ((_zz_when_ReorderBuffer_l418_17 <= _zz_when_ReorderBuffer_l418_19) && (_zz_when_ReorderBuffer_l418_19 < _zz_when_ReorderBuffer_l418_18));
+    if(when_ReorderBuffer_l416_4) begin
+      when_ReorderBuffer_l422_4 = ((_zz_when_ReorderBuffer_l422_17 <= _zz_when_ReorderBuffer_l422_19) && (_zz_when_ReorderBuffer_l422_19 < _zz_when_ReorderBuffer_l422_18));
     end else begin
-      when_ReorderBuffer_l418_4 = ((_zz_when_ReorderBuffer_l418_17 <= _zz_when_ReorderBuffer_l418_19) || (_zz_when_ReorderBuffer_l418_19 < _zz_when_ReorderBuffer_l418_18));
+      when_ReorderBuffer_l422_4 = ((_zz_when_ReorderBuffer_l422_17 <= _zz_when_ReorderBuffer_l422_19) || (_zz_when_ReorderBuffer_l422_19 < _zz_when_ReorderBuffer_l422_18));
     end
   end
 
-  assign _zz_when_ReorderBuffer_l418_20 = 3'b101;
-  assign _zz_199 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l418_20);
+  assign _zz_when_ReorderBuffer_l422_20 = 3'b101;
+  assign _zz_199 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l422_20);
   assign _zz_200 = _zz_199[0];
   assign _zz_201 = _zz_199[1];
   assign _zz_202 = _zz_199[2];
@@ -54939,20 +54184,20 @@ module ReorderBuffer (
   assign _zz_205 = _zz_199[5];
   assign _zz_206 = _zz_199[6];
   assign _zz_207 = _zz_199[7];
-  assign _zz_when_ReorderBuffer_l418_21 = {1'd0, io_flush_payload_targetRobPtr};
-  assign _zz_when_ReorderBuffer_l418_22 = {1'd0, tailPtr_reg};
-  assign _zz_when_ReorderBuffer_l418_23 = {1'd0, _zz__zz_when_ReorderBuffer_l418_23};
-  assign when_ReorderBuffer_l412_5 = (_zz_when_ReorderBuffer_l418_21 <= _zz_when_ReorderBuffer_l418_22);
+  assign _zz_when_ReorderBuffer_l422_21 = {1'd0, io_flush_payload_targetRobPtr};
+  assign _zz_when_ReorderBuffer_l422_22 = {1'd0, tailPtr_reg};
+  assign _zz_when_ReorderBuffer_l422_23 = {1'd0, _zz__zz_when_ReorderBuffer_l422_23};
+  assign when_ReorderBuffer_l416_5 = (_zz_when_ReorderBuffer_l422_21 <= _zz_when_ReorderBuffer_l422_22);
   always @(*) begin
-    if(when_ReorderBuffer_l412_5) begin
-      when_ReorderBuffer_l418_5 = ((_zz_when_ReorderBuffer_l418_21 <= _zz_when_ReorderBuffer_l418_23) && (_zz_when_ReorderBuffer_l418_23 < _zz_when_ReorderBuffer_l418_22));
+    if(when_ReorderBuffer_l416_5) begin
+      when_ReorderBuffer_l422_5 = ((_zz_when_ReorderBuffer_l422_21 <= _zz_when_ReorderBuffer_l422_23) && (_zz_when_ReorderBuffer_l422_23 < _zz_when_ReorderBuffer_l422_22));
     end else begin
-      when_ReorderBuffer_l418_5 = ((_zz_when_ReorderBuffer_l418_21 <= _zz_when_ReorderBuffer_l418_23) || (_zz_when_ReorderBuffer_l418_23 < _zz_when_ReorderBuffer_l418_22));
+      when_ReorderBuffer_l422_5 = ((_zz_when_ReorderBuffer_l422_21 <= _zz_when_ReorderBuffer_l422_23) || (_zz_when_ReorderBuffer_l422_23 < _zz_when_ReorderBuffer_l422_22));
     end
   end
 
-  assign _zz_when_ReorderBuffer_l418_24 = 3'b110;
-  assign _zz_208 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l418_24);
+  assign _zz_when_ReorderBuffer_l422_24 = 3'b110;
+  assign _zz_208 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l422_24);
   assign _zz_209 = _zz_208[0];
   assign _zz_210 = _zz_208[1];
   assign _zz_211 = _zz_208[2];
@@ -54961,20 +54206,20 @@ module ReorderBuffer (
   assign _zz_214 = _zz_208[5];
   assign _zz_215 = _zz_208[6];
   assign _zz_216 = _zz_208[7];
-  assign _zz_when_ReorderBuffer_l418_25 = {1'd0, io_flush_payload_targetRobPtr};
-  assign _zz_when_ReorderBuffer_l418_26 = {1'd0, tailPtr_reg};
-  assign _zz_when_ReorderBuffer_l418_27 = {1'd0, _zz__zz_when_ReorderBuffer_l418_27};
-  assign when_ReorderBuffer_l412_6 = (_zz_when_ReorderBuffer_l418_25 <= _zz_when_ReorderBuffer_l418_26);
+  assign _zz_when_ReorderBuffer_l422_25 = {1'd0, io_flush_payload_targetRobPtr};
+  assign _zz_when_ReorderBuffer_l422_26 = {1'd0, tailPtr_reg};
+  assign _zz_when_ReorderBuffer_l422_27 = {1'd0, _zz__zz_when_ReorderBuffer_l422_27};
+  assign when_ReorderBuffer_l416_6 = (_zz_when_ReorderBuffer_l422_25 <= _zz_when_ReorderBuffer_l422_26);
   always @(*) begin
-    if(when_ReorderBuffer_l412_6) begin
-      when_ReorderBuffer_l418_6 = ((_zz_when_ReorderBuffer_l418_25 <= _zz_when_ReorderBuffer_l418_27) && (_zz_when_ReorderBuffer_l418_27 < _zz_when_ReorderBuffer_l418_26));
+    if(when_ReorderBuffer_l416_6) begin
+      when_ReorderBuffer_l422_6 = ((_zz_when_ReorderBuffer_l422_25 <= _zz_when_ReorderBuffer_l422_27) && (_zz_when_ReorderBuffer_l422_27 < _zz_when_ReorderBuffer_l422_26));
     end else begin
-      when_ReorderBuffer_l418_6 = ((_zz_when_ReorderBuffer_l418_25 <= _zz_when_ReorderBuffer_l418_27) || (_zz_when_ReorderBuffer_l418_27 < _zz_when_ReorderBuffer_l418_26));
+      when_ReorderBuffer_l422_6 = ((_zz_when_ReorderBuffer_l422_25 <= _zz_when_ReorderBuffer_l422_27) || (_zz_when_ReorderBuffer_l422_27 < _zz_when_ReorderBuffer_l422_26));
     end
   end
 
-  assign _zz_when_ReorderBuffer_l418_28 = 3'b111;
-  assign _zz_217 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l418_28);
+  assign _zz_when_ReorderBuffer_l422_28 = 3'b111;
+  assign _zz_217 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l422_28);
   assign _zz_218 = _zz_217[0];
   assign _zz_219 = _zz_217[1];
   assign _zz_220 = _zz_217[2];
@@ -54983,15 +54228,15 @@ module ReorderBuffer (
   assign _zz_223 = _zz_217[5];
   assign _zz_224 = _zz_217[6];
   assign _zz_225 = _zz_217[7];
-  assign _zz_when_ReorderBuffer_l418_29 = {1'd0, io_flush_payload_targetRobPtr};
-  assign _zz_when_ReorderBuffer_l418_30 = {1'd0, tailPtr_reg};
-  assign _zz_when_ReorderBuffer_l418_31 = {1'd0, _zz__zz_when_ReorderBuffer_l418_31};
-  assign when_ReorderBuffer_l412_7 = (_zz_when_ReorderBuffer_l418_29 <= _zz_when_ReorderBuffer_l418_30);
+  assign _zz_when_ReorderBuffer_l422_29 = {1'd0, io_flush_payload_targetRobPtr};
+  assign _zz_when_ReorderBuffer_l422_30 = {1'd0, tailPtr_reg};
+  assign _zz_when_ReorderBuffer_l422_31 = {1'd0, _zz__zz_when_ReorderBuffer_l422_31};
+  assign when_ReorderBuffer_l416_7 = (_zz_when_ReorderBuffer_l422_29 <= _zz_when_ReorderBuffer_l422_30);
   always @(*) begin
-    if(when_ReorderBuffer_l412_7) begin
-      when_ReorderBuffer_l418_7 = ((_zz_when_ReorderBuffer_l418_29 <= _zz_when_ReorderBuffer_l418_31) && (_zz_when_ReorderBuffer_l418_31 < _zz_when_ReorderBuffer_l418_30));
+    if(when_ReorderBuffer_l416_7) begin
+      when_ReorderBuffer_l422_7 = ((_zz_when_ReorderBuffer_l422_29 <= _zz_when_ReorderBuffer_l422_31) && (_zz_when_ReorderBuffer_l422_31 < _zz_when_ReorderBuffer_l422_30));
     end else begin
-      when_ReorderBuffer_l418_7 = ((_zz_when_ReorderBuffer_l418_29 <= _zz_when_ReorderBuffer_l418_31) || (_zz_when_ReorderBuffer_l418_31 < _zz_when_ReorderBuffer_l418_30));
+      when_ReorderBuffer_l422_7 = ((_zz_when_ReorderBuffer_l422_29 <= _zz_when_ReorderBuffer_l422_31) || (_zz_when_ReorderBuffer_l422_31 < _zz_when_ReorderBuffer_l422_30));
     end
   end
 
@@ -55055,13 +54300,13 @@ module ReorderBuffer (
           flushInProgressReg <= 1'b0;
         end
       end
-      if(when_ReorderBuffer_l285) begin
+      if(when_ReorderBuffer_l288) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // ReorderBuffer.scala:L286
+            assert(1'b0); // ReorderBuffer.scala:L289
           `else
             if(!1'b0) begin
-              $display("NOTE(ReorderBuffer.scala:286):  [ROB] COMMIT_SUMMARY: Committing %x entries, total entries=%x, capacity=8", numToCommit, count_reg); // ReorderBuffer.scala:L286
+              $display("NOTE(ReorderBuffer.scala:289):  [ROB] COMMIT_SUMMARY: Committing %x entries, total entries=%x, capacity=8", numToCommit, count_reg); // ReorderBuffer.scala:L289
             end
           `endif
         `endif
@@ -55167,7 +54412,7 @@ module ReorderBuffer (
           statuses_7_genBit <= _zz_statuses_0_genBit_1;
         end
       end
-      if(when_ReorderBuffer_l375) begin
+      if(when_ReorderBuffer_l378) begin
         if(_zz_110) begin
           statuses_0_busy <= 1'b0;
         end
@@ -55265,7 +54510,7 @@ module ReorderBuffer (
           statuses_7_exceptionCode <= _zz_statuses_0_exceptionCode;
         end
       end
-      if(when_ReorderBuffer_l375_1) begin
+      if(when_ReorderBuffer_l378_1) begin
         if(_zz_119) begin
           statuses_0_busy <= 1'b0;
         end
@@ -55363,7 +54608,7 @@ module ReorderBuffer (
           statuses_7_exceptionCode <= _zz_statuses_0_exceptionCode_1;
         end
       end
-      if(when_ReorderBuffer_l375_2) begin
+      if(when_ReorderBuffer_l378_2) begin
         if(_zz_128) begin
           statuses_0_busy <= 1'b0;
         end
@@ -55461,7 +54706,7 @@ module ReorderBuffer (
           statuses_7_exceptionCode <= _zz_statuses_0_exceptionCode_2;
         end
       end
-      if(when_ReorderBuffer_l375_3) begin
+      if(when_ReorderBuffer_l378_3) begin
         if(_zz_137) begin
           statuses_0_busy <= 1'b0;
         end
@@ -55559,7 +54804,7 @@ module ReorderBuffer (
           statuses_7_exceptionCode <= _zz_statuses_0_exceptionCode_3;
         end
       end
-      if(when_ReorderBuffer_l375_4) begin
+      if(when_ReorderBuffer_l378_4) begin
         if(_zz_146) begin
           statuses_0_busy <= 1'b0;
         end
@@ -55694,7 +54939,7 @@ module ReorderBuffer (
             statuses_7_genBit <= 1'b0;
           end
           FlushReason_ROLLBACK_TO_ROB_IDX : begin
-            if(when_ReorderBuffer_l418) begin
+            if(when_ReorderBuffer_l422) begin
               if(_zz_155) begin
                 statuses_0_busy <= 1'b0;
               end
@@ -55768,7 +55013,7 @@ module ReorderBuffer (
                 statuses_7_hasException <= 1'b0;
               end
             end
-            if(when_ReorderBuffer_l418_1) begin
+            if(when_ReorderBuffer_l422_1) begin
               if(_zz_164) begin
                 statuses_0_busy <= 1'b0;
               end
@@ -55842,7 +55087,7 @@ module ReorderBuffer (
                 statuses_7_hasException <= 1'b0;
               end
             end
-            if(when_ReorderBuffer_l418_2) begin
+            if(when_ReorderBuffer_l422_2) begin
               if(_zz_173) begin
                 statuses_0_busy <= 1'b0;
               end
@@ -55916,7 +55161,7 @@ module ReorderBuffer (
                 statuses_7_hasException <= 1'b0;
               end
             end
-            if(when_ReorderBuffer_l418_3) begin
+            if(when_ReorderBuffer_l422_3) begin
               if(_zz_182) begin
                 statuses_0_busy <= 1'b0;
               end
@@ -55990,7 +55235,7 @@ module ReorderBuffer (
                 statuses_7_hasException <= 1'b0;
               end
             end
-            if(when_ReorderBuffer_l418_4) begin
+            if(when_ReorderBuffer_l422_4) begin
               if(_zz_191) begin
                 statuses_0_busy <= 1'b0;
               end
@@ -56064,7 +55309,7 @@ module ReorderBuffer (
                 statuses_7_hasException <= 1'b0;
               end
             end
-            if(when_ReorderBuffer_l418_5) begin
+            if(when_ReorderBuffer_l422_5) begin
               if(_zz_200) begin
                 statuses_0_busy <= 1'b0;
               end
@@ -56138,7 +55383,7 @@ module ReorderBuffer (
                 statuses_7_hasException <= 1'b0;
               end
             end
-            if(when_ReorderBuffer_l418_6) begin
+            if(when_ReorderBuffer_l422_6) begin
               if(_zz_209) begin
                 statuses_0_busy <= 1'b0;
               end
@@ -56212,7 +55457,7 @@ module ReorderBuffer (
                 statuses_7_hasException <= 1'b0;
               end
             end
-            if(when_ReorderBuffer_l418_7) begin
+            if(when_ReorderBuffer_l422_7) begin
               if(_zz_218) begin
                 statuses_0_busy <= 1'b0;
               end
@@ -56295,7 +55540,7 @@ module ReorderBuffer (
   end
 
   always @(posedge clk) begin
-    if(when_ReorderBuffer_l375) begin
+    if(when_ReorderBuffer_l378) begin
       if(_zz_110) begin
         statuses_0_isMispredictedBranch <= io_writeback_0_isMispredictedBranch;
       end
@@ -56319,6 +55564,30 @@ module ReorderBuffer (
       end
       if(_zz_117) begin
         statuses_7_isMispredictedBranch <= io_writeback_0_isMispredictedBranch;
+      end
+      if(_zz_110) begin
+        statuses_0_targetPc <= io_writeback_0_targetPc;
+      end
+      if(_zz_111) begin
+        statuses_1_targetPc <= io_writeback_0_targetPc;
+      end
+      if(_zz_112) begin
+        statuses_2_targetPc <= io_writeback_0_targetPc;
+      end
+      if(_zz_113) begin
+        statuses_3_targetPc <= io_writeback_0_targetPc;
+      end
+      if(_zz_114) begin
+        statuses_4_targetPc <= io_writeback_0_targetPc;
+      end
+      if(_zz_115) begin
+        statuses_5_targetPc <= io_writeback_0_targetPc;
+      end
+      if(_zz_116) begin
+        statuses_6_targetPc <= io_writeback_0_targetPc;
+      end
+      if(_zz_117) begin
+        statuses_7_targetPc <= io_writeback_0_targetPc;
       end
       if(_zz_110) begin
         statuses_0_isTaken <= io_writeback_0_isTaken;
@@ -56369,7 +55638,7 @@ module ReorderBuffer (
         statuses_7_result <= io_writeback_0_result;
       end
     end
-    if(when_ReorderBuffer_l375_1) begin
+    if(when_ReorderBuffer_l378_1) begin
       if(_zz_119) begin
         statuses_0_isMispredictedBranch <= io_writeback_1_isMispredictedBranch;
       end
@@ -56393,6 +55662,30 @@ module ReorderBuffer (
       end
       if(_zz_126) begin
         statuses_7_isMispredictedBranch <= io_writeback_1_isMispredictedBranch;
+      end
+      if(_zz_119) begin
+        statuses_0_targetPc <= io_writeback_1_targetPc;
+      end
+      if(_zz_120) begin
+        statuses_1_targetPc <= io_writeback_1_targetPc;
+      end
+      if(_zz_121) begin
+        statuses_2_targetPc <= io_writeback_1_targetPc;
+      end
+      if(_zz_122) begin
+        statuses_3_targetPc <= io_writeback_1_targetPc;
+      end
+      if(_zz_123) begin
+        statuses_4_targetPc <= io_writeback_1_targetPc;
+      end
+      if(_zz_124) begin
+        statuses_5_targetPc <= io_writeback_1_targetPc;
+      end
+      if(_zz_125) begin
+        statuses_6_targetPc <= io_writeback_1_targetPc;
+      end
+      if(_zz_126) begin
+        statuses_7_targetPc <= io_writeback_1_targetPc;
       end
       if(_zz_119) begin
         statuses_0_isTaken <= io_writeback_1_isTaken;
@@ -56443,7 +55736,7 @@ module ReorderBuffer (
         statuses_7_result <= io_writeback_1_result;
       end
     end
-    if(when_ReorderBuffer_l375_2) begin
+    if(when_ReorderBuffer_l378_2) begin
       if(_zz_128) begin
         statuses_0_isMispredictedBranch <= io_writeback_2_isMispredictedBranch;
       end
@@ -56467,6 +55760,30 @@ module ReorderBuffer (
       end
       if(_zz_135) begin
         statuses_7_isMispredictedBranch <= io_writeback_2_isMispredictedBranch;
+      end
+      if(_zz_128) begin
+        statuses_0_targetPc <= io_writeback_2_targetPc;
+      end
+      if(_zz_129) begin
+        statuses_1_targetPc <= io_writeback_2_targetPc;
+      end
+      if(_zz_130) begin
+        statuses_2_targetPc <= io_writeback_2_targetPc;
+      end
+      if(_zz_131) begin
+        statuses_3_targetPc <= io_writeback_2_targetPc;
+      end
+      if(_zz_132) begin
+        statuses_4_targetPc <= io_writeback_2_targetPc;
+      end
+      if(_zz_133) begin
+        statuses_5_targetPc <= io_writeback_2_targetPc;
+      end
+      if(_zz_134) begin
+        statuses_6_targetPc <= io_writeback_2_targetPc;
+      end
+      if(_zz_135) begin
+        statuses_7_targetPc <= io_writeback_2_targetPc;
       end
       if(_zz_128) begin
         statuses_0_isTaken <= io_writeback_2_isTaken;
@@ -56517,7 +55834,7 @@ module ReorderBuffer (
         statuses_7_result <= io_writeback_2_result;
       end
     end
-    if(when_ReorderBuffer_l375_3) begin
+    if(when_ReorderBuffer_l378_3) begin
       if(_zz_137) begin
         statuses_0_isMispredictedBranch <= io_writeback_3_isMispredictedBranch;
       end
@@ -56541,6 +55858,30 @@ module ReorderBuffer (
       end
       if(_zz_144) begin
         statuses_7_isMispredictedBranch <= io_writeback_3_isMispredictedBranch;
+      end
+      if(_zz_137) begin
+        statuses_0_targetPc <= io_writeback_3_targetPc;
+      end
+      if(_zz_138) begin
+        statuses_1_targetPc <= io_writeback_3_targetPc;
+      end
+      if(_zz_139) begin
+        statuses_2_targetPc <= io_writeback_3_targetPc;
+      end
+      if(_zz_140) begin
+        statuses_3_targetPc <= io_writeback_3_targetPc;
+      end
+      if(_zz_141) begin
+        statuses_4_targetPc <= io_writeback_3_targetPc;
+      end
+      if(_zz_142) begin
+        statuses_5_targetPc <= io_writeback_3_targetPc;
+      end
+      if(_zz_143) begin
+        statuses_6_targetPc <= io_writeback_3_targetPc;
+      end
+      if(_zz_144) begin
+        statuses_7_targetPc <= io_writeback_3_targetPc;
       end
       if(_zz_137) begin
         statuses_0_isTaken <= io_writeback_3_isTaken;
@@ -56591,7 +55932,7 @@ module ReorderBuffer (
         statuses_7_result <= io_writeback_3_result;
       end
     end
-    if(when_ReorderBuffer_l375_4) begin
+    if(when_ReorderBuffer_l378_4) begin
       if(_zz_146) begin
         statuses_0_isMispredictedBranch <= io_writeback_4_isMispredictedBranch;
       end
@@ -56615,6 +55956,30 @@ module ReorderBuffer (
       end
       if(_zz_153) begin
         statuses_7_isMispredictedBranch <= io_writeback_4_isMispredictedBranch;
+      end
+      if(_zz_146) begin
+        statuses_0_targetPc <= io_writeback_4_targetPc;
+      end
+      if(_zz_147) begin
+        statuses_1_targetPc <= io_writeback_4_targetPc;
+      end
+      if(_zz_148) begin
+        statuses_2_targetPc <= io_writeback_4_targetPc;
+      end
+      if(_zz_149) begin
+        statuses_3_targetPc <= io_writeback_4_targetPc;
+      end
+      if(_zz_150) begin
+        statuses_4_targetPc <= io_writeback_4_targetPc;
+      end
+      if(_zz_151) begin
+        statuses_5_targetPc <= io_writeback_4_targetPc;
+      end
+      if(_zz_152) begin
+        statuses_6_targetPc <= io_writeback_4_targetPc;
+      end
+      if(_zz_153) begin
+        statuses_7_targetPc <= io_writeback_4_targetPc;
       end
       if(_zz_146) begin
         statuses_0_isTaken <= io_writeback_4_isTaken;
@@ -56696,28 +56061,37 @@ module StreamFifo_11 (
   output wire [31:0]   io_pop_payload_bpuPrediction_target,
   output wire          io_pop_payload_bpuPrediction_wasPredicted,
   input  wire          io_flush,
-  output wire [2:0]    io_occupancy,
-  output wire [2:0]    io_availability,
+  output wire [4:0]    io_occupancy,
+  output wire [4:0]    io_availability,
   input  wire          clk,
   input  wire          reset
 );
 
   reg        [133:0]  logic_ram_spinal_port1;
+  wire       [4:0]    _zz_logic_ptr_notPow2_counter;
+  wire       [4:0]    _zz_logic_ptr_notPow2_counter_1;
+  wire       [0:0]    _zz_logic_ptr_notPow2_counter_2;
+  wire       [4:0]    _zz_logic_ptr_notPow2_counter_3;
+  wire       [0:0]    _zz_logic_ptr_notPow2_counter_4;
   wire       [133:0]  _zz_logic_ram_port;
   reg                 _zz_1;
   wire                logic_ptr_doPush;
   wire                logic_ptr_doPop;
   wire                logic_ptr_full;
   wire                logic_ptr_empty;
-  reg        [2:0]    logic_ptr_push;
-  reg        [2:0]    logic_ptr_pop;
-  wire       [2:0]    logic_ptr_occupancy;
-  wire       [2:0]    logic_ptr_popOnIo;
+  reg        [4:0]    logic_ptr_push;
+  reg        [4:0]    logic_ptr_pop;
+  wire       [4:0]    logic_ptr_occupancy;
+  wire       [4:0]    logic_ptr_popOnIo;
   wire                when_Stream_l1455;
   reg                 logic_ptr_wentUp;
+  wire                when_Stream_l1490;
+  wire                when_Stream_l1494;
+  reg        [4:0]    logic_ptr_notPow2_counter;
   wire                io_push_fire;
+  wire                io_pop_fire;
   wire                logic_push_onRam_write_valid;
-  wire       [1:0]    logic_push_onRam_write_payload_address;
+  wire       [4:0]    logic_push_onRam_write_payload_address;
   wire       [31:0]   logic_push_onRam_write_payload_data_pc;
   wire       [31:0]   logic_push_onRam_write_payload_data_instruction;
   wire                logic_push_onRam_write_payload_data_predecode_isBranch;
@@ -56730,16 +56104,16 @@ module StreamFifo_11 (
   wire                logic_push_onRam_write_payload_data_bpuPrediction_wasPredicted;
   wire                logic_pop_addressGen_valid;
   reg                 logic_pop_addressGen_ready;
-  wire       [1:0]    logic_pop_addressGen_payload;
+  wire       [4:0]    logic_pop_addressGen_payload;
   wire                logic_pop_addressGen_fire;
   wire                logic_pop_sync_readArbitation_valid;
   wire                logic_pop_sync_readArbitation_ready;
-  wire       [1:0]    logic_pop_sync_readArbitation_payload;
+  wire       [4:0]    logic_pop_sync_readArbitation_payload;
   reg                 logic_pop_addressGen_rValid;
-  reg        [1:0]    logic_pop_addressGen_rData;
+  reg        [4:0]    logic_pop_addressGen_rData;
   wire                when_Stream_l477;
   wire                logic_pop_sync_readPort_cmd_valid;
-  wire       [1:0]    logic_pop_sync_readPort_cmd_payload;
+  wire       [4:0]    logic_pop_sync_readPort_cmd_payload;
   wire       [31:0]   logic_pop_sync_readPort_rsp_pc;
   wire       [31:0]   logic_pop_sync_readPort_rsp_instruction;
   wire                logic_pop_sync_readPort_rsp_predecode_isBranch;
@@ -56754,7 +56128,7 @@ module StreamFifo_11 (
   wire       [35:0]   _zz_logic_pop_sync_readPort_rsp_predecode_isBranch;
   wire       [33:0]   _zz_logic_pop_sync_readPort_rsp_bpuPrediction_isTaken;
   wire                logic_pop_addressGen_toFlowFire_valid;
-  wire       [1:0]    logic_pop_addressGen_toFlowFire_payload;
+  wire       [4:0]    logic_pop_addressGen_toFlowFire_payload;
   wire                logic_pop_sync_readArbitation_translated_valid;
   wire                logic_pop_sync_readArbitation_translated_ready;
   wire       [31:0]   logic_pop_sync_readArbitation_translated_payload_pc;
@@ -56768,9 +56142,14 @@ module StreamFifo_11 (
   wire       [31:0]   logic_pop_sync_readArbitation_translated_payload_bpuPrediction_target;
   wire                logic_pop_sync_readArbitation_translated_payload_bpuPrediction_wasPredicted;
   wire                logic_pop_sync_readArbitation_fire;
-  reg        [2:0]    logic_pop_sync_popReg;
-  (* ram_style = "block" *) reg [133:0] logic_ram [0:3];
+  reg        [4:0]    logic_pop_sync_popReg;
+  (* ram_style = "block" *) reg [133:0] logic_ram [0:23];
 
+  assign _zz_logic_ptr_notPow2_counter = (logic_ptr_notPow2_counter + _zz_logic_ptr_notPow2_counter_1);
+  assign _zz_logic_ptr_notPow2_counter_2 = io_push_fire;
+  assign _zz_logic_ptr_notPow2_counter_1 = {4'd0, _zz_logic_ptr_notPow2_counter_2};
+  assign _zz_logic_ptr_notPow2_counter_4 = io_pop_fire;
+  assign _zz_logic_ptr_notPow2_counter_3 = {4'd0, _zz_logic_ptr_notPow2_counter_4};
   assign _zz_logic_ram_port = {{logic_push_onRam_write_payload_data_bpuPrediction_wasPredicted,{logic_push_onRam_write_payload_data_bpuPrediction_target,logic_push_onRam_write_payload_data_bpuPrediction_isTaken}},{{logic_push_onRam_write_payload_data_predecode_isIdle,{logic_push_onRam_write_payload_data_predecode_jumpOffset,{logic_push_onRam_write_payload_data_predecode_isDirectJump,{logic_push_onRam_write_payload_data_predecode_isJump,logic_push_onRam_write_payload_data_predecode_isBranch}}}},{logic_push_onRam_write_payload_data_instruction,logic_push_onRam_write_payload_data_pc}}};
   always @(posedge clk) begin
     if(_zz_1) begin
@@ -56792,14 +56171,17 @@ module StreamFifo_11 (
   end
 
   assign when_Stream_l1455 = (logic_ptr_doPush != logic_ptr_doPop);
-  assign logic_ptr_full = (((logic_ptr_push ^ logic_ptr_popOnIo) ^ 3'b100) == 3'b000);
-  assign logic_ptr_empty = (logic_ptr_push == logic_ptr_pop);
-  assign logic_ptr_occupancy = (logic_ptr_push - logic_ptr_popOnIo);
-  assign io_push_ready = (! logic_ptr_full);
+  assign logic_ptr_full = ((logic_ptr_push == logic_ptr_popOnIo) && logic_ptr_wentUp);
+  assign logic_ptr_empty = ((logic_ptr_push == logic_ptr_pop) && (! logic_ptr_wentUp));
+  assign when_Stream_l1490 = (logic_ptr_push == 5'h17);
+  assign when_Stream_l1494 = (logic_ptr_pop == 5'h17);
   assign io_push_fire = (io_push_valid && io_push_ready);
+  assign io_pop_fire = (io_pop_valid && io_pop_ready);
+  assign logic_ptr_occupancy = logic_ptr_notPow2_counter;
+  assign io_push_ready = (! logic_ptr_full);
   assign logic_ptr_doPush = io_push_fire;
   assign logic_push_onRam_write_valid = io_push_fire;
-  assign logic_push_onRam_write_payload_address = logic_ptr_push[1:0];
+  assign logic_push_onRam_write_payload_address = logic_ptr_push;
   assign logic_push_onRam_write_payload_data_pc = io_push_payload_pc;
   assign logic_push_onRam_write_payload_data_instruction = io_push_payload_instruction;
   assign logic_push_onRam_write_payload_data_predecode_isBranch = io_push_payload_predecode_isBranch;
@@ -56811,7 +56193,7 @@ module StreamFifo_11 (
   assign logic_push_onRam_write_payload_data_bpuPrediction_target = io_push_payload_bpuPrediction_target;
   assign logic_push_onRam_write_payload_data_bpuPrediction_wasPredicted = io_push_payload_bpuPrediction_wasPredicted;
   assign logic_pop_addressGen_valid = (! logic_ptr_empty);
-  assign logic_pop_addressGen_payload = logic_ptr_pop[1:0];
+  assign logic_pop_addressGen_payload = logic_ptr_pop;
   assign logic_pop_addressGen_fire = (logic_pop_addressGen_valid && logic_pop_addressGen_ready);
   assign logic_ptr_doPop = logic_pop_addressGen_fire;
   always @(*) begin
@@ -56868,14 +56250,15 @@ module StreamFifo_11 (
   assign logic_pop_sync_readArbitation_fire = (logic_pop_sync_readArbitation_valid && logic_pop_sync_readArbitation_ready);
   assign logic_ptr_popOnIo = logic_pop_sync_popReg;
   assign io_occupancy = logic_ptr_occupancy;
-  assign io_availability = (3'b100 - logic_ptr_occupancy);
+  assign io_availability = (5'h18 - logic_ptr_occupancy);
   always @(posedge clk) begin
     if(reset) begin
-      logic_ptr_push <= 3'b000;
-      logic_ptr_pop <= 3'b000;
+      logic_ptr_push <= 5'h0;
+      logic_ptr_pop <= 5'h0;
       logic_ptr_wentUp <= 1'b0;
+      logic_ptr_notPow2_counter <= 5'h0;
       logic_pop_addressGen_rValid <= 1'b0;
-      logic_pop_sync_popReg <= 3'b000;
+      logic_pop_sync_popReg <= 5'h0;
     end else begin
       if(when_Stream_l1455) begin
         logic_ptr_wentUp <= logic_ptr_doPush;
@@ -56884,14 +56267,24 @@ module StreamFifo_11 (
         logic_ptr_wentUp <= 1'b0;
       end
       if(logic_ptr_doPush) begin
-        logic_ptr_push <= (logic_ptr_push + 3'b001);
+        logic_ptr_push <= (logic_ptr_push + 5'h01);
+        if(when_Stream_l1490) begin
+          logic_ptr_push <= 5'h0;
+        end
       end
       if(logic_ptr_doPop) begin
-        logic_ptr_pop <= (logic_ptr_pop + 3'b001);
+        logic_ptr_pop <= (logic_ptr_pop + 5'h01);
+        if(when_Stream_l1494) begin
+          logic_ptr_pop <= 5'h0;
+        end
       end
       if(io_flush) begin
-        logic_ptr_push <= 3'b000;
-        logic_ptr_pop <= 3'b000;
+        logic_ptr_push <= 5'h0;
+        logic_ptr_pop <= 5'h0;
+      end
+      logic_ptr_notPow2_counter <= (_zz_logic_ptr_notPow2_counter - _zz_logic_ptr_notPow2_counter_3);
+      if(io_flush) begin
+        logic_ptr_notPow2_counter <= 5'h0;
       end
       if(logic_pop_addressGen_ready) begin
         logic_pop_addressGen_rValid <= logic_pop_addressGen_valid;
@@ -56903,7 +56296,7 @@ module StreamFifo_11 (
         logic_pop_sync_popReg <= logic_ptr_pop;
       end
       if(io_flush) begin
-        logic_pop_sync_popReg <= 3'b000;
+        logic_pop_sync_popReg <= 5'h0;
       end
     end
   end
@@ -57023,19 +56416,19 @@ module SRAMController_1 (
   reg                 fsm_addr_prefetch_valid;
   (* MARK_DEBUG = "TRUE" *) reg        [3:0]    fsm_stateReg;
   reg        [3:0]    fsm_stateNext;
-  wire                when_SRAMController_l293;
+  wire                when_SRAMController_l294;
   (* mark_debug = "true" *) wire                io_axi_aw_fire;
   (* mark_debug = "true" *) wire                io_axi_ar_fire;
   (* mark_debug = "true" *) wire                io_axi_w_fire;
-  wire                when_SRAMController_l454;
-  wire                when_SRAMController_l473;
-  wire                when_SRAMController_l490;
-  wire                when_SRAMController_l523;
-  wire                when_SRAMController_l625;
-  wire                when_SRAMController_l634;
-  wire                when_SRAMController_l664;
+  wire                when_SRAMController_l455;
+  wire                when_SRAMController_l474;
+  wire                when_SRAMController_l491;
+  wire                when_SRAMController_l524;
+  wire                when_SRAMController_l626;
+  wire                when_SRAMController_l635;
+  wire                when_SRAMController_l665;
   (* mark_debug = "true" *) wire                io_axi_r_fire;
-  wire                when_SRAMController_l713;
+  wire                when_SRAMController_l714;
   wire                fsm_onExit_BOOT;
   wire                fsm_onExit_IDLE;
   wire                fsm_onExit_VALIDATE;
@@ -57065,8 +56458,8 @@ module SRAMController_1 (
   (* mark_debug = "true" *) wire                io_axi_b_fire;
   reg                 sram_ce_n_out_reg_prev;
   reg                 sram_we_n_out_reg_prev;
-  wire                when_SRAMController_l749;
   wire                when_SRAMController_l750;
+  wire                when_SRAMController_l751;
   `ifndef SYNTHESIS
   reg [191:0] fsm_stateReg_string;
   reg [191:0] fsm_stateNext_string;
@@ -57134,7 +56527,7 @@ module SRAMController_1 (
     case(fsm_stateReg)
       fsm_IDLE : begin
         io_axi_aw_ready = 1'b0;
-        if(when_SRAMController_l293) begin
+        if(when_SRAMController_l294) begin
           io_axi_aw_ready = (! fsm_read_priority);
         end else begin
           io_axi_aw_ready = io_axi_aw_valid;
@@ -57173,7 +56566,7 @@ module SRAMController_1 (
     case(fsm_stateReg)
       fsm_IDLE : begin
         io_axi_ar_ready = 1'b0;
-        if(when_SRAMController_l293) begin
+        if(when_SRAMController_l294) begin
           io_axi_ar_ready = fsm_read_priority;
         end else begin
           io_axi_ar_ready = io_axi_ar_valid;
@@ -57501,10 +56894,10 @@ module SRAMController_1 (
       fsm_READ_WAIT : begin
       end
       fsm_READ_RESPONSE : begin
-        io_axi_r_payload_last = when_SRAMController_l664;
+        io_axi_r_payload_last = when_SRAMController_l665;
       end
       fsm_READ_RESPONSE_ERROR : begin
-        io_axi_r_payload_last = when_SRAMController_l713;
+        io_axi_r_payload_last = when_SRAMController_l714;
       end
       default : begin
       end
@@ -57573,17 +56966,17 @@ module SRAMController_1 (
         end
       end
       fsm_WRITE_EXECUTE : begin
-        if(when_SRAMController_l454) begin
+        if(when_SRAMController_l455) begin
           fsm_stateNext = fsm_WRITE_DEASSERT;
         end
       end
       fsm_WRITE_DEASSERT : begin
-        if(when_SRAMController_l473) begin
+        if(when_SRAMController_l474) begin
           fsm_stateNext = fsm_WRITE_FINALIZE;
         end
       end
       fsm_WRITE_FINALIZE : begin
-        if(when_SRAMController_l490) begin
+        if(when_SRAMController_l491) begin
           fsm_stateNext = fsm_WRITE_RESPONSE;
         end else begin
           fsm_stateNext = fsm_WRITE_DATA_FETCH;
@@ -57591,7 +56984,7 @@ module SRAMController_1 (
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
         if(io_axi_w_fire) begin
-          if(when_SRAMController_l523) begin
+          if(when_SRAMController_l524) begin
             fsm_stateNext = fsm_WRITE_RESPONSE;
           end
         end
@@ -57605,13 +56998,13 @@ module SRAMController_1 (
         fsm_stateNext = fsm_READ_WAIT;
       end
       fsm_READ_WAIT : begin
-        if(when_SRAMController_l634) begin
+        if(when_SRAMController_l635) begin
           fsm_stateNext = fsm_READ_RESPONSE;
         end
       end
       fsm_READ_RESPONSE : begin
         if(io_axi_r_fire) begin
-          if(when_SRAMController_l664) begin
+          if(when_SRAMController_l665) begin
             fsm_stateNext = fsm_IDLE;
           end else begin
             fsm_stateNext = fsm_READ_SETUP;
@@ -57620,7 +57013,7 @@ module SRAMController_1 (
       end
       fsm_READ_RESPONSE_ERROR : begin
         if(io_axi_r_fire) begin
-          if(when_SRAMController_l713) begin
+          if(when_SRAMController_l714) begin
             fsm_stateNext = fsm_IDLE;
           end
         end
@@ -57636,19 +57029,19 @@ module SRAMController_1 (
     end
   end
 
-  assign when_SRAMController_l293 = (io_axi_aw_valid && io_axi_ar_valid);
+  assign when_SRAMController_l294 = (io_axi_aw_valid && io_axi_ar_valid);
   assign io_axi_aw_fire = (io_axi_aw_valid && io_axi_aw_ready);
   assign io_axi_ar_fire = (io_axi_ar_valid && io_axi_ar_ready);
   assign io_axi_w_fire = (io_axi_w_valid && io_axi_w_ready);
-  assign when_SRAMController_l454 = (fsm_write_wait_counter == 2'b11);
-  assign when_SRAMController_l473 = 1'b1;
-  assign when_SRAMController_l490 = (fsm_burst_count_remaining == 9'h0);
-  assign when_SRAMController_l523 = (fsm_burst_count_remaining == 9'h001);
-  assign when_SRAMController_l625 = (((fsm_read_wait_counter == 2'b10) && (9'h001 < fsm_burst_count_remaining)) && (! fsm_addr_prefetch_valid));
-  assign when_SRAMController_l634 = (fsm_read_wait_counter == 2'b11);
-  assign when_SRAMController_l664 = (fsm_burst_count_remaining == 9'h001);
+  assign when_SRAMController_l455 = (fsm_write_wait_counter == 2'b11);
+  assign when_SRAMController_l474 = 1'b1;
+  assign when_SRAMController_l491 = (fsm_burst_count_remaining == 9'h0);
+  assign when_SRAMController_l524 = (fsm_burst_count_remaining == 9'h001);
+  assign when_SRAMController_l626 = (((fsm_read_wait_counter == 2'b10) && (9'h001 < fsm_burst_count_remaining)) && (! fsm_addr_prefetch_valid));
+  assign when_SRAMController_l635 = (fsm_read_wait_counter == 2'b11);
+  assign when_SRAMController_l665 = (fsm_burst_count_remaining == 9'h001);
   assign io_axi_r_fire = (io_axi_r_valid && io_axi_r_ready);
-  assign when_SRAMController_l713 = (fsm_burst_count_remaining == 9'h001);
+  assign when_SRAMController_l714 = (fsm_burst_count_remaining == 9'h001);
   assign fsm_onExit_BOOT = ((fsm_stateNext != fsm_BOOT) && (fsm_stateReg == fsm_BOOT));
   assign fsm_onExit_IDLE = ((fsm_stateNext != fsm_IDLE) && (fsm_stateReg == fsm_IDLE));
   assign fsm_onExit_VALIDATE = ((fsm_stateNext != fsm_VALIDATE) && (fsm_stateReg == fsm_VALIDATE));
@@ -57676,8 +57069,8 @@ module SRAMController_1 (
   assign fsm_onEntry_READ_RESPONSE = ((fsm_stateNext == fsm_READ_RESPONSE) && (fsm_stateReg != fsm_READ_RESPONSE));
   assign fsm_onEntry_READ_RESPONSE_ERROR = ((fsm_stateNext == fsm_READ_RESPONSE_ERROR) && (fsm_stateReg != fsm_READ_RESPONSE_ERROR));
   assign io_axi_b_fire = (io_axi_b_valid && io_axi_b_ready);
-  assign when_SRAMController_l749 = ((sram_ce_n_out_reg_prev == 1'b0) && (sram_we_n_out_reg_prev == 1'b0));
-  assign when_SRAMController_l750 = ((sram_ce_n_out_reg == 1'b1) && (sram_we_n_out_reg == 1'b1));
+  assign when_SRAMController_l750 = ((sram_ce_n_out_reg_prev == 1'b0) && (sram_we_n_out_reg_prev == 1'b0));
+  assign when_SRAMController_l751 = ((sram_ce_n_out_reg == 1'b1) && (sram_we_n_out_reg == 1'b1));
   always @(posedge clk) begin
     if(reset) begin
       sram_addr_out_reg <= 20'h0;
@@ -57687,6 +57080,8 @@ module SRAMController_1 (
       sram_oe_n_out_reg <= 1'b1;
       sram_we_n_out_reg <= 1'b1;
       sram_data_writeEnable_out_reg <= 1'b0;
+      fsm_burst_count_remaining <= 9'h0;
+      fsm_current_sram_addr <= 20'h0;
       fsm_transaction_error_occurred <= 1'b0;
       fsm_read_priority <= 1'b0;
       fsm_addr_prefetch_valid <= 1'b0;
@@ -57700,12 +57095,16 @@ module SRAMController_1 (
           fsm_transaction_error_occurred <= 1'b0;
           fsm_addr_prefetch_valid <= 1'b0;
           if(io_axi_aw_fire) begin
+            fsm_burst_count_remaining <= {1'd0, _zz_fsm_burst_count_remaining};
             fsm_read_priority <= (! fsm_read_priority);
             fsm_transaction_error_occurred <= 1'b0;
+            fsm_current_sram_addr <= {2'd0, _zz_fsm_current_sram_addr};
           end
           if(io_axi_ar_fire) begin
+            fsm_burst_count_remaining <= {1'd0, _zz_fsm_burst_count_remaining_1};
             fsm_read_priority <= (! fsm_read_priority);
             fsm_transaction_error_occurred <= 1'b0;
+            fsm_current_sram_addr <= {2'd0, _zz_fsm_current_sram_addr_3};
           end
         end
         fsm_VALIDATE : begin
@@ -57713,12 +57112,21 @@ module SRAMController_1 (
         fsm_WRITE_DATA_FETCH : begin
         end
         fsm_WRITE_EXECUTE : begin
+          if(when_SRAMController_l455) begin
+            fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
+          end
         end
         fsm_WRITE_DEASSERT : begin
         end
         fsm_WRITE_FINALIZE : begin
+          if(!when_SRAMController_l491) begin
+            fsm_current_sram_addr <= (fsm_current_sram_addr + _zz_fsm_current_sram_addr_6);
+          end
         end
         fsm_WRITE_DATA_ERROR_CONSUME : begin
+          if(io_axi_w_fire) begin
+            fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
+          end
         end
         fsm_WRITE_RESPONSE : begin
         end
@@ -57732,20 +57140,27 @@ module SRAMController_1 (
           sram_be_n_out_reg <= 4'b0000;
         end
         fsm_READ_WAIT : begin
-          if(when_SRAMController_l625) begin
+          if(when_SRAMController_l626) begin
             fsm_addr_prefetch_valid <= 1'b1;
           end
         end
         fsm_READ_RESPONSE : begin
           if(io_axi_r_fire) begin
-            if(!when_SRAMController_l664) begin
+            fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
+            if(!when_SRAMController_l665) begin
               if(fsm_addr_prefetch_valid) begin
+                fsm_current_sram_addr <= fsm_next_sram_addr_prefetch;
                 fsm_addr_prefetch_valid <= 1'b0;
+              end else begin
+                fsm_current_sram_addr <= (fsm_current_sram_addr + _zz_fsm_current_sram_addr_9);
               end
             end
           end
         end
         fsm_READ_RESPONSE_ERROR : begin
+          if(io_axi_r_fire) begin
+            fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
+          end
         end
         default : begin
         end
@@ -57820,14 +57235,14 @@ module SRAMController_1 (
       end
       sram_ce_n_out_reg_prev <= sram_ce_n_out_reg;
       sram_we_n_out_reg_prev <= sram_we_n_out_reg;
-      if(when_SRAMController_l749) begin
-        if(when_SRAMController_l750) begin
+      if(when_SRAMController_l750) begin
+        if(when_SRAMController_l751) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // SRAMController.scala:L751
+              assert(1'b0); // SRAMController.scala:L752
             `else
               if(!1'b0) begin
-                $display("FAILURE This is a bug."); // SRAMController.scala:L751
+                $display("FAILURE This is a bug."); // SRAMController.scala:L752
                 $finish;
               end
             `endif
@@ -57846,8 +57261,6 @@ module SRAMController_1 (
           fsm_aw_cmd_reg_len <= io_axi_aw_payload_len;
           fsm_aw_cmd_reg_size <= io_axi_aw_payload_size;
           fsm_aw_cmd_reg_burst <= io_axi_aw_payload_burst;
-          fsm_burst_count_remaining <= {1'd0, _zz_fsm_burst_count_remaining};
-          fsm_current_sram_addr <= {2'd0, _zz_fsm_current_sram_addr};
         end
         if(io_axi_ar_fire) begin
           fsm_ar_cmd_reg_addr <= io_axi_ar_payload_addr;
@@ -57855,8 +57268,6 @@ module SRAMController_1 (
           fsm_ar_cmd_reg_len <= io_axi_ar_payload_len;
           fsm_ar_cmd_reg_size <= io_axi_ar_payload_size;
           fsm_ar_cmd_reg_burst <= io_axi_ar_payload_burst;
-          fsm_burst_count_remaining <= {1'd0, _zz_fsm_burst_count_remaining_1};
-          fsm_current_sram_addr <= {2'd0, _zz_fsm_current_sram_addr_3};
           fsm_read_wait_counter <= 2'b00;
         end
       end
@@ -57865,23 +57276,15 @@ module SRAMController_1 (
       fsm_WRITE_DATA_FETCH : begin
       end
       fsm_WRITE_EXECUTE : begin
-        if(when_SRAMController_l454) begin
-          fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
-        end else begin
+        if(!when_SRAMController_l455) begin
           fsm_write_wait_counter <= (fsm_write_wait_counter + 2'b01);
         end
       end
       fsm_WRITE_DEASSERT : begin
       end
       fsm_WRITE_FINALIZE : begin
-        if(!when_SRAMController_l490) begin
-          fsm_current_sram_addr <= (fsm_current_sram_addr + _zz_fsm_current_sram_addr_6);
-        end
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
-        if(io_axi_w_fire) begin
-          fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
-        end
       end
       fsm_WRITE_RESPONSE : begin
       end
@@ -57889,31 +57292,18 @@ module SRAMController_1 (
         fsm_read_wait_counter <= 2'b00;
       end
       fsm_READ_WAIT : begin
-        if(when_SRAMController_l625) begin
+        if(when_SRAMController_l626) begin
           fsm_next_sram_addr_prefetch <= (fsm_current_sram_addr + _zz_fsm_next_sram_addr_prefetch);
         end
-        if(when_SRAMController_l634) begin
+        if(when_SRAMController_l635) begin
           fsm_read_data_buffer <= io_ram_data_read;
         end else begin
           fsm_read_wait_counter <= (fsm_read_wait_counter + 2'b01);
         end
       end
       fsm_READ_RESPONSE : begin
-        if(io_axi_r_fire) begin
-          fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
-          if(!when_SRAMController_l664) begin
-            if(fsm_addr_prefetch_valid) begin
-              fsm_current_sram_addr <= fsm_next_sram_addr_prefetch;
-            end else begin
-              fsm_current_sram_addr <= (fsm_current_sram_addr + _zz_fsm_current_sram_addr_9);
-            end
-          end
-        end
       end
       fsm_READ_RESPONSE_ERROR : begin
-        if(io_axi_r_fire) begin
-          fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
-        end
       end
       default : begin
       end
@@ -58032,19 +57422,19 @@ module SRAMController (
   reg                 fsm_addr_prefetch_valid;
   (* MARK_DEBUG = "TRUE" *) reg        [3:0]    fsm_stateReg;
   reg        [3:0]    fsm_stateNext;
-  wire                when_SRAMController_l293;
+  wire                when_SRAMController_l294;
   (* mark_debug = "true" *) wire                io_axi_aw_fire;
   (* mark_debug = "true" *) wire                io_axi_ar_fire;
   (* mark_debug = "true" *) wire                io_axi_w_fire;
-  wire                when_SRAMController_l454;
-  wire                when_SRAMController_l473;
-  wire                when_SRAMController_l490;
-  wire                when_SRAMController_l523;
-  wire                when_SRAMController_l625;
-  wire                when_SRAMController_l634;
-  wire                when_SRAMController_l664;
+  wire                when_SRAMController_l455;
+  wire                when_SRAMController_l474;
+  wire                when_SRAMController_l491;
+  wire                when_SRAMController_l524;
+  wire                when_SRAMController_l626;
+  wire                when_SRAMController_l635;
+  wire                when_SRAMController_l665;
   (* mark_debug = "true" *) wire                io_axi_r_fire;
-  wire                when_SRAMController_l713;
+  wire                when_SRAMController_l714;
   wire                fsm_onExit_BOOT;
   wire                fsm_onExit_IDLE;
   wire                fsm_onExit_VALIDATE;
@@ -58074,8 +57464,8 @@ module SRAMController (
   (* mark_debug = "true" *) wire                io_axi_b_fire;
   reg                 sram_ce_n_out_reg_prev;
   reg                 sram_we_n_out_reg_prev;
-  wire                when_SRAMController_l749;
   wire                when_SRAMController_l750;
+  wire                when_SRAMController_l751;
   `ifndef SYNTHESIS
   reg [191:0] fsm_stateReg_string;
   reg [191:0] fsm_stateNext_string;
@@ -58143,7 +57533,7 @@ module SRAMController (
     case(fsm_stateReg)
       fsm_IDLE : begin
         io_axi_aw_ready = 1'b0;
-        if(when_SRAMController_l293) begin
+        if(when_SRAMController_l294) begin
           io_axi_aw_ready = (! fsm_read_priority);
         end else begin
           io_axi_aw_ready = io_axi_aw_valid;
@@ -58182,7 +57572,7 @@ module SRAMController (
     case(fsm_stateReg)
       fsm_IDLE : begin
         io_axi_ar_ready = 1'b0;
-        if(when_SRAMController_l293) begin
+        if(when_SRAMController_l294) begin
           io_axi_ar_ready = fsm_read_priority;
         end else begin
           io_axi_ar_ready = io_axi_ar_valid;
@@ -58510,10 +57900,10 @@ module SRAMController (
       fsm_READ_WAIT : begin
       end
       fsm_READ_RESPONSE : begin
-        io_axi_r_payload_last = when_SRAMController_l664;
+        io_axi_r_payload_last = when_SRAMController_l665;
       end
       fsm_READ_RESPONSE_ERROR : begin
-        io_axi_r_payload_last = when_SRAMController_l713;
+        io_axi_r_payload_last = when_SRAMController_l714;
       end
       default : begin
       end
@@ -58582,17 +57972,17 @@ module SRAMController (
         end
       end
       fsm_WRITE_EXECUTE : begin
-        if(when_SRAMController_l454) begin
+        if(when_SRAMController_l455) begin
           fsm_stateNext = fsm_WRITE_DEASSERT;
         end
       end
       fsm_WRITE_DEASSERT : begin
-        if(when_SRAMController_l473) begin
+        if(when_SRAMController_l474) begin
           fsm_stateNext = fsm_WRITE_FINALIZE;
         end
       end
       fsm_WRITE_FINALIZE : begin
-        if(when_SRAMController_l490) begin
+        if(when_SRAMController_l491) begin
           fsm_stateNext = fsm_WRITE_RESPONSE;
         end else begin
           fsm_stateNext = fsm_WRITE_DATA_FETCH;
@@ -58600,7 +57990,7 @@ module SRAMController (
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
         if(io_axi_w_fire) begin
-          if(when_SRAMController_l523) begin
+          if(when_SRAMController_l524) begin
             fsm_stateNext = fsm_WRITE_RESPONSE;
           end
         end
@@ -58614,13 +58004,13 @@ module SRAMController (
         fsm_stateNext = fsm_READ_WAIT;
       end
       fsm_READ_WAIT : begin
-        if(when_SRAMController_l634) begin
+        if(when_SRAMController_l635) begin
           fsm_stateNext = fsm_READ_RESPONSE;
         end
       end
       fsm_READ_RESPONSE : begin
         if(io_axi_r_fire) begin
-          if(when_SRAMController_l664) begin
+          if(when_SRAMController_l665) begin
             fsm_stateNext = fsm_IDLE;
           end else begin
             fsm_stateNext = fsm_READ_SETUP;
@@ -58629,7 +58019,7 @@ module SRAMController (
       end
       fsm_READ_RESPONSE_ERROR : begin
         if(io_axi_r_fire) begin
-          if(when_SRAMController_l713) begin
+          if(when_SRAMController_l714) begin
             fsm_stateNext = fsm_IDLE;
           end
         end
@@ -58645,19 +58035,19 @@ module SRAMController (
     end
   end
 
-  assign when_SRAMController_l293 = (io_axi_aw_valid && io_axi_ar_valid);
+  assign when_SRAMController_l294 = (io_axi_aw_valid && io_axi_ar_valid);
   assign io_axi_aw_fire = (io_axi_aw_valid && io_axi_aw_ready);
   assign io_axi_ar_fire = (io_axi_ar_valid && io_axi_ar_ready);
   assign io_axi_w_fire = (io_axi_w_valid && io_axi_w_ready);
-  assign when_SRAMController_l454 = (fsm_write_wait_counter == 2'b11);
-  assign when_SRAMController_l473 = 1'b1;
-  assign when_SRAMController_l490 = (fsm_burst_count_remaining == 9'h0);
-  assign when_SRAMController_l523 = (fsm_burst_count_remaining == 9'h001);
-  assign when_SRAMController_l625 = (((fsm_read_wait_counter == 2'b10) && (9'h001 < fsm_burst_count_remaining)) && (! fsm_addr_prefetch_valid));
-  assign when_SRAMController_l634 = (fsm_read_wait_counter == 2'b11);
-  assign when_SRAMController_l664 = (fsm_burst_count_remaining == 9'h001);
+  assign when_SRAMController_l455 = (fsm_write_wait_counter == 2'b11);
+  assign when_SRAMController_l474 = 1'b1;
+  assign when_SRAMController_l491 = (fsm_burst_count_remaining == 9'h0);
+  assign when_SRAMController_l524 = (fsm_burst_count_remaining == 9'h001);
+  assign when_SRAMController_l626 = (((fsm_read_wait_counter == 2'b10) && (9'h001 < fsm_burst_count_remaining)) && (! fsm_addr_prefetch_valid));
+  assign when_SRAMController_l635 = (fsm_read_wait_counter == 2'b11);
+  assign when_SRAMController_l665 = (fsm_burst_count_remaining == 9'h001);
   assign io_axi_r_fire = (io_axi_r_valid && io_axi_r_ready);
-  assign when_SRAMController_l713 = (fsm_burst_count_remaining == 9'h001);
+  assign when_SRAMController_l714 = (fsm_burst_count_remaining == 9'h001);
   assign fsm_onExit_BOOT = ((fsm_stateNext != fsm_BOOT) && (fsm_stateReg == fsm_BOOT));
   assign fsm_onExit_IDLE = ((fsm_stateNext != fsm_IDLE) && (fsm_stateReg == fsm_IDLE));
   assign fsm_onExit_VALIDATE = ((fsm_stateNext != fsm_VALIDATE) && (fsm_stateReg == fsm_VALIDATE));
@@ -58685,8 +58075,8 @@ module SRAMController (
   assign fsm_onEntry_READ_RESPONSE = ((fsm_stateNext == fsm_READ_RESPONSE) && (fsm_stateReg != fsm_READ_RESPONSE));
   assign fsm_onEntry_READ_RESPONSE_ERROR = ((fsm_stateNext == fsm_READ_RESPONSE_ERROR) && (fsm_stateReg != fsm_READ_RESPONSE_ERROR));
   assign io_axi_b_fire = (io_axi_b_valid && io_axi_b_ready);
-  assign when_SRAMController_l749 = ((sram_ce_n_out_reg_prev == 1'b0) && (sram_we_n_out_reg_prev == 1'b0));
-  assign when_SRAMController_l750 = ((sram_ce_n_out_reg == 1'b1) && (sram_we_n_out_reg == 1'b1));
+  assign when_SRAMController_l750 = ((sram_ce_n_out_reg_prev == 1'b0) && (sram_we_n_out_reg_prev == 1'b0));
+  assign when_SRAMController_l751 = ((sram_ce_n_out_reg == 1'b1) && (sram_we_n_out_reg == 1'b1));
   always @(posedge clk) begin
     if(reset) begin
       sram_addr_out_reg <= 20'h0;
@@ -58696,6 +58086,8 @@ module SRAMController (
       sram_oe_n_out_reg <= 1'b1;
       sram_we_n_out_reg <= 1'b1;
       sram_data_writeEnable_out_reg <= 1'b0;
+      fsm_burst_count_remaining <= 9'h0;
+      fsm_current_sram_addr <= 20'h0;
       fsm_transaction_error_occurred <= 1'b0;
       fsm_read_priority <= 1'b0;
       fsm_addr_prefetch_valid <= 1'b0;
@@ -58709,12 +58101,16 @@ module SRAMController (
           fsm_transaction_error_occurred <= 1'b0;
           fsm_addr_prefetch_valid <= 1'b0;
           if(io_axi_aw_fire) begin
+            fsm_burst_count_remaining <= {1'd0, _zz_fsm_burst_count_remaining};
             fsm_read_priority <= (! fsm_read_priority);
             fsm_transaction_error_occurred <= 1'b0;
+            fsm_current_sram_addr <= {2'd0, _zz_fsm_current_sram_addr};
           end
           if(io_axi_ar_fire) begin
+            fsm_burst_count_remaining <= {1'd0, _zz_fsm_burst_count_remaining_1};
             fsm_read_priority <= (! fsm_read_priority);
             fsm_transaction_error_occurred <= 1'b0;
+            fsm_current_sram_addr <= {2'd0, _zz_fsm_current_sram_addr_3};
           end
         end
         fsm_VALIDATE : begin
@@ -58722,12 +58118,21 @@ module SRAMController (
         fsm_WRITE_DATA_FETCH : begin
         end
         fsm_WRITE_EXECUTE : begin
+          if(when_SRAMController_l455) begin
+            fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
+          end
         end
         fsm_WRITE_DEASSERT : begin
         end
         fsm_WRITE_FINALIZE : begin
+          if(!when_SRAMController_l491) begin
+            fsm_current_sram_addr <= (fsm_current_sram_addr + _zz_fsm_current_sram_addr_6);
+          end
         end
         fsm_WRITE_DATA_ERROR_CONSUME : begin
+          if(io_axi_w_fire) begin
+            fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
+          end
         end
         fsm_WRITE_RESPONSE : begin
         end
@@ -58741,20 +58146,27 @@ module SRAMController (
           sram_be_n_out_reg <= 4'b0000;
         end
         fsm_READ_WAIT : begin
-          if(when_SRAMController_l625) begin
+          if(when_SRAMController_l626) begin
             fsm_addr_prefetch_valid <= 1'b1;
           end
         end
         fsm_READ_RESPONSE : begin
           if(io_axi_r_fire) begin
-            if(!when_SRAMController_l664) begin
+            fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
+            if(!when_SRAMController_l665) begin
               if(fsm_addr_prefetch_valid) begin
+                fsm_current_sram_addr <= fsm_next_sram_addr_prefetch;
                 fsm_addr_prefetch_valid <= 1'b0;
+              end else begin
+                fsm_current_sram_addr <= (fsm_current_sram_addr + _zz_fsm_current_sram_addr_9);
               end
             end
           end
         end
         fsm_READ_RESPONSE_ERROR : begin
+          if(io_axi_r_fire) begin
+            fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
+          end
         end
         default : begin
         end
@@ -58829,14 +58241,14 @@ module SRAMController (
       end
       sram_ce_n_out_reg_prev <= sram_ce_n_out_reg;
       sram_we_n_out_reg_prev <= sram_we_n_out_reg;
-      if(when_SRAMController_l749) begin
-        if(when_SRAMController_l750) begin
+      if(when_SRAMController_l750) begin
+        if(when_SRAMController_l751) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // SRAMController.scala:L751
+              assert(1'b0); // SRAMController.scala:L752
             `else
               if(!1'b0) begin
-                $display("FAILURE This is a bug."); // SRAMController.scala:L751
+                $display("FAILURE This is a bug."); // SRAMController.scala:L752
                 $finish;
               end
             `endif
@@ -58855,8 +58267,6 @@ module SRAMController (
           fsm_aw_cmd_reg_len <= io_axi_aw_payload_len;
           fsm_aw_cmd_reg_size <= io_axi_aw_payload_size;
           fsm_aw_cmd_reg_burst <= io_axi_aw_payload_burst;
-          fsm_burst_count_remaining <= {1'd0, _zz_fsm_burst_count_remaining};
-          fsm_current_sram_addr <= {2'd0, _zz_fsm_current_sram_addr};
         end
         if(io_axi_ar_fire) begin
           fsm_ar_cmd_reg_addr <= io_axi_ar_payload_addr;
@@ -58864,8 +58274,6 @@ module SRAMController (
           fsm_ar_cmd_reg_len <= io_axi_ar_payload_len;
           fsm_ar_cmd_reg_size <= io_axi_ar_payload_size;
           fsm_ar_cmd_reg_burst <= io_axi_ar_payload_burst;
-          fsm_burst_count_remaining <= {1'd0, _zz_fsm_burst_count_remaining_1};
-          fsm_current_sram_addr <= {2'd0, _zz_fsm_current_sram_addr_3};
           fsm_read_wait_counter <= 2'b00;
         end
       end
@@ -58874,23 +58282,15 @@ module SRAMController (
       fsm_WRITE_DATA_FETCH : begin
       end
       fsm_WRITE_EXECUTE : begin
-        if(when_SRAMController_l454) begin
-          fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
-        end else begin
+        if(!when_SRAMController_l455) begin
           fsm_write_wait_counter <= (fsm_write_wait_counter + 2'b01);
         end
       end
       fsm_WRITE_DEASSERT : begin
       end
       fsm_WRITE_FINALIZE : begin
-        if(!when_SRAMController_l490) begin
-          fsm_current_sram_addr <= (fsm_current_sram_addr + _zz_fsm_current_sram_addr_6);
-        end
       end
       fsm_WRITE_DATA_ERROR_CONSUME : begin
-        if(io_axi_w_fire) begin
-          fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
-        end
       end
       fsm_WRITE_RESPONSE : begin
       end
@@ -58898,31 +58298,18 @@ module SRAMController (
         fsm_read_wait_counter <= 2'b00;
       end
       fsm_READ_WAIT : begin
-        if(when_SRAMController_l625) begin
+        if(when_SRAMController_l626) begin
           fsm_next_sram_addr_prefetch <= (fsm_current_sram_addr + _zz_fsm_next_sram_addr_prefetch);
         end
-        if(when_SRAMController_l634) begin
+        if(when_SRAMController_l635) begin
           fsm_read_data_buffer <= io_ram_data_read;
         end else begin
           fsm_read_wait_counter <= (fsm_read_wait_counter + 2'b01);
         end
       end
       fsm_READ_RESPONSE : begin
-        if(io_axi_r_fire) begin
-          fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
-          if(!when_SRAMController_l664) begin
-            if(fsm_addr_prefetch_valid) begin
-              fsm_current_sram_addr <= fsm_next_sram_addr_prefetch;
-            end else begin
-              fsm_current_sram_addr <= (fsm_current_sram_addr + _zz_fsm_current_sram_addr_9);
-            end
-          end
-        end
       end
       fsm_READ_RESPONSE_ERROR : begin
-        if(io_axi_r_fire) begin
-          fsm_burst_count_remaining <= (fsm_burst_count_remaining - 9'h001);
-        end
       end
       default : begin
       end
@@ -60346,6 +59733,75 @@ module StreamFifo (
   always @(posedge clk) begin
     if(logic_pop_addressGen_ready) begin
       logic_pop_addressGen_rData <= logic_pop_addressGen_payload;
+    end
+  end
+
+
+endmodule
+
+//InstructionPredecoder_3 replaced by InstructionPredecoder
+
+//InstructionPredecoder_2 replaced by InstructionPredecoder
+
+//InstructionPredecoder_1 replaced by InstructionPredecoder
+
+module InstructionPredecoder (
+  input  wire [31:0]   io_instruction,
+  output wire          io_predecodeInfo_isBranch,
+  output wire          io_predecodeInfo_isJump,
+  output wire          io_predecodeInfo_isDirectJump,
+  output wire [31:0]   io_predecodeInfo_jumpOffset,
+  output wire          io_predecodeInfo_isIdle,
+  input  wire          clk,
+  input  wire          reset
+);
+
+  wire       [27:0]   _zz_offset;
+  wire       [25:0]   _zz_offset_1;
+  wire       [5:0]    opcode;
+  wire                isBceqzBcnez;
+  wire                isJirl;
+  wire                isBeq;
+  wire                isBne;
+  wire                isBlt;
+  wire                isBge;
+  wire                isBltu;
+  wire                isBgeu;
+  wire                isB;
+  wire       [25:0]   offs26;
+  wire       [31:0]   offset;
+
+  assign _zz_offset = ({2'd0,_zz_offset_1} <<< 2'd2);
+  assign _zz_offset_1 = offs26;
+  assign opcode = io_instruction[31 : 26];
+  assign isBceqzBcnez = (opcode == 6'h12);
+  assign isJirl = (opcode == 6'h13);
+  assign isBeq = (opcode == 6'h16);
+  assign isBne = (opcode == 6'h17);
+  assign isBlt = (opcode == 6'h18);
+  assign isBge = (opcode == 6'h19);
+  assign isBltu = (opcode == 6'h1a);
+  assign isBgeu = (opcode == 6'h1b);
+  assign isB = (opcode == 6'h14);
+  assign io_predecodeInfo_isBranch = (((((((isBceqzBcnez || isJirl) || isBeq) || isBne) || isBlt) || isBge) || isBltu) || isBgeu);
+  assign io_predecodeInfo_isJump = isB;
+  assign io_predecodeInfo_isDirectJump = isB;
+  assign io_predecodeInfo_isIdle = 1'b0;
+  assign offs26 = {io_instruction[25 : 16],io_instruction[15 : 0]};
+  assign offset = {{4{_zz_offset[27]}}, _zz_offset};
+  assign io_predecodeInfo_jumpOffset = (isB ? offset : 32'h0);
+  always @(posedge clk) begin
+    if(reset) begin
+    end else begin
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // InstructionPredecoder.scala:L83
+        `else
+          if(!1'b0) begin
+            $display("NOTE(InstructionPredecoder.scala:83):  predecodeInfo: input=%x. output PredecodeInfo(isBranch -> %x, isJump -> %x, isDirectJump -> %x, jumpOffset -> %x, isIdle -> %x)", io_instruction, io_predecodeInfo_isBranch, io_predecodeInfo_isJump, io_predecodeInfo_isDirectJump, io_predecodeInfo_jumpOffset, io_predecodeInfo_isIdle); // InstructionPredecoder.scala:L83
+          end
+        `endif
+      `endif
     end
   end
 
