@@ -21,7 +21,7 @@ class ICachePlugin(
   // --- 服务接口实现 ---
   private val port = ICachePort(iCacheCfg, pcWidth)
   override def newICachePort(): ICachePort = port
-  override val invalidate = Bool()
+  override val invalidate = Bool() default(False)
 
   private var axiMaster: Axi4ReadOnly = null
   override def getAxi4ReadOnlyMaster(): Axi4ReadOnly = {

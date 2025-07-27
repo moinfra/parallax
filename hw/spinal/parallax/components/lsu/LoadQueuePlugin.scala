@@ -165,7 +165,7 @@ class LoadQueuePlugin(
         val sbQueryPort      = storeBufferServiceInst.getStoreQueueQueryPort()
         val wakeupServiceInst = getService[WakeupService]
         val wakeupPort = wakeupServiceInst.newWakeupSource("LQ.wakeupPort")
-        // TODO: ROB 刷新端口应该也会在硬重定向时触发，我们监听了ROB刷新，所以处理 doHardRedirect 应该是多余的
+        // ROB 刷新端口应该也会在硬重定向时触发，我们监听了ROB刷新，所以处理 doHardRedirect 应该是多余的
         val doHardRedirect = hardRedirectService.doHardRedirect()
 
         // MMIO支持：如果配置了MMIO，则创建SGMB读通道
@@ -547,7 +547,7 @@ class LoadQueuePlugin(
             }
 
             // 3. (组合逻辑) LQ Pop的请求仍然是组合的，但执行被推迟
-            when(popRequest) {
+            when(popRequest&& !flushInProgress) {
                 for (i <- 0 until lqDepth - 1) {
                     slotsNext(i) := slotsAfterUpdates(i + 1)
                 }

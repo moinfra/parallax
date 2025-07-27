@@ -142,19 +142,14 @@ class LsuEuPlugin(
     // 只有当分派事件发生时才进行处理
     when(dispatchCompleted) {
         ParallaxSim.logWhen(aguOutPayload.isLoad, L"[LsuEu] Dispatched LOAD to LQ: robPtr=${aguOutPayload.robPtr}")
-        ParallaxSim.logWhen(aguOutPayload.isStore, L"[LsuEu] Dispatched STORE to SB: robPtr=${aguOutPayload.robPtr} pc=${uop.pcData} addr=${aguOutPayload.address} data=${aguOutPayload.storeData}")
+        ParallaxSim.logWhen(aguOutPayload.isStore, L"[LsuEu] Dispatched STORE to SB: robPtr=${aguOutPayload.robPtr} pc=${aguOutPayload.pc} addr=${aguOutPayload.address} data=${aguOutPayload.storeData}")
         
-        // =======================================================================
-    // >> 关键修正 <<
-    // =======================================================================
     // 对于Store指令，进入Store Buffer就可以认为其“执行阶段”完成。
     // ROB可以继续处理，等待该Store指令成为队头再提交到内存。
     // 因此，Store指令需要在此处向ROB报告完成。
     //
     // 对于Load指令，进入Load Queue仅仅是开始。它必须等待数据返回。
     // 因此，LsuEu绝对不能在此处为Load指令报告完成。这个责任完全在LoadQueuePlugin。
-    // FIXME: 对于 LOAD 指令，其结果本应该写入 euResult
-    // 这里没有写入，这会导致一系列严重问题：缺失 ROB 完成、旁路网络输出、唤醒的逻辑
       when(isStoreDispatch) {
           euResult.valid := True
           

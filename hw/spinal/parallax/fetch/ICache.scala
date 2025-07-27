@@ -65,8 +65,8 @@ package object icache {
     override def format: Seq[Any] = {
       Seq(
         L"ICacheCmd(",
-        L"address=${address}, ",
-        L"transactionId=${transactionId})"
+        L"addr=${address}, ",
+        L"tid=${transactionId})"
       )
     }
   }
@@ -86,9 +86,9 @@ package object icache {
     override def format: Seq[Any] = {
       Seq(
         L"ICacheRsp(",
-        L"transactionId=${transactionId}, ",
-        L"instructions=${instructions}, ",
-        L"wasHit=${wasHit}, ",
+        L"tid=${transactionId}, ",
+        L"instr(0)=${instructions(0)}, ",
+        L"hit=${wasHit}, ",
         L"redo=${redo})"
       )
     }

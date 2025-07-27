@@ -41,7 +41,7 @@ class AsyncStimulusHelper(dut: Fetch2PipelineTestBench, pCfg: PipelineConfig) {
       cd.waitSampling()
     }
     sram.io.tb_writeEnable #= false
-    cd.waitSampling(5)
+    cd.waitSampling(50)
   }
 
   /**
@@ -104,14 +104,9 @@ class FetchPipelineModelCheckerSpec extends CustomSpinalSimFunSuite {
   )
   val axiConfig = Axi4Config(addressWidth = 32, dataWidth = 32, idWidth = 4)
 
-  // 在 test(...) { ... } 方法内
-
-// 在 test(...) { ... } 方法内
-
-// 在 test(...) { ... } 方法内
 
 test("Fetch2 - ModelChecker with Single-Tick Synchronous Verification") {
-    SimConfig.withWave.compile(new Fetch2PipelineTestBench(pCfg, iCfg, axiConfig)).doSim(seed = 1) { dut =>
+    SimConfig.withWave.compile(new Fetch2PipelineTestBench(pCfg, iCfg, axiConfig)).doSim(seed = 2333) { dut =>
         implicit val cd = dut.clockDomain.get
         cd.forkStimulus(100)
 
@@ -119,10 +114,15 @@ test("Fetch2 - ModelChecker with Single-Tick Synchronous Verification") {
         val maxInstructionsToVerify = 5000
         val helper = new AsyncStimulusHelper(dut, pCfg)
         val model = new FetchGoldenModel(pCfg)
-        val (instructionIntents, instructionEncodings) = StimulusGenerator.generateInstructionMemory(1024, 0.2)
+        // 确保生成的指令内存大小不超过SRAM范围
+        val (instructionIntents, instructionEncodings) = StimulusGenerator.generateInstructionMemory(
+          (StimulusGenerator.SRAM_MAX_ADDR - StimulusGenerator.SRAM_MIN_ADDR) / 4, // 最大可容纳的指令数
+          0.3
+        )
 
         helper.initSignals()
-        helper.blockingWriteInstructionsToMem(StimulusGenerator.pcAddrSpace.head, instructionEncodings.toSeq.sortBy(_._1).map(_._2))
+        // 写入指令到SRAM，从SRAM_MIN_ADDR开始
+        helper.blockingWriteInstructionsToMem(StimulusGenerator.SRAM_MIN_ADDR, instructionEncodings.toSeq.sortBy(_._1).map(_._2))
         model.fillMemory(instructionIntents)
         model.reset()
 
@@ -138,7 +138,8 @@ test("Fetch2 - ModelChecker with Single-Tick Synchronous Verification") {
         ParallaxLogger.info(s"[ModelChecker] Starting single-tick synchronous verification...")
 
         // 在循环外只做一次启动操作
-        stimulus = FetchStimulus(doHardRedirect = true, hardRedirectTarget = pCfg.resetVector)
+        // 确保重定向目标在SRAM范围内
+        stimulus = FetchStimulus(doHardRedirect = true, hardRedirectTarget = StimulusGenerator.randomPcInSramRange())
         
         while (verifiedInstructionCount < maxInstructionsToVerify && cycles < maxCycles) {
             
@@ -152,16 +153,18 @@ test("Fetch2 - ModelChecker with Single-Tick Synchronous Verification") {
 
             // --- B. 时间前进 (整个循环中唯一的waitSampling) ---
             cd.waitSampling(1)
-            sleep(1)
             cycles += 1
             ParallaxLogger.debug(s"[ModelChecker] Cycle $cycles: $stimulus")
 
             // --- C. 验证 (检查时钟沿之后稳定下来的信号) ---
             if (dut.io.fetchOutput.valid.toBoolean && dut.io.fetchOutput.ready.toBoolean) {
                 val receivedPc = dut.io.fetchOutput.payload.pc.toBigInt
+                ParallaxLogger.debug(s"[ModelChecker] Valid fetch output $receivedPc @ cycle $cycles")
                 model.consumeAndVerify(receivedPc, cycles)
                 ParallaxLogger.success(s"[ModelChecker] Verified PC=0x${receivedPc.toString(16)} @ cycle $cycles")
                 verifiedInstructionCount += 1
+            } else {
+              ParallaxLogger.debug(s"[ModelChecker] Skipping cycle $cycles: fetchOutput.valid=${dut.io.fetchOutput.valid.toBoolean}, fetchOutput.ready=${dut.io.fetchOutput.ready.toBoolean}")
             }
 
             // --- D. 准备下一周期的激励 ---
@@ -177,7 +180,8 @@ test("Fetch2 - ModelChecker with Single-Tick Synchronous Verification") {
             if (stallCyclesLeft == 0 && disableCyclesLeft == 0) {
                 val dice = StimulusGenerator.rand.nextInt(100)
                 if (dice < 15) { // 脉冲激励
-                    stimulus = StimulusGenerator.generatePulseStimulus()
+                    // 确保生成的激励目标在SRAM范围内
+                    stimulus = StimulusGenerator.generatePulseStimulusInSramRange()
                 } else if (dice < 25) { // stall
                     stallCyclesLeft = StimulusGenerator.rand.nextInt(5) + 1
                 } else if (dice < 35) { // disable
@@ -200,7 +204,9 @@ thatsAll
 
 sealed trait InstructionIntent
 case class SequentialIntent(pc: BigInt) extends InstructionIntent
-case class BranchIntent(pc: BigInt, target: BigInt, isConditional: Boolean) extends InstructionIntent
+case class BranchIntent(pc: BigInt, target: BigInt, isConditional: Boolean) extends InstructionIntent {
+  def fmt: String = s"Branch(pc=0x${pc.toString(16)}, target=0x${target.toString(16)}, isConditional=$isConditional)"
+}
 
 case class FetchStimulus(
     // stallCycles: Int = 0, // 由测试循环管理
@@ -227,34 +233,67 @@ case class FetchStimulus(
  * A simple, sequence-based golden model. It is NOT time-aware.
  * It only cares about the sequence of received instructions.
  */
+// 在文件: test/scala/fetch2/FetchPipelineModelCheckerSpec.scala
+
 class FetchGoldenModel(pCfg: PipelineConfig) {
   var expectedPc: BigInt = pCfg.resetVector
   var memory: Map[BigInt, InstructionIntent] = Map()
   var bpu: Map[BigInt, (BigInt, Boolean)] = Map()
 
-  // lastAppliedStimulus 现在只用于调试日志
   private var lastAppliedStimulus: FetchStimulus = FetchStimulus()
   private var lastStimulusCycle: Long = 0
 
+  // <<< 关键修复：新增模型内部状态 >>>
+  // 表示模型正在等待一个硬重定向的目标PC被DUT输出
+  private var awaitingHardRedirectPc: Option[BigInt] = None 
+
   /**
    * 验证收到的PC，并根据该PC和*指令流自身*的逻辑，计算下一个期望的PC。
-   * 这个方法不再关心硬重定向，因为applyStimulus已经处理了它。
+   * 这个方法现在必须处理“重定向等待”状态。
    */
   def consumeAndVerify(receivedPc: BigInt, simCycle: Long): Unit = {
-    // 1. 验证收到的PC是否符合当前期望
-    assert(receivedPc == expectedPc,
-      s"[GOLDEN MODEL] FATAL @ cycle $simCycle: PC mismatch!\n" +
-        s"  -> Last stimulus applied @ cycle $lastStimulusCycle: $lastAppliedStimulus\n" +
-        s"  -> Model Expected PC: 0x${expectedPc.toString(16)}\n" +
-        s"  -> DUT Produced PC:   0x${receivedPc.toString(16)}"
-    )
+    awaitingHardRedirectPc match {
+      case Some(targetPc) =>
+        // 模型正在等待硬重定向的目标PC
+        if(receivedPc != targetPc)
+        {
+          sleep(1) // let log come
+          assert(receivedPc == targetPc,
+          s"[GOLDEN MODEL] FATAL @ cycle $simCycle: Hard Redirect target mismatch!\n" +
+            s"  -> Last stimulus applied @ cycle $lastStimulusCycle: $lastAppliedStimulus\n" +
+            s"  -> Model Expected Hard Redirect Target: 0x${targetPc.toString(16)}\n" +
+            s"  -> DUT Produced PC:   0x${receivedPc.toString(16)}"
+        )
+        }
+        // 成功收到硬重定向目标，清除等待状态
+        awaitingHardRedirectPc = None
+        expectedPc = receivedPc + 4 // 硬重定向后，下一条指令就是顺序的
+        ParallaxLogger.debug(s"[GOLDEN MODEL] Hard Redirect (0x${targetPc.toString(16)}) received. Next expected PC: 0x${expectedPc.toString(16)}")
 
-    // 2. 验证通过后，只根据正常指令流处理来计算下一个期望的PC
-    memory.get(receivedPc) match {
-      case Some(intent: BranchIntent) if bpu.get(receivedPc).exists(_._2) =>
-        expectedPc = bpu(receivedPc)._1 // BPU预测跳转
-      case _ =>
-        expectedPc = receivedPc + 4 // 顺序执行
+      case None =>
+        // 模型处于正常指令流模式
+        if(receivedPc != expectedPc) {
+          sleep(1) // let log come
+          val seperator = ("\n" * 2) + ("-" * 80) + "\n"
+          assert(receivedPc == expectedPc,
+            seperator +
+             s"[GOLDEN MODEL] FATAL @ cycle $simCycle: PC mismatch!\n" +
+              s"  -> Last stimulus applied @ cycle $lastStimulusCycle: $lastAppliedStimulus\n" +
+              s"  -> Model Expected PC: 0x${expectedPc.toString(16)}\n" +
+              s"  -> DUT Produced PC:   0x${receivedPc.toString(16)}"
+          )
+        }
+
+        // 验证通过后，根据正常指令流处理来计算下一个期望的PC
+        memory.get(receivedPc) match {
+          case Some(intent: BranchIntent) if bpu.get(receivedPc).exists(_._2) =>
+            {
+              println("[GOLDEN MODEL] new intent: " + intent.fmt)
+              expectedPc = bpu(receivedPc)._1 // BPU预测跳转
+              }
+          case _ =>
+            expectedPc = receivedPc + 4 // 顺序执行
+        }
     }
   }
 
@@ -271,10 +310,12 @@ class FetchGoldenModel(pCfg: PipelineConfig) {
       bpu = bpu.updated(stimulus.bpuUpdatePc, (stimulus.bpuUpdateTarget, stimulus.bpuUpdateTaken))
     }
 
-    // *** 关键修复 ***
-    // 硬重定向会立即覆盖当前的指令流期望
+    // *** 关键修复：硬重定向的处理方式变化 ***
     if (stimulus.doHardRedirect) {
-      expectedPc = stimulus.hardRedirectTarget
+      // 当发生硬重定向时，模型进入“等待硬重定向目标PC”的状态
+      awaitingHardRedirectPc = Some(stimulus.hardRedirectTarget)
+      // expectedPc 在这里不直接更新，它将由 awaitingHardRedirectPc 状态管理
+      ParallaxLogger.debug(s"[GOLDEN MODEL] Initiating Hard Redirect to 0x${stimulus.hardRedirectTarget.toString(16)} @ cycle $simCycle")
     }
   }
 
@@ -283,6 +324,7 @@ class FetchGoldenModel(pCfg: PipelineConfig) {
     bpu = Map()
     lastAppliedStimulus = FetchStimulus()
     lastStimulusCycle = 0
+    awaitingHardRedirectPc = None // 确保复位时清除
   }
 
   def fillMemory(intents: Map[BigInt, InstructionIntent]): Unit = { this.memory = intents }
@@ -290,22 +332,26 @@ class FetchGoldenModel(pCfg: PipelineConfig) {
 
 
 object StimulusGenerator {
-  val rand = new scala.util.Random()
-  val pcAddrSpace = 0x1000 to 0x4000 by 4
-  val pcAddrSpaceSize = pcAddrSpace.size
+  val rand = new scala.util.Random(2333)
+  
+  val SRAM_MIN_ADDR: BigInt = 0x0
+  val SRAM_MAX_ADDR: BigInt = 0x4000
 
-  def randomPc(): BigInt = pcAddrSpace(rand.nextInt(pcAddrSpaceSize))
+  def randomPcInSramRange(): BigInt = {
+    val numAddresses = (SRAM_MAX_ADDR - SRAM_MIN_ADDR) / 4
+    SRAM_MIN_ADDR + (rand.nextInt(numAddresses.toInt) * 4)
+  }
 
-  // 生成一次性的脉冲激励 (硬重定向或BPU更新)
-  def generatePulseStimulus(): FetchStimulus = {
+  // 生成一次性的脉冲激励 (硬重定向或BPU更新)，确保目标在SRAM范围内
+  def generatePulseStimulusInSramRange(): FetchStimulus = {
     val dice = rand.nextInt(100)
     if (dice < 5) { // 5% 概率发起硬重定向
-      FetchStimulus(doHardRedirect = true, hardRedirectTarget = randomPc())
+      FetchStimulus(doHardRedirect = true, hardRedirectTarget = randomPcInSramRange())
     } else if (dice < 15) { // 10% 概率更新BPU
       FetchStimulus(
         doBpuUpdate = true,
-        bpuUpdatePc = randomPc(),
-        bpuUpdateTarget = randomPc(),
+        bpuUpdatePc = randomPcInSramRange(),
+        bpuUpdateTarget = randomPcInSramRange(),
         bpuUpdateTaken = rand.nextBoolean()
       )
     } else { // 80% 概率无操作
@@ -314,17 +360,27 @@ object StimulusGenerator {
   }
 
   def generateInstructionMemory(
-      size: Int,
+      maxInstructions: BigInt, // 传入最大指令数，而不是固定的pcAddrSpaceSize
       branchRatio: Double
   ): (Map[BigInt, InstructionIntent], Map[BigInt, BigInt]) = {
     val intents = mutable.Map[BigInt, InstructionIntent]()
     val encodings = mutable.Map[BigInt, BigInt]()
-    for (i <- 0 until size) {
-      val addr = pcAddrSpace(i)
+
+    // 从SRAM_MIN_ADDR开始填充指令
+    for (i <- 0 until maxInstructions.toInt) {
+      val addr = SRAM_MIN_ADDR + (i * 4)
+      // 确保生成的地址在SRAM范围内
+      if (addr >= SRAM_MAX_ADDR) {
+        assert(false, s"Exceeded SRAM memory limit at address 0x${addr.toString(16)}. Stopping instruction generation.")
+        return (intents.toMap, encodings.toMap)
+      }
+
       if (rand.nextDouble() < branchRatio) {
-        val targetAddr = randomPc()
+        val targetAddr = randomPcInSramRange() // 确保分支目标在SRAM范围内
         val offset = targetAddr - addr
         // 确保偏移量在beq指令的范围内，且是4字节对齐
+        // LA32R的beq指令偏移量是16位有符号数，表示字数，所以实际字节偏移量是 offset * 2
+        // 范围是 -32768*2 到 32767*2
         if (offset >= -32768 * 2 && offset <= 32767 * 2 && (offset & 0x3) == 0) {
           intents(addr) = BranchIntent(addr, targetAddr, isConditional = true)
           encodings(addr) = beq(0, 0, offset = offset.toInt)

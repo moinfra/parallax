@@ -129,7 +129,7 @@ class AguPlugin(
 ) extends Plugin
     with AguService
     with LockedImpl {
-  val enableLog = false // 可设置为 true 以进行调试
+  val enableLog = true
 
   // --- 结构性修复 1: 改变数据结构以存储绑定的资源 ---
   // ArrayBuffer 现在存储一个元组: (外部请求的AGU端口, 为其创建的PRF基址读端口, 为其创建的PRF数据读端口)

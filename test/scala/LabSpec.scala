@@ -961,7 +961,7 @@ class LabSpec extends CustomSpinalSimFunSuite {
     }
   }
 
-  testOnly("Fibonacci Test on CoreNSCSCC") {
+  test("Fibonacci Test on CoreNSCSCC") {
 
     val instructions = ArrayBuffer[BigInt]()
     // Original Assembly:
@@ -1179,7 +1179,176 @@ class LabSpec extends CustomSpinalSimFunSuite {
     }
   }
 
-  test("Comprehensive Instruction and Memory Test") {
+  test("BL, PCADDU12I, XORI, MUL.W Comprehensive Test") {
+    // --- 1. Register and Constant Definitions ---
+    val R_MEM_BASE = 4      // r4, base address for results
+    val R_ERR_COUNT = 5     // r5, counts mismatches
+    val R_SRC1 = 10         // r10, first source operand
+    val R_SRC2 = 11         // r11, second source operand
+    val R_RESULT = 12       // r12, holds result of an operation
+    val R_EXPECT = 13       // r13, holds expected result for verification
+    val R_LINK = 1          // r1, standard link register (ra)
+
+    val MEM_BASE_ADDR = BigInt("80400000", 16)
+    val PROG_BASE_ADDR = BigInt("80000000", 16)
+    val MASK32 = (BigInt(1) << 32) - 1
+    
+    val insts = new ArrayBuffer[BigInt]()
+    var testCount = 0
+
+    def loadConstant(reg: Int, value: BigInt): Unit = {
+        val pattern = value & MASK32
+        val high20 = (pattern >> 12).toInt
+        val low12 = (pattern & 0xfff).toInt
+        insts += lu12i_w(rd = reg, imm = high20)
+        insts += ori(rd = reg, rj = reg, imm = low12)
+    }
+    
+    def toSigned32(n: BigInt): BigInt = {
+        val masked = n & MASK32
+        if ((masked >> 31) == 1) masked - (BigInt(1) << 32) else masked
+    }
+
+    def addVerificationBlock(testName: String): Unit = {
+        insts += beq(rj = R_RESULT, rd = R_EXPECT, offset = 8) 
+        insts += addi_w(rd = R_ERR_COUNT, rj = R_ERR_COUNT, imm = 1) 
+        
+        val memOffset = testCount * 8 
+        insts += st_w(rd = R_RESULT, rj = R_MEM_BASE, offset = memOffset)
+        insts += st_w(rd = R_EXPECT, rj = R_MEM_BASE, offset = memOffset + 4)
+        testCount += 1
+    }
+
+    // --- 2. Prologue ---
+    loadConstant(R_MEM_BASE, MEM_BASE_ADDR)
+    insts += addi_w(rd = R_ERR_COUNT, rj = 0, imm = 0)
+
+    // --- 3. Test PCADDU12I ---
+    val pcaddu12i_imm = 0xAAAAA 
+    val pcaddu12i_pc = PROG_BASE_ADDR + insts.length * 4
+    val pcaddu12i_offset_32bit = BigInt(pcaddu12i_imm) << 12
+    val pcaddu12i_signed_offset = toSigned32(pcaddu12i_offset_32bit)
+    val pcaddu12i_expected_val = (pcaddu12i_pc + pcaddu12i_signed_offset) & MASK32
+    
+    insts += pcaddu12i(rd = R_RESULT, imm = pcaddu12i_imm)
+    loadConstant(R_EXPECT, pcaddu12i_expected_val)
+    addVerificationBlock("PCADDU12I")
+
+    // --- 4. Test XORI ---
+    val xori_src_val = BigInt("AAAAAAAA", 16) 
+    val xori_imm = 0xF0F 
+    val xori_expected_val = (xori_src_val ^ xori_imm) & MASK32
+    
+    loadConstant(R_SRC1, xori_src_val)
+    insts += xori(rd = R_RESULT, rj = R_SRC1, imm = xori_imm)
+    loadConstant(R_EXPECT, xori_expected_val)
+    addVerificationBlock("XORI")
+
+    // --- 5. Test MUL.W ---
+    val mul_src1_val = BigInt("CAFEBABE", 16)
+    val mul_src2_val = BigInt("10000001", 16)
+    val mul_expected_val = BigInt("AAFEBABE", 16)
+    
+    loadConstant(R_SRC1, mul_src1_val)
+    loadConstant(R_SRC2, mul_src2_val)
+    insts += mul_w(rd = R_RESULT, rj = R_SRC1, rk = R_SRC2)
+    loadConstant(R_EXPECT, mul_expected_val)
+    addVerificationBlock("MUL.W")
+
+    // --- 6. Test BL (Branch and Link) - RESTRUCTURED ---
+    
+    // **FIX**: 先规划好所有指令的位置，再计算跳转偏移
+    
+    // a. 确定跳转指令 `b` 的位置
+    val b_instr_idx = insts.length // 当前指令数，即 `b` 的索引
+    
+    // b. 规划跳转路径上的填充指令和 "dead code"
+    val num_padding_after_b = 1 // `b` 指令后放1条 nop
+    val num_dead_code_instrs = 2 // 放置2条会增加 error_count 的指令
+    
+    // c. 确定 `b` 指令的目标PC索引
+    val bl_test_entry_pc_idx = b_instr_idx + 1 + num_padding_after_b + num_dead_code_instrs
+    
+    // d. 计算 `b` 指令的字节偏移量
+    val b_to_bl_test_offset = (bl_test_entry_pc_idx - b_instr_idx) * 4
+    
+    // e. 现在，按照规划将指令加入 buffer
+    insts += b(offset = b_to_bl_test_offset)
+    for (_ <- 0 until num_padding_after_b) { insts += nop() }
+    
+    // f. 加入 "dead code"
+    for (_ <- 0 until num_dead_code_instrs) { 
+      insts += addi_w(rd = R_ERR_COUNT, rj = R_ERR_COUNT, imm = 1) 
+    }
+    
+    // g. 在这里断言，确保我们的计算是正确的
+    val bl_test_actual_start_idx = insts.length
+    assert(bl_test_actual_start_idx == bl_test_entry_pc_idx, s"BL test PC calculation mismatch! Actual start index: $bl_test_actual_start_idx, Expected: $bl_test_entry_pc_idx")
+
+    // h. BL 测试主体
+    val bl_pc = PROG_BASE_ADDR + insts.length * 4
+    val bl_expected_link_val = bl_pc + 4
+    val bl_target_offset = 12 // Skip 2 NOPs
+    insts += bl(offset = bl_target_offset) 
+    insts += nop() 
+    insts += nop()
+
+    // i. BL 的跳转目标点，验证 r1
+    insts += addi_w(rd = R_RESULT, rj = R_LINK, imm = 0) 
+    loadConstant(R_EXPECT, bl_expected_link_val)
+    addVerificationBlock("BL")
+    
+    // --- 7. Conclusion: Check for errors ---
+    insts += beq(rj = R_ERR_COUNT, rd = 0, offset = 8) 
+    insts += beq(rj = 0, rd = 0, offset = 0) // Fail loop
+    insts += beq(rj = 0, rd = 0, offset = 0) // Success loop
+
+
+    // --- 8. Simulation ---
+    val finalInstructions = insts.toSeq
+    LabHelper.dumpBinary(finalInstructions, "bin/bl_pcadd_xori_mul_test.bin")
+
+    val successPC = PROG_BASE_ADDR + (finalInstructions.length - 1) * 4
+    val failPC = PROG_BASE_ADDR + (finalInstructions.length - 2) * 4
+
+    val compiled = SimConfig.withFstWave.compile(new LabTestBench(
+      iDataWords = finalInstructions
+    ))
+
+    compiled.doSim { dut =>
+      val cd = dut.clockDomain.get
+      cd.forkStimulus(period = 10)
+      
+      println("--- Starting 'BL, PCADDU12I, XORI, MUL.W Comprehensive Test' (NOP version) ---")
+      val simTimeout = finalInstructions.length * 200
+      SimTimeout(simTimeout)
+      
+      var simTime = 0
+      cd.waitSampling() 
+      
+      while(dut.io.commitStats.maxCommitPc.toBigInt < failPC && simTime < simTimeout) {
+        cd.waitSampling()
+        simTime += 1
+      }
+      
+      val finalPCObserved = dut.io.commitStats.maxCommitPc.toBigInt
+      println(s"Simulation finished at cycle $simTime. Final PC: 0x${finalPCObserved.toString(16)}")
+
+      assert(finalPCObserved == successPC, 
+        s"Test FAILED. CPU did not halt at the success PC (0x${successPC.toString(16)})."
+      )
+      
+      println("--- Test PASSED ---")
+
+      LabHelper.ramdump(
+        sram = dut.dSram,
+        vaddr = MEM_BASE_ADDR,
+        size = 128,
+        filename = "bin/dsram_dump_bl_pcadd_xori_mul_test.bin"
+      )(cd)
+    }
+  }
+  test("xComprehensive Instruction and Memory Test") {
     // --- 1. Register and Constant Definitions ---
     val R_BASE_MEM = 4      // r4, base address for results
     val R_ERR_COUNT = 5     // r5, counts mismatches
@@ -1324,17 +1493,32 @@ class LabSpec extends CustomSpinalSimFunSuite {
     expectedErrorCount += 1
 
     // Test JIRL: Jump over the error increment instruction.
-    val jirl_setup_pc = BigInt("80000000", 16) + insts.length * 4
-    val jirl_instr_pc = jirl_setup_pc + 8 // lu12i, ori
-    val target_pc = jirl_instr_pc + 8 // jirl, addi.w
-    insts += lu12i_w(R_TEMP, (target_pc >> 12).toInt & 0xFFFFF)
-    insts += ori(R_TEMP, R_TEMP, (target_pc & 0xfff).toInt)
+    // 1. Determine the PC of the JIRL instruction.
+    //    It will be placed after lu12i.w and ori, so its PC will be:
+    //    Base PC + (current instruction count + 2) * 4
+    val pc_of_jirl = BigInt("80000000", 16) + (insts.length + 2) * 4
+
+    // 2. The target address is the instruction AFTER the one we want to skip.
+    //    The instruction to skip is immediately after the jirl.
+    //    So, target_pc = pc_of_jirl + 8 bytes (skips jirl and addi.w)
+    val target_pc_for_jirl = pc_of_jirl + 8
+
+    // 3. Add the instructions to load this precise target address into R_TEMP.
+    insts += lu12i_w(R_TEMP, (target_pc_for_jirl >> 12).toInt & 0xFFFFF)
+    insts += ori(R_TEMP, R_TEMP, (target_pc_for_jirl & 0xFFF).toInt)
+    
+    // 4. Add the JIRL instruction itself. It will jump to the address in R_TEMP.
     insts += jirl(rd = R_LINK, rj = R_TEMP, offset = 0)
-    insts += addi_w(rd = R_ERR_COUNT, rj = R_ERR_COUNT, imm = 1) // This should be skipped
+    
+    // 5. Add the instruction that SHOULD BE SKIPPED.
+    //    The error counter should NOT be incremented here if JIRL works.
+    insts += addi_w(rd = R_ERR_COUNT, rj = R_ERR_COUNT, imm = 1) 
 
     // --- PART V: CONCLUSION ---
-    insts += addi_w(R_TEMP, 0, expectedErrorCount)
-    insts += beq(rj = R_ERR_COUNT, rd = R_TEMP, offset = 8) // If R_ERR_COUNT == expected, jump to success
+    // The expectedErrorCount remains 3, as the corrected JIRL test
+    // should no longer increment the error counter.
+    insts += addi_w(R_TEMP, 0, expectedErrorCount) // expectedErrorCount is still 3
+    insts += beq(rj = R_ERR_COUNT, rd = R_TEMP, offset = 8) // If R_ERR_COUNT == 3, jump to success
     
     // Fail loop (fallthrough)
     insts += beq(rj = 0, rd = 0, offset = 0) // Infinite loop

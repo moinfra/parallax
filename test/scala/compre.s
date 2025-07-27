@@ -1,8 +1,3 @@
-/tmp/compre.bin:     file format binary
-
-
-Disassembly of section .data:
-
 0000000000000000 <.data>:
    0:   15008004        lu12i.w $r4,-523264(0x80400)
    4:   03800084        ori     $r4,$r4,0x0
@@ -153,7 +148,7 @@ Disassembly of section .data:
  248:   6800096a        bltu    $r11,$r10,8(0x8) # 0x250
  24c:   028004a5        addi.w  $r5,$r5,1(0x1)
  250:   1500000f        lu12i.w $r15,-524288(0x80000)
- 254:   038971ef        ori     $r15,$r15,0x25c
+ 254:   038981ef        ori     $r15,$r15,0x260
  258:   4c0001e1        jirl    $r1,$r15,0
  25c:   028004a5        addi.w  $r5,$r5,1(0x1)
  260:   02800c0f        addi.w  $r15,$r0,3(0x3)

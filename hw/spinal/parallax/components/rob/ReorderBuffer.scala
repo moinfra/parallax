@@ -73,6 +73,7 @@ case class ROBStatus[RU <: Data with Formattable with HasRobPtr](config: ROBConf
   val busy = Bool()
   val done = Bool() // 已经完成了其执行阶段，并且其结果（包括数据结果、分支预测是否正确、是否发生异常等）已经写入 ROB。
   val isMispredictedBranch = Bool()
+  val targetPc = UInt(config.pcWidth)
   val isTaken = Bool()
   val result = Bits(config.pcWidth)
   val hasException = Bool()
@@ -113,18 +114,20 @@ case class ROBWritebackPort[RU <: Data with Formattable with HasRobPtr](config: 
   val robPtr = UInt(config.robPtrWidth) 
   val isTaken = Bool()
   val isMispredictedBranch = Bool()
+  val targetPc = UInt(config.pcWidth)
   val result = Bits(config.pcWidth)
   val exceptionOccurred = Bool()
   val exceptionCodeIn = UInt(config.exceptionCodeWidth)
 
   override def asMaster(): Unit = {
-    in(fire, robPtr, isMispredictedBranch, isTaken, result, exceptionOccurred, exceptionCodeIn)
+    in(fire, robPtr, isMispredictedBranch, targetPc, isTaken, result, exceptionOccurred, exceptionCodeIn)
   }
 
   def setDefault(): Unit = {
     this.fire := False
     this.robPtr.assignDontCare()
     this.isMispredictedBranch.assignDontCare()
+    this.targetPc.assignDontCare()
     this.isTaken.assignDontCare()
     this.result.assignDontCare()
     this.exceptionOccurred.assignDontCare()
@@ -376,6 +379,7 @@ class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfi
       statuses(wbPhysIdx).busy := False
       statuses(wbPhysIdx).done := True
       statuses(wbPhysIdx).isMispredictedBranch := wbPort.isMispredictedBranch
+      statuses(wbPhysIdx).targetPc := wbPort.targetPc
       statuses(wbPhysIdx).isTaken := wbPort.isTaken
       statuses(wbPhysIdx).result := wbPort.result
       statuses(wbPhysIdx).hasException := wbPort.exceptionOccurred

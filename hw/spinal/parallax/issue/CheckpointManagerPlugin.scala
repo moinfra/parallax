@@ -62,7 +62,7 @@ class CheckpointManagerPlugin(
     val btRestorePort = setup.btRestorePort
 
     // Single checkpoint storage
-    val storedRatCheckpoint = Reg(RatCheckpoint(ratConfig)) // FIXME: 这玩意儿没有存在的意义了
+    val storedRatCheckpoint = Reg(RatCheckpoint(ratConfig))
     // val storedFlCheckpoint = Reg(SuperScalarFreeListCheckpoint(flConfig))
     val storedBtCheckpoint = Reg(BusyTableCheckpoint(pipelineConfig))
     val hasValidCheckpoint = RegInit(False)
@@ -103,7 +103,7 @@ class CheckpointManagerPlugin(
     // REAL SAVE OPERATION: Capture ACTUAL current state
     when(saveCheckpointTrigger) {
       // Capture the REAL current state from RAT service
-      val currentRatState = ratControlService.getCurrentState()
+      val currentRatState = ratControlService.getCurrentState() // 获取的是架构状态，不包含任何推测性的映射
       storedRatCheckpoint := currentRatState
       
       // Capture the REAL current state from FreeList service

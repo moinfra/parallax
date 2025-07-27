@@ -145,6 +145,7 @@ abstract class EuBasePlugin(
     val data = Bits(pipelineConfig.dataWidth) // 计算结果
     val writesToPreg = Bool() // 是否写物理寄存器
     val isMispredictedBranch = Bool()
+    val targetPc = UInt(pipelineConfig.pcWidth)
     val isTaken = Bool()
     val hasException = Bool()
     val exceptionCode = UInt(pipelineConfig.exceptionCodeWidth)
@@ -156,6 +157,7 @@ abstract class EuBasePlugin(
     data.assignDontCare()
     writesToPreg.assignDontCare()
     isMispredictedBranch.assignDontCare()
+    targetPc.assignDontCare()
     isTaken.assignDontCare()
     hasException.assignDontCare()
     exceptionCode.assignDontCare()
@@ -264,6 +266,7 @@ abstract class EuBasePlugin(
     robWritebackPortBundle.fire                 := executionCompletes
     robWritebackPortBundle.robPtr               := uopAtWb.robPtr
     robWritebackPortBundle.isMispredictedBranch := euResult.isMispredictedBranch
+    robWritebackPortBundle.targetPc             := euResult.targetPc
     robWritebackPortBundle.isTaken              := euResult.isTaken
     robWritebackPortBundle.result               := euResult.data
     robWritebackPortBundle.exceptionOccurred    := euResult.hasException

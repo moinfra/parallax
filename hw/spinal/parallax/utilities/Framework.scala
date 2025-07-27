@@ -291,7 +291,7 @@ object ConsoleColor {
     val term = System.getenv("TERM")
     term != null && term != "dumb"
   }
-  var enabled = isOutputTerminal
+  var enabled = true
 
   def ANSI_GREEN = if (enabled) "\u001B[32m" else "";
   def ANSI_BLUE = if (enabled) "\u001B[34m" else "";
@@ -355,6 +355,13 @@ object ParallaxSim {
     case seq: Seq[Any] => seq.flatMap(flattenRecursively) // 递归处理子元素
     case elem          => Seq(elem) // 非 Seq 元素，包装成单元素 Seq
   }
+  lazy val cycles = {
+    val area = new Area {
+      val cycles = Reg(UInt(32 bits)) init(0)
+      cycles := cycles + 1
+    }
+    area.cycles
+  }
 
   def dump(message: Seq[Any])(implicit loc: Location) {
     report(flattenRecursively(message))(loc)
@@ -364,7 +371,7 @@ object ParallaxSim {
     report(
       flattenRecursively(
         Seq(
-          "[normal] ",
+          L"[normal ] ${cycles}     ",
           message
         )
       )
@@ -376,7 +383,7 @@ object ParallaxSim {
       report(
         flattenRecursively(
           Seq(
-            "[normal] ",
+            L"[normal ] ${cycles}     ",
             message
           )
         )
@@ -390,7 +397,7 @@ object ParallaxSim {
     report(
       flattenRecursively(
         Seq(
-          "[debug] ",
+          L"[debug  ] ${cycles}     ",
           ANSI_BLUE,
           message,
           ANSI_RESET
@@ -403,7 +410,7 @@ object ParallaxSim {
     report(
       flattenRecursively(
         Seq(
-          "[notice] ",
+          L"[notice ] ${cycles}     ",
           ANSI_YELLOW,
           message,
           ANSI_RESET
@@ -416,7 +423,7 @@ object ParallaxSim {
     report(
       flattenRecursively(
         Seq(
-          "[success] ",
+          L"[success] ${cycles}     ",
           ANSI_GREEN,
           message,
           ANSI_RESET
@@ -429,7 +436,7 @@ object ParallaxSim {
     report(
       flattenRecursively(
         Seq(
-          "[error] ",
+          L"[error  ] ${cycles}     ",
           ANSI_RED,
           message,
           ANSI_RESET
@@ -442,7 +449,7 @@ object ParallaxSim {
     report(
       flattenRecursively(
         Seq(
-          "[fatal] ",
+          L"[fatal  ] ${cycles}     ",
           ANSI_RED,
           message,
           ANSI_RESET
@@ -455,7 +462,7 @@ object ParallaxSim {
     report(
       flattenRecursively(
         Seq(
-          "[warning] ",
+          L"[warning] ${cycles}     ",
           ANSI_YELLOW,
           message,
           ANSI_RESET

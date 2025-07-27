@@ -3,16 +3,16 @@ package parallax.fetch2
 import spinal.core._
 import spinal.lib._
 import spinal.lib.fsm._
-import parallax.common._
+import parallax.common._ // 导入 FetchGroup
 import parallax.utilities._
 import parallax.bpu.{BpuQuery, BpuResponse}
 import parallax.fetch.{FetchedInstr, PredecodeInfo}
-import parallax.fetch.InstructionPredecoder
+import parallax.fetch.InstructionPredecoder // 这个现在 dispatcher 内部不再使用，但为了 diff 最小化保留
 
 class SmartDispatcher(pCfg: PipelineConfig) extends Component {
   val io = new Bundle {
-    // 输入流类型改变，接收原始指令组
-    val fetchGroupIn = slave Stream (RawFetchGroup(pCfg))
+    // 输入流类型改变，接收包含所有预计算信息的完整指令组
+    val fetchGroupIn = slave Stream (FetchGroup(pCfg))
     val bpuRsp = slave Flow (BpuResponse(pCfg))
     val fetchOutput = master Stream (FetchedInstr(pCfg))
     val bpuQuery = master Flow (BpuQuery(pCfg))
@@ -20,7 +20,7 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
     val flush = in Bool ()
   }
 
-  val enableLog = false
+  val enableLog = true
   val cycleReg = Reg(UInt(32 bits)) init (0)
   cycleReg := cycleReg + 1
   if (enableLog) {
@@ -29,34 +29,59 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
 
   // --- 内部状态 ---
   // fetchGroupReg 保持为 FetchGroup 类型，因为它将存储预解码后的完整信息
-  val fetchGroupReg = Reg(FetchGroup(pCfg))
+  val fetchGroupReg = Reg(FetchGroup(pCfg)) init(FetchGroup(pCfg).setDefault())
   val isBusyReg = Reg(Bool()) init (False)
   val dispatchIndexReg = Reg(UInt(log2Up(pCfg.fetchWidth) bits)) init (0)
 
+  val redirectingReg = Reg(Bool()) init (False)
+  val redirectingTargetReg = Reg(UInt(pCfg.pcWidth))
   val bpuInFlightCounterReg = Reg(UInt(log2Up(pCfg.fetchWidth + 1) bits)) init (0)
   val bpuTransIdCounterReg = Reg(UInt(pCfg.bpuTransactionIdWidth)) init (0)
-  val pendingBpuQueryReg = Reg(BranchInfo(pCfg))
+  val pendingBpuQueryReg = Reg(BranchInfo(pCfg)) init (BranchInfo(pCfg).setDefault())
   val outputReg = Reg(FetchedInstr(pCfg))
+  val outputRegValid = Reg(Bool()) init (False)
+  // outputRegJumpTarget 保留，用于存储 stalled 直接跳转的目标，直接从 potentialJumpTargets 获取
+  val outputRegJumpTarget = Reg(UInt(pCfg.pcWidth))
 
   // --- 默认输出 ---
   io.fetchOutput.setIdle()
   io.bpuQuery.setIdle()
   io.softRedirect.setIdle()
+  // 默认时序清零
+  redirectingReg := False
+  redirectingTargetReg.assignDontCare()
+    
+  when(io.flush) {
+    outputRegValid := False
+    io.fetchOutput.valid := False
+    dispatchIndexReg := 0
+    fetchGroupReg.setDefault()
+  }
+  
 
+  when(redirectingReg) {
+    io.softRedirect.valid := True
+    io.softRedirect.payload := redirectingTargetReg
+  }
   // --- 输入握手 ---
-  io.fetchGroupIn.ready := !isBusyReg
+  io.fetchGroupIn.ready := !isBusyReg && !io.flush && !redirectingReg
 
   // --- 当前指令信息 (组合逻辑) ---
-  // 这部分逻辑现在完全不需要修改，因为它直接从 fetchGroupReg 中读取预解码信息，
-  // 而我们将在接收时填充好 fetchGroupReg。
-  val pcIncrReg = (dispatchIndexReg << log2Up(pCfg.dataWidth.value / 8))
-  val currentPcReg = fetchGroupReg.pc + pcIncrReg
+  // currentPcReg 的计算方式调整为基于 firstPc 和 dispatchIndexReg 的相对偏移
+  // 这样避免了 fetchGroupReg.pc + pcIncrReg 的复杂性（虽然那个加法本身是寄存器输入）
+  val currentPcReg = fetchGroupReg.firstPc + ((dispatchIndexReg - fetchGroupReg.startInstructionIndex) << log2Up(pCfg.dataWidth.value / 8))
   val currentInstructionReg = fetchGroupReg.instructions(dispatchIndexReg)
   val currentPredecodeReg = fetchGroupReg.predecodeInfos(dispatchIndexReg)
+  // OPTIMIZATION: 直接从寄存器读取预计算的跳转目标
+  val currentPotentialJumpTarget = fetchGroupReg.potentialJumpTargets(dispatchIndexReg)
   val lastInstructionIndexInGroup = fetchGroupReg.startInstructionIndex + fetchGroupReg.numValidInstructions - 1
   val hasValidInstructionReg = fetchGroupReg.numValidInstructions > 0
   val isLastInstructionReg = hasValidInstructionReg && dispatchIndexReg === lastInstructionIndexInGroup
-
+  assert(
+    dispatchIndexReg <= lastInstructionIndexInGroup,
+    L"dispatchIndexReg (${dispatchIndexReg}) should be less than or equal to the last valid index (${lastInstructionIndexInGroup}) in the group."
+  )
+    assert(fetchGroupReg.numValidInstructions <= U(pCfg.fetchWidth, log2Up(pCfg.fetchWidth + 1) bits), "fetchGroupReg.numValidInstructions should be less than or equal to pCfg.fetchWidth")
   // 添加更详细的日志
   if (enableLog) {
     report(L"  DEBUG-VALID: fetchGroupReg numValidInstructions is ${fetchGroupReg.numValidInstructions}, last cycle it is ${RegNext(fetchGroupReg.numValidInstructions, U(0))}")
@@ -65,9 +90,6 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
     report(L"  DEBUG: isLastInstruction=${isLastInstructionReg}")
   }
 
-  when(io.flush) {
-    fetchGroupReg.setDefault()
-  }
 
   when(io.bpuQuery.fire) {
     bpuInFlightCounterReg := bpuInFlightCounterReg + 1
@@ -94,34 +116,14 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
         goto(IDLE)
       }.elsewhen(io.fetchGroupIn.fire) {
         // =======================================================================
-        // 关键修改点：所有在本周期内的决策，都必须使用 io.fetchGroupIn (组合输入)
+        // 关键修改点：所有信息均来自 io.fetchGroupIn.payload，且已预计算好
         // =======================================================================
 
-        val rawGroup = io.fetchGroupIn.payload
-        val startIdx = rawGroup.startInstructionIndex
+        val group = io.fetchGroupIn.payload
+        val startIdx = group.startInstructionIndex
 
-        // --- 组合逻辑路径：用于本周期的决策 ---
-        // 1. 对整个输入组进行并行预解码 (组合逻辑)
-        val decodedInfos = Vec.tabulate(pCfg.fetchWidth) { i =>
-          val tempPredecoder = new InstructionPredecoder(pCfg)
-          tempPredecoder.io.instruction := rawGroup.instructions(i)
-          tempPredecoder.io.predecodeInfo
-        }
-
-        // 2. 提取第一条指令的预解码信息，用于立即决策
-        val firstPredecode = decodedInfos(startIdx)
-        val firstPC = rawGroup.firstPc
-        val firstInstruction = rawGroup.instructions(startIdx)
-
-        // --- 寄存器更新路径：为下一周期准备数据 ---
-        // 在同一时刻，准备好要锁存到 fetchGroupReg 的完整数据
-        fetchGroupReg.pc             := rawGroup.pc
-        fetchGroupReg.instructions   := rawGroup.instructions
-        fetchGroupReg.fault          := rawGroup.fault
-        fetchGroupReg.numValidInstructions := rawGroup.numValidInstructions
-        fetchGroupReg.startInstructionIndex := startIdx
-        fetchGroupReg.predecodeInfos := decodedInfos // 使用刚刚计算出的组合结果
-        fetchGroupReg.branchMask     := B(decodedInfos.map(_.isBranch).reverse)
+        // --- 寄存器更新路径：直接锁存预处理好的数据 ---
+        fetchGroupReg := group
 
         // 更新其他状态寄存器
         isBusyReg := True
@@ -134,15 +136,20 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
         }
 
         // --- NEW LOGIC START: Handle empty FetchGroup explicitly ---
-        when(rawGroup.numValidInstructions === 0) {
+        when(group.numValidInstructions === 0) {
           if (enableLog) report(L"DISPATCHER-IDLE: Received empty FetchGroup (numValidInstructions=0). Going back to IDLE.")
           isBusyReg := False // Not busy for an empty group
           dispatchIndexReg := 0 // Ensure dispatchIndexReg is reset
           goto(IDLE) // Go back to IDLE immediately, do nothing else
         } .otherwise {
           // =================================================================
-          // 决策逻辑完全复用原始代码，但现在它安全地作用于组合逻辑结果！
+          // 决策逻辑完全复用原始代码，但现在它安全地作用于已准备好的数据！
           // =================================================================
+          val firstPredecode = group.predecodeInfos(startIdx)
+          val firstPC = group.firstPc // <<< 直接使用预传入的 firstPc，免计算
+          val firstInstruction = group.instructions(startIdx)
+          val firstJumpTarget = group.potentialJumpTargets(startIdx) // <<< 直接使用预计算的跳转目标
+
           if (enableLog) report(L"DISPATCHER-IDLE: Analyzing first instruction (PC=0x${firstPC}, isBranch=${firstPredecode.isBranch}).")
 
           // Fast Path for first instruction
@@ -158,16 +165,16 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
               val redirecting = firstPredecode.isDirectJump
               if (enableLog) report(L"DISPATCHER-IDLE: First instruction (fast path) fired.")
               when(redirecting) {
-                io.softRedirect.valid := True
-                io.softRedirect.payload := firstPC + firstPredecode.jumpOffset.asUInt // FIXME: 这个运算非常重量级
+                redirectingReg := True
+                redirectingTargetReg := firstJumpTarget
                 report(L"DISPATCHER-IDLE: First instruction is a direct jump. Redirecting to 0x${io.softRedirect.payload}.")
                 dispatchIndexReg := 0
                 isBusyReg := False
                 goto(IDLE)
               } otherwise {
                 // Corrected condition: is first instruction the ONLY instruction in the group?
-                val isFirstInstructionLast = rawGroup.numValidInstructions === 1 // Using rawGroup which is current input
-                if (enableLog) report(L"  DEBUG-IDLE-FIRST-ISLAST: rawGroup.numValidInstructions=${rawGroup.numValidInstructions}, isFirstInstructionLast=${isFirstInstructionLast} beacuse startIdx=${startIdx}")
+                val isFirstInstructionLast = group.numValidInstructions === 1 // Using 'group' which is current input
+                if (enableLog) report(L"  DEBUG-IDLE-FIRST-ISLAST: group.numValidInstructions=${group.numValidInstructions}, isFirstInstructionLast=${isFirstInstructionLast} beacuse startIdx=${startIdx}")
 
                 when(isFirstInstructionLast) {
                   if (enableLog) report(L"  DEBUG-IDLE-FAST: First instruction is last in group (not branch/redirect), Group finished. -> IDLE")
@@ -184,10 +191,12 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
               if (enableLog) report(L"DISPATCHER-IDLE: First instruction (fast path) stalled. -> SEND_BRANCH")
               if (enableLog) report(L"  DEBUG-IDLE-STALL: FSM to SEND_BRANCH")
               // Ensure outputReg is properly populated for the stalled instruction
+              outputRegValid := True
               outputReg.pc := firstPC
               outputReg.instruction := firstInstruction
               outputReg.predecode := firstPredecode
               outputReg.bpuPrediction.setDefault() // Stalled fast path means no prediction yet
+              outputRegJumpTarget := firstJumpTarget // <<< 保存预计算的目标
               goto(SEND_BRANCH) // Re-use SEND_BRANCH to send the stalled output
             }
           }
@@ -248,15 +257,16 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
 
             when(io.fetchOutput.ready) {
               val redirecting = isSimpleRedirect
+              when(redirecting) {
+                redirectingReg := redirecting
+                redirectingTargetReg := currentPotentialJumpTarget
+              }
+              
+
               if (enableLog)
                 report(
                   L"DISPATCH-BURST: Fired PC=0x${currentPcReg}. isLast=${isLastInstructionReg}, redirecting=${redirecting}"
                 )
-
-              when(redirecting) {
-                io.softRedirect.valid := True
-                io.softRedirect.payload := currentPcReg + currentPredecodeReg.jumpOffset.asUInt
-              }
 
               when(isLastInstructionReg || redirecting) {
                 if (enableLog) report(L"  DEBUG-DISPATCH-END: isLastInstruction=${isLastInstructionReg}, redirecting=${redirecting}. Group finished. -> IDLE")
@@ -305,13 +315,14 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
             )
 
           // 注意: 计数器在这里不递减，而在bpuRsp.fire时统一处理
-
+          outputRegValid := True
           outputReg.pc := pendingBpuQueryReg.pc
           outputReg.instruction := pendingBpuQueryReg.instruction
           outputReg.predecode := pendingBpuQueryReg.predecodeInfo
           outputReg.bpuPrediction.wasPredicted := True
           outputReg.bpuPrediction.isTaken := bpuRsp.payload.isTaken
           outputReg.bpuPrediction.target := bpuRsp.payload.target
+          // 这里的 outputRegJumpTarget 不需要更新，因为这是一个BPU预测的分支，目标来自BPU，而非预计算
           if (enableLog) {
             report(L"  DEBUG-OUTPUT-REG-UPDATED: outputReg.bpuPrediction.isTaken_ASSIGNED=${bpuRsp.payload.isTaken}, PC_ASSIGNED=${pendingBpuQueryReg.pc}") // 打印赋值的源
             report(L"  DEBUG-OUTPUT-REG-UPDATED: outputReg.bpuPrediction.isTaken_REG_OUT=${outputReg.bpuPrediction.isTaken}, PC_REG_OUT=${outputReg.pc}") // 打印寄存器当前输出
@@ -327,22 +338,25 @@ class SmartDispatcher(pCfg: PipelineConfig) extends Component {
         // isBusyReg 保持为 True，由 DRAINING_BPU 状态清理
         goto(DRAINING_BPU)
       } otherwise {
+        assert(outputRegValid, "OutputReg should be valid in SEND_BRANCH state")
         io.fetchOutput.valid := True
         io.fetchOutput.payload := outputReg
 
         when(io.fetchOutput.fire) {
+          outputRegValid := False
           if (enableLog) report(L"DISPATCH-SEND: Fired Branch/Stalled-FastPath PC=0x${outputReg.pc}")
           if (enableLog) report(L"  DEBUG-OUTPUT-FIRED: outputReg.bpuPrediction.isTaken=${outputReg.bpuPrediction.isTaken}, PC=0x${outputReg.pc}")
           val redirecting =
             (outputReg.predecode.isDirectJump) || (outputReg.bpuPrediction.wasPredicted && outputReg.bpuPrediction.isTaken)
           when(redirecting) {
-            io.softRedirect.valid := True
-            io.softRedirect.payload := Mux(
+            redirectingReg := True
+            val tgt = Mux(
               outputReg.predecode.isDirectJump,
-              outputReg.pc + outputReg.predecode.jumpOffset.asUInt,
+              outputRegJumpTarget, // <<< 直接使用预保存的目标
               outputReg.bpuPrediction.target
             )
-            if (enableLog) report(L"DISPATCH-SEND: Soft redirect triggered to 0x${io.softRedirect.payload}")
+            redirectingTargetReg := tgt
+            if (enableLog) report(L"DISPATCH-SEND: Soft redirect scheduled to 0x${tgt}")
           }
 
           when(isLastInstructionReg || redirecting) { // isLastInstruction 此时是基于已更新的 fetchGroupReg

@@ -90,7 +90,7 @@ import spinal.lib.pipeline._
 import parallax.common._
 import parallax.bpu._
 import parallax.utilities._
-import parallax.fetch.{FetchedInstr, InstructionPredecoder}
+import parallax.fetch.{FetchedInstr, InstructionPredecoder, PredecodeInfo} // 导入PredecodeInfo以支持新的PredecodedFetchGroup
 import parallax.fetch.icache.{ICacheService, ICachePort, ICacheConfig, ICacheCmd, ICacheRsp} // 导入我们自己的ICache包
 
 import scala.collection.mutable.ArrayBuffer
@@ -116,12 +116,13 @@ trait FetchService extends Service with LockedImpl {
 class FetchPipelinePlugin(
     pCfg: PipelineConfig,
     iCfg: ICacheConfig, // 增加对ICache配置的依赖
-    fetchGroupFifoDepth: Int = 2,
+    predecodedFifoDepth: Int = 2, // 新增：s4 -> s5 之间直传，但 s5 -> dispatcher 依然需要FIFO
+    fetchGroupFifoDepth: Int = 2, // 保持：s5 -> dispatcher 的 FIFO 深度
     outputFifoDepth: Int = 4
 ) extends Plugin with FetchService with HardRedirectService with SoftRedirectService {
 
-    val enableLog = false
-    val verbose = false
+    val enableLog = true
+    val verbose = true
     val icacheLatency = 1
 
     val dbg = new Area {
@@ -154,9 +155,12 @@ class FetchPipelinePlugin(
     }
     override def doHardRedirect(): Bool = doHardRedirect_listening
     override def doSoftRedirect(): Bool = doSoftRedirect_listening
+    var called = false
     override def fetchOutput(): Stream[FetchedInstr] = {
+        require(!called, "fetchOutput() can only be called once!")
+        called = true
         framework.requireEarly()
-        setup.fetchOutput.io.pop
+        setup.relayedFetchOutput
     }
 
     def calculateStartIndex(rawPc: UInt, linePc: UInt): UInt = {
@@ -174,6 +178,7 @@ class FetchPipelinePlugin(
         
         wordOffsetInLine.resized
     }
+    val doRetryFlush = False
 
     val setup = create early new Area {
         ParallaxLogger.debug("Plugin: FetchPipelinePlugin; setup")
@@ -183,7 +188,14 @@ class FetchPipelinePlugin(
         val iCacheInvalidatePort = iCacheService.invalidate
         val bpuQueryPort = bpuService.newBpuQueryPort()
         val bpuResponse = bpuService.getBpuResponse()
-        val fetchOutput = StreamFifo(FetchedInstr(pCfg), depth = outputFifoDepth)
+        
+        // NOTE: 这个FIFO存储的是已经被Dispatcher完全处理并准备送往解码阶段的单条指令。
+        // 软冲刷时，这些指令是“已经发射”的，不应被丢弃。
+        val fetchOutputRawBuffer = StreamFifo(FetchedInstr(pCfg), depth = outputFifoDepth)
+        val relayedFetchOutput = fetchOutputRawBuffer.io.pop.throwWhen(doHardRedirect_listening || doRetryFlush)
+        when(doHardRedirect_listening) {
+            assert(!relayedFetchOutput.valid)
+        }
 
         ParallaxLogger.debug("Plugin: FetchPipelinePlugin; retain")
         iCacheService.retain();
@@ -198,47 +210,72 @@ class FetchPipelinePlugin(
         setup.iCacheInvalidatePort := False
 
         val retryIdCounter = Counter(start = 1, end = 3) // 0 for invalid
-        val doRetryFlush = False
         val fetchPipeline = new Pipeline {
             // --- Stageables ---
             val RAW_PC = Stageable(UInt(pCfg.pcWidth)) // 原始、未对齐的PC
             val PC = Stageable(UInt(pCfg.pcWidth))     // 行对齐的PC
+            
+            // 新增 Stageable: 用于 s4 传递到 s5 的原始 ICacheRsp Payload
+            // 这样 s5 可以直接访问原始指令和 ICache 响应的其他信息
+            val ICACHE_RSP_PAYLOAD = Stageable(ICacheRsp(iCfg))
+            // 新增 Stageable: 用于 s4 传递到 s5 的预解码信息
+            val PREDECODE_INFOS = Stageable(Vec(PredecodeInfo(), pCfg.fetchWidth))
+            // 新增 Stageable: 用于 s4 传递到 s5 的起始指令索引
+            val START_INSTR_INDEX = Stageable(UInt(log2Up(pCfg.fetchWidth) bits))
+            // 新增 Stageable: 用于 s4 传递到 s5 的有效指令数量
+            val NUM_VALID_INSTRS = Stageable(UInt(log2Up(pCfg.fetchWidth + 1) bits))
+            // 新增 Stageable: 用于 s4 传递到 s5 的 fault 标志
+            val FAULT = Stageable(Bool())
+
 
             // --- 流水线阶段定义 ---
             val s1_pcGen = newStage().setName("s1_PC_Gen")
             val s2_iCacheAccess = newStage().setName("s2_ICache_Access")
             val s3_iCacheWait = newStage().setName("s3_ICache_Wait")
             val s4_predecode = newStage().setName("s4_Predecode")
+            val s5_targetCalc = newStage().setName("s5_Target_Calc") // <<< 新增阶段
 
                 if(enableLog && verbose) log(Seq(
                     L"IssuePipeline status: \n",
                     formatStage(s1_pcGen),
                     formatStage(s2_iCacheAccess),
                     formatStage(s3_iCacheWait),
-                    formatStage(s4_predecode)
+                    formatStage(s4_predecode),
+                    formatStage(s5_targetCalc) // <<< 新增日志
                 ))
 
             private val seq = if (icacheLatency == 1) {
-                Seq(s1_pcGen, s2_iCacheAccess, s4_predecode)
+                // 1周期延迟 ICache: s1 -> s2 -> s4 -> s5
+                Seq(s1_pcGen, s2_iCacheAccess, s4_predecode, s5_targetCalc)
             } else if (icacheLatency == 2) {
-                Seq(s1_pcGen, s2_iCacheAccess, s3_iCacheWait, s4_predecode)
+                // 2周期延迟 ICache: s1 -> s2 -> s3 -> s4 -> s5
+                Seq(s1_pcGen, s2_iCacheAccess, s3_iCacheWait, s4_predecode, s5_targetCalc)
             } else {
                 assert(false, "Invalid icacheLatency value!")
                 Seq()
             }
 
+            // 连接流水线阶段：M2S 连接支持直传
             for (i <- 0 until seq.length - 1) {
-                connect(seq(i), seq(i + 1))(Connection.M2S())
+                if(seq(i) == s4_predecode) { // 如果当前阶段是 s4
+                    connect(seq(i), seq(i + 1))(Connection.S2M())
+                    // if(enableLog) notice(L"[${dbg.cycles}]Connecting s4 -> s5 with S2M buffer.")
+                } else { // 其他阶段保持 M2S 连接
+                    connect(seq(i), seq(i + 1))(Connection.M2S())
+                }
             }
 
         }.setCompositeName(this, "FetchPipeline")
 
         import fetchPipeline._
-
-        val fetchOutput = setup.fetchOutput
-        // SmartDispatcher现在接收RawFetchGroup
+        val fetchDisabled = fetchDisablePorts.orR
+        val fetchOutputRawBuffer = setup.fetchOutputRawBuffer
+        // SmartDispatcher现在接收FetchGroup (最终类型)
         val dispatcher = new SmartDispatcher(pCfg)
 
+        // 输出 FIFO，给 Dispatcher
+        val fetchGroupsOut = StreamFifo(FetchGroup(pCfg), depth = fetchGroupFifoDepth)
+        fetchGroupsOut.io.push.setIdle()
         // --- 重定向与排空逻辑 ---
         val softRedirect = dispatcher.io.softRedirect
         when(softRedirect.valid) {
@@ -255,11 +292,9 @@ class FetchPipelinePlugin(
         doHardRedirect_listening := hardRedirect.valid
         doSoftRedirect_listening := softRedirect.valid
 
-        // NOTE: 不要删除这个注释。Soft Flush 是指不破坏指令序列地从新地址开始取指
         val doSoftFlush = softRedirect.valid 
-        // NOTE: 不要删除这个注释。Hard Flush 是指清空任何已经取指的部分，包括下游，从取指流水线到提交阶段都全部清空
         val doHardFlush = hardRedirect.valid 
-        val doAnyFlush = doSoftFlush || doHardFlush
+        val doExternalFlush = doSoftFlush || doHardFlush
 
         when(doHardFlush) {
             notice(L"[${dbg.cycles}] !!!!GOT A HARD FLUSH to ${hardRedirect.payload}")
@@ -267,22 +302,28 @@ class FetchPipelinePlugin(
         when(doSoftFlush) {
             notice(L"[${dbg.cycles}] !!!!GOT A SOFT FLUSH to ${softRedirect.payload}")
         }
-        fetchOutput.io.flush := doHardFlush
-        fetchOutput.io.push << dispatcher.io.fetchOutput
+        fetchOutputRawBuffer.io.flush := doHardFlush
+        fetchOutputRawBuffer.io.push.valid := dispatcher.io.fetchOutput.valid && !doHardFlush
+        dispatcher.io.fetchOutput.ready := fetchOutputRawBuffer.io.push.ready
+        fetchOutputRawBuffer.io.push.payload := dispatcher.io.fetchOutput.payload
+        
+when(doHardFlush) {
+    if(enableLog) notice(L"[${dbg.cycles}]FLUSH_LOGIC] doHardFlush is HIGH at cycle 0x${dbg.cycles}!")
+}
 
-        when(fetchOutput.io.pop.fire) {
-            notice(L"[${dbg.cycles}] output a instr to decoder: PC=0x${fetchOutput.io.pop.payload.pc}, instr=0x${fetchOutput.io.pop.payload.instruction}")
+
+// 监控最终送给FIFO的flush信号
+when(fetchOutputRawBuffer.io.flush) {
+    if(enableLog) notice(L"[${dbg.cycles}]FLUSH_TO_FIFO] fetchOutput.io.flush is DRIVEN HIGH at cycle 0x${dbg.cycles}!")
+}
+        when(setup.relayedFetchOutput.fire) {
+            notice(L"[${dbg.cycles}] output a instr to decoder: PC=0x${fetchOutputRawBuffer.io.pop.payload.pc}, instr=0x${fetchOutputRawBuffer.io.pop.payload.instruction}")
         }
 
-        // val dispatchSoftFlushReg = RegNext(doSoftFlush) init(False)
-        // val dispatchHardFlushReg = RegNext(doHardFlush) init(False)
-        // val dispatchAnyFlushReg = RegNext(doAnyFlush) init(False)
-
-        // iCacheInFlightToDrainCounter 用于计算需要排空的 ICache 请求数，以便消除幽灵响应
         val iCacheInFlightToDrainCounter = CounterUpDown(1 << log2Up(pCfg.fetchWidth + 1))
         val isDrainingCacheRspReg = Reg(Bool()) init(False)
 
-        when(doAnyFlush) {
+        when(doExternalFlush && iCacheInFlightToDrainCounter.value > 0) {
             isDrainingCacheRspReg := True
             if(enableLog) notice(L"[${dbg.cycles}] Draining the pipeline due to a flush. iCacheInFlightToDrainCounter.value=${iCacheInFlightToDrainCounter.value}")
         }
@@ -319,64 +360,53 @@ class FetchPipelinePlugin(
 
             // 当有一个锁定的重试命令，并且其ID与我们上次处理的ID不同时，需要进行重做
             val needRedo = retryCmd.lock && retryCmd.id =/= lastRetryIdReg && 
-                            !doAnyFlush && 
-                            // !dispatchAnyFlushReg && 
-                            !isDrainingCacheRspReg
+                            !doExternalFlush && 
+                            !isDrainingCacheRspReg &&
+                            !fetchDisabled
 
-
-
-            // 1. 决定当前周期S1阶段要使用的PC (RAW_PC)
-            //    最高优先级：来自S4的重试请求。
-            //    否则：使用 fetchPc 寄存器的当前值。
-
-            val rawPcToUse  = Mux(needRedo, retryCmd.pc , fetchPcReg)
+            val rawPcToUse = Mux(doHardFlush, hardRedirect.payload, Mux(needRedo, retryCmd.pc , fetchPcReg))
             s1(RAW_PC)      := rawPcToUse
             s1(PC)          := alignToLine(rawPcToUse)
             
-            // 2. 计算下一周期的PC (nextPc)
-            //    这个计算只在 s1 发射时才有意义。
-            //    下一行的PC，是基于当前 s1 正在发射的PC (s1(PC)) 计算的。
-            val nextLinePc = fetchPcReg + lineBytes
-            // 常规情况下的下一个PC（处理软重定向或顺序执行）
+            /* fetchPcReg的角色是：为了让指令流连续，下次应该取指令的起始地址。
+                如果是重定向，那么下次应该从精确地址开始。
+                如果是常规更新，那么下次应该从下一行开头开始（而非中间） */
+            val nextLinePc = alignToLine(fetchPcReg) + lineBytes
             val nextPcRegular = nextLinePc
             
             when(doHardFlush) {
                 fetchPcReg := hardRedirect.payload
-                retryCmd.lock := False // 硬冲刷取消任何挂起的重试
-                lastRetryIdReg := 0    // 同时重置lastRetryId
+                retryCmd.lock := False
+                lastRetryIdReg := 0
                 if(enableLog) log(L"[${dbg.cycles}] FETCH-S1: fetchPcReg reset to ${hardRedirect.payload} due to hard flush, retry cancelled.")
             }
             .elsewhen(doSoftFlush) {
                 fetchPcReg := softRedirect.payload
-                retryCmd.lock := False // 软重定向也应该取消挂起的重试，因为它改变了控制流
+                retryCmd.lock := False
                 lastRetryIdReg := 0
+                if(enableLog) log(L"[${dbg.cycles}] FETCH-S1: fetchPcReg reset to ${softRedirect.payload} due to soft flush, retry cancelled.")
             }
             .elsewhen(needRedo) {
-                // 我们正在重试 `retryCmd.pc`。这次重试成功后的下一次取指
-                // 应该来自下一个缓存行。因此，我们现在就将 fetchPcReg 纠正到该值。
-                // 这会覆盖掉投机性的、超前过度的值。
                 val correctedNextPc = alignToLine(retryCmd.pc) + lineBytes
                 fetchPcReg := correctedNextPc
-                if(enableLog) log(L"[${dbg.cycles}] FETCH-S1: Correcting fetchPcReg for next cycle to 0x${correctedNextPc}")
+                if(enableLog) log(L"[${dbg.cycles}] FETCH-S1: Correcting fetchPcReg to next line (because retryCmd.pc=0x${retryCmd.pc}, next cache line is at 0x${correctedNextPc})")
             }
-            .elsewhen(s1.isFiring && !retryCmd.lock && !doAnyFlush) {
+            .elsewhen(s1.isFiring && !retryCmd.lock && !doExternalFlush) {
                 fetchPcReg := nextPcRegular
-                if(enableLog) log(L"[${dbg.cycles}] FETCH-S1: fetchPcReg updated to ${nextPcRegular} (from raw PC=0x${s1(RAW_PC)})")
+                if(enableLog) log(L"[${dbg.cycles}] FETCH-S1: fetchPcReg updated to ${nextPcRegular} (regular + 4*4, from raw PC=0x${s1(RAW_PC)})")
             }
 
-            // 当S1发射一个重试请求时，记录其ID，这样如果S1在下一周期停顿，就不会再次为同一个ID发射请求
             when(s1.isFiring && needRedo) {
                 lastRetryIdReg := retryCmd.id
-                if(enableLog) notice(L"[${dbg.cycles}] FETCH-S1: Acting on retry for ID ${retryCmd.id}, PC=0x${retryCmd.pc}. Locking this ID in s1.")
+                if(enableLog) notice(L"[${dbg.cycles}] FETCH-S1: Got a retry command. Acting on retry for ID ${retryCmd.id}, PC=0x${retryCmd.pc}. Locking this ID in s1.")
             }
 
-            // 4. 流水线控制
-            val fetchDisabled = fetchDisablePorts.orR
             s1.valid := True
+            // 避免 S1 连续重试两次，S1 已经处理了该重试请求，它必须继续 halt，否则 retry 条件依然满足，导致产生两个在途的 retry 请求。
+            // 当连续命中时，会产生两组完全相同的 fetch group
             when(isDrainingCacheRspReg 
                 || fetchDisabled 
-                // || (iCacheInFlightToDrainCounter.value =/= 0) 这个逻辑删了也能测试通过，吞吐量略微上升
-                || (retryCmd.lock && retryCmd.id === lastRetryIdReg) // 如果刚刚发送了重试，则也需要暂停
+                || (retryCmd.lock && retryCmd.id === lastRetryIdReg) //  
             )
             {
                 s1.haltIt()
@@ -387,6 +417,8 @@ class FetchPipelinePlugin(
 
             if(enableLog && verbose) when(s1.isFiring) {
                 if(enableLog) log(L"[${dbg.cycles}] FETCH-S1: Firing Aligned PC=0x${s1(PC)} (from raw PC=0x${s1(RAW_PC)})")
+            } otherwise {
+                if(enableLog) log(L"[${dbg.cycles}] FETCH-S1: Idle. PC=0x${s1(PC)}")
             }
         }
 
@@ -395,7 +427,7 @@ class FetchPipelinePlugin(
             val s2 = fetchPipeline.s2_iCacheAccess
             val iCachePort = setup.iCachePort
 
-            iCachePort.cmd.valid := s2.isFiring && !isDrainingCacheRspReg && !doAnyFlush
+            iCachePort.cmd.valid := s2.isFiring && !isDrainingCacheRspReg && !doExternalFlush
             when(iCachePort.cmd.valid) {
                 if(enableLog && verbose) notice(L"[${dbg.cycles}] FETCH-S2: Sending ICache request for PC=0x${s2(PC)}")
             }
@@ -413,40 +445,48 @@ class FetchPipelinePlugin(
             val s3 = fetchPipeline.s3_iCacheWait
             if(enableLog && verbose && icacheLatency == 2) when(s3.isFiring) { log(L"[${dbg.cycles}] FETCH-S3: Waiting for ICache Rsp for PC=0x${s3(PC)}") }
         }
-
-        // --- s4: I-Cache响应接收 (移除并行预解码) ---
         val s4_logic = new Area {
             val s4 = fetchPipeline.s4_predecode
             val iCacheRsp = setup.iCachePort.rsp
-            
-            // 使用新的RawFetchGroup作为FIFO类型
-            val rawFetchGroups = StreamFifo(RawFetchGroup(pCfg), depth = fetchGroupFifoDepth)
-            rawFetchGroups.io.push.setIdle()
 
-            // 预解码器已移除，不再实例化
+            s4(ICACHE_RSP_PAYLOAD) := ICacheRsp(iCfg).getZero
+            s4(PREDECODE_INFOS).foreach(_.setDefault())
+            s4(START_INSTR_INDEX)  .assignDontCare()
+            s4(NUM_VALID_INSTRS)   .assignDontCare()
+            s4(FAULT)              := True
 
+            // s4.valid 决定了数据是否推进到 s5
+            when(s4.isFiring) {
+                if(enableLog && verbose) log(L"[${dbg.cycles}] FETCH-S4: Firing read cache rsp and predecode stage (s4) for PC=0x${s4(PC)}")
+            }
             when(iCacheRsp.fire) {
                 iCacheInFlightToDrainCounter.decrement() 
             }
             
-            val handleRsp = s4.isFiring && iCacheRsp.valid && !isDrainingCacheRspReg && !doAnyFlush
+            val handleRsp = s4.isValid  && iCacheRsp.valid && !isDrainingCacheRspReg && !doExternalFlush && s5_targetCalc.isReady
             if (enableLog) {
-                if(enableLog) log(L"[${dbg.cycles}] FETCH-S4: Handling Rsp for PC=0x${s4(PC)}? ${handleRsp} because" :+
-                    L" isFiring=${s4.isFiring}, iCacheRsp.valid=${iCacheRsp.valid}, isDrainingCacheRspReg=${isDrainingCacheRspReg}")
+               log(L"[${dbg.cycles}] FETCH-S4: Handling Rsp for PC=0x${s4(PC)}? ${handleRsp} because" :+
+                    L" isReady=${s4.isReady}, isValid=${s4.isValid}, iCacheRsp.valid=${iCacheRsp.valid}, isDrainingCacheRspReg=${isDrainingCacheRspReg} anyFlush=${doExternalFlush} s5Ready=${s5_targetCalc.isReady}")
             }
-            val hasHigherPriorityStuff = doAnyFlush || isDrainingCacheRspReg
+            val hasHigherPriorityStuff = doExternalFlush || isDrainingCacheRspReg
+
+            // Backpressure: 如果S5阶段无法接收数据，则S4也必须暂停
+            // s4.haltWhen(!s5_targetCalc.isReady) // <<< 关键修改：直接根据S5的ready信号暂停S4
+
             // ICache响应到达，但下游已满，无法处理 -> 触发重试！
-            val backpressureRedo = !s4.isFiring && iCacheRsp.valid && iCacheRsp.payload.wasHit && !isDrainingCacheRspReg && !rawFetchGroups.io.push.ready &&
-                                    !hasHigherPriorityStuff
+            // 现在这个判断要看s5_targetCalc.isReady，而不是某个FIFO的ready
+            // val backpressureRedo = !s4.isFiring && !retryCmd.lock && s5_targetCalc.isReady && !fetchGroupsOut.io.push.ready && !fetchGroupsOut.io.pop.ready && iCacheRsp.valid && iCacheRsp.payload.wasHit && !isDrainingCacheRspReg && !hasHigherPriorityStuff
+            val cacheHit = iCacheRsp.valid && iCacheRsp.payload.wasHit
+            val backpressureRedo = !s5_targetCalc.isReady && cacheHit
+                                    !hasHigherPriorityStuff && !retryCmd.lock // 仅当没有挂起的重试时才设置新的重试
+
             when(backpressureRedo) {
-                when(!retryCmd.lock) { // 仅当没有挂起的重试时才设置新的重试
-                    retryCmd.lock := True
-                    retryCmd.pc   := s4(RAW_PC) 
-                    retryCmd.id   := retryIdCounter.value
-                    retryIdCounter.increment()
-                    doRetryFlush := True
-                    if(enableLog) notice(L"[FETCH-S4] BACKPRESSURE REDO requested for raw PC=0x${s4(RAW_PC)}, ID=${iCacheRsp.payload.transactionId} because downstream FIFO is full, retryCmd.id=${retryIdCounter.value}.")
-                }
+                retryCmd.lock := True
+                retryCmd.pc   := s4(RAW_PC) 
+                retryCmd.id   := retryIdCounter.value
+                retryIdCounter.increment()
+                doRetryFlush := True
+                if(enableLog) notice(L"[${dbg.cycles}]FETCH-S4] BACKPRESSURE REDO requested for raw PC=0x${s4(RAW_PC)}, ID=${iCacheRsp.payload.transactionId} because downstream S5 is not ready, retryCmd.id=${retryIdCounter.value}.")
             }
             
             when(handleRsp) { // 只有收到有效数据且有容量处理才执行下面的逻辑
@@ -461,7 +501,7 @@ class FetchPipelinePlugin(
                         retryCmd.id   := retryIdCounter.value
                         retryIdCounter.increment()
                         doRetryFlush := True
-                        if(enableLog) notice(L"[${dbg.cycles}] FETCH-S4: Requesting retry for raw PC=0x${s4(RAW_PC)}, ID=${iCacheRsp.payload.transactionId}, retryCmd.id=${retryIdCounter.value}")
+                        if(enableLog) notice(L"[${dbg.cycles}] FETCH-S4: CACHE MISS REDO requested for raw PC=0x${s4(RAW_PC)}, ID=${iCacheRsp.payload.transactionId}, retryCmd.id=${retryIdCounter.value}.")
                     } .otherwise {
                         if(enableLog) {
                             when(retryCmd.lock && alignToLine(s4(PC)) =/= alignToLine(retryCmd.pc)) {
@@ -479,73 +519,158 @@ class FetchPipelinePlugin(
                     }
                     // 仅当没有挂起的重试，或者此响应就是针对该重试的成功响应时，才处理数据
                     when(!retryCmd.lock || alignToLine(s4(PC)) === alignToLine(retryCmd.pc)) {
-                        // 创建新的 RawFetchGroup
-                        val rawGroup = RawFetchGroup(pCfg)
-                        val instructionSlots = iCacheRsp.payload.instructions
-                        val startInstructionIndex = calculateStartIndex(s4(RAW_PC), s4(PC))
-                        rawGroup.startInstructionIndex := startInstructionIndex
-                        rawGroup.pc := s4(PC)
-                        rawGroup.firstPc := s4(RAW_PC)
-                        rawGroup.fault := !iCacheRsp.payload.wasHit
+                        // 1. 并行预解码
+                        val decodedInfos = Vec.tabulate(pCfg.fetchWidth) { i =>
+                            val predecoder = new InstructionPredecoder(pCfg)
+                            predecoder.io.instruction := iCacheRsp.payload.instructions(i)
+                            predecoder.io.predecodeInfo
+                        }
+
+                        // 2. 传递 Stageables 给 S5
+                        assert(s5_targetCalc.isReady)
+                        s4(ICACHE_RSP_PAYLOAD) := iCacheRsp.payload // 传递原始响应，s5需要其中的指令
+                        s4(PREDECODE_INFOS)    := decodedInfos      // 传递预解码结果
+                        s4(START_INSTR_INDEX)  := calculateStartIndex(s4(RAW_PC), s4(PC))
+                        s4(NUM_VALID_INSTRS)   := U(pCfg.fetchWidth) - s4(START_INSTR_INDEX)
+                        s4(FAULT)              := !iCacheRsp.payload.wasHit
                         
-                        rawGroup.instructions := Vec(instructionSlots)
-                        
-                        rawGroup.numValidInstructions := U(pCfg.fetchWidth) - startInstructionIndex
-                        
-                        assert(!doAnyFlush && !isDrainingCacheRspReg, "Impossible to push valid group while flushing or draining cache Rsp.")
-                        rawFetchGroups.io.push.valid   := True
-                        rawFetchGroups.io.push.payload := rawGroup
-                        
-                        s4.haltWhen(!rawFetchGroups.io.push.ready)
-                        if(enableLog) when(rawFetchGroups.io.push.fire) { 
-                            if(enableLog) log(L"FETCH-S4: Pushing raw instructions to FIFO. PC=0x${s4(PC)}, startIndex=${rawGroup.startInstructionIndex}, numValid=${rawGroup.numValidInstructions}") 
+                        // s4 的 valid 信号由 Pipeline 自动管理，这里只需确保当满足条件时，s4 不被 halt
+                        // 如果s5 not ready，s4 会被 s4.haltWhen(!s5_targetCalc.isReady) 暂停
+                        if(enableLog) {
+                            log(L"[${dbg.cycles}]FETCH-S4: Set stageables predecoded data. is firing=${s4.isFiring}. PC=0x${s4(PC)}, startIndex=${s4(START_INSTR_INDEX)}, numValid=${s4(NUM_VALID_INSTRS)}")
                         }
                     }
-
                 }
             }
+            // S4 不再有内部 FIFO 需要冲刷
+            // s4_logic.rawFetchGroups.io.flush := doAnyFlush || isDrainingCacheRspReg (已移除)
         }
 
-        // --- 连接到智能分发器 ---
-        // 手动连接，因为ready信号有特殊逻辑
-        dispatcher.io.fetchGroupIn.valid   := s4_logic.rawFetchGroups.io.pop.valid
-        dispatcher.io.fetchGroupIn.payload := s4_logic.rawFetchGroups.io.pop.payload
+        // --- s5: 跳转目标计算阶段 (全新) ---
+        val s5_logic = new Area {
+            val s5 = fetchPipeline.s5_targetCalc            
+            when(fetchGroupsOut.io.push.fire) {
+                val group = fetchGroupsOut.io.push.payload
+                if(enableLog) success(L"[${dbg.cycles}]FETCH-S5 PUSH to fetchGroupsOut: " :+
+                    L"PC=0x${group.pc}, firstPC=0x${group.firstPc}, startIdx=${group.startInstructionIndex}, numValid=${group.numValidInstructions}")
+            }
+            when(fetchGroupsOut.io.flush) {
+                if(enableLog) warning(L"[${dbg.cycles}]FLUSH_MONITOR] FLUSHING fetchGroupsOut FIFO!")
+            }
+            when(fetchOutputRawBuffer.io.flush) {
+                if(enableLog) warning(L"[${dbg.cycles}]FLUSH_MONITOR] FLUSHING fetchOutput FIFO!")
+            }
+            when(dispatcher.io.fetchOutput.fire) {
+             val instr = dispatcher.io.fetchOutput.payload
+             if(enableLog) success(L"[${dbg.cycles}]DISPATCH_TO_FIFO] PUSH to fetchOutput: " :+ 
+                L"PC=0x${instr.pc}, isBranch=${instr.predecode.isBranch}, predTaken=${instr.bpuPrediction.isTaken}")
+            }
+            // S5 阶段的有效性由上游 S4 驱动
+            when(s5.isFiring) { // 当 S5 处于活动状态时 (即 s4.isFiring 为 true 且 s5.isReady 为 true)
+                // 从 Stageable 获取所有输入数据
+                val pc             = s5(PC) // Cache Line 对齐的 PC
+                val rawPc          = s5(RAW_PC) // 原始 PC
+                val instructions   = s5(ICACHE_RSP_PAYLOAD).instructions
+                val predecodeInfos = s5(PREDECODE_INFOS)
+                val startIndex     = s5(START_INSTR_INDEX)
+                val numValid       = s5(NUM_VALID_INSTRS)
+                val fault          = s5(FAULT)
 
-        // 自定义 ready 信号以处理冲刷
-        s4_logic.rawFetchGroups.io.pop.ready := dispatcher.io.fetchGroupIn.ready && !doAnyFlush
+                // 1. 执行重量级的三输入加法 (并行计算所有指令的潜在跳转目标)
+                // 修正 Vec.tabulate 类型推断问题：显式指定 Vec 的类型为 UInt(pCfg.pcWidth)
+                val speculativeJumpTargets = Vec.tabulate(pCfg.fetchWidth) { i =>
+                    val offs26 = instructions(i)(25 downto 0)
+                    val operandA = pc.asSInt
+                    val operandB = S(U(i) << log2Up(pCfg.dataWidth.value / 8), pCfg.pcWidth)
+                    val operandC = (offs26.asSInt << 2).resize(pCfg.pcWidth)
+                    // 确保返回的类型是 UInt(pCfg.pcWidth)
+                    val result  = (operandA + operandB + operandC).asUInt.resized
+                    report(L"[${dbg.cycles}]FETCH-S5] speculativeJumpTargets PC=0x${pc}, offs26=0x${offs26}, operandA=0x${operandA}, operandB=0x${operandB}, operandC=0x${operandC}, result=0x${result}")
+                    result
+                }
 
+                // 2. 创建最终的 FetchGroup
+                val finalGroup = FetchGroup(pCfg)
+                finalGroup.pc                 := pc
+                finalGroup.firstPc            := rawPc // 传递免计算的 firstPc
+                finalGroup.instructions       := instructions
+                finalGroup.fault              := fault
+                finalGroup.numValidInstructions := numValid
+                finalGroup.startInstructionIndex := startIndex
+                finalGroup.predecodeInfos     := predecodeInfos
+                finalGroup.branchMask         := B(predecodeInfos.map(_.isBranch).reverse)
+                finalGroup.potentialJumpTargets := speculativeJumpTargets // 存入计算结果
+
+                // 3. 推入最终的 FIFO (给 Dispatcher)
+                fetchGroupsOut.io.push.valid   := !fault 
+                fetchGroupsOut.io.push.payload := finalGroup
+
+                if (enableLog) {
+                    report(L"[${dbg.cycles}]FETCH-S5: PC=0x${finalGroup.pc}, firstPC=0x${finalGroup.firstPc}, startIdx=${finalGroup.startInstructionIndex}, numValid=${finalGroup.numValidInstructions}(${numValid}), fault=${finalGroup.fault}")
+                }
+                when(fetchGroupsOut.io.push.valid) {
+                    report(L"[${dbg.cycles}]FETCH-S5: PUSH to fetchGroupsOut(PC=0x${finalGroup.pc})")
+                    assert(!fault, "Push validity should be driven by fault status")
+                    assert(rawPc >= pc && rawPc < (pc + lineBytes), "First PC (rawPc) is outside the current cache line bounds")
+                }
+
+            }
+            
+            // S5 暂停条件：如果下游 FIFO 满了，S5 必须暂停，进而导致 S4 暂停
+            s5.haltWhen(!fetchGroupsOut.io.push.ready)
+            when(!fetchGroupsOut.io.push.ready) {
+               if (enableLog) report(L"[${dbg.cycles}]FETCH-S5] S5 is blocked by downstream fetchGroupsOut FIFO")
+            }
+
+        }
+
+
+        {
+            val correctedPop = Stream(FetchGroup(pCfg))
+            correctedPop.payload := fetchGroupsOut.io.pop.payload
+            fetchGroupsOut.io.pop.ready := correctedPop.ready
+
+            // 用可信的 occupancy 信号来修复/门控不可信的 valid 信号
+            correctedPop.valid := fetchGroupsOut.io.pop.valid && (fetchGroupsOut.io.occupancy =/= 0) && !doHardFlush
+            dispatcher.io.fetchGroupIn << correctedPop
+            
+             // 软冲刷时无法避免 correctedPop.valid 可能为高，但软冲刷源 dispatcher 应该自己处理
+            // when(doAnyFlush || isDrainingCacheRspReg) {
+                // assert(!correctedPop.valid, "Dispatcher should not receive new groups during a flush or drain")
+            // }
+        }
+
+        report(L"[${dbg.cycles}]FETCH-S5] fetchGroupsOut.io.occupancy=${fetchGroupsOut.io.occupancy}")
         dispatcher.io.bpuRsp << setup.bpuResponse
         setup.bpuQueryPort << dispatcher.io.bpuQuery
 
         if(enableLog) when(dispatcher.io.fetchGroupIn.fire) {
             val group = dispatcher.io.fetchGroupIn.payload
-            // RawFetchGroup不再有predecodeInfos，所以不能直接访问firstIsBranch
-            if(enableLog) notice(L"[DISPATCHER-IN] POP from rawFetchGroups FIFO. PC=0x${group.pc}, startIdx=${group.startInstructionIndex}, numValid=${group.numValidInstructions}")
+            if(enableLog) notice(L"[${dbg.cycles}]DISPATCHER-IN] POP from io.fetchGroupIn FIFO. PC=0x${group.pc}, startIdx=${group.startInstructionIndex}, numValid=${group.numValidInstructions}, firstPc=0x${group.firstPc}")
         }
 
         // --- 流水线冲刷 ---
         fetchPipeline.s1_pcGen.flushIt(doHardFlush)
-        fetchPipeline.s2_iCacheAccess.flushIt(doHardFlush || doRetryFlush)
-        fetchPipeline.s3_iCacheWait.flushIt(doHardFlush || doRetryFlush)
-        fetchPipeline.s4_predecode.flushIt(doHardFlush)
+        fetchPipeline.s2_iCacheAccess.flushIt(doExternalFlush || doRetryFlush)
+        fetchPipeline.s3_iCacheWait.flushIt(doExternalFlush || doRetryFlush)
+        fetchPipeline.s4_predecode.flushIt(doExternalFlush || doRetryFlush) // S4 冲刷 (不考虑 retryFlush，因为 s4 不会因 retry 而改变其内容)
+        fetchPipeline.s5_targetCalc.flushIt(doExternalFlush || doRetryFlush) // <<< 冲刷 s5 阶段
+        // FIFO 冲刷逻辑
+        // fetchGroupsOut.io.flush := doHardFlush || isDrainingCacheRspReg || (RegNext(doSoftFlush) init(False))
+        fetchGroupsOut.io.flush := doExternalFlush || doRetryFlush || isDrainingCacheRspReg // 会组合环路
 
-        /* 
-        软冲刷时：
-            当dispatcher发出软重定向后，它已经消费了包含分支指令的那个取指包。
-            但此时，rawFetchGroups FIFO里可能还缓存着来自错误路径（即分支不跳转的顺序路径）的指令包。
-            在下一个周期 (RegNext)，当s1开始从新地址取指时，这个flush信号会清空这些陈旧的、
-            不再需要的指令包。
-         */
-        s4_logic.rawFetchGroups.io.flush := doAnyFlush || isDrainingCacheRspReg
-        dispatcher.io.flush := doHardFlush // 硬冲刷才需要清空下游
-        when(s4_logic.rawFetchGroups.io.flush) {
-            if(enableLog) notice(L"[${dbg.cycles}] Flush rawFetchGroups")
-        }
+        // dispatcher 只需要处理硬冲刷，软冲刷它内部会自己处理
+        dispatcher.io.flush := doHardFlush
         when(dispatcher.io.flush) {
             if(enableLog) notice(L"[${dbg.cycles}] Flush dispatcher")
         }
+        when(RegNext(doExternalFlush || isDrainingCacheRspReg)) {
+            assert(fetchGroupsOut.io.occupancy === 0, "Flush should empty the fetchGroupsOut FIFO")
+        }
+        when(doRetryFlush) {
+            if(enableLog) notice(L"[${dbg.cycles}] Retry flush")
+        }
         fetchPipeline.build()
-
         // --- 资源释放 ---
         setup.iCacheService.release()
         setup.bpuService.release()

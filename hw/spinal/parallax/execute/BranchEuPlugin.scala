@@ -129,14 +129,14 @@ class BranchEuPlugin(
     }
 
     // 3. 计算分支目标地址 (Heavy logic)
-    val branchTarget_s1 = UInt(pipelineConfig.pcWidth)
-    switch(uopAtS1.branchCtrl.isJump ## uopAtS1.branchCtrl.isIndirect) {
-      is(B"00") { branchTarget_s1 := uopAtS1.pc + uopAtS1.imm.asSInt.resize(pipelineConfig.pcWidth).asUInt }
-      is(B"01") { branchTarget_s1 := (src1Data.asSInt + uopAtS1.imm.asSInt).asUInt.resized }
-      is(B"10") { branchTarget_s1 := uopAtS1.pc + uopAtS1.imm.asSInt.resize(pipelineConfig.pcWidth).asUInt }
-      default   { branchTarget_s1 := uopAtS1.pc + 4 }
-    }
-    
+    val target_pc_relative = uopAtS1.pc + uopAtS1.imm.asSInt.resize(pipelineConfig.pcWidth).asUInt
+    val target_reg_indirect = (src1Data.asSInt + uopAtS1.imm.asSInt).asUInt.resized
+    val branchTarget_s1 = Mux(
+      uopAtS1.branchCtrl.isIndirect,
+      target_reg_indirect,
+      target_pc_relative
+    )
+
     // 将计算结果存入Stageable，传递给下一级
     pipeline.s1_calc(BRANCH_TAKEN) := branchTaken_s1
     pipeline.s1_calc(BRANCH_TARGET) := branchTarget_s1
@@ -148,7 +148,7 @@ class BranchEuPlugin(
     val branchTarget_s2 = pipeline.s2_select(BRANCH_TARGET)
     
     when(pipeline.s2_select.isFiring) {
-      report(L"[BranchEU-S2-Select] SELECT START: PC=0x${uopAtS2.pc}, branchTaken(from S1)=${branchTaken_s2}")
+      report(L"[BranchEU-S2-Select] SELECT START: PC=0x${uopAtS2.pc}, branchTaken(from S1)=${branchTaken_s2} isIndirect=${uopAtS2.branchCtrl.isIndirect}, imm=${uopAtS2.imm}")
     }
 
     // 4. 决定最终跳转地址和链接寄存器值 (Lighter logic)
@@ -217,6 +217,7 @@ class BranchEuPlugin(
       euResult.valid := True
       euResult.uop := uopAtS3
       euResult.data := mispredictInfoAtS3.outputData
+      euResult.targetPc := mispredictInfoAtS3.finalTarget
       euResult.writesToPreg := mispredictInfoAtS3.writesToPreg
       euResult.isMispredictedBranch := mispredictInfoAtS3.mispredicted // This is the signal from your screenshot
       euResult.isTaken := mispredictInfoAtS3.actuallyTaken
