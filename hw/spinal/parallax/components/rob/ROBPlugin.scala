@@ -120,6 +120,9 @@ class ROBPlugin[RU <: Data with Formattable with HasRobPtr](
     }
     robComponent.io.commitAck
   }
+  // override def getRetireAcks(): Flow[UInt] = {
+  //   robComponent.io.retireAck
+  // }
 
   // 清空/恢复阶段
   override def newRobFlushPort(): (Flow[ROBFlushPayload]) = {

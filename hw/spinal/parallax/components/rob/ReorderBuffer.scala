@@ -78,6 +78,7 @@ case class ROBStatus[RU <: Data with Formattable with HasRobPtr](config: ROBConf
   val result = Bits(config.pcWidth)
   val hasException = Bool()
   val exceptionCode = UInt(config.exceptionCodeWidth)
+  val pendingRetirement = Bool() 
   val genBit = Bool()
 }
 
@@ -161,6 +162,7 @@ case class ROBIo[RU <: Data with Formattable with HasRobPtr](config: ROBConfig[R
   val commit = Vec(slave(ROBCommitSlot(config)), config.commitWidth)
   val commitAck = in Vec (Bool(), config.commitWidth)
   val flush = slave Flow (ROBFlushPayload(config.robPtrWidth))
+  // val retireAck = slave Flow(UInt(config.robPtrWidth))
   val flushed = out Bool ()
   val empty = out Bool ()
   val headPtrOut = out UInt (config.robPtrWidth) 
@@ -175,12 +177,13 @@ case class ROBIo[RU <: Data with Formattable with HasRobPtr](config: ROBConfig[R
     in(flushed)
     in(canAllocate)
     out(commitAck)
+    // master(retireAck)
     in(empty, headPtrOut, tailPtrOut, countOut)
   }
 }
 
 class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfig[RU]) extends Component {
-  val enableLog = false
+  val enableLog = true
   ParallaxLogger.log(
     s"Creating ReorderBuffer with config: ${config.format().mkString("")}"
   )
@@ -199,6 +202,7 @@ class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfi
     statuses(i).done init(False)
     statuses(i).hasException init(False)
     statuses(i).exceptionCode init(0)
+    // statuses(i).pendingRetirement init(False)
     statuses(i).genBit init(False)
   }
 
@@ -277,6 +281,19 @@ class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfi
     val prevCommitsAccepted = if (i == 0) True else actualCommittedMask(i - 1)
     actualCommittedMask(i) := prevCommitsAccepted && canCommitFlags(i) && io.commitAck(i)
 
+    // when(actualCommittedMask(i)) {
+    //   val committedUop = io.commit(i).entry.payload.uop
+    //   // 检查这条指令是不是需要等待退休确认的类型 (例如 Store)
+    //   // 这需要uop中有一个isStore之类的标志，这里我们假设有
+    //   val needsRetireAck = committedUop.asInstanceOf[RenamedUop].decoded.memCtrl.isStore
+      
+    //   when(needsRetireAck) {
+    //     // 是Store指令：标记它，但不移动 headPtr
+    //     statuses(currentCommitPhysIdx).pendingRetirement := True
+    //     if(enableLog) report(L"[ROB] COMMIT_STORE[${i}]: ptr=${currentCommitFullIdx} marked as pending retirement. Head not moved.")
+    //   }
+    // }
+    
     if(enableLog) when(count_reg > U(i)) {
       report(L"[ROB] COMMIT_CHECK[${i}]: ptr=${currentCommitFullIdx}, done=${currentStatus.done}, genMatch=${currentCommitGenBit === currentStatus.genBit}, flushBlocking=${flushBlocking} -> canCommitFlags(i)=${canCommitFlags(i)}. io.commitAck(i)=${io.commitAck(i)} -> actualCommit=${actualCommittedMask(i)}")
       when(flushBlocking) {

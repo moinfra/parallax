@@ -150,7 +150,7 @@ class LsuEuPlugin(
     //
     // 对于Load指令，进入Load Queue仅仅是开始。它必须等待数据返回。
     // 因此，LsuEu绝对不能在此处为Load指令报告完成。这个责任完全在LoadQueuePlugin。
-      when(isStoreDispatch) {
+      when(aguOutStream.valid && aguOutPayload.isStore) {
           euResult.valid := True
           
           // 填充ROB需要的信息

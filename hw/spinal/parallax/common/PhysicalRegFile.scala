@@ -43,7 +43,8 @@ case class PrfWritePort(
 }
 
 trait PhysicalRegFileService extends Service with LockedImpl {
-  def newPrfReadPort(): PrfReadPort
+  def newPrfReadPort(traceName: String = "<null>", isFromDebugger: Boolean = false): PrfReadPort
+  def newDebuggerReadPort(traceName: String = "debugger"): PrfReadPort
   def newPrfWritePort(traceName: String = "<null>"): PrfWritePort
 
   def readPort(index: Int): PrfReadPort
@@ -60,19 +61,25 @@ class PhysicalRegFilePlugin(
     with PhysicalRegFileService
     with LockedImpl {
 
+  private case class PrfReadPortRequest(port: PrfReadPort, traceName: String, isFromDebugger: Boolean)
   private case class PrfWritePortRequest(port: PrfWritePort, traceName: String)
 
   val regIdxWidth = log2Up(numPhysRegs) bits
-  private val readPortRequests = ArrayBuffer[PrfReadPort]()
+  private val readPortRequests = ArrayBuffer[PrfReadPortRequest]() // 类型已更新
   private val writePortRequests = ArrayBuffer[PrfWritePortRequest]()
 
   private var logicExecuted = false
 
-  override def newPrfReadPort(): PrfReadPort = {
+  // *** CHANGE 3: newPrfReadPort 方法实现更新 ***
+  override def newPrfReadPort(traceName: String = "<null>", isFromDebugger: Boolean = false): PrfReadPort = {
     this.framework.requireEarly()
     val port = PrfReadPort(regIdxWidth, dataWidth)
-    readPortRequests += port
+    readPortRequests += PrfReadPortRequest(port, traceName, isFromDebugger)
     port
+  }
+
+  override def newDebuggerReadPort(traceName: String = "debugger"): PrfReadPort = {
+    newPrfReadPort(traceName, isFromDebugger = true)
   }
 
   override def newPrfWritePort(traceName: String = "<null>"): PrfWritePort = {
@@ -82,7 +89,7 @@ class PhysicalRegFilePlugin(
     port
   }
 
-  def readPort(index: Int): PrfReadPort = readPortRequests(index)
+  def readPort(index: Int): PrfReadPort = readPortRequests(index).port
   def writePort(index: Int): PrfWritePort = writePortRequests(index).port
 
   val setup = create early new Area {
@@ -98,10 +105,15 @@ class PhysicalRegFilePlugin(
 
     val regFile = Vec(RegInit(B(0, dataWidth)), numPhysRegs)
 
-    readPortRequests.foreach { externalPort =>
-      externalPort.rsp := Mux(externalPort.address === 0, B(0, dataWidth), regFile(externalPort.address))
-      when(externalPort.valid) {
-        ParallaxSim.log(L"[PRegPlugin] Read from reg[${externalPort.address}] -> ${externalPort.rsp}")
+    readPortRequests.foreach { req =>
+      req.port.rsp := Mux(req.port.address === 0, B(0, dataWidth), regFile(req.port.address))
+      
+      if (!req.isFromDebugger) {
+        when(req.port.valid) {
+          ParallaxSim.log(
+            L"[PRegPlugin] Read from `${req.traceName}` on reg[${req.port.address}] -> ${req.port.rsp}"
+          )
+        }
       }
     }
     
@@ -116,7 +128,7 @@ class PhysicalRegFilePlugin(
 
         // 断言：如果两个不同的端口都有效，它们的目标地址必须不相同。
         assert(
-          !(portA.valid && portB.valid && portA.address === portB.address),
+          !(portA.valid && portB.valid && portA.address === portA.address),
           L"CRITICAL ERROR: Concurrent write to the same physical register ${portA.address} detected between " :+
           L"${writePortRequests(i).traceName} and ${writePortRequests(j).traceName}. " :+
           "This is a design flaw in the pipeline scheduling logic."

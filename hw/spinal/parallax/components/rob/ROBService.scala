@@ -59,6 +59,7 @@ trait ROBService[RU <: Data with Formattable with HasRobPtr] extends Service wit
    * @return 一个 Vec of Bool 的 slave 视角。Commit 阶段驱动这些信号。
    */
   def getCommitAcks(width: Int): Vec[(Bool)]
+  // def getRetireAcks(): Flow[UInt]
 
 
   // --- 清空/恢复阶段 (Flush Interface) ---

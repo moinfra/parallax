@@ -43,12 +43,13 @@ case class CommitSlotLog(pCfg: PipelineConfig) extends Bundle with Formattable {
   val canCommit = Bool() // 这个槽位是否可以提交（有效且全局使能）
   val doCommit = Bool() // 这个槽位是否实际提交了
   val robPtr = UInt(pCfg.robPtrWidth)
+  val pc = UInt(pCfg.pcWidth)
   val oldPhysDest = UInt(pCfg.physGprIdxWidth) // 旧的物理目的寄存器
   val allocatesPhysDest = Bool() // 该指令是否分配了新的物理目的寄存器
 
   def format: Seq[Any] = {
     Seq(
-      L"(valid=${valid}, canCommit=${canCommit}, doCommit=${doCommit}, robPtr=${robPtr}",
+      L"(valid=${valid}, canCommit=${canCommit}, doCommit=${doCommit}, robPtr=${robPtr}, pc=0x${pc}",
       L", oldPhysDest=${oldPhysDest}, allocPhysDest(bool)=${allocatesPhysDest})"
     )
   }
@@ -113,6 +114,7 @@ class CommitPlugin(
   private val maxCommitPcReg = Reg(UInt(pipelineConfig.pcWidth)) init (0) addAttribute ("mark_debug", "true")
   private val commitOOBReg = Reg(Bool()) init (False) addAttribute ("mark_debug", "true")
 
+  val commitSlotLogs = Vec(CommitSlotLog(pipelineConfig), pipelineConfig.commitWidth)
   override def setCommitEnable(enable: Bool): Unit = {
     commitEnableExt := enable
   }
@@ -316,12 +318,12 @@ class CommitPlugin(
         .reduce(_ || _)
 
       // 准备日志Bundle
-      val commitSlotLogs = Vec(CommitSlotLog(pipelineConfig), pipelineConfig.commitWidth)
       for (i <- 0 until pipelineConfig.commitWidth) {
         commitSlotLogs(i).valid := commitSlots(i).valid
         commitSlotLogs(i).canCommit := commitSlots(i).canCommit && enable
         commitSlotLogs(i).doCommit := commitAckMasks(i)
         commitSlotLogs(i).robPtr := commitSlots(i).entry.payload.uop.robPtr
+        commitSlotLogs(i).pc := commitSlots(i).entry.payload.uop.decoded.pc
         commitSlotLogs(i).oldPhysDest := commitSlots(i).entry.payload.uop.rename.oldPhysDest.idx
         commitSlotLogs(i).allocatesPhysDest := commitSlots(i).entry.payload.uop.rename.allocatesPhysDest
       }
@@ -378,7 +380,7 @@ class CommitPlugin(
       report(
         L"[COMMIT] Cycle ${counter} Log: " :+
           L"Stats=${commitStatsReg.format}\n" :+
-          L"  Slot Details: ${s0.commitSlotLogs.map(s => L"\n    Slot: ${s.format} commitPc=0x${s0.commitPcs(0)}")}" // 为每个槽位格式化输出，每个槽位独占一行
+          L"  Slot Details: ${commitSlotLogs.map(s => L"\n    Slot: ${s.format} commitPc=0x${s0.commitPcs(0)}")}" // 为每个槽位格式化输出，每个槽位独占一行
       )
     } else {
       // 只打印首次 valid=1 和 doCommit = 1
@@ -387,13 +389,13 @@ class CommitPlugin(
         report(
           L"[COMMIT] Cycle ${counter} Log: " :+
             L"Stats=${commitStatsReg.format}\n" :+
-            L"  Slot Details: ${s0.commitSlotLogs(0).format} commitAck=${commitAcks(0)} commitPc=0x${s0.commitPcs(0)}" // 只打印第一个槽位
+            L"  Slot Details: ${commitSlotLogs(0).format} commitAck=${commitAcks(0)} commitPc=0x${s0.commitPcs(0)}" // 只打印第一个槽位
         )
       } elsewhen (commitAcks(0)) {
         report(
           L"[COMMIT] Cycle ${counter} Log: " :+
             L"Stats=${commitStatsReg.format}\n" :+
-            L"  Slot Details: ${s0.commitSlotLogs(0).format} commitAck=${commitAcks(0)} commitPc=0x${s0.commitPcs(0)}" // 只打印第一个槽位
+            L"  Slot Details: ${commitSlotLogs(0).format} commitAck=${commitAcks(0)} commitPc=0x${s0.commitPcs(0)}" // 只打印第一个槽位
         )
       }
     }

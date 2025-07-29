@@ -93,7 +93,7 @@ case class LA32RRawInstructionFields() extends Bundle {
   def offs16 = inst(25 downto 10) // JIRL, BEQ, BNE, BLTU
 
   // FIX: Correctly extract the 26-bit offset for B and BL
-  def offs26_b_type = inst(25 downto 16) ## inst(15 downto 0)
+  def offs26_b_type = inst(9 downto 0) ## inst(25 downto 10)
   
   // For IDLE instruction level field
   def idle_level = inst(14 downto 0) // level[14:0]

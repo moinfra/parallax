@@ -264,72 +264,68 @@ class StoreBufferPlugin(
         //  ROB 交互与冲刷逻辑 (ROB Interaction and Flush Logic)
         // =================================================================
         val rob_interaction = new Area {
+            // --- Flush 逻辑 (部分) ---
             val robFlushPort = robService.doRobFlush()
-            val flushInProgress = robFlushPort.valid && robFlushPort.payload.reason === FlushReason.ROLLBACK_TO_ROB_IDX
+            val flushInProgressOnCommit = robFlushPort.valid && robFlushPort.payload.reason === FlushReason.ROLLBACK_TO_ROB_IDX
             val flushTargetRobPtr = robFlushPort.payload.targetRobPtr
-            case class FlushInfo() extends Bundle {
-                val valid = Bool()
-                val targetRobPtr = UInt(pipelineConfig.robPtrWidth)
-            }
-            val registeredFlush = RegNext({
-                val info = FlushInfo()
-                info.valid      := flushInProgress
-                info.targetRobPtr := flushTargetRobPtr
-                info
-            }).init({
-                val info = FlushInfo()
-                info.valid := False
-                info.targetRobPtr := 0
-                info
-            })
+            
+            // 使用 RegNext 锁存 flush 请求，以避免组合逻辑环路
+            // 确保 flush 执行与请求在不同周期
+            val registeredFlush = RegNext(robFlushPort).init(robFlushPort.getZero)
 
+            // --- Commit 逻辑 (核心修改) ---
             val commitInfoFromRob = robService.getCommitSlots(pipelineConfig.commitWidth)
-            case class CommitUpdateInfo() extends Bundle {
-                val validMask = Bits(sbDepth bits)
-                def setDefault(initValue: Int = 0): this.type = {
-                    validMask := initValue
-                    this
-                }
-            }
-            val commitUpdateInfo = CommitUpdateInfo().setDefault().allowOverride()
             val commitPort = commitInfoFromRob(0)
 
-            // 为唯一的commit端口计算其one-hot匹配掩码
+            // 直接在本周期计算 commit 匹配掩码，不使用 RegNext
             val commitMatchMask = Bits(sbDepth bits)
-            when(commitPort.canCommit && commitPort.entry.payload.uop.decoded.memCtrl.isStore) {
+            when(commitPort.canCommit && 
+                 (commitPort.entry.payload.uop.decoded.uopCode === BaseUopCode.STORE) && 
+                 !commitPort.entry.status.hasException) {
+                
+                // 使用 OHMasking.last 来正确处理 robPtr 复用的情况
                 val candidates = B(storage.slots.map(s => s.valid && !s.isCommitted && s.robPtr === commitPort.entry.payload.uop.robPtr))
-                commitMatchMask := OHMasking.first(candidates)
+                commitMatchMask := OHMasking.last(candidates)
             } otherwise {
                 commitMatchMask := 0
             }
 
-            // 最终的更新掩码就是这个计算结果 (因为commitWidth=1)
-            commitUpdateInfo.validMask := commitMatchMask
-            report(L"[SQ] commitPort valid=${commitPort.valid} canCommit=${commitPort.canCommit} robPtr=${commitPort.entry.payload.uop.robPtr} commitMatchMask=${commitMatchMask}")
-
-            val registeredCommitUpdate = RegNext(commitUpdateInfo).init(CommitUpdateInfo().setDefault())
-
-            // 应用ROB冲刷和提交更新到 slotsAfterUpdates
+            if(enableLog) {
+                when(commitMatchMask.orR) {
+                     report(L"[SQ] COMMIT_DETECT: robPtr=${commitPort.entry.payload.uop.robPtr} commitMatchMask=${commitMatchMask}")
+                }
+            }
+            
+            // --- 应用 Flush 和 Commit 更新 ---
             for(i <- 0 until sbDepth){
+                // Flush 逻辑
                 val toBeFlushedByRob = registeredFlush.valid && 
+                                      (registeredFlush.payload.reason === FlushReason.ROLLBACK_TO_ROB_IDX) &&
                                       storage.slots(i).valid && 
-                                      !storage.slots(i).isCommitted && // 只冲刷未提交的
-                                      helper_functions.isNewerOrSame(storage.slots(i).robPtr, registeredFlush.targetRobPtr)
+                                      !storage.slots(i).isCommitted && 
+                                      helper_functions.isNewerOrSame(storage.slots(i).robPtr, registeredFlush.payload.targetRobPtr)
+                
                 when(toBeFlushedByRob) {
                     storage.slotsAfterUpdates(i).valid := False
-                    report(L"[SQ] FLUSH (Exec): Invalidating slotIdx=${i} (robPtr=${storage.slots(i).robPtr}) by ROB flush.")
+                    if(enableLog) report(L"[SQ] FLUSH (Exec): Invalidating slotIdx=${i} (robPtr=${storage.slots(i).robPtr}) by ROB flush.")
                 } .elsewhen(storage.slots(i).valid && !storage.slots(i).isCommitted) {
-                    when(registeredCommitUpdate.validMask(i)) {
+                    // Commit 逻辑 (直接使用本周期的 commitMatchMask)
+                    when(commitMatchMask(i)) {
                         storage.slotsAfterUpdates(i).isCommitted := True
-                        if(enableLog) report(L"[SQ] COMMIT_EXEC: robPtr=${storage.slots(i).robPtr} (slotIdx=${i}) marked as committed based on registered info.")
+                        if(enableLog) report(L"[SQ] COMMIT_EXEC: robPtr=${storage.slots(i).robPtr} (slotIdx=${i}) marked as committed.")
                     }
                 }
             }
+
+            // 全局冲刷逻辑
             when(robFlushPort.valid && robFlushPort.payload.reason === FlushReason.FULL_FLUSH) {
-                    if(enableLog) report(L"[SQ] FULL_FLUSH received. Clearing all slots.")
-                    for(i <- 0 until sbDepth) {
-                        storage.slotsAfterUpdates(i).setDefault()
+                if(enableLog) report(L"[SQ] FULL_FLUSH received. Clearing all slots.")
+                for(i <- 0 until sbDepth) {
+                    // 已提交的条目必须被保留，直到它们成功写入内存。
+                    when(!storage.slots(i).isCommitted) {
+                        storage.slotsAfterUpdates(i).valid := False
                     }
+                }
             }
         }
 
@@ -337,32 +333,47 @@ class StoreBufferPlugin(
         //  Store Buffer 推入逻辑 (SB Push Logic)
         // =================================================================
         val push_logic = new Area {
-            // 1. 计算SB的逻辑尾部指针 (tailPtr)
+            // --- 对空洞免疫的 Push 逻辑 ---
             val usageMask = B(storage.slots.map(_.valid))
-            val isAllInvalid = usageMask === 0
+            
+            // CountOne 返回一个 UInt，其位宽足以表示 sbDepth。
+            // 例如 sbDepth=8, CountOne 返回 UInt(4 bits)。
+            val entryCount = CountOne(usageMask)
 
-            // 计算当前有效条目数。这是最简单、最稳健的确定逻辑尾部的方法，
-            // 它对空洞不敏感，只关心总数。
-            // 假设sbDepth=8, entryCount可以是0到8。需要4位。
-            val entryCount = CountOne(usageMask) 
-            val tailPtr = entryCount.resize(log2Up(sbDepth + 1) bits) // 显式调整大小
+            // tailPtr 的值范围是 0 到 sbDepth。
+            // 因此它的位宽必须是 log2Up(sbDepth + 1)。
+            // entryCount 已经具有正确的位宽，所以我们直接使用它。
+            val tailPtr = entryCount
 
-            // 2. 更新Push的握手和索引逻辑
-            // 现在 tailPtr 和 sbDepth 可以在比较前被正确处理
-            val canPush = tailPtr < sbDepth && !rob_interaction.flushInProgress // SpinalHDL 会自动将Int转换为正确位宽的UInt
+            // isFull 的比较现在是安全的，因为 tailPtr 和 sbDepth 在比较时
+            // SpinalHDL 会将 sbDepth (Int) 转换为与 tailPtr 位宽相同的 UInt。
+            val isFull = (tailPtr === sbDepth)
+
+            val canPush = !isFull && !rob_interaction.flushInProgressOnCommit
             pushPortIn.ready := canPush
 
-            // pushIdx 也需要使用正确的值
-            val pushIdx = tailPtr.resized // pushIdx的位宽是 log2Up(sbDepth)
-            report(L"POISON_PILL_DEBUG: tailPtr=${tailPtr}, usageMask=${usageMask}")
+            // pushIdx 的范围是 0 到 sbDepth-1。
+            // 当 canPush 为 True 时，tailPtr 的值一定在 0 到 sbDepth-1 之间。
+            // 因此，可以安全地将 tailPtr 赋值给 pushIdx，即使 pushIdx 的位宽可能更小。
+            // SpinalHDL 的 .resized 会截断高位，但在此处是安全的。
+            // pushIdx 的位宽是 log2Up(sbDepth)，例如 sbDepth=8, 位宽是3。
+            val pushIdx = tailPtr(log2Up(sbDepth)-1 downto 0)
+
+            if(enableLog) {
+                when(pushPortIn.valid) {
+                    report(L"POISON_PILL_DEBUG: tailPtr=${tailPtr}, usageMask=${usageMask}, canPush=${canPush}")
+                }
+            }
 
             when(pushPortIn.fire) {
                 val newSlotData = StoreBufferSlot(pipelineConfig, lsuConfig, dCacheParams)
                 newSlotData.initFromCommand(pushPortIn.payload)
+                // 使用 pushIdx (正确位宽) 进行索引
                 storage.slotsAfterUpdates(pushIdx) := newSlotData
                 if(enableLog) report(L"[SQ] PUSH: robPtr=${pushPortIn.payload.robPtr} to slotIdx=${pushIdx}")
             }
         }
+
 
         // =================================================================
         //  Store Buffer 弹出与内存写入逻辑 (SB Pop and Memory Write Logic)

@@ -105,11 +105,13 @@ object LA32RInstrBuilder {
   // --- I-Type (LU12I, PCADDU12I) ---
   def lu12i_w(rd: Int, imm: Int): BigInt = {
     requireValidRegister(rd, "rd")
+    // NOTE：指令集手册上写了 si20，但实际上作为无符号数处理
     require(fitsInUnsignedBits(imm, 20), s"20-bit unsigned immediate for LU12I.W must be between 0 and 1048575, but got $imm")
     fromBinary(s"0001010${toBinary(imm, 20)}${toBinary(rd, 5)}")
   }
   def pcaddu12i(rd: Int, imm: Int): BigInt = {
     requireValidRegister(rd, "rd")
+    // NOTE：指令集手册上写了 si20，但实际上作为无符号数处理
     require(fitsInUnsignedBits(imm, 20), s"20-bit unsigned immediate for PCADDU12I must be between 0 and 1048575, but got $imm")
     fromBinary(s"0001110${toBinary(imm, 20)}${toBinary(rd, 5)}")
   }
@@ -162,7 +164,7 @@ object LA32RInstrBuilder {
     val imm26_str = toBinary(wordOffset, 26)
     val offs_25_16 = imm26_str.substring(0, 10)
     val offs_15_0  = imm26_str.substring(10)
-    fromBinary(s"$opcode$offs_25_16$offs_15_0")
+    fromBinary(s"$opcode$offs_15_0$offs_25_16")
   }
 
   // NOTE: byte offset
