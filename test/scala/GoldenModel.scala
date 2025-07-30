@@ -2,6 +2,26 @@ package test.scala
 
 import com.sun.jna.{Library, Native, Pointer, NativeLibrary}
 
+// Helper enum for VM status (from C header)
+// This should be in a shared file if possible, or defined carefully
+object CVmStatus extends Enumeration {
+  type CVmStatus = Value
+  val Running = Value(0, "Running")
+  val Idle = Value(1, "Idle")
+  val Halted = Value(2, "Halted")
+  val Error = Value(-1, "Error")
+
+  // Helper to convert Int from C to Scala enum
+  def fromInt(value: Int): CVmStatus = value match {
+    case 0 => Running
+    case 1 => Idle
+    case 2 => Halted
+    case -1 => Error
+    case _ => throw new IllegalArgumentException(s"Unknown CVmStatus value: $value")
+  }
+}
+
+
 /** =================================================================================
   * JNA Interface Definition (`La32rFfi`) - The Unchangeable Boundary
   * =================================================================================
@@ -20,12 +40,13 @@ trait La32rFfi extends Library {
   def vm_create(start_pc: Int, bases: Array[Int], sizes: Array[Long], num_regions: Long): Pointer
   def vm_destroy(handle: Pointer): Unit
   def vm_load_binary(handle: Pointer, base_addr: Int, data: Array[Byte], data_len: Long): Int
-  def vm_step(handle: Pointer): Int
+  def vm_step(handle: Pointer): Int // This returns the *new* status after the step
   def vm_get_pc(handle: Pointer): Int
   def vm_get_gpr(handle: Pointer, index: Int): Int
   def vm_get_all_gprs(handle: Pointer, out_gprs: Array[Int]): Unit
   def vm_get_cycle_count(handle: Pointer): Long
   def vm_read_memory(handle: Pointer, addr: Int, out_data: Array[Byte], size: Long): Int
+  def vm_get_status(handle: Pointer): Int // Added to explicitly query status
 }
 
 /** =================================================================================
@@ -107,13 +128,18 @@ object GoldenModel {
    * lock-step verification with a hardware simulator (DUT).
    *
    * @param commitPc The PC of the instruction the DUT is about to commit.
+   * @return The status of the VM after executing the `commitPc` instruction.
    */
-  def stepUntil(commitPc: BigInt): Unit = {
+  def stepUntil(commitPc: BigInt): CVmStatus.Value = { // Return CVmStatus now
     if (vmHandle == null) throw new IllegalStateException("GoldenModel not initialized.")
 
     var currentVmPc = fromU32Int(ffi.vm_get_pc(vmHandle))
+    var currentVmStatus = getStatus() // Get initial status
 
-    // Error if golden model is somehow ahead of the DUT
+    // Error if golden model is somehow ahead of the DUT or already errored
+    if (currentVmStatus == CVmStatus.Error) {
+      throw new RuntimeException(s"Golden model was already in ERROR state at PC 0x${currentVmPc.toString(16)}.")
+    }
     if (currentVmPc > commitPc) {
       throw new RuntimeException(s"Golden model is ahead of DUT! Golden PC: 0x${currentVmPc.toString(16)}, DUT Commit PC: 0x${commitPc.toString(16)}")
     }
@@ -121,37 +147,42 @@ object GoldenModel {
     // Loop execution until golden model's PC matches DUT's commit PC
     // This loop synchronizes the model to the state *before* the commit instruction is executed.
     while (currentVmPc < commitPc) {
-      val status = ffi.vm_step(vmHandle)
-      if (status != 0) { // 0 is VmStatus::Running
-        throw new RuntimeException(s"Golden model halted or errored unexpectedly at PC 0x${currentVmPc.toString(16)} before reaching target PC 0x${commitPc.toString(16)}. Status code: $status")
-      }
+      currentVmStatus = CVmStatus.fromInt(ffi.vm_step(vmHandle)) // Execute one step
       currentVmPc = fromU32Int(ffi.vm_get_pc(vmHandle))
+
+      if (currentVmStatus != CVmStatus.Running) {
+        // If VM halted or errored *before* reaching commitPc, it's an unexpected early stop
+        // unless it's a planned halt (which should ideally be at haltPc)
+        if (currentVmStatus == CVmStatus.Halted) {
+          throw new RuntimeException(s"Golden model halted unexpectedly early at PC 0x${currentVmPc.toString(16)} (before reaching 0x${commitPc.toString(16)}). Status: ${currentVmStatus}")
+        } else { // Error or other non-running status
+          throw new RuntimeException(s"Golden model errored unexpectedly at PC 0x${currentVmPc.toString(16)} before reaching target PC 0x${commitPc.toString(16)}. Status: ${currentVmStatus}")
+        }
+      }
     }
 
-    // Ensure we stopped exactly at the target PC and didn't overshoot
-    if (currentVmPc != commitPc) {
-      throw new RuntimeException(s"Golden model overshot the target PC! Expected: 0x${commitPc.toString(16)}, Got: 0x${currentVmPc.toString(16)}")
-    }
-
-    // Now, the golden model's PC is at the same instruction the DUT is about to commit.
-    // Execute one final step to simulate this commit.
-    val status = ffi.vm_step(vmHandle)
-    if (status != 0) { // Not Running
-      println(s"INFO: Golden model halted or errored on instruction at PC 0x${commitPc.toString(16)}. This may be the intended end of the program. Status: $status")
-    }
+    // At this point, currentVmPc == commitPc.
+    // Execute one final step to simulate the DUT committing this instruction.
+    currentVmStatus = CVmStatus.fromInt(ffi.vm_step(vmHandle)) // Execute the instruction at commitPc
+    // The currentVmPc has now advanced or remained the same if it was a halt.
+    
+    // We explicitly return the status, letting the caller decide if Halted is acceptable.
+    currentVmStatus
   }
 
   /**
    * Makes the golden model execute one instruction.
    * Useful for simple, non-lock-step scenarios.
+   * @return The status of the VM after the step.
    */
-  def step(): Unit = {
+  def step(): CVmStatus.Value = {
     if (vmHandle == null) throw new IllegalStateException("GoldenModel not initialized.")
-    val status = ffi.vm_step(vmHandle)
-    if (status != 0) { // 0 is VmStatus::Running
+    val status = CVmStatus.fromInt(ffi.vm_step(vmHandle))
+    if (status != CVmStatus.Running) {
       val pc = fromU32Int(ffi.vm_get_pc(vmHandle))
       println(s"INFO: Golden model halted or errored. PC=0x${pc.toString(16)}, Status=$status")
     }
+    status
   }
 
   /** Retrieves all GPRs from the golden model.
@@ -170,6 +201,13 @@ object GoldenModel {
   def getPc(): BigInt = {
     if (vmHandle == null) throw new IllegalStateException("GoldenModel not initialized.")
     fromU32Int(ffi.vm_get_pc(vmHandle))
+  }
+
+  /** Retrieves the current status of the golden model.
+    */
+  def getStatus(): CVmStatus.Value = {
+    if (vmHandle == null) throw new IllegalStateException("GoldenModel not initialized.")
+    CVmStatus.fromInt(ffi.vm_get_status(vmHandle))
   }
 
   // Expose vm_read_memory for the final memory check

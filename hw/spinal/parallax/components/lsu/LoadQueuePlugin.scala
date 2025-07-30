@@ -363,50 +363,30 @@ class LoadQueuePlugin(
             }
             
             // --- Cache/MMIO Interaction ---
-            // 注意: isReadyForDCache 现在在入队时就设置好了，不再需要等待转发结果（除非转发失败）
-            val headIsReadyToExecute = headIsVisible && head.isReadyForDCache && !head.isWaitingForRsp
+            // --- Memory System Interaction ---
+            // The condition to send a command to the memory system is now VERY simple:
+            // The head must be visible, and it must be explicitly marked as `isReadyForDCache`.
+            // This flag is ONLY set when the forwarding logic has confirmed it is safe.
+            val canSendToMemorySystem = headIsVisible && head.isReadyForDCache && !head.isWaitingForRsp
             
-            // 如果正在等待转发响应，或者转发命中，则不应该发送到DCache/MMIO
-            val shouldNotSendToMemory = head.isWaitingForFwdRsp
-
-            // DCache路径（非MMIO）
-        // disabledcache    dCacheLoadPort.cmd.valid := headIsReadyToExecute && !head.hasException && !shouldNotSendToMemory && !head.isIO
-        //disabledcache    dCacheLoadPort.cmd.virtual       := head.address
-        //disabledcache    dCacheLoadPort.cmd.size          := MemAccessSize.toByteSizeLog2(head.size)
-        //disabledcache    dCacheLoadPort.cmd.redoOnDataHazard := True
-        //disabledcache    if(pipelineConfig.transactionIdWidth > 0) {
-        //disabledcache         dCacheLoadPort.cmd.id       := head.robPtr.resize(pipelineConfig.transactionIdWidth)
-        //disabledcache    }
-        //disabledcache    dCacheLoadPort.translated.physical       := head.address
-        //disabledcache    dCacheLoadPort.translated.abord          := head.hasException
-        //disabledcache    dCacheLoadPort.cancels                   := 0
-        //disabledcache    
-        //disabledcache    when(dCacheLoadPort.cmd.fire) {
-        //disabledcache        slotsAfterUpdates(0).isWaitingForRsp := True
-        //disabledcache        slotsAfterUpdates(0).isReadyForDCache      := False
-        //disabledcache        ParallaxSim.log(L"[LQ-DCache] SEND_TO_DCACHE: robPtr=${head.robPtr} addr=${head.address}")
-        //disabledcache    }
-
-            // MMIO路径
+            // MMIO Path
             val mmioReadCmd = hw.mmioReadChannel.map { mmioChannel =>
-                mmioChannel.cmd.valid := headIsReadyToExecute && !head.hasException && !shouldNotSendToMemory && head.isIO
-                when(headIsReadyToExecute && head.isIO) {
-                    ParallaxSim.log(L"[LQ-MMIO] robPtr=${head.robPtr} head is ready but: head.hasException=${head.hasException}, shouldNotSendToMemory=${shouldNotSendToMemory}" :+
-                    L", head.isIO=${head.isIO}, mmioChannel.cmd.ready=${mmioChannel.cmd.ready}")
-                }
+                mmioChannel.cmd.valid := canSendToMemorySystem && head.isIO && !head.hasException
+                
                 mmioChannel.cmd.address := head.address
                 if (mmioConfig.get.useId) {
-                    require(mmioChannel.cmd.id.getWidth >= head.robPtr.getWidth, "MMIO ID width must be at least as wide as ROB pointer width")
                     mmioChannel.cmd.id := head.robPtr.resized
                 }
                 
                 when(mmioChannel.cmd.fire) {
-                    slotsAfterUpdates(0).isWaitingForRsp := True  // 复用这个状态
-                    slotsAfterUpdates(0).isReadyForDCache      := False
-                    ParallaxSim.log(L"[LQ-MMIO] SEND_TO_MMIO: robPtr=${head.robPtr} addr=${head.address}")
+                    slotsAfterUpdates(0).isWaitingForRsp := True
+                    slotsAfterUpdates(0).isReadyForDCache := False // Consume the ready signal
+                    ParallaxSim.log(L"[LQ-MMIO] SEND_TO_MMIO FIRED: robPtr=${head.robPtr} addr=${head.address}")
                 }
                 mmioChannel.cmd
             }
+
+
 
             // Track MMIO command firing for response correlation
             val mmioCmdFired = hw.mmioReadChannel.map(_.cmd.fire).getOrElse(False)

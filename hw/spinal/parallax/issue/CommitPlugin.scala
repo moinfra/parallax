@@ -9,6 +9,7 @@ import parallax.components.rename._
 import parallax.utilities.{Plugin, Service, ParallaxSim}
 import parallax.utilities.Formattable
 import parallax.utilities.ParallaxSim
+import parallax.utilities.ParallaxSim._
 import parallax.fetch2.FetchService
 import parallax.bpu.BpuService
 
@@ -201,7 +202,7 @@ class CommitPlugin(
 
       // 4. 日志记录冲刷事件
       ParallaxSim.notice(
-        L"FLUSH EXECUTION (T+1): Flushing pipeline due to mispredict. Redirecting to 0x${hardRedirectTarget}."
+        L"FLUSH EXECUTION: Flushing pipeline due to mispredict. Redirecting to 0x${hardRedirectTarget}."
       )
     }
 
@@ -223,8 +224,8 @@ class CommitPlugin(
       // --- 提交决策 与 架构状态更新 ---
       val commitAckMasks = Vec(Bool(), pipelineConfig.commitWidth)
       commitAckMasks.foreach(_ := False) // 默认不提交
-      freePorts.foreach(_.enable := False) // 默认不回收
-      freePorts.foreach(_.physReg.assignDontCare()) // 默认不回收
+      freePorts(0).enable := False
+      freePorts(0).physReg := U(0)
 
       // 只要ROB头部的指令完成了（done），就无条件地提交它。
       // 预测失败的状态不会阻止这条分支指令本身的提交，只会触发后续的冲刷。
@@ -237,8 +238,8 @@ class CommitPlugin(
           ratCommitUpdatePort.wen := True
           ratCommitUpdatePort.archReg := headUop.decoded.archDest.idx
           ratCommitUpdatePort.physReg := headUop.rename.physDest.idx
-          report(
-            L"[RegRes] Update ARAT: archReg=${ratCommitUpdatePort.archReg}, physReg=${ratCommitUpdatePort.physReg}"
+          debug(
+            L"[RegRes] Update ARAT: archReg=a${ratCommitUpdatePort.archReg}, physReg=p${ratCommitUpdatePort.physReg}"
           )
         }
 
@@ -246,8 +247,8 @@ class CommitPlugin(
         when(headUop.rename.allocatesPhysDest) {
           freePorts(0).enable := True
           freePorts(0).physReg := headUop.rename.oldPhysDest.idx
-          report(
-            L"[RegRes] freelist recycle reg ${headUop.rename.oldPhysDest.idx} (committing PC=0x${headUop.decoded.pc})"
+          debug(
+            L"[RegRes] freelist recycle reg p${headUop.rename.oldPhysDest.idx} (committing PC=0x${headUop.decoded.pc})"
           )
         }
 
@@ -257,7 +258,7 @@ class CommitPlugin(
           bpuUpdatePort.payload.pc := headUop.decoded.pc
           bpuUpdatePort.payload.isTaken := headSlot.entry.status.isTaken
           bpuUpdatePort.payload.target := headSlot.entry.status.targetPc
-          report(
+          debug(
             L"[COMMIT] BPU UPDATE: pc=0x${bpuUpdatePort.payload.pc}, isTaken=${bpuUpdatePort.payload.isTaken}, target=0x${bpuUpdatePort.payload.target}"
           )
         }
@@ -276,7 +277,7 @@ class CommitPlugin(
 
         // 无论怎样只要提交就创建检查点，尤其对于有副作用的BL和JIRL指令
         saveCheckpointTrigger := True
-        report(L"CHECKPOINT: Save checkpoint triggered on successful commit. PC=0x${headUop.decoded.pc}")
+        debug(L"CHECKPOINT: Save checkpoint triggered on successful commit. PC=0x${headUop.decoded.pc}")
         when(mispredictedBranchCanCommit) {
           ParallaxSim.notice(
             L"MISPREDICT MARK (T): Marking for flush in next cycle. PC=0x${headUop.decoded.pc}, " :+
@@ -377,7 +378,7 @@ class CommitPlugin(
     // === 集中式周期性日志打印 ===
     if (enableLog) {
 
-      report(
+      debug(
         L"[COMMIT] Cycle ${counter} Log: " :+
           L"Stats=${commitStatsReg.format}\n" :+
           L"  Slot Details: ${commitSlotLogs.map(s => L"\n    Slot: ${s.format} commitPc=0x${s0.commitPcs(0)}")}" // 为每个槽位格式化输出，每个槽位独占一行
@@ -386,13 +387,13 @@ class CommitPlugin(
       // 只打印首次 valid=1 和 doCommit = 1
       val prevValid = RegNext(commitSlots(0).valid, init = False)
       when(!prevValid && commitSlots(0).valid) {
-        report(
+        debug(
           L"[COMMIT] Cycle ${counter} Log: " :+
             L"Stats=${commitStatsReg.format}\n" :+
             L"  Slot Details: ${commitSlotLogs(0).format} commitAck=${commitAcks(0)} commitPc=0x${s0.commitPcs(0)}" // 只打印第一个槽位
         )
       } elsewhen (commitAcks(0)) {
-        report(
+        debug(
           L"[COMMIT] Cycle ${counter} Log: " :+
             L"Stats=${commitStatsReg.format}\n" :+
             L"  Slot Details: ${commitSlotLogs(0).format} commitAck=${commitAcks(0)} commitPc=0x${s0.commitPcs(0)}" // 只打印第一个槽位

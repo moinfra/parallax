@@ -228,9 +228,13 @@ class StoreBufferPlugin(
         //  存储区域 (Storage Area)
         // =================================================================
         val storage = new Area {
+            // 两层视图，避免环路
+            // 本周期开始时的、稳定的、已知的状态。所有本周期的计算都应该以此为起点。
             val slots       = Vec.fill(sbDepth)(Reg(StoreBufferSlot(pipelineConfig, lsuConfig, dCacheParams)))
-            val slotsAfterUpdates = CombInit(slots) // 用于本周期更新的组合逻辑视图
-            val slotsNext   = CombInit(slotsAfterUpdates) // 用于下一周期寄存器更新的视图
+            // 用于本周期更新的组合逻辑视图,会根据各自的条件来覆盖这个默认值。这最终会生成一个大型的多路复用器（Mux）结构。
+            val slotsAfterUpdates = CombInit(slots) 
+            // 用于下一周期寄存器更新的视图, 只有那些需要改变队列结构的逻辑（比如 pop_write_logic 中的 popRequest）才会来覆盖这个值。
+            val slotsNext   = CombInit(slotsAfterUpdates)
 
             for(i <- 0 until sbDepth) {
                 slots(i).init(StoreBufferSlot(pipelineConfig, lsuConfig, dCacheParams).setDefault())
@@ -379,33 +383,35 @@ class StoreBufferPlugin(
         //  Store Buffer 弹出与内存写入逻辑 (SB Pop and Memory Write Logic)
         // =================================================================
         val pop_write_logic = new Area {
-            val headSlot = storage.slots(0)
-            val sharedWriteCond = headSlot.valid && headSlot.isCommitted && !headSlot.isFlush &&
-                                !headSlot.waitRsp && !headSlot.isWaitingForRefill && !headSlot.isWaitingForWb &&
-                                !headSlot.hasEarlyException // 仅当没有早期异常时才尝试发送
-            val canPopNormalOp = sharedWriteCond && !headSlot.isIO // 普通DCache写
-            val canPopFlushOp = headSlot.valid && headSlot.isFlush && !headSlot.waitRsp && !headSlot.isWaitingForWb
-            val canPopMMIOOp = sharedWriteCond && headSlot.isIO
-            when(Bool(!mmioConfig.isDefined) && headSlot.isIO) {
+            val headSlotReg = storage.slots(0)
+            val headSlotIsCommittedTC = storage.slotsAfterUpdates(0).isCommitted
+
+            val sharedWriteCond = headSlotReg.valid && headSlotIsCommittedTC && !headSlotReg.isFlush &&
+                                !headSlotReg.waitRsp && !headSlotReg.isWaitingForRefill && !headSlotReg.isWaitingForWb &&
+                                !headSlotReg.hasEarlyException // 仅当没有早期异常时才尝试发送
+            val canPopNormalOp = sharedWriteCond && !headSlotReg.isIO // 普通DCache写
+            val canPopFlushOp = headSlotReg.valid && headSlotReg.isFlush && !headSlotReg.waitRsp && !headSlotReg.isWaitingForWb
+            val canPopMMIOOp = sharedWriteCond && headSlotReg.isIO
+            when(Bool(!mmioConfig.isDefined) && headSlotReg.isIO) {
                 assert(False, "Got isIO but no MMIO service.")
             }
             val canSendToDCache = canPopNormalOp || canPopFlushOp
             val canSendToMMIO = canPopMMIOOp
-            if(enableLog) report(Seq(L"[SQ] sharedWriteCond = ${sharedWriteCond} of headslot: ${headSlot.format}", L"canSendToDCache = ${canSendToDCache}. ", L"canSendToMMIO = ${canSendToMMIO}. "))
+            if(enableLog) report(Seq(L"[SQ] sharedWriteCond = ${sharedWriteCond} of headslot: ${headSlotReg.format}", L"canSendToDCache = ${canSendToDCache}. ", L"canSendToMMIO = ${canSendToMMIO}. "))
             
             // MMIO 写入逻辑
             val mmioWriteCmd = hw.mmioWriteChannel.map { mmioChannel =>
                 mmioChannel.cmd.valid := canSendToMMIO
-                mmioChannel.cmd.address := headSlot.addr
-                mmioChannel.cmd.data := headSlot.data
-                mmioChannel.cmd.byteEnables := headSlot.be
+                mmioChannel.cmd.address := headSlotReg.addr
+                mmioChannel.cmd.data := headSlotReg.data
+                mmioChannel.cmd.byteEnables := headSlotReg.be
                 mmioChannel.cmd.last := True
                 if (mmioConfig.get.useId) {
-                    require(mmioChannel.cmd.id.getWidth >= headSlot.robPtr.getWidth, "MMIO ID width must be at least as wide as ROB pointer width")
-                    mmioChannel.cmd.id := headSlot.robPtr.resized
+                    require(mmioChannel.cmd.id.getWidth >= headSlotReg.robPtr.getWidth, "MMIO ID width must be at least as wide as ROB pointer width")
+                    mmioChannel.cmd.id := headSlotReg.robPtr.resized
                 }
                 when(mmioChannel.cmd.valid) {
-                    if(enableLog) report(L"[SQ-MMIO] Sending MMIO STORE: payload=${mmioChannel.cmd.payload.format} headslot=${headSlot.format} valid=${mmioChannel.cmd.valid} ready=${mmioChannel.cmd.ready}")
+                    if(enableLog) report(L"[SQ-MMIO] Sending MMIO STORE: payload=${mmioChannel.cmd.payload.format} headslot=${headSlotReg.format} valid=${mmioChannel.cmd.valid} ready=${mmioChannel.cmd.ready}")
                 }
                 mmioChannel.cmd
             }
@@ -414,12 +420,12 @@ class StoreBufferPlugin(
             when(mmioCmdFired) {
                 storage.slotsAfterUpdates(0).sentCmd := True
                 storage.slotsAfterUpdates(0).waitRsp := True
-                report(L"[SQ] CMD_FIRED_MMIO: robPtr=${storage.slots(0).robPtr} (slotIdx=0), addr=${storage.slots(0).addr} data=${storage.slots(0).data} be=${storage.slots(0).be}")
+                report(L"[SQ] CMD_FIRED_MMIO: robPtr=${headSlotReg.robPtr} (slotIdx=0), addr=${headSlotReg.addr} data=${headSlotReg.data} be=${headSlotReg.be}")
             }
             val mmioResponseForHead = hw.mmioWriteChannel.map { mmioChannel =>
-                mmioChannel.rsp.valid && headSlot.valid && headSlot.isIO && // 必须是MMIO事务
-                (headSlot.waitRsp || mmioCmdFired) && // 'mmioCmdFired' 确保响应是为当前发送的命令
-                (headSlot.robPtr.resized === mmioChannel.rsp.payload.id) // ID匹配
+                mmioChannel.rsp.valid && headSlotReg.valid && headSlotReg.isIO && // 必须是MMIO事务
+                (headSlotReg.waitRsp || mmioCmdFired) && // 'mmioCmdFired' 确保响应是为当前发送的命令
+                (headSlotReg.robPtr.resized === mmioChannel.rsp.payload.id) // ID匹配
             }.getOrElse(False)
             when(mmioResponseForHead) {
                 hw.mmioWriteChannel.foreach { mmioChannel =>
@@ -427,12 +433,12 @@ class StoreBufferPlugin(
                     storage.slotsAfterUpdates(0).waitRsp := False
                     val mmioError = mmioChannel.rsp.payload.error
                     when(mmioError) {
-                        report(L"[SQ-MMIO] MMIO RSP_ERROR received for robPtr=${headSlot.robPtr}.")
+                        report(L"[SQ-MMIO] MMIO RSP_ERROR received for robPtr=${headSlotReg.robPtr}.")
                         // 标记为有异常以便处理和弹出
                         storage.slotsAfterUpdates(0).hasEarlyException := True
                         storage.slotsAfterUpdates(0).earlyExceptionCode := ExceptionCode.STORE_ACCESS_FAULT 
                     } otherwise {
-                        report(L"[SQ-MMIO] MMIO RSP_SUCCESS received for robPtr=${headSlot.robPtr}.")
+                        report(L"[SQ-MMIO] MMIO RSP_SUCCESS received for robPtr=${headSlotReg.robPtr}.")
                     }
                 }
             }
@@ -500,18 +506,20 @@ class StoreBufferPlugin(
                 report(L"[SQ-Fwd] Query: valid=${query.valid} robPtr=${query.payload.robPtr} addr=${query.payload.address} size=${query.payload.size}")
             }
 
-            // 创建一个组合逻辑的 slot 视图，它反映了本周期的更新
+            // +++++++++++++++++++++++ START: 核心修改 +++++++++++++++++++++++
+            // 创建一个组合逻辑的 slot 视图，它反映了本周期的所有更新
             val slotsView = Vec.fill(sbDepth)(StoreBufferSlot(pipelineConfig, lsuConfig, dCacheParams))
             for (i <- 0 until sbDepth) {
-                // 如果这个 slot 是本周期 PUSH 的目标
+                // 如果这个 slot 是本周期 PUSH 的目标，使用最新的命令数据
+                // 否则，使用经过其他逻辑（commit, pop等）更新后的组合逻辑视图
                 when(pushPortIn.fire && (push_logic.pushIdx === i)) {
-                    // 使用 pushPort 进来的新数据来构建视图
                     slotsView(i).initFromCommand(pushPortIn.payload)
                 } otherwise {
-                    // 否则，使用寄存器中的旧数据
-                    slotsView(i) := storage.slots(i) 
+                    // 【关键修复】: 使用 storage.slotsAfterUpdates 而不是 storage.slots
+                    slotsView(i) := storage.slotsAfterUpdates(i) 
                 }
             }
+            // +++++++++++++++++++++++ END: 核心修改 +++++++++++++++++++++++
             
             // Store-to-Load 转发逻辑：遍历所有比 Load 旧的、有效的且未被冲刷的 Store。
             val forwardingResult = slotsView.reverse.foldLeft(bypassInitial) { (acc, slot) =>

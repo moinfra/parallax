@@ -394,19 +394,21 @@ class CoreNSCSCC(simDebug: Boolean = false, injectAxi: Boolean = false) extends 
     archRegCount = pCfg.archGprCount,
     physRegCount = pCfg.physGprCount,
     numReadPorts = pCfg.renameWidth * 3,
-    numWritePorts = pCfg.renameWidth
+    numWritePorts = pCfg.renameWidth,
+    debugging = simDebug
   )
 
   val flConfig = SimpleFreeListConfig(
     numPhysRegs = pCfg.physGprCount,
     numInitialArchMappings = pCfg.archGprCount,
     numAllocatePorts = pCfg.renameWidth,
-    numFreePorts = pCfg.commitWidth
+    numFreePorts = pCfg.commitWidth + pCfg.renameWidth,
+    debugging = simDebug
   )
 
   val lsuConfig = LsuConfig(
-    lqDepth = 8,
-    sqDepth = 8,
+    lqDepth = 4,
+    sqDepth = 4,
     robPtrWidth = pCfg.robPtrWidth,
     pcWidth = pCfg.pcWidth,
     dataWidth = pCfg.dataWidth,

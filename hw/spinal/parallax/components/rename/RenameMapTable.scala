@@ -3,12 +3,14 @@ package parallax.components.rename
 
 import spinal.core._
 import spinal.lib._
+import parallax.utilities.ParallaxSim
 
 case class RenameMapTableConfig(
     archRegCount: Int = 32,
     physRegCount: Int = 32,
     numReadPorts: Int = 2,
-    numWritePorts: Int = 1
+    numWritePorts: Int = 1,
+    debugging: Boolean = false
 ) {
   def physRegIdxWidth: BitCount = log2Up(physRegCount) bits
   def archRegIdxWidth: BitCount = log2Up(archRegCount) bits
@@ -68,6 +70,8 @@ case class RenameMapTableIo(config: RenameMapTableConfig) extends Bundle with IM
   // BACKWARD COMPATIBILITY: Deprecated save port for existing tests (keeping for now, but will be unused)
   val checkpointSave = slave Stream (RatCheckpoint(config))
 
+  val aratUsedMask = config.debugging generate {out(Bits(config.physRegCount bits))}
+
   override def asMaster(): Unit = {
     readPorts.foreach(master(_))
     writePorts.foreach(master(_))
@@ -81,6 +85,9 @@ case class RenameMapTableIo(config: RenameMapTableConfig) extends Bundle with IM
     
     // BACKWARD COMPATIBILITY: checkpointSave (deprecated)
     master(checkpointSave)
+
+    config.debugging generate{    in(aratUsedMask)}
+
   }
 }
 
@@ -133,6 +140,7 @@ class RenameMapTable(val config: RenameMapTableConfig) extends Component {
 
   when(io.checkpointRestore.valid) {
     nextRratMapRegMapping := io.checkpointRestore.payload.mapping // 恢复到CheckpointManager提供的ARAT状态
+    ParallaxSim.notice(L"[RegRes|RAT] Restore to ARAT")
   } otherwise {
     // 应用来自 RenameUnit 的写入（更新 RRAT）
     for (i <- 0 until config.numWritePorts) {
@@ -159,4 +167,20 @@ class RenameMapTable(val config: RenameMapTableConfig) extends Component {
 
   // --- Current State Output (暴露 ARAT 状态给 CheckpointManager) ---
   io.currentState.mapping := nextAratMapRegMapping // 暴露 ARAT 作为已提交的干净状态
+
+  var debug = config.debugging generate new Area {
+      // *** 新增: 生成 aratUsedMask 的逻辑 ***
+    val aratUsedMask = Bits(config.physRegCount bits)
+    aratUsedMask.clearAll()
+    
+    // 我们应该从 ARAT 的 *下一个* 状态来生成掩码，以反映本周期提交后的最新状态
+    for(i <- 0 until config.archRegCount) {
+      val physReg = nextAratMapRegMapping(i)
+      // 物理寄存器 0 是特殊情况，它不应被认为是“占用”的
+      when(physReg =/= 0) {
+        aratUsedMask(physReg) := True
+      }
+    }
+    io.aratUsedMask := aratUsedMask
+  }
 }

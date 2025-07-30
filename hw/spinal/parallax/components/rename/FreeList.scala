@@ -118,7 +118,7 @@ class FreeList(val config: FreeListConfig) extends Component {
       )
     }
   }
-  report(L"[DEBUG] free.physReg=${io.free.physReg}")
+  report(L"[DEBUG] free.physReg=p${io.free.physReg}")
   report(
     L"[FreeList PRE-UPDATE] freeRegsMask=${freeRegsMask}, nextFreeRegsMask=${nextFreeRegsMask}, io.free.enable=${io.free.enable},  io.restoreState.valid=${io.restoreState.valid}, restorePayload=${Mux(io.restoreState.valid, io.restoreState.payload.freeMask, B(0))}"
   )

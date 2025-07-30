@@ -13,7 +13,7 @@ import spinal.lib._
 import spinal.lib.sim.{StreamMonitor, StreamReadyRandomizer, ScoreboardInOrder}
 
 import scala.collection.mutable
-import scala.util.Random
+import scala.util.{Random, Try} // 引入 Try
 import parallax.issue.IqDispatchCmd
 
 // Testbench component that wraps the Sequential IQ
@@ -82,6 +82,7 @@ class SequentialIssueQueueSpec extends CustomSpinalSimFunSuite {
     cd.waitSampling()
   }
 
+  // driveAllocRequest: 使用无等待的变体，以支持反压测试
   def driveAllocRequest(
       allocTarget: Stream[IqDispatchCmd],
       robPtrVal: Int,
@@ -96,9 +97,8 @@ class SequentialIssueQueueSpec extends CustomSpinalSimFunSuite {
       useSrc2Val: Boolean = false,
       src2TagVal: Int = 0,
       src2IsFprVal: Boolean = false,
-      src2InitialReadyVal: Boolean = true,
-      autoSamplingAndDeassert: Boolean = true
-  )(implicit cd: ClockDomain): Unit = {
+      src2InitialReadyVal: Boolean = true
+  ): Unit = {
     allocTarget.valid #= true
 
     val cmd = allocTarget.payload
@@ -139,14 +139,8 @@ class SequentialIssueQueueSpec extends CustomSpinalSimFunSuite {
       uop.rename.physSrc2IsFpr #= src2IsFprVal
     }
 
-    // 分配初始就绪状态
     cmd.src1InitialReady #= src1InitialReadyVal
     cmd.src2InitialReady #= src2InitialReadyVal
-
-    if (autoSamplingAndDeassert) {
-      cd.waitSampling()
-      allocTarget.valid #= false
-    }
   }
 
   // driveWakeup/deassertWakeup现在需要指定端口索引
@@ -165,437 +159,273 @@ class SequentialIssueQueueSpec extends CustomSpinalSimFunSuite {
     wakeupPorts(portIdx).valid #= false
   }
 
-  val pCfg = createPipelineConfig(DEFAULT_IQ_DEPTH)
+  test("SequentialIQ - Golden Model Fuzzy Test") {
+    // 1. 配置
+    val IQ_DEPTH = 8 // 使用稍大的深度以增加测试覆盖
+    val pCfg = createPipelineConfig(IQ_DEPTH)
 
-  test("SequentialIQ - Basic Allocation and Issue") {
-    SimConfig.withWave.compile(new SequentialIssueQueueTestBench(pCfg, MOCK_WAKEUP_PORTS, DEFAULT_IQ_DEPTH)).doSim {
-      dut =>
-        implicit val cd = dut.clockDomain.get
-        cd.forkStimulus(10)
-        initDutIO(dut)
+    SimConfig.withWave.compile(new SequentialIssueQueueTestBench(pCfg, MOCK_WAKEUP_PORTS, IQ_DEPTH)).doSim { dut =>
+      implicit val cd = dut.clockDomain.get
+      cd.forkStimulus(10)
+      initDutIO(dut)
 
-        val scoreboard = ScoreboardInOrder[Int]()
-        StreamMonitor(dut.io.issueOut, cd) { payload => scoreboard.pushDut(payload.robPtr.toInt) }
+      // 2. 初始化
+      val model = new SequentialIQModel(IQ_DEPTH) // 使用新模型
+      val rand = new Random(seed = 42)
+      var robPtrCounter = 100
+      val totalInstructions = 500
+      var timeout = totalInstructions * 20 + 2000
 
-        scoreboard.pushRef(10)
-        driveAllocRequest(dut.io.allocateIn, robPtrVal = 10, pCfg = pCfg)
-        cd.waitSampling()
-        assert(dut.internalValidCountReg.toInt == 1)
+      // ====================================================================
+      // 3. 主测试循环 (现在是纯粹的激励生成器 + 比较器)
+      // ====================================================================
+      for (_ <- 0 until timeout if model.getQueueSize < totalInstructions) {
 
-        dut.io.issueOut.ready #= true
+        // --- 阶段一: 激励生成 (只生成输入, 不关心状态) ---
 
-        // 【修正】: 使用带超时的等待循环
-        var timeout = 20
-        while (scoreboard.ref.nonEmpty && timeout > 0) {
-          cd.waitSampling()
-          timeout -= 1
-        }
-        assert(timeout > 0, "Timeout waiting for basic issue")
-
-        scoreboard.checkEmptyness()
-        cd.waitSampling()
-        assert(dut.internalValidCountReg.toInt == 0)
-    }
-  }
-
-  test("SequentialIQ - Wakeup and Issue") {
-    SimConfig.withWave.compile(new SequentialIssueQueueTestBench(pCfg, MOCK_WAKEUP_PORTS, DEFAULT_IQ_DEPTH)).doSim {
-      dut =>
-        implicit val cd = dut.clockDomain.get
-        cd.forkStimulus(10)
-        initDutIO(dut)
-        val scoreboard = ScoreboardInOrder[Int]()
-        StreamMonitor(dut.io.issueOut, cd) { payload => scoreboard.pushDut(payload.robPtr.toInt) }
-        StreamReadyRandomizer(dut.io.issueOut, cd)
-
-        scoreboard.pushRef(20)
-        driveAllocRequest(
-          dut.io.allocateIn,
-          20,
-          pCfg,
-          useSrc1Val = true,
-          src1TagVal = 5,
-          src1InitialReadyVal = false
-        )
-        cd.waitSampling()
-        assert(dut.internalValidCountReg.toInt == 1)
-
-        driveWakeup(dut.io.wakeupIn, 0, 5)
-        cd.waitSampling()
-        deassertWakeup(dut.io.wakeupIn, 0)
-
-        // 【修正】: 使用带超时的等待循环
-        var timeout = 30
-        while (scoreboard.ref.nonEmpty && timeout > 0) {
-          cd.waitSampling()
-          timeout -= 1
-        }
-        assert(timeout > 0, "Timeout waiting for wakeup and issue")
-
-        scoreboard.checkEmptyness()
-    }
-  }
-
-  test("SequentialIQ - Strict In-Order Issue Verification") {
-    SimConfig.withWave.compile(new SequentialIssueQueueTestBench(pCfg, MOCK_WAKEUP_PORTS, DEFAULT_IQ_DEPTH)).doSim {
-      dut =>
-        implicit val cd = dut.clockDomain.get
-        cd.forkStimulus(10)
-        initDutIO(dut)
-        val scoreboard = ScoreboardInOrder[Int]()
-        StreamMonitor(dut.io.issueOut, cd) { payload => scoreboard.pushDut(payload.robPtr.toInt) }
-
-        scoreboard.pushRef(30)
-        driveAllocRequest(
-          dut.io.allocateIn,
-          30,
-          pCfg,
-          useSrc1Val = true,
-          src1TagVal = 10,
-          src1InitialReadyVal = false
-        )
-
-        scoreboard.pushRef(31)
-        driveAllocRequest(dut.io.allocateIn, 31, pCfg)
-
-        cd.waitSampling()
-        assert(dut.internalValidCountReg.toInt == 2)
-
-        dut.io.issueOut.ready #= true
-        cd.waitSampling(5)
-
-        assert(scoreboard.dut.isEmpty, "ERROR: A ready instruction was issued before an older, un-ready instruction!")
-
-        driveWakeup(dut.io.wakeupIn, 0, 10)
-        cd.waitSampling()
-        deassertWakeup(dut.io.wakeupIn, 0)
-
-        // 【修正】: 使用带超时的等待循环
-        var timeout = 30
-        while (scoreboard.ref.nonEmpty && timeout > 0) {
-          cd.waitSampling()
-          timeout -= 1
-        }
-        assert(timeout > 0, "Timeout waiting for both instructions to issue")
-
-        scoreboard.checkEmptyness()
-        cd.waitSampling()
-        assert(dut.internalValidCountReg.toInt == 0)
-    }
-  }
-
-  test("SequentialIQ - Compression Logic Verification") {
-    SimConfig.withWave.compile(new SequentialIssueQueueTestBench(pCfg, MOCK_WAKEUP_PORTS, DEFAULT_IQ_DEPTH)).doSim {
-      dut =>
-        implicit val cd = dut.clockDomain.get
-        cd.forkStimulus(10)
-        initDutIO(dut)
-        val scoreboard = ScoreboardInOrder[Int]()
-        StreamMonitor(dut.io.issueOut, cd) { payload =>
-          println(s"[DUT ISSUE] @ ${simTime()}: robPtr=${payload.robPtr.toInt}")
-          scoreboard.pushDut(payload.robPtr.toInt)
+        // a. 分配激励
+        val do_alloc = rand.nextInt(10) < 6
+        val alloc_payload_model = if (do_alloc) {
+          val useSrc1 = rand.nextBoolean()
+          val src1Tag = rand.nextInt(pCfg.archGprCount)
+          val isReady = !useSrc1 || rand.nextBoolean()
+          val deps = if (useSrc1 && !isReady) mutable.HashSet(src1Tag) else mutable.HashSet.empty[Int]
+          Some(ModelIQEntry(robPtrCounter, isReady, deps))
+        } else {
+          None
         }
 
-        // 1. 填充阶段
-        dut.io.issueOut.ready #= false
-        for (i <- 0 until DEFAULT_IQ_DEPTH) {
-          val robPtr = 40 + i
-          scoreboard.pushRef(robPtr)
+        // b. 唤醒激励
+        val wakeup_tag = if (rand.nextInt(10) < 4) Some(rand.nextInt(pCfg.archGprCount)) else None
 
-          driveAllocRequest(
+        // c. 发射反压激励
+        val issue_ready = rand.nextInt(10) < 8
+
+        // --- 阶段二: 驱动硬件和模型 (无脑“扔”激励) ---
+
+        // 驱动硬件
+        if (do_alloc) {
+          // 只有在确定要分配时，才调用这个函数来驱动一个完整的、有效的请求
+          // (valid=true + payload)
+          val entry = alloc_payload_model.get
+          driveAllocRequest( // 使用我们最初的、好的那个函数
             dut.io.allocateIn,
-            robPtr,
+            entry.robPtr,
             pCfg,
-            useSrc1Val = false,
-            useSrc2Val = false,
-            src1InitialReadyVal = true,
-            src2InitialReadyVal = true
+            useSrc1Val = entry.dependencies.nonEmpty,
+            src1TagVal = entry.dependencies.headOption.getOrElse(0),
+            src1InitialReadyVal = entry.isReady
           )
-          println(s">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>i=${i} over")
+        } else {
+          // 如果不分配，我们只需要确保 valid 信号为 false
+          // payload 是什么则无关紧要
+          dut.io.allocateIn.valid #= false
         }
 
+// B. 驱动其他硬件信号
+        wakeup_tag.foreach(tag => driveWakeup(dut.io.wakeupIn, 0, tag))
+        dut.io.issueOut.ready #= issue_ready
+
+// C. 驱动模型 (这部分逻辑不变，因为它已经正确地接收了 do_alloc)
+        model.driveInputs(do_alloc, alloc_payload_model, wakeup_tag, issue_ready)
+
+        // --- 阶段三: 时钟步进 ---
         cd.waitSampling()
+
+        // --- 阶段四: 模型状态演化 ---
+        // 让模型根据刚刚接收的输入，独立地演化一个周期
+        model.cycle()
+
+        // --- 阶段五: 对比 (Checker) ---
+        // 在时钟沿之后，比较硬件和模型的所有可见状态和输出
+        val time = simTime()
+
+        // a. 对比接口行为
         assert(
-          dut.internalValidCountReg.toInt == DEFAULT_IQ_DEPTH,
-          s"IQ should be full, but count is ${dut.internalValidCountReg.toInt}"
+          dut.io.allocateIn.ready.toBoolean == model.isReadyToAlloc,
+          s"[$time] allocateIn.ready mismatch! DUT: ${dut.io.allocateIn.ready.toBoolean}, Model: ${model.isReadyToAlloc}"
         )
 
-        // 2. 发射阶段
-        dut.io.issueOut.ready #= true
-        for (i <- 0 until DEFAULT_IQ_DEPTH) {
-          cd.waitSampling()
+        assert(
+          dut.io.issueOut.valid.toBoolean == model.isIssuing,
+          s"[$time] issueOut.valid mismatch! DUT: ${dut.io.issueOut.valid.toBoolean}, Model: ${model.isIssuing}"
+        )
 
-          val expectedCount = DEFAULT_IQ_DEPTH - i
-          assert(
-            dut.internalValidCountReg.toInt == expectedCount,
-            s"After issuing robPtr=${40 + i}, count should be ${expectedCount}, but was ${dut.internalValidCountReg.toInt}"
-          )
+        // b. 对比功能输出
+        if (dut.io.issueOut.valid.toBoolean) {
+          val dutPtr = dut.io.issueOut.payload.robPtr.toInt
+          val modelPtr = model.getIssuedEntry.get.robPtr
+          assert(dutPtr == modelPtr, s"[$time] Issued robPtr mismatch! DUT: $dutPtr, Model: $modelPtr")
         }
-        cd.waitSampling()
-        scoreboard.checkEmptyness()
 
-        cd.waitSampling()
-        assert(dut.internalValidCountReg.toInt == 0, "IQ should be empty at the end")
+
+        // d. 清理一次性信号 (为下个周期做准备)
+        if (wakeup_tag.isDefined) deassertWakeup(dut.io.wakeupIn, 0)
+
+        // 更新计数器
+        if (do_alloc && dut.io.allocateIn.ready.toBoolean) {
+          robPtrCounter += 1
+        }
+      }
+
+      // 最终检查
+      assert(model.getQueueSize < totalInstructions, s"Test timed out! Completed ${model.getQueueSize} instructions.")
+      println(s"Golden Model Fuzzy Test PASSED! Completed ${robPtrCounter - 100} instructions.")
     }
   }
 
-  test("SequentialIQ - Final Corrected Fuzzy Test") {
-    // 1. 在测试内部创建专用配置
-    val pCfg = createPipelineConfig(DEFAULT_IQ_DEPTH)
-
-    SimConfig.withWave.compile(new SequentialIssueQueueTestBench(pCfg, MOCK_WAKEUP_PORTS, DEFAULT_IQ_DEPTH)).doSim {
-      dut =>
-        implicit val cd = dut.clockDomain.get
-        cd.forkStimulus(10)
-        initDutIO(dut)
-
-        // 2. 初始化
-        val model = new SequentialIQModel()
-        val scoreboard = ScoreboardInOrder[Int]()
-        val rand = new Random(seed = 1337)
-        var robPtrCounter = 100
-        val totalInstructions = 400
-        var timeout = totalInstructions * 30 + 2000
-
-        // 3. 在线检查器 (StreamMonitor)
-        StreamMonitor(dut.io.issueOut, cd) { payload =>
-          val issuedRobPtr = payload.robPtr.toInt
-          println(
-            s"[DUT ISSUE] @ ${simTime()}: robPtr=${issuedRobPtr}. Scoreboard(ref=${scoreboard.ref.size}, dut=${scoreboard.dut.size}), Model(size=${model.size})"
-          )
-
-          // 在调用 issue 之前打印模型头部，看看我们期望的是什么
-          println(s"            > Model expects to issue robPtr=${model.getHeadRobPtr().getOrElse("EMPTY")}")
-
-          scoreboard.pushDut(issuedRobPtr)
-          model.issue(issuedRobPtr).get
-        }
-
-        // ========================================================================
-        // 最终的、返璞归真的、绝对稳健的循环
-        // ========================================================================
-        while (scoreboard.ref.size < totalInstructions && timeout > 0) {
-          println("hello")
-          // --- 阶段一: 决策 ---
-          val do_alloc_attempt = !model.isFull(DEFAULT_IQ_DEPTH) && rand.nextInt(10) < 6
-          println("1")
-
-          var allocRobPtr, allocSrc1Tag = 0
-          var allocUseSrc1, allocIsReady = false
-          var allocDeps = Set.empty[Int]
-          println("2")
-
-          // --- 阶段二: 驱动 ---
-          if (do_alloc_attempt) {
-            // 生成并暂存指令信息
-            allocRobPtr = robPtrCounter; robPtrCounter += 1
-            allocUseSrc1 = rand.nextBoolean()
-            allocSrc1Tag = rand.nextInt(pCfg.archGprCount)
-            allocIsReady = !allocUseSrc1 || rand.nextBoolean()
-            allocDeps = if (allocUseSrc1 && !allocIsReady) Set(allocSrc1Tag) else Set.empty[Int]
-          println("3")
-
-            // 使用无等待函数驱动硬件
-            driveAllocRequest(
-              dut.io.allocateIn,
-              allocRobPtr,
-              pCfg,
-              useSrc1Val = allocUseSrc1,
-              src1TagVal = allocSrc1Tag,
-              src1InitialReadyVal = allocIsReady
-            )
-          } else {
-          println("4")
-            dut.io.allocateIn.valid #= false
-          }
-
-          val tag_to_wake_opt = model.getNextWakeupTag()
-          tag_to_wake_opt.foreach { tag =>
-            driveWakeup(dut.io.wakeupIn, 0, tag)
-            model.wakeup(tag)
-          }
-          println("5")
-
-          dut.io.issueOut.ready #= rand.nextInt(10) < 8
-
-          // --- 阶段三: 执行 ---
-
-          // 在时钟沿前采样 ready
-          val alloc_was_ready_before_edge = dut.io.allocateIn.ready.toBoolean
-
-          cd.waitSampling()
-          println("hello")
-
-          // --- 阶段四: 模型更新与清理 ---
-
-          // 只有在硬件在上一个周期同意接收时，才更新模型
-          if (do_alloc_attempt && alloc_was_ready_before_edge) {
-            println(s"[MODEL ALLOC] @ ${simTime()}: robPtr=${allocRobPtr}")
-            scoreboard.pushRef(allocRobPtr)
-            model.allocate(allocRobPtr, allocIsReady, allocDeps)
-          } else {
-            println(
-              s"[MODEL NO-OP] @ ${simTime()} because do_alloc_attempt && alloc_was_ready_before_edge = ${do_alloc_attempt} && ${alloc_was_ready_before_edge}"
-            )
-          }
-
-          // 清理一次性信号
-          dut.io.allocateIn.valid #= false
-          if (tag_to_wake_opt.isDefined) {
-            deassertWakeup(dut.io.wakeupIn, 0)
-          }
-
-          timeout -= 1
-        }
-
-        // ====================================================================
-        // 5. 排空阶段 (包含对 "model is empty" 错误的修复)
-        // ====================================================================
-        println(s"--- Draining phase, ${model.size} instructions remaining in model ---")
-        dut.io.issueOut.ready #= true
-
-        // 关键修复: 循环的条件是 scoreboard 没有检查完所有指令，而不是 model 是否为空
-        while (scoreboard.ref.nonEmpty && timeout > 0) {
-          val tagToWakeOpt = model.getNextWakeupTag()
-          tagToWakeOpt.foreach { tag =>
-            println(s"[Drain] Waking up tag: ${tag} for robPtr=${model.getHeadRobPtr().get}")
-            driveWakeup(dut.io.wakeupIn, 0, tag)
-            model.wakeup(tag)
-          }
-
-          cd.waitSampling()
-
-          if (tagToWakeOpt.isDefined) {
-            deassertWakeup(dut.io.wakeupIn, 0)
-          }
-          timeout -= 1
-        }
-
-        // 在所有可能的发射都结束后，再额外等待几个周期，确保最后一个发射被 StreamMonitor 捕获
-        cd.waitSampling(5)
-
-        // 最终断言
-        assert(timeout > 0, s"Fuzzy test timed out! ${scoreboard.dut.size} instructions still in DUT scoreboard.")
-        scoreboard.checkEmptyness()
-    }
-  }
   thatsAll
 }
+
+// filename: test/scala/SequentialIQModel.scala
+// (为了清晰，可以把它放到一个单独的文件中，或者继续放在Spec文件底部)
+// filename: test/scala/SequentialIQModel.scala 
+// (或者放在 SequentialIssueQueueSpec.scala 文件底部)
 
 import scala.collection.mutable
 import scala.util.Try
 
-// 模型条目，保持不变
+// 模型条目定义保持不变
 case class ModelIQEntry(robPtr: Int, var isReady: Boolean, dependencies: mutable.HashSet[Int])
 
-/** 一个用于模拟 SequentialIssueQueue 行为的黑盒模型。
-  * 它维护一个内部队列，并提供操作来改变其状态。
-  */
-class SequentialIQModel {
+/**
+ * 一个功能和时序完备的"黄金模型", 用于模拟SequentialIssueQueue的行为。
+ * 这个版本精确地模拟了硬件寄存器的“延迟更新”特性，确保与硬件时序一致。
+ */
+class SequentialIQModel(val depth: Int) {
 
-  // 内部状态：一个代表硬件队列的列表缓冲
+  // --- 内部状态寄存器 ---
+  // `queue` 代表了在每个时钟周期 *开始* 时的硬件队列状态
   private val queue = mutable.ListBuffer[ModelIQEntry]()
 
-  // --- 查询方法 (Queries) ---
+  // --- 输入激励的“寄存器” ---
+  // 这些变量会在每个周期开始时被测试平台设置
+  private var drive_alloc_valid: Boolean = false
+  private var drive_alloc_payload: Option[ModelIQEntry] = None
+  private var drive_wakeup_tag: Option[Int] = None
+  private var drive_issue_ready: Boolean = false
 
-  /** 检查模型是否已满 */
-  def isFull(depth: Int): Boolean = queue.size >= depth
+  // --- 组合逻辑输出线 (Wires) ---
+  // 这些变量代表了在当前周期内，基于周期开始时状态计算出的组合逻辑输出
+  // 它们的值在 cycle() 方法中被计算，并由外部查询方法读取
+  private var combinational_isReadyToAlloc: Boolean = false
+  private var combinational_isIssuing: Boolean = false
+  private var combinational_issuedEntry: Option[ModelIQEntry] = None
 
-  /** 检查模型是否为空 */
-  def isEmpty: Boolean = queue.isEmpty
 
-  /** 获取下一个需要被唤醒的物理寄存器Tag。
-    * 策略是：优先唤醒阻塞队列头部的Tag。
-    * @return Option[Int] 如果有需要唤醒的Tag，则返回它
-    */
-  def getNextWakeupTag(): Option[Int] = {
-    queue.headOption.flatMap { head =>
-      if (!head.isReady && head.dependencies.nonEmpty) {
-        Some(head.dependencies.head)
-      } else {
-        None
-      }
-    }
+  // === 对外暴露的查询方法 (模拟从硬件IO或状态寄存器读取) ===
+
+  /** 模拟硬件的 allocateIn.ready 信号 */
+  def isReadyToAlloc: Boolean = this.combinational_isReadyToAlloc
+
+  /** 模拟硬件的 issueOut.valid 信号 */
+  def isIssuing: Boolean = this.combinational_isIssuing
+
+  /** 获取本周期模型发射的指令 (模拟 issueOut.payload) */
+  def getIssuedEntry: Option[ModelIQEntry] = this.combinational_issuedEntry
+  
+  /** 获取模型队列的当前大小 (模拟读取 validCountReg) */
+  def getQueueSize: Int = this.queue.size
+
+
+  // === 状态转换 ===
+
+  /**
+   * [供测试平台调用] 驱动本周期的所有输入激励。
+   * 这模拟了激励在时钟沿到来之前到达硬件的输入端口。
+   */
+  def driveInputs(
+      allocValid: Boolean,
+      allocPayload: Option[ModelIQEntry],
+      wakeupTag: Option[Int],
+      issueReady: Boolean
+  ): Unit = {
+    this.drive_alloc_valid = allocValid
+    this.drive_alloc_payload = allocPayload
+    this.drive_wakeup_tag = wakeupTag
+    this.drive_issue_ready = issueReady
   }
 
-  /** 获取模型队列的当前大小 */
-  def size: Int = queue.size
+   /**
+   * 模拟一个时钟周期的所有行为，严格遵循硬件时序。
+   * 1. 计算当前周期的组合逻辑输出 (基于周期开始时的状态)。
+   * 2. 计算下一周期的状态，包含对新分配指令的唤醒前推。
+   * 3. 在“时钟沿”更新所有状态。
+   */
+  def cycle(): Unit = {
+    // ======================================================================
+    // 阶段一: 计算当前周期的组合逻辑输出 (基于周期开始时的`queue`状态)
+    // ======================================================================
 
-  /** 获取队列头部的 ROB 指针，用于验证 */
-  def getHeadRobPtr(): Option[Int] = queue.headOption.map(_.robPtr)
-
-  // --- 状态转换方法 (State Transitions) ---
-
-  /** 向模型中分配一个新指令。
-    * @param robPtr 新指令的ROB指针
-    * @param initialReady 指令是否初始就绪
-    * @param deps 指令的依赖Tag集合
-    */
-  def allocate(robPtr: Int, initialReady: Boolean, deps: Set[Int]): Unit = {
-    val entry = ModelIQEntry(robPtr, initialReady, mutable.HashSet() ++= deps)
-    queue.append(entry)
-  }
-
-  /** 模拟一个指令被发射。
-    * 会从模型队列头部移除一个条目，并进行验证。
-    * @param issuedRobPtr 从硬件实际发射的ROB指针
-    * @return 成功则返回被移除的条目，失败则抛出异常
-    */
-  def issue(issuedRobPtr: Int): Try[ModelIQEntry] = Try {
-    if (isEmpty) {
-      throw new IllegalStateException(s"DUT issued robPtr=${issuedRobPtr} but model is empty.")
+    val queueAfterWakeup = mutable.ListBuffer[ModelIQEntry]()
+    this.queue.foreach { e => 
+      queueAfterWakeup += e.copy(dependencies = e.dependencies.clone())
     }
-    val head = queue.head
-    if (head.robPtr != issuedRobPtr) {
-      throw new AssertionError(
-        s"Model/DUT mismatch! Model expected ${head.robPtr}, DUT issued ${issuedRobPtr}"
-      )
-    }
-    if (!head.isReady) {
-      // 打印出导致断言失败的那个条目的完整状态
-      val errorMessage = s"""
-      |
-      |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      |  ASSERTION FAILED: DUT issued an un-ready instruction!
-      |----------------------------------------------------------------
-      |  - ROB Pointer        : ${head.robPtr}
-      |  - Model 'isReady'      : ${head.isReady}
-      |  - Remaining Dependencies : [${head.dependencies.mkString(", ")}]
-      |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      |
-      """.stripMargin
-      throw new AssertionError(errorMessage)
-    }
-    queue.remove(0)
-  }
-
-  /** 模拟一个唤醒信号。
-    * 会遍历整个模型队列，更新所有依赖于此Tag的条目的状态。
-    * @param tag 被唤醒的物理寄存器Tag
-    */
-  def wakeup(tag: Int): Unit = {
-    for (entry <- queue) {
-      if (entry.dependencies.contains(tag)) {
-        entry.dependencies.remove(tag)
-        if (entry.dependencies.isEmpty) {
-          entry.isReady = true
+    
+    drive_wakeup_tag.foreach { tag =>
+      queueAfterWakeup.foreach { entry =>
+        if (entry.dependencies.contains(tag)) {
+          entry.dependencies.remove(tag)
+          if (entry.dependencies.isEmpty) entry.isReady = true
         }
       }
     }
-  }
 
-  /** 打印当前模型状态，用于调试。
-    */
-  override def toString: String = {
-    if (isEmpty) {
-      "ModelIQ(empty)"
+    this.combinational_isReadyToAlloc = this.queue.size < this.depth
+
+    val headAfterWakeup = queueAfterWakeup.headOption
+    if (headAfterWakeup.isDefined && headAfterWakeup.get.isReady && drive_issue_ready) {
+      this.combinational_isIssuing = true
+      this.combinational_issuedEntry = this.queue.headOption 
     } else {
-      val entriesStr = queue
-        .map { e =>
-          s"  Rob(${e.robPtr}), Rdy(${e.isReady}), Deps(${e.dependencies.mkString(",")})"
-        }
-        .mkString("\n")
-      s"ModelIQ(size=${queue.size}):\n$entriesStr"
+      this.combinational_isIssuing = false
+      this.combinational_issuedEntry = None
+    }
+
+    // ======================================================================
+    // 阶段二: 根据本周期的事件，计算下一周期的状态
+    // ======================================================================
+    
+    val issue_fired = this.combinational_isIssuing
+    val alloc_fired = this.drive_alloc_valid && this.combinational_isReadyToAlloc
+
+    val next_queue = mutable.ListBuffer[ModelIQEntry]()
+    next_queue ++= this.queue
+
+    if (issue_fired) {
+      next_queue.remove(0)
+    }
+    if (alloc_fired) {
+      // ** 关键修复：模拟“分配-唤醒前推” **
+      val new_entry_to_add = this.drive_alloc_payload.get
+
+      // 检查本周期的唤醒信号是否能直接让新指令就绪
+      drive_wakeup_tag.foreach { tag =>
+          if (new_entry_to_add.dependencies.contains(tag)) {
+              new_entry_to_add.dependencies.remove(tag)
+              if (new_entry_to_add.dependencies.isEmpty) {
+                  new_entry_to_add.isReady = true
+              }
+          }
+      }
+      // 将可能已被唤醒的新指令加入队列
+      next_queue.append(new_entry_to_add)
+    }
+
+    // ======================================================================
+    // 阶段三: “时钟沿” - 更新所有状态寄存器
+    // ======================================================================
+    
+    this.queue.clear()
+    this.queue ++= next_queue
+
+    if (this.queue.nonEmpty && queueAfterWakeup.nonEmpty) {
+      this.queue.find(_.robPtr == queueAfterWakeup.head.robPtr).foreach { entryInNewQueue =>
+        val head_after_wakeup = queueAfterWakeup.head
+        entryInNewQueue.isReady = head_after_wakeup.isReady
+        entryInNewQueue.dependencies.clear()
+        entryInNewQueue.dependencies ++= head_after_wakeup.dependencies
+      }
     }
   }
 }

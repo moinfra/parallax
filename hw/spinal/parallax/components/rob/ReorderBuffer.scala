@@ -183,7 +183,7 @@ case class ROBIo[RU <: Data with Formattable with HasRobPtr](config: ROBConfig[R
 }
 
 class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfig[RU]) extends Component {
-  val enableLog = true
+  val enableLog = false
   ParallaxLogger.log(
     s"Creating ReorderBuffer with config: ${config.format().mkString("")}"
   )
@@ -458,4 +458,26 @@ class ReorderBuffer[RU <: Data with Formattable with HasRobPtr](config: ROBConfi
   if(enableLog) {
     report(L"[ROB] IO_OUTPUT: empty=${io.empty}, headPtrOut=${io.headPtrOut}, tailPtrOut=${io.tailPtrOut}, countOut=${io.countOut}")
   }
+
+  // val debg=  new Area {
+  //   val expected_count = UInt(config.robPtrWidth)
+    
+  //   // 使用扩展一位的指针进行减法以正确处理环绕
+  //   val head_ext = headPtr_reg.resize(config.robPtrWidth.value + 1)
+  //   val tail_ext = tailPtr_reg.resize(config.robPtrWidth.value + 1)
+
+  //   when(tail_ext >= head_ext) {
+  //     expected_count := (tail_ext - head_ext).resized
+  //   } otherwise {
+  //     // 发生了环绕
+  //     expected_count := (tail_ext + (U(1) << config.robPtrWidth.value) - head_ext).resized
+  //   }
+
+  //   assert(
+  //     assertion = count_reg === expected_count,
+  //     message = L"[ROB] FATAL: count_reg (${count_reg}) mismatches pointer difference (${expected_count}). head=${headPtr_reg}, tail=${tailPtr_reg}",
+  //     severity = FAILURE
+  //   )
+
+  // }
 }

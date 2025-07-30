@@ -26,7 +26,7 @@ class FetchPipelinePlugin(
     iCfg: ICacheConfig,
     outputFifoDepth: Int = 24
 ) extends Plugin with FetchService with HardRedirectService with SoftRedirectService {
-    val enableLog = true // Master switch for logging in this plugin
+    val enableLog = false // Master switch for logging in this plugin
 
     // --- Service Interface (implements contracts for other plugins) ---
     private val hardRedirectPorts = collection.mutable.ArrayBuffer[(Int, Flow[UInt])]()

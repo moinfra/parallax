@@ -88,7 +88,7 @@ class WakeupPlugin(pCfg: PipelineConfig) extends Plugin with WakeupService {
         for (((flow, traceName), idx) <- allWakeupFlows.zip(wakeupSources.map(_._2)).zipWithIndex) {
             when(flow.valid) {
                 // 使用 traceName 进行日志记录
-                ParallaxSim.log(L"WakeupPlugin: Broadcasting from source[${idx}] ('${traceName}') for physReg=${flow.payload.physRegIdx}")
+                ParallaxSim.log(L"WakeupPlugin: Broadcasting from source[${idx}] ('${traceName}') for physReg=p${flow.payload.physRegIdx}")
             }
         }
         // ======================= 日志结束 =======================

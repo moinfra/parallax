@@ -96,7 +96,7 @@ class CheckpointManagerPlugin(
     def printRAT(rat: RatCheckpoint) = {
       report(L"[CheckpointManager] RAT mapping: ")
       for (i <- 0 until ratConfig.archRegCount) {
-        report(L"archReg ${i.toHexString} -> physReg ${rat.mapping(i)}")
+        report(L"archReg a${i.toHexString.view.reverse.padTo(2, '0').mkString.reverse} -> physReg p${rat.mapping(i)}")
       }
     }
 
@@ -140,7 +140,7 @@ class CheckpointManagerPlugin(
       btRestorePort.payload := initialBtCheckpoint // 由于commit时冲刷，检查点里的busybits都是孤儿。
       
       if (enableLog) {
-        report(L"[CheckpointManager] Checkpoint restored - restored REAL state (single-cycle)")
+        report(L"[CheckpointManager] Checkpoint restored - restored ARAT")
         printRAT(storedRatCheckpoint)
       }
     } otherwise {

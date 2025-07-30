@@ -56,13 +56,13 @@ case class AguInput(lsuConfig: LsuConfig) extends Bundle with Formattable {
     Seq(
       L"AguInput(",
       L"qPtr=${qPtr},",
-      L"basePhysReg=${basePhysReg},",
+      L"basePhysReg=p${basePhysReg},",
       L"immediate=${immediate},",
       L"accessSize=${accessSize},",
       L"isSignedLoad=${isSignedLoad},",
       L"usePc=${usePc},",
       L"pc=${pc},",
-      L"dataReg=${dataReg},",
+      L"dataReg=p${dataReg},",
       L"robPtr=${robPtr},",
       L"isLoad=${isLoad},",
       L"isStore=${isStore},",
@@ -103,7 +103,7 @@ case class AguOutput(lsuConfig: LsuConfig) extends Bundle with Formattable {
       L"accessSize=${accessSize},",
       L"isSignedLoad=${isSignedLoad},",
       L"storeMask=${storeMask},",
-      L"basePhysReg=${basePhysReg},",
+      L"basePhysReg=p${basePhysReg},",
       L"immediate=${immediate},",
       L"usePc=${usePc},",
       L"pc=${pc},",
@@ -195,10 +195,10 @@ class AguPlugin(
         
         // --- 增加 AGU S0 和 S1 阶段的详细输入日志 ---
         when(s0.fire) {
-          if(enableLog) report(L"[AGU-${i}-S0-Input] PC=0x${s0.payload.pc}, basePhysReg=${s0.payload.basePhysReg}, dataReg=${s0.payload.dataReg}, isLoad=${s0.payload.isLoad}, isStore=${s0.payload.isStore}, robPtr=${s0.payload.robPtr}")
+          if(enableLog) report(L"[AGU-${i}-S0-Input] PC=0x${s0.payload.pc}, basePhysReg=p${s0.payload.basePhysReg}, dataReg=p${s0.payload.dataReg}, isLoad=${s0.payload.isLoad}, isStore=${s0.payload.isStore}, robPtr=${s0.payload.robPtr}")
         }
         when(s1.valid) {
-          if(enableLog) report(L"[AGU-${i}-S1-Input] PC=0x${s1.payload.pc}, basePhysReg=${s1.payload.basePhysReg}, dataReg=${s1.payload.dataReg}, prfBaseRsp=0x${s1.prfBaseRsp}, prfDataRsp=0x${s1.prfDataRsp}")
+          if(enableLog) report(L"[AGU-${i}-S1-Input] PC=0x${s1.payload.pc}, basePhysReg=p${s1.payload.basePhysReg}, dataReg=p${s1.payload.dataReg}, prfBaseRsp=0x${s1.prfBaseRsp}, prfDataRsp=0x${s1.prfDataRsp}")
         }
 
         // --- storeData 依赖修复 ---
@@ -219,12 +219,12 @@ class AguPlugin(
               when(bypassPayload.physRegIdx === s1.payload.basePhysReg) {
                 baseBypassValid := True
                 baseBypassData := bypassPayload.physRegData
-                if(enableLog) report(L"[AGU-${i}-BypassMatch] PC=0x${s1.payload.pc}, BaseReg Matched! PhysReg=${s1.payload.basePhysReg}, BypassData=0x${bypassPayload.physRegData}")
+                if(enableLog) report(L"[AGU-${i}-BypassMatch] PC=0x${s1.payload.pc}, BaseReg Matched! PhysReg=p${s1.payload.basePhysReg}, BypassData=0x${bypassPayload.physRegData}")
               }
               when(s1.payload.isStore && bypassPayload.physRegIdx === s1.payload.dataReg) {
                 dataBypassValid := True
                 dataBypassData := bypassPayload.physRegData
-                if(enableLog) report(L"[AGU-${i}-BypassMatch] PC=0x${s1.payload.pc}, DataReg Matched! PhysReg=${s1.payload.dataReg}, BypassData=0x${bypassPayload.physRegData}")
+                if(enableLog) report(L"[AGU-${i}-BypassMatch] PC=0x${s1.payload.pc}, DataReg Matched! PhysReg=p${s1.payload.dataReg}, BypassData=0x${bypassPayload.physRegData}")
               }
             }
           }

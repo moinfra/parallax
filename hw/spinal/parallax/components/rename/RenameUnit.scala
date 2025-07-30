@@ -101,17 +101,17 @@ class RenameUnit(
     when(uopNeedsNewPhysDest) {
       report(
         Seq(
-            L"[RegRes|RenameUnit] Rename for uop@${decodedUop.pc}: archDest=${decodedUop.archDest.idx} -> physReg=${io.physRegsIn(slotIdx)} (isFPR=${decodedUop.archDest.isFPR})",
-            L"Src1: archSrc1=${decodedUop.archSrc1.idx} -> physReg=${renameInfo.physSrc1.idx} (isFPR=${decodedUop.archSrc1.isFPR}, bypassed=0)",
-            L"Src2: archSrc2=${decodedUop.archSrc2.idx} -> physReg=${renameInfo.physSrc2.idx} (isFPR=${decodedUop.archSrc2.isFPR}, bypassed=0)",
-            L"oldPhysDest: archDest=${decodedUop.archDest.idx} -> oldPhysReg=${renameInfo.oldPhysDest.idx} (isFPR=${decodedUop.archDest.isFPR})",
+            L"[RegRes|RenameUnit] Rename for uop@${decodedUop.pc}: archDest=a${decodedUop.archDest.idx} -> physReg=p${io.physRegsIn(slotIdx)} (isFPR=${decodedUop.archDest.isFPR})",
+            L"Src1: archSrc1=a${decodedUop.archSrc1.idx} -> physReg=p${renameInfo.physSrc1.idx} (isFPR=${decodedUop.archSrc1.isFPR}, bypassed=0)",
+            L"Src2: archSrc2=a${decodedUop.archSrc2.idx} -> physReg=p${renameInfo.physSrc2.idx} (isFPR=${decodedUop.archSrc2.isFPR}, bypassed=0)",
+            L"oldPhysDest: archDest=a${decodedUop.archDest.idx} -> oldPhysReg=p${renameInfo.oldPhysDest.idx} (isFPR=${decodedUop.archDest.isFPR})",
           )
         )
     } elsewhen(decodedUop.isValid) {
       report(
         Seq(
-          L"[RegRes|RenameUnit] Mapping oprands for uop@${decodedUop.pc}: archSrc1=${decodedUop.archSrc1.idx} -> physReg=${renameInfo.physSrc1.idx} (isFPR=${decodedUop.archSrc1.isFPR}, bypassed=0)",
-          L"archSrc2=${decodedUop.archSrc2.idx} -> physReg=${renameInfo.physSrc2.idx} (isFPR=${decodedUop.archSrc2.isFPR}, bypassed=0)",
+          L"[RegRes|RenameUnit] Mapping oprands for uop@${decodedUop.pc}: archSrc1=a${decodedUop.archSrc1.idx} -> physReg=p${renameInfo.physSrc1.idx} (isFPR=${decodedUop.archSrc1.isFPR}, bypassed=0)",
+          L"archSrc2=a${decodedUop.archSrc2.idx} -> physReg=p${renameInfo.physSrc2.idx} (isFPR=${decodedUop.archSrc2.isFPR}, bypassed=0)",
         )
       )
     }

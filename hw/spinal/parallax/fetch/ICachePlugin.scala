@@ -36,7 +36,7 @@ class ICachePlugin(
   // --- 内部逻辑区域 ---
   val logic = create late new Area {
     lock.await()
-    val enableLog = iCacheCfg.enableLog || true
+    val enableLog = iCacheCfg.enableLog || false
     if (enableLog) ParallaxLogger.log("Plugin: ICache; logic generation started.")
 
     // =================================================================

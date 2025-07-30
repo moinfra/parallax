@@ -1,4 +1,3 @@
-// filename: hw/spinal/parallax/issue/SequentialIssueQueueComponent.scala
 package parallax.components.issue
 
 import spinal.core._
@@ -13,31 +12,23 @@ class SequentialIssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
     val id: Int = 0
 ) extends Component
     with IssueQueueLike[T_IQEntry] {
-
+  val enableLog = false
   override val io = slave(IssueQueueComponentIo(iqConfig, numWakeupPorts))
   val idStr = s"${iqConfig.name}-SEQ-${id.toString()}"
 
-  // ====================================================================
-  // 1. 状态存储区 (State Storage Area)
-  // ====================================================================
   val state = new Area {
-    val entries = Vec.fill(iqConfig.depth)(Reg(iqConfig.getIQEntry()))
-    val entryValids = Reg(Bits(iqConfig.depth bits)) init (0)
+    val entriesReg = Vec.fill(iqConfig.depth)(Reg(iqConfig.getIQEntry()))
+    val entryValidsReg = Reg(Bits(iqConfig.depth bits)) init (0)
+    val validCountReg = Reg(UInt(log2Up(iqConfig.depth + 1) bits)) init (0)
 
-    val validCount = CountOne(entryValids)
-    val isFull = validCount === iqConfig.depth
-    val isEmpty = validCount === 0
+    val isEmpty = validCountReg === 0
+    val isFull = validCountReg === iqConfig.depth
 
-    // 修正4：正确地初始化寄存器
     val wakeupInReg = Reg(Vec.fill(numWakeupPorts)(Flow(WakeupPayload(iqConfig.pipelineConfig))))
-    wakeupInReg.foreach(_.valid.init(False)) // 使用.init确保是编译时初始化
+    wakeupInReg.foreach(_.valid.init(False))
   }
 
-  // ====================================================================
-  // 2. 唤醒逻辑区 (Wakeup Logic Area)
-  // ====================================================================
   val wakeup = new Area {
-    // 寄存唤醒信号以改善时序
     state.wakeupInReg := io.wakeupIn
 
     val wokeUpSrc1Mask = Bits(iqConfig.depth bits)
@@ -46,18 +37,20 @@ class SequentialIssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
     wokeUpSrc2Mask.clearAll()
 
     for (i <- 0 until iqConfig.depth) {
-      val entry = state.entries(i)
-      when(state.entryValids(i)) {
+      val entry = state.entriesReg(i)
+      when(state.entryValidsReg(i)) {
         val canWakeupSrc1 = !entry.src1Ready && entry.useSrc1
         val canWakeupSrc2 = !entry.src2Ready && entry.useSrc2
 
         for (wakeup <- state.wakeupInReg) {
           when(wakeup.valid) {
-            when(canWakeupSrc1 && (entry.src1Tag === wakeup.payload.physRegIdx)) {
-              wokeUpSrc1Mask(i) := True
+            when(canWakeupSrc1 && (entry.src1Tag === wakeup.payload.physRegIdx)) { wokeUpSrc1Mask(i) := True }
+            when(canWakeupSrc2 && (entry.src2Tag === wakeup.payload.physRegIdx)) { wokeUpSrc2Mask(i) := True }
+            when(wokeUpSrc1Mask(i)) {
+              report(L"${idStr} wokeUpSrc1Mask(${i}) is ${wokeUpSrc1Mask(i)}, because canWakeupSrc1=${canWakeupSrc1}, entry.src1Tag=${entry.src1Tag}, wakeup.payload.physRegIdx=${wakeup.payload.physRegIdx}")
             }
-            when(canWakeupSrc2 && (entry.src2Tag === wakeup.payload.physRegIdx)) {
-              wokeUpSrc2Mask(i) := True
+            when(wokeUpSrc2Mask(i)) {
+              report(L"${idStr} wokeUpSrc2Mask(${i}) is ${wokeUpSrc2Mask(i)}, because canWakeupSrc2=${canWakeupSrc2}, entry.src2Tag=${entry.src2Tag}, wakeup.payload.physRegIdx=${wakeup.payload.physRegIdx}")
             }
           }
         }
@@ -65,121 +58,155 @@ class SequentialIssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
     }
   }
 
-  // ====================================================================
-  // 3. 发射与分配逻辑区 (Issue & Allocation Logic Area)
-  // ====================================================================
   val issue_alloc = new Area {
-    // --- 发射选择 (只看队首) ---
-    val headEntry = state.entries(0)
-    val headIsValid = state.entryValids(0)
-    val headIsReady = (!headEntry.useSrc1 || headEntry.src1Ready) &&
-      (!headEntry.useSrc2 || headEntry.src2Ready)
+    val headEntry = state.entriesReg(0)
+    val headIsValid = state.entryValidsReg(0)
+
+    // Wakeup bypass for the issue logic
+    val headWakesUpSrc1 = wakeup.wokeUpSrc1Mask(0)
+    val headWakesUpSrc2 = wakeup.wokeUpSrc2Mask(0)
+
+    val headFinalSrc1Ready = headEntry.src1Ready || headWakesUpSrc1
+    val headFinalSrc2Ready = headEntry.src2Ready || headWakesUpSrc2
+
+    val headIsReady = (!headEntry.useSrc1 || headFinalSrc1Ready) &&
+      (!headEntry.useSrc2 || headFinalSrc2Ready)
 
     val canIssue = headIsValid && headIsReady
 
     io.issueOut.valid := canIssue && !io.flush
-    io.issueOut.payload := headEntry
-    val issueFired = io.issueOut.fire
 
-    // --- 分配与反压 ---
+    // Fix assignment conflict by building a new payload object
+    val issuePayload = iqConfig.getIQEntry().allowOverride()
+    issuePayload := headEntry
+    issuePayload.src1Ready := headFinalSrc1Ready
+    issuePayload.src2Ready := headFinalSrc2Ready
+    io.issueOut.payload := issuePayload
+
+    val issueFired = io.issueOut.fire
+    when(issueFired) {
+        report(L"${idStr} ISSUED PAYLOAD: RobPtr=${issuePayload.robPtr}")
+    }
+
     io.allocateIn.ready := !state.isFull && !io.flush
     val allocationFired = io.allocateIn.fire
   }
 
-  // ====================================================================
-  // 4. 下一周期状态更新区 (Next State Update Area)
-  // ====================================================================
+  // ========================================================================
+  //
+  //                        FULLY CORRECTED UPDATE LOGIC
+  //
+  // ========================================================================
   val update = new Area {
 
-    // --- 步骤 1: 计算下一周期的 entryValids (队列结构变化) ---
-    val nextEntryValids = B(state.entryValids)
+    // 1. Calculate the state for a newly allocated entry
+    val newEntry = iqConfig.getIQEntry()
+    val allocCmd = io.allocateIn.payload
+    val allocUop = allocCmd.uop
+    newEntry.initFrom(allocUop, allocUop.robPtr).allowOverride()
+    val s1WakesUp = state.wakeupInReg.map(w => w.valid && w.payload.physRegIdx === allocUop.rename.physSrc1.idx).orR
+    val s2WakesUp = state.wakeupInReg.map(w => w.valid && w.payload.physRegIdx === allocUop.rename.physSrc2.idx).orR
+    newEntry.src1Ready := allocCmd.src1InitialReady || s1WakesUp
+    newEntry.src2Ready := allocCmd.src2InitialReady || s2WakesUp
 
-    when(issue_alloc.issueFired) {
-      // 发射成功，队列左移一位
-      nextEntryValids := (state.entryValids |<< 1).resize(iqConfig.depth)
-    }
-
-    when(issue_alloc.allocationFired) {
-      // 新指令入队，在尾部置位
-      // 使用一位热编码来设置，更安全
-      nextEntryValids(state.validCount) := True
-    }
-
-    // --- 步骤 2: 计算下一周期的 entries (数据移动和更新) ---
-    val nextEntries = Vec.fill(iqConfig.depth)(iqConfig.getIQEntry())
-    nextEntries := state.entries // 默认保持不变
-
-    // 修正2 & 3: 使用明确的、分层的更新逻辑，而不是复杂的if-elsewhen链
-
-    // 首先，处理压缩 (Compression)
-    when(issue_alloc.issueFired) {
-      for (i <- 0 until iqConfig.depth - 1) {
-        nextEntries(i) := state.entries(i + 1)
-      }
-      nextEntries(iqConfig.depth - 1).assignDontCare() // 最后一个槽位被清空
-    }
-
-    // 然后，处理入队 (Allocation)，这会覆盖压缩逻辑的结果
-    when(issue_alloc.allocationFired) {
-      val allocCmd = io.allocateIn.payload
-      val allocUop = allocCmd.uop
-      val newEntry = iqConfig.getIQEntry()
-
-      newEntry.initFrom(allocUop, allocUop.robPtr).allowOverride()
-
-      val s1WakesUp = state.wakeupInReg.map(w => w.valid && w.payload.physRegIdx === allocUop.rename.physSrc1.idx).orR
-      val s2WakesUp = state.wakeupInReg.map(w => w.valid && w.payload.physRegIdx === allocUop.rename.physSrc2.idx).orR
-
-      newEntry.src1Ready := allocCmd.src1InitialReady || s1WakesUp
-      newEntry.src2Ready := allocCmd.src2InitialReady || s2WakesUp
-
-      // 写入尾部
-      assert(state.validCount < iqConfig.depth)
-      nextEntries(state.validCount.resized) := newEntry
-    }
-
-    // 最后，处理唤醒 (Wakeup)，这会更新所有未被移动的条目
+    // 2. Calculate the state of existing entries after this cycle's wakeup
+    //    FIX: First copy the current state, THEN override ready bits to avoid NO DRIVER errors.
+    val entriesAfterWakeup = CombInit(state.entriesReg).allowOverride()
     for (i <- 0 until iqConfig.depth) {
-      val c = Bool(i < iqConfig.depth - 1)
-      val shouldUpdateWakeup =
-        // 如果发射了，只有被移过来的槽位需要更新唤醒 (i < depth-1)
-        (issue_alloc.issueFired && c && wakeup.wokeUpSrc1Mask(i + 1)) ||
-          // 如果没发射，所有有效槽位都需要更新唤醒
-          (!issue_alloc.issueFired && state.entryValids(i) && wakeup.wokeUpSrc1Mask(i))
+      entriesAfterWakeup(i).src1Ready := state.entriesReg(i).src1Ready || wakeup.wokeUpSrc1Mask(i)
+      entriesAfterWakeup(i).src2Ready := state.entriesReg(i).src2Ready || wakeup.wokeUpSrc2Mask(i)
+    }
 
-      when(shouldUpdateWakeup) {
-        nextEntries(i).src1Ready := True
+    // 3. Calculate the final next state for all entries and valids using a priority-encoded
+    //    decision tree. This handles all cases (issue, allocate, both, neither) correctly.
+    val nextEntries = Vec.fill(iqConfig.depth)(iqConfig.getIQEntry())
+    val nextValids = Bits(iqConfig.depth bits)
+
+    // Determine the index where a new instruction would be written
+    val allocWriteIdx = Mux(
+      issue_alloc.issueFired,
+      (state.validCountReg - 1).resize(log2Up(iqConfig.depth)),
+      state.validCountReg.resize(log2Up(iqConfig.depth))
+    )
+
+    // For each slot, decide its next state
+    for (i <- 0 until iqConfig.depth) {
+      when(issue_alloc.allocationFired && U(i) === allocWriteIdx) {
+        // Highest priority: a new instruction is allocated to this slot.
+        nextEntries(i) := newEntry
+        nextValids(i)  := True
       }
-      // (对src2做同样的操作)
-      val shouldUpdateWakeup2 =
-        (issue_alloc.issueFired && c && wakeup.wokeUpSrc2Mask(i + 1)) ||
-          (!issue_alloc.issueFired && state.entryValids(i) && wakeup.wokeUpSrc2Mask(i))
-      when(shouldUpdateWakeup2) {
-        nextEntries(i).src2Ready := True
+      .elsewhen(issue_alloc.issueFired) {
+        // Second priority: an instruction was issued, so we shift contents.
+        // FIX: Use a compile-time `if` to prevent out-of-bounds access.
+        if (i < iqConfig.depth - 1) {
+          // This slot gets the content of the next slot (with wakeups applied).
+          nextEntries(i) := entriesAfterWakeup(i + 1)
+          nextValids(i)  := state.entryValidsReg(i + 1)
+        } else {
+          // The last slot becomes empty after a shift.
+          nextEntries(i).assignDontCare()
+          nextValids(i)  := False
+        }
+      }
+      .otherwise {
+        // Default case: no allocation, no issue. Just apply wakeups to current state.
+        nextEntries(i) := entriesAfterWakeup(i)
+        nextValids(i)  := state.entryValidsReg(i)
       }
     }
 
-    // --- 步骤 3: 最终赋值给寄存器 ---
-    state.entries := nextEntries
-    state.entryValids := nextEntryValids
+    // 4. Perform the final, unconditional assignments to the state registers
+    state.entriesReg := nextEntries
+    state.entryValidsReg := nextValids
 
-    // 冲刷具有最高优先级
+    val nextValidCount = state.validCountReg + U(issue_alloc.allocationFired) - U(issue_alloc.issueFired)
+
+    state.validCountReg := nextValidCount
+
+    // 5. Handle flush (highest priority, overrides all previous calculations)
     when(io.flush) {
-      state.entryValids := 0
+      state.entryValidsReg := 0
+      state.validCountReg := 0
     }
   }
 
-  // ====================================================================
-  // 5. 调试与日志记录区 (Debug & Monitoring Area)
-  // ====================================================================
   val debug = new Area {
-    val logCondition = io.allocateIn.fire || io.issueOut.fire
-    when(logCondition) {
-      ParallaxSim.log(
-        L"${idStr}: STATUS - ValidCount=${state.validCount}, " :+
-          L"allocateIn(valid=${io.allocateIn.valid}, ready=${io.allocateIn.ready}), " :+
-          L"issueOut(valid=${io.issueOut.valid}, ready=${io.issueOut.ready})"
-      )
+    // This debug area can be kept as is for verification.
+    if(enableLog) {
+        ParallaxSim.debug(L"STATUS: validCount=${state.validCountReg}, valids=${state.entryValidsReg}")
+        ParallaxSim.debug(
+        L"ISSUE_INPUTS: " :+
+            L"state.entryValidsReg(0)=${state.entryValidsReg(0)}, " :+
+            L"headEntry.useSrc1=${state.entriesReg(0).useSrc1}, " :+
+            L"headEntry.src1Ready=${state.entriesReg(0).src1Ready}, " :+
+            L"headEntry.useSrc2=${state.entriesReg(0).useSrc2}, " :+
+            L"headEntry.src2Ready=${state.entriesReg(0).src2Ready}, " :+
+            L"wakeup.wokeUpSrc1Mask(0)=${wakeup.wokeUpSrc1Mask(0)}, " :+
+            L"wakeup.wokeUpSrc2Mask(0)=${wakeup.wokeUpSrc2Mask(0)}"
+        )
+        ParallaxSim.debug(
+        L"ISSUE_CALC: " :+
+            L"headIsValid=${issue_alloc.headIsValid}, " :+
+            L"headFinalSrc1Ready=${issue_alloc.headFinalSrc1Ready}, " :+
+            L"headFinalSrc2Ready=${issue_alloc.headFinalSrc2Ready}, " :+
+            L"headIsReady=${issue_alloc.headIsReady}, " :+
+            L"canIssue=${issue_alloc.canIssue}"
+        )
+        ParallaxSim.debug(L"IO_STATE: issueOut(valid=${io.issueOut.valid}, ready=${io.issueOut.ready}, fire=${io.issueOut.fire}), allocateIn(valid=${io.allocateIn.valid}, ready=${io.allocateIn.ready}, fire=${io.allocateIn.fire})")
+        when(io.issueOut.fire) {
+            ParallaxSim.debug(L"  => ISSUED PAYLOAD: RobPtr=${io.issueOut.payload.robPtr}")
+        }
+        when(io.allocateIn.fire) {
+            ParallaxSim.debug(L"  => ALLOCATED PAYLOAD: RobPtr=${io.allocateIn.payload.uop.robPtr}")
+        }
+        for (i <- 0 until iqConfig.depth) {
+            when(state.entryValidsReg(i)) {
+                ParallaxSim.debug(L"  -> ENTRY[${i}]: RobPtr=${state.entriesReg(i).robPtr}, Src1Rdy=${state.entriesReg(i).src1Ready}, Src2Rdy=${state.entriesReg(i).src2Ready}")
+            }
+        }
+        ParallaxSim.debug(L"--- CYCLE END ---")
+
     }
   }
 }

@@ -52,7 +52,7 @@ case class IftSlot(pCfg: PipelineConfig, iCfg: ICacheConfig) extends Bundle {
 }
 
 class FetchSequencer(pCfg: PipelineConfig, iCfg: ICacheConfig) extends Component {
-
+  val enableLog = false
   val io = new Bundle {
     // 来自S1 (或上游)
     val newRequest = slave(Stream(FetchRequestPayload(pCfg)))
@@ -81,7 +81,7 @@ class FetchSequencer(pCfg: PipelineConfig, iCfg: ICacheConfig) extends Component
     slots.foreach(_.setDefault())
     oldIndex := 0
 
-    debug(L"hard flush")
+    if(enableLog) debug(L"hard flush")
   }
 
   // --- 组合逻辑 Helpers ---
@@ -150,13 +150,13 @@ class FetchSequencer(pCfg: PipelineConfig, iCfg: ICacheConfig) extends Component
       val operandB = S(i << 2, pCfg.pcWidth)
       val operandC = (offs26.asSInt << 2).resize(pCfg.pcWidth)
       val result = (operandA + operandB + operandC).asUInt.resized
-      report(L"jump target for instruction ${i} is ${result} because a=${operandA}, b=${operandB}, c=${operandC}")
+      if(enableLog) report(L"jump target for instruction ${i} is ${result} because a=${operandA}, b=${operandB}, c=${operandC}")
       result
     
     }
 
     when(io.dispatchGroupOut.fire) {
-      success(L"group @${io.dispatchGroupOut.payload.pc} sent to dispatcher. data: ${io.dispatchGroupOut.payload.format}")
+      if(enableLog) success(L"group @${io.dispatchGroupOut.payload.pc} sent to dispatcher. data: ${io.dispatchGroupOut.payload.format}")
     }
   }
 
@@ -167,7 +167,7 @@ class FetchSequencer(pCfg: PipelineConfig, iCfg: ICacheConfig) extends Component
     nextTid := nextTid + 1
     val freeSlotIndex = Mux(!slots(0).valid, U(0), U(1))
     slots(freeSlotIndex).setInit(io.newRequest.payload.pc, io.newRequest.payload.rawPc, nextTid)
-    notice(L"Got new request: ${io.newRequest.format}")
+    if(enableLog) notice(L"Got new request: ${io.newRequest.format}")
 
     // 如果IFT从空变为非空，新分配的slot成为队首
     when(isEmpty) {
@@ -181,7 +181,7 @@ class FetchSequencer(pCfg: PipelineConfig, iCfg: ICacheConfig) extends Component
       when(!slots(i).done && slots(i).valid && slots(i).tid === io.iCacheRsp.payload.transactionId) {
         slots(i).done := True
         slots(i).rspData := io.iCacheRsp.payload.instructions
-        success(L"slot ${i} (pc=${slots(i).pc}) done with tid=${io.iCacheRsp.payload.transactionId} cacheline=${io.iCacheRsp.payload.instructions}")
+        if(enableLog) success(L"slot ${i} (pc=${slots(i).pc}) done with tid=${io.iCacheRsp.payload.transactionId} cacheline=${io.iCacheRsp.payload.instructions}")
       }
     }
   }
@@ -191,7 +191,7 @@ class FetchSequencer(pCfg: PipelineConfig, iCfg: ICacheConfig) extends Component
     slots(oldIndex).valid := False
     // 晋升新的
     oldIndex := newIndex
-    debug(L"slot ${newIndex} promoted to front")
+    if(enableLog) debug(L"slot ${newIndex} promoted to front")
   }
 
   // 硬冲刷具有最高优先级，覆盖所有其他更新
@@ -204,13 +204,13 @@ class FetchSequencer(pCfg: PipelineConfig, iCfg: ICacheConfig) extends Component
   val dbg2 = new Area {
     val verbose = true
     when(io.iCacheCmd.valid) {
-      if(verbose) debug(L"oldIndex=${oldIndex} sending ${io.iCacheCmd.payload.format}")
+      if(enableLog) if(verbose) debug(L"oldIndex=${oldIndex} sending ${io.iCacheCmd.payload.format}")
     }
     when(io.iCacheRsp.valid) {
-      if(verbose) debug(L"oldIndex=${oldIndex} received ${io.iCacheRsp.payload.format}")
+      if(enableLog) if(verbose) debug(L"oldIndex=${oldIndex} received ${io.iCacheRsp.payload.format}")
     }
     when(io.dispatchGroupOut.fire) {
-      success(L"oldIndex=${oldIndex} sending group @${io.dispatchGroupOut.payload.pc}")
+      if(enableLog) success(L"oldIndex=${oldIndex} sending group @${io.dispatchGroupOut.payload.pc}")
     }
   }
 }

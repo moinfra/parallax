@@ -293,10 +293,6 @@ trait LockedImpl extends LockedService {
 }
 
 object ConsoleColor {
-  def isOutputTerminal: Boolean = {
-    val term = System.getenv("TERM")
-    term != null && term != "dumb"
-  }
   var enabled = true
 
   def ANSI_GREEN = if (enabled) "\u001B[32m" else "";

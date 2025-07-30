@@ -18,7 +18,7 @@ case class IssueQueueComponentIo[T_IQEntry <: Data with IQEntryLike](
     val iqConfig: IssueQueueConfig[T_IQEntry],
     val numWakeupPorts: Int
 ) extends Bundle
-    with IMasterSlave {
+    with IMasterSlave  {
 
   // 从 Dispatch 阶段接收新的微操作 (uop)
   val allocateIn = Stream(IqDispatchCmd(iqConfig.pipelineConfig))
@@ -41,6 +41,21 @@ case class IssueQueueComponentIo[T_IQEntry <: Data with IQEntryLike](
   }
 }
 
+
+trait IssueQueueLike[T_IQEntry <: Data with IQEntryLike] extends Component {
+    // 【修改】移除抽象类型成员
+    // type T_IQEntry <: Data with IQEntryLike 
+    
+    // 【修改】现在这些成员可以直接使用Trait的泛型参数 T_IQEntry
+    def iqConfig: IssueQueueConfig[T_IQEntry]
+    def numWakeupPorts: Int
+
+    // IO的类型也直接使用Trait的泛型参数
+    def io: IssueQueueComponentIo[T_IQEntry]
+    def idStr: String
+}
+
+
 /**
  * 通用发射队列 (Issue Queue) 组件
  *
@@ -59,7 +74,7 @@ class IssueQueueComponent[T_IQEntry <: Data with IQEntryLike](
     val iqConfig: IssueQueueConfig[T_IQEntry],
     val numWakeupPorts: Int,
     val id: Int = 0
-) extends Component {
+) extends Component with IssueQueueLike[T_IQEntry]  {
   
   // 实例化 IO
   val io = slave (IssueQueueComponentIo(iqConfig, numWakeupPorts))

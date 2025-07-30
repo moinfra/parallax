@@ -22,7 +22,7 @@ case class IssuePipelineSignals(val config: PipelineConfig) extends AreaObject {
 
 class IssuePipeline(val issueConfig: PipelineConfig) extends Plugin with LockedImpl {
   lazy val signals = IssuePipelineSignals(issueConfig)
-  val enableLog = false
+  val enableLog = true
   val pipeline = create early new Pipeline {
     val s0_decode    = newStage().setName("s0_Decode")
     val s1_rename    = newStage().setName("s1_Rename")

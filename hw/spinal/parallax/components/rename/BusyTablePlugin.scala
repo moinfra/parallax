@@ -75,7 +75,7 @@ class BusyTablePlugin(pCfg: PipelineConfig)
     for ((wakeup, name) <- wakeupService.wakeupSources) {
         when(wakeup.valid) {
             clearMask(wakeup.payload.physRegIdx) := True
-            if(enableLog) report(L"[RegRes|BusyTable] Global wakeup clear: physReg=${wakeup.payload.physRegIdx} (from ${name} executed operation)")
+            if(enableLog) report(L"[RegRes|BusyTable] Global wakeup clear: physReg=p${wakeup.payload.physRegIdx} (from ${name} executed operation)")
         }
     }
 
@@ -84,7 +84,7 @@ class BusyTablePlugin(pCfg: PipelineConfig)
     for (port <- clearPortsBuffer) {
       when(port.valid) {
         clearMask(port.payload) := True
-        if(enableLog) report(L"[RegRes|BusyTable] clear bit: preg=${port.payload}")
+        if(enableLog) report(L"[RegRes|BusyTable] clear bit: preg=p${port.payload}")
       }
     }
 
@@ -93,7 +93,7 @@ class BusyTablePlugin(pCfg: PipelineConfig)
     for (port <- setPorts; if port != null) {
       when(port.valid) {
         setMask(port.payload) := True
-        if(enableLog) report(L"[RegRes|BusyTable] set bit: preg=${port.payload}")
+        if(enableLog) report(L"[RegRes|BusyTable] set bit: preg=p${port.payload}")
       }
     }
 
@@ -112,7 +112,7 @@ class BusyTablePlugin(pCfg: PipelineConfig)
         report(L"[RegRes|BusyTable] Restored from checkpoint: busyBits=${restorePort.payload.busyBits}")
         for(i <- 0 until pCfg.physGprCount) {
            when(details(i)) {
-            report(L"[RegRes|BusyTable]     preg=${i}")
+            report(L"[RegRes|BusyTable]     preg=p${i}")
            }
         }
       }

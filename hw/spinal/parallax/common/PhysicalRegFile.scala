@@ -111,7 +111,7 @@ class PhysicalRegFilePlugin(
       if (!req.isFromDebugger) {
         when(req.port.valid) {
           ParallaxSim.log(
-            L"[PRegPlugin] Read from `${req.traceName}` on reg[${req.port.address}] -> ${req.port.rsp}"
+            L"[PRegPlugin] Read from `${req.traceName}` on reg[p${req.port.address}] -> ${req.port.rsp}"
           )
         }
       }
@@ -144,7 +144,7 @@ class PhysicalRegFilePlugin(
 
           // 仿真日志
           ParallaxSim.log(
-            L"[PRegPlugin] Write from `${req.traceName}` to reg[${req.port.address}] with data ${req.port.data}"
+            L"[PRegPlugin] Write from `${req.traceName}` to reg[p${req.port.address}] with data ${req.port.data}"
           )
         }
       }

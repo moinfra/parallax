@@ -80,7 +80,7 @@ class InstructionPredecoder(pCfg: PipelineConfig) extends Component {
   io.predecodeInfo.isJump       := isAnyDirectJump
   io.predecodeInfo.isDirectJump := isAnyDirectJump
   io.predecodeInfo.isIdle       := False // 初赛不管了
-  report(L"predecodeInfo: input=${io.instruction}. output ${io.predecodeInfo.format}")
+  if(false) report(L"predecodeInfo: input=${io.instruction}. output ${io.predecodeInfo.format}")
 
   // --- 3. 计算 jumpOffset (只在需要时有效) ---
 

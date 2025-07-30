@@ -28,5 +28,6 @@ class SimpleFreeListPlugin(
 
   val logic = create late new Area {
     // FreeList is ready - no additional logic needed for basic service
+    flConfig.debugging generate {early_setup.freeList.io.debug_arat_used_mask := getService[RenameMapTablePlugin].getDebugAratUsedMask()}
   }
 }
