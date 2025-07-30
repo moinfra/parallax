@@ -74,42 +74,71 @@ class RenamePlugin(
       val lastCycleNeedsPhysReg = s2_rob_alloc(signals.NEEDS_PHYS_REG)
       val freeListPorts = freeList.getAllocatePorts()
 
-      // 1. 验证 FreeList 结果
+      val renameUnitInputUops = Vec(HardType(DecodedUop(pipelineConfig)), pipelineConfig.renameWidth)
+      val renameUnitPhysRegs = Vec(HardType(UInt(ratConfig.physRegIdxWidth)), pipelineConfig.renameWidth)
+
+      // --- 将 RenameUnit 的连接放到一个独立的 Area 中，方便管理 ---
+      val renameArea = new Area {
+        renameUnit.io.decodedUopsIn := renameUnitInputUops
+        renameUnit.io.flush := doGlobalFlush || RegNext(doGlobalFlush)
+        rat.getReadPorts() <> renameUnit.io.ratReadPorts
+        renameUnit.io.physRegsIn := renameUnitPhysRegs
+      }
+
+      // --- 默认情况下，RenameUnit 的输入是无效的 ---
+      renameUnitInputUops.foreach(_.setDefault()) // 或者 _.isValid := False
+      renameUnitPhysRegs.foreach(_ := U(0))
+
       val allocationOk = (0 until pipelineConfig.renameWidth).map { i =>
         !lastCycleNeedsPhysReg(i) || freeListPorts(i).success
       }.andR
 
-      // 2. 如果分配失败，暂停流水线 (RobAllocPlugin 会处理 ROB 满的暂停)
+      // 为流水线载荷提供默认值
+      s2_rob_alloc(signals.RENAMED_UOPS).foreach(_.setDefault())
+
+      // 为所有状态更新端口提供默认值
+      rat.getWritePorts().foreach { port =>
+        port.wen := False
+        port.archReg.assignDontCare() // 或者 assign 0
+        port.physReg.assignDontCare() // 或者 assign 0
+      }
+      setup.btSetBusyPorts.foreach { port =>
+        port.valid := False
+        port.payload.assignDontCare() // 或者 assign 0
+      }
+
+      // --- 只有当 S2 阶段发射时，才驱动 RenameUnit ---
+      when(s2_rob_alloc.isFiring) {
+        assert(allocationOk, "ASSERTION FAILED: Firing S2 stage with failed FreeList allocation!")
+
+        renameUnitInputUops := decodedUopsInS2
+        for (i <- 0 until pipelineConfig.renameWidth) {
+          renameUnitPhysRegs(i) := freeListPorts(i).physReg
+        }
+
+        // 3. 将 RenameUnit 的结果放入 Stageable
+        s2_rob_alloc(signals.RENAMED_UOPS) := renameUnit.io.renamedUopsOut
+
+        // 4. 写回状态表 (RAT 和 BusyTable)
+        rat.getWritePorts().zip(renameUnit.io.renamedUopsOut).foreach { case (ratPort, uop) =>
+          ratPort.wen := uop.rename.allocatesPhysDest && !doGlobalFlush && !RegNext(doGlobalFlush)
+          ratPort.archReg := uop.decoded.archDest.idx
+          ratPort.physReg := uop.rename.physDest.idx
+        }
+
+        for (i <- 0 until pipelineConfig.renameWidth) {
+          val uopOut = renameUnit.io.renamedUopsOut(i)
+          setup.btSetBusyPorts(i).valid := uopOut.rename.allocatesPhysDest && !doGlobalFlush && !RegNext(doGlobalFlush)
+          setup.btSetBusyPorts(i).payload := uopOut.rename.physDest.idx
+        }
+
+      }
+
       when(s2_rob_alloc.isValid && !allocationOk) {
-        notice(L"[RegRes] S2: Failed to allocate physical registers for uops: ${s2_rob_alloc(signals.DECODED_UOPS).map(_.tinyDump())}")
+        notice(
+          L"[RegRes] S2: Failed to allocate physical registers for uops: ${s2_rob_alloc(signals.DECODED_UOPS).map(_.tinyDump())}"
+        )
         s2_rob_alloc.haltIt()
-      }
-
-      // --- 核心修改：在 S2 中连接 renameUnit 的所有输入 ---
-      renameUnit.io.decodedUopsIn := decodedUopsInS2
-      renameUnit.io.flush := doGlobalFlush || RegNext(doGlobalFlush)
-      rat.getReadPorts() <> renameUnit.io.ratReadPorts
-      for (i <- 0 until pipelineConfig.renameWidth) {
-        renameUnit.io.physRegsIn(i) := freeListPorts(i).physReg
-      }
-
-      // renameUnit 是纯组合逻辑，其输出在 S2 立即有效
-      val finalRenamedUops = renameUnit.io.renamedUopsOut
-
-      // 3. 将结果放入 Stageable 供 RobAllocPlugin 使用
-      s2_rob_alloc(signals.RENAMED_UOPS)(0) := finalRenamedUops(0)
-      assert(!s2_rob_alloc.isFiring || allocationOk, "ASSERTION FAILED: Firing S2 stage with failed FreeList allocation!")
-      // 4. 写回状态表 (当流水线发射时)
-      rat.getWritePorts().zip(finalRenamedUops).foreach { case (ratPort, uop) =>
-        ratPort.wen := s2_rob_alloc.isFiring && uop.rename.allocatesPhysDest && !doGlobalFlush && !RegNext(doGlobalFlush)
-        ratPort.archReg := uop.decoded.archDest.idx
-        ratPort.physReg := uop.rename.physDest.idx
-      }
-
-      for (i <- 0 until pipelineConfig.renameWidth) {
-        val uopOut = finalRenamedUops(i)
-        setup.btSetBusyPorts(i).valid := s2_rob_alloc.isFiring && uopOut.rename.allocatesPhysDest && !doGlobalFlush && !RegNext(doGlobalFlush)
-        setup.btSetBusyPorts(i).payload := uopOut.rename.physDest.idx
       }
     }
 
