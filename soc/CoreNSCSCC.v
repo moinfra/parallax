@@ -1,6 +1,6 @@
 // Generator : SpinalHDL dev    git head : 49a99dae7b6ed938ae50042417514f24dcaeaaa8
 // Component : CoreNSCSCC
-// Git hash  : 0bfdda5fae282a42cc9e3338e72d64403a5f589a
+// Git hash  : 1abe0018313454a194e97623ecc4af957bd557bd
 
 `timescale 1ns/1ps
 
@@ -157,7 +157,7 @@ module CoreNSCSCC (
   reg                 FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_ready;
   wire                ROBPlugin_robComponent_io_allocate_0_valid;
   reg                 ROBPlugin_robComponent_io_writeback_4_fire;
-  reg        [3:0]    ROBPlugin_robComponent_io_writeback_4_robPtr;
+  reg        [2:0]    ROBPlugin_robComponent_io_writeback_4_robPtr;
   reg        [31:0]   ROBPlugin_robComponent_io_writeback_4_result;
   reg                 ROBPlugin_robComponent_io_writeback_4_exceptionOccurred;
   reg        [7:0]    ROBPlugin_robComponent_io_writeback_4_exceptionCodeIn;
@@ -200,10 +200,10 @@ module CoreNSCSCC (
   reg        [5:0]    RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_29;
   reg        [5:0]    RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_30;
   reg        [5:0]    RenameMapTablePlugin_early_setup_rat_io_checkpointRestore_payload_mapping_31;
+  wire                SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_enable;
   reg                 SimpleFreeListPlugin_early_setup_freeList_io_free_0_enable;
   reg        [5:0]    SimpleFreeListPlugin_early_setup_freeList_io_free_0_physReg;
-  reg                 SimpleFreeListPlugin_early_setup_freeList_io_free_1_enable;
-  reg        [5:0]    SimpleFreeListPlugin_early_setup_freeList_io_free_1_physReg;
+  wire                SimpleFreeListPlugin_early_setup_freeList_io_free_1_enable;
   reg                 SimpleFreeListPlugin_early_setup_freeList_io_recover;
   wire                oneShot_12_io_triggerIn;
   wire                oneShot_13_io_triggerIn;
@@ -228,6 +228,7 @@ module CoreNSCSCC (
   wire                FetchPipelinePlugin_logic_sequencer_io_newRequest_valid;
   wire       [31:0]   FetchPipelinePlugin_logic_sequencer_io_newRequest_payload_pc;
   wire                FetchPipelinePlugin_logic_sequencer_io_flush;
+  wire       [3:0]    CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_cmd_payload_id;
   wire                CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_ready;
   wire       [3:0]    io_axiOut_readOnly_decoder_io_outputs_0_r_payload_id;
   wire       [3:0]    io_axiOut_readOnly_decoder_io_outputs_1_r_payload_id;
@@ -275,7 +276,7 @@ module CoreNSCSCC (
   wire       [31:0]   AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_data;
   wire       [5:0]    AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_physDest_idx;
   wire                AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_writesToPhysReg;
-  wire       [3:0]    AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_robPtr;
+  wire       [2:0]    AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_robPtr;
   wire                AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_hasException;
   wire       [0:0]    AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_exceptionCode;
   wire                CoreMemSysPlugin_hw_baseramCtrl_io_axi_ar_ready;
@@ -328,7 +329,7 @@ module CoreNSCSCC (
   wire                FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_pop_payload_bpuPrediction_wasPredicted;
   wire       [4:0]    FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_occupancy;
   wire       [4:0]    FetchPipelinePlugin_setup_fetchOutputRawBuffer_io_availability;
-  wire       [3:0]    ROBPlugin_robComponent_io_allocate_0_robPtr;
+  wire       [2:0]    ROBPlugin_robComponent_io_allocate_0_robPtr;
   wire                ROBPlugin_robComponent_io_allocate_0_ready;
   wire                ROBPlugin_robComponent_io_canAllocate_0;
   wire                ROBPlugin_robComponent_io_commit_0_valid;
@@ -421,7 +422,7 @@ module CoreNSCSCC (
   wire                ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDestIsFpr;
   wire                ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_allocatesPhysDest;
   wire                ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_writesToPhysReg;
-  wire       [3:0]    ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr;
+  wire       [2:0]    ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr;
   wire       [15:0]   ROBPlugin_robComponent_io_commit_0_entry_payload_uop_uniqueId;
   wire                ROBPlugin_robComponent_io_commit_0_entry_payload_uop_dispatched;
   wire                ROBPlugin_robComponent_io_commit_0_entry_payload_uop_executed;
@@ -440,9 +441,9 @@ module CoreNSCSCC (
   wire                ROBPlugin_robComponent_io_commit_0_entry_status_genBit;
   wire                ROBPlugin_robComponent_io_flushed;
   wire                ROBPlugin_robComponent_io_empty;
-  wire       [3:0]    ROBPlugin_robComponent_io_headPtrOut;
-  wire       [3:0]    ROBPlugin_robComponent_io_tailPtrOut;
-  wire       [3:0]    ROBPlugin_robComponent_io_countOut;
+  wire       [2:0]    ROBPlugin_robComponent_io_headPtrOut;
+  wire       [2:0]    ROBPlugin_robComponent_io_tailPtrOut;
+  wire       [2:0]    ROBPlugin_robComponent_io_countOut;
   wire       [5:0]    RenameMapTablePlugin_early_setup_rat_io_readPorts_0_physReg;
   wire       [5:0]    RenameMapTablePlugin_early_setup_rat_io_readPorts_1_physReg;
   wire       [5:0]    RenameMapTablePlugin_early_setup_rat_io_readPorts_2_physReg;
@@ -576,7 +577,7 @@ module CoreNSCSCC (
   wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_oldPhysDestIsFpr;
   wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_allocatesPhysDest;
   wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_writesToPhysReg;
-  wire       [3:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_robPtr;
+  wire       [2:0]    RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_robPtr;
   wire       [15:0]   RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_uniqueId;
   wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_dispatched;
   wire                RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_executed;
@@ -597,7 +598,7 @@ module CoreNSCSCC (
   wire                streamArbiter_8_io_output_valid;
   wire       [5:0]    streamArbiter_8_io_output_payload_physRegIdx;
   wire       [31:0]   streamArbiter_8_io_output_payload_physRegData;
-  wire       [3:0]    streamArbiter_8_io_output_payload_robPtr;
+  wire       [2:0]    streamArbiter_8_io_output_payload_robPtr;
   wire                streamArbiter_8_io_output_payload_isFPR;
   wire                streamArbiter_8_io_output_payload_hasException;
   wire       [7:0]    streamArbiter_8_io_output_payload_exceptionCode;
@@ -685,7 +686,7 @@ module CoreNSCSCC (
   wire                lA32RSimpleDecoder_1_io_decodedUop_branchPrediction_wasPredicted;
   wire                issueQueueComponent_3_io_allocateIn_ready;
   wire                issueQueueComponent_3_io_issueOut_valid;
-  wire       [3:0]    issueQueueComponent_3_io_issueOut_payload_robPtr;
+  wire       [2:0]    issueQueueComponent_3_io_issueOut_payload_robPtr;
   wire       [31:0]   issueQueueComponent_3_io_issueOut_payload_pc;
   wire       [5:0]    issueQueueComponent_3_io_issueOut_payload_physDest_idx;
   wire                issueQueueComponent_3_io_issueOut_payload_physDestIsFpr;
@@ -804,13 +805,13 @@ module CoreNSCSCC (
   wire                issueQueueComponent_4_io_issueOut_payload_uop_rename_oldPhysDestIsFpr;
   wire                issueQueueComponent_4_io_issueOut_payload_uop_rename_allocatesPhysDest;
   wire                issueQueueComponent_4_io_issueOut_payload_uop_rename_writesToPhysReg;
-  wire       [3:0]    issueQueueComponent_4_io_issueOut_payload_uop_robPtr;
+  wire       [2:0]    issueQueueComponent_4_io_issueOut_payload_uop_robPtr;
   wire       [15:0]   issueQueueComponent_4_io_issueOut_payload_uop_uniqueId;
   wire                issueQueueComponent_4_io_issueOut_payload_uop_dispatched;
   wire                issueQueueComponent_4_io_issueOut_payload_uop_executed;
   wire                issueQueueComponent_4_io_issueOut_payload_uop_hasException;
   wire       [7:0]    issueQueueComponent_4_io_issueOut_payload_uop_exceptionCode;
-  wire       [3:0]    issueQueueComponent_4_io_issueOut_payload_robPtr;
+  wire       [2:0]    issueQueueComponent_4_io_issueOut_payload_robPtr;
   wire       [5:0]    issueQueueComponent_4_io_issueOut_payload_physDest_idx;
   wire                issueQueueComponent_4_io_issueOut_payload_physDestIsFpr;
   wire                issueQueueComponent_4_io_issueOut_payload_writesToPhysReg;
@@ -830,7 +831,7 @@ module CoreNSCSCC (
   wire                issueQueueComponent_4_io_issueOut_payload_mulDivCtrl_isWordOp;
   wire                issueQueueComponent_5_io_allocateIn_ready;
   wire                issueQueueComponent_5_io_issueOut_valid;
-  wire       [3:0]    issueQueueComponent_5_io_issueOut_payload_robPtr;
+  wire       [2:0]    issueQueueComponent_5_io_issueOut_payload_robPtr;
   wire       [5:0]    issueQueueComponent_5_io_issueOut_payload_physDest_idx;
   wire                issueQueueComponent_5_io_issueOut_payload_physDestIsFpr;
   wire                issueQueueComponent_5_io_issueOut_payload_writesToPhysReg;
@@ -858,7 +859,7 @@ module CoreNSCSCC (
   wire                issueQueueComponent_5_io_issueOut_payload_branchPrediction_wasPredicted;
   wire                sequentialIssueQueueComponent_1_io_allocateIn_ready;
   wire                sequentialIssueQueueComponent_1_io_issueOut_valid;
-  wire       [3:0]    sequentialIssueQueueComponent_1_io_issueOut_payload_robPtr;
+  wire       [2:0]    sequentialIssueQueueComponent_1_io_issueOut_payload_robPtr;
   wire       [5:0]    sequentialIssueQueueComponent_1_io_issueOut_payload_physDest_idx;
   wire                sequentialIssueQueueComponent_1_io_issueOut_payload_physDestIsFpr;
   wire                sequentialIssueQueueComponent_1_io_issueOut_payload_writesToPhysReg;
@@ -904,7 +905,7 @@ module CoreNSCSCC (
   wire       [31:0]   streamDemux_1_io_outputs_0_payload_immediate;
   wire                streamDemux_1_io_outputs_0_payload_usePc;
   wire       [31:0]   streamDemux_1_io_outputs_0_payload_pc;
-  wire       [3:0]    streamDemux_1_io_outputs_0_payload_robPtr;
+  wire       [2:0]    streamDemux_1_io_outputs_0_payload_robPtr;
   wire                streamDemux_1_io_outputs_0_payload_isLoad;
   wire                streamDemux_1_io_outputs_0_payload_isStore;
   wire       [5:0]    streamDemux_1_io_outputs_0_payload_physDst;
@@ -922,7 +923,7 @@ module CoreNSCSCC (
   wire       [31:0]   streamDemux_1_io_outputs_1_payload_immediate;
   wire                streamDemux_1_io_outputs_1_payload_usePc;
   wire       [31:0]   streamDemux_1_io_outputs_1_payload_pc;
-  wire       [3:0]    streamDemux_1_io_outputs_1_payload_robPtr;
+  wire       [2:0]    streamDemux_1_io_outputs_1_payload_robPtr;
   wire                streamDemux_1_io_outputs_1_payload_isLoad;
   wire                streamDemux_1_io_outputs_1_payload_isStore;
   wire       [5:0]    streamDemux_1_io_outputs_1_payload_physDst;
@@ -942,7 +943,7 @@ module CoreNSCSCC (
   wire       [31:0]   streamFifo_13_io_pop_payload_immediate;
   wire                streamFifo_13_io_pop_payload_usePc;
   wire       [31:0]   streamFifo_13_io_pop_payload_pc;
-  wire       [3:0]    streamFifo_13_io_pop_payload_robPtr;
+  wire       [2:0]    streamFifo_13_io_pop_payload_robPtr;
   wire                streamFifo_13_io_pop_payload_isLoad;
   wire                streamFifo_13_io_pop_payload_isStore;
   wire       [5:0]    streamFifo_13_io_pop_payload_physDst;
@@ -953,7 +954,7 @@ module CoreNSCSCC (
   wire       [1:0]    streamFifo_13_io_availability;
   wire                streamArbiter_9_io_inputs_0_ready;
   wire                streamArbiter_9_io_output_valid;
-  wire       [3:0]    streamArbiter_9_io_output_payload_robPtr;
+  wire       [2:0]    streamArbiter_9_io_output_payload_robPtr;
   wire       [5:0]    streamArbiter_9_io_output_payload_pdest;
   wire       [31:0]   streamArbiter_9_io_output_payload_address;
   wire                streamArbiter_9_io_output_payload_isIO;
@@ -1515,6 +1516,7 @@ module CoreNSCSCC (
   reg        [3:0]    _zz_StoreBufferPlugin_logic_push_logic_entryCount_13;
   wire       [2:0]    _zz_StoreBufferPlugin_logic_push_logic_entryCount_14;
   wire       [1:0]    _zz_StoreBufferPlugin_logic_push_logic_entryCount_15;
+  wire       [3:0]    _zz_StoreBufferPlugin_logic_pop_write_logic_mmioResponseForHead_1;
   wire       [7:0]    _zz_io_triggerIn_20;
   wire       [5:0]    _zz_io_triggerIn_21;
   wire       [7:0]    _zz_when_Debug_l71_10_1;
@@ -1617,7 +1619,7 @@ module CoreNSCSCC (
   wire                s2_Select_isFlushed;
   wire                s3_Result_isFlushed;
   wire                s3_Result_ready;
-  reg        [3:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_robPtr;
+  reg        [2:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_robPtr;
   reg        [5:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_physDest_idx;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_physDestIsFpr;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_writesToPhysReg;
@@ -1651,7 +1653,7 @@ module CoreNSCSCC (
   wire                s2_Select_ready;
   reg        [31:0]   _zz_BranchEU_BranchEuPlugin_euResult_data_1;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_data_2;
-  reg        [3:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_robPtr_1;
+  reg        [2:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_robPtr_1;
   reg        [5:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_physDest_idx_1;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_physDestIsFpr_1;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_writesToPhysReg_1;
@@ -1678,7 +1680,7 @@ module CoreNSCSCC (
   reg        [31:0]   _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_target_1;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_branchPrediction_wasPredicted_1;
   wire                s1_Calc_ready;
-  reg        [3:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_robPtr_2;
+  reg        [2:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_robPtr_2;
   reg        [5:0]    _zz_BranchEU_BranchEuPlugin_euResult_uop_physDest_idx_2;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_physDestIsFpr_2;
   reg                 _zz_BranchEU_BranchEuPlugin_euResult_uop_writesToPhysReg_2;
@@ -1724,31 +1726,31 @@ module CoreNSCSCC (
   wire                mul_s5_Execute_isFlushed;
   wire                mul_s6_Execute_isFlushed;
   wire                mul_s7_Writeback_isFlushed;
-  reg        [3:0]    _zz_MulEU_MulEuPlugin_euResult_uop_robPtr;
+  reg        [2:0]    _zz_MulEU_MulEuPlugin_euResult_uop_robPtr;
   reg        [5:0]    _zz_MulEU_MulEuPlugin_euResult_uop_physDest_idx;
   reg                 _zz_MulEU_MulEuPlugin_euResult_writesToPreg;
   reg                 _zz_5;
   reg                 _zz_6;
   reg                 _zz_7;
-  reg        [3:0]    _zz_MulEU_MulEuPlugin_euResult_uop_robPtr_1;
+  reg        [2:0]    _zz_MulEU_MulEuPlugin_euResult_uop_robPtr_1;
   reg        [5:0]    _zz_MulEU_MulEuPlugin_euResult_uop_physDest_idx_1;
   reg                 _zz_MulEU_MulEuPlugin_euResult_writesToPreg_1;
   reg                 _zz_8;
   reg                 _zz_9;
   reg                 _zz_10;
-  reg        [3:0]    _zz_MulEU_MulEuPlugin_euResult_uop_robPtr_2;
+  reg        [2:0]    _zz_MulEU_MulEuPlugin_euResult_uop_robPtr_2;
   reg        [5:0]    _zz_MulEU_MulEuPlugin_euResult_uop_physDest_idx_2;
   reg                 _zz_MulEU_MulEuPlugin_euResult_writesToPreg_2;
   reg                 _zz_11;
   reg                 _zz_12;
   reg                 _zz_13;
-  reg        [3:0]    _zz_MulEU_MulEuPlugin_euResult_uop_robPtr_3;
+  reg        [2:0]    _zz_MulEU_MulEuPlugin_euResult_uop_robPtr_3;
   reg        [5:0]    _zz_MulEU_MulEuPlugin_euResult_uop_physDest_idx_3;
   reg                 _zz_MulEU_MulEuPlugin_euResult_writesToPreg_3;
   reg                 _zz_14;
   reg                 _zz_15;
   reg                 _zz_16;
-  reg        [3:0]    _zz_MulEU_MulEuPlugin_euResult_uop_robPtr_4;
+  reg        [2:0]    _zz_MulEU_MulEuPlugin_euResult_uop_robPtr_4;
   reg        [5:0]    _zz_MulEU_MulEuPlugin_euResult_uop_physDest_idx_4;
   reg                 _zz_MulEU_MulEuPlugin_euResult_writesToPreg_4;
   reg                 _zz_17;
@@ -1756,7 +1758,7 @@ module CoreNSCSCC (
   reg                 _zz_19;
   wire                mul_s7_Writeback_ready;
   wire                mul_s2_Execute_ready;
-  reg        [3:0]    _zz_MulEU_MulEuPlugin_euResult_uop_robPtr_5;
+  reg        [2:0]    _zz_MulEU_MulEuPlugin_euResult_uop_robPtr_5;
   reg        [5:0]    _zz_MulEU_MulEuPlugin_euResult_uop_physDest_idx_5;
   reg                 _zz_MulEU_MulEuPlugin_euResult_writesToPreg_5;
   reg                 _zz_20;
@@ -1766,7 +1768,7 @@ module CoreNSCSCC (
   wire       [31:0]   _zz_B;
   wire       [31:0]   _zz_A;
   wire                mul_s1_ReadRegs_ready;
-  reg        [3:0]    _zz_MulEU_MulEuPlugin_euResult_uop_robPtr_6;
+  reg        [2:0]    _zz_MulEU_MulEuPlugin_euResult_uop_robPtr_6;
   reg        [5:0]    _zz_MulEU_MulEuPlugin_euResult_uop_physDest_idx_6;
   reg                 _zz_MulEU_MulEuPlugin_euResult_writesToPreg_6;
   reg                 _zz_MulEU_MulEuPlugin_gprReadPorts_0_valid;
@@ -1790,7 +1792,7 @@ module CoreNSCSCC (
   reg                 _zz_AluIntEU_AluIntEuPlugin_euResult_writesToPreg;
   reg                 _zz_AluIntEU_AluIntEuPlugin_euResult_hasException;
   reg        [0:0]    _zz_AluIntEU_AluIntEuPlugin_euResult_exceptionCode;
-  reg        [3:0]    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_robPtr;
+  reg        [2:0]    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_robPtr;
   reg        [31:0]   _zz_AluIntEU_AluIntEuPlugin_euResult_uop_pc;
   reg        [5:0]    _zz_AluIntEU_AluIntEuPlugin_euResult_uop_physDest_idx;
   reg                 _zz_AluIntEU_AluIntEuPlugin_euResult_uop_physDestIsFpr;
@@ -1823,7 +1825,7 @@ module CoreNSCSCC (
   wire       [0:0]    _zz_AluIntEU_AluIntEuPlugin_euResult_exceptionCode_1;
   reg        [31:0]   _zz_io_iqEntryIn_payload_src2Data;
   reg        [31:0]   _zz_io_iqEntryIn_payload_src1Data;
-  reg        [3:0]    _zz_io_iqEntryIn_payload_robPtr;
+  reg        [2:0]    _zz_io_iqEntryIn_payload_robPtr;
   reg        [31:0]   _zz_AluIntEU_AluIntEuPlugin_euResult_uop_pc_1;
   reg        [5:0]    _zz_io_iqEntryIn_payload_physDest_idx;
   reg                 _zz_io_iqEntryIn_payload_physDestIsFpr;
@@ -1853,7 +1855,7 @@ module CoreNSCSCC (
   reg        [31:0]   _zz_io_iqEntryIn_payload_imm;
   reg        [2:0]    _zz_io_iqEntryIn_payload_immUsage;
   wire                s1_ReadRegs_ready;
-  reg        [3:0]    _zz_io_iqEntryIn_payload_robPtr_1;
+  reg        [2:0]    _zz_io_iqEntryIn_payload_robPtr_1;
   reg        [31:0]   _zz_AluIntEU_AluIntEuPlugin_euResult_uop_pc_2;
   reg        [5:0]    _zz_io_iqEntryIn_payload_physDest_idx_1;
   reg                 _zz_io_iqEntryIn_payload_physDestIsFpr_1;
@@ -1975,7 +1977,7 @@ module CoreNSCSCC (
   wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_oldPhysDestIsFpr;
   wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_allocatesPhysDest;
   wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_writesToPhysReg;
-  wire       [3:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_robPtr;
+  wire       [2:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_robPtr;
   wire       [15:0]   s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_uniqueId;
   wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_dispatched;
   wire                s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_executed;
@@ -1983,7 +1985,7 @@ module CoreNSCSCC (
   wire       [7:0]    s2_RobAlloc_IssuePipelineSignals_ALLOCATED_UOPS_0_exceptionCode;
   reg                 _zz_s2_RobAlloc_isFlushingRoot;
   reg                 _zz_s1_Rename_isFlushingRoot;
-  reg                 _zz_s2_RobAlloc_haltRequest_RenamePlugin_l163;
+  reg                 _zz_s2_RobAlloc_haltRequest_RenamePlugin_l172;
   reg        [31:0]   s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_pc;
   reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isValid;
   reg        [4:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_uopCode;
@@ -2072,7 +2074,7 @@ module CoreNSCSCC (
   reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_oldPhysDestIsFpr;
   reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_allocatesPhysDest;
   reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_writesToPhysReg;
-  reg        [3:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_robPtr;
+  reg        [2:0]    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_robPtr;
   reg        [15:0]   s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_uniqueId;
   reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_dispatched;
   reg                 s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_executed;
@@ -2157,6 +2159,7 @@ module CoreNSCSCC (
   reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchPrediction_isTaken;
   reg        [31:0]   s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchPrediction_target;
   reg                 s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_branchPrediction_wasPredicted;
+  reg                 _zz_s1_Rename_haltRequest_RenamePlugin_l74;
   wire                s1_Rename_IssuePipelineSignals_NEEDS_PHYS_REG_0;
   reg        [31:0]   s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_pc;
   reg                 s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_isValid;
@@ -2325,7 +2328,7 @@ module CoreNSCSCC (
   reg                 s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_oldPhysDestIsFpr;
   reg                 s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_allocatesPhysDest;
   reg                 s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_rename_writesToPhysReg;
-  reg        [3:0]    s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_robPtr;
+  reg        [2:0]    s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_robPtr;
   reg        [15:0]   s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_uniqueId;
   reg                 s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_dispatched;
   reg                 s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_executed;
@@ -2430,7 +2433,7 @@ module CoreNSCSCC (
   reg        [31:0]   s0_Decode_IssuePipelineSignals_GROUP_PC_IN;
   reg                 s3_Dispatch_ready;
   reg                 s2_RobAlloc_ready;
-  wire                s1_Rename_ready;
+  reg                 s1_Rename_ready;
   wire                s0_Decode_ready;
   wire                BpuPipelinePlugin_queryPortIn_valid;
   wire       [31:0]   BpuPipelinePlugin_queryPortIn_payload_pc;
@@ -2450,7 +2453,7 @@ module CoreNSCSCC (
   wire       [63:0]   BusyTablePlugin_combinationalBusyBits;
   wire                ROBPlugin_aggregatedFlushSignal_valid;
   wire       [1:0]    ROBPlugin_aggregatedFlushSignal_payload_reason;
-  wire       [3:0]    ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr;
+  wire       [2:0]    ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr;
   reg                 CheckpointManagerPlugin_saveCheckpointTrigger;
   reg                 CheckpointManagerPlugin_restoreCheckpointTrigger;
   wire                CommitPlugin_commitEnableExt;
@@ -2467,14 +2470,14 @@ module CoreNSCSCC (
   wire                CommitPlugin_commitSlotLogs_0_valid;
   wire                CommitPlugin_commitSlotLogs_0_canCommit;
   wire                CommitPlugin_commitSlotLogs_0_doCommit;
-  wire       [3:0]    CommitPlugin_commitSlotLogs_0_robPtr;
+  wire       [2:0]    CommitPlugin_commitSlotLogs_0_robPtr;
   wire       [31:0]   CommitPlugin_commitSlotLogs_0_pc;
   wire       [5:0]    CommitPlugin_commitSlotLogs_0_oldPhysDest;
   wire                CommitPlugin_commitSlotLogs_0_allocatesPhysDest;
   wire                RenamePlugin_doGlobalFlush;
   wire                RobAllocPlugin_doGlobalFlush;
   reg                 AluIntEU_AluIntEuPlugin_euResult_valid;
-  reg        [3:0]    AluIntEU_AluIntEuPlugin_euResult_uop_robPtr;
+  reg        [2:0]    AluIntEU_AluIntEuPlugin_euResult_uop_robPtr;
   reg        [31:0]   AluIntEU_AluIntEuPlugin_euResult_uop_pc;
   reg        [5:0]    AluIntEU_AluIntEuPlugin_euResult_uop_physDest_idx;
   reg                 AluIntEU_AluIntEuPlugin_euResult_uop_physDestIsFpr;
@@ -2604,13 +2607,13 @@ module CoreNSCSCC (
   wire                MulEU_MulEuPlugin_euResult_uop_uop_rename_oldPhysDestIsFpr;
   wire                MulEU_MulEuPlugin_euResult_uop_uop_rename_allocatesPhysDest;
   wire                MulEU_MulEuPlugin_euResult_uop_uop_rename_writesToPhysReg;
-  wire       [3:0]    MulEU_MulEuPlugin_euResult_uop_uop_robPtr;
+  wire       [2:0]    MulEU_MulEuPlugin_euResult_uop_uop_robPtr;
   wire       [15:0]   MulEU_MulEuPlugin_euResult_uop_uop_uniqueId;
   wire                MulEU_MulEuPlugin_euResult_uop_uop_dispatched;
   wire                MulEU_MulEuPlugin_euResult_uop_uop_executed;
   wire                MulEU_MulEuPlugin_euResult_uop_uop_hasException;
   wire       [7:0]    MulEU_MulEuPlugin_euResult_uop_uop_exceptionCode;
-  reg        [3:0]    MulEU_MulEuPlugin_euResult_uop_robPtr;
+  reg        [2:0]    MulEU_MulEuPlugin_euResult_uop_robPtr;
   reg        [5:0]    MulEU_MulEuPlugin_euResult_uop_physDest_idx;
   wire                MulEU_MulEuPlugin_euResult_uop_physDestIsFpr;
   wire                MulEU_MulEuPlugin_euResult_uop_writesToPhysReg;
@@ -2638,7 +2641,7 @@ module CoreNSCSCC (
   reg                 MulEU_MulEuPlugin_euResult_destIsFpr;
   wire       [4:0]    DispatchPlugin_logic_iqRegs_1_0_0;
   reg                 BranchEU_BranchEuPlugin_euResult_valid;
-  reg        [3:0]    BranchEU_BranchEuPlugin_euResult_uop_robPtr;
+  reg        [2:0]    BranchEU_BranchEuPlugin_euResult_uop_robPtr;
   reg        [5:0]    BranchEU_BranchEuPlugin_euResult_uop_physDest_idx;
   reg                 BranchEU_BranchEuPlugin_euResult_uop_physDestIsFpr;
   reg                 BranchEU_BranchEuPlugin_euResult_uop_writesToPhysReg;
@@ -2676,7 +2679,7 @@ module CoreNSCSCC (
   wire       [4:0]    DispatchPlugin_logic_iqRegs_2_0_1;
   wire       [4:0]    DispatchPlugin_logic_iqRegs_2_0_2;
   reg                 LsuEU_LsuEuPlugin_euResult_valid;
-  reg        [3:0]    LsuEU_LsuEuPlugin_euResult_uop_robPtr;
+  reg        [2:0]    LsuEU_LsuEuPlugin_euResult_uop_robPtr;
   reg        [5:0]    LsuEU_LsuEuPlugin_euResult_uop_physDest_idx;
   wire                LsuEU_LsuEuPlugin_euResult_uop_physDestIsFpr;
   reg                 LsuEU_LsuEuPlugin_euResult_uop_writesToPhysReg;
@@ -2765,7 +2768,7 @@ module CoreNSCSCC (
   wire                when_Debug_l71_3;
   reg                 CommitPlugin_hw_robFlushPort_valid;
   reg        [1:0]    CommitPlugin_hw_robFlushPort_payload_reason;
-  reg        [3:0]    CommitPlugin_hw_robFlushPort_payload_targetRobPtr;
+  reg        [2:0]    CommitPlugin_hw_robFlushPort_payload_targetRobPtr;
   reg                 CommitPlugin_hw_redirectPort_valid;
   reg        [31:0]   CommitPlugin_hw_redirectPort_payload;
   reg                 RenamePlugin_setup_btSetBusyPorts_0_valid;
@@ -2784,7 +2787,7 @@ module CoreNSCSCC (
   wire                AluIntEU_AluIntEuPlugin_bypassOutputPort_valid;
   wire       [5:0]    AluIntEU_AluIntEuPlugin_bypassOutputPort_payload_physRegIdx;
   wire       [31:0]   AluIntEU_AluIntEuPlugin_bypassOutputPort_payload_physRegData;
-  wire       [3:0]    AluIntEU_AluIntEuPlugin_bypassOutputPort_payload_robPtr;
+  wire       [2:0]    AluIntEU_AluIntEuPlugin_bypassOutputPort_payload_robPtr;
   wire                AluIntEU_AluIntEuPlugin_bypassOutputPort_payload_isFPR;
   wire                AluIntEU_AluIntEuPlugin_bypassOutputPort_payload_hasException;
   wire       [7:0]    AluIntEU_AluIntEuPlugin_bypassOutputPort_payload_exceptionCode;
@@ -2802,7 +2805,7 @@ module CoreNSCSCC (
   wire                MulEU_MulEuPlugin_bypassOutputPort_valid;
   wire       [5:0]    MulEU_MulEuPlugin_bypassOutputPort_payload_physRegIdx;
   wire       [31:0]   MulEU_MulEuPlugin_bypassOutputPort_payload_physRegData;
-  wire       [3:0]    MulEU_MulEuPlugin_bypassOutputPort_payload_robPtr;
+  wire       [2:0]    MulEU_MulEuPlugin_bypassOutputPort_payload_robPtr;
   wire                MulEU_MulEuPlugin_bypassOutputPort_payload_isFPR;
   wire                MulEU_MulEuPlugin_bypassOutputPort_payload_hasException;
   wire       [7:0]    MulEU_MulEuPlugin_bypassOutputPort_payload_exceptionCode;
@@ -2820,7 +2823,7 @@ module CoreNSCSCC (
   wire                BranchEU_BranchEuPlugin_bypassOutputPort_valid;
   wire       [5:0]    BranchEU_BranchEuPlugin_bypassOutputPort_payload_physRegIdx;
   wire       [31:0]   BranchEU_BranchEuPlugin_bypassOutputPort_payload_physRegData;
-  wire       [3:0]    BranchEU_BranchEuPlugin_bypassOutputPort_payload_robPtr;
+  wire       [2:0]    BranchEU_BranchEuPlugin_bypassOutputPort_payload_robPtr;
   wire                BranchEU_BranchEuPlugin_bypassOutputPort_payload_isFPR;
   wire                BranchEU_BranchEuPlugin_bypassOutputPort_payload_hasException;
   wire       [7:0]    BranchEU_BranchEuPlugin_bypassOutputPort_payload_exceptionCode;
@@ -2832,7 +2835,7 @@ module CoreNSCSCC (
   wire                LsuEU_LsuEuPlugin_bypassOutputPort_valid;
   wire       [5:0]    LsuEU_LsuEuPlugin_bypassOutputPort_payload_physRegIdx;
   wire       [31:0]   LsuEU_LsuEuPlugin_bypassOutputPort_payload_physRegData;
-  wire       [3:0]    LsuEU_LsuEuPlugin_bypassOutputPort_payload_robPtr;
+  wire       [2:0]    LsuEU_LsuEuPlugin_bypassOutputPort_payload_robPtr;
   wire                LsuEU_LsuEuPlugin_bypassOutputPort_payload_isFPR;
   wire                LsuEU_LsuEuPlugin_bypassOutputPort_payload_hasException;
   wire       [7:0]    LsuEU_LsuEuPlugin_bypassOutputPort_payload_exceptionCode;
@@ -2846,7 +2849,7 @@ module CoreNSCSCC (
   wire                LsuEU_LsuEuPlugin_hw_aguPort_input_payload_usePc;
   wire       [31:0]   LsuEU_LsuEuPlugin_hw_aguPort_input_payload_pc;
   wire       [5:0]    LsuEU_LsuEuPlugin_hw_aguPort_input_payload_dataReg;
-  wire       [3:0]    LsuEU_LsuEuPlugin_hw_aguPort_input_payload_robPtr;
+  wire       [2:0]    LsuEU_LsuEuPlugin_hw_aguPort_input_payload_robPtr;
   wire                LsuEU_LsuEuPlugin_hw_aguPort_input_payload_isLoad;
   wire                LsuEU_LsuEuPlugin_hw_aguPort_input_payload_isStore;
   wire                LsuEU_LsuEuPlugin_hw_aguPort_input_payload_isFlush;
@@ -2864,7 +2867,7 @@ module CoreNSCSCC (
   wire       [31:0]   LsuEU_LsuEuPlugin_hw_aguPort_output_payload_immediate;
   wire                LsuEU_LsuEuPlugin_hw_aguPort_output_payload_usePc;
   wire       [31:0]   LsuEU_LsuEuPlugin_hw_aguPort_output_payload_pc;
-  wire       [3:0]    LsuEU_LsuEuPlugin_hw_aguPort_output_payload_robPtr;
+  wire       [2:0]    LsuEU_LsuEuPlugin_hw_aguPort_output_payload_robPtr;
   wire                LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isLoad;
   wire                LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isStore;
   wire       [5:0]    LsuEU_LsuEuPlugin_hw_aguPort_output_payload_physDst;
@@ -2877,7 +2880,7 @@ module CoreNSCSCC (
   wire       [31:0]   StoreBufferPlugin_hw_pushPortInst_payload_addr;
   wire       [31:0]   StoreBufferPlugin_hw_pushPortInst_payload_data;
   wire       [3:0]    StoreBufferPlugin_hw_pushPortInst_payload_be;
-  wire       [3:0]    StoreBufferPlugin_hw_pushPortInst_payload_robPtr;
+  wire       [2:0]    StoreBufferPlugin_hw_pushPortInst_payload_robPtr;
   wire       [1:0]    StoreBufferPlugin_hw_pushPortInst_payload_accessSize;
   wire                StoreBufferPlugin_hw_pushPortInst_payload_isFlush;
   wire                StoreBufferPlugin_hw_pushPortInst_payload_isIO;
@@ -2890,7 +2893,7 @@ module CoreNSCSCC (
   wire       [31:0]   StoreBufferPlugin_hw_bypassDataOutInst_payload_data;
   wire       [3:0]    StoreBufferPlugin_hw_bypassDataOutInst_payload_hitMask;
   wire                StoreBufferPlugin_hw_sqQueryPort_cmd_valid;
-  wire       [3:0]    StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr;
+  wire       [2:0]    StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr;
   wire       [31:0]   StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address;
   wire       [1:0]    StoreBufferPlugin_hw_sqQueryPort_cmd_payload_size;
   wire                StoreBufferPlugin_hw_sqQueryPort_rsp_hit;
@@ -2924,7 +2927,7 @@ module CoreNSCSCC (
   wire       [31:0]   LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp;
   wire                LsuEU_LsuEuPlugin_hw_lqPushPort_valid;
   wire                LsuEU_LsuEuPlugin_hw_lqPushPort_ready;
-  wire       [3:0]    LsuEU_LsuEuPlugin_hw_lqPushPort_payload_robPtr;
+  wire       [2:0]    LsuEU_LsuEuPlugin_hw_lqPushPort_payload_robPtr;
   wire       [5:0]    LsuEU_LsuEuPlugin_hw_lqPushPort_payload_pdest;
   wire       [31:0]   LsuEU_LsuEuPlugin_hw_lqPushPort_payload_address;
   wire                LsuEU_LsuEuPlugin_hw_lqPushPort_payload_isIO;
@@ -2946,7 +2949,7 @@ module CoreNSCSCC (
   wire                AluIntEU_AluIntEuPlugin_bypassOutputPort_toStream_ready;
   wire       [5:0]    AluIntEU_AluIntEuPlugin_bypassOutputPort_toStream_payload_physRegIdx;
   wire       [31:0]   AluIntEU_AluIntEuPlugin_bypassOutputPort_toStream_payload_physRegData;
-  wire       [3:0]    AluIntEU_AluIntEuPlugin_bypassOutputPort_toStream_payload_robPtr;
+  wire       [2:0]    AluIntEU_AluIntEuPlugin_bypassOutputPort_toStream_payload_robPtr;
   wire                AluIntEU_AluIntEuPlugin_bypassOutputPort_toStream_payload_isFPR;
   wire                AluIntEU_AluIntEuPlugin_bypassOutputPort_toStream_payload_hasException;
   wire       [7:0]    AluIntEU_AluIntEuPlugin_bypassOutputPort_toStream_payload_exceptionCode;
@@ -2954,7 +2957,7 @@ module CoreNSCSCC (
   wire                MulEU_MulEuPlugin_bypassOutputPort_toStream_ready;
   wire       [5:0]    MulEU_MulEuPlugin_bypassOutputPort_toStream_payload_physRegIdx;
   wire       [31:0]   MulEU_MulEuPlugin_bypassOutputPort_toStream_payload_physRegData;
-  wire       [3:0]    MulEU_MulEuPlugin_bypassOutputPort_toStream_payload_robPtr;
+  wire       [2:0]    MulEU_MulEuPlugin_bypassOutputPort_toStream_payload_robPtr;
   wire                MulEU_MulEuPlugin_bypassOutputPort_toStream_payload_isFPR;
   wire                MulEU_MulEuPlugin_bypassOutputPort_toStream_payload_hasException;
   wire       [7:0]    MulEU_MulEuPlugin_bypassOutputPort_toStream_payload_exceptionCode;
@@ -2962,7 +2965,7 @@ module CoreNSCSCC (
   wire                BranchEU_BranchEuPlugin_bypassOutputPort_toStream_ready;
   wire       [5:0]    BranchEU_BranchEuPlugin_bypassOutputPort_toStream_payload_physRegIdx;
   wire       [31:0]   BranchEU_BranchEuPlugin_bypassOutputPort_toStream_payload_physRegData;
-  wire       [3:0]    BranchEU_BranchEuPlugin_bypassOutputPort_toStream_payload_robPtr;
+  wire       [2:0]    BranchEU_BranchEuPlugin_bypassOutputPort_toStream_payload_robPtr;
   wire                BranchEU_BranchEuPlugin_bypassOutputPort_toStream_payload_isFPR;
   wire                BranchEU_BranchEuPlugin_bypassOutputPort_toStream_payload_hasException;
   wire       [7:0]    BranchEU_BranchEuPlugin_bypassOutputPort_toStream_payload_exceptionCode;
@@ -2970,14 +2973,14 @@ module CoreNSCSCC (
   wire                io_output_combStage_ready;
   wire       [5:0]    io_output_combStage_payload_physRegIdx;
   wire       [31:0]   io_output_combStage_payload_physRegData;
-  wire       [3:0]    io_output_combStage_payload_robPtr;
+  wire       [2:0]    io_output_combStage_payload_robPtr;
   wire                io_output_combStage_payload_isFPR;
   wire                io_output_combStage_payload_hasException;
   wire       [7:0]    io_output_combStage_payload_exceptionCode;
   wire                AguPlugin_logic_bypassFlow_valid;
   wire       [5:0]    AguPlugin_logic_bypassFlow_payload_physRegIdx;
   wire       [31:0]   AguPlugin_logic_bypassFlow_payload_physRegData;
-  wire       [3:0]    AguPlugin_logic_bypassFlow_payload_robPtr;
+  wire       [2:0]    AguPlugin_logic_bypassFlow_payload_robPtr;
   wire                AguPlugin_logic_bypassFlow_payload_isFPR;
   wire                AguPlugin_logic_bypassFlow_payload_hasException;
   wire       [7:0]    AguPlugin_logic_bypassFlow_payload_exceptionCode;
@@ -3054,8 +3057,8 @@ module CoreNSCSCC (
   reg        [31:0]   CommitPlugin_logic_hardRedirectTarget;
   wire                CommitPlugin_logic_s0_headIsDone;
   reg                 CommitPlugin_logic_s0_commitAckMasks_0;
-  wire                when_CommitPlugin_l231;
-  wire                when_CommitPlugin_l275;
+  wire                when_CommitPlugin_l232;
+  wire                when_CommitPlugin_l276;
   wire       [0:0]    CommitPlugin_logic_s0_committedThisCycle_comb;
   wire       [1:0]    CommitPlugin_logic_s0_recycledThisCycle_comb;
   wire       [31:0]   CommitPlugin_logic_s0_commitPcs_0;
@@ -3067,7 +3070,7 @@ module CoreNSCSCC (
   reg        [31:0]   CommitPlugin_logic_s1_s1_maxCommitPcThisCycle;
   reg                 CommitPlugin_logic_s1_s1_anyCommitOOB;
   wire                CommitPlugin_logic_s1_s1_hasCommitsThisCycle;
-  wire                when_CommitPlugin_l348;
+  wire                when_CommitPlugin_l349;
   wire       [4:0]    _zz_when_Debug_l71_5;
   wire                when_Debug_l71_4;
   wire       [7:0]    _zz_28;
@@ -3205,6 +3208,8 @@ module CoreNSCSCC (
   wire                _zz_50;
   wire                _zz_51;
   wire                _zz_52;
+  reg                 RenamePlugin_logic_needRetryReg;
+  wire                s1_Rename_haltRequest_RenamePlugin_l74;
   reg        [31:0]   RenamePlugin_logic_s2_logic_renameUnitInputUops_0_pc;
   reg                 RenamePlugin_logic_s2_logic_renameUnitInputUops_0_isValid;
   reg        [4:0]    RenamePlugin_logic_s2_logic_renameUnitInputUops_0_uopCode;
@@ -3286,11 +3291,10 @@ module CoreNSCSCC (
   reg        [5:0]    RenamePlugin_logic_s2_logic_renameUnitPhysRegs_0;
   reg                 RenamePlugin_doGlobalFlush_regNext;
   wire                RenamePlugin_logic_s2_logic_allocationOk;
-  wire                when_RenamePlugin_l124;
   reg                 RenamePlugin_doGlobalFlush_regNext_1;
   reg                 RenamePlugin_doGlobalFlush_regNext_2;
-  wire                when_RenamePlugin_l159;
-  wire                s2_RobAlloc_haltRequest_RenamePlugin_l163;
+  wire                when_RenamePlugin_l167;
+  wire                s2_RobAlloc_haltRequest_RenamePlugin_l172;
   wire                s2_RobAlloc_haltRequest_RobAllocPlugin_l30;
   wire       [31:0]   RobAllocPlugin_logic_allocatedUops_0_decoded_pc;
   wire                RobAllocPlugin_logic_allocatedUops_0_decoded_isValid;
@@ -3380,7 +3384,7 @@ module CoreNSCSCC (
   wire                RobAllocPlugin_logic_allocatedUops_0_rename_oldPhysDestIsFpr;
   wire                RobAllocPlugin_logic_allocatedUops_0_rename_allocatesPhysDest;
   wire                RobAllocPlugin_logic_allocatedUops_0_rename_writesToPhysReg;
-  wire       [3:0]    RobAllocPlugin_logic_allocatedUops_0_robPtr;
+  wire       [2:0]    RobAllocPlugin_logic_allocatedUops_0_robPtr;
   wire       [15:0]   RobAllocPlugin_logic_allocatedUops_0_uniqueId;
   wire                RobAllocPlugin_logic_allocatedUops_0_dispatched;
   wire                RobAllocPlugin_logic_allocatedUops_0_executed;
@@ -3476,7 +3480,7 @@ module CoreNSCSCC (
   reg                 DispatchPlugin_logic_iqRegs_0_1_payload_uop_rename_oldPhysDestIsFpr;
   reg                 DispatchPlugin_logic_iqRegs_0_1_payload_uop_rename_allocatesPhysDest;
   reg                 DispatchPlugin_logic_iqRegs_0_1_payload_uop_rename_writesToPhysReg;
-  reg        [3:0]    DispatchPlugin_logic_iqRegs_0_1_payload_uop_robPtr;
+  reg        [2:0]    DispatchPlugin_logic_iqRegs_0_1_payload_uop_robPtr;
   reg        [15:0]   DispatchPlugin_logic_iqRegs_0_1_payload_uop_uniqueId;
   reg                 DispatchPlugin_logic_iqRegs_0_1_payload_uop_dispatched;
   reg                 DispatchPlugin_logic_iqRegs_0_1_payload_uop_executed;
@@ -3574,7 +3578,7 @@ module CoreNSCSCC (
   reg                 DispatchPlugin_logic_iqRegs_1_1_payload_uop_rename_oldPhysDestIsFpr;
   reg                 DispatchPlugin_logic_iqRegs_1_1_payload_uop_rename_allocatesPhysDest;
   reg                 DispatchPlugin_logic_iqRegs_1_1_payload_uop_rename_writesToPhysReg;
-  reg        [3:0]    DispatchPlugin_logic_iqRegs_1_1_payload_uop_robPtr;
+  reg        [2:0]    DispatchPlugin_logic_iqRegs_1_1_payload_uop_robPtr;
   reg        [15:0]   DispatchPlugin_logic_iqRegs_1_1_payload_uop_uniqueId;
   reg                 DispatchPlugin_logic_iqRegs_1_1_payload_uop_dispatched;
   reg                 DispatchPlugin_logic_iqRegs_1_1_payload_uop_executed;
@@ -3672,7 +3676,7 @@ module CoreNSCSCC (
   reg                 DispatchPlugin_logic_iqRegs_2_1_payload_uop_rename_oldPhysDestIsFpr;
   reg                 DispatchPlugin_logic_iqRegs_2_1_payload_uop_rename_allocatesPhysDest;
   reg                 DispatchPlugin_logic_iqRegs_2_1_payload_uop_rename_writesToPhysReg;
-  reg        [3:0]    DispatchPlugin_logic_iqRegs_2_1_payload_uop_robPtr;
+  reg        [2:0]    DispatchPlugin_logic_iqRegs_2_1_payload_uop_robPtr;
   reg        [15:0]   DispatchPlugin_logic_iqRegs_2_1_payload_uop_uniqueId;
   reg                 DispatchPlugin_logic_iqRegs_2_1_payload_uop_dispatched;
   reg                 DispatchPlugin_logic_iqRegs_2_1_payload_uop_executed;
@@ -3770,7 +3774,7 @@ module CoreNSCSCC (
   reg                 DispatchPlugin_logic_iqRegs_3_1_payload_uop_rename_oldPhysDestIsFpr;
   reg                 DispatchPlugin_logic_iqRegs_3_1_payload_uop_rename_allocatesPhysDest;
   reg                 DispatchPlugin_logic_iqRegs_3_1_payload_uop_rename_writesToPhysReg;
-  reg        [3:0]    DispatchPlugin_logic_iqRegs_3_1_payload_uop_robPtr;
+  reg        [2:0]    DispatchPlugin_logic_iqRegs_3_1_payload_uop_robPtr;
   reg        [15:0]   DispatchPlugin_logic_iqRegs_3_1_payload_uop_uniqueId;
   reg                 DispatchPlugin_logic_iqRegs_3_1_payload_uop_dispatched;
   reg                 DispatchPlugin_logic_iqRegs_3_1_payload_uop_executed;
@@ -3780,7 +3784,7 @@ module CoreNSCSCC (
   reg                 DispatchPlugin_logic_iqRegs_3_1_payload_src2InitialReady;
   wire                AluIntEU_AluIntEuPlugin_euInputPort_valid;
   wire                AluIntEU_AluIntEuPlugin_euInputPort_ready;
-  wire       [3:0]    AluIntEU_AluIntEuPlugin_euInputPort_payload_robPtr;
+  wire       [2:0]    AluIntEU_AluIntEuPlugin_euInputPort_payload_robPtr;
   wire       [31:0]   AluIntEU_AluIntEuPlugin_euInputPort_payload_pc;
   wire       [5:0]    AluIntEU_AluIntEuPlugin_euInputPort_payload_physDest_idx;
   wire                AluIntEU_AluIntEuPlugin_euInputPort_payload_physDestIsFpr;
@@ -3900,13 +3904,13 @@ module CoreNSCSCC (
   wire                MulEU_MulEuPlugin_euInputPort_payload_uop_rename_oldPhysDestIsFpr;
   wire                MulEU_MulEuPlugin_euInputPort_payload_uop_rename_allocatesPhysDest;
   wire                MulEU_MulEuPlugin_euInputPort_payload_uop_rename_writesToPhysReg;
-  wire       [3:0]    MulEU_MulEuPlugin_euInputPort_payload_uop_robPtr;
+  wire       [2:0]    MulEU_MulEuPlugin_euInputPort_payload_uop_robPtr;
   wire       [15:0]   MulEU_MulEuPlugin_euInputPort_payload_uop_uniqueId;
   wire                MulEU_MulEuPlugin_euInputPort_payload_uop_dispatched;
   wire                MulEU_MulEuPlugin_euInputPort_payload_uop_executed;
   wire                MulEU_MulEuPlugin_euInputPort_payload_uop_hasException;
   wire       [7:0]    MulEU_MulEuPlugin_euInputPort_payload_uop_exceptionCode;
-  wire       [3:0]    MulEU_MulEuPlugin_euInputPort_payload_robPtr;
+  wire       [2:0]    MulEU_MulEuPlugin_euInputPort_payload_robPtr;
   wire       [5:0]    MulEU_MulEuPlugin_euInputPort_payload_physDest_idx;
   wire                MulEU_MulEuPlugin_euInputPort_payload_physDestIsFpr;
   wire                MulEU_MulEuPlugin_euInputPort_payload_writesToPhysReg;
@@ -3927,7 +3931,7 @@ module CoreNSCSCC (
   wire                MulEU_MulEuPlugin_euInputPort_fire;
   wire                BranchEU_BranchEuPlugin_euInputPort_valid;
   wire                BranchEU_BranchEuPlugin_euInputPort_ready;
-  wire       [3:0]    BranchEU_BranchEuPlugin_euInputPort_payload_robPtr;
+  wire       [2:0]    BranchEU_BranchEuPlugin_euInputPort_payload_robPtr;
   wire       [5:0]    BranchEU_BranchEuPlugin_euInputPort_payload_physDest_idx;
   wire                BranchEU_BranchEuPlugin_euInputPort_payload_physDestIsFpr;
   wire                BranchEU_BranchEuPlugin_euInputPort_payload_writesToPhysReg;
@@ -3956,7 +3960,7 @@ module CoreNSCSCC (
   wire                BranchEU_BranchEuPlugin_euInputPort_fire;
   wire                LsuEU_LsuEuPlugin_euInputPort_valid;
   wire                LsuEU_LsuEuPlugin_euInputPort_ready;
-  wire       [3:0]    LsuEU_LsuEuPlugin_euInputPort_payload_robPtr;
+  wire       [2:0]    LsuEU_LsuEuPlugin_euInputPort_payload_robPtr;
   wire       [5:0]    LsuEU_LsuEuPlugin_euInputPort_payload_physDest_idx;
   wire                LsuEU_LsuEuPlugin_euInputPort_payload_physDestIsFpr;
   wire                LsuEU_LsuEuPlugin_euInputPort_payload_writesToPhysReg;
@@ -4104,7 +4108,7 @@ module CoreNSCSCC (
   wire                LsuEU_LsuEuPlugin_euInputPort_translated_payload_usePc;
   wire       [31:0]   LsuEU_LsuEuPlugin_euInputPort_translated_payload_pc;
   wire       [5:0]    LsuEU_LsuEuPlugin_euInputPort_translated_payload_dataReg;
-  wire       [3:0]    LsuEU_LsuEuPlugin_euInputPort_translated_payload_robPtr;
+  wire       [2:0]    LsuEU_LsuEuPlugin_euInputPort_translated_payload_robPtr;
   wire                LsuEU_LsuEuPlugin_euInputPort_translated_payload_isLoad;
   wire                LsuEU_LsuEuPlugin_euInputPort_translated_payload_isStore;
   wire                LsuEU_LsuEuPlugin_euInputPort_translated_payload_isFlush;
@@ -4122,7 +4126,7 @@ module CoreNSCSCC (
   wire       [31:0]   io_outputs_0_combStage_payload_immediate;
   wire                io_outputs_0_combStage_payload_usePc;
   wire       [31:0]   io_outputs_0_combStage_payload_pc;
-  wire       [3:0]    io_outputs_0_combStage_payload_robPtr;
+  wire       [2:0]    io_outputs_0_combStage_payload_robPtr;
   wire                io_outputs_0_combStage_payload_isLoad;
   wire                io_outputs_0_combStage_payload_isStore;
   wire       [5:0]    io_outputs_0_combStage_payload_physDst;
@@ -4141,7 +4145,7 @@ module CoreNSCSCC (
   wire       [31:0]   io_outputs_1_combStage_payload_immediate;
   wire                io_outputs_1_combStage_payload_usePc;
   wire       [31:0]   io_outputs_1_combStage_payload_pc;
-  wire       [3:0]    io_outputs_1_combStage_payload_robPtr;
+  wire       [2:0]    io_outputs_1_combStage_payload_robPtr;
   wire                io_outputs_1_combStage_payload_isLoad;
   wire                io_outputs_1_combStage_payload_isStore;
   wire       [5:0]    io_outputs_1_combStage_payload_physDst;
@@ -4151,7 +4155,7 @@ module CoreNSCSCC (
   wire       [1:0]    _zz_io_outputs_0_combStage_translated_payload_size;
   wire                io_outputs_0_combStage_translated_valid;
   wire                io_outputs_0_combStage_translated_ready;
-  wire       [3:0]    io_outputs_0_combStage_translated_payload_robPtr;
+  wire       [2:0]    io_outputs_0_combStage_translated_payload_robPtr;
   wire       [5:0]    io_outputs_0_combStage_translated_payload_pdest;
   wire       [31:0]   io_outputs_0_combStage_translated_payload_address;
   wire                io_outputs_0_combStage_translated_payload_isIO;
@@ -4165,7 +4169,7 @@ module CoreNSCSCC (
   wire       [31:0]   io_outputs_1_combStage_translated_payload_addr;
   wire       [31:0]   io_outputs_1_combStage_translated_payload_data;
   wire       [3:0]    io_outputs_1_combStage_translated_payload_be;
-  wire       [3:0]    io_outputs_1_combStage_translated_payload_robPtr;
+  wire       [2:0]    io_outputs_1_combStage_translated_payload_robPtr;
   wire       [1:0]    io_outputs_1_combStage_translated_payload_accessSize;
   wire                io_outputs_1_combStage_translated_payload_isFlush;
   wire                io_outputs_1_combStage_translated_payload_isIO;
@@ -4188,6 +4192,7 @@ module CoreNSCSCC (
   reg                 s0_Decode_ready_output;
   wire                when_Pipeline_l282;
   wire                when_Pipeline_l282_1;
+  wire                when_Pipeline_l282_2;
   wire                when_Connection_l74;
   wire                when_Connection_l74_1;
   wire                when_Connection_l74_2;
@@ -4201,7 +4206,7 @@ module CoreNSCSCC (
   reg                 _zz_io_push_payload_usePc;
   reg        [31:0]   _zz_io_push_payload_pc;
   reg        [5:0]    _zz_when_AddressGenerationUnit_l224;
-  reg        [3:0]    _zz_io_push_payload_robPtr;
+  reg        [2:0]    _zz_io_push_payload_robPtr;
   reg                 _zz_io_push_payload_isLoad;
   reg                 _zz_when_AddressGenerationUnit_l224_1;
   reg                 _zz_io_push_payload_isFlush;
@@ -4224,7 +4229,7 @@ module CoreNSCSCC (
   wire       [1:0]    _zz_io_push_payload_accessSize;
   wire                LoadQueuePlugin_logic_pushCmd_valid;
   wire                LoadQueuePlugin_logic_pushCmd_ready;
-  wire       [3:0]    LoadQueuePlugin_logic_pushCmd_payload_robPtr;
+  wire       [2:0]    LoadQueuePlugin_logic_pushCmd_payload_robPtr;
   wire       [5:0]    LoadQueuePlugin_logic_pushCmd_payload_pdest;
   wire       [31:0]   LoadQueuePlugin_logic_pushCmd_payload_address;
   wire                LoadQueuePlugin_logic_pushCmd_payload_isIO;
@@ -4235,7 +4240,7 @@ module CoreNSCSCC (
   reg                 LoadQueuePlugin_logic_loadQueue_slots_0_valid;
   reg        [31:0]   LoadQueuePlugin_logic_loadQueue_slots_0_address;
   reg        [1:0]    LoadQueuePlugin_logic_loadQueue_slots_0_size;
-  reg        [3:0]    LoadQueuePlugin_logic_loadQueue_slots_0_robPtr;
+  reg        [2:0]    LoadQueuePlugin_logic_loadQueue_slots_0_robPtr;
   reg        [5:0]    LoadQueuePlugin_logic_loadQueue_slots_0_pdest;
   reg                 LoadQueuePlugin_logic_loadQueue_slots_0_isIO;
   reg                 LoadQueuePlugin_logic_loadQueue_slots_0_isSignedLoad;
@@ -4248,7 +4253,7 @@ module CoreNSCSCC (
   reg                 LoadQueuePlugin_logic_loadQueue_slots_1_valid;
   reg        [31:0]   LoadQueuePlugin_logic_loadQueue_slots_1_address;
   reg        [1:0]    LoadQueuePlugin_logic_loadQueue_slots_1_size;
-  reg        [3:0]    LoadQueuePlugin_logic_loadQueue_slots_1_robPtr;
+  reg        [2:0]    LoadQueuePlugin_logic_loadQueue_slots_1_robPtr;
   reg        [5:0]    LoadQueuePlugin_logic_loadQueue_slots_1_pdest;
   reg                 LoadQueuePlugin_logic_loadQueue_slots_1_isIO;
   reg                 LoadQueuePlugin_logic_loadQueue_slots_1_isSignedLoad;
@@ -4261,7 +4266,7 @@ module CoreNSCSCC (
   reg                 LoadQueuePlugin_logic_loadQueue_slots_2_valid;
   reg        [31:0]   LoadQueuePlugin_logic_loadQueue_slots_2_address;
   reg        [1:0]    LoadQueuePlugin_logic_loadQueue_slots_2_size;
-  reg        [3:0]    LoadQueuePlugin_logic_loadQueue_slots_2_robPtr;
+  reg        [2:0]    LoadQueuePlugin_logic_loadQueue_slots_2_robPtr;
   reg        [5:0]    LoadQueuePlugin_logic_loadQueue_slots_2_pdest;
   reg                 LoadQueuePlugin_logic_loadQueue_slots_2_isIO;
   reg                 LoadQueuePlugin_logic_loadQueue_slots_2_isSignedLoad;
@@ -4274,7 +4279,7 @@ module CoreNSCSCC (
   reg                 LoadQueuePlugin_logic_loadQueue_slots_3_valid;
   reg        [31:0]   LoadQueuePlugin_logic_loadQueue_slots_3_address;
   reg        [1:0]    LoadQueuePlugin_logic_loadQueue_slots_3_size;
-  reg        [3:0]    LoadQueuePlugin_logic_loadQueue_slots_3_robPtr;
+  reg        [2:0]    LoadQueuePlugin_logic_loadQueue_slots_3_robPtr;
   reg        [5:0]    LoadQueuePlugin_logic_loadQueue_slots_3_pdest;
   reg                 LoadQueuePlugin_logic_loadQueue_slots_3_isIO;
   reg                 LoadQueuePlugin_logic_loadQueue_slots_3_isSignedLoad;
@@ -4287,7 +4292,7 @@ module CoreNSCSCC (
   reg                 LoadQueuePlugin_logic_loadQueue_slots_4_valid;
   reg        [31:0]   LoadQueuePlugin_logic_loadQueue_slots_4_address;
   reg        [1:0]    LoadQueuePlugin_logic_loadQueue_slots_4_size;
-  reg        [3:0]    LoadQueuePlugin_logic_loadQueue_slots_4_robPtr;
+  reg        [2:0]    LoadQueuePlugin_logic_loadQueue_slots_4_robPtr;
   reg        [5:0]    LoadQueuePlugin_logic_loadQueue_slots_4_pdest;
   reg                 LoadQueuePlugin_logic_loadQueue_slots_4_isIO;
   reg                 LoadQueuePlugin_logic_loadQueue_slots_4_isSignedLoad;
@@ -4300,7 +4305,7 @@ module CoreNSCSCC (
   reg                 LoadQueuePlugin_logic_loadQueue_slots_5_valid;
   reg        [31:0]   LoadQueuePlugin_logic_loadQueue_slots_5_address;
   reg        [1:0]    LoadQueuePlugin_logic_loadQueue_slots_5_size;
-  reg        [3:0]    LoadQueuePlugin_logic_loadQueue_slots_5_robPtr;
+  reg        [2:0]    LoadQueuePlugin_logic_loadQueue_slots_5_robPtr;
   reg        [5:0]    LoadQueuePlugin_logic_loadQueue_slots_5_pdest;
   reg                 LoadQueuePlugin_logic_loadQueue_slots_5_isIO;
   reg                 LoadQueuePlugin_logic_loadQueue_slots_5_isSignedLoad;
@@ -4313,7 +4318,7 @@ module CoreNSCSCC (
   reg                 LoadQueuePlugin_logic_loadQueue_slots_6_valid;
   reg        [31:0]   LoadQueuePlugin_logic_loadQueue_slots_6_address;
   reg        [1:0]    LoadQueuePlugin_logic_loadQueue_slots_6_size;
-  reg        [3:0]    LoadQueuePlugin_logic_loadQueue_slots_6_robPtr;
+  reg        [2:0]    LoadQueuePlugin_logic_loadQueue_slots_6_robPtr;
   reg        [5:0]    LoadQueuePlugin_logic_loadQueue_slots_6_pdest;
   reg                 LoadQueuePlugin_logic_loadQueue_slots_6_isIO;
   reg                 LoadQueuePlugin_logic_loadQueue_slots_6_isSignedLoad;
@@ -4326,7 +4331,7 @@ module CoreNSCSCC (
   reg                 LoadQueuePlugin_logic_loadQueue_slots_7_valid;
   reg        [31:0]   LoadQueuePlugin_logic_loadQueue_slots_7_address;
   reg        [1:0]    LoadQueuePlugin_logic_loadQueue_slots_7_size;
-  reg        [3:0]    LoadQueuePlugin_logic_loadQueue_slots_7_robPtr;
+  reg        [2:0]    LoadQueuePlugin_logic_loadQueue_slots_7_robPtr;
   reg        [5:0]    LoadQueuePlugin_logic_loadQueue_slots_7_pdest;
   reg                 LoadQueuePlugin_logic_loadQueue_slots_7_isIO;
   reg                 LoadQueuePlugin_logic_loadQueue_slots_7_isSignedLoad;
@@ -4355,7 +4360,7 @@ module CoreNSCSCC (
   reg                 LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_valid;
   reg        [31:0]   LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_address;
   reg        [1:0]    LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_size;
-  reg        [3:0]    LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_robPtr;
+  reg        [2:0]    LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_robPtr;
   reg        [5:0]    LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_pdest;
   reg                 LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isIO;
   reg                 LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_isSignedLoad;
@@ -4368,7 +4373,7 @@ module CoreNSCSCC (
   reg                 LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_valid;
   reg        [31:0]   LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_address;
   reg        [1:0]    LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_size;
-  reg        [3:0]    LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_robPtr;
+  reg        [2:0]    LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_robPtr;
   reg        [5:0]    LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_pdest;
   reg                 LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isIO;
   reg                 LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_isSignedLoad;
@@ -4381,7 +4386,7 @@ module CoreNSCSCC (
   reg                 LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_valid;
   reg        [31:0]   LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_address;
   reg        [1:0]    LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_size;
-  reg        [3:0]    LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_robPtr;
+  reg        [2:0]    LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_robPtr;
   reg        [5:0]    LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_pdest;
   reg                 LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isIO;
   reg                 LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_isSignedLoad;
@@ -4394,7 +4399,7 @@ module CoreNSCSCC (
   reg                 LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_valid;
   reg        [31:0]   LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_address;
   reg        [1:0]    LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_size;
-  reg        [3:0]    LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_robPtr;
+  reg        [2:0]    LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_robPtr;
   reg        [5:0]    LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_pdest;
   reg                 LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isIO;
   reg                 LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_isSignedLoad;
@@ -4407,7 +4412,7 @@ module CoreNSCSCC (
   reg                 LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_4_valid;
   reg        [31:0]   LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_4_address;
   reg        [1:0]    LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_4_size;
-  reg        [3:0]    LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_4_robPtr;
+  reg        [2:0]    LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_4_robPtr;
   reg        [5:0]    LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_4_pdest;
   reg                 LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_4_isIO;
   reg                 LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_4_isSignedLoad;
@@ -4420,7 +4425,7 @@ module CoreNSCSCC (
   reg                 LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_5_valid;
   reg        [31:0]   LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_5_address;
   reg        [1:0]    LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_5_size;
-  reg        [3:0]    LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_5_robPtr;
+  reg        [2:0]    LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_5_robPtr;
   reg        [5:0]    LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_5_pdest;
   reg                 LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_5_isIO;
   reg                 LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_5_isSignedLoad;
@@ -4433,7 +4438,7 @@ module CoreNSCSCC (
   reg                 LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_6_valid;
   reg        [31:0]   LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_6_address;
   reg        [1:0]    LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_6_size;
-  reg        [3:0]    LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_6_robPtr;
+  reg        [2:0]    LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_6_robPtr;
   reg        [5:0]    LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_6_pdest;
   reg                 LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_6_isIO;
   reg                 LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_6_isSignedLoad;
@@ -4446,7 +4451,7 @@ module CoreNSCSCC (
   reg                 LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_7_valid;
   reg        [31:0]   LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_7_address;
   reg        [1:0]    LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_7_size;
-  reg        [3:0]    LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_7_robPtr;
+  reg        [2:0]    LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_7_robPtr;
   reg        [5:0]    LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_7_pdest;
   reg                 LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_7_isIO;
   reg                 LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_7_isSignedLoad;
@@ -4459,7 +4464,7 @@ module CoreNSCSCC (
   reg                 LoadQueuePlugin_logic_loadQueue_slotsNext_0_valid;
   reg        [31:0]   LoadQueuePlugin_logic_loadQueue_slotsNext_0_address;
   reg        [1:0]    LoadQueuePlugin_logic_loadQueue_slotsNext_0_size;
-  reg        [3:0]    LoadQueuePlugin_logic_loadQueue_slotsNext_0_robPtr;
+  reg        [2:0]    LoadQueuePlugin_logic_loadQueue_slotsNext_0_robPtr;
   reg        [5:0]    LoadQueuePlugin_logic_loadQueue_slotsNext_0_pdest;
   reg                 LoadQueuePlugin_logic_loadQueue_slotsNext_0_isIO;
   reg                 LoadQueuePlugin_logic_loadQueue_slotsNext_0_isSignedLoad;
@@ -4472,7 +4477,7 @@ module CoreNSCSCC (
   reg                 LoadQueuePlugin_logic_loadQueue_slotsNext_1_valid;
   reg        [31:0]   LoadQueuePlugin_logic_loadQueue_slotsNext_1_address;
   reg        [1:0]    LoadQueuePlugin_logic_loadQueue_slotsNext_1_size;
-  reg        [3:0]    LoadQueuePlugin_logic_loadQueue_slotsNext_1_robPtr;
+  reg        [2:0]    LoadQueuePlugin_logic_loadQueue_slotsNext_1_robPtr;
   reg        [5:0]    LoadQueuePlugin_logic_loadQueue_slotsNext_1_pdest;
   reg                 LoadQueuePlugin_logic_loadQueue_slotsNext_1_isIO;
   reg                 LoadQueuePlugin_logic_loadQueue_slotsNext_1_isSignedLoad;
@@ -4485,7 +4490,7 @@ module CoreNSCSCC (
   reg                 LoadQueuePlugin_logic_loadQueue_slotsNext_2_valid;
   reg        [31:0]   LoadQueuePlugin_logic_loadQueue_slotsNext_2_address;
   reg        [1:0]    LoadQueuePlugin_logic_loadQueue_slotsNext_2_size;
-  reg        [3:0]    LoadQueuePlugin_logic_loadQueue_slotsNext_2_robPtr;
+  reg        [2:0]    LoadQueuePlugin_logic_loadQueue_slotsNext_2_robPtr;
   reg        [5:0]    LoadQueuePlugin_logic_loadQueue_slotsNext_2_pdest;
   reg                 LoadQueuePlugin_logic_loadQueue_slotsNext_2_isIO;
   reg                 LoadQueuePlugin_logic_loadQueue_slotsNext_2_isSignedLoad;
@@ -4498,7 +4503,7 @@ module CoreNSCSCC (
   reg                 LoadQueuePlugin_logic_loadQueue_slotsNext_3_valid;
   reg        [31:0]   LoadQueuePlugin_logic_loadQueue_slotsNext_3_address;
   reg        [1:0]    LoadQueuePlugin_logic_loadQueue_slotsNext_3_size;
-  reg        [3:0]    LoadQueuePlugin_logic_loadQueue_slotsNext_3_robPtr;
+  reg        [2:0]    LoadQueuePlugin_logic_loadQueue_slotsNext_3_robPtr;
   reg        [5:0]    LoadQueuePlugin_logic_loadQueue_slotsNext_3_pdest;
   reg                 LoadQueuePlugin_logic_loadQueue_slotsNext_3_isIO;
   reg                 LoadQueuePlugin_logic_loadQueue_slotsNext_3_isSignedLoad;
@@ -4511,7 +4516,7 @@ module CoreNSCSCC (
   reg                 LoadQueuePlugin_logic_loadQueue_slotsNext_4_valid;
   reg        [31:0]   LoadQueuePlugin_logic_loadQueue_slotsNext_4_address;
   reg        [1:0]    LoadQueuePlugin_logic_loadQueue_slotsNext_4_size;
-  reg        [3:0]    LoadQueuePlugin_logic_loadQueue_slotsNext_4_robPtr;
+  reg        [2:0]    LoadQueuePlugin_logic_loadQueue_slotsNext_4_robPtr;
   reg        [5:0]    LoadQueuePlugin_logic_loadQueue_slotsNext_4_pdest;
   reg                 LoadQueuePlugin_logic_loadQueue_slotsNext_4_isIO;
   reg                 LoadQueuePlugin_logic_loadQueue_slotsNext_4_isSignedLoad;
@@ -4524,7 +4529,7 @@ module CoreNSCSCC (
   reg                 LoadQueuePlugin_logic_loadQueue_slotsNext_5_valid;
   reg        [31:0]   LoadQueuePlugin_logic_loadQueue_slotsNext_5_address;
   reg        [1:0]    LoadQueuePlugin_logic_loadQueue_slotsNext_5_size;
-  reg        [3:0]    LoadQueuePlugin_logic_loadQueue_slotsNext_5_robPtr;
+  reg        [2:0]    LoadQueuePlugin_logic_loadQueue_slotsNext_5_robPtr;
   reg        [5:0]    LoadQueuePlugin_logic_loadQueue_slotsNext_5_pdest;
   reg                 LoadQueuePlugin_logic_loadQueue_slotsNext_5_isIO;
   reg                 LoadQueuePlugin_logic_loadQueue_slotsNext_5_isSignedLoad;
@@ -4537,7 +4542,7 @@ module CoreNSCSCC (
   reg                 LoadQueuePlugin_logic_loadQueue_slotsNext_6_valid;
   reg        [31:0]   LoadQueuePlugin_logic_loadQueue_slotsNext_6_address;
   reg        [1:0]    LoadQueuePlugin_logic_loadQueue_slotsNext_6_size;
-  reg        [3:0]    LoadQueuePlugin_logic_loadQueue_slotsNext_6_robPtr;
+  reg        [2:0]    LoadQueuePlugin_logic_loadQueue_slotsNext_6_robPtr;
   reg        [5:0]    LoadQueuePlugin_logic_loadQueue_slotsNext_6_pdest;
   reg                 LoadQueuePlugin_logic_loadQueue_slotsNext_6_isIO;
   reg                 LoadQueuePlugin_logic_loadQueue_slotsNext_6_isSignedLoad;
@@ -4550,7 +4555,7 @@ module CoreNSCSCC (
   reg                 LoadQueuePlugin_logic_loadQueue_slotsNext_7_valid;
   reg        [31:0]   LoadQueuePlugin_logic_loadQueue_slotsNext_7_address;
   reg        [1:0]    LoadQueuePlugin_logic_loadQueue_slotsNext_7_size;
-  reg        [3:0]    LoadQueuePlugin_logic_loadQueue_slotsNext_7_robPtr;
+  reg        [2:0]    LoadQueuePlugin_logic_loadQueue_slotsNext_7_robPtr;
   reg        [5:0]    LoadQueuePlugin_logic_loadQueue_slotsNext_7_pdest;
   reg                 LoadQueuePlugin_logic_loadQueue_slotsNext_7_isIO;
   reg                 LoadQueuePlugin_logic_loadQueue_slotsNext_7_isSignedLoad;
@@ -4567,7 +4572,7 @@ module CoreNSCSCC (
   reg                 LoadQueuePlugin_logic_loadQueue_sbQueryRspValid;
   wire                LoadQueuePlugin_logic_loadQueue_flushInProgress;
   reg                 LoadQueuePlugin_logic_loadQueue_registeredFlush_valid;
-  reg        [3:0]    LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr;
+  reg        [2:0]    LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr;
   wire                when_LoadQueuePlugin_l297;
   wire                LoadQueuePlugin_logic_loadQueue_canPush;
   wire       [7:0]    LoadQueuePlugin_logic_loadQueue_availableSlotsMask;
@@ -4591,9 +4596,9 @@ module CoreNSCSCC (
   wire                _zz_62;
   wire                _zz_63;
   wire                _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible;
-  wire       [2:0]    _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_1;
+  wire       [1:0]    _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_1;
   wire                _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_2;
-  wire       [2:0]    _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_3;
+  wire       [1:0]    _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_3;
   wire                LoadQueuePlugin_logic_loadQueue_headIsVisible;
   wire                LoadQueuePlugin_logic_loadQueue_headIsReadyForFwdQuery;
   wire                when_LoadQueuePlugin_l335;
@@ -4610,7 +4615,7 @@ module CoreNSCSCC (
   reg                 LoadQueuePlugin_logic_loadQueue_completingHead_valid;
   reg        [31:0]   LoadQueuePlugin_logic_loadQueue_completingHead_address;
   reg        [1:0]    LoadQueuePlugin_logic_loadQueue_completingHead_size;
-  reg        [3:0]    LoadQueuePlugin_logic_loadQueue_completingHead_robPtr;
+  reg        [2:0]    LoadQueuePlugin_logic_loadQueue_completingHead_robPtr;
   reg        [5:0]    LoadQueuePlugin_logic_loadQueue_completingHead_pdest;
   reg                 LoadQueuePlugin_logic_loadQueue_completingHead_isIO;
   reg                 LoadQueuePlugin_logic_loadQueue_completingHead_isSignedLoad;
@@ -4624,44 +4629,44 @@ module CoreNSCSCC (
   wire                when_LoadQueuePlugin_l513;
   wire                when_LoadQueuePlugin_l528;
   wire                _zz_when_LoadQueuePlugin_l543;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l543_1;
+  wire       [1:0]    _zz_when_LoadQueuePlugin_l543_1;
   wire                _zz_when_LoadQueuePlugin_l543_2;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l543_3;
+  wire       [1:0]    _zz_when_LoadQueuePlugin_l543_3;
   wire                when_LoadQueuePlugin_l543;
   wire                _zz_when_LoadQueuePlugin_l543_4;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l543_5;
+  wire       [1:0]    _zz_when_LoadQueuePlugin_l543_5;
   wire                _zz_when_LoadQueuePlugin_l543_6;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l543_7;
+  wire       [1:0]    _zz_when_LoadQueuePlugin_l543_7;
   wire                when_LoadQueuePlugin_l543_1;
   wire                _zz_when_LoadQueuePlugin_l543_8;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l543_9;
+  wire       [1:0]    _zz_when_LoadQueuePlugin_l543_9;
   wire                _zz_when_LoadQueuePlugin_l543_10;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l543_11;
+  wire       [1:0]    _zz_when_LoadQueuePlugin_l543_11;
   wire                when_LoadQueuePlugin_l543_2;
   wire                _zz_when_LoadQueuePlugin_l543_12;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l543_13;
+  wire       [1:0]    _zz_when_LoadQueuePlugin_l543_13;
   wire                _zz_when_LoadQueuePlugin_l543_14;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l543_15;
+  wire       [1:0]    _zz_when_LoadQueuePlugin_l543_15;
   wire                when_LoadQueuePlugin_l543_3;
   wire                _zz_when_LoadQueuePlugin_l543_16;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l543_17;
+  wire       [1:0]    _zz_when_LoadQueuePlugin_l543_17;
   wire                _zz_when_LoadQueuePlugin_l543_18;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l543_19;
+  wire       [1:0]    _zz_when_LoadQueuePlugin_l543_19;
   wire                when_LoadQueuePlugin_l543_4;
   wire                _zz_when_LoadQueuePlugin_l543_20;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l543_21;
+  wire       [1:0]    _zz_when_LoadQueuePlugin_l543_21;
   wire                _zz_when_LoadQueuePlugin_l543_22;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l543_23;
+  wire       [1:0]    _zz_when_LoadQueuePlugin_l543_23;
   wire                when_LoadQueuePlugin_l543_5;
   wire                _zz_when_LoadQueuePlugin_l543_24;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l543_25;
+  wire       [1:0]    _zz_when_LoadQueuePlugin_l543_25;
   wire                _zz_when_LoadQueuePlugin_l543_26;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l543_27;
+  wire       [1:0]    _zz_when_LoadQueuePlugin_l543_27;
   wire                when_LoadQueuePlugin_l543_6;
   wire                _zz_when_LoadQueuePlugin_l543_28;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l543_29;
+  wire       [1:0]    _zz_when_LoadQueuePlugin_l543_29;
   wire                _zz_when_LoadQueuePlugin_l543_30;
-  wire       [2:0]    _zz_when_LoadQueuePlugin_l543_31;
+  wire       [1:0]    _zz_when_LoadQueuePlugin_l543_31;
   wire                when_LoadQueuePlugin_l543_7;
   reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_0;
   reg        [31:0]   PhysicalRegFilePlugin_logic_regFile_1;
@@ -4741,7 +4746,7 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_storage_slots_0_addr;
   reg        [31:0]   StoreBufferPlugin_logic_storage_slots_0_data;
   reg        [3:0]    StoreBufferPlugin_logic_storage_slots_0_be;
-  reg        [3:0]    StoreBufferPlugin_logic_storage_slots_0_robPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_storage_slots_0_robPtr;
   reg        [1:0]    StoreBufferPlugin_logic_storage_slots_0_accessSize;
   reg                 StoreBufferPlugin_logic_storage_slots_0_isIO;
   reg                 StoreBufferPlugin_logic_storage_slots_0_valid;
@@ -4757,7 +4762,7 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_storage_slots_1_addr;
   reg        [31:0]   StoreBufferPlugin_logic_storage_slots_1_data;
   reg        [3:0]    StoreBufferPlugin_logic_storage_slots_1_be;
-  reg        [3:0]    StoreBufferPlugin_logic_storage_slots_1_robPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_storage_slots_1_robPtr;
   reg        [1:0]    StoreBufferPlugin_logic_storage_slots_1_accessSize;
   reg                 StoreBufferPlugin_logic_storage_slots_1_isIO;
   reg                 StoreBufferPlugin_logic_storage_slots_1_valid;
@@ -4773,7 +4778,7 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_storage_slots_2_addr;
   reg        [31:0]   StoreBufferPlugin_logic_storage_slots_2_data;
   reg        [3:0]    StoreBufferPlugin_logic_storage_slots_2_be;
-  reg        [3:0]    StoreBufferPlugin_logic_storage_slots_2_robPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_storage_slots_2_robPtr;
   reg        [1:0]    StoreBufferPlugin_logic_storage_slots_2_accessSize;
   reg                 StoreBufferPlugin_logic_storage_slots_2_isIO;
   reg                 StoreBufferPlugin_logic_storage_slots_2_valid;
@@ -4789,7 +4794,7 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_storage_slots_3_addr;
   reg        [31:0]   StoreBufferPlugin_logic_storage_slots_3_data;
   reg        [3:0]    StoreBufferPlugin_logic_storage_slots_3_be;
-  reg        [3:0]    StoreBufferPlugin_logic_storage_slots_3_robPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_storage_slots_3_robPtr;
   reg        [1:0]    StoreBufferPlugin_logic_storage_slots_3_accessSize;
   reg                 StoreBufferPlugin_logic_storage_slots_3_isIO;
   reg                 StoreBufferPlugin_logic_storage_slots_3_valid;
@@ -4805,7 +4810,7 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_storage_slots_4_addr;
   reg        [31:0]   StoreBufferPlugin_logic_storage_slots_4_data;
   reg        [3:0]    StoreBufferPlugin_logic_storage_slots_4_be;
-  reg        [3:0]    StoreBufferPlugin_logic_storage_slots_4_robPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_storage_slots_4_robPtr;
   reg        [1:0]    StoreBufferPlugin_logic_storage_slots_4_accessSize;
   reg                 StoreBufferPlugin_logic_storage_slots_4_isIO;
   reg                 StoreBufferPlugin_logic_storage_slots_4_valid;
@@ -4821,7 +4826,7 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_storage_slots_5_addr;
   reg        [31:0]   StoreBufferPlugin_logic_storage_slots_5_data;
   reg        [3:0]    StoreBufferPlugin_logic_storage_slots_5_be;
-  reg        [3:0]    StoreBufferPlugin_logic_storage_slots_5_robPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_storage_slots_5_robPtr;
   reg        [1:0]    StoreBufferPlugin_logic_storage_slots_5_accessSize;
   reg                 StoreBufferPlugin_logic_storage_slots_5_isIO;
   reg                 StoreBufferPlugin_logic_storage_slots_5_valid;
@@ -4837,7 +4842,7 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_storage_slots_6_addr;
   reg        [31:0]   StoreBufferPlugin_logic_storage_slots_6_data;
   reg        [3:0]    StoreBufferPlugin_logic_storage_slots_6_be;
-  reg        [3:0]    StoreBufferPlugin_logic_storage_slots_6_robPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_storage_slots_6_robPtr;
   reg        [1:0]    StoreBufferPlugin_logic_storage_slots_6_accessSize;
   reg                 StoreBufferPlugin_logic_storage_slots_6_isIO;
   reg                 StoreBufferPlugin_logic_storage_slots_6_valid;
@@ -4853,7 +4858,7 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_storage_slots_7_addr;
   reg        [31:0]   StoreBufferPlugin_logic_storage_slots_7_data;
   reg        [3:0]    StoreBufferPlugin_logic_storage_slots_7_be;
-  reg        [3:0]    StoreBufferPlugin_logic_storage_slots_7_robPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_storage_slots_7_robPtr;
   reg        [1:0]    StoreBufferPlugin_logic_storage_slots_7_accessSize;
   reg                 StoreBufferPlugin_logic_storage_slots_7_isIO;
   reg                 StoreBufferPlugin_logic_storage_slots_7_valid;
@@ -4869,7 +4874,7 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_storage_slotsAfterUpdates_0_addr;
   reg        [31:0]   StoreBufferPlugin_logic_storage_slotsAfterUpdates_0_data;
   reg        [3:0]    StoreBufferPlugin_logic_storage_slotsAfterUpdates_0_be;
-  reg        [3:0]    StoreBufferPlugin_logic_storage_slotsAfterUpdates_0_robPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_storage_slotsAfterUpdates_0_robPtr;
   reg        [1:0]    StoreBufferPlugin_logic_storage_slotsAfterUpdates_0_accessSize;
   reg                 StoreBufferPlugin_logic_storage_slotsAfterUpdates_0_isIO;
   reg                 StoreBufferPlugin_logic_storage_slotsAfterUpdates_0_valid;
@@ -4885,7 +4890,7 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_storage_slotsAfterUpdates_1_addr;
   reg        [31:0]   StoreBufferPlugin_logic_storage_slotsAfterUpdates_1_data;
   reg        [3:0]    StoreBufferPlugin_logic_storage_slotsAfterUpdates_1_be;
-  reg        [3:0]    StoreBufferPlugin_logic_storage_slotsAfterUpdates_1_robPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_storage_slotsAfterUpdates_1_robPtr;
   reg        [1:0]    StoreBufferPlugin_logic_storage_slotsAfterUpdates_1_accessSize;
   reg                 StoreBufferPlugin_logic_storage_slotsAfterUpdates_1_isIO;
   reg                 StoreBufferPlugin_logic_storage_slotsAfterUpdates_1_valid;
@@ -4901,7 +4906,7 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_storage_slotsAfterUpdates_2_addr;
   reg        [31:0]   StoreBufferPlugin_logic_storage_slotsAfterUpdates_2_data;
   reg        [3:0]    StoreBufferPlugin_logic_storage_slotsAfterUpdates_2_be;
-  reg        [3:0]    StoreBufferPlugin_logic_storage_slotsAfterUpdates_2_robPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_storage_slotsAfterUpdates_2_robPtr;
   reg        [1:0]    StoreBufferPlugin_logic_storage_slotsAfterUpdates_2_accessSize;
   reg                 StoreBufferPlugin_logic_storage_slotsAfterUpdates_2_isIO;
   reg                 StoreBufferPlugin_logic_storage_slotsAfterUpdates_2_valid;
@@ -4917,7 +4922,7 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_storage_slotsAfterUpdates_3_addr;
   reg        [31:0]   StoreBufferPlugin_logic_storage_slotsAfterUpdates_3_data;
   reg        [3:0]    StoreBufferPlugin_logic_storage_slotsAfterUpdates_3_be;
-  reg        [3:0]    StoreBufferPlugin_logic_storage_slotsAfterUpdates_3_robPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_storage_slotsAfterUpdates_3_robPtr;
   reg        [1:0]    StoreBufferPlugin_logic_storage_slotsAfterUpdates_3_accessSize;
   reg                 StoreBufferPlugin_logic_storage_slotsAfterUpdates_3_isIO;
   reg                 StoreBufferPlugin_logic_storage_slotsAfterUpdates_3_valid;
@@ -4933,7 +4938,7 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_storage_slotsAfterUpdates_4_addr;
   reg        [31:0]   StoreBufferPlugin_logic_storage_slotsAfterUpdates_4_data;
   reg        [3:0]    StoreBufferPlugin_logic_storage_slotsAfterUpdates_4_be;
-  reg        [3:0]    StoreBufferPlugin_logic_storage_slotsAfterUpdates_4_robPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_storage_slotsAfterUpdates_4_robPtr;
   reg        [1:0]    StoreBufferPlugin_logic_storage_slotsAfterUpdates_4_accessSize;
   reg                 StoreBufferPlugin_logic_storage_slotsAfterUpdates_4_isIO;
   reg                 StoreBufferPlugin_logic_storage_slotsAfterUpdates_4_valid;
@@ -4949,7 +4954,7 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_storage_slotsAfterUpdates_5_addr;
   reg        [31:0]   StoreBufferPlugin_logic_storage_slotsAfterUpdates_5_data;
   reg        [3:0]    StoreBufferPlugin_logic_storage_slotsAfterUpdates_5_be;
-  reg        [3:0]    StoreBufferPlugin_logic_storage_slotsAfterUpdates_5_robPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_storage_slotsAfterUpdates_5_robPtr;
   reg        [1:0]    StoreBufferPlugin_logic_storage_slotsAfterUpdates_5_accessSize;
   reg                 StoreBufferPlugin_logic_storage_slotsAfterUpdates_5_isIO;
   reg                 StoreBufferPlugin_logic_storage_slotsAfterUpdates_5_valid;
@@ -4965,7 +4970,7 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_storage_slotsAfterUpdates_6_addr;
   reg        [31:0]   StoreBufferPlugin_logic_storage_slotsAfterUpdates_6_data;
   reg        [3:0]    StoreBufferPlugin_logic_storage_slotsAfterUpdates_6_be;
-  reg        [3:0]    StoreBufferPlugin_logic_storage_slotsAfterUpdates_6_robPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_storage_slotsAfterUpdates_6_robPtr;
   reg        [1:0]    StoreBufferPlugin_logic_storage_slotsAfterUpdates_6_accessSize;
   reg                 StoreBufferPlugin_logic_storage_slotsAfterUpdates_6_isIO;
   reg                 StoreBufferPlugin_logic_storage_slotsAfterUpdates_6_valid;
@@ -4981,7 +4986,7 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_storage_slotsAfterUpdates_7_addr;
   reg        [31:0]   StoreBufferPlugin_logic_storage_slotsAfterUpdates_7_data;
   reg        [3:0]    StoreBufferPlugin_logic_storage_slotsAfterUpdates_7_be;
-  reg        [3:0]    StoreBufferPlugin_logic_storage_slotsAfterUpdates_7_robPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_storage_slotsAfterUpdates_7_robPtr;
   reg        [1:0]    StoreBufferPlugin_logic_storage_slotsAfterUpdates_7_accessSize;
   reg                 StoreBufferPlugin_logic_storage_slotsAfterUpdates_7_isIO;
   reg                 StoreBufferPlugin_logic_storage_slotsAfterUpdates_7_valid;
@@ -4997,7 +5002,7 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_storage_slotsNext_0_addr;
   reg        [31:0]   StoreBufferPlugin_logic_storage_slotsNext_0_data;
   reg        [3:0]    StoreBufferPlugin_logic_storage_slotsNext_0_be;
-  reg        [3:0]    StoreBufferPlugin_logic_storage_slotsNext_0_robPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_storage_slotsNext_0_robPtr;
   reg        [1:0]    StoreBufferPlugin_logic_storage_slotsNext_0_accessSize;
   reg                 StoreBufferPlugin_logic_storage_slotsNext_0_isIO;
   reg                 StoreBufferPlugin_logic_storage_slotsNext_0_valid;
@@ -5013,7 +5018,7 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_storage_slotsNext_1_addr;
   reg        [31:0]   StoreBufferPlugin_logic_storage_slotsNext_1_data;
   reg        [3:0]    StoreBufferPlugin_logic_storage_slotsNext_1_be;
-  reg        [3:0]    StoreBufferPlugin_logic_storage_slotsNext_1_robPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_storage_slotsNext_1_robPtr;
   reg        [1:0]    StoreBufferPlugin_logic_storage_slotsNext_1_accessSize;
   reg                 StoreBufferPlugin_logic_storage_slotsNext_1_isIO;
   reg                 StoreBufferPlugin_logic_storage_slotsNext_1_valid;
@@ -5029,7 +5034,7 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_storage_slotsNext_2_addr;
   reg        [31:0]   StoreBufferPlugin_logic_storage_slotsNext_2_data;
   reg        [3:0]    StoreBufferPlugin_logic_storage_slotsNext_2_be;
-  reg        [3:0]    StoreBufferPlugin_logic_storage_slotsNext_2_robPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_storage_slotsNext_2_robPtr;
   reg        [1:0]    StoreBufferPlugin_logic_storage_slotsNext_2_accessSize;
   reg                 StoreBufferPlugin_logic_storage_slotsNext_2_isIO;
   reg                 StoreBufferPlugin_logic_storage_slotsNext_2_valid;
@@ -5045,7 +5050,7 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_storage_slotsNext_3_addr;
   reg        [31:0]   StoreBufferPlugin_logic_storage_slotsNext_3_data;
   reg        [3:0]    StoreBufferPlugin_logic_storage_slotsNext_3_be;
-  reg        [3:0]    StoreBufferPlugin_logic_storage_slotsNext_3_robPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_storage_slotsNext_3_robPtr;
   reg        [1:0]    StoreBufferPlugin_logic_storage_slotsNext_3_accessSize;
   reg                 StoreBufferPlugin_logic_storage_slotsNext_3_isIO;
   reg                 StoreBufferPlugin_logic_storage_slotsNext_3_valid;
@@ -5061,7 +5066,7 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_storage_slotsNext_4_addr;
   reg        [31:0]   StoreBufferPlugin_logic_storage_slotsNext_4_data;
   reg        [3:0]    StoreBufferPlugin_logic_storage_slotsNext_4_be;
-  reg        [3:0]    StoreBufferPlugin_logic_storage_slotsNext_4_robPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_storage_slotsNext_4_robPtr;
   reg        [1:0]    StoreBufferPlugin_logic_storage_slotsNext_4_accessSize;
   reg                 StoreBufferPlugin_logic_storage_slotsNext_4_isIO;
   reg                 StoreBufferPlugin_logic_storage_slotsNext_4_valid;
@@ -5077,7 +5082,7 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_storage_slotsNext_5_addr;
   reg        [31:0]   StoreBufferPlugin_logic_storage_slotsNext_5_data;
   reg        [3:0]    StoreBufferPlugin_logic_storage_slotsNext_5_be;
-  reg        [3:0]    StoreBufferPlugin_logic_storage_slotsNext_5_robPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_storage_slotsNext_5_robPtr;
   reg        [1:0]    StoreBufferPlugin_logic_storage_slotsNext_5_accessSize;
   reg                 StoreBufferPlugin_logic_storage_slotsNext_5_isIO;
   reg                 StoreBufferPlugin_logic_storage_slotsNext_5_valid;
@@ -5093,7 +5098,7 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_storage_slotsNext_6_addr;
   reg        [31:0]   StoreBufferPlugin_logic_storage_slotsNext_6_data;
   reg        [3:0]    StoreBufferPlugin_logic_storage_slotsNext_6_be;
-  reg        [3:0]    StoreBufferPlugin_logic_storage_slotsNext_6_robPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_storage_slotsNext_6_robPtr;
   reg        [1:0]    StoreBufferPlugin_logic_storage_slotsNext_6_accessSize;
   reg                 StoreBufferPlugin_logic_storage_slotsNext_6_isIO;
   reg                 StoreBufferPlugin_logic_storage_slotsNext_6_valid;
@@ -5109,7 +5114,7 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_storage_slotsNext_7_addr;
   reg        [31:0]   StoreBufferPlugin_logic_storage_slotsNext_7_data;
   reg        [3:0]    StoreBufferPlugin_logic_storage_slotsNext_7_be;
-  reg        [3:0]    StoreBufferPlugin_logic_storage_slotsNext_7_robPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_storage_slotsNext_7_robPtr;
   reg        [1:0]    StoreBufferPlugin_logic_storage_slotsNext_7_accessSize;
   reg                 StoreBufferPlugin_logic_storage_slotsNext_7_isIO;
   reg                 StoreBufferPlugin_logic_storage_slotsNext_7_valid;
@@ -5124,7 +5129,7 @@ module CoreNSCSCC (
   wire                StoreBufferPlugin_logic_rob_interaction_flushInProgressOnCommit;
   reg                 StoreBufferPlugin_logic_rob_interaction_registeredFlush_valid;
   reg        [1:0]    StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_reason;
-  reg        [3:0]    StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr;
   wire       [1:0]    _zz_StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_reason;
   wire       [1:0]    _zz_StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_reason_1;
   wire       [1:0]    _zz_StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_reason_2;
@@ -5137,58 +5142,58 @@ module CoreNSCSCC (
   reg        [7:0]    _zz_StoreBufferPlugin_logic_rob_interaction_commitMatchMask_3;
   wire                when_StoreBufferPlugin_l298;
   wire                _zz_when_StoreBufferPlugin_l312;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l312_1;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l312_1;
   wire                _zz_when_StoreBufferPlugin_l312_2;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l312_3;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l312_3;
   wire                when_StoreBufferPlugin_l312;
   wire                when_StoreBufferPlugin_l317;
   wire                when_StoreBufferPlugin_l315;
   wire                _zz_when_StoreBufferPlugin_l312_4;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l312_5;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l312_5;
   wire                _zz_when_StoreBufferPlugin_l312_6;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l312_7;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l312_7;
   wire                when_StoreBufferPlugin_l312_1;
   wire                when_StoreBufferPlugin_l317_1;
   wire                when_StoreBufferPlugin_l315_1;
   wire                _zz_when_StoreBufferPlugin_l312_8;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l312_9;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l312_9;
   wire                _zz_when_StoreBufferPlugin_l312_10;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l312_11;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l312_11;
   wire                when_StoreBufferPlugin_l312_2;
   wire                when_StoreBufferPlugin_l317_2;
   wire                when_StoreBufferPlugin_l315_2;
   wire                _zz_when_StoreBufferPlugin_l312_12;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l312_13;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l312_13;
   wire                _zz_when_StoreBufferPlugin_l312_14;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l312_15;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l312_15;
   wire                when_StoreBufferPlugin_l312_3;
   wire                when_StoreBufferPlugin_l317_3;
   wire                when_StoreBufferPlugin_l315_3;
   wire                _zz_when_StoreBufferPlugin_l312_16;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l312_17;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l312_17;
   wire                _zz_when_StoreBufferPlugin_l312_18;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l312_19;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l312_19;
   wire                when_StoreBufferPlugin_l312_4;
   wire                when_StoreBufferPlugin_l317_4;
   wire                when_StoreBufferPlugin_l315_4;
   wire                _zz_when_StoreBufferPlugin_l312_20;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l312_21;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l312_21;
   wire                _zz_when_StoreBufferPlugin_l312_22;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l312_23;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l312_23;
   wire                when_StoreBufferPlugin_l312_5;
   wire                when_StoreBufferPlugin_l317_5;
   wire                when_StoreBufferPlugin_l315_5;
   wire                _zz_when_StoreBufferPlugin_l312_24;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l312_25;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l312_25;
   wire                _zz_when_StoreBufferPlugin_l312_26;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l312_27;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l312_27;
   wire                when_StoreBufferPlugin_l312_6;
   wire                when_StoreBufferPlugin_l317_6;
   wire                when_StoreBufferPlugin_l315_6;
   wire                _zz_when_StoreBufferPlugin_l312_28;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l312_29;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l312_29;
   wire                _zz_when_StoreBufferPlugin_l312_30;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l312_31;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l312_31;
   wire                when_StoreBufferPlugin_l312_7;
   wire                when_StoreBufferPlugin_l317_7;
   wire                when_StoreBufferPlugin_l315_7;
@@ -5218,7 +5223,7 @@ module CoreNSCSCC (
   wire       [31:0]   _zz_StoreBufferPlugin_logic_storage_slotsAfterUpdates_0_addr;
   wire       [31:0]   _zz_StoreBufferPlugin_logic_storage_slotsAfterUpdates_0_data;
   wire       [3:0]    _zz_StoreBufferPlugin_logic_storage_slotsAfterUpdates_0_be;
-  wire       [3:0]    _zz_StoreBufferPlugin_logic_storage_slotsAfterUpdates_0_robPtr;
+  wire       [2:0]    _zz_StoreBufferPlugin_logic_storage_slotsAfterUpdates_0_robPtr;
   wire       [1:0]    _zz_StoreBufferPlugin_logic_storage_slotsAfterUpdates_0_accessSize;
   wire                _zz_StoreBufferPlugin_logic_storage_slotsAfterUpdates_0_isIO;
   wire                _zz_StoreBufferPlugin_logic_storage_slotsAfterUpdates_0_hasEarlyException;
@@ -5255,7 +5260,7 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_forwarding_logic_slotsView_0_addr;
   reg        [31:0]   StoreBufferPlugin_logic_forwarding_logic_slotsView_0_data;
   reg        [3:0]    StoreBufferPlugin_logic_forwarding_logic_slotsView_0_be;
-  reg        [3:0]    StoreBufferPlugin_logic_forwarding_logic_slotsView_0_robPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_forwarding_logic_slotsView_0_robPtr;
   reg        [1:0]    StoreBufferPlugin_logic_forwarding_logic_slotsView_0_accessSize;
   reg                 StoreBufferPlugin_logic_forwarding_logic_slotsView_0_isIO;
   reg                 StoreBufferPlugin_logic_forwarding_logic_slotsView_0_valid;
@@ -5271,7 +5276,7 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_forwarding_logic_slotsView_1_addr;
   reg        [31:0]   StoreBufferPlugin_logic_forwarding_logic_slotsView_1_data;
   reg        [3:0]    StoreBufferPlugin_logic_forwarding_logic_slotsView_1_be;
-  reg        [3:0]    StoreBufferPlugin_logic_forwarding_logic_slotsView_1_robPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_forwarding_logic_slotsView_1_robPtr;
   reg        [1:0]    StoreBufferPlugin_logic_forwarding_logic_slotsView_1_accessSize;
   reg                 StoreBufferPlugin_logic_forwarding_logic_slotsView_1_isIO;
   reg                 StoreBufferPlugin_logic_forwarding_logic_slotsView_1_valid;
@@ -5287,7 +5292,7 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_forwarding_logic_slotsView_2_addr;
   reg        [31:0]   StoreBufferPlugin_logic_forwarding_logic_slotsView_2_data;
   reg        [3:0]    StoreBufferPlugin_logic_forwarding_logic_slotsView_2_be;
-  reg        [3:0]    StoreBufferPlugin_logic_forwarding_logic_slotsView_2_robPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_forwarding_logic_slotsView_2_robPtr;
   reg        [1:0]    StoreBufferPlugin_logic_forwarding_logic_slotsView_2_accessSize;
   reg                 StoreBufferPlugin_logic_forwarding_logic_slotsView_2_isIO;
   reg                 StoreBufferPlugin_logic_forwarding_logic_slotsView_2_valid;
@@ -5303,7 +5308,7 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_forwarding_logic_slotsView_3_addr;
   reg        [31:0]   StoreBufferPlugin_logic_forwarding_logic_slotsView_3_data;
   reg        [3:0]    StoreBufferPlugin_logic_forwarding_logic_slotsView_3_be;
-  reg        [3:0]    StoreBufferPlugin_logic_forwarding_logic_slotsView_3_robPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_forwarding_logic_slotsView_3_robPtr;
   reg        [1:0]    StoreBufferPlugin_logic_forwarding_logic_slotsView_3_accessSize;
   reg                 StoreBufferPlugin_logic_forwarding_logic_slotsView_3_isIO;
   reg                 StoreBufferPlugin_logic_forwarding_logic_slotsView_3_valid;
@@ -5319,7 +5324,7 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_forwarding_logic_slotsView_4_addr;
   reg        [31:0]   StoreBufferPlugin_logic_forwarding_logic_slotsView_4_data;
   reg        [3:0]    StoreBufferPlugin_logic_forwarding_logic_slotsView_4_be;
-  reg        [3:0]    StoreBufferPlugin_logic_forwarding_logic_slotsView_4_robPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_forwarding_logic_slotsView_4_robPtr;
   reg        [1:0]    StoreBufferPlugin_logic_forwarding_logic_slotsView_4_accessSize;
   reg                 StoreBufferPlugin_logic_forwarding_logic_slotsView_4_isIO;
   reg                 StoreBufferPlugin_logic_forwarding_logic_slotsView_4_valid;
@@ -5335,7 +5340,7 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_forwarding_logic_slotsView_5_addr;
   reg        [31:0]   StoreBufferPlugin_logic_forwarding_logic_slotsView_5_data;
   reg        [3:0]    StoreBufferPlugin_logic_forwarding_logic_slotsView_5_be;
-  reg        [3:0]    StoreBufferPlugin_logic_forwarding_logic_slotsView_5_robPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_forwarding_logic_slotsView_5_robPtr;
   reg        [1:0]    StoreBufferPlugin_logic_forwarding_logic_slotsView_5_accessSize;
   reg                 StoreBufferPlugin_logic_forwarding_logic_slotsView_5_isIO;
   reg                 StoreBufferPlugin_logic_forwarding_logic_slotsView_5_valid;
@@ -5351,7 +5356,7 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_forwarding_logic_slotsView_6_addr;
   reg        [31:0]   StoreBufferPlugin_logic_forwarding_logic_slotsView_6_data;
   reg        [3:0]    StoreBufferPlugin_logic_forwarding_logic_slotsView_6_be;
-  reg        [3:0]    StoreBufferPlugin_logic_forwarding_logic_slotsView_6_robPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_forwarding_logic_slotsView_6_robPtr;
   reg        [1:0]    StoreBufferPlugin_logic_forwarding_logic_slotsView_6_accessSize;
   reg                 StoreBufferPlugin_logic_forwarding_logic_slotsView_6_isIO;
   reg                 StoreBufferPlugin_logic_forwarding_logic_slotsView_6_valid;
@@ -5367,7 +5372,7 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_forwarding_logic_slotsView_7_addr;
   reg        [31:0]   StoreBufferPlugin_logic_forwarding_logic_slotsView_7_data;
   reg        [3:0]    StoreBufferPlugin_logic_forwarding_logic_slotsView_7_be;
-  reg        [3:0]    StoreBufferPlugin_logic_forwarding_logic_slotsView_7_robPtr;
+  reg        [2:0]    StoreBufferPlugin_logic_forwarding_logic_slotsView_7_robPtr;
   reg        [1:0]    StoreBufferPlugin_logic_forwarding_logic_slotsView_7_accessSize;
   reg                 StoreBufferPlugin_logic_forwarding_logic_slotsView_7_isIO;
   reg                 StoreBufferPlugin_logic_forwarding_logic_slotsView_7_valid;
@@ -5390,9 +5395,9 @@ module CoreNSCSCC (
   reg        [31:0]   _zz_StoreBufferPlugin_logic_forwarding_logic_forwardingResult_data;
   reg        [3:0]    _zz_when_StoreBufferPlugin_l544;
   wire                _zz_when_StoreBufferPlugin_l537;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l537_1;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l537_1;
   wire                _zz_when_StoreBufferPlugin_l537_2;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l537_3;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l537_3;
   wire                when_StoreBufferPlugin_l537;
   wire                when_StoreBufferPlugin_l542;
   wire                when_StoreBufferPlugin_l544;
@@ -5402,9 +5407,9 @@ module CoreNSCSCC (
   reg        [31:0]   _zz_StoreBufferPlugin_logic_forwarding_logic_forwardingResult_data_1;
   reg        [3:0]    _zz_when_StoreBufferPlugin_l544_1;
   wire                _zz_when_StoreBufferPlugin_l537_4;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l537_5;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l537_5;
   wire                _zz_when_StoreBufferPlugin_l537_6;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l537_7;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l537_7;
   wire                when_StoreBufferPlugin_l537_1;
   wire                when_StoreBufferPlugin_l542_1;
   wire                when_StoreBufferPlugin_l544_4;
@@ -5414,9 +5419,9 @@ module CoreNSCSCC (
   reg        [31:0]   _zz_StoreBufferPlugin_logic_forwarding_logic_forwardingResult_data_2;
   reg        [3:0]    _zz_when_StoreBufferPlugin_l544_2;
   wire                _zz_when_StoreBufferPlugin_l537_8;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l537_9;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l537_9;
   wire                _zz_when_StoreBufferPlugin_l537_10;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l537_11;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l537_11;
   wire                when_StoreBufferPlugin_l537_2;
   wire                when_StoreBufferPlugin_l542_2;
   wire                when_StoreBufferPlugin_l544_8;
@@ -5426,9 +5431,9 @@ module CoreNSCSCC (
   reg        [31:0]   _zz_StoreBufferPlugin_logic_forwarding_logic_forwardingResult_data_3;
   reg        [3:0]    _zz_when_StoreBufferPlugin_l544_3;
   wire                _zz_when_StoreBufferPlugin_l537_12;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l537_13;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l537_13;
   wire                _zz_when_StoreBufferPlugin_l537_14;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l537_15;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l537_15;
   wire                when_StoreBufferPlugin_l537_3;
   wire                when_StoreBufferPlugin_l542_3;
   wire                when_StoreBufferPlugin_l544_12;
@@ -5438,9 +5443,9 @@ module CoreNSCSCC (
   reg        [31:0]   _zz_StoreBufferPlugin_logic_forwarding_logic_forwardingResult_data_4;
   reg        [3:0]    _zz_when_StoreBufferPlugin_l544_4;
   wire                _zz_when_StoreBufferPlugin_l537_16;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l537_17;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l537_17;
   wire                _zz_when_StoreBufferPlugin_l537_18;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l537_19;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l537_19;
   wire                when_StoreBufferPlugin_l537_4;
   wire                when_StoreBufferPlugin_l542_4;
   wire                when_StoreBufferPlugin_l544_16;
@@ -5450,9 +5455,9 @@ module CoreNSCSCC (
   reg        [31:0]   _zz_StoreBufferPlugin_logic_forwarding_logic_forwardingResult_data_5;
   reg        [3:0]    _zz_when_StoreBufferPlugin_l544_5;
   wire                _zz_when_StoreBufferPlugin_l537_20;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l537_21;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l537_21;
   wire                _zz_when_StoreBufferPlugin_l537_22;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l537_23;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l537_23;
   wire                when_StoreBufferPlugin_l537_5;
   wire                when_StoreBufferPlugin_l542_5;
   wire                when_StoreBufferPlugin_l544_20;
@@ -5462,9 +5467,9 @@ module CoreNSCSCC (
   reg        [31:0]   _zz_StoreBufferPlugin_logic_forwarding_logic_forwardingResult_data_6;
   reg        [3:0]    _zz_StoreBufferPlugin_logic_forwarding_logic_forwardingResult_hitMask;
   wire                _zz_when_StoreBufferPlugin_l537_24;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l537_25;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l537_25;
   wire                _zz_when_StoreBufferPlugin_l537_26;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l537_27;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l537_27;
   wire                when_StoreBufferPlugin_l537_6;
   wire                when_StoreBufferPlugin_l542_6;
   wire                when_StoreBufferPlugin_l544_24;
@@ -5474,9 +5479,9 @@ module CoreNSCSCC (
   reg        [31:0]   StoreBufferPlugin_logic_forwarding_logic_forwardingResult_data;
   reg        [3:0]    StoreBufferPlugin_logic_forwarding_logic_forwardingResult_hitMask;
   wire                _zz_when_StoreBufferPlugin_l537_28;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l537_29;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l537_29;
   wire                _zz_when_StoreBufferPlugin_l537_30;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l537_31;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l537_31;
   wire                when_StoreBufferPlugin_l537_7;
   wire                when_StoreBufferPlugin_l542_7;
   wire                when_StoreBufferPlugin_l544_28;
@@ -5488,72 +5493,72 @@ module CoreNSCSCC (
   reg                 StoreBufferPlugin_logic_forwarding_logic_hasOlderOverlappingStore;
   wire                when_StoreBufferPlugin_l569;
   wire                _zz_when_StoreBufferPlugin_l575;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l575_1;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l575_1;
   wire                _zz_when_StoreBufferPlugin_l575_2;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l575_3;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l575_3;
   wire       [29:0]   _zz_when_StoreBufferPlugin_l575_4;
   wire       [29:0]   _zz_when_StoreBufferPlugin_l575_5;
   wire                when_StoreBufferPlugin_l575;
   wire                when_StoreBufferPlugin_l578;
   wire                when_StoreBufferPlugin_l569_1;
   wire                _zz_when_StoreBufferPlugin_l575_6;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l575_7;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l575_7;
   wire                _zz_when_StoreBufferPlugin_l575_8;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l575_9;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l575_9;
   wire       [29:0]   _zz_when_StoreBufferPlugin_l575_10;
   wire       [29:0]   _zz_when_StoreBufferPlugin_l575_11;
   wire                when_StoreBufferPlugin_l575_1;
   wire                when_StoreBufferPlugin_l578_1;
   wire                when_StoreBufferPlugin_l569_2;
   wire                _zz_when_StoreBufferPlugin_l575_12;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l575_13;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l575_13;
   wire                _zz_when_StoreBufferPlugin_l575_14;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l575_15;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l575_15;
   wire       [29:0]   _zz_when_StoreBufferPlugin_l575_16;
   wire       [29:0]   _zz_when_StoreBufferPlugin_l575_17;
   wire                when_StoreBufferPlugin_l575_2;
   wire                when_StoreBufferPlugin_l578_2;
   wire                when_StoreBufferPlugin_l569_3;
   wire                _zz_when_StoreBufferPlugin_l575_18;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l575_19;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l575_19;
   wire                _zz_when_StoreBufferPlugin_l575_20;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l575_21;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l575_21;
   wire       [29:0]   _zz_when_StoreBufferPlugin_l575_22;
   wire       [29:0]   _zz_when_StoreBufferPlugin_l575_23;
   wire                when_StoreBufferPlugin_l575_3;
   wire                when_StoreBufferPlugin_l578_3;
   wire                when_StoreBufferPlugin_l569_4;
   wire                _zz_when_StoreBufferPlugin_l575_24;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l575_25;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l575_25;
   wire                _zz_when_StoreBufferPlugin_l575_26;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l575_27;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l575_27;
   wire       [29:0]   _zz_when_StoreBufferPlugin_l575_28;
   wire       [29:0]   _zz_when_StoreBufferPlugin_l575_29;
   wire                when_StoreBufferPlugin_l575_4;
   wire                when_StoreBufferPlugin_l578_4;
   wire                when_StoreBufferPlugin_l569_5;
   wire                _zz_when_StoreBufferPlugin_l575_30;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l575_31;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l575_31;
   wire                _zz_when_StoreBufferPlugin_l575_32;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l575_33;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l575_33;
   wire       [29:0]   _zz_when_StoreBufferPlugin_l575_34;
   wire       [29:0]   _zz_when_StoreBufferPlugin_l575_35;
   wire                when_StoreBufferPlugin_l575_5;
   wire                when_StoreBufferPlugin_l578_5;
   wire                when_StoreBufferPlugin_l569_6;
   wire                _zz_when_StoreBufferPlugin_l575_36;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l575_37;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l575_37;
   wire                _zz_when_StoreBufferPlugin_l575_38;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l575_39;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l575_39;
   wire       [29:0]   _zz_when_StoreBufferPlugin_l575_40;
   wire       [29:0]   _zz_when_StoreBufferPlugin_l575_41;
   wire                when_StoreBufferPlugin_l575_6;
   wire                when_StoreBufferPlugin_l578_6;
   wire                when_StoreBufferPlugin_l569_7;
   wire                _zz_when_StoreBufferPlugin_l575_42;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l575_43;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l575_43;
   wire                _zz_when_StoreBufferPlugin_l575_44;
-  wire       [2:0]    _zz_when_StoreBufferPlugin_l575_45;
+  wire       [1:0]    _zz_when_StoreBufferPlugin_l575_45;
   wire       [29:0]   _zz_when_StoreBufferPlugin_l575_46;
   wire       [29:0]   _zz_when_StoreBufferPlugin_l575_47;
   wire                when_StoreBufferPlugin_l575_7;
@@ -5655,7 +5660,7 @@ module CoreNSCSCC (
   reg                 FetchPipelinePlugin_logic_hardFlushDelayed;
   wire                when_FetchPipelinePlugin2_l203;
   reg        [1:0]    _zz_ROBPlugin_aggregatedFlushSignal_payload_reason;
-  reg        [3:0]    _zz_ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr;
+  reg        [2:0]    _zz_ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr;
   reg                 ICachePlugin_axiMaster_ar_valid;
   wire                ICachePlugin_axiMaster_ar_ready;
   reg        [31:0]   ICachePlugin_axiMaster_ar_payload_addr;
@@ -6489,14 +6494,14 @@ module CoreNSCSCC (
   wire                commitLog_0_valid;
   wire                commitLog_0_canCommit;
   wire                commitLog_0_doCommit;
-  wire       [3:0]    commitLog_0_robPtr;
+  wire       [2:0]    commitLog_0_robPtr;
   wire       [31:0]   commitLog_0_pc;
   wire       [5:0]    commitLog_0_oldPhysDest;
   wire                commitLog_0_allocatesPhysDest;
   reg                 _zz_io_leds;
-  wire                _zz_when_CoreNSCSCC_l674;
-  reg                 _zz_when_CoreNSCSCC_l674_1;
-  wire                when_CoreNSCSCC_l674;
+  wire                _zz_when_CoreNSCSCC_l676;
+  reg                 _zz_when_CoreNSCSCC_l676_1;
+  wire                when_CoreNSCSCC_l676;
   `ifndef SYNTHESIS
   reg [87:0] _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_condition_string;
   reg [39:0] _zz_BranchEU_BranchEuPlugin_euResult_uop_branchCtrl_linkReg_rtype_string;
@@ -6991,6 +6996,7 @@ module CoreNSCSCC (
   assign _zz_StoreBufferPlugin_logic_push_logic_entryCount_8 = (_zz_StoreBufferPlugin_logic_push_logic_entryCount_9 + _zz_StoreBufferPlugin_logic_push_logic_entryCount_11);
   assign _zz_StoreBufferPlugin_logic_push_logic_entryCount_15 = {StoreBufferPlugin_logic_push_logic_usageMask[7],StoreBufferPlugin_logic_push_logic_usageMask[6]};
   assign _zz_StoreBufferPlugin_logic_push_logic_entryCount_14 = {1'd0, _zz_StoreBufferPlugin_logic_push_logic_entryCount_15};
+  assign _zz_StoreBufferPlugin_logic_pop_write_logic_mmioResponseForHead_1 = {1'd0, StoreBufferPlugin_logic_storage_slots_0_robPtr};
   assign _zz_io_triggerIn_21 = 6'h20;
   assign _zz_io_triggerIn_20 = {2'd0, _zz_io_triggerIn_21};
   assign _zz_when_Debug_l71_10_1 = {2'd0, _zz_when_Debug_l71_11};
@@ -7116,7 +7122,7 @@ module CoreNSCSCC (
 
   IntAlu AluIntEU_AluIntEuPlugin_intAlu (
     .io_iqEntryIn_valid                          (s2_Execute_isFiring                                                  ), //i
-    .io_iqEntryIn_payload_robPtr                 (_zz_io_iqEntryIn_payload_robPtr[3:0]                                 ), //i
+    .io_iqEntryIn_payload_robPtr                 (_zz_io_iqEntryIn_payload_robPtr[2:0]                                 ), //i
     .io_iqEntryIn_payload_pc                     (                                                                     ), //i
     .io_iqEntryIn_payload_physDest_idx           (_zz_io_iqEntryIn_payload_physDest_idx[5:0]                           ), //i
     .io_iqEntryIn_payload_physDestIsFpr          (_zz_io_iqEntryIn_payload_physDestIsFpr                               ), //i
@@ -7149,7 +7155,7 @@ module CoreNSCSCC (
     .io_resultOut_payload_data                   (AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_data[31:0]       ), //o
     .io_resultOut_payload_physDest_idx           (AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_physDest_idx[5:0]), //o
     .io_resultOut_payload_writesToPhysReg        (AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_writesToPhysReg  ), //o
-    .io_resultOut_payload_robPtr                 (AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_robPtr[3:0]      ), //o
+    .io_resultOut_payload_robPtr                 (AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_robPtr[2:0]      ), //o
     .io_resultOut_payload_hasException           (AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_hasException     ), //o
     .io_resultOut_payload_exceptionCode          (AluIntEU_AluIntEuPlugin_intAlu_io_resultOut_payload_exceptionCode    ), //o
     .clk                                         (clk                                                                  ), //i
@@ -7358,18 +7364,18 @@ module CoreNSCSCC (
     .io_allocate_0_uopIn_rename_oldPhysDestIsFpr                         (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_oldPhysDestIsFpr                   ), //i
     .io_allocate_0_uopIn_rename_allocatesPhysDest                        (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_allocatesPhysDest                  ), //i
     .io_allocate_0_uopIn_rename_writesToPhysReg                          (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_rename_writesToPhysReg                    ), //i
-    .io_allocate_0_uopIn_robPtr                                          (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_robPtr[3:0]                               ), //i
+    .io_allocate_0_uopIn_robPtr                                          (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_robPtr[2:0]                               ), //i
     .io_allocate_0_uopIn_uniqueId                                        (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_uniqueId[15:0]                            ), //i
     .io_allocate_0_uopIn_dispatched                                      (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_dispatched                                ), //i
     .io_allocate_0_uopIn_executed                                        (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_executed                                  ), //i
     .io_allocate_0_uopIn_hasException                                    (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_hasException                              ), //i
     .io_allocate_0_uopIn_exceptionCode                                   (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_exceptionCode[7:0]                        ), //i
     .io_allocate_0_pcIn                                                  (s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_pc[31:0]                          ), //i
-    .io_allocate_0_robPtr                                                (ROBPlugin_robComponent_io_allocate_0_robPtr[3:0]                                          ), //o
+    .io_allocate_0_robPtr                                                (ROBPlugin_robComponent_io_allocate_0_robPtr[2:0]                                          ), //o
     .io_allocate_0_ready                                                 (ROBPlugin_robComponent_io_allocate_0_ready                                                ), //o
     .io_canAllocate_0                                                    (ROBPlugin_robComponent_io_canAllocate_0                                                   ), //o
     .io_writeback_0_fire                                                 (AluIntEU_AluIntEuPlugin_logicPhase_executionCompletes                                     ), //i
-    .io_writeback_0_robPtr                                               (AluIntEU_AluIntEuPlugin_euResult_uop_robPtr[3:0]                                          ), //i
+    .io_writeback_0_robPtr                                               (AluIntEU_AluIntEuPlugin_euResult_uop_robPtr[2:0]                                          ), //i
     .io_writeback_0_isTaken                                              (AluIntEU_AluIntEuPlugin_euResult_isTaken                                                  ), //i
     .io_writeback_0_isMispredictedBranch                                 (AluIntEU_AluIntEuPlugin_euResult_isMispredictedBranch                                     ), //i
     .io_writeback_0_targetPc                                             (AluIntEU_AluIntEuPlugin_euResult_targetPc[31:0]                                           ), //i
@@ -7377,7 +7383,7 @@ module CoreNSCSCC (
     .io_writeback_0_exceptionOccurred                                    (AluIntEU_AluIntEuPlugin_euResult_hasException                                             ), //i
     .io_writeback_0_exceptionCodeIn                                      (AluIntEU_AluIntEuPlugin_euResult_exceptionCode[7:0]                                       ), //i
     .io_writeback_1_fire                                                 (MulEU_MulEuPlugin_logicPhase_executionCompletes                                           ), //i
-    .io_writeback_1_robPtr                                               (MulEU_MulEuPlugin_euResult_uop_robPtr[3:0]                                                ), //i
+    .io_writeback_1_robPtr                                               (MulEU_MulEuPlugin_euResult_uop_robPtr[2:0]                                                ), //i
     .io_writeback_1_isTaken                                              (MulEU_MulEuPlugin_euResult_isTaken                                                        ), //i
     .io_writeback_1_isMispredictedBranch                                 (MulEU_MulEuPlugin_euResult_isMispredictedBranch                                           ), //i
     .io_writeback_1_targetPc                                             (MulEU_MulEuPlugin_euResult_targetPc[31:0]                                                 ), //i
@@ -7385,7 +7391,7 @@ module CoreNSCSCC (
     .io_writeback_1_exceptionOccurred                                    (MulEU_MulEuPlugin_euResult_hasException                                                   ), //i
     .io_writeback_1_exceptionCodeIn                                      (MulEU_MulEuPlugin_euResult_exceptionCode[7:0]                                             ), //i
     .io_writeback_2_fire                                                 (BranchEU_BranchEuPlugin_logicPhase_executionCompletes                                     ), //i
-    .io_writeback_2_robPtr                                               (BranchEU_BranchEuPlugin_euResult_uop_robPtr[3:0]                                          ), //i
+    .io_writeback_2_robPtr                                               (BranchEU_BranchEuPlugin_euResult_uop_robPtr[2:0]                                          ), //i
     .io_writeback_2_isTaken                                              (BranchEU_BranchEuPlugin_euResult_isTaken                                                  ), //i
     .io_writeback_2_isMispredictedBranch                                 (BranchEU_BranchEuPlugin_euResult_isMispredictedBranch                                     ), //i
     .io_writeback_2_targetPc                                             (BranchEU_BranchEuPlugin_euResult_targetPc[31:0]                                           ), //i
@@ -7393,7 +7399,7 @@ module CoreNSCSCC (
     .io_writeback_2_exceptionOccurred                                    (BranchEU_BranchEuPlugin_euResult_hasException                                             ), //i
     .io_writeback_2_exceptionCodeIn                                      (BranchEU_BranchEuPlugin_euResult_exceptionCode[7:0]                                       ), //i
     .io_writeback_3_fire                                                 (LsuEU_LsuEuPlugin_logicPhase_executionCompletes                                           ), //i
-    .io_writeback_3_robPtr                                               (LsuEU_LsuEuPlugin_euResult_uop_robPtr[3:0]                                                ), //i
+    .io_writeback_3_robPtr                                               (LsuEU_LsuEuPlugin_euResult_uop_robPtr[2:0]                                                ), //i
     .io_writeback_3_isTaken                                              (LsuEU_LsuEuPlugin_euResult_isTaken                                                        ), //i
     .io_writeback_3_isMispredictedBranch                                 (LsuEU_LsuEuPlugin_euResult_isMispredictedBranch                                           ), //i
     .io_writeback_3_targetPc                                             (LsuEU_LsuEuPlugin_euResult_targetPc[31:0]                                                 ), //i
@@ -7401,7 +7407,7 @@ module CoreNSCSCC (
     .io_writeback_3_exceptionOccurred                                    (LsuEU_LsuEuPlugin_euResult_hasException                                                   ), //i
     .io_writeback_3_exceptionCodeIn                                      (LsuEU_LsuEuPlugin_euResult_exceptionCode[7:0]                                             ), //i
     .io_writeback_4_fire                                                 (ROBPlugin_robComponent_io_writeback_4_fire                                                ), //i
-    .io_writeback_4_robPtr                                               (ROBPlugin_robComponent_io_writeback_4_robPtr[3:0]                                         ), //i
+    .io_writeback_4_robPtr                                               (ROBPlugin_robComponent_io_writeback_4_robPtr[2:0]                                         ), //i
     .io_writeback_4_isTaken                                              (1'bx                                                                                      ), //i
     .io_writeback_4_isMispredictedBranch                                 (1'bx                                                                                      ), //i
     .io_writeback_4_targetPc                                             (32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx                                                      ), //i
@@ -7498,7 +7504,7 @@ module CoreNSCSCC (
     .io_commit_0_entry_payload_uop_rename_oldPhysDestIsFpr               (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDestIsFpr              ), //o
     .io_commit_0_entry_payload_uop_rename_allocatesPhysDest              (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_allocatesPhysDest             ), //o
     .io_commit_0_entry_payload_uop_rename_writesToPhysReg                (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_writesToPhysReg               ), //o
-    .io_commit_0_entry_payload_uop_robPtr                                (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr[3:0]                          ), //o
+    .io_commit_0_entry_payload_uop_robPtr                                (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_robPtr[2:0]                          ), //o
     .io_commit_0_entry_payload_uop_uniqueId                              (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_uniqueId[15:0]                       ), //o
     .io_commit_0_entry_payload_uop_dispatched                            (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_dispatched                           ), //o
     .io_commit_0_entry_payload_uop_executed                              (ROBPlugin_robComponent_io_commit_0_entry_payload_uop_executed                             ), //o
@@ -7518,12 +7524,12 @@ module CoreNSCSCC (
     .io_commitAck_0                                                      (CommitPlugin_logic_s0_commitAckMasks_0                                                    ), //i
     .io_flush_valid                                                      (ROBPlugin_aggregatedFlushSignal_valid                                                     ), //i
     .io_flush_payload_reason                                             (ROBPlugin_aggregatedFlushSignal_payload_reason[1:0]                                       ), //i
-    .io_flush_payload_targetRobPtr                                       (ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3:0]                                 ), //i
+    .io_flush_payload_targetRobPtr                                       (ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2:0]                                 ), //i
     .io_flushed                                                          (ROBPlugin_robComponent_io_flushed                                                         ), //o
     .io_empty                                                            (ROBPlugin_robComponent_io_empty                                                           ), //o
-    .io_headPtrOut                                                       (ROBPlugin_robComponent_io_headPtrOut[3:0]                                                 ), //o
-    .io_tailPtrOut                                                       (ROBPlugin_robComponent_io_tailPtrOut[3:0]                                                 ), //o
-    .io_countOut                                                         (ROBPlugin_robComponent_io_countOut[3:0]                                                   ), //o
+    .io_headPtrOut                                                       (ROBPlugin_robComponent_io_headPtrOut[2:0]                                                 ), //o
+    .io_tailPtrOut                                                       (ROBPlugin_robComponent_io_tailPtrOut[2:0]                                                 ), //o
+    .io_countOut                                                         (ROBPlugin_robComponent_io_countOut[2:0]                                                   ), //o
     .clk                                                                 (clk                                                                                       ), //i
     .reset                                                               (reset                                                                                     )  //i
   );
@@ -7644,14 +7650,14 @@ module CoreNSCSCC (
     .reset                                   (reset                                                                            )  //i
   );
   SimpleFreeList SimpleFreeListPlugin_early_setup_freeList (
-    .io_allocate_0_enable      (s1_Rename_valid                                                         ), //i
+    .io_allocate_0_enable      (SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_enable          ), //i
     .io_allocate_0_physReg     (SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_physReg[5:0]    ), //o
     .io_allocate_0_success     (SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_success         ), //o
     .io_allocate_0_canAllocate (SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_canAllocate[5:0]), //o
     .io_free_0_enable          (SimpleFreeListPlugin_early_setup_freeList_io_free_0_enable              ), //i
     .io_free_0_physReg         (SimpleFreeListPlugin_early_setup_freeList_io_free_0_physReg[5:0]        ), //i
     .io_free_1_enable          (SimpleFreeListPlugin_early_setup_freeList_io_free_1_enable              ), //i
-    .io_free_1_physReg         (SimpleFreeListPlugin_early_setup_freeList_io_free_1_physReg[5:0]        ), //i
+    .io_free_1_physReg         (6'h0                                                                    ), //i
     .io_recover                (SimpleFreeListPlugin_early_setup_freeList_io_recover                    ), //i
     .io_numFreeRegs            (SimpleFreeListPlugin_early_setup_freeList_io_numFreeRegs[5:0]           ), //o
     .clk                       (clk                                                                     ), //i
@@ -7850,7 +7856,7 @@ module CoreNSCSCC (
     .io_renamedUopsOut_0_rename_oldPhysDestIsFpr               (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_oldPhysDestIsFpr              ), //o
     .io_renamedUopsOut_0_rename_allocatesPhysDest              (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_allocatesPhysDest             ), //o
     .io_renamedUopsOut_0_rename_writesToPhysReg                (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_rename_writesToPhysReg               ), //o
-    .io_renamedUopsOut_0_robPtr                                (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_robPtr[3:0]                          ), //o
+    .io_renamedUopsOut_0_robPtr                                (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_robPtr[2:0]                          ), //o
     .io_renamedUopsOut_0_uniqueId                              (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_uniqueId[15:0]                       ), //o
     .io_renamedUopsOut_0_dispatched                            (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_dispatched                           ), //o
     .io_renamedUopsOut_0_executed                              (RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_executed                             ), //o
@@ -7881,7 +7887,7 @@ module CoreNSCSCC (
     .io_inputs_0_ready                 (streamArbiter_8_io_inputs_0_ready                                           ), //o
     .io_inputs_0_payload_physRegIdx    (AluIntEU_AluIntEuPlugin_bypassOutputPort_toStream_payload_physRegIdx[5:0]   ), //i
     .io_inputs_0_payload_physRegData   (AluIntEU_AluIntEuPlugin_bypassOutputPort_toStream_payload_physRegData[31:0] ), //i
-    .io_inputs_0_payload_robPtr        (AluIntEU_AluIntEuPlugin_bypassOutputPort_toStream_payload_robPtr[3:0]       ), //i
+    .io_inputs_0_payload_robPtr        (AluIntEU_AluIntEuPlugin_bypassOutputPort_toStream_payload_robPtr[2:0]       ), //i
     .io_inputs_0_payload_isFPR         (AluIntEU_AluIntEuPlugin_bypassOutputPort_toStream_payload_isFPR             ), //i
     .io_inputs_0_payload_hasException  (AluIntEU_AluIntEuPlugin_bypassOutputPort_toStream_payload_hasException      ), //i
     .io_inputs_0_payload_exceptionCode (AluIntEU_AluIntEuPlugin_bypassOutputPort_toStream_payload_exceptionCode[7:0]), //i
@@ -7889,7 +7895,7 @@ module CoreNSCSCC (
     .io_inputs_1_ready                 (streamArbiter_8_io_inputs_1_ready                                           ), //o
     .io_inputs_1_payload_physRegIdx    (MulEU_MulEuPlugin_bypassOutputPort_toStream_payload_physRegIdx[5:0]         ), //i
     .io_inputs_1_payload_physRegData   (MulEU_MulEuPlugin_bypassOutputPort_toStream_payload_physRegData[31:0]       ), //i
-    .io_inputs_1_payload_robPtr        (MulEU_MulEuPlugin_bypassOutputPort_toStream_payload_robPtr[3:0]             ), //i
+    .io_inputs_1_payload_robPtr        (MulEU_MulEuPlugin_bypassOutputPort_toStream_payload_robPtr[2:0]             ), //i
     .io_inputs_1_payload_isFPR         (MulEU_MulEuPlugin_bypassOutputPort_toStream_payload_isFPR                   ), //i
     .io_inputs_1_payload_hasException  (MulEU_MulEuPlugin_bypassOutputPort_toStream_payload_hasException            ), //i
     .io_inputs_1_payload_exceptionCode (MulEU_MulEuPlugin_bypassOutputPort_toStream_payload_exceptionCode[7:0]      ), //i
@@ -7897,7 +7903,7 @@ module CoreNSCSCC (
     .io_inputs_2_ready                 (streamArbiter_8_io_inputs_2_ready                                           ), //o
     .io_inputs_2_payload_physRegIdx    (BranchEU_BranchEuPlugin_bypassOutputPort_toStream_payload_physRegIdx[5:0]   ), //i
     .io_inputs_2_payload_physRegData   (BranchEU_BranchEuPlugin_bypassOutputPort_toStream_payload_physRegData[31:0] ), //i
-    .io_inputs_2_payload_robPtr        (BranchEU_BranchEuPlugin_bypassOutputPort_toStream_payload_robPtr[3:0]       ), //i
+    .io_inputs_2_payload_robPtr        (BranchEU_BranchEuPlugin_bypassOutputPort_toStream_payload_robPtr[2:0]       ), //i
     .io_inputs_2_payload_isFPR         (BranchEU_BranchEuPlugin_bypassOutputPort_toStream_payload_isFPR             ), //i
     .io_inputs_2_payload_hasException  (BranchEU_BranchEuPlugin_bypassOutputPort_toStream_payload_hasException      ), //i
     .io_inputs_2_payload_exceptionCode (BranchEU_BranchEuPlugin_bypassOutputPort_toStream_payload_exceptionCode[7:0]), //i
@@ -7905,7 +7911,7 @@ module CoreNSCSCC (
     .io_output_ready                   (io_output_combStage_ready                                                   ), //i
     .io_output_payload_physRegIdx      (streamArbiter_8_io_output_payload_physRegIdx[5:0]                           ), //o
     .io_output_payload_physRegData     (streamArbiter_8_io_output_payload_physRegData[31:0]                         ), //o
-    .io_output_payload_robPtr          (streamArbiter_8_io_output_payload_robPtr[3:0]                               ), //o
+    .io_output_payload_robPtr          (streamArbiter_8_io_output_payload_robPtr[2:0]                               ), //o
     .io_output_payload_isFPR           (streamArbiter_8_io_output_payload_isFPR                                     ), //o
     .io_output_payload_hasException    (streamArbiter_8_io_output_payload_hasException                              ), //o
     .io_output_payload_exceptionCode   (streamArbiter_8_io_output_payload_exceptionCode[7:0]                        ), //o
@@ -8099,7 +8105,7 @@ module CoreNSCSCC (
     .io_allocateIn_payload_uop_rename_oldPhysDestIsFpr               (DispatchPlugin_logic_iqRegs_0_1_payload_uop_rename_oldPhysDestIsFpr              ), //i
     .io_allocateIn_payload_uop_rename_allocatesPhysDest              (DispatchPlugin_logic_iqRegs_0_1_payload_uop_rename_allocatesPhysDest             ), //i
     .io_allocateIn_payload_uop_rename_writesToPhysReg                (DispatchPlugin_logic_iqRegs_0_1_payload_uop_rename_writesToPhysReg               ), //i
-    .io_allocateIn_payload_uop_robPtr                                (DispatchPlugin_logic_iqRegs_0_1_payload_uop_robPtr[3:0]                          ), //i
+    .io_allocateIn_payload_uop_robPtr                                (DispatchPlugin_logic_iqRegs_0_1_payload_uop_robPtr[2:0]                          ), //i
     .io_allocateIn_payload_uop_uniqueId                              (DispatchPlugin_logic_iqRegs_0_1_payload_uop_uniqueId[15:0]                       ), //i
     .io_allocateIn_payload_uop_dispatched                            (DispatchPlugin_logic_iqRegs_0_1_payload_uop_dispatched                           ), //i
     .io_allocateIn_payload_uop_executed                              (DispatchPlugin_logic_iqRegs_0_1_payload_uop_executed                             ), //i
@@ -8109,7 +8115,7 @@ module CoreNSCSCC (
     .io_allocateIn_payload_src2InitialReady                          (DispatchPlugin_logic_iqRegs_0_1_payload_src2InitialReady                         ), //i
     .io_issueOut_valid                                               (issueQueueComponent_3_io_issueOut_valid                                          ), //o
     .io_issueOut_ready                                               (AluIntEU_AluIntEuPlugin_euInputPort_ready                                        ), //i
-    .io_issueOut_payload_robPtr                                      (issueQueueComponent_3_io_issueOut_payload_robPtr[3:0]                            ), //o
+    .io_issueOut_payload_robPtr                                      (issueQueueComponent_3_io_issueOut_payload_robPtr[2:0]                            ), //o
     .io_issueOut_payload_pc                                          (issueQueueComponent_3_io_issueOut_payload_pc[31:0]                               ), //o
     .io_issueOut_payload_physDest_idx                                (issueQueueComponent_3_io_issueOut_payload_physDest_idx[5:0]                      ), //o
     .io_issueOut_payload_physDestIsFpr                               (issueQueueComponent_3_io_issueOut_payload_physDestIsFpr                          ), //o
@@ -8243,7 +8249,7 @@ module CoreNSCSCC (
     .io_allocateIn_payload_uop_rename_oldPhysDestIsFpr               (DispatchPlugin_logic_iqRegs_1_1_payload_uop_rename_oldPhysDestIsFpr                ), //i
     .io_allocateIn_payload_uop_rename_allocatesPhysDest              (DispatchPlugin_logic_iqRegs_1_1_payload_uop_rename_allocatesPhysDest               ), //i
     .io_allocateIn_payload_uop_rename_writesToPhysReg                (DispatchPlugin_logic_iqRegs_1_1_payload_uop_rename_writesToPhysReg                 ), //i
-    .io_allocateIn_payload_uop_robPtr                                (DispatchPlugin_logic_iqRegs_1_1_payload_uop_robPtr[3:0]                            ), //i
+    .io_allocateIn_payload_uop_robPtr                                (DispatchPlugin_logic_iqRegs_1_1_payload_uop_robPtr[2:0]                            ), //i
     .io_allocateIn_payload_uop_uniqueId                              (DispatchPlugin_logic_iqRegs_1_1_payload_uop_uniqueId[15:0]                         ), //i
     .io_allocateIn_payload_uop_dispatched                            (DispatchPlugin_logic_iqRegs_1_1_payload_uop_dispatched                             ), //i
     .io_allocateIn_payload_uop_executed                              (DispatchPlugin_logic_iqRegs_1_1_payload_uop_executed                               ), //i
@@ -8341,13 +8347,13 @@ module CoreNSCSCC (
     .io_issueOut_payload_uop_rename_oldPhysDestIsFpr                 (issueQueueComponent_4_io_issueOut_payload_uop_rename_oldPhysDestIsFpr              ), //o
     .io_issueOut_payload_uop_rename_allocatesPhysDest                (issueQueueComponent_4_io_issueOut_payload_uop_rename_allocatesPhysDest             ), //o
     .io_issueOut_payload_uop_rename_writesToPhysReg                  (issueQueueComponent_4_io_issueOut_payload_uop_rename_writesToPhysReg               ), //o
-    .io_issueOut_payload_uop_robPtr                                  (issueQueueComponent_4_io_issueOut_payload_uop_robPtr[3:0]                          ), //o
+    .io_issueOut_payload_uop_robPtr                                  (issueQueueComponent_4_io_issueOut_payload_uop_robPtr[2:0]                          ), //o
     .io_issueOut_payload_uop_uniqueId                                (issueQueueComponent_4_io_issueOut_payload_uop_uniqueId[15:0]                       ), //o
     .io_issueOut_payload_uop_dispatched                              (issueQueueComponent_4_io_issueOut_payload_uop_dispatched                           ), //o
     .io_issueOut_payload_uop_executed                                (issueQueueComponent_4_io_issueOut_payload_uop_executed                             ), //o
     .io_issueOut_payload_uop_hasException                            (issueQueueComponent_4_io_issueOut_payload_uop_hasException                         ), //o
     .io_issueOut_payload_uop_exceptionCode                           (issueQueueComponent_4_io_issueOut_payload_uop_exceptionCode[7:0]                   ), //o
-    .io_issueOut_payload_robPtr                                      (issueQueueComponent_4_io_issueOut_payload_robPtr[3:0]                              ), //o
+    .io_issueOut_payload_robPtr                                      (issueQueueComponent_4_io_issueOut_payload_robPtr[2:0]                              ), //o
     .io_issueOut_payload_physDest_idx                                (issueQueueComponent_4_io_issueOut_payload_physDest_idx[5:0]                        ), //o
     .io_issueOut_payload_physDestIsFpr                               (issueQueueComponent_4_io_issueOut_payload_physDestIsFpr                            ), //o
     .io_issueOut_payload_writesToPhysReg                             (issueQueueComponent_4_io_issueOut_payload_writesToPhysReg                          ), //o
@@ -8470,7 +8476,7 @@ module CoreNSCSCC (
     .io_allocateIn_payload_uop_rename_oldPhysDestIsFpr               (DispatchPlugin_logic_iqRegs_2_1_payload_uop_rename_oldPhysDestIsFpr              ), //i
     .io_allocateIn_payload_uop_rename_allocatesPhysDest              (DispatchPlugin_logic_iqRegs_2_1_payload_uop_rename_allocatesPhysDest             ), //i
     .io_allocateIn_payload_uop_rename_writesToPhysReg                (DispatchPlugin_logic_iqRegs_2_1_payload_uop_rename_writesToPhysReg               ), //i
-    .io_allocateIn_payload_uop_robPtr                                (DispatchPlugin_logic_iqRegs_2_1_payload_uop_robPtr[3:0]                          ), //i
+    .io_allocateIn_payload_uop_robPtr                                (DispatchPlugin_logic_iqRegs_2_1_payload_uop_robPtr[2:0]                          ), //i
     .io_allocateIn_payload_uop_uniqueId                              (DispatchPlugin_logic_iqRegs_2_1_payload_uop_uniqueId[15:0]                       ), //i
     .io_allocateIn_payload_uop_dispatched                            (DispatchPlugin_logic_iqRegs_2_1_payload_uop_dispatched                           ), //i
     .io_allocateIn_payload_uop_executed                              (DispatchPlugin_logic_iqRegs_2_1_payload_uop_executed                             ), //i
@@ -8480,7 +8486,7 @@ module CoreNSCSCC (
     .io_allocateIn_payload_src2InitialReady                          (DispatchPlugin_logic_iqRegs_2_1_payload_src2InitialReady                         ), //i
     .io_issueOut_valid                                               (issueQueueComponent_5_io_issueOut_valid                                          ), //o
     .io_issueOut_ready                                               (BranchEU_BranchEuPlugin_euInputPort_ready                                        ), //i
-    .io_issueOut_payload_robPtr                                      (issueQueueComponent_5_io_issueOut_payload_robPtr[3:0]                            ), //o
+    .io_issueOut_payload_robPtr                                      (issueQueueComponent_5_io_issueOut_payload_robPtr[2:0]                            ), //o
     .io_issueOut_payload_physDest_idx                                (issueQueueComponent_5_io_issueOut_payload_physDest_idx[5:0]                      ), //o
     .io_issueOut_payload_physDestIsFpr                               (issueQueueComponent_5_io_issueOut_payload_physDestIsFpr                          ), //o
     .io_issueOut_payload_writesToPhysReg                             (issueQueueComponent_5_io_issueOut_payload_writesToPhysReg                        ), //o
@@ -8611,7 +8617,7 @@ module CoreNSCSCC (
     .io_allocateIn_payload_uop_rename_oldPhysDestIsFpr               (DispatchPlugin_logic_iqRegs_3_1_payload_uop_rename_oldPhysDestIsFpr              ), //i
     .io_allocateIn_payload_uop_rename_allocatesPhysDest              (DispatchPlugin_logic_iqRegs_3_1_payload_uop_rename_allocatesPhysDest             ), //i
     .io_allocateIn_payload_uop_rename_writesToPhysReg                (DispatchPlugin_logic_iqRegs_3_1_payload_uop_rename_writesToPhysReg               ), //i
-    .io_allocateIn_payload_uop_robPtr                                (DispatchPlugin_logic_iqRegs_3_1_payload_uop_robPtr[3:0]                          ), //i
+    .io_allocateIn_payload_uop_robPtr                                (DispatchPlugin_logic_iqRegs_3_1_payload_uop_robPtr[2:0]                          ), //i
     .io_allocateIn_payload_uop_uniqueId                              (DispatchPlugin_logic_iqRegs_3_1_payload_uop_uniqueId[15:0]                       ), //i
     .io_allocateIn_payload_uop_dispatched                            (DispatchPlugin_logic_iqRegs_3_1_payload_uop_dispatched                           ), //i
     .io_allocateIn_payload_uop_executed                              (DispatchPlugin_logic_iqRegs_3_1_payload_uop_executed                             ), //i
@@ -8621,7 +8627,7 @@ module CoreNSCSCC (
     .io_allocateIn_payload_src2InitialReady                          (DispatchPlugin_logic_iqRegs_3_1_payload_src2InitialReady                         ), //i
     .io_issueOut_valid                                               (sequentialIssueQueueComponent_1_io_issueOut_valid                                ), //o
     .io_issueOut_ready                                               (LsuEU_LsuEuPlugin_euInputPort_ready                                              ), //i
-    .io_issueOut_payload_robPtr                                      (sequentialIssueQueueComponent_1_io_issueOut_payload_robPtr[3:0]                  ), //o
+    .io_issueOut_payload_robPtr                                      (sequentialIssueQueueComponent_1_io_issueOut_payload_robPtr[2:0]                  ), //o
     .io_issueOut_payload_physDest_idx                                (sequentialIssueQueueComponent_1_io_issueOut_payload_physDest_idx[5:0]            ), //o
     .io_issueOut_payload_physDestIsFpr                               (sequentialIssueQueueComponent_1_io_issueOut_payload_physDestIsFpr                ), //o
     .io_issueOut_payload_writesToPhysReg                             (sequentialIssueQueueComponent_1_io_issueOut_payload_writesToPhysReg              ), //o
@@ -8712,7 +8718,7 @@ module CoreNSCSCC (
     .io_input_payload_immediate          (LsuEU_LsuEuPlugin_hw_aguPort_output_payload_immediate[31:0] ), //i
     .io_input_payload_usePc              (LsuEU_LsuEuPlugin_hw_aguPort_output_payload_usePc           ), //i
     .io_input_payload_pc                 (LsuEU_LsuEuPlugin_hw_aguPort_output_payload_pc[31:0]        ), //i
-    .io_input_payload_robPtr             (LsuEU_LsuEuPlugin_hw_aguPort_output_payload_robPtr[3:0]     ), //i
+    .io_input_payload_robPtr             (LsuEU_LsuEuPlugin_hw_aguPort_output_payload_robPtr[2:0]     ), //i
     .io_input_payload_isLoad             (LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isLoad          ), //i
     .io_input_payload_isStore            (LsuEU_LsuEuPlugin_hw_aguPort_output_payload_isStore         ), //i
     .io_input_payload_physDst            (LsuEU_LsuEuPlugin_hw_aguPort_output_payload_physDst[5:0]    ), //i
@@ -8731,7 +8737,7 @@ module CoreNSCSCC (
     .io_outputs_0_payload_immediate      (streamDemux_1_io_outputs_0_payload_immediate[31:0]          ), //o
     .io_outputs_0_payload_usePc          (streamDemux_1_io_outputs_0_payload_usePc                    ), //o
     .io_outputs_0_payload_pc             (streamDemux_1_io_outputs_0_payload_pc[31:0]                 ), //o
-    .io_outputs_0_payload_robPtr         (streamDemux_1_io_outputs_0_payload_robPtr[3:0]              ), //o
+    .io_outputs_0_payload_robPtr         (streamDemux_1_io_outputs_0_payload_robPtr[2:0]              ), //o
     .io_outputs_0_payload_isLoad         (streamDemux_1_io_outputs_0_payload_isLoad                   ), //o
     .io_outputs_0_payload_isStore        (streamDemux_1_io_outputs_0_payload_isStore                  ), //o
     .io_outputs_0_payload_physDst        (streamDemux_1_io_outputs_0_payload_physDst[5:0]             ), //o
@@ -8750,7 +8756,7 @@ module CoreNSCSCC (
     .io_outputs_1_payload_immediate      (streamDemux_1_io_outputs_1_payload_immediate[31:0]          ), //o
     .io_outputs_1_payload_usePc          (streamDemux_1_io_outputs_1_payload_usePc                    ), //o
     .io_outputs_1_payload_pc             (streamDemux_1_io_outputs_1_payload_pc[31:0]                 ), //o
-    .io_outputs_1_payload_robPtr         (streamDemux_1_io_outputs_1_payload_robPtr[3:0]              ), //o
+    .io_outputs_1_payload_robPtr         (streamDemux_1_io_outputs_1_payload_robPtr[2:0]              ), //o
     .io_outputs_1_payload_isLoad         (streamDemux_1_io_outputs_1_payload_isLoad                   ), //o
     .io_outputs_1_payload_isStore        (streamDemux_1_io_outputs_1_payload_isStore                  ), //o
     .io_outputs_1_payload_physDst        (streamDemux_1_io_outputs_1_payload_physDst[5:0]             ), //o
@@ -8777,7 +8783,7 @@ module CoreNSCSCC (
     .io_push_payload_immediate      (_zz_io_push_payload_immediate[31:0]          ), //i
     .io_push_payload_usePc          (_zz_io_push_payload_usePc                    ), //i
     .io_push_payload_pc             (_zz_io_push_payload_pc[31:0]                 ), //i
-    .io_push_payload_robPtr         (_zz_io_push_payload_robPtr[3:0]              ), //i
+    .io_push_payload_robPtr         (_zz_io_push_payload_robPtr[2:0]              ), //i
     .io_push_payload_isLoad         (_zz_io_push_payload_isLoad                   ), //i
     .io_push_payload_isStore        (_zz_when_AddressGenerationUnit_l224_1        ), //i
     .io_push_payload_physDst        (_zz_io_push_payload_physDst[5:0]             ), //i
@@ -8796,7 +8802,7 @@ module CoreNSCSCC (
     .io_pop_payload_immediate       (streamFifo_13_io_pop_payload_immediate[31:0] ), //o
     .io_pop_payload_usePc           (streamFifo_13_io_pop_payload_usePc           ), //o
     .io_pop_payload_pc              (streamFifo_13_io_pop_payload_pc[31:0]        ), //o
-    .io_pop_payload_robPtr          (streamFifo_13_io_pop_payload_robPtr[3:0]     ), //o
+    .io_pop_payload_robPtr          (streamFifo_13_io_pop_payload_robPtr[2:0]     ), //o
     .io_pop_payload_isLoad          (streamFifo_13_io_pop_payload_isLoad          ), //o
     .io_pop_payload_isStore         (streamFifo_13_io_pop_payload_isStore         ), //o
     .io_pop_payload_physDst         (streamFifo_13_io_pop_payload_physDst[5:0]    ), //o
@@ -8812,7 +8818,7 @@ module CoreNSCSCC (
   StreamArbiter_7 streamArbiter_9 (
     .io_inputs_0_valid                      (LsuEU_LsuEuPlugin_hw_lqPushPort_valid                          ), //i
     .io_inputs_0_ready                      (streamArbiter_9_io_inputs_0_ready                              ), //o
-    .io_inputs_0_payload_robPtr             (LsuEU_LsuEuPlugin_hw_lqPushPort_payload_robPtr[3:0]            ), //i
+    .io_inputs_0_payload_robPtr             (LsuEU_LsuEuPlugin_hw_lqPushPort_payload_robPtr[2:0]            ), //i
     .io_inputs_0_payload_pdest              (LsuEU_LsuEuPlugin_hw_lqPushPort_payload_pdest[5:0]             ), //i
     .io_inputs_0_payload_address            (LsuEU_LsuEuPlugin_hw_lqPushPort_payload_address[31:0]          ), //i
     .io_inputs_0_payload_isIO               (LsuEU_LsuEuPlugin_hw_lqPushPort_payload_isIO                   ), //i
@@ -8822,7 +8828,7 @@ module CoreNSCSCC (
     .io_inputs_0_payload_earlyExceptionCode (LsuEU_LsuEuPlugin_hw_lqPushPort_payload_earlyExceptionCode[7:0]), //i
     .io_output_valid                        (streamArbiter_9_io_output_valid                                ), //o
     .io_output_ready                        (LoadQueuePlugin_logic_pushCmd_ready                            ), //i
-    .io_output_payload_robPtr               (streamArbiter_9_io_output_payload_robPtr[3:0]                  ), //o
+    .io_output_payload_robPtr               (streamArbiter_9_io_output_payload_robPtr[2:0]                  ), //o
     .io_output_payload_pdest                (streamArbiter_9_io_output_payload_pdest[5:0]                   ), //o
     .io_output_payload_address              (streamArbiter_9_io_output_payload_address[31:0]                ), //o
     .io_output_payload_isIO                 (streamArbiter_9_io_output_payload_isIO                         ), //o
@@ -8963,7 +8969,7 @@ module CoreNSCSCC (
     .io_gmbIn_read_cmd_valid                (_zz_LoadQueuePlugin_logic_loadQueue_mmioCmdFired                         ), //i
     .io_gmbIn_read_cmd_ready                (CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_cmd_ready             ), //o
     .io_gmbIn_read_cmd_payload_address      (LoadQueuePlugin_logic_loadQueue_slots_0_address[31:0]                    ), //i
-    .io_gmbIn_read_cmd_payload_id           (LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[3:0]                      ), //i
+    .io_gmbIn_read_cmd_payload_id           (CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_cmd_payload_id[3:0]   ), //i
     .io_gmbIn_read_rsp_valid                (CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_valid             ), //o
     .io_gmbIn_read_rsp_ready                (CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_ready             ), //i
     .io_gmbIn_read_rsp_payload_data         (CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_payload_data[31:0]), //o
@@ -15929,9 +15935,16 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    _zz_s2_RobAlloc_haltRequest_RenamePlugin_l163 = 1'b0;
-    if(when_RenamePlugin_l159) begin
-      _zz_s2_RobAlloc_haltRequest_RenamePlugin_l163 = 1'b1;
+    _zz_s2_RobAlloc_haltRequest_RenamePlugin_l172 = 1'b0;
+    if(when_RenamePlugin_l167) begin
+      _zz_s2_RobAlloc_haltRequest_RenamePlugin_l172 = 1'b1;
+    end
+  end
+
+  always @(*) begin
+    _zz_s1_Rename_haltRequest_RenamePlugin_l74 = 1'b0;
+    if(RenamePlugin_logic_needRetryReg) begin
+      _zz_s1_Rename_haltRequest_RenamePlugin_l74 = 1'b1;
     end
   end
 
@@ -15944,7 +15957,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     CheckpointManagerPlugin_saveCheckpointTrigger = 1'b0;
-    if(when_CommitPlugin_l275) begin
+    if(when_CommitPlugin_l276) begin
       CheckpointManagerPlugin_saveCheckpointTrigger = 1'b1;
     end
   end
@@ -15964,7 +15977,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    AluIntEU_AluIntEuPlugin_euResult_uop_robPtr = 4'b0000;
+    AluIntEU_AluIntEuPlugin_euResult_uop_robPtr = 3'b000;
     if(s3_Writeback_isFiring) begin
       AluIntEU_AluIntEuPlugin_euResult_uop_robPtr = _zz_AluIntEU_AluIntEuPlugin_euResult_uop_robPtr;
     end
@@ -16303,14 +16316,14 @@ module CoreNSCSCC (
   assign MulEU_MulEuPlugin_euResult_uop_uop_rename_oldPhysDestIsFpr = 1'b0;
   assign MulEU_MulEuPlugin_euResult_uop_uop_rename_allocatesPhysDest = 1'b0;
   assign MulEU_MulEuPlugin_euResult_uop_uop_rename_writesToPhysReg = 1'b0;
-  assign MulEU_MulEuPlugin_euResult_uop_uop_robPtr = 4'b0000;
+  assign MulEU_MulEuPlugin_euResult_uop_uop_robPtr = 3'b000;
   assign MulEU_MulEuPlugin_euResult_uop_uop_uniqueId = 16'h0;
   assign MulEU_MulEuPlugin_euResult_uop_uop_dispatched = 1'b0;
   assign MulEU_MulEuPlugin_euResult_uop_uop_executed = 1'b0;
   assign MulEU_MulEuPlugin_euResult_uop_uop_hasException = 1'b0;
   assign MulEU_MulEuPlugin_euResult_uop_uop_exceptionCode = 8'h0;
   always @(*) begin
-    MulEU_MulEuPlugin_euResult_uop_robPtr = 4'b0000;
+    MulEU_MulEuPlugin_euResult_uop_robPtr = 3'b000;
     if(mul_s7_Writeback_isFiring) begin
       MulEU_MulEuPlugin_euResult_uop_robPtr = _zz_MulEU_MulEuPlugin_euResult_uop_robPtr_5;
     end
@@ -16386,7 +16399,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    BranchEU_BranchEuPlugin_euResult_uop_robPtr = 4'b0000;
+    BranchEU_BranchEuPlugin_euResult_uop_robPtr = 3'b000;
     if(s3_Result_isFiring) begin
       BranchEU_BranchEuPlugin_euResult_uop_robPtr = _zz_BranchEU_BranchEuPlugin_euResult_uop_robPtr;
     end
@@ -16636,7 +16649,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    LsuEU_LsuEuPlugin_euResult_uop_robPtr = 4'b0000;
+    LsuEU_LsuEuPlugin_euResult_uop_robPtr = 3'b000;
     if(when_LsuEuPlugin_l143) begin
       if(when_LsuEuPlugin_l153) begin
         LsuEU_LsuEuPlugin_euResult_uop_robPtr = LsuEU_LsuEuPlugin_hw_aguPort_output_payload_robPtr;
@@ -16761,7 +16774,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     BpuPipelinePlugin_updatePortIn_valid = 1'b0;
-    if(when_CommitPlugin_l231) begin
+    if(when_CommitPlugin_l232) begin
       if(ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_isBranchOrJump) begin
         BpuPipelinePlugin_updatePortIn_valid = 1'b1;
       end
@@ -16770,7 +16783,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     BpuPipelinePlugin_updatePortIn_payload_pc = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-    if(when_CommitPlugin_l231) begin
+    if(when_CommitPlugin_l232) begin
       if(ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_isBranchOrJump) begin
         BpuPipelinePlugin_updatePortIn_payload_pc = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc;
       end
@@ -16779,7 +16792,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     BpuPipelinePlugin_updatePortIn_payload_isTaken = 1'bx;
-    if(when_CommitPlugin_l231) begin
+    if(when_CommitPlugin_l232) begin
       if(ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_isBranchOrJump) begin
         BpuPipelinePlugin_updatePortIn_payload_isTaken = ROBPlugin_robComponent_io_commit_0_entry_status_isTaken;
       end
@@ -16788,7 +16801,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     BpuPipelinePlugin_updatePortIn_payload_target = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
-    if(when_CommitPlugin_l231) begin
+    if(when_CommitPlugin_l232) begin
       if(ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_isBranchOrJump) begin
         BpuPipelinePlugin_updatePortIn_payload_target = ROBPlugin_robComponent_io_commit_0_entry_status_targetPc;
       end
@@ -16797,7 +16810,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     RenameMapTablePlugin_early_setup_rat_io_commitUpdatePort_wen = 1'b0;
-    if(when_CommitPlugin_l231) begin
+    if(when_CommitPlugin_l232) begin
       if(ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_writesToPhysReg) begin
         RenameMapTablePlugin_early_setup_rat_io_commitUpdatePort_wen = 1'b1;
       end
@@ -16806,7 +16819,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     RenameMapTablePlugin_early_setup_rat_io_commitUpdatePort_archReg = 5'bxxxxx;
-    if(when_CommitPlugin_l231) begin
+    if(when_CommitPlugin_l232) begin
       if(ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_writesToPhysReg) begin
         RenameMapTablePlugin_early_setup_rat_io_commitUpdatePort_archReg = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_archDest_idx;
       end
@@ -16815,7 +16828,7 @@ module CoreNSCSCC (
 
   always @(*) begin
     RenameMapTablePlugin_early_setup_rat_io_commitUpdatePort_physReg = 6'bxxxxxx;
-    if(when_CommitPlugin_l231) begin
+    if(when_CommitPlugin_l232) begin
       if(ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_writesToPhysReg) begin
         RenameMapTablePlugin_early_setup_rat_io_commitUpdatePort_physReg = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_physDest_idx;
       end
@@ -16913,9 +16926,9 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    CommitPlugin_hw_robFlushPort_payload_targetRobPtr = 4'bxxxx;
+    CommitPlugin_hw_robFlushPort_payload_targetRobPtr = 3'bxxx;
     if(CommitPlugin_logic_scheduedFlush) begin
-      CommitPlugin_hw_robFlushPort_payload_targetRobPtr = 4'bxxxx;
+      CommitPlugin_hw_robFlushPort_payload_targetRobPtr = 3'bxxx;
     end
   end
 
@@ -16923,14 +16936,14 @@ module CoreNSCSCC (
   assign CommitPlugin_logic_mispredictedBranchCanCommit = (((CommitPlugin_commitEnableExt && CommitPlugin_logic_s0_headIsDone) && ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_isBranchOrJump) && ROBPlugin_robComponent_io_commit_0_entry_status_isMispredictedBranch);
   always @(*) begin
     CommitPlugin_logic_s0_commitAckMasks_0 = 1'b0;
-    if(when_CommitPlugin_l231) begin
+    if(when_CommitPlugin_l232) begin
       CommitPlugin_logic_s0_commitAckMasks_0 = 1'b1;
     end
   end
 
   always @(*) begin
     SimpleFreeListPlugin_early_setup_freeList_io_free_0_enable = 1'b0;
-    if(when_CommitPlugin_l231) begin
+    if(when_CommitPlugin_l232) begin
       if(ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_allocatesPhysDest) begin
         SimpleFreeListPlugin_early_setup_freeList_io_free_0_enable = 1'b1;
       end
@@ -16939,15 +16952,15 @@ module CoreNSCSCC (
 
   always @(*) begin
     SimpleFreeListPlugin_early_setup_freeList_io_free_0_physReg = 6'h0;
-    if(when_CommitPlugin_l231) begin
+    if(when_CommitPlugin_l232) begin
       if(ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_allocatesPhysDest) begin
         SimpleFreeListPlugin_early_setup_freeList_io_free_0_physReg = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx;
       end
     end
   end
 
-  assign when_CommitPlugin_l231 = ((CommitPlugin_commitEnableExt && CommitPlugin_logic_s0_headIsDone) && (! CommitPlugin_logic_scheduedFlush));
-  assign when_CommitPlugin_l275 = ((CommitPlugin_commitEnableExt && CommitPlugin_logic_s0_headIsDone) && (! CommitPlugin_logic_scheduedFlush));
+  assign when_CommitPlugin_l232 = ((CommitPlugin_commitEnableExt && CommitPlugin_logic_s0_headIsDone) && (! CommitPlugin_logic_scheduedFlush));
+  assign when_CommitPlugin_l276 = ((CommitPlugin_commitEnableExt && CommitPlugin_logic_s0_headIsDone) && (! CommitPlugin_logic_scheduedFlush));
   assign CommitPlugin_logic_s0_committedThisCycle_comb = _zz_CommitPlugin_logic_s0_committedThisCycle_comb;
   assign CommitPlugin_logic_s0_recycledThisCycle_comb = _zz_CommitPlugin_logic_s0_recycledThisCycle_comb;
   assign CommitPlugin_logic_s0_commitPcs_0 = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc;
@@ -16961,7 +16974,7 @@ module CoreNSCSCC (
   assign CommitPlugin_commitSlotLogs_0_oldPhysDest = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx;
   assign CommitPlugin_commitSlotLogs_0_allocatesPhysDest = ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_allocatesPhysDest;
   assign CommitPlugin_logic_s1_s1_hasCommitsThisCycle = (1'b0 < CommitPlugin_logic_s1_s1_committedThisCycle);
-  assign when_CommitPlugin_l348 = (CommitPlugin_logic_s1_s1_hasCommitsThisCycle && (CommitPlugin_maxCommitPcReg < CommitPlugin_logic_s1_s1_maxCommitPcThisCycle));
+  assign when_CommitPlugin_l349 = (CommitPlugin_logic_s1_s1_hasCommitsThisCycle && (CommitPlugin_maxCommitPcReg < CommitPlugin_logic_s1_s1_maxCommitPcThisCycle));
   assign oneShot_16_io_triggerIn = (CommitPlugin_logic_s0_committedThisCycle_comb[0] && (_zz_when_Debug_l71 < _zz_io_triggerIn_8));
   assign _zz_when_Debug_l71_5 = 5'h19;
   assign when_Debug_l71_4 = (_zz_when_Debug_l71 < _zz_when_Debug_l71_4_1);
@@ -17226,7 +17239,9 @@ module CoreNSCSCC (
   assign _zz_50 = (DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype == ArchRegType_GPR);
   assign _zz_51 = (DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype == ArchRegType_FPR);
   assign _zz_52 = (DecodePlugin_logic_decodedUopsOutputVec_0_branchCtrl_linkReg_rtype == ArchRegType_CSR);
+  assign SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_enable = (s1_Rename_valid && (s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_writeArchDestEn || RenamePlugin_logic_needRetryReg));
   assign s1_Rename_IssuePipelineSignals_NEEDS_PHYS_REG_0 = s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_writeArchDestEn;
+  assign s1_Rename_haltRequest_RenamePlugin_l74 = _zz_s1_Rename_haltRequest_RenamePlugin_l74;
   assign RenamePlugin_setup_renameUnit_io_flush = (RenamePlugin_doGlobalFlush || RenamePlugin_doGlobalFlush_regNext);
   always @(*) begin
     RenamePlugin_logic_s2_logic_renameUnitInputUops_0_pc = 32'h0;
@@ -18399,7 +18414,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_robPtr = 4'b0000;
+    s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_robPtr = 3'b000;
     if(s2_RobAlloc_isFiring) begin
       s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_robPtr = RenamePlugin_setup_renameUnit_io_renamedUopsOut_0_robPtr;
     end
@@ -18475,23 +18490,9 @@ module CoreNSCSCC (
     end
   end
 
-  always @(*) begin
-    SimpleFreeListPlugin_early_setup_freeList_io_free_1_enable = 1'b0;
-    if(when_RenamePlugin_l124) begin
-      SimpleFreeListPlugin_early_setup_freeList_io_free_1_enable = 1'b1;
-    end
-  end
-
-  always @(*) begin
-    SimpleFreeListPlugin_early_setup_freeList_io_free_1_physReg = 6'h0;
-    if(when_RenamePlugin_l124) begin
-      SimpleFreeListPlugin_early_setup_freeList_io_free_1_physReg = SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_physReg;
-    end
-  end
-
-  assign when_RenamePlugin_l124 = ((s2_RobAlloc_valid && SimpleFreeListPlugin_early_setup_freeList_io_allocate_0_success) && (! s2_RobAlloc_IssuePipelineSignals_NEEDS_PHYS_REG_0));
-  assign when_RenamePlugin_l159 = (s2_RobAlloc_valid && (! RenamePlugin_logic_s2_logic_allocationOk));
-  assign s2_RobAlloc_haltRequest_RenamePlugin_l163 = _zz_s2_RobAlloc_haltRequest_RenamePlugin_l163;
+  assign SimpleFreeListPlugin_early_setup_freeList_io_free_1_enable = 1'b0;
+  assign when_RenamePlugin_l167 = (s2_RobAlloc_valid && (! RenamePlugin_logic_s2_logic_allocationOk));
+  assign s2_RobAlloc_haltRequest_RenamePlugin_l172 = _zz_s2_RobAlloc_haltRequest_RenamePlugin_l172;
   assign RenamePlugin_doGlobalFlush = FetchPipelinePlugin_doHardRedirect_listening;
   assign s2_RobAlloc_haltRequest_RobAllocPlugin_l30 = (! ROBPlugin_robComponent_io_allocate_0_ready);
   assign ROBPlugin_robComponent_io_allocate_0_valid = (s2_RobAlloc_isFiring && s2_RobAlloc_IssuePipelineSignals_RENAMED_UOPS_0_decoded_isValid);
@@ -19619,7 +19620,7 @@ module CoreNSCSCC (
     if(DispatchPlugin_logic_iqRegs_0_1_valid) begin
       DispatchPlugin_logic_iqRegs_0_1_payload_uop_robPtr = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_robPtr;
     end else begin
-      DispatchPlugin_logic_iqRegs_0_1_payload_uop_robPtr = 4'bxxxx;
+      DispatchPlugin_logic_iqRegs_0_1_payload_uop_robPtr = 3'bxxx;
     end
   end
 
@@ -20388,7 +20389,7 @@ module CoreNSCSCC (
     if(DispatchPlugin_logic_iqRegs_1_1_valid) begin
       DispatchPlugin_logic_iqRegs_1_1_payload_uop_robPtr = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_robPtr;
     end else begin
-      DispatchPlugin_logic_iqRegs_1_1_payload_uop_robPtr = 4'bxxxx;
+      DispatchPlugin_logic_iqRegs_1_1_payload_uop_robPtr = 3'bxxx;
     end
   end
 
@@ -21157,7 +21158,7 @@ module CoreNSCSCC (
     if(DispatchPlugin_logic_iqRegs_2_1_valid) begin
       DispatchPlugin_logic_iqRegs_2_1_payload_uop_robPtr = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_robPtr;
     end else begin
-      DispatchPlugin_logic_iqRegs_2_1_payload_uop_robPtr = 4'bxxxx;
+      DispatchPlugin_logic_iqRegs_2_1_payload_uop_robPtr = 3'bxxx;
     end
   end
 
@@ -21926,7 +21927,7 @@ module CoreNSCSCC (
     if(DispatchPlugin_logic_iqRegs_3_1_valid) begin
       DispatchPlugin_logic_iqRegs_3_1_payload_uop_robPtr = s3_Dispatch_IssuePipelineSignals_ALLOCATED_UOPS_0_robPtr;
     end else begin
-      DispatchPlugin_logic_iqRegs_3_1_payload_uop_robPtr = 4'bxxxx;
+      DispatchPlugin_logic_iqRegs_3_1_payload_uop_robPtr = 3'bxxx;
     end
   end
 
@@ -22624,45 +22625,55 @@ module CoreNSCSCC (
     if(s1_Rename_isFlushingRoot) begin
       _zz_s2_RobAlloc_valid = 1'b0;
     end
+    if(when_Pipeline_l282) begin
+      _zz_s2_RobAlloc_valid = 1'b0;
+    end
   end
 
-  assign s1_Rename_ready = s1_Rename_ready_output;
+  always @(*) begin
+    s1_Rename_ready = s1_Rename_ready_output;
+    if(when_Pipeline_l282) begin
+      s1_Rename_ready = 1'b0;
+    end
+  end
+
+  assign when_Pipeline_l282 = (|s1_Rename_haltRequest_RenamePlugin_l74);
   always @(*) begin
     _zz_s3_Dispatch_valid = s2_RobAlloc_valid;
     if(s2_RobAlloc_isFlushingRoot) begin
       _zz_s3_Dispatch_valid = 1'b0;
     end
-    if(when_Pipeline_l282) begin
+    if(when_Pipeline_l282_1) begin
       _zz_s3_Dispatch_valid = 1'b0;
     end
   end
 
   always @(*) begin
     s2_RobAlloc_ready = s2_RobAlloc_ready_output;
-    if(when_Pipeline_l282) begin
+    if(when_Pipeline_l282_1) begin
       s2_RobAlloc_ready = 1'b0;
     end
   end
 
-  assign when_Pipeline_l282 = (|{s2_RobAlloc_haltRequest_RobAllocPlugin_l30,s2_RobAlloc_haltRequest_RenamePlugin_l163});
+  assign when_Pipeline_l282_1 = (|{s2_RobAlloc_haltRequest_RobAllocPlugin_l30,s2_RobAlloc_haltRequest_RenamePlugin_l172});
   always @(*) begin
     _zz_26 = s3_Dispatch_valid;
     if(s3_Dispatch_isFlushingRoot) begin
       _zz_26 = 1'b0;
     end
-    if(when_Pipeline_l282_1) begin
+    if(when_Pipeline_l282_2) begin
       _zz_26 = 1'b0;
     end
   end
 
   always @(*) begin
     s3_Dispatch_ready = 1'b1;
-    if(when_Pipeline_l282_1) begin
+    if(when_Pipeline_l282_2) begin
       s3_Dispatch_ready = 1'b0;
     end
   end
 
-  assign when_Pipeline_l282_1 = (|s3_Dispatch_haltRequest_DispatchPlugin_l78);
+  assign when_Pipeline_l282_2 = (|s3_Dispatch_haltRequest_DispatchPlugin_l78);
   always @(*) begin
     s0_Decode_ready_output = s1_Rename_ready;
     if(when_Connection_l74) begin
@@ -23899,13 +23910,13 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_0_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_0_robPtr;
     if(when_LoadQueuePlugin_l297) begin
-      LoadQueuePlugin_logic_loadQueue_slotsNext_0_robPtr = 4'b0000;
+      LoadQueuePlugin_logic_loadQueue_slotsNext_0_robPtr = 3'b000;
     end
     if(when_LoadQueuePlugin_l528) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_0_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_robPtr;
     end
     if(when_LoadQueuePlugin_l543) begin
-      LoadQueuePlugin_logic_loadQueue_slotsNext_0_robPtr = 4'b0000;
+      LoadQueuePlugin_logic_loadQueue_slotsNext_0_robPtr = 3'b000;
     end
   end
 
@@ -24068,13 +24079,13 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_1_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_1_robPtr;
     if(when_LoadQueuePlugin_l297) begin
-      LoadQueuePlugin_logic_loadQueue_slotsNext_1_robPtr = 4'b0000;
+      LoadQueuePlugin_logic_loadQueue_slotsNext_1_robPtr = 3'b000;
     end
     if(when_LoadQueuePlugin_l528) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_1_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_robPtr;
     end
     if(when_LoadQueuePlugin_l543_1) begin
-      LoadQueuePlugin_logic_loadQueue_slotsNext_1_robPtr = 4'b0000;
+      LoadQueuePlugin_logic_loadQueue_slotsNext_1_robPtr = 3'b000;
     end
   end
 
@@ -24237,13 +24248,13 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_2_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_2_robPtr;
     if(when_LoadQueuePlugin_l297) begin
-      LoadQueuePlugin_logic_loadQueue_slotsNext_2_robPtr = 4'b0000;
+      LoadQueuePlugin_logic_loadQueue_slotsNext_2_robPtr = 3'b000;
     end
     if(when_LoadQueuePlugin_l528) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_2_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_robPtr;
     end
     if(when_LoadQueuePlugin_l543_2) begin
-      LoadQueuePlugin_logic_loadQueue_slotsNext_2_robPtr = 4'b0000;
+      LoadQueuePlugin_logic_loadQueue_slotsNext_2_robPtr = 3'b000;
     end
   end
 
@@ -24406,13 +24417,13 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_3_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_3_robPtr;
     if(when_LoadQueuePlugin_l297) begin
-      LoadQueuePlugin_logic_loadQueue_slotsNext_3_robPtr = 4'b0000;
+      LoadQueuePlugin_logic_loadQueue_slotsNext_3_robPtr = 3'b000;
     end
     if(when_LoadQueuePlugin_l528) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_3_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_4_robPtr;
     end
     if(when_LoadQueuePlugin_l543_3) begin
-      LoadQueuePlugin_logic_loadQueue_slotsNext_3_robPtr = 4'b0000;
+      LoadQueuePlugin_logic_loadQueue_slotsNext_3_robPtr = 3'b000;
     end
   end
 
@@ -24575,13 +24586,13 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_4_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_4_robPtr;
     if(when_LoadQueuePlugin_l297) begin
-      LoadQueuePlugin_logic_loadQueue_slotsNext_4_robPtr = 4'b0000;
+      LoadQueuePlugin_logic_loadQueue_slotsNext_4_robPtr = 3'b000;
     end
     if(when_LoadQueuePlugin_l528) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_4_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_5_robPtr;
     end
     if(when_LoadQueuePlugin_l543_4) begin
-      LoadQueuePlugin_logic_loadQueue_slotsNext_4_robPtr = 4'b0000;
+      LoadQueuePlugin_logic_loadQueue_slotsNext_4_robPtr = 3'b000;
     end
   end
 
@@ -24744,13 +24755,13 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_5_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_5_robPtr;
     if(when_LoadQueuePlugin_l297) begin
-      LoadQueuePlugin_logic_loadQueue_slotsNext_5_robPtr = 4'b0000;
+      LoadQueuePlugin_logic_loadQueue_slotsNext_5_robPtr = 3'b000;
     end
     if(when_LoadQueuePlugin_l528) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_5_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_6_robPtr;
     end
     if(when_LoadQueuePlugin_l543_5) begin
-      LoadQueuePlugin_logic_loadQueue_slotsNext_5_robPtr = 4'b0000;
+      LoadQueuePlugin_logic_loadQueue_slotsNext_5_robPtr = 3'b000;
     end
   end
 
@@ -24913,13 +24924,13 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_6_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_6_robPtr;
     if(when_LoadQueuePlugin_l297) begin
-      LoadQueuePlugin_logic_loadQueue_slotsNext_6_robPtr = 4'b0000;
+      LoadQueuePlugin_logic_loadQueue_slotsNext_6_robPtr = 3'b000;
     end
     if(when_LoadQueuePlugin_l528) begin
       LoadQueuePlugin_logic_loadQueue_slotsNext_6_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_7_robPtr;
     end
     if(when_LoadQueuePlugin_l543_6) begin
-      LoadQueuePlugin_logic_loadQueue_slotsNext_6_robPtr = 4'b0000;
+      LoadQueuePlugin_logic_loadQueue_slotsNext_6_robPtr = 3'b000;
     end
   end
 
@@ -25082,13 +25093,13 @@ module CoreNSCSCC (
   always @(*) begin
     LoadQueuePlugin_logic_loadQueue_slotsNext_7_robPtr = LoadQueuePlugin_logic_loadQueue_slotsAfterUpdates_7_robPtr;
     if(when_LoadQueuePlugin_l297) begin
-      LoadQueuePlugin_logic_loadQueue_slotsNext_7_robPtr = 4'b0000;
+      LoadQueuePlugin_logic_loadQueue_slotsNext_7_robPtr = 3'b000;
     end
     if(when_LoadQueuePlugin_l528) begin
-      LoadQueuePlugin_logic_loadQueue_slotsNext_7_robPtr = 4'b0000;
+      LoadQueuePlugin_logic_loadQueue_slotsNext_7_robPtr = 3'b000;
     end
     if(when_LoadQueuePlugin_l543_7) begin
-      LoadQueuePlugin_logic_loadQueue_slotsNext_7_robPtr = 4'b0000;
+      LoadQueuePlugin_logic_loadQueue_slotsNext_7_robPtr = 3'b000;
     end
   end
 
@@ -25233,10 +25244,10 @@ module CoreNSCSCC (
   assign _zz_61 = _zz_55[5];
   assign _zz_62 = _zz_55[6];
   assign _zz_63 = _zz_55[7];
-  assign _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[3];
-  assign _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_1 = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[2 : 0];
-  assign _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_2 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[3];
-  assign _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_3 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2 : 0];
+  assign _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[2];
+  assign _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_1 = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[1 : 0];
+  assign _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_2 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[2];
+  assign _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_3 = ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr[1 : 0];
   assign LoadQueuePlugin_logic_loadQueue_headIsVisible = (LoadQueuePlugin_logic_loadQueue_slots_0_valid && (! (LoadQueuePlugin_logic_loadQueue_flushInProgress && (((_zz_LoadQueuePlugin_logic_loadQueue_headIsVisible == _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_2) && (_zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_3 <= _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_1)) || ((_zz_LoadQueuePlugin_logic_loadQueue_headIsVisible != _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_2) && (_zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_1 < _zz_LoadQueuePlugin_logic_loadQueue_headIsVisible_3))))));
   assign LoadQueuePlugin_logic_loadQueue_headIsReadyForFwdQuery = (((((LoadQueuePlugin_logic_loadQueue_headIsVisible && (! LoadQueuePlugin_logic_loadQueue_slots_0_hasException)) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForFwdRsp)) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isStalledByDependency)) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isWaitingForRsp)) && (! LoadQueuePlugin_logic_loadQueue_slots_0_isReadyForDCache));
   assign StoreBufferPlugin_hw_sqQueryPort_cmd_valid = LoadQueuePlugin_logic_loadQueue_headIsReadyForFwdQuery;
@@ -25263,7 +25274,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    ROBPlugin_robComponent_io_writeback_4_robPtr = 4'bxxxx;
+    ROBPlugin_robComponent_io_writeback_4_robPtr = 3'bxxx;
     if(LoadQueuePlugin_logic_loadQueue_completionInfoReg_valid) begin
       ROBPlugin_robComponent_io_writeback_4_robPtr = LoadQueuePlugin_logic_loadQueue_completingHead_robPtr;
     end
@@ -25359,45 +25370,45 @@ module CoreNSCSCC (
 
   assign when_LoadQueuePlugin_l513 = (! LoadQueuePlugin_logic_loadQueue_completionInfoReg_hasFault);
   assign when_LoadQueuePlugin_l528 = (LoadQueuePlugin_logic_loadQueue_popRequest && (! LoadQueuePlugin_logic_loadQueue_flushInProgress));
-  assign _zz_when_LoadQueuePlugin_l543 = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[3];
-  assign _zz_when_LoadQueuePlugin_l543_1 = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[2 : 0];
-  assign _zz_when_LoadQueuePlugin_l543_2 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
-  assign _zz_when_LoadQueuePlugin_l543_3 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
+  assign _zz_when_LoadQueuePlugin_l543 = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[2];
+  assign _zz_when_LoadQueuePlugin_l543_1 = LoadQueuePlugin_logic_loadQueue_slots_0_robPtr[1 : 0];
+  assign _zz_when_LoadQueuePlugin_l543_2 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2];
+  assign _zz_when_LoadQueuePlugin_l543_3 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[1 : 0];
   assign when_LoadQueuePlugin_l543 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_0_valid) && (((_zz_when_LoadQueuePlugin_l543 == _zz_when_LoadQueuePlugin_l543_2) && (_zz_when_LoadQueuePlugin_l543_3 <= _zz_when_LoadQueuePlugin_l543_1)) || ((_zz_when_LoadQueuePlugin_l543 != _zz_when_LoadQueuePlugin_l543_2) && (_zz_when_LoadQueuePlugin_l543_1 < _zz_when_LoadQueuePlugin_l543_3))));
-  assign _zz_when_LoadQueuePlugin_l543_4 = LoadQueuePlugin_logic_loadQueue_slots_1_robPtr[3];
-  assign _zz_when_LoadQueuePlugin_l543_5 = LoadQueuePlugin_logic_loadQueue_slots_1_robPtr[2 : 0];
-  assign _zz_when_LoadQueuePlugin_l543_6 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
-  assign _zz_when_LoadQueuePlugin_l543_7 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
+  assign _zz_when_LoadQueuePlugin_l543_4 = LoadQueuePlugin_logic_loadQueue_slots_1_robPtr[2];
+  assign _zz_when_LoadQueuePlugin_l543_5 = LoadQueuePlugin_logic_loadQueue_slots_1_robPtr[1 : 0];
+  assign _zz_when_LoadQueuePlugin_l543_6 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2];
+  assign _zz_when_LoadQueuePlugin_l543_7 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[1 : 0];
   assign when_LoadQueuePlugin_l543_1 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_1_valid) && (((_zz_when_LoadQueuePlugin_l543_4 == _zz_when_LoadQueuePlugin_l543_6) && (_zz_when_LoadQueuePlugin_l543_7 <= _zz_when_LoadQueuePlugin_l543_5)) || ((_zz_when_LoadQueuePlugin_l543_4 != _zz_when_LoadQueuePlugin_l543_6) && (_zz_when_LoadQueuePlugin_l543_5 < _zz_when_LoadQueuePlugin_l543_7))));
-  assign _zz_when_LoadQueuePlugin_l543_8 = LoadQueuePlugin_logic_loadQueue_slots_2_robPtr[3];
-  assign _zz_when_LoadQueuePlugin_l543_9 = LoadQueuePlugin_logic_loadQueue_slots_2_robPtr[2 : 0];
-  assign _zz_when_LoadQueuePlugin_l543_10 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
-  assign _zz_when_LoadQueuePlugin_l543_11 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
+  assign _zz_when_LoadQueuePlugin_l543_8 = LoadQueuePlugin_logic_loadQueue_slots_2_robPtr[2];
+  assign _zz_when_LoadQueuePlugin_l543_9 = LoadQueuePlugin_logic_loadQueue_slots_2_robPtr[1 : 0];
+  assign _zz_when_LoadQueuePlugin_l543_10 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2];
+  assign _zz_when_LoadQueuePlugin_l543_11 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[1 : 0];
   assign when_LoadQueuePlugin_l543_2 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_2_valid) && (((_zz_when_LoadQueuePlugin_l543_8 == _zz_when_LoadQueuePlugin_l543_10) && (_zz_when_LoadQueuePlugin_l543_11 <= _zz_when_LoadQueuePlugin_l543_9)) || ((_zz_when_LoadQueuePlugin_l543_8 != _zz_when_LoadQueuePlugin_l543_10) && (_zz_when_LoadQueuePlugin_l543_9 < _zz_when_LoadQueuePlugin_l543_11))));
-  assign _zz_when_LoadQueuePlugin_l543_12 = LoadQueuePlugin_logic_loadQueue_slots_3_robPtr[3];
-  assign _zz_when_LoadQueuePlugin_l543_13 = LoadQueuePlugin_logic_loadQueue_slots_3_robPtr[2 : 0];
-  assign _zz_when_LoadQueuePlugin_l543_14 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
-  assign _zz_when_LoadQueuePlugin_l543_15 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
+  assign _zz_when_LoadQueuePlugin_l543_12 = LoadQueuePlugin_logic_loadQueue_slots_3_robPtr[2];
+  assign _zz_when_LoadQueuePlugin_l543_13 = LoadQueuePlugin_logic_loadQueue_slots_3_robPtr[1 : 0];
+  assign _zz_when_LoadQueuePlugin_l543_14 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2];
+  assign _zz_when_LoadQueuePlugin_l543_15 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[1 : 0];
   assign when_LoadQueuePlugin_l543_3 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_3_valid) && (((_zz_when_LoadQueuePlugin_l543_12 == _zz_when_LoadQueuePlugin_l543_14) && (_zz_when_LoadQueuePlugin_l543_15 <= _zz_when_LoadQueuePlugin_l543_13)) || ((_zz_when_LoadQueuePlugin_l543_12 != _zz_when_LoadQueuePlugin_l543_14) && (_zz_when_LoadQueuePlugin_l543_13 < _zz_when_LoadQueuePlugin_l543_15))));
-  assign _zz_when_LoadQueuePlugin_l543_16 = LoadQueuePlugin_logic_loadQueue_slots_4_robPtr[3];
-  assign _zz_when_LoadQueuePlugin_l543_17 = LoadQueuePlugin_logic_loadQueue_slots_4_robPtr[2 : 0];
-  assign _zz_when_LoadQueuePlugin_l543_18 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
-  assign _zz_when_LoadQueuePlugin_l543_19 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
+  assign _zz_when_LoadQueuePlugin_l543_16 = LoadQueuePlugin_logic_loadQueue_slots_4_robPtr[2];
+  assign _zz_when_LoadQueuePlugin_l543_17 = LoadQueuePlugin_logic_loadQueue_slots_4_robPtr[1 : 0];
+  assign _zz_when_LoadQueuePlugin_l543_18 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2];
+  assign _zz_when_LoadQueuePlugin_l543_19 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[1 : 0];
   assign when_LoadQueuePlugin_l543_4 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_4_valid) && (((_zz_when_LoadQueuePlugin_l543_16 == _zz_when_LoadQueuePlugin_l543_18) && (_zz_when_LoadQueuePlugin_l543_19 <= _zz_when_LoadQueuePlugin_l543_17)) || ((_zz_when_LoadQueuePlugin_l543_16 != _zz_when_LoadQueuePlugin_l543_18) && (_zz_when_LoadQueuePlugin_l543_17 < _zz_when_LoadQueuePlugin_l543_19))));
-  assign _zz_when_LoadQueuePlugin_l543_20 = LoadQueuePlugin_logic_loadQueue_slots_5_robPtr[3];
-  assign _zz_when_LoadQueuePlugin_l543_21 = LoadQueuePlugin_logic_loadQueue_slots_5_robPtr[2 : 0];
-  assign _zz_when_LoadQueuePlugin_l543_22 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
-  assign _zz_when_LoadQueuePlugin_l543_23 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
+  assign _zz_when_LoadQueuePlugin_l543_20 = LoadQueuePlugin_logic_loadQueue_slots_5_robPtr[2];
+  assign _zz_when_LoadQueuePlugin_l543_21 = LoadQueuePlugin_logic_loadQueue_slots_5_robPtr[1 : 0];
+  assign _zz_when_LoadQueuePlugin_l543_22 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2];
+  assign _zz_when_LoadQueuePlugin_l543_23 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[1 : 0];
   assign when_LoadQueuePlugin_l543_5 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_5_valid) && (((_zz_when_LoadQueuePlugin_l543_20 == _zz_when_LoadQueuePlugin_l543_22) && (_zz_when_LoadQueuePlugin_l543_23 <= _zz_when_LoadQueuePlugin_l543_21)) || ((_zz_when_LoadQueuePlugin_l543_20 != _zz_when_LoadQueuePlugin_l543_22) && (_zz_when_LoadQueuePlugin_l543_21 < _zz_when_LoadQueuePlugin_l543_23))));
-  assign _zz_when_LoadQueuePlugin_l543_24 = LoadQueuePlugin_logic_loadQueue_slots_6_robPtr[3];
-  assign _zz_when_LoadQueuePlugin_l543_25 = LoadQueuePlugin_logic_loadQueue_slots_6_robPtr[2 : 0];
-  assign _zz_when_LoadQueuePlugin_l543_26 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
-  assign _zz_when_LoadQueuePlugin_l543_27 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
+  assign _zz_when_LoadQueuePlugin_l543_24 = LoadQueuePlugin_logic_loadQueue_slots_6_robPtr[2];
+  assign _zz_when_LoadQueuePlugin_l543_25 = LoadQueuePlugin_logic_loadQueue_slots_6_robPtr[1 : 0];
+  assign _zz_when_LoadQueuePlugin_l543_26 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2];
+  assign _zz_when_LoadQueuePlugin_l543_27 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[1 : 0];
   assign when_LoadQueuePlugin_l543_6 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_6_valid) && (((_zz_when_LoadQueuePlugin_l543_24 == _zz_when_LoadQueuePlugin_l543_26) && (_zz_when_LoadQueuePlugin_l543_27 <= _zz_when_LoadQueuePlugin_l543_25)) || ((_zz_when_LoadQueuePlugin_l543_24 != _zz_when_LoadQueuePlugin_l543_26) && (_zz_when_LoadQueuePlugin_l543_25 < _zz_when_LoadQueuePlugin_l543_27))));
-  assign _zz_when_LoadQueuePlugin_l543_28 = LoadQueuePlugin_logic_loadQueue_slots_7_robPtr[3];
-  assign _zz_when_LoadQueuePlugin_l543_29 = LoadQueuePlugin_logic_loadQueue_slots_7_robPtr[2 : 0];
-  assign _zz_when_LoadQueuePlugin_l543_30 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[3];
-  assign _zz_when_LoadQueuePlugin_l543_31 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2 : 0];
+  assign _zz_when_LoadQueuePlugin_l543_28 = LoadQueuePlugin_logic_loadQueue_slots_7_robPtr[2];
+  assign _zz_when_LoadQueuePlugin_l543_29 = LoadQueuePlugin_logic_loadQueue_slots_7_robPtr[1 : 0];
+  assign _zz_when_LoadQueuePlugin_l543_30 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[2];
+  assign _zz_when_LoadQueuePlugin_l543_31 = LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr[1 : 0];
   assign when_LoadQueuePlugin_l543_7 = ((LoadQueuePlugin_logic_loadQueue_registeredFlush_valid && LoadQueuePlugin_logic_loadQueue_slots_7_valid) && (((_zz_when_LoadQueuePlugin_l543_28 == _zz_when_LoadQueuePlugin_l543_30) && (_zz_when_LoadQueuePlugin_l543_31 <= _zz_when_LoadQueuePlugin_l543_29)) || ((_zz_when_LoadQueuePlugin_l543_28 != _zz_when_LoadQueuePlugin_l543_30) && (_zz_when_LoadQueuePlugin_l543_29 < _zz_when_LoadQueuePlugin_l543_31))));
   assign AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp = ((AluIntEU_AluIntEuPlugin_gprReadPorts_0_address == 6'h0) ? 32'h0 : _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp);
   assign AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp = ((AluIntEU_AluIntEuPlugin_gprReadPorts_1_address == 6'h0) ? 32'h0 : _zz_AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp);
@@ -27523,7 +27534,7 @@ module CoreNSCSCC (
   always @(*) begin
     StoreBufferPlugin_logic_storage_slotsNext_7_robPtr = StoreBufferPlugin_logic_storage_slotsAfterUpdates_7_robPtr;
     if(StoreBufferPlugin_logic_pop_write_logic_popRequest) begin
-      StoreBufferPlugin_logic_storage_slotsNext_7_robPtr = 4'b0000;
+      StoreBufferPlugin_logic_storage_slotsNext_7_robPtr = 3'b000;
     end
   end
 
@@ -27643,59 +27654,59 @@ module CoreNSCSCC (
   end
 
   assign when_StoreBufferPlugin_l298 = (|StoreBufferPlugin_logic_rob_interaction_commitMatchMask);
-  assign _zz_when_StoreBufferPlugin_l312 = StoreBufferPlugin_logic_storage_slots_0_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l312_1 = StoreBufferPlugin_logic_storage_slots_0_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l312_2 = StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr[3];
-  assign _zz_when_StoreBufferPlugin_l312_3 = StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l312 = StoreBufferPlugin_logic_storage_slots_0_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l312_1 = StoreBufferPlugin_logic_storage_slots_0_robPtr[1 : 0];
+  assign _zz_when_StoreBufferPlugin_l312_2 = StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr[2];
+  assign _zz_when_StoreBufferPlugin_l312_3 = StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr[1 : 0];
   assign when_StoreBufferPlugin_l312 = ((((StoreBufferPlugin_logic_rob_interaction_registeredFlush_valid && (StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_reason == FlushReason_ROLLBACK_TO_ROB_IDX)) && StoreBufferPlugin_logic_storage_slots_0_valid) && (! StoreBufferPlugin_logic_storage_slots_0_isCommitted)) && (((_zz_when_StoreBufferPlugin_l312 == _zz_when_StoreBufferPlugin_l312_2) && (_zz_when_StoreBufferPlugin_l312_3 <= _zz_when_StoreBufferPlugin_l312_1)) || ((_zz_when_StoreBufferPlugin_l312 != _zz_when_StoreBufferPlugin_l312_2) && (_zz_when_StoreBufferPlugin_l312_1 < _zz_when_StoreBufferPlugin_l312_3))));
   assign when_StoreBufferPlugin_l317 = StoreBufferPlugin_logic_rob_interaction_commitMatchMask[0];
   assign when_StoreBufferPlugin_l315 = (StoreBufferPlugin_logic_storage_slots_0_valid && (! StoreBufferPlugin_logic_storage_slots_0_isCommitted));
-  assign _zz_when_StoreBufferPlugin_l312_4 = StoreBufferPlugin_logic_storage_slots_1_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l312_5 = StoreBufferPlugin_logic_storage_slots_1_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l312_6 = StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr[3];
-  assign _zz_when_StoreBufferPlugin_l312_7 = StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l312_4 = StoreBufferPlugin_logic_storage_slots_1_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l312_5 = StoreBufferPlugin_logic_storage_slots_1_robPtr[1 : 0];
+  assign _zz_when_StoreBufferPlugin_l312_6 = StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr[2];
+  assign _zz_when_StoreBufferPlugin_l312_7 = StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr[1 : 0];
   assign when_StoreBufferPlugin_l312_1 = ((((StoreBufferPlugin_logic_rob_interaction_registeredFlush_valid && (StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_reason == FlushReason_ROLLBACK_TO_ROB_IDX)) && StoreBufferPlugin_logic_storage_slots_1_valid) && (! StoreBufferPlugin_logic_storage_slots_1_isCommitted)) && (((_zz_when_StoreBufferPlugin_l312_4 == _zz_when_StoreBufferPlugin_l312_6) && (_zz_when_StoreBufferPlugin_l312_7 <= _zz_when_StoreBufferPlugin_l312_5)) || ((_zz_when_StoreBufferPlugin_l312_4 != _zz_when_StoreBufferPlugin_l312_6) && (_zz_when_StoreBufferPlugin_l312_5 < _zz_when_StoreBufferPlugin_l312_7))));
   assign when_StoreBufferPlugin_l317_1 = StoreBufferPlugin_logic_rob_interaction_commitMatchMask[1];
   assign when_StoreBufferPlugin_l315_1 = (StoreBufferPlugin_logic_storage_slots_1_valid && (! StoreBufferPlugin_logic_storage_slots_1_isCommitted));
-  assign _zz_when_StoreBufferPlugin_l312_8 = StoreBufferPlugin_logic_storage_slots_2_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l312_9 = StoreBufferPlugin_logic_storage_slots_2_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l312_10 = StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr[3];
-  assign _zz_when_StoreBufferPlugin_l312_11 = StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l312_8 = StoreBufferPlugin_logic_storage_slots_2_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l312_9 = StoreBufferPlugin_logic_storage_slots_2_robPtr[1 : 0];
+  assign _zz_when_StoreBufferPlugin_l312_10 = StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr[2];
+  assign _zz_when_StoreBufferPlugin_l312_11 = StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr[1 : 0];
   assign when_StoreBufferPlugin_l312_2 = ((((StoreBufferPlugin_logic_rob_interaction_registeredFlush_valid && (StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_reason == FlushReason_ROLLBACK_TO_ROB_IDX)) && StoreBufferPlugin_logic_storage_slots_2_valid) && (! StoreBufferPlugin_logic_storage_slots_2_isCommitted)) && (((_zz_when_StoreBufferPlugin_l312_8 == _zz_when_StoreBufferPlugin_l312_10) && (_zz_when_StoreBufferPlugin_l312_11 <= _zz_when_StoreBufferPlugin_l312_9)) || ((_zz_when_StoreBufferPlugin_l312_8 != _zz_when_StoreBufferPlugin_l312_10) && (_zz_when_StoreBufferPlugin_l312_9 < _zz_when_StoreBufferPlugin_l312_11))));
   assign when_StoreBufferPlugin_l317_2 = StoreBufferPlugin_logic_rob_interaction_commitMatchMask[2];
   assign when_StoreBufferPlugin_l315_2 = (StoreBufferPlugin_logic_storage_slots_2_valid && (! StoreBufferPlugin_logic_storage_slots_2_isCommitted));
-  assign _zz_when_StoreBufferPlugin_l312_12 = StoreBufferPlugin_logic_storage_slots_3_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l312_13 = StoreBufferPlugin_logic_storage_slots_3_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l312_14 = StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr[3];
-  assign _zz_when_StoreBufferPlugin_l312_15 = StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l312_12 = StoreBufferPlugin_logic_storage_slots_3_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l312_13 = StoreBufferPlugin_logic_storage_slots_3_robPtr[1 : 0];
+  assign _zz_when_StoreBufferPlugin_l312_14 = StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr[2];
+  assign _zz_when_StoreBufferPlugin_l312_15 = StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr[1 : 0];
   assign when_StoreBufferPlugin_l312_3 = ((((StoreBufferPlugin_logic_rob_interaction_registeredFlush_valid && (StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_reason == FlushReason_ROLLBACK_TO_ROB_IDX)) && StoreBufferPlugin_logic_storage_slots_3_valid) && (! StoreBufferPlugin_logic_storage_slots_3_isCommitted)) && (((_zz_when_StoreBufferPlugin_l312_12 == _zz_when_StoreBufferPlugin_l312_14) && (_zz_when_StoreBufferPlugin_l312_15 <= _zz_when_StoreBufferPlugin_l312_13)) || ((_zz_when_StoreBufferPlugin_l312_12 != _zz_when_StoreBufferPlugin_l312_14) && (_zz_when_StoreBufferPlugin_l312_13 < _zz_when_StoreBufferPlugin_l312_15))));
   assign when_StoreBufferPlugin_l317_3 = StoreBufferPlugin_logic_rob_interaction_commitMatchMask[3];
   assign when_StoreBufferPlugin_l315_3 = (StoreBufferPlugin_logic_storage_slots_3_valid && (! StoreBufferPlugin_logic_storage_slots_3_isCommitted));
-  assign _zz_when_StoreBufferPlugin_l312_16 = StoreBufferPlugin_logic_storage_slots_4_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l312_17 = StoreBufferPlugin_logic_storage_slots_4_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l312_18 = StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr[3];
-  assign _zz_when_StoreBufferPlugin_l312_19 = StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l312_16 = StoreBufferPlugin_logic_storage_slots_4_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l312_17 = StoreBufferPlugin_logic_storage_slots_4_robPtr[1 : 0];
+  assign _zz_when_StoreBufferPlugin_l312_18 = StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr[2];
+  assign _zz_when_StoreBufferPlugin_l312_19 = StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr[1 : 0];
   assign when_StoreBufferPlugin_l312_4 = ((((StoreBufferPlugin_logic_rob_interaction_registeredFlush_valid && (StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_reason == FlushReason_ROLLBACK_TO_ROB_IDX)) && StoreBufferPlugin_logic_storage_slots_4_valid) && (! StoreBufferPlugin_logic_storage_slots_4_isCommitted)) && (((_zz_when_StoreBufferPlugin_l312_16 == _zz_when_StoreBufferPlugin_l312_18) && (_zz_when_StoreBufferPlugin_l312_19 <= _zz_when_StoreBufferPlugin_l312_17)) || ((_zz_when_StoreBufferPlugin_l312_16 != _zz_when_StoreBufferPlugin_l312_18) && (_zz_when_StoreBufferPlugin_l312_17 < _zz_when_StoreBufferPlugin_l312_19))));
   assign when_StoreBufferPlugin_l317_4 = StoreBufferPlugin_logic_rob_interaction_commitMatchMask[4];
   assign when_StoreBufferPlugin_l315_4 = (StoreBufferPlugin_logic_storage_slots_4_valid && (! StoreBufferPlugin_logic_storage_slots_4_isCommitted));
-  assign _zz_when_StoreBufferPlugin_l312_20 = StoreBufferPlugin_logic_storage_slots_5_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l312_21 = StoreBufferPlugin_logic_storage_slots_5_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l312_22 = StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr[3];
-  assign _zz_when_StoreBufferPlugin_l312_23 = StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l312_20 = StoreBufferPlugin_logic_storage_slots_5_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l312_21 = StoreBufferPlugin_logic_storage_slots_5_robPtr[1 : 0];
+  assign _zz_when_StoreBufferPlugin_l312_22 = StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr[2];
+  assign _zz_when_StoreBufferPlugin_l312_23 = StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr[1 : 0];
   assign when_StoreBufferPlugin_l312_5 = ((((StoreBufferPlugin_logic_rob_interaction_registeredFlush_valid && (StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_reason == FlushReason_ROLLBACK_TO_ROB_IDX)) && StoreBufferPlugin_logic_storage_slots_5_valid) && (! StoreBufferPlugin_logic_storage_slots_5_isCommitted)) && (((_zz_when_StoreBufferPlugin_l312_20 == _zz_when_StoreBufferPlugin_l312_22) && (_zz_when_StoreBufferPlugin_l312_23 <= _zz_when_StoreBufferPlugin_l312_21)) || ((_zz_when_StoreBufferPlugin_l312_20 != _zz_when_StoreBufferPlugin_l312_22) && (_zz_when_StoreBufferPlugin_l312_21 < _zz_when_StoreBufferPlugin_l312_23))));
   assign when_StoreBufferPlugin_l317_5 = StoreBufferPlugin_logic_rob_interaction_commitMatchMask[5];
   assign when_StoreBufferPlugin_l315_5 = (StoreBufferPlugin_logic_storage_slots_5_valid && (! StoreBufferPlugin_logic_storage_slots_5_isCommitted));
-  assign _zz_when_StoreBufferPlugin_l312_24 = StoreBufferPlugin_logic_storage_slots_6_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l312_25 = StoreBufferPlugin_logic_storage_slots_6_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l312_26 = StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr[3];
-  assign _zz_when_StoreBufferPlugin_l312_27 = StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l312_24 = StoreBufferPlugin_logic_storage_slots_6_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l312_25 = StoreBufferPlugin_logic_storage_slots_6_robPtr[1 : 0];
+  assign _zz_when_StoreBufferPlugin_l312_26 = StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr[2];
+  assign _zz_when_StoreBufferPlugin_l312_27 = StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr[1 : 0];
   assign when_StoreBufferPlugin_l312_6 = ((((StoreBufferPlugin_logic_rob_interaction_registeredFlush_valid && (StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_reason == FlushReason_ROLLBACK_TO_ROB_IDX)) && StoreBufferPlugin_logic_storage_slots_6_valid) && (! StoreBufferPlugin_logic_storage_slots_6_isCommitted)) && (((_zz_when_StoreBufferPlugin_l312_24 == _zz_when_StoreBufferPlugin_l312_26) && (_zz_when_StoreBufferPlugin_l312_27 <= _zz_when_StoreBufferPlugin_l312_25)) || ((_zz_when_StoreBufferPlugin_l312_24 != _zz_when_StoreBufferPlugin_l312_26) && (_zz_when_StoreBufferPlugin_l312_25 < _zz_when_StoreBufferPlugin_l312_27))));
   assign when_StoreBufferPlugin_l317_6 = StoreBufferPlugin_logic_rob_interaction_commitMatchMask[6];
   assign when_StoreBufferPlugin_l315_6 = (StoreBufferPlugin_logic_storage_slots_6_valid && (! StoreBufferPlugin_logic_storage_slots_6_isCommitted));
-  assign _zz_when_StoreBufferPlugin_l312_28 = StoreBufferPlugin_logic_storage_slots_7_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l312_29 = StoreBufferPlugin_logic_storage_slots_7_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l312_30 = StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr[3];
-  assign _zz_when_StoreBufferPlugin_l312_31 = StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l312_28 = StoreBufferPlugin_logic_storage_slots_7_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l312_29 = StoreBufferPlugin_logic_storage_slots_7_robPtr[1 : 0];
+  assign _zz_when_StoreBufferPlugin_l312_30 = StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr[2];
+  assign _zz_when_StoreBufferPlugin_l312_31 = StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr[1 : 0];
   assign when_StoreBufferPlugin_l312_7 = ((((StoreBufferPlugin_logic_rob_interaction_registeredFlush_valid && (StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_reason == FlushReason_ROLLBACK_TO_ROB_IDX)) && StoreBufferPlugin_logic_storage_slots_7_valid) && (! StoreBufferPlugin_logic_storage_slots_7_isCommitted)) && (((_zz_when_StoreBufferPlugin_l312_28 == _zz_when_StoreBufferPlugin_l312_30) && (_zz_when_StoreBufferPlugin_l312_31 <= _zz_when_StoreBufferPlugin_l312_29)) || ((_zz_when_StoreBufferPlugin_l312_28 != _zz_when_StoreBufferPlugin_l312_30) && (_zz_when_StoreBufferPlugin_l312_29 < _zz_when_StoreBufferPlugin_l312_31))));
   assign when_StoreBufferPlugin_l317_7 = StoreBufferPlugin_logic_rob_interaction_commitMatchMask[7];
   assign when_StoreBufferPlugin_l315_7 = (StoreBufferPlugin_logic_storage_slots_7_valid && (! StoreBufferPlugin_logic_storage_slots_7_isCommitted));
@@ -27751,9 +27762,9 @@ module CoreNSCSCC (
   assign _zz_io_gmbIn_write_cmd_payload_data = StoreBufferPlugin_logic_storage_slots_0_data;
   assign _zz_io_gmbIn_write_cmd_payload_byteEnables = StoreBufferPlugin_logic_storage_slots_0_be;
   assign _zz_27 = 1'b1;
-  assign _zz_io_gmbIn_write_cmd_payload_id = StoreBufferPlugin_logic_storage_slots_0_robPtr;
+  assign _zz_io_gmbIn_write_cmd_payload_id = {1'd0, StoreBufferPlugin_logic_storage_slots_0_robPtr};
   assign StoreBufferPlugin_logic_pop_write_logic_mmioCmdFired = (StoreBufferPlugin_logic_pop_write_logic_canPopMMIOOp && _zz_StoreBufferPlugin_logic_pop_write_logic_mmioCmdFired);
-  assign StoreBufferPlugin_logic_pop_write_logic_mmioResponseForHead = ((((_zz_StoreBufferPlugin_logic_pop_write_logic_mmioResponseForHead && StoreBufferPlugin_logic_storage_slots_0_valid) && StoreBufferPlugin_logic_storage_slots_0_isIO) && (StoreBufferPlugin_logic_storage_slots_0_waitRsp || StoreBufferPlugin_logic_pop_write_logic_mmioCmdFired)) && (StoreBufferPlugin_logic_storage_slots_0_robPtr == CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_rsp_payload_id));
+  assign StoreBufferPlugin_logic_pop_write_logic_mmioResponseForHead = ((((_zz_StoreBufferPlugin_logic_pop_write_logic_mmioResponseForHead && StoreBufferPlugin_logic_storage_slots_0_valid) && StoreBufferPlugin_logic_storage_slots_0_isIO) && (StoreBufferPlugin_logic_storage_slots_0_waitRsp || StoreBufferPlugin_logic_pop_write_logic_mmioCmdFired)) && (_zz_StoreBufferPlugin_logic_pop_write_logic_mmioResponseForHead_1 == CoreMemSysPlugin_logic_writeBridges_0_io_gmbIn_write_rsp_payload_id));
   assign oneShot_23_io_triggerIn = (StoreBufferPlugin_logic_pop_write_logic_mmioResponseForHead && (_zz_when_Debug_l71 < _zz_io_triggerIn_20));
   assign _zz_when_Debug_l71_11 = 6'h20;
   assign when_Debug_l71_10 = (_zz_when_Debug_l71 < _zz_when_Debug_l71_10_1);
@@ -28878,10 +28889,10 @@ module CoreNSCSCC (
     end
   end
 
-  assign _zz_when_StoreBufferPlugin_l537 = StoreBufferPlugin_logic_forwarding_logic_slotsView_7_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l537_1 = StoreBufferPlugin_logic_forwarding_logic_slotsView_7_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l537_2 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l537_3 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l537 = StoreBufferPlugin_logic_forwarding_logic_slotsView_7_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l537_1 = StoreBufferPlugin_logic_forwarding_logic_slotsView_7_robPtr[1 : 0];
+  assign _zz_when_StoreBufferPlugin_l537_2 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l537_3 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[1 : 0];
   assign when_StoreBufferPlugin_l537 = ((((((StoreBufferPlugin_logic_forwarding_logic_slotsView_7_valid && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_7_hasEarlyException)) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_7_isFlush)) && (! (((_zz_when_StoreBufferPlugin_l537 == _zz_when_StoreBufferPlugin_l537_2) && (_zz_when_StoreBufferPlugin_l537_3 <= _zz_when_StoreBufferPlugin_l537_1)) || ((_zz_when_StoreBufferPlugin_l537 != _zz_when_StoreBufferPlugin_l537_2) && (_zz_when_StoreBufferPlugin_l537_1 < _zz_when_StoreBufferPlugin_l537_3))))) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_7_waitRsp)) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_7_isWaitingForRefill)) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_7_isWaitingForWb));
   assign when_StoreBufferPlugin_l542 = (StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2] == StoreBufferPlugin_logic_forwarding_logic_slotsView_7_addr[31 : 2]);
   assign when_StoreBufferPlugin_l544 = ((StoreBufferPlugin_logic_forwarding_logic_slotsView_7_be[0] && StoreBufferPlugin_logic_forwarding_logic_loadMask[0]) && (! StoreBufferPlugin_logic_forwarding_logic_bypassInitial_hitMask[0]));
@@ -28928,10 +28939,10 @@ module CoreNSCSCC (
     end
   end
 
-  assign _zz_when_StoreBufferPlugin_l537_4 = StoreBufferPlugin_logic_forwarding_logic_slotsView_6_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l537_5 = StoreBufferPlugin_logic_forwarding_logic_slotsView_6_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l537_6 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l537_7 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l537_4 = StoreBufferPlugin_logic_forwarding_logic_slotsView_6_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l537_5 = StoreBufferPlugin_logic_forwarding_logic_slotsView_6_robPtr[1 : 0];
+  assign _zz_when_StoreBufferPlugin_l537_6 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l537_7 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[1 : 0];
   assign when_StoreBufferPlugin_l537_1 = ((((((StoreBufferPlugin_logic_forwarding_logic_slotsView_6_valid && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_6_hasEarlyException)) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_6_isFlush)) && (! (((_zz_when_StoreBufferPlugin_l537_4 == _zz_when_StoreBufferPlugin_l537_6) && (_zz_when_StoreBufferPlugin_l537_7 <= _zz_when_StoreBufferPlugin_l537_5)) || ((_zz_when_StoreBufferPlugin_l537_4 != _zz_when_StoreBufferPlugin_l537_6) && (_zz_when_StoreBufferPlugin_l537_5 < _zz_when_StoreBufferPlugin_l537_7))))) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_6_waitRsp)) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_6_isWaitingForRefill)) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_6_isWaitingForWb));
   assign when_StoreBufferPlugin_l542_1 = (StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2] == StoreBufferPlugin_logic_forwarding_logic_slotsView_6_addr[31 : 2]);
   assign when_StoreBufferPlugin_l544_4 = ((StoreBufferPlugin_logic_forwarding_logic_slotsView_6_be[0] && StoreBufferPlugin_logic_forwarding_logic_loadMask[0]) && (! _zz_when_StoreBufferPlugin_l544[0]));
@@ -28978,10 +28989,10 @@ module CoreNSCSCC (
     end
   end
 
-  assign _zz_when_StoreBufferPlugin_l537_8 = StoreBufferPlugin_logic_forwarding_logic_slotsView_5_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l537_9 = StoreBufferPlugin_logic_forwarding_logic_slotsView_5_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l537_10 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l537_11 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l537_8 = StoreBufferPlugin_logic_forwarding_logic_slotsView_5_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l537_9 = StoreBufferPlugin_logic_forwarding_logic_slotsView_5_robPtr[1 : 0];
+  assign _zz_when_StoreBufferPlugin_l537_10 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l537_11 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[1 : 0];
   assign when_StoreBufferPlugin_l537_2 = ((((((StoreBufferPlugin_logic_forwarding_logic_slotsView_5_valid && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_5_hasEarlyException)) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_5_isFlush)) && (! (((_zz_when_StoreBufferPlugin_l537_8 == _zz_when_StoreBufferPlugin_l537_10) && (_zz_when_StoreBufferPlugin_l537_11 <= _zz_when_StoreBufferPlugin_l537_9)) || ((_zz_when_StoreBufferPlugin_l537_8 != _zz_when_StoreBufferPlugin_l537_10) && (_zz_when_StoreBufferPlugin_l537_9 < _zz_when_StoreBufferPlugin_l537_11))))) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_5_waitRsp)) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_5_isWaitingForRefill)) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_5_isWaitingForWb));
   assign when_StoreBufferPlugin_l542_2 = (StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2] == StoreBufferPlugin_logic_forwarding_logic_slotsView_5_addr[31 : 2]);
   assign when_StoreBufferPlugin_l544_8 = ((StoreBufferPlugin_logic_forwarding_logic_slotsView_5_be[0] && StoreBufferPlugin_logic_forwarding_logic_loadMask[0]) && (! _zz_when_StoreBufferPlugin_l544_1[0]));
@@ -29028,10 +29039,10 @@ module CoreNSCSCC (
     end
   end
 
-  assign _zz_when_StoreBufferPlugin_l537_12 = StoreBufferPlugin_logic_forwarding_logic_slotsView_4_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l537_13 = StoreBufferPlugin_logic_forwarding_logic_slotsView_4_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l537_14 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l537_15 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l537_12 = StoreBufferPlugin_logic_forwarding_logic_slotsView_4_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l537_13 = StoreBufferPlugin_logic_forwarding_logic_slotsView_4_robPtr[1 : 0];
+  assign _zz_when_StoreBufferPlugin_l537_14 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l537_15 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[1 : 0];
   assign when_StoreBufferPlugin_l537_3 = ((((((StoreBufferPlugin_logic_forwarding_logic_slotsView_4_valid && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_4_hasEarlyException)) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_4_isFlush)) && (! (((_zz_when_StoreBufferPlugin_l537_12 == _zz_when_StoreBufferPlugin_l537_14) && (_zz_when_StoreBufferPlugin_l537_15 <= _zz_when_StoreBufferPlugin_l537_13)) || ((_zz_when_StoreBufferPlugin_l537_12 != _zz_when_StoreBufferPlugin_l537_14) && (_zz_when_StoreBufferPlugin_l537_13 < _zz_when_StoreBufferPlugin_l537_15))))) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_4_waitRsp)) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_4_isWaitingForRefill)) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_4_isWaitingForWb));
   assign when_StoreBufferPlugin_l542_3 = (StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2] == StoreBufferPlugin_logic_forwarding_logic_slotsView_4_addr[31 : 2]);
   assign when_StoreBufferPlugin_l544_12 = ((StoreBufferPlugin_logic_forwarding_logic_slotsView_4_be[0] && StoreBufferPlugin_logic_forwarding_logic_loadMask[0]) && (! _zz_when_StoreBufferPlugin_l544_2[0]));
@@ -29078,10 +29089,10 @@ module CoreNSCSCC (
     end
   end
 
-  assign _zz_when_StoreBufferPlugin_l537_16 = StoreBufferPlugin_logic_forwarding_logic_slotsView_3_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l537_17 = StoreBufferPlugin_logic_forwarding_logic_slotsView_3_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l537_18 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l537_19 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l537_16 = StoreBufferPlugin_logic_forwarding_logic_slotsView_3_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l537_17 = StoreBufferPlugin_logic_forwarding_logic_slotsView_3_robPtr[1 : 0];
+  assign _zz_when_StoreBufferPlugin_l537_18 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l537_19 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[1 : 0];
   assign when_StoreBufferPlugin_l537_4 = ((((((StoreBufferPlugin_logic_forwarding_logic_slotsView_3_valid && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_3_hasEarlyException)) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_3_isFlush)) && (! (((_zz_when_StoreBufferPlugin_l537_16 == _zz_when_StoreBufferPlugin_l537_18) && (_zz_when_StoreBufferPlugin_l537_19 <= _zz_when_StoreBufferPlugin_l537_17)) || ((_zz_when_StoreBufferPlugin_l537_16 != _zz_when_StoreBufferPlugin_l537_18) && (_zz_when_StoreBufferPlugin_l537_17 < _zz_when_StoreBufferPlugin_l537_19))))) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_3_waitRsp)) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_3_isWaitingForRefill)) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_3_isWaitingForWb));
   assign when_StoreBufferPlugin_l542_4 = (StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2] == StoreBufferPlugin_logic_forwarding_logic_slotsView_3_addr[31 : 2]);
   assign when_StoreBufferPlugin_l544_16 = ((StoreBufferPlugin_logic_forwarding_logic_slotsView_3_be[0] && StoreBufferPlugin_logic_forwarding_logic_loadMask[0]) && (! _zz_when_StoreBufferPlugin_l544_3[0]));
@@ -29128,10 +29139,10 @@ module CoreNSCSCC (
     end
   end
 
-  assign _zz_when_StoreBufferPlugin_l537_20 = StoreBufferPlugin_logic_forwarding_logic_slotsView_2_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l537_21 = StoreBufferPlugin_logic_forwarding_logic_slotsView_2_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l537_22 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l537_23 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l537_20 = StoreBufferPlugin_logic_forwarding_logic_slotsView_2_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l537_21 = StoreBufferPlugin_logic_forwarding_logic_slotsView_2_robPtr[1 : 0];
+  assign _zz_when_StoreBufferPlugin_l537_22 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l537_23 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[1 : 0];
   assign when_StoreBufferPlugin_l537_5 = ((((((StoreBufferPlugin_logic_forwarding_logic_slotsView_2_valid && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_2_hasEarlyException)) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_2_isFlush)) && (! (((_zz_when_StoreBufferPlugin_l537_20 == _zz_when_StoreBufferPlugin_l537_22) && (_zz_when_StoreBufferPlugin_l537_23 <= _zz_when_StoreBufferPlugin_l537_21)) || ((_zz_when_StoreBufferPlugin_l537_20 != _zz_when_StoreBufferPlugin_l537_22) && (_zz_when_StoreBufferPlugin_l537_21 < _zz_when_StoreBufferPlugin_l537_23))))) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_2_waitRsp)) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_2_isWaitingForRefill)) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_2_isWaitingForWb));
   assign when_StoreBufferPlugin_l542_5 = (StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2] == StoreBufferPlugin_logic_forwarding_logic_slotsView_2_addr[31 : 2]);
   assign when_StoreBufferPlugin_l544_20 = ((StoreBufferPlugin_logic_forwarding_logic_slotsView_2_be[0] && StoreBufferPlugin_logic_forwarding_logic_loadMask[0]) && (! _zz_when_StoreBufferPlugin_l544_4[0]));
@@ -29178,10 +29189,10 @@ module CoreNSCSCC (
     end
   end
 
-  assign _zz_when_StoreBufferPlugin_l537_24 = StoreBufferPlugin_logic_forwarding_logic_slotsView_1_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l537_25 = StoreBufferPlugin_logic_forwarding_logic_slotsView_1_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l537_26 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l537_27 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l537_24 = StoreBufferPlugin_logic_forwarding_logic_slotsView_1_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l537_25 = StoreBufferPlugin_logic_forwarding_logic_slotsView_1_robPtr[1 : 0];
+  assign _zz_when_StoreBufferPlugin_l537_26 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l537_27 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[1 : 0];
   assign when_StoreBufferPlugin_l537_6 = ((((((StoreBufferPlugin_logic_forwarding_logic_slotsView_1_valid && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_1_hasEarlyException)) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_1_isFlush)) && (! (((_zz_when_StoreBufferPlugin_l537_24 == _zz_when_StoreBufferPlugin_l537_26) && (_zz_when_StoreBufferPlugin_l537_27 <= _zz_when_StoreBufferPlugin_l537_25)) || ((_zz_when_StoreBufferPlugin_l537_24 != _zz_when_StoreBufferPlugin_l537_26) && (_zz_when_StoreBufferPlugin_l537_25 < _zz_when_StoreBufferPlugin_l537_27))))) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_1_waitRsp)) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_1_isWaitingForRefill)) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_1_isWaitingForWb));
   assign when_StoreBufferPlugin_l542_6 = (StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2] == StoreBufferPlugin_logic_forwarding_logic_slotsView_1_addr[31 : 2]);
   assign when_StoreBufferPlugin_l544_24 = ((StoreBufferPlugin_logic_forwarding_logic_slotsView_1_be[0] && StoreBufferPlugin_logic_forwarding_logic_loadMask[0]) && (! _zz_when_StoreBufferPlugin_l544_5[0]));
@@ -29228,10 +29239,10 @@ module CoreNSCSCC (
     end
   end
 
-  assign _zz_when_StoreBufferPlugin_l537_28 = StoreBufferPlugin_logic_forwarding_logic_slotsView_0_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l537_29 = StoreBufferPlugin_logic_forwarding_logic_slotsView_0_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l537_30 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l537_31 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l537_28 = StoreBufferPlugin_logic_forwarding_logic_slotsView_0_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l537_29 = StoreBufferPlugin_logic_forwarding_logic_slotsView_0_robPtr[1 : 0];
+  assign _zz_when_StoreBufferPlugin_l537_30 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l537_31 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[1 : 0];
   assign when_StoreBufferPlugin_l537_7 = ((((((StoreBufferPlugin_logic_forwarding_logic_slotsView_0_valid && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_0_hasEarlyException)) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_0_isFlush)) && (! (((_zz_when_StoreBufferPlugin_l537_28 == _zz_when_StoreBufferPlugin_l537_30) && (_zz_when_StoreBufferPlugin_l537_31 <= _zz_when_StoreBufferPlugin_l537_29)) || ((_zz_when_StoreBufferPlugin_l537_28 != _zz_when_StoreBufferPlugin_l537_30) && (_zz_when_StoreBufferPlugin_l537_29 < _zz_when_StoreBufferPlugin_l537_31))))) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_0_waitRsp)) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_0_isWaitingForRefill)) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_0_isWaitingForWb));
   assign when_StoreBufferPlugin_l542_7 = (StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2] == StoreBufferPlugin_logic_forwarding_logic_slotsView_0_addr[31 : 2]);
   assign when_StoreBufferPlugin_l544_28 = ((StoreBufferPlugin_logic_forwarding_logic_slotsView_0_be[0] && StoreBufferPlugin_logic_forwarding_logic_loadMask[0]) && (! _zz_StoreBufferPlugin_logic_forwarding_logic_forwardingResult_hitMask[0]));
@@ -29346,73 +29357,73 @@ module CoreNSCSCC (
   end
 
   assign when_StoreBufferPlugin_l569 = ((StoreBufferPlugin_logic_forwarding_logic_slotsView_0_valid && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_0_hasEarlyException)) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_0_isFlush));
-  assign _zz_when_StoreBufferPlugin_l575 = StoreBufferPlugin_logic_forwarding_logic_slotsView_0_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l575_1 = StoreBufferPlugin_logic_forwarding_logic_slotsView_0_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l575_2 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l575_3 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l575 = StoreBufferPlugin_logic_forwarding_logic_slotsView_0_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l575_1 = StoreBufferPlugin_logic_forwarding_logic_slotsView_0_robPtr[1 : 0];
+  assign _zz_when_StoreBufferPlugin_l575_2 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l575_3 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[1 : 0];
   assign _zz_when_StoreBufferPlugin_l575_4 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2];
   assign _zz_when_StoreBufferPlugin_l575_5 = StoreBufferPlugin_logic_forwarding_logic_slotsView_0_addr[31 : 2];
   assign when_StoreBufferPlugin_l575 = ((! (((_zz_when_StoreBufferPlugin_l575 == _zz_when_StoreBufferPlugin_l575_2) && (_zz_when_StoreBufferPlugin_l575_3 <= _zz_when_StoreBufferPlugin_l575_1)) || ((_zz_when_StoreBufferPlugin_l575 != _zz_when_StoreBufferPlugin_l575_2) && (_zz_when_StoreBufferPlugin_l575_1 < _zz_when_StoreBufferPlugin_l575_3)))) && (_zz_when_StoreBufferPlugin_l575_4 == _zz_when_StoreBufferPlugin_l575_5));
   assign when_StoreBufferPlugin_l578 = ((StoreBufferPlugin_logic_forwarding_logic_slotsView_0_waitRsp || StoreBufferPlugin_logic_forwarding_logic_slotsView_0_isWaitingForRefill) || StoreBufferPlugin_logic_forwarding_logic_slotsView_0_isWaitingForWb);
   assign when_StoreBufferPlugin_l569_1 = ((StoreBufferPlugin_logic_forwarding_logic_slotsView_1_valid && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_1_hasEarlyException)) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_1_isFlush));
-  assign _zz_when_StoreBufferPlugin_l575_6 = StoreBufferPlugin_logic_forwarding_logic_slotsView_1_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l575_7 = StoreBufferPlugin_logic_forwarding_logic_slotsView_1_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l575_8 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l575_9 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l575_6 = StoreBufferPlugin_logic_forwarding_logic_slotsView_1_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l575_7 = StoreBufferPlugin_logic_forwarding_logic_slotsView_1_robPtr[1 : 0];
+  assign _zz_when_StoreBufferPlugin_l575_8 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l575_9 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[1 : 0];
   assign _zz_when_StoreBufferPlugin_l575_10 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2];
   assign _zz_when_StoreBufferPlugin_l575_11 = StoreBufferPlugin_logic_forwarding_logic_slotsView_1_addr[31 : 2];
   assign when_StoreBufferPlugin_l575_1 = ((! (((_zz_when_StoreBufferPlugin_l575_6 == _zz_when_StoreBufferPlugin_l575_8) && (_zz_when_StoreBufferPlugin_l575_9 <= _zz_when_StoreBufferPlugin_l575_7)) || ((_zz_when_StoreBufferPlugin_l575_6 != _zz_when_StoreBufferPlugin_l575_8) && (_zz_when_StoreBufferPlugin_l575_7 < _zz_when_StoreBufferPlugin_l575_9)))) && (_zz_when_StoreBufferPlugin_l575_10 == _zz_when_StoreBufferPlugin_l575_11));
   assign when_StoreBufferPlugin_l578_1 = ((StoreBufferPlugin_logic_forwarding_logic_slotsView_1_waitRsp || StoreBufferPlugin_logic_forwarding_logic_slotsView_1_isWaitingForRefill) || StoreBufferPlugin_logic_forwarding_logic_slotsView_1_isWaitingForWb);
   assign when_StoreBufferPlugin_l569_2 = ((StoreBufferPlugin_logic_forwarding_logic_slotsView_2_valid && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_2_hasEarlyException)) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_2_isFlush));
-  assign _zz_when_StoreBufferPlugin_l575_12 = StoreBufferPlugin_logic_forwarding_logic_slotsView_2_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l575_13 = StoreBufferPlugin_logic_forwarding_logic_slotsView_2_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l575_14 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l575_15 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l575_12 = StoreBufferPlugin_logic_forwarding_logic_slotsView_2_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l575_13 = StoreBufferPlugin_logic_forwarding_logic_slotsView_2_robPtr[1 : 0];
+  assign _zz_when_StoreBufferPlugin_l575_14 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l575_15 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[1 : 0];
   assign _zz_when_StoreBufferPlugin_l575_16 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2];
   assign _zz_when_StoreBufferPlugin_l575_17 = StoreBufferPlugin_logic_forwarding_logic_slotsView_2_addr[31 : 2];
   assign when_StoreBufferPlugin_l575_2 = ((! (((_zz_when_StoreBufferPlugin_l575_12 == _zz_when_StoreBufferPlugin_l575_14) && (_zz_when_StoreBufferPlugin_l575_15 <= _zz_when_StoreBufferPlugin_l575_13)) || ((_zz_when_StoreBufferPlugin_l575_12 != _zz_when_StoreBufferPlugin_l575_14) && (_zz_when_StoreBufferPlugin_l575_13 < _zz_when_StoreBufferPlugin_l575_15)))) && (_zz_when_StoreBufferPlugin_l575_16 == _zz_when_StoreBufferPlugin_l575_17));
   assign when_StoreBufferPlugin_l578_2 = ((StoreBufferPlugin_logic_forwarding_logic_slotsView_2_waitRsp || StoreBufferPlugin_logic_forwarding_logic_slotsView_2_isWaitingForRefill) || StoreBufferPlugin_logic_forwarding_logic_slotsView_2_isWaitingForWb);
   assign when_StoreBufferPlugin_l569_3 = ((StoreBufferPlugin_logic_forwarding_logic_slotsView_3_valid && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_3_hasEarlyException)) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_3_isFlush));
-  assign _zz_when_StoreBufferPlugin_l575_18 = StoreBufferPlugin_logic_forwarding_logic_slotsView_3_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l575_19 = StoreBufferPlugin_logic_forwarding_logic_slotsView_3_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l575_20 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l575_21 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l575_18 = StoreBufferPlugin_logic_forwarding_logic_slotsView_3_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l575_19 = StoreBufferPlugin_logic_forwarding_logic_slotsView_3_robPtr[1 : 0];
+  assign _zz_when_StoreBufferPlugin_l575_20 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l575_21 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[1 : 0];
   assign _zz_when_StoreBufferPlugin_l575_22 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2];
   assign _zz_when_StoreBufferPlugin_l575_23 = StoreBufferPlugin_logic_forwarding_logic_slotsView_3_addr[31 : 2];
   assign when_StoreBufferPlugin_l575_3 = ((! (((_zz_when_StoreBufferPlugin_l575_18 == _zz_when_StoreBufferPlugin_l575_20) && (_zz_when_StoreBufferPlugin_l575_21 <= _zz_when_StoreBufferPlugin_l575_19)) || ((_zz_when_StoreBufferPlugin_l575_18 != _zz_when_StoreBufferPlugin_l575_20) && (_zz_when_StoreBufferPlugin_l575_19 < _zz_when_StoreBufferPlugin_l575_21)))) && (_zz_when_StoreBufferPlugin_l575_22 == _zz_when_StoreBufferPlugin_l575_23));
   assign when_StoreBufferPlugin_l578_3 = ((StoreBufferPlugin_logic_forwarding_logic_slotsView_3_waitRsp || StoreBufferPlugin_logic_forwarding_logic_slotsView_3_isWaitingForRefill) || StoreBufferPlugin_logic_forwarding_logic_slotsView_3_isWaitingForWb);
   assign when_StoreBufferPlugin_l569_4 = ((StoreBufferPlugin_logic_forwarding_logic_slotsView_4_valid && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_4_hasEarlyException)) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_4_isFlush));
-  assign _zz_when_StoreBufferPlugin_l575_24 = StoreBufferPlugin_logic_forwarding_logic_slotsView_4_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l575_25 = StoreBufferPlugin_logic_forwarding_logic_slotsView_4_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l575_26 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l575_27 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l575_24 = StoreBufferPlugin_logic_forwarding_logic_slotsView_4_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l575_25 = StoreBufferPlugin_logic_forwarding_logic_slotsView_4_robPtr[1 : 0];
+  assign _zz_when_StoreBufferPlugin_l575_26 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l575_27 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[1 : 0];
   assign _zz_when_StoreBufferPlugin_l575_28 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2];
   assign _zz_when_StoreBufferPlugin_l575_29 = StoreBufferPlugin_logic_forwarding_logic_slotsView_4_addr[31 : 2];
   assign when_StoreBufferPlugin_l575_4 = ((! (((_zz_when_StoreBufferPlugin_l575_24 == _zz_when_StoreBufferPlugin_l575_26) && (_zz_when_StoreBufferPlugin_l575_27 <= _zz_when_StoreBufferPlugin_l575_25)) || ((_zz_when_StoreBufferPlugin_l575_24 != _zz_when_StoreBufferPlugin_l575_26) && (_zz_when_StoreBufferPlugin_l575_25 < _zz_when_StoreBufferPlugin_l575_27)))) && (_zz_when_StoreBufferPlugin_l575_28 == _zz_when_StoreBufferPlugin_l575_29));
   assign when_StoreBufferPlugin_l578_4 = ((StoreBufferPlugin_logic_forwarding_logic_slotsView_4_waitRsp || StoreBufferPlugin_logic_forwarding_logic_slotsView_4_isWaitingForRefill) || StoreBufferPlugin_logic_forwarding_logic_slotsView_4_isWaitingForWb);
   assign when_StoreBufferPlugin_l569_5 = ((StoreBufferPlugin_logic_forwarding_logic_slotsView_5_valid && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_5_hasEarlyException)) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_5_isFlush));
-  assign _zz_when_StoreBufferPlugin_l575_30 = StoreBufferPlugin_logic_forwarding_logic_slotsView_5_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l575_31 = StoreBufferPlugin_logic_forwarding_logic_slotsView_5_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l575_32 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l575_33 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l575_30 = StoreBufferPlugin_logic_forwarding_logic_slotsView_5_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l575_31 = StoreBufferPlugin_logic_forwarding_logic_slotsView_5_robPtr[1 : 0];
+  assign _zz_when_StoreBufferPlugin_l575_32 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l575_33 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[1 : 0];
   assign _zz_when_StoreBufferPlugin_l575_34 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2];
   assign _zz_when_StoreBufferPlugin_l575_35 = StoreBufferPlugin_logic_forwarding_logic_slotsView_5_addr[31 : 2];
   assign when_StoreBufferPlugin_l575_5 = ((! (((_zz_when_StoreBufferPlugin_l575_30 == _zz_when_StoreBufferPlugin_l575_32) && (_zz_when_StoreBufferPlugin_l575_33 <= _zz_when_StoreBufferPlugin_l575_31)) || ((_zz_when_StoreBufferPlugin_l575_30 != _zz_when_StoreBufferPlugin_l575_32) && (_zz_when_StoreBufferPlugin_l575_31 < _zz_when_StoreBufferPlugin_l575_33)))) && (_zz_when_StoreBufferPlugin_l575_34 == _zz_when_StoreBufferPlugin_l575_35));
   assign when_StoreBufferPlugin_l578_5 = ((StoreBufferPlugin_logic_forwarding_logic_slotsView_5_waitRsp || StoreBufferPlugin_logic_forwarding_logic_slotsView_5_isWaitingForRefill) || StoreBufferPlugin_logic_forwarding_logic_slotsView_5_isWaitingForWb);
   assign when_StoreBufferPlugin_l569_6 = ((StoreBufferPlugin_logic_forwarding_logic_slotsView_6_valid && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_6_hasEarlyException)) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_6_isFlush));
-  assign _zz_when_StoreBufferPlugin_l575_36 = StoreBufferPlugin_logic_forwarding_logic_slotsView_6_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l575_37 = StoreBufferPlugin_logic_forwarding_logic_slotsView_6_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l575_38 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l575_39 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l575_36 = StoreBufferPlugin_logic_forwarding_logic_slotsView_6_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l575_37 = StoreBufferPlugin_logic_forwarding_logic_slotsView_6_robPtr[1 : 0];
+  assign _zz_when_StoreBufferPlugin_l575_38 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l575_39 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[1 : 0];
   assign _zz_when_StoreBufferPlugin_l575_40 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2];
   assign _zz_when_StoreBufferPlugin_l575_41 = StoreBufferPlugin_logic_forwarding_logic_slotsView_6_addr[31 : 2];
   assign when_StoreBufferPlugin_l575_6 = ((! (((_zz_when_StoreBufferPlugin_l575_36 == _zz_when_StoreBufferPlugin_l575_38) && (_zz_when_StoreBufferPlugin_l575_39 <= _zz_when_StoreBufferPlugin_l575_37)) || ((_zz_when_StoreBufferPlugin_l575_36 != _zz_when_StoreBufferPlugin_l575_38) && (_zz_when_StoreBufferPlugin_l575_37 < _zz_when_StoreBufferPlugin_l575_39)))) && (_zz_when_StoreBufferPlugin_l575_40 == _zz_when_StoreBufferPlugin_l575_41));
   assign when_StoreBufferPlugin_l578_6 = ((StoreBufferPlugin_logic_forwarding_logic_slotsView_6_waitRsp || StoreBufferPlugin_logic_forwarding_logic_slotsView_6_isWaitingForRefill) || StoreBufferPlugin_logic_forwarding_logic_slotsView_6_isWaitingForWb);
   assign when_StoreBufferPlugin_l569_7 = ((StoreBufferPlugin_logic_forwarding_logic_slotsView_7_valid && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_7_hasEarlyException)) && (! StoreBufferPlugin_logic_forwarding_logic_slotsView_7_isFlush));
-  assign _zz_when_StoreBufferPlugin_l575_42 = StoreBufferPlugin_logic_forwarding_logic_slotsView_7_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l575_43 = StoreBufferPlugin_logic_forwarding_logic_slotsView_7_robPtr[2 : 0];
-  assign _zz_when_StoreBufferPlugin_l575_44 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[3];
-  assign _zz_when_StoreBufferPlugin_l575_45 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2 : 0];
+  assign _zz_when_StoreBufferPlugin_l575_42 = StoreBufferPlugin_logic_forwarding_logic_slotsView_7_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l575_43 = StoreBufferPlugin_logic_forwarding_logic_slotsView_7_robPtr[1 : 0];
+  assign _zz_when_StoreBufferPlugin_l575_44 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[2];
+  assign _zz_when_StoreBufferPlugin_l575_45 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_robPtr[1 : 0];
   assign _zz_when_StoreBufferPlugin_l575_46 = StoreBufferPlugin_hw_sqQueryPort_cmd_payload_address[31 : 2];
   assign _zz_when_StoreBufferPlugin_l575_47 = StoreBufferPlugin_logic_forwarding_logic_slotsView_7_addr[31 : 2];
   assign when_StoreBufferPlugin_l575_7 = ((! (((_zz_when_StoreBufferPlugin_l575_42 == _zz_when_StoreBufferPlugin_l575_44) && (_zz_when_StoreBufferPlugin_l575_45 <= _zz_when_StoreBufferPlugin_l575_43)) || ((_zz_when_StoreBufferPlugin_l575_42 != _zz_when_StoreBufferPlugin_l575_44) && (_zz_when_StoreBufferPlugin_l575_43 < _zz_when_StoreBufferPlugin_l575_45)))) && (_zz_when_StoreBufferPlugin_l575_46 == _zz_when_StoreBufferPlugin_l575_47));
@@ -29917,7 +29928,7 @@ module CoreNSCSCC (
   end
 
   always @(*) begin
-    _zz_ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr = 4'bxxxx;
+    _zz_ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr = 3'bxxx;
     if(CommitPlugin_hw_robFlushPort_valid) begin
       _zz_ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr = CommitPlugin_hw_robFlushPort_payload_targetRobPtr;
     end
@@ -29925,6 +29936,7 @@ module CoreNSCSCC (
 
   assign ROBPlugin_aggregatedFlushSignal_payload_reason = _zz_ROBPlugin_aggregatedFlushSignal_payload_reason;
   assign ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr = _zz_ROBPlugin_aggregatedFlushSignal_payload_targetRobPtr;
+  assign CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_cmd_payload_id = {1'd0, LoadQueuePlugin_logic_loadQueue_slots_0_robPtr};
   assign CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_ready = (LoadQueuePlugin_logic_loadQueue_slots_0_valid && LoadQueuePlugin_logic_loadQueue_slots_0_isIO);
   assign _zz_LoadQueuePlugin_logic_loadQueue_completionInfo_data = CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_payload_data;
   assign _zz_LoadQueuePlugin_logic_loadQueue_completionInfo_hasFault = CoreMemSysPlugin_logic_readBridges_0_io_gmbIn_read_rsp_payload_error;
@@ -31264,8 +31276,8 @@ module CoreNSCSCC (
   assign axi4WriteOnlyArbiter_5_io_inputs_2_aw_payload_id = {1'd0, io_outputs_2_aw_validPipe_payload_id_2};
   assign io_dpy0 = DebugDisplayPlugin_hw_dpyController_io_dpy0_out;
   assign io_dpy1 = DebugDisplayPlugin_hw_dpyController_io_dpy1_out;
-  assign _zz_when_CoreNSCSCC_l674 = io_switch_btn_buffercc_io_dataOut;
-  assign when_CoreNSCSCC_l674 = (_zz_when_CoreNSCSCC_l674 && (! _zz_when_CoreNSCSCC_l674_1));
+  assign _zz_when_CoreNSCSCC_l676 = io_switch_btn_buffercc_io_dataOut;
+  assign when_CoreNSCSCC_l676 = (_zz_when_CoreNSCSCC_l676 && (! _zz_when_CoreNSCSCC_l676_1));
   assign io_leds = _zz_io_leds_1[15:0];
   always @(posedge clk) begin
     if(reset) begin
@@ -31321,6 +31333,7 @@ module CoreNSCSCC (
       CommitPlugin_logic_s1_s1_maxCommitPcThisCycle <= 32'h0;
       CommitPlugin_logic_s1_s1_anyCommitOOB <= 1'b0;
       CommitPlugin_logic_counter <= 32'h0;
+      RenamePlugin_logic_needRetryReg <= 1'b0;
       DebugDisplayPlugin_logic_displayArea_dpToggle <= 1'b0;
       s1_ReadRegs_valid <= 1'b0;
       s2_Execute_valid <= 1'b0;
@@ -31349,11 +31362,11 @@ module CoreNSCSCC (
       LoadQueuePlugin_logic_loadQueue_completionInfoReg_exceptionCode <= 8'bxxxxxxxx;
       LoadQueuePlugin_logic_loadQueue_sbQueryRspValid <= 1'b0;
       LoadQueuePlugin_logic_loadQueue_registeredFlush_valid <= 1'b0;
-      LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr <= 4'b0000;
+      LoadQueuePlugin_logic_loadQueue_registeredFlush_targetRobPtr <= 3'b000;
       LoadQueuePlugin_logic_loadQueue_slots_0_valid <= 1'b0;
       LoadQueuePlugin_logic_loadQueue_slots_0_address <= 32'h0;
       LoadQueuePlugin_logic_loadQueue_slots_0_size <= MemAccessSize_W;
-      LoadQueuePlugin_logic_loadQueue_slots_0_robPtr <= 4'b0000;
+      LoadQueuePlugin_logic_loadQueue_slots_0_robPtr <= 3'b000;
       LoadQueuePlugin_logic_loadQueue_slots_0_pdest <= 6'h0;
       LoadQueuePlugin_logic_loadQueue_slots_0_isIO <= 1'b0;
       LoadQueuePlugin_logic_loadQueue_slots_0_isSignedLoad <= 1'b0;
@@ -31366,7 +31379,7 @@ module CoreNSCSCC (
       LoadQueuePlugin_logic_loadQueue_slots_1_valid <= 1'b0;
       LoadQueuePlugin_logic_loadQueue_slots_1_address <= 32'h0;
       LoadQueuePlugin_logic_loadQueue_slots_1_size <= MemAccessSize_W;
-      LoadQueuePlugin_logic_loadQueue_slots_1_robPtr <= 4'b0000;
+      LoadQueuePlugin_logic_loadQueue_slots_1_robPtr <= 3'b000;
       LoadQueuePlugin_logic_loadQueue_slots_1_pdest <= 6'h0;
       LoadQueuePlugin_logic_loadQueue_slots_1_isIO <= 1'b0;
       LoadQueuePlugin_logic_loadQueue_slots_1_isSignedLoad <= 1'b0;
@@ -31379,7 +31392,7 @@ module CoreNSCSCC (
       LoadQueuePlugin_logic_loadQueue_slots_2_valid <= 1'b0;
       LoadQueuePlugin_logic_loadQueue_slots_2_address <= 32'h0;
       LoadQueuePlugin_logic_loadQueue_slots_2_size <= MemAccessSize_W;
-      LoadQueuePlugin_logic_loadQueue_slots_2_robPtr <= 4'b0000;
+      LoadQueuePlugin_logic_loadQueue_slots_2_robPtr <= 3'b000;
       LoadQueuePlugin_logic_loadQueue_slots_2_pdest <= 6'h0;
       LoadQueuePlugin_logic_loadQueue_slots_2_isIO <= 1'b0;
       LoadQueuePlugin_logic_loadQueue_slots_2_isSignedLoad <= 1'b0;
@@ -31392,7 +31405,7 @@ module CoreNSCSCC (
       LoadQueuePlugin_logic_loadQueue_slots_3_valid <= 1'b0;
       LoadQueuePlugin_logic_loadQueue_slots_3_address <= 32'h0;
       LoadQueuePlugin_logic_loadQueue_slots_3_size <= MemAccessSize_W;
-      LoadQueuePlugin_logic_loadQueue_slots_3_robPtr <= 4'b0000;
+      LoadQueuePlugin_logic_loadQueue_slots_3_robPtr <= 3'b000;
       LoadQueuePlugin_logic_loadQueue_slots_3_pdest <= 6'h0;
       LoadQueuePlugin_logic_loadQueue_slots_3_isIO <= 1'b0;
       LoadQueuePlugin_logic_loadQueue_slots_3_isSignedLoad <= 1'b0;
@@ -31405,7 +31418,7 @@ module CoreNSCSCC (
       LoadQueuePlugin_logic_loadQueue_slots_4_valid <= 1'b0;
       LoadQueuePlugin_logic_loadQueue_slots_4_address <= 32'h0;
       LoadQueuePlugin_logic_loadQueue_slots_4_size <= MemAccessSize_W;
-      LoadQueuePlugin_logic_loadQueue_slots_4_robPtr <= 4'b0000;
+      LoadQueuePlugin_logic_loadQueue_slots_4_robPtr <= 3'b000;
       LoadQueuePlugin_logic_loadQueue_slots_4_pdest <= 6'h0;
       LoadQueuePlugin_logic_loadQueue_slots_4_isIO <= 1'b0;
       LoadQueuePlugin_logic_loadQueue_slots_4_isSignedLoad <= 1'b0;
@@ -31418,7 +31431,7 @@ module CoreNSCSCC (
       LoadQueuePlugin_logic_loadQueue_slots_5_valid <= 1'b0;
       LoadQueuePlugin_logic_loadQueue_slots_5_address <= 32'h0;
       LoadQueuePlugin_logic_loadQueue_slots_5_size <= MemAccessSize_W;
-      LoadQueuePlugin_logic_loadQueue_slots_5_robPtr <= 4'b0000;
+      LoadQueuePlugin_logic_loadQueue_slots_5_robPtr <= 3'b000;
       LoadQueuePlugin_logic_loadQueue_slots_5_pdest <= 6'h0;
       LoadQueuePlugin_logic_loadQueue_slots_5_isIO <= 1'b0;
       LoadQueuePlugin_logic_loadQueue_slots_5_isSignedLoad <= 1'b0;
@@ -31431,7 +31444,7 @@ module CoreNSCSCC (
       LoadQueuePlugin_logic_loadQueue_slots_6_valid <= 1'b0;
       LoadQueuePlugin_logic_loadQueue_slots_6_address <= 32'h0;
       LoadQueuePlugin_logic_loadQueue_slots_6_size <= MemAccessSize_W;
-      LoadQueuePlugin_logic_loadQueue_slots_6_robPtr <= 4'b0000;
+      LoadQueuePlugin_logic_loadQueue_slots_6_robPtr <= 3'b000;
       LoadQueuePlugin_logic_loadQueue_slots_6_pdest <= 6'h0;
       LoadQueuePlugin_logic_loadQueue_slots_6_isIO <= 1'b0;
       LoadQueuePlugin_logic_loadQueue_slots_6_isSignedLoad <= 1'b0;
@@ -31444,7 +31457,7 @@ module CoreNSCSCC (
       LoadQueuePlugin_logic_loadQueue_slots_7_valid <= 1'b0;
       LoadQueuePlugin_logic_loadQueue_slots_7_address <= 32'h0;
       LoadQueuePlugin_logic_loadQueue_slots_7_size <= MemAccessSize_W;
-      LoadQueuePlugin_logic_loadQueue_slots_7_robPtr <= 4'b0000;
+      LoadQueuePlugin_logic_loadQueue_slots_7_robPtr <= 3'b000;
       LoadQueuePlugin_logic_loadQueue_slots_7_pdest <= 6'h0;
       LoadQueuePlugin_logic_loadQueue_slots_7_isIO <= 1'b0;
       LoadQueuePlugin_logic_loadQueue_slots_7_isSignedLoad <= 1'b0;
@@ -31522,7 +31535,7 @@ module CoreNSCSCC (
       StoreBufferPlugin_logic_storage_slots_0_addr <= 32'h0;
       StoreBufferPlugin_logic_storage_slots_0_data <= 32'h0;
       StoreBufferPlugin_logic_storage_slots_0_be <= 4'b0000;
-      StoreBufferPlugin_logic_storage_slots_0_robPtr <= 4'b0000;
+      StoreBufferPlugin_logic_storage_slots_0_robPtr <= 3'b000;
       StoreBufferPlugin_logic_storage_slots_0_accessSize <= MemAccessSize_W;
       StoreBufferPlugin_logic_storage_slots_0_isIO <= 1'b0;
       StoreBufferPlugin_logic_storage_slots_0_valid <= 1'b0;
@@ -31538,7 +31551,7 @@ module CoreNSCSCC (
       StoreBufferPlugin_logic_storage_slots_1_addr <= 32'h0;
       StoreBufferPlugin_logic_storage_slots_1_data <= 32'h0;
       StoreBufferPlugin_logic_storage_slots_1_be <= 4'b0000;
-      StoreBufferPlugin_logic_storage_slots_1_robPtr <= 4'b0000;
+      StoreBufferPlugin_logic_storage_slots_1_robPtr <= 3'b000;
       StoreBufferPlugin_logic_storage_slots_1_accessSize <= MemAccessSize_W;
       StoreBufferPlugin_logic_storage_slots_1_isIO <= 1'b0;
       StoreBufferPlugin_logic_storage_slots_1_valid <= 1'b0;
@@ -31554,7 +31567,7 @@ module CoreNSCSCC (
       StoreBufferPlugin_logic_storage_slots_2_addr <= 32'h0;
       StoreBufferPlugin_logic_storage_slots_2_data <= 32'h0;
       StoreBufferPlugin_logic_storage_slots_2_be <= 4'b0000;
-      StoreBufferPlugin_logic_storage_slots_2_robPtr <= 4'b0000;
+      StoreBufferPlugin_logic_storage_slots_2_robPtr <= 3'b000;
       StoreBufferPlugin_logic_storage_slots_2_accessSize <= MemAccessSize_W;
       StoreBufferPlugin_logic_storage_slots_2_isIO <= 1'b0;
       StoreBufferPlugin_logic_storage_slots_2_valid <= 1'b0;
@@ -31570,7 +31583,7 @@ module CoreNSCSCC (
       StoreBufferPlugin_logic_storage_slots_3_addr <= 32'h0;
       StoreBufferPlugin_logic_storage_slots_3_data <= 32'h0;
       StoreBufferPlugin_logic_storage_slots_3_be <= 4'b0000;
-      StoreBufferPlugin_logic_storage_slots_3_robPtr <= 4'b0000;
+      StoreBufferPlugin_logic_storage_slots_3_robPtr <= 3'b000;
       StoreBufferPlugin_logic_storage_slots_3_accessSize <= MemAccessSize_W;
       StoreBufferPlugin_logic_storage_slots_3_isIO <= 1'b0;
       StoreBufferPlugin_logic_storage_slots_3_valid <= 1'b0;
@@ -31586,7 +31599,7 @@ module CoreNSCSCC (
       StoreBufferPlugin_logic_storage_slots_4_addr <= 32'h0;
       StoreBufferPlugin_logic_storage_slots_4_data <= 32'h0;
       StoreBufferPlugin_logic_storage_slots_4_be <= 4'b0000;
-      StoreBufferPlugin_logic_storage_slots_4_robPtr <= 4'b0000;
+      StoreBufferPlugin_logic_storage_slots_4_robPtr <= 3'b000;
       StoreBufferPlugin_logic_storage_slots_4_accessSize <= MemAccessSize_W;
       StoreBufferPlugin_logic_storage_slots_4_isIO <= 1'b0;
       StoreBufferPlugin_logic_storage_slots_4_valid <= 1'b0;
@@ -31602,7 +31615,7 @@ module CoreNSCSCC (
       StoreBufferPlugin_logic_storage_slots_5_addr <= 32'h0;
       StoreBufferPlugin_logic_storage_slots_5_data <= 32'h0;
       StoreBufferPlugin_logic_storage_slots_5_be <= 4'b0000;
-      StoreBufferPlugin_logic_storage_slots_5_robPtr <= 4'b0000;
+      StoreBufferPlugin_logic_storage_slots_5_robPtr <= 3'b000;
       StoreBufferPlugin_logic_storage_slots_5_accessSize <= MemAccessSize_W;
       StoreBufferPlugin_logic_storage_slots_5_isIO <= 1'b0;
       StoreBufferPlugin_logic_storage_slots_5_valid <= 1'b0;
@@ -31618,7 +31631,7 @@ module CoreNSCSCC (
       StoreBufferPlugin_logic_storage_slots_6_addr <= 32'h0;
       StoreBufferPlugin_logic_storage_slots_6_data <= 32'h0;
       StoreBufferPlugin_logic_storage_slots_6_be <= 4'b0000;
-      StoreBufferPlugin_logic_storage_slots_6_robPtr <= 4'b0000;
+      StoreBufferPlugin_logic_storage_slots_6_robPtr <= 3'b000;
       StoreBufferPlugin_logic_storage_slots_6_accessSize <= MemAccessSize_W;
       StoreBufferPlugin_logic_storage_slots_6_isIO <= 1'b0;
       StoreBufferPlugin_logic_storage_slots_6_valid <= 1'b0;
@@ -31634,7 +31647,7 @@ module CoreNSCSCC (
       StoreBufferPlugin_logic_storage_slots_7_addr <= 32'h0;
       StoreBufferPlugin_logic_storage_slots_7_data <= 32'h0;
       StoreBufferPlugin_logic_storage_slots_7_be <= 4'b0000;
-      StoreBufferPlugin_logic_storage_slots_7_robPtr <= 4'b0000;
+      StoreBufferPlugin_logic_storage_slots_7_robPtr <= 3'b000;
       StoreBufferPlugin_logic_storage_slots_7_accessSize <= MemAccessSize_W;
       StoreBufferPlugin_logic_storage_slots_7_isIO <= 1'b0;
       StoreBufferPlugin_logic_storage_slots_7_valid <= 1'b0;
@@ -31648,7 +31661,7 @@ module CoreNSCSCC (
       StoreBufferPlugin_logic_storage_slots_7_refillSlotToWatch <= 8'h0;
       StoreBufferPlugin_logic_rob_interaction_registeredFlush_valid <= 1'b0;
       StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_reason <= _zz_StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_reason;
-      StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr <= 4'b0000;
+      StoreBufferPlugin_logic_rob_interaction_registeredFlush_payload_targetRobPtr <= 3'b000;
       FetchPipelinePlugin_logic_pcGen_fetchPcReg <= 32'h80000000;
       FetchPipelinePlugin_logic_hardFlushDelayed <= 1'b0;
       ICachePlugin_logic_storage_valids_0_0 <= 1'b0;
@@ -32033,27 +32046,333 @@ module CoreNSCSCC (
         CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_31 <= RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_31;
         CheckpointManagerPlugin_logic_storedBtCheckpoint_busyBits <= BusyTablePlugin_early_setup_busyTableReg;
         CheckpointManagerPlugin_logic_hasValidCheckpoint <= 1'b1;
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L120
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:120):  [CheckpointManager] Checkpoint saved - captured REAL RAT, FreeList and BusyTable state (single-cycle)"); // CheckpointManagerPlugin.scala:L120
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L97
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:97):  [CheckpointManager] RAT mapping: "); // CheckpointManagerPlugin.scala:L97
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a00 -> physReg p%x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_0); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a01 -> physReg p%x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_1); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a02 -> physReg p%x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_2); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a03 -> physReg p%x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_3); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a04 -> physReg p%x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_4); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a05 -> physReg p%x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_5); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a06 -> physReg p%x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_6); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a07 -> physReg p%x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_7); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a08 -> physReg p%x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_8); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a09 -> physReg p%x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_9); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a0a -> physReg p%x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_10); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a0b -> physReg p%x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_11); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a0c -> physReg p%x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_12); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a0d -> physReg p%x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_13); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a0e -> physReg p%x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_14); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a0f -> physReg p%x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_15); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a10 -> physReg p%x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_16); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a11 -> physReg p%x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_17); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a12 -> physReg p%x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_18); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a13 -> physReg p%x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_19); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a14 -> physReg p%x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_20); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a15 -> physReg p%x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_21); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a16 -> physReg p%x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_22); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a17 -> physReg p%x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_23); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a18 -> physReg p%x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_24); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a19 -> physReg p%x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_25); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a1a -> physReg p%x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_26); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a1b -> physReg p%x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_27); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a1c -> physReg p%x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_28); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a1d -> physReg p%x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_29); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a1e -> physReg p%x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_30); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a1f -> physReg p%x", RenameMapTablePlugin_early_setup_rat_io_currentState_mapping_31); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
       end
       CommitPlugin_logic_scheduedFlush <= CommitPlugin_logic_mispredictedBranchCanCommit;
       if(CommitPlugin_logic_scheduedFlush) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // CommitPlugin.scala:L203
+            assert(1'b0); // CommitPlugin.scala:L204
           `else
             if(!1'b0) begin
-              $display("NOTE(CommitPlugin.scala:203):  [notice ] %x     [33mFLUSH EXECUTION (T+1): Flushing pipeline due to mispredict. Redirecting to 0x%x.[0m", PerfCounter_cycles, CommitPlugin_logic_hardRedirectTarget); // CommitPlugin.scala:L203
+              $display("NOTE(CommitPlugin.scala:204):  [notice ] %x     [33mFLUSH EXECUTION: Flushing pipeline due to mispredict. Redirecting to 0x%x.[0m", PerfCounter_cycles, CommitPlugin_logic_hardRedirectTarget); // CommitPlugin.scala:L204
             end
           `endif
         `endif
       end
-      if(when_CommitPlugin_l231) begin
+      if(when_CommitPlugin_l232) begin
         if(ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_writesToPhysReg) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // CommitPlugin.scala:L240
+              assert(1'b0); // CommitPlugin.scala:L241
             `else
               if(!1'b0) begin
-                $display("NOTE(CommitPlugin.scala:240):  [RegRes] Update ARAT: archReg=%x, physReg=%x", RenameMapTablePlugin_early_setup_rat_io_commitUpdatePort_archReg, RenameMapTablePlugin_early_setup_rat_io_commitUpdatePort_physReg); // CommitPlugin.scala:L240
+                $display("NOTE(CommitPlugin.scala:241):  [debug  ] %x     [34m[RegRes] Update ARAT: archReg=a%x, physReg=p%x[0m", PerfCounter_cycles, RenameMapTablePlugin_early_setup_rat_io_commitUpdatePort_archReg, RenameMapTablePlugin_early_setup_rat_io_commitUpdatePort_physReg); // CommitPlugin.scala:L241
               end
             `endif
           `endif
@@ -32061,10 +32380,10 @@ module CoreNSCSCC (
         if(ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_allocatesPhysDest) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // CommitPlugin.scala:L249
+              assert(1'b0); // CommitPlugin.scala:L250
             `else
               if(!1'b0) begin
-                $display("NOTE(CommitPlugin.scala:249):  [RegRes] freelist recycle reg %x (committing PC=0x%x)", ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx, ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc); // CommitPlugin.scala:L249
+                $display("NOTE(CommitPlugin.scala:250):  [debug  ] %x     [34m[RegRes] freelist recycle reg p%x (committing PC=0x%x)[0m", PerfCounter_cycles, ROBPlugin_robComponent_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx, ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc); // CommitPlugin.scala:L250
               end
             `endif
           `endif
@@ -32072,32 +32391,32 @@ module CoreNSCSCC (
         if(ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_isBranchOrJump) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // CommitPlugin.scala:L260
+              assert(1'b0); // CommitPlugin.scala:L261
             `else
               if(!1'b0) begin
-                $display("NOTE(CommitPlugin.scala:260):  [COMMIT] BPU UPDATE: pc=0x%x, isTaken=%x, target=0x%x", BpuPipelinePlugin_updatePortIn_payload_pc, BpuPipelinePlugin_updatePortIn_payload_isTaken, BpuPipelinePlugin_updatePortIn_payload_target); // CommitPlugin.scala:L260
+                $display("NOTE(CommitPlugin.scala:261):  [debug  ] %x     [34m[COMMIT] BPU UPDATE: pc=0x%x, isTaken=%x, target=0x%x[0m", PerfCounter_cycles, BpuPipelinePlugin_updatePortIn_payload_pc, BpuPipelinePlugin_updatePortIn_payload_isTaken, BpuPipelinePlugin_updatePortIn_payload_target); // CommitPlugin.scala:L261
               end
             `endif
           `endif
         end
       end
-      if(when_CommitPlugin_l275) begin
+      if(when_CommitPlugin_l276) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // CommitPlugin.scala:L279
+            assert(1'b0); // CommitPlugin.scala:L280
           `else
             if(!1'b0) begin
-              $display("NOTE(CommitPlugin.scala:279):  CHECKPOINT: Save checkpoint triggered on successful commit. PC=0x%x", ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc); // CommitPlugin.scala:L279
+              $display("NOTE(CommitPlugin.scala:280):  [debug  ] %x     [34mCHECKPOINT: Save checkpoint triggered on successful commit. PC=0x%x[0m", PerfCounter_cycles, ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc); // CommitPlugin.scala:L280
             end
           `endif
         `endif
         if(CommitPlugin_logic_mispredictedBranchCanCommit) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // CommitPlugin.scala:L281
+              assert(1'b0); // CommitPlugin.scala:L282
             `else
               if(!1'b0) begin
-                $display("NOTE(CommitPlugin.scala:281):  [notice ] %x     [33mMISPREDICT MARK (T): Marking for flush in next cycle. PC=0x%x, Target=0x%x. This branch instruction itself is being committed.[0m", PerfCounter_cycles, ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc, ROBPlugin_robComponent_io_commit_0_entry_status_targetPc); // CommitPlugin.scala:L281
+                $display("NOTE(CommitPlugin.scala:282):  [notice ] %x     [33mMISPREDICT MARK (T): Marking for flush in next cycle. PC=0x%x, Target=0x%x. This branch instruction itself is being committed.[0m", PerfCounter_cycles, ROBPlugin_robComponent_io_commit_0_entry_payload_uop_decoded_pc, ROBPlugin_robComponent_io_commit_0_entry_status_targetPc); // CommitPlugin.scala:L282
               end
             `endif
           `endif
@@ -32106,10 +32425,10 @@ module CoreNSCSCC (
       if(CommitPlugin_logic_s0_commitAckMasks_0) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert((! CommitPlugin_logic_scheduedFlush)); // CommitPlugin.scala:L294
+            assert((! CommitPlugin_logic_scheduedFlush)); // CommitPlugin.scala:L295
           `else
             if(!(! CommitPlugin_logic_scheduedFlush)) begin
-              $display("FAILURE Cannot commit this cycle when a mispredicted branch caused a flush."); // CommitPlugin.scala:L294
+              $display("FAILURE Cannot commit this cycle when a mispredicted branch caused a flush."); // CommitPlugin.scala:L295
               $finish;
             end
           `endif
@@ -32120,7 +32439,7 @@ module CoreNSCSCC (
       CommitPlugin_logic_s1_s1_flushedThisCycle <= CommitPlugin_logic_scheduedFlush;
       CommitPlugin_logic_s1_s1_maxCommitPcThisCycle <= CommitPlugin_logic_s0_maxCommitPcThisCycle;
       CommitPlugin_logic_s1_s1_anyCommitOOB <= CommitPlugin_logic_s0_anyCommitOOB;
-      if(when_CommitPlugin_l348) begin
+      if(when_CommitPlugin_l349) begin
         CommitPlugin_maxCommitPcReg <= CommitPlugin_logic_s1_s1_maxCommitPcThisCycle;
       end
       if(CommitPlugin_logic_s1_s1_anyCommitOOB) begin
@@ -32161,10 +32480,10 @@ module CoreNSCSCC (
       CommitPlugin_logic_counter <= (CommitPlugin_logic_counter + 32'h00000001);
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // CommitPlugin.scala:L380
+          assert(1'b0); // CommitPlugin.scala:L381
         `else
           if(!1'b0) begin
-            $display("NOTE(CommitPlugin.scala:380):  [COMMIT] Cycle %x Log: Stats=CommitStats(committedThisCycle=%x, totalCommitted=%x, robFlushCount=%x, physRegRecycled=%x, commitOOB=%x, maxCommitPc=0x%x)\n  Slot Details: \n    Slot: (valid=%x, canCommit=%x, doCommit=%x, robPtr=%x, pc=0x%x, oldPhysDest=%x, allocPhysDest(bool)=%x) commitPc=0x%x", CommitPlugin_logic_counter, CommitPlugin_commitStatsReg_committedThisCycle, CommitPlugin_commitStatsReg_totalCommitted, CommitPlugin_commitStatsReg_robFlushCount, CommitPlugin_commitStatsReg_physRegRecycled, CommitPlugin_commitStatsReg_commitOOB, CommitPlugin_commitStatsReg_maxCommitPc, CommitPlugin_commitSlotLogs_0_valid, CommitPlugin_commitSlotLogs_0_canCommit, CommitPlugin_commitSlotLogs_0_doCommit, CommitPlugin_commitSlotLogs_0_robPtr, CommitPlugin_commitSlotLogs_0_pc, CommitPlugin_commitSlotLogs_0_oldPhysDest, CommitPlugin_commitSlotLogs_0_allocatesPhysDest, CommitPlugin_logic_s0_commitPcs_0); // CommitPlugin.scala:L380
+            $display("NOTE(CommitPlugin.scala:381):  [debug  ] %x     [34m[COMMIT] Cycle %x Log: Stats=CommitStats(committedThisCycle=%x, totalCommitted=%x, robFlushCount=%x, physRegRecycled=%x, commitOOB=%x, maxCommitPc=0x%x)\n  Slot Details: \n    Slot: (valid=%x, canCommit=%x, doCommit=%x, robPtr=%x, pc=0x%x, oldPhysDest=%x, allocPhysDest(bool)=%x) commitPc=0x%x[0m", PerfCounter_cycles, CommitPlugin_logic_counter, CommitPlugin_commitStatsReg_committedThisCycle, CommitPlugin_commitStatsReg_totalCommitted, CommitPlugin_commitStatsReg_robFlushCount, CommitPlugin_commitStatsReg_physRegRecycled, CommitPlugin_commitStatsReg_commitOOB, CommitPlugin_commitStatsReg_maxCommitPc, CommitPlugin_commitSlotLogs_0_valid, CommitPlugin_commitSlotLogs_0_canCommit, CommitPlugin_commitSlotLogs_0_doCommit, CommitPlugin_commitSlotLogs_0_robPtr, CommitPlugin_commitSlotLogs_0_pc, CommitPlugin_commitSlotLogs_0_oldPhysDest, CommitPlugin_commitSlotLogs_0_allocatesPhysDest, CommitPlugin_logic_s0_commitPcs_0); // CommitPlugin.scala:L381
           end
         `endif
       `endif
@@ -32237,35 +32556,37 @@ module CoreNSCSCC (
       end
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // RenamePlugin.scala:L64
+          assert(1'b0); // RenamePlugin.scala:L67
         `else
           if(!1'b0) begin
-            $display("NOTE(RenamePlugin.scala:64):  [notice ] %x     [33mflAllocPort.enable(0) := %x && %x[0m", PerfCounter_cycles, s1_Rename_valid, s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_writeArchDestEn); // RenamePlugin.scala:L64
+            $display("NOTE(RenamePlugin.scala:67):  [notice ] %x     [33mflAllocPort.enable(0) := %x && %x[0m", PerfCounter_cycles, s1_Rename_valid, s1_Rename_IssuePipelineSignals_DECODED_UOPS_0_writeArchDestEn); // RenamePlugin.scala:L67
           end
         `endif
       `endif
       if(s2_RobAlloc_isFiring) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(RenamePlugin_logic_s2_logic_allocationOk); // RenamePlugin.scala:L134
+            assert(RenamePlugin_logic_s2_logic_allocationOk); // RenamePlugin.scala:L141
           `else
             if(!RenamePlugin_logic_s2_logic_allocationOk) begin
-              $display("FAILURE ASSERTION FAILED: Firing S2 stage with failed FreeList allocation!"); // RenamePlugin.scala:L134
+              $display("FAILURE ASSERTION FAILED: Firing S2 stage with failed FreeList allocation!"); // RenamePlugin.scala:L141
               $finish;
             end
           `endif
         `endif
+        RenamePlugin_logic_needRetryReg <= 1'b0;
       end
-      if(when_RenamePlugin_l159) begin
+      if(when_RenamePlugin_l167) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // RenamePlugin.scala:L160
+            assert(1'b0); // RenamePlugin.scala:L168
           `else
             if(!1'b0) begin
-              $display("NOTE(RenamePlugin.scala:160):  [notice ] %x     [33m[RegRes] S2: Failed to allocate physical registers for uops: DecodedUop @ pc=%x (%x)\n because s2.isValid=%x and allocationOk=%x[0m", PerfCounter_cycles, s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_pc, s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_isValid, s2_RobAlloc_valid, RenamePlugin_logic_s2_logic_allocationOk); // RenamePlugin.scala:L160
+              $display("NOTE(RenamePlugin.scala:168):  [notice ] %x     [33m[RegRes] S2: Failed to allocate physical registers for uops: DecodedUop @ pc=%x (%x)\n because s2.isValid=%x and allocationOk=%x[0m", PerfCounter_cycles, s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_pc, s2_RobAlloc_IssuePipelineSignals_DECODED_UOPS_0_isValid, s2_RobAlloc_valid, RenamePlugin_logic_s2_logic_allocationOk); // RenamePlugin.scala:L168
             end
           `endif
         `endif
+        RenamePlugin_logic_needRetryReg <= 1'b1;
       end
       if(RobAllocPlugin_doGlobalFlush) begin
         `ifndef SYNTHESIS
@@ -32437,7 +32758,7 @@ module CoreNSCSCC (
             assert(1'b0); // EuBasePlugin.scala:L305
           `else
             if(!1'b0) begin
-              $display("NOTE(EuBasePlugin.scala:305):  [RAW_DEBUG] EU (AluIntEU) clearing BusyTable: physReg=%x, robPtr=%x", AluIntEU_AluIntEuPlugin_euResult_uop_physDest_idx, AluIntEU_AluIntEuPlugin_euResult_uop_robPtr); // EuBasePlugin.scala:L305
+              $display("NOTE(EuBasePlugin.scala:305):  [RAW_DEBUG] EU (AluIntEU) clearing BusyTable: physReg=p%x, robPtr=%x", AluIntEU_AluIntEuPlugin_euResult_uop_physDest_idx, AluIntEU_AluIntEuPlugin_euResult_uop_robPtr); // EuBasePlugin.scala:L305
             end
           `endif
         `endif
@@ -32534,7 +32855,7 @@ module CoreNSCSCC (
             assert(1'b0); // EuBasePlugin.scala:L305
           `else
             if(!1'b0) begin
-              $display("NOTE(EuBasePlugin.scala:305):  [RAW_DEBUG] EU (MulEU) clearing BusyTable: physReg=%x, robPtr=%x", MulEU_MulEuPlugin_euResult_uop_physDest_idx, MulEU_MulEuPlugin_euResult_uop_robPtr); // EuBasePlugin.scala:L305
+              $display("NOTE(EuBasePlugin.scala:305):  [RAW_DEBUG] EU (MulEU) clearing BusyTable: physReg=p%x, robPtr=%x", MulEU_MulEuPlugin_euResult_uop_physDest_idx, MulEU_MulEuPlugin_euResult_uop_robPtr); // EuBasePlugin.scala:L305
             end
           `endif
         `endif
@@ -32648,7 +32969,7 @@ module CoreNSCSCC (
             assert(1'b0); // EuBasePlugin.scala:L305
           `else
             if(!1'b0) begin
-              $display("NOTE(EuBasePlugin.scala:305):  [RAW_DEBUG] EU (BranchEU) clearing BusyTable: physReg=%x, robPtr=%x", BranchEU_BranchEuPlugin_euResult_uop_physDest_idx, BranchEU_BranchEuPlugin_euResult_uop_robPtr); // EuBasePlugin.scala:L305
+              $display("NOTE(EuBasePlugin.scala:305):  [RAW_DEBUG] EU (BranchEU) clearing BusyTable: physReg=p%x, robPtr=%x", BranchEU_BranchEuPlugin_euResult_uop_physDest_idx, BranchEU_BranchEuPlugin_euResult_uop_robPtr); // EuBasePlugin.scala:L305
             end
           `endif
         `endif
@@ -32719,7 +33040,7 @@ module CoreNSCSCC (
             assert(1'b0); // EuBasePlugin.scala:L305
           `else
             if(!1'b0) begin
-              $display("NOTE(EuBasePlugin.scala:305):  [RAW_DEBUG] EU (LsuEU) clearing BusyTable: physReg=%x, robPtr=%x", LsuEU_LsuEuPlugin_euResult_uop_physDest_idx, LsuEU_LsuEuPlugin_euResult_uop_robPtr); // EuBasePlugin.scala:L305
+              $display("NOTE(EuBasePlugin.scala:305):  [RAW_DEBUG] EU (LsuEU) clearing BusyTable: physReg=p%x, robPtr=%x", LsuEU_LsuEuPlugin_euResult_uop_physDest_idx, LsuEU_LsuEuPlugin_euResult_uop_robPtr); // EuBasePlugin.scala:L305
             end
           `endif
         `endif
@@ -32752,7 +33073,7 @@ module CoreNSCSCC (
             assert(1'b0); // AddressGenerationUnit.scala:L198
           `else
             if(!1'b0) begin
-              $display("NOTE(AddressGenerationUnit.scala:198):  [AGU-0-S0-Input] PC=0x%x, basePhysReg=%x, dataReg=%x, isLoad=%x, isStore=%x, robPtr=%x", LsuEU_LsuEuPlugin_hw_aguPort_input_payload_pc, LsuEU_LsuEuPlugin_hw_aguPort_input_payload_basePhysReg, LsuEU_LsuEuPlugin_hw_aguPort_input_payload_dataReg, LsuEU_LsuEuPlugin_hw_aguPort_input_payload_isLoad, LsuEU_LsuEuPlugin_hw_aguPort_input_payload_isStore, LsuEU_LsuEuPlugin_hw_aguPort_input_payload_robPtr); // AddressGenerationUnit.scala:L198
+              $display("NOTE(AddressGenerationUnit.scala:198):  [AGU-0-S0-Input] PC=0x%x, basePhysReg=p%x, dataReg=p%x, isLoad=%x, isStore=%x, robPtr=%x", LsuEU_LsuEuPlugin_hw_aguPort_input_payload_pc, LsuEU_LsuEuPlugin_hw_aguPort_input_payload_basePhysReg, LsuEU_LsuEuPlugin_hw_aguPort_input_payload_dataReg, LsuEU_LsuEuPlugin_hw_aguPort_input_payload_isLoad, LsuEU_LsuEuPlugin_hw_aguPort_input_payload_isStore, LsuEU_LsuEuPlugin_hw_aguPort_input_payload_robPtr); // AddressGenerationUnit.scala:L198
             end
           `endif
         `endif
@@ -32763,7 +33084,7 @@ module CoreNSCSCC (
             assert(1'b0); // AddressGenerationUnit.scala:L201
           `else
             if(!1'b0) begin
-              $display("NOTE(AddressGenerationUnit.scala:201):  [AGU-0-S1-Input] PC=0x%x, basePhysReg=%x, dataReg=%x, prfBaseRsp=0x%x, prfDataRsp=0x%x", _zz_io_push_payload_pc, _zz_when_AddressGenerationUnit_l219, _zz_when_AddressGenerationUnit_l224, _zz_io_push_payload_address, _zz_io_push_payload_storeData); // AddressGenerationUnit.scala:L201
+              $display("NOTE(AddressGenerationUnit.scala:201):  [AGU-0-S1-Input] PC=0x%x, basePhysReg=p%x, dataReg=p%x, prfBaseRsp=0x%x, prfDataRsp=0x%x", _zz_io_push_payload_pc, _zz_when_AddressGenerationUnit_l219, _zz_when_AddressGenerationUnit_l224, _zz_io_push_payload_address, _zz_io_push_payload_storeData); // AddressGenerationUnit.scala:L201
             end
           `endif
         `endif
@@ -32786,7 +33107,7 @@ module CoreNSCSCC (
               assert(1'b0); // AddressGenerationUnit.scala:L222
             `else
               if(!1'b0) begin
-                $display("NOTE(AddressGenerationUnit.scala:222):  [AGU-0-BypassMatch] PC=0x%x, BaseReg Matched! PhysReg=%x, BypassData=0x%x", _zz_io_push_payload_pc, _zz_when_AddressGenerationUnit_l219, AguPlugin_logic_bypassFlow_payload_physRegData); // AddressGenerationUnit.scala:L222
+                $display("NOTE(AddressGenerationUnit.scala:222):  [AGU-0-BypassMatch] PC=0x%x, BaseReg Matched! PhysReg=p%x, BypassData=0x%x", _zz_io_push_payload_pc, _zz_when_AddressGenerationUnit_l219, AguPlugin_logic_bypassFlow_payload_physRegData); // AddressGenerationUnit.scala:L222
               end
             `endif
           `endif
@@ -32797,7 +33118,7 @@ module CoreNSCSCC (
               assert(1'b0); // AddressGenerationUnit.scala:L227
             `else
               if(!1'b0) begin
-                $display("NOTE(AddressGenerationUnit.scala:227):  [AGU-0-BypassMatch] PC=0x%x, DataReg Matched! PhysReg=%x, BypassData=0x%x", _zz_io_push_payload_pc, _zz_when_AddressGenerationUnit_l224, AguPlugin_logic_bypassFlow_payload_physRegData); // AddressGenerationUnit.scala:L227
+                $display("NOTE(AddressGenerationUnit.scala:227):  [AGU-0-BypassMatch] PC=0x%x, DataReg Matched! PhysReg=p%x, BypassData=0x%x", _zz_io_push_payload_pc, _zz_when_AddressGenerationUnit_l224, AguPlugin_logic_bypassFlow_payload_physRegData); // AddressGenerationUnit.scala:L227
               end
             `endif
           `endif
@@ -32809,7 +33130,7 @@ module CoreNSCSCC (
             assert(1'b0); // AddressGenerationUnit.scala:L270
           `else
             if(!1'b0) begin
-              $display("NOTE(AddressGenerationUnit.scala:270):  [normal ] %x     [AGU-0-S1-Output-Debug] s1.payload=AguInput(qPtr=%x,basePhysReg=%x,immediate=%x,accessSize=%s,isSignedLoad=%x,usePc=%x,pc=%x,dataReg=%x,robPtr=%x,isLoad=%x,isStore=%x,isFlush=%x,isIO=%x,physDst=%x) baseData=0x%x ==> effAddr=0x%x", PerfCounter_cycles, _zz_io_push_payload_qPtr, _zz_when_AddressGenerationUnit_l219, _zz_io_push_payload_immediate, _zz_io_push_payload_alignException_string, _zz_io_push_payload_isSignedLoad, _zz_io_push_payload_usePc, _zz_io_push_payload_pc, _zz_when_AddressGenerationUnit_l224, _zz_io_push_payload_robPtr, _zz_io_push_payload_isLoad, _zz_when_AddressGenerationUnit_l224_1, _zz_io_push_payload_isFlush, _zz_io_push_payload_isIO, _zz_io_push_payload_physDst, _zz_io_push_payload_address_3, _zz_io_push_payload_address_4); // AddressGenerationUnit.scala:L270
+              $display("NOTE(AddressGenerationUnit.scala:270):  [normal ] %x     [AGU-0-S1-Output-Debug] s1.payload=AguInput(qPtr=%x,basePhysReg=p%x,immediate=%x,accessSize=%s,isSignedLoad=%x,usePc=%x,pc=%x,dataReg=p%x,robPtr=%x,isLoad=%x,isStore=%x,isFlush=%x,isIO=%x,physDst=%x) baseData=0x%x ==> effAddr=0x%x", PerfCounter_cycles, _zz_io_push_payload_qPtr, _zz_when_AddressGenerationUnit_l219, _zz_io_push_payload_immediate, _zz_io_push_payload_alignException_string, _zz_io_push_payload_isSignedLoad, _zz_io_push_payload_usePc, _zz_io_push_payload_pc, _zz_when_AddressGenerationUnit_l224, _zz_io_push_payload_robPtr, _zz_io_push_payload_isLoad, _zz_when_AddressGenerationUnit_l224_1, _zz_io_push_payload_isFlush, _zz_io_push_payload_isIO, _zz_io_push_payload_physDst, _zz_io_push_payload_address_3, _zz_io_push_payload_address_4); // AddressGenerationUnit.scala:L270
             end
           `endif
         `endif
@@ -33124,7 +33445,7 @@ module CoreNSCSCC (
             assert(1'b0); // PhysicalRegFile.scala:L113
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:113):  [normal ] %x     [PRegPlugin] Read from `<null>` on reg[%x] -> %x", PerfCounter_cycles, AluIntEU_AluIntEuPlugin_gprReadPorts_0_address, AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp); // PhysicalRegFile.scala:L113
+              $display("NOTE(PhysicalRegFile.scala:113):  [normal ] %x     [PRegPlugin] Read from `<null>` on reg[p%x] -> %x", PerfCounter_cycles, AluIntEU_AluIntEuPlugin_gprReadPorts_0_address, AluIntEU_AluIntEuPlugin_gprReadPorts_0_rsp); // PhysicalRegFile.scala:L113
             end
           `endif
         `endif
@@ -33135,7 +33456,7 @@ module CoreNSCSCC (
             assert(1'b0); // PhysicalRegFile.scala:L113
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:113):  [normal ] %x     [PRegPlugin] Read from `<null>` on reg[%x] -> %x", PerfCounter_cycles, AluIntEU_AluIntEuPlugin_gprReadPorts_1_address, AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp); // PhysicalRegFile.scala:L113
+              $display("NOTE(PhysicalRegFile.scala:113):  [normal ] %x     [PRegPlugin] Read from `<null>` on reg[p%x] -> %x", PerfCounter_cycles, AluIntEU_AluIntEuPlugin_gprReadPorts_1_address, AluIntEU_AluIntEuPlugin_gprReadPorts_1_rsp); // PhysicalRegFile.scala:L113
             end
           `endif
         `endif
@@ -33146,7 +33467,7 @@ module CoreNSCSCC (
             assert(1'b0); // PhysicalRegFile.scala:L113
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:113):  [normal ] %x     [PRegPlugin] Read from `<null>` on reg[%x] -> %x", PerfCounter_cycles, MulEU_MulEuPlugin_gprReadPorts_0_address, MulEU_MulEuPlugin_gprReadPorts_0_rsp); // PhysicalRegFile.scala:L113
+              $display("NOTE(PhysicalRegFile.scala:113):  [normal ] %x     [PRegPlugin] Read from `<null>` on reg[p%x] -> %x", PerfCounter_cycles, MulEU_MulEuPlugin_gprReadPorts_0_address, MulEU_MulEuPlugin_gprReadPorts_0_rsp); // PhysicalRegFile.scala:L113
             end
           `endif
         `endif
@@ -33157,7 +33478,7 @@ module CoreNSCSCC (
             assert(1'b0); // PhysicalRegFile.scala:L113
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:113):  [normal ] %x     [PRegPlugin] Read from `<null>` on reg[%x] -> %x", PerfCounter_cycles, MulEU_MulEuPlugin_gprReadPorts_1_address, MulEU_MulEuPlugin_gprReadPorts_1_rsp); // PhysicalRegFile.scala:L113
+              $display("NOTE(PhysicalRegFile.scala:113):  [normal ] %x     [PRegPlugin] Read from `<null>` on reg[p%x] -> %x", PerfCounter_cycles, MulEU_MulEuPlugin_gprReadPorts_1_address, MulEU_MulEuPlugin_gprReadPorts_1_rsp); // PhysicalRegFile.scala:L113
             end
           `endif
         `endif
@@ -33168,7 +33489,7 @@ module CoreNSCSCC (
             assert(1'b0); // PhysicalRegFile.scala:L113
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:113):  [normal ] %x     [PRegPlugin] Read from `<null>` on reg[%x] -> %x", PerfCounter_cycles, BranchEU_BranchEuPlugin_gprReadPorts_0_address, BranchEU_BranchEuPlugin_gprReadPorts_0_rsp); // PhysicalRegFile.scala:L113
+              $display("NOTE(PhysicalRegFile.scala:113):  [normal ] %x     [PRegPlugin] Read from `<null>` on reg[p%x] -> %x", PerfCounter_cycles, BranchEU_BranchEuPlugin_gprReadPorts_0_address, BranchEU_BranchEuPlugin_gprReadPorts_0_rsp); // PhysicalRegFile.scala:L113
             end
           `endif
         `endif
@@ -33179,7 +33500,7 @@ module CoreNSCSCC (
             assert(1'b0); // PhysicalRegFile.scala:L113
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:113):  [normal ] %x     [PRegPlugin] Read from `<null>` on reg[%x] -> %x", PerfCounter_cycles, BranchEU_BranchEuPlugin_gprReadPorts_1_address, BranchEU_BranchEuPlugin_gprReadPorts_1_rsp); // PhysicalRegFile.scala:L113
+              $display("NOTE(PhysicalRegFile.scala:113):  [normal ] %x     [PRegPlugin] Read from `<null>` on reg[p%x] -> %x", PerfCounter_cycles, BranchEU_BranchEuPlugin_gprReadPorts_1_address, BranchEU_BranchEuPlugin_gprReadPorts_1_rsp); // PhysicalRegFile.scala:L113
             end
           `endif
         `endif
@@ -33190,7 +33511,7 @@ module CoreNSCSCC (
             assert(1'b0); // PhysicalRegFile.scala:L113
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:113):  [normal ] %x     [PRegPlugin] Read from `<null>` on reg[%x] -> %x", PerfCounter_cycles, LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_address, LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp); // PhysicalRegFile.scala:L113
+              $display("NOTE(PhysicalRegFile.scala:113):  [normal ] %x     [PRegPlugin] Read from `<null>` on reg[p%x] -> %x", PerfCounter_cycles, LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_address, LsuEU_LsuEuPlugin_hw_aguPort_prfReadBase_rsp); // PhysicalRegFile.scala:L113
             end
           `endif
         `endif
@@ -33201,7 +33522,7 @@ module CoreNSCSCC (
             assert(1'b0); // PhysicalRegFile.scala:L113
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:113):  [normal ] %x     [PRegPlugin] Read from `<null>` on reg[%x] -> %x", PerfCounter_cycles, LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_address, LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp); // PhysicalRegFile.scala:L113
+              $display("NOTE(PhysicalRegFile.scala:113):  [normal ] %x     [PRegPlugin] Read from `<null>` on reg[p%x] -> %x", PerfCounter_cycles, LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_address, LsuEU_LsuEuPlugin_hw_aguPort_prfReadData_rsp); // PhysicalRegFile.scala:L113
             end
           `endif
         `endif
@@ -33504,7 +33825,7 @@ module CoreNSCSCC (
             assert(1'b0); // PhysicalRegFile.scala:L146
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:146):  [normal ] %x     [PRegPlugin] Write from `AluIntEU.gprWritePort` to reg[%x] with data %x", PerfCounter_cycles, AluIntEU_AluIntEuPlugin_gprWritePort_address, AluIntEU_AluIntEuPlugin_gprWritePort_data); // PhysicalRegFile.scala:L146
+              $display("NOTE(PhysicalRegFile.scala:146):  [normal ] %x     [PRegPlugin] Write from `AluIntEU.gprWritePort` to reg[p%x] with data %x", PerfCounter_cycles, AluIntEU_AluIntEuPlugin_gprWritePort_address, AluIntEU_AluIntEuPlugin_gprWritePort_data); // PhysicalRegFile.scala:L146
             end
           `endif
         `endif
@@ -33707,7 +34028,7 @@ module CoreNSCSCC (
             assert(1'b0); // PhysicalRegFile.scala:L146
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:146):  [normal ] %x     [PRegPlugin] Write from `MulEU.gprWritePort` to reg[%x] with data %x", PerfCounter_cycles, MulEU_MulEuPlugin_gprWritePort_address, MulEU_MulEuPlugin_gprWritePort_data); // PhysicalRegFile.scala:L146
+              $display("NOTE(PhysicalRegFile.scala:146):  [normal ] %x     [PRegPlugin] Write from `MulEU.gprWritePort` to reg[p%x] with data %x", PerfCounter_cycles, MulEU_MulEuPlugin_gprWritePort_address, MulEU_MulEuPlugin_gprWritePort_data); // PhysicalRegFile.scala:L146
             end
           `endif
         `endif
@@ -33910,7 +34231,7 @@ module CoreNSCSCC (
             assert(1'b0); // PhysicalRegFile.scala:L146
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:146):  [normal ] %x     [PRegPlugin] Write from `BranchEU.gprWritePort` to reg[%x] with data %x", PerfCounter_cycles, BranchEU_BranchEuPlugin_gprWritePort_address, BranchEU_BranchEuPlugin_gprWritePort_data); // PhysicalRegFile.scala:L146
+              $display("NOTE(PhysicalRegFile.scala:146):  [normal ] %x     [PRegPlugin] Write from `BranchEU.gprWritePort` to reg[p%x] with data %x", PerfCounter_cycles, BranchEU_BranchEuPlugin_gprWritePort_address, BranchEU_BranchEuPlugin_gprWritePort_data); // PhysicalRegFile.scala:L146
             end
           `endif
         `endif
@@ -34113,7 +34434,7 @@ module CoreNSCSCC (
             assert(1'b0); // PhysicalRegFile.scala:L146
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:146):  [normal ] %x     [PRegPlugin] Write from `LsuEU.gprWritePort` to reg[%x] with data %x", PerfCounter_cycles, LsuEU_LsuEuPlugin_gprWritePort_address, LsuEU_LsuEuPlugin_gprWritePort_data); // PhysicalRegFile.scala:L146
+              $display("NOTE(PhysicalRegFile.scala:146):  [normal ] %x     [PRegPlugin] Write from `LsuEU.gprWritePort` to reg[p%x] with data %x", PerfCounter_cycles, LsuEU_LsuEuPlugin_gprWritePort_address, LsuEU_LsuEuPlugin_gprWritePort_data); // PhysicalRegFile.scala:L146
             end
           `endif
         `endif
@@ -34316,7 +34637,7 @@ module CoreNSCSCC (
             assert(1'b0); // PhysicalRegFile.scala:L146
           `else
             if(!1'b0) begin
-              $display("NOTE(PhysicalRegFile.scala:146):  [normal ] %x     [PRegPlugin] Write from `LQ.gprWritePort` to reg[%x] with data %x", PerfCounter_cycles, LoadQueuePlugin_hw_prfWritePort_address, LoadQueuePlugin_hw_prfWritePort_data); // PhysicalRegFile.scala:L146
+              $display("NOTE(PhysicalRegFile.scala:146):  [normal ] %x     [PRegPlugin] Write from `LQ.gprWritePort` to reg[p%x] with data %x", PerfCounter_cycles, LoadQueuePlugin_hw_prfWritePort_address, LoadQueuePlugin_hw_prfWritePort_data); // PhysicalRegFile.scala:L146
             end
           `endif
         `endif
@@ -35133,7 +35454,7 @@ module CoreNSCSCC (
             assert(1'b0); // WakeupPlugin.scala:L91
           `else
             if(!1'b0) begin
-              $display("NOTE(WakeupPlugin.scala:91):  [normal ] %x     WakeupPlugin: Broadcasting from source[0] ('AluIntEU.wakeupPort') for physReg=%x", PerfCounter_cycles, LinkerPlugin_logic_allWakeupFlows_0_payload_physRegIdx); // WakeupPlugin.scala:L91
+              $display("NOTE(WakeupPlugin.scala:91):  [normal ] %x     WakeupPlugin: Broadcasting from source[0] ('AluIntEU.wakeupPort') for physReg=p%x", PerfCounter_cycles, LinkerPlugin_logic_allWakeupFlows_0_payload_physRegIdx); // WakeupPlugin.scala:L91
             end
           `endif
         `endif
@@ -35144,7 +35465,7 @@ module CoreNSCSCC (
             assert(1'b0); // WakeupPlugin.scala:L91
           `else
             if(!1'b0) begin
-              $display("NOTE(WakeupPlugin.scala:91):  [normal ] %x     WakeupPlugin: Broadcasting from source[1] ('MulEU.wakeupPort') for physReg=%x", PerfCounter_cycles, LinkerPlugin_logic_allWakeupFlows_1_payload_physRegIdx); // WakeupPlugin.scala:L91
+              $display("NOTE(WakeupPlugin.scala:91):  [normal ] %x     WakeupPlugin: Broadcasting from source[1] ('MulEU.wakeupPort') for physReg=p%x", PerfCounter_cycles, LinkerPlugin_logic_allWakeupFlows_1_payload_physRegIdx); // WakeupPlugin.scala:L91
             end
           `endif
         `endif
@@ -35155,7 +35476,7 @@ module CoreNSCSCC (
             assert(1'b0); // WakeupPlugin.scala:L91
           `else
             if(!1'b0) begin
-              $display("NOTE(WakeupPlugin.scala:91):  [normal ] %x     WakeupPlugin: Broadcasting from source[2] ('BranchEU.wakeupPort') for physReg=%x", PerfCounter_cycles, LinkerPlugin_logic_allWakeupFlows_2_payload_physRegIdx); // WakeupPlugin.scala:L91
+              $display("NOTE(WakeupPlugin.scala:91):  [normal ] %x     WakeupPlugin: Broadcasting from source[2] ('BranchEU.wakeupPort') for physReg=p%x", PerfCounter_cycles, LinkerPlugin_logic_allWakeupFlows_2_payload_physRegIdx); // WakeupPlugin.scala:L91
             end
           `endif
         `endif
@@ -35166,7 +35487,7 @@ module CoreNSCSCC (
             assert(1'b0); // WakeupPlugin.scala:L91
           `else
             if(!1'b0) begin
-              $display("NOTE(WakeupPlugin.scala:91):  [normal ] %x     WakeupPlugin: Broadcasting from source[3] ('LsuEU.wakeupPort') for physReg=%x", PerfCounter_cycles, LinkerPlugin_logic_allWakeupFlows_3_payload_physRegIdx); // WakeupPlugin.scala:L91
+              $display("NOTE(WakeupPlugin.scala:91):  [normal ] %x     WakeupPlugin: Broadcasting from source[3] ('LsuEU.wakeupPort') for physReg=p%x", PerfCounter_cycles, LinkerPlugin_logic_allWakeupFlows_3_payload_physRegIdx); // WakeupPlugin.scala:L91
             end
           `endif
         `endif
@@ -35177,7 +35498,7 @@ module CoreNSCSCC (
             assert(1'b0); // WakeupPlugin.scala:L91
           `else
             if(!1'b0) begin
-              $display("NOTE(WakeupPlugin.scala:91):  [normal ] %x     WakeupPlugin: Broadcasting from source[4] ('LQ.wakeupPort') for physReg=%x", PerfCounter_cycles, LinkerPlugin_logic_allWakeupFlows_4_payload_physRegIdx); // WakeupPlugin.scala:L91
+              $display("NOTE(WakeupPlugin.scala:91):  [normal ] %x     WakeupPlugin: Broadcasting from source[4] ('LQ.wakeupPort') for physReg=p%x", PerfCounter_cycles, LinkerPlugin_logic_allWakeupFlows_4_payload_physRegIdx); // WakeupPlugin.scala:L91
             end
           `endif
         `endif
@@ -35188,7 +35509,7 @@ module CoreNSCSCC (
             assert(1'b0); // BusyTablePlugin.scala:L78
           `else
             if(!1'b0) begin
-              $display("NOTE(BusyTablePlugin.scala:78):  [RegRes|BusyTable] Global wakeup clear: physReg=%x (from AluIntEU.wakeupPort executed operation)", AluIntEU_AluIntEuPlugin_wakeupSourcePort_payload_physRegIdx); // BusyTablePlugin.scala:L78
+              $display("NOTE(BusyTablePlugin.scala:78):  [RegRes|BusyTable] Global wakeup clear: physReg=p%x (from AluIntEU.wakeupPort executed operation)", AluIntEU_AluIntEuPlugin_wakeupSourcePort_payload_physRegIdx); // BusyTablePlugin.scala:L78
             end
           `endif
         `endif
@@ -35199,7 +35520,7 @@ module CoreNSCSCC (
             assert(1'b0); // BusyTablePlugin.scala:L78
           `else
             if(!1'b0) begin
-              $display("NOTE(BusyTablePlugin.scala:78):  [RegRes|BusyTable] Global wakeup clear: physReg=%x (from MulEU.wakeupPort executed operation)", MulEU_MulEuPlugin_wakeupSourcePort_payload_physRegIdx); // BusyTablePlugin.scala:L78
+              $display("NOTE(BusyTablePlugin.scala:78):  [RegRes|BusyTable] Global wakeup clear: physReg=p%x (from MulEU.wakeupPort executed operation)", MulEU_MulEuPlugin_wakeupSourcePort_payload_physRegIdx); // BusyTablePlugin.scala:L78
             end
           `endif
         `endif
@@ -35210,7 +35531,7 @@ module CoreNSCSCC (
             assert(1'b0); // BusyTablePlugin.scala:L78
           `else
             if(!1'b0) begin
-              $display("NOTE(BusyTablePlugin.scala:78):  [RegRes|BusyTable] Global wakeup clear: physReg=%x (from BranchEU.wakeupPort executed operation)", BranchEU_BranchEuPlugin_wakeupSourcePort_payload_physRegIdx); // BusyTablePlugin.scala:L78
+              $display("NOTE(BusyTablePlugin.scala:78):  [RegRes|BusyTable] Global wakeup clear: physReg=p%x (from BranchEU.wakeupPort executed operation)", BranchEU_BranchEuPlugin_wakeupSourcePort_payload_physRegIdx); // BusyTablePlugin.scala:L78
             end
           `endif
         `endif
@@ -35221,7 +35542,7 @@ module CoreNSCSCC (
             assert(1'b0); // BusyTablePlugin.scala:L78
           `else
             if(!1'b0) begin
-              $display("NOTE(BusyTablePlugin.scala:78):  [RegRes|BusyTable] Global wakeup clear: physReg=%x (from LsuEU.wakeupPort executed operation)", LsuEU_LsuEuPlugin_wakeupSourcePort_payload_physRegIdx); // BusyTablePlugin.scala:L78
+              $display("NOTE(BusyTablePlugin.scala:78):  [RegRes|BusyTable] Global wakeup clear: physReg=p%x (from LsuEU.wakeupPort executed operation)", LsuEU_LsuEuPlugin_wakeupSourcePort_payload_physRegIdx); // BusyTablePlugin.scala:L78
             end
           `endif
         `endif
@@ -35232,7 +35553,7 @@ module CoreNSCSCC (
             assert(1'b0); // BusyTablePlugin.scala:L78
           `else
             if(!1'b0) begin
-              $display("NOTE(BusyTablePlugin.scala:78):  [RegRes|BusyTable] Global wakeup clear: physReg=%x (from LQ.wakeupPort executed operation)", LoadQueuePlugin_hw_wakeupPort_payload_physRegIdx); // BusyTablePlugin.scala:L78
+              $display("NOTE(BusyTablePlugin.scala:78):  [RegRes|BusyTable] Global wakeup clear: physReg=p%x (from LQ.wakeupPort executed operation)", LoadQueuePlugin_hw_wakeupPort_payload_physRegIdx); // BusyTablePlugin.scala:L78
             end
           `endif
         `endif
@@ -35243,7 +35564,7 @@ module CoreNSCSCC (
             assert(1'b0); // BusyTablePlugin.scala:L96
           `else
             if(!1'b0) begin
-              $display("NOTE(BusyTablePlugin.scala:96):  [RegRes|BusyTable] set bit: preg=%x", RenamePlugin_setup_btSetBusyPorts_0_payload); // BusyTablePlugin.scala:L96
+              $display("NOTE(BusyTablePlugin.scala:96):  [RegRes|BusyTable] set bit: preg=p%x", RenamePlugin_setup_btSetBusyPorts_0_payload); // BusyTablePlugin.scala:L96
             end
           `endif
         `endif
@@ -35265,7 +35586,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=0"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p0"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35276,7 +35597,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=1"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p1"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35287,7 +35608,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=2"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p2"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35298,7 +35619,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=3"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p3"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35309,7 +35630,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=4"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p4"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35320,7 +35641,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=5"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p5"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35331,7 +35652,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=6"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p6"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35342,7 +35663,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=7"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p7"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35353,7 +35674,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=8"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p8"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35364,7 +35685,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=9"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p9"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35375,7 +35696,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=10"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p10"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35386,7 +35707,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=11"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p11"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35397,7 +35718,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=12"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p12"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35408,7 +35729,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=13"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p13"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35419,7 +35740,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=14"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p14"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35430,7 +35751,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=15"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p15"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35441,7 +35762,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=16"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p16"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35452,7 +35773,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=17"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p17"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35463,7 +35784,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=18"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p18"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35474,7 +35795,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=19"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p19"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35485,7 +35806,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=20"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p20"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35496,7 +35817,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=21"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p21"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35507,7 +35828,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=22"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p22"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35518,7 +35839,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=23"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p23"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35529,7 +35850,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=24"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p24"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35540,7 +35861,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=25"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p25"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35551,7 +35872,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=26"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p26"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35562,7 +35883,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=27"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p27"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35573,7 +35894,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=28"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p28"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35584,7 +35905,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=29"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p29"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35595,7 +35916,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=30"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p30"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35606,7 +35927,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=31"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p31"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35617,7 +35938,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=32"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p32"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35628,7 +35949,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=33"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p33"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35639,7 +35960,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=34"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p34"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35650,7 +35971,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=35"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p35"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35661,7 +35982,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=36"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p36"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35672,7 +35993,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=37"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p37"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35683,7 +36004,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=38"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p38"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35694,7 +36015,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=39"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p39"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35705,7 +36026,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=40"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p40"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35716,7 +36037,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=41"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p41"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35727,7 +36048,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=42"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p42"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35738,7 +36059,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=43"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p43"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35749,7 +36070,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=44"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p44"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35760,7 +36081,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=45"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p45"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35771,7 +36092,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=46"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p46"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35782,7 +36103,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=47"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p47"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35793,7 +36114,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=48"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p48"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35804,7 +36125,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=49"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p49"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35815,7 +36136,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=50"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p50"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35826,7 +36147,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=51"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p51"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35837,7 +36158,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=52"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p52"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35848,7 +36169,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=53"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p53"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35859,7 +36180,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=54"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p54"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35870,7 +36191,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=55"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p55"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35881,7 +36202,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=56"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p56"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35892,7 +36213,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=57"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p57"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35903,7 +36224,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=58"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p58"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35914,7 +36235,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=59"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p59"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35925,7 +36246,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=60"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p60"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35936,7 +36257,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=61"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p61"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35947,7 +36268,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=62"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p62"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -35958,7 +36279,7 @@ module CoreNSCSCC (
               assert(1'b0); // BusyTablePlugin.scala:L115
             `else
               if(!1'b0) begin
-                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=63"); // BusyTablePlugin.scala:L115
+                $display("NOTE(BusyTablePlugin.scala:115):  [RegRes|BusyTable]     preg=p63"); // BusyTablePlugin.scala:L115
               end
             `endif
           `endif
@@ -36039,6 +36360,314 @@ module CoreNSCSCC (
             if(!1'b0) begin
               $display("FAILURE Checkpoint restore requested but no valid checkpoint available"); // CheckpointManagerPlugin.scala:L126
               $finish;
+            end
+          `endif
+        `endif
+      end
+      if(when_CheckpointManagerPlugin_l129) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L143
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:143):  [CheckpointManager] Checkpoint restored - restored ARAT"); // CheckpointManagerPlugin.scala:L143
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L97
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:97):  [CheckpointManager] RAT mapping: "); // CheckpointManagerPlugin.scala:L97
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a00 -> physReg p%x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_0); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a01 -> physReg p%x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_1); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a02 -> physReg p%x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_2); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a03 -> physReg p%x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_3); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a04 -> physReg p%x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_4); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a05 -> physReg p%x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_5); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a06 -> physReg p%x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_6); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a07 -> physReg p%x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_7); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a08 -> physReg p%x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_8); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a09 -> physReg p%x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_9); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a0a -> physReg p%x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_10); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a0b -> physReg p%x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_11); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a0c -> physReg p%x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_12); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a0d -> physReg p%x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_13); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a0e -> physReg p%x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_14); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a0f -> physReg p%x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_15); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a10 -> physReg p%x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_16); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a11 -> physReg p%x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_17); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a12 -> physReg p%x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_18); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a13 -> physReg p%x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_19); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a14 -> physReg p%x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_20); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a15 -> physReg p%x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_21); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a16 -> physReg p%x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_22); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a17 -> physReg p%x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_23); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a18 -> physReg p%x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_24); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a19 -> physReg p%x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_25); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a1a -> physReg p%x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_26); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a1b -> physReg p%x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_27); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a1c -> physReg p%x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_28); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a1d -> physReg p%x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_29); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a1e -> physReg p%x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_30); // CheckpointManagerPlugin.scala:L99
+            end
+          `endif
+        `endif
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // CheckpointManagerPlugin.scala:L99
+          `else
+            if(!1'b0) begin
+              $display("NOTE(CheckpointManagerPlugin.scala:99):  archReg a1f -> physReg p%x", CheckpointManagerPlugin_logic_storedRatCheckpoint_mapping_31); // CheckpointManagerPlugin.scala:L99
             end
           `endif
         `endif
@@ -37277,7 +37906,7 @@ module CoreNSCSCC (
       if(io_outputs_2_aw_validPipe_fire_2) begin
         io_outputs_2_aw_rValid_2 <= 1'b0;
       end
-      if(when_CoreNSCSCC_l674) begin
+      if(when_CoreNSCSCC_l676) begin
         _zz_io_leds <= (! _zz_io_leds);
       end
     end
@@ -37869,7 +38498,7 @@ module CoreNSCSCC (
     BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_pc <= BpuPipelinePlugin_logic_u1_read_U_PAYLOAD_pc;
     BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_isTaken <= BpuPipelinePlugin_logic_u1_read_U_PAYLOAD_isTaken;
     BpuPipelinePlugin_logic_u2_write_U_PAYLOAD_target <= BpuPipelinePlugin_logic_u1_read_U_PAYLOAD_target;
-    _zz_when_CoreNSCSCC_l674_1 <= _zz_when_CoreNSCSCC_l674;
+    _zz_when_CoreNSCSCC_l676_1 <= _zz_when_CoreNSCSCC_l676;
   end
 
   always @(posedge clk) begin
@@ -41464,7 +42093,7 @@ endmodule
 module StreamArbiter_7 (
   input  wire          io_inputs_0_valid,
   output wire          io_inputs_0_ready,
-  input  wire [3:0]    io_inputs_0_payload_robPtr,
+  input  wire [2:0]    io_inputs_0_payload_robPtr,
   input  wire [5:0]    io_inputs_0_payload_pdest,
   input  wire [31:0]   io_inputs_0_payload_address,
   input  wire          io_inputs_0_payload_isIO,
@@ -41474,7 +42103,7 @@ module StreamArbiter_7 (
   input  wire [7:0]    io_inputs_0_payload_earlyExceptionCode,
   output wire          io_output_valid,
   input  wire          io_output_ready,
-  output wire [3:0]    io_output_payload_robPtr,
+  output wire [2:0]    io_output_payload_robPtr,
   output wire [5:0]    io_output_payload_pdest,
   output wire [31:0]   io_output_payload_address,
   output wire          io_output_payload_isIO,
@@ -41596,7 +42225,7 @@ module StreamFifo_12 (
   input  wire [31:0]   io_push_payload_immediate,
   input  wire          io_push_payload_usePc,
   input  wire [31:0]   io_push_payload_pc,
-  input  wire [3:0]    io_push_payload_robPtr,
+  input  wire [2:0]    io_push_payload_robPtr,
   input  wire          io_push_payload_isLoad,
   input  wire          io_push_payload_isStore,
   input  wire [5:0]    io_push_payload_physDst,
@@ -41615,7 +42244,7 @@ module StreamFifo_12 (
   output wire [31:0]   io_pop_payload_immediate,
   output wire          io_pop_payload_usePc,
   output wire [31:0]   io_pop_payload_pc,
-  output wire [3:0]    io_pop_payload_robPtr,
+  output wire [2:0]    io_pop_payload_robPtr,
   output wire          io_pop_payload_isLoad,
   output wire          io_pop_payload_isStore,
   output wire [5:0]    io_pop_payload_physDst,
@@ -41644,7 +42273,7 @@ module StreamFifo_12 (
   reg        [31:0]   _zz_logic_pop_async_readed_immediate;
   reg                 _zz_logic_pop_async_readed_usePc;
   reg        [31:0]   _zz_logic_pop_async_readed_pc;
-  reg        [3:0]    _zz_logic_pop_async_readed_robPtr;
+  reg        [2:0]    _zz_logic_pop_async_readed_robPtr;
   reg                 _zz_logic_pop_async_readed_isLoad;
   reg                 _zz_logic_pop_async_readed_isStore;
   reg        [5:0]    _zz_logic_pop_async_readed_physDst;
@@ -41661,7 +42290,7 @@ module StreamFifo_12 (
   reg        [31:0]   logic_vec_0_immediate;
   reg                 logic_vec_0_usePc;
   reg        [31:0]   logic_vec_0_pc;
-  reg        [3:0]    logic_vec_0_robPtr;
+  reg        [2:0]    logic_vec_0_robPtr;
   reg                 logic_vec_0_isLoad;
   reg                 logic_vec_0_isStore;
   reg        [5:0]    logic_vec_0_physDst;
@@ -41678,7 +42307,7 @@ module StreamFifo_12 (
   reg        [31:0]   logic_vec_1_immediate;
   reg                 logic_vec_1_usePc;
   reg        [31:0]   logic_vec_1_pc;
-  reg        [3:0]    logic_vec_1_robPtr;
+  reg        [2:0]    logic_vec_1_robPtr;
   reg                 logic_vec_1_isLoad;
   reg                 logic_vec_1_isStore;
   reg        [5:0]    logic_vec_1_physDst;
@@ -41713,7 +42342,7 @@ module StreamFifo_12 (
   wire       [31:0]   logic_pop_async_readed_immediate;
   wire                logic_pop_async_readed_usePc;
   wire       [31:0]   logic_pop_async_readed_pc;
-  wire       [3:0]    logic_pop_async_readed_robPtr;
+  wire       [2:0]    logic_pop_async_readed_robPtr;
   wire                logic_pop_async_readed_isLoad;
   wire                logic_pop_async_readed_isStore;
   wire       [5:0]    logic_pop_async_readed_physDst;
@@ -41732,7 +42361,7 @@ module StreamFifo_12 (
   wire       [31:0]   logic_pop_addressGen_translated_payload_immediate;
   wire                logic_pop_addressGen_translated_payload_usePc;
   wire       [31:0]   logic_pop_addressGen_translated_payload_pc;
-  wire       [3:0]    logic_pop_addressGen_translated_payload_robPtr;
+  wire       [2:0]    logic_pop_addressGen_translated_payload_robPtr;
   wire                logic_pop_addressGen_translated_payload_isLoad;
   wire                logic_pop_addressGen_translated_payload_isStore;
   wire       [5:0]    logic_pop_addressGen_translated_payload_physDst;
@@ -42073,7 +42702,7 @@ module StreamDemux (
   input  wire [31:0]   io_input_payload_immediate,
   input  wire          io_input_payload_usePc,
   input  wire [31:0]   io_input_payload_pc,
-  input  wire [3:0]    io_input_payload_robPtr,
+  input  wire [2:0]    io_input_payload_robPtr,
   input  wire          io_input_payload_isLoad,
   input  wire          io_input_payload_isStore,
   input  wire [5:0]    io_input_payload_physDst,
@@ -42092,7 +42721,7 @@ module StreamDemux (
   output wire [31:0]   io_outputs_0_payload_immediate,
   output wire          io_outputs_0_payload_usePc,
   output wire [31:0]   io_outputs_0_payload_pc,
-  output wire [3:0]    io_outputs_0_payload_robPtr,
+  output wire [2:0]    io_outputs_0_payload_robPtr,
   output wire          io_outputs_0_payload_isLoad,
   output wire          io_outputs_0_payload_isStore,
   output wire [5:0]    io_outputs_0_payload_physDst,
@@ -42111,7 +42740,7 @@ module StreamDemux (
   output wire [31:0]   io_outputs_1_payload_immediate,
   output wire          io_outputs_1_payload_usePc,
   output wire [31:0]   io_outputs_1_payload_pc,
-  output wire [3:0]    io_outputs_1_payload_robPtr,
+  output wire [2:0]    io_outputs_1_payload_robPtr,
   output wire          io_outputs_1_payload_isLoad,
   output wire          io_outputs_1_payload_isStore,
   output wire [5:0]    io_outputs_1_payload_physDst,
@@ -42351,7 +42980,7 @@ module SequentialIssueQueueComponent (
   input  wire          io_allocateIn_payload_uop_rename_oldPhysDestIsFpr,
   input  wire          io_allocateIn_payload_uop_rename_allocatesPhysDest,
   input  wire          io_allocateIn_payload_uop_rename_writesToPhysReg,
-  input  wire [3:0]    io_allocateIn_payload_uop_robPtr,
+  input  wire [2:0]    io_allocateIn_payload_uop_robPtr,
   input  wire [15:0]   io_allocateIn_payload_uop_uniqueId,
   input  wire          io_allocateIn_payload_uop_dispatched,
   input  wire          io_allocateIn_payload_uop_executed,
@@ -42361,7 +42990,7 @@ module SequentialIssueQueueComponent (
   input  wire          io_allocateIn_payload_src2InitialReady,
   output wire          io_issueOut_valid,
   input  wire          io_issueOut_ready,
-  output wire [3:0]    io_issueOut_payload_robPtr,
+  output wire [2:0]    io_issueOut_payload_robPtr,
   output wire [5:0]    io_issueOut_payload_physDest_idx,
   output wire          io_issueOut_payload_physDestIsFpr,
   output wire          io_issueOut_payload_writesToPhysReg,
@@ -42495,7 +43124,7 @@ module SequentialIssueQueueComponent (
   wire       [0:0]    _zz_update_nextValidCount_2;
   wire       [2:0]    _zz_update_nextValidCount_3;
   wire       [0:0]    _zz_update_nextValidCount_4;
-  reg        [3:0]    state_entriesReg_0_robPtr;
+  reg        [2:0]    state_entriesReg_0_robPtr;
   reg        [5:0]    state_entriesReg_0_physDest_idx;
   reg                 state_entriesReg_0_physDestIsFpr;
   reg                 state_entriesReg_0_writesToPhysReg;
@@ -42523,7 +43152,7 @@ module SequentialIssueQueueComponent (
   reg        [31:0]   state_entriesReg_0_imm;
   reg                 state_entriesReg_0_usePc;
   reg        [31:0]   state_entriesReg_0_pcData;
-  reg        [3:0]    state_entriesReg_1_robPtr;
+  reg        [2:0]    state_entriesReg_1_robPtr;
   reg        [5:0]    state_entriesReg_1_physDest_idx;
   reg                 state_entriesReg_1_physDestIsFpr;
   reg                 state_entriesReg_1_writesToPhysReg;
@@ -42551,7 +43180,7 @@ module SequentialIssueQueueComponent (
   reg        [31:0]   state_entriesReg_1_imm;
   reg                 state_entriesReg_1_usePc;
   reg        [31:0]   state_entriesReg_1_pcData;
-  reg        [3:0]    state_entriesReg_2_robPtr;
+  reg        [2:0]    state_entriesReg_2_robPtr;
   reg        [5:0]    state_entriesReg_2_physDest_idx;
   reg                 state_entriesReg_2_physDestIsFpr;
   reg                 state_entriesReg_2_writesToPhysReg;
@@ -42579,7 +43208,7 @@ module SequentialIssueQueueComponent (
   reg        [31:0]   state_entriesReg_2_imm;
   reg                 state_entriesReg_2_usePc;
   reg        [31:0]   state_entriesReg_2_pcData;
-  reg        [3:0]    state_entriesReg_3_robPtr;
+  reg        [2:0]    state_entriesReg_3_robPtr;
   reg        [5:0]    state_entriesReg_3_physDest_idx;
   reg                 state_entriesReg_3_physDestIsFpr;
   reg                 state_entriesReg_3_writesToPhysReg;
@@ -42762,7 +43391,7 @@ module SequentialIssueQueueComponent (
   wire                issue_alloc_headFinalSrc2Ready;
   wire                issue_alloc_headIsReady;
   wire                issue_alloc_canIssue;
-  wire       [3:0]    issue_alloc_issuePayload_robPtr;
+  wire       [2:0]    issue_alloc_issuePayload_robPtr;
   wire       [5:0]    issue_alloc_issuePayload_physDest_idx;
   wire                issue_alloc_issuePayload_physDestIsFpr;
   wire                issue_alloc_issuePayload_writesToPhysReg;
@@ -42792,7 +43421,7 @@ module SequentialIssueQueueComponent (
   wire       [31:0]   issue_alloc_issuePayload_pcData;
   wire                issue_alloc_issueFired;
   wire                issue_alloc_allocationFired;
-  wire       [3:0]    update_newEntry_robPtr;
+  wire       [2:0]    update_newEntry_robPtr;
   wire       [5:0]    update_newEntry_physDest_idx;
   wire                update_newEntry_physDestIsFpr;
   wire                update_newEntry_writesToPhysReg;
@@ -42822,7 +43451,7 @@ module SequentialIssueQueueComponent (
   wire       [31:0]   update_newEntry_pcData;
   wire                update_s1WakesUp;
   wire                update_s2WakesUp;
-  wire       [3:0]    update_entriesAfterWakeup_0_robPtr;
+  wire       [2:0]    update_entriesAfterWakeup_0_robPtr;
   wire       [5:0]    update_entriesAfterWakeup_0_physDest_idx;
   wire                update_entriesAfterWakeup_0_physDestIsFpr;
   wire                update_entriesAfterWakeup_0_writesToPhysReg;
@@ -42850,7 +43479,7 @@ module SequentialIssueQueueComponent (
   wire       [31:0]   update_entriesAfterWakeup_0_imm;
   wire                update_entriesAfterWakeup_0_usePc;
   wire       [31:0]   update_entriesAfterWakeup_0_pcData;
-  wire       [3:0]    update_entriesAfterWakeup_1_robPtr;
+  wire       [2:0]    update_entriesAfterWakeup_1_robPtr;
   wire       [5:0]    update_entriesAfterWakeup_1_physDest_idx;
   wire                update_entriesAfterWakeup_1_physDestIsFpr;
   wire                update_entriesAfterWakeup_1_writesToPhysReg;
@@ -42878,7 +43507,7 @@ module SequentialIssueQueueComponent (
   wire       [31:0]   update_entriesAfterWakeup_1_imm;
   wire                update_entriesAfterWakeup_1_usePc;
   wire       [31:0]   update_entriesAfterWakeup_1_pcData;
-  wire       [3:0]    update_entriesAfterWakeup_2_robPtr;
+  wire       [2:0]    update_entriesAfterWakeup_2_robPtr;
   wire       [5:0]    update_entriesAfterWakeup_2_physDest_idx;
   wire                update_entriesAfterWakeup_2_physDestIsFpr;
   wire                update_entriesAfterWakeup_2_writesToPhysReg;
@@ -42906,7 +43535,7 @@ module SequentialIssueQueueComponent (
   wire       [31:0]   update_entriesAfterWakeup_2_imm;
   wire                update_entriesAfterWakeup_2_usePc;
   wire       [31:0]   update_entriesAfterWakeup_2_pcData;
-  wire       [3:0]    update_entriesAfterWakeup_3_robPtr;
+  wire       [2:0]    update_entriesAfterWakeup_3_robPtr;
   wire       [5:0]    update_entriesAfterWakeup_3_physDest_idx;
   wire                update_entriesAfterWakeup_3_physDestIsFpr;
   wire                update_entriesAfterWakeup_3_writesToPhysReg;
@@ -42934,7 +43563,7 @@ module SequentialIssueQueueComponent (
   wire       [31:0]   update_entriesAfterWakeup_3_imm;
   wire                update_entriesAfterWakeup_3_usePc;
   wire       [31:0]   update_entriesAfterWakeup_3_pcData;
-  reg        [3:0]    update_nextEntries_0_robPtr;
+  reg        [2:0]    update_nextEntries_0_robPtr;
   reg        [5:0]    update_nextEntries_0_physDest_idx;
   reg                 update_nextEntries_0_physDestIsFpr;
   reg                 update_nextEntries_0_writesToPhysReg;
@@ -42962,7 +43591,7 @@ module SequentialIssueQueueComponent (
   reg        [31:0]   update_nextEntries_0_imm;
   reg                 update_nextEntries_0_usePc;
   reg        [31:0]   update_nextEntries_0_pcData;
-  reg        [3:0]    update_nextEntries_1_robPtr;
+  reg        [2:0]    update_nextEntries_1_robPtr;
   reg        [5:0]    update_nextEntries_1_physDest_idx;
   reg                 update_nextEntries_1_physDestIsFpr;
   reg                 update_nextEntries_1_writesToPhysReg;
@@ -42990,7 +43619,7 @@ module SequentialIssueQueueComponent (
   reg        [31:0]   update_nextEntries_1_imm;
   reg                 update_nextEntries_1_usePc;
   reg        [31:0]   update_nextEntries_1_pcData;
-  reg        [3:0]    update_nextEntries_2_robPtr;
+  reg        [2:0]    update_nextEntries_2_robPtr;
   reg        [5:0]    update_nextEntries_2_physDest_idx;
   reg                 update_nextEntries_2_physDestIsFpr;
   reg                 update_nextEntries_2_writesToPhysReg;
@@ -43018,7 +43647,7 @@ module SequentialIssueQueueComponent (
   reg        [31:0]   update_nextEntries_2_imm;
   reg                 update_nextEntries_2_usePc;
   reg        [31:0]   update_nextEntries_2_pcData;
-  reg        [3:0]    update_nextEntries_3_robPtr;
+  reg        [2:0]    update_nextEntries_3_robPtr;
   reg        [5:0]    update_nextEntries_3_physDest_idx;
   reg                 update_nextEntries_3_physDestIsFpr;
   reg                 update_nextEntries_3_writesToPhysReg;
@@ -45113,7 +45742,7 @@ module SequentialIssueQueueComponent (
       update_nextEntries_3_robPtr = update_newEntry_robPtr;
     end else begin
       if(issue_alloc_issueFired) begin
-        update_nextEntries_3_robPtr = 4'bxxxx;
+        update_nextEntries_3_robPtr = 3'bxxx;
       end else begin
         update_nextEntries_3_robPtr = update_entriesAfterWakeup_3_robPtr;
       end
@@ -46182,7 +46811,7 @@ module IssueQueueComponent_2 (
   input  wire          io_allocateIn_payload_uop_rename_oldPhysDestIsFpr,
   input  wire          io_allocateIn_payload_uop_rename_allocatesPhysDest,
   input  wire          io_allocateIn_payload_uop_rename_writesToPhysReg,
-  input  wire [3:0]    io_allocateIn_payload_uop_robPtr,
+  input  wire [2:0]    io_allocateIn_payload_uop_robPtr,
   input  wire [15:0]   io_allocateIn_payload_uop_uniqueId,
   input  wire          io_allocateIn_payload_uop_dispatched,
   input  wire          io_allocateIn_payload_uop_executed,
@@ -46192,7 +46821,7 @@ module IssueQueueComponent_2 (
   input  wire          io_allocateIn_payload_src2InitialReady,
   output wire          io_issueOut_valid,
   input  wire          io_issueOut_ready,
-  output wire [3:0]    io_issueOut_payload_robPtr,
+  output wire [2:0]    io_issueOut_payload_robPtr,
   output wire [5:0]    io_issueOut_payload_physDest_idx,
   output wire          io_issueOut_payload_physDestIsFpr,
   output wire          io_issueOut_payload_writesToPhysReg,
@@ -46324,7 +46953,7 @@ module IssueQueueComponent_2 (
   wire       [3:0]    _zz_issueRequestMask_ohFirst_masked;
   reg        [4:0]    _zz__zz_io_issueOut_payload_branchCtrl_condition;
   reg        [1:0]    _zz__zz_io_issueOut_payload_branchCtrl_linkReg_rtype;
-  reg        [3:0]    _zz_io_issueOut_payload_robPtr;
+  reg        [2:0]    _zz_io_issueOut_payload_robPtr;
   reg        [5:0]    _zz_io_issueOut_payload_physDest_idx;
   reg                 _zz_io_issueOut_payload_physDestIsFpr;
   reg                 _zz_io_issueOut_payload_writesToPhysReg;
@@ -46373,7 +47002,7 @@ module IssueQueueComponent_2 (
   wire       [6:0]    _zz_wakeupInReg_2_valid;
   wire       [6:0]    _zz_wakeupInReg_3_valid;
   wire       [6:0]    _zz_wakeupInReg_4_valid;
-  reg        [3:0]    entries_0_robPtr;
+  reg        [2:0]    entries_0_robPtr;
   reg        [5:0]    entries_0_physDest_idx;
   reg                 entries_0_physDestIsFpr;
   reg                 entries_0_writesToPhysReg;
@@ -46399,7 +47028,7 @@ module IssueQueueComponent_2 (
   reg                 entries_0_branchPrediction_isTaken;
   reg        [31:0]   entries_0_branchPrediction_target;
   reg                 entries_0_branchPrediction_wasPredicted;
-  reg        [3:0]    entries_1_robPtr;
+  reg        [2:0]    entries_1_robPtr;
   reg        [5:0]    entries_1_physDest_idx;
   reg                 entries_1_physDestIsFpr;
   reg                 entries_1_writesToPhysReg;
@@ -46425,7 +47054,7 @@ module IssueQueueComponent_2 (
   reg                 entries_1_branchPrediction_isTaken;
   reg        [31:0]   entries_1_branchPrediction_target;
   reg                 entries_1_branchPrediction_wasPredicted;
-  reg        [3:0]    entries_2_robPtr;
+  reg        [2:0]    entries_2_robPtr;
   reg        [5:0]    entries_2_physDest_idx;
   reg                 entries_2_physDestIsFpr;
   reg                 entries_2_writesToPhysReg;
@@ -46451,7 +47080,7 @@ module IssueQueueComponent_2 (
   reg                 entries_2_branchPrediction_isTaken;
   reg        [31:0]   entries_2_branchPrediction_target;
   reg                 entries_2_branchPrediction_wasPredicted;
-  reg        [3:0]    entries_3_robPtr;
+  reg        [2:0]    entries_3_robPtr;
   reg        [5:0]    entries_3_physDest_idx;
   reg                 entries_3_physDestIsFpr;
   reg                 entries_3_writesToPhysReg;
@@ -47987,7 +48616,7 @@ module IssueQueueComponent_1 (
   input  wire          io_allocateIn_payload_uop_rename_oldPhysDestIsFpr,
   input  wire          io_allocateIn_payload_uop_rename_allocatesPhysDest,
   input  wire          io_allocateIn_payload_uop_rename_writesToPhysReg,
-  input  wire [3:0]    io_allocateIn_payload_uop_robPtr,
+  input  wire [2:0]    io_allocateIn_payload_uop_robPtr,
   input  wire [15:0]   io_allocateIn_payload_uop_uniqueId,
   input  wire          io_allocateIn_payload_uop_dispatched,
   input  wire          io_allocateIn_payload_uop_executed,
@@ -48085,13 +48714,13 @@ module IssueQueueComponent_1 (
   output wire          io_issueOut_payload_uop_rename_oldPhysDestIsFpr,
   output wire          io_issueOut_payload_uop_rename_allocatesPhysDest,
   output wire          io_issueOut_payload_uop_rename_writesToPhysReg,
-  output wire [3:0]    io_issueOut_payload_uop_robPtr,
+  output wire [2:0]    io_issueOut_payload_uop_robPtr,
   output wire [15:0]   io_issueOut_payload_uop_uniqueId,
   output wire          io_issueOut_payload_uop_dispatched,
   output wire          io_issueOut_payload_uop_executed,
   output wire          io_issueOut_payload_uop_hasException,
   output wire [7:0]    io_issueOut_payload_uop_exceptionCode,
-  output wire [3:0]    io_issueOut_payload_robPtr,
+  output wire [2:0]    io_issueOut_payload_robPtr,
   output wire [5:0]    io_issueOut_payload_physDest_idx,
   output wire          io_issueOut_payload_physDestIsFpr,
   output wire          io_issueOut_payload_writesToPhysReg,
@@ -48301,13 +48930,13 @@ module IssueQueueComponent_1 (
   reg                 _zz_io_issueOut_payload_uop_rename_oldPhysDestIsFpr;
   reg                 _zz_io_issueOut_payload_uop_rename_allocatesPhysDest;
   reg                 _zz_io_issueOut_payload_uop_rename_writesToPhysReg;
-  reg        [3:0]    _zz_io_issueOut_payload_uop_robPtr;
+  reg        [2:0]    _zz_io_issueOut_payload_uop_robPtr;
   reg        [15:0]   _zz_io_issueOut_payload_uop_uniqueId;
   reg                 _zz_io_issueOut_payload_uop_dispatched;
   reg                 _zz_io_issueOut_payload_uop_executed;
   reg                 _zz_io_issueOut_payload_uop_hasException;
   reg        [7:0]    _zz_io_issueOut_payload_uop_exceptionCode;
-  reg        [3:0]    _zz_io_issueOut_payload_robPtr;
+  reg        [2:0]    _zz_io_issueOut_payload_robPtr;
   reg        [5:0]    _zz_io_issueOut_payload_physDest_idx;
   reg                 _zz_io_issueOut_payload_physDestIsFpr;
   reg                 _zz_io_issueOut_payload_writesToPhysReg;
@@ -48438,13 +49067,13 @@ module IssueQueueComponent_1 (
   reg                 entries_0_uop_rename_oldPhysDestIsFpr;
   reg                 entries_0_uop_rename_allocatesPhysDest;
   reg                 entries_0_uop_rename_writesToPhysReg;
-  reg        [3:0]    entries_0_uop_robPtr;
+  reg        [2:0]    entries_0_uop_robPtr;
   reg        [15:0]   entries_0_uop_uniqueId;
   reg                 entries_0_uop_dispatched;
   reg                 entries_0_uop_executed;
   reg                 entries_0_uop_hasException;
   reg        [7:0]    entries_0_uop_exceptionCode;
-  reg        [3:0]    entries_0_robPtr;
+  reg        [2:0]    entries_0_robPtr;
   reg        [5:0]    entries_0_physDest_idx;
   reg                 entries_0_physDestIsFpr;
   reg                 entries_0_writesToPhysReg;
@@ -48550,13 +49179,13 @@ module IssueQueueComponent_1 (
   reg                 entries_1_uop_rename_oldPhysDestIsFpr;
   reg                 entries_1_uop_rename_allocatesPhysDest;
   reg                 entries_1_uop_rename_writesToPhysReg;
-  reg        [3:0]    entries_1_uop_robPtr;
+  reg        [2:0]    entries_1_uop_robPtr;
   reg        [15:0]   entries_1_uop_uniqueId;
   reg                 entries_1_uop_dispatched;
   reg                 entries_1_uop_executed;
   reg                 entries_1_uop_hasException;
   reg        [7:0]    entries_1_uop_exceptionCode;
-  reg        [3:0]    entries_1_robPtr;
+  reg        [2:0]    entries_1_robPtr;
   reg        [5:0]    entries_1_physDest_idx;
   reg                 entries_1_physDestIsFpr;
   reg                 entries_1_writesToPhysReg;
@@ -48662,13 +49291,13 @@ module IssueQueueComponent_1 (
   reg                 entries_2_uop_rename_oldPhysDestIsFpr;
   reg                 entries_2_uop_rename_allocatesPhysDest;
   reg                 entries_2_uop_rename_writesToPhysReg;
-  reg        [3:0]    entries_2_uop_robPtr;
+  reg        [2:0]    entries_2_uop_robPtr;
   reg        [15:0]   entries_2_uop_uniqueId;
   reg                 entries_2_uop_dispatched;
   reg                 entries_2_uop_executed;
   reg                 entries_2_uop_hasException;
   reg        [7:0]    entries_2_uop_exceptionCode;
-  reg        [3:0]    entries_2_robPtr;
+  reg        [2:0]    entries_2_robPtr;
   reg        [5:0]    entries_2_physDest_idx;
   reg                 entries_2_physDestIsFpr;
   reg                 entries_2_writesToPhysReg;
@@ -48774,13 +49403,13 @@ module IssueQueueComponent_1 (
   reg                 entries_3_uop_rename_oldPhysDestIsFpr;
   reg                 entries_3_uop_rename_allocatesPhysDest;
   reg                 entries_3_uop_rename_writesToPhysReg;
-  reg        [3:0]    entries_3_uop_robPtr;
+  reg        [2:0]    entries_3_uop_robPtr;
   reg        [15:0]   entries_3_uop_uniqueId;
   reg                 entries_3_uop_dispatched;
   reg                 entries_3_uop_executed;
   reg                 entries_3_uop_hasException;
   reg        [7:0]    entries_3_uop_exceptionCode;
-  reg        [3:0]    entries_3_robPtr;
+  reg        [2:0]    entries_3_robPtr;
   reg        [5:0]    entries_3_physDest_idx;
   reg                 entries_3_physDestIsFpr;
   reg                 entries_3_writesToPhysReg;
@@ -52232,7 +52861,7 @@ module IssueQueueComponent (
   input  wire          io_allocateIn_payload_uop_rename_oldPhysDestIsFpr,
   input  wire          io_allocateIn_payload_uop_rename_allocatesPhysDest,
   input  wire          io_allocateIn_payload_uop_rename_writesToPhysReg,
-  input  wire [3:0]    io_allocateIn_payload_uop_robPtr,
+  input  wire [2:0]    io_allocateIn_payload_uop_robPtr,
   input  wire [15:0]   io_allocateIn_payload_uop_uniqueId,
   input  wire          io_allocateIn_payload_uop_dispatched,
   input  wire          io_allocateIn_payload_uop_executed,
@@ -52242,7 +52871,7 @@ module IssueQueueComponent (
   input  wire          io_allocateIn_payload_src2InitialReady,
   output wire          io_issueOut_valid,
   input  wire          io_issueOut_ready,
-  output wire [3:0]    io_issueOut_payload_robPtr,
+  output wire [2:0]    io_issueOut_payload_robPtr,
   output wire [31:0]   io_issueOut_payload_pc,
   output wire [5:0]    io_issueOut_payload_physDest_idx,
   output wire          io_issueOut_payload_physDestIsFpr,
@@ -52378,7 +53007,7 @@ module IssueQueueComponent (
   reg        [2:0]    _zz__zz_io_issueOut_payload_aluCtrl_logicOp;
   reg        [4:0]    _zz__zz_io_issueOut_payload_aluCtrl_condition;
   reg        [2:0]    _zz__zz_io_issueOut_payload_immUsage;
-  reg        [3:0]    _zz_io_issueOut_payload_robPtr;
+  reg        [2:0]    _zz_io_issueOut_payload_robPtr;
   reg        [31:0]   _zz_io_issueOut_payload_pc;
   reg        [5:0]    _zz_io_issueOut_payload_physDest_idx;
   reg                 _zz_io_issueOut_payload_physDestIsFpr;
@@ -52429,7 +53058,7 @@ module IssueQueueComponent (
   wire       [6:0]    _zz_wakeupInReg_2_valid;
   wire       [6:0]    _zz_wakeupInReg_3_valid;
   wire       [6:0]    _zz_wakeupInReg_4_valid;
-  reg        [3:0]    entries_0_robPtr;
+  reg        [2:0]    entries_0_robPtr;
   reg        [31:0]   entries_0_pc;
   reg        [5:0]    entries_0_physDest_idx;
   reg                 entries_0_physDestIsFpr;
@@ -52458,7 +53087,7 @@ module IssueQueueComponent (
   reg                 entries_0_shiftCtrl_isDoubleWord;
   reg        [31:0]   entries_0_imm;
   reg        [2:0]    entries_0_immUsage;
-  reg        [3:0]    entries_1_robPtr;
+  reg        [2:0]    entries_1_robPtr;
   reg        [31:0]   entries_1_pc;
   reg        [5:0]    entries_1_physDest_idx;
   reg                 entries_1_physDestIsFpr;
@@ -52487,7 +53116,7 @@ module IssueQueueComponent (
   reg                 entries_1_shiftCtrl_isDoubleWord;
   reg        [31:0]   entries_1_imm;
   reg        [2:0]    entries_1_immUsage;
-  reg        [3:0]    entries_2_robPtr;
+  reg        [2:0]    entries_2_robPtr;
   reg        [31:0]   entries_2_pc;
   reg        [5:0]    entries_2_physDest_idx;
   reg                 entries_2_physDestIsFpr;
@@ -52516,7 +53145,7 @@ module IssueQueueComponent (
   reg                 entries_2_shiftCtrl_isDoubleWord;
   reg        [31:0]   entries_2_imm;
   reg        [2:0]    entries_2_immUsage;
-  reg        [3:0]    entries_3_robPtr;
+  reg        [2:0]    entries_3_robPtr;
   reg        [31:0]   entries_3_pc;
   reg        [5:0]    entries_3_physDest_idx;
   reg                 entries_3_physDestIsFpr;
@@ -55101,7 +55730,7 @@ module StreamArbiter_6 (
   output wire          io_inputs_0_ready,
   input  wire [5:0]    io_inputs_0_payload_physRegIdx,
   input  wire [31:0]   io_inputs_0_payload_physRegData,
-  input  wire [3:0]    io_inputs_0_payload_robPtr,
+  input  wire [2:0]    io_inputs_0_payload_robPtr,
   input  wire          io_inputs_0_payload_isFPR,
   input  wire          io_inputs_0_payload_hasException,
   input  wire [7:0]    io_inputs_0_payload_exceptionCode,
@@ -55109,7 +55738,7 @@ module StreamArbiter_6 (
   output wire          io_inputs_1_ready,
   input  wire [5:0]    io_inputs_1_payload_physRegIdx,
   input  wire [31:0]   io_inputs_1_payload_physRegData,
-  input  wire [3:0]    io_inputs_1_payload_robPtr,
+  input  wire [2:0]    io_inputs_1_payload_robPtr,
   input  wire          io_inputs_1_payload_isFPR,
   input  wire          io_inputs_1_payload_hasException,
   input  wire [7:0]    io_inputs_1_payload_exceptionCode,
@@ -55117,7 +55746,7 @@ module StreamArbiter_6 (
   output wire          io_inputs_2_ready,
   input  wire [5:0]    io_inputs_2_payload_physRegIdx,
   input  wire [31:0]   io_inputs_2_payload_physRegData,
-  input  wire [3:0]    io_inputs_2_payload_robPtr,
+  input  wire [2:0]    io_inputs_2_payload_robPtr,
   input  wire          io_inputs_2_payload_isFPR,
   input  wire          io_inputs_2_payload_hasException,
   input  wire [7:0]    io_inputs_2_payload_exceptionCode,
@@ -55125,7 +55754,7 @@ module StreamArbiter_6 (
   input  wire          io_output_ready,
   output wire [5:0]    io_output_payload_physRegIdx,
   output wire [31:0]   io_output_payload_physRegData,
-  output wire [3:0]    io_output_payload_robPtr,
+  output wire [2:0]    io_output_payload_robPtr,
   output wire          io_output_payload_isFPR,
   output wire          io_output_payload_hasException,
   output wire [7:0]    io_output_payload_exceptionCode,
@@ -55140,7 +55769,7 @@ module StreamArbiter_6 (
   wire       [2:0]    _zz__zz_maskProposal_0_2_2;
   reg        [5:0]    _zz_io_output_payload_physRegIdx_1;
   reg        [31:0]   _zz_io_output_payload_physRegData;
-  reg        [3:0]    _zz_io_output_payload_robPtr;
+  reg        [2:0]    _zz_io_output_payload_robPtr;
   reg                 _zz_io_output_payload_isFPR;
   reg                 _zz_io_output_payload_hasException;
   reg        [7:0]    _zz_io_output_payload_exceptionCode;
@@ -55540,7 +56169,7 @@ module RenameUnit (
   output reg           io_renamedUopsOut_0_rename_oldPhysDestIsFpr,
   output reg           io_renamedUopsOut_0_rename_allocatesPhysDest,
   output reg           io_renamedUopsOut_0_rename_writesToPhysReg,
-  output wire [3:0]    io_renamedUopsOut_0_robPtr,
+  output wire [2:0]    io_renamedUopsOut_0_robPtr,
   output wire [15:0]   io_renamedUopsOut_0_uniqueId,
   output wire          io_renamedUopsOut_0_dispatched,
   output wire          io_renamedUopsOut_0_executed,
@@ -56190,7 +56819,7 @@ module RenameUnit (
   assign io_renamedUopsOut_0_decoded_branchPrediction_target = io_decodedUopsIn_0_branchPrediction_target;
   assign io_renamedUopsOut_0_decoded_branchPrediction_wasPredicted = io_decodedUopsIn_0_branchPrediction_wasPredicted;
   assign io_renamedUopsOut_0_uniqueId = 16'bxxxxxxxxxxxxxxxx;
-  assign io_renamedUopsOut_0_robPtr = 4'bxxxx;
+  assign io_renamedUopsOut_0_robPtr = 3'bxxx;
   assign io_renamedUopsOut_0_dispatched = 1'b0;
   assign io_renamedUopsOut_0_executed = 1'b0;
   assign io_renamedUopsOut_0_hasException = 1'b0;
@@ -56265,7 +56894,7 @@ module RenameUnit (
             assert(1'b0); // RenameUnit.scala:L102
           `else
             if(!1'b0) begin
-              $display("NOTE(RenameUnit.scala:102):  [RegRes|RenameUnit] Rename for uop@%x: archDest=%x -> physReg=%x (isFPR=%x)Src1: archSrc1=%x -> physReg=%x (isFPR=%x, bypassed=0)Src2: archSrc2=%x -> physReg=%x (isFPR=%x, bypassed=0)oldPhysDest: archDest=%x -> oldPhysReg=%x (isFPR=%x)", io_decodedUopsIn_0_pc, io_decodedUopsIn_0_archDest_idx, io_physRegsIn_0, _zz_1, io_decodedUopsIn_0_archSrc1_idx, io_renamedUopsOut_0_rename_physSrc1_idx, _zz_2, io_decodedUopsIn_0_archSrc2_idx, io_renamedUopsOut_0_rename_physSrc2_idx, _zz_3, io_decodedUopsIn_0_archDest_idx, io_renamedUopsOut_0_rename_oldPhysDest_idx, _zz_4); // RenameUnit.scala:L102
+              $display("NOTE(RenameUnit.scala:102):  [RegRes|RenameUnit] Rename for uop@%x: archDest=a%x -> physReg=p%x (isFPR=%x)Src1: archSrc1=a%x -> physReg=p%x (isFPR=%x, bypassed=0)Src2: archSrc2=a%x -> physReg=p%x (isFPR=%x, bypassed=0)oldPhysDest: archDest=a%x -> oldPhysReg=p%x (isFPR=%x)", io_decodedUopsIn_0_pc, io_decodedUopsIn_0_archDest_idx, io_physRegsIn_0, _zz_1, io_decodedUopsIn_0_archSrc1_idx, io_renamedUopsOut_0_rename_physSrc1_idx, _zz_2, io_decodedUopsIn_0_archSrc2_idx, io_renamedUopsOut_0_rename_physSrc2_idx, _zz_3, io_decodedUopsIn_0_archDest_idx, io_renamedUopsOut_0_rename_oldPhysDest_idx, _zz_4); // RenameUnit.scala:L102
             end
           `endif
         `endif
@@ -56276,7 +56905,7 @@ module RenameUnit (
               assert(1'b0); // RenameUnit.scala:L111
             `else
               if(!1'b0) begin
-                $display("NOTE(RenameUnit.scala:111):  [RegRes|RenameUnit] Mapping oprands for uop@%x: archSrc1=%x -> physReg=%x (isFPR=%x, bypassed=0)archSrc2=%x -> physReg=%x (isFPR=%x, bypassed=0)", io_decodedUopsIn_0_pc, io_decodedUopsIn_0_archSrc1_idx, io_renamedUopsOut_0_rename_physSrc1_idx, _zz_5, io_decodedUopsIn_0_archSrc2_idx, io_renamedUopsOut_0_rename_physSrc2_idx, _zz_6); // RenameUnit.scala:L111
+                $display("NOTE(RenameUnit.scala:111):  [RegRes|RenameUnit] Mapping oprands for uop@%x: archSrc1=a%x -> physReg=p%x (isFPR=%x, bypassed=0)archSrc2=a%x -> physReg=p%x (isFPR=%x, bypassed=0)", io_decodedUopsIn_0_pc, io_decodedUopsIn_0_archSrc1_idx, io_renamedUopsOut_0_rename_physSrc1_idx, _zz_5, io_decodedUopsIn_0_archSrc2_idx, io_renamedUopsOut_0_rename_physSrc2_idx, _zz_6); // RenameUnit.scala:L111
               end
             `endif
           `endif
@@ -56346,7 +56975,10 @@ module SimpleFreeList (
   input  wire          reset
 );
 
-  wire       [4:0]    _zz_occupancy;
+  wire       [5:0]    _zz_occupancy;
+  wire       [5:0]    _zz_occupancy_1;
+  wire       [5:0]    _zz_occupancy_2;
+  wire       [4:0]    _zz_occupancy_3;
   wire       [5:0]    _zz_canAcceptFree;
   wire       [5:0]    _zz_freeCount;
   wire       [1:0]    _zz_freeCount_1;
@@ -56354,18 +56986,14 @@ module SimpleFreeList (
   wire       [5:0]    _zz_canAllocate;
   wire       [5:0]    _zz_allocCount;
   wire       [1:0]    _zz_allocCount_1;
-  reg        [5:0]    _zz__zz_io_allocate_0_physReg;
+  wire       [4:0]    _zz__zz_io_allocate_0_physReg;
   wire       [4:0]    _zz__zz_io_allocate_0_physReg_1;
   wire       [4:0]    _zz__zz_io_allocate_0_physReg_1_1;
   wire       [4:0]    _zz__zz_io_allocate_0_physReg_1_2;
-  wire       [4:0]    _zz__zz_io_allocate_0_physReg_2;
-  wire       [4:0]    _zz__zz_io_allocate_0_physReg_2_1;
-  wire       [4:0]    _zz_nextAllocPtr;
-  wire       [4:0]    _zz_nextAllocPtr_1;
-  wire       [4:0]    _zz_nextFreePtr;
-  wire       [4:0]    _zz_nextFreePtr_1;
-  wire       [4:0]    _zz_allocPtr;
-  wire       [4:0]    _zz_freePtr;
+  reg        [5:0]    _zz__zz_io_allocate_0_physReg_1_3;
+  wire       [4:0]    _zz__zz_io_allocate_0_physReg_1_4;
+  wire       [4:0]    _zz__zz_when_SimpleFreeList_l207;
+  wire       [4:0]    _zz__zz_when_SimpleFreeList_l207_1;
   reg        [5:0]    dataVec_0;
   reg        [5:0]    dataVec_1;
   reg        [5:0]    dataVec_2;
@@ -56398,15 +57026,15 @@ module SimpleFreeList (
   reg        [5:0]    dataVec_29;
   reg        [5:0]    dataVec_30;
   reg        [5:0]    dataVec_31;
-  reg        [4:0]    allocPtr;
+  wire       [4:0]    allocPtr;
   reg        [4:0]    freePtr;
   reg                 isRisingOccupancy;
   wire                isEmpty;
   wire                isFull;
   reg        [5:0]    occupancy;
-  wire                when_SimpleFreeList_l87;
+  wire                when_SimpleFreeList_l98;
   reg        [5:0]    occupancy_regNext;
-  wire                when_SimpleFreeList_l93;
+  wire                when_SimpleFreeList_l106;
   reg        [31:0]   cycleCounter;
   wire       [1:0]    rawFreeRequests;
   wire       [1:0]    _zz_rawFreeRequests;
@@ -56416,26 +57044,27 @@ module SimpleFreeList (
   wire       [1:0]    rawAllocRequests;
   wire       [5:0]    canAllocate;
   wire       [1:0]    allocCount;
-  wire                when_SimpleFreeList_l128;
+  wire                when_SimpleFreeList_l141;
   wire       [4:0]    _zz_1;
   wire       [31:0]   _zz_2;
-  wire                when_SimpleFreeList_l128_1;
+  wire                when_SimpleFreeList_l141_1;
   wire       [4:0]    _zz_3;
   wire       [31:0]   _zz_4;
-  wire                _zz_when_SimpleFreeList_l152;
   reg                 _zz_io_allocate_0_success;
-  wire       [5:0]    _zz_io_allocate_0_physReg;
-  wire                _zz_io_allocate_0_physReg_1;
-  wire       [5:0]    _zz_io_allocate_0_physReg_2;
-  reg        [5:0]    _zz_io_allocate_0_physReg_3;
-  wire                when_SimpleFreeList_l152;
-  wire       [4:0]    nextAllocPtr;
-  wire       [4:0]    nextFreePtr;
-  wire                nextIsRisingOccupancy;
-  wire                when_SimpleFreeList_l184;
-  wire                when_SimpleFreeList_l200;
+  wire                _zz_io_allocate_0_physReg;
+  reg        [5:0]    _zz_io_allocate_0_physReg_1;
+  wire       [4:0]    _zz_when_SimpleFreeList_l207;
+  wire       [4:0]    _zz_when_SimpleFreeList_l207_1;
+  wire                when_SimpleFreeList_l203;
+  wire                when_SimpleFreeList_l207;
+  wire                when_SimpleFreeList_l209;
+  wire                _zz_5;
+  wire                when_SimpleFreeList_l217;
 
-  assign _zz_occupancy = (freePtr - allocPtr);
+  assign _zz_occupancy = (6'h20 + _zz_occupancy_1);
+  assign _zz_occupancy_1 = {1'd0, freePtr};
+  assign _zz_occupancy_2 = {1'd0, allocPtr};
+  assign _zz_occupancy_3 = (freePtr - allocPtr);
   assign _zz_canAcceptFree = (6'h20 - occupancy);
   assign _zz_freeCount = {4'd0, rawFreeRequests};
   assign _zz_freeCount_1 = canAcceptFree[1:0];
@@ -56443,94 +57072,93 @@ module SimpleFreeList (
   assign _zz_canAllocate = {4'd0, freeCount};
   assign _zz_allocCount = {4'd0, rawAllocRequests};
   assign _zz_allocCount_1 = canAllocate[1:0];
+  assign _zz__zz_io_allocate_0_physReg = (freePtr + 5'h0);
   assign _zz__zz_io_allocate_0_physReg_1 = (allocPtr + 5'h0);
-  assign _zz__zz_io_allocate_0_physReg_1_1 = (freePtr + 5'h0);
+  assign _zz__zz_io_allocate_0_physReg_1_1 = (freePtr + 5'h01);
   assign _zz__zz_io_allocate_0_physReg_1_2 = (allocPtr + 5'h0);
-  assign _zz__zz_io_allocate_0_physReg_2 = (freePtr + 5'h01);
-  assign _zz__zz_io_allocate_0_physReg_2_1 = (allocPtr + 5'h0);
-  assign _zz_nextAllocPtr = (allocPtr + _zz_nextAllocPtr_1);
-  assign _zz_nextAllocPtr_1 = {3'd0, allocCount};
-  assign _zz_nextFreePtr = (freePtr + _zz_nextFreePtr_1);
-  assign _zz_nextFreePtr_1 = {3'd0, freeCount};
-  assign _zz_allocPtr = {3'd0, allocCount};
-  assign _zz_freePtr = {3'd0, freeCount};
+  assign _zz__zz_io_allocate_0_physReg_1_4 = (allocPtr + 5'h0);
+  assign _zz__zz_when_SimpleFreeList_l207 = {3'd0, allocCount};
+  assign _zz__zz_when_SimpleFreeList_l207_1 = {3'd0, freeCount};
   always @(*) begin
-    case(_zz__zz_io_allocate_0_physReg_1)
-      5'b00000 : _zz__zz_io_allocate_0_physReg = dataVec_0;
-      5'b00001 : _zz__zz_io_allocate_0_physReg = dataVec_1;
-      5'b00010 : _zz__zz_io_allocate_0_physReg = dataVec_2;
-      5'b00011 : _zz__zz_io_allocate_0_physReg = dataVec_3;
-      5'b00100 : _zz__zz_io_allocate_0_physReg = dataVec_4;
-      5'b00101 : _zz__zz_io_allocate_0_physReg = dataVec_5;
-      5'b00110 : _zz__zz_io_allocate_0_physReg = dataVec_6;
-      5'b00111 : _zz__zz_io_allocate_0_physReg = dataVec_7;
-      5'b01000 : _zz__zz_io_allocate_0_physReg = dataVec_8;
-      5'b01001 : _zz__zz_io_allocate_0_physReg = dataVec_9;
-      5'b01010 : _zz__zz_io_allocate_0_physReg = dataVec_10;
-      5'b01011 : _zz__zz_io_allocate_0_physReg = dataVec_11;
-      5'b01100 : _zz__zz_io_allocate_0_physReg = dataVec_12;
-      5'b01101 : _zz__zz_io_allocate_0_physReg = dataVec_13;
-      5'b01110 : _zz__zz_io_allocate_0_physReg = dataVec_14;
-      5'b01111 : _zz__zz_io_allocate_0_physReg = dataVec_15;
-      5'b10000 : _zz__zz_io_allocate_0_physReg = dataVec_16;
-      5'b10001 : _zz__zz_io_allocate_0_physReg = dataVec_17;
-      5'b10010 : _zz__zz_io_allocate_0_physReg = dataVec_18;
-      5'b10011 : _zz__zz_io_allocate_0_physReg = dataVec_19;
-      5'b10100 : _zz__zz_io_allocate_0_physReg = dataVec_20;
-      5'b10101 : _zz__zz_io_allocate_0_physReg = dataVec_21;
-      5'b10110 : _zz__zz_io_allocate_0_physReg = dataVec_22;
-      5'b10111 : _zz__zz_io_allocate_0_physReg = dataVec_23;
-      5'b11000 : _zz__zz_io_allocate_0_physReg = dataVec_24;
-      5'b11001 : _zz__zz_io_allocate_0_physReg = dataVec_25;
-      5'b11010 : _zz__zz_io_allocate_0_physReg = dataVec_26;
-      5'b11011 : _zz__zz_io_allocate_0_physReg = dataVec_27;
-      5'b11100 : _zz__zz_io_allocate_0_physReg = dataVec_28;
-      5'b11101 : _zz__zz_io_allocate_0_physReg = dataVec_29;
-      5'b11110 : _zz__zz_io_allocate_0_physReg = dataVec_30;
-      default : _zz__zz_io_allocate_0_physReg = dataVec_31;
+    case(_zz__zz_io_allocate_0_physReg_1_4)
+      5'b00000 : _zz__zz_io_allocate_0_physReg_1_3 = dataVec_0;
+      5'b00001 : _zz__zz_io_allocate_0_physReg_1_3 = dataVec_1;
+      5'b00010 : _zz__zz_io_allocate_0_physReg_1_3 = dataVec_2;
+      5'b00011 : _zz__zz_io_allocate_0_physReg_1_3 = dataVec_3;
+      5'b00100 : _zz__zz_io_allocate_0_physReg_1_3 = dataVec_4;
+      5'b00101 : _zz__zz_io_allocate_0_physReg_1_3 = dataVec_5;
+      5'b00110 : _zz__zz_io_allocate_0_physReg_1_3 = dataVec_6;
+      5'b00111 : _zz__zz_io_allocate_0_physReg_1_3 = dataVec_7;
+      5'b01000 : _zz__zz_io_allocate_0_physReg_1_3 = dataVec_8;
+      5'b01001 : _zz__zz_io_allocate_0_physReg_1_3 = dataVec_9;
+      5'b01010 : _zz__zz_io_allocate_0_physReg_1_3 = dataVec_10;
+      5'b01011 : _zz__zz_io_allocate_0_physReg_1_3 = dataVec_11;
+      5'b01100 : _zz__zz_io_allocate_0_physReg_1_3 = dataVec_12;
+      5'b01101 : _zz__zz_io_allocate_0_physReg_1_3 = dataVec_13;
+      5'b01110 : _zz__zz_io_allocate_0_physReg_1_3 = dataVec_14;
+      5'b01111 : _zz__zz_io_allocate_0_physReg_1_3 = dataVec_15;
+      5'b10000 : _zz__zz_io_allocate_0_physReg_1_3 = dataVec_16;
+      5'b10001 : _zz__zz_io_allocate_0_physReg_1_3 = dataVec_17;
+      5'b10010 : _zz__zz_io_allocate_0_physReg_1_3 = dataVec_18;
+      5'b10011 : _zz__zz_io_allocate_0_physReg_1_3 = dataVec_19;
+      5'b10100 : _zz__zz_io_allocate_0_physReg_1_3 = dataVec_20;
+      5'b10101 : _zz__zz_io_allocate_0_physReg_1_3 = dataVec_21;
+      5'b10110 : _zz__zz_io_allocate_0_physReg_1_3 = dataVec_22;
+      5'b10111 : _zz__zz_io_allocate_0_physReg_1_3 = dataVec_23;
+      5'b11000 : _zz__zz_io_allocate_0_physReg_1_3 = dataVec_24;
+      5'b11001 : _zz__zz_io_allocate_0_physReg_1_3 = dataVec_25;
+      5'b11010 : _zz__zz_io_allocate_0_physReg_1_3 = dataVec_26;
+      5'b11011 : _zz__zz_io_allocate_0_physReg_1_3 = dataVec_27;
+      5'b11100 : _zz__zz_io_allocate_0_physReg_1_3 = dataVec_28;
+      5'b11101 : _zz__zz_io_allocate_0_physReg_1_3 = dataVec_29;
+      5'b11110 : _zz__zz_io_allocate_0_physReg_1_3 = dataVec_30;
+      default : _zz__zz_io_allocate_0_physReg_1_3 = dataVec_31;
     endcase
   end
 
+  assign allocPtr = 5'h0;
   assign isEmpty = ((allocPtr == freePtr) && (! isRisingOccupancy));
   assign isFull = ((allocPtr == freePtr) && isRisingOccupancy);
-  assign when_SimpleFreeList_l87 = (allocPtr == freePtr);
+  assign when_SimpleFreeList_l98 = (allocPtr == freePtr);
   always @(*) begin
-    if(when_SimpleFreeList_l87) begin
+    if(when_SimpleFreeList_l98) begin
       occupancy = (isFull ? 6'h20 : 6'h0);
     end else begin
-      occupancy = {1'd0, _zz_occupancy};
+      if(isRisingOccupancy) begin
+        occupancy = (_zz_occupancy - _zz_occupancy_2);
+      end else begin
+        occupancy = {1'd0, _zz_occupancy_3};
+      end
     end
   end
 
   assign io_numFreeRegs = occupancy;
-  assign when_SimpleFreeList_l93 = (occupancy != occupancy_regNext);
+  assign when_SimpleFreeList_l106 = (occupancy != occupancy_regNext);
   assign _zz_rawFreeRequests = {(! io_free_1_enable),(! io_free_0_enable)};
   assign _zz_rawFreeRequests_1 = _zz_rawFreeRequests[0];
   assign rawFreeRequests = ((_zz_rawFreeRequests_1 || _zz_rawFreeRequests[1]) ? (_zz_rawFreeRequests_1 ? 2'b00 : 2'b01) : 2'b10);
   assign canAcceptFree = (isFull ? 6'h0 : _zz_canAcceptFree);
-  assign freeCount = (io_recover ? 2'b00 : ((canAcceptFree < _zz_freeCount) ? _zz_freeCount_1 : rawFreeRequests));
+  assign freeCount = ((canAcceptFree < _zz_freeCount) ? _zz_freeCount_1 : rawFreeRequests);
   assign rawAllocRequests = (_zz_rawAllocRequests[0] ? 2'b00 : 2'b01);
   assign canAllocate = (occupancy + _zz_canAllocate);
-  assign allocCount = (io_recover ? 2'b00 : ((canAllocate < _zz_allocCount) ? _zz_allocCount_1 : rawAllocRequests));
+  assign allocCount = ((canAllocate < _zz_allocCount) ? _zz_allocCount_1 : rawAllocRequests);
   assign io_allocate_0_canAllocate = canAllocate;
-  assign when_SimpleFreeList_l128 = ((2'b00 < freeCount) && (! io_recover));
+  assign when_SimpleFreeList_l141 = ((2'b00 < freeCount) && (! io_recover));
   assign _zz_1 = (freePtr + 5'h0);
   assign _zz_2 = ({31'd0,1'b1} <<< _zz_1);
-  assign when_SimpleFreeList_l128_1 = ((2'b01 < freeCount) && (! io_recover));
+  assign when_SimpleFreeList_l141_1 = ((2'b01 < freeCount) && (! io_recover));
   assign _zz_3 = (freePtr + 5'h01);
   assign _zz_4 = ({31'd0,1'b1} <<< _zz_3);
-  assign _zz_when_SimpleFreeList_l152 = (2'b00 < allocCount);
   assign io_allocate_0_success = _zz_io_allocate_0_success;
-  assign _zz_io_allocate_0_physReg = _zz__zz_io_allocate_0_physReg;
-  assign _zz_io_allocate_0_physReg_1 = ((2'b00 < freeCount) && (_zz__zz_io_allocate_0_physReg_1_1 == _zz__zz_io_allocate_0_physReg_1_2));
-  assign _zz_io_allocate_0_physReg_2 = ((_zz_io_allocate_0_physReg_1 || ((2'b01 < freeCount) && (_zz__zz_io_allocate_0_physReg_2 == _zz__zz_io_allocate_0_physReg_2_1))) ? (_zz_io_allocate_0_physReg_1 ? io_free_0_physReg : io_free_1_physReg) : _zz_io_allocate_0_physReg);
-  assign io_allocate_0_physReg = _zz_io_allocate_0_physReg_3;
-  assign when_SimpleFreeList_l152 = (_zz_when_SimpleFreeList_l152 && (! io_recover));
-  assign nextAllocPtr = (io_recover ? allocPtr : _zz_nextAllocPtr);
-  assign nextFreePtr = (io_recover ? allocPtr : _zz_nextFreePtr);
-  assign nextIsRisingOccupancy = (io_recover ? 1'b1 : ((allocCount != freeCount) ? (allocCount < freeCount) : isRisingOccupancy));
-  assign when_SimpleFreeList_l184 = ((2'b00 < allocCount) || (2'b00 < freeCount));
-  assign when_SimpleFreeList_l200 = (allocCount != freeCount);
+  assign _zz_io_allocate_0_physReg = ((2'b00 < freeCount) && (_zz__zz_io_allocate_0_physReg == _zz__zz_io_allocate_0_physReg_1));
+  assign io_allocate_0_physReg = _zz_io_allocate_0_physReg_1;
+  assign _zz_when_SimpleFreeList_l207 = (allocPtr + _zz__zz_when_SimpleFreeList_l207);
+  assign _zz_when_SimpleFreeList_l207_1 = (freePtr + _zz__zz_when_SimpleFreeList_l207_1);
+  assign when_SimpleFreeList_l203 = (allocCount != freeCount);
+  assign when_SimpleFreeList_l207 = ((allocPtr <= freePtr) && (_zz_when_SimpleFreeList_l207_1 < _zz_when_SimpleFreeList_l207));
+  assign when_SimpleFreeList_l209 = ((freePtr <= allocPtr) && (_zz_when_SimpleFreeList_l207 < _zz_when_SimpleFreeList_l207_1));
+  assign _zz_5 = (io_recover ? 1'b1 : ((allocCount != freeCount) ? (allocCount < freeCount) : isRisingOccupancy));
+  assign when_SimpleFreeList_l217 = ((2'b00 < allocCount) || (2'b00 < freeCount));
   always @(posedge clk) begin
     if(reset) begin
       dataVec_0 <= 6'h20;
@@ -56565,7 +57193,6 @@ module SimpleFreeList (
       dataVec_29 <= 6'h3d;
       dataVec_30 <= 6'h3e;
       dataVec_31 <= 6'h3f;
-      allocPtr <= 5'h0;
       freePtr <= 5'h0;
       isRisingOccupancy <= 1'b1;
       occupancy_regNext <= 6'h0;
@@ -56573,13 +57200,13 @@ module SimpleFreeList (
       _zz_io_allocate_0_success <= 1'b0;
     end else begin
       occupancy_regNext <= occupancy;
-      if(when_SimpleFreeList_l93) begin
+      if(when_SimpleFreeList_l106) begin
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // SimpleFreeList.scala:L94
+            assert(1'b0); // SimpleFreeList.scala:L107
           `else
             if(!1'b0) begin
-              $display("NOTE(SimpleFreeList.scala:94):  [RegRes|FreeList] [Cycle <null>] OCCUPANCY: Current: occupancy=%x, isEmpty=%x, isFull=%x", occupancy, isEmpty, isFull); // SimpleFreeList.scala:L94
+              $display("NOTE(SimpleFreeList.scala:107):  [RegRes|FreeList] [Cycle <null>] OCCUPANCY: Current: occupancy=%x, isEmpty=%x, isFull=%x", occupancy, isEmpty, isFull); // SimpleFreeList.scala:L107
             end
           `endif
         `endif
@@ -56587,14 +57214,14 @@ module SimpleFreeList (
       cycleCounter <= (cycleCounter + 32'h00000001);
       `ifndef SYNTHESIS
         `ifdef FORMAL
-          assert(1'b0); // SimpleFreeList.scala:L117
+          assert(1'b0); // SimpleFreeList.scala:L130
         `else
           if(!1'b0) begin
-            $display("NOTE(SimpleFreeList.scala:117):  [RegRes|FreeList] [Cycle %x] ALLOCATE: AllocPort[0] enable=%x, canAllocate=%x", cycleCounter, io_allocate_0_enable, canAllocate); // SimpleFreeList.scala:L117
+            $display("NOTE(SimpleFreeList.scala:130):  [RegRes|FreeList] [Cycle %x] ALLOCATE: AllocPort[0] enable=%x, canAllocate=%x", cycleCounter, io_allocate_0_enable, canAllocate); // SimpleFreeList.scala:L130
           end
         `endif
       `endif
-      if(when_SimpleFreeList_l128) begin
+      if(when_SimpleFreeList_l141) begin
         if(_zz_2[0]) begin
           dataVec_0 <= io_free_0_physReg;
         end
@@ -56693,15 +57320,15 @@ module SimpleFreeList (
         end
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // SimpleFreeList.scala:L130
+            assert(1'b0); // SimpleFreeList.scala:L143
           `else
             if(!1'b0) begin
-              $display("NOTE(SimpleFreeList.scala:130):  [RegRes|FreeList] [Cycle %x] RETURN: FreePort[0] returns P%x to dataVec[%x] (freePtr=%x, freeCount=%x)", cycleCounter, io_free_0_physReg, _zz_1, freePtr, freeCount); // SimpleFreeList.scala:L130
+              $display("NOTE(SimpleFreeList.scala:143):  [RegRes|FreeList] [Cycle %x] RETURN: FreePort[0] returns P%x to dataVec[%x] (freePtr=%x, freeCount=%x)", cycleCounter, io_free_0_physReg, _zz_1, freePtr, freeCount); // SimpleFreeList.scala:L143
             end
           `endif
         `endif
       end
-      if(when_SimpleFreeList_l128_1) begin
+      if(when_SimpleFreeList_l141_1) begin
         if(_zz_4[0]) begin
           dataVec_0 <= io_free_1_physReg;
         end
@@ -56800,61 +57427,63 @@ module SimpleFreeList (
         end
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // SimpleFreeList.scala:L130
+            assert(1'b0); // SimpleFreeList.scala:L143
           `else
             if(!1'b0) begin
-              $display("NOTE(SimpleFreeList.scala:130):  [RegRes|FreeList] [Cycle %x] RETURN: FreePort[1] returns P%x to dataVec[%x] (freePtr=%x, freeCount=%x)", cycleCounter, io_free_1_physReg, _zz_3, freePtr, freeCount); // SimpleFreeList.scala:L130
+              $display("NOTE(SimpleFreeList.scala:143):  [RegRes|FreeList] [Cycle %x] RETURN: FreePort[1] returns P%x to dataVec[%x] (freePtr=%x, freeCount=%x)", cycleCounter, io_free_1_physReg, _zz_3, freePtr, freeCount); // SimpleFreeList.scala:L143
             end
           `endif
         `endif
       end
-      _zz_io_allocate_0_success <= (_zz_when_SimpleFreeList_l152 && (! io_recover));
-      if(when_SimpleFreeList_l152) begin
-        `ifndef SYNTHESIS
-          `ifdef FORMAL
-            assert(1'b0); // SimpleFreeList.scala:L153
-          `else
-            if(!1'b0) begin
-              $display("NOTE(SimpleFreeList.scala:153):  [RegRes|FreeList] [Cycle %x] ALLOCATE: AllocPort[0] granted P%x (from defaultSource=%x, bypassed=%x, allocPtr=%x, allocCount=%x)", cycleCounter, _zz_io_allocate_0_physReg_3, _zz_io_allocate_0_physReg, _zz_io_allocate_0_physReg_2, allocPtr, allocCount); // SimpleFreeList.scala:L153
-            end
-          `endif
+      _zz_io_allocate_0_success <= ((2'b00 < allocCount) && (! io_recover));
+      `ifndef SYNTHESIS
+        `ifdef FORMAL
+          assert(1'b0); // SimpleFreeList.scala:L172
+        `else
+          if(!1'b0) begin
+            $display("NOTE(SimpleFreeList.scala:172):  [RegRes|FreeList] freePtr=%x allocPtr=%x", freePtr, allocPtr); // SimpleFreeList.scala:L172
+          end
         `endif
-      end
+      `endif
       if(io_recover) begin
         freePtr <= allocPtr;
         isRisingOccupancy <= 1'b1;
         `ifndef SYNTHESIS
           `ifdef FORMAL
-            assert(1'b0); // SimpleFreeList.scala:L171
+            assert(1'b0); // SimpleFreeList.scala:L183
           `else
             if(!1'b0) begin
-              $display("NOTE(SimpleFreeList.scala:171):  [RegRes|FreeList] [Cycle %x] RECOVER (ROLLBACK): FreeList recovered.\n[RegRes|FreeList]   Previous State: allocPtr=%x, freePtr=%x, isRisingOccupancy=%x, FreeRegs=%x\n[RegRes|FreeList]   New State: allocPtr=%x, freePtr=%x, isRisingOccupancy=True, FreeRegs=32", cycleCounter, allocPtr, freePtr, isRisingOccupancy, occupancy, allocPtr, allocPtr); // SimpleFreeList.scala:L171
+              $display("NOTE(SimpleFreeList.scala:183):  [RegRes|FreeList] [Cycle %x] RECOVER (ROLLBACK): FreeList recovered: freePtr=%x allocPtr=%x.\n[RegRes|FreeList]   Previous State: allocPtr=%x, freePtr=%x, isRisingOccupancy=%x, FreeRegs=%x\n[RegRes|FreeList]   New State: allocPtr=%x, freePtr=%x, isRisingOccupancy=True, FreeRegs=32", cycleCounter, freePtr, allocPtr, allocPtr, freePtr, isRisingOccupancy, occupancy, allocPtr, allocPtr); // SimpleFreeList.scala:L183
             end
           `endif
         `endif
       end else begin
-        if(when_SimpleFreeList_l184) begin
+        if(when_SimpleFreeList_l203) begin
+          if(when_SimpleFreeList_l207) begin
+            isRisingOccupancy <= 1'b0;
+          end else begin
+            if(when_SimpleFreeList_l209) begin
+              isRisingOccupancy <= 1'b1;
+            end
+          end
+        end
+        if(when_SimpleFreeList_l217) begin
           `ifndef SYNTHESIS
             `ifdef FORMAL
-              assert(1'b0); // SimpleFreeList.scala:L185
+              assert(1'b0); // SimpleFreeList.scala:L218
             `else
               if(!1'b0) begin
-                $display("NOTE(SimpleFreeList.scala:185):  [RegRes|FreeList] [Cycle %x] POINTER_UPDATE: Current: allocPtr=%x, freePtr=%x, isRising=%x, FreeRegs=%x\n[RegRes|FreeList] [Cycle %x]   Updates: allocCount=%x, freeCount=%x\n[RegRes|FreeList] [Cycle %x]   Next (Calculated): nextAllocPtr=%x, nextFreePtr=%x, nextIsRising=%x", cycleCounter, allocPtr, freePtr, isRisingOccupancy, occupancy, cycleCounter, allocCount, freeCount, cycleCounter, nextAllocPtr, nextFreePtr, nextIsRisingOccupancy); // SimpleFreeList.scala:L185
+                $display("NOTE(SimpleFreeList.scala:218):  [RegRes|FreeList] [Cycle %x] POINTER_UPDATE: Current: allocPtr=%x, freePtr=%x, isRising=%x, FreeRegs=%x\n[RegRes|FreeList] [Cycle %x]   Updates: allocCount=%x, freeCount=%x\n[RegRes|FreeList] [Cycle %x]   Next (Calculated): nextAllocPtr=%x, nextFreePtr=%x, nextIsRising=%x", cycleCounter, allocPtr, freePtr, isRisingOccupancy, occupancy, cycleCounter, allocCount, freeCount, cycleCounter, _zz_when_SimpleFreeList_l207, _zz_when_SimpleFreeList_l207_1, _zz_5); // SimpleFreeList.scala:L218
               end
             `endif
           `endif
-        end
-        allocPtr <= (allocPtr + _zz_allocPtr);
-        freePtr <= (freePtr + _zz_freePtr);
-        if(when_SimpleFreeList_l200) begin
-          isRisingOccupancy <= (allocCount < freeCount);
         end
       end
     end
   end
 
   always @(posedge clk) begin
-    _zz_io_allocate_0_physReg_3 <= _zz_io_allocate_0_physReg_2;
+    _zz_io_allocate_0_physReg_1 <= ((_zz_io_allocate_0_physReg || ((2'b01 < freeCount) && (_zz__zz_io_allocate_0_physReg_1_1 == _zz__zz_io_allocate_0_physReg_1_2))) ? (_zz_io_allocate_0_physReg ? io_free_0_physReg : io_free_1_physReg) : _zz__zz_io_allocate_0_physReg_1_3);
   end
 
 
@@ -57044,9 +57673,9 @@ module RenameMapTable (
   reg        [5:0]    rratMapReg_mapping_29;
   reg        [5:0]    rratMapReg_mapping_30;
   reg        [5:0]    rratMapReg_mapping_31;
-  wire                when_RenameMapTable_l124;
-  wire                when_RenameMapTable_l124_1;
-  wire                when_RenameMapTable_l124_2;
+  wire                when_RenameMapTable_l131;
+  wire                when_RenameMapTable_l131_1;
+  wire                when_RenameMapTable_l131_2;
   reg        [5:0]    nextRratMapRegMapping_0;
   reg        [5:0]    nextRratMapRegMapping_1;
   reg        [5:0]    nextRratMapRegMapping_2;
@@ -57079,7 +57708,7 @@ module RenameMapTable (
   reg        [5:0]    nextRratMapRegMapping_29;
   reg        [5:0]    nextRratMapRegMapping_30;
   reg        [5:0]    nextRratMapRegMapping_31;
-  wire                when_RenameMapTable_l139;
+  wire                when_RenameMapTable_l147;
   wire       [31:0]   _zz_1;
   reg        [5:0]    nextAratMapRegMapping_0;
   reg        [5:0]    nextAratMapRegMapping_1;
@@ -57113,7 +57742,7 @@ module RenameMapTable (
   reg        [5:0]    nextAratMapRegMapping_29;
   reg        [5:0]    nextAratMapRegMapping_30;
   reg        [5:0]    nextAratMapRegMapping_31;
-  wire                when_RenameMapTable_l149;
+  wire                when_RenameMapTable_l157;
   wire       [31:0]   _zz_2;
 
   always @(*) begin
@@ -57227,27 +57856,27 @@ module RenameMapTable (
     endcase
   end
 
-  assign when_RenameMapTable_l124 = (io_readPorts_0_archReg == 5'h0);
+  assign when_RenameMapTable_l131 = (io_readPorts_0_archReg == 5'h0);
   always @(*) begin
-    if(when_RenameMapTable_l124) begin
+    if(when_RenameMapTable_l131) begin
       io_readPorts_0_physReg = 6'h0;
     end else begin
       io_readPorts_0_physReg = _zz_io_readPorts_0_physReg;
     end
   end
 
-  assign when_RenameMapTable_l124_1 = (io_readPorts_1_archReg == 5'h0);
+  assign when_RenameMapTable_l131_1 = (io_readPorts_1_archReg == 5'h0);
   always @(*) begin
-    if(when_RenameMapTable_l124_1) begin
+    if(when_RenameMapTable_l131_1) begin
       io_readPorts_1_physReg = 6'h0;
     end else begin
       io_readPorts_1_physReg = _zz_io_readPorts_1_physReg;
     end
   end
 
-  assign when_RenameMapTable_l124_2 = (io_readPorts_2_archReg == 5'h0);
+  assign when_RenameMapTable_l131_2 = (io_readPorts_2_archReg == 5'h0);
   always @(*) begin
-    if(when_RenameMapTable_l124_2) begin
+    if(when_RenameMapTable_l131_2) begin
       io_readPorts_2_physReg = 6'h0;
     end else begin
       io_readPorts_2_physReg = _zz_io_readPorts_2_physReg;
@@ -57259,7 +57888,7 @@ module RenameMapTable (
     if(io_checkpointRestore_valid) begin
       nextRratMapRegMapping_0 = io_checkpointRestore_payload_mapping_0;
     end else begin
-      if(when_RenameMapTable_l139) begin
+      if(when_RenameMapTable_l147) begin
         if(_zz_1[0]) begin
           nextRratMapRegMapping_0 = io_writePorts_0_physReg;
         end
@@ -57272,7 +57901,7 @@ module RenameMapTable (
     if(io_checkpointRestore_valid) begin
       nextRratMapRegMapping_1 = io_checkpointRestore_payload_mapping_1;
     end else begin
-      if(when_RenameMapTable_l139) begin
+      if(when_RenameMapTable_l147) begin
         if(_zz_1[1]) begin
           nextRratMapRegMapping_1 = io_writePorts_0_physReg;
         end
@@ -57285,7 +57914,7 @@ module RenameMapTable (
     if(io_checkpointRestore_valid) begin
       nextRratMapRegMapping_2 = io_checkpointRestore_payload_mapping_2;
     end else begin
-      if(when_RenameMapTable_l139) begin
+      if(when_RenameMapTable_l147) begin
         if(_zz_1[2]) begin
           nextRratMapRegMapping_2 = io_writePorts_0_physReg;
         end
@@ -57298,7 +57927,7 @@ module RenameMapTable (
     if(io_checkpointRestore_valid) begin
       nextRratMapRegMapping_3 = io_checkpointRestore_payload_mapping_3;
     end else begin
-      if(when_RenameMapTable_l139) begin
+      if(when_RenameMapTable_l147) begin
         if(_zz_1[3]) begin
           nextRratMapRegMapping_3 = io_writePorts_0_physReg;
         end
@@ -57311,7 +57940,7 @@ module RenameMapTable (
     if(io_checkpointRestore_valid) begin
       nextRratMapRegMapping_4 = io_checkpointRestore_payload_mapping_4;
     end else begin
-      if(when_RenameMapTable_l139) begin
+      if(when_RenameMapTable_l147) begin
         if(_zz_1[4]) begin
           nextRratMapRegMapping_4 = io_writePorts_0_physReg;
         end
@@ -57324,7 +57953,7 @@ module RenameMapTable (
     if(io_checkpointRestore_valid) begin
       nextRratMapRegMapping_5 = io_checkpointRestore_payload_mapping_5;
     end else begin
-      if(when_RenameMapTable_l139) begin
+      if(when_RenameMapTable_l147) begin
         if(_zz_1[5]) begin
           nextRratMapRegMapping_5 = io_writePorts_0_physReg;
         end
@@ -57337,7 +57966,7 @@ module RenameMapTable (
     if(io_checkpointRestore_valid) begin
       nextRratMapRegMapping_6 = io_checkpointRestore_payload_mapping_6;
     end else begin
-      if(when_RenameMapTable_l139) begin
+      if(when_RenameMapTable_l147) begin
         if(_zz_1[6]) begin
           nextRratMapRegMapping_6 = io_writePorts_0_physReg;
         end
@@ -57350,7 +57979,7 @@ module RenameMapTable (
     if(io_checkpointRestore_valid) begin
       nextRratMapRegMapping_7 = io_checkpointRestore_payload_mapping_7;
     end else begin
-      if(when_RenameMapTable_l139) begin
+      if(when_RenameMapTable_l147) begin
         if(_zz_1[7]) begin
           nextRratMapRegMapping_7 = io_writePorts_0_physReg;
         end
@@ -57363,7 +57992,7 @@ module RenameMapTable (
     if(io_checkpointRestore_valid) begin
       nextRratMapRegMapping_8 = io_checkpointRestore_payload_mapping_8;
     end else begin
-      if(when_RenameMapTable_l139) begin
+      if(when_RenameMapTable_l147) begin
         if(_zz_1[8]) begin
           nextRratMapRegMapping_8 = io_writePorts_0_physReg;
         end
@@ -57376,7 +58005,7 @@ module RenameMapTable (
     if(io_checkpointRestore_valid) begin
       nextRratMapRegMapping_9 = io_checkpointRestore_payload_mapping_9;
     end else begin
-      if(when_RenameMapTable_l139) begin
+      if(when_RenameMapTable_l147) begin
         if(_zz_1[9]) begin
           nextRratMapRegMapping_9 = io_writePorts_0_physReg;
         end
@@ -57389,7 +58018,7 @@ module RenameMapTable (
     if(io_checkpointRestore_valid) begin
       nextRratMapRegMapping_10 = io_checkpointRestore_payload_mapping_10;
     end else begin
-      if(when_RenameMapTable_l139) begin
+      if(when_RenameMapTable_l147) begin
         if(_zz_1[10]) begin
           nextRratMapRegMapping_10 = io_writePorts_0_physReg;
         end
@@ -57402,7 +58031,7 @@ module RenameMapTable (
     if(io_checkpointRestore_valid) begin
       nextRratMapRegMapping_11 = io_checkpointRestore_payload_mapping_11;
     end else begin
-      if(when_RenameMapTable_l139) begin
+      if(when_RenameMapTable_l147) begin
         if(_zz_1[11]) begin
           nextRratMapRegMapping_11 = io_writePorts_0_physReg;
         end
@@ -57415,7 +58044,7 @@ module RenameMapTable (
     if(io_checkpointRestore_valid) begin
       nextRratMapRegMapping_12 = io_checkpointRestore_payload_mapping_12;
     end else begin
-      if(when_RenameMapTable_l139) begin
+      if(when_RenameMapTable_l147) begin
         if(_zz_1[12]) begin
           nextRratMapRegMapping_12 = io_writePorts_0_physReg;
         end
@@ -57428,7 +58057,7 @@ module RenameMapTable (
     if(io_checkpointRestore_valid) begin
       nextRratMapRegMapping_13 = io_checkpointRestore_payload_mapping_13;
     end else begin
-      if(when_RenameMapTable_l139) begin
+      if(when_RenameMapTable_l147) begin
         if(_zz_1[13]) begin
           nextRratMapRegMapping_13 = io_writePorts_0_physReg;
         end
@@ -57441,7 +58070,7 @@ module RenameMapTable (
     if(io_checkpointRestore_valid) begin
       nextRratMapRegMapping_14 = io_checkpointRestore_payload_mapping_14;
     end else begin
-      if(when_RenameMapTable_l139) begin
+      if(when_RenameMapTable_l147) begin
         if(_zz_1[14]) begin
           nextRratMapRegMapping_14 = io_writePorts_0_physReg;
         end
@@ -57454,7 +58083,7 @@ module RenameMapTable (
     if(io_checkpointRestore_valid) begin
       nextRratMapRegMapping_15 = io_checkpointRestore_payload_mapping_15;
     end else begin
-      if(when_RenameMapTable_l139) begin
+      if(when_RenameMapTable_l147) begin
         if(_zz_1[15]) begin
           nextRratMapRegMapping_15 = io_writePorts_0_physReg;
         end
@@ -57467,7 +58096,7 @@ module RenameMapTable (
     if(io_checkpointRestore_valid) begin
       nextRratMapRegMapping_16 = io_checkpointRestore_payload_mapping_16;
     end else begin
-      if(when_RenameMapTable_l139) begin
+      if(when_RenameMapTable_l147) begin
         if(_zz_1[16]) begin
           nextRratMapRegMapping_16 = io_writePorts_0_physReg;
         end
@@ -57480,7 +58109,7 @@ module RenameMapTable (
     if(io_checkpointRestore_valid) begin
       nextRratMapRegMapping_17 = io_checkpointRestore_payload_mapping_17;
     end else begin
-      if(when_RenameMapTable_l139) begin
+      if(when_RenameMapTable_l147) begin
         if(_zz_1[17]) begin
           nextRratMapRegMapping_17 = io_writePorts_0_physReg;
         end
@@ -57493,7 +58122,7 @@ module RenameMapTable (
     if(io_checkpointRestore_valid) begin
       nextRratMapRegMapping_18 = io_checkpointRestore_payload_mapping_18;
     end else begin
-      if(when_RenameMapTable_l139) begin
+      if(when_RenameMapTable_l147) begin
         if(_zz_1[18]) begin
           nextRratMapRegMapping_18 = io_writePorts_0_physReg;
         end
@@ -57506,7 +58135,7 @@ module RenameMapTable (
     if(io_checkpointRestore_valid) begin
       nextRratMapRegMapping_19 = io_checkpointRestore_payload_mapping_19;
     end else begin
-      if(when_RenameMapTable_l139) begin
+      if(when_RenameMapTable_l147) begin
         if(_zz_1[19]) begin
           nextRratMapRegMapping_19 = io_writePorts_0_physReg;
         end
@@ -57519,7 +58148,7 @@ module RenameMapTable (
     if(io_checkpointRestore_valid) begin
       nextRratMapRegMapping_20 = io_checkpointRestore_payload_mapping_20;
     end else begin
-      if(when_RenameMapTable_l139) begin
+      if(when_RenameMapTable_l147) begin
         if(_zz_1[20]) begin
           nextRratMapRegMapping_20 = io_writePorts_0_physReg;
         end
@@ -57532,7 +58161,7 @@ module RenameMapTable (
     if(io_checkpointRestore_valid) begin
       nextRratMapRegMapping_21 = io_checkpointRestore_payload_mapping_21;
     end else begin
-      if(when_RenameMapTable_l139) begin
+      if(when_RenameMapTable_l147) begin
         if(_zz_1[21]) begin
           nextRratMapRegMapping_21 = io_writePorts_0_physReg;
         end
@@ -57545,7 +58174,7 @@ module RenameMapTable (
     if(io_checkpointRestore_valid) begin
       nextRratMapRegMapping_22 = io_checkpointRestore_payload_mapping_22;
     end else begin
-      if(when_RenameMapTable_l139) begin
+      if(when_RenameMapTable_l147) begin
         if(_zz_1[22]) begin
           nextRratMapRegMapping_22 = io_writePorts_0_physReg;
         end
@@ -57558,7 +58187,7 @@ module RenameMapTable (
     if(io_checkpointRestore_valid) begin
       nextRratMapRegMapping_23 = io_checkpointRestore_payload_mapping_23;
     end else begin
-      if(when_RenameMapTable_l139) begin
+      if(when_RenameMapTable_l147) begin
         if(_zz_1[23]) begin
           nextRratMapRegMapping_23 = io_writePorts_0_physReg;
         end
@@ -57571,7 +58200,7 @@ module RenameMapTable (
     if(io_checkpointRestore_valid) begin
       nextRratMapRegMapping_24 = io_checkpointRestore_payload_mapping_24;
     end else begin
-      if(when_RenameMapTable_l139) begin
+      if(when_RenameMapTable_l147) begin
         if(_zz_1[24]) begin
           nextRratMapRegMapping_24 = io_writePorts_0_physReg;
         end
@@ -57584,7 +58213,7 @@ module RenameMapTable (
     if(io_checkpointRestore_valid) begin
       nextRratMapRegMapping_25 = io_checkpointRestore_payload_mapping_25;
     end else begin
-      if(when_RenameMapTable_l139) begin
+      if(when_RenameMapTable_l147) begin
         if(_zz_1[25]) begin
           nextRratMapRegMapping_25 = io_writePorts_0_physReg;
         end
@@ -57597,7 +58226,7 @@ module RenameMapTable (
     if(io_checkpointRestore_valid) begin
       nextRratMapRegMapping_26 = io_checkpointRestore_payload_mapping_26;
     end else begin
-      if(when_RenameMapTable_l139) begin
+      if(when_RenameMapTable_l147) begin
         if(_zz_1[26]) begin
           nextRratMapRegMapping_26 = io_writePorts_0_physReg;
         end
@@ -57610,7 +58239,7 @@ module RenameMapTable (
     if(io_checkpointRestore_valid) begin
       nextRratMapRegMapping_27 = io_checkpointRestore_payload_mapping_27;
     end else begin
-      if(when_RenameMapTable_l139) begin
+      if(when_RenameMapTable_l147) begin
         if(_zz_1[27]) begin
           nextRratMapRegMapping_27 = io_writePorts_0_physReg;
         end
@@ -57623,7 +58252,7 @@ module RenameMapTable (
     if(io_checkpointRestore_valid) begin
       nextRratMapRegMapping_28 = io_checkpointRestore_payload_mapping_28;
     end else begin
-      if(when_RenameMapTable_l139) begin
+      if(when_RenameMapTable_l147) begin
         if(_zz_1[28]) begin
           nextRratMapRegMapping_28 = io_writePorts_0_physReg;
         end
@@ -57636,7 +58265,7 @@ module RenameMapTable (
     if(io_checkpointRestore_valid) begin
       nextRratMapRegMapping_29 = io_checkpointRestore_payload_mapping_29;
     end else begin
-      if(when_RenameMapTable_l139) begin
+      if(when_RenameMapTable_l147) begin
         if(_zz_1[29]) begin
           nextRratMapRegMapping_29 = io_writePorts_0_physReg;
         end
@@ -57649,7 +58278,7 @@ module RenameMapTable (
     if(io_checkpointRestore_valid) begin
       nextRratMapRegMapping_30 = io_checkpointRestore_payload_mapping_30;
     end else begin
-      if(when_RenameMapTable_l139) begin
+      if(when_RenameMapTable_l147) begin
         if(_zz_1[30]) begin
           nextRratMapRegMapping_30 = io_writePorts_0_physReg;
         end
@@ -57662,7 +58291,7 @@ module RenameMapTable (
     if(io_checkpointRestore_valid) begin
       nextRratMapRegMapping_31 = io_checkpointRestore_payload_mapping_31;
     end else begin
-      if(when_RenameMapTable_l139) begin
+      if(when_RenameMapTable_l147) begin
         if(_zz_1[31]) begin
           nextRratMapRegMapping_31 = io_writePorts_0_physReg;
         end
@@ -57670,11 +58299,11 @@ module RenameMapTable (
     end
   end
 
-  assign when_RenameMapTable_l139 = (io_writePorts_0_wen && (io_writePorts_0_archReg != 5'h0));
+  assign when_RenameMapTable_l147 = (io_writePorts_0_wen && (io_writePorts_0_archReg != 5'h0));
   assign _zz_1 = ({31'd0,1'b1} <<< io_writePorts_0_archReg);
   always @(*) begin
     nextAratMapRegMapping_0 = aratMapReg_mapping_0;
-    if(when_RenameMapTable_l149) begin
+    if(when_RenameMapTable_l157) begin
       if(_zz_2[0]) begin
         nextAratMapRegMapping_0 = io_commitUpdatePort_physReg;
       end
@@ -57683,7 +58312,7 @@ module RenameMapTable (
 
   always @(*) begin
     nextAratMapRegMapping_1 = aratMapReg_mapping_1;
-    if(when_RenameMapTable_l149) begin
+    if(when_RenameMapTable_l157) begin
       if(_zz_2[1]) begin
         nextAratMapRegMapping_1 = io_commitUpdatePort_physReg;
       end
@@ -57692,7 +58321,7 @@ module RenameMapTable (
 
   always @(*) begin
     nextAratMapRegMapping_2 = aratMapReg_mapping_2;
-    if(when_RenameMapTable_l149) begin
+    if(when_RenameMapTable_l157) begin
       if(_zz_2[2]) begin
         nextAratMapRegMapping_2 = io_commitUpdatePort_physReg;
       end
@@ -57701,7 +58330,7 @@ module RenameMapTable (
 
   always @(*) begin
     nextAratMapRegMapping_3 = aratMapReg_mapping_3;
-    if(when_RenameMapTable_l149) begin
+    if(when_RenameMapTable_l157) begin
       if(_zz_2[3]) begin
         nextAratMapRegMapping_3 = io_commitUpdatePort_physReg;
       end
@@ -57710,7 +58339,7 @@ module RenameMapTable (
 
   always @(*) begin
     nextAratMapRegMapping_4 = aratMapReg_mapping_4;
-    if(when_RenameMapTable_l149) begin
+    if(when_RenameMapTable_l157) begin
       if(_zz_2[4]) begin
         nextAratMapRegMapping_4 = io_commitUpdatePort_physReg;
       end
@@ -57719,7 +58348,7 @@ module RenameMapTable (
 
   always @(*) begin
     nextAratMapRegMapping_5 = aratMapReg_mapping_5;
-    if(when_RenameMapTable_l149) begin
+    if(when_RenameMapTable_l157) begin
       if(_zz_2[5]) begin
         nextAratMapRegMapping_5 = io_commitUpdatePort_physReg;
       end
@@ -57728,7 +58357,7 @@ module RenameMapTable (
 
   always @(*) begin
     nextAratMapRegMapping_6 = aratMapReg_mapping_6;
-    if(when_RenameMapTable_l149) begin
+    if(when_RenameMapTable_l157) begin
       if(_zz_2[6]) begin
         nextAratMapRegMapping_6 = io_commitUpdatePort_physReg;
       end
@@ -57737,7 +58366,7 @@ module RenameMapTable (
 
   always @(*) begin
     nextAratMapRegMapping_7 = aratMapReg_mapping_7;
-    if(when_RenameMapTable_l149) begin
+    if(when_RenameMapTable_l157) begin
       if(_zz_2[7]) begin
         nextAratMapRegMapping_7 = io_commitUpdatePort_physReg;
       end
@@ -57746,7 +58375,7 @@ module RenameMapTable (
 
   always @(*) begin
     nextAratMapRegMapping_8 = aratMapReg_mapping_8;
-    if(when_RenameMapTable_l149) begin
+    if(when_RenameMapTable_l157) begin
       if(_zz_2[8]) begin
         nextAratMapRegMapping_8 = io_commitUpdatePort_physReg;
       end
@@ -57755,7 +58384,7 @@ module RenameMapTable (
 
   always @(*) begin
     nextAratMapRegMapping_9 = aratMapReg_mapping_9;
-    if(when_RenameMapTable_l149) begin
+    if(when_RenameMapTable_l157) begin
       if(_zz_2[9]) begin
         nextAratMapRegMapping_9 = io_commitUpdatePort_physReg;
       end
@@ -57764,7 +58393,7 @@ module RenameMapTable (
 
   always @(*) begin
     nextAratMapRegMapping_10 = aratMapReg_mapping_10;
-    if(when_RenameMapTable_l149) begin
+    if(when_RenameMapTable_l157) begin
       if(_zz_2[10]) begin
         nextAratMapRegMapping_10 = io_commitUpdatePort_physReg;
       end
@@ -57773,7 +58402,7 @@ module RenameMapTable (
 
   always @(*) begin
     nextAratMapRegMapping_11 = aratMapReg_mapping_11;
-    if(when_RenameMapTable_l149) begin
+    if(when_RenameMapTable_l157) begin
       if(_zz_2[11]) begin
         nextAratMapRegMapping_11 = io_commitUpdatePort_physReg;
       end
@@ -57782,7 +58411,7 @@ module RenameMapTable (
 
   always @(*) begin
     nextAratMapRegMapping_12 = aratMapReg_mapping_12;
-    if(when_RenameMapTable_l149) begin
+    if(when_RenameMapTable_l157) begin
       if(_zz_2[12]) begin
         nextAratMapRegMapping_12 = io_commitUpdatePort_physReg;
       end
@@ -57791,7 +58420,7 @@ module RenameMapTable (
 
   always @(*) begin
     nextAratMapRegMapping_13 = aratMapReg_mapping_13;
-    if(when_RenameMapTable_l149) begin
+    if(when_RenameMapTable_l157) begin
       if(_zz_2[13]) begin
         nextAratMapRegMapping_13 = io_commitUpdatePort_physReg;
       end
@@ -57800,7 +58429,7 @@ module RenameMapTable (
 
   always @(*) begin
     nextAratMapRegMapping_14 = aratMapReg_mapping_14;
-    if(when_RenameMapTable_l149) begin
+    if(when_RenameMapTable_l157) begin
       if(_zz_2[14]) begin
         nextAratMapRegMapping_14 = io_commitUpdatePort_physReg;
       end
@@ -57809,7 +58438,7 @@ module RenameMapTable (
 
   always @(*) begin
     nextAratMapRegMapping_15 = aratMapReg_mapping_15;
-    if(when_RenameMapTable_l149) begin
+    if(when_RenameMapTable_l157) begin
       if(_zz_2[15]) begin
         nextAratMapRegMapping_15 = io_commitUpdatePort_physReg;
       end
@@ -57818,7 +58447,7 @@ module RenameMapTable (
 
   always @(*) begin
     nextAratMapRegMapping_16 = aratMapReg_mapping_16;
-    if(when_RenameMapTable_l149) begin
+    if(when_RenameMapTable_l157) begin
       if(_zz_2[16]) begin
         nextAratMapRegMapping_16 = io_commitUpdatePort_physReg;
       end
@@ -57827,7 +58456,7 @@ module RenameMapTable (
 
   always @(*) begin
     nextAratMapRegMapping_17 = aratMapReg_mapping_17;
-    if(when_RenameMapTable_l149) begin
+    if(when_RenameMapTable_l157) begin
       if(_zz_2[17]) begin
         nextAratMapRegMapping_17 = io_commitUpdatePort_physReg;
       end
@@ -57836,7 +58465,7 @@ module RenameMapTable (
 
   always @(*) begin
     nextAratMapRegMapping_18 = aratMapReg_mapping_18;
-    if(when_RenameMapTable_l149) begin
+    if(when_RenameMapTable_l157) begin
       if(_zz_2[18]) begin
         nextAratMapRegMapping_18 = io_commitUpdatePort_physReg;
       end
@@ -57845,7 +58474,7 @@ module RenameMapTable (
 
   always @(*) begin
     nextAratMapRegMapping_19 = aratMapReg_mapping_19;
-    if(when_RenameMapTable_l149) begin
+    if(when_RenameMapTable_l157) begin
       if(_zz_2[19]) begin
         nextAratMapRegMapping_19 = io_commitUpdatePort_physReg;
       end
@@ -57854,7 +58483,7 @@ module RenameMapTable (
 
   always @(*) begin
     nextAratMapRegMapping_20 = aratMapReg_mapping_20;
-    if(when_RenameMapTable_l149) begin
+    if(when_RenameMapTable_l157) begin
       if(_zz_2[20]) begin
         nextAratMapRegMapping_20 = io_commitUpdatePort_physReg;
       end
@@ -57863,7 +58492,7 @@ module RenameMapTable (
 
   always @(*) begin
     nextAratMapRegMapping_21 = aratMapReg_mapping_21;
-    if(when_RenameMapTable_l149) begin
+    if(when_RenameMapTable_l157) begin
       if(_zz_2[21]) begin
         nextAratMapRegMapping_21 = io_commitUpdatePort_physReg;
       end
@@ -57872,7 +58501,7 @@ module RenameMapTable (
 
   always @(*) begin
     nextAratMapRegMapping_22 = aratMapReg_mapping_22;
-    if(when_RenameMapTable_l149) begin
+    if(when_RenameMapTable_l157) begin
       if(_zz_2[22]) begin
         nextAratMapRegMapping_22 = io_commitUpdatePort_physReg;
       end
@@ -57881,7 +58510,7 @@ module RenameMapTable (
 
   always @(*) begin
     nextAratMapRegMapping_23 = aratMapReg_mapping_23;
-    if(when_RenameMapTable_l149) begin
+    if(when_RenameMapTable_l157) begin
       if(_zz_2[23]) begin
         nextAratMapRegMapping_23 = io_commitUpdatePort_physReg;
       end
@@ -57890,7 +58519,7 @@ module RenameMapTable (
 
   always @(*) begin
     nextAratMapRegMapping_24 = aratMapReg_mapping_24;
-    if(when_RenameMapTable_l149) begin
+    if(when_RenameMapTable_l157) begin
       if(_zz_2[24]) begin
         nextAratMapRegMapping_24 = io_commitUpdatePort_physReg;
       end
@@ -57899,7 +58528,7 @@ module RenameMapTable (
 
   always @(*) begin
     nextAratMapRegMapping_25 = aratMapReg_mapping_25;
-    if(when_RenameMapTable_l149) begin
+    if(when_RenameMapTable_l157) begin
       if(_zz_2[25]) begin
         nextAratMapRegMapping_25 = io_commitUpdatePort_physReg;
       end
@@ -57908,7 +58537,7 @@ module RenameMapTable (
 
   always @(*) begin
     nextAratMapRegMapping_26 = aratMapReg_mapping_26;
-    if(when_RenameMapTable_l149) begin
+    if(when_RenameMapTable_l157) begin
       if(_zz_2[26]) begin
         nextAratMapRegMapping_26 = io_commitUpdatePort_physReg;
       end
@@ -57917,7 +58546,7 @@ module RenameMapTable (
 
   always @(*) begin
     nextAratMapRegMapping_27 = aratMapReg_mapping_27;
-    if(when_RenameMapTable_l149) begin
+    if(when_RenameMapTable_l157) begin
       if(_zz_2[27]) begin
         nextAratMapRegMapping_27 = io_commitUpdatePort_physReg;
       end
@@ -57926,7 +58555,7 @@ module RenameMapTable (
 
   always @(*) begin
     nextAratMapRegMapping_28 = aratMapReg_mapping_28;
-    if(when_RenameMapTable_l149) begin
+    if(when_RenameMapTable_l157) begin
       if(_zz_2[28]) begin
         nextAratMapRegMapping_28 = io_commitUpdatePort_physReg;
       end
@@ -57935,7 +58564,7 @@ module RenameMapTable (
 
   always @(*) begin
     nextAratMapRegMapping_29 = aratMapReg_mapping_29;
-    if(when_RenameMapTable_l149) begin
+    if(when_RenameMapTable_l157) begin
       if(_zz_2[29]) begin
         nextAratMapRegMapping_29 = io_commitUpdatePort_physReg;
       end
@@ -57944,7 +58573,7 @@ module RenameMapTable (
 
   always @(*) begin
     nextAratMapRegMapping_30 = aratMapReg_mapping_30;
-    if(when_RenameMapTable_l149) begin
+    if(when_RenameMapTable_l157) begin
       if(_zz_2[30]) begin
         nextAratMapRegMapping_30 = io_commitUpdatePort_physReg;
       end
@@ -57953,14 +58582,14 @@ module RenameMapTable (
 
   always @(*) begin
     nextAratMapRegMapping_31 = aratMapReg_mapping_31;
-    if(when_RenameMapTable_l149) begin
+    if(when_RenameMapTable_l157) begin
       if(_zz_2[31]) begin
         nextAratMapRegMapping_31 = io_commitUpdatePort_physReg;
       end
     end
   end
 
-  assign when_RenameMapTable_l149 = (io_commitUpdatePort_wen && (io_commitUpdatePort_archReg != 5'h0));
+  assign when_RenameMapTable_l157 = (io_commitUpdatePort_wen && (io_commitUpdatePort_archReg != 5'h0));
   assign _zz_2 = ({31'd0,1'b1} <<< io_commitUpdatePort_archReg);
   assign io_checkpointRestore_ready = 1'b1;
   assign io_checkpointSave_ready = 1'b1;
@@ -58063,6 +58692,17 @@ module RenameMapTable (
       rratMapReg_mapping_30 <= 6'h1e;
       rratMapReg_mapping_31 <= 6'h1f;
     end else begin
+      if(io_checkpointRestore_valid) begin
+        `ifndef SYNTHESIS
+          `ifdef FORMAL
+            assert(1'b0); // RenameMapTable.scala:L143
+          `else
+            if(!1'b0) begin
+              $display("NOTE(RenameMapTable.scala:143):  [notice ] <null>     [33m[RegRes|RAT] Restore to ARAT[0m"); // RenameMapTable.scala:L143
+            end
+          `endif
+        `endif
+      end
       rratMapReg_mapping_0 <= nextRratMapRegMapping_0;
       rratMapReg_mapping_1 <= nextRratMapRegMapping_1;
       rratMapReg_mapping_2 <= nextRratMapRegMapping_2;
@@ -58223,18 +58863,18 @@ module ReorderBuffer (
   input  wire          io_allocate_0_uopIn_rename_oldPhysDestIsFpr,
   input  wire          io_allocate_0_uopIn_rename_allocatesPhysDest,
   input  wire          io_allocate_0_uopIn_rename_writesToPhysReg,
-  input  wire [3:0]    io_allocate_0_uopIn_robPtr,
+  input  wire [2:0]    io_allocate_0_uopIn_robPtr,
   input  wire [15:0]   io_allocate_0_uopIn_uniqueId,
   input  wire          io_allocate_0_uopIn_dispatched,
   input  wire          io_allocate_0_uopIn_executed,
   input  wire          io_allocate_0_uopIn_hasException,
   input  wire [7:0]    io_allocate_0_uopIn_exceptionCode,
   input  wire [31:0]   io_allocate_0_pcIn,
-  output wire [3:0]    io_allocate_0_robPtr,
+  output wire [2:0]    io_allocate_0_robPtr,
   output wire          io_allocate_0_ready,
   output wire          io_canAllocate_0,
   input  wire          io_writeback_0_fire,
-  input  wire [3:0]    io_writeback_0_robPtr,
+  input  wire [2:0]    io_writeback_0_robPtr,
   input  wire          io_writeback_0_isTaken,
   input  wire          io_writeback_0_isMispredictedBranch,
   input  wire [31:0]   io_writeback_0_targetPc,
@@ -58242,7 +58882,7 @@ module ReorderBuffer (
   input  wire          io_writeback_0_exceptionOccurred,
   input  wire [7:0]    io_writeback_0_exceptionCodeIn,
   input  wire          io_writeback_1_fire,
-  input  wire [3:0]    io_writeback_1_robPtr,
+  input  wire [2:0]    io_writeback_1_robPtr,
   input  wire          io_writeback_1_isTaken,
   input  wire          io_writeback_1_isMispredictedBranch,
   input  wire [31:0]   io_writeback_1_targetPc,
@@ -58250,7 +58890,7 @@ module ReorderBuffer (
   input  wire          io_writeback_1_exceptionOccurred,
   input  wire [7:0]    io_writeback_1_exceptionCodeIn,
   input  wire          io_writeback_2_fire,
-  input  wire [3:0]    io_writeback_2_robPtr,
+  input  wire [2:0]    io_writeback_2_robPtr,
   input  wire          io_writeback_2_isTaken,
   input  wire          io_writeback_2_isMispredictedBranch,
   input  wire [31:0]   io_writeback_2_targetPc,
@@ -58258,7 +58898,7 @@ module ReorderBuffer (
   input  wire          io_writeback_2_exceptionOccurred,
   input  wire [7:0]    io_writeback_2_exceptionCodeIn,
   input  wire          io_writeback_3_fire,
-  input  wire [3:0]    io_writeback_3_robPtr,
+  input  wire [2:0]    io_writeback_3_robPtr,
   input  wire          io_writeback_3_isTaken,
   input  wire          io_writeback_3_isMispredictedBranch,
   input  wire [31:0]   io_writeback_3_targetPc,
@@ -58266,7 +58906,7 @@ module ReorderBuffer (
   input  wire          io_writeback_3_exceptionOccurred,
   input  wire [7:0]    io_writeback_3_exceptionCodeIn,
   input  wire          io_writeback_4_fire,
-  input  wire [3:0]    io_writeback_4_robPtr,
+  input  wire [2:0]    io_writeback_4_robPtr,
   input  wire          io_writeback_4_isTaken,
   input  wire          io_writeback_4_isMispredictedBranch,
   input  wire [31:0]   io_writeback_4_targetPc,
@@ -58363,7 +59003,7 @@ module ReorderBuffer (
   output wire          io_commit_0_entry_payload_uop_rename_oldPhysDestIsFpr,
   output wire          io_commit_0_entry_payload_uop_rename_allocatesPhysDest,
   output wire          io_commit_0_entry_payload_uop_rename_writesToPhysReg,
-  output wire [3:0]    io_commit_0_entry_payload_uop_robPtr,
+  output wire [2:0]    io_commit_0_entry_payload_uop_robPtr,
   output wire [15:0]   io_commit_0_entry_payload_uop_uniqueId,
   output wire          io_commit_0_entry_payload_uop_dispatched,
   output wire          io_commit_0_entry_payload_uop_executed,
@@ -58383,12 +59023,12 @@ module ReorderBuffer (
   input  wire          io_commitAck_0,
   input  wire          io_flush_valid,
   input  wire [1:0]    io_flush_payload_reason,
-  input  wire [3:0]    io_flush_payload_targetRobPtr,
+  input  wire [2:0]    io_flush_payload_targetRobPtr,
   output reg           io_flushed,
   output wire          io_empty,
-  output wire [3:0]    io_headPtrOut,
-  output wire [3:0]    io_tailPtrOut,
-  output wire [3:0]    io_countOut,
+  output wire [2:0]    io_headPtrOut,
+  output wire [2:0]    io_tailPtrOut,
+  output wire [2:0]    io_countOut,
   input  wire          clk,
   input  wire          reset
 );
@@ -58479,8 +59119,8 @@ module ReorderBuffer (
   localparam FlushReason_FULL_FLUSH = 2'd1;
   localparam FlushReason_ROLLBACK_TO_ROB_IDX = 2'd2;
 
-  wire       [376:0]  payloads_spinal_port0;
-  wire       [3:0]    _zz__zz_io_allocate_0_ready;
+  wire       [375:0]  payloads_spinal_port0;
+  wire       [2:0]    _zz__zz_io_allocate_0_ready;
   reg        [0:0]    _zz_numActuallyAllocatedThisCycle;
   wire       [0:0]    _zz_numActuallyAllocatedThisCycle_1;
   reg                 _zz__zz_io_commit_0_entry_status_done;
@@ -58499,14 +59139,14 @@ module ReorderBuffer (
   reg                 _zz_io_commit_0_entry_status_pendingRetirement;
   reg        [0:0]    _zz_numToCommit;
   wire       [0:0]    _zz_numToCommit_1;
-  wire       [3:0]    _zz_nextHead;
-  wire       [3:0]    _zz_nextTail;
-  wire       [3:0]    _zz_nextCount_1;
-  wire       [3:0]    _zz_nextCount_2;
-  wire       [3:0]    _zz_nextCount_3;
-  wire       [4:0]    _zz__zz_nextCount;
-  wire       [4:0]    _zz__zz_nextCount_1;
-  wire       [376:0]  _zz_payloads_port;
+  wire       [2:0]    _zz_nextHead;
+  wire       [2:0]    _zz_nextTail;
+  wire       [2:0]    _zz_nextCount_1;
+  wire       [2:0]    _zz_nextCount_2;
+  wire       [2:0]    _zz_nextCount_3;
+  wire       [3:0]    _zz__zz_nextCount;
+  wire       [3:0]    _zz__zz_nextCount_1;
+  wire       [375:0]  _zz_payloads_port;
   reg                 _zz_when_ReorderBuffer_l395_5;
   reg        [7:0]    _zz__zz_statuses_0_exceptionCode;
   reg                 _zz_when_ReorderBuffer_l395_1_1;
@@ -58517,26 +59157,14 @@ module ReorderBuffer (
   reg        [7:0]    _zz__zz_statuses_0_exceptionCode_3;
   reg                 _zz_when_ReorderBuffer_l395_4_1;
   reg        [7:0]    _zz__zz_statuses_0_exceptionCode_4;
-  wire       [3:0]    _zz__zz_when_ReorderBuffer_l439_3;
+  wire       [2:0]    _zz__zz_when_ReorderBuffer_l439_3;
   reg                 _zz__zz_when_ReorderBuffer_l439_3_1;
-  wire       [3:0]    _zz__zz_when_ReorderBuffer_l439_7;
+  wire       [2:0]    _zz__zz_when_ReorderBuffer_l439_7;
   reg                 _zz__zz_when_ReorderBuffer_l439_7_1;
-  wire       [3:0]    _zz__zz_when_ReorderBuffer_l439_11;
+  wire       [2:0]    _zz__zz_when_ReorderBuffer_l439_11;
   reg                 _zz__zz_when_ReorderBuffer_l439_11_1;
-  wire       [3:0]    _zz__zz_when_ReorderBuffer_l439_15;
+  wire       [2:0]    _zz__zz_when_ReorderBuffer_l439_15;
   reg                 _zz__zz_when_ReorderBuffer_l439_15_1;
-  wire       [3:0]    _zz__zz_when_ReorderBuffer_l439_19;
-  reg                 _zz__zz_when_ReorderBuffer_l439_19_1;
-  wire       [3:0]    _zz__zz_when_ReorderBuffer_l439_23;
-  reg                 _zz__zz_when_ReorderBuffer_l439_23_1;
-  wire       [3:0]    _zz__zz_when_ReorderBuffer_l439_27;
-  reg                 _zz__zz_when_ReorderBuffer_l439_27_1;
-  wire       [3:0]    _zz__zz_when_ReorderBuffer_l439_31;
-  reg                 _zz__zz_when_ReorderBuffer_l439_31_1;
-  wire       [4:0]    _zz_debg_expected_count;
-  wire       [4:0]    _zz_debg_expected_count_1;
-  wire       [4:0]    _zz_debg_expected_count_2;
-  wire       [4:0]    _zz_debg_expected_count_3;
   reg                 _zz_1;
   reg                 statuses_0_busy;
   reg                 statuses_0_done;
@@ -58578,49 +59206,9 @@ module ReorderBuffer (
   reg        [7:0]    statuses_3_exceptionCode;
   reg                 statuses_3_pendingRetirement;
   reg                 statuses_3_genBit;
-  reg                 statuses_4_busy;
-  reg                 statuses_4_done;
-  reg                 statuses_4_isMispredictedBranch;
-  reg        [31:0]   statuses_4_targetPc;
-  reg                 statuses_4_isTaken;
-  reg        [31:0]   statuses_4_result;
-  reg                 statuses_4_hasException;
-  reg        [7:0]    statuses_4_exceptionCode;
-  reg                 statuses_4_pendingRetirement;
-  reg                 statuses_4_genBit;
-  reg                 statuses_5_busy;
-  reg                 statuses_5_done;
-  reg                 statuses_5_isMispredictedBranch;
-  reg        [31:0]   statuses_5_targetPc;
-  reg                 statuses_5_isTaken;
-  reg        [31:0]   statuses_5_result;
-  reg                 statuses_5_hasException;
-  reg        [7:0]    statuses_5_exceptionCode;
-  reg                 statuses_5_pendingRetirement;
-  reg                 statuses_5_genBit;
-  reg                 statuses_6_busy;
-  reg                 statuses_6_done;
-  reg                 statuses_6_isMispredictedBranch;
-  reg        [31:0]   statuses_6_targetPc;
-  reg                 statuses_6_isTaken;
-  reg        [31:0]   statuses_6_result;
-  reg                 statuses_6_hasException;
-  reg        [7:0]    statuses_6_exceptionCode;
-  reg                 statuses_6_pendingRetirement;
-  reg                 statuses_6_genBit;
-  reg                 statuses_7_busy;
-  reg                 statuses_7_done;
-  reg                 statuses_7_isMispredictedBranch;
-  reg        [31:0]   statuses_7_targetPc;
-  reg                 statuses_7_isTaken;
-  reg        [31:0]   statuses_7_result;
-  reg                 statuses_7_hasException;
-  reg        [7:0]    statuses_7_exceptionCode;
-  reg                 statuses_7_pendingRetirement;
-  reg                 statuses_7_genBit;
-  reg        [3:0]    headPtr_reg;
-  reg        [3:0]    tailPtr_reg;
-  reg        [3:0]    count_reg;
+  reg        [2:0]    headPtr_reg;
+  reg        [2:0]    tailPtr_reg;
+  reg        [2:0]    count_reg;
   wire                slotWillAllocate_0;
   wire                _zz_io_allocate_0_ready;
   wire       [0:0]    numActuallyAllocatedThisCycle;
@@ -58628,8 +59216,8 @@ module ReorderBuffer (
   reg                 flushWasActiveLastCycle;
   wire                canCommitFlags_0;
   wire                actualCommittedMask_0;
-  wire       [3:0]    _zz_canCommitFlags_0;
-  wire       [2:0]    _zz_io_commit_0_entry_status_busy;
+  wire       [2:0]    _zz_canCommitFlags_0;
+  wire       [1:0]    _zz_io_commit_0_entry_status_busy;
   wire                _zz_io_commit_0_entry_status_done;
   wire                _zz_io_commit_0_entry_status_genBit;
   wire       [4:0]    _zz_io_commit_0_entry_payload_uop_decoded_uopCode;
@@ -58648,8 +59236,8 @@ module ReorderBuffer (
   wire       [1:0]    _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeSrc2;
   wire       [1:0]    _zz_io_commit_0_entry_payload_uop_decoded_fpuCtrl_fpSizeDest;
   wire       [1:0]    _zz_io_commit_0_entry_payload_uop_decoded_decodeExceptionCode;
-  wire       [376:0]  _zz_io_commit_0_entry_payload_pc;
-  wire       [344:0]  _zz_io_commit_0_entry_payload_uop_robPtr;
+  wire       [375:0]  _zz_io_commit_0_entry_payload_pc;
+  wire       [343:0]  _zz_io_commit_0_entry_payload_uop_robPtr;
   wire       [283:0]  _zz_io_commit_0_entry_payload_uop_decoded_pc;
   wire       [4:0]    _zz_io_commit_0_entry_payload_uop_decoded_uopCode_1;
   wire       [3:0]    _zz_io_commit_0_entry_payload_uop_decoded_exeUnit_1;
@@ -58683,15 +59271,15 @@ module ReorderBuffer (
   wire       [29:0]   _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx;
   wire       [0:0]    numToCommit;
   wire                when_ReorderBuffer_l305;
-  reg        [3:0]    nextHead;
-  reg        [3:0]    nextTail;
-  reg        [3:0]    nextCount;
-  reg        [4:0]    _zz_nextCount;
-  wire       [4:0]    _zz_when_ReorderBuffer_l341;
-  wire       [4:0]    _zz_when_ReorderBuffer_l341_1;
+  reg        [2:0]    nextHead;
+  reg        [2:0]    nextTail;
+  reg        [2:0]    nextCount;
+  reg        [3:0]    _zz_nextCount;
+  wire       [3:0]    _zz_when_ReorderBuffer_l341;
+  wire       [3:0]    _zz_when_ReorderBuffer_l341_1;
   wire                when_ReorderBuffer_l341;
-  wire       [3:0]    _zz_statuses_0_genBit;
-  wire       [2:0]    _zz_3;
+  wire       [2:0]    _zz_statuses_0_genBit;
+  wire       [1:0]    _zz_3;
   wire                _zz_statuses_0_genBit_1;
   wire       [31:0]   _zz_4;
   wire                _zz_5;
@@ -58781,206 +59369,102 @@ module ReorderBuffer (
   wire                _zz_89;
   wire                _zz_90;
   wire                _zz_91;
-  reg        [3:0]    _zz_92;
+  reg        [2:0]    _zz_92;
   wire       [15:0]   _zz_93;
   wire                _zz_94;
   wire                _zz_95;
   wire                _zz_96;
   wire       [7:0]    _zz_97;
   wire       [31:0]   _zz_98;
-  wire       [7:0]    _zz_99;
+  wire       [3:0]    _zz_99;
   wire                _zz_100;
   wire                _zz_101;
   wire                _zz_102;
   wire                _zz_103;
-  wire                _zz_104;
-  wire                _zz_105;
+  wire       [1:0]    _zz_when_ReorderBuffer_l395;
+  wire       [3:0]    _zz_105;
   wire                _zz_106;
   wire                _zz_107;
-  wire       [2:0]    _zz_when_ReorderBuffer_l395;
-  wire       [7:0]    _zz_109;
-  wire                _zz_110;
+  wire                _zz_108;
+  wire                _zz_109;
+  wire                when_ReorderBuffer_l395;
+  wire       [7:0]    _zz_statuses_0_exceptionCode;
+  wire       [1:0]    _zz_when_ReorderBuffer_l395_1;
+  wire       [3:0]    _zz_110;
   wire                _zz_111;
   wire                _zz_112;
   wire                _zz_113;
   wire                _zz_114;
-  wire                _zz_115;
+  wire                when_ReorderBuffer_l395_1;
+  wire       [7:0]    _zz_statuses_0_exceptionCode_1;
+  wire       [1:0]    _zz_when_ReorderBuffer_l395_2;
+  wire       [3:0]    _zz_115;
   wire                _zz_116;
   wire                _zz_117;
-  wire                when_ReorderBuffer_l395;
-  wire       [7:0]    _zz_statuses_0_exceptionCode;
-  wire       [2:0]    _zz_when_ReorderBuffer_l395_1;
-  wire       [7:0]    _zz_118;
+  wire                _zz_118;
   wire                _zz_119;
-  wire                _zz_120;
+  wire                when_ReorderBuffer_l395_2;
+  wire       [7:0]    _zz_statuses_0_exceptionCode_2;
+  wire       [1:0]    _zz_when_ReorderBuffer_l395_3;
+  wire       [3:0]    _zz_120;
   wire                _zz_121;
   wire                _zz_122;
   wire                _zz_123;
   wire                _zz_124;
-  wire                _zz_125;
+  wire                when_ReorderBuffer_l395_3;
+  wire       [7:0]    _zz_statuses_0_exceptionCode_3;
+  wire       [1:0]    _zz_when_ReorderBuffer_l395_4;
+  wire       [3:0]    _zz_125;
   wire                _zz_126;
-  wire                when_ReorderBuffer_l395_1;
-  wire       [7:0]    _zz_statuses_0_exceptionCode_1;
-  wire       [2:0]    _zz_when_ReorderBuffer_l395_2;
-  wire       [7:0]    _zz_127;
+  wire                _zz_127;
   wire                _zz_128;
   wire                _zz_129;
-  wire                _zz_130;
+  wire                when_ReorderBuffer_l395_4;
+  wire       [7:0]    _zz_statuses_0_exceptionCode_4;
+  wire       [1:0]    _zz_when_ReorderBuffer_l439;
+  wire       [3:0]    _zz_130;
   wire                _zz_131;
   wire                _zz_132;
   wire                _zz_133;
   wire                _zz_134;
-  wire                _zz_135;
-  wire                when_ReorderBuffer_l395_2;
-  wire       [7:0]    _zz_statuses_0_exceptionCode_2;
-  wire       [2:0]    _zz_when_ReorderBuffer_l395_3;
-  wire       [7:0]    _zz_136;
+  wire       [3:0]    _zz_when_ReorderBuffer_l439_1;
+  wire       [3:0]    _zz_when_ReorderBuffer_l439_2;
+  wire       [3:0]    _zz_when_ReorderBuffer_l439_3;
+  reg                 when_ReorderBuffer_l439;
+  wire                when_ReorderBuffer_l433;
+  wire       [1:0]    _zz_when_ReorderBuffer_l439_4;
+  wire       [3:0]    _zz_135;
+  wire                _zz_136;
   wire                _zz_137;
   wire                _zz_138;
   wire                _zz_139;
-  wire                _zz_140;
+  wire       [3:0]    _zz_when_ReorderBuffer_l439_5;
+  wire       [3:0]    _zz_when_ReorderBuffer_l439_6;
+  wire       [3:0]    _zz_when_ReorderBuffer_l439_7;
+  reg                 when_ReorderBuffer_l439_1;
+  wire                when_ReorderBuffer_l433_1;
+  wire       [1:0]    _zz_when_ReorderBuffer_l439_8;
+  wire       [3:0]    _zz_140;
   wire                _zz_141;
   wire                _zz_142;
   wire                _zz_143;
   wire                _zz_144;
-  wire                when_ReorderBuffer_l395_3;
-  wire       [7:0]    _zz_statuses_0_exceptionCode_3;
-  wire       [2:0]    _zz_when_ReorderBuffer_l395_4;
-  wire       [7:0]    _zz_145;
+  wire       [3:0]    _zz_when_ReorderBuffer_l439_9;
+  wire       [3:0]    _zz_when_ReorderBuffer_l439_10;
+  wire       [3:0]    _zz_when_ReorderBuffer_l439_11;
+  reg                 when_ReorderBuffer_l439_2;
+  wire                when_ReorderBuffer_l433_2;
+  wire       [1:0]    _zz_when_ReorderBuffer_l439_12;
+  wire       [3:0]    _zz_145;
   wire                _zz_146;
   wire                _zz_147;
   wire                _zz_148;
   wire                _zz_149;
-  wire                _zz_150;
-  wire                _zz_151;
-  wire                _zz_152;
-  wire                _zz_153;
-  wire                when_ReorderBuffer_l395_4;
-  wire       [7:0]    _zz_statuses_0_exceptionCode_4;
-  wire       [2:0]    _zz_when_ReorderBuffer_l439;
-  wire       [7:0]    _zz_154;
-  wire                _zz_155;
-  wire                _zz_156;
-  wire                _zz_157;
-  wire                _zz_158;
-  wire                _zz_159;
-  wire                _zz_160;
-  wire                _zz_161;
-  wire                _zz_162;
-  wire       [4:0]    _zz_when_ReorderBuffer_l439_1;
-  wire       [4:0]    _zz_when_ReorderBuffer_l439_2;
-  wire       [4:0]    _zz_when_ReorderBuffer_l439_3;
-  reg                 when_ReorderBuffer_l439;
-  wire                when_ReorderBuffer_l433;
-  wire       [2:0]    _zz_when_ReorderBuffer_l439_4;
-  wire       [7:0]    _zz_163;
-  wire                _zz_164;
-  wire                _zz_165;
-  wire                _zz_166;
-  wire                _zz_167;
-  wire                _zz_168;
-  wire                _zz_169;
-  wire                _zz_170;
-  wire                _zz_171;
-  wire       [4:0]    _zz_when_ReorderBuffer_l439_5;
-  wire       [4:0]    _zz_when_ReorderBuffer_l439_6;
-  wire       [4:0]    _zz_when_ReorderBuffer_l439_7;
-  reg                 when_ReorderBuffer_l439_1;
-  wire                when_ReorderBuffer_l433_1;
-  wire       [2:0]    _zz_when_ReorderBuffer_l439_8;
-  wire       [7:0]    _zz_172;
-  wire                _zz_173;
-  wire                _zz_174;
-  wire                _zz_175;
-  wire                _zz_176;
-  wire                _zz_177;
-  wire                _zz_178;
-  wire                _zz_179;
-  wire                _zz_180;
-  wire       [4:0]    _zz_when_ReorderBuffer_l439_9;
-  wire       [4:0]    _zz_when_ReorderBuffer_l439_10;
-  wire       [4:0]    _zz_when_ReorderBuffer_l439_11;
-  reg                 when_ReorderBuffer_l439_2;
-  wire                when_ReorderBuffer_l433_2;
-  wire       [2:0]    _zz_when_ReorderBuffer_l439_12;
-  wire       [7:0]    _zz_181;
-  wire                _zz_182;
-  wire                _zz_183;
-  wire                _zz_184;
-  wire                _zz_185;
-  wire                _zz_186;
-  wire                _zz_187;
-  wire                _zz_188;
-  wire                _zz_189;
-  wire       [4:0]    _zz_when_ReorderBuffer_l439_13;
-  wire       [4:0]    _zz_when_ReorderBuffer_l439_14;
-  wire       [4:0]    _zz_when_ReorderBuffer_l439_15;
+  wire       [3:0]    _zz_when_ReorderBuffer_l439_13;
+  wire       [3:0]    _zz_when_ReorderBuffer_l439_14;
+  wire       [3:0]    _zz_when_ReorderBuffer_l439_15;
   reg                 when_ReorderBuffer_l439_3;
   wire                when_ReorderBuffer_l433_3;
-  wire       [2:0]    _zz_when_ReorderBuffer_l439_16;
-  wire       [7:0]    _zz_190;
-  wire                _zz_191;
-  wire                _zz_192;
-  wire                _zz_193;
-  wire                _zz_194;
-  wire                _zz_195;
-  wire                _zz_196;
-  wire                _zz_197;
-  wire                _zz_198;
-  wire       [4:0]    _zz_when_ReorderBuffer_l439_17;
-  wire       [4:0]    _zz_when_ReorderBuffer_l439_18;
-  wire       [4:0]    _zz_when_ReorderBuffer_l439_19;
-  reg                 when_ReorderBuffer_l439_4;
-  wire                when_ReorderBuffer_l433_4;
-  wire       [2:0]    _zz_when_ReorderBuffer_l439_20;
-  wire       [7:0]    _zz_199;
-  wire                _zz_200;
-  wire                _zz_201;
-  wire                _zz_202;
-  wire                _zz_203;
-  wire                _zz_204;
-  wire                _zz_205;
-  wire                _zz_206;
-  wire                _zz_207;
-  wire       [4:0]    _zz_when_ReorderBuffer_l439_21;
-  wire       [4:0]    _zz_when_ReorderBuffer_l439_22;
-  wire       [4:0]    _zz_when_ReorderBuffer_l439_23;
-  reg                 when_ReorderBuffer_l439_5;
-  wire                when_ReorderBuffer_l433_5;
-  wire       [2:0]    _zz_when_ReorderBuffer_l439_24;
-  wire       [7:0]    _zz_208;
-  wire                _zz_209;
-  wire                _zz_210;
-  wire                _zz_211;
-  wire                _zz_212;
-  wire                _zz_213;
-  wire                _zz_214;
-  wire                _zz_215;
-  wire                _zz_216;
-  wire       [4:0]    _zz_when_ReorderBuffer_l439_25;
-  wire       [4:0]    _zz_when_ReorderBuffer_l439_26;
-  wire       [4:0]    _zz_when_ReorderBuffer_l439_27;
-  reg                 when_ReorderBuffer_l439_6;
-  wire                when_ReorderBuffer_l433_6;
-  wire       [2:0]    _zz_when_ReorderBuffer_l439_28;
-  wire       [7:0]    _zz_217;
-  wire                _zz_218;
-  wire                _zz_219;
-  wire                _zz_220;
-  wire                _zz_221;
-  wire                _zz_222;
-  wire                _zz_223;
-  wire                _zz_224;
-  wire                _zz_225;
-  wire       [4:0]    _zz_when_ReorderBuffer_l439_29;
-  wire       [4:0]    _zz_when_ReorderBuffer_l439_30;
-  wire       [4:0]    _zz_when_ReorderBuffer_l439_31;
-  reg                 when_ReorderBuffer_l439_7;
-  wire                when_ReorderBuffer_l433_7;
-  reg        [3:0]    debg_expected_count;
-  wire       [4:0]    debg_head_ext;
-  wire       [4:0]    debg_tail_ext;
-  wire                when_ReorderBuffer_l469;
   `ifndef SYNTHESIS
   reg [87:0] io_allocate_0_uopIn_decoded_uopCode_string;
   reg [151:0] io_allocate_0_uopIn_decoded_exeUnit_string;
@@ -59065,32 +59549,24 @@ module ReorderBuffer (
   reg [95:0] _zz_73_string;
   `endif
 
-  (* ram_style = "distributed" *) reg [376:0] payloads [0:7];
+  (* ram_style = "distributed" *) reg [375:0] payloads [0:3];
 
-  assign _zz__zz_io_allocate_0_ready = (count_reg + 4'b0000);
+  assign _zz__zz_io_allocate_0_ready = (count_reg + 3'b000);
   assign _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx_1 = _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx[5 : 0];
   assign _zz_io_commit_0_entry_payload_uop_rename_physSrc2_idx = _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx[12 : 7];
   assign _zz_io_commit_0_entry_payload_uop_rename_physDest_idx = _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx[19 : 14];
   assign _zz_io_commit_0_entry_payload_uop_rename_oldPhysDest_idx = _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx[26 : 21];
-  assign _zz_nextHead = {3'd0, numToCommit};
-  assign _zz_nextTail = {3'd0, numActuallyAllocatedThisCycle};
+  assign _zz_nextHead = {2'd0, numToCommit};
+  assign _zz_nextTail = {2'd0, numActuallyAllocatedThisCycle};
   assign _zz_nextCount_1 = (count_reg + _zz_nextCount_2);
-  assign _zz_nextCount_2 = {3'd0, numActuallyAllocatedThisCycle};
-  assign _zz_nextCount_3 = {3'd0, numToCommit};
+  assign _zz_nextCount_2 = {2'd0, numActuallyAllocatedThisCycle};
+  assign _zz_nextCount_3 = {2'd0, numToCommit};
   assign _zz__zz_nextCount = (_zz_when_ReorderBuffer_l341_1 - _zz_when_ReorderBuffer_l341);
-  assign _zz__zz_nextCount_1 = ({4'd0,1'b1} <<< 3'd4);
+  assign _zz__zz_nextCount_1 = ({3'd0,1'b1} <<< 2'd3);
   assign _zz__zz_when_ReorderBuffer_l439_3 = {_zz__zz_when_ReorderBuffer_l439_3_1,_zz_when_ReorderBuffer_l439};
   assign _zz__zz_when_ReorderBuffer_l439_7 = {_zz__zz_when_ReorderBuffer_l439_7_1,_zz_when_ReorderBuffer_l439_4};
   assign _zz__zz_when_ReorderBuffer_l439_11 = {_zz__zz_when_ReorderBuffer_l439_11_1,_zz_when_ReorderBuffer_l439_8};
   assign _zz__zz_when_ReorderBuffer_l439_15 = {_zz__zz_when_ReorderBuffer_l439_15_1,_zz_when_ReorderBuffer_l439_12};
-  assign _zz__zz_when_ReorderBuffer_l439_19 = {_zz__zz_when_ReorderBuffer_l439_19_1,_zz_when_ReorderBuffer_l439_16};
-  assign _zz__zz_when_ReorderBuffer_l439_23 = {_zz__zz_when_ReorderBuffer_l439_23_1,_zz_when_ReorderBuffer_l439_20};
-  assign _zz__zz_when_ReorderBuffer_l439_27 = {_zz__zz_when_ReorderBuffer_l439_27_1,_zz_when_ReorderBuffer_l439_24};
-  assign _zz__zz_when_ReorderBuffer_l439_31 = {_zz__zz_when_ReorderBuffer_l439_31_1,_zz_when_ReorderBuffer_l439_28};
-  assign _zz_debg_expected_count = (debg_tail_ext - debg_head_ext);
-  assign _zz_debg_expected_count_1 = (_zz_debg_expected_count_2 - debg_head_ext);
-  assign _zz_debg_expected_count_2 = (debg_tail_ext + _zz_debg_expected_count_3);
-  assign _zz_debg_expected_count_3 = ({4'd0,1'b1} <<< 3'd4);
   assign _zz_payloads_port = {_zz_98,{_zz_97,{_zz_96,{_zz_95,{_zz_94,{_zz_93,{_zz_92,{{_zz_91,{_zz_90,{_zz_89,{_zz_88,{_zz_87,{_zz_86,{_zz_85,{_zz_84,{_zz_83,_zz_82}}}}}}}}},{{_zz_81,{_zz_80,_zz_79}},{_zz_78,{_zz_77,{_zz_76,{_zz_75,{_zz_74,{_zz_73,{{_zz_72,{_zz_71,{_zz_70,_zz_69}}},{{_zz_68,{_zz_67,{_zz_66,{_zz_65,_zz_64}}}},{{_zz_63,{_zz_62,{_zz_61,{_zz_60,{_zz_59,{_zz_58,{_zz_57,{_zz_56,_zz_55}}}}}}}},{{_zz_54,{_zz_53,{{_zz_52,_zz_51},{_zz_50,{_zz_49,_zz_48}}}}},{{_zz_47,{_zz_46,{_zz_45,{_zz_44,{_zz_43,{_zz_42,{_zz_41,{_zz_40,{_zz_39,{_zz_38,_zz_37}}}}}}}}}},{{_zz_36,{_zz_35,{_zz_34,_zz_33}}},{{_zz_32,{_zz_31,{_zz_30,{_zz_29,_zz_28}}}},{{_zz_27,{_zz_26,{_zz_25,{_zz_24,{_zz_23,_zz_22}}}}},{_zz_21,{_zz_20,{_zz_19,{_zz_18,{_zz_17,{{_zz_16,_zz_15},{_zz_14,{{_zz_13,_zz_12},{_zz_11,{{_zz_10,_zz_9},{_zz_8,{_zz_7,{_zz_6,{_zz_5,_zz_4}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}};
   assign _zz_numActuallyAllocatedThisCycle_1 = slotWillAllocate_0;
   assign _zz_numToCommit_1 = actualCommittedMask_0;
@@ -59110,7 +59586,7 @@ module ReorderBuffer (
 
   always @(*) begin
     case(_zz_io_commit_0_entry_status_busy)
-      3'b000 : begin
+      2'b00 : begin
         _zz__zz_io_commit_0_entry_status_done = statuses_0_done;
         _zz__zz_io_commit_0_entry_status_genBit = statuses_0_genBit;
         _zz_io_commit_0_entry_status_busy_1 = statuses_0_busy;
@@ -59122,7 +59598,7 @@ module ReorderBuffer (
         _zz_io_commit_0_entry_status_exceptionCode = statuses_0_exceptionCode;
         _zz_io_commit_0_entry_status_pendingRetirement = statuses_0_pendingRetirement;
       end
-      3'b001 : begin
+      2'b01 : begin
         _zz__zz_io_commit_0_entry_status_done = statuses_1_done;
         _zz__zz_io_commit_0_entry_status_genBit = statuses_1_genBit;
         _zz_io_commit_0_entry_status_busy_1 = statuses_1_busy;
@@ -59134,7 +59610,7 @@ module ReorderBuffer (
         _zz_io_commit_0_entry_status_exceptionCode = statuses_1_exceptionCode;
         _zz_io_commit_0_entry_status_pendingRetirement = statuses_1_pendingRetirement;
       end
-      3'b010 : begin
+      2'b10 : begin
         _zz__zz_io_commit_0_entry_status_done = statuses_2_done;
         _zz__zz_io_commit_0_entry_status_genBit = statuses_2_genBit;
         _zz_io_commit_0_entry_status_busy_1 = statuses_2_busy;
@@ -59146,7 +59622,7 @@ module ReorderBuffer (
         _zz_io_commit_0_entry_status_exceptionCode = statuses_2_exceptionCode;
         _zz_io_commit_0_entry_status_pendingRetirement = statuses_2_pendingRetirement;
       end
-      3'b011 : begin
+      default : begin
         _zz__zz_io_commit_0_entry_status_done = statuses_3_done;
         _zz__zz_io_commit_0_entry_status_genBit = statuses_3_genBit;
         _zz_io_commit_0_entry_status_busy_1 = statuses_3_busy;
@@ -59157,54 +59633,6 @@ module ReorderBuffer (
         _zz_io_commit_0_entry_status_hasException = statuses_3_hasException;
         _zz_io_commit_0_entry_status_exceptionCode = statuses_3_exceptionCode;
         _zz_io_commit_0_entry_status_pendingRetirement = statuses_3_pendingRetirement;
-      end
-      3'b100 : begin
-        _zz__zz_io_commit_0_entry_status_done = statuses_4_done;
-        _zz__zz_io_commit_0_entry_status_genBit = statuses_4_genBit;
-        _zz_io_commit_0_entry_status_busy_1 = statuses_4_busy;
-        _zz_io_commit_0_entry_status_isMispredictedBranch = statuses_4_isMispredictedBranch;
-        _zz_io_commit_0_entry_status_targetPc = statuses_4_targetPc;
-        _zz_io_commit_0_entry_status_isTaken = statuses_4_isTaken;
-        _zz_io_commit_0_entry_status_result = statuses_4_result;
-        _zz_io_commit_0_entry_status_hasException = statuses_4_hasException;
-        _zz_io_commit_0_entry_status_exceptionCode = statuses_4_exceptionCode;
-        _zz_io_commit_0_entry_status_pendingRetirement = statuses_4_pendingRetirement;
-      end
-      3'b101 : begin
-        _zz__zz_io_commit_0_entry_status_done = statuses_5_done;
-        _zz__zz_io_commit_0_entry_status_genBit = statuses_5_genBit;
-        _zz_io_commit_0_entry_status_busy_1 = statuses_5_busy;
-        _zz_io_commit_0_entry_status_isMispredictedBranch = statuses_5_isMispredictedBranch;
-        _zz_io_commit_0_entry_status_targetPc = statuses_5_targetPc;
-        _zz_io_commit_0_entry_status_isTaken = statuses_5_isTaken;
-        _zz_io_commit_0_entry_status_result = statuses_5_result;
-        _zz_io_commit_0_entry_status_hasException = statuses_5_hasException;
-        _zz_io_commit_0_entry_status_exceptionCode = statuses_5_exceptionCode;
-        _zz_io_commit_0_entry_status_pendingRetirement = statuses_5_pendingRetirement;
-      end
-      3'b110 : begin
-        _zz__zz_io_commit_0_entry_status_done = statuses_6_done;
-        _zz__zz_io_commit_0_entry_status_genBit = statuses_6_genBit;
-        _zz_io_commit_0_entry_status_busy_1 = statuses_6_busy;
-        _zz_io_commit_0_entry_status_isMispredictedBranch = statuses_6_isMispredictedBranch;
-        _zz_io_commit_0_entry_status_targetPc = statuses_6_targetPc;
-        _zz_io_commit_0_entry_status_isTaken = statuses_6_isTaken;
-        _zz_io_commit_0_entry_status_result = statuses_6_result;
-        _zz_io_commit_0_entry_status_hasException = statuses_6_hasException;
-        _zz_io_commit_0_entry_status_exceptionCode = statuses_6_exceptionCode;
-        _zz_io_commit_0_entry_status_pendingRetirement = statuses_6_pendingRetirement;
-      end
-      default : begin
-        _zz__zz_io_commit_0_entry_status_done = statuses_7_done;
-        _zz__zz_io_commit_0_entry_status_genBit = statuses_7_genBit;
-        _zz_io_commit_0_entry_status_busy_1 = statuses_7_busy;
-        _zz_io_commit_0_entry_status_isMispredictedBranch = statuses_7_isMispredictedBranch;
-        _zz_io_commit_0_entry_status_targetPc = statuses_7_targetPc;
-        _zz_io_commit_0_entry_status_isTaken = statuses_7_isTaken;
-        _zz_io_commit_0_entry_status_result = statuses_7_result;
-        _zz_io_commit_0_entry_status_hasException = statuses_7_hasException;
-        _zz_io_commit_0_entry_status_exceptionCode = statuses_7_exceptionCode;
-        _zz_io_commit_0_entry_status_pendingRetirement = statuses_7_pendingRetirement;
       end
     endcase
   end
@@ -59218,290 +59646,142 @@ module ReorderBuffer (
 
   always @(*) begin
     case(_zz_when_ReorderBuffer_l395)
-      3'b000 : begin
+      2'b00 : begin
         _zz_when_ReorderBuffer_l395_5 = statuses_0_genBit;
         _zz__zz_statuses_0_exceptionCode = statuses_0_exceptionCode;
       end
-      3'b001 : begin
+      2'b01 : begin
         _zz_when_ReorderBuffer_l395_5 = statuses_1_genBit;
         _zz__zz_statuses_0_exceptionCode = statuses_1_exceptionCode;
       end
-      3'b010 : begin
+      2'b10 : begin
         _zz_when_ReorderBuffer_l395_5 = statuses_2_genBit;
         _zz__zz_statuses_0_exceptionCode = statuses_2_exceptionCode;
       end
-      3'b011 : begin
+      default : begin
         _zz_when_ReorderBuffer_l395_5 = statuses_3_genBit;
         _zz__zz_statuses_0_exceptionCode = statuses_3_exceptionCode;
-      end
-      3'b100 : begin
-        _zz_when_ReorderBuffer_l395_5 = statuses_4_genBit;
-        _zz__zz_statuses_0_exceptionCode = statuses_4_exceptionCode;
-      end
-      3'b101 : begin
-        _zz_when_ReorderBuffer_l395_5 = statuses_5_genBit;
-        _zz__zz_statuses_0_exceptionCode = statuses_5_exceptionCode;
-      end
-      3'b110 : begin
-        _zz_when_ReorderBuffer_l395_5 = statuses_6_genBit;
-        _zz__zz_statuses_0_exceptionCode = statuses_6_exceptionCode;
-      end
-      default : begin
-        _zz_when_ReorderBuffer_l395_5 = statuses_7_genBit;
-        _zz__zz_statuses_0_exceptionCode = statuses_7_exceptionCode;
       end
     endcase
   end
 
   always @(*) begin
     case(_zz_when_ReorderBuffer_l395_1)
-      3'b000 : begin
+      2'b00 : begin
         _zz_when_ReorderBuffer_l395_1_1 = statuses_0_genBit;
         _zz__zz_statuses_0_exceptionCode_1 = statuses_0_exceptionCode;
       end
-      3'b001 : begin
+      2'b01 : begin
         _zz_when_ReorderBuffer_l395_1_1 = statuses_1_genBit;
         _zz__zz_statuses_0_exceptionCode_1 = statuses_1_exceptionCode;
       end
-      3'b010 : begin
+      2'b10 : begin
         _zz_when_ReorderBuffer_l395_1_1 = statuses_2_genBit;
         _zz__zz_statuses_0_exceptionCode_1 = statuses_2_exceptionCode;
       end
-      3'b011 : begin
+      default : begin
         _zz_when_ReorderBuffer_l395_1_1 = statuses_3_genBit;
         _zz__zz_statuses_0_exceptionCode_1 = statuses_3_exceptionCode;
-      end
-      3'b100 : begin
-        _zz_when_ReorderBuffer_l395_1_1 = statuses_4_genBit;
-        _zz__zz_statuses_0_exceptionCode_1 = statuses_4_exceptionCode;
-      end
-      3'b101 : begin
-        _zz_when_ReorderBuffer_l395_1_1 = statuses_5_genBit;
-        _zz__zz_statuses_0_exceptionCode_1 = statuses_5_exceptionCode;
-      end
-      3'b110 : begin
-        _zz_when_ReorderBuffer_l395_1_1 = statuses_6_genBit;
-        _zz__zz_statuses_0_exceptionCode_1 = statuses_6_exceptionCode;
-      end
-      default : begin
-        _zz_when_ReorderBuffer_l395_1_1 = statuses_7_genBit;
-        _zz__zz_statuses_0_exceptionCode_1 = statuses_7_exceptionCode;
       end
     endcase
   end
 
   always @(*) begin
     case(_zz_when_ReorderBuffer_l395_2)
-      3'b000 : begin
+      2'b00 : begin
         _zz_when_ReorderBuffer_l395_2_1 = statuses_0_genBit;
         _zz__zz_statuses_0_exceptionCode_2 = statuses_0_exceptionCode;
       end
-      3'b001 : begin
+      2'b01 : begin
         _zz_when_ReorderBuffer_l395_2_1 = statuses_1_genBit;
         _zz__zz_statuses_0_exceptionCode_2 = statuses_1_exceptionCode;
       end
-      3'b010 : begin
+      2'b10 : begin
         _zz_when_ReorderBuffer_l395_2_1 = statuses_2_genBit;
         _zz__zz_statuses_0_exceptionCode_2 = statuses_2_exceptionCode;
       end
-      3'b011 : begin
+      default : begin
         _zz_when_ReorderBuffer_l395_2_1 = statuses_3_genBit;
         _zz__zz_statuses_0_exceptionCode_2 = statuses_3_exceptionCode;
-      end
-      3'b100 : begin
-        _zz_when_ReorderBuffer_l395_2_1 = statuses_4_genBit;
-        _zz__zz_statuses_0_exceptionCode_2 = statuses_4_exceptionCode;
-      end
-      3'b101 : begin
-        _zz_when_ReorderBuffer_l395_2_1 = statuses_5_genBit;
-        _zz__zz_statuses_0_exceptionCode_2 = statuses_5_exceptionCode;
-      end
-      3'b110 : begin
-        _zz_when_ReorderBuffer_l395_2_1 = statuses_6_genBit;
-        _zz__zz_statuses_0_exceptionCode_2 = statuses_6_exceptionCode;
-      end
-      default : begin
-        _zz_when_ReorderBuffer_l395_2_1 = statuses_7_genBit;
-        _zz__zz_statuses_0_exceptionCode_2 = statuses_7_exceptionCode;
       end
     endcase
   end
 
   always @(*) begin
     case(_zz_when_ReorderBuffer_l395_3)
-      3'b000 : begin
+      2'b00 : begin
         _zz_when_ReorderBuffer_l395_3_1 = statuses_0_genBit;
         _zz__zz_statuses_0_exceptionCode_3 = statuses_0_exceptionCode;
       end
-      3'b001 : begin
+      2'b01 : begin
         _zz_when_ReorderBuffer_l395_3_1 = statuses_1_genBit;
         _zz__zz_statuses_0_exceptionCode_3 = statuses_1_exceptionCode;
       end
-      3'b010 : begin
+      2'b10 : begin
         _zz_when_ReorderBuffer_l395_3_1 = statuses_2_genBit;
         _zz__zz_statuses_0_exceptionCode_3 = statuses_2_exceptionCode;
       end
-      3'b011 : begin
+      default : begin
         _zz_when_ReorderBuffer_l395_3_1 = statuses_3_genBit;
         _zz__zz_statuses_0_exceptionCode_3 = statuses_3_exceptionCode;
-      end
-      3'b100 : begin
-        _zz_when_ReorderBuffer_l395_3_1 = statuses_4_genBit;
-        _zz__zz_statuses_0_exceptionCode_3 = statuses_4_exceptionCode;
-      end
-      3'b101 : begin
-        _zz_when_ReorderBuffer_l395_3_1 = statuses_5_genBit;
-        _zz__zz_statuses_0_exceptionCode_3 = statuses_5_exceptionCode;
-      end
-      3'b110 : begin
-        _zz_when_ReorderBuffer_l395_3_1 = statuses_6_genBit;
-        _zz__zz_statuses_0_exceptionCode_3 = statuses_6_exceptionCode;
-      end
-      default : begin
-        _zz_when_ReorderBuffer_l395_3_1 = statuses_7_genBit;
-        _zz__zz_statuses_0_exceptionCode_3 = statuses_7_exceptionCode;
       end
     endcase
   end
 
   always @(*) begin
     case(_zz_when_ReorderBuffer_l395_4)
-      3'b000 : begin
+      2'b00 : begin
         _zz_when_ReorderBuffer_l395_4_1 = statuses_0_genBit;
         _zz__zz_statuses_0_exceptionCode_4 = statuses_0_exceptionCode;
       end
-      3'b001 : begin
+      2'b01 : begin
         _zz_when_ReorderBuffer_l395_4_1 = statuses_1_genBit;
         _zz__zz_statuses_0_exceptionCode_4 = statuses_1_exceptionCode;
       end
-      3'b010 : begin
+      2'b10 : begin
         _zz_when_ReorderBuffer_l395_4_1 = statuses_2_genBit;
         _zz__zz_statuses_0_exceptionCode_4 = statuses_2_exceptionCode;
       end
-      3'b011 : begin
+      default : begin
         _zz_when_ReorderBuffer_l395_4_1 = statuses_3_genBit;
         _zz__zz_statuses_0_exceptionCode_4 = statuses_3_exceptionCode;
-      end
-      3'b100 : begin
-        _zz_when_ReorderBuffer_l395_4_1 = statuses_4_genBit;
-        _zz__zz_statuses_0_exceptionCode_4 = statuses_4_exceptionCode;
-      end
-      3'b101 : begin
-        _zz_when_ReorderBuffer_l395_4_1 = statuses_5_genBit;
-        _zz__zz_statuses_0_exceptionCode_4 = statuses_5_exceptionCode;
-      end
-      3'b110 : begin
-        _zz_when_ReorderBuffer_l395_4_1 = statuses_6_genBit;
-        _zz__zz_statuses_0_exceptionCode_4 = statuses_6_exceptionCode;
-      end
-      default : begin
-        _zz_when_ReorderBuffer_l395_4_1 = statuses_7_genBit;
-        _zz__zz_statuses_0_exceptionCode_4 = statuses_7_exceptionCode;
       end
     endcase
   end
 
   always @(*) begin
     case(_zz_when_ReorderBuffer_l439)
-      3'b000 : _zz__zz_when_ReorderBuffer_l439_3_1 = statuses_0_genBit;
-      3'b001 : _zz__zz_when_ReorderBuffer_l439_3_1 = statuses_1_genBit;
-      3'b010 : _zz__zz_when_ReorderBuffer_l439_3_1 = statuses_2_genBit;
-      3'b011 : _zz__zz_when_ReorderBuffer_l439_3_1 = statuses_3_genBit;
-      3'b100 : _zz__zz_when_ReorderBuffer_l439_3_1 = statuses_4_genBit;
-      3'b101 : _zz__zz_when_ReorderBuffer_l439_3_1 = statuses_5_genBit;
-      3'b110 : _zz__zz_when_ReorderBuffer_l439_3_1 = statuses_6_genBit;
-      default : _zz__zz_when_ReorderBuffer_l439_3_1 = statuses_7_genBit;
+      2'b00 : _zz__zz_when_ReorderBuffer_l439_3_1 = statuses_0_genBit;
+      2'b01 : _zz__zz_when_ReorderBuffer_l439_3_1 = statuses_1_genBit;
+      2'b10 : _zz__zz_when_ReorderBuffer_l439_3_1 = statuses_2_genBit;
+      default : _zz__zz_when_ReorderBuffer_l439_3_1 = statuses_3_genBit;
     endcase
   end
 
   always @(*) begin
     case(_zz_when_ReorderBuffer_l439_4)
-      3'b000 : _zz__zz_when_ReorderBuffer_l439_7_1 = statuses_0_genBit;
-      3'b001 : _zz__zz_when_ReorderBuffer_l439_7_1 = statuses_1_genBit;
-      3'b010 : _zz__zz_when_ReorderBuffer_l439_7_1 = statuses_2_genBit;
-      3'b011 : _zz__zz_when_ReorderBuffer_l439_7_1 = statuses_3_genBit;
-      3'b100 : _zz__zz_when_ReorderBuffer_l439_7_1 = statuses_4_genBit;
-      3'b101 : _zz__zz_when_ReorderBuffer_l439_7_1 = statuses_5_genBit;
-      3'b110 : _zz__zz_when_ReorderBuffer_l439_7_1 = statuses_6_genBit;
-      default : _zz__zz_when_ReorderBuffer_l439_7_1 = statuses_7_genBit;
+      2'b00 : _zz__zz_when_ReorderBuffer_l439_7_1 = statuses_0_genBit;
+      2'b01 : _zz__zz_when_ReorderBuffer_l439_7_1 = statuses_1_genBit;
+      2'b10 : _zz__zz_when_ReorderBuffer_l439_7_1 = statuses_2_genBit;
+      default : _zz__zz_when_ReorderBuffer_l439_7_1 = statuses_3_genBit;
     endcase
   end
 
   always @(*) begin
     case(_zz_when_ReorderBuffer_l439_8)
-      3'b000 : _zz__zz_when_ReorderBuffer_l439_11_1 = statuses_0_genBit;
-      3'b001 : _zz__zz_when_ReorderBuffer_l439_11_1 = statuses_1_genBit;
-      3'b010 : _zz__zz_when_ReorderBuffer_l439_11_1 = statuses_2_genBit;
-      3'b011 : _zz__zz_when_ReorderBuffer_l439_11_1 = statuses_3_genBit;
-      3'b100 : _zz__zz_when_ReorderBuffer_l439_11_1 = statuses_4_genBit;
-      3'b101 : _zz__zz_when_ReorderBuffer_l439_11_1 = statuses_5_genBit;
-      3'b110 : _zz__zz_when_ReorderBuffer_l439_11_1 = statuses_6_genBit;
-      default : _zz__zz_when_ReorderBuffer_l439_11_1 = statuses_7_genBit;
+      2'b00 : _zz__zz_when_ReorderBuffer_l439_11_1 = statuses_0_genBit;
+      2'b01 : _zz__zz_when_ReorderBuffer_l439_11_1 = statuses_1_genBit;
+      2'b10 : _zz__zz_when_ReorderBuffer_l439_11_1 = statuses_2_genBit;
+      default : _zz__zz_when_ReorderBuffer_l439_11_1 = statuses_3_genBit;
     endcase
   end
 
   always @(*) begin
     case(_zz_when_ReorderBuffer_l439_12)
-      3'b000 : _zz__zz_when_ReorderBuffer_l439_15_1 = statuses_0_genBit;
-      3'b001 : _zz__zz_when_ReorderBuffer_l439_15_1 = statuses_1_genBit;
-      3'b010 : _zz__zz_when_ReorderBuffer_l439_15_1 = statuses_2_genBit;
-      3'b011 : _zz__zz_when_ReorderBuffer_l439_15_1 = statuses_3_genBit;
-      3'b100 : _zz__zz_when_ReorderBuffer_l439_15_1 = statuses_4_genBit;
-      3'b101 : _zz__zz_when_ReorderBuffer_l439_15_1 = statuses_5_genBit;
-      3'b110 : _zz__zz_when_ReorderBuffer_l439_15_1 = statuses_6_genBit;
-      default : _zz__zz_when_ReorderBuffer_l439_15_1 = statuses_7_genBit;
-    endcase
-  end
-
-  always @(*) begin
-    case(_zz_when_ReorderBuffer_l439_16)
-      3'b000 : _zz__zz_when_ReorderBuffer_l439_19_1 = statuses_0_genBit;
-      3'b001 : _zz__zz_when_ReorderBuffer_l439_19_1 = statuses_1_genBit;
-      3'b010 : _zz__zz_when_ReorderBuffer_l439_19_1 = statuses_2_genBit;
-      3'b011 : _zz__zz_when_ReorderBuffer_l439_19_1 = statuses_3_genBit;
-      3'b100 : _zz__zz_when_ReorderBuffer_l439_19_1 = statuses_4_genBit;
-      3'b101 : _zz__zz_when_ReorderBuffer_l439_19_1 = statuses_5_genBit;
-      3'b110 : _zz__zz_when_ReorderBuffer_l439_19_1 = statuses_6_genBit;
-      default : _zz__zz_when_ReorderBuffer_l439_19_1 = statuses_7_genBit;
-    endcase
-  end
-
-  always @(*) begin
-    case(_zz_when_ReorderBuffer_l439_20)
-      3'b000 : _zz__zz_when_ReorderBuffer_l439_23_1 = statuses_0_genBit;
-      3'b001 : _zz__zz_when_ReorderBuffer_l439_23_1 = statuses_1_genBit;
-      3'b010 : _zz__zz_when_ReorderBuffer_l439_23_1 = statuses_2_genBit;
-      3'b011 : _zz__zz_when_ReorderBuffer_l439_23_1 = statuses_3_genBit;
-      3'b100 : _zz__zz_when_ReorderBuffer_l439_23_1 = statuses_4_genBit;
-      3'b101 : _zz__zz_when_ReorderBuffer_l439_23_1 = statuses_5_genBit;
-      3'b110 : _zz__zz_when_ReorderBuffer_l439_23_1 = statuses_6_genBit;
-      default : _zz__zz_when_ReorderBuffer_l439_23_1 = statuses_7_genBit;
-    endcase
-  end
-
-  always @(*) begin
-    case(_zz_when_ReorderBuffer_l439_24)
-      3'b000 : _zz__zz_when_ReorderBuffer_l439_27_1 = statuses_0_genBit;
-      3'b001 : _zz__zz_when_ReorderBuffer_l439_27_1 = statuses_1_genBit;
-      3'b010 : _zz__zz_when_ReorderBuffer_l439_27_1 = statuses_2_genBit;
-      3'b011 : _zz__zz_when_ReorderBuffer_l439_27_1 = statuses_3_genBit;
-      3'b100 : _zz__zz_when_ReorderBuffer_l439_27_1 = statuses_4_genBit;
-      3'b101 : _zz__zz_when_ReorderBuffer_l439_27_1 = statuses_5_genBit;
-      3'b110 : _zz__zz_when_ReorderBuffer_l439_27_1 = statuses_6_genBit;
-      default : _zz__zz_when_ReorderBuffer_l439_27_1 = statuses_7_genBit;
-    endcase
-  end
-
-  always @(*) begin
-    case(_zz_when_ReorderBuffer_l439_28)
-      3'b000 : _zz__zz_when_ReorderBuffer_l439_31_1 = statuses_0_genBit;
-      3'b001 : _zz__zz_when_ReorderBuffer_l439_31_1 = statuses_1_genBit;
-      3'b010 : _zz__zz_when_ReorderBuffer_l439_31_1 = statuses_2_genBit;
-      3'b011 : _zz__zz_when_ReorderBuffer_l439_31_1 = statuses_3_genBit;
-      3'b100 : _zz__zz_when_ReorderBuffer_l439_31_1 = statuses_4_genBit;
-      3'b101 : _zz__zz_when_ReorderBuffer_l439_31_1 = statuses_5_genBit;
-      3'b110 : _zz__zz_when_ReorderBuffer_l439_31_1 = statuses_6_genBit;
-      default : _zz__zz_when_ReorderBuffer_l439_31_1 = statuses_7_genBit;
+      2'b00 : _zz__zz_when_ReorderBuffer_l439_15_1 = statuses_0_genBit;
+      2'b01 : _zz__zz_when_ReorderBuffer_l439_15_1 = statuses_1_genBit;
+      2'b10 : _zz__zz_when_ReorderBuffer_l439_15_1 = statuses_2_genBit;
+      default : _zz__zz_when_ReorderBuffer_l439_15_1 = statuses_3_genBit;
     endcase
   end
 
@@ -60558,21 +60838,21 @@ module ReorderBuffer (
     end
   end
 
-  assign _zz_io_allocate_0_ready = (_zz__zz_io_allocate_0_ready < 4'b1000);
+  assign _zz_io_allocate_0_ready = (_zz__zz_io_allocate_0_ready < 3'b100);
   assign io_allocate_0_ready = _zz_io_allocate_0_ready;
   assign io_canAllocate_0 = _zz_io_allocate_0_ready;
   assign slotWillAllocate_0 = (io_allocate_0_valid && io_allocate_0_ready);
-  assign io_allocate_0_robPtr = (tailPtr_reg + 4'b0000);
+  assign io_allocate_0_robPtr = (tailPtr_reg + 3'b000);
   assign numActuallyAllocatedThisCycle = _zz_numActuallyAllocatedThisCycle;
-  assign _zz_canCommitFlags_0 = (headPtr_reg + 4'b0000);
-  assign _zz_io_commit_0_entry_status_busy = _zz_canCommitFlags_0[2:0];
+  assign _zz_canCommitFlags_0 = (headPtr_reg + 3'b000);
+  assign _zz_io_commit_0_entry_status_busy = _zz_canCommitFlags_0[1:0];
   assign _zz_io_commit_0_entry_status_done = _zz__zz_io_commit_0_entry_status_done;
   assign _zz_io_commit_0_entry_status_genBit = _zz__zz_io_commit_0_entry_status_genBit;
-  assign canCommitFlags_0 = ((((! ((io_flush_valid || flushInProgressReg) || flushWasActiveLastCycle)) && (4'b0000 < count_reg)) && _zz_io_commit_0_entry_status_done) && (_zz_canCommitFlags_0[3] == _zz_io_commit_0_entry_status_genBit));
-  assign io_commit_0_valid = (4'b0000 < count_reg);
+  assign canCommitFlags_0 = ((((! ((io_flush_valid || flushInProgressReg) || flushWasActiveLastCycle)) && (3'b000 < count_reg)) && _zz_io_commit_0_entry_status_done) && (_zz_canCommitFlags_0[2] == _zz_io_commit_0_entry_status_genBit));
+  assign io_commit_0_valid = (3'b000 < count_reg);
   assign io_commit_0_canCommit = canCommitFlags_0;
   assign _zz_io_commit_0_entry_payload_pc = payloads_spinal_port0;
-  assign _zz_io_commit_0_entry_payload_uop_robPtr = _zz_io_commit_0_entry_payload_pc[344 : 0];
+  assign _zz_io_commit_0_entry_payload_uop_robPtr = _zz_io_commit_0_entry_payload_pc[343 : 0];
   assign _zz_io_commit_0_entry_payload_uop_decoded_pc = _zz_io_commit_0_entry_payload_uop_robPtr[283 : 0];
   assign _zz_io_commit_0_entry_payload_uop_decoded_uopCode_1 = _zz_io_commit_0_entry_payload_uop_decoded_pc[37 : 33];
   assign _zz_io_commit_0_entry_payload_uop_decoded_uopCode = _zz_io_commit_0_entry_payload_uop_decoded_uopCode_1;
@@ -60708,13 +60988,13 @@ module ReorderBuffer (
   assign io_commit_0_entry_payload_uop_rename_oldPhysDestIsFpr = _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx[27];
   assign io_commit_0_entry_payload_uop_rename_allocatesPhysDest = _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx[28];
   assign io_commit_0_entry_payload_uop_rename_writesToPhysReg = _zz_io_commit_0_entry_payload_uop_rename_physSrc1_idx[29];
-  assign io_commit_0_entry_payload_uop_robPtr = _zz_io_commit_0_entry_payload_uop_robPtr[317 : 314];
-  assign io_commit_0_entry_payload_uop_uniqueId = _zz_io_commit_0_entry_payload_uop_robPtr[333 : 318];
-  assign io_commit_0_entry_payload_uop_dispatched = _zz_io_commit_0_entry_payload_uop_robPtr[334];
-  assign io_commit_0_entry_payload_uop_executed = _zz_io_commit_0_entry_payload_uop_robPtr[335];
-  assign io_commit_0_entry_payload_uop_hasException = _zz_io_commit_0_entry_payload_uop_robPtr[336];
-  assign io_commit_0_entry_payload_uop_exceptionCode = _zz_io_commit_0_entry_payload_uop_robPtr[344 : 337];
-  assign io_commit_0_entry_payload_pc = _zz_io_commit_0_entry_payload_pc[376 : 345];
+  assign io_commit_0_entry_payload_uop_robPtr = _zz_io_commit_0_entry_payload_uop_robPtr[316 : 314];
+  assign io_commit_0_entry_payload_uop_uniqueId = _zz_io_commit_0_entry_payload_uop_robPtr[332 : 317];
+  assign io_commit_0_entry_payload_uop_dispatched = _zz_io_commit_0_entry_payload_uop_robPtr[333];
+  assign io_commit_0_entry_payload_uop_executed = _zz_io_commit_0_entry_payload_uop_robPtr[334];
+  assign io_commit_0_entry_payload_uop_hasException = _zz_io_commit_0_entry_payload_uop_robPtr[335];
+  assign io_commit_0_entry_payload_uop_exceptionCode = _zz_io_commit_0_entry_payload_uop_robPtr[343 : 336];
+  assign io_commit_0_entry_payload_pc = _zz_io_commit_0_entry_payload_pc[375 : 344];
   assign io_commit_0_entry_status_busy = _zz_io_commit_0_entry_status_busy_1;
   assign io_commit_0_entry_status_done = _zz_io_commit_0_entry_status_done;
   assign io_commit_0_entry_status_isMispredictedBranch = _zz_io_commit_0_entry_status_isMispredictedBranch;
@@ -60733,7 +61013,7 @@ module ReorderBuffer (
     if(io_flush_valid) begin
       case(io_flush_payload_reason)
         FlushReason_FULL_FLUSH : begin
-          nextHead = 4'b0000;
+          nextHead = 3'b000;
         end
         FlushReason_ROLLBACK_TO_ROB_IDX : begin
           nextHead = headPtr_reg;
@@ -60749,7 +61029,7 @@ module ReorderBuffer (
     if(io_flush_valid) begin
       case(io_flush_payload_reason)
         FlushReason_FULL_FLUSH : begin
-          nextTail = 4'b0000;
+          nextTail = 3'b000;
         end
         FlushReason_ROLLBACK_TO_ROB_IDX : begin
           nextTail = io_flush_payload_targetRobPtr;
@@ -60765,10 +61045,10 @@ module ReorderBuffer (
     if(io_flush_valid) begin
       case(io_flush_payload_reason)
         FlushReason_FULL_FLUSH : begin
-          nextCount = 4'b0000;
+          nextCount = 3'b000;
         end
         FlushReason_ROLLBACK_TO_ROB_IDX : begin
-          nextCount = _zz_nextCount[3:0];
+          nextCount = _zz_nextCount[2:0];
         end
         default : begin
         end
@@ -60794,9 +61074,9 @@ module ReorderBuffer (
     end
   end
 
-  assign _zz_statuses_0_genBit = (tailPtr_reg + 4'b0000);
-  assign _zz_3 = _zz_statuses_0_genBit[2:0];
-  assign _zz_statuses_0_genBit_1 = _zz_statuses_0_genBit[3];
+  assign _zz_statuses_0_genBit = (tailPtr_reg + 3'b000);
+  assign _zz_3 = _zz_statuses_0_genBit[1:0];
+  assign _zz_statuses_0_genBit_1 = _zz_statuses_0_genBit[2];
   assign _zz_4 = io_allocate_0_uopIn_decoded_pc;
   assign _zz_5 = io_allocate_0_uopIn_decoded_isValid;
   assign _zz_6 = io_allocate_0_uopIn_decoded_uopCode;
@@ -60896,85 +61176,57 @@ module ReorderBuffer (
   assign _zz_96 = io_allocate_0_uopIn_hasException;
   assign _zz_97 = io_allocate_0_uopIn_exceptionCode;
   assign _zz_98 = io_allocate_0_pcIn;
-  assign _zz_99 = ({7'd0,1'b1} <<< _zz_3);
+  assign _zz_99 = ({3'd0,1'b1} <<< _zz_3);
   assign _zz_100 = _zz_99[0];
   assign _zz_101 = _zz_99[1];
   assign _zz_102 = _zz_99[2];
   assign _zz_103 = _zz_99[3];
-  assign _zz_104 = _zz_99[4];
-  assign _zz_105 = _zz_99[5];
-  assign _zz_106 = _zz_99[6];
-  assign _zz_107 = _zz_99[7];
-  assign _zz_when_ReorderBuffer_l395 = io_writeback_0_robPtr[2:0];
-  assign _zz_109 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l395);
-  assign _zz_110 = _zz_109[0];
-  assign _zz_111 = _zz_109[1];
-  assign _zz_112 = _zz_109[2];
-  assign _zz_113 = _zz_109[3];
-  assign _zz_114 = _zz_109[4];
-  assign _zz_115 = _zz_109[5];
-  assign _zz_116 = _zz_109[6];
-  assign _zz_117 = _zz_109[7];
-  assign when_ReorderBuffer_l395 = (((! io_flush_valid) && io_writeback_0_fire) && (io_writeback_0_robPtr[3] == _zz_when_ReorderBuffer_l395_5));
+  assign _zz_when_ReorderBuffer_l395 = io_writeback_0_robPtr[1:0];
+  assign _zz_105 = ({3'd0,1'b1} <<< _zz_when_ReorderBuffer_l395);
+  assign _zz_106 = _zz_105[0];
+  assign _zz_107 = _zz_105[1];
+  assign _zz_108 = _zz_105[2];
+  assign _zz_109 = _zz_105[3];
+  assign when_ReorderBuffer_l395 = (((! io_flush_valid) && io_writeback_0_fire) && (io_writeback_0_robPtr[2] == _zz_when_ReorderBuffer_l395_5));
   assign _zz_statuses_0_exceptionCode = (io_writeback_0_exceptionOccurred ? io_writeback_0_exceptionCodeIn : _zz__zz_statuses_0_exceptionCode);
-  assign _zz_when_ReorderBuffer_l395_1 = io_writeback_1_robPtr[2:0];
-  assign _zz_118 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l395_1);
-  assign _zz_119 = _zz_118[0];
-  assign _zz_120 = _zz_118[1];
-  assign _zz_121 = _zz_118[2];
-  assign _zz_122 = _zz_118[3];
-  assign _zz_123 = _zz_118[4];
-  assign _zz_124 = _zz_118[5];
-  assign _zz_125 = _zz_118[6];
-  assign _zz_126 = _zz_118[7];
-  assign when_ReorderBuffer_l395_1 = (((! io_flush_valid) && io_writeback_1_fire) && (io_writeback_1_robPtr[3] == _zz_when_ReorderBuffer_l395_1_1));
+  assign _zz_when_ReorderBuffer_l395_1 = io_writeback_1_robPtr[1:0];
+  assign _zz_110 = ({3'd0,1'b1} <<< _zz_when_ReorderBuffer_l395_1);
+  assign _zz_111 = _zz_110[0];
+  assign _zz_112 = _zz_110[1];
+  assign _zz_113 = _zz_110[2];
+  assign _zz_114 = _zz_110[3];
+  assign when_ReorderBuffer_l395_1 = (((! io_flush_valid) && io_writeback_1_fire) && (io_writeback_1_robPtr[2] == _zz_when_ReorderBuffer_l395_1_1));
   assign _zz_statuses_0_exceptionCode_1 = (io_writeback_1_exceptionOccurred ? io_writeback_1_exceptionCodeIn : _zz__zz_statuses_0_exceptionCode_1);
-  assign _zz_when_ReorderBuffer_l395_2 = io_writeback_2_robPtr[2:0];
-  assign _zz_127 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l395_2);
-  assign _zz_128 = _zz_127[0];
-  assign _zz_129 = _zz_127[1];
-  assign _zz_130 = _zz_127[2];
-  assign _zz_131 = _zz_127[3];
-  assign _zz_132 = _zz_127[4];
-  assign _zz_133 = _zz_127[5];
-  assign _zz_134 = _zz_127[6];
-  assign _zz_135 = _zz_127[7];
-  assign when_ReorderBuffer_l395_2 = (((! io_flush_valid) && io_writeback_2_fire) && (io_writeback_2_robPtr[3] == _zz_when_ReorderBuffer_l395_2_1));
+  assign _zz_when_ReorderBuffer_l395_2 = io_writeback_2_robPtr[1:0];
+  assign _zz_115 = ({3'd0,1'b1} <<< _zz_when_ReorderBuffer_l395_2);
+  assign _zz_116 = _zz_115[0];
+  assign _zz_117 = _zz_115[1];
+  assign _zz_118 = _zz_115[2];
+  assign _zz_119 = _zz_115[3];
+  assign when_ReorderBuffer_l395_2 = (((! io_flush_valid) && io_writeback_2_fire) && (io_writeback_2_robPtr[2] == _zz_when_ReorderBuffer_l395_2_1));
   assign _zz_statuses_0_exceptionCode_2 = (io_writeback_2_exceptionOccurred ? io_writeback_2_exceptionCodeIn : _zz__zz_statuses_0_exceptionCode_2);
-  assign _zz_when_ReorderBuffer_l395_3 = io_writeback_3_robPtr[2:0];
-  assign _zz_136 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l395_3);
-  assign _zz_137 = _zz_136[0];
-  assign _zz_138 = _zz_136[1];
-  assign _zz_139 = _zz_136[2];
-  assign _zz_140 = _zz_136[3];
-  assign _zz_141 = _zz_136[4];
-  assign _zz_142 = _zz_136[5];
-  assign _zz_143 = _zz_136[6];
-  assign _zz_144 = _zz_136[7];
-  assign when_ReorderBuffer_l395_3 = (((! io_flush_valid) && io_writeback_3_fire) && (io_writeback_3_robPtr[3] == _zz_when_ReorderBuffer_l395_3_1));
+  assign _zz_when_ReorderBuffer_l395_3 = io_writeback_3_robPtr[1:0];
+  assign _zz_120 = ({3'd0,1'b1} <<< _zz_when_ReorderBuffer_l395_3);
+  assign _zz_121 = _zz_120[0];
+  assign _zz_122 = _zz_120[1];
+  assign _zz_123 = _zz_120[2];
+  assign _zz_124 = _zz_120[3];
+  assign when_ReorderBuffer_l395_3 = (((! io_flush_valid) && io_writeback_3_fire) && (io_writeback_3_robPtr[2] == _zz_when_ReorderBuffer_l395_3_1));
   assign _zz_statuses_0_exceptionCode_3 = (io_writeback_3_exceptionOccurred ? io_writeback_3_exceptionCodeIn : _zz__zz_statuses_0_exceptionCode_3);
-  assign _zz_when_ReorderBuffer_l395_4 = io_writeback_4_robPtr[2:0];
-  assign _zz_145 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l395_4);
-  assign _zz_146 = _zz_145[0];
-  assign _zz_147 = _zz_145[1];
-  assign _zz_148 = _zz_145[2];
-  assign _zz_149 = _zz_145[3];
-  assign _zz_150 = _zz_145[4];
-  assign _zz_151 = _zz_145[5];
-  assign _zz_152 = _zz_145[6];
-  assign _zz_153 = _zz_145[7];
-  assign when_ReorderBuffer_l395_4 = (((! io_flush_valid) && io_writeback_4_fire) && (io_writeback_4_robPtr[3] == _zz_when_ReorderBuffer_l395_4_1));
+  assign _zz_when_ReorderBuffer_l395_4 = io_writeback_4_robPtr[1:0];
+  assign _zz_125 = ({3'd0,1'b1} <<< _zz_when_ReorderBuffer_l395_4);
+  assign _zz_126 = _zz_125[0];
+  assign _zz_127 = _zz_125[1];
+  assign _zz_128 = _zz_125[2];
+  assign _zz_129 = _zz_125[3];
+  assign when_ReorderBuffer_l395_4 = (((! io_flush_valid) && io_writeback_4_fire) && (io_writeback_4_robPtr[2] == _zz_when_ReorderBuffer_l395_4_1));
   assign _zz_statuses_0_exceptionCode_4 = (io_writeback_4_exceptionOccurred ? io_writeback_4_exceptionCodeIn : _zz__zz_statuses_0_exceptionCode_4);
-  assign _zz_when_ReorderBuffer_l439 = 3'b000;
-  assign _zz_154 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l439);
-  assign _zz_155 = _zz_154[0];
-  assign _zz_156 = _zz_154[1];
-  assign _zz_157 = _zz_154[2];
-  assign _zz_158 = _zz_154[3];
-  assign _zz_159 = _zz_154[4];
-  assign _zz_160 = _zz_154[5];
-  assign _zz_161 = _zz_154[6];
-  assign _zz_162 = _zz_154[7];
+  assign _zz_when_ReorderBuffer_l439 = 2'b00;
+  assign _zz_130 = ({3'd0,1'b1} <<< _zz_when_ReorderBuffer_l439);
+  assign _zz_131 = _zz_130[0];
+  assign _zz_132 = _zz_130[1];
+  assign _zz_133 = _zz_130[2];
+  assign _zz_134 = _zz_130[3];
   assign _zz_when_ReorderBuffer_l439_1 = {1'd0, io_flush_payload_targetRobPtr};
   assign _zz_when_ReorderBuffer_l439_2 = {1'd0, tailPtr_reg};
   assign _zz_when_ReorderBuffer_l439_3 = {1'd0, _zz__zz_when_ReorderBuffer_l439_3};
@@ -60987,16 +61239,12 @@ module ReorderBuffer (
     end
   end
 
-  assign _zz_when_ReorderBuffer_l439_4 = 3'b001;
-  assign _zz_163 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l439_4);
-  assign _zz_164 = _zz_163[0];
-  assign _zz_165 = _zz_163[1];
-  assign _zz_166 = _zz_163[2];
-  assign _zz_167 = _zz_163[3];
-  assign _zz_168 = _zz_163[4];
-  assign _zz_169 = _zz_163[5];
-  assign _zz_170 = _zz_163[6];
-  assign _zz_171 = _zz_163[7];
+  assign _zz_when_ReorderBuffer_l439_4 = 2'b01;
+  assign _zz_135 = ({3'd0,1'b1} <<< _zz_when_ReorderBuffer_l439_4);
+  assign _zz_136 = _zz_135[0];
+  assign _zz_137 = _zz_135[1];
+  assign _zz_138 = _zz_135[2];
+  assign _zz_139 = _zz_135[3];
   assign _zz_when_ReorderBuffer_l439_5 = {1'd0, io_flush_payload_targetRobPtr};
   assign _zz_when_ReorderBuffer_l439_6 = {1'd0, tailPtr_reg};
   assign _zz_when_ReorderBuffer_l439_7 = {1'd0, _zz__zz_when_ReorderBuffer_l439_7};
@@ -61009,16 +61257,12 @@ module ReorderBuffer (
     end
   end
 
-  assign _zz_when_ReorderBuffer_l439_8 = 3'b010;
-  assign _zz_172 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l439_8);
-  assign _zz_173 = _zz_172[0];
-  assign _zz_174 = _zz_172[1];
-  assign _zz_175 = _zz_172[2];
-  assign _zz_176 = _zz_172[3];
-  assign _zz_177 = _zz_172[4];
-  assign _zz_178 = _zz_172[5];
-  assign _zz_179 = _zz_172[6];
-  assign _zz_180 = _zz_172[7];
+  assign _zz_when_ReorderBuffer_l439_8 = 2'b10;
+  assign _zz_140 = ({3'd0,1'b1} <<< _zz_when_ReorderBuffer_l439_8);
+  assign _zz_141 = _zz_140[0];
+  assign _zz_142 = _zz_140[1];
+  assign _zz_143 = _zz_140[2];
+  assign _zz_144 = _zz_140[3];
   assign _zz_when_ReorderBuffer_l439_9 = {1'd0, io_flush_payload_targetRobPtr};
   assign _zz_when_ReorderBuffer_l439_10 = {1'd0, tailPtr_reg};
   assign _zz_when_ReorderBuffer_l439_11 = {1'd0, _zz__zz_when_ReorderBuffer_l439_11};
@@ -61031,16 +61275,12 @@ module ReorderBuffer (
     end
   end
 
-  assign _zz_when_ReorderBuffer_l439_12 = 3'b011;
-  assign _zz_181 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l439_12);
-  assign _zz_182 = _zz_181[0];
-  assign _zz_183 = _zz_181[1];
-  assign _zz_184 = _zz_181[2];
-  assign _zz_185 = _zz_181[3];
-  assign _zz_186 = _zz_181[4];
-  assign _zz_187 = _zz_181[5];
-  assign _zz_188 = _zz_181[6];
-  assign _zz_189 = _zz_181[7];
+  assign _zz_when_ReorderBuffer_l439_12 = 2'b11;
+  assign _zz_145 = ({3'd0,1'b1} <<< _zz_when_ReorderBuffer_l439_12);
+  assign _zz_146 = _zz_145[0];
+  assign _zz_147 = _zz_145[1];
+  assign _zz_148 = _zz_145[2];
+  assign _zz_149 = _zz_145[3];
   assign _zz_when_ReorderBuffer_l439_13 = {1'd0, io_flush_payload_targetRobPtr};
   assign _zz_when_ReorderBuffer_l439_14 = {1'd0, tailPtr_reg};
   assign _zz_when_ReorderBuffer_l439_15 = {1'd0, _zz__zz_when_ReorderBuffer_l439_15};
@@ -61053,109 +61293,10 @@ module ReorderBuffer (
     end
   end
 
-  assign _zz_when_ReorderBuffer_l439_16 = 3'b100;
-  assign _zz_190 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l439_16);
-  assign _zz_191 = _zz_190[0];
-  assign _zz_192 = _zz_190[1];
-  assign _zz_193 = _zz_190[2];
-  assign _zz_194 = _zz_190[3];
-  assign _zz_195 = _zz_190[4];
-  assign _zz_196 = _zz_190[5];
-  assign _zz_197 = _zz_190[6];
-  assign _zz_198 = _zz_190[7];
-  assign _zz_when_ReorderBuffer_l439_17 = {1'd0, io_flush_payload_targetRobPtr};
-  assign _zz_when_ReorderBuffer_l439_18 = {1'd0, tailPtr_reg};
-  assign _zz_when_ReorderBuffer_l439_19 = {1'd0, _zz__zz_when_ReorderBuffer_l439_19};
-  assign when_ReorderBuffer_l433_4 = (_zz_when_ReorderBuffer_l439_17 <= _zz_when_ReorderBuffer_l439_18);
-  always @(*) begin
-    if(when_ReorderBuffer_l433_4) begin
-      when_ReorderBuffer_l439_4 = ((_zz_when_ReorderBuffer_l439_17 <= _zz_when_ReorderBuffer_l439_19) && (_zz_when_ReorderBuffer_l439_19 < _zz_when_ReorderBuffer_l439_18));
-    end else begin
-      when_ReorderBuffer_l439_4 = ((_zz_when_ReorderBuffer_l439_17 <= _zz_when_ReorderBuffer_l439_19) || (_zz_when_ReorderBuffer_l439_19 < _zz_when_ReorderBuffer_l439_18));
-    end
-  end
-
-  assign _zz_when_ReorderBuffer_l439_20 = 3'b101;
-  assign _zz_199 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l439_20);
-  assign _zz_200 = _zz_199[0];
-  assign _zz_201 = _zz_199[1];
-  assign _zz_202 = _zz_199[2];
-  assign _zz_203 = _zz_199[3];
-  assign _zz_204 = _zz_199[4];
-  assign _zz_205 = _zz_199[5];
-  assign _zz_206 = _zz_199[6];
-  assign _zz_207 = _zz_199[7];
-  assign _zz_when_ReorderBuffer_l439_21 = {1'd0, io_flush_payload_targetRobPtr};
-  assign _zz_when_ReorderBuffer_l439_22 = {1'd0, tailPtr_reg};
-  assign _zz_when_ReorderBuffer_l439_23 = {1'd0, _zz__zz_when_ReorderBuffer_l439_23};
-  assign when_ReorderBuffer_l433_5 = (_zz_when_ReorderBuffer_l439_21 <= _zz_when_ReorderBuffer_l439_22);
-  always @(*) begin
-    if(when_ReorderBuffer_l433_5) begin
-      when_ReorderBuffer_l439_5 = ((_zz_when_ReorderBuffer_l439_21 <= _zz_when_ReorderBuffer_l439_23) && (_zz_when_ReorderBuffer_l439_23 < _zz_when_ReorderBuffer_l439_22));
-    end else begin
-      when_ReorderBuffer_l439_5 = ((_zz_when_ReorderBuffer_l439_21 <= _zz_when_ReorderBuffer_l439_23) || (_zz_when_ReorderBuffer_l439_23 < _zz_when_ReorderBuffer_l439_22));
-    end
-  end
-
-  assign _zz_when_ReorderBuffer_l439_24 = 3'b110;
-  assign _zz_208 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l439_24);
-  assign _zz_209 = _zz_208[0];
-  assign _zz_210 = _zz_208[1];
-  assign _zz_211 = _zz_208[2];
-  assign _zz_212 = _zz_208[3];
-  assign _zz_213 = _zz_208[4];
-  assign _zz_214 = _zz_208[5];
-  assign _zz_215 = _zz_208[6];
-  assign _zz_216 = _zz_208[7];
-  assign _zz_when_ReorderBuffer_l439_25 = {1'd0, io_flush_payload_targetRobPtr};
-  assign _zz_when_ReorderBuffer_l439_26 = {1'd0, tailPtr_reg};
-  assign _zz_when_ReorderBuffer_l439_27 = {1'd0, _zz__zz_when_ReorderBuffer_l439_27};
-  assign when_ReorderBuffer_l433_6 = (_zz_when_ReorderBuffer_l439_25 <= _zz_when_ReorderBuffer_l439_26);
-  always @(*) begin
-    if(when_ReorderBuffer_l433_6) begin
-      when_ReorderBuffer_l439_6 = ((_zz_when_ReorderBuffer_l439_25 <= _zz_when_ReorderBuffer_l439_27) && (_zz_when_ReorderBuffer_l439_27 < _zz_when_ReorderBuffer_l439_26));
-    end else begin
-      when_ReorderBuffer_l439_6 = ((_zz_when_ReorderBuffer_l439_25 <= _zz_when_ReorderBuffer_l439_27) || (_zz_when_ReorderBuffer_l439_27 < _zz_when_ReorderBuffer_l439_26));
-    end
-  end
-
-  assign _zz_when_ReorderBuffer_l439_28 = 3'b111;
-  assign _zz_217 = ({7'd0,1'b1} <<< _zz_when_ReorderBuffer_l439_28);
-  assign _zz_218 = _zz_217[0];
-  assign _zz_219 = _zz_217[1];
-  assign _zz_220 = _zz_217[2];
-  assign _zz_221 = _zz_217[3];
-  assign _zz_222 = _zz_217[4];
-  assign _zz_223 = _zz_217[5];
-  assign _zz_224 = _zz_217[6];
-  assign _zz_225 = _zz_217[7];
-  assign _zz_when_ReorderBuffer_l439_29 = {1'd0, io_flush_payload_targetRobPtr};
-  assign _zz_when_ReorderBuffer_l439_30 = {1'd0, tailPtr_reg};
-  assign _zz_when_ReorderBuffer_l439_31 = {1'd0, _zz__zz_when_ReorderBuffer_l439_31};
-  assign when_ReorderBuffer_l433_7 = (_zz_when_ReorderBuffer_l439_29 <= _zz_when_ReorderBuffer_l439_30);
-  always @(*) begin
-    if(when_ReorderBuffer_l433_7) begin
-      when_ReorderBuffer_l439_7 = ((_zz_when_ReorderBuffer_l439_29 <= _zz_when_ReorderBuffer_l439_31) && (_zz_when_ReorderBuffer_l439_31 < _zz_when_ReorderBuffer_l439_30));
-    end else begin
-      when_ReorderBuffer_l439_7 = ((_zz_when_ReorderBuffer_l439_29 <= _zz_when_ReorderBuffer_l439_31) || (_zz_when_ReorderBuffer_l439_31 < _zz_when_ReorderBuffer_l439_30));
-    end
-  end
-
-  assign io_empty = (count_reg == 4'b0000);
+  assign io_empty = (count_reg == 3'b000);
   assign io_headPtrOut = headPtr_reg;
   assign io_tailPtrOut = tailPtr_reg;
   assign io_countOut = count_reg;
-  assign debg_head_ext = {1'd0, headPtr_reg};
-  assign debg_tail_ext = {1'd0, tailPtr_reg};
-  assign when_ReorderBuffer_l469 = (debg_head_ext <= debg_tail_ext);
-  always @(*) begin
-    if(when_ReorderBuffer_l469) begin
-      debg_expected_count = _zz_debg_expected_count[3:0];
-    end else begin
-      debg_expected_count = _zz_debg_expected_count_1[3:0];
-    end
-  end
-
   always @(posedge clk) begin
     if(reset) begin
       statuses_0_busy <= 1'b0;
@@ -61178,29 +61319,9 @@ module ReorderBuffer (
       statuses_3_hasException <= 1'b0;
       statuses_3_exceptionCode <= 8'h0;
       statuses_3_genBit <= 1'b0;
-      statuses_4_busy <= 1'b0;
-      statuses_4_done <= 1'b0;
-      statuses_4_hasException <= 1'b0;
-      statuses_4_exceptionCode <= 8'h0;
-      statuses_4_genBit <= 1'b0;
-      statuses_5_busy <= 1'b0;
-      statuses_5_done <= 1'b0;
-      statuses_5_hasException <= 1'b0;
-      statuses_5_exceptionCode <= 8'h0;
-      statuses_5_genBit <= 1'b0;
-      statuses_6_busy <= 1'b0;
-      statuses_6_done <= 1'b0;
-      statuses_6_hasException <= 1'b0;
-      statuses_6_exceptionCode <= 8'h0;
-      statuses_6_genBit <= 1'b0;
-      statuses_7_busy <= 1'b0;
-      statuses_7_done <= 1'b0;
-      statuses_7_hasException <= 1'b0;
-      statuses_7_exceptionCode <= 8'h0;
-      statuses_7_genBit <= 1'b0;
-      headPtr_reg <= 4'b0000;
-      tailPtr_reg <= 4'b0000;
-      count_reg <= 4'b0000;
+      headPtr_reg <= 3'b000;
+      tailPtr_reg <= 3'b000;
+      count_reg <= 3'b000;
       flushInProgressReg <= 1'b0;
       flushWasActiveLastCycle <= 1'b0;
     end else begin
@@ -61218,7 +61339,7 @@ module ReorderBuffer (
             assert(1'b0); // ReorderBuffer.scala:L306
           `else
             if(!1'b0) begin
-              $display("NOTE(ReorderBuffer.scala:306):  [ROB] COMMIT_SUMMARY: Committing %x entries, total entries=%x, capacity=8", numToCommit, count_reg); // ReorderBuffer.scala:L306
+              $display("NOTE(ReorderBuffer.scala:306):  [ROB] COMMIT_SUMMARY: Committing %x entries, total entries=%x, capacity=4", numToCommit, count_reg); // ReorderBuffer.scala:L306
             end
           `endif
         `endif
@@ -61239,18 +61360,6 @@ module ReorderBuffer (
         if(_zz_103) begin
           statuses_3_busy <= 1'b1;
         end
-        if(_zz_104) begin
-          statuses_4_busy <= 1'b1;
-        end
-        if(_zz_105) begin
-          statuses_5_busy <= 1'b1;
-        end
-        if(_zz_106) begin
-          statuses_6_busy <= 1'b1;
-        end
-        if(_zz_107) begin
-          statuses_7_busy <= 1'b1;
-        end
         if(_zz_100) begin
           statuses_0_done <= 1'b0;
         end
@@ -61262,18 +61371,6 @@ module ReorderBuffer (
         end
         if(_zz_103) begin
           statuses_3_done <= 1'b0;
-        end
-        if(_zz_104) begin
-          statuses_4_done <= 1'b0;
-        end
-        if(_zz_105) begin
-          statuses_5_done <= 1'b0;
-        end
-        if(_zz_106) begin
-          statuses_6_done <= 1'b0;
-        end
-        if(_zz_107) begin
-          statuses_7_done <= 1'b0;
         end
         if(_zz_100) begin
           statuses_0_hasException <= 1'b0;
@@ -61287,18 +61384,6 @@ module ReorderBuffer (
         if(_zz_103) begin
           statuses_3_hasException <= 1'b0;
         end
-        if(_zz_104) begin
-          statuses_4_hasException <= 1'b0;
-        end
-        if(_zz_105) begin
-          statuses_5_hasException <= 1'b0;
-        end
-        if(_zz_106) begin
-          statuses_6_hasException <= 1'b0;
-        end
-        if(_zz_107) begin
-          statuses_7_hasException <= 1'b0;
-        end
         if(_zz_100) begin
           statuses_0_genBit <= _zz_statuses_0_genBit_1;
         end
@@ -61311,507 +61396,255 @@ module ReorderBuffer (
         if(_zz_103) begin
           statuses_3_genBit <= _zz_statuses_0_genBit_1;
         end
-        if(_zz_104) begin
-          statuses_4_genBit <= _zz_statuses_0_genBit_1;
-        end
-        if(_zz_105) begin
-          statuses_5_genBit <= _zz_statuses_0_genBit_1;
-        end
-        if(_zz_106) begin
-          statuses_6_genBit <= _zz_statuses_0_genBit_1;
-        end
-        if(_zz_107) begin
-          statuses_7_genBit <= _zz_statuses_0_genBit_1;
-        end
       end
       if(when_ReorderBuffer_l395) begin
-        if(_zz_110) begin
+        if(_zz_106) begin
           statuses_0_busy <= 1'b0;
         end
-        if(_zz_111) begin
+        if(_zz_107) begin
           statuses_1_busy <= 1'b0;
         end
-        if(_zz_112) begin
+        if(_zz_108) begin
           statuses_2_busy <= 1'b0;
         end
-        if(_zz_113) begin
+        if(_zz_109) begin
           statuses_3_busy <= 1'b0;
         end
-        if(_zz_114) begin
-          statuses_4_busy <= 1'b0;
-        end
-        if(_zz_115) begin
-          statuses_5_busy <= 1'b0;
-        end
-        if(_zz_116) begin
-          statuses_6_busy <= 1'b0;
-        end
-        if(_zz_117) begin
-          statuses_7_busy <= 1'b0;
-        end
-        if(_zz_110) begin
+        if(_zz_106) begin
           statuses_0_done <= 1'b1;
         end
-        if(_zz_111) begin
+        if(_zz_107) begin
           statuses_1_done <= 1'b1;
         end
-        if(_zz_112) begin
+        if(_zz_108) begin
           statuses_2_done <= 1'b1;
         end
-        if(_zz_113) begin
+        if(_zz_109) begin
           statuses_3_done <= 1'b1;
         end
-        if(_zz_114) begin
-          statuses_4_done <= 1'b1;
-        end
-        if(_zz_115) begin
-          statuses_5_done <= 1'b1;
-        end
-        if(_zz_116) begin
-          statuses_6_done <= 1'b1;
-        end
-        if(_zz_117) begin
-          statuses_7_done <= 1'b1;
-        end
-        if(_zz_110) begin
+        if(_zz_106) begin
           statuses_0_hasException <= io_writeback_0_exceptionOccurred;
         end
-        if(_zz_111) begin
+        if(_zz_107) begin
           statuses_1_hasException <= io_writeback_0_exceptionOccurred;
         end
-        if(_zz_112) begin
+        if(_zz_108) begin
           statuses_2_hasException <= io_writeback_0_exceptionOccurred;
         end
-        if(_zz_113) begin
+        if(_zz_109) begin
           statuses_3_hasException <= io_writeback_0_exceptionOccurred;
         end
-        if(_zz_114) begin
-          statuses_4_hasException <= io_writeback_0_exceptionOccurred;
-        end
-        if(_zz_115) begin
-          statuses_5_hasException <= io_writeback_0_exceptionOccurred;
-        end
-        if(_zz_116) begin
-          statuses_6_hasException <= io_writeback_0_exceptionOccurred;
-        end
-        if(_zz_117) begin
-          statuses_7_hasException <= io_writeback_0_exceptionOccurred;
-        end
-        if(_zz_110) begin
+        if(_zz_106) begin
           statuses_0_exceptionCode <= _zz_statuses_0_exceptionCode;
         end
-        if(_zz_111) begin
+        if(_zz_107) begin
           statuses_1_exceptionCode <= _zz_statuses_0_exceptionCode;
         end
-        if(_zz_112) begin
+        if(_zz_108) begin
           statuses_2_exceptionCode <= _zz_statuses_0_exceptionCode;
         end
-        if(_zz_113) begin
+        if(_zz_109) begin
           statuses_3_exceptionCode <= _zz_statuses_0_exceptionCode;
-        end
-        if(_zz_114) begin
-          statuses_4_exceptionCode <= _zz_statuses_0_exceptionCode;
-        end
-        if(_zz_115) begin
-          statuses_5_exceptionCode <= _zz_statuses_0_exceptionCode;
-        end
-        if(_zz_116) begin
-          statuses_6_exceptionCode <= _zz_statuses_0_exceptionCode;
-        end
-        if(_zz_117) begin
-          statuses_7_exceptionCode <= _zz_statuses_0_exceptionCode;
         end
       end
       if(when_ReorderBuffer_l395_1) begin
-        if(_zz_119) begin
+        if(_zz_111) begin
           statuses_0_busy <= 1'b0;
         end
-        if(_zz_120) begin
+        if(_zz_112) begin
           statuses_1_busy <= 1'b0;
         end
-        if(_zz_121) begin
+        if(_zz_113) begin
           statuses_2_busy <= 1'b0;
         end
-        if(_zz_122) begin
+        if(_zz_114) begin
           statuses_3_busy <= 1'b0;
         end
-        if(_zz_123) begin
-          statuses_4_busy <= 1'b0;
-        end
-        if(_zz_124) begin
-          statuses_5_busy <= 1'b0;
-        end
-        if(_zz_125) begin
-          statuses_6_busy <= 1'b0;
-        end
-        if(_zz_126) begin
-          statuses_7_busy <= 1'b0;
-        end
-        if(_zz_119) begin
+        if(_zz_111) begin
           statuses_0_done <= 1'b1;
         end
-        if(_zz_120) begin
+        if(_zz_112) begin
           statuses_1_done <= 1'b1;
         end
-        if(_zz_121) begin
+        if(_zz_113) begin
           statuses_2_done <= 1'b1;
         end
-        if(_zz_122) begin
+        if(_zz_114) begin
           statuses_3_done <= 1'b1;
         end
-        if(_zz_123) begin
-          statuses_4_done <= 1'b1;
-        end
-        if(_zz_124) begin
-          statuses_5_done <= 1'b1;
-        end
-        if(_zz_125) begin
-          statuses_6_done <= 1'b1;
-        end
-        if(_zz_126) begin
-          statuses_7_done <= 1'b1;
-        end
-        if(_zz_119) begin
+        if(_zz_111) begin
           statuses_0_hasException <= io_writeback_1_exceptionOccurred;
         end
-        if(_zz_120) begin
+        if(_zz_112) begin
           statuses_1_hasException <= io_writeback_1_exceptionOccurred;
         end
-        if(_zz_121) begin
+        if(_zz_113) begin
           statuses_2_hasException <= io_writeback_1_exceptionOccurred;
         end
-        if(_zz_122) begin
+        if(_zz_114) begin
           statuses_3_hasException <= io_writeback_1_exceptionOccurred;
         end
-        if(_zz_123) begin
-          statuses_4_hasException <= io_writeback_1_exceptionOccurred;
-        end
-        if(_zz_124) begin
-          statuses_5_hasException <= io_writeback_1_exceptionOccurred;
-        end
-        if(_zz_125) begin
-          statuses_6_hasException <= io_writeback_1_exceptionOccurred;
-        end
-        if(_zz_126) begin
-          statuses_7_hasException <= io_writeback_1_exceptionOccurred;
-        end
-        if(_zz_119) begin
+        if(_zz_111) begin
           statuses_0_exceptionCode <= _zz_statuses_0_exceptionCode_1;
         end
-        if(_zz_120) begin
+        if(_zz_112) begin
           statuses_1_exceptionCode <= _zz_statuses_0_exceptionCode_1;
         end
-        if(_zz_121) begin
+        if(_zz_113) begin
           statuses_2_exceptionCode <= _zz_statuses_0_exceptionCode_1;
         end
-        if(_zz_122) begin
+        if(_zz_114) begin
           statuses_3_exceptionCode <= _zz_statuses_0_exceptionCode_1;
-        end
-        if(_zz_123) begin
-          statuses_4_exceptionCode <= _zz_statuses_0_exceptionCode_1;
-        end
-        if(_zz_124) begin
-          statuses_5_exceptionCode <= _zz_statuses_0_exceptionCode_1;
-        end
-        if(_zz_125) begin
-          statuses_6_exceptionCode <= _zz_statuses_0_exceptionCode_1;
-        end
-        if(_zz_126) begin
-          statuses_7_exceptionCode <= _zz_statuses_0_exceptionCode_1;
         end
       end
       if(when_ReorderBuffer_l395_2) begin
-        if(_zz_128) begin
+        if(_zz_116) begin
           statuses_0_busy <= 1'b0;
         end
-        if(_zz_129) begin
+        if(_zz_117) begin
           statuses_1_busy <= 1'b0;
         end
-        if(_zz_130) begin
+        if(_zz_118) begin
           statuses_2_busy <= 1'b0;
         end
-        if(_zz_131) begin
+        if(_zz_119) begin
           statuses_3_busy <= 1'b0;
         end
-        if(_zz_132) begin
-          statuses_4_busy <= 1'b0;
-        end
-        if(_zz_133) begin
-          statuses_5_busy <= 1'b0;
-        end
-        if(_zz_134) begin
-          statuses_6_busy <= 1'b0;
-        end
-        if(_zz_135) begin
-          statuses_7_busy <= 1'b0;
-        end
-        if(_zz_128) begin
+        if(_zz_116) begin
           statuses_0_done <= 1'b1;
         end
-        if(_zz_129) begin
+        if(_zz_117) begin
           statuses_1_done <= 1'b1;
         end
-        if(_zz_130) begin
+        if(_zz_118) begin
           statuses_2_done <= 1'b1;
         end
-        if(_zz_131) begin
+        if(_zz_119) begin
           statuses_3_done <= 1'b1;
         end
-        if(_zz_132) begin
-          statuses_4_done <= 1'b1;
-        end
-        if(_zz_133) begin
-          statuses_5_done <= 1'b1;
-        end
-        if(_zz_134) begin
-          statuses_6_done <= 1'b1;
-        end
-        if(_zz_135) begin
-          statuses_7_done <= 1'b1;
-        end
-        if(_zz_128) begin
+        if(_zz_116) begin
           statuses_0_hasException <= io_writeback_2_exceptionOccurred;
         end
-        if(_zz_129) begin
+        if(_zz_117) begin
           statuses_1_hasException <= io_writeback_2_exceptionOccurred;
         end
-        if(_zz_130) begin
+        if(_zz_118) begin
           statuses_2_hasException <= io_writeback_2_exceptionOccurred;
         end
-        if(_zz_131) begin
+        if(_zz_119) begin
           statuses_3_hasException <= io_writeback_2_exceptionOccurred;
         end
-        if(_zz_132) begin
-          statuses_4_hasException <= io_writeback_2_exceptionOccurred;
-        end
-        if(_zz_133) begin
-          statuses_5_hasException <= io_writeback_2_exceptionOccurred;
-        end
-        if(_zz_134) begin
-          statuses_6_hasException <= io_writeback_2_exceptionOccurred;
-        end
-        if(_zz_135) begin
-          statuses_7_hasException <= io_writeback_2_exceptionOccurred;
-        end
-        if(_zz_128) begin
+        if(_zz_116) begin
           statuses_0_exceptionCode <= _zz_statuses_0_exceptionCode_2;
         end
-        if(_zz_129) begin
+        if(_zz_117) begin
           statuses_1_exceptionCode <= _zz_statuses_0_exceptionCode_2;
         end
-        if(_zz_130) begin
+        if(_zz_118) begin
           statuses_2_exceptionCode <= _zz_statuses_0_exceptionCode_2;
         end
-        if(_zz_131) begin
+        if(_zz_119) begin
           statuses_3_exceptionCode <= _zz_statuses_0_exceptionCode_2;
-        end
-        if(_zz_132) begin
-          statuses_4_exceptionCode <= _zz_statuses_0_exceptionCode_2;
-        end
-        if(_zz_133) begin
-          statuses_5_exceptionCode <= _zz_statuses_0_exceptionCode_2;
-        end
-        if(_zz_134) begin
-          statuses_6_exceptionCode <= _zz_statuses_0_exceptionCode_2;
-        end
-        if(_zz_135) begin
-          statuses_7_exceptionCode <= _zz_statuses_0_exceptionCode_2;
         end
       end
       if(when_ReorderBuffer_l395_3) begin
-        if(_zz_137) begin
+        if(_zz_121) begin
           statuses_0_busy <= 1'b0;
         end
-        if(_zz_138) begin
+        if(_zz_122) begin
           statuses_1_busy <= 1'b0;
         end
-        if(_zz_139) begin
+        if(_zz_123) begin
           statuses_2_busy <= 1'b0;
         end
-        if(_zz_140) begin
+        if(_zz_124) begin
           statuses_3_busy <= 1'b0;
         end
-        if(_zz_141) begin
-          statuses_4_busy <= 1'b0;
-        end
-        if(_zz_142) begin
-          statuses_5_busy <= 1'b0;
-        end
-        if(_zz_143) begin
-          statuses_6_busy <= 1'b0;
-        end
-        if(_zz_144) begin
-          statuses_7_busy <= 1'b0;
-        end
-        if(_zz_137) begin
+        if(_zz_121) begin
           statuses_0_done <= 1'b1;
         end
-        if(_zz_138) begin
+        if(_zz_122) begin
           statuses_1_done <= 1'b1;
         end
-        if(_zz_139) begin
+        if(_zz_123) begin
           statuses_2_done <= 1'b1;
         end
-        if(_zz_140) begin
+        if(_zz_124) begin
           statuses_3_done <= 1'b1;
         end
-        if(_zz_141) begin
-          statuses_4_done <= 1'b1;
-        end
-        if(_zz_142) begin
-          statuses_5_done <= 1'b1;
-        end
-        if(_zz_143) begin
-          statuses_6_done <= 1'b1;
-        end
-        if(_zz_144) begin
-          statuses_7_done <= 1'b1;
-        end
-        if(_zz_137) begin
+        if(_zz_121) begin
           statuses_0_hasException <= io_writeback_3_exceptionOccurred;
         end
-        if(_zz_138) begin
+        if(_zz_122) begin
           statuses_1_hasException <= io_writeback_3_exceptionOccurred;
         end
-        if(_zz_139) begin
+        if(_zz_123) begin
           statuses_2_hasException <= io_writeback_3_exceptionOccurred;
         end
-        if(_zz_140) begin
+        if(_zz_124) begin
           statuses_3_hasException <= io_writeback_3_exceptionOccurred;
         end
-        if(_zz_141) begin
-          statuses_4_hasException <= io_writeback_3_exceptionOccurred;
-        end
-        if(_zz_142) begin
-          statuses_5_hasException <= io_writeback_3_exceptionOccurred;
-        end
-        if(_zz_143) begin
-          statuses_6_hasException <= io_writeback_3_exceptionOccurred;
-        end
-        if(_zz_144) begin
-          statuses_7_hasException <= io_writeback_3_exceptionOccurred;
-        end
-        if(_zz_137) begin
+        if(_zz_121) begin
           statuses_0_exceptionCode <= _zz_statuses_0_exceptionCode_3;
         end
-        if(_zz_138) begin
+        if(_zz_122) begin
           statuses_1_exceptionCode <= _zz_statuses_0_exceptionCode_3;
         end
-        if(_zz_139) begin
+        if(_zz_123) begin
           statuses_2_exceptionCode <= _zz_statuses_0_exceptionCode_3;
         end
-        if(_zz_140) begin
+        if(_zz_124) begin
           statuses_3_exceptionCode <= _zz_statuses_0_exceptionCode_3;
-        end
-        if(_zz_141) begin
-          statuses_4_exceptionCode <= _zz_statuses_0_exceptionCode_3;
-        end
-        if(_zz_142) begin
-          statuses_5_exceptionCode <= _zz_statuses_0_exceptionCode_3;
-        end
-        if(_zz_143) begin
-          statuses_6_exceptionCode <= _zz_statuses_0_exceptionCode_3;
-        end
-        if(_zz_144) begin
-          statuses_7_exceptionCode <= _zz_statuses_0_exceptionCode_3;
         end
       end
       if(when_ReorderBuffer_l395_4) begin
-        if(_zz_146) begin
+        if(_zz_126) begin
           statuses_0_busy <= 1'b0;
         end
-        if(_zz_147) begin
+        if(_zz_127) begin
           statuses_1_busy <= 1'b0;
         end
-        if(_zz_148) begin
+        if(_zz_128) begin
           statuses_2_busy <= 1'b0;
         end
-        if(_zz_149) begin
+        if(_zz_129) begin
           statuses_3_busy <= 1'b0;
         end
-        if(_zz_150) begin
-          statuses_4_busy <= 1'b0;
-        end
-        if(_zz_151) begin
-          statuses_5_busy <= 1'b0;
-        end
-        if(_zz_152) begin
-          statuses_6_busy <= 1'b0;
-        end
-        if(_zz_153) begin
-          statuses_7_busy <= 1'b0;
-        end
-        if(_zz_146) begin
+        if(_zz_126) begin
           statuses_0_done <= 1'b1;
         end
-        if(_zz_147) begin
+        if(_zz_127) begin
           statuses_1_done <= 1'b1;
         end
-        if(_zz_148) begin
+        if(_zz_128) begin
           statuses_2_done <= 1'b1;
         end
-        if(_zz_149) begin
+        if(_zz_129) begin
           statuses_3_done <= 1'b1;
         end
-        if(_zz_150) begin
-          statuses_4_done <= 1'b1;
-        end
-        if(_zz_151) begin
-          statuses_5_done <= 1'b1;
-        end
-        if(_zz_152) begin
-          statuses_6_done <= 1'b1;
-        end
-        if(_zz_153) begin
-          statuses_7_done <= 1'b1;
-        end
-        if(_zz_146) begin
+        if(_zz_126) begin
           statuses_0_hasException <= io_writeback_4_exceptionOccurred;
         end
-        if(_zz_147) begin
+        if(_zz_127) begin
           statuses_1_hasException <= io_writeback_4_exceptionOccurred;
         end
-        if(_zz_148) begin
+        if(_zz_128) begin
           statuses_2_hasException <= io_writeback_4_exceptionOccurred;
         end
-        if(_zz_149) begin
+        if(_zz_129) begin
           statuses_3_hasException <= io_writeback_4_exceptionOccurred;
         end
-        if(_zz_150) begin
-          statuses_4_hasException <= io_writeback_4_exceptionOccurred;
-        end
-        if(_zz_151) begin
-          statuses_5_hasException <= io_writeback_4_exceptionOccurred;
-        end
-        if(_zz_152) begin
-          statuses_6_hasException <= io_writeback_4_exceptionOccurred;
-        end
-        if(_zz_153) begin
-          statuses_7_hasException <= io_writeback_4_exceptionOccurred;
-        end
-        if(_zz_146) begin
+        if(_zz_126) begin
           statuses_0_exceptionCode <= _zz_statuses_0_exceptionCode_4;
         end
-        if(_zz_147) begin
+        if(_zz_127) begin
           statuses_1_exceptionCode <= _zz_statuses_0_exceptionCode_4;
         end
-        if(_zz_148) begin
+        if(_zz_128) begin
           statuses_2_exceptionCode <= _zz_statuses_0_exceptionCode_4;
         end
-        if(_zz_149) begin
+        if(_zz_129) begin
           statuses_3_exceptionCode <= _zz_statuses_0_exceptionCode_4;
-        end
-        if(_zz_150) begin
-          statuses_4_exceptionCode <= _zz_statuses_0_exceptionCode_4;
-        end
-        if(_zz_151) begin
-          statuses_5_exceptionCode <= _zz_statuses_0_exceptionCode_4;
-        end
-        if(_zz_152) begin
-          statuses_6_exceptionCode <= _zz_statuses_0_exceptionCode_4;
-        end
-        if(_zz_153) begin
-          statuses_7_exceptionCode <= _zz_statuses_0_exceptionCode_4;
         end
       end
       if(io_flush_valid) begin
@@ -61833,614 +61666,158 @@ module ReorderBuffer (
             statuses_3_done <= 1'b0;
             statuses_3_hasException <= 1'b0;
             statuses_3_genBit <= 1'b0;
-            statuses_4_busy <= 1'b0;
-            statuses_4_done <= 1'b0;
-            statuses_4_hasException <= 1'b0;
-            statuses_4_genBit <= 1'b0;
-            statuses_5_busy <= 1'b0;
-            statuses_5_done <= 1'b0;
-            statuses_5_hasException <= 1'b0;
-            statuses_5_genBit <= 1'b0;
-            statuses_6_busy <= 1'b0;
-            statuses_6_done <= 1'b0;
-            statuses_6_hasException <= 1'b0;
-            statuses_6_genBit <= 1'b0;
-            statuses_7_busy <= 1'b0;
-            statuses_7_done <= 1'b0;
-            statuses_7_hasException <= 1'b0;
-            statuses_7_genBit <= 1'b0;
           end
           FlushReason_ROLLBACK_TO_ROB_IDX : begin
             if(when_ReorderBuffer_l439) begin
-              if(_zz_155) begin
+              if(_zz_131) begin
                 statuses_0_busy <= 1'b0;
               end
-              if(_zz_156) begin
+              if(_zz_132) begin
                 statuses_1_busy <= 1'b0;
               end
-              if(_zz_157) begin
+              if(_zz_133) begin
                 statuses_2_busy <= 1'b0;
               end
-              if(_zz_158) begin
+              if(_zz_134) begin
                 statuses_3_busy <= 1'b0;
               end
-              if(_zz_159) begin
-                statuses_4_busy <= 1'b0;
-              end
-              if(_zz_160) begin
-                statuses_5_busy <= 1'b0;
-              end
-              if(_zz_161) begin
-                statuses_6_busy <= 1'b0;
-              end
-              if(_zz_162) begin
-                statuses_7_busy <= 1'b0;
-              end
-              if(_zz_155) begin
+              if(_zz_131) begin
                 statuses_0_done <= 1'b0;
               end
-              if(_zz_156) begin
+              if(_zz_132) begin
                 statuses_1_done <= 1'b0;
               end
-              if(_zz_157) begin
+              if(_zz_133) begin
                 statuses_2_done <= 1'b0;
               end
-              if(_zz_158) begin
+              if(_zz_134) begin
                 statuses_3_done <= 1'b0;
               end
-              if(_zz_159) begin
-                statuses_4_done <= 1'b0;
-              end
-              if(_zz_160) begin
-                statuses_5_done <= 1'b0;
-              end
-              if(_zz_161) begin
-                statuses_6_done <= 1'b0;
-              end
-              if(_zz_162) begin
-                statuses_7_done <= 1'b0;
-              end
-              if(_zz_155) begin
+              if(_zz_131) begin
                 statuses_0_hasException <= 1'b0;
               end
-              if(_zz_156) begin
+              if(_zz_132) begin
                 statuses_1_hasException <= 1'b0;
               end
-              if(_zz_157) begin
+              if(_zz_133) begin
                 statuses_2_hasException <= 1'b0;
               end
-              if(_zz_158) begin
+              if(_zz_134) begin
                 statuses_3_hasException <= 1'b0;
-              end
-              if(_zz_159) begin
-                statuses_4_hasException <= 1'b0;
-              end
-              if(_zz_160) begin
-                statuses_5_hasException <= 1'b0;
-              end
-              if(_zz_161) begin
-                statuses_6_hasException <= 1'b0;
-              end
-              if(_zz_162) begin
-                statuses_7_hasException <= 1'b0;
               end
             end
             if(when_ReorderBuffer_l439_1) begin
-              if(_zz_164) begin
+              if(_zz_136) begin
                 statuses_0_busy <= 1'b0;
               end
-              if(_zz_165) begin
+              if(_zz_137) begin
                 statuses_1_busy <= 1'b0;
               end
-              if(_zz_166) begin
+              if(_zz_138) begin
                 statuses_2_busy <= 1'b0;
               end
-              if(_zz_167) begin
+              if(_zz_139) begin
                 statuses_3_busy <= 1'b0;
               end
-              if(_zz_168) begin
-                statuses_4_busy <= 1'b0;
-              end
-              if(_zz_169) begin
-                statuses_5_busy <= 1'b0;
-              end
-              if(_zz_170) begin
-                statuses_6_busy <= 1'b0;
-              end
-              if(_zz_171) begin
-                statuses_7_busy <= 1'b0;
-              end
-              if(_zz_164) begin
+              if(_zz_136) begin
                 statuses_0_done <= 1'b0;
               end
-              if(_zz_165) begin
+              if(_zz_137) begin
                 statuses_1_done <= 1'b0;
               end
-              if(_zz_166) begin
+              if(_zz_138) begin
                 statuses_2_done <= 1'b0;
               end
-              if(_zz_167) begin
+              if(_zz_139) begin
                 statuses_3_done <= 1'b0;
               end
-              if(_zz_168) begin
-                statuses_4_done <= 1'b0;
-              end
-              if(_zz_169) begin
-                statuses_5_done <= 1'b0;
-              end
-              if(_zz_170) begin
-                statuses_6_done <= 1'b0;
-              end
-              if(_zz_171) begin
-                statuses_7_done <= 1'b0;
-              end
-              if(_zz_164) begin
+              if(_zz_136) begin
                 statuses_0_hasException <= 1'b0;
               end
-              if(_zz_165) begin
+              if(_zz_137) begin
                 statuses_1_hasException <= 1'b0;
               end
-              if(_zz_166) begin
+              if(_zz_138) begin
                 statuses_2_hasException <= 1'b0;
               end
-              if(_zz_167) begin
+              if(_zz_139) begin
                 statuses_3_hasException <= 1'b0;
-              end
-              if(_zz_168) begin
-                statuses_4_hasException <= 1'b0;
-              end
-              if(_zz_169) begin
-                statuses_5_hasException <= 1'b0;
-              end
-              if(_zz_170) begin
-                statuses_6_hasException <= 1'b0;
-              end
-              if(_zz_171) begin
-                statuses_7_hasException <= 1'b0;
               end
             end
             if(when_ReorderBuffer_l439_2) begin
-              if(_zz_173) begin
+              if(_zz_141) begin
                 statuses_0_busy <= 1'b0;
               end
-              if(_zz_174) begin
+              if(_zz_142) begin
                 statuses_1_busy <= 1'b0;
               end
-              if(_zz_175) begin
+              if(_zz_143) begin
                 statuses_2_busy <= 1'b0;
               end
-              if(_zz_176) begin
+              if(_zz_144) begin
                 statuses_3_busy <= 1'b0;
               end
-              if(_zz_177) begin
-                statuses_4_busy <= 1'b0;
-              end
-              if(_zz_178) begin
-                statuses_5_busy <= 1'b0;
-              end
-              if(_zz_179) begin
-                statuses_6_busy <= 1'b0;
-              end
-              if(_zz_180) begin
-                statuses_7_busy <= 1'b0;
-              end
-              if(_zz_173) begin
+              if(_zz_141) begin
                 statuses_0_done <= 1'b0;
               end
-              if(_zz_174) begin
+              if(_zz_142) begin
                 statuses_1_done <= 1'b0;
               end
-              if(_zz_175) begin
+              if(_zz_143) begin
                 statuses_2_done <= 1'b0;
               end
-              if(_zz_176) begin
+              if(_zz_144) begin
                 statuses_3_done <= 1'b0;
               end
-              if(_zz_177) begin
-                statuses_4_done <= 1'b0;
-              end
-              if(_zz_178) begin
-                statuses_5_done <= 1'b0;
-              end
-              if(_zz_179) begin
-                statuses_6_done <= 1'b0;
-              end
-              if(_zz_180) begin
-                statuses_7_done <= 1'b0;
-              end
-              if(_zz_173) begin
+              if(_zz_141) begin
                 statuses_0_hasException <= 1'b0;
               end
-              if(_zz_174) begin
+              if(_zz_142) begin
                 statuses_1_hasException <= 1'b0;
               end
-              if(_zz_175) begin
+              if(_zz_143) begin
                 statuses_2_hasException <= 1'b0;
               end
-              if(_zz_176) begin
+              if(_zz_144) begin
                 statuses_3_hasException <= 1'b0;
-              end
-              if(_zz_177) begin
-                statuses_4_hasException <= 1'b0;
-              end
-              if(_zz_178) begin
-                statuses_5_hasException <= 1'b0;
-              end
-              if(_zz_179) begin
-                statuses_6_hasException <= 1'b0;
-              end
-              if(_zz_180) begin
-                statuses_7_hasException <= 1'b0;
               end
             end
             if(when_ReorderBuffer_l439_3) begin
-              if(_zz_182) begin
+              if(_zz_146) begin
                 statuses_0_busy <= 1'b0;
               end
-              if(_zz_183) begin
+              if(_zz_147) begin
                 statuses_1_busy <= 1'b0;
               end
-              if(_zz_184) begin
+              if(_zz_148) begin
                 statuses_2_busy <= 1'b0;
               end
-              if(_zz_185) begin
+              if(_zz_149) begin
                 statuses_3_busy <= 1'b0;
               end
-              if(_zz_186) begin
-                statuses_4_busy <= 1'b0;
-              end
-              if(_zz_187) begin
-                statuses_5_busy <= 1'b0;
-              end
-              if(_zz_188) begin
-                statuses_6_busy <= 1'b0;
-              end
-              if(_zz_189) begin
-                statuses_7_busy <= 1'b0;
-              end
-              if(_zz_182) begin
+              if(_zz_146) begin
                 statuses_0_done <= 1'b0;
               end
-              if(_zz_183) begin
+              if(_zz_147) begin
                 statuses_1_done <= 1'b0;
               end
-              if(_zz_184) begin
+              if(_zz_148) begin
                 statuses_2_done <= 1'b0;
               end
-              if(_zz_185) begin
+              if(_zz_149) begin
                 statuses_3_done <= 1'b0;
               end
-              if(_zz_186) begin
-                statuses_4_done <= 1'b0;
-              end
-              if(_zz_187) begin
-                statuses_5_done <= 1'b0;
-              end
-              if(_zz_188) begin
-                statuses_6_done <= 1'b0;
-              end
-              if(_zz_189) begin
-                statuses_7_done <= 1'b0;
-              end
-              if(_zz_182) begin
+              if(_zz_146) begin
                 statuses_0_hasException <= 1'b0;
               end
-              if(_zz_183) begin
+              if(_zz_147) begin
                 statuses_1_hasException <= 1'b0;
               end
-              if(_zz_184) begin
+              if(_zz_148) begin
                 statuses_2_hasException <= 1'b0;
               end
-              if(_zz_185) begin
+              if(_zz_149) begin
                 statuses_3_hasException <= 1'b0;
-              end
-              if(_zz_186) begin
-                statuses_4_hasException <= 1'b0;
-              end
-              if(_zz_187) begin
-                statuses_5_hasException <= 1'b0;
-              end
-              if(_zz_188) begin
-                statuses_6_hasException <= 1'b0;
-              end
-              if(_zz_189) begin
-                statuses_7_hasException <= 1'b0;
-              end
-            end
-            if(when_ReorderBuffer_l439_4) begin
-              if(_zz_191) begin
-                statuses_0_busy <= 1'b0;
-              end
-              if(_zz_192) begin
-                statuses_1_busy <= 1'b0;
-              end
-              if(_zz_193) begin
-                statuses_2_busy <= 1'b0;
-              end
-              if(_zz_194) begin
-                statuses_3_busy <= 1'b0;
-              end
-              if(_zz_195) begin
-                statuses_4_busy <= 1'b0;
-              end
-              if(_zz_196) begin
-                statuses_5_busy <= 1'b0;
-              end
-              if(_zz_197) begin
-                statuses_6_busy <= 1'b0;
-              end
-              if(_zz_198) begin
-                statuses_7_busy <= 1'b0;
-              end
-              if(_zz_191) begin
-                statuses_0_done <= 1'b0;
-              end
-              if(_zz_192) begin
-                statuses_1_done <= 1'b0;
-              end
-              if(_zz_193) begin
-                statuses_2_done <= 1'b0;
-              end
-              if(_zz_194) begin
-                statuses_3_done <= 1'b0;
-              end
-              if(_zz_195) begin
-                statuses_4_done <= 1'b0;
-              end
-              if(_zz_196) begin
-                statuses_5_done <= 1'b0;
-              end
-              if(_zz_197) begin
-                statuses_6_done <= 1'b0;
-              end
-              if(_zz_198) begin
-                statuses_7_done <= 1'b0;
-              end
-              if(_zz_191) begin
-                statuses_0_hasException <= 1'b0;
-              end
-              if(_zz_192) begin
-                statuses_1_hasException <= 1'b0;
-              end
-              if(_zz_193) begin
-                statuses_2_hasException <= 1'b0;
-              end
-              if(_zz_194) begin
-                statuses_3_hasException <= 1'b0;
-              end
-              if(_zz_195) begin
-                statuses_4_hasException <= 1'b0;
-              end
-              if(_zz_196) begin
-                statuses_5_hasException <= 1'b0;
-              end
-              if(_zz_197) begin
-                statuses_6_hasException <= 1'b0;
-              end
-              if(_zz_198) begin
-                statuses_7_hasException <= 1'b0;
-              end
-            end
-            if(when_ReorderBuffer_l439_5) begin
-              if(_zz_200) begin
-                statuses_0_busy <= 1'b0;
-              end
-              if(_zz_201) begin
-                statuses_1_busy <= 1'b0;
-              end
-              if(_zz_202) begin
-                statuses_2_busy <= 1'b0;
-              end
-              if(_zz_203) begin
-                statuses_3_busy <= 1'b0;
-              end
-              if(_zz_204) begin
-                statuses_4_busy <= 1'b0;
-              end
-              if(_zz_205) begin
-                statuses_5_busy <= 1'b0;
-              end
-              if(_zz_206) begin
-                statuses_6_busy <= 1'b0;
-              end
-              if(_zz_207) begin
-                statuses_7_busy <= 1'b0;
-              end
-              if(_zz_200) begin
-                statuses_0_done <= 1'b0;
-              end
-              if(_zz_201) begin
-                statuses_1_done <= 1'b0;
-              end
-              if(_zz_202) begin
-                statuses_2_done <= 1'b0;
-              end
-              if(_zz_203) begin
-                statuses_3_done <= 1'b0;
-              end
-              if(_zz_204) begin
-                statuses_4_done <= 1'b0;
-              end
-              if(_zz_205) begin
-                statuses_5_done <= 1'b0;
-              end
-              if(_zz_206) begin
-                statuses_6_done <= 1'b0;
-              end
-              if(_zz_207) begin
-                statuses_7_done <= 1'b0;
-              end
-              if(_zz_200) begin
-                statuses_0_hasException <= 1'b0;
-              end
-              if(_zz_201) begin
-                statuses_1_hasException <= 1'b0;
-              end
-              if(_zz_202) begin
-                statuses_2_hasException <= 1'b0;
-              end
-              if(_zz_203) begin
-                statuses_3_hasException <= 1'b0;
-              end
-              if(_zz_204) begin
-                statuses_4_hasException <= 1'b0;
-              end
-              if(_zz_205) begin
-                statuses_5_hasException <= 1'b0;
-              end
-              if(_zz_206) begin
-                statuses_6_hasException <= 1'b0;
-              end
-              if(_zz_207) begin
-                statuses_7_hasException <= 1'b0;
-              end
-            end
-            if(when_ReorderBuffer_l439_6) begin
-              if(_zz_209) begin
-                statuses_0_busy <= 1'b0;
-              end
-              if(_zz_210) begin
-                statuses_1_busy <= 1'b0;
-              end
-              if(_zz_211) begin
-                statuses_2_busy <= 1'b0;
-              end
-              if(_zz_212) begin
-                statuses_3_busy <= 1'b0;
-              end
-              if(_zz_213) begin
-                statuses_4_busy <= 1'b0;
-              end
-              if(_zz_214) begin
-                statuses_5_busy <= 1'b0;
-              end
-              if(_zz_215) begin
-                statuses_6_busy <= 1'b0;
-              end
-              if(_zz_216) begin
-                statuses_7_busy <= 1'b0;
-              end
-              if(_zz_209) begin
-                statuses_0_done <= 1'b0;
-              end
-              if(_zz_210) begin
-                statuses_1_done <= 1'b0;
-              end
-              if(_zz_211) begin
-                statuses_2_done <= 1'b0;
-              end
-              if(_zz_212) begin
-                statuses_3_done <= 1'b0;
-              end
-              if(_zz_213) begin
-                statuses_4_done <= 1'b0;
-              end
-              if(_zz_214) begin
-                statuses_5_done <= 1'b0;
-              end
-              if(_zz_215) begin
-                statuses_6_done <= 1'b0;
-              end
-              if(_zz_216) begin
-                statuses_7_done <= 1'b0;
-              end
-              if(_zz_209) begin
-                statuses_0_hasException <= 1'b0;
-              end
-              if(_zz_210) begin
-                statuses_1_hasException <= 1'b0;
-              end
-              if(_zz_211) begin
-                statuses_2_hasException <= 1'b0;
-              end
-              if(_zz_212) begin
-                statuses_3_hasException <= 1'b0;
-              end
-              if(_zz_213) begin
-                statuses_4_hasException <= 1'b0;
-              end
-              if(_zz_214) begin
-                statuses_5_hasException <= 1'b0;
-              end
-              if(_zz_215) begin
-                statuses_6_hasException <= 1'b0;
-              end
-              if(_zz_216) begin
-                statuses_7_hasException <= 1'b0;
-              end
-            end
-            if(when_ReorderBuffer_l439_7) begin
-              if(_zz_218) begin
-                statuses_0_busy <= 1'b0;
-              end
-              if(_zz_219) begin
-                statuses_1_busy <= 1'b0;
-              end
-              if(_zz_220) begin
-                statuses_2_busy <= 1'b0;
-              end
-              if(_zz_221) begin
-                statuses_3_busy <= 1'b0;
-              end
-              if(_zz_222) begin
-                statuses_4_busy <= 1'b0;
-              end
-              if(_zz_223) begin
-                statuses_5_busy <= 1'b0;
-              end
-              if(_zz_224) begin
-                statuses_6_busy <= 1'b0;
-              end
-              if(_zz_225) begin
-                statuses_7_busy <= 1'b0;
-              end
-              if(_zz_218) begin
-                statuses_0_done <= 1'b0;
-              end
-              if(_zz_219) begin
-                statuses_1_done <= 1'b0;
-              end
-              if(_zz_220) begin
-                statuses_2_done <= 1'b0;
-              end
-              if(_zz_221) begin
-                statuses_3_done <= 1'b0;
-              end
-              if(_zz_222) begin
-                statuses_4_done <= 1'b0;
-              end
-              if(_zz_223) begin
-                statuses_5_done <= 1'b0;
-              end
-              if(_zz_224) begin
-                statuses_6_done <= 1'b0;
-              end
-              if(_zz_225) begin
-                statuses_7_done <= 1'b0;
-              end
-              if(_zz_218) begin
-                statuses_0_hasException <= 1'b0;
-              end
-              if(_zz_219) begin
-                statuses_1_hasException <= 1'b0;
-              end
-              if(_zz_220) begin
-                statuses_2_hasException <= 1'b0;
-              end
-              if(_zz_221) begin
-                statuses_3_hasException <= 1'b0;
-              end
-              if(_zz_222) begin
-                statuses_4_hasException <= 1'b0;
-              end
-              if(_zz_223) begin
-                statuses_5_hasException <= 1'b0;
-              end
-              if(_zz_224) begin
-                statuses_6_hasException <= 1'b0;
-              end
-              if(_zz_225) begin
-                statuses_7_hasException <= 1'b0;
               end
             end
           end
@@ -62448,508 +61825,258 @@ module ReorderBuffer (
           end
         endcase
       end
-      `ifndef SYNTHESIS
-        `ifdef FORMAL
-          assert((count_reg == debg_expected_count)); // ReorderBuffer.scala:L476
-        `else
-          if(!(count_reg == debg_expected_count)) begin
-            $display("FAILURE [ROB] FATAL: count_reg (%x) mismatches pointer difference (%x). head=%x, tail=%x", count_reg, debg_expected_count, headPtr_reg, tailPtr_reg); // ReorderBuffer.scala:L476
-            $finish;
-          end
-        `endif
-      `endif
     end
   end
 
   always @(posedge clk) begin
     if(when_ReorderBuffer_l395) begin
-      if(_zz_110) begin
+      if(_zz_106) begin
         statuses_0_isMispredictedBranch <= io_writeback_0_isMispredictedBranch;
       end
-      if(_zz_111) begin
+      if(_zz_107) begin
         statuses_1_isMispredictedBranch <= io_writeback_0_isMispredictedBranch;
       end
-      if(_zz_112) begin
+      if(_zz_108) begin
         statuses_2_isMispredictedBranch <= io_writeback_0_isMispredictedBranch;
       end
-      if(_zz_113) begin
+      if(_zz_109) begin
         statuses_3_isMispredictedBranch <= io_writeback_0_isMispredictedBranch;
       end
-      if(_zz_114) begin
-        statuses_4_isMispredictedBranch <= io_writeback_0_isMispredictedBranch;
-      end
-      if(_zz_115) begin
-        statuses_5_isMispredictedBranch <= io_writeback_0_isMispredictedBranch;
-      end
-      if(_zz_116) begin
-        statuses_6_isMispredictedBranch <= io_writeback_0_isMispredictedBranch;
-      end
-      if(_zz_117) begin
-        statuses_7_isMispredictedBranch <= io_writeback_0_isMispredictedBranch;
-      end
-      if(_zz_110) begin
+      if(_zz_106) begin
         statuses_0_targetPc <= io_writeback_0_targetPc;
       end
-      if(_zz_111) begin
+      if(_zz_107) begin
         statuses_1_targetPc <= io_writeback_0_targetPc;
       end
-      if(_zz_112) begin
+      if(_zz_108) begin
         statuses_2_targetPc <= io_writeback_0_targetPc;
       end
-      if(_zz_113) begin
+      if(_zz_109) begin
         statuses_3_targetPc <= io_writeback_0_targetPc;
       end
-      if(_zz_114) begin
-        statuses_4_targetPc <= io_writeback_0_targetPc;
-      end
-      if(_zz_115) begin
-        statuses_5_targetPc <= io_writeback_0_targetPc;
-      end
-      if(_zz_116) begin
-        statuses_6_targetPc <= io_writeback_0_targetPc;
-      end
-      if(_zz_117) begin
-        statuses_7_targetPc <= io_writeback_0_targetPc;
-      end
-      if(_zz_110) begin
+      if(_zz_106) begin
         statuses_0_isTaken <= io_writeback_0_isTaken;
       end
-      if(_zz_111) begin
+      if(_zz_107) begin
         statuses_1_isTaken <= io_writeback_0_isTaken;
       end
-      if(_zz_112) begin
+      if(_zz_108) begin
         statuses_2_isTaken <= io_writeback_0_isTaken;
       end
-      if(_zz_113) begin
+      if(_zz_109) begin
         statuses_3_isTaken <= io_writeback_0_isTaken;
       end
-      if(_zz_114) begin
-        statuses_4_isTaken <= io_writeback_0_isTaken;
-      end
-      if(_zz_115) begin
-        statuses_5_isTaken <= io_writeback_0_isTaken;
-      end
-      if(_zz_116) begin
-        statuses_6_isTaken <= io_writeback_0_isTaken;
-      end
-      if(_zz_117) begin
-        statuses_7_isTaken <= io_writeback_0_isTaken;
-      end
-      if(_zz_110) begin
+      if(_zz_106) begin
         statuses_0_result <= io_writeback_0_result;
       end
-      if(_zz_111) begin
+      if(_zz_107) begin
         statuses_1_result <= io_writeback_0_result;
       end
-      if(_zz_112) begin
+      if(_zz_108) begin
         statuses_2_result <= io_writeback_0_result;
       end
-      if(_zz_113) begin
+      if(_zz_109) begin
         statuses_3_result <= io_writeback_0_result;
-      end
-      if(_zz_114) begin
-        statuses_4_result <= io_writeback_0_result;
-      end
-      if(_zz_115) begin
-        statuses_5_result <= io_writeback_0_result;
-      end
-      if(_zz_116) begin
-        statuses_6_result <= io_writeback_0_result;
-      end
-      if(_zz_117) begin
-        statuses_7_result <= io_writeback_0_result;
       end
     end
     if(when_ReorderBuffer_l395_1) begin
-      if(_zz_119) begin
+      if(_zz_111) begin
         statuses_0_isMispredictedBranch <= io_writeback_1_isMispredictedBranch;
       end
-      if(_zz_120) begin
+      if(_zz_112) begin
         statuses_1_isMispredictedBranch <= io_writeback_1_isMispredictedBranch;
       end
-      if(_zz_121) begin
+      if(_zz_113) begin
         statuses_2_isMispredictedBranch <= io_writeback_1_isMispredictedBranch;
       end
-      if(_zz_122) begin
+      if(_zz_114) begin
         statuses_3_isMispredictedBranch <= io_writeback_1_isMispredictedBranch;
       end
-      if(_zz_123) begin
-        statuses_4_isMispredictedBranch <= io_writeback_1_isMispredictedBranch;
-      end
-      if(_zz_124) begin
-        statuses_5_isMispredictedBranch <= io_writeback_1_isMispredictedBranch;
-      end
-      if(_zz_125) begin
-        statuses_6_isMispredictedBranch <= io_writeback_1_isMispredictedBranch;
-      end
-      if(_zz_126) begin
-        statuses_7_isMispredictedBranch <= io_writeback_1_isMispredictedBranch;
-      end
-      if(_zz_119) begin
+      if(_zz_111) begin
         statuses_0_targetPc <= io_writeback_1_targetPc;
       end
-      if(_zz_120) begin
+      if(_zz_112) begin
         statuses_1_targetPc <= io_writeback_1_targetPc;
       end
-      if(_zz_121) begin
+      if(_zz_113) begin
         statuses_2_targetPc <= io_writeback_1_targetPc;
       end
-      if(_zz_122) begin
+      if(_zz_114) begin
         statuses_3_targetPc <= io_writeback_1_targetPc;
       end
-      if(_zz_123) begin
-        statuses_4_targetPc <= io_writeback_1_targetPc;
-      end
-      if(_zz_124) begin
-        statuses_5_targetPc <= io_writeback_1_targetPc;
-      end
-      if(_zz_125) begin
-        statuses_6_targetPc <= io_writeback_1_targetPc;
-      end
-      if(_zz_126) begin
-        statuses_7_targetPc <= io_writeback_1_targetPc;
-      end
-      if(_zz_119) begin
+      if(_zz_111) begin
         statuses_0_isTaken <= io_writeback_1_isTaken;
       end
-      if(_zz_120) begin
+      if(_zz_112) begin
         statuses_1_isTaken <= io_writeback_1_isTaken;
       end
-      if(_zz_121) begin
+      if(_zz_113) begin
         statuses_2_isTaken <= io_writeback_1_isTaken;
       end
-      if(_zz_122) begin
+      if(_zz_114) begin
         statuses_3_isTaken <= io_writeback_1_isTaken;
       end
-      if(_zz_123) begin
-        statuses_4_isTaken <= io_writeback_1_isTaken;
-      end
-      if(_zz_124) begin
-        statuses_5_isTaken <= io_writeback_1_isTaken;
-      end
-      if(_zz_125) begin
-        statuses_6_isTaken <= io_writeback_1_isTaken;
-      end
-      if(_zz_126) begin
-        statuses_7_isTaken <= io_writeback_1_isTaken;
-      end
-      if(_zz_119) begin
+      if(_zz_111) begin
         statuses_0_result <= io_writeback_1_result;
       end
-      if(_zz_120) begin
+      if(_zz_112) begin
         statuses_1_result <= io_writeback_1_result;
       end
-      if(_zz_121) begin
+      if(_zz_113) begin
         statuses_2_result <= io_writeback_1_result;
       end
-      if(_zz_122) begin
+      if(_zz_114) begin
         statuses_3_result <= io_writeback_1_result;
-      end
-      if(_zz_123) begin
-        statuses_4_result <= io_writeback_1_result;
-      end
-      if(_zz_124) begin
-        statuses_5_result <= io_writeback_1_result;
-      end
-      if(_zz_125) begin
-        statuses_6_result <= io_writeback_1_result;
-      end
-      if(_zz_126) begin
-        statuses_7_result <= io_writeback_1_result;
       end
     end
     if(when_ReorderBuffer_l395_2) begin
-      if(_zz_128) begin
+      if(_zz_116) begin
         statuses_0_isMispredictedBranch <= io_writeback_2_isMispredictedBranch;
       end
-      if(_zz_129) begin
+      if(_zz_117) begin
         statuses_1_isMispredictedBranch <= io_writeback_2_isMispredictedBranch;
       end
-      if(_zz_130) begin
+      if(_zz_118) begin
         statuses_2_isMispredictedBranch <= io_writeback_2_isMispredictedBranch;
       end
-      if(_zz_131) begin
+      if(_zz_119) begin
         statuses_3_isMispredictedBranch <= io_writeback_2_isMispredictedBranch;
       end
-      if(_zz_132) begin
-        statuses_4_isMispredictedBranch <= io_writeback_2_isMispredictedBranch;
-      end
-      if(_zz_133) begin
-        statuses_5_isMispredictedBranch <= io_writeback_2_isMispredictedBranch;
-      end
-      if(_zz_134) begin
-        statuses_6_isMispredictedBranch <= io_writeback_2_isMispredictedBranch;
-      end
-      if(_zz_135) begin
-        statuses_7_isMispredictedBranch <= io_writeback_2_isMispredictedBranch;
-      end
-      if(_zz_128) begin
+      if(_zz_116) begin
         statuses_0_targetPc <= io_writeback_2_targetPc;
       end
-      if(_zz_129) begin
+      if(_zz_117) begin
         statuses_1_targetPc <= io_writeback_2_targetPc;
       end
-      if(_zz_130) begin
+      if(_zz_118) begin
         statuses_2_targetPc <= io_writeback_2_targetPc;
       end
-      if(_zz_131) begin
+      if(_zz_119) begin
         statuses_3_targetPc <= io_writeback_2_targetPc;
       end
-      if(_zz_132) begin
-        statuses_4_targetPc <= io_writeback_2_targetPc;
-      end
-      if(_zz_133) begin
-        statuses_5_targetPc <= io_writeback_2_targetPc;
-      end
-      if(_zz_134) begin
-        statuses_6_targetPc <= io_writeback_2_targetPc;
-      end
-      if(_zz_135) begin
-        statuses_7_targetPc <= io_writeback_2_targetPc;
-      end
-      if(_zz_128) begin
+      if(_zz_116) begin
         statuses_0_isTaken <= io_writeback_2_isTaken;
       end
-      if(_zz_129) begin
+      if(_zz_117) begin
         statuses_1_isTaken <= io_writeback_2_isTaken;
       end
-      if(_zz_130) begin
+      if(_zz_118) begin
         statuses_2_isTaken <= io_writeback_2_isTaken;
       end
-      if(_zz_131) begin
+      if(_zz_119) begin
         statuses_3_isTaken <= io_writeback_2_isTaken;
       end
-      if(_zz_132) begin
-        statuses_4_isTaken <= io_writeback_2_isTaken;
-      end
-      if(_zz_133) begin
-        statuses_5_isTaken <= io_writeback_2_isTaken;
-      end
-      if(_zz_134) begin
-        statuses_6_isTaken <= io_writeback_2_isTaken;
-      end
-      if(_zz_135) begin
-        statuses_7_isTaken <= io_writeback_2_isTaken;
-      end
-      if(_zz_128) begin
+      if(_zz_116) begin
         statuses_0_result <= io_writeback_2_result;
       end
-      if(_zz_129) begin
+      if(_zz_117) begin
         statuses_1_result <= io_writeback_2_result;
       end
-      if(_zz_130) begin
+      if(_zz_118) begin
         statuses_2_result <= io_writeback_2_result;
       end
-      if(_zz_131) begin
+      if(_zz_119) begin
         statuses_3_result <= io_writeback_2_result;
-      end
-      if(_zz_132) begin
-        statuses_4_result <= io_writeback_2_result;
-      end
-      if(_zz_133) begin
-        statuses_5_result <= io_writeback_2_result;
-      end
-      if(_zz_134) begin
-        statuses_6_result <= io_writeback_2_result;
-      end
-      if(_zz_135) begin
-        statuses_7_result <= io_writeback_2_result;
       end
     end
     if(when_ReorderBuffer_l395_3) begin
-      if(_zz_137) begin
+      if(_zz_121) begin
         statuses_0_isMispredictedBranch <= io_writeback_3_isMispredictedBranch;
       end
-      if(_zz_138) begin
+      if(_zz_122) begin
         statuses_1_isMispredictedBranch <= io_writeback_3_isMispredictedBranch;
       end
-      if(_zz_139) begin
+      if(_zz_123) begin
         statuses_2_isMispredictedBranch <= io_writeback_3_isMispredictedBranch;
       end
-      if(_zz_140) begin
+      if(_zz_124) begin
         statuses_3_isMispredictedBranch <= io_writeback_3_isMispredictedBranch;
       end
-      if(_zz_141) begin
-        statuses_4_isMispredictedBranch <= io_writeback_3_isMispredictedBranch;
-      end
-      if(_zz_142) begin
-        statuses_5_isMispredictedBranch <= io_writeback_3_isMispredictedBranch;
-      end
-      if(_zz_143) begin
-        statuses_6_isMispredictedBranch <= io_writeback_3_isMispredictedBranch;
-      end
-      if(_zz_144) begin
-        statuses_7_isMispredictedBranch <= io_writeback_3_isMispredictedBranch;
-      end
-      if(_zz_137) begin
+      if(_zz_121) begin
         statuses_0_targetPc <= io_writeback_3_targetPc;
       end
-      if(_zz_138) begin
+      if(_zz_122) begin
         statuses_1_targetPc <= io_writeback_3_targetPc;
       end
-      if(_zz_139) begin
+      if(_zz_123) begin
         statuses_2_targetPc <= io_writeback_3_targetPc;
       end
-      if(_zz_140) begin
+      if(_zz_124) begin
         statuses_3_targetPc <= io_writeback_3_targetPc;
       end
-      if(_zz_141) begin
-        statuses_4_targetPc <= io_writeback_3_targetPc;
-      end
-      if(_zz_142) begin
-        statuses_5_targetPc <= io_writeback_3_targetPc;
-      end
-      if(_zz_143) begin
-        statuses_6_targetPc <= io_writeback_3_targetPc;
-      end
-      if(_zz_144) begin
-        statuses_7_targetPc <= io_writeback_3_targetPc;
-      end
-      if(_zz_137) begin
+      if(_zz_121) begin
         statuses_0_isTaken <= io_writeback_3_isTaken;
       end
-      if(_zz_138) begin
+      if(_zz_122) begin
         statuses_1_isTaken <= io_writeback_3_isTaken;
       end
-      if(_zz_139) begin
+      if(_zz_123) begin
         statuses_2_isTaken <= io_writeback_3_isTaken;
       end
-      if(_zz_140) begin
+      if(_zz_124) begin
         statuses_3_isTaken <= io_writeback_3_isTaken;
       end
-      if(_zz_141) begin
-        statuses_4_isTaken <= io_writeback_3_isTaken;
-      end
-      if(_zz_142) begin
-        statuses_5_isTaken <= io_writeback_3_isTaken;
-      end
-      if(_zz_143) begin
-        statuses_6_isTaken <= io_writeback_3_isTaken;
-      end
-      if(_zz_144) begin
-        statuses_7_isTaken <= io_writeback_3_isTaken;
-      end
-      if(_zz_137) begin
+      if(_zz_121) begin
         statuses_0_result <= io_writeback_3_result;
       end
-      if(_zz_138) begin
+      if(_zz_122) begin
         statuses_1_result <= io_writeback_3_result;
       end
-      if(_zz_139) begin
+      if(_zz_123) begin
         statuses_2_result <= io_writeback_3_result;
       end
-      if(_zz_140) begin
+      if(_zz_124) begin
         statuses_3_result <= io_writeback_3_result;
-      end
-      if(_zz_141) begin
-        statuses_4_result <= io_writeback_3_result;
-      end
-      if(_zz_142) begin
-        statuses_5_result <= io_writeback_3_result;
-      end
-      if(_zz_143) begin
-        statuses_6_result <= io_writeback_3_result;
-      end
-      if(_zz_144) begin
-        statuses_7_result <= io_writeback_3_result;
       end
     end
     if(when_ReorderBuffer_l395_4) begin
-      if(_zz_146) begin
+      if(_zz_126) begin
         statuses_0_isMispredictedBranch <= io_writeback_4_isMispredictedBranch;
       end
-      if(_zz_147) begin
+      if(_zz_127) begin
         statuses_1_isMispredictedBranch <= io_writeback_4_isMispredictedBranch;
       end
-      if(_zz_148) begin
+      if(_zz_128) begin
         statuses_2_isMispredictedBranch <= io_writeback_4_isMispredictedBranch;
       end
-      if(_zz_149) begin
+      if(_zz_129) begin
         statuses_3_isMispredictedBranch <= io_writeback_4_isMispredictedBranch;
       end
-      if(_zz_150) begin
-        statuses_4_isMispredictedBranch <= io_writeback_4_isMispredictedBranch;
-      end
-      if(_zz_151) begin
-        statuses_5_isMispredictedBranch <= io_writeback_4_isMispredictedBranch;
-      end
-      if(_zz_152) begin
-        statuses_6_isMispredictedBranch <= io_writeback_4_isMispredictedBranch;
-      end
-      if(_zz_153) begin
-        statuses_7_isMispredictedBranch <= io_writeback_4_isMispredictedBranch;
-      end
-      if(_zz_146) begin
+      if(_zz_126) begin
         statuses_0_targetPc <= io_writeback_4_targetPc;
       end
-      if(_zz_147) begin
+      if(_zz_127) begin
         statuses_1_targetPc <= io_writeback_4_targetPc;
       end
-      if(_zz_148) begin
+      if(_zz_128) begin
         statuses_2_targetPc <= io_writeback_4_targetPc;
       end
-      if(_zz_149) begin
+      if(_zz_129) begin
         statuses_3_targetPc <= io_writeback_4_targetPc;
       end
-      if(_zz_150) begin
-        statuses_4_targetPc <= io_writeback_4_targetPc;
-      end
-      if(_zz_151) begin
-        statuses_5_targetPc <= io_writeback_4_targetPc;
-      end
-      if(_zz_152) begin
-        statuses_6_targetPc <= io_writeback_4_targetPc;
-      end
-      if(_zz_153) begin
-        statuses_7_targetPc <= io_writeback_4_targetPc;
-      end
-      if(_zz_146) begin
+      if(_zz_126) begin
         statuses_0_isTaken <= io_writeback_4_isTaken;
       end
-      if(_zz_147) begin
+      if(_zz_127) begin
         statuses_1_isTaken <= io_writeback_4_isTaken;
       end
-      if(_zz_148) begin
+      if(_zz_128) begin
         statuses_2_isTaken <= io_writeback_4_isTaken;
       end
-      if(_zz_149) begin
+      if(_zz_129) begin
         statuses_3_isTaken <= io_writeback_4_isTaken;
       end
-      if(_zz_150) begin
-        statuses_4_isTaken <= io_writeback_4_isTaken;
-      end
-      if(_zz_151) begin
-        statuses_5_isTaken <= io_writeback_4_isTaken;
-      end
-      if(_zz_152) begin
-        statuses_6_isTaken <= io_writeback_4_isTaken;
-      end
-      if(_zz_153) begin
-        statuses_7_isTaken <= io_writeback_4_isTaken;
-      end
-      if(_zz_146) begin
+      if(_zz_126) begin
         statuses_0_result <= io_writeback_4_result;
       end
-      if(_zz_147) begin
+      if(_zz_127) begin
         statuses_1_result <= io_writeback_4_result;
       end
-      if(_zz_148) begin
+      if(_zz_128) begin
         statuses_2_result <= io_writeback_4_result;
       end
-      if(_zz_149) begin
+      if(_zz_129) begin
         statuses_3_result <= io_writeback_4_result;
-      end
-      if(_zz_150) begin
-        statuses_4_result <= io_writeback_4_result;
-      end
-      if(_zz_151) begin
-        statuses_5_result <= io_writeback_4_result;
-      end
-      if(_zz_152) begin
-        statuses_6_result <= io_writeback_4_result;
-      end
-      if(_zz_153) begin
-        statuses_7_result <= io_writeback_4_result;
       end
     end
   end
@@ -65246,7 +64373,7 @@ endmodule
 
 module IntAlu (
   input  wire          io_iqEntryIn_valid,
-  input  wire [3:0]    io_iqEntryIn_payload_robPtr,
+  input  wire [2:0]    io_iqEntryIn_payload_robPtr,
   input  wire [31:0]   io_iqEntryIn_payload_pc,
   input  wire [5:0]    io_iqEntryIn_payload_physDest_idx,
   input  wire          io_iqEntryIn_payload_physDestIsFpr,
@@ -65279,7 +64406,7 @@ module IntAlu (
   output reg  [31:0]   io_resultOut_payload_data,
   output reg  [5:0]    io_resultOut_payload_physDest_idx,
   output reg           io_resultOut_payload_writesToPhysReg,
-  output reg  [3:0]    io_resultOut_payload_robPtr,
+  output reg  [2:0]    io_resultOut_payload_robPtr,
   output reg           io_resultOut_payload_hasException,
   output reg  [0:0]    io_resultOut_payload_exceptionCode,
   input  wire          clk,
@@ -65457,7 +64584,7 @@ module IntAlu (
   end
 
   always @(*) begin
-    io_resultOut_payload_robPtr = 4'b0000;
+    io_resultOut_payload_robPtr = 3'b000;
     if(io_iqEntryIn_valid) begin
       io_resultOut_payload_robPtr = io_iqEntryIn_payload_robPtr;
     end
